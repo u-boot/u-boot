@@ -91,6 +91,7 @@
 #define CONFIG_COMMANDS	(CONFIG_CMD_DFL   \
 			 | CFG_CMD_DHCP   \
 			 | CFG_CMD_IMMAP  \
+			 | CFG_CMD_JFFS2  \
 			 | CFG_CMD_MII    \
 			 | CFG_CMD_PCMCIA \
 			 | CFG_CMD_PING   \
@@ -166,14 +167,24 @@
  * the maximum mapped by the Linux kernel during initialization.
  */
 #define	CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux	*/
+
+#define CFG_MONITOR_BASE	TEXT_BASE
+#define	CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 KB for monitor	*/
+
+#ifdef CONFIG_BZIP2
+#define	CFG_MALLOC_LEN		(2500 << 10)	/* Reserve ~2.5 MB for malloc()	*/
+#else
+#define	CFG_MALLOC_LEN		(384 << 10)	/* Reserve 384 kB for malloc()	*/
+#endif /* CONFIG_BZIP2 */
+
 /*-----------------------------------------------------------------------
  * Flash organization
  */
-#define CFG_FLASH_BASE		TEXT_BASE
-#define CFG_FLASH_SIZE		((uint)(8 * 1024 * 1024))	/* max 8Mbyte */
+#define CFG_FLASH_BASE		CFG_MONITOR_BASE
+#define CFG_FLASH_SIZE		((uint)(8 * 1024 * 1024))	/* max 8Mbyte	*/
 
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	16      /* max number of sectors on one chip	*/
+#define CFG_MAX_FLASH_BANKS	4	/* max number of memory banks		*/
+#define CFG_MAX_FLASH_SECT	8	/* max number of sectors on one chip	*/
 
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
@@ -183,14 +194,14 @@
 #define CFG_ENV_OFFSET		CFG_ENV_SECT_SIZE
 #define	CFG_ENV_SIZE		0x4000	/* Total Size of Environment		*/
 
-#define CFG_MONITOR_BASE	CFG_FLASH_BASE
-#define	CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 KB for monitor	*/
+#define	CFG_DIRECT_FLASH_TFTP
 
-#ifdef CONFIG_BZIP2
-#define	CFG_MALLOC_LEN		(2500 << 10)	/* Reserve ~2.5 MB for malloc()	*/
-#else
-#define	CFG_MALLOC_LEN		(384 << 10)	/* Reserve 384 kB for malloc()	*/
-#endif /* CONFIG_BZIP2 */
+#if (CONFIG_COMMANDS & CFG_CMD_JFFS2)
+#define CFG_JFFS2_FIRST_BANK	0
+#define CFG_JFFS2_NUM_BANKS	CFG_MAX_FLASH_BANKS
+#define CFG_JFFS2_FIRST_SECTOR  4
+#define CFG_JFFS2_SORT_FRAGMENTS
+#endif /* CFG_CMD_JFFS2 */
 
 /*-----------------------------------------------------------------------
  * Cache Configuration
@@ -352,6 +363,7 @@
 #define BCSR1_PCCVCCON		 BCSR1_PCCVCC0
 
 #define BCSR2_FLASH_PD_MASK      ((uint)0xF0000000)
+#define BCSR2_FLASH_PD_SHIFT     28
 #define BCSR2_DRAM_PD_MASK       ((uint)0x07800000)
 #define BCSR2_DRAM_PD_SHIFT      23
 #define BCSR2_EXTTOLI_MASK       ((uint)0x00780000)

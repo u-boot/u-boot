@@ -52,7 +52,7 @@ SECTIONS
   {
     cpu/mpc8xx/start.o		(.text)
 
-    . = DEFINED(env_offset) ? env_offset : .;
+    /*. = DEFINED(env_offset) ? env_offset : .;*/
     common/environment.o	(.ppcenv)
 
     *(.text)
