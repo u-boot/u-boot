@@ -19,22 +19,23 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
-#
 
 include $(TOPDIR)/config.mk
 
-CFLAGS   += -I../ml300 -I../common -I../xilinx_enet
+CFLAGS   += -I../ml300 -I../common -I../xilinx_enet -I../xilinx_iic
 
 LIB	= lib$(BOARD).a
 
-OBJS	= $(BOARD).o serial.o \
-	  ../xilinx_enet/emac_adapter.o ../xilinx_enet/xemac.o \
+OBJS	= $(BOARD).o \
+	  serial.o \
+	  ../xilinx_enet/emac_adapter.o  ../xilinx_enet/xemac.o \
 	  ../xilinx_enet/xemac_options.o ../xilinx_enet/xemac_polled.o \
 	  ../xilinx_enet/xemac_intr.o ../xilinx_enet/xemac_g.o \
-	  ../xilinx_enet/xemac_intr_dma.o \
+	  ../xilinx_enet/xemac_intr_dma.o ../xilinx_iic/iic_adapter.o \
+	  ../xilinx_iic/xiic_l.o ../common/xipif_v1_23_b.o \
 	  ../common/xbasic_types.o ../common/xdma_channel.o \
 	  ../common/xdma_channel_sg.o ../common/xpacket_fifo_v1_00_b.o \
-	  ../common/xversion.o
+	  ../common/xversion.o \
 
 SOBJS	= init.o
 

@@ -42,7 +42,11 @@ BEGIN ARRAY connected_periphs PROPERTY desc = "Peripherals connected to U-Boot";
 PROPERTY size = 0;
 PARAM name = periph_name, desc = "Name of Peripheral connected", type = string;
 END ARRAY
-    PARAMETER name = TARGET_DIR, desc =
-    "Target Directory for U-Boot BSP", type = string;
+    PARAMETER name = TARGET_DIR, desc = "Target Directory for U-Boot BSP", type = string;
+
+# location of persistent storage in the IIC EEPROM (defaults are set for ML300)
+PARAMETER name = IIC_PERSISTENT_BASEADDR, desc = "Start of persistent storage block in the EEPROM address space", type = int, default = 1024;
+PARAMETER name = IIC_PERSISTENT_HIGHADDR, desc = "End of persistent storage block in the EEPROM address space", type = int, default = 2047;
+PARAMETER name = IIC_PERSISTENT_EEPROMADDR, desc = "Address of the EEPROM on the IIC bus", type = int, default = 0xA0;
 
 END LIBRARY

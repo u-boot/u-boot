@@ -56,8 +56,10 @@
 static XEmac Emac;
 static char etherrxbuff[PKTSIZE_ALIGN];	/* Receive buffer */
 
-/* hardcoded MAC address for the Xilinx EMAC Core */
+/* hardcoded MAC address for the Xilinx EMAC Core when env is nowhere*/
+#ifdef CFG_ENV_IS_NOWHERE
 static u8 EMACAddr[ENET_ADDR_LENGTH] = { 0x00, 0x0a, 0x35, 0x00, 0x22, 0x01 };
+#endif
 
 static int initialized = 0;
 
@@ -86,8 +88,11 @@ eth_init(bd_t * bis)
 	/* make sure the Emac is stopped before it is started */
 	(void) XEmac_Stop(&Emac);
 
+#ifdef CFG_ENV_IS_NOWHERE
 	memcpy(bis->bi_enetaddr, EMACAddr, 6);
-	Result = XEmac_SetMacAddress(&Emac, EMACAddr);
+#endif
+
+	Result = XEmac_SetMacAddress(&Emac, bis->bi_enetaddr);
 	if (Result != XST_SUCCESS) {
 		return 0;
 	}

@@ -38,7 +38,7 @@
  *     You should have received a copy of the GNU General Public License along
  *     with this program; if not, write to the Free Software Foundation, Inc.,
  *     675 Mass Ave, Cambridge, MA 02139, USA.
-  *
+ *
  */
 
 #ifndef __CONFIG_H
@@ -56,9 +56,21 @@
 #define CONFIG_4xx		1	/* ...member of PPC4xx family	*/
 #define CONFIG_XILINX_ML300	1	/* ...on a Xilinx ML300 board	*/
 
-#define CFG_ENV_IS_NOWHERE	1	/* environment is in RAM */
+#define CFG_ENV_IS_IN_EEPROM	1	/* environment is in EEPROM */
+
+/* following are used only if env is in EEPROM */
+#ifdef	CFG_ENV_IS_IN_EEPROM
+#define CFG_I2C_EEPROM_ADDR	XPAR_PERSISTENT_0_IIC_0_EEPROMADDR
+#define CFG_I2C_EEPROM_ADDR_LEN 1
+#define CFG_ENV_OFFSET		XPAR_PERSISTENT_0_IIC_0_BASEADDR
+#define CONFIG_MISC_INIT_R	1	/* used to call out convert_env() */
+#define CONFIG_ENV_OVERWRITE	1	/* allow users to update ethaddr and serial# */
+#endif
+
+#include "../board/xilinx/ml300/xparameters.h"
+
 #define CFG_NO_FLASH		1	/* no flash */
-#define CFG_ENV_SIZE		0x2000
+#define CFG_ENV_SIZE		XPAR_PERSISTENT_0_IIC_0_HIGHADDR - XPAR_PERSISTENT_0_IIC_0_BASEADDR + 1
 #define CONFIG_BAUDRATE		9600
 #define CONFIG_BOOTDELAY	3	/* autoboot after 3 seconds	*/
 

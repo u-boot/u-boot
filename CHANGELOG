@@ -2,6 +2,23 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Sean Chang, 9 Aug 2004:
+  - Added I2C support for ML300.
+  - Added support for ML300 to read out its environment information
+    stored on the EEPROM.
+  - Added support to use board specific parameters as part of
+    U-Boot's environment information.
+  - Updated MLD files to support configuration for new features
+    above.
+
+* Patches by Travis Sawyer, 5 Aug 2004:
+  - Remove incorrect bridge settings for eth group 6
+  - Add call to setup bridge in ppc_440x_eth_initialize
+  - Fix ppc_440x_eth_init to reset the phy only if its the
+    first time through, otherwise, just check the phy for the
+    autonegotiated speed/duplex.  This allows the use of netconsole
+  - only print the speed/duplex the first time the phy is reset.
+
 * Patch by Shlomo Kut, 29 Mar 2004:
   Add support for MKS Instruments "Quantum" board
 

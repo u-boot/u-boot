@@ -76,12 +76,18 @@ proc generate {libname} {
 		xredefine_uartns550 $drv "xparameters.h"
 	    }  elseif {[string compare -nocase $drvname "emac"] == 0} {
 		xredefine_emac $drv "xparameters.h"
+	    }  elseif {[string compare -nocase $drvname "iic"] == 0} {
+		xredefine_iic $drv "xparameters.h"
 	    }
 	}
     }
     
     # define core_clock
     xredefine_params $libname "xparameters.h" "CORE_CLOCK_FREQ_HZ"
+
+    # define the values for the persistent storage in IIC
+    xredefine_params $libname "xparameters.h" "IIC_PERSISTENT_BASEADDR" "IIC_PERSISTENT_HIGHADDR" "IIC_PERSISTENT_EEPROMADDR"
+
 }
 
 proc xget_corefreq {} {
@@ -117,7 +123,16 @@ proc xredefine_params {handle file_name args} {
 	
 	if {$value != ""} {
 	    set value [xformat_addr_string $value $arg]
-	    set name [string toupper $arg]
+
+	    if {[string compare -nocase $arg "IIC_PERSISTENT_BASEADDR"] == 0} {
+		set name "PERSISTENT_0_IIC_0_BASEADDR"
+	    } elseif {[string compare -nocase $arg "IIC_PERSISTENT_HIGHADDR"] == 0} {
+		set name "PERSISTENT_0_IIC_0_HIGHADDR"
+	    } elseif {[string compare -nocase $arg "IIC_PERSISTENT_EEPROMADDR"] == 0} {
+		set name "PERSISTENT_0_IIC_0_EEPROMADDR"
+	    } else {
+		set name [string toupper $arg]
+	    }
 	    set name [format "XPAR_%s" $name]
 	    puts $file_handle "#define $name $value"
 	}
@@ -138,6 +153,11 @@ proc xredefine_emac {drvhandle file_name} {
     
     xredefine_include_file $drvhandle $file_name "emac" "C_BASEADDR" "C_HIGHADDR" "C_DMA_PRESENT" "C_MII_EXIST" "C_ERR_COUNT_EXIST" "DEVICE_ID"
     
+}
+
+proc xredefine_iic {drvhandle file_name} {
+    xredefine_include_file $drvhandle $file_name "iic" "C_BASEADDR" "C_HIGHADDR" "C_TEN_BIT_ADR" "DEVICE_ID"
+
 }
 
 #######################
@@ -221,6 +241,8 @@ proc post_generate {lib_handle} {
 	
 	if {[string compare -nocase $drvname "emac"] == 0} {
 	    xcopy_emac $drv $dirname
+	} elseif {[string compare -nocase $drvname "iic"] == 0} {
+	    xcopy_iic $drv $dirname
 	}
     }
     
@@ -265,6 +287,11 @@ proc xcopy_commonfiles {} {
 proc xcopy_emac {drv_handle dirname} {
     set emac "board/xilinx/xilinx_enet"
     xcopy_dir $dirname $emac
+}
+
+proc xcopy_iic {drv_handle dirname} {
+    set iic "board/xilinx/xilinx_iic"
+    xcopy_dir $dirname $iic
 }
 
 proc xcopy_dir {srcdir dstdir} {

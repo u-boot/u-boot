@@ -42,6 +42,10 @@
 #include <asm/processor.h>
 #include "xparameters.h"
 
+#ifdef CFG_ENV_IS_IN_EEPROM
+extern void convert_env(void);
+#endif
+
 int
 board_pre_init(void)
 {
@@ -51,22 +55,25 @@ board_pre_init(void)
 int
 checkboard(void)
 {
-	unsigned char *s = getenv("serial#");
-	unsigned char *e;
+	uchar tmp[64];		/* long enough for environment variables */
+	uchar *s, *e;
+	int i = getenv_r("L", tmp, sizeof (tmp));
 
-	if (!s || strncmp(s, "ML300", 9)) {
+	if (i < 0) {
 		printf("### No HW ID - assuming ML300");
 	} else {
-		for (e = s; *e; ++e) {
+		for (e = tmp; *e; ++e) {
 			if (*e == ' ')
 				break;
 		}
 
-		for (; s < e; ++s) {
+		printf("### Board Serial# is ");
+
+		for (s = tmp; s < e; ++s) {
 			putc(*s);
 		}
-	}
 
+	}
 	putc('\n');
 
 	return (0);
@@ -107,3 +114,15 @@ get_PCI_freq(void)
 	val = sys_info.freqPCI;
 	return val;
 }
+
+#ifdef CONFIG_MISC_INIT_R
+
+int
+misc_init_r()
+{
+	/* convert env name and value to u-boot standard */
+	convert_env();
+	return 0;
+}
+
+#endif

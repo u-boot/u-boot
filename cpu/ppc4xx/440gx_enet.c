@@ -167,8 +167,6 @@ static void ppc_440x_eth_halt (struct eth_device *dev)
 	/* EMAC RESET */
 	out32 (EMAC_M0 + hw_p->hw_addr, EMAC_M0_SRST);
 
-	hw_p->print_speed = 1;	/* print speed message again next time */
-
 	return;
 }
 
@@ -241,11 +239,9 @@ int ppc_440x_eth_setup_bridge(int devnum, bd_t * bis)
 		zmiifer |= ZMII_FER_SMII << ZMII_FER_V (0);
 		zmiifer |= ZMII_FER_SMII << ZMII_FER_V (1);
 		rmiifer |= RGMII_FER_RGMII << RGMII_FER_V(2);
-		rmiifer |= RGMII_FER_RGMII << RGMII_FER_V(3);
 		bis->bi_phymode[0] = BI_PHYMODE_ZMII;
 		bis->bi_phymode[1] = BI_PHYMODE_ZMII;
 		bis->bi_phymode[2] = BI_PHYMODE_RGMII;
-		bis->bi_phymode[3] = BI_PHYMODE_RGMII;
 		break;
 	case 0:
 	default:
@@ -426,8 +422,12 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 
 	bis->bi_phynum[devnum] = reg;
 
-	/* Reset the phy */
-	miiphy_reset (reg);
+	/*
+	 * Reset the phy, only if its the first time through
+	 * otherwise, just check the speeds & feeds
+	 */
+	if (hw_p->first_init == 0) {
+		miiphy_reset (reg);
 
 #if defined(CONFIG_440_GX)
 #if defined(CONFIG_CIS8201_PHY)
@@ -456,9 +456,10 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 	}
 #endif
 #endif
-	/* Start/Restart autonegotiation */
-	phy_setup_aneg (reg);
-	udelay (1000);
+		/* Start/Restart autonegotiation */
+		phy_setup_aneg (reg);
+		udelay (1000);
+	}
 
 	miiphy_read (reg, PHY_BMSR, &reg_short);
 
@@ -1166,6 +1167,10 @@ int ppc_440x_eth_initialize (bd_t * bis)
 	bis->bi_phymode[1] = 0;
 	bis->bi_phymode[2] = 2;
 	bis->bi_phymode[3] = 2;
+
+#if defined (CONFIG_440_GX)
+	ppc_440x_eth_setup_bridge(0, bis);
+#endif
 
 	for (eth_num = 0; eth_num < EMAC_NUM_DEV; eth_num++) {
 
