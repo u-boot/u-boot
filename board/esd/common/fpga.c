@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2003
+ * (C) Copyright 2001-2004
  * Matthias Fuchs, esd gmbh germany, matthias.fuchs@esd-electronics.com
  * Stefan Roese, esd gmbh germany, stefan.roese@esd-electronics.com
  *
@@ -54,19 +54,42 @@
 #define ERROR_FPGA_PRG_INIT_HIGH -2        /* Timeout after PRG* deasserted */
 #define ERROR_FPGA_PRG_DONE      -3        /* Timeout after programming     */
 
-#define SET_FPGA(data)         out32(GPIO0_OR, data)
+#ifndef SET_FPGA
+# define SET_FPGA(data)         out32(GPIO0_OR, data)
+#endif
 
-#define FPGA_WRITE_1 {                                                    \
-	SET_FPGA(FPGA_PRG |            FPGA_DATA);  /* set clock to 0 */  \
-	SET_FPGA(FPGA_PRG |            FPGA_DATA);  /* set data to 1  */  \
-	SET_FPGA(FPGA_PRG | FPGA_CLK | FPGA_DATA);  /* set clock to 1 */  \
-	SET_FPGA(FPGA_PRG | FPGA_CLK | FPGA_DATA);} /* set data to 1  */
+#ifdef FPGA_PROG_ACTIVE_HIGH
+# define FPGA_PRG_LOW           FPGA_PRG
+# define FPGA_PRG_HIGH          0
+#else
+# define FPGA_PRG_LOW           0
+# define FPGA_PRG_HIGH          FPGA_PRG
+#endif
+
+#define FPGA_CLK_LOW            0
+#define FPGA_CLK_HIGH           FPGA_CLK
+
+#define FPGA_DATA_LOW           0
+#define FPGA_DATA_HIGH          FPGA_DATA
+
+#define FPGA_WRITE_1 {                                                                   \
+	SET_FPGA(FPGA_PRG_HIGH | FPGA_CLK_LOW  | FPGA_DATA_HIGH);  /* set clock to 0 */  \
+	SET_FPGA(FPGA_PRG_HIGH | FPGA_CLK_LOW  | FPGA_DATA_HIGH);  /* set data to 1  */  \
+	SET_FPGA(FPGA_PRG_HIGH | FPGA_CLK_HIGH | FPGA_DATA_HIGH);  /* set clock to 1 */  \
+	SET_FPGA(FPGA_PRG_HIGH | FPGA_CLK_HIGH | FPGA_DATA_HIGH);} /* set data to 1  */
 
 #define FPGA_WRITE_0 {                                                    \
-	SET_FPGA(FPGA_PRG |            FPGA_DATA);  /* set clock to 0 */  \
-	SET_FPGA(FPGA_PRG);                         /* set data to 0  */  \
-	SET_FPGA(FPGA_PRG | FPGA_CLK);              /* set clock to 1 */  \
-	SET_FPGA(FPGA_PRG | FPGA_CLK | FPGA_DATA);} /* set data to 1  */
+	SET_FPGA(FPGA_PRG_HIGH | FPGA_CLK_LOW  | FPGA_DATA_HIGH);  /* set clock to 0 */  \
+	SET_FPGA(FPGA_PRG_HIGH | FPGA_CLK_LOW  | FPGA_DATA_LOW);   /* set data to 0  */  \
+	SET_FPGA(FPGA_PRG_HIGH | FPGA_CLK_HIGH | FPGA_DATA_LOW);   /* set clock to 1 */  \
+	SET_FPGA(FPGA_PRG_HIGH | FPGA_CLK_HIGH | FPGA_DATA_HIGH);} /* set data to 1  */
+
+#ifndef FPGA_DONE_STATE
+# define FPGA_DONE_STATE (in32(GPIO0_IR) & FPGA_DONE)
+#endif
+#ifndef FPGA_INIT_STATE
+# define FPGA_INIT_STATE (in32(GPIO0_IR) & FPGA_INIT)
+#endif
 
 
 static int fpga_boot(unsigned char *fpgadata, int size)
@@ -115,21 +138,23 @@ static int fpga_boot(unsigned char *fpgadata, int size)
   /*
    * Setup port pins for fpga programming
    */
+#ifndef CONFIG_M5249
   out32(GPIO0_ODR, 0x00000000);                                      /* no open drain pins */
   out32(GPIO0_TCR, in32(GPIO0_TCR) | FPGA_PRG | FPGA_CLK | FPGA_DATA); /* setup for output */
-  out32(GPIO0_OR, in32(GPIO0_OR) | FPGA_PRG | FPGA_CLK | FPGA_DATA);   /* set pins to high */
+#endif
+  SET_FPGA(FPGA_PRG_HIGH | FPGA_CLK_HIGH | FPGA_DATA_HIGH);            /* set pins to high */
 
-  DBG("%s, ",((in32(GPIO0_IR) & FPGA_DONE) == 0) ? "NOT DONE" : "DONE" );
-  DBG("%s\n",((in32(GPIO0_IR) & FPGA_INIT) == 0) ? "NOT INIT" : "INIT" );
+  DBG("%s, ",(FPGA_DONE_STATE == 0) ? "NOT DONE" : "DONE" );
+  DBG("%s\n",(FPGA_INIT_STATE == 0) ? "NOT INIT" : "INIT" );
 
   /*
    * Init fpga by asserting and deasserting PROGRAM*
    */
-  SET_FPGA(FPGA_CLK | FPGA_DATA);
+  SET_FPGA(FPGA_PRG_LOW  | FPGA_CLK_HIGH | FPGA_DATA_HIGH);             /* set prog active */
 
   /* Wait for FPGA init line low */
   count = 0;
-  while (in32(GPIO0_IR) & FPGA_INIT)
+  while (FPGA_INIT_STATE)
     {
       udelay(1000); /* wait 1ms */
       /* Check for timeout - 100us max, so use 3ms */
@@ -140,15 +165,15 @@ static int fpga_boot(unsigned char *fpgadata, int size)
 	}
     }
 
-  DBG("%s, ",((in32(GPIO0_IR) & FPGA_DONE) == 0) ? "NOT DONE" : "DONE" );
-  DBG("%s\n",((in32(GPIO0_IR) & FPGA_INIT) == 0) ? "NOT INIT" : "INIT" );
+  DBG("%s, ",(FPGA_DONE_STATE == 0) ? "NOT DONE" : "DONE" );
+  DBG("%s\n",(FPGA_INIT_STATE == 0) ? "NOT INIT" : "INIT" );
 
   /* deassert PROGRAM* */
-  SET_FPGA(FPGA_PRG | FPGA_CLK | FPGA_DATA);
+  SET_FPGA(FPGA_PRG_HIGH | FPGA_CLK_HIGH | FPGA_DATA_HIGH);           /* set prog inactive */
 
   /* Wait for FPGA end of init period .  */
   count = 0;
-  while (!(in32(GPIO0_IR) & FPGA_INIT))
+  while (!(FPGA_INIT_STATE))
     {
       udelay(1000); /* wait 1ms */
       /* Check for timeout */
@@ -159,8 +184,8 @@ static int fpga_boot(unsigned char *fpgadata, int size)
 	}
     }
 
-  DBG("%s, ",((in32(GPIO0_IR) & FPGA_DONE) == 0) ? "NOT DONE" : "DONE" );
-  DBG("%s\n",((in32(GPIO0_IR) & FPGA_INIT) == 0) ? "NOT INIT" : "INIT" );
+  DBG("%s, ",(FPGA_DONE_STATE == 0) ? "NOT DONE" : "DONE" );
+  DBG("%s\n",(FPGA_INIT_STATE == 0) ? "NOT INIT" : "INIT" );
 
   DBG("write configuration data into fpga\n");
   /* write configuration-data into fpga... */
@@ -232,8 +257,8 @@ static int fpga_boot(unsigned char *fpgadata, int size)
     }
 #endif
 
-  DBG("%s, ",((in32(GPIO0_IR) & FPGA_DONE) == 0) ? "NOT DONE" : "DONE" );
-  DBG("%s\n",((in32(GPIO0_IR) & FPGA_INIT) == 0) ? "NOT INIT" : "INIT" );
+  DBG("%s, ",(FPGA_DONE_STATE == 0) ? "NOT DONE" : "DONE" );
+  DBG("%s\n",(FPGA_INIT_STATE == 0) ? "NOT INIT" : "INIT" );
 
   /*
    * Check if fpga's DONE signal - correctly booted ?
@@ -241,7 +266,7 @@ static int fpga_boot(unsigned char *fpgadata, int size)
 
   /* Wait for FPGA end of programming period .  */
   count = 0;
-  while (!(in32(GPIO0_IR) & FPGA_DONE))
+  while (!(FPGA_DONE_STATE))
     {
       udelay(1000); /* wait 1ms */
       /* Check for timeout */

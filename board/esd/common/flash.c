@@ -117,6 +117,7 @@ void flash_print_info  (flash_info_t *info)
 	case FLASH_MAN_AMD:	printf ("AMD ");		break;
 	case FLASH_MAN_FUJ:	printf ("FUJITSU ");		break;
 	case FLASH_MAN_SST:	printf ("SST ");		break;
+	case FLASH_MAN_EXCEL:	printf ("Excel Semiconductor "); break;
 	default:		printf ("Unknown Vendor ");	break;
 	}
 
@@ -150,6 +151,10 @@ void flash_print_info  (flash_info_t *info)
 	case FLASH_SST800A:	printf ("SST39LF/VF800 (8 Mbit, uniform sector size)\n");
 				break;
 	case FLASH_SST160A:	printf ("SST39LF/VF160 (16 Mbit, uniform sector size)\n");
+				break;
+	case FLASH_SST320:	printf ("SST39LF/VF320 (32 Mbit, uniform sector size)\n");
+				break;
+	case FLASH_SST640:	printf ("SST39LF/VF640 (64 Mbit, uniform sector size)\n");
 				break;
 	default:		printf ("Unknown Chip Type\n");
 				break;
@@ -235,6 +240,9 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 	case (CFG_FLASH_WORD_SIZE)SST_MANUFACT:
 		info->flash_id = FLASH_MAN_SST;
 		break;
+	case (CFG_FLASH_WORD_SIZE)EXCEL_MANUFACT:
+		info->flash_id = FLASH_MAN_EXCEL;
+		break;
 	default:
 		info->flash_id = FLASH_UNKNOWN;
 		info->sector_count = 0;
@@ -316,6 +324,7 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 		info->sector_count = 128;
 		info->size = 0x00800000;  break;	/* => 8 MB	*/
 
+#if !(defined(CONFIG_ADCIOP) || defined(CONFIG_DASA_SIM))
 	case (CFG_FLASH_WORD_SIZE)SST_ID_xF800A:
 		info->flash_id += FLASH_SST800A;
 		info->sector_count = 16;
@@ -323,10 +332,27 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 		break;				/* => 1 MB		*/
 
 	case (CFG_FLASH_WORD_SIZE)SST_ID_xF160A:
+	case (CFG_FLASH_WORD_SIZE)SST_ID_xF1601:
+	case (CFG_FLASH_WORD_SIZE)SST_ID_xF1602:
 		info->flash_id += FLASH_SST160A;
 		info->sector_count = 32;
 		info->size = 0x00200000;
 		break;				/* => 2 MB		*/
+
+	case (CFG_FLASH_WORD_SIZE)SST_ID_xF3201:
+	case (CFG_FLASH_WORD_SIZE)SST_ID_xF3202:
+		info->flash_id += FLASH_SST320;
+		info->sector_count = 64;
+		info->size = 0x00400000;
+		break;				/* => 4 MB		*/
+
+	case (CFG_FLASH_WORD_SIZE)SST_ID_xF6401:
+	case (CFG_FLASH_WORD_SIZE)SST_ID_xF6402:
+		info->flash_id += FLASH_SST640;
+		info->sector_count = 128;
+		info->size = 0x00800000;
+		break;				/* => 8 MB		*/
+#endif
 
 	default:
 		info->flash_id = FLASH_UNKNOWN;
@@ -397,7 +423,7 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 		/* read sector protection at sector address, (A7 .. A0) = 0x02 */
 		/* D0 = 1 if protected */
 		addr2 = (volatile CFG_FLASH_WORD_SIZE *)(info->start[i]);
-		if ((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_SST)
+		if ((info->flash_id & FLASH_VENDMASK) != FLASH_MAN_AMD)
 		  info->protect[i] = 0;
 		else
 		  info->protect[i] = addr2[CFG_FLASH_READ2] & 1;
@@ -610,10 +636,10 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 	int i;
 
 	/* Check if Flash is (sufficiently) erased */
-	if ((*((volatile CFG_FLASH_WORD_SIZE *)dest) &
-	     (CFG_FLASH_WORD_SIZE)data) != (CFG_FLASH_WORD_SIZE)data) {
+	if ((*((vu_long *)dest) & data) != data) {
 		return (2);
 	}
+
 	/* Disable interrupts which might cause a timeout here */
 	flag = disable_interrupts();
 
