@@ -23,7 +23,7 @@
  * MA 02111-1307 USA
  */
 
-/* #define	DEBUG */
+/* #define DEBUG */
 
 /************************************************************************/
 /* ** HEADER FILES							*/
@@ -84,6 +84,14 @@
 
 #define VIDEO_I2C		1
 #define VIDEO_I2C_ADDR		CONFIG_VIDEO_ENCODER_AD7177_ADDR
+#endif
+
+#ifdef CONFIG_VIDEO_ENCODER_AD7179
+
+#include <video_ad7179.h>	/* Sets encoder data, mode, and visible and active area */
+
+#define VIDEO_I2C		1
+#define VIDEO_I2C_ADDR		CONFIG_VIDEO_ENCODER_AD7179_ADDR
 #endif
 
 /************************************************************************/
@@ -155,7 +163,7 @@
 /* ** CONSOLE CONSTANTS							*/
 /************************************************************************/
 
-#ifdef 	CONFIG_VIDEO_LOGO
+#ifdef	CONFIG_VIDEO_LOGO
 #define CONSOLE_ROWS		((VIDEO_ROWS - VIDEO_LOGO_HEIGHT) / VIDEO_FONT_HEIGHT)
 #define VIDEO_LOGO_SKIP		(VIDEO_COLS - VIDEO_LOGO_WIDTH)
 #else
@@ -163,11 +171,11 @@
 #endif
 
 #define CONSOLE_COLS		(VIDEO_COLS / VIDEO_FONT_WIDTH)
-#define CONSOLE_ROW_SIZE 	(VIDEO_FONT_HEIGHT * VIDEO_LINE_LEN)
+#define CONSOLE_ROW_SIZE	(VIDEO_FONT_HEIGHT * VIDEO_LINE_LEN)
 #define CONSOLE_ROW_FIRST	(video_console_address)
-#define CONSOLE_ROW_SECOND 	(video_console_address + CONSOLE_ROW_SIZE)
+#define CONSOLE_ROW_SECOND	(video_console_address + CONSOLE_ROW_SIZE)
 #define CONSOLE_ROW_LAST	(video_console_address + CONSOLE_SIZE - CONSOLE_ROW_SIZE)
-#define CONSOLE_SIZE 		(CONSOLE_ROW_SIZE * CONSOLE_ROWS)
+#define CONSOLE_SIZE		(CONSOLE_ROW_SIZE * CONSOLE_ROWS)
 #define CONSOLE_SCROLL_SIZE	(CONSOLE_SIZE - CONSOLE_ROW_SIZE)
 
 /*
@@ -287,8 +295,8 @@ static int video_maprgb (int r, int g, int b)
 	/* Calculate YUV values (0-255) from RGB beetween 0-100 */
 
 	YUYV.Y1 = YUYV.Y2 = 209 * (pR + pG + pB) / 300 + 16;
-	YUYV.U  = pR - (pG * 3 / 4) - (pB / 4) + 128;
-	YUYV.V  = pB - (pR / 4) - (pG * 3 / 4) + 128;
+	YUYV.U	= pR - (pG * 3 / 4) - (pB / 4) + 128;
+	YUYV.V	= pB - (pR / 4) - (pG * 3 / 4) + 128;
 	return *ret;
 #endif
 #ifdef VIDEO_MODE_RGB
@@ -473,6 +481,7 @@ static inline void video_putstring (int xx, int yy, unsigned char *s)
 /* ** VIDEO CONTROLLER LOW-LEVEL FUNCTIONS				*/
 /************************************************************************/
 
+#if !defined(CONFIG_RRVISION)
 static void video_mode_dupefield (VRAM * source, VRAM * dest, int entries)
 {
 	int i;
@@ -485,6 +494,7 @@ static void video_mode_dupefield (VRAM * source, VRAM * dest, int entries)
 	dest[0].lcyc++;			/* Add a cycle to the first entry */
 	dest[entries - 1].lst = 1;	/* Set end of ram entries */
 }
+#endif
 
 static void inline video_mode_addentry (VRAM * vr,
 	int Hx, int Vx, int Fx, int Bx,
@@ -501,7 +511,7 @@ static void inline video_mode_addentry (VRAM * vr,
 	vr->lst = LST;
 }
 
-#define ADDENTRY(a,b,c,d,e,f,g,h,i) 	video_mode_addentry(&vr[entry++],a,b,c,d,e,f,g,h,i)
+#define ADDENTRY(a,b,c,d,e,f,g,h,i)	video_mode_addentry(&vr[entry++],a,b,c,d,e,f,g,h,i)
 
 static int video_mode_generate (void)
 {
@@ -539,9 +549,12 @@ static int video_mode_generate (void)
 	Y1 = video_panning_value_y & 0xfffe;
 	Y2 = DY - Y1;
 
+	debug("X1=%d, X2=%d, Y1=%d, Y2=%d, DX=%d, DY=%d VIDEO_COLS=%d \n",
+	      X1, X2, Y1, Y2, DX, DY, VIDEO_COLS);
+
 #ifdef VIDEO_MODE_NTSC
 /*
- *           Hx Vx Fx Bx VDS INT LCYC LP LST
+ *	     Hx Vx Fx Bx VDS INT LCYC LP LST
  *
  * Retrace blanking
  */
@@ -641,6 +654,73 @@ static int video_mode_generate (void)
 #endif
 
 #ifdef VIDEO_MODE_PAL
+
+#if defined(CONFIG_RRVISION)
+
+#define HPW   160  /* horizontal pulse width (was 139)	*/
+#define VPW	2  /* vertical pulse width		*/
+#define HBP   104  /* horizontal back porch (was 112)	*/
+#define VBP    19  /* vertical back porch (was 19)	*/
+#define VID_R 240  /* number of rows			*/
+
+	debug ("[VIDEO CTRL] Starting to add controller entries...");
+/*
+ * Even field
+ */
+	ADDENTRY (0, 3, 0, 3, 1, 0, 2, 0, 0);
+	ADDENTRY (0, 0, 0, 3, 1, 0, HPW, 0, 0);
+	ADDENTRY (3, 0, 0, 3, 1, 0, HBP + (VIDEO_COLS * 2) + 72, 0, 0);
+
+	ADDENTRY (0, 0, 0, 3, 1, 0, VPW, 1, 0);
+	ADDENTRY (0, 0, 0, 3, 1, 0, HPW-1, 0, 0);
+	ADDENTRY (3, 0, 0, 3, 1, 0, HBP + (VIDEO_COLS * 2) + 72, 1, 0);
+
+	ADDENTRY (0, 3, 0, 3, 1, 0, VBP, 1, 0);
+	ADDENTRY (0, 3, 0, 3, 1, 0, HPW-1, 0, 0);
+	ADDENTRY (3, 3, 0, 3, 1, 0, HBP + (VIDEO_COLS * 2) + 72, 1, 0);
+/*
+ * Active area
+ */
+	ADDENTRY (0, 3, 0, 3, 1, 0, VID_R , 1, 0);
+	ADDENTRY (0, 3, 0, 3, 1, 0, HPW-1, 0, 0);
+	ADDENTRY (3, 3, 0, 3, 1, 0, HBP, 0, 0);
+	ADDENTRY (3, 3, 0, 3, 0, 0, VIDEO_COLS*2, 0, 0); 
+	ADDENTRY (3, 3, 0, 3, 1, 0, 72, 1, 1);
+
+	ADDENTRY (0, 3, 0, 3, 1, 0, 51, 1, 0);
+	ADDENTRY (0, 3, 0, 3, 1, 0, HPW-1, 0, 0);
+	ADDENTRY (3, 3, 0, 3, 1, 0, HBP +(VIDEO_COLS * 2) + 72 , 1, 0);
+/* 
+ * Odd field	
+ */	
+	ADDENTRY (0, 3, 0, 3, 1, 0, 2, 0, 0);
+	ADDENTRY (0, 0, 0, 3, 1, 0, HPW, 0, 0);
+	ADDENTRY (3, 0, 0, 3, 1, 0, HBP + (VIDEO_COLS * 2) + 72, 0, 0);
+
+	ADDENTRY (0, 0, 0, 3, 1, 0, VPW+1, 1, 0);
+	ADDENTRY (0, 0, 0, 3, 1, 0, HPW-1, 0, 0);
+	ADDENTRY (3, 0, 0, 3, 1, 0, HBP + (VIDEO_COLS * 2) + 72, 1, 0);
+
+	ADDENTRY (0, 3, 0, 3, 1, 0, VBP, 1, 0);
+	ADDENTRY (0, 3, 0, 3, 1, 0, HPW-1, 0, 0);
+	ADDENTRY (3, 3, 0, 3, 1, 0, HBP + (VIDEO_COLS * 2) + 72, 1, 0);
+/*
+ * Active area
+ */
+	ADDENTRY (0, 3, 0, 3, 1, 0, VID_R , 1, 0);
+	ADDENTRY (0, 3, 0, 3, 1, 0, HPW-1, 0, 0);
+	ADDENTRY (3, 3, 0, 3, 1, 0, HBP, 0, 0);
+	ADDENTRY (3, 3, 0, 3, 0, 0, VIDEO_COLS*2, 0, 0); 
+	ADDENTRY (3, 3, 0, 3, 1, 0, 72, 1, 1);
+
+	ADDENTRY (0, 3, 0, 3, 1, 0, 51, 1, 0);
+	ADDENTRY (0, 3, 0, 3, 1, 0, HPW-1, 0, 0);
+	ADDENTRY (3, 3, 0, 3, 1, 0, HBP +(VIDEO_COLS * 2) + 72 , 1, 0);
+
+	debug ("done\n");
+
+#else  /* !CONFIG_RRVISION */
+
 /*
  *	Hx Vx Fx Bx VDS INT LCYC LP LST
  *
@@ -692,7 +772,9 @@ static int video_mode_generate (void)
  * one more cycle loop and a last identifier)
  */
 	video_mode_dupefield (vr, &vr[entry], entry);
-#endif
+#endif /* CONFIG_RRVISION */
+
+#endif /* VIDEO_MODE_PAL */
 
 	/* See what FIFO are we using */
 	fifo = GETBIT (immap->im_vid.vid_vsr, VIDEO_VSR_CAS);
@@ -829,26 +911,19 @@ static void video_ctrl_init (void *memptr)
 	debug ("[VIDEO CTRL] Turning on video port led...\n");
 	SETBIT (*(int *) BCSR4, VIDEO_BCSR4_VIDLED_BIT, 0);
 #endif
-
 #ifdef CONFIG_RRVISION
-	/* enable clock: set PD3 to VCLK, PC5 to HIGH */
-	{
-		volatile immap_t *immr = (immap_t *) CFG_IMMR;
-
-		debug ("PDPAR=%04X PDDIR=%04X PDDAT=%04X\n",
-			immr->im_ioport.iop_pdpar,
-			immr->im_ioport.iop_pddir,
-			immr->im_ioport.iop_pddat);
-
-		debug ("[RRvision] PC5 -> Output (1): ");
-		immr->im_ioport.iop_pcpar &= ~(0x0400);
-		immr->im_ioport.iop_pcdir |=   0x0400 ;
-		immr->im_ioport.iop_pcdat |=   0x0400 ;
-		debug ("PCPAR=%04X PCDIR=%04X PCDAT=%04X\n",
-			immr->im_ioport.iop_pcpar,
-			immr->im_ioport.iop_pcdir,
-			immr->im_ioport.iop_pcdat);
-	}
+	debug ("PC5->Output(1): enable PAL clock");
+	immap->im_ioport.iop_pcpar &= ~(0x0400);
+	immap->im_ioport.iop_pcdir |=   0x0400 ;
+	immap->im_ioport.iop_pcdat |=   0x0400 ;
+	debug ("PDPAR=0x%04X PDDIR=0x%04X PDDAT=0x%04X\n",
+	       immap->im_ioport.iop_pdpar,
+	       immap->im_ioport.iop_pddir,
+	       immap->im_ioport.iop_pddat);
+	debug ("PCPAR=0x%04X PCDIR=0x%04X PCDAT=0x%04X\n",
+	       immap->im_ioport.iop_pcpar,
+	       immap->im_ioport.iop_pcdir,
+	       immap->im_ioport.iop_pcdat);
 #endif	/* CONFIG_RRVISION */
 
 	/* Blanking the screen. */

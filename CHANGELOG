@@ -1,12 +1,33 @@
 ======================================================================
-Changes for U-Boot 0.4.2:
+Changes for U-Boot 0.4.3:
 ======================================================================
+
+* Patches by Yuli Barcohen, 13 Jul 2003:
+  - Correct flash and JFFS2 support for MPC8260ADS
+  - fix PVR values and clock generation for PowerQUICC II family
+    (8270/8275/8280)
+
+* Patch by Bernhard Kuhn, 08 Jul 2003:
+  - add support for M68K targets
+
+* Patch by Ken Chou, 3 Jul:
+  - Fix PCI config table for A3000
+  - Fix iobase for natsemi.c
+    (PCI_BASE_ADDRESS_0 is the IO base register for DP83815)
+	
+* Allow to enable "slow" POST routines by key press on power-on
+* Fix temperature dependend switching of LCD backlight on LWMON
+* Tweak output format for LWMON
 
 * Patch by Stefan Roese, 11 Jul 2003:
   - Fix bug in CONFIG_VERSION_VARIABLE.
   - AR405 config updated.
   - OCRTC/ORSG: bsp command added.
   - ASH405 bsp update.
+
+======================================================================
+Changes for U-Boot 0.4.2:
+======================================================================
 
 * Add support for NSCU board
 

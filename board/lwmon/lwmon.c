@@ -184,7 +184,7 @@ V* Verification: dzu@denx.de
  ***********************************************************************/
 int checkboard (void)
 {
-	puts ("Board: Litronic Monitor IV\n");
+	puts ("Board: LICCON Konsole LCD2\n");
 	return (0);
 }
 
@@ -1071,3 +1071,23 @@ static int key_pressed(void)
 	return (compare_magic(kbd_data, CONFIG_MODEM_KEY_MAGIC) == 0);
 }
 #endif	/* CONFIG_MODEM_SUPPORT */
+
+#ifdef CONFIG_POST
+/* 
+ * Returns 1 if keys pressed to start the power-on long-running tests
+ * Called from board_init_f().
+ */
+int post_hotkeys_pressed(gd_t *gd)
+{
+	uchar kbd_data[KEYBD_DATALEN];
+	uchar val;
+
+	/* Read keys */
+	val = KEYBD_CMD_READ_KEYS;
+	i2c_write (kbd_addr, 0, 0, &val, 1);
+	i2c_read (kbd_addr, 0, 0, kbd_data, KEYBD_DATALEN);
+
+	return (gd->post_hotkeys_latch = 
+			(compare_magic(kbd_data, CONFIG_POST_KEY_MAGIC) == 0));
+}
+#endif

@@ -524,8 +524,15 @@
 #define	PVR_860		PVR_821
 #define	PVR_7400       	0x000C0000
 #define	PVR_8240	0x00810100
-#define	PVR_8260	PVR_8240
 
+/*
+ * PowerQUICC II family processors report different PVR values depending
+ * on silicon process (HiP3, HiP4, HiP7, etc.)
+ */
+#define PVR_8260        PVR_8240
+#define PVR_8260_HIP3   0x00810101
+#define PVR_8260_HIP4   0x80811014
+#define PVR_8260_HIP7   0x80822011
 
 /* I am just adding a single entry for 8260 boards.  I think we may be
  * able to combine mbx, fads, rpxlite, bseip, and classic into a single

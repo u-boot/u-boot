@@ -300,14 +300,15 @@
 /*-----------------------------------------------------------------------
  * SCMR - System Clock Mode Register					 9-9
  */
-#define SCMR_CORECNF_MSK 0x1f000000	/* Core Configuration Mask	*/
+#define SCMR_CORECNF_MSK   0x1f000000	/* Core Configuration Mask	*/
 #define SCMR_CORECNF_SHIFT 24
-#define SCMR_BUSDF_MSK	0x00f00000	/* 60x Bus Division Factor Mask	*/
-#define SCMR_BUSDF_SHIFT 20
-#define SCMR_CPMDF_MSK	0x000f0000	/* CPM Division Factor Mask	*/
-#define SCMR_CPMDF_SHIFT 16
-#define SCMR_PLLDF	0x00001000	/* PLL Pre-divider Value	*/
-#define SCMR_PLLMF_MSK	0x00000fff	/* PLL Multiplication Factor Mask*/
+#define SCMR_BUSDF_MSK	   0x00f00000	/* 60x Bus Division Factor Mask	*/
+#define SCMR_BUSDF_SHIFT   20
+#define SCMR_CPMDF_MSK	   0x000f0000	/* CPM Division Factor Mask	*/
+#define SCMR_CPMDF_SHIFT   16
+#define SCMR_PLLDF	   0x00001000	/* PLL Pre-divider Value	*/
+#define SCMR_PLLMF_MSK	   0x00000fff	/* PLL Multiplication Factor Mask*/
+#define SCMR_PLLMF_MSKH7   0x0000000f	/* for HiP7 processors */
 #define SCMR_PLLMF_SHIFT 0
 
 

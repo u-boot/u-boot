@@ -526,7 +526,10 @@ void board_init_f (ulong bootflag)
 
 #ifdef CONFIG_POST
 	post_bootmode_init();
-	post_run (NULL, POST_ROM | post_bootmode_get(0));
+	if (post_hotkeys_pressed(gd)) /* Force the long-running tests (memory) */
+		post_run (NULL, POST_ROM | POST_SLOWTEST);
+	else
+		post_run (NULL, POST_ROM | post_bootmode_get(0));
 #endif
 
 	WATCHDOG_RESET();
@@ -897,8 +900,11 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #endif
 
 #ifdef CONFIG_POST
-	post_run (NULL, POST_RAM | post_bootmode_get(0));
-	if (post_bootmode_get(0) & POST_POWERFAIL) {
+	if (gd->post_hotkeys_latch)
+		post_run (NULL, POST_RAM | POST_SLOWTEST);
+	else
+		post_run (NULL, POST_RAM | post_bootmode_get(0));
+	if (post_bootmode_get(0) & POST_SLOWTEST) {
 		post_bootmode_clear();
 		board_poweroff();
 	}

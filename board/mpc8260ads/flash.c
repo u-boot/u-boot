@@ -7,6 +7,11 @@
  * I started with board/ip860/flash.c and made changes I found in
  * the MTD project by David Schleef.
  *
+ * (C) Copyright 2003 Arabella Software Ltd.
+ * Yuli Barcohen <yuli@arabellasw.com>
+ * Re-written to support multi-bank flash SIMMs.
+ * Added support for real protection and JFFS2.
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -28,73 +33,119 @@
 
 #include <common.h>
 
+/* Intel-compatible flash ID */
+#define INTEL_COMPAT  0x89898989
+#define INTEL_ALT     0xB0B0B0B0
 
-flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
+/* Intel-compatible flash commands */
+#define INTEL_PROGRAM 0x10101010
+#define INTEL_ERASE   0x20202020
+#define INTEL_CLEAR   0x50505050
+#define INTEL_LOCKBIT 0x60606060
+#define INTEL_PROTECT 0x01010101
+#define INTEL_STATUS  0x70707070
+#define INTEL_READID  0x90909090
+#define INTEL_CONFIRM 0xD0D0D0D0
+#define INTEL_RESET   0xFFFFFFFF
 
-#if defined(CFG_ENV_IS_IN_FLASH)
-# ifndef  CFG_ENV_ADDR
-#  define CFG_ENV_ADDR	(CFG_FLASH_BASE + CFG_ENV_OFFSET)
-# endif
-# ifndef  CFG_ENV_SIZE
-#  define CFG_ENV_SIZE	CFG_ENV_SECT_SIZE
-# endif
-# ifndef  CFG_ENV_SECT_SIZE
-#  define CFG_ENV_SECT_SIZE  CFG_ENV_SIZE
-# endif
-#endif
+/* Intel-compatible flash status bits */
+#define INTEL_FINISHED 0x80808080
+#define INTEL_OK       0x80808080
+
+flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
 
 /*-----------------------------------------------------------------------
- * Functions
+ * This board supports 32-bit wide flash SIMMs (4x8-bit configuration.)
+ * Up to 32MB of flash supported (up to 4 banks.)
+ * BCSR is used for flash presence detect (page 4-65 of the User's Manual)
+ *
+ * The following code can not run from flash!
  */
-static ulong flash_get_size (vu_long *addr, flash_info_t *info);
-static int write_word (flash_info_t *info, ulong dest, ulong data);
-static int clear_block_lock_bit(vu_long * addr);
-
-/*-----------------------------------------------------------------------
- */
-
 unsigned long flash_init (void)
 {
-#ifndef CONFIG_MPC8260ADS
-	volatile immap_t	*immap  = (immap_t *)CFG_IMMR;
-	volatile memctl8xx_t	*memctl = &immap->im_memctl;
-	volatile ip860_bcsr_t	*bcsr   = (ip860_bcsr_t *)BCSR_BASE;
-#endif
-	unsigned long size;
-	int i;
+	ulong size = 0, sect_start, sect_size = 0, bank_size;
+	ushort sect_count = 0;
+	int i, j, nbanks;
+	vu_long *addr = (vu_long *)CFG_FLASH_BASE;
+	vu_long *bcsr = (vu_long *)CFG_BCSR;
 
-	/* Init: enable write,
-	 * or we cannot even write flash commands
-	 */
-#ifndef CONFIG_MPC8260ADS
-	bcsr->bd_ctrl |= BD_CTRL_FLWE;
-#endif
-
-	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {
-		flash_info[i].flash_id = FLASH_UNKNOWN;
-
-		/* set the default sector offset */
+	switch (bcsr[2] & 0xF) {
+	case 0:
+		nbanks = 4;
+		break;
+	case 1:
+		nbanks = 2;
+		break;
+	case 2:
+		nbanks = 1;
+		break;
+	default:		/* Unsupported configurations */
+		nbanks = CFG_MAX_FLASH_BANKS;
 	}
 
-	/* Static FLASH Bank configuration here - FIXME XXX */
+	if (nbanks > CFG_MAX_FLASH_BANKS)
+		nbanks = CFG_MAX_FLASH_BANKS;
 
-	size = flash_get_size((vu_long *)FLASH_BASE, &flash_info[0]);
-
-	if (flash_info[0].flash_id == FLASH_UNKNOWN) {
-		printf ("## Unknown FLASH on Bank 0 - Size = 0x%08lx = %ld MB\n",
-			size, size<<20);
+	for (i = 0; i < nbanks; i++) {
+		*addr = INTEL_READID;	/* Read Intelligent Identifier */
+		if ((addr[0] == INTEL_COMPAT) || (addr[0] == INTEL_ALT)) {
+			switch (addr[1]) {
+			case SHARP_ID_28F016SCL:
+			case SHARP_ID_28F016SCZ:
+				flash_info[i].flash_id = FLASH_MAN_SHARP | FLASH_LH28F016SCT;
+				sect_count = 32;
+				sect_size = 0x40000;
+				break;
+			default:
+				flash_info[i].flash_id = FLASH_UNKNOWN;
+				sect_count = CFG_MAX_FLASH_SECT;
+				sect_size =
+				   CFG_FLASH_SIZE / CFG_MAX_FLASH_BANKS / CFG_MAX_FLASH_SECT;
+			}
+		}
+		else
+			flash_info[i].flash_id = FLASH_UNKNOWN;
+		if (flash_info[i].flash_id == FLASH_UNKNOWN) {
+			printf("### Unknown flash ID %08lX %08lX at address %08lX ###\n",
+			       addr[0], addr[1], (ulong)addr);
+			size = 0;
+			*addr = INTEL_RESET; /* Reset bank to Read Array mode */
+			break;
+		}
+		flash_info[i].sector_count = sect_count;
+		flash_info[i].size = bank_size = sect_size * sect_count;
+		size += bank_size;
+		sect_start = (ulong)addr;
+		for (j = 0; j < sect_count; j++) {
+			addr = (vu_long *)sect_start;
+			flash_info[i].start[j]   = sect_start;
+			flash_info[i].protect[j] = (addr[2] == 0x01010101);
+			sect_start += sect_size;
+		}
+		*addr = INTEL_RESET; /* Reset bank to Read Array mode */
+		addr = (vu_long *)sect_start;
 	}
-#ifndef CONFIG_MPC8260ADS
-	/* Remap FLASH according to real size */
-	memctl->memc_or1 = CFG_OR_TIMING_FLASH | (-size & 0xFFFF8000);
-	memctl->memc_br1 = (CFG_FLASH_BASE & BR_BA_MSK) |
-				(memctl->memc_br1 & ~(BR_BA_MSK));
-#endif
 
-	/* Re-do sizing to get full correct info */
-	size = flash_get_size((vu_long *)CFG_FLASH_BASE, &flash_info[0]);
-
-	flash_info[0].size = size;
+	if (size == 0) {	/* Unknown flash, fill with hard-coded values */
+		sect_start = CFG_FLASH_BASE;
+		for (i = 0; i < CFG_MAX_FLASH_BANKS; i++) {
+			flash_info[i].flash_id = FLASH_UNKNOWN;
+			flash_info[i].size = CFG_FLASH_SIZE / CFG_MAX_FLASH_BANKS;
+			flash_info[i].sector_count = sect_count;
+			for (j = 0; j < sect_count; j++) {
+				flash_info[i].start[j]   = sect_start;
+				flash_info[i].protect[j] = 0;
+				sect_start += sect_size;
+			}
+		}
+		size = CFG_FLASH_SIZE;
+	}
+	else
+		for (i = nbanks; i < CFG_MAX_FLASH_BANKS; i++) {
+			flash_info[i].flash_id = FLASH_UNKNOWN;
+			flash_info[i].size = 0;
+			flash_info[i].sector_count = 0;
+		}
 
 #if CFG_MONITOR_BASE >= CFG_FLASH_BASE
 	/* monitor protection ON by default */
@@ -161,102 +212,6 @@ void flash_print_info  (flash_info_t *info)
 
 /*-----------------------------------------------------------------------
  */
-
-
-/*-----------------------------------------------------------------------
- */
-
-/*
- * The following code cannot be run from FLASH!
- */
-
-static ulong flash_get_size (vu_long *addr, flash_info_t *info)
-{
-	short i;
-	ulong value;
-	ulong base = (ulong)addr;
-	ulong sector_offset;
-
-	/* Write "Intelligent Identifier" command: read Manufacturer ID */
-	*addr = 0x90909090;
-
-	value = addr[0] & 0x00FF00FF;
-	switch (value) {
-	case MT_MANUFACT:	/* SHARP, MT or => Intel */
-	case INTEL_ALT_MANU:
-		info->flash_id = FLASH_MAN_INTEL;
-		break;
-	default:
-		printf("unknown manufacturer: %x\n", (unsigned int)value);
-		info->flash_id = FLASH_UNKNOWN;
-		info->sector_count = 0;
-		info->size = 0;
-		return (0);			/* no or unknown flash	*/
-	}
-
-	value = addr[1];			/* device ID		*/
-
-	switch (value) {
-	case (INTEL_ID_28F016S):
-		info->flash_id += FLASH_28F016SV;
-		info->sector_count = 32;
-		info->size = 0x00400000;
-		sector_offset = 0x20000;
-		break;				/* => 2x2 MB		*/
-
-	case (INTEL_ID_28F160S3):
-		info->flash_id += FLASH_28F160S3;
-		info->sector_count = 32;
-		info->size = 0x00400000;
-		sector_offset = 0x20000;
-		break;				/* => 2x2 MB		*/
-
-	case (INTEL_ID_28F320S3):
-		info->flash_id += FLASH_28F320S3;
-		info->sector_count = 64;
-		info->size = 0x00800000;
-		sector_offset = 0x20000;
-		break;				/* => 2x4 MB		*/
-
-	case SHARP_ID_28F016SCL:
-	case SHARP_ID_28F016SCZ:
-		info->flash_id      = FLASH_MAN_SHARP | FLASH_LH28F016SCT;
-		info->sector_count  = 32;
-		info->size          = 0x00800000;
-		sector_offset = 0x40000;
-		break;				/* => 4x2 MB		*/
-
-
-	default:
-		info->flash_id = FLASH_UNKNOWN;
-		return (0);			/* => no or unknown flash */
-
-	}
-
-	/* set up sector start address table */
-	for (i = 0; i < info->sector_count; i++) {
-		info->start[i] = base;
-		base += sector_offset;
-		/* don't know how to check sector protection */
-		info->protect[i] = 0;
-	}
-
-	/*
-	 * Prevent writes to uninitialized FLASH.
-	 */
-	if (info->flash_id != FLASH_UNKNOWN) {
-		addr = (vu_long *)info->start[0];
-
-		*addr = 0xFFFFFF;	/* reset bank to read array mode */
-	}
-
-	return (info->size);
-}
-
-
-/*-----------------------------------------------------------------------
- */
-
 int	flash_erase (flash_info_t *info, int s_first, int s_last)
 {
 	int flag, prot, sect;
@@ -292,12 +247,6 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 		printf ("\n");
 	}
 
-	/* Make Sure Block Lock Bit is not set. */
-	if(clear_block_lock_bit((vu_long *)(info->start[s_first]))){
-		return 1;
-	}
-
-
 	/* Start erase on unprotected sectors */
 	for (sect = s_first; sect<=s_last; sect++) {
 		if (info->protect[sect] == 0) {	/* not protected */
@@ -308,36 +257,26 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 			/* Disable interrupts which might cause a timeout here */
 			flag = disable_interrupts();
 
-			/* Reset Array */
-			*addr = 0xffffffff;
 			/* Clear Status Register */
-			*addr = 0x50505050;
+			*addr = INTEL_CLEAR;
 			/* Single Block Erase Command */
-			*addr = 0x20202020;
+			*addr = INTEL_ERASE;
 			/* Confirm */
-			*addr = 0xD0D0D0D0;
+			*addr = INTEL_CONFIRM;
 
 			if((info->flash_id & FLASH_TYPEMASK) != FLASH_LH28F016SCT) {
 			    /* Resume Command, as per errata update */
-			    *addr = 0xD0D0D0D0;
+			    *addr = INTEL_CONFIRM;
 			}
 
 			/* re-enable interrupts if necessary */
 			if (flag)
 				enable_interrupts();
 
-			/* wait at least 80us - let's wait 1 ms */
-			udelay (1000);
-			while ((*addr & 0x80808080) != 0x80808080) {
-				if(*addr & 0x20202020){
-					printf("Error in Block Erase - Lock Bit may be set!\n");
-					printf("Status Register = 0x%X\n", (uint)*addr);
-					*addr = 0xFFFFFFFF;	/* reset bank */
-					return 1;
-				}
+			while ((*addr & INTEL_FINISHED) != INTEL_FINISHED) {
 				if ((now=get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
 					printf ("Timeout\n");
-					*addr = 0xFFFFFFFF;	/* reset bank */
+					*addr = INTEL_RESET;	/* reset bank */
 					return 1;
 				}
 				/* show that we're waiting */
@@ -347,13 +286,72 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 				}
 			}
 
+			if (*addr != INTEL_OK) {
+				printf("Block erase failed at %08X, CSR=%08X\n",
+				       (uint)addr, (uint)*addr);
+				*addr = INTEL_RESET;	/* reset bank */
+				return 1;
+			}
+
 			/* reset to read mode */
-			*addr = 0xFFFFFFFF;
+			*addr = INTEL_RESET;
 		}
 	}
 
 	printf (" done\n");
 	return 0;
+}
+
+/*-----------------------------------------------------------------------
+ * Write a word to Flash, returns:
+ * 0 - OK
+ * 1 - write timeout
+ * 2 - Flash not erased
+ */
+static int write_word (flash_info_t *info, ulong dest, ulong data)
+{
+	ulong start;
+	int rc = 0;
+	int flag;
+	vu_long *addr = (vu_long *)dest;
+
+	/* Check if Flash is (sufficiently) erased */
+	if ((*addr & data) != data) {
+		return (2);
+	}
+
+	*addr = INTEL_CLEAR; /* Clear status register */
+
+	/* Disable interrupts which might cause a timeout here */
+	flag = disable_interrupts();
+
+	/* Write Command */
+	*addr = INTEL_PROGRAM;
+
+	/* Write Data */
+	*addr = data;
+
+	/* re-enable interrupts if necessary */
+	if (flag)
+		enable_interrupts();
+
+	/* data polling for D7 */
+	start = get_timer (0);
+	while ((*addr & INTEL_FINISHED) != INTEL_FINISHED) {
+		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+			printf("Write timed out\n");
+			rc = 1;
+			break;
+		}
+	}
+	if (*addr != INTEL_OK) {
+		printf ("Write failed at %08X, CSR=%08X\n", (uint)addr, (uint)*addr);
+		rc = 1;
+	}
+
+	*addr = INTEL_RESET; /* Reset to read array mode */
+
+	return rc;
 }
 
 /*-----------------------------------------------------------------------
@@ -369,6 +367,8 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 	int i, l, rc;
 
 	wp = (addr & ~3);	/* get lower word aligned address */
+
+	*(vu_long *)wp = INTEL_RESET; /* Reset to read array mode */
 
 	/*
 	 * handle unaligned start bytes
@@ -424,85 +424,125 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 		data = (data << 8) | (*(uchar *)cp);
 	}
 
-	return (write_word(info, wp, data));
+	rc = write_word(info, wp, data);
+
+	return rc;
 }
 
 /*-----------------------------------------------------------------------
- * Write a word to Flash, returns:
+ * Set/Clear sector's lock bit, returns:
  * 0 - OK
- * 1 - write timeout
- * 2 - Flash not erased
+ * 1 - Error (timeout, voltage problems, etc.)
  */
-static int write_word (flash_info_t *info, ulong dest, ulong data)
+int flash_real_protect(flash_info_t *info, long sector, int prot)
 {
-	vu_long *addr = (vu_long *)dest;
-	ulong start, csr;
-	int flag;
+	ulong start;
+	int i;
+	int rc = 0;
+	vu_long *addr = (vu_long *)(info->start[sector]);
+	int flag = disable_interrupts();
 
-	/* Check if Flash is (sufficiently) erased */
-	if ((*addr & data) != data) {
-		return (2);
+	*addr = INTEL_CLEAR;	/* Clear status register */
+	if (prot) {			/* Set sector lock bit */
+		*addr = INTEL_LOCKBIT;	/* Sector lock bit */
+		*addr = INTEL_PROTECT;	/* set */
 	}
-	/* Disable interrupts which might cause a timeout here */
-	flag = disable_interrupts();
+	else {				/* Clear sector lock bit */
+		*addr = INTEL_LOCKBIT;	/* All sectors lock bits */
+		*addr = INTEL_CONFIRM;	/* clear */
+	}
 
-	/* Write Command */
-	*addr = 0x10101010;
-
-	/* Write Data */
-	*addr = data;
-
-	/* re-enable interrupts if necessary */
-	if (flag)
-		enable_interrupts();
-
-	/* data polling for D7 */
-	start = get_timer (0);
-	flag  = 0;
-	while (((csr = *addr) & 0x80808080) != 0x80808080) {
-		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
-			flag = 1;
+	start = get_timer(0);
+	while ((*addr & INTEL_FINISHED) != INTEL_FINISHED) {
+		if (get_timer(start) > CFG_FLASH_UNLOCK_TOUT) {
+			printf("Flash lock bit operation timed out\n");
+			rc = 1;
 			break;
 		}
 	}
-	if (csr & 0x40404040) {
-		printf ("CSR indicates write error (%08lx) at %08lx\n", csr, (ulong)addr);
-		flag = 1;
+
+	if (*addr != INTEL_OK) {
+		printf("Flash lock bit operation failed at %08X, CSR=%08X\n",
+		       (uint)addr, (uint)*addr);
+		rc = 1;
 	}
 
-	/* Clear Status Registers Command */
-	*addr = 0x50505050;
-	/* Reset to read array mode */
-	*addr = 0xFFFFFFFF;
+	if (!rc)
+		info->protect[sector] = prot;
 
-	return (flag);
+	/*
+	 * Clear lock bit command clears all sectors lock bits, so
+	 * we have to restore lock bits of protected sectors.
+	 */
+	if (!prot)
+		for (i = 0; i < info->sector_count; i++)
+			if (info->protect[i]) {
+				addr = (vu_long *)(info->start[i]);
+				*addr = INTEL_LOCKBIT;	/* Sector lock bit */
+				*addr = INTEL_PROTECT;	/* set */
+				udelay(CFG_FLASH_LOCK_TOUT * 1000);
+			}
+
+	if (flag)
+		enable_interrupts();
+
+	*addr = INTEL_RESET;		/* Reset to read array mode */
+
+	return rc;
 }
 
 /*-----------------------------------------------------------------------
- * Clear Block Lock Bit, returns:
- * 0 - OK
- * 1 - Timeout
+ * Support for flash file system (JFFS2)
+ *
+ * We use custom partition info function because we have to fit the
+ * file system image between first sector (containing hard reset
+ * configuration word) and the sector containing U-Boot image. Standard
+ * partition info function does not allow for last sector specification
+ * and assumes that the file system occupies flash bank up to and
+ * including bank's last sector.
  */
+#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CFG_JFFS_CUSTOM_PART)
 
-static int clear_block_lock_bit(vu_long  * addr)
+#ifndef CFG_JFFS2_FIRST_SECTOR
+#define CFG_JFFS2_FIRST_SECTOR 0
+#endif
+#ifndef CFG_JFFS2_FIRST_BANK
+#define CFG_JFFS2_FIRST_BANK 0
+#endif
+#ifndef CFG_JFFS2_NUM_BANKS
+#define CFG_JFFS2_NUM_BANKS 1
+#endif
+#define CFG_JFFS2_LAST_BANK (CFG_JFFS2_FIRST_BANK + CFG_JFFS2_NUM_BANKS - 1)
+
+#include <jffs2/jffs2.h>
+
+static struct part_info partition;
+
+struct part_info *jffs2_part_info(int part_num)
 {
-	ulong start, now;
+	int i;
 
-	/* Reset Array */
-	*addr = 0xffffffff;
-	/* Clear Status Register */
-	*addr = 0x50505050;
+	if (part_num == 0) {
+		if (partition.usr_priv == 0) {
+			partition.offset =
+				(unsigned char *) flash_info[CFG_JFFS2_FIRST_BANK].start[CFG_JFFS2_FIRST_SECTOR];
+			for (i = CFG_JFFS2_FIRST_BANK; i <= CFG_JFFS2_LAST_BANK; i++)
+				partition.size += flash_info[i].size;
+			partition.size -=
+				flash_info[CFG_JFFS2_FIRST_BANK].start[CFG_JFFS2_FIRST_SECTOR] -
+				flash_info[CFG_JFFS2_FIRST_BANK].start[0];
+#ifdef CFG_JFFS2_LAST_SECTOR
+			i = flash_info[CFG_JFFS2_LAST_BANK].sector_count - 1;
+			partition.size -=
+				flash_info[CFG_JFFS2_LAST_BANK].start[i] -
+				flash_info[CFG_JFFS2_LAST_BANK].start[CFG_JFFS2_LAST_SECTOR];
+#endif
 
-	*addr = 0x60606060;
-	*addr = 0xd0d0d0d0;
-
-	start = get_timer (0);
-	while(*addr != 0x80808080){
-		if ((now=get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
-			printf ("Timeout on clearing Block Lock Bit\n");
-			*addr = 0xFFFFFFFF;	/* reset bank */
-			return 1;
+			partition.usr_priv = (void *)1;
 		}
+		return &partition;
 	}
 	return 0;
 }
+
+#endif /* JFFS2 */

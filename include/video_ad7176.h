@@ -12,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -26,21 +26,21 @@
 
 #define VIDEO_ENCODER_NAME	"Analog Devices AD7176"
 
-#define VIDEO_ENCODER_I2C_RATE	100000	/* Max rate is 100Khz	*/
+#define VIDEO_ENCODER_I2C_RATE	100000	/* Max rate is 100 kHz		*/
 #define VIDEO_ENCODER_CB_Y_CR_Y		/* Use CB Y CR Y format...	*/
 
-#define VIDEO_MODE_YUYV		/* The only mode supported by this encoder	*/
-#undef  VIDEO_MODE_RGB
+#define VIDEO_MODE_YUYV		/* The only mode supported by this encoder */
+#undef	VIDEO_MODE_RGB
 #define VIDEO_MODE_BPP		16
 
-#ifdef  VIDEO_MODE_PAL
+#ifdef	VIDEO_MODE_PAL
 #define VIDEO_ACTIVE_COLS	720
 #define VIDEO_ACTIVE_ROWS	576
 #define VIDEO_VISIBLE_COLS	640
 #define VIDEO_VISIBLE_ROWS	480
 #endif
 
-#ifdef 	VIDEO_MODE_NTSC
+#ifdef	VIDEO_MODE_NTSC
 #define VIDEO_ACTIVE_COLS	720
 #define VIDEO_ACTIVE_ROWS	525
 #define VIDEO_VISIBLE_COLS	640
@@ -54,7 +54,7 @@ static unsigned char video_encoder_data[] = {
 					0x82,
 #else
 					0x02, /* Mode Register 1	*/
-#endif
+#endif	/* VIDEO_DEBUG_COLORBARS */
 					0x16, /* Subcarrier Freq 0	*/
 					0x7c, /* Subcarrier Freq 1	*/
 					0xf0, /* Subcarrier Freq 2	*/
@@ -81,7 +81,7 @@ static unsigned char video_encoder_data[] = {
 					0x82,
 #else
 					0x02, /* Mode Register 1 (2)	*/
-#endif
+#endif	/* VIDEO_DEBUG_COLORBARS */
 					0xcb, /* Subcarrier Freq 0	*/
 					0x8a, /* Subcarrier Freq 1	*/
 					0x09, /* Subcarrier Freq 2	*/

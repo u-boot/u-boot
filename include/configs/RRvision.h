@@ -100,13 +100,13 @@
 #define	CONFIG_RTC_MPC8xx		/* use internal RTC of MPC8xx	*/
 
 
-#if 1
+#ifndef CONFIG_LCD
 #define CONFIG_VIDEO		1	/* To enable the video initialization */
 
 /* Video related */
 #define CONFIG_VIDEO_LOGO			1	/* Show the logo */
-#define CONFIG_VIDEO_ENCODER_AD7176		1	/* Enable this encoder */
-#define CONFIG_VIDEO_ENCODER_AD7176_ADDR	0x2A	/* ALSB to ground */
+#define CONFIG_VIDEO_ENCODER_AD7179		1	/* Enable this encoder */
+#define CONFIG_VIDEO_ENCODER_AD7179_ADDR	0x2A	/* ALSB to ground */
 #endif
 
 /* enable I2C and select the hardware/software driver */
@@ -344,6 +344,7 @@
  *-----------------------------------------------------------------------
  *
  */
+/*#define	CFG_DER	0x2002000F*/
 #define CFG_DER	0
 
 /*

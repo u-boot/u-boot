@@ -141,7 +141,7 @@ What they do
 	Using the CONFIG_AUTOBOOT_DELAY_STR2 /  bootdelaykey2  and/or
 	CONFIG_AUTOBOOT_STOP_STR2   /   bootstopkey  #defines  and/or
 	environment variables you can  specify  a  second,  alternate
-	string (which allows you to haw two "password" strings).
+	string (which allows you to have two "password" strings).
 
   CONFIG_ZERO_BOOTDELAY_CHECK
 

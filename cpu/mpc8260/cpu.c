@@ -22,7 +22,7 @@
  */
 
 /*
- * CPU specific code for the MPC8255 / MPC8260 CPUs
+ * CPU specific code for the MPC825x / MPC826x / MPC827x / MPC828x
  *
  * written or collected and sometimes rewritten by
  * Magnus Damm <damm@bitsmart.com>
@@ -35,6 +35,9 @@
  *
  * added 8260 masks by
  * Marius Groeger <mag@sysgo.de>
+ *
+ * added HiP7 (8270/8275/8280) processors support by
+ * Yuli Barcohen <yuli@arabellasw.com>
  */
 
 #include <common.h>
@@ -56,15 +59,27 @@ int checkcpu (void)
 
 	puts ("CPU:   ");
 
-	if (((pvr >> 16) & 0xff) != 0x81)
+	switch (pvr) {
+	case PVR_8260:
+	case PVR_8260_HIP3:
+		k = 3;
+		break;
+	case PVR_8260_HIP4:
+		k = 4;
+		break;
+	case PVR_8260_HIP7:
+		k = 7;
+		break;
+	default:
 		return -1;	/* whoops! not an MPC8260 */
+	}
 	rev = pvr & 0xff;
 
 	immr = immap->im_memctl.memc_immr;
 	if ((immr & IMMR_ISB_MSK) != CFG_IMMR)
 		return -1;	/* whoops! someone moved the IMMR */
 
-	printf (CPU_ID_STR " (Rev %02x, Mask ", rev);
+	printf (CPU_ID_STR " (HiP%d Rev %02x, Mask ", k, rev);
 
 	/*
 	 * the bottom 16 bits of the immr are the Part Number and Mask Number
@@ -103,6 +118,12 @@ int checkcpu (void)
 		break;
 	case 0x0062:
 		printf ("B.1 4K25A");
+		break;
+	case 0x0A00:
+		printf ("0.0 0K49M");
+		break;
+	case 0x0A01:
+		printf ("0.1 1K49M");
 		break;
 	default:
 		printf ("unknown [immr=0x%04x,k=0x%04x]", m, k);

@@ -1,6 +1,5 @@
 /*
- * (C) Copyright 2000-2003
- * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ * (C) Copyright 2003 Wolfgang Grandegger <wg@denx.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -21,9 +20,17 @@
  * MA 02111-1307 USA
  */
 
-#ifndef	__VERSION_H__
-#define	__VERSION_H__
+#ifndef _VIDEO_AD7179_H_
+#define _VIDEO_AD7179_H_
 
-#define	U_BOOT_VERSION	"U-Boot 0.4.3"
+/* 
+ * The video encoder data are board specific now!
+ */
 
-#endif	/* __VERSION_H__ */
+#if defined(CONFIG_RRVISION)
+#include "../board/RRvision/video_ad7179.h"
+#else
+#error "Please provide a board-specific video_ad7179.h"
+#endif
+
+#endif /* _VIDEO_AD7179_H_ */

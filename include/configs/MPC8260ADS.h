@@ -206,6 +206,14 @@
 #define CFG_FLASH_SIZE		8
 #define CFG_FLASH_ERASE_TOUT	8000	/* Timeout for Flash Erase (in ms)    */
 #define CFG_FLASH_WRITE_TOUT	5	/* Timeout for Flash Write (in ms)    */
+#define CFG_FLASH_LOCK_TOUT	5	/* Timeout for Flash Set Lock Bit (in ms) */
+#define CFG_FLASH_UNLOCK_TOUT	10000	/* Timeout for Flash Clear Lock Bits (in ms) */
+#define CFG_FLASH_PROTECTION		/* "Real" (hardware) sectors protection */
+
+#define CFG_JFFS2_FIRST_SECTOR  1
+#define CFG_JFFS2_LAST_SECTOR   27
+#define CFG_JFFS2_SORT_FRAGMENTS
+#define CFG_JFFS_CUSTOM_PART
 
 /* this is stuff came out of the Motorola docs */
 #define CFG_DEFAULT_IMMR	0x0F010000

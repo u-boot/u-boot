@@ -70,6 +70,7 @@ table_entry_t arch_name[] = {
     {	IH_CPU_SH,	"sh",		"SuperH",		},
     {	IH_CPU_SPARC,	"sparc",	"SPARC",		},
     {	IH_CPU_SPARC64,	"sparc64",	"SPARC 64 Bit",		},
+    {	IH_CPU_M68K,	"m68k",		"MC68000",		},
     {	-1,		"",		"",			},
 };
 

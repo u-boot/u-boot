@@ -212,7 +212,7 @@ struct post_test {
      argument will be a pointer to the board info structure, while
      the second will be a combination of bit flags specifying the
      mode the test is running in (POST_POWERON, POST_NORMAL,
-     POST_POWERFAIL, POST_MANUAL) and whether the last execution of
+     POST_SLOWTEST, POST_MANUAL) and whether the last execution of
      the test caused system rebooting (POST_REBOOT). The routine will
      return 0 on successful execution of the test, and 1 if the test
      failed.
@@ -220,7 +220,7 @@ struct post_test {
 The lists of the POST tests that should be run at power-on/normal/
 power-fail booting will be kept in the environment. Namely, the
 following environment variables will be used: post_poweron,
-powet_normal, post_shutdown.
+powet_normal, post_slowtest.
 
 2.1.2. Test results
 
@@ -253,7 +253,7 @@ composed of post_test structures:
 		"On-board peripherals test", "board", \
 		"  This test performs full check-up of the " \
 		"on-board hardware.", \
-		POST_RAM | POST_POWERFAIL, \
+		POST_RAM | POST_SLOWTEST, \
 		&board_post_test \
 	}
 

@@ -85,7 +85,7 @@ int dtt_write(int sensor, int reg, int val)
      * Calculate sensor address and register.
      *
      */
-    sensor = DTT_I2C_DEV_CODE + (sensor & sensor);
+    sensor = DTT_I2C_DEV_CODE + (sensor & 0x07);
 
     /*
      * Handle various data sizes.

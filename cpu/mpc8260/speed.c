@@ -120,15 +120,19 @@ int get_clocks (void)
 
 	scmr = immap->im_clkrst.car_scmr;
 	corecnf = (scmr & SCMR_CORECNF_MSK) >> SCMR_CORECNF_SHIFT;
-	busdf = (scmr & SCMR_BUSDF_MSK) >> SCMR_BUSDF_SHIFT;
-	cpmdf = (scmr & SCMR_CPMDF_MSK) >> SCMR_CPMDF_SHIFT;
-	plldf = (scmr & SCMR_PLLDF) ? 1 : 0;
-	pllmf = (scmr & SCMR_PLLMF_MSK) >> SCMR_PLLMF_SHIFT;
-
 	cp = &corecnf_tab[corecnf];
 
-	gd->vco_out = (clkin * 2 * (pllmf + 1)) / (plldf + 1);
+	busdf = (scmr & SCMR_BUSDF_MSK) >> SCMR_BUSDF_SHIFT;
+	cpmdf = (scmr & SCMR_CPMDF_MSK) >> SCMR_CPMDF_SHIFT;
 
+	if (get_pvr () == PVR_8260_HIP7) { /* HiP7 */
+		pllmf = (scmr & SCMR_PLLMF_MSKH7) >> SCMR_PLLMF_SHIFT;
+		gd->vco_out = clkin * (pllmf + 1);
+	} else {                        /* HiP3, HiP4 */
+		pllmf = (scmr & SCMR_PLLMF_MSK) >> SCMR_PLLMF_SHIFT;
+		plldf = (scmr & SCMR_PLLDF) ? 1 : 0;
+		gd->vco_out = (clkin * 2 * (pllmf + 1)) / (plldf + 1);
+	}
 #if 0
 	if (gd->vco_out / (busdf + 1) != clkin) {
 		/* aaarrrggghhh!!! */

@@ -98,6 +98,7 @@ struct sysmon_table_s
 	void		(*exec_before)(sysmon_table_t *);
 	void		(*exec_after)(sysmon_table_t *);
 
+	int		unit_precision;
 	int		unit_div;
 	int		unit_min;
 	int		unit_max;
@@ -105,31 +106,34 @@ struct sysmon_table_s
 	uint		val_min;
 	uint		val_max;
 	int		val_valid;
+	uint		val_min_alt;
+	uint		val_max_alt;
+	int		val_valid_alt;
 	uint		addr;
 };
 
 static sysmon_table_t sysmon_table[] =
 {
     {"Board temperature", " C", &sysmon_lm87_sgn, NULL, sysmon_ccfl_disable,
-     1, -128, 127, 0xFF, 0x58, 0xD5, 0, 0x27},
+     1, 1, -128, 127, 0xFF, 0x58, 0xD5, 0, 0x67, 0xC6, 0, 0x27},
 
     {"Front temperature", " C", &sysmon_lm87, NULL, sysmon_ccfl_disable,
-     100, -27316, 8984, 0xFF, 0xA4, 0xFC, 0, 0x29},
+     1, 100, -27316, 8984, 0xFF, 0xA4, 0xFC, 0, 0xAE, 0xF1, 0, 0x29},
 
     {"+3.3V CPU logic", "V", &sysmon_lm87, NULL, NULL,
-     1000, 0, 4386, 0xFF, 0xB6, 0xC9, 0, 0x22},
+     100, 1000, 0, 4386, 0xFF, 0xB6, 0xC9, 0, 0xB6, 0xC9, 0, 0x22},
 
-    {"+5V logic", "V", &sysmon_lm87, NULL, NULL,
-     1000, 0, 6630, 0xFF, 0xB6, 0xCA, 0, 0x23},
+    {"+ 5 V logic", "V", &sysmon_lm87, NULL, NULL,
+     100, 1000, 0, 6630, 0xFF, 0xB6, 0xCA, 0, 0xB6, 0xCA, 0, 0x23},
 
-    {"+12V PCMCIA", "V", &sysmon_lm87, NULL, NULL,
-     1000, 0, 15460, 0xFF, 0xBC, 0xD0, 0, 0x21},
+    {"+12 V PCMCIA", "V", &sysmon_lm87, NULL, NULL,
+     100, 1000, 0, 15460, 0xFF, 0xBC, 0xD0, 0, 0xBC, 0xD0, 0, 0x21},
 
-    {"+12V CCFL", "V", &sysmon_lm87, NULL, sysmon_ccfl_enable,
-     1000, 0, 15900, 0xFF, 0xB6, 0xCA, 0, 0x24},
+    {"+12 V CCFL", "V", &sysmon_lm87, NULL, sysmon_ccfl_enable,
+     100, 1000, 0, 15900, 0xFF, 0xB6, 0xCA, 0, 0xB6, 0xCA, 0, 0x24},
 
-    {"+5V standby", "V", &sysmon_pic, NULL, NULL,
-     1000, 0, 6040, 0xFF, 0xC8, 0xDE, 0, 0x7C},
+    {"+ 5 V standby", "V", &sysmon_pic, NULL, NULL,
+     100, 1000, 0, 6040, 0xFF, 0xC8, 0xDE, 0, 0xC8, 0xDE, 0, 0x7C},
 };
 static int sysmon_table_size = sizeof(sysmon_table) / sizeof(sysmon_table[0]);
 
@@ -176,31 +180,38 @@ void sysmon_reloc (void)
 	}
 }
 
-static char * sysmon_unit_value (sysmon_table_t * s, uint val)
+static char *sysmon_unit_value (sysmon_table_t *s, uint val)
 {
 	static char buf[32];
 	int unit_val =
 	    s->unit_min + (s->unit_max - s->unit_min) * val / s->val_mask;
-	char * p;
+	char *p, sign;
 	int dec, frac;
 
-	sprintf(buf, "%+d", unit_val / s->unit_div);
+	if (unit_val < 0) {
+		sign = '-';
+		unit_val = -unit_val;
+	} else {
+		sign = '+';
+	}
 
-	frac = (unit_val > 0 ? unit_val : -unit_val) % s->unit_div;
-	p = buf + strlen(buf);
+	p = buf + sprintf(buf, "%c%2d", sign, unit_val / s->unit_div);
 
-	dec = s->unit_div;
+
+	frac = unit_val % s->unit_div;
+
+	frac /= (s->unit_div / s->unit_precision);
+
+	dec = s->unit_precision;
 
 	if (dec != 1)
 	{
 		*p++ = '.';
 	}
-
 	for (dec /= 10; dec != 0; dec /= 10)
 	{
-		*p++ = '0' + frac / dec % 10;
+		*p++ = '0' + (frac / dec) % 10;
 	}
-
 	strcpy(p, s->unit_name);
 
 	return buf;
@@ -256,7 +267,7 @@ static uint sysmon_i2c_read_sgn (sysmon_t * this, uint addr)
 
 static void sysmon_ccfl_disable (sysmon_table_t * this)
 {
-	if (!this->val_valid)
+	if (!this->val_valid_alt)
 	{
 		sysmon_temp_invalid = 1;
 	}
@@ -300,6 +311,7 @@ int sysmon_post_test (int flags)
 
 		val = t->sysmon->read(t->sysmon, t->addr);
 		t->val_valid = val >= t->val_min && val <= t->val_max;
+		t->val_valid_alt = val >= t->val_min_alt && val <= t->val_max_alt;
 
 		if (t->exec_after)
 		{

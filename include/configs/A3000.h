@@ -114,6 +114,8 @@
 #define PCI_ENET1_MEMADDR		0x81000000
 #define PCI_ENET2_IOADDR		0x82000000
 #define PCI_ENET2_MEMADDR		0x82000000
+#define PCI_ENET3_IOADDR		0x83000000
+#define PCI_ENET3_MEMADDR		0x83000000
 
 
 /*-----------------------------------------------------------------------

@@ -146,7 +146,7 @@
  * regions of RAM around each 1Mb boundary. For example, for 64Mb
  * RAM the following areas are verified: 0x00000000-0x00000800,
  * 0x000ff800-0x00100800, 0x001ff800-0x00200800, ..., 0x03fff800-
- * 0x04000000. If the test is run in power-fail mode, it verifies
+ * 0x04000000. If the test is run in slow-test mode, it verifies
  * the whole RAM.
  */
 
@@ -460,9 +460,9 @@ int memory_post_test (int flags)
 				 256 << 20 : bd->bi_memsize) - (1 << 20);
 
 
-	if (flags & POST_POWERFAIL) {
+	if (flags & POST_SLOWTEST) {
 		ret = memory_post_tests (CFG_SDRAM_BASE, memsize);
-	} else {			/* POST_POWERNORMAL */
+	} else {			/* POST_NORMAL */
 
 		unsigned long i;
 

@@ -72,7 +72,6 @@ Wolfgang Denk <wd@denx.de>
 	TQM855L			MPC855
 	TQM860L			MPC860
 	TQM860L_FEC		MPC860
-	TTTech			MPC823
 	c2mon			MPC855
 	hermes			MPC860
 	lwmon			MPC823

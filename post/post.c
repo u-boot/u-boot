@@ -68,7 +68,7 @@ void post_bootmode_init (void)
 	if (bootmode == 0) {
 		bootmode = POST_POWERON;
 	} else if (bootmode == POST_POWERON) {
-		bootmode = POST_POWERNORMAL;
+		bootmode = POST_NORMAL;
 	} else {
 		return;
 	}
@@ -153,8 +153,8 @@ static void post_bootmode_test_off (void)
 
 static void post_get_flags (int *test_flags)
 {
-	int flag[] = { POST_POWERON, POST_POWERNORMAL, POST_POWERFAIL };
-	char *var[] = { "post_poweron", "post_normal", "post_shutdown" };
+	int  flag[] = {  POST_POWERON,   POST_NORMAL,   POST_SLOWTEST };
+	char *var[] = { "post_poweron", "post_normal", "post_slowtest" };
 	int varnum = sizeof (var) / sizeof (var[0]);
 	char list[128];			/* long enough for POST list */
 	char *name;

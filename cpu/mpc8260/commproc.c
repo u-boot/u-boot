@@ -111,9 +111,9 @@ m8260_cpm_hostalloc(uint size, uint align)
  * to port numbers).  Documentation uses 1-based numbering.
  */
 #define BRG_INT_CLK	gd->brg_clk
-#define BRG_UART_CLK	((BRG_INT_CLK + 15) / 16)
+#define BRG_UART_CLK	(BRG_INT_CLK / 16)
 
-/* This function is used by UARTS, or anything else that uses a 16x
+/* This function is used by UARTs, or anything else that uses a 16x
  * oversampled clock.
  */
 void
@@ -123,9 +123,10 @@ m8260_cpm_setbrg(uint brg, uint rate)
 
 	volatile immap_t *immr = (immap_t *)CFG_IMMR;
 	volatile uint	*bp;
+	uint cd = BRG_UART_CLK / rate;
 
-	/* This is good enough to get SMCs running.....
-	*/
+	if ((BRG_UART_CLK % rate) < (rate / 2))
+		cd--;
 	if (brg < 4) {
 		bp = (uint *)&immr->im_brgc1;
 	}
@@ -134,7 +135,7 @@ m8260_cpm_setbrg(uint brg, uint rate)
 		brg -= 4;
 	}
 	bp += brg;
-	*bp = (((((BRG_UART_CLK+rate-1)/rate)-1)&0xfff)<<1)|CPM_BRG_EN;
+	*bp = (cd << 1) | CPM_BRG_EN;
 }
 
 /* This function is used to set high speed synchronous baud rate
