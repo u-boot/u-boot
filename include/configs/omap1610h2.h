@@ -52,6 +52,7 @@
 
 #define CONFIG_CMDLINE_TAG	1	/* enable passing of ATAGs */
 #define CONFIG_SETUP_MEMORY_TAGS	1
+#define CONFIG_INITRD_TAG		1
 
 /*
  * Size of malloc() pool
@@ -94,8 +95,7 @@
 #include <configs/omap1510.h>
 
 #define CONFIG_BOOTDELAY	3
-#define CONFIG_BOOTARGS	"mem=32M console=ttyS0,115200n8 noinitrd \
-				root=/dev/nfs ip=dhcp"
+#define CONFIG_BOOTARGS	"console=ttyS0,115200n8 noinitrd root=/dev/nfs ip=dhcp"
 #define CONFIG_BOOTCOMMAND      "bootp;tftp;bootm"
 #define CFG_AUTOLOAD            "n"             /* No autoload */
 

@@ -99,10 +99,6 @@
 
 #define CONFIG_BOOTDELAY	3
 #define CONFIG_BOOTARGS		"root=/dev/msdk mem=48M"
-#define CONFIG_ETHADDR		08:00:3e:26:0a:5c
-#define CONFIG_NETMASK		255.255.255.0
-#define CONFIG_IPADDR		192.168.0.22
-#define CONFIG_SERVERIP		192.168.0.11
 #define CONFIG_BOOTFILE		"mx1ads"
 #define CONFIG_BOOTCOMMAND	"tftp; bootm"
 

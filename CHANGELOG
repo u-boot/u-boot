@@ -2,7 +2,9 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
-* Patch by George G. Davis, 24 Aug 2004:
+* Patches by George G. Davis, 24 Aug 2004:
+  - Enable ramdisk/initrd tagged param support for omap1610h2_config
+  - Remove static network setup defaults from mx1ads_config
   - update ARM boards to use constants from mach-types.h
 
 * Patch by Gary Jennejohn, 04 Oct 2004:
