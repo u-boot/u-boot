@@ -2,6 +2,11 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Patch by Martin Krause, 11 Sep 2003:
+  add burn-in tests for TRAB board
+
+* Enable instruction cache on MPC5200 board
+
 * Patch by Denis Peter, 11 Sep 2003:
   - fix USB data pointer assignment for bulk only transfer.
   - prevent to display erased directories in FAT filesystem.

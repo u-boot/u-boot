@@ -117,6 +117,8 @@ LIBS += drivers/sk98lin/libsk98lin.a
 LIBS += post/libpost.a post/cpu/libcpu.a
 LIBS += common/libcommon.a
 LIBS += lib_generic/libgeneric.a
+# Add GCC lib
+PLATFORM_LIBS += -L $(shell dirname `$(CC) -print-libgcc-file-name`) -lgcc
 
 #########################################################################
 #########################################################################

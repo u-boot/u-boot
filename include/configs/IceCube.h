@@ -191,8 +191,8 @@
 /*
  * Various low-level settings
  */
-#define CFG_HID0_INIT		0
-#define CFG_HID0_FINAL		0
+#define CFG_HID0_INIT		HID0_ICE | HID0_ICFI
+#define CFG_HID0_FINAL		HID0_ICE
 
 #define CFG_BOOTCS_START	CFG_FLASH_BASE
 #define CFG_BOOTCS_SIZE		CFG_FLASH_SIZE

@@ -315,6 +315,11 @@
 #define CONFIG_MISC_INIT_R		/* have misc_init_r() function	*/
 
 /*-----------------------------------------------------------------------
+ * burn-in test stuff
+ */
+#define BURN_IN_CYCLE_DELAY	20	/* delay in sec between burn-in test cycles */
+
+/*-----------------------------------------------------------------------
  * Stack sizes
  *
  * The stack sizes are set up in start.S using the settings below

@@ -18,6 +18,10 @@ void *malloc(size_t);
 void free(void*);
 void udelay(unsigned long);
 unsigned long get_timer(unsigned long);
+#if (CONFIG_COMMANDS & CFG_CMD_I2C)
+int i2c_write (uchar, uint, int , uchar* , int);
+int i2c_read (uchar, uint, int , uchar* , int);
+#endif	/* CFG_CMD_I2C */
 
 void app_startup(char **);
 
@@ -31,7 +35,7 @@ enum {
 	XF_MAX
 };
 
-#define XF_VERSION	1
+#define XF_VERSION	2
 
 #if defined(CONFIG_I386)
 extern gd_t *global_data;
