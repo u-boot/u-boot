@@ -2,6 +2,27 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patches Part 1 by Jon Loeliger, 11 May 2004:
+  Dynamically handle REV1 and REV2 MPC85xx parts.
+    (Jon Loeliger, 10-May-2004).
+  New consistent memory map and Local Access Window across MPC85xx line.
+  New CCSRBAR at 0xE000_0000 now.
+  Add RAPID I/O memory map.
+  New memory map in README.MPC85xxads
+    (Kumar Gala, 10-May-2004)
+  Better board and CPU identification on MPC85xx boards at boot.
+    (Jon Loeliger, 10-May-2004)
+  SDRAM clock control fixes on MPC8540ADS & MPC8560 boards.
+  Some configuration options for MPC8540ADS & MPC8560ADS cleaned up.
+    (Jim Robertson, 10-May-2004)
+  Rewrite of the MPC85xx Three Speed Ethernet Controller (TSEC) driver.
+  Supports multiple PHYs.
+    (Andy Fleming, 10-May-2004)
+  Some README.MPC85xxads updates.
+    (Kumar Gala, 10-May-2004)
+  Copyright updates for "Freescale"
+    (Andy Fleming, 10-May-2004)
+
 * Patch by Stephen Williams, 11 May 2004:
   Add flash support for ST M29W040B
   Reduce JSE specific flash.c to remove dead code.

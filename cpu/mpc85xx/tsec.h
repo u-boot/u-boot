@@ -7,6 +7,7 @@
  *  terms of the GNU Public License, Version 2, incorporated
  *  herein by reference.
  *
+ * Copyright 2004 Freescale Semiconductor.
  * (C) Copyright 2003, Motorola, Inc.
  * maintained by Xianghua Xiao (x.xiao@motorola.com)
  * author Andy Fleming
@@ -19,15 +20,13 @@
 #include <net.h>
 #include <mpc85xx.h>
 
-/* TSEC1 is offset 0x24000, TSEC2 is offset 0x25000
-#define TSEC_BASE_ADDR	(CFG_IMMR + 0x25000)
-*/
 #define TSEC_BASE_ADDR	(CFG_IMMR + 0x24000)
-#define TSEC_MEM_SIZE	0x01000
+#define TSEC_SIZE	0x01000
 
 #define MAC_ADDR_LEN 6
 
-#define TSEC_TIMEOUT 	1000000
+/* #define TSEC_TIMEOUT 	1000000 */
+#define TSEC_TIMEOUT 1000
 #define TOUT_LOOP 	1000000
 
 /* MAC register bits */
@@ -47,10 +46,14 @@
 #define MACCFG2_INIT_SETTINGS	0x00007205
 #define MACCFG2_FULL_DUPLEX	0x00000001
 #define MACCFG2_IF              0x00000300
+#define MACCFG2_GMII		0x00000200
 #define MACCFG2_MII             0x00000100
 
 #define ECNTRL_INIT_SETTINGS	0x00001000
 #define ECNTRL_TBI_MODE         0x00000020
+
+#define miim_end -2
+#define miim_read -1
 
 #define TBIPA_VALUE		0x1f
 #define MIIMCFG_INIT_VALUE	0x00000003
@@ -60,52 +63,84 @@
 #define MIIMIND_NOTVALID        0x00000004
 
 #define MIIM_CONTROL            0x00
+#define MIIM_CONTROL_RESET	0x00009140
 #define MIIM_CONTROL_INIT       0x00001140
 #define MIIM_ANEN               0x00001000
-#define MIIM_CONTROL_RESET	0x00009140
+
+#define MIIM_CR                 0x00
+#define MIIM_CR_RST		0x00008000
+#define MIIM_CR_INIT	        0x00001000
 
 #define MIIM_STATUS		0x1
 #define MIIM_STATUS_AN_DONE 	0x00000020
+#define MIIM_STATUS_LINK	0x0004
 
-#define MIIM_GBIT_CONTROL	0x9
-#define MIIM_GBIT_CONTROL_INIT	0xe00
+#define MIIM_PHYIR1		0x2
+#define MIIM_PHYIR2		0x3
 
-#define MIIM_TBI_ANEX		0x6
-#define MIIM_TBI_ANEX_NP	0x00000004
-#define MIIM_TBI_ANEX_PRX	0x00000002
+#define MIIM_ANAR		0x4
+#define MIIM_ANAR_INIT		0x1e1
 
 #define MIIM_TBI_ANLPBPA	0x5
 #define MIIM_TBI_ANLPBPA_HALF	0x00000040
 #define MIIM_TBI_ANLPBPA_FULL	0x00000020
 
-#ifdef CONFIG_PHY_CIS8201
-#define MIIM_AUX_CONSTAT	0x1c
-#define MIIM_AUXCONSTAT_INIT	0x0004
-#define MIIM_AUXCONSTAT_DUPLEX	0x0020
-#define MIIM_AUXCONSTAT_SPEED   0x0018
-#define MIIM_AUXCONSTAT_GBIT    0x0010
-#define MIIM_AUXCONSTAT_100     0x0008
+#define MIIM_TBI_ANEX		0x6
+#define MIIM_TBI_ANEX_NP	0x00000004
+#define MIIM_TBI_ANEX_PRX	0x00000002
 
-#define MIIM_EXT_CON1		0x17
-#define MIIM_EXTCON1_INIT	0x0000
+#define MIIM_GBIT_CONTROL	0x9
+#define MIIM_GBIT_CONTROL_INIT	0xe00
 
-#endif
+/* Cicada Auxiliary Control/Status Register */
+#define MIIM_CIS8201_AUX_CONSTAT        0x1c
+#define MIIM_CIS8201_AUXCONSTAT_INIT    0x0004
+#define MIIM_CIS8201_AUXCONSTAT_DUPLEX  0x0020
+#define MIIM_CIS8201_AUXCONSTAT_SPEED   0x0018
+#define MIIM_CIS8201_AUXCONSTAT_GBIT    0x0010
+#define MIIM_CIS8201_AUXCONSTAT_100     0x0008
 
-#ifdef CONFIG_PHY_M88E1011
-#define MIIM_ANAR		0x4
-#define MIIM_ANAR_INIT		0x1e1
+/* Cicada Extended Control Register 1 */
+#define MIIM_CIS8201_EXT_CON1           0x17
+#define MIIM_CIS8201_EXTCON1_INIT       0x0000
+
+/* Cicada 8204 Extended PHY Control Register 1 */
+#define MIIM_CIS8204_EPHY_CON		0x17
+#define MIIM_CIS8204_EPHYCON_INIT	0x0006
+
+/* Cicada 8204 Serial LED Control Register */
+#define MIIM_CIS8204_SLED_CON		0x1b
+#define MIIM_CIS8204_SLEDCON_INIT	0x1115
 
 #define MIIM_GBIT_CON		0x09
 #define MIIM_GBIT_CON_ADVERT	0x0e00
 
-#define MIIM_PHY_STATUS         0x11
-#define MIIM_PHYSTAT_SPEED      0xc000
-#define MIIM_PHYSTAT_GBIT       0x8000
-#define MIIM_PHYSTAT_100        0x4000
-#define MIIM_PHYSTAT_DUPLEX     0x2000
-#define MIIM_PHYSTAT_SPDDONE	0x0800
-#define MIIM_PHYSTAT_LINK	0x0400
-#endif
+/* 88E1011 PHY Status Register */
+#define MIIM_88E1011_PHY_STATUS         0x11
+#define MIIM_88E1011_PHYSTAT_SPEED      0xc000
+#define MIIM_88E1011_PHYSTAT_GBIT       0x8000
+#define MIIM_88E1011_PHYSTAT_100        0x4000
+#define MIIM_88E1011_PHYSTAT_DUPLEX     0x2000
+#define MIIM_88E1011_PHYSTAT_SPDDONE	0x0800
+#define MIIM_88E1011_PHYSTAT_LINK	0x0400
+
+/* DM9161 Control register values */
+#define MIIM_DM9161_CR_STOP	0x0400
+#define MIIM_DM9161_CR_RSTAN	0x1200
+
+#define MIIM_DM9161_SCR		0x10
+#define MIIM_DM9161_SCR_INIT	0x0610
+
+/* DM9161 Specified Configuration and Status Register */
+#define MIIM_DM9161_SCSR	0x11
+#define MIIM_DM9161_SCSR_100F	0x8000
+#define MIIM_DM9161_SCSR_100H	0x4000
+#define MIIM_DM9161_SCSR_10F	0x2000
+#define MIIM_DM9161_SCSR_10H	0x1000
+
+/* DM9161 10BT Configuration/Status */
+#define MIIM_DM9161_10BTCSR	0x12
+#define MIIM_DM9161_10BTCSR_INIT	0x7800
 
 #define MIIM_READ_COMMAND       0x00000001
 
@@ -120,27 +155,6 @@
 #define TSTAT_CLEAR_THALT       0x80000000
 #define RSTAT_CLEAR_RHALT       0x00800000
 
-/* Write value to the PHY at phyid to the register at offset, */
-/* using the register space defined in regbase.  Note that */
-/* miimcfg needs to have the clock speed setup correctly.  This */
-/* macro will wait until the write is done before it finishes */
-#define write_phy_reg(regbase, phyid, offset, value) do { \
-	int timeout=1000000; \
-	regbase->miimadd = (phyid << 8) | offset; \
-	regbase->miimcon = value; \
-	asm("msync"); \
-	while((regbase->miimind & MIIMIND_BUSY) && timeout--); \
-} while(0)
-
-
-/* This works around errata in reseting the PHY */
-#define RESET_ERRATA(regs, ID) do { \
-	write_phy_reg(regs, (ID), 0x1d, 0x1f); \
-	write_phy_reg(regs, (ID), 0x1e, 0x200c); \
-	write_phy_reg(regs, (ID), 0x1d, 0x5); \
-	write_phy_reg(regs, (ID), 0x1e, 0x0); \
-	write_phy_reg(regs, (ID), 0x1e, 0x100); \
-} while(0)
 
 #define IEVENT_INIT_CLEAR	0xffffffff
 #define IEVENT_BABR		0x80000000
@@ -401,5 +415,64 @@ typedef struct tsec
 	/* TSEC Future Expansion Space (0x2_nc00-0x2_nffc) */
 	uint	resc00[256];
 } tsec_t;
+
+struct tsec_private {
+	volatile tsec_t *regs;
+	volatile tsec_t *phyregs;
+	struct phy_info *phyinfo;
+	uint phyaddr;
+	uint gigabit;
+	uint link;
+	uint duplexity;
+	uint speed;
+};
+
+
+/*
+ * struct phy_cmd:  A command for reading or writing a PHY register
+ *
+ * mii_reg:  The register to read or write
+ *
+ * mii_data:  For writes, the value to put in the register.
+ * 	A value of -1 indicates this is a read.
+ *
+ * funct: A function pointer which is invoked for each command.
+ * 	For reads, this function will be passed the value read
+ *	from the PHY, and process it.
+ *	For writes, the result of this function will be written
+ *	to the PHY register
+ */
+struct phy_cmd {
+    uint mii_reg;
+    uint mii_data;
+    uint (*funct) (uint mii_reg, struct tsec_private* priv);
+};
+
+/* struct phy_info: a structure which defines attributes for a PHY
+ *
+ * id will contain a number which represents the PHY.  During
+ * startup, the driver will poll the PHY to find out what its
+ * UID--as defined by registers 2 and 3--is.  The 32-bit result
+ * gotten from the PHY will be shifted right by "shift" bits to
+ * discard any bits which may change based on revision numbers
+ * unimportant to functionality
+ *
+ * The struct phy_cmd entries represent pointers to an arrays of
+ * commands which tell the driver what to do to the PHY.
+ */
+struct phy_info {
+    uint id;
+    char *name;
+    uint shift;
+    /* Called to configure the PHY, and modify the controller
+     * based on the results */
+    struct phy_cmd *config;
+
+    /* Called when starting up the controller */
+    struct phy_cmd *startup;
+
+    /* Called when bringing down the controller */
+    struct phy_cmd *shutdown;
+};
 
 #endif /* __TSEC_H */

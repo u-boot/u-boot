@@ -1,13 +1,14 @@
 /*
  * tsec.c
- * Motorola Three Speed Ethernet Controller driver
+ * Freescale Three Speed Ethernet Controller driver
  *
  * This software may be used and distributed according to the
  * terms of the GNU Public License, Version 2, incorporated
  * herein by reference.
  *
+ * Copyright 2004 Freescale Semiconductor.
  * (C) Copyright 2003, Motorola, Inc.
- * maintained by Xianghua Xiao (x.xiao@motorola.com)
+ * maintained by Jon Loeliger (loeliger@freescale.com)
  * author Andy Fleming
  *
  */
@@ -26,9 +27,9 @@
 
 #undef TSEC_DEBUG
 #ifdef TSEC_DEBUG
-#define DBGPRINT(x) printf(x)
+#define DBGPRINT(x,y) printf(x,y)
 #else
-#define DBGPRINT(x)
+#define DBGPRINT(x,y)
 #endif
 
 static uint rxIdx;	/* index of the current RX buffer */
@@ -38,6 +39,59 @@ typedef volatile struct rtxbd {
 	txbd8_t txbd[TX_BUF_CNT];
 	rxbd8_t rxbd[PKTBUFSRX];
 }  RTXBD;
+
+struct tsec_info_struct {
+	unsigned int phyaddr;
+	unsigned int gigabit;
+	unsigned int phyregidx;
+};
+
+
+/* The tsec_info structure contains 3 values which the
+ * driver uses to determine how to operate a given ethernet
+ * device.  For now, the structure is initialized with the
+ * knowledge that all current implementations have 2 TSEC
+ * devices, and one FEC.  The information needed is:
+ *  phyaddr - The address of the PHY which is attached to
+ *      the given device.
+ *
+ *  gigabit - This variable indicates whether the device
+ *      supports gigabit speed ethernet
+ *
+ *  phyregidx - This variable specifies which ethernet device
+ *      controls the MII Management registers which are connected
+ *      to the PHY.  For 8540/8560, only TSEC1 (index 0) has
+ *      access to the PHYs, so all of the entries have "0".
+ *
+ * The values specified in the table are taken from the board's
+ * config file in include/configs/.  When implementing a new
+ * board with ethernet capability, it is necessary to define:
+ *   TSEC1_PHY_ADDR
+ *   TSEC1_PHYIDX
+ *   TSEC2_PHY_ADDR
+ *   TSEC2_PHYIDX
+ *
+ * and for 8560:
+ *   FEC_PHY_ADDR
+ *   FEC_PHYIDX
+ */
+static struct tsec_info_struct tsec_info[] = {
+#ifdef CONFIG_MPC85XX_TSEC1
+	{TSEC1_PHY_ADDR, 1, TSEC1_PHYIDX},
+#endif
+#ifdef CONFIG_MPC85XX_TSEC2
+	{TSEC2_PHY_ADDR, 1, TSEC2_PHYIDX},
+#endif
+#ifdef CONFIG_MPC85XX_FEC
+	{FEC_PHY_ADDR, 0, FEC_PHYIDX},
+#endif
+};
+
+#define MAXCONTROLLERS 3
+
+static int relocated = 0;
+
+static struct tsec_private *privlist[MAXCONTROLLERS];
 
 #ifdef __GNUC__
 static RTXBD rtx __attribute__ ((aligned(8)));
@@ -49,31 +103,48 @@ static int tsec_send(struct eth_device* dev, volatile void *packet, int length);
 static int tsec_recv(struct eth_device* dev);
 static int tsec_init(struct eth_device* dev, bd_t * bd);
 static void tsec_halt(struct eth_device* dev);
-static void init_registers(tsec_t *regs);
-static void startup_tsec(tsec_t *regs);
-static void init_phy(tsec_t *regs);
-uint read_phy_reg(tsec_t *regbase, uint phyid, uint offset);
+static void init_registers(volatile tsec_t *regs);
+static void startup_tsec(struct eth_device *dev);
+static int init_phy(struct eth_device *dev);
+void write_phy_reg(struct tsec_private *priv, uint regnum, uint value);
+uint read_phy_reg(struct tsec_private *priv, uint regnum);
+struct phy_info * get_phy_info(struct eth_device *dev);
+void phy_run_commands(struct tsec_private *priv, struct phy_cmd *cmd);
+static void adjust_link(struct eth_device *dev);
+static void relocate_cmds(void);
 
-static int	phy_id = -1;
-
-/* Initialize device structure.  returns 0 on failure, 1 on
- * success */
-int tsec_initialize(bd_t *bis)
+/* Initialize device structure. Returns success if PHY
+ * initialization succeeded (i.e. if it recognizes the PHY)
+ */
+int tsec_initialize(bd_t *bis, int index)
 {
 	struct eth_device* dev;
 	int i;
-	tsec_t *regs = (tsec_t *)(TSEC_BASE_ADDR);
+	struct tsec_private *priv;
 
 	dev = (struct eth_device*) malloc(sizeof *dev);
 
-	if(dev == NULL)
+	if(NULL == dev)
 		return 0;
 
 	memset(dev, 0, sizeof *dev);
 
-	sprintf(dev->name, "MOTO ETHERNET");
+	priv = (struct tsec_private *) malloc(sizeof(*priv));
+
+	if(NULL == priv)
+		return 0;
+
+	privlist[index] = priv;
+	priv->regs = (volatile tsec_t *)(TSEC_BASE_ADDR + index*TSEC_SIZE);
+	priv->phyregs = (volatile tsec_t *)(TSEC_BASE_ADDR +
+			tsec_info[index].phyregidx*TSEC_SIZE);
+
+	priv->phyaddr = tsec_info[index].phyaddr;
+	priv->gigabit = tsec_info[index].gigabit;
+
+	sprintf(dev->name, "MOTO ENET%d", index);
 	dev->iobase = 0;
-	dev->priv   = 0;
+	dev->priv   = priv;
 	dev->init   = tsec_init;
 	dev->halt   = tsec_halt;
 	dev->send   = tsec_send;
@@ -85,70 +156,32 @@ int tsec_initialize(bd_t *bis)
 
 	eth_register(dev);
 
-	/* Reconfigure the PHY to advertise everything here
-	 * so that it works with both gigabit and 10/100 */
-#ifdef CONFIG_PHY_M88E1011
-	/* Assign a Physical address to the TBI */
-	regs->tbipa=TBIPA_VALUE;
 
-	/* reset the management interface */
-	regs->miimcfg=MIIMCFG_RESET;
+	/* Reset the MAC */
+	priv->regs->maccfg1 |= MACCFG1_SOFT_RESET;
+	priv->regs->maccfg1 &= ~(MACCFG1_SOFT_RESET);
 
-	regs->miimcfg=MIIMCFG_INIT_VALUE;
-
-	/* Wait until the bus is free */
-	while(regs->miimind & MIIMIND_BUSY);
-
-	/* Locate PHYs.  Skip TBIPA, which we know is 31.
-	*/
-	for (i=0; i<31; i++) {
-		if (read_phy_reg(regs, i, 2) == 0x141) {
-			if (phy_id == -1)
-				phy_id = i;
-#ifdef TSEC_DEBUG
-			printf("Found Marvell PHY at 0x%02x\n", i);
-#endif
-		}
-	}
-#ifdef TSEC_DEBUG
-	printf("Using PHY ID 0x%02x\n", phy_id);
-#endif
-	write_phy_reg(regs, phy_id, MIIM_CONTROL, MIIM_CONTROL_RESET);
-
-	RESET_ERRATA(regs, phy_id);
-
-	/* Configure the PHY to advertise gbit and 10/100 */
-	write_phy_reg(regs, phy_id, MIIM_GBIT_CONTROL, MIIM_GBIT_CONTROL_INIT);
-	write_phy_reg(regs, phy_id, MIIM_ANAR, MIIM_ANAR_INIT);
-
-	/* Reset the PHY so the new settings take effect */
-	write_phy_reg(regs, phy_id, MIIM_CONTROL, MIIM_CONTROL_RESET);
-#endif
-	return 1;
+	/* Try to initialize PHY here, and return */
+	return init_phy(dev);
 }
 
 
 /* Initializes data structures and registers for the controller,
- * and brings the interface up */
+ * and brings the interface up.  Returns the link status, meaning
+ * that it returns success if the link is up, failure otherwise.
+ * This allows u-boot to find the first active controller. */
 int tsec_init(struct eth_device* dev, bd_t * bd)
 {
-	tsec_t *regs;
 	uint tempval;
 	char tmpbuf[MAC_ADDR_LEN];
 	int i;
-
-	regs = (tsec_t *)(TSEC_BASE_ADDR);
+	struct tsec_private *priv = (struct tsec_private *)dev->priv;
+	volatile tsec_t *regs = priv->regs;
 
 	/* Make sure the controller is stopped */
 	tsec_halt(dev);
 
-	/* Reset the MAC */
-	regs->maccfg1 |= MACCFG1_SOFT_RESET;
-
-	/* Clear MACCFG1[Soft_Reset] */
-	regs->maccfg1 &= ~(MACCFG1_SOFT_RESET);
-
-	/* Init MACCFG2.  Defaults to GMII/MII */
+	/* Init MACCFG2.  Defaults to GMII */
 	regs->maccfg2 = MACCFG2_INIT_SETTINGS;
 
 	/* Init ECNTRL */
@@ -157,16 +190,13 @@ int tsec_init(struct eth_device* dev, bd_t * bd)
 	/* Copy the station address into the address registers.
 	 * Backwards, because little endian MACS are dumb */
 	for(i=0;i<MAC_ADDR_LEN;i++) {
-		tmpbuf[MAC_ADDR_LEN - 1 - i] = bd->bi_enetaddr[i];
+		tmpbuf[MAC_ADDR_LEN - 1 - i] = dev->enetaddr[i];
 	}
 	(uint)(regs->macstnaddr1) = *((uint *)(tmpbuf));
 
 	tempval = *((uint *)(tmpbuf +4));
 
 	(uint)(regs->macstnaddr2) = tempval;
-
-	/* Initialize the PHY */
-	init_phy(regs);
 
 	/* reset the indices to zero */
 	rxIdx = 0;
@@ -176,27 +206,49 @@ int tsec_init(struct eth_device* dev, bd_t * bd)
 	init_registers(regs);
 
 	/* Ready the device for tx/rx */
-	startup_tsec(regs);
+	startup_tsec(dev);
 
-	return 1;
+	/* If there's no link, fail */
+	return priv->link;
 
 }
 
 
-/* Reads from the register at offset in the PHY at phyid, */
-/* using the register set defined in regbase.  It waits until the */
-/* bits in the miimstat are valid (miimind notvalid bit cleared), */
-/* and then passes those bits on to the variable specified in */
-/* value */
-/* Before it does the read, it needs to clear the command field */
-uint read_phy_reg(tsec_t *regbase, uint phyid, uint offset)
+/* Write value to the device's PHY through the registers
+ * specified in priv, modifying the register specified in regnum.
+ * It will wait for the write to be done (or for a timeout to
+ * expire) before exiting
+ */
+void write_phy_reg(struct tsec_private *priv, uint regnum, uint value)
+{
+	volatile tsec_t *regbase = priv->phyregs;
+	uint phyid = priv->phyaddr;
+	int timeout=1000000;
+
+	regbase->miimadd = (phyid << 8) | regnum;
+	regbase->miimcon = value;
+	asm("msync");
+
+	timeout=1000000;
+	while((regbase->miimind & MIIMIND_BUSY) && timeout--);
+}
+
+
+/* Reads register regnum on the device's PHY through the
+ * registers specified in priv.  It lowers and raises the read
+ * command, and waits for the data to become valid (miimind
+ * notvalid bit cleared), and the bus to cease activity (miimind
+ * busy bit cleared), and then returns the value
+ */
+uint read_phy_reg(struct tsec_private *priv, uint regnum)
 {
 	uint value;
+	volatile tsec_t *regbase = priv->phyregs;
+	uint phyid = priv->phyaddr;
 
-	/* Put the address of the phy, and the register number into
-	 * MIIMADD
-	 */
-	regbase->miimadd = (phyid << 8) | offset;
+	/* Put the address of the phy, and the register
+	 * number into MIIMADD */
+	regbase->miimadd = (phyid << 8) | regnum;
 
 	/* Clear the command register, and wait */
 	regbase->miimcom = 0;
@@ -215,115 +267,169 @@ uint read_phy_reg(tsec_t *regbase, uint phyid, uint offset)
 	return value;
 }
 
-/* Setup the PHY */
-static void init_phy(tsec_t *regs)
+
+/* Discover which PHY is attached to the device, and configure it
+ * properly.  If the PHY is not recognized, then return 0
+ * (failure).  Otherwise, return 1
+ */
+static int init_phy(struct eth_device *dev)
 {
-	uint testval;
-	unsigned int timeout = TSEC_TIMEOUT;
+	struct tsec_private *priv = (struct tsec_private *)dev->priv;
+	struct phy_info *curphy;
 
 	/* Assign a Physical address to the TBI */
-	regs->tbipa=TBIPA_VALUE;
+	priv->regs->tbipa=TBIPA_VALUE;
 
-	/* reset the management interface */
-	regs->miimcfg=MIIMCFG_RESET;
+	if(0 == relocated)
+		relocate_cmds();
 
-	regs->miimcfg=MIIMCFG_INIT_VALUE;
+	/* Get the cmd structure corresponding to the attached
+	 * PHY */
+	curphy = get_phy_info(dev);
 
-	/* Wait until the bus is free */
-	while(regs->miimind & MIIMIND_BUSY);
+	if(NULL == curphy) {
+		printf("%s: No PHY found\n", dev->name);
 
-#ifdef CONFIG_PHY_CIS8201
-	/* override PHY config settings */
-	write_phy_reg(regs, 0, MIIM_AUX_CONSTAT, MIIM_AUXCONSTAT_INIT);
-
-	/* Set up interface mode */
-	write_phy_reg(regs, 0, MIIM_EXT_CON1, MIIM_EXTCON1_INIT);
-#endif
-
-	/* Set the PHY to gigabit, full duplex, Auto-negotiate */
-	write_phy_reg(regs, phy_id, MIIM_CONTROL, MIIM_CONTROL_INIT);
-
-	/* Wait until STATUS indicates Auto-Negotiation is done */
-	DBGPRINT("Waiting for Auto-negotiation to complete\n");
-	testval=read_phy_reg(regs, phy_id, MIIM_STATUS);
-
-	while((!(testval & MIIM_STATUS_AN_DONE))&& timeout--) {
-		testval=read_phy_reg(regs, phy_id, MIIM_STATUS);
+		return 0;
 	}
 
-	if(testval & MIIM_STATUS_AN_DONE)
-		DBGPRINT("Auto-negotiation done\n");
-	else
-		DBGPRINT("Auto-negotiation timed-out.\n");
+	priv->phyinfo = curphy;
 
-#ifdef CONFIG_PHY_CIS8201
-	/* Find out what duplexity (duplicity?) we have */
-	/* Read it twice to make sure */
-	testval=read_phy_reg(regs, phy_id, MIIM_AUX_CONSTAT);
+	phy_run_commands(priv, priv->phyinfo->config);
 
-	if(testval & MIIM_AUXCONSTAT_DUPLEX) {
-		DBGPRINT("Enet starting in full duplex\n");
-		regs->maccfg2 |= MACCFG2_FULL_DUPLEX;
-	} else {
-		DBGPRINT("Enet starting in half duplex\n");
-		regs->maccfg2 &= ~MACCFG2_FULL_DUPLEX;
-	}
-
-	/* Also, we look to see what speed we are at
-	 * if Gigabit, MACCFG2 goes in GMII, otherwise,
-	 * MII mode.
-	 */
-	if((testval & MIIM_AUXCONSTAT_SPEED) != MIIM_AUXCONSTAT_GBIT) {
-		if((testval & MIIM_AUXCONSTAT_SPEED) == MIIM_AUXCONSTAT_100)
-			DBGPRINT("Enet starting in 100BT\n");
-		else
-			DBGPRINT("Enet starting in 10BT\n");
-
-		/* mark the mode in MACCFG2 */
-		regs->maccfg2 = ((regs->maccfg2&~(MACCFG2_IF)) | MACCFG2_MII);
-	} else {
-		DBGPRINT("Enet starting in 1000BT\n");
-	}
-
-#endif
-
-#ifdef CONFIG_PHY_M88E1011
-	/* Read the PHY to see what speed and duplex we are */
-	testval=read_phy_reg(regs, phy_id, MIIM_PHY_STATUS);
-
-	timeout = TSEC_TIMEOUT;
-	while((!(testval & MIIM_PHYSTAT_SPDDONE)) && timeout--) {
-		testval = read_phy_reg(regs,phy_id,MIIM_PHY_STATUS);
-	}
-
-	if(!(testval & MIIM_PHYSTAT_SPDDONE))
-		DBGPRINT("Enet: Speed not resolved\n");
-
-	testval=read_phy_reg(regs, phy_id, MIIM_PHY_STATUS);
-	if(testval & MIIM_PHYSTAT_DUPLEX) {
-		DBGPRINT("Enet starting in Full Duplex\n");
-		regs->maccfg2 |= MACCFG2_FULL_DUPLEX;
-	} else {
-		DBGPRINT("Enet starting in Half Duplex\n");
-		regs->maccfg2 &= ~MACCFG2_FULL_DUPLEX;
-	}
-
-	if(!((testval&MIIM_PHYSTAT_SPEED) == MIIM_PHYSTAT_GBIT)) {
-		if((testval & MIIM_PHYSTAT_SPEED) == MIIM_PHYSTAT_100)
-			DBGPRINT("Enet starting in 100BT\n");
-		else
-			DBGPRINT("Enet starting in 10BT\n");
-
-		regs->maccfg2 = ((regs->maccfg2&~(MACCFG2_IF)) | MACCFG2_MII);
-	} else {
-		DBGPRINT("Enet starting in 1000BT\n");
-	}
-#endif
-
+	return 1;
 }
 
 
-static void init_registers(tsec_t *regs)
+/* Returns which value to write to the control register. */
+/* For 10/100, the value is slightly different */
+uint mii_cr_init(uint mii_reg, struct tsec_private *priv)
+{
+	if(priv->gigabit)
+		return MIIM_CONTROL_INIT;
+	else
+		return MIIM_CR_INIT;
+}
+
+
+/* Parse the status register for link, and then do
+ * auto-negotiation */
+uint mii_parse_sr(uint mii_reg, struct tsec_private *priv)
+{
+	uint timeout = TSEC_TIMEOUT;
+
+	if(mii_reg & MIIM_STATUS_LINK)
+		priv->link = 1;
+	else
+		priv->link = 0;
+
+	if(priv->link) {
+		while((!(mii_reg & MIIM_STATUS_AN_DONE)) && timeout--)
+			mii_reg = read_phy_reg(priv, MIIM_STATUS);
+	}
+
+	return 0;
+}
+
+
+/* Parse the 88E1011's status register for speed and duplex
+ * information */
+uint mii_parse_88E1011_psr(uint mii_reg, struct tsec_private *priv)
+{
+	uint speed;
+
+	if(mii_reg & MIIM_88E1011_PHYSTAT_DUPLEX)
+		priv->duplexity = 1;
+	else
+		priv->duplexity = 0;
+
+	speed = (mii_reg &MIIM_88E1011_PHYSTAT_SPEED);
+
+	switch(speed) {
+		case MIIM_88E1011_PHYSTAT_GBIT:
+			priv->speed = 1000;
+			break;
+		case MIIM_88E1011_PHYSTAT_100:
+			priv->speed = 100;
+			break;
+		default:
+			priv->speed = 10;
+	}
+
+	return 0;
+}
+
+
+/* Parse the cis8201's status register for speed and duplex
+ * information */
+uint mii_parse_cis8201(uint mii_reg, struct tsec_private *priv)
+{
+	uint speed;
+
+	if(mii_reg & MIIM_CIS8201_AUXCONSTAT_DUPLEX)
+		priv->duplexity = 1;
+	else
+		priv->duplexity = 0;
+
+	speed = mii_reg & MIIM_CIS8201_AUXCONSTAT_SPEED;
+	switch(speed) {
+		case MIIM_CIS8201_AUXCONSTAT_GBIT:
+			priv->speed = 1000;
+			break;
+		case MIIM_CIS8201_AUXCONSTAT_100:
+			priv->speed = 100;
+			break;
+		default:
+			priv->speed = 10;
+			break;
+	}
+
+	return 0;
+}
+
+
+/* Parse the DM9161's status register for speed and duplex
+ * information */
+uint mii_parse_dm9161_scsr(uint mii_reg, struct tsec_private *priv)
+{
+	if(mii_reg & (MIIM_DM9161_SCSR_100F | MIIM_DM9161_SCSR_100H))
+		priv->speed = 100;
+	else
+		priv->speed = 10;
+
+	if(mii_reg & (MIIM_DM9161_SCSR_100F | MIIM_DM9161_SCSR_10F))
+		priv->duplexity = 1;
+	else
+		priv->duplexity = 0;
+
+	return 0;
+}
+
+
+/* Hack to write all 4 PHYs with the LED values */
+uint mii_cis8204_fixled(uint mii_reg, struct tsec_private *priv)
+{
+	uint phyid;
+	volatile tsec_t *regbase = priv->phyregs;
+	int timeout=1000000;
+
+	for(phyid=0;phyid<4;phyid++) {
+		regbase->miimadd = (phyid << 8) | mii_reg;
+		regbase->miimcon = MIIM_CIS8204_SLEDCON_INIT;
+		asm("msync");
+
+		timeout=1000000;
+		while((regbase->miimind & MIIMIND_BUSY) && timeout--);
+	}
+
+	return MIIM_CIS8204_SLEDCON_INIT;
+}
+
+
+/* Initialized required registers to appropriate values, zeroing
+ * those we don't care about (unless zero is bad, in which case,
+ * choose a more appropriate value) */
+static void init_registers(volatile tsec_t *regs)
 {
 	/* Clear IEVENT */
 	regs->ievent = IEVENT_INIT_CLEAR;
@@ -365,9 +471,51 @@ static void init_registers(tsec_t *regs)
 
 }
 
-static void startup_tsec(tsec_t *regs)
+
+/* Configure maccfg2 based on negotiated speed and duplex
+ * reported by PHY handling code */
+static void adjust_link(struct eth_device *dev)
+{
+	struct tsec_private *priv = (struct tsec_private *)dev->priv;
+	volatile tsec_t *regs = priv->regs;
+
+	if(priv->link) {
+		if(priv->duplexity != 0)
+			regs->maccfg2 |= MACCFG2_FULL_DUPLEX;
+		else
+			regs->maccfg2 &= ~(MACCFG2_FULL_DUPLEX);
+
+		switch(priv->speed) {
+			case 1000:
+				regs->maccfg2 = ((regs->maccfg2&~(MACCFG2_IF))
+					| MACCFG2_GMII);
+				break;
+			case 100:
+			case 10:
+				regs->maccfg2 = ((regs->maccfg2&~(MACCFG2_IF))
+					| MACCFG2_MII);
+				break;
+			default:
+				printf("%s: Speed was bad\n", dev->name);
+				break;
+		}
+
+		printf("Speed: %d, %s duplex\n", priv->speed,
+				(priv->duplexity) ? "full" : "half");
+
+	} else {
+		printf("%s: No link.\n", dev->name);
+	}
+}
+
+
+/* Set up the buffers and their descriptors, and bring up the
+ * interface */
+static void startup_tsec(struct eth_device *dev)
 {
 	int i;
+	struct tsec_private *priv = (struct tsec_private *)dev->priv;
+	volatile tsec_t *regs = priv->regs;
 
 	/* Point to the buffer descriptors */
 	regs->tbase = (unsigned int)(&rtx.txbd[txIdx]);
@@ -389,6 +537,10 @@ static void startup_tsec(tsec_t *regs)
 	}
 	rtx.txbd[TX_BUF_CNT -1].status |= TXBD_WRAP;
 
+	/* Start up the PHY */
+	phy_run_commands(priv, priv->phyinfo->startup);
+	adjust_link(dev);
+
 	/* Enable Transmit and Receive */
 	regs->maccfg1 |= (MACCFG1_RX_EN | MACCFG1_TX_EN);
 
@@ -406,12 +558,13 @@ static int tsec_send(struct eth_device* dev, volatile void *packet, int length)
 {
 	int i;
 	int result = 0;
-	tsec_t * regs = (tsec_t *)(TSEC_BASE_ADDR);
+	struct tsec_private *priv = (struct tsec_private *)dev->priv;
+	volatile tsec_t *regs = priv->regs;
 
 	/* Find an empty buffer descriptor */
 	for(i=0; rtx.txbd[txIdx].status & TXBD_READY; i++) {
 		if (i >= TOUT_LOOP) {
-			DBGPRINT("tsec: tx buffers full\n");
+			DBGPRINT("%s: tsec: tx buffers full\n", dev->name);
 			return result;
 		}
 	}
@@ -426,7 +579,7 @@ static int tsec_send(struct eth_device* dev, volatile void *packet, int length)
 	/* Wait for buffer to be transmitted */
 	for(i=0; rtx.txbd[txIdx].status & TXBD_READY; i++) {
 		if (i >= TOUT_LOOP) {
-			DBGPRINT("tsec: tx error\n");
+			DBGPRINT("%s: tsec: tx error\n", dev->name);
 			return result;
 		}
 	}
@@ -440,7 +593,8 @@ static int tsec_send(struct eth_device* dev, volatile void *packet, int length)
 static int tsec_recv(struct eth_device* dev)
 {
 	int length;
-	tsec_t *regs = (tsec_t *)(TSEC_BASE_ADDR);
+	struct tsec_private *priv = (struct tsec_private *)dev->priv;
+	volatile tsec_t *regs = priv->regs;
 
 	while(!(rtx.rxbd[rxIdx].status & RXBD_EMPTY)) {
 
@@ -449,6 +603,9 @@ static int tsec_recv(struct eth_device* dev)
 		/* Send the packet up if there were no errors */
 		if (!(rtx.rxbd[rxIdx].status & RXBD_STATS)) {
 			NetReceive(NetRxPackets[rxIdx], length - 4);
+		} else {
+			printf("Got error %x\n",
+					(rtx.rxbd[rxIdx].status & RXBD_STATS));
 		}
 
 		rtx.rxbd[rxIdx].length = 0;
@@ -469,9 +626,11 @@ static int tsec_recv(struct eth_device* dev)
 }
 
 
+/* Stop the interface */
 static void tsec_halt(struct eth_device* dev)
 {
-	tsec_t *regs = (tsec_t *)(TSEC_BASE_ADDR);
+	struct tsec_private *priv = (struct tsec_private *)dev->priv;
+	volatile tsec_t *regs = priv->regs;
 
 	regs->dmactrl &= ~(DMACTRL_GRS | DMACTRL_GTS);
 	regs->dmactrl |= (DMACTRL_GRS | DMACTRL_GTS);
@@ -480,25 +639,288 @@ static void tsec_halt(struct eth_device* dev)
 
 	regs->maccfg1 &= ~(MACCFG1_TX_EN | MACCFG1_RX_EN);
 
+	/* Shut down the PHY, as needed */
+	phy_run_commands(priv, priv->phyinfo->shutdown);
 }
 
+
+struct phy_info phy_info_M88E1011S = {
+	0x01410c6,
+	"Marvell 88E1011S",
+	4,
+	(struct phy_cmd[]) { /* config */
+		/* Reset and configure the PHY */
+		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+		{0x1d, 0x1f, NULL},
+		{0x1e, 0x200c, NULL},
+		{0x1d, 0x5, NULL},
+		{0x1e, 0x0, NULL},
+		{0x1e, 0x100, NULL},
+		{MIIM_GBIT_CONTROL, MIIM_GBIT_CONTROL_INIT, NULL},
+		{MIIM_ANAR, MIIM_ANAR_INIT, NULL},
+		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+		{MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) { /* startup */
+		/* Status is read once to clear old link state */
+		{MIIM_STATUS, miim_read, NULL},
+		/* Auto-negotiate */
+		{MIIM_STATUS, miim_read, &mii_parse_sr},
+		/* Read the status */
+		{MIIM_88E1011_PHY_STATUS, miim_read, &mii_parse_88E1011_psr},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) { /* shutdown */
+		{miim_end,}
+	},
+};
+
+struct phy_info phy_info_cis8204 = {
+	0x3f11,
+	"Cicada Cis8204",
+	6,
+	(struct phy_cmd[]) { /* config */
+		/* Override PHY config settings */
+		{MIIM_CIS8201_AUX_CONSTAT, MIIM_CIS8201_AUXCONSTAT_INIT, NULL},
+		/* Configure some basic stuff */
+		{MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
+		{MIIM_CIS8204_SLED_CON, MIIM_CIS8204_SLEDCON_INIT, &mii_cis8204_fixled},
+		{MIIM_CIS8204_EPHY_CON, MIIM_CIS8204_EPHYCON_INIT, NULL},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) { /* startup */
+		/* Read the Status (2x to make sure link is right) */
+		{MIIM_STATUS, miim_read, NULL},
+		/* Auto-negotiate */
+		{MIIM_STATUS, miim_read, &mii_parse_sr},
+		/* Read the status */
+		{MIIM_CIS8201_AUX_CONSTAT, miim_read, &mii_parse_cis8201},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) { /* shutdown */
+		{miim_end,}
+	},
+};
+
+/* Cicada 8201 */
+struct phy_info phy_info_cis8201 = {
+	0xfc41,
+	"CIS8201",
+	4,
+	(struct phy_cmd[]) { /* config */
+		/* Override PHY config settings */
+		{MIIM_CIS8201_AUX_CONSTAT, MIIM_CIS8201_AUXCONSTAT_INIT, NULL},
+		/* Set up the interface mode */
+		{MIIM_CIS8201_EXT_CON1, MIIM_CIS8201_EXTCON1_INIT, NULL},
+		/* Configure some basic stuff */
+		{MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) { /* startup */
+		/* Read the Status (2x to make sure link is right) */
+		{MIIM_STATUS, miim_read, NULL},
+		/* Auto-negotiate */
+		{MIIM_STATUS, miim_read, &mii_parse_sr},
+		/* Read the status */
+		{MIIM_CIS8201_AUX_CONSTAT, miim_read, &mii_parse_cis8201},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) { /* shutdown */
+		{miim_end,}
+	},
+};
+
+
+struct phy_info phy_info_dm9161 = {
+	0x0181b88,
+	"Davicom DM9161E",
+	4,
+	(struct phy_cmd[]) { /* config */
+		{MIIM_CONTROL, MIIM_DM9161_CR_STOP, NULL},
+		/* Do not bypass the scrambler/descrambler */
+		{MIIM_DM9161_SCR, MIIM_DM9161_SCR_INIT, NULL},
+		/* Clear 10BTCSR to default */
+		{MIIM_DM9161_10BTCSR, MIIM_DM9161_10BTCSR_INIT, NULL},
+		/* Configure some basic stuff */
+		{MIIM_CONTROL, MIIM_CR_INIT, NULL},
+		/* Restart Auto Negotiation */
+		{MIIM_CONTROL, MIIM_DM9161_CR_RSTAN, NULL},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) { /* startup */
+		/* Status is read once to clear old link state */
+		{MIIM_STATUS, miim_read, NULL},
+		/* Auto-negotiate */
+		{MIIM_STATUS, miim_read, &mii_parse_sr},
+		/* Read the status */
+		{MIIM_DM9161_SCSR, miim_read, &mii_parse_dm9161_scsr},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) { /* shutdown */
+		{miim_end,}
+	},
+};
+
+struct phy_info *phy_info[] = {
+#if 0
+	&phy_info_cis8201,
+#endif
+	&phy_info_cis8204,
+	&phy_info_M88E1011S,
+	&phy_info_dm9161,
+	NULL
+};
+
+
+/* Grab the identifier of the device's PHY, and search through
+ * all of the known PHYs to see if one matches.  If so, return
+ * it, if not, return NULL */
+struct phy_info * get_phy_info(struct eth_device *dev)
+{
+	struct tsec_private *priv = (struct tsec_private *)dev->priv;
+	uint phy_reg, phy_ID;
+	int i;
+	struct phy_info *theInfo = NULL;
+
+	/* Grab the bits from PHYIR1, and put them in the upper half */
+	phy_reg = read_phy_reg(priv, MIIM_PHYIR1);
+	phy_ID = (phy_reg & 0xffff) << 16;
+
+	/* Grab the bits from PHYIR2, and put them in the lower half */
+	phy_reg = read_phy_reg(priv, MIIM_PHYIR2);
+	phy_ID |= (phy_reg & 0xffff);
+
+	/* loop through all the known PHY types, and find one that */
+	/* matches the ID we read from the PHY. */
+	for(i=0; phy_info[i]; i++) {
+		if(phy_info[i]->id == (phy_ID >> phy_info[i]->shift))
+			theInfo = phy_info[i];
+	}
+
+	if(theInfo == NULL)
+	{
+		printf("%s: PHY id %x is not supported!\n", dev->name, phy_ID);
+		return NULL;
+	} else {
+		printf("%s: PHY is %s (%x)\n", dev->name, theInfo->name,
+				phy_ID);
+	}
+
+	return theInfo;
+}
+
+
+/* Execute the given series of commands on the given device's
+ * PHY, running functions as necessary*/
+void phy_run_commands(struct tsec_private *priv, struct phy_cmd *cmd)
+{
+	int i;
+	uint result;
+	volatile tsec_t *phyregs = priv->phyregs;
+
+	phyregs->miimcfg = MIIMCFG_RESET;
+
+	phyregs->miimcfg = MIIMCFG_INIT_VALUE;
+
+	while(phyregs->miimind & MIIMIND_BUSY);
+
+	for(i=0;cmd->mii_reg != miim_end;i++) {
+		if(cmd->mii_data == miim_read) {
+			result = read_phy_reg(priv, cmd->mii_reg);
+
+			if(cmd->funct != NULL)
+				(*(cmd->funct))(result, priv);
+
+		} else {
+			if(cmd->funct != NULL)
+				result = (*(cmd->funct))(cmd->mii_reg, priv);
+			else
+				result = cmd->mii_data;
+
+			write_phy_reg(priv, cmd->mii_reg, result);
+
+		}
+		cmd++;
+	}
+}
+
+
+/* Relocate the function pointers in the phy cmd lists */
+static void relocate_cmds(void)
+{
+	struct phy_cmd **cmdlistptr;
+	struct phy_cmd *cmd;
+	int i,j,k;
+	DECLARE_GLOBAL_DATA_PTR;
+
+	for(i=0; phy_info[i]; i++) {
+		/* First thing's first: relocate the pointers to the
+		 * PHY command structures (the structs were done) */
+		phy_info[i] = (struct phy_info *) ((uint)phy_info[i]
+				+ gd->reloc_off);
+		phy_info[i]->name += gd->reloc_off;
+		phy_info[i]->config =
+			(struct phy_cmd *)((uint)phy_info[i]->config
+					   + gd->reloc_off);
+		phy_info[i]->startup =
+			(struct phy_cmd *)((uint)phy_info[i]->startup
+					   + gd->reloc_off);
+		phy_info[i]->shutdown =
+			(struct phy_cmd *)((uint)phy_info[i]->shutdown
+					   + gd->reloc_off);
+
+		cmdlistptr = &phy_info[i]->config;
+		j=0;
+		for(;cmdlistptr <= &phy_info[i]->shutdown;cmdlistptr++) {
+			k=0;
+			for(cmd=*cmdlistptr;cmd->mii_reg != miim_end;cmd++) {
+				/* Only relocate non-NULL pointers */
+				if(cmd->funct)
+					cmd->funct += gd->reloc_off;
+
+				k++;
+			}
+			j++;
+		}
+	}
+
+	relocated = 1;
+}
+
+
 #ifndef CONFIG_BITBANGMII
+
+struct tsec_private * get_priv_for_phy(unsigned char phyaddr)
+{
+	int i;
+
+	for(i=0;i<MAXCONTROLLERS;i++) {
+		if(privlist[i]->phyaddr == phyaddr)
+			return privlist[i];
+	}
+
+	return NULL;
+}
+
 /*
  * Read a MII PHY register.
  *
  * Returns:
- *   0 on success
+ *  0 on success
  */
-int miiphy_read(unsigned char  addr,
-		unsigned char  reg,
-		unsigned short *value)
+int miiphy_read(unsigned char addr, unsigned char reg, unsigned short *value)
 {
-	tsec_t *regs;
-	unsigned short rv;
+	unsigned short ret;
+	struct tsec_private *priv = get_priv_for_phy(addr);
 
-	regs = (tsec_t *)(TSEC_BASE_ADDR);
-	rv = (unsigned short)read_phy_reg(regs, addr, reg);
-	*value = rv;
+	if(NULL == priv) {
+		printf("Can't read PHY at address %d\n", addr);
+		return -1;
+	}
+
+	ret = (unsigned short)read_phy_reg(priv, reg);
+	*value = ret;
 
 	return 0;
 }
@@ -507,18 +929,22 @@ int miiphy_read(unsigned char  addr,
  * Write a MII PHY register.
  *
  * Returns:
- *   0 on success
+ *  0 on success
  */
-int miiphy_write(unsigned char  addr,
-		 unsigned char  reg,
-		 unsigned short value)
+int miiphy_write(unsigned char addr, unsigned char reg, unsigned short value)
 {
-	tsec_t *regs;
+	struct tsec_private *priv = get_priv_for_phy(addr);
 
-	regs = (tsec_t *)(TSEC_BASE_ADDR);
-	write_phy_reg(regs, addr, reg, value);
+	if(NULL == priv) {
+		printf("Can't write PHY at address %d\n", addr);
+		return -1;
+	}
+
+	write_phy_reg(priv, reg, value);
 
 	return 0;
 }
+
 #endif /* CONFIG_BITBANGMII */
+
 #endif /* CONFIG_TSEC_ENET */

@@ -1,3 +1,4 @@
+# Copyright 2004 Freescale Semiconductor.
 # Modified by Xianghua Xiao, X.Xiao@motorola.com
 # (C) Copyright 2002,Motorola Inc.
 #

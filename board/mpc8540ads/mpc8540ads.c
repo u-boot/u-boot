@@ -1,4 +1,4 @@
-/*
+ /*
  * (C) Copyright 2002,2003, Motorola Inc.
  * Xianghua Xiao, (X.Xiao@motorola.com)
  *
@@ -33,6 +33,13 @@ extern long int spd_sdram (void);
 
 long int fixed_sdram (void);
 
+#if defined(CONFIG_DDR_ECC)
+void dma_init(void);
+uint dma_check(void);
+int dma_xfer(void *dest, uint count, void *src);
+#endif
+
+
 /* MPC8540ADS Board Status & Control Registers */
 #if 0
 typedef struct bscr_ {
@@ -60,23 +67,10 @@ int board_early_init_f (void)
 
 int checkboard (void)
 {
-	sys_info_t sysinfo;
-
-	get_sys_info (&sysinfo);
-
-	printf ("Board: Motorola MPC8540ADS Board\n");
-	printf ("\tCPU: %lu MHz\n", sysinfo.freqProcessor / 1000000);
-	printf ("\tCCB: %lu MHz\n", sysinfo.freqSystemBus / 1000000);
-	printf ("\tDDR: %lu MHz\n", sysinfo.freqSystemBus / 2000000);
-	if((CFG_LBC_LCRR & 0x0f) == 2 || (CFG_LBC_LCRR & 0x0f) == 4 \
-		|| (CFG_LBC_LCRR & 0x0f) == 8) {
-		printf ("\tLBC: %lu MHz\n", sysinfo.freqSystemBus / 1000000 /(CFG_LBC_LCRR & 0x0f));
-	} else {
-		printf("\tLBC: unknown\n");
-	}
-	printf("L1 D-cache 32KB, L1 I-cache 32KB enabled.\n");
-	return (0);
+	puts("Board: ADS\n");
+	return 0;
 }
+
 
 long int initdram (int board_type)
 {
@@ -91,8 +85,9 @@ long int initdram (int board_type)
 #if !defined(CONFIG_RAM_AS_FLASH) || defined(CONFIG_DDR_DLL)
 	volatile ccsr_gur_t *gur= &immap->im_gur;
 #endif
+
 #if defined(CONFIG_DDR_DLL)
-	uint temp_ddrdll = 0;
+       uint temp_ddrdll = 0;
 
 	/* Work around to stabilize DDR DLL */
 	temp_ddrdll = gur->ddrdllcr;
@@ -112,9 +107,16 @@ long int initdram (int board_type)
 	if(sysinfo.freqSystemBus/(CFG_LBC_LCRR & 0x0f) < 66000000) {
 		lbc->lcrr = (CFG_LBC_LCRR & 0x0fffffff)| 0x80000000;
 	} else {
-#if defined(CONFIG_MPC85xx_REV1) /* need change CLKDIV before enable DLL */
-		lbc->lcrr = 0x10000004; /* default CLKDIV is 8, change it to 4 temporarily */
-#endif
+		uint pvr = get_pvr();
+
+		if (pvr == PVR_85xx_REV1) {
+			/*
+			 * Need change CLKDIV before enable DLL.
+			 * Default CLKDIV is 8, change it to 4
+			 * temporarily.
+			 */
+		    lbc->lcrr = 0x10000004;
+		}
 		lbc->lcrr = CFG_LBC_LCRR & 0x7fffffff;
 		udelay(200);
 		temp_lbcdll = gur->lbcdllcr;

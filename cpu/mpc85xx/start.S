@@ -1,4 +1,5 @@
 /*
+ * Copyright 2004 Freescale Semiconductor.
  * Copyright (C) 2003  Motorola,Inc.
  * Xianghua Xiao<X.Xiao@motorola.com>
  *
@@ -83,18 +84,39 @@
     .globl _start_e500
 
 _start_e500:
-#if defined(CONFIG_MPC85xx_REV1)
+	mfspr	r0, PVR
+	lis	r1, PVR_85xx_REV1@h
+	ori	r1, r1, PVR_85xx_REV1@l
+	cmpw	r0, r1
+	bne	1f
+
+	/* Semi-bogus errata fixup for Rev 1 */
 	li	r0,0x2000
 	mtspr	977,r0
-#endif
 
-	/* Clear and set up some registers. Note: Some registers need strict
-	 * synchronization by sync/mbar/msync/isync when being "mtspr".
+	/*
+	 * Before invalidating MMU L1/L2, read TLB1 Entry 0 and then
+	 * write it back immediately to fixup a Rev 1 bug (Errata CPU4)
+	 * for this initial TLB1 entry 0, otherwise the TLB1 entry 0
+	 * will be invalidated (incorrectly).
+	 */
+	lis	r2,0x1000
+	mtspr	MAS0,r2
+	tlbre
+	tlbwe
+	isync
+
+1:
+	/*
+	 * Clear and set up some registers.
+	 * Note: Some registers need strict synchronization by
+	 * sync/mbar/msync/isync when being "mtspr".
 	 * BookE: isync before PID,tlbivax,tlbwe
 	 * BookE: isync after MSR,PID; msync_isync after tlbivax & tlbwe
 	 * E500:  msync,isync before L1CSR0
-	 * E500:  isync after BBEAR,BBTAR,BUCSR,DBCR0,DBCR1,HID0,HID1,L1CSR0
-	 *        L1CSR1, MAS[0,1,2,3,4,6],MMUCSR0, PID[0,1,2],SPEFCSR
+	 * E500:  isync after BBEAR,BBTAR,BUCSR,DBCR0,DBCR1,HID0,HID1,
+	 *        L1CSR0, L1CSR1, MAS[0,1,2,3,4,6],MMUCSR0, PID[0,1,2],
+	 *        SPEFCSR
 	 */
 
 	/* invalidate d-cache */
@@ -173,7 +195,8 @@ _start_e500:
 	isync
 
 	/* Setup interrupt vectors */
-	mtspr IVPR, r0
+	lis     r1,0xfff8
+	mtspr IVPR, r1
 
 	li      r1,0x0100
 	mtspr	IVOR0,r1	/* 0: Critical input */
@@ -203,21 +226,15 @@ _start_e500:
 	li	r1,0x2000
 	mtspr	IVOR15,r1	/* 15: Debug */
 
-	/* invalidate MMU L1/L2 */
-	/* Note: before invalidate MMU L1/L2, we read TLB1 Entry 0 and then
-	 * write it back immediately to fixup a bug(Errata CPU4)  for this initial
-	 * TLB1 entry 0,otherwise the TLB1 entry 0 will be invalidated.
+	/*
+	 * Invalidate MMU L1/L2
+	 *
+	 * Note: There is a fixup earlier for Errata CPU4 on
+	 * Rev 1 parts that must precede this MMU invalidation.
 	 */
-#if defined(CONFIG_MPC85xx_REV1)
-	lis	r2,0x1000
-	mtspr	MAS0,r2
-	tlbre
-	tlbwe
-	isync
 	li      r2, 0x001e
 	mtspr   MMUCSR0, r2
 	isync
-#endif
 
 	/* After reset, CCSRBAR is located at CFG_CCSRBAR_DEFAULT, i.e.
 	 * 0xff700000-0xff800000. We need add a TLB1 entry for this 1MB
@@ -278,9 +295,11 @@ _start_e500:
 	li 	r3,4
 	li	r4,0
 	tlbivax	r4,r3
-#if defined(CONFIG_MPC85xx_REV1) /* Errata CPU6 */
-	nop
-#endif
+	/*
+	 * To avoid REV1 Errata CPU6 issues, make sure
+	 * the instruction following tlbivax is not a store.
+	 */
+
 
 	/* set up local access windows, defined at board/<boardname>/init.S */
 	lis	r7,CFG_CCSRBAR@h
@@ -779,6 +798,11 @@ get_pir:
 	.globl get_pvr
 get_pvr:
 	mfspr	r3, PVR
+	blr
+
+	.globl get_svr
+get_svr:
+	mfspr	r3, SVR
 	blr
 
 	.globl wr_tcr

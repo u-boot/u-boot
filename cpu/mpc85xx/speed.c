@@ -1,4 +1,5 @@
 /*
+ * Copyright 2004 Freescale Semiconductor.
  * (C) Copyright 2003 Motorola Inc.
  * Xianghua Xiao, (X.Xiao@motorola.com)
  *
@@ -30,10 +31,9 @@
 
 /* --------------------------------------------------------------- */
 
-#define ONE_BILLION        1000000000
-
 void get_sys_info (sys_info_t * sysInfo)
 {
+	DECLARE_GLOBAL_DATA_PTR;
 	volatile immap_t    *immap = (immap_t *)CFG_IMMR;
 	volatile ccsr_gur_t *gur = &immap->im_gur;
 	uint plat_ratio,e500_ratio;

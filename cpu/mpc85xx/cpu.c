@@ -1,4 +1,5 @@
 /*
+ * Copyright 2004 Freescale Semiconductor.
  * (C) Copyright 2002, 2003 Motorola Inc.
  * Xianghua Xiao (X.Xiao@motorola.com)
  *
@@ -33,17 +34,87 @@
 
 int checkcpu (void)
 {
-	uint pir = get_pir();
-	uint pvr = get_pvr();
+	sys_info_t sysinfo;
+	uint lcrr;		/* local bus clock ratio register */
+	uint clkdiv;		/* clock divider portion of lcrr */
+	uint pvr, svr;
+	uint ver;
+	uint major, minor;
 
-	printf("Motorola PowerPC ProcessorID=%08x Rev. ",pir);
-	switch(pvr) {
+	puts("Freescale PowerPC\n");
+
+	pvr = get_pvr();
+	ver = PVR_VER(pvr);
+	major = PVR_MAJ(pvr);
+	minor = PVR_MIN(pvr);
+
+	printf("    Core: ");
+	switch (ver) {
+	case PVR_VER(PVR_85xx):
+	    puts("E500");
+	    break;
 	default:
-		printf("PVR=%08x", pvr);
+	    puts("Unknown");
+	    break;
+	}
+	printf(", Version: %d.%d, (0x%08x)\n", major, minor, pvr);
+
+	svr = get_svr();
+	ver = SVR_VER(svr);
+	major = SVR_MAJ(svr);
+	minor = SVR_MIN(svr);
+
+	puts("    System: ");
+	switch (ver) {
+	case SVR_8540:
+		puts("8540");
+		break;
+	case SVR_8541:
+		puts("8541");
+		break;
+	case SVR_8555:
+		puts("8555");
+		break;
+	case SVR_8560:
+		puts("8560");
+		break;
+	default:
+		puts("Unknown");
 		break;
 	}
+	printf(", Version: %d.%d, (0x%08x)\n", major, minor, svr);
 
-	printf("\n");
+	get_sys_info(&sysinfo);
+
+	puts("    Clocks: ");
+	printf("CPU:%4lu MHz, ", sysinfo.freqProcessor / 1000000);
+	printf("CCB:%4lu MHz, ", sysinfo.freqSystemBus / 1000000);
+	printf("DDR:%4lu MHz, ", sysinfo.freqSystemBus / 2000000);
+
+#if defined(CFG_LBC_LCRR)
+	lcrr = CFG_LBC_LCRR;
+#else
+	{
+	    volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	    volatile ccsr_lbc_t *lbc= &immap->im_lbc;
+
+	    lcrr = lbc->lcrr;
+	}
+#endif
+	clkdiv = lcrr & 0x0f;
+	if (clkdiv == 2 || clkdiv == 4 || clkdiv == 8) {
+		printf("LBC:%4lu MHz\n",
+		       sysinfo.freqSystemBus / 1000000 / clkdiv);
+	} else {
+		printf("    LBC: unknown (lcrr: 0x%08x)\n", lcrr);
+	}
+
+	if (ver == SVR_8560) {
+		printf("    CPM: %lu Mhz\n",
+		       sysinfo.freqSystemBus / 1000000);
+	}
+
+	puts("    L1 D-cache 32KB, L1 I-cache 32KB enabled.\n");
 
 	return 0;
 }
@@ -57,8 +128,12 @@ int do_reset (cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
 	 * Initiate hard reset in debug control register DBCR0
 	 * Make sure MSR[DE] = 1
 	 */
-	__asm__ __volatile__("lis   3, 0x7000" ::: "r3");
-	mtspr(DBCR0,3);
+	unsigned long val;
+
+	val = mfspr(DBCR0);
+	val |= 0x70000000;
+	mtspr(DBCR0,val);
+
 	return 1;
 }
 

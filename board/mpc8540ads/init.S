@@ -1,4 +1,5 @@
 /*
+ * Copyright 2004 Freescale Semiconductor.
 * Copyright (C) 2002,2003, Motorola Inc.
 * Xianghua Xiao <X.Xiao@motorola.com>
 *
@@ -136,43 +137,58 @@ tlb1_entry:
   #endif
 	entry_end
 
-/* LAW(Local Access Window) configuration:
- * 0000_0000-0800_0000: DDR(128M) -or- larger
- * f000_0000-f3ff_ffff: PCI(256M)
- * f400_0000-f7ff_ffff: RapidIO(128M)
- * f800_0000-ffff_ffff: localbus(128M)
- *   f800_0000-fbff_ffff: LBC SDRAM(64M)
- *   fc00_0000-fdef_ffff: LBC BCSR,RTC,etc(31M)
- *   fdf0_0000-fdff_ffff: CCSRBAR(1M)
- *   fe00_0000-ffff_ffff: Flash(32M)
- * Note: CCSRBAR and L2-as-SRAM don't need configure Local Access
- *       Window.
+/*
+ * LAW(Local Access Window) configuration:
+ *
+ * 0x0000_0000     0x7fff_ffff     DDR                     2G
+ * 0x8000_0000     0x9fff_ffff     PCI MEM                 512M
+ * 0xe000_0000     0xe000_ffff     CCSR                    1M
+ * 0xe200_0000     0xe2ff_ffff     PCI IO                  16M
+ * 0xf000_0000     0xf7ff_ffff     SDRAM                   128M
+ * 0xf800_0000     0xf80f_ffff     BCSR                    1M
+ * 0xff00_0000     0xffff_ffff     FLASH (boot bank)       16M
+ *
+ * Note: CCSRBAR and L2-as-SRAM don't need a configured Local Access Window.
  * Note: If flash is 8M at default position(last 8M),no LAW needed.
  */
 
 #if !defined(CONFIG_SPD_EEPROM)
 #define LAWBAR0 ((CFG_DDR_SDRAM_BASE>>12) & 0xfffff)
-#define LAWAR0 	(LAWAR_EN | LAWAR_TRGT_IF_DDR | (LAWAR_SIZE & LAWAR_SIZE_128M))
+#define LAWAR0	(LAWAR_EN | LAWAR_TRGT_IF_DDR | (LAWAR_SIZE & LAWAR_SIZE_128M))
 #else
 #define LAWBAR0 0
 #define LAWAR0  ((LAWAR_TRGT_IF_DDR | (LAWAR_SIZE & LAWAR_SIZE_128M)) & ~LAWAR_EN)
 #endif
 
 #define LAWBAR1 ((CFG_PCI_MEM_BASE>>12) & 0xfffff)
-#define LAWAR1 	(LAWAR_EN | LAWAR_TRGT_IF_PCIX | (LAWAR_SIZE & LAWAR_SIZE_256M))
+#define LAWAR1	(LAWAR_EN | LAWAR_TRGT_IF_PCIX | (LAWAR_SIZE & LAWAR_SIZE_512M))
 
+/*
+ * This is not so much the SDRAM map as it is the whole localbus map.
+ */
 #if !defined(CONFIG_RAM_AS_FLASH)
 #define LAWBAR2 ((CFG_LBC_SDRAM_BASE>>12) & 0xfffff)
-#define LAWAR2 	(LAWAR_EN | LAWAR_TRGT_IF_LBC | (LAWAR_SIZE & LAWAR_SIZE_128M))
+#define LAWAR2	(LAWAR_EN | LAWAR_TRGT_IF_LBC | (LAWAR_SIZE & LAWAR_SIZE_256M))
 #else
 #define LAWBAR2 0
 #define LAWAR2 ((LAWAR_TRGT_IF_LBC | (LAWAR_SIZE & LAWAR_SIZE_128M)) & ~LAWAR_EN)
 #endif
 
+#define LAWBAR3 ((CFG_PCI_IO_BASE>>12) & 0xfffff)
+#define LAWAR3	(LAWAR_EN | LAWAR_TRGT_IF_PCIX | (LAWAR_SIZE & LAWAR_SIZE_16M))
+
+/*
+ * Rapid IO at 0xc000_0000 for 512 M
+ */
+#define LAWBAR4 ((CFG_RAPID_IO_BASE>>12) & 0xfffff)
+#define LAWAR4	(LAWAR_EN | LAWAR_TRGT_IF_PCIX | (LAWAR_SIZE & LAWAR_SIZE_512M))
+
+
 	.section .bootpg, "ax"
 	.globl	law_entry
 law_entry:
 	entry_start
-	.long 0x03
-	.long LAWBAR0,LAWAR0,LAWBAR1,LAWAR1,LAWBAR2,LAWAR2
+	.long 0x05
+	.long LAWBAR0,LAWAR0,LAWBAR1,LAWAR1,LAWBAR2,LAWAR2,LAWBAR3,LAWAR3
+	.long LAWBAR4,LAWAR4
 	entry_end
