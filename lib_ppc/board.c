@@ -825,7 +825,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 	WATCHDOG_RESET ();
 
-#if defined(CONFIG_PCI) && !defined(CONFIG_BAB7xx)
+#if defined(CONFIG_PCI) && !defined(CONFIG_BAB7xx) && !defined(CONFIG_CPC45)
 	/*
 	 * Do pci configuration
 	 */

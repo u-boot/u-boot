@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Fix PCI support on CPC45 board
+
 * Patch by Scott McNutt, 25 Apr 2004:
   Add Nios GDB/JTAG Console support:
   - Add stubs to support gdb via JTAG.
