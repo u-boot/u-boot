@@ -144,7 +144,7 @@ int dram_init(void)
  * NAND flash initialization.
  */
 #if (CONFIG_COMMANDS & CFG_CMD_NAND)
-extern void
+extern ulong
 nand_probe(ulong physadr);
 
 
@@ -177,10 +177,15 @@ void
 nand_init(void)
 {
 	S3C2410_NAND * const nand = S3C2410_GetBase_NAND();
+	unsigned totlen;
 
 	NF_Init();
+#ifdef DEBUG
 	printf("NAND flash probing at 0x%.8lX\n", (ulong)nand);
-	nand_probe((ulong)nand);
+#endif
+	totlen = nand_probe((ulong)nand) >> 20;
+
+	printf ("%4lu MB\n", totlen >> 20);
 }
 #endif
 

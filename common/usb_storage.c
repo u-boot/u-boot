@@ -613,7 +613,7 @@ int usb_stor_BBB_transport(ccb *srb, struct us_data *us)
 	result = usb_bulk_msg(us->pusb_dev, pipe, srb->pdata, srb->datalen, &data_actlen, USB_CNTL_TIMEOUT*5);
 	/* special handling of STALL in DATA phase */
 	if((result < 0) && (us->pusb_dev->status & USB_ST_STALLED)) {
-		printf("DATA:stall\n");
+		USB_STOR_PRINTF("DATA:stall\n");
 		/* clear the STALL on the endpoint */
 		result = usb_stor_BBB_clear_endpt_stall(us, dir_in? us->ep_in : us->ep_out);
 		if (result >= 0)
@@ -1081,8 +1081,8 @@ int usb_storage_probe(struct usb_device *dev, unsigned int ifnum,struct us_data 
 		ss->irqpipe = usb_rcvintpipe(ss->pusb_dev, ss->ep_int);
 		ss->irqmaxp = usb_maxpacket(dev, ss->irqpipe);
 		dev->irq_handle=usb_stor_irq;
-		dev->privptr=(void *)ss;
 	}
+	dev->privptr=(void *)ss;
 	return 1;
 }
 

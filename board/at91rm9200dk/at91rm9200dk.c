@@ -66,7 +66,7 @@ int dram_init (void)
  * The NAND lives in the CS2* space
  */
 #if (CONFIG_COMMANDS & CFG_CMD_NAND)
-extern void nand_probe (ulong physadr);
+extern ulong nand_probe (ulong physadr);
 
 #define AT91_SMARTMEDIA_BASE 0x40000000	/* physical address to access memory on NCS3 */
 void nand_init (void)
@@ -103,10 +103,12 @@ void nand_init (void)
 	*AT91C_PIOB_ODR = AT91C_PIO_PB1;	/* disable output */
 
 	if (*AT91C_PIOB_PDSR & AT91C_PIO_PB1)
-		printf ("No ");
-	printf ("SmartMedia card inserted\n");
+		printf ("  No SmartMedia card inserted\n");
+#ifdef DEBUG
+	printf ("  SmartMedia card inserted\n");
 
 	printf ("Probing at 0x%.8x\n", AT91_SMARTMEDIA_BASE);
-	nand_probe (AT91_SMARTMEDIA_BASE);
+#endif
+	printf ("%4lu MB\n", nand_probe(AT91_SMARTMEDIA_BASE) >> 20);
 }
 #endif

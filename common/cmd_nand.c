@@ -38,7 +38,7 @@ struct nand_oob_config {
 	int eccvalid_pos;	/* position of ECC valid flag inside oob -1 = inactive */
 } oob_config = { {0}, 0, 0};
 
-#define	NAND_DEBUG
+#undef	NAND_DEBUG
 #undef	PSYCHO_DEBUG
 
 /* ****************** WARNING *********************
@@ -734,7 +734,9 @@ static void NanD_ScanChips(struct nand_chip *nand)
 
 	/* If there are none at all that we recognise, bail */
 	if (!nand->numchips) {
+#ifdef NAND_DEBUG
 		puts ("No NAND flash chips recognised.\n");
+#endif
 		return;
 	}
 
@@ -1408,7 +1410,7 @@ static inline int nandcheck(unsigned long potential, unsigned long physadr)
 	return 0;
 }
 
-void nand_probe(unsigned long physadr)
+unsigned long nand_probe(unsigned long physadr)
 {
 	struct nand_chip *nand = NULL;
 	int i = 0, ChipID = 1;
@@ -1434,10 +1436,12 @@ void nand_probe(unsigned long physadr)
 
 	for (i=0; i<CFG_MAX_NAND_DEVICE; i++) {
 		if (nand_dev_desc[i].ChipID == NAND_ChipID_UNKNOWN) {
-			nand = nand_dev_desc + i;
+			nand = &nand_dev_desc[i];
 			break;
 		}
 	}
+	if (!nand)
+		return (0);
 
 	memset((char *)nand, 0, sizeof(struct nand_chip));
 
@@ -1449,7 +1453,7 @@ void nand_probe(unsigned long physadr)
 		/* no chips found, clean up and quit */
 		memset((char *)nand, 0, sizeof(struct nand_chip));
 		nand->ChipID = NAND_ChipID_UNKNOWN;
-		return;
+		return (0);
 	}
 
 	nand->ChipID = ChipID;
@@ -1459,8 +1463,10 @@ void nand_probe(unsigned long physadr)
 	nand->data_buf = malloc (nand->oobblock + nand->oobsize);
 	if (!nand->data_buf) {
 		puts ("Cannot allocate memory for data structures.\n");
-		return;
+		return (0);
 	}
+
+	return (nand->totlen);
 }
 
 #ifdef CONFIG_MTD_NAND_ECC

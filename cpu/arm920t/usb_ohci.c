@@ -1197,8 +1197,15 @@ int submit_common_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 
 	wait_ms(10);
 	/* ohci_dump_status(&gohci); */
+	
+	/* allow more time for a BULK device to react - some are slow */
+#define BULK_TO	 2000	/* timeout in milliseconds */
+	if (usb_pipetype (pipe) == PIPE_BULK)
+		timeout = BULK_TO;
+	else
+		timeout = 100;
+
 	/* wait for it to complete */
-	timeout = 100;
 	for (;;) {
 		/* check whether the controller is done */
 		stat = hc_interrupt();

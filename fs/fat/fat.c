@@ -860,9 +860,11 @@ do_fat_read (const char *filename, void *buffer, unsigned long maxsize,
 		int doit = 0;
 
 		if (isdir) {
-		    dirs++;
 		    dirc = '/';
-		    doit = 1;
+		    if (s_name[0] != 0) {
+			dirs++;
+			doit = 1;
+		    }
 		} else {
 		    dirc = ' ';
 		    if (s_name[0] != 0) {

@@ -420,16 +420,13 @@ int board_pre_init(void)
 
 #include <linux/mtd/nand.h>
 
-extern void nand_probe(ulong physadr);
+extern ulong nand_probe(ulong physadr);
 extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];
 
 void nand_init(void)
 {
-	nand_probe(CFG_NAND_BASE);
-	if (nand_dev_desc[0].ChipID != NAND_ChipID_UNKNOWN) {
-		nand_dev_desc[0].name = "NetVia NAND flash";
-		puts("NAND:  ");
-		print_size(nand_dev_desc[0].totlen, "\n");
-	}
+	unsigned long totlen = nand_probe(CFG_NAND_BASE);
+
+	printf ("%4lu MB\n", totlen >> 20);
 }
 #endif

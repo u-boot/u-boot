@@ -255,16 +255,20 @@ int testdram (void)
 /* ------------------------------------------------------------------------- */
 
 #if (CONFIG_COMMANDS & CFG_CMD_NAND)
-extern void
+extern ulong
 nand_probe(ulong physadr);
 
 void
 nand_init(void)
 {
+	ulong totlen;
+
 	debug ("Probing at 0x%.8x\n", CFG_NAND0_BASE);
-	nand_probe (CFG_NAND0_BASE);
+	totlen = nand_probe (CFG_NAND0_BASE);
 
 	debug ("Probing at 0x%.8x\n", CFG_NAND1_BASE);
-	nand_probe (CFG_NAND1_BASE);
+	totlen += nand_probe (CFG_NAND1_BASE);
+
+	printf ("%4lu MB\n", totlen >>20);
 }
 #endif

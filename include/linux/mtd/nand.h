@@ -193,6 +193,6 @@ struct nand_flash_dev {
 #define NAND_JFFS2_OOB8_FSDALEN		2
 #define NAND_JFFS2_OOB16_FSDALEN	8
 
-void nand_probe(unsigned long physadr);
+unsigned long nand_probe(unsigned long physadr);
 
 #endif /* __LINUX_MTD_NAND_H */

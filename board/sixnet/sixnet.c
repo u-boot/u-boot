@@ -330,11 +330,9 @@ int misc_init_r (void)
 #if (CONFIG_COMMANDS & CFG_CMD_NAND)
 void nand_init(void)
 {
-	nand_probe(CFG_DFLASH_BASE);	/* see if any NAND flash present */
-	if (nand_dev_desc[0].ChipID != NAND_ChipID_UNKNOWN) {
-		puts("NAND:  ");
-		print_size(nand_dev_desc[0].totlen, "\n");
-	}
+	unsigned long totlen = nand_probe(CFG_NAND_BASE);
+
+	printf ("%4lu MB\n", totlen >> 20);
 }
 #endif
 

@@ -248,6 +248,7 @@ void start_armboot (void)
 #endif /* CONFIG_VFD */
 
 #if (CONFIG_COMMANDS & CFG_CMD_NAND)
+	puts ("NAND:");
 	nand_init();		/* go init the NAND */
 #endif
 

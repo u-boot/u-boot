@@ -1,4 +1,15 @@
 ======================================================================
+Changes for U-Boot 1.0.0:
+======================================================================
+
+* Patch by Denis Peter, 11 Sep 2003:
+  - fix USB data pointer assignment for bulk only transfer.
+  - prevent to display erased directories in FAT filesystem.
+
+* Change output format for NAND flash - make it look like for other
+  memory, too
+
+======================================================================
 Changes for U-Boot 0.4.8:
 ======================================================================
 
