@@ -32,6 +32,15 @@
 #include <devices.h>
 #include <pci.h>
 
+#ifdef CONFIG_PIP405
+#include "../pip405/pip405.h"
+#include <405gp_pci.h>
+#endif
+#ifdef CONFIG_MIP405
+#include "../mip405/mip405.h"
+#include <405gp_pci.h>
+#endif
+
 extern int  gunzip (void *, int, unsigned char *, int *);
 extern int mem_test(unsigned long start, unsigned long ramsize, int quiet);
 
@@ -363,12 +372,16 @@ void show_stdio_dev(void)
 #if defined(CONFIG_PIP405) || defined(CONFIG_MIP405)
 int switch_cs(unsigned char boot)
 {
-  	unsigned long pbcr;
-	mtdcr(ebccfga, pb0cr); /* get cs0 config reg */
-	pbcr = mfdcr(ebccfgd);
-	if((pbcr&0x00002000)==0) {
+	unsigned long pbcr;
+	int mode;
+
+	mode=get_boot_mode();
+	mtdcr(ebccfga, pb0cr);
+	pbcr = mfdcr (ebccfgd);
+	if (mode & BOOT_MPS) {
+		/* Boot width = 8 bit MPS Boot, set up MPS on CS0 */
 		/* we need only to switch if boot from MPS */
-		/*printf(" MPS boot mode detected. ");*/
+		/* printf(" MPS boot mode detected. ");*/
 		/* printf("cs0 cfg: %lx\n",pbcr); */
 		if(boot) {
 			/* switch to boot configuration */
@@ -388,8 +401,7 @@ int switch_cs(unsigned char boot)
 			mtdcr(ebccfgd, pbcr);
 			SW_CS_PRINTF("  new cs1 cfg: %lx, MPS is on High Address\n",pbcr);
 		}
-		else
-		{
+		else {
 			/* map flash to boot area, */
 			SW_CS_PRINTF("map Flash to boot area\n");
 			pbcr&=0x000FFFFF; /*mask base address of the cs0 */
@@ -412,7 +424,63 @@ int switch_cs(unsigned char boot)
 		SW_CS_PRINTF("Normal boot, no switching necessary\n");
 		return 0;
 	}
+
 }
+
+int get_boot_mode(void)
+{
+	unsigned long pbcr;
+	int res = 0;
+	pbcr = mfdcr (strap);
+	if ((pbcr & PSR_ROM_WIDTH_MASK) == 0) 
+		/* boot via MPS or MPS mapping */
+		res = BOOT_MPS;
+	if(pbcr & PSR_ROM_LOC) 
+		/* boot via PCI.. */
+		res |= BOOT_PCI;
+	 return res;
+}
+
+/* Setup cs0 parameter finally.
+   Map the flash high (in boot area)
+   This code can only be executed from SDRAM (after relocation).
+*/
+void setup_cs_reloc(void)
+{
+	unsigned long pbcr;
+	/* Since we are relocated, we can set-up the CS finaly
+	 * but first of all, switch off PCI mapping (in case it was a PCI boot) */
+	out32r(PMM0MA,0L);
+	icache_enable (); /* we are relocated */
+	/* for PCI Boot, we have to set-up the remaining CS correctly */
+	pbcr = mfdcr (strap);
+	if(pbcr & PSR_ROM_LOC) {
+		/* boot via PCI.. */
+		if ((pbcr & PSR_ROM_WIDTH_MASK) == 0) {
+		/* Boot width = 8 bit MPS Boot, set up MPS on CS0 */
+			#ifdef DEBUG
+			printf("Mapping MPS to CS0 @ 0x%lx\n",(MPS_CR_B & 0xfff00000));
+			#endif
+			mtdcr (ebccfga, pb0ap);
+			mtdcr (ebccfgd, MPS_AP);
+			mtdcr (ebccfga, pb0cr);
+			mtdcr (ebccfgd, MPS_CR_B);
+		}
+		else {
+			/* Flash boot, set up the Flash on CS0 */
+			#ifdef DEBUG
+			printf("Mapping Flash to CS0 @ 0x%lx\n",(FLASH_CR_B & 0xfff00000));
+			#endif
+			mtdcr (ebccfga, pb0ap);
+			mtdcr (ebccfgd, FLASH_AP);
+			mtdcr (ebccfga, pb0cr);
+			mtdcr (ebccfgd, FLASH_CR_B);
+		}
+	}
+	switch_cs(0); /* map Flash High */
+}
+
+
 #elif defined(CONFIG_VCMA9)
 int switch_cs(unsigned char boot)
 {
@@ -425,13 +493,11 @@ int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
  	ulong size,src,ld_addr;
 	int result;
 	backup_t back;
-	char sw;
 	src = MULTI_PURPOSE_SOCKET_ADDR;
 	size = IMAGE_SIZE;
 
 	if (strcmp(argv[1], "flash") == 0)
 	{
-		sw = switch_cs(0); /* Switch flash to normal location */
 #if (CONFIG_COMMANDS & CFG_CMD_FDC)
 		if (strcmp(argv[2], "floppy") == 0) {
  			char *local_args[3];
@@ -450,7 +516,6 @@ int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 				result=do_fdcboot(cmdtp, 0, 1, local_args);
 			}
 			result=mpl_prg_image(ld_addr);
-			switch_cs(sw); /* Switch flash back */
 			return result;
 		}
 #endif /* (CONFIG_COMMANDS & CFG_CMD_FDC) */
@@ -463,17 +528,13 @@ int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			}
 			printf ("\nupdating bootloader image from memory at %lX\n",ld_addr);
 			result=mpl_prg_image(ld_addr);
-			switch_cs(sw); /* Switch flash back */
 			return result;
 		}
 		if (strcmp(argv[2], "mps") == 0) {
-			printf ("\nupdating bootloader image from MSP\n");
+			printf ("\nupdating bootloader image from MPS\n");
 			result=mpl_prg(src,size);
-			switch_cs(sw); /* Switch flash back */
 			return result;
 		}
-		switch_cs(sw); /* Switch flash back */
-
 	}
 	if (strcmp(argv[1], "mem") == 0)
 	{
@@ -551,11 +612,12 @@ void video_get_info_str (int line_number, char *info)
 	DECLARE_GLOBAL_DATA_PTR;
 	PPC405_SYS_INFO sys_info;
 	char rev;
-	int i;
+	int i,boot;
 	unsigned long pvr;
 	char buf[64];
 	char tmp[16];
-	unsigned char *s, *e, bc, sw;
+	char cpustr[16];
+	unsigned char *s, *e, bc;
 	switch (line_number)
 	{
 	case 2:
@@ -567,8 +629,13 @@ void video_get_info_str (int line_number, char *info)
 			case PVR_405GP_RC: rev='C'; break;
 			case PVR_405GP_RD: rev='D'; break;
 			case PVR_405GP_RE: rev='E'; break;
+			case PVR_405GPR_RB: rev='B'; break;
 			default:           rev='?'; break;
 		}
+		if(pvr==PVR_405GPR_RB)
+			sprintf(cpustr,"PPC405GPr %c",rev);
+		else
+			sprintf(cpustr,"PPC405GP %c",rev);
 		/* Board info */
 		i=0;
 		s=getenv ("serial#");
@@ -601,22 +668,21 @@ void video_get_info_str (int line_number, char *info)
 			}
 			buf[i++]=0;
 		}
-		sprintf (info," %s PPC405GP %c %s MHz (%lu/%lu/%lu MHz)",
-			buf,rev,
+		sprintf (info," %s %s %s MHz (%lu/%lu/%lu MHz)",
+			buf, cpustr,
 			strmhz (tmp, gd->cpu_clk), sys_info.freqPLB / 1000000,
 			sys_info.freqPLB / sys_info.pllOpbDiv / 1000000,
 			sys_info.freqPLB / sys_info.pllExtBusDiv / 1000000);
 		return;
 	case 3:
 		/* Memory Info */
-		sw = switch_cs (0);
-		switch_cs (sw);
+		boot = get_boot_mode();
 		bc = in8 (CONFIG_PORT_ADDR);
 		sprintf(info, " %luMB RAM, %luMB Flash Cfg 0x%02X %s %s",
 			gd->bd->bi_memsize / 0x100000,
 			gd->bd->bi_flashsize / 0x100000,
 			bc,
-			sw ? "MPS boot" : "Flash boot",
+			(boot & BOOT_MPS) ? "MPS boot" : "Flash boot",
 			ctfb.modeIdent);
 		return;
 	case 1:

@@ -30,7 +30,7 @@
 
 /*
  * Modified 3/7/2001
- * - adopted for pip405, Denis Peter, MPL AG Switzerland
+ * - adapted for pip405, Denis Peter, MPL AG Switzerland
  * TODO:
  * clean-up
  */
@@ -38,12 +38,6 @@
 #include <common.h>
 #include <ppc4xx.h>
 #include <asm/processor.h>
-#ifdef CONFIG_PIP405
-#include "../pip405/pip405.h"
-#endif
-#ifdef CONFIG_MIP405
-#include "../mip405/mip405.h"
-#endif
 #include "common_util.h"
 
 flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
@@ -52,22 +46,9 @@ flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
  */
 static ulong flash_get_size (vu_long *addr, flash_info_t *info);
 static int write_word (flash_info_t *info, ulong dest, ulong data);
-static void flash_get_offsets (ulong base, flash_info_t *info);
 
 void unlock_intel_sectors(flash_info_t *info,ulong addr,ulong cnt);
 
-
-#ifdef CONFIG_ADCIOP
-#define ADDR0           0x0aa9
-#define ADDR1           0x0556
-#define FLASH_WORD_SIZE unsigned char
-#endif
-
-#ifdef CONFIG_CPCI405
-#define ADDR0           0x5555
-#define ADDR1           0x2aaa
-#define FLASH_WORD_SIZE unsigned short
-#endif
 
 #ifdef CONFIG_PIP405
 #define ADDR0           0x5555
@@ -92,16 +73,17 @@ unsigned long flash_init (void)
 {
 	unsigned long size_b0, size_b1;
 	int i;
-  unsigned long pbcr;
-  unsigned long base_b0, base_b1;
-  unsigned char rc;
 
-  rc=switch_cs(FALSE); /* map Flash High */
-
-	if(rc)
-		printf("(MPS Boot) ");
+	/* Since we are relocated, we can set-up the CS finally */
+	setup_cs_reloc();
+	/* get and display boot mode */
+	i=get_boot_mode();
+	if(i & BOOT_PCI)
+		printf("(PCI Boot %s Map) ",(i & BOOT_MPS) ?
+			"MPS" : "Flash");
 	else
-		printf("(Flash Boot) ");
+		printf("(%s Boot) ",(i & BOOT_MPS) ?
+			"MPS" : "Flash");
 	/* Init: no FLASHes known */
 	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
@@ -115,140 +97,39 @@ unsigned long flash_init (void)
 		printf ("## Unknown FLASH on Bank 0 - Size = 0x%08lx = %ld MB\n",
 			size_b0, size_b0<<20);
 	}
-	/* Only one bank */
-	if (CFG_MAX_FLASH_BANKS == 1)
-	  {
-	    /* Setup offsets */
-			/*  flash_get_offsets (FLASH_BASE0_PRELIM, &flash_info[0]); */
-	    /* Monitor protection ON by default */
+	/* protect the bootloader */
+	/* Monitor protection ON by default */
 #if CFG_MONITOR_BASE >= CFG_FLASH_BASE
-	 	    flash_protect(FLAG_PROTECT_SET,
-				CFG_MONITOR_BASE,
-				CFG_MONITOR_BASE+CFG_MONITOR_LEN-1,
-				&flash_info[0]);
+	flash_protect(FLAG_PROTECT_SET,
+			CFG_MONITOR_BASE,
+			CFG_MONITOR_BASE+CFG_MONITOR_LEN-1,
+			&flash_info[0]);
 #endif
-	    size_b1 = 0 ;
-	    flash_info[0].size = size_b0;
-	  }
-
-	/* 2 banks */
-	else
-	  {
-	    size_b1 = flash_get_size((vu_long *)FLASH_BASE1_PRELIM, &flash_info[1]);
-
-	    /* Re-do sizing to get full correct info */
-
-	    if (size_b1)
-	      {
-		mtdcr(ebccfga, pb0cr);
-		pbcr = mfdcr(ebccfgd);
-		mtdcr(ebccfga, pb0cr);
-		base_b1 = -size_b1;
-		pbcr = (pbcr & 0x0001ffff) | base_b1 | (((size_b1/1024/1024)-1)<<17);
-		mtdcr(ebccfgd, pbcr);
-		/*          printf("pb1cr = %x\n", pbcr); */
-	      }
-
-	    if (size_b0)
-	      {
-		mtdcr(ebccfga, pb1cr);
-		pbcr = mfdcr(ebccfgd);
-		mtdcr(ebccfga, pb1cr);
-		base_b0 = base_b1 - size_b0;
-		pbcr = (pbcr & 0x0001ffff) | base_b0 | (((size_b0/1024/1024)-1)<<17);
-		mtdcr(ebccfgd, pbcr);
-		/*            printf("pb0cr = %x\n", pbcr); */
-	      }
-
-	    size_b0 = flash_get_size((vu_long *)base_b0, &flash_info[0]);
-
-	    flash_get_offsets (base_b0, &flash_info[0]);
-
-	    /* monitor protection ON by default */
-	    (void)flash_protect(FLAG_PROTECT_SET,
-				base_b0+size_b0-CFG_MONITOR_LEN,
-				base_b0+size_b0-1,
-				&flash_info[0]);
-
-	    if (size_b1) {
-	      /* Re-do sizing to get full correct info */
-	      size_b1 = flash_get_size((vu_long *)base_b1, &flash_info[1]);
-
-	      flash_get_offsets (base_b1, &flash_info[1]);
-
-	      /* monitor protection ON by default */
-	      (void)flash_protect(FLAG_PROTECT_SET,
-				  base_b1+size_b1-CFG_MONITOR_LEN,
-				  base_b1+size_b1-1,
-				  &flash_info[1]);
-	      /* monitor protection OFF by default (one is enough) */
-	      (void)flash_protect(FLAG_PROTECT_CLEAR,
-				  base_b0+size_b0-CFG_MONITOR_LEN,
-				  base_b0+size_b0-1,
-				  &flash_info[0]);
-	    } else {
-	      flash_info[1].flash_id = FLASH_UNKNOWN;
-	      flash_info[1].sector_count = -1;
-	    }
-
-	    flash_info[0].size = size_b0;
-	    flash_info[1].size = size_b1;
-	  }/* else 2 banks */
-	switch_cs(rc); /* switch mode back */
-	return (size_b0 + size_b1);
-}
-
-
-static void flash_get_offsets (ulong base, flash_info_t *info)
-{
-	return;
-}
+	size_b1 = 0 ;
+	flash_info[0].size = size_b0;
 #if 0
-/*-----------------------------------------------------------------------
- */
-static void flash_get_offsets (ulong base, flash_info_t *info)
-{
-	int i;
-
-	/* set up sector start address table */
-  if (((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_SST) ||
-	    (info->flash_id  == FLASH_AM040)){
-		for (i = 0; i < info->sector_count; i++)
-			info->start[i] = base + (i * 0x00010000);
-  }
-  else {
-		if (info->flash_id & FLASH_BTYPE) {
-		/* set sector offsets for bottom boot block type	*/
-		info->start[0] = base + 0x00000000;
-		info->start[1] = base + 0x00004000;
-		info->start[2] = base + 0x00006000;
-		info->start[3] = base + 0x00008000;
-		for (i = 4; i < info->sector_count; i++) {
-			info->start[i] = base + (i * 0x00010000) - 0x00030000;
-		}
-	    } else {
-		/* set sector offsets for top boot block type		*/
-		i = info->sector_count - 1;
-		info->start[i--] = base + info->size - 0x00004000;
-		info->start[i--] = base + info->size - 0x00006000;
-		info->start[i--] = base + info->size - 0x00008000;
-		for (; i >= 0; i--) {
-			info->start[i] = base + i * 0x00010000;
-		}
-	    }
-	}
+	/* include this if you want to test if
+	   the relocation has be done ok.
+	   This will disable both Chipselects */
+	mtdcr (ebccfga, pb0cr);
+	mtdcr (ebccfgd, 0L);
+	mtdcr (ebccfga, pb1cr);
+	mtdcr (ebccfgd, 0L);
+	printf("CS0 & CS1 switched off for test\n");
+#endif
+	return (size_b0);
 }
 
-#endif
+
 /*-----------------------------------------------------------------------
  */
 void flash_print_info  (flash_info_t *info)
 {
 	int i;
-    int k;
-   	int size;
-    int erased;
-    volatile unsigned long *flash;
+	int k;
+	int size;
+	int erased;
+	volatile unsigned long *flash;
 
 	if (info->flash_id == FLASH_UNKNOWN) {
 		printf ("missing or unknown FLASH type\n");
@@ -297,40 +178,30 @@ void flash_print_info  (flash_info_t *info)
 
 	printf ("  Sector Start Addresses:");
 	for (i=0; i<info->sector_count; ++i) {
-  	/*
-     * Check if whole sector is erased
-     */
+		/*
+		 * Check if whole sector is erased
+		*/
 		if (i != (info->sector_count-1))
-    	size = info->start[i+1] - info->start[i];
+			size = info->start[i+1] - info->start[i];
 		else
-      size = info->start[0] + info->size - info->start[i];
-    erased = 1;
-    flash = (volatile unsigned long *)info->start[i];
-    size = size >> 2;        /* divide by 4 for longword access */
-    for (k=0; k<size; k++)
-    {
-    	if (*flash++ != 0xffffffff)
-			{
- 				erased = 0;
+			size = info->start[0] + info->size - info->start[i];
+		erased = 1;
+		flash = (volatile unsigned long *)info->start[i];
+		size = size >> 2;        /* divide by 4 for longword access */
+		for (k=0; k<size; k++) {
+			if (*flash++ != 0xffffffff) {
+				erased = 0;
 				break;
 			}
- 		}
+		}
 		if ((i % 5) == 0)
 			printf ("\n   ");
-#if 0 /* test-only */
-		printf (" %08lX%s",
-			info->start[i],
-			info->protect[i] ? " (RO)" : "     "
-#else
 		printf (" %08lX%s%s",
 			info->start[i],
 			erased ? " E" : "  ",
-			info->protect[i] ? "RO " : "   "
-#endif
-		);
+			info->protect[i] ? "RO " : "   ");
 	}
 	printf ("\n");
-
 }
 
 /*-----------------------------------------------------------------------
@@ -457,21 +328,22 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 	}
 
 	/* set up sector start address table */
-  if (((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_SST) ||
-	    (info->flash_id  == FLASH_AM040)){
+	if (((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_SST) ||
+	     (info->flash_id  == FLASH_AM040)){
 		for (i = 0; i < info->sector_count; i++)
 			info->start[i] = base + (i * 0x00010000);
-  } else {
+	}
+	else {
 		if (info->flash_id & FLASH_BTYPE) {
-		/* set sector offsets for bottom boot block type	*/
-		info->start[0] = base + 0x00000000;
-		info->start[1] = base + 0x00004000;
-		info->start[2] = base + 0x00006000;
-		info->start[3] = base + 0x00008000;
-		for (i = 4; i < info->sector_count; i++)
-			info->start[i] = base + (i * 0x00010000) - 0x00030000;
-	  }
-	  else {
+			/* set sector offsets for bottom boot block type	*/
+			info->start[0] = base + 0x00000000;
+			info->start[1] = base + 0x00004000;
+			info->start[2] = base + 0x00006000;
+			info->start[3] = base + 0x00008000;
+			for (i = 4; i < info->sector_count; i++)
+				info->start[i] = base + (i * 0x00010000) - 0x00030000;
+		}
+		else {
 			/* set sector offsets for top boot block type		*/
 			i = info->sector_count - 1;
 			if(info->sector_count==71) {
@@ -501,33 +373,22 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 		/* read sector protection at sector address, (A7 .. A0) = 0x02 */
 		/* D0 = 1 if protected */
 		addr2 = (volatile FLASH_WORD_SIZE *)(info->start[i]);
-    	if ((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_INTEL)
-      	info->protect[i] = 0;
-      else
-        info->protect[i] = addr2[2] & 1;
+		if ((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_INTEL)
+			info->protect[i] = 0;
+		else
+			info->protect[i] = addr2[2] & 1;
 	}
 
 	/*
 	 * Prevent writes to uninitialized FLASH.
 	 */
 	if (info->flash_id != FLASH_UNKNOWN) {
-#if 0 /* test-only */
-#ifdef CONFIG_ADCIOP
-		addr2 = (volatile unsigned char *)info->start[0];
-                addr2[ADDR0] = 0xAA;
-                addr2[ADDR1] = 0x55;
-                addr2[ADDR0] = 0xF0;  /* reset bank */
-#else
 		addr2 = (FLASH_WORD_SIZE *)info->start[0];
 		*addr2 = (FLASH_WORD_SIZE)0x00F000F0;	/* reset bank */
-#endif
-#else /* test-only */
-		addr2 = (FLASH_WORD_SIZE *)info->start[0];
-		*addr2 = (FLASH_WORD_SIZE)0x00F000F0;	/* reset bank */
-#endif /* test-only */
 	}
 	return (info->size);
 }
+
 
 int wait_for_DQ7(flash_info_t *info, int sect)
 {
@@ -535,18 +396,18 @@ int wait_for_DQ7(flash_info_t *info, int sect)
 	volatile FLASH_WORD_SIZE *addr = (FLASH_WORD_SIZE *)(info->start[sect]);
 
 	start = get_timer (0);
-    last  = start;
-    while ((addr[0] & (FLASH_WORD_SIZE)0x00800080) != (FLASH_WORD_SIZE)0x00800080) {
-        if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
-            printf ("Timeout\n");
-            return -1;
-        }
-        /* show that we're waiting */
-        if ((now - last) > 1000) {  /* every second */
-	    			putc ('.');
-            last = now;
-        }
-    }
+	last  = start;
+	while ((addr[0] & (FLASH_WORD_SIZE)0x00800080) != (FLASH_WORD_SIZE)0x00800080) {
+		if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+			printf ("Timeout\n");
+			return -1;
+		}
+		/* show that we're waiting */
+		if ((now - last) > 1000) {  /* every second */
+			putc ('.');
+			last = now;
+		}
+	}
 	return 0;
 }
 
@@ -555,20 +416,20 @@ int intel_wait_for_DQ7(flash_info_t *info, int sect)
 	ulong start, now, last;
 	volatile FLASH_WORD_SIZE *addr = (FLASH_WORD_SIZE *)(info->start[sect]);
 
-		start = get_timer (0);
-    last  = start;
-    while ((addr[0] & (FLASH_WORD_SIZE)0x00800080) != (FLASH_WORD_SIZE)0x00800080) {
-        if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
-            printf ("Timeout\n");
-            return -1;
-        }
-        /* show that we're waiting */
-        if ((now - last) > 1000) {  /* every second */
-	    			putc ('.');
-            last = now;
-        }
-    }
-    addr[0]=(FLASH_WORD_SIZE)0x00500050;
+	start = get_timer (0);
+	last  = start;
+	while ((addr[0] & (FLASH_WORD_SIZE)0x00800080) != (FLASH_WORD_SIZE)0x00800080) {
+		if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+			printf ("Timeout\n");
+			return -1;
+		}
+		/* show that we're waiting */
+		if ((now - last) > 1000) {  /* every second */
+			putc ('.');
+			last = now;
+		}
+	}
+	addr[0]=(FLASH_WORD_SIZE)0x00500050;
 	return 0;
 }
 
@@ -621,7 +482,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 		if (info->protect[sect] == 0) {	/* not protected */
 			addr2 = (FLASH_WORD_SIZE *)(info->start[sect]);
 			/*  printf("Erasing sector %p\n", addr2); */ /* CLH */
-	    if ((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_SST) {
+			if ((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_SST) {
 				addr[ADDR0] = (FLASH_WORD_SIZE)0x00AA00AA;
 				addr[ADDR1] = (FLASH_WORD_SIZE)0x00550055;
 				addr[ADDR0] = (FLASH_WORD_SIZE)0x00800080;
@@ -630,16 +491,16 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 				addr2[0] = (FLASH_WORD_SIZE)0x00500050;  /* block erase */
 				for (i=0; i<50; i++)
 					udelay(1000);  /* wait 1 ms */
-		    wait_for_DQ7(info, sect);
-		  }
-		  else {
-		  	if((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_INTEL){
+				wait_for_DQ7(info, sect);
+			}
+			else {
+		  		if((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_INTEL){
 					addr2[0] = (FLASH_WORD_SIZE)0x00600060;  /* unlock sector */
 					addr2[0] = (FLASH_WORD_SIZE)0x00D000D0;  /* sector erase */
-			    intel_wait_for_DQ7(info, sect);
+					intel_wait_for_DQ7(info, sect);
 					addr2[0] = (FLASH_WORD_SIZE)0x00200020;  /* sector erase */
 					addr2[0] = (FLASH_WORD_SIZE)0x00D000D0;  /* sector erase */
-			    intel_wait_for_DQ7(info, sect);
+					intel_wait_for_DQ7(info, sect);
 				}
 				else {
 					addr[ADDR0] = (FLASH_WORD_SIZE)0x00AA00AA;
@@ -648,18 +509,18 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 					addr[ADDR0] = (FLASH_WORD_SIZE)0x00AA00AA;
 					addr[ADDR1] = (FLASH_WORD_SIZE)0x00550055;
 					addr2[0] = (FLASH_WORD_SIZE)0x00300030;  /* sector erase */
-			    wait_for_DQ7(info, sect);
-		 		}
-		 }
-		 l_sect = sect;
-		    /*
-		     * Wait for each sector to complete, it's more
-		     * reliable.  According to AMD Spec, you must
-		     * issue all erase commands within a specified
-		     * timeout.  This has been seen to fail, especially
-		     * if printf()s are included (for debug)!!
-		     */
-		 /*   wait_for_DQ7(info, sect); */
+					wait_for_DQ7(info, sect);
+				}
+			}
+			l_sect = sect;
+			/*
+			 * Wait for each sector to complete, it's more
+			 * reliable.  According to AMD Spec, you must
+			 * issue all erase commands within a specified
+			 * timeout.  This has been seen to fail, especially
+			 * if printf()s are included (for debug)!!
+			 */
+			/*   wait_for_DQ7(info, sect); */
 		}
 	}
 
@@ -688,6 +549,7 @@ DONE:
 	return 0;
 }
 
+
 void unlock_intel_sectors(flash_info_t *info,ulong addr,ulong cnt)
 {
 	int i;
@@ -707,8 +569,6 @@ void unlock_intel_sectors(flash_info_t *info,ulong addr,ulong cnt)
 		i++;
 		c-=(info->start[i]-info->start[i-1]);
 	}while(c>0);
-
-
 }
 
 

@@ -27,11 +27,18 @@
 typedef struct {
 	char signature[4];
 	char serial_name[17]; 	/* "MIP405_1000xxxxx" */
-	char eth_addr[21];			/* "00:60:C2:0a:00:00" */
+	char eth_addr[21];	/* "00:60:C2:0a:00:00" */
 } backup_t;
 
 void get_backup_values(backup_t *buf);
 int switch_cs(unsigned char boot);
+#if defined(CONFIG_PIP405) || defined(CONFIG_MIP405)
+int get_boot_mode(void);
+void setup_cs_reloc(void);
+#define BOOT_MPS	0x01
+#define BOOT_PCI	0x02
+#endif
+
 void show_stdio_dev(void);
 void check_env(void);
 #if (CONFIG_COMMANDS & CFG_CMD_DOC)

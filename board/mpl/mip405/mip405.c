@@ -113,28 +113,37 @@ const sdram_t sdram_table[] = {
 	{ 0x0f,	/* Rev A, 128MByte -1 Board */
 		3,	/* Case Latenty = 3 */
 		3,	/* trp 20ns / 7.5 ns datain[27] */
-  		3, 	/* trcd 20ns /7.5 ns (datain[29]) */
-  		6,  /* tras 44ns /7.5 ns  (datain[30]) */
+		3,	/* trcd 20ns /7.5 ns (datain[29]) */
+		6,	/* tras 44ns /7.5 ns  (datain[30]) */
 		4,	/* tcpt 44 - 20ns = 24ns */
-  		3,	/* Address Mode = 3 */
+		3,	/* Address Mode = 3 */
 		5,	/* size value */
 		1},	/* ECC enabled */
 	{ 0x07,	/* Rev A, 64MByte -2 Board */
 		3,	/* Case Latenty = 3 */
 		3,	/* trp 20ns / 7.5 ns datain[27] */
-  		3, 	/* trcd 20ns /7.5 ns (datain[29]) */
-  		6,  /* tras 44ns /7.5 ns  (datain[30]) */
+		3,	/* trcd 20ns /7.5 ns (datain[29]) */
+		6,	/* tras 44ns /7.5 ns  (datain[30]) */
 		4,	/* tcpt 44 - 20ns = 24ns */
-  		2,	/* Address Mode = 2 */
+		2,	/* Address Mode = 2 */
 		4,	/* size value */
 		1},	/* ECC enabled */
 	{ 0x03,	/* Rev A, 128MByte -4 Board */
 		3,	/* Case Latenty = 3 */
 		3,	/* trp 20ns / 7.5 ns datain[27] */
-  		3, 	/* trcd 20ns /7.5 ns (datain[29]) */
-  		6,  /* tras 44ns /7.5 ns  (datain[30]) */
+		3,	/* trcd 20ns /7.5 ns (datain[29]) */
+		6,	/* tras 44ns /7.5 ns  (datain[30]) */
 		4,	/* tcpt 44 - 20ns = 24ns */
-  		3,	/* Address Mode = 3 */
+		3,	/* Address Mode = 3 */
+		5,	/* size value */
+		1},	/* ECC enabled */
+	{ 0x1f,	/* Rev B, 128MByte -3 Board */
+		3,	/* Case Latenty = 3 */
+		3,	/* trp 20ns / 7.5 ns datain[27] */
+		3,	/* trcd 20ns /7.5 ns (datain[29]) */
+		6,	/* tras 44ns /7.5 ns  (datain[30]) */
+		4,	/* tcpt 44 - 20ns = 24ns */
+		3,	/* Address Mode = 3 */
 		5,	/* size value */
 		1},	/* ECC enabled */
 	{ 0xff, /* terminator */
@@ -515,6 +524,9 @@ int checkboard (void)
 		var >>= 1;
 	}
 	rc++;
+	if((((bc>>4) & 0xf)==0x1) /* Rev B PCB with */
+		&& (rc==0x1))     /* Population Option 1 is a -3 */
+		rc=3;
 	i = getenv_r ("serial#", s, 32);
 	if ((i == 0) || strncmp (s, "MIP405", 6)) {
 		get_backup_values (b);
@@ -614,17 +626,24 @@ void print_mip405_rev (void)
 	vers &= 0xf;
 	rev = (((vers & 0x1) ? 0x8 : 0) |
 		   ((vers & 0x2) ? 0x4 : 0) |
-		   ((vers & 0x4) ? 0x2 : 0) | ((vers & 0x8) ? 0x1 : 0));
+		   ((vers & 0x4) ? 0x2 : 0) |
+		   ((vers & 0x8) ? 0x1 : 0));
 
+	vers=16-rev;
+	rev=vers;
+	if((rev==1) && ((cfg >> 4)==1)) /* Rev B PCB and -1 is a -3 */
+		rev=3;
 	part = in8 (PLD_PART_REG);
 	vers = in8 (PLD_VERS_REG);
 	printf ("Rev:   MIP405-%d Rev %c PLD%d Vers %d\n",
-			(16 - rev), ((cfg >> 4) & 0xf) + 'A', part, vers);
+			rev, ((cfg >> 4) & 0xf) + 'A', part, vers);
 }
 
+extern void mem_test_reloc(void);
 
 int last_stage_init (void)
 {
+	mem_test_reloc();
 	/* write correct LED configuration */
 	if (miiphy_write (0x1, 0x14, 0x2402) != 0) {
 		printf ("Error writing to the PHY\n");

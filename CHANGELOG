@@ -2,6 +2,9 @@
 Changes since U-Boot 0.3.1:
 ======================================================================
 
+* Patch by Denis Peter, 19 Mai 2003:
+  add support for the MIP405-3 board
+
 * Patch by Dave Ellis, 22 May 2003:
   Fix problem with only partially cleared .bss segment
 

@@ -216,9 +216,11 @@ void print_vcma9_rev(void)
 		Get_PLD_Version(), Get_PLD_Revision());
 }
 
+extern void mem_test_reloc(void);
 
 int last_stage_init(void)
 {
+	mem_test_reloc();
 	print_vcma9_rev();
 	show_stdio_dev();
 	check_env();

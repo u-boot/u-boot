@@ -457,7 +457,7 @@ typedef struct {
 
 
 #define TEST_STAGES 5
-const RAM_MEMTEST_FUNC test_stage[TEST_STAGES] = {
+static RAM_MEMTEST_FUNC test_stage[TEST_STAGES] = {
 	{RAM_MemTest_WriteData1, "data test 1...\n", RAM_MemTest_CheckData1,
 	 NULL},
 	{RAM_MemTest_WriteData2, "data test 2...\n", RAM_MemTest_CheckData2,
@@ -470,9 +470,35 @@ const RAM_MEMTEST_FUNC test_stage[TEST_STAGES] = {
 	 RAM_MemTest_CheckRandomPattern, NULL}
 };
 
+void mem_test_reloc(void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+	unsigned long addr;
+	int i;
+	for (i=0; i< TEST_STAGES; i++) {
+ 		addr = (ulong) (test_stage[i].test_write) + gd->reloc_off;
+		test_stage[i].test_write=
+			(void (*) (unsigned long startaddr, unsigned long size,
+						unsigned long *pat))addr;
+ 		addr = (ulong) (test_stage[i].test_write_desc) + gd->reloc_off;
+		test_stage[i].test_write_desc=(char *)addr;
+ 		if(test_stage[i].test_check1) {
+			addr = (ulong) (test_stage[i].test_check1) + gd->reloc_off;
+			test_stage[i].test_check1=
+				(void *(*) (int mode, unsigned long startaddr,
+				 unsigned long size, unsigned long *pat))addr;
+		}
+ 		if(test_stage[i].test_check2) {
+			addr = (ulong) (test_stage[i].test_check2) + gd->reloc_off;
+			test_stage[i].test_check2=
+				(void *(*) (int mode, unsigned long startaddr,
+				 unsigned long size, unsigned long *pat))addr;
+		}
+	}
+}
 
 
-int mem_test (unsigned long start, unsigned long ramsize, int quiet)
+int mem_test (unsigned long start, unsigned long ramsize, int quiet, int reloc)
 {
 	unsigned long errors, stage;
 	unsigned long startaddr, size, i;
