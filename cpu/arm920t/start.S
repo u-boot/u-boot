@@ -91,14 +91,6 @@ _armboot_end_data:
 _armboot_end:
 	.word armboot_end
 
-/*
- * _armboot_real_end is the first usable RAM address behind armboot
- * and the various stacks
- */
-.globl _armboot_real_end
-_armboot_real_end:
-	.word 0x0badc0de
-
 #ifdef CONFIG_USE_IRQ
 /* IRQ stack memory (calculated at run-time) */
 .globl IRQ_STACK_START
@@ -171,27 +163,32 @@ reset:
 	bl	cpu_init_crit
 #endif
 
-relocate:
-	/*
-	 * relocate armboot to RAM
-	 */
-	adr	r0, _start		/* r0 <- current position of code */
+relocate:				/* relocate U-Boot to RAM	    */
+	adr	r0, _start		/* r0 <- current position of code   */
+	ldr	r1, _TEXT_BASE		/* test if we run from flash or RAM */
+	cmp     r0, r1                  /* don't reloc during debug         */
+	beq     stack_setup
+
 	ldr	r2, _armboot_start
 	ldr	r3, _armboot_end
-	sub	r2, r3, r2		/* r2 <- size of armboot */
-	ldr	r1, _TEXT_BASE		/* r1 <- destination address */
-	add	r2, r0, r2		/* r2 <- source end address */
+	sub	r2, r3, r2		/* r2 <- size of armboot            */
+	add	r2, r0, r2		/* r2 <- source end address         */
 
-	/*
-	 * r0 = source address
-	 * r1 = target address
-	 * r2 = source end address
-	 */
 copy_loop:
-	ldmia	r0!, {r3-r10}
-	stmia	r1!, {r3-r10}
-	cmp	r0, r2
+	ldmia	r0!, {r3-r10}		/* copy from source address [r0]    */
+	stmia	r1!, {r3-r10}		/* copy to   target address [r1]    */
+	cmp	r0, r2			/* until source end addreee [r2]    */
 	ble	copy_loop
+
+	/* Set up the stack						    */
+stack_setup:
+	ldr	r0, _TEXT_BASE		/* upper 128 KiB: relocated uboot   */
+	sub	r0, r0, #CFG_MALLOC_LEN	/* malloc area                      */
+	sub	r0, r0, #CFG_GBL_DATA_SIZE /* bdinfo                        */
+#ifdef CONFIG_USE_IRQ
+	sub	r0, r0, #(CONFIG_STACKSIZE_IRQ+CONFIG_STACKSIZE_FIQ)
+#endif
+	sub	sp, r0, #12		/* leave 3 words for abort-stack    */
 
 #if 0
 	/* try doing this stuff after the relocation */
@@ -213,11 +210,6 @@ copy_loop:
 	str	r1, [r0]
 	/* END stuff after relocation */
 #endif
-
-	/* set up the stack */
-	ldr	r0, _armboot_end
-	add	r0, r0, #CONFIG_STACKSIZE
-	sub	sp, r0, #12		/* leave 3 words for abort-stack */
 
 	ldr	pc, _start_armboot
 

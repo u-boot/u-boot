@@ -35,10 +35,6 @@
 
 /****************************************************************************/
 
-unsigned decrementer_count;		/* count value for 1e6/HZ microseconds */
-
-/****************************************************************************/
-
 /*
  * CPM interrupt vector functions.
  */
@@ -57,20 +53,6 @@ void uic1_interrupt( void * parms); /* UIC1 handler */
 #endif
 
 /****************************************************************************/
-
-static __inline__ unsigned long get_msr(void)
-{
-	unsigned long msr;
-
-	asm volatile("mfmsr %0" : "=r" (msr) :);
-	return msr;
-}
-
-static __inline__ void set_msr(unsigned long msr)
-{
-	asm volatile("mtmsr %0" : : "r" (msr));
-}
-
 #if defined(CONFIG_440)
 
 /* SPRN changed in 440 */
@@ -80,21 +62,6 @@ static __inline__ void set_evpr(unsigned long val)
 }
 
 #else /* !defined(CONFIG_440) */
-
-static __inline__ unsigned long get_dec(void)
-{
-	unsigned long val;
-
-	asm volatile("mfdec %0" : "=r" (val) :);
-	return val;
-}
-
-
-static __inline__ void set_dec(unsigned long val)
-{
-	asm volatile("mtdec %0" : : "r" (val));
-}
-
 
 static __inline__ void set_pit(unsigned long val)
 {
@@ -114,29 +81,18 @@ static __inline__ void set_evpr(unsigned long val)
 }
 #endif /* defined(CONFIG_440 */
 
-
-void enable_interrupts (void)
-{
-	set_msr (get_msr() | MSR_EE);
-}
-
-/* returns flag if MSR_EE was set before */
-int disable_interrupts (void)
-{
-	ulong msr = get_msr();
-	set_msr (msr & ~MSR_EE);
-	return ((msr & MSR_EE) != 0);
-}
-
 /****************************************************************************/
 
-int interrupt_init(void)
+int interrupt_init_cpu (unsigned *decrementer_count)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
 	int vec;
 	unsigned long val;
 
+	/* decrementer is automatically reloaded */
+	*decrementer_count = 0;
+	
 	/*
 	 * Mark all irqs as free
 	 */
@@ -194,10 +150,6 @@ int interrupt_init(void)
 	irq_install_handler(VECNUM_UIC1NC, uic1_interrupt, 0);
 	irq_install_handler(VECNUM_UIC1C, uic1_interrupt, 0);
 #endif
-	/*
-	 * Enable external interrupts (including PIT)
-	 */
-	set_msr (get_msr() | MSR_EE);
 
 	return (0);
 }
@@ -362,46 +314,13 @@ irq_free_handler(int vec)
 
 /****************************************************************************/
 
-
-volatile ulong timestamp = 0;
-
-/*
- * timer_interrupt - gets called when the decrementer overflows,
- * with interrupts disabled.
- * Trivial implementation - no need to be really accurate.
- */
-void timer_interrupt(struct pt_regs *regs)
+void timer_interrupt_cpu (struct pt_regs *regs)
 {
-#if 0
-	printf ("*** Timer Interrupt *** ");
-#endif
-	timestamp++;
-
-#if defined(CONFIG_WATCHDOG)
-	if ((timestamp % 1000) == 0)
-		reset_4xx_watchdog();
-#endif /* CONFIG_WATCHDOG */
+	/* nothing to do here */
+	return;
 }
 
 /****************************************************************************/
-
-void reset_timer (void)
-{
-	timestamp = 0;
-}
-
-ulong get_timer (ulong base)
-{
-	return (timestamp - base);
-}
-
-void set_timer (ulong t)
-{
-	timestamp = t;
-}
-
-/****************************************************************************/
-
 
 #if (CONFIG_COMMANDS & CFG_CMD_IRQ)
 

@@ -22,15 +22,10 @@
  */
 
 #include <common.h>
-#include <watchdog.h>
 #include <mpc8xx.h>
 #include <mpc8xx_irq.h>
 #include <asm/processor.h>
 #include <commproc.h>
-
-/************************************************************************/
-
-unsigned decrementer_count;	/* count value for 1e6/HZ microseconds	*/
 
 /************************************************************************/
 
@@ -50,67 +45,17 @@ static void cpm_interrupt (void *regs);
 
 /************************************************************************/
 
-static __inline__ unsigned long get_msr (void)
-{
-	unsigned long msr;
-
-	asm volatile ("mfmsr %0":"=r" (msr):);
-
-	return msr;
-}
-
-static __inline__ void set_msr (unsigned long msr)
-{
-	asm volatile ("mtmsr %0"::"r" (msr));
-}
-
-static __inline__ unsigned long get_dec (void)
-{
-	unsigned long val;
-
-	asm volatile ("mfdec %0":"=r" (val):);
-
-	return val;
-}
-
-
-static __inline__ void set_dec (unsigned long val)
-{
-	asm volatile ("mtdec %0"::"r" (val));
-}
-
-
-void enable_interrupts (void)
-{
-	set_msr (get_msr () | MSR_EE);
-}
-
-/* returns flag if MSR_EE was set before */
-int disable_interrupts (void)
-{
-	ulong msr = get_msr ();
-
-	set_msr (msr & ~MSR_EE);
-	return ((msr & MSR_EE) != 0);
-}
-
-/************************************************************************/
-
-int interrupt_init (void)
+int interrupt_init_cpu (unsigned *decrementer_count)
 {
 	volatile immap_t *immr = (immap_t *) CFG_IMMR;
 
-	decrementer_count = get_tbclk () / CFG_HZ;
+	*decrementer_count = get_tbclk () / CFG_HZ;
 
 	/* disable all interrupts */
 	immr->im_siu_conf.sc_simask = 0;
 
 	/* Configure CPM interrupts */
 	cpm_interrupt_init ();
-
-	set_dec (decrementer_count);
-
-	set_msr (get_msr () | MSR_EE);
 
 	return (0);
 }
@@ -314,20 +259,15 @@ static void cpm_interrupt_init (void)
 
 /************************************************************************/
 
-volatile ulong timestamp = 0;
-
 /*
  * timer_interrupt - gets called when the decrementer overflows,
  * with interrupts disabled.
  * Trivial implementation - no need to be really accurate.
  */
-void timer_interrupt (struct pt_regs *regs)
+void timer_interrupt_cpu (struct pt_regs *regs)
 {
 	volatile immap_t *immr = (immap_t *) CFG_IMMR;
 
-#ifdef CONFIG_STATUS_LED
-	extern void status_led_tick (ulong);
-#endif
 #if 0
 	printf ("*** Timer Interrupt *** ");
 #endif
@@ -339,57 +279,6 @@ void timer_interrupt (struct pt_regs *regs)
 #else
 	immr->im_clkrst.car_plprcr |= PLPRCR_TEXPS | PLPRCR_TMIST;
 #endif
-	/* Restore Decrementer Count */
-	set_dec (decrementer_count);
-
-	timestamp++;
-
-#ifdef CONFIG_STATUS_LED
-	status_led_tick (timestamp);
-#endif /* CONFIG_STATUS_LED */
-
-#if defined(CONFIG_WATCHDOG) || defined(CFG_CMA_LCD_HEARTBEAT)
-
-	/*
-	 * The shortest watchdog period of all boards (except LWMON)
-	 * is approx. 1 sec, thus re-trigger watchdog at least
-	 * every 500 ms = CFG_HZ / 2
-	 */
-#ifndef CONFIG_LWMON
-	if ((timestamp % (CFG_HZ / 2)) == 0) {
-#else
-	if ((timestamp % (CFG_HZ / 20)) == 0) {
-#endif
-
-#if defined(CFG_CMA_LCD_HEARTBEAT)
-		extern void lcd_heartbeat (void);
-
-		lcd_heartbeat ();
-#endif /* CFG_CMA_LCD_HEARTBEAT */
-
-#if defined(CONFIG_WATCHDOG)
-		reset_8xx_watchdog (immr);
-#endif /* CONFIG_WATCHDOG */
-
-	}
-#endif /* CONFIG_WATCHDOG || CFG_CMA_LCD_HEARTBEAT */
-}
-
-/************************************************************************/
-
-void reset_timer (void)
-{
-	timestamp = 0;
-}
-
-ulong get_timer (ulong base)
-{
-	return (timestamp - base);
-}
-
-void set_timer (ulong t)
-{
-	timestamp = t;
 }
 
 /************************************************************************/

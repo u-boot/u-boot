@@ -113,6 +113,7 @@
 #undef	CFG_LOADS_BAUD_CHANGE		/* don't allow baudrate change	*/
 
 #define	CONFIG_WATCHDOG		1	/* watchdog enabled		*/
+#define	CFG_WATCHDOG_FREQ       (CFG_HZ / 20)
 
 #undef	CONFIG_STATUS_LED		/* Status LED disabled		*/
 

@@ -77,24 +77,6 @@ endif
 
 export	CROSS_COMPILE
 
-# The "tools" are needed early, so put this first
-SUBDIRS	= tools \
-	  examples \
-	  lib_generic \
-	  lib_$(ARCH) \
-	  cpu/$(CPU) \
-	  board/$(BOARDDIR) \
-	  common \
-	  disk \
-	  fs \
-	  net \
-	  rtc \
-	  dtt \
-	  drivers \
-	  drivers/sk98lin \
-	  post \
-	  post/cpu
-
 #########################################################################
 # U-Boot objects....order is important (i.e. start must be first)
 
@@ -123,8 +105,16 @@ LIBS += drivers/sk98lin/libsk98lin.a
 LIBS += post/libpost.a post/cpu/libcpu.a
 LIBS += common/libcommon.a
 LIBS += lib_generic/libgeneric.a
+
 # Add GCC lib
 PLATFORM_LIBS += -L $(shell dirname `$(CC) $(CFLAGS) -print-libgcc-file-name`) -lgcc
+
+# The "tools" are needed early, so put this first
+# Don't include stuff already done in $(LIBS)
+SUBDIRS	= tools \
+	  examples \
+	  post \
+	  post/cpu
 
 #########################################################################
 #########################################################################
@@ -149,14 +139,18 @@ u-boot.img:	u-boot.bin
 u-boot.dis:	u-boot
 		$(OBJDUMP) -d $< > $@
 
-u-boot:		depend subdirs $(OBJS) $(LIBS) $(LDSCRIPT)
+u-boot:		depend $(SUBDIRS) $(OBJS) $(LIBS) $(LDSCRIPT)
 		UNDEF_SYM=`$(OBJDUMP) -x $(LIBS) |sed  -n -e 's/.*\(__u_boot_cmd_.*\)/-u\1/p'|sort|uniq`;\
 		$(LD) $(LDFLAGS) $$UNDEF_SYM $(OBJS) \
 			--start-group $(LIBS) $(PLATFORM_LIBS) --end-group \
 			-Map u-boot.map -o u-boot
 
-subdirs:
-		@for dir in $(SUBDIRS) ; do $(MAKE) -C $$dir || exit 1 ; done
+$(LIBS):
+		$(MAKE) -C `dirname $@`
+
+$(SUBDIRS):
+		@echo "#### MAKE $@ ####"
+		$(MAKE) -C $@
 
 gdbtools:
 		$(MAKE) -C tools/gdb || exit 1
@@ -884,12 +878,12 @@ trab_old_config:	unconfig
 	@[ -z "$(findstring _bigflash,$@)" ] || \
 		{ echo "#define CONFIG_RAM_16MB" >>include/config.h ; \
 		  echo "... with 16 MB Flash, 16 MB RAM" ; \
-		  echo "TEXT_BASE = 0x0CF00000" >board/trab/config.tmp ; \
+		  echo "TEXT_BASE = 0x0CF40000" >board/trab/config.tmp ; \
 		}
 	@[ -z "$(findstring _old,$@)" ] || \
 		{ echo "#define CONFIG_OLD_VERSION" >>include/config.h ; \
 		  echo "... with small memory configuration" ; \
-		  echo "TEXT_BASE = 0x0CF00000" >board/trab/config.tmp ; \
+		  echo "TEXT_BASE = 0x0CF40000" >board/trab/config.tmp ; \
 		}
 	@./mkconfig -a $(call xtract_trab,$@) arm arm920t trab
 

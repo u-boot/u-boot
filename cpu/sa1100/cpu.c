@@ -36,17 +36,15 @@
 int cpu_init (void)
 {
 	/*
-	 * setup up stack if necessary
+	 * setup up stacks if necessary
 	 */
 #ifdef CONFIG_USE_IRQ
-	IRQ_STACK_START = _armboot_end +
-			CONFIG_STACKSIZE + CONFIG_STACKSIZE_IRQ - 4;
-	FIQ_STACK_START = IRQ_STACK_START + CONFIG_STACKSIZE_FIQ;
-	_armboot_real_end = FIQ_STACK_START + 4;
-#else
-	_armboot_real_end = _armboot_end + CONFIG_STACKSIZE;
+	DECLARE_GLOBAL_DATA_PTR;
+
+	IRQ_STACK_START = _armboot_start - CFG_MALLOC_LEN - CFG_GBL_DATA_LEN - 4;
+	FIQ_STACK_START = IRQ_STACK_START - CONFIG_STACKSIZE_IRQ;
 #endif
-	return (0);
+	return 0;
 }
 
 int cleanup_before_linux (void)

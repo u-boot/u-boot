@@ -40,15 +40,6 @@ int board_init( void ){
 #endif
   PSSR    = 0x20;
 
-/*
- * Following code is just bug workaround, remove it if not neccessary
- */
-
-  /* cpu/xscale/cpu.c do not set armboot_real_end that is used for
-     malloc pool.*/
-  if( _armboot_real_end == 0xbadc0de ){
-    _armboot_real_end = _armboot_end;
-  }
   return 0;
 }
 

@@ -35,7 +35,6 @@ extern ulong _armboot_end_data;	/* code + data end */
 extern ulong _armboot_end;	/* BSS end */
 extern ulong IRQ_STACK_START;	/* top of IRQ stack */
 extern ulong FIQ_STACK_START;	/* top of FIQ stack */
-extern ulong _armboot_real_end;	/* first usable RAM address */
 
 /* cpu/.../cpu.c */
 int	cpu_init(void);

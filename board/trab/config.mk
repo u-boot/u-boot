@@ -22,5 +22,5 @@
 sinclude $(TOPDIR)/board/$(BOARDDIR)/config.tmp
 
 ifndef TEXT_BASE
-TEXT_BASE = 0x0DF00000
+TEXT_BASE = 0x0DF40000
 endif

@@ -4,10 +4,10 @@
  *  Copyright (C) 1998	Dan Malek <dmalek@jlc.net>
  *  Copyright (C) 1999	Magnus Damm <kieraypc01.p.y.kie.era.ericsson.se>
  *  Copyright (C) 2000	Wolfgang Denk <wd@denx.de>
- *  Copyright (C) 2001	Alex Züpke <azu@sysgo.de>
+ *  Copyright (C) 2001	Alex Zuepke <azu@sysgo.de>
  *  Copyright (C) 2002	Kyle Harris <kharris@nexus-tech.net>
  *  Copyright (C) 2003  Robert Schwebel <r.schwebel@pengutronix.de>
- *  Copyright (C) 2003  Kai-Uwe Bloehm <kai-uwe.bloem@auerswald.de>
+ *  Copyright (C) 2003  Kai-Uwe Bloem <kai-uwe.bloem@auerswald.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -55,7 +55,7 @@ _fiq:			.word fiq
 /*
  * Startup Code (reset vector)
  *
- * do important init only if we don't start from memory!
+ * do important init only if we don't start from RAM!
  * - relocate armboot to ram
  * - setup stack
  * - jump to second stage
@@ -91,21 +91,6 @@ _bss_start:
 _bss_end:
 	.word bss_end
 
-/*
- * _armboot_real_end is the first usable RAM address behind armboot
- * and the various stacks
- */
-.globl _armboot_real_end
-_armboot_real_end:
-	.word 0x0badc0de
-
-/*
- * We relocate uboot to this address (end of RAM - 128 KiB)
- */
-.globl _uboot_reloc
-_uboot_reloc:
-	.word TEXT_BASE
-
 #ifdef CONFIG_USE_IRQ
 /* IRQ stack memory (calculated at run-time) */
 .globl IRQ_STACK_START
@@ -131,7 +116,13 @@ reset:
 	orr	r0,r0,#0x13
 	msr	cpsr,r0
 
+	/*
+	 * we do sys-critical inits only at reboot,
+	 * not when booting from ram!
+	 */
+#ifdef CONFIG_INIT_CRITICAL
 	bl	cpu_init_crit		/* we do sys-critical inits	    */
+#endif
 
 relocate:				/* relocate U-Boot to RAM	    */
 	adr	r0, _start		/* r0 <- current position of code   */
@@ -151,12 +142,13 @@ copy_loop:
 	ble	copy_loop
 
 	/* Set up the stack						    */
-
 stack_setup:
-
-	ldr	r0, _uboot_reloc	/* upper 128 KiB: relocated uboot   */
-	sub	r0, r0, #CFG_MALLOC_LEN /* malloc area			    */
-					/* FIXME: bdinfo should be here	    */
+	ldr	r0, _TEXT_BASE		/* upper 128 KiB: relocated uboot   */
+	sub	r0, r0, #CFG_MALLOC_LEN	/* malloc area                      */
+	sub	r0, r0, #CFG_GBL_DATA_SIZE /* bdinfo                        */
+#ifdef CONFIG_USE_IRQ
+	sub	r0, r0, #(CONFIG_STACKSIZE_IRQ+CONFIG_STACKSIZE_FIQ)
+#endif
 	sub	sp, r0, #12		/* leave 3 words for abort-stack    */
 
 clear_bss:
@@ -202,9 +194,13 @@ OSTIMER_BASE:	.word	0x40a00000
 #define OIER	0x1C
 
 /* Clock Manager Registers					            */
+#ifdef CFG_CPUSPEED
 CC_BASE:	.word	0x41300000
 #define CCCR	0x00
 cpuspeed:	.word	CFG_CPUSPEED
+#else
+#error "You have to define CFG_CPUSPEED!!"
+#endif
 
 
 	/* RS: ???							    */

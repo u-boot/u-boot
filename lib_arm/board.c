@@ -149,7 +149,7 @@ static int display_dram_config (void)
 		return (0);
 #endif
 
-	puts ("DRAM Configuration:\n");
+	puts ("RAM Configuration:\n");
 
 	for(i=0; i<CONFIG_NR_DRAM_BANKS; i++) {
 		printf ("Bank #%d: %08lx ", i, gd->bd->bi_dram[i].start);
@@ -173,7 +173,7 @@ static void display_flash_config (ulong size)
 
 
 /*
- * Breath some life into the board...
+ * Breathe some life into the board...
  *
  * Initialize a serial port as console, and carry out some hardware
  * tests.
@@ -219,8 +219,6 @@ void start_armboot (void)
 	DECLARE_GLOBAL_DATA_PTR;
 
 	ulong size;
-	gd_t gd_data;
-	bd_t bd_data;
 	init_fnc_t **init_fnc_ptr;
 	char *s;
 #if defined(CONFIG_VFD)
@@ -228,9 +226,9 @@ void start_armboot (void)
 #endif
 
 	/* Pointer is writable since we allocated a register for it */
-	gd = &gd_data;
-	memset ((void *)gd, 0, sizeof (gd_t));
-	gd->bd = &bd_data;
+	gd = (gd_t*)(_armboot_start - CFG_MALLOC_LEN - sizeof(gd_t));
+	memset ((void*)gd, 0, sizeof (gd_t));
+	gd->bd = (bd_t*)((char*)gd - sizeof(bd_t));
 	memset (gd->bd, 0, sizeof (bd_t));
 
 	monitor_flash_len = _armboot_end_data - _armboot_start;
@@ -246,24 +244,20 @@ void start_armboot (void)
 	display_flash_config (size);
 
 #ifdef CONFIG_VFD
-#  ifndef PAGE_SIZE
-#   define PAGE_SIZE 4096
-#  endif
+#	ifndef PAGE_SIZE
+#	  define PAGE_SIZE 4096
+#	endif
 	/*
 	 * reserve memory for VFD display (always full pages)
 	 */
-	/* armboot_real_end is defined in the board-specific linker script */
-	addr = (_armboot_real_end + (PAGE_SIZE - 1)) & ~(PAGE_SIZE - 1);
+	/* armboot_end is defined in the board-specific linker script */
+	addr = (_armboot_end + (PAGE_SIZE - 1)) & ~(PAGE_SIZE - 1);
 	size = vfd_setmem (addr);
 	gd->fb_base = addr;
-	/* round to the next page boundary */
-	addr += size;
-	addr = (addr + (PAGE_SIZE - 1)) & ~(PAGE_SIZE - 1);
-	mem_malloc_init (addr);
-#else
-	/* armboot_real_end is defined in the board-specific linker script */
-	mem_malloc_init (_armboot_real_end);
 #endif /* CONFIG_VFD */
+
+	/* armboot_start is defined in the board-specific linker script */
+	mem_malloc_init (_armboot_start - CFG_MALLOC_LEN);
 
 #if (CONFIG_COMMANDS & CFG_CMD_NAND)
 	puts ("NAND:");
@@ -281,10 +275,10 @@ void start_armboot (void)
 #ifdef CONFIG_VFD
 	/* must do this after the framebuffer is allocated */
 	drv_vfd_init();
-#endif
+#endif /* CONFIG_VFD */
 
 	/* IP Address */
-	bd_data.bi_ip_addr = getenv_IPaddr ("ipaddr");
+	gd->bd->bi_ip_addr = getenv_IPaddr ("ipaddr");
 
 	/* MAC Address */
 	{
@@ -297,7 +291,7 @@ void start_armboot (void)
 		s = (i > 0) ? tmp : NULL;
 
 		for (reg = 0; reg < 6; ++reg) {
-			bd_data.bi_enetaddr[reg] = s ? simple_strtoul (s, &e, 16) : 0;
+			gd->bd->bi_enetaddr[reg] = s ? simple_strtoul (s, &e, 16) : 0;
 			if (s)
 				s = (*e) ? e + 1 : e;
 		}
@@ -317,6 +311,7 @@ void start_armboot (void)
 	/* enable exceptions */
 	enable_interrupts ();
 
+	/* Perform network card initialisation if necessary */
 #ifdef CONFIG_DRIVER_CS8900
 	cs8900_get_enetaddr (gd->bd->bi_enetaddr);
 #endif

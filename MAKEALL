@@ -1,5 +1,7 @@
 #!/bin/sh
 
+: ${JOBS:=}
+
 if [ "${CROSS_COMPILE}" ] ; then
 	MAKE="make CROSS_COMPILE=${CROSS_COMPILE}"
 else
@@ -179,7 +181,7 @@ build_target() {
 
 	${MAKE} distclean >/dev/null
 	${MAKE} ${target}_config
-	${MAKE} all 2>&1 >LOG/$target.MAKELOG | tee LOG/$target.ERR
+	${MAKE} ${JOBS} all 2>&1 >LOG/$target.MAKELOG | tee LOG/$target.ERR
 	${CROSS_COMPILE:-ppc_8xx-}size u-boot | tee -a LOG/$target.MAKELOG
 }
 

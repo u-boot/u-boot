@@ -1,0 +1,27 @@
+Subject: Re: [PATCH][CFT] bring ARM memory layout in line with the documented behaviour
+From: "Anders Larsen" <alarsen@rea.de>
+Date: Thu, 18 Sep 2003 14:15:21 +0200
+To: Wolfgang Denk <wd@denx.de>
+
+...
+>I still see  references  to  _armboot_start,  _armboot_end_data,  and
+>_armboot_end - which role do these play now? Can we get rid of them?
+>
+>How are they (should they be) set in your memory map above?
+
+_armboot_start contains the value of TEXT_BASE (0xA07E0000); it seems
+TEXT_BASE and _armboot_start are both used for the same purpose in
+different parts of the (ARM) code.
+Furthermore, the startup code (cpu/<arm>/start.S) internally uses
+another variable (_TEXT_BASE) with the same content as _armboot_start.
+I agree that this mess should be cleaned up.
+
+_armboot_end_data is the end address of the initialized data section,
+and is only used in one place (board/logodl/flash.c - the reference in
+lib_arm/board.c is purely informational).
+
+_armboot_end is the end address of the BSS and is used to determine
+the address of the VFD buffer.
+
+Eliminating those should be doable, and at least the patch already
+eliminates _armboot_real_end.

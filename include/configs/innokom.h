@@ -87,6 +87,7 @@
  *
  */
 #define CFG_MALLOC_LEN		(256*1024)
+#define CFG_GBL_DATA_SIZE	128		/* size in bytes reserved for initial data */
 
 #define CFG_LONGHELP				/* undef to save memory         */
 #define CFG_PROMPT		"uboot> "	/* Monitor Command Prompt       */

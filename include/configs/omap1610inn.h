@@ -27,6 +27,12 @@
 #define __CONFIG_H
 
 /*
+ * If we are developing, we might want to start armboot from ram
+ * so we MUST NOT initialize critical regs like mem-timing ...
+ */
+#define CONFIG_INIT_CRITICAL            /* undef for developing */
+
+/*
  * High Level Configuration Options
  * (easy to change)
  */
@@ -50,6 +56,7 @@
  * Size of malloc() pool
  */
 #define CFG_MALLOC_LEN	(CFG_ENV_SIZE + 128*1024)
+#define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
  * Hardware drivers
@@ -66,14 +73,13 @@
 #define CFG_NS16550
 #define CFG_NS16550_SERIAL
 #define CFG_NS16550_REG_SIZE	(-4)
-#define CFG_NS16550_CLK	(48000000)	/* can be 12M/32Khz or 48Mhz */
-#define CFG_NS16550_COM1	0xfffb0000	/* uart1, bluetooth uart
-						on helen */
+#define CFG_NS16550_CLK		(48000000)	/* can be 12M/32Khz or 48Mhz */
+#define CFG_NS16550_COM1	0xfffb0000	/* uart1, bluetooth uart on helen */
 
 /*
  * select serial console configuration
  */
-#define CONFIG_SERIAL1	1	/* we use SERIAL 1 on OMAP1610 Innovator */
+#define CONFIG_SERIAL1		1		/* we use SERIAL 1 on OMAP1610 Innovator */
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE

@@ -229,3 +229,17 @@ lcd_heartbeat(void)
     if (++rotator_index >= (sizeof rotchars / sizeof rotchars[0]))
 	rotator_index = 0;
 }
+
+#ifdef CONFIG_SHOW_ACTIVITY
+void board_show_activity (ulong timestamp)
+{
+#ifdef CONFIG_STATUS_LED
+	if ((timestamp % (CFG_HZ / 2) == 0)
+		lcd_heartbeat ();
+#endif
+}
+
+void show_activity(int arg)
+{
+}
+#endif

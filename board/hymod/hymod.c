@@ -513,3 +513,25 @@ last_stage_init (void)
 
 	return (0);
 }
+
+#ifdef CONFIG_SHOW_ACTIVITY
+void board_show_activity (ulong timebase)
+{
+#ifdef CFG_HYMOD_DBLEDS
+	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile iop8260_t *iop = &immr->im_ioport;
+	static int shift = 0;
+
+	if ((timestamp % CFG_HZ) == 0) {
+		if (++shift > 3)
+			shift = 0;
+		iop->iop_pdatd =
+				(iop->iop_pdatd & ~0x0f000000) | (1 << (24 + shift));
+	}
+#endif /* CFG_HYMOD_DBLEDS */
+}
+
+void show_activity(int arg)
+{
+}
+#endif /* CONFIG_SHOW_ACTIVITY */

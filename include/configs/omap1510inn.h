@@ -27,6 +27,12 @@
 #define __CONFIG_H
 
 /*
+ * If we are developing, we might want to start armboot from ram
+ * so we MUST NOT initialize critical regs like mem-timing ...
+ */
+#define CONFIG_INIT_CRITICAL            /* undef for developing */
+
+/*
  * High Level Configuration Options
  * (easy to change)
  */
@@ -49,6 +55,7 @@
  * Size of malloc() pool
  */
 #define CFG_MALLOC_LEN		(CFG_ENV_SIZE + 128*1024)
+#define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
  * Hardware drivers

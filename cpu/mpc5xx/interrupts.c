@@ -28,15 +28,8 @@
  */
 
 #include <common.h>
-#include <watchdog.h>
 #include <mpc5xx.h>
 #include <asm/processor.h>
-
-/************************************************************************/
-
-unsigned decrementer_count;	/* count value for 1e6/HZ microseconds	*/
-
-/************************************************************************/
 
 struct interrupt_action {
 	interrupt_handler_t *handler;
@@ -46,73 +39,19 @@ struct interrupt_action {
 static struct interrupt_action irq_vecs[NR_IRQS];
 
 /*
- * Local function prototypes
- */
-static __inline__ unsigned long get_msr (void)
-{
-	unsigned long msr;
-
-	asm volatile ("mfmsr %0":"=r" (msr):);
-
-	return msr;
-}
-
-static __inline__ void set_msr (unsigned long msr)
-{
-	asm volatile ("mtmsr %0"::"r" (msr));
-}
-
-static __inline__ unsigned long get_dec (void)
-{
-	unsigned long val;
-
-	asm volatile ("mfdec %0":"=r" (val):);
-
-	return val;
-}
-
-
-static __inline__ void set_dec (unsigned long val)
-{
-	asm volatile ("mtdec %0"::"r" (val));
-}
-
-/*
- * Enable interrupts
- */
-void enable_interrupts (void)
-{
-	set_msr (get_msr () | MSR_EE);
-}
-
-/*
- * Returns flag if MSR_EE was set before
- */
-int disable_interrupts (void)
-{
-	ulong msr = get_msr ();
-
-	set_msr (msr & ~MSR_EE);
-	return ((msr & MSR_EE) != 0);
-}
-
-/*
  * Initialise interrupts
  */
 
-int interrupt_init (void)
+int interrupt_init_cpu (ulong *decrementer_count)
 {
 	volatile immap_t *immr = (immap_t *) CFG_IMMR;
 
 	/* Decrementer used here for status led */
-	decrementer_count = get_tbclk () / CFG_HZ;
+	*decrementer_count = get_tbclk () / CFG_HZ;
 
 	/* Disable all interrupts */
 	immr->im_siu_conf.sc_simask = 0;
 
-	set_dec (decrementer_count);
-
-	set_msr (get_msr () | MSR_EE);
 	return (0);
 }
 
@@ -206,19 +145,14 @@ void irq_free_handler (int vec)
 	irq_vecs[vec].arg = NULL;
 }
 
-volatile ulong timestamp = 0;
-
 /*
  *  Timer interrupt - gets called when  bit 0 of DEC changes from
  *  0. Decrementer is enabled with bit TBE in TBSCR.
  */
-void timer_interrupt (struct pt_regs *regs)
+void timer_interrupt_cpu (struct pt_regs *regs)
 {
 	volatile immap_t *immr = (immap_t *) CFG_IMMR;
 
-#ifdef CONFIG_STATUS_LED
-	extern void status_led_tick (ulong);
-#endif
 #if 0
 	printf ("*** Timer Interrupt *** ");
 #endif
@@ -227,47 +161,5 @@ void timer_interrupt (struct pt_regs *regs)
 	__asm__ ("nop");
 	immr->im_clkrst.car_plprcr |= PLPRCR_TEXPS | PLPRCR_TMIST;
 
-	/* Restore Decrementer Count */
-	set_dec (decrementer_count);
-
-	timestamp++;
-
-#ifdef CONFIG_STATUS_LED
-	status_led_tick (timestamp);
-#endif /* CONFIG_STATUS_LED */
-
-#if defined(CONFIG_WATCHDOG)
-	/*
-	 * The shortest watchdog period of all boards
-	 * is approx. 1 sec, thus re-trigger watchdog at least
-	 * every 500 ms = CFG_HZ / 2
-	 */
-	if ((timestamp % (CFG_HZ / 2)) == 0) {
-		reset_5xx_watchdog (immr);
-	}
-#endif /* CONFIG_WATCHDOG */
-}
-
-/*
- * Reset timer
- */
-void reset_timer (void)
-{
-	timestamp = 0;
-}
-
-/*
- * Get Timer
- */
-ulong get_timer (ulong base)
-{
-	return (timestamp - base);
-}
-
-/*
- * Set timer
- */
-void set_timer (ulong t)
-{
-	timestamp = t;
+	return;
 }

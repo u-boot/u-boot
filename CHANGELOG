@@ -2,6 +2,13 @@
 Changes since U-Boot 1.0.0:
 ======================================================================
 
+* Patch by Gleb Natapov, 19 Sep 2003:
+  Move most of the timer interrupt related PPC code to ppc_lib/interrupts.c
+
+* Patch by Anders Larsen, 17 Sep 2003:
+  Bring ARM memory layout in sync with the documentation:
+  stack and malloc-heap are now located _below_ the U-Boot code
+
 * Accelerate booting on TRAB board: read and check  autoupdate  image
   headers first instead of always reading the whole images.
 

@@ -32,79 +32,10 @@
 #include <asm/processor.h>
 #include <command.h>
 
-/****************************************************************************/
-
-unsigned decrementer_count;	     /* count value for 1e6/HZ microseconds */
-
-/****************************************************************************/
-
-static __inline__ unsigned long
-get_msr(void)
+int interrupt_init_cpu (ulong *decrementer_count)
 {
-	unsigned long msr;
+	*decrementer_count = get_tbclk() / CFG_HZ;
 
-	asm volatile("mfmsr %0" : "=r" (msr) :);
-	return msr;
-}
-
-static __inline__ void
-set_msr(unsigned long msr)
-{
-	asm volatile("mtmsr %0" : : "r" (msr));
-}
-
-static __inline__ unsigned long
-get_dec(void)
-{
-	unsigned long val;
-
-	asm volatile("mfdec %0" : "=r" (val) :);
-	return val;
-}
-
-
-static __inline__ void
-set_dec(unsigned long val)
-{
-	asm volatile("mtdec %0" : : "r" (val));
-}
-
-
-void
-enable_interrupts(void)
-{
-	set_msr (get_msr() | MSR_EE);
-}
-
-/* returns flag if MSR_EE was set before */
-int
-disable_interrupts(void)
-{
-	ulong msr = get_msr();
-	set_msr (msr & ~MSR_EE);
-	return ((msr & MSR_EE) != 0);
-}
-
-/****************************************************************************/
-
-int interrupt_init(void)
-{
-	decrementer_count = get_tbclk() / CFG_HZ;
-
-#ifdef DEBUG
-	puts("interrupt_init: setting actual decremter\n");
-#endif
-	set_dec (get_tbclk() / CFG_HZ);
-
-#ifdef DEBUG
-	printf("interrupt_init: enabling interrupts (msr = %08lx)\n",
-		get_msr());
-#endif
-	set_msr (get_msr() | MSR_EE);
-
-#ifdef DEBUG
-	printf("interrupt_init: done. (msr = %08lx)\n", get_msr());
-#endif
 	return (0);
 }
 
@@ -119,38 +50,11 @@ external_interrupt(struct pt_regs *regs)
 	puts("external_interrupt (oops!)\n");
 }
 
-volatile ulong timestamp = 0;
-
-/*
- * timer_interrupt - gets called when the decrementer overflows,
- * with interrupts disabled.
- * Trivial implementation - no need to be really accurate.
- */
 void
-timer_interrupt(struct pt_regs *regs)
+timer_interrupt_cpu (struct pt_regs *regs)
 {
-	set_dec(decrementer_count);
-	timestamp++;
-}
-
-/****************************************************************************/
-
-void
-reset_timer(void)
-{
-	timestamp = 0;
-}
-
-ulong
-get_timer(ulong base)
-{
-	return (timestamp - base);
-}
-
-void
-set_timer(ulong t)
-{
-	timestamp = t;
+	/* nothing to do here */
+	return;
 }
 
 /****************************************************************************/

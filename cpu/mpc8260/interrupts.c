@@ -24,18 +24,12 @@
  */
 
 #include <common.h>
-#include <watchdog.h>
 #include <command.h>
 #include <mpc8260.h>
 #include <mpc8260_irq.h>
 #include <asm/processor.h>
-#ifdef CONFIG_STATUS_LED
-#include <status_led.h>
-#endif
 
 /****************************************************************************/
-
-unsigned decrementer_count;		/* count val for 1e6/HZ microseconds */
 
 struct irq_action {
 	interrupt_handler_t *handler;
@@ -144,57 +138,13 @@ static int m8260_get_irq (struct pt_regs *regs)
 /* end of code ripped out of arch/ppc/kernel/ppc8260_pic.c		    */
 /****************************************************************************/
 
-static __inline__ unsigned long get_msr (void)
-{
-	unsigned long msr;
-
-	__asm__ __volatile__ ("mfmsr %0":"=r" (msr):);
-
-	return msr;
-}
-
-static __inline__ void set_msr (unsigned long msr)
-{
-	__asm__ __volatile__ ("mtmsr %0;sync;isync"::"r" (msr));
-}
-
-static __inline__ unsigned long get_dec (void)
-{
-	unsigned long val;
-
-	__asm__ __volatile__ ("mfdec %0":"=r" (val):);
-
-	return val;
-}
-
-static __inline__ void set_dec (unsigned long val)
-{
-	__asm__ __volatile__ ("mtdec %0"::"r" (val));
-}
-
-void enable_interrupts (void)
-{
-	set_msr (get_msr () | MSR_EE);
-}
-
-/* returns flag if MSR_EE was set before */
-int disable_interrupts (void)
-{
-	ulong msr = get_msr ();
-
-	set_msr (msr & ~MSR_EE);
-	return ((msr & MSR_EE) != 0);
-}
-
-/****************************************************************************/
-
-int interrupt_init (void)
+int interrupt_init_cpu (unsigned *decrementer_count)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
 	volatile immap_t *immr = (immap_t *) CFG_IMMR;
 
-	decrementer_count = (gd->bus_clk / 4) / CFG_HZ;
+	*decrementer_count = (gd->bus_clk / 4) / CFG_HZ;
 
 	/* Initialize the default interrupt mapping priorities */
 	immr->im_intctl.ic_sicr = 0;
@@ -216,10 +166,6 @@ int interrupt_init (void)
 	immr->im_intctl.ic_siexr = -1;
 #endif
 
-	set_dec (decrementer_count);
-
-	set_msr (get_msr () | MSR_EE);
-
 	return (0);
 }
 
@@ -236,7 +182,7 @@ void external_interrupt (struct pt_regs *regs)
 
 	m8260_mask_and_ack (irq);
 
-	set_msr (get_msr () | MSR_EE);
+	enable_interrupts ();
 
 	if (irq_handlers[irq].handler != NULL)
 		(*irq_handlers[irq].handler) (irq_handlers[irq].arg);
@@ -292,75 +238,10 @@ void irq_free_handler (int irq)
 
 /****************************************************************************/
 
-volatile ulong timestamp = 0;
-
-/*
- * timer_interrupt - gets called when the decrementer overflows,
- * with interrupts disabled.
- * Trivial implementation - no need to be really accurate.
- */
-void timer_interrupt (struct pt_regs *regs)
+void timer_interrupt_cpu (struct pt_regs *regs)
 {
-#if defined(CONFIG_WATCHDOG) || defined(CFG_HYMOD_DBLEDS)
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
-#endif	/* CONFIG_WATCHDOG */
-
-	/* Restore Decrementer Count */
-	set_dec (decrementer_count);
-
-	timestamp++;
-
-#if defined(CONFIG_WATCHDOG) || \
-    defined(CFG_CMA_LCD_HEARTBEAT) || \
-    defined(CFG_HYMOD_DBLEDS)
-
-	if ((timestamp % CFG_HZ) == 0) {
-#if defined(CFG_CMA_LCD_HEARTBEAT)
-		extern void lcd_heartbeat (void);
-#endif	/* CFG_CMA_LCD_HEARTBEAT */
-#if defined(CFG_HYMOD_DBLEDS)
-		volatile iop8260_t *iop = &immr->im_ioport;
-		static int shift = 0;
-#endif	/* CFG_HYMOD_DBLEDS */
-
-#if defined(CFG_CMA_LCD_HEARTBEAT)
-		lcd_heartbeat ();
-#endif	/* CFG_CMA_LCD_HEARTBEAT */
-
-#if defined(CONFIG_WATCHDOG)
-		reset_8260_watchdog (immr);
-#endif	/* CONFIG_WATCHDOG */
-
-#if defined(CFG_HYMOD_DBLEDS)
-		/* hymod daughter board LEDs */
-		if (++shift > 3)
-			shift = 0;
-		iop->iop_pdatd =
-				(iop->iop_pdatd & ~0x0f000000) | (1 << (24 + shift));
-#endif	/* CFG_HYMOD_DBLEDS */
-	}
-#endif	/* CONFIG_WATCHDOG || CFG_CMA_LCD_HEARTBEAT */
-
-#ifdef CONFIG_STATUS_LED
-	status_led_tick (timestamp);
-#endif	/* CONFIG_STATUS_LED */
-}
-
-/****************************************************************************/
-
-void reset_timer (void)
-{
-	timestamp = 0;
-}
-
-ulong get_timer (ulong base)
-{
-	return (timestamp - base);
-}
-
-void set_timer (ulong t)
-{
-	timestamp = t;
+	/* nothing to do here */
+	return;
 }
 
 /****************************************************************************/

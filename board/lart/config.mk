@@ -14,10 +14,10 @@
 #
 # Linux-Kernel is expected to be at c000'8000, entry c000'8000
 #
-# we load ourself to c170'0000, the upper 1 MB of second bank
+# we load ourself to c178'0000, the upper 1 MB of second bank
 #
 # download areas is c800'0000
 #
 
 
-TEXT_BASE = 0xc1700000
+TEXT_BASE = 0xc1780000

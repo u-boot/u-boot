@@ -93,14 +93,6 @@ _armboot_end_data:
 _armboot_end:
 	.word armboot_end
 
-/*
- * _armboot_real_end is the first usable RAM address behind armboot
- * and the various stacks
- */
-.globl _armboot_real_end
-_armboot_real_end:
-	.word 0x0badc0de
-
 #ifdef CONFIG_USE_IRQ
 /* IRQ stack memory (calculated at run-time) */
 .globl IRQ_STACK_START
@@ -147,10 +139,16 @@ copyex:
 	bl      cpu_init_crit
 #endif
 
-	/* set up the stack */
-	ldr     r0, _armboot_end
-	add     r0, r0, #CONFIG_STACKSIZE
-	sub     sp, r0, #12             /* leave 3 words for abort-stack */
+	/* Set up the stack						    */
+stack_setup:
+	ldr	r0, _TEXT_BASE		/* upper 128 KiB: relocated uboot   */
+	sub	r0, r0, #CFG_MALLOC_LEN	/* malloc area                      */
+	sub	r0, r0, #CFG_GBL_DATA_SIZE /* bdinfo                        */
+#ifdef CONFIG_USE_IRQ
+	sub	r0, r0, #(CONFIG_STACKSIZE_IRQ+CONFIG_STACKSIZE_FIQ)
+#endif
+	sub	sp, r0, #12		/* leave 3 words for abort-stack    */
+
 	ldr pc,_start_armboot
 
 _start_armboot: .word start_armboot

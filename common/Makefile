@@ -63,6 +63,9 @@ environment.o: environment.c ../tools/envcrc
 		-DENV_CRC=$(shell ../tools/envcrc) \
 		-c -o $@ environment.c
 
+../tools/envcrc:
+	$(MAKE) -C ../tools
+
 #########################################################################
 
 .depend:	Makefile $(AOBJS:.o=.S) $(COBJS:.o=.c)

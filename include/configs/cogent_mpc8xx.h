@@ -126,6 +126,7 @@
 #define CFG_CMA_CONS_SERIAL	/* use Cogent motherboard serial for console */
 #define CONFIG_CONS_INDEX	1
 #define CFG_CMA_LCD_HEARTBEAT	/* define for sec rotator in lcd corner */
+#define CONFIG_SHOW_ACTIVITY
 #if (CMA_MB_CAPS & CMA_MB_CAP_FLASH)
 /*
  * flash exists on the motherboard

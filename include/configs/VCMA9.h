@@ -97,6 +97,7 @@
  * Size of malloc() pool
  */
 #define CONFIG_MALLOC_SIZE	(CFG_ENV_SIZE + 128*1024)
+#define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 #define CFG_MONITOR_LEN		(256 * 1024)
 #define CFG_MALLOC_LEN		(128 * 1024)

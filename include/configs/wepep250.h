@@ -23,6 +23,12 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+/*
+ * If we are developing, we might want to start armboot from ram
+ * so we MUST NOT initialize critical regs like mem-timing ...
+ */
+#define CONFIG_INIT_CRITICAL            /* undef for developing */
+
 #define CONFIG_PXA250          1        /* this is an PXA250 CPU     */
 #define CONFIG_WEPEP250        1        /* config for wepep250 board */
 #undef  CONFIG_USE_IRQ                  /* don't need use IRQ/FIQ    */
@@ -93,6 +99,7 @@
  * Malloc pool need to host env + 128 Kb reserve for other allocations.
  */
 #define CFG_MALLOC_LEN	  (CFG_ENV_SIZE + (128<<10) )
+#define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 #define CONFIG_STACKSIZE        (120<<10)      /* stack size */
 

@@ -1353,7 +1353,7 @@ The following options need to be configured:
 		of the backslashes before semicolons and special
 		symbols.
 
-- Default Environment
+- Default Environment:
 		CONFIG_EXTRA_ENV_SETTINGS
 
 		Define this to contain any number of null terminated
@@ -1379,14 +1379,14 @@ The following options need to be configured:
 		the environment like the autoscript function or the
 		boot command first.
 
-- DataFlash Support
+- DataFlash Support:
 		CONFIG_HAS_DATAFLASH
 
 		Defining this option enables DataFlash features and
 		allows to read/write in Dataflash via the standard
 		commands cp, md...
 
-- Show boot progress
+- Show boot progress:
 		CONFIG_SHOW_BOOT_PROGRESS
 
 		Defining this option allows to add some board-
@@ -1465,6 +1465,19 @@ Modem Support:
 
 		Enables debugging stuff (char screen[1024], dbg())
 		for modem support. Useful only with BDI2000.
+
+- Interrupt support (PPC):
+
+                There are common interrupt_init() and timer_interrupt()
+                for all PPC archs. interrupt_init() calls interrupt_init_cpu()
+                for cpu specific initialization. interrupt_init_cpu()
+                should set decrementer_count to appropriate value. If
+                cpu resets decrementer automatically after interrupt
+                (ppc4xx) it should set decrementer_count to zero.
+                timer_interrupt() calls timer_interrupt_cpu() for cpu
+                specific handling. If board has watchdog / status_led
+                / other_activity_monitor it works automatically from
+                general timer_interrupt().
 
 - General:
 

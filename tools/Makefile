@@ -180,12 +180,14 @@ else
 endif
 
 environment.c:
+		@rm -f environment.c
 		ln -s ../common/environment.c environment.c
 
 environment.o: environment.c
 		$(CC) -g $(HOST_ENVIRO_CFLAGS) $(CPPFLAGS) -c $<
 
 crc32.c:
+		@rm -f crc32.c
 		ln -s ../lib_generic/crc32.c crc32.c
 
 $(LOGO_H):	bmp_logo $(LOGO_BMP)

@@ -159,7 +159,7 @@ static int tx_i_index = 0;		/* Transmit Interrupt Queue Index */
 static int tx_u_index = 0;		/* Transmit User Queue Index */
 static int tx_run[NUM_TX_BUFF];	/* Transmit Running Queue */
 
-#undef INFO_405_ENET 1
+#undef INFO_405_ENET
 #ifdef INFO_405_ENET
 static int packetSent = 0;
 static int packetReceived = 0;

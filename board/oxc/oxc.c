@@ -156,6 +156,12 @@ void oxc_toggle_activeled(void)
 	ledtoggle++;
 }
 
+void board_show_activity (ulong timestamp)
+{
+	if ((timestamp % (CFG_HZ / 10)) == 0)
+		oxc_toggle_activeled ();
+}
+
 void show_activity(int arg)
 {
 	static unsigned char led = 0;

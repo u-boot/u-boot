@@ -28,7 +28,7 @@ LIB	= lib$(ARCH).a
 AOBJS	= ppcstring.o ticks.o
 
 COBJS	= board.o \
-	  bat_rw.o cache.o extable.o kgdb.o time.o
+	  bat_rw.o cache.o extable.o kgdb.o time.o interrupts.o
 
 OBJS	= $(AOBJS) $(COBJS)
 
