@@ -2,6 +2,15 @@
 Changes since U-Boot 1.0.0:
 ======================================================================
 
+* Patch by Xue Ligong (Joe), 13 Nov 2003:
+  add Realtek 8019 ethernet driver
+
+* Patch by Yuli Barcohen, 13 Nov 2003:
+  MPC826xADS/PQ2FADS  cleanup
+
+* Patch by Anders Larsen, 12 Nov 2003:
+  Update README to mark the PORTIO commands non-standard
+
 * Patch by Nicolas Lacressonnière, 12 Nov 2003:
   update for for Atmel AT91RM9200DK development kit:
   - support for environment variables in DataFlash

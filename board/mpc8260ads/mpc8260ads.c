@@ -231,6 +231,20 @@ int board_pre_init (void)
 
 	bcsr[1] = ~FETHIEN1 & ~RS232EN_1;
 
+#if CONFIG_ADSTYPE != CFG_8260ADS /* PCI mode can be selected */
+#if CONFIG_ADSTYPE == CFG_PQ2FADS
+	if ((bcsr[3] & BCSR_PCI_MODE) == 0) /* PCI mode selected by JP9 */
+#endif /* CONFIG_ADSTYPE == CFG_PQ2FADS */
+	{
+		volatile immap_t *immap = (immap_t *) CFG_IMMR;
+
+		immap->im_clkrst.car_sccr |= M826X_SCCR_PCI_MODE_EN;
+		immap->im_siu_conf.sc_siumcr =
+			(immap->im_siu_conf.sc_siumcr & ~SIUMCR_LBPC11)
+			| SIUMCR_LBPC01;
+	}
+#endif /* CONFIG_ADSTYPE != CFG_8260ADS */
+
 	return 0;
 }
 
@@ -239,31 +253,24 @@ int board_pre_init (void)
 long int initdram (int board_type)
 {
 #if CONFIG_ADSTYPE == CFG_PQ2FADS
-	vu_long *bcsr = (vu_long *)CFG_BCSR;
+	long int msize = 32;
+#else
+	long int msize = 16;
 #endif
+
+#ifndef CFG_RAMBOOT
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile memctl8260_t *memctl = &immap->im_memctl;
 	volatile uchar *ramaddr, c = 0xff;
-	long int msize;
 	uint or;
 	uint psdmr;
 	uint psrt;
 
 	int i;
 
-#ifndef CFG_RAMBOOT
 	immap->im_siu_conf.sc_ppc_acr  = 0x00000002;
 	immap->im_siu_conf.sc_ppc_alrh = 0x01267893;
 	immap->im_siu_conf.sc_tescr1   = 0x00004000;
-
-#if CONFIG_ADSTYPE == CFG_PQ2FADS
-	if ((bcsr[3] & BCSR_PCI_MODE) == 0) { /* PCI mode selected by JP9 */
-		immap->im_clkrst.car_sccr |= M826X_SCCR_PCI_MODE_EN;
-		immap->im_siu_conf.sc_siumcr =
-			(immap->im_siu_conf.sc_siumcr & ~SIUMCR_LBPC11)
-			| SIUMCR_LBPC01;
-	}
-#endif /* CONFIG_ADSTYPE == CFG_PQ2FADS */
 
 	memctl->memc_mptpr = CFG_MPTPR;
 #ifdef CFG_LSDRAM_BASE
@@ -431,13 +438,7 @@ long int initdram (int board_type)
 #endif /* SPD_DEBUG */
 	}
 #else  /* !CONFIG_SPD_EEPROM */
-#if CONFIG_ADSTYPE == CFG_PQ2FADS
-	msize = 32;
-	or = 0xFE002EC0;
-#else
-	msize = 16;
-	or = 0xFF000CA0;
-#endif /* CONFIG_ADSTYPE == CFG_PQ2FADS */
+	or    = CFG_OR2;
 	psdmr = CFG_PSDMR;
 	psrt  = CFG_PSRT;
 #endif /* CONFIG_SPD_EEPROM */
@@ -455,7 +456,7 @@ long int initdram (int board_type)
 	*ramaddr = c;
 	memctl->memc_psdmr = psdmr | 0x40000000;	/* Refresh enable */
 	*ramaddr = c;
-#endif
+#endif /* CFG_RAMBOOT */
 
 	/* return total 60x bus SDRAM size */
 	return (msize * 1024 * 1024);

@@ -1,6 +1,8 @@
 /*
- * (C) Copyright 2001
+ * (C) Copyright 2001-2003
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ *
+ * Modified by Yuli Barcohen <yuli@arabellasw.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -22,9 +24,6 @@
  */
 
 OUTPUT_ARCH(powerpc)
-SEARCH_DIR(/lib); SEARCH_DIR(/usr/lib); SEARCH_DIR(/usr/local/lib); SEARCH_DIR(/usr/local/powerpc-any-elf/lib);
-/* Do we need any of these for elf?
-   __DYNAMIC = 0;    */
 SECTIONS
 {
   /* Read-only sections, merged into text segment: */
@@ -120,3 +119,4 @@ SECTIONS
   _end = . ;
   PROVIDE (end = .);
 }
+ENTRY(_start)

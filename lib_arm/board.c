@@ -54,6 +54,10 @@ const char version_string[] =
 extern void cs8900_get_enetaddr (uchar * addr);
 #endif
 
+#ifdef CONFIG_DRIVER_CS8900
+extern void rtl8019_get_enetaddr (uchar * addr);
+#endif
+
 #ifdef CONFIG_DRIVER_LAN91C96
 #include "../drivers/lan91c96.h"
 #endif

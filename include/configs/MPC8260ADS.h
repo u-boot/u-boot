@@ -10,7 +10,7 @@
  * (C) Copyright 2003 Arabella Software Ltd.
  * Yuli Barcohen <yuli@arabellasw.com>
  * Added support for SDRAM DIMMs SPD EEPROM, MII, JFFS2.
- * Ported to PQ2FADS-ZU board.
+ * Ported to PQ2FADS-ZU and PQ2FADS-VR boards.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -45,7 +45,7 @@
 /* ADS flavours */
 #define CFG_8260ADS		1	/* MPC8260ADS */
 #define CFG_8266ADS		2	/* MPC8266ADS */
-#define CFG_PQ2FADS		3	/* PQ2FADS-ZU */
+#define CFG_PQ2FADS		3	/* PQ2FADS-ZU or PQ2FADS-VR */
 
 #ifndef CONFIG_ADSTYPE
 #define CONFIG_ADSTYPE		CFG_8260ADS
@@ -130,7 +130,7 @@
 #undef CONFIG_SPD_EEPROM	/* On PQ2FADS-ZU, SDRAM is soldered  */
 #else
 #define CONFIG_HARD_I2C		1	/* To enable I2C support	*/
-#define CFG_I2C_SPEED		400000	/* I2C speed and slave address	*/
+#define CFG_I2C_SPEED		100000	/* I2C speed and slave address	*/
 #define CFG_I2C_SLAVE		0x7F
 
 #if defined(CONFIG_SPD_EEPROM) && !defined(CONFIG_SPD_ADDR)
@@ -139,14 +139,14 @@
 #endif /* CONFIG_ADSTYPE == CFG_PQ2FADS */
 
 #ifndef CONFIG_SDRAM_PBI
-#define CONFIG_SDRAM_PBI        1 /* By default, use page-based interleaving */
+#define CONFIG_SDRAM_PBI        0 /* By default, use bank-based interleaving */
 #endif
 
 #ifndef CONFIG_8260_CLKIN
 #if CONFIG_ADSTYPE == CFG_PQ2FADS
 #define CONFIG_8260_CLKIN	100000000	/* in Hz */
 #else
-#define CONFIG_8260_CLKIN	66666666	/* in Hz */
+#define CONFIG_8260_CLKIN	66000000	/* in Hz */
 #endif
 #endif
 
@@ -188,7 +188,6 @@
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
 
-
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds */
 #define CONFIG_BOOTCOMMAND	"bootm 100000"	/* autoboot command */
 #define CONFIG_BOOTARGS		"root=/dev/ram rw"
@@ -201,7 +200,8 @@
 #define CONFIG_KGDB_BAUDRATE	115200	/* speed to run kgdb serial port at */
 #endif
 
-#undef	CONFIG_WATCHDOG			/* disable platform specific watchdog */
+#define CONFIG_BZIP2	/* include support for bzip2 compressed images */
+#undef	CONFIG_WATCHDOG	/* disable platform specific watchdog */
 
 /*
  * Miscellaneous configurable options
@@ -291,8 +291,13 @@
 #endif
 
 #define CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
-#define CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
 #define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
+
+#ifdef CONFIG_BZIP2
+#define CFG_MALLOC_LEN		(4096 << 10)	/* Reserve 4 MB for malloc()	*/
+#else
+#define CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 KB for malloc()	*/
+#endif /* CONFIG_BZIP2 */
 
 #ifndef CFG_RAMBOOT
 #  define CFG_ENV_IS_IN_FLASH	1
@@ -335,12 +340,14 @@
 #endif /* CONFIG_ADSTYPE == CFG_8266ADS */
 
 #if CONFIG_ADSTYPE == CFG_PQ2FADS
+#define CFG_OR2			0xFE002EC0
 #define CFG_PSDMR		0x824B36A3
 #define CFG_PSRT		0x13
 #define CFG_LSDMR		0x828737A3
 #define CFG_LSRT		0x13
 #define CFG_MPTPR		0x2800
 #else
+#define CFG_OR2			0xFF000CA0
 #define CFG_PSDMR		0x016EB452
 #define CFG_PSRT		0x21
 #define CFG_LSDMR		0x0086A522

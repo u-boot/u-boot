@@ -634,7 +634,7 @@ The following options need to be configured:
 		CFG_CMD_PCI	* pciinfo
 		CFG_CMD_PCMCIA	* PCMCIA support
 		CFG_CMD_PING    * send ICMP ECHO_REQUEST to network host
-		CFG_CMD_PORTIO    Port I/O
+		CFG_CMD_PORTIO  * Port I/O
 		CFG_CMD_REGINFO * Register dump
 		CFG_CMD_RUN	  run command in env variable
 		CFG_CMD_SAVES     save S record dump

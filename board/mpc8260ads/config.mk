@@ -1,8 +1,10 @@
 #
-# (C) Copyright 2001
+# (C) Copyright 2001-2003
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # Modified by, Stuart Hughes, Lineo Inc, stuarth@lineo.com
+#
+# Modified by, Yuli Barcohen, Arabella Software Ltd., yuli@arabellasw.com
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -24,9 +26,7 @@
 #
 
 #
-# mpc8260ads board
+# MPC8260ADS, MPC8266ADS, and PQ2FADS-ZU/VR boards
 #
 
 TEXT_BASE = 0xfff00000
-
-PLATFORM_CPPFLAGS += -DTEXT_BASE=$(TEXT_BASE) -I$(TOPDIR)/board
