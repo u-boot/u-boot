@@ -266,7 +266,7 @@ int serial_tstc ()
 
 
 /*****************************************************************************/
-#if defined(CONFIG_405GP) || defined(CONFIG_405CR) || defined(CONFIG_440)
+#if defined(CONFIG_405GP) || defined(CONFIG_405CR) || defined(CONFIG_440) || defined(CONFIG_405EP)
 
 #if defined(CONFIG_440)
 #define UART0_BASE  CFG_PERIPHERAL_BASE + 0x00000200
@@ -274,13 +274,34 @@ int serial_tstc ()
 #define CR0_MASK        0x3fff0000
 #define CR0_EXTCLK_ENA  0x00600000
 #define CR0_UDIV_POS    16
-#else
-#define UART_BASE_PTR   0xF800FFFC;	/* pointer to uart base */
+#elif defined(CONFIG_405EP)
+#define UART0_BASE      0xef600300
+#define UART1_BASE      0xef600400
+#define UCR0_MASK       0x0000007f
+#define UCR1_MASK       0x00007f00
+#define UCR0_UDIV_POS   0
+#define UCR1_UDIV_POS   8
+#define UDIV_MAX        127
+#else /* CONFIG_405GP || CONFIG_405CR */
 #define UART0_BASE      0xef600300
 #define UART1_BASE      0xef600400
 #define CR0_MASK        0x00001fff
 #define CR0_EXTCLK_ENA  0x000000c0
 #define CR0_UDIV_POS    1
+#define UDIV_MAX        32
+#endif
+
+/* using serial port 0 or 1 as U-Boot console ? */
+#if defined(CONFIG_UART1_CONSOLE)
+#define ACTING_UART0_BASE	UART1_BASE
+#define ACTING_UART1_BASE	UART0_BASE
+#else
+#define ACTING_UART0_BASE	UART0_BASE
+#define ACTING_UART1_BASE	UART1_BASE
+#endif
+
+#if defined(CONFIG_405EP) && defined(CFG_EXT_SERIAL_CLOCK)
+#error "External serial clock not supported on IBM PPC405EP!"
 #endif
 
 #define UART_RBR    0x00
@@ -299,7 +320,7 @@ int serial_tstc ()
 /*-----------------------------------------------------------------------------+
   | Line Status Register.
   +-----------------------------------------------------------------------------*/
-/*#define asyncLSRport1           UART0_BASE+0x05 */
+/*#define asyncLSRport1           ACTING_UART0_BASE+0x05 */
 #define asyncLSRDataReady1            0x01
 #define asyncLSROverrunError1         0x02
 #define asyncLSRParityError1          0x04
@@ -312,8 +333,8 @@ int serial_tstc ()
 /*-----------------------------------------------------------------------------+
   | Miscellanies defines.
   +-----------------------------------------------------------------------------*/
-/*#define asyncTxBufferport1      UART0_BASE+0x00 */
-/*#define asyncRxBufferport1      UART0_BASE+0x00 */
+/*#define asyncTxBufferport1      ACTING_UART0_BASE+0x00 */
+/*#define asyncRxBufferport1      ACTING_UART0_BASE+0x00 */
 
 
 #if CONFIG_SERIAL_SOFTWARE_FIFO
@@ -412,16 +433,16 @@ int serial_init (void)
 	reg |= (udiv - 1) << CR0_UDIV_POS;	/* set the UART divisor */
 	mtdcr (cntrl0, reg);
 
-	out8 (UART0_BASE + UART_LCR, 0x80);	/* set DLAB bit */
-	out8 (UART0_BASE + UART_DLL, bdiv);	/* set baudrate divisor */
-	out8 (UART0_BASE + UART_DLM, bdiv >> 8);/* set baudrate divisor */
-	out8 (UART0_BASE + UART_LCR, 0x03);	/* clear DLAB; set 8 bits, no parity */
-	out8 (UART0_BASE + UART_FCR, 0x00);	/* disable FIFO */
-	out8 (UART0_BASE + UART_MCR, 0x00);	/* no modem control DTR RTS */
-	val = in8 (UART0_BASE + UART_LSR);	/* clear line status */
-	val = in8 (UART0_BASE + UART_RBR);	/* read receive buffer */
-	out8 (UART0_BASE + UART_SCR, 0x00);	/* set scratchpad */
-	out8 (UART0_BASE + UART_IER, 0x00);	/* set interrupt enable reg */
+	out8 (ACTING_UART0_BASE + UART_LCR, 0x80);	/* set DLAB bit */
+	out8 (ACTING_UART0_BASE + UART_DLL, bdiv);	/* set baudrate divisor */
+	out8 (ACTING_UART0_BASE + UART_DLM, bdiv >> 8);/* set baudrate divisor */
+	out8 (ACTING_UART0_BASE + UART_LCR, 0x03);	/* clear DLAB; set 8 bits, no parity */
+	out8 (ACTING_UART0_BASE + UART_FCR, 0x00);	/* disable FIFO */
+	out8 (ACTING_UART0_BASE + UART_MCR, 0x00);	/* no modem control DTR RTS */
+	val = in8 (ACTING_UART0_BASE + UART_LSR);	/* clear line status */
+	val = in8 (ACTING_UART0_BASE + UART_RBR);	/* read receive buffer */
+	out8 (ACTING_UART0_BASE + UART_SCR, 0x00);	/* set scratchpad */
+	out8 (ACTING_UART0_BASE + UART_IER, 0x00);	/* set interrupt enable reg */
 
 	return (0);
 }
@@ -439,6 +460,17 @@ int serial_init (void)
 	unsigned short bdiv;
 	volatile char val;
 
+#ifdef CONFIG_405EP
+	reg = mfdcr(cpc0_ucr) & ~(UCR0_MASK | UCR1_MASK);
+	clk = gd->cpu_clk;
+	tmp = CFG_BASE_BAUD * 16;
+	udiv = (clk + tmp / 2) / tmp;
+	if (udiv > UDIV_MAX)                    /* max. n bits for udiv */
+		udiv = UDIV_MAX;
+	reg |= (udiv) << UCR0_UDIV_POS;	        /* set the UART divisor */
+	reg |= (udiv) << UCR1_UDIV_POS;	        /* set the UART divisor */
+	mtdcr (cpc0_ucr, reg);
+#else /* CONFIG_405EP */
 	reg = mfdcr(cntrl0) & ~CR0_MASK;
 #ifdef CFG_EXT_SERIAL_CLOCK
 	clk = CFG_EXT_SERIAL_CLOCK;
@@ -451,27 +483,27 @@ int serial_init (void)
 #else
 	tmp = CFG_BASE_BAUD * 16;
 	udiv = (clk + tmp / 2) / tmp;
-	if (udiv > 32)                          /* max. 5 bits for udiv */
-		udiv = 32;
+	if (udiv > UDIV_MAX)                    /* max. n bits for udiv */
+		udiv = UDIV_MAX;
 #endif
 #endif
-
 	reg |= (udiv - 1) << CR0_UDIV_POS;	/* set the UART divisor */
 	mtdcr (cntrl0, reg);
+#endif /* CONFIG_405EP */
 
 	tmp = gd->baudrate * udiv * 16;
 	bdiv = (clk + tmp / 2) / tmp;
 
-	out8 (UART0_BASE + UART_LCR, 0x80);	/* set DLAB bit */
-	out8 (UART0_BASE + UART_DLL, bdiv);	/* set baudrate divisor */
-	out8 (UART0_BASE + UART_DLM, bdiv >> 8);/* set baudrate divisor */
-	out8 (UART0_BASE + UART_LCR, 0x03);	/* clear DLAB; set 8 bits, no parity */
-	out8 (UART0_BASE + UART_FCR, 0x00);	/* disable FIFO */
-	out8 (UART0_BASE + UART_MCR, 0x00);	/* no modem control DTR RTS */
-	val = in8 (UART0_BASE + UART_LSR);	/* clear line status */
-	val = in8 (UART0_BASE + UART_RBR);	/* read receive buffer */
-	out8 (UART0_BASE + UART_SCR, 0x00);	/* set scratchpad */
-	out8 (UART0_BASE + UART_IER, 0x00);	/* set interrupt enable reg */
+	out8 (ACTING_UART0_BASE + UART_LCR, 0x80);	/* set DLAB bit */
+	out8 (ACTING_UART0_BASE + UART_DLL, bdiv);	/* set baudrate divisor */
+	out8 (ACTING_UART0_BASE + UART_DLM, bdiv >> 8);/* set baudrate divisor */
+	out8 (ACTING_UART0_BASE + UART_LCR, 0x03);	/* clear DLAB; set 8 bits, no parity */
+	out8 (ACTING_UART0_BASE + UART_FCR, 0x00);	/* disable FIFO */
+	out8 (ACTING_UART0_BASE + UART_MCR, 0x00);	/* no modem control DTR RTS */
+	val = in8 (ACTING_UART0_BASE + UART_LSR);	/* clear line status */
+	val = in8 (ACTING_UART0_BASE + UART_RBR);	/* read receive buffer */
+	out8 (ACTING_UART0_BASE + UART_SCR, 0x00);	/* set scratchpad */
+	out8 (ACTING_UART0_BASE + UART_IER, 0x00);	/* set interrupt enable reg */
 
 	return (0);
 }
@@ -492,14 +524,19 @@ void serial_setbrg (void)
 #else
 	clk = gd->cpu_clk;
 #endif
+
+#ifdef CONFIG_405EP
+	udiv = ((mfdcr (cpc0_ucr) & UCR0_MASK) >> UCR0_UDIV_POS);
+#else
 	udiv = ((mfdcr (cntrl0) & 0x3e) >> 1) + 1;
+#endif /* CONFIG_405EP */
 	tmp = gd->baudrate * udiv * 16;
 	bdiv = (clk + tmp / 2) / tmp;
 
-	out8 (UART0_BASE + UART_LCR, 0x80);	/* set DLAB bit */
-	out8 (UART0_BASE + UART_DLL, bdiv);	/* set baudrate divisor */
-	out8 (UART0_BASE + UART_DLM, bdiv >> 8);/* set baudrate divisor */
-	out8 (UART0_BASE + UART_LCR, 0x03);	/* clear DLAB; set 8 bits, no parity */
+	out8 (ACTING_UART0_BASE + UART_LCR, 0x80);	/* set DLAB bit */
+	out8 (ACTING_UART0_BASE + UART_DLL, bdiv);	/* set baudrate divisor */
+	out8 (ACTING_UART0_BASE + UART_DLM, bdiv >> 8);/* set baudrate divisor */
+	out8 (ACTING_UART0_BASE + UART_LCR, 0x03);	/* clear DLAB; set 8 bits, no parity */
 }
 
 
@@ -512,11 +549,11 @@ void serial_putc (const char c)
 
 	/* check THRE bit, wait for transmiter available */
 	for (i = 1; i < 3500; i++) {
-		if ((in8 (UART0_BASE + UART_LSR) & 0x20) == 0x20)
+		if ((in8 (ACTING_UART0_BASE + UART_LSR) & 0x20) == 0x20)
 			break;
 		udelay (100);
 	}
-	out8 (UART0_BASE + UART_THR, c);	/* put character out */
+	out8 (ACTING_UART0_BASE + UART_THR, c);	/* put character out */
 }
 
 
@@ -536,7 +573,7 @@ int serial_getc ()
 #if defined(CONFIG_HW_WATCHDOG)
 		WATCHDOG_RESET ();	/* Reset HW Watchdog, if needed */
 #endif	/* CONFIG_HW_WATCHDOG */
-		status = in8 (UART0_BASE + UART_LSR);
+		status = in8 (ACTING_UART0_BASE + UART_LSR);
 		if ((status & asyncLSRDataReady1) != 0x0) {
 			break;
 		}
@@ -544,14 +581,14 @@ int serial_getc ()
 				asyncLSROverrunError1 |
 				asyncLSRParityError1  |
 				asyncLSRBreakInterrupt1 )) != 0) {
-			out8 (UART0_BASE + UART_LSR,
+			out8 (ACTING_UART0_BASE + UART_LSR,
 			      asyncLSRFramingError1 |
 			      asyncLSROverrunError1 |
 			      asyncLSRParityError1  |
 			      asyncLSRBreakInterrupt1);
 		}
 	}
-	return (0x000000ff & (int) in8 (UART0_BASE));
+	return (0x000000ff & (int) in8 (ACTING_UART0_BASE));
 }
 
 
@@ -559,7 +596,7 @@ int serial_tstc ()
 {
 	unsigned char status;
 
-	status = in8 (UART0_BASE + UART_LSR);
+	status = in8 (ACTING_UART0_BASE + UART_LSR);
 	if ((status & asyncLSRDataReady1) != 0x0) {
 		return (1);
 	}
@@ -567,7 +604,7 @@ int serial_tstc ()
 			asyncLSROverrunError1 |
 			asyncLSRParityError1  |
 			asyncLSRBreakInterrupt1 )) != 0) {
-		out8 (UART0_BASE + UART_LSR,
+		out8 (ACTING_UART0_BASE + UART_LSR,
 		      asyncLSRFramingError1 |
 		      asyncLSROverrunError1 |
 		      asyncLSRParityError1  |
@@ -601,8 +638,8 @@ void serial_isr (void *arg)
 			rx_put = 0;
 		if (space < CONFIG_SERIAL_SOFTWARE_FIFO / 4) {
 			/* Stop flow by setting RTS inactive */
-			out8 (UART0_BASE + UART_MCR,
-			      in8 (UART0_BASE + UART_MCR) & (0xFF ^ 0x02));
+			out8 (ACTING_UART0_BASE + UART_MCR,
+			      in8 (ACTING_UART0_BASE + UART_MCR) & (0xFF ^ 0x02));
 		}
 	}
 	buf_info.rx_put = rx_put;
@@ -615,7 +652,7 @@ void serial_buffered_init (void)
 	buf_info.rx_put = 0;
 	buf_info.rx_get = 0;
 
-	if (in8 (UART0_BASE + UART_MSR) & 0x10) {
+	if (in8 (ACTING_UART0_BASE + UART_MSR) & 0x10) {
 		serial_puts ("Check CTS signal present on serial port: OK.\n");
 	} else {
 		serial_puts ("WARNING: CTS signal not present on serial port.\n");
@@ -626,24 +663,24 @@ void serial_buffered_init (void)
 			      (void *) &buf_info /*void *arg */ );
 
 	/* Enable "RX Data Available" Interrupt on UART */
-	/* out8(UART0_BASE + UART_IER, in8(UART0_BASE + UART_IER) |0x01); */
-	out8 (UART0_BASE + UART_IER, 0x01);
+	/* out8(ACTING_UART0_BASE + UART_IER, in8(ACTING_UART0_BASE + UART_IER) |0x01); */
+	out8 (ACTING_UART0_BASE + UART_IER, 0x01);
 	/* Set DTR active */
-	out8 (UART0_BASE + UART_MCR, in8 (UART0_BASE + UART_MCR) | 0x01);
+	out8 (ACTING_UART0_BASE + UART_MCR, in8 (ACTING_UART0_BASE + UART_MCR) | 0x01);
 	/* Start flow by setting RTS active */
-	out8 (UART0_BASE + UART_MCR, in8 (UART0_BASE + UART_MCR) | 0x02);
+	out8 (ACTING_UART0_BASE + UART_MCR, in8 (ACTING_UART0_BASE + UART_MCR) | 0x02);
 	/* Setup UART FIFO: RX trigger level: 4 byte, Enable FIFO */
-	out8 (UART0_BASE + UART_FCR, (1 << 6) | 1);
+	out8 (ACTING_UART0_BASE + UART_FCR, (1 << 6) | 1);
 }
 
 void serial_buffered_putc (const char c)
 {
 	/* Wait for CTS */
 #if defined(CONFIG_HW_WATCHDOG)
-	while (!(in8 (UART0_BASE + UART_MSR) & 0x10))
+	while (!(in8 (ACTING_UART0_BASE + UART_MSR) & 0x10))
 		WATCHDOG_RESET ();
 #else
-	while (!(in8 (UART0_BASE + UART_MSR) & 0x10));
+	while (!(in8 (ACTING_UART0_BASE + UART_MSR) & 0x10));
 #endif
 	serial_putc (c);
 }
@@ -679,7 +716,7 @@ int serial_buffered_getc (void)
 	}
 	if (space > CONFIG_SERIAL_SOFTWARE_FIFO / 2) {
 		/* Start flow by setting RTS active */
-		out8 (UART0_BASE + UART_MCR, in8 (UART0_BASE + UART_MCR) | 0x02);
+		out8 (ACTING_UART0_BASE + UART_MCR, in8 (ACTING_UART0_BASE + UART_MCR) | 0x02);
 	}
 
 	return c;
@@ -716,16 +753,16 @@ void kgdb_serial_init (void)
 	/*
 	 * Init onboard 16550 UART
 	 */
-	out8 (UART1_BASE + UART_LCR, 0x80);	/* set DLAB bit */
-	out8 (UART1_BASE + UART_DLL, (br_reg & 0x00ff));	/* set divisor for 9600 baud */
-	out8 (UART1_BASE + UART_DLM, ((br_reg & 0xff00) >> 8));	/* set divisor for 9600 baud */
-	out8 (UART1_BASE + UART_LCR, 0x03);	/* line control 8 bits no parity */
-	out8 (UART1_BASE + UART_FCR, 0x00);	/* disable FIFO */
-	out8 (UART1_BASE + UART_MCR, 0x00);	/* no modem control DTR RTS */
-	val = in8 (UART1_BASE + UART_LSR);	/* clear line status */
-	val = in8 (UART1_BASE + UART_RBR);	/* read receive buffer */
-	out8 (UART1_BASE + UART_SCR, 0x00);	/* set scratchpad */
-	out8 (UART1_BASE + UART_IER, 0x00);	/* set interrupt enable reg */
+	out8 (ACTING_UART1_BASE + UART_LCR, 0x80);	/* set DLAB bit */
+	out8 (ACTING_UART1_BASE + UART_DLL, (br_reg & 0x00ff));	/* set divisor for 9600 baud */
+	out8 (ACTING_UART1_BASE + UART_DLM, ((br_reg & 0xff00) >> 8));	/* set divisor for 9600 baud */
+	out8 (ACTING_UART1_BASE + UART_LCR, 0x03);	/* line control 8 bits no parity */
+	out8 (ACTING_UART1_BASE + UART_FCR, 0x00);	/* disable FIFO */
+	out8 (ACTING_UART1_BASE + UART_MCR, 0x00);	/* no modem control DTR RTS */
+	val = in8 (ACTING_UART1_BASE + UART_LSR);	/* clear line status */
+	val = in8 (ACTING_UART1_BASE + UART_RBR);	/* read receive buffer */
+	out8 (ACTING_UART1_BASE + UART_SCR, 0x00);	/* set scratchpad */
+	out8 (ACTING_UART1_BASE + UART_IER, 0x00);	/* set interrupt enable reg */
 }
 
 
@@ -734,10 +771,10 @@ void putDebugChar (const char c)
 	if (c == '\n')
 		serial_putc ('\r');
 
-	out8 (UART1_BASE + UART_THR, c);	/* put character out */
+	out8 (ACTING_UART1_BASE + UART_THR, c);	/* put character out */
 
 	/* check THRE bit, wait for transfer done */
-	while ((in8 (UART1_BASE + UART_LSR) & 0x20) != 0x20);
+	while ((in8 (ACTING_UART1_BASE + UART_LSR) & 0x20) != 0x20);
 }
 
 
@@ -754,7 +791,7 @@ int getDebugChar (void)
 	unsigned char status = 0;
 
 	while (1) {
-		status = in8 (UART1_BASE + UART_LSR);
+		status = in8 (ACTING_UART1_BASE + UART_LSR);
 		if ((status & asyncLSRDataReady1) != 0x0) {
 			break;
 		}
@@ -762,14 +799,14 @@ int getDebugChar (void)
 				asyncLSROverrunError1 |
 				asyncLSRParityError1  |
 				asyncLSRBreakInterrupt1 )) != 0) {
-			out8 (UART1_BASE + UART_LSR,
+			out8 (ACTING_UART1_BASE + UART_LSR,
 			      asyncLSRFramingError1 |
 			      asyncLSROverrunError1 |
 			      asyncLSRParityError1  |
 			      asyncLSRBreakInterrupt1);
 		}
 	}
-	return (0x000000ff & (int) in8 (UART1_BASE));
+	return (0x000000ff & (int) in8 (ACTING_UART1_BASE));
 }
 
 
