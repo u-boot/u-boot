@@ -1,0 +1,80 @@
+/*
+ * (C) Copyright 2001
+ * Denis Peter, MPL AG Switzerland
+ *
+ * See file CREDITS for list of people who contributed to this
+ * project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+ * MA 02111-1307 USA
+ *
+ */
+
+USB Support for PIP405 and MIP405 (UHCI)
+========================================
+
+The USB support is implemented on the base of the UHCI Host
+controller.
+
+Currently supported are USB Hubs, USB Keyboards and USB Floppys.
+Tested with a TEAC Floppy TEAC FD-05PUB and Chicony KU-8933 Keyboard.
+
+How it works:
+-------------
+
+The USB (at least the USB UHCI) needs a frame list (4k), transfer
+descripor and queue headers which are all located in the main memory.
+The UHCI allocates every milisecond the PCI bus and reads the current
+frame pointer. This may cause to crash the OS during boot. So the USB
+_MUST_ be stopped during OS boot. This is the reason, why the USB is
+NOT automatically started during start-up. If someone needs the USB
+he has to start it and should therefore be aware that he had to stop
+it before booting the OS.
+
+For USB keyboards this can be done by a script which is automatically
+started after the U-Boot is up and running. To boot an OS with a an
+USB keyboard another script is necessary, which first disables the
+USB and then executes the boot command. If the boot command fails,
+the script can reenable the USB kbd.
+
+Common USB Commands:
+- usb start:
+- usb reset:	    (re)starts the USB. All USB devices will be
+		    initialized and a device tree is build for them.
+- usb tree:	    shows all USB devices in a tree like display
+- usb info [dev]:   shows all USB infos of the device dev, or of all
+		    the devices
+- usb stop [f]:	    stops the USB. If f==1 the USB will also stop if
+		    an USB keyboard is assigned as stdin. The stdin
+		    is then switched to serial input.
+Storage USB Commands:
+- usb scan:	    scans the USB for storage devices.The USB must be
+		    running for this command (usb start)
+- usb device [dev]: show or set current USB staorage device
+- usb part [dev]:   print partition table of one or all USB storage
+		    devices
+- usb read addr blk# cnt:
+		    read `cnt' blocks starting at block `blk#'to
+		    memory address `addr'
+- usbboot addr dev:part:
+		    boot from USB device
+
+Config Switches:
+----------------
+CFG_CMD_USB	    enables basic USB support and the usb command
+CONFIG_USB_UHCI	    defines the lowlevel part.A lowlevel part must be defined if
+		    using CFG_CMD_USB
+CONFIG_USB_KEYBOARD enables the USB Keyboard
+CONFIG_USB_STORAGE  enables the USB storage devices

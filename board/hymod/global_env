@@ -1,0 +1,69 @@
+# format of this file is:
+#
+#	1. blank lines and lines beginning with '#' are ignored
+#	2. all other lines must have the form <name>=<value>
+#	3. if a percent appears anywhere, it is replaced like so:
+#
+#		%s	serial number of the main board (10 digit zero filled)
+#		%S	serial number of the main board (plain number)
+#		%%	a percentage character
+#
+# no whitespace is removed in either <name> or <value>
+#
+# if first character in <name> is a dash ('-'), then an existing env var
+# will not be overwritten (the dash is removed).
+#
+# if last character in <name> is a plus ('+'), then <value> will be appended
+# to any existing env var (the plus is removed). Duplicates of <value> are
+# removed.
+#
+
+# set the ip address based on the main board serial number
+ipaddr=192.168.1.%S
+serverip=192.168.1.254
+
+# stop auto execute after tftp
+autostart=no
+
+#
+# 16M flash map, 64 x 256K sectors, mapped at address 0x40000000
+#
+# sector 0:	boot
+# sector 1:	non volatile environment
+# sectors 2-4:	linux kernel image
+# sectors 5-7:	alternate linux kernel image
+# sectors 8-63:	linux initial ramdisk image
+#
+
+fetchboot=tftp 100000 /hymod/u-boot.bin
+eraseboot=protect off 1:0 ; erase 1:0 ; protect on 1:0
+copyboot=protect off 1:0 ; cp.b 100000 40000000 40000 ; protect on 1:0
+cmpboot=cmp.b 100000 40000000 40000
+newboot=run fetchboot eraseboot copyboot cmpboot
+
+fetchlinux=tftp 100000 /hymod/linux.bin
+eraselinux=erase 1:2-4
+copylinux=cp.b 100000 40080000 $(filesize)
+cmplinux=cmp.b 100000 40080000 $(filesize)
+newlinux=run fetchlinux eraselinux copylinux cmplinux
+
+fetchaltlinux=tftp 100000 /hymod/altlinux.bin
+erasealtlinux=erase 1:5-7
+copyaltlinux=cp.b 100000 40080000 $(filesize)
+cmpaltlinux=cmp.b 100000 40080000 $(filesize)
+newaltlinux=run fetchaltlinux erasealtlinux copyaltlinux cmpaltlinux
+
+fetchird=tftp 100000 /hymod/initrd.bin
+eraseird=erase 1:8-63
+copyird=cp.b 100000 40200000 $(filesize)
+cmpird=cmp.b 100000 40200000 $(filesize)
+newinitrd=run fetchird eraseird copyird cmpird
+
+bootcmd=bootm 40080000 40200000
+-bootargs=root=/dev/ram rw
+# these are for hymod linux
+bootargs+=preload=unix,i2c-cpm,i2c-dev
+bootargs+=serialno=%S
+bootargs+=ramdisk_size=32768
+bootargs+=automount nisclient nisdomain=mlb.dmt.csiro.au nissrvadr=138.194.112.4
+bootdelay=2
