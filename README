@@ -2113,6 +2113,20 @@ Low Level (hardware related) configuration options:
 		Add the "loopw" memory command. This only takes effect if
 		the memory commands are activated globally (CFG_CMD_MEM).
 
+- CONFIG_MX_CYCLIC
+		Add the "mdc" and "mwc" memory commands. These are cyclic
+		"md/mw" commands.
+		Examples:
+
+                => mdc.b 10 4 500
+		This command will print 4 bytes (10,11,12,13) each 500 ms.
+
+                => mwc.l 100 12345678 10
+		This command will write 12345678 to address 100 all 10 ms.
+
+                This only takes effect if the memory commands are activated
+		globally (CFG_CMD_MEM).
+
 Building the Software:
 ======================
 
