@@ -32,6 +32,10 @@ int get_clocks (void)
 	DECLARE_GLOBAL_DATA_PTR;
 
 	gd->cpu_clk = CFG_CLK;
+#ifdef CONFIG_M5249
+	gd->bus_clk = gd->cpu_clk / 2;
+#else
 	gd->bus_clk = gd->cpu_clk;
+#endif
 	return (0);
 }

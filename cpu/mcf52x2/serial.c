@@ -34,11 +34,19 @@
 #include <asm/m5282.h>
 #endif
 
+#ifdef CONFIG_M5249
+#include <asm/m5249.h>
+#endif
+
+#ifdef CONFIG_M5249
+#define DoubleClock(a) ((double)(CFG_CLK/2) / 32.0 / (double)(a))
+#else
 #define DoubleClock(a) ((double)(CFG_CLK) / 32.0 / (double)(a))
+#endif
 
 void rs_serial_setbaudrate(int port,int baudrate)
 {
-#ifdef CONFIG_M5272
+#if defined(CONFIG_M5272) || defined(CONFIG_M5249)
 	volatile unsigned char	*uartp;
 	double clock, fraction;
 

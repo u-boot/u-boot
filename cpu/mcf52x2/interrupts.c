@@ -37,6 +37,10 @@
 #include <asm/immap_5282.h>
 #endif
 
+#ifdef	CONFIG_M5249
+#include <asm/m5249.h>
+#endif
+
 
 #define	NR_IRQS		31
 
@@ -142,9 +146,10 @@ void int_handler (struct pt_regs *fp)
 		irq_vecs[vec -
 			 vec_base].handler (irq_vecs[vec - vec_base].arg);
 	} else {
-		printf ("\nBogus External Interrupt Vector %ld\n", vec);
+		printf ("\nBogus External Interrupt Vector %d\n", vec);
 	}
 }
+
 
 #ifdef	CONFIG_M5272
 int interrupt_init (void)
@@ -169,6 +174,15 @@ int interrupt_init (void)
 #ifdef	CONFIG_M5282
 int interrupt_init (void)
 {
+	return 0;
+}
+#endif
+
+#ifdef	CONFIG_M5249
+int interrupt_init (void)
+{
+	enable_interrupts ();
+
 	return 0;
 }
 #endif

@@ -34,6 +34,10 @@
 
 #endif
 
+#ifdef	CONFIG_M5249
+#include <asm/m5249.h>
+#endif
+
 
 #ifdef	CONFIG_M5272
 int do_reset (cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[]) {
@@ -118,6 +122,25 @@ int checkcpu (void)
 }
 
 int do_reset (cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[]) {
+	return 0;
+};
+#endif
+
+#ifdef CONFIG_M5249 /* test-only: todo... */
+int checkcpu (void)
+{
+	char buf[32];
+
+	printf ("CPU:   MOTOROLA Coldfire MCF5249 at %s MHz\n", strmhz(buf, CFG_CLK));
+	return 0;
+}
+
+int do_reset (cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[]) {
+	/* enable watchdog, set timeout to 0 and wait */
+	mbar_writeByte(MCFSIM_SYPCR, 0xc0);
+	while (1);
+
+	/* we don't return! */
 	return 0;
 };
 #endif

@@ -110,13 +110,19 @@ _start:
 	movec	%d0, %VBR
 #endif
 
-#ifdef CONFIG_M5272
+#if defined(CONFIG_M5272) || defined(CONFIG_M5249)
 	move.l	#(CFG_MBAR + 1), %d0		/* set MBAR address + valid flag */
 	move.c	%d0, %MBAR
 
+	/*** The 5249 has MBAR2 as well ***/
+#ifdef CFG_MBAR2
+	move.l	#(CFG_MBAR2 + 1), %d0	        /* Get MBAR2 address */
+	movec	%d0, #0xc0e		        /* Set MBAR2 */
+#endif
+
 	move.l	#(CFG_INIT_RAM_ADDR + 1), %d0
 	movec	%d0, %RAMBAR0
-#endif
+#endif /* #if defined(CONFIG_M5272) || defined(CONFIG_M5249) */
 
 #ifdef CONFIG_M5282
 	/* Initialize IPSBAR */
@@ -287,6 +293,28 @@ icache_enable:
 	rts
 #endif
 
+#ifdef CONFIG_M5249
+	.globl	icache_enable
+icache_enable:
+	/*
+	 *  Note: The 5249 Documentation doesn't give a bit position for CINV!
+	 *  From the 5272 and the 5307 documentation, I have deduced that it is
+	 *  probably CACR[24]. Should someone say something to Motorola?
+	 *  	~Jeremy
+	 */
+	move.l	#0x01000000, %d0		/* Invalidate whole cache */
+	move.c	%d0,%CACR
+	move.l	#0xff00c000, %d0		/* Set FLASH cachable: always match (SM=0b10) */
+	move.c	%d0, %ACR0
+	move.l	#0x0000c000, %d0		/* Set SDRAM cachable: always match (SM=0b10) */
+	move.c	%d0, %ACR1
+	move.l	#0x90000200, %d0		/* Set cache enable cmd */
+	move.c	%d0,%CACR
+	moveq	#1, %d0
+	move.l	%d0, icache_state
+	rts
+#endif
+
 	.globl	icache_disable
 icache_disable:
 	move.l	#0x00000100, %d0		/* Setup cache mask */
@@ -306,6 +334,7 @@ icache_status:
 	.data
 icache_state:
 	.long	1
+
 
 /*------------------------------------------------------------------------------*/
 
