@@ -177,6 +177,10 @@ extern void out32(unsigned int, unsigned long);
 #define CONFIG_PHY_GIGE		1	/* Include GbE speed/duplex detection */
 #define CFG_RX_ETH_BUFFER   32	/* Number of ethernet rx buffers & descriptors */
 
+#define CONFIG_HAS_ETH1		1	/* add support for "eth1addr"	*/
+#define CONFIG_HAS_ETH2		1	/* add support for "eth2addr"	*/
+#define CONFIG_HAS_ETH3		1	/* add support for "eth3addr"	*/
+
 #define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
 				CFG_CMD_PCI	| \
 				CFG_CMD_IRQ	| \
@@ -186,7 +190,7 @@ extern void out32(unsigned int, unsigned long);
 				CFG_CMD_EEPROM	| \
 				CFG_CMD_PING | \
 				CFG_CMD_ELF | \
-			    CFG_CMD_MII | \
+				CFG_CMD_MII | \
 				CFG_CMD_DIAG | \
 				CFG_CMD_FAT )
 

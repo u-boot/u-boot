@@ -102,6 +102,8 @@
 
 #define CONFIG_MISC_INIT_R	1		/* call misc_init_r() on init	*/
 
+#define CONFIG_HAS_ETH1		1		/* add support for eth1addr	*/
+
 #define CONFIG_SHOW_BOOT_PROGRESS 1		/* Show boot progress on LEDs   */
 
 /*

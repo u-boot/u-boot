@@ -164,6 +164,7 @@
 /* adding Ethernet setting:  FTS OUI 00:11:0B */
 /*----------------------------------------------------------------------------*/
 #define CONFIG_ETHADDR          00:11:0B:00:00:01
+#define CONFIG_HAS_ETH1
 #define CONFIG_ETH1ADDR         00:11:0B:00:00:02
 #define CONFIG_IPADDR		10.48.8.178
 #define CONFIG_IP1ADDR		10.48.8.188

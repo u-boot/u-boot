@@ -382,9 +382,11 @@
 
 /*Note: change below for your network setting!!! */
 #if defined(CONFIG_TSEC_ENET) || defined(CONFIG_ETHER_ON_FCC)
-  #define CONFIG_ETHADDR	00:01:af:07:9b:8a
-  #define CONFIG_ETH1ADDR	00:01:af:07:9b:8b
-  #define CONFIG_ETH2ADDR	00:01:af:07:9b:8c
+#  define CONFIG_ETHADDR	00:01:af:07:9b:8a
+#  define CONFIG_HAS_ETH1
+#  define CONFIG_ETH1ADDR	00:01:af:07:9b:8b
+#  define CONFIG_HAS_ETH2
+#  define CONFIG_ETH2ADDR	00:01:af:07:9b:8c
 #endif
 
 #define CONFIG_SERVERIP		192.168.0.131

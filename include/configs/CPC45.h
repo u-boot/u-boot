@@ -50,8 +50,6 @@
 #define CONFIG_BAUDRATE		9600
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
-#define CONFIG_CLOCKS_IN_MHZ	1	/* clocks passsed to Linux in MHz	*/
-
 #define CONFIG_PREBOOT	"echo;echo Type \"run flash_nfs\" to mount root filesystem over NFS;echo"
 
 #define CONFIG_BOOTDELAY	5
@@ -63,7 +61,10 @@
 				CFG_CMD_DATE	| \
 				CFG_CMD_DHCP	| \
 				CFG_CMD_EEPROM	| \
+				CFG_CMD_FAT	| \
+				CFG_CMD_FLASH	| \
 				CFG_CMD_I2C	| \
+				CFG_CMD_IDE	| \
 				CFG_CMD_PCI	| \
 				CFG_CMD_SDRAM	)
 
@@ -344,7 +345,7 @@
 #define ST16552_B_BASE	0x80400000	/* ST16552 channel A		*/
 #define BCSR_BASE	0x80600000	/* board control / status registers */
 #define DISPLAY_BASE	0x80600040	/* DISPLAY base			*/
-#define PCMCIA_MEM_BASE 0x81000000	/* PCMCIA memory window base	*/
+#define PCMCIA_MEM_BASE 0x83000000	/* PCMCIA memory window base	*/
 #define PCMCIA_IO_BASE	0xFE000000	/* PCMCIA IO window base	*/
 
 
@@ -464,4 +465,46 @@
 #define PCI_ENET0_MEMADDR	0x82000000
 #define PCI_PLX9030_IOADDR	0x82100000
 #define PCI_PLX9030_MEMADDR	0x82100000
+
+/*-----------------------------------------------------------------------
+ * PCMCIA stuff
+ *-----------------------------------------------------------------------
+ */
+
+#define CONFIG_I82365
+
+#define CFG_PCMCIA_MEM_ADDR	PCMCIA_MEM_BASE
+#define CFG_PCMCIA_MEM_SIZE	0x1000
+
+#define CONFIG_PCMCIA_SLOT_A
+
+/*-----------------------------------------------------------------------
+ * IDE/ATA stuff (Supports IDE harddisk on PCMCIA Adapter)
+ *-----------------------------------------------------------------------
+ */
+
+#define	CONFIG_IDE_8xx_PCCARD	1	/* Use IDE with PC Card	Adapter	*/
+
+#undef	CONFIG_IDE_8xx_DIRECT		/* Direct IDE    not supported	*/
+#undef	CONFIG_IDE_RESET		/* reset for IDE not supported	*/
+#define	CONFIG_IDE_LED			/* LED   for IDE is  supported	*/
+
+#define CFG_IDE_MAXBUS		1	/* max. 1 IDE bus		*/
+#define CFG_IDE_MAXDEVICE	1	/* max. 1 drive per IDE bus	*/
+
+#define CFG_ATA_IDE0_OFFSET	0x0000
+#define CONFIG_HMI10
+
+#define CFG_ATA_BASE_ADDR	CFG_PCMCIA_MEM_ADDR
+
+#define CFG_ATA_DATA_OFFSET	CFG_PCMCIA_MEM_SIZE
+
+/* Offset for normal register accesses	*/
+#define CFG_ATA_REG_OFFSET	CFG_PCMCIA_MEM_SIZE
+
+/* Offset for alternate registers	*/
+#define CFG_ATA_ALT_OFFSET	(CFG_PCMCIA_MEM_SIZE + 0x400)
+
+#define CONFIG_DOS_PARTITION
+
 #endif	/* __CONFIG_H */

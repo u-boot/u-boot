@@ -1176,36 +1176,37 @@ int ppc_440x_eth_initialize (bd_t * bis)
 
 		/* See if we can actually bring up the interface, otherwise, skip it */
 		switch (eth_num) {
+		default:		/* fall through */
 		case 0:
 			if (memcmp (bis->bi_enetaddr, "\0\0\0\0\0\0", 6) == 0) {
 				bis->bi_phymode[eth_num] = BI_PHYMODE_NONE;
 				continue;
 			}
 			break;
+#ifdef CONFIG_HAS_ETH1
 		case 1:
 			if (memcmp (bis->bi_enet1addr, "\0\0\0\0\0\0", 6) == 0) {
 				bis->bi_phymode[eth_num] = BI_PHYMODE_NONE;
 				continue;
 			}
 			break;
+#endif
+#ifdef CONFIG_HAS_ETH2
 		case 2:
 			if (memcmp (bis->bi_enet2addr, "\0\0\0\0\0\0", 6) == 0) {
 				bis->bi_phymode[eth_num] = BI_PHYMODE_NONE;
 				continue;
 			}
 			break;
+#endif
+#ifdef CONFIG_HAS_ETH3
 		case 3:
 			if (memcmp (bis->bi_enet3addr, "\0\0\0\0\0\0", 6) == 0) {
 				bis->bi_phymode[eth_num] = BI_PHYMODE_NONE;
 				continue;
 			}
 			break;
-		default:
-			if (memcmp (bis->bi_enetaddr, "\0\0\0\0\0\0", 6) == 0) {
-				bis->bi_phymode[eth_num] = BI_PHYMODE_NONE;
-				continue;
-			}
-			break;
+#endif
 		}
 
 		/* Allocate device structure */
@@ -1227,26 +1228,29 @@ int ppc_440x_eth_initialize (bd_t * bis)
 		}
 
 		switch (eth_num) {
+		default:		/* fall through */
 		case 0:
 			hw->hw_addr = 0;
 			memcpy (dev->enetaddr, bis->bi_enetaddr, 6);
 			break;
+#ifdef CONFIG_HAS_ETH1
 		case 1:
 			hw->hw_addr = 0x100;
 			memcpy (dev->enetaddr, bis->bi_enet1addr, 6);
 			break;
+#endif
+#ifdef CONFIG_HAS_ETH2
 		case 2:
 			hw->hw_addr = 0x400;
 			memcpy (dev->enetaddr, bis->bi_enet2addr, 6);
 			break;
+#endif
+#ifdef CONFIG_HAS_ETH3
 		case 3:
 			hw->hw_addr = 0x600;
 			memcpy (dev->enetaddr, bis->bi_enet3addr, 6);
 			break;
-		default:
-			hw->hw_addr = 0;
-			memcpy (dev->enetaddr, bis->bi_enetaddr, 6);
-			break;
+#endif
 		}
 
 		hw->devnum = eth_num;

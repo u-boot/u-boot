@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2003
+ * (C) Copyright 2003-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -40,31 +40,64 @@
 
 #include <pcmcia/ss.h>
 #include <pcmcia/i82365.h>
-#include <pcmcia/ti113x.h>
 #include <pcmcia/yenta.h>
-
-/* #define DEBUG */
+#ifdef CONFIG_CPC45
+#include <pcmcia/cirrus.h>
+#else
+#include <pcmcia/ti113x.h>
+#endif
 
 static struct pci_device_id supported[] = {
+#ifdef CONFIG_CPC45
+	{PCI_VENDOR_ID_CIRRUS, PCI_DEVICE_ID_CIRRUS_6729},
+#else
 	{PCI_VENDOR_ID_TI, PCI_DEVICE_ID_TI_1510},
+#endif
 	{0, 0}
 };
 
 #define CYCLE_TIME	120
+
+#ifdef CONFIG_CPC45
+extern int SPD67290Init (void);
+#endif
 
 #ifdef DEBUG
 static void i82365_dump_regions (pci_dev_t dev);
 #endif
 
 typedef struct socket_info_t {
-    pci_dev_t		dev;
-    u_short		bcr;
-    u_char		pci_lat, cb_lat, sub_bus, cache;
-    u_int		cb_phys;
+	pci_dev_t	dev;
+	u_short		bcr;
+	u_char		pci_lat, cb_lat, sub_bus, cache;
+	u_int		cb_phys;
 
-    socket_cap_t	cap;
-    ti113x_state_t	state;
+	socket_cap_t	cap;
+	u_short		type;
+	u_int		flags;
+#ifdef CONFIG_CPC45
+	cirrus_state_t	c_state;
+#else
+	ti113x_state_t	state;
+#endif
 } socket_info_t;
+
+#ifdef CONFIG_CPC45
+/* These definitions must match the pcic table! */
+typedef enum pcic_id {
+	IS_PD6710, IS_PD672X, IS_VT83C469
+} pcic_id;
+
+typedef struct pcic_t {
+	char *name;
+} pcic_t;
+
+static pcic_t pcic[] = {
+	{" Cirrus PD6710: "},
+	{" Cirrus PD672x: "},
+	{" VIA VT83C469: "},
+};
+#endif
 
 static socket_info_t socket;
 static socket_state_t state;
@@ -91,6 +124,7 @@ static int pci_writew (socket_info_t * s, int r, u_short v)
 {
 	return pci_write_config_word (s->dev, r, v);
 }
+#ifndef CONFIG_CPC45
 static int pci_readl (socket_info_t * s, int r, u_int * v)
 {
 	return pci_read_config_dword (s->dev, r, v);
@@ -99,13 +133,60 @@ static int pci_writel (socket_info_t * s, int r, u_int v)
 {
 	return pci_write_config_dword (s->dev, r, v);
 }
+#endif	/* !CONFIG_CPC45 */
+
+/*====================================================================*/
+
+#ifdef CONFIG_CPC45
+
+#define cb_readb(s)		readb((s)->cb_phys + 1)
+#define cb_writeb(s, v)		writeb(v, (s)->cb_phys)
+#define cb_writeb2(s, v)	writeb(v, (s)->cb_phys + 1)
+#define cb_readl(s, r)		readl((s)->cb_phys + (r))
+#define cb_writel(s, r, v)	writel(v, (s)->cb_phys + (r))
+
+
+static u_char i365_get (socket_info_t * s, u_short reg)
+{
+	u_char val;
+
+#ifdef CONFIG_PCMCIA_SLOT_A
+	int slot = 0;
+#else
+	int slot = 1;
+#endif
+
+	val = I365_REG (slot, reg);
+
+	cb_writeb (s, val);
+	val = cb_readb (s);
+
+	debug ("i365_get slot:%x reg: %x val: %x\n", slot, reg, val);
+	return val;
+}
+
+static void i365_set (socket_info_t * s, u_short reg, u_char data)
+{
+#ifdef CONFIG_PCMCIA_SLOT_A
+	int slot = 0;
+#else
+	int slot = 1;
+#endif
+
+	u_char val = I365_REG (slot, reg);
+
+	cb_writeb (s, val);
+	cb_writeb2 (s, data);
+
+	debug ("i365_set slot:%x reg: %x data:%x\n", slot, reg, data);
+}
+
+#else	/* ! CONFIG_CPC45 */
 
 #define cb_readb(s, r)		readb((s)->cb_phys + (r))
 #define cb_readl(s, r)		readl((s)->cb_phys + (r))
 #define cb_writeb(s, r, v)	writeb(v, (s)->cb_phys + (r))
 #define cb_writel(s, r, v)	writel(v, (s)->cb_phys + (r))
-
-/*====================================================================*/
 
 static u_char i365_get (socket_info_t * s, u_short reg)
 {
@@ -116,6 +197,7 @@ static void i365_set (socket_info_t * s, u_short reg, u_char data)
 {
 	cb_writeb (s, 0x0800 + reg, data);
 }
+#endif	/* CONFIG_CPC45 */
 
 static void i365_bset (socket_info_t * s, u_short reg, u_char mask)
 {
@@ -146,6 +228,116 @@ static void i365_set_pair (socket_info_t * s, u_short reg, u_short data)
 	i365_set (s, reg, data & 0xff);
 	i365_set (s, reg + 1, data >> 8);
 }
+
+#ifdef CONFIG_CPC45
+/*======================================================================
+
+    Code to save and restore global state information for Cirrus
+    PD67xx controllers, and to set and report global configuration
+    options.
+
+======================================================================*/
+
+#define flip(v,b,f) (v = ((f)<0) ? v : ((f) ? ((v)|(b)) : ((v)&(~b))))
+
+static void cirrus_get_state (socket_info_t * s)
+{
+	int i;
+	cirrus_state_t *p = &s->c_state;
+
+	p->misc1 = i365_get (s, PD67_MISC_CTL_1);
+	p->misc1 &= (PD67_MC1_MEDIA_ENA | PD67_MC1_INPACK_ENA);
+	p->misc2 = i365_get (s, PD67_MISC_CTL_2);
+	for (i = 0; i < 6; i++)
+		p->timer[i] = i365_get (s, PD67_TIME_SETUP (0) + i);
+
+}
+
+static void cirrus_set_state (socket_info_t * s)
+{
+	int i;
+	u_char misc;
+	cirrus_state_t *p = &s->c_state;
+
+	misc = i365_get (s, PD67_MISC_CTL_2);
+	i365_set (s, PD67_MISC_CTL_2, p->misc2);
+	if (misc & PD67_MC2_SUSPEND)
+		udelay (50000);
+	misc = i365_get (s, PD67_MISC_CTL_1);
+	misc &= ~(PD67_MC1_MEDIA_ENA | PD67_MC1_INPACK_ENA);
+	i365_set (s, PD67_MISC_CTL_1, misc | p->misc1);
+	for (i = 0; i < 6; i++)
+		i365_set (s, PD67_TIME_SETUP (0) + i, p->timer[i]);
+}
+
+static u_int cirrus_set_opts (socket_info_t * s)
+{
+	cirrus_state_t *p = &s->c_state;
+	u_int mask = 0xffff;
+
+#if DEBUG
+	char buf[200];
+
+	memset (buf, 0, 200);
+#endif
+
+	if (has_ring == -1)
+		has_ring = 1;
+	flip (p->misc2, PD67_MC2_IRQ15_RI, has_ring);
+	flip (p->misc2, PD67_MC2_DYNAMIC_MODE, dynamic_mode);
+#if DEBUG
+	if (p->misc2 & PD67_MC2_IRQ15_RI)
+		strcat (buf, " [ring]");
+	if (p->misc2 & PD67_MC2_DYNAMIC_MODE)
+		strcat (buf, " [dyn mode]");
+	if (p->misc1 & PD67_MC1_INPACK_ENA)
+		strcat (buf, " [inpack]");
+#endif
+
+	if (p->misc2 & PD67_MC2_IRQ15_RI)
+		mask &= ~0x8000;
+	if (has_led > 0) {
+#if DEBUG
+		strcat (buf, " [led]");
+#endif
+		mask &= ~0x1000;
+	}
+	if (has_dma > 0) {
+#if DEBUG
+		strcat (buf, " [dma]");
+#endif
+		mask &= ~0x0600;
+		flip (p->misc2, PD67_MC2_FREQ_BYPASS, freq_bypass);
+#if DEBUG
+		if (p->misc2 & PD67_MC2_FREQ_BYPASS)
+			strcat (buf, " [freq bypass]");
+#endif
+	}
+
+	if (setup_time >= 0)
+		p->timer[0] = p->timer[3] = setup_time;
+	if (cmd_time > 0) {
+		p->timer[1] = cmd_time;
+		p->timer[4] = cmd_time * 2 + 4;
+	}
+	if (p->timer[1] == 0) {
+		p->timer[1] = 6;
+		p->timer[4] = 16;
+		if (p->timer[0] == 0)
+			p->timer[0] = p->timer[3] = 1;
+	}
+	if (recov_time >= 0)
+		p->timer[2] = p->timer[5] = recov_time;
+
+	debug ("i82365 Opt: %s [%d/%d/%d] [%d/%d/%d]\n",
+		buf,
+		p->timer[0], p->timer[1], p->timer[2],
+		p->timer[3], p->timer[4], p->timer[5]);
+
+	return mask;
+}
+
+#else	/* !CONFIG_CPC45 */
 
 /*======================================================================
 
@@ -190,6 +382,7 @@ static u_int ti113x_set_opts (socket_info_t * s)
 
 	return mask;
 }
+#endif	/* CONFIG_CPC45 */
 
 /*======================================================================
 
@@ -213,8 +406,10 @@ static void cb_get_state (socket_info_t * s)
 
 static void cb_set_state (socket_info_t * s)
 {
+#ifndef CONFIG_CPC45
 	pci_writel (s, CB_LEGACY_MODE_BASE, 0);
 	pci_writel (s, PCI_BASE_ADDRESS_0, s->cb_phys);
+#endif
 	pci_writew (s, PCI_COMMAND, CMD_DFLT);
 	pci_writeb (s, PCI_CACHE_LINE_SIZE, s->cache);
 	pci_writeb (s, PCI_LATENCY_TIMER, s->pci_lat);
@@ -226,12 +421,14 @@ static void cb_set_state (socket_info_t * s)
 
 static void cb_set_opts (socket_info_t * s)
 {
+#ifndef CONFIG_CPC45
 	if (s->cache == 0)
 		s->cache = 8;
 	if (s->pci_lat == 0)
 		s->pci_lat = 0xa8;
 	if (s->cb_lat == 0)
 		s->cb_lat = 0xb0;
+#endif
 }
 
 /*======================================================================
@@ -245,9 +442,71 @@ static int cb_set_power (socket_info_t * s, socket_state_t * state)
 {
 	u_int reg = 0;
 
+#ifdef CONFIG_CPC45
+
+	if ((state->Vcc == 0) && (state->Vpp == 0)) {
+		u_char power, vcc, vpp;
+
+		power = i365_get (s, I365_POWER);
+		state->flags |= (power & I365_PWR_AUTO) ? SS_PWR_AUTO : 0;
+		state->flags |= (power & I365_PWR_OUT) ? SS_OUTPUT_ENA : 0;
+		vcc = power & I365_VCC_MASK;
+		vpp = power & I365_VPP1_MASK;
+		state->Vcc = state->Vpp = 0;
+		if (i365_get (s, PD67_MISC_CTL_1) & PD67_MC1_VCC_3V) {
+			if (power & I365_VCC_5V)
+				state->Vcc = 33;
+			if (vpp == I365_VPP1_5V)
+				state->Vpp = 33;
+		} else {
+			if (power & I365_VCC_5V)
+				state->Vcc = 50;
+			if (vpp == I365_VPP1_5V)
+				state->Vpp = 50;
+		}
+		if (power == I365_VPP1_12V)
+			state->Vpp = 120;
+		printf ("POWER Vcc:%d Vpp: %d\n", state->Vcc, state->Vpp);
+	}
+
+	reg = I365_PWR_NORESET;
+	if (state->flags & SS_PWR_AUTO)
+		reg |= I365_PWR_AUTO;
+	if (state->flags & SS_OUTPUT_ENA)
+		reg |= I365_PWR_OUT;
+	if (state->Vpp != 0) {
+		if (state->Vpp == 120) {
+			reg |= I365_VPP1_12V;
+			puts (" 12V card found: ");
+		} else if (state->Vpp == state->Vcc) {
+			reg |= I365_VPP1_5V;
+			puts (" 5V card found: ");
+		} else {
+			puts (" power not found: ");
+			return -1;
+		}
+	}
+	if (state->Vcc != 0) {
+		reg |= I365_VCC_5V;
+		if (state->Vcc == 33) {
+			puts (" 3.3V card found: ");
+			i365_bset (s, PD67_MISC_CTL_1, PD67_MC1_VCC_3V);
+		} else if (state->Vcc == 50) {
+			puts (" 5V card found: ");
+			i365_bclr (s, PD67_MISC_CTL_1, PD67_MC1_VCC_3V);
+		} else {
+			puts (" power not found: ");
+			return -1;
+		}
+	}
+	if (reg != i365_get (s, I365_POWER))
+		i365_set (s, I365_POWER, reg);
+
+#else	/* ! CONFIG_CPC45 */
+
 	/* restart card voltage detection if it seems appropriate */
 	if ((state->Vcc == 0) && (state->Vpp == 0) &&
-		!(cb_readl (s, CB_SOCKET_STATE) & CB_SS_VSENSE))
+	   !(cb_readl (s, CB_SOCKET_STATE) & CB_SS_VSENSE))
 		cb_writel (s, CB_SOCKET_FORCE, CB_SF_CVSTEST);
 	switch (state->Vcc) {
 	case 0:
@@ -279,6 +538,7 @@ static int cb_set_power (socket_info_t * s, socket_state_t * state)
 	}
 	if (reg != cb_readl (s, CB_SOCKET_CONTROL))
 		cb_writel (s, CB_SOCKET_CONTROL, reg);
+#endif	/* CONFIG_CPC45 */
 	return 0;
 }
 
@@ -290,7 +550,11 @@ static int cb_set_power (socket_info_t * s, socket_state_t * state)
 
 static void get_bridge_state (socket_info_t * s)
 {
+#ifdef CONFIG_CPC45
+	cirrus_get_state (s);
+#else
 	ti113x_get_state (s);
+#endif
 	cb_get_state (s);
 }
 
@@ -299,12 +563,20 @@ static void set_bridge_state (socket_info_t * s)
 	cb_set_state (s);
 	i365_set (s, I365_GBLCTL, 0x00);
 	i365_set (s, I365_GENCTL, 0x00);
+#ifdef CONFIG_CPC45
+	cirrus_set_state (s);
+#else
 	ti113x_set_state (s);
+#endif
 }
 
 static void set_bridge_opts (socket_info_t * s)
 {
+#ifdef CONFIG_CPC45
+	cirrus_set_opts (s);
+#else
 	ti113x_set_opts (s);
+#endif
 	cb_set_opts (s);
 }
 
@@ -314,6 +586,12 @@ static int i365_get_status (socket_info_t * s, u_int * value)
 {
 	u_int status;
 
+#ifdef CONFIG_CPC45
+	u_char val;
+	u_char power, vcc, vpp;
+#endif
+
+	status = i365_get (s, I365_IDENT);
 	status = i365_get (s, I365_STATUS);
 	*value = ((status & I365_CS_DETECT) == I365_CS_DETECT) ? SS_DETECT : 0;
 	if (i365_get (s, I365_INTCTL) & I365_PC_IOCARD) {
@@ -326,6 +604,71 @@ static int i365_get_status (socket_info_t * s, u_int * value)
 	*value |= (status & I365_CS_READY) ? SS_READY : 0;
 	*value |= (status & I365_CS_POWERON) ? SS_POWERON : 0;
 
+#ifdef CONFIG_CPC45
+	/* Check for Cirrus CL-PD67xx chips */
+	i365_set (s, PD67_CHIP_INFO, 0);
+	val = i365_get (s, PD67_CHIP_INFO);
+	s->type = -1;
+	if ((val & PD67_INFO_CHIP_ID) == PD67_INFO_CHIP_ID) {
+		val = i365_get (s, PD67_CHIP_INFO);
+		if ((val & PD67_INFO_CHIP_ID) == 0) {
+			s->type =
+				(val & PD67_INFO_SLOTS) ? IS_PD672X :
+				IS_PD6710;
+			i365_set (s, PD67_EXT_INDEX, 0xe5);
+			if (i365_get (s, PD67_EXT_INDEX) != 0xe5)
+				s->type = IS_VT83C469;
+		}
+	} else {
+		printf ("no Cirrus Chip found\n");
+		*value = 0;
+		return -1;
+	}
+
+	i365_bset (s, I365_POWER, I365_VCC_5V);
+	power = i365_get (s, I365_POWER);
+	state.flags |= (power & I365_PWR_AUTO) ? SS_PWR_AUTO : 0;
+	state.flags |= (power & I365_PWR_OUT) ? SS_OUTPUT_ENA : 0;
+	vcc = power & I365_VCC_MASK;
+	vpp = power & I365_VPP1_MASK;
+	state.Vcc = state.Vpp = 0;
+	if (i365_get (s, PD67_MISC_CTL_1) & PD67_MC1_VCC_3V) {
+		if (power & I365_VCC_5V)
+			state.Vcc = 33;
+		if (vpp == I365_VPP1_5V)
+			state.Vpp = 33;
+	} else {
+		if (power & I365_VCC_5V)
+			state.Vcc = 50;
+		if (vpp == I365_VPP1_5V)
+			state.Vpp = 50;
+	}
+	if (power == I365_VPP1_12V)
+		state.Vpp = 120;
+
+	/* IO card, RESET flags, IO interrupt */
+	power = i365_get (s, I365_INTCTL);
+	state.flags |= (power & I365_PC_RESET) ? 0 : SS_RESET;
+	if (power & I365_PC_IOCARD)
+		state.flags |= SS_IOCARD;
+	state.io_irq = power & I365_IRQ_MASK;
+
+	/* Card status change mask */
+	power = i365_get (s, I365_CSCINT);
+	state.csc_mask = (power & I365_CSC_DETECT) ? SS_DETECT : 0;
+	if (state.flags & SS_IOCARD)
+		state.csc_mask |= (power & I365_CSC_STSCHG) ? SS_STSCHG : 0;
+	else {
+		state.csc_mask |= (power & I365_CSC_BVD1) ? SS_BATDEAD : 0;
+		state.csc_mask |= (power & I365_CSC_BVD2) ? SS_BATWARN : 0;
+		state.csc_mask |= (power & I365_CSC_READY) ? SS_READY : 0;
+	}
+	debug ("i82365: GetStatus(0) = flags %#3.3x, Vcc %d, Vpp %d, "
+		"io_irq %d, csc_mask %#2.2x\n", state.flags,
+		state.Vcc, state.Vpp, state.io_irq, state.csc_mask);
+
+#else	/* !CONFIG_CPC45 */
+
 	status = cb_readl (s, CB_SOCKET_STATE);
 	*value |= (status & CB_SS_32BIT) ? SS_CARDBUS : 0;
 	*value |= (status & CB_SS_3VCARD) ? SS_3VCARD : 0;
@@ -334,7 +677,7 @@ static int i365_get_status (socket_info_t * s, u_int * value)
 	/* For now, ignore cards with unsupported voltage keys */
 	if (*value & SS_XVCARD)
 		*value &= ~(SS_DETECT | SS_3VCARD | SS_XVCARD);
-
+#endif	/* CONFIG_CPC45 */
 	return 0;
 }	/* i365_get_status */
 
@@ -350,6 +693,31 @@ static int i365_set_socket (socket_info_t * s, socket_state_t * state)
 	reg |= (state->flags & SS_IOCARD) ? I365_PC_IOCARD : 0;
 	i365_set (s, I365_INTCTL, reg);
 
+#ifdef CONFIG_CPC45
+	cb_set_power (s, state);
+
+#if 0
+	/* Card status change interrupt mask */
+	reg = s->cs_irq << 4;
+	if (state->csc_mask & SS_DETECT)
+		reg |= I365_CSC_DETECT;
+	if (state->flags & SS_IOCARD) {
+		if (state->csc_mask & SS_STSCHG)
+			reg |= I365_CSC_STSCHG;
+	} else {
+		if (state->csc_mask & SS_BATDEAD)
+			reg |= I365_CSC_BVD1;
+		if (state->csc_mask & SS_BATWARN)
+			reg |= I365_CSC_BVD2;
+		if (state->csc_mask & SS_READY)
+			reg |= I365_CSC_READY;
+	}
+	i365_set (s, I365_CSCINT, reg);
+	i365_get (s, I365_CSC);
+#endif	/* 0 */
+
+#else	/* !CONFIG_CPC45 */
+
 	reg = I365_PWR_NORESET;
 	if (state->flags & SS_PWR_AUTO)
 		reg |= I365_PWR_AUTO;
@@ -361,6 +729,7 @@ static int i365_set_socket (socket_info_t * s, socket_state_t * state)
 
 	if (reg != i365_get (s, I365_POWER))
 		i365_set (s, I365_POWER, reg);
+#endif	/* CONFIG_CPC45 */
 
 	return 0;
 }	/* i365_set_socket */
@@ -371,6 +740,10 @@ static int i365_set_mem_map (socket_info_t * s, struct pccard_mem_map *mem)
 {
 	u_short base, i;
 	u_char map;
+
+	debug ("i82365: SetMemMap(%d, %#2.2x, %d ns, %#5.5lx-%#5.5lx, %#5.5x)\n",
+		mem->map, mem->flags, mem->speed,
+		mem->sys_start, mem->sys_stop, mem->card_start);
 
 	map = mem->map;
 	if ((map > 4) ||
@@ -411,12 +784,22 @@ static int i365_set_mem_map (socket_info_t * s, struct pccard_mem_map *mem)
 	}
 	i365_set_pair (s, base + I365_W_STOP, i);
 
+#ifdef CONFIG_CPC45
+	i = 0;
+#else
 	i = ((mem->card_start - mem->sys_start) >> 12) & 0x3fff;
+#endif
 	if (mem->flags & MAP_WRPROT)
 		i |= I365_MEM_WRPROT;
 	if (mem->flags & MAP_ATTRIB)
 		i |= I365_MEM_REG;
 	i365_set_pair (s, base + I365_W_OFF, i);
+
+#ifdef CONFIG_CPC45
+	/* set System Memory map Upper Adress */
+	i365_set(s, PD67_EXT_INDEX, PD67_MEM_PAGE(map));
+	i365_set(s, PD67_EXT_DATA, ((mem->sys_start >> 24) & 0xff));
+#endif
 
 	/* Turn on the window if necessary */
 	if (mem->flags & MAP_ACTIVE)
@@ -431,7 +814,7 @@ static int i365_set_io_map (socket_info_t * s, struct pccard_io_map *io)
 	map = io->map;
 	/* comment out: comparison is always false due to limited range of data type */
 	if ((map > 1) || /* (io->start > 0xffff) || (io->stop > 0xffff) || */
-		(io->stop < io->start))
+	    (io->stop < io->start))
 		return -1;
 	/* Turn off the window before changing anything */
 	if (i365_get (s, I365_ADDRWIN) & I365_ENA_IO (map))
@@ -461,19 +844,37 @@ int i82365_init (void)
 	u_int val;
 	int i;
 
+#ifdef CONFIG_CPC45
+	if (SPD67290Init () != 0)
+		return 1;
+#endif
 	if ((socket.dev = pci_find_devices (supported, 0)) < 0) {
 		/* Controller not found */
 		return 1;
 	}
+	debug ("i82365 Device Found!\n");
 
 	pci_read_config_dword (socket.dev, PCI_BASE_ADDRESS_0, &socket.cb_phys);
 	socket.cb_phys &= ~0xf;
 
+#ifdef CONFIG_CPC45
+	/* + 0xfe000000 see MPC 8245 Users Manual Adress Map B */
+	socket.cb_phys += 0xfe000000;
+#endif
+
 	get_bridge_state (&socket);
 	set_bridge_opts (&socket);
 
-	i365_get_status (&socket, &val);
+	i = i365_get_status (&socket, &val);
 
+#ifdef CONFIG_CPC45
+	if (i > -1) {
+		puts (pcic[socket.type].name);
+	} else {
+		printf ("i82365: Controller not found.\n");
+		return 1;
+	}
+#else	/* !CONFIG_CPC45 */
 	if (val & SS_DETECT) {
 		if (val & SS_3VCARD) {
 			state.Vcc = state.Vpp = 33;
@@ -482,17 +883,23 @@ int i82365_init (void)
 			state.Vcc = state.Vpp = 50;
 			puts (" 5.0V card found: ");
 		} else {
-			printf ("i82365: unsupported voltage key\n");
+			puts ("i82365: unsupported voltage key\n");
 			state.Vcc = state.Vpp = 0;
 		}
 	} else {
 		/* No card inserted */
+		puts ("No card\n");
 		return 1;
 	}
+#endif	/* CONFIG_CPC45 */
 
+#ifdef CONFIG_CPC45
+	state.flags |= SS_OUTPUT_ENA;
+#else
 	state.flags = SS_IOCARD | SS_OUTPUT_ENA;
 	state.csc_mask = 0;
 	state.io_irq = 0;
+#endif
 
 	i365_set_socket (&socket, &state);
 
@@ -504,8 +911,10 @@ int i82365_init (void)
 
 	if (i == 0) {
 		/* PC Card not ready for data transfer */
+		puts ("i82365 PC Card not ready for data transfer\n");
 		return 1;
 	}
+	debug (" PC Card ready for data transfer: ");
 
 	mem.map = 0;
 	mem.flags = MAP_ATTRIB | MAP_ACTIVE;
@@ -513,16 +922,27 @@ int i82365_init (void)
 	mem.sys_start = CFG_PCMCIA_MEM_ADDR;
 	mem.sys_stop = CFG_PCMCIA_MEM_ADDR + CFG_PCMCIA_MEM_SIZE - 1;
 	mem.card_start = 0;
-
 	i365_set_mem_map (&socket, &mem);
+
+#ifdef CONFIG_CPC45
+	mem.map = 1;
+	mem.flags = MAP_ACTIVE;
+	mem.speed = 300;
+	mem.sys_start = CFG_PCMCIA_MEM_ADDR + CFG_PCMCIA_MEM_SIZE;
+	mem.sys_stop = CFG_PCMCIA_MEM_ADDR + (2 * CFG_PCMCIA_MEM_SIZE) - 1;
+	mem.card_start = 0;
+	i365_set_mem_map (&socket, &mem);
+
+#else	/* !CONFIG_CPC45 */
 
 	io.map = 0;
 	io.flags = MAP_AUTOSZ | MAP_ACTIVE;
 	io.speed = 0;
 	io.start = 0x0100;
 	io.stop = 0x010F;
-
 	i365_set_io_map (&socket, &io);
+
+#endif	/* CONFIG_CPC45 */
 
 #ifdef DEBUG
 	i82365_dump_regions (socket.dev);
@@ -550,8 +970,18 @@ void i82365_exit (void)
 
 	i365_set_mem_map (&socket, &mem);
 
-	socket.state.sysctl &= 0xFFFF00FF;
+#ifdef CONFIG_CPC45
+	mem.map = 1;
+	mem.flags = 0;
+	mem.speed = 0;
+	mem.sys_start = 0;
+	mem.sys_stop = 0x1000;
+	mem.card_start = 0;
 
+	i365_set_mem_map (&socket, &mem);
+#else	/* !CONFIG_CPC45 */
+	socket.state.sysctl &= 0xFFFF00FF;
+#endif
 	state.Vcc = state.Vpp = 0;
 
 	i365_set_socket (&socket, &state);
@@ -567,7 +997,7 @@ void i82365_exit (void)
 static void i82365_dump_regions (pci_dev_t dev)
 {
 	u_int tmp[2];
-	u_int *mem = (void *) sock.cb_phys;
+	u_int *mem = (void *) socket.cb_phys;
 	u_char *cis = (void *) CFG_PCMCIA_MEM_ADDR;
 	u_char *ide = (void *) (CFG_ATA_BASE_ADDR + CFG_ATA_REG_OFFSET);
 

@@ -805,7 +805,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	load_sernum_ethaddr ();
 #endif
 
-#if defined(CONFIG_ETH1ADDR)
+#ifdef CONFIG_HAS_ETH1
 	/* handle the 2nd ethernet address */
 
 	s = getenv ("eth1addr");
@@ -816,7 +816,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 			s = (*e) ? e + 1 : e;
 	}
 #endif
-#if defined(CONFIG_ETH2ADDR)
+#ifdef CONFIG_HAS_ETH2
 	/* handle the 3rd ethernet address */
 
 	s = getenv ("eth2addr");
@@ -832,7 +832,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	}
 #endif
 
-#if defined(CONFIG_ETH3ADDR)
+#ifdef CONFIG_HAS_ETH3
 	/* handle 4th ethernet address */
 	s = getenv("eth3addr");
 #if defined(CONFIG_XPEDITE1K)

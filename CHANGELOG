@@ -2,6 +2,20 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Code cleanup, mostly for GCC-3.3.x
+
+* Cleanup confusing use of CONFIG_ETH*ADDR - ust his only to
+  pre-define a MAC address; use CONFIG_HAS_ETH* to enable support for
+  additional ethernet addresses.
+
+* Cleanup drivers/i82365.c - avoid duplication of code
+
+* Fix bogus "cannot span across banks" flash error message
+
+* Code cleanup
+
+* Add support for CompactFlash for the CPC45 Board.
+
 * Fix problems with CMC_PU2 flash driver.
 
 * Cleanup:

@@ -39,8 +39,6 @@ void host_bridge_init (void)
 	/* The bridge chip is at a fixed location. */
 	pci_dev_t dev = PCI_BDF (0, 10, 0);
 
-	int rc;
-
 	/* Set PCI Class code --
 	   The primary side sees this class code at 0x08 in the
 	   primary config space. This must be something other then a

@@ -98,6 +98,7 @@
 				~CFG_CMD_BSP	& \
 				~CFG_CMD_DATE	& \
 				~CFG_CMD_DTT	& \
+				~CFG_CMD_EXT2	& \
 				~CFG_CMD_FDC	& \
 				~CFG_CMD_FDOS	& \
 				~CFG_CMD_HWFLOW	& \
@@ -113,6 +114,7 @@
 				~CFG_CMD_SCSI	& \
 				~CFG_CMD_SETGETDCR & \
 				~CFG_CMD_SPI	& \
+				~CFG_CMD_UNIVERSE & \
 				~CFG_CMD_USB	& \
 				~CFG_CMD_VFD	& \
 				~CFG_CMD_XIMG	)

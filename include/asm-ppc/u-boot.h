@@ -86,15 +86,15 @@ typedef struct bd_info {
 	hymod_conf_t	bi_hymod_conf;	/* hymod configuration information */
 #endif
 
-#if defined(CONFIG_ETH1ADDR)
+#ifdef CONFIG_HAS_ETH1
 	/* second onboard ethernet port */
 	unsigned char   bi_enet1addr[6];
 #endif
-#if defined(CONFIG_ETH2ADDR)
+#ifdef CONFIG_HAS_ETH2
 	/* third onboard ethernet port */
 	unsigned char	bi_enet2addr[6];
 #endif
-#if defined(CONFIG_ETH3ADDR)
+#ifdef CONFIG_HAS_ETH3
 	unsigned char   bi_enet3addr[6];
 #endif
 

@@ -145,11 +145,13 @@ int misc_init_r (void)
 	}
 	show_startup_phase (10);
 
+#ifdef CONFIG_HAS_ETH1
 	if (getenv ("eth1addr") == NULL &&
 		get_mac_address (1, mac, str, sizeof (str)) > 0) {
 		setenv ("eth1addr", str);
 		memcpy (gd->bd->bi_enet1addr, mac, 6);
 	}
+#endif /* CONFIG_HAS_ETH1 */
 	show_startup_phase (11);
 
 	/* Tell everybody that U-Boot is up and runnig */

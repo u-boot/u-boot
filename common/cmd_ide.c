@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2002
+ * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -144,7 +144,7 @@ block_dev_desc_t ide_dev_desc[CFG_IDE_MAXDEVICE];
 /* ------------------------------------------------------------------------- */
 
 #ifdef CONFIG_IDE_LED
-#if !defined(CONFIG_KUP4K) &&  !defined(CONFIG_KUP4X) &&!defined(CONFIG_BMS2003)
+#if !defined(CONFIG_KUP4K) &&  !defined(CONFIG_KUP4X) &&!defined(CONFIG_BMS2003) &&!defined(CONFIG_CPC45)
 static void  ide_led   (uchar led, uchar status);
 #else
 extern void  ide_led   (uchar led, uchar status);
@@ -1548,11 +1548,12 @@ static void ide_reset (void)
 
 /* ------------------------------------------------------------------------- */
 
-#if defined(CONFIG_IDE_LED) && \
-   !defined(CONFIG_AMIGAONEG3SE) && \
-   !defined(CONFIG_KUP4K) && \
-   !defined(CONFIG_KUP4X) && \
-   !defined(CONFIG_HMI10)
+#if defined(CONFIG_IDE_LED)	&& \
+   !defined(CONFIG_AMIGAONEG3SE)&& \
+   !defined(CONFIG_CPC45)	&& \
+   !defined(CONFIG_HMI10)	&& \
+   !defined(CONFIG_KUP4K)	&& \
+   !defined(CONFIG_KUP4X)
 
 static	uchar	led_buffer = 0;		/* Buffer for current LED status	*/
 
@@ -1577,7 +1578,6 @@ static void ide_led (uchar led, uchar status)
 /****************************************************************************
  * ATAPI Support
  */
-
 
 #undef	ATAPI_DEBUG
 
@@ -1660,7 +1660,6 @@ output_data_shorts(int dev, ushort *sect_buf, int shorts)
 {
 	outsw(ATA_CURR_BASE(dev)+ATA_DATA_REG, sect_buf, shorts);
 }
-
 
 static void
 input_data_shorts(int dev, ushort *sect_buf, int shorts)

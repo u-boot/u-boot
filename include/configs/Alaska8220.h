@@ -106,6 +106,7 @@
 #define CONFIG_BOOTDELAY	5    /* autoboot after 5 seconds */
 #define CONFIG_BOOTARGS		"root=/dev/ram rw"
 #define CONFIG_ETHADDR		00:e0:0c:bc:e0:60
+#define CONFIG_HAS_ETH1
 #define CONFIG_ETH1ADDR		00:e0:0c:bc:e0:61
 #define CONFIG_IPADDR		192.162.1.2
 #define CONFIG_NETMASK		255.255.255.0

@@ -809,14 +809,14 @@ int mpc8220_fec_initialize (bd_t * bis)
 {
 	mpc8220_fec_priv *fec;
 
-#ifdef CONFIG_ETH1ADDR
+#ifdef CONFIG_HAS_ETH1
 	mpc8220_fec_priv *fec2;
 #endif
 	struct eth_device *dev;
 	char *tmp, *end;
 	char env_enetaddr[6];
 
-#ifdef CONFIG_ETH1ADDR
+#ifdef CONFIG_HAS_ETH1
 	char env_enet1addr[6];
 #endif
 	int i;
@@ -826,7 +826,7 @@ int mpc8220_fec_initialize (bd_t * bis)
 	memset (dev, 0, sizeof *dev);
 
 	fec->eth = (ethernet_regs *) MMAP_FEC1;
-#ifdef CONFIG_ETH1ADDR
+#ifdef CONFIG_HAS_ETH1
 	fec2 = (mpc8220_fec_priv *) malloc (sizeof (*fec));
 	fec2->eth = (ethernet_regs *) MMAP_FEC2;
 #endif
@@ -860,7 +860,7 @@ int mpc8220_fec_initialize (bd_t * bis)
 		}
 		mpc8220_fec_set_hwaddr (fec, env_enetaddr);
 	}
-#ifdef CONFIG_ETH1ADDR
+#ifdef CONFIG_HAS_ETH1
 	tmp = getenv ("eth1addr");
 	if (tmp) {
 		for (i = 0; i < 6; i++) {

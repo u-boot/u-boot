@@ -105,6 +105,7 @@
 /* first ethernet */
 #define CONFIG_ETHADDR		64:36:00:00:00:01
 											     /* next two ethernet hwaddrs */
+#define CONFIG_HAS_ETH1
 #define CONFIG_ETH1ADDR		64:36:00:00:00:02
 /* in the atlantis 64360 we have only 2 ETH port on the board,
 if we use PCI it has its own MAC addr */

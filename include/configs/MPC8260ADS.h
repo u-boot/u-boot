@@ -185,6 +185,7 @@
 				 CFG_CMD_DTT	| \
 				 CFG_CMD_EEPROM | \
 				 CFG_CMD_ELF    | \
+				 CFG_CMD_EXT2	| \
 				 CFG_CMD_FAT    | \
 				 CFG_CMD_FDC	| \
 				 CFG_CMD_FDOS	| \
@@ -198,6 +199,7 @@
 				 CFG_CMD_REISER	| \
 				 CFG_CMD_SCSI	| \
 				 CFG_CMD_SPI	| \
+				 CFG_CMD_UNIVERSE | \
 				 CFG_CMD_USB	| \
 				 CFG_CMD_VFD	| \
 				 CFG_CMD_XIMG

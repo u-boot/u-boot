@@ -24,11 +24,13 @@
 #include <common.h>
 #include <mpc824x.h>
 #include <asm/processor.h>
+#include <asm/io.h>
 #include <pci.h>
 #include <i2c.h>
 
 int sysControlDisplay(int digit, uchar ascii_code);
 extern void Plx9030Init(void);
+extern void SPD67290Init(void);
 
 	/* We have to clear the initial data area here. Couldn't have done it
 	 * earlier because DRAM had not been initialized.
@@ -180,6 +182,10 @@ static struct pci_config_table pci_cpc45_config_table[] = {
 	  pci_cfgfunc_config_device, { PCI_PLX9030_IOADDR,
 				       PCI_PLX9030_MEMADDR,
 				       PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER }},
+	{ PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, 0x0E, PCI_ANY_ID,
+	  pci_cfgfunc_config_device, { PCMCIA_IO_BASE,
+				       PCMCIA_IO_BASE,
+				       PCI_COMMAND_MEMORY | PCI_COMMAND_IO }},
 #endif /*CONFIG_PCI_PNP*/
 	{ }
 };
@@ -233,3 +239,37 @@ int sysControlDisplay (int digit,	/* number of digit 0..7 */
 
 	return (0);
 }
+
+#if (CONFIG_COMMANDS & CFG_CMD_PCMCIA)
+
+#ifdef CFG_PCMCIA_MEM_ADDR
+volatile unsigned char *pcmcia_mem = (unsigned char*)CFG_PCMCIA_MEM_ADDR;
+#endif
+
+int pcmcia_init(void)
+{
+	u_int rc;
+
+	debug ("Enable PCMCIA " PCMCIA_SLOT_MSG "\n");
+
+	rc = i82365_init();
+
+	return rc;
+}
+
+#endif	/* CFG_CMD_PCMCIA */
+
+# ifdef CONFIG_IDE_LED
+void ide_led (uchar led, uchar status)
+{
+	u_char  val;
+	/* We have one PCMCIA slot and use LED H4 for the IDE Interface */
+	val = readb(BCSR_BASE + 0x04);
+	if (status) {				/* led on */
+		val |= B_CTRL_LED0;
+	} else {
+		val &= ~B_CTRL_LED0;
+	}
+	writeb(val, BCSR_BASE + 0x04);
+}
+# endif

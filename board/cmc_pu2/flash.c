@@ -264,7 +264,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 {
 	vu_short *addr = (vu_short *)(info->start[0]);
 	int flag, prot, sect, ssect, l_sect;
-	ulong start, now, last;
+	ulong now, last;
 
 	debug ("flash_erase: first: %d last: %d\n", s_first, s_last);
 
@@ -336,7 +336,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 			goto DONE;
 
 		reset_timer_masked ();
-		last  = start;
+		last  = 0;
 		addr = (vu_short *)(info->start[l_sect]);
 		while ((addr[0] & 0x0080) != 0x0080) {
 			if ((now = get_timer_masked ()) > CFG_FLASH_ERASE_TOUT) {
@@ -432,7 +432,6 @@ printf ("write_buff 1: write_word_amd() rc=%d\n", rc);
  */
 static int write_word_amd (flash_info_t *info, vu_short *dest, ushort data)
 {
-	ulong start;
 	int flag;
 	vu_short *base;		/* first address in flash bank	*/
 

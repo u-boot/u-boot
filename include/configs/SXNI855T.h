@@ -81,6 +81,8 @@
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 #endif
 
+#define CONFIG_HAS_ETH1
+
 /*-----------------------------------------------------------------------
  * Definitions for status LED
  */

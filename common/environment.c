@@ -130,6 +130,9 @@ env_t environment __PPCENV__ = {
 #ifdef	CONFIG_ETH2ADDR
 	"eth2addr="	MK_STR(CONFIG_ETH2ADDR)		"\0"
 #endif
+#ifdef	CONFIG_ETH3ADDR
+	"eth3addr="	MK_STR(CONFIG_ETH3ADDR)		"\0"
+#endif
 #ifdef	CONFIG_ETHPRIME
 	"ethprime="	CONFIG_ETHPRIME			"\0"
 #endif

@@ -164,6 +164,10 @@ flash_fill_sect_ranges (ulong addr_first, ulong addr_last,
 			sect = s_last[bank];
 			addr_first = (sect == s_end) ? b_end + 1: info->start[sect + 1];
 			(*s_count) += s_last[bank] - s_first[bank] + 1;
+		} else if (addr_first >= info->start[0] && addr_first < b_end) {
+			puts ("Error: start address not on sector boundary\n");
+			rcode = 1;
+			break;
 		} else if (s_last[bank] >= 0) {
 			puts ("Error: cannot span across banks when they are"
 			       " mapped in reverse order\n");

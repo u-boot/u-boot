@@ -92,6 +92,7 @@
 /* Ethernet stuff */
 #define CONFIG_ENV_OVERWRITE /* Let the user to change the Ethernet MAC addresses */
 #define CONFIG_ETHADDR	00:50:c2:1e:af:fe
+#define CONFIG_HAS_ETH1
 #define CONFIG_ETH1ADDR 00:50:c2:1e:af:fd
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/

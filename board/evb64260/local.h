@@ -53,7 +53,9 @@
 #define CONFIG_ETHADDR          00:11:22:33:44:55
 
 /* next two ethernet hwaddrs */
+#define CONFIG_HAS_ETH1
 #define CONFIG_ETH1ADDR		00:11:22:33:44:66
+#define CONFIG_HAS_ETH2
 #define CONFIG_ETH2ADDR		00:11:22:33:44:77
 
 #define CONFIG_ENV_OVERWRITE

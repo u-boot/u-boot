@@ -199,7 +199,8 @@
 
 #define CFG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_OFFSET	    0x00F40000	/*   Offset   of Environment Sector	absolute address 0xfff40000*/
-#define CFG_ENV_SIZE		0x40000 /* Total Size of Environment Sector	*/
+#define CFG_ENV_SECT_SIZE	0x40000	/* Total Size of Environment Sector	*/
+#define CFG_ENV_SIZE		CFG_ENV_SECT_SIZE
 #define CFG_ENV_ADDR		(CFG_FLASH_BASE + CFG_ENV_OFFSET)
 
 /* Address and size of Redundant Environment Sector	*/

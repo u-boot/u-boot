@@ -28,19 +28,7 @@
 
 #include <universe.h>
 
-
 #if (CONFIG_COMMANDS & CFG_CMD_UNIVERSE)
-
-#undef DBG
-
-#ifdef DBG
-# define UNI_DBG(fmt)	        printf fmt
-#else
-# define UNI_DBG(fmt)
-#endif
-
-#define UNI_PRINT(fmt)	        printf fmt
-
 
 #define PCI_VENDOR PCI_VENDOR_ID_TUNDRA
 #define PCI_DEVICE PCI_DEVICE_ID_TUNDRA_CA91C042
@@ -87,18 +75,18 @@ int universe_init(void)
 	val &= ~0xf;
 	dev->uregs = (UNIVERSE *)val;
 
-	UNI_DBG(("UNIVERSE-Base    : %p\n", dev->uregs));
+	debug ("UNIVERSE-Base    : %p\n", dev->uregs);
 
 	/* check mapping  */
-	UNI_DBG((" Read via mapping, PCI_ID = %08X\n", readl(&dev->uregs->pci_id)));
+	debug (" Read via mapping, PCI_ID = %08X\n", readl(&dev->uregs->pci_id));
 	if (((PCI_DEVICE <<16) | PCI_VENDOR) !=  readl(&dev->uregs->pci_id)) {
-		UNI_PRINT(("UNIVERSE: Cannot read PCI-ID via Mapping: %08x\n",
-			   readl(&dev->uregs->pci_id)));
+		printf ("UNIVERSE: Cannot read PCI-ID via Mapping: %08x\n",
+			readl(&dev->uregs->pci_id));
 		result = -1;
 		goto break_30;
 	}
 
-	UNI_DBG(("PCI_BS = %08X\n", readl(&dev->uregs->pci_bs)));
+	debug ("PCI_BS = %08X\n", readl(&dev->uregs->pci_bs));
 
 	dev->pci_bs = readl(&dev->uregs->pci_bs);
 
@@ -154,12 +142,12 @@ int universe_pci_slave_window(unsigned int pciAddr, unsigned int vmeAddr, int si
 	}
 
 	if (i == 4) {
-		UNI_PRINT(("universe: No Image available\n"));
+		printf ("universe: No Image available\n");
 		result = -1;
 		goto exit_10;
 	}
 
-	UNI_DBG(("universe: Using image %d\n", i));
+	debug ("universe: Using image %d\n", i);
 
 	writel(pciAddr , &dev->uregs->lsi[i].bs);
 	writel((pciAddr + size), &dev->uregs->lsi[i].bd);
@@ -219,11 +207,11 @@ int universe_pci_slave_window(unsigned int pciAddr, unsigned int vmeAddr, int si
 
 	writel(ctl, &dev->uregs->lsi[i].ctl);
 
-	UNI_DBG(("universe: window-addr=%p\n", &dev->uregs->lsi[i].ctl));
-	UNI_DBG(("universe: pci slave window[%d] ctl=%08x\n", i, readl(&dev->uregs->lsi[i].ctl)));
-	UNI_DBG(("universe: pci slave window[%d] bs=%08x\n", i, readl(&dev->uregs->lsi[i].bs)));
-	UNI_DBG(("universe: pci slave window[%d] bd=%08x\n", i, readl(&dev->uregs->lsi[i].bd)));
-	UNI_DBG(("universe: pci slave window[%d] to=%08x\n", i, readl(&dev->uregs->lsi[i].to)));
+	debug ("universe: window-addr=%p\n", &dev->uregs->lsi[i].ctl);
+	debug ("universe: pci slave window[%d] ctl=%08x\n", i, readl(&dev->uregs->lsi[i].ctl));
+	debug ("universe: pci slave window[%d] bs=%08x\n", i, readl(&dev->uregs->lsi[i].bs));
+	debug ("universe: pci slave window[%d] bd=%08x\n", i, readl(&dev->uregs->lsi[i].bd));
+	debug ("universe: pci slave window[%d] to=%08x\n", i, readl(&dev->uregs->lsi[i].to));
 
 	return 0;
 
@@ -251,12 +239,12 @@ int universe_vme_slave_window(unsigned int vmeAddr, unsigned int pciAddr, int si
 	}
 
 	if (i == 4) {
-		UNI_PRINT(("universe: No Image available\n"));
+		printf ("universe: No Image available\n");
 		result = -1;
 		goto exit_10;
 	}
 
-	UNI_DBG(("universe: Using image %d\n", i));
+	debug ("universe: Using image %d\n", i);
 
 	writel(vmeAddr , &dev->uregs->vsi[i].bs);
 	writel((vmeAddr + size), &dev->uregs->vsi[i].bd);
@@ -304,11 +292,11 @@ int universe_vme_slave_window(unsigned int vmeAddr, unsigned int pciAddr, int si
 
 	writel(ctl, &dev->uregs->vsi[i].ctl);
 
-	UNI_DBG(("universe: window-addr=%p\n", &dev->uregs->vsi[i].ctl));
-	UNI_DBG(("universe: vme slave window[%d] ctl=%08x\n", i, readl(&dev->uregs->vsi[i].ctl)));
-	UNI_DBG(("universe: vme slave window[%d] bs=%08x\n", i, readl(&dev->uregs->vsi[i].bs)));
-	UNI_DBG(("universe: vme slave window[%d] bd=%08x\n", i, readl(&dev->uregs->vsi[i].bd)));
-	UNI_DBG(("universe: vme slave window[%d] to=%08x\n", i, readl(&dev->uregs->vsi[i].to)));
+	debug ("universe: window-addr=%p\n", &dev->uregs->vsi[i].ctl);
+	debug ("universe: vme slave window[%d] ctl=%08x\n", i, readl(&dev->uregs->vsi[i].ctl));
+	debug ("universe: vme slave window[%d] bs=%08x\n", i, readl(&dev->uregs->vsi[i].bs));
+	debug ("universe: vme slave window[%d] bd=%08x\n", i, readl(&dev->uregs->vsi[i].bd));
+	debug ("universe: vme slave window[%d] to=%08x\n", i, readl(&dev->uregs->vsi[i].to));
 
 	return 0;
 

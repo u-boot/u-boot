@@ -154,8 +154,11 @@
 #define CONFIG_NETMASK		255.255.255.0
 #define CONFIG_IPADDR		10.1.2.3
 #define CONFIG_ETHADDR		00:04:AC:E3:28:8A
+#define CONFIG_HAS_ETH1
 #define CONFIG_ETH1ADDR		00:04:AC:E3:28:8B
+#define CONFIG_HAS_ETH2
 #define CONFIG_ETH2ADDR		00:04:AC:E3:28:8C
+#define CONFIG_HAS_ETH3
 #define CONFIG_ETH3ADDR		00:04:AC:E3:28:8D
 #define CFG_RX_ETH_BUFFER	32	  /* Number of ethernet rx buffers & descriptors */
 #define CONFIG_SERVERIP		10.1.2.2
