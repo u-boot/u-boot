@@ -24,7 +24,7 @@ Contents:
 
 1. Files
 =========
-	board/dk1c20/*
+	board/altera/dk1c20/*
 	include/configs/DK1C20.h
 
 2. Memory Organization
@@ -73,11 +73,7 @@ see the following:
 2. Quit nios-run and start your terminal application (e.g. start
 Hyperterminal or minicom).
 
-3. From the U-Boot command prompt, erase flash 0x40000 to 0x 5ffff:
-
-    ==> erase 1:4-5
-
-4. Download the u-boot code to RAM. When using Hyperterminal, do the
+3. Download the u-boot code to RAM. When using Hyperterminal, do the
 following:
 
    a.  From the u-boot command prompt start a binary download to SRAM:
@@ -85,6 +81,10 @@ following:
     ==> loadb 800000
 
     b. Download u-boot.bin using kermit.
+
+4. From the U-Boot command prompt, erase flash 0x40000 to 0x5ffff:
+
+    ==> erase 1:4-5
 
 5. Copy the binary image from SRAM to flash:
 

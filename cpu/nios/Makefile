@@ -27,7 +27,7 @@ LIB	= lib$(CPU).a
 
 START	= start.o
 AOBJS	= traps.o
-OBJS	= cpu.o interrupts.o serial.o asmi.o
+OBJS	= cpu.o interrupts.o serial.o asmi.o spi.o
 
 all:	.depend $(START) $(LIB)
 

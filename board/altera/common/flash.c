@@ -71,7 +71,6 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	volatile CFG_FLASH_WORD_SIZE *addr = (CFG_FLASH_WORD_SIZE *) (info->start[0]);
 	volatile CFG_FLASH_WORD_SIZE *addr2;
 	int prot, sect;
-	int any = 0;
 	unsigned oldpri;
 	ulong start;
 
@@ -94,6 +93,12 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 		printf ("\n");
 	}
 
+#ifdef DEBUG
+	for (sect = s_first; sect <= s_last; sect++) {
+		printf("- Erase: Sect: %i @ 0x%08x\n", sect,  info->start[sect]);
+	}
+#endif
+
 	/* NOTE: disabling interrupts on Nios can be very bad since it
 	 * also disables the LO_LIMIT exception. It's better here to
 	 * set the interrupt priority to 3 & restore it when we're done.
@@ -114,26 +119,25 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 			*addr = 0xaa;
 			*addr = 0x55;
 			*addr2 = 0x30;
-			any = 1;
+			/* Now just wait for 0xff & provide some user
+			 * feedback while we wait. Here we have to grant
+			 * timer interrupts. Otherwise get_timer() can't
+			 * work right. */
+			ipri(oldpri);
+			start = get_timer (0);
+			while (*addr2 != 0xff) {
+				udelay (1000 * 1000);
+				putc ('.');
+				if (get_timer (start) > CFG_FLASH_ERASE_TOUT) {
+					printf ("timeout\n");
+					return 1;
+				}
+			}
+			oldpri = ipri (3); /* disallow non important irqs again */
 		}
 	}
 
-	/* Now just wait for 0xff & provide some user feedback while
-	 * we wait.
-	 */
-	if (any) {
-		addr2 = (CFG_FLASH_WORD_SIZE *) (info->start[sect]);
-		start = get_timer (0);
-		while (*addr2 != 0xff) {
-			udelay (1000 * 1000);
-			putc ('.');
-			if (get_timer (start) > CFG_FLASH_ERASE_TOUT) {
-				printf ("timeout\n");
-				return 1;
-			}
-		}
-		printf ("\n");
-	}
+	printf ("\n");
 
 	/* Restore interrupt priority */
 	ipri (oldpri);

@@ -1064,6 +1064,7 @@ DK1C20_config:	unconfig
 
 DK1S10_safe_32_config		\
 DK1S10_standard_32_config	\
+DK1S10_mtx_ldk_20_config	\
 DK1S10_config:	unconfig
 	@ >include/config.h
 	@[ -z "$(findstring _safe_32,$@)" ] || \
@@ -1073,6 +1074,10 @@ DK1S10_config:	unconfig
 	@[ -z "$(findstring _standard_32,$@)" ] || \
 		{ echo "#define CONFIG_NIOS_STANDARD_32 1" >>include/config.h ; \
 		  echo "... NIOS 'standard_32' configuration" ; \
+		}
+	@[ -z "$(findstring _mtx_ldk_20,$@)" ] || \
+		{ echo "#define CONFIG_NIOS_MTX_LDK_20 1" >>include/config.h ; \
+		  echo "... NIOS 'mtx_ldk_20' configuration" ; \
 		}
 	@[ -z "$(findstring DK1S10_config,$@)" ] || \
 		{ echo "#define CONFIG_NIOS_STANDARD_32 1" >>include/config.h ; \

@@ -117,7 +117,7 @@ typedef volatile struct nios_spi_t {
 	unsigned	status;		/* Status reg */
 	unsigned	control;	/* Control reg */
 	unsigned	reserved;	/* (master only) */
-	unsigned	slaveselect;	/* SPI slave selct mask (master only) */
+	unsigned	slaveselect;	/* SPI slave select mask (master only) */
 }nios_spi_t;
 
 /* status register */

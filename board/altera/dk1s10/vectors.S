@@ -1,6 +1,7 @@
 /*
  * (C) Copyright 2003, Psyent Corporation <www.psyent.com>
  * Scott McNutt <smcnutt@psyent.com>
+ * Stephan Linz <linz@li-pro.net>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -20,6 +21,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
+
+#include <config.h>
 
 
 /*************************************************************************
@@ -55,8 +58,14 @@
 	.align	4
 _vectors:
 
-	.long	_def_xhandler@h		/* Vector 0  - NMI */
-	.long	_cwp_lolimit@h		/* Vector 1  -  underflow */
+#if	defined(CFG_NIOS_CPU_OCI_BASE)
+	/* OCI does the reset job */
+	.long	_def_xhandler@h		/* Vector 0  - NMI / Reset */
+#else
+	/* there is no OCI, so we have to do a direct reset jump here */
+	.long	CFG_NIOS_CPU_RST_VECT	/* Vector 0  - Reset to GERMS */
+#endif
+	.long	_cwp_lolimit@h		/* Vector 1  - underflow */
 	.long	_cwp_hilimit@h		/* Vector 2  - overflow	*/
 
 	.long	_def_xhandler@h		/* Vector 3 - GNUPro debug */
@@ -72,7 +81,11 @@ _vectors:
 	.long	_def_xhandler@h		/* Vector 13 - future reserved */
 	.long	_def_xhandler@h		/* Vector 14 - future reserved */
 	.long	_def_xhandler@h		/* Vector 15 - future reserved */
+#if	(CFG_NIOS_TMRIRQ == 16)
+	.long	_timebase_int@h		/* Vector 16 - lopri timer*/
+#else
 	.long	_def_xhandler@h		/* Vector 16 */
+#endif
 	.long	_def_xhandler@h		/* Vector 17 */
 	.long	_def_xhandler@h		/* Vector 18 */
 	.long	_def_xhandler@h		/* Vector 19 */
@@ -106,7 +119,11 @@ _vectors:
 	.long	_def_xhandler@h		/* Vector 47 */
 	.long	_def_xhandler@h		/* Vector 48 */
 	.long	_def_xhandler@h		/* Vector 49 */
+#if	(CFG_NIOS_TMRIRQ == 50)
 	.long	_timebase_int@h		/* Vector 50 - lopri timer*/
+#else
+	.long	_def_xhandler@h		/* Vector 50 */
+#endif
 	.long	_def_xhandler@h		/* Vector 51 */
 	.long	_def_xhandler@h		/* Vector 52 */
 	.long	_def_xhandler@h		/* Vector 53 */

@@ -1,7 +1,7 @@
 
 			   U-Boot for Nios-32
 
-		    Last Update: January 2, 2004
+		    Last Update: February 1, 2004
 ====================================================================
 
 This file contains information regarding U-Boot and the Altera
@@ -102,6 +102,13 @@ CFG_NIOS_TMRMS -- the period of the timer in milliseconds.
 
 CFG_NIOS_ASMIBASE -- the base address of the ASMI peripheral.
 	(standard-32: na_asmi_base).
+
+CFG_NIOS_SPIBASE -- the base address of the SPI master (!) peripheral.
+	(nasys_spi_0)
+
+CFG_NIOS_SPIBITS -- the amount of configured SPI data bits in PTF.
+	This value can be 8 or 16 only! (PTF: databits)
+
 
 2.2 Differences in U-Boot Options/Settings
 -------------------------------------------

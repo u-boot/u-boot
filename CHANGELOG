@@ -2,6 +2,30 @@
 Changes since U-Boot 1.0.1:
 ======================================================================
 
+* Patches by Stephan Linz, 30 Jan 2004:
+  1: - board/altera/common/flash.c:flash_erase():
+       o allow interrupts befor get_timer() call
+       o check-up each erased sector and avoid unexpected timeouts
+     - board/altera/dk1c20/dk1s10.c:board_early_init_f():
+       o enclose sevenseg_set() in cpp condition
+     - remove the ASMI configuration for DK1S10_standard_32 (never present)
+     - fix some typed in mistakes in the NIOS documentation
+  2: - split DK1C20 configuration into several header files:
+       o two new files for each NIOS CPU description
+       o U-Boot related part is remaining in DK1C20.h
+  3: - split DK1S10 configuration into several header files:
+       o two new files for each NIOS CPU description
+       o U-Boot related part is remaining in DK1S10.h
+  4: - Add support for the Microtronix Linux Development Kit
+       NIOS CPU configuration at the Altera Nios Development Kit,
+       Stratix Edition (DK-1S10)
+  5: - Add documentation for the Altera Nios Development Kit,
+       Stratix Edition (DK-1S10)
+  6: - Add support for the Nios Serial Peripharel Interface (SPI)
+       (master only)
+  7: - Add support for the common U-Boot SPI framework at
+       RTC driver DS1306
+
 * Patch by Rahul Shanbhag, 28 Jan 2004:
   Fix flash protection/locking handling for OMAP1610 innovator board.
 

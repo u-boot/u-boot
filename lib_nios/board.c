@@ -132,8 +132,10 @@ void board_init (void)
 	bd->bi_memstart	= CFG_SDRAM_BASE;
 	bd->bi_memsize = CFG_SDRAM_SIZE;
 	bd->bi_flashstart = CFG_FLASH_BASE;
+#if	defined(CFG_SRAM_BASE) && defined(CFG_SRAM_SIZE)
 	bd->bi_sramstart= CFG_SRAM_BASE;
 	bd->bi_sramsize	= CFG_SRAM_SIZE;
+#endif
 	bd->bi_baudrate	= CONFIG_BAUDRATE;
 
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {

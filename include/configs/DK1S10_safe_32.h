@@ -1,6 +1,6 @@
 /*
- * (C) Copyright 2003, Psyent Corporation <www.psyent.com>
- * Scott McNutt <smcnutt@psyent.com>
+ * (C) Copyright 2003, Li-Pro.Net <www.li-pro.net>
+ * Stephan Linz <linz@li-pro.net>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -21,32 +21,14 @@
  * MA 02111-1307 USA
  */
 
-#include <common.h>
-#if	defined(CONFIG_SEVENSEG)
-#include "../common/sevenseg.h"
-#endif
+#ifndef __CONFIG_DK1S10_SAFE_32_H
+#define __CONFIG_DK1S10_SAFE_32_H
 
-void _default_hdlr (void)
-{
-	printf ("default_hdlr\n");
-}
+/*
+ * NIOS CPU configuration. (PART OF configs/DK1S10.h)
+ *
+ * !!! TODO !!! TODO !!!
+ */
+#error *** CFG_ERROR: DK1S10_safe_32 have to be defined (use DK1S10_standard_32 as template)
 
-int board_early_init_f (void)
-{
-#if	defined(CONFIG_SEVENSEG)
-	/* init seven segment led display and switch off */
-	sevenseg_set(SEVENSEG_OFF);
-#endif
-	return 0;
-}
-
-int checkboard (void)
-{
-	puts ("Board: Altera Nios 1C20 Development Kit\n");
-	return 0;
-}
-
-long int initdram (int board_type)
-{
-	return (0);
-}
+#endif	/* __CONFIG_DK1S10_SAFE_32_H */

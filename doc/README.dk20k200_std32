@@ -117,7 +117,7 @@ UART:	UART0: fixed baudrate of 115200, fixed protocol 8N2,
 	+ 0x18 |- - - - - - - - - - - - - - - -| |
 	       |		     (unused)  | |
 	+ 0x14 |- - - - - - - - - - - - - - - -| |
-  UART0	       |		     (unused)  |  > 0x00000020
+  UART1	       |		     (unused)  |  > 0x00000020
   [2]	+ 0x10 |- - - - - - - - - - - - - - - -| |
 	       |  control (10 bit)	 (rw)  | |
 	+ 0x0c |- - - - - - - - - - - - - - - -| |

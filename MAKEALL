@@ -177,7 +177,7 @@ LIST_x86="${LIST_I486}"
 
 LIST_nios="	\
 	DK1C20 DK1C20_standard_32					\
-	DK1S10 DK1S10_standard_32					\
+	DK1S10 DK1S10_standard_32 DK1S10_mtx_ldk_20			\
 "
 
 #-----------------------------------------------------------------------
