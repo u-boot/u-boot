@@ -218,6 +218,7 @@ static u8 Get_PLD_Revision(void)
 	return(Get_PLD_ID() & 0x0F);
 }
 
+#if 0	/* not used */
 static int Get_Board_Config(void)
 {
 	u8 config = Get_PLD_BOARD() & 0x03;
@@ -227,6 +228,7 @@ static int Get_Board_Config(void)
 	else
 	    return 0;
 }
+#endif
 
 static uchar Get_Board_PCB(void)
 {

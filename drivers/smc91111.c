@@ -1406,9 +1406,6 @@ int smc_get_ethaddr (bd_t * bd)
 
 	if (env_present && rom_valid) {	/* if both env and ROM are good */
 		if (memcmp (v_env_mac, v_rom_mac, 6) != 0) {
-			printf ("\n*** Warning: Environment and ROM MAC addresses don't match\n");
-			printf ("***          Using Environment MAC\n");
-			-----
 			printf ("\nWarning: MAC addresses don't match:\n");
 			printf ("\tHW MAC address:  "
 				"%02X:%02X:%02X:%02X:%02X:%02X\n",
@@ -1421,7 +1418,6 @@ int smc_get_ethaddr (bd_t * bd)
 				v_env_mac[2], v_env_mac[3],
 				v_env_mac[4], v_env_mac[5]) ;
 			debug ("### Set MAC addr from environment\n");
-			memcpy (addr, env_enetaddr, 6);
 		}
 	}
 	memcpy (bd->bi_enetaddr, v_mac, 6);	/* update global address to match env (allows env changing) */

@@ -330,7 +330,7 @@ int misc_init_r (void)
 #if (CONFIG_COMMANDS & CFG_CMD_NAND)
 void nand_init(void)
 {
-	unsigned long totlen = nand_probe(CFG_NAND_BASE);
+	unsigned long totlen = nand_probe(CFG_DFLASH_BASE);
 
 	printf ("%4lu MB\n", totlen >> 20);
 }
