@@ -53,7 +53,7 @@
 #define EBI_CFGR 0xFFFFFF64
 #define EBI_CFGR_VAL 0x00000000
 #define SMC2_CSR 0xFFFFFF70
-#define SMC2_CSR_VAL 0x100032ad /* 16bit, 2 TDF, 4 WS */
+#define SMC2_CSR_VAL 0x00003284 /* 16bit, 2 TDF, 4 WS */
 
 /* clocks */
 #define PLLAR 0xFFFFFC28
@@ -73,7 +73,7 @@
 #define EBI_CSA 0xFFFFFF60
 #define EBI_CSA_VAL 0x00000002 /* CS1=SDRAM */
 #define SDRC_CR 0xFFFFFF98
-#define SDRC_CR_VAL 0x3399c1d4 /* set up the SDRAM */
+#define SDRC_CR_VAL 0x2188c155 /* set up the SDRAM */
 #define SDRAM 0x20000000 /* address of the SDRAM */
 #define SDRAM1 0x20000080 /* address of the SDRAM */
 #define SDRAM_VAL 0x00000000 /* value written to SDRAM */
@@ -86,20 +86,15 @@
 #define SDRC_TR_VAL 0x000002E0 /* Write refresh rate */
 
 
-_MTEXT_BASE:
-#undef START_FROM_MEM
-#ifdef START_FROM_MEM
-	.word	TEXT_BASE-PHYS_FLASH_1
-#else
+_TEXT_BASE:
 	.word	TEXT_BASE
-#endif
 
 .globl lowlevelinit
 lowlevelinit:
 	/* memory control configuration */
 	/* this isn't very elegant, but	 what the heck */
 	ldr	r0, =SMRDATA
-	ldr	r1, _MTEXT_BASE
+	ldr	r1, _TEXT_BASE
 	sub	r0, r0, r1
 	add	r2, r0, #80
 0:
@@ -116,7 +111,7 @@ lowlevelinit:
 	subs	r0, r0, #1
 	bhi	1b
 	ldr	r0, =SMRDATA1
-	ldr	r1, _MTEXT_BASE
+	ldr	r1, _TEXT_BASE
 	sub	r0, r0, r1
 	add	r2, r0, #176
 2:

@@ -55,17 +55,11 @@ void serial_setbrg (void)
 
 	if ((baudrate = gd->baudrate) <= 0)
 		baudrate = CONFIG_BAUDRATE;
-	if (baudrate == CONFIG_BAUDRATE) {
+	if (baudrate == 0 || baudrate == CONFIG_BAUDRATE)
 		us->US_BRGR = CFG_AT91C_BRGR_DIVISOR;	/* hardcode so no __divsi3 */
-	} else {
-#if 0
-		/* 33 -> 115200 */
-		us->US_BRGR = 33 * (115200/baudrate);
-#else
+	else
 		/* MASTER_CLOCK/(16 * baudrate) */
 		us->US_BRGR = (AT91C_MASTER_CLOCK >> 4)/baudrate;
-#endif
-	}
 }
 
 int serial_init (void)

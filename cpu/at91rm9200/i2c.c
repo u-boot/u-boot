@@ -42,7 +42,7 @@ static int debug = 0;
 static short at91_poll_status(AT91PS_TWI twi, unsigned long bit) {
 	int loop_cntr = 10000;
 	do {
-		udelay(100);
+		udelay(10);
 	} while (!(twi->TWI_SR & bit) && (--loop_cntr > 0));
 
 	return (loop_cntr > 0);

@@ -1,7 +1,7 @@
 /*
- * Rick Bronson <rick@efn.org>
+ * Gary Jennejohn <garyj@denx.de>
  *
- * Configuation settings for the AT91RM9200DK board.
+ * Configuration settings for the CMC PU2 board.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -34,7 +34,6 @@
 /* ARM asynchronous clock */
 #define AT91C_MAIN_CLOCK	179712000	/* from 18.432 MHz crystal (18432000 / 4 * 39) */
 #define AT91C_MASTER_CLOCK	59904000	/* peripheral clock (AT91C_MASTER_CLOCK / 3) */
-/* #define AT91C_MASTER_CLOCK	44928000 */	/* peripheral clock (AT91C_MASTER_CLOCK / 4) */
 
 #define AT91_SLOW_CLOCK		32768	/* slow clock */
 
@@ -46,7 +45,12 @@
 #define CONFIG_INITRD_TAG	1
 
 /* define this to include the functionality of boot.bin in u-boot */
-#undef CONFIG_BOOTBINFUNC
+#define CONFIG_BOOTBINFUNC
+
+/* just to make sure */
+#ifndef CONFIG_BOOTBINFUNC
+#define CONFIG_BOOTBINFUNC
+#endif
 
 /*
  * Size of malloc() pool
@@ -64,14 +68,14 @@
 
 /* define one of these to choose the DBGU, USART0  or USART1 as console */
 #undef CONFIG_DBGU
-#undef CONFIG_USART0
-#define CONFIG_USART1
+#define CONFIG_USART0
+#undef CONFIG_USART1
 
 #undef	CONFIG_HWFLOW			/* don't include RTS/CTS flow control support	*/
 
 #undef	CONFIG_MODEM_SUPPORT		/* disable modem initialization stuff */
 
-#undef CONFIG_HARD_I2C
+#define CONFIG_HARD_I2C
 
 #ifdef CONFIG_HARD_I2C
 #define CFG_I2C_SPEED 0 /* not used */
@@ -114,38 +118,12 @@
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
 
-#define CFG_MAX_NAND_DEVICE	1	/* Max number of NAND devices		*/
-#define SECTORSIZE 512
-
-#define ADDR_COLUMN 1
-#define ADDR_PAGE 2
-#define ADDR_COLUMN_PAGE 3
-
-#define NAND_ChipID_UNKNOWN	0x00
-#define NAND_MAX_FLOORS 1
-#define NAND_MAX_CHIPS 1
-
 #define AT91_SMART_MEDIA_ALE (1 << 22)	/* our ALE is AD22 */
 #define AT91_SMART_MEDIA_CLE (1 << 21)	/* our CLE is AD21 */
 
-#define NAND_DISABLE_CE(nand) do { *AT91C_PIOC_SODR = AT91C_PIO_PC0;} while(0)
-#define NAND_ENABLE_CE(nand) do { *AT91C_PIOC_CODR = AT91C_PIO_PC0;} while(0)
-
-#define NAND_WAIT_READY(nand) while (!(*AT91C_PIOC_PDSR & AT91C_PIO_PC2))
-
-#define WRITE_NAND_COMMAND(d, adr) do{ *(volatile __u8 *)((unsigned long)adr | AT91_SMART_MEDIA_CLE) = (__u8)(d); } while(0)
-#define WRITE_NAND_ADDRESS(d, adr) do{ *(volatile __u8 *)((unsigned long)adr | AT91_SMART_MEDIA_ALE) = (__u8)(d); } while(0)
-#define WRITE_NAND(d, adr) do{ *(volatile __u8 *)((unsigned long)adr) = (__u8)d; } while(0)
-#define READ_NAND(adr) ((volatile unsigned char)(*(volatile __u8 *)(unsigned long)adr))
-/* the following are NOP's in our implementation */
-#define NAND_CTL_CLRALE(nandptr)
-#define NAND_CTL_SETALE(nandptr)
-#define NAND_CTL_CLRCLE(nandptr)
-#define NAND_CTL_SETCLE(nandptr)
-
 #define CONFIG_NR_DRAM_BANKS 1
 #define PHYS_SDRAM 0x20000000
-#define PHYS_SDRAM_SIZE 0x2000000  /* 32 megs */
+#define PHYS_SDRAM_SIZE 0x1000000  /* 16 megs */
 
 #define CFG_MEMTEST_START		PHYS_SDRAM
 #define CFG_MEMTEST_END			CFG_MEMTEST_START + PHYS_SDRAM_SIZE - 262144
@@ -162,35 +140,26 @@
 #define CFG_DATAFLASH_LOGIC_ADDR_CS3	0xD0000000	/* Logical adress for CS3 */
 
 #define PHYS_FLASH_1			0x10000000
-#define PHYS_FLASH_SIZE			0x200000  /* 2 megs main flash */
+#define PHYS_FLASH_SIZE			0x800000  /* 8 megs main flash */
 #define CFG_FLASH_BASE			PHYS_FLASH_1
 #define CFG_MAX_FLASH_BANKS		1
 #define CFG_MAX_FLASH_SECT		256
 #define CFG_FLASH_ERASE_TOUT		(2*CFG_HZ) /* Timeout for Flash Erase */
 #define CFG_FLASH_WRITE_TOUT		(2*CFG_HZ) /* Timeout for Flash Write */
 
-#undef	CFG_ENV_IS_IN_DATAFLASH
-
-#ifdef CFG_ENV_IS_IN_DATAFLASH
-#define CFG_ENV_OFFSET			0x20000
-#define CFG_ENV_ADDR			(CFG_DATAFLASH_LOGIC_ADDR_CS0 + CFG_ENV_OFFSET)
-#define CFG_ENV_SIZE			0x2000  /* 0x8000 */
-#else
 #define CFG_ENV_IS_IN_FLASH		1
-#define CFG_ENV_ADDR			(PHYS_FLASH_1 + 0xe000)  /* 0x10000 */
-#define CFG_ENV_SIZE			0x2000  /* 0x8000 */
-#endif
-
+#define CFG_ENV_ADDR			(PHYS_FLASH_1 + 0x20000)  /* after u-boot.bin */
+#define CFG_ENV_SIZE			0x10000 /* sectors are 64K here */
 
 #define CFG_LOAD_ADDR		0x21000000  /* default load address */
 
-#define CFG_BOOT_SIZE		0x6000 /* 24 KBytes */
-#define CFG_U_BOOT_BASE		(PHYS_FLASH_1 + 0x10000)
-#define CFG_U_BOOT_SIZE		0x10000 /* 64 KBytes */
+#define CFG_BOOT_SIZE		0x00 /* 0 KBytes */
+#define CFG_U_BOOT_BASE		PHYS_FLASH_1
+#define CFG_U_BOOT_SIZE		0x20000 /* 128 KBytes */
 
 #define CFG_BAUDRATE_TABLE	{115200 , 19200, 38400, 57600, 9600 }
 
-#define CFG_PROMPT		"U-Boot> "	/* Monitor Command Prompt */
+#define CFG_PROMPT		"cmc> "	/* Monitor Command Prompt */
 #define CFG_CBSIZE		256		/* Console I/O Buffer Size */
 #define CFG_MAXARGS		16		/* max number of command args */
 #define CFG_PBSIZE		(CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */

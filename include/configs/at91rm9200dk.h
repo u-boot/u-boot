@@ -44,6 +44,9 @@
 #define CONFIG_SETUP_MEMORY_TAGS 1
 #define CONFIG_INITRD_TAG	1
 
+/* define this to include the functionality of boot.bin in u-boot */
+#undef CONFIG_BOOTBINFUNC
+
 /*
  * Size of malloc() pool
  */
@@ -58,8 +61,9 @@
  * Hardware drivers
  */
 
-/* define one of these to choose the DBGU or USART1 as console */
+/* define one of these to choose the DBGU, USART0  or USART1 as console */
 #define CONFIG_DBGU
+#undef CONFIG_USART0
 #undef CONFIG_USART1
 
 #undef	CONFIG_HWFLOW			/* don't include RTS/CTS flow control support	*/
@@ -145,16 +149,27 @@
 #define CFG_ENV_SIZE			0x2000  /* 0x8000 */
 #else
 #define CFG_ENV_IS_IN_FLASH		1
-#define CFG_ENV_ADDR			(PHYS_FLASH_1 + 0xe000)  /* 0x10000 */
+#ifdef CONFIG_BOOTBINFUNC
+#define CFG_ENV_ADDR			(PHYS_FLASH_1 + 0x60000)  /* after u-boot.bin */
+#define CFG_ENV_SIZE			0x10000 /* sectors are 64K here */
+#else
+#define CFG_ENV_ADDR			(PHYS_FLASH_1 + 0xe000)  /* between boot.bin and u-boot.bin.gz */
 #define CFG_ENV_SIZE			0x2000  /* 0x8000 */
+#endif
 #endif
 
 
 #define CFG_LOAD_ADDR		0x21000000  /* default load address */
 
+#ifdef CONFIG_BOOTBINFUNC
+#define CFG_BOOT_SIZE		0x00 /* 0 KBytes */
+#define CFG_U_BOOT_BASE		PHYS_FLASH_1
+#define CFG_U_BOOT_SIZE		0x60000 /* 384 KBytes */
+#else
 #define CFG_BOOT_SIZE		0x6000 /* 24 KBytes */
 #define CFG_U_BOOT_BASE		(PHYS_FLASH_1 + 0x10000)
 #define CFG_U_BOOT_SIZE		0x10000 /* 64 KBytes */
+#endif
 
 #define CFG_BAUDRATE_TABLE	{115200 , 19200, 38400, 57600, 9600 }
 

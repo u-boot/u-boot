@@ -347,8 +347,6 @@
 #define CFG_OR5_PRELIM  (((-CFG_SRAM_SIZE) & OR_AM_MSK) | CFG_OR_TIMING_SRAM)
 
 
-
-
 /*
  * 4096 Rows from SDRAM example configuration
  * 1000 factor s -> ms

@@ -29,6 +29,10 @@
 #ifdef	CONFIG_MPC8260			/* only valid for MPC8260 */
 #include <ioports.h>
 #endif
+#ifdef CONFIG_AT91RM9200DK		/* need this for the at91rm9200dk */
+#include <asm/io.h>
+#include <asm/arch/hardware.h>
+#endif
 #include <i2c.h>
 
 #if defined(CONFIG_SOFT_I2C)

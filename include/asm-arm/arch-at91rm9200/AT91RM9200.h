@@ -92,9 +92,52 @@ typedef struct _AT91S_USART {
 	AT91_REG	 US_PTSR; 	/* PDC Transfer Status Register */
 } AT91S_USART, *AT91PS_USART;
 
-/* ***************************************************************************** */
+/************************************************************************/
+/*          SOFTWARE API DEFINITION  FOR Clock Generator Controler      */
+/************************************************************************/
+typedef struct _AT91S_CKGR {
+	AT91_REG	 CKGR_MOR; 	/* Main Oscillator Register */
+	AT91_REG	 CKGR_MCFR; 	/* Main Clock  Frequency Register */
+	AT91_REG	 CKGR_PLLAR; 	/* PLL A Register */
+	AT91_REG	 CKGR_PLLBR; 	/* PLL B Register */
+} AT91S_CKGR, *AT91PS_CKGR;
+
+/* -------- CKGR_MOR : (CKGR Offset: 0x0) Main Oscillator Register -------- */
+#define AT91C_CKGR_MOSCEN     ((unsigned int) 0x1 <<  0) /* (CKGR) Main Oscillator Enable */
+#define AT91C_CKGR_OSCTEST    ((unsigned int) 0x1 <<  1) /* (CKGR) Oscillator Test */
+#define AT91C_CKGR_OSCOUNT    ((unsigned int) 0xFF <<  8) /* (CKGR) Main Oscillator Start-up Time */
+/* -------- CKGR_MCFR : (CKGR Offset: 0x4) Main Clock Frequency Register -------- */
+#define AT91C_CKGR_MAINF      ((unsigned int) 0xFFFF <<  0) /* (CKGR) Main Clock Frequency */
+#define AT91C_CKGR_MAINRDY    ((unsigned int) 0x1 << 16) /* (CKGR) Main Clock Ready */
+/* -------- CKGR_PLLAR : (CKGR Offset: 0x8) PLL A Register -------- */
+#define AT91C_CKGR_DIVA       ((unsigned int) 0xFF <<  0) /* (CKGR) Divider Selected */
+#define 	AT91C_CKGR_DIVA_0                    ((unsigned int) 0x0) /* (CKGR) Divider output is 0 */
+#define 	AT91C_CKGR_DIVA_BYPASS               ((unsigned int) 0x1) /* (CKGR) Divider is bypassed */
+#define AT91C_CKGR_PLLACOUNT  ((unsigned int) 0x3F <<  8) /* (CKGR) PLL A Counter */
+#define AT91C_CKGR_OUTA       ((unsigned int) 0x3 << 14) /* (CKGR) PLL A Output Frequency Range */
+#define 	AT91C_CKGR_OUTA_0                    ((unsigned int) 0x0 << 14) /* (CKGR) Please refer to the PLLA datasheet */
+#define 	AT91C_CKGR_OUTA_1                    ((unsigned int) 0x1 << 14) /* (CKGR) Please refer to the PLLA datasheet */
+#define 	AT91C_CKGR_OUTA_2                    ((unsigned int) 0x2 << 14) /* (CKGR) Please refer to the PLLA datasheet */
+#define 	AT91C_CKGR_OUTA_3                    ((unsigned int) 0x3 << 14) /* (CKGR) Please refer to the PLLA datasheet */
+#define AT91C_CKGR_MULA       ((unsigned int) 0x7FF << 16) /* (CKGR) PLL A Multiplier */
+#define AT91C_CKGR_SRCA       ((unsigned int) 0x1 << 29) /* (CKGR) PLL A Source */
+/* -------- CKGR_PLLBR : (CKGR Offset: 0xc) PLL B Register -------- */
+#define AT91C_CKGR_DIVB       ((unsigned int) 0xFF <<  0) /* (CKGR) Divider Selected */
+#define 	AT91C_CKGR_DIVB_0                    ((unsigned int) 0x0) /* (CKGR) Divider output is 0 */
+#define 	AT91C_CKGR_DIVB_BYPASS               ((unsigned int) 0x1) /* (CKGR) Divider is bypassed */
+#define AT91C_CKGR_PLLBCOUNT  ((unsigned int) 0x3F <<  8) /* (CKGR) PLL B Counter */
+#define AT91C_CKGR_OUTB       ((unsigned int) 0x3 << 14) /* (CKGR) PLL B Output Frequency Range */
+#define 	AT91C_CKGR_OUTB_0                    ((unsigned int) 0x0 << 14) /* (CKGR) Please refer to the PLLB datasheet */
+#define 	AT91C_CKGR_OUTB_1                    ((unsigned int) 0x1 << 14) /* (CKGR) Please refer to the PLLB datasheet */
+#define 	AT91C_CKGR_OUTB_2                    ((unsigned int) 0x2 << 14) /* (CKGR) Please refer to the PLLB datasheet */
+#define 	AT91C_CKGR_OUTB_3                    ((unsigned int) 0x3 << 14) /* (CKGR) Please refer to the PLLB datasheet */
+#define AT91C_CKGR_MULB       ((unsigned int) 0x7FF << 16) /* (CKGR) PLL B Multiplier */
+#define AT91C_CKGR_USB_96M    ((unsigned int) 0x1 << 28) /* (CKGR) Divider for USB Ports */
+#define AT91C_CKGR_USB_PLL    ((unsigned int) 0x1 << 29) /* (CKGR) PLL Use */
+
+/* ************************************************************************* */
 /*              SOFTWARE API DEFINITION  FOR Parallel Input Output Controler */
-/* ***************************************************************************** */
+/* ************************************************************************* */
 typedef struct _AT91S_PIO {
 	AT91_REG	 PIO_PER; 	/* PIO Enable Register */
 	AT91_REG	 PIO_PDR; 	/* PIO Disable Register */
@@ -198,6 +241,23 @@ typedef struct _AT91S_SMC2 {
 	AT91_REG	 SMC2_CSR[8]; 	/* SMC2 Chip Select Register */
 } AT91S_SMC2, *AT91PS_SMC2;
 
+/* -------- SMC2_CSR : (SMC2 Offset: 0x0) SMC2 Chip Select Register --------  */
+#define AT91C_SMC2_NWS        ((unsigned int) 0x7F <<  0) /* (SMC2) Number of Wait States */
+#define AT91C_SMC2_WSEN       ((unsigned int) 0x1 <<  7) /* (SMC2) Wait State Enable */
+#define AT91C_SMC2_TDF        ((unsigned int) 0xF <<  8) /* (SMC2) Data Float Time */
+#define AT91C_SMC2_BAT        ((unsigned int) 0x1 << 12) /* (SMC2) Byte Access Type */
+#define AT91C_SMC2_DBW        ((unsigned int) 0x1 << 13) /* (SMC2) Data Bus Width */
+#define 	AT91C_SMC2_DBW_16                   ((unsigned int) 0x1 << 13) /* (SMC2) 16-bit. */
+#define 	AT91C_SMC2_DBW_8                    ((unsigned int) 0x2 << 13) /* (SMC2) 8-bit. */
+#define AT91C_SMC2_DRP        ((unsigned int) 0x1 << 15) /* (SMC2) Data Read Protocol */
+#define AT91C_SMC2_ACSS       ((unsigned int) 0x3 << 16) /* (SMC2) Address to Chip Select Setup */
+#define 	AT91C_SMC2_ACSS_STANDARD             ((unsigned int) 0x0 << 16) /* (SMC2) Standard, asserted at the beginning of the access and deasserted at the end. */
+#define 	AT91C_SMC2_ACSS_1_CYCLE              ((unsigned int) 0x1 << 16) /* (SMC2) One cycle less at the beginning and the end of the access. */
+#define 	AT91C_SMC2_ACSS_2_CYCLES             ((unsigned int) 0x2 << 16) /* (SMC2) Two cycles less at the beginning and the end of the access. */
+#define 	AT91C_SMC2_ACSS_3_CYCLES             ((unsigned int) 0x3 << 16) /* (SMC2) Three cycles less at the beginning and the end of the access. */
+#define AT91C_SMC2_RWSETUP    ((unsigned int) 0x7 << 24) /* (SMC2) Read and Write Signal Setup Time */
+#define AT91C_SMC2_RWHOLD     ((unsigned int) 0x7 << 29) /* (SMC2) Read and Write Signal Hold Time */
+
 /* ***************************************************************************** */
 /*              SOFTWARE API DEFINITION  FOR Power Management Controler		*/
 /* ******************************************************************************/
@@ -219,6 +279,58 @@ typedef struct _AT91S_PMC {
 	AT91_REG	 PMC_IMR; 	/* Interrupt Mask Register */
 } AT91S_PMC, *AT91PS_PMC;
 
+
+/*------- PMC_SCER : (PMC Offset: 0x0) System Clock Enable Register --------*/
+#define AT91C_PMC_PCK         ((unsigned int) 0x1 <<  0) /* (PMC) Processor Clock */
+#define AT91C_PMC_UDP         ((unsigned int) 0x1 <<  1) /* (PMC) USB Device Port Clock */
+#define AT91C_PMC_MCKUDP      ((unsigned int) 0x1 <<  2) /* (PMC) USB Device Port Master Clock Automatic Disable on Suspend */
+#define AT91C_PMC_UHP         ((unsigned int) 0x1 <<  4) /* (PMC) USB Host Port Clock */
+#define AT91C_PMC_PCK0        ((unsigned int) 0x1 <<  8) /* (PMC) Programmable Clock Output */
+#define AT91C_PMC_PCK1        ((unsigned int) 0x1 <<  9) /* (PMC) Programmable Clock Output */
+#define AT91C_PMC_PCK2        ((unsigned int) 0x1 << 10) /* (PMC) Programmable Clock Output */
+#define AT91C_PMC_PCK3        ((unsigned int) 0x1 << 11) /* (PMC) Programmable Clock Output */
+#define AT91C_PMC_PCK4        ((unsigned int) 0x1 << 12) /* (PMC) Programmable Clock Output */
+#define AT91C_PMC_PCK5        ((unsigned int) 0x1 << 13) /* (PMC) Programmable Clock Output */
+#define AT91C_PMC_PCK6        ((unsigned int) 0x1 << 14) /* (PMC) Programmable Clock Output */
+#define AT91C_PMC_PCK7        ((unsigned int) 0x1 << 15) /* (PMC) Programmable Clock Output */
+/*-------- PMC_SCDR : (PMC Offset: 0x4) System Clock Disable Register ------*/
+/*-------- PMC_SCSR : (PMC Offset: 0x8) System Clock Status Register -------*/
+/*-------- PMC_MCKR : (PMC Offset: 0x30) Master Clock Register --------*/
+#define AT91C_PMC_CSS         ((unsigned int) 0x3 <<  0) /* (PMC) Programmable Clock Selection */
+#define 	AT91C_PMC_CSS_SLOW_CLK             ((unsigned int) 0x0) /* (PMC) Slow Clock is selected */
+#define 	AT91C_PMC_CSS_MAIN_CLK             ((unsigned int) 0x1) /* (PMC) Main Clock is selected */
+#define 	AT91C_PMC_CSS_PLLA_CLK             ((unsigned int) 0x2) /* (PMC) Clock from PLL A is selected */
+#define 	AT91C_PMC_CSS_PLLB_CLK             ((unsigned int) 0x3) /* (PMC) Clock from PLL B is selected */
+#define AT91C_PMC_PRES        ((unsigned int) 0x7 <<  2) /* (PMC) Programmable Clock Prescaler */
+#define 	AT91C_PMC_PRES_CLK                  ((unsigned int) 0x0 <<  2) /* (PMC) Selected clock */
+#define 	AT91C_PMC_PRES_CLK_2                ((unsigned int) 0x1 <<  2) /* (PMC) Selected clock divided by 2 */
+#define 	AT91C_PMC_PRES_CLK_4                ((unsigned int) 0x2 <<  2) /* (PMC) Selected clock divided by 4 */
+#define 	AT91C_PMC_PRES_CLK_8                ((unsigned int) 0x3 <<  2) /* (PMC) Selected clock divided by 8 */
+#define 	AT91C_PMC_PRES_CLK_16               ((unsigned int) 0x4 <<  2) /* (PMC) Selected clock divided by 16 */
+#define 	AT91C_PMC_PRES_CLK_32               ((unsigned int) 0x5 <<  2) /* (PMC) Selected clock divided by 32 */
+#define 	AT91C_PMC_PRES_CLK_64               ((unsigned int) 0x6 <<  2) /* (PMC) Selected clock divided by 64 */
+#define AT91C_PMC_MDIV        ((unsigned int) 0x3 <<  8) /* (PMC) Master Clock Division */
+#define 	AT91C_PMC_MDIV_1                    ((unsigned int) 0x0 <<  8) /* (PMC) The master clock and the processor clock are the same */
+#define 	AT91C_PMC_MDIV_2                    ((unsigned int) 0x1 <<  8) /* (PMC) The processor clock is twice as fast as the master clock */
+#define 	AT91C_PMC_MDIV_3                    ((unsigned int) 0x2 <<  8) /* (PMC) The processor clock is three times faster than the master clock */
+#define 	AT91C_PMC_MDIV_4                    ((unsigned int) 0x3 <<  8) /* (PMC) The processor clock is four times faster than the master clock */
+/*------ PMC_PCKR : (PMC Offset: 0x40) Programmable Clock Register --------*/
+/*------ PMC_IER : (PMC Offset: 0x60) PMC Interrupt Enable Register -------*/
+#define AT91C_PMC_MOSCS       ((unsigned int) 0x1 <<  0) /* (PMC) MOSC Status/Enable/Disable/Mask */
+#define AT91C_PMC_LOCKA       ((unsigned int) 0x1 <<  1) /* (PMC) PLL A Status/Enable/Disable/Mask */
+#define AT91C_PMC_LOCKB       ((unsigned int) 0x1 <<  2) /* (PMC) PLL B Status/Enable/Disable/Mask */
+#define AT91C_PMC_MCKRDY      ((unsigned int) 0x1 <<  3) /* (PMC) MCK_RDY Status/Enable/Disable/Mask */
+#define AT91C_PMC_PCK0RDY     ((unsigned int) 0x1 <<  8) /* (PMC) PCK0_RDY Status/Enable/Disable/Mask */
+#define AT91C_PMC_PCK1RDY     ((unsigned int) 0x1 <<  9) /* (PMC) PCK1_RDY Status/Enable/Disable/Mask */
+#define AT91C_PMC_PCK2RDY     ((unsigned int) 0x1 << 10) /* (PMC) PCK2_RDY Status/Enable/Disable/Mask */
+#define AT91C_PMC_PCK3RDY     ((unsigned int) 0x1 << 11) /* (PMC) PCK3_RDY Status/Enable/Disable/Mask */
+#define AT91C_PMC_PCK4RDY     ((unsigned int) 0x1 << 12) /* (PMC) PCK4_RDY Status/Enable/Disable/Mask */
+#define AT91C_PMC_PCK5RDY     ((unsigned int) 0x1 << 13) /* (PMC) PCK5_RDY Status/Enable/Disable/Mask */
+#define AT91C_PMC_PCK6RDY     ((unsigned int) 0x1 << 14) /* (PMC) PCK6_RDY Status/Enable/Disable/Mask */
+#define AT91C_PMC_PCK7RDY     ((unsigned int) 0x1 << 15) /* (PMC) PCK7_RDY Status/Enable/Disable/Mask */
+/*---- PMC_IDR : (PMC Offset: 0x64) PMC Interrupt Disable Register --------*/
+/*-------- PMC_SR : (PMC Offset: 0x68) PMC Status Register --------*/
+/*-------- PMC_IMR : (PMC Offset: 0x6c) PMC Interrupt Mask Register --------*/
 
 /* ***************************************************************************** */
 /*              SOFTWARE API DEFINITION  FOR Ethernet MAC */

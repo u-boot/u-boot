@@ -590,7 +590,7 @@ usage ()
 {
 	fprintf (stderr, "Usage: %s -l image\n"
 			 "          -l ==> list image header information\n"
-			 "       %s -A arch -O os -T type -C comp "
+			 "       %s [-x] -A arch -O os -T type -C comp "
 			 "-a addr -e ep -n name -d data_file[:data_file...] image\n",
 		cmdname, cmdname);
 	fprintf (stderr, "          -A ==> set architecture to 'arch'\n"

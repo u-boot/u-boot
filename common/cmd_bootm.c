@@ -449,8 +449,8 @@ U_BOOT_CMD(
  	bootm,	CFG_MAXARGS,	1,	do_bootm,
  	"bootm   - boot application image from memory\n",
  	"[addr [arg ...]]\n    - boot application image stored in memory\n"
- 	"        passing arguments 'arg ...'; when booting a Linux kernel,\n"
- 	"        'arg' can be the address of an initrd image\n"
+ 	"\tpassing arguments 'arg ...'; when booting a Linux kernel,\n"
+ 	"\t'arg' can be the address of an initrd image\n"
 );
 
 #ifdef CONFIG_SILENT_CONSOLE
@@ -574,11 +574,11 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		kbd->bi_intfreq /= 1000000L;
 		kbd->bi_busfreq /= 1000000L;
 #if defined(CONFIG_MPC8220)
-        kbd->bi_inpfreq /= 1000000L;
-        kbd->bi_pcifreq /= 1000000L;
-        kbd->bi_pevfreq /= 1000000L;
-        kbd->bi_flbfreq /= 1000000L;
-        kbd->bi_vcofreq /= 1000000L;
+	kbd->bi_inpfreq /= 1000000L;
+	kbd->bi_pcifreq /= 1000000L;
+	kbd->bi_pevfreq /= 1000000L;
+	kbd->bi_flbfreq /= 1000000L;
+	kbd->bi_vcofreq /= 1000000L;
 #endif
 #if defined(CONFIG_8260) || defined(CONFIG_MPC8560)
 		kbd->bi_cpmfreq /= 1000000L;

@@ -505,14 +505,14 @@ void board_init_f (ulong bootflag)
 
     /* store bootparam to sram (backward compatible), here? */
     {
-        u32 *sram = (u32 *)CFG_SRAM_BASE;
-        *sram++ = gd->ram_size;
-        *sram++ = gd->bus_clk;
-        *sram++ = gd->inp_clk;
-        *sram++ = gd->cpu_clk;
-        *sram++ = gd->vco_clk;
-        *sram++ = gd->flb_clk;
-        *sram++ = 0xb8c3ba11;  /* boot signature */
+	u32 *sram = (u32 *)CFG_SRAM_BASE;
+	*sram++ = gd->ram_size;
+	*sram++ = gd->bus_clk;
+	*sram++ = gd->inp_clk;
+	*sram++ = gd->cpu_clk;
+	*sram++ = gd->vco_clk;
+	*sram++ = gd->flb_clk;
+	*sram++ = 0xb8c3ba11;  /* boot signature */
     }
 #endif
 
