@@ -11,11 +11,6 @@
 #endif
 #endif
 
-#ifdef __CYGWIN__
-typedef unsigned short ushort;
-#endif /* __CYGWIN__ */
-
-
 typedef struct bitmap_s {		/* bitmap description */
 	uint16_t width;
 	uint16_t height;

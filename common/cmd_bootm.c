@@ -149,7 +149,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	uint	unc_len = 0x400000;
 	int	i, verify;
 	char	*name, *s;
-	int	(*appl)(cmd_tbl_t *, int, int, char *[]);
+	int	(*appl)(int, char *[]);
 	image_header_t *hdr = &header;
 
 	s = getenv ("verify");
@@ -251,21 +251,24 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	SHOW_BOOT_PROGRESS (5);
 
 	switch (hdr->ih_type) {
-	case IH_TYPE_STANDALONE:	name = "Standalone Application";
-					/* A second argument overwrites the load address */
-					if (argc > 2) {
-						hdr->ih_load = simple_strtoul(argv[2], NULL, 16);
-					}
-					break;
-	case IH_TYPE_KERNEL:		name = "Kernel Image";
-					break;
-	case IH_TYPE_MULTI:		name = "Multi-File Image";
-					len  = ntohl(len_ptr[0]);
-					/* OS kernel is always the first image */
-					data += 8; /* kernel_len + terminator */
-					for (i=1; len_ptr[i]; ++i)
-						data += 4;
-					break;
+	case IH_TYPE_STANDALONE:
+		name = "Standalone Application";
+		/* A second argument overwrites the load address */
+		if (argc > 2) {
+			hdr->ih_load = simple_strtoul(argv[2], NULL, 16);
+		}
+		break;
+	case IH_TYPE_KERNEL:
+		name = "Kernel Image";
+		break;
+	case IH_TYPE_MULTI:	
+		name = "Multi-File Image";
+		len  = ntohl(len_ptr[0]);
+		/* OS kernel is always the first image */
+		data += 8; /* kernel_len + terminator */
+		for (i=1; len_ptr[i]; ++i)
+			data += 4;
+		break;
 	default: printf ("Wrong Image Type for %s command\n", cmdtp->name);
 		SHOW_BOOT_PROGRESS (-5);
 		return 1;
@@ -362,8 +365,8 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			setenv("filesize", buf);
 			return 0;
 		}
-		appl = (int (*)(cmd_tbl_t *, int, int, char *[]))ntohl(hdr->ih_ep);
-		(*appl)(cmdtp, flag, argc-1, &argv[1]);
+		appl = (int (*)(int, char *[]))ntohl(hdr->ih_ep);
+		(*appl)(argc-1, &argv[1]);
 		return 0;
 	case IH_TYPE_KERNEL:
 	case IH_TYPE_MULTI:

@@ -2,6 +2,16 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Fix parameter passing to standalone images with bootm command
+
+* Patch by Kyle Harris, 30 Oct 2003:
+  Fix build errors for ixdp425 board
+
+* Patch by David M. Horn, 29 Oct 2003:
+  Fixes to build under CYGWIN
+
+* Get IceCube MGT5100 working (again)
+
 * Fix problems in memory test on some boards (which was not
   non-destructive as intended)
 

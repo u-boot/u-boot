@@ -30,6 +30,11 @@
 #include <common.h>
 #include <asm/arch/ixp425.h>
 
+ulong get_timer (ulong base)
+{
+       return get_timer_masked () - base;
+}
+
 void ixp425_udelay(unsigned long usec)
 {
 	/*
