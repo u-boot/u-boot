@@ -26,7 +26,8 @@
 #include <command.h>
 #include <malloc.h>
 
-/* ------------------------------------------------------------------------- */
+
+extern void lxt971_no_sleep(void);
 
 
 int board_early_init_f (void)
@@ -60,8 +61,6 @@ int board_early_init_f (void)
 }
 
 
-/* ------------------------------------------------------------------------- */
-
 int misc_init_f (void)
 {
 	return 0;  /* dummy implementation */
@@ -74,14 +73,10 @@ int misc_init_r (void)
 	volatile unsigned char *duart1_mcr = (unsigned char *)((ulong)DUART1_BA + 4);
 	volatile unsigned char *duart2_mcr = (unsigned char *)((ulong)DUART2_BA + 4);
 	volatile unsigned char *duart3_mcr = (unsigned char *)((ulong)DUART3_BA + 4);
-
-	/*
-	 * Reset external DUARTs
-	 */
-	out32(GPIO0_OR, in32(GPIO0_OR) | CFG_DUART_RST); /* set reset to high */
-	udelay(10); /* wait 10us */
-	out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_DUART_RST); /* set reset to low */
-	udelay(1000); /* wait 1ms */
+	volatile unsigned char *led_reg    = (unsigned char *)((ulong)DUART0_BA + 0x20);
+	unsigned long val;
+	int delay, flashcnt;
+	char *str;
 
 	/*
 	 * Enable interrupts in exar duart mcr[3]
@@ -91,11 +86,69 @@ int misc_init_r (void)
 	*duart2_mcr = 0x08;
 	*duart3_mcr = 0x08;
 
+        /*
+	 * Set RS232/RS422 control (RS232 = high on GPIO)
+	 */
+	val = in32(GPIO0_OR);
+	val &= ~(CFG_UART2_RS232 | CFG_UART3_RS232 | CFG_UART4_RS232 | CFG_UART5_RS232);
+
+	str = getenv("phys0");
+	if (!str || (str && (str[0] == '0')))
+		val |= CFG_UART2_RS232;
+
+	str = getenv("phys1");
+	if (!str || (str && (str[0] == '0')))
+		val |= CFG_UART3_RS232;
+
+	str = getenv("phys2");
+	if (!str || (str && (str[0] == '0')))
+		val |= CFG_UART4_RS232;
+
+	str = getenv("phys3");
+	if (!str || (str && (str[0] == '0')))
+		val |= CFG_UART5_RS232;
+
+	out32(GPIO0_OR, val);
+
 	/*
 	 * Set NAND-FLASH GPIO signals to default
 	 */
 	out32(GPIO0_OR, in32(GPIO0_OR) & ~(CFG_NAND_CLE | CFG_NAND_ALE));
 	out32(GPIO0_OR, in32(GPIO0_OR) | CFG_NAND_CE);
+
+	/*
+	 * check board type and setup AP power
+	 */
+	str = getenv("bd_type"); /* this is only set on non prototype hardware */
+	if (str != NULL) {
+		if ((strcmp(str, "swch405") == 0) || (strcmp(str, "hub405") == 0)) {
+			unsigned char led_reg_default = 0;
+			str = getenv("ap_pwr");
+			if (!str || (str && (str[0] == '1')))
+				led_reg_default = 0x04 | 0x02 ; /* U2_LED | AP_PWR */
+
+			/*
+			 * Flash LEDs on SWCH405
+			 */
+			for (flashcnt = 0; flashcnt < 3; flashcnt++) {
+				*led_reg = led_reg_default;        /* LED_A..D off */
+				for (delay = 0; delay < 100; delay++)
+					udelay(1000);
+				*led_reg = led_reg_default | 0xf0; /* LED_A..D on */
+				for (delay = 0; delay < 50; delay++)
+					udelay(1000);
+			}
+			*led_reg = led_reg_default;
+		}
+	}
+
+	/*
+	 * Reset external DUARTs
+	 */
+	out32(GPIO0_OR, in32(GPIO0_OR) | CFG_DUART_RST); /* set reset to high */
+	udelay(10); /* wait 10us */
+	out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_DUART_RST); /* set reset to low */
+	udelay(1000); /* wait 1ms */
 
 	return (0);
 }
@@ -104,7 +157,6 @@ int misc_init_r (void)
 /*
  * Check Board Identity:
  */
-
 int checkboard (void)
 {
 	unsigned char str[64];
@@ -120,10 +172,14 @@ int checkboard (void)
 
 	putc ('\n');
 
+	/*
+	 * Disable sleep mode in LXT971
+	 */
+	lxt971_no_sleep();
+
 	return 0;
 }
 
-/* ------------------------------------------------------------------------- */
 
 long int initdram (int board_type)
 {
@@ -140,7 +196,6 @@ long int initdram (int board_type)
 	return (4*1024*1024 << ((val & 0x000e0000) >> 17));
 }
 
-/* ------------------------------------------------------------------------- */
 
 int testdram (void)
 {
@@ -150,7 +205,6 @@ int testdram (void)
 	return (0);
 }
 
-/* ------------------------------------------------------------------------- */
 
 #if (CONFIG_COMMANDS & CFG_CMD_NAND)
 #include <linux/mtd/nand.h>
