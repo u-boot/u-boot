@@ -32,9 +32,10 @@ OBJS	= 3c589.o 5701rls.o ali512x.o \
 	  cs8900.o ct69000.o dataflash.o dc2114x.o dm9000x.o \
 	  e1000.o eepro100.o \
 	  i8042.o i82365.o inca-ip_sw.o keyboard.o \
-	  lan91c96.o natsemi.o netarm_eth.o netconsole.o \
+	  lan91c96.o \
+	  natsemi.o ne2000.o netarm_eth.o netconsole.o \
 	  ns16550.o ns8382x.o ns87308.o omap1510_i2c.o \
-	  pci.o pci_auto.o pci_indirect.o \
+	  omap24xx_i2c.o pci.o pci_auto.o pci_indirect.o \
 	  pcnet.o plb2800_eth.o \
 	  ps2ser.o ps2mult.o pc_keyb.o \
 	  rtl8019.o rtl8139.o rtl8169.o \

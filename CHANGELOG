@@ -2,6 +2,13 @@
 Changes for U-Boot 1.1.3:
 ======================================================================
 
+* Patches by Richard Woodruff, 01 Oct 2004:
+  add support for the TI OMAP2420 processor and its H4 reference
+  board
+
+* Patch by Christian Pellegrin, 24 Sep 2004:
+  Added support for NE2000 compatible (DP8390, DP83902) NICs.
+
 * Patch by Leif Lindholm, 23 Sep 2004:
   add support for the AMD db1550 board
 

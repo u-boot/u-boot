@@ -59,7 +59,14 @@ static int calc_divisor (void)
 		return (26);		/* return 26 for base divisor */
 	}
 #endif
-	return (CFG_NS16550_CLK / 16 / gd->baudrate);
+
+#ifdef CONFIG_APTIX
+#define MODE_X_DIV 13
+#else
+#define MODE_X_DIV 16
+#endif
+	return (CFG_NS16550_CLK / MODE_X_DIV / gd->baudrate);
+
 }
 
 int serial_init (void)

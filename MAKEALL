@@ -158,6 +158,11 @@ LIST_ARM9="	\
 "
 
 #########################################################################
+## ARM11 Systems
+#########################################################################
+LIST_ARM11="omap2420h4"
+
+#########################################################################
 ## Xscale Systems
 #########################################################################
 
@@ -170,7 +175,11 @@ LIST_pxa="	\
 LIST_ixp="ixdp425"
 
 
-LIST_arm="${LIST_SA} ${LIST_ARM7} ${LIST_ARM9} ${LIST_pxa} ${LIST_ixp}"
+LIST_arm="	\
+	${LIST_SA}							\
+	${LIST_ARM7} ${LIST_ARM9} ${LIST_ARM11}				\
+	${LIST_pxa} ${LIST_ixp}						\
+"
 
 #########################################################################
 ## MIPS Systems
@@ -238,7 +247,7 @@ for arg in $@
 do
 	case "$arg" in
 	ppc|5xx|5xxx|8xx|8220|824x|8260|85xx|4xx|7xx|74xx| \
-	arm|SA|ARM7|ARM9|pxa|ixp| \
+	arm|SA|ARM7|ARM9|ARM11|pxa|ixp| \
 	microblaze| \
 	mips| \
 	nios|nios2| \

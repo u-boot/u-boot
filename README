@@ -130,6 +130,7 @@ Directory Hierarchy:
     - s3c24x0	Files specific to Samsung S3C24X0 CPUs
   - arm925t	Files specific to ARM 925 CPUs
   - arm926ejs	Files specific to ARM 926 CPUs
+  - arm1136	Files specific to ARM 1136 CPUs
   - at91rm9200	Files specific to Atmel AT91RM9200 CPUs
   - i386	Files specific to i386 CPUs
   - ixp		Files specific to Intel XScale IXP CPUs
@@ -301,13 +302,13 @@ The following options need to be configured:
 		ARM based boards:
 		-----------------
 
-		CONFIG_AT91RM9200DK,		CONFIG_CERF250,		CONFIG_DNP1110,
-		CONFIG_EP7312,			CONFIG_H2_OMAP1610,	CONFIG_HHP_CRADLE,
-		CONFIG_IMPA7,		CONFIG_INNOVATOROMAP1510,	CONFIG_INNOVATOROMAP1610,
-		CONFIG_LART,			CONFIG_LPD7A400		CONFIG_LUBBOCK,
-		CONFIG_OSK_OMAP5912,		CONFIG_SHANNON,		CONFIG_P2_OMAP730,
-		CONFIG_SMDK2400,		CONFIG_SMDK2410,	CONFIG_TRAB,
-		CONFIG_VCMA9
+		CONFIG_AT91RM9200DK,	CONFIG_CERF250,		CONFIG_DNP1110,
+		CONFIG_EP7312,		CONFIG_H2_OMAP1610,	CONFIG_HHP_CRADLE,
+		CONFIG_IMPA7,		CONFIG_INNOVATOROMAP1510, CONFIG_INNOVATOROMAP1610,
+		CONFIG_LART,		CONFIG_LPD7A400		CONFIG_LUBBOCK,
+		CONFIG_OSK_OMAP5912,	CONFIG_OMAP2420H4,	CONFIG_SHANNON,
+		CONFIG_P2_OMAP730,	CONFIG_SMDK2400,	CONFIG_SMDK2410,
+		CONFIG_TRAB,		CONFIG_VCMA9
 
 		MicroBlaze based boards:
 		------------------------
@@ -2177,7 +2178,7 @@ configurations; the following names are supported:
 	FADS850SAR_config	omap1610h2_config	TQM850L_config
 	FADS860T_config		omap1610inn_config	TQM855L_config
 	FPS850L_config		omap5912osk_config	TQM860L_config
-							WALNUT405_config
+				omap2420h4_config	WALNUT405_config
 							Yukon8220_config
 							ZPC1900_config
 

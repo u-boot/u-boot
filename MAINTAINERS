@@ -382,6 +382,10 @@ Rishi Bhattacharya <rishi@ti.com>
 
 	omap5912osk		ARM926EJS
 
+Richard Woodruff <r-woodruff2@ti.com>
+	
+	omap2420h4		ARM1136EJS
+
 David Müller <d.mueller@elsoft.ch>
 
 	smdk2410		ARM920T

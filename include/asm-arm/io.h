@@ -35,10 +35,12 @@
  * to the architecture specific code.
  */
 #define __arch_getb(a)			(*(volatile unsigned char *)(a))
-#define __arch_getl(a)			(*(volatile unsigned int  *)(a))
+#define __arch_getw(a)			(*(volatile unsigned short *)(a))
+#define __arch_getl(a)			(*(volatile unsigned int *)(a))
 
 #define __arch_putb(v,a)		(*(volatile unsigned char *)(a) = (v))
-#define __arch_putl(v,a)		(*(volatile unsigned int  *)(a) = (v))
+#define __arch_putw(v,a)		(*(volatile unsigned short *)(a) = (v))
+#define __arch_putl(v,a)		(*(volatile unsigned int *)(a) = (v))
 
 extern void __raw_writesb(unsigned int addr, const void *data, int bytelen);
 extern void __raw_writesw(unsigned int addr, const void *data, int wordlen);

@@ -1,6 +1,9 @@
 /*
+ * January 2004 - Changed to support H4 device 
+ * Copyright (c) 2004 Texas Instruments 
+ *
  * (C) Copyright 2002
- * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ * Gary Jennejohn, DENX Software Engineering, <gj@denx.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -21,16 +24,35 @@
  * MA 02111-1307 USA
  */
 
-/* for now: just dummy functions to satisfy the linker */
-
-#include <common.h>
-
-void  flush_cache (unsigned long dummy1, unsigned long dummy2)
+OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
+OUTPUT_ARCH(arm)
+ENTRY(_start)
+SECTIONS
 {
-#ifdef CONFIG_OMAP2420
-	void arm1136_cache_flush(void);
+	. = 0x00000000;
 
-	arm1136_cache_flush();
-#endif
-	return;
+	. = ALIGN(4);
+	.text      :
+	{
+	  cpu/arm1136/start.o	(.text)
+	  *(.text)
+	}
+
+	. = ALIGN(4);
+	.rodata : { *(.rodata) }
+
+	. = ALIGN(4);
+	.data : { *(.data) }
+
+	. = ALIGN(4);
+	.got : { *(.got) }
+
+	__u_boot_cmd_start = .;
+	.u_boot_cmd : { *(.u_boot_cmd) }
+	__u_boot_cmd_end = .;
+
+	. = ALIGN(4);
+	__bss_start = .;
+	.bss : { *(.bss) }
+	_end = .;
 }

@@ -99,11 +99,7 @@ uchar env_get_char_spec (int index)
 int  env_init(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-
-	int crc1_ok =
-		(crc32(0, flash_addr->data, ENV_SIZE) == flash_addr->crc);
-	int crc2_ok =
-		(crc32(0, flash_addr_new->data, ENV_SIZE) == flash_addr_new->crc);
+	int crc1_ok = 0, crc2_ok = 0;
 
 	uchar flag1 = flash_addr->flags;
 	uchar flag2 = flash_addr_new->flags;
@@ -111,6 +107,16 @@ int  env_init(void)
 	ulong addr_default = (ulong)&default_environment[0];
 	ulong addr1 = (ulong)&(flash_addr->data);
 	ulong addr2 = (ulong)&(flash_addr_new->data);
+
+#ifdef CONFIG_OMAP2420H4
+	int flash_probe(void);
+
+	if(flash_probe() == 0)
+		goto bad_flash;
+#endif
+
+	crc1_ok = (crc32(0, flash_addr->data, ENV_SIZE) == flash_addr->crc);
+	crc2_ok = (crc32(0, flash_addr_new->data, ENV_SIZE) == flash_addr_new->crc);
 
 	if (crc1_ok && ! crc2_ok) {
 		gd->env_addr  = addr1;
@@ -138,6 +144,9 @@ int  env_init(void)
 		gd->env_valid = 2;
 	}
 
+#ifdef CONFIG_OMAP2420H4
+bad_flash:
+#endif
 	return (0);
 }
 
@@ -252,15 +261,22 @@ Done:
 int  env_init(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
+#ifdef CONFIG_OMAP2420H4
+	int flash_probe(void);
 
+	if(flash_probe() == 0)
+		goto bad_flash;
+#endif
 	if (crc32(0, env_ptr->data, ENV_SIZE) == env_ptr->crc) {
 		gd->env_addr  = (ulong)&(env_ptr->data);
 		gd->env_valid = 1;
-	} else {
-		gd->env_addr  = (ulong)&default_environment[0];
-		gd->env_valid = 0;
+		return(0);
 	}
-
+#ifdef CONFIG_OMAP2420H4
+bad_flash:
+#endif
+	gd->env_addr  = (ulong)&default_environment[0];
+	gd->env_valid = 0;
 	return (0);
 }
 
