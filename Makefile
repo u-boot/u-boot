@@ -796,7 +796,7 @@ shannon_config	:	unconfig
 ## ARM92xT Systems
 #########################################################################
 
-xtract_trab = $(subst _old,,$(subst _config,,$1))
+xtract_trab = $(subst _bigram,,$(subst _bigflash,,$(subst _old,,$(subst _config,,$1))))
 
 omap1510inn_config :	unconfig
 	@./mkconfig $(@:_config=) arm arm925t omap1510inn
@@ -811,11 +811,23 @@ smdk2410_config	:	unconfig
 	@./mkconfig $(@:_config=) arm arm920t smdk2410
 
 trab_config \
+trab_bigram_config \
+trab_bigflash_config \
 trab_old_config:	unconfig
 	@ >include/config.h
+	@[ -z "$(findstring _bigram,$@)" ] || \
+		{ echo "#define CONFIG_FLASH_8MB" >>include/config.h ; \
+		  echo "... with 8 MB Flash, 32 MB RAM" ; \
+		}
+	@[ -z "$(findstring _bigflash,$@)" ] || \
+		{ echo "#define CONFIG_RAM_16MB" >>include/config.h ; \
+		  echo "... with 16 MB Flash, 16 MB RAM" ; \
+		  echo "TEXT_BASE = 0x0CF00000" >board/trab/config.tmp ; \
+		}
 	@[ -z "$(findstring _old,$@)" ] || \
 		{ echo "#define CONFIG_OLD_VERSION" >>include/config.h ; \
 		  echo "... with small memory configuration" ; \
+		  echo "TEXT_BASE = 0x0CF00000" >board/trab/config.tmp ; \
 		}
 	@./mkconfig -a $(call xtract_trab,$@) arm arm920t trab
 
@@ -921,7 +933,7 @@ clean:
 	rm -f tools/gdb/astest tools/gdb/gdbcont tools/gdb/gdbsend
 	rm -f tools/env/fw_printenv tools/env/fw_setenv
 	rm -f board/cray/L1/bootscript.c board/cray/L1/bootscript.image
-	rm -f board/trab/trab_fkt
+	rm -f board/trab/trab_fkt board/trab/config.tmp
 
 clobber:	clean
 	find . -type f \

@@ -2,7 +2,8 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
-* Add auto-update code for TRAB board using USB memory sticks
+* Add auto-update code for TRAB board using USB memory sticks,
+  support new configuration with more memory
 
 * disable MPC5200 bus pipelining as workaround for bus contention
 

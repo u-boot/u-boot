@@ -53,20 +53,20 @@
 /*
  * Check whether a USB memory stick is plugged in.
  * If one is found:
- *	1) try to do an MSDOS ls
- *	2) if preinst.img is found and is not 0 length, load it into
- *		memory and run it (how to check beforehand if it's a
- *		valid HUSH command file?)
- *	3)
- *	4)
- *	5)
- *	6)
- *	7)
- *	8)
- *	9)
- *	10)
- *	11)
- *	12)
+ *	1) if prepare.img ist found load it into memory. If it is
+ *		valid then run it.
+ *	2) if preinst.img is found load it into memory. If it is
+ *		valid then run it. Update the EEPROM.
+ *	3) if firmware.img is found load it into memory. If it is valid,
+ *		burn it into FLASH and update the EEPROM.
+ *	4) if kernel.img is found load it into memory. If it is valid,
+ *		burn it into FLASH and update the EEPROM.
+ *	5) if app.img is found load it into memory. If it is valid,
+ *		burn it into FLASH and update the EEPROM.
+ *	6) if disk.img is found load it into memory. If it is valid,
+ *		burn it into FLASH and update the EEPROM.
+ *	7) if postinst.img is found load it into memory. If it is
+ *		valid then run it. Update the EEPROM.
  */
 
 #undef AU_DEBUG
@@ -87,8 +87,14 @@
 #define AU_DISK		"disk.img"
 #define AU_POSTINST	"postinst.img"
 
+struct flash_layout
+{
+	long start;
+	long end;
+};
+
 /* layout of the FLASH. ST = start address, ND = end address. */
-#ifndef CONFIG_OLD_VERSION			/* 16 MB Flash, 32 MB RAM */
+#ifndef CONFIG_FLASH_8MB			/* 16 MB Flash, 32 MB RAM */
 #define AU_FL_FIRMWARE_ST	0x00000000
 #define AU_FL_FIRMWARE_ND	0x0009FFFF
 #define AU_FL_VFD_ST		0x000A0000
@@ -110,14 +116,14 @@
 #define AU_FL_DISK_ND		0x007DFFFF
 #define AU_FL_VFD_ST		0x007E0000
 #define AU_FL_VFD_ND		0x007FFFFF
-#endif	/* CONFIG_OLD_VERSION */
+#endif	/* CONFIG_FLASH_8MB */
 
 /* a structure with the offsets to values in the EEPROM */
 struct eeprom_layout
 {
-	unsigned int time;
-	unsigned int size;
-	unsigned int dcrc;
+	int time;
+	int size;
+	int dcrc;
 };
 
 /* layout of the EEPROM - offset from the start. All entries are 32 bit. */
@@ -141,6 +147,15 @@ struct eeprom_layout
 #define AU_EEPROM_DCRC_POSTINST 132
 
 static int au_usb_stor_curr_dev; /* current device */
+
+/* index of each file in the following arrays */
+#define IDX_PREPARE	0
+#define IDX_PREINST	1
+#define IDX_FIRMWARE	2
+#define IDX_KERNEL	3
+#define IDX_APP		4
+#define IDX_DISK	5
+#define IDX_POSTINST	6
 /* max. number of files which could interest us */
 #define AU_MAXFILES 7
 /* pointers to file names */
@@ -157,16 +172,20 @@ struct eeprom_layout auee_off[AU_MAXFILES] = { \
 	{AU_EEPROM_TIME_DISK, AU_EEPROM_SIZE_DISK, AU_EEPROM_DCRC_DISK,}, \
 	{AU_EEPROM_TIME_POSTINST, AU_EEPROM_SIZE_POSTINST, AU_EEPROM_DCRC_POSTINST,} \
 	};
-/* index of each file in the above array */
-#define IDX_PREPARE	0
-#define IDX_PREINST	1
-#define IDX_FIRMWARE	2
-#define IDX_KERNEL	3
-#define IDX_APP		4
-#define IDX_DISK	5
-#define IDX_POSTINST	6
+/* array of flash areas start and end addresses */
+struct flash_layout aufl_layout[AU_MAXFILES - 3] = { \
+	{AU_FL_FIRMWARE_ST, AU_FL_FIRMWARE_ND,}, \
+	{AU_FL_KERNEL_ST, AU_FL_KERNEL_ND,}, \
+	{AU_FL_APP_ST, AU_FL_APP_ND,}, \
+	{AU_FL_DISK_ST, AU_FL_DISK_ND,}, \
+};
+/* convert the index into aufile[] to an index into aufl_layout[] */
+#define FIDX_TO_LIDX(idx) ((idx) - 2)
+
 /* where to load files into memory */
-#define LOAD_ADDR ((unsigned char *)0x0c100000)
+#define LOAD_ADDR ((unsigned char *)0x0C100100)
+/* where to build strings in memory - 256 bytes should be enough */
+#define STRING_ADDR ((char *)0x0C100000)
 /* the disk is the largest image */
 #define MAX_LOADSZ ausize[IDX_DISK]
 
@@ -180,9 +199,9 @@ extern int i2c_write (uchar, uint, int , uchar* , int);
 extern int trab_vfd (ulong);
 extern int transfer_pic(unsigned char, unsigned char *, int, int);
 #endif
-extern int i2c_write_multiple (uchar, uint, int, uchar *, int);
-extern int i2c_read_multiple (uchar, uint, int, uchar *, int);
-
+/* change char* to void* to shutup the compiler */
+extern int i2c_write_multiple (uchar, uint, int, void *, int);
+extern int i2c_read_multiple (uchar, uint, int, void *, int);
 
 int
 au_check_valid(int idx, long nbytes)
@@ -193,6 +212,7 @@ au_check_valid(int idx, long nbytes)
 
 	hdr = (image_header_t *)LOAD_ADDR;
 	/* check the easy ones first */
+#undef CHECK_VALID_DEBUG
 #ifdef CHECK_VALID_DEBUG
 	printf("magic %#x %#x ", ntohl(hdr->ih_magic), IH_MAGIC);
 	printf("arch %#x %#x ", hdr->ih_arch, IH_CPU_ARM);
@@ -202,7 +222,7 @@ au_check_valid(int idx, long nbytes)
 	if (ntohl(hdr->ih_magic) != IH_MAGIC ||
 		hdr->ih_arch != IH_CPU_ARM ||
 		nbytes < ntohl(hdr->ih_size)) {
-	    printf ("Image %s Bad MAGIC or ARCH or SIZE\n", aufile[idx]);
+	    printf ("Image %s bad MAGIC or ARCH or SIZE\n", aufile[idx]);
 	    return -1;
 	}
 	/* check the hdr CRC */
@@ -210,7 +230,7 @@ au_check_valid(int idx, long nbytes)
 	hdr->ih_hcrc = 0;
 
 	if (crc32 (0, (char *)hdr, sizeof(*hdr)) != checksum) {
-	    printf ("Image %s Bad Header Checksum\n", aufile[idx]);
+	    printf ("Image %s bad header checksum\n", aufile[idx]);
 	    return -1;
 	}
 	/* check the data CRC */
@@ -219,28 +239,28 @@ au_check_valid(int idx, long nbytes)
 	if (crc32 (0, (char *)(LOAD_ADDR + sizeof(*hdr)), ntohl(hdr->ih_size))
 		!= checksum)
 	{
-	    printf ("Image %s Bad Data Checksum\n", aufile[idx]);
+	    printf ("Image %s bad data checksum\n", aufile[idx]);
 	    return -1;
 	}
 	/* check the type - could do this all in one gigantic if() */
 	if ((idx == IDX_FIRMWARE) && (hdr->ih_type != IH_TYPE_FIRMWARE)) {
-	    printf ("Image %s Wrong Type\n", aufile[idx]);
+	    printf ("Image %s wrong type\n", aufile[idx]);
 	    return -1;
 	}
 	if ((idx == IDX_KERNEL) && (hdr->ih_type != IH_TYPE_KERNEL)) {
-	    printf ("Image %s Wrong Type\n", aufile[idx]);
+	    printf ("Image %s wrong type\n", aufile[idx]);
 	    return -1;
 	}
 	if ((idx == IDX_DISK || idx == IDX_APP)
 		&& (hdr->ih_type != IH_TYPE_RAMDISK))
 	{
-	    printf ("Image %s Wrong Type\n", aufile[idx]);
+	    printf ("Image %s wrong type\n", aufile[idx]);
 	    return -1;
 	}
 	if ((idx == IDX_PREPARE || idx == IDX_PREINST || idx == IDX_POSTINST)
 		&& (hdr->ih_type != IH_TYPE_SCRIPT))
 	{
-	    printf ("Image %s Wrong Type\n", aufile[idx]);
+	    printf ("Image %s wrong type\n", aufile[idx]);
 	    return -1;
 	}
 	/* special case for prepare.img */
@@ -272,20 +292,88 @@ buf[0], buf[1], buf[2], buf[3], *((unsigned int *)buf), ntohl(hdr->ih_time));
 #define POWER_OFF (1 << 1)
 
 int
-au_do_update(int idx)
+au_do_update(int idx, long sz)
 {
 	image_header_t *hdr;
 	char *addr;
+	long start, end;
+	char *strbuf = STRING_ADDR;
+	int off;
+	uint nbytes;
 
 	hdr = (image_header_t *)LOAD_ADDR;
+
 	/* disable the power switch */
 	*CPLD_VFD_BK |= POWER_OFF;
+
 	/* execute a script */
 	if (hdr->ih_type == IH_TYPE_SCRIPT) {
 		addr = (char *)((char *)hdr + sizeof(*hdr) + 8);
 		parse_string_outer(addr,
 			FLAG_PARSE_SEMICOLON | FLAG_EXIT_FROM_LOOP);
 		return 0;
+	}
+
+	start = aufl_layout[FIDX_TO_LIDX(idx)].start;
+	end = aufl_layout[FIDX_TO_LIDX(idx)].end;
+
+	/* unprotect the address range */
+	/* this assumes that ONLY the firmware is protected! */
+	if (idx == IDX_FIRMWARE) {
+#undef AU_UPDATE_TEST
+#ifdef AU_UPDATE_TEST
+		/* erase it where Linux goes */
+		start = aufl_layout[1].start;
+		end = aufl_layout[1].end;
+#endif
+		debug ("protect off %lx %lx\n", start, end);
+		sprintf(strbuf, "protect off %lx %lx\n", start, end);
+		parse_string_outer(strbuf,
+			FLAG_PARSE_SEMICOLON | FLAG_EXIT_FROM_LOOP);
+	}
+
+	/* erase the address range */
+	debug ("erase %lx %lx\n", start, end);
+	sprintf(strbuf, "erase %lx %lx\n", start, end);
+	parse_string_outer(strbuf,
+		FLAG_PARSE_SEMICOLON | FLAG_EXIT_FROM_LOOP);
+
+	/* strip the header - except for the kernel */
+	if (idx == IDX_FIRMWARE || idx == IDX_DISK || idx == IDX_APP) {
+		addr = (char *)((char *)hdr + sizeof(*hdr));
+#ifdef AU_UPDATE_TEST
+		/* copy it to where Linux goes */
+		if (idx == IDX_FIRMWARE)
+			start = aufl_layout[1].start;
+#endif
+		off = 0;
+		nbytes = ntohl(hdr->ih_size);
+	} else {
+		addr = (char *)hdr;
+		off = sizeof(*hdr);
+		nbytes = sizeof(*hdr) + ntohl(hdr->ih_size);
+	}
+
+	/* copy the data from RAM to FLASH */
+	debug ("cp.b %p %lx %x\n", addr, start, nbytes);
+	sprintf(strbuf, "cp.b %p %lx %x\n", addr, start, nbytes);
+	parse_string_outer(strbuf,
+		FLAG_PARSE_SEMICOLON | FLAG_EXIT_FROM_LOOP);
+
+	/* check the dcrc of the copy */
+	if (crc32 (0, (char *)(start + off), ntohl(hdr->ih_size))
+		!= ntohl(hdr->ih_dcrc)) {
+	    printf ("Image %s Bad Data Checksum After COPY\n", aufile[idx]);
+	    return -1;
+	}
+
+	/* protect the address range */
+	/* this assumes that ONLY the firmware is protected! */
+	if (idx == IDX_FIRMWARE) {
+		printf("protect on %lx %lx\n", start, end);
+		sprintf(strbuf, "protect on %lx %lx\n", start, end);
+		parse_string_outer(strbuf,
+			FLAG_PARSE_SEMICOLON | FLAG_EXIT_FROM_LOOP);
 	}
 	return 0;
 }
@@ -294,8 +382,22 @@ int
 au_update_eeprom(int idx)
 {
 	image_header_t *hdr;
+	int off;
+	uint32_t val;
 
 	hdr = (image_header_t *)LOAD_ADDR;
+	/* write the time field into EEPROM */
+	off = auee_off[idx].time;
+	val = ntohl(hdr->ih_time);
+	i2c_write_multiple(0x54, off, 1, &val, sizeof(val));
+	/* write the size field into EEPROM */
+	off = auee_off[idx].size;
+	val = ntohl(hdr->ih_size);
+	i2c_write_multiple(0x54, off, 1, &val, sizeof(val));
+	/* write the dcrc field into EEPROM */
+	off = auee_off[idx].dcrc;
+	val = ntohl(hdr->ih_dcrc);
+	i2c_write_multiple(0x54, off, 1, &val, sizeof(val));
 	/* enable the power switch */
 	*CPLD_VFD_BK &= ~POWER_OFF;
 	return 0;
@@ -311,9 +413,10 @@ do_auto_update(void)
 {
 	block_dev_desc_t *stor_dev;
 	long sz;
-	int i, res, bitmap_first;
+	int i, res, bitmap_first, cnt;
 	char *env;
 
+#undef ERASE_EEPROM
 #ifdef ERASE_EEPROM
 	int arr[18];
 	memset(arr, 0, sizeof(arr));
@@ -352,6 +455,7 @@ do_auto_update(void)
 	if (file_fat_detectfs() != 0) {
 		debug ("file_fat_detectfs failed\n");
 	}
+
 	/* initialize the array of file names */
 	memset(aufile, 0, sizeof(aufile));
 	aufile[IDX_PREPARE] = AU_PREPARE;
@@ -404,11 +508,19 @@ do_auto_update(void)
 #endif
 		/* this is really not a good idea, but it's what the */
 		/* customer wants. */
+		cnt = 0;
 		do {
-			res = au_do_update(i);
+			res = au_do_update(i, sz);
+#ifdef AU_TEST_ONLY
+			cnt++;
+		} while (res < 0 && cnt < 3);
+		if (cnt < 3)
+#else
 		} while (res < 0);
+#endif
 		au_update_eeprom(i);
 	}
+	usb_stop();
 	return 0;
 }
 #endif /* CONFIG_AUTO_UPDATE */

@@ -157,7 +157,7 @@ static void display_flash_config (ulong size)
 /*
  * Breath some life into the board...
  *
- * Initialize an SMC for serial comms, and carry out some hardware
+ * Initialize a serial port as console, and carry out some hardware
  * tests.
  *
  * The first part of initialization is running from Flash memory;

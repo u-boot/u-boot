@@ -5,7 +5,7 @@
  *                     Jan-Derk Bakker (J.D.Bakker@its.tudelft.nl)
  *
  * Modified for the TRAB board by
- * (C) Copyright 2002
+ * (C) Copyright 2002-2003
  * Gary Jennejohn, DENX Software Engineering, <gj@denx.de>
  *
  * See file CREDITS for list of people who contributed to this
@@ -101,6 +101,17 @@
 #define B5_Tacp	0x0
 #define B5_PMC	0x0	/* normal */
 
+#ifndef CONFIG_RAM_16MB		/* 32 MB RAM */
+/* Bank6 */
+#define	B6_MT	0x3	/* SDRAM */
+#define	B6_Trcd	0x1	/* 3clk */
+#define	B6_SCAN	0x1	/* 9 bit */
+
+/* Bank7 */
+#define	B7_MT	0x3	/* SDRAM */
+#define	B7_Trcd	0x1	/* 3clk */
+#define	B7_SCAN	0x1	/* 9 bit */
+#else	/* CONFIG_RAM_16MB	=  16 MB RAM */
 /* Bank6 */
 #define	B6_MT	0x3	/* SDRAM */
 #define	B6_Trcd	0x1	/* 2clk */
@@ -110,6 +121,7 @@
 #define	B7_MT	0x3	/* SDRAM */
 #define	B7_Trcd	0x1	/* 2clk */
 #define	B7_SCAN	0x0	/* 8 bit */
+#endif	/* CONFIG_RAM_16MB */
 
 /* refresh parameter */
 #define REFEN	0x1	/* enable refresh */
@@ -161,6 +173,10 @@ SMRDATA:
 	.word	((B6_MT<<15)+(B6_Trcd<<2)+(B6_SCAN)) /* GCS6 */
 	.word	((B7_MT<<15)+(B7_Trcd<<2)+(B7_SCAN)) /* GCS7 */
 	.word	((REFEN<<23)+(TREFMD<<22)+(Trp<<20)+(Trc<<18)+(Tchr<<16)+REFCNT)
+#ifndef CONFIG_RAM_16MB		/* 32 MB RAM */
+	.word	0x10	/* BUSWIDTH=32, SCLK power saving mode, BANKSIZE 32M/32M */
+#else	/* CONFIG_RAM_16MB	=  16 MB RAM */
 	.word	0x17	/* BUSWIDTH=32, SCLK power saving mode, BANKSIZE 16M/16M */
+#endif	/* CONFIG_RAM_16MB */
 	.word	0x30	/* MRSR6, CL=3clk */
 	.word	0x30	/* MRSR7 */

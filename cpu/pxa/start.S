@@ -61,9 +61,6 @@ _fiq:			.word fiq
  * - jump to second stage
  */
 
-/*
- * CFG_MEM_END is in the board dependent config-file (configs/config_BOARD.h)
- */
 _TEXT_BASE:
 	.word	TEXT_BASE
 

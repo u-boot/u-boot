@@ -1199,7 +1199,7 @@ int submit_common_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	/* ohci_dump_status(&gohci); */
 	
 	/* allow more time for a BULK device to react - some are slow */
-#define BULK_TO	 2000	/* timeout in milliseconds */
+#define BULK_TO	 5000	/* timeout in milliseconds */
 	if (usb_pipetype (pipe) == PIPE_BULK)
 		timeout = BULK_TO;
 	else

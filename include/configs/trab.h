@@ -26,6 +26,11 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#ifdef CONFIG_OLD_VERSION		/* Old configuration:		*/
+#define	CONFIG_RAM_16MB			/*	16 MB SDRAM		*/
+#define CONFIG_FLASH_8MB		/*	 8 MB Flash		*/
+#endif
+
 /*
  * If we are developing, we might want to start armboot from ram
  * so we MUST NOT initialize critical regs like mem-timing ...
@@ -179,7 +184,7 @@
 #define CONFIG_SERVERIP		192.168.3.1
 #define CONFIG_BOOTCOMMAND	"run flash_nfs"
 
-#ifndef CONFIG_OLD_VERSION	/* current config: 16 MB flash, 32 MB RAM */
+#ifndef CONFIG_FLASH_8MB	/* current config: 16 MB flash */
 #ifdef CFG_HUSH_PARSER
 #define	CONFIG_EXTRA_ENV_SETTINGS	\
 	"nfs_args=setenv bootargs root=/dev/nfs rw " \
@@ -225,7 +230,7 @@
 	"mdm_init2=ATS0=1\0" \
 	"mdm_flow_control=rts/cts\0"
 #endif	/* CFG_HUSH_PARSER */
-#else		/* CONFIG_OLD_VERSION  => 8 MB flash, 16 MB RAM */
+#else	/* CONFIG_FLASH_8MB 	 => 8 MB flash */
 #ifdef CFG_HUSH_PARSER
 #define	CONFIG_EXTRA_ENV_SETTINGS	\
 	"nfs_args=setenv bootargs root=/dev/nfs rw " \
@@ -273,7 +278,7 @@
 	"mdm_init2=ATS0=1\0" \
 	"mdm_flow_control=rts/cts\0"
 #endif /* CFG_HUSH_PARSER */
-#endif	/* CONFIG_OLD_VERSION */
+#endif	/* CONFIG_FLASH_8MB */
 
 #if 0	/* disabled for development */
 #define	CONFIG_AUTOBOOT_KEYED		/* Enable password protection	*/
@@ -346,7 +351,7 @@
  */
 #define CONFIG_NR_DRAM_BANKS	1		/* we have 1 bank of DRAM */
 #define PHYS_SDRAM_1		0x0C000000	/* SDRAM Bank #1 */
-#ifndef CONFIG_OLD_VERSION
+#ifndef CONFIG_RAM_16MB
 #define PHYS_SDRAM_1_SIZE	0x02000000	/* 32 MB */
 #else
 #define PHYS_SDRAM_1_SIZE	0x01000000	/* 16 MB */
@@ -362,7 +367,7 @@
  * FLASH and environment organization
  */
 #define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks */
-#ifndef CONFIG_OLD_VERSION
+#ifndef CONFIG_FLASH_8MB
 #define CFG_MAX_FLASH_SECT	128	/* max number of sectors on one chip */
 #else
 #define CFG_MAX_FLASH_SECT	71	/* max number of sectors on one chip */
@@ -375,7 +380,7 @@
 #define	CFG_ENV_IS_IN_FLASH	1
 
 /* Address and size of Primary Environment Sector	*/
-#ifndef CONFIG_OLD_VERSION
+#ifndef CONFIG_FLASH_8MB
 #define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x60000)
 #define CFG_ENV_SIZE		0x4000
 #define CFG_ENV_SECT_SIZE	0x20000
