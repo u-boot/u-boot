@@ -29,6 +29,7 @@
 /*cmd_boot.c*/
 
 extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+extern void lxt971_no_sleep(void);
 
 
 /* ------------------------------------------------------------------------- */
@@ -157,12 +158,11 @@ int checkboard (void)
 
 	puts ("Board: ");
 
-	if (!i || strncmp (str, "CPCIISER4", 9)) {
-		puts ("### No HW ID - assuming CPCIISER4\n");
-		return (0);
+	if (i == -1) {
+		puts ("### No HW ID - assuming AR405");
+	} else {
+		puts(str);
 	}
-
-	puts (str);
 
 	puts ("\nFPGA:  ");
 
@@ -175,6 +175,11 @@ int checkboard (void)
 	}
 
 	putc ('\n');
+
+	/*
+	 * Disable sleep mode in LXT971
+	 */
+	lxt971_no_sleep();
 
 	return 0;
 }
