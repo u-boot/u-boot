@@ -1,5 +1,15 @@
 ======================================================================
-Changes for U-Boot 0.4.5:
+Changes for U-Boot 0.4.7:
+======================================================================
+
+* Fix ICU862 environment problem
+
+* Fix RAM size detection for RMU board
+
+* Implement "reset" for MGT5100/MPC5200 systems
+
+======================================================================
+Changes for U-Boot 0.4.6:
 ======================================================================
 
 * Make Ethernet autonegotiation on INCA-IP work for all clock rates;
@@ -13,6 +23,10 @@ Changes for U-Boot 0.4.5:
 
 * Patch by Richard Woodruff, 8 Aug 2003:
   Allow crc32 to be used at address 0x000 (crc32_no_comp, too).
+
+======================================================================
+Changes for U-Boot 0.4.5:
+======================================================================
 
 * Update for TQM board defaults:
   disable clocks_in_mhz, enable boot count limit

@@ -96,7 +96,7 @@ long int initdram (int board_type)
 {
     volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
     volatile memctl8xx_t *memctl = &immap->im_memctl;
-    long int size10 ;
+    long int size9 ;
 
     upmconfig(UPMA, (uint *)sdram_table, sizeof(sdram_table)/sizeof(uint));
 
@@ -109,7 +109,7 @@ long int initdram (int board_type)
     memctl->memc_or1 = CFG_OR1_PRELIM;
     memctl->memc_br1 = CFG_BR1_PRELIM;
 
-    memctl->memc_mamr = CFG_MAMR_10COL & (~(MAMR_PTAE)); /* no refresh yet */
+    memctl->memc_mamr = CFG_MAMR_9COL & (~(MAMR_PTAE)); /* no refresh yet */
 
     udelay(200);
 
@@ -122,13 +122,20 @@ long int initdram (int board_type)
 
     udelay (1000);
 
-	/* Check Bank 0 Memory Size
-	 * try 10 column mode
+	/* Check Bank 0 Memory Size,
+	 * 9 column mode
 	 */
 
-	size10 = dram_size (CFG_MAMR_10COL, (ulong *)SDRAM_BASE_PRELIM, SDRAM_MAX_SIZE) ;
+	size9 = dram_size (CFG_MAMR_9COL, (ulong *)SDRAM_BASE_PRELIM, SDRAM_MAX_SIZE) ;
 
-    return (size10);
+	/*
+	 * Final mapping:
+	 */
+
+	memctl->memc_or1 = ((-size9) & 0xFFFF0000) | CFG_OR_TIMING_SDRAM;
+	udelay (1000);
+
+    return (size9);
 }
 
 /* ------------------------------------------------------------------------- */

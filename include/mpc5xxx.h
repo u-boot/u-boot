@@ -78,6 +78,7 @@
 #define MPC5XXX_CDM		(CFG_MBAR + 0x0200)
 #define MPC5XXX_LPB		(CFG_MBAR + 0x0300)
 #define MPC5XXX_ICTL		(CFG_MBAR + 0x0500)
+#define MPC5XXX_GPT		(CFG_MBAR + 0x0600)
 #define MPC5XXX_GPIO		(CFG_MBAR + 0x0b00)
 #define MPC5XXX_PCI		(CFG_MBAR + 0x0d00)
 #define MPC5XXX_SDMA		(CFG_MBAR + 0x1200)
@@ -182,6 +183,10 @@
 #define MPC5XXX_ICTL_MAIN_STS	(MPC5XXX_ICTL + 0x002c)
 #define MPC5XXX_ICTL_PER_STS	(MPC5XXX_ICTL + 0x0030)
 #define MPC5XXX_ICTL_BUS_STS	(MPC5XXX_ICTL + 0x0038)
+
+/* General Purpose Timers registers */
+#define MPC5XXX_GPT0_ENABLE		(MPC5XXX_GPT + 0x0)
+#define MPC5XXX_GPT0_COUNTER		(MPC5XXX_GPT + 0x4)
 
 /* Programmable Serial Controller (PSC) status register bits */
 #define PSC_SR_CDE		0x0080

@@ -54,31 +54,17 @@ int checkcpu (void)
 int
 do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
-	ulong msr, addr;
-
-	*(vu_long *)MPC5XXX_CDM_SRESET &= ~(1 << 16);	/* Checkstop Reset enable */
-
+	ulong msr;
 	/* Interrupts and MMU off */
 	__asm__ __volatile__ ("mfmsr    %0":"=r" (msr):);
 
 	msr &= ~(MSR_ME | MSR_EE | MSR_IR | MSR_DR);
 	__asm__ __volatile__ ("mtmsr    %0"::"r" (msr));
 
-	/*
-	 * Trying to execute the next instruction at a non-existing address
-	 * should cause a machine check, resulting in reset
-	 */
-#ifdef CFG_RESET_ADDRESS
-	addr = CFG_RESET_ADDRESS;
-#else
-	/*
-	 * note: when CFG_MONITOR_BASE points to a RAM address, CFG_MONITOR_BASE
-	 * - sizeof (ulong) is usually a valid address. Better pick an address
-	 * known to be invalid on your system and assign it to CFG_RESET_ADDRESS.
-	 */
-	addr = CFG_MONITOR_BASE - sizeof (ulong);
-#endif
-	((void (*)(void)) addr) ();
+	/* Charge the watchdog timer */
+	*(vu_long *)(MPC5XXX_GPT0_COUNTER) = 0xf;
+	*(vu_long *)(MPC5XXX_GPT0_ENABLE) = 0x9004; /* wden|ce|timer_ms */
+
 	return 1;
 
 }

@@ -25,6 +25,7 @@
 #include <mpc5xxx.h>
 #include <pci.h>
 
+#ifndef CFG_RAMBOOT
 static long int dram_size(long int *base, long int maxsize)
 {
 	volatile long int *addr;
@@ -86,11 +87,14 @@ static void sdram_start (int hi_addr)
 	/* normal operation */
 	*(vu_long *)MPC5XXX_SDRAM_CTRL = 0x504f0000 | hi_addr_bit;
 }
+#endif
 
 long int initdram (int board_type)
 {
-	ulong test1, test2, dramsize = 0;
+	ulong dramsize = 0;
 #ifndef CFG_RAMBOOT
+	ulong test1, test2;
+
 	/* configure SDRAM start/end */
 #if defined(CONFIG_MPC5200)
 	*(vu_long *)MPC5XXX_SDRAM_CS0CFG = 0x0000001e;/* 2G at 0x0 */
@@ -133,8 +137,11 @@ long int initdram (int board_type)
 #else
 #ifdef CONFIG_MGT5100
 	*(vu_long *)MPC5XXX_ADDECR |= (1 << 22); /* Enable SDRAM */
+	dramsize = ((*(vu_long *)MPC5XXX_SDRAM_STOP + 1) << 15);
+#else
+	dramsize = ((1 << (*(vu_long *)MPC5XXX_SDRAM_CS0CFG - 0x13)) << 20);
 #endif
-#endif
+#endif /* CFG_RAMBOOT */
 	/* return total ram size */
 	return dramsize;
 }

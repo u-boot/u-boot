@@ -291,12 +291,12 @@
  *
  */
 #define SDRAM_BASE_PRELIM	0x00000000	/* SDRAM base	*/
-#define	SDRAM_MAX_SIZE		0x01000000	/* max 16 MB */
+#define	SDRAM_MAX_SIZE		0x08000000	/* max 128 MB */
 
 /* SDRAM timing: Multiplexed addresses, GPL5 output to GPL5_A (don't care)	*/
 #define CFG_OR_TIMING_SDRAM	0x00000E00
 
-#define CFG_OR1_PRELIM	(CFG_PRELIM_OR_AM | CFG_OR_TIMING_SDRAM )
+#define CFG_OR1_PRELIM	(0xF0000000 | CFG_OR_TIMING_SDRAM ) /* map 256 MB */
 #define CFG_BR1_PRELIM	((SDRAM_BASE_PRELIM & BR_BA_MSK) | BR_MS_UPMA | BR_V )
 
 /* RPXLITE mem setting */
@@ -321,8 +321,8 @@
  * MAMR settings for SDRAM
  */
 
-/* 10 column SDRAM */
-#define CFG_MAMR_10COL	((CFG_MAMR_PTA << MAMR_PTA_SHIFT)  | MAMR_PTAE	    |	\
+/* 9 column SDRAM */
+#define CFG_MAMR_9COL	((CFG_MAMR_PTA << MAMR_PTA_SHIFT)  | MAMR_PTAE	    |	\
 			 MAMR_AMA_TYPE_1 | MAMR_DSA_1_CYCL | MAMR_G0CLA_A10 |	\
 			 MAMR_RLFA_16X | MAMR_WLFA_16X | MAMR_TLFA_16X)
 

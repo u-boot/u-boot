@@ -131,9 +131,7 @@
  */
 #define CFG_MBAR		0xf0000000
 #define CFG_SDRAM_BASE		0x00000000
-#ifdef CONFIG_MPC5200
 #define CFG_DEFAULT_MBAR	0x80000000
-#endif
 
 /* Use SRAM until RAM will be available */
 #define CFG_INIT_RAM_ADDR	MPC5XXX_SRAM

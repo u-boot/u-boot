@@ -196,7 +196,7 @@
 #define	CFG_MONITOR_LEN		(192 << 10)	/* Reserve 192 kB for Monitor	*/
 #endif
 #else
-#define CFG_MONITOR_LEN (272 << 10) /* Reserve 272 kB for Monitor */
+#define CFG_MONITOR_LEN (256 << 10) /* Reserve 256 kB for Monitor */
 #endif
 #define CFG_MONITOR_BASE	TEXT_BASE
 #define	CFG_MALLOC_LEN		(256 << 10)	/* Reserve 256 kB for malloc()	*/

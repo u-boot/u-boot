@@ -136,11 +136,6 @@ SECTIONS
    *(.bss)
    *(COMMON)
   }
-  . = ALIGN(256 * 1024);
-  .ppcenv	:
-  {
-    common/environment.o (.ppcenv)
-  }
   _end = . ;
   PROVIDE (end = .);
 }
