@@ -27,6 +27,7 @@ Changes for U-Boot 1.1.1:
     skips over bad blocks.
   - add networking support for VLANs (802.1q), and CDP (Cisco
     Discovery Protocol)
+  - some minor patches / cleanup
 
 * Patch by Yuli Barcohen, 28 Mar 2004:
   - Add support for MPC8272 family including MPC8247/8248/8271/8272
