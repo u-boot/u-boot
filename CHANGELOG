@@ -2,6 +2,13 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by George G. Davis, 06 Jul 2004:
+  - update mach-types.h to latest arm.linux.org.uk master list
+  - Set correct OMAP1610 bi_arch_number for build target
+
+* Patch by Curt Brune, 06 Jul 2004:
+  evb4510: add support for timer interrupt; cleanup
+
 * Patch by Dan Poirot, 06 Jul 2004:
   Fix sbc8260 environment variables
 

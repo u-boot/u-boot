@@ -44,7 +44,9 @@
 #define CONFIG_S3C4510B		1	/* it's a S3C4510B chip	 */
 #define CONFIG_EVB4510		1	/* on an EVB4510 Board	 */
 
-#undef CONFIG_USE_IRQ			/* don't need them anymore */
+#define CONFIG_USE_IRQ
+#define CONFIG_STACKSIZE_IRQ    (4*1024)
+#define CONFIG_STACKSIZE_FIQ    (4*1024)
 
 /*
  * Size of malloc() pool
@@ -63,7 +65,7 @@
 /*
  * select serial console configuration
  */
-#define CONFIG_SERIAL1		2	/* we use Serial line 2, could also use 1 */
+#define CONFIG_SERIAL1		1	/* we use Serial line 1, could also use 2 */
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
@@ -83,10 +85,9 @@
 #define CONFIG_SERVERIP		10.0.0.1
 #define CONFIG_CMDLINE_TAG	/* submit bootargs to kernel */
 
-/*#define CONFIG_BOOTDELAY	10*/
-/* args and cmd for uClinux-image @ 0x10020000, ramdisk-image @ 0x100a0000 */
-#define CONFIG_BOOTCOMMAND	"bootm 0x10020000 0x100a0000"
-#define CONFIG_BOOTARGS		"console=ttyS0,19200 initrd=0x100a0040,530K root=/dev/ram keepinitrd"
+#define CONFIG_BOOTDELAY	2
+#define CONFIG_BOOTCOMMAND	"tftp 100000 uImage"
+/* #define CONFIG_BOOTARGS    	"console=ttyS0,19200 initrd=0x100a0040,530K root=/dev/ram keepinitrd" */
 
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	19200		/* speed to run kgdb serial port */
@@ -103,6 +104,10 @@
 #define CFG_MAXARGS		16		/* max number of command args */
 #define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size */
 
+#define CONFIG_CMDLINE_TAG                      /* allow passing of command line args to linux */
+#define CONFIG_SETUP_MEMORY_TAGS
+#define CONFIG_INITRD_TAG
+
 #define CFG_MEMTEST_START	0x00000000	/* memtest works on	*/
 #define CFG_MEMTEST_END		0x00780000	/* 4 ... 8 MB in DRAM	*/
 
@@ -110,7 +115,8 @@
 
 #define CFG_LOAD_ADDR		0x00000000	/* default load address */
 
-#define CFG_HZ			50000000	/* decrementer freq: 50 MHz */
+#define CFG_SYS_CLK_FREQ	50000000	/* CPU freq: 50 MHz */
+#define CFG_HZ			1000		/* decrementer freq: 1 KHz */
 
 						/* valid baudrates */
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
@@ -159,6 +165,6 @@
 
 #define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x20000) /* environment start address */
 #define CFG_ENV_SECT_SIZE	0x10000	   /* Total Size of Environment Sector */
-#define CFG_ENV_SIZE		0x4000	   /* max size for environment */
+#define CFG_ENV_SIZE		0x1000	   /* max size for environment */
 
 #endif	/* __CONFIG_H */

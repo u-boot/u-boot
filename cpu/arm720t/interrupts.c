@@ -46,6 +46,15 @@ extern void reset_cpu(ulong addr);
 #define READ_TIMER (TM2STAT & NETARM_GEN_TSTAT_CTC_MASK)
 #endif
 
+#ifdef CONFIG_S3C4510B
+/* require interrupts for the S3C4510B */
+# ifndef CONFIG_USE_IRQ
+#  error CONFIG_USE_IRQ _must_ be defined when using CONFIG_S3C4510B
+# else
+static struct _irq_handler IRQ_HANDLER[N_IRQS];
+# endif
+#endif	/* CONFIG_S3C4510B */
+
 #ifdef CONFIG_USE_IRQ
 /* enable IRQ/FIQ interrupts */
 void enable_interrupts (void)
@@ -75,7 +84,7 @@ int disable_interrupts (void)
 			     : "memory");
 	return (old & 0x80) == 0;
 }
-#else
+#else /* CONFIG_USE_IRQ */
 void enable_interrupts (void)
 {
 	return;
@@ -85,7 +94,6 @@ int disable_interrupts (void)
 	return 0;
 }
 #endif
-
 
 void bad_mode (void)
 {
@@ -174,10 +182,41 @@ void do_fiq (struct pt_regs *pt_regs)
 
 void do_irq (struct pt_regs *pt_regs)
 {
+#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) || defined(CONFIG_NETARM)
 	printf ("interrupt request\n");
 	show_regs (pt_regs);
 	bad_mode ();
+#elif defined(CONFIG_S3C4510B)
+	unsigned int pending;
+
+	while ( (pending = GET_REG( REG_INTOFFSET)) != 0x54) {  /* sentinal value for no pending interrutps */
+		IRQ_HANDLER[pending>>2].m_func( IRQ_HANDLER[pending>>2].m_data);
+
+		/* clear pending interrupt */
+		PUT_REG( REG_INTPEND, (1<<(pending>>2)));
+	}
+#else
+#error do_irq() not defined for this CPU type
+#endif
 }
+
+
+#ifdef CONFIG_S3C4510B
+static void default_isr( void *data) {
+	printf ("default_isr():  called for IRQ %d\n", (int)data);
+}
+
+static void timer_isr( void *data) {
+	unsigned int *pTime = (unsigned int *)data;
+
+	(*pTime)++;
+	if ( !(*pTime % (CFG_HZ/4))) {
+		/* toggle LED 0 */
+		PUT_REG( REG_IOPDATA, GET_REG(REG_IOPDATA) ^ 0x1);
+	}
+
+}
+#endif
 
 static ulong timestamp;
 static ulong lastdec;
@@ -209,8 +248,48 @@ int interrupt_init (void)
 	/* set timer 1 counter */
 	lastdec = IO_TC1D = TIMER_LOAD_VAL;
 #elif defined(CONFIG_S3C4510B)
-	/* Nothing to do, interrupts not supported */
+	int i;
+
+	/* install default interrupt handlers */
+	for ( i = 0; i < N_IRQS; i++) {
+		IRQ_HANDLER[i].m_data = (void *)i;
+		IRQ_HANDLER[i].m_func = default_isr;
+	}
+
+	/* configure interrupts for IRQ mode */
+	PUT_REG( REG_INTMODE, 0x0);
+	/* clear any pending interrupts */
+	PUT_REG( REG_INTPEND, 0x1FFFFF);
+
 	lastdec = 0;
+
+	/* install interrupt handler for timer */
+	IRQ_HANDLER[INT_TIMER0].m_data = (void *)&timestamp;
+	IRQ_HANDLER[INT_TIMER0].m_func = timer_isr;
+
+	/* configure free running timer 0 */
+	PUT_REG( REG_TMOD, 0x0);
+	/* Stop timer 0 */
+	CLR_REG( REG_TMOD, TM0_RUN);
+
+	/* Configure for interval mode */
+	CLR_REG( REG_TMOD, TM1_TOGGLE);
+
+	/*
+	 * Load Timer data register with count down value.
+	 * count_down_val = CFG_SYS_CLK_FREQ/CFG_HZ
+	 */
+	PUT_REG( REG_TDATA0, (CFG_SYS_CLK_FREQ / CFG_HZ));
+
+	/*
+	 * Enable global interrupt
+	 * Enable timer0 interrupt
+	 */
+	CLR_REG( REG_INTMASK, ((1<<INT_GLOBAL) | (1<<INT_TIMER0)));
+
+	/* Start timer */
+	SET_REG( REG_TMOD, TM0_RUN);
+
 #else
 #error No interrupt_init() defined for this CPU type
 #endif
@@ -294,40 +373,22 @@ void udelay_masked (unsigned long usec)
 
 #elif defined(CONFIG_S3C4510B)
 
-#define TMR_OFFSET (0x1000)
+ulong get_timer (ulong base)
+{
+	return timestamp - base;
+}
 
 void udelay (unsigned long usec)
 {
-	u32 rDATA;
+	u32 ticks;
 
-	rDATA = t_data_us(usec);
+	ticks = (usec * CFG_HZ) / 1000000;
 
-	/* Stop timer 0 */
-	CLR_REG( REG_TMOD, TM0_RUN);
+	ticks += get_timer (0);
 
-	/* Configure for toggle mode */
-	SET_REG( REG_TMOD, TM0_TOGGLE);
+	while (get_timer (0) < ticks)
+		/*NOP*/;
 
-	/* Load Timer data register with count down value plus offset */
-	PUT_REG( REG_TDATA0, rDATA + TMR_OFFSET);
-
-	/* Clear timer counter register */
-	PUT_REG( REG_TCNT0, 0x0);
-
-	/* Start timer -- count down timer */
-	SET_REG( REG_TMOD, TM0_RUN);
-
-	/* spin during count down */
-	while ( GET_REG( REG_TCNT0) > TMR_OFFSET);
-
-	/* Stop timer */
-	CLR_REG( REG_TMOD, TM0_RUN);
-
-}
-
-ulong get_timer (ulong base)
-{
-	return (0xFFFFFFFF - GET_REG( REG_TCNT1)) - base;
 }
 
 #else

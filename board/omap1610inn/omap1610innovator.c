@@ -32,6 +32,7 @@
  */
 
 #include <common.h>
+#include <asm/mach-types.h>
 #if defined(CONFIG_OMAP1610)
 #include <./configs/omap1510.h>
 #endif
@@ -62,9 +63,12 @@ int board_init (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
-	/* arch number of OMAP 1510-Board */
-	/* to be changed for OMAP 1610 Board */
-	gd->bd->bi_arch_number = 234;
+	if (machine_is_omap_h2())
+		gd->bd->bi_arch_number = MACH_TYPE_OMAP_H2;
+	else if (machine_is_omap_innovator())
+		gd->bd->bi_arch_number = MACH_TYPE_OMAP_INNOVATOR;
+	else
+		gd->bd->bi_arch_number = MACH_TYPE_OMAP_GENERIC;
 
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0x10000100;

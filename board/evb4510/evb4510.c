@@ -25,13 +25,9 @@
 #include <asm/hardware.h>
 #include <command.h>
 
+#ifdef CONFIG_EVB4510
+
 /* ------------------------------------------------------------------------- */
-
-
-#define PUT_LED(val)       (PUT_REG(REG_IOPDATA, (~val)&0xFF))
-#define GET_LED()          ((~GET_REG( REG_IOPDATA)) & 0xFF)
-#define SET_LED(val)       { u32 led = GET_LED(); led |= 1 << (val);  PUT_LED( led); }
-#define CLR_LED(val)       { u32 led = GET_LED(); led &= ~(1 << (val));  PUT_LED( led); }
 
 /*
  * Miscelaneous platform dependent initialisations
@@ -51,25 +47,6 @@ int board_init (void)
 	PUT_REG( REG_IOPMODE, 0xFFFF);
 	PUT_REG( REG_IOPDATA, 0xFF);
 
-	/* enable LED 7 to show we're alive */
-	SET_LED( 7);
-
-	/* configure free running timer 1 */
-	/* Stop timer 1 */
-	CLR_REG( REG_TMOD, TM1_RUN);
-
-	/* Configure for toggle mode */
-	SET_REG( REG_TMOD, TM1_TOGGLE);
-
-	/* Load Timer data register with count down value */
-	PUT_REG( REG_TDATA1, 0xFFFFFFFF);
-
-	/* Clear timer counter register */
-	PUT_REG( REG_TCNT1, 0x0);
-
-	/* Start timer -- count down timer */
-	SET_REG( REG_TMOD, TM1_RUN);
-
 	return 0;
 }
 
@@ -84,3 +61,5 @@ int dram_init (void)
 #endif
 	return 0;
 }
+
+#endif

@@ -210,6 +210,11 @@
 #define PUT__U8(reg, val)  (*((volatile u8  *)(reg)) = (( u8)((val)&0xFF)))
 #define GET__U8(reg)       (*((volatile u8  *)(reg)))
 
+#define PUT_LED(val)       (PUT_REG(REG_IOPDATA, (~val)&0xFF))
+#define GET_LED()          ((~GET_REG( REG_IOPDATA)) & 0xFF)
+#define SET_LED(val)       { u32 led = GET_LED(); led |= 1 << (val);  PUT_LED( led); }
+#define CLR_LED(val)       { u32 led = GET_LED(); led &= ~(1 << (val));  PUT_LED( led); }
+
 /***********************************/
 /* CLOCK CONSTANTS -- 50 MHz Clock */
 /***********************************/
@@ -227,5 +232,43 @@
 #define  TM1_RUN      0x08  /* Timer 1 enable */
 #define  TM1_TOGGLE   0x10  /* 0, interval mode */
 #define  TM1_OUT_1    0x20  /* Timer 0 Initial TOUT0 value */
+
+
+/*********************************/
+/* INTERRUPT SOURCES             */
+/*********************************/
+#define INT_EXTINT0	0
+#define INT_EXTINT1	1
+#define INT_EXTINT2	2
+#define INT_EXTINT3	3
+#define INT_UARTTX0	4
+#define INT_UARTRX0	5
+#define INT_UARTTX1	6
+#define INT_UARTRX1	7
+#define INT_GDMA0	8
+#define INT_GDMA1	9
+#define INT_TIMER0	10
+#define INT_TIMER1	11
+#define INT_HDLCTXA	12
+#define INT_HDLCRXA	13
+#define INT_HDLCTXB	14
+#define INT_HDLCRXB	15
+#define INT_BDMATX	16
+#define INT_BDMARX	17
+#define INT_MACTX	18
+#define INT_MACRX	19
+#define INT_IIC		20
+#define INT_GLOBAL	21
+#define N_IRQS         (21)
+
+#ifndef __ASSEMBLER__
+struct _irq_handler {
+	void                *m_data;
+	void (*m_func)( void *data);
+};
+
+extern struct _irq_handler IRQ_HANDLER[];
+
+#endif
 
 #endif /* __S3C4510_h */

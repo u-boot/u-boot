@@ -166,13 +166,13 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 			do_reset (cmdtp, flag, argc, argv);
 		}
 
-#ifdef CONFIG_B2
+#if defined(CONFIG_B2) || defined(CONFIG_EVB4510)
 		/*
 		 *we need to copy the ramdisk to SRAM to let Linux boot
 		 */
 		memmove ((void *) ntohl(hdr->ih_load), (uchar *)data, len);
 		data = ntohl(hdr->ih_load);
-#endif /* CONFIG_B2 */
+#endif /* CONFIG_B2 || CONFIG_EVB4510 */
 
 		/*
 		 * Now check if we have a multifile image
