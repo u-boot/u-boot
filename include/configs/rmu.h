@@ -99,6 +99,10 @@
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
 
+#define	CONFIG_AUTOBOOT_KEYED		/* Enable password protection */
+#define	CONFIG_AUTOBOOT_PROMPT		"\nEnter password - autoboot in %d sec...\n"
+#define	CONFIG_AUTOBOOT_DELAY_STR	"system"
+
 /*
  * Miscellaneous configurable options
  */

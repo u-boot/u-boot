@@ -206,7 +206,7 @@
 #   define CFG_RAMBOOT		1
 #endif
 
-#define CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
+#define CFG_MONITOR_LEN		(192 << 10)	/* Reserve 192 kB for Monitor	*/
 #define CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
 #define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 

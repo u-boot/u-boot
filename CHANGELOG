@@ -2,6 +2,13 @@
 Changes since U-Boot 1.0.0:
 ======================================================================
 
+* Enabled password check on RMU board
+
+* Fix configuration problem with IceCube in LOWBOOT configuration:
+  envrionment got embedded, corrupting the image layout.
+
+* Fix NEC display names (it's 6440 [for 640x480], not 6640).
+
 * Added BMS2003 board
   add support for NEC NL6448BC33-54. 10.4", 640x480 TFT display
 
