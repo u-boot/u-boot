@@ -230,6 +230,11 @@ Stefan Roese <stefan.roese@esd-electronics.com>
 	PMC405			PPC405GP
 	VOH405			PPC405EP
 
+Travis Sawyer (travis.sawyer@sandburst.com>
+
+	XPEDITE1K		PPC440GX
+	OCOTEA			PPC440GX
+
 Peter De Schrijver <p2@mind.be>
 
 	ML2			PPC4xx

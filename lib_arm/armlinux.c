@@ -312,6 +312,9 @@ static void setup_commandline_tag (bd_t *bd, char *commandline)
 {
 	char *p;
 
+	if (!commandline)
+		return;
+
 	/* eat leading white space */
 	for (p = commandline; *p == ' '; p++);
 

@@ -441,8 +441,8 @@ The following options need to be configured:
 		(RTS/CTS) and UART's built-in FIFO. Set the number of
 		bytes the interrupt driven input buffer should have.
 
-		Set to 0 to disable this feature (this is the default).
-		This will also disable hardware handshake.
+		Leave undefined to disable this feature, including
+		disable the buffer and hardware handshake.
 
 - Console UART Number:
 		CONFIG_UART1_CONSOLE

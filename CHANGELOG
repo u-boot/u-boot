@@ -2,6 +2,18 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
+* Patch by Phillippe Robin, 16 Mar 2004:
+  avoid dereferencing NULL pointer in lib_arm/armlinux.c
+
+* Patch by Stephen Williams, 15 Mar 2004:
+  Fix CONFIG_SERIAL_SOFTWARE_FIFO documentation
+
+* Patch by Tolunay Orkun, 15 Mar 2004:
+  Initialize bi_opbfreq to real OPB frequency via get_OPB_freq()
+
+* Patch by Travis Sawyer, 15 Mar 2004:
+  Update CREDITS & MAINTAINERS files for PPC440GX & Ocotea port
+
 * Add start-up delay to make sure power has stabilized before
   attempting to switch on USB on SX1 board.
 

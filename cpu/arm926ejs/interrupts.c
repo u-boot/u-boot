@@ -211,7 +211,6 @@ int interrupt_init (void)
 	*(volatile ulong *)(CFG_TIMERBASE + 0) = CFG_TIMER_RELOAD;	/* TimerLoad */
 	*(volatile ulong *)(CFG_TIMERBASE + 4) = CFG_TIMER_RELOAD;	/* TimerValue */
 	*(volatile ulong *)(CFG_TIMERBASE + 8) = 0x8C;
-	/* *(volatile ulong *)(CFG_TIMERBASE + 8) = CFG_TIMER_CTRL | 0x40;  Periodic */
 #endif	/* CONFIG_VERSATILE */
 
 	/* init the timestamp and lastdec value */
