@@ -2,6 +2,14 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Patch by Rune Torgersen, 11 Sep 2003:
+  Changed default memory option on MPC8266ADS to NOT be Page Based
+  Interleave, since this doesn't work very well with the standard
+  16MB DIMM
+
+* Patch by George G. Davis, 12 Sep 2003:
+  fix Makefile settings for sk98 driver
+
 * Patch by Stefan Roese, 12 Sep 2003:
   - new boards added: DP405, HUB405, PLU405, VOH405
   - some esd boards updated

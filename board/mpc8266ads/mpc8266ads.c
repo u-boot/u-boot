@@ -46,7 +46,7 @@
  *   PSDMR_BUFCMD adds a clock
  *   0            no extra clock
  */
-#define CONFIG_PBI		PSDMR_PBI
+#define CONFIG_PBI		0
 #define PESSIMISTIC_SDRAM	0
 #define EAMUX			0	/* EST requires EAMUX */
 #define BUFCMD			0

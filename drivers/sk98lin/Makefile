@@ -24,6 +24,7 @@
 #
 # Makefile for the SysKonnect SK-98xx device driver.
 #
+include $(TOPDIR)/config.mk
 
 LIB := libsk98lin.a
 
