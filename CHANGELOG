@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Tolunay Orkun, 14 May 2004:
+  Add support for Cogent CSB472 board (8MB Flash Rev)
+
 * Patch by Thomas Viehweger, 14 May 2004:
   - flash.h: more flash types added
   - immap_8260.h: some bits added (useful for RMII)
