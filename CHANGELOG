@@ -2,6 +2,20 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Make sure HUSH is initialized for running auto-update scripts
+
+* Make 5200 reset command _really_ reset the board, without running
+  any other code after it
+
+* Fix errors with flash erase when range spans  across banks
+  that are mapped in reverse order
+
+* Fix flash mapping and display on P3G4 board
+
+* Patch by Kyle Harris, 15 Jul 2003:
+  - add support for Intel IXP425 CPU
+  - add support for IXDP425 eval board
+
 * Added config option CONFIG_SILENT_CONSOLE.  See doc/README.silent
   for more information
 

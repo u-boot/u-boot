@@ -888,6 +888,9 @@ csb226_config	:	unconfig
 innokom_config	:	unconfig
 	@./mkconfig $(@:_config=) arm pxa innokom
 
+ixdp425_config	:	unconfig
+	@./mkconfig $(@:_config=) arm ixp ixdp425
+
 lubbock_config	:	unconfig
 	@./mkconfig $(@:_config=) arm pxa lubbock
 

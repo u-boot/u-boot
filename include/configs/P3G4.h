@@ -154,7 +154,7 @@
  * Please note that CFG_SDRAM_BASE _must_ start at 0
  */
 #define	CFG_SDRAM_BASE		0x00000000
-#define CFG_FLASH_BASE		0xff800000
+#define CFG_FLASH_BASE		0xff000000
 #define CFG_RESET_ADDRESS	0xfff00100
 #define	CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor */
 #define CFG_MONITOR_BASE	TEXT_BASE
@@ -348,7 +348,7 @@
 #define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks	*/
 #define CFG_MAX_FLASH_SECT	67	/* max number of sectors on one chip */
 
-#define CFG_EXTRA_FLASH_DEVICE	DEVICE0	/* extra flash at device 0 */
+#define CFG_EXTRA_FLASH_DEVICE	BOOT_DEVICE
 #define CFG_EXTRA_FLASH_WIDTH	2	/* 16 bit */
 #define CFG_BOOT_FLASH_WIDTH	2	/* 16 bit */
 

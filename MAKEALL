@@ -133,8 +133,10 @@ LIST_ARM9="	\
 
 LIST_pxa="cradle csb226 innokom lubbock wepep250"
 
+LIST_ixp="ixdp425"
 
-LIST_arm="${LIST_SA} ${LIST_ARM7} ${LIST_ARM9} ${LIST_pxa}"
+
+LIST_arm="${LIST_SA} ${LIST_ARM7} ${LIST_ARM9} ${LIST_pxa} ${LIST_ixp}"
 
 #########################################################################
 ## MIPS Systems
@@ -178,7 +180,10 @@ build_target() {
 for arg in $@
 do
 	case "$arg" in
-	5xx|5xxx|8xx|824x|8260|4xx|7xx|74xx|SA|ARM7|ARM9|ppc|arm|pxa|mips|I486|x86)
+	ppc|5xx|5xxx|8xx|824x|8260|4xx|7xx|74xx| \
+	arm|SA|ARM7|ARM9|pxa|ixp| \
+	mips| \
+	x86|I486)
 			for target in `eval echo '$LIST_'${arg}`
 			do
 				build_target ${target}

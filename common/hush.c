@@ -313,7 +313,7 @@ struct variables *top_vars = &shell_ver;
 #else
 static int flag_repeat = 0;
 static int do_repeat = 0;
-static struct variables *top_vars ;
+static struct variables *top_vars = NULL ;
 #endif /*__U_BOOT__ */
 
 #define B_CHUNK (100)
@@ -3194,13 +3194,15 @@ static void u_boot_hush_reloc(void)
 
 int u_boot_hush_start(void)
 {
-	top_vars = malloc(sizeof(struct variables));
-	top_vars->name = "HUSH_VERSION";
-	top_vars->value = "0.01";
-	top_vars->next = 0;
-	top_vars->flg_export = 0;
-	top_vars->flg_read_only = 1;
-	u_boot_hush_reloc();
+	if (top_vars == NULL) {
+		top_vars = malloc(sizeof(struct variables));
+		top_vars->name = "HUSH_VERSION";
+		top_vars->value = "0.01";
+		top_vars->next = 0;
+		top_vars->flg_export = 0;
+		top_vars->flg_read_only = 1;
+		u_boot_hush_reloc();
+	}
 	return 0;
 }
 

@@ -204,6 +204,7 @@ extern int flash_write (uchar *, ulong, ulong);
 extern int i2c_write_multiple (uchar, uint, int, void *, int);
 extern int i2c_read_multiple (uchar, uint, int, void *, int);
 extern block_dev_desc_t *get_dev (char*, int);
+extern int u_boot_hush_start(void);
 
 int
 au_check_valid(int idx, long nbytes)
@@ -538,6 +539,8 @@ do_auto_update(void)
 		aufl_layout[3].start = start;
 		aufl_layout[3].end = end;
 	}
+	/* make certain that HUSH is runnable */
+	u_boot_hush_start();
 	/* make sure that we see CTRL-C and save the old state */
 	old_ctrlc = disable_ctrlc(0);
 

@@ -62,8 +62,9 @@ do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	__asm__ __volatile__ ("mtmsr    %0"::"r" (msr));
 
 	/* Charge the watchdog timer */
-	*(vu_long *)(MPC5XXX_GPT0_COUNTER) = 0xf;
+	*(vu_long *)(MPC5XXX_GPT0_COUNTER) = 0x0001000f;
 	*(vu_long *)(MPC5XXX_GPT0_ENABLE) = 0x9004; /* wden|ce|timer_ms */
+	while(1);
 
 	return 1;
 

@@ -79,7 +79,11 @@ flash_init (void)
 	size_b0 = flash_get_size(CFG_BOOT_FLASH_WIDTH, (vu_long *)base,
 	                         &flash_info[0]);
 
-	printf("[%ldkB@%lx] ", size_b0/1024, base);
+#ifndef CONFIG_P3G4
+	printf("[");
+	print_size (size_b0, "");
+	printf("@%08lX] ", base);
+#endif
 
 	if (flash_info[0].flash_id == FLASH_UNKNOWN) {
 		printf ("## Unknown FLASH at %08lx: Size = 0x%08lx = %ld MB\n",
@@ -90,7 +94,11 @@ flash_init (void)
 	for(i=1;i<CFG_MAX_FLASH_BANKS;i++) {
 	    unsigned long size = flash_get_size(CFG_EXTRA_FLASH_WIDTH, (vu_long *)base, &flash_info[i]);
 
-	    printf("[%ldMB@%lx] ", size>>20, base);
+#ifndef CONFIG_P3G4
+	    printf("[");
+	    print_size (size, "");
+	    printf("@%08lX] ", size>>20, base);
+#endif
 
 	    if (flash_info[i].flash_id == FLASH_UNKNOWN) {
 		if(i==1) {

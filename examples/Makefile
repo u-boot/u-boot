@@ -73,6 +73,10 @@ ifeq ($(BOARD),oxc)
 SREC   += eepro100_eeprom.srec
 endif
 
+ifeq ($(BIG_ENDIAN),y)
+EX_LDFLAGS += -EB
+endif
+
 OBJS	= $(SREC:.srec=.o)
 
 LIB	= libstubs.a
@@ -94,7 +98,8 @@ $(LIB): .depend $(LIBOBJS)
 	$(AR) crv $@ $(LIBOBJS)
 
 %.srec:	%.o $(LIB)
-	$(LD) -g -Ttext $(LOAD_ADDR) -o $(<:.o=) -e $(<:.o=) $< $(LIB) \
+	$(LD) -g $(EX_LDFLAGS) -Ttext $(LOAD_ADDR) \
+		-o $(<:.o=) -e $(<:.o=) $< $(LIB) \
 		-L$(gcclibdir) -lgcc
 	$(OBJCOPY) -O srec $(<:.o=) $@
 
