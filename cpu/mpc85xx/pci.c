@@ -77,7 +77,7 @@ pci_mpc85xx_init(struct pci_controller *hose)
 	pcix->powbear1 = 0x00000000;
 	pcix->powar1   = 0x8004401c;	/* 512M MEM space */
 
-	pcix->potar2   = (CFG_PCI1_IO_BASE >> 12) & 0x000fffff;
+	pcix->potar2   = 0x00000000;
 	pcix->potear2  = 0x00000000;
 	pcix->powbar2  = (CFG_PCI1_IO_BASE >> 12) & 0x000fffff;
 	pcix->powbear2 = 0x00000000;
@@ -85,12 +85,38 @@ pci_mpc85xx_init(struct pci_controller *hose)
 
 	pcix->pitar1 = 0x00000000;
 	pcix->piwbar1 = 0x00000000;
-	pcix->piwar1 = 0xa0F5501f;
+	pcix->piwar1 = 0xa0f5501e;	/* Enable, Prefetch, Local Mem,
+					 * Snoop R/W, 2G */
 
 	/*
 	 * Hose scan.
 	 */
 	pci_register_hose(hose);
+
+#if defined(CONFIG_MPC8555CDS) || defined(CONFIG_MPC8541CDS)
+	/*
+	 * This is a SW workaround for an apparent HW problem
+	 * in the PCI controller on the MPC85555/41 CDS boards.
+	 * The first config cycle must be to a valid, known
+	 * device on the PCI bus in order to trick the PCI
+	 * controller state machine into a known valid state.
+	 * Without this, the first config cycle has the chance
+	 * of hanging the controller permanently, just leaving
+	 * it in a semi-working state, or leaving it working.
+	 *
+	 * Pick on the Tundra, Device 17, to get it right.
+	 */
+	{
+		u8 header_type;
+
+		pci_hose_read_config_byte(hose,
+					  PCI_BDF(0,17,0),
+					  PCI_HEADER_TYPE,
+					  &header_type);
+	}
+	
+#endif
+
 	hose->last_busno = pci_hose_scan(hose);
 }
 

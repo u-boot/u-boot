@@ -121,7 +121,7 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
     reset_cpu(0);
 #else
 #ifdef CONFIG_DBGU
-   AT91PS_USART us = AT91C_BASE_DBGU;
+   AT91PS_USART us = (AT91PS_USART) AT91C_BASE_DBGU;
 #endif
 #ifdef CONFIG_USART0
    AT91PS_USART us = AT91C_BASE_US0;

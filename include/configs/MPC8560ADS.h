@@ -140,13 +140,15 @@
 
 #define CFG_MONITOR_BASE    	TEXT_BASE	/* start of monitor */
 
-
 #if (CFG_MONITOR_BASE < CFG_FLASH_BASE)
 #define CFG_RAMBOOT
 #else
 #undef  CFG_RAMBOOT
 #endif
 
+#define CFG_FLASH_CFI_DRIVER
+#define CFG_FLASH_CFI
+#define CFG_FLASH_EMPTY_INFO
 
 #undef CONFIG_CLOCKS_IN_MHZ
 
@@ -265,7 +267,7 @@
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
-#define CFG_MONITOR_LEN	    	(256 * 1024)    /* Reserve 256 kB for Mon */
+#define CFG_MONITOR_LEN	    	(512 * 1024)    /* Reserve 256 kB for Mon */
 #define CFG_MALLOC_LEN	    	(128 * 1024)    /* Reserved for malloc */
 
 /* Serial Port */

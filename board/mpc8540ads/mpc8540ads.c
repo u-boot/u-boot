@@ -44,13 +44,6 @@ long int fixed_sdram(void);
 
 int board_early_init_f (void)
 {
-#if defined(CONFIG_PCI)
-    volatile immap_t *immr = (immap_t *)CFG_IMMR;
-    volatile ccsr_pcix_t *pci = &immr->im_pcix;
-
-    pci->peer &= 0xffffffdf; /* disable master abort */
-#endif
-
     return 0;
 }
 

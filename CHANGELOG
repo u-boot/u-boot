@@ -2,6 +2,12 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Jon Loeliger, 24 Aug 2004:
+  - Fix PCI window on MPC85xx; remove unneeded PCI initialization
+    from board_early_init_f()
+  - Provide SW workaround for PCI initialization on 85xx CDS
+  - Convert MPC85xxADS to use common CFI flash driver
+
 * Patches by George G. Davis, 24 Aug 2004:
   - Enable ramdisk/initrd tagged param support for omap1610h2_config
   - Remove static network setup defaults from mx1ads_config
