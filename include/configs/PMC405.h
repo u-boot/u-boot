@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2003
+ * (C) Copyright 2001-2004
  * Stefan Roese, esd gmbh germany, stefan.roese@esd-electronics.com
  *
  * See file CREDITS for list of people who contributed to this
@@ -40,27 +40,22 @@
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* call board_early_init_f()	*/
 #define CONFIG_MISC_INIT_R	1	/* call misc_init_r()		*/
 
-#define CONFIG_SYS_CLK_FREQ	33333333 /* external frequency to pll	*/
+#define CONFIG_SYS_CLK_FREQ	33330000 /* external frequency to pll	*/
 
 #define CONFIG_BAUDRATE		9600
 #define CONFIG_BOOTDELAY	3	/* autoboot after 3 seconds	*/
 
 #undef	CONFIG_BOOTARGS
-#define CONFIG_RAMBOOTCOMMAND							\
-	"setenv bootargs root=/dev/ram rw nfsroot=$(serverip):$(rootpath) "	\
-	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;"	\
-	"bootm ffc00000 ffca0000"
-#define CONFIG_NFSBOOTCOMMAND							\
-	"setenv bootargs root=/dev/nfs rw nfsroot=$(serverip):$(rootpath) "	\
-	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;"	\
-	"bootm ffc00000"
-#define CONFIG_BOOTCOMMAND CONFIG_RAMBOOTCOMMAND
+#undef	CONFIG_BOOTCOMMAND
+
+#define CONFIG_PREBOOT                  /* enable preboot variable      */
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_PHY_ADDR		0	/* PHY address			*/
+#define CONFIG_LXT971_NO_SLEEP  1       /* disable sleep mode in LXT971 */
 
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
 				CFG_CMD_BSP	| \
@@ -72,7 +67,8 @@
 				CFG_CMD_MII	| \
 				CFG_CMD_I2C	| \
 				CFG_CMD_PING	| \
-				CFG_CMD_EEPROM	)
+				CFG_CMD_UNIVERSE | \
+				CFG_CMD_EEPROM  )
 
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
@@ -82,8 +78,8 @@
 
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 
-#define CONFIG_RTC_MC146818		/* DS1685 is MC146818 compatible*/
-#define CFG_RTC_REG_BASE_ADDR	 0xF0000300 /* RTC Base Address		*/
+#define CONFIG_RTC_MC146818             /* DS1685 is MC146818 compatible*/
+#define CFG_RTC_REG_BASE_ADDR	 0xF0000500 /* RTC Base Address         */
 
 #define CONFIG_SDRAM_BANK0	1	/* init onboard SDRAM bank 0	*/
 
@@ -111,6 +107,8 @@
 
 #define CFG_CONSOLE_INFO_QUIET	1	/* don't print console @ startup*/
 
+#define CONFIG_AUTO_COMPLETE	1       /* add autocompletion support   */
+
 #define CFG_MEMTEST_START	0x0400000	/* memtest works on	*/
 #define CFG_MEMTEST_END		0x0C00000	/* 4 ... 12 MB in DRAM	*/
 
@@ -128,6 +126,8 @@
 
 #define CFG_HZ		1000		/* decrementer freq: 1 ms ticks */
 
+#define CONFIG_LOOPW            1       /* enable loopw command         */
+
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 
 #define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
@@ -138,26 +138,30 @@
  * PCI stuff
  *-----------------------------------------------------------------------
  */
-#define PCI_HOST_ADAPTER 0		/* configure as pci adapter	*/
-#define PCI_HOST_FORCE	1		/* configure as pci host	*/
-#define PCI_HOST_AUTO	2		/* detected via arbiter enable	*/
+#define PCI_HOST_ADAPTER 0              /* configure as pci adapter     */
+#define PCI_HOST_FORCE  1               /* configure as pci host        */
+#define PCI_HOST_AUTO   2               /* detected via arbiter enable  */
 
-#define CONFIG_PCI			/* include pci support		*/
-#define CONFIG_PCI_HOST PCI_HOST_FORCE	/* select pci host function	*/
-#define CONFIG_PCI_PNP			/* do pci plug-and-play		*/
-					/* resource configuration	*/
+#define CONFIG_PCI			/* include pci support	        */
+#define CONFIG_PCI_HOST	PCI_HOST_AUTO   /* select pci host function     */
+#define CONFIG_PCI_PNP			/* do pci plug-and-play         */
+					/* resource configuration       */
 
-#undef CONFIG_PCI_SCAN_SHOW		/* print pci devices @ startup	*/
+#define CONFIG_PCI_SCAN_SHOW            /* print pci devices @ startup  */
 
-#define CFG_PCI_SUBSYS_VENDORID 0x12FE	/* PCI Vendor ID: esd gmbh	*/
-#define CFG_PCI_SUBSYS_DEVICEID 0x0408	/* PCI Device ID: PMC-405	*/
-#define CFG_PCI_CLASSCODE	0x0b20	/* PCI Class Code: Processor/PPC*/
-#define CFG_PCI_PTM1LA	0x00000000	/* point to sdram		*/
-#define CFG_PCI_PTM1MS	0xfc000001	/* 64MB, enable hard-wired to 1 */
-#define CFG_PCI_PTM1PCI 0x00000000	/* Host: use this pci address	*/
-#define CFG_PCI_PTM2LA	0xffc00000	/* point to flash		*/
-#define CFG_PCI_PTM2MS	0xffc00001	/* 4MB, enable			*/
-#define CFG_PCI_PTM2PCI 0x04000000	/* Host: use this pci address	*/
+#define CONFIG_PCI_CONFIG_HOST_BRIDGE 1 /* don't skip host bridge config*/
+
+#define CONFIG_PCI_BOOTDELAY    0       /* enable pci bootdelay variable*/
+
+#define CFG_PCI_SUBSYS_VENDORID 0x12FE  /* PCI Vendor ID: esd gmbh      */
+#define CFG_PCI_SUBSYS_DEVICEID 0x0408  /* PCI Device ID: PMC-405       */
+#define CFG_PCI_CLASSCODE       0x0b20  /* PCI Class Code: Processor/PPC*/
+#define CFG_PCI_PTM1LA  0x00000000      /* point to sdram               */
+#define CFG_PCI_PTM1MS  0xfc000001      /* 64MB, enable hard-wired to 1 */
+#define CFG_PCI_PTM1PCI 0x00000000      /* Host: use this pci address   */
+#define CFG_PCI_PTM2LA  0xffc00000      /* point to flash               */
+#define CFG_PCI_PTM2MS  0xffc00001      /* 4MB, enable                  */
+#define CFG_PCI_PTM2PCI 0x04000000      /* Host: use this pci address   */
 
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration
@@ -267,6 +271,8 @@
 #define CFG_FPGA_DATA		0x01000000  /* JTAG TDO->TDI data pin (ppc output) */
 #define CFG_FPGA_INIT		0x00010000  /* unused (ppc input)	     */
 #define CFG_FPGA_DONE		0x00008000  /* JTAG TDI->TDO pin (ppc input) */
+
+#define CFG_VXWORKS_MAC_PTR	0x00000000	/* Pass Ethernet MAC to VxWorks */
 
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in data cache)

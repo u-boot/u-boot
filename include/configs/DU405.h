@@ -47,17 +47,21 @@
 #undef	CONFIG_BOOTARGS
 #define CONFIG_BOOTCOMMAND	"bootm fff00000"
 
+#define CONFIG_PREBOOT                  /* enable preboot variable      */
+
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_PHY_ADDR		0	/* PHY address			*/
+#define CONFIG_LXT971_NO_SLEEP  1       /* disable sleep mode in LXT971 */
 
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
 				CFG_CMD_PCI	| \
 				CFG_CMD_IRQ	| \
 				CFG_CMD_IDE	| \
 				CFG_CMD_ELF	| \
+				CFG_CMD_MII	| \
 				CFG_CMD_DATE	| \
 				CFG_CMD_EEPROM	)
 
@@ -106,6 +110,8 @@
 #define CFG_HZ		1000		/* decrementer freq: 1 ms ticks */
 
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
+
+#define CFG_RX_ETH_BUFFER	16	/* use 16 rx buffer on 405 emac */
 
 /*-----------------------------------------------------------------------
  * PCI stuff

@@ -106,6 +106,8 @@
 #define CFG_CONSOLE_INFO_QUIET	1	/* don't print console @ startup*/
 
 #define CONFIG_AUTO_COMPLETE	1       /* add autocompletion support   */
+#define CONFIG_LOOPW            1       /* enable loopw command         */
+#define CONFIG_MX_CYCLIC        1       /* enable mdc/mwc commands      */
 
 #define CFG_MEMTEST_START	0x0400000	/* memtest works on	*/
 #define CFG_MEMTEST_END		0x0C00000	/* 4 ... 12 MB in DRAM	*/
@@ -138,6 +140,8 @@
 					/* resource configuration	*/
 
 #define CONFIG_PCI_SCAN_SHOW		/* print pci devices @ startup	*/
+
+#define CONFIG_PCI_CONFIG_HOST_BRIDGE 1 /* don't skip host bridge config*/
 
 #define CONFIG_PCI_BOOTDELAY	0	/* enable pci bootdelay variable*/
 
@@ -190,10 +194,12 @@
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 
 #define CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_OFFSET		0x00010000	/* Offset of Environment Sector */
-#define CFG_ENV_SIZE		0x1000	/* Total Size of Environment Sector	*/
-
+#define CFG_ENV_ADDR		0xFFFB0000	/* Address of Environment Sector*/
 #define CFG_ENV_SECT_SIZE	0x10000 /* see README - env sector total size	*/
+#define CFG_ENV_SIZE		0x04000	        /* Size of Environment 	        */
+
+#define CFG_ENV_ADDR_REDUND     0xFFFA0000
+#define CFG_ENV_SIZE_REDUND	CFG_ENV_SIZE
 
 /*-----------------------------------------------------------------------
  * Cache Configuration

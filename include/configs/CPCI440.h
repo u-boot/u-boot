@@ -35,7 +35,7 @@
 #define CONFIG_4xx		1	    /* ... PPC4xx family	*/
 #define CONFIG_BOARD_EARLY_INIT_F 1	    /* Call board_early_init_f	*/
 #undef	CFG_DRAM_TEST			    /* Disable-takes long time! */
-#define CONFIG_SYS_CLK_FREQ	33333333    /* external freq to pll	*/
+#define CONFIG_SYS_CLK_FREQ	33330000 /* external frequency to pll	*/
 
 /*-----------------------------------------------------------------------
  * Base addresses -- Note these are effective addresses where the
@@ -43,7 +43,11 @@
  *----------------------------------------------------------------------*/
 #define CFG_SDRAM_BASE	    0x00000000	    /* _must_ be 0		*/
 #define CFG_FLASH_BASE	    0xff800000	    /* start of FLASH		*/
+#if 1
 #define CFG_MONITOR_BASE    0xfffc0000	    /* start of monitor		*/
+#else
+#define CFG_MONITOR_BASE    0x01fc0000	    /* start of monitor		*/
+#endif
 #define CFG_PERIPHERAL_BASE 0xe0000000	    /* internal peripherals	*/
 #define CFG_ISRAM_BASE	    0xc0000000	    /* internal SRAM		*/
 
@@ -154,16 +158,17 @@
 
 #endif
 
-#define CONFIG_BOOTARGS		"root=/dev/hda1 "
-#define CONFIG_BOOTCOMMAND	"bootm ffc00000"    /* autoboot command */
-#define CONFIG_BOOTDELAY	-1		    /* disable autoboot */
+#undef	CONFIG_BOOTARGS
+#undef	CONFIG_BOOTCOMMAND
+
+#define CONFIG_BOOTDELAY	3	/* autoboot after 3 seconds	*/
 #define CONFIG_BAUDRATE		9600
 
-#define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_PHY_ADDR		1	/* PHY address			*/
+#define CONFIG_LXT971_NO_SLEEP  1       /* disable sleep mode in LXT971 */
 
 #if 0 /* test-only */
 #define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \

@@ -40,23 +40,16 @@
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* call board_early_init_f()	*/
 #define CONFIG_MISC_INIT_R	1	/* call misc_init_r()		*/
 
-#define CONFIG_SYS_CLK_FREQ	33333334 /* external frequency to pll	*/
+#define CONFIG_SYS_CLK_FREQ	33333300 /* external frequency to pll	*/
 
 #define CONFIG_BAUDRATE		9600
 #define CONFIG_BOOTDELAY	3	/* autoboot after 3 seconds	*/
 
 #undef	CONFIG_BOOTARGS
-#define CONFIG_RAMBOOTCOMMAND							\
-	"setenv bootargs root=/dev/ram rw nfsroot=$(serverip):$(rootpath) "	\
-	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;"	\
-	"bootm ffc00000 ffca0000"
-#define CONFIG_NFSBOOTCOMMAND							\
-	"setenv bootargs root=/dev/nfs rw nfsroot=$(serverip):$(rootpath) "	\
-	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;"	\
-	"bootm ffc00000"
-#define CONFIG_BOOTCOMMAND CONFIG_RAMBOOTCOMMAND
+#undef  CONFIG_BOOTCOMMAND
 
-#define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
+#define CONFIG_PREBOOT                  /* enable preboot variable      */
+
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
 #define CONFIG_MII		1	/* MII PHY management		*/
@@ -80,6 +73,8 @@
 #define CFG_RTC_REG_BASE_ADDR	 0xF0000500 /* RTC Base Address		*/
 
 #define CONFIG_SDRAM_BANK0	1	/* init onboard SDRAM bank 0	*/
+
+#define CONFIG_PRAM		2	/* reserve 2 kB "protected RAM" */
 
 /*
  * Miscellaneous configurable options

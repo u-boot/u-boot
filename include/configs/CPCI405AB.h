@@ -41,27 +41,22 @@
 
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* call board_early_init_f()	*/
 
-#define CONFIG_SYS_CLK_FREQ	33333333 /* external frequency to pll	*/
+#define CONFIG_SYS_CLK_FREQ	33330000 /* external frequency to pll	*/
 
 #define CONFIG_BAUDRATE		9600
 #define CONFIG_BOOTDELAY	3	/* autoboot after 3 seconds	*/
 
-#if 0
-#define CONFIG_PREBOOT								\
-	"crc32 f0207004 ffc 0;"							\
-	"if cmp 0 f0207000 1;"							\
-	"then;echo Old CRC is correct;crc32 f0207004 ff4 f0207000;"		\
-	"else;echo Old CRC is bad;fi"
-#endif
-
 #undef	CONFIG_BOOTARGS
-#define CONFIG_BOOTCOMMAND	"bootm 100000"	/* default boot command */
+#undef	CONFIG_BOOTCOMMAND
+
+#define CONFIG_PREBOOT                  /* enable preboot variable      */
 
 #undef	CONFIG_LOADS_ECHO		/* echo on for serial download	*/
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_PHY_ADDR		0	/* PHY address			*/
+#define CONFIG_LXT971_NO_SLEEP  1       /* disable sleep mode in LXT971 */
 
 #define CONFIG_RTC_M48T35A	1		/* ST Electronics M48 timekeeper */
 
@@ -75,6 +70,7 @@
 				CFG_CMD_PCI	| \
 				CFG_CMD_IRQ	| \
 				CFG_CMD_IDE	| \
+				CFG_CMD_FAT	| \
 				CFG_CMD_ELF	| \
 				CFG_CMD_DATE	| \
 				CFG_CMD_JFFS2	| \
@@ -85,6 +81,8 @@
 
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
+
+#define CONFIG_SUPPORT_VFAT
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -154,6 +152,8 @@
 					/* resource configuration	*/
 
 #define CONFIG_PCI_SCAN_SHOW		/* print pci devices @ startup	*/
+
+#define CONFIG_PCI_CONFIG_HOST_BRIDGE 1 /* don't skip host bridge config*/
 
 #define CONFIG_PCI_BOOTDELAY	0	/* enable pci bootdelay variable*/
 
@@ -232,13 +232,14 @@
  * I2C EEPROM (CAT24WC32) for environment
  */
 #define CONFIG_HARD_I2C			/* I2c with hardware support */
-#define CFG_I2C_SPEED		400000	/* I2C speed and slave address */
+#define CFG_I2C_SPEED		100000	/* I2C speed and slave address */
 #define CFG_I2C_SLAVE		0x7F
 
 #define CFG_I2C_EEPROM_ADDR	0x50	/* EEPROM CAT28WC32		*/
 #define CFG_I2C_EEPROM_ADDR_LEN 2	/* Bytes of address		*/
 /* mask of address bits that overflow into the "EEPROM chip address"	*/
 #define CFG_I2C_EEPROM_ADDR_OVERFLOW	0x01
+#define CFG_I2C_MULTI_EEPROMS   1       /* more than one eeprom used!   */
 #define CFG_EEPROM_PAGE_WRITE_BITS 5	/* The Catalyst CAT24WC32 has	*/
 					/* 32 byte page write mode using*/
 					/* last 5 bits of the address	*/
@@ -254,7 +255,7 @@
 
 #define CFG_NVRAM_BASE_ADDR	0xf0200000		/* NVRAM base address	*/
 #define CFG_NVRAM_SIZE		(32*1024)		/* NVRAM size		*/
-#define CFG_NVRAM_VXWORKS_OFFS	0x6900		/* Offset for VxWorks eth-addr	*/
+#define CFG_VXWORKS_MAC_PTR     (CFG_NVRAM_BASE_ADDR+0x6900) /* VxWorks eth-addr*/
 
 /*-----------------------------------------------------------------------
  * Cache Configuration
@@ -331,16 +332,20 @@
 #define CFG_FPGA_MODE_CF_RESET	    0x0001
 #define CFG_FPGA_MODE_DUART_RESET   0x0002
 #define CFG_FPGA_MODE_ENABLE_OUTPUT 0x0004     /* only set on CPCI-405 Ver 3 */
-#define CFG_FPGA_MODE_TS_IRQ_ENABLE 0x0100
-#define CFG_FPGA_MODE_TS_IRQ_CLEAR  0x1000
-#define CFG_FPGA_MODE_TS_CLEAR	    0x2000
+#define CFG_FPGA_MODE_1WIRE_DIR     0x0100     /* dir=1 -> output */
+#define CFG_FPGA_MODE_SIM_OK_DIR    0x0200
+#define CFG_FPGA_MODE_TESTRIG_FAIL_DIR 0x0400
+#define CFG_FPGA_MODE_1WIRE         0x1000
+#define CFG_FPGA_MODE_SIM_OK        0x2000     /* wired-or net from all devices */
+#define CFG_FPGA_MODE_TESTRIG_FAIL  0x4000
 
 /* FPGA Status Reg */
-#define CFG_FPGA_STATUS_DIP0	0x0001
-#define CFG_FPGA_STATUS_DIP1	0x0002
-#define CFG_FPGA_STATUS_DIP2	0x0004
-#define CFG_FPGA_STATUS_FLASH	0x0008
-#define CFG_FPGA_STATUS_TS_IRQ	0x1000
+#define CFG_FPGA_STATUS_DIP0    0x0001
+#define CFG_FPGA_STATUS_DIP1    0x0002
+#define CFG_FPGA_STATUS_DIP2    0x0004
+#define CFG_FPGA_STATUS_FLASH   0x0008
+#define CFG_FPGA_STATUS_1WIRE   0x1000
+#define CFG_FPGA_STATUS_SIM_OK  0x2000
 
 #define CFG_FPGA_SPARTAN2	1	    /* using Xilinx Spartan 2 now    */
 #define CFG_FPGA_MAX_SIZE	128*1024    /* 128kByte is enough for XC2S30 */

@@ -52,6 +52,7 @@
 
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_PHY_ADDR		0	/* PHY address			*/
+#define CONFIG_LXT971_NO_SLEEP  1       /* disable sleep mode in LXT971 */
 
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
 				CFG_CMD_PCI	| \
@@ -268,7 +269,7 @@
 #define CFG_EBC_PB7CR		0xF509A000  /* BAS=0xF50,BS=16MB,BU=R/W,BW=16bit*/
 
 
-#define CFG_ETHERNET_MAC_ADDR	0x00000000	/* Pass Ethernet MAC to VxWorks */
+#define CFG_VXWORKS_MAC_PTR	0x00000000	/* Pass Ethernet MAC to VxWorks */
 
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in DPRAM)

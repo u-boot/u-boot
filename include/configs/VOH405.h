@@ -40,33 +40,30 @@
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* call board_early_init_f()	*/
 #define CONFIG_MISC_INIT_R	1	/* call misc_init_r()		*/
 
-#define CONFIG_SYS_CLK_FREQ	33333334 /* external frequency to pll	*/
+#define CONFIG_SYS_CLK_FREQ     33333400 /* external frequency to pll   */
 
 #define CONFIG_BAUDRATE		9600
 #define CONFIG_BOOTDELAY	3	/* autoboot after 3 seconds	*/
 
 #undef	CONFIG_BOOTARGS
-#define CONFIG_RAMBOOTCOMMAND							\
-	"setenv bootargs root=/dev/ram rw nfsroot=$(serverip):$(rootpath) "	\
-	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;"	\
-	"bootm ffc00000 ffca0000"
-#define CONFIG_NFSBOOTCOMMAND							\
-	"setenv bootargs root=/dev/nfs rw nfsroot=$(serverip):$(rootpath) "	\
-	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;"	\
-	"bootm ffc00000"
-#define CONFIG_BOOTCOMMAND CONFIG_RAMBOOTCOMMAND
+#undef	CONFIG_BOOTCOMMAND
 
-#define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
+#define CONFIG_PREBOOT                  /* enable preboot variable      */
+
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_PHY_ADDR		0	/* PHY address			*/
+#define CONFIG_LXT971_NO_SLEEP  1       /* disable sleep mode in LXT971 */
+
+#define CONFIG_PHY_CLK_FREQ	EMAC_STACR_CLK_66MHZ /* 66 MHz OPB clock*/
 
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
 				CFG_CMD_DHCP	| \
 				CFG_CMD_PCI	| \
 				CFG_CMD_IRQ	| \
 				CFG_CMD_IDE	| \
+				CFG_CMD_FAT	| \
 				CFG_CMD_ELF	| \
 				CFG_CMD_NAND	| \
 				CFG_CMD_DATE	| \
@@ -77,6 +74,8 @@
 
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
+
+#define CONFIG_SUPPORT_VFAT
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -112,13 +111,15 @@
 
 #define CFG_CONSOLE_INFO_QUIET	1	/* don't print console @ startup*/
 
+#define CONFIG_AUTO_COMPLETE	1       /* add autocompletion support   */
+
 #define CFG_MEMTEST_START	0x0400000	/* memtest works on	*/
 #define CFG_MEMTEST_END		0x0C00000	/* 4 ... 12 MB in DRAM	*/
 
-#undef	CFG_EXT_SERIAL_CLOCK	       /* no external serial clock used */
-#define CFG_IGNORE_405_UART_ERRATA_59	/* ignore ppc405gp errata #59	*/
-#define CFG_BASE_BAUD	    691200
-#undef CONFIG_UART1_CONSOLE	       /* define for uart1 as console  */
+#undef  CFG_EXT_SERIAL_CLOCK           /* no external serial clock used */
+#define CFG_IGNORE_405_UART_ERRATA_59   /* ignore ppc405gp errata #59   */
+#define CFG_BASE_BAUD       691200
+#define CONFIG_UART1_CONSOLE            /* define for uart1 as console  */
 
 /* The following table includes the supported baudrates */
 #define CFG_BAUDRATE_TABLE	\
@@ -169,30 +170,34 @@
 #define WRITE_NAND(d, adr) do{ *(volatile __u8 *)((unsigned long)adr) = (__u8)d; } while(0)
 #define READ_NAND(adr) ((volatile unsigned char)(*(volatile __u8 *)(unsigned long)adr))
 
+#define CFG_NAND_SKIP_BAD_DOT_I      1  /* ".i" read skips bad blocks   */
+
 /*-----------------------------------------------------------------------
  * PCI stuff
  *-----------------------------------------------------------------------
  */
-#define PCI_HOST_ADAPTER 0		/* configure as pci adapter	*/
-#define PCI_HOST_FORCE	1		/* configure as pci host	*/
-#define PCI_HOST_AUTO	2		/* detected via arbiter enable	*/
+#define PCI_HOST_ADAPTER 0              /* configure as pci adapter     */
+#define PCI_HOST_FORCE  1               /* configure as pci host        */
+#define PCI_HOST_AUTO   2               /* detected via arbiter enable  */
 
-#define CONFIG_PCI			/* include pci support		*/
-#define CONFIG_PCI_HOST PCI_HOST_HOST	/* select pci host function	*/
-#define CONFIG_PCI_PNP			/* do pci plug-and-play		*/
-					/* resource configuration	*/
+#define CONFIG_PCI			/* include pci support	        */
+#define CONFIG_PCI_HOST	PCI_HOST_HOST   /* select pci host function     */
+#define CONFIG_PCI_PNP			/* do pci plug-and-play         */
+					/* resource configuration       */
 
-#define CONFIG_PCI_SCAN_SHOW		/* print pci devices @ startup	*/
+#define CONFIG_PCI_SCAN_SHOW            /* print pci devices @ startup  */
 
-#define CFG_PCI_SUBSYS_VENDORID 0x12FE	/* PCI Vendor ID: esd gmbh	*/
-#define CFG_PCI_SUBSYS_DEVICEID 0x0405	/* PCI Device ID: CPCI-405	*/
-#define CFG_PCI_CLASSCODE	0x0b20	/* PCI Class Code: Processor/PPC*/
-#define CFG_PCI_PTM1LA	0x00000000	/* point to sdram		*/
-#define CFG_PCI_PTM1MS	0xfc000001	/* 64MB, enable hard-wired to 1 */
-#define CFG_PCI_PTM1PCI 0x00000000	/* Host: use this pci address	*/
-#define CFG_PCI_PTM2LA	0xffc00000	/* point to flash		*/
-#define CFG_PCI_PTM2MS	0xffc00001	/* 4MB, enable			*/
-#define CFG_PCI_PTM2PCI 0x04000000	/* Host: use this pci address	*/
+#define CONFIG_PCI_CONFIG_HOST_BRIDGE 1 /* don't skip host bridge config*/
+
+#define CFG_PCI_SUBSYS_VENDORID 0x12FE  /* PCI Vendor ID: esd gmbh      */
+#define CFG_PCI_SUBSYS_DEVICEID 0x0405  /* PCI Device ID: CPCI-405      */
+#define CFG_PCI_CLASSCODE       0x0b20  /* PCI Class Code: Processor/PPC*/
+#define CFG_PCI_PTM1LA  0x00000000      /* point to sdram               */
+#define CFG_PCI_PTM1MS  0xfc000001      /* 64MB, enable hard-wired to 1 */
+#define CFG_PCI_PTM1PCI 0x00000000      /* Host: use this pci address   */
+#define CFG_PCI_PTM2LA  0xffc00000      /* point to flash               */
+#define CFG_PCI_PTM2MS  0xffc00001      /* 4MB, enable                  */
+#define CFG_PCI_PTM2PCI 0x04000000      /* Host: use this pci address   */
 
 /*-----------------------------------------------------------------------
  * IDE/ATA stuff
@@ -256,10 +261,10 @@
  * Please note that CFG_SDRAM_BASE _must_ start at 0
  */
 #define CFG_SDRAM_BASE		0x00000000
-#define CFG_FLASH_BASE		0xFFFC0000
+#define CFG_FLASH_BASE		0xFFF80000
 #define CFG_MONITOR_BASE	TEXT_BASE
-#define CFG_MONITOR_LEN		(256 * 1024)	/* Reserve 256 kB for Monitor	*/
-#define CFG_MALLOC_LEN		(256 * 1024)	/* Reserve 256 kB for malloc()	*/
+#define CFG_MONITOR_LEN		(512 * 1024)	/* Reserve 512 kB for Monitor	*/
+#define CFG_MALLOC_LEN		(2 * 1024*1024)	/* Reserve 2 MB for malloc()	*/
 
 #if (CFG_MONITOR_BASE < FLASH_BASE0_PRELIM)
 # define CFG_RAMBOOT		1
@@ -349,6 +354,17 @@
 #define CFG_EBC_PB4CR	VGA_BA | 0x7A000    /* BAS=0xF10,BS=8MB,BU=R/W,BW=16bit */
 
 /*-----------------------------------------------------------------------
+ * LCD Setup
+ */
+
+#define CFG_LCD_BIG_MEM         0xF1200000  /* Epson S1D13806 Mem Base Address  */
+#define CFG_LCD_BIG_REG         0xF1000000  /* Epson S1D13806 Reg Base Address  */
+#define CFG_LCD_SMALL_MEM       0xF1400000  /* Epson S1D13704 Mem Base Address  */
+#define CFG_LCD_SMALL_REG       0xF140FFE0  /* Epson S1D13704 Reg Base Address  */
+
+#define CFG_LCD_LOGO_MAX_SIZE   (1024*1024)
+
+/*-----------------------------------------------------------------------
  * FPGA stuff
  */
 
@@ -398,17 +414,20 @@
  * GPIO0[17-23] - External Interrupts IRQ0 - IRQ6 inputs
  * GPIO0[24-27] - UART0 control signal inputs/outputs
  * GPIO0[28-29] - UART1 data signal input/output
- * GPIO0[30-31] - EMAC0 and EMAC1 reject packet inputs
+ * GPIO0[30-31] - EMAC0 and EMAC1 reject packet inputs -> GPIO
  */
 #define CFG_GPIO0_OSRH		0x40000550
 #define CFG_GPIO0_OSRL		0x00000110
 #define CFG_GPIO0_ISR1H		0x00000000
-#define CFG_GPIO0_ISR1L		0x15555445
+#define CFG_GPIO0_ISR1L		0x15555440
 #define CFG_GPIO0_TSRH		0x00000000
 #define CFG_GPIO0_TSRL		0x00000000
-#define CFG_GPIO0_TCR		0xF7FE0014
+#define CFG_GPIO0_TCR		0xF7FE0017
 
 #define CFG_DUART_RST		(0x80000000 >> 14)
+#define CFG_LCD_ENDIAN		(0x80000000 >> 7)
+#define CFG_LCD0_RST		(0x80000000 >> 30)
+#define CFG_LCD1_RST		(0x80000000 >> 31)
 
 /*
  * Internal Definitions

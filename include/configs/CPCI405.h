@@ -44,30 +44,17 @@
 #define CONFIG_BAUDRATE		9600
 #define CONFIG_BOOTDELAY	3	/* autoboot after 3 seconds	*/
 
-#if 0
-#define CONFIG_PREBOOT								\
-	"crc32 f0207004 ffc 0;"							\
-	"if cmp 0 f0207000 1;"							\
-	"then;echo Old CRC is correct;crc32 f0207004 ff4 f0207000;"		\
-	"else;echo Old CRC is bad;fi"
-#endif
-
 #undef	CONFIG_BOOTARGS
-#define CONFIG_RAMBOOTCOMMAND							\
-	"setenv bootargs root=/dev/ram rw nfsroot=$(serverip):$(rootpath) "	\
-	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;"	\
-	"bootm ffc00000 ffca0000"
-#define CONFIG_NFSBOOTCOMMAND							\
-	"setenv bootargs root=/dev/nfs rw nfsroot=$(serverip):$(rootpath) "	\
-	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;"	\
-	"bootm ffc00000"
-#define CONFIG_BOOTCOMMAND CONFIG_RAMBOOTCOMMAND
+#undef	CONFIG_BOOTCOMMAND
+
+#define CONFIG_PREBOOT                  /* enable preboot variable      */
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_PHY_ADDR		0	/* PHY address			*/
+#define CONFIG_LXT971_NO_SLEEP  1       /* disable sleep mode in LXT971 */
 
 #define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | \
 				 CONFIG_BOOTP_DNS | \
@@ -79,12 +66,15 @@
 				CFG_CMD_PCI	| \
 				CFG_CMD_IRQ	| \
 				CFG_CMD_IDE	| \
+				CFG_CMD_FAT	| \
 				CFG_CMD_ELF	| \
 				CFG_CMD_MII	| \
 				CFG_CMD_EEPROM	)
 
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
+
+#define CONFIG_SUPPORT_VFAT
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -134,35 +124,39 @@
 
 #define CFG_HZ		1000		/* decrementer freq: 1 ms ticks */
 
+#define CONFIG_LOOPW            1       /* enable loopw command         */
+
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 
 /*-----------------------------------------------------------------------
  * PCI stuff
  *-----------------------------------------------------------------------
  */
-#define PCI_HOST_ADAPTER 0		/* configure as pci adapter	*/
-#define PCI_HOST_FORCE	1		/* configure as pci host	*/
-#define PCI_HOST_AUTO	2		/* detected via arbiter enable	*/
+#define PCI_HOST_ADAPTER 0              /* configure as pci adapter     */
+#define PCI_HOST_FORCE  1               /* configure as pci host        */
+#define PCI_HOST_AUTO   2               /* detected via arbiter enable  */
 
-#define CONFIG_PCI			/* include pci support		*/
-#define CONFIG_PCI_HOST PCI_HOST_AUTO	/* select pci host function	*/
-#define CONFIG_PCI_PNP			/* do pci plug-and-play		*/
-					/* resource configuration	*/
+#define CONFIG_PCI			/* include pci support	        */
+#define CONFIG_PCI_HOST	PCI_HOST_AUTO   /* select pci host function     */
+#define CONFIG_PCI_PNP			/* do pci plug-and-play         */
+					/* resource configuration       */
 
-#define CONFIG_PCI_SCAN_SHOW		/* print pci devices @ startup	*/
+#define CONFIG_PCI_SCAN_SHOW            /* print pci devices @ startup  */
 
-#define CONFIG_PCI_BOOTDELAY	0	/* enable pci bootdelay variable*/
+#define CONFIG_PCI_CONFIG_HOST_BRIDGE 1 /* don't skip host bridge config*/
 
-#define CFG_PCI_SUBSYS_VENDORID 0x12FE	/* PCI Vendor ID: esd gmbh	*/
-#define CFG_PCI_SUBSYS_DEVICEID 0x0405	/* PCI Device ID: CPCI-405	*/
-#define CFG_PCI_SUBSYS_DEVICEID2 0x0406 /* PCI Device ID: CPCI-405-A	*/
-#define CFG_PCI_CLASSCODE	0x0b20	/* PCI Class Code: Processor/PPC*/
-#define CFG_PCI_PTM1LA	0x00000000	/* point to sdram		*/
-#define CFG_PCI_PTM1MS	0xfc000001	/* 64MB, enable hard-wired to 1 */
-#define CFG_PCI_PTM1PCI 0x00000000	/* Host: use this pci address	*/
-#define CFG_PCI_PTM2LA	0xffc00000	/* point to flash		*/
-#define CFG_PCI_PTM2MS	0xffc00001	/* 4MB, enable			*/
-#define CFG_PCI_PTM2PCI 0x04000000	/* Host: use this pci address	*/
+#define CONFIG_PCI_BOOTDELAY    0       /* enable pci bootdelay variable*/
+
+#define CFG_PCI_SUBSYS_VENDORID 0x12FE  /* PCI Vendor ID: esd gmbh      */
+#define CFG_PCI_SUBSYS_DEVICEID 0x0405  /* PCI Device ID: CPCI-405      */
+#define CFG_PCI_SUBSYS_DEVICEID2 0x0406 /* PCI Device ID: CPCI-405-A    */
+#define CFG_PCI_CLASSCODE       0x0b20  /* PCI Class Code: Processor/PPC*/
+#define CFG_PCI_PTM1LA  0x00000000      /* point to sdram               */
+#define CFG_PCI_PTM1MS  0xfc000001      /* 64MB, enable hard-wired to 1 */
+#define CFG_PCI_PTM1PCI 0x00000000      /* Host: use this pci address   */
+#define CFG_PCI_PTM2LA  0xffc00000      /* point to flash               */
+#define CFG_PCI_PTM2MS  0xffc00001      /* 4MB, enable                  */
+#define CFG_PCI_PTM2PCI 0x04000000      /* Host: use this pci address   */
 
 /*-----------------------------------------------------------------------
  * IDE/ATA stuff
@@ -221,23 +215,24 @@
 
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 
+#define CFG_NVRAM_BASE_ADDR	0xf0200000		/* NVRAM base address	*/
+#define CFG_NVRAM_SIZE		(32*1024)		/* NVRAM size		*/
+#define CFG_VXWORKS_MAC_PTR     (CFG_NVRAM_BASE_ADDR+0x6900) /* VxWorks eth-addr*/
+
 #if 1 /* Use NVRAM for environment variables */
 /*-----------------------------------------------------------------------
  * NVRAM organization
  */
 #define CFG_ENV_IS_IN_NVRAM	1	/* use NVRAM for environment vars	*/
-#define CFG_NVRAM_BASE_ADDR	0xf0200000		/* NVRAM base address	*/
-#define CFG_NVRAM_SIZE		(32*1024)		/* NVRAM size		*/
 #define CFG_ENV_SIZE		0x1000		/* Size of Environment vars	*/
 #define CFG_ENV_ADDR		\
 	(CFG_NVRAM_BASE_ADDR+CFG_NVRAM_SIZE-CFG_ENV_SIZE)	/* Env	*/
-#define CFG_NVRAM_VXWORKS_OFFS	0x6900		/* Offset for VxWorks eth-addr	*/
 
 #else /* Use EEPROM for environment variables */
 
-#define CFG_ENV_IS_IN_EEPROM	1	/* use EEPROM for environment vars */
-#define CFG_ENV_OFFSET		0x000	/* environment starts at the beginning of the EEPROM */
-#define CFG_ENV_SIZE		0x200	/* 512 bytes may be used for env vars */
+#define CFG_ENV_IS_IN_EEPROM    1       /* use EEPROM for environment vars */
+#define CFG_ENV_OFFSET          0x000   /* environment starts at the beginning of the EEPROM */
+#define CFG_ENV_SIZE            0x400   /* 1024 bytes may be used for env vars */
 				   /* total size of a CAT24WC08 is 1024 bytes */
 #endif
 

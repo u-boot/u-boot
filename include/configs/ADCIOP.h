@@ -155,7 +155,7 @@
 #define CFG_ENV_SIZE		0x0400		/* Size of Environment vars	*/
 #define CFG_ENV_ADDR		\
 	(CFG_NVRAM_BASE_ADDR+CFG_NVRAM_SIZE-CFG_ENV_SIZE)	/* Env	*/
-#define CFG_NVRAM_VXWORKS_OFFS	0x7800		/* Offset for VxWorks eth-addr	*/
+#define CFG_VXWORKS_MAC_PTR     (CFG_NVRAM_BASE_ADDR+0x7800) /* VxWorks eth-addr*/
 
 #else /* Use FLASH for environment variables */
 
