@@ -29,7 +29,7 @@ static int	ps2ser_getc_hw(void);
 static void	ps2ser_interrupt(void *dev_id);
 
 extern struct	serial_state rs_table[]; /* in serial.c */
-static struct	serial_state *state = rs_table + CONFIG_PS2SERIAL;
+static struct	serial_state *state;
 
 static u_char	ps2buf[PS2BUF_SIZE];
 static atomic_t	ps2buf_cnt;
@@ -49,8 +49,13 @@ static inline void ps2ser_out(int offset, int value)
 
 int ps2ser_init(void)
 {
-	int quot = state->baud_base / PS2SER_BAUD;
-	unsigned cval = 0x3; /* 8N1 - 8 data bits, no parity bits, 1 stop bit */
+	int quot;
+	unsigned cval;
+
+	state = rs_table + CONFIG_PS2SERIAL;
+
+	quot = state->baud_base / PS2SER_BAUD;
+	cval = 0x3; /* 8N1 - 8 data bits, no parity bits, 1 stop bit */
 
 	  /* Set speed, enable interrupts, enable FIFO
 	   */

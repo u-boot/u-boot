@@ -194,7 +194,7 @@ void handle_scancode(unsigned char scancode)
 	case 0xBA: /* caps lock released */
 		return; /* just swallow */
 	}
-#if 0
+#if 1
 	if((scancode&0x80)==0x80) /* key released */
 		return;
 #else

@@ -33,8 +33,8 @@
 *
 * RETURNS:
 *          150.000.000 for 150 MHz
-*          130.000.000. for 130 Mhz
-*          100.000.000. for 100 Mhz
+*          133.333.333 for 133 Mhz (= 400MHz/3)
+*          100.000.000 for 100 Mhz (= 400MHz/4)
 * NOTE:
 *   This functions should be used by the hardware driver to get the correct
 *   frequency of the CPU. Don't use the macros, which are set to init the CPU
@@ -55,7 +55,7 @@ uint incaip_get_cpuclk (void)
 		if (*((volatile ulong *) INCA_IP_CGU_CGU_DIVCR) & 0x40) {
 			/* Division value is 1/3, maximum CPU operating */
 			/* frequency is 133.3 MHz                       */
-			return 130000000;
+			return 133333333;
 		} else {
 			/* Division value is 1/4, maximum CPU operating */
 			/* frequency is 100 MHz                         */

@@ -2,6 +2,11 @@
 Changes since U-Boot 1.0.1:
 ======================================================================
 
+* Fix PS/2 keyboard problem caused by statically initialized variable
+  pointing to a location in flash
+
+* Fix INCA-IP clock calculation: 400/3 = 133.3 MHz, not 130.
+
 * The PS/2 mux on the BMS2003 board needs 450 ms after power on
   before we can access it; add delay in case we are faster (with no
   CF card inserted)
