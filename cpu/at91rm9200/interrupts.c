@@ -41,111 +41,114 @@ extern void reset_cpu(ulong addr);
 #define TIMER_LOAD_VAL 0xffff
 
 /* macro to read the 16 bit timer */
-#define READ_TIMER (tmr->TC_CV)
+#define READ_TIMER (tmr->TC_CV & 0x0000ffff)
 AT91PS_TC tmr;
 
-
+#ifdef CONFIG_USE_IRQ
+#error There is no IRQ support for AT91RM9200 in U-Boot yet.
+#else
 void enable_interrupts (void)
 {
-    return;
+	return;
 }
 int disable_interrupts (void)
 {
-    return 0;
+	return 0;
+}
+#endif
+
+
+void bad_mode (void)
+{
+	panic ("Resetting CPU ...\n");
+	reset_cpu (0);
 }
 
-
-void bad_mode(void)
+void show_regs (struct pt_regs *regs)
 {
-    panic("Resetting CPU ...\n");
-    reset_cpu(0);
+	unsigned long flags;
+	const char *processor_modes[] = {
+	"USER_26",	"FIQ_26",	"IRQ_26",	"SVC_26",
+	"UK4_26",	"UK5_26",	"UK6_26",	"UK7_26",
+	"UK8_26",	"UK9_26",	"UK10_26",	"UK11_26",
+	"UK12_26",	"UK13_26",	"UK14_26",	"UK15_26",
+	"USER_32",	"FIQ_32",	"IRQ_32",	"SVC_32",
+	"UK4_32",	"UK5_32",	"UK6_32",	"ABT_32",
+	"UK8_32",	"UK9_32",	"UK10_32",	"UND_32",
+	"UK12_32",	"UK13_32",	"UK14_32",	"SYS_32",
+	};
+
+	flags = condition_codes (regs);
+
+	printf ("pc : [<%08lx>]    lr : [<%08lx>]\n"
+		"sp : %08lx  ip : %08lx  fp : %08lx\n",
+		instruction_pointer (regs),
+		regs->ARM_lr, regs->ARM_sp, regs->ARM_ip, regs->ARM_fp);
+	printf ("r10: %08lx  r9 : %08lx  r8 : %08lx\n",
+		regs->ARM_r10, regs->ARM_r9, regs->ARM_r8);
+	printf ("r7 : %08lx  r6 : %08lx  r5 : %08lx  r4 : %08lx\n",
+		regs->ARM_r7, regs->ARM_r6, regs->ARM_r5, regs->ARM_r4);
+	printf ("r3 : %08lx  r2 : %08lx  r1 : %08lx  r0 : %08lx\n",
+		regs->ARM_r3, regs->ARM_r2, regs->ARM_r1, regs->ARM_r0);
+	printf ("Flags: %c%c%c%c",
+		flags & CC_N_BIT ? 'N' : 'n',
+		flags & CC_Z_BIT ? 'Z' : 'z',
+		flags & CC_C_BIT ? 'C' : 'c',
+		flags & CC_V_BIT ? 'V' : 'v');
+	printf ("  IRQs %s  FIQs %s  Mode %s%s\n",
+		interrupts_enabled (regs) ? "on" : "off",
+		fast_interrupts_enabled (regs) ? "on" : "off",
+		processor_modes[processor_mode (regs)],
+		thumb_mode (regs) ? " (T)" : "");
 }
 
-void show_regs(struct pt_regs * regs)
+void do_undefined_instruction (struct pt_regs *pt_regs)
 {
-    unsigned long flags;
-const char *processor_modes[]=
-{ "USER_26", "FIQ_26" , "IRQ_26" , "SVC_26" , "UK4_26" , "UK5_26" , "UK6_26" , "UK7_26" ,
-  "UK8_26" , "UK9_26" , "UK10_26", "UK11_26", "UK12_26", "UK13_26", "UK14_26", "UK15_26",
-  "USER_32", "FIQ_32" , "IRQ_32" , "SVC_32" , "UK4_32" , "UK5_32" , "UK6_32" , "ABT_32" ,
-  "UK8_32" , "UK9_32" , "UK10_32", "UND_32" , "UK12_32", "UK13_32", "UK14_32", "SYS_32"
-};
-
-    flags = condition_codes(regs);
-
-    printf("pc : [<%08lx>]    lr : [<%08lx>]\n"
-	   "sp : %08lx  ip : %08lx  fp : %08lx\n",
-	   instruction_pointer(regs),
-	   regs->ARM_lr, regs->ARM_sp,
-	   regs->ARM_ip, regs->ARM_fp);
-    printf("r10: %08lx  r9 : %08lx  r8 : %08lx\n",
-	   regs->ARM_r10, regs->ARM_r9,
-	   regs->ARM_r8);
-    printf("r7 : %08lx  r6 : %08lx  r5 : %08lx  r4 : %08lx\n",
-	   regs->ARM_r7, regs->ARM_r6,
-	   regs->ARM_r5, regs->ARM_r4);
-    printf("r3 : %08lx  r2 : %08lx  r1 : %08lx  r0 : %08lx\n",
-	   regs->ARM_r3, regs->ARM_r2,
-	   regs->ARM_r1, regs->ARM_r0);
-    printf("Flags: %c%c%c%c",
-	   flags & CC_N_BIT ? 'N' : 'n',
-	   flags & CC_Z_BIT ? 'Z' : 'z',
-	   flags & CC_C_BIT ? 'C' : 'c',
-	   flags & CC_V_BIT ? 'V' : 'v');
-    printf("  IRQs %s  FIQs %s  Mode %s%s\n",
-	   interrupts_enabled(regs) ? "on" : "off",
-	   fast_interrupts_enabled(regs) ? "on" : "off",
-	   processor_modes[processor_mode(regs)],
-	   thumb_mode(regs) ? " (T)" : "");
+	printf ("undefined instruction\n");
+	show_regs (pt_regs);
+	bad_mode ();
 }
 
-void do_undefined_instruction(struct pt_regs *pt_regs)
+void do_software_interrupt (struct pt_regs *pt_regs)
 {
-    printf("undefined instruction\n");
-    show_regs(pt_regs);
-    bad_mode();
+	printf ("software interrupt\n");
+	show_regs (pt_regs);
+	bad_mode ();
 }
 
-void do_software_interrupt(struct pt_regs *pt_regs)
+void do_prefetch_abort (struct pt_regs *pt_regs)
 {
-    printf("software interrupt\n");
-    show_regs(pt_regs);
-    bad_mode();
+	printf ("prefetch abort\n");
+	show_regs (pt_regs);
+	bad_mode ();
 }
 
-void do_prefetch_abort(struct pt_regs *pt_regs)
+void do_data_abort (struct pt_regs *pt_regs)
 {
-    printf("prefetch abort\n");
-    show_regs(pt_regs);
-    bad_mode();
+	printf ("data abort\n");
+	show_regs (pt_regs);
+	bad_mode ();
 }
 
-void do_data_abort(struct pt_regs *pt_regs)
+void do_not_used (struct pt_regs *pt_regs)
 {
-    printf("data abort\n");
-    show_regs(pt_regs);
-    bad_mode();
+	printf ("not used\n");
+	show_regs (pt_regs);
+	bad_mode ();
 }
 
-void do_not_used(struct pt_regs *pt_regs)
+void do_fiq (struct pt_regs *pt_regs)
 {
-    printf("not used\n");
-    show_regs(pt_regs);
-    bad_mode();
+	printf ("fast interrupt request\n");
+	show_regs (pt_regs);
+	bad_mode ();
 }
 
-void do_fiq(struct pt_regs *pt_regs)
+void do_irq (struct pt_regs *pt_regs)
 {
-    printf("fast interrupt request\n");
-    show_regs(pt_regs);
-    bad_mode();
-}
-
-void do_irq(struct pt_regs *pt_regs)
-{
-    printf("interrupt request\n");
-    show_regs(pt_regs);
-    bad_mode();
+	printf ("interrupt request\n");
+	show_regs (pt_regs);
+	bad_mode ();
 }
 
 static ulong timestamp;
@@ -154,81 +157,103 @@ static ulong lastinc;
 int interrupt_init (void)
 {
 
-    tmr = AT91C_BASE_TC0;
+	tmr = AT91C_BASE_TC0;
 
-    /* enables TC1.0 clock */
-    *AT91C_PMC_PCER = 1 << AT91C_ID_TC0;  /* enable clock */
+	/* enables TC1.0 clock */
+	*AT91C_PMC_PCER = 1 << AT91C_ID_TC0;  /* enable clock */
 
-    *AT91C_TCB0_BCR = 0;
-    *AT91C_TCB0_BMR = AT91C_TCB_TC0XC0S_NONE | AT91C_TCB_TC1XC1S_NONE | AT91C_TCB_TC2XC2S_NONE;
-    tmr->TC_CCR = AT91C_TC_CLKDIS;
-    tmr->TC_CMR = AT91C_TC_TIMER_DIV1_CLOCK;  /* set to MCLK/2 */
+	*AT91C_TCB0_BCR = 0;
+	*AT91C_TCB0_BMR = AT91C_TCB_TC0XC0S_NONE | AT91C_TCB_TC1XC1S_NONE | AT91C_TCB_TC2XC2S_NONE;
+	tmr->TC_CCR = AT91C_TC_CLKDIS;
+	tmr->TC_CMR = AT91C_TC_TIMER_DIV1_CLOCK;  /* set to MCLK/2 */
 
-    tmr->TC_IDR = ~0ul;
-    tmr->TC_RC = TIMER_LOAD_VAL;
-    lastinc = TIMER_LOAD_VAL;
-    tmr->TC_CCR = AT91C_TC_SWTRG | AT91C_TC_CLKEN;
-    timestamp = 0;
-    return (0);
+	tmr->TC_IDR = ~0ul;
+	tmr->TC_RC = TIMER_LOAD_VAL;
+	lastinc = TIMER_LOAD_VAL;
+	tmr->TC_CCR = AT91C_TC_SWTRG | AT91C_TC_CLKEN;
+	timestamp = 0;
+
+	return (0);
 }
 
 /*
  * timer without interrupts
  */
 
-void reset_timer(void)
+void reset_timer (void)
 {
-    reset_timer_masked();
+	reset_timer_masked ();
 }
 
 ulong get_timer (ulong base)
 {
-    return get_timer_masked() - base;
+	return get_timer_masked () - base;
 }
 
 void set_timer (ulong t)
 {
-    timestamp = t;
+	timestamp = t;
 }
 
-void udelay(unsigned long usec)
+void udelay (unsigned long usec)
 {
-    udelay_masked(usec);
+	udelay_masked(usec);
 }
 
-void reset_timer_masked(void)
+void reset_timer_masked (void)
 {
-    /* reset time */
-    lastinc = READ_TIMER;
-    timestamp = 0;
+	/* reset time */
+	lastinc = READ_TIMER;
+	timestamp = 0;
 }
 
-ulong get_timer_masked(void)
+ulong get_timer_masked (void)
 {
-    ulong now = READ_TIMER;
-    if (now >= lastinc)
-    {
-	/* normal mode */
-	timestamp += now - lastinc;
-    } else {
-	/* we have an overflow ... */
-	timestamp += now + TIMER_LOAD_VAL - lastinc;
-    }
-    lastinc = now;
+	ulong now = READ_TIMER;
 
-    return timestamp;
+	if (now >= lastinc) {
+		/* normal mode */
+		timestamp += now - lastinc;
+	} else {
+		/* we have an overflow ... */
+		timestamp += now + TIMER_LOAD_VAL - lastinc;
+	}
+	lastinc = now;
+
+	return timestamp;
 }
 
-void udelay_masked(unsigned long usec)
+void udelay_masked (unsigned long usec)
 {
-    ulong tmo;
+	ulong tmo;
 
-    tmo = usec / 1000;
-    tmo *= CFG_HZ;
-    tmo /= 1000;
+	tmo = usec / 1000;
+	tmo *= CFG_HZ;
+	tmo /= 1000;
 
-    reset_timer_masked();
+	reset_timer_masked ();
 
-    while(get_timer_masked() < tmo);
-      /*NOP*/;
+	while (get_timer_masked () < tmo)
+		/*NOP*/;
+}
+
+/*
+ * This function is derived from PowerPC code (read timebase as long long).
+ * On ARM it just returns the timer value.
+ */
+unsigned long long get_ticks(void)
+{
+	return get_timer(0);
+}
+
+/*
+ * This function is derived from PowerPC code (timebase clock frequency).
+ * On ARM it returns the number of timer ticks per second.
+ */
+ulong get_tbclk (void)
+{
+	ulong tbclk;
+
+	tbclk = CFG_HZ;
+	return tbclk;
 }

@@ -2,6 +2,13 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
+* Patch by Steven Scholz, 27 Feb 2004:
+  - Adding get_ticks() and get_tbclk() for AT91RM9200
+  - Many white space fixes in cpu/at91rm9200/interrupts.c
+
+* Patches by Steven Scholz, 20 Feb 2004:
+  some cleanup in AT91RM9200 related code
+
 * Patches by Travis Sawyer, 12 Mar 2004:
   - Fix Gigabit Ethernet support for 440GX
   - Add Gigabit Ethernet Support to MII PHY utilities

@@ -28,11 +28,6 @@
 #include "AT91RM9200_inc.h"
 #endif
 
-/* AT91RM92000 clocks */
-#define AT91_MAIN_CLOCK		179712000	/* from 18.432 MHz crystal (18432000 / 4 * 39) */
-#define AT91_MASTER_CLOCK	59904000	/* peripheral clock (AT91C_MASTER_CLOCK / 3) */
-#define AT91_SLOW_CLOCK		32768		/* slow clock */
-
 /* Virtual and Physical base address for system peripherals */
 #define AT91_SYS_BASE		0xFFFFF000 /*4K */
 

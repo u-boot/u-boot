@@ -905,9 +905,6 @@ ZUMA_config:	unconfig
 ## StrongARM Systems
 #########################################################################
 
-at91rm9200dk_config	:	unconfig
-	@./mkconfig $(@:_config=) arm at91rm9200 at91rm9200dk
-
 dnp1110_config	:	unconfig
 	@./mkconfig $(@:_config=) arm sa1100 dnp1110
 
@@ -1012,6 +1009,13 @@ ep7312_config	:	unconfig
 
 modnet50_config :	unconfig
 	@./mkconfig $(@:_config=) arm arm720t modnet50
+
+#########################################################################
+## AT91RM9200 Systems
+#########################################################################
+
+at91rm9200dk_config	:	unconfig
+	@./mkconfig $(@:_config=) arm at91rm9200 at91rm9200dk
 
 #########################################################################
 ## XScale Systems

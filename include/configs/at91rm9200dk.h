@@ -36,6 +36,8 @@
 #define AT91C_MASTER_CLOCK  59904000  /* peripheral clock (AT91C_MASTER_CLOCK / 3) */
 /* #define AT91C_MASTER_CLOCK  44928000 */  /* peripheral clock (AT91C_MASTER_CLOCK / 4) */
 
+#define AT91_SLOW_CLOCK		32768	/* slow clock */
+
 #define CONFIG_AT91RM9200DK	 1	/* on an AT91RM9200DK Board      */
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff */
 #define CONFIG_CMDLINE_TAG	 1	/* enable passing of ATAGs	*/
@@ -49,6 +51,8 @@
 #define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 #define CONFIG_BAUDRATE 115200
+
+#define CFG_AT91C_BRGR_DIVISOR	33	/* hardcode so no __divsi3 : AT91C_MASTER_CLOCK / baudrate / 16 */
 
 /*
  * Hardware drivers
