@@ -3,7 +3,7 @@
 # Script to create header files and links to configure
 # U-Boot for a specific board.
 #
-# Parameters:  Target  Architecture  CPU  Board
+# Parameters:  Target  Architecture  CPU  Board [VENDOR] [SOC]
 #
 # (C) 2002 DENX Software Engineering, Wolfgang Denk <wd@denx.de>
 #
@@ -19,7 +19,7 @@ while [ $# -gt 0 ] ; do
 done
 
 [ $# -lt 4 ] && exit 1
-[ $# -gt 5 ] && exit 1
+[ $# -gt 6 ] && exit 1
 
 echo "Configuring for $1 board..."
 
@@ -41,11 +41,13 @@ fi
 #
 # Create include file for Make
 #
-echo "ARCH  = $2" >  config.mk
-echo "CPU   = $3" >> config.mk
-echo "BOARD = $4" >> config.mk
+echo "ARCH   = $2" >  config.mk
+echo "CPU    = $3" >> config.mk
+echo "BOARD  = $4" >> config.mk
 
-[ "$5" ] && echo "VENDOR = $5" >> config.mk
+[ "$5" ] && [ "$5" != "NULL" ] && echo "VENDOR = $5" >> config.mk
+
+[ "$6" ] && [ "$6" != "NULL" ] && echo "SOC    = $6" >> config.mk
 
 #
 # Create board specific header file

@@ -2,6 +2,13 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Steven Scholz, 16 Aug 2004:
+  - Introducing the concept of SoCs "./cpu/$(CPU)/$(SOC)"
+  - creating subdirs for SoCs ./cpu/arm920t/imx and ./cpu/arm920t/s3c24x0
+  - moving SoC specific code out of cpu/arm920t/ into cpu/arm920t/$(SOC)/
+  - moving drivers/s3c24x0_i2c.c and drivers/serial_imx.c out of drivers/
+    into cpu/arm920t/$(SOC)/
+
 * Patches by Sean Chang, 09 Aug 2004:
   - Added support for both 8 and 16 bit mode access to System ACE CF
     through MPU.

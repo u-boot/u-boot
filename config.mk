@@ -59,6 +59,9 @@ endif
 ifdef	CPU
 sinclude $(TOPDIR)/cpu/$(CPU)/config.mk	# include  CPU	specific rules
 endif
+ifdef	SOC
+sinclude $(TOPDIR)/cpu/$(CPU)/$(SOC)/config.mk	# include  SoC	specific rules
+endif
 ifdef	VENDOR
 BOARDDIR = $(VENDOR)/$(BOARD)
 else

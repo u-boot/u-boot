@@ -26,11 +26,7 @@ include $(TOPDIR)/config.mk
 LIB	= lib$(CPU).a
 
 START	= start.o
-OBJS	= cpu.o	\
-	  imx_generic.o imx_interrupts.o imx_speed.o \
-	  interrupts.o \
-	  s3c24x0_interrupts.o s3c24x0_serial.o s3c24x0_speed.o \
-	  usb_ohci.o
+OBJS	= cpu.o interrupts.o
 
 all:	.depend $(START) $(LIB)
 

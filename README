@@ -125,6 +125,8 @@ Directory Hierarchy:
   - 74xx_7xx	Files specific to Motorola MPC74xx and 7xx CPUs
   - arm720t	Files specific to ARM 720 CPUs
   - arm920t	Files specific to ARM 920 CPUs
+    - imx	Files specific to Motorola MC9328 i.MX CPUs
+    - s3c24x0	Files specific to Samsung S3C24X0 CPUs
   - arm925t	Files specific to ARM 925 CPUs
   - arm926ejs	Files specific to ARM 926 CPUs
   - at91rm9200	Files specific to Atmel AT91RM9200 CPUs

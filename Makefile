@@ -45,7 +45,7 @@ export	TOPDIR
 ifeq (include/config.mk,$(wildcard include/config.mk))
 # load ARCH, BOARD, and CPU configuration
 include include/config.mk
-export	ARCH CPU BOARD VENDOR
+export	ARCH CPU BOARD VENDOR SOC
 # load other configuration
 include $(TOPDIR)/config.mk
 
@@ -101,6 +101,9 @@ endif
 LIBS  = lib_generic/libgeneric.a
 LIBS += board/$(BOARDDIR)/lib$(BOARD).a
 LIBS += cpu/$(CPU)/lib$(CPU).a
+ifdef SOC
+LIBS += cpu/$(CPU)/$(SOC)/lib$(SOC).a
+endif
 LIBS += lib_$(ARCH)/lib$(ARCH).a
 LIBS += fs/cramfs/libcramfs.a fs/fat/libfat.a fs/fdos/libfdos.a fs/jffs2/libjffs2.a \
 	fs/reiserfs/libreiserfs.a
@@ -1175,10 +1178,10 @@ lpd7a404_config:	unconfig
 	@./mkconfig $(@:_config=) arm lh7a40x lpd7a40x
 
 mx1ads_config	:	unconfig
-	@./mkconfig $(@:_config=) arm arm920t mx1ads
+	@./mkconfig $(@:_config=) arm arm920t mx1ads NULL imx
 
 mx1fs2_config	:	unconfig
-	@./mkconfig $(@:_config=) arm arm920t mx1fs2
+	@./mkconfig $(@:_config=) arm arm920t mx1fs2 NULL imx
 
 omap1510inn_config :	unconfig
 	@./mkconfig $(@:_config=) arm arm925t omap1510inn
@@ -1219,13 +1222,13 @@ omap730p2_cs3boot_config :	unconfig
 	@./mkconfig -a $(call xtract_omap730p2,$@) arm arm926ejs omap730p2
 
 scb9328_config	:	unconfig
-	@./mkconfig $(@:_config=) arm arm920t scb9328
+	@./mkconfig $(@:_config=) arm arm920t scb9328 NULL imx
 
 smdk2400_config	:	unconfig
-	@./mkconfig $(@:_config=) arm arm920t smdk2400
+	@./mkconfig $(@:_config=) arm arm920t smdk2400 NULL s3c24x0
 
 smdk2410_config	:	unconfig
-	@./mkconfig $(@:_config=) arm arm920t smdk2410
+	@./mkconfig $(@:_config=) arm arm920t smdk2410 NULL s3c24x0
 
 SX1_config :		unconfig
 	@./mkconfig $(@:_config=) arm arm925t sx1
@@ -1253,10 +1256,10 @@ trab_old_config:	unconfig
 		  echo "... with 8 MB Flash, 16 MB RAM" ; \
 		  echo "TEXT_BASE = 0x0CF40000" >board/trab/config.tmp ; \
 		}
-	@./mkconfig -a $(call xtract_trab,$@) arm arm920t trab
+	@./mkconfig -a $(call xtract_trab,$@) arm arm920t trab NULL s3c24x0
 
 VCMA9_config	:	unconfig
-	@./mkconfig $(@:_config=) arm arm920t vcma9 mpl
+	@./mkconfig $(@:_config=) arm arm920t vcma9 mpl s3c24x0
 
 versatile_config :	unconfig
 	@./mkconfig $(@:_config=) arm arm926ejs versatile
