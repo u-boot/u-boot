@@ -2,6 +2,8 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Improve SDRAM setup for TRAB board
+
 * Suppress all output with splashscreen configured only if "splashimage"
   is set
 

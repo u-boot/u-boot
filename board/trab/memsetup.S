@@ -104,12 +104,12 @@
 #ifndef CONFIG_RAM_16MB		/* 32 MB RAM */
 /* Bank6 */
 #define	B6_MT	0x3	/* SDRAM */
-#define	B6_Trcd	0x1	/* 3clk */
+#define	B6_Trcd	0x0	/* 2clk */
 #define	B6_SCAN	0x1	/* 9 bit */
 
 /* Bank7 */
 #define	B7_MT	0x3	/* SDRAM */
-#define	B7_Trcd	0x1	/* 3clk */
+#define	B7_Trcd	0x0	/* 2clk */
 #define	B7_SCAN	0x1	/* 9 bit */
 #else	/* CONFIG_RAM_16MB	=  16 MB RAM */
 /* Bank6 */
@@ -178,5 +178,5 @@ SMRDATA:
 #else	/* CONFIG_RAM_16MB	=  16 MB RAM */
 	.word	0x17	/* BUSWIDTH=32, SCLK power saving mode, BANKSIZE 16M/16M */
 #endif	/* CONFIG_RAM_16MB */
-	.word	0x30	/* MRSR6, CL=3clk */
-	.word	0x30	/* MRSR7 */
+	.word	0x20	/* MRSR6, CL=2clk */
+	.word	0x20	/* MRSR7 */
