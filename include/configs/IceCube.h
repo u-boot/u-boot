@@ -174,16 +174,16 @@
 /*
  * Flash configuration
  */
-#define CFG_FLASH_BASE		0xff000000
+#define CFG_FLASH_BASE		0xFF000000
 #define CFG_FLASH_SIZE		0x01000000
 #if !defined(CFG_LOWBOOT)
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x740000 + 0x800000)
+#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x00740000 + 0x00800000)
 #else	/* CFG_LOWBOOT */
 #if defined(CFG_LOWBOOT08)
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x30000 + 0x800000)
+#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x00040000 + 0x00800000)
 #endif
 #if defined(CFG_LOWBOOT16)
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x30000)
+#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x00040000)
 #endif
 #endif	/* CFG_LOWBOOT */
 #define CFG_MAX_FLASH_BANKS	2	/* max num of memory banks      */
@@ -207,7 +207,7 @@
 /*
  * Memory map
  */
-#define CFG_MBAR		0xf0000000
+#define CFG_MBAR		0xF0000000
 #define CFG_SDRAM_BASE		0x00000000
 #define CFG_DEFAULT_MBAR	0x80000000
 
@@ -279,10 +279,10 @@
 
 #ifdef CONFIG_MPC5200_DDR
 
-#define CFG_BOOTCS_START	0xff800000
+#define CFG_BOOTCS_START	0xFF800000
 #define CFG_BOOTCS_SIZE		0x00800000
 #define CFG_BOOTCS_CFG		0x00047801
-#define CFG_CS1_START		0xff000000
+#define CFG_CS1_START		0xFF000000
 #define CFG_CS1_SIZE		0x00800000
 #define CFG_CS1_CFG		0x00047800
 
@@ -335,7 +335,7 @@
 #define CFG_ATA_REG_OFFSET	(CFG_ATA_DATA_OFFSET)
 
 /* Offset for alternate registers	*/
-#define CFG_ATA_ALT_OFFSET	(0x005c)
+#define CFG_ATA_ALT_OFFSET	(0x005C)
 
 /* Interval between registers                                                */
 #define CFG_ATA_STRIDE          4

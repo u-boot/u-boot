@@ -36,6 +36,7 @@ void fpga_init (void);
 
 int board_early_init_f (void)
 {
+	unsigned long mfr;
 	/*-------------------------------------------------------------------------+
 	  | Initialize EBC CONFIG
 	  +-------------------------------------------------------------------------*/
@@ -116,6 +117,23 @@ int board_early_init_f (void)
 	mtdcr (uic1vr, 0x00000001);	/* int31 highest, base=0x000 */
 	mtdcr (uic1sr, 0xffffffff);	/* clear all */
 
+	mtdcr (uic2sr, 0xffffffff);	/* clear all */
+	mtdcr (uic2er, 0x00000000);	/* disable all */
+	mtdcr (uic2cr, 0x00000000);	/* all non-critical */
+	mtdcr (uic2pr, 0xffffffff);	/* per ref-board manual */
+	mtdcr (uic2tr, 0x00ff8c0f);	/* per ref-board manual */
+	mtdcr (uic2vr, 0x00000001);	/* int31 highest, base=0x000 */
+	mtdcr (uic2sr, 0xffffffff);	/* clear all */
+
+	mtdcr (uicb0sr, 0xfc000000); /* clear all */
+	mtdcr (uicb0er, 0x00000000); /* disable all */
+	mtdcr (uicb0cr, 0x00000000); /* all non-critical */
+	mtdcr (uicb0pr, 0xfc000000); /* */
+	mtdcr (uicb0tr, 0x00000000); /* */
+	mtdcr (uicb0vr, 0x00000001); /* */
+	mfsdr (sdr_mfr, mfr);
+	mfr &= ~SDR0_MFR_ECS_MASK;
+/*	mtsdr(sdr_mfr, mfr); */
 	fpga_init();
 
 	return 0;

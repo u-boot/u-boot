@@ -288,6 +288,10 @@
 /*-----------------------------------------------------------------------
  * SCCR - System Clock Control Register					 9-8
  */
+#define SCCR_PCI_MODE	0x00000100	/* PCI Mode	*/
+#define SCCR_PCI_MODCK	0x00000080	/* Value of PCI_MODCK pin	*/
+#define SCCR_PCIDF_MSK	0x00000078	/* PCI division factor	*/
+#define SCCR_PCIDF_SHIFT 3
 #define SCCR_CLPD	0x00000004	/* CPM Low Power Disable	*/
 #define SCCR_DFBRG_MSK	0x00000003	/* Division factor of BRGCLK Mask */
 #define SCCR_DFBRG_SHIFT 0

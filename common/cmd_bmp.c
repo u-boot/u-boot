@@ -32,7 +32,7 @@
 #if (CONFIG_COMMANDS & CFG_CMD_BMP)
 
 static int bmp_info (ulong addr);
-static int bmp_display (ulong addr);
+static int bmp_display (ulong addr, int x, int y);
 
 /*
  * Subroutine:  do_bmp
@@ -47,6 +47,7 @@ static int bmp_display (ulong addr);
 int do_bmp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	ulong addr;
+	int x = 0, y = 0;
 
 	switch (argc) {
 	case 2:		/* use load_addr as default address */
@@ -55,6 +56,11 @@ int do_bmp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	case 3:		/* use argument */
 		addr = simple_strtoul(argv[2], NULL, 16);
 		break;
+	case 5:
+		addr = simple_strtoul(argv[2], NULL, 16);
+	        x = simple_strtoul(argv[3], NULL, 10);
+	        y = simple_strtoul(argv[4], NULL, 10);
+	        break;
 	default:
 		printf ("Usage:\n%s\n", cmdtp->usage);
 		return 1;
@@ -66,7 +72,7 @@ int do_bmp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (strncmp(argv[1],"info",1) == 0) {
 		return (bmp_info(addr));
 	} else if (strncmp(argv[1],"display",1) == 0) {
-		return (bmp_display(addr));
+	    return (bmp_display(addr, x, y));
 	} else {
 		printf ("Usage:\n%s\n", cmdtp->usage);
 		return 1;
@@ -74,10 +80,10 @@ int do_bmp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD(
-	bmp,	3,	1,	do_bmp,
+	bmp,	5,	1,	do_bmp,
 	"bmp     - manipulate BMP image data\n",
-	"info <imageAddr>    - display image info\n"
-	"bmp display <imageAddr> - display image\n"
+	"info <imageAddr>          - display image info\n"
+	"bmp display <imageAddr> [x y] - display image at x,y\n"
 );
 
 /*
@@ -115,11 +121,17 @@ static int bmp_info(ulong addr)
  * Return:      None
  *
  */
-static int bmp_display(ulong addr)
+static int bmp_display(ulong addr, int x, int y)
 {
-	extern int lcd_display_bitmap (ulong);
+#ifdef CONFIG_LCD
+    extern int lcd_display_bitmap (ulong, int, int);
 
-	return (lcd_display_bitmap (addr));
+	return (lcd_display_bitmap (addr, x, y));
+#endif
+#ifdef CONFIG_VIDEO
+	extern int video_display_bitmap (ulong, int, int);
+	return (video_display_bitmap (addr, x, y));
+#endif
 }
 
 #endif /* (CONFIG_COMMANDS & CFG_CMD_BMP) */

@@ -1205,7 +1205,7 @@ static void bitmap_plot (int x, int y)
  * Display the BMP file located at address bmp_image.
  * Only uncompressed
  */
-int lcd_display_bitmap(ulong bmp_image)
+int lcd_display_bitmap(ulong bmp_image, int x, int y)
 {
 	volatile immap_t *immr = (immap_t *) CFG_IMMR;
 	volatile cpm8xx_t *cp = &(immr->im_cpm);
@@ -1277,16 +1277,14 @@ int lcd_display_bitmap(ulong bmp_image)
 	}
 
 	padded_line = (width&0x3) ? ((width&~0x3)+4) : (width);
-	if (width>panel_info.vl_col)
-		width = panel_info.vl_col;
-	if (height>panel_info.vl_row)
-		height = panel_info.vl_row;
+	if ((x + width)>panel_info.vl_col)
+		width = panel_info.vl_col - x;
+	if ((y + height)>panel_info.vl_row)
+		height = panel_info.vl_row - y;
 
 	bmap = (uchar *)bmp + le32_to_cpu (bmp->header.data_offset);
-	fb   = (uchar *)
-		(lcd_base +
-		 (((height>=panel_info.vl_row) ? panel_info.vl_row : height)-1)
-		 * lcd_line_length);
+	fb   = (uchar *) (lcd_base +
+		 (y + height - 1) * lcd_line_length + x);
 	for (i = 0; i < height; ++i) {
 		WATCHDOG_RESET();
 		for (j = 0; j < width ; j++)
@@ -1317,7 +1315,7 @@ static void *lcd_logo (void)
 	if ((s = getenv("splashimage")) != NULL) {
 		addr = simple_strtoul(s, NULL, 16);
 
-		if (lcd_display_bitmap (addr) == 0) {
+		if (lcd_display_bitmap (addr, 0, 0) == 0) {
 			return ((void *)lcd_base);
 		}
 	}
