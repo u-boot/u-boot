@@ -259,6 +259,16 @@
 #define CFG_CS0_START		CFG_FLASH_BASE
 #define CFG_CS0_SIZE		CFG_FLASH_SIZE
 
+/* 32Mbit SRAM @0x30000000 */
+#define CFG_CS1_START		0x30000000
+#define CFG_CS1_SIZE		0x00400000
+#define CFG_CS1_CFG		0x31800 /* for pci_clk = 33 MHz */
+
+/* 2 quad UART @0x80000000 (MBAR is relocated to 0xF0000000) */
+#define CFG_CS2_START		0x80000000
+#define CFG_CS2_SIZE		0x0001000
+#define CFG_CS2_CFG		0x21800  /* for pci_clk = 33 MHz */
+
 #define CFG_CS_BURST		0x00000000
 #define CFG_CS_DEADCYCLE	0x33333333
 
