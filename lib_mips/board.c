@@ -190,8 +190,8 @@ void board_init_f(ulong bootflag)
 	void copy_code (ulong);
 #endif
 
-		/* Pointer is writable since we allocated a register for it.
-		 */
+	/* Pointer is writable since we allocated a register for it.
+	 */
 	gd = &gd_data;
 	memset ((void *)gd, 0, sizeof (gd_t));
 
@@ -207,33 +207,27 @@ void board_init_f(ulong bootflag)
 	 */
 	addr = CFG_SDRAM_BASE + gd->ram_size;
 
-		/* We can reserve some RAM "on top" here.
-		 */
+	/* We can reserve some RAM "on top" here.
+	 */
 
-		/* round down to next 4 kB limit.
-		 */
+	/* round down to next 4 kB limit.
+	 */
 	addr &= ~(4096 - 1);
-#ifdef DEBUG
-	printf ("Top of RAM usable for U-Boot at: %08lx\n", addr);
-#endif
+	debug ("Top of RAM usable for U-Boot at: %08lx\n", addr);
 
-		/* Reserve memory for U-Boot code, data & bss
-		 * round down to next 16 kB limit
-		 */
+	/* Reserve memory for U-Boot code, data & bss
+	 * round down to next 16 kB limit
+	 */
 	addr -= len;
 	addr &= ~(16 * 1024 - 1);
 
-#ifdef DEBUG
-	printf ("Reserving %ldk for U-Boot at: %08lx\n", len >> 10, addr);
-#endif
+	debug ("Reserving %ldk for U-Boot at: %08lx\n", len >> 10, addr);
 
-	 	/* Reserve memory for malloc() arena.
-		 */
+	 /* Reserve memory for malloc() arena.
+	 */
 	addr_sp = addr - TOTAL_MALLOC_LEN;
-#ifdef DEBUG
-	printf ("Reserving %dk for malloc() at: %08lx\n",
+	debug ("Reserving %dk for malloc() at: %08lx\n",
 			TOTAL_MALLOC_LEN >> 10, addr_sp);
-#endif
 
 	/*
 	 * (permanently) allocate a Board Info struct
@@ -242,25 +236,20 @@ void board_init_f(ulong bootflag)
 	addr_sp -= sizeof(bd_t);
 	bd = (bd_t *)addr_sp;
 	gd->bd = bd;
-#ifdef DEBUG
-	printf ("Reserving %d Bytes for Board Info at: %08lx\n",
+	debug ("Reserving %d Bytes for Board Info at: %08lx\n",
 			sizeof(bd_t), addr_sp);
-#endif
+
 	addr_sp -= sizeof(gd_t);
 	id = (gd_t *)addr_sp;
-#ifdef DEBUG
-	printf ("Reserving %d Bytes for Global Data at: %08lx\n",
+	debug ("Reserving %d Bytes for Global Data at: %08lx\n",
 			sizeof (gd_t), addr_sp);
-#endif
 
-	 	/* Reserve memory for boot params.
-		 */
+ 	/* Reserve memory for boot params.
+	 */
 	addr_sp -= CFG_BOOTPARAMS_LEN;
 	bd->bi_boot_params = addr_sp;
-#ifdef DEBUG
-	printf ("Reserving %dk for malloc() at: %08lx\n",
+	debug ("Reserving %dk for boot params() at: %08lx\n",
 			CFG_BOOTPARAMS_LEN >> 10, addr_sp);
-#endif
 
 	/*
 	 * Finally, we set up a new (bigger) stack.
@@ -272,9 +261,8 @@ void board_init_f(ulong bootflag)
 	addr_sp &= ~0xF;
 	*((ulong *) addr_sp)-- = 0;
 	*((ulong *) addr_sp)-- = 0;
-#ifdef DEBUG
-	printf ("Stack Pointer at: %08lx\n", addr_sp);
-#endif
+	debug ("Stack Pointer at: %08lx\n", addr_sp);
+
 	/*
 	 * Save local variables to board info struct
 	 */
@@ -321,9 +309,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	gd = id;
 	gd->flags |= GD_FLG_RELOC;	/* tell others: relocation done */
 
-#ifdef DEBUG
-	printf ("Now running in RAM - U-Boot at: %08lx\n", dest_addr);
-#endif
+	debug ("Now running in RAM - U-Boot at: %08lx\n", dest_addr);
 
 	gd->reloc_off = dest_addr - CFG_MONITOR_BASE;
 

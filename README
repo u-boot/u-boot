@@ -2554,8 +2554,9 @@ from a "data file" which is used as image payload:
 	  -n ==> set image name to 'name'
 	  -d ==> use image data from 'datafile'
 
-Right now, all Linux kernels use the same load address	(0x00000000),
-but the entry point address depends on the kernel version:
+Right now, all Linux kernels for PowerPC systems use the same load
+address (0x00000000), but the entry point address depends on the
+kernel version:
 
 - 2.2.x kernels have the entry point at 0x0000000C,
 - 2.3.x and later kernels have the entry point at 0x00000000.

@@ -1148,6 +1148,24 @@ tb0229_config: unconfig
 	@./mkconfig $(@:_config=) mips mips tb0229
 
 #########################################################################
+## MIPS32 AU1X00
+#########################################################################
+dbau1000_config		: 	unconfig
+	@ >include/config.h
+	@echo "#define CONFIG_DBAU1000 1" >>include/config.h
+	@./mkconfig -a dbau1x00 mips mips dbau1x00
+
+dbau1100_config		: 	unconfig
+	@ >include/config.h
+	@echo "#define CONFIG_DBAU1100 1" >>include/config.h
+	@./mkconfig -a dbau1x00 mips mips dbau1x00
+
+dbau1500_config		: 	unconfig
+	@ >include/config.h
+	@echo "#define CONFIG_DBAU1500 1" >>include/config.h
+	@./mkconfig -a dbau1x00 mips mips dbau1x00
+
+#########################################################################
 ## MIPS64 5Kc
 #########################################################################
 
@@ -1231,24 +1249,6 @@ suzaku_config:	unconfig
 	@ >include/config.h
 	@echo "#define CONFIG_SUZAKU 1" >> include/config.h
 	@./mkconfig -a $(@:_config=) microblaze microblaze suzaku AtmarkTechno
-
-#########################################################################
-## MIPS32 AU1X00
-#########################################################################
-dbau1000_config		: 	unconfig
-	@ >include/config.h
-	@echo "#define CONFIG_DBAU1000 1" >>include/config.h
-	@./mkconfig -a dbau1x00 mips mips dbau1x00
-
-dbau1100_config		: 	unconfig
-	@ >include/config.h
-	@echo "#define CONFIG_DBAU1100 1" >>include/config.h
-	@./mkconfig -a dbau1x00 mips mips dbau1x00
-
-dbau1500_config		: 	unconfig
-	@ >include/config.h
-	@echo "#define CONFIG_DBAU1500 1" >>include/config.h
-	@./mkconfig -a dbau1x00 mips mips dbau1x00
 
 #########################################################################
 #########################################################################
