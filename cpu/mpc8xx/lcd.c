@@ -224,6 +224,18 @@ static vidinfo_t panel_info = {
 };
 #endif /* CONFIG_SHARP_LQ64D341 */
 
+#ifdef CONFIG_SHARP_LQ065T9DR51U
+/*
+ * Sharp LQ065T9DR51U display, 400x240. Active, color, single scan.
+ */
+static vidinfo_t panel_info = {
+    400, 240, 143, 79, CFG_HIGH, CFG_HIGH, CFG_HIGH, CFG_HIGH, CFG_HIGH,
+    3, 0, 0, 1, 1, 248, 4, 0, 35
+		/* wbl, vpw, lcdac, wbf */
+};
+#define LCD_INFO_BELOW_LOGO
+#endif /* CONFIG_SHARP_LQ065T9DR51U */
+
 #ifdef CONFIG_SHARP_LQ084V1DG21
 /*
  * Sharp LQ084V1DG21 display, 640x480. Active, color, single scan.

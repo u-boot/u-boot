@@ -2,6 +2,8 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Add support for the Sharp LQ065T9DR51U LCD display
+
 * Patch by Rune Torgersen, 17 Sep 2003:
   - Fixes for MPC8266 default config
   - Allow eth_loopback_test() on 8260 to use a subset of the FCC's
@@ -85,6 +87,14 @@ Changes for U-Boot 1.0.0:
 Changes for U-Boot 0.4.8:
 ======================================================================
 
+<<<<<<< CHANGELOG
+<<<<<<< CHANGELOG
+<<<<<<< CHANGELOG
+* Add I2C and RTC support for RMU board
+
+=======
+=======
+=======
 * Patches by Denis Peter, 9 Sep 2003:
   add FAT support for IDE, SCSI and USB
 
@@ -117,6 +127,7 @@ Changes for U-Boot 0.4.8:
 
 * Avoid flicker on TRAB's VFD
 
+>>>>>>> 1.130
 * Add support for SK98xx driver
 
 * Add PCI support for SL8245 board
@@ -162,6 +173,7 @@ Changes for U-Boot 0.4.7:
 * Add GCC library to examples/Makefile so GCC utility functions will
   be resolved, too
 
+>>>>>>> 1.118
 * Add I2C and RTC support for RMU board using software I2C driver
   (because of better response to iprobe command); fix problem with
   "reset" command
@@ -170,6 +182,7 @@ Changes for U-Boot 0.4.7:
   Added CONFIG_BOOTP_DNS2 and CONFIG_BOOTP_SEND_HOSTNAME to
   CONFIG_BOOTP_MAKS (see README).
 
+>>>>>>> 1.112
 * Fix ICU862 environment problem
 
 * Fix RAM size detection for RMU board
