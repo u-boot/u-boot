@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000, 2001
+# (C) Copyright 2000-2003
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -65,16 +65,11 @@ TOOLSUBDIRS =
 # -multiply_defined suppress option to turn off this error.
 #
 ifeq ($(HOSTOS)-$(HOSTARCH),darwin-ppc)
-TOOLSUBDIRS+= gdb
 HOST_CFLAGS = -traditional-cpp -Wall
 HOST_LDFLAGS =-multiply_defined suppress
 HOST_ENVIRO_CFLAGS = -traditional-cpp
 
 else
-#
-# The gdb tools won't build natively on NetBSD since bfd.h (and ansidecl.h)
-# are not installed -- just skip them, they are not really essential.
-#
 ifeq ($(HOSTOS)-$(HOSTARCH),netbsd-ppc)
 HOST_CFLAGS = -Wall -pedantic
 HOST_LDFLAGS =
@@ -84,7 +79,6 @@ HOST_ENVIRO_CFLAGS =
 # Everyone else
 #
 else
-TOOLSUBDIRS+= gdb
 HOST_CFLAGS = -Wall -pedantic
 HOST_LDFLAGS =
 HOST_ENVIRO_CFLAGS =

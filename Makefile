@@ -148,6 +148,9 @@ u-boot:		depend subdirs $(OBJS) $(LIBS) $(LDSCRIPT)
 subdirs:
 		@for dir in $(SUBDIRS) ; do $(MAKE) -C $$dir || exit 1 ; done
 
+gdbtools:
+		$(MAKE) -C tools/gdb || exit 1
+
 depend dep:
 		@for dir in $(SUBDIRS) ; do $(MAKE) -C $$dir .depend ; done
 
