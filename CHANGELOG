@@ -2,6 +2,10 @@
 Changes for U-Boot 0.4.5:
 ======================================================================
 
+* Removed tools/gdb from "make all" target.  Added make target "gdbtools"
+  in toplevel directory instead.  Removed astest.c from tools/gdb because
+  it is no longer relevant.
+
 * Fix PCI support for MPC5200 / IceCube Board
 
 * Map ISP1362 USB OTG controller for NSCU board
