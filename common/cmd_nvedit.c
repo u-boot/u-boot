@@ -183,9 +183,6 @@ int _do_setenv (int flag, int argc, char *argv[])
 		 * ver is readonly.
 		 */
 		if ( (strcmp (name, "serial#") == 0) ||
-#if defined(CONFIG_VERSION_VARIABLE)
-		     (strcmp (name, "ver") == 0) ||
-#endif /* CONFIG_VERSION_VARIABLE */
 		    ((strcmp (name, "ethaddr") == 0)
 #if defined(CONFIG_OVERWRITE_ETHADDR_ONCE) && defined(CONFIG_ETHADDR)
 		     && (strcmp (env_get_addr(oldval),MK_STR(CONFIG_ETHADDR)) != 0)

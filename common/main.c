@@ -284,10 +284,8 @@ void main_loop (void)
 #ifdef CONFIG_VERSION_VARIABLE
 	{
 		extern char version_string[];
-		char *str = getenv("ver");
 
-		if (!str)
-			setenv ("ver", version_string);  /* set version variable */
+		setenv ("ver", version_string);  /* set version variable */
 	}
 #endif /* CONFIG_VERSION_VARIABLE */
 
