@@ -180,7 +180,7 @@ Directory Hierarchy:
 		Files specific to EVB64260   boards
 - board/fads	Files specific to FADS	     boards
 - board/flagadm Files specific to FLAGADM    boards
-- board/gen860t Files specific to GEN860T    boards
+- board/gen860t Files specific to GEN860T and GEN860T_SC    boards
 - board/genietv Files specific to GENIETV    boards
 - board/gth	Files specific to GTH	     boards
 - board/hermes	Files specific to HERMES     boards

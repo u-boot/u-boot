@@ -42,8 +42,9 @@
 const mpc8xx_iop_conf_t iop_conf_tab[NUM_PORTS][PORT_BITS] = {
     /*
 	 * Port A configuration
-	 * Pin		Signal				Type	Active		Initial state
-	 * PA7 		fpgaProgramLowOut	Out		Low			High
+	 * Pin	Signal					Type	Active	Initial state
+	 * PA7 	fpgaProgramLowOut		Out		Low			High
+	 * PA1 	fpgaCoreVoltageFailLow	In		Low			N/A
 	 */
     {	/*	    conf ppar psor pdir podr pdat pint	   function 		*/
 	/* N/A  */ { 0,   0,   0,   0,   0,   0,   0 }, /* No pin			*/
@@ -62,22 +63,32 @@ const mpc8xx_iop_conf_t iop_conf_tab[NUM_PORTS][PORT_BITS] = {
 	/* PA4  */ { 1,   0,   0,   1,   0,   0,   0 }, /* red bicolor LED 0*/
 	/* PA3  */ { 0,   0,   0,   0,   0,   0,   0 }, /*	*/
 	/* PA2  */ { 0,   0,   0,   0,   0,   0,   0 }, /*	*/
+#if !defined(CONFIG_SC)
+	/* PA1  */ { 1,   0,   0,   0,   0,   0,   0 }, /*	fpgaCoreVoltageFail*/
+#else
 	/* PA1  */ { 0,   0,   0,   0,   0,   0,   0 }, /*	*/
+#endif
 	/* PA0  */ { 0,   0,   0,   0,   0,   0,   0 }  /*	*/
     },
 
 	/*
+	 * Port B configuration
 	 * Pin		Signal			Type		Active		Initial state
 	 * PB14		docBusyLowIn	In			Low			X
 	 * PB15		gpio1Sig		Out			High		Low
 	 * PB16		fpgaDoneBi		In			High		X
-	 * PB17		swBitOkLowOut	Out			Low			Low
+	 * PB17		swBitOkLowOut	Out			Low			High
 	 * PB19		speakerVolSig	Out/Hi-Z	High/Low	High (Hi-Z)
 	 * PB22		fpgaInitLowBi	In			Low			X
 	 * PB23		batteryOkSig	In			High		X
-     */
-    {	/*	    conf ppar psor pdir podr pdat pint 	  function			*/
-	/* PB31 */ { 0,   0,   0,   0,   0,   0,   0 }, /*	*/
+	 * PB31		pulseCatcherClr	Out			High		0
+	 */
+	{	/*	    conf ppar psor pdir podr pdat pint 	  function			*/
+#if !defined(CONFIG_SC)
+	/* PB31 */ { 0,	  0,   0,   0,   0,   0,   0 }, /*	*/
+#else
+	/* PB31 */ { 1,   0,   0,   1,   0,   0,   0 }, /* pulseCatcherClr	*/
+#endif
 	/* PB30 */ { 0,   0,   0,   0,   0,   0,   0 }, /*	*/
 	/* PB29 */ { 0,   0,   0,   0,   0,   0,   0 }, /*	*/
 	/* PB28 */ { 0,   0,   0,   0,   0,   0,   0 }, /*	*/
@@ -85,19 +96,32 @@ const mpc8xx_iop_conf_t iop_conf_tab[NUM_PORTS][PORT_BITS] = {
 	/* PB26 */ { 0,   0,   0,   0,   0,   0,   0 }, /*	*/
 	/* PB25 */ { 0,   0,   0,   0,   0,   0,   0 }, /*	*/
 	/* PB24 */ { 0,   0,   0,   0,   0,   0,   0 }, /*	*/
+#if !defined(CONFIG_SC)
 	/* PB23 */ { 1,   0,   0,   0,   0,   0,   0 }, /* batteryOk		*/
+#else
+	/* PB23 */ { 0,   0,   0,   0,   0,   0,   0 }, /*	*/
+#endif
 	/* PB22 */ { 1,   0,   0,   0,   0,   0,   0 }, /* fpgaInitLowBi	*/
 	/* PB21 */ { 0,   0,   0,   0,   0,   0,   0 }, /*	*/
 	/* PB20 */ { 0,   0,   0,   0,   0,   0,   0 }, /*	*/
+#if !defined(CONFIG_SC)
 	/* PB19 */ { 1,   0,   0,   1,   1,   1,   0 }, /* speakerVol		*/
+#else
+	/* PB19 */ { 0,   0,   0,   1,   1,   1,   0 }, /*	*/
+#endif
 	/* PB18 */ { 0,   0,   0,   0,   0,   0,   0 }, /*	*/
-	/* PB17 */ { 1,   0,   0,   1,   0,   0,   0 }, /* swBitOkLow		*/
+	/* PB17 */ { 1,   0,   0,   1,   0,   1,   0 }, /* swBitOkLow		*/
 	/* PB16 */ { 1,   0,   0,   0,   0,   0,   0 }, /* fpgaDone			*/
 	/* PB15 */ { 1,   0,   0,   1,   0,   0,   0 }, /* gpio1			*/
+#if !defined(CONFIG_SC)
 	/* PB14 */ { 1,   0,   0,   0,   0,   0,   0 }  /* docBusyLow		*/
-    },
+#else
+	/* PB14 */ { 0,   0,   0,   0,   0,   0,   0 }  /* 	*/
+#endif
+	},
 
 	/*
+	 * Port C configuration
 	 * Pin		Signal				Type	Active		Initial state
 	 * PC4		i2cBus1EnSig		Out		High		High
 	 * PC5		i2cBus2EnSig		Out		High		High
@@ -108,29 +132,48 @@ const mpc8xx_iop_conf_t iop_conf_tab[NUM_PORTS][PORT_BITS] = {
 	 * PC12		systemBitOkIn		In		High		X
 	 * PC15		selfDreqLow			In		Low			X
 	 */
-    {	/*	    conf ppar psor pdir podr pdat pint 	  function			*/
+	{	/*	    conf ppar psor pdir podr pdat pint 	  function			*/
 	/* N/A	*/ { 0,   0,   0,   0,   0,   0,   0 }, /*	*/
 	/* N/A	*/ { 0,   0,   0,   0,   0,   0,   0 }, /*	*/
 	/* PC15 */ { 1,   0,   0,   0,   0,   0,   0 }, /* selfDreqLowIn	*/
 	/* PC14 */ { 0,   0,   0,   0,   0,   0,   0 }, /*	*/
 	/* PC13 */ { 0,   0,   0,   0,   0,   0,   0 }, /*	*/
+#if !defined(CONFIG_SC)
 	/* PC12 */ { 1,   0,   0,   0,   0,   0,   0 }, /* systemBitOkIn	*/
+#else
+	/* PC12 */ { 0,   0,   0,   0,   0,   0,   0 }, /* 	*/
+#endif
 	/* PC11 */ { 1,   0,   0,   1,   0,   1,   0 }, /* fpgaResetLowOut	*/
+#if !defined(CONFIG_SC)
 	/* PC10 */ { 1,   0,   0,   1,   0,   1,   0 }, /* i2cBus4EnSig		*/
+#else
+	/* PC10 */ { 0,   0,   0,   1,   0,   1,   0 }, /*	*/
+#endif
 	/* PC9  */ { 0,   0,   0,   0,   0,   0,   0 }, /*	*/
+#if !defined(CONFIG_SC)
 	/* PC8  */ { 1,   0,   0,   1,   0,   1,   0 }, /* i2cBus3EnSig		*/
+#else
+	/* PC8  */ { 0,   0,   0,   1,   0,   1,   0 }, /*	*/
+#endif
 	/* PC7  */ { 0,   0,   0,   0,   0,   0,   0 }, /*	*/
 	/* PC6  */ { 1,   0,   0,   1,   0,   1,   0 }, /* gpio0			*/
+#if !defined(CONFIG_SC)
 	/* PC5  */ { 1,   0,   0,   1,   0,   1,   0 }, /* i2cBus2EnSig		*/
 	/* PC4  */ { 1,   0,   0,   1,   0,   1,   0 }, /* i2cBus1EnSig		*/
+#else
+	/* PC5  */ { 0,   0,   0,   1,   0,   1,   0 }, /*	*/
+	/* PC4  */ { 0,   0,   0,   1,   0,   1,   0 }, /*	*/
+#endif
 	/* N/A  */ { 0,   0,   0,   0,   0,   0,   0 }, /*	*/
 	/* N/A  */ { 0,   0,   0,   0,   0,   0,   0 }, /*	*/
 	/* N/A  */ { 0,   0,   0,   0,   0,   0,   0 }, /*	*/
 	/* N/A  */ { 0,   0,   0,   0,   0,   0,   0 }  /*	*/
-    },
+	},
 
-    /* Port D configuration */
-    {	/*	    conf ppar psor pdir podr pdat pint 	   function			*/
+	/*
+	 * Port D configuration
+	 */
+	{	/*	    conf ppar psor pdir podr pdat pint 	   function			*/
 	/* N/A  */ { 0,   0,   0,   0,   0,   0,   0 }, /*	*/
 	/* N/A  */ { 0,   0,   0,   0,   0,   0,   0 }, /*	*/
 	/* PD15 */ { 0,   0,   0,   0,   0,   0,   0 }, /*	*/
@@ -149,7 +192,7 @@ const mpc8xx_iop_conf_t iop_conf_tab[NUM_PORTS][PORT_BITS] = {
 	/* N/A  */ { 0,   0,   0,   0,   0,   0,   0 }, /*	*/
 	/* N/A  */ { 0,   0,   0,   0,   0,   0,   0 }, /*	*/
 	/* N/A  */ { 0,   0,   0,   0,   0,   0,   0 }  /*	*/
-    }
+	}
 };
 
 /*

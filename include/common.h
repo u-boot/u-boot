@@ -198,7 +198,7 @@ extern void  pic_write (uchar reg, uchar val);
 # define CFG_DEF_EEPROM_ADDR CFG_I2C_EEPROM_ADDR
 #endif /* CONFIG_SPI || !defined(CFG_I2C_EEPROM_ADDR) */
 
-#if defined(CONFIG_PCU_E) || defined(CONFIG_CCM)
+#if defined(CONFIG_PCU_E) || defined(CONFIG_CCM) || defined(CONFIG_ATC)
 extern void spi_init_f (void);
 extern void spi_init_r (void);
 extern ssize_t spi_read  (uchar *, int, uchar *, int);

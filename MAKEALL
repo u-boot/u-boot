@@ -26,16 +26,17 @@ LIST_8xx="	\
 	ADS860		AMX860		c2mon		CCM		\
 	cogent_mpc8xx	ESTEEM192E	ETX094		ELPT860		\
 	FADS823		FADS850SAR	FADS860T	FLAGADM		\
-	FPS850L		GEN860T		GENIETV		GTH		\
-	hermes		IAD210		ICU862_100MHz	IP860		\
-	IVML24		IVML24_128	IVML24_256	IVMS8		\
-	IVMS8_128	IVMS8_256	KUP4K           LANTEC	        \
-	lwmon   	MBX		MBX860T		MHPC		\
-	MVS1		NETVIA		NX823		pcu_e		\
-	R360MPI		RPXClassic	RPXlite		RRvision	\
-	SM850		SPD823TS	svm_sc8xx	SXNI855T	\
-	TOP860		TQM823L		TQM823L_LCD	TQM850L		\
-	TQM855L		TQM860L		TTTech		v37		\
+	FPS850L		GEN860T		GEN860T_SC	GENIETV		\
+	GTH		hermes		IAD210		ICU862_100MHz	\
+	IP860		IVML24		IVML24_128	IVML24_256	\
+	IVMS8		IVMS8_128	IVMS8_256	KUP4K           \
+	LANTEC	        lwmon   	MBX		MBX860T		\
+	MHPC		MVS1		NETVIA		NX823		\
+	pcu_e		R360MPI		RPXClassic	RPXlite		\
+	RRvision	SM850		SPD823TS	svm_sc8xx	\
+	SXNI855T	TOP860		TQM823L		TQM823L_LCD	\
+	TQM850L		TQM855L		TQM860L		TTTech		\
+	v37								\
 "
 
 #########################################################################
@@ -62,14 +63,15 @@ LIST_824x="	\
 "
 
 #########################################################################
-## MPC8260 Systems
+## MPC8260 Systems (includes 8250, 8255 etc.)
 #########################################################################
 
 LIST_8260="	\
-	cogent_mpc8260	CPU86		ep8260		gw8260		\
-	hymod		IPHASE4539	MPC8260ADS	MPC8266ADS	\
-	PM826		ppmc8260	RPXsuper	rsdproto	\
-	sacsng		sbc8260		SCM		TQM8260		\
+	ATC		cogent_mpc8260	CPU86		ep8260		\
+	gw8260		hymod		IPHASE4539	MPC8260ADS	\
+	MPC8266ADS	PM826		ppmc8260	RPXsuper	\
+	rsdproto	sacsng		sbc8260		SCM		\
+	TQM8260								\
 "
 
 #########################################################################

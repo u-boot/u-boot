@@ -170,7 +170,7 @@ typedef struct cpm_buf_desc {
  */
 #define PROFF_SMC1	(0)
 #define PROFF_SMC2	(64)
-
+#define PROFF_SPI	((16*1024) - 128)
 
 /* Define enough so I can at least use the serial port as a UART.
  */
@@ -736,6 +736,17 @@ typedef struct spi {
 
 #define SPMODE_LEN(x)	((((x)-1)&0xF)<<4)
 #define SPMODE_PM(x)	((x) &0xF)
+
+/* SPI Event/Mask register.
+*/
+#define SPI_EMASK		0x37	/* Event Mask				*/
+#define SPI_MME			0x20	/* Multi-Master Error			*/
+#define SPI_TXE			0x10	/* Transmit Error			*/
+#define SPI_BSY			0x04	/* Busy					*/
+#define SPI_TXB			0x02	/* Tx Buffer Empty			*/
+#define SPI_RXB			0x01	/* RX Buffer full/closed		*/
+
+#define SPI_STR			0x80	/* SPCOM: Start transmit		*/
 
 #define SPI_EB		((u_char)0x10)		/* big endian byte order */
 

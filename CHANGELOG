@@ -2,6 +2,20 @@
 Changes since U-Boot 0.3.1:
 ======================================================================
 
+* Add support for Promess ATC board
+
+* Patch by Keith Outwater, 28 Apr 2003:
+  - Miscellaneous corrections and additions to GEN860T board specific code.
+  - Added GEN860_SC variant to GEN860T.
+  - Miscellaneous corrections to GEN860T documentation.
+  - Correct duplicate entry in U-Boot CREDITS file.
+  - Add GEN860T_SC entry in MAINTAINERS file.
+  - Update CREDITS file with GEN860T_SC info.
+
+* Update Smiths Aerospace addresses in MAINTAINERS file
+
+* Fix error handling in hush's version of "run" command
+
 * LWMON extensions:
   - Splashscreen support
   - modem support

@@ -1,8 +1,7 @@
-
 This directory contains board specific code for a generic MPC860T based
 embedded computer, called 'GEN860T'.  The design is generic in the sense that
 common, readily available components are used and that the architecture of the
-system is i(relatively) straightforward:
+system is relatively straightforward:
 
 	One eight bit wide boot (FLASH) memory
 	32 bit main memory using SDRAM
@@ -23,14 +22,14 @@ hearing from you, especially if you discover bugs or find ways to improve the
 quality of this U-Boot port.
 
 Here are the salient features of the system:
-Clock						:	33 Mhz oscillator
-Processor core frequency	:	66 Mhz  if in 1:2:1 mode; can also run 1:1
-Bus frequency				:	33 Mhz
+Clock						:	33.3 Mhz oscillator
+Processor core frequency	:	66.6 Mhz  if in 1:2:1 mode; can also run 1:1
+Bus frequency				:	33.3 Mhz
 
 Main memory:
 	Type	: SDRAM
 	Width	: 32 bits
-	Size	: 64 megabytes
+	Size	: 64 mibibytes
 	Chip	: Two Micron MT48LC16M16A2TG-7E
 	CS		: MPC860T CS1*/UPMA
 	UPMA CONNECTIONS:
@@ -42,7 +41,7 @@ Main memory:
 Boot memory:
 	Type	: FLASH
 	Width	: 8 bits
-	Size	: 16 megabytes
+	Size	: 16 mibibytes
 	Chip	: One Intel 28F128J3A (StrataFlash)
 	CS		: MPC860T CS0*/GPCM (this is the "boot" chip select)
 
@@ -56,7 +55,7 @@ EEPROM memory:
 Filesystem memory:
 	Type	: NAND FLASH (Toshiba)
 	Width	: 8 bits (i.e. interface to DOC is 8 bits)
-	Size	: 32 megabytes
+	Size	: 32 mibibytes
 	Chip	: One DiskOnCHip Millenium Plus (DOC 2000+)
 	CS		: MPC860T CS2*/GPCM
 
@@ -92,6 +91,12 @@ Miscellaneous:
 	Mil-Std 1553 databus interface on CS5*/GPCM.
 	Audio sounder (beeper) with digital volume control connected to SPKROUT.
 
+SC variant:
+	A reduced-feature version of the GEN860T port is also supported: GEN860T_SC.
+	The 'SC' variant only provides support for the Virtex FPGA, SDRAM main
+	memory, EEPROM and flash memory.  The system clock frequency is reduced
+	to 24 MHz.
+
 Issues:
 	The DOC 2000+ returns 0x40 as its device ID when probed using the method
 	desxribed in the DOC datasheet.  Unfortunately, the U-Boot DOC driver
@@ -105,11 +110,11 @@ Status:
 	in MTD for this device.  I wish I had known this sooner :(
 
 The GEN860T board specific files and configuration is based on the work
-of others who have contributed to U-Boot. The copright and license notices
+of others who have contributed to U-Boot. The copyright and license notices
 of these authors have been retained wherever their code has been reused.
 All new code to support the GEN860T board is:
 
-	(C) Copyright 2001-2002
+	(C) Copyright 2001-2003
 	Keith Outwater (keith_outwater@mvis.com)
 
 and the following license applies:

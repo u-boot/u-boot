@@ -97,20 +97,20 @@ void status_led_set  (int led, int state);
 # define STATUS_LED_DAT			im_ioport.iop_padat
 
 # define STATUS_LED_BIT			0x0800	/* Red LED 0 is on PA.4	*/
-# define STATUS_LED_PERIOD		(CFG_HZ / 2)
-# define STATUS_LED_STATE		STATUS_LED_BLINKING
+# define STATUS_LED_PERIOD		(CFG_HZ / 4)
+# define STATUS_LED_STATE		STATUS_LED_OFF
 # define STATUS_LED_BIT1		0x0400	/* Grn LED 1 is on PA.5	*/
-# define STATUS_LED_PERIOD1		(CFG_HZ / 2)
+# define STATUS_LED_PERIOD1		(CFG_HZ / 8)
 # define STATUS_LED_STATE1		STATUS_LED_BLINKING
 # define STATUS_LED_BIT2		0x0080	/* Red LED 2 is on PA.8	*/
-# define STATUS_LED_PERIOD2		(CFG_HZ / 2)
-# define STATUS_LED_STATE2		STATUS_LED_BLINKING
+# define STATUS_LED_PERIOD2		(CFG_HZ / 4)
+# define STATUS_LED_STATE2		STATUS_LED_OFF
 # define STATUS_LED_BIT3		0x0040	/* Grn LED 3 is on PA.9	*/
-# define STATUS_LED_PERIOD3		(CFG_HZ / 2)
-# define STATUS_LED_STATE3		STATUS_LED_BLINKING
+# define STATUS_LED_PERIOD3		(CFG_HZ / 4)
+# define STATUS_LED_STATE3		STATUS_LED_OFF
 
 # define STATUS_LED_ACTIVE		1	/* LED on for bit == 1	*/
-# define STATUS_LED_BOOT		0	/* Boot status on LED 1	*/
+# define STATUS_LED_BOOT		1	/* Boot status on LED 1	*/
 
 /*****  IVMS8  **********************************************************/
 #elif defined(CONFIG_IVMS8)

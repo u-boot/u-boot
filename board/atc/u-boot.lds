@@ -1,7 +1,5 @@
 /*
- * Linker command file for the GEN860T board.
- *
- * (C) Copyright 2000
+ * (C) Copyright 2001
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -25,45 +23,42 @@
 
 OUTPUT_ARCH(powerpc)
 SEARCH_DIR(/lib); SEARCH_DIR(/usr/lib); SEARCH_DIR(/usr/local/lib); SEARCH_DIR(/usr/local/powerpc-any-elf/lib);
+/* Do we need any of these for elf?
+   __DYNAMIC = 0;    */
 SECTIONS
 {
-  /*
-   * Read-only sections, merged into text segment:
-   */
+  /* Read-only sections, merged into text segment: */
   . = + SIZEOF_HEADERS;
-  .interp        : { *(.interp)		}
+  .interp : { *(.interp) }
   .hash          : { *(.hash)		}
   .dynsym        : { *(.dynsym)		}
   .dynstr        : { *(.dynstr)		}
-  .rel.text      : { *(.rel.text)	}
+  .rel.text      : { *(.rel.text)		}
   .rela.text     : { *(.rela.text) 	}
-  .rel.data      : { *(.rel.data)	}
+  .rel.data      : { *(.rel.data)		}
   .rela.data     : { *(.rela.data) 	}
   .rel.rodata    : { *(.rel.rodata) 	}
   .rela.rodata   : { *(.rela.rodata) 	}
-  .rel.got       : { *(.rel.got)	}
-  .rela.got      : { *(.rela.got)	}
+  .rel.got       : { *(.rel.got)		}
+  .rela.got      : { *(.rela.got)		}
   .rel.ctors     : { *(.rel.ctors)	}
   .rela.ctors    : { *(.rela.ctors)	}
   .rel.dtors     : { *(.rel.dtors)	}
   .rela.dtors    : { *(.rela.dtors)	}
-  .rel.bss       : { *(.rel.bss)	}
-  .rela.bss      : { *(.rela.bss)	}
-  .rel.plt       : { *(.rel.plt)	}
-  .rela.plt      : { *(.rela.plt)	}
-  .init          : { *(.init)		}
-  .plt           : { *(.plt)		}
-  .text :
+  .rel.bss       : { *(.rel.bss)		}
+  .rela.bss      : { *(.rela.bss)		}
+  .rel.plt       : { *(.rel.plt)		}
+  .rela.plt      : { *(.rela.plt)		}
+  .init          : { *(.init)	}
+  .plt : { *(.plt) }
+  .text      :
   {
-    cpu/mpc8xx/start.o		(.text)
+    cpu/mpc8260/start.o	(.text)
     *(.text)
+    common/environment.o(.text)
     *(.fixup)
     *(.got1)
-  }
-  _etext = .;
-  PROVIDE (etext = .);
-  .rodata    :
-  {
+    . = ALIGN(16);
     *(.rodata)
     *(.rodata1)
   }
@@ -71,10 +66,8 @@ SECTIONS
   .ctors     : { *(.ctors)   }
   .dtors     : { *(.dtors)   }
 
-  /*
-   * Read-write section, merged into data segment:
-   */
-  . = (. + 0x00FF) & 0xFFFFFF00;
+  /* Read-write section, merged into data segment: */
+  . = (. + 0x0FFF) & 0xFFFFF000;
   _erotext = .;
   PROVIDE (erotext = .);
   .reloc   :
@@ -85,8 +78,8 @@ SECTIONS
     _FIXUP_TABLE_ = .;
     *(.fixup)
   }
-  __got2_entries = (_FIXUP_TABLE_ - _GOT2_TABLE_) >>2;
-  __fixup_entries = (. - _FIXUP_TABLE_)>>2;
+  __got2_entries = (_FIXUP_TABLE_ - _GOT2_TABLE_) >> 2;
+  __fixup_entries = (. - _FIXUP_TABLE_) >> 2;
 
   .data    :
   {
@@ -104,11 +97,11 @@ SECTIONS
   __ex_table : { *(__ex_table) }
   __stop___ex_table = .;
 
-  . = ALIGN(256);
+  . = ALIGN(4096);
   __init_begin = .;
   .text.init : { *(.text.init) }
   .data.init : { *(.data.init) }
-  . = ALIGN(256);
+  . = ALIGN(4096);
   __init_end = .;
 
   __bss_start = .;
@@ -122,3 +115,4 @@ SECTIONS
   _end = . ;
   PROVIDE (end = .);
 }
+

@@ -880,7 +880,7 @@ int do_run (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			return 1;
 #else
 		if (parse_string_outer(arg,
-		    FLAG_PARSE_SEMICOLON | FLAG_EXIT_FROM_LOOP) == 0)
+		    FLAG_PARSE_SEMICOLON | FLAG_EXIT_FROM_LOOP) != 0)
 			return 1;
 #endif
 	}

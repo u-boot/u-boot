@@ -271,18 +271,12 @@ misc_init_r (void)
 int
 last_stage_init(void)
 {
+#if !defined(CONFIG_SC)
 	unsigned char buf[256];
 	int i;
 
 	/*
-	 * Set LEDs here since status LED init code has already run
-	 */
-	status_led_set(STATUS_LED_BIT1, STATUS_LED_ON);
-	status_led_set(STATUS_LED_BIT3, STATUS_LED_ON);
-
-	/*
-	 * Turn the beeper volume all the way down in case this is a warm
-	 * boot.
+	 * Turn the beeper volume all the way down in case this is a warm boot.
 	 */
 	set_beeper_volume(-64);
 	init_beeper();
@@ -294,6 +288,18 @@ last_stage_init(void)
 	if (i > 0) {
 		do_beeper(buf);
 	}
+#endif
 	return 0;
 }
+
+/*
+ * Stub to make POST code happy.  Can't self-poweroff, so just hang.
+ */
+void
+board_poweroff(void)
+{
+	puts("### Please power off the board ###\n");
+    while (1);
+}
+
 /* vim: set ts=4 sw=4 tw=78 : */

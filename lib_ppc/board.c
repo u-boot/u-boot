@@ -50,7 +50,9 @@
 #include <cmd_bedbug.h>
 #endif
 #ifdef CFG_ALLOC_DPRAM
+#if !defined(CONFIG_8260)
 #include <commproc.h>
+#endif
 #endif
 #include <version.h>
 #if defined(CONFIG_BAB7xx)
@@ -277,7 +279,9 @@ init_fnc_t *init_sequence[] = {
 	get_clocks,		/* get CPU and bus clocks (etc.) */
 	init_timebase,
 #ifdef CFG_ALLOC_DPRAM
+#if !defined(CONFIG_8260)
 	dpram_init,
+#endif
 #endif
 #if defined(CONFIG_BOARD_POSTCLK_INIT)
 	board_postclk_init,

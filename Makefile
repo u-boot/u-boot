@@ -212,8 +212,16 @@ FADS860T_config:	unconfig
 FLAGADM_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx flagadm
 
+xtract_GEN860T = $(subst _SC,,$(subst _config,,$1))
+
+GEN860T_SC_config	\
 GEN860T_config: unconfig
-	@./mkconfig $(@:_config=) ppc mpc8xx gen860t
+	@ >include/config.h
+	@[ -z "$(findstring _SC,$@)" ] || \
+		{ echo "#define CONFIG_SC" >>include/config.h ; \
+		  echo "With reduced H/W feature set (SC)..." ; \
+		}
+	@./mkconfig -a $(call xtract_GEN860T,$@) ppc mpc8xx gen860t
 
 GENIETV_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx genietv
@@ -575,11 +583,13 @@ sbc8260_config:	unconfig
 SCM_config:		unconfig
 	@./mkconfig $(@:_config=) ppc mpc8260 SCM siemens
 
+TQM8255_config	\
 TQM8260_config	\
 TQM8260_L2_config	\
 TQM8255_266MHz_config	\
 TQM8260_266MHz_config	\
 TQM8260_L2_266MHz_config \
+TQM8255_300MHz_config	\
 TQM8260_300MHz_config:	unconfig
 	@ >include/config.h
 	@if [ "$(findstring _L2_,$@)" ] ; then \
@@ -600,6 +610,9 @@ TQM8260_300MHz_config:	unconfig
 	@[ -z "$(findstring TQM8255_,$@)" ] || \
 		{ echo "#define CONFIG_MPC8255"	>>include/config.h ; }
 	@./mkconfig -a TQM8260 ppc mpc8260 tqm8260
+
+atc_config:	unconfig
+	@./mkconfig $(@:_config=) ppc mpc8260 atc
 
 #########################################################################
 ## 74xx/7xx Systems

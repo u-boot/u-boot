@@ -213,12 +213,8 @@ D: Initial support for SSV-DNP1110, SMC91111 driver
 W: www.elinos.com
 
 N: Keith Outwater
-E: Keith_Outwater@mvis.com
-D: Support for GEN860T board
-
-N: Keith Outwater
 E: keith_outwater@mvis.com
-D: Support for generic/custom MPC860T board (GEN860T)
+D: Support for generic/custom MPC860T boards (GEN860T, GEN860T_SC)
 
 N: Frank Panno
 E: fpanno@delphintech.com

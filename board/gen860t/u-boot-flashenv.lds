@@ -1,5 +1,6 @@
 /*
- * Linker command file for the GEN860T board.
+ * Linker command file for the GEN860T board when the environment is
+ * stored in flash memory.
  *
  * (C) Copyright 2000
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -55,7 +56,7 @@ SECTIONS
   .plt           : { *(.plt)		}
   .text :
   {
-    cpu/mpc8xx/start.o		(.text)
+    cpu/mpc8xx/start.o	(.text)
     *(.text)
     *(.fixup)
     *(.got1)
@@ -88,7 +89,7 @@ SECTIONS
   __got2_entries = (_FIXUP_TABLE_ - _GOT2_TABLE_) >>2;
   __fixup_entries = (. - _FIXUP_TABLE_)>>2;
 
-  .data    :
+  .data:
   {
     *(.data)
     *(.data1)
@@ -119,6 +120,13 @@ SECTIONS
    *(.bss)
    *(COMMON)
   }
+  
   _end = . ;
   PROVIDE (end = .);
+
+  .ppcenv:
+  {
+    . = env_offset;
+    common/environment.o
+  }
 }

@@ -27,6 +27,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <watchdog.h>
 #include <version.h>
 #include <stdarg.h>
 #include <lcdvideo.h>
@@ -1059,6 +1060,8 @@ static void bitmap_plot (int x, int y)
 	/* Leave room for default color map */
 	cmap = (ushort *)&(cp->lcd_cmap[BMP_LOGO_OFFSET*sizeof(ushort)]);
 
+	WATCHDOG_RESET();
+
 	/* Set color map */
 	for (i=0; i<(sizeof(bmp_logo_palette)/(sizeof(ushort))); ++i) {
 		ushort colreg = bmp_logo_palette[i];
@@ -1071,11 +1074,15 @@ static void bitmap_plot (int x, int y)
 	bmap = &bmp_logo_bitmap[0];
 	fb   = (char *)(lcd_base + y * lcd_line_length + x);
 
+	WATCHDOG_RESET();
+
 	for (i=0; i<BMP_LOGO_HEIGHT; ++i) {
 		memcpy (fb, bmap, BMP_LOGO_WIDTH);
 		bmap += BMP_LOGO_WIDTH;
 		fb   += panel_info.vl_col;
 	}
+
+	WATCHDOG_RESET();
 }
 #endif /* CONFIG_LCD_LOGO */
 
@@ -1097,6 +1104,8 @@ int lcd_display_bitmap(ulong bmp_image)
 	unsigned long width, height;
 	unsigned colors,bpix;
 	unsigned long compression;
+
+	WATCHDOG_RESET();
 
 	if (!((bmp->header.signature[0]=='B') &&
 	      (bmp->header.signature[1]=='M'))) {
@@ -1149,6 +1158,8 @@ int lcd_display_bitmap(ulong bmp_image)
 #endif
 			*cmap-- = colreg;
 		}
+
+		WATCHDOG_RESET();
 	}
 
 	padded_line = (width&0x3) ? ((width&~0x3)+4) : (width);
@@ -1163,6 +1174,7 @@ int lcd_display_bitmap(ulong bmp_image)
 		 (((height>=panel_info.vl_row) ? panel_info.vl_row : height)-1)
 		 * lcd_line_length);
 	for (i = 0; i < height; ++i) {
+		WATCHDOG_RESET();
 		for (j = 0; j < width ; j++)
 			*(fb++)=255-*(bmap++);
 		bmap += (width - padded_line);

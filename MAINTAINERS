@@ -28,7 +28,7 @@ Pantelis Antoniou <panto@intracom.gr>
 
 	NETVIA			MPC8xx
 
-Jerry Van Baren <vanbaren_gerald@si.com>
+Jerry Van Baren <gerald.vanbaren@smiths-aerospace.com>
 
 	sacsng			MPC8260
 
@@ -80,6 +80,11 @@ Wolfgang Denk <wd@denx.de>
 	CU824			MPC8240
 	Sandpoint8240		MPC8240
 
+	ATC			MPC8250
+	PM825			MPC8250
+
+	TQM8255			MPC8255
+
 	CPU86			MPC8260
 	PM826			MPC8260
 	TQM8260			MPC8260
@@ -87,7 +92,7 @@ Wolfgang Denk <wd@denx.de>
 	PCIPPC2			MPC750
 	PCIPPC6			MPC750
 
-Jon Diekema <diekema_jon@si.com>
+Jon Diekema <jon.diekema@smiths-aerospace.com>
 
 	sbc8260			MPC8260
 
@@ -160,6 +165,7 @@ Scott McNutt <smcnutt@artesyncp.com>
 Keith Outwater <Keith_Outwater@mvis.com>
 
 	GEN860T			MPC860T
+	GEN860T_SC		MPC860T
 
 Frank Panno <fpanno@delphintech.com>
 

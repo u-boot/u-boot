@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000
+# (C) Copyright 2001
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,22 +23,17 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(CPU).a
+LIB	= lib$(BOARD).a
 
-START	= start.o kgdb.o
-OBJS	= traps.o serial_smc.o serial_scc.o cpu.o cpu_init.o speed.o \
-	  interrupts.o ether_scc.o ether_fcc.o i2c.o commproc.o \
-	  bedbug_603e.o status_led.o pci.o spi.o
+OBJS	= $(BOARD).o flash.o
 
-all:	.depend $(START) $(LIB)
-
-$(LIB):	$(OBJS)
-	$(AR) crv $@ $(OBJS) kgdb.o
+$(LIB):	.depend $(OBJS)
+	$(AR) crv $@ $^
 
 #########################################################################
 
-.depend:	Makefile $(START:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(START:.o=.S) $(OBJS:.o=.c) > $@
+.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
+		$(CC) -M $(CFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
 
 sinclude .depend
 

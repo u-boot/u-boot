@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000
+# (C) Copyright 2001
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -21,25 +21,23 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
+#
+# ATC boards
+#
 
-LIB	= lib$(CPU).a
+# This should be equal to the CFG_FLASH_BASE define in config_atc.h
+# for the "final" configuration, with U-Boot in flash, or the address
+# in RAM where U-Boot is loaded at for debugging.
+#
 
-START	= start.o kgdb.o
-OBJS	= traps.o serial_smc.o serial_scc.o cpu.o cpu_init.o speed.o \
-	  interrupts.o ether_scc.o ether_fcc.o i2c.o commproc.o \
-	  bedbug_603e.o status_led.o pci.o spi.o
+ifeq ($(CONFIG_BOOT_ROM),y)
+	TEXT_BASE := 0xFF800000
+	PLATFORM_CPPFLAGS += -DCONFIG_BOOT_ROM
+else
+	TEXT_BASE := 0xFF000000
+endif
 
-all:	.depend $(START) $(LIB)
+# RAM version
+#TEXT_BASE := 0x100000
 
-$(LIB):	$(OBJS)
-	$(AR) crv $@ $(OBJS) kgdb.o
-
-#########################################################################
-
-.depend:	Makefile $(START:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(START:.o=.S) $(OBJS:.o=.c) > $@
-
-sinclude .depend
-
-#########################################################################
+PLATFORM_CPPFLAGS += -DTEXT_BASE=$(TEXT_BASE) -I$(TOPDIR)
