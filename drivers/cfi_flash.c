@@ -517,6 +517,7 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 		i = buffered_size > cnt ? cnt : buffered_size;
 		if ((rc = flash_write_cfibuffer (info, wp, src, i)) != ERR_OK)
 			return rc;
+		i -= (i % info->portwidth);
 		wp += i;
 		src += i;
 		cnt -= i;
@@ -1231,5 +1232,5 @@ static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
 	flash_write_cmd (info, sector, 0, FLASH_CMD_CLEAR_STATUS);
 	return retcode;
 }
-#endif /* CFG_USE_FLASH_BUFFER_WRITE */
+#endif /* CFG_FLASH_USE_BUFFER_WRITE */
 #endif /* CFG_FLASH_CFI */

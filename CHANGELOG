@@ -2,6 +2,13 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Stephen Williams, 15 July 2004
+  Set the PCI class code for JSE board as part of PCI interface setup
+
+* Patch by Michael Bendzick, 15 Jul 2004:
+  Fix problem with writes with odd sizes in drivers/cfi_flash.c when
+  CFG_FLASH_USE_BUFFER_WRITE is set
+
 * Patch by Yuli Barcohen, 13 Jul 2004:
   Allow clock setting on MPC866/MPC885 series chips according to
   environment variable `cpuclk'

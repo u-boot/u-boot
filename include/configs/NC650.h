@@ -44,7 +44,7 @@
 /*
  * 10 MHz - PLL input clock
  */
-#define CFG_8xx_OSCCLK			10000000
+#define CONFIG_8xx_OSCLK		10000000
 
 /*
  * 50 MHz - default CPU clock
@@ -62,7 +62,7 @@
 #define CFG_8xx_CPUCLK_MAX		133000000
 
 #define CFG_MEASURE_CPUCLK
-#define CFG_8XX_XIN			CFG_8xx_OSCCLK
+#define CFG_8XX_XIN			CONFIG_8xx_OSCLK
 
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 

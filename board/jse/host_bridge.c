@@ -40,9 +40,12 @@ void host_bridge_init (void)
 	pci_dev_t dev = PCI_BDF (0, 10, 0);
 
 	int rc;
-	u32 val32;
 
-	rc = pci_read_config_dword (dev, 0, &val32);
+	/* Set PCI Class code --
+	   The primary side sees this class code at 0x08 in the
+	   primary config space. This must be something other then a
+	   bridge, or MS Windows starts doing weird stuff to me. */
+	pci_write_config_dword (dev, 0x48, 0x04800000);
 
 	/* Set subsystem ID --
 	   The primary side sees this value at 0x2c. We set it here so
