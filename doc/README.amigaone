@@ -1,0 +1,12 @@
+AmigaOne U-Boot and the SciTech emulator
+
+The directory board/MAI/bios_emulator contains the source code
+of the SciTech x86 emulator. This emulator is normally available
+under a BSD license. However, SciTech kindly gave us permission
+to use their emulator in PPCBoot for the AmigaOne. It's available
+in this form only under GPL.
+
+Thanks to Kendall Bennett and the rest of the team at SciTech.
+See http://www.scitechsoft.com for their web site
+
+The GPL license can be found at http://www.gnu.org/licenses/gpl.html

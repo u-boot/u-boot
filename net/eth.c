@@ -35,6 +35,7 @@ extern int eepro100_initialize(bd_t*);
 extern int natsemi_initialize(bd_t*);
 extern int ns8382x_initialize(bd_t*);
 extern int dc21x4x_initialize(bd_t*);
+extern int eth_3com_initialize(bd_t*);
 extern int pcnet_initialize(bd_t*);
 extern int fec_initialize(bd_t*);
 extern int scc_initialize(bd_t*);
@@ -99,6 +100,9 @@ int eth_initialize(bd_t *bis)
 #endif
 #ifdef CONFIG_TULIP
 	dc21x4x_initialize(bis);
+#endif
+#ifdef CONFIG_3COM
+	eth_3com_initialize(bis);
 #endif
 #ifdef CONFIG_PCNET
 	pcnet_initialize(bis);

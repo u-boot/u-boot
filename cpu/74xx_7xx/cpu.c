@@ -44,6 +44,11 @@
 #include <74xx_7xx.h>
 #include <asm/cache.h>
 
+#ifdef CONFIG_AMIGAONEG3SE
+#include "../board/MAI/AmigaOneG3SE/via686.h"
+#include "../board/MAI/AmigaOneG3SE/memio.h"
+#endif
+
 cpu_t
 get_cpu_type(void)
 {
@@ -218,12 +223,20 @@ do_reset (cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
 /*
  * For the 7400 the TB clock runs at 1/4 the cpu bus speed.
  */
-unsigned long
-get_tbclk (void)
+#ifdef CONFIG_AMIGAONEG3SE
+unsigned long get_tbclk(void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+
+	return (gd->bus_clk / 4);
+}
+#else	/* ! CONFIG_AMIGAONEG3SE */
+
+unsigned long get_tbclk (void)
 {
 	return CFG_BUS_HZ / 4;
 }
-
+#endif	/* CONFIG_AMIGAONEG3SE */
 /* ------------------------------------------------------------------------- */
 
 #if defined(CONFIG_WATCHDOG)

@@ -421,8 +421,11 @@ void pci_cfgfunc_do_nothing(struct pci_controller *hose,
  *
  */
 
+/* HJF: Changed this to return int. I think this is required
+ * to get the correct result when scanning bridges
+ */
+extern int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev);
 extern void pciauto_config_init(struct pci_controller *hose);
-extern void pciauto_config_device(struct pci_controller *hose, pci_dev_t dev);
 
 int pci_hose_scan_bus(struct pci_controller *hose, int bus)
 {
@@ -451,8 +454,7 @@ int pci_hose_scan_bus(struct pci_controller *hose, int bus)
 
 		pci_hose_read_config_word(hose, dev, PCI_VENDOR_ID, &vendor);
 
-		if (vendor != 0xffff && vendor != 0x0000)
-		{
+		if (vendor != 0xffff && vendor != 0x0000) {
 
 			if (!PCI_FUNC(dev))
 				found_multi = header_type & 0x80;
@@ -465,12 +467,15 @@ int pci_hose_scan_bus(struct pci_controller *hose, int bus)
 
 			cfg = pci_find_config(hose, class, vendor, device,
 					      PCI_BUS(dev), PCI_DEV(dev), PCI_FUNC(dev));
-			if (cfg)
+			if (cfg) {
 				cfg->config_device(hose, dev, cfg);
 #ifdef CONFIG_PCI_PNP
-			else
-				pciauto_config_device(hose, dev);
+			} else {
+				int n = pciauto_config_device(hose, dev);
+
+				sub_bus = max(sub_bus, n);
 #endif
+			}
 			if (hose->fixup_irq)
 				hose->fixup_irq(hose, dev);
 

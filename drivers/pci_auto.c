@@ -277,11 +277,15 @@ void pciauto_config_init(struct pci_controller *hose)
 	}
 }
 
-void pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
+/* HJF: Changed this to return int. I think this is required
+ * to get the correct result when scanning bridges
+ */
+int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 {
-	unsigned int sub_bus;
+	unsigned int sub_bus = PCI_BUS(dev);
 	unsigned short class;
 	unsigned char prg_iface;
+	int n;
 
 	pci_hose_read_config_word(hose, dev, PCI_CLASS_DEVICE, &class);
 
@@ -290,13 +294,25 @@ void pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 	case PCI_CLASS_BRIDGE_PCI:
 		pciauto_setup_device(hose, dev, 2, hose->pci_mem, hose->pci_io);
 
-		DEBUGF("PCI Autoconfig: Found P2P bridge, device %d\n", PCI_DEV(dev));
+		DEBUGF("PCI Autoconfig: Found P2P bridge, device %d\n",
+			PCI_DEV(dev));
 
-		pciauto_prescan_setup_bridge(hose, dev, PCI_BUS(dev));
+		/* HJF: Make sure two bridges on the same bus
+		 * won't get the same bus number
+		 */
+		pciauto_prescan_setup_bridge(hose, dev,
+				max(sub_bus, hose->current_busno));
 
-		sub_bus = pci_hose_scan_bus(hose, PCI_BUS(dev)+1);
+		n = pci_hose_scan_bus(hose, hose->current_busno+1 /*PCI_BUS(dev)+1*/);
+		sub_bus = max(sub_bus, n);
+		sub_bus = max(sub_bus, hose->current_busno);
 
-		pciauto_postscan_setup_bridge(hose, dev, sub_bus);
+		DEBUGF("PCI Autoconfig: Got %d from pci_hose_scan_bus\n",
+			sub_bus);
+
+		pciauto_postscan_setup_bridge(hose, dev,
+				max(sub_bus, hose->current_busno));
+		hose->current_busno++;
 		break;
 
 	case PCI_CLASS_STORAGE_IDE:
@@ -304,7 +320,7 @@ void pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 		if (!(prg_iface & PCIAUTO_IDE_MODE_MASK))
 			{
 				DEBUGF("PCI Autoconfig: Skipping legacy mode IDE controller\n");
-				return;
+				return sub_bus;
 			}
 
 		pciauto_setup_device(hose, dev, 6, hose->pci_mem, hose->pci_io);
@@ -314,6 +330,8 @@ void pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 		pciauto_setup_device(hose, dev, 6, hose->pci_mem, hose->pci_io);
 		break;
 	}
+
+	return sub_bus;
 }
 
 #endif /* CONFIG_PCI */

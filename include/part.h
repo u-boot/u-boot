@@ -51,6 +51,8 @@ typedef struct block_dev_desc {
 #define PART_TYPE_MAC		0x01
 #define PART_TYPE_DOS		0x02
 #define PART_TYPE_ISO		0x03
+#define PART_TYPE_AMIGA         0x04
+
 /* device types */
 #define DEV_TYPE_UNKNOWN 0xff /* not connected */
 #define DEV_TYPE_HARDDISK 0x00 /* harddisk */
@@ -92,6 +94,13 @@ int   test_part_dos (block_dev_desc_t *dev_desc);
 int get_partition_info_iso (block_dev_desc_t * dev_desc, int part, disk_partition_t *info);
 void print_part_iso (block_dev_desc_t *dev_desc);
 int   test_part_iso (block_dev_desc_t *dev_desc);
+#endif
+
+#ifdef CONFIG_AMIGA_PARTITION
+/* disk/part_amiga.c */
+int get_partition_info_amiga (block_dev_desc_t * dev_desc, int part, disk_partition_t *info);
+void print_part_amiga (block_dev_desc_t *dev_desc);
+int   test_part_amiga (block_dev_desc_t *dev_desc);
 #endif
 
 #endif /* _PART_H */

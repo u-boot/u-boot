@@ -96,7 +96,7 @@ void pciinfo(int BusNum, int ShortPCIListing)
 			if ((VendorID == 0xFFFF) || (VendorID == 0x0000))
 				continue;
 
-			pci_read_config_byte(dev, PCI_HEADER_TYPE, &HeaderType);
+			if (!Function) pci_read_config_byte(dev, PCI_HEADER_TYPE, &HeaderType);
 
 			if (ShortPCIListing)
 			{

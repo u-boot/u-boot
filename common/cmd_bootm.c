@@ -224,6 +224,17 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	iflag = disable_interrupts();
 
+#ifdef CONFIG_AMIGAONEG3SE
+	/*
+	 * We've possible left the caches enabled during 
+	 * bios emulation, so turn them off again
+	 */
+	icache_disable();
+	invalidate_l1_instruction_cache();
+	flush_data_cache();
+	dcache_disable();
+#endif
+
 	switch (hdr->ih_comp) {
 	case IH_COMP_NONE:
 		if(ntohl(hdr->ih_load) == addr) {

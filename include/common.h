@@ -81,6 +81,18 @@ typedef	void (interrupt_handler_t)(void *);
 
 
 /*
+ * General Purpose Utilities
+ */
+#define min(X, Y)				\
+	({ typeof (X) __x = (X), __y = (Y);	\
+		(__x < __y) ? __x : __y; })
+
+#define max(X, Y)				\
+	({ typeof (X) __x = (X), __y = (Y);	\
+		(__x > __y) ? __x : __y; })
+
+
+/*
  * Function Prototypes
  */
 

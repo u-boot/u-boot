@@ -1,0 +1,35 @@
+[SciTech]
+compiler=vc60- 
+targetos=c32 
+[COMPILER]
+version=5.0b
+MACRO=enable_current_compiler\n
+activeconfig=,wc10-d32
+FILTERNAME=Source Files\nInclude Files\nAssembler Files\n
+FILTERPATTERN=*.c;*.cpp;*.cxx;*.prg;*.pas;*.dpr;*.bas;*.java;*.sc;*.e;*.cob;*.html;*.rc\n*.h\n*.asm\n
+FILTERASSOCIATEFILETYPES=0 0 0 
+FILTERAPPCOMMAND=\n\n\n
+vcsproject=SCC:Perforce SCM://depot
+vcslocalpath=SCC:Perforce SCM:c:\
+compile=concur|capture|:Compile:&Compile,dmake %n.obj
+make=concur|capture|clear|saveall|:Build:&Build,dmake install
+rebuild=concur|capture|clear|saveall|:Rebuild:&Rebuild,dmake cleanexe & dmake install -u
+debug=concur|capture|hide|savenone|:Debug:&Debug,
+execute=hide|savenone|nochangedir|:Execute:E&xecute,
+user1=hide|:User 1:User 1,
+user2=hide|:User 2:User 2,
+usertool_clean_directory=concur|capture|savenone|:Clean Directory:&Clean Directory,dmake cleanexe
+workingdir=.
+includedirs=%(SCITECH)\include;%(PRIVATE)\include
+reffile=
+[FILES]
+win32\_pmwin32.asm
+win32\cpuinfo.c
+win32\ddraw.c
+win32\event.c
+win32\oshdr.h
+win32\pm.c
+win32\vflat.c
+win32\ztimer.c
+[ASSOCIATION]
+[CONFIGURATIONS]

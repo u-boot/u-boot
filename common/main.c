@@ -179,11 +179,19 @@ static __inline__ int abortboot(int bootdelay)
 
 # else	/* !defined(CONFIG_AUTOBOOT_KEYED) */
 
+#ifdef CONFIG_MENUKEY
+static int menukey = 0;
+#endif
+
 static __inline__ int abortboot(int bootdelay)
 {
 	int abort = 0;
 
+#ifdef CONFIG_MENUPROMPT
+	printf(CONFIG_MENUPROMPT, bootdelay);
+#else
 	printf("Hit any key to stop autoboot: %2d ", bootdelay);
+#endif
 
 #if defined CONFIG_ZERO_BOOTDELAY_CHECK
         /*
@@ -208,7 +216,11 @@ static __inline__ int abortboot(int bootdelay)
 			if (tstc()) {	/* we got a key press	*/
 				abort  = 1;	/* don't auto boot	*/
 				bootdelay = 0;	/* no more delay	*/
+# ifdef CONFIG_MENUKEY
+				menukey = getc();
+# else
 				(void) getc();  /* consume input	*/
+# endif
 				break;
 			}
 			udelay (10000);
@@ -323,7 +335,30 @@ void main_loop (void)
 		disable_ctrlc(prev);	/* restore Control C checking */
 # endif
 	}
+
+# ifdef CONFIG_MENUKEY
+	if (menukey == CONFIG_MENUKEY)
+	{
+	    s = getenv("menucmd");
+	    if (s)
+	    {
+# ifndef CFG_HUSH_PARSER
+		run_command (s, bd, 0);
+# else
+		parse_string_outer(s, FLAG_PARSE_SEMICOLON |
+				    FLAG_EXIT_FROM_LOOP);
+# endif
+	    }
+	}
+#endif /* CONFIG_MENUKEY */
 #endif	/* CONFIG_BOOTDELAY */
+
+#ifdef CONFIG_AMIGAONEG3SE
+	{
+	    extern void video_banner(void);
+	    video_banner();
+	}
+#endif
 
 	/*
 	 * Main Loop for Monitor Command Processing

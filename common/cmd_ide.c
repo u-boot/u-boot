@@ -58,6 +58,7 @@
 
 #undef	IDE_DEBUG
 
+
 #ifdef	IDE_DEBUG
 #define	PRINTF(fmt,args...)	printf (fmt ,##args)
 #else
@@ -121,7 +122,11 @@ ulong ide_bus_offset[CFG_IDE_MAXBUS] = {
 #define	ATA_CURR_BASE(dev)	(CFG_ATA_BASE_ADDR+ide_bus_offset[IDE_BUS(dev)])
 #endif
 
+#ifndef CONFIG_AMIGAONEG3SE
 static int	    ide_bus_ok[CFG_IDE_MAXBUS];
+#else
+static int	    ide_bus_ok[CFG_IDE_MAXBUS] = {0,};
+#endif
 
 static  block_dev_desc_t ide_dev_desc[CFG_IDE_MAXDEVICE];
 /* ------------------------------------------------------------------------- */
@@ -129,7 +134,15 @@ static  block_dev_desc_t ide_dev_desc[CFG_IDE_MAXDEVICE];
 #ifdef CONFIG_IDE_LED
 static void  ide_led   (uchar led, uchar status);
 #else
+#ifndef CONFIG_AMIGAONEG3SE
 #define ide_led(a,b)	/* dummy */
+#else
+extern void ide_led(uchar led, uchar status);
+#define LED_IDE1  1
+#define LED_IDE2  2
+#define CONFIG_IDE_LED 1
+#define DEVICE_LED(x) 1
+#endif
 #endif
 
 #ifdef CONFIG_IDE_RESET
@@ -464,6 +477,11 @@ void ide_init (void)
 #endif
 	unsigned char c;
 	int i, bus;
+#ifdef CONFIG_AMIGAONEG3SE
+	unsigned int max_bus_scan;
+	unsigned int ata_reset_time;
+	char *s;
+#endif
 
 #ifdef CONFIG_IDE_8xx_PCCARD
 	extern int pcmcia_on (void);
@@ -514,8 +532,19 @@ void ide_init (void)
 	 * Wait for IDE to get ready.
 	 * According to spec, this can take up to 31 seconds!
 	 */
+#ifndef CONFIG_AMIGAONEG3SE
 	for (bus=0; bus<CFG_IDE_MAXBUS; ++bus) {
 		int dev = bus * (CFG_IDE_MAXDEVICE / CFG_IDE_MAXBUS);
+#else
+	s = getenv("ide_maxbus");
+	if (s)
+	    max_bus_scan = simple_strtol(s, NULL, 10);
+	else
+	    max_bus_scan = CFG_IDE_MAXBUS;
+
+	for (bus=0; bus<max_bus_scan; ++bus) {
+		int dev = bus * (CFG_IDE_MAXDEVICE / max_bus_scan);
+#endif
 
 		printf ("Bus %d: ", bus);
 
@@ -526,16 +555,32 @@ void ide_init (void)
 		udelay (100000);		/* 100 ms */
 		ide_outb (dev, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(dev));
 		udelay (100000);		/* 100 ms */
-
+#ifdef CONFIG_AMIGAONEG3SE
+		ata_reset_time = ATA_RESET_TIME;
+		s = getenv("ide_reset_timeout");
+		if (s) ata_reset_time = 2*simple_strtol(s, NULL, 10);
+#endif
 		i = 0;
 		do {
 			udelay (10000);		/* 10 ms */
 
 			c = ide_inb (dev, ATA_STATUS);
 			i++;
+#ifdef CONFIG_AMIGAONEG3SE
+			if (i > (ata_reset_time * 100)) {
+#else
 			if (i > (ATA_RESET_TIME * 100)) {
+#endif
 				puts ("** Timeout **\n");
 				ide_led ((LED_IDE1 | LED_IDE2), 0); /* LED's off */
+#ifdef CONFIG_AMIGAONEG3SE
+				/* If this is the second bus, the first one was OK */
+				if (bus != 0)
+				{
+				    ide_bus_ok[bus] = 0;
+				    goto skip_bus;
+				}
+#endif
 				return;
 			}
 			if ((i >= 100) && ((i%100)==0)) {
@@ -557,6 +602,10 @@ void ide_init (void)
 		}
 		WATCHDOG_RESET();
 	}
+
+#ifdef CONFIG_AMIGAONEG3SE
+      skip_bus:
+#endif
 	putc ('\n');
 
 	ide_led ((LED_IDE1 | LED_IDE2), 0);	/* LED's off	*/
@@ -736,6 +785,26 @@ __inline__ unsigned ld_le16(const volatile unsigned short *addr)
 	return val;
 }
 
+#ifdef CONFIG_AMIGAONEG3SE
+static void
+output_data_short(int dev, ulong *sect_buf, int words)
+{
+	ushort	*dbuf;
+	volatile ushort	*pbuf;
+	
+	pbuf = (ushort *)(ATA_CURR_BASE(dev)+ATA_DATA_REG);
+	dbuf = (ushort *)sect_buf;
+	while (words--) {
+		__asm__ volatile ("eieio");
+		*pbuf = *dbuf++;
+		__asm__ volatile ("eieio");
+	}
+
+	if (words&1)
+	    *pbuf = 0;
+}
+#endif
+
 static void
 input_swap_data(int dev, ulong *sect_buf, int words)
 {
@@ -803,6 +872,29 @@ input_data(int dev, ulong *sect_buf, int words)
 
 #endif	/* __PPC__ */
 
+#ifdef CONFIG_AMIGAONEG3SE
+static void
+input_data_short(int dev, ulong *sect_buf, int words)
+{
+	ushort	*dbuf;
+	volatile ushort	*pbuf;
+
+	pbuf = (ushort *)(ATA_CURR_BASE(dev)+ATA_DATA_REG);
+	dbuf = (ushort *)sect_buf;
+	while (words--) {
+		__asm__ volatile ("eieio");
+		*dbuf++ = *pbuf;
+		__asm__ volatile ("eieio");
+	}
+
+	if (words&1)
+	{
+	    ushort dummy;
+	    dummy = *pbuf;
+	}
+}
+#endif
+
 /* -------------------------------------------------------------------------
  */
 static void ide_ident (block_dev_desc_t *dev_desc)
@@ -811,6 +903,13 @@ static void ide_ident (block_dev_desc_t *dev_desc)
 	unsigned char c;
 	hd_driveid_t *iop = (hd_driveid_t *)iobuf;
 
+#ifdef CONFIG_AMIGAONEG3SE
+	int max_bus_scan;
+	int retries = 0;
+	char *s;
+	int do_retry = 0;
+#endif
+
 #if 0
 	int mode, cycle_time;
 #endif
@@ -818,12 +917,35 @@ static void ide_ident (block_dev_desc_t *dev_desc)
 	device=dev_desc->dev;
 	printf ("  Device %d: ", device);
 
+#ifdef CONFIG_AMIGAONEG3SE
+	s = getenv("ide_maxbus");
+	if (s) {
+		max_bus_scan = simple_strtol(s, NULL, 10);
+	} else {
+		max_bus_scan = CFG_IDE_MAXBUS;
+	}
+	if (device >= max_bus_scan*2) {
+		dev_desc->type=DEV_TYPE_UNKNOWN;
+		return;
+	}
+#endif
+
 	ide_led (DEVICE_LED(device), 1);	/* LED on	*/
 	/* Select device
 	 */
 	ide_outb (device, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(device));
 	dev_desc->if_type=IF_TYPE_IDE;
 #ifdef CONFIG_ATAPI
+
+#ifdef CONFIG_AMIGAONEG3SE
+    do_retry = 0;
+    retries = 0;
+
+    /* Warning: This will be tricky to read */
+    while (retries <= 1)
+    {
+#endif	/* CONFIG_AMIGAONEG3SE */
+
 	/* check signature */
 	if ((ide_inb(device,ATA_SECT_CNT) == 0x01) &&
 		 (ide_inb(device,ATA_SECT_NUM) == 0x01) &&
@@ -855,9 +977,34 @@ static void ide_ident (block_dev_desc_t *dev_desc)
 
 	if (((c & ATA_STAT_DRQ) == 0) ||
 	    ((c & (ATA_STAT_FAULT|ATA_STAT_ERR)) != 0) ) {
+#ifdef CONFIG_AMIGAONEG3SE
+		if (retries == 0) {
+			do_retry = 1;
+		} else {
+			dev_desc->type=DEV_TYPE_UNKNOWN;
+			return;
+		}
+#else
 		dev_desc->type=DEV_TYPE_UNKNOWN;
 		return;
+#endif	/* CONFIG_AMIGAONEG3SE */
 	}
+
+#ifdef CONFIG_AMIGAONEG3SE
+	s = getenv("ide_doreset");
+	if (s && strcmp(s, "on") == 0 && 1 == do_retry) {
+		/* Need to soft reset the device in case it's an ATAPI...  */
+		PRINTF("Retrying...\n");
+		ide_outb (device, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(device));
+		udelay(100000);
+		ide_outb (device, ATA_COMMAND, 0x08);
+		udelay (100000);	/* 100 ms */
+		retries++;
+	} else {
+		retries = 100;
+	}
+    }	/* see above - ugly to read */
+#endif	/* CONFIG_AMIGAONEG3SE */
 
 	input_swap_data (device, iobuf, ATA_SECTORWORDS);
 
@@ -1200,7 +1347,7 @@ static void ide_reset (void)
 
 /* ------------------------------------------------------------------------- */
 
-#ifdef CONFIG_IDE_LED
+#if defined(CONFIG_IDE_LED) && !defined(CONFIG_AMIGAONEG3SE)
 
 static	uchar	led_buffer = 0;		/* Buffer for current LED status	*/
 
@@ -1320,6 +1467,9 @@ unsigned char atapi_issue(int device,unsigned char* ccb,int ccblen, unsigned cha
 	 */
 	mask = ATA_STAT_BUSY|ATA_STAT_DRQ;
 	res = 0;
+#ifdef	CONFIG_AMIGAONEG3SE
+# warning THF: Removed LBA mode ???
+#endif
 	ide_outb (device, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(device));
 	c = atapi_wait_mask(device,ATAPI_TIME_OUT,mask,res);
 	if ((c & mask) != res) {
@@ -1329,8 +1479,13 @@ unsigned char atapi_issue(int device,unsigned char* ccb,int ccblen, unsigned cha
 	}
 	/* write taskfile */
 	ide_outb (device, ATA_ERROR_REG, 0); /* no DMA, no overlaped */
+	ide_outb (device, ATA_SECT_CNT, 0);
+	ide_outb (device, ATA_SECT_NUM, 0);
 	ide_outb (device, ATA_CYL_LOW,  (unsigned char)(buflen & 0xFF));
-	ide_outb (device, ATA_CYL_HIGH, (unsigned char)((buflen<<8) & 0xFF));
+	ide_outb (device, ATA_CYL_HIGH, (unsigned char)((buflen>>8) & 0xFF));
+#ifdef	CONFIG_AMIGAONEG3SE
+# warning THF: Removed LBA mode ???
+#endif
 	ide_outb (device, ATA_DEV_HD,   ATA_LBA | ATA_DEVICE(device));
 
 	ide_outb (device, ATA_COMMAND,  ATAPI_CMD_PACKET);
@@ -1429,6 +1584,16 @@ unsigned char atapi_issue_autoreq (int device,
 	unsigned char res,key,asc,ascq;
 	int notready,unitattn;
 
+#ifdef CONFIG_AMIGAONEG3SE
+	char *s;
+	unsigned int timeout, retrycnt;
+
+	s = getenv("ide_cd_timeout");
+	timeout = s ? (simple_strtol(s, NULL, 10)*1000000)/5 : 0;
+
+	retrycnt = 0;
+#endif
+
 	unitattn=ATAPI_UNIT_ATTN;
 	notready=ATAPI_DRIVE_NOT_READY;
 
@@ -1445,7 +1610,7 @@ retry:
 	memset(sense_ccb,0,sizeof(sense_ccb));
 	memset(sense_data,0,sizeof(sense_data));
 	sense_ccb[0]=ATAPI_CMD_REQ_SENSE;
-	sense_ccb[4]=18; /* allocation Legnth */
+	sense_ccb[4]=18; /* allocation Length */
 
 	res=atapi_issue(device,sense_ccb,12,sense_data,18);
 	key=(sense_data[2]&0xF);
@@ -1482,6 +1647,26 @@ retry:
 		AT_PRINTF("Media not present\n");
 		goto error;
 	}
+
+#ifdef CONFIG_AMIGAONEG3SE
+	if ((sense_data[2]&0xF)==0x0B) {
+		AT_PRINTF("ABORTED COMMAND...retry\n");
+		if (retrycnt++ < 4)
+			goto retry;
+		return (0xFF);
+	}
+
+	if ((sense_data[2]&0xf) == 0x02 &&
+	    sense_data[12] == 0x04	&&
+	    sense_data[13] == 0x01	) {
+		AT_PRINTF("Waiting for unit to become active\n");
+		udelay(timeout);
+		if (retrycnt++ < 4)
+			goto retry;
+		return 0xFF;
+	}
+#endif	/* CONFIG_AMIGAONEG3SE */
+
 	printf ("ERROR: Unknown Sense key %02X ASC %02X ASCQ %02X\n",key,asc,ascq);
 error:
 	AT_PRINTF ("ERROR Sense key %02X ASC %02X ASCQ %02X\n",key,asc,ascq);

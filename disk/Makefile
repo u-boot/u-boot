@@ -27,7 +27,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= libdisk.a
 
-OBJS	= part.o part_mac.o part_dos.o part_iso.o
+OBJS	= part.o part_mac.o part_dos.o part_iso.o part_amiga.o
 
 all:	$(LIB)
 

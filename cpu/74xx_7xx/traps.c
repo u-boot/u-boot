@@ -45,7 +45,11 @@ extern unsigned long search_exception_table(unsigned long);
 
 /* THIS NEEDS CHANGING to use the board info structure.
 */
+#ifdef CONFIG_AMIGAONEG3SE
+#define END_OF_MEM (gd->bd->bi_memstart + gd->bd->bi_memsize)
+#else
 #define END_OF_MEM	0x02000000
+#endif
 
 /*
  * Trap & Exception support
@@ -54,6 +58,9 @@ extern unsigned long search_exception_table(unsigned long);
 void
 print_backtrace(unsigned long *sp)
 {
+#ifdef CONFIG_AMIGAONEG3SE
+	DECLARE_GLOBAL_DATA_PTR;
+#endif
 	int cnt = 0;
 	unsigned long i;
 
@@ -171,11 +178,25 @@ AlignmentException(struct pt_regs *regs)
 void
 ProgramCheckException(struct pt_regs *regs)
 {
+	unsigned char *p = regs ? (unsigned char *)(regs->nip) : NULL;
+	int i, j;
+
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 	if (debugger_exception_handler && (*debugger_exception_handler)(regs))
 		return;
 #endif
 	show_regs(regs);
+
+	p = (unsigned char *) ((unsigned long)p & 0xFFFFFFE0);
+	p -= 32;
+	for (i = 0; i < 256; i+=16) {
+		printf("%08x: ", (unsigned int)p+i);
+		for (j = 0; j < 16; j++) {
+			printf("%02x ", p[i+j]);
+		}
+		printf("\n");
+	}
+
 	print_backtrace((unsigned long *)regs->gpr[1]);
 	panic("Program Check Exception");
 }

@@ -72,6 +72,11 @@
 #include <cmd_log.h>
 #include <cmd_fdos.h>
 
+#ifdef CONFIG_AMIGAONEG3SE
+#include <cmd_menu.h>
+#include <cmd_boota.h>
+#endif
+
 /*
  * HELP command
  */
@@ -225,6 +230,9 @@ cmd_tbl_t cmd_tbl[] = {
 	CMD_TBL_AUTOSCRIPT
 	CMD_TBL_BASE
 	CMD_TBL_BDINFO
+#ifdef CONFIG_AMIGAONEG3SE
+	CMD_TBL_BOOTA
+#endif
 	CMD_TBL_BOOTELF
 	CMD_TBL_BOOTM
 	CMD_TBL_BOOTP
@@ -291,6 +299,9 @@ cmd_tbl_t cmd_tbl[] = {
 	CMD_TBL_MCCINFO
 	CMD_TBL_MD
 	CMD_TBL_MEMCINFO
+#ifdef CONFIG_AMIGAONEG3SE
+	CMD_TBL_MENU
+#endif
 	CMD_TBL_MII
 	CMD_TBL_MM
 	CMD_TBL_MTEST

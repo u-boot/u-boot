@@ -1,0 +1,1058 @@
+/****************************************************************************
+*
+*           The SuperVGA Kit - UniVBE Software Development Kit
+*
+*  ========================================================================
+*
+*    The contents of this file are subject to the SciTech MGL Public
+*    License Version 1.0 (the "License"); you may not use this file
+*    except in compliance with the License. You may obtain a copy of
+*    the License at http://www.scitechsoft.com/mgl-license.txt
+*
+*    Software distributed under the License is distributed on an
+*    "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
+*    implied. See the License for the specific language governing
+*    rights and limitations under the License.
+*
+*    The Original Code is Copyright (C) 1991-1998 SciTech Software, Inc.
+*
+*    The Initial Developer of the Original Code is SciTech Software, Inc.
+*    All Rights Reserved.
+*
+*  ========================================================================
+*
+* Language:     ANSI C
+* Environment:  IBM PC (MS DOS)
+*
+* Description:  Routines to provide a Linux event queue, which automatically
+*               handles keyboard and mouse events for the Linux compatability
+*               libraries. Based on the event handling code in the MGL.
+*
+****************************************************************************/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <ctype.h>
+#include <termios.h>
+#include <signal.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <errno.h>
+#include <sys/time.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <linux/keyboard.h>
+#include <linux/kd.h>
+#include <linux/vt.h>
+#include <gpm.h>
+#include "pm.h"
+#include "vesavbe.h"
+#include "wdirect.h"
+
+/*--------------------------- Global variables ----------------------------*/
+
+#define EVENTQSIZE  100             /* Number of events in event queue  */
+
+static int      head = -1;          /* Head of event queue              */
+static int      tail = -1;          /* Tail of event queue              */
+static int      freeHead = -1;      /* Head of free list                */
+static int      count = 0;          /* No. of items currently in queue  */
+static WD_event evtq[EVENTQSIZE];   /* The queue structure itself      */
+static int      oldMove = -1;       /* Previous movement event          */
+static int      oldKey = -1;        /* Previous key repeat event        */
+static int      mx,my;              /* Current mouse position           */
+static int      xRes,yRes;          /* Screen resolution coordinates    */
+static void     *stateBuf;          /* Pointer to console state buffer  */
+static int      conn;               /* GPM file descriptor for mouse handling */
+static int      tty_fd;             /* File descriptor for /dev/console */
+extern int      tty_vc;             /* Virtual console ID, from the PM/Pro library */
+static ibool    key_down[128];      /* State of all keyboard keys       */
+static struct termios old_conf;     /* Saved terminal configuration     */
+static int      oldkbmode;          /* and previous keyboard mode       */
+struct vt_mode  oldvtmode;          /* Old virtual terminal mode        */
+static int      old_flags;          /* Old flags for fcntl              */
+static ulong    key_modifiers;      /* Keyboard modifiers               */
+static int      forbid_vt_release=0;/* Flag to forbid release of VT     */
+static int      forbid_vt_acquire=0;/* Flag to forbid cature of VT      */
+static int      oldmode;            /* Old SVGA mode saved for VT switch*/
+static int      initmode;           /* Initial text mode                */
+static ibool    installed = false;  /* True if we are installed         */
+static void     (_ASMAPI *moveCursor)(int x,int y) = NULL;
+static int      (_ASMAPI *suspendAppCallback)(int flags) = NULL;
+
+#if 0
+/* Keyboard Translation table from scancodes to ASCII */
+
+static uchar keyTable[128] =
+"\0\0331234567890-=\010"
+"\011qwertyuiop[]\015"
+"\0asdfghjkl;'`\0\\"
+"zxcvbnm,./\0*\0 \0"
+"\0\0\0\0\0\0\0\0\0\0\0\0"      /* Function keys */
+"789-456+1230.\0\0\0\0\0"       /* Keypad keys */
+"\0\0\0\0\0\0\0\015\0/";
+
+static uchar keyTableShifted[128] =
+"\0\033!@#$%^&*()_+\010"
+"\011QWERTYUIOP{}\015"
+"\0ASDFGHJKL:\"~\0|"
+"ZXCVBNM<>?\0*\0 \0"
+"\0\0\0\0\0\0\0\0\0\0\0\0"      /* Function keys */
+"789-456+1230.\0\0\0\0\0"       /* Keypad keys */
+"\0\0\0\0\0\0\0\015\0/";
+#endif
+
+/* Macros to keep track of the CAPS and NUM lock states */
+
+#define EVT_CAPSSTATE   0x0100
+#define EVT_NUMSTATE    0x0200
+
+/* Helper macros for dealing with timers */
+
+#define TICKS_TO_USEC(t) ((t)*65536.0/1.193180)
+#define USEC_TO_TICKS(u) ((u)*1.193180/65536.0)
+
+/* Number of keycodes to read at a time from the console */
+
+#define KBDREADBUFFERSIZE 32
+
+/*---------------------------- Implementation -----------------------------*/
+
+/****************************************************************************
+REMARKS:
+Returns the current time stamp in units of 18.2 ticks per second.
+****************************************************************************/
+static ulong getTimeStamp(void)
+{
+    return (ulong)(clock() / (CLOCKS_PER_SEC / 18.2));
+}
+
+/****************************************************************************
+PARAMETERS:
+evt - Event to place onto event queue
+
+REMARKS:
+Adds an event to the event queue by tacking it onto the tail of the event
+queue. This routine assumes that at least one spot is available on the
+freeList for the event to be inserted.
+****************************************************************************/
+static void addEvent(
+    WD_event *evt)
+{
+    int         evtID;
+
+    /* Get spot to place the event from the free list */
+    evtID = freeHead;
+    freeHead = evtq[freeHead].next;
+
+    /* Add to the tail of the event queue   */
+    evt->next = -1;
+    evt->prev = tail;
+    if (tail != -1)
+        evtq[tail].next = evtID;
+    else
+        head = evtID;
+    tail = evtID;
+    evtq[evtID] = *evt;
+    count++;
+}
+
+/****************************************************************************
+PARAMETERS:
+what        - Event code
+message     - Event message
+modifiers   - keyboard modifiers
+x           - Mouse X position at time of event
+y           - Mouse Y position at time of event
+but_stat    - Mouse button status at time of event
+
+REMARKS:
+Adds a new mouse event to the event queue. This routine is called from
+within the mouse interrupt subroutine, so it must be efficient.
+****************************************************************************/
+static void addMouseEvent(
+    uint what,
+    uint message,
+    int x,
+    int y,
+    uint but_stat)
+{
+    WD_event    evt;
+
+    if (count < EVENTQSIZE) {
+        evt.what = what;
+        evt.when = getTimeStamp();
+        evt.message = message;
+        evt.modifiers = but_stat | key_modifiers;
+        evt.where_x = x;
+        evt.where_y = y;
+        fprintf(stderr, "(%d,%d), buttons %ld\n", x,y, evt.modifiers);
+        addEvent(&evt);                 /* Add to tail of event queue   */
+        }
+}
+
+/****************************************************************************
+PARAMETERS:
+scancode    - Raw keyboard scan code
+modifiers   - Keyboard modifiers flags
+
+REMARKS:
+Converts the raw scan code into the appropriate ASCII code using the scan
+code and the keyboard modifier flags.
+****************************************************************************/
+static ulong getKeyMessage(
+    uint scancode,
+    ulong modifiers)
+{
+    ushort  code = scancode << 8;
+    ushort  ascii;
+    struct kbentry ke;
+
+    ke.kb_index = scancode;
+
+    /* Find the basic ASCII code for the scan code */
+    if (modifiers & EVT_CAPSSTATE) {
+        if (modifiers & EVT_SHIFTKEY)
+          ke.kb_table = K_NORMTAB;
+        //          ascii = tolower(keyTableShifted[scancode]);
+        else
+          ke.kb_table = K_SHIFTTAB;
+        //          ascii = toupper(keyTable[scancode]);
+        }
+    else {
+        if (modifiers & EVT_SHIFTKEY)
+          ke.kb_table = K_SHIFTTAB;
+          // ascii = keyTableShifted[scancode];
+        else
+          ke.kb_table = K_NORMTAB;
+          // ascii = keyTable[scancode];
+        }
+    if(modifiers & EVT_ALTSTATE)
+      ke.kb_table |= K_ALTTAB;
+
+    if (ioctl(tty_fd, KDGKBENT, (unsigned long)&ke)) {
+        fprintf(stderr, "KDGKBENT at index %d in table %d: ",
+            scancode, ke.kb_table);
+        return 0;
+    }
+    ascii = ke.kb_value;
+
+    /* Add ASCII code if key is not alt'ed or ctrl'ed */
+    if (!(modifiers & (EVT_ALTSTATE | EVT_CTRLSTATE)))
+        code |= ascii;
+
+    return code;
+}
+
+/****************************************************************************
+PARAMETERS:
+what        - Event code
+scancode    - Raw scancode of keyboard event to add
+
+REMARKS:
+Adds a new keyboard event to the event queue. We only take KEYUP and
+KEYDOWN event codes, however if a key is already down we convert the KEYDOWN
+to a KEYREPEAT.
+****************************************************************************/
+static void addKeyEvent(
+    uint what,
+    uint scancode)
+{
+    WD_event    evt;
+
+    if (count < EVENTQSIZE) {
+        evt.what = what;
+        evt.when = getTimeStamp();
+        evt.message = getKeyMessage(scancode,key_modifiers) | 0x10000UL;
+        evt.where_x = evt.where_y = 0;
+        evt.modifiers = key_modifiers;
+        if (evt.what == EVT_KEYUP)
+            key_down[scancode] = false;
+        else if (evt.what == EVT_KEYDOWN) {
+            if (key_down[scancode]) {
+                if (oldKey != -1) {
+                    evtq[oldKey].message += 0x10000UL;
+                    }
+                else {
+                    evt.what = EVT_KEYREPEAT;
+                    oldKey = freeHead;
+                    addEvent(&evt);
+                    oldMove = -1;
+                    }
+                return;
+                }
+            key_down[scancode] = true;
+            }
+
+        addEvent(&evt);
+        oldMove = -1;
+        }
+}
+
+/****************************************************************************
+PARAMETERS:
+sig - Signal being sent to this signal handler
+
+REMARKS:
+Signal handler for the timer. This routine takes care of periodically
+posting timer events to the event queue.
+****************************************************************************/
+void timerHandler(
+    int sig)
+{
+    WD_event    evt;
+
+    if (sig == SIGALRM) {
+        if (count < EVENTQSIZE) {
+            evt.when = getTimeStamp();
+            evt.what = EVT_TIMERTICK;
+            evt.message = 0;
+            evt.where_x = evt.where_y = 0;
+            evt.modifiers = 0;
+            addEvent(&evt);
+            oldMove = -1;
+            oldKey = -1;
+            }
+        signal(SIGALRM, timerHandler);
+        }
+}
+
+/****************************************************************************
+REMARKS:
+Restore the terminal to normal operation on exit
+****************************************************************************/
+static void restore_term(void)
+{
+    RMREGS  regs;
+
+    if (installed) {
+        /* Restore text mode and the state of the console */
+        regs.x.ax = 0x3;
+        PM_int86(0x10,&regs,&regs);
+        PM_restoreConsoleState(stateBuf,tty_fd);
+
+        /* Restore console to normal operation */
+        ioctl(tty_fd, VT_SETMODE, &oldvtmode);
+        ioctl(tty_fd, KDSKBMODE, oldkbmode);
+        tcsetattr(tty_fd, TCSAFLUSH, &old_conf);
+        fcntl(tty_fd,F_SETFL,old_flags &= ~O_NONBLOCK);
+        PM_closeConsole(tty_fd);
+
+        /* Close the mouse driver */
+        close(conn);
+
+        /* Flag that we are not no longer installed */
+        installed = false;
+        }
+}
+
+/****************************************************************************
+REMARKS:
+Signal handler to capture forced program termination conditions so that
+we can clean up properly.
+****************************************************************************/
+static void exitHandler(int sig)
+{
+    exit(-1);
+}
+
+/****************************************************************************
+REMARKS:
+Sleep until the virtual terminal is active
+****************************************************************************/
+void wait_vt_active(void)
+{
+    while (ioctl(tty_fd, VT_WAITACTIVE, tty_vc) < 0) {
+        if ((errno != EAGAIN) && (errno != EINTR)) {
+            perror("ioctl(VT_WAITACTIVE)");
+            exit(1);
+            }
+        usleep(150000);
+        }
+}
+
+/****************************************************************************
+REMARKS:
+Signal handler called when our virtual terminal has been released and we are
+losing the active focus.
+****************************************************************************/
+static void release_vt_signal(int n)
+{
+    forbid_vt_acquire = 1;
+    if (forbid_vt_release) {
+        forbid_vt_acquire = 0;
+        ioctl(tty_fd, VT_RELDISP, 0);
+        return;
+        }
+
+    // TODO: Call the user supplied suspendAppCallback and restore text
+    //       mode (saving the existing mode so we can restore it).
+    //
+    //       Also if the suspendAppCallback is NULL then we have to
+    //       ignore the switch request!
+    if(suspendAppCallback){
+      oldmode = VBE_getVideoMode();
+      suspendAppCallback(true);
+      VBE_setVideoMode(initmode);
+    }
+
+    ioctl(tty_fd, VT_RELDISP, 1);
+    forbid_vt_acquire = 0;
+    wait_vt_active();
+}
+
+/****************************************************************************
+REMARKS:
+Signal handler called when our virtual terminal has been re-aquired and we
+are now regaiing the active focus.
+****************************************************************************/
+static void acquire_vt_signal(int n)
+{
+    forbid_vt_release = 1;
+    if (forbid_vt_acquire) {
+        forbid_vt_release = 0;
+        return;
+        }
+
+    // TODO: Restore the old display mode, call the user suspendAppCallback
+    //       and and we will be back in graphics mode.
+
+    if(suspendAppCallback){
+      VBE_setVideoMode(oldmode);
+      suspendAppCallback(false);
+    }
+
+    ioctl(tty_fd, VT_RELDISP, VT_ACKACQ);
+    forbid_vt_release = 0;
+}
+
+/****************************************************************************
+REMARKS:
+Function to set the action for a specific signal to call our signal handler.
+****************************************************************************/
+static void set_sigaction(int sig,void (*handler)(int))
+{
+    struct sigaction    siga;
+
+    siga.sa_handler = handler;
+    siga.sa_flags = SA_RESTART;
+    memset(&(siga.sa_mask), 0, sizeof(sigset_t));
+    sigaction(sig, &siga, NULL);
+}
+
+/****************************************************************************
+REMARKS:
+Function to take over control of VT switching so that we can capture
+virtual terminal release and aquire signals, allowing us to properly
+support VT switching while in graphics modes.
+****************************************************************************/
+static void take_vt_control(void)
+{
+    struct vt_mode      vtmode;
+
+    ioctl(tty_fd, VT_GETMODE, &vtmode);
+    oldvtmode = vtmode;
+    vtmode.mode = VT_PROCESS;
+    vtmode.relsig = SIGUSR1;
+    vtmode.acqsig = SIGUSR2;
+    set_sigaction(SIGUSR1, release_vt_signal);
+    set_sigaction(SIGUSR2, acquire_vt_signal);
+    ioctl(tty_fd, VT_SETMODE, &oldvtmode);
+}
+
+/****************************************************************************
+REMARKS:
+Set the shift keyboard LED's based on the current keyboard modifiers flags.
+****************************************************************************/
+static void updateLEDStatus(void)
+{
+    int state = 0;
+    if (key_modifiers & EVT_CAPSSTATE)
+        state |= LED_CAP;
+    if (key_modifiers & EVT_NUMSTATE)
+        state |= LED_NUM;
+    ioctl(tty_fd,KDSETLED,state);
+}
+
+/****************************************************************************
+PARAMETERS:
+scancode    - Raw scan code to handle
+
+REMARKS:
+Handles the shift key modifiers and keeps track of the shift key states
+so that we can return the correct ASCII codes for the keyboard.
+****************************************************************************/
+static void toggleModifiers(
+    int scancode)
+{
+    static int caps_down = 0,num_down = 0;
+
+    if (scancode & 0x80) {
+        /* Handle key-release function */
+        scancode &= 0x7F;
+        if (scancode == 0x2A || scancode == 0x36)
+            key_modifiers &= ~EVT_SHIFTKEY;
+        else if (scancode == 0x1D || scancode == 0x61)
+            key_modifiers &= ~EVT_CTRLSTATE;
+        else if (scancode == 0x38 || scancode == 0x64)
+            key_modifiers &= ~EVT_ALTSTATE;
+        else if (scancode == 0x3A)
+            caps_down = false;
+        else if (scancode == 0x45)
+            num_down = false;
+        }
+    else {
+        /* Handle key-down function */
+        scancode &= 0x7F;
+        if (scancode == 0x2A || scancode == 0x36)
+            key_modifiers |= EVT_SHIFTKEY;
+        else if (scancode == 0x1D || scancode == 0x61)
+            key_modifiers |= EVT_CTRLSTATE;
+        else if (scancode == 0x38 || scancode == 0x64)
+            key_modifiers |= EVT_ALTSTATE;
+        else if (scancode == 0x3A) {
+            if (!caps_down) {
+                key_modifiers ^= EVT_CAPSSTATE;
+                updateLEDStatus();
+                }
+            caps_down = true;
+            }
+        else if (scancode == 0x45) {
+            if (!num_down) {
+                key_modifiers ^= EVT_NUMSTATE;
+                updateLEDStatus();
+                }
+            num_down = true;
+            }
+        }
+}
+
+/***************************************************************************
+REMARKS:
+Returns the number of bits that have changed from 0 to 1
+(a negative value means the number of bits that have changed from 1 to 0) 
+ **************************************************************************/
+static int compareBits(short a, short b)
+{
+    int ret = 0;
+    if( (a&1) != (b&1) ) ret += (b&1) ? 1 : -1;
+    if( (a&2) != (b&2) ) ret += (b&2) ? 1 : -1;
+    if( (a&4) != (b&4) ) ret += (b&4) ? 1 : -1;
+    return ret;
+}
+
+/***************************************************************************
+REMARKS:
+Turns off all keyboard state because we can't rely on them anymore as soon
+as we switch VT's
+***************************************************************************/
+static void keyboard_clearstate(void)
+{
+  key_modifiers = 0;
+  memset(key_down, 0, sizeof(key_down));
+}
+
+/****************************************************************************
+REMARKS:
+Pumps all events from the console event queue into the WinDirect event queue.
+****************************************************************************/
+static void pumpEvents(void)
+{
+    static uchar    buf[KBDREADBUFFERSIZE];
+    static char     data[5];
+    static int      old_buts, old_mx, old_my;
+    static struct timeval t;
+    fd_set fds;
+    int             numkeys,i;
+    int             dx, dy, buts;
+
+    /* Read all pending keypresses from keyboard buffer and process */
+    while ((numkeys = read(tty_fd, buf, KBDREADBUFFERSIZE)) > 0) {
+        for (i = 0; i < numkeys; i++) {
+            toggleModifiers(buf[i]);
+            if (key_modifiers & EVT_ALTSTATE){
+              int fkey = 0;
+
+              // Do VT switching here for Alt+Fx keypresses
+              switch(buf[i] & 0x7F){
+              case 59 ... 68: /* F1 to F10 */
+                fkey = (buf[i] & 0x7F) - 58;
+                break;
+              case 87: /* F11 */
+              case 88: /* F12 */
+                fkey = (buf[i] & 0x7F) - 76;
+                break;
+              }
+              if(fkey){
+                struct vt_stat vts;
+                ioctl(tty_fd, VT_GETSTATE, &vts);
+                
+                if(fkey != vts.v_active){
+                  keyboard_clearstate();
+                  ioctl(tty_fd, VT_ACTIVATE, fkey);
+                }
+              }
+            }
+
+            if (buf[i] & 0x80)
+                addKeyEvent(EVT_KEYUP,buf[i] & 0x7F);
+            else
+                addKeyEvent(EVT_KEYDOWN,buf[i] & 0x7F);
+            }
+
+        // TODO: If we want to handle VC switching we will need to do it
+        //       in here so that we can switch away from the VC and then
+        //       switch back to it later. Right now VC switching is disabled
+        //       and in order to enable it we need to save/restore the state
+        //       of the graphics screen (using the suspendAppCallback and
+        //       saving/restoring the state of the current display mode).
+
+        }
+
+    /* Read all pending mouse events and process them */
+    if(conn > 0){
+        FD_ZERO(&fds);
+        FD_SET(conn, &fds);
+        t.tv_sec = t.tv_usec = 0L;
+        while (select(conn+1, &fds, NULL, NULL, &t) > 0) {
+            if(read(conn, data, 5) == 5){
+                buts = (~data[0]) & 0x07;
+                dx = (char)(data[1]) + (char)(data[3]);
+                dy = -((char)(data[2]) + (char)(data[4]));
+                
+                mx += dx; my += dy;
+                
+                if (dx || dy)
+                    addMouseEvent(EVT_MOUSEMOVE, 0, mx, my, buts);
+                
+                if (buts != old_buts){
+                    int c = compareBits(buts,old_buts);
+                    if(c>0)
+                        addMouseEvent(EVT_MOUSEDOWN, 0, mx, my, buts);
+                    else if(c<0)
+                        addMouseEvent(EVT_MOUSEUP, 0, mx, my, buts);
+                }
+                old_mx = mx; old_my = my;
+                old_buts = buts;
+                FD_SET(conn, &fds);
+                t.tv_sec = t.tv_usec = 0L;
+            }
+        }
+    }
+}
+
+/*------------------------ Public interface routines ----------------------*/
+
+/****************************************************************************
+PARAMETERS:
+which       - Which code for event to post
+what        - Event code for event to post
+message     - Event message
+modifiers   - Shift key/mouse button modifiers
+
+RETURNS:
+True if the event was posted, false if queue is full.
+
+REMARKS:
+Posts an event to the event queue. This routine can be used to post any type
+of event into the queue.
+****************************************************************************/
+ibool _WDAPI WD_postEvent(
+    ulong which,
+    uint what,
+    ulong message,
+    ulong modifiers)
+{
+    WD_event    evt;
+
+    if (count < EVENTQSIZE) {
+        /* Save information in event record */
+        evt.which = which;
+        evt.what = what;
+        evt.when = getTimeStamp();
+        evt.message = message;
+        evt.modifiers = modifiers;
+        addEvent(&evt);             /* Add to tail of event queue   */
+        return true;
+        }
+    else
+        return false;
+}
+
+/****************************************************************************
+PARAMETERS:
+mask    - Event mask to use
+
+REMARKS:
+Flushes all the event specified in 'mask' from the event queue.
+****************************************************************************/
+void _WDAPI WD_flushEvent(
+    uint mask)
+{
+    WD_event    evt;
+
+    do {                            /* Flush all events */
+        WD_getEvent(&evt,mask);
+        } while (evt.what != EVT_NULLEVT);
+}
+
+/****************************************************************************
+PARAMETERS:
+evt     - Place to store event
+mask    - Event mask to use
+
+REMARKS:
+Halts program execution until a specified event occurs. The event is
+returned. All pending events not in the specified mask will be ignored and
+removed from the queue.
+****************************************************************************/
+void _WDAPI WD_haltEvent(
+    WD_event *evt,
+    uint mask)
+{
+    do {                            /* Wait for an event    */
+        WD_getEvent(evt,EVT_EVERYEVT);
+        } while (!(evt->what & mask));
+}
+
+/****************************************************************************
+PARAMETERS:
+evt     - Place to store event
+mask    - Event mask to use
+
+RETURNS:
+True if an event was pending.
+
+REMARKS:
+Retrieves the next pending event defined in 'mask' from the event queue.
+The event queue is adjusted to reflect the new state after the event has
+been removed.
+****************************************************************************/
+ibool _WDAPI WD_getEvent(
+    WD_event *evt,
+    uint mask)
+{
+    int     evtID,next,prev;
+
+    pumpEvents();
+    if (moveCursor)
+        moveCursor(mx,my);                  /* Move the mouse cursor    */
+    evt->what = EVT_NULLEVT;                /* Default to null event    */
+
+    if (count) {
+        for (evtID = head; evtID != -1; evtID = evtq[evtID].next) {
+            if (evtq[evtID].what & mask)
+                break;                      /* Found an event           */
+            }
+        if (evtID == -1)
+            return false;                   /* Event was not found      */
+        next = evtq[evtID].next;
+        prev = evtq[evtID].prev;
+        if (prev != -1)
+            evtq[prev].next = next;
+        else
+            head = next;
+        if (next != -1)
+            evtq[next].prev = prev;
+        else
+            tail = prev;
+        *evt = evtq[evtID];                 /* Return the event         */
+        evtq[evtID].next = freeHead;        /* and return to free list  */
+        freeHead = evtID;
+        count--;
+        if (evt->what == EVT_MOUSEMOVE)
+            oldMove = -1;
+        if (evt->what == EVT_KEYREPEAT)
+            oldKey = -1;
+        }
+    return evt->what != EVT_NULLEVT;
+}
+
+/****************************************************************************
+PARAMETERS:
+evt     - Place to store event
+mask    - Event mask to use
+
+RETURNS:
+True if an event is pending.
+
+REMARKS:
+Peeks at the next pending event defined in 'mask' in the event queue. The
+event is not removed from the event queue.
+****************************************************************************/
+ibool _WDAPI WD_peekEvent(
+    WD_event *evt,
+    uint mask)
+{
+    int     evtID;
+
+    pumpEvents();
+    if (moveCursor)
+        moveCursor(mx,my);                  /* Move the mouse cursor    */
+    evt->what = EVT_NULLEVT;                /* Default to null event    */
+
+    if (count) {
+        for (evtID = head; evtID != -1; evtID = evtq[evtID].next) {
+            if (evtq[evtID].what & mask)
+                break;                      /* Found an event           */
+            }
+        if (evtID == -1)
+            return false;                   /* Event was not found      */
+
+        *evt = evtq[evtID];                 /* Return the event         */
+        }
+    return evt->what != EVT_NULLEVT;
+}
+
+/****************************************************************************
+PARAMETERS:
+hwndMain    - Handle to main window
+_xRes       - X resolution of graphics mode to be used
+_yRes       - Y resolulion of graphics mode to be used
+
+RETURNS:
+Handle to the fullscreen event window if (we return hwndMain on Linux)
+
+REMARKS:
+Initiliase the event handling module. Here we install our mouse handling
+ISR to be called whenever any button's are pressed or released. We also
+build the free list of events in the event queue.
+****************************************************************************/
+WD_HWND _WDAPI WD_startFullScreen(
+    WD_HWND hwndMain,
+    int _xRes,
+    int _yRes)
+{
+    int             i;
+    struct termios  conf;
+    if (!installed) {
+        Gpm_Connect gpm;
+
+        /* Build free list, and initialise global data structures */
+        for (i = 0; i < EVENTQSIZE; i++)
+            evtq[i].next = i+1;
+        evtq[EVENTQSIZE-1].next = -1;       /* Terminate list           */
+        count = freeHead = 0;
+        head = tail = -1;
+        oldMove = -1;
+        oldKey = -1;
+        xRes = _xRes;
+        yRes = _yRes;
+
+        /* Open the console device and initialise it for raw mode */
+        tty_fd = PM_openConsole();
+
+        /* Wait until virtual terminal is active and take over control */
+        wait_vt_active();
+        take_vt_control();
+
+        /* Initialise keyboard handling to raw mode */
+        if (ioctl(tty_fd, KDGKBMODE, &oldkbmode)) {
+            printf("WD_startFullScreen: cannot get keyboard mode.\n");
+            exit(-1);
+            }
+        old_flags = fcntl(tty_fd,F_GETFL);
+        fcntl(tty_fd,F_SETFL,old_flags |= O_NONBLOCK);
+        tcgetattr(tty_fd, &conf);
+        old_conf = conf;
+        conf.c_lflag &= ~(ICANON | ECHO | ECHOE | ECHOK | ECHONL | NOFLSH | ISIG);
+        conf.c_iflag &= ~(ISTRIP | IGNCR | ICRNL | INLCR | BRKINT | PARMRK | INPCK | IUCLC | IXON | IXOFF);
+        conf.c_iflag  |= (IGNBRK | IGNPAR);
+        conf.c_cc[VMIN] = 1;
+        conf.c_cc[VTIME] = 0;
+        conf.c_cc[VSUSP] = 0;
+        tcsetattr(tty_fd, TCSAFLUSH, &conf);
+        ioctl(tty_fd, KDSKBMODE, K_MEDIUMRAW);
+
+        /* Clear the keyboard state information */
+        memset(key_down, 0, sizeof(key_down));
+        ioctl(tty_fd,KDSETLED,key_modifiers = 0);
+
+        /* Initialize the mouse connection 
+           The user *MUST* run gpm with the  option -R for this to work (or have a MouseSystems mouse)
+        */
+        if(Gpm_Open(&gpm,0) > 0){ /* GPM available */
+            if ((conn = open(GPM_NODE_FIFO,O_RDONLY|O_SYNC)) < 0)
+                fprintf(stderr,"WD_startFullScreen: Can't open mouse connection.\n");
+        }else{
+            fprintf(stderr,"Warning: when not using gpm -R, only MouseSystems mice are currently supported.\n");
+            if ((conn = open("/dev/mouse",O_RDONLY|O_SYNC)) < 0)
+                fprintf(stderr,"WD_startFullScreen: Can't open /dev/mouse.\n");
+        }
+        Gpm_Close();
+
+        /* TODO: Scale the mouse coordinates to the specific resolution */
+
+        /* Save the state of the console */
+        if ((stateBuf = malloc(PM_getConsoleStateSize())) == NULL) {
+            printf("Out of memory!\n");
+            exit(-1);
+            }
+        PM_saveConsoleState(stateBuf,tty_fd);
+        initmode = VBE_getVideoMode();
+
+        /* Initialize the signal handler for timer events */
+        signal(SIGALRM, timerHandler);
+
+        /* Capture termination signals so we can clean up properly */
+        signal(SIGTERM, exitHandler);
+        signal(SIGINT, exitHandler);
+        signal(SIGQUIT, exitHandler);
+        atexit(restore_term);
+
+        /* Signal that we are installed */
+        installed = true;
+        }
+    return hwndMain;
+}
+
+/****************************************************************************
+REMARKS:
+Lets the library know when fullscreen graphics mode has been initialized so
+that we can properly scale the mouse driver coordinates.
+****************************************************************************/
+void _WDAPI WD_inFullScreen(void)
+{
+    /* Nothing to do in here */
+}
+
+/****************************************************************************
+REMARKS:
+Suspends all of our event handling operations. This is also used to
+de-install the event handling code.
+****************************************************************************/
+void _WDAPI WD_restoreGDI(void)
+{
+    restore_term();
+}
+
+/****************************************************************************
+PARAMETERS:
+ticks   - Number of ticks between timer tick messages
+
+RETURNS:
+Previous value for the timer tick event spacing.
+
+REMARKS:
+The event module will automatically generate periodic timer tick events for
+you, with 'ticks' between each event posting. If you set the value of
+'ticks' to 0, the timer tick events are turned off.
+****************************************************************************/
+int _WDAPI WD_setTimerTick(
+    int ticks)
+{
+    int                 old;
+    struct itimerval    tim;
+    long                ms = TICKS_TO_USEC(ticks);
+
+    getitimer(ITIMER_REAL, &tim);
+    old = USEC_TO_TICKS(tim.it_value.tv_sec*1000000.0 + tim.it_value.tv_usec);
+    tim.it_interval.tv_sec  = ms / 1000000;
+    tim.it_interval.tv_usec = ms % 1000000;
+    setitimer(ITIMER_REAL, &tim, NULL);
+    return old;
+}
+
+/****************************************************************************
+PARAMETERS:
+saveState   - Address of suspend app callback to register
+
+REMARKS:
+Registers a user application supplied suspend application callback so that
+we can properly handle virtual terminal switching.
+****************************************************************************/
+void _WDAPI WD_setSuspendAppCallback(
+    int (_ASMAPI *saveState)(int flags))
+{
+  suspendAppCallback = saveState;
+}
+
+/****************************************************************************
+PARAMETERS:
+x   - New X coordinate to move the mouse cursor to
+y   - New Y coordinate to move the mouse cursor to
+
+REMARKS:
+Moves to mouse cursor to the specified coordinate.
+****************************************************************************/
+void _WDAPI WD_setMousePos(
+    int x,
+    int y)
+{
+    mx = x;
+    my = y;
+}
+
+/****************************************************************************
+PARAMETERS:
+x   - Place to store X coordinate of mouse cursor
+y   - Place to store Y coordinate of mouse cursor
+
+REMARKS:
+Reads the current mouse cursor location int *screen* coordinates.
+****************************************************************************/
+void _WDAPI WD_getMousePos(
+    int *x,
+    int *y)
+{
+    *x = mx;
+    *y = my;
+}
+
+/****************************************************************************
+PARAMETERS:
+mcb - Address of mouse callback function
+
+REMARKS:
+Registers an application supplied mouse callback function that is called
+whenever the mouse cursor moves.
+****************************************************************************/
+void _WDAPI WD_setMouseCallback(
+    void (_ASMAPI *mcb)(int x,int y))
+{
+    moveCursor = mcb;
+}
+
+/****************************************************************************
+PARAMETERS:
+xRes    - New X resolution of graphics mode
+yRes    - New Y resolution of graphics mode
+
+REMARKS:
+This is called to inform the event handling code that the screen resolution
+has changed so that the mouse coordinates can be scaled appropriately.
+****************************************************************************/
+void _WDAPI WD_changeResolution(
+    int xRes,
+    int yRes)
+{
+    //  Gpm_FitValues(xRes, yRes);  // ??
+}
+
+/****************************************************************************
+PARAMETERS:
+scancode    - Scan code to check if a key is down
+
+REMARKS:
+Determines if a particular key is down based on the scan code for the key.
+****************************************************************************/
+ibool _WDAPI WD_isKeyDown(
+    uchar scancode)
+{   
+    return key_down[scancode];
+}
+
+/****************************************************************************
+REMARKS:
+Determines if the application needs to run in safe mode. Not necessary for
+anything but broken Windows 95 display drivers so we return false for
+Linux.
+****************************************************************************/
+int _WDAPI WD_isSafeMode(void)
+{
+    return false;
+}
+
+

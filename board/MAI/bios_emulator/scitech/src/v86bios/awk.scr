@@ -1,0 +1,15 @@
+/.*\(0x3da.*/||/.*\(0x3ba.*/ { 
+        if (v_3da != 1) print "_v_retrace_";
+        v_3da = 1;
+        next;        
+        }
+/.*\(0x42.*/||/.*\(0x43.*/ {
+        if (v_4x != 1) print "_timer_";
+        v_4x = 1;
+        next;
+}
+{
+    print;
+    v_3da = 0;
+    v_4x = 0;
+}

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001
+ * (C) Copyright 2001, 2002
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -29,7 +29,7 @@
 
 #if (CONFIG_COMMANDS & CFG_CMD_BSP)
 
-/* ----- LWMON -----------------------------------------------------------------
+/* ----- LWMON ---------------------------------------------------------
  */
 #if defined(CONFIG_LWMON)
 
@@ -54,10 +54,9 @@ int do_kbd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 int do_lsb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 #endif	/* CONFIG_LWMON */
-/* ----------------------------------------------------------------------------*/
+/* --------------------------------------------------------------------	*/
 
-/* ----- PCU E -----------------------------------------------------------------
- */
+/* ----- PCU E -------------------------------------------------------- */
 #if defined(CONFIG_PCU_E)
 
 #define CMD_TBL_BSP	MK_CMD_TBL_ENTRY(					\
@@ -69,10 +68,9 @@ int do_lsb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 int do_puma (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 #endif	/* CONFIG_PCU_E */
-/* ----------------------------------------------------------------------------*/
+/* --------------------------------------------------------------------	*/
 
-/* ----- CCM/SCM ---------------------------------------------------------------
- */
+/* ----- CCM/SCM ------------------------------------------------------ */
 #if defined(CONFIG_CCM) || defined(CONFIG_SCM)
 
 #define CMD_TBL_BSP	MK_CMD_TBL_ENTRY(					\
@@ -85,10 +83,9 @@ int do_puma (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 int do_fpga (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 #endif	/* CONFIG_CCM, CONFIG_SCM */
-/* ----------------------------------------------------------------------------*/
+/* --------------------------------------------------------------------	*/
 
-/* ----- PIP405 -----------------------------------------------------------------
- */
+/* ----- PIP405 ------------------------------------------------------- */
 #if defined(CONFIG_PIP405)
 
 #define	CMD_TBL_BSP MK_CMD_TBL_ENTRY(				\
@@ -101,9 +98,9 @@ int do_fpga (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 int do_pip405 (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 #endif /* CONFIG_PIP405 */
-/* ----------------------------------------------------------------------------*/
-/* ----- MIP405 -----------------------------------------------------------------
- */
+/* --------------------------------------------------------------------	*/
+
+/* ----- MIP405 ------------------------------------------------------- */
 #if defined(CONFIG_MIP405)
 
 #define	CMD_TBL_BSP MK_CMD_TBL_ENTRY(				\
@@ -115,10 +112,9 @@ int do_pip405 (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 int do_mip405 (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 #endif /* CONFIG_MIP405 */
-/* ----------------------------------------------------------------------------*/
+/* --------------------------------------------------------------------	*/
 
-/* ----- DASA_SIM ---------------------------------------------------------------
- */
+/* ----- DASA_SIM ----------------------------------------------------- */
 #if defined(CONFIG_DASA_SIM)
 
 #define	CMD_TBL_BSP MK_CMD_TBL_ENTRY(				                \
@@ -130,10 +126,9 @@ int do_mip405 (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 int do_pci9054 (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 #endif /* CONFIG_DASA_SIM */
-/* ----------------------------------------------------------------------------*/
+/* --------------------------------------------------------------------	*/
 
-/* ----- HYMOD -----------------------------------------------------------------
- */
+/* ----- HYMOD -------------------------------------------------------- */
 #if defined(CONFIG_HYMOD)
 
 #define	CMD_TBL_BSP	MK_CMD_TBL_ENTRY(				\
@@ -171,8 +166,9 @@ int do_fpga (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 int do_eecl (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 #endif	/* CONFIG_HYMOD */
-/* ----------------------------------------------------------------------------*/
-/* CRAY405 (L1) */
+/* --------------------------------------------------------------------	*/
+
+/* ----- CRAY405 (L1) ------------------------------------------------- */
 #if defined (CONFIG_CRAYL1)
 #define	CMD_TBL_BSP MK_CMD_TBL_ENTRY(						\
 	"L1cmd",	5,	4,	1,	do_crayL1,			\
@@ -182,10 +178,10 @@ int do_eecl (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 ),
 int do_crayL1 (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 #endif /* CONFIG_CRAY405 */
-/* ----------------------------------------------------------------------------*/
+/* --------------------------------------------------------------------	*/
 
+/* ----- EVB64260 ----------------------------------------------------- */
 #if defined (CONFIG_EVB64260)
-/* ----- EVB64260 -------------------------------------------------------------*/
 #ifdef CONFIG_ZUMA_V2
 #define CMD_TBL_BSP  ZUMA_TBL_ENTRY
 
@@ -218,9 +214,9 @@ int zuma_test_dma(int cmd, int size);
 #endif /* ZUMA_NTL */
 
 #endif /* CONFIG_EVB64260 */
-/* ----------------------------------------------------------------------------*/
+/* --------------------------------------------------------------------	*/
 
-/* -----W7O--------------------------------------------------------------------*/
+/* -----W7O------------------------------------------------------------ */
 #if defined(CONFIG_W7O)
 
 #define CMD_TBL_BSP MK_CMD_TBL_ENTRY(			\
@@ -233,18 +229,18 @@ int zuma_test_dma(int cmd, int size);
 extern int do_vpd (cmd_tbl_t *, int, int, char *[]);
 
 #endif	/* CONFIG_W7O */
-/* ----------------------------------------------------------------------------*/
+/* --------------------------------------------------------------------	*/
 
-/* ---- PCIPPC2 / PCIPPC6 -----------------------------------------------------*/
+/* ---- PCIPPC2 / PCIPPC6 --------------------------------------------- */
 #if defined(CONFIG_PCIPPC2) || defined(CONFIG_PCIPPC6)
 #if defined(CONFIG_WATCHDOG)
 
 #define CMD_TBL_BSP MK_CMD_TBL_ENTRY(			\
-	"wd",	3,	2,	1,	do_wd,					\
-	"wd      - check and set watchdog\n",					\
-	"on   - switch watchDog on\n"							\
-	"wd off  - switch watchdog off\n"						\
-	"wd      - print current status\n"					\
+	"wd",	3,	2,	1,	do_wd,		\
+	"wd      - check and set watchdog\n",		\
+	"on   - switch watchDog on\n"			\
+	"wd off  - switch watchdog off\n"		\
+	"wd      - print current status\n"		\
 ),
 
 extern int do_wd (cmd_tbl_t *, int, int, char *[]);
@@ -254,9 +250,9 @@ extern int do_wd (cmd_tbl_t *, int, int, char *[]);
 #endif  /* CONFIG_WATCHDOG */
 
 #endif	/* CONFIG_PCIPPC2 , CONFIG_PCIPPC6 */
-/* ----------------------------------------------------------------------------*/
+/* --------------------------------------------------------------------	*/
 
-/* ----- PN62 -----------------------------------------------------------------*/
+/* ----- PN62 --------------------------------------------------------- */
 #if defined(CONFIG_PN62)
 
 #define CMD_TBL_BSP MK_CMD_TBL_ENTRY(				\
@@ -274,40 +270,46 @@ extern int do_wd (cmd_tbl_t *, int, int, char *[]);
 extern int do_loadpci (cmd_tbl_t *, int, int, char *[]);
 extern int do_led (cmd_tbl_t *, int, int, char *[]);
 #endif /* CONFIG_PN62 */
-/* ----------------------------------------------------------------------------*/
+/* --------------------------------------------------------------------	*/
 
-/* ----- TRAB ------------------------------------------------------------------
- */
+/* ----- TRAB --------------------------------------------------------- */
 #if defined(CONFIG_TRAB)
 
-#define	CMD_TBL_BSP	MK_CMD_TBL_ENTRY(					\
-	"kbd",	3,	1,	1,	do_kbd,					\
-	"kbd     - read keyboard status\n",					\
-	NULL									\
+#define	CMD_TBL_BSP	MK_CMD_TBL_ENTRY(			\
+	"kbd",	3,	1,	1,	do_kbd,			\
+	"kbd     - read keyboard status\n",			\
+	NULL							\
 ),
 
 int do_kbd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 #endif	/* CONFIG_TRAB */
-/* ----------------------------------------------------------------------------*/
+/* --------------------------------------------------------------------	*/
 
-#else
-#define CMD_TBL_BSP
-#endif	/* CFG_CMD_BSP */
-
-/* ----- R360MPI ---------------------------------------------------------------
- */
+/* ----- R360MPI ------------------------------------------------------ */
 #if defined(CONFIG_R360MPI)
 
-#define	CMD_TBL_BSP	MK_CMD_TBL_ENTRY(					\
-	"kbd",	3,	1,	1,	do_kbd,					\
-	"kbd     - read keyboard status\n",					\
-	NULL									\
+#define	CMD_TBL_BSP	MK_CMD_TBL_ENTRY(			\
+	"kbd",	3,	1,	1,	do_kbd,			\
+	"kbd     - read keyboard status\n",			\
+	NULL							\
 ),
 
 int do_kbd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 #endif	/* CONFIG_R360MPI */
-/* ----------------------------------------------------------------------------*/
+/* --------------------------------------------------------------------	*/
+
+/* ------ AMIGAONEG3SE ------------------------------------------------ */
+#if defined(CONFIG_AMIGAONEG3SE)
+
+#define CMD_TBL_BSP	/* dummy */
+
+#endif  /* AmigaOneG3SE */
+/* -------------------------------------------------------------------- */
+
+#else
+#define CMD_TBL_BSP
+#endif	/* CFG_CMD_BSP */
 
 #endif	/* _CMD_BSP_H_ */

@@ -2,6 +2,18 @@
 Changes since for U-Boot 0.1.0:
 ======================================================================
 
+* Patch by Thomas Frieden, 13 Nov 2002:
+  Add code for AmigaOne board
+  (preliminary merge to U-Boot, still WIP)
+
+* Patch by Jon Diekema, 12 Nov 2002:
+  - Adding URL for IEEE OUI lookup
+  - Making the autoboot #defines dependent on CONFIG_AUTOBOOT_KEYED
+    being defined.
+  - In the CONFIG_EXTRA_ENV_SETTINGS #define, the root-on-initrd and
+    root-on-nfs macros are designed to switch how the default boot
+    method gets defined.
+
 * Patch by Daniel Engström, 13 Nov 2002:
   Add support for i386 architecture and AMD SC520 board
 

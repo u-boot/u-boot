@@ -33,7 +33,6 @@ Jerry Van Baren <vanbaren_gerald@si.com>
 
 Oliver Brown <obrown@adventnetworks.com>
 
-	sbc8260			MPC8260
 	gw8260			MPC8260
 
 Conn Clark <clark@esteem.com>
@@ -90,6 +89,10 @@ Jon Diekema <diekema_jon@si.com>
 Dave Ellis <DGE@sixnetio.com>
 
 	SXNI855T		MPC8xx
+
+Thomas Frieden <ThomasF@hyperion-entertainment.com>
+
+	AmigaOneG3SE		MPC7xx
 
 Frank Gottschling <fgottschling@eltec.de>
 

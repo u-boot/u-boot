@@ -38,6 +38,11 @@
 # define SHOW_BOOT_PROGRESS(arg)
 #endif
 
+#ifdef CONFIG_AMIGAONEG3SE
+	extern void enable_nvram(void);
+	extern void disable_nvram(void);
+#endif
+
 #undef DEBUG_ENV
 #ifdef DEBUG_ENV
 #define DEBUGF(fmt,args...) printf(fmt ,##args)
@@ -180,6 +185,10 @@ void env_relocate (void)
 	DEBUGF ("%s[%d] offset = 0x%lx\n", __FUNCTION__,__LINE__,
 		gd->reloc_off);
 
+#ifdef CONFIG_AMIGAONEG3SE
+	enable_nvram();
+#endif
+
 #ifdef ENV_IS_EMBEDDED
 	/*
 	 * The environment buffer is embedded with the text segment,
@@ -228,4 +237,8 @@ void env_relocate (void)
 		env_relocate_spec ();
 	}
 	gd->env_addr = (ulong)&(env_ptr->data);
+
+#ifdef CONFIG_AMIGAONEG3SE
+	disable_nvram();
+#endif
 }

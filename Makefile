@@ -564,6 +564,9 @@ TQM8260_300MHz_config:	unconfig
 ## 74xx/7xx Systems
 #########################################################################
 
+AmigaOneG3SE_config:	unconfig
+	@./mkconfig $(@:_config=) ppc 74xx_7xx AmigaOneG3SE MAI
+
 EVB64260_config	\
 EVB64260_750CX_config:	unconfig
 	@./mkconfig EVB64260 ppc 74xx_7xx evb64260

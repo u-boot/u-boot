@@ -97,6 +97,7 @@ int get_partition_info_iso_verb(block_dev_desc_t * dev_desc, int part_num, disk_
 	info->blksz=ppr->secsize_BE; /* assuming same block size for all entries */
 	PRINTF(" Lastsect:%08lx\n",lastsect);
 	for(i=blkaddr;i<lastsect;i++) {
+		PRINTF("Reading block %d\n", i);
 		if (dev_desc->block_read (dev_desc->dev, i, 1, (ulong *) tmpbuf) != 1)
   	 	return (-1);
 		if(ppr->desctype==0x00)

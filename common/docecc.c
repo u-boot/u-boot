@@ -35,8 +35,6 @@
 
 #if (CONFIG_COMMANDS & CFG_CMD_DOC)
 
-#define min(x,y) ((x)<(y)?(x):(y))
-
 /* need to undef it (from asm/termbits.h) */
 #undef B0
 

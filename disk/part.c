@@ -106,7 +106,8 @@ void dev_print (block_dev_desc_t *dev_desc)
 
 #if defined(CONFIG_MAC_PARTITION) || \
     defined(CONFIG_DOS_PARTITION) || \
-    defined(CONFIG_ISO_PARTITION)
+    defined(CONFIG_ISO_PARTITION) || \
+    defined(CONFIG_AMIGA_PARTITION) 
 
 void init_part (block_dev_desc_t * dev_desc)
 {
@@ -128,6 +129,13 @@ void init_part (block_dev_desc_t * dev_desc)
 	if (test_part_dos(dev_desc) == 0) {
 		dev_desc->part_type = PART_TYPE_DOS;
 		return;
+	}
+#endif
+
+#ifdef CONFIG_AMIGA_PARTITION
+	if (test_part_amiga(dev_desc) == 0) {
+	    dev_desc->part_type = PART_TYPE_AMIGA;
+	    return;
 	}
 #endif
 }
@@ -161,6 +169,16 @@ int get_partition_info (block_dev_desc_t *dev_desc, int part, disk_partition_t *
 			return (0);
 		}
 		break;
+#endif
+
+#ifdef CONFIG_AMIGA_PARTITION
+	case PART_TYPE_AMIGA:
+	    if (get_partition_info_amiga(dev_desc, part, info) == 0)
+	    {
+		PRINTF ("## Valid Amiga partition found ##\n");
+		return (0);
+	    }
+	    break;
 #endif
 	default:
 		break;
@@ -214,6 +232,14 @@ void print_part (block_dev_desc_t * dev_desc)
 		print_part_header ("ISO", dev_desc);
 		print_part_iso (dev_desc);
 		return;
+#endif
+
+#ifdef CONFIG_AMIGA_PARTITION
+	case PART_TYPE_AMIGA:
+	    PRINTF ("## Testing for a valid Amiga partition ##\n");
+	    print_part_header ("AMIGA", dev_desc);
+	    print_part_amiga (dev_desc);
+	    return;
 #endif
 	}
 	puts ("## Unknown partition table\n");

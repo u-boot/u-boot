@@ -15,10 +15,13 @@ void mon_install_hdlr(int, interrupt_handler_t*, void*);
 void mon_free_hdlr(int);
 void *mon_malloc(size_t);
 void mon_free(void*);
+void mon_udelay(unsigned long);
+unsigned long mon_get_timer(unsigned long);
 
 #endif    /* ifndef __ASSEMBLY__ */
 
-#define NR_SYSCALLS            9        /* number of syscalls */
+#define NR_SYSCALLS            11        /* number of syscalls */
+
 
 /*
  * Make sure these functions are in the same order as they
@@ -33,5 +36,7 @@ void mon_free(void*);
 #define SYSCALL_FREE_HDLR      6
 #define SYSCALL_MALLOC         7
 #define SYSCALL_FREE           8
+#define SYSCALL_UDELAY         9
+#define SYSCALL_GET_TIMER     10
 
 #endif

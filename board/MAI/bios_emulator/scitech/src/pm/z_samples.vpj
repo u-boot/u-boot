@@ -1,0 +1,74 @@
+[SciTech]
+compiler=wc10- 
+targetos=d32 
+[COMPILER]
+version=5.0b
+MACRO=enable_current_compiler\n
+activeconfig=,getch.exe
+FILTERNAME=Source Files\n
+FILTERPATTERN=*.c;*.cpp;*.cxx;*.prg;*.pas;*.dpr;*.bas;*.java;*.sc;*.e;*.cob;*.html;*.rc\n
+FILTERASSOCIATEFILETYPES=0 
+FILTERAPPCOMMAND=\n
+vcsproject=SCC:Perforce SCM://depot
+vcslocalpath=SCC:Perforce SCM:c:\
+compile=concur|capture|:Compile:&Compile,dmake %n.obj
+make=concur|capture|clear|saveall|:Build:&Build,dmake %b
+rebuild=concur|capture|clear|saveall|:Rebuild:&Rebuild,dmake -u %b
+debug=concur|capture|savenone|nochangedir|:Debug:&Debug,wdn %b
+execute=hide|savenone|nochangedir|:Execute:E&xecute,
+user1=hide|nochangedir|:User 1:User 1,
+user2=hide|nochangedir|:User 2:User 2,
+usertool_build_all=concur|capture|clear|savenone|:Build All:Build All,dmake all
+usertool_rebuild_all=concur|capture|clear|savenone|:Rebuild All:Rebuild All,dmake -u all
+usertool_clean_directory=concur|capture|savenone|:Clean Directory:&Clean Directory,dmake cleanexe
+workingdir=.
+includedirs=%(SCITECH)\include;%(PRIVATE)\include
+reffile=
+[FILES]
+tests\altbrk.c
+tests\altcrit.c
+tests\biosptr.c
+tests\block.c
+tests\brk.c
+tests\callreal.c
+tests\checks.c
+tests\cpu.c
+tests\critical.c
+tests\getch.c
+tests\isvesa.c
+tests\key.c
+tests\key15.c
+tests\memtest.c
+tests\mouse.c
+tests\rtc.c
+tests\showpci.c
+tests\tick.c
+tests\timerc.c
+tests\timercpp.cpp
+tests\uswc.c
+tests\vftest.c
+tests\video.c
+[ASSOCIATION]
+[CONFIGURATIONS]
+config=,altbrk.exe
+config=,altcrit.exe
+config=,biosptr.exe
+config=,block.exe
+config=,brk.exe
+config=,callreal.exe
+config=,cpu.exe
+config=,critical.exe
+config=,getch.exe
+config=,isvesa.exe
+config=,key.exe
+config=,key15.exe
+config=,memtest.exe
+config=,mouse.exe
+config=,rtc.exe
+config=,showpci.exe
+config=,tick.exe
+config=,timerc.exe
+config=,timercpp.exe
+config=,uswc.exe
+config=,vftest.exe
+config=,video.exe

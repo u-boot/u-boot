@@ -1,0 +1,10 @@
+#! /bin/sh
+
+cd $1
+PROG=$2
+shift 2
+rm -f *.lib *.a
+$PROG $*
+RET=$?
+cd ..
+exit $RET

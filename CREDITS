@@ -92,6 +92,10 @@ E: wg@denx.de
 D: Support for Interphase 4539 T1/E1/J1 PMC, PN62, CCM, SCM boards
 W: www.denx.de
 
+N: Thomas Frieden
+E: ThomasF@hyperion-entertainment.com
+D: Support for AmigaOne
+
 N: Frank Gottschling
 E: fgottschling@eltec.de
 D: Support for ELTEC MHPC/BAB7xx/ELPPC boards, cfb-console, i8042, SMI LynxEM

@@ -29,6 +29,10 @@
 
 void **syscall_tbl;
 
+#ifdef CONFIG_AMIGAONEG3SE
+int console_changed = 0;
+#endif
+
 #ifdef CFG_CONSOLE_IS_IN_ENV
 /*
  * if overwrite_console returns 1, the stdin, stderr and stdout

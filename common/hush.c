@@ -356,11 +356,6 @@ struct built_in_command {
 };
 #endif
 
-/* belongs in busybox.h */
-static inline int max(int a, int b) {
-	return (a>b)?a:b;
-}
-
 /* This should be in utility.c */
 #ifdef DEBUG_SHELL
 #ifndef __U_BOOT__

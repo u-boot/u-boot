@@ -375,6 +375,7 @@ struct pci_controller {
 
 	/* Used by ppc405 autoconfig*/
 	struct pci_region *pci_fb;
+	int current_busno;
 };
 
 extern __inline__ void pci_set_ops(struct pci_controller *hose,
@@ -457,7 +458,7 @@ extern void pciauto_setup_device(struct pci_controller *hose,
 				 pci_dev_t dev, int bars_num,
 				 struct pci_region *mem,
 				 struct pci_region *io);
-void pciauto_config_device(struct pci_controller *hose, pci_dev_t dev);
+int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev);
 
 extern pci_dev_t pci_find_device (unsigned int vendor, unsigned int device, int index);
 extern pci_dev_t pci_find_devices (struct pci_device_id *ids, int index);

@@ -239,12 +239,12 @@
 #endif /* CONFIG_ETHER_ON_FCC, CONFIG_ETHER_INDEX */
 
 /*
- * select SPI support configuration
+ * Select SPI support configuration
  */
-#undef  CONFIG_SPI			/* enable SPI driver		*/
+#undef  CONFIG_SPI			/* Disable SPI driver */
 
 /*
- * select i2c support configuration
+ * Select i2c support configuration
  *
  * Supported configurations are {none, software, hardware} drivers.
  * If the software driver is chosen, there are some additional
@@ -284,7 +284,10 @@
 /* What should the console's baud rate be? */
 #define CONFIG_BAUDRATE		9600
 
-/* Ethernet MAC address */
+/* Ethernet MAC address 
+ *     Note: We are using the EST Corporation OUI (00:a0:1e:xx:xx:xx)
+ *           http://standards.ieee.org/regauth/oui/index.shtml
+ */
 #define CONFIG_ETHADDR		00:a0:1e:a8:7b:cb
 
 /*
@@ -299,19 +302,53 @@
 /* Set to a positive value to delay for running BOOTCOMMAND */
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds */
 
-#if 0
 /* Be selective on what keys can delay or stop the autoboot process
  *     To stop	use: " "
  */
-# define CONFIG_AUTOBOOT_KEYED
-# define CONFIG_AUTOBOOT_PROMPT "Autobooting in %d seconds, press \" \" to stop\n"
-# define CONFIG_AUTOBOOT_STOP_STR	" "
-# undef CONFIG_AUTOBOOT_DELAY_STR
-# define DEBUG_BOOTKEYS		0
+#undef CONFIG_AUTOBOOT_KEYED
+#ifdef CONFIG_AUTOBOOT_KEYED
+#   define CONFIG_AUTOBOOT_PROMPT	"Autobooting in %d seconds, press \" \" to stop\n"
+#   define CONFIG_AUTOBOOT_STOP_STR	" "
+#   undef  CONFIG_AUTOBOOT_DELAY_STR
+#   define DEBUG_BOOTKEYS		0
 #endif
 
 /* Define this to contain any number of null terminated strings that
  * will be part of the default enviroment compiled into the boot image.
+ * 
+ * Variable		Usage
+ * --------------       -------------------------------------------------------
+ * serverip		server IP address 
+ * ipaddr		my IP address
+ * reprog		Reload flash with a new copy of U-Boot
+ * zapenv		Erase the environment area in flash
+ * root-on-initrd       Set the bootcmd variable to allow booting of an initial
+ *                      ram disk.
+ * root-on-nfs          Set the bootcmd variable to allow booting of a NFS 
+ *                      mounted root filesystem.
+ * boot-hook            Convenient stub to do something useful before the 
+ *                      bootm command is executed.
+ * 
+ * Example usage of root-on-initrd and root-on-nfs :
+ *
+ * Note: The lines have been wrapped to improved its readability.
+ *
+ * => printenv bootcmd
+ * bootcmd=version;echo;bootp;setenv bootargs root=/dev/nfs rw
+ * nfsroot=$(serverip):$(rootpath) 
+ * ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;run boot-hook;bootm
+ *
+ * => run root-on-initrd
+ * => printenv bootcmd
+ * bootcmd=version;echo;bootp;setenv bootargs root=/dev/ram0 rw
+ * ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;run boot-hook;bootm
+ * 
+ * => run root-on-nfs
+ * => printenv bootcmd
+ * bootcmd=version;echo;bootp;setenv bootargs root=/dev/nfs rw
+ * nfsroot=$(serverip):$(rootpath) 
+ * ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;run boot-hook;bootm
+ *
  */
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"serverip=192.168.123.201\0" \
@@ -328,22 +365,22 @@
 		"protect on 1:1\0" \
 	"root-on-initrd="\
 		"setenv bootcmd "\
-		"version;" \
-		"echo;" \
-		"bootp;" \
+		"version\\;" \
+		"echo\\;" \
+		"bootp\\;" \
 		"setenv bootargs root=/dev/ram0 rw " \
-		"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;" \
-		"run boot-hook;" \
+		"ip=\\$(ipaddr):\\$(serverip):\\$(gatewayip):\\$(netmask):\\$(hostname)::off\\;" \
+		"run boot-hook\\;" \
 		"bootm\0" \
 	"root-on-nfs="\
 		"setenv bootcmd "\
-		"version;" \
-		"echo;" \
-		"bootp;" \
+		"version\\;" \
+		"echo\\;" \
+		"bootp\\;" \
 		"setenv bootargs root=/dev/nfs rw " \
-		"nfsroot=$(serverip):$(rootpath) " \
-		"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off\\;" \
-		"run boot-hook;" \
+		"nfsroot=\\$(serverip):\\$(rootpath) " \
+		"ip=\\$(ipaddr):\\$(serverip):\\$(gatewayip):\\$(netmask):\\$(hostname)::off\\;" \
+		"run boot-hook\\;" \
 		"bootm\0" \
 	"boot-hook=echo boot-hook\0"
 

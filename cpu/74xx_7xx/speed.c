@@ -25,6 +25,10 @@
 #include <74xx_7xx.h>
 #include <asm/processor.h>
 
+#ifdef CONFIG_AMIGAONEG3SE
+#include "../board/MAI/AmigaOneG3SE/via686.h"
+#endif
+
 static const int hid1_multipliers_x_10[] = {
 	25,	/* 0000 - 2.5x */
 	75,	/* 0001 - 7.5x */

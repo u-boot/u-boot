@@ -1,0 +1,42 @@
+@echo off
+REM: Set up environment variables for Microsoft Windows NT DDK development.
+REM: Note that we have hard coded this for Windows NT i386 development.
+
+SET USE_NTDRV=1
+SET USE_W2KDRV=1
+SET BASEDIR=%W2K_DDKROOT%
+SET PATH=%BASEDIR%\bin;%PATH%
+SET NTMAKEENV=%BASEDIR%\inc
+SET BUILD_MAKE_PROGRAM=nmake.exe
+SET BUILD_DEFAULT=-ei -nmake -i
+SET BUILD_DEFAULT_TARGETS=-386
+SET _OBJ_DIR=obj
+SET NEW_CRTS=1
+SET _NTROOT=%BASEDIR%
+SET INCLUDE=%BASEDIR%\inc;%BASEDIR%\inc\ddk;%INCLUDE%
+
+if .%CHECKED%==.1 goto checked
+
+REM: set up an NT free build environment
+SET DDKBUILDENV=free
+SET C_DEFINES=-D_IDWBUILD
+SET NTDBGFILES=1
+SET NTDEBUG=
+SET NTDEBUGTYPE=
+SET MSC_OPTIMIZATION=
+set LIB=%BASEDIR%\libfre\i386;%SCITECH_LIB%\LIB\RELEASE\W2KDRV\VC6;%MSVCDir%\LIB;.
+
+goto done
+
+:checked
+
+REM: set up an NT checked build environment
+SET DDKBUILDENV=checked
+SET C_DEFINES=-D_IDWBUILD -DRDRDBG -DSRVDBG
+SET NTDBGFILES=
+SET NTDEBUG=ntsd
+SET NTDEBUGTYPE=both
+SET MSC_OPTIMIZATION=/Od /Oi
+set LIB=%BASEDIR%\libchk\i386;%SCITECH_LIB%\LIB\DEBUG\W2KDRV\VC6;%MSVCDir%\LIB;.
+
+:done

@@ -62,6 +62,9 @@ typedef	struct	global_data {
 #if defined(CONFIG_SANDPOINT) || defined(CONFIG_MUSENKI)
 	void *		console_addr;
 #endif
+#ifdef CONFIG_AMIGAONEG3SE
+	unsigned long	relocaddr;	/* Start address of U-Boot in RAM */
+#endif
 #if defined(CONFIG_LCD) || defined(CONFIG_VIDEO)
 	unsigned long	fb_base;	/* Base address of framebuffer memory	*/
 #endif

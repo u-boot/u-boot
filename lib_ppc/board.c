@@ -149,6 +149,8 @@ static void syscalls_init (void)
 
 	syscall_tbl[SYSCALL_INSTALL_HDLR] = (void *) irq_install_handler;
 	syscall_tbl[SYSCALL_FREE_HDLR] = (void *) irq_free_handler;
+	syscall_tbl[SYSCALL_GET_TIMER] = (void *)get_timer;
+	syscall_tbl[SYSCALL_UDELAY] = (void *)udelay;
 
 	addr = (ulong *) 0xc00;		/* syscall ISR addr */
 
@@ -418,6 +420,10 @@ void board_init_f (ulong bootflag)
 
 #ifdef DEBUG
 	printf ("Reserving %ldk for U-Boot at: %08lx\n", len >> 10, addr);
+#endif
+
+#ifdef CONFIG_AMIGAONEG3SE
+	gd->relocaddr = addr;
 #endif
 
 	/*

@@ -89,7 +89,7 @@ disable_interrupts(void)
 
 int interrupt_init(void)
 {
-#ifdef DEBUG
+#if defined(DEBUG) && !defined(CONFIG_AMIGAONEG3SE)
 	printf("interrupt_init: GT main cause reg: %08x:%08x\n",
 	       GTREGREAD(LOW_INTERRUPT_CAUSE_REGISTER),
 	       GTREGREAD(HIGH_INTERRUPT_CAUSE_REGISTER));
