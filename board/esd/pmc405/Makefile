@@ -25,7 +25,12 @@ include $(TOPDIR)/config.mk
 
 LIB	= lib$(BOARD).a
 
-OBJS	= $(BOARD).o strataflash.o
+# Objects for Xilinx JTAG programming (CPLD)
+CPLD    = ../common/xilinx_jtag/lenval.o \
+	  ../common/xilinx_jtag/micro.o \
+	  ../common/xilinx_jtag/ports.o
+
+OBJS	= $(BOARD).o strataflash.o $(CPLD)
 
 $(LIB):	$(OBJS) $(SOBJS)
 	$(AR) crv $@ $(OBJS)
