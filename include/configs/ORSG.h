@@ -58,6 +58,7 @@
 				CFG_CMD_IRQ	| \
 				CFG_CMD_ASKENV	| \
 				CFG_CMD_ELF	| \
+				CFG_CMD_BSP	| \
 				CFG_CMD_EEPROM  )
 
 #define CONFIG_MAC_PARTITION
