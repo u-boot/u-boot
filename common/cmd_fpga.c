@@ -158,7 +158,7 @@ static int fpga_get_op (char *opstr)
 }
 
 U_BOOT_CMD (fpga, 6, 1, do_fpga,
-	    "fpga   - loadable FPGA image support\n",
+	    "fpga    - loadable FPGA image support\n",
 	    "fpga [operation type] [device number] [image address] [image size]\n"
 	    "fpga operations:\n"
 	    "\tinfo\tlist known device information.\n"

@@ -20,10 +20,28 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
 #
-#
 
-SUBDIRS	:= jffs2 cramfs fdos fat
+include $(TOPDIR)/config.mk
 
-.depend all:
-	@for dir in $(SUBDIRS) ; do \
-		$(MAKE) -C $$dir $@ ; done
+LIB	= libcramfs.a
+
+AOBJS	=
+COBJS	= cramfs.o uncompress.o
+OBJS	= $(AOBJS) $(COBJS)
+
+#CPPFLAGS +=
+
+all:	$(LIB) $(AOBJS)
+
+$(LIB):	.depend $(OBJS)
+	$(AR) crv $@ $(OBJS)
+
+
+#########################################################################
+
+.depend:	Makefile $(AOBJS:.o=.S) $(COBJS:.o=.c)
+		$(CC) -M $(CFLAGS) $(AOBJS:.o=.S) $(COBJS:.o=.c) > $@
+
+sinclude .depend
+
+#########################################################################

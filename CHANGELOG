@@ -2,6 +2,9 @@
 Changes since U-Boot 1.0.0:
 ======================================================================
 
+* Patch by Robert Schwebel, 15 Dec 2003:
+  add support for cramfs (uses JFFS2 command interface)
+
 * Patches by Stephan Linz, 11 Dec 2003:
   - more documentation for NIOS port
   - new struct nios_pio_t, struct nios_spi_t

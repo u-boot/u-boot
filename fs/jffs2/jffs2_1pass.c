@@ -106,8 +106,8 @@
  *
  * You still should have paper bags at hand :-(. The code lacks more or less
  * any comment, and is still arcane and difficult to read in places. As this
- * is incompatible with any new code from the jffs2 maintainers anyway, it
- * should probably be dumped and replaced by something like jffs2reader!
+ * might be incompatible with any new code from the jffs2 maintainers anyway,
+ * it should probably be dumped and replaced by something like jffs2reader!
  */
 
 
