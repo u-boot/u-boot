@@ -718,7 +718,7 @@ read_bootsectandvi(boot_sector *bs, volume_info *volinfo, int *fatsize)
 
 
 __u8 do_fat_read_block[MAX_CLUSTSIZE];  /* Block buffer */
-static long
+long
 do_fat_read (const char *filename, void *buffer, unsigned long maxsize,
 	     int dols)
 {
