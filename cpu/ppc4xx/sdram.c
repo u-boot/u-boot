@@ -123,11 +123,11 @@ void sdram_init(void)
 		 */
 		return;
 	}
-	
+
 	/*
 	 * Now test for 64 MByte...
 	 */
-		
+
         /*
 	 * Disable memory controller.
 	 */
@@ -174,11 +174,11 @@ void sdram_init(void)
 		 */
 		return;
 	}
-	
+
 	/*
 	 * Now test for 32 MByte...
 	 */
-		
+
         /*
 	 * Disable memory controller.
 	 */
@@ -265,7 +265,7 @@ void sdram_init(void)
 	/*
 	 * Setup for 4 MByte...
 	 */
-		
+
         /*
 	 * Disable memory controller.
 	 */
