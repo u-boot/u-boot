@@ -297,6 +297,9 @@ init_fnc_t *init_sequence[] = {
 #if defined(CONFIG_MPC5xxx)
 	prt_mpc5xxx_clks,
 #endif /* CONFIG_MPC5xxx */
+#if defined(CONFIG_MPC8220)
+	prt_mpc8220_clks,
+#endif
 	checkboard,
 	INIT_FUNC_WATCHDOG_INIT
 #if defined(CONFIG_MISC_INIT_F)
@@ -477,6 +480,9 @@ void board_init_f (ulong bootflag)
 #ifdef CONFIG_IP860
 	bd->bi_sramstart = SRAM_BASE;	/* start of  SRAM memory	*/
 	bd->bi_sramsize  = SRAM_SIZE;	/* size  of  SRAM memory	*/
+#elif defined CONFIG_MPC8220
+	bd->bi_sramstart = CFG_SRAM_BASE;	/* start of  SRAM memory	*/
+	bd->bi_sramsize  = CFG_SRAM_SIZE;	/* size  of  SRAM memory	*/
 #else
 	bd->bi_sramstart = 0;		/* FIXME */ /* start of  SRAM memory	*/
 	bd->bi_sramsize  = 0;		/* FIXME */ /* size  of  SRAM memory	*/
@@ -488,6 +494,26 @@ void board_init_f (ulong bootflag)
 #endif
 #if defined(CONFIG_MPC5xxx)
 	bd->bi_mbar_base = CFG_MBAR;	/* base of internal registers */
+#endif
+#if defined(CONFIG_MPC8220)
+	bd->bi_mbar_base = CFG_MBAR;	/* base of internal registers */
+	bd->bi_inpfreq   = gd->inp_clk;
+	bd->bi_pcifreq   = gd->pci_clk;
+	bd->bi_vcofreq   = gd->vco_clk;
+	bd->bi_pevfreq   = gd->pev_clk;
+	bd->bi_flbfreq   = gd->flb_clk;
+
+    /* store bootparam to sram (backward compatible), here? */
+    {
+        u32 *sram = (u32 *)CFG_SRAM_BASE;
+        *sram++ = gd->ram_size;
+        *sram++ = gd->bus_clk;
+        *sram++ = gd->inp_clk;
+        *sram++ = gd->cpu_clk;
+        *sram++ = gd->vco_clk;
+        *sram++ = gd->flb_clk;
+        *sram++ = 0xb8c3ba11;  /* boot signature */
+    }
 #endif
 
 	bd->bi_bootflags = bootflag;	/* boot / reboot flag (for LynxOS)    */

@@ -123,24 +123,25 @@ Directory Hierarchy:
 - board		Board dependent files
 - common	Misc architecture independent functions
 - cpu		CPU specific files
-  - 74xx_7xx	Files specific to Motorola MPC74xx and 7xx CPUs
+  - 74xx_7xx	Files specific to Freescale MPC74xx and 7xx CPUs
   - arm720t	Files specific to ARM 720 CPUs
   - arm920t	Files specific to ARM 920 CPUs
-    - imx	Files specific to Motorola MC9328 i.MX CPUs
+    - imx	Files specific to Freescale MC9328 i.MX CPUs
     - s3c24x0	Files specific to Samsung S3C24X0 CPUs
   - arm925t	Files specific to ARM 925 CPUs
   - arm926ejs	Files specific to ARM 926 CPUs
   - at91rm9200	Files specific to Atmel AT91RM9200 CPUs
   - i386	Files specific to i386 CPUs
   - ixp		Files specific to Intel XScale IXP CPUs
-  - mcf52x2	Files specific to Motorola ColdFire MCF52x2 CPUs
+  - mcf52x2	Files specific to Freescale ColdFire MCF52x2 CPUs
   - mips	Files specific to MIPS CPUs
-  - mpc5xx	Files specific to Motorola MPC5xx  CPUs
-  - mpc5xxx	Files specific to Motorola MPC5xxx CPUs
-  - mpc8xx	Files specific to Motorola MPC8xx  CPUs
-  - mpc824x	Files specific to Motorola MPC824x CPUs
-  - mpc8260	Files specific to Motorola MPC8260 CPUs
-  - mpc85xx	Files specific to Motorola MPC85xx CPUs
+  - mpc5xx	Files specific to Freescale MPC5xx  CPUs
+  - mpc5xxx	Files specific to Freescale MPC5xxx CPUs
+  - mpc8xx	Files specific to Freescale MPC8xx  CPUs
+  - mpc8220	Files specific to Freescale MPC8220 CPUs
+  - mpc824x	Files specific to Freescale MPC824x CPUs
+  - mpc8260	Files specific to Freescale MPC8260 CPUs
+  - mpc85xx	Files specific to Freescale MPC85xx CPUs
   - nios	Files specific to Altera NIOS CPUs
   - nios2	Files specific to Altera Nios-II CPUs
   - ppc4xx	Files specific to IBM PowerPC 4xx CPUs
@@ -229,6 +230,7 @@ The following options need to be configured:
 		-------------------
 		CONFIG_MPC823,	CONFIG_MPC850,	CONFIG_MPC855,	CONFIG_MPC860
 	or	CONFIG_MPC5xx
+	or	CONFIG_MPC8220
 	or	CONFIG_MPC824X, CONFIG_MPC8260
 	or	CONFIG_MPC85xx
 	or	CONFIG_IOP480
@@ -2140,6 +2142,7 @@ configurations; the following names are supported:
 
 	ADCIOP_config		FPS860L_config		omap730p2_config
 	ADS860_config		GEN860T_config		pcu_e_config
+	Alaska8220_config
 	AR405_config		GENIETV_config		PIP405_config
 	at91rm9200dk_config	GTH_config		QS823_config
 	CANBT_config		hermes_config		QS850_config
@@ -2161,6 +2164,7 @@ configurations; the following names are supported:
 	FADS860T_config		omap1610inn_config	TQM855L_config
 	FPS850L_config		omap5912osk_config	TQM860L_config
 							WALNUT405_config
+							Yukon8220_config
 							ZPC1900_config
 
 Note: for some board special configuration names may exist; check if

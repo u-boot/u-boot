@@ -573,6 +573,13 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		/* convert all clock information to MHz */
 		kbd->bi_intfreq /= 1000000L;
 		kbd->bi_busfreq /= 1000000L;
+#if defined(CONFIG_MPC8220)
+        kbd->bi_inpfreq /= 1000000L;
+        kbd->bi_pcifreq /= 1000000L;
+        kbd->bi_pevfreq /= 1000000L;
+        kbd->bi_flbfreq /= 1000000L;
+        kbd->bi_vcofreq /= 1000000L;
+#endif
 #if defined(CONFIG_8260) || defined(CONFIG_MPC8560)
 		kbd->bi_cpmfreq /= 1000000L;
 		kbd->bi_brgfreq /= 1000000L;

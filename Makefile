@@ -826,6 +826,15 @@ XPEDITE1K_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx xpedite1k
 
 #########################################################################
+## MPC8220 Systems
+#########################################################################
+Alaska8220_config:	unconfig
+	@./mkconfig $(@:_config=) ppc mpc8220 alaska
+
+Yukon8220_config:	unconfig
+	@./mkconfig $(@:_config=) ppc mpc8220 yukon
+
+#########################################################################
 ## MPC824x Systems
 #########################################################################
 xtract_82xx = $(subst _BIGFLASH,,$(subst _ROMBOOT,,$(subst _L2,,$(subst _266MHz,,$(subst _300MHz,,$(subst _config,,$1))))))

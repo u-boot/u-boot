@@ -63,6 +63,8 @@ typedef volatile unsigned char	vu_char;
 #endif
 #elif defined(CONFIG_5xx)
 #include <asm/5xx_immap.h>
+#elif defined(CONFIG_MPC8220)
+#include <asm/immap_8220.h>
 #elif defined(CONFIG_8260)
 #if   defined(CONFIG_MPC8247) \
    || defined(CONFIG_MPC8248) \
@@ -355,6 +357,7 @@ void	trap_init     (ulong);
     defined (CONFIG_74x)	|| \
     defined (CONFIG_75x)	|| \
     defined (CONFIG_74xx)	|| \
+    defined (CONFIG_MPC8220)	|| \
     defined(CONFIG_MPC85xx)
 unsigned char	in8(unsigned int);
 void		out8(unsigned int, unsigned char);
@@ -398,6 +401,9 @@ int	prt_8260_clks (void);
 #endif
 #if defined(CONFIG_MPC5xxx)
 int	prt_mpc5xxx_clks (void);
+#endif
+#if defined(CONFIG_MPC8220)
+int	prt_mpc8220_clks (void);
 #endif
 #ifdef CONFIG_4xx
 ulong	get_OPB_freq (void);

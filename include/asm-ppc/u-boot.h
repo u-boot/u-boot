@@ -45,6 +45,14 @@ typedef struct bd_info {
 #if defined(CONFIG_MPC5xxx)
 	unsigned long	bi_mbar_base;	/* base of internal registers */
 #endif
+#if defined(CONFIG_MPC8220)
+	unsigned long	bi_mbar_base;	/* base of internal registers */
+	unsigned long   bi_inpfreq;     /* Input Freq, In MHz */
+	unsigned long   bi_pcifreq;     /* PCI Freq, in MHz */
+	unsigned long   bi_pevfreq;     /* PEV Freq, in MHz */
+	unsigned long   bi_flbfreq;     /* Flexbus Freq, in MHz */
+	unsigned long   bi_vcofreq;     /* VCO Freq, in MHz */
+#endif
 	unsigned long	bi_bootflags;	/* boot / reboot flag (for LynxOS) */
 	unsigned long	bi_ip_addr;	/* IP Address */
 	unsigned char	bi_enetaddr[6];	/* Ethernet adress */

@@ -2,6 +2,10 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by TsiChung Liew, 23 Sep 2004:
+  - add support for MPC8220 CPU
+  - Add support for Alaska and Yukon boards
+
 * Fix configuration for ERIC board (needs more room)
 
 * Adjust MIPS compiler options at run-time depending on tools version

@@ -50,6 +50,14 @@ typedef	struct	global_data {
 	unsigned long	ipb_clk;
 	unsigned long	pci_clk;
 #endif
+#if defined(CONFIG_MPC8220)
+	unsigned long   bExtUart;
+	unsigned long   inp_clk;
+	unsigned long   pci_clk;
+	unsigned long   vco_clk;
+	unsigned long   pev_clk;
+	unsigned long   flb_clk;
+#endif
 	unsigned long	ram_size;	/* RAM size */
 	unsigned long	reloc_off;	/* Relocation Offset */
 	unsigned long	reset_status;	/* reset status register at boot	*/
