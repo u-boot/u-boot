@@ -1066,10 +1066,22 @@ static ulong flash_get_size (ulong base, int banknum)
 			for (j = 0; j < erase_region_count; j++) {
 				info->start[sect_cnt] = sector;
 				sector += (erase_region_size * size_ratio);
-				info->protect[sect_cnt] =
-					flash_isset (info, sect_cnt,
-						     FLASH_OFFSET_PROTECT,
-						     FLASH_STATUS_PROTECT);
+
+				/*
+				 * Only read protection status from supported devices (intel...)
+				 */
+				switch (info->vendor) {
+				case CFI_CMDSET_INTEL_EXTENDED:
+				case CFI_CMDSET_INTEL_STANDARD:
+					info->protect[sect_cnt] =
+						flash_isset (info, sect_cnt,
+							     FLASH_OFFSET_PROTECT,
+							     FLASH_STATUS_PROTECT);
+					break;
+				default:
+					info->protect[sect_cnt] = 0; /* default: not protected */
+				}
+
 				sect_cnt++;
 			}
 		}

@@ -148,7 +148,9 @@ int dcache_status (void)
 }
 
 /* FIXME */
+/*
 void pci_init(void)
 {
 	return;
 }
+*/

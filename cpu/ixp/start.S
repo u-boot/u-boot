@@ -159,11 +159,12 @@ reset:
 	str     r1, [r2]
 
 	/* make sure flash is visible at 0 */
+#if 0
 	ldr 	r2, =IXP425_EXP_CFG0
 	ldr     r1, [r2]
 	orr     r1, r1, #0x80000000
 	str     r1, [r2]
-
+#endif
 	mov 	r1, #CFG_SDR_CONFIG
 	ldr     r2, =IXP425_SDR_CONFIG
 	str     r1, [r2]
@@ -198,7 +199,7 @@ reset:
 	bne	111b
 
 	/* set mode register in sdram */
-	mov	r1, #1
+	mov	r1, #CFG_SDR_MODE_CONFIG
 	str	r1, [r4]
 	DELAY_FOR 0x4000, r0
 
@@ -295,7 +296,7 @@ clear_bss:
 clbss_l:str	r2, [r0]		/* clear loop...                    */
 	add	r0, r0, #4
 	cmp	r0, r1
-	bne	clbss_l
+	ble	clbss_l
 
 	ldr	pc, _start_armboot
 

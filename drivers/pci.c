@@ -37,16 +37,6 @@
 #include <asm/io.h>
 #include <pci.h>
 
-#ifdef DEBUG
-#define DEBUGF(x...) printf(x)
-#else
-#define DEBUGF(x...)
-#endif /* DEBUG */
-
-/*
- *
- */
-
 #define PCI_HOSE_OP(rw, size, type)					\
 int pci_hose_##rw##_config_##size(struct pci_controller *hose, 		\
 				  pci_dev_t dev, 			\
@@ -62,6 +52,7 @@ PCI_HOSE_OP(write, byte, u8)
 PCI_HOSE_OP(write, word, u16)
 PCI_HOSE_OP(write, dword, u32)
 
+#ifndef CONFIG_IXP425
 #define PCI_OP(rw, size, type, error_code)				\
 int pci_##rw##_config_##size(pci_dev_t dev, int offset, type value)	\
 {									\
@@ -82,6 +73,7 @@ PCI_OP(read, dword, u32 *, *value = 0xffffffff)
 PCI_OP(write, byte, u8, )
 PCI_OP(write, word, u16, )
 PCI_OP(write, dword, u32, )
+#endif	/* CONFIG_IXP425 */
 
 #define PCI_READ_VIA_DWORD_OP(size, type, off_mask)			\
 int pci_hose_read_config_##size##_via_dword(struct pci_controller *hose,\
@@ -150,9 +142,11 @@ struct pci_controller *pci_bus_to_hose (int bus)
 		if (bus >= hose->first_busno && bus <= hose->last_busno)
 			return hose;
 
+	debug ("pci_bus_to_hose() failed\n");
 	return NULL;
 }
 
+#ifndef CONFIG_IXP425
 pci_dev_t pci_find_devices(struct pci_device_id *ids, int index)
 {
 	struct pci_controller * hose;
@@ -208,6 +202,7 @@ pci_dev_t pci_find_devices(struct pci_device_id *ids, int index)
 
 	return (-1);
 }
+#endif	/* CONFIG_IXP425 */
 
 pci_dev_t pci_find_device(unsigned int vendor, unsigned int device, int index)
 {
@@ -300,7 +295,7 @@ int pci_hose_config_device(struct pci_controller *hose,
 	unsigned char pin;
 	int bar, found_mem64;
 
-	DEBUGF ("PCI Config: I/O=0x%lx, Memory=0x%lx, Command=0x%lx\n",
+	debug ("PCI Config: I/O=0x%lx, Memory=0x%lx, Command=0x%lx\n",
 		io, mem, command);
 
 	pci_hose_write_config_dword (hose, dev, PCI_COMMAND, 0);
@@ -454,8 +449,8 @@ int pci_hose_scan_bus(struct pci_controller *hose, int bus)
 			if (!PCI_FUNC(dev))
 				found_multi = header_type & 0x80;
 
-			DEBUGF("PCI Scan: Found Bus %d, Device %d, Function %d\n",
-			    PCI_BUS(dev), PCI_DEV(dev), PCI_FUNC(dev) );
+			debug ("PCI Scan: Found Bus %d, Device %d, Function %d\n",
+				PCI_BUS(dev), PCI_DEV(dev), PCI_FUNC(dev) );
 
 			pci_hose_read_config_word(hose, dev, PCI_DEVICE_ID, &device);
 			pci_hose_read_config_word(hose, dev, PCI_CLASS_DEVICE, &class);

@@ -1,4 +1,21 @@
 ======================================================================
+Changes for U-Boot 1.1.3:
+======================================================================
+
+* Patch by Jon Loeliger, 02 Sep 2004:
+  Reset monitor size back to 256 so environment can be written
+  to flash on MPC85xx ADS and CDS releases.
+
+* Patch by Paolo Broggini, 02 Sep 2004:
+  Make BSS clearing on ARM systems more robust
+
+* Patch by Yue Hu and Joe, 01 Sep 2004:
+  - add PCI support for ixp425;
+  - add EEPRO100 suppor tfor ixdp425 board.
+
+* Fix problem with protected sector detection in driver/cfi_flash.c
+
+======================================================================
 Changes for U-Boot 1.1.2:
 ======================================================================
 

@@ -56,17 +56,20 @@
 
 #define CONFIG_BAUDRATE         115200
 
-#define CONFIG_COMMANDS         (CONFIG_CMD_DFL & ~CFG_CMD_NET)
+#define CONFIG_COMMANDS         (CONFIG_CMD_DFL | CFG_CMD_ELF | CFG_CMD_PCI)
 
+#define CONFIG_PCI
+#define CONFIG_NET_MULTI
+#define CONFIG_EEPRO100
 /* This must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 /* These are u-boot generic parameters */
 #include <cmd_confdefs.h>
 
 #define CONFIG_BOOTDELAY        3
-#define CONFIG_ETHADDR          08:00:3e:26:0a:5b
-#define CONFIG_NETMASK          255.255.0.0
+/*#define CONFIG_ETHADDR          08:00:3e:26:0a:5b*/
+#define CONFIG_NETMASK          255.255.255.0
 #define CONFIG_IPADDR           192.168.0.21
-#define CONFIG_SERVERIP         192.168.0.250
+#define CONFIG_SERVERIP         192.168.0.148
 #define CONFIG_BOOTCOMMAND      "bootm 50040000"
 #define CONFIG_BOOTARGS         "root=/dev/mtdblock2 rootfstype=cramfs console=ttyS0,115200"
 #define CONFIG_CMDLINE_TAG
@@ -147,7 +150,8 @@
 /*
  * SDRAM settings
  */
-#define CFG_SDR_CONFIG			0xd
+#define CFG_SDR_CONFIG		0xd
+#define CFG_SDR_MODE_CONFIG	0x1
 #define CFG_SDRAM_REFRESH_CNT 	0x81a
 
 /*

@@ -248,7 +248,7 @@ extern unsigned long get_clock_freq(void);
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
-#define CFG_MONITOR_LEN	    	(512 * 1024) /* Reserve 512 kB for Mon */
+#define CFG_MONITOR_LEN	    	(256 * 1024) /* Reserve 256 kB for Mon */
 #define CFG_MALLOC_LEN	    	(128 * 1024)	/* Reserved for malloc */
 
 /* Serial Port */

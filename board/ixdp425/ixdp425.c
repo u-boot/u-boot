@@ -40,7 +40,7 @@
 
 int
 /**********************************************************/
-board_late_init (void)
+board_post_init (void)
 /**********************************************************/
 {
 	return (0);
@@ -73,4 +73,10 @@ dram_init (void)
 	gd->bd->bi_dram[0].size  = PHYS_SDRAM_1_SIZE;
 
 	return (0);
+}
+extern struct pci_controller hose;
+void pci_init_board(void)
+{
+	pci_ixp_init(&hose);
+	return ;
 }
