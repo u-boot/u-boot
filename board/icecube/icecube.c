@@ -54,16 +54,16 @@ static void sdram_start (int hi_addr)
 	*(vu_long *)MPC5XXX_SDRAM_CTRL = 0xd04f0002 | hi_addr_bit;
 	/* set mode register */
 #if defined(CONFIG_MPC5200)
-	*(vu_long *)MPC5XXX_SDRAM_MODE = 0x408d0000;
+	*(vu_long *)MPC5XXX_SDRAM_MODE = 0x00cd0000;
 #elif defined(CONFIG_MGT5100)
 	*(vu_long *)MPC5XXX_SDRAM_MODE = 0x008d0000;
 #endif
-	/* precharge all banks */
-	*(vu_long *)MPC5XXX_SDRAM_CTRL = 0xd04f0002 | hi_addr_bit;
+	/* auto refresh */
+	*(vu_long *)MPC5XXX_SDRAM_CTRL = 0xd04f0004 | hi_addr_bit;
 	/* auto refresh */
 	*(vu_long *)MPC5XXX_SDRAM_CTRL = 0xd04f0004 | hi_addr_bit;
 	/* set mode register */
-	*(vu_long *)MPC5XXX_SDRAM_MODE = 0x008d0000;
+	*(vu_long *)MPC5XXX_SDRAM_MODE = 0x00cd0000;
 	/* normal operation */
 	*(vu_long *)MPC5XXX_SDRAM_CTRL = 0x504f0000 | hi_addr_bit;
 #endif
@@ -93,8 +93,8 @@ long int initdram (int board_type)
 	*(vu_long *)MPC5XXX_CDM_PORCFG = 0x10000000;
 #else
 	/* setup config registers */
-	*(vu_long *)MPC5XXX_SDRAM_CONFIG1 = 0xc2233a00;
-	*(vu_long *)MPC5XXX_SDRAM_CONFIG2 = 0x88b70004;
+	*(vu_long *)MPC5XXX_SDRAM_CONFIG1 = 0xd2322800;
+	*(vu_long *)MPC5XXX_SDRAM_CONFIG2 = 0x8ad70000;
 #endif
 
 #elif defined(CONFIG_MGT5100)

@@ -899,8 +899,12 @@ unsigned long usb_stor_read(int device, unsigned long blknr, unsigned long blkcn
 	unsigned short smallblks;
 	struct usb_device *dev;
 	int retry,i;
-	ccb *srb=&usb_ccb;
-	device&=0xff;
+	ccb *srb = &usb_ccb;
+
+	if (blkcnt == 0)
+		return 0;
+
+	device &= 0xff;
 	/* Setup  device
 	 */
 	USB_STOR_PRINTF("\nusb_read: dev %d \n",device);

@@ -1,7 +1,7 @@
 /*
  * INCA-IP internal switch ethernet driver.
  *
- * (C) Copyright 2003
+ * (C) Copyright 2003-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -66,6 +66,11 @@
 #define INCA_DMA_RX_C   0x80000000
 #define INCA_DMA_RX_SOP 0x40000000
 #define INCA_DMA_RX_EOP 0x20000000
+
+#define INCA_SWITCH_PHY_SPEED_10H	0x1
+#define INCA_SWITCH_PHY_SPEED_10F	0x5
+#define INCA_SWITCH_PHY_SPEED_100H	0x2
+#define INCA_SWITCH_PHY_SPEED_100F	0x6
 
 /************************ Auto MDIX settings ************************/
 #define INCA_IP_AUTO_MDIX_LAN_PORTS_DIR      INCA_IP_Ports_P1_DIR
@@ -221,8 +226,7 @@ static int inca_switch_init(struct eth_device *dev, bd_t * bis)
 
 	/* Initialize the descriptor rings.
 	 */
-	for (i = 0; i < NUM_RX_DESC; i++)
-	{
+	for (i = 0; i < NUM_RX_DESC; i++) {
 		inca_rx_descriptor_t * rx_desc = KSEG1ADDR(&rx_ring[i]);
 		memset(rx_desc, 0, sizeof(rx_ring[i]));
 
@@ -330,8 +334,7 @@ static int inca_switch_init(struct eth_device *dev, bd_t * bis)
 }
 
 
-static int inca_switch_send(struct eth_device *dev, volatile void *packet,
-						  int length)
+static int inca_switch_send(struct eth_device *dev, volatile void *packet, int length)
 {
 	int                    i;
 	int                    res         = -1;
@@ -628,7 +631,12 @@ static void inca_dma_init(void)
 #if defined(CONFIG_INCA_IP_SWITCH_AMDIX)
 static int inca_amdix(void)
 {
-	u32 regValue = 0;
+	u32 phyReg1 = 0;
+	u32 phyReg4 = 0;
+	u32 phyReg5 = 0;
+	u32 phyReg6 = 0;
+	u32 phyReg31 = 0;
+	u32 regEphy = 0;
 	int mdi_flag;
 	int retries;
 
@@ -637,31 +645,29 @@ static int inca_amdix(void)
 	*INCA_IP_AUTO_MDIX_LAN_PORTS_DIR    |= (1 << INCA_IP_AUTO_MDIX_LAN_GPIO_PIN_RXTX);
 	*INCA_IP_AUTO_MDIX_LAN_PORTS_ALTSEL |= (1 << INCA_IP_AUTO_MDIX_LAN_GPIO_PIN_RXTX);
 
+#if 0
 	/* Wait for signal.
 	 */
 	retries = WAIT_SIGNAL_RETRIES;
-	while (--retries)
-	{
+	while (--retries) {
 		SW_WRITE_REG(INCA_IP_Switch_MDIO_ACC,
 				(0x1 << 31) |	/* RA		*/
 				(0x0 << 30) |	/* Read		*/
 				(0x6 << 21) |	/* LAN		*/
 				(17  << 16));	/* PHY_MCSR	*/
-		do
-		{
-			SW_READ_REG(INCA_IP_Switch_MDIO_ACC, regValue);
-		}
-		while (regValue & (1 << 31));
+		do {
+			SW_READ_REG(INCA_IP_Switch_MDIO_ACC, phyReg1);
+		} while (phyReg1 & (1 << 31));
 
-		if (regValue & (1 << 1))
-		{
+		if (phyReg1 & (1 << 1)) {
 			/* Signal detected */
 			break;
 		}
 	}
 
 	if (!retries)
-		return -1;
+		goto Fail;
+#endif
 
 	/* Set MDI mode.
 	 */
@@ -671,43 +677,135 @@ static int inca_amdix(void)
 	/* Wait for link.
 	 */
 	retries = WAIT_LINK_RETRIES;
-	while (--retries)
-	{
+	while (--retries) {
 		udelay(LINK_RETRY_DELAY * 1000);
 		SW_WRITE_REG(INCA_IP_Switch_MDIO_ACC,
 				(0x1 << 31) |	/* RA		*/
 				(0x0 << 30) |	/* Read		*/
 				(0x6 << 21) |	/* LAN		*/
 				(1   << 16));	/* PHY_BSR	*/
-		do
-		{
-			SW_READ_REG(INCA_IP_Switch_MDIO_ACC, regValue);
-		}
-		while (regValue & (1 << 31));
+		do {
+			SW_READ_REG(INCA_IP_Switch_MDIO_ACC, phyReg1);
+		} while (phyReg1 & (1 << 31));
 
-		if (regValue & (1 << 2))
-		{
+		if (phyReg1 & (1 << 2)) {
 			/* Link is up */
 			break;
-		}
-		else if (mdi_flag)
-		{
+		} else if (mdi_flag) {
 			/* Set MDIX mode */
 			*INCA_IP_AUTO_MDIX_LAN_PORTS_OUT |= (1 << INCA_IP_AUTO_MDIX_LAN_GPIO_PIN_RXTX);
 			mdi_flag = 0;
-		}
-		else
-		{
+		} else {
 			/* Set MDI mode */
 			*INCA_IP_AUTO_MDIX_LAN_PORTS_OUT &= ~(1 << INCA_IP_AUTO_MDIX_LAN_GPIO_PIN_RXTX);
 			mdi_flag = 1;
 		}
 	}
 
-	if (!retries)
-		return -1;
+	if (!retries) {
+		goto Fail;
+	} else {
+		SW_WRITE_REG(INCA_IP_Switch_MDIO_ACC,
+				(0x1 << 31) |	/* RA		*/
+				(0x0 << 30) |	/* Read		*/
+				(0x6 << 21) |	/* LAN		*/
+				(1   << 16));	/* PHY_BSR	*/
+		do {
+			SW_READ_REG(INCA_IP_Switch_MDIO_ACC, phyReg1);
+		} while (phyReg1 & (1 << 31));
+
+		/* Auto-negotiation / Parallel detection complete
+		 */
+		if (phyReg1 & (1 << 5)) {
+			SW_WRITE_REG(INCA_IP_Switch_MDIO_ACC,
+				(0x1 << 31) |	/* RA		*/
+				(0x0 << 30) |	/* Read		*/
+				(0x6 << 21) |	/* LAN		*/
+				(31  << 16));	/* PHY_SCSR	*/
+			do {
+        	                SW_READ_REG(INCA_IP_Switch_MDIO_ACC, phyReg31);
+			} while (phyReg31 & (1 << 31));
+
+			switch ((phyReg31 >> 2) & 0x7) {
+			case INCA_SWITCH_PHY_SPEED_10H:
+				/* 10Base-T Half-duplex */
+				regEphy = 0;
+				break;
+			case INCA_SWITCH_PHY_SPEED_10F:
+				/* 10Base-T Full-duplex */
+				regEphy = INCA_IP_Switch_EPHY_DL;
+				break;
+			case INCA_SWITCH_PHY_SPEED_100H:
+				/* 100Base-TX Half-duplex */
+				regEphy = INCA_IP_Switch_EPHY_SL;
+				break;
+			case INCA_SWITCH_PHY_SPEED_100F:
+				/* 100Base-TX Full-duplex */
+				regEphy = INCA_IP_Switch_EPHY_SL | INCA_IP_Switch_EPHY_DL;
+				break;
+			}
+
+			/* In case of Auto-negotiation,
+			 * update the negotiated PAUSE support status
+			 */
+			if (phyReg1 & (1 << 3)) {
+				SW_WRITE_REG(INCA_IP_Switch_MDIO_ACC,
+					(0x1 << 31) |	/* RA		*/
+					(0x0 << 30) |	/* Read		*/
+					(0x6 << 21) |	/* LAN		*/
+					(6   << 16));	/* PHY_ANER	*/
+				do {
+        		                SW_READ_REG(INCA_IP_Switch_MDIO_ACC, phyReg6);
+				} while (phyReg6 & (1 << 31));
+
+				/* We are Autoneg-able.
+				 * Is Link partner also able to autoneg?
+				 */
+				if (phyReg6 & (1 << 0)) {
+					SW_WRITE_REG(INCA_IP_Switch_MDIO_ACC,
+						(0x1 << 31) |	/* RA		*/
+						(0x0 << 30) |	/* Read		*/
+						(0x6 << 21) |	/* LAN		*/
+						(4   << 16));	/* PHY_ANAR	*/
+					do {
+        			                SW_READ_REG(INCA_IP_Switch_MDIO_ACC, phyReg4);
+					} while (phyReg4 & (1 << 31));
+
+					/* We advertise PAUSE capab.
+					 * Does link partner also advertise it?
+					 */
+					if (phyReg4 & (1 << 10)) {
+						SW_WRITE_REG(INCA_IP_Switch_MDIO_ACC,
+							(0x1 << 31) |	/* RA		*/
+							(0x0 << 30) |	/* Read		*/
+							(0x6 << 21) |	/* LAN		*/
+							(5   << 16));	/* PHY_ANLPAR	*/
+						do {
+			        	                SW_READ_REG(INCA_IP_Switch_MDIO_ACC, phyReg5);
+						} while (phyReg5 & (1 << 31));
+
+						/* Link partner is PAUSE capab.
+						 */
+						if (phyReg5 & (1 << 10)) {
+							regEphy |= INCA_IP_Switch_EPHY_PL;
+						}
+					}
+				}
+
+			}
+
+			/* Link is up */
+			regEphy |= INCA_IP_Switch_EPHY_LL;
+
+			SW_WRITE_REG(INCA_IP_Switch_EPHY, regEphy);
+		}
+	}
 
 	return 0;
+
+Fail:
+	printf("No Link on LAN port\n");
+	return -1;
 }
 #endif /* CONFIG_INCA_IP_SWITCH_AMDIX */
 

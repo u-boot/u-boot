@@ -2,6 +2,12 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
+* Fix SDRAM timings for LITE5200 / IceCube board
+
+* Handle Auti-MDIX / connection status for INCA-IP
+
+* Fix USB problems when attempting to read 0 bytes
+
 * Patch by Travis Sawyer, 26 Feb 2004:
   Fix broken compile for XPEDITE1K target.
 
