@@ -613,7 +613,7 @@ static void process_macros (const char *input, char *output)
 	int state = 0;	/* 0 = waiting for '$'	*/
 			/* 1 = waiting for '('	*/
 			/* 2 = waiting for ')'	*/
-
+	                /* 3 = waiting for '''  */
 #ifdef DEBUG_PARSER
 	char *output_start = output;
 
@@ -626,6 +626,7 @@ static void process_macros (const char *input, char *output)
 	    c = *input++;
 	    inputcnt--;
 
+	    if (state!=3) {
 	    /* remove one level of escape characters */
 	    if ((c == '\\') && (prev != '\\')) {
 		if (inputcnt-- == 0)
@@ -633,9 +634,16 @@ static void process_macros (const char *input, char *output)
 		prev = c;
 	    	c = *input++;
 	    }
+	    }
 
 	    switch (state) {
 	    case 0:			/* Waiting for (unescaped) $	*/
+		if ((c == '\'') && (prev != '\\')) {
+			state = 3;
+			if (inputcnt)
+				inputcnt--;
+			break;
+		}
 		if ((c == '$') && (prev != '\\')) {
 			state++;
 		} else {
@@ -683,8 +691,17 @@ static void process_macros (const char *input, char *output)
 			state = 0;
 		}
 		break;
+	    case 3:			/* Waiting for '	*/
+		if ((c == '\'') && (prev != '\\')) {
+			state = 0;
+			if (inputcnt)
+				inputcnt--;
+		} else {
+			*(output++) = c;
+			outputcnt--;
+		}
+		break;
 	    }
-
 	    prev = c;
 	}
 
@@ -725,6 +742,7 @@ int run_command (const char *cmd, int flag)
 	char *argv[CFG_MAXARGS + 1];	/* NULL terminated	*/
 	int argc;
 	int repeatable = 1;
+	int inquotes;
 
 #ifdef DEBUG_PARSER
 	printf ("[RUN_COMMAND] cmd[%p]=\"", cmd);
@@ -758,8 +776,13 @@ int run_command (const char *cmd, int flag)
 		 * Find separator, or string end
 		 * Allow simple escape of ';' by writing "\;"
 		 */
-		for (sep = str; *sep; sep++) {
-			if ((*sep == ';') &&	/* separator		*/
+		for (inquotes = 0, sep = str; *sep; sep++) {
+			if ((*sep=='\'') &&
+			    (*(sep-1) != '\\'))
+				inquotes=!inquotes;
+
+			if (!inquotes &&
+			    (*sep == ';') &&	/* separator		*/
 			    ( sep != str) &&	/* past string start	*/
 			    (*(sep-1) != '\\'))	/* and NOT escaped	*/
 				break;
