@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001
+ * (C) Copyright 2001-2003
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -37,9 +37,9 @@
 /*
  *  Memory Controller Using
  *
- *  CS0 - Flash memory            (0x40000000)
- *  CS1 - SDRAM                   (0x00000000}
- *  CS2 -
+ *  CS0 - Flash memory		(0x40000000)
+ *  CS1 - FLASH memory		(0x????????)
+ *  CS2 - SDRAM			(0x00000000)
  *  CS3 -
  *  CS4 -
  *  CS5 -
@@ -148,7 +148,7 @@ long int initdram (int board_type)
 	udelay (1000);
 
 	/*
-	 * Check Bank 0 Memory Size for re-configuration
+	 * Check Bank 2 Memory Size for re-configuration
 	 *
 	 * try 8 column mode
 	 */

@@ -51,7 +51,7 @@
 #undef	CONFIG_8xx_CONS_NONE
 #define CONFIG_BAUDRATE		115200	/* console baudrate in bps	*/
 #if 0
-#define CONFIG_BOOTDELAY	-1	/* autoboot disabled		*/
+#define CONFIG_BOOTDELAY	0	/* immediate boot		*/
 #else
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 #endif
@@ -76,14 +76,6 @@
 #define	CONFIG_MISC_INIT_R		/* have misc_init_r() function	*/
 
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
-
-#if 0
-#ifdef CONFIG_LCD
-# undef	 CONFIG_STATUS_LED		/* disturbs display		*/
-#else
-# define CONFIG_STATUS_LED	1	/* Status LED enabled		*/
-#endif	/* CONFIG_LCD */
-#endif
 
 #define	CONFIG_CAN_DRIVER		/* CAN Driver support enabled	*/
 
@@ -125,6 +117,7 @@
 				CFG_CMD_DATE	| \
 				CFG_CMD_I2C	| \
 				CFG_CMD_IDE	| \
+				CFG_CMD_JFFS2	| \
 				CFG_CMD_PCMCIA	| \
 				CFG_CMD_BSP	)
 
@@ -134,6 +127,9 @@
 /*
  * Miscellaneous configurable options
  */
+#define CFG_DEVICE_NULLDEV	1	/* we need the null device	*/
+#define CFG_CONSOLE_IS_IN_ENV	1	/* must set console from env	*/
+
 #define	CFG_LONGHELP			/* undef to save memory		*/
 #define	CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
@@ -153,6 +149,11 @@
 #define	CFG_HZ		1000		/* decrementer freq: 1 ms ticks	*/
 
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+
+/* JFFS2 stuff */
+#define CFG_JFFS2_FIRST_BANK	0
+#define CFG_JFFS2_NUM_BANKS	1
+#define CFG_JFFS2_FIRST_SECTOR	24
 
 /*
  * Low Level Configuration Settings

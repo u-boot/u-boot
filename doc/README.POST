@@ -72,20 +72,20 @@ tests. All POST tests will be divided into the following groups:
      This group will contain those tests that do not take much
      time and can be run on the regular basis (e.g. CPU test)
 
-  3) Tests running on power-fail booting only
+  3) Tests running on in special "slow test more" only
 
      This group will contain POST tests that consume much time
-     and cannot be run regularly (e.g. I2C test)
+     and cannot be run regularly (e.g. strong memory test, I2C test)
 
   4) Manually executed tests
 
      This group will contain those tests that can be run manually.
 
 If necessary, some tests may belong to several groups simultaneously.
-For example, SDRAM test may run on both noarmal and power-fail
-booting. On normal booting, SDRAM test may perform a fast superficial
-memory test only, while running on power-fail booting it may perform
-a full memory check-up.
+For example, SDRAM test may run in both normal and "slow test" mode.
+In normal mode, SDRAM test may perform a fast superficial memory test
+only, while running in slow test mode it may perform a full memory
+check-up.
 
 Also, all tests will be discriminated by the moment they run at.
 Specifically, the following groups will be singled out:
@@ -114,13 +114,15 @@ rest of U-Boot.
 
 The following flags will be defined:
 
-#define POST_ROM		0x01	/* test runs in ROM */
-#define POST_RAM		0x02	/* test runs in RAM */
-#define POST_POWERON		0x04	/* test runs on power-on booting */
-#define POST_NORMAL		0x08	/* test runs on normal booting */
-#define POST_SHUTDOWN		0x10	/* test runs on power-fail booting */
-#define POST_MANUAL		0x20	/* test can be executed manually */
-#define POST_REBOOT		0x80	/* test may cause rebooting */
+#define POST_POWERON		0x01	/* test runs on power-on booting */
+#define POST_NORMAL		0x02	/* test runs on normal booting */
+#define POST_SLOWTEST		0x04	/* test is slow, enabled by key press */
+#define POST_POWERTEST		0x08	/* test runs after watchdog reset */
+#define POST_ROM		0x100	/* test runs in ROM */
+#define POST_RAM		0x200	/* test runs in RAM */
+#define POST_MANUAL		0x400	/* test can be executed manually */
+#define POST_REBOOT		0x800	/* test may cause rebooting */
+#define POST_PREREL             0x1000  /* test runs before relocation */
 
 The POST layer will export the following interface routines:
 
@@ -167,6 +169,13 @@ U-Boot common code:
      This routine will turn off the power supply of the board. It
      will be called on power-fail booting after running all POST
      tests.
+
+  o) int post_hotkeys_pressed(gd_t *gd)
+
+     This routine will scan the keyboard to detect if a magic key
+     combination has been pressed, or otherwise detect if the
+     power-on long-running tests shall be executed or not ("normal"
+     versus "slow" test mode).
 
 The list of available POST tests be kept in the post_tests array
 filled at U-Boot build time. The format of entry in this array will
@@ -725,8 +734,3 @@ TBD
 2.2.3.4. SPI test
 
 TBD
-
-2.3. Design notes
-
-Currently it is unknown how we will power off the board after running
-all power-fail POST tests. This point needs further clarification.
