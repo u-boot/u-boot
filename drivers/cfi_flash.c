@@ -144,6 +144,12 @@
 #define CFI_CMDSET_SST		    258
 
 
+#ifdef CFG_FLASH_CFI_AMD_RESET /* needed for STM_ID_29W320DB on UC100 */
+# undef  FLASH_CMD_RESET
+# define FLASH_CMD_RESET                AMD_CMD_RESET /* use AMD-Reset instead */
+#endif
+
+
 typedef union {
 	unsigned char c;
 	unsigned short w;

@@ -190,10 +190,17 @@ static int check_CPU (long clock, uint pvr, uint immr)
 	default: suf = NULL; break;
 	}
 
+#ifndef CONFIG_MPC857
 	if (suf)
 		printf ("%cPC862%sZPnn%s", pre, mid, suf);
 	else
 		printf ("unknown MPC862 (0x%08x)", k);
+#else
+	if (suf)
+		printf ("%cPC857TZPnn%s", pre, suf); /* only 857T tested right now! */
+	else
+		printf ("unknown MPC857 (0x%08x)", k);
+#endif
 
 	printf (" at %s MHz:", strmhz (buf, clock));
 

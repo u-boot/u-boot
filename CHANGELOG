@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Add support for UC100 board
+
 * Patch by Stefan Roese, 16 Dez 2004:
   - ext2fs support added
   - Tundra universe support added

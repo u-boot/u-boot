@@ -66,6 +66,8 @@
 # define CONFIG_PCMCIA_SLOT_A
 #elif defined(CONFIG_NETTA)
 # define CONFIG_PCMCIA_SLOT_A
+#elif defined(CONFIG_UC100)		/* The UC100 use SLOT_B	        */
+# define CONFIG_PCMCIA_SLOT_B
 #else
 # error "PCMCIA Slot not configured"
 #endif
