@@ -5,7 +5,7 @@
  *
  * NOTE: I haven't clean this up considerably, just enough to get it
  * running. See hal_platform_setup.h for the source. See
- * board/cradle/memsetup.S for another PXA250 setup that is
+ * board/cradle/lowlevel_init.S for another PXA250 setup that is
  * much cleaner.
  *
  * See file CREDITS for list of people who contributed to this
@@ -43,8 +43,8 @@
  *	Memory setup
  */
 
-.globl memsetup
-memsetup:
+.globl lowlevel_init
+lowlevel_init:
 
 	/* Set up GPIO pins first ----------------------------------------- */
 
@@ -445,7 +445,6 @@ initclks:
     str r1, [r0]
 	/* FIXME */
 
-// #define NODEBUG
 #ifdef NODEBUG
 	/*Disable software and data breakpoints */
 	mov	r0,#0
@@ -456,13 +455,12 @@ initclks:
 	/*Enable all debug functionality */
 	mov	r0,#0x80000000
 	mcr	p14,0,r0,c10,c0,0  /* dcsr */
-
 #endif
 
 	/* ---------------------------------------------------------------- */
-	/* End memsetup							    */
+	/* End lowlevel_init							    */
 	/* ---------------------------------------------------------------- */
 
-endmemsetup:
+endlowlevel_init:
 
 	mov	pc, lr

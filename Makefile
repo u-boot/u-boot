@@ -1285,6 +1285,12 @@ xtract_omap1610xxx = $(subst _cs0boot,,$(subst _cs3boot,,$(subst _cs_autoboot,,$
 
 xtract_omap730p2 = $(subst _cs0boot,,$(subst _cs3boot,, $(subst _config,,$1)))
 
+at91rm9200dk_config	:	unconfig
+	@./mkconfig $(@:_config=) arm arm920t at91rm9200dk NULL at91rm9200
+
+cmc_pu2_config	:	unconfig
+	@./mkconfig $(@:_config=) arm arm920t cmc_pu2 NULL at91rm9200
+
 integratorap_config :	unconfig
 	@./mkconfig $(@:_config=) arm arm926ejs integratorap
 
@@ -1417,16 +1423,6 @@ modnet50_config :	unconfig
 
 evb4510_config :	unconfig
 	@./mkconfig $(@:_config=) arm arm720t evb4510
-
-#########################################################################
-## AT91RM9200 Systems
-#########################################################################
-
-at91rm9200dk_config	:	unconfig
-	@./mkconfig $(@:_config=) arm at91rm9200 at91rm9200dk
-
-cmc_pu2_config	:	unconfig
-	@./mkconfig $(@:_config=) arm at91rm9200 cmc_pu2
 
 #########################################################################
 ## XScale Systems

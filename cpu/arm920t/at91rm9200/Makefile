@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2003
+# (C) Copyright 2000-2005
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,22 +23,20 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(CPU).a
+LIB	= lib$(SOC).a
 
-START	= start.o
-OBJS	= serial.o interrupts.o cpu.o \
-	  at91rm9200_ether.o i2c.o
-SOBJS	= lowlevel.o
+OBJS	= ether.o i2c.o interrupts.o serial.o
+SOBJS	= lowlevel_init.o
 
-all:	.depend $(START) $(LIB)
+all:	.depend $(LIB)
 
 $(LIB):	$(OBJS) $(SOBJS)
 	$(AR) crv $@ $(OBJS) $(SOBJS)
 
 #########################################################################
 
-.depend:	Makefile $(START:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(START:.o=.S) $(OBJS:.o=.c) > $@
+.depend:	Makefile $(OBJS:.o=.c)
+		$(CC) -M $(CFLAGS) $(OBJS:.o=.c) > $@
 
 sinclude .depend
 

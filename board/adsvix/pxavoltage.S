@@ -228,4 +228,3 @@ setleds:
 	bne		1b
 
 	mov		pc, lr
-

@@ -32,8 +32,12 @@
 
 #define AT91_SLOW_CLOCK		32768	/* slow clock */
 
-#define CONFIG_AT91RM9200DK	1	/* on an AT91RM9200DK Board	 */
-#undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff */
+#define CONFIG_ARM920T		1	/* This is an ARM920T Core	*/
+#define CONFIG_AT91RM9200	1	/* It's an Atmel AT91RM9200 SoC	*/
+#define CONFIG_AT91RM9200DK	1	/* on an AT91RM9200DK Board	*/
+#undef  CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff	*/
+#define USE_920T_MMU		1
+
 #define CONFIG_CMDLINE_TAG	1	/* enable passing of ATAGs	*/
 #define CONFIG_SETUP_MEMORY_TAGS 1
 #define CONFIG_INITRD_TAG	1

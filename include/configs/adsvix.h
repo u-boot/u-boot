@@ -34,13 +34,6 @@
 #define __CONFIG_H
 
 /*
- * If we are developing, we might want to start armboot from ram
- * so we MUST NOT initialize critical regs like mem-timing ...
- */
-#define CONFIG_INIT_CRITICAL		/* undef for developing */
-#define RTC
-
-/*
  * High Level Configuration Options
  * (easy to change)
  */
@@ -50,6 +43,8 @@
 #define BOARD_LATE_INIT		1
 
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff */
+
+#define RTC
 
 /*
  * Size of malloc() pool

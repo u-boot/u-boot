@@ -27,7 +27,7 @@ include $(TOPDIR)/config.mk
 LIB	= lib$(BOARD).a
 
 OBJS	:= adsvix.o pcmcia.o
-SOBJS	:= memsetup.o pxavoltage.o
+SOBJS	:= lowlevel_init.o pxavoltage.o
 
 $(LIB):	$(OBJS) $(SOBJS)
 	$(AR) crv $@ $(OBJS) $(SOBJS)

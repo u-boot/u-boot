@@ -32,7 +32,7 @@ SECTIONS
 	. = ALIGN(4);
 	.text      :
 	{
-	  cpu/at91rm9200/start.o	(.text)
+	  cpu/arm920t/start.o	(.text)
 	  *(.text)
 	}
 
