@@ -12,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -97,7 +97,7 @@ What they do
   CONFIG_AUTOBOOT_STOP_STR2
 
   "bootdelaykey"  environment variable
-  "bootstopkey"   environment variable
+  "bootstopkey"	  environment variable
   "bootdelaykey2" environment variable
   "bootstopkey2"  environment variable
 
@@ -106,7 +106,7 @@ What they do
 	stop or delay autoboot.
 
 	Define CONFIG_AUTOBOOT_KEYED (no value required) to enable
-	this group of options.  CONFIG_AUTOBOOT_DELAY_STR,
+	this group of options.	CONFIG_AUTOBOOT_DELAY_STR,
 	CONFIG_AUTOBOOT_STOP_STR or both should be specified (or
 	specified by the corresponding environment variable),
 	otherwise there is no way to stop autoboot.
@@ -119,17 +119,17 @@ What they do
 	down the seconds. "autoboot in %d seconds\n" is a reasonable
 	prompt.
 
-        If CONFIG_AUTOBOOT_DELAY_STR or "bootdelaykey" is specified
-        and this string is received from console input before
-        autoboot starts booting, U-Boot gives a command prompt. The
-        U-Boot prompt will time out if CONFIG_BOOT_RETRY_TIME is
-        used, otherwise it never times out.
+	If CONFIG_AUTOBOOT_DELAY_STR or "bootdelaykey" is specified
+	and this string is received from console input before
+	autoboot starts booting, U-Boot gives a command prompt. The
+	U-Boot prompt will time out if CONFIG_BOOT_RETRY_TIME is
+	used, otherwise it never times out.
 
-        If CONFIG_AUTOBOOT_STOP_STR or "bootstopkey" is specified and
-        this string is received from console input before autoboot
-        starts booting, U-Boot gives a command prompt. The U-Boot
-        prompt never times out, even if CONFIG_BOOT_RETRY_TIME is
-        used.
+	If CONFIG_AUTOBOOT_STOP_STR or "bootstopkey" is specified and
+	this string is received from console input before autoboot
+	starts booting, U-Boot gives a command prompt. The U-Boot
+	prompt never times out, even if CONFIG_BOOT_RETRY_TIME is
+	used.
 
 	The string recognition is not very sophisticated. If a
 	partial match is detected, the first non-matching character
@@ -138,11 +138,11 @@ What they do
 	character of a key string does not appear in the rest of the
 	string.
 
-        Using the CONFIG_AUTOBOOT_DELAY_STR2 #define or the
-        "bootdelaykey2" environment variable and/or the
-        CONFIG_AUTOBOOT_STOP_STR2 #define or the "bootstopkey"
-        environment variable you can specify a second, alternate
-        string (which allows you to have two "password" strings).
+	Using the CONFIG_AUTOBOOT_DELAY_STR2 #define or the
+	"bootdelaykey2" environment variable and/or the
+	CONFIG_AUTOBOOT_STOP_STR2 #define or the "bootstopkey"
+	environment variable you can specify a second, alternate
+	string (which allows you to have two "password" strings).
 
   CONFIG_ZERO_BOOTDELAY_CHECK
 

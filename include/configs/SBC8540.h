@@ -29,7 +29,7 @@
 /* make sure you change the MAC address and other network params first,
  * search for CONFIG_ETHADDR,CONFIG_SERVERIP,etc in this file
  */
- 
+
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
@@ -203,7 +203,7 @@
 #define CFG_NS16550_COM1	((CFG_BR5_PRELIM & 0xff000000)+0x00700000)
 #define CFG_NS16550_COM2	((CFG_BR5_PRELIM & 0xff000000)+0x00800000)
 #else
-/* SBC8540 uses internal COMM controller */ 
+/* SBC8540 uses internal COMM controller */
 #define CFG_NS16550_COM1	((CFG_CCSRBAR & 0xfff00000)+0x00004500)
 #define CFG_NS16550_COM2	((CFG_CCSRBAR & 0xfff00000)+0x00004600)
 #endif
@@ -232,13 +232,13 @@
   #define CONFIG_MII		1	/* MII PHY management		*/
   #define CONFIG_PHY_ADDR	25	/* PHY address			*/
 
- 
+
 #elif defined(CONFIG_ETHER_ON_FCC)	/* CPM FCC Ethernet */
 
   #undef  CONFIG_ETHER_NONE		/* define if ether on something else */
   #define CONFIG_ETHER_ON_FCC2		/* cpm FCC ethernet support	*/
   #define CONFIG_ETHER_INDEX	2	/* which channel for ether  */
-  
+
   #if (CONFIG_ETHER_INDEX == 2)
     /*
      * - Rx-CLK is CLK13
@@ -250,11 +250,11 @@
     #define CFG_CMXFCR_VALUE	(CMXFCR_RF2CS_CLK13 | CMXFCR_TF2CS_CLK14)
     #define CFG_CPMFCR_RAMTYPE	0
     #define CFG_FCC_PSMR	(FCC_PSMR_FDE)
-    
+
   #elif (CONFIG_ETHER_INDEX == 3)
     /* need more definitions here for FE3 */
   #endif				/* CONFIG_ETHER_INDEX */
-  
+
   #define CONFIG_MII			/* MII PHY management */
   #define CONFIG_BITBANGMII		/* bit-bang MII PHY management	*/
   /*
@@ -272,7 +272,7 @@
 			else	iop->pdat &= ~0x00200000
 
   #define MIIDELAY	udelay(1)
-  
+
 #endif
 
 /*-----------------------------------------------------------------------

@@ -195,8 +195,7 @@ long int initdram (int board_type)
  * - short between data lines
  */
 
-static long int dram_size (long int mamr_value, long int *base,
-						   long int maxsize)
+static long int dram_size (long int mamr_value, long int *base, long int maxsize)
 {
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
@@ -209,9 +208,10 @@ static long int dram_size (long int mamr_value, long int *base,
 #if (CONFIG_COMMANDS & CFG_CMD_NAND)
 void nand_init(void)
 {
+	extern unsigned long nand_probe(unsigned long physadr);
+
 	unsigned long totlen = nand_probe(CFG_NAND_BASE);
 
 	printf ("%4lu MB\n", totlen >> 20);
 }
 #endif
-

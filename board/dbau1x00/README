@@ -13,7 +13,7 @@ configurations in little endian mode.
 I named the board dbau1x00, to allow
 support for all three development boards
 ( dbau1000, dbau1100 and dbau1500 ).
-Now there is a new board called dbau1550 also, which 
+Now there is a new board called dbau1550 also, which
 should be supported RSN.
 
 I only have a dbau1000, so my testing is limited
@@ -25,10 +25,10 @@ to test new bootloaders without thrashing the YAMON
 boot loader delivered with board.
 
 NOTE! When you switch between the two boot flashes, the
-base addresses will be swapped. 
+base addresses will be swapped.
 Have this in mind when you compile u-boot. TEXT_BASE has
-to match the address where u-boot is located when you 
-actually launch. 
+to match the address where u-boot is located when you
+actually launch.
 
 Ethernet only supported for mac0.
 
