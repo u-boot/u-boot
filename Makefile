@@ -329,6 +329,10 @@ SPD823TS_config:	unconfig
 SXNI855T_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx sixnet
 
+# EMK MPC8xx based modules
+TOP860_config:		unconfig
+	@./mkconfig $(@:_config=) ppc mpc8xx top860 emk
+
 # Play some tricks for configuration selection
 # All boards can come with 50 MHz (default), 66MHz or 80MHz clock,
 # but only 855 and 860 boards may come with FEC
@@ -515,6 +519,9 @@ IPHASE4539_config:	unconfig
 
 MPC8260ADS_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8260 mpc8260ads
+
+MPC8266ADS_config:	unconfig
+	@./mkconfig $(@:_config=) ppc mpc8260 mpc8266ads
 
 PM826_config	\
 PM826_ROMBOOT_config: unconfig

@@ -14,6 +14,7 @@
 
 
 #########################################################################
+# PowerPC Systems:							#
 #									#
 # Maintainer Name, Email Address					#
 #	Board			CPU					#
@@ -140,6 +141,10 @@ Eran Man <eran@nbase.co.il>
 
 	EVB64260_750CX		MPC750CX
 
+Reinhard Meyer <r.meyer@emk-elektronik.de>
+
+	TOP860			MPC860
+
 Scott McNutt <smcnutt@artesyncp.com>
 
 	EBONY			PPC440GP
@@ -183,6 +188,10 @@ Jim Thompson <jim@musenki.com>
 
 	MUSENKI			MPC8245/8241
 	Sandpoint8245		MPC8245
+
+Rune Torgersen <runet@innovsys.com>
+
+	MPC8266ADS		MPC8266
 
 -------------------------------------------------------------------------
 

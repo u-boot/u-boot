@@ -20,13 +20,11 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-long int spd_sdram (void);
 
 #include <common.h>
 #include "walnut405.h"
 #include <asm/processor.h>
-
-
+#include <spd_sdram.h>
 
 int board_pre_init (void)
 {
@@ -118,11 +116,8 @@ int checkboard (void)
   the necessary info for SDRAM controller configuration
    ------------------------------------------------------------------------- */
 long int initdram (int board_type)
-{
-	long int ret;
-
-	ret = spd_sdram ();
-	return ret;
+{	
+	return  spd_sdram (0);
 }
 
 /* ------------------------------------------------------------------------- */

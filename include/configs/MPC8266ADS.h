@@ -98,19 +98,18 @@
 #define CONFIG_HARD_I2C		1	/* To enable I2C support	*/
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address	*/
 #define CFG_I2C_SLAVE		0x7F
+#define CFG_I2C_EEPROM_ADDR_LEN 1
 
-#if defined(CONFIG_SPD_EEPROM) && !defined(CONFIG_SPD_ADDR)
-#define CONFIG_SPD_ADDR         0x50
-#endif
+/*-----------------------------------------------------------------------
+ * Definitions for Serial Presence Detect EEPROM address
+ * (to get SDRAM settings)
+ */
+#define SPD_EEPROM_ADDRESS      0x50
 
-#ifndef CONFIG_SDRAM_PBI
-#define CONFIG_SDRAM_PBI        1 /* By default, use page-based interleaving */
-#endif
 
-#ifndef CONFIG_8260_CLKIN
 #define CONFIG_8260_CLKIN	66666666	/* in Hz */
-#endif
 #define CONFIG_BAUDRATE		115200
+
 
 #define CONFIG_COMMANDS		(CFG_CMD_ALL & ~( \
 				 CFG_CMD_BEDBUG | \
@@ -186,13 +185,131 @@
 #define CFG_FLASH_ERASE_TOUT	8000	/* Timeout for Flash Erase (in ms)    */
 #define CFG_FLASH_WRITE_TOUT	5	/* Timeout for Flash Write (in ms)    */
 
+#undef	CFG_FLASH_CHECKSUM
+
 /* this is stuff came out of the Motorola docs */
+/* Only change this if you also change the Hardware configuration Word */
 #define CFG_DEFAULT_IMMR	0x0F010000
 
+/*
 #define CFG_IMMR		0x04700000
 #define CFG_BCSR		0x04500000
-#define CFG_SDRAM_BASE		0x00000000
-#define CFG_LSDRAM_BASE		0x04000000
+*/
+
+/* Set IMMR to 0xF0000000 or above to boot Linux  */
+#define CFG_IMMR		0xF0000000
+#define CFG_BCSR		0x04500000
+
+/* Define CONFIG_VERY_BIG_RAM to allow use of SDRAMs larger than 256MBytes
+ */
+/*#define CONFIG_VERY_BIG_RAM	1*/
+
+/* What should be the base address of SDRAM DIMM and how big is
+ * it (in Mbytes)?  This will normally auto-configure via the SPD.
+*/
+#define CFG_SDRAM_BASE 0x00000000
+#define CFG_SDRAM_SIZE 16
+
+#define SDRAM_SPD_ADDR 0x50
+
+
+/*-----------------------------------------------------------------------
+ * BR2,BR3 - Base Register
+ *     Ref: Section 10.3.1 on page 10-14
+ * OR2,OR3 - Option Register
+ *     Ref: Section 10.3.2 on page 10-16
+ *-----------------------------------------------------------------------
+ */
+
+/* Bank 2,3 - SDRAM DIMM
+ */
+
+/* The BR2 is configured as follows:
+ *
+ *     - Base address of 0x00000000
+ *     - 64 bit port size (60x bus only)
+ *     - Data errors checking is disabled
+ *     - Read and write access
+ *     - SDRAM 60x bus
+ *     - Access are handled by the memory controller according to MSEL
+ *     - Not used for atomic operations
+ *     - No data pipelining is done
+ *     - Valid
+ */
+#define CFG_BR2_PRELIM	((CFG_SDRAM_BASE & BRx_BA_MSK) |\
+			 BRx_PS_64			|\
+			 BRx_MS_SDRAM_P			|\
+			 BRx_V)
+
+#define CFG_BR3_PRELIM	((CFG_SDRAM_BASE & BRx_BA_MSK) |\
+			 BRx_PS_64			|\
+			 BRx_MS_SDRAM_P			|\
+			 BRx_V)
+
+/* With a 64 MB DIMM, the OR2 is configured as follows:
+ *
+ *     - 64 MB
+ *     - 4 internal banks per device
+ *     - Row start address bit is A8 with PSDMR[PBI] = 0
+ *     - 12 row address lines
+ *     - Back-to-back page mode
+ *     - Internal bank interleaving within save device enabled
+ */
+#if (CFG_SDRAM_SIZE == 64)
+#define CFG_OR2_PRELIM	(MEG_TO_AM(CFG_SDRAM_SIZE)	|\
+			 ORxS_BPD_4			|\
+			 ORxS_ROWST_PBI0_A8		|\
+			 ORxS_NUMR_12)
+#elif (CFG_SDRAM_SIZE == 16)
+#define CFG_OR2_PRELIM	(0xFF000CA0)
+#else
+#error "INVALID SDRAM CONFIGURATION"
+#endif
+
+/*-----------------------------------------------------------------------
+ * PSDMR - 60x Bus SDRAM Mode Register
+ *     Ref: Section 10.3.3 on page 10-21
+ *-----------------------------------------------------------------------
+ */
+
+#if (CFG_SDRAM_SIZE == 64)
+/* With a 64 MB DIMM, the PSDMR is configured as follows:
+ *
+ *     - Bank Based Interleaving,
+ *     - Refresh Enable,
+ *     - Address Multiplexing where A5 is output on A14 pin
+ *	 (A6 on A15, and so on),
+ *     - use address pins A14-A16 as bank select,
+ *     - A9 is output on SDA10 during an ACTIVATE command,
+ *     - earliest timing for ACTIVATE command after REFRESH command is 7 clocks,
+ *     - earliest timing for ACTIVATE or REFRESH command after PRECHARGE command
+ *	 is 3 clocks,
+ *     - earliest timing for READ/WRITE command after ACTIVATE command is
+ *	 2 clocks,
+ *     - earliest timing for PRECHARGE after last data was read is 1 clock,
+ *     - earliest timing for PRECHARGE after last data was written is 1 clock,
+ *     - CAS Latency is 2.
+ */
+#define CFG_PSDMR	(PSDMR_RFEN	      |\
+			 PSDMR_SDAM_A14_IS_A5 |\
+			 PSDMR_BSMA_A14_A16   |\
+			 PSDMR_SDA10_PBI0_A9  |\
+			 PSDMR_RFRC_7_CLK     |\
+			 PSDMR_PRETOACT_3W    |\
+			 PSDMR_ACTTORW_2W     |\
+			 PSDMR_LDOTOPRE_1C    |\
+			 PSDMR_WRC_1C	      |\
+			 PSDMR_CL_2)
+#elif (CFG_SDRAM_SIZE == 16)
+/* With a 16 MB DIMM, the PSDMR is configured as follows:
+ *
+ *   configuration parameters found in Motorola documentation
+ */
+#define CFG_PSDMR	(0x016EB452)
+#else
+#error "INVALID SDRAM CONFIGURATION"
+#endif
+
 
 #define RS232EN_1		0x02000002
 #define RS232EN_2		0x01000001
@@ -207,11 +324,27 @@
 
 
 /* 0x0EA28205 */
-#define CFG_HRCW_MASTER (   ( HRCW_BPS11 | HRCW_CIP )			    |\
+/*#define CFG_HRCW_MASTER (   ( HRCW_BPS11 | HRCW_CIP )			    |\
 			    ( HRCW_L2CPC10 | HRCW_DPPC10 | HRCW_ISB010 )    |\
 			    ( HRCW_BMS | HRCW_APPC10 )			    |\
 			    ( HRCW_MODCK_H0101 )			     \
 			)
+*/
+
+/* This value should actually be situated in the first 256 bytes of the FLASH
+	which on the standard MPC8266ADS board is at address 0xFF800000
+	The linker script places it at 0xFFF00000 instead.
+
+	It still works, however, as long as the ADS board jumper JP3 is set to 
+	position 2-3 so the board is using the BCSR as Hardware Configuration Word 
+
+	If you want to use the one defined here instead, ust copy the first 256 bytes from 
+	0xfff00000 to 0xff800000  (for 8MB flash) 
+
+	- Rune
+
+	*/
+#define CFG_HRCW_MASTER 0x0cb23645
 
 /* no slaves */
 #define CFG_HRCW_SLAVE1 0
@@ -269,7 +402,7 @@
 #define CFG_TMCNTSC		(TMCNTSC_SEC|TMCNTSC_ALR|TMCNTSC_TCF|TMCNTSC_TCE)
 #define CFG_PISCR		(PISCR_PS|PISCR_PTF|PISCR_PTE)
 #define CFG_RCCR		0
-#define CFG_PSDMR		0x016EB452
+/*#define CFG_PSDMR		0x016EB452*/
 #define CFG_MPTPR		0x00001900
 #define CFG_PSRT		0x00000021
 

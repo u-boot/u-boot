@@ -25,9 +25,9 @@ LIST_8xx="	\
 	MBX		MBX860T		MHPC		MVS1		\
 	NETVIA		NX823		pcu_e		R360MPI		\
 	RPXClassic	RPXlite		RRvision	SM850		\
-	SPD823TS	SXNI855T	TQM823L		TQM823L_LCD	\
-	TQM850L		TQM855L		TQM860L		TQM860L_FEC	\
-	TTTech		v37						\
+	SPD823TS	SXNI855T	TOP860		TQM823L		\
+	TQM823L_LCD	TQM850L		TQM855L		TQM860L		\
+	TQM860L_FEC	TTTech		v37				\
 "
 
 #########################################################################
@@ -59,9 +59,9 @@ LIST_824x="	\
 
 LIST_8260="	\
 	cogent_mpc8260	CPU86		ep8260		gw8260		\
-	hymod		IPHASE4539	MPC8260ADS	PM826		\
-	ppmc8260	RPXsuper	rsdproto	sacsng		\
-	sbc8260		SCM		TQM8260				\
+	hymod		IPHASE4539	MPC8260ADS	MPC8266ADS	\
+	PM826		ppmc8260	RPXsuper	rsdproto	\
+	sacsng		sbc8260		SCM		TQM8260		\
 "
 
 #########################################################################

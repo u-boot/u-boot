@@ -285,34 +285,22 @@ int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 	unsigned int sub_bus = PCI_BUS(dev);
 	unsigned short class;
 	unsigned char prg_iface;
-	int n;
 
 	pci_hose_read_config_word(hose, dev, PCI_CLASS_DEVICE, &class);
 
 	switch(class)
 	{
 	case PCI_CLASS_BRIDGE_PCI:
+		hose->current_busno++;
 		pciauto_setup_device(hose, dev, 2, hose->pci_mem, hose->pci_io);
 
-		DEBUGF("PCI Autoconfig: Found P2P bridge, device %d\n",
-			PCI_DEV(dev));
+		DEBUGF("PCI Autoconfig: Found P2P bridge, device %d\n", PCI_DEV(dev));
+		pciauto_prescan_setup_bridge(hose, dev, sub_bus);
+		
+		pci_hose_scan_bus(hose, hose->current_busno);
 
-		/* HJF: Make sure two bridges on the same bus
-		 * won't get the same bus number
-		 */
-		pciauto_prescan_setup_bridge(hose, dev,
-				max(sub_bus, hose->current_busno));
-
-		n = pci_hose_scan_bus(hose, hose->current_busno+1 /*PCI_BUS(dev)+1*/);
-		sub_bus = max(sub_bus, n);
-		sub_bus = max(sub_bus, hose->current_busno);
-
-		DEBUGF("PCI Autoconfig: Got %d from pci_hose_scan_bus\n",
-			sub_bus);
-
-		pciauto_postscan_setup_bridge(hose, dev,
-				max(sub_bus, hose->current_busno));
-		hose->current_busno++;
+		pciauto_postscan_setup_bridge(hose, dev, sub_bus);
+		sub_bus = hose->current_busno;
 		break;
 
 	case PCI_CLASS_STORAGE_IDE:

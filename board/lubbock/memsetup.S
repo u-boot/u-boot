@@ -39,12 +39,16 @@ DRAM_SIZE:  .long   CFG_DRAM_SIZE
    .endm
 
 
+/*
+ * 	Memory setup
+ */
+
 .globl memsetup
 memsetup:
 
     mov      r10, lr
 
-    /* Set up GPIO pins first */
+	/* Set up GPIO pins first ----------------------------------------- */
 
 	ldr		r0,	=GPSR0
 	ldr		r1,	=CFG_GPSR0_VAL
@@ -106,561 +110,283 @@ memsetup:
 	ldr		r1,	=CFG_GAFR2_U_VAL
 	str		r1,   [r0]
 
-   /* enable GPIO pins */
-	ldr		r0,	=PSSR
+	ldr	r0,	=PSSR		/* enable GPIO pins */
 	ldr		r1,	=CFG_PSSR_VAL
 	str		r1,   [r0]
 
-   ldr    r3, =MSC1		    		/* low - bank 2 Lubbock Registers / SRAM */
-   ldr    r2, =CFG_MSC1_VAL			/* high - bank 3 Ethernet Controller */
-   str    r2, [r3]  				/* need to set MSC1 before trying to write to the HEX LEDs */
-   ldr    r2, [r3]  				/* need to read it back to make sure the value latches (see MSC section of manual) */
+	/* ---------------------------------------------------------------- */
+	/* Enable memory interface                                          */
+	/*                                                                  */
+	/* The sequence below is based on the recommended init steps        */
+	/* detailed in the Intel PXA250 Operating Systems Developers Guide, */
+	/* Chapter 10.                                                      */
+	/* ---------------------------------------------------------------- */
 
-   ldr    r1, =LED_BLANK
-   mov    r0, #0xFF
-   str    r0, [r1]    		/* turn on hex leds */
+	/* ---------------------------------------------------------------- */
+	/* Step 1: Wait for at least 200 microsedonds to allow internal     */
+	/*         clocks to settle. Only necessary after hard reset...     */
+	/*         FIXME: can be optimized later                            */
+	/* ---------------------------------------------------------------- */
 
-loop:
-   ldr		r0, =0xB0070001
-   ldr    	r1, =_LED
-   str    	r0, [r1]    							/* hex display */
-
-/*********************************************************************
-    Initlialize Memory Controller
-	 The sequence below is based on the recommended init steps detailed
-	 in the EAS, chapter 5 (Chapter 10, Operating Systems Developers Guide)
-
-
-    pause for 200 uSecs- allow internal clocks to settle
-	 *Note: only need this if hard reset... doing it anyway for now
-*/
-
-	@ ---- Wait 200 usec
-	ldr r3, =OSCR       @ reset the OS Timer Count to zero
+	ldr r3, =OSCR			/* reset the OS Timer Count to zero */
 	mov r2, #0
 	str r2, [r3]
-	ldr r4, =0x300			@ really 0x2E1 is about 200usec, so 0x300 should be plenty
+	ldr r4, =0x300			/* really 0x2E1 is about 200usec,   */
+					/* so 0x300 should be plenty        */
 1:
 	ldr r2, [r3]
 	cmp r4, r2
 	bgt 1b
 
 mem_init:
-        @ get memory controller base address
-        ldr     r1,  =MEMC_BASE
 
-@****************************************************************************
-@  Step 1
-@
+        ldr     r1,  =MEMC_BASE		/* get memory controller base addr. */
 
-        @ write msc0, read back to ensure data latches
-        @
+	/* ---------------------------------------------------------------- */
+	/* Step 2a: Initialize Asynchronous static memory controller        */
+	/* ---------------------------------------------------------------- */
+
+	/* MSC registers: timing, bus width, mem type                       */
+
+        /* MSC0: nCS(0,1)                                                   */
         ldr     r2,   =CFG_MSC0_VAL
         str     r2,   [r1, #MSC0_OFFSET]
-        ldr     r2,   [r1, #MSC0_OFFSET]
-
-        @ write msc1
+        ldr     r2,   [r1, #MSC0_OFFSET]	/* read back to ensure      */
+						/* that data latches        */
+        /* MSC1: nCS(2,3)                                                   */
         ldr     r2,  =CFG_MSC1_VAL
         str     r2,  [r1, #MSC1_OFFSET]
         ldr     r2,  [r1, #MSC1_OFFSET]
 
-        @ write msc2
+	/* MSC2: nCS(4,5)                                                   */
         ldr     r2,  =CFG_MSC2_VAL
         str     r2,  [r1, #MSC2_OFFSET]
         ldr     r2,  [r1, #MSC2_OFFSET]
 
-        @ write mecr
+	/* ---------------------------------------------------------------- */
+	/* Step 2b: Initialize Card Interface                               */
+	/* ---------------------------------------------------------------- */
+
+	/* MECR: Memory Expansion Card Register                             */
         ldr     r2,  =CFG_MECR_VAL
         str     r2,  [r1, #MECR_OFFSET]
+	ldr	r2,	[r1, #MECR_OFFSET]
 
-        @ write mcmem0
+	/* MCMEM0: Card Interface slot 0 timing                             */
         ldr     r2,  =CFG_MCMEM0_VAL
         str     r2,  [r1, #MCMEM0_OFFSET]
+	ldr	r2,	[r1, #MCMEM0_OFFSET]
 
-        @ write mcmem1
+        /* MCMEM1: Card Interface slot 1 timing                             */
         ldr     r2,  =CFG_MCMEM1_VAL
         str     r2,  [r1, #MCMEM1_OFFSET]
+	ldr	r2,	[r1, #MCMEM1_OFFSET]
 
-        @ write mcatt0
+	/* MCATT0: Card Interface Attribute Space Timing, slot 0            */
         ldr     r2,  =CFG_MCATT0_VAL
         str     r2,  [r1, #MCATT0_OFFSET]
+	ldr	r2,	[r1, #MCATT0_OFFSET]
 
-        @ write mcatt1
+	/* MCATT1: Card Interface Attribute Space Timing, slot 1            */
         ldr     r2,  =CFG_MCATT1_VAL
         str     r2,  [r1, #MCATT1_OFFSET]
+	ldr	r2,	[r1, #MCATT1_OFFSET]
 
-        @ write mcio0
+	/* MCIO0: Card Interface I/O Space Timing, slot 0                   */
         ldr     r2,  =CFG_MCIO0_VAL
         str     r2,  [r1, #MCIO0_OFFSET]
+	ldr	r2,	[r1, #MCIO0_OFFSET]
 
-        @ write mcio1
+	/* MCIO1: Card Interface I/O Space Timing, slot 1                   */
         ldr     r2,  =CFG_MCIO1_VAL
         str     r2,  [r1, #MCIO1_OFFSET]
+	ldr	r2,	[r1, #MCIO1_OFFSET]
 
-        @-------------------------------------------------------
-        @ 3rd bullet, Step 1
-        @
+	/* ---------------------------------------------------------------- */
+        /* Step 2c: Write FLYCNFG  FIXME: what's that???                    */
+        /* ---------------------------------------------------------------- */
 
-        @ get the mdrefr settings
-        ldr     r3,  =CFG_MDREFR_VAL_100
 
-        @ extract DRI field (we need a valid DRI field)
-        @
-        ldr     r2,  =0xFFF
+	/* ---------------------------------------------------------------- */
+        /* Step 2d: Initialize Timing for Sync Memory (SDCLK0)              */
+        /* ---------------------------------------------------------------- */
 
-        @ valid DRI field in r3
-        @
-        and     r3,  r3,  r2
+	/* Before accessing MDREFR we need a valid DRI field, so we set     */
+	/* this to power on defaults + DRI field.                           */
 
-        @ get the reset state of MDREFR
-        @
+        ldr     r3,     =CFG_MDREFR_VAL
+        ldr     r2,     =0xFFF
+        and     r3,     r3,  r2
+	ldr	r4,	=0x03ca4000
+        orr     r4,     r4,  r3
+	str	r4,	[r1, #MDREFR_OFFSET]	/* write back MDREFR        */
         ldr     r4,  [r1, #MDREFR_OFFSET]
 
-        @ clear the DRI field
-        @
-        bic     r4,  r4,  r2
-
-        @ insert the valid DRI field loaded above
-        @
-        orr     r4,  r4,  r3
-
-        @ write back mdrefr
-        @
-        str     r4,  [r1, #MDREFR_OFFSET]
-
-        @ *Note: preserve the mdrefr value in r4 *
-
-@****************************************************************************
-@  Step 2
-@
-        /* This should be for SRAM, why is it commented out??? */
-
-        @ fetch sxcnfg value
-        @
-        @ldr     r2,  =0
-        @ write back sxcnfg
-        @str     r2,  [r1, #SXCNFG_OFFSET]
-
-/*        @if sxcnfg=0, don't program for synch-static memory */
-        @cmp     r2,  #0
-        @beq     1f
-
-        @program sxmrs
-        @ldr     r2,  =SXMRS_SETTINGS
-        @str     r2,  [r1, #SXMRS_OFFSET]
+        /* Note: preserve the mdrefr value in r4                            */
 
 
-@****************************************************************************
-@  Step 3
-@
+	/* ---------------------------------------------------------------- */
+	/* Step 3: Initialize Synchronous Static Memory (Flash/Peripherals) */
+	/* ---------------------------------------------------------------- */
 
-        @ Assumes previous mdrefr value in r4, if not then read current mdrefr
+	/* Initialize SXCNFG register. Assert the enable bits               */
 
-        @ clear the free-running clock bits
-        @ (clear K0Free, K1Free, K2Free
-        @
-        bic     r4,  r4,  #(0x00800000 | 0x01000000 | 0x02000000)
+	/* Write SXMRS to cause an MRS command to all enabled banks of      */
+	/* synchronous static memory. Note that SXLCR need not be written   */
+	/* at this time.                                                    */
 
-        @ set K1RUN if bank 0 installed
-        @
-        orr   r4,  r4,  #0x00010000
+	/* FIXME: we use async mode for now                                 */
 
 
+        /* ---------------------------------------------------------------- */
+        /* Step 4: Initialize SDRAM                                         */
+        /* ---------------------------------------------------------------- */
 
-#ifdef THIS
-@<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<
-@<!<!<!<!<!<!<!<!<!<!<!  Begin INSERT 1    <!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<
-        @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        @ Lubbock: Allow the user to select the {T/R/M} with predetermined
-        @   SDCLK.  Based on Table 3-1 in PXA250 and PXA210 Dev Man.
-        @
-        @  * = Must set MDREFR.K1DB2 to halve the MemClk for desired SDCLK[1]
-        @
-        @   S25, S26 used to provide all 400 MHz BIN values for Cotulla (0,0 - 1,3)
-        @   S25, S26 used to provide all 200 MHz BIN values for Sabinal
-        @
-        @   S23: Force the halving of MemClk when deriving SDCLK[1]
-        @        DOT: no override  !DOT: halve (if not already forced half)
-/*        @        *For certain MemClks, SDCLK's derivation is forced to be halved */
-        @
-        @   S24: Run/Turbo.
-        @        DOT: Run mode   !DOT: Turbo mode
-        @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        /* set MDREFR according to user define with exception of a few bits */
 
-        @
-        @ Allow the user to control K1DB2 where applicable
-        @
-        @ Get the value of S23:          @ 1 = DOT (unity), 0 = !DOT (halve it)
-        @
-        @ DOT:   set K1DB2     (SDCLD = MemClk)
-        @ !DOT:  clear K1DB2   (SDCLK = MemClk/2)
-        @
-        @ldr r2, =FPGA_REGS_BASE_PHYSICAL
-
-        bl GET_S23                          @ r3, r2                    @ get the value of S23 in R0, i put the base adx of fpga in r3
-
-        cmp      r3, #0x0                 @ is !DOT?
-        orreq    r4, r4,  #0x00020000     @ SDClk[1] = MemClk/2
-        bicne    r4, r4,  #0x00020000     @ SDClk[1] = MemClk
-
-        @
-        @ Next, we need to look for S25,S26 selections that necessitate the
-        @  halving of MemClk to derive SDCLK[1]: (S25,S26)={03-0C, 10-13}
-        @ Override above S23-based selection accordingly.
-        @
-        ldr r2, =FPGA_REGS_BASE_PHYSICAL
-        bl  GET_S25                           @ r0, r2
-                                       @ get the value of S25 in R0, i put the base adx of fpga in r2
-
-
-
-        ldr r2, =FPGA_REGS_BASE_PHYSICAL
-        BL  GET_S26                              @ r3, r2
-                                      @ get the value of S26 in R1, i put the base adx of fpga in r2
-
-        orr     r0, r0, r3               @ concatenate S25 & S26 vals
-        and     r0, r0, #0xFF
-
-        @ Set K1DB2 for the frequencies that require it
-        @
-        cmp     r0, #0x03
-        cmpne   r0, #0x04
-        cmpne   r0, #0x05
-        cmpne   r0, #0x06
-        cmpne   r0, #0x07
-        cmpne   r0, #0x08
-        cmpne   r0, #0x09
-        cmpne   r0, #0x0A
-        cmpne   r0, #0x0B
-        cmpne   r0, #0x0C
-        cmpne   r0, #0x10
-        cmpne   r0, #0x11
-        cmpne   r0, #0x12
-        cmpne   r0, #0x13
-        orreq   r4, r4,  #0x00020000     @ SDCLK[1] = (MemClk)/2 for 03 - 0C @ 10 - 13
-
-        @
-        @ *Must make MSC0&1 adjustments now for MEMClks > 100MHz.
-        @
-        @ Adjust MSC0 for MemClks > 100 MHz
-        @
-        ldreq   r0,   [r1, #MSC0_OFFSET]
-        ldreq   r3,   =0x7F007F00
-        biceq   r0,   r0, r3                @ clear MSC0[14:12, 11:8] (RRR, RDN)
-        ldreq   r3,   =0x46004600
-        orreq   r0,   r0, r3                @ set   MSC0[14, 10:9]  (doubling RRR, RDN)
-        streq   r0,   [r1, #MSC0_OFFSET]
-        ldreq   r0,   [r1, #MSC0_OFFSET]    @ read it back to ensure that the data latches
-
-        @
-        @ Adjust MSC1.LH for MemClks > 100 MHz
-        @
-        ldreq   r0,   [r1, #MSC1_OFFSET]
-        ldreq   r3,   =0x7FF0
-        biceq   r0,   r0, r3               @ clear MSC1[14:12, 11:8, 7:4] (RRR, RDN, RDF)
-        ldreq   r3,   =0x4880
-        orreq   r0,   r0, r3               @ set   MSC1[14, 11, 7]  (doubling RRR, RDN, RDF)
-        streq   r0,   [r1, #MSC1_OFFSET]
-        ldreq   r0,   [r1, #MSC1_OFFSET]   @ read it back to ensure that the data latches
-
-        @                                                                   @
-        @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-#endif
-
-@<!<!<!<!<!<!<!<!<!<!<!    End INSERT 1    <!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<
-@<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<!<
-
-
-        @ write back mdrefr
-        @
-        str     r4,  [r1, #MDREFR_OFFSET]
+        ldr     r4,     =CFG_MDREFR_VAL
+	orr	r4,	r4,	#(MDREFR_SLFRSH)
+	bic	r4,	r4,	#(MDREFR_E1PIN|MDREFR_E0PIN)
+	str     r4,     [r1, #MDREFR_OFFSET]    /* write back MDREFR        */
         ldr     r4,  [r1, #MDREFR_OFFSET]
 
-        @ deassert SLFRSH
-        @
-        bic     r4,  r4,  #0x00400000
+	/* Step 4b: de-assert MDREFR:SLFRSH.                                */
 
-        @ write back mdrefr
-        @
-        str     r4,  [r1, #MDREFR_OFFSET]
-
-        @ assert E1PIN
-        @
-        orr     r4,  r4,  #0x00008000
-
-        @ write back mdrefr
-        @
-        str     r4,  [r1, #MDREFR_OFFSET]
+	bic	r4,	r4,	#(MDREFR_SLFRSH)
+        str     r4,     [r1, #MDREFR_OFFSET]    /* write back MDREFR        */
         ldr     r4,  [r1, #MDREFR_OFFSET]
-        nop
-        nop
 
 
-@****************************************************************************
-@  Step 4
-@
+	/* Step 4c: assert MDREFR:E1PIN and E0PIO as desired                */
 
-        @ fetch platform value of mdcnfg
-        @
-        ldr     r2,  =CFG_MDCNFG_VAL
-
-        @ disable all sdram banks
-        @
-        bic     r2,  r2,  #(MDCNFG_DE0 | MDCNFG_DE1)
-        bic     r2,  r2,  #(MDCNFG_DE2 | MDCNFG_DE3)
-
-        @ program banks 0/1 for bus width
-        @
-        bic   r2,  r2,  #MDCNFG_DWID0      @0=32-bit
+        ldr     r4,     =CFG_MDREFR_VAL
+        str     r4,     [r1, #MDREFR_OFFSET]    /* write back MDREFR        */
+        ldr     r4,     [r1, #MDREFR_OFFSET]
 
 
-        @ write initial value of mdcnfg, w/o enabling sdram banks
-        @
-        str     r2,  [r1, #MDCNFG_OFFSET]
+	/* Step 4d: write MDCNFG with MDCNFG:DEx deasserted (set to 0), to  */
+	/*          configure but not enable each SDRAM partition pair.     */
 
-@ ****************************************************************************
-@  Step 5
-@
+	ldr	r4,	=CFG_MDCNFG_VAL
+	bic	r4,	r4,	#(MDCNFG_DE0|MDCNFG_DE1)
 
-        @ pause for 200 uSecs
-        @
-    	ldr r3, =OSCR   @reset the OS Timer Count to zero
+        str     r4,     [r1, #MDCNFG_OFFSET]	/* write back MDCNFG        */
+        ldr     r4,     [r1, #MDCNFG_OFFSET]
+
+
+	/* Step 4e: Wait for the clock to the SDRAMs to stabilize,          */
+	/*          100..200 µsec.                                          */
+
+	ldr r3, =OSCR			/* reset the OS Timer Count to zero */
     	mov r2, #0
 	    str r2, [r3]
-	    ldr r4, =0x300			@really 0x2E1 is about 200usec, so 0x300 should be plenty
+	ldr r4, =0x300			/* really 0x2E1 is about 200usec,   */
+					/* so 0x300 should be plenty        */
 1:
 	    ldr r2, [r3]
 	    cmp r4, r2
 	    bgt 1b
 
 
-@****************************************************************************
-@  Step 6
-@
+	/* Step 4f: Trigger a number (usually 8) refresh cycles by          */
+	/*          attempting non-burst read or write accesses to disabled */
+	/*          SDRAM, as commonly specified in the power up sequence   */
+	/*          documented in SDRAM data sheets. The address(es) used   */
+	/*          for this purpose must not be cacheable.                 */
 
-	    mov    r0, #0x78				    @turn everything off
-      mcr    p15, 0, r0, c1, c0, 0		@(caches off, MMU off, etc.)
-
-
-@ ****************************************************************************
-@  Step 7
-@
-        @ Access memory *not yet enabled* for CBR refresh cycles (8)
-        @ - CBR is generated for all banks
-
-	    ldr     r2, =CFG_DRAM_BASE
-	    str     r2, [r2]
-	    str     r2, [r2]
-	    str     r2, [r2]
-	    str     r2, [r2]
-	    str     r2, [r2]
-	    str     r2, [r2]
-	    str     r2, [r2]
-	    str     r2, [r2]
+	ldr	r3,	=CFG_DRAM_BASE
+	str	r2,	[r3]
+	str	r2,	[r3]
+	str	r2,	[r3]
+	str	r2,	[r3]
+	str	r2,	[r3]
+	str	r2,	[r3]
+	str	r2,	[r3]
+	str	r2,	[r3]
 
 
-@ ****************************************************************************
-@  Step 8: NOP (enable dcache if you wanna... we dont)
-@
+	/* Step 4g: Write MDCNFG with enable bits asserted                  */
+	/*          (MDCNFG:DEx set to 1).                                  */
 
-
-@ ****************************************************************************
-@  Step 9
-@
-
-
-        @get memory controller base address
-        @
-        ldr     r1,  =MEMC_BASE
-
-        @fetch current mdcnfg value
-        @
         ldr     r3,  [r1, #MDCNFG_OFFSET]
-
-        @enable sdram bank 0 if installed (must do for any populated bank)
-        @
-        orr     r3,  r3,  #MDCNFG_DE0
-
-        @write back mdcnfg, enabling the sdram bank(s)
-        @
+	orr	r3,	r3,	#(MDCNFG_DE0|MDCNFG_DE1)
         str     r3,  [r1, #MDCNFG_OFFSET]
 
+	/* Step 4h: Write MDMRS.                                            */
 
-@****************************************************************************
-@  Step 10
-@
-
-        @ write mdmrs
-        @
         ldr     r2,  =CFG_MDMRS_VAL
         str     r2,  [r1, #MDMRS_OFFSET]
 
 
-@****************************************************************************
-@  Step 11: Final Step
-@
+	/* We are finished with Intel's memory controller initialisation    */
 
-@INITINTC
-        @********************************************************************
-        @ Disable (mask) all interrupts at the interrupt controller
-        @
 
-        @ clear the interrupt level register (use IRQ, not FIQ)
-        @
-        mov     r1, #0
+	/* ---------------------------------------------------------------- */
+	/* Disable (mask) all interrupts at interrupt controller            */
+	/* ---------------------------------------------------------------- */
+
+initirqs:
+
+        mov     r1, #0		/* clear int. level register (IRQ, not FIQ) */
         ldr     r2,  =ICLR
         str     r1,  [r2]
 
-        @ mask all interrupts at the controller
-        @
-        ldr     r2,  =ICMR
+        ldr     r2,  =ICMR	/* mask all interrupts at the controller    */
         str     r1,  [r2]
 
 
-@INITCLKS
-        @ ********************************************************************
-        @ Disable the peripheral clocks, and set the core clock
-        @ frequency (hard-coding at 398.12MHz for now).
-        @
+        /* ---------------------------------------------------------------- */
+	/* Clock initialisation                                             */
+        /* ---------------------------------------------------------------- */
 
-		@ Turn Off ALL on-chip peripheral clocks for re-configuration
-		@ *Note: See label 'ENABLECLKS' for the re-enabling
-		@
+initclks:
+
+	/* Disable the peripheral clocks, and set the core clock frequency  */
+	/* (hard-coding at 398.12MHz for now).                              */
+
+	/* Turn Off ALL on-chip peripheral clocks for re-configuration      */
+	/* Note: See label 'ENABLECLKS' for the re-enabling                 */
         ldr     r1,  =CKEN
         mov     r2,  #0
         str     r2,  [r1]
 
 
-        @ default value in case no valid rotary switch setting is found
-        ldr     r2, =(CCCR_L27 | CCCR_M2 | CCCR_N10)        @ DEFAULT: {200/200/100}
+        /* default value in case no valid rotary switch setting is found    */
+        ldr     r2, =(CCCR_L27|CCCR_M2|CCCR_N10)  /* DEFAULT: {200/200/100} */
 
-
-        @... and write the core clock config register
-        @
+        /* ... and write the core clock config register                     */
         ldr     r1,  =CCCR
         str     r2,  [r1]
 
-/*        @ enable the 32Khz oscillator for RTC and PowerManager
-        @
+#ifdef RTC
+	/* enable the 32Khz oscillator for RTC and PowerManager             */
+
         ldr     r1,  =OSCC
         mov     r2,  #OSCC_OON
         str     r2,  [r1]
 
-
-        @ NOTE:  spin here until OSCC.OOK get set,
-        @        meaning the PLL has settled.
-        @
+	/* NOTE:  spin here until OSCC.OOK get set, meaning the PLL         */
+	/* has settled.                                                     */
 60:
         ldr     r2, [r1]
         ands    r2, r2, #1
         beq     60b
-*/
+#endif
 
-@OSCC_OON_DONE
-
-
-#ifdef  A0_COTULLA
-    @****************************************************************************
-    @ !!! Take care of A0 Errata Sighting #4 --
-    @ after a frequency change, the memory controller must be restarted
-    @
-
-        @ get memory controller base address
-        ldr     r1,  =MEMC_BASE
-
-        @ get the current state of MDREFR
-        @
-        ldr     r2,  [r1, #MDREFR_OFFSET]
-
-        @ clear E0PIN, E1PIN
-        @
-        bic     r3,  r2,  #(MDREFR_E0PIN | MDREFR_E1PIN)
-
-        @ write MDREFR with E0PIN, E1PIN cleared (disable sdclk[0,1])
-        @
-        str     r3,  [r1, #MDREFR_OFFSET]
-
-        @ then write MDREFR with E0PIN, E1PIN set (enable sdclk[0,1])
-        @
-        str     r2,  [r1, #MDREFR_OFFSET]
-
-        @ get the current state of MDCNFG
-        @
-        ldr     r3,  [r1, #MDCNFG_OFFSET]
-
-        @ disable all SDRAM banks
-        @
-        bic     r3,  r3,  #(MDCNFG_DE0 | MDCNFG_DE1)
-        bic     r3,  r3,  #(MDCNFG_DE2 |  MDCNFG_DE3)
-
-        @ write back MDCNFG
-        @
-        ldr     r3,  [r1, #MDCNFG_OFFSET]
-
-	    @ Access memory not yet enabled for CBR refresh cycles (8)
-        @ - CBR is generated for *all* banks
-	    ldr     r2, =CFG_DRAM_BASE
-	    str     r2, [r2]
-	    str     r2, [r2]
-	    str     r2, [r2]
-	    str     r2, [r2]
-	    str     r2, [r2]
-	    str     r2, [r2]
-	    str     r2, [r2]
-	    str     r2, [r2]
-
-        @ fetch current mdcnfg value
-        @
-        ldr     r3,  [r1, #MDCNFG_OFFSET]
-
-        @ enable sdram bank 0 if installed
-        @
-        orr     r3,  r3,  #MDCNFG_DE0
-
-        @ write back mdcnfg, enabling the sdram bank(s)
-        @
-        str     r3,  [r1, #MDCNFG_OFFSET]
-
-        @ write mdmrs
-        @
-        ldr     r2,  =CFG_MDMRS_VAL
-        str     r2,  [r1, #MDMRS_OFFSET]
-
-
-
-    /*    @ errata: don't enable auto power-down */
-        @ get current value of mdrefr
-        @ldr     r3,  [r1, #MDREFR_OFFSET]
-        @ enable auto-power down
-        @orr     r3,  r3,  #MDREFR_APD
-        @write back mdrefr
-        @str     r3,  [r1, #MDREFR_OFFSET]
-
-#endif A0_Cotulla
-
-
-  ldr     r0, =0x000C0dE3
-  ldr    	r1, =_LED
-  str    	r0, [r1]    		/* hex display */
-
-@ ^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%
-@ ^%^%^%^%^%^%^%^%^%   above could be replaced by prememLLI ^%^%^%^%^%^%^%^%^%
-@ ^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%^%
-
+	/* ---------------------------------------------------------------- */
+	/*                                                                  */
+        /* ---------------------------------------------------------------- */
 
 	/* Save SDRAM size */
     ldr     r1, =DRAM_SIZE
 	 str	   r8, [r1]
 
-    ldr     r0, =0xC0DE0006
-    ldr    	r1, =_LED
-    str    	r0, [r1]    		/* hex display */
-
-	/* Interrupt init */
-	/* Mask all interrupts */
+	/* Interrupt init: Mask all interrupts                              */
     ldr	r0, =ICMR /* enable no sources */
 	mov r1, #0
     str r1, [r0]
+
+	/* FIXME */
 
 #define NODEBUG
 #ifdef NODEBUG
@@ -676,74 +402,11 @@ mem_init:
 
 #endif
 
-	ldr     r0, =0xBEEF001D
-    ldr    	r1, =_LED
-    str    	r0, [r1]    		/* hex display */
+        /* ---------------------------------------------------------------- */
+	/* End memsetup                                                     */
+        /* ---------------------------------------------------------------- */
 
-	mov	pc, r10
-
-@ End memsetup
-
-@ %%%%%%%%%%%   Useful subroutines
-GET_S23:
-    @ This macro will read S23 and return its value in r3
-    @ r2 contains the base address of the Lubbock user registers
-    ldr r2, =FPGA_REGS_BASE_PHYSICAL
-
-    /*@ read S23's value */
-    ldr     r3, [r2, #USER_SWITCHES_OFFSET]
-
-    @ mask out irrelevant bits
-    and     r3, r3, #0x200
-
-    @ get bit into position 0
-    mov     r3, r3, LSR #9
+endmemsetup:
 
     mov     pc, lr
-@ End GET_S23
-
-
-GET_S24:
-    @ This macro will read S24 and return its value in r0
-    @ r2 contains the base address of the Lubbock user registers
-    ldr r2, =FPGA_REGS_BASE_PHYSICAL
-
-    /*@ read S24's value */
-    ldr     r0, [r2, #USER_SWITCHES_OFFSET]
-
-    @ mask out irrelevant bits
-    and     r0, r0, #0x100
-
-    @ get bit into position 0
-    mov     r0, r0, LSR #8
-
-    mov     pc, lr
-@ End GET_S23
-
-
-GET_S25:
-    @ This macro will read rotary S25 and return its value in r0
-    @ r2 contains the base address of the Lubbock user registers
-    @ read the user switches register
-    ldr     r0, [r2, #USER_SWITCHES_OFFSET]
-
-    @ mask out irrelevant bits
-    and     r0, r0, #0xF0
-
-    mov     pc, lr
-@ End subroutine
-
-
-GET_S26:
-    @ This macro will read rotary S26 and return its value in r3
-    @ r2 contains the base address of the Lubbock user registers
-    @ read the user switches register
-    ldr     r3, [r2, #USER_SWITCHES_OFFSET]
-
-    @ mask out irrelevant bits
-    and     r3, r3, #0x0F
-
-    mov     pc, lr
-@ End subroutine GET_S26
-
 

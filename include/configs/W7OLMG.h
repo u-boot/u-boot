@@ -87,7 +87,7 @@
 #define CONFIG_HW_WATCHDOG			/* HW Watchdog, board specific	*/
 
 #define	CONFIG_SPD_EEPROM			/* SPD EEPROM for SDRAM param.	*/
-
+#define CONFIG_SPDDRAM_SILENT			/* No output if spd fails	*/
 /*
  * Miscellaneous configurable options
  */

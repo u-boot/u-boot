@@ -2,6 +2,35 @@
 Changes since U-Boot 0.2.2:
 ======================================================================
 
+* Patch by Rune Torgersen, 13 Feb 2003:
+  Add support for Motorola MPC8266ADS board
+
+* Patch by Kyle Harris, 19 Feb 2003:
+  patches for the Intel lubbock board:
+  memsetup.S - general cleanup (based on Robert's csb226 code)
+  flash.c - overhaul, actually works now
+  lubbock.c - fix init funcs to return proper value
+
+* Patch by Kenneth Johansson, 26 Feb 2003:
+  - Fixed off by one in RFTA calculation. 
+  - No need to abort when LDF is lower than we can program it's only
+    minimum timing so clamp it to what we can do. 
+  - Takes function pointer to function for reading the spd_nvram. Usefull
+    for faking data or hardcode a module without the nvram.
+  - fix other user for above change
+  - fix some comments.
+
+* Patches by Brian Waite, 26 Feb 2003:
+  - fix port for evb64260 board
+  - fix PCI for evb64260 board
+  - fix PCI scan
+
+* Patch by Reinhard Meyer, 1 Mar 2003:
+  Add support for EMK TOP860 Module
+
+* Patch by Yuli Barcohen, 02 Mar 2003:
+  Add SPD EEPROM support for MPC8260ADS board
+
 * Patch by Robert Schwebel, 21 Jan 2003:
   - Add support for Innokom board
   - Don't complain if "install" fails

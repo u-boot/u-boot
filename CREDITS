@@ -174,6 +174,10 @@ N: Dan Malek
 E: dan@netx4.com
 D: FADSROM, the grandfather of all of this
 
+N: Reinhard Meyer
+E: r.meyer@emk-elektronik.de
+D: Port to EMK TOP860 Module
+
 N: Jay Monkman
 E: jtm@smoothsmoothie.com
 D: EST SBC8260 support
@@ -240,6 +244,10 @@ D: MBX8xx and many other patches
 N: Jim Thompson
 E: jim@musenki.com
 D: Support for MUSENKI board
+
+N: Rune Torgersen
+E: <runet@innovsys.com>
+D: Support for Motorola MPC8266ADS board
 
 N: David Updegraff
 E: dave@cray.com

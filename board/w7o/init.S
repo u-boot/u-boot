@@ -162,6 +162,7 @@ sdram_init:
 	 * contents of the SPD EEPROM.  If the SPD EEPROM is blank or
 	 * erronious, spd_sdram returns 0 in R3.
 	 */
+	li	r3,0
 	bl	spd_sdram
 	addic.	r3, r3, 0		/* Check for error, save dram size */
 	bne	..sdri_done		/* If it worked, we're done... */

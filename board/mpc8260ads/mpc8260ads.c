@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001
+ * (C) Copyright 2001-2003
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * Modified during 2001 by
@@ -31,6 +31,8 @@
 #include <common.h>
 #include <ioports.h>
 #include <mpc8260.h>
+#include <i2c.h>
+#include <spd.h>
 
 /*
  * I/O Port configuration table
@@ -167,8 +169,8 @@ const iop_conf_t iop_conf_tab[4][32] = {
 	/* PD18 */ {   0,   0,   0,   1,   0,   0   }, /* PD18 */
 	/* PD17 */ {   0,   1,   0,   0,   0,   0   }, /* FCC1 ATMRXPRTY */
 	/* PD16 */ {   0,   1,   0,   1,   0,   0   }, /* FCC1 ATMTXPRTY */
-	/* PD15 */ {   0,   1,   1,   0,   1,   0   }, /* I2C SDA */
-	/* PD14 */ {   1,   0,   0,   1,   0,   0   }, /* LED */
+       /* PD15 */ {   1,   1,   1,   0,   1,   0   }, /* I2C SDA */
+       /* PD14 */ {   1,   1,   1,   0,   1,   0   }, /* I2C SCL */
 	/* PD13 */ {   0,   0,   0,   0,   0,   0   }, /* PD13 */
 	/* PD12 */ {   0,   0,   0,   0,   0,   0   }, /* PD12 */
 	/* PD11 */ {   0,   0,   0,   0,   0,   0   }, /* PD11 */
@@ -197,76 +199,222 @@ typedef struct bscr_ {
 	unsigned long bcsr7;
 } bcsr_t;
 
-void reset_phy(void)
+void reset_phy (void)
 {
-    volatile bcsr_t  *bcsr           = (bcsr_t *)CFG_BCSR;
+	volatile bcsr_t *bcsr = (bcsr_t *) CFG_BCSR;
 
-    /* reset the FEC port */
-    bcsr->bcsr1                    &= ~FETH_RST;
-    bcsr->bcsr1                    |= FETH_RST;
+	/* reset the FEC port */
+	bcsr->bcsr1 &= ~FETH_RST;
+	bcsr->bcsr1 |=  FETH_RST;
 }
 
 
 int board_pre_init (void)
 {
-    volatile bcsr_t  *bcsr         = (bcsr_t *)CFG_BCSR;
-    bcsr->bcsr1                    = ~FETHIEN & ~RS232EN_1;
+	volatile bcsr_t *bcsr = (bcsr_t *) CFG_BCSR;
 
-    return 0;
+	bcsr->bcsr1 = ~FETHIEN & ~RS232EN_1;
+
+	return 0;
 }
 
-long int initdram(int board_type)
+#define ns2clk(ns) (ns / (1000000000 / CONFIG_8260_CLKIN) + 1)
+
+long int initdram (int board_type)
 {
-    volatile immap_t *immap         = (immap_t *)CFG_IMMR;
-    volatile memctl8260_t *memctl   = &immap->im_memctl;
-    volatile uchar        *ramaddr,
-                                  c = 0xff;
-    int i;
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile memctl8260_t *memctl = &immap->im_memctl;
+	volatile uchar *ramaddr, c = 0xff;
+
+	/* Initialisation is for 16MB DIMM the board is shipped with */
+	long int msize = 16;
+	uint or    = 0xFF000CA0;
+	uint psdmr = CFG_PSDMR;
+	uint psrt  = CFG_PSRT;
+
+	int i;
 
 #ifndef CFG_RAMBOOT
-    immap->im_siu_conf.sc_ppc_acr   = 0x00000002;
-    immap->im_siu_conf.sc_ppc_alrh  = 0x01267893;
-    immap->im_siu_conf.sc_tescr1    = 0x00004000;
+	immap->im_siu_conf.sc_ppc_acr  = 0x00000002;
+	immap->im_siu_conf.sc_ppc_alrh = 0x01267893;
+	immap->im_siu_conf.sc_tescr1   = 0x00004000;
 
-    /* init local sdram, bank 4 */
-    memctl->memc_lsrt               = 0x00000010;
-    memctl->memc_or4                = 0xFFC01480;
-    memctl->memc_br4                = 0x04001861;
-    memctl->memc_lsdmr              = 0x2886A522;
-    ramaddr                         = (uchar *)CFG_LSDRAM_BASE;
-    *ramaddr                        = c;
-    memctl->memc_lsdmr              = 0x0886A522;
-    for( i = 0; i < 8; i++ ) {
-        *ramaddr                    = c;
-    }
-    memctl->memc_lsdmr              = 0x1886A522;
-    *ramaddr                        = c;
-    memctl->memc_lsdmr              = 0x4086A522;
+	memctl->memc_mptpr = CFG_MPTPR;
+	/* init local sdram, bank 4 */
+	memctl->memc_lsrt  = 0x00000010;
+	memctl->memc_or4   = 0xFFC01480;
+	memctl->memc_br4   = 0x04001861;
+	memctl->memc_lsdmr = 0x2886A522;
+	ramaddr = (uchar *) CFG_LSDRAM_BASE;
+	*ramaddr = c;
+	memctl->memc_lsdmr = 0x0886A522;
+	for (i = 0; i < 8; i++) {
+		*ramaddr = c;
+	}
+	memctl->memc_lsdmr = 0x1886A522;
+	*ramaddr = c;
+	memctl->memc_lsdmr = 0x4086A522;
 
-    /* init sdram dimm */
-    ramaddr                         = (uchar *)CFG_SDRAM_BASE;
-    memctl->memc_psrt               = 0x00000010;
-    immap->im_memctl.memc_or2       = 0xFF000CA0;
-    immap->im_memctl.memc_br2       = 0x00000041;
-    memctl->memc_psdmr              = 0x296EB452;
-    *ramaddr                        = c;
-    memctl->memc_psdmr              = 0x096EB452;
-    for (i = 0; i < 8; i++)
-        *ramaddr                    = c;
+	/* init sdram dimm */
+#ifdef CONFIG_SPD_EEPROM
+	{
+		spd_eeprom_t spd;
+		uint pbi, bsel, rowst, lsb, tmp;
 
-    memctl->memc_psdmr              = 0x196EB452;
-    *ramaddr                        = c;
-    memctl->memc_psdmr              = 0x416EB452;
-    *ramaddr                        = c;
+		i2c_read (CONFIG_SPD_ADDR, 0, 1, (uchar *) & spd, sizeof (spd));
+
+		/* Bank-based interleaving is not supported for physical bank
+		   sizes greater than 128MB which is encoded as 0x20 in SPD
+		 */
+		pbi = (spd.row_dens > 32) ? 1 : CONFIG_SDRAM_PBI;
+		msize = spd.nrows * (4 * spd.row_dens);	/* Mixed size not supported */
+		or = ~(msize - 1) << 20;	/* SDAM */
+		switch (spd.nbanks) {	/* BPD */
+		case 2:
+			bsel = 1;
+			break;
+		case 4:
+			bsel = 2;
+			or |= 0x00002000;
+			break;
+		case 8:
+			bsel = 3;
+			or |= 0x00004000;
+			break;
+		}
+		lsb = 3;	/* For 64-bit port, lsb is 3 bits */
+
+		if (pbi) {	/* Bus partition depends on interleaving */
+			rowst = 32 - (spd.nrow_addr + spd.ncol_addr + bsel + lsb);
+			or |= (rowst << 9);	/* ROWST */
+		} else {
+			rowst = 32 - (spd.nrow_addr + spd.ncol_addr + lsb);
+			or |= ((rowst * 2 - 12) << 9);	/* ROWST */
+		}
+		or |= ((spd.nrow_addr - 9) << 6);	/* NUMR */
+
+		psdmr = (pbi << 31);	/* PBI */
+		/* Bus multiplexing parameters */
+		tmp = 32 - (lsb + spd.nrow_addr);	/* Tables 10-19 and 10-20 */
+		psdmr |= ((tmp - (rowst - 5) - 13) << 24);	/* SDAM */
+		psdmr |= ((tmp - 3 - 12) << 21);	/* BSMA */
+
+		tmp = (31 - lsb - 10) - tmp;
+		/* Pin connected to SDA10 is (31 - lsb - 10).
+		   rowst is multiplexed over (32 - (lsb + spd.nrow_addr)),
+		   so (rowst + tmp) alternates with AP.
+		 */
+		if (pbi)				/* Table 10-7 */
+			psdmr |= ((10 - (rowst + tmp)) << 18);	/* SDA10 */
+		else
+			psdmr |= ((12 - (rowst + tmp)) << 18);	/* SDA10 */
+
+		/* SDRAM device-specific parameters */
+		tmp = ns2clk (70);	/* Refresh recovery is not in SPD, so assume 70ns */
+		switch (tmp) {		/* RFRC */
+		case 1:
+		case 2:
+			psdmr |= (1 << 15);
+			break;
+		case 3:
+		case 4:
+		case 5:
+		case 6:
+		case 7:
+		case 8:
+			psdmr |= ((tmp - 2) << 15);
+			break;
+		default:
+			psdmr |= (7 << 15);
+		}
+		psdmr |= (ns2clk (spd.trp) % 8 << 12);	/* PRETOACT */
+		psdmr |= (ns2clk (spd.trcd) % 8 << 9);	/* ACTTORW */
+		/* BL=0 because for 64-bit SDRAM burst length must be 4 */
+		/* LDOTOPRE ??? */
+		for (i = 0, tmp = spd.write_lat; (i < 4) && ((tmp & 1) == 0); i++)
+			tmp >>= 1;
+		switch (i) {			/* WRC */
+		case 0:
+		case 1:
+			psdmr |= (1 << 4);
+			break;
+		case 2:
+		case 3:
+			psdmr |= (i << 4);
+			break;
+		}
+		/* EAMUX=0 - no external address multiplexing */
+		/* BUFCMD=0 - no external buffers */
+		for (i = 1, tmp = spd.cas_lat; (i < 3) && ((tmp & 1) == 0); i++)
+			tmp >>= 1;
+		psdmr |= i;				/* CL */
+
+		switch (spd.refresh & 0x7F) {
+		case 1:
+			tmp = 3900;
+			break;
+		case 2:
+			tmp = 7800;
+			break;
+		case 3:
+			tmp = 31300;
+			break;
+		case 4:
+			tmp = 62500;
+			break;
+		case 5:
+			tmp = 125000;
+			break;
+		default:
+			tmp = 15625;
+		}
+		psrt = tmp / (1000000000 / CONFIG_8260_CLKIN *
+				  ((memctl->memc_mptpr >> 8) + 1)) - 1;
+#ifdef SPD_DEBUG
+		printf ("\nDIMM type:       %-18.18s\n", spd.mpart);
+		printf ("SPD size:        %d\n", spd.info_size);
+		printf ("EEPROM size:     %d\n", 1 << spd.chip_size);
+		printf ("Memory type:     %d\n", spd.mem_type);
+		printf ("Row addr:        %d\n", spd.nrow_addr);
+		printf ("Column addr:     %d\n", spd.ncol_addr);
+		printf ("# of rows:       %d\n", spd.nrows);
+		printf ("Row density:     %d\n", spd.row_dens);
+		printf ("# of banks:      %d\n", spd.nbanks);
+		printf ("Data width:      %d\n",
+				256 * spd.dataw_msb + spd.dataw_lsb);
+		printf ("Chip width:      %d\n", spd.primw);
+		printf ("Refresh rate:    %02X\n", spd.refresh);
+		printf ("CAS latencies:   %02X\n", spd.cas_lat);
+		printf ("Write latencies: %02X\n", spd.write_lat);
+		printf ("tRP:             %d\n", spd.trp);
+		printf ("tRCD:            %d\n", spd.trcd);
+
+		printf ("OR=%X, PSDMR=%08X, PSRT=%0X\n", or, psdmr, psrt);
+#endif /* SPD_DEBUG */
+	}
+#endif /* CONFIG_SPD_EEPROM */
+	memctl->memc_psrt = psrt;
+	memctl->memc_or2 = or;
+	memctl->memc_br2 = CFG_SDRAM_BASE | 0x00000041;
+	ramaddr = (uchar *) CFG_SDRAM_BASE;
+	memctl->memc_psdmr = psdmr | 0x28000000;	/* Precharge all banks */
+	*ramaddr = c;
+	memctl->memc_psdmr = psdmr | 0x08000000;	/* CBR refresh */
+	for (i = 0; i < 8; i++)
+		*ramaddr = c;
+
+	memctl->memc_psdmr = psdmr | 0x18000000;	/* Mode Register write */
+	*ramaddr = c;
+	memctl->memc_psdmr = psdmr | 0x40000000;	/* Refresh enable */
+	*ramaddr = c;
 #endif
 
-    /* return total ram size of simm */
-    return (16 * 1024 * 1024);
+	/* return total ram size of DIMM */
+	return (msize * 1024 * 1024);
 }
 
-int checkboard(void)
+int checkboard (void)
 {
-    puts ("Board: Motorola MPC8260ADS\n");
-    return 0;
+	puts ("Board: Motorola MPC8260ADS\n");
+	return 0;
 }
-

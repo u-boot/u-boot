@@ -21,11 +21,10 @@
  */
 
 
-extern long int spd_sdram (void);
-
 #include <common.h>
 #include "ebony.h"
 #include <asm/processor.h>
+#include <spd_sdram.h>
 
 #define BOOT_SMALL_FLASH	32	/* 00100000 */
 #define FLASH_ONBD_N		2	/* 00000010 */
@@ -113,10 +112,9 @@ int checkboard (void)
 long int initdram (int board_type)
 {
 	long dram_size = 0;
-	extern long spd_sdram (void);
 
 #if defined(CONFIG_SPD_EEPROM)
-	dram_size = spd_sdram ();
+	dram_size = spd_sdram (0);
 #else
 	dram_size = fixed_sdram ();
 #endif

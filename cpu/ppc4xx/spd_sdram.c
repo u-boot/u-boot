@@ -4,8 +4,8 @@
  *
  * Based on code by:
  *
- * Kenneth Johansson ,Ericsson Business Innovation.
- * kenneth.johansson@inn.ericsson.se
+ * Kenneth Johansson ,Ericsson AB.
+ * kenneth.johansson@etx.ericsson.se
  *
  * hacked up by bill hunter. fixed so we could run before
  * serial_init and console_init. previous version avoided this by
@@ -87,25 +87,16 @@
 #define SDRAM0_BXCR_SZ(x)  ( (( x << SDRAM0_BXCR_SZ_SHIFT) & SDRAM0_BXCR_SZ_MASK) )
 #define SDRAM0_BXCR_AM(x)  ( (( x << SDRAM0_BXCR_AM_SHIFT) & SDRAM0_BXCR_AM_MASK) )
 
-#ifdef CONFIG_W7O
+#ifdef CONFIG_SPDDRAM_SILENT
 # define SPD_ERR(x) do { return 0; } while (0)
 #else
-# define SPD_ERR(x) do { printf(x); hang(); } while (0)
+# define SPD_ERR(x) do { printf(x); return(0); } while (0)
 #endif
 
-/*
- * what we really want is
- * (1/hertz) but we don't want to use floats so multiply with 10E9
- *
- * The error needs to be on the safe side so we want the floor function.
- * This means we get an exact value or we calculate that our bus frequency is
- * a bit faster than it really is and thus we don't progam the sdram controller
- * to run to fast
- */
 #define sdram_HZ_to_ns(hertz) (1000000000/(hertz))
 
 /* function prototypes */
-int spd_read(uint addr);			/* prototype */
+int spd_read(uint addr);
 
 
 /*
@@ -114,17 +105,17 @@ int spd_read(uint addr);			/* prototype */
  *
  * This works on boards that has the same schematics that the IBM walnut has.
  *
- * BUG: Don't handle ECC memory
- * BUG: A few values in the TR register is currently hardcoded
+ * Input: null for default I2C spd functions or a pointer to a custom function
+ * returning spd_data.
  */
 
-long int spd_sdram(void)
+long int spd_sdram(int(read_spd)(uint addr))
 {
 	int bus_period,tmp,row,col;
 	int total_size,bank_size,bank_code;
 	int ecc_on;
-	int mode = 4;
-	int bank_cnt = 1;
+	int mode;
+	int bank_cnt;
 
 	int sdram0_pmit=0x07c00000;
 	int sdram0_besr0=-1;
@@ -144,14 +135,19 @@ long int spd_sdram(void)
 
 	int t_rp;
 	int t_rcd;
-	int t_rc = 70; /* This value not available in SPD_EEPROM */
-	int min_cas = 2;
+	int t_ras;
+	int t_rc;
+	int min_cas;
 
+	if(read_spd == 0){
+		read_spd=spd_read;
 	/*
 	 * Make sure I2C controller is initialized
 	 * before continuing.
 	 */
-	i2c_init(CFG_I2C_SPEED, CFG_I2C_SLAVE);
+		i2c_init(CFG_I2C_SPEED, CFG_I2C_SLAVE);
+	}
+
 
 	/*
 	 * Calculate the bus period, we do it this
@@ -162,7 +158,7 @@ long int spd_sdram(void)
 	bus_period = sdram_HZ_to_ns(tmp);	/* get sdram speed */
 
      	/* Make shure we are using SDRAM */
-	if (spd_read(2) != 0x04){
+	if (read_spd(2) != 0x04){
           SPD_ERR("SDRAM - non SDRAM memory module found\n");
      	  }
 
@@ -180,34 +176,35 @@ long int spd_sdram(void)
       * use the min supported mode
       */
 
-	tmp = spd_read(127) & 0x6;
+	tmp = read_spd(127) & 0x6;
      if(tmp == 0x02){      	   /* only cas = 2 supported */
      	  min_cas = 2;
-/*     	  t_ck = spd_read(9); */
-/*     	  t_ac = spd_read(10); */
+/*     	  t_ck = read_spd(9); */
+/*     	  t_ac = read_spd(10); */
 	  }
      else if (tmp == 0x04){         /* only cas = 3 supported */
      	  min_cas = 3;
-/*     	  t_ck = spd_read(9); */
-/*     	  t_ac = spd_read(10); */
+/*     	  t_ck = read_spd(9); */
+/*     	  t_ac = read_spd(10); */
 	  }
      else if (tmp == 0x06){         /* 2,3 supported, so use 2 */
      	  min_cas = 2;
-/*     	  t_ck = spd_read(23); */
-/*     	  t_ac = spd_read(24); */
+/*     	  t_ck = read_spd(23); */
+/*     	  t_ac = read_spd(24); */
 	  }
      else {
 	     SPD_ERR("SDRAM - unsupported CAS latency \n");
 	}
 
-     /* get some timing values, t_rp,t_rcd
+     /* get some timing values, t_rp,t_rcd,t_ras,t_rc
      */
-     t_rp = spd_read(27);
-     t_rcd = spd_read(29);
-
+     t_rp = read_spd(27);
+     t_rcd = read_spd(29);
+     t_ras = read_spd(30);
+     t_rc = t_ras + t_rp;
 
      /* The following timing calcs subtract 1 before deviding.
-      * this has effect of using ceiling intead of floor rounding,
+      * this has effect of using ceiling instead of floor rounding,
       * and also subtracting 1 to convert number to reg value
       */
      /* set up CASL */
@@ -216,12 +213,12 @@ long int spd_sdram(void)
      sdram0_tr |= (((t_rp - 1)/bus_period) & 0x3) << SDRAM0_TR_PTA_SHIFT;
      /* set up CTP */
      tmp = ((t_rc - t_rcd - t_rp -1) / bus_period) & 0x3;
-     if(tmp<1) SPD_ERR("SDRAM - unsupported prech to act time (Trp)\n");
+     if(tmp<1) tmp=1;
      sdram0_tr |= tmp << SDRAM0_TR_CTP_SHIFT;
      /* set LDF	= 2 cycles, reg value = 1 */
      sdram0_tr |= 1 << SDRAM0_TR_LDF_SHIFT;
      /* set RFTA = t_rfc/bus_period, use t_rfc = t_rc */
-	tmp = ((t_rc - 1) / bus_period)-4;
+	tmp = ( (t_rc - 1) / bus_period)-3;
 	if(tmp<0)tmp=0;
 	if(tmp>6)tmp=6;
 	sdram0_tr |= tmp << SDRAM0_TR_RFTA_SHIFT;
@@ -232,9 +229,9 @@ long int spd_sdram(void)
 /*------------------------------------------------------------------
   configure RTR register
   -------------------------------------------------------------------*/
-     row = spd_read(3);
-     col = spd_read(4);
-     tmp = spd_read(12) & 0x7f ; /* refresh type less self refresh bit */
+     row = read_spd(3);
+     col = read_spd(4);
+     tmp = read_spd(12) & 0x7f ; /* refresh type less self refresh bit */
      switch(tmp){
 	case 0x00:
 	  tmp=15625;
@@ -265,9 +262,9 @@ long int spd_sdram(void)
   determine the number of banks used
   -------------------------------------------------------------------*/
 	/* byte 7:6 is module data width */
-	if(spd_read(7) != 0)
+	if(read_spd(7) != 0)
 	    SPD_ERR("SDRAM - unsupported module width\n");
-	tmp = spd_read(6);
+	tmp = read_spd(6);
 	if (tmp < 32)
 	    SPD_ERR("SDRAM - unsupported module width\n");
 	else if (tmp < 64)
@@ -280,7 +277,7 @@ long int spd_sdram(void)
 	    SPD_ERR("SDRAM - unsupported module width\n");
 
 	/* byte 5 is the module row count (refered to as dimm "sides") */
-	tmp = spd_read(5);
+	tmp = read_spd(5);
 	if(tmp==1);
 	else if(tmp==2) bank_cnt *=2;
 	else if(tmp==4) bank_cnt *=4;
@@ -292,7 +289,7 @@ long int spd_sdram(void)
 	/* now check for ECC ability of module. We only support ECC
 	 *   on 32 bit wide devices with 8 bit ECC.
 	 */
-	if ( (spd_read(11)==2) && ((spd_read(6)==40) || (spd_read(14)==8)) ){
+	if ( (read_spd(11)==2) && ((read_spd(6)==40) || (read_spd(14)==8)) ){
 	   sdram0_ecccfg=0xf<<SDRAM0_ECCCFG_SHIFT;
 	   ecc_on = 1;
    	}
@@ -305,15 +302,15 @@ long int spd_sdram(void)
 	calculate total size
   -------------------------------------------------------------------*/
 	/* calculate total size and do sanity check */
-	tmp = spd_read(31);
+	tmp = read_spd(31);
 	total_size=1<<22;	/* total_size = 4MB */
-	/* now multiply 4M by the smallest device roe density */
+	/* now multiply 4M by the smallest device row density */
 	/* note that we don't support asymetric rows */
 	while (((tmp & 0x0001) == 0) && (tmp != 0)){
 	    total_size= total_size<<1;
 	    tmp = tmp>>1;
 	    }
-	total_size *= spd_read(5);	/* mult by module rows (dimm sides) */
+	total_size *= read_spd(5);	/* mult by module rows (dimm sides) */
 
 /*------------------------------------------------------------------
 	map  rows * cols * banks to a mode
@@ -357,7 +354,7 @@ long int spd_sdram(void)
 			break;
 		case 9:
 		case 10:
-			if (spd_read(17) ==2 )
+			if (read_spd(17) ==2 )
 				mode=6; /* mode 7 */
 			else
 				mode=2; /* mode 3 */

@@ -315,8 +315,10 @@ int misc_init_r (void)
 }
 
 void
-after_reloc(gd_t *gd, ulong dest_addr)
+after_reloc(ulong dest_addr)
 {
+	DECLARE_GLOBAL_DATA_PTR;
+
 	/* check to see if we booted from the sram.  If so, move things
 	 * back to the way they should be. (we're running from main
 	 * memory at this point now */

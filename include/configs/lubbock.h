@@ -70,12 +70,13 @@
 #include <cmd_confdefs.h>
 
 #define CONFIG_BOOTDELAY        3
-#define CONFIG_BOOTARGS         "root=ramfs devfs=mount console=ttySA0,9600"
 #define CONFIG_ETHADDR          08:00:3e:26:0a:5b
 #define CONFIG_NETMASK          255.255.0.0
 #define CONFIG_IPADDR           192.168.0.21
 #define CONFIG_SERVERIP         192.168.0.250
-#define CONFIG_BOOTCOMMAND      "FIXME"
+#define CONFIG_BOOTCOMMAND      "bootm 40000"
+#define CONFIG_BOOTARGS         "root=/dev/mtdblock2 rootfstype=cramfs console=ttyS0,115200"
+#define CONFIG_CMDLINE_TAG      
 
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE    230400          /* speed to run kgdb serial port */
@@ -100,7 +101,7 @@
 #define CFG_LOAD_ADDR           0xa8000000      /* default load address */
 
 #define CFG_HZ                  3686400         /* incrementer freq: 3.6864 MHz */
-#define CFG_CPUSPEED            0x141           /* set core clock to 200/200/100 MHz */
+#define CFG_CPUSPEED            0x161           /* set core clock to 400/200/100 MHz */
 
                                                 /* valid baudrates */
 #define CFG_BAUDRATE_TABLE      { 9600, 19200, 38400, 57600, 115200 }
@@ -130,8 +131,10 @@
 #define PHYS_SDRAM_4_SIZE       0x00000000 /* 0 MB */
 
 #define PHYS_FLASH_1            0x00000000 /* Flash Bank #1 */
-#define PHYS_FLASH_2            0x04000000 /* Flash Bank #1 */
+#define PHYS_FLASH_2            0x04000000 /* Flash Bank #2 */
 #define PHYS_FLASH_SIZE         0x02000000 /* 32 MB */
+#define PHYS_FLASH_BANK_SIZE    0x02000000 /* 32 MB Banks */
+#define PHYS_FLASH_SECT_SIZE    0x00040000 /* 256 KB sectors (x2) */
 
 #define CFG_DRAM_BASE           0xa0000000
 #define CFG_DRAM_SIZE           0x04000000
@@ -168,8 +171,7 @@
 #define CFG_MSC1_VAL        0x3FF1A441
 #define CFG_MSC2_VAL        0x7FF17FF1
 #define CFG_MDCNFG_VAL      0x00001AC9
-#define CFG_MDREFR_VAL      0x000BC018
-#define CFG_MDREFR_VAL_100  0x00018018
+#define CFG_MDREFR_VAL      0x00018018
 #define CFG_MDMRS_VAL       0x00000000
 
 /*
@@ -193,8 +195,8 @@
 #define CFG_MAX_FLASH_SECT      128  /* max number of sectors on one chip    */
 
 /* timeout values are in ticks */
-#define CFG_FLASH_ERASE_TOUT    (2*CFG_HZ) /* Timeout for Flash Erase */
-#define CFG_FLASH_WRITE_TOUT    (2*CFG_HZ) /* Timeout for Flash Write */
+#define CFG_FLASH_ERASE_TOUT    (25*CFG_HZ) /* Timeout for Flash Erase */
+#define CFG_FLASH_WRITE_TOUT    (25*CFG_HZ) /* Timeout for Flash Write */
 
 /* FIXME */
 #define	CFG_ENV_IS_IN_FLASH	1

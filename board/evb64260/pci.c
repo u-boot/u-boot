@@ -52,6 +52,7 @@ static const unsigned int pci_scs_bank_size[2][4] = {
 static const unsigned int pci_p2p_configuration[] = {
     PCI_0P2P_CONFIGURATION, PCI_1P2P_CONFIGURATION};
 
+static unsigned int local_buses[] = { 0, 0};
 /********************************************************************
 * pciWriteConfigReg - Write to a PCI configuration register
 *                    - Make sure the GT is configured as a master before writing
@@ -74,7 +75,7 @@ void pciWriteConfigReg(PCI_HOST host, unsigned int regOffset,unsigned int pciDev
 {
     volatile unsigned int DataForAddrReg;
     unsigned int functionNum;
-    unsigned int busNum = 0;
+    unsigned int busNum = PCI_BUS(pciDevNum);
     unsigned int addr;
 
     if(pciDevNum > 32) /* illegal device Number */
@@ -117,7 +118,7 @@ unsigned int pciReadConfigReg (PCI_HOST host, unsigned int regOffset,unsigned in
     volatile unsigned int DataForAddrReg;
    	unsigned int data;
     unsigned int functionNum;
-    unsigned int busNum = 0;
+    unsigned int busNum = PCI_BUS(pciDevNum);
 
     if(pciDevNum > 32) /* illegal device Number */
         return 0xffffffff;
@@ -531,16 +532,32 @@ static int gt_read_config_dword(struct pci_controller *hose,
 				pci_dev_t dev,
 				int offset, u32* value)
 {
-    *value = pciReadConfigReg((PCI_HOST) hose->cfg_addr, offset, PCI_DEV(dev));
-    return 0;
+	int bus = PCI_BUS(dev);
+	
+	if ((bus == local_buses[0]) || (bus == local_buses[1])){
+		*value = pciReadConfigReg((PCI_HOST) hose->cfg_addr, offset, 
+					  PCI_DEV(dev));
+	} else {
+		*value = pciOverBridgeReadConfigReg((PCI_HOST) hose->cfg_addr, 
+						    offset, PCI_DEV(dev), bus);
+	}
+	return 0;
 }
 
 static int gt_write_config_dword(struct pci_controller *hose,
 				 pci_dev_t dev,
 				 int offset, u32 value)
 {
-    pciWriteConfigReg((PCI_HOST)hose->cfg_addr, offset, PCI_DEV(dev), value);
-    return 0;
+	int bus = PCI_BUS(dev);
+
+	if ((bus == local_buses[0]) || (bus == local_buses[1])){
+		pciWriteConfigReg((PCI_HOST)hose->cfg_addr, offset, 
+				  PCI_DEV(dev), value);
+	} else {
+		pciOverBridgeWriteConfigReg((PCI_HOST)hose->cfg_addr, offset, 
+					    PCI_DEV(dev), value, bus);
+	}
+	return 0;
 }
 
 /*
@@ -603,7 +620,7 @@ pci_init_board(void)
 
     pci0_hose.first_busno = 0;
     pci0_hose.last_busno = 0xff;
-
+    local_buses[0] = pci0_hose.first_busno;
     /* PCI memory space */
     pci_set_region(pci0_hose.regions + 0,
 		   CFG_PCI0_0_MEM_SPACE,
@@ -647,6 +664,8 @@ pci_init_board(void)
 
     pci1_hose.first_busno = pci0_hose.last_busno + 1;
     pci1_hose.last_busno = 0xff;
+    pci1_hose.current_busno = pci0_hose.current_busno;
+    local_buses[1] = pci1_hose.first_busno;
 
     /* PCI memory space */
     pci_set_region(pci1_hose.regions + 0,
