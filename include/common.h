@@ -75,7 +75,8 @@ typedef	void (interrupt_handler_t)(void *);
 
 /* enable common handling for all TQM8xxL boards */
 #if defined(CONFIG_TQM823L) || defined(CONFIG_TQM850L) || \
-    defined(CONFIG_TQM855L) || defined(CONFIG_TQM860L)
+    defined(CONFIG_TQM855L) || defined(CONFIG_TQM860L) || \
+    defined(CONFIG_TQM862L)
 # ifndef CONFIG_TQM8xxL
 #  define CONFIG_TQM8xxL
 # endif

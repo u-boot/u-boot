@@ -11,7 +11,7 @@
 #include <bedbug/regs.h>
 #include <bedbug/ppc.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_BEDBUG) && defined(CONFIG_MPC860)
+#if (CONFIG_COMMANDS & CFG_CMD_BEDBUG) && defined(CONFIG_8xx)
 
 #define MAX_BREAK_POINTS 2
 

@@ -353,15 +353,12 @@ TQM850L_80MHz_config	\
 TQM855L_config		\
 TQM855L_66MHz_config	\
 TQM855L_80MHz_config	\
-TQM855L_FEC_config	\
-TQM855L_FEC_66MHz_config \
-TQM855L_FEC_80MHz_config \
 TQM860L_config		\
 TQM860L_66MHz_config	\
 TQM860L_80MHz_config	\
-TQM860L_FEC_config	\
-TQM860L_FEC_66MHz_config	\
-TQM860L_FEC_80MHz_config:	unconfig
+TQM862L_config		\
+TQM862L_66MHz_config	\
+TQM862L_80MHz_config:	unconfig
 	@ >include/config.h
 	@[ -z "$(findstring _FEC,$@)" ] || \
 		{ echo "#define CONFIG_FEC_ENET"	>>include/config.h ; \
@@ -746,7 +743,7 @@ clobber:	clean
 		| xargs rm -f
 	rm -f $(OBJS) *.bak tags TAGS
 	rm -fr *.*~
-	rm -f u-boot u-boot.bin u-boot.elf u-boot.srec u-boot.map System.map
+	rm -f u-boot u-boot.bin u-boot.srec u-boot.map System.map
 	rm -f tools/crc32.c tools/environment.c tools/env/crc32.c
 	rm -f tools/inca-swap-bytes cpu/mpc824x/bedbug_603e.c
 	rm -f include/asm/arch include/asm

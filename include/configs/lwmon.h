@@ -76,33 +76,33 @@
 
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
-#define	CONFIG_EXTRA_ENV_SETTINGS						\
-	"kernel_addr=40080000\0"						\
-	"ramdisk_addr=40280000\0"						\
-	"magic_keys=#3\0"							\
-	"key_magic#=28\0"							\
-	"key_cmd#=setenv addfb setenv bootargs \\$(bootargs) console=tty0\0"	\
-	"key_magic3=3C+3F\0"							\
-	"key_cmd3=echo *** Entering Test Mode ***;" \
-		"setenv add_misc setenv bootargs \\$(bootargs) testmode\0"	\
-	"nfsargs=setenv bootargs root=/dev/nfs rw nfsroot=$(serverip):$(rootpath)\0" \
-	"ramargs=setenv bootargs root=/dev/ram rw\0"				\
-	"addfb=setenv bootargs $(bootargs) console=ttyS1,$(baudrate)\0"		\
-	"addip=setenv bootargs $(bootargs) "					\
-		"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off " \
-		"panic=1\0"							\
-	"add_wdt=setenv bootargs $(bootargs) $(wdt_args)\0"			\
-	"add_misc=setenv bootargs $(bootargs) runmode\0"			\
-	"flash_nfs=run nfsargs addip add_wdt addfb add_misc;"	\
-		"bootm $(kernel_addr)\0"					\
-	"flash_self=run ramargs addip add_wdt addfb add_misc;"	\
-		"bootm $(kernel_addr) $(ramdisk_addr)\0"			\
-	"net_nfs=tftp 100000 /tftpboot/uImage.lwmon;"		\
-		"run nfsargs addip add_wdt addfb;bootm\0"	\
-	"rootpath=/opt/eldk/ppc_8xx\0"						\
-	"load=tftp 100000 /tftpboot/u-boot.bin\0"				\
-	"update=protect off 1:0;era 1:0;cp.b 100000 40000000 $(filesize)\0"	\
-	"wdt_args=wdt_8xx=off\0"						\
+#define	CONFIG_EXTRA_ENV_SETTINGS					\
+	"kernel_addr=40080000\0"					\
+	"ramdisk_addr=40280000\0"					\
+	"magic_keys=#3\0"						\
+	"key_magic#=28\0"						\
+	"key_cmd#=setenv addfb setenv 'bootargs $bootargs console=tty0'\0" \
+	"key_magic3=3C+3F\0"						\
+	"key_cmd3=echo *** Entering Test Mode ***;"			\
+		"setenv add_misc 'setenv bootargs $bootargs testmode'\0" \
+	"nfsargs=setenv bootargs root=/dev/nfs rw nfsroot=$serverip:$rootpath\0" \
+	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
+	"addfb=setenv bootargs $bootargs console=ttyS1,$baudrate\0"	\
+	"addip=setenv bootargs $bootargs "				\
+		"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname::off " \
+		"panic=1\0"						\
+	"add_wdt=setenv bootargs $bootargs $wdt_args\0"			\
+	"add_misc=setenv bootargs $bootargs runmode\0"			\
+	"flash_nfs=run nfsargs addip add_wdt addfb add_misc;"		\
+		"bootm $kernel_addr\0"					\
+	"flash_self=run ramargs addip add_wdt addfb add_misc;"		\
+		"bootm $kernel_addr $ramdisk_addr\0"			\
+	"net_nfs=tftp 100000 /tftpboot/uImage.lwmon;"			\
+		"run nfsargs addip add_wdt addfb;bootm\0"		\
+	"rootpath=/opt/eldk/ppc_8xx\0"					\
+	"load=tftp 100000 /tftpboot/u-boot.bin\0"			\
+	"update=protect off 1:0;era 1:0;cp.b 100000 40000000 $filesize\0" \
+	"wdt_args=wdt_8xx=off\0"					\
 	"verify=no"
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
@@ -180,10 +180,10 @@
 #define CFG_LONGHELP			/* undef to save memory		*/
 #define CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
 
-#undef	CFG_HUSH_PARSER			/* enable "hush" shell		*/
+#define	CFG_HUSH_PARSER		1	/* use "hush" command parser	*/
+#endif
 #ifdef	CFG_HUSH_PARSER
 #define	CFG_PROMPT_HUSH_PS2	"> "
-#endif
 
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 #define CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/

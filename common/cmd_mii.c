@@ -55,7 +55,7 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	unsigned short	data;
 	int		rcode = 0;
 
-#ifdef CONFIG_MPC860
+#ifdef CONFIG_8xx
 	mii_init ();
 #endif
 

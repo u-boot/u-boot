@@ -44,7 +44,7 @@ static char *cpu_warning = "\n         " \
 
 #if ((defined(CONFIG_MPC860) || defined(CONFIG_MPC855)) && \
      !defined(CONFIG_MPC862))
-# ifdef	CONFIG_MPC855
+# ifdef CONFIG_MPC855
 #  define	ID_STR	"PC855"
 # else
 #  define	ID_STR	"PC860"

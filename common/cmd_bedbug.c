@@ -56,7 +56,7 @@ void bedbug_init( void )
 #if defined(CONFIG_4xx)
   void bedbug405_init( void );
   bedbug405_init();
-#elif defined(CONFIG_MPC860)
+#elif defined(CONFIG_8xx)
   void bedbug860_init( void );
   bedbug860_init();
 #endif

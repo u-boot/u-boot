@@ -1362,9 +1362,11 @@ typedef struct scc_enet {
 #define SICR_ENET_CLKRT	((uint)0x00002600)
 #endif	/* CONFIG_MVS v1, CONFIG_TQM823L, CONFIG_TQM850L, etc. */
 
-/***  TQM860L, TQM855L ************************************************/
+/***  TQM855L, TQM860L, TQM862L  **************************************/
 
-#if (defined(CONFIG_TQM860L) || defined(CONFIG_TQM855L))
+#if defined(CONFIG_TQM855L) || \
+    defined(CONFIG_TQM860L)
+    defined(CONFIG_TQM862L)
 
 # ifdef CONFIG_SCC1_ENET	/* use SCC for 10Mbps Ethernet	*/
 
@@ -1412,7 +1414,7 @@ typedef struct scc_enet {
 #define PD_MII_MASK	((ushort)0x1FFF)	/* PD 3...15 */
 
 # endif	/* CONFIG_FEC_ENET */
-#endif	/* CONFIG_TQM860L, CONFIG_TQM855L */
+#endif	/* CONFIG_TQM855L, TQM860L, TQM862L */
 
 /***  V37  **********************************************************/
 

@@ -27,6 +27,7 @@
     defined(CONFIG_MPC850) || \
     defined(CONFIG_MPC855) || \
     defined(CONFIG_MPC860) || \
+    defined(CONFIG_MPC862) || \
     defined(CONFIG_MPC824X)
 
 #include <post.h>
