@@ -89,7 +89,8 @@
 #define CONFIG_COMMANDS		(CONFIG_CMD_DFL | \
 				 CFG_CMD_ASKENV	| \
 				 CFG_CMD_DHCP	| \
-				 CFG_CMD_ELF	)
+				 CFG_CMD_ELF	| \
+				 CFG_CMD_JFFS2	)
 #include <cmd_confdefs.h>
 
 /*
@@ -147,6 +148,9 @@
 
 #define CONFIG_INCA_IP_SWITCH
 #define CONFIG_NET_MULTI
+
+#define CFG_JFFS2_FIRST_BANK	1
+#define CFG_JFFS2_NUM_BANKS	1
 
 /*-----------------------------------------------------------------------
  * Cache Configuration

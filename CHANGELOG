@@ -2,6 +2,8 @@
 Changes since U-Boot 1.0.0:
 ======================================================================
 
+* Add JFFS2 support for INCA-IP board
+
 * Patch by Bill Hargen, 09 Dec 2003:
   - BUBINGA405EP: changed flash driver to protect top sector containing
     first instruction.
