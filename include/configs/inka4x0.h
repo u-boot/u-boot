@@ -51,9 +51,35 @@
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 
 /*
+ * PCI Mapping:
+ * 0x40000000 - 0x4fffffff - PCI Memory
+ * 0x50000000 - 0x50ffffff - PCI IO Space
+ */
+#define CONFIG_PCI		1
+#define CONFIG_PCI_PNP		1
+#define CONFIG_PCI_SCAN_SHOW	1
+
+#define CONFIG_PCI_MEM_BUS	0x40000000
+#define CONFIG_PCI_MEM_PHYS	CONFIG_PCI_MEM_BUS
+#define CONFIG_PCI_MEM_SIZE	0x10000000
+
+#define CONFIG_PCI_IO_BUS	0x50000000
+#define CONFIG_PCI_IO_PHYS	CONFIG_PCI_IO_BUS
+#define CONFIG_PCI_IO_SIZE	0x01000000
+
+#define CFG_XLB_PIPELINING	1
+
+/* Partitions */
+#define CONFIG_MAC_PARTITION
+#define CONFIG_DOS_PARTITION
+#define CONFIG_ISO_PARTITION
+
+/*
  * Supported commands
  */
-#define CONFIG_COMMANDS	       (CONFIG_CMD_DFL | CFG_CMD_DHCP)
+#define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
+				CFG_CMD_PCI	| \
+				CFG_CMD_USB	)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -176,7 +202,7 @@
 #if defined (CONFIG_MINIFAP)
 #define CFG_GPS_PORT_CONFIG	0x93000004
 #else
-#define CFG_GPS_PORT_CONFIG	0x83000004
+#define CFG_GPS_PORT_CONFIG	0x81001004
 #endif
 
 /*
@@ -233,5 +259,13 @@
 
 #define CFG_CS_BURST		0x00000000
 #define CFG_CS_DEADCYCLE	0x33333333
+
+/*-----------------------------------------------------------------------
+ * USB stuff
+ *-----------------------------------------------------------------------
+ */
+#define CONFIG_USB_OHCI
+#define CONFIG_USB_CLOCK        0x00015555
+#define CONFIG_USB_CONFIG       0x00001000
 
 #endif /* __CONFIG_H */

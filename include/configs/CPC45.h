@@ -61,11 +61,14 @@
 				CFG_CMD_DATE	| \
 				CFG_CMD_DHCP	| \
 				CFG_CMD_EEPROM	| \
+				CFG_CMD_EXT2	| \
 				CFG_CMD_FAT	| \
 				CFG_CMD_FLASH	| \
 				CFG_CMD_I2C	| \
 				CFG_CMD_IDE	| \
+				CFG_CMD_NFS	| \
 				CFG_CMD_PCI	| \
+				CFG_CMD_PING	| \
 				CFG_CMD_SDRAM	)
 
 /* This must be included AFTER the definition of CONFIG_COMMANDS (if any)

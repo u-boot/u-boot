@@ -479,7 +479,6 @@ static int cb_set_power (socket_info_t * s, socket_state_t * state)
 			puts (" 12V card found: ");
 		} else if (state->Vpp == state->Vcc) {
 			reg |= I365_VPP1_5V;
-			puts (" 5V card found: ");
 		} else {
 			puts (" power not found: ");
 			return -1;
@@ -868,6 +867,10 @@ int i82365_init (void)
 		puts (pcic[socket.type].name);
 	} else {
 		printf ("i82365: Controller not found.\n");
+		return 1;
+	}
+	if((val & SS_DETECT) != SS_DETECT){
+		puts ("No card\n");
 		return 1;
 	}
 #else	/* !CONFIG_CPC45 */

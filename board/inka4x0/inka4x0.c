@@ -176,3 +176,16 @@ void flash_preinit(void)
 	 */
 	*(vu_long *)MPC5XXX_BOOTCS_CFG &= ~0x1; /* clear RO */
 }
+
+#ifdef  CONFIG_PCI
+static struct pci_controller hose;
+
+extern void pci_mpc5xxx_init(struct pci_controller *);
+
+void pci_init_board(void)
+{
+        pci_mpc5xxx_init(&hose);
+}
+#endif
+
+
