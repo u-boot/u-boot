@@ -1,0 +1,22 @@
+The config option CONFIG_SILENT_CONSOLE can be used to quiet messages
+on the console.  If the option has been enabled, the output can be
+silenced by setting the environment variable "silent".  The variable
+is latched into the global data at an early stage in the boot process
+so deleting it with "setenv" will not take effect until the system is
+restarted.
+
+The following actions are taken if "silent" is set at boot time:
+
+ - Until the console devices have been initialized, output has to be
+   suppressed by testing for the flag "GD_FLG_SILENT" in "gd->flags".
+   Currently only the messages for the TRAB board are handled in this
+   way.
+
+ - When the console devices have been initialized, "stdout" and
+   "stderr" are set to "nulldev", so subsequent messages are
+   suppressed automatically. Make sure to enable "nulldev" by
+   #defining CFG_DEVICE_NULLDEV in your board config file.
+
+ - When booting a linux kernel, the "bootargs" are fixed up so that
+   the argument "console=" will be in the command line, no matter how
+   it was set in "bootargs" before.

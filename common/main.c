@@ -193,6 +193,18 @@ static __inline__ int abortboot(int bootdelay)
 {
 	int abort = 0;
 
+#ifdef CONFIG_SILENT_CONSOLE
+	{
+		DECLARE_GLOBAL_DATA_PTR;
+
+		if (gd->flags & GD_FLG_SILENT) {
+			/* Restore serial console */
+			console_assign (stdout, "serial");
+			console_assign (stderr, "serial");
+		}
+	}
+#endif
+
 #ifdef CONFIG_MENUPROMPT
 	printf(CONFIG_MENUPROMPT, bootdelay);
 #else
@@ -207,13 +219,13 @@ static __inline__ int abortboot(int bootdelay)
 	if (bootdelay >= 0) {
 		if (tstc()) {	/* we got a key press	*/
 			(void) getc();  /* consume input	*/
-			printf ("\b\b\b 0\n");
-			return 1; 	/* don't auto boot	*/
+			printf ("\b\b\b 0");
+			abort = 1; 	/* don't auto boot	*/
 		}
 	}
 #endif
 
-	while (bootdelay > 0) {
+	while ((bootdelay > 0) && (!abort)) {
 		int i;
 
 		--bootdelay;
@@ -236,6 +248,21 @@ static __inline__ int abortboot(int bootdelay)
 	}
 
 	putc ('\n');
+
+#ifdef CONFIG_SILENT_CONSOLE
+	{
+		DECLARE_GLOBAL_DATA_PTR;
+
+		if (abort) {
+			/* permanently enable normal console output */
+			gd->flags &= ~(GD_FLG_SILENT);
+		} else if (gd->flags & GD_FLG_SILENT) {
+			/* Restore silent console */
+			console_assign (stdout, "nulldev");
+			console_assign (stderr, "nulldev");
+		}
+	}
+#endif
 
 	return abort;
 }

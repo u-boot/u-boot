@@ -111,6 +111,12 @@ static int init_baudrate (void)
 
 static int display_banner (void)
 {
+	DECLARE_GLOBAL_DATA_PTR;
+
+#ifdef CONFIG_SILENT_CONSOLE
+	if (gd->flags & GD_FLG_SILENT)
+		return (0);
+#endif
 
 	printf ("\n\n%s\n\n", version_string);
 	printf ("U-Boot code: %08lX -> %08lX  BSS: -> %08lX\n",
@@ -122,6 +128,7 @@ static int display_banner (void)
 	printf ("IRQ Stack: %08lx\n", IRQ_STACK_START);
 	printf ("FIQ Stack: %08lx\n", FIQ_STACK_START);
 #endif
+
 	return (0);
 }
 
@@ -137,6 +144,11 @@ static int display_dram_config (void)
 	DECLARE_GLOBAL_DATA_PTR;
 	int i;
 
+#ifdef CONFIG_SILENT_CONSOLE
+	if (gd->flags & GD_FLG_SILENT)
+		return (0);
+#endif
+
 	puts ("DRAM Configuration:\n");
 
 	for(i=0; i<CONFIG_NR_DRAM_BANKS; i++) {
@@ -149,6 +161,12 @@ static int display_dram_config (void)
 
 static void display_flash_config (ulong size)
 {
+	DECLARE_GLOBAL_DATA_PTR;
+
+#ifdef CONFIG_SILENT_CONSOLE
+	if (gd->flags & GD_FLG_SILENT)
+		return;
+#endif
 	puts ("Flash: ");
 	print_size (size, "\n");
 }

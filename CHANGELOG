@@ -2,6 +2,9 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Added config option CONFIG_SILENT_CONSOLE.  See doc/README.silent
+  for more information
+
 * Patch by Steven Scholz, 10 Oct 2003
   - Add support for Altera FPGA ACEX1K
 

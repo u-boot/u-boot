@@ -365,10 +365,16 @@ int console_init_f (void)
 	DECLARE_GLOBAL_DATA_PTR;
 
 	gd->have_console = 1;
+
+#ifdef CONFIG_SILENT_CONSOLE
+	if (getenv("silent") != NULL)
+		gd->flags |= GD_FLG_SILENT;
+#endif
+
 	return (0);
 }
 
-#if defined(CFG_CONSOLE_IS_IN_ENV) || defined(CONFIG_SPLASH_SCREEN)
+#if defined(CFG_CONSOLE_IS_IN_ENV) || defined(CONFIG_SPLASH_SCREEN) || defined(CONFIG_SILENT_CONSOLE)
 /* search a device */
 device_t *search_device (int flags, char *name)
 {
@@ -491,6 +497,12 @@ int console_init_r (void)
 	/* suppress all output if splash screen is enabled and we have
            a bmp to display                                            */
 	if (getenv("splashimage") != NULL)
+		outputdev = search_device (DEV_FLAGS_OUTPUT, "nulldev");
+#endif
+
+#ifdef CONFIG_SILENT_CONSOLE
+	/* Suppress all output if "silent" mode requested		*/
+	if (gd->flags & GD_FLG_SILENT)
 		outputdev = search_device (DEV_FLAGS_OUTPUT, "nulldev");
 #endif
 

@@ -117,6 +117,9 @@ static boot_os_Fcn do_bootm_linux;
 #else
 extern boot_os_Fcn do_bootm_linux;
 #endif
+#ifdef CONFIG_SILENT_CONSOLE
+static void fixup_silent_linux (void);
+#endif
 static boot_os_Fcn do_bootm_netbsd;
 static boot_os_Fcn do_bootm_rtems;
 #if (CONFIG_COMMANDS & CFG_CMD_ELF)
@@ -378,6 +381,9 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	switch (hdr->ih_os) {
 	default:			/* handled by (original) Linux case */
 	case IH_OS_LINUX:
+#ifdef CONFIG_SILENT_CONSOLE
+	    fixup_silent_linux();
+#endif
 	    do_bootm_linux  (cmdtp, flag, argc, argv,
 			     addr, len_ptr, verify);
 	    break;
@@ -431,6 +437,40 @@ U_BOOT_CMD(
  	"        passing arguments 'arg ...'; when booting a Linux kernel,\n"
  	"        'arg' can be the address of an initrd image\n"
 );
+
+#ifdef CONFIG_SILENT_CONSOLE
+static void
+fixup_silent_linux ()
+{
+	DECLARE_GLOBAL_DATA_PTR;
+	char buf[256], *start, *end;
+	char *cmdline = getenv ("bootargs");
+
+	/* Only fix cmdline when requested */
+	if (!(gd->flags & GD_FLG_SILENT))
+		return;
+
+	debug ("before silent fix-up: %s\n", cmdline);
+	if (cmdline) {
+		if ((start = strstr (cmdline, "console=")) != NULL) {
+			end = strchr (start, ' ');
+			strncpy (buf, cmdline, (start - cmdline + 8));
+			if (end)
+				strcpy (buf + (start - cmdline + 8), end);
+			else
+				buf[start - cmdline + 8] = '\0';
+		} else {
+			strcpy (buf, cmdline);
+			strcat (buf, " console=");
+		}
+	} else {
+		strcpy (buf, "console=");
+	}
+
+	setenv ("bootargs", buf);
+	debug ("after silent fix-up: %s\n", buf);
+}
+#endif /* CONFIG_SILENT_CONSOLE */
 
 #ifdef CONFIG_PPC
 static void

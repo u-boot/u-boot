@@ -59,6 +59,8 @@
 #define CONFIG_SETUP_MEMORY_TAGS 1
 #define CONFIG_INITRD_TAG	 1
 
+#define CFG_DEVICE_NULLDEV	 1	/* enble null device		*/
+#define CONFIG_SILENT_CONSOLE	 1	/* enable silent startup	*/
 
 /***********************************************************
  * I2C stuff:
