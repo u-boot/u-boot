@@ -26,6 +26,7 @@
 #include <command.h>
 #include <malloc.h>
 #include <version.h>
+#include <watchdog.h>
 
 const char version_string[] =
 	U_BOOT_VERSION" (" __DATE__ " - " __TIME__ ")";
@@ -68,6 +69,24 @@ init_fnc_t *init_sequence[] = {
 	serial_init,		/* serial communications setup */
 	NULL,
 };
+
+void board_init(void)
+{
+	init_fnc_t **init_fnc_ptr;
+
+	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
+		WATCHDOG_RESET ();
+		if ((*init_fnc_ptr) () != 0) {
+			hang ();
+		}
+	}
+
+	/* main_loop */
+	for (;;) {
+		WATCHDOG_RESET ();
+		main_loop ();
+	}
+}
 
 void hang (void)
 {

@@ -722,6 +722,9 @@ CPC45_ROMBOOT_config:	unconfig
 CU824_config: unconfig
 	@./mkconfig $(@:_config=) ppc mpc824x cu824
 
+debris_config: unconfig
+	@./mkconfig $(@:_config=) ppc mpc824x debris etin
+
 eXalion_config: unconfig
 	@./mkconfig $(@:_config=) ppc mpc824x eXalion
 
@@ -947,6 +950,9 @@ MPC8540ADS_config:      unconfig
 MPC8560ADS_config:      unconfig
 	@./mkconfig $(@:_config=) ppc mpc85xx mpc8560ads
 
+stxgp3_config:      unconfig
+	@./mkconfig $(@:_config=) ppc mpc85xx stxgp3
+
 #########################################################################
 ## 74xx/7xx Systems
 #########################################################################
@@ -962,9 +968,6 @@ DB64360_config:  unconfig
 
 DB64460_config:  unconfig
 	@./mkconfig DB64460 ppc 74xx_7xx db64460 Marvell
-
-debris_config: unconfig
-	@./mkconfig $(@:_config=) ppc mpc824x debris etin
 
 ELPPC_config: unconfig
 	@./mkconfig $(@:_config=) ppc 74xx_7xx elppc eltec

@@ -19,6 +19,9 @@
 #include <net.h>
 #include <mpc85xx.h>
 
+/* TSEC1 is offset 0x24000, TSEC2 is offset 0x25000
+#define TSEC_BASE_ADDR	(CFG_IMMR + 0x25000)
+*/
 #define TSEC_BASE_ADDR	(CFG_IMMR + 0x24000)
 #define TSEC_MEM_SIZE	0x01000
 
@@ -56,16 +59,16 @@
 #define MIIMIND_BUSY            0x00000001
 #define MIIMIND_NOTVALID        0x00000004
 
-#define MIIM_TBICON		0x11
-#define MIIM_TBICON_GMII	0x00000010
-#define MIIM_TBICON_AN		0x00000100
-
 #define MIIM_CONTROL            0x00
 #define MIIM_CONTROL_INIT       0x00001140
 #define MIIM_ANEN               0x00001000
+#define MIIM_CONTROL_RESET	0x00009140
 
-#define MIIM_TBI_STATUS		0x1
-#define MIIM_TBI_STATUS_AN_DONE 0x00000020
+#define MIIM_STATUS		0x1
+#define MIIM_STATUS_AN_DONE 	0x00000020
+
+#define MIIM_GBIT_CONTROL	0x9
+#define MIIM_GBIT_CONTROL_INIT	0xe00
 
 #define MIIM_TBI_ANEX		0x6
 #define MIIM_TBI_ANEX_NP	0x00000004
@@ -89,11 +92,11 @@
 #endif
 
 #ifdef CONFIG_PHY_M88E1011
-#define MIIM_ANAR		0x04
-#define MIIM_ANAR_ADVERTISEMENT	0x01e1
+#define MIIM_ANAR		0x4
+#define MIIM_ANAR_INIT		0x1e1
 
 #define MIIM_GBIT_CON		0x09
-#define MIIM_GBIT_CON_ADVERT	0x1e00
+#define MIIM_GBIT_CON_ADVERT	0x0e00
 
 #define MIIM_PHY_STATUS         0x11
 #define MIIM_PHYSTAT_SPEED      0xc000
@@ -129,6 +132,15 @@
 	while((regbase->miimind & MIIMIND_BUSY) && timeout--); \
 } while(0)
 
+
+/* This works around errata in reseting the PHY */
+#define RESET_ERRATA(regs, ID) do { \
+	write_phy_reg(regs, (ID), 0x1d, 0x1f); \
+	write_phy_reg(regs, (ID), 0x1e, 0x200c); \
+	write_phy_reg(regs, (ID), 0x1d, 0x5); \
+	write_phy_reg(regs, (ID), 0x1e, 0x0); \
+	write_phy_reg(regs, (ID), 0x1e, 0x100); \
+} while(0)
 
 #define IEVENT_INIT_CLEAR	0xffffffff
 #define IEVENT_BABR		0x80000000

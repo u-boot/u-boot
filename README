@@ -281,11 +281,11 @@ The following options need to be configured:
 		CONFIG_RPXlite,		CONFIG_RPXsuper,	CONFIG_rsdproto,
 		CONFIG_sacsng,		CONFIG_Sandpoint8240,	CONFIG_Sandpoint8245,
 		CONFIG_sbc8260,		CONFIG_SM850,		CONFIG_SPD823TS,
-		CONFIG_SXNI855T,	CONFIG_TQM823L,		CONFIG_TQM8260,
-		CONFIG_TQM850L,		CONFIG_TQM855L,		CONFIG_TQM860L,
-		CONFIG_TTTech,		CONFIG_UTX8245,		CONFIG_V37,
-		CONFIG_W7OLMC,		CONFIG_W7OLMG,		CONFIG_WALNUT405,
-		CONFIG_ZPC1900,		CONFIG_ZUMA,
+		CONFIG_STXGP3,		CONFIG_SXNI855T,	CONFIG_TQM823L,
+		CONFIG_TQM8260,		CONFIG_TQM850L,		CONFIG_TQM855L,
+		CONFIG_TQM860L,		CONFIG_TTTech,		CONFIG_UTX8245,
+		CONFIG_V37,		CONFIG_W7OLMC,		CONFIG_W7OLMG,
+		CONFIG_WALNUT405,	CONFIG_ZPC1900,		CONFIG_ZUMA,
 
 		ARM based boards:
 		-----------------
@@ -2017,9 +2017,9 @@ configurations; the following names are supported:
 	QS850_config		QS860T_config		RPXlite_config
 	RPXsuper_config		rsdproto_config		Sandpoint8240_config
 	sbc8260_config		SM850_config		SPD823TS_config
-	SXNI855T_config		TQM823L_config		TQM850L_config
-	TQM855L_config		TQM860L_config		WALNUT405_config
-	ZPC1900_config
+	stxgp3_config		SXNI855T_config		TQM823L_config
+	TQM850L_config		TQM855L_config		TQM860L_config
+	WALNUT405_config	ZPC1900_config
 
 	Note: for some board special configuration names may exist; check  if
 	      additional  information is available from the board vendor; for

@@ -264,6 +264,10 @@ Xianghua Xiao <x.xiao@motorola.com>
 	MPC8540ADS		MPC8540
 	MPC8560ADS		MPC8560
 
+Dan Malek <dan@embeddededge.com>
+
+	STxGP3			MPC85xx
+
 -------------------------------------------------------------------------
 
 Unknown / orphaned boards:

@@ -24,6 +24,7 @@
 #include <common.h>
 #include <mpc824x.h>
 #include <pci.h>
+#include <i2c.h>
 
 int checkboard (void)
 {
@@ -52,28 +53,70 @@ int checkflash (void)
 
 long int initdram (int board_type)
 {
-	long size;
-#if 0
-	long new_bank0_end;
-	long mear1;
-	long emear1;
-#endif
+	int m, row, col, bank, i;
+	unsigned long start, end;
+	uint32_t mccr1;
+	uint32_t mear1 = 0, emear1 = 0, msar1 = 0, emsar1 = 0;
+	uint32_t mear2 = 0, emear2 = 0, msar2 = 0, emsar2 = 0;
+	uint8_t mber = 0;
 
-	size = get_ram_size(CFG_SDRAM_BASE, CFG_MAX_RAM_SIZE);
+	i2c_init(CFG_I2C_SPEED, CFG_I2C_SLAVE);
 
-#if 0
-	new_bank0_end = size - 1;
-	mear1 = mpc824x_mpc107_getreg(MEAR1);
-	emear1 = mpc824x_mpc107_getreg(EMEAR1);
-	mear1 = (mear1  & 0xFFFFFF00) |
-		((new_bank0_end & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT);
-	emear1 = (emear1 & 0xFFFFFF00) |
-		((new_bank0_end & MICR_ADDR_MASK) >> MICR_EADDR_SHIFT);
-	mpc824x_mpc107_setreg(MEAR1, mear1);
-	mpc824x_mpc107_setreg(EMEAR1, emear1);
-#endif
+	if (i2c_reg_read (0x50, 2) != 0x04) return 0;	/* Memory type */
+	m = i2c_reg_read (0x50, 5);	/* # of physical banks */
+	row = i2c_reg_read (0x50, 3);	/* # of rows */
+	col = i2c_reg_read (0x50, 4);	/* # of columns */
+	bank = i2c_reg_read (0x50, 17);	/* # of logical banks */
 
-	return (size);
+	CONFIG_READ_WORD(MCCR1, mccr1);
+	mccr1 &= 0xffff0000;
+
+	start = CFG_SDRAM_BASE;
+	end = start + (1 << (col + row + 3) ) * bank - 1;
+
+	for (i = 0; i < m; i++) {
+		mccr1 |= ((row == 13)? 2 : (bank == 4)? 0 : 3) << i * 2;
+		if (i < 4) {
+			msar1  |= ((start >> 20) & 0xff) << i * 8;
+			emsar1 |= ((start >> 28) & 0xff) << i * 8;
+			mear1  |= ((end >> 20) & 0xff) << i * 8;
+			emear1 |= ((end >> 28) & 0xff) << i * 8;
+		} else {
+			msar2  |= ((start >> 20) & 0xff) << (i-4) * 8;
+			emsar2 |= ((start >> 28) & 0xff) << (i-4) * 8;
+			mear2  |= ((end >> 20) & 0xff) << (i-4) * 8;
+			emear2 |= ((end >> 28) & 0xff) << (i-4) * 8;
+		}
+		mber |= 1 << i;
+		start += (1 << (col + row + 3) ) * bank;
+		end += (1 << (col + row + 3) ) * bank;
+	}
+	for (; i < 8; i++) {
+		if (i < 4) {
+			msar1  |= 0xff << i * 8;
+			emsar1 |= 0x30 << i * 8;
+			mear1  |= 0xff << i * 8;
+			emear1 |= 0x30 << i * 8;
+		} else {
+			msar2  |= 0xff << (i-4) * 8;
+			emsar2 |= 0x30 << (i-4) * 8;
+			mear2  |= 0xff << (i-4) * 8;
+			emear2 |= 0x30 << (i-4) * 8;
+		}
+	}
+
+	CONFIG_WRITE_WORD(MCCR1, mccr1);
+	CONFIG_WRITE_WORD(MSAR1, msar1);
+	CONFIG_WRITE_WORD(EMSAR1, emsar1);
+	CONFIG_WRITE_WORD(MEAR1, mear1);
+	CONFIG_WRITE_WORD(EMEAR1, emear1);
+	CONFIG_WRITE_WORD(MSAR2, msar2);
+	CONFIG_WRITE_WORD(EMSAR2, emsar2);
+	CONFIG_WRITE_WORD(MEAR2, mear2);
+	CONFIG_WRITE_WORD(EMEAR2, emear2);
+	CONFIG_WRITE_BYTE(MBER, mber);
+
+	return (1 << (col + row + 3) ) * bank * m;
 }
 
 /*

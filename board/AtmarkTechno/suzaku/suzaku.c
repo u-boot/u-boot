@@ -24,13 +24,6 @@
 
 #include <common.h>
 
-void board_init(void)
-{
-	serial_init();
-
-	main_loop();
-}
-
 void do_reset(void)
 {
 }

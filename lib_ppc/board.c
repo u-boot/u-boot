@@ -510,27 +510,6 @@ void board_init_f (ulong bootflag)
 #if defined(CONFIG_405GP) || defined(CONFIG_405EP)
 	bd->bi_pci_busfreq = get_PCI_freq ();
 	bd->bi_opbfreq = get_OPB_freq ();
-
-#if defined(CONFIG_I2CFAST)
-	/*
-	 * set bi_iic_fast for linux taking environment variable
-	 * "i2cfast" into account
-	 */
-	{
-		char *s = getenv ("i2cfast");
-		if (s && ((*s == 'y') || (*s == 'Y'))) {
-			bd->bi_iic_fast[0] = 1;
-			bd->bi_iic_fast[1] = 1;
-		} else {
-			bd->bi_iic_fast[0] = 0;
-			bd->bi_iic_fast[1] = 0;
-		}
-	}
-#else
-	bd->bi_iic_fast[0] = 0;
-	bd->bi_iic_fast[1] = 0;
-#endif
-
 #elif defined(CONFIG_XILINX_ML300)
 	bd->bi_pci_busfreq = get_PCI_freq ();
 #endif
@@ -743,6 +722,31 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	 * where had to use getenv_r(), which can be pretty slow when
 	 * the environment is in EEPROM.
 	 */
+
+#if defined(CFG_EXTBDINFO)
+#if defined(CONFIG_405GP) || defined(CONFIG_405EP)
+#if defined(CONFIG_I2CFAST)
+	/*
+	 * set bi_iic_fast for linux taking environment variable
+	 * "i2cfast" into account
+	 */
+	{
+		char *s = getenv ("i2cfast");
+		if (s && ((*s == 'y') || (*s == 'Y'))) {
+			bd->bi_iic_fast[0] = 1;
+			bd->bi_iic_fast[1] = 1;
+		} else {
+			bd->bi_iic_fast[0] = 0;
+			bd->bi_iic_fast[1] = 0;
+		}
+	}
+#else
+	bd->bi_iic_fast[0] = 0;
+	bd->bi_iic_fast[1] = 0;
+#endif	/* CONFIG_I2CFAST */
+#endif	/* CONFIG_405GP, CONFIG_405EP */
+#endif	/* CFG_EXTBDINFO */
+
 	s = getenv ("ethaddr");
 #if defined (CONFIG_MBX) || defined (CONFIG_RPXCLASSIC) || defined(CONFIG_IAD210)
 	if (s == NULL)
@@ -867,6 +871,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
     defined(CONFIG_MPC8560ADS)	|| \
     defined(CONFIG_PCU_E)	|| \
     defined(CONFIG_RPXSUPER)	|| \
+    defined(CONFIG_STXGP3)	|| \
     defined(CONFIG_SPD823TS)	)
 
 	WATCHDOG_RESET ();

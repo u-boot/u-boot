@@ -147,7 +147,7 @@ typedef struct pci_config {
 	uint	pci_oftpr;
 	char	res8[4];
 	uint	pci_ophpr;
-	char	res8_2[4];	
+	char	res8_2[4];
 	uint	pci_optpr;
 	char	res9[8];
 	uint	pci_mucr;
