@@ -1,5 +1,6 @@
+
 #
-# (C) Copyright 2001-2004
+# (C) Copyright 2003-2004
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -21,17 +22,26 @@
 # MA 02111-1307 USA
 #
 
-#
-# MicroSys PM826 board:
-#
+include $(TOPDIR)/config.mk
 
+LIB	= lib$(BOARD).a
 
-sinclude $(TOPDIR)/board/$(BOARDDIR)/config.tmp
+OBJS	:= $(BOARD).o flash.o
 
-ifndef TEXT_BASE
-## Standard: boot 64-bit flash
-TEXT_BASE = 0xFF000000
+$(LIB):	$(OBJS) $(SOBJS)
+	$(AR) crv $@ $(OBJS)
 
-endif
+clean:
+	rm -f $(SOBJS) $(OBJS)
 
-PLATFORM_CPPFLAGS += -DTEXT_BASE=$(TEXT_BASE) -I$(TOPDIR)
+distclean:	clean
+	rm -f $(LIB) core *.bak .depend
+
+#########################################################################
+
+.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
+		$(CC) -M $(CPPFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
+
+-include .depend
+
+#########################################################################

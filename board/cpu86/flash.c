@@ -41,10 +41,10 @@ ulong flash_int_get_size (volatile unsigned long *baseaddr,
 	info->sector_count = info->size = 0;
 	info->flash_id = FLASH_UNKNOWN;
 
-	/* Write query command sequence and test FLASH answer
+	/* Write identify command sequence and test FLASH answer
 	 */
-	baseaddr[0] = 0x00980098;
-	baseaddr[1] = 0x00980098;
+	baseaddr[0] = 0x00900090;
+	baseaddr[1] = 0x00900090;
 
 	flashtest_h = baseaddr[0];	/* manufacturer ID	*/
 	flashtest_l = baseaddr[1];

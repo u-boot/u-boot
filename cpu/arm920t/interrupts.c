@@ -235,14 +235,13 @@ void set_timer (ulong t)
 void udelay (unsigned long usec)
 {
 	ulong tmo;
+	ulong start = get_timer(0);
 
 	tmo = usec / 1000;
 	tmo *= (timer_load_val * 100);
 	tmo /= 1000;
 
-	tmo += get_timer (0);
-
-	while (get_timer_masked () < tmo)
+	while ((ulong)(get_timer_masked () - start) < tmo)
 		/*NOP*/;
 }
 

@@ -168,7 +168,9 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 #define AMD_ID_DL163B	0x222B222B	/* 29DL163B ID (16 M, bottom boot sect)	*/
 
 #define AMD_ID_LV320T	0x22F622F6	/* 29LV320T ID (32 M, top boot sector)	*/
+#define MX_ID_LV320T	0x22A722A7	/* 29LV320T by Macronix, AMD compatible */
 #define AMD_ID_LV320B	0x22F922F9	/* 29LV320B ID (32 M, bottom boot sect) */
+#define MX_ID_LV320B	0x22A822A8	/* 29LV320B by Macronix, AMD compatible */
 
 #define AMD_ID_DL322T	0x22552255	/* 29DL322T ID (32 M, top boot sector)	*/
 #define AMD_ID_DL322B	0x22562256	/* 29DL322B ID (32 M, bottom boot sect) */
@@ -348,6 +350,8 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 #define FLASH_AMLV320B  0x00A7		/* AMD 29LV320MB   ( 32M = 2M x 16 )	*/
 #define FLASH_AMLV320T	0x00A8		/* AMD 29LV320MT   ( 32M = 2M x 16 )	*/
 #define FLASH_AMLV256U	0x00AA		/* AMD 29LV256M	   ( 256M = 16M x 16 )	*/
+#define FLASH_MXLV320B  0x00AB		/* MX  29LV320MB   ( 32M = 2M x 16 )	*/
+#define FLASH_MXLV320T	0x00AC		/* MX  29LV320MT   ( 32M = 2M x 16 )	*/
 /* Intel 28F256L18T 256M = 128K x 255 + 32k x 4	*/
 #define FLASH_28F256L18T 0x00B0
 #define FLASH_AMDL163T	0x00B2		/* AMD AM29DL163T (2M x 16 )			*/

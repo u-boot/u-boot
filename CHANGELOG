@@ -2,6 +2,22 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
+* Add start-up delay to make sure power has stabilized before
+  attempting to switch on USB on SX1 board.
+
+* Patch by Josef Wagner, 18 Mar 2004:
+  - Add support for MicroSys XM250 board (PXA255)
+  - Add support for MicroSys PM828 board (MPC8280)
+  - Add support for 32 MB Flash on PM825/826
+  - new SDRAM refresh rate for PM825/PM826
+  - added support for MicroSys PM520 (MPC5200)
+  - replaced Query by Identify command in CPU86/flash.c
+    to support 28F160F3B
+
+* Fix wrap around problem with udelay() on ARM920T
+
+* Add support for Macronix flash on TRAB board
+
 * Patch by Pierre Aubert, 15 Mar 2004:
   Fix buffer overflow in IDE identification
 

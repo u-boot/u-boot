@@ -25,7 +25,7 @@ LIST_5xx="	\
 #########################################################################
 
 LIST_5xxx="	\
-	IceCube_5100	IceCube_5200	EVAL5200	\
+	IceCube_5100	IceCube_5200	EVAL5200	PM520		\
 "
 
 #########################################################################
@@ -85,9 +85,10 @@ LIST_824x="	\
 LIST_8260="	\
 	atc		cogent_mpc8260	CPU86		ep8260		\
 	gw8260		hymod		IPHASE4539	MPC8260ADS	\
-	MPC8266ADS	PM826		ppmc8260	RPXsuper	\
-	rsdproto	sacsng		sbc8260		SCM		\
-	TQM8260_AC	TQM8260_AD	TQM8260_AE	ZPC1900		\
+	MPC8266ADS	PM826		PM828		ppmc8260	\
+	RPXsuper	rsdproto	sacsng		sbc8260		\
+	SCM		TQM8260_AC	TQM8260_AD	TQM8260_AE	\
+	ZPC1900		\
 "
 
 #########################################################################
@@ -145,7 +146,7 @@ LIST_ARM9="	\
 ## Xscale Systems
 #########################################################################
 
-LIST_pxa="cradle csb226 innokom lubbock wepep250"
+LIST_pxa="cradle csb226 innokom lubbock wepep250 xm250"
 
 LIST_ixp="ixdp425"
 

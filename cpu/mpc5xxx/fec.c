@@ -830,12 +830,14 @@ int mpc5xxx_fec_initialize(bd_t * bis)
 	fec->eth = (ethernet_regs *)MPC5XXX_FEC;
 	fec->tbdBase = (FEC_TBD *)FEC_BD_BASE;
 	fec->rbdBase = (FEC_RBD *)(FEC_BD_BASE + FEC_TBD_NUM * sizeof(FEC_TBD));
-#if defined(CONFIG_ICECUBE) || defined(CONFIG_TOP5200)
-#  ifndef CONFIG_FEC_10MBIT
+#if defined(CONFIG_ICECUBE) ||
+    defined(CONFIG_PM520)   ||
+    defined(CONFIG_TOP5200)
+# ifndef CONFIG_FEC_10MBIT
 	fec->xcv_type = MII100;
-#  else
+# else
 	fec->xcv_type = MII10;
-#  endif
+# endif
 #else
 #error fec->xcv_type not initialized.
 #endif

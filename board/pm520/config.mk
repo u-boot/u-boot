@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2001-2004
+# (C) Copyright 2003-2004
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -22,16 +22,10 @@
 #
 
 #
-# MicroSys PM826 board:
+# PM520 board
 #
 
+TEXT_BASE = 0xfff00000
+# TEXT_BASE = 0x00100000
 
-sinclude $(TOPDIR)/board/$(BOARDDIR)/config.tmp
-
-ifndef TEXT_BASE
-## Standard: boot 64-bit flash
-TEXT_BASE = 0xFF000000
-
-endif
-
-PLATFORM_CPPFLAGS += -DTEXT_BASE=$(TEXT_BASE) -I$(TOPDIR)
+PLATFORM_CPPFLAGS += -DTEXT_BASE=$(TEXT_BASE) -I$(TOPDIR)/board

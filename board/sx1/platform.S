@@ -118,30 +118,21 @@ platformsetup:
 	str r1, [r0]	    /* EMIFS GlB Configuration. (value 0x12 most likely) */
 
 	ldr r0, _GPIO_PIN_CONTROL_REG
-	ldrh r1,[r0]
+	mov r1,#0
 	orr r1, r1, #0x0001 /* M_PCM_SYNC */
 	orr r1, r1, #0x4000 /* IPC_ACTIVE */
-	orr r1, r1, #0x0002 /* A_IRDA_OFF */
-	orr r1, r1, #0x0800 /* A_SWITCH	  */
-	orr r1, r1, #0x8000 /* A_USB_ON	  */
 	strh r1,[r0]
 
 	ldr r0, _GPIO_DIR_CONTROL_REG
-	ldrh r1,[r0]
+	mov r1,#0
 	bic r1, r1, #0x0001 /* M_PCM_SYNC */
 	bic r1, r1, #0x4000 /* IPC_ACTIVE */
-	bic r1, r1, #0x0002 /* A_IRDA_OFF */
-	bic r1, r1, #0x0800 /* A_SWITCH	  */
-	bic r1, r1, #0x8000 /* A_USB_ON	  */
 	strh r1,[r0]
 
 	ldr r0, _GPIO_DATA_OUTPUT_REG
-	ldrh r1,[r0]
+	mov r1,#0
 	bic r1, r1, #0x0001 /* M_PCM_SYNC */
 	orr r1, r1, #0x4000 /* IPC_ACTIVE */
-	orr r1, r1, #0x0002 /* A_IRDA_OFF */
-	bic r1, r1, #0x0800 /* A_SWITCH	  */
-	bic r1, r1, #0x8000 /* A_USB_ON	  */
 	strh r1,[r0]
 
 	/* Setup some clock domains */

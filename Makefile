@@ -244,6 +244,9 @@ TOP5200_config:	unconfig
 	@ echo "#define CONFIG_$(@:_config=) 1"	>include/config.h
 	@./mkconfig -a TOP5200 ppc mpc5xxx top5200 emk
 
+PM520_config:	unconfig
+	@./mkconfig $(@:_config=) ppc mpc5xxx pm520
+
 #########################################################################
 ## MPC8xx Systems
 #########################################################################
@@ -652,7 +655,7 @@ XPEDITE1K_config:unconfig
 #########################################################################
 ## MPC824x Systems
 #########################################################################
-xtract_82xx = $(subst _ROMBOOT,,$(subst _L2,,$(subst _266MHz,,$(subst _300MHz,,$(subst _config,,$1)))))
+xtract_82xx = $(subst _BIGFLASH,,$(subst _ROMBOOT,,$(subst _L2,,$(subst _266MHz,,$(subst _300MHz,,$(subst _config,,$1))))))
 
 A3000_config: unconfig
 	@./mkconfig $(@:_config=) ppc mpc824x a3000
@@ -747,32 +750,56 @@ MPC8260ADS_config:	unconfig
 MPC8266ADS_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8260 mpc8266ads
 
+# PM825/PM826 default configuration:  small (= 8 MB) Flash / boot from 64-bit flash
 PM825_config	\
-PM825_ROMBOOT_config: unconfig
-	@echo "#define CONFIG_PCI"	>include/config.h
-	@./mkconfig -a PM826 ppc mpc8260 pm826
-	@cd ./include ;				\
-	if [ "$(findstring _ROMBOOT_,$@)" ] ; then \
-		echo "CONFIG_BOOT_ROM = y" >> config.mk ; \
-		echo "... booting from 8-bit flash" ; \
-	else \
-		echo "CONFIG_BOOT_ROM = n" >> config.mk ; \
-		echo "... booting from 64-bit flash" ; \
-	fi; \
-	echo "export CONFIG_BOOT_ROM" >> config.mk; \
-
+PM825_ROMBOOT_config	\
+PM825_BIGFLASH_config	\
+PM825_ROMBOOT_BIGFLASH_config	\
 PM826_config	\
-PM826_ROMBOOT_config: unconfig
-	@./mkconfig $(call xtract_82xx,$@) ppc mpc8260 pm826
-	@cd ./include ;				\
-	if [ "$(findstring _ROMBOOT_,$@)" ] ; then \
-		echo "CONFIG_BOOT_ROM = y" >> config.mk ; \
-		echo "... booting from 8-bit flash" ; \
+PM826_ROMBOOT_config	\
+PM826_BIGFLASH_config	\
+PM826_ROMBOOT_BIGFLASH_config:	unconfig
+	@if [ "$(findstring PM825_,$@)" ] ; then \
+		echo "#define CONFIG_PCI"	>include/config.h ; \
 	else \
-		echo "CONFIG_BOOT_ROM = n" >> config.mk ; \
+		>include/config.h ; \
+	fi
+	@if [ "$(findstring _ROMBOOT_,$@)" ] ; then \
+		echo "... booting from 8-bit flash" ; \
+		echo "#define CONFIG_BOOT_ROM" >>include/config.h ; \
+		echo "TEXT_BASE = 0xFF800000" >board/pm826/config.tmp ; \
+		if [ "$(findstring _BIGFLASH_,$@)" ] ; then \
+			echo "... with 32 MB Flash" ; \
+			echo "#define CONFIG_FLASH_32MB" >>include/config.h ; \
+		fi; \
+	else \
 		echo "... booting from 64-bit flash" ; \
-	fi; \
-	echo "export CONFIG_BOOT_ROM" >> config.mk; \
+		if [ "$(findstring _BIGFLASH_,$@)" ] ; then \
+			echo "... with 32 MB Flash" ; \
+			echo "#define CONFIG_FLASH_32MB" >>include/config.h ; \
+			echo "TEXT_BASE = 0x40000000" >board/pm826/config.tmp ; \
+		else \
+			echo "TEXT_BASE = 0xFF000000" >board/pm826/config.tmp ; \
+		fi; \
+	fi
+	@./mkconfig -a PM826 ppc mpc8260 pm826
+
+PM828_config	\
+PM828_PCI_config	\
+PM828_ROMBOOT_config	\
+PM828_ROMBOOT_PCI_config:	unconfig
+	@if [ -z "$(findstring _PCI_,$@)" ] ; then \
+		echo "#define CONFIG_PCI"  >>include/config.h ; \
+		echo "... with PCI enabled" ; \
+	else \
+		>include/config.h ; \
+	fi
+	@if [ "$(findstring _ROMBOOT_,$@)" ] ; then \
+		echo "... booting from 8-bit flash" ; \
+		echo "#define CONFIG_BOOT_ROM" >>include/config.h ; \
+		echo "TEXT_BASE = 0xFF800000" >board/pm826/config.tmp ; \
+	fi
+	@./mkconfig -a PM828 ppc mpc8260 pm828
 
 ppmc8260_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8260 ppmc8260
@@ -1041,6 +1068,9 @@ logodl_config	:	unconfig
 
 wepep250_config	:	unconfig
 	@./mkconfig $(@:_config=) arm pxa wepep250
+
+xm250_config	:	unconfig
+	@./mkconfig $(@:_config=) arm pxa xm250
 
 #========================================================================
 # i386

@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2001-2004
+# (C) Copyright 2003-2004
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -22,7 +22,7 @@
 #
 
 #
-# MicroSys PM826 board:
+# MicroSys PM828 board:
 #
 
 
@@ -30,7 +30,7 @@ sinclude $(TOPDIR)/board/$(BOARDDIR)/config.tmp
 
 ifndef TEXT_BASE
 ## Standard: boot 64-bit flash
-TEXT_BASE = 0xFF000000
+TEXT_BASE = 0x40000000
 
 endif
 

@@ -83,6 +83,7 @@ ulong flash_init (void)
 
 			switch (info->flash_id & FLASH_TYPEMASK) {
 			case (FLASH_AM320B & FLASH_TYPEMASK):
+			case (FLASH_MXLV320B & FLASH_TYPEMASK):
 				/* Boot sector type: 8 x 8 + N x 128 kB */
 				flashbase += (j < 8) ? 0x4000 : 0x20000;
 				break;
@@ -130,12 +131,17 @@ void flash_print_info (flash_info_t * info)
 			printf ("AMD ");		break;
 	case (FLASH_MAN_FUJ & FLASH_VENDMASK):
 			printf ("FUJITSU ");		break;
+	case (FLASH_MAN_MX  & FLASH_VENDMASK):
+			printf ("MACRONIX ");		break;
 	default:	printf ("Unknown Vendor ");	break;
 	}
 
 	switch (info->flash_id & FLASH_TYPEMASK) {
 	case (FLASH_AM320B & FLASH_TYPEMASK):
 		printf ("2x Am29LV320DB (32Mbit)\n");
+		break;
+	case (FLASH_MXLV320B & FLASH_TYPEMASK):
+		printf ("2x MX29LV320DB (32Mbit)\n");
 		break;
 	case (FLASH_AM640U & FLASH_TYPEMASK):
 		printf ("2x Am29LV640D (64Mbit)\n");
@@ -191,6 +197,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	switch (info->flash_id & FLASH_VENDMASK) {
 	case (FLASH_MAN_AMD & FLASH_VENDMASK):	break;	/* OK */
 	case (FLASH_MAN_FUJ & FLASH_VENDMASK):	break;	/* OK */
+	case (FLASH_MAN_MX  & FLASH_VENDMASK):	break;	/* OK */
 	default:
 		debug ("## flash_erase: unknown manufacturer\n");
 		return (ERR_UNKNOWN_FLASH_VENDOR);
@@ -502,6 +509,9 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 	case FUJ_MANUFACT:
 		info->flash_id = FLASH_MAN_FUJ;
 		break;
+	case MX_MANUFACT:
+		info->flash_id = FLASH_MAN_MX;
+		break;
 	default:
 		info->flash_id = FLASH_UNKNOWN;
 		info->sector_count = 0;
@@ -531,6 +541,14 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 
 		addr[0] = 0x00F000F0;		/* restore read mode */
 		break;				/* => 16 MB		*/
+
+	case MX_ID_LV320B:
+		info->flash_id += FLASH_MXLV320B;
+		info->sector_count = 71;
+		info->size = 0x00800000;
+
+		addr[0] = 0x00FF00FF;		/* restore read mode */
+		break;				/* =>  8 MB		*/
 
 	default:
 		debug ("## flash_init: unknown flash chip\n");

@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2001-2004
+# (C) Copyright 2003-2004
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -22,16 +22,14 @@
 #
 
 #
-# MicroSys PM826 board:
+# MicroSys XM250 board:
 #
 
 
-sinclude $(TOPDIR)/board/$(BOARDDIR)/config.tmp
+# This is the address where U-Boot lives in flash:
+#TEXT_BASE = 0
 
-ifndef TEXT_BASE
-## Standard: boot 64-bit flash
-TEXT_BASE = 0xFF000000
-
-endif
-
-PLATFORM_CPPFLAGS += -DTEXT_BASE=$(TEXT_BASE) -I$(TOPDIR)
+# FIXME: armboot does only work correctly when being compiled
+# for the addresses _after_ relocation to RAM!! Otherwhise the
+# .bss segment is assumed in flash...
+TEXT_BASE = 0xA3F80000

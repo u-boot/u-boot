@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001, 2002
+ * (C) Copyright 2001-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * Flash Routines for Intel devices
@@ -84,7 +84,7 @@ ulong flash_get_size (volatile unsigned long *baseaddr,
 		volatile unsigned long *tmp = baseaddr;
 
 		/* set up sector start adress table (bottom sector type)
-		 * AND unlock the sectors (if our chip is 160C3 or 640C3)
+		 * AND unlock the sectors (if our chip is 160C3 or 640c3)
 		 */
 		for (i = 0; i < info->sector_count; i++) {
 			if (((info->flash_id & FLASH_TYPEMASK) == FLASH_28F160C3B) ||

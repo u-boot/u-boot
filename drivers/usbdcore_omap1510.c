@@ -40,6 +40,7 @@
 #include "usbdcore_ep0.h"
 
 
+#define UDC_INIT_MDELAY		     80 /* Device settle delay */
 #define UDC_MAX_ENDPOINTS	     31 /* Number of endpoints on this UDC */
 
 /* Some kind of debugging output... */
@@ -1087,6 +1088,11 @@ int udc_init (void)
 {
 	u16 udc_rev;
 	uchar value;
+	ulong gpio;
+	int i;
+
+	/* Let the device settle down before we start */
+	for (i = 0; i < UDC_INIT_MDELAY; i++) udelay(1000);
 
 	udc_device = NULL;
 
@@ -1127,6 +1133,24 @@ int udc_init (void)
 	i2c_read (0x32, 0x03, 1, &value, 1);
 	value |= 0x01;
 	i2c_write (0x32, 0x03, 1, &value, 1);
+
+	gpio = inl(GPIO_PIN_CONTROL_REG);
+	gpio |=  0x0002; /* A_IRDA_OFF */
+	gpio |=  0x0800; /* A_SWITCH   */
+	gpio |=  0x8000; /* A_USB_ON   */
+	outl (gpio, GPIO_PIN_CONTROL_REG);
+
+	gpio = inl(GPIO_DIR_CONTROL_REG);
+	gpio &= ~0x0002; /* A_IRDA_OFF */
+	gpio &= ~0x0800; /* A_SWITCH   */
+	gpio &= ~0x8000; /* A_USB_ON   */
+	outl (gpio, GPIO_DIR_CONTROL_REG);
+
+	gpio = inl(GPIO_DATA_OUTPUT_REG);
+	gpio |=  0x0002; /* A_IRDA_OFF */
+	gpio &= ~0x0800; /* A_SWITCH   */
+	gpio &= ~0x8000; /* A_USB_ON   */
+	outl (gpio, GPIO_DATA_OUTPUT_REG);
 #endif
 
 	/* The VBUS_MODE bit selects whether VBUS detection is done via

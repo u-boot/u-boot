@@ -250,7 +250,7 @@
 	"add_net=setenv bootargs $bootargs ethaddr=$ethaddr " \
 		"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname::off\0" \
 	"add_misc=setenv bootargs $bootargs console=ttyS0 panic=1\0" \
-	"u-boot=/tftpboot/TRAB/u-boot.bin-old\0" \
+	"u-boot=/tftpboot/TRAB/u-boot.bin\0" \
 	"load=tftp C100000 ${u-boot}\0" \
 	"update=protect off 0 3FFFF;era 0 3FFFF;" \
 		"cp.b C100000 0 $filesize;" \
@@ -273,7 +273,7 @@
 	"add_net=setenv bootargs $(bootargs) ethaddr=$(ethaddr) " \
 		"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off\0" \
 	"add_misc=setenv bootargs $(bootargs) console=ttyS0 panic=1\0" \
-	"u-boot=/tftpboot/TRAB/u-boot.bin-old\0" \
+	"u-boot=/tftpboot/TRAB/u-boot.bin\0" \
 	"load=tftp C100000 $(u-boot)\0" \
 	"update=protect off 0 3FFFF;era 0 3FFFF;" \
 		"cp.b C100000 0 $(filesize);" \

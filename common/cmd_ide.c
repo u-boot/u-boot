@@ -1422,7 +1422,7 @@ static void ident_cpy (unsigned char *dst, unsigned char *src, unsigned int len)
 	/* reserve space for '\0' */
 	if (len < 2)
 		goto OUT;
-	
+
 	/* skip leading white space */
 	while ((*src) && (src<end) && (*src==' '))
 		++src;

@@ -21,17 +21,20 @@
 # MA 02111-1307 USA
 #
 
-#
-# MicroSys PM826 board:
-#
+include $(TOPDIR)/config.mk
 
+LIB	= lib$(BOARD).a
 
-sinclude $(TOPDIR)/board/$(BOARDDIR)/config.tmp
+OBJS	= $(BOARD).o flash.o
 
-ifndef TEXT_BASE
-## Standard: boot 64-bit flash
-TEXT_BASE = 0xFF000000
+$(LIB):	.depend $(OBJS)
+	$(AR) crv $@ $(OBJS)
 
-endif
+#########################################################################
 
-PLATFORM_CPPFLAGS += -DTEXT_BASE=$(TEXT_BASE) -I$(TOPDIR)
+.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
+		$(CC) -M $(CFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
+
+sinclude .depend
+
+#########################################################################
