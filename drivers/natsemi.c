@@ -306,8 +306,8 @@ natsemi_initialize(bd_t * bis)
 			break;
 		}
 
-		pci_read_config_dword(devno, PCI_BASE_ADDRESS_0, &iobase);
-		iobase &= ~0x3;	/* 1: unused and 0:I/O Space Indicator */
+		pci_read_config_dword(devno, PCI_BASE_ADDRESS_1, &iobase);
+		iobase &= ~0xF;	/* Masked out the low bits that are addresses. */
 
 		pci_write_config_dword(devno, PCI_COMMAND,
 				       PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);

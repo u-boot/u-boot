@@ -20,30 +20,6 @@
 #include <linux/ctype.h>
 #include <malloc.h>
 
-#ifdef	CONFIG_ARM
-#undef  __HAVE_ARCH_MEMCMP
-#undef  __HAVE_ARCH_MEMCPY
-#undef  __HAVE_ARCH_MEMMOVE
-#undef  __HAVE_ARCH_MEMSET
-#undef  __HAVE_ARCH_BCOPY
-#undef  __HAVE_ARCH_STRCAT
-#undef  __HAVE_ARCH_STRCHR
-#undef  __HAVE_ARCH_STRCMP
-#undef  __HAVE_ARCH_STRCPY
-#undef  __HAVE_ARCH_STRLEN
-#undef  __HAVE_ARCH_STRNCPY
-#else
-#define __HAVE_ARCH_MEMCMP
-#define __HAVE_ARCH_MEMCPY
-#define __HAVE_ARCH_MEMMOVE
-#define __HAVE_ARCH_MEMSET
-#define __HAVE_ARCH_BCOPY
-#define __HAVE_ARCH_STRCAT
-#define __HAVE_ARCH_STRCMP
-#define __HAVE_ARCH_STRCPY
-#define __HAVE_ARCH_STRLEN
-#define __HAVE_ARCH_STRNCPY
-#endif
 
 #ifndef __HAVE_ARCH_STRNICMP
 /**

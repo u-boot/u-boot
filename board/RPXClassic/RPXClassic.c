@@ -127,12 +127,12 @@ void board_get_enetaddr (uchar * enet)
 			}
 		}
 		/* Scan to the end of the record		*/
-		while ((*cp != '\n') && (*cp != 0xff)) {
+		while ((*cp != '\n') && (*cp != (char)0xff)) {
 			cp++;
 		}
 		/* If the next character is a \n, 0 or ff, we are done.	*/
 		cp++;
-		if ((*cp == '\n') || (*cp == 0) || (*cp == 0xff))
+		if ((*cp == '\n') || (*cp == 0) || (*cp == (char)0xff))
 			break;
 	}
 
@@ -140,12 +140,6 @@ void board_get_enetaddr (uchar * enet)
 	/* The MAC address is the same as normal ethernet except the 3rd byte	 */
 	/* (See the E.P. Planet Core Overview manual		*/
 	enet[3] |= 0x80;
-
-	/* Validate the fast ethernet tranceiver		*/
-	*((volatile uchar *) BCSR2) &= ~BCSR2_MIICTL;
-	*((volatile uchar *) BCSR2) &= ~BCSR2_MIIPWRDWN;
-	*((volatile uchar *) BCSR2) |= BCSR2_MIIRST;
-	*((volatile uchar *) BCSR2) |= BCSR2_MIIPWRDWN;
 #endif
 
 	printf ("MAC address = %02x:%02x:%02x:%02x:%02x:%02x\n",
@@ -157,6 +151,15 @@ void rpxclassic_init (void)
 {
 	/* Enable NVRAM */
 	*((uchar *) BCSR0) |= BCSR0_ENNVRAM;
+
+#ifdef CONFIG_FEC_ENET
+
+	/* Validate the fast ethernet tranceiver                             */
+	*((volatile uchar *) BCSR2) &= ~BCSR2_MIICTL;
+	*((volatile uchar *) BCSR2) &= ~BCSR2_MIIPWRDWN;
+	*((volatile uchar *) BCSR2) |= BCSR2_MIIRST;
+	*((volatile uchar *) BCSR2) |= BCSR2_MIIPWRDWN;
+#endif
 
 }
 
@@ -254,6 +257,10 @@ static long int dram_size (long int mamr_value, long int *base, long int maxsize
 	}
 	return (maxsize);
 }
+/*-----------------------------------------------------------------------------
+ * aschex_to_byte -- 
+ *-----------------------------------------------------------------------------
+ */
 static unsigned char aschex_to_byte (unsigned char *cp)
 {
 	u_char byte, c;

@@ -14,7 +14,6 @@
 
 #ifdef CONFIG_PCI
 
-#include <asm/processor.h>
 #include <asm/io.h>
 #include <pci.h>
 

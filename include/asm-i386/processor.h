@@ -1,7 +1,7 @@
 /*
  * (C) Copyright 2002
- * Gary Jennejohn, DENX Software Engineering, <gj@denx.de>
- *
+ * Daniel Engström, Omicron Ceti AB, daniel@omicron.se
+ * 
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -21,42 +21,9 @@
  * MA 02111-1307 USA
  */
 
-OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
-/*OUTPUT_FORMAT("elf32-arm", "elf32-arm", "elf32-arm")*/
-OUTPUT_ARCH(arm)
-ENTRY(_start)
-SECTIONS
-{
-        . = 0x00000000;
-
-        . = ALIGN(4);
-	.text      :
-	{
-	  cpu/arm920t/start.o	(.text)
-	  lib_arm/_umodsi3.o	(.text)
-	  lib_generic/zlib.o	(.text)
-	  lib_generic/crc32.o	(.text)
-	  lib_generic/string.o	(.text)
-
-	. = env_offset;
-	common/environment.o	(.ppcenv)
-
-	  *(.text)
-	}
-
-        . = ALIGN(4);
-        .rodata : { *(.rodata) }
-
-        . = ALIGN(4);
-        .data : { *(.data) }
-
-        . = ALIGN(4);
-        .got : { *(.got) }
-
-	armboot_end_data = .;
-
-        . = ALIGN(4);
-        .bss : { *(.bss) }
-
-	armboot_end = .;
-}
+#ifndef __ASM_PROCESSOR_H_
+#define __ASM_PROCESSOR_H_ 1
+/* Currently this header is unused in the i386 port
+ * but some generic files #include <asm/processor.h>
+ * so this file is a placeholder. */
+#endif

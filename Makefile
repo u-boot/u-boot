@@ -142,7 +142,9 @@ u-boot.dis:	u-boot
 		$(OBJDUMP) -d $< > $@
 
 u-boot:		depend subdirs $(OBJS) $(LIBS) $(LDSCRIPT)
-		$(LD) $(LDFLAGS) $(OBJS) $(LIBS) $(LIBS) -Map u-boot.map -o u-boot
+		$(LD) $(LDFLAGS) $(OBJS) \
+			--start-group $(LIBS) --end-group \
+			-Map u-boot.map -o u-boot
 
 subdirs:
 		@for dir in $(SUBDIRS) ; do $(MAKE) -C $$dir || exit 1 ; done

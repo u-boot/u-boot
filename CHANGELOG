@@ -2,6 +2,15 @@
 Changes since for U-Boot 0.1.0:
 ======================================================================
 
+* Patch by Daniel Engström, 18 Nov 2002:
+  Fixes for x86 port (mostly strings issues)
+
+* Patch by Ken Chou, 18 Nov 2002:
+  Fix for natsemi NIC cards (DP83815)
+
+* Patch by Pierre Aubert, 19 Nov 2002:
+  fix a bug for the MII configuration, and some warnings
+
 * Patch by Thomas Frieden, 13 Nov 2002:
   Add code for AmigaOne board
   (preliminary merge to U-Boot, still WIP)
