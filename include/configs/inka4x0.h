@@ -324,5 +324,6 @@
 #define CFG_ATA_STRIDE          4
 
 #define CONFIG_ATAPI            1
+#define CFG_BRIGHTNESS          0x20
 
 #endif /* __CONFIG_H */

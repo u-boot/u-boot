@@ -177,6 +177,16 @@ void flash_preinit(void)
 
 int misc_init_f (void)
 {
+	uchar tmp[10];
+	int i, br;
+
+	i = getenv_r("brightness", tmp, sizeof(tmp));
+	br = (i > 0)
+		? (int) simple_strtoul (tmp, NULL, 10)
+		: CFG_BRIGHTNESS;
+	if (br > 255)
+		br = 255;
+
 	/* Initialize GPIO output pins.
 	 */
 	/* Configure GPT as GPIO output */
@@ -187,6 +197,11 @@ int misc_init_f (void)
 	*(vu_long *)MPC5XXX_GPT4_ENABLE =
 	*(vu_long *)MPC5XXX_GPT5_ENABLE = 0x24;
 
+	/* Configure GPT7 as PWM timer, 1kHz, no ints. */
+	*(vu_long *)MPC5XXX_GPT7_ENABLE = 0;/* Disable */
+	*(vu_long *)MPC5XXX_GPT7_COUNTER = 0x020000fe;
+	*(vu_long *)MPC5XXX_GPT7_PWMCFG = (br << 16);
+	*(vu_long *)MPC5XXX_GPT7_ENABLE = 0x3;/* Enable PWM mode and start */
 
 	/* Configure PSC3_6,7 as GPIO output */
 	*(vu_long *)MPC5XXX_GPIO_ENABLE |= 0x00003000;
