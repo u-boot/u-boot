@@ -1112,9 +1112,6 @@ smdk2410_config	:	unconfig
 SX1_config :		unconfig
 	@./mkconfig $(@:_config=) arm arm925t sx1
 
-mx1ads_config	:	unconfig
-	@./mkconfig $(@:_config=) arm mc9328 mx1ads
-
 # TRAB default configuration:	8 MB Flash, 32 MB RAM
 trab_config \
 trab_bigram_config \
