@@ -56,13 +56,20 @@
 
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 
-#define	CONFIG_CLOCKS_IN_MHZ	1	/* clocks passsed to Linux in MHz */
+#define	CONFIG_BOOTCOUNT_LIMIT
+
+#if defined(CONFIG_CONS_NONE) || defined(CONFIG_CONS_USE_EXTC)
+#define CONFIG_BAUDRATE		230400
+#else
+#define CONFIG_BAUDRATE		9600
+#endif
 
 #define CONFIG_PREBOOT	"echo;echo Type \"run flash_nfs\" to mount root filesystem over NFS;echo"
 
 #undef	CONFIG_BOOTARGS
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
+	"netdev=eth0\0"							\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=$(serverip):$(rootpath)\0"			\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
@@ -203,12 +210,6 @@
 #  define CONFIG_8260_CLKIN	83333000	/* in Hz */
 # endif
 #endif	/* CONFIG_MPC8255 */
-
-#if defined(CONFIG_CONS_NONE) || defined(CONFIG_CONS_USE_EXTC)
-#define CONFIG_BAUDRATE		230400
-#else
-#define CONFIG_BAUDRATE		9600
-#endif
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #undef	CFG_LOADS_BAUD_CHANGE		/* don't allow baudrate change	*/

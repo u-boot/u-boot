@@ -2,6 +2,9 @@
 Changes for U-Boot 0.4.5:
 ======================================================================
 
+* Update for TQM board defaults:
+  disable clocks_in_mhz, enable boot count limit
+
 * Removed tools/gdb from "make all" target.  Added make target "gdbtools"
   in toplevel directory instead.  Removed astest.c from tools/gdb because
   it is no longer relevant.

@@ -417,6 +417,12 @@ TQM860L_80MHz_config	\
 TQM862L_config		\
 TQM862L_66MHz_config	\
 TQM862L_80MHz_config	\
+TQM823M_config		\
+TQM823M_66MHz_config	\
+TQM823M_80MHz_config	\
+TQM850M_config		\
+TQM850M_66MHz_config	\
+TQM850M_80MHz_config	\
 TQM855M_config		\
 TQM855M_66MHz_config	\
 TQM855M_80MHz_config	\

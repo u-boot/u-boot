@@ -45,9 +45,9 @@
 
 #define CONFIG_BAUDRATE		115200	/* console baudrate = 115kbps	*/
 
-#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
+#define	CONFIG_BOOTCOUNT_LIMIT
 
-#define	CONFIG_CLOCKS_IN_MHZ	1	/* clocks passsed to Linux in MHz */
+#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 
 #define CONFIG_BOARD_TYPES	1	/* support board types		*/
 

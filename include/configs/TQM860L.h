@@ -42,9 +42,9 @@
 
 #define CONFIG_BAUDRATE		115200	/* console baudrate = 115kbps	*/
 
-#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
+#define	CONFIG_BOOTCOUNT_LIMIT
 
-#define	CONFIG_CLOCKS_IN_MHZ	1	/* clocks passsed to Linux in MHz */
+#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 
 #define CONFIG_BOARD_TYPES	1	/* support board types		*/
 
@@ -55,6 +55,7 @@
 #undef	CONFIG_BOOTARGS
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
+	"netdev=eth0\0"							\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=$(serverip):$(rootpath)\0"			\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
