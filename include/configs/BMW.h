@@ -45,7 +45,9 @@
 #define CONFIG_MPC8245		1
 #define CONFIG_BMW		1
 
-#define CONFIG_BCM570x		1 /* Use Broadcom BCM570x Ethernet Driver */
+#define	CONFIG_MISC_INIT_F	1	/* Use misc_init_f()			*/
+
+#define CONFIG_BCM570x		1	/* Use Broadcom BCM570x Ethernet Driver */
 #define	CONFIG_TIGON3		1
 
 #define CONFIG_CONS_INDEX	1

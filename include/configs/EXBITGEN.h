@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000
+ * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -37,7 +37,7 @@
 #define CONFIG_4xx		1	/* ...member of PPC4xx family   */
 #define CONFIG_EXBITGEN		1	/* on a Exbit Generic board     */
 
-#define CONFIG_BOARD_PRE_INIT	1	/* Call board_pre_init		*/
+#define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_early_init_f	*/
 
 #define CONFIG_SYS_CLK_FREQ     25000000 /* external frequency to pll   */
 

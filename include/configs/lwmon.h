@@ -39,7 +39,7 @@
 #define CONFIG_MPC823		1	/* This is a MPC823E CPU	*/
 #define CONFIG_LWMON		1	/* ...on a LWMON board		*/
 
-#define CONFIG_BOARD_PRE_INIT	1	/* Call board_pre_init		*/
+#define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_early_init_f	*/
 #define CONFIG_BOARD_POSTCLK_INIT 1	/* Call board_postclk_init	*/
 
 #define CONFIG_LCD		1	/* use LCD controller ...	*/
@@ -282,6 +282,9 @@
 
 #define CFG_FLASH_ERASE_TOUT	180000	/* Timeout for Flash Erase (in ms)	*/
 #define CFG_FLASH_WRITE_TOUT	600	/* Timeout for Flash Write (in ms)	*/
+#define CFG_FLASH_USE_BUFFER_WRITE
+#define CFG_FLASH_BUFFER_WRITE_TOUT	2048	/* Timeout for Flash Buffer Write (in ms)	*/
+#define CFG_FLASH_BUFFER_SIZE	32   /* Buffer size */
 
 #if 1
 /* Put environment in flash which is much faster to boot */

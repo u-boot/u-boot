@@ -66,7 +66,7 @@
 #define CONFIG_PREBOOT	"echo;echo Type \"run flash_nfs\" to mount root filesystem over NFS;echo"
 
 /* using this define saves us updating another source file */
-#define CONFIG_BOARD_PRE_INIT  1
+#define CONFIG_BOARD_EARLY_INIT_F 1
 
 #undef	CONFIG_BOOTARGS
 /* #define CONFIG_BOOTCOMMAND							\

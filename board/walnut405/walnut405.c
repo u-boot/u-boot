@@ -26,7 +26,7 @@
 #include <asm/processor.h>
 #include <spd_sdram.h>
 
-int board_pre_init (void)
+int board_early_init_f (void)
 {
    /*-------------------------------------------------------------------------+
    | Interrupt controller setup for the Walnut board.

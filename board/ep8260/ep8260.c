@@ -188,7 +188,7 @@ const iop_conf_t iop_conf_tab[4][32] = {
  * Setup CS4 to enable the Board Control/Status registers.
  * Otherwise the smcs won't work.
 */
-int board_pre_init (void)
+int board_early_init_f (void)
 {
     volatile t_ep_regs *regs = (t_ep_regs*)CFG_REGS_BASE;
     volatile immap_t *immap  = (immap_t *)CFG_IMMR;

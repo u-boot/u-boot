@@ -21,6 +21,10 @@
 
 #define	PS2BUF_SIZE			512	/* power of 2, please */
 
+#ifndef CONFIG_PS2MULT_DELAY
+#define CONFIG_PS2MULT_DELAY	(CFG_HZ/2)	/* Initial delay	*/
+#endif
+
   /* PS/2 controller interface (include/asm/keyboard.h)
    */
 extern int ps2mult_init (void);
@@ -30,6 +34,7 @@ extern u_char ps2mult_read_status(void);
 extern void ps2mult_write_output(u_char val);
 extern void ps2mult_write_command(u_char val);
 
+extern void ps2mult_early_init (void);
 extern void ps2mult_callback (int in_cnt);
 
   /* Simple serial interface

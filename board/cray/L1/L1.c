@@ -109,7 +109,7 @@ extern char bootscript[];
 static void init_sdram (void);
 
 /* ------------------------------------------------------------------------- */
-int board_pre_init (void)
+int board_early_init_f (void)
 {
 	/* Running from ROM: global data is still READONLY */
 	init_sdram ();

@@ -285,9 +285,10 @@ void  perform_soft_reset(void);
 void	load_sernum_ethaddr (void);
 
 /* $(BOARD)/$(BOARD).c */
-int board_pre_init (void);
-int board_post_init (void);
+int board_early_init_f (void);
+int board_late_init (void);
 int board_postclk_init (void); /* after clocks/timebase, before env/serial */
+int board_early_init_r (void);
 void board_poweroff (void);
 
 #if defined(CFG_DRAM_TEST)

@@ -70,6 +70,7 @@ static int ctlr_list[][2] = { };
 
 static struct {
 	void (*init) (int index);
+	void (*halt) (int index);
 	int (*send) (int index, volatile void *packet, int length);
 	int (*recv) (int index, void *packet, int length);
 } ctlr_proc[1];
@@ -77,7 +78,6 @@ static struct {
 static char *ctlr_name[1] = { "SCC" };
 
 static int used_by_uart[1] = { -1 };
-static int used_by_ether[1] = { -1 };
 
 /* Ethernet Transmit and Receive Buffers */
 #define DBUF_LENGTH  1520
@@ -452,6 +452,14 @@ CPM_CR_CH_SCC4 };
 #endif
 }
 
+static void scc_halt (int scc_index)
+{
+	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+
+	immr->im_cpm.cp_scc[scc_index].scc_gsmrl &=
+			~(SCC_GSMRL_ENR | SCC_GSMRL_ENT);
+}
+
 static int scc_send (int index, volatile void *packet, int length)
 {
 	int i, j = 0;
@@ -573,17 +581,11 @@ static int test_ctlr (int ctlr, int index)
 
   Done:
 
+	ctlr_proc[ctlr].halt (index);
+
 #if !defined(CONFIG_8xx_CONS_NONE)
 	if (used_by_uart[ctlr] == index) {
 		serial_init ();
-	}
-#endif
-
-#if defined(SCC_ENET)
-	if (used_by_ether[ctlr] == index) {
-		DECLARE_GLOBAL_DATA_PTR;
-
-		eth_init (gd->bd);
 	}
 #endif
 
@@ -622,11 +624,8 @@ int ether_post_test (int flags)
 	used_by_uart[CTLR_SCC] = 3;
 #endif
 
-#if defined(SCC_ENET)
-	used_by_ether[CTLR_SCC] = SCC_ENET;
-#endif
-
 	ctlr_proc[CTLR_SCC].init = scc_init;
+	ctlr_proc[CTLR_SCC].halt = scc_halt;
 	ctlr_proc[CTLR_SCC].send = scc_send;
 	ctlr_proc[CTLR_SCC].recv = scc_recv;
 

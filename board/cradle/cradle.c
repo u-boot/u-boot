@@ -170,7 +170,7 @@ init_sio (int led, unsigned long base)
 
 int
 /**********************************************************/
-board_post_init (void)
+board_late_init (void)
 /**********************************************************/
 {
 	return (0);

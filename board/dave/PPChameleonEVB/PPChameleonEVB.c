@@ -51,7 +51,7 @@ const unsigned char fpgadata[] =
 int gunzip(void *, int, unsigned char *, int *);
 
 
-int board_pre_init (void)
+int board_early_init_f (void)
 {
 	out32(GPIO0_OR, CFG_NAND0_CE);                 /* set initial outputs     */
 	out32(GPIO0_OR, CFG_NAND1_CE);                 /* set initial outputs     */

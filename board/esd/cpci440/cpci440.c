@@ -28,7 +28,7 @@
 
 long int fixed_sdram( void );
 
-int board_pre_init (void)
+int board_early_init_f (void)
 {
 	uint reg;
 

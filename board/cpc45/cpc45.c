@@ -32,7 +32,7 @@ extern void Plx9030Init(void);
 	/* We have to clear the initial data area here. Couldn't have done it
 	 * earlier because DRAM had not been initialized.
 	 */
-int board_pre_init(void)
+int board_early_init_f(void)
 {
 
 	/* enable DUAL UART Mode on CPC45 */

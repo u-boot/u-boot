@@ -33,7 +33,7 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_EBONY		1	    /* Board is ebony		*/
 #define CONFIG_4xx		1	    /* ... PPC4xx family	*/
-#define CONFIG_BOARD_PRE_INIT	1	    /* Call board_pre_init	*/
+#define CONFIG_BOARD_EARLY_INIT_F 1	    /* Call board_early_init_f	*/
 #undef	CFG_DRAM_TEST			    /* Disable-takes long time! */
 #define CONFIG_SYS_CLK_FREQ	33333333    /* external freq to pll	*/
 

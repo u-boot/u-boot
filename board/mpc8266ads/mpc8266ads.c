@@ -232,7 +232,7 @@ void reset_phy(void)
 }
 
 
-int board_pre_init (void)
+int board_early_init_f (void)
 {
     volatile bcsr_t  *bcsr         = (bcsr_t *)CFG_BCSR;
     volatile pci_ic_t *pci_ic      = (pci_ic_t *) CFG_PCI_INT;

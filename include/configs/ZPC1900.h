@@ -33,7 +33,7 @@
 
 #undef DEBUG
 
-#undef CONFIG_BOARD_PRE_INIT		/* Don't call board_pre_init   */
+#undef CONFIG_BOARD_EARLY_INIT_F	/* Don't call board_early_init_f   */
 
 /* Allow serial number (serial) and MAC address (ethaddr) to be overwritten */
 #define CONFIG_ENV_OVERWRITE

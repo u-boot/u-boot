@@ -2,6 +2,17 @@
 Changes since U-Boot 1.0.1:
 ======================================================================
 
+* The PS/2 mux on the BMS2003 board needs 450 ms after power on
+  before we can access it; add delay in case we are faster (with no
+  CF card inserted)
+
+* Cleanup of some init functions
+
+* Make sure SCC Ethernet is always stopped by the time we boot Linux
+  to avoid Linux crashes by early packets coming in.
+
+* Accelerate flash accesses on LWMON board by using buffered writes
+
 * Fix typo in Makefile;
   fix problem with PARTNUM detection
 

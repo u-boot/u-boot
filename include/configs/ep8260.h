@@ -309,7 +309,7 @@
 #define CONFIG_MPC8260          1       /* This is an MPC8260 CPU   */
 #define CONFIG_EP8260           11      /* on an Embedded Planet EP8260 Board, Rev. 11 */
 
-#define CONFIG_BOARD_PRE_INIT	1	    /* Call board_pre_init	*/
+#define CONFIG_BOARD_EARLY_INIT_F 1	    /* Call board_early_init_f	*/
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>

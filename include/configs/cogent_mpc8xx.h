@@ -36,6 +36,8 @@
 #define CONFIG_MPC860		1	/* This is an MPC860 CPU	*/
 #define CONFIG_COGENT		1	/* using Cogent Modular Architecture */
 
+#define	CONFIG_MISC_INIT_F	1	/* Use misc_init_f()		*/
+
 /* Cogent Modular Architecture options */
 #define CONFIG_CMA286_60_OLD	1	/* ...on an old CMA286-60 CPU module */
 #define CONFIG_CMA102		1	/* ...on a CMA102 motherboard	*/

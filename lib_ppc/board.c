@@ -257,10 +257,9 @@ static int init_func_watchdog_reset (void)
 
 init_fnc_t *init_sequence[] = {
 
-#if defined(CONFIG_BOARD_PRE_INIT)
-	board_pre_init,		/* very early board init code (fpga boot, etc.) */
+#if defined(CONFIG_BOARD_EARLY_INIT_F)
+	board_early_init_f,
 #endif
-
 	get_clocks,		/* get CPU and bus clocks (etc.) */
 	init_timebase,
 #ifdef CFG_ALLOC_DPRAM
@@ -286,11 +285,7 @@ init_fnc_t *init_sequence[] = {
 #endif /* CONFIG_MPC5XXX */
 	checkboard,
 	INIT_FUNC_WATCHDOG_INIT
-#if defined(CONFIG_BMW)		|| \
-    defined(CONFIG_COGENT)	|| \
-    defined(CONFIG_HYMOD)	|| \
-    defined(CONFIG_RSD_PROTO)	|| \
-    defined(CONFIG_W7O)
+#if defined(CONFIG_MISC_INIT_F)
 	misc_init_f,
 #endif
 	INIT_FUNC_WATCHDOG_RESET
@@ -460,15 +455,15 @@ void board_init_f (ulong bootflag)
 	 * Save local variables to board info struct
 	 */
 
-	bd->bi_memstart  = CFG_SDRAM_BASE;	/* start of  DRAM memory      */
+	bd->bi_memstart  = CFG_SDRAM_BASE;	/* start of  DRAM memory	*/
 	bd->bi_memsize   = gd->ram_size;	/* size  of  DRAM memory in bytes */
 
 #ifdef CONFIG_IP860
-	bd->bi_sramstart = SRAM_BASE;	/* start of  SRAM memory      */
-	bd->bi_sramsize  = SRAM_SIZE;	/* size  of  SRAM memory      */
+	bd->bi_sramstart = SRAM_BASE;	/* start of  SRAM memory	*/
+	bd->bi_sramsize  = SRAM_SIZE;	/* size  of  SRAM memory	*/
 #else
-	bd->bi_sramstart = 0;		/* FIXME */ /* start of  SRAM memory      */
-	bd->bi_sramsize  = 0;		/* FIXME */ /* size  of  SRAM memory      */
+	bd->bi_sramstart = 0;		/* FIXME */ /* start of  SRAM memory	*/
+	bd->bi_sramsize  = 0;		/* FIXME */ /* size  of  SRAM memory	*/
 #endif
 
 #if defined(CONFIG_8xx) || defined(CONFIG_8260) || defined(CONFIG_5xx) || \
@@ -569,6 +564,10 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 	WATCHDOG_RESET ();
 
+#if defined(CONFIG_BOARD_EARLY_INIT_R)
+	board_early_init_r ();
+#endif
+
 	gd->reloc_off = dest_addr - CFG_MONITOR_BASE;
 
 	monitor_flash_len = (ulong)&__init_end - dest_addr;
@@ -622,7 +621,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #endif
 
 #if defined(CFG_INIT_RAM_LOCK) && defined(CONFIG_E500)
-       unlock_ram_in_cache();  /* it's time to unlock D-cache in e500 */
+	unlock_ram_in_cache();	/* it's time to unlock D-cache in e500 */
 #endif
 
 #if defined(CONFIG_BAB7xx) || defined(CONFIG_CPC45)

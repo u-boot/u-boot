@@ -675,7 +675,7 @@ static __inline__ void set_msr (unsigned long msr)
 	asm volatile ("mtmsr %0"::"r" (msr));
 }
 
-int board_pre_init (void)
+int board_early_init_f (void)
 {
 	unsigned char c_value = 0;
 	unsigned long msr;

@@ -137,7 +137,7 @@ static int fpgaBoot (void)
 }
 
 
-int board_pre_init (void)
+int board_early_init_f (void)
 {
 	/*
 	 * Init pci regs

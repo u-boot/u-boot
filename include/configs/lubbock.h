@@ -44,7 +44,7 @@
 #define CONFIG_LUBBOCK		1	/* on an LUBBOCK Board	    */
 #define CONFIG_LCD		1
 #define CONFIG_MMC		1
-#define BOARD_POST_INIT		1
+#define BOARD_LATE_INIT		1
 
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff */
 

@@ -41,7 +41,7 @@ unsigned long get_dram_size (void);
 
 /* ------------------------------------------------------------------------- */
 
-int board_pre_init (void)
+int board_early_init_f (void)
 {
 #if defined(CONFIG_W7OLMG)
 	/*

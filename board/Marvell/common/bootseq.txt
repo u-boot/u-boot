@@ -58,7 +58,7 @@ in_flash:
     call cpu_init_f
     	debug leds
     board_init_f: (common/board.c)
-	board_pre_init:
+	board_early_init_f:
 	    remap gt regs?
 	    map PCI mem/io
 	    map device space

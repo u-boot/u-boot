@@ -47,7 +47,7 @@ typedef struct bscr_ {
 } bcsr_t;
 #endif
 
-int board_pre_init (void)
+int board_early_init_f (void)
 {
 #if defined(CONFIG_PCI)
     volatile immap_t *immr = (immap_t *)CFG_IMMR;

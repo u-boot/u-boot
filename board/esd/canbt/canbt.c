@@ -48,7 +48,7 @@ const unsigned char fpgadata[] = {
 #include "../common/fpga.c"
 
 
-int board_pre_init (void)
+int board_early_init_f (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 

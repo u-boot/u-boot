@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000, 2001
+ * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  * David Updegraff, Cray, Inc.  dave@cray.com: our 405 is walnut-lite..
  *
@@ -41,7 +41,7 @@
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 #define CONFIG_MII		    1	/* MII PHY management */
 #define	CONFIG_PHY_ADDR		1	/* PHY address; handling of ENET */
-#define CONFIG_BOARD_PRE_INIT 1 /* early setup for 405gp */
+#define CONFIG_BOARD_EARLY_INIT_F 1	/* early setup for 405gp */
 #define CONFIG_MISC_INIT_R	1	/* so that a misc_init_r() is called */
 
 /* set PRAM to keep U-Boot out, mem= to keep linux out, and initrd_hi to

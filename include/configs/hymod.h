@@ -36,6 +36,8 @@
 #define CONFIG_MPC8260		1	/* This is an MPC8260 CPU	*/
 #define CONFIG_HYMOD		1	/* ...on a Hymod board		*/
 
+#define	CONFIG_MISC_INIT_F	1	/* Use misc_init_f()		*/
+
 #define CONFIG_BOARD_POSTCLK_INIT	/* have board_postclk_init() function */
 
 /*

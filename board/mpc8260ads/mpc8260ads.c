@@ -225,7 +225,7 @@ void reset_phy (void)
 #endif /* CONFIG_MII */
 }
 
-int board_pre_init (void)
+int board_early_init_f (void)
 {
 	vu_long *bcsr = (vu_long *)CFG_BCSR;
 

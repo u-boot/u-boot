@@ -57,7 +57,7 @@ int cpci405_version(void);
 int gunzip(void *, int, unsigned char *, int *);
 
 
-int board_pre_init (void)
+int board_early_init_f (void)
 {
 #ifndef CONFIG_CPCI405_VER2
 	int index, len, i;

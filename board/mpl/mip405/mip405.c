@@ -469,7 +469,7 @@ int init_sdram (void)
 	return (0);
 }
 
-int board_pre_init (void)
+int board_early_init_f (void)
 {
 	init_sdram ();
 

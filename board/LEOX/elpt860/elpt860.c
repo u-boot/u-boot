@@ -33,7 +33,7 @@
 /*
 ** Note 1: In this file, you have to provide the following functions:
 ** ------
-**              int             board_pre_init(void)
+**              int             board_early_init_f(void)
 **              int             checkboard(void)
 **              long int        initdram(int board_type)
 ** called from 'board_init_f()' into 'common/board.c'
@@ -145,7 +145,7 @@ const uint sdram_table[] = {
 /*
  * Very early board init code (fpga boot, etc.)
  */
-int board_pre_init (void)
+int board_early_init_f (void)
 {
 	volatile immap_t *immr = (immap_t *) CFG_IMMR;
 

@@ -42,6 +42,7 @@
 #endif
 
 
+static ulong start_time;
 static int init_done = 0;
 
 static int received_escape = 0;
@@ -63,6 +64,13 @@ static int ps2mult_buf_out_idx;
 
 static u_char ps2mult_buf_status [PS2BUF_SIZE];
 
+#ifndef CONFIG_BOARD_EARLY_INIT_R
+#error #define CONFIG_BOARD_EARLY_INIT_R and call ps2mult_early_init() in board_early_init_r()
+#endif
+void ps2mult_early_init (void)
+{
+	start_time = get_timer(0);
+}
 
 static void ps2mult_send_byte(u_char byte, u_char sel)
 {
@@ -359,6 +367,8 @@ int ps2mult_init (void)
 	int byte;
 	int kbd_found = 0;
 	int mouse_found = 0;
+
+	while (get_timer(start_time) < CONFIG_PS2MULT_DELAY);
 
 	ps2ser_init();
 

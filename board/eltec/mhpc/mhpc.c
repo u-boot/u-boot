@@ -104,7 +104,7 @@ static const unsigned int sdram_table[] =
 
 /* ------------------------------------------------------------------------- */
 
-int board_pre_init (void)
+int board_early_init_f (void)
 {
     volatile immap_t  *im = (immap_t *)CFG_IMMR;
     volatile cpm8xx_t *cp = &(im->im_cpm);

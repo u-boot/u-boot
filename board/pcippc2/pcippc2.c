@@ -75,7 +75,7 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return (-1);
 }
 
-int board_pre_init (void)
+int board_early_init_f (void)
 {
 	out32 (REG (CPC0, RSTR), 0xC0000000);
 	iobarrier_rw ();

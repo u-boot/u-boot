@@ -194,8 +194,14 @@ void handle_scancode(unsigned char scancode)
 	case 0xBA: /* caps lock released */
 		return; /* just swallow */
 	}
+#if 0
 	if((scancode&0x80)==0x80) /* key released */
 		return;
+#else
+	if((scancode&0x80)==0x00) /* key pressed */
+		return;
+	scancode &= ~0x80;
+#endif
 	/* now, decide which table we need */
 	if(scancode > (sizeof(kbd_plain_xlate)/sizeof(kbd_plain_xlate[0]))) { /* scancode not in list */
 		PRINTF("unkown scancode %X\n",scancode);

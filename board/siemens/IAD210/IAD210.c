@@ -228,7 +228,7 @@ void board_ether_init (void)
 	iop->iop_pdpar |= 0x0080;	/* set pin as MII_clock */
 }
 
-int board_pre_init (void)
+int board_early_init_f (void)
 {
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile cpmtimer8xx_t *timers = &immap->im_cpmtimer;

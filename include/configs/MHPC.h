@@ -18,7 +18,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -39,23 +39,23 @@
  * (easy to change)
  */
 #define CONFIG_MPC823		1	/* This is a MPC823 CPU		*/
-#define CONFIG_MHPC 		1	/* on a miniHiPerCam	        */
-#define CONFIG_BOARD_PRE_INIT   1       /* do special hardware init.    */
-#define CONFIG_MISC_INIT_R      1
+#define CONFIG_MHPC		1	/* on a miniHiPerCam		*/
+#define CONFIG_BOARD_EARLY_INIT_F 1	/* do special hardware init.	*/
+#define CONFIG_MISC_INIT_R	1
 
 #define CONFIG_8xx_GCLK_FREQ	MPC8XX_SPEED
 #undef	CONFIG_8xx_CONS_SMC1
-#define	CONFIG_8xx_CONS_SMC2	1	/* Console is on SMC2		*/
+#define CONFIG_8xx_CONS_SMC2	1	/* Console is on SMC2		*/
 #undef	CONFIG_8xx_CONS_NONE
 #define CONFIG_BAUDRATE		9600
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 
-#define	CONFIG_CLOCKS_IN_MHZ	1	/* clocks passsed to Linux in MHz */
+#define CONFIG_CLOCKS_IN_MHZ	1	/* clocks passsed to Linux in MHz */
 
-#define CONFIG_ENV_OVERWRITE    1
-#define CONFIG_ETHADDR          00:00:5b:ee:de:ad
+#define CONFIG_ENV_OVERWRITE	1
+#define CONFIG_ETHADDR		00:00:5b:ee:de:ad
 
-#undef  CONFIG_BOOTARGS
+#undef	CONFIG_BOOTARGS
 #define CONFIG_BOOTCOMMAND	\
 	"bootp;"								\
 	"setenv bootargs root=/dev/nfs rw nfsroot=$(serverip):$(rootpath) "	\
@@ -66,12 +66,12 @@
 #undef	CFG_LOADS_BAUD_CHANGE		/* don't allow baudrate change	*/
 
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
-#define	CONFIG_RTC_MPC8xx		/* use internal RTC of MPC8xx	*/
+#define CONFIG_RTC_MPC8xx		/* use internal RTC of MPC8xx	*/
 
-#undef  CONFIG_UCODE_PATCH
+#undef	CONFIG_UCODE_PATCH
 
 /* enable I2C and select the hardware/software driver */
-#undef  CONFIG_HARD_I2C			/* I2C with hardware support	*/
+#undef	CONFIG_HARD_I2C			/* I2C with hardware support	*/
 #define CONFIG_SOFT_I2C		1	/* I2C bit-banged		*/
 /*
  * Software (bit-bang) I2C driver configuration
@@ -84,36 +84,36 @@
 #define I2C_TRISTATE	(immr->im_cpm.cp_pbdir &= ~PB_SDA)
 #define I2C_READ	((immr->im_cpm.cp_pbdat & PB_SDA) != 0)
 #define I2C_SDA(bit)	if(bit) immr->im_cpm.cp_pbdat |=  PB_SDA; \
-			else    immr->im_cpm.cp_pbdat &= ~PB_SDA
+			else	immr->im_cpm.cp_pbdat &= ~PB_SDA
 #define I2C_SCL(bit)	if(bit) immr->im_cpm.cp_pbdat |=  PB_SCL; \
-			else    immr->im_cpm.cp_pbdat &= ~PB_SCL
+			else	immr->im_cpm.cp_pbdat &= ~PB_SCL
 #define I2C_DELAY	udelay(5)	/* 1/4 I2C clock duration */
 
-#define CFG_I2C_SPEED                   50000
-#define CFG_I2C_SLAVE                   0xFE
-#define CFG_I2C_EEPROM_ADDR             0x50    /* EEPROM X24C04		*/
-#define CFG_I2C_EEPROM_ADDR_LEN         1       /* bytes of address		*/
-/* mask of address bits that overflow into the "EEPROM chip address"    */
-#define CFG_I2C_EEPROM_ADDR_OVERFLOW    0x07
-#define CFG_EEPROM_PAGE_WRITE_BITS      3
-#define CFG_EEPROM_PAGE_WRITE_DELAY_MS  10
+#define CFG_I2C_SPEED			50000
+#define CFG_I2C_SLAVE			0xFE
+#define CFG_I2C_EEPROM_ADDR		0x50	/* EEPROM X24C04		*/
+#define CFG_I2C_EEPROM_ADDR_LEN		1	/* bytes of address		*/
+/* mask of address bits that overflow into the "EEPROM chip address"	*/
+#define CFG_I2C_EEPROM_ADDR_OVERFLOW	0x07
+#define CFG_EEPROM_PAGE_WRITE_BITS	3
+#define CFG_EEPROM_PAGE_WRITE_DELAY_MS	10
 
-#define LCD_VIDEO_ADDR          (SDRAM_MAX_SIZE-SDRAM_RES_SIZE)
-#define LCD_VIDEO_SIZE          SDRAM_RES_SIZE  /* 2MB */
-#define LCD_VIDEO_COLS          640
-#define LCD_VIDEO_ROWS          480
-#define LCD_VIDEO_FG            255
-#define LCD_VIDEO_BG            0
+#define LCD_VIDEO_ADDR		(SDRAM_MAX_SIZE-SDRAM_RES_SIZE)
+#define LCD_VIDEO_SIZE		SDRAM_RES_SIZE	/* 2MB */
+#define LCD_VIDEO_COLS		640
+#define LCD_VIDEO_ROWS		480
+#define LCD_VIDEO_FG		255
+#define LCD_VIDEO_BG		0
 
-#undef  CONFIG_VIDEO                            /* test only ! s.a devices.c and 8xx */
-#define CONFIG_CFB_CONSOLE                      /* framebuffer console with std input */
+#undef	CONFIG_VIDEO				/* test only ! s.a devices.c and 8xx */
+#define CONFIG_CFB_CONSOLE			/* framebuffer console with std input */
 #define CONFIG_VIDEO_LOGO
 
-#define VIDEO_KBD_INIT_FCT      0               /* no KBD dev on MHPC - use serial */
-#define VIDEO_TSTC_FCT          serial_tstc
-#define VIDEO_GETC_FCT          serial_getc
+#define VIDEO_KBD_INIT_FCT	0		/* no KBD dev on MHPC - use serial */
+#define VIDEO_TSTC_FCT		serial_tstc
+#define VIDEO_GETC_FCT		serial_getc
 
-#define CONFIG_BR0_WORKAROUND   1
+#define CONFIG_BR0_WORKAROUND	1
 
 #define CONFIG_COMMANDS	     ( CONFIG_CMD_DFL  | \
 			       CFG_CMD_DATE    | \
@@ -131,23 +131,23 @@
 /*
  * Miscellaneous configurable options
  */
-#define	CFG_LONGHELP			/* undef to save memory		*/
-#define	CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
+#define CFG_LONGHELP			/* undef to save memory		*/
+#define CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
-#define	CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
+#define CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
-#define	CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
+#define CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
 #endif
-#define	CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define	CFG_MAXARGS	16		/* max number of command args	*/
+#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
+#define CFG_MAXARGS	16		/* max number of command args	*/
 #define CFG_BARGSIZE	CFG_CBSIZE	/* Boot Argument Buffer Size	*/
 
 #define CFG_MEMTEST_START	0x0400000	/* memtest works on	*/
 #define CFG_MEMTEST_END		0x0C00000	/* 4 ... 12 MB in DRAM	*/
 
-#define	CFG_LOAD_ADDR		0x300000	/* default load address	*/
+#define CFG_LOAD_ADDR		0x300000	/* default load address */
 
-#define	CFG_HZ                  1000		/* decrementer freq: 1 ms ticks	*/
+#define CFG_HZ			1000		/* decrementer freq: 1 ms ticks */
 
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
@@ -166,33 +166,33 @@
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
 #define CFG_INIT_RAM_ADDR	CFG_IMMR
-#define	CFG_INIT_RAM_END	0x2F00	/* End of used area in DPRAM	*/
-#define	CFG_GBL_DATA_SIZE       64  /* size in bytes reserved for initial data */
-#define CFG_GBL_DATA_OFFSET     (CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define CFG_INIT_SP_OFFSET      CFG_GBL_DATA_OFFSET
+#define CFG_INIT_RAM_END	0x2F00	/* End of used area in DPRAM	*/
+#define CFG_GBL_DATA_SIZE	64  /* size in bytes reserved for initial data */
+#define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
+#define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration
  * (Set up by the startup code)
  * Please note that CFG_SDRAM_BASE _must_ start at 0
  */
-#define	CFG_SDRAM_BASE		0x00000000
+#define CFG_SDRAM_BASE		0x00000000
 #define CFG_FLASH_BASE		0xfe000000
 
-#define	CFG_MONITOR_LEN		0x40000 	/* Reserve 256 kB for Monitor	*/
-#undef  CFG_MONITOR_BASE	            /* to run U-Boot from RAM */
+#define CFG_MONITOR_LEN		0x40000		/* Reserve 256 kB for Monitor	*/
+#undef	CFG_MONITOR_BASE		    /* to run U-Boot from RAM */
 #define CFG_MONITOR_BASE	CFG_FLASH_BASE
-#define	CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
+#define CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
 
-#define CFG_JFFS2_FIRST_BANK    0           /* use for JFFS2 */
-#define CFG_JFFS2_NUM_BANKS     1           /* one flash only */
+#define CFG_JFFS2_FIRST_BANK	0	    /* use for JFFS2 */
+#define CFG_JFFS2_NUM_BANKS	1	    /* one flash only */
 
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define	CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map- for Linux	*/
+#define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map- for Linux	*/
 
 /*-----------------------------------------------------------------------
  * FLASH organization
@@ -202,9 +202,9 @@
 
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
-#define	CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_OFFSET		CFG_MONITOR_LEN	/* Offset of Environment */
-#define	CFG_ENV_SIZE		0x20000	/* Total Size of Environment 	*/
+#define CFG_ENV_IS_IN_FLASH	1
+#define CFG_ENV_OFFSET		CFG_MONITOR_LEN /* Offset of Environment */
+#define CFG_ENV_SIZE		0x20000 /* Total Size of Environment	*/
 
 /*-----------------------------------------------------------------------
  * Cache Configuration
@@ -262,7 +262,7 @@
  * interrupt status bit - leave PLL multiplication factor unchanged !
  */
 #define MPC8XX_SPEED	50000000L
-#define MPC8XX_XIN   	5000000L      /* ref clk */
+#define MPC8XX_XIN	5000000L      /* ref clk */
 #define MPC8XX_FACT	(MPC8XX_SPEED/MPC8XX_XIN)
 #define CFG_PLPRCR	(((MPC8XX_FACT-1) << PLPRCR_MF_SHIFT) | \
 			PLPRCR_SPLSS | PLPRCR_TEXPS | PLPRCR_TMIST)
@@ -307,8 +307,8 @@
  * BR1 and OR1 (SDRAM)
  */
 #define SDRAM_BASE1_PRELIM	0x00000000	/* SDRAM bank #0	*/
-#define SDRAM_MAX_SIZE		0x01000000	/* max 16 MB    	*/
-#define SDRAM_RES_SIZE          0x00200000      /* 2 MB for framebuffer */
+#define SDRAM_MAX_SIZE		0x01000000	/* max 16 MB		*/
+#define SDRAM_RES_SIZE		0x00200000	/* 2 MB for framebuffer */
 
 /* SDRAM timing: drive GPL5 high on first cycle */
 #define CFG_OR_TIMING_SDRAM	(OR_G5LS)
@@ -358,14 +358,14 @@
  *-----------------------------------------------------------------------
  *
  */
-#define CFG_DER	0
+#define CFG_DER 0
 
 /*
  * Internal Definitions
  *
  * Boot Flags
  */
-#define	BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
+#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
 #define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
 #endif	/* __CONFIG_H */

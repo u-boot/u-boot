@@ -90,8 +90,8 @@ void *sbrk (ptrdiff_t increment)
 
 init_fnc_t *init_sequence[] = {
 
-#if defined(CONFIG_BOARD_PRE_INIT)
-	board_pre_init,		/* Call board-specific init code early.*/
+#if defined(CONFIG_BOARD_EARLY_INIT_F)
+	board_early_init_f,	/* Call board-specific init code early.*/
 #endif
 
 	env_init,

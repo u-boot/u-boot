@@ -42,7 +42,7 @@
 #define CONFIG_4xx		1	/* ...member of PPC4xx family   */
 #define CONFIG_BUBINGA405EP	1	/* ...on a BUBINGA405EP board	*/
 
-#define CONFIG_BOARD_PRE_INIT	1	/* Call board_pre_init	*/
+#define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_early_init_f	*/
 
 #define CONFIG_SYS_CLK_FREQ     33333333 /* external frequency to pll   */
 

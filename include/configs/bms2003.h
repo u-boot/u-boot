@@ -50,8 +50,9 @@
 #define CONFIG_BAUDRATE		115200	/* console baudrate = 115kbps	*/
 
 #define CONFIG_PS2KBD			/* AT-PS/2 Keyboard		*/
-#define CONFIG_PS2MULT			/* .. on PS/2 Multiplexer		*/
+#define CONFIG_PS2MULT			/* .. on PS/2 Multiplexer	*/
 #define CONFIG_PS2SERIAL	2	/* .. on COM3			*/
+#define CONFIG_PS2MULT_DELAY	(CFG_HZ/2)	/* Initial delay	*/
 
 #define CONFIG_BOOTCOUNT_LIMIT
 
@@ -83,7 +84,8 @@
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
-#define CONFIG_MISC_INIT_R  1
+#define	CONFIG_BOARD_EARLY_INIT_R 1
+#define CONFIG_MISC_INIT_R	  1
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #undef	CFG_LOADS_BAUD_CHANGE		/* don't allow baudrate change	*/

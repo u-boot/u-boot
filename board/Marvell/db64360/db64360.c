@@ -61,7 +61,7 @@ extern void invalidate_l1_instruction_cache (void);
 
 /* Unfortunately, we cant change it while we are in flash, so we initialize it
  * to the "final" value. This means that any debug_led calls before
- * board_pre_init wont work right (like in cpu_init_f).
+ * board_early_init_f wont work right (like in cpu_init_f).
  * See also my_remap_gt_regs below. (NTL)
  */
 
@@ -237,11 +237,11 @@ static void gt_cpu_config (void)
 }
 
 /*
- * board_pre_init.
+ * board_early_init_f.
  *
  * set up gal. device mappings, etc.
  */
-int board_pre_init (void)
+int board_early_init_f (void)
 {
 	uchar sram_boot = 0;
 

@@ -43,7 +43,7 @@
 
 #define CONFIG_PCIPPC2		1	/* this is a PCIPPC2 board	*/
 
-#define CONFIG_BOARD_PRE_INIT	1
+#define CONFIG_BOARD_EARLY_INIT_F 1
 #define CONFIG_MISC_INIT_R	1
 
 #define CONFIG_CONS_INDEX	1

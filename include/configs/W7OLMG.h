@@ -38,7 +38,8 @@
 #define CONFIG_W7O		1		/* ...on a Wave 7 Optics board	*/
 #define CONFIG_W7OLMG		1		/* ...specifically an LMG	*/
 
-#define CONFIG_BOARD_PRE_INIT	1		/* Call board_pre_init	*/
+#define CONFIG_BOARD_EARLY_INIT_F 1		/* Call board_early_init_f	*/
+#define	CONFIG_MISC_INIT_F	1		/* and misc_init_f()		*/
 
 #define CONFIG_SYS_CLK_FREQ	33333333	/* external frequency to pll	*/
 

@@ -51,7 +51,7 @@
 
 /* which initialization functions to call for this board */
 #define CONFIG_MISC_INIT_R	1
-#define CONFIG_BOARD_PRE_INIT	1
+#define CONFIG_BOARD_EARLY_INIT_F 1
 
 #define CFG_BOARD_NAME		"P3G4"
 

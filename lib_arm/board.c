@@ -337,8 +337,8 @@ void start_armboot (void)
 	}
 #endif	/* CFG_CMD_NET */
 
-#ifdef BOARD_POST_INIT
-	board_post_init ();
+#ifdef BOARD_LATE_INIT
+	board_late_init ();
 #endif
 
 	/* main_loop() can return to retry autoboot, if so just run it again. */

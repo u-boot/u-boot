@@ -339,14 +339,14 @@ static long int dram_size (long int mamr_value, long int *base, long int maxsize
 #endif
 
 /***********************************************************************
-F* Function:     int board_pre_init (void) P*A*Z*
+F* Function:     int board_early_init_f (void) P*A*Z*
  *
 P* Parameters:   none
 P*
 P* Returnvalue:  int
 P*                - 0 is always returned.
  *
-Z* Intention:    This function is the board_pre_init() method implementation
+Z* Intention:    This function is the board_early_init_f() method implementation
 Z*               for the lwmon board.
 Z*               Disable Ethernet TENA on Port B.
  *
@@ -354,7 +354,7 @@ D* Design:       wd@denx.de
 C* Coding:       wd@denx.de
 V* Verification: dzu@denx.de
  ***********************************************************************/
-int board_pre_init (void)
+int board_early_init_f (void)
 {
 	volatile immap_t *immr = (immap_t *) CFG_IMMR;
 

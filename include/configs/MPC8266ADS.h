@@ -49,10 +49,10 @@
  * (easy to change)
  */
 
-#define CONFIG_MPC8260		1	/* This is an MPC8260 CPU   */
-#define CONFIG_MPC8266ADS	1	/* ...on motorola ads board */
+#define CONFIG_MPC8260		1	/* This is an MPC8260 CPU	*/
+#define CONFIG_MPC8266ADS	1	/* ...on motorola ADS board	*/
 
-#define CONFIG_BOARD_PRE_INIT	1	/* Call board_pre_init	*/
+#define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_early_init_f	*/
 
 /* allow serial and ethaddr to be overwritten */
 #define CONFIG_ENV_OVERWRITE

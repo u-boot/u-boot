@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000
+ * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -35,7 +35,7 @@
 
 #define CONFIG_MPC860		1	/* This is a MPC860 CPU		*/
 #define CONFIG_IP860		1	/* ...on a IP860 board		*/
-#define CONFIG_BOARD_PRE_INIT	1	    /* Call board_pre_init	*/
+#define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_early_init_f	*/
 
 #define	CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
 #define CONFIG_BAUDRATE		9600

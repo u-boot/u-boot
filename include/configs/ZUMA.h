@@ -53,7 +53,7 @@
 
 /* which initialization functions to call for this board */
 #define CONFIG_MISC_INIT_R
-#define CONFIG_BOARD_PRE_INIT
+#define CONFIG_BOARD_EARLY_INIT_F
 #define CFG_BOARD_ASM_INIT
 
 #define CFG_BOARD_NAME		"Zuma APv2"

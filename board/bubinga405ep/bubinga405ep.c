@@ -26,7 +26,7 @@ long int spd_sdram (void);
 #include <asm/processor.h>
 
 
-int board_pre_init (void)
+int board_early_init_f (void)
 {
 	mtdcr (uicsr, 0xFFFFFFFF);      /* clear all ints */
 	mtdcr (uicer, 0x00000000);      /* disable all ints */

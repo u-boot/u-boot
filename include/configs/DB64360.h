@@ -131,7 +131,7 @@ if we use PCI it has its own MAC addr */
 
 /* which initialization functions to call for this board */
 #define CONFIG_MISC_INIT_R     /* initialize the icache L1 */
-#define CONFIG_BOARD_PRE_INIT
+#define CONFIG_BOARD_EARLY_INIT_F
 
 #define CFG_BOARD_NAME		"DB64360"
 #define CONFIG_IDENT_STRING	"Marvell DB64360 (1.1)"

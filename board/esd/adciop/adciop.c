@@ -31,7 +31,7 @@
 /* ------------------------------------------------------------------------- */
 
 
-int board_pre_init (void)
+int board_early_init_f (void)
 {
 	/*
 	 * Set port pin in escc2 to keep living, and configure user led output

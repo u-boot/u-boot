@@ -105,7 +105,7 @@
 #define CONFIG_COMMANDS		CONFIG_COMMANDS_BASE
 #endif
 
-#define CONFIG_BOARD_PRE_INIT
+#define CONFIG_BOARD_EARLY_INIT_F 1
 #define CONFIG_MISC_INIT_R
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */

@@ -267,7 +267,7 @@ in_flash:
 	 * everything is write-through.
 	 * The init-mem BAT can be reused after reloc. The old
 	 * gt-regs BAT can be reused after board_init_f calls
-	 * board_pre_init (EVB only).
+	 * board_early_init_f (EVB only).
 	 */
 #if !defined(CONFIG_BAB7xx) && !defined(CONFIG_ELPPC)
 	/* enable address translation */

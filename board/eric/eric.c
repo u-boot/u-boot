@@ -31,7 +31,7 @@
 #define IBM405GP_GPIO0_ODR     0xef600718	/* GPIO Open Drain */
 #define IBM405GP_GPIO0_IR      0xef60071c	/* GPIO Input */
 
-int board_pre_init (void)
+int board_early_init_f (void)
 {
 
    /*-------------------------------------------------------------------------+

@@ -29,7 +29,7 @@
 /* ------------------------------------------------------------------------- */
 
 
-int board_pre_init (void)
+int board_early_init_f (void)
 {
 	/*
 	 * IRQ 0-15  405GP internally generated; active high; level sensitive

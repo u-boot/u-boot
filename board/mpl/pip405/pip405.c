@@ -176,7 +176,7 @@ void write_4hex (unsigned long val)
 
 #endif
 
-int board_pre_init (void)
+int board_early_init_f (void)
 {
 	unsigned char dataout[1];
 	unsigned char datain[128];

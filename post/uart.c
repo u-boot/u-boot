@@ -72,17 +72,14 @@ static struct {
 static char *ctlr_name[2] = { "SMC", "SCC" };
 
 static int used_by_uart[2] = { -1, -1 };
-#if defined(SCC_ENET)
-static int used_by_ether[2] = { -1, -1 };
-#endif
 
 static int proff_smc[] = { PROFF_SMC1, PROFF_SMC2 };
 static int proff_scc[] =
 		{ PROFF_SCC1, PROFF_SCC2, PROFF_SCC3, PROFF_SCC4 };
 
-  /*
-   * SMC callbacks
-   */
+/*
+ * SMC callbacks
+ */
 
 static void smc_init (int smc_index)
 {
@@ -523,14 +520,6 @@ static int test_ctlr (int ctlr, int index)
 	}
 #endif
 
-#if defined(SCC_ENET)
-	if (used_by_ether[ctlr] == index) {
-		DECLARE_GLOBAL_DATA_PTR;
-
-		eth_init (gd->bd);
-	}
-#endif
-
 	if (res != 0) {
 		post_log ("uart %s%d test failed\n",
 				ctlr_name[ctlr], index + 1);
@@ -556,10 +545,6 @@ int uart_post_test (int flags)
 	used_by_uart[CTLR_SCC] = 2;
 #elif defined(CONFIG_8xx_CONS_SCC4)
 	used_by_uart[CTLR_SCC] = 3;
-#endif
-
-#if defined(SCC_ENET)
-	used_by_ether[CTLR_SCC] = SCC_ENET;
 #endif
 
 	ctlr_proc[CTLR_SMC].init = smc_init;

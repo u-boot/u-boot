@@ -356,7 +356,7 @@ int misc_init_r(void)
 #error Unknown NETVIA board version.
 #endif
 
-int board_pre_init(void)
+int board_early_init_f(void)
 {
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile iop8xx_t *ioport = &immap->im_ioport;

@@ -31,7 +31,7 @@ void _default_hdlr (void)
 	printf ("default_hdlr\n");
 }
 
-int board_pre_init (void)
+int board_early_init_f (void)
 {
 	/* init seven segment led display and switch off */
 	sevenseg_set(SEVENSEG_OFF);

@@ -87,7 +87,7 @@ void pci_init_board (void)
 	pci_mpc824x_init(&hose);
 }
 
-int board_pre_init (void)
+int board_early_init_f (void)
 {
 	*(volatile unsigned char *)(CFG_CPLD_RESET) = 0x89;
 	return 0;

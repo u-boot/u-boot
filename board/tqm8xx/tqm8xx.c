@@ -419,6 +419,14 @@ struct serial_state rs_table[] = {
 	{ BASE_BAUD, 6,  (void*)0xec160000 },
 	{ BASE_BAUD, 10, (void*)0xec170000 },
 };
+
+#ifdef CONFIG_BOARD_EARLY_INIT_R
+int board_early_init_r (void)
+{
+	ps2mult_early_init();
+	return (0);
+}
+#endif
 #endif /* CONFIG_BMS2003 */
 
 #endif /* CONFIG_PS2MULT */

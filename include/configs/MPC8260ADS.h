@@ -51,7 +51,7 @@
 #define CONFIG_ADSTYPE		CFG_8260ADS
 #endif /* CONFIG_ADSTYPE */
 
-#define CONFIG_BOARD_PRE_INIT	1	/* Call board_pre_init	*/
+#define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_early_init_f	*/
 
 /* allow serial and ethaddr to be overwritten */
 #define CONFIG_ENV_OVERWRITE

@@ -53,7 +53,7 @@ const unsigned char fpgadata[] =
 int gunzip(void *, int, unsigned char *, int *);
 
 
-int board_pre_init (void)
+int board_early_init_f (void)
 {
 	unsigned long cntrl0Reg;
 
