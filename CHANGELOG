@@ -2,6 +2,11 @@
 Changes since U-Boot 1.0.1:
 ======================================================================
 
+* Make sure to use a bus clock divider of 2 only when running TQM8xxM
+  modules at CPU clock frequencies above 66 MHz.
+  
+* Optimize flash programming speed for LWMON (by another 100% :-)
+
 * Patch by Jian Zhang, 3 Feb 2004:
   - Changed the incorrect FAT12BUFSIZE
   - data_begin in fsdata can be negative. Changed it to be short.

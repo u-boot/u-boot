@@ -284,7 +284,11 @@
 #define CFG_FLASH_WRITE_TOUT	600	/* Timeout for Flash Write (in ms)	*/
 #define CFG_FLASH_USE_BUFFER_WRITE
 #define CFG_FLASH_BUFFER_WRITE_TOUT	2048	/* Timeout for Flash Buffer Write (in ms)	*/
-#define CFG_FLASH_BUFFER_SIZE	32   /* Buffer size */
+/* Buffer size.
+   We have two flash devices connected in parallel.
+   Each device incorporates a Write Buffer of 32 bytes.
+ */
+#define CFG_FLASH_BUFFER_SIZE	(2*32)
 
 #if 1
 /* Put environment in flash which is much faster to boot */

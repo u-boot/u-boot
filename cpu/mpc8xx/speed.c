@@ -64,18 +64,18 @@ static __inline__ void set_msr(unsigned long msr)
  * These strange values for the timing interval and prescaling are used
  * because the formula for the CPU clock is:
  *
- *   CPU clock = count * (177 * (8192 / 58))
+ *    CPU clock = count * (177 * (8192 / 58))
  *
- *             = count * 24999.7241
+ *		= count * 24999.7241
  *
- *   which is very close to
+ *    which is very close to
  *
- *             = count * 25000
+ *		= count * 25000
  *
  * Since the count gives the CPU clock divided by 25000, we can get
  * the CPU clock rounded to the nearest 0.1 MHz by
  *
- *   CPU clock = ((count + 2) / 4) * 100000;
+ *    CPU clock = ((count + 2) / 4) * 100000;
  *
  * The rounding is important since the measurement is sometimes going
  * to be high or low by 0.025 MHz, depending on exactly how the clocks
@@ -112,8 +112,8 @@ unsigned long measure_gclk(void)
 	 */
 	timerp->cpmt_tmr2 = ((177 - 1) << TMR_PS_SHIFT) | TMR_ICLK_IN_GEN;
 
-	timerp->cpmt_tcn2 = 0;		/* reset state      */
-	timerp->cpmt_tgcr |= TGCR_RST2;	/* enable timer 2   */
+	timerp->cpmt_tcn2 = 0;		/* reset state		*/
+	timerp->cpmt_tgcr |= TGCR_RST2;	/* enable timer 2	*/
 
 	/*
 	 * PIT setup:
@@ -148,9 +148,9 @@ unsigned long measure_gclk(void)
 	/* spin until get exact count when we want to start */
 	while (immr->im_sit.sit_pitr > SPEED_PITC);
 
-	timerp->cpmt_tgcr &= ~TGCR_STP2;	/* Start Timer 2    */
+	timerp->cpmt_tgcr &= ~TGCR_STP2;	/* Start Timer 2	*/
 	while ((immr->im_sit.sit_piscr & PISCR_PS) == 0);
-	timerp->cpmt_tgcr |= TGCR_STP2;		/* Stop  Timer 2    */
+	timerp->cpmt_tgcr |= TGCR_STP2;		/* Stop  Timer 2	*/
 
 	/* re-enable external interrupts if they were on */
 	set_msr (msr_val);
@@ -166,7 +166,7 @@ unsigned long measure_gclk(void)
 	/* not using OSCM, using XIN, so scale appropriately */
 	return (((timer2_val + 2) / 4) * (CFG_8XX_XIN/512))/8192 * 100000L;
 #else
-	return ((timer2_val + 2) / 4) * 100000L;	/* convert to Hz    */
+	return ((timer2_val + 2) / 4) * 100000L;	/* convert to Hz	*/
 #endif
 }
 
@@ -224,8 +224,9 @@ int get_clocks_866 (void)
 	DECLARE_GLOBAL_DATA_PTR;
 
 	volatile immap_t *immr = (immap_t *) CFG_IMMR;
-	char              tmp[64];
-	long              cpuclk = 0;
+	char		  tmp[64];
+	long		  cpuclk = 0;
+	long		  sccr_reg;
 
 	if (getenv_r ("cpuclk", tmp, sizeof (tmp)) > 0)
 		cpuclk = simple_strtoul (tmp, NULL, 10) * 1000000;
@@ -238,10 +239,19 @@ int get_clocks_866 (void)
 	gd->cpu_clk = measure_gclk ();
 #endif
 
-	if ((immr->im_clkrst.car_sccr & SCCR_EBDF11) == 0)
+	/* if cpu clock <= 66 MHz then set bus division factor to 1,
+	 * otherwise set it to 2
+	 */
+	sccr_reg = immr->im_clkrst.car_sccr;
+	sccr_reg &= ~SCCR_EBDF11;
+	if (gd->cpu_clk <= 66000000) {
+		sccr_reg |= SCCR_EBDF00;	/* bus division factor = 1 */
 		gd->bus_clk = gd->cpu_clk;
-	else
+	} else {
+		sccr_reg |= SCCR_EBDF01;	/* bus division factor = 2 */
 		gd->bus_clk = gd->cpu_clk / 2;
+	}
+	immr->im_clkrst.car_sccr = sccr_reg;
 
 	return (0);
 }
@@ -253,7 +263,7 @@ int sdram_adjust_866 (void)
 	DECLARE_GLOBAL_DATA_PTR;
 
 	volatile immap_t *immr = (immap_t *) CFG_IMMR;
-	long              mamr;
+	long		  mamr;
 
 	mamr = immr->im_memctl.memc_mamr;
 	mamr &= ~MAMR_PTA_MSK;
@@ -272,9 +282,9 @@ static long init_pll_866 (long clk)
 	extern void plprcr_write_866 (long);
 
 	volatile immap_t *immr = (immap_t *) CFG_IMMR;
-	long              n, plprcr;
-	char              mfi, mfn, mfd, s, pdf;
-	long              step_mfi, step_mfn;
+	long		  n, plprcr;
+	char		  mfi, mfn, mfd, s, pdf;
+	long		  step_mfi, step_mfn;
 
 	if (clk < 20000000) {
 		clk *= 2;
