@@ -163,6 +163,7 @@ init_fnc_t *init_sequence[] = {
 	serial_init,		/* serial communications setup */
 	console_init_f,
 	display_banner,		/* say that we are here */
+	checkboard,
 	init_func_ram,
 	NULL,
 };

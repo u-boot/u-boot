@@ -28,6 +28,11 @@ include $(TOPDIR)/config.mk
 SREC	= hello_world.srec
 BIN	= hello_world.bin
 
+ifeq ($(ARCH),ppc)
+SREC   += sched.srec
+BIN    += sched.bin
+endif
+
 ifeq ($(CPU),mips)
 SREC =
 BIN =
@@ -36,6 +41,7 @@ endif
 # The following example is pretty 8xx specific...
 ifeq ($(CPU),mpc8xx)
 SREC   += timer.srec
+BIN    += timer.bin
 endif
 
 # Utility for resetting i82559 EEPROM
@@ -45,8 +51,11 @@ endif
 
 OBJS	= $(SREC:.srec=.o)
 
-LIB		= libsyscall.a
+LIB	= libsyscall.a
 LIBAOBJS= syscall.o
+ifeq ($(ARCH),ppc)
+LIBAOBJS+= $(ARCH)_longjmp.o $(ARCH)_setjmp.o
+endif
 LIBCOBJS=
 LIBOBJS	= $(LIBAOBJS) $(LIBCOBJS)
 

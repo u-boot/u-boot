@@ -163,10 +163,10 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		printf ("%c%02X", i ? ':' : ' ', bd->bi_enetaddr[i]);
 	}
 	printf ("\n"
-		"ip_addr       = ");
+		"ip_addr     = ");
 	print_IPaddr (bd->bi_ip_addr);
 	printf ("\n"
-		"baudrate      = %d bps\n", bd->bi_baudrate);
+		"baudrate    = %d bps\n", bd->bi_baudrate);
 
 	return 0;
 }
@@ -575,6 +575,7 @@ write_record (char *buf)
 #define XON_CHAR        17
 #define XOFF_CHAR       19
 #define START_CHAR      0x01
+#define ETX_CHAR	0x03
 #define END_CHAR        0x0D
 #define SPACE           0x20
 #define K_ESCAPE        0x23
@@ -995,8 +996,18 @@ static int k_recv (void)
 #endif
 
 		/* get a packet */
-		/* wait for the starting character */
-		while (serial_getc () != START_CHAR);
+		/* wait for the starting character or ^C */
+		for (;;) {
+			switch (serial_getc ()) {
+			case START_CHAR:	/* start packet */
+				break;
+			case ETX_CHAR:		/* ^C waiting for packet */
+				return (0);
+			default:
+				;
+			}
+		}
+			
 		/* get length of packet */
 		sum = 0;
 		new_char = serial_getc ();

@@ -1,7 +1,7 @@
 
 #include <common.h>
 #include <command.h>
-#include <AT91RM9200.h>
+#include <asm/io.h>
 #include <net.h>
 
 /* ----- Ethernet Buffer definitions ----- */

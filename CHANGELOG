@@ -2,6 +2,15 @@
 Changes since U-Boot 0.2.2:
 ======================================================================
 
+* Patch by Arun Dharankar, 24 Mar 2003:
+  - add threads / scheduler example code
+
+* Add patches by Robert Schwebel, 31 Mar 2003:
+  - add ctrl-c support for kermit download
+  - align bdinfo output on ARM
+
+* Add CPU ID, version, and clock speed for INCA-IP 
+
 * Patches by Dave Ellis, 18 Mar 2003 for SXNI855T board:
   - fix SRAM and SDRAM memory sizing
   - add status LED support

@@ -1245,7 +1245,7 @@ The following options need to be configured:
 Modem Support:
 --------------
 
-[so far only for SMDK2400 board]
+[so far only for SMDK2400 and TRAB boards]
 
 - Modem support endable:
 		CONFIG_MODEM_SUPPORT
@@ -1532,20 +1532,16 @@ has been relocated to RAM and a RAM copy of the environment has been
 created; also, when using EEPROM you will have to use getenv_r()
 until then to read environment variables.
 
-The environment is now protected by a CRC32 checksum. Before the
-monitor is relocated into RAM, as a result of a bad CRC you will be
-working with the compiled-in default environment - *silently*!!!
-[This is necessary, because the first environment variable we need is
-the "baudrate" setting for the console - if we have a bad CRC, we
-don't have any device yet where we could complain.]
+The environment is protected by a CRC32 checksum. Before the monitor
+is relocated into RAM, as a result of a bad CRC you will be working
+with the compiled-in default environment - *silently*!!! [This is
+necessary, because the first environment variable we need is the
+"baudrate" setting for the console - if we have a bad CRC, we don't
+have any device yet where we could complain.]
 
 Note: once the monitor has been relocated, then it will complain if
 the default environment is used; a new CRC is computed as soon as you
-use the "setenv" command to modify / delete / add any environment
-variable [even when you try to delete a non-existing variable!].
-
-Note2: you must edit your u-boot.lds file to reflect this
-configuration.
+use the "saveenv" command to store a valid environment.
 
 
 Low Level (hardware related) configuration options:
@@ -1605,16 +1601,16 @@ Low Level (hardware related) configuration options:
 		- MPC824X: data cache
 		- PPC4xx:  data cache
 
-- CFG_INIT_DATA_OFFSET:
+- CFG_GBL_DATA_OFFSET:
 
 		Offset of the initial data structure in the memory
 		area defined by CFG_INIT_RAM_ADDR. Usually
-		CFG_INIT_DATA_OFFSET is chosen such that the initial
+		CFG_GBL_DATA_OFFSET is chosen such that the initial
 		data is located at the end of the available space
 		(sometimes written as (CFG_INIT_RAM_END -
 		CFG_INIT_DATA_SIZE), and the initial stack is just
 		below that area (growing from (CFG_INIT_RAM_ADDR +
-		CFG_INIT_DATA_OFFSET) downward.
+		CFG_GBL_DATA_OFFSET) downward.
 
 	Note:
 		On the MPC824X (or other systems that use the data
@@ -1771,14 +1767,21 @@ to port U-Boot to your hardware platform. To do this, follow these
 steps:
 
 1.  Add a new configuration option for your board to the toplevel
-    "Makefile", using the existing entries as examples.
+    "Makefile" and to the "MAKEALL" script, using the existing
+    entries as examples. Note that here and at many other places
+    boards and other names are listed alphabetically sorted. Please
+    keep this order.
 2.  Create a new directory to hold your board specific code. Add any
-    files you need.
+    files you need. In your board directory, you will need at least
+    the "Makefile", a "<board>.c", "flash.c" and "u-boot.lds".
+3.  Create a new configuration file "include/configs/<board>.h" for
+    your board
 3.  If you're porting U-Boot to a new CPU, then also create a new
     directory to hold your CPU specific code. Add any files you need.
-4.  Run "make config_name" with your new name.
+4.  Run "make <board>_config" with your new name.
 5.  Type "make", and you should get a working "u-boot.srec" file
     to be installed on your target system.
+6.  Debug and solve any problems that might arise.
     [Of course, this last step is much harder than it sounds.]
 
 
@@ -2480,6 +2483,17 @@ Hit 'e':
 Hit 'q':
 	[q, b, e, ?] ## Application terminated, rc = 0x0
 
+
+
+Minicom warning:
+================
+
+Over time, many people have reported problems when trying to used the
+"minicom" terminal emulation program  for  serial  download.  I  (wd)
+consider  minicom  to  be  broken, and recommend not to use it. Under
+Unix, I recommend  to  use  CKermit  for  general  purpose  use  (and
+especially for kermit binary protocol download ("loadb" command), and
+use "cu" for S-Record download ("loads" command).
 
 NetBSD Notes:
 =============

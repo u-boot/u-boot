@@ -716,7 +716,8 @@ clean:
 		\( -name 'core' -o -name '*.bak' -o -name '*~' \
 		-o -name '*.o'  -o -name '*.a'  \) -print \
 		| xargs rm -f
-	rm -f examples/hello_world examples/timer examples/eepro100_eeprom
+	rm -f examples/hello_world examples/timer \
+	      examples/eepro100_eeprom examples/sched
 	rm -f tools/img2srec tools/mkimage tools/envcrc tools/gen_eth_addr
 	rm -f tools/easylogo/easylogo tools/bmp_logo
 	rm -f tools/gdb/astest tools/gdb/gdbcont tools/gdb/gdbsend

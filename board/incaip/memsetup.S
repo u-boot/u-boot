@@ -68,7 +68,7 @@ memsetup:
 	sw	t1, EBU_ADDSEL0(t0)
 
 #if CPU_CLOCK_RATE==150000000   /* 150 MHz clock for the MIPS core */
-	li	t1, 0xE841417E
+	li	t1, 0xA841417E
 	sw	t1, EBU_BUSCON0(t0)   /* value set up by magic flash word */
 	sw	t1, EBU_BUSCON2(t0)
 #else /* 100 MHz */

@@ -1266,6 +1266,7 @@ static int nand_erase(struct nand_chip* nand, size_t ofs, size_t len)
 {
 	unsigned long nandptr;
 	struct Nand *mychip;
+	int ret = 0;
 
 	if (ofs & (nand->erasesize-1) || len & (nand->erasesize-1)) {
 		printf ("Offset and size must be sector aligned, erasesize = %d\n",
@@ -1274,6 +1275,17 @@ static int nand_erase(struct nand_chip* nand, size_t ofs, size_t len)
 	}
 
 	nandptr = nand->IO_ADDR;
+
+	/* Select the NAND device */
+	NAND_ENABLE_CE(nand);  /* set pin low */
+
+	/* Check the WP bit */
+	NanD_Command(nand, NAND_CMD_STATUS);
+	if (!(READ_NAND(nand->IO_ADDR) & 0x80)) {
+		printf ("nand_write_ecc: Device is write protected!!!\n");
+		ret = -1;
+		goto out;
+	}
 
 	/* FIXME: Do nand in the background. Use timers or schedule_task() */
 	while(len) {
@@ -1288,20 +1300,22 @@ static int nand_erase(struct nand_chip* nand, size_t ofs, size_t len)
 		if (READ_NAND(nandptr) & 1) {
 			printf("Error erasing at 0x%lx\n", (long)ofs);
 			/* There was an error */
-			goto callback;
+			ret = -1;
+			goto out;
 		}
 		ofs += nand->erasesize;
 		len -= nand->erasesize;
 	}
 
- callback:
-	return 0;
+out:
+	/* De-select the NAND device */
+	NAND_DISABLE_CE(nand);  /* set pin high */
+
+	return ret;
 }
 
 static inline int nandcheck(unsigned long potential, unsigned long physadr)
 {
-
-
 	return 0;
 }
 

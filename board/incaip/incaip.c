@@ -27,6 +27,8 @@
 #include <asm/inca-ip.h>
 
 
+extern uint incaip_get_cpuclk(void);
+
 static ulong max_sdram_size(void)
 {
 	/* The only supported SDRAM data width is 16bit.
@@ -127,3 +129,29 @@ long int initdram(int board_type)
 	return max_size;
 }
 
+int checkboard (void)
+{
+
+	unsigned long chipid = *INCA_IP_WDT_CHIPID;
+	int part_num;
+
+	puts ("Board: INCA-IP ");
+	part_num = (chipid >> 12) & 0xffff;
+	switch (part_num) {
+	case 0xc0:
+		printf ("Standard Version, ");
+		break;
+	case 0xc1:
+		printf ("Basic Version, ");
+		break;
+	default:
+		printf ("Unknown Part Number 0x%x ", part_num);
+		break;
+	}
+
+	printf ("Chip V1.%ld, ", (chipid >> 28));
+
+	printf("CPU Speed %d MHz\n", incaip_get_cpuclk()/1000000);
+
+	return 0;
+}

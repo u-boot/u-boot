@@ -32,7 +32,7 @@
 
 #include <common.h>
 #include <command.h>
-#include <AT91RM9200.h>
+#include <asm/io.h>
 
 /* read co-processor 15, register #1 (control register) */
 static unsigned long read_p15_c1(void)

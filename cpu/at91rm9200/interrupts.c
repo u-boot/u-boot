@@ -31,7 +31,7 @@
  */
 
 #include <common.h>
-#include <AT91RM9200.h>
+#include <asm/io.h>
 #include <asm/proc-armv/ptrace.h>
 
 extern void reset_cpu(ulong addr);
