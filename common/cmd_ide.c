@@ -140,7 +140,7 @@ static int	    ide_bus_ok[CFG_IDE_MAXBUS];
 static int	    ide_bus_ok[CFG_IDE_MAXBUS] = {0,};
 #endif
 
-static  block_dev_desc_t ide_dev_desc[CFG_IDE_MAXDEVICE];
+block_dev_desc_t ide_dev_desc[CFG_IDE_MAXDEVICE];
 /* ------------------------------------------------------------------------- */
 
 #ifdef CONFIG_IDE_LED
