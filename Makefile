@@ -799,6 +799,9 @@ Sandpoint8240_config: unconfig
 Sandpoint8245_config: unconfig
 	@./mkconfig $(@:_config=) ppc mpc824x sandpoint
 
+sbc8240_config: unconfig
+	@./mkconfig $(@:_config=) ppc mpc824x sbc8240
+
 SL8245_config: unconfig
 	@./mkconfig $(@:_config=) ppc mpc824x sl8245
 
@@ -1010,8 +1013,9 @@ MPC8560ADS_config:	unconfig
 stxgp3_config:		unconfig
 	@./mkconfig $(@:_config=) ppc mpc85xx stxgp3
 
-SBC8560_33_config \
-SBC8560_66_config:      unconfig
+sbc8560_config \
+sbc8560_33_config \
+sbc8560_66_config:      unconfig
 	@if [ "$(findstring _66_,$@)" ] ; then \
 		echo "#define CONFIG_PCI_66"  >>include/config.h ; \
 		echo "... 66 MHz PCI" ; \
@@ -1019,7 +1023,7 @@ SBC8560_66_config:      unconfig
 		>include/config.h ; \
 		echo "... 33 MHz PCI" ; \
 	fi
-	@./mkconfig -a SBC8560 ppc mpc85xx sbc8560
+	@./mkconfig -a sbc8560 ppc mpc85xx sbc8560
 
 #########################################################################
 ## 74xx/7xx Systems

@@ -53,7 +53,6 @@ void serial_putc(const char c)
 	if (c == '\n') serial_putc('\r');
 	while (IO_SERIAL_STATUS & XUL_SR_TX_FIFO_FULL);
 	IO_SERIAL_TX_FIFO = (unsigned char) (c & 0xff);
-	return 0;
 }
 
 void serial_puts(const char * s)

@@ -2,8 +2,17 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Rename SBC8560 into sbc8560 for consistency
+
+* Patch by Daniel Poirot, 24 Jun 2004:
+  Add support for Wind River's sbc8240 board
+
+* Patches by Yasushi Shoji, 26 Jun 2004:
+  - drivers/serial_xuartlite.c: fix "return 0" in void function
+  - add microblaze support to mkimage tool
+
 * Patch by Fred Klatt, 25 Jun 2004:
-  Add support for WindRiver's SBC8560 board
+  Add support for WindRiver's sbc8560 board
 
 * Patch by Nicolas Lacressonniere, 24 Jun 2004
   Small Bugs fixes for "at91rm9200dk" board:

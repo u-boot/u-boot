@@ -2091,8 +2091,8 @@ configurations; the following names are supported:
 	CPCI405_config		JSE_config		rsdproto_config
 	CPCIISER4_config	LANTEC_config		Sandpoint8240_config
 	csb272_config		lwmon_config		sbc8260_config
-	CU824_config		MBX860T_config		SBC8560_33_config
-	DUET_ADS_config		MBX_config		SBC8560_66_config
+	CU824_config		MBX860T_config		sbc8560_33_config
+	DUET_ADS_config		MBX_config		sbc8560_66_config
 	EBONY_config		MPC8260ADS_config	SM850_config
 	ELPT860_config		MPC8540ADS_config	SPD823TS_config
 	ESTEEM192E_config	MPC8560ADS_config	stxgp3_config

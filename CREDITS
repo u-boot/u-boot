@@ -311,6 +311,11 @@ N: Bill Pitts
 E: wlp@mindspring.com
 D: BedBug embedded debugger code
 
+N: Daniel Poirot
+E: dan.poirot@windriver.com
+D: Support for the sbc8240 board
+W: http://www.windriver.com
+
 N: Stefan Roese
 E: stefan.roese@esd-electronics.com
 D: IBM PPC401/403/405GP Support; Windows environment support
