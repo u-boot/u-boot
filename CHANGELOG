@@ -2,6 +2,9 @@
 Changes since U-Boot 1.0.0:
 ======================================================================
 
+* Added BMS2003 board
+  add support for NEC NL6448BC33-54. 10.4", 640x480 TFT display
+
 * Fix flash driver for TRAB board (must use Unlock Bypass Reset
   command to exit Unlock Bypass Mode); adjust timings for flash, SRAM
   and CPLD

@@ -37,7 +37,7 @@
 #define CONFIG_TQM823M		1	/* ...on a TQM8xxM module	*/
 
 #ifdef	CONFIG_LCD			/* with LCD controller ?	*/
-/* #define CONFIG_NEC_NL6648BC20 1 / * use NEC NL6648BC20 display	*/
+/* #define CONFIG_NEC_NL6448BC20 1 / * use NEC NL6448BC20 display	*/
 #endif
 
 #define	CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/

@@ -150,28 +150,40 @@ static vidinfo_t panel_info = {
 /*----------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------*/
-#ifdef CONFIG_NEC_NL6648AC33
+#ifdef CONFIG_NEC_NL6448AC33
 /*
- *  NEC NL6648AC33-18. Active, color, single scan.
+ *  NEC NL6448AC33-18. Active, color, single scan.
  */
 static vidinfo_t panel_info = {
     640, 480, 132, 99, CFG_HIGH, CFG_HIGH, CFG_LOW, CFG_LOW, CFG_HIGH,
     3, 0, 0, 1, 1, 144, 2, 0, 33
 		/* wbl, vpw, lcdac, wbf */
 };
-#endif /* CONFIG_NEC_NL6648AC33 */
+#endif /* CONFIG_NEC_NL6448AC33 */
 /*----------------------------------------------------------------------*/
 
-#ifdef CONFIG_NEC_NL6648BC20
+#ifdef CONFIG_NEC_NL6448BC20
 /*
- *  NEC NL6648BC20-08. 6.5", 640x480. Active, color, single scan.
+ *  NEC NL6448BC20-08.  6.5", 640x480. Active, color, single scan.
  */
 static vidinfo_t panel_info = {
     640, 480, 132, 99, CFG_HIGH, CFG_HIGH, CFG_LOW, CFG_LOW, CFG_HIGH,
     3, 0, 0, 1, 1, 144, 2, 0, 33
 		/* wbl, vpw, lcdac, wbf */
 };
-#endif /* CONFIG_NEC_NL6648BC20 */
+#endif /* CONFIG_NEC_NL6448BC20 */
+/*----------------------------------------------------------------------*/
+
+#ifdef CONFIG_NEC_NL6448BC33_54
+/*
+ *  NEC NL6448BC33-54. 10.4", 640x480. Active, color, single scan.
+ */
+static vidinfo_t panel_info = {
+    640, 480, 212, 158, CFG_HIGH, CFG_HIGH, CFG_LOW, CFG_LOW, CFG_HIGH,
+    3, 0, 0, 1, 1, 144, 2, 0, 33
+		/* wbl, vpw, lcdac, wbf */
+};
+#endif /* CONFIG_NEC_NL6448BC33_54 */
 /*----------------------------------------------------------------------*/
 
 #ifdef CONFIG_SHARP_LQ104V7DS01

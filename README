@@ -850,13 +850,18 @@ The following options need to be configured:
 		display); also select one of the supported displays
 		by defining one of these:
 
-		CONFIG_NEC_NL6648AC33:
+		CONFIG_NEC_NL6448AC33:
 
-			NEC NL6648AC33-18. Active, color, single scan.
+			NEC NL6448AC33-18. Active, color, single scan.
 
-		CONFIG_NEC_NL6648BC20
+		CONFIG_NEC_NL6448BC20
 
-			NEC NL6648BC20-08. 6.5", 640x480.
+			NEC NL6448BC20-08. 6.5", 640x480.
+			Active, color, single scan.
+
+		CONFIG_NEC_NL6448BC33_54
+
+			NEC NL6448BC33-54. 10.4", 640x480.
 			Active, color, single scan.
 
 		CONFIG_SHARP_16x9

@@ -86,7 +86,11 @@
 # define CONFIG_STATUS_LED	1	/* Status LED enabled		*/
 #endif	/* CONFIG_LCD */
 
-#undef	CONFIG_CAN_DRIVER		/* CAN Driver support disabled	*/
+#ifdef	CONFIG_BMS2003
+# define CONFIG_CAN_DRIVER	1	/* CAN Driver support enabled	*/
+#else
+# undef	CONFIG_CAN_DRIVER		/* CAN Driver support disabled	*/
+#endif
 
 #define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | CONFIG_BOOTP_BOOTFILESIZE)
 
