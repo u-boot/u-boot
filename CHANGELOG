@@ -2,6 +2,11 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Fix config option spelling in PM520 config file
+
+* Fix PHY discovery problem in cpu/mpc8xx/fec.c (introduced by
+  patches by Pantelis Antoniou, 30 Mar 2004)
+
 * Fix minor NAND JFFS2 related issue
 
 * Fixes for SL811 USB controller:

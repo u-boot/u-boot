@@ -30,7 +30,7 @@
  */
 
 #define CONFIG_MPC5200
-#define CONFIG_MPC5XXX		1	/* This is an MPC5xxx CPU */
+#define CONFIG_MPC5xxx		1	/* This is an MPC5xxx CPU */
 #define CONFIG_PM520		1	/* ... on PM520 board */
 
 #define CFG_MPC5XXX_CLKIN	33000000 /* ... running at 33MHz */
@@ -184,8 +184,11 @@
 /*
  * Ethernet configuration
  */
-#define CONFIG_MPC5XXX_FEC	1
-#define CONFIG_FEC_10MBIT 1 /* Workaround for FEC 100Mbit problem */
+#define CONFIG_MPC5xxx_FEC	1
+/*
+ * Define CONFIG_FEC_10MBIT to force FEC at 10Mb
+ */
+/* #define CONFIG_FEC_10MBIT 1 */
 #define CONFIG_PHY_ADDR		0x00
 
 /*

@@ -689,13 +689,14 @@ static int fec_init (struct eth_device *dev, bd_t * bd)
 		 * wait for the PHY to wake up after reset
 		 */
 		efis->actual_phy_addr = mii_discover_phy (dev);
-#else
-		efis->actual_phy_addr = -1;
-#endif
+
 		if (efis->actual_phy_addr == -1) {
 			printf ("Unable to discover phy!\n");
 			return 0;
 		}
+#else
+		efis->actual_phy_addr = -1;
+#endif
 	} else {
 		efis->actual_phy_addr = efis->phy_addr;
 	}
