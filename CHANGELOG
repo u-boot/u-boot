@@ -2,6 +2,10 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Add some limited support for low-speed devices to SL811 USB controller
+  (at least "usb reset" now passes successfully and "usb info" displays
+  correct information)
+
 * Change init sequence for multiple network interfaces: initialize
   on-chip interfaces before external cards.
 

@@ -228,7 +228,7 @@ int usb_lowlevel_stop(void)
 
 static int calc_needed_buswidth(int bytes, int low_speed)
 {
-	return bytes * 8 + 512;
+	return low_speed ? 0 : bytes * 8 + 512;
 }
 
 static int sl811_send_packet(int dir_to_host, int data1, __u8 *buffer, int len)
@@ -253,7 +253,8 @@ static int sl811_send_packet(int dir_to_host, int data1, __u8 *buffer, int len)
 		if (!dir_to_host && len)
 			sl811_write_buf(0x10, buffer, len);
 
-		if (sl811_read(SL811_SOFCNTDIV)*64 < calc_needed_buswidth(len, 0))
+		if (sl811_read(SL811_SOFCNTDIV)*64 < 
+		    calc_needed_buswidth(len, rh_status.wPortStatus & USB_PORT_STAT_LOW_SPEED))
 			ctrl |= SL811_USB_CTRL_SOF;
 		else
 			ctrl &= ~SL811_USB_CTRL_SOF;
