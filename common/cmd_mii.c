@@ -31,8 +31,6 @@
 #if (CONFIG_COMMANDS & CFG_CMD_MII)
 #include <miiphy.h>
 
-#define	CONFIG_TERSE_MII	/* XXX necessary here because "miivals.h" is missing */
-
 #ifdef CONFIG_TERSE_MII
 /*
  * Display values from last command.
@@ -148,8 +146,6 @@ U_BOOT_CMD(
 );
 
 #else /* ! CONFIG_TERSE_MII ================================================= */
-
-#include <miivals.h>
 
 typedef struct _MII_reg_desc_t {
 	ushort regno;
@@ -343,14 +339,14 @@ static int special_field(
 	ushort regval)
 {
 	if ((regno == 0) && (pdesc->lo == 6)) {
-		ushort speed_bits = regval & MII_CTL_SPEED_MASK;
+		ushort speed_bits = regval & PHY_BMCR_SPEED_MASK;
 		printf("%2u,%2u =   b%u%u    speed selection = %s Mbps",
 			6, 13,
 			(regval >>  6) & 1,
 			(regval >> 13) & 1,
-			speed_bits == MII_CTL_SPEED_1000_MBPS ? "1000" :
-			speed_bits == MII_CTL_SPEED_100_MBPS  ? "100" :
-			speed_bits == MII_CTL_SPEED_10_MBPS   ? "10" :
+			speed_bits == PHY_BMCR_1000_MBPS ? "1000" :
+			speed_bits == PHY_BMCR_100_MBPS  ? "100" :
+			speed_bits == PHY_BMCR_10_MBPS   ? "10" :
 			"???");
 		return 1;
 	}
@@ -367,9 +363,9 @@ static int special_field(
 		ushort sel_bits = (regval >> pdesc->lo) & pdesc->mask;
 		printf("%2u-%2u = %5u    selector = %s",
 			pdesc->hi, pdesc->lo, sel_bits,
-			sel_bits == MII_AN_ADV_IEEE_802_3 ?
+			sel_bits == PHY_ANLPAR_PSB_802_3 ?
 				"IEEE 802.3" :
-			sel_bits == MII_AN_ADV_IEEE_802_9_ISLAN_16T ?
+			sel_bits == PHY_ANLPAR_PSB_802_9 ?
 				"IEEE 802.9 ISLAN-16T" :
 			"???");
 		return 1;
@@ -379,9 +375,9 @@ static int special_field(
 		ushort sel_bits = (regval >> pdesc->lo) & pdesc->mask;
 		printf("%2u-%2u =     %u    selector = %s",
 			pdesc->hi, pdesc->lo, sel_bits,
-			sel_bits == MII_AN_PARTNER_IEEE_802_3 ?
+			sel_bits == PHY_ANLPAR_PSB_802_3 ?
 				"IEEE 802.3" :
-			sel_bits == MII_AN_PARTNER_IEEE_802_9_ISLAN_16T ?
+			sel_bits == PHY_ANLPAR_PSB_802_9 ?
 				"IEEE 802.9 ISLAN-16T" :
 			"???");
 		return 1;
@@ -418,7 +414,7 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	char		op;
 	unsigned char	addrlo, addrhi, reglo, reghi;
-	unsigned char	addr, reg;
+	unsigned char	addr = 0, reg = 0;
 	unsigned short	data;
 	int		rcode = 0;
 

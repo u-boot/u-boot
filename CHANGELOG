@@ -2,8 +2,18 @@
 Changes for U-Boot 1.1.1:
 ======================================================================
 
+* Patch by John Kerl, 19 Apr 2004:
+  Use U-boot's miiphy.h for PHY register names, rather than
+  introducing a new header file.
+
+* Update pci_ids.h from linux-2.4.26
+
+* Patch by Masami Komiya, 19 Apr 2004:
+  Fix problem cause by VLAN function on little endian architecture
+  without VLAN environment
+
 * Clean up the TQM8xx_YYMHz configurations; allow to use the same
-  binary image for all clok frequencies. Implement run-time
+  binary image for all clock frequencies. Implement run-time
   optimization of flash access timing based on the actual bus
   frequency.
 

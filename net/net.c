@@ -1613,14 +1613,14 @@ ushort string_to_VLAN(char *s)
 	ushort id;
 
 	if (s == NULL)
-		return VLAN_NONE;
+		return htons(VLAN_NONE);
 
 	if (*s < '0' || *s > '9')
 		id = VLAN_NONE;
 	else
 		id = (ushort)simple_strtoul(s, NULL, 10);
 
-	return id;
+	return htons(id);
 }
 
 void print_IPaddr (IPaddr_t x)

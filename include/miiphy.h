@@ -93,6 +93,11 @@ int  miiphy_link(unsigned char addr);
 #define PHY_BMCR_DPLX		0x0100
 #define PHY_BMCR_COL_TST	0x0080
 
+#define PHY_BMCR_SPEED_MASK     0x2040
+#define PHY_BMCR_1000_MBPS      0x0040
+#define PHY_BMCR_100_MBPS       0x2000
+#define PHY_BMCR_10_MBPS        0x0000
+
 /* phy BMSR */
 #define PHY_BMSR_100T4		0x8000
 #define PHY_BMSR_100TXF		0x4000
@@ -117,6 +122,10 @@ int  miiphy_link(unsigned char addr);
 #define PHY_ANLPAR_10FD		0x0040
 #define PHY_ANLPAR_10		0x0020
 #define PHY_ANLPAR_100		0x0380	    /* we can run at 100 */
+
+#define PHY_ANLPAR_PSB_MASK     0x001f
+#define PHY_ANLPAR_PSB_802_3    0x0001
+#define PHY_ANLPAR_PSB_802_9    0x0002
 
 /* PHY_1000BTSR */
 #define PHY_1000BTSR_MSCF       0x8000
