@@ -2,7 +2,18 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
-* Patch by Sean Chang, 9 Aug 2004:
+* Patches by Sean Chang, 09 Aug 2004:
+  - Added support for both 8 and 16 bit mode access to System ACE CF
+    through MPU.
+  - Fixed missing System ACE CF device during get FAT partition info
+    in fat_register_device function.
+  - Enabled System ACE CF support on ML300.
+
+* Patch by Sean Chang, 09 Aug 2004:
+  Synch defines for saveenv and do_saveenv functions so they get
+  compiled under the same statement.
+
+* Patch by Sean Chang, 09 Aug 2004:
   - Added I2C support for ML300.
   - Added support for ML300 to read out its environment information
     stored on the EEPROM.
@@ -11,7 +22,7 @@ Changes since U-Boot 1.1.1:
   - Updated MLD files to support configuration for new features
     above.
 
-* Patches by Travis Sawyer, 5 Aug 2004:
+* Patches by Travis Sawyer, 05 Aug 2004:
   - Remove incorrect bridge settings for eth group 6
   - Add call to setup bridge in ppc_440x_eth_initialize
   - Fix ppc_440x_eth_init to reset the phy only if its the

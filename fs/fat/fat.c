@@ -90,7 +90,7 @@ fat_register_device(block_dev_desc_t *dev_desc, int part_no)
 	}
 	else {
 #if (CONFIG_COMMANDS & CFG_CMD_IDE) || (CONFIG_COMMANDS & CFG_CMD_SCSI) || \
-    (CONFIG_COMMANDS & CFG_CMD_USB)
+    (CONFIG_COMMANDS & CFG_CMD_USB) || defined(CONFIG_SYSTEMACE)
 		disk_partition_t info;
 		if(!get_partition_info(dev_desc, part_no, &info)) {
 			part_offset = info.start;

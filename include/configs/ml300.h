@@ -56,6 +56,11 @@
 #define CONFIG_4xx		1	/* ...member of PPC4xx family	*/
 #define CONFIG_XILINX_ML300	1	/* ...on a Xilinx ML300 board	*/
 
+#define CONFIG_SYSTEMACE	1
+#define CONFIG_DOS_PARTITION	1
+#define CFG_SYSTEMACE_BASE	XPAR_SYSACE_0_BASEADDR
+#define CFG_SYSTEMACE_WIDTH	XPAR_XSYSACE_MEM_WIDTH
+
 #define CFG_ENV_IS_IN_EEPROM	1	/* environment is in EEPROM */
 
 /* following are used only if env is in EEPROM */

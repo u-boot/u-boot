@@ -586,8 +586,9 @@ U_BOOT_CMD(
 	"    - delete environment variable 'name'\n"
 );
 
-#if ((CONFIG_COMMANDS & (CFG_CMD_ENV|CFG_CMD_FLASH)) == (CFG_CMD_ENV|CFG_CMD_FLASH))
-
+#if defined(CFG_ENV_IS_IN_NVRAM) || defined(CFG_ENV_IS_IN_EEPROM) || \
+    ((CONFIG_COMMANDS & (CFG_CMD_ENV|CFG_CMD_FLASH)) == \
+      (CFG_CMD_ENV|CFG_CMD_FLASH))
 U_BOOT_CMD(
 	saveenv, 1, 0,	do_saveenv,
 	"saveenv - save environment variables to persistent storage\n",

@@ -50,12 +50,35 @@
  */
 static unsigned ace_readw(unsigned offset)
 {
-      return readw(CFG_SYSTEMACE_BASE+offset);
+#if (CFG_SYSTEMACE_WIDTH == 8)
+  u16 temp;
+
+#if !defined(__BIG_ENDIAN)
+  temp =((u16)readb(CFG_SYSTEMACE_BASE+offset) << 8);
+  temp |= (u16)readb(CFG_SYSTEMACE_BASE+offset+1);
+#else
+  temp = (u16)readb(CFG_SYSTEMACE_BASE+offset);
+  temp |=((u16)readb(CFG_SYSTEMACE_BASE+offset+1) << 8);
+#endif
+  return temp;
+#else
+  return readw(CFG_SYSTEMACE_BASE+offset);
+#endif
 }
 
 static void ace_writew(unsigned val, unsigned offset)
 {
-      writew(val, CFG_SYSTEMACE_BASE+offset);
+#if (CFG_SYSTEMACE_WIDTH == 8)
+#if !defined(__BIG_ENDIAN)
+  writeb((u8)(val>>8), CFG_SYSTEMACE_BASE+offset);
+  writeb((u8)val, CFG_SYSTEMACE_BASE+offset+1);
+#else
+  writeb((u8)val, CFG_SYSTEMACE_BASE+offset);
+  writeb((u8)(val>>8), CFG_SYSTEMACE_BASE+offset+1);
+#endif
+#else
+  writew(val, CFG_SYSTEMACE_BASE+offset);
+#endif
 }
 
 /* */
