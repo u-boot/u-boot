@@ -39,7 +39,7 @@
  * The Innokom board has GPIO70 connected to SCLK which can be toggled
  * until all chips think that their current cycles are finished.
  */
-int i2c_init_board(void)
+void i2c_init_board(void)
 {
 	int i;
 
@@ -53,8 +53,6 @@ int i2c_init_board(void)
 	}
         /* set gpio pin to input */
         GPDR(70) &= ~GPIO_bit(70);
-
-	return 0;
 }
 
 

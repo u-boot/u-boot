@@ -38,10 +38,10 @@
 
 int misc_init_r(void)
 {
+#if 0	
 	uchar *str;
 	
 	/* determine if the software update key is pressed during startup */
-#if 0	
 	/* not ported yet... */
 	if (GPLR0 & 0x00000800) {
 		printf("using bootcmd_normal (sw-update button not pressed)\n");

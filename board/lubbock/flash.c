@@ -28,7 +28,7 @@
 #include <linux/byteorder/swab.h>
 
 
-flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
+flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips    */
 
 /* Board support for 1 or 2 flash devices */
 #define FLASH_PORT_WIDTH32
@@ -53,50 +53,47 @@ flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
  * Functions
  */
 static ulong flash_get_size (FPW *addr, flash_info_t *info);
-static int   write_data (flash_info_t *info, ulong dest, FPW data);
-static void  flash_get_offsets (ulong base, flash_info_t *info);
-void inline  spin_wheel(void);
+static int write_data (flash_info_t *info, ulong dest, FPW data);
+static void flash_get_offsets (ulong base, flash_info_t *info);
+void inline spin_wheel (void);
 
 /*-----------------------------------------------------------------------
  */
 
 unsigned long flash_init (void)
 {
-   int i;
-    ulong size = 0;
+	int i;
+	ulong size = 0;
 
-    for (i = 0; i < CFG_MAX_FLASH_BANKS; i++)
-    {
-        switch (i)
-        {
-           case 0:
-            flash_get_size((FPW *)PHYS_FLASH_1, &flash_info[i]);
-	         flash_get_offsets(PHYS_FLASH_1, &flash_info[i]);
-                break;
-           case 1:
-            flash_get_size((FPW *)PHYS_FLASH_2, &flash_info[i]);
-	         flash_get_offsets(PHYS_FLASH_2, &flash_info[i]);
-                break;
-           default:
-	        panic("configured to many flash banks!\n");
-                break;
-        }
-	size += flash_info[i].size;
-    }
+	for (i = 0; i < CFG_MAX_FLASH_BANKS; i++) {
+		switch (i) {
+		case 0:
+			flash_get_size ((FPW *) PHYS_FLASH_1, &flash_info[i]);
+			flash_get_offsets (PHYS_FLASH_1, &flash_info[i]);
+			break;
+		case 1:
+			flash_get_size ((FPW *) PHYS_FLASH_2, &flash_info[i]);
+			flash_get_offsets (PHYS_FLASH_2, &flash_info[i]);
+			break;
+		default:
+			panic ("configured to many flash banks!\n");
+			break;
+		}
+		size += flash_info[i].size;
+	}
 
-    /* Protect monitor and environment sectors
-     */
-    flash_protect(FLAG_PROTECT_SET,
-		  CFG_FLASH_BASE,
-		  CFG_FLASH_BASE + _armboot_end_data - _armboot_start,
-		  &flash_info[0]);
+	/* Protect monitor and environment sectors
+	 */
+	flash_protect ( FLAG_PROTECT_SET,
+			CFG_FLASH_BASE,
+			CFG_FLASH_BASE + _armboot_end_data - _armboot_start,
+			&flash_info[0] );
 
-    flash_protect(FLAG_PROTECT_SET,
-		  CFG_ENV_ADDR,
-		  CFG_ENV_ADDR + CFG_ENV_SIZE - 1,
-		  &flash_info[0]);
+	flash_protect ( FLAG_PROTECT_SET,
+			CFG_ENV_ADDR,
+			CFG_ENV_ADDR + CFG_ENV_SIZE - 1, &flash_info[0] );
 
-    return size;
+	return size;
 }
 
 /*-----------------------------------------------------------------------
@@ -119,39 +116,45 @@ static void flash_get_offsets (ulong base, flash_info_t *info)
 
 /*-----------------------------------------------------------------------
  */
-void flash_print_info  (flash_info_t *info)
+void flash_print_info (flash_info_t *info)
 {
 	int i;
 
 	if (info->flash_id == FLASH_UNKNOWN) {
 		printf ("missing or unknown FLASH type\n");
 		return;
-        }
+	}
 
 	switch (info->flash_id & FLASH_VENDMASK) {
-		case FLASH_MAN_INTEL:	printf ("INTEL ");		break;
-		default:		printf ("Unknown Vendor ");	break;
+	case FLASH_MAN_INTEL:
+		printf ("INTEL ");
+		break;
+	default:
+		printf ("Unknown Vendor ");
+		break;
 	}
 
 	switch (info->flash_id & FLASH_TYPEMASK) {
-   case FLASH_28F128J3A:
-				printf ("28F128J3A\n"); break;
-	default:		printf ("Unknown Chip Type\n"); break;
-        }
+	case FLASH_28F128J3A:
+		printf ("28F128J3A\n");
+		break;
+	default:
+		printf ("Unknown Chip Type\n");
+		break;
+	}
 
 	printf ("  Size: %ld MB in %d Sectors\n",
-	        info->size >> 20, info->sector_count);
+			info->size >> 20, info->sector_count);
 
 	printf ("  Sector Start Addresses:");
-	for (i=0; i<info->sector_count; ++i) {
-	        if ((i % 5) == 0)
-	        printf ("\n   ");
+	for (i = 0; i < info->sector_count; ++i) {
+		if ((i % 5) == 0)
+			printf ("\n   ");
 		printf (" %08lX%s",
 			info->start[i],
-			info->protect[i] ? " (RO)" : "     "
-		);
-        }
-        printf ("\n");
+			info->protect[i] ? " (RO)" : "     ");
+	}
+	printf ("\n");
 	return;
 }
 
@@ -163,37 +166,37 @@ static ulong flash_get_size (FPW *addr, flash_info_t *info)
 	volatile FPW value;
 
 	/* Write auto select command: read Manufacturer ID */
-	addr[0x5555] = (FPW)0x00AA00AA;
-	addr[0x2AAA] = (FPW)0x00550055;
-	addr[0x5555] = (FPW)0x00900090;
+	addr[0x5555] = (FPW) 0x00AA00AA;
+	addr[0x2AAA] = (FPW) 0x00550055;
+	addr[0x5555] = (FPW) 0x00900090;
 
-   mb();
+	mb ();
 	value = addr[0];
 
-   switch (value) {
+	switch (value) {
 
-   case (FPW)INTEL_MANUFACT:
-      info->flash_id = FLASH_MAN_INTEL;
-      break;
+	case (FPW) INTEL_MANUFACT:
+		info->flash_id = FLASH_MAN_INTEL;
+		break;
 
 	default:
 		info->flash_id = FLASH_UNKNOWN;
 		info->sector_count = 0;
 		info->size = 0;
-		addr[0] = (FPW)0x00FF00FF;      /* restore read mode */
-		return (0);			/* no or unknown flash	*/
+		addr[0] = (FPW) 0x00FF00FF;	/* restore read mode */
+		return (0);			/* no or unknown flash  */
 	}
 
-   mb();
-	value = addr[1];			/* device ID		*/
+	mb ();
+	value = addr[1];			/* device ID        */
 
-   switch (value) {
+	switch (value) {
 
-   case (FPW)INTEL_ID_28F128J3A:
-      info->flash_id += FLASH_28F128J3A;
-      info->sector_count = 128;
-      info->size = 0x02000000;
-      break;            /* => 16 MB     */
+	case (FPW) INTEL_ID_28F128J3A:
+		info->flash_id += FLASH_28F128J3A;
+		info->sector_count = 128;
+		info->size = 0x02000000;
+		break;				/* => 16 MB     */
 
 	default:
 		info->flash_id = FLASH_UNKNOWN;
@@ -204,9 +207,9 @@ static ulong flash_get_size (FPW *addr, flash_info_t *info)
 		printf ("** ERROR: sector count %d > max (%d) **\n",
 			info->sector_count, CFG_MAX_FLASH_SECT);
 		info->sector_count = CFG_MAX_FLASH_SECT;
-    }
+	}
 
-	addr[0] = (FPW)0x00FF00FF;      /* restore read mode */
+	addr[0] = (FPW) 0x00FF00FF;		/* restore read mode */
 
 	return (info->size);
 }
@@ -215,34 +218,34 @@ static ulong flash_get_size (FPW *addr, flash_info_t *info)
 /*-----------------------------------------------------------------------
  */
 
-int	flash_erase (flash_info_t *info, int s_first, int s_last)
+int flash_erase (flash_info_t *info, int s_first, int s_last)
 {
-    int flag, prot, sect;
-	ulong type, start, now, last;
+	int flag, prot, sect;
+	ulong type, start, last;
 	int rcode = 0;
 
-    if ((s_first < 0) || (s_first > s_last)) {
+	if ((s_first < 0) || (s_first > s_last)) {
 		if (info->flash_id == FLASH_UNKNOWN) {
 			printf ("- missing\n");
 		} else {
 			printf ("- no sectors to erase\n");
 		}
 		return 1;
-    }
+	}
 
 	type = (info->flash_id & FLASH_VENDMASK);
 	if ((type != FLASH_MAN_INTEL)) {
 		printf ("Can't erase unknown flash type %08lx - aborted\n",
 			info->flash_id);
 		return 1;
-    }
-
-    prot = 0;
-    for (sect=s_first; sect<=s_last; ++sect) {
-	if (info->protect[sect]) {
-	    prot++;
 	}
-    }
+
+	prot = 0;
+	for (sect = s_first; sect <= s_last; ++sect) {
+		if (info->protect[sect]) {
+			prot++;
+		}
+	}
 
 	if (prot) {
 		printf ("- Warning: %d protected sectors will not be erased!\n",
@@ -252,42 +255,42 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 	}
 
 	start = get_timer (0);
-	last  = start;
+	last = start;
 
-   /* Disable interrupts which might cause a timeout here */
-    flag = disable_interrupts();
+	/* Disable interrupts which might cause a timeout here */
+	flag = disable_interrupts ();
 
-    /* Start erase on unprotected sectors */
-	for (sect = s_first; sect<=s_last; sect++) {
+	/* Start erase on unprotected sectors */
+	for (sect = s_first; sect <= s_last; sect++) {
 		if (info->protect[sect] == 0) {	/* not protected */
-			FPWV *addr = (FPWV *)(info->start[sect]);
+			FPWV *addr = (FPWV *) (info->start[sect]);
 			FPW status;
 
-	printf("Erasing sector %2d ... ", sect);
+			printf ("Erasing sector %2d ... ", sect);
 
-	/* arm simple, non interrupt dependent timer */
-	reset_timer_masked();
+			/* arm simple, non interrupt dependent timer */
+			reset_timer_masked ();
 
-			*addr = (FPW)0x00500050;	/* clear status register */
-			*addr = (FPW)0x00200020;	/* erase setup */
-			*addr = (FPW)0x00D000D0;	/* erase confirm */
+			*addr = (FPW) 0x00500050;	/* clear status register */
+			*addr = (FPW) 0x00200020;	/* erase setup */
+			*addr = (FPW) 0x00D000D0;	/* erase confirm */
 
-			while (((status = *addr) & (FPW)0x00800080) != (FPW)0x00800080) {
-		if (get_timer_masked() > CFG_FLASH_ERASE_TOUT) {
+			while (((status = *addr) & (FPW) 0x00800080) != (FPW) 0x00800080) {
+				if (get_timer_masked () > CFG_FLASH_ERASE_TOUT) {
 					printf ("Timeout\n");
-					*addr = (FPW)0x00B000B0; /* suspend erase	  */
-					*addr = (FPW)0x00FF00FF; /* reset to read mode */
+					*addr = (FPW) 0x00B000B0;	/* suspend erase     */
+					*addr = (FPW) 0x00FF00FF;	/* reset to read mode */
 					rcode = 1;
 					break;
-	}
-    }
+				}
+			}
 
-			*addr = 0x00500050; /* clear status register cmd.   */
-			*addr = 0x00FF00FF; /* resest to read mode          */
+			*addr = 0x00500050;	/* clear status register cmd.   */
+			*addr = 0x00FF00FF;	/* resest to read mode          */
 
 			printf (" done\n");
-        }
-        }
+		}
+	}
 	return rcode;
 }
 
@@ -301,7 +304,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 
 int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 {
-    ulong cp, wp;
+	ulong cp, wp;
 	FPW data;
 	int count, i, l, rc, port_width;
 
@@ -317,67 +320,66 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 	port_width = 4;
 #endif
 
-    /*
-     * handle unaligned start bytes
-     */
-    if ((l = addr - wp) != 0) {
-	data = 0;
-	for (i=0, cp=wp; i<l; ++i, ++cp) {
-			data = (data << 8) | (*(uchar *)cp);
-	}
-		for (; i<port_width && cnt>0; ++i) {
+	/*
+	 * handle unaligned start bytes
+	 */
+	if ((l = addr - wp) != 0) {
+		data = 0;
+		for (i = 0, cp = wp; i < l; ++i, ++cp) {
+			data = (data << 8) | (*(uchar *) cp);
+		}
+		for (; i < port_width && cnt > 0; ++i) {
 			data = (data << 8) | *src++;
-	    --cnt;
-	    ++cp;
-	}
-		for (; cnt==0 && i<port_width; ++i, ++cp) {
-			data = (data << 8) | (*(uchar *)cp);
-	}
+			--cnt;
+			++cp;
+		}
+		for (; cnt == 0 && i < port_width; ++i, ++cp) {
+			data = (data << 8) | (*(uchar *) cp);
+		}
 
-		if ((rc = write_data(info, wp, SWAP(data))) != 0) {
-	    return (rc);
-	}
+		if ((rc = write_data (info, wp, SWAP (data))) != 0) {
+			return (rc);
+		}
 		wp += port_width;
-    }
+	}
 
-    /*
-     * handle word aligned part
-     */
+	/*
+	 * handle word aligned part
+	 */
 	count = 0;
 	while (cnt >= port_width) {
 		data = 0;
-		for (i=0; i<port_width; ++i) {
+		for (i = 0; i < port_width; ++i) {
 			data = (data << 8) | *src++;
 		}
-		if ((rc = write_data(info, wp, SWAP(data))) != 0) {
-	    return (rc);
-	}
-		wp  += port_width;
+		if ((rc = write_data (info, wp, SWAP (data))) != 0) {
+			return (rc);
+		}
+		wp += port_width;
 		cnt -= port_width;
-		if (count++ > 0x800)
-		{
-         spin_wheel();
+		if (count++ > 0x800) {
+			spin_wheel ();
 			count = 0;
 		}
-    }
-
-    if (cnt == 0) {
-		return (0);
-    }
-
-    /*
-     * handle unaligned tail bytes
-     */
-    data = 0;
-	for (i=0, cp=wp; i<port_width && cnt>0; ++i, ++cp) {
-		data = (data << 8) | *src++;
-	--cnt;
-    }
-	for (; i<port_width; ++i, ++cp) {
-		data = (data << 8) | (*(uchar *)cp);
 	}
 
-	return (write_data(info, wp, SWAP(data)));
+	if (cnt == 0) {
+		return (0);
+	}
+
+	/*
+	 * handle unaligned tail bytes
+	 */
+	data = 0;
+	for (i = 0, cp = wp; i < port_width && cnt > 0; ++i, ++cp) {
+		data = (data << 8) | *src++;
+		--cnt;
+	}
+	for (; i < port_width; ++i, ++cp) {
+		data = (data << 8) | (*(uchar *) cp);
+	}
+
+	return (write_data (info, wp, SWAP (data)));
 }
 
 /*-----------------------------------------------------------------------
@@ -388,45 +390,42 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
  */
 static int write_data (flash_info_t *info, ulong dest, FPW data)
 {
-	FPWV *addr = (FPWV *)dest;
+	FPWV *addr = (FPWV *) dest;
 	ulong status;
-	ulong start;
 	int flag;
 
 	/* Check if Flash is (sufficiently) erased */
 	if ((*addr & data) != data) {
-		printf("not erased at %08lx (%x)\n",(ulong)addr,*addr);
+		printf ("not erased at %08lx (%lx)\n", (ulong) addr, *addr);
 		return (2);
 	}
 	/* Disable interrupts which might cause a timeout here */
-	flag = disable_interrupts();
+	flag = disable_interrupts ();
 
-	*addr = (FPW)0x00400040;		/* write setup */
+	*addr = (FPW) 0x00400040;	/* write setup */
 	*addr = data;
 
 	/* arm simple, non interrupt dependent timer */
-	reset_timer_masked();
+	reset_timer_masked ();
 
 	/* wait while polling the status register */
-	while (((status = *addr) & (FPW)0x00800080) != (FPW)0x00800080) {
-		if (get_timer_masked() > CFG_FLASH_WRITE_TOUT) {
-			*addr = (FPW)0x00FF00FF;	/* restore read mode */
+	while (((status = *addr) & (FPW) 0x00800080) != (FPW) 0x00800080) {
+		if (get_timer_masked () > CFG_FLASH_WRITE_TOUT) {
+			*addr = (FPW) 0x00FF00FF;	/* restore read mode */
 			return (1);
 		}
-    }
+	}
 
-	*addr = (FPW)0x00FF00FF;	/* restore read mode */
+	*addr = (FPW) 0x00FF00FF;	/* restore read mode */
 
 	return (0);
 }
 
-void inline
-spin_wheel(void)
+void inline spin_wheel (void)
 {
-   static int r=0,p=0;
-   static char w[] = "\\/-";
+	static int p = 0;
+	static char w[] = "\\/-";
 
-   printf("\010%c", w[p]);
-   (++p == 3) ? (p = 0) : 0;
+	printf ("\010%c", w[p]);
+	(++p == 3) ? (p = 0) : 0;
 }
-

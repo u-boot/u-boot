@@ -71,22 +71,37 @@ extern void __raw_readsl(unsigned int addr, void *data, int longlen);
 #include <asm/arch/io.h>
 
 /*
- * IO definitions.  We define {out,in,outs,ins}[bwl] if __io is defined
- * by the machine.  Otherwise, these definitions are left for the machine
- * specific header files to pick up.
+ *  IO port access primitives
+ *  -------------------------
+ *
+ * The ARM doesn't have special IO access instructions; all IO is memory
+ * mapped.  Note that these are defined to perform little endian accesses
+ * only.  Their primary purpose is to access PCI and ISA peripherals.
+ *
+ * Note that for a big endian machine, this implies that the following
+ * big endian mode connectivity is in place, as described by numerious
+ * ARM documents:
+ *
+ *    PCI:  D0-D7   D8-D15 D16-D23 D24-D31
+ *    ARM: D24-D31 D16-D23  D8-D15  D0-D7
+ *
+ * The machine specific io.h include defines __io to translate an "IO"
+ * address to a memory address.
  *
  * Note that we prevent GCC re-ordering or caching values in expressions
  * by introducing sequence points into the in*() definitions.  Note that
  * __raw_* do not guarantee this behaviour.
+ *
+ * The {in,out}[bwl] macros are for emulating x86-style PCI/ISA IO space.
  */
 #ifdef __io
 #define outb(v,p)			__raw_writeb(v,__io(p))
-#define outw(v,p)			__raw_writew(v,__io(p))
-#define outl(v,p)			__raw_writel(v,__io(p))
+#define outw(v,p)			__raw_writew(cpu_to_le16(v),__io(p))
+#define outl(v,p)			__raw_writel(cpu_to_le32(v),__io(p))
 
-#define inb(p)		({ unsigned int __v = __raw_readb(__io(p)); __v; })
-#define inw(p)		({ unsigned int __v = __raw_readw(__io(p)); __v; })
-#define inl(p)		({ unsigned int __v = __raw_readl(__io(p)); __v; })
+#define inb(p)	({ unsigned int __v = __raw_readb(__io(p)); __v; })
+#define inw(p)	({ unsigned int __v = le16_to_cpu(__raw_readw(__io(p))); __v; })
+#define inl(p)	({ unsigned int __v = le32_to_cpu(__raw_readl(__io(p))); __v; })
 
 #define outsb(p,d,l)			__raw_writesb(__io(p),d,l)
 #define outsw(p,d,l)			__raw_writesw(__io(p),d,l)
@@ -171,20 +186,20 @@ extern void __readwrite_bug(const char *fn);
  */
 #ifdef __mem_pci
 
-#define readb(addr) ({ unsigned int __v = __raw_readb(__mem_pci(addr)); __v; })
-#define readw(addr) ({ unsigned int __v = __raw_readw(__mem_pci(addr)); __v; })
-#define readl(addr) ({ unsigned int __v = __raw_readl(__mem_pci(addr)); __v; })
+#define readb(c) ({ unsigned int __v = __raw_readb(__mem_pci(c)); __v; })
+#define readw(c) ({ unsigned int __v = le16_to_cpu(__raw_readw(__mem_pci(c))); __v; })
+#define readl(c) ({ unsigned int __v = le32_to_cpu(__raw_readl(__mem_pci(c))); __v; })
 
-#define writeb(val,addr)		__raw_writeb(val,__mem_pci(addr))
-#define writew(val,addr)		__raw_writew(val,__mem_pci(addr))
-#define writel(val,addr)		__raw_writel(val,__mem_pci(addr))
+#define writeb(v,c)		__raw_writeb(v,__mem_pci(c))
+#define writew(v,c)		__raw_writew(cpu_to_le16(v),__mem_pci(c))
+#define writel(v,c)		__raw_writel(cpu_to_le32(v),__mem_pci(c))
 
-#define memset_io(a,b,c)		_memset_io(__mem_pci(a),(b),(c))
-#define memcpy_fromio(a,b,c)		_memcpy_fromio((a),__mem_pci(b),(c))
-#define memcpy_toio(a,b,c)		_memcpy_toio(__mem_pci(a),(b),(c))
+#define memset_io(c,v,l)		_memset_io(__mem_pci(c),(v),(l))
+#define memcpy_fromio(a,c,l)		_memcpy_fromio((a),__mem_pci(c),(l))
+#define memcpy_toio(c,a,l)		_memcpy_toio(__mem_pci(c),(a),(l))
 
-#define eth_io_copy_and_sum(a,b,c,d) \
-				eth_copy_and_sum((a),__mem_pci(b),(c),(d))
+#define eth_io_copy_and_sum(s,c,l,b) \
+				eth_copy_and_sum((s),__mem_pci(c),(l),(b))
 
 static inline int
 check_signature(unsigned long io_addr, const unsigned char *signature,
@@ -219,14 +234,6 @@ out:
 #endif	/* __mem_pci */
 
 /*
- * remap a physical address `phys' of size `size' with page protection `prot'
- * into virtual address `from'
- */
-#define io_remap_page_range(from,phys,size,prot) \
-		remap_page_range(from,phys,size,prot)
-
-
-/*
  * If this architecture has ISA IO, then define the isa_read/isa_write
  * macros.
  */
@@ -244,6 +251,10 @@ out:
 
 #define isa_eth_io_copy_and_sum(a,b,c,d) \
 				eth_copy_and_sum((a),__mem_isa(b),(c),(d))
+
+#ifndef PCI_MEMORY_VADDR	/* XXX problem not understood -- wd */
+#define	PCI_MEMORY_VADDR	0
+#endif	/* XXX */
 
 static inline int
 isa_check_signature(unsigned long io_addr, const unsigned char *signature,

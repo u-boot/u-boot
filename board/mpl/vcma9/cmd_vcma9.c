@@ -102,7 +102,7 @@ int do_vcma9(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 				printf("\nplease defined 'ethaddr'\n");
 			}
 		} else if (strcmp(argv[2], "dump") == 0) {
-			uchar addr, endaddr, csum; ushort data;
+			uchar addr = 0, endaddr, csum; ushort data;
 
 			printf("Dump of CS8900 config device: ");
 			cs8900_e2prom_read(addr, &data);

@@ -446,6 +446,9 @@ fiq:
 reset_cpu:
 #ifdef CONFIG_S3C2400
 	bl	disable_interrupts
+# ifdef CONFIG_TRAB
+	bl	disable_vfd
+# endif
 	ldr	r1, _rWTCON
 	ldr	r2, _rWTCNT
 	/* Disable watchdog */

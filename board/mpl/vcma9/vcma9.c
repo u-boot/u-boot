@@ -183,7 +183,6 @@ static uchar Get_Board_PCB(void)
 int checkboard(void)
 {
 	unsigned char s[50];
-	unsigned char bc, var, rc;
 	int i;
 	backup_t *b = (backup_t *) s;
 

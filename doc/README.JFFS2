@@ -9,6 +9,14 @@ fsload  - load binary file from a file system image
 fsinfo  - print information about file systems
 ls      - list files in a directory
 
+If you boot from a partition which is mounted writable, and you
+update your boot environment by replacing single files on that
+partition, you should also define CFG_JFFS2_SORT_FRAGMENTS. Scanning
+the JFFS2 filesystem takes *much* longer with this feature, though.
+Sorting is done while inserting into the fragment list, which is
+more or less a bubble sort. That algorithm is known to be O(n^2),
+thus you should really consider if you can avoid it!
+
 
 There is two ways for JFFS2 to find the disk. The default way uses
 the flash_info structure to find the start of a JFFS2 disk (called

@@ -49,7 +49,9 @@ int mpl_prg(unsigned long src,unsigned long size)
 	unsigned long start;
 	flash_info_t *info;
 	int i,rc;
+#if defined(CONFIG_PIP405) || defined(CONFIG_MIP405)
 	unsigned long *magic = (unsigned long *)src;
+#endif
 
 	info = &flash_info[0];
 

@@ -44,7 +44,6 @@ typedef	struct	global_data {
 #ifdef CONFIG_VFD
 	unsigned long	fb_base;	/* base address of frame buffer */
 	unsigned char	vfd_type;	/* display type */
-	unsigned char	vfd_inv_data;	/* inverted data lines ? */
 #endif
 #if 0
 	unsigned long	cpu_clk;	/* CPU clock in Hz!		*/

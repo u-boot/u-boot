@@ -60,9 +60,9 @@
 #define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_BAUDRATE		19200
+#define CONFIG_MISC_INIT_R	1	/* we have a misc_init_r() function */
 
-#define CONFIG_COMMANDS		((CONFIG_CMD_DFL | CFG_CMD_I2C | CFG_CMD_EEPROM) & ~CFG_CMD_NET)
-
+#define CONFIG_COMMANDS (CONFIG_CMD_DFL|CFG_CMD_I2C|CFG_CMD_EEPROM|CFG_CMD_NET|CFG_CMD_JFFS2|CFG_CMD_DHCP)
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any)   */
 #include <cmd_confdefs.h>
 
@@ -90,13 +90,13 @@
 /*
  * Size of malloc() pool; this lives below the uppermost 128 KiB which are
  * used for the RAM copy of the uboot code
+ *
  */
-/* #define CFG_MALLOC_LEN	(CFG_ENV_SIZE + 128*1024) */
-#define CFG_MALLOC_LEN		(128*1024)
+#define CFG_MALLOC_LEN		(256*1024)
 
 #define CFG_LONGHELP				/* undef to save memory         */
 #define CFG_PROMPT		"uboot> "	/* Monitor Command Prompt       */
-#define CFG_CBSIZE		128		/* Console I/O Buffer Size      */
+#define CFG_CBSIZE		256		/* Console I/O Buffer Size      */
 #define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
 #define CFG_MAXARGS		16		/* max number of command args   */
 #define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size    */
@@ -106,10 +106,7 @@
 
 #undef  CFG_CLKS_IN_HZ          /* everything, incl board info, in Hz */
 
-#define CFG_LOAD_ADDR           0xa7fe0000      /* default load address */
-						/* RS: where is this documented? */
-						/* RS: is this where U-Boot is  */
-						/* RS: relocated to in RAM?      */
+#define CFG_LOAD_ADDR           0xa3000000      /* load kernel to this address   */
 
 #define CFG_HZ                  3686400         /* incrementer freq: 3.6864 MHz */
 						/* RS: the oscillator is actually 3680130?? */
@@ -128,9 +125,9 @@
 /*
  * I2C bus
  */
-#define CONFIG_HARD_I2C 1
-#define CFG_I2C_SPEED 50000
-#define CFG_I2C_SLAVE 0xfe
+#define CONFIG_HARD_I2C 		1
+#define CFG_I2C_SPEED 			50000
+#define CFG_I2C_SLAVE 			0xfe
 
 #define CFG_ENV_IS_IN_EEPROM 		1
 
@@ -138,9 +135,20 @@
 #define CFG_ENV_SIZE			1024	/* 1 KiB                    */
 #define CFG_I2C_EEPROM_ADDR		0x50	/* A0 = 0 (hardwired)       */
 #define CFG_EEPROM_PAGE_WRITE_BITS	5	/* 5 bits = 32 octets       */
-#define CFG_EEPROM_PAGE_WRITE_DELAY_MS	10	/* between stop and start   */
+#define CFG_EEPROM_PAGE_WRITE_DELAY_MS	15	/* between stop and start   */
 #define CFG_I2C_EEPROM_ADDR_LEN		2	/* length of address        */
 #define CFG_EEPROM_SIZE			4096	/* size in bytes            */
+#define CFG_I2C_INIT_BOARD		1	/* board has it's own init  */
+
+/*
+ * SMSC91C111 Network Card
+ */
+#define CONFIG_DRIVER_SMC91111		1
+#define CONFIG_SMC91111_BASE		0x14000000 /* chip select 5         */
+#undef  CONFIG_SMC_USE_32_BIT		           /* 16 bit bus access     */
+#undef  CONFIG_SMC_91111_EXT_PHY		   /* we use internal phy   */
+#undef  CONFIG_SHOW_ACTIVITY
+#define CONFIG_NET_RETRY_COUNT		10	   /* # of retries          */
 
 /*
  * Stack sizes
@@ -168,11 +176,19 @@
 
 #define CFG_FLASH_BASE          PHYS_FLASH_1
 
-/*
- * GPIO settings;
- */
 
-/* GP15 == nCS1      is 1
+/*
+ * JFFS2 Partitions
+ */
+#define CFG_JFFS_CUSTOM_PART	1		/* see board/innokom/flash.c */
+#define CONFIG_MTD_INNOKOM_16MB 1		/* development flash         */	
+#undef  CONFIG_MTD_INNOKOM_64MB			/* production flash          */
+
+
+/*
+ * GPIO settings; see BDI2000 config file for details
+ *
+ * GP15 == nCS1      is 1
  * GP24 == SFRM      is 1
  * GP25 == TXD       is 1
  * GP33 == nCS5      is 1
@@ -273,6 +289,7 @@
 #define CFG_GAFR2_L_VAL     0xA0000000
 #define CFG_GAFR2_U_VAL     0x00000002
 
+
 /* FIXME: set GPIO_RER/FER */
 
 /* RDH = 1
@@ -285,9 +302,8 @@
 
 /*
  * Memory settings
- */
-
-/* This is the configuration for nCS0/1 -> flash banks
+ *
+ * This is the configuration for nCS0/1 -> flash banks
  * configuration for nCS1:
  * [31]    0    - Slower Device
  * [30:28] 010  - CS deselect to CS time: 2*(2*MemClk) = 40 ns
@@ -321,7 +337,7 @@
  * [03]    1    - 16 Bit bus width
  * [02:00] 100  - variable latency I/O
  */
-#define CFG_MSC1_VAL		0x132C593C /* TDM switch, DSP               */
+#define CFG_MSC1_VAL		0x123C593C /* TDM switch, DSP               */
 
 /* This is the configuration for nCS4/5 -> ExtBus, LAN Controller
  *
@@ -340,7 +356,7 @@
  * [03]    1    - 16 Bit bus width
  * [02:00] 100  - variable latency I/O
  */
-#define CFG_MSC2_VAL		0x132C6CDC /* extra bus, LAN controller     */
+#define CFG_MSC2_VAL		0x123C6CDC /* extra bus, LAN controller     */
 
 /* MDCNFG: SDRAM Configuration Register
  *
@@ -359,16 +375,15 @@
  * [12]      1	 - SA1111 compatiblity mode
  * [11]      1   - latch return data with return clock
  * [10]      0   - no alternate addressing for pair 0/1
- * [09:08]   01  - tRP=2*MemClk; CL=2; tRCD=2*MemClk; tRAS=5*MemClk; tRC=8*MemClk
+ * [09:08]   01  - tRP=2*MemClk CL=2 tRCD=2*MemClk tRAS=5*MemClk tRC=8*MemClk
  * [7]       1   - 4 internal banks in lower partition pair
  * [06:05]   10  - 13 row address bits for partition 0/1
  * [04:03]   01  - 9 column address bits for partition 0/1
  * [02]      0   - SDRAM partition 0/1 width is 32 bit
  * [01]      0   - disable SDRAM partition 1
  * [00]      1   - enable  SDRAM partition 0
- *
- * use the configuration above but disable partition 0
  */
+/* use the configuration above but disable partition 0 */
 #define CFG_MDCNFG_VAL		0x000019c8
 
 /* MDREFR: SDRAM Refresh Control Register
@@ -433,12 +448,5 @@
 /* timeout values are in ticks */
 #define CFG_FLASH_ERASE_TOUT    (2*CFG_HZ) /* Timeout for Flash Erase       */
 #define CFG_FLASH_WRITE_TOUT    (2*CFG_HZ) /* Timeout for Flash Write       */
-
-#if 0
-#define CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_ADDR            (PHYS_FLASH_1 + 0x1C000)
-                                        /* Addr of Environment Sector       */
-#define CFG_ENV_SIZE            0x4000  /* Total Size of Environment Sector */
-#endif
 
 #endif  /* __CONFIG_H */

@@ -51,6 +51,9 @@
  * repeatedly to change the speed and slave addresses.
  */
 void i2c_init(int speed, int slaveaddr);
+#ifdef CFG_I2C_INIT_BOARD
+void i2c_init_board(void);
+#endif
 
 /*
  * Probe the given I2C chip address.  Returns 0 if a chip responded,

@@ -3,23 +3,31 @@
 
 #include <jffs2/jffs2.h>
 
+
 struct b_node {
 	u32 offset;
 	struct b_node *next;
 };
 
+struct b_list {
+	struct b_node *listTail;
+	struct b_node *listHead;
+#ifdef CFG_JFFS2_SORT_FRAGMENTS
+	struct b_node *listLast;
+	int (*listCompare)(struct b_node *new, struct b_node *node);
+	u32 listLoops;
+#endif
+	u32 listCount;
+	struct mem_block *listMemBase;
+};
+
 struct b_lists {
 	char *partOffset;
-	struct b_node *dirListTail;
-	struct b_node *dirListHead;
-	u32 dirListCount;
-	u32 dirListMemBase;
-	struct b_node *fragListTail;
-	struct b_node *fragListHead;
-	u32 fragListCount;
-	u32 fragListMemBase;
+	struct b_list dir;
+	struct b_list frag;
 
 };
+
 struct b_compr_info {
 	u32 num_frags;
 	u32 compr_sum;
@@ -33,11 +41,14 @@ struct b_jffs2_info {
 static inline int
 hdr_crc(struct jffs2_unknown_node *node)
 {
+#if 1
         u32 crc = crc32_no_comp(0, (unsigned char *)node, sizeof(struct jffs2_unknown_node) - 4);
-        u32 crc_blah = crc32_no_comp(~0, (unsigned char *)node, sizeof(struct jffs2_unknown_node) - 4);
+#else
+	/* what's the semantics of this? why is this here? */
+        u32 crc = crc32_no_comp(~0, (unsigned char *)node, sizeof(struct jffs2_unknown_node) - 4);
 
-        crc_blah ^= ~0;
-
+        crc ^= ~0;
+#endif
         if (node->hdr_crc != crc) {
                 return 0;
         } else {

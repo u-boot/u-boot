@@ -21,4 +21,8 @@
 # MA 02111-1307 USA
 #
 
+#
+# TOP860 board
+#
+
 TEXT_BASE = 0x80000000

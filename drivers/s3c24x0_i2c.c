@@ -64,10 +64,12 @@ static int GetIICSDA(void)
 	return (rGPEDAT & 0x8000) >> 15;
 }
 
+#if 0
 static void SetIICSDA(int x)
 {
 	rGPEDAT = (rGPEDAT & ~0x8000) | (x&1) << 15;
 }
+#endif
 
 static void SetIICSCL(int x)
 {

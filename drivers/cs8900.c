@@ -296,7 +296,7 @@ int cs8900_e2prom_read(unsigned char addr, unsigned short *value)
 /* write a 16-bit word into the EEPROM                     */
 /***********************************************************/
 
-void cs8900_e2prom_write(unsigned char addr, unsigned short value)
+int cs8900_e2prom_write(unsigned char addr, unsigned short value)
 {
 	cs8900_e2prom_ready();
 	put_reg(PP_EECMD, EEPROM_WRITE_EN);
@@ -307,7 +307,7 @@ void cs8900_e2prom_write(unsigned char addr, unsigned short value)
 	put_reg(PP_EECMD, EEPROM_WRITE_DIS);
 	cs8900_e2prom_ready();
 
-	return;
+	return 0;
 }
 
 #endif	/* COMMANDS & CFG_NET */

@@ -59,9 +59,23 @@
 #define	FRAME_BUF_SIZE	((256*4*56)/8)
 #define frame_buf_offs 4
 
+/* defines for starting Timer3 as CPLD-Clk */
+#define START3			(1 << 16)
+#define UPDATE3			(1 << 17)
+#define INVERT3			(1 << 18)
+#define RELOAD3			(1 << 19)
+
+/* CPLD-Register for controlling vfd-blank-signal */
+#define VFD_DISABLE	(*(volatile uchar *)0x04038000=0x0000)
+#define VFD_ENABLE	(*(volatile uchar *)0x04038000=0x0001)
+
 /* Supported VFD Types */
 #define	VFD_TYPE_T119C		1	/* Noritake T119C VFD */
 #define	VFD_TYPE_MN11236	2
+
+/*#define NEW_CPLD_CLK*/
+
+int vfd_board_id;
 
 /* taken from armboot/common/vfd.c */
 unsigned long adr_vfd_table[112][18][2][4][2];
@@ -80,9 +94,7 @@ void init_grid_ctrl(void)
 	/*
 	 * clear frame buffer (logical clear => set to "black")
 	 */
-	memset ((void *)(gd->fb_base),
-		gd->vfd_inv_data ? 0xFF : 0,
-		FRAME_BUF_SIZE);
+	memset ((void *)(gd->fb_base), 0, FRAME_BUF_SIZE);
 
 	switch (gd->vfd_type) {
 	case VFD_TYPE_T119C:
@@ -98,10 +110,7 @@ void init_grid_ctrl(void)
 			bit_nr = bit % 8;
 			bit_nr = (bit_nr > 3) ? bit_nr-4 : bit_nr+4;
 			temp=(*(volatile unsigned char*)(adr));
-			if (gd->vfd_inv_data)
-				temp &= ~(1<<bit_nr);
-			else
-				temp |=  (1<<bit_nr);
+			temp |=  (1<<bit_nr);
 			(*(volatile unsigned char*)(adr))=temp;
 
 			if(grid_cycle<55)
@@ -115,10 +124,7 @@ void init_grid_ctrl(void)
 			bit_nr = bit%8;
 			bit_nr = (bit_nr>3)?bit_nr-4:bit_nr+4;
 			temp=(*(volatile unsigned char*)(adr));
-			if (gd->vfd_inv_data)
-				temp &= ~(1<<bit_nr);
-			else
-				temp |=  (1<<bit_nr);
+			temp |=  (1<<bit_nr);
 			(*(volatile unsigned char*)(adr))=temp;
 		}
 	    }
@@ -136,10 +142,7 @@ void init_grid_ctrl(void)
 			bit_nr = bit % 8;
 			bit_nr = (bit_nr > 3) ? bit_nr-4 : bit_nr+4;
 			temp=(*(volatile unsigned char*)(adr));
-			if (gd->vfd_inv_data)
-				temp &= ~(1<<bit_nr);
-			else
-				temp |=  (1<<bit_nr);
+			temp |=  (1<<bit_nr);
 			(*(volatile unsigned char*)(adr))=temp;
 
 			if(grid_cycle<37)
@@ -152,10 +155,7 @@ void init_grid_ctrl(void)
 			bit_nr = bit%8;
 			bit_nr = (bit_nr>3)?bit_nr-4:bit_nr+4;
 			temp=(*(volatile unsigned char*)(adr));
-			if (gd->vfd_inv_data)
-				temp &= ~(1<<bit_nr);
-			else
-				temp |=  (1<<bit_nr);
+			temp |=  (1<<bit_nr);
 			(*(volatile unsigned char*)(adr))=temp;
 		}
 	    }
@@ -250,7 +250,7 @@ void create_vfd_table(void)
 			for(entry=0;entry<2;entry++) {
 			    unsigned long adr  = gd->fb_base;
 			    unsigned int bit_nr = 0;
-			    
+
 			    if (vfd_table[x][y][color][display][entry]) {
 
 				pixel  = vfd_table[x][y][color][display][entry] + frame_buf_offs;
@@ -295,18 +295,11 @@ void set_vfd_pixel(unsigned char x, unsigned char y,
 	bit_nr = bit_vfd_table[x][y][color][display][0];
 	temp=(*(volatile unsigned char*)(adr));
 
-	if (gd->vfd_inv_data) {
-		if (value)
-			temp &= ~(1<<bit_nr);
-		else
-			temp |=  (1<<bit_nr);
-	} else {
-		if (value)
-			temp |=  (1<<bit_nr);
-		else
-			temp &= ~(1<<bit_nr);
-	}
-	
+	if (value)
+		temp |=  (1<<bit_nr);
+	else
+		temp &= ~(1<<bit_nr);
+
 	(*(volatile unsigned char*)(adr))=temp;
 }
 
@@ -363,22 +356,59 @@ void transfer_pic(int display, unsigned char *adr, int height, int width)
  * This function initializes VFD clock that is needed for the CPLD that
  * manages the keyboard.
  */
-int vfd_init_clocks(void)
+int vfd_init_clocks (void)
 {
-	/* Port-Pins als LCD-Ausgang */
-	rPCCON =   (rPCCON & 0xFFFFFF00)| 0x000000AA;
-	/* Port-Pins als LCD-Ausgang */
-	rPDCON =   (rPDCON & 0xFFFFFF03)| 0x000000A8;
-#ifdef CFG_WITH_VFRAME
-	/* mit VFRAME zum Messen */
-	rPDCON =   (rPDCON & 0xFFFFFF00)| 0x000000AA;
-#endif
 
-	rLCDCON2 = 0x000DC000;
-	rLCDCON3 = 0x0051000A;
-	rLCDCON4 = 0x00000001;
-	rLCDCON5 = 0x00000440;
+	/* try to determine display type from the value
+	 * defined by pull-ups
+	 */
+	rPCUP = (rPCUP & 0xFFF0);	/* activate  GPC0...GPC3 pullups */
+	rPCCON = (rPCCON & 0xFFFFFF00);	/* configure GPC0...GPC3 as inputs */
+	udelay (10);				/* allow signals to settle */
+	vfd_board_id = (~rPCDAT) & 0x000F;	/* read GPC0...GPC3 port pins */
+
+	VFD_DISABLE;				/* activate blank for the vfd */
+
+#define	NEW_CPLD_CLK
+
+#ifdef NEW_CPLD_CLK
+	if (vfd_board_id) {
+		/* If new board revision, then use PWM 3 as cpld-clock */
+		/* Enable 500 Hz timer for fill level sensor to operate properly */
+		/* Configure TOUT3 as functional pin, disable pull-up */
+		rPDCON &= ~0x30000;
+		rPDCON |= 0x20000;
+		rPDUP |= (1 << 8);
+
+		/* Configure the prescaler */
+		rTCFG0 &= ~0xff00;
+		rTCFG0 |= 0x0f00;
+
+		/* Select MUX input (divider) for timer3 (1/16) */
+		rTCFG1 &= ~0xf000;
+		rTCFG1 |= 0x3000;
+
+		/* Enable autoreload and set the counter and compare
+		 * registers to values for the 500 Hz clock
+		 * (for a given  prescaler (15) and divider (16)):
+		 * counter = (66000000 / 500) >> 9;
+		 */
+		rTCNTB3 = 0x101;
+		rTCMPB3 = 0x101 / 2;
+
+		/* Start timer */
+		rTCON = (rTCON | UPDATE3 | RELOAD3) & ~INVERT3;
+		rTCON = (rTCON | START3) & ~UPDATE3;
+	}
+#endif
+	/* If old board revision, then use vm-signal as cpld-clock */
+	rLCDCON2 = 0x00FFC000;
+	rLCDCON3 = 0x0007FF00;
+	rLCDCON4 = 0x00000000;
+	rLCDCON5 = 0x00000400;
 	rLCDCON1 = 0x00000B75;
+	/* VM (GPD1) is used as clock for the CPLD */
+	rPDCON = (rPDCON & 0xFFFFFFF3) | 0x00000008;
 
 	return 0;
 }
@@ -397,7 +427,7 @@ int drv_vfd_init(void)
 	char *tmp;
 	ulong palette;
 	static int vfd_init_done = 0;
-	int vfd_id;
+	int vfd_inv_data = 0;
 
 	DECLARE_GLOBAL_DATA_PTR;
 
@@ -405,17 +435,9 @@ int drv_vfd_init(void)
 		return (0);
 	vfd_init_done = 1;
 
-	/* try to determine display type from the value
-	 * defined by pull-ups
-	 */
-	rPCUP  = (rPCUP & 0xFFF0);	/* activate  GPC0...GPC3 pullups */
-	rPCCON = (rPCCON & 0xFFFFFF00);	/* configure GPC0...GPC3 as inputs */
-	udelay(10);			/* allow signals to settle */
+	debug("Detecting Revison of WA4-VFD: ID=0x%X\n", vfd_board_id);
 
-	vfd_id = (~rPCDAT) & 0x000F;	/* read GPC0...GPC3 port pins */
-	debug("Detecting Revison of WA4-VFD: ID=0x%X\n", vfd_id);
-
-	switch (vfd_id) {
+	switch (vfd_board_id) {
 	case 0:			/* board revision < Rev.200 */
 		if ((tmp = getenv ("vfd_type")) == NULL) {
 			break;
@@ -428,19 +450,18 @@ int drv_vfd_init(void)
 			/* cannot use printf for a warning here */
 			gd->vfd_type = 0;	/* unknown */
 		}
-		gd->vfd_inv_data = 0;
 
 		break;
 	default:		/* default to MN11236, data inverted */
 		gd->vfd_type = VFD_TYPE_MN11236;
-		gd->vfd_inv_data = 1;
+		vfd_inv_data = 1;
 		setenv ("vfd_type", "MN11236");
 	}
 	debug ("VFD type: %s%s\n",
 		(gd->vfd_type == VFD_TYPE_T119C)   ? "T119C" :
 		(gd->vfd_type == VFD_TYPE_MN11236) ? "MN11236" :
 		"unknown",
-		gd->vfd_inv_data ? ", inverted data" : "");
+		vfd_inv_data ? ", inverted data" : "");
 
 	gd->fb_base = gd->fb_base;
 	create_vfd_table();
@@ -458,17 +479,50 @@ int drv_vfd_init(void)
 	 * (wrap around)
 	 * see manual S3C2400
 	 */
+	/* Stopp LCD-Controller */
+	rLCDCON1 = 0x00000000;
 	/* frame buffer startadr */
 	rLCDSADDR1 = gd->fb_base >> 1;
  	/* frame buffer endadr */
 	rLCDSADDR2 = (gd->fb_base + FRAME_BUF_SIZE) >> 1;
 	rLCDSADDR3 = ((256/4));
+	rLCDCON2 = 0x000DC000;
+	rLCDCON3 = 0x0051000A;
+	rLCDCON4 = 0x00000001;
+	if (gd->vfd_type && vfd_inv_data)
+		rLCDCON5 = 0x000004C0;
+	else
+		rLCDCON5 = 0x00000440;
+
+	/* Port pins as LCD output */
+	rPCCON =   (rPCCON & 0xFFFFFF00)| 0x000000AA;
+	rPDCON =   (rPDCON & 0xFFFFFF03)| 0x000000A8;
+
+	/* Synchronize VFD enable with LCD controller to avoid flicker	*/
+	rLCDCON1 = 0x00000B75;			/* Start LCD-Controller	*/
+	while((rLCDCON5 & 0x180000)!=0x100000);	/* Wait for end of VSYNC */
+	while((rLCDCON5 & 0x060000)!=0x040000);	/* Wait for next HSYNC	*/
+	while((rLCDCON5 & 0x060000)==0x040000);
+	while((rLCDCON5 & 0x060000)!=0x000000);
+	if(gd->vfd_type)
+		VFD_ENABLE;
 
 	debug ("LCDSADDR1: %lX\n", rLCDSADDR1);
 	debug ("LCDSADDR2: %lX\n", rLCDSADDR2);
 	debug ("LCDSADDR3: %lX\n", rLCDSADDR3);
 
 	return 0;
+}
+
+/*
+ * Disable VFD: should be run before resetting the system:
+ * disable VM, enable pull-up
+ */
+void disable_vfd (void)
+{
+	VFD_DISABLE;
+	rPDCON &= ~0xC;
+	rPDUP  &= ~0x2;
 }
 
 /************************************************************************/

@@ -199,9 +199,9 @@ int interrupt_init (void)
 	/* load value for 10 ms timeout */
 	lastdec = rTCNTB4 = timer_load_val;
 	/* auto load, manual update of Timer 4 */
-	rTCON = 0x600000;
+	rTCON = (rTCON & ~0x0700000) | 0x600000;
 	/* auto load, start Timer 4 */
-	rTCON = 0x500000;
+	rTCON = (rTCON & ~0x0700000) | 0x500000;
 	timestamp = 0;
 
 	return (0);
@@ -296,8 +296,10 @@ ulong get_tbclk (void)
 
 #if defined(CONFIG_SMDK2400) || defined(CONFIG_TRAB)
 	tbclk = timer_load_val * 100;
-#elif defined(CONFIG_SMDK2410)
+#elif defined(CONFIG_SMDK2410) || defined(CONFIG_VCMA9)
 	tbclk = CFG_HZ;
+#else
+#	error "tbclk not configured"
 #endif
 
 	return tbclk;

@@ -115,28 +115,65 @@ void pciinfo(int BusNum, int ShortPCIListing)
 
 char* pci_classes_str(u8 class)
 {
-	static char *pci_classes[] = {
-		"Build before PCI Rev2.0",
-		"Mass storage controller",
-		"Network controller     ",
-		"Display controller     ",
-		"Multimedia device      ",
-		"Memory controller      ",
-		"Bridge device          ",
-		"Simple comm. controller",
-		"Base system peripheral ",
-		"Input device           ",
-		"Docking station        ",
-		"Processor              ",
-		"Serial bus controller  ",
-		"Reserved entry         ",
-		"Does not fit any class "
-	};
-
-	if (class < (sizeof pci_classes / sizeof *pci_classes))
-		return pci_classes[(int) class];
-
+	switch (class) {
+        case PCI_CLASS_NOT_DEFINED:
+                return "Build before PCI Rev2.0";
+                break;
+        case PCI_BASE_CLASS_STORAGE:
+                return "Mass storage controller";
+                break;
+        case PCI_BASE_CLASS_NETWORK:
+                return "Network controller     ";
+                break;
+        case PCI_BASE_CLASS_DISPLAY:
+                return "Display controller     ";
+                break;
+        case PCI_BASE_CLASS_MULTIMEDIA:
+                return "Multimedia device      ";
+                break;
+        case PCI_BASE_CLASS_MEMORY:
+                return "Memory controller      ";
+                break;
+        case PCI_BASE_CLASS_BRIDGE:
+                return "Bridge device          ";
+                break;
+        case PCI_BASE_CLASS_COMMUNICATION:
+                return "Simple comm. controller";
+                break;
+        case PCI_BASE_CLASS_SYSTEM:
+                return "Base system peripheral ";
+                break;
+        case PCI_BASE_CLASS_INPUT:
+                return "Input device           ";
+                break;
+        case PCI_BASE_CLASS_DOCKING:
+                return "Docking station        ";
+                break;
+        case PCI_BASE_CLASS_PROCESSOR:
+                return "Processor              ";
+                break;
+        case PCI_BASE_CLASS_SERIAL:
+                return "Serial bus controller  ";
+                break;
+        case PCI_BASE_CLASS_INTELLIGENT:
+                return "Intelligent controller ";
+                break;
+        case PCI_BASE_CLASS_SATELLITE:
+                return "Satellite controller   ";
+                break;
+        case PCI_BASE_CLASS_CRYPT:
+                return "Cryptographic device   ";
+                break;
+        case PCI_BASE_CLASS_SIGNAL_PROCESSING:
+                return "DSP                    ";
+                break;
+        case PCI_CLASS_OTHERS:
+                return "Does not fit any class ";
+                break;
+        default:
 	return  "???                    ";
+                break;
+	};
 }
 
 /*

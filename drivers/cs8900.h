@@ -253,6 +253,6 @@
 #define EEPROM_ERASE_CMD	0x0300
 
 extern int cs8900_e2prom_read(uchar, ushort *);
-extern void cs8900_e2prom_write(uchar, ushort);
+extern int cs8900_e2prom_write(uchar, ushort);
 
 #endif /* CONFIG_DRIVER_CS8900 */

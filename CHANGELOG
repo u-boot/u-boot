@@ -2,6 +2,24 @@
 Changes since U-Boot 0.2.2:
 ======================================================================
 
+* Avoid flicker on the TRAB's VFD by synchronizing the enable with
+  the HSYNC/VSYNC. Requires new CPLD code (Version 101 for Rev. 100
+  boards, version 153 for Rev. 200 boards).
+
+* Patch by Vladimir Gurevich, 12 Mar 2003:
+  Fix relocation problem of statically initialized string pointers
+  in common/cmd_pci.c
+
+* Patch by Kai-Uwe Blöm, 12 Mar 2003:
+  Cleanup & bug fixes for JFFS2 code:
+  - the memory mangement was broken. It caused havoc on malloc by
+    writing beyond the block boundaries.
+  - the length calculation for files was wrong, sometimes resulting
+    in short file reads.
+  - data copying now optionally takes fragment version numbers into
+    account, to avoid copying from older data.
+  See doc/README.JFFS2 for details.
+
 * Patch by Josef Wagner, 12 Mar 2003:
   - 16/32 MB and 50/80 MHz support with auto-detection for IP860
   - ETH05 and BEDBUG support for CU824
