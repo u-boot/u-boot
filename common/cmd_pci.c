@@ -550,7 +550,7 @@ int do_pci (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	pci,	5,	1,	do_pci,
-	"pci     - list and access PCI Configuraton Space\n",
+	"pci     - list and access PCI Configuration Space\n",
 	"[bus] [long]\n"
 	"    - short or long list of PCI devices on bus 'bus'\n"
 	"pci header b.d.f\n"
