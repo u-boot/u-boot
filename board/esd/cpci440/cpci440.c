@@ -26,6 +26,9 @@
 #include <asm/processor.h>
 
 
+extern void lxt971_no_sleep(void);
+
+
 long int fixed_sdram( void );
 
 int board_early_init_f (void)
@@ -77,6 +80,12 @@ int checkboard (void)
 	printf("\tPLB: %lu MHz\n", sysinfo.freqPLB/1000000);
 	printf("\tOPB: %lu MHz\n", sysinfo.freqOPB/1000000);
 	printf("\tEPB: %lu MHz\n", sysinfo.freqEPB/1000000);
+
+	/*
+	 * Disable sleep mode in LXT971
+	 */
+	lxt971_no_sleep();
+
 	return (0);
 }
 
@@ -101,6 +110,7 @@ long int fixed_sdram( void )
 {
 	uint    reg;
 
+#if 1 /* test-only */
 	/*--------------------------------------------------------------------
 	 * Setup some default
 	 *------------------------------------------------------------------*/
@@ -136,4 +146,7 @@ long int fixed_sdram( void )
 	}
 
 	return( 64 * 1024 * 1024 );      /* 64 MB                           */
+#else
+	return( 32 * 1024 * 1024 );      /* 64 MB                           */
+#endif
 }

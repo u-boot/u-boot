@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= lib$(BOARD).a
 
-OBJS	= $(BOARD).o strataflash.o
+OBJS	= $(BOARD).o strataflash.o ../common/misc.o
 SOBJS	= init.o
 
 $(LIB):	$(OBJS) $(SOBJS)

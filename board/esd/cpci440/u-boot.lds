@@ -28,11 +28,13 @@ SEARCH_DIR(/lib); SEARCH_DIR(/usr/lib); SEARCH_DIR(/usr/local/lib); SEARCH_DIR(/
 SECTIONS
 {
   .resetvec 0xFFFFFFFC :
+/*  .resetvec 0x01FFFFFC :*/
   {
     *(.resetvec)
   } = 0xffff
 
   .bootpg 0xFFFFF000 :
+/*  .bootpg 0x01FFF000 :*/
   {
     cpu/ppc4xx/start.o	(.bootpg)
   } = 0xffff
