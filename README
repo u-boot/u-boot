@@ -221,6 +221,8 @@ Directory Hierarchy:
 - board/pm826	Files specific to PM826      boards
 - board/ppmc8260
 		Files specific to PPMC8260   boards
+- board/snmc/qs850	Files specific to QS850/823  boards
+- board/snmc/qs860t	Files specific to QS860T     boards
 - board/rpxsuper
 		Files specific to RPXsuper   boards
 - board/rsdproto
@@ -363,7 +365,8 @@ The following options need to be configured:
 		CONFIG_EBONY,      CONFIG_sacsng,     CONFIG_FPS860L,
 		CONFIG_V37,        CONFIG_ELPT860,    CONFIG_CMI,
 		CONFIG_NETVIA,     CONFIG_RBC823,     CONFIG_ZPC1900,
-		CONFIG_MPC8540ADS, CONFIG_MPC8560ADS
+		CONFIG_MPC8540ADS, CONFIG_MPC8560ADS, CONFIG_QS850
+		CONFIG_QS823,      CONFIG_QS860T
 
 		ARM based boards:
 		-----------------
@@ -496,6 +499,7 @@ The following options need to be configured:
 		CONFIG_BAUDRATE - in bps
 		Select one of the baudrates listed in
 		CFG_BAUDRATE_TABLE, see below.
+		CFG_BRGCLK_PRESCALE, baudrate prescale
 
 - Interrupt driven serial port input:
 		CONFIG_SERIAL_SOFTWARE_FIFO
@@ -1995,7 +1999,8 @@ configurations; the following names are supported:
     ELPT860_config	  cmi_mpc5xx_config	NETVIA_config
     at91rm9200dk_config	  omap1510inn_config	MPC8260ADS_config
     omap1610inn_config	  ZPC1900_config	MPC8540ADS_config
-    MPC8560ADS_config
+    MPC8560ADS_config	  QS850_config		QS823_config
+    QS860T_config
 
 Note: for some board special configuration names may exist; check  if
       additional  information is available from the board vendor; for

@@ -2,6 +2,9 @@
 Changes since U-Boot 1.0.0:
 ======================================================================
 
+* Patch by Wolter Kamphuis, 05 Dec 2003:
+  Add support for SNMC's QS850/QS823/QS860T boards
+
 * Patch by Yuli Barcohen, 3 Dec 2003:
   "revive" U-Boot support for old Motorola MPC860ADS board
 

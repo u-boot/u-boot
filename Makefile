@@ -376,6 +376,15 @@ NX823_config:		unconfig
 pcu_e_config:		unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx pcu_e siemens
 
+QS850_config:	unconfig
+	@./mkconfig $(@:_config=) ppc mpc8xx qs850 snmc
+
+QS823_config:	unconfig
+	@./mkconfig $(@:_config=) ppc mpc8xx qs850 snmc
+
+QS860T_config:	unconfig
+	@./mkconfig $(@:_config=) ppc mpc8xx qs860t snmc
+
 R360MPI_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx r360mpi
 

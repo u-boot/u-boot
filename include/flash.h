@@ -148,6 +148,9 @@ extern int flash_real_protect(flash_info_t *info, long sector, int prot);
 #define AMD_ID_LV160T	0x22C422C4	/* 29LV160T ID (16 M, top boot sector)	*/
 #define AMD_ID_LV160B	0x22492249	/* 29LV160B ID (16 M, bottom boot sect) */
 
+#define AMD_ID_DL163T	0x22282228	/* 29DL163T ID (16 M, top boot sector)	*/
+#define AMD_ID_DL163B	0x222B222B	/* 29DL163B ID (16 M, bottom boot sect)	*/
+
 #define AMD_ID_LV320T	0x22F622F6	/* 29LV320T ID (32 M, top boot sector)	*/
 #define AMD_ID_LV320B	0x22F922F9	/* 29LV320B ID (32 M, bottom boot sect) */
 
@@ -322,6 +325,8 @@ extern int flash_real_protect(flash_info_t *info, long sector, int prot);
 #define FLASH_AMLV128U	0x00A6		/* AMD 29LV128M	   ( 128M = 8M x 16 )	*/
 /* Intel 28F256L18T 256M = 128K x 255 + 32k x 4	*/
 #define FLASH_28F256L18T 0x00A8
+#define FLASH_AMDL163T	0x00A2		/* AMD AM29DL163T (2M x 16 )			*/
+#define FLASH_AMDL163B	0x00A3
 
 #define FLASH_UNKNOWN	0xFFFF		/* unknown flash type			*/
 

@@ -78,6 +78,10 @@ static void serial_setdivisor(volatile cpm8xx_t *cp)
 		divisor=(50*1000*1000)/16/9600;
 	}
 
+#ifdef CFG_BRGCLK_PRESCALE
+	divisor /= CFG_BRGCLK_PRESCALE;
+#endif
+
 	if(divisor<=0x1000) {
 		cp->cp_brgc1=((divisor-1)<<1) | CPM_BRG_EN;
 	} else {
