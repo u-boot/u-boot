@@ -2,6 +2,16 @@
 Changes since U-Boot 0.3.1:
 ======================================================================
 
+* Patch by Stefan Roese, 23 May 2003:
+  - IBM PPC405EP port added.
+  - CONFIG_UART1_CONSOLE added. If defined internal UART1 (and not
+    UART0) is used as default U-Boot console. PPC4xx only!
+  - esd ASH405 board added (PPC405EP based).
+  - BUBINGA405EP board added (PPC405EP based - IBM Eval Board).
+  - esd CPCI405AB board added.
+  - esd PMC405 board added.
+  - Update of some esd boards.
+
 * Patch by Denis Peter, 19 Mai 2003:
   add support for the MIP405-3 board
 
