@@ -44,6 +44,7 @@ extern int usb_post_test (int flags);
 extern int spr_post_test (int flags);
 extern int sysmon_post_test (int flags);
 extern int dsp_post_test (int flags);
+extern int codec_post_test (int flags);
 
 extern int sysmon_init_f (void);
 
@@ -207,6 +208,18 @@ struct post_test post_list[] =
 	NULL,
 	NULL,
 	CFG_POST_DSP
+    },
+#endif
+#if CONFIG_POST & CFG_POST_DSP
+    {
+	"CODEC test",
+	"codec",
+	"This test checks any connected codec(s).",
+	POST_RAM | POST_MANUAL,
+	&codec_post_test,
+	NULL,
+	NULL,
+	CFG_POST_CODEC
     },
 #endif
 };

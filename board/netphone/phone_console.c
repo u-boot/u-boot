@@ -12,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -52,7 +52,7 @@
 /*************************************************************************************************/
 
 #define DISPLAY_BACKLIT_PORT	((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pcdat
-#define DISPLAY_BACKLIT_MASK 	0x0010
+#define DISPLAY_BACKLIT_MASK	0x0010
 
 /*************************************************************************************************/
 
@@ -63,23 +63,23 @@
 #define KP_IDLE_DELAY_HZ	(CFG_HZ/2)	/* key was released and idle */
 
 #if CONFIG_NETPHONE_VERSION == 1
-#define KP_SPI_RXD_PORT	(((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pcdat)
-#define KP_SPI_RXD_MASK	0x0008
+#define KP_SPI_RXD_PORT (((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pcdat)
+#define KP_SPI_RXD_MASK 0x0008
 
-#define KP_SPI_TXD_PORT	(((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pcdat)
-#define KP_SPI_TXD_MASK	0x0004
+#define KP_SPI_TXD_PORT (((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pcdat)
+#define KP_SPI_TXD_MASK 0x0004
 
-#define KP_SPI_CLK_PORT	(((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pcdat)
-#define KP_SPI_CLK_MASK	0x0001
+#define KP_SPI_CLK_PORT (((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pcdat)
+#define KP_SPI_CLK_MASK 0x0001
 #elif CONFIG_NETPHONE_VERSION == 2
-#define KP_SPI_RXD_PORT	(((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pbdat)
-#define KP_SPI_RXD_MASK	0x00000008
+#define KP_SPI_RXD_PORT (((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pbdat)
+#define KP_SPI_RXD_MASK 0x00000008
 
-#define KP_SPI_TXD_PORT	(((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pbdat)
-#define KP_SPI_TXD_MASK	0x00000004
+#define KP_SPI_TXD_PORT (((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pbdat)
+#define KP_SPI_TXD_MASK 0x00000004
 
-#define KP_SPI_CLK_PORT	(((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pbdat)
-#define KP_SPI_CLK_MASK	0x00000002
+#define KP_SPI_CLK_PORT (((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pbdat)
+#define KP_SPI_CLK_MASK 0x00000002
 #endif
 
 #define KP_CS_PORT	(((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pedat)
@@ -115,8 +115,8 @@
 			KP_CS_PORT &= ~KP_CS_MASK; \
 	} while(0)
 
-#define KP_ROWS	7
-#define KP_COLS	4
+#define KP_ROWS 7
+#define KP_COLS 4
 
 #define KP_ROWS_MASK	((1 << KP_ROWS) - 1)
 #define KP_COLS_MASK	((1 << KP_COLS) - 1)
@@ -124,29 +124,29 @@
 #define SCAN		0
 #define SCAN_FILTER	1
 #define SCAN_COL	2
-#define SCAN_COL_FILTER	3
+#define SCAN_COL_FILTER 3
 #define PRESSED		4
 
-#define KP_F1	0	/* leftmost dot (tab) */
-#define KP_F2	1	/* middle left dot    */
-#define KP_F3	2	/* up                 */
-#define KP_F4	3	/* middle right dot   */
-#define KP_F5	4	/* rightmost dot      */
-#define KP_F6	5	/* C                  */
-#define KP_F7	6	/* left               */
-#define KP_F8	7	/* down               */
-#define KP_F9	8	/* right              */
-#define KP_F10	9	/* enter              */
-#define KP_F11	10	/* R                  */
-#define KP_F12	11	/* save               */
-#define KP_F13	12	/* redial             */
-#define KP_F14	13	/* speaker            */
-#define KP_F15  14	/* unused             */
-#define KP_F16  15	/* unused             */
+#define KP_F1	0	/* leftmost dot (tab)	*/
+#define KP_F2	1	/* middle left dot	*/
+#define KP_F3	2	/* up			*/
+#define KP_F4	3	/* middle right dot	*/
+#define KP_F5	4	/* rightmost dot	*/
+#define KP_F6	5	/* C			*/
+#define KP_F7	6	/* left			*/
+#define KP_F8	7	/* down			*/
+#define KP_F9	8	/* right		*/
+#define KP_F10	9	/* enter		*/
+#define KP_F11	10	/* R			*/
+#define KP_F12	11	/* save			*/
+#define KP_F13	12	/* redial		*/
+#define KP_F14	13	/* speaker		*/
+#define KP_F15	14	/* unused		*/
+#define KP_F16	15	/* unused		*/
 
-#define KP_RELEASE		-1	/* key depressed                          */
-#define KP_FORCE		-2	/* key was pressed for more than force hz */
-#define KP_IDLE			-3	/* key was released and idle              */
+#define KP_RELEASE		-1	/* key depressed				*/
+#define KP_FORCE		-2	/* key was pressed for more than force hz	*/
+#define KP_IDLE			-3	/* key was released and idle			*/
 
 #define KP_1	'1'
 #define KP_2	'2'
@@ -158,8 +158,8 @@
 #define KP_8	'8'
 #define KP_9	'9'
 #define KP_0	'0'
-#define KP_STAR	'*'
-#define KP_HASH	'#'
+#define KP_STAR '*'
+#define KP_HASH '#'
 
 /*************************************************************************************************/
 
@@ -198,7 +198,7 @@ static const char *whspace = " 0\n";
 /* per mode character select (for 2-9) */
 static const char *digits_sel[2][8] = {
 	{	/* small */
-		"abc2", 				/* 2 */
+		"abc2",					/* 2 */
 		"def3",					/* 3 */
 		"ghi4",					/* 4 */
 		"jkl5",					/* 5 */
@@ -206,8 +206,8 @@ static const char *digits_sel[2][8] = {
 		"pqrs7",				/* 7 */
 		"tuv8",					/* 8 */
 		"wxyz9",				/* 9 */
-	}, { 	/* capital */
-		"ABC2", 				/* 2 */
+	}, {	/* capital */
+		"ABC2",					/* 2 */
 		"DEF3",					/* 3 */
 		"GHI4",					/* 4 */
 		"JKL5",					/* 5 */
@@ -810,10 +810,10 @@ static void ensure_visible(int col, int row, int dx, int dy)
 
 
 	/* move to easier to use vars */
-	x1 = disp_col;   y1 = disp_row;
+	x1 = disp_col;	 y1 = disp_row;
 	x2 = x1 + width; y2 = y1 + height;
-	a1 = col;        b1 = row;
-	a2 = a1 + dx;    b2 = b1 + dy;
+	a1 = col;	 b1 = row;
+	a2 = a1 + dx;	 b2 = b1 + dy;
 
 	/* printf("(%d,%d) - (%d,%d) : (%d, %d) - (%d, %d)\n", x1, y1, x2, y2, a1, b1, a2, b2); */
 
@@ -891,7 +891,7 @@ void phone_putc(const char c)
 	blink_time = BLINK_HZ;
 
 	switch (c) {
-		case '\a':		/* ignore bell            */
+		case '\a':		/* ignore bell		  */
 		case '\r':		/* ignore carriage return */
 			break;
 
@@ -900,7 +900,7 @@ void phone_putc(const char c)
 			ensure_visible(curs_col, curs_row, 1, 1);
 			break;
 
-		case 9:	/* tab 8 */
+		case 9: /* tab 8 */
 			/* move to tab */
 			i = curs_col;
 			i |=  0x0008;
@@ -1006,13 +1006,13 @@ unsigned int kp_get_col_mask(unsigned int row_mask)
 /**************************************************************************************/
 
 static const int kp_scancodes[KP_ROWS * KP_COLS] = {
-	KP_F1,   KP_F3,   KP_F4,  KP_F2,
-	KP_F6,   KP_F8,   KP_F9,  KP_F7,
-	KP_1,    KP_3,    KP_F11, KP_2,
-	KP_4,    KP_6,    KP_F12, KP_5,
-	KP_7,    KP_9,    KP_F13, KP_8,
+	KP_F1,	 KP_F3,	  KP_F4,  KP_F2,
+	KP_F6,	 KP_F8,	  KP_F9,  KP_F7,
+	KP_1,	 KP_3,	  KP_F11, KP_2,
+	KP_4,	 KP_6,	  KP_F12, KP_5,
+	KP_7,	 KP_9,	  KP_F13, KP_8,
 	KP_STAR, KP_HASH, KP_F14, KP_0,
-	KP_F5,   KP_F15,  KP_F16, KP_F10,
+	KP_F5,	 KP_F15,  KP_F16, KP_F10,
 };
 
 static const int kp_repeats[KP_ROWS * KP_COLS] = {

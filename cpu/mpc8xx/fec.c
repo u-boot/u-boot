@@ -383,7 +383,7 @@ static void fec_pin_init(int fecidx)
 	 */
 	fecp->fec_mii_speed = ((bd->bi_intfreq + 4999999) / 5000000) << 1;
 
-#if defined(CONFIG_NETTA) || defined(CONFIG_NETPHONE)
+#if defined(CONFIG_NETTA) || defined(CONFIG_NETPHONE) || defined(CONFIG_NETTA2)
 	/* our PHYs are the limit at 2.5 MHz */
 	fecp->fec_mii_speed <<= 1;
 #endif

@@ -417,18 +417,49 @@ NETPHONE_config:	unconfig
 		 }
 	@./mkconfig -a $(call xtract_NETPHONE,$@) ppc mpc8xx netphone
 
-xtract_NETTA = $(subst _ISDN,,$(subst _config,,$1))
+xtract_NETTA = $(subst _SWAPHOOK,,$(subst _6412,,$(subst _ISDN,,$(subst _config,,$1))))
 
+NETTA_ISDN_6412_SWAPHOOK_config \
+NETTA_ISDN_SWAPHOOK_config \
+NETTA_6412_SWAPHOOK_config \
+NETTA_SWAPHOOK_config \
+NETTA_ISDN_6412_config \
 NETTA_ISDN_config \
+NETTA_6412_config \
 NETTA_config:		unconfig
 	@ >include/config.h
-	@[ -z "$(findstring NETTA_config,$@)" ] || \
-		 { echo "#undef CONFIG_NETTA_ISDN" >>include/config.h ; \
-		 }
-	@[ -z "$(findstring NETTA_ISDN_config,$@)" ] || \
+	@[ -z "$(findstring ISDN_,$@)" ] || \
 		 { echo "#define CONFIG_NETTA_ISDN 1" >>include/config.h ; \
 		 }
+	@[ -n "$(findstring ISDN_,$@)" ] || \
+		 { echo "#undef CONFIG_NETTA_ISDN" >>include/config.h ; \
+		 }
+	@[ -z "$(findstring 6412_,$@)" ] || \
+		 { echo "#define CONFIG_NETTA_6412 1" >>include/config.h ; \
+		 }
+	@[ -n "$(findstring 6412_,$@)" ] || \
+		 { echo "#undef CONFIG_NETTA_6412" >>include/config.h ; \
+		 }
+	@[ -z "$(findstring SWAPHOOK_,$@)" ] || \
+		 { echo "#define CONFIG_NETTA_SWAPHOOK 1" >>include/config.h ; \
+		 }
+	@[ -n "$(findstring SWAPHOOK_,$@)" ] || \
+		 { echo "#undef CONFIG_NETTA_SWAPHOOK" >>include/config.h ; \
+		 }
 	@./mkconfig -a $(call xtract_NETTA,$@) ppc mpc8xx netta
+
+xtract_NETTA2 = $(subst _V2,,$(subst _config,,$1))
+
+NETTA2_V2_config \
+NETTA2_config:		unconfig
+	@ >include/config.h
+	@[ -z "$(findstring NETTA2_config,$@)" ] || \
+		 { echo "#define CONFIG_NETTA2_VERSION 1" >>include/config.h ; \
+		 }
+	@[ -z "$(findstring NETTA2_V2_config,$@)" ] || \
+		 { echo "#define CONFIG_NETTA2_VERSION 2" >>include/config.h ; \
+		 }
+	@./mkconfig -a $(call xtract_NETTA2,$@) ppc mpc8xx netta2
 
 NX823_config:		unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx nx823

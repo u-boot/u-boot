@@ -1,5 +1,5 @@
 /*
- * Intracom TI6711 DSP
+ * Intracom TI6711/TI6412 DSP
  */
 
 #include <common.h>
@@ -11,6 +11,38 @@ struct ram_range {
 	u32 start;
 	u32 size;
 };
+
+#if defined(CONFIG_NETTA_6412)
+
+static const struct ram_range int_ram[] = {
+	{ 0x00000000U, 0x00040000U },
+};
+
+static const struct ram_range ext_ram[] = {
+	{ 0x80000000U, 0x00100000U },
+};
+
+static const struct ram_range ranges[] = {
+	{ 0x00000000U, 0x00040000U },
+	{ 0x80000000U, 0x00100000U },
+};
+
+static inline u16 bit_invert(u16 d)
+{
+	register u8 i;
+	register u16 r;
+	register u16 bit;
+
+	r = 0;
+	for (i = 0; i < 16; i++) {
+		bit = d & (1 << i);
+		if (bit != 0)
+			r |= 1 << (15 - i);
+	}
+	return r;
+}
+
+#else
 
 static const struct ram_range int_ram[] = {
 	{ 0x00000000U, 0x00010000U },
@@ -24,6 +56,8 @@ static const struct ram_range ranges[] = {
 	{ 0x00000000U, 0x00010000U },
 	{ 0x80000000U, 0x00100000U },
 };
+
+#endif
 
 /*******************************************************************************************************/
 
@@ -62,8 +96,11 @@ static volatile u32 *ti6711_delay = &dummy_delay;
 static inline void dsp_go_slow(void)
 {
 	volatile memctl8xx_t *memctl = &((immap_t *)CFG_IMMR)->im_memctl;
-
+#if defined(CONFIG_NETTA_6412)
+	memctl->memc_or6 |= OR_SCY_15_CLK | OR_TRLX;
+#else
 	memctl->memc_or2 |= OR_SCY_15_CLK | OR_TRLX;
+#endif
 	memctl->memc_or5 |= OR_SCY_15_CLK | OR_TRLX;
 
 	ti6711_delay = (u32 *)DUMMY_BASE;
@@ -72,8 +109,11 @@ static inline void dsp_go_slow(void)
 static inline void dsp_go_fast(void)
 {
 	volatile memctl8xx_t *memctl = &((immap_t *)CFG_IMMR)->im_memctl;
-
+#if defined(CONFIG_NETTA_6412)
+	memctl->memc_or6 = (memctl->memc_or6 & ~(OR_SCY_15_CLK | OR_TRLX)) | OR_SCY_0_CLK;
+#else
 	memctl->memc_or2 = (memctl->memc_or2 & ~(OR_SCY_15_CLK | OR_TRLX)) | OR_SCY_3_CLK;
+#endif
 	memctl->memc_or5 = (memctl->memc_or5 & ~(OR_SCY_15_CLK | OR_TRLX)) | OR_SCY_0_CLK;
 
 	ti6711_delay = &dummy_delay;
@@ -89,62 +129,50 @@ static inline void dsp_delay(void)
 
 static inline u16 dsp_read_hpic(void)
 {
+#if defined(CONFIG_NETTA_6412)
+	return bit_invert(*((volatile u16 *)DSP_BASE));
+#else
 	return *((volatile u16 *)DSP_BASE);
+#endif
 }
 
 static inline void dsp_write_hpic(u16 val)
 {
+#if defined(CONFIG_NETTA_6412)
+	*((volatile u16 *)DSP_BASE) = bit_invert(val);
+#else
 	*((volatile u16 *)DSP_BASE) = val;
+#endif
 }
 
 static inline void dsp_reset(void)
 {
+#if defined(CONFIG_NETTA_6412)
+	((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pddat &= ~(1 << (15 - 15));
+	udelay(500);
+	((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pddat |=  (1 << (15 - 15));
+	udelay(500);
+#else
 	((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pddat &= ~(1 << (15 - 7));
 	udelay(250);
 	((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pddat |=  (1 << (15 - 7));
 	udelay(250);
-}
-
-static inline void dsp_init_hpic(void)
-{
-	int i;
-	volatile u16 *p;
-
-	dsp_go_slow();
-
-	i = 0;
-	while (i < 1000 && (dsp_read_hpic() & 0x08) == 0) {
-		dsp_delay();
-		i++;
-	}
-	dsp_delay();
-
-	/* write control register */
-	p = (volatile u16 *)DSP_BASE;
-	p[0] = 0x0000;
-	dsp_delay();
-	p[1] = 0x0000;
-	dsp_delay();
-
-	dsp_go_fast();
-}
-
-static inline void dsp_wait_hrdy(void)
-{
-	int i;
-
-	i = 0;
-	while (i < 1000 && (dsp_read_hpic() & 0x08) == 0) {
-		dsp_delay();
-		i++;
-	}
+#endif
 }
 
 static inline u32 dsp_read_hpic_word(u32 addr)
 {
 	u32 val;
 	volatile u16 *p;
+#if defined(CONFIG_NETTA_6412)
+	p = (volatile u16 *)((volatile u8 *)DSP_BASE + addr);
 
+	val = ((u32) bit_invert(p[0]) << 16);
+	/* dsp_delay(); */
+
+	val |= bit_invert(p[1]);
+	/* dsp_delay(); */
+#else
 	p = (volatile u16 *)((volatile u8 *)DSP_BASE + addr);
 
 	val = ((u32) p[0] << 16);
@@ -152,40 +180,80 @@ static inline u32 dsp_read_hpic_word(u32 addr)
 
 	val |= p[1];
 	dsp_delay();
-
+#endif
 	return val;
 }
 
 static inline u16 dsp_read_hpic_hi_hword(u32 addr)
 {
+#if defined(CONFIG_NETTA_6412)
+	return bit_invert(*(volatile u16 *)((volatile u8 *)DSP_BASE + addr));
+#else
 	return *(volatile u16 *)((volatile u8 *)DSP_BASE + addr);
+#endif
 }
 
 static inline u16 dsp_read_hpic_lo_hword(u32 addr)
 {
+#if defined(CONFIG_NETTA_6412)
+	return bit_invert(*(volatile u16 *)((volatile u8 *)DSP_BASE + addr + 2));
+#else
 	return *(volatile u16 *)((volatile u8 *)DSP_BASE + addr + 2);
+#endif
+}
+
+static inline void dsp_wait_hrdy(void)
+{
+	int i;
+
+	i = 0;
+#if defined(CONFIG_NETTA_6412)
+	while (i < 1000 && (dsp_read_hpic_word(DSP_HPIC) & 0x08) == 0) {
+#else
+	while (i < 1000 && (dsp_read_hpic() & 0x08) == 0) {
+#endif
+		dsp_delay();
+		i++;
+	}
 }
 
 static inline void dsp_write_hpic_word(u32 addr, u32 val)
 {
 	volatile u16 *p;
+#if defined(CONFIG_NETTA_6412)
+	p = (volatile u16 *)((volatile u8 *)DSP_BASE + addr);
+	p[0] = bit_invert((u16)(val >> 16));
+	/* dsp_delay(); */
 
+	p[1] = bit_invert((u16)val);
+	/* dsp_delay(); */
+#else
 	p = (volatile u16 *)((volatile u8 *)DSP_BASE + addr);
 	p[0] = (u16)(val >> 16);
 	dsp_delay();
 
 	p[1] = (u16)val;
 	dsp_delay();
+#endif
 }
 
 static inline void dsp_write_hpic_hi_hword(u32 addr, u16 val_h)
 {
+#if defined(CONFIG_NETTA_6412)
+	*(volatile u16 *)((volatile u8 *)DSP_BASE + addr) = bit_invert(val_h);
+#else
+
 	*(volatile u16 *)((volatile u8 *)DSP_BASE + addr) = val_h;
+#endif
 }
 
 static inline void dsp_write_hpic_lo_hword(u32 addr, u16 val_l)
 {
+#if defined(CONFIG_NETTA_6412)
+	*(volatile u16 *)((volatile u8 *)DSP_BASE + addr + 2) = bit_invert(val_l);
+#else
 	*(volatile u16 *)((volatile u8 *)DSP_BASE + addr + 2) = val_l;
+#endif
 }
 
 /********************************************************************/
@@ -193,21 +261,29 @@ static inline void dsp_write_hpic_lo_hword(u32 addr, u16 val_l)
 static inline void c62_write_word(u32 addr, u32 val)
 {
 	dsp_write_hpic_hi_hword(DSP_HPIA, (u16)(addr >> 16));
+#if !defined(CONFIG_NETTA_6412)
 	dsp_delay();
+#endif
 	dsp_write_hpic_lo_hword(DSP_HPIA, (u16)addr);
+#if !defined(CONFIG_NETTA_6412)
 	dsp_delay();
+#endif
 
 	dsp_wait_hrdy();
+#if !defined(CONFIG_NETTA_6412)
 	dsp_delay();
-
+#endif
 	dsp_write_hpic_hi_hword(DSP_HPID2, (u16)(val >> 16));
+#if !defined(CONFIG_NETTA_6412)
 	dsp_delay();
 
-	dsp_wait_hrdy();
-	dsp_delay();
-
+	/* dsp_wait_hrdy();
+	dsp_delay(); */
+#endif
 	dsp_write_hpic_lo_hword(DSP_HPID2, (u16)val);
+#if !defined(CONFIG_NETTA_6412)
 	dsp_delay();
+#endif
 }
 
 static u32 c62_read_word(u32 addr)
@@ -215,26 +291,36 @@ static u32 c62_read_word(u32 addr)
 	u32 val;
 
 	dsp_write_hpic_hi_hword(DSP_HPIA, (u16)(addr >> 16));
+#if !defined(CONFIG_NETTA_6412)
 	dsp_delay();
+#endif
 	dsp_write_hpic_lo_hword(DSP_HPIA, (u16)addr);
+#if !defined(CONFIG_NETTA_6412)
 	dsp_delay();
+#endif
 
 	/* FETCH */
+#if defined(CONFIG_NETTA_6412)
+	dsp_write_hpic_word(DSP_HPIC, 0x00100010);
+#else
 	dsp_write_hpic(0x10);
 	dsp_delay();
-
+#endif
 	dsp_wait_hrdy();
+#if !defined(CONFIG_NETTA_6412)
 	dsp_delay();
-
+#endif
 	val = (u32)dsp_read_hpic_hi_hword(DSP_HPID2) << 16;
+#if !defined(CONFIG_NETTA_6412)
 	dsp_delay();
 
-	dsp_wait_hrdy();
-	dsp_delay();
-
+	/* dsp_wait_hrdy();
+	dsp_delay(); */
+#endif
 	val |= dsp_read_hpic_lo_hword(DSP_HPID2);
+#if !defined(CONFIG_NETTA_6412)
 	dsp_delay();
-
+#endif
 	return val;
 }
 
@@ -300,7 +386,87 @@ static inline int c62_write_validated(u32 addr, const u32 *buffer, int numdata)
 	return 0;
 }
 
+#if defined(CONFIG_NETTA_6412)
+
+#define DRAM_REGS_BASE	0x1800000
+
+#define GBLCTL	DRAM_REGS_BASE
+#define CECTL1	(DRAM_REGS_BASE + 0x4)
+#define CECTL0	(DRAM_REGS_BASE + 0x8)
+#define CECTL2	(DRAM_REGS_BASE + 0x10)
+#define CECTL3	(DRAM_REGS_BASE + 0x14)
+#define SDCTL	(DRAM_REGS_BASE + 0x18)
+#define SDTIM	(DRAM_REGS_BASE + 0x1C)
+#define SDEXT	(DRAM_REGS_BASE + 0x20)
+#define SESEC1	(DRAM_REGS_BASE + 0x44)
+#define SESEC0	(DRAM_REGS_BASE + 0x48)
+#define SESEC2	(DRAM_REGS_BASE + 0x50)
+#define SESEC3	(DRAM_REGS_BASE + 0x54)
+
+#define MAR128	0x1848200
+#define MAR129	0x1848204
+
+void dsp_dram_initialize(void)
+{
+	c62_write_word(GBLCTL, 0x120E4);
+	c62_write_word(CECTL1, 0x18);
+	c62_write_word(CECTL0, 0xD0);
+	c62_write_word(CECTL2, 0x18);
+	c62_write_word(CECTL3, 0x18);
+	c62_write_word(SDCTL, 0x47115000);
+	c62_write_word(SDTIM, 1536);
+	c62_write_word(SDEXT, 0x534A9);
+#if 0
+	c62_write_word(SESEC1, 0);
+	c62_write_word(SESEC0, 0);
+	c62_write_word(SESEC2, 0);
+	c62_write_word(SESEC3, 0);
+#endif
+	c62_write_word(MAR128, 1);
+	c62_write_word(MAR129, 0);
+}
+
+#endif
+
+static inline void dsp_init_hpic(void)
+{
+	int i;
+	volatile u16 *p;
+#if defined(CONFIG_NETTA_6412)
+	dsp_go_fast();
+#else
+	dsp_go_slow();
+#endif
+	i = 0;
+#if defined(CONFIG_NETTA_6412)
+	while (i < 1000 && (dsp_read_hpic_word(DSP_HPIC) & 0x08) == 0) {
+#else
+	while (i < 1000 && (dsp_read_hpic() & 0x08) == 0) {
+#endif
+		dsp_delay();
+		i++;
+	}
+
+	if (i == 1000)
+		printf("HRDY stuck\n");
+
+	dsp_delay();
+
+	/* write control register */
+	p = (volatile u16 *)DSP_BASE;
+	p[0] = 0x0000;
+	dsp_delay();
+	p[1] = 0x0000;
+	dsp_delay();
+
+#if !defined(CONFIG_NETTA_6412)
+	dsp_go_fast();
+#endif
+}
+
 /***********************************************************************************************************/
+
+#if !defined(CONFIG_NETTA_6412)
 
 static const u8 bootstrap_rbin[5084] = {
 	0x52, 0x42, 0x49, 0x4e, 0xc5, 0xa9, 0x9f, 0x1a, 0x00, 0x00, 0x00, 0x02,
@@ -931,18 +1097,23 @@ static void run_bootstrap(void)
 	dsp_go_fast();
 }
 
+#endif
+
 /***********************************************************************************************************/
 
 int board_post_dsp(int flags)
 {
 	u32 ramS, ramE;
 	u32 data, data2;
-	int i, j, k, r;
-
+	int i, j, k;
+#if !defined(CONFIG_NETTA_6412)
+	int r;
+#endif
 	dsp_reset();
 	dsp_init_hpic();
+#if !defined(CONFIG_NETTA_6412)
 	dsp_go_slow();
-
+#endif
 	data = 0x11223344;
 	dsp_write_hpic_word(DSP_HPIA, data);
 	data2 = dsp_read_hpic_word(DSP_HPIA);
@@ -958,7 +1129,9 @@ int board_post_dsp(int flags)
 		printf("HPIA: ** ERROR; wrote 0x%08X read 0x%08X **\n", data, data2);
 		goto err;
 	}
-
+#if defined(CONFIG_NETTA_6412)
+	dsp_dram_initialize();
+#else
 	r = load_bootstrap();
 	if (r < 0) {
 		printf("BOOTSTRAP: ** ERROR ** failed to load\n");
@@ -968,7 +1141,7 @@ int board_post_dsp(int flags)
 	run_bootstrap();
 
 	dsp_go_fast();
-
+#endif
 	printf("    ");
 
 	/* test RAMs */
@@ -1001,12 +1174,12 @@ int board_post_dsp(int flags)
 	}
 
 	printf("\b\b\b\b    \b\b\b\bOK\n");
-
+#if !defined(CONFIG_NETTA_6412)
 	/* XXX assume that this works */
 	load_bootstrap();
 	run_bootstrap();
 	dsp_go_fast();
-
+#endif
 	return 0;
 
 err:
@@ -1015,10 +1188,14 @@ err:
 
 int board_dsp_reset(void)
 {
+#if !defined(CONFIG_NETTA_6412)
 	int r;
-
+#endif
 	dsp_reset();
 	dsp_init_hpic();
+#if defined(CONFIG_NETTA_6412)
+	dsp_dram_initialize();
+#else
 	dsp_go_slow();
 	r = load_bootstrap();
 	if (r < 0)
@@ -1026,6 +1203,6 @@ int board_dsp_reset(void)
 
 	run_bootstrap();
 	dsp_go_fast();
-
+#endif
 	return 0;
 }

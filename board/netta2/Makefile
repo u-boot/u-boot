@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2002
+# (C) Copyright 2000-2004
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -21,15 +21,20 @@
 # MA 02111-1307 USA
 #
 
+include $(TOPDIR)/config.mk
 
-SUBDIRS = cpu
+LIB	= lib$(BOARD).a
 
-LIB	= libpost.a
+OBJS	= $(BOARD).o flash.o
 
-AOBJS	= cache_8xx.o
-COBJS	= cache.o codec.o cpu.o dsp.o ether.o
-COBJS  += i2c.o memory.o post.o rtc.o
-COBJS  += spr.o sysmon.o tests.o uart.o
-COBJS  += usb.o watchdog.o
+$(LIB):	.depend $(OBJS)
+	$(AR) crv $@ $(OBJS)
 
-include $(TOPDIR)/post/rules.mk
+#########################################################################
+
+.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
+		$(CC) -M $(CFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
+
+sinclude .depend
+
+#########################################################################

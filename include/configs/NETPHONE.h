@@ -49,8 +49,8 @@
 
 /* #define CONFIG_XIN		 10000000 */
 #define CONFIG_XIN		 50000000
-#define MPC8XX_HZ		120000000
-/* #define MPC8XX_HZ		 66666666 */
+/* #define MPC8XX_HZ		120000000 */
+#define MPC8XX_HZ		 66666666
 
 #define CONFIG_8xx_GCLK_FREQ	MPC8XX_HZ
 
@@ -67,8 +67,8 @@
 #undef	CONFIG_BOOTARGS
 #define CONFIG_BOOTCOMMAND							\
 	"tftpboot; " 								\
-	"setenv bootargs root=/dev/nfs rw nfsroot=${serverip}:${rootpath} " 	\
-	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off; " 	\
+	"setenv bootargs root=/dev/nfs rw nfsroot=${serverip}:${rootpath} "	\
+	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off;"	\
 	"bootm"
 
 #define CONFIG_AUTOSCRIPT
@@ -336,16 +336,18 @@
  *-----------------------------------------------------------------------
  * Set clock output, timebase and RTC source and divider,
  * power management and some other internal clocks
+ *
+ * Note: When TBS == 0 the timebase is independent of current cpu clock.
  */
 
 #define SCCR_MASK	SCCR_EBDF11
 #if MPC8XX_HZ > 66666666
-#define CFG_SCCR	(SCCR_TBS     | \
+#define CFG_SCCR	(/* SCCR_TBS	| */ SCCR_CRQEN | \
 			 SCCR_COM00   | SCCR_DFSYNC00 | SCCR_DFBRG00  | \
 			 SCCR_DFNL000 | SCCR_DFNH000  | SCCR_DFLCD000 | \
 			 SCCR_DFALCD00 | SCCR_EBDF01)
 #else
-#define CFG_SCCR	(SCCR_TBS     | \
+#define CFG_SCCR	(/* SCCR_TBS	| */ SCCR_CRQEN | \
 			 SCCR_COM00   | SCCR_DFSYNC00 | SCCR_DFBRG00  | \
 			 SCCR_DFNL000 | SCCR_DFNH000  | SCCR_DFLCD000 | \
 			 SCCR_DFALCD00)
@@ -491,6 +493,8 @@
 /* NAND */
 #define CFG_NAND_BASE		NAND_BASE
 #define CONFIG_MTD_NAND_ECC_JFFS2
+#define CONFIG_MTD_NAND_VERIFY_WRITE
+#define CONFIG_MTD_NAND_UNSAFE
 
 #define CFG_MAX_NAND_DEVICE	1
 
@@ -568,6 +572,11 @@
 
 #define READ_NAND(adr) \
 	((unsigned char)(*(volatile unsigned char *)(unsigned long)(adr)))
+
+/*****************************************************************************/
+
+#define CFG_DIRECT_FLASH_TFTP
+#define CFG_DIRECT_NAND_TFTP
 
 /*****************************************************************************/
 
