@@ -47,19 +47,15 @@ int miiphy_info (unsigned char addr,
 		 unsigned char *model, unsigned char *rev)
 {
 	unsigned int reg = 0;
+	unsigned short tmp;
 
-	/*
-	 * Trick: we are reading two 16 registers into a 32 bit variable
-	 * so we do a 16 read into the high order bits of the variable (big
-	 * endian, you know), shift it down 16 bits, and the read the rest.
-	 */
-	if (miiphy_read (addr, PHY_PHYIDR2, (unsigned short *) &reg) != 0) {
+	if (miiphy_read (addr, PHY_PHYIDR2, &tmp) != 0) {
 #ifdef DEBUG
 		printf ("PHY ID register 2 read failed\n");
 #endif
 		return (-1);
 	}
-	reg >>= 16;
+	reg = tmp;
 
 #ifdef DEBUG
 	printf ("PHY_PHYIDR2 @ 0x%x = 0x%04x\n", addr, reg);
@@ -69,12 +65,13 @@ int miiphy_info (unsigned char addr,
 		return (-1);
 	}
 
-	if (miiphy_read (addr, PHY_PHYIDR1, (unsigned short *) &reg) != 0) {
+	if (miiphy_read (addr, PHY_PHYIDR1, &tmp) != 0) {
 #ifdef DEBUG
 		printf ("PHY ID register 1 read failed\n");
 #endif
 		return (-1);
 	}
+	reg |= tmp << 16;
 #ifdef DEBUG
 	printf ("PHY_PHYIDR[1,2] @ 0x%x = 0x%08x\n", addr, reg);
 #endif

@@ -81,7 +81,7 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	 * check info/read/write.
 	 */
 	if (op == 'i') {
-		int j;
+		unsigned char j, start, end;
 		unsigned int oui;
 		unsigned char model;
 		unsigned char rev;
@@ -89,7 +89,13 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		/*
 		 * Look for any and all PHYs.  Valid addresses are 0..31.
 		 */
-		for (j = 0; j < 32; j++) {
+		if (argc >= 3) {
+			start = addr; end = addr + 1;
+		} else {
+			start = 0; end = 32;
+		}
+
+		for (j = start; j < end; j++) {
 			if (miiphy_info (j, &oui, &model, &rev) == 0) {
 				printf ("PHY 0x%02X: "
 					"OUI = 0x%04X, "

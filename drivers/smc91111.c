@@ -71,10 +71,12 @@
 
 #define NO_AUTOPROBE
 
+#define SMC_DEBUG 0
+
+#if SMC_DEBUG > 1
 static const char version[] =
 	"smc91111.c:v1.0 04/25/01 by Daris A Nevil (dnevil@snmc.com)\n";
-
-#define SMC_DEBUG 0
+#endif
 
 /*------------------------------------------------------------------------
  .
@@ -212,7 +214,7 @@ int get_rom_mac(char *v_rom_mac);
  ------------------------------------------------------------
 */
 
-static char smc_mac_addr[] = {0x02, 0x80, 0xad, 0x20, 0x31, 0xb8};
+static char unsigned smc_mac_addr[6] = {0x02, 0x80, 0xad, 0x20, 0x31, 0xb8};
 
 /*
  * This function must be called before smc_open() if you want to override
@@ -623,7 +625,7 @@ again:
 		return 0;
 	} else {
 		/* ack. int */
-		SMC_outw (IM_TX_INT, SMC91111_INT_REG);
+		SMC_outb (IM_TX_INT, SMC91111_INT_REG);
 		PRINTK2 ("%s: Sent packet of length %d \n", SMC_DEV_NAME,
 			 length);
 
@@ -728,7 +730,6 @@ static int smc_rcv()
 #ifdef USE_32_BIT
 	dword stat_len;
 #endif
-
 
 	SMC_SELECT_BANK(2);
 	packet_number = SMC_inw( RXFIFO_REG );
@@ -1223,7 +1224,7 @@ static void smc_phy_configure ()
 
 	/* Enable PHY Interrupts (for register 18) */
 	/* Interrupts listed here are disabled */
-	smc_write_phy_register (PHY_INT_REG, 0xffff);
+	smc_write_phy_register (PHY_MASK_REG, 0xffff);
 
 	/* Configure the Receive/Phy Control register */
 	SMC_SELECT_BANK (0);

@@ -306,7 +306,17 @@ typedef unsigned long int 		dword;
 #define RPC_LED_100	(0x05)	/* LED = 100Mbps link dectect */
 #define RPC_LED_TX	(0x06)	/* LED = TX packet occurred */
 #define RPC_LED_RX	(0x07)	/* LED = RX packet occurred */
-#define RPC_DEFAULT (RPC_ANEG | (RPC_LED_100 << RPC_LSXA_SHFT) | (RPC_LED_FD << RPC_LSXB_SHFT) | RPC_SPEED | RPC_DPLX)
+#if defined(CONFIG_DK1C20)
+/* buggy schematic: LEDa -> yellow, LEDb --> green */
+#define RPC_DEFAULT	( RPC_SPEED | RPC_DPLX | RPC_ANEG	\
+			| (RPC_LED_TX_RX << RPC_LSXA_SHFT)	\
+			| (RPC_LED_100_10 << RPC_LSXB_SHFT)	)
+#else
+/* SMSC reference design: LEDa --> green, LEDb --> yellow */
+#define RPC_DEFAULT	( RPC_SPEED | RPC_DPLX | RPC_ANEG	\
+			| (RPC_LED_100_10 << RPC_LSXA_SHFT)	\
+			| (RPC_LED_TX_RX << RPC_LSXB_SHFT)	)
+#endif
 
 /* Bank 0 0x000C is reserved */
 

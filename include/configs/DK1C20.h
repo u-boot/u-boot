@@ -158,7 +158,7 @@
 #define	CFG_MAXARGS		16		/* max number of command args	*/
 #define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
 #undef  CFG_CLKS_IN_HZ
-#define	CFG_HZ			1562500
+#define	CFG_HZ			1000		/* decr freq: 1ms ticks */
 #define CFG_LOAD_ADDR		0x00800000	/* Default load address */
 
 #define CFG_MEMTEST_START	0x00000000

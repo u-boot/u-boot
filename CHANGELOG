@@ -2,6 +2,17 @@
 Changes since U-Boot 1.0.0:
 ======================================================================
 
+* Patches by Stephan Linz, 3 Nov 2003:
+  - more endianess fixes for LAN91C111 driver
+  - CFG_HZ configuration patch for NIOS Cyclone board
+
+* Patch by Stephan Linz, 28 Oct 2003:
+  fix PHY_INT_REG vs. PHY_MASK_REG bug in drivers/smc91111.c
+
+* Patch by Steven Scholz, 20 Oct 2003:
+  - make "mii info <addr>" show infor for PHY at "addr" only
+  - Endian fix for miiphy_info()
+
 * Patch by Gleb Natapov, 19 Sep 2003:
   Move most of the timer interrupt related PPC code to ppc_lib/interrupts.c
 
