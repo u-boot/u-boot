@@ -27,7 +27,9 @@
 #include <i2c.h>
 #include <command.h>
 
-/* ------------------------------------------------------------------------- */
+
+extern void lxt971_no_sleep(void);
+
 
 int board_early_init_f (void)
 {
@@ -61,8 +63,6 @@ int board_early_init_f (void)
 }
 
 
-/* ------------------------------------------------------------------------- */
-
 int misc_init_f (void)
 {
 	return 0;					/* dummy implementation */
@@ -72,7 +72,6 @@ int misc_init_f (void)
 /*
  * Check Board Identity:
  */
-
 int checkboard (void)
 {
 	unsigned char str[64];
@@ -93,10 +92,14 @@ int checkboard (void)
 
 	putc ('\n');
 
+	/*
+	 * Disable sleep mode in LXT971
+	 */
+	lxt971_no_sleep();
+
 	return (0);
 }
 
-/* ------------------------------------------------------------------------- */
 
 long int initdram (int board_type)
 {
@@ -113,7 +116,6 @@ long int initdram (int board_type)
 	return (4 * 1024 * 1024 << ((val & 0x000e0000) >> 17));
 }
 
-/* ------------------------------------------------------------------------- */
 
 int testdram (void)
 {
@@ -122,5 +124,3 @@ int testdram (void)
 
 	return (0);
 }
-
-/* ------------------------------------------------------------------------- */
