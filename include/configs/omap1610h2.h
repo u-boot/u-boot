@@ -150,7 +150,7 @@
 #define PHYS_FLASH_1_BM0	0x0C000000	/* Flash Bank #1 if booting from RAM */
 
 #ifdef CONFIG_CS_AUTOBOOT			/* Determine CS assignment in runtime */
-				
+
 #ifndef __ASSEMBLY__
 extern unsigned long omap_flash_base;		/* set in flash__init */
 #endif

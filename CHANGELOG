@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Kurt Stremerch, 28 May 2004:
+  Add support for Exys XSEngine board
+
 * Patch by Martin Krause, 27 May 2004:
   Fix a MPC5xxx I2C timing issue in i2c_probe().
 

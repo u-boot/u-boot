@@ -102,8 +102,8 @@ void flash__init (void)
 
 #ifdef CONFIG_CS_AUTOBOOT
 	 /* Check swapping of CS0 and CS3, set flash base accordingly */
-        omap_flash_base = ((*((u32 *)OMAP_EMIFS_CONFIG_REG) & 0x02) == 0) ?
-			                PHYS_FLASH_1_BM0 : PHYS_FLASH_1_BM1;
+	omap_flash_base = ((*((u32 *)OMAP_EMIFS_CONFIG_REG) & 0x02) == 0) ?
+					PHYS_FLASH_1_BM0 : PHYS_FLASH_1_BM1;
 #endif
 	regval = *((volatile unsigned int *) EMIFS_GlB_Config_REG);
 	/* Turn off write protection for flash devices. */

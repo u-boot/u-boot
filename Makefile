@@ -1166,6 +1166,9 @@ wepep250_config	:	unconfig
 xm250_config	:	unconfig
 	@./mkconfig $(@:_config=) arm pxa xm250
 
+xsengine_config :	unconfig
+	@./mkconfig $(@:_config=) arm pxa xsengine
+
 #========================================================================
 # i386
 #========================================================================

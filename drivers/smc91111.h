@@ -76,6 +76,16 @@ typedef unsigned long int 		dword;
 
 #ifdef CONFIG_PXA250
 
+#ifdef CONFIG_XSENGINE
+#define	SMC_inl(r) 	(*((volatile dword *)(SMC_BASE_ADDRESS+(r<<1))))
+#define	SMC_inw(r) 	(*((volatile word *)(SMC_BASE_ADDRESS+(r<<1))))
+#define SMC_inb(p)	({ \
+	unsigned int __p = (unsigned int)(SMC_BASE_ADDRESS + (p<<1)); \
+	unsigned int __v = *(volatile unsigned short *)((__p) & ~2); \
+	if (__p & 2) __v >>= 8; \
+	else __v &= 0xff; \
+	__v; })
+#else
 #define	SMC_inl(r) 	(*((volatile dword *)(SMC_BASE_ADDRESS+(r))))
 #define	SMC_inw(r) 	(*((volatile word *)(SMC_BASE_ADDRESS+(r))))
 #define SMC_inb(p)	({ \
@@ -84,9 +94,16 @@ typedef unsigned long int 		dword;
 	if (__p & 1) __v >>= 8; \
 	else __v &= 0xff; \
 	__v; })
+#endif
 
+#ifdef CONFIG_XSENGINE
+#define	SMC_outl(d,r)	(*((volatile dword *)(SMC_BASE_ADDRESS+(r<<1))) = d)
+#define	SMC_outw(d,r)	(*((volatile word *)(SMC_BASE_ADDRESS+(r<<1))) = d)
+#else
 #define	SMC_outl(d,r)	(*((volatile dword *)(SMC_BASE_ADDRESS+(r))) = d)
 #define	SMC_outw(d,r)	(*((volatile word *)(SMC_BASE_ADDRESS+(r))) = d)
+#endif
+
 #define	SMC_outb(d,r)	({	word __d = (byte)(d);  \
 				word __w = SMC_inw((r)&~1);  \
 				__w &= ((r)&1) ? 0x00FF : 0xFF00;  \
@@ -191,7 +208,11 @@ typedef unsigned long int 		dword;
 
 #if defined(CONFIG_SMC_USE_32_BIT)
 
+#ifdef CONFIG_XSENGINE
+#define	SMC_inl(r) 	(*((volatile dword *)(SMC_BASE_ADDRESS+(r<<1))))
+#else
 #define	SMC_inl(r) 	(*((volatile dword *)(SMC_BASE_ADDRESS+(r))))
+#endif
 
 #define SMC_insl(r,b,l) 	({	int __i ;  \
 					dword *__b2;  \
@@ -202,8 +223,11 @@ typedef unsigned long int 		dword;
 					};  \
 				})
 
+#ifdef CONFIG_XSENGINE
+#define	SMC_outl(d,r)	(*((volatile dword *)(SMC_BASE_ADDRESS+(r<<1))) = d)
+#else
 #define	SMC_outl(d,r)	(*((volatile dword *)(SMC_BASE_ADDRESS+(r))) = d)
-
+#endif
 #define SMC_outsl(r,b,l)	({	int __i; \
 					dword *__b2; \
 					__b2 = (dword *) b; \
