@@ -24,7 +24,7 @@
 #include <common.h>
 #include <asm/processor.h>
 
-#undef  DEBUG_FLASH
+#undef  DEBUG_FLASH 
 /*
  * This file implements a Common Flash Interface (CFI) driver for ppcboot.
  * The width of the port and the width of the chips are determined at initialization.
@@ -89,6 +89,8 @@
 #define FLASH_MAN_CFI			0x01000000
 
 
+
+
 typedef union {
 	unsigned char c;
 	unsigned short w;
@@ -109,6 +111,7 @@ flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 /*-----------------------------------------------------------------------
  * Functions
  */
+
 
 
 static void flash_add_byte(flash_info_t *info, cfiword_t * cword, uchar c);
@@ -246,7 +249,7 @@ int flash_erase (flash_info_t *info, int s_first, int s_last)
 			flash_write_cmd(info, sect, 0, FLASH_CMD_CLEAR_STATUS);
 			flash_write_cmd(info, sect, 0, FLASH_CMD_BLOCK_ERASE);
 			flash_write_cmd(info, sect, 0, FLASH_CMD_ERASE_CONFIRM);
-
+			
 			if(flash_full_status_check(info, sect, info->erase_blk_tout, "erase")) {
 				rcode = 1;
 			} else
@@ -274,7 +277,7 @@ void flash_print_info  (flash_info_t *info)
 		info->size >> 20, info->sector_count);
 	printf(" Erase timeout %ld ms, write timeout %ld ms, buffer write timeout %ld ms, buffer size %d\n",
 	       info->erase_blk_tout, info->write_tout, info->buffer_write_tout, info->buffer_size);
-
+      
 	printf ("  Sector Start Addresses:");
 	for (i=0; i<info->sector_count; ++i) {
 #ifdef CFG_FLASH_EMPTY_INFO
@@ -283,28 +286,28 @@ void flash_print_info  (flash_info_t *info)
 		int erased;
 		volatile unsigned long *flash;
 
-		/*
-		 * Check if whole sector is erased
-		 */
-		if (i != (info->sector_count-1))
-		  size = info->start[i+1] - info->start[i];
-		else
-		  size = info->start[0] + info->size - info->start[i];
-		erased = 1;
-		flash = (volatile unsigned long *)info->start[i];
-		size = size >> 2;        /* divide by 4 for longword access */
-		for (k=0; k<size; k++)
-		  {
-		    if (*flash++ != 0xffffffff)
-		      {
-			erased = 0;
-			break;
-		      }
-		  }
+                /*
+                 * Check if whole sector is erased
+                 */
+                if (i != (info->sector_count-1))
+                  size = info->start[i+1] - info->start[i];
+                else
+                  size = info->start[0] + info->size - info->start[i];
+                erased = 1;
+                flash = (volatile unsigned long *)info->start[i];
+                size = size >> 2;        /* divide by 4 for longword access */
+                for (k=0; k<size; k++)
+                  {
+                    if (*flash++ != 0xffffffff)
+                      {
+                        erased = 0;
+                        break;
+                      }
+                  }
 
 		if ((i % 5) == 0)
 			printf ("\n   ");
-		/* print empty and read-only info */
+                /* print empty and read-only info */
 		printf (" %08lX%s%s",
 			info->start[i],
 			erased ? " E" : "  ",
@@ -411,7 +414,7 @@ int flash_real_protect(flash_info_t *info, long sector, int prot)
 	else
 		flash_write_cmd(info, sector, 0, FLASH_CMD_PROTECT_CLEAR);
 
-	if((retcode = flash_full_status_check(info, sector, info->erase_blk_tout,
+	if((retcode = flash_full_status_check(info, sector, info->erase_blk_tout, 
 					 prot?"protect":"unprotect")) == 0) {
 
 		info->protect[sector] = prot;
@@ -461,7 +464,7 @@ static int flash_full_status_check(flash_info_t * info, ulong sector, ulong tout
 			printf("Command Sequence Error.\n");
 		} else if(flash_isset(info, sector, 0, FLASH_STATUS_ECLBS)){
 			printf("Block Erase Error.\n");
-			retcode = ERR_NOT_ERASED;
+		        retcode = ERR_NOT_ERASED;
 		} else if (flash_isset(info, sector, 0, FLASH_STATUS_PSLBS)) {
 			printf("Locking Error\n");
 		}
@@ -730,7 +733,7 @@ static int find_sector(flash_info_t *info, ulong addr)
 {
 	int sector;
 	for(sector = info->sector_count - 1; sector >= 0; sector--) {
-		if(addr >= info->start[sector])
+		if(addr >= info->start[sector]) 
 			break;
 	}
 	return sector;
@@ -738,7 +741,7 @@ static int find_sector(flash_info_t *info, ulong addr)
 
 static int flash_write_cfibuffer(flash_info_t * info, ulong dest, uchar * cp, int len)
 {
-
+	
 	int sector;
 	int cnt;
 	int retcode;
@@ -786,8 +789,8 @@ static int flash_write_cfibuffer(flash_info_t * info, ulong dest, uchar * cp, in
 		flash_write_cmd(info, sector, 0, FLASH_CMD_WRITE_BUFFER_CONFIRM);
 		retcode = flash_full_status_check(info, sector, info->buffer_write_tout,
 					     "buffer write");
-	}
+	} 
 	flash_write_cmd(info, sector, 0, FLASH_CMD_CLEAR_STATUS);
 	return retcode;
-}
+}	
 #endif /* CFG_USE_FLASH_BUFFER_WRITE */
