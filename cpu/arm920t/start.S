@@ -317,17 +317,15 @@ cpu_init_crit:
 	.macro	bad_save_user_regs
 	sub	sp, sp, #S_FRAME_SIZE
 	stmia	sp, {r0 - r12}			@ Calling r0-r12
-	add     r8, sp, #S_PC
-
 	ldr	r2, _armboot_end
 	add	r2, r2, #CONFIG_STACKSIZE
 	sub	r2, r2, #8
-	ldmia	r2, {r2 - r4}                   @ get pc, cpsr, old_r0
+	ldmia	r2, {r2 - r3}			@ get pc, cpsr
 	add	r0, sp, #S_FRAME_SIZE		@ restore sp_SVC
 
 	add	r5, sp, #S_SP
 	mov	r1, lr
-	stmia	r5, {r0 - r4}                   @ save sp_SVC, lr_SVC, pc, cpsr, old_r
+	stmia	r5, {r0 - r3}			@ save sp_SVC, lr_SVC, pc, cpsr
 	mov	r0, sp
 	.endm
 

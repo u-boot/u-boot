@@ -2,6 +2,18 @@
 Changes since U-Boot 0.3.1:
 ======================================================================
 
+* Fix data abort exception handling for arm920t CPU
+
+* Fix alignment problems with flash driver for TRAB board
+
+* Patch by Donald White, 21 May 2003:
+  fix calculation of base address in pci_hose_config_device()
+
+* Fix bug in command line parsing: "cmd1;cmd2" is supposed to always
+  execute "cmd2", even if "cmd1" fails. Note that this is different
+  to "run var1 var2" where the contents of "var2" will NOT be
+  executed when a command in "var1" fails.
+
 * Add zero-copy ramdisk support (requires corresponding kernel support!)
 
 * Patch by Kyle Harris, 20 May 2003:

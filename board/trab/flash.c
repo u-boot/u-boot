@@ -431,7 +431,15 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 	 * handle word aligned part
 	 */
 	while (cnt >= 4) {
-		data = *((vu_long *) src);
+		if (((ulong)src) & 0x3) {
+			for (i = 0; i < 4; i++) {
+				((char *)&data)[i] = ((vu_char *)src)[i];
+			}
+		}
+		else {
+			data = *((vu_long *) src);
+		}
+			
 		if ((rc = write_word (info, wp, data)) != 0) {
 			return (rc);
 		}

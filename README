@@ -2048,6 +2048,48 @@ Please note that changes to some configuration parameters may take
 only effect after the next boot (yes, that's just like Windoze :-).
 
 
+Command Line Parsing:
+=====================
+
+There are two different command line parsers available  with  U-Boot:
+the old "simple" one, and the much more pwerful "hush" shell:
+
+Old, simple command line parser:
+--------------------------------
+
+- supports environment variables (through setenv / saveenv commands)
+- several commands on one line, separated by ';'
+- variable substitution using "... $(name) ..." syntax
+- special characters ('$', ';') can be escaped by prefixing with '\',
+  for example:
+	setenv bootcmd bootm \$(address)
+- You can also escape text by enclosing in single apostrophes, for example:
+	setenv addip 'setenv bootargs $bootargs ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname::off'
+
+Hush shell:
+-----------
+
+- similar to Bourne shell, with control structures like
+  if...then...else...fi, for...do...done; while...do...done,
+  until...do...done, ...
+- supports environment ("global") variables (through setenv / saveenv
+  commands) and local shell variables (through standard shell syntax
+  "name=value"); only environment variables can be used with "run"
+  command
+
+General rules:
+--------------
+
+(1) If a command line (or an environment variable executed by a "run"
+    command) contains several commands separated by semicolon, and
+    one of these commands fails, then the remaining commands will be
+    executed anyway.
+
+(2) If you execute several variables with one call to run (i. e.
+    calling run with a list af variables as arguments), any failing
+    command will cause "run" to terminate, i. e. the remaining
+    variables are not executed.
+
 Note for Redundant Ethernet Interfaces:
 =======================================
 
@@ -2563,9 +2605,9 @@ Minicom warning:
 ================
 
 Over time, many people have reported problems when trying to used the
-"minicom" terminal emulation program  for  serial  download.  I  (wd)
-consider  minicom  to  be  broken, and recommend not to use it. Under
-Unix, I recommend  to  use  CKermit  for  general  purpose  use  (and
+"minicom" terminal emulation program for serial download. I (wd)
+consider minicom to be broken, and recommend not to use it. Under
+Unix, I recommend to use C-Kermit for general purpose use (and
 especially for kermit binary protocol download ("loadb" command), and
 use "cu" for S-Record download ("loads" command).
 

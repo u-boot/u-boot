@@ -746,9 +746,9 @@ int run_command (const char *cmd, int flag)
 	char finaltoken[CFG_CBSIZE];
 	char *str = cmdbuf;
 	char *argv[CFG_MAXARGS + 1];	/* NULL terminated	*/
-	int argc;
+	int argc, inquotes;
 	int repeatable = 1;
-	int inquotes;
+	int rc = 0;
 
 #ifdef DEBUG_PARSER
 	printf ("[RUN_COMMAND] cmd[%p]=\"", cmd);
@@ -817,13 +817,15 @@ int run_command (const char *cmd, int flag)
 		/* Look up command in command table */
 		if ((cmdtp = find_cmd(argv[0])) == NULL) {
 			printf ("Unknown command '%s' - try 'help'\n", argv[0]);
-			return -1;	/* give up after bad command */
+			rc = -1;	/* give up after bad command */
+			continue;
 		}
 
 		/* found - check max args */
 		if (argc > cmdtp->maxargs) {
 			printf ("Usage:\n%s\n", cmdtp->usage);
-			return -1;
+			rc = -1;
+			continue;
 		}
 
 #if (CONFIG_COMMANDS & CFG_CMD_BOOTD)
@@ -834,7 +836,8 @@ int run_command (const char *cmd, int flag)
 #endif
 			if (flag & CMD_FLAG_BOOTD) {
 				printf ("'bootd' recursion detected\n");
-				return -1;
+				rc = -1;
+				continue;
 			}
 			else
 				flag |= CMD_FLAG_BOOTD;
@@ -843,7 +846,7 @@ int run_command (const char *cmd, int flag)
 
 		/* OK - call function to do the command */
 		if ((cmdtp->cmd) (cmdtp, flag, argc, argv) != 0) {
-			return (-1);
+			rc = -1;
 		}
 
 		repeatable &= cmdtp->repeatable;
@@ -853,7 +856,7 @@ int run_command (const char *cmd, int flag)
 			return 0;	/* if stopped then not repeatable */
 	}
 
-	return repeatable;
+	return rc ? rc : repeatable;
 }
 
 /****************************************************************************/
