@@ -9,8 +9,6 @@ The following actions are taken if "silent" is set at boot time:
 
  - Until the console devices have been initialized, output has to be
    suppressed by testing for the flag "GD_FLG_SILENT" in "gd->flags".
-   Currently only the messages for the TRAB board are handled in this
-   way.
 
  - When the console devices have been initialized, "stdout" and
    "stderr" are set to "nulldev", so subsequent messages are

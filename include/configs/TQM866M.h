@@ -130,15 +130,16 @@
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
 
-#define CONFIG_RTC_MPC8xx		/* use internal RTC of MPC8xx	*/
+#undef CONFIG_RTC_MPC8xx		/* MPC866 does not support RTC	*/
+
+#define	CONFIG_TIMESTAMP		/* but print image timestmps	*/
 
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
 				CFG_CMD_ASKENV	| \
 				CFG_CMD_DHCP	| \
 				CFG_CMD_EEPROM	| \
 				CFG_CMD_IDE	| \
-				CFG_CMD_I2C	| \
-				CFG_CMD_DATE	)
+				CFG_CMD_I2C	)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -276,12 +277,6 @@
 #define CFG_TBSCR	(TBSCR_REFA | TBSCR_REFB | TBSCR_TBF)
 
 /*-----------------------------------------------------------------------
- * RTCSC - Real-Time Clock Status and Control Register		11-27
- *-----------------------------------------------------------------------
- */
-#define CFG_RTCSC	(RTCSC_SEC | RTCSC_ALR | RTCSC_RTF| RTCSC_RTE)
-
-/*-----------------------------------------------------------------------
  * PISCR - Periodic Interrupt Status and Control		11-31
  *-----------------------------------------------------------------------
  * Clear Periodic Interrupt Status, Interrupt Timer freezing enabled
@@ -403,7 +398,6 @@
 #endif	/* CONFIG_CAN_DRIVER */
 
 /*
- * 
  * 4096	Rows from SDRAM example configuration
  * 1000	factor s -> ms
  * 64	PTP (pre-divider from MPTPR) from SDRAM example configuration

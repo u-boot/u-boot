@@ -122,20 +122,10 @@ plprcr_wait:
 
 plprcr_wait_end:
 
-	/* turn instruction cache off
+	/* unlock instruction cache but leave it enabled
 	 */
 	lis	r4, CACHE_CMD_UNLOCK_ALL@h
 	ori	r4, r4, CACHE_CMD_UNLOCK_ALL@l
-	mtspr	IC_CST, r4
-	isync
-
-	lis	r4, CACHE_CMD_INVALIDATE@h
-	ori	r4, r4, CACHE_CMD_INVALIDATE@l
-	mtspr	IC_CST, r4
-	isync
-
-	lis	r4, CACHE_CMD_DISABLE@h
-	ori	r4, r4, CACHE_CMD_DISABLE@l
 	mtspr	IC_CST, r4
 	isync
 

@@ -191,6 +191,11 @@ void putc (const char c)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
+#ifdef CONFIG_SILENT_CONSOLE
+	if (gd->flags & GD_FLG_SILENT)
+		return(0);
+#endif
+
 	if (gd->flags & GD_FLG_DEVINIT) {
 		/* Send to the standard output */
 		fputc (stdout, c);
@@ -203,6 +208,11 @@ void putc (const char c)
 void puts (const char *s)
 {
 	DECLARE_GLOBAL_DATA_PTR;
+
+#ifdef CONFIG_SILENT_CONSOLE
+	if (gd->flags & GD_FLG_SILENT)
+		return;
+#endif
 
 	if (gd->flags & GD_FLG_DEVINIT) {
 		/* Send to the standard output */

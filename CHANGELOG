@@ -2,6 +2,11 @@
 Changes since U-Boot 1.0.1:
 ======================================================================
 
+* Patch by Wolter Kamphuis, 15 Dec 2003:
+  made CONFIG_SILENT_CONSOLE usable on all architectures
+
+* Disable date command on TQM866M - there is no RTC on MPC866
+
 * Fix variable CPU clock for MPC859/866 systems for low CPU clocks
 
 * Implement adaptive SDRAM timing configuration based on actual CPU

@@ -160,6 +160,9 @@ int pcmcia_on (void)
 }
 #else
 
+#ifdef CONFIG_BMS2003
+# define  BMS2003_FRAM_TIMING	(PCMCIA_SHT(2) | PCMCIA_SST(2) | PCMCIA_SL(4))
+#endif
 #if defined(CONFIG_LWMON) || defined(CONFIG_NSCU)
 # define  CFG_PCMCIA_TIMING	(PCMCIA_SHT(9) | PCMCIA_SST(3) | PCMCIA_SL(12))
 #else
@@ -197,6 +200,17 @@ int pcmcia_on (void)
 		switch (i) {
 #ifdef CONFIG_IDE_8xx_PCCARD
 		case 4:
+#ifdef CONFIG_BMS2003
+		    {	/* map FRAM area */
+			win->or = (	PCMCIA_BSIZE_256K
+				|	PCMCIA_PPS_8
+				|	PCMCIA_PRS_ATTR
+				|	slotbit
+				|	PCMCIA_PV
+				|	BMS2003_FRAM_TIMING );
+			break;
+		    }
+#endif
 		case 0:	{	/* map attribute memory */
 			win->or = (	PCMCIA_BSIZE_64M
 				|	PCMCIA_PPS_8

@@ -115,13 +115,6 @@ static int init_baudrate (void)
 
 static int display_banner (void)
 {
-#ifdef CONFIG_SILENT_CONSOLE
-	DECLARE_GLOBAL_DATA_PTR;
-
-	if (gd->flags & GD_FLG_SILENT)
-		return (0);
-#endif
-
 	printf ("\n\n%s\n\n", version_string);
 	printf ("U-Boot code: %08lX -> %08lX  BSS: -> %08lX\n",
 		_armboot_start, _armboot_end_data, _armboot_end);
@@ -148,11 +141,6 @@ static int display_dram_config (void)
 	DECLARE_GLOBAL_DATA_PTR;
 	int i;
 
-#ifdef CONFIG_SILENT_CONSOLE
-	if (gd->flags & GD_FLG_SILENT)
-		return (0);
-#endif
-
 	puts ("RAM Configuration:\n");
 
 	for(i=0; i<CONFIG_NR_DRAM_BANKS; i++) {
@@ -165,12 +153,6 @@ static int display_dram_config (void)
 
 static void display_flash_config (ulong size)
 {
-#ifdef CONFIG_SILENT_CONSOLE
-	DECLARE_GLOBAL_DATA_PTR;
-
-	if (gd->flags & GD_FLG_SILENT)
-		return;
-#endif
 	puts ("Flash: ");
 	print_size (size, "\n");
 }
