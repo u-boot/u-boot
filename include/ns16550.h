@@ -19,6 +19,18 @@ struct NS16550 {
 	unsigned char lsr;		/* 5 */
 	unsigned char msr;		/* 6 */
 	unsigned char scr;		/* 7 */
+#if defined(CONFIG_OMAP730)
+	unsigned char mdr1;		/* 8 */
+	unsigned char reg9;		/* 9 */
+	unsigned char regA;		/* A */
+	unsigned char regB;		/* B */
+	unsigned char regC;		/* C */
+	unsigned char regD;		/* D */
+	unsigned char regE;		/* E */
+	unsigned char regF;		/* F */
+	unsigned char reg10;		/* 10 */
+	unsigned char ssr;		/* 11*/
+#endif
 } __attribute__ ((packed));
 #elif (CFG_NS16550_REG_SIZE == 2)
 struct NS16550 {

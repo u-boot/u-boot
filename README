@@ -294,8 +294,9 @@ The following options need to be configured:
 		CONFIG_AT91RM9200DK,		CONFIG_DNP1110,		CONFIG_EP7312,
 		CONFIG_H2_OMAP1610,		CONFIG_HHP_CRADLE,	CONFIG_IMPA7,
 		CONFIG_INNOVATOROMAP1510,   CONFIG_INNOVATOROMAP1610,	CONFIG_LART,
-		CONFIG_LUBBOCK,			CONFIG_SHANNON,		CONFIG_SMDK2400,
-		CONFIG_SMDK2410,		CONFIG_TRAB,		CONFIG_VCMA9,
+		CONFIG_LUBBOCK,			CONFIG_SHANNON,		CONFIG_P2_OMAP730,
+		CONFIG_SMDK2400,		CONFIG_SMDK2410,	CONFIG_TRAB,
+		CONFIG_VCMA9
 
 		MicroBlaze based boards:
 		------------------------
@@ -2074,6 +2075,7 @@ configurations; the following names are supported:
 	FADS823_config		NETVIA_config		TQM860L_config
 	FADS850SAR_config	omap1510inn_config	WALNUT405_config
 	FADS860T_config		omap1610h2_config	ZPC1900_config
+				omap730p2_config
 
 Note: for some board special configuration names may exist; check if
       additional information is available from the board vendor; for

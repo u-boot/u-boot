@@ -94,7 +94,7 @@ unsigned long flash_init (void)
 
 	/* Remap FLASH according to real size */
 	memctl->memc_or0 =
-		((((unsigned long) ~1) << i) & OR_AM_MSK) |
+		((((unsigned long) ~0) << i) & OR_AM_MSK) |
 		CFG_OR_TIMING_FLASH;
 	memctl->memc_br0 = CFG_BR0_PRELIM;
 

@@ -26,7 +26,7 @@ void NS16550_init (NS16550_t com_port, int baud_divisor)
 	com_port->lcr = LCRVAL;
 	com_port->mcr = MCRVAL;
 	com_port->fcr = FCRVAL;
-#if defined(CONFIG_OMAP1510) || defined(CONFIG_OMAP1610)
+#if defined(CONFIG_OMAP1510) || defined(CONFIG_OMAP1610) || defined(CONFIG_OMAP730)
 	com_port->mdr1 = 0;	/* select uart mode */
 #endif
 }

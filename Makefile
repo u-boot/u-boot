@@ -981,6 +981,8 @@ xtract_trab = $(subst _bigram,,$(subst _bigflash,,$(subst _old,,$(subst _config,
 
 xtract_omap1610xxx = $(subst _cs0boot,,$(subst _cs3boot,, $(subst _config,,$1)))
 
+xtract_omap730p2 = $(subst _cs0boot,,$(subst _cs3boot,, $(subst _config,,$1)))
+
 SX1_config :		unconfig
 	@./mkconfig $(@:_config=) arm arm925t sx1
 
@@ -1010,6 +1012,18 @@ omap1610h2_cs3boot_config :	unconfig
 		echo "... configured for CS3 boot"; \
 	fi;
 	@./mkconfig -a $(call xtract_omap1610xxx,$@) arm arm926ejs omap1610inn
+
+omap730p2_config \
+omap730p2_cs0boot_config \
+omap730p2_cs3boot_config :	unconfig
+	@if [ "$(findstring _cs0boot_, $@)" ] ; then \
+		echo "#define CONFIG_CS0_BOOT" >> ./include/config.h ; \
+		echo "... configured for CS0 boot"; \
+	else \
+		echo "#define CONFIG_CS3_BOOT" >> ./include/config.h ; \
+		echo "... configured for CS3 boot"; \
+	fi;
+	@./mkconfig -a $(call xtract_omap730p2,$@) arm arm926ejs omap730p2
 
 smdk2400_config	:	unconfig
 	@./mkconfig $(@:_config=) arm arm920t smdk2400

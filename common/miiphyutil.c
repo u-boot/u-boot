@@ -147,15 +147,31 @@ int miiphy_speed (unsigned char addr)
 	}
 #endif /* CONFIG_PHY_GIGE */
 
-	if (miiphy_read (addr, PHY_ANLPAR, &reg)) {
-		puts ("PHY speed1 read failed, assuming 10bT\n");
+	/* Check Basic Management Control Register first. */
+	if (miiphy_read (addr, PHY_BMCR, &reg)) {
+		puts ("PHY speed read failed, assuming 10bT\n");
 		return (_10BASET);
 	}
-	if ((reg & PHY_ANLPAR_100) != 0) {
+	/* Check if auto-negotiation is on. */
+	if ((reg & PHY_BMCR_AUTON) != 0) {
+		/* Get auto-negotiation results. */
+		if (miiphy_read (addr, PHY_ANLPAR, &reg)) {
+			puts ("PHY AN speed read failed, assuming 10bT\n");
+			return (_10BASET);
+		}
+		if ((reg & PHY_ANLPAR_100) != 0) {
+			return (_100BASET);
+		} else {
+			return (_10BASET);
+		}
+	}
+	/* Get speed from basic control settings. */
+	else if (reg & PHY_BMCR_100MB) {
 		return (_100BASET);
 	} else {
 		return (_10BASET);
 	}
+
 }
 
 
@@ -182,16 +198,32 @@ int miiphy_duplex (unsigned char addr)
 	}
 #endif /* CONFIG_PHY_GIGE */
 
-	if (miiphy_read (addr, PHY_ANLPAR, &reg)) {
+	/* Check Basic Management Control Register first. */
+	if (miiphy_read (addr, PHY_BMCR, &reg)) {
 		puts ("PHY duplex read failed, assuming half duplex\n");
 		return (HALF);
 	}
+	/* Check if auto-negotiation is on. */
+	if ((reg & PHY_BMCR_AUTON) != 0) {
+		/* Get auto-negotiation results. */
+		if (miiphy_read (addr, PHY_ANLPAR, &reg)) {
+			puts ("PHY AN duplex read failed, assuming half duplex\n");
+			return (HALF);
+		}
 
-	if ((reg & (PHY_ANLPAR_10FD | PHY_ANLPAR_TXFD)) != 0) {
+		if ((reg & (PHY_ANLPAR_10FD | PHY_ANLPAR_TXFD)) != 0) {
+			return (FULL);
+		} else {
+			return (HALF);
+		}
+	}
+	/* Get speed from basic control settings. */
+	else if (reg & PHY_BMCR_DPLX) {
 		return (FULL);
 	} else {
 		return (HALF);
 	}
+
 }
 
 #ifdef CFG_FAULT_ECHO_LINK_DOWN

@@ -620,7 +620,7 @@ static int smc_open (bd_t *bd)
 		address |= smc_mac_addr[i];
 		SMC_outw (address, LAN91C96_IA0 + i);
 	}
-#else 
+#else
 	for (i = 0; i < 6; i++)
 		SMC_outb (smc_mac_addr[i], LAN91C96_IA0 + i);
 #endif
@@ -937,7 +937,7 @@ int smc_get_ethaddr (bd_t * bd)
 	return (0);
 }
 
-/* 
+/*
  * get_rom_mac()
  * Note, this has omly been tested for the OMAP730 P2.
  */
@@ -959,7 +959,5 @@ int get_rom_mac (char *v_rom_mac)
 	return (1);
 #endif
 }
-
-
 
 #endif /* CONFIG_DRIVER_LAN91C96 */

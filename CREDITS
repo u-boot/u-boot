@@ -285,6 +285,11 @@ D: Support for 4xx SCSI, floppy, CDROM, CT69000 video, ...
 D: Support for PIP405 board
 D: Support for MIP405 board
 
+N: Dave Peverley
+E: dpeverley@mpc-data.co.uk
+W: http://www.mpc-data.co.uk
+D: OMAP730 P2 board support
+
 N: Bill Pitts
 E: wlp@mindspring.com
 D: BedBug embedded debugger code

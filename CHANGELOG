@@ -2,6 +2,19 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Dave Peverley, 30 Apr 2004:
+  Add support for OMAP730 Perseus2 Development board
+
+* Patch by Alan J. Luse, 29 Apr 2004:
+  Fix flash chip-select (OR0) option register setting on FADS boards.
+
+* Patch by Alan J. Luse, 29 Apr 2004:
+  Report MII network speed and duplex setting properly when
+  auto-negotiate is not enabled.
+
+* Patch by Jarrett Redd, 29 Apr 2004:
+  Fix hang on reset on Ocotea board due to flash in wrong mode.
+
 * Patch by Dave Peverley, 29 Apr 2004:
   add MAC address detection to smc91111 driver
 

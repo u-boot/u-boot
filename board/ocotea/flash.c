@@ -349,10 +349,14 @@ static ulong flash_get_size(vu_long * addr, flash_info_t * info)
 			info->protect[i] = addr2[2] & 1;
 	}
 
+	/* issue bank reset to return to read mode */
+	addr2[0] = (FLASH_WORD_SIZE) 0x00F000F0;
+
 	/*
 	 * Prevent writes to uninitialized FLASH.
 	 */
 	if (info->flash_id != FLASH_UNKNOWN) {
+		/* ? ? ? */
 	}
 
 	return (info->size);
