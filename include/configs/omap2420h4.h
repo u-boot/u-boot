@@ -35,10 +35,10 @@
 #define CONFIG_OMAP              1    /* in a TI OMAP core */
 #define CONFIG_OMAP2420	         1    /* which is in a 2420 */
 #define CONFIG_OMAP2420H4        1    /* and on a H4 board */
-//#define CONFIG_APTIX           1    /* define if on APTIX test chip */
-//#define CONFIG_VIRTIO          1    /* Using Virtio simulator */
+/*#define CONFIG_APTIX           1    #* define if on APTIX test chip */
+/*#define CONFIG_VIRTIO          1    #* Using Virtio simulator */
 
-#define PRCM_CONFIG_II           1    
+#define PRCM_CONFIG_II           1
 #define CONFIG_PARTIAL_SRAM      1
 
 #include <asm/arch/omap2420.h>        /* get chip and board defs */
@@ -70,7 +70,7 @@
 /*
  * Hardware drivers
  */
- 
+
 /*
  * SMC91c96 Etherent
  */
@@ -114,8 +114,8 @@
 
 #define CONFIG_COMMANDS          (CONFIG_CMD_DFL | CFG_CMD_DHCP | CFG_CMD_I2C)
 
-// I'd like to get to these. Snap kernel loads if we make MMC go //
-  // #define CONFIG_COMMANDS       (CONFIG_CMD_DFL | CFG_CMD_NAND | CFG_CMD_JFFS2 | CFG_CMD_DHCP | CFG_CMD_MMC | CFG_CMD_FAT | CFG_CMD_I2C)
+/* I'd like to get to these. Snap kernel loads if we make MMC go */
+  /* #define CONFIG_COMMANDS       (CONFIG_CMD_DFL | CFG_CMD_NAND | CFG_CMD_JFFS2 | CFG_CMD_DHCP | CFG_CMD_MMC | CFG_CMD_FAT | CFG_CMD_I2C) */
 
 #define CONFIG_BOOTP_MASK        CONFIG_BOOTP_DEFAULT
 

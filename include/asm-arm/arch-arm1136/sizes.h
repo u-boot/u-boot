@@ -47,4 +47,3 @@
 #define SZ_2G				0x80000000
 
 #endif	/* __sizes_h */
-

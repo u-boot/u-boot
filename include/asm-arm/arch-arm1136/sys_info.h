@@ -75,4 +75,3 @@ typedef struct  h4_system_data {
 #define I2C_MENELAUS 0x72	/* i2c id for companion chip */
 
 #endif
-

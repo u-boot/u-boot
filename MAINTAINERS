@@ -226,8 +226,8 @@ Denis Peter <d.peter@mpl.ch>
 	PIP405			PPC4xx
 
 Daniel Poirot <dan.poirot@windriver.com>
-        sbc8240                 MPC8240
-        sbc405                  PPC405GP
+	sbc8240			MPC8240
+	sbc405			PPC405GP
 
 Stefan Roese <stefan.roese@esd-electronics.com>
 
@@ -387,7 +387,7 @@ Rishi Bhattacharya <rishi@ti.com>
 	omap5912osk		ARM926EJS
 
 Richard Woodruff <r-woodruff2@ti.com>
-	
+
 	omap2420h4		ARM1136EJS
 
 David Müller <d.mueller@elsoft.ch>

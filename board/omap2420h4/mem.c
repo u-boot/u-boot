@@ -284,10 +284,10 @@ void gpmc_init(void)
 	__raw_writel(0x0, GPMC_CONFIG7_0);	/* disable current map */
 	sdelay(1000);
 	__raw_writel(H4_24XX_GPMC_CONFIG1_0|mux|mtype|mwidth, GPMC_CONFIG1_0);
-	//__raw_writel(H4_24XX_GPMC_CONFIG2_0, GPMC_CONFIG2_0);
+	/* __raw_writel(H4_24XX_GPMC_CONFIG2_0, GPMC_CONFIG2_0); */
 	__raw_writel(H4_24XX_GPMC_CONFIG3_0, GPMC_CONFIG3_0);
 	__raw_writel(H4_24XX_GPMC_CONFIG4_0, GPMC_CONFIG4_0);
-	//__raw_writel(H4_24XX_GPMC_CONFIG5_0, GPMC_CONFIG5_0);
+	/* __raw_writel(H4_24XX_GPMC_CONFIG5_0, GPMC_CONFIG5_0); */
 	__raw_writel(H4_24XX_GPMC_CONFIG7_0, GPMC_CONFIG7_0);/* enable new mapping */
 	sdelay(2000);
 
@@ -303,4 +303,3 @@ void gpmc_init(void)
 	__raw_writel(H4_24XX_GPMC_CONFIG7_1, GPMC_CONFIG7_1); /* enable mapping */
 	sdelay(2000);
 }
-

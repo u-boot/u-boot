@@ -45,4 +45,3 @@ u32 get_board_type(void);
 void display_board_info(u32);
 void update_mux(u32,u32);
 #endif
-

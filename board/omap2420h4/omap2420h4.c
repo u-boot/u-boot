@@ -333,11 +333,11 @@ void muxSetupI2C1(void)
 
 	/* I2C1 Clock pin configuration, PIN = M19 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_I2C1_SCL;
-	*MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+	*MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* I2C1 Data pin configuration, PIN = L15 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_I2C1_SDA;
-	*MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+	*MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* Pull-up required on data line */
 	/* external pull-up already present. */
@@ -379,91 +379,91 @@ void muxSetupLCD(void)
 
 	/* LCD_D0 pin configuration, PIN = Y7  */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D0;
-	*MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+	*MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* LCD_D1 pin configuration, PIN = P10 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D1;
-	*MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+	*MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* LCD_D2 pin configuration, PIN = V8  */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D2;
-	*MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+	*MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* LCD_D3 pin configuration, PIN = Y8  */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D3;
-	*MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+	*MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* LCD_D4 pin configuration, PIN = W8  */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D4;
-	*MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+	*MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* LCD_D5 pin configuration, PIN = R10 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D5;
-	*MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+	*MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* LCD_D6 pin configuration, PIN = Y9  */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D6;
-	*MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+	*MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* LCD_D7 pin configuration, PIN = V9  */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D7;
-	*MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+	*MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* LCD_D8 pin configuration, PIN = W9  */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D8;
-	*MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+	*MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* LCD_D9 pin configuration, PIN = P11 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D9;
-	*MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+	*MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* LCD_D10 pin configuration, PIN = V10 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D10;
-	*MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+	*MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* LCD_D11 pin configuration, PIN = Y10 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D11;
-	*MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+	*MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* LCD_D12 pin configuration, PIN = W10 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D12;
-	*MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+	*MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* LCD_D13 pin configuration, PIN = R11 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D13;
-	*MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+	*MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* LCD_D14 pin configuration, PIN = V11 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D14;
-	*MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+	*MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* LCD_D15 pin configuration, PIN = W11 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D15;
-	*MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+	*MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* LCD_D16 pin configuration, PIN = P12 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D16;
-	*MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+	*MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* LCD_D17 pin configuration, PIN = R12 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D17;
-	*MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+	*MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* LCD_PCLK pin configuration,   PIN = W6   */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_PCLK;
-	*MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+	*MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* LCD_VSYNC pin configuration,  PIN = V7  */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_VSYNC;
-	*MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+	*MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* LCD_HSYNC pin configuration,  PIN = Y6  */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_HSYNC;
-	*MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+	*MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* LCD_ACBIAS pin configuration, PIN = W7 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_ACBIAS;
-	*MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+	*MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 }
 
 /****************************************
@@ -477,63 +477,63 @@ void muxSetupCamera(void)
 	/* CAMERA_RSTZ  pin configuration, PIN = Y16 */
 	/* CAM_RST is connected through the I2C IO expander.*/
 	/* MuxConfigReg = (volatile unsigned char *), CONTROL_PADCONF_SYS_NRESWARM*/
-	/* *MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled   */
+	/* *MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled   */
 
 	/* CAMERA_XCLK  pin configuration, PIN = U3 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_CAM_XCLK;
-	*MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+	*MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* CAMERA_LCLK  pin configuration, PIN = V5 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_CAM_LCLK;
-	*MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+	*MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* CAMERA_VSYNC pin configuration, PIN = U2 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_CAM_VS,
-				   *MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+				   *MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* CAMERA_HSYNC pin configuration, PIN = T3 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_CAM_HS,
-				   *MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+				   *MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* CAMERA_DAT0 pin configuration, PIN = T4 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_CAM_D0,
-				   *MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+				   *MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* CAMERA_DAT1 pin configuration, PIN = V2 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_CAM_D1,
-				   *MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+				   *MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* CAMERA_DAT2 pin configuration, PIN = V3 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_CAM_D2,
-				   *MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+				   *MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* CAMERA_DAT3 pin configuration, PIN = U4 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_CAM_D3,
-				   *MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+				   *MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* CAMERA_DAT4 pin configuration, PIN = W2 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_CAM_D4,
-				   *MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+				   *MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* CAMERA_DAT5 pin configuration, PIN = V4 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_CAM_D5,
-				   *MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+				   *MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* CAMERA_DAT6 pin configuration, PIN = W3 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_CAM_D6,
-				   *MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+				   *MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* CAMERA_DAT7 pin configuration, PIN = Y2 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_CAM_D7,
-				   *MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+				   *MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* CAMERA_DAT8 pin configuration, PIN = Y4 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_CAM_D8,
-				   *MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+				   *MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* CAMERA_DAT9 pin configuration, PIN = V6 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_CAM_D9,
-				   *MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+				   *MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 }
 
 /****************************************
@@ -546,70 +546,70 @@ void muxSetupMMCSD(void)
 
 	/* SDMMC_CLKI pin configuration,  PIN = H15 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_MMC_CLKI,
-				   *MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+				   *MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* SDMMC_CLKO pin configuration,  PIN = G19 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_MMC_CLKO,
-				   *MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+				   *MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* SDMMC_CMD pin configuration,   PIN = H18 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_MMC_CMD,
-				   *MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
-	// External pull-ups are present.
-	// *MuxConfigReg |= 0x18 ; // PullUDEnable=Enabled, PullTypeSel=PU
+				   *MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
+	/* External pull-ups are present. */
+	/* *MuxConfigReg |= 0x18 ; #/ PullUDEnable=Enabled, PullTypeSel=PU */
 
 	/* SDMMC_DAT0 pin configuration,  PIN = F20 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_MMC_DAT0,
-				   *MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
-	// External pull-ups are present.
-	// *MuxConfigReg |= 0x18 ; // PullUDEnable=Enabled, PullTypeSel=PU
+				   *MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
+	/* External pull-ups are present. */
+	/* *MuxConfigReg |= 0x18 ; #/ PullUDEnable=Enabled, PullTypeSel=PU */
 
 	/* SDMMC_DAT1 pin configuration,  PIN = H14 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_MMC_DAT1,
-				   *MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
-	// External pull-ups are present.
-	// *MuxConfigReg |= 0x18 ; // PullUDEnable=Enabled, PullTypeSel=PU
+				   *MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
+	/* External pull-ups are present. */
+	/* *MuxConfigReg |= 0x18 ; #/ PullUDEnable=Enabled, PullTypeSel=PU */
 
 	/* SDMMC_DAT2 pin configuration,  PIN = E19 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_MMC_DAT2,
-				   *MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
-	// External pull-ups are present.
-	// *MuxConfigReg |= 0x18 ; // PullUDEnable=Enabled, PullTypeSel=PU
+				   *MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
+	/* External pull-ups are present. */
+	/* *MuxConfigReg |= 0x18 ; #/ PullUDEnable=Enabled, PullTypeSel=PU */
 
 	/* SDMMC_DAT3 pin configuration,  PIN = D19 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_MMC_DAT3,
-				   *MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
-	// External pull-ups are present.
-	// *MuxConfigReg |= 0x18 ; // PullUDEnable=Enabled, PullTypeSel=PU
+				   *MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
+	/* External pull-ups are present. */
+	/* *MuxConfigReg |= 0x18 ; #/ PullUDEnable=Enabled, PullTypeSel=PU */
 
 	/* SDMMC_DDIR0 pin configuration, PIN = F19 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_MMC_DAT_DIR0,
-				   *MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+				   *MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* SDMMC_DDIR1 pin configuration, PIN = E20 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_MMC_DAT_DIR1,
-				   *MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+				   *MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* SDMMC_DDIR2 pin configuration, PIN = F18 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_MMC_DAT_DIR2,
-				   *MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+				   *MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* SDMMC_DDIR3 pin configuration, PIN = E18 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_MMC_DAT_DIR3,
-				   *MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+				   *MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* SDMMC_CDIR pin configuration,  PIN = G18 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_MMC_CMD_DIR,
-				   *MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+				   *MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* MMC_CD pin configuration,      PIN = B3  ---2420IP ONLY---*/
 	/* MMC_CD for 2422IP=K1 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_SDRC_A14,
-				   *MuxConfigReg = 0x03 ; // Mode = 3, PUPD=Disabled
+				   *MuxConfigReg = 0x03 ; /* Mode = 3, PUPD=Disabled */
 
 	/* MMC_WP pin configuration,      PIN = B4  */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_SDRC_A13,
-				   *MuxConfigReg = 0x03 ; // Mode = 3, PUPD=Disabled
+				   *MuxConfigReg = 0x03 ; /* Mode = 3, PUPD=Disabled */
 }
 
 /******************************************
@@ -622,23 +622,23 @@ void muxSetupTouchScreen(void)
 
 	/* SPI1_CLK pin configuration,  PIN = U18 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_SPI1_CLK,
-				   *MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+				   *MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* SPI1_MOSI pin configuration, PIN = V20 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_SPI1_SIMO,
-				   *MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+				   *MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* SPI1_MISO pin configuration, PIN = T18 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_SPI1_SOMI,
-				   *MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+				   *MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* SPI1_nCS0 pin configuration, PIN = U19 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_SPI1_NCS0,
-				   *MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+				   *MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 
 	/* PEN_IRQ pin configuration,   PIN = P20 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_MCBSP1_FSR,
-				   *MuxConfigReg = 0x03 ; // Mode = 3, PUPD=Disabled
+				   *MuxConfigReg = 0x03 ; /* Mode = 3, PUPD=Disabled */
 }
 
 /****************************************
@@ -651,7 +651,7 @@ void muxSetupHDQ(void)
 
 	/* HDQ_SIO pin configuration,  PIN = N18 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_HDQ_SIO,
-				   *MuxConfigReg = 0x00 ; // Mode = 0, PUPD=Disabled
+				   *MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled */
 }
 
 /***************************************************************
@@ -830,5 +830,3 @@ void update_mux(u32 btype,u32 mtype)
 		}
 	}
 }
-
-

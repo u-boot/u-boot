@@ -92,8 +92,6 @@ are GPL, so this is, of course, GPL.
 #define ENDCFG_AUTO_INIT   0x10        /* Auto-init to remove packets from ring */
 #define ENDCFG_FIFO		0x40	/* 8 bytes */
 
-
-
 /* Page 1 register offsets. */
 #define EN1_PHYS   EI_SHIFT(0x01)	/* This board's physical enet addr RD WR */
 #define EN1_PHYS_SHIFT(i)  EI_SHIFT(i+1) /* Get and set mac address */

@@ -108,7 +108,7 @@
 	"lcd=setenv stdout lcd;setenv stdin lcd\0"			\
 	"ser=setenv stdout serial;setenv stdin serial\0"		\
 	"verify=no"
-	
+
 =======
 	"kernel_addr=ff080000\0"					\
 	"ramdisk_addr=ff200000\0"					\
@@ -209,7 +209,7 @@
 
 <<<<<<< RPXlite_DW.h
 #define CFG_RESET_ADDRESS	((ulong)((((immap_t *)CFG_IMMR)->im_clkrst.res)))
-	
+
 =======
 #define CFG_RESET_ADDRESS	((ulong)((((immap_t *)CFG_IMMR)->im_clkrst.res)))
 

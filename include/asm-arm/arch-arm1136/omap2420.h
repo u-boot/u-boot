@@ -197,4 +197,3 @@
 #endif  /* endif CONFIG_2420H4 */
 
 #endif
-

@@ -56,4 +56,3 @@ typedef	struct	h4_system_data {
 #define CPU_2420_ES2    2
 
 #endif
-

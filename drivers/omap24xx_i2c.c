@@ -44,8 +44,8 @@ void i2c_init (int speed, int slaveadd)
 
 	/* 12Mhz I2C module clock */
 	outw (0, I2C_PSC);
-        speed = speed/1000;                 /* 100 or 400 */
-        scl = ((12000/(speed*2)) - 7);  /* use 7 when PSC = 0 */
+	speed = speed/1000;		    /* 100 or 400 */
+	scl = ((12000/(speed*2)) - 7);	/* use 7 when PSC = 0 */
 	outw (scl, I2C_SCLL);
 	outw (scl, I2C_SCLH);
 	/* own address */
@@ -174,10 +174,10 @@ static int i2c_write_byte (u8 devaddr, u8 regoffset, u8 value)
 
 void flush_fifo(void)
 {	u16 stat;
-	
-	/* note: if you try and read data when its not there or ready 
-         * you get a bus error
-         */
+
+	/* note: if you try and read data when its not there or ready
+	 * you get a bus error
+	 */
 	while(1){
 		stat = inw(I2C_STAT);
 		if(stat == I2C_STAT_RRDY){
@@ -210,11 +210,11 @@ int i2c_probe (uchar chip)
 	udelay (50000);
 
 	if (!(inw (I2C_STAT) & I2C_STAT_NACK)) {
-		res = 0;      /* success case */ 
+		res = 0;      /* success case */
 		flush_fifo();
 		outw(0xFFFF, I2C_STAT);
 	} else {
-		outw(0xFFFF, I2C_STAT);  /* failue, clear sources*/
+		outw(0xFFFF, I2C_STAT);	 /* failue, clear sources*/
 		outw (inw (I2C_CON) | I2C_CON_STP, I2C_CON); /* finish up xfer */
 		udelay(20000);
 		wait_for_bb ();
@@ -280,7 +280,7 @@ static void wait_for_bb (void)
 	int timeout = 10;
 	u16 stat;
 
-	outw(0xFFFF, I2C_STAT);  /* clear current interruts...*/
+	outw(0xFFFF, I2C_STAT);	 /* clear current interruts...*/
 	while ((stat = inw (I2C_STAT) & I2C_STAT_BB) && timeout--) {
 		outw (stat, I2C_STAT);
 		udelay (50000);
@@ -290,7 +290,7 @@ static void wait_for_bb (void)
 		printf ("timed out in wait_for_bb: I2C_STAT=%x\n",
 			inw (I2C_STAT));
 	}
-	outw(0xFFFF, I2C_STAT);  /* clear delayed stuff*/
+	outw(0xFFFF, I2C_STAT);	 /* clear delayed stuff*/
 }
 
 static u16 wait_for_pin (void)
@@ -309,7 +309,7 @@ static u16 wait_for_pin (void)
 	if (timeout <= 0) {
 		printf ("timed out in wait_for_pin: I2C_STAT=%x\n",
 			inw (I2C_STAT));
-			outw(0xFFFF, I2C_STAT);	
+			outw(0xFFFF, I2C_STAT);
 }
 	return status;
 }

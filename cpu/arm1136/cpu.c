@@ -124,8 +124,8 @@ int cleanup_before_linux (void)
 
 	/* flush I/D-cache */
 	i = 0;
-	asm ("mcr p15, 0, %0, c7, c7, 0": :"r" (i));  // invalidate both caches and flush btb
-	asm ("mcr p15, 0, %0, c7, c10, 4": :"r" (i)); // mem barrier to sync things
+	asm ("mcr p15, 0, %0, c7, c7, 0": :"r" (i));  /* invalidate both caches and flush btb */
+	asm ("mcr p15, 0, %0, c7, c10, 4": :"r" (i)); /* mem barrier to sync things */
 	return(0);
 }
 

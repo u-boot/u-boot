@@ -1,6 +1,6 @@
 /*
- * January 2004 - Changed to support H4 device 
- * Copyright (c) 2004 Texas Instruments 
+ * January 2004 - Changed to support H4 device
+ * Copyright (c) 2004 Texas Instruments
  *
  * (C) Copyright 2002
  * Gary Jennejohn, DENX Software Engineering, <gj@denx.de>
@@ -15,7 +15,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -32,7 +32,7 @@ SECTIONS
 	. = 0x00000000;
 
 	. = ALIGN(4);
-	.text      :
+	.text	   :
 	{
 	  cpu/arm1136/start.o	(.text)
 	  *(.text)
