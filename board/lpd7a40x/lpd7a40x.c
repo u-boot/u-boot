@@ -28,13 +28,14 @@
 #include <common.h>
 #if defined(CONFIG_LH7A400)
 #include <lh7a400.h>
-#include <lpd7a400_cpld.h>
 #elif defined(CONFIG_LH7A404)
 #include <lh7a404.h>
-#include <lpd7a404_cpld.h>
 #else
 #error "No CPU defined!"
 #endif
+#include <asm/mach-types.h>
+
+#include <lpd7a400_cpld.h>
 
 /*
  * Miscellaneous platform dependent initialisations
@@ -45,8 +46,6 @@ int board_init (void)
 	DECLARE_GLOBAL_DATA_PTR;
 
 	/* set up the I/O ports */
-
-#if defined(CONFIG_LH7A400)
 
 	/* enable flash programming */
 	*(LPD7A400_CPLD_REGPTR(LPD7A400_CPLD_FLASH_REG)) |= FLASH_FPEN;
@@ -59,10 +58,12 @@ int board_init (void)
 	*(LPD7A400_CPLD_REGPTR(LPD7A400_CPLD_EXTGPIO_REG)) =
 		(EXTGPIO_STATUS1|EXTGPIO_GPIO1) & ~(EXTGPIO_STATUS2);
 
+#if defined(CONFIG_LH7A400)
 	/* arch number of Logic-Board - MACH_TYPE_LPD7A400 */
 	gd->bd->bi_arch_number = MACH_TYPE_LPD7A400;
-
 #elif defined(CONFIG_LH7A404)
+	/* arch number of Logic-Board - MACH_TYPE_LPD7A400 */
+	gd->bd->bi_arch_number = MACH_TYPE_LPD7A404;
 #endif
 
 	/* adress of boot parameters */

@@ -1062,7 +1062,8 @@ integratorcp_config :	unconfig
 integratorap_config :	unconfig
 	@./mkconfig $(@:_config=) arm arm926ejs integratorap
 
-lpd7a400_config:	unconfig
+lpd7a400_config \
+lpd7a404_config:	unconfig
 	@./mkconfig $(@:_config=) arm lh7a40x lpd7a40x
 
 omap1510inn_config :	unconfig

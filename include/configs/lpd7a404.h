@@ -18,10 +18,10 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __LPD7A400_H_
-#define __LPD7A400_H_
+#ifndef __LPD7A404_H_
+#define __LPD7A404_H_
 
-#define CONFIG_LPD7A400		/* Logic LH7A400 SDK */
+#define CONFIG_LPD7A404		/* Logic LH7A400 SDK */
 
 /*
  * If we are developing, we might want to start armboot from ram
@@ -32,9 +32,9 @@
 #undef CONFIG_USE_IRQ
 
 /*
- * This board uses the logic LH7A400-10 card engine
+ * This board uses the logic LH7A404-10 card engine
  */
-#include <configs/lpd7a400-10.h>
+#include <configs/lpd7a404-10.h>
 
 #define CONFIG_CMDLINE_TAG		1	/* enable passing of ATAGs	*/
 #define CONFIG_SETUP_MEMORY_TAGS	1
@@ -83,7 +83,7 @@
  * Miscellaneous configurable options
  */
 #define	CFG_LONGHELP				/* undef to save memory		*/
-#define	CFG_PROMPT		"LPD7A400> "	/* Monitor Command Prompt	*/
+#define	CFG_PROMPT		"LPD7A404> "	/* Monitor Command Prompt	*/
 #define	CFG_CBSIZE		256		/* Console I/O Buffer Size	*/
 #define	CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
 #define	CFG_MAXARGS		16		/* max number of command args	*/
@@ -109,4 +109,4 @@
 #define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0xFC0000)
 #define CFG_ENV_SIZE		0x40000
 
-#endif  /* __LPD7A400_H_ */
+#endif  /* __LPD7A404_H_ */

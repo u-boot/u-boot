@@ -2,6 +2,13 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Paul Ruhland, 10 Jun 2004:
+  fix support for Logic SDK-LH7A404 board and clean up the 
+  LH7A404 register macros.
+
+* Patch by Matthew McClintock, 10 Jun 2004:
+  Modify code to select correct serial clock on Sandpoint8245
+
 * Patch by Robert Schwebel, 10 Jun 2004:
   Add support for Intel K3 strata flash.
 

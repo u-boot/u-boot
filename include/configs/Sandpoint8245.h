@@ -224,8 +224,12 @@
 
 #define CFG_NS16550_REG_SIZE	1
 
-#define CFG_NS16550_CLK		1843200
-
+#if (CONFIG_CONS_INDEX > 2)
+#define CFG_NS16550_CLK         CONFIG_DRAM_SPEED*1000000
+#else
+#define CFG_NS16550_CLK         1843200
+#endif
+                                                                                
 #define CFG_NS16550_COM1	(CFG_ISA_IO + CFG_NS87308_UART1_BASE)
 #define CFG_NS16550_COM2	(CFG_ISA_IO + CFG_NS87308_UART2_BASE)
 #define CFG_NS16550_COM3	(CFG_EUMB_ADDR + 0x4500)

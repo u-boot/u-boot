@@ -41,7 +41,7 @@ static ulong timer_load_val = 0;
 /* macro to read the 16 bit timer */
 static inline ulong READ_TIMER(void)
 {
-	LH7A40X_TIMERS_PTR(timers);
+	lh7a40x_timers_t* timers = LH7A40X_TIMERS_PTR;
 	lh7a40x_timer_t* timer = &timers->timer1;
 
 	return (timer->value & 0x0000ffff);
@@ -185,7 +185,7 @@ static ulong lastdec;
 
 int interrupt_init (void)
 {
-	LH7A40X_TIMERS_PTR(timers);
+	lh7a40x_timers_t* timers = LH7A40X_TIMERS_PTR;
 	lh7a40x_timer_t* timer = &timers->timer1;
 
 	/* a periodic timer using the 508kHz source */

@@ -357,6 +357,8 @@ extern unsigned int __machine_arch_type;
 #define MACH_TYPE_LOOX600              342
 #define MACH_TYPE_NIOP                 343
 #define MACH_TYPE_DM310                344
+#define MACH_TYPE_LPD7A400             389
+#define MACH_TYPE_LPD7A404             390
 
 #ifdef CONFIG_ARCH_EBSA110
 # ifdef machine_arch_type
@@ -4472,6 +4474,30 @@ extern unsigned int __machine_arch_type;
 # define machine_is_dm310()	(machine_arch_type == MACH_TYPE_DM310)
 #else
 # define machine_is_dm310()	(0)
+#endif
+
+#ifdef CONFIG_ARCH_LPD7A400
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_LPD7A400
+# endif
+# define machine_is_lpd7a400()	(machine_arch_type == MACH_TYPE_LPD7A400)
+#else
+# define machine_is_lpd7a400()	(0)
+#endif
+
+#ifdef CONFIG_ARCH_LPD7A404
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_LPD7A404
+# endif
+# define machine_is_lpd7a404()	(machine_arch_type == MACH_TYPE_LPD7A404)
+#else
+# define machine_is_lpd7a404()	(0)
 #endif
 
 /*

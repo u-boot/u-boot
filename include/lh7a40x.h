@@ -38,8 +38,8 @@ typedef struct {
 	lh7a40x_pccard_t  pccard[2];
 	volatile u32	  pcmciacon;
 } /*__attribute__((__packed__))*/ lh7a40x_smc_t;
-#define LH7A40X_SMC_BASE    (0x80002000)
-#define LH7A40X_SMC_PTR(name)  lh7a40x_smc_t* name = (lh7a40x_smc_t*) LH7A40X_SMC_BASE
+#define LH7A40X_SMC_BASE  (0x80002000)
+#define LH7A40X_SMC_PTR   ((lh7a40x_smc_t*) LH7A40X_SMC_BASE)
 
 /* (SDMC) Synchronous Dynamic Ram Controller (usersguide 5.3.1) */
 typedef struct {
@@ -49,8 +49,8 @@ typedef struct {
 	volatile u32  bootstat;
 	volatile u32  sdcsc[4];
 } /*__attribute__((__packed__))*/ lh7a40x_sdmc_t;
-#define LH7A40X_SDMC_BASE    (0x80002400)
-#define LH7A40X_SDMC_PTR(name)  lh7a40x_sdmc_t* name = (lh7a40x_sdmc_t*) LH7A40X_SDMC_BASE
+#define LH7A40X_SDMC_BASE  (0x80002400)
+#define LH7A40X_SDMC_PTR   ((lh7a40x_sdmc_t*) LH7A40X_SDMC_BASE)
 
 /* (CSC) Clock and State Controller (userguide 6.2.1) */
 typedef struct {
@@ -68,7 +68,7 @@ typedef struct {
 	volatile u32  usbreset;
 } /*__attribute__((__packed__))*/ lh7a40x_csc_t;
 #define LH7A40X_STPWR_BASE  (0x80000400)
-#define LH7A40X_CSC_PTR(name)  lh7a40x_csc_t* name = (lh7a40x_csc_t*) LH7A40X_STPWR_BASE
+#define LH7A40X_CSC_PTR     ((lh7a40x_csc_t*) LH7A40X_STPWR_BASE)
 
 #define CLKSET_SMCROM		(0x01000000)
 #define CLKSET_PS		(0x000C0000)
@@ -85,6 +85,27 @@ typedef struct {
 #define CLKSET_PREDIV		(0x0000007C)
 #define CLKSET_HCLKDIV		(0x00000003)
 
+/* (DMA) Direct Memory Access Controller (userguide 9.2.1) */
+typedef struct {
+	volatile u32  maxcnt;
+	volatile u32  base;
+	volatile u32  current;
+	volatile u32  rsvd1;
+} lh7a40x_dmabuf_t;
+
+typedef struct {
+	volatile u32      control;
+	volatile u32      interrupt;
+	volatile u32      rsvd1;
+	volatile u32      status;
+	volatile u32      rsvd2;
+	volatile u32      remain;
+	volatile u32      rsvd3;
+	volatile u32      rsvd4;
+	lh7a40x_dmabuf_t  buf[2];
+} /*__attribute__((__packed__))*/ lh7a40x_dmachan_t;
+
+
 /* (WDT) Watchdog Timer (userguide 11.2.1) */
 typedef struct {
 	volatile u32  ctl;
@@ -93,7 +114,7 @@ typedef struct {
 	volatile u32  count[4];
 } /*__attribute__((__packed__))*/ lh7a40x_wdt_t;
 #define LH7A40X_WDT_BASE    (0x80001400)
-#define LH7A40X_WDT_PTR(name)  lh7a40x_wdt_t* name = (lh7a40x_wdt_t*) LH7A40X_WDT_BASE
+#define LH7A40X_WDT_PTR     ((lh7a40x_wdt_t*) LH7A40X_WDT_BASE)
 
 /* (RTC) Real Time Clock (lh7a400 userguide 12.2.1, lh7a404 userguide 13.2.1) */
 typedef struct {
@@ -106,7 +127,7 @@ typedef struct {
 	volatile u32  rsvd1[58];
 } /*__attribute__((__packed__))*/ lh7a40x_rtc_t;
 #define LH7A40X_RTC_BASE    (0x80000D00)
-#define LH7A40X_RTC_PTR(name)  lh7a40x_rtc_t* name = (lh7a40x_rtc_t*) LH7A40X_RTC_BASE
+#define LH7A40X_RTC_PTR     ((lh7a40x_rtc_t*) LH7A40X_RTC_BASE)
 
 /* Timers (lh7a400 userguide 13.2.1, lh7a404 userguide 11.2.1) */
 typedef struct {
@@ -127,7 +148,7 @@ typedef struct {
 	/*volatile u32     rsvd2;*/
 } /*__attribute__((__packed__))*/ lh7a40x_timers_t;
 #define LH7A40X_TIMERS_BASE    (0x80000C00)
-#define LH7A40X_TIMERS_PTR(name)  lh7a40x_timers_t* name = (lh7a40x_timers_t*) LH7A40X_TIMERS_BASE
+#define LH7A40X_TIMERS_PTR     ((lh7a40x_timers_t*) LH7A40X_TIMERS_BASE)
 
 #define TIMER_EN	(0x00000080)
 #define TIMER_PER	(0x00000040)
@@ -146,7 +167,7 @@ typedef struct {
 	/*volatile u32  rsvd1[58];*/
 } /*__attribute__((__packed__))*/ lh7a40x_ssp_t;
 #define LH7A40X_SSP_BASE    (0x80000B00)
-#define LH7A40X_SSP_PTR(name)  lh7a40x_ssp_t* name = (lh7a40x_ssp_t*) LH7A40X_SSP_BASE
+#define LH7A40X_SSP_PTR     ((lh7a40x_ssp_t*) LH7A40X_SSP_BASE)
 
 /* (UART) Universal Asychronous Receiver/Transmitter (lh7a400 userguide 15.2.1, lh7a404 userguide 15.2.1) */
 typedef struct {
@@ -160,9 +181,9 @@ typedef struct {
 	volatile u32  isr;
 	volatile u32  rsvd1[56];
 } /*__attribute__((__packed__))*/ lh7a40x_uart_t;
-#define LH7A40X_UART_BASE      (0x80000600)
-#define LH7A40X_UART_PTR(name,n) \
-	lh7a40x_uart_t* name = (lh7a40x_uart_t*) (LH7A40X_UART_BASE + ((n-1) * sizeof(lh7a40x_uart_t)))
+#define LH7A40X_UART_BASE    (0x80000600)
+#define LH7A40X_UART_PTR(n) \
+	((lh7a40x_uart_t*) (LH7A40X_UART_BASE + ((n-1) * sizeof(lh7a40x_uart_t))))
 
 #define UART_BE		(0x00000800)      /* the rx error bits */
 #define UART_OE		(0x00000400)
@@ -249,7 +270,7 @@ typedef struct {
 	volatile u32  phpd;
 } /*__attribute__((__packed__))*/ lh7a40x_gpioint_t;
 #define LH7A40X_GPIOINT_BASE    (0x80000E00)
-#define LH7A40X_GPIOINT_PTR(name)  lh7a40x_gpioint_t* name = (lh7a40x_gpioint_t*) LH7A40X_GPIOINT_BASE
+#define LH7A40X_GPIOINT_PTR     ((lh7a40x_gpioint_t*) LH7A40X_GPIOINT_BASE)
 
 /* Embedded SRAM */
 #define CFG_SRAM_BASE	(0xB0000000)

@@ -34,7 +34,7 @@
 void serial_setbrg (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-	LH7A40X_UART_PTR(uart,UART_CONSOLE);
+	lh7a40x_uart_t* uart = LH7A40X_UART_PTR(UART_CONSOLE);
 	int i;
 	unsigned int reg = 0;
 
@@ -62,7 +62,7 @@ void serial_setbrg (void)
  */
 int serial_init (void)
 {
-	LH7A40X_UART_PTR(uart,UART_CONSOLE);
+	lh7a40x_uart_t* uart = LH7A40X_UART_PTR(UART_CONSOLE);
 
 	/* UART must be enabled before writing to any config registers */
 	uart->con |= (UART_EN);
@@ -96,7 +96,7 @@ int serial_init (void)
  */
 int serial_getc (void)
 {
-	LH7A40X_UART_PTR(uart,UART_CONSOLE);
+	lh7a40x_uart_t* uart = LH7A40X_UART_PTR(UART_CONSOLE);
 
 	/* wait for character to arrive */
 	while (uart->status & UART_RXFE);
@@ -142,7 +142,7 @@ void enable_putc(void)
  */
 void serial_putc (const char c)
 {
-	LH7A40X_UART_PTR(uart,UART_CONSOLE);
+	lh7a40x_uart_t* uart = LH7A40X_UART_PTR(UART_CONSOLE);
 
 #ifdef CONFIG_MODEM_SUPPORT
 	if (be_quiet)
@@ -169,7 +169,7 @@ void serial_putc (const char c)
  */
 int serial_tstc (void)
 {
-	LH7A40X_UART_PTR(uart,UART_CONSOLE);
+	lh7a40x_uart_t* uart = LH7A40X_UART_PTR(UART_CONSOLE);
 
 	return(!(uart->status & UART_RXFE));
 }

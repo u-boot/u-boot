@@ -46,7 +46,7 @@ ulong get_PLLCLK (void)
 /* return FCLK frequency */
 ulong get_FCLK (void)
 {
-	LH7A40X_CSC_PTR (csc);
+	lh7a40x_csc_t* csc = LH7A40X_CSC_PTR;
 	ulong maindiv1, maindiv2, prediv, ps;
 
 	/*
@@ -68,7 +68,7 @@ ulong get_FCLK (void)
 /* return HCLK frequency */
 ulong get_HCLK (void)
 {
-	LH7A40X_CSC_PTR (csc);
+	lh7a40x_csc_t* csc = LH7A40X_CSC_PTR;
 
 	return (get_FCLK () / ((csc->clkset & CLKSET_HCLKDIV) + 1));
 }
@@ -76,7 +76,7 @@ ulong get_HCLK (void)
 /* return PCLK frequency */
 ulong get_PCLK (void)
 {
-	LH7A40X_CSC_PTR (csc);
+	lh7a40x_csc_t* csc = LH7A40X_CSC_PTR;
 
 	return (get_HCLK () /
 		(1 << (((csc->clkset & CLKSET_PCLKDIV) >> 16) + 1)));

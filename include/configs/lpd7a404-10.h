@@ -22,13 +22,13 @@
  * Logic LH7A400-10 card engine
  */
 
-#ifndef __LPD7A400_10_H
-#define __LPD7A400_10_H
+#ifndef __LPD7A404_10_H
+#define __LPD7A404_10_H
 
 
 #define CONFIG_ARM920T		1	/* arm920t core */
 #define CONFIG_LH7A40X		1	/* Sharp LH7A40x SoC family */
-#define CONFIG_LH7A400		1   /* Sharp LH7A400 S0C */
+#define CONFIG_LH7A404		1   /* Sharp LH7A404 SoC */
 
 /* The system clock PLL input frequency */
 #define CONFIG_SYS_CLK_FREQ		14745600   /* System Clock PLL Input (Hz) */
@@ -77,4 +77,4 @@
 #undef CONFIG_SMC_USE_32_BIT
 #define CONFIG_SMC_USE_IOFUNCS
 
-#endif  /* __LPD7A400_10_H */
+#endif  /* __LPD7A404_10_H */
