@@ -429,8 +429,18 @@ int pci_hose_scan_bus(struct pci_controller *hose, int bus)
 	     dev += PCI_BDF(0,0,1))
 	{
 		/* Skip our host bridge */
-		if ( dev == PCI_BDF(hose->first_busno,0,0) )
-			continue;
+		if ( dev == PCI_BDF(hose->first_busno,0,0) ) {
+#if defined(CONFIG_PCI_CONFIG_HOST_BRIDGE)              /* don't skip host bridge */
+			/*
+			 * Only skip hostbridge configuration if "pciconfighost" is not set
+			 */
+			if (getenv("pciconfighost") == NULL) {
+				continue; /* Skip our host bridge */
+			}
+#else
+			continue; /* Skip our host bridge */
+#endif
+		}
 
 		if (PCI_FUNC(dev) && !found_multi)
 			continue;
