@@ -120,6 +120,9 @@ int eth_initialize(bd_t *bis)
 #ifdef CONFIG_DB64360
 	mv6436x_eth_initialize(bis);
 #endif
+#ifdef CONFIG_CPCI750
+	mv6436x_eth_initialize(bis);
+#endif
 #ifdef CONFIG_DB64460
 	mv6446x_eth_initialize(bis);
 #endif
