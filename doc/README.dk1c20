@@ -1,0 +1,84 @@
+
+			 Nios Development Kit
+			   Cyclone Editions
+
+		    Last Update: October 4, 2003
+====================================================================
+
+This file contains information regarding U-Boot and the Altera
+Nios Development Kit, Cyclone Edition (DK-1C20). For general Nios
+information see doc/README.nios.
+
+For those interested in contributing ... see HELP WANTED section
+in doc/README.nios.
+
+
+Files
+------
+	board/dk1c20/*
+	include/configs/DK1C20.h
+
+Memory Organization
+--------------------
+
+  	-The heap is placed below the monitor (U-Boot code).
+  	-Global data is placed below the heap.
+  	-The stack is placed below global data (&grows down).
+
+Misc
+-----
+
+The hello_world example works fine.
+
+
+Programming U-Boot into FLASH with GERMS
+-----------------------------------------
+The current version of the DK-1C20 port occupies less than
+60 KByte. So everything will fit into a single Flash sector.
+To program U-Boot into the DK-1C20 flash using GERMS do the
+following:
+
+1. From the command line, download U-Boot using the nios-run:
+
+	$ nios-run -r u-boot.srec
+
+This takes about 45 seconds (GERMS is not very speedy here).
+After u-boot is downloaded it will be executed. You should
+see the following:
+
+    U-Boot 1.0.0-pre (Oct  4 2003 - 07:39:24)
+
+    CPU: Nios-32 Rev. 3.08 (0x3018)
+    Reg file size: 256 LO_LIMIT/HI_LIMIT: 2/14
+    Board: Altera Nios 1C20 Development Kit
+    In:    serial
+    Out:   serial
+    Err:   serial
+    ==>
+
+
+2. Quit nios-run and start your terminal application (e.g. start
+Hyperterminal or minicom).
+
+3. From the U-Boot command prompt, erase a sector of flash at 0x40000:
+
+    ==> erase 40000 4ffff
+
+4. Download the u-boot code to RAM. When using Hyperterminal, do the
+following:
+
+ --From the u-boot command prompt start a binary download to SRAM:
+
+    ==> loadb 800000
+
+ --Download u-boot.bin using kermit.
+
+5. Copy the binary image from SRAM to flash:
+
+    ==> cp.b 800000 40000 10000
+
+U-Boot will now automatically start when the board is powered on or
+reset using the Standard-32 configuration. To start U-Boot with the
+Safe-32 configuration, enter the following GERMS command:
+
+    + g 40000

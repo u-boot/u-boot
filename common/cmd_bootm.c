@@ -235,6 +235,8 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (hdr->ih_arch != IH_CPU_I386)
 #elif defined(__mips__)
 	if (hdr->ih_arch != IH_CPU_MIPS)
+#elif defined(__nios__)
+	if (hdr->ih_arch != IH_CPU_NIOS)
 #else
 # error Unknown CPU type
 #endif
@@ -247,6 +249,10 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	switch (hdr->ih_type) {
 	case IH_TYPE_STANDALONE:	name = "Standalone Application";
+					/* A second argument overwrites the load address */
+					if (argc > 2) {
+						hdr->ih_load = simple_strtoul(argv[2], NULL, 16);
+					}
 					break;
 	case IH_TYPE_KERNEL:		name = "Kernel Image";
 					break;
@@ -347,8 +353,12 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		/* load (and uncompress), but don't start if "autostart"
 		 * is set to "no"
 		 */
-		if (((s = getenv("autostart")) != NULL) && (strcmp(s,"no") == 0))
+		if (((s = getenv("autostart")) != NULL) && (strcmp(s,"no") == 0)) {
+			char buf[32];
+			sprintf(buf, "%lX", len);
+			setenv("filesize", buf);
 			return 0;
+		}
 		appl = (int (*)(cmd_tbl_t *, int, int, char *[]))ntohl(hdr->ih_ep);
 		(*appl)(cmdtp, flag, argc-1, &argv[1]);
 		return 0;

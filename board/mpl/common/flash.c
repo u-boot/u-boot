@@ -155,7 +155,7 @@ void setup_cs_reloc(void)
 
 unsigned long flash_init (void)
 {
-	unsigned long size_b0, size_b1,flashcr;
+	unsigned long size_b0, size_b1,flashcr, size_reg;
 	int mode, i;
 	extern char version_string;
 	char *p=&version_string;
@@ -196,6 +196,21 @@ unsigned long flash_init (void)
 	size_b1 = 0 ;
 	flash_info[0].size = size_b0;
 	/* set up flash cs according to the size */
+	size_reg=(flash_info[0].size >>20);
+	switch (size_reg) {
+		case 0:
+		case 1: i=0; break; /* <= 1MB */
+		case 2: i=1; break; /* = 2MB */
+		case 4: i=2; break; /* = 4MB */
+		case 8: i=3; break; /* = 8MB */
+		case 16: i=4; break; /* = 16MB */
+		case 32: i=5; break; /* = 32MB */
+		case 64: i=6; break; /* = 64MB */
+		case 128: i=7; break; /*= 128MB */
+		default: 
+			printf("\n #### ERROR, wrong size %ld MByte reset board #####\n",size_reg);
+			while(1);
+	}
 	if(mode & BOOT_MPS) {
 		/* flash is on CS1 */
 		mtdcr(ebccfga, pb1cr);
@@ -203,7 +218,7 @@ unsigned long flash_init (void)
 		/* we map the flash high in every case */
 		flashcr&=0x0001FFFF; /* mask out address bits */
 		flashcr|= ((0-flash_info[0].size) & 0xFFF00000); /* start addr */
-		flashcr|= (((flash_info[0].size >>21) & 0x07) << 17); /* size addr */
+		flashcr|= (i << 17); /* size addr */
 		mtdcr(ebccfga, pb1cr);
 		mtdcr(ebccfgd, flashcr);
 	}
@@ -214,7 +229,7 @@ unsigned long flash_init (void)
 		/* we map the flash high in every case */
 		flashcr&=0x0001FFFF; /* mask out address bits */
 		flashcr|= ((0-flash_info[0].size) & 0xFFF00000); /* start addr */
-		flashcr|= (((flash_info[0].size >>21) & 0x07) << 17); /* size addr */
+		flashcr|= (i << 17); /* size addr */
 		mtdcr(ebccfga, pb0cr);
 		mtdcr(ebccfgd, flashcr);
 	}

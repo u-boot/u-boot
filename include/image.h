@@ -65,6 +65,7 @@
 #define IH_CPU_SPARC		10	/* Sparc	*/
 #define IH_CPU_SPARC64		11	/* Sparc 64 Bit */
 #define	IH_CPU_M68K		12	/* M68K		*/
+#define	IH_CPU_NIOS		13	/* Nios-32	*/
 
 /*
  * Image Types

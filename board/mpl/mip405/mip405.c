@@ -167,6 +167,15 @@ const sdram_t sdram_table[] = {
 		3,	/* Address Mode = 3 */
 		5,	/* size value */
 		1},	/* ECC enabled */
+	{ 0x2f,	/* Rev C, 128MByte -3 Board */
+		3,	/* Case Latenty = 3 */
+		3,	/* trp 20ns / 7.5 ns datain[27] */
+		3,	/* trcd 20ns /7.5 ns (datain[29]) */
+		6,	/* tras 44ns /7.5 ns  (datain[30]) */
+		4,	/* tcpt 44 - 20ns = 24ns */
+		3,	/* Address Mode = 3 */
+		5,	/* size value */
+		1},	/* ECC enabled */
 	{ 0xff, /* terminator */
 	  0xff,
 	  0xff,
@@ -550,7 +559,8 @@ void get_pcbrev_var(unsigned char *pcbrev, unsigned char *var)
 		tmp >>= 1;
 	}
 	rc++;
-	if((((bc>>4) & 0xf)==0x1) /* Rev B PCB with */
+	if((  (((bc>>4) & 0xf)==0x2) /* Rev C PCB or */
+	   || (((bc>>4) & 0xf)==0x1)) /* Rev B PCB with */
 		&& (rc==0x1))     /* Population Option 1 is a -3 */
 		rc=3;
 	*pcbrev=(bc >> 4) & 0xf;

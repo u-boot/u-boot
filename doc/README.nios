@@ -1,0 +1,196 @@
+
+			   U-Boot for Nios-32
+
+		    Last Update: October 4, 2003
+====================================================================
+
+This file contains information regarding U-Boot and the Altera
+Nios CPU. For information regarding U-Boot and the Nios Development
+Kit, Cyclone Edition (DK-1C20), see doc/README.dk1c20.
+
+For those interested in contributing ... see HELP WANTED below.
+
+
+1. OVERVIEW
+------------
+
+U-Boot has been successfully tested on the Nios Cyclone development
+board using both the 'safe' and 'standard 32' configurations with
+Nios CPU revision 3.08 (CPU_ID = 0x3008). U-Boot can be used with
+or without the GERMS monitor. The initial version of U-Boot for the
+Cyclone development kit is about 60 Kbyte and will fit in a single
+sector of on-board FLASH. Only the Nios 32-bit CPU is supported.
+
+1.1 GERMS Monitor
+------------------
+If GERMS is just not enough, then U-Boot is a great antibiotic.
+You will be very pleased with its high degree of configurability
+and its rich feature set.
+
+A few of the most obvious limitations of GERMS are overcome by
+using U-Boot (See 'Brain Damage'). Most notably, you can use
+minicom or Hyperterminal (duh).
+
+1.2 Altera Source Code
+-----------------------
+The Nios port does NOT include ANY sources that Altera has the
+copyright. This was a conscious decision ... not an accident.
+The Altera license is not clear in terms of distributing Altera
+sources (when altera silicon is not involved). This isn't really
+a problem as little, if any, of the Altera source contains
+features that are not already available in U-Boot.
+
+The Nios port also does not use the long-winded peripheral
+structure definitions from the Nios SDK.
+
+
+
+2. CONFIGURATION OPTIONS/SETTINGS
+----------------------------------
+
+2.1 Nios-specific Options/Settings
+-----------------------------------
+All configuration options/settings that are specific to Nios begin
+with "CONFIG_NIOS_" or "CFG_NIOS_". The following is a list of
+currently defined Nios-specific options/parameters. If any options
+are related to Standard-32 Nios SDK excalibur.h definitions, the
+related definition follows the description).
+
+
+CONFIG_NIOS -- defined for all Nios-32 boards.
+
+CFG_NIOS_CONSOLE -- the base address of the console UART.
+	(standard-32: na_uart1_base).
+
+CFG_NIOS_FIXEDBAUD -- defined if the console UART PTF fixed_baud
+	parameter is set to '1'.
+
+CFG_NIOS_MULT_HW -- use full hardware multiply (not yet implemented).
+
+CFG_NIOS_MULT_MSTEP -- use hardware assisted multiply using the
+	MSTEP instruction (not yet implemented).
+
+CFG_NIOS_TMRBASE -- the base address of the timer used to support
+	xxx_timer routines (e.g. set_timer(), get_timer(), etc.).
+	(standard-32: na_lo_priority_timer2_base).
+
+CFG_NIOS_TMRIRQ -- the interrupt request (vector number) assigned to
+	the timer. (standard-32: na_low_priority_timer2_irq).
+
+CFG_NIOS_TMRMS -- the period of the timer in milliseconds.
+
+2.2 Differences in U-Boot Options/Settings
+-------------------------------------------
+Some 'standard' U-Boot options/settings are treated differently in
+the Nios port. These are described below.
+
+CFG_GBL_DATA_OFFSET -- in the Nios port, this is the offset of the
+	global data structure in the Nios memory space. More simply,
+	the address of global data.
+
+
+3. ASSEMBLY CODING
+-------------------
+
+In browsing the assembly source files, you may notice the absence
+of the 'magic macros' (e.g. MOVIA, MOVIP, ADDIP etc.). This is
+deliberate. The documentation for the magic macros is scant and
+it is hard to find ... it does not appear in the Nios programmer's
+manual, nor does it appear in the assembler manual. Regardless,
+the macros actually do very little to improve readability anyway.
+
+With this in mind, all assembler modules use only instructions that
+appear in the Nios programmer's manual OR are directly supported
+by the nios-elf toolchain. For example, the 'dec %rB' instruction
+is an alias for 'subi %rB,1' that is supported by the assembler
+but does not appear in the programmer's manual.
+
+
+4. BRAIN DAMAGE
+----------------
+
+This section describes some of the unfortunate and avoidable aspects
+of working with the Nios CPU ... and some things you can do to
+reduce your pain.
+
+4.1 GERMS doesn't work with Hyperterminal
+------------------------------------------
+GERMS doesn't do CR/LF mapping that is compatible with Hyperterminal
+(or minicom) -- geez. Regardless of you opion of Hyperterminal, this
+sad design decision is remedied by using U-Boot.
+
+4.2 cygwin Incompatibility
+---------------------------
+The version of cygwin distributed with the nios GNUPro toolchain is
+out-of-date and incompatible with the latest cygwin distributions.
+In addition, many of the standard utilities are very dated as well.
+If you try to download and build the lastest version of grep for
+example, you'll quickly realize that a native gcc is not available
+(the next topic) which leads to U-Boot build problems (following
+topic).
+
+The solution ... well, you can wait for Altera ... or build as
+set of tools for linux.
+
+4.3 No native gcc
+------------------
+I'm not sure how this one slipped through the cracks ... but it is
+a real pain. Basically, if you want to build anything for the native
+environment -- forget it! A native (cygwin) gcc is not distributed,
+and the old version of cygwin makes locating one challenging.
+
+The solution ... same as above. Just download the gcc source from
+Altera and build up a set of cross tools for your favorite linux
+distro.
+
+4.4 Can't build default U-Boot
+-------------------------------
+By default, when you build U-Boot you will be building some native
+tools along with the target elf, bin, and srec files. Without a
+native gcc, this (obviously) causes problems.
+
+For developers using the Altera cygwin tools you can remove the
+'tools' directory from SUBDIRS in the top-level Makefile. You will
+also have to edit common/Makefile:
+
+Replace:
+environment.o: environment.c ../tools/envcrc
+	$(CC) $(AFLAGS) -Wa,--no-warn \
+		-DENV_CRC=$(shell ../tools/envcrc) \
+		-c -o $@ environment.c
+
+With:
+environment.o: environment.c ../tools/envcrc
+	$(CC) $(AFLAGS) -Wa,--no-warn \
+		-DENV_CRC=0 \
+		-c -o $@ environment.c
+
+BTW, thats a 'zero' ... not the letter 'O'.
+
+
+5. HELP WANTED
+---------------
+
+There are plenty of areas where help is needed. Here's are some ideas
+for those interested in contributing:
+
+-SMC 91C111 support. E.g. add in tftpboot, etc.
+
+-CompactFlash. Port & test CF/FAT.
+
+-ASMI support. Use ASMI for environment, etc.
+
+-Bedbug. Develop bedbug for Nios ... or at least provide a disassemble
+ command.
+
+-Add boot support for ucLinux (niosnommu).
+
+-Implement (don't copy Altera code) the __mulxx routines using the
+ MSTEP and MUL instructions (e.g. CFG_NIOS_MULT_HW and CFG_NIOS_MULT_MSTEP).
+
+
+
+Regards,
+
+--Scott
+<smcnutt@psyent.com>

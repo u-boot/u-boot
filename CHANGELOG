@@ -2,6 +2,23 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Patch by Scott McNutt, 04 Oct 2003:
+  - add support for Altera Nios-32 CPU
+  - add support for Nios Cyclone Development Kit (DK-1C20)
+
+* Patch by Steven Scholz, 29 Sep 2003:
+  - A second parameter for bootm overwrites the load address for
+    "Standalone Application" images.
+  - bootm sets environment variable "filesize" to the resulting
+    (uncompressed) data length for "Standalone Application" images
+    when autostart is set to "no". Now you can do something like
+	if bootm $fpgadata $some_free_ram ; then
+		fpga load 0 $some_free_ram $filesize
+	fi
+
+* Patch by Denis Peter, 25 Sept 2003:
+  add support for the MIP405 Rev. C board
+
 * Patch by Yuli Barcohen, 25 Sep 2003:
   add support for Zephyr Engineering ZPC.1900 board
 
@@ -16,7 +33,6 @@ Changes for U-Boot 1.0.0:
   enable timed autoboot on PXA
 
 * Patch by David Müller, 22 Sep 2003:
-
   - add $(CFLAGS) to "-print-libgcc-filename" so compiler driver
     returns correct libgcc file path
   - "latency" reduction of busy-loop waiting to improve "U-Boot" boot

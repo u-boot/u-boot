@@ -25,6 +25,10 @@ Pantelis Antoniou <panto@intracom.gr>
 
 	NETVIA			MPC8xx
 
+Yuli Barcohen <yuli@arabellasw.com>
+
+	ZPC1900			MPC8265
+
 Jerry Van Baren <gerald.vanbaren@smiths-aerospace.com>
 
 	sacsng			MPC8260
@@ -332,6 +336,17 @@ Wolfgang Denk <wd@denx.de>
 
 	incaip			MIPS32 4Kc
 	purple			MIPS64 5Kc
+
+#########################################################################
+# Nios-32 Systems:							#
+#									#
+# Maintainer Name, Email Address					#
+#	Board			CPU					#
+#########################################################################
+
+Scott McNutt <smcnutt@psyent.com>
+
+	DK1C20			Nios-32
 
 #########################################################################
 # End of MAINTAINERS list						#

@@ -95,6 +95,33 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
+#elif defined(CONFIG_NIOS) /* NIOS*/
+
+int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	DECLARE_GLOBAL_DATA_PTR;
+
+	int i;
+	bd_t *bd = gd->bd;
+
+	print_num ("memstart",		(ulong)bd->bi_memstart);
+	print_num ("memsize",		(ulong)bd->bi_memsize);
+	print_num ("flashstart",	(ulong)bd->bi_flashstart);
+	print_num ("flashsize",		(ulong)bd->bi_flashsize);
+	print_num ("flashoffset",	(ulong)bd->bi_flashoffset);
+
+	printf ("ethaddr     =");
+	for (i=0; i<6; ++i) {
+		printf ("%c%02X", i ? ':' : ' ', bd->bi_enetaddr[i]);
+	}
+	printf ("\nip_addr     = ");
+	print_IPaddr (bd->bi_ip_addr);
+	printf ("\nbaudrate    = %ld bps\n", bd->bi_baudrate);
+
+	return 0;
+}
+
+
 #else /* ! PPC, which leaves MIPS */
 
 int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])

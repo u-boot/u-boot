@@ -219,6 +219,10 @@ N: David Müller
 E: d.mueller@elsoft.ch
 D: Support for Samsung ARM920T SMDK2410 eval board
 
+N: Scott McNutt
+E: smcnutt@psyent.com
+D: Support for Altera Nios-32 CPU, for Nios Cyclone Development Kit (DK-1C20)
+
 N: Rolf Offermanns
 E: rof@sysgo.de
 D: Initial support for SSV-DNP1110, SMC91111 driver

@@ -37,6 +37,10 @@ ifeq ($(ARCH),mips)
 LOAD_ADDR = 0x80200000 -T mips.lds
 endif
 
+ifeq ($(ARCH),nios)
+LOAD_ADDR = 0x01000000 -L $(gcclibdir)/m32 -T nios.lds
+endif
+
 include $(TOPDIR)/config.mk
 
 SREC	= hello_world.srec

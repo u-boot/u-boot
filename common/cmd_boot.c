@@ -59,7 +59,14 @@ int do_go (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	 */
 	argv[0] = (char *)gd;
 #endif
+#if !defined(CONFIG_NIOS)
 	rc = ((ulong (*)(int, char *[]))addr) (--argc, &argv[1]);
+#else
+	/*
+	 * Nios function pointers are address >> 1
+	 */
+	rc = ((ulong (*)(int, char *[]))(addr>>1)) (--argc, &argv[1]);
+#endif
 	if (rc != 0) rcode = 1;
 
 	printf ("## Application terminated, rc = 0x%lX\n", rc);
