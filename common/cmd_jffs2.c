@@ -47,6 +47,8 @@ static int part_num=0;
 
 #ifndef CFG_JFFS_CUSTOM_PART
 
+#define CFG_JFFS_SINGLE_PART	1
+
 static struct part_info part;
 
 #ifndef CONFIG_JFFS2_NAND
@@ -79,9 +81,6 @@ jffs2_part_info(int part_num)
 			flash_info[CFG_JFFS2_FIRST_BANK].start[CFG_JFFS2_FIRST_SECTOR] -
 			flash_info[CFG_JFFS2_FIRST_BANK].start[0];
 #endif
-
-		/* unused in current jffs2 loader */
-		part.erasesize = 0;
 
 		/* Mark the struct as ready */
 		part.usr_priv=(void*)1;
@@ -230,6 +229,7 @@ do_jffs2_fsinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
+#ifndef CFG_JFFS_SINGLE_PART
 int
 do_jffs2_chpart(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
@@ -257,6 +257,7 @@ do_jffs2_chpart(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 
 }
+#endif	/* CFG_JFFS_SINGLE_PART */
 
 /***************************************************/
 

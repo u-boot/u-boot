@@ -38,13 +38,10 @@
 #define IO_READ(addr) (*(volatile unsigned int *)(addr))
 
 /* Integrator AP has two UARTs, we use the first one, at 38400-8-N-1 */
-#define NUM_PORTS 2
 #define CONSOLE_PORT CONFIG_CONS_INDEX
 #define baudRate CONFIG_BAUDRATE
-static volatile unsigned char *const port[NUM_PORTS] = {
-	(void *) (CFG_SERIAL0),
-	(void *) (CFG_SERIAL1)
-};
+static volatile unsigned char *const port[] = CONFIG_PL01x_PORTS;
+#define NUM_PORTS (sizeof(port)/sizeof(port[0]))
 
 
 static void pl010_putc (int portnum, char c);

@@ -41,14 +41,11 @@
  * IntegratorCP has two UARTs, use the first one, at 38400-8-N-1
  * Versatile PB has four UARTs.
  */
-#define NUM_PORTS 2
+
 #define CONSOLE_PORT CONFIG_CONS_INDEX
 #define baudRate CONFIG_BAUDRATE
-static volatile unsigned char *const port[NUM_PORTS] = {
-	(void *) (CFG_SERIAL0),
-	(void *) (CFG_SERIAL1)
-};
-
+static volatile unsigned char *const port[] = CONFIG_PL01x_PORTS;
+#define NUM_PORTS (sizeof(port)/sizeof(port[0]))
 
 static void pl011_putc (int portnum, char c);
 static int pl011_getc (int portnum);
@@ -73,20 +70,11 @@ int serial_init (void)
 	 ** IBRD = UART_CLK / (16 * BAUD_RATE)
 	 ** FBRD = ROUND((64 * MOD(UART_CLK,(16 * BAUD_RATE))) / (16 * BAUD_RATE))
 	 */
-#ifdef CONFIG_VERSATILE
 	temp = 16 * baudRate;
-	divider = 24000000 / temp;
-	remainder = 24000000 % temp;
+	divider = CONFIG_PL011_CLOCK / temp;
+	remainder = CONFIG_PL011_CLOCK % temp;
 	temp = (8 * remainder) / baudRate;
 	fraction = (temp >> 1) + (temp & 1);
-#endif
-#ifdef CONFIG_INTEGRATOR
-	temp = 16 * baudRate;
-	divider = 14745600 / temp;
-	remainder = 14745600 % temp;
-	temp = (8 * remainder) / baudRate;
-	fraction = (temp >> 1) + (temp & 1);
-#endif
 
 	IO_WRITE (port[CONSOLE_PORT] + UART_PL011_IBRD, divider);
 	IO_WRITE (port[CONSOLE_PORT] + UART_PL011_FBRD, fraction);
@@ -104,7 +92,7 @@ int serial_init (void)
 		  (UART_PL011_CR_UARTEN | UART_PL011_CR_TXE |
 		   UART_PL011_CR_RXE));
 
-	return (0);
+	return 0;
 }
 
 void serial_putc (const char c)

@@ -380,6 +380,27 @@ The following options need to be configured:
 		expect it to be in bytes, others in MB.
 		Define CONFIG_MEMSIZE_IN_BYTES to make it in bytes.
 
+- Serial Ports:
+		CFG_PL010_SERIAL
+
+		Define this if you want support for Amba PrimeCell PL010 UARTs.
+
+		CFG_PL011_SERIAL
+
+		Define this if you want support for Amba PrimeCell PL011 UARTs.
+
+		CONFIG_PL011_CLOCK
+
+		If you have Amba PrimeCell PL011 UARTs, set this variable to
+		the clock speed of the UARTs.
+
+		CONFIG_PL01x_PORTS
+
+		If you have Amba PrimeCell PL010 or PL011 UARTs on your board,
+		define this to a list of base addresses for each (supported)
+		port. See e.g. include/configs/versatile.h
+
+
 - Console Interface:
 		Depending on board, define exactly one serial port
 		(like CONFIG_8xx_CONS_SMC1, CONFIG_8xx_CONS_SMC2,
@@ -541,22 +562,23 @@ The following options need to be configured:
 		CFG_CMD_ASKENV	* ask for env variable
 		CFG_CMD_AUTOSCRIPT Autoscript Support
 		CFG_CMD_BDI	  bdinfo
-		CFG_CMD_BEDBUG	  Include BedBug Debugger
+		CFG_CMD_BEDBUG	* Include BedBug Debugger
 		CFG_CMD_BMP	* BMP support
+		CFG_CMD_BSP	* Board specific commands
 		CFG_CMD_BOOTD	  bootd
-		CFG_CMD_CACHE	  icache, dcache
+		CFG_CMD_CACHE	* icache, dcache
 		CFG_CMD_CONSOLE	  coninfo
 		CFG_CMD_DATE	* support for RTC, date/time...
-		CFG_CMD_DHCP	  DHCP support
+		CFG_CMD_DHCP	* DHCP support
 		CFG_CMD_DIAG	* Diagnostics
 		CFG_CMD_DOC	* Disk-On-Chip Support
-		CFG_CMD_DTT	  Digital Therm and Thermostat
+		CFG_CMD_DTT	* Digital Therm and Thermostat
 		CFG_CMD_ECHO	* echo arguments
 		CFG_CMD_EEPROM	* EEPROM read/write support
-		CFG_CMD_ELF	  bootelf, bootvx
+		CFG_CMD_ELF	* bootelf, bootvx
 		CFG_CMD_ENV	  saveenv
 		CFG_CMD_FDC	* Floppy Disk Support
-		CFG_CMD_FAT	  FAT partition support
+		CFG_CMD_FAT	* FAT partition support
 		CFG_CMD_FDOS	* Dos diskette Support
 		CFG_CMD_FLASH	  flinfo, erase, protect
 		CFG_CMD_FPGA	  FPGA device initialization support
@@ -567,7 +589,7 @@ The following options need to be configured:
 		CFG_CMD_IMLS	  List all found images
 		CFG_CMD_IMMAP	* IMMR dump support
 		CFG_CMD_IRQ	* irqinfo
-		CFG_CMD_ITEST	* Integer/string test of 2 values
+		CFG_CMD_ITEST	  Integer/string test of 2 values
 		CFG_CMD_JFFS2	* JFFS2 Support
 		CFG_CMD_KGDB	* kgdb
 		CFG_CMD_LOADB	  loadb
@@ -575,8 +597,8 @@ The following options need to be configured:
 		CFG_CMD_MEMORY	  md, mm, nm, mw, cp, cmp, crc, base,
 				  loop, loopw, mtest
 		CFG_CMD_MISC	  Misc functions like sleep etc
-		CFG_CMD_MMC	  MMC memory mapped support
-		CFG_CMD_MII	  MII utility commands
+		CFG_CMD_MMC	* MMC memory mapped support
+		CFG_CMD_MII	* MII utility commands
 		CFG_CMD_NAND	* NAND support
 		CFG_CMD_NET	  bootp, tftpboot, rarpboot
 		CFG_CMD_PCI	* pciinfo
@@ -585,7 +607,7 @@ The following options need to be configured:
 		CFG_CMD_PORTIO	* Port I/O
 		CFG_CMD_REGINFO * Register dump
 		CFG_CMD_RUN	  run command in env variable
-		CFG_CMD_SAVES	  save S record dump
+		CFG_CMD_SAVES	* save S record dump
 		CFG_CMD_SCSI	* SCSI Support
 		CFG_CMD_SDRAM	* print SDRAM configuration information
 		CFG_CMD_SETGETDCR Support for DCR Register access (4xx only)
@@ -782,6 +804,24 @@ The following options need to be configured:
 		to physical memory similar to flash. Command line is
 		enabled with CFG_CMD_MMC. The MMC driver also works with
 		the FAT fs. This is enabled with CFG_CMD_FAT.
+
+- Journaling Flash filesystem support:
+		CONFIG_JFFS2_NAND, CONFIG_JFFS2_NAND_OFF, CONFIG_JFFS2_NAND_SIZE,
+		CONFIG_JFFS2_NAND_DEV
+		Define these for a default partition on a NAND device
+
+		CFG_JFFS2_FIRST_SECTOR,
+		CFG_JFFS2_FIRST_BANK, CFG_JFFS2_NUM_BANKS
+		Define these for a default partition on a NOR device
+
+		CFG_JFFS_CUSTOM_PART
+		Define this to create an own partition. You have to provide a
+		function struct part_info* jffs2_part_info(int part_num)
+
+		If you define only one JFFS2 partition you may also want to
+		#define CFG_JFFS_SINGLE_PART    1
+		to disable the command chpart. This is the default when you
+		have not defined a custom partition
 
 - Keyboard Support:
 		CONFIG_ISA_KEYBOARD
