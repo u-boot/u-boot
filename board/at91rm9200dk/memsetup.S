@@ -66,7 +66,7 @@
 /* sdram */
 #define PIOC_ASR 0xFFFFF870
 #define PIOC_ASR_VAL 0xFFFF0000 /* Configure PIOC as peripheral (D16/D31) */
-#define PIOC_BSR 0xFFFFF804
+#define PIOC_BSR 0xFFFFF874
 #define PIOC_BSR_VAL 0x00000000
 #define PIOC_PDR 0xFFFFF804
 #define PIOC_PDR_VAL 0xFFFF0000
