@@ -1,7 +1,7 @@
+
 #
-# (C) Copyright 2002
-# Sysgo Real-Time Solutions, GmbH <www.elinos.com>
-# Marius Groeger <mgroeger@sysgo.de>
+# (C) Copyright 2000
+# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -22,8 +22,27 @@
 # MA 02111-1307 USA
 #
 
-PLATFORM_RELFLAGS += -fno-strict-aliasing  -fno-common -ffixed-r8 \
-	-mshort-load-bytes -msoft-float
+include $(TOPDIR)/config.mk
 
-#PLATFORM_CPPFLAGS += -mapcs-32 -march=armv4 -mtune=strongarm1100
-PLATFORM_CPPFLAGS += -mapcs-32 -march=armv5 -mtune=xscale
+LIB	= lib$(BOARD).a
+
+OBJS	:= pleb2.o flash.o
+SOBJS	:= memsetup.o
+
+$(LIB):	$(OBJS) $(SOBJS)
+	$(AR) crv $@ $(OBJS) $(SOBJS)
+
+clean:
+	rm -f $(SOBJS) $(OBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak .depend
+
+#########################################################################
+
+.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
+		$(CC) -M $(CPPFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
+
+-include .depend
+
+#########################################################################

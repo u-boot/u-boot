@@ -139,6 +139,9 @@ ALL = u-boot.srec u-boot.bin System.map
 
 all:		$(ALL)
 
+u-boot.hex:	u-boot
+		$(OBJCOPY) ${OBJCFLAGS} -O ihex $< $@
+
 u-boot.srec:	u-boot
 		$(OBJCOPY) ${OBJCFLAGS} -O srec $< $@
 
@@ -1584,7 +1587,7 @@ clobber:	clean
 		| xargs -0 rm -f
 	rm -f $(OBJS) *.bak tags TAGS
 	rm -fr *.*~
-	rm -f u-boot u-boot.map $(ALL)
+	rm -f u-boot u-boot.map u-boot.hex $(ALL)
 	rm -f tools/crc32.c tools/environment.c tools/env/crc32.c
 	rm -f tools/inca-swap-bytes cpu/mpc824x/bedbug_603e.c
 	rm -f include/asm/proc include/asm/arch include/asm
