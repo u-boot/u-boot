@@ -27,22 +27,12 @@
 /*
  * SCSI support.
  */
-
 #include <common.h>
 #include <command.h>
 #include <asm/processor.h>
 #include <scsi.h>
 #include <image.h>
 #include <pci.h>
-
-
-#undef	SCSI_DEBUG
-
-#ifdef	SCSI_DEBUG
-#define	PRINTF(fmt,args...)	printf (fmt ,##args)
-#else
-#define PRINTF(fmt,args...)
-#endif
 
 #if (CONFIG_COMMANDS & CFG_CMD_SCSI)
 
@@ -120,7 +110,7 @@ void scsi_scan(int mode)
 			scsi_setup_inquiry(pccb);
 			if(scsi_exec(pccb)!=TRUE) {
 				if(pccb->contr_stat==SCSI_SEL_TIME_OUT) {
-					PRINTF("Selection timeout ID %d\n",pccb->target);
+					debug ("Selection timeout ID %d\n",pccb->target);
 					continue; /* selection timeout => assuming no device present */
 				}
 				scsi_print_error(pccb);
@@ -211,8 +201,7 @@ int do_scsiboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	char *boot_device = NULL;
 	char *ep;
 	int dev, part = 0;
-	ulong cnt;
-	ulong addr;
+	ulong addr, cnt, checksum;
 	disk_partition_t info;
 	image_header_t *hdr;
 	int rcode = 0;
@@ -270,7 +259,7 @@ int do_scsiboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		"Name: %.32s  Type: %.32s\n",
 		dev, part, info.name, info.type);
 
-	PRINTF ("First Block: %ld,  # of blocks: %ld, Block Size: %ld\n",
+	debug ("First Block: %ld,  # of blocks: %ld, Block Size: %ld\n",
 		info.start, info.size, info.blksz);
 
 	if (scsi_read (dev, info.start, 1, (ulong *)addr) != 1) {
@@ -281,16 +270,23 @@ int do_scsiboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	hdr = (image_header_t *)addr;
 
 	if (hdr->ih_magic == IH_MAGIC) {
-
-		print_image_hdr (hdr);
-		cnt = (hdr->ih_size + sizeof(image_header_t));
-		cnt += info.blksz - 1;
-		cnt /= info.blksz;
-		cnt -= 1;
-	} else {
 		printf("\n** Bad Magic Number **\n");
 		return 1;
 	}
+
+	checksum = ntohl(hdr->ih_hcrc);
+	hdr->ih_hcrc = 0;
+
+	if (crc32 (0, (char *)hdr, sizeof(image_header_t)) != checksum) {
+		puts ("\n** Bad Header Checksum **\n");
+		return 1;
+	}
+
+	print_image_hdr (hdr);
+	cnt = (hdr->ih_size + sizeof(image_header_t));
+	cnt += info.blksz - 1;
+	cnt /= info.blksz;
+	cnt -= 1;
 
 	if (scsi_read (dev, info.start+1, cnt,
 		      (ulong *)(addr+info.blksz)) != cnt) {
@@ -359,7 +355,7 @@ int do_scsi (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 						ok++;
 						if (dev)
 							printf("\n");
-						PRINTF("print_part of %x\n",dev);
+						debug ("print_part of %x\n",dev);
 							print_part(&scsi_dev_desc[dev]);
 					}
 				}
@@ -435,7 +431,7 @@ ulong scsi_read(int device, ulong blknr, ulong blkcnt, ulong *buffer)
 	buf_addr=(unsigned long)buffer;
 	start=blknr;
 	blks=blkcnt;
-	PRINTF("\nscsi_read: dev %d startblk %lx, blccnt %lx buffer %lx\n",device,start,blks,(unsigned long)buffer);
+	debug ("\nscsi_read: dev %d startblk %lx, blccnt %lx buffer %lx\n",device,start,blks,(unsigned long)buffer);
 	do {
 		pccb->pdata=(unsigned char *)buf_addr;
 		if(blks>SCSI_MAX_READ_BLK) {
@@ -452,7 +448,7 @@ ulong scsi_read(int device, ulong blknr, ulong blkcnt, ulong *buffer)
 			start+=blks;
 			blks=0;
 		}
-		PRINTF("scsi_read_ext: startblk %lx, blccnt %x buffer %lx\n",start,smallblks,buf_addr);
+		debug ("scsi_read_ext: startblk %lx, blccnt %x buffer %lx\n",start,smallblks,buf_addr);
 		if(scsi_exec(pccb)!=TRUE) {
 			scsi_print_error(pccb);
 			blkcnt-=blks;
@@ -460,7 +456,7 @@ ulong scsi_read(int device, ulong blknr, ulong blkcnt, ulong *buffer)
 		}
 		buf_addr+=pccb->datalen;
 	} while(blks!=0);
-	PRINTF("scsi_read_ext: end startblk %lx, blccnt %x buffer %lx\n",start,smallblks,buf_addr);
+	debug ("scsi_read_ext: end startblk %lx, blccnt %x buffer %lx\n",start,smallblks,buf_addr);
 	return(blkcnt);
 }
 
@@ -551,7 +547,7 @@ void scsi_setup_read_ext(ccb * pccb, unsigned long start, unsigned short blocks)
 	pccb->cmd[6]=0;
 	pccb->cmdlen=10;
 	pccb->msgout[0]=SCSI_IDENTIFY; /* NOT USED */
-	PRINTF("scsi_setup_read_ext: cmd: %02X %02X startblk %02X%02X%02X%02X blccnt %02X%02X\n",
+	debug ("scsi_setup_read_ext: cmd: %02X %02X startblk %02X%02X%02X%02X blccnt %02X%02X\n",
 		pccb->cmd[0],pccb->cmd[1],
 		pccb->cmd[2],pccb->cmd[3],pccb->cmd[4],pccb->cmd[5],
 		pccb->cmd[7],pccb->cmd[8]);
@@ -567,7 +563,7 @@ void scsi_setup_read6(ccb * pccb, unsigned long start, unsigned short blocks)
 	pccb->cmd[5]=0;
 	pccb->cmdlen=6;
 	pccb->msgout[0]=SCSI_IDENTIFY; /* NOT USED */
-	PRINTF("scsi_setup_read6: cmd: %02X %02X startblk %02X%02X blccnt %02X\n",
+	debug ("scsi_setup_read6: cmd: %02X %02X startblk %02X%02X blccnt %02X\n",
 		pccb->cmd[0],pccb->cmd[1],
 		pccb->cmd[2],pccb->cmd[3],pccb->cmd[4]);
 }

@@ -32,13 +32,6 @@
 
 #include <usb.h>
 
-#undef	CMD_USB_DEBUG
-
-#ifdef	CMD_USB_DEBUG
-#define	CMD_USB_PRINTF(fmt,args...)	printf (fmt ,##args)
-#else
-#define CMD_USB_PRINTF(fmt,args...)
-#endif
 static int usb_stor_curr_dev=-1; /* current device */
 
 /* some display routines (info command) */
@@ -317,8 +310,7 @@ int do_usbboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	char *boot_device = NULL;
 	char *ep;
 	int dev, part=0, rcode;
-	ulong cnt;
-	ulong addr;
+	ulong addr, cnt, checksum;
 	disk_partition_t info;
 	image_header_t *hdr;
 	block_dev_desc_t *stor_dev;
@@ -385,7 +377,7 @@ int do_usbboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		"Name: %.32s  Type: %.32s\n",
 		dev, part, info.name, info.type);
 
-	printf ("First Block: %ld,  # of blocks: %ld, Block Size: %ld\n",
+	debug ("First Block: %ld,  # of blocks: %ld, Block Size: %ld\n",
 		info.start, info.size, info.blksz);
 
 	if (stor_dev->block_read(dev, info.start, 1, (ulong *)addr) != 1) {
@@ -395,16 +387,25 @@ int do_usbboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	hdr = (image_header_t *)addr;
 
-	if (hdr->ih_magic == IH_MAGIC) {
-		print_image_hdr (hdr);
-		cnt = (hdr->ih_size + sizeof(image_header_t));
-		cnt += info.blksz - 1;
-		cnt /= info.blksz;
-		cnt -= 1;
-	} else {
+	if (hdr->ih_magic != IH_MAGIC) {
 		printf("\n** Bad Magic Number **\n");
 		return 1;
 	}
+
+	checksum = ntohl(hdr->ih_hcrc);
+	hdr->ih_hcrc = 0;
+
+	if (crc32 (0, (char *)hdr, sizeof(image_header_t)) != checksum) {
+		puts ("\n** Bad Header Checksum **\n");
+		return 1;
+	}
+
+	print_image_hdr (hdr);
+
+	cnt = (hdr->ih_size + sizeof(image_header_t));
+	cnt += info.blksz - 1;
+	cnt /= info.blksz;
+	cnt -= 1;
 
 	if (stor_dev->block_read (dev, info.start+1, cnt,
 		      (ulong *)(addr+info.blksz)) != cnt) {

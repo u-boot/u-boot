@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2004
+ * (C) Copyright 2000-2005
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -62,17 +62,10 @@ static unsigned long mips_io_port_base = 0;
 
 #ifdef __PPC__
 # define EIEIO		__asm__ volatile ("eieio")
+# define SYNC		__asm__ volatile ("sync")
 #else
 # define EIEIO		/* nothing */
-#endif
-
-#undef	IDE_DEBUG
-
-
-#ifdef	IDE_DEBUG
-#define	PRINTF(fmt,args...)	printf (fmt ,##args)
-#else
-#define PRINTF(fmt,args...)
+# define SYNC		/* nothing */
 #endif
 
 #if (CONFIG_COMMANDS & CFG_CMD_IDE)
@@ -135,9 +128,9 @@ ulong ide_bus_offset[CFG_IDE_MAXBUS] = {
 #define	ATA_CURR_BASE(dev)	(CFG_ATA_BASE_ADDR+ide_bus_offset[IDE_BUS(dev)])
 
 #ifndef CONFIG_AMIGAONEG3SE
-static int	    ide_bus_ok[CFG_IDE_MAXBUS];
+static int ide_bus_ok[CFG_IDE_MAXBUS];
 #else
-static int	    ide_bus_ok[CFG_IDE_MAXBUS] = {0,};
+static int ide_bus_ok[CFG_IDE_MAXBUS] = {0,};
 #endif
 
 block_dev_desc_t ide_dev_desc[CFG_IDE_MAXDEVICE];
@@ -374,8 +367,7 @@ int do_diskboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	char *boot_device = NULL;
 	char *ep;
 	int dev, part = 0;
-	ulong cnt;
-	ulong addr;
+	ulong addr, cnt, checksum;
 	disk_partition_t info;
 	image_header_t *hdr;
 	int rcode = 0;
@@ -438,7 +430,7 @@ int do_diskboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		"Name: %.32s  Type: %.32s\n",
 		dev, part, info.name, info.type);
 
-	PRINTF ("First Block: %ld,  # of blocks: %ld, Block Size: %ld\n",
+	debug ("First Block: %ld,  # of blocks: %ld, Block Size: %ld\n",
 		info.start, info.size, info.blksz);
 
 	if (ide_dev_desc[dev].block_read (dev, info.start, 1, (ulong *)addr) != 1) {
@@ -449,19 +441,27 @@ int do_diskboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	hdr = (image_header_t *)addr;
 
-	if (ntohl(hdr->ih_magic) == IH_MAGIC) {
-
-		print_image_hdr (hdr);
-
-		cnt = (ntohl(hdr->ih_size) + sizeof(image_header_t));
-		cnt += info.blksz - 1;
-		cnt /= info.blksz;
-		cnt -= 1;
-	} else {
+	if (ntohl(hdr->ih_magic) != IH_MAGIC) {
 		printf("\n** Bad Magic Number **\n");
 		SHOW_BOOT_PROGRESS (-1);
 		return 1;
 	}
+
+	checksum = ntohl(hdr->ih_hcrc);
+	hdr->ih_hcrc = 0;
+
+	if (crc32 (0, (char *)&hdr, sizeof(image_header_t)) != checksum) {
+		puts ("\n** Bad Header Checksum **\n");
+		SHOW_BOOT_PROGRESS (-2);
+		return 1;
+	}
+
+	print_image_hdr (hdr);
+
+	cnt = (ntohl(hdr->ih_size) + sizeof(image_header_t));
+	cnt += info.blksz - 1;
+	cnt /= info.blksz;
+	cnt -= 1;
 
 	if (ide_dev_desc[dev].block_read (dev, info.start+1, cnt,
 		      (ulong *)(addr+info.blksz)) != cnt) {
@@ -542,19 +542,19 @@ void ide_init (void)
 #ifdef CONFIG_IDE_8xx_DIRECT
 	/* Initialize PIO timing tables */
 	for (i=0; i <= IDE_MAX_PIO_MODE; ++i) {
-	    pio_config_clk[i].t_setup  = PCMCIA_MK_CLKS(pio_config_ns[i].t_setup,
-							    gd->bus_clk);
-	    pio_config_clk[i].t_length = PCMCIA_MK_CLKS(pio_config_ns[i].t_length,
-							    gd->bus_clk);
-	    pio_config_clk[i].t_hold   = PCMCIA_MK_CLKS(pio_config_ns[i].t_hold,
-							    gd->bus_clk);
-	    PRINTF ("PIO Mode %d: setup=%2d ns/%d clk"
-		    "  len=%3d ns/%d clk"
-		    "  hold=%2d ns/%d clk\n",
-		    i,
-		    pio_config_ns[i].t_setup,  pio_config_clk[i].t_setup,
-		    pio_config_ns[i].t_length, pio_config_clk[i].t_length,
-		    pio_config_ns[i].t_hold,   pio_config_clk[i].t_hold);
+		pio_config_clk[i].t_setup  = PCMCIA_MK_CLKS(pio_config_ns[i].t_setup,
+								gd->bus_clk);
+		pio_config_clk[i].t_length = PCMCIA_MK_CLKS(pio_config_ns[i].t_length,
+								gd->bus_clk);
+		pio_config_clk[i].t_hold   = PCMCIA_MK_CLKS(pio_config_ns[i].t_hold,
+								gd->bus_clk);
+		debug ( "PIO Mode %d: setup=%2d ns/%d clk"
+			"  len=%3d ns/%d clk"
+			"  hold=%2d ns/%d clk\n",
+			i,
+			pio_config_ns[i].t_setup,  pio_config_clk[i].t_setup,
+			pio_config_ns[i].t_length, pio_config_clk[i].t_length,
+			pio_config_ns[i].t_hold,   pio_config_clk[i].t_hold);
 	}
 #endif /* CONFIG_IDE_8xx_DIRECT */
 
@@ -583,9 +583,9 @@ void ide_init (void)
 #else
 	s = getenv("ide_maxbus");
 	if (s)
-	    max_bus_scan = simple_strtol(s, NULL, 10);
+		max_bus_scan = simple_strtol(s, NULL, 10);
 	else
-	    max_bus_scan = CFG_IDE_MAXBUS;
+		max_bus_scan = CFG_IDE_MAXBUS;
 
 	for (bus=0; bus<max_bus_scan; ++bus) {
 		int dev = bus * (CFG_IDE_MAXDEVICE / max_bus_scan);
@@ -628,8 +628,8 @@ void ide_init (void)
 #ifdef CONFIG_AMIGAONEG3SE
 				/* If this is the second bus, the first one was OK */
 				if (bus != 0) {
-				    ide_bus_ok[bus] = 0;
-				    goto skip_bus;
+					ide_bus_ok[bus] = 0;
+					goto skip_bus;
 				}
 #endif
 				return;
@@ -641,11 +641,11 @@ void ide_init (void)
 
 		if (c & (ATA_STAT_BUSY | ATA_STAT_FAULT)) {
 			puts ("not available  ");
-			PRINTF ("Status = 0x%02X ", c);
+			debug ("Status = 0x%02X ", c);
 #ifndef CONFIG_ATAPI /* ATAPI Devices do not set DRDY */
 		} else  if ((c & ATA_STAT_READY) == 0) {
 			puts ("not available  ");
-			PRINTF ("Status = 0x%02X ", c);
+			debug ("Status = 0x%02X ", c);
 #endif
 		} else {
 			puts ("OK ");
@@ -706,7 +706,7 @@ set_pcmcia_timing (int pmode)
 	volatile pcmconf8xx_t *pcmp = &(immr->im_pcmcia);
 	ulong timings;
 
-	PRINTF ("Set timing for PIO Mode %d\n", pmode);
+	debug ("Set timing for PIO Mode %d\n", pmode);
 
 	timings = PCMCIA_SHT(pio_config_clk[pmode].t_hold)
 		| PCMCIA_SST(pio_config_clk[pmode].t_setup)
@@ -721,7 +721,7 @@ set_pcmcia_timing (int pmode)
 			| timings
 #endif
 			;
-	PRINTF ("PBR0: %08x  POR0: %08x\n", pcmp->pcmc_pbr0, pcmp->pcmc_por0);
+	debug ("PBR0: %08x  POR0: %08x\n", pcmp->pcmc_pbr0, pcmp->pcmc_por0);
 
 	pcmp->pcmc_pbr1 = CFG_PCMCIA_PBR1;
 	pcmp->pcmc_por1 = CFG_PCMCIA_POR1
@@ -729,7 +729,7 @@ set_pcmcia_timing (int pmode)
 			| timings
 #endif
 			;
-	PRINTF ("PBR1: %08x  POR1: %08x\n", pcmp->pcmc_pbr1, pcmp->pcmc_por1);
+	debug ("PBR1: %08x  POR1: %08x\n", pcmp->pcmc_pbr1, pcmp->pcmc_por1);
 
 	pcmp->pcmc_pbr2 = CFG_PCMCIA_PBR2;
 	pcmp->pcmc_por2 = CFG_PCMCIA_POR2
@@ -737,7 +737,7 @@ set_pcmcia_timing (int pmode)
 			| timings
 #endif
 			;
-	PRINTF ("PBR2: %08x  POR2: %08x\n", pcmp->pcmc_pbr2, pcmp->pcmc_por2);
+	debug ("PBR2: %08x  POR2: %08x\n", pcmp->pcmc_pbr2, pcmp->pcmc_por2);
 
 	pcmp->pcmc_pbr3 = CFG_PCMCIA_PBR3;
 	pcmp->pcmc_por3 = CFG_PCMCIA_POR3
@@ -745,7 +745,7 @@ set_pcmcia_timing (int pmode)
 			| timings
 #endif
 			;
-	PRINTF ("PBR3: %08x  POR3: %08x\n", pcmp->pcmc_pbr3, pcmp->pcmc_por3);
+	debug ("PBR3: %08x  POR3: %08x\n", pcmp->pcmc_pbr3, pcmp->pcmc_por3);
 
 	/* IDE 1
 	 */
@@ -755,7 +755,7 @@ set_pcmcia_timing (int pmode)
 			| timings
 #endif
 			;
-	PRINTF ("PBR4: %08x  POR4: %08x\n", pcmp->pcmc_pbr4, pcmp->pcmc_por4);
+	debug ("PBR4: %08x  POR4: %08x\n", pcmp->pcmc_pbr4, pcmp->pcmc_por4);
 
 	pcmp->pcmc_pbr5 = CFG_PCMCIA_PBR5;
 	pcmp->pcmc_por5 = CFG_PCMCIA_POR5
@@ -763,7 +763,7 @@ set_pcmcia_timing (int pmode)
 			| timings
 #endif
 			;
-	PRINTF ("PBR5: %08x  POR5: %08x\n", pcmp->pcmc_pbr5, pcmp->pcmc_por5);
+	debug ("PBR5: %08x  POR5: %08x\n", pcmp->pcmc_pbr5, pcmp->pcmc_por5);
 
 	pcmp->pcmc_pbr6 = CFG_PCMCIA_PBR6;
 	pcmp->pcmc_por6 = CFG_PCMCIA_POR6
@@ -771,7 +771,7 @@ set_pcmcia_timing (int pmode)
 			| timings
 #endif
 			;
-	PRINTF ("PBR6: %08x  POR6: %08x\n", pcmp->pcmc_pbr6, pcmp->pcmc_por6);
+	debug ("PBR6: %08x  POR6: %08x\n", pcmp->pcmc_pbr6, pcmp->pcmc_por6);
 
 	pcmp->pcmc_pbr7 = CFG_PCMCIA_PBR7;
 	pcmp->pcmc_por7 = CFG_PCMCIA_POR7
@@ -779,7 +779,7 @@ set_pcmcia_timing (int pmode)
 			| timings
 #endif
 			;
-	PRINTF ("PBR7: %08x  POR7: %08x\n", pcmp->pcmc_pbr7, pcmp->pcmc_por7);
+	debug ("PBR7: %08x  POR7: %08x\n", pcmp->pcmc_pbr7, pcmp->pcmc_por7);
 
 }
 
@@ -791,7 +791,7 @@ set_pcmcia_timing (int pmode)
 static void __inline__
 ide_outb(int dev, int port, unsigned char val)
 {
-	PRINTF ("ide_outb (dev= %d, port= 0x%x, val= 0x%02x) : @ 0x%08lx\n",
+	debug ("ide_outb (dev= %d, port= 0x%x, val= 0x%02x) : @ 0x%08lx\n",
 		dev, port, val, (ATA_CURR_BASE(dev)+port));
 
 	/* Ensure I/O operations complete */
@@ -815,7 +815,7 @@ ide_inb(int dev, int port)
 	/* Ensure I/O operations complete */
 	EIEIO;
 	val = *((uchar *)(ATA_CURR_BASE(dev)+port));
-	PRINTF ("ide_inb (dev= %d, port= 0x%x) : @ 0x%08lx -> 0x%02x\n",
+	debug ("ide_inb (dev= %d, port= 0x%x) : @ 0x%08lx -> 0x%02x\n",
 		dev, port, (ATA_CURR_BASE(dev)+port), val);
 	return (val);
 }
@@ -844,7 +844,7 @@ output_data_short(int dev, ulong *sect_buf, int words)
 	}
 
 	if (words&1)
-	    *pbuf = 0;
+		*pbuf = 0;
 }
 # endif	/* CONFIG_AMIGAONEG3SE */
 #endif /* __PPC_ */
@@ -857,17 +857,7 @@ output_data_short(int dev, ulong *sect_buf, int words)
 static void
 input_swap_data(int dev, ulong *sect_buf, int words)
 {
-#ifndef CONFIG_HMI10
-	volatile ushort	*pbuf = (ushort *)(ATA_CURR_BASE(dev)+ATA_DATA_REG);
-	ushort	*dbuf = (ushort *)sect_buf;
-
-	PRINTF("in input swap data base for read is %lx\n", (unsigned long) pbuf);
-
-	while (words--) {
-		*dbuf++ = ld_le16(pbuf);
-		*dbuf++ = ld_le16(pbuf);
-	}
-#else	/* CONFIG_HMI10 */
+#if defined(CONFIG_HMI10) || defined(CONFIG_CPC45)
 	uchar i;
 	volatile uchar *pbuf_even = (uchar *)(ATA_CURR_BASE(dev)+ATA_DATA_EVEN);
 	volatile uchar *pbuf_odd  = (uchar *)(ATA_CURR_BASE(dev)+ATA_DATA_ODD);
@@ -880,7 +870,17 @@ input_swap_data(int dev, ulong *sect_buf, int words)
 			dbuf+=1;
 		}
 	}
-#endif	/* CONFIG_HMI10 */
+#else	
+	volatile ushort	*pbuf = (ushort *)(ATA_CURR_BASE(dev)+ATA_DATA_REG);
+	ushort	*dbuf = (ushort *)sect_buf;
+
+	debug("in input swap data base for read is %lx\n", (unsigned long) pbuf);
+
+	while (words--) {
+		*dbuf++ = ld_le16(pbuf);
+		*dbuf++ = ld_le16(pbuf);
+	}
+#endif
 }
 #endif	/* __LITTLE_ENDIAN || CONFIG_AU1X00 */
 
@@ -889,19 +889,7 @@ input_swap_data(int dev, ulong *sect_buf, int words)
 static void
 output_data(int dev, ulong *sect_buf, int words)
 {
-#ifndef CONFIG_HMI10
-	ushort	*dbuf;
-	volatile ushort	*pbuf;
-
-	pbuf = (ushort *)(ATA_CURR_BASE(dev)+ATA_DATA_REG);
-	dbuf = (ushort *)sect_buf;
-	while (words--) {
-		EIEIO;
-		*pbuf = *dbuf++;
-		EIEIO;
-		*pbuf = *dbuf++;
-	}
-#else	/* CONFIG_HMI10 */
+#if defined(CONFIG_HMI10) || defined(CONFIG_CPC45)
 	uchar	*dbuf;
 	volatile uchar	*pbuf_even;
 	volatile uchar	*pbuf_odd;
@@ -919,7 +907,19 @@ output_data(int dev, ulong *sect_buf, int words)
 		EIEIO;
 		*pbuf_odd = *dbuf++;
 	}
-#endif	/* CONFIG_HMI10 */
+#else
+	ushort	*dbuf;
+	volatile ushort	*pbuf;
+
+	pbuf = (ushort *)(ATA_CURR_BASE(dev)+ATA_DATA_REG);
+	dbuf = (ushort *)sect_buf;
+	while (words--) {
+		EIEIO;
+		*pbuf = *dbuf++;
+		EIEIO;
+		*pbuf = *dbuf++;
+	}
+#endif
 }
 #else	/* ! __PPC__ */
 static void
@@ -933,22 +933,7 @@ output_data(int dev, ulong *sect_buf, int words)
 static void
 input_data(int dev, ulong *sect_buf, int words)
 {
-#ifndef CONFIG_HMI10
-	ushort	*dbuf;
-	volatile ushort	*pbuf;
-
-	pbuf = (ushort *)(ATA_CURR_BASE(dev)+ATA_DATA_REG);
-	dbuf = (ushort *)sect_buf;
-
-	PRINTF("in input data base for read is %lx\n", (unsigned long) pbuf);
-
-	while (words--) {
-		EIEIO;
-		*dbuf++ = *pbuf;
-		EIEIO;
-		*dbuf++ = *pbuf;
-	}
-#else	/* CONFIG_HMI10 */
+#if defined(CONFIG_HMI10) || defined(CONFIG_CPC45)
 	uchar	*dbuf;
 	volatile uchar	*pbuf_even;
 	volatile uchar	*pbuf_odd;
@@ -957,20 +942,35 @@ input_data(int dev, ulong *sect_buf, int words)
 	pbuf_odd  = (uchar *)(ATA_CURR_BASE(dev)+ATA_DATA_ODD);
 	dbuf = (uchar *)sect_buf;
 	while (words--) {
-		EIEIO;
-		EIEIO;
 		*dbuf++ = *pbuf_even;
 		EIEIO;
-		EIEIO;
+		SYNC;
 		*dbuf++ = *pbuf_odd;
 		EIEIO;
-		EIEIO;
+		SYNC;
 		*dbuf++ = *pbuf_even;
 		EIEIO;
-		EIEIO;
+		SYNC;
 		*dbuf++ = *pbuf_odd;
+		EIEIO;
+		SYNC;
 	}
-#endif	/* CONFIG_HMI10 */
+#else
+	ushort	*dbuf;
+	volatile ushort	*pbuf;
+
+	pbuf = (ushort *)(ATA_CURR_BASE(dev)+ATA_DATA_REG);
+	dbuf = (ushort *)sect_buf;
+
+	debug("in input data base for read is %lx\n", (unsigned long) pbuf);
+
+	while (words--) {
+		EIEIO;
+		*dbuf++ = *pbuf;
+		EIEIO;
+		*dbuf++ = *pbuf;
+	}
+#endif
 }
 #else	/* ! __PPC__ */
 static void
@@ -997,8 +997,8 @@ input_data_short(int dev, ulong *sect_buf, int words)
 	}
 
 	if (words&1) {
-	    ushort dummy;
-	    dummy = *pbuf;
+		ushort dummy;
+		dummy = *pbuf;
 	}
 }
 #endif
@@ -1087,14 +1087,14 @@ static void ide_ident (block_dev_desc_t *dev_desc)
 		s = getenv("ide_doreset");
 		if (s && strcmp(s, "on") == 0)
 #endif
-			{
-				/* Need to soft reset the device in case it's an ATAPI...  */
-				PRINTF("Retrying...\n");
-				ide_outb (device, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(device));
-				udelay(100000);
-				ide_outb (device, ATA_COMMAND, 0x08);
-				udelay (500000);	/* 500 ms */
-			}
+		{
+			/* Need to soft reset the device in case it's an ATAPI...  */
+			debug ("Retrying...\n");
+			ide_outb (device, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(device));
+			udelay(100000);
+			ide_outb (device, ATA_COMMAND, 0x08);
+			udelay (500000);	/* 500 ms */
+		}
 		/* Select device
 		 */
 		ide_outb (device, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(device));
@@ -1144,16 +1144,16 @@ static void ide_ident (block_dev_desc_t *dev_desc)
 	printf ("tPIO = 0x%02x = %d\n",mode, mode);
 	if (mode > 2) {		/* 2 is maximum allowed tPIO value */
 		mode = 2;
-		PRINTF ("Override tPIO -> 2\n");
+		debug ("Override tPIO -> 2\n");
 	}
 	if (iop->field_valid & 2) {	/* drive implements ATA2? */
-		PRINTF ("Drive implements ATA2\n");
+		debug ("Drive implements ATA2\n");
 		if (iop->capability & 8) {	/* drive supports use_iordy? */
 			cycle_time = iop->eide_pio_iordy;
 		} else {
 			cycle_time = iop->eide_pio;
 		}
-		PRINTF ("cycle time = %d\n", cycle_time);
+		debug ("cycle time = %d\n", cycle_time);
 		mode = 4;
 		if (cycle_time > 120) mode = 3;	/* 120 ns for PIO mode 4 */
 		if (cycle_time > 180) mode = 2;	/* 180 ns for PIO mode 3 */
@@ -1208,8 +1208,7 @@ static void ide_ident (block_dev_desc_t *dev_desc)
 	ide_outb (device, ATA_LBA_LOW,  0);
 	ide_outb (device, ATA_LBA_MID,  0);
 	ide_outb (device, ATA_LBA_HIGH, 0);
-	ide_outb (device, ATA_DEV_HD,   ATA_LBA		|
-				    ATA_DEVICE(device));
+	ide_outb (device, ATA_DEV_HD,   ATA_LBA | ATA_DEVICE(device));
 	ide_outb (device, ATA_COMMAND,  0xe3);
 	udelay (50);
 	c = ide_wait (device, IDE_TIME_OUT);	/* can't take over 500 ms */
@@ -1232,7 +1231,7 @@ ulong ide_read (int device, lbaint_t blknr, ulong blkcnt, ulong *buffer)
 		lba48 = 1;
 	}
 #endif
-	PRINTF ("ide_read dev %d start %qX, blocks %lX buffer at %lX\n",
+	debug ("ide_read dev %d start %qX, blocks %lX buffer at %lX\n",
 		device, blknr, blkcnt, (ulong)buffer);
 
 	ide_led (DEVICE_LED(device), 1);	/* LED on	*/
@@ -1262,7 +1261,7 @@ ulong ide_read (int device, lbaint_t blknr, ulong blkcnt, ulong *buffer)
 		printf ("No Powersaving mode %X\n", c);
 	} else {
 		c = ide_inb(device,ATA_SECT_CNT);
-		PRINTF("Powersaving %02X\n",c);
+		debug ("Powersaving %02X\n",c);
 		if(c==0)
 			pwrsave=1;
 	}
@@ -1583,34 +1582,13 @@ static void ide_led (uchar led, uchar status)
  * ATAPI Support
  */
 
-#undef	ATAPI_DEBUG
-
-#ifdef	ATAPI_DEBUG
-#define	AT_PRINTF(fmt,args...)	printf (fmt ,##args)
-#else
-#define AT_PRINTF(fmt,args...)
-#endif
-
 #if defined(__PPC__) || defined(CONFIG_PXA_PCMCIA)
 /* since ATAPI may use commands with not 4 bytes alligned length
  * we have our own transfer functions, 2 bytes alligned */
 static void
 output_data_shorts(int dev, ushort *sect_buf, int shorts)
 {
-#ifndef CONFIG_HMI10
-	ushort	*dbuf;
-	volatile ushort	*pbuf;
-
-	pbuf = (ushort *)(ATA_CURR_BASE(dev)+ATA_DATA_REG);
-	dbuf = (ushort *)sect_buf;
-
-	PRINTF("in output data shorts base for read is %lx\n", (unsigned long) pbuf);
-
-	while (shorts--) {
-		EIEIO;
-		*pbuf = *dbuf++;
-	}
-#else	/* CONFIG_HMI10 */
+#if defined(CONFIG_HMI10) || defined(CONFIG_CPC45)
 	uchar	*dbuf;
 	volatile uchar	*pbuf_even;
 	volatile uchar	*pbuf_odd;
@@ -1623,26 +1601,26 @@ output_data_shorts(int dev, ushort *sect_buf, int shorts)
 		EIEIO;
 		*pbuf_odd = *dbuf++;
 	}
-#endif	/* CONFIG_HMI10 */
-}
-
-static void
-input_data_shorts(int dev, ushort *sect_buf, int shorts)
-{
-#ifndef CONFIG_HMI10
+#else
 	ushort	*dbuf;
 	volatile ushort	*pbuf;
 
 	pbuf = (ushort *)(ATA_CURR_BASE(dev)+ATA_DATA_REG);
 	dbuf = (ushort *)sect_buf;
 
-	PRINTF("in input data shorts base for read is %lx\n", (unsigned long) pbuf);
+	debug ("in output data shorts base for read is %lx\n", (unsigned long) pbuf);
 
 	while (shorts--) {
 		EIEIO;
-		*dbuf++ = *pbuf;
+		*pbuf = *dbuf++;
 	}
-#else	/* CONFIG_HMI10 */
+#endif
+}
+
+static void
+input_data_shorts(int dev, ushort *sect_buf, int shorts)
+{
+#if defined(CONFIG_HMI10) || defined(CONFIG_CPC45)
 	uchar	*dbuf;
 	volatile uchar	*pbuf_even;
 	volatile uchar	*pbuf_odd;
@@ -1655,7 +1633,20 @@ input_data_shorts(int dev, ushort *sect_buf, int shorts)
 		EIEIO;
 		*dbuf++ = *pbuf_odd;
 	}
-#endif	/* CONFIG_HMI10 */
+#else
+	ushort	*dbuf;
+	volatile ushort	*pbuf;
+
+	pbuf = (ushort *)(ATA_CURR_BASE(dev)+ATA_DATA_REG);
+	dbuf = (ushort *)sect_buf;
+
+	debug("in input data shorts base for read is %lx\n", (unsigned long) pbuf);
+
+	while (shorts--) {
+		EIEIO;
+		*dbuf++ = *pbuf;
+	}
+#endif
 }
 
 #else	/* ! __PPC__ */
@@ -1758,7 +1749,7 @@ unsigned char atapi_issue(int device,unsigned char* ccb,int ccblen, unsigned cha
 	if ((c & mask) != res ) {
 		if (c & ATA_STAT_ERR) {
 			err=(ide_inb(device,ATA_ERROR_REG))>>4;
-			AT_PRINTF("atapi_issue 1 returned sense key %X status %02X\n",err,c);
+			debug ("atapi_issue 1 returned sense key %X status %02X\n",err,c);
 		} else {
 			printf ("ATTAPI_ISSUE: (no DRQ) after sending ccb (%x)  status 0x%02x\n", ccb[0],c);
 			err=0xFF;
@@ -1779,18 +1770,18 @@ unsigned char atapi_issue(int device,unsigned char* ccb,int ccblen, unsigned cha
 		goto AI_OUT;
 	}
 	if(n!=buflen) {
-		AT_PRINTF("WARNING, transfer bytes %d not equal with requested %d\n",n,buflen);
+		debug ("WARNING, transfer bytes %d not equal with requested %d\n",n,buflen);
 	}
 	if(n!=0) { /* data transfer */
-		AT_PRINTF("ATAPI_ISSUE: %d Bytes to transfer\n",n);
+		debug ("ATAPI_ISSUE: %d Bytes to transfer\n",n);
 		 /* we transfer shorts */
 		n>>=1;
 		/* ok now decide if it is an in or output */
 		if ((ide_inb(device, ATA_SECT_CNT)&0x02)==0) {
-			AT_PRINTF("Write to device\n");
+			debug ("Write to device\n");
 			output_data_shorts(device,(unsigned short *)buffer,n);
 		} else {
-			AT_PRINTF("Read from device @ %p shorts %d\n",buffer,n);
+			debug ("Read from device @ %p shorts %d\n",buffer,n);
 			input_data_shorts(device,(unsigned short *)buffer,n);
 		}
 	}
@@ -1800,7 +1791,7 @@ unsigned char atapi_issue(int device,unsigned char* ccb,int ccblen, unsigned cha
 	c = atapi_wait_mask(device,ATAPI_TIME_OUT,mask,res);
 	if ((c & ATA_STAT_ERR) == ATA_STAT_ERR) {
 		err=(ide_inb(device,ATA_ERROR_REG) >> 4);
-		AT_PRINTF("atapi_issue 2 returned sense key %X status %X\n",err,c);
+		debug ("atapi_issue 2 returned sense key %X status %X\n",err,c);
 	} else {
 		err = 0;
 	}
@@ -1848,7 +1839,7 @@ retry:
 	if (res==0xFF)
 		return (0xFF); /* error */
 
-	AT_PRINTF("(auto_req)atapi_issue returned sense key %X\n",res);
+	debug ("(auto_req)atapi_issue returned sense key %X\n",res);
 
 	memset(sense_ccb,0,sizeof(sense_ccb));
 	memset(sense_data,0,sizeof(sense_data));
@@ -1860,8 +1851,8 @@ retry:
 	asc=(sense_data[12]);
 	ascq=(sense_data[13]);
 
-	AT_PRINTF("ATAPI_CMD_REQ_SENSE returned %x\n",res);
-	AT_PRINTF(" Sense page: %02X key %02X ASC %02X ASCQ %02X\n",
+	debug ("ATAPI_CMD_REQ_SENSE returned %x\n",res);
+	debug (" Sense page: %02X key %02X ASC %02X ASCQ %02X\n",
 		sense_data[0],
 		key,
 		asc,
@@ -1887,13 +1878,13 @@ retry:
 		goto error;
 	}
 	if(asc==0x3a) {
-		AT_PRINTF("Media not present\n");
+		debug ("Media not present\n");
 		goto error;
 	}
 
 #ifdef CONFIG_AMIGAONEG3SE
 	if ((sense_data[2]&0xF)==0x0B) {
-		AT_PRINTF("ABORTED COMMAND...retry\n");
+		debug ("ABORTED COMMAND...retry\n");
 		if (retrycnt++ < 4)
 			goto retry;
 		return (0xFF);
@@ -1902,7 +1893,7 @@ retry:
 	if ((sense_data[2]&0xf) == 0x02 &&
 	    sense_data[12] == 0x04	&&
 	    sense_data[13] == 0x01	) {
-		AT_PRINTF("Waiting for unit to become active\n");
+		debug ("Waiting for unit to become active\n");
 		udelay(timeout);
 		if (retrycnt++ < 4)
 			goto retry;
@@ -1912,7 +1903,7 @@ retry:
 
 	printf ("ERROR: Unknown Sense key %02X ASC %02X ASCQ %02X\n",key,asc,ascq);
 error:
-	AT_PRINTF ("ERROR Sense key %02X ASC %02X ASCQ %02X\n",key,asc,ascq);
+	debug  ("ERROR Sense key %02X ASC %02X ASCQ %02X\n",key,asc,ascq);
 	return (0xFF);
 }
 
@@ -1935,7 +1926,7 @@ static void	atapi_inquiry(block_dev_desc_t * dev_desc)
 	ccb[4]=40; /* allocation Legnth */
 	c=atapi_issue_autoreq(device,ccb,12,(unsigned char *)iobuf,40);
 
-	AT_PRINTF("ATAPI_CMD_INQUIRY returned %x\n",c);
+	debug ("ATAPI_CMD_INQUIRY returned %x\n",c);
 	if (c!=0)
 		return;
 
@@ -1961,7 +1952,7 @@ static void	atapi_inquiry(block_dev_desc_t * dev_desc)
 
 	c=atapi_issue_autoreq(device,ccb,12,(unsigned char *)iobuf,0);
 
-	AT_PRINTF("ATAPI_CMD_START_STOP returned %x\n",c);
+	debug ("ATAPI_CMD_START_STOP returned %x\n",c);
 	if (c!=0)
 		return;
 
@@ -1969,7 +1960,7 @@ static void	atapi_inquiry(block_dev_desc_t * dev_desc)
 	memset(iobuf,0,sizeof(iobuf));
 	c=atapi_issue_autoreq(device,ccb,12,(unsigned char *)iobuf,0);
 
-	AT_PRINTF("ATAPI_CMD_UNIT_TEST_READY returned %x\n",c);
+	debug ("ATAPI_CMD_UNIT_TEST_READY returned %x\n",c);
 	if (c!=0)
 		return;
 
@@ -1977,11 +1968,11 @@ static void	atapi_inquiry(block_dev_desc_t * dev_desc)
 	memset(iobuf,0,sizeof(iobuf));
 	ccb[0]=ATAPI_CMD_READ_CAP;
 	c=atapi_issue_autoreq(device,ccb,12,(unsigned char *)iobuf,8);
-	AT_PRINTF("ATAPI_CMD_READ_CAP returned %x\n",c);
+	debug ("ATAPI_CMD_READ_CAP returned %x\n",c);
 	if (c!=0)
 		return;
 
-	AT_PRINTF("Read Cap: LBA %02X%02X%02X%02X blksize %02X%02X%02X%02X\n",
+	debug ("Read Cap: LBA %02X%02X%02X%02X blksize %02X%02X%02X%02X\n",
 		iobuf[0],iobuf[1],iobuf[2],iobuf[3],
 		iobuf[4],iobuf[5],iobuf[6],iobuf[7]);
 
@@ -2015,7 +2006,7 @@ ulong atapi_read (int device, lbaint_t blknr, ulong blkcnt, ulong *buffer)
 	unsigned char ccb[12]; /* Command descriptor block */
 	ulong cnt;
 
-	AT_PRINTF("atapi_read dev %d start %lX, blocks %lX buffer at %lX\n",
+	debug  ("atapi_read dev %d start %lX, blocks %lX buffer at %lX\n",
 		device, blknr, blkcnt, (ulong)buffer);
 
 	do {

@@ -2,6 +2,20 @@
 Changes for U-Boot 1.1.3:
 ======================================================================
 
+* Removed '--no-warn-mismatch' option from Makefile. This option
+  makes 'ld' to overlook binary objects compatibility.
+
+* Moved $(PLATFORM_LIBS) from the library group (--start-group ...
+  --end-group) outside of the group. This will make 'ld' to do
+  _multiple_ search in the library group when resolving symbol
+  references and do only a _single_ seach in libgcc.a after the group
+  search.
+
+* Fix stability problems on CPC45 board again.
+
+* Make image detection for diskboot / usbboot / scsiboot more robust
+  (also check header checksum)
+
 * Update CPC45 board configuration.
 
 * Add USB and PCI support for INKA4x0 board
