@@ -194,6 +194,9 @@ int devices_init (void)
 	drv_logbuff_init ();
 #endif
 	drv_system_init ();
+#ifdef CONFIG_USB_TTY
+	drv_usbtty_init ();
+#endif
 
 	return (0);
 }

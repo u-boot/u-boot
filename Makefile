@@ -921,6 +921,9 @@ xtract_trab = $(subst _bigram,,$(subst _bigflash,,$(subst _old,,$(subst _config,
 
 xtract_omap1610xxx = $(subst _cs0boot,,$(subst _cs3boot,, $(subst _config,,$1)))
 
+SX1_config :		unconfig
+	@./mkconfig $(@:_config=) arm arm925t sx1
+
 omap1510inn_config :	unconfig
 	@./mkconfig $(@:_config=) arm arm925t omap1510inn
 

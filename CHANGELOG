@@ -2,6 +2,9 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
+* Add support for SX1 mobile phone; add support for USB-based console
+  (enable with "setenv stdout usbtty; setenv stdin usbtty")
+
 * Fix LOWBOOT configuration for MPC5200 with DDR memory
 
 * Fix SDRAM timings for LITE5200 / IceCube board
@@ -15,7 +18,7 @@ Changes for U-Boot 1.0.2:
 
 * Patch by Stephan Linz, 26 Feb 2004:
   Bug fix for NFS code on NIOS targets
-  
+
 * Patch by Stephen Williams, 26 Feb 2004:
   Break up SystemACE reads of large block counts
 

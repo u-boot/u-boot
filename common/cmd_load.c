@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2003
+ * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -104,8 +104,8 @@ int do_load_serial (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	 * box some time (100 * 1 ms)
 	 */
 	for (i=0; i<100; ++i) {
-		if (serial_tstc()) {
-			(void) serial_getc();
+		if (tstc()) {
+			(void) getc();
 		}
 		udelay(1000);
 	}
@@ -220,9 +220,9 @@ read_record (char *buf, ulong len)
 	--len;	/* always leave room for terminating '\0' byte */
 
 	for (p=buf; p < buf+len; ++p) {
-		c = serial_getc();		/* read character		*/
+		c = getc();		/* read character		*/
 		if (do_echo)
-			serial_putc (c);	/* ... and echo it		*/
+			putc (c);	/* ... and echo it		*/
 
 		switch (c) {
 		case '\r':
@@ -237,7 +237,7 @@ read_record (char *buf, ulong len)
 		}
 
 	    /* Check for the console hangup (if any different from serial) */
-	    if (gd->jt[XF_getc] != serial_getc) {
+	    if (gd->jt[XF_getc] != getc) {
 		if (ctrlc()) {
 		    return (-1);
 		}
@@ -387,7 +387,7 @@ write_record (char *buf)
 	char c;
 
 	while((c = *buf++))
-		serial_putc(c);
+		putc(c);
 
 	/* Check for the console hangup (if any different from serial) */
 
@@ -531,8 +531,8 @@ static ulong load_serial_bin (ulong offset)
 	 * box some time (100 * 1 ms)
 	 */
 	for (i=0; i<100; ++i) {
-		if (serial_tstc()) {
-			(void) serial_getc();
+		if (tstc()) {
+			(void) getc();
 		}
 		udelay(1000);
 	}
@@ -551,7 +551,7 @@ void send_pad (void)
 	int count = his_pad_count;
 
 	while (count-- > 0)
-		serial_putc (his_pad_char);
+		putc (his_pad_char);
 }
 
 /* converts escaped kermit char to binary char */
@@ -579,7 +579,7 @@ void s1_sendpacket (char *packet)
 {
 	send_pad ();
 	while (*packet) {
-		serial_putc (*packet++);
+		putc (*packet++);
 	}
 }
 
@@ -841,7 +841,7 @@ static int k_recv (void)
 		/* get a packet */
 		/* wait for the starting character or ^C */
 		for (;;) {
-			switch (serial_getc ()) {
+			switch (getc ()) {
 			case START_CHAR:	/* start packet */
 				goto START;
 			case ETX_CHAR:		/* ^C waiting for packet */
@@ -853,13 +853,13 @@ static int k_recv (void)
 START:
 		/* get length of packet */
 		sum = 0;
-		new_char = serial_getc ();
+		new_char = getc ();
 		if ((new_char & 0xE0) == 0)
 			goto packet_error;
 		sum += new_char & 0xff;
 		length = untochar (new_char);
 		/* get sequence number */
-		new_char = serial_getc ();
+		new_char = getc ();
 		if ((new_char & 0xE0) == 0)
 			goto packet_error;
 		sum += new_char & 0xff;
@@ -886,7 +886,7 @@ START:
 		/* END NEW CODE */
 
 		/* get packet type */
-		new_char = serial_getc ();
+		new_char = getc ();
 		if ((new_char & 0xE0) == 0)
 			goto packet_error;
 		sum += new_char & 0xff;
@@ -896,19 +896,19 @@ START:
 		if (length == -2) {
 			/* (length byte was 0, decremented twice) */
 			/* get the two length bytes */
-			new_char = serial_getc ();
+			new_char = getc ();
 			if ((new_char & 0xE0) == 0)
 				goto packet_error;
 			sum += new_char & 0xff;
 			len_hi = untochar (new_char);
-			new_char = serial_getc ();
+			new_char = getc ();
 			if ((new_char & 0xE0) == 0)
 				goto packet_error;
 			sum += new_char & 0xff;
 			len_lo = untochar (new_char);
 			length = len_hi * 95 + len_lo;
 			/* check header checksum */
-			new_char = serial_getc ();
+			new_char = getc ();
 			if ((new_char & 0xE0) == 0)
 				goto packet_error;
 			if (new_char != tochar ((sum + ((sum >> 6) & 0x03)) & 0x3f))
@@ -918,7 +918,7 @@ START:
 		}
 		/* bring in rest of packet */
 		while (length > 1) {
-			new_char = serial_getc ();
+			new_char = getc ();
 			if ((new_char & 0xE0) == 0)
 				goto packet_error;
 			sum += new_char & 0xff;
@@ -935,13 +935,13 @@ START:
 			}
 		}
 		/* get and validate checksum character */
-		new_char = serial_getc ();
+		new_char = getc ();
 		if ((new_char & 0xE0) == 0)
 			goto packet_error;
 		if (new_char != tochar ((sum + ((sum >> 6) & 0x03)) & 0x3f))
 			goto packet_error;
 		/* get END_CHAR */
-		new_char = serial_getc ();
+		new_char = getc ();
 		if (new_char != END_CHAR) {
 		  packet_error:
 			/* restore state machines */

@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000, 2001
+# (C) Copyright 2004
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -12,7 +12,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
@@ -47,7 +47,7 @@ COBJS	= main.o ACEX1K.o altera.o bedbug.o \
 	  hush.o kgdb.o lists.o lynxkdi.o memsize.o miiphybb.o miiphyutil.o \
 	  s_record.o soft_i2c.o soft_spi.o spartan2.o \
 	  usb.o usb_kbd.o usb_storage.o \
-	  virtex2.o xilinx.o
+	  virtex2.o xilinx.o circbuf.o
 
 OBJS	= $(AOBJS) $(COBJS)
 
@@ -55,7 +55,7 @@ CPPFLAGS += -I..
 
 all:	$(LIB) $(AOBJS)
 
-$(LIB):	.depend $(OBJS)
+$(LIB): .depend $(OBJS)
 	$(AR) crv $@ $(OBJS)
 
 environment.o: environment.c ../tools/envcrc

@@ -18,7 +18,7 @@ void NS16550_init (NS16550_t com_port, int baud_divisor)
 {
 	com_port->ier = 0x00;
 #ifdef CONFIG_OMAP1510
-	com_port->mdr1 = 0x7;   /* mode select reset TL16C750*/
+	com_port->mdr1 = 0x7;	/* mode select reset TL16C750*/
 #endif
 	com_port->lcr = LCR_BKSE | LCRVAL;
 	com_port->dll = baud_divisor & 0xff;
@@ -50,7 +50,12 @@ void NS16550_putc (NS16550_t com_port, char c)
 
 char NS16550_getc (NS16550_t com_port)
 {
-	while ((com_port->lsr & LSR_DR) == 0);
+	while ((com_port->lsr & LSR_DR) == 0) {
+#ifdef CONFIG_USB_TTY
+		extern void usbtty_poll(void);
+		usbtty_poll();
+#endif
+	}
 	return (com_port->rbr);
 }
 

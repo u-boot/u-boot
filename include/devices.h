@@ -105,5 +105,8 @@ int	drv_video_init (void);
 #ifdef CONFIG_KEYBOARD
 int	drv_keyboard_init (void);
 #endif
+#ifdef CONFIG_USB_TTY
+int	drv_usbtty_init (void);
+#endif
 
 #endif	/* _DEVICES_H_ */
