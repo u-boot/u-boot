@@ -86,11 +86,11 @@ unsigned long flash_init (void)
 	/* Re-do sizing to get full correct info */
 
 	if (size_b1) {
-		base_b1 = -size_b1;
 		if (size_b1 < (1 << 20)) {
 			/* minimum CS size on PPC405GP is 1MB !!! */
 			size_b1 = 1 << 20;
 		}
+		base_b1 = -size_b1;
 		mtdcr (ebccfga, pb0cr);
 		pbcr = mfdcr (ebccfgd);
 		mtdcr (ebccfga, pb0cr);
@@ -103,11 +103,11 @@ unsigned long flash_init (void)
 	}
 
 	if (size_b0) {
-		base_b0 = base_b1 - size_b0;
 		if (size_b0 < (1 << 20)) {
 			/* minimum CS size on PPC405GP is 1MB !!! */
 			size_b0 = 1 << 20;
 		}
+		base_b0 = base_b1 - size_b0;
 		mtdcr (ebccfga, pb1cr);
 		pbcr = mfdcr (ebccfgd);
 		mtdcr (ebccfga, pb1cr);

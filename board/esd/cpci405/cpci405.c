@@ -37,7 +37,11 @@
 const unsigned char fpgadata[] =
 {
 #ifdef CONFIG_CPCI405_VER2
-# include "fpgadata_cpci4052.c"
+# ifdef CONFIG_CPCI405AB
+#  include "fpgadata_cpci405ab.c"
+# else
+#  include "fpgadata_cpci4052.c"
+# endif
 #else
 # include "fpgadata_cpci405.c"
 #endif
@@ -74,10 +78,10 @@ int board_pre_init (void)
 	/*
 	 * First pull fpga-prg pin low, to disable fpga logic (on version 2 board)
 	 */
-	out32(IBM405GP_GPIO0_ODR, 0x00000000);        /* no open drain pins      */
-	out32(IBM405GP_GPIO0_TCR, CFG_FPGA_PRG);      /* setup for output        */
-	out32(IBM405GP_GPIO0_OR,  CFG_FPGA_PRG);      /* set output pins to high */
-	out32(IBM405GP_GPIO0_OR, 0);                  /* pull prg low            */
+	out32(GPIO0_ODR, 0x00000000);        /* no open drain pins      */
+	out32(GPIO0_TCR, CFG_FPGA_PRG);      /* setup for output        */
+	out32(GPIO0_OR,  CFG_FPGA_PRG);      /* set output pins to high */
+	out32(GPIO0_OR, 0);                  /* pull prg low            */
 
 	/*
 	 * Boot onboard FPGA
@@ -192,10 +196,10 @@ int cpci405_version(void)
 	 */
 	cntrl0Reg = mfdcr(cntrl0);
 	mtdcr(cntrl0, cntrl0Reg | 0x03000000);
-	out32(IBM405GP_GPIO0_ODR, in32(IBM405GP_GPIO0_ODR) & ~0x00180000);
-	out32(IBM405GP_GPIO0_TCR, in32(IBM405GP_GPIO0_TCR) & ~0x00180000);
+	out32(GPIO0_ODR, in32(GPIO0_ODR) & ~0x00180000);
+	out32(GPIO0_TCR, in32(GPIO0_TCR) & ~0x00180000);
 	udelay(1000);                   /* wait some time before reading input */
-	value = in32(IBM405GP_GPIO0_IR) & 0x00180000;       /* get config bits */
+	value = in32(GPIO0_IR) & 0x00180000;       /* get config bits */
 
 	/*
 	 * Restore GPIO settings
@@ -505,4 +509,44 @@ void ide_set_reset(int on)
 #endif /* CONFIG_IDE_RESET */
 #endif /* CONFIG_CPCI405_VER2 */
 
+#if 0 /* test-only */
 /* ------------------------------------------------------------------------- */
+
+u8 *dhcp_vendorex_prep (u8 * e)
+{
+	char *ptr;
+
+/* DHCP vendor-class-identifier = 60 */
+	if ((ptr = getenv ("dhcp_vendor-class-identifier"))) {
+		*e++ = 60;
+		*e++ = strlen (ptr);
+		while (*ptr)
+			*e++ = *ptr++;
+	}
+/* my DHCP_CLIENT_IDENTIFIER = 61 */
+	if ((ptr = getenv ("dhcp_client_id"))) {
+		*e++ = 61;
+		*e++ = strlen (ptr);
+		while (*ptr)
+			*e++ = *ptr++;
+	}
+
+	return e;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+u8 *dhcp_vendorex_proc (u8 * popt)
+{
+	if (*popt == 61)
+		return (u8 *)-1;
+	if (*popt == 43) {
+		printf("|%s|", popt+4); /* test-only */
+		return (u8 *)-1;
+	}
+	return NULL;
+}
+
+/* ------------------------------------------------------------------------- */
+#endif /* test-only */
