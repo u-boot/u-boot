@@ -48,7 +48,7 @@ D: 8xxrom-0.3.0
 
 N: Rick Bronson
 E: rick@efn.org
-D: Atmel AT91RM9200DK w/NAND support
+D: Atmel AT91RM9200DK and NAND support
 
 N: David Brown
 E: DBrown03@harris.com

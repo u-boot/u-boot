@@ -107,6 +107,14 @@ LIST_xscale="cradle csb226 innokom lubbock"
 
 LIST_arm="${LIST_SA} ${LIST_ARM7} ${LIST_ARM9} ${LIST_xscale}"
 
+#########################################################################
+## MIPS 4Kc Systems
+#########################################################################
+
+LIST_mips4kc="incaip"
+
+LIST_mips="${LIST_mips4kc}"
+
 
 #----- for now, just run PPC by default -----
 [ $# = 0 ] && set $LIST_ppc
@@ -128,7 +136,7 @@ build_target() {
 for arg in $@
 do
 	case "$arg" in
-	8xx|824x|8260|4xx|7xx|74xx|SA|ARM7|ARM9|ppc|arm|xscale)
+	8xx|824x|8260|4xx|7xx|74xx|SA|ARM7|ARM9|ppc|arm|xscale|mips)
 			for target in `eval echo '$LIST_'${arg}`
 			do
 				build_target ${target}

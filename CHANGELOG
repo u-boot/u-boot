@@ -3,7 +3,9 @@ Changes since U-Boot 0.2.2:
 ======================================================================
 
 * Patch by Rick Bronson, 16 Mar 2003:
-  Add support for Atmel AT91RM9200DK w/NAND
+  - Add NAND flash support for reading, writing, and erasing NAND
+    flash (certain forms of which are called SmartMedia).
+  - Add support for Atmel AT91RM9200DK ARM920T based development kit.
 
 * Patches by Robert Schwebel, 19 Mar 2003:
   - use arm-linux-gcc as default compiler for ARM
@@ -35,6 +37,12 @@ Changes since U-Boot 0.2.2:
   - Set edge conditioning circuitry on PPC405GPr for compatibility
     to existing PPC405GP designs.
   - Clip udiv to 5 bits on PPC405 (serial.c).
+
+* Extend INCAIP board support:
+  - add automatic RAM size detection
+  - add "bdinfo" command
+  - pass flash address and size to Linux kernel
+  - switch to 150 MHz clock
 
 * Avoid flicker on the TRAB's VFD by synchronizing the enable with
   the HSYNC/VSYNC. Requires new CPLD code (Version 101 for Rev. 100
@@ -178,6 +186,10 @@ Changes since U-Boot 0.2.2:
 
 * Patch by Stefan Roese, 10 Feb 2003:
   Add support for 4MB and 128MB onboard SDRAM (cpu/ppc4xx/sdram.c)
+
+* Add support for MIPS32 4Kc CPUs
+
+* Add support for INCA-IP Board
 
 ======================================================================
 Changes for U-Boot 0.2.2:
