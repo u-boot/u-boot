@@ -95,7 +95,7 @@ void pci_405gp_init(struct pci_controller *hose)
 
 	unsigned short temp_short;
 	unsigned long ptmpcila[2] = {CFG_PCI_PTM1PCI, CFG_PCI_PTM2PCI};
-#if defined(CONFIG_CPCI405)
+#if defined(CONFIG_CPCI405) || defined(CONFIG_PMC405)
 	unsigned long ptmla[2]    = {bd->bi_memstart, bd->bi_flashstart};
 	unsigned long ptmms[2]    = {~(bd->bi_memsize - 1) | 1, ~(bd->bi_flashsize - 1) | 1};
 #else
@@ -112,6 +112,11 @@ void pci_405gp_init(struct pci_controller *hose)
 	unsigned long pmmma[3]    = {0xC0000001, 0,0};
 	unsigned long pmmpcila[3] = {0x80000000, 0,0};
 	unsigned long pmmpciha[3] = {0x00000000, 0,0};
+#endif
+#ifdef CONFIG_PCI_PNP
+#if (CONFIG_PCI_HOST == PCI_HOST_AUTO)
+	char *s;
+#endif
 #endif
 
 	/*
@@ -255,7 +260,8 @@ void pci_405gp_init(struct pci_controller *hose)
 
 #if (CONFIG_PCI_HOST != PCI_HOST_ADAPTER)
 #if (CONFIG_PCI_HOST == PCI_HOST_AUTO)
-	if (mfdcr(strap) & PSR_PCI_ARBIT_EN)
+	if ((mfdcr(strap) & PSR_PCI_ARBIT_EN) ||
+	    (((s = getenv("pciscan")) != NULL) && (strcmp(s, "yes") == 0)))
 #endif
 	{
 		/*--------------------------------------------------------------------------+
@@ -284,7 +290,8 @@ void pci_405gp_init(struct pci_controller *hose)
 	 * Scan the PCI bus and configure devices found.
 	 *--------------------------------------------------------------------------*/
 #if (CONFIG_PCI_HOST == PCI_HOST_AUTO)
-	if (mfdcr(strap) & PSR_PCI_ARBIT_EN)
+	if ((mfdcr(strap) & PSR_PCI_ARBIT_EN) ||
+	    (((s = getenv("pciscan")) != NULL) && (strcmp(s, "yes") == 0)))
 #endif
 	{
 #ifdef CONFIG_PCI_SCAN_SHOW
