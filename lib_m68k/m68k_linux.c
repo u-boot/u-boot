@@ -12,26 +12,25 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307	 USA
  *
  */
 
 #include <common.h>
 #include <command.h>
-#include <cmd_boot.h>
 #include <image.h>
 #include <zlib.h>
 #include <asm/byteorder.h>
 
 #define PHYSADDR(x) x
 
-#define	LINUX_MAX_ENVS		256
-#define	LINUX_MAX_ARGS		256
+#define LINUX_MAX_ENVS		256
+#define LINUX_MAX_ARGS		256
 
 #ifdef CONFIG_SHOW_BOOT_PROGRESS
 # include <status_led.h>
@@ -42,6 +41,8 @@
 
 extern image_header_t header;	/* from cmd_bootm.c */
 
+extern int do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[]);
+
 static int linux_argc;
 static char **linux_argv;
 
@@ -51,7 +52,6 @@ static int linux_env_idx;
 
 static void linux_params_init (ulong start, char *commandline);
 static void linux_env_set (char *env_name, char *env_val);
-
 
 void do_bootm_linux (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 		     ulong addr, ulong * len_ptr, int verify)
@@ -123,9 +123,9 @@ void do_bootm_linux (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 		SHOW_BOOT_PROGRESS (11);
 
 		if ((hdr->ih_os != IH_OS_LINUX) ||
-		    (hdr->ih_arch != IH_CPU_MIPS) ||
+		    (hdr->ih_arch != IH_CPU_M68K) ||
 		    (hdr->ih_type != IH_TYPE_RAMDISK)) {
-			printf ("No Linux MIPS Ramdisk Image\n");
+			printf ("No Linux M68K Ramdisk Image\n");
 			SHOW_BOOT_PROGRESS (-13);
 			do_reset (cmdtp, flag, argc, argv);
 		}

@@ -44,6 +44,7 @@ typedef struct {
 	ulong	buffer_write_tout;	/* maximum buffer write timeout		*/
 	ushort  vendor;                 /* the primary vendor id                */
 	ushort  cmd_reset;              /* Vendor specific reset command        */
+	ushort  interface;              /* used for x8/x16 adjustments          */
 #endif
 } flash_info_t;
 
@@ -61,6 +62,14 @@ typedef struct {
 #define FLASH_CFI_BY16		0x02
 #define FLASH_CFI_BY32		0x04
 #define FLASH_CFI_BY64		0x08
+/* convert between bit value and numeric value */
+#define CFI_FLASH_SHIFT_WIDTH      3
+/*
+ * Values for the flash device interface
+ */
+#define FLASH_CFI_X8		0x00
+#define FLASH_CFI_X16		0x01
+#define FLASH_CFI_X8X16		0x02
 
 /* convert between bit value and numeric value */
 #define CFI_FLASH_SHIFT_WIDTH      3
@@ -185,6 +194,7 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 
 #define FUJI_ID_29F800BA  0x22582258	/* MBM29F800BA ID  (8M) */
 #define FUJI_ID_29F800TA  0x22D622D6	/* MBM29F800TA ID  (8M) */
+#define FUJI_ID_29LV650UE 0x22d722d7	/* MBM29LV650UE/651UE ID (8M = 128 x 32kWord) */
 
 #define SST_ID_xF200A	0x27892789	/* 39xF200A ID ( 2M = 128K x 16 )	*/
 #define SST_ID_xF400A	0x27802780	/* 39xF400A ID ( 4M = 256K x 16 )	*/
@@ -339,6 +349,8 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 #define FLASH_28F256L18T 0x00B0
 #define FLASH_AMDL163T	0x00B2		/* AMD AM29DL163T (2M x 16 )			*/
 #define FLASH_AMDL163B	0x00B3
+
+#define FLASH_FUJLV650	0x00B4		/* Fujitsu MBM 29LV650UE/651UE		*/
 
 #define FLASH_UNKNOWN	0xFFFF		/* unknown flash type			*/
 

@@ -41,6 +41,10 @@ ifeq ($(ARCH),nios)
 LOAD_ADDR = 0x01000000 -L $(gcclibdir)/m32 -T nios.lds
 endif
 
+ifeq ($(ARCH),m68k)
+LOAD_ADDR = 0x20000  -L $(clibdir)
+endif
+
 include $(TOPDIR)/config.mk
 
 SREC	= hello_world.srec
@@ -54,11 +58,6 @@ endif
 ifeq ($(ARCH),ppc)
 SREC   += sched.srec
 BIN    += sched.bin sched
-endif
-
-ifeq ($(ARCH),m68k)
-SREC =
-BIN =
 endif
 
 # The following example is pretty 8xx specific...
@@ -94,6 +93,7 @@ LIBCOBJS= stubs.o
 LIBOBJS	= $(LIBAOBJS) $(LIBCOBJS)
 
 gcclibdir := $(shell dirname `$(CC) -print-libgcc-file-name`)
+clibdir := $(shell dirname `$(CC) $(CFLAGS) -print-file-name=libc.a`)
 
 CPPFLAGS += -I..
 

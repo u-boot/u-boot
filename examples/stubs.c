@@ -78,6 +78,22 @@ gd_t *global_data;
 "	jmp	%%g0\n"			\
 "	nop	\n"			\
 	: : "i"(offsetof(gd_t, jt)), "i"(XF_ ## x) : "r0");
+#elif defined(CONFIG_M68K)
+/*
+ * d7 holds the pointer to the global_data, a0 is a call-clobbered
+ * register
+ */
+#define EXPORT_FUNC(x) \
+	asm volatile (			\
+"	.globl " #x "\n"		\
+#x ":\n"				\
+"	move.l	%%d7, %%a0\n"		\
+"	adda.l	%0, %%a0\n"		\
+"	move.l	(%%a0), %%a0\n"		\
+"	adda.l	%1, %%a0\n"		\
+"	move.l	(%%a0), %%a0\n"		\
+"	jmp	(%%a0)\n"			\
+	: : "i"(offsetof(gd_t, jt)), "i"(XF_ ## x * sizeof(void *)) : "a0");
 #else
 #error stubs definition missing for this architecture
 #endif

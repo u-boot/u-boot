@@ -1,5 +1,7 @@
 /*
- * (C) Copyright 2000-2003
+ * (C) Copyright 2003 Josef Baumgartner <josef.baumgartner@telex.de>
+ *
+ * (C) Copyright 2000
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -12,7 +14,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -23,65 +25,149 @@
 
 #include <common.h>
 
+#include <asm/mcftimer.h>
 
-/* ------------------------------------------------------------------------- */
+#ifdef	CONFIG_M5272
+#include <asm/m5272.h>
+#include <asm/immap_5272.h>
+#endif
 
+#ifdef	CONFIG_M5282
+#include <asm/m5282.h>
+#endif
+
+
+static ulong timestamp;
+#ifdef	CONFIG_M5282
+static unsigned short lastinc;
+#endif
+
+
+#if defined(CONFIG_M5272)
 /*
- * This function is intended for SHORT delays only.
- * It will overflow at around 10 seconds @ 400MHz,
- * or 20 seconds @ 200MHz.
- */
-unsigned long usec2ticks(unsigned long usec)
-{
-	ulong ticks;
-
-	if (usec < 1000) {
-		ticks = ((usec * (get_tbclk()/1000)) + 500) / 1000;
-	} else {
-		ticks = ((usec / 10) * (get_tbclk() / 100000));
-	}
-
-	return (ticks);
-}
-
-/* ------------------------------------------------------------------------- */
-
-/*
- * We implement the delay by converting the delay (the number of
- * microseconds to wait) into a number of time base ticks; then we
- * watch the time base until it has incremented by that amount.
+ * We use timer 3 which is running with a period of 1 us
  */
 void udelay(unsigned long usec)
 {
-	ulong ticks = usec2ticks (usec);
+	volatile timer_t *timerp = (timer_t *) (CFG_MBAR + MCFTIMER_BASE3);
+	uint start, now, tmp;
 
-	wait_ticks (ticks);
+	while (usec > 0) {
+		if (usec > 65000)
+			tmp = 65000;
+		else
+			tmp = usec;
+		usec = usec - tmp;
+
+		/* Set up TIMER 3 as timebase clock */
+		timerp->timer_tmr = MCFTIMER_TMR_DISABLE;
+		timerp->timer_tcn = 0;
+		/* set period to 1 us */
+		timerp->timer_tmr = (((CFG_CLK / 1000000) - 1)	<< 8) | MCFTIMER_TMR_CLK1 |
+				     MCFTIMER_TMR_FREERUN | MCFTIMER_TMR_ENABLE;
+
+		start = now = timerp->timer_tcn;
+		while (now < start + tmp)
+			now = timerp->timer_tcn;
+	}
 }
 
-/* ------------------------------------------------------------------------- */
+void mcf_timer_interrupt (void * not_used){
+	volatile timer_t *timerp = (timer_t *) (CFG_MBAR + MCFTIMER_BASE4);
+	volatile intctrl_t *intp = (intctrl_t *) (CFG_MBAR + MCFSIM_ICR1);
 
-unsigned long ticks2usec(unsigned long ticks)
+	/* check for timer 4 interrupts */
+	if ((intp->int_isr & 0x01000000) != 0) {
+		return;
+	}
+
+	/* reset timer */
+	timerp->timer_ter = MCFTIMER_TER_CAP | MCFTIMER_TER_REF;
+	timestamp ++;
+}
+
+void timer_init (void) {
+	volatile timer_t *timerp = (timer_t *) (CFG_MBAR + MCFTIMER_BASE4);
+	volatile intctrl_t *intp = (intctrl_t *) (CFG_MBAR + MCFSIM_ICR1);
+
+	timestamp = 0;
+
+	/* Set up TIMER 4 as clock */
+	timerp->timer_tmr = MCFTIMER_TMR_DISABLE;
+
+	/* initialize and enable timer 4 interrupt */
+	irq_install_handler (72, mcf_timer_interrupt, 0);
+	intp->int_icr1 |= 0x0000000d;
+
+	timerp->timer_tcn = 0;
+	timerp->timer_trr = 1000;	/* Interrupt every ms */
+	/* set a period of 1us, set timer mode to restart and enable timer and interrupt */
+	timerp->timer_tmr = (((CFG_CLK / 1000000) - 1)	<< 8) | MCFTIMER_TMR_CLK1 |
+		MCFTIMER_TMR_RESTART | MCFTIMER_TMR_ENORI | MCFTIMER_TMR_ENABLE;
+}
+
+void reset_timer (void)
 {
-	ulong tbclk = get_tbclk();
-
-	/* usec = ticks * 1000000 / tbclk
-	 * Multiplication would overflow at ~4.2e3 ticks,
-	 * so we break it up into
-	 * usec = ( ( ticks * 1000) / tbclk ) * 1000;
-	 */
-	ticks *= 1000L;
-	ticks /= tbclk;
-	ticks *= 1000L;
-
-	return ((ulong)ticks);
+	timestamp = 0;
 }
 
-/* ------------------------------------------------------------------------- */
-
-int init_timebase (void)
+ulong get_timer (ulong base)
 {
-	/* FIXME!! */
-	return 0;
+	return (timestamp - base);
 }
 
-/* ------------------------------------------------------------------------- */
+void set_timer (ulong t)
+{
+	timestamp = t;
+}
+#endif
+
+#if defined(CONFIG_M5282)
+
+void udelay(unsigned long usec)
+{
+}
+
+void timer_init (void)
+{
+	volatile unsigned short *timerp;
+
+	timerp = (volatile unsigned short *) (CFG_MBAR + MCFTIMER_BASE4);
+	timestamp = 0;
+
+	/* Set up TIMER 4 as poll clock */
+	timerp[MCFTIMER_PCSR] = MCFTIMER_PCSR_OVW;
+	timerp[MCFTIMER_PMR] = lastinc = 0;
+	timerp[MCFTIMER_PCSR] =
+		(5 << 8) | MCFTIMER_PCSR_EN | MCFTIMER_PCSR_OVW;
+}
+
+void set_timer (ulong t)
+{
+	volatile unsigned short *timerp;
+
+	timerp = (volatile unsigned short *) (CFG_MBAR + MCFTIMER_BASE4);
+	timestamp = 0;
+	timerp[MCFTIMER_PMR] = lastinc = 0;
+}
+
+ulong get_timer (ulong base)
+{
+	unsigned short now, diff;
+	volatile unsigned short *timerp;
+
+	timerp = (volatile unsigned short *) (CFG_MBAR + MCFTIMER_BASE4);
+	now = timerp[MCFTIMER_PCNTR];
+	diff = -(now - lastinc);
+
+	timestamp += diff;
+	lastinc = now;
+	return timestamp - base;
+}
+
+void wait_ticks (unsigned long ticks)
+{
+	set_timer (0);
+	while (get_timer (0) < ticks);
+}
+#endif

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2003
+ * (C) Copyright 2002
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -22,14 +22,8 @@
  */
 
 #include <common.h>
-#include <asm/processor.h>
 
-ulong get_gclk_freq (void)
+void flush_cache (ulong start_addr, ulong size)
 {
-	return 0;
-}
-
-ulong get_bus_freq (ulong gclk_freq)
-{
-	return 0;
+	/* Must be implemented for all M68k processors with copy-back data cache */
 }

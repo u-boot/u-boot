@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000-2003
+# (C) Copyright 2000
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -21,6 +21,22 @@
 # MA 02111-1307 USA
 #
 
-PLATFORM_RELFLAGS +=
+include $(TOPDIR)/config.mk
 
-PLATFORM_CPPFLAGS += -m5200
+LIB	= lib$(ARCH).a
+
+AOBJS	=
+COBJS	= cache.o traps.o time.o board.o m68k_linux.o
+OBJS	= $(AOBJS) $(COBJS)
+
+$(LIB):	.depend $(OBJS)
+	$(AR) crv $@ $(OBJS)
+
+#########################################################################
+
+.depend:	Makefile $(AOBJS:.o=.S) $(COBJS:.o=.c)
+		$(CC) -M $(CFLAGS) $(AOBJS:.o=.S) $(COBJS:.o=.c) > $@
+
+sinclude .depend
+
+#########################################################################

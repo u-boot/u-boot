@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2003
+ * (C) Copyright 2000
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -22,7 +22,7 @@
  */
 
 OUTPUT_ARCH(m68k)
-SEARCH_DIR(/lib); SEARCH_DIR(/usr/lib); SEARCH_DIR(/usr/local/lib); SEARCH_DIR(/usr/local/powerpc-any-elf/lib);
+SEARCH_DIR(/lib); SEARCH_DIR(/usr/lib); SEARCH_DIR(/usr/local/lib);
 /* Do we need any of these for elf?
    __DYNAMIC = 0;    */
 SECTIONS
@@ -56,15 +56,14 @@ SECTIONS
     /* WARNING - the following is hand-optimized to fit within	*/
     /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
-    cpu/coldfire/start.o	(.text)
-    common/dlmalloc.o	(.text)
-    lib_generic/string.o	(.text)
-    lib_generic/vsprintf.o	(.text)
-    lib_generic/crc32.o	(.text)
-    lib_generic/zlib.o	(.text)
+    cpu/mcf52x2/start.o		(.text)
+    lib_m68k/traps.o		(.text)
+    cpu/mcf52x2/interrupts.o	(.text)
+    common/dlmalloc.o		(.text)
+    lib_generic/zlib.o		(.text)
 
-/*    . = env_offset; */
-    common/environment.o(.text)
+    . = DEFINED(env_offset) ? env_offset : .;
+    common/environment.o	(.text)
 
     *(.text)
     *(.fixup)
@@ -85,9 +84,12 @@ SECTIONS
   . = (. + 0x00FF) & 0xFFFFFF00;
   _erotext = .;
   PROVIDE (erotext = .);
+
   .reloc   :
   {
+    __got_start = .;
     *(.got)
+    __got_end = .;
     _GOT2_TABLE_ = .;
     *(.got2)
     _FIXUP_TABLE_ = .;
@@ -107,6 +109,11 @@ SECTIONS
   }
   _edata  =  .;
   PROVIDE (edata = .);
+
+  __u_boot_cmd_start = .;
+  .u_boot_cmd : { *(.u_boot_cmd) }
+  __u_boot_cmd_end = .;
+
 
   __start___ex_table = .;
   __ex_table : { *(__ex_table) }

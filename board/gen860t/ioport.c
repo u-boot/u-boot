@@ -199,16 +199,16 @@ const mpc8xx_iop_conf_t iop_conf_tab[NUM_PORTS][PORT_BITS] = {
  * Configure the MPC8XX I/O ports per the ioport configuration table
  * (taken from ./cpu/mpc8260/cpu_init.c)
  */
-void
-config_mpc8xx_ioports(volatile immap_t *immr)
+void config_mpc8xx_ioports (volatile immap_t * immr)
 {
-    int portnum;
+	int portnum;
 
-    for (portnum = 0; portnum < NUM_PORTS; portnum++) {
+	for (portnum = 0; portnum < NUM_PORTS; portnum++) {
 		uint pmsk = 0, ppar = 0, psor = 0, pdir = 0;
 		uint podr = 0, pdat = 0, pint = 0;
 		uint msk = 1;
-		mpc8xx_iop_conf_t *iopc = (mpc8xx_iop_conf_t *)&iop_conf_tab[portnum][0];
+		mpc8xx_iop_conf_t *iopc =
+			(mpc8xx_iop_conf_t *) & iop_conf_tab[portnum][0];
 		mpc8xx_iop_conf_t *eiopc = iopc + PORT_BITS;
 
 		/*
@@ -216,104 +216,132 @@ config_mpc8xx_ioports(volatile immap_t *immr)
 		 * in the configuration tables.
 		 */
 		if (portnum != 1) {
-			iopc = (mpc8xx_iop_conf_t *)&iop_conf_tab[portnum][2];
+			iopc = (mpc8xx_iop_conf_t *) &
+				iop_conf_tab[portnum][2];
 		}
 
 		/*
 		 * NOTE: index 0 refers to pin 17, index 17 refers to pin 0
 		 */
 		while (iopc < eiopc) {
-	    	if (iopc->conf) {
+			if (iopc->conf) {
 				pmsk |= msk;
-				if (iopc->ppar) ppar |= msk;
-				if (iopc->psor) psor |= msk;
-				if (iopc->pdir) pdir |= msk;
-				if (iopc->podr) podr |= msk;
-				if (iopc->pdat) pdat |= msk;
-				if (iopc->pint) pint |= msk;
-		    }
-		    msk <<= 1;
-	  	  iopc++;
+				if (iopc->ppar)
+					ppar |= msk;
+				if (iopc->psor)
+					psor |= msk;
+				if (iopc->pdir)
+					pdir |= msk;
+				if (iopc->podr)
+					podr |= msk;
+				if (iopc->pdat)
+					pdat |= msk;
+				if (iopc->pint)
+					pint |= msk;
+			}
+			msk <<= 1;
+			iopc++;
 		}
 
-		PRINTF("%s:%d:\n  portnum=%d ", __FUNCTION__, __LINE__, portnum);
+		PRINTF ("%s:%d:\n  portnum=%d ", __FUNCTION__, __LINE__,
+			portnum);
 #ifdef IOPORT_DEBUG
-		switch(portnum) {
-			case 0: printf("(A)\n"); break;
-			case 1: printf("(B)\n"); break;
-			case 2: printf("(C)\n"); break;
-			case 3: printf("(D)\n"); break;
-			default: printf("(?)\n"); break;
+		switch (portnum) {
+		case 0:
+			printf ("(A)\n");
+			break;
+		case 1:
+			printf ("(B)\n");
+			break;
+		case 2:
+			printf ("(C)\n");
+			break;
+		case 3:
+			printf ("(D)\n");
+			break;
+		default:
+			printf ("(?)\n");
+			break;
 		}
 #endif
-		PRINTF("  ppar=0x%.8x  pdir=0x%.8x  podr=0x%.8x\n"
-			   "  pdat=0x%.8x  psor=0x%.8x  pint=0x%.8x  pmsk=0x%.8x\n",
-			   ppar, pdir, podr, pdat, psor, pint, pmsk);
+		PRINTF ("  ppar=0x%.8x  pdir=0x%.8x  podr=0x%.8x\n"
+			"  pdat=0x%.8x  psor=0x%.8x  pint=0x%.8x  pmsk=0x%.8x\n",
+			ppar, pdir, podr, pdat, psor, pint, pmsk);
 
 		/*
 		 * Have to handle the ioports on a port-by-port basis since there
 		 * are three different flavors.
 		 */
 		if (pmsk != 0) {
-		    uint tpmsk = ~pmsk;
+			uint tpmsk = ~pmsk;
 
-			if (0 == portnum) { /* port A */
-		    	immr->im_ioport.iop_papar &= tpmsk;
-		    	immr->im_ioport.iop_padat =
-					(immr->im_ioport.iop_padat & tpmsk) | pdat;
-		    	immr->im_ioport.iop_padir =
-					(immr->im_ioport.iop_padir & tpmsk) | pdir;
-		    	immr->im_ioport.iop_paodr =
-					(immr->im_ioport.iop_paodr & tpmsk) | podr;
-		    	immr->im_ioport.iop_papar |= ppar;
-			}
-			else if (1 == portnum) { /* port B */
-		    	immr->im_cpm.cp_pbpar &= tpmsk;
-		    	immr->im_cpm.cp_pbdat = (immr->im_cpm.cp_pbdat & tpmsk) | pdat;
-		    	immr->im_cpm.cp_pbdir = (immr->im_cpm.cp_pbdir & tpmsk) | pdir;
-		    	immr->im_cpm.cp_pbodr = (immr->im_cpm.cp_pbodr & tpmsk) | podr;
-		    	immr->im_cpm.cp_pbpar |= ppar;
-			}
-			else if (2 == portnum) { /* port C */
-		    	immr->im_ioport.iop_pcpar &= tpmsk;
-		    	immr->im_ioport.iop_pcdat =
-					(immr->im_ioport.iop_pcdat & tpmsk) | pdat;
-		    	immr->im_ioport.iop_pcdir =
-					(immr->im_ioport.iop_pcdir & tpmsk) | pdir;
-		    	immr->im_ioport.iop_pcint =
-					(immr->im_ioport.iop_pcint & tpmsk) | pint;
-		    	immr->im_ioport.iop_pcso =
-					(immr->im_ioport.iop_pcso & tpmsk) | psor;
-		    	immr->im_ioport.iop_pcpar |= ppar;
-			}
-			else if (3 == portnum) { /* port D */
-		    	immr->im_ioport.iop_pdpar &= tpmsk;
-		    	immr->im_ioport.iop_pddat =
-					(immr->im_ioport.iop_pddat & tpmsk) | pdat;
-		    	immr->im_ioport.iop_pddir =
-					(immr->im_ioport.iop_pddir & tpmsk) | pdir;
-		    	immr->im_ioport.iop_pdpar |= ppar;
+			if (0 == portnum) {	/* port A */
+				immr->im_ioport.iop_papar &= tpmsk;
+				immr->im_ioport.iop_padat =
+					(immr->im_ioport.
+					 iop_padat & tpmsk) | pdat;
+				immr->im_ioport.iop_padir =
+					(immr->im_ioport.
+					 iop_padir & tpmsk) | pdir;
+				immr->im_ioport.iop_paodr =
+					(immr->im_ioport.
+					 iop_paodr & tpmsk) | podr;
+				immr->im_ioport.iop_papar |= ppar;
+			} else if (1 == portnum) {	/* port B */
+				immr->im_cpm.cp_pbpar &= tpmsk;
+				immr->im_cpm.cp_pbdat =
+					(immr->im_cpm.
+					 cp_pbdat & tpmsk) | pdat;
+				immr->im_cpm.cp_pbdir =
+					(immr->im_cpm.
+					 cp_pbdir & tpmsk) | pdir;
+				immr->im_cpm.cp_pbodr =
+					(immr->im_cpm.
+					 cp_pbodr & tpmsk) | podr;
+				immr->im_cpm.cp_pbpar |= ppar;
+			} else if (2 == portnum) {	/* port C */
+				immr->im_ioport.iop_pcpar &= tpmsk;
+				immr->im_ioport.iop_pcdat =
+					(immr->im_ioport.
+					 iop_pcdat & tpmsk) | pdat;
+				immr->im_ioport.iop_pcdir =
+					(immr->im_ioport.
+					 iop_pcdir & tpmsk) | pdir;
+				immr->im_ioport.iop_pcint =
+					(immr->im_ioport.
+					 iop_pcint & tpmsk) | pint;
+				immr->im_ioport.iop_pcso =
+					(immr->im_ioport.
+					 iop_pcso & tpmsk) | psor;
+				immr->im_ioport.iop_pcpar |= ppar;
+			} else if (3 == portnum) {	/* port D */
+				immr->im_ioport.iop_pdpar &= tpmsk;
+				immr->im_ioport.iop_pddat =
+					(immr->im_ioport.
+					 iop_pddat & tpmsk) | pdat;
+				immr->im_ioport.iop_pddir =
+					(immr->im_ioport.
+					 iop_pddir & tpmsk) | pdir;
+				immr->im_ioport.iop_pdpar |= ppar;
 			}
 		}
-    }
+	}
 
-	PRINTF("%s:%d: Port A:\n  papar=0x%.4x  padir=0x%.4x"
-		   "  paodr=0x%.4x\n  padat=0x%.4x\n", __FUNCTION__, __LINE__,
-		   immr->im_ioport.iop_papar, immr->im_ioport.iop_padir,
-		   immr->im_ioport.iop_paodr, immr->im_ioport.iop_padat);
-	PRINTF("%s:%d: Port B:\n  pbpar=0x%.8x  pbdir=0x%.8x"
-		   "  pbodr=0x%.8x\n  pbdat=0x%.8x\n", __FUNCTION__, __LINE__,
-		   immr->im_cpm.cp_pbpar, immr->im_cpm.cp_pbdir,
-		   immr->im_cpm.cp_pbodr, immr->im_cpm.cp_pbdat);
-	PRINTF("%s:%d: Port C:\n  pcpar=0x%.4x  pcdir=0x%.4x"
-		   "  pcdat=0x%.4x\n  pcso=0x%.4x  pcint=0x%.4x\n  ",
-		   __FUNCTION__, __LINE__, immr->im_ioport.iop_pcpar,
-		   immr->im_ioport.iop_pcdir, immr->im_ioport.iop_pcdat,
-		   immr->im_ioport.iop_pcso, immr->im_ioport.iop_pcint);
-	PRINTF("%s:%d: Port D:\n  pdpar=0x%.4x  pddir=0x%.4x"
-		   "  pddat=0x%.4x\n", __FUNCTION__, __LINE__,
-		   immr->im_ioport.iop_pdpar, immr->im_ioport.iop_pddir,
-		   immr->im_ioport.iop_pddat);
+	PRINTF ("%s:%d: Port A:\n  papar=0x%.4x  padir=0x%.4x"
+		"  paodr=0x%.4x\n  padat=0x%.4x\n", __FUNCTION__, __LINE__,
+		immr->im_ioport.iop_papar, immr->im_ioport.iop_padir,
+		immr->im_ioport.iop_paodr, immr->im_ioport.iop_padat);
+	PRINTF ("%s:%d: Port B:\n  pbpar=0x%.8x  pbdir=0x%.8x"
+		"  pbodr=0x%.8x\n  pbdat=0x%.8x\n", __FUNCTION__, __LINE__,
+		immr->im_cpm.cp_pbpar, immr->im_cpm.cp_pbdir,
+		immr->im_cpm.cp_pbodr, immr->im_cpm.cp_pbdat);
+	PRINTF ("%s:%d: Port C:\n  pcpar=0x%.4x  pcdir=0x%.4x"
+		"  pcdat=0x%.4x\n  pcso=0x%.4x  pcint=0x%.4x\n  ",
+		__FUNCTION__, __LINE__, immr->im_ioport.iop_pcpar,
+		immr->im_ioport.iop_pcdir, immr->im_ioport.iop_pcdat,
+		immr->im_ioport.iop_pcso, immr->im_ioport.iop_pcint);
+	PRINTF ("%s:%d: Port D:\n  pdpar=0x%.4x  pddir=0x%.4x"
+		"  pddat=0x%.4x\n", __FUNCTION__, __LINE__,
+		immr->im_ioport.iop_pdpar, immr->im_ioport.iop_pddir,
+		immr->im_ioport.iop_pddat);
 }
-
-/* vim: set ts=4 sw=4 tw=78: */

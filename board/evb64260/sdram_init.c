@@ -54,65 +54,64 @@ typedef struct sdram_info {
 	uchar tras_clocks;
 	uchar burst_len;
 	uchar banks, slot;
-	int size;	/* detected size, not from I2C but from dram_size() */
+	int size;		/* detected size, not from I2C but from dram_size() */
 } sdram_info_t;
 
 #ifdef DEBUG
-void dump_dimm_info(struct sdram_info *d)
+void dump_dimm_info (struct sdram_info *d)
 {
-    static const char *ecc_legend[]={""," Parity"," ECC"};
-    printf("dimm%s %sDRAM: %dMibytes:\n",
-	    ecc_legend[d->ecc],
-	    d->registered?"R":"",
-	    (d->size>>20));
-    printf("  drb=%d tpar=%d tras=%d burstlen=%d banks=%d slot=%d\n",
-	    d->drb_size, d->tpar, d->tras_clocks, d->burst_len,
-	    d->banks, d->slot);
+	static const char *ecc_legend[] = { "", " Parity", " ECC" };
+
+	printf ("dimm%s %sDRAM: %dMibytes:\n",
+		ecc_legend[d->ecc],
+		d->registered ? "R" : "", (d->size >> 20));
+	printf ("  drb=%d tpar=%d tras=%d burstlen=%d banks=%d slot=%d\n",
+		d->drb_size, d->tpar, d->tras_clocks, d->burst_len,
+		d->banks, d->slot);
 }
 #endif
 
 static int
-memory_map_bank(unsigned int bankNo,
-		unsigned int bankBase,
-		unsigned int bankLength)
+memory_map_bank (unsigned int bankNo,
+		 unsigned int bankBase, unsigned int bankLength)
 {
 #ifdef DEBUG
 	if (bankLength > 0) {
-		printf("mapping bank %d at %08x - %08x\n",
-		       bankNo, bankBase, bankBase + bankLength - 1);
+		printf ("mapping bank %d at %08x - %08x\n",
+			bankNo, bankBase, bankBase + bankLength - 1);
 	} else {
-		printf("unmapping bank %d\n", bankNo);
+		printf ("unmapping bank %d\n", bankNo);
 	}
 #endif
 
-	memoryMapBank(bankNo, bankBase, bankLength);
+	memoryMapBank (bankNo, bankBase, bankLength);
 
 	return 0;
 }
 
 #ifdef MAP_PCI
 static int
-memory_map_bank_pci(unsigned int bankNo,
-		unsigned int bankBase,
-		unsigned int bankLength)
+memory_map_bank_pci (unsigned int bankNo,
+		     unsigned int bankBase, unsigned int bankLength)
 {
 	PCI_HOST host;
-	for (host=PCI_HOST0;host<=PCI_HOST1;host++) {
-		const int features=
+
+	for (host = PCI_HOST0; host <= PCI_HOST1; host++) {
+		const int features =
 			PREFETCH_ENABLE |
 			DELAYED_READ_ENABLE |
 			AGGRESSIVE_PREFETCH |
 			READ_LINE_AGGRESSIVE_PREFETCH |
 			READ_MULTI_AGGRESSIVE_PREFETCH |
-			MAX_BURST_4 |
-			PCI_NO_SWAP;
+			MAX_BURST_4 | PCI_NO_SWAP;
 
-		pciMapMemoryBank(host, bankNo, bankBase, bankLength);
+		pciMapMemoryBank (host, bankNo, bankBase, bankLength);
 
-		pciSetRegionSnoopMode(host, bankNo, PCI_SNOOP_WB, bankBase,
-				bankLength);
+		pciSetRegionSnoopMode (host, bankNo, PCI_SNOOP_WB, bankBase,
+				       bankLength);
 
-		pciSetRegionFeatures(host, bankNo, features, bankBase, bankLength);
+		pciSetRegionFeatures (host, bankNo, features, bankBase,
+				      bankLength);
 	}
 	return 0;
 }
@@ -128,8 +127,7 @@ memory_map_bank_pci(unsigned int bankNo,
  * translate ns.ns/10 coding of SPD timing values
  * into 10 ps unit values
  */
-static inline unsigned short
-NS10to10PS(unsigned char spd_byte)
+static inline unsigned short NS10to10PS (unsigned char spd_byte)
 {
 	unsigned short ns, ns10;
 
@@ -138,37 +136,35 @@ NS10to10PS(unsigned char spd_byte)
 	/* isolate lower nibble */
 	ns10 = (spd_byte & 0x0F);
 
-	return(ns*100 + ns10*10);
+	return (ns * 100 + ns10 * 10);
 }
 
 /*
  * translate ns coding of SPD timing values
  * into 10 ps unit values
  */
-static inline unsigned short
-NSto10PS(unsigned char spd_byte)
+static inline unsigned short NSto10PS (unsigned char spd_byte)
 {
-	return(spd_byte*100);
+	return (spd_byte * 100);
 }
 
 #ifdef CONFIG_ZUMA_V2
-static int
-check_dimm(uchar slot, sdram_info_t *info)
+static int check_dimm (uchar slot, sdram_info_t * info)
 {
 	/* assume 2 dimms, 2 banks each 256M - we dont have an
 	 * dimm i2c so rely on the detection routines later */
 
-	memset(info, 0, sizeof(*info));
+	memset (info, 0, sizeof (*info));
 
 	info->slot = slot;
 	info->banks = 2;	/* Detect later */
-	    info->registered = 0;
+	info->registered = 0;
 	info->drb_size = 32;	/* 16 - 256MBit, 32 - 512MBit
 				   but doesn't matter, both do same
 				   thing in setup_sdram() */
-	    info->tpar = 3;
-	    info->tras_clocks = 5;
-	    info->burst_len = 4;
+	info->tpar = 3;
+	info->tras_clocks = 5;
+	info->burst_len = 4;
 #ifdef CONFIG_ECC
 	info->ecc = 0;		/* Detect later */
 #endif /* CONFIG_ECC */
@@ -177,10 +173,9 @@ check_dimm(uchar slot, sdram_info_t *info)
 
 #elif defined(CONFIG_P3G4)
 
-static int
-check_dimm(uchar slot, sdram_info_t *info)
+static int check_dimm (uchar slot, sdram_info_t * info)
 {
-	memset(info, 0, sizeof(*info));
+	memset (info, 0, sizeof (*info));
 
 	if (slot)
 		return 0;
@@ -198,12 +193,11 @@ check_dimm(uchar slot, sdram_info_t *info)
 	return 0;
 }
 
-#else /* ! CONFIG_ZUMA_V2 && ! CONFIG_P3G4*/
+#else  /* ! CONFIG_ZUMA_V2 && ! CONFIG_P3G4 */
 
 /* This code reads the SPD chip on the sdram and populates
  * the array which is passed in with the relevant information */
-static int
-check_dimm(uchar slot, sdram_info_t *info)
+static int check_dimm (uchar slot, sdram_info_t * info)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 	uchar addr = slot == 0 ? DIMM0_I2C_ADDR : DIMM1_I2C_ADDR;
@@ -215,32 +209,32 @@ check_dimm(uchar slot, sdram_info_t *info)
 
 	get_clocks ();
 
-	tmemclk = 1000000000 / (gd->bus_clk / 100);  /* in 10 ps units */
+	tmemclk = 1000000000 / (gd->bus_clk / 100);	/* in 10 ps units */
 
 #ifdef CONFIG_EVB64260_750CX
 	if (0 != slot) {
-		printf("check_dimm: The EVB-64260-750CX only has 1 DIMM,");
-		printf("            called with slot=%d insetad!\n", slot);
+		printf ("check_dimm: The EVB-64260-750CX only has 1 DIMM,");
+		printf ("            called with slot=%d insetad!\n", slot);
 		return 0;
 	}
 #endif
-	DP(puts("before i2c read\n"));
+	DP (puts ("before i2c read\n"));
 
-	ret = i2c_read(addr, 0, 128, data, 0);
+	ret = i2c_read (addr, 0, 128, data, 0);
 
-	DP(puts("after i2c read\n"));
+	DP (puts ("after i2c read\n"));
 
 	/* zero all the values */
-	memset(info, 0, sizeof(*info));
+	memset (info, 0, sizeof (*info));
 
 	if (ret) {
-		DP(printf("No DIMM in slot %d [err = %x]\n", slot, ret));
+		DP (printf ("No DIMM in slot %d [err = %x]\n", slot, ret));
 		return 0;
 	}
 
 	/* first, do some sanity checks */
 	if (data[2] != 0x4) {
-		printf("Not SDRAM in slot %d\n", slot);
+		printf ("Not SDRAM in slot %d\n", slot);
 		return 0;
 	}
 
@@ -251,7 +245,8 @@ check_dimm(uchar slot, sdram_info_t *info)
 	sdram_banks = data[17];
 	width = data[13] & 0x7f;
 
-	DP(printf("sdram_banks: %d, banks: %d\n", sdram_banks, info->banks));
+	DP (printf
+	    ("sdram_banks: %d, banks: %d\n", sdram_banks, info->banks));
 
 	/* check if the memory is registered */
 	if (data[21] & (BIT1 | BIT4))
@@ -266,31 +261,31 @@ check_dimm(uchar slot, sdram_info_t *info)
 	supp_cal = (data[18] & 0x6) >> 1;
 
 	/* compute the relevant clock values */
-	trp_clocks = (NSto10PS(data[27])+(tmemclk-1)) / tmemclk;
-	trcd_clocks = (NSto10PS(data[29])+(tmemclk-1)) / tmemclk;
-	info->tras_clocks = (NSto10PS(data[30])+(tmemclk-1)) / tmemclk;
+	trp_clocks = (NSto10PS (data[27]) + (tmemclk - 1)) / tmemclk;
+	trcd_clocks = (NSto10PS (data[29]) + (tmemclk - 1)) / tmemclk;
+	info->tras_clocks = (NSto10PS (data[30]) + (tmemclk - 1)) / tmemclk;
 
-	DP(printf("trp = %d\ntrcd_clocks = %d\ntras_clocks = %d\n",
-		  trp_clocks, trcd_clocks, info->tras_clocks));
+	DP (printf ("trp = %d\ntrcd_clocks = %d\ntras_clocks = %d\n",
+		    trp_clocks, trcd_clocks, info->tras_clocks));
 
 	/* try a CAS latency of 3 first... */
 	cal_val = 0;
 	if (supp_cal & 3) {
-		if (NS10to10PS(data[9]) <= tmemclk)
+		if (NS10to10PS (data[9]) <= tmemclk)
 			cal_val = 3;
 	}
 
 	/* then 2... */
 	if (supp_cal & 2) {
-		if (NS10to10PS(data[23]) <= tmemclk)
+		if (NS10to10PS (data[23]) <= tmemclk)
 			cal_val = 2;
 	}
 
-	DP(printf("cal_val = %d\n", cal_val));
+	DP (printf ("cal_val = %d\n", cal_val));
 
 	/* bummer, did't work... */
 	if (cal_val == 0) {
-		DP(printf("Couldn't find a good CAS latency\n"));
+		DP (printf ("Couldn't find a good CAS latency\n"));
 		return 0;
 	}
 
@@ -302,18 +297,19 @@ check_dimm(uchar slot, sdram_info_t *info)
 	if (trcd_clocks > info->tpar)
 		info->tpar = trcd_clocks;
 
-	DP(printf("tpar set to: %d\n", info->tpar));
+	DP (printf ("tpar set to: %d\n", info->tpar));
 
 #ifdef CFG_BROKEN_CL2
-	if (info->tpar == 2){
+	if (info->tpar == 2) {
 		info->tpar = 3;
-		DP(printf("tpar fixed-up to: %d\n", info->tpar));
+		DP (printf ("tpar fixed-up to: %d\n", info->tpar));
 	}
 #endif
 	/* compute the module DRB size */
-	info->drb_size = (((1 << (rows + cols)) * sdram_banks) * width) / _16M;
+	info->drb_size =
+		(((1 << (rows + cols)) * sdram_banks) * width) / _16M;
 
-	DP(printf("drb_size set to: %d\n", info->drb_size));
+	DP (printf ("drb_size set to: %d\n", info->drb_size));
 
 	/* find the burst len */
 	info->burst_len = data[16] & 0xf;
@@ -330,40 +326,52 @@ check_dimm(uchar slot, sdram_info_t *info)
 }
 #endif /* ! CONFIG_ZUMA_V2 */
 
-static int
-setup_sdram_common(sdram_info_t info[2])
+static int setup_sdram_common (sdram_info_t info[2])
 {
 	ulong tmp;
-	int tpar=2, tras_clocks=5, registered=1, ecc=2;
+	int tpar = 2, tras_clocks = 5, registered = 1, ecc = 2;
 
-	if(!info[0].banks && !info[1].banks) return 0;
+	if (!info[0].banks && !info[1].banks)
+		return 0;
 
-	if(info[0].banks) {
-	    if(info[0].tpar>tpar) tpar=info[0].tpar;
-	    if(info[0].tras_clocks>tras_clocks) tras_clocks=info[0].tras_clocks;
-	    if(!info[0].registered) registered=0;
-	    if(info[0].ecc!=2) ecc=0;
+	if (info[0].banks) {
+		if (info[0].tpar > tpar)
+			tpar = info[0].tpar;
+		if (info[0].tras_clocks > tras_clocks)
+			tras_clocks = info[0].tras_clocks;
+		if (!info[0].registered)
+			registered = 0;
+		if (info[0].ecc != 2indent: Standard input:491: Warning:old style assignment ambiguity in "=*".  Assuming "= *"
+
+indent: Standard input:492: Warning:old style assignment ambiguity in "=*".  Assuming "= *"
+
+)
+			ecc = 0;
 	}
 
-	if(info[1].banks) {
-	    if(info[1].tpar>tpar) tpar=info[1].tpar;
-	    if(info[1].tras_clocks>tras_clocks) tras_clocks=info[1].tras_clocks;
-	    if(!info[1].registered) registered=0;
-	    if(info[1].ecc!=2) ecc=0;
+	if (info[1].banks) {
+		if (info[1].tpar > tpar)
+			tpar = info[1].tpar;
+		if (info[1].tras_clocks > tras_clocks)
+			tras_clocks = info[1].tras_clocks;
+		if (!info[1].registered)
+			registered = 0;
+		if (info[1].ecc != 2)
+			ecc = 0;
 	}
 
 	/* SDRAM configuration */
-	tmp = GTREGREAD(SDRAM_CONFIGURATION);
+	tmp = GTREGREAD (SDRAM_CONFIGURATION);
 
 	/* Turn on physical interleave if both DIMMs
 	 * have even numbers of banks. */
-	if( (info[0].banks == 0 || info[0].banks == 2) &&
-	    (info[1].banks == 0 || info[1].banks == 2) ) {
-	    /* physical interleave on */
-	    tmp &= ~(1 << 15);
+	if ((info[0].banks == 0 || info[0].banks == 2) &&
+	    (info[1].banks == 0 || info[1].banks == 2)) {
+		/* physical interleave on */
+		tmp &= ~(1 << 15);
 	} else {
-	    /* physical interleave off */
-	    tmp |= (1 << 15);
+		/* physical interleave off */
+		tmp |= (1 << 15);
 	}
 
 	tmp |= (registered << 17);
@@ -372,52 +380,51 @@ setup_sdram_common(sdram_info_t info[2])
 	 * See Res #12 */
 	tmp |= (1 << 26);
 
-	GT_REG_WRITE(SDRAM_CONFIGURATION, tmp);
-	DP(printf("SDRAM config: %08x\n",
-		GTREGREAD(SDRAM_CONFIGURATION)));
+	GT_REG_WRITE (SDRAM_CONFIGURATION, tmp);
+	DP (printf ("SDRAM config: %08x\n", GTREGREAD (SDRAM_CONFIGURATION)));
 
 	/* SDRAM timing */
 	tmp = (((tpar == 3) ? 2 : 1) |
 	       (((tpar == 3) ? 2 : 1) << 2) |
-	       (((tpar == 3) ? 2 : 1) << 4) |
-	       (tras_clocks << 8));
+	       (((tpar == 3) ? 2 : 1) << 4) | (tras_clocks << 8));
 
 #ifdef CONFIG_ECC
 	/* Setup ECC */
-	if (ecc == 2) tmp |= 1<<13;
+	if (ecc == 2)
+		tmp |= 1 << 13;
 #endif /* CONFIG_ECC */
 
-	GT_REG_WRITE(SDRAM_TIMING, tmp);
-	DP(printf("SDRAM timing: %08x (%d,%d,%d,%d)\n",
-		GTREGREAD(SDRAM_TIMING), tpar,tpar,tpar,tras_clocks));
+	GT_REG_WRITE (SDRAM_TIMING, tmp);
+	DP (printf ("SDRAM timing: %08x (%d,%d,%d,%d)\n",
+		    GTREGREAD (SDRAM_TIMING), tpar, tpar, tpar, tras_clocks));
 
 	/* SDRAM address decode register */
 	/* program this with the default value */
-	GT_REG_WRITE(SDRAM_ADDRESS_DECODE, 0x2);
-	DP(printf("SDRAM decode: %08x\n",
-		GTREGREAD(SDRAM_ADDRESS_DECODE)));
+	GT_REG_WRITE (SDRAM_ADDRESS_DECODE, 0x2);
+	DP (printf ("SDRAM decode: %08x\n",
+		    GTREGREAD (SDRAM_ADDRESS_DECODE)));
 
 	return 0;
 }
 
 /* sets up the GT properly with information passed in */
-static int
-setup_sdram(sdram_info_t *info)
+static int setup_sdram (sdram_info_t * info)
 {
 	ulong tmp, check;
 	ulong *addr = 0;
 	int i;
 
 	/* sanity checking */
-	if (! info->banks) return 0;
+	if (!info->banks)
+		return 0;
 
 	/* ---------------------------- */
 	/* Program the GT with the discovered data */
 
 	/* bank parameters */
-	tmp = (0xf<<16);	/* leave all virt bank pages open */
+	tmp = (0xf << 16);	/* leave all virt bank pages open */
 
-	DP(printf("drb_size: %d\n", info->drb_size));
+	DP (printf ("drb_size: %d\n", info->drb_size));
 	switch (info->drb_size) {
 	case 1:
 		tmp |= (1 << 14);
@@ -431,41 +438,42 @@ setup_sdram(sdram_info_t *info)
 		tmp |= (3 << 14);
 		break;
 	default:
-		printf("Error in dram size calculation\n");
+		printf ("Error in dram size calculation\n");
 		return 1;
 	}
 
 	/* SDRAM bank parameters */
 	/* the param registers for slot 1 (banks 2+3) are offset by 0x8 */
-	GT_REG_WRITE(SDRAM_BANK0PARAMETERS + (info->slot * 0x8), tmp);
-	GT_REG_WRITE(SDRAM_BANK1PARAMETERS + (info->slot * 0x8), tmp);
-	DP(printf("SDRAM bankparam slot %d (bank %d+%d): %08lx\n", info->slot, info->slot*2, (info->slot*2)+1, tmp));
+	GT_REG_WRITE (SDRAM_BANK0PARAMETERS + (info->slot * 0x8), tmp);
+	GT_REG_WRITE (SDRAM_BANK1PARAMETERS + (info->slot * 0x8), tmp);
+	DP (printf
+	    ("SDRAM bankparam slot %d (bank %d+%d): %08lx\n", info->slot,
+	     info->slot * 2, (info->slot * 2) + 1, tmp));
 
 	/* set the SDRAM configuration for each bank */
 	for (i = info->slot * 2; i < ((info->slot * 2) + info->banks); i++) {
-		DP(printf("*** Running a MRS cycle for bank %d ***\n", i));
+		DP (printf ("*** Running a MRS cycle for bank %d ***\n", i));
 
 		/* map the bank */
-		memory_map_bank(i, 0, GB/4);
+		memory_map_bank (i, 0, GB / 4);
 
 		/* set SDRAM mode */
-		GT_REG_WRITE(SDRAM_OPERATION_MODE, 0x3);
-		check = GTREGREAD(SDRAM_OPERATION_MODE);
+		GT_REG_WRITE (SDRAM_OPERATION_MODE, 0x3);
+		check = GTREGREAD (SDRAM_OPERATION_MODE);
 
 		/* dummy write */
 		*addr = 0;
 
 		/* wait for the command to complete */
-		while ((GTREGREAD(SDRAM_OPERATION_MODE) & (1 << 31)) == 0)
-			;
+		while ((GTREGREAD (SDRAM_OPERATION_MODE) & (1 << 31)) == 0);
 
 		/* switch back to normal operation mode */
-		GT_REG_WRITE(SDRAM_OPERATION_MODE, 0);
-		check = GTREGREAD(SDRAM_OPERATION_MODE);
+		GT_REG_WRITE (SDRAM_OPERATION_MODE, 0);
+		check = GTREGREAD (SDRAM_OPERATION_MODE);
 
 		/* unmap the bank */
-		memory_map_bank(i, 0, 0);
-		DP(printf("*** MRS cycle for bank %d done ***\n", i));
+		memory_map_bank (i, 0, 0);
+		DP (printf ("*** MRS cycle for bank %d done ***\n", i));
 	}
 
 	return 0;
@@ -478,50 +486,50 @@ setup_sdram(sdram_info_t *info)
  * - short between address lines
  * - short between data lines
  */
-static long int
-dram_size(long int *base, long int maxsize)
+static long int dram_size (long int *base, long int maxsize)
 {
-    volatile long int	 *addr, *b=base;
-    long int	 cnt, val, save1, save2;
+	volatile long int *addr, *b = base;
+	long int cnt, val, save1, save2;
 
 #define STARTVAL (1<<20)	/* start test at 1M */
-    for (cnt = STARTVAL/sizeof(long); cnt < maxsize/sizeof(long); cnt <<= 1) {
-	    addr = base + cnt;	/* pointer arith! */
+	for (cnt = STARTVAL / sizeof (long); cnt < maxsize / sizeof (long);
+	     cnt <<= 1) {
+		addr = base + cnt;	/* pointer arith! */
 
-	    save1=*addr;	/* save contents of addr */
-	    save2=*b;		/* save contents of base */
+		save1 = *addr;	/* save contents of addr */
+		save2 = *b;	/* save contents of base */
 
-	    *addr=cnt;		/* write cnt to addr */
-	    *b=0;		/* put null at base */
+		*addr = cnt;	/* write cnt to addr */
+		*b = 0;		/* put null at base */
 
-	    /* check at base address */
-	    if ((*b) != 0) {
-		*addr=save1;	/* restore *addr */
-		*b=save2;	/* restore *b */
-		return (0);
-	    }
-	    val = *addr;	/* read *addr */
+		/* check at base address */
+		if ((*b) != 0) {
+			*addr = save1;	/* restore *addr */
+			*b = save2;	/* restore *b */
+			return (0);
+		}
+		val = *addr;	/* read *addr */
 
-	    *addr=save1;
-	    *b=save2;
+		*addr = save1;
+		*b = save2;
 
-	    if (val != cnt) {
-		    /* fix boundary condition.. STARTVAL means zero */
-		    if(cnt==STARTVAL/sizeof(long)) cnt=0;
-		    return (cnt * sizeof(long));
-	    }
-    }
-    return maxsize;
+		if (val != cnt) {
+			/* fix boundary condition.. STARTVAL means zero */
+			if (cnt == STARTVAL / sizeof (long))
+				cnt = 0;
+			return (cnt * sizeof (long));
+		}
+	}
+	return maxsize;
 }
 
 /* ------------------------------------------------------------------------- */
 
 /* U-Boot interface function to SDRAM init - this is where all the
  * controlling logic happens */
-long int
-initdram(int board_type)
+long int initdram (int board_type)
 {
-	ulong checkbank[4] = { [0 ... 3] = 0 };
+	ulong checkbank[4] = {[0 ... 3] = 0 };
 	int bank_no;
 	ulong total;
 	int nhr;
@@ -531,92 +539,97 @@ initdram(int board_type)
 	/* first, use the SPD to get info about the SDRAM */
 
 	/* check the NHR bit and skip mem init if it's already done */
-	nhr = get_hid0() & (1 << 16);
+	nhr = get_hid0 () & (1 << 16);
 
 	if (nhr) {
-		printf("Skipping SDRAM setup due to NHR bit being set\n");
+		printf ("Skipping SDRAM setup due to NHR bit being set\n");
 	} else {
 		/* DIMM0 */
-		check_dimm(0, &dimm_info[0]);
+		check_dimm (0, &dimm_info[0]);
 
 		/* DIMM1 */
-#ifndef CONFIG_EVB64260_750CX /* EVB64260_750CX has only 1 DIMM */
-		check_dimm(1, &dimm_info[1]);
-#else /* CONFIG_EVB64260_750CX */
-		memset(&dimm_info[1], 0, sizeof(sdram_info_t));
+#ifndef CONFIG_EVB64260_750CX	/* EVB64260_750CX has only 1 DIMM */
+		check_dimm (1, &dimm_info[1]);
+#else  /* CONFIG_EVB64260_750CX */
+		memset (&dimm_info[1], 0, sizeof (sdram_info_t));
 #endif
 
 		/* unmap all banks */
-		memory_map_bank(0, 0, 0);
-		memory_map_bank(1, 0, 0);
-		memory_map_bank(2, 0, 0);
-		memory_map_bank(3, 0, 0);
+		memory_map_bank (0, 0, 0);
+		memory_map_bank (1, 0, 0);
+		memory_map_bank (2, 0, 0);
+		memory_map_bank (3, 0, 0);
 
 		/* Now, program the GT with the correct values */
-		if (setup_sdram_common(dimm_info)) {
-			printf("Setup common failed.\n");
+		if (setup_sdram_common (dimm_info)) {
+			printf ("Setup common failed.\n");
 		}
 
-		if (setup_sdram(&dimm_info[0])) {
-			printf("Setup for DIMM1 failed.\n");
+		if (setup_sdram (&dimm_info[0])) {
+			printf ("Setup for DIMM1 failed.\n");
 		}
 
-		if (setup_sdram(&dimm_info[1])) {
-			printf("Setup for DIMM2 failed.\n");
+		if (setup_sdram (&dimm_info[1])) {
+			printf ("Setup for DIMM2 failed.\n");
 		}
 
 		/* set the NHR bit */
-		set_hid0(get_hid0() | (1 << 16));
+		set_hid0 (get_hid0 () | (1 << 16));
 	}
 	/* next, size the SDRAM banks */
 
 	total = 0;
-	if (dimm_info[0].banks > 0) checkbank[0] = 1;
-	if (dimm_info[0].banks > 1) checkbank[1] = 1;
+	if (dimm_info[0].banks > 0)
+		checkbank[0] = 1;
+	if (dimm_info[0].banks > 1)
+		checkbank[1] = 1;
 	if (dimm_info[0].banks > 2)
-		printf("Error, SPD claims DIMM1 has >2 banks\n");
+		printf ("Error, SPD claims DIMM1 has >2 banks\n");
 
-	if (dimm_info[1].banks > 0) checkbank[2] = 1;
-	if (dimm_info[1].banks > 1) checkbank[3] = 1;
+	if (dimm_info[1].banks > 0)
+		checkbank[2] = 1;
+	if (dimm_info[1].banks > 1)
+		checkbank[3] = 1;
 	if (dimm_info[1].banks > 2)
-		printf("Error, SPD claims DIMM2 has >2 banks\n");
+		printf ("Error, SPD claims DIMM2 has >2 banks\n");
 
 	/* Generic dram sizer: works even if we don't have i2c DIMMs,
 	 * as long as the timing settings are more or less correct */
 
 	/*
 	 * pass 1: size all the banks, using first bat (0-256M)
-	 * 	   limitation: we only support 256M per bank due to
-	 *  	   us only having 1 BAT for all DRAM
+	 *         limitation: we only support 256M per bank due to
+	 *         us only having 1 BAT for all DRAM
 	 */
 	for (bank_no = 0; bank_no < CFG_DRAM_BANKS; bank_no++) {
 		/* skip over banks that are not populated */
-		if (! checkbank[bank_no])
+		if (!checkbank[bank_no])
 			continue;
 
-		DP(printf("checking bank %d\n", bank_no));
+		DP (printf ("checking bank %d\n", bank_no));
 
-		memory_map_bank(bank_no, 0, GB/4);
-		checkbank[bank_no] = dram_size(NULL, GB/4);
-		memory_map_bank(bank_no, 0, 0);
+		memory_map_bank (bank_no, 0, GB / 4);
+		checkbank[bank_no] = dram_size (NULL, GB / 4);
+		memory_map_bank (bank_no, 0, 0);
 
-		DP(printf("bank %d %08lx\n", bank_no, checkbank[bank_no]));
+		DP (printf ("bank %d %08lx\n", bank_no, checkbank[bank_no]));
 	}
 
 	/*
 	 * pass 2: contiguously map each bank into physical address
-	 * 	   space.
+	 *         space.
 	 */
-	dimm_info[0].banks=dimm_info[1].banks=0;
+	dimm_info[0].banks = dimm_info[1].banks = 0;
 	for (bank_no = 0; bank_no < CFG_DRAM_BANKS; bank_no++) {
-		if(!checkbank[bank_no]) continue;
+		if (!checkbank[bank_no])
+			continue;
 
-		dimm_info[bank_no/2].banks++;
-		dimm_info[bank_no/2].size+=checkbank[bank_no];
+		dimm_info[bank_no / 2].banks++;
+		dimm_info[bank_no / 2].size += checkbank[bank_no];
 
-		memory_map_bank(bank_no, total, checkbank[bank_no]);
+		memory_map_bank (bank_no, total, checkbank[bank_no]);
 #ifdef MAP_PCI
-		memory_map_bank_pci(bank_no, total, checkbank[bank_no]);
+		memory_map_bank_pci (bank_no, total, checkbank[bank_no]);
 #endif
 		total += checkbank[bank_no];
 	}
@@ -630,21 +643,22 @@ initdram(int board_type)
 	 * in that configuration, ECC chips are mounted, even for stacked
 	 * chips)
 	 */
-	if (checkbank[2]==0 && checkbank[3]==0) {
-		dimm_info[0].ecc=2;
-		GT_REG_WRITE(SDRAM_TIMING, GTREGREAD(SDRAM_TIMING) | (1 << 13));
+	if (checkbank[2] == 0 && checkbank[3] == 0) {
+		dimm_info[0].ecc = 2;
+		GT_REG_WRITE (SDRAM_TIMING,
+			      GTREGREAD (SDRAM_TIMING) | (1 << 13));
 		/* TODO: do we have to run MRS cycles again? */
 	}
 #endif /* CONFIG_ZUMA_V2 */
 
-	if (GTREGREAD(SDRAM_TIMING) & (1 << 13)) {
-		puts("[ECC] ");
+	if (GTREGREAD (SDRAM_TIMING) & (1 << 13)) {
+		puts ("[ECC] ");
 	}
 #endif /* CONFIG_ECC */
 
 #ifdef DEBUG
-	dump_dimm_info(&dimm_info[0]);
-	dump_dimm_info(&dimm_info[1]);
+	dump_dimm_info (&dimm_info[0]);
+	dump_dimm_info (&dimm_info[1]);
 #endif
 	/* TODO: return at MOST 256M? */
 	/* return total > GB/4 ? GB/4 : total; */

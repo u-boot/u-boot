@@ -1,6 +1,6 @@
 /*
- * (C) Copyright 2000
- * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ * (C) Copyright 2003
+ * Josef Baumgartner <josef.baumgartner@telex.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -21,8 +21,17 @@
  * MA 02111-1307 USA
  */
 
-#ifndef	_FEC_H_
-#define	_FEC_H_
+#include <common.h>
+#include <asm/processor.h>
 
+/*
+ * get_clocks() fills in gd->cpu_clock and gd->bus_clk
+ */
+int get_clocks (void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
 
-#endif	/* _FEC_H_ */
+	gd->cpu_clk = CFG_CLK;
+	gd->bus_clk = gd->cpu_clk;
+	return (0);
+}

@@ -190,21 +190,22 @@ const iop_conf_t iop_conf_tab[4][32] = {
 */
 int board_early_init_f (void)
 {
-    volatile t_ep_regs *regs = (t_ep_regs*)CFG_REGS_BASE;
-    volatile immap_t *immap  = (immap_t *)CFG_IMMR;
-    volatile memctl8260_t *memctl = &immap->im_memctl;
-    memctl->memc_br4 = CFG_BR4_PRELIM;
-    memctl->memc_or4 = CFG_OR4_PRELIM;
-    regs->bcsr1 = 0x62; /* to enable terminal on SMC1 */
-    regs->bcsr2 = 0x30;	/* enable NVRAM and writing FLASH */
-    return 0;
+	volatile t_ep_regs *regs = (t_ep_regs *) CFG_REGS_BASE;
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile memctl8260_t *memctl = &immap->im_memctl;
+
+	memctl->memc_br4 = CFG_BR4_PRELIM;
+	memctl->memc_or4 = CFG_OR4_PRELIM;
+	regs->bcsr1 = 0x62;	/* to enable terminal on SMC1 */
+	regs->bcsr2 = 0x30;	/* enable NVRAM and writing FLASH */
+	return 0;
 }
 
-void
-reset_phy(void)
+void reset_phy (void)
 {
-    volatile t_ep_regs *regs = (t_ep_regs*)CFG_REGS_BASE;
-    regs->bcsr4 = 0xC0;
+	volatile t_ep_regs *regs = (t_ep_regs *) CFG_REGS_BASE;
+
+	regs->bcsr4 = 0xC0;
 }
 
 /*
@@ -213,15 +214,21 @@ reset_phy(void)
  * Thats why its a static interpretation ...
 */
 
-int
-checkboard(void)
+int checkboard (void)
 {
-	volatile t_ep_regs *regs = (t_ep_regs*)CFG_REGS_BASE;
-	uint major=0, minor=0;
+	volatile t_ep_regs *regs = (t_ep_regs *) CFG_REGS_BASE;
+	uint major = 0, minor = 0;
+
 	switch (regs->bcsr0) {
-		case 0x02: major = 1; break;
-		case 0x03: major = 1; minor = 1; break;
-		default: break;
+	case 0x02:
+		major = 1;
+		break;
+	case 0x03:
+		major = 1;
+		minor = 1;
+		break;
+	default:
+		break;
 	}
 	printf ("Board: Embedded Planet EP8260, Revision %d.%d\n",
 		major, minor);
@@ -232,13 +239,13 @@ checkboard(void)
 /* ------------------------------------------------------------------------- */
 
 
-long int
-initdram(int board_type)
+long int initdram (int board_type)
 {
-	volatile immap_t *immap  = (immap_t *)CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile memctl8260_t *memctl = &immap->im_memctl;
 	volatile uchar c = 0;
-	volatile uchar *ramaddr = (uchar *)(CFG_SDRAM_BASE) + 0x110;
+	volatile uchar *ramaddr = (uchar *) (CFG_SDRAM_BASE) + 0x110;
+
 /*
 	ulong psdmr = CFG_PSDMR;
 #ifdef CFG_LSDRAM
@@ -288,7 +295,7 @@ initdram(int board_type)
 #ifndef CFG_RAMBOOT
 #ifdef CFG_LSDRAM
 	size += CFG_SDRAM1_SIZE;
-	ramaddr = (uchar *)(CFG_SDRAM1_BASE) + 0x8c;
+	ramaddr = (uchar *) (CFG_SDRAM1_BASE) + 0x8c;
 	memctl->memc_lsrt = CFG_LSRT;
 
 	memctl->memc_lsdmr = (ulong) CFG_LSDMR | PSDMR_OP_PREA;

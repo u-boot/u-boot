@@ -2,9 +2,17 @@
 Changes since U-Boot 1.0.1:
 ======================================================================
 
+* Some code cleanup
+
+* Patch by Josef Baumgartner, 10 Feb 2004:
+  Fixes for Coldfire port
+
+* Patch by Brad Kemp, 11 Feb 2004:
+  Fix CFI flash driver problems
+
 * Make sure to use a bus clock divider of 2 only when running TQM8xxM
   modules at CPU clock frequencies above 66 MHz.
-  
+
 * Optimize flash programming speed for LWMON (by another 100% :-)
 
 * Patch by Jian Zhang, 3 Feb 2004:

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2002-2003
+ * (C) Copyright 2002 - 2003
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -48,6 +48,7 @@ typedef	struct	global_data {
 #ifdef CONFIG_BOARD_TYPES
 	unsigned long	board_type;
 #endif
+	void		**jt;		/* Standalone app jump table */
 } gd_t;
 
 /*
@@ -56,7 +57,11 @@ typedef	struct	global_data {
 #define	GD_FLG_RELOC	0x00001		/* Code was relocated to RAM		*/
 #define	GD_FLG_DEVINIT	0x00002		/* Devices have been initialized	*/
 
+#if 0
 extern gd_t *global_data;
 #define DECLARE_GLOBAL_DATA_PTR     gd_t *gd = global_data
+#else
+#define DECLARE_GLOBAL_DATA_PTR     register volatile gd_t *gd asm ("d7")
+#endif
 
 #endif /* __ASM_GBL_DATA_H */

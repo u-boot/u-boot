@@ -1,107 +1,59 @@
+/*
+ * See file CREDITS for list of people who contributed to this
+ * project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+ * MA 02111-1307 USA
+ */
+
 #ifndef _M68K_PTRACE_H
 #define _M68K_PTRACE_H
 
 /*
  * This struct defines the way the registers are stored on the
- * kernel stack during a system call or other kernel entry.
- *
- * this should only contain volatile regs
- * since we can keep non-volatile in the thread_struct
- * should set this up when only volatiles are saved
- * by intr code.
- *
- * Since this is going on the stack, *CARE MUST BE TAKEN* to insure
- * that the overall structure is a multiple of 16 bytes in length.
- *
- * Note that the offsets of the fields in this struct correspond with
- * the PT_* values below.  This simplifies arch/ppc/kernel/ptrace.c.
+ * kernel stack during an exception.
  */
-
-#include <linux/config.h>
-
 #ifndef __ASSEMBLY__
-#ifdef CONFIG_M68K64BRIDGE
-#define M68K_REG unsigned long /*long*/
-#else
-#define M68K_REG unsigned long
-#endif
+
 struct pt_regs {
-	M68K_REG gpr[32];
-	M68K_REG nip;
-	M68K_REG msr;
-	M68K_REG orig_gpr3;	/* Used for restarting system calls */
-	M68K_REG ctr;
-	M68K_REG link;
-	M68K_REG xer;
-	M68K_REG ccr;
-	M68K_REG mq;		/* 601 only (not used at present) */
-				/* Used on APUS to hold IPL value. */
-	M68K_REG trap;		/* Reason for being here */
-	M68K_REG dar;		/* Fault registers */
-	M68K_REG dsisr;
-	M68K_REG result; 	/* Result of a system call */
+	ulong     d0;
+	ulong     d1;
+	ulong     d2;
+	ulong     d3;
+	ulong     d4;
+	ulong     d5;
+	ulong     d6;
+	ulong     d7;
+	ulong     a0;
+	ulong     a1;
+	ulong     a2;
+	ulong     a3;
+	ulong     a4;
+	ulong     a5;
+	ulong     a6;
+#if defined(CONFIG_M5272) || defined(CONFIG_M5282)
+	unsigned format :  4; /* frame format specifier */
+	unsigned vector : 12; /* vector offset */
+	unsigned short sr;
+	unsigned long  pc;
+#else
+	unsigned short sr;
+	unsigned long  pc;
+#endif
 };
-#endif
 
-#define STACK_FRAME_OVERHEAD	16	/* size of minimum stack frame */
+#endif	/* #ifndef __ASSEMBLY__ */
 
-/* Size of stack frame allocated when calling signal handler. */
-#define __SIGNAL_FRAMESIZE	64
-
-#define instruction_pointer(regs) ((regs)->nip)
-#define user_mode(regs) (((regs)->msr & MSR_PR) != 0)
-
-/*
- * Offsets used by 'ptrace' system call interface.
- * These can't be changed without breaking binary compatibility
- * with MkLinux, etc.
- */
-#define PT_R0	0
-#define PT_R1	1
-#define PT_R2	2
-#define PT_R3	3
-#define PT_R4	4
-#define PT_R5	5
-#define PT_R6	6
-#define PT_R7	7
-#define PT_R8	8
-#define PT_R9	9
-#define PT_R10	10
-#define PT_R11	11
-#define PT_R12	12
-#define PT_R13	13
-#define PT_R14	14
-#define PT_R15	15
-#define PT_R16	16
-#define PT_R17	17
-#define PT_R18	18
-#define PT_R19	19
-#define PT_R20	20
-#define PT_R21	21
-#define PT_R22	22
-#define PT_R23	23
-#define PT_R24	24
-#define PT_R25	25
-#define PT_R26	26
-#define PT_R27	27
-#define PT_R28	28
-#define PT_R29	29
-#define PT_R30	30
-#define PT_R31	31
-
-#define PT_NIP	32
-#define PT_MSR	33
-#ifdef __KERNEL__
-#define PT_ORIG_R3 34
-#endif
-#define PT_CTR	35
-#define PT_LNK	36
-#define PT_XER	37
-#define PT_CCR	38
-#define PT_MQ	39
-
-#define PT_FPR0	48	/* each FP reg occupies 2 slots in this space */
-#define PT_FPR31 (PT_FPR0 + 2*31)
-#define PT_FPSCR (PT_FPR0 + 2*32 + 1)
-
-#endif
+#endif	/* #ifndef _M68K_PTRACE_H */

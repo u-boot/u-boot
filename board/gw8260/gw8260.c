@@ -212,16 +212,17 @@ const iop_conf_t iop_conf_tab[4][32] = {
 /*								     */
 /*								     */
 /*********************************************************************/
-int checkboard(void)
+int checkboard (void)
 {
-    char *str;
-    puts ("Board: Advent Networks gw8260\n");
+	char *str;
 
-    str = getenv("serial#");
-    if (str != NULL) {
-	printf("SN:    %s\n", str);
-    }
-    return 0;
+	puts ("Board: Advent Networks gw8260\n");
+
+	str = getenv ("serial#");
+	if (str != NULL) {
+		printf ("SN:    %s\n", str);
+	}
+	return 0;
 }
 
 
@@ -246,30 +247,31 @@ int checkboard(void)
 /*   May cloober fr0.						     */
 /*								     */
 /*********************************************************************/
-static void move64(unsigned long long *src, unsigned long long *dest)
+static void move64 (unsigned long long *src, unsigned long long *dest)
 {
-	asm ("lfd  0, 0(3)\n\t" /* fpr0	  =  *scr	*/
-	 "stfd 0, 0(4)"		/* *dest  =  fpr0	*/
-	 : : : "fr0" );		/* Clobbers fr0		*/
-    return;
+	asm ("lfd  0, 0(3)\n\t"	/* fpr0   =  *scr       */
+	     "stfd 0, 0(4)"	/* *dest  =  fpr0       */
+      : : : "fr0");		/* Clobbers fr0         */
+	return;
 }
 
 
 #if defined (CFG_DRAM_TEST_DATA)
 
-unsigned long long pattern[]= {
-    0xaaaaaaaaaaaaaaaa,
-    0xcccccccccccccccc,
-    0xf0f0f0f0f0f0f0f0,
-    0xff00ff00ff00ff00,
-    0xffff0000ffff0000,
-    0xffffffff00000000,
-    0x00000000ffffffff,
-    0x0000ffff0000ffff,
-    0x00ff00ff00ff00ff,
-    0x0f0f0f0f0f0f0f0f,
-    0x3333333333333333,
-    0x5555555555555555};
+unsigned long long pattern[] = {
+	0xaaaaaaaaaaaaaaaa,
+	0xcccccccccccccccc,
+	0xf0f0f0f0f0f0f0f0,
+	0xff00ff00ff00ff00,
+	0xffff0000ffff0000,
+	0xffffffff00000000,
+	0x00000000ffffffff,
+	0x0000ffff0000ffff,
+	0x00ff00ff00ff00ff,
+	0x0f0f0f0f0f0f0f0f,
+	0x3333333333333333,
+	0x5555555555555555
+};
 
 /*********************************************************************/
 /* NAME:  mem_test_data() -  test data lines for shorts and opens    */
@@ -315,34 +317,34 @@ unsigned long long pattern[]= {
 /*  Assumes only one one SDRAM bank				     */
 /*								     */
 /*********************************************************************/
-int mem_test_data(void)
+int mem_test_data (void)
 {
-    unsigned long long * pmem =
-	(unsigned long long *)CFG_SDRAM_BASE ;
-    unsigned long long temp64;
-    int num_patterns = sizeof(pattern)/ sizeof(pattern[0]);
-    int i;
-    unsigned int hi, lo;
+	unsigned long long *pmem = (unsigned long long *) CFG_SDRAM_BASE;
+	unsigned long long temp64;
+	int num_patterns = sizeof (pattern) / sizeof (pattern[0]);
+	int i;
+	unsigned int hi, lo;
 
-    for ( i = 0; i < num_patterns; i++) {
-	move64(&(pattern[i]), pmem);
-	move64(pmem, &temp64);
+	for (i = 0; i < num_patterns; i++) {
+		move64 (&(pattern[i]), pmem);
+		move64 (pmem, &temp64);
 
-	/* hi = (temp64>>32) & 0xffffffff;	    */
-	/* lo = temp64 & 0xffffffff;		    */
-	/* printf("\ntemp64 = 0x%08x%08x", hi, lo); */
+		/* hi = (temp64>>32) & 0xffffffff;          */
+		/* lo = temp64 & 0xffffffff;                */
+		/* printf("\ntemp64 = 0x%08x%08x", hi, lo); */
 
-	hi = (pattern[i]>>32) & 0xffffffff;
-	lo = pattern[i] & 0xffffffff;
-	/* printf("\npattern[%d] = 0x%08x%08x", i, hi, lo);  */
+		hi = (pattern[i] >> 32) & 0xffffffff;
+		lo = pattern[i] & 0xffffffff;
+		/* printf("\npattern[%d] = 0x%08x%08x", i, hi, lo);  */
 
-	if (temp64 != pattern[i]){
-	    printf ("\n   Data Test Failed, pattern 0x%08x%08x", hi, lo);
-	    return 1;
+		if (temp64 != pattern[i]) {
+			printf ("\n   Data Test Failed, pattern 0x%08x%08x",
+				hi, lo);
+			return 1;
+		}
 	}
-    }
 
-    return 0;
+	return 0;
 }
 #endif /* CFG_DRAM_TEST_DATA */
 
@@ -368,25 +370,26 @@ int mem_test_data(void)
 /*								     */
 /*								     */
 /*********************************************************************/
-int mem_test_address(void)
+int mem_test_address (void)
 {
-    volatile unsigned int * pmem = (volatile unsigned int *)CFG_SDRAM_BASE ;
-    const unsigned int size = (CFG_SDRAM_SIZE * 1024 * 1024)/4;
-    unsigned int i;
+	volatile unsigned int *pmem =
+		(volatile unsigned int *) CFG_SDRAM_BASE;
+	const unsigned int size = (CFG_SDRAM_SIZE * 1024 * 1024) / 4;
+	unsigned int i;
 
-    /* write address to each location */
-    for ( i = 0; i < size; i++) {
-	pmem[i] = i;
-    }
-
-    /* verify each loaction */
-    for ( i = 0; i < size; i++) {
-	if (pmem[i] != i) {
-	    printf("\n   Address Test Failed at 0x%x", i);
-	    return 1;
+	/* write address to each location */
+	for (i = 0; i < size; i++) {
+		pmem[i] = i;
 	}
-    }
-    return 0;
+
+	/* verify each loaction */
+	for (i = 0; i < size; i++) {
+		if (pmem[i] != i) {
+			printf ("\n   Address Test Failed at 0x%x", i);
+			return 1;
+		}
+	}
+	return 0;
 }
 #endif /* CFG_DRAM_TEST_ADDRESS */
 
@@ -418,39 +421,35 @@ int mem_test_address(void)
 /*								     */
 /*								     */
 /*********************************************************************/
-int mem_march(volatile unsigned long long * base,
-	      unsigned int size,
-	      unsigned long long rmask,
-	      unsigned long long wmask,
-	      short read,
-	      short write)
+int mem_march (volatile unsigned long long *base,
+	       unsigned int size,
+	       unsigned long long rmask,
+	       unsigned long long wmask, short read, short write)
 {
-    unsigned int i;
-    unsigned long long temp;
-    unsigned int hitemp, lotemp, himask, lomask;
+	unsigned int i;
+	unsigned long long temp;
+	unsigned int hitemp, lotemp, himask, lomask;
 
-    for (i = 0 ; i < size ; i++) {
-	if (read != 0) {
-	    /* temp = base[i]; */
-	    move64 ((unsigned long long *)&(base[i]), &temp);
-	    if (rmask != temp) {
-		hitemp = (temp>>32) & 0xffffffff;
-		lotemp = temp & 0xffffffff;
-		himask = (rmask>>32) & 0xffffffff;
-		lomask = rmask & 0xffffffff;
+	for (i = 0; i < size; i++) {
+		if (read != 0) {
+			/* temp = base[i]; */
+			move64 ((unsigned long long *) &(base[i]), &temp);
+			if (rmask != temp) {
+				hitemp = (temp >> 32) & 0xffffffff;
+				lotemp = temp & 0xffffffff;
+				himask = (rmask >> 32) & 0xffffffff;
+				lomask = rmask & 0xffffffff;
 
-		printf("\n Walking one's test failed: address = 0x%08x,"
-		       "\n\texpected 0x%08x%08x, found 0x%08x%08x",
-		       i<<3, himask, lomask, hitemp, lotemp);
-		return 1;
-	    }
+				printf ("\n Walking one's test failed: address = 0x%08x," "\n\texpected 0x%08x%08x, found 0x%08x%08x", i << 3, himask, lomask, hitemp, lotemp);
+				return 1;
+			}
+		}
+		if (write != 0) {
+			/*  base[i] = wmask; */
+			move64 (&wmask, (unsigned long long *) &(base[i]));
+		}
 	}
-	if ( write != 0 ) {
-	   /*  base[i] = wmask; */
-	    move64 (&wmask, (unsigned long long *)&(base[i]));
-	}
-    }
-    return 0;
+	return 0;
 }
 #endif /* CFG_DRAM_TEST_WALK */
 
@@ -480,43 +479,44 @@ int mem_march(volatile unsigned long long * base,
 /*								     */
 /*								     */
 /*********************************************************************/
-int mem_test_walk(void)
+int mem_test_walk (void)
 {
-    unsigned long long mask;
-    volatile unsigned long long * pmem =
-	(volatile unsigned long long *)CFG_SDRAM_BASE ;
-    const unsigned long size = (CFG_SDRAM_SIZE * 1024 * 1024)/8;
+	unsigned long long mask;
+	volatile unsigned long long *pmem =
+		(volatile unsigned long long *) CFG_SDRAM_BASE;
+	const unsigned long size = (CFG_SDRAM_SIZE * 1024 * 1024) / 8;
 
-    unsigned int i;
-    mask = 0x01;
+	unsigned int i;
 
-    printf("Initial Pass");
-    mem_march(pmem,size,0x0,0x1,0,1);
+	mask = 0x01;
 
-    printf("\b\b\b\b\b\b\b\b\b\b\b\b");
-    printf("		");
-    printf("\b\b\b\b\b\b\b\b\b\b\b\b");
+	printf ("Initial Pass");
+	mem_march (pmem, size, 0x0, 0x1, 0, 1);
 
-    for (i = 0 ; i < 63 ; i++) {
-	printf("Pass %2d", i+2);
-	if ( mem_march(pmem,size, mask,mask << 1, 1, 1) != 0 ){
-	    /*printf("mask: 0x%x, pass: %d, ", mask, i);*/
-	    return 1;
+	printf ("\b\b\b\b\b\b\b\b\b\b\b\b");
+	printf ("		");
+	printf ("\b\b\b\b\b\b\b\b\b\b\b\b");
+
+	for (i = 0; i < 63; i++) {
+		printf ("Pass %2d", i + 2);
+		if (mem_march (pmem, size, mask, mask << 1, 1, 1) != 0) {
+			/*printf("mask: 0x%x, pass: %d, ", mask, i); */
+			return 1;
+		}
+		mask = mask << 1;
+		printf ("\b\b\b\b\b\b\b");
 	}
-	mask = mask<<1;
-	printf("\b\b\b\b\b\b\b");
-    }
 
-    printf("Last Pass");
-    if (mem_march(pmem, size, 0, mask, 0, 1) != 0) {
-	/* printf("mask: 0x%x", mask); */
-	return 1;
-    }
-    printf("\b\b\b\b\b\b\b\b\b");
-    printf("	     ");
-    printf("\b\b\b\b\b\b\b\b\b");
+	printf ("Last Pass");
+	if (mem_march (pmem, size, 0, mask, 0, 1) != 0) {
+		/* printf("mask: 0x%x", mask); */
+		return 1;
+	}
+	printf ("\b\b\b\b\b\b\b\b\b");
+	printf ("	     ");
+	printf ("\b\b\b\b\b\b\b\b\b");
 
-    return 0;
+	return 0;
 }
 
 /*********************************************************************/
@@ -542,46 +542,46 @@ int mem_test_walk(void)
 /*								     */
 /*								     */
 /*********************************************************************/
-int testdram(void)
+int testdram (void)
 {
-    char *s;
-    int rundata, runaddress, runwalk;
+	char *s;
+	int rundata, runaddress, runwalk;
 
-    s = getenv ("testdramdata");
-    rundata = (s && (*s == 'y')) ? 1 : 0;
-    s = getenv ("testdramaddress");
-    runaddress = (s && (*s == 'y')) ? 1 : 0;
-    s = getenv ("testdramwalk");
-    runwalk = (s && (*s == 'y')) ? 1 : 0;
+	s = getenv ("testdramdata");
+	rundata = (s && (*s == 'y')) ? 1 : 0;
+	s = getenv ("testdramaddress");
+	runaddress = (s && (*s == 'y')) ? 1 : 0;
+	s = getenv ("testdramwalk");
+	runwalk = (s && (*s == 'y')) ? 1 : 0;
 
-    if ((rundata == 1) || (runaddress == 1) || (runwalk == 1)) {
-	printf("Testing RAM ... ");
-    }
-#ifdef CFG_DRAM_TEST_DATA
-    if (rundata == 1) {
-	if (mem_test_data() == 1){
-	    return 1;
+	if ((rundata == 1) || (runaddress == 1) || (runwalk == 1)) {
+		printf ("Testing RAM ... ");
 	}
-    }
+#ifdef CFG_DRAM_TEST_DATA
+	if (rundata == 1) {
+		if (mem_test_data () == 1) {
+			return 1;
+		}
+	}
 #endif
 #ifdef CFG_DRAM_TEST_ADDRESS
-    if (runaddress == 1) {
-	if (mem_test_address() == 1){
-	    return 1;
+	if (runaddress == 1) {
+		if (mem_test_address () == 1) {
+			return 1;
+		}
 	}
-    }
 #endif
 #ifdef CFG_DRAM_TEST_WALK
-    if (runwalk == 1) {
-	if (mem_test_walk() == 1){
-	    return 1;
+	if (runwalk == 1) {
+		if (mem_test_walk () == 1) {
+			return 1;
+		}
 	}
-    }
 #endif
-    if ((rundata == 1) || (runaddress == 1) || (runwalk == 1)) {
-	printf("passed");
-    }
-    return 0;
+	if ((rundata == 1) || (runaddress == 1) || (runwalk == 1)) {
+		printf ("passed");
+	}
+	return 0;
 
 }
 #endif /* CFG_DRAM_TEST */
@@ -606,52 +606,52 @@ int testdram(void)
 /*								     */
 /*								     */
 /*********************************************************************/
-long int initdram(int board_type)
+long int initdram (int board_type)
 {
-    volatile immap_t *immap  = (immap_t *)CFG_IMMR;
-    volatile memctl8260_t *memctl = &immap->im_memctl;
-    volatile uchar c = 0, *ramaddr = (uchar *)(CFG_SDRAM_BASE + 0x8);
-    ulong psdmr = CFG_PSDMR;
-    int i;
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile memctl8260_t *memctl = &immap->im_memctl;
+	volatile uchar c = 0, *ramaddr = (uchar *) (CFG_SDRAM_BASE + 0x8);
+	ulong psdmr = CFG_PSDMR;
+	int i;
 
-    /*
-     * Quote from 8260 UM (10.4.2 SDRAM Power-On Initialization, 10-35):
-     *
-     * "At system reset, initialization software must set up the
-     *	programmable parameters in the memory controller banks registers
-     *	(ORx, BRx, P/LSDMR). After all memory parameters are configured,
-     *	system software should execute the following initialization sequence
-     *	for each SDRAM device.
-     *
-     *	1. Issue a PRECHARGE-ALL-BANKS command
-     *	2. Issue eight CBR REFRESH commands
-     *	3. Issue a MODE-SET command to initialize the mode register
-     *
-     *	The initial commands are executed by setting P/LSDMR[OP] and
-     *	accessing the SDRAM with a single-byte transaction."
-     *
-     * The appropriate BRx/ORx registers have already been set when we
-     * get here. The SDRAM can be accessed at the address CFG_SDRAM_BASE.
-     */
+	/*
+	 * Quote from 8260 UM (10.4.2 SDRAM Power-On Initialization, 10-35):
+	 *
+	 * "At system reset, initialization software must set up the
+	 *  programmable parameters in the memory controller banks registers
+	 *  (ORx, BRx, P/LSDMR). After all memory parameters are configured,
+	 *  system software should execute the following initialization sequence
+	 *  for each SDRAM device.
+	 *
+	 *  1. Issue a PRECHARGE-ALL-BANKS command
+	 *  2. Issue eight CBR REFRESH commands
+	 *  3. Issue a MODE-SET command to initialize the mode register
+	 *
+	 *  The initial commands are executed by setting P/LSDMR[OP] and
+	 *  accessing the SDRAM with a single-byte transaction."
+	 *
+	 * The appropriate BRx/ORx registers have already been set when we
+	 * get here. The SDRAM can be accessed at the address CFG_SDRAM_BASE.
+	 */
 
-    memctl->memc_psrt = CFG_PSRT;
-    memctl->memc_mptpr = CFG_MPTPR;
+	memctl->memc_psrt = CFG_PSRT;
+	memctl->memc_mptpr = CFG_MPTPR;
 
-    memctl->memc_psdmr = psdmr | PSDMR_OP_PREA;
-    *ramaddr = c;
-
-    memctl->memc_psdmr = psdmr | PSDMR_OP_CBRR;
-    for (i = 0; i < 8; i++){
+	memctl->memc_psdmr = psdmr | PSDMR_OP_PREA;
 	*ramaddr = c;
-    }
-    memctl->memc_psdmr = psdmr | PSDMR_OP_MRW;
-    *ramaddr = c;
 
-    memctl->memc_psdmr = psdmr | PSDMR_OP_NORM | PSDMR_RFEN;
-    *ramaddr = c;
+	memctl->memc_psdmr = psdmr | PSDMR_OP_CBRR;
+	for (i = 0; i < 8; i++) {
+		*ramaddr = c;
+	}
+	memctl->memc_psdmr = psdmr | PSDMR_OP_MRW;
+	*ramaddr = c;
 
-    /* return total ram size */
-    return (CFG_SDRAM0_SIZE * 1024 * 1024);
+	memctl->memc_psdmr = psdmr | PSDMR_OP_NORM | PSDMR_RFEN;
+	*ramaddr = c;
+
+	/* return total ram size */
+	return (CFG_SDRAM0_SIZE * 1024 * 1024);
 }
 
 /*********************************************************************/

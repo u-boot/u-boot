@@ -833,10 +833,10 @@ ZPC1900_config: unconfig
 #########################################################################
 
 M5272C3_config :		unconfig
-	@./mkconfig $(@:_config=) m68k coldfire m5272c3
+	@./mkconfig $(@:_config=) m68k mcf52x2 m5272c3
 
 M5282EVB_config :		unconfig
-	@./mkconfig $(@:_config=) m68k coldfire m5282evb
+	@./mkconfig $(@:_config=) m68k mcf52x2 m5282evb
 
 #########################################################################
 ## MPC85xx Systems

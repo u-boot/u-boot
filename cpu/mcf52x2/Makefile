@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000
+# (C) Copyright 2000-2004
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,24 +23,23 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(BOARD).a
+# CFLAGS += -DET_DEBUG
 
-OBJS	:= ppmc8260.o
+LIB	= lib$(CPU).a
 
-$(LIB):	$(OBJS) $(SOBJS)
+START	=
+OBJS	= serial.o interrupts.o cpu.o speed.o cpu_init.o fec.o
+
+all:	.depend $(START) $(LIB)
+
+$(LIB):	$(OBJS)
 	$(AR) crv $@ $(OBJS)
-
-clean:
-	rm -f $(SOBJS) $(OBJS)
-
-distclean:	clean
-	rm -f $(LIB) core *.bak .depend
 
 #########################################################################
 
-.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CPPFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
+.depend:	Makefile $(START:.o=.S) $(OBJS:.o=.c)
+		$(CC) -M $(CFLAGS) $(START:.o=.S) $(OBJS:.o=.c) > $@
 
--include .depend
+sinclude .depend
 
 #########################################################################

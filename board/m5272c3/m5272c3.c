@@ -22,14 +22,31 @@
  */
 
 #include <common.h>
+#include <asm/m5272.h>
+#include <asm/immap_5272.h>
 
-int checkboard (void)
-{
-	puts ("MOTOROLA MCF5272C3 Evaluation Board\n");
+
+int checkboard (void) {
+	puts ("Board: ");
+	puts("MOTOROLA MCF5272C3 EVB\n");
 	return 0;
-}
+	};
 
-long int initdram (int board_type)
-{
-	return 0x400000;
+long int initdram (int board_type) {
+	volatile sdramctrl_t * sdp = (sdramctrl_t *)(CFG_MBAR + MCFSIM_SDCR);
+
+	sdp->sdram_sdtr = 0xf539;
+	sdp->sdram_sdcr = 0x4211;
+
+	/* Dummy write to start SDRAM */
+	*((volatile unsigned long *)0) = 0;
+
+	return CFG_SDRAM_SIZE * 1024 * 1024;
+	};
+
+int testdram (void) {
+	/* TODO: XXX XXX XXX */
+	printf ("DRAM test not implemented!\n");
+
+	return (0);
 }

@@ -397,9 +397,10 @@ void	get_sys_info  ( sys_info_t * );
 #if defined(CONFIG_8xx) || defined(CONFIG_8260)
 void	cpu_init_f    (volatile immap_t *immr);
 #endif
-#if defined(CONFIG_4xx) || defined(CONFIG_MPC85xx)
+#if defined(CONFIG_4xx) || defined(CONFIG_MPC85xx) || defined(CONFIG_MCF52x2)
 void	cpu_init_f    (void);
 #endif
+
 int	cpu_init_r    (void);
 #if defined(CONFIG_8260)
 int	prt_8260_rsr  (void);

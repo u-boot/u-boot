@@ -38,10 +38,11 @@ typedef struct bd_info {
 	unsigned long	bi_flashoffset; /* reserved area for startup monitor */
 	unsigned long	bi_sramstart;	/* start of SRAM memory */
 	unsigned long	bi_sramsize;	/* size	 of SRAM memory */
+	unsigned long	bi_mbar_base;	/* base of internal registers */
 	unsigned long	bi_bootflags;	/* boot / reboot flag (for LynxOS) */
-	unsigned long	bi_boot_params; /* where this board expects params */
+	unsigned long   bi_boot_params; /* where this board expects params */
 	unsigned long	bi_ip_addr;	/* IP Address */
-	unsigned char	bi_enetaddr[6]; /* Ethernet adress */
+	unsigned char	bi_enetaddr[6];	/* Ethernet adress */
 	unsigned short	bi_ethspeed;	/* Ethernet speed in Mbps */
 	unsigned long	bi_intfreq;	/* Internal Freq, in MHz */
 	unsigned long	bi_busfreq;	/* Bus Freq, in MHz */
@@ -49,21 +50,5 @@ typedef struct bd_info {
 } bd_t;
 
 #endif /* __ASSEMBLY__ */
-/* The following data structure is placed in DPRAM to allow for a
- * minimum set of global variables during system initialization
- * (until we have set up the memory controller so that we can use
- * RAM).
- *
- * Keep it *SMALL* and remember to set CFG_INIT_DATA_SIZE > sizeof(init_data_t)
- */
-typedef struct	init_data {
-	unsigned long	cpu_clk;	/* VCOOUT = CPU clock in Hz!		*/
-	unsigned long	env_addr;	/* Address  of Environment struct	*/
-	unsigned long	env_valid;	/* Checksum of Environment valid?	*/
-	unsigned long	relocated;	/* Relocat. offset when running in RAM	*/
-	unsigned long	have_console;	/* serial_init() was called		*/
-#ifdef CONFIG_LCD
-	unsigned long	lcd_base;	/* Base address of LCD frambuffer mem	*/
-#endif
-} init_data_t;
+
 #endif	/* __U_BOOT_H__ */

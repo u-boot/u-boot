@@ -1,5 +1,7 @@
 #
-# (C) Copyright 2000-2003
+# (C) Copyright 2003 Josef Baumgartner <josef.baumgartner@telex.de>
+#
+# (C) Copyright 2000-2004
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -21,25 +23,5 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
-
-# CFLAGS += -DET_DEBUG
-
-LIB	= lib$(CPU).a
-
-START	=
-OBJS	= kgdb.o serial.o interrupts.o cpu.o speed.o cpu_init.o fec.o
-
-all:	.depend $(START) $(LIB)
-
-$(LIB):	$(OBJS)
-	$(AR) crv $@ $(OBJS) kgdb.o
-
-#########################################################################
-
-.depend:	Makefile $(START:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(START:.o=.S) $(OBJS:.o=.c) > $@
-
-sinclude .depend
-
-#########################################################################
+PLATFORM_RELFLAGS += -ffixed-d7 -msep-data
+PLATFORM_CPPFLAGS += -m5307
