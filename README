@@ -266,6 +266,11 @@ Example: For a TQM823L module, all configuration settings are in
 "include/configs/TQM823L.h".
 
 
+Many of the options are named exactly as the corresponding Linux
+kernel configuration options. The intention is to make it easier to
+build a config tool - later.
+
+
 The following options need to be configured:
 
 - CPU Type:	Define exactly one of
@@ -1523,10 +1528,6 @@ Note2: you must edit your u-boot.lds file to reflect this
 configuration.
 
 
-Many of the options are named exactly as the corresponding Linux
-kernel configuration options. The intention is to make it easier to
-build a config tool - later.
-
 Low Level (hardware related) configuration options:
 
 - CFG_CACHELINE_SIZE:
@@ -1537,6 +1538,32 @@ Low Level (hardware related) configuration options:
 		Needed on some 8260 systems (MPC8260ADS and RPXsuper)
 		to be able to adjust the position of the IMMR
 		register after a reset.
+
+- Floppy Disk Support:
+		CFG_FDC_DRIVE_NUMBER
+
+		the default drive number (default value 0)
+
+		CFG_ISA_IO_STRIDE
+
+		defines the spacing between fdc chipset registers
+		(default value 1)
+
+		CFG_ISA_IO_OFFSET
+
+                defines the offset of register from address. It
+                depends on which part of the data bus is connected to
+                the fdc chipset. (default value 0)
+
+                If CFG_ISA_IO_STRIDE CFG_ISA_IO_OFFSET and
+                CFG_FDC_DRIVE_NUMBER are undefined, they take their
+                default value.
+
+                if CFG_FDC_HW_INIT is defined, then the function
+                fdc_hw_init() is called at the beginning of the FDC
+                setup. fdc_hw_init() must be provided by the board
+                source code. It is used to make hardware dependant
+                initializations.
 
 - CFG_IMMR:	Physical address of the Internal Memory Mapped
 		Register; DO NOT CHANGE! (11-4)

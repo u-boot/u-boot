@@ -175,10 +175,11 @@ OSTIMER_BASE:	.word	0x40a00000
 #define OIER	0x1C
 
 	/* Clock Manager Registers					    */
+#ifdef CFG_CPUSPEED
 CC_BASE:	.word	0x41300000
 #define CCCR	0x00
 cpuspeed:	.word	CFG_CPUSPEED
-
+#endif
 	/* RS: ???							    */
 	.macro CPWAIT
 	mrc  p15,0,r0,c2,c0,0
@@ -194,10 +195,14 @@ cpu_init_crit:
 	mov	r1, #0x00
 	str	r1, [r0, #ICMR]
 
+#ifdef CFG_CPUSPEED
 	/* set clock speed */
 	ldr	r0, CC_BASE
 	ldr	r1, cpuspeed
 	str	r1, [r0, #CCCR]
+	mov	r0, #3
+	mcr	p14, 0, r0, c6, c0, 0
+#endif
 
 	/*
 	 * before relocating, we have to setup RAM timing

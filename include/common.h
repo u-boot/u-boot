@@ -156,6 +156,7 @@ int	misc_init_r   (void);
 
 /* $(BOARD)/$(BOARD).c */
 void	reset_phy     (void);
+void    fdc_hw_init   (void);
 
 /* $(BOARD)/eeprom.c */
 void eeprom_init  (void);

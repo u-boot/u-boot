@@ -52,10 +52,12 @@ typedef struct {
 
 /* Slave Serial Implementation function table */
 typedef struct {
+	Xilinx_pre_fn	pre;
 	Xilinx_pgm_fn	pgm;
 	Xilinx_clk_fn	clk;
-	Xilinx_rdata_fn	rdata;
-	Xilinx_wdata_fn	wdata;
+	Xilinx_init_fn	init;
+	Xilinx_done_fn	done;
+	Xilinx_wr_fn	wr;
 	int           	relocated;
 } Xilinx_Spartan2_Slave_Serial_fns;
 

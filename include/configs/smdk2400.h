@@ -43,7 +43,7 @@
 #define CONFIG_SMDK2400		1	/* on an SAMSUNG SMDK2400 Board */
 
 /* input clock of PLL */
-#define CONFIG_PLL_INPUT_FREQ	12000000 /* SMDK2400 has 12 MHz input clock */
+#define CONFIG_SYS_CLK_FREQ	12000000 /* SMDK2400 has 12 MHz input clock */
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff	*/
 
 #define CONFIG_CMDLINE_TAG	 1	/* enable passing of ATAGs	*/

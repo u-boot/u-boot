@@ -42,7 +42,7 @@
 #undef CONFIG_TRAB_50MHZ		/* run the CPU at 50 MHz */
 
 /* input clock of PLL */
-#define CONFIG_PLL_INPUT_FREQ	12000000 /* TRAB has 12 MHz input clock */
+#define CONFIG_SYS_CLK_FREQ	12000000 /* TRAB has 12 MHz input clock */
 
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff */
 

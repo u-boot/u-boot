@@ -2,6 +2,26 @@
 Changes since for U-Boot 0.1.0:
 ======================================================================
 
+* Vince Husovsky, 7 Nov 2002:
+  Add "-n" to linker options to get rid of "Not enough room for
+  program headers" problem
+
+* Patch by David Müller, 05 Nov 2002
+  Rename CONFIG_PLL_INPUT_FREQ to CONFIG_SYS_CLK_FREQ
+  so we can use an already existing name
+
+* Patch by Pierre Aubert, 05 Nov 2002
+  Hardware relatied improvments in FDC boot code
+
+* Patch by Holger Schurig, 5 Nov 2002:
+  Make the PXA really change it's frequency
+
+* Patch by Pierre Aubert, 05 Nov 2002
+  Add support for slave serial Spartan 2 FPGAs
+
+* Fix uninitialized memory (MAC  address)  in  8xx  SCC/FEC  ethernet
+  drivers
+
 * Add support for log buffer which can be passed to Linux kernel's
   syslog mechanism; used especially for POST results.
 

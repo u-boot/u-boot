@@ -229,7 +229,6 @@ int eth_init(bd_t *bis)
 		if (eth_current->init(eth_current, bis)) {
 			eth_current->state = ETH_STATE_ACTIVE;
 
-			printf("%s configured\n", eth_current->name);
 			return 1;
 		}
 

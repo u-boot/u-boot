@@ -116,7 +116,7 @@ endif
 AFLAGS_DEBUG := -Wa,-gstabs
 AFLAGS := $(AFLAGS_DEBUG) -D__ASSEMBLY__ $(CPPFLAGS)
 
-LDFLAGS += -Bstatic -T $(LDSCRIPT) -Ttext $(TEXT_BASE)
+LDFLAGS += -Bstatic -T $(LDSCRIPT) -Ttext $(TEXT_BASE) $(PLATFORM_LDFLAGS)
 
 # Location of a usable BFD library, where we define "usable" as
 # "built for ${HOST}, supports ${TARGET}".  Sensible values are

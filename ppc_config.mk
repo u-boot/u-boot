@@ -22,3 +22,4 @@
 #
 
 PLATFORM_CPPFLAGS += -DCONFIG_PPC -D__powerpc__
+PLATFORM_LDFLAGS  += -n

@@ -173,19 +173,35 @@ const static FD_GEO_STRUCT floppy_type[2] = {
 
 static FDC_COMMAND_STRUCT cmd; /* global command struct */
 
+/* If the boot drive number is undefined, we assume it's drive 0             */
+#ifndef CFG_FDC_DRIVE_NUMBER
+#define CFG_FDC_DRIVE_NUMBER 0
+#endif
+
+/* Hardware access */
+#ifndef CFG_ISA_IO_STRIDE
+#define CFG_ISA_IO_STRIDE 1
+#endif
+
+#ifndef CFG_ISA_IO_OFFSET
+#define CFG_ISA_IO_OFFSET 0
+#endif
+
+
 /* Supporting Functions */
 /* reads a Register of the FDC */
 unsigned char read_fdc_reg(unsigned int addr)
 {
-	volatile unsigned char *val = (volatile unsigned char *)(CFG_ISA_IO_BASE_ADDRESS | addr);
-	return val[0];
+	volatile unsigned char *val = (volatile unsigned char *)(CFG_ISA_IO_BASE_ADDRESS + (addr * CFG_ISA_IO_STRIDE) + CFG_ISA_IO_OFFSET);
+        
+	return val [0];
 }
 
 /* writes a Register of the FDC */
 void write_fdc_reg(unsigned int addr, unsigned char val)
 {
-		volatile unsigned char *tmp = (volatile unsigned char *)(CFG_ISA_IO_BASE_ADDRESS | addr);
-		tmp[0]=val;
+        volatile unsigned char *tmp = (volatile unsigned char *)(CFG_ISA_IO_BASE_ADDRESS + (addr * CFG_ISA_IO_STRIDE) + CFG_ISA_IO_OFFSET);
+	tmp[0]=val;
 }
 
 /* waits for an interrupt (polling) */
@@ -263,7 +279,8 @@ int fdc_issue_cmd(FDC_COMMAND_STRUCT *pCMD,FD_GEO_STRUCT *pFG)
 	head = sect / pFG->sect; /* head nr */
 	sect =  sect % pFG->sect; /* remaining blocks */
 	sect++; /* sectors are 1 based */
-	PRINTF("Track %ld, Head %ld, Sector %ld, Drive %d (blnr %ld)\n",track,head,sect,pCMD->drive,pCMD->blnr);
+	PRINTF("Cmd 0x%02x Track %ld, Head %ld, Sector %ld, Drive %d (blnr %ld)\n",pCMD->cmd[0],track,head,sect,pCMD->drive,pCMD->blnr);
+
 	if(head|=0) { /* max heads = 2 */
 		pCMD->cmd[DRIVE]=pCMD->drive | 0x04; /* head 1 */
 		pCMD->cmd[HEAD]=(unsigned char) head; /* head register */
@@ -538,20 +555,20 @@ int fdc_check_drive(FDC_COMMAND_STRUCT *pCMD, FD_GEO_STRUCT *pFG)
 		select_fdc_drive(pCMD);
 		pCMD->blnr=0; /* set to the 1st block */
 		if(fdc_recalibrate(pCMD,pFG)==FALSE)
-			break;
+			continue;
 		if((pCMD->result[STATUS_0]&0x10)==0x10)
-			break;
+			continue;
 		/* ok drive connected check for disk */
 		state|=(1<<drives);
 		pCMD->blnr=pFG->size; /* set to the last block */
 		if(fdc_seek(pCMD,pFG)==FALSE)
-			break;
+			continue;
 		pCMD->blnr=0; /* set to the 1st block */
 		if(fdc_recalibrate(pCMD,pFG)==FALSE)
-			break;
+			continue;
 		pCMD->cmd[COMMAND]=FDC_CMD_READ_ID;
 		if(fdc_issue_cmd(pCMD,pFG)==FALSE)
-			break;
+			continue;
 		state|=(0x10<<drives);
 	}
 	stop_fdc_drive(pCMD);
@@ -575,12 +592,16 @@ int fdc_setup(FDC_COMMAND_STRUCT *pCMD,	FD_GEO_STRUCT *pFG)
 {
 
 	int i;
+
+#ifdef CFG_FDC_HW_INIT
+        fdc_hw_init ();
+#endif
 	/* first, we reset the FDC via the DOR */
 	write_fdc_reg(FDC_DOR,0x00);
 	for(i=0; i<255; i++) /* then we wait some time */
 		udelay(500);
 	/* then, we clear the reset in the DOR */
-	pCMD->drive=0;
+	pCMD->drive=CFG_FDC_DRIVE_NUMBER;
 	select_fdc_drive(pCMD);
 	/* initialize the CCR */
 	write_fdc_reg(FDC_CCR,pFG->rate);
@@ -602,7 +623,7 @@ int fdc_setup(FDC_COMMAND_STRUCT *pCMD,	FD_GEO_STRUCT *pFG)
 	}
 	/* assuming drive 0 for rest of configuration
 	 * issue the configure command */
-	pCMD->drive=0;
+	pCMD->drive=CFG_FDC_DRIVE_NUMBER;
 	select_fdc_drive(pCMD);
 	pCMD->cmd[COMMAND]=FDC_CMD_CONFIGURE;
 	if(fdc_issue_cmd(pCMD,pFG)==FALSE) {
@@ -641,11 +662,11 @@ int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	switch (argc) {
 	case 1:
 		addr = CFG_LOAD_ADDR;
-		boot_drive=0; /* default boot from drive 0 */
+		boot_drive=CFG_FDC_DRIVE_NUMBER; 
 		break;
 	case 2:
 		addr = simple_strtoul(argv[1], NULL, 16);
-		boot_drive=0; /* default boot from drive 0 */
+		boot_drive=CFG_FDC_DRIVE_NUMBER;
 		break;
 	case 3:
 		addr = simple_strtoul(argv[1], NULL, 16);

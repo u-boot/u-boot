@@ -35,7 +35,7 @@
 #endif
 
 #undef CFG_FPGA_CHECK_BUSY
-#define CFG_FPGA_PROG_FEEDBACK
+#undef CFG_FPGA_PROG_FEEDBACK
 
 /* Note: The assumption is that we cannot possibly run fast enough to
  * overrun the device (the Slave Parallel mode can free run at 50MHz).
@@ -438,14 +438,150 @@ static int Spartan2_sp_reloc (Xilinx_desc * desc, ulong reloc_offset)
 
 static int Spartan2_ss_load (Xilinx_desc * desc, void *buf, size_t bsize)
 {
-	printf ("%s: Slave Serial Loading is still unsupported\n",
-			__FUNCTION__);
-	return FPGA_FAIL;
+        int ret_val = FPGA_FAIL;	/* assume the worst */
+	Xilinx_Spartan2_Slave_Serial_fns *fn = desc->iface_fns;
+        int i;
+        char  val;
+        
+	PRINTF ("%s: start with interface functions @ 0x%p\n",
+			__FUNCTION__, fn);
+
+	if (fn) {
+		size_t bytecount = 0;
+		unsigned char *data = (unsigned char *) buf;
+		int cookie = desc->cookie;	/* make a local copy */
+		unsigned long ts;		/* timestamp */
+
+		PRINTF ("%s: Function Table:\n"
+				"ptr:\t0x%p\n"
+				"struct: 0x%p\n"
+				"pgm:\t0x%p\n"
+				"init:\t0x%p\n"
+				"clk:\t0x%p\n"
+				"wr:\t0x%p\n"
+				"done:\t0x%p\n\n",
+				__FUNCTION__, &fn, fn, fn->pgm, fn->init, 
+				fn->clk, fn->wr, fn->done); 
+#ifdef CFG_FPGA_PROG_FEEDBACK
+		printf ("Loading FPGA Device %d...\n", cookie);
+#endif
+
+		/*
+		 * Run the pre configuration function if there is one.
+		 */
+		if (*fn->pre) {
+			(*fn->pre) (cookie);
+		}
+
+		/* Establish the initial state */
+		(*fn->pgm) (TRUE, TRUE, cookie);	/* Assert the program, commit */
+
+                /* Wait for INIT state (init low)                            */
+		ts = get_timer (0);		/* get current time */
+		do {
+			CONFIG_FPGA_DELAY ();
+			if (get_timer (ts) > CFG_FPGA_WAIT) {	/* check the time */
+				puts ("** Timeout waiting for INIT to start.\n");
+				return FPGA_FAIL;
+			}
+		} while (!(*fn->init) (cookie));
+                
+		/* Get ready for the burn */
+		CONFIG_FPGA_DELAY ();
+		(*fn->pgm) (FALSE, TRUE, cookie);	/* Deassert the program, commit */
+
+		ts = get_timer (0);		/* get current time */
+		/* Now wait for INIT to go high */
+		do {
+			CONFIG_FPGA_DELAY ();
+			if (get_timer (ts) > CFG_FPGA_WAIT) {	/* check the time */
+				puts ("** Timeout waiting for INIT to clear.\n");
+				return FPGA_FAIL;
+			}
+		} while ((*fn->init) (cookie));
+
+		/* Load the data */
+		while (bytecount < bsize) {
+                    
+                        /* Xilinx detects an error if INIT goes low (active)
+                           while DONE is low (inactive) */
+                        if ((*fn->done) (cookie) == 0 && (*fn->init) (cookie)) {
+                                puts ("** CRC error during FPGA load.\n");
+                                return (FPGA_FAIL);
+                        }
+                        val = data [bytecount ++];
+                        i = 8;
+                        do {
+                                /* Deassert the clock */
+                                (*fn->clk) (FALSE, TRUE, cookie);
+                                CONFIG_FPGA_DELAY ();
+                                /* Write data */
+                                (*fn->wr) ((val < 0), TRUE, cookie);
+                                CONFIG_FPGA_DELAY ();
+                                /* Assert the clock */
+                                (*fn->clk) (TRUE, TRUE, cookie);
+                                CONFIG_FPGA_DELAY ();
+                                val <<= 1;
+                                i --;
+                        } while (i > 0);
+                        
+#ifdef CFG_FPGA_PROG_FEEDBACK
+			if (bytecount % (bsize / 40) == 0)
+				putc ('.');		/* let them know we are alive */
+#endif
+		}
+
+		CONFIG_FPGA_DELAY ();
+
+#ifdef CFG_FPGA_PROG_FEEDBACK
+		putc ('\n');			/* terminate the dotted line */
+#endif
+
+		/* now check for done signal */
+		ts = get_timer (0);		/* get current time */
+		ret_val = FPGA_SUCCESS;
+                (*fn->wr) (TRUE, TRUE, cookie);
+
+		while (! (*fn->done) (cookie)) {
+			/* XXX - we should have a check in here somewhere to
+			 * make sure we aren't busy forever... */
+
+			CONFIG_FPGA_DELAY ();
+			(*fn->clk) (FALSE, TRUE, cookie);	/* Deassert the clock pin */
+			CONFIG_FPGA_DELAY ();
+			(*fn->clk) (TRUE, TRUE, cookie);	/* Assert the clock pin */
+
+                        putc ('*');
+                        
+			if (get_timer (ts) > CFG_FPGA_WAIT) {	/* check the time */
+				puts ("** Timeout waiting for DONE to clear.\n");
+				ret_val = FPGA_FAIL;
+				break;
+			}
+		}
+		putc ('\n');			/* terminate the dotted line */
+
+#ifdef CFG_FPGA_PROG_FEEDBACK
+		if (ret_val == FPGA_SUCCESS) {
+			puts ("Done.\n");
+		}
+		else {
+			puts ("Fail.\n");
+		}
+#endif
+
+	} else {
+		printf ("%s: NULL Interface function table!\n", __FUNCTION__);
+	}
+
+	return ret_val;
 }
 
 static int Spartan2_ss_dump (Xilinx_desc * desc, void *buf, size_t bsize)
 {
-	printf ("%s: Slave Serial Dumping is still unsupported\n",
+        /* Readback is only available through the Slave Parallel and         */
+        /* boundary-scan interfaces.                                         */
+	printf ("%s: Slave Serial Dumping is unavailable\n",
 			__FUNCTION__);
 	return FPGA_FAIL;
 }
@@ -453,12 +589,59 @@ static int Spartan2_ss_dump (Xilinx_desc * desc, void *buf, size_t bsize)
 static int Spartan2_ss_reloc (Xilinx_desc * desc, ulong reloc_offset)
 {
 	int ret_val = FPGA_FAIL;	/* assume the worst */
-	Xilinx_Spartan2_Slave_Serial_fns *fn =
+	Xilinx_Spartan2_Slave_Serial_fns *fn_r, *fn =
 			(Xilinx_Spartan2_Slave_Serial_fns *) (desc->iface_fns);
 
 	if (fn) {
-		printf ("%s: Slave Serial Loading is still unsupported\n",
-				__FUNCTION__);
+		ulong addr;
+
+		/* Get the relocated table address */
+		addr = (ulong) fn + reloc_offset;
+		fn_r = (Xilinx_Spartan2_Slave_Serial_fns *) addr;
+
+		if (!fn_r->relocated) {
+
+			if (memcmp (fn_r, fn,
+						sizeof (Xilinx_Spartan2_Slave_Serial_fns))
+				== 0) {
+				/* good copy of the table, fix the descriptor pointer */
+				desc->iface_fns = fn_r;
+			} else {
+				PRINTF ("%s: Invalid function table at 0x%p\n",
+						__FUNCTION__, fn_r);
+				return FPGA_FAIL;
+			}
+
+			PRINTF ("%s: Relocating descriptor at 0x%p\n", __FUNCTION__,
+					desc);
+
+			addr = (ulong) (fn->pre) + reloc_offset;
+			fn_r->pre = (Xilinx_pre_fn) addr;
+
+			addr = (ulong) (fn->pgm) + reloc_offset;
+			fn_r->pgm = (Xilinx_pgm_fn) addr;
+
+			addr = (ulong) (fn->init) + reloc_offset;
+			fn_r->init = (Xilinx_init_fn) addr;
+
+			addr = (ulong) (fn->done) + reloc_offset;
+			fn_r->done = (Xilinx_done_fn) addr;
+
+			addr = (ulong) (fn->clk) + reloc_offset;
+			fn_r->clk = (Xilinx_clk_fn) addr;
+
+			addr = (ulong) (fn->wr) + reloc_offset;
+			fn_r->wr = (Xilinx_wr_fn) addr;
+
+			fn_r->relocated = TRUE;
+
+		} else {
+			/* this table has already been moved */
+			/* XXX - should check to see if the descriptor is correct */
+			desc->iface_fns = fn_r;
+		}
+
+		ret_val = FPGA_SUCCESS;
 	} else {
 		printf ("%s: NULL Interface function table!\n", __FUNCTION__);
 	}

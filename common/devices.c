@@ -26,7 +26,12 @@
 #include <stdarg.h>
 #include <malloc.h>
 #include <devices.h>
+#ifdef CONFIG_LOGBUFFER
+#include <logbuff.h>
+#endif
+#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
 #include <i2c.h>
+#endif
 
 list_t devlist = 0;
 device_t *stdio_devices[] = { NULL, NULL, NULL };

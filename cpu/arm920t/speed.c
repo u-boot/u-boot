@@ -42,7 +42,7 @@
 /* ------------------------------------------------------------------------- */
 /* NOTE: This describes the proper use of this file.
  *
- * CONFIG_PLL_INPUT_FREQ should be defined as the input frequency of the PLL.
+ * CONFIG_SYS_CLK_FREQ should be defined as the input frequency of the PLL.
  *
  * get_FCLK(), get_HCLK(), get_PCLK() and get_UCLK() return the clock of
  * the specified bus in HZ.
@@ -64,7 +64,7 @@ static ulong get_PLLCLK(int pllreg)
     p = ((r & 0x003F0) >> 4) + 2;
     s = r & 0x3;
 
-    return((CONFIG_PLL_INPUT_FREQ * m) / (p << s));
+    return((CONFIG_SYS_CLK_FREQ * m) / (p << s));
 }
 
 /* return FCLK frequency */

@@ -75,6 +75,7 @@ int scc_initialize(bd_t *bis)
 	struct eth_device* dev;
 
 	dev = (struct eth_device*) malloc(sizeof *dev);
+	memset(dev, 0, sizeof *dev);
 
 	sprintf(dev->name, "SCC ETHERNET");
 	dev->iobase = 0;
