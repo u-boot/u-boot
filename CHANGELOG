@@ -2,11 +2,32 @@
 Changes since U-Boot 0.2.2:
 ======================================================================
 
+* Patch by Josef Wagner, 12 Mar 2003:
+  - 16/32 MB and 50/80 MHz support with auto-detection for IP860
+  - ETH05 and BEDBUG support for CU824
+  - added support for MicroSys CPC45
+  - new BOOTROM/FLASH0 and DOC base for PM826
+
+* Patch by Robert Schwebel, 12 Mar 2003:
+  Fix the chpart command on innokom board
+
+* Name cleanup:
+  mv include/asm-i386/ppcboot-i386.h include/asm-i386/u-boot-i386.h
+  s/PPCBoot/U-Boot/ in some files
+  s/pImage/uImage/  in some files
+
+* Patch by Detlev Zundel, 15 Jan 2003:
+  Fix '' command line quoting
+
+* Patch by The LEOX team, 19 Jan 2003:
+  - add support for the ELPT860 board
+  - add support for Dallas ds164x RTC
+
 * Patches by David Müller, 31 Jan 2003:
   - minimal setup for CardBus bridges
   - add EEPROM read/write support in the CS8900 driver
   - add support for the builtin I2C controller in the Samsung s3c24x0 chips
-  - add support for  MPL's VCMA9 (Samsung s3c2410 based) board
+  - add support for MPL's VCMA9 (Samsung s3c2410 based) board
 
 * Patch by Steven Scholz, 04 Feb 2003:
   add support for RTC DS1307

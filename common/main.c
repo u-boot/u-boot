@@ -640,8 +640,6 @@ static void process_macros (const char *input, char *output)
 	    case 0:			/* Waiting for (unescaped) $	*/
 		if ((c == '\'') && (prev != '\\')) {
 			state = 3;
-			if (inputcnt)
-				inputcnt--;
 			break;
 		}
 		if ((c == '$') && (prev != '\\')) {
@@ -694,8 +692,6 @@ static void process_macros (const char *input, char *output)
 	    case 3:			/* Waiting for '	*/
 		if ((c == '\'') && (prev != '\\')) {
 			state = 0;
-			if (inputcnt)
-				inputcnt--;
 		} else {
 			*(output++) = c;
 			outputcnt--;

@@ -67,7 +67,7 @@
 		"bootm $(kernel_addr) $(ramdisk_addr)\0"		\
 	"net_nfs=tftp 200000 $(bootfile);run nfsargs addip;bootm\0"	\
 	"rootpath=/opt/eldk/ppc_8xx\0"					\
-	"bootfile=/tftpboot/TQM860L/pImage\0"				\
+	"bootfile=/tftpboot/TQM860L/uImage\0"				\
 	"kernel_addr=40040000\0"					\
 	"ramdisk_addr=40100000\0"					\
 	""

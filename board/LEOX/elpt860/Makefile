@@ -1,9 +1,15 @@
+#######################################################################
 #
-# (C) Copyright 2001
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+# Copyright (C) 2000, 2001, 2002, 2003
+# The LEOX team <team@leox.org>, http://www.leox.org
 #
-# See file CREDITS for list of people who contributed to this
-# project.
+# LEOX.org is about the development of free hardware and software resources
+#   for system on chip.
+#
+# Description: U-Boot port on the LEOX's ELPT860 CPU board
+# ~~~~~~~~~~~
+#
+#######################################################################
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -20,27 +26,21 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
 #
+#######################################################################
 
 include $(TOPDIR)/config.mk
 
-#CFLAGS += -DDEBUG
+LIB	= lib$(BOARD).a
 
-LIB	= librtc.a
+OBJS	= $(BOARD).o flash.o
 
-OBJS	= date.o   \
-	  ds1302.o ds1306.o ds1307.o ds1337.o ds1556.o ds164x.o ds174x.o \
-	  m41t11.o m48t35ax.o mc146818.o mk48t59.o \
-	  mpc8xx.o pcf8563.o
-
-all:	$(LIB)
-
-$(LIB):	$(START) $(OBJS)
-	$(AR) crv $@ $(OBJS)
+$(LIB):	.depend $(OBJS)
+	$(AR) crv $@ $^
 
 #########################################################################
 
-.depend:	Makefile $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(OBJS:.o=.c) > $@
+.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
+		$(CC) -M $(CFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
 
 sinclude .depend
 

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001
+ * (C) Copyright 2001-2003
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -23,7 +23,7 @@
 
 /*
  *
- * Configuration settings for the CU824 board.
+ * Configuration settings for the CPC45 board.
  *
  */
 
@@ -42,8 +42,8 @@
  */
 
 #define CONFIG_MPC824X		1
-#define CONFIG_MPC8240		1
-#define CONFIG_CU824		1
+#define CONFIG_MPC8245		1
+#define CONFIG_CPC45		1
 
 
 #define CONFIG_CONS_INDEX	1
@@ -54,7 +54,6 @@
 
 #define CONFIG_PREBOOT	"echo;echo Type \"run flash_nfs\" to mount root filesystem over NFS;echo"
 
-#define CONFIG_BOOTCOMMAND	"bootm FE020000"	/* autoboot command	*/
 #define CONFIG_BOOTDELAY	5
 
 #define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | CONFIG_BOOTP_BOOTFILESIZE)
@@ -97,8 +96,14 @@
  * (Set up by the startup code)
  * Please note that CFG_SDRAM_BASE _must_ start at 0
  */
+
 #define CFG_SDRAM_BASE	    0x00000000
+
+#if defined(CONFIG_BOOT_ROM)
 #define CFG_FLASH_BASE	    0xFF000000
+#else
+#define CFG_FLASH_BASE	    0xFF800000
+#endif
 
 #define CFG_RESET_ADDRESS   0xFFF00100
 
@@ -139,15 +144,16 @@
 /*
  * NS16550 Configuration
  */
-#define CFG_NS16550
+#define CFG_NS16550		
 #define CFG_NS16550_SERIAL
 
-#define CFG_NS16550_REG_SIZE	4
+#define CFG_NS16550_REG_SIZE	1
 
-#define CFG_NS16550_CLK		(14745600 / 2)
+#define CFG_NS16550_CLK		get_bus_freq(0)
 
-#define CFG_NS16550_COM1	0xFE800080
-#define CFG_NS16550_COM2	0xFE8000C0
+#define CFG_NS16550_COM1	(CFG_EUMB_ADDR + 0x4500)
+#define CFG_NS16550_COM2	(CFG_EUMB_ADDR + 0x4600)
+#define	DUART_DCR		(CFG_EUMB_ADDR + 0x4511)
 
 /*
  * Low Level Configuration Settings
@@ -158,11 +164,35 @@
 
 #define CONFIG_SYS_CLK_FREQ  33000000
 #define CFG_HZ		     1000
+/*
+ * SDRAM Configuration Settings
+ * Please note: currently only 64 and 128 MB SDRAM size supported
+ * set CFG_SDRAM_SIZE to 64 or 128
+ * Memory configuration using SPD information stored on the SODIMMs
+ * not yet supported.
+ */
+ 
+#define	CFG_SDRAM_SIZE    64		/* SDRAM size -- 64 or 128 MB supported */
 
 	/* Bit-field values for MCCR1.
 	 */
 #define CFG_ROMNAL	    0
 #define CFG_ROMFAL	    7
+
+#if (CFG_SDRAM_SIZE == 64)			/* 64 MB */
+#define CFG_BANK0_ROW	0			/* SDRAM bank 7-0 row address */
+#elif (CFG_SDRAM_SIZE == 128)			/* 128 MB */
+#define CFG_BANK0_ROW	2			/* SDRAM bank 7-0 row address */
+#else
+#  error "SDRAM size not supported"
+#endif
+#define CFG_BANK1_ROW	0	
+#define CFG_BANK2_ROW	0
+#define CFG_BANK3_ROW	0
+#define CFG_BANK4_ROW	0
+#define CFG_BANK5_ROW	0
+#define CFG_BANK6_ROW	0
+#define CFG_BANK7_ROW	0
 
 	/* Bit-field values for MCCR2.
 	 */
@@ -186,6 +216,8 @@
 #define CFG_SDMODE_BURSTLEN 2	    /* SDMODE Burst length		*/
 #define CFG_ACTORW	    2
 #define CFG_REGISTERD_TYPE_BUFFER 1
+#define CFG_EXTROM	    1
+#define CFG_REGDIMM	    0
 
 /* Memory bank settings.
  * Only bits 20-29 are actually used from these vales to set the
@@ -252,25 +284,21 @@
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
-#define CFG_MAX_FLASH_BANKS	2	/* Max number of flash banks		*/
+#define CFG_MAX_FLASH_BANKS	1	/* Max number of flash banks		*/
 #define CFG_MAX_FLASH_SECT	39	/* Max number of sectors in one bank	*/
-
+#define INTEL_ID_28F160F3T	0x88F388F3	/*  16M = 1M x 16 top boot sector	*/
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
-	/* Warining: environment is not EMBEDDED in the U-Boot code.
+	/* Warining: environment is not EMBEDDED in the ppcboot code.
 	 * It's stored in flash separately.
 	 */
 #define CFG_ENV_IS_IN_FLASH	    1
-#if 0
-#define CFG_ENV_ADDR		0xFF008000
-#define CFG_ENV_SIZE		0x8000	/* Size of the Environment Sector	*/
-#else
-#define CFG_ENV_ADDR		0xFFFC0000
+
+#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x7C0000)
 #define CFG_ENV_SIZE		0x4000	/* Size of the Environment		*/
 #define CFG_ENV_OFFSET		0	/* starting right at the beginning	*/
-#define CFG_ENV_SECT_SIZE	0x40000 /* Size of the Environment Sector	*/
-#endif
+#define CFG_ENV_SECT_SIZE	0x8000 /* Size of the Environment Sector	*/
 
 /*-----------------------------------------------------------------------
  * Cache Configuration
@@ -288,6 +316,121 @@
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH	*/
 #define BOOTFLAG_WARM		0x02	/* Software reboot			*/
 
+
+#define	SRAM_BASE		0x80000000	/* SRAM base address 	*/
+#define	SRAM_END		0x801FFFFF
+
+/*---------------------------------------------------------------------*/
+/* CPC45 Memory Map                                                    */
+/*---------------------------------------------------------------------*/
+#define	SRAM_BASE	0x80000000	/* SRAM base address            */
+#define	ST16552_A_BASE	0x80200000	/* ST16552 channel A		*/
+#define	ST16552_B_BASE	0x80400000	/* ST16552 channel A		*/
+#define	BCSR_BASE	0x80600000	/* board control / status registers */
+#define	DISPLAY_BASE	0x80600040	/* DISPLAY base			*/
+#define	PCMCIA_MEM_BASE	0x81000000	/* PCMCIA memory window base        */
+#define	PCMCIA_IO_BASE	0xFE000000	/* PCMCIA IO window base            */
+
+
+/*---------------------------------------------------------------------*/
+/* CPC45 Control/Status Registers                                      */
+/*---------------------------------------------------------------------*/
+#define	IRQ_ENA_1		*((volatile uchar*)(BCSR_BASE + 0x00))
+#define	IRQ_STAT_1		*((volatile uchar*)(BCSR_BASE + 0x01))
+#define	IRQ_ENA_2		*((volatile uchar*)(BCSR_BASE + 0x02))
+#define	IRQ_STAT_2		*((volatile uchar*)(BCSR_BASE + 0x03))
+#define	BOARD_CTRL		*((volatile uchar*)(BCSR_BASE + 0x04))
+#define	BOARD_STAT		*((volatile uchar*)(BCSR_BASE + 0x05))
+#define	WDG_START		*((volatile uchar*)(BCSR_BASE + 0x06))
+#define	WDG_PRESTOP		*((volatile uchar*)(BCSR_BASE + 0x06))
+#define	WDG_STOP		*((volatile uchar*)(BCSR_BASE + 0x06))
+#define	BOARD_REV		*((volatile uchar*)(BCSR_BASE + 0x07))
+
+/* IRQ_ENA_1 bit definitions */
+#define	I_ENA_1_IERA	0x80		/* INTA enable 			*/
+#define	I_ENA_1_IERB	0x40		/* INTB enable			*/
+#define	I_ENA_1_IERC	0x20		/* INTC enable			*/
+#define	I_ENA_1_IERD	0x10		/* INTD enable			*/
+
+/* IRQ_STAT_1 bit definitions */
+#define	I_STAT_1_INTA	0x80		/* INTA status			*/
+#define	I_STAT_1_INTB	0x40		/* INTB status			*/
+#define	I_STAT_1_INTC	0x20		/* INTC status			*/
+#define	I_STAT_1_INTD	0x10		/* INTD status			*/
+
+/* IRQ_ENA_2 bit definitions */
+#define	I_ENA_2_IEAB	0x80		/* ABORT IRQ enable		*/
+#define	I_ENA_2_IEK1	0x40		/* KEY1 IRQ enable		*/
+#define	I_ENA_2_IEK2	0x20		/* KEY2 IRQ enable		*/ 
+#define	I_ENA_2_IERT	0x10		/* RTC IRQ enable		*/
+#define	I_ENA_2_IESM	0x08		/* LM81 IRQ enable		*/
+#define	I_ENA_2_IEDG	0x04		/* DEGENERATING IRQ enable	*/
+#define	I_ENA_2_IES2	0x02		/* ST16552/B IRQ enable		*/
+#define	I_ENA_2_IES1	0x01		/* ST16552/A IRQ enable		*/
+
+/* IRQ_STAT_2 bit definitions */
+#define	I_STAT_2_ABO	0x80		/* ABORT IRQ status		*/
+#define	I_STAT_2_KY1	0x40		/* KEY1 IRQ status		*/
+#define	I_STAT_2_KY2	0x20		/* KEY2 IRQ status		*/ 
+#define	I_STAT_2_RTC	0x10		/* RTC IRQ status		*/
+#define	I_STAT_2_SMN	0x08		/* LM81 IRQ status		*/ 
+#define	I_STAT_2_DEG	0x04		/* DEGENERATING IRQ status	*/
+#define	I_STAT_2_SIO2	0x02		/* ST16552/B IRQ status		*/
+#define	I_STAT_2_SIO1	0x01		/* ST16552/A IRQ status		*/
+
+/* BOARD_CTRL bit definitions */
+#define	USER_LEDS		2			/* 2 user LEDs	*/
+
+#if (USER_LEDS == 4)
+#define	B_CTRL_WRSE		0x80
+#define	B_CTRL_KRSE		0x40
+#define	B_CTRL_FWRE		0x20		/* Flash write enable		*/
+#define	B_CTRL_FWPT		0x10		/* Flash write protect		*/
+#define	B_CTRL_LED3		0x08		/* LED 3 control		*/
+#define	B_CTRL_LED2		0x04		/* LED 2 control		*/
+#define	B_CTRL_LED1		0x02		/* LED 1 control		*/
+#define	B_CTRL_LED0		0x01		/* LED 0 control		*/
+#else
+#define	B_CTRL_WRSE		0x80
+#define	B_CTRL_KRSE		0x40
+#define	B_CTRL_FWRE_1		0x20		/* Flash write enable		*/
+#define	B_CTRL_FWPT_1		0x10		/* Flash write protect		*/
+#define	B_CTRL_LED1		0x08		/* LED 1 control		*/
+#define	B_CTRL_LED0		0x04		/* LED 0 control		*/
+#define	B_CTRL_FWRE_0		0x02		/* Flash write enable		*/
+#define	B_CTRL_FWPT_0		0x01		/* Flash write protect		*/
+#endif
+
+/* BOARD_STAT bit definitions */
+#define	B_STAT_WDGE		0x80
+#define	B_STAT_WDGS		0x40
+#define	B_STAT_WRST		0x20
+#define	B_STAT_KRST		0x10
+#define	B_STAT_CSW3		0x08		/* sitch bit 3 status		*/
+#define	B_STAT_CSW2		0x04		/* sitch bit 2 status		*/
+#define	B_STAT_CSW1		0x02		/* sitch bit 1 status		*/
+#define	B_STAT_CSW0		0x01		/* sitch bit 0 status		*/
+
+/*---------------------------------------------------------------------*/
+/* Display addresses                                                   */
+/*---------------------------------------------------------------------*/
+#define	DISP_UDC_RAM	(DISPLAY_BASE + 0x08)	/* UDC RAM	       */
+#define	DISP_CHR_RAM	(DISPLAY_BASE + 0x18)	/* character Ram       */
+#define	DISP_FLASH	(DISPLAY_BASE + 0x20)	/* Flash Ram           */
+
+#define	DISP_UDC_ADR	*((volatile uchar*)(DISPLAY_BASE + 0x00))	/* UDC Address Reg.    */
+#define	DISP_CWORD	*((volatile uchar*)(DISPLAY_BASE + 0x10))	/* Control Word Reg.   */
+
+#define	DISP_DIG0	*((volatile uchar*)(DISP_CHR_RAM + 0x00))	/* Digit 0 address     */      
+#define	DISP_DIG1	*((volatile uchar*)(DISP_CHR_RAM + 0x01))	/* Digit 0 address     */      
+#define	DISP_DIG2	*((volatile uchar*)(DISP_CHR_RAM + 0x02))	/* Digit 0 address     */
+#define	DISP_DIG3	*((volatile uchar*)(DISP_CHR_RAM + 0x03))	/* Digit 0 address     */      
+#define	DISP_DIG4	*((volatile uchar*)(DISP_CHR_RAM + 0x04))	/* Digit 0 address     */      
+#define	DISP_DIG5	*((volatile uchar*)(DISP_CHR_RAM + 0x05))	/* Digit 0 address     */
+#define	DISP_DIG6	*((volatile uchar*)(DISP_CHR_RAM + 0x06))	/* Digit 0 address     */      
+#define	DISP_DIG7	*((volatile uchar*)(DISP_CHR_RAM + 0x07))	/* Digit 0 address     */      
+
+
 /*-----------------------------------------------------------------------
  * PCI stuff
  *-----------------------------------------------------------------------
@@ -297,13 +440,9 @@
 
 #define CONFIG_NET_MULTI		/* Multi ethernet cards support 	*/
 
-#define CONFIG_TULIP
-#define CONFIG_TULIP_USE_IO
-
-#define CFG_ETH_DEV_FN	     0x7800
-#define CFG_ETH_IOBASE	     0x00104000
-
 #define CONFIG_EEPRO100
+
 #define PCI_ENET0_IOADDR	0x00104000
-#define PCI_ENET0_MEMADDR	0x80000000
+#define PCI_ENET0_MEMADDR	0x82000000
+#define	PCI_PLX9030_MEMADDR	0x82100000
 #endif	/* __CONFIG_H */

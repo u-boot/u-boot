@@ -75,7 +75,7 @@
 		"setenv filesize;saveenv\0"				\
 	"kernel_addr=40040000\0"					\
 	"ramdisk_addr=40100000\0"					\
-	"kernel_img=/tftpboot/pImage\0"					\
+	"kernel_img=/tftpboot/uImage\0"					\
 	"kernel_load=tftp 200000 $(kernel_img)\0"			\
 	"net_nfs=run kernel_load nfsargs addip addtty;bootm\0"		\
 	"flash_nfs=run nfsargs addip addtty;bootm $(kernel_addr)\0"	\

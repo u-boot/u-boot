@@ -185,9 +185,12 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 		return ERR_INVAL;
 	}
 
-	if ((info->flash_id & FLASH_VENDMASK) !=
-		(FLASH_MAN_AMD & FLASH_VENDMASK)) {
-		return ERR_UNKNOWN_FLASH_VENDOR;
+	switch (info->flash_id & FLASH_VENDMASK) {
+	case (FLASH_MAN_AMD & FLASH_VENDMASK):	break;	/* OK */
+	case (FLASH_MAN_FUJ & FLASH_VENDMASK):	break;	/* OK */
+	default:
+		debug ("## flash_erase: unknown manufacturer\n");
+		return (ERR_UNKNOWN_FLASH_VENDOR);
 	}
 
 	prot = 0;

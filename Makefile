@@ -53,21 +53,6 @@ ifndef CROSS_COMPILE
 ifeq ($(HOSTARCH),ppc)
 CROSS_COMPILE =
 else
-##  #ifeq ($(CPU),mpc8xx)
-##  CROSS_COMPILE = ppc_8xx-
-##  #endif
-##  #ifeq ($(CPU),ppc4xx)
-##  #CROSS_COMPILE = ppc_4xx-
-##  #endif
-##  #ifeq ($(CPU),mpc824x)
-##  #CROSS_COMPILE = ppc_82xx-
-##  #endif
-##  #ifeq ($(CPU),mpc8260)
-##  #CROSS_COMPILE = ppc_82xx-
-##  #endif
-##  #ifeq ($(CPU),74xx_7xx)
-##  #CROSS_COMPILE = ppc_74xx-)
-##  #endif
 ifeq ($(ARCH),ppc)
 CROSS_COMPILE = ppc_8xx-
 endif
@@ -201,6 +186,9 @@ CCM_config:		unconfig
 
 cogent_mpc8xx_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx cogent
+
+ELPT860_config:		unconfig
+	@./mkconfig $(@:_config=) ppc mpc8xx elpt860 LEOX
 
 ESTEEM192E_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx esteem192e
@@ -457,8 +445,23 @@ WALNUT405_config:unconfig
 #########################################################################
 ## MPC824x Systems
 #########################################################################
+xtract_82xx = $(subst _ROMBOOT,,$(subst _L2,,$(subst _266MHz,,$(subst _300MHz,,$(subst _config,,$1)))))
+
 BMW_config: unconfig
 	@./mkconfig $(@:_config=) ppc mpc824x bmw
+
+CPC45_config	\
+CPC45_ROMBOOT_config:	unconfig
+	@./mkconfig $(call xtract_82xx,$@) ppc mpc824x cpc45
+	@cd ./include ;				\
+	if [ "$(findstring _ROMBOOT_,$@)" ] ; then \
+		echo "CONFIG_BOOT_ROM = y" >> config.mk ; \
+		echo "... booting from 8-bit flash" ; \
+	else \
+		echo "CONFIG_BOOT_ROM = n" >> config.mk ; \
+		echo "... booting from 64-bit flash" ; \
+	fi; \
+	echo "export CONFIG_BOOT_ROM" >> config.mk;
 
 CU824_config: unconfig
 	@./mkconfig $(@:_config=) ppc mpc824x cu824
@@ -487,7 +490,6 @@ utx8245_config: unconfig
 #########################################################################
 ## MPC8260 Systems
 #########################################################################
-xtract_82xx = $(subst _ROMBOOT,,$(subst _L2,,$(subst _266MHz,,$(subst _300MHz,,$(subst _config,,$1)))))
 
 cogent_mpc8260_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8260 cogent

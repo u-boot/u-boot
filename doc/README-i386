@@ -1,4 +1,4 @@
-This is my attempt to port PPCBoot to the i386 platform. This
+This is my attempt to port U-Boot to the i386 platform. This
 work was sponsored by my emplyer, Omicron Ceti AB. http://www.omicron.se
 
 It is currently capable of booting a linux bzImage from flash on
@@ -28,13 +28,13 @@ To use this code on the CDP:
 
 
 2) Program it in to the CDP flashbank with remon
-   ppcboot.bin should be programmed att offset 0x7e000 and the kernel at
+   u-boot.bin should be programmed att offset 0x7e000 and the kernel at
    offset 0. If you want to use a jffs2 root file system (not included here), 
    it should be  programmed to offset 0x100000.
    
    remon> z
    remon> yi
-   remon> ns ppcboot.bin 7e0000
+   remon> ns u-boot.bin 7e0000
    remon> ns bzImage 0
    remon> ns image.jffs2 100000
 
@@ -43,7 +43,7 @@ To use this code on the CDP:
    remon> z
    remon> g
 
-4) PPCboot should output some message and a prompt on the terminal, to
+4) U-Boot should output some message and a prompt on the terminal, to
    start the kernel issue the following command:
    
    BOOT> bootm

@@ -55,7 +55,8 @@
 #define BLAU	0x0C
 #define VIOLETT	0X0D
 
-ulong	frame_buf_size;
+/* MAGIC */
+#define	FRAME_BUF_SIZE	((256*4*56)/8)
 #define frame_buf_offs 4
 
 /* Supported VFD Types */
@@ -75,19 +76,13 @@ void init_grid_ctrl(void)
 	ulong adr, grid_cycle;
 	unsigned int bit, display;
 	unsigned char temp, bit_nr;
-	ulong val;
 
 	/*
 	 * clear frame buffer (logical clear => set to "black")
 	 */
-	if (gd->vfd_inv_data == 0)
-		val = 0;
-	else
-		val = ~0;
-
-	for (adr = gd->fb_base; adr <= (gd->fb_base+7168); adr += 4) {
-		(*(volatile ulong*)(adr)) = val;
-	}
+	memset ((void *)(gd->fb_base),
+		gd->vfd_inv_data ? 0xFF : 0,
+		FRAME_BUF_SIZE);
 
 	switch (gd->vfd_type) {
 	case VFD_TYPE_T119C:
@@ -97,8 +92,8 @@ void init_grid_ctrl(void)
 			     (grid_cycle + 200) * 4 +
 			     frame_buf_offs + display;
  			/* wrap arround if offset (see manual S3C2400) */
-			if (bit>=frame_buf_size*8)
-				bit = bit - (frame_buf_size * 8);
+			if (bit>=FRAME_BUF_SIZE*8)
+				bit = bit - (FRAME_BUF_SIZE * 8);
 			adr = gd->fb_base + (bit/32) * 4 + (3 - (bit%32) / 8);
 			bit_nr = bit % 8;
 			bit_nr = (bit_nr > 3) ? bit_nr-4 : bit_nr+4;
@@ -114,8 +109,8 @@ void init_grid_ctrl(void)
 			else
 				bit = grid_cycle*256*4+200*4+frame_buf_offs+display-4; 	/* grid nr. 0 */
 			/* wrap arround if offset (see manual S3C2400) */
-			if (bit>=frame_buf_size*8)
-				bit = bit-(frame_buf_size*8);
+			if (bit>=FRAME_BUF_SIZE*8)
+				bit = bit-(FRAME_BUF_SIZE*8);
 			adr = gd->fb_base+(bit/32)*4+(3-(bit%32)/8);
 			bit_nr = bit%8;
 			bit_nr = (bit_nr>3)?bit_nr-4:bit_nr+4;
@@ -135,8 +130,8 @@ void init_grid_ctrl(void)
 			     (253 - grid_cycle) * 4 +
 			     frame_buf_offs + display;
 			/* wrap arround if offset (see manual S3C2400) */
-			if (bit>=frame_buf_size*8)
-				bit = bit - (frame_buf_size * 8);
+			if (bit>=FRAME_BUF_SIZE*8)
+				bit = bit - (FRAME_BUF_SIZE * 8);
 			adr = gd->fb_base + (bit/32) * 4 + (3 - (bit%32) / 8);
 			bit_nr = bit % 8;
 			bit_nr = (bit_nr > 3) ? bit_nr-4 : bit_nr+4;
@@ -151,8 +146,8 @@ void init_grid_ctrl(void)
 				bit = grid_cycle*256*4+(252-grid_cycle)*4+frame_buf_offs+display;
 
 			/* wrap arround if offset (see manual S3C2400) */
-			if (bit>=frame_buf_size*8)
-				bit = bit-(frame_buf_size*8);
+			if (bit>=FRAME_BUF_SIZE*8)
+				bit = bit-(FRAME_BUF_SIZE*8);
 			adr = gd->fb_base+(bit/32)*4+(3-(bit%32)/8);
 			bit_nr = bit%8;
 			bit_nr = (bit_nr>3)?bit_nr-4:bit_nr+4;
@@ -263,8 +258,8 @@ void create_vfd_table(void)
 				  * wrap arround if offset
 				  * (see manual S3C2400)
 				  */
-				if (pixel>=frame_buf_size*8)
-					pixel = pixel-(frame_buf_size*8);
+				if (pixel>=FRAME_BUF_SIZE*8)
+					pixel = pixel-(FRAME_BUF_SIZE*8);
 				adr    = gd->fb_base+(pixel/32)*4+(3-(pixel%32)/8);
 				bit_nr = pixel%8;
 				bit_nr = (bit_nr>3)?bit_nr-4:bit_nr+4;
@@ -466,7 +461,7 @@ int drv_vfd_init(void)
 	/* frame buffer startadr */
 	rLCDSADDR1 = gd->fb_base >> 1;
  	/* frame buffer endadr */
-	rLCDSADDR2 = (gd->fb_base + frame_buf_size) >> 1;
+	rLCDSADDR2 = (gd->fb_base + FRAME_BUF_SIZE) >> 1;
 	rLCDSADDR3 = ((256/4));
 
 	debug ("LCDSADDR1: %lX\n", rLCDSADDR1);
@@ -490,11 +485,8 @@ ulong vfd_setmem (ulong addr)
 {
 	ulong size;
 
-	/* MAGIC */
-	frame_buf_size = (256*4*56)/8;
-
 	/* Round up to nearest full page */
-	size = (frame_buf_size + (PAGE_SIZE - 1)) & ~(PAGE_SIZE - 1);
+	size = (FRAME_BUF_SIZE + (PAGE_SIZE - 1)) & ~(PAGE_SIZE - 1);
 
 	debug ("Reserving %ldk for VFD Framebuffer at: %08lx\n", size>>10, addr);
 

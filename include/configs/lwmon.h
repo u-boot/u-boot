@@ -97,7 +97,7 @@
 		"bootm $(kernel_addr)\0"					\
 	"flash_self=run ramargs addip add_wdt addfb add_misc;"	\
 		"bootm $(kernel_addr) $(ramdisk_addr)\0"			\
-	"net_nfs=tftp 100000 /tftpboot/pImage.lwmon;"		\
+	"net_nfs=tftp 100000 /tftpboot/uImage.lwmon;"		\
 		"run nfsargs addip add_wdt addfb;bootm\0"	\
 	"rootpath=/opt/eldk/ppc_8xx\0"						\
 	"load=tftp 100000 /tftpboot/u-boot.bin\0"				\

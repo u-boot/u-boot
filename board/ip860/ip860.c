@@ -28,7 +28,8 @@
 /* ------------------------------------------------------------------------- */
 
 static long int dram_size (long int, long int *, long int);
-
+unsigned long ip860_get_dram_size(void);
+unsigned long ip860_get_clk_freq (void);
 /* ------------------------------------------------------------------------- */
 
 #define	_NOT_USED_	0xFFFFFFFF
@@ -82,8 +83,22 @@ const uint sdram_table[] = {
 	_NOT_USED_, _NOT_USED_, _NOT_USED_,
 };
 
-/* ------------------------------------------------------------------------- */
 
+/* ------------------------------------------------------------------------- */
+int board_pre_init(void)
+{
+    volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
+    volatile memctl8xx_t *memctl = &immap->im_memctl;
+
+/* init BCSR chipselect line for ip860_get_clk_freq() and ip860_get_dram_size() */
+    memctl->memc_or4 = CFG_OR4;
+    memctl->memc_br4 = CFG_BR4;
+
+    return 0;
+}
+
+
+/* ------------------------------------------------------------------------- */
 
 /*
  * Check Board Identity:
@@ -127,6 +142,7 @@ long int initdram (int board_type)
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	long int size;
+	ulong refresh_val;
 
 	upmconfig (UPMA, (uint *) sdram_table,
 			   sizeof (sdram_table) / sizeof (uint));
@@ -134,7 +150,17 @@ long int initdram (int board_type)
 	/*
 	 * Preliminary prescaler for refresh
 	 */
-	memctl->memc_mptpr = 0x0400;
+	if (ip860_get_clk_freq() == 50000000)
+	{
+		memctl->memc_mptpr = 0x0400;
+		refresh_val = 0xC3000000;
+	}
+	else
+	{
+		memctl->memc_mptpr = 0x0200;
+		refresh_val = 0x9C000000;
+	}
+
 
 	memctl->memc_mar = 0x00000088;
 
@@ -151,18 +177,22 @@ long int initdram (int board_type)
 
 	/* perform SDRAM initializsation sequence */
 
-	memctl->memc_mamr = 0xC3804114;
-	memctl->memc_mcr = 0x80004105;	/* run precharge pattern from loc 5 */
-	udelay (1);
-	memctl->memc_mamr = 0xC3804118;
-	memctl->memc_mcr = 0x80004130;	/* run refresh pattern 8 times */
+	memctl->memc_mamr = 0x00804114 | refresh_val;
+	memctl->memc_mcr  = 0x80004105;	/* run precharge pattern from loc 5 */
+	udelay(1);
+	memctl->memc_mamr = 0x00804118 | refresh_val;
+	memctl->memc_mcr  = 0x80004130;	/* run refresh pattern 8 times */
+
 
 	udelay (1000);
 
 	/*
 	 * Check SDRAM Memory Size
 	 */
-	size = dram_size (CFG_MAMR, (ulong *) SDRAM_BASE, SDRAM_MAX_SIZE);
+	if (ip860_get_dram_size() == 16)
+		size = dram_size (refresh_val | 0x00804114, (ulong *)SDRAM_BASE, SDRAM_MAX_SIZE);
+	else
+		size = dram_size (refresh_val | 0x00906114, (ulong *)SDRAM_BASE, SDRAM_MAX_SIZE);
 
 	udelay (1000);
 
@@ -288,6 +318,71 @@ void reset_phy (void)
 	 */
 	immr->im_cpm.cp_pbdat &= ~(PB_ENET_RESET);
 	udelay (1000);
+}
+
+/* ------------------------------------------------------------------------- */
+
+unsigned long ip860_get_clk_freq(void)
+{
+	volatile ip860_bcsr_t	*bcsr   = (ip860_bcsr_t *)BCSR_BASE;
+	ulong temp;
+	uchar sysclk;
+
+	if ((bcsr->bd_status & 0x80) == 0x80)	/* bd_rev valid ? */
+		sysclk = (bcsr->bd_rev & 0x18) >> 3;
+	else
+		sysclk = 0x00;
+
+	switch (sysclk)
+	{
+		case 0x00:
+			temp = 50000000;
+			break;
+
+		case 0x01:
+			temp = 80000000;
+			break;
+
+		default:
+			temp = 50000000;
+			break;
+	}
+
+	return (temp);
+
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+unsigned long ip860_get_dram_size(void)
+{
+	volatile ip860_bcsr_t	*bcsr   = (ip860_bcsr_t *)BCSR_BASE;
+	ulong temp;
+	uchar dram_size;
+
+	if ((bcsr->bd_status & 0x80) == 0x80)	/* bd_rev valid ? */
+		dram_size = (bcsr->bd_rev & 0xE0) >> 5;
+	else
+		dram_size = 0x00;	/* default is 16 MB */
+
+	switch (dram_size)
+	{
+		case 0x00:
+			temp = 16;
+			break;
+
+		case 0x01:
+			temp = 32;
+			break;
+
+		default:
+			temp = 16;
+			break;
+	}
+
+	return (temp);
+
 }
 
 /* ------------------------------------------------------------------------- */

@@ -23,7 +23,7 @@
 
 /*
  * Yoo. Jonghoon, IPone, yooth@ipone.co.kr
- * PPCboot port on RPXlite board
+ * U-Boot port on RPXlite board
  *
  * DRAM related UPMA register values are modified.
  * See RPXLite engineering note : 50MHz/60ns - UPM RAM WORDS

@@ -53,7 +53,7 @@ int do_fdosboot(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
     /* pre-set Boot file name */
     if ((name = getenv("bootfile")) == NULL) {
-        name = "pImage";
+        name = "uImage";
     }
 
     switch (argc) {

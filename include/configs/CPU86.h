@@ -171,7 +171,7 @@
 				 CFG_CMD_EEPROM | \
 				 CFG_CMD_DATE	| \
 				 CFG_CMD_I2C	| \
-				 CFG_CMD_DOC)
+				 CFG_CMD_DOC	)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -329,8 +329,8 @@
 #define CFG_I2C_EEPROM_ADDR_OVERFLOW	0x07
 #define CFG_EEPROM_PAGE_WRITE_BITS	4
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS	10	/* and takes up to 10 msec */
-#define CFG_ENV_OFFSET		0
-#define CFG_ENV_SIZE		2048
+#define CFG_ENV_OFFSET		512
+#define CFG_ENV_SIZE		(2048 - 512)
 #endif
 
 /*

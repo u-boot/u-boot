@@ -2,9 +2,6 @@
  * (C) Copyright 2001
  * Rob Taylor, Flying Pig Systems. robt@flyingpig.com.
  *
- * (C) Copyright 2001, 2002
- * Wolfgang Denk, DENX Software Engineering, <wd@denx.de>
-
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -29,18 +26,34 @@
 #include <asm/processor.h>
 #include <pci.h>
 
-#define BOARD_REV_REG 0xFE80002B
+int sysControlDisplay(int digit, uchar ascii_code);			
+extern void Plx9030Init(void);
 
-int checkboard (void)
+	/* We have to clear the initial data area here. Couldn't have done it
+	 * earlier because DRAM had not been initialized.
+	 */
+int board_pre_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 
-	char  revision = *(volatile char *)(BOARD_REV_REG);
+	/* enable DUAL UART Mode on CPC45 */
+	*(uchar*)DUART_DCR |= 0x1;	/* set DCM bit */
+
+	return 0;
+}
+
+int checkboard(void)
+{
+/*
+	char  revision = BOARD_REV;
+*/
+	ulong busfreq  = get_bus_freq(0);
 	char  buf[32];
 
-	puts ("Board: CU824 ");
+	printf("CPC45 ");
+/*
 	printf("Revision %d ", revision);
-	printf("Local Bus at %s MHz\n", strmhz(buf, gd->bus_clk));
+*/
+	printf("Local Bus at %s MHz\n", strmhz(buf, busfreq));
 
 	return 0;
 }
@@ -54,6 +67,7 @@ long int initdram(int board_type)
 	ulong            val, ret  = 0;
 
 	for (i=0, cnt=(CFG_MAX_RAM_SIZE / sizeof(long)) >> 1; cnt > 0; cnt >>= 1) {
+
 		addr = (volatile ulong *)base + cnt;
 		save[i++] = *addr;
 		*addr = ~cnt;
@@ -97,15 +111,16 @@ Done:
  * Initialize PCI Devices, report devices found.
  */
 #ifndef CONFIG_PCI_PNP
+
 static struct pci_config_table pci_sandpoint_config_table[] = {
 	{ PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, 0x0f, PCI_ANY_ID,
 	  pci_cfgfunc_config_device, { PCI_ENET0_IOADDR,
 				       PCI_ENET0_MEMADDR,
 				       PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER }},
-
 	{ }
 };
 #endif
+
 
 struct pci_controller hose = {
 #ifndef CONFIG_PCI_PNP
@@ -116,4 +131,43 @@ struct pci_controller hose = {
 void pci_init_board(void)
 {
 	pci_mpc824x_init(&hose);
+
+	/* init PCI_to_LOCAL Bus BRIDGE */
+	Plx9030Init();
+
+	sysControlDisplay(0,' ');
+	sysControlDisplay(1,'C');
+	sysControlDisplay(2,'P');
+	sysControlDisplay(3,'C');
+	sysControlDisplay(4,' ');
+	sysControlDisplay(5,'4');
+	sysControlDisplay(6,'5');
+	sysControlDisplay(7,' ');
+
 }
+
+/**************************************************************************
+*
+* sysControlDisplay - controls one of the Alphanum. Display digits.
+*
+* This routine will write an ASCII character to the display digit requested.
+*
+* SEE ALSO:
+*
+* RETURNS: NA
+*/
+
+int sysControlDisplay
+    (
+    int digit, 			/* number of digit 0..7 */
+    uchar ascii_code		/* ASCII code */
+    )
+{
+	if ((digit < 0) || (digit > 7))
+		return (-1);
+
+	*((volatile uchar*)(DISP_CHR_RAM + digit)) = ascii_code;
+
+	return (0);
+}
+

@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2001
+# (C) Copyright 2001-2003
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -21,27 +21,16 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
+#
+# CPC45 board
+#
 
-#CFLAGS += -DDEBUG
 
-LIB	= librtc.a
+ifeq ($(CONFIG_BOOT_ROM),y)
+	TEXT_BASE := 0xFFF00000
+	PLATFORM_CPPFLAGS += -DCONFIG_BOOT_ROM
+else
+	TEXT_BASE := 0xFFF00000
+endif
 
-OBJS	= date.o   \
-	  ds1302.o ds1306.o ds1307.o ds1337.o ds1556.o ds164x.o ds174x.o \
-	  m41t11.o m48t35ax.o mc146818.o mk48t59.o \
-	  mpc8xx.o pcf8563.o
-
-all:	$(LIB)
-
-$(LIB):	$(START) $(OBJS)
-	$(AR) crv $@ $(OBJS)
-
-#########################################################################
-
-.depend:	Makefile $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(OBJS:.o=.c) > $@
-
-sinclude .depend
-
-#########################################################################
+PLATFORM_CPPFLAGS += -DTEXT_BASE=$(TEXT_BASE) -I$(TOPDIR)

@@ -35,6 +35,7 @@
 
 #define CONFIG_MPC860		1	/* This is a MPC860 CPU		*/
 #define CONFIG_IP860		1	/* ...on a IP860 board		*/
+#define CONFIG_BOARD_PRE_INIT	1	    /* Call board_pre_init	*/
 
 #define	CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
 #define CONFIG_BAUDRATE		9600
@@ -44,10 +45,6 @@
 
 #define CONFIG_PREBOOT	"echo;echo Type \"run flash_nfs\" to mount root filesystem over NFS;echo" \
 "\0load=tftp \"/tftpboot/u-boot.bin\"\0update=protect off 1:0;era 1:0;cp.b 100000 10000000 $(filesize)\0"
-
-#define CONFIG_ETHADDR	00:30:bf:01:02:d2
-#define CONFIG_IPADDR	10.0.0.5
-#define CONFIG_SERVERIP	10.0.0.2
 
 #undef	CONFIG_BOOTARGS
 #define CONFIG_BOOTCOMMAND							\
@@ -230,10 +227,13 @@
 			 SIUMCR_DBGC11 | SIUMCR_MLRC10)
 
 /*-----------------------------------------------------------------------
- * Clock Setting - the IP860 has no 32kHz clock, so automatic detection fails
+ * Clock Setting - get clock frequency from Board Revision Register 
  *-----------------------------------------------------------------------
  */
-#define	CONFIG_8xx_GCLK_FREQ	50000000
+#ifndef __ASSEMBLY__
+extern  unsigned long           ip860_get_clk_freq (void);
+#endif
+#define	CONFIG_8xx_GCLK_FREQ	ip860_get_clk_freq()
 
 /*-----------------------------------------------------------------------
  * TBSCR - Time Base Status and Control				11-26
@@ -430,6 +430,8 @@ typedef	struct ip860_bcsr_s {
 	unsigned char	wd_trigger;	/* +1A Watchdog trigger register	*/
 	unsigned char	reservedD;
 	unsigned char	rmw_req;	/* +1C RMW request register		*/
+	unsigned char	reservedE;
+	unsigned char	bd_rev;		/* +1E Board Revision register		*/
 } ip860_bcsr_t;
 #endif	/* __ASSEMBLY__ */
 

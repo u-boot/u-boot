@@ -635,12 +635,15 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	icache_enable ();	/* it's time to enable the instruction cache */
 #endif
 
-#if defined(CONFIG_BAB7xx)
+#if defined(CONFIG_BAB7xx) || defined(CONFIG_CPC45)
 	/*
-	 * Do pci configuration on BAB 7xx _before_ the flash
-	 * is initialised, because we need the ISA bridge there.
+	 * Do PCI configuration on BAB7xx and CPC45 _before_ the flash
+	 * gets initialised, because we need the ISA resp. PCI_to_LOCAL bus
+	 * bridge there.
 	 */
 	pci_init ();
+#endif
+#if defined(CONFIG_BAB7xx)
 	/*
 	 * Initialise the ISA bridge
 	 */
@@ -821,6 +824,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 #if (CONFIG_COMMANDS & CFG_CMD_NET) && ( \
     defined(CONFIG_CCM)		|| \
+    defined(CONFIG_ELPT860)	|| \
     defined(CONFIG_EP8260)	|| \
     defined(CONFIG_IP860)	|| \
     defined(CONFIG_IVML24)	|| \

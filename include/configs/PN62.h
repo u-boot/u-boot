@@ -70,7 +70,7 @@
 			"root=/dev/nfs rw nfsroot=$(serverip):$(rootpath) " \
 			"ip=$(ipaddr):$(serverip)::$(netmask):pn62:eth0:off;" \
 			"loadp 100000; bootm"
-			/* "tftpboot 100000 pImage; bootm" */
+			/* "tftpboot 100000 uImage; bootm" */
 #else
 /* Boot Linux with RAMdisk based filesystem (initrd, BusyBox) */
 #define CONFIG_BOOTCOMMAND \

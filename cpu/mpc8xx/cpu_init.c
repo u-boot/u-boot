@@ -42,8 +42,8 @@ void cpu_init_f (volatile immap_t * immr)
 {
 #ifndef CONFIG_MBX
 	volatile memctl8xx_t *memctl = &immr->im_memctl;
-	ulong reg;
 #endif
+	ulong reg;
 
 	/* SYPCR - contains watchdog control (11-9) */
 

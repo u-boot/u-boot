@@ -145,6 +145,8 @@ Directory Hierarchy:
 - cpu/mpc8260	Files specific to Motorola MPC8260 CPU
 - cpu/ppc4xx	Files specific to IBM	   4xx	   CPUs
 
+- board/LEOX/   Files specific to boards manufactured by The LEOX team
+- board/LEOX/elpt860	Files specific to ELPT860 boards
 - board/RPXClassic
 		Files specific to RPXClassic boards
 - board/RPXlite	Files specific to RPXlite    boards
@@ -338,7 +340,7 @@ The following options need to be configured:
 		CONFIG_GTH,        CONFIG_RPXClassic, CONFIG_rsdproto,
 		CONFIG_IAD210,     CONFIG_RPXlite,    CONFIG_sbc8260,
 		CONFIG_EBONY,      CONFIG_sacsng,     CONFIG_FPS860L,
-		CONFIG_V37
+		CONFIG_V37,        CONFIG_ELPT860
 
 		ARM based boards:
 		-----------------
@@ -626,6 +628,7 @@ The following options need to be configured:
 		CONFIG_RTC_MC146818	- use MC146818 RTC
 		CONFIG_RTC_DS1307	- use Maxim, Inc. DS1307 RTC
 		CONFIG_RTC_DS1337	- use Maxim, Inc. DS1337 RTC
+		CONFIG_RTC_DS164x	- use Dallas DS164x RTC
 
 - Timestamp Support:
 
@@ -1716,6 +1719,7 @@ configurations; the following names are supported:
     FPS850L_config	  Sandpoint8240_config	sbc8260_config
     GENIETV_config	  TQM823L_config	PIP405_config
     GEN860T_config	  EBONY_config		FPS860L_config
+    ELPT860_config
 
 Note: for some board special configuration names may exist; check  if
       additional  information is available from the board vendor; for

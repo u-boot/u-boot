@@ -332,10 +332,10 @@ Linux:
 	$ make IPHASE4539_config
 	$ make oldconfig
 	$ make dep
-	$ make pImage
-	$ cp -p arch/ppc/mbxboot/pImage /tftpboot
+	$ make uImage
+	$ cp -p arch/ppc/mbxboot/uImage /tftpboot
 
-	Load pImage via tftp and boot it.
+	Load uImage via tftp and boot it.
 
 
 Flash organisation:

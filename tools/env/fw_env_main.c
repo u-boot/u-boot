@@ -22,7 +22,7 @@
  */
 
 /*
- * Command line user interface to firmware (=PPCBoot) environment.
+ * Command line user interface to firmware (=U-Boot) environment.
  *
  * Implements:
  *	fw_printenv [ name ... ]

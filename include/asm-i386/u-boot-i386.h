@@ -21,8 +21,8 @@
  * MA 02111-1307 USA
  */
 
-#ifndef _PPCBOOT_I386_H_
-#define _PPCBOOT_I386_H_	1
+#ifndef _U_BOOT_I386_H_
+#define _U_BOOT_I386_H_	1
 
 /* for the following variables, see start.S */
 extern ulong i386boot_start;	    /* code start (in flash) */
@@ -50,4 +50,4 @@ int	board_init(void);
 int	dram_init (void);
 
 
-#endif	/* _PPCBOOT_I386_H_ */
+#endif	/* _U_BOOT_I386_H_ */

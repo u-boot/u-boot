@@ -23,7 +23,7 @@
 
 /*
  * Yoo. Jonghoon, IPone, yooth@ipone.co.kr
- * PPCboot port on RPXlite board
+ * U-Boot port on RPXlite board
  *
  * Some of flash control words are modified. (from 2x16bit device
  * to 4x8bit device)

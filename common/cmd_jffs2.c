@@ -83,7 +83,7 @@ jffs2_part_info(int part_num)
 int
 do_jffs2_fsload(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	char *filename = "pImage";
+	char *filename = "uImage";
 	ulong offset = CFG_LOAD_ADDR;
 	int size;
 	struct part_info *part;

@@ -74,7 +74,7 @@
 #define CONFIG_IPADDR		10.0.0.98
 #define CONFIG_SERVERIP		10.0.0.1
 #undef	CONFIG_BOOTCOMMAND
-#define CONFIG_BOOTCOMMAND	"tftp 200000 pImage;bootm 200000"
+#define CONFIG_BOOTCOMMAND	"tftp 200000 uImage;bootm 200000"
 /*----------------------------------------------------------------------*/
 
 /*

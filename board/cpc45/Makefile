@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2001
+# (C) Copyright 2001-2003
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,24 +23,17 @@
 
 include $(TOPDIR)/config.mk
 
-#CFLAGS += -DDEBUG
+LIB	= lib$(BOARD).a
 
-LIB	= librtc.a
+OBJS	= $(BOARD).o flash.o plx9030.o
 
-OBJS	= date.o   \
-	  ds1302.o ds1306.o ds1307.o ds1337.o ds1556.o ds164x.o ds174x.o \
-	  m41t11.o m48t35ax.o mc146818.o mk48t59.o \
-	  mpc8xx.o pcf8563.o
-
-all:	$(LIB)
-
-$(LIB):	$(START) $(OBJS)
-	$(AR) crv $@ $(OBJS)
+$(LIB):	.depend $(OBJS)
+	$(AR) crv $@ $^
 
 #########################################################################
 
-.depend:	Makefile $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(OBJS:.o=.c) > $@
+.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
+		$(CC) -M $(CFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
 
 sinclude .depend
 
