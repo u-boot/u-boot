@@ -52,10 +52,10 @@ int checkboard (void)
 	puts ("Board: TQM8540\n");
 
 #ifdef CONFIG_PCI
-	printf ("    PCI1: 32 bit, %d MHz (compiled)\n",
+	printf ("PCI1:  32 bit, %d MHz (compiled)\n",
 		CONFIG_SYS_CLK_FREQ / 1000000);
 #else
-	printf ("    PCI1: disabled\n");
+	printf ("PCI1:  disabled\n");
 #endif
 	/*
 	 * Initialize local bus.
@@ -71,8 +71,6 @@ long int initdram (int board_type)
 	long dram_size = 0;
 	extern long spd_sdram (void);
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
-
-	puts ("Initializing\n");
 
 #if defined(CONFIG_DDR_DLL)
 	{
@@ -101,7 +99,6 @@ long int initdram (int board_type)
 	ddr_enable_ecc (dram_size);
 #endif
 
-	puts ("    DDR: ");
 	return dram_size;
 }
 

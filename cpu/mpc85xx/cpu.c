@@ -41,30 +41,12 @@ int checkcpu (void)
 	uint ver;
 	uint major, minor;
 
-	puts("Freescale PowerPC\n");
-
-	pvr = get_pvr();
-	ver = PVR_VER(pvr);
-	major = PVR_MAJ(pvr);
-	minor = PVR_MIN(pvr);
-
-	printf("    Core: ");
-	switch (ver) {
-	case PVR_VER(PVR_85xx):
-	    puts("E500");
-	    break;
-	default:
-	    puts("Unknown");
-	    break;
-	}
-	printf(", Version: %d.%d, (0x%08x)\n", major, minor, pvr);
-
 	svr = get_svr();
 	ver = SVR_VER(svr);
 	major = SVR_MAJ(svr);
 	minor = SVR_MIN(svr);
 
-	puts("    System: ");
+	puts("CPU:   ");
 	switch (ver) {
 	case SVR_8540:
 		puts("8540");
@@ -84,12 +66,28 @@ int checkcpu (void)
 	}
 	printf(", Version: %d.%d, (0x%08x)\n", major, minor, svr);
 
+	pvr = get_pvr();
+	ver = PVR_VER(pvr);
+	major = PVR_MAJ(pvr);
+	minor = PVR_MIN(pvr);
+
+	printf("Core:  ");
+	switch (ver) {
+	case PVR_VER(PVR_85xx):
+	    puts("E500");
+	    break;
+	default:
+	    puts("Unknown");
+	    break;
+	}
+	printf(", Version: %d.%d, (0x%08x)\n", major, minor, pvr);
+
 	get_sys_info(&sysinfo);
 
-	puts("    Clocks: ");
-	printf("CPU:%4lu MHz, ", sysinfo.freqProcessor / 1000000);
-	printf("CCB:%4lu MHz, ", sysinfo.freqSystemBus / 1000000);
-	printf("DDR:%4lu MHz, ", sysinfo.freqSystemBus / 2000000);
+	puts("Clocks Configuration:\n");
+	printf("       CPU:%4lu MHz, ", sysinfo.freqProcessor / 1000000);
+	printf("CCB:%4lu MHz,\n", sysinfo.freqSystemBus / 1000000);
+	printf("       DDR:%4lu MHz, ", sysinfo.freqSystemBus / 2000000);
 
 #if defined(CFG_LBC_LCRR)
 	lcrr = CFG_LBC_LCRR;
@@ -106,15 +104,15 @@ int checkcpu (void)
 		printf("LBC:%4lu MHz\n",
 		       sysinfo.freqSystemBus / 1000000 / clkdiv);
 	} else {
-		printf("    LBC: unknown (lcrr: 0x%08x)\n", lcrr);
+		printf("LBC: unknown (lcrr: 0x%08x)\n", lcrr);
 	}
 
 	if (ver == SVR_8560) {
-		printf("    CPM: %lu Mhz\n",
+		printf("CPM:  %lu Mhz\n",
 		       sysinfo.freqSystemBus / 1000000);
 	}
 
-	puts("    L1 D-cache 32KB, L1 I-cache 32KB enabled.\n");
+	puts("L1:    D-cache 32 kB enabled\n       I-cache 32 kB enabled\n");
 
 	return 0;
 }

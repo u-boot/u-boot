@@ -141,7 +141,7 @@ int tsec_initialize(bd_t *bis, int index)
 	priv->phyaddr = tsec_info[index].phyaddr;
 	priv->gigabit = tsec_info[index].gigabit;
 
-	sprintf(dev->name, "MOTO ENET%d", index);
+	sprintf(dev->name, "ENET%d", index);
 	dev->iobase = 0;
 	dev->priv   = priv;
 	dev->init   = tsec_init;

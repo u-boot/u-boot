@@ -196,9 +196,9 @@ int cpu_init_r (void)
 	temp = l2cache->l2ctl;
 	asm("msync;isync");
 
-	printf("L2 cache enabled: 256KB\n");
+	printf("L2:    256 kB enabled\n");
 #else
-	printf("L2 cache disabled.\n");
+	printf("L2:    disabled.\n");
 #endif
 
 	return 0;

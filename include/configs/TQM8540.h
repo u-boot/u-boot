@@ -297,7 +297,7 @@
 #define FEC_PHY_ADDR		0
 #define FEC_PHYIDX		0
 
-#define CONFIG_ETHPRIME		"MOTO ENET2"
+#define CONFIG_ETHPRIME		"ENET1"
 
 #endif	/* CONFIG_TSEC_ENET */
 
@@ -310,6 +310,8 @@
   #define CFG_ENV_ADDR		(CFG_MONITOR_BASE - 0x20000)
   #define CFG_ENV_SECT_SIZE	0x20000 /* 128K(one sector) for env */
   #define CFG_ENV_SIZE		0x2000
+  #define CFG_ENV_OFFSET_REDUND	(CFG_ENV_OFFSET-CFG_ENV_SECT_SIZE)
+  #define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
 #else
   #define CFG_NO_FLASH		1	/* Flash is not usable now */
   #define CFG_ENV_IS_NOWHERE	1	/* Store ENV in memory only */
