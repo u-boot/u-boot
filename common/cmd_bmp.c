@@ -73,8 +73,8 @@ int do_bmp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 }
 
-cmd_tbl_t U_BOOT_CMD(BMP) = MK_CMD_ENTRY(
-	"bmp",	3,	1,	do_bmp,
+U_BOOT_CMD(
+	bmp,	3,	1,	do_bmp,
 	"bmp     - manipulate BMP image data\n",
 	"info <imageAddr>    - display image info\n"
 	"bmp display <imageAddr> - display image\n"

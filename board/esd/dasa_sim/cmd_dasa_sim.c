@@ -225,8 +225,8 @@ int do_pci9054 (cmd_tbl_t * cmdtp, int flag, int argc,
 
 }
 
-cmd_tbl_t U_BOOT_CMD (pci9054) = MK_CMD_ENTRY(
-	"pci9054", 3, 1, do_pci9054,
+U_BOOT_CMD(
+	pci9054, 3, 1, do_pci9054,
 	"pci9054 - PLX PCI9054 EEPROM access\n",
 	"pci9054 info - print EEPROM values\n"
 	"pci9054 update - updates EEPROM with default values\n"

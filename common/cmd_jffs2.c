@@ -186,29 +186,29 @@ do_jffs2_chpart(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 /***************************************************/
 
-cmd_tbl_t U_BOOT_CMD(JFFS2_FSLOAD) = MK_CMD_ENTRY(
-	"fsload",	3,	0,	do_jffs2_fsload,
+U_BOOT_CMD(
+	fsload,	3,	0,	do_jffs2_fsload,
 	"fsload  - load binary file from a filesystem image\n",
 	"[ off ] [ filename ]\n"
 	"    - load binary file from flash bank\n"
 	"      with offset 'off'\n"
 );
 
-cmd_tbl_t U_BOOT_CMD(JFFS2_FSINFO) = MK_CMD_ENTRY(
-	"fsinfo",	1,	1,	do_jffs2_fsinfo,
+U_BOOT_CMD(
+	fsinfo,	1,	1,	do_jffs2_fsinfo,
 	"fsinfo  - print information about filesystems\n",
 	"    - print information about filesystems\n"
 );
 
-cmd_tbl_t U_BOOT_CMD(JFFS2_LS) = MK_CMD_ENTRY(
-	"ls",	2,	1,	do_jffs2_ls,
+U_BOOT_CMD(
+	ls,	2,	1,	do_jffs2_ls,
 	"ls      - list files in a directory (default /)\n",
 	"[ directory ]\n"
 	"    - list files in a directory.\n"
 );
 
-cmd_tbl_t U_BOOT_CMD(JFFS2_CHPART) = MK_CMD_ENTRY(
-	"chpart",	2,	0,	do_jffs2_chpart,
+U_BOOT_CMD(
+	chpart,	2,	0,	do_jffs2_chpart,
 	"chpart  - change active partition\n",
 	"    - change active partition\n"
 );

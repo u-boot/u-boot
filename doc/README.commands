@@ -1,103 +1,31 @@
-#
-# The commands in this table are sorted alphabetically by the
-# command name and in descending order by the command name string
-# length. This is to prevent conflicts in command name parsing.
-# Please ensure that new commands are added according to that rule.
-# See $(TOPDIR)/common/command.c
-#
-########################
-#
-# command	length
-#
-########################
-askenv		8
-as		2
-autoscr		5
-base		2
-bdinfo		2
-bmp		3
-bootelf		7
-bootm		5
-bootp		5
-bootvx		6
-bootd		4
-break		2
-brginfo		3
-carinfo		3
-chpart		6
-cmp		3
-coninfo		5
-continue	4
-cp		2
-crc32		3
-date		3
-dcache		2
-dhcp		4
-dmainfo		3
-ds		2
-dtt		3
-echo		4
-eeprom		3
-erase		3
-fccinfo		3
-fdcboot		4
-flinfo		3
-fpga		4
-fsinfo		5
-fsload		5
-getdcr		6		# IBM 4XX DCR registers
-go		2
-help		1
-i2cinfo		4
-i2c		3
-icache		2
-icinfo		3
-ide		3
-iminfo		3
-iopinfo		3
-irqinfo		3
-kgdb		4
-loadb		5
-loads		5
-loop		4
-ls		2
-mccinfo		3
-md		2
-memcinfo	4
-mii		3
-mm		2
-mtest		5
-muxinfo		3
-mw		2
-nand		3
-nboot		4
-next		4
-nm		2
-pciinfo		3
-pinit		4
-printenv	8
-protect		4
-rarpboot	4
-rdump		5
-reginfo		3
-reset		5
-run		3
-saveenv		4
-sccinfo		3
-scsiboot	5
-scsi		4
-siiinfo		3
-sitinfo		3
-siuinfo		3
-setdcr		6		# IBM 4XX DCR registers
-setenv		6
-smcinfo		3
-spiinfo		3
-sspi		4
-stack		5
-step		4
-tftpboot	4
-usbboot		5
-usb		4
-version		4
-?		1
+
+Commands are added to U-Boot by creating a new command structure.
+This is done by first including command.h
+
+Then using the U_BOOT_CMD() macro to fill in a cmd_tbl_t struct.
+
+U_BOOT_CMD(name,maxargs,repeatable,command,"usage","help")
+
+name:	 is the name of the commad. THIS IS NOT a string.
+maxargs: the maximumn numbers of arguments this function takes
+command: Function pointer (*cmd)(struct cmd_tbl_s *, int, int, char *[]);
+usage:	 Short description. This is a string
+help:	 long description. This is a string
+
+
+**** Behinde the scene ******
+
+The structure created is named with a special prefix (__u_boot_cmd_)
+and placed by the linker in a special section.
+
+This makes it possible for the final link to extract all commands
+compiled into any object code and construct a static array so the
+command can be found in an array starting at __u_boot_cmd_start.
+
+If a new board is defined do not forget to define the command section
+by writing in u-boot.lds ($(TOPDIR)/board/boardname/u-boot.lds) these
+3 lines:
+
+	__u_boot_cmd_start = .;
+	.u_boot_cmd : { *(.u_boot_cmd) }
+	__u_boot_cmd_end = .;

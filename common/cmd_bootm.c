@@ -381,8 +381,8 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 1;
 }
 
-cmd_tbl_t U_BOOT_CMD(BOOTM) =  MK_CMD_ENTRY(
- 	"bootm",	CFG_MAXARGS,	1,	do_bootm,
+U_BOOT_CMD(
+ 	bootm,	CFG_MAXARGS,	1,	do_bootm,
  	"bootm   - boot application image from memory\n",
  	"[addr [arg ...]]\n    - boot application image stored in memory\n"
  	"        passing arguments 'arg ...'; when booting a Linux kernel,\n"
@@ -872,15 +872,15 @@ int do_bootd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return rcode;
 }
 
-cmd_tbl_t U_BOOT_CMD(BOOT) = MK_CMD_ENTRY(
- 	"boot",	1,	1,	do_bootd,
+U_BOOT_CMD(
+ 	boot,	1,	1,	do_bootd,
  	"boot    - boot default, i.e., run 'bootcmd'\n",
 	NULL
 );
 
 /* keep old command name "bootd" for backward compatibility */
-cmd_tbl_t U_BOOT_CMD(BOOTD) = MK_CMD_ENTRY(
- 	"bootd", 1,	1,	do_bootd,
+U_BOOT_CMD(
+ 	bootd, 1,	1,	do_bootd,
  	"bootd   - boot default, i.e., run 'bootcmd'\n",
 	NULL
 );
@@ -945,8 +945,9 @@ static int image_info (ulong addr)
 	printf ("OK\n");
 	return 0;
 }
-cmd_tbl_t U_BOOT_CMD(IMINFO) = MK_CMD_ENTRY(
-	"iminfo",	CFG_MAXARGS,	1,	do_iminfo,
+
+U_BOOT_CMD(
+	iminfo,	CFG_MAXARGS,	1,	do_iminfo,
 	"iminfo  - print header information for application image\n",
 	"addr [addr ...]\n"
 	"    - print header information for application image starting at\n"

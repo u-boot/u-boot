@@ -108,8 +108,8 @@ int do_bedbug_dis (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
   dis_last_len = len;
   return 0;
 } /* do_bedbug_dis */
-cmd_tbl_t U_BOOT_CMD(DIS) = MK_CMD_ENTRY(
-	"ds",      3,      1,      do_bedbug_dis,
+U_BOOT_CMD(
+	ds,      3,      1,      do_bedbug_dis,
 	"ds      - disassemble memory\n",
 	"ds <address> [# instructions]\n"
 );
@@ -165,8 +165,8 @@ int do_bedbug_asm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
   }
   return rcode;
 } /* do_bedbug_asm */
-cmd_tbl_t U_BOOT_CMD(ASM) = MK_CMD_ENTRY(
-	"as",      2,      0,      do_bedbug_asm,
+U_BOOT_CMD(
+	as,      2,      0,      do_bedbug_asm,
 	"as      - assemble memory\n",
 	"as <address>\n"
 );
@@ -184,8 +184,8 @@ int do_bedbug_break (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
     return 0;
 
 } /* do_bedbug_break */
-cmd_tbl_t U_BOOT_CMD(BREAK) = MK_CMD_ENTRY(
-	"break",      3,      0,      do_bedbug_break,
+U_BOOT_CMD(
+	break,      3,      0,      do_bedbug_break,
 	"break   - set or clear a breakpoint\n",
 	" - Set or clear a breakpoint\n"
 	"break <address> - Break at an address\n"
@@ -288,8 +288,8 @@ int do_bedbug_continue (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
   bug_ctx.stopped = 0;
   return 0;
 } /* do_bedbug_continue */
-cmd_tbl_t U_BOOT_CMD(CONTINUE) = MK_CMD_ENTRY(
-	"continue",      1,      0,      do_bedbug_continue,
+U_BOOT_CMD(
+	continue,      1,      0,      do_bedbug_continue,
 	"continue- continue from a breakpoint\n",
 	" - continue from a breakpoint.\n"
 );
@@ -320,8 +320,8 @@ int do_bedbug_step (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
   bug_ctx.stopped = 0;
   return 0;
 } /* do_bedbug_step */
-cmd_tbl_t U_BOOT_CMD(STEP) = MK_CMD_ENTRY(
-	"step",      1,      1,      do_bedbug_step,
+U_BOOT_CMD(
+	step,      1,      1,      do_bedbug_step,
 	"step    - single step execution.\n",
 	" - single step execution.\n"
 );
@@ -352,8 +352,8 @@ int do_bedbug_next (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
   bug_ctx.stopped = 0;
   return 0;
 } /* do_bedbug_next */
-cmd_tbl_t U_BOOT_CMD(NEXT) = MK_CMD_ENTRY(
-	"next",      1,      1,      do_bedbug_next,
+U_BOOT_CMD(
+	next,      1,      1,      do_bedbug_next,
 	"next    - single step execution, stepping over subroutines.\n",
 	" - single step execution, stepping over subroutines.\n"
 );
@@ -401,8 +401,8 @@ int do_bedbug_stack (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
   }
   return 0;
 } /* do_bedbug_stack */
-cmd_tbl_t U_BOOT_CMD(STACK) = MK_CMD_ENTRY(
-	"where",     1,      1,      do_bedbug_stack,
+U_BOOT_CMD(
+	where,     1,      1,      do_bedbug_stack,
 	"where   - Print the running stack.\n",
 	" - Print the running stack.\n"
 );
@@ -424,8 +424,8 @@ int do_bedbug_rdump (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
   show_regs( bug_ctx.regs );
   return 0;
 } /* do_bedbug_rdump */
-cmd_tbl_t U_BOOT_CMD(RDUMP) = MK_CMD_ENTRY(
-	"rdump",     1,      1,      do_bedbug_rdump,
+U_BOOT_CMD(
+	rdump,     1,      1,      do_bedbug_rdump,
 	"rdump   - Show registers.\n",
 	" - Show registers.\n"
 );

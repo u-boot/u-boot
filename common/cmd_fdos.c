@@ -142,14 +142,14 @@ int do_fdosls(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
     return (dos_dir ());
 }
 
-cmd_tbl_t U_BOOT_CMD(FDOS_BOOT) = MK_CMD_ENTRY(
-	"fdosboot",	3,	0,	do_fdosboot,
+U_BOOT_CMD(
+	fdosboot,	3,	0,	do_fdosboot,
 	"fdosboot- boot from a dos floppy file\n",
 	"[loadAddr] [filename]\n"
 );
 
-cmd_tbl_t U_BOOT_CMD(FDOS_LS) = MK_CMD_ENTRY(
-	"fdosls",	2,	0,	do_fdosls,
+U_BOOT_CMD(
+	fdosls,	2,	0,	do_fdosls,
 	"fdosls  - list files in a directory\n",
 	"[directory]\n"
 );

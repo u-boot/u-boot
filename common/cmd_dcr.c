@@ -106,13 +106,13 @@ int do_setdcr ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 /***************************************************/
 
-cmd_tbl_t U_BOOT_CMD(GETDCR) = MK_CMD_ENTRY(
-	"getdcr",	2,	1,	do_getdcr,
+U_BOOT_CMD(
+	getdcr,	2,	1,	do_getdcr,
 	"getdcr  - Get an IBM PPC 4xx DCR's value\n",
 	"dcrn - return a DCR's value.\n"
 );
-cmd_tbl_t U_BOOT_CMD(SETDCR) = MK_CMD_ENTRY(
-	"setdcr",	2,	1,	do_setdcr,
+U_BOOT_CMD(
+	setdcr,	2,	1,	do_setdcr,
 	"setdcr  - Set an IBM PPC 4xx DCR's value\n",
 	"dcrn - set a DCR's value.\n"
 );

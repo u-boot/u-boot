@@ -219,8 +219,8 @@ mfdcr(dmacr3), mfdcr(dmact3),mfdcr(dmada3), mfdcr(dmasa3), mfdcr(dmasb3) );
 #if (defined(CONFIG_8xx) || defined(CONFIG_405GP)) && \
      (CONFIG_COMMANDS & CFG_CMD_REGINFO)
 
-cmd_tbl_t U_BOOT_CMD(REGINFO) =	MK_CMD_ENTRY(
- 	"reginfo",	2,	1,	do_reginfo,
+U_BOOT_CMD(
+ 	reginfo,	2,	1,	do_reginfo,
 	"reginfo - print register information\n",
 );
 #endif

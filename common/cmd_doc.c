@@ -170,8 +170,8 @@ int do_doc (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return rcode;
     }
 }
-cmd_tbl_t U_BOOT_CMD(DOC) = MK_CMD_ENTRY(
-	"doc",	5,	1,	do_doc,
+U_BOOT_CMD(
+	doc,	5,	1,	do_doc,
 	"doc     - Disk-On-Chip sub-system\n",
 	"info  - show available DOC devices\n"
 	"doc device [dev] - show or set current device\n"
@@ -284,8 +284,8 @@ int do_docboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return rcode;
 }
 
-cmd_tbl_t U_BOOT_CMD(DOCBOOT) = MK_CMD_ENTRY(
-	"docboot",	4,	1,	do_docboot,
+U_BOOT_CMD(
+	docboot,	4,	1,	do_docboot,
 	"docboot - boot from DOC device\n",
 	"loadAddr dev\n"
 );

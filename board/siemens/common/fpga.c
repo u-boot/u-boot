@@ -291,8 +291,8 @@ int do_fpga (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
     return 1;
 }
 
-cmd_tbl_t U_BOOT_CMD(fpga) = MK_CMD_ENTRY(
-	"fpga",	4,	1,	do_fpga,
+U_BOOT_CMD(
+	fpga,	4,	1,	do_fpga,
 	"fpga    - access FPGA(s)\n",
 	"fpga status [name] - print FPGA status\n"
 	"fpga reset  [name] - reset FPGA\n"

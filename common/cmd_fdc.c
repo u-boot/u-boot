@@ -888,8 +888,8 @@ int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 #if (CONFIG_COMMANDS & CFG_CMD_FDC)
 
-cmd_tbl_t U_BOOT_CMD(FDC) = MK_CMD_ENTRY(
-	"fdcboot",	3,	1,	do_fdcboot,
+U_BOOT_CMD(
+	fdcboot,	3,	1,	do_fdcboot,
 	"fdcboot - boot from floppy device\n",
 	"loadAddr drive\n"
 );

@@ -131,8 +131,8 @@ int do_spi (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 /***************************************************/
 
-cmd_tbl_t U_BOOT_CMD(SPI) = MK_CMD_ENTRY(
-	"sspi",	5,	1,	do_spi,
+U_BOOT_CMD(
+	sspi,	5,	1,	do_spi,
 	"sspi     - SPI utility commands\n",
 	"<device> <bit_len> <dout> - Send <bit_len> bits from <dout> out the SPI\n"
 	"<device>  - Identifies the chip select of the device\n"

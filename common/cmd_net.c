@@ -40,8 +40,8 @@ int do_bootp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return netboot_common (BOOTP, cmdtp, argc, argv);
 }
 
-cmd_tbl_t U_BOOT_CMD(BOOTP) = MK_CMD_ENTRY(
-	"bootp",	3,	1,	do_bootp,
+U_BOOT_CMD(
+	bootp,	3,	1,	do_bootp,
 	"bootp   - boot image via network using BootP/TFTP protocol\n",
 	"[loadAddress] [bootfilename]\n"
 );
@@ -51,8 +51,8 @@ int do_tftpb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return netboot_common (TFTP, cmdtp, argc, argv);
 }
 
-cmd_tbl_t U_BOOT_CMD(TFTPB) = MK_CMD_ENTRY(
-	"tftpboot",	3,	1,	do_tftpb,
+U_BOOT_CMD(
+	tftpboot,	3,	1,	do_tftpb,
 	"tftpboot- boot image via network using TFTP protocol\n",
 	"[loadAddress] [bootfilename]\n"
 );
@@ -62,8 +62,8 @@ int do_rarpb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return netboot_common (RARP, cmdtp, argc, argv);
 }
 
-cmd_tbl_t U_BOOT_CMD(RARPB) = MK_CMD_ENTRY(
-	"rarpboot",	3,	1,	do_rarpb,
+U_BOOT_CMD(
+	rarpboot,	3,	1,	do_rarpb,
 	"rarpboot- boot image via network using RARP/TFTP protocol\n",
 	"[loadAddress] [bootfilename]\n"
 );
@@ -74,8 +74,8 @@ int do_dhcp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return netboot_common(DHCP, cmdtp, argc, argv);
 }
 
-cmd_tbl_t U_BOOT_CMD(DHCP) = MK_CMD_ENTRY(
-	"dhcp",	3,	1,	do_dhcp,
+U_BOOT_CMD(
+	dhcp,	3,	1,	do_dhcp,
 	"dhcp    - invoke DHCP client to obtain IP/boot params\n",
 	"\n"
 );

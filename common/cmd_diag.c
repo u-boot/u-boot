@@ -66,8 +66,8 @@ int do_diag (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 }
 /***************************************************/
 
-cmd_tbl_t U_BOOT_CMD(DIAG) = MK_CMD_ENTRY(
-	"diag",	CFG_MAXARGS,	0,	do_diag,
+U_BOOT_CMD(
+	diag,	CFG_MAXARGS,	0,	do_diag,
 	"diag    - perform board diagnostics\n",
 	     "    - print list of available tests\n"
 	"diag [test1 [test2]]\n"

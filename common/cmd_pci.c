@@ -548,8 +548,8 @@ int do_pci (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 /***************************************************/
 
 
-cmd_tbl_t U_BOOT_CMD(PCI) = MK_CMD_ENTRY(
-	"pci",	5,	1,	do_pci,
+U_BOOT_CMD(
+	pci,	5,	1,	do_pci,
 	"pci     - list and access PCI Configuraton Space\n",
 	"[bus] [long]\n"
 	"    - short or long list of PCI devices on bus 'bus'\n"

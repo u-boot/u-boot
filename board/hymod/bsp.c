@@ -275,8 +275,8 @@ do_fpga (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	printf ("Usage:\n%s\n", cmdtp->usage);
 	return 1;
 }
-cmd_tbl_t U_BOOT_CMD(fpga) = MK_CMD_ENTRY(
-	"fpga",	6,	1,	do_fpga,
+U_BOOT_CMD(
+	fpga,	6,	1,	do_fpga,
 	"fpga    - FPGA sub-system\n",
 	"load [type] addr size\n"
 	"  - write the configuration data at memory address `addr',\n"
@@ -334,8 +334,8 @@ do_eecl (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 	return 0;
 }
-cmd_tbl_t U_BOOT_CMD(eec) = MK_CMD_ENTRY(
-	"eeclear",	1,	0,	do_eecl,
+U_BOOT_CMD(
+	eeclear,	1,	0,	do_eecl,
 	"eeclear - Clear the eeprom on a Hymod board \n",
 	"[type]\n"
 	"  - write zeroes into the EEPROM on the board of type `type'\n"

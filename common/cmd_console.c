@@ -62,8 +62,8 @@ int do_coninfo (cmd_tbl_t * cmd, int flag, int argc, char *argv[])
 
 /***************************************************/
 
-cmd_tbl_t U_BOOT_CMD(CONINFO) = MK_CMD_ENTRY(
-	"coninfo",	3,	1,	do_coninfo,
+U_BOOT_CMD(
+	coninfo,	3,	1,	do_coninfo,
 	"coninfo - print console devices and informations\n",
 	""
 );

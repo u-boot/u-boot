@@ -432,8 +432,8 @@ int do_puma (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	printf ("Usage:\n%s\n", cmdtp->usage);
 	return 1;
 }
-cmd_tbl_t U_BOOT_CMD(puma) = MK_CMD_ENTRY(
-	"puma",	4,	1,	do_puma,
+U_BOOT_CMD(
+	puma,	4,	1,	do_puma,
 	"puma    - access PUMA FPGA\n",
 	"status - print PUMA status\n"
 	"puma load addr len - load PUMA configuration data\n"

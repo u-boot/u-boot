@@ -2,6 +2,9 @@
 Changes for U-Boot 0.4.2:
 ======================================================================
 
+* Patch by Kenneth Johansson, 30 Jun 2003:
+  get rid of MK_CMD_ENTRY macro; update doc/README.command
+
 * Patch by Seb James, 30 Jun 2003:
   Improve documentation of I2C configuration in README
 

@@ -2487,8 +2487,8 @@ static int identify  (volatile uchar *p)
 /**************************************************/
 
 #if (CONFIG_COMMANDS & CFG_CMD_PCMCIA)
-cmd_tbl_t U_BOOT_CMD(PINIT) = MK_CMD_ENTRY(
-	"pinit",	2,	1,	do_pinit,
+U_BOOT_CMD(
+	pinit,	2,	1,	do_pinit,
 	"pinit   - PCMCIA sub-system\n",
 	"on  - power on PCMCIA socket\n"
 	"pinit off - power off PCMCIA socket\n"

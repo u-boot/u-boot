@@ -247,8 +247,8 @@ int do_nand (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
     }
 }
 
-cmd_tbl_t U_BOOT_CMD(NAND) = MK_CMD_ENTRY(
-	"nand",	5,	1,	do_nand,
+U_BOOT_CMD(
+	nand,	5,	1,	do_nand,
 	"nand    - NAND sub-system\n",
 	"info  - show available NAND devices\n"
 	"nand device [dev] - show or set current device\n"
@@ -363,8 +363,8 @@ int do_nandboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return rcode;
 }
 
-cmd_tbl_t U_BOOT_CMD(NBOOT) = MK_CMD_ENTRY(
-	"nboot",	4,	1,	do_nandboot,
+U_BOOT_CMD(
+	nboot,	4,	1,	do_nandboot,
 	"nboot   - boot from NAND device\n",
 	"loadAddr dev\n"
 );

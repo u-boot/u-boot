@@ -172,8 +172,8 @@ static void print_str(const char *name, const char *str)
 
 /* -------------------------------------------------------------------- */
 
-cmd_tbl_t U_BOOT_CMD(BDINFO) =  MK_CMD_ENTRY(
-	"bdinfo",	1,	1,	do_bdinfo,
+U_BOOT_CMD(
+	bdinfo,	1,	1,	do_bdinfo,
 	"bdinfo  - print Board Info structure\n",
 	NULL
 );

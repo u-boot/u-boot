@@ -129,8 +129,8 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 /***************************************************/
 
-cmd_tbl_t U_BOOT_CMD(MII) = MK_CMD_ENTRY(
-	"mii",	5,	1,	do_mii,
+U_BOOT_CMD(
+	mii,	5,	1,	do_mii,
 	"mii     - MII utility commands\n",
 	"info  <addr>              - display MII PHY info\n"
 	"mii read  <addr> <reg>        - read  MII PHY <addr> register <reg>\n"

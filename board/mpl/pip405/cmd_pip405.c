@@ -58,8 +58,8 @@ int do_pip405(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	return (do_mplcommon(cmdtp, flag, argc, argv));
 }
-cmd_tbl_t U_BOOT_CMD(pip405) = MK_CMD_ENTRY(
-	"pip405",	6,	1,	do_pip405,
+U_BOOT_CMD(
+	pip405,	6,	1,	do_pip405,
 	"pip405  - PIP405 specific Cmds\n",
 	"flash mem [SrcAddr] - updates U-Boot with image in memory\n"
 	"pip405 flash floppy [SrcAddr] - updates U-Boot with image from floppy\n"

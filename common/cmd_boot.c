@@ -59,8 +59,8 @@ int do_go (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 /* -------------------------------------------------------------------- */
 
-cmd_tbl_t U_BOOT_CMD(GO) = MK_CMD_ENTRY(
-	"go", CFG_MAXARGS, 1,	do_go,
+U_BOOT_CMD(
+	go, CFG_MAXARGS, 1,	do_go,
 	"go      - start application at address 'addr'\n",
 	"addr [arg ...]\n    - start application at address 'addr'\n"
 	"      passing 'arg' as arguments\n"
@@ -68,8 +68,8 @@ cmd_tbl_t U_BOOT_CMD(GO) = MK_CMD_ENTRY(
 
 extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
-cmd_tbl_t U_BOOT_CMD(RESET) = MK_CMD_ENTRY(
-	"reset", 1, 0,	do_reset,
+U_BOOT_CMD(
+	reset, 1, 0,	do_reset,
 	"reset   - Perform RESET of the CPU\n",
 	NULL
 );

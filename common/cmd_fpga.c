@@ -154,8 +154,8 @@ static int fpga_get_op( char *opstr )
 	return op;
 }
 
-cmd_tbl_t U_BOOT_CMD(FPGA) = MK_CMD_ENTRY(
-	"fpga",    6,     1,     do_fpga,
+U_BOOT_CMD(
+	fpga,    6,     1,     do_fpga,
 	"fpga   - loadable FPGA image support\n",
 	"fpga [operation type] [device number] [image address] [image size]\n"
 	"fpga operations:\n"

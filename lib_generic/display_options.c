@@ -54,6 +54,11 @@ void print_size (ulong size, const char *s)
 
 	m = (10 * (size - (n * d)) + (d / 2) ) / d;
 
+	if (m >= 10) {
+		m -= 10;
+		n += 1;
+	}
+
 	printf ("%2ld", n);
 	if (m) {
 		printf (".%ld", m);

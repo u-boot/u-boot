@@ -62,8 +62,8 @@ int do_fat_fsload (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return size;
 }
 
-cmd_tbl_t U_BOOT_CMD(FATLOAD) = MK_CMD_ENTRY(
-	"fatload",	4,	0,	do_fat_fsload,
+U_BOOT_CMD(
+	fatload,	4,	0,	do_fat_fsload,
 	"fatload - load binary file from a dos filesystem\n",
 	"[ off ] [ filename ]\n"
 	"    - load binary file from dos filesystem\n"
@@ -83,8 +83,8 @@ int do_fat_ls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return (ret);
 }
 
-cmd_tbl_t U_BOOT_CMD(FATLS) = MK_CMD_ENTRY(
-	"fatls",	2,	1,	do_fat_ls,
+U_BOOT_CMD(
+	fatls,	2,	1,	do_fat_ls,
 	"fatls   - list files in a directory (default /)\n",
 	"[ directory ]\n"
 	"    - list files in a directory\n"
@@ -101,8 +101,8 @@ int do_fat_fsinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return (ret);
 }
 
-cmd_tbl_t U_BOOT_CMD(FATINFO) = MK_CMD_ENTRY(
-	"fatinfo",	1,	1,	do_fat_fsinfo,
+U_BOOT_CMD(
+	fatinfo,	1,	1,	do_fat_fsinfo,
 	"fatinfo - print information about filesystem\n",
 	"\n"
 	"    - print information about filesystem\n"

@@ -40,7 +40,6 @@ struct cmd_tbl_s {
 	char		*name;		/* Command Name			*/
 	int		maxargs;	/* maximum number of arguments	*/
 	int		repeatable;	/* autorepeat allowed?		*/
-
 					/* Implementation function	*/
 	int		(*cmd)(struct cmd_tbl_s *, int, int, char *[]);
 	char		*usage;		/* Usage message	(short)	*/
@@ -83,17 +82,16 @@ typedef	void 	command_t (cmd_tbl_t *, int, int, char *[]);
 
 
 #define Struct_Section  __attribute__ ((unused,section (".u_boot_cmd")))
-#define U_BOOT_CMD(x)  __u_boot_cmd_##x Struct_Section
 
 #ifdef  CFG_LONGHELP
 
-#define MK_CMD_ENTRY(name,maxargs,rep,cmd,usage,help)	\
-			{ name, maxargs, rep, cmd, usage, help }
+#define U_BOOT_CMD(name,maxargs,rep,cmd,usage,help) \
+cmd_tbl_t __u_boot_cmd_##name Struct_Section = {#name, maxargs, rep, cmd, usage, help}
 
 #else	/* no long help info */
 
-#define MK_CMD_ENTRY(name,maxargs,rep,cmd,usage,help)	\
-			{ name, maxargs, rep, cmd, usage }
+#define U_BOOT_CMD(name,maxargs,rep,cmd,usage,help) \
+cmd_tbl_t __u_boot_cmd_##name Struct_Section = {#name, maxargs, rep, cmd, usage}
 
 #endif	/* CFG_LONGHELP */
 

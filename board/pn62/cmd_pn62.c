@@ -51,8 +51,8 @@ int do_led (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
     set_led (number, function);
     return 0;
 }
-cmd_tbl_t U_BOOT_CMD(led) = MK_CMD_ENTRY(
-	"led"    ,	3,	1,	do_led,
+U_BOOT_CMD(
+	led    ,	3,	1,	do_led,
 	"led     - set LED 0..11 on the PN62 board\n",
 	"i fun\n"
 	"    - set 'i'th LED to function 'fun'\n"
@@ -165,8 +165,8 @@ int do_loadpci (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
     return rcode;
 }
 
-cmd_tbl_t U_BOOT_CMD(loadpci) = MK_CMD_ENTRY(
-	"loadpci",	2,	1,	do_loadpci,
+U_BOOT_CMD(
+	loadpci,	2,	1,	do_loadpci,
 	"loadpci - load binary file over PCI\n",
 	"[addr]\n"
 	"    - load binary file over PCI to address 'addr'\n"

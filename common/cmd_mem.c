@@ -963,66 +963,66 @@ int do_mem_crc (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 /**************************************************/
 #if (CONFIG_COMMANDS & CFG_CMD_MEMORY)
-cmd_tbl_t U_BOOT_CMD(MD) = MK_CMD_ENTRY(
-	"md",     3,     1,      do_mem_md,
+U_BOOT_CMD(
+	md,     3,     1,      do_mem_md,
 	"md      - memory display\n",
 	"[.b, .w, .l] address [# of objects]\n    - memory display\n"
 );
 
 
-cmd_tbl_t U_BOOT_CMD(MM) = MK_CMD_ENTRY(
-	"mm",     2,      1,       do_mem_mm,
+U_BOOT_CMD(
+	mm,     2,      1,       do_mem_mm,
 	"mm      - memory modify (auto-incrementing)\n",
 	"[.b, .w, .l] address\n" "    - memory modify, auto increment address\n"
 );
 
 
-cmd_tbl_t U_BOOT_CMD(NM) = MK_CMD_ENTRY(
-	"nm",     2,	    1,     	do_mem_nm,
+U_BOOT_CMD(
+	nm,     2,	    1,     	do_mem_nm,
 	"nm      - memory modify (constant address)\n",
 	"[.b, .w, .l] address\n    - memory modify, read and keep address\n"
 );
 
-cmd_tbl_t U_BOOT_CMD(MW) = MK_CMD_ENTRY(
-	"mw",    4,    1,     do_mem_mw,
+U_BOOT_CMD(
+	mw,    4,    1,     do_mem_mw,
 	"mw      - memory write (fill)\n",
 	"[.b, .w, .l] address value [count]\n    - write memory\n"
 );
 
-cmd_tbl_t U_BOOT_CMD(CP) = MK_CMD_ENTRY(
-	"cp",    4,    1,    do_mem_cp,
+U_BOOT_CMD(
+	cp,    4,    1,    do_mem_cp,
 	"cp      - memory copy\n",
 	"[.b, .w, .l] source target count\n    - copy memory\n"
 );
 
-cmd_tbl_t U_BOOT_CMD(CMP) = MK_CMD_ENTRY(
-	"cmp",    4,     1,     do_mem_cmp,
+U_BOOT_CMD(
+	cmp,    4,     1,     do_mem_cmp,
 	"cmp     - memory compare\n",
 	"[.b, .w, .l] addr1 addr2 count\n    - compare memory\n"
 );
 
-cmd_tbl_t U_BOOT_CMD(CRC32) = MK_CMD_ENTRY(
-	"crc32",    4,    1,     do_mem_crc,
+U_BOOT_CMD(
+	crc32,    4,    1,     do_mem_crc,
 	"crc32   - checksum calculation\n",
 	"address count [addr]\n    - compute CRC32 checksum [save at addr]\n"
 );
 
-cmd_tbl_t U_BOOT_CMD(BASE) = MK_CMD_ENTRY(
-	"base",    2,    1,     do_mem_base,
+U_BOOT_CMD(
+	base,    2,    1,     do_mem_base,
 	"base    - print or set address offset\n",
 	"\n    - print address offset for memory commands\n"
 	"base off\n    - set address offset for memory commands to 'off'\n"
 );
 
-cmd_tbl_t U_BOOT_CMD(LOOP) = MK_CMD_ENTRY(
-	"loop",    3,    1,    do_mem_loop,
+U_BOOT_CMD(
+	loop,    3,    1,    do_mem_loop,
 	"loop    - infinite loop on address range\n",
 	"[.b, .w, .l] address number_of_objects\n"
 	"    - loop on a set of addresses\n"
 );
 
-cmd_tbl_t U_BOOT_CMD(MTEST) = MK_CMD_ENTRY(
-	"mtest",    4,    1,     do_mem_mtest,
+U_BOOT_CMD(
+	mtest,    4,    1,     do_mem_mtest,
 	"mtest   - simple RAM test\n",
 	"[start [end [pattern]]]\n"
 	"    - simple RAM read/write test\n"

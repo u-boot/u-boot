@@ -36,8 +36,8 @@ do_version (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
-cmd_tbl_t U_BOOT_CMD(VERS) = MK_CMD_ENTRY(
-	"version",	1,		1,	do_version,
+U_BOOT_CMD(
+	version,	1,		1,	do_version,
  	"version - print monitor version\n",
 	NULL
 );
@@ -67,8 +67,8 @@ do_echo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
-cmd_tbl_t U_BOOT_CMD(ECHO) = MK_CMD_ENTRY(
-	"echo",	CFG_MAXARGS,	1,	do_echo,
+U_BOOT_CMD(
+	echo,	CFG_MAXARGS,	1,	do_echo,
  	"echo    - echo args to console\n",
  	"[args..]\n"
 	"    - echo args to console; \\c suppresses newline\n"
@@ -158,8 +158,8 @@ int do_help (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 }
 
 
-cmd_tbl_t U_BOOT_CMD(HELP) = MK_CMD_ENTRY(
-	"help",	CFG_MAXARGS,	1,	do_help,
+U_BOOT_CMD(
+	help,	CFG_MAXARGS,	1,	do_help,
  	"help    - print online help\n",
  	"[command ...]\n"
  	"    - show help information (for 'command')\n"
@@ -169,11 +169,19 @@ cmd_tbl_t U_BOOT_CMD(HELP) = MK_CMD_ENTRY(
   "'help' with one or more command names as arguments.\n"
 );
 
-cmd_tbl_t U_BOOT_CMD(QUES) = MK_CMD_ENTRY(
+/* This do not ust the U_BOOT_CMD macro as ? can't be used in symbol names */
+#ifdef  CFG_LONGHELP
+cmd_tbl_t __u_boot_cmd_question_mark Struct_Section = {
 	"?",	CFG_MAXARGS,	1,	do_help,
  	"?       - alias for 'help'\n",
 	NULL
-);
+};
+#else
+cmd_tbl_t __u_boot_cmd_question_mark Struct_Section = {
+	"?",	CFG_MAXARGS,	1,	do_help,
+ 	"?       - alias for 'help'\n"
+};
+#endif /* CFG_LONGHELP */
 
 /***************************************************************************
  * find command table entry for a command

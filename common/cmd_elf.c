@@ -321,14 +321,14 @@ unsigned long load_elf_image (unsigned long addr)
 }
 
 /* ====================================================================== */
-cmd_tbl_t U_BOOT_CMD(BOOTELF) = MK_CMD_ENTRY(
-	"bootelf",      2,      0,      do_bootelf,
+U_BOOT_CMD(
+	bootelf,      2,      0,      do_bootelf,
 	"bootelf - Boot from an ELF image in memory\n",
 	" [address] - load address of ELF image.\n"
 );
 
-cmd_tbl_t U_BOOT_CMD(BOOTVX) = MK_CMD_ENTRY(
-	"bootvx",      2,      0,      do_bootvx,
+U_BOOT_CMD(
+	bootvx,      2,      0,      do_bootvx,
 	"bootvx  - Boot vxWorks from an ELF image\n",
 	" [address] - load address of vxWorks ELF image.\n"
 );

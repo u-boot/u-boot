@@ -1810,8 +1810,8 @@ ulong atapi_read (int device, ulong blknr, ulong blkcnt, ulong *buffer)
 
 #endif /* CONFIG_ATAPI */
 
-cmd_tbl_t U_BOOT_CMD(IDE) = MK_CMD_ENTRY(
-	"ide",  5,  1,  do_ide,
+U_BOOT_CMD(
+	ide,  5,  1,  do_ide,
 	"ide     - IDE sub-system\n",
 	"reset - reset IDE controller\n"
 	"ide info  - show available IDE devices\n"
@@ -1823,8 +1823,8 @@ cmd_tbl_t U_BOOT_CMD(IDE) = MK_CMD_ENTRY(
 	"    to/from memory address `addr'\n"
 );
 
-cmd_tbl_t U_BOOT_CMD(DISK) = MK_CMD_ENTRY(
-	"diskboot",	3,	1,	do_diskboot,
+U_BOOT_CMD(
+	diskboot,	3,	1,	do_diskboot,
 	"diskboot- boot from IDE device\n",
 	"loadAddr dev:part\n"
 );

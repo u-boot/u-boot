@@ -198,20 +198,20 @@ do_zuma_init_mbox (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
-cmd_tbl_t U_BOOT_CMD(zuma_init_pbb) = MK_CMD_ENTRY(
-	"zinit",	 1,	 0,	 do_zuma_init_pbb,
+U_BOOT_CMD(
+	zinit,	 1,	 0,	 do_zuma_init_pbb,
 	"zinit   - init zuma pbb\n",
 	"\n"
 	"    - init zuma pbb\n"
 );
-cmd_tbl_t U_BOOT_CMD(zuma_test_dma) = MK_CMD_ENTRY(
-	"zdtest",	  3,	  1,	  do_zuma_test_dma,
+U_BOOT_CMD(
+	zdtest,	  3,	  1,	  do_zuma_test_dma,
 	"zdtest  - run dma test\n",
 	"[cmd [count]]\n"
 	"    - run dma cmd (w=0,v=1,cp=2,cmp=3,wi=4,vi=5), count bytes\n"
 );
-cmd_tbl_t U_BOOT_CMD(zuma_init_mbox) = MK_CMD_ENTRY(
-	"zminit",	  1,	  0,	  do_zuma_init_mbox,
+U_BOOT_CMD(
+	zminit,	  1,	  0,	  do_zuma_init_mbox,
 	"zminit  - init zuma mbox\n",
 	"\n"
 	"    - init zuma mbox\n"

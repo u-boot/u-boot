@@ -594,8 +594,8 @@ int do_usb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #if (CONFIG_COMMANDS & CFG_CMD_USB)
 
 #ifdef CONFIG_USB_STORAGE
-cmd_tbl_t U_BOOT_CMD(USB) = MK_CMD_ENTRY(
-	"usb",	5,	1,	do_usb,
+U_BOOT_CMD(
+	usb,	5,	1,	do_usb,
 	"usb     - USB sub-system\n",
 	"reset - reset (rescan) USB controller\n"
 	"usb  stop [f]  - stop USB [f]=force stop\n"
@@ -609,15 +609,15 @@ cmd_tbl_t U_BOOT_CMD(USB) = MK_CMD_ENTRY(
 );
 
 
-cmd_tbl_t U_BOOT_CMD(USBBOOT) = MK_CMD_ENTRY(
-	"usbboot",	3,	1,	do_usbboot,
+U_BOOT_CMD(
+	usbboot,	3,	1,	do_usbboot,
 	"usbboot - boot from USB device\n",
 	"loadAddr dev:part\n"
 );
 
 #else
-cmd_tbl_t U_BOOT_CMD(USB) = MK_CMD_ENTRY(
-	"usb",	5,	1,	do_usb,
+U_BOOT_CMD(
+	usb,	5,	1,	do_usb,
 	"usb     - USB sub-system\n",
 	"reset - reset (rescan) USB controller\n"
 	"usb  tree  - show USB device tree\n"

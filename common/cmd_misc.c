@@ -56,15 +56,15 @@ int do_sleep (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #if (CONFIG_COMMANDS & CFG_CMD_IRQ)
 int do_irqinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
-cmd_tbl_t U_BOOT_CMD(IRQINFO) = MK_CMD_ENTRY(
-	"irqinfo",    1,    1,     do_irqinfo,
+U_BOOT_CMD(
+	irqinfo,    1,    1,     do_irqinfo,
 	"irqinfo - print information about IRQs\n",
 	NULL
 );
 #endif  /* CONFIG_COMMANDS & CFG_CMD_IRQ */
 
-cmd_tbl_t U_BOOT_CMD(MISC) = MK_CMD_ENTRY(
-	"sleep" ,    2,    2,     do_sleep,
+U_BOOT_CMD(
+	sleep ,    2,    2,     do_sleep,
 	"sleep   - delay execution for some time\n",
 	"N\n"
 	"    - delay execution for N seconds (N is _decimal_ !!!)\n"

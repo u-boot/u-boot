@@ -171,8 +171,8 @@ do_autoscript (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 #if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
-cmd_tbl_t U_BOOT_CMD(AUTOSCRIPT) = MK_CMD_ENTRY(
-	"autoscr", 2, 0,	do_autoscript,
+U_BOOT_CMD(
+	autoscr, 2, 0,	do_autoscript,
 	"autoscr - run script from memory\n",
 	"[addr] - run script starting at addr"
 	" - A valid autoscr header must be present\n"
