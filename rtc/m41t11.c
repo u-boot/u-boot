@@ -23,6 +23,8 @@
  * can you believe a trademark on that?
  */
 
+/* #define DEBUG 1 */
+
 #include <common.h>
 #include <command.h>
 #include <rtc.h>
@@ -42,8 +44,6 @@
 */
 
 #if defined(CONFIG_RTC_M41T11) && defined(CFG_I2C_RTC_ADDR) && (CONFIG_COMMANDS & CFG_CMD_DATE)
-
-#define DEBUG 1
 
 static unsigned bcd2bin (uchar n)
 {

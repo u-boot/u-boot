@@ -175,11 +175,11 @@
 #if defined (CONFIG_TQM5200_AA)
 # define CONFIG_U_BOOT_SUFFIX	"-AA"
 #elif defined (CONFIG_TQM5200_AB)
-# define CONFIG_U_BOOT_SUFFIX	"-AB"
+# define CONFIG_U_BOOT_SUFFIX	"-AB\0"
 #elif defined (CONFIG_TQM5200_AC)
-# define CONFIG_U_BOOT_SUFFIX	"-AC"
+# define CONFIG_U_BOOT_SUFFIX	"-AC\0"
 #else
-# define CONFIG_U_BOOT_SUFFIX	/* nothing */
+# define CONFIG_U_BOOT_SUFFIX	"\0"
 #endif
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
@@ -202,7 +202,7 @@
 	"update=protect off FC000000 FC05FFFF;"				\
 		"erase FC000000 FC05FFFF;"				\
 		"cp.b 200000 FC000000 $(filesize);"			\
-		"protect on FC000000 FC05FFFF\0"a			\
+		"protect on FC000000 FC05FFFF\0"			\
 	""
 
 #define CONFIG_BOOTCOMMAND	"run net_nfs"

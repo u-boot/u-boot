@@ -129,8 +129,9 @@
 
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 
-#define CONFIG_RTC_MC146818		/* DS1685 is MC146818 compatible*/
-#define CFG_RTC_REG_BASE_ADDR	 0xF0000500 /* RTC Base Address		*/
+#define CONFIG_RTC_M41T11	1	/* uses a M41T00 RTC		*/
+#define CFG_I2C_RTC_ADDR	0x68
+#define CFG_M41T11_BASE_YEAR	1900
 
 #define CONFIG_SDRAM_BANK0	1	/* init onboard SDRAM bank 0	*/
 
