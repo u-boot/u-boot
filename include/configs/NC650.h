@@ -335,6 +335,21 @@
 #define CFG_BR3_PRELIM	((SDRAM_BASE3_PRELIM & BR_BA_MSK) | BR_MS_UPMA | BR_V)
 
 /*
+ * BR5 and OR5 (SRAM)
+ */
+#define CFG_SRAM_BASE		0x60000000
+#define CFG_SRAM_SIZE		0x00080000
+
+#define CFG_OR_TIMING_SRAM	(OR_CSNT_SAM | OR_ACS_DIV1 | OR_BI | \
+				 OR_SCY_15_CLK | OR_EHTR | OR_TRLX)
+
+#define CFG_BR5_PRELIM  ((CFG_SRAM_BASE & BR_BA_MSK) | BR_PS_8 | BR_V )
+#define CFG_OR5_PRELIM  (((-CFG_SRAM_SIZE) & OR_AM_MSK) | CFG_OR_TIMING_SRAM)
+
+
+
+
+/*
  * 4096 Rows from SDRAM example configuration
  * 1000 factor s -> ms
  * 64   PTP (pre-divider from MPTPR) from SDRAM example configuration
