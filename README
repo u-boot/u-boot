@@ -239,6 +239,7 @@ Directory Hierarchy:
 - board/westel/	Files specific to boards manufactured by Westel Wireless
 - board/westel/amx860	Files specific to AMX860     boards
 - board/utx8245	Files specific to UTX8245   boards
+- board/zpc1900	Files specific to Zephyr Engineering ZPC.1900 board
 
 Software Configuration:
 =======================
@@ -355,7 +356,7 @@ The following options need to be configured:
 		CONFIG_IAD210,     CONFIG_RPXlite,    CONFIG_sbc8260,
 		CONFIG_EBONY,      CONFIG_sacsng,     CONFIG_FPS860L,
 		CONFIG_V37,        CONFIG_ELPT860,    CONFIG_CMI,
-		CONFIG_NETVIA,     CONFIG_RBC823
+		CONFIG_NETVIA,     CONFIG_RBC823,     CONFIG_ZPC1900
 
 		ARM based boards:
 		-----------------
@@ -393,7 +394,7 @@ The following options need to be configured:
 		Possible values are:
 			CFG_8260ADS	- original MPC8260ADS
 			CFG_8266ADS	- MPC8266ADS (untested)
-			CFG_PQ2FADS	- PQ2FADS-ZU
+			CFG_PQ2FADS	- PQ2FADS-ZU or PQ2FADS-VR
 
 
 - MPC824X Family Member (if CONFIG_MPC824X is defined)
@@ -1943,7 +1944,8 @@ configurations; the following names are supported:
     GEN860T_config	  EBONY_config		FPS860L_config
     ELPT860_config	  cmi_mpc5xx_config	NETVIA_config
     at91rm9200dk_config	  omap1510inn_config	MPC8260ADS_config
-    omap1610inn_config
+    omap1610inn_config	  ZPC1900_config
+
 Note: for some board special configuration names may exist; check  if
       additional  information is available from the board vendor; for
       instance, the TQM8xxL systems run normally at 50 MHz and use  a

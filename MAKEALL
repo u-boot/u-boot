@@ -82,7 +82,7 @@ LIST_8260="	\
 	gw8260		hymod		IPHASE4539	MPC8260ADS	\
 	MPC8266ADS	PM826		ppmc8260	RPXsuper	\
 	rsdproto	sacsng		sbc8260		SCM		\
-	TQM8260_AC	TQM8260_AD	TQM8260_AE			\
+	TQM8260_AC	TQM8260_AD	TQM8260_AE	ZPC1900		\
 "
 
 #########################################################################

@@ -120,6 +120,7 @@
 			CFG_CMD_PCI	| \
 			CFG_CMD_PCMCIA	| \
 			CFG_CMD_PING	| \
+			CFG_CMD_PORTIO	| \
 			CFG_CMD_REGINFO | \
 			CFG_CMD_SAVES	| \
 			CFG_CMD_SCSI	| \

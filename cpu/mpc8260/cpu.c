@@ -119,6 +119,9 @@ int checkcpu (void)
 	case 0x0062:
 		printf ("B.1 4K25A");
 		break;
+	case 0x0064:
+		printf ("C.0 5K25A");
+		break;
 	case 0x0A00:
 		printf ("0.0 0K49M");
 		break;

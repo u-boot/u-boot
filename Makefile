@@ -642,6 +642,9 @@ utx8245_config: unconfig
 ## MPC8260 Systems
 #########################################################################
 
+atc_config:	unconfig
+	@./mkconfig $(@:_config=) ppc mpc8260 atc
+
 cogent_mpc8260_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8260 cogent
 
@@ -765,8 +768,8 @@ TQM8265_AA_config:  unconfig
 	fi
 	@./mkconfig -a TQM8260 ppc mpc8260 tqm8260
 
-atc_config:	unconfig
-	@./mkconfig $(@:_config=) ppc mpc8260 atc
+ZPC1900_config: unconfig
+	@./mkconfig $(@:_config=) ppc mpc8260 zpc1900
 
 #########################################################################
 ## 74xx/7xx Systems

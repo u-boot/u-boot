@@ -2,6 +2,13 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Patch by Yuli Barcohen, 25 Sep 2003:
+  add support for Zephyr Engineering ZPC.1900 board
+
+* Patch by Anders Larsen, 23 Sep 2003:
+  add CMD_PORTIO to CFG_CMD_NONSTD (commands in question are only
+  implemented for the x86 architecture)
+
 * Patch by Sangmoon Kim, 23 Sep 2003:
   fix pll_pci_to_mem_multiplier table for MPC8245
 
