@@ -129,6 +129,8 @@ extern int flash_real_protect(flash_info_t *info, long sector, int prot);
 					/* 4 Mbit, 512K x 8,			*/
 					/* 8 64K x 8 uniform sectors		*/
 #define AMD_ID_F080B	0xD5		/* 29F080  ID  ( 1 M)			*/
+					/* 8 Mbit, 512K x 16,			*/
+					/* 8 64K x 16 uniform sectors		*/
 #define AMD_ID_F016D	0xAD		/* 29F016  ID  ( 2 M x 8)		*/
 #define AMD_ID_F032B	0x41		/* 29F032  ID  ( 4 M x 8)		*/
 #define AMD_ID_LV116DT	0xC7		/* 29LV116DT   ( 2 M x 8, top boot sect) */
@@ -219,13 +221,12 @@ extern int flash_real_protect(flash_info_t *info, long sector, int prot);
  * Be careful when adding new type! Odd numbers are "bottom boot sector" types!
  */
 
-#define FLASH_AM040	0x0001		/* AMD Am29F040B, Am29LV040B
-					 * Bright Micro BM29F040
-					 * Fujitsu MBM29F040A
-					 * STM M29W040B
-					 * SGS Thomson M29F040B
-					 * 8 64K x 8 uniform sectors
-					 */
+#define FLASH_AM040	0x0001		/* AMD Am29F040B, Am29LV040B            */
+					/* Bright Micro BM29F040                */
+					/* Fujitsu MBM29F040A                   */
+					/* STM M29W040B                         */
+					/* SGS Thomson M29F040B                 */
+					/* 8 64K x 8 uniform sectors            */
 #define FLASH_AM400T	0x0002		/* AMD AM29LV400			*/
 #define FLASH_AM400B	0x0003
 #define FLASH_AM800T	0x0004		/* AMD AM29LV800			*/
@@ -236,6 +237,9 @@ extern int flash_real_protect(flash_info_t *info, long sector, int prot);
 #define FLASH_AM160B	0x0007
 #define FLASH_AM320T	0x0008		/* AMD AM29LV320			*/
 #define FLASH_AM320B	0x0009
+
+#define FLASH_AM080	0x000A		/* AMD Am29F080B                        */
+					/* 16 64K x 8 uniform sectors           */
 
 #define FLASH_AMDL322T	0x0010		/* AMD AM29DL322			*/
 #define FLASH_AMDL322B	0x0011

@@ -191,7 +191,7 @@
 /* this is stuff came out of the Motorola docs */
 #define CFG_DEFAULT_IMMR	0x0F010000
 
-#define CFG_IMMR		0x04700000
+#define CFG_IMMR		0xF0000000
 #define CFG_BCSR		0x04500000
 #define CFG_SDRAM_BASE		0x00000000
 #define CFG_LSDRAM_BASE		0x04000000

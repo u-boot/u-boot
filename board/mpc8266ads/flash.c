@@ -55,7 +55,7 @@ static int clear_block_lock_bit(vu_long * addr);
 
 unsigned long flash_init (void)
 {
-#ifndef CONFIG_MPC8260ADS
+#ifndef CONFIG_MPC8266ADS
 	volatile immap_t	*immap  = (immap_t *)CFG_IMMR;
 	volatile memctl8xx_t	*memctl = &immap->im_memctl;
 	volatile ip860_bcsr_t	*bcsr   = (ip860_bcsr_t *)BCSR_BASE;
@@ -66,7 +66,7 @@ unsigned long flash_init (void)
 	/* Init: enable write,
 	 * or we cannot even write flash commands
 	 */
-#ifndef CONFIG_MPC8260ADS
+#ifndef CONFIG_MPC8266ADS
 	bcsr->bd_ctrl |= BD_CTRL_FLWE;
 #endif
 
@@ -86,7 +86,7 @@ unsigned long flash_init (void)
 			size, size<<20);
 	}
 
-#ifndef CONFIG_MPC8260ADS
+#ifndef CONFIG_MPC8266ADS
 	/* Remap FLASH according to real size */
 	memctl->memc_or1 = CFG_OR_TIMING_FLASH | (-size & 0xFFFF8000);
 	memctl->memc_br1 = (CFG_FLASH_BASE & BR_BA_MSK) |

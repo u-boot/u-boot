@@ -248,6 +248,7 @@
 
 #define	CONFIG_PCI
 #define	CONFIG_PCI_PNP
+#define	CFG_PCI_MSTR_IO_BUS	0x00000000	/* PCI base   */
 
 #if 1
 /* environment is in Flash */

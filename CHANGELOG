@@ -2,6 +2,19 @@
 Changes since U-Boot 0.3.1:
 ======================================================================
 
+* Patch by Dave Ellis, 22 May 2003:
+  Fix problem with only partially cleared .bss segment
+
+* Patch by Rune Torgersen, 12 May 2003:
+  get PCI to work on a MPC8266ADS board; incorporate change to
+  cpu/mpc8260/pci.c to enable overrides of PCI memory parameters
+
+* Patch by Nye Liu, 1 May 2003:
+  minor patches for the FADS8xx
+
+* Patch by Thomas Schäfer, 28 Apr 2003:
+  Fix SPD handling for 256 ECC DIMM on Walnut
+
 * Add support for arbitrary bitmaps for TRAB's  VFD command;
   allow to pass boot bitmap addresses in environment variables;
   allow for zero boot delay

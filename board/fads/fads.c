@@ -208,6 +208,7 @@ int checkboard (void)
 	case 0x22 :
 	case 0x23 :
 	case 0x24 :
+	case 0x2a :
 	case 0x3f :
 		puts ("FADS");
 		break;

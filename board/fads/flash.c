@@ -147,7 +147,7 @@ static void flash_get_offsets (ulong base, flash_info_t *info)
 	int i;
 
 	/* set up sector start address table */
-	if ((info->flash_id & FLASH_TYPEMASK) == FLASH_AM040) {
+	if ((info->flash_id & FLASH_TYPEMASK) == FLASH_AM040 || (info->flash_id & FLASH_TYPEMASK) == FLASH_AM080 ) {
 		/* set sector offsets for uniform sector type	*/
 		for (i = 0; i < info->sector_count; i++) {
 			info->start[i] = base + (i * 0x00040000);
@@ -179,6 +179,8 @@ void flash_print_info  (flash_info_t *info)
 	{
 		case FLASH_AM040:	printf ("29F040 or 29LV040 (4 Mbit, uniform sectors)\n");
 			break;
+		case FLASH_AM080:	printf ("29F080 or 29LV080 (8 Mbit, uniform sectors)\n");
+		                	break;
 		case FLASH_AM400B:	printf ("AM29LV400B (4 Mbit, bottom boot sect)\n");
 					break;
 		case FLASH_AM400T:	printf ("AM29LV400T (4 Mbit, top boot sector)\n");
@@ -277,6 +279,12 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 			info->sector_count = 8;
 			info->size = 0x00200000;
 			break;				/* => 2 MB		*/
+
+		case AMD_ID_F080B:
+			info->flash_id += FLASH_AM080;
+			info->sector_count =16;
+			info->size = 0x00400000;
+			break;				/* => 4 MB		*/
 
 		case AMD_ID_LV400T:
 			info->flash_id += FLASH_AM400T;

@@ -155,12 +155,22 @@
 
 #define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT|CONFIG_BOOTP_BOOTFILESIZE)
 
+#ifdef CONFIG_PCI
+#define CONFIG_COMMANDS		(CONFIG_CMD_DFL	| \
+				 CFG_CMD_BEDBUG	| \
+				 CFG_CMD_DATE	| \
+				 CFG_CMD_DOC	| \
+				 CFG_CMD_EEPROM | \
+				 CFG_CMD_I2C	| \
+				 CFG_CMD_PCI)
+#else	/* ! PCI */
 #define CONFIG_COMMANDS		(CONFIG_CMD_DFL	| \
 				 CFG_CMD_BEDBUG	| \
 				 CFG_CMD_DATE	| \
 				 CFG_CMD_DOC	| \
 				 CFG_CMD_EEPROM | \
 				 CFG_CMD_I2C	)
+#endif	/* CONFIG_PCI */
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>

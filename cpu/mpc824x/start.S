@@ -74,7 +74,7 @@
 	GOT_ENTRY(transfer_to_handler)
 
 	GOT_ENTRY(_end)
-	GOT_ENTRY(.bss)
+	GOT_ENTRY(__bss_start)
 #if defined(CONFIG_FADS)
 	GOT_ENTRY(environment)
 #endif
@@ -665,7 +665,7 @@ clear_bss:
 	/*
 	 * Now clear BSS segment
 	 */
-	lwz	r3,GOT(.bss)
+	lwz	r3,GOT(__bss_start)
 	lwz	r4,GOT(_end)
 
 	cmplw	0, r3, r4

@@ -843,6 +843,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
     defined(CONFIG_IVMS8)	|| \
     defined(CONFIG_LWMON)	|| \
     defined(CONFIG_MPC8260ADS)	|| \
+    defined(CONFIG_MPC8266ADS)	|| \
     defined(CONFIG_PCU_E)	|| \
     defined(CONFIG_RPXSUPER)	|| \
     defined(CONFIG_SPD823TS)	)

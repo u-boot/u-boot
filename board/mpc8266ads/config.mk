@@ -27,6 +27,6 @@
 # mpc8260ads board
 #
 
-TEXT_BASE = 0xfff00000
+TEXT_BASE = 0xfe000000
 
 PLATFORM_CPPFLAGS += -DTEXT_BASE=$(TEXT_BASE) -I$(TOPDIR)/board

@@ -32,6 +32,7 @@
 #include <ioports.h>
 #include <i2c.h>
 #include <mpc8260.h>
+#include <pci.h>
 
 /*
  * PBI Page Based Interleaving
@@ -155,8 +156,8 @@ const iop_conf_t iop_conf_tab[4][32] = {
 	/* PC13 */ {   0,   0,   0,   1,   0,   0   }, /* PC13 */
 	/* PC12 */ {   0,   1,   0,   1,   0,   0   }, /* PC12 */
 	/* PC11 */ {   0,   0,   0,   1,   0,   0   }, /* LXT971 transmit control */
-	/* PC10 */ {   1,   1,   0,   0,   0,   0   }, /* LXT970 FETHMDC */
-	/* PC9  */ {   1,   1,   0,   0,   0,   0   }, /* LXT970 FETHMDIO */
+	/* PC10 */ {   1,   0,   0,   1,   0,   0   }, /* LXT970 FETHMDC */
+	/* PC9  */ {   1,   0,   0,   0,   0,   0   }, /* LXT970 FETHMDIO */
 	/* PC8  */ {   0,   0,   0,   1,   0,   0   }, /* PC8 */
 	/* PC7  */ {   0,   0,   0,   1,   0,   0   }, /* PC7 */
 	/* PC6  */ {   0,   0,   0,   1,   0,   0   }, /* PC6 */
@@ -216,6 +217,11 @@ typedef struct bscr_ {
 	unsigned long bcsr7;
 } bcsr_t;
 
+typedef struct pci_ic_s {
+	unsigned long pci_int_stat;
+	unsigned long pci_int_mask;
+} pci_ic_t;
+
 void reset_phy(void)
 {
     volatile bcsr_t  *bcsr           = (bcsr_t *)CFG_BCSR;
@@ -229,8 +235,13 @@ void reset_phy(void)
 int board_pre_init (void)
 {
     volatile bcsr_t  *bcsr         = (bcsr_t *)CFG_BCSR;
-    bcsr->bcsr1                    = ~FETHIEN & ~RS232EN_1;
+    volatile pci_ic_t *pci_ic      = (pci_ic_t *) CFG_PCI_INT;
 
+    bcsr->bcsr1                    = ~FETHIEN & ~RS232EN_1 & ~RS232EN_2;
+
+    /* mask all PCI interrupts */
+    pci_ic->pci_int_mask |= 0xfff00000;
+    
     return 0;
 }
 
@@ -250,7 +261,7 @@ long int initdram(int board_type)
     uint  psdmr = CFG_PSDMR;
     int i;
 
-    uint   psrt = 14;					/* for no SPD */
+    uint   psrt = 0x21;					/* for no SPD */
     uint   chipselects = 1;				/* for no SPD */
     uint   sdram_size = CFG_SDRAM_SIZE * 1024 * 1024;	/* for no SPD */
     uint   or = CFG_OR2_PRELIM;				/* for no SPD */
@@ -270,7 +281,7 @@ long int initdram(int board_type)
     int    j;
 
     /* Keep the compiler from complaining about potentially uninitialized vars */
-    data_width = chipselects = rows = banks = cols = caslatency = psrt = 0;
+    data_width = rows = banks = cols = caslatency = 0;
 
     /*
      * Read the SDRAM SPD EEPROM via I2C.
@@ -294,17 +305,18 @@ long int initdram(int board_type)
 		{
 			/*
 				 * Refresh rate: this assumes the prescaler is set to
-			 * approximately 1uSec per tick.
+			 * approximately 0.39uSec per tick and the target refresh period 
+			 * is about 85% of maximum.
 			 */
 			switch(data & 0x7F) 
 			{
 					default:
-					case 0:  psrt =  16; /*  15.625uS */  break;
-					case 1:  psrt =   2;  /*   3.9uS   */  break;
-					case 2:  psrt =   6;  /*   7.8uS   */  break;
-					case 3:  psrt =  29;  /*  31.3uS   */  break;
-					case 4:  psrt =  60;  /*  62.5uS   */  break;
-					case 5:  psrt = 120;  /* 125uS     */  break;
+					case 0:  psrt = 0x21; /*  15.625uS */  break;
+					case 1:  psrt = 0x07; /*   3.9uS   */  break;
+					case 2:  psrt = 0x0F; /*   7.8uS   */  break;
+					case 3:  psrt = 0x43; /*  31.3uS   */  break;
+					case 4:  psrt = 0x87; /*  62.5uS   */  break;
+					case 5:  psrt = 0xFF; /* 125uS     */  break;
 			}
 		}
 		else if(j == 17) banks       = data;
@@ -563,3 +575,14 @@ long int initdram(int board_type)
     return (sdram_size * chipselects);
 	/*return (16 * 1024 * 1024);*/
 }
+
+#ifdef	CONFIG_PCI
+struct pci_controller hose;
+
+extern void pci_mpc8250_init(struct pci_controller *);
+
+void pci_init_board(void)
+{
+	pci_mpc8250_init(&hose);
+}
+#endif

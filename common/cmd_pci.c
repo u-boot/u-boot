@@ -113,7 +113,7 @@ void pciinfo(int BusNum, int ShortPCIListing)
     }
 }
 
-char* pci_classes_str(u8 class)
+static char *pci_classes_str(u8 class)
 {
 	switch (class) {
         case PCI_CLASS_NOT_DEFINED:
@@ -123,55 +123,55 @@ char* pci_classes_str(u8 class)
                 return "Mass storage controller";
                 break;
         case PCI_BASE_CLASS_NETWORK:
-                return "Network controller     ";
+                return "Network controller";
                 break;
         case PCI_BASE_CLASS_DISPLAY:
-                return "Display controller     ";
+                return "Display controller";
                 break;
         case PCI_BASE_CLASS_MULTIMEDIA:
-                return "Multimedia device      ";
+                return "Multimedia device";
                 break;
         case PCI_BASE_CLASS_MEMORY:
-                return "Memory controller      ";
+                return "Memory controller";
                 break;
         case PCI_BASE_CLASS_BRIDGE:
-                return "Bridge device          ";
+                return "Bridge device";
                 break;
         case PCI_BASE_CLASS_COMMUNICATION:
                 return "Simple comm. controller";
                 break;
         case PCI_BASE_CLASS_SYSTEM:
-                return "Base system peripheral ";
+                return "Base system peripheral";
                 break;
         case PCI_BASE_CLASS_INPUT:
-                return "Input device           ";
+                return "Input device";
                 break;
         case PCI_BASE_CLASS_DOCKING:
-                return "Docking station        ";
+                return "Docking station";
                 break;
         case PCI_BASE_CLASS_PROCESSOR:
-                return "Processor              ";
+                return "Processor";
                 break;
         case PCI_BASE_CLASS_SERIAL:
-                return "Serial bus controller  ";
+                return "Serial bus controller";
                 break;
         case PCI_BASE_CLASS_INTELLIGENT:
-                return "Intelligent controller ";
+                return "Intelligent controller";
                 break;
         case PCI_BASE_CLASS_SATELLITE:
-                return "Satellite controller   ";
+                return "Satellite controller";
                 break;
         case PCI_BASE_CLASS_CRYPT:
-                return "Cryptographic device   ";
+                return "Cryptographic device";
                 break;
         case PCI_BASE_CLASS_SIGNAL_PROCESSING:
-                return "DSP                    ";
+                return "DSP";
                 break;
         case PCI_CLASS_OTHERS:
-                return "Does not fit any class ";
+                return "Does not fit any class";
                 break;
         default:
-	return  "???                    ";
+	return  "???";
                 break;
 	};
 }
@@ -197,7 +197,7 @@ void pci_header_show_brief(pci_dev_t dev)
 	pci_read_config_byte(dev, PCI_CLASS_CODE, &class);
 	pci_read_config_byte(dev, PCI_CLASS_SUB_CODE, &subclass);
 
-	printf("0x%.4x     0x%.4x     %s 0x%.2x\n",
+	printf("0x%.4x     0x%.4x     %-23s 0x%.2x\n",
 	       vendor, device,
 	       pci_classes_str(class), subclass);
 }

@@ -39,7 +39,7 @@
  */
 
 #define CONFIG_MPC8260		1	/* This is an MPC8260 CPU   */
-#define CONFIG_MPC8260ADS	1	/* ...on motorola ads board */
+#define CONFIG_MPC8266ADS	1	/* ...on motorola ads board */
 
 #define CONFIG_BOARD_PRE_INIT	1	/* Call board_pre_init	*/
 
@@ -78,6 +78,23 @@
 #define CONFIG_ETHER_ON_FCC		/* define if ether on FCC   */
 #undef	CONFIG_ETHER_NONE		/* define if ether on something else */
 #define CONFIG_ETHER_INDEX	2	/* which channel for ether  */
+#define CONFIG_MII			/* MII PHY management		*/
+#define CONFIG_BITBANGMII		/* bit-bang MII PHY management	*/
+/*
+ * Port pins used for bit-banged MII communictions (if applicable).
+ */
+#define MDIO_PORT	2	/* Port C */
+#define MDIO_ACTIVE	(iop->pdir |=  0x00400000)
+#define MDIO_TRISTATE	(iop->pdir &= ~0x00400000)
+#define MDIO_READ	((iop->pdat &  0x00400000) != 0)
+
+#define MDIO(bit)	if(bit) iop->pdat |=  0x00400000; \
+			else	iop->pdat &= ~0x00400000
+
+#define MDC(bit)	if(bit) iop->pdat |=  0x00200000; \
+			else	iop->pdat &= ~0x00200000
+
+#define MIIDELAY	udelay(1)
 
 #if (CONFIG_ETHER_INDEX == 2)
 
@@ -90,7 +107,7 @@
 # define CFG_CMXFCR_MASK	(CMXFCR_FC2 | CMXFCR_RF2CS_MSK | CMXFCR_TF2CS_MSK)
 # define CFG_CMXFCR_VALUE	(CMXFCR_RF2CS_CLK13 | CMXFCR_TF2CS_CLK14)
 # define CFG_CPMFCR_RAMTYPE	0
-# define CFG_FCC_PSMR		0
+# define CFG_FCC_PSMR		(FCC_PSMR_FDE | FCC_PSMR_LPB)
 
 #endif	/* CONFIG_ETHER_INDEX */
 
@@ -100,6 +117,12 @@
 #define CFG_I2C_SLAVE		0x7F
 #define CFG_I2C_EEPROM_ADDR_LEN 1
 
+/* PCI */
+#define CONFIG_PCI
+#define CONFIG_PCI_PNP
+#define CONFIG_PCI_BOOTDELAY 0
+#undef CONFIG_PCI_SCAN_SHOW
+
 /*-----------------------------------------------------------------------
  * Definitions for Serial Presence Detect EEPROM address
  * (to get SDRAM settings)
@@ -107,7 +130,7 @@
 #define SPD_EEPROM_ADDRESS      0x50
 
 
-#define CONFIG_8260_CLKIN	66666666	/* in Hz */
+#define CONFIG_8260_CLKIN	66000000	/* in Hz */
 #define CONFIG_BAUDRATE		115200
 
 
@@ -116,6 +139,7 @@
 				 CFG_CMD_BMP	| \
 				 CFG_CMD_BSP	| \
 				 CFG_CMD_DATE	| \
+				 CFG_CMD_DHCP   | \
 				 CFG_CMD_DOC	| \
 				 CFG_CMD_DTT	| \
 				 CFG_CMD_EEPROM | \
@@ -127,21 +151,51 @@
 				 CFG_CMD_JFFS2	| \
 				 CFG_CMD_KGDB	| \
 				 CFG_CMD_NAND	| \
-				 CFG_CMD_MII	| \
-				 CFG_CMD_PCI	| \
 				 CFG_CMD_PCMCIA | \
 				 CFG_CMD_SCSI	| \
 				 CFG_CMD_SPI	| \
 				 CFG_CMD_VFD	| \
 				 CFG_CMD_USB	) )
 
+/* Define a command string that is automatically executed when no character
+ * is read on the console interface withing "Boot Delay" after reset.
+ */
+#define CONFIG_BOOT_ROOT_INITRD 0	/* Use ram disk for the root file system */
+#define CONFIG_BOOT_ROOT_NFS	1	/* Use a NFS mounted root file system */
+
+#if CONFIG_BOOT_ROOT_INITRD
+#define CONFIG_BOOTCOMMAND \
+	"version;" \
+	"echo;" \
+	"bootp;" \
+	"setenv bootargs root=/dev/ram0 rw " \
+	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;" \
+	"bootm"
+#endif /* CONFIG_BOOT_ROOT_INITRD */
+
+#if CONFIG_BOOT_ROOT_NFS
+#define CONFIG_BOOTCOMMAND \
+	"version;" \
+	"echo;" \
+	"bootp;" \
+	"setenv bootargs root=/dev/nfs rw nfsroot=$(serverip):$(rootpath) " \
+	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;" \
+	"bootm"
+#endif /* CONFIG_BOOT_ROOT_NFS */
+
+/* Add support for a few extra bootp options like:
+ *	- File size
+ *	- DNS
+ */
+#define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | \
+				 CONFIG_BOOTP_BOOTFILESIZE | \
+				 CONFIG_BOOTP_DNS)
+
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
 
 
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds */
-#define CONFIG_BOOTCOMMAND	"bootm 100000"	/* autoboot command */
-#define CONFIG_BOOTARGS		"root=/dev/ram rw"
 
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 #undef	CONFIG_KGDB_ON_SMC		/* define if kgdb on SMC */
@@ -170,7 +224,7 @@
 #define CFG_MEMTEST_START	0x00100000	/* memtest works on */
 #define CFG_MEMTEST_END		0x00f00000	/* 1 ... 15 MB in DRAM	*/
 
-#define CONFIG_CLOCKS_IN_MHZ	1	/* clocks passsed to Linux in MHz */
+#undef CONFIG_CLOCKS_IN_MHZ		/* clocks passsed to Linux in MHz */
 					/* for versions < 2.4.5-pre5	*/
 
 #define CFG_LOAD_ADDR		0x100000	/* default load address */
@@ -179,8 +233,8 @@
 
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 
-#define CFG_FLASH_BASE		0xff800000
-#define FLASH_BASE		0xff800000
+#define CFG_FLASH_BASE		0xFE000000
+#define FLASH_BASE		0xFE000000
 #define CFG_MAX_FLASH_BANKS	1	/* max num of memory banks	*/
 #define CFG_MAX_FLASH_SECT	32	/* max num of sects on one chip */
 #define CFG_FLASH_SIZE		8
@@ -193,14 +247,10 @@
 /* Only change this if you also change the Hardware configuration Word */
 #define CFG_DEFAULT_IMMR	0x0F010000
 
-/*
-#define CFG_IMMR		0x04700000
-#define CFG_BCSR		0x04500000
-*/
-
 /* Set IMMR to 0xF0000000 or above to boot Linux  */
 #define CFG_IMMR		0xF0000000
-#define CFG_BCSR		0x04500000
+#define CFG_BCSR		0xF8000000
+#define CFG_PCI_INT		0xF8200000	/* PCI interrupt controller */
 
 /* Define CONFIG_VERY_BIG_RAM to allow use of SDRAMs larger than 256MBytes
  */
@@ -263,7 +313,7 @@
 			 ORxS_ROWST_PBI0_A8		|\
 			 ORxS_NUMR_12)
 #elif (CFG_SDRAM_SIZE == 16)
-#define CFG_OR2_PRELIM	(0xFF000CA0)
+#define CFG_OR2_PRELIM	(0xFF000C80)
 #else
 #error "INVALID SDRAM CONFIGURATION"
 #endif
@@ -325,13 +375,13 @@
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
 
-/* 0x0EA28205 */
-/*#define CFG_HRCW_MASTER (   ( HRCW_BPS11 | HRCW_CIP )			    |\
-			    ( HRCW_L2CPC10 | HRCW_DPPC10 | HRCW_ISB010 )    |\
-			    ( HRCW_BMS | HRCW_APPC10 )			    |\
-			    ( HRCW_MODCK_H0101 )			     \
+/* 0x0EB2B645 */
+#define CFG_HRCW_MASTER (( HRCW_BPS11 | HRCW_CIP )				|\
+			 ( HRCW_L2CPC10 | HRCW_DPPC11 | HRCW_ISB010 )		|\
+			 ( HRCW_BMS | HRCW_MMR11 | HRCW_LBPC01 | HRCW_APPC10 )	|\
+			 ( HRCW_CS10PC01 | HRCW_MODCK_H0101 )			\
 			)
-*/
+
 
 /* This value should actually be situated in the first 256 bytes of the FLASH
 	which on the standard MPC8266ADS board is at address 0xFF800000
@@ -346,7 +396,7 @@
 	- Rune
 
 	*/
-#define CFG_HRCW_MASTER 0x0cb23645
+/* #define CFG_HRCW_MASTER 0x0cb23645 */
 
 /* no slaves */
 #define CFG_HRCW_SLAVE1 0
@@ -392,22 +442,98 @@
 #define CFG_HID2		0
 
 #define CFG_SYPCR		0xFFFFFFC3
-#define CFG_BCR			0x100C0000
-#define CFG_SIUMCR		0x0A200000
+#define CFG_BCR			0x004C0000
+#define CFG_SIUMCR		0x4E64C000
 #define CFG_SCCR		0x00000000
-#define CFG_BR0_PRELIM		0xFF801801
-#define CFG_OR0_PRELIM		0xFF800836
-#define CFG_BR1_PRELIM		0x04501801
-#define CFG_OR1_PRELIM		0xFFFF8010
 
-#define CFG_RMR			0
+/*	local bus memory map
+ *
+ *	0x00000000-0x03FFFFFF	 64MB	SDRAM
+ *	0x80000000-0x9FFFFFFF	512MB	outbound prefetchable PCI memory window
+ *	0xA0000000-0xBFFFFFFF	512MB	outbound non-prefetchable PCI memory window
+ *	0xF0000000-0xF001FFFF	128KB	MPC8266 internal memory
+ *	0xF4000000-0xF7FFFFFF	 64MB   outbound PCI I/O window
+ *	0xF8000000-0xF8007FFF	 32KB	BCSR
+ *	0xF8100000-0xF8107FFF	 32KB	ATM UNI
+ *	0xF8200000-0xF8207FFF	 32KB	PCI interrupt controller
+ *	0xF8300000-0xF8307FFF	 32KB	EEPROM
+ *	0xFE000000-0xFFFFFFFF	 32MB	flash
+ */
+#define CFG_BR0_PRELIM	0xFE001801		/* flash */
+#define CFG_OR0_PRELIM	0xFE000836
+#define CFG_BR1_PRELIM	(CFG_BCSR | 0x1801)	/* BCSR */
+#define CFG_OR1_PRELIM	0xFFFF8010
+#define CFG_BR4_PRELIM	0xF8300801		/* EEPROM */
+#define CFG_OR4_PRELIM	0xFFFF8846
+#define CFG_BR5_PRELIM	0xF8100801		/* PM5350 ATM UNI */
+#define CFG_OR5_PRELIM	0xFFFF8E36
+#define CFG_BR8_PRELIM	(CFG_PCI_INT | 0x1801)	/* PCI interrupt controller */
+#define CFG_OR8_PRELIM	0xFFFF8010
+
+#define CFG_RMR			0x0001
 #define CFG_TMCNTSC		(TMCNTSC_SEC|TMCNTSC_ALR|TMCNTSC_TCF|TMCNTSC_TCE)
 #define CFG_PISCR		(PISCR_PS|PISCR_PTF|PISCR_PTE)
 #define CFG_RCCR		0
-/*#define CFG_PSDMR		0x016EB452*/
 #define CFG_MPTPR		0x00001900
 #define CFG_PSRT		0x00000021
 
 #define CFG_RESET_ADDRESS	0x04400000
+
+/* PCI Memory map (if different from default map */
+#define CFG_PCI_SLV_MEM_LOCAL	CFG_SDRAM_BASE		/* Local base */
+#define CFG_PCI_SLV_MEM_BUS		0x00000000		/* PCI base */
+#define CFG_PICMR0_MASK_ATTRIB	(PICMR_MASK_512MB | PICMR_ENABLE | \
+                          	 PICMR_PREFETCH_EN)
+
+/* 
+ * These are the windows that allow the CPU to access PCI address space.
+ * All three PCI master windows, which allow the CPU to access PCI 
+ * prefetch, non prefetch, and IO space (see below), must all fit within 
+ * these windows.
+ */
+
+/* PCIBR0 */
+#define CFG_PCI_MSTR0_LOCAL		0x80000000		/* Local base */
+#define CFG_PCIMSK0_MASK		PCIMSK_1GB		/* Size of window */
+/* PCIBR1 */
+#define CFG_PCI_MSTR1_LOCAL		0xF4000000		/* Local base */
+#define CFG_PCIMSK1_MASK		PCIMSK_64MB		/* Size of window */
+
+/* 
+ * Master window that allows the CPU to access PCI Memory (prefetch).
+ * This window will be setup with the first set of Outbound ATU registers
+ * in the bridge.
+ */
+
+#define CFG_PCI_MSTR_MEM_LOCAL	0x80000000          /* Local base */
+#define CFG_PCI_MSTR_MEM_BUS	0x80000000          /* PCI base   */
+#define	CFG_CPU_PCI_MEM_START	PCI_MSTR_MEM_LOCAL
+#define CFG_PCI_MSTR_MEM_SIZE	0x20000000          /* 512MB */
+#define CFG_POCMR0_MASK_ATTRIB	(POCMR_MASK_512MB | POCMR_ENABLE | POCMR_PREFETCH_EN)
+
+/* 
+ * Master window that allows the CPU to access PCI Memory (non-prefetch).
+ * This window will be setup with the second set of Outbound ATU registers
+ * in the bridge.
+ */
+
+#define CFG_PCI_MSTR_MEMIO_LOCAL    0xA0000000          /* Local base */
+#define CFG_PCI_MSTR_MEMIO_BUS      0xA0000000          /* PCI base   */
+#define CPU_PCI_MEMIO_START     PCI_MSTR_MEMIO_LOCAL
+#define CFG_PCI_MSTR_MEMIO_SIZE     0x20000000          /* 512MB */
+#define CFG_POCMR1_MASK_ATTRIB      (POCMR_MASK_512MB | POCMR_ENABLE)
+
+/* 
+ * Master window that allows the CPU to access PCI IO space.
+ * This window will be setup with the third set of Outbound ATU registers
+ * in the bridge.
+ */
+
+#define CFG_PCI_MSTR_IO_LOCAL       0xF4000000          /* Local base */
+#define CFG_PCI_MSTR_IO_BUS         0x00000000          /* PCI base   */
+#define CFG_CPU_PCI_IO_START        PCI_MSTR_IO_LOCAL
+#define CFG_PCI_MSTR_IO_SIZE        0x04000000          /* 64MB */
+#define CFG_POCMR2_MASK_ATTRIB      (POCMR_MASK_64MB | POCMR_ENABLE | POCMR_PCI_IO)
+
 
 #endif /* __CONFIG_H */

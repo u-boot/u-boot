@@ -289,7 +289,7 @@ long int spd_sdram(int(read_spd)(uint addr))
 	/* now check for ECC ability of module. We only support ECC
 	 *   on 32 bit wide devices with 8 bit ECC.
 	 */
-	if ( (read_spd(11)==2) && ((read_spd(6)==40) || (read_spd(14)==8)) ){
+	if ( (read_spd(11)==2) && (read_spd(6)==40) && (read_spd(14)==8) ){
 	   sdram0_ecccfg=0xf<<SDRAM0_ECCCFG_SHIFT;
 	   ecc_on = 1;
    	}

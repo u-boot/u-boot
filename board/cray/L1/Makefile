@@ -25,21 +25,21 @@ include $(TOPDIR)/config.mk
 
 LIB	= lib$(BOARD).a
 
-OBJS	= $(BOARD).o flash.o bootscript.o
+OBJS	= $(BOARD).o flash.o
 SOBJS	= init.o 
 
-$(LIB):	$(OBJS) $(SOBJS)
+# HACK: depend needs bootscript.c, which needs tools/mkimage, which is not
+# built in the depend stage.  So... put bootscript.o here, not in OBJS
+$(LIB):	$(OBJS) $(SOBJS) bootscript.o
 	$(AR) crv $@ $^
 
 clean:
-	rm -f $(SOBJS) $(OBJS) bootscript.c bootscript.image
+	rm -f $(SOBJS) $(OBJS) bootscript.c bootscript.image bootscript.o
 
 distclean:	clean
 	rm -f $(LIB) core *.bak .depend
 
-$(BOARD).o: $(BOARD).c bootscript.o
-
-bootscript.o: bootscript.c
+$(BOARD).o : $(BOARD).c bootscript.o
 
 bootscript.c: bootscript.image
 	od -t x1 -v -A x $^ | awk -f x2c.awk > $@
