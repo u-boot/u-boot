@@ -207,7 +207,32 @@ extern block_dev_desc_t *get_dev (char*, int);
 extern int u_boot_hush_start(void);
 
 int
-au_check_valid(int idx, long nbytes)
+au_check_cksum_valid(int idx, long nbytes)
+{
+	image_header_t *hdr;
+	unsigned long checksum;
+
+	hdr = (image_header_t *)LOAD_ADDR;
+
+	if (nbytes != (sizeof(*hdr) + ntohl(hdr->ih_size)))
+	{
+		printf ("Image %s bad total SIZE\n", aufile[idx]);
+		return -1;
+	}
+	/* check the data CRC */
+	checksum = ntohl(hdr->ih_dcrc);
+
+	if (crc32 (0, (char *)(LOAD_ADDR + sizeof(*hdr)), ntohl(hdr->ih_size))
+		!= checksum)
+	{
+		printf ("Image %s bad data checksum\n", aufile[idx]);
+		return -1;
+	}
+	return 0;
+}
+
+int
+au_check_header_valid(int idx, long nbytes)
 {
 	image_header_t *hdr;
 	unsigned long checksum;
@@ -222,11 +247,14 @@ au_check_valid(int idx, long nbytes)
 	printf("size %#x %#lx ", ntohl(hdr->ih_size), nbytes);
 	printf("type %#x %#x ", hdr->ih_type, IH_TYPE_KERNEL);
 #endif
-	if (ntohl(hdr->ih_magic) != IH_MAGIC ||
-	    hdr->ih_arch != IH_CPU_ARM ||
-	    nbytes != (sizeof(*hdr) + ntohl(hdr->ih_size)))
+	if (nbytes < sizeof(*hdr))
 	{
-		printf ("Image %s bad MAGIC or ARCH or SIZE\n", aufile[idx]);
+		printf ("Image %s bad header SIZE\n", aufile[idx]);
+		return -1;
+	}
+	if (ntohl(hdr->ih_magic) != IH_MAGIC || hdr->ih_arch != IH_CPU_ARM)
+	{
+		printf ("Image %s bad MAGIC or ARCH\n", aufile[idx]);
 		return -1;
 	}
 	/* check the hdr CRC */
@@ -238,15 +266,6 @@ au_check_valid(int idx, long nbytes)
 		return -1;
 	}
 	hdr->ih_hcrc = htonl(checksum);
-	/* check the data CRC */
-	checksum = ntohl(hdr->ih_dcrc);
-
-	if (crc32 (0, (char *)(LOAD_ADDR + sizeof(*hdr)), ntohl(hdr->ih_size))
-		!= checksum)
-	{
-		printf ("Image %s bad data checksum\n", aufile[idx]);
-		return -1;
-	}
 	/* check the type - could do this all in one gigantic if() */
 	if ((idx == IDX_FIRMWARE) && (hdr->ih_type != IH_TYPE_FIRMWARE)) {
 		printf ("Image %s wrong type\n", aufile[idx]);
@@ -548,6 +567,18 @@ do_auto_update(void)
 	bitmap_first = 0;
 	/* just loop thru all the possible files */
 	for (i = 0; i < AU_MAXFILES; i++) {
+		/* just read the header */
+		sz = file_fat_read(aufile[i], LOAD_ADDR, sizeof(image_header_t));
+		debug ("read %s sz %ld hdr %d\n",
+			aufile[i], sz, sizeof(image_header_t));
+		if (sz <= 0 || sz < sizeof(image_header_t)) {
+			debug ("%s not found\n", aufile[i]);
+			continue;
+		}
+		if (au_check_header_valid(i, sz) < 0) {
+			debug ("%s header not valid\n", aufile[i]);
+			continue;
+		}
 		sz = file_fat_read(aufile[i], LOAD_ADDR, MAX_LOADSZ);
 		debug ("read %s sz %ld hdr %d\n",
 			aufile[i], sz, sizeof(image_header_t));
@@ -555,8 +586,8 @@ do_auto_update(void)
 			debug ("%s not found\n", aufile[i]);
 			continue;
 		}
-		if (au_check_valid(i, sz) < 0) {
-			debug ("%s not valid\n", aufile[i]);
+		if (au_check_cksum_valid(i, sz) < 0) {
+			debug ("%s checksum not valid\n", aufile[i]);
 			continue;
 		}
 #ifdef CONFIG_VFD

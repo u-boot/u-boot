@@ -2,6 +2,9 @@
 Changes since U-Boot 1.0.0:
 ======================================================================
 
+* Accelerate booting on TRAB board: read and check  autoupdate  image
+  headers first instead of always reading the whole images.
+
 * Fix type in MPC5XXX code (pointed out by Victor Wren)
 
 * Enabled password check on RMU board
