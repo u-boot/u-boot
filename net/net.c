@@ -323,7 +323,7 @@ restart:
 		 * IP addr assigned to us by the BOOTP / RARP server
 		 */
 		NetOurIP = 0;
-		NetServerIP = 0;
+		NetServerIP = getenv_IPaddr ("serverip");
 		break;
 	default:
 		break;
@@ -354,7 +354,7 @@ restart:
 		case DHCP:
 			/* Start with a clean slate... */
 			NetOurIP = 0;
-			NetServerIP = 0;
+			NetServerIP = getenv_IPaddr ("serverip");
 			DhcpRequest();		/* Basically same as BOOTP */
 			break;
 #endif /* CFG_CMD_DHCP */
@@ -832,7 +832,8 @@ NetReceive(volatile uchar * pkt, int len)
 			printf("invalid RARP header\n");
 		} else {
 			NetCopyIP(&NetOurIP,    &arp->ar_data[16]);
-			NetCopyIP(&NetServerIP, &arp->ar_data[ 6]);
+			if (NetServerIP == 0)
+				NetCopyIP(&NetServerIP, &arp->ar_data[ 6]);
 			memcpy (NetServerEther, &arp->ar_data[ 0], 6);
 
 			(*packetHandler)(0,0,0,0);

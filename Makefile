@@ -111,7 +111,8 @@ LIBS += common/libcommon.a
 .PHONY : $(LIBS)
 
 # Add GCC lib
-PLATFORM_LIBS += -L $(shell dirname `$(CC) $(CFLAGS) -print-libgcc-file-name`) -lgcc
+PLATFORM_LIBS += --no-warn-mismatch -L $(shell dirname `$(CC) $(CFLAGS) -print-libgcc-file-name`) -lgcc
+
 
 # The "tools" are needed early, so put this first
 # Don't include stuff already done in $(LIBS)
@@ -926,6 +927,15 @@ xtract_omap1610xxx = $(subst _cs0boot,,$(subst _cs3boot,, $(subst _config,,$1)))
 
 SX1_config :		unconfig
 	@./mkconfig $(@:_config=) arm arm925t sx1
+
+integratorcp_config :	unconfig
+	@./mkconfig $(@:_config=) arm arm926ejs integratorcp
+
+integratorap_config :	unconfig
+	@./mkconfig $(@:_config=) arm arm926ejs integratorap
+
+versatile_config :	unconfig
+	@./mkconfig $(@:_config=) arm arm926ejs versatile
 
 omap1510inn_config :	unconfig
 	@./mkconfig $(@:_config=) arm arm925t omap1510inn

@@ -1313,7 +1313,6 @@ static void smc_phy_configure ()
 #if SMC_DEBUG > 2
 static void print_packet( byte * buf, int length )
 {
-#if 0
 	int i;
 	int remainder;
 	int lines;
@@ -1344,7 +1343,6 @@ static void print_packet( byte * buf, int length )
 		printf("%02x%02x ", a, b );
 	}
 	printf("\n");
-#endif
 #endif
 }
 #endif
@@ -1423,28 +1421,26 @@ int smc_get_ethaddr (bd_t * bd)
 	}
 	memcpy (bd->bi_enetaddr, v_mac, 6);	/* update global address to match env (allows env changing) */
 	smc_set_mac_addr (v_mac);	/* use old function to update smc default */
+	PRINTK("Using MAC Address %02X:%02X:%02X:%02X:%02X:%02X\n", v_mac[0], v_mac[1],
+                v_mac[2], v_mac[3], v_mac[4], v_mac[5]);
 	return (0);
 }
 
 int get_rom_mac (char *v_rom_mac)
 {
-	int is_rom_present = 0;
-
 #ifdef HARDCODE_MAC	/* used for testing or to supress run time warnings */
 	char hw_mac_addr[] = { 0x02, 0x80, 0xad, 0x20, 0x31, 0xb8 };
 
 	memcpy (v_rom_mac, hw_mac_addr, 6);
 	return (1);
 #else
-	if (is_rom_present) {
-		/* if eeprom contents are valid
-		 *   extract mac address into hw_mac_addr, 8 or 16 bit accesses
-		 *   memcpy (v_rom_mac, hc_mac_addr, 6);
-		 *   return(1);
-		 */
+	int i;
+	SMC_SELECT_BANK (1);
+	for (i=0; i<6; i++)
+	{
+		v_rom_mac[i] = SMC_inb (ADDR0_REG + i);
 	}
-	memset (v_rom_mac, 0, 6);
-	return (0);
+	return (1);
 #endif
 }
 #endif /* CONFIG_DRIVER_SMC91111 */

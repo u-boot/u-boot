@@ -117,10 +117,15 @@ static int BootpCheckPkt(uchar *pkt, unsigned dest, unsigned src, unsigned len)
  */
 static void BootpCopyNetParams(Bootp_t *bp)
 {
+	IPaddr_t tmp_ip;
+
 	NetCopyIP(&NetOurIP, &bp->bp_yiaddr);
-	NetCopyIP(&NetServerIP, &bp->bp_siaddr);
+	NetCopyIP(&tmp_ip, &bp->bp_siaddr);
+	if (tmp_ip != 0)
+		NetCopyIP(&NetServerIP, &bp->bp_siaddr);
 	memcpy (NetServerEther, ((Ethernet_t *)NetRxPkt)->et_src, 6);
-	copy_filename (BootFile, bp->bp_file, sizeof(BootFile));
+	if (strlen(bp->bp_file) > 0)
+		copy_filename (BootFile, bp->bp_file, sizeof(BootFile));
 
 	debug ("Bootfile: %s\n", BootFile);
 

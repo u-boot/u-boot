@@ -2,6 +2,17 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
+* Patch by Philippe Robin, 09 Mar 2004:
+  Added ARM Integrator AP, CP and Versatile PB926EJ-S Reference
+  Platform support.
+
+* Patch by Masami Komiya, 08 Mar 2004:
+  Don't overwrite server IP address or boot file name
+  when the boot server does not return values
+
+* Patch by listmember@orkun.us, 5 Mar 2004:
+  Removed compile time restriction on CFG_I2C_SPEED for DS1338 RTC
+
 * Patch by Tolunay Orkun, 5 Mar 2004:
   Fix early board initialization for Cogent CSB272 board
 

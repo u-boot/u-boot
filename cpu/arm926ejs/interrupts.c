@@ -10,8 +10,11 @@
  * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
  * Alex Zuepke <azu@sysgo.de>
  *
- * (C) Copyright 2002
+ * (C) Copyright 2002-2004
  * Gary Jennejohn, DENX Software Engineering, <gj@denx.de>
+ *
+ * (C) Copyright 2004
+ * Philippe Robin, ARM Ltd. <philippe.robin@arm.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -41,7 +44,15 @@ extern void reset_cpu(ulong addr);
 #define TIMER_LOAD_VAL 0xffffffff
 
 /* macro to read the 32 bit timer */
+#ifdef CONFIG_OMAP
 #define READ_TIMER (*(volatile ulong *)(CFG_TIMERBASE+8))
+#endif
+#ifdef CONFIG_INTEGRATOR
+#define READ_TIMER (*(volatile ulong *)(CFG_TIMERBASE+4))
+#endif
+#ifdef CONFIG_VERSATILE
+#define READ_TIMER (*(volatile ulong *)(CFG_TIMERBASE+4))
+#endif
 
 #ifdef CONFIG_USE_IRQ
 /* enable IRQ interrupts */
@@ -182,12 +193,26 @@ static ulong lastdec;
 /* nothing really to do with interrupts, just starts up a counter. */
 int interrupt_init (void)
 {
+#ifdef CONFIG_OMAP
 	int32_t val;
 
 	/* Start the decrementer ticking down from 0xffffffff */
 	*((int32_t *) (CFG_TIMERBASE + LOAD_TIM)) = TIMER_LOAD_VAL;
 	val = MPUTIM_ST | MPUTIM_AR | MPUTIM_CLOCK_ENABLE | (CFG_PVT << MPUTIM_PTV_BIT);
 	*((int32_t *) (CFG_TIMERBASE + CNTL_TIMER)) = val;
+#endif	/* CONFIG_OMAP */
+#ifdef CONFIG_INTEGRATOR
+	/* Load timer with initial value */
+	*(volatile ulong *)(CFG_TIMERBASE + 0) = TIMER_LOAD_VAL;
+	/* Set timer to be enabled, free-running, no interrupts, 256 divider */
+	*(volatile ulong *)(CFG_TIMERBASE + 8) = 0x8C;
+#endif	/* CONFIG_INTEGRATOR */
+#ifdef CONFIG_VERSATILE
+	*(volatile ulong *)(CFG_TIMERBASE + 0) = CFG_TIMER_RELOAD;	/* TimerLoad */
+	*(volatile ulong *)(CFG_TIMERBASE + 4) = CFG_TIMER_RELOAD;	/* TimerValue */
+	*(volatile ulong *)(CFG_TIMERBASE + 8) = 0x8C;
+	/* *(volatile ulong *)(CFG_TIMERBASE + 8) = CFG_TIMER_CTRL | 0x40;  Periodic */
+#endif	/* CONFIG_VERSATILE */
 
 	/* init the timestamp and lastdec value */
 	reset_timer_masked();

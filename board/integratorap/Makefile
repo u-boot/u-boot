@@ -2,6 +2,10 @@
 # (C) Copyright 2000-2004
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
+# (C) Copyright 2004
+# ARM Ltd.
+# Philippe Robin, <philippe.robin@arm.com>
+#
 # See file CREDITS for list of people who contributed to this
 # project.
 #
@@ -12,7 +16,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
@@ -23,37 +27,25 @@
 
 include $(TOPDIR)/config.mk
 
-# CFLAGS += -DET_DEBUG -DDEBUG
+LIB	= lib$(BOARD).a
 
-LIB	= libdrivers.a
+OBJS	:= integratorap.o flash.o
+SOBJS	:= platform.o
 
-OBJS	= 3c589.o 5701rls.o ali512x.o \
-	  bcm570x.o bcm570x_autoneg.o cfb_console.o cfi_flash.o \
-	  cs8900.o ct69000.o dataflash.o dc2114x.o	    \
-	  e1000.o eepro100.o \
-	  i8042.o i82365.o inca-ip_sw.o \
-	  lan91c96.o natsemi.o netarm_eth.o \
-	  ns16550.o ns8382x.o ns87308.o \
-	  pci.o pci_auto.o pci_indirect.o \
-	  pcnet.o plb2800_eth.o \
-	  ps2ser.o ps2mult.o pc_keyb.o keyboard.o \
-	  rtl8019.o rtl8139.o \
-	  s3c24x0_i2c.o sed13806.o \
-	  serial.o serial_max3100.o serial_pl011.o serial_pl010.o \
-	  smc91111.o smiLynxEM.o status_led.o sym53c8xx.o \
-	  ti_pci1410a.o tigon3.o w83c553f.o omap1510_i2c.o \
-	  usbdcore.o usbdcore_ep0.o usbdcore_omap1510.o usbtty.o
+$(LIB):	$(OBJS) $(SOBJS)
+	$(AR) crv $@ $^
 
-all:	$(LIB)
+clean:
+	rm -f $(SOBJS) $(OBJS)
 
-$(LIB): $(OBJS)
-	$(AR) crv $@ $(OBJS)
+distclean:	clean
+	rm -f $(LIB) core *.bak .depend
 
 #########################################################################
 
-.depend:	Makefile $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(OBJS:.o=.c) > $@
+.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
+		$(CC) -M $(CPPFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
 
-sinclude .depend
+-include .depend
 
 #########################################################################

@@ -52,7 +52,7 @@
 # define CFG_I2C_RTC_ADDR	0x68
 #endif
 
-#if CFG_I2C_SPEED > 100000
+#if defined(CONFIG_RTC_DS1307) && (CFG_I2C_SPEED > 100000)
 # error The DS1307 is specified only up to 100kHz!
 #endif
 
