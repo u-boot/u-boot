@@ -432,9 +432,15 @@ long int spd_sdram(int(read_spd)(uint addr))
 
 	tmp = SDRAM0_BXCR_SZ(bank_code) | SDRAM0_BXCR_AM(mode) | 1;
 	sdram0_b0cr = (bank_size) * 0 | tmp;
+#ifndef CONFIG_405EP /* not on PPC405EP */
 	if(bank_cnt>1) sdram0_b2cr = (bank_size) * 1 | tmp;
 	if(bank_cnt>2) sdram0_b1cr = (bank_size) * 2 | tmp;
 	if(bank_cnt>3) sdram0_b3cr = (bank_size) * 3 | tmp;
+#else
+	/* PPC405EP chip only supports two SDRAM banks */
+	if(bank_cnt>1) sdram0_b1cr = (bank_size) * 1 | tmp;
+	if(bank_cnt>2) total_size -= (bank_size) * (bank_cnt - 2);
+#endif
 
 
 	/*
@@ -464,8 +470,10 @@ long int spd_sdram(int(read_spd)(uint addr))
 	mtsdram0( mem_pmit  , sdram0_pmit );
 	mtsdram0( mem_mb0cf , sdram0_b0cr );
 	mtsdram0( mem_mb1cf , sdram0_b1cr );
+#ifndef CONFIG_405EP /* not on PPC405EP */
 	mtsdram0( mem_mb2cf , sdram0_b2cr );
 	mtsdram0( mem_mb3cf , sdram0_b3cr );
+#endif
 	mtsdram0( mem_sdtr1 , sdram0_tr );
 
 	/* SDRAM have a power on delay,  500 micro should do */
