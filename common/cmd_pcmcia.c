@@ -160,7 +160,7 @@ int pcmcia_on (void)
 }
 #else
 
-#if defined(CONFIG_LWMON)
+#if defined(CONFIG_LWMON) || defined(CONFIG_NSCU)
 # define  CFG_PCMCIA_TIMING	(PCMCIA_SHT(9) | PCMCIA_SST(3) | PCMCIA_SL(12))
 #else
 # define  CFG_PCMCIA_TIMING	(PCMCIA_SHT(2) | PCMCIA_SST(4) | PCMCIA_SL(9))
@@ -594,8 +594,8 @@ static int hardware_enable(int slot)
 	sysp->sc_siumcr &= ~SIUMCR_DBGC11;	/* set DBGC to 00 */
 
 	/* clear interrupt state, and disable interrupts */
-	pcmp->pcmc_pscr =  PCMCIA_MASK(_slot_);
-	pcmp->pcmc_per &= ~PCMCIA_MASK(_slot_);
+	pcmp->pcmc_pscr =  PCMCIA_MASK(slot);
+	pcmp->pcmc_per &= ~PCMCIA_MASK(slot);
 
 	/*
 	 * Disable interrupts, DMA, and PCMCIA buffers
@@ -604,10 +604,13 @@ static int hardware_enable(int slot)
 	debug ("Disable PCMCIA buffers and assert RESET\n");
 	reg  = 0;
 	reg |= __MY_PCMCIA_GCRX_CXRESET;	/* active high */
+#ifndef NSCU_OE_INV
 	reg |= __MY_PCMCIA_GCRX_CXOE;		/* active low  */
-	PCMCIA_PGCRX(_slot_) = reg;
+#endif
+	PCMCIA_PGCRX(slot) = reg;
 	udelay(500);
 
+#ifndef CONFIG_NSCU
 	/*
 	 * Configure Port C pins for
 	 * 5 Volts Enable and 3 Volts enable
@@ -617,6 +620,7 @@ static int hardware_enable(int slot)
 	/* remove all power */
 
 	immap->im_ioport.iop_pcdat &= ~(0x0002 | 0x0004);
+#endif
 
 	/*
 	 * Make sure there is a card in the slot, then configure the interface.
@@ -639,6 +643,7 @@ static int hardware_enable(int slot)
 		reg,
 		(reg&PCMCIA_VS1(slot))?"n":"ff",
 		(reg&PCMCIA_VS2(slot))?"n":"ff");
+#ifndef CONFIG_NSCU
 	if ((reg & mask) == mask) {
 		immap->im_ioport.iop_pcdat |= 0x0004;
 		puts (" 5.0V card found: ");
@@ -647,6 +652,13 @@ static int hardware_enable(int slot)
 		puts (" 3.3V card found: ");
 	}
 	immap->im_ioport.iop_pcdir |= (0x0002 | 0x0004);
+#else
+	if ((reg & mask) == mask) {
+		puts (" 5.0V card found: ");
+	} else {
+		puts (" 3.3V card found: ");
+	}
+#endif
 #if 0
 	/*  VCC switch error flag, PCMCIA slot INPACK_ pin */
 	cp->cp_pbdir &= ~(0x0020 | 0x0010);
@@ -655,10 +667,14 @@ static int hardware_enable(int slot)
 #endif
 	udelay(1000);
 	debug ("Enable PCMCIA buffers and stop RESET\n");
-	reg  =  PCMCIA_PGCRX(_slot_);
+	reg  =  PCMCIA_PGCRX(slot);
 	reg &= ~__MY_PCMCIA_GCRX_CXRESET;	/* active high */
+#ifndef NSCU_OE_INV
 	reg &= ~__MY_PCMCIA_GCRX_CXOE;		/* active low  */
-	PCMCIA_PGCRX(_slot_) = reg;
+#else
+	reg |= __MY_PCMCIA_GCRX_CXOE;		/* active low  */
+#endif
+	PCMCIA_PGCRX(slot) = reg;
 
 	udelay(250000);	/* some cards need >150 ms to come up :-( */
 
@@ -680,14 +696,18 @@ static int hardware_disable(int slot)
 	immap = (immap_t *)CFG_IMMR;
 	pcmp = (pcmconf8xx_t *)(&(((immap_t *)CFG_IMMR)->im_pcmcia));
 
+#ifndef CONFIG_NSCU
 	/* remove all power */
 	immap->im_ioport.iop_pcdat &= ~(0x0002 | 0x0004);
+#endif
 
 	debug ("Disable PCMCIA buffers and assert RESET\n");
 	reg  = 0;
 	reg |= __MY_PCMCIA_GCRX_CXRESET;	/* active high */
+#ifndef NSCU_OE_INV
 	reg |= __MY_PCMCIA_GCRX_CXOE;		/* active low  */
-	PCMCIA_PGCRX(_slot_) = reg;
+#endif
+	PCMCIA_PGCRX(slot) = reg;
 
 	udelay(10000);
 
@@ -695,7 +715,12 @@ static int hardware_disable(int slot)
 }
 #endif	/* CFG_CMD_PCMCIA */
 
-
+#ifdef CONFIG_NSCU
+static int voltage_set(int slot, int vcc, int vpp)
+{
+	return 0;
+}
+#else
 static int voltage_set(int slot, int vcc, int vpp)
 {
 	volatile immap_t	*immap;
@@ -714,10 +739,14 @@ static int voltage_set(int slot, int vcc, int vpp)
 	 * and assert RESET signal
 	 */
 	debug ("Disable PCMCIA buffers and assert RESET\n");
-	reg  = PCMCIA_PGCRX(_slot_);
+	reg  = PCMCIA_PGCRX(slot);
 	reg |= __MY_PCMCIA_GCRX_CXRESET;	/* active high */
+#ifndef NSCU_OE_INV
 	reg |= __MY_PCMCIA_GCRX_CXOE;		/* active low  */
-	PCMCIA_PGCRX(_slot_) = reg;
+#else
+	reg &= ~__MY_PCMCIA_GCRX_CXOE;		/* active low  */
+#endif
+	PCMCIA_PGCRX(slot) = reg;
 	udelay(500);
 
 	/*
@@ -755,16 +784,21 @@ static int voltage_set(int slot, int vcc, int vpp)
 
 done:
 	debug ("Enable PCMCIA buffers and stop RESET\n");
-	reg  =  PCMCIA_PGCRX(_slot_);
+	reg  =  PCMCIA_PGCRX(slot);
 	reg &= ~__MY_PCMCIA_GCRX_CXRESET;	/* active high */
+#ifndef NSCU_OE_INV
 	reg &= ~__MY_PCMCIA_GCRX_CXOE;		/* active low  */
-	PCMCIA_PGCRX(_slot_) = reg;
+#else
+	reg |= __MY_PCMCIA_GCRX_CXOE;		/* active low  */
+#endif
+	PCMCIA_PGCRX(slot) = reg;
 	udelay(500);
 
 	debug ("voltage_set: " PCMCIA_BOARD_MSG " Slot %c, DONE\n",
 		slot+'A');
 	return (0);
 }
+#endif
 
 #endif	/* TQM8xxL */
 

@@ -2,6 +2,8 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Add CompactFlash support for NSCU
+
 * TRAB auto-update: Base decision if we have to strip the image
   header on image type as encoded in the header
 

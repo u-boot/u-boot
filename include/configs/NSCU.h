@@ -35,6 +35,7 @@
 
 #define CONFIG_MPC855		1	/* This is a MPC855 CPU		*/
 #define CONFIG_TQM855M		1	/* ...on a TQM8xxM module	*/
+#define CONFIG_NSCU		1
 
 #define	CONFIG_8xx_CONS_SCC1	1	/* Console is on SMC1		*/
 
@@ -285,6 +286,9 @@
  *-----------------------------------------------------------------------
  *
  */
+/* NSCU use both slots, SLOT_A as "primary". */
+#define	CONFIG_PCMCIA_SLOT_A 1
+
 #define CFG_PCMCIA_MEM_ADDR	(0xE0000000)
 #define CFG_PCMCIA_MEM_SIZE	( 64 << 20 )
 #define CFG_PCMCIA_DMA_ADDR	(0xE4000000)
@@ -293,6 +297,9 @@
 #define CFG_PCMCIA_ATTRB_SIZE	( 64 << 20 )
 #define CFG_PCMCIA_IO_ADDR	(0xEC000000)
 #define CFG_PCMCIA_IO_SIZE	( 64 << 20 )
+#define PCMCIA_MEM_WIN_NO 	8 /* override default 4 in pcmcia.h */
+#define	PCMCIA_SOCKETS_NO 	2 /* we have two sockets */
+#define NSCU_OE_INV		1 /* PCMCIA_GCRX_CXOE is inverted on early boards */
 
 /*-----------------------------------------------------------------------
  * IDE/ATA stuff (Supports IDE harddisk on PCMCIA Adapter)
@@ -305,10 +312,11 @@
 #undef	CONFIG_IDE_LED			/* LED   for ide not supported	*/
 #undef	CONFIG_IDE_RESET		/* reset for ide not supported	*/
 
-#define CFG_IDE_MAXBUS		1	/* max. 1 IDE bus		*/
-#define CFG_IDE_MAXDEVICE	1	/* max. 1 drive per IDE bus	*/
+#define CFG_IDE_MAXBUS		2	/* max. 2 IDE buses		*/
+#define CFG_IDE_MAXDEVICE	4	/* max. 2 drives per IDE bus	*/
 
 #define CFG_ATA_IDE0_OFFSET	0x0000
+#define CFG_ATA_IDE1_OFFSET	(4 * CFG_PCMCIA_MEM_SIZE) /* starts @ 4th window */
 
 #define CFG_ATA_BASE_ADDR	CFG_PCMCIA_MEM_ADDR
 
