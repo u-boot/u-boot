@@ -317,6 +317,17 @@ static int poll4int( byte mask, int timeout ) {
 	return 0;
 }
 
+/* Only one release command at a time, please */
+static inline void smc_wait_mmu_release_complete(void)
+{
+	int count = 0;
+	/* assume bank 2 selected */
+	while ( SMC_inw(MMU_CMD_REG) & MC_BUSY ) {
+		udelay(1); // Wait until not busy
+		if( ++count > 200) break;
+	}
+}
+
 /*
  . Function: smc_reset( void )
  . Purpose:
@@ -374,6 +385,7 @@ static void smc_reset( void )
 
 	/* Reset the MMU */
 	SMC_SELECT_BANK( 2 );
+	smc_wait_mmu_release_complete();
 	SMC_outw( MC_RESET, MMU_CMD_REG );
 	while ( SMC_inw( MMU_CMD_REG ) & MC_BUSY )
 		udelay(1); /* Wait until not busy */
@@ -673,6 +685,8 @@ static int smc_open()
 	/* conservative setting (10Mbps, HalfDuplex, no AutoNeg.) */
 /*	SMC_SELECT_BANK(0); */
 /*	SMC_outw(0, RPC_REG); */
+
+	SMC_SELECT_BANK(1);
 
 #ifdef USE_32_BIT
 	for ( i = 0; i < 6; i += 2 ) {

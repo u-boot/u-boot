@@ -2,6 +2,9 @@
 Changes since U-Boot 0.3.1:
 ======================================================================
 
+* Patch by Robert Schwebel, April 02, 2003:
+  fix for SMSC91111 driver
+
 * Patch by Vladimir Gurevich, 04 Jun 2003:
   make ppc405 ethernet driver compatible with CONFIG_NET_MULTI option
 

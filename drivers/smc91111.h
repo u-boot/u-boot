@@ -80,7 +80,7 @@ typedef unsigned long int 		dword;
 #define	SMC_inw(r) 	(*((volatile word *)(SMC_BASE_ADDRESS+(r))))
 #define SMC_inb(p)	({ \
 	unsigned int __p = (unsigned int)(SMC_BASE_ADDRESS + (p)); \
-	unsigned int __v = *(volatile unsigned short *)((SMC_BASE_ADDRESS + __p) & ~1); \
+	unsigned int __v = *(volatile unsigned short *)((__p) & ~1); \
 	if (__p & 1) __v >>= 8; \
 	else __v &= 0xff; \
 	__v; })
