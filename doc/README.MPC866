@@ -1,0 +1,19 @@
+The current implementation allows the user to specify the desired CPU
+clock value, in MHz, via an environment variable "cpuclk".
+
+Three compile-time constants are used:
+
+	CFG_866_OSCCLK            - input quartz clock
+	CFG_866_CPUCLK_MIN        - minimum allowed CPU clock
+	CFG_866_CPUCLK_MAX        - maximum allowed CPU clock
+	CFG_866_CPUCLK_DEFAULT    - default CPU clock value
+
+If the "cpuclk" environment variable value is within the CPUCLK_MIN /
+CPUCLK_MAX limits, the specified value is used. Otherwise, the
+default CPU clock value is set.
+
+Please note that for now the new clock-handling code has been enabled
+for the TQM866M board only, even though it should be pretty much
+common for other MPC859 / MPC866 based boards also. Our intention
+here was to move in small steps and not to break the existing code
+for other boards.

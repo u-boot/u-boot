@@ -36,16 +36,14 @@
 #define CONFIG_MPC866		1	/* This is a MPC866 CPU		*/
 #define CONFIG_TQM866M		1	/* ...on a TQM8xxM module	*/
 
-#define CFG_866_OSCCLK		10000000	/*  10 MHz - PLL input clock		*/
-#define CFG_866_CPUCLK_MIN	40000000	/*  40 MHz - CPU minimum clock		*/
+#define CFG_866_OSCCLK		 10000000	/*  10 MHz - PLL input clock		*/
+#define CFG_866_CPUCLK_MIN	 10000000	/*  10 MHz - CPU minimum clock		*/
 #define CFG_866_CPUCLK_MAX	133000000	/* 133 MHz - CPU maximum clock		*/
-#define CFG_866_CPUCLK_DEFAULT	100000000	/* 100 MHz - CPU default clock		*/
+#define CFG_866_CPUCLK_DEFAULT	 50000000	/*  50 MHz - CPU default clock		*/
 						/* (it will be used if there is no	*/
 						/* 'cpuclk' variable with valid value)	*/
 
 #define CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
-#undef	CONFIG_8xx_CONS_SMC2
-#undef	CONFIG_8xx_CONS_NONE
 
 #define CONFIG_BAUDRATE		115200	/* console baudrate = 115kbps	*/
 

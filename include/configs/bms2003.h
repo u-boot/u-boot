@@ -346,6 +346,7 @@
 #define CFG_PCMCIA_ATTRB_SIZE	( 64 << 20 )
 #define CFG_PCMCIA_IO_ADDR	(0xEC100000)
 #define CFG_PCMCIA_IO_SIZE	( 64 << 20 )
+#define PCMCIA_MEM_WIN_NO	5
 #define NSCU_OE_INV		1		/* PCMCIA_GCRX_CXOE is inverted */
 #endif
 

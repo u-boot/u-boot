@@ -101,13 +101,15 @@ int incaip_set_cpuclk (void)
 {
 	extern void ebu_init(long);
 	extern void cgu_init(long);
+	extern void sdram_init(long);
 	uchar tmp[64];
 	ulong cpuclk;
 
 	if (getenv_r ("cpuclk", tmp, sizeof (tmp)) > 0) {
 		cpuclk = simple_strtoul (tmp, NULL, 10) * 1000000;
-		ebu_init (cpuclk);
 		cgu_init (cpuclk);
+		ebu_init (cpuclk);
+		sdram_init (cpuclk);
 	}
 
 	return 0;

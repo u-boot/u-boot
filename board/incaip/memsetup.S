@@ -174,63 +174,120 @@ cgu_init:
 	.end	cgu_init
 
 
+/*
+ * void sdram_init(long)
+ *
+ * a0 has the clock value
+ */
+	.globl	sdram_init
+	.ent	sdram_init
+sdram_init:
+
+	li	t1, MC_MODUL_BASE
+
+	/* Disable memory controller before changing any of its registers */
+	sw	zero, MC_CTRLENA(t1)
+
+	li	t2, 100000000
+	beq	a0, t2, 1f
+	nop
+	li	t2, 133000000
+	beq	a0, t2, 2f
+	nop
+	li	t2, 150000000
+	beq	a0, t2, 3f
+	nop
+	b	5f
+	nop
+
+	/* 100 MHz clock */
+1:
+	/* Set clock ratio (clkrat=1:1, rddel=3) */
+	li	t2, 0x00000003
+	sw	t2, MC_IOGP(t1)
+
+	/* Set sdram refresh rate (4K/64ms @ 100MHz) */
+	li	t2, 0x0000061A
+	b	4f
+	sw	t2, MC_TREFRESH(t1)
+
+	/* 133 MHz clock */
+2:
+	/* Set clock ratio (clkrat=1:1, rddel=3) */
+	li	t2, 0x00000003
+	sw	t2, MC_IOGP(t1)
+
+	/* Set sdram refresh rate (4K/64ms @ 133MHz) */
+	li	t2, 0x00000822
+	b	4f
+	sw	t2, MC_TREFRESH(t1)
+
+	/* 150 MHz clock */
+3:
+	/* Set clock ratio (clkrat=3:2, rddel=4) */
+	li	t2, 0x00000014
+	sw	t2, MC_IOGP(t1)
+
+	/* Set sdram refresh rate (4K/64ms @ 150MHz) */
+	li	t2, 0x00000927
+	sw	t2, MC_TREFRESH(t1)
+
+4:
+	/* Clear Error log registers */
+	sw	zero, MC_ERRCAUSE(t1)
+	sw	zero, MC_ERRADDR(t1)
+
+	/* Clear Power-down registers */
+	sw	zero, MC_SELFRFSH(t1)
+
+	/* Set CAS Latency */
+	li	t2, 0x00000020		/* CL = 2 */
+	sw	t2, MC_MRSCODE(t1)
+
+	/* Set word width to 16 bit */
+	li	t2, 0x2
+	sw	t2, MC_CFGDW(t1)
+
+	/* Set CS0 to SDRAM parameters */
+	li	t2, 0x000014C9
+	sw	t2, MC_CFGPB0(t1)
+
+	/* Set SDRAM latency parameters */
+	li	t2, 0x00026325		/* BC PC100 */
+	sw	t2, MC_LATENCY(t1)
+
+5:
+	/* Finally enable the controller */
+	li	t2, 0x00000001
+	sw	t2, MC_CTRLENA(t1)
+
+	j	ra
+	nop
+
+	.end	sdram_init
+
+
 	.globl	memsetup
 	.ent	memsetup
 memsetup:
 
-	/* EBU and CGU Initialization.
+	/* EBU, CGU and SDRAM Initialization.
 	 */
 	li	a0, CPU_CLOCK_RATE
 	move	t0, ra
 
-	/* We rely on the fact that neither ebu_init() nor cgu_init()
+	/* We rely on the fact that neither ebu_init() nor cgu_init() nor sdram_init()
 	 * modify t0 and a0.
 	 */
+	bal	cgu_init
+	nop
 	bal	ebu_init
 	nop
-	bal	cgu_init
+	bal	sdram_init
 	nop
 	move	ra, t0
 
-	/* SDRAM Initialization.
-	 */
-	li	t0, MC_MODUL_BASE
-
-	/* Clear Error log registers */
-	sw	zero, MC_ERRCAUSE(t0)
-	sw	zero, MC_ERRADDR(t0)
-
-	/* Set clock ratio to 1:1 */
-	li	t1, 0x03		/* clkrat=1:1, rddel=3 */
-	sw	t1, MC_IOGP(t0)
-
-	/* Clear Power-down registers */
-	sw	zero, MC_SELFRFSH(t0)
-
-	/* Set CAS Latency */
-	li	t1, 0x00000020		/* CL = 2 */
-	sw	t1, MC_MRSCODE(t0)
-
-	/* Set word width to 16 bit */
-	li	t1, 0x2
-	sw	t1, MC_CFGDW(t0)
-
-	/* Set CS0 to SDRAM parameters */
-	li	t1, 0x000014C9
-	sw	t1, MC_CFGPB0(t0)
-
-	/* Set SDRAM latency parameters */
-	li	t1, 0x00026325		/* BC PC100 */
-	sw	t1, MC_LATENCY(t0)
-
-	/* Set SDRAM refresh rate */
-	li	t1, 0x00000C30		/* 4K/64ms @ 100MHz */
-	sw	t1, MC_TREFRESH(t0)
-
-	/* Finally enable the controller */
-	li	t1, 1
-	sw	t1, MC_CTRLENA(t0)
-
 	j	ra
 	nop
+
 	.end	memsetup

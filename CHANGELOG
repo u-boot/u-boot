@@ -2,6 +2,12 @@
 Changes since U-Boot 1.0.1:
 ======================================================================
 
+* Implement adaptive SDRAM timing configuration based on actual CPU
+  clock frequency for INCA-IP; fix problem with board hanging when
+  switching from 150MHz to 100MHz
+
+* Add PCMCIA CS support for BMS2003 board
+
 * Add variable CPU clock for MPC859/866 systems (so far only TQM866M):
   see doc/README.MPC866 for details;
   implement workaround for "SIU4" and "SIU9" silicon bugs on MPC866;
