@@ -226,42 +226,46 @@ int usb_lowlevel_stop(void)
 	return 0;
 }
 
-static int calc_needed_buswidth(int bytes, int low_speed)
+static int calc_needed_buswidth(int bytes, int need_preamble)
 {
-	return low_speed ? 0 : bytes * 8 + 512;
+	return !need_preamble ? bytes * 8 + 256 : 8 * 8 * bytes + 2048;
 }
 
-static int sl811_send_packet(int dir_to_host, int data1, __u8 *buffer, int len)
+static int sl811_send_packet(struct usb_device *dev, unsigned long pipe, __u8 *buffer, int len)
 {
 	__u8 ctrl = SL811_USB_CTRL_ARM | SL811_USB_CTRL_ENABLE;
 	__u16 status = 0;
-	int err = 0, timeout = get_timer(0) + 5*CFG_HZ;
+	int err = 0, time_start = get_timer(0);
+	int need_preamble = !(rh_status.wPortStatus & USB_PORT_STAT_LOW_SPEED) &&
+		usb_pipeslow(pipe);
 
 	if (len > 239)
 		return -1;
 
-	if (!dir_to_host)
+	if (usb_pipeout(pipe))
 		ctrl |= SL811_USB_CTRL_DIR_OUT;
-	if (data1)
+	if (usb_gettoggle(dev, usb_pipeendpoint(pipe), usb_pipeout(pipe)))
 		ctrl |= SL811_USB_CTRL_TOGGLE_1;
-
+	if (need_preamble)
+		ctrl |= SL811_USB_CTRL_PREAMBLE;
+	
 	sl811_write(SL811_INTRSTS, 0xff);
 
 	while (err < 3) {
 		sl811_write(SL811_ADDR_A, 0x10);
 		sl811_write(SL811_LEN_A, len);
-		if (!dir_to_host && len)
+		if (usb_pipeout(pipe) && len)
 			sl811_write_buf(0x10, buffer, len);
 
-		if (sl811_read(SL811_SOFCNTDIV)*64 < 
-		    calc_needed_buswidth(len, rh_status.wPortStatus & USB_PORT_STAT_LOW_SPEED))
+		if (!(rh_status.wPortStatus & USB_PORT_STAT_LOW_SPEED) &&
+		    sl811_read(SL811_SOFCNTDIV)*64 < calc_needed_buswidth(len, need_preamble))
 			ctrl |= SL811_USB_CTRL_SOF;
 		else
 			ctrl &= ~SL811_USB_CTRL_SOF;
 
 		sl811_write(SL811_CTRL_A, ctrl);
  		while (!(sl811_read(SL811_INTRSTS) & SL811_INTR_DONE_A)) {
-			if (timeout < get_timer(0)) {
+			if (5*CFG_HZ < get_timer(time_start)) {
 				printf("USB transmit timed out\n");
 				return -USB_ST_CRC_ERR;
 			}
@@ -276,7 +280,7 @@ static int sl811_send_packet(int dir_to_host, int data1, __u8 *buffer, int len)
 				PDEBUG(0, "usb transfer remainder = %d\n", remainder);
 				len -= remainder;
 			}
-			if (dir_to_host && len)
+			if (usb_pipein(pipe) && len)
 				sl811_read_buf(0x10, buffer, len);
 			return len;
 		}
@@ -305,7 +309,6 @@ int submit_bulk_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 {
 	int dir_out = usb_pipeout(pipe);
 	int ep = usb_pipeendpoint(pipe);
-	__u8* buf = (__u8*)buffer;
 	int max = usb_maxpacket(dev, pipe);
 	int done = 0;
 
@@ -317,8 +320,7 @@ int submit_bulk_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	sl811_write(SL811_DEV_A, usb_pipedevice(pipe));
 	sl811_write(SL811_PIDEP_A, PIDEP(!dir_out ? USB_PID_IN : USB_PID_OUT, ep));
 	while (done < len) {
-		int res = sl811_send_packet(!dir_out, usb_gettoggle(dev, ep, dir_out),
-					    buf+done,
+		int res = sl811_send_packet(dev, pipe, (__u8*)buffer+done,
 					    max > len - done ? len - done : max);
 		if (res < 0) {
 			dev->status = -res;
@@ -342,47 +344,52 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 {
 	int done = 0;
 	int devnum = usb_pipedevice(pipe);
+	int ep = usb_pipeendpoint(pipe);
 
 	dev->status = 0;
 
 	if (devnum == root_hub_devnum)
 		return sl811_rh_submit_urb(dev, pipe, buffer, len, setup);
 
-	PDEBUG(7, "dev = %d pipe = %ld buf = %p size = %d rt = %#x req = %#x\n",
-	       devnum, usb_pipeendpoint(pipe), buffer, len, (int)setup->requesttype,
-	       (int)setup->request);
+	PDEBUG(7, "dev = %d pipe = %ld buf = %p size = %d rt = %#x req = %#x bus = %i\n",
+	       devnum, ep, buffer, len, (int)setup->requesttype,
+	       (int)setup->request, sl811_read(SL811_SOFCNTDIV)*64);
 
 	sl811_write(SL811_DEV_A, devnum);
-	sl811_write(SL811_PIDEP_A, PIDEP(USB_PID_SETUP, 0));
+	sl811_write(SL811_PIDEP_A, PIDEP(USB_PID_SETUP, ep));
 	/* setup phase */
-	if (sl811_send_packet(0, 0, (__u8*)setup, sizeof(*setup)) == sizeof(*setup)) {
-		int dir_in = setup->requesttype & USB_DIR_IN;
-		__u8* buf = (__u8*)buffer;
-		int data1 = 1;
+	usb_settoggle(dev, ep, 1, 0);
+	if (sl811_send_packet(dev, usb_sndctrlpipe(dev, ep),
+			      (__u8*)setup, sizeof(*setup)) == sizeof(*setup)) {
+		int dir_in = usb_pipein(pipe);
 		int max = usb_maxpacket(dev, pipe);
 
 		/* data phase */
 		sl811_write(SL811_PIDEP_A,
-			    PIDEP(dir_in ? USB_PID_IN : USB_PID_OUT, 0));
+			    PIDEP(dir_in ? USB_PID_IN : USB_PID_OUT, ep));
+		usb_settoggle(dev, ep, usb_pipeout(pipe), 1);
 		while (done < len) {
-			int res = sl811_send_packet(dir_in, data1, buf+done,
+			int res = sl811_send_packet(dev, pipe, (__u8*)buffer+done,
 						    max > len - done ? len - done : max);
 			if (res < 0) {
+				PDEBUG(0, "status data failed!\n");
 				dev->status = -res;
 				return 0;
 			}
 			done += res;
-
+			usb_dotoggle(dev, ep, usb_pipeout(pipe));
 			if (dir_in && res < max) /* short packet */
 				break;
-
-			data1 = !data1;
 		}
 
 		/* status phase */
 		sl811_write(SL811_PIDEP_A,
-			    PIDEP(!dir_in ? USB_PID_IN : USB_PID_OUT, 0));
-		if (sl811_send_packet(!dir_in, 1, 0, 0) < 0) {
+			    PIDEP(!dir_in ? USB_PID_IN : USB_PID_OUT, ep));
+		usb_settoggle(dev, ep, !usb_pipeout(pipe), 1);
+		if (sl811_send_packet(dev, 
+				      !dir_in ? usb_rcvctrlpipe(dev, ep) : 
+				      usb_sndctrlpipe(dev, ep), 
+				      0, 0) < 0) {
 			PDEBUG(0, "status phase failed!\n");
 			dev->status = -1;
 		}
@@ -509,13 +516,13 @@ static int usb_root_hub_string (int id, int serial, char *type, __u8 *data, int 
 
 	/* language ids */
 	if (id == 0) {
-		*data++ = 3; *data++ = 4;	/* 4 bytes data */
+		*data++ = 4; *data++ = 3;	/* 4 bytes data */
 		*data++ = 0; *data++ = 0;	/* some language id */
 		return 4;
 
 	/* serial number */
 	} else if (id == 1) {
-		sprintf (buf, "%x", serial);
+		sprintf (buf, "%#x", serial);
 
 	/* product description */
 	} else if (id == 2) {
@@ -527,7 +534,8 @@ static int usb_root_hub_string (int id, int serial, char *type, __u8 *data, int 
 	} else
 	    return 0;
 
-	data [0] = 2 + ascii2utf (buf, data + 2, len - 2);
+	ascii2utf (buf, data + 2, len - 2);
+	data [0] = 2 + strlen(buf) * 2;
 	data [1] = 3;
 	return data [0];
 }
