@@ -35,8 +35,7 @@ LIST_8xx="	\
 	R360MPI		RPXClassic	RPXlite		RRvision	\
 	SM850		SPD823TS	svm_sc8xx	SXNI855T	\
 	TOP860		TQM823L		TQM823L_LCD	TQM850L		\
-	TQM855L		TQM860L		TQM860L_FEC	TTTech		\
-	v37								\
+	TQM855L		TQM860L		TTTech		v37		\
 "
 
 #########################################################################

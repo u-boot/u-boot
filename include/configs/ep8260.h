@@ -270,6 +270,7 @@
 /*
 */
 #define CONFIG_COMMANDS		(	CFG_CMD_ALL     & \
+					~CFG_CMD_BMP	& \
 					~CFG_CMD_BSP    & \
 					~CFG_CMD_DCR    & \
 					~CFG_CMD_DHCP   & \

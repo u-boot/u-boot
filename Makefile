@@ -337,7 +337,7 @@ TOP860_config:		unconfig
 # All boards can come with 50 MHz (default), 66MHz or 80MHz clock,
 # but only 855 and 860 boards may come with FEC
 # and 823 boards may have LCD support
-xtract_8xx = $(subst _66MHz,,$(subst _80MHz,,$(subst _LCD,,$(subst _FEC,,$(subst _config,,$1)))))
+xtract_8xx = $(subst _66MHz,,$(subst _80MHz,,$(subst _LCD,,$(subst _config,,$1))))
 
 FPS850L_config		\
 FPS860L_config		\
@@ -360,10 +360,6 @@ TQM862L_config		\
 TQM862L_66MHz_config	\
 TQM862L_80MHz_config:	unconfig
 	@ >include/config.h
-	@[ -z "$(findstring _FEC,$@)" ] || \
-		{ echo "#define CONFIG_FEC_ENET"	>>include/config.h ; \
-		  echo "... with FEC support" ; \
-		}
 	@[ -z "$(findstring _66MHz,$@)" ] || \
 		{ echo "#define CONFIG_66MHz"		>>include/config.h ; \
 		  echo "... with 66MHz system clock" ; \

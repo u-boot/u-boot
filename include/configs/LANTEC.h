@@ -84,6 +84,7 @@
 #define CONFIG_CMD_NORMAL	(CONFIG_CMD_DFL & ~CFG_CMD_BOOTD)
 #define CONFIG_CMD_GDB		(CONFIG_CMD_NORMAL | CFG_CMD_KGDB)
 #define CONFIG_CMD_FULL		(CFG_CMD_ALL & ~CFG_CMD_BEDBUG	\
+					     & ~CFG_CMD_BMP	\
 					     & ~CFG_CMD_BSP	\
 					     & ~CFG_CMD_DOC	\
 					     & ~CFG_CMD_DTT	\

@@ -126,12 +126,12 @@ long int initdram (int board_type)
 	memctl->memc_mar = 0x00000088;
 
 	/*
-	 * Map controller bank 1 to the SDRAM bank at
+	 * Map controller bank 2 to the SDRAM bank at
 	 * preliminary address - these have to be modified after the
 	 * SDRAM size has been determined.
 	 */
-	memctl->memc_or1 = CFG_OR1_PRELIM;
-	memctl->memc_br1 = CFG_BR1_PRELIM;
+	memctl->memc_or2 = CFG_OR2_PRELIM;
+	memctl->memc_br2 = CFG_BR2_PRELIM;
 
 	memctl->memc_mamr = CFG_MAMR_8COL & (~(MAMR_PTAE));	/* no refresh yet */
 
@@ -139,9 +139,9 @@ long int initdram (int board_type)
 
 	/* perform SDRAM initializsation sequence */
 
-	memctl->memc_mcr = 0x80002105;	/* SDRAM bank 0 */
+	memctl->memc_mcr = 0x80004105;	/* SDRAM bank 0 */
 	udelay (200);
-	memctl->memc_mcr = 0x80002230;	/* SDRAM bank 0 - execute twice */
+	memctl->memc_mcr = 0x80004230;	/* SDRAM bank 0 - execute twice */
 	udelay (200);
 
 	memctl->memc_mamr |= MAMR_PTAE;	/* enable refresh */
@@ -153,7 +153,7 @@ long int initdram (int board_type)
 	 *
 	 * try 8 column mode
 	 */
-	size8 = dram_size (CFG_MAMR_8COL, (ulong *) SDRAM_BASE1_PRELIM,
+	size8 = dram_size (CFG_MAMR_8COL, (ulong *) SDRAM_BASE2_PRELIM,
 					   SDRAM_MAX_SIZE);
 
 	udelay (1000);
@@ -161,13 +161,13 @@ long int initdram (int board_type)
 	/*
 	 * try 9 column mode
 	 */
-	size9 = dram_size (CFG_MAMR_9COL, (ulong *) SDRAM_BASE1_PRELIM,
+	size9 = dram_size (CFG_MAMR_9COL, (ulong *) SDRAM_BASE2_PRELIM,
 					   SDRAM_MAX_SIZE);
 
 	if (size8 < size9) {		/* leave configuration at 9 columns */
 		size_b0 = size9;
 /*	debug ("SDRAM Bank 0 in 9 column mode: %ld MB\n", size >> 20);	*/
-	} else {					/* back to 8 columns            */
+	} else {			/* back to 8 columns            */
 		size_b0 = size8;
 		memctl->memc_mamr = CFG_MAMR_8COL;
 		udelay (500);
@@ -200,6 +200,47 @@ long int initdram (int board_type)
 
 	udelay (10000);
 
+#ifdef CONFIG_CAN_DRIVER
+	/* Initialize OR3 / BR3 */
+	memctl->memc_or3 = CFG_OR3_CAN;		/* switch GPLB_5 to GPLA_5 */
+	memctl->memc_br3 = CFG_BR3_CAN;
+
+	/* Initialize MBMR */
+	memctl->memc_mbmr = MAMR_GPL_B4DIS;	/* GPL_B4 works as UPWAITB */
+
+	/* Initialize UPMB for CAN: single read */
+	memctl->memc_mdr = 0xFFFFC004;
+	memctl->memc_mcr = 0x0100 | UPMB;
+
+	memctl->memc_mdr = 0x0FFFD004;
+	memctl->memc_mcr = 0x0101 | UPMB;
+
+	memctl->memc_mdr = 0x0FFFC000;
+	memctl->memc_mcr = 0x0102 | UPMB;
+
+	memctl->memc_mdr = 0x3FFFC004;
+	memctl->memc_mcr = 0x0103 | UPMB;
+
+	memctl->memc_mdr = 0xFFFFDC05;
+	memctl->memc_mcr = 0x0104 | UPMB;
+
+	/* Initialize UPMB for CAN: single write */
+	memctl->memc_mdr = 0xFFFCC004;
+	memctl->memc_mcr = 0x0118 | UPMB;
+
+	memctl->memc_mdr = 0xCFFCD004;
+	memctl->memc_mcr = 0x0119 | UPMB;
+
+	memctl->memc_mdr = 0x0FFCC000;
+	memctl->memc_mcr = 0x011A | UPMB;
+
+	memctl->memc_mdr = 0x7FFCC004;
+	memctl->memc_mcr = 0x011B | UPMB;
+
+	memctl->memc_mdr = 0xFFFDCC05;
+	memctl->memc_mcr = 0x011C | UPMB;
+#endif
+
 	return (size_b0);
 }
 
@@ -213,8 +254,8 @@ long int initdram (int board_type)
  * - short between data lines
  */
 
-static long int dram_size (long int mamr_value, long int *base,
-						   long int maxsize)
+static long int dram_size (long int mamr_value,
+			   long int *base, long int maxsize)
 {
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
@@ -257,10 +298,10 @@ static long int dram_size (long int mamr_value, long int *base,
 
 /* ------------------------------------------------------------------------- */
 
-void r360_pwm_write (uchar reg, uchar val)
+void r360_i2c_lcd_write (uchar data0, uchar data1)
 {
-	if (i2c_write (CFG_I2C_PWM_ADDR, reg, 1, &val, 1)) {
-		printf ("Can't write PWM register 0x%02X.\n", reg);
+	if (i2c_write (CFG_I2C_LCD_ADDR, data0, 1, &data1, 1)) {
+		printf("Can't write lcd data 0x%02X 0x%02X.\n", data0, data1);
 	}
 }
 
@@ -271,10 +312,8 @@ void r360_pwm_write (uchar reg, uchar val)
  */
 
 /* Number of bytes returned from Keyboard Controller */
-#define KEYBD_KEY_MAX		20				/* maximum key number */
-#define KEYBD_DATALEN		((KEYBD_KEY_MAX + 7) / 8)	/* normal key scan data */
-
-static uchar kbd_addr = CFG_I2C_KBD_ADDR;
+#define KEYBD_KEY_MAX	16				/* maximum key number */
+#define KEYBD_DATALEN	((KEYBD_KEY_MAX + 7) / 8)	/* normal key scan data */
 
 static uchar *key_match (uchar *);
 
@@ -287,14 +326,14 @@ int misc_init_r (void)
 
 	i2c_init (CFG_I2C_SPEED, CFG_I2C_SLAVE);
 
-	i2c_read (kbd_addr, 0, 0, kbd_data, KEYBD_DATALEN);
+	i2c_read (CFG_I2C_KEY_ADDR, 0, 0, kbd_data, KEYBD_DATALEN);
 
 	for (i = 0; i < KEYBD_DATALEN; ++i) {
 		sprintf (keybd_env + i + i, "%02X", kbd_data[i]);
 	}
 	setenv ("keybd", keybd_env);
 
-	str = strdup (key_match (kbd_data));	/* decode keys */
+	str = strdup (key_match (keybd_env));	/* decode keys */
 
 #ifdef CONFIG_PREBOOT	/* automatically configure "preboot" command on key match */
 	setenv ("preboot", str);	/* set or delete definition */
@@ -324,16 +363,13 @@ int misc_init_r (void)
 static uchar kbd_magic_prefix[] = "key_magic";
 static uchar kbd_command_prefix[] = "key_cmd";
 
-static uchar *key_match (uchar * kbd_data)
+static uchar *key_match (uchar * kbd_str)
 {
-	uchar compare[KEYBD_DATALEN];
 	uchar magic[sizeof (kbd_magic_prefix) + 1];
 	uchar cmd_name[sizeof (kbd_command_prefix) + 1];
-	uchar key_mask;
-	uchar *str, *nxt, *suffix;
+	uchar *str, *suffix;
 	uchar *kbd_magic_keys;
 	char *cmd;
-	int i;
 
 	/*
 	 * The following string defines the characters that can pe appended
@@ -343,62 +379,48 @@ static uchar *key_match (uchar * kbd_data)
 	 * "key_magic" is checked (old behaviour); the string "125" causes
 	 * checks for "key_magic1", "key_magic2" and "key_magic5", etc.
 	 */
-	if ((kbd_magic_keys = getenv ("magic_keys")) == NULL)
-		kbd_magic_keys = "";
+	if ((kbd_magic_keys = getenv ("magic_keys")) != NULL) {
+		/* loop over all magic keys;
+		 * use '\0' suffix in case of empty string
+		 */
+		for (suffix = kbd_magic_keys;
+		     *suffix || suffix == kbd_magic_keys;
+		     ++suffix) {
+			sprintf (magic, "%s%c", kbd_magic_prefix, *suffix);
 
-	/* loop over all magic keys;
-	 * use '\0' suffix in case of empty string
-	 */
-	for (suffix=kbd_magic_keys; *suffix || suffix==kbd_magic_keys; ++suffix) {
-		sprintf (magic, "%s%c", kbd_magic_prefix, *suffix);
 #if 0
-		printf ("### Check magic \"%s\"\n", magic);
+			printf ("### Check magic \"%s\"\n", magic);
 #endif
 
-		memcpy(compare, kbd_data, KEYBD_DATALEN);
+			if ((str = getenv (magic)) != 0) {
 
-		for (str = getenv(magic); str != NULL; str = (*nxt) ? nxt+1 : nxt) {
-			uchar c;
+#if 0
+				printf ("### Compare \"%s\" \"%s\"\n",
+					kbd_str, str);
+#endif
+				if (strcmp (kbd_str, str) == 0) {
+					sprintf (cmd_name, "%s%c",
+						 kbd_command_prefix,
+						 *suffix);
 
-			c = (uchar) simple_strtoul (str, (char **) (&nxt), 16);
-
-			if (str == nxt)				/* invalid character */
-				break;
-
-			if (c >= KEYBD_KEY_MAX)			/* bad key number */
-				goto next_magic;
-
-			key_mask = 0x80 >> (c % 8);
-
-			if (!(compare[c / 8] & key_mask))	/* key not pressed */
-				goto next_magic;
-
-			compare[c / 8] &= ~key_mask;
+					if ((cmd = getenv (cmd_name)) != 0) {
+#if 0
+						printf ("### Set PREBOOT to $(%s): \"%s\"\n",
+							cmd_name, cmd);
+#endif
+						return (cmd);
+					}
+				}
+			}
 		}
-
-		for (i=0; i<KEYBD_DATALEN; i++)
-			if (compare[i])			/* key(s) not released */
-				goto next_magic;
-
-		sprintf (cmd_name, "%s%c", kbd_command_prefix, *suffix);
-
-		cmd = getenv (cmd_name);
-#if 0
-		printf ("### Set PREBOOT to $(%s): \"%s\"\n",
-			cmd_name, cmd ? cmd : "<<NULL>>");
-#endif
-		*kbd_data = *suffix;
-		return (cmd);
-
-	next_magic:;
 	}
 #if 0
 	printf ("### Delete PREBOOT\n");
 #endif
-	*kbd_data = '\0';
+	*kbd_str = '\0';
 	return (NULL);
 }
-#endif							/* CONFIG_PREBOOT */
+#endif	/* CONFIG_PREBOOT */
 
 /* Read Keyboard status */
 int do_kbd (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
@@ -410,7 +432,7 @@ int do_kbd (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	i2c_init (CFG_I2C_SPEED, CFG_I2C_SLAVE);
 
 	/* Read keys */
-	i2c_read (kbd_addr, 0, 0, kbd_data, KEYBD_DATALEN);
+	i2c_read (CFG_I2C_KEY_ADDR, 0, 0, kbd_data, KEYBD_DATALEN);
 
 	puts ("Keys:");
 	for (i = 0; i < KEYBD_DATALEN; ++i) {
