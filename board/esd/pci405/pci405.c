@@ -306,7 +306,7 @@ int misc_init_r (void)
 /*	mtspr(ccr0, (mfspr(ccr0) & 0xff8fffff) | 0x00100000);	*/
 	mtspr(ccr0, (mfspr(ccr0) & 0xff8fffff) | 0x00000000);
 #endif
-/*	printf("CCR0=%08x\n", mfspr(ccr0)); /* test-only */	*/
+	/*	printf("CCR0=%08x\n", mfspr(ccr0));*/ /* test-only */
 #endif
 
 	free(dst);
