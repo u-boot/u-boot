@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2002
+ * (C) Copyright 2002-2004
  * Wolfgang Denk, DENX Software Engineering, <wd@denx.de>
  *
  * (C) Copyright 2002
@@ -29,9 +29,10 @@
  */
 
 #include <common.h>
-#include <clps7111.h>
 
-#ifndef CONFIG_NETARM
+#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312)
+
+#include <clps7111.h>
 
 void serial_setbrg (void)
 {
@@ -39,20 +40,15 @@ void serial_setbrg (void)
 
 	unsigned int reg = 0;
 
-	if (gd->baudrate == 1200)
-		reg = 191;
-	else if (gd->baudrate == 9600)
-		reg = 23;
-	else if (gd->baudrate == 19200)
-		reg = 11;
-	else if (gd->baudrate == 38400)
-		reg = 5;
-	else if (gd->baudrate == 57600)
-		reg = 3;
-	else if (gd->baudrate == 115200)
-		reg = 1;
-	else
-		hang ();
+	switch (gd->baudrate) {
+	case   1200:	reg = 191;	break;
+	case   9600:	reg =  23;	break;
+	case  19200:	reg =  11;	break;
+	case  38400:	reg =   5;	break;
+	case  57600:	reg =   3;	break;
+	case 115200:	reg =   1;	break;
+	default:	hang ();	break;
+	}
 
 	/* init serial serial 1,2 */
 	IO_SYSCON1 = SYSCON1_UART1EN;
@@ -127,4 +123,4 @@ serial_puts (const char *s)
 	}
 }
 
-#endif /* CONFIG_NETARM */
+#endif /* defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) */

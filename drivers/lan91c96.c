@@ -139,7 +139,9 @@ extern int eth_init (bd_t * bd);
 extern void eth_halt (void);
 extern int eth_rx (void);
 extern int eth_send (volatile void *packet, int length);
+#if 0
 static int smc_hw_init (void);
+#endif
 
 /*
  * This is called by  register_netdev().  It is responsible for
@@ -817,6 +819,7 @@ int eth_send (volatile void *packet, int length)
 }
 
 
+#if 0
 /*-------------------------------------------------------------------------
  * smc_hw_init()
  *
@@ -860,6 +863,7 @@ static int smc_hw_init ()
 	}
 	return 0;
 }
+#endif /* 0 */
 
 #endif /* COMMANDS & CFG_NET */
 

@@ -29,9 +29,10 @@
  */
 
 #include <common.h>
-#include <asm/arch/netarm_registers.h>
 
 #ifdef CONFIG_NETARM
+
+#include <asm/hardware.h>
 
 #define PORTA	(*(volatile unsigned int *)(NETARM_GEN_MODULE_BASE + NETARM_GEN_PORTA))
 #define PORTB	(*(volatile unsigned int *)(NETARM_GEN_MODULE_BASE + NETARM_GEN_PORTB))

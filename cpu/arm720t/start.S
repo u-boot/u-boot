@@ -26,9 +26,7 @@
 
 #include <config.h>
 #include <version.h>
-#ifdef CONFIG_NETARM
-#include <asm/arch/netarm_registers.h>
-#endif
+#include <asm/hardware.h>
 
 /*
  *************************************************************************
@@ -166,7 +164,6 @@ clbss_l:str	r2, [r0]		/* clear loop...                    */
 
 _start_armboot:	.word start_armboot
 
-
 /*
  *************************************************************************
  *
@@ -178,6 +175,7 @@ _start_armboot:	.word start_armboot
  *************************************************************************
  */
 
+#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312)
 
 /* Interupt-Controller base addresses */
 INTMR1:		.word	0x80000280 @ 32 bit size
@@ -195,8 +193,11 @@ SYSCON3:	.word	0x80002200
 #define CLKCTL_49      0x4  /* 49.152 MHz */
 #define CLKCTL_73      0x6  /* 73.728 MHz */
 
+#endif
+
 cpu_init_crit:
-#ifndef CONFIG_NETARM
+#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312)
+
 	/*
 	 * mask all IRQs by clearing all bits in the INTMRs
 	 */
@@ -223,7 +224,7 @@ cpu_init_crit:
 	bic	r0, r0, #0x0000008f	@ clear bits 7, 3:0 (B--- WCAM)
 	orr	r0, r0, #0x00000002	@ set bit 2 (A) Align
 	mcr	p15,0,r0,c1,c0
-#else /* CONFIG_NETARM */
+#elif defined(CONFIG_NETARM)
 	/*
 	 * prior to software reset : need to set pin PORTC4 to be *HRESET
 	 */
@@ -270,7 +271,26 @@ cpu_init_crit:
 	mov	r1, #0
 	ldr	r0, =NETARM_GEN_MODULE_BASE
 	str	r1, [r0, #+NETARM_GEN_INTR_ENABLE]
-#endif /* CONFIG_NETARM */
+
+#elif defined(CONFIG_S3C4510B)
+
+	/*
+	 * Mask off all IRQ sources
+	 */
+	ldr	r1, =REG_INTMASK
+	ldr	r0, =0x3FFFFF
+	str	r0, [r1]
+
+	/*
+	 * Disable Cache
+	 */
+	ldr r0, =REG_SYSCFG
+	ldr r1, =0x83ffffa0     /* cache-disabled  */
+	str r1, [r0]
+
+#else
+#error No cpu_init_crit() defined for current CPU type
+#endif
 
 #ifdef CONFIG_ARM7_REVD
 	/* set clock speed */
@@ -462,10 +482,10 @@ fiq:
 
 #endif
 
+#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312)
 	.align	5
 .globl reset_cpu
 reset_cpu:
-#ifndef CONFIG_NETARM
 	mov     ip, #0
 	mcr     p15, 0, ip, c7, c7, 0           @ invalidate cache
 	mcr     p15, 0, ip, c8, c7, 0           @ flush TLB (v4)
@@ -474,7 +494,10 @@ reset_cpu:
 	bic     ip, ip, #0x2100                 @ ..v....s........
 	mcr     p15, 0, ip, c1, c0, 0           @ ctrl register
 	mov     pc, r0
-#else
+#elif defined(CONFIG_NETARM)
+	.align	5
+.globl reset_cpu
+reset_cpu:
 	ldr	r1, =NETARM_MEM_MODULE_BASE
 	ldr	r0, [r1, #+NETARM_MEM_CS0_BASE_ADDR]
 	ldr	r1, =0xFFFFF000
@@ -491,4 +514,9 @@ reset_cpu:
 	ldr	r1, =NETARM_GEN_SW_SVC_RESETB
 	str	r1, [r4, #+NETARM_GEN_SOFTWARE_SERVICE]
 	mov	pc, r0
+#elif defined(CONFIG_S3C4510B)
+/* Nothing done here as reseting the CPU is board specific, depending
+ * on external peripherals such as watchdog timers, etc. */
+#else
+#error No reset_cpu() defined for current CPU type
 #endif

@@ -532,9 +532,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 {
 	vu_long *addr = (vu_long*)(info->start[0]);
 	ulong start;
-	ulong rev;
 	int flag;
-	int i;
 
 	/* Check if Flash is (sufficiently) erased */
 	if ((*((vu_long *)dest) & data) != data) {

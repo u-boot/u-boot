@@ -1183,6 +1183,9 @@ impa7_config	:	unconfig
 modnet50_config :	unconfig
 	@./mkconfig $(@:_config=) arm arm720t modnet50
 
+evb4510_config :	unconfig
+	@./mkconfig $(@:_config=) arm arm720t evb4510
+
 #########################################################################
 ## AT91RM9200 Systems
 #########################################################################

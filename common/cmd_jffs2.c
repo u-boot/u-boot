@@ -122,20 +122,18 @@ jffs2_part_info(int part_num)
 int
 do_jffs2_fsload(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-    struct part_info* jffs2_part_info(int);
-    int jffs2_1pass_load(char *, struct part_info *,const char *);
-    char *fsname;
-
+	struct part_info* jffs2_part_info(int);
+	int jffs2_1pass_load(char *, struct part_info *,const char *);
+	char *fsname;
 	char *filename;
+	int size;
+	struct part_info *part;
+	ulong offset = load_addr;
 
 	/* pre-set Boot file name */
 	if ((filename = getenv("bootfile")) == NULL) {
 		filename = "uImage";
 	}
-
-	ulong offset = load_addr;
-	int size;
-	struct part_info *part;
 
 	if (argc == 2) {
 		filename = argv[1];

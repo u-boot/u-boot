@@ -31,14 +31,15 @@ OBJS	= 3c589.o 5701rls.o ali512x.o \
 	  bcm570x.o bcm570x_autoneg.o cfb_console.o cfi_flash.o \
 	  cs8900.o ct69000.o dataflash.o dc2114x.o	    \
 	  e1000.o eepro100.o \
-	  i8042.o i82365.o inca-ip_sw.o \
+	  i8042.o i82365.o inca-ip_sw.o keyboard.o \
 	  lan91c96.o natsemi.o netarm_eth.o \
 	  ns16550.o ns8382x.o ns87308.o \
 	  pci.o pci_auto.o pci_indirect.o \
 	  pcnet.o plb2800_eth.o \
-	  ps2ser.o ps2mult.o pc_keyb.o keyboard.o \
+	  ps2ser.o ps2mult.o pc_keyb.o \
 	  rtl8019.o rtl8139.o rtl8169.o \
-	  s3c24x0_i2c.o sed13806.o sed156x.o \
+	  s3c24x0_i2c.o s3c4510b_eth.o s3c4510b_uart.o \
+	  sed13806.o sed156x.o \
 	  serial.o serial_max3100.o serial_pl010.o serial_pl011.o \
 	  serial_xuartlite.o sl811_usb.o \
 	  smc91111.o smiLynxEM.o status_led.o sym53c8xx.o \

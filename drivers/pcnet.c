@@ -34,15 +34,15 @@
 #endif
 
 #if PCNET_DEBUG_LEVEL > 0
-#define	DEBUG1(fmt,args...)	printf (fmt ,##args)
+#define	PCNET_DEBUG1(fmt,args...)	printf (fmt ,##args)
 #if PCNET_DEBUG_LEVEL > 1
-#define	DEBUG2(fmt,args...)	printf (fmt ,##args)
+#define	PCNET_DEBUG2(fmt,args...)	printf (fmt ,##args)
 #else
-#define DEBUG2(fmt,args...)
+#define PCNET_DEBUG2(fmt,args...)
 #endif
 #else
-#define DEBUG1(fmt,args...)
-#define DEBUG2(fmt,args...)
+#define PCNET_DEBUG1(fmt,args...)
+#define PCNET_DEBUG2(fmt,args...)
 #endif
 
 #if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_NET_MULTI) \
@@ -174,7 +174,7 @@ int pcnet_initialize(bd_t *bis)
     u16 command, status;
     int dev_nr = 0;
 
-    DEBUG1("\npcnet_initialize...\n");
+    PCNET_DEBUG1("\npcnet_initialize...\n");
 
     for (dev_nr = 0; ; dev_nr++) {
 
@@ -198,7 +198,7 @@ int pcnet_initialize(bd_t *bis)
 	pci_read_config_dword(devbusfn, PCI_BASE_ADDRESS_0, &dev->iobase);
 	dev->iobase &= ~0xf;
 
-	DEBUG1("%s: devbusfn=0x%x iobase=0x%x: ",
+	PCNET_DEBUG1("%s: devbusfn=0x%x iobase=0x%x: ",
 	       dev->name, devbusfn, dev->iobase);
 
 	command = PCI_COMMAND_IO | PCI_COMMAND_MASTER;
@@ -276,7 +276,7 @@ static int pcnet_probe(struct eth_device* dev, bd_t *bis, int dev_nr)
 	return -1;
     }
 
-    DEBUG1("AMD %s\n", chipname);
+    PCNET_DEBUG1("AMD %s\n", chipname);
 
 #ifdef PCNET_HAS_PROM
     /*
@@ -301,7 +301,7 @@ static int pcnet_init(struct eth_device* dev, bd_t *bis)
     int i, val;
     u32 addr;
 
-    DEBUG1("%s: pcnet_init...\n", dev->name);
+    PCNET_DEBUG1("%s: pcnet_init...\n", dev->name);
 
     /* Switch pcnet to 32bit mode */
     pcnet_write_bcr (dev, 20, 2);
@@ -349,7 +349,7 @@ static int pcnet_init(struct eth_device* dev, bd_t *bis)
 	lp->rx_ring[i].base = PCI_TO_MEM_LE(dev, lp->rx_buf[i]);
 	lp->rx_ring[i].buf_length = cpu_to_le16(-PKT_BUF_SZ);
 	lp->rx_ring[i].status = cpu_to_le16(0x8000);
-	DEBUG1("Rx%d: base=0x%x buf_length=0x%hx status=0x%hx\n",
+	PCNET_DEBUG1("Rx%d: base=0x%x buf_length=0x%hx status=0x%hx\n",
 	       i, lp->rx_ring[i].base, lp->rx_ring[i].buf_length,
 	       lp->rx_ring[i].status);
     }
@@ -367,11 +367,11 @@ static int pcnet_init(struct eth_device* dev, bd_t *bis)
     /*
      * Setup Init Block.
      */
-    DEBUG1("Init block at 0x%p: MAC", &lp->init_block);
+    PCNET_DEBUG1("Init block at 0x%p: MAC", &lp->init_block);
 
     for (i = 0; i < 6; i++) {
 	lp->init_block.phys_addr[i] = dev->enetaddr[i];
-	DEBUG1(" %02x", lp->init_block.phys_addr[i]);
+	PCNET_DEBUG1(" %02x", lp->init_block.phys_addr[i]);
     }
 
     lp->init_block.tlen_rlen = cpu_to_le16(TX_RING_LEN_BITS |
@@ -379,7 +379,7 @@ static int pcnet_init(struct eth_device* dev, bd_t *bis)
     lp->init_block.rx_ring = PCI_TO_MEM_LE(dev, lp->rx_ring);
     lp->init_block.tx_ring = PCI_TO_MEM_LE(dev, lp->tx_ring);
 
-    DEBUG1("\ntlen_rlen=0x%x rx_ring=0x%x tx_ring=0x%x\n",
+    PCNET_DEBUG1("\ntlen_rlen=0x%x rx_ring=0x%x tx_ring=0x%x\n",
 	   lp->init_block.tlen_rlen,
 	   lp->init_block.rx_ring, lp->init_block.tx_ring);
 
@@ -418,7 +418,7 @@ static int pcnet_send(struct eth_device* dev, volatile void *packet, int pkt_len
     int i, status;
     struct pcnet_tx_head *entry = &lp->tx_ring[lp->cur_tx];
 
-    DEBUG2("Tx%d: %d bytes from 0x%p ", lp->cur_tx, pkt_len, packet);
+    PCNET_DEBUG2("Tx%d: %d bytes from 0x%p ", lp->cur_tx, pkt_len, packet);
 
     /* Wait for completion by testing the OWN bit */
     for (i = 1000; i > 0; i--) {
@@ -426,7 +426,7 @@ static int pcnet_send(struct eth_device* dev, volatile void *packet, int pkt_len
 	if ((status & 0x8000) == 0)
 	    break;
 	udelay(100);
-	DEBUG2(".");
+	PCNET_DEBUG2(".");
     }
     if (i <= 0) {
 	printf("%s: TIMEOUT: Tx%d failed (status = 0x%x)\n",
@@ -452,7 +452,7 @@ static int pcnet_send(struct eth_device* dev, volatile void *packet, int pkt_len
     if (++lp->cur_tx >= TX_RING_SIZE)
 	lp->cur_tx = 0;
 
-    DEBUG2("done\n");
+    PCNET_DEBUG2("done\n");
     return pkt_len;
 }
 
@@ -475,7 +475,7 @@ static int pcnet_recv(struct eth_device* dev)
 	if (status != 0x03) {	/* There was an error. */
 
 	    printf("%s: Rx%d", dev->name, lp->cur_rx);
-	    DEBUG1(" (status=0x%x)", status);
+	    PCNET_DEBUG1(" (status=0x%x)", status);
 	    if (status & 0x20) printf(" Frame");
 	    if (status & 0x10) printf(" Overflow");
 	    if (status & 0x08) printf(" CRC");
@@ -491,7 +491,7 @@ static int pcnet_recv(struct eth_device* dev)
 		       dev->name, lp->cur_rx, pkt_len);
 	    } else {
 		NetReceive(lp->rx_buf[lp->cur_rx], pkt_len);
-		DEBUG2("Rx%d: %d bytes from 0x%p\n",
+		PCNET_DEBUG2("Rx%d: %d bytes from 0x%p\n",
 		       lp->cur_rx, pkt_len, lp->rx_buf[lp->cur_rx]);
 	    }
 	}
@@ -507,7 +507,7 @@ static void pcnet_halt(struct eth_device* dev)
 {
     int i;
 
-    DEBUG1("%s: pcnet_halt...\n", dev->name);
+    PCNET_DEBUG1("%s: pcnet_halt...\n", dev->name);
 
     /* Reset the PCnet controller */
     pcnet_reset (dev);

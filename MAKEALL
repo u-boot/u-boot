@@ -131,7 +131,7 @@ LIST_SA="assabet dnp1110 gcplus lart shannon"
 ## ARM7 Systems
 #########################################################################
 
-LIST_ARM7="B2 ep7312 impa7"
+LIST_ARM7="B2 ep7312 evb4510 impa7 modnet50"
 
 #########################################################################
 ## ARM9 Systems

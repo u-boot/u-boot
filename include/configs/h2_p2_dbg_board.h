@@ -108,14 +108,14 @@
 static inline void set_led_state(int state)
 {
 	static unsigned long hw_led_state = 0;
-	volatile unsigned short *led_address = 0x04000016;
+	volatile unsigned short *led_address = (volatile unsigned short *)0x04000016;
 
 	hw_led_state = ((unsigned long)state);
 	*((unsigned short *) (led_address)) = (unsigned short) (~hw_led_state & 0xFFFF);
 }
 
 
-static inline void spin_up_leds()
+static inline void spin_up_leds(void)
 {
 	volatile int i, j, k;
 

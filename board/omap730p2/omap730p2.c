@@ -84,9 +84,6 @@ void toggle_backup_led(void)
 
 int board_init (void)
 {
-	volatile unsigned int *IOConfReg;
-
-
 	DECLARE_GLOBAL_DATA_PTR;
 
 	/* arch number of OMAP 730 P2 Board - Same as the Innovator! */
@@ -100,13 +97,11 @@ int board_init (void)
 
 	peripheral_power_enable ();
 
-
 	/* Backup LED indication via GPIO_140 -> Red led if MUX correctly setup */
 	toggle_backup_led();
 
 	/* Hold GSM in reset until needed */
 	*((volatile unsigned short *)M_CTL) &= ~1;
-
 
 	/*
 	 *  CSx timings, GPIO Mux ... setup

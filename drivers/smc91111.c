@@ -795,11 +795,11 @@ static int smc_open (bd_t * bd)
 
 		address = smc_mac_addr[i + 1] << 8;
 		address |= smc_mac_addr[i];
-		SMC_outw (address, ADDR0_REG + i);
+		SMC_outw (address, (ADDR0_REG + i));
 	}
 #else
 	for (i = 0; i < 6; i++)
-		SMC_outb (smc_mac_addr[i], ADDR0_REG + i);
+		SMC_outb (smc_mac_addr[i], (ADDR0_REG + i));
 #endif
 
 	return 0;
@@ -1550,7 +1550,7 @@ int get_rom_mac (char *v_rom_mac)
 	SMC_SELECT_BANK (1);
 	for (i=0; i<6; i++)
 	{
-		v_rom_mac[i] = SMC_inb (ADDR0_REG + i);
+		v_rom_mac[i] = SMC_inb ((ADDR0_REG + i));
 		valid_mac |= v_rom_mac[i];
 	}
 

@@ -75,63 +75,80 @@ cpu_init_f (void)
  */
 
 #define M_CONFIG_WRITE_HALFWORD( addr, data ) \
-    __asm__ __volatile__(     \
-      "                       \
-      stw  %2,0(%0)\n         \
-      sync\n                  \
-      sth  %3,2(%1)\n         \
-      sync\n                  \
-      "                       \
-      : /* no output */       \
-      : "r" (CONFIG_ADDR), "r" (CONFIG_DATA),                 \
-	"r" (PCISWAP(addr & ~3)), "r" (PCISWAP(data << 16))   \
-      );
+	__asm__ __volatile__("		\
+		stw  %2,0(%0)\n		\
+		sync\n			\
+		sth  %3,2(%1)\n		\
+		sync\n			\
+		"			\
+		: /* no output */	\
+		: "r" (CONFIG_ADDR), "r" (CONFIG_DATA),			\
+		"r" (PCISWAP(addr & ~3)), "r" (PCISWAP(data << 16))	\
+	);
 
-    M_CONFIG_WRITE_HALFWORD(PCIACR, 0x8000);
+	M_CONFIG_WRITE_HALFWORD(PCIACR, 0x8000);
 #endif
 
-    CONFIG_WRITE_BYTE(PCLSR, 0x8);	/* set PCI cache line size */
+	CONFIG_WRITE_BYTE(PCLSR, 0x8);	/* set PCI cache line size */
 
-    /*
-     * Note that although this bit is cleared after a hard reset, it
-     * must be explicitly set and then cleared by software during
-     * initialization in order to guarantee correct operation of the
-     * DLL and the SDRAM_CLK[0:3] signals (if they are used).
-     */
-    CONFIG_READ_BYTE (AMBOR, val);
-    CONFIG_WRITE_BYTE(AMBOR, val & 0xDF);
-    CONFIG_WRITE_BYTE(AMBOR, val | 0x20);
-    CONFIG_WRITE_BYTE(AMBOR, val & 0xDF);
+	/*
+	* Note that although this bit is cleared after a hard reset, it
+	* must be explicitly set and then cleared by software during
+	* initialization in order to guarantee correct operation of the
+	* DLL and the SDRAM_CLK[0:3] signals (if they are used).
+	*/
+	CONFIG_READ_BYTE (AMBOR, val);
+	CONFIG_WRITE_BYTE(AMBOR, val & 0xDF);
+	CONFIG_WRITE_BYTE(AMBOR, val | 0x20);
+	CONFIG_WRITE_BYTE(AMBOR, val & 0xDF);
+#ifdef CONFIG_MPC8245
+	/* silicon bug 28 MPC8245 */
+	CONFIG_READ_BYTE(AMBOR,val);
+	CONFIG_WRITE_BYTE(AMBOR,val|0x1);
 
-    CONFIG_READ_WORD(PICR1, val);
+	CONFIG_READ_BYTE(PCMBCR,val);
+	/* in order not to corrupt data which is being read over the PCI bus
+	* with the PPC as master, we need to reduce the number of PCMRBs to 1,
+	* 4.11 in the  processor user manual
+	* */
+
+#if 1
+	CONFIG_WRITE_BYTE(PCMBCR,(val|0xC0)); /* 1 PCMRB */
+#else
+	CONFIG_WRITE_BYTE(PCMBCR,(val|0x80)); /* 2 PCMRBs */
+	CONFIG_WRITE_BYTE(PCMBCR,(val|0x40)); /* 3 PCMRBs */
+#endif
+#endif
+
+	CONFIG_READ_WORD(PICR1, val);
 #if defined(CONFIG_MPC8240)
-    CONFIG_WRITE_WORD( PICR1,
-       (val & (PICR1_ADDRESS_MAP | PICR1_RCS0)) |
-	       PIRC1_MSK | PICR1_PROC_TYPE_603E |
-	       PICR1_FLASH_WR_EN | PICR1_MCP_EN |
-	       PICR1_CF_DPARK | PICR1_EN_PCS |
-	       PICR1_CF_APARK );
+	CONFIG_WRITE_WORD( PICR1,
+		(val & (PICR1_ADDRESS_MAP | PICR1_RCS0)) |
+		       PIRC1_MSK | PICR1_PROC_TYPE_603E |
+		       PICR1_FLASH_WR_EN | PICR1_MCP_EN |
+		       PICR1_CF_DPARK | PICR1_EN_PCS |
+		       PICR1_CF_APARK );
 #elif defined(CONFIG_MPC8245)
-    CONFIG_WRITE_WORD( PICR1,
-       (val & (PICR1_RCS0)) |
-	       PICR1_PROC_TYPE_603E |
-	       PICR1_FLASH_WR_EN | PICR1_MCP_EN |
-	       PICR1_CF_DPARK | PICR1_NO_BUSW_CK |
-	       PICR1_DEC| PICR1_CF_APARK | 0x10);	/* 8245 UM says bit 4 must be set */
+	CONFIG_WRITE_WORD( PICR1,
+		(val & (PICR1_RCS0)) |
+		       PICR1_PROC_TYPE_603E |
+		       PICR1_FLASH_WR_EN | PICR1_MCP_EN |
+		       PICR1_CF_DPARK | PICR1_NO_BUSW_CK |
+		       PICR1_DEC| PICR1_CF_APARK | 0x10); /* 8245 UM says bit 4 must be set */
 #else
 #error Specific type of MPC824x must be defined (i.e. CONFIG_MPC8240)
 #endif
 
-    CONFIG_READ_WORD(PICR2, val);
-    val= val & ~ (PICR2_CF_SNOOP_WS_MASK | PICR2_CF_APHASE_WS_MASK); /*mask off waitstate bits*/
+	CONFIG_READ_WORD(PICR2, val);
+	val= val & ~ (PICR2_CF_SNOOP_WS_MASK | PICR2_CF_APHASE_WS_MASK); /*mask off waitstate bits*/
 #ifndef CONFIG_PN62
-    val |= PICR2_CF_SNOOP_WS_1WS | PICR2_CF_APHASE_WS_1WS; /*1 wait state*/
+	val |= PICR2_CF_SNOOP_WS_1WS | PICR2_CF_APHASE_WS_1WS; /*1 wait state*/
 #endif
-    CONFIG_WRITE_WORD(PICR2, val);
+	CONFIG_WRITE_WORD(PICR2, val);
 
-    CONFIG_WRITE_WORD(EUMBBAR, CFG_EUMB_ADDR);
+	CONFIG_WRITE_WORD(EUMBBAR, CFG_EUMB_ADDR);
 #ifndef CFG_RAMBOOT
-    CONFIG_WRITE_WORD(MCCR1, (CFG_ROMNAL << MCCR1_ROMNAL_SHIFT) |
+	CONFIG_WRITE_WORD(MCCR1, (CFG_ROMNAL << MCCR1_ROMNAL_SHIFT) |
 				 (CFG_BANK0_ROW) |
 				 (CFG_BANK1_ROW << MCCR1_BANK1ROW_SHIFT) |
 				 (CFG_BANK2_ROW << MCCR1_BANK2ROW_SHIFT) |
@@ -140,26 +157,26 @@ cpu_init_f (void)
 				 (CFG_BANK5_ROW << MCCR1_BANK5ROW_SHIFT) |
 				 (CFG_BANK6_ROW << MCCR1_BANK6ROW_SHIFT) |
 				 (CFG_BANK7_ROW << MCCR1_BANK7ROW_SHIFT) |
-			     (CFG_ROMFAL << MCCR1_ROMFAL_SHIFT));
+				 (CFG_ROMFAL << MCCR1_ROMFAL_SHIFT));
 #endif
 
 #if defined(CFG_ASRISE) && defined(CFG_ASFALL)
-    CONFIG_WRITE_WORD(MCCR2, CFG_REFINT << MCCR2_REFINT_SHIFT |
-			     CFG_ASRISE << MCCR2_ASRISE_SHIFT |
-			     CFG_ASFALL << MCCR2_ASFALL_SHIFT);
+	CONFIG_WRITE_WORD(MCCR2, CFG_REFINT << MCCR2_REFINT_SHIFT |
+				 CFG_ASRISE << MCCR2_ASRISE_SHIFT |
+				 CFG_ASFALL << MCCR2_ASFALL_SHIFT);
 #else
-    CONFIG_WRITE_WORD(MCCR2, CFG_REFINT << MCCR2_REFINT_SHIFT);
+	CONFIG_WRITE_WORD(MCCR2, CFG_REFINT << MCCR2_REFINT_SHIFT);
 #endif
 
 #if defined(CONFIG_MPC8240)
-    CONFIG_WRITE_WORD(MCCR3,
-	(((CFG_BSTOPRE & 0x003c) >> 2) << MCCR3_BSTOPRE2TO5_SHIFT) |
-	(CFG_REFREC << MCCR3_REFREC_SHIFT) |
-	(CFG_RDLAT  << MCCR3_RDLAT_SHIFT));
+	CONFIG_WRITE_WORD(MCCR3,
+		(((CFG_BSTOPRE & 0x003c) >> 2) << MCCR3_BSTOPRE2TO5_SHIFT) |
+		(CFG_REFREC << MCCR3_REFREC_SHIFT) |
+		(CFG_RDLAT  << MCCR3_RDLAT_SHIFT));
 #elif defined(CONFIG_MPC8245)
-    CONFIG_WRITE_WORD(MCCR3,
-	(((CFG_BSTOPRE & 0x003c) >> 2) << MCCR3_BSTOPRE2TO5_SHIFT) |
-	(CFG_REFREC << MCCR3_REFREC_SHIFT));
+	CONFIG_WRITE_WORD(MCCR3,
+		(((CFG_BSTOPRE & 0x003c) >> 2) << MCCR3_BSTOPRE2TO5_SHIFT) |
+		(CFG_REFREC << MCCR3_REFREC_SHIFT));
 #else
 #error Specific type of MPC824x must be defined (i.e. CONFIG_MPC8240)
 #endif
@@ -190,67 +207,67 @@ cpu_init_f (void)
 		  (CFG_SDMODE_BURSTLEN)) <<MCCR4_SDMODE_SHIFT) |
 	(((CFG_BSTOPRE & 0x03c0) >> 6) <<MCCR4_BSTOPRE6TO9_SHIFT ));
 #elif defined(CONFIG_MPC8245)
-    CONFIG_READ_WORD(MCCR1, val);
-    val &= MCCR1_DBUS_SIZE0;    /* test for 64-bit mem bus */
+	CONFIG_READ_WORD(MCCR1, val);
+	val &= MCCR1_DBUS_SIZE0;    /* test for 64-bit mem bus */
 
-    CONFIG_WRITE_WORD(MCCR4,
-	(CFG_PRETOACT << MCCR4_PRETOACT_SHIFT) |
-	(CFG_ACTTOPRE << MCCR4_ACTTOPRE_SHIFT) |
-	(CFG_EXTROM ? MCCR4_EXTROM : 0) |
-	(CFG_REGDIMM ? MCCR4_REGDIMM : 0) |
-	(CFG_REGISTERD_TYPE_BUFFER ? MCCR4_REGISTERED: 0) |
-	((CFG_BSTOPRE & 0x0003) <<MCCR4_BSTOPRE0TO1_SHIFT ) |
-	(CFG_DBUS_SIZE2 << MCCR4_DBUS_SIZE2_SHIFT) |
-	(((CFG_SDMODE_CAS_LAT <<4) | (CFG_SDMODE_WRAP <<3) |
-	      (val ? 2 : 3)) << MCCR4_SDMODE_SHIFT)  |
-	(CFG_ACTORW << MCCR4_ACTTORW_SHIFT) |
-	(((CFG_BSTOPRE & 0x03c0) >> 6) <<MCCR4_BSTOPRE6TO9_SHIFT ));
+	CONFIG_WRITE_WORD(MCCR4,
+		(CFG_PRETOACT << MCCR4_PRETOACT_SHIFT) |
+		(CFG_ACTTOPRE << MCCR4_ACTTOPRE_SHIFT) |
+		(CFG_EXTROM ? MCCR4_EXTROM : 0) |
+		(CFG_REGDIMM ? MCCR4_REGDIMM : 0) |
+		(CFG_REGISTERD_TYPE_BUFFER ? MCCR4_REGISTERED: 0) |
+		((CFG_BSTOPRE & 0x0003) <<MCCR4_BSTOPRE0TO1_SHIFT ) |
+		(CFG_DBUS_SIZE2 << MCCR4_DBUS_SIZE2_SHIFT) |
+		(((CFG_SDMODE_CAS_LAT <<4) | (CFG_SDMODE_WRAP <<3) |
+		      (val ? 2 : 3)) << MCCR4_SDMODE_SHIFT)  |
+		(CFG_ACTORW << MCCR4_ACTTORW_SHIFT) |
+		(((CFG_BSTOPRE & 0x03c0) >> 6) <<MCCR4_BSTOPRE6TO9_SHIFT ));
 #else
 #error Specific type of MPC824x must be defined (i.e. CONFIG_MPC8240)
 #endif
 
-    CONFIG_WRITE_WORD(MSAR1,
-	( (CFG_BANK0_START & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT) |
-	(((CFG_BANK1_START & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT) << 8) |
-	(((CFG_BANK2_START & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT) << 16) |
-	(((CFG_BANK3_START & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT) << 24));
-    CONFIG_WRITE_WORD(EMSAR1,
-	( (CFG_BANK0_START & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT) |
-	(((CFG_BANK1_START & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT) << 8) |
-	(((CFG_BANK2_START & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT) << 16) |
-	(((CFG_BANK3_START & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT) << 24));
-    CONFIG_WRITE_WORD(MSAR2,
-	( (CFG_BANK4_START & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT) |
-	(((CFG_BANK5_START & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT) << 8) |
-	(((CFG_BANK6_START & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT) << 16) |
-	(((CFG_BANK7_START & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT) << 24));
-    CONFIG_WRITE_WORD(EMSAR2,
-	( (CFG_BANK4_START & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT) |
-	(((CFG_BANK5_START & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT) << 8) |
-	(((CFG_BANK6_START & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT) << 16) |
-	(((CFG_BANK7_START & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT) << 24));
-    CONFIG_WRITE_WORD(MEAR1,
-	( (CFG_BANK0_END & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT) |
-	(((CFG_BANK1_END & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT) << 8) |
-	(((CFG_BANK2_END & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT) << 16) |
-	(((CFG_BANK3_END & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT) << 24));
-    CONFIG_WRITE_WORD(EMEAR1,
-	( (CFG_BANK0_END & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT) |
-	(((CFG_BANK1_END & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT) << 8) |
-	(((CFG_BANK2_END & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT) << 16) |
-	(((CFG_BANK3_END & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT) << 24));
-    CONFIG_WRITE_WORD(MEAR2,
-	( (CFG_BANK4_END & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT) |
-	(((CFG_BANK5_END & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT) << 8) |
-	(((CFG_BANK6_END & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT) << 16) |
-	(((CFG_BANK7_END & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT) << 24));
-    CONFIG_WRITE_WORD(EMEAR2,
-	( (CFG_BANK4_END & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT) |
-	(((CFG_BANK5_END & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT) << 8) |
-	(((CFG_BANK6_END & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT) << 16) |
-	(((CFG_BANK7_END & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT) << 24));
+	CONFIG_WRITE_WORD(MSAR1,
+		( (CFG_BANK0_START & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT) |
+		(((CFG_BANK1_START & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT) << 8) |
+		(((CFG_BANK2_START & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT) << 16) |
+		(((CFG_BANK3_START & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT) << 24));
+	CONFIG_WRITE_WORD(EMSAR1,
+		( (CFG_BANK0_START & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT) |
+		(((CFG_BANK1_START & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT) << 8) |
+		(((CFG_BANK2_START & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT) << 16) |
+		(((CFG_BANK3_START & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT) << 24));
+	CONFIG_WRITE_WORD(MSAR2,
+		( (CFG_BANK4_START & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT) |
+		(((CFG_BANK5_START & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT) << 8) |
+		(((CFG_BANK6_START & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT) << 16) |
+		(((CFG_BANK7_START & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT) << 24));
+	CONFIG_WRITE_WORD(EMSAR2,
+		( (CFG_BANK4_START & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT) |
+		(((CFG_BANK5_START & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT) << 8) |
+		(((CFG_BANK6_START & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT) << 16) |
+		(((CFG_BANK7_START & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT) << 24));
+	CONFIG_WRITE_WORD(MEAR1,
+		( (CFG_BANK0_END & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT) |
+		(((CFG_BANK1_END & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT) << 8) |
+		(((CFG_BANK2_END & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT) << 16) |
+		(((CFG_BANK3_END & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT) << 24));
+	CONFIG_WRITE_WORD(EMEAR1,
+		( (CFG_BANK0_END & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT) |
+		(((CFG_BANK1_END & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT) << 8) |
+		(((CFG_BANK2_END & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT) << 16) |
+		(((CFG_BANK3_END & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT) << 24));
+	CONFIG_WRITE_WORD(MEAR2,
+		( (CFG_BANK4_END & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT) |
+		(((CFG_BANK5_END & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT) << 8) |
+		(((CFG_BANK6_END & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT) << 16) |
+		(((CFG_BANK7_END & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT) << 24));
+	CONFIG_WRITE_WORD(EMEAR2,
+		( (CFG_BANK4_END & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT) |
+		(((CFG_BANK5_END & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT) << 8) |
+		(((CFG_BANK6_END & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT) << 16) |
+		(((CFG_BANK7_END & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT) << 24));
 
-    CONFIG_WRITE_BYTE(ODCR, CFG_ODCR);
+	CONFIG_WRITE_BYTE(ODCR, CFG_ODCR);
 #ifdef CFG_DLL_MAX_DELAY
 	CONFIG_WRITE_BYTE(MIOCR1, CFG_DLL_MAX_DELAY);	/* needed to make DLL lock */
 #endif
@@ -261,31 +278,31 @@ cpu_init_f (void)
 	CONFIG_WRITE_BYTE(MIOCR2, CFG_SDRAM_DSCD);	/* change memory input */
 #endif /* setup & hold time */
 
-    CONFIG_WRITE_BYTE(MBER,
-	 CFG_BANK0_ENABLE |
-	(CFG_BANK1_ENABLE << 1) |
-	(CFG_BANK2_ENABLE << 2) |
-	(CFG_BANK3_ENABLE << 3) |
-	(CFG_BANK4_ENABLE << 4) |
-	(CFG_BANK5_ENABLE << 5) |
-	(CFG_BANK6_ENABLE << 6) |
-	(CFG_BANK7_ENABLE << 7));
+	CONFIG_WRITE_BYTE(MBER,
+		 CFG_BANK0_ENABLE |
+		(CFG_BANK1_ENABLE << 1) |
+		(CFG_BANK2_ENABLE << 2) |
+		(CFG_BANK3_ENABLE << 3) |
+		(CFG_BANK4_ENABLE << 4) |
+		(CFG_BANK5_ENABLE << 5) |
+		(CFG_BANK6_ENABLE << 6) |
+		(CFG_BANK7_ENABLE << 7));
 
 #ifdef CFG_PGMAX
-    CONFIG_WRITE_BYTE(MPMR, CFG_PGMAX);
+	CONFIG_WRITE_BYTE(MPMR, CFG_PGMAX);
 #endif
 
-    /* ! Wait 200us before initialize other registers */
-    /*FIXME: write a decent udelay wait */
-    __asm__ __volatile__(
-      " mtctr	%0 \n \
-       0: bdnz	 0b\n"
-      :
-      : "r" (0x10000));
+	/* ! Wait 200us before initialize other registers */
+	/*FIXME: write a decent udelay wait */
+	__asm__ __volatile__(
+		" mtctr	%0 \n \
+		0: bdnz	 0b\n"
+		:
+		: "r" (0x10000));
 
-   CONFIG_READ_WORD(MCCR1, val);
-   CONFIG_WRITE_WORD(MCCR1, val | MCCR1_MEMGO); /* set memory access going */
-   __asm__ __volatile__("eieio");
+	CONFIG_READ_WORD(MCCR1, val);
+	CONFIG_WRITE_WORD(MCCR1, val | MCCR1_MEMGO); /* set memory access going */
+	__asm__ __volatile__("eieio");
 
 #endif /* !CONFIG_MOUSSE && !CONFIG_BMW */
 }
@@ -293,32 +310,32 @@ cpu_init_f (void)
 
 #ifdef CONFIG_MOUSSE
 #ifdef INCLUDE_MPC107_REPORT
-struct MPC107_s{
-    unsigned int iobase;
-    char desc[120];
-} MPC107Regs[] ={
-    {BMC_BASE+0x0,  "MPC107 Vendor/Device ID"},
-    {BMC_BASE+0x4,  "MPC107 PCI Command/Status Register"},
-    {BMC_BASE+0x8,  "MPC107 Revision"},
-    {BMC_BASE+0xC,  "MPC107 Cache Line Size"},
-    {BMC_BASE+0x10, "MPC107 LMBAR"},
-    {BMC_BASE+0x14, "MPC824x PCSR"},
-    {BMC_BASE+0xA8, "MPC824x PICR1"},
-    {BMC_BASE+0xAC, "MPC824x PICR2"},
-    {BMC_BASE+0x46, "MPC824x PACR"},
-    {BMC_BASE+0x310, "MPC824x ITWR"},
-    {BMC_BASE+0x300, "MPC824x OMBAR"},
-    {BMC_BASE+0x308, "MPC824x OTWR"},
-    {BMC_BASE+0x14, "MPC107 Peripheral Control and Status Register"},
-    {BMC_BASE+0x78, "MPC107 EUMBAR"},
-    {BMC_BASE+0xC0, "MPC107 Processor Bus Error Status"},
-    {BMC_BASE+0xC4, "MPC107 PCI Bus Error Status"},
-    {BMC_BASE+0xC8, "MPC107 Processor/PCI Error Address"},
-    {BMC_BASE+0xE0, "MPC107 AMBOR Register"},
-    {BMC_BASE+0xF0, "MPC107 MCCR1 Register"},
-    {BMC_BASE+0xF4, "MPC107 MCCR2 Register"},
-    {BMC_BASE+0xF8, "MPC107 MCCR3 Register"},
-    {BMC_BASE+0xFC, "MPC107 MCCR4 Register"}
+struct MPC107_s {
+	unsigned int iobase;
+	char desc[120];
+} MPC107Regs[] = {
+	{ BMC_BASE +  0x00, "MPC107 Vendor/Device ID"		},
+	{ BMC_BASE +  0x04, "MPC107 PCI Command/Status Register" },
+	{ BMC_BASE +  0x08, "MPC107 Revision"			},
+	{ BMC_BASE +  0x0C, "MPC107 Cache Line Size"		},
+	{ BMC_BASE +  0x10, "MPC107 LMBAR"			},
+	{ BMC_BASE +  0x14, "MPC824x PCSR"			},
+	{ BMC_BASE +  0xA8, "MPC824x PICR1"			},
+	{ BMC_BASE +  0xAC, "MPC824x PICR2"			},
+	{ BMC_BASE +  0x46, "MPC824x PACR"			},
+	{ BMC_BASE + 0x310, "MPC824x ITWR"			},
+	{ BMC_BASE + 0x300, "MPC824x OMBAR"			},
+	{ BMC_BASE + 0x308, "MPC824x OTWR"			},
+	{ BMC_BASE +  0x14, "MPC107 Peripheral Control and Status Register" },
+	{ BMC_BASE + 0x78, "MPC107 EUMBAR"			},
+	{ BMC_BASE + 0xC0, "MPC107 Processor Bus Error Status"	},
+	{ BMC_BASE + 0xC4, "MPC107 PCI Bus Error Status"	},
+	{ BMC_BASE + 0xC8, "MPC107 Processor/PCI Error Address"	},
+	{ BMC_BASE + 0xE0, "MPC107 AMBOR Register"		},
+	{ BMC_BASE + 0xF0, "MPC107 MCCR1 Register"		},
+	{ BMC_BASE + 0xF4, "MPC107 MCCR2 Register"		},
+	{ BMC_BASE + 0xF8, "MPC107 MCCR3 Register"		},
+	{ BMC_BASE + 0xFC, "MPC107 MCCR4 Register"		},
 };
 #define N_MPC107_Regs	(sizeof(MPC107Regs)/sizeof(MPC107Regs[0]))
 #endif /* INCLUDE_MPC107_REPORT */

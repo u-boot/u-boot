@@ -28,11 +28,8 @@
 
 #include <common.h>
 #include <clps7111.h>
-
 #include <asm/proc-armv/ptrace.h>
-#ifdef CONFIG_NETARM
-#include <asm/arch/netarm_registers.h>
-#endif
+#include <asm/hardware.h>
 
 extern void reset_cpu(ulong addr);
 
@@ -187,7 +184,8 @@ static ulong lastdec;
 
 int interrupt_init (void)
 {
-#ifdef CONFIG_NETARM
+
+#if defined(CONFIG_NETARM)
 	/* disable all interrupts */
 	IRQEN = 0;
 
@@ -198,7 +196,7 @@ int interrupt_init (void)
 
 	/* set timer 2 counter */
 	lastdec = TIMER_LOAD_VAL;
-#else
+#elif defined(CONFIG_IMPA7) || defined(CONFIG_EP7312)
 	/* disable all interrupts */
 	IO_INTMR1 = 0;
 
@@ -210,6 +208,11 @@ int interrupt_init (void)
 
 	/* set timer 1 counter */
 	lastdec = IO_TC1D = TIMER_LOAD_VAL;
+#elif defined(CONFIG_S3C4510B)
+	/* Nothing to do, interrupts not supported */
+	lastdec = 0;
+#else
+#error No interrupt_init() defined for this CPU type
 #endif
 	timestamp = 0;
 
@@ -219,6 +222,9 @@ int interrupt_init (void)
 /*
  * timer without interrupts
  */
+
+
+#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) || defined(CONFIG_NETARM)
 
 void reset_timer (void)
 {
@@ -285,3 +291,45 @@ void udelay_masked (unsigned long usec)
 	while (get_timer_masked () < tmo)
 		/*NOP*/;
 }
+
+#elif defined(CONFIG_S3C4510B)
+
+#define TMR_OFFSET (0x1000)
+
+void udelay (unsigned long usec)
+{
+	u32 rDATA;
+
+	rDATA = t_data_us(usec);
+
+	/* Stop timer 0 */
+	CLR_REG( REG_TMOD, TM0_RUN);
+
+	/* Configure for toggle mode */
+	SET_REG( REG_TMOD, TM0_TOGGLE);
+
+	/* Load Timer data register with count down value plus offset */
+	PUT_REG( REG_TDATA0, rDATA + TMR_OFFSET);
+
+	/* Clear timer counter register */
+	PUT_REG( REG_TCNT0, 0x0);
+
+	/* Start timer -- count down timer */
+	SET_REG( REG_TMOD, TM0_RUN);
+
+	/* spin during count down */
+	while ( GET_REG( REG_TCNT0) > TMR_OFFSET);
+
+	/* Stop timer */
+	CLR_REG( REG_TMOD, TM0_RUN);
+
+}
+
+ulong get_timer (ulong base)
+{
+	return (0xFFFFFFFF - GET_REG( REG_TCNT1)) - base;
+}
+
+#else
+#error Timer routines not defined for this CPU type
+#endif

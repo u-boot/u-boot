@@ -33,7 +33,73 @@
 #include <common.h>
 #include <command.h>
 #include <clps7111.h>
+#include <asm/hardware.h>
 
+int cpu_init (void)
+{
+	/*
+	 * setup up stacks if necessary
+	 */
+#ifdef CONFIG_USE_IRQ
+	DECLARE_GLOBAL_DATA_PTR;
+
+	IRQ_STACK_START = _armboot_start - CFG_MALLOC_LEN - CFG_GBL_DATA_SIZE - 4;
+	FIQ_STACK_START = IRQ_STACK_START - CONFIG_STACKSIZE_IRQ;
+#endif
+	return 0;
+}
+
+int cleanup_before_linux (void)
+{
+	/*
+	 * this function is called just before we call linux
+	 * it prepares the processor for linux
+	 *
+	 * we turn off caches etc ...
+	 * and we set the CPU-speed to 73 MHz - see start.S for details
+	 */
+
+#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312)
+	unsigned long i;
+
+	disable_interrupts ();
+
+	/* turn off I-cache */
+	asm ("mrc p15, 0, %0, c1, c0, 0":"=r" (i));
+	i &= ~0x1000;
+	asm ("mcr p15, 0, %0, c1, c0, 0": :"r" (i));
+
+	/* flush I-cache */
+	asm ("mcr p15, 0, %0, c7, c5, 0": :"r" (i));
+#ifdef CONFIG_ARM7_REVD
+	/* go to high speed */
+	IO_SYSCON3 = (IO_SYSCON3 & ~CLKCTL) | CLKCTL_73;
+#endif
+#elif defined(CONFIG_NETARM) || defined(CONFIG_S3C4510B)
+	disable_interrupts ();
+	/* Nothing more needed */
+#else
+#error No cleanup_before_linux() defined for this CPU type
+#endif
+	return 0;
+}
+
+int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	extern void reset_cpu (ulong addr);
+
+	disable_interrupts ();
+	reset_cpu (0);
+	/*NOTREACHED*/
+	return (0);
+}
+
+/*
+ * Instruction and Data cache enable and disable functions
+ *
+ */
+
+#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) || defined(CONFIG_NETARM)
 /* read co-processor 15, register #1 (control register) */
 static unsigned long read_p15_c1(void)
 {
@@ -78,61 +144,6 @@ static void cp_delay (void)
 #define C1_SYS_PROT	(1<<8)	/* system protection */
 #define C1_ROM_PROT	(1<<9)	/* ROM protection */
 #define C1_HIGH_VECTORS	(1<<13)	/* location of vectors: low/high addresses */
-
-int cpu_init (void)
-{
-	/*
-	 * setup up stacks if necessary
-	 */
-#ifdef CONFIG_USE_IRQ
-	DECLARE_GLOBAL_DATA_PTR;
-
-	IRQ_STACK_START = _armboot_start - CFG_MALLOC_LEN - CFG_GBL_DATA_SIZE - 4;
-	FIQ_STACK_START = IRQ_STACK_START - CONFIG_STACKSIZE_IRQ;
-#endif
-	return 0;
-}
-
-int cleanup_before_linux (void)
-{
-	/*
-	 * this function is called just before we call linux
-	 * it prepares the processor for linux
-	 *
-	 * we turn off caches etc ...
-	 * and we set the CPU-speed to 73 MHz - see start.S for details
-	 */
-
-	unsigned long i;
-
-	disable_interrupts ();
-#ifdef CONFIG_NETARM
-	return 0;
-#endif
-	/* turn off I-cache */
-	asm ("mrc p15, 0, %0, c1, c0, 0":"=r" (i));
-	i &= ~0x1000;
-	asm ("mcr p15, 0, %0, c1, c0, 0": :"r" (i));
-
-	/* flush I-cache */
-	asm ("mcr p15, 0, %0, c7, c5, 0": :"r" (i));
-
-#ifdef CONFIG_ARM7_REVD
-	/* go to high speed */
-	IO_SYSCON3 = (IO_SYSCON3 & ~CLKCTL) | CLKCTL_73;
-#endif
-	return 0;
-}
-
-int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
-{
-	extern void reset_cpu (ulong addr);
-
-	disable_interrupts ();
-	reset_cpu (0);
-	/*NOTREACHED*/
-	return (0);
-}
 
 void icache_enable (void)
 {
@@ -179,3 +190,65 @@ int dcache_status (void)
 {
 	return (read_p15_c1 () & C1_IDC) != 0;
 }
+
+#elif defined(CONFIG_S3C4510B)
+
+void icache_enable (void)
+{
+	s32 i;
+
+	/* disable all cache bits */
+	CLR_REG( REG_SYSCFG, 0x3F);
+
+	/* 8KB cache, write enable */
+	SET_REG( REG_SYSCFG, CACHE_WRITE_BUFF | CACHE_MODE_01);
+
+	/* clear TAG RAM bits */
+	for ( i = 0; i < 256; i++)
+	  PUT_REG( CACHE_TAG_RAM + 4*i, 0x00000000);
+
+	/* clear SET0 RAM */
+	for(i=0; i < 1024; i++)
+	  PUT_REG( CACHE_SET0_RAM + 4*i, 0x00000000);
+
+	/* clear SET1 RAM */
+	for(i=0; i < 1024; i++)
+	  PUT_REG( CACHE_SET1_RAM + 4*i, 0x00000000);
+
+	/* enable cache */
+	SET_REG( REG_SYSCFG, CACHE_ENABLE);
+
+}
+
+void icache_disable (void)
+{
+	/* disable all cache bits */
+	CLR_REG( REG_SYSCFG, 0x3F);
+}
+
+int icache_status (void)
+{
+	return GET_REG( REG_SYSCFG) & CACHE_ENABLE;
+}
+
+void dcache_enable (void)
+{
+	/* we don't have seperate instruction/data caches */
+	icache_enable();
+}
+
+void dcache_disable (void)
+{
+	/* we don't have seperate instruction/data caches */
+	icache_disable();
+}
+
+int dcache_status (void)
+{
+	/* we don't have seperate instruction/data caches */
+	return icache_status();
+}
+
+#else
+#error No icache/dcache enable/disable functions defined for this CPU type
+#endif

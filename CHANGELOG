@@ -2,6 +2,15 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Curt Brune, 17 May 2004:
+  - Add support for Samsung S3C4510B CPU (ARM7tdmi based SoC)
+  - Add support for ESPD-Inc. EVB4510 Board
+
+* Patch by Marc Leeman, 11 May 2004:
+  Fix for MPC8245 - reading PPC Memory from another device with the
+  PPC as PCI target device corrupts data due to interenal hardware
+  buffering.
+
 * Fix "cls" command when used with splash screen
 
 * Increase NFS download timeout (now 1 min - 10 sec is to short for a
