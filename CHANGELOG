@@ -2,6 +2,15 @@
 Changes since U-Boot 0.3.1:
 ======================================================================
 
+* Patch by Stefan Roese, 05 Jun 2003:
+  - PPC4xx: Fix bug for initial stack in data cache as pointed out by
+    Thomas Schaefer (tschaefer@giga-stream.de). Now inital stack in
+    data cache can be used even if the chip select is in use.
+  - CFG_RX_ETH_BUFFER added to set the ethernet receive buffer count
+    (see README for further description).
+  - Changed config files of CONFIG_EEPRO100 boards to use the
+    CFG_RX_ETH_BUFFER define.
+
 * Patch by Denis Peter, 04 June 2003:
   add support for the MIP405T board
 
