@@ -39,6 +39,14 @@
 #define CONFIG_MPC823		1	/* This is a MPC823E CPU	*/
 #define CONFIG_LWMON		1	/* ...on a LWMON board		*/
 
+/* Default Ethernet MAC address */
+#define CONFIG_ETHADDR          00:11:B0:00:00:00
+
+/* The default Ethernet MAC address can be overwritten just once */
+#ifdef CONFIG_ETHADDR
+#define CONFIG_OVERWRITE_ETHADDR_ONCE   1
+#endif
+
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_early_init_f	*/
 #define CONFIG_BOARD_POSTCLK_INIT 1	/* Call board_postclk_init	*/
 
@@ -76,17 +84,22 @@
 				 CFG_POST_SPR	   | \
 				 CFG_POST_SYSMON)
 
-#define CONFIG_BOOTCOMMAND	"run flash_self"
-
 /*
  * Keyboard commands:
  * # = 0x28 = ENTER :		enable bootmessages on LCD
  * 2 = 0x3A+0x3C = F1 + F3 :	enable update mode
  * 3 = 0x3C+0x3F = F3 + F6 :	enable test mode
  */
+
+#define CONFIG_BOOTCOMMAND "autoscr 40040000;saveenv"
+
+/*	"gatewayip=10.8.211.250\0"			                \ */
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"kernel_addr=40080000\0"					\
 	"ramdisk_addr=40280000\0"					\
+	"netmask=255.255.192.0\0"				        \
+	"serverip=10.8.2.101\0"				                \
+	"ipaddr=10.8.57.0\0"				                \
 	"magic_keys=#23\0"						\
 	"key_magic#=28\0"						\
 	"key_cmd#=setenv addfb setenv 'bootargs $bootargs console=tty0'\0" \

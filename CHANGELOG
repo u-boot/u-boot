@@ -2,6 +2,12 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Fix configuration for ERIC board (needs more room)
+
+* Adjust MIPS compiler options at run-time depending on tools version
+  ("-march=4kc -mtune=4kc -Wa,-mips_allow_branch_to_undefined" for new,
+  "-mcpu=4kc" for old tools)
+
 * Add passing of the command line and memory size information to  the
   kernel on xaeniax board.
 
