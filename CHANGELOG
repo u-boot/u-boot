@@ -2,6 +2,10 @@
 Changes since U-Boot 0.3.1:
 ======================================================================
 
+* Patch by Murray Jensen, 20 Jun 2003:
+  - hymod update
+  - cleanup (especially for gcc-3.x compilers)
+
 * Patch by Tom Guilliams, 20 Jun 2003:
   added CONFIG_750FX support for IBM 750FX processors
 

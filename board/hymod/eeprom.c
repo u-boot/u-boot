@@ -39,62 +39,61 @@ hymod_eeprom_load (int which, hymod_eeprom_t *ep)
 	unsigned dev_addr = CFG_I2C_EEPROM_ADDR | \
 		(which ? HYMOD_EEOFF_MEZZ : HYMOD_EEOFF_MAIN);
 	unsigned offset = 0;
-	uchar data[HYMOD_EEPROM_SIZE], *dp, *edp;
-	hymod_eehdr_t *hp;
+	uchar data[HYMOD_EEPROM_MAXLEN], *dp, *edp;
+	hymod_eehdr_t hdr;
 	ulong len, crc;
 
 	memset (ep, 0, sizeof *ep);
-	memset (data, 0, HYMOD_EEPROM_SIZE);
-	crc = 0;
 
-	hp = (hymod_eehdr_t *)data;
-	eeprom_read (dev_addr, offset, (uchar *)hp, sizeof (*hp));
-	offset += sizeof (*hp);
+	eeprom_read (dev_addr, offset, (uchar *)&hdr, sizeof (hdr));
+	offset += sizeof (hdr);
 
-	if (hp->id != HYMOD_EEPROM_ID || hp->ver > HYMOD_EEPROM_VER ||
-	  (len = hp->len) > HYMOD_EEPROM_MAXLEN)
+	if (hdr.id != HYMOD_EEPROM_ID || hdr.ver > HYMOD_EEPROM_VER ||
+	  (len = hdr.len) > HYMOD_EEPROM_MAXLEN)
 	    return (0);
 
-	dp = (uchar *)(hp + 1); edp = dp + len;
-	eeprom_read (dev_addr, offset, dp, len);
+	eeprom_read (dev_addr, offset, data, len);
 	offset += len;
 
 	eeprom_read (dev_addr, offset, (uchar *)&crc, sizeof (ulong));
+	offset += sizeof (ulong);
 
-	if (crc32 (0, data, edp - data) != crc)
+	if (crc32 (crc32 (0, (char *)&hdr, sizeof hdr), data, len) != crc)
 		return (0);
 
-	ep->ver = hp->ver;
+	ep->ver = hdr.ver;
+	dp = data; edp = dp + len;
 
 	for (;;) {
-		hymod_eerec_t *rp = (hymod_eerec_t *)dp;
 		ulong rtyp;
 		uchar rlen, *rdat;
-		uint rsiz;
 
-		if (rp->small.topbit == 0) {
-		    rtyp = rp->small.type;
-		    rlen = rp->small.len;
-		    rdat = rp->small.data;
-		    rsiz = offsetof (hymod_eerec_t, small.data) + rlen;
-		}
-		else if (rp->medium.nxtbit == 0) {
-		    rtyp = rp->medium.type;
-		    rlen = rp->medium.len;
-		    rdat = rp->medium.data;
-		    rsiz = offsetof (hymod_eerec_t, medium.data) + rlen;
-		}
+		rtyp = *dp++;
+		if ((rtyp & 0x80) == 0)
+			rlen = *dp++;
 		else {
-		    rtyp = rp->large.type;
-		    rlen = rp->large.len;
-		    rdat = rp->large.data;
-		    rsiz = offsetof (hymod_eerec_t, large.data) + rlen;
+			uchar islarge = rtyp & 0x40;
+
+			rtyp = ((rtyp & 0x3f) << 8) | *dp++;
+			if (islarge) {
+				rtyp = (rtyp << 8) | *dp++;
+				rtyp = (rtyp << 8) | *dp++;
+			}
+
+			rlen = *dp++;
+			rlen = (rlen << 8) | *dp++;
+			if (islarge) {
+				rlen = (rlen << 8) | *dp++;
+				rlen = (rlen << 8) | *dp++;
+			}
 		}
 
 		if (rtyp == 0)
 			break;
 
-		dp += rsiz;
+		rdat = dp;
+		dp += rlen;
+
 		if (dp > edp)	/* error? */
 			break;
 
@@ -102,12 +101,20 @@ hymod_eeprom_load (int which, hymod_eeprom_t *ep)
 
 		case HYMOD_EEREC_SERNO:		/* serial number */
 			if (rlen == sizeof (ulong))
-				memcpy (&ep->serno, rdat, sizeof (ulong));
+				ep->serno = \
+					((ulong)rdat[0] << 24) | \
+					((ulong)rdat[1] << 16) | \
+					((ulong)rdat[2] << 8) | \
+					(ulong)rdat[3];
 			break;
 
 		case HYMOD_EEREC_DATE:		/* date */
-			if (rlen == sizeof (hymod_date_t))
-				memcpy (&ep->date, rdat, sizeof (hymod_date_t));
+			if (rlen == sizeof (hymod_date_t)) {
+				ep->date.year = ((ushort)rdat[0] << 8) | \
+					(ushort)rdat[1];
+				ep->date.month = rdat[2];
+				ep->date.day = rdat[3];
+			}
 			break;
 
 		case HYMOD_EEREC_BATCH:		/* batch */
@@ -250,18 +257,13 @@ eerec_map_t;
 static uchar *
 uint_handler (eerec_map_t *rp, uchar *val, uchar *dp, uchar *edp)
 {
-	uchar *eval;
-	union {
-		uchar cval[4];
-		ushort sval[2];
-		ulong lval;
-	} rdata;
+	char *eval;
+	ulong lval;
 
-	rdata.lval = simple_strtol (val, (char **)&eval, 10);
+	lval = simple_strtol (val, &eval, 10);
 
-	if (eval == val || *eval != '\0') {
-		printf ("%s rec (%s) is not a valid uint\n",
-			rp->name, val);
+	if ((uchar *)eval == val || *eval != '\0') {
+		printf ("%s rec (%s) is not a valid uint\n", rp->name, val);
 		return (NULL);
 	}
 
@@ -276,27 +278,29 @@ uint_handler (eerec_map_t *rp, uchar *val, uchar *dp, uchar *edp)
 	switch (rp->length) {
 
 	case 1:
-		if (rdata.lval >= 256) {
+		if (lval >= 256) {
 			printf ("%s rec value (%lu) out of range (0-255)\n",
-				rp->name, rdata.lval);
+				rp->name, lval);
 			return (NULL);
 		}
-		*dp++ = rdata.cval[3];
+		*dp++ = lval;
 		break;
 
 	case 2:
-		if (rdata.lval >= 65536) {
+		if (lval >= 65536) {
 			printf ("%s rec value (%lu) out of range (0-65535)\n",
-				rp->name, rdata.lval);
+				rp->name, lval);
 			return (NULL);
 		}
-		memcpy (dp, &rdata.sval[1], 2);
-		dp += 2;
+		*dp++ = lval >> 8;
+		*dp++ = lval;
 		break;
 
 	case 4:
-		memcpy (dp, &rdata.lval, 4);
-		dp += 4;
+		*dp++ = lval >> 24;
+		*dp++ = lval >> 16;
+		*dp++ = lval >> 8;
+		*dp++ = lval;
 		break;
 
 	default:
@@ -311,32 +315,41 @@ static uchar *
 date_handler (eerec_map_t *rp, uchar *val, uchar *dp, uchar *edp)
 {
 	hymod_date_t date;
-	uchar *p = val, *ep;
+	uchar *p = val;
+	char *ep;
+	ulong lval;
 
-	date.year = simple_strtol (p, (char **)&ep, 10);
-	if (ep == p || *ep++ != '-') {
+	lval = simple_strtol (p, &ep, 10);
+	if ((uchar *)ep == p || *ep++ != '-') {
 bad_date:
 		printf ("%s rec (%s) is not a valid date\n", rp->name, val);
 		return (NULL);
 	}
-
-	date.month = simple_strtol (p = ep, (char **)&ep, 10);
-	if (ep == p || *ep++ != '-' || date.month == 0 || date.month > 12)
+	if (lval >= 65536)
 		goto bad_date;
+	date.year = lval;
 
-	date.day = simple_strtol (p = ep, (char **)&ep, 10);
-	if (ep == p || *ep != '\0' || date.day == 0 || date.day > 31)
+	lval = simple_strtol (p = ep, &ep, 10);
+	if ((uchar *)ep == p || *ep++ != '-' || lval == 0 || lval > 12)
 		goto bad_date;
+	date.month = lval;
 
-	if (dp + 2 + sizeof (hymod_date_t) > edp) {
+	lval = simple_strtol (p = ep, &ep, 10);
+	if ((uchar *)ep == p || *ep != '\0' || lval == 0 || lval > 31)
+		goto bad_date;
+	date.day = lval;
+
+	if (dp + 2 + rp->length > edp) {
 		printf ("can't fit %s rec into eeprom\n", rp->name);
 		return (NULL);
 	}
 
 	*dp++ = rp->type;
-	*dp++ = sizeof (hymod_date_t);
-	memcpy (dp, &date, sizeof (hymod_date_t));
-	dp += sizeof (hymod_date_t);
+	*dp++ = rp->length;
+	*dp++ = date.year >> 8;
+	*dp++ = date.year;
+	*dp++ = date.month;
+	*dp++ = date.day;
 
 	return (dp);
 }
@@ -368,29 +381,28 @@ string_handler (eerec_map_t *rp, uchar *val, uchar *dp, uchar *edp)
 static uchar *
 bytes_handler (eerec_map_t *rp, uchar *val, uchar *dp, uchar *edp)
 {
-	uchar bytes[HYMOD_MAX_BYTES], nbytes = 0;
-	uchar *p = val, *ep;
+	uchar bytes[HYMOD_MAX_BYTES], nbytes, *p;
+	char *ep;
 
-	for (;;) {
+	for (nbytes = 0, p = val; *p != '\0'; p = (uchar *)ep) {
+		ulong lval;
 
+		lval = simple_strtol (p, &ep, 10);
+		if ((uchar *)ep == p || (*ep != '\0' && *ep != ',') || \
+		    lval >= 256) {
+			printf ("%s rec (%s) byte array has invalid uint\n",
+				rp->name, val);
+			return (NULL);
+		}
 		if (nbytes >= HYMOD_MAX_BYTES) {
 			printf ("%s rec (%s) byte array too long\n",
 				rp->name, val);
 			return (NULL);
 		}
+		bytes[nbytes++] = lval;
 
-		bytes[nbytes++] = simple_strtol (p, (char **)&ep, 10);
-
-		if (ep == p || (*ep != '\0' && *ep != ',')) {
-			printf ("%s rec (%s) byte array has invalid uint\n",
-				rp->name, val);
-			return (NULL);
-		}
-
-		if (*ep++ == '\0')
-			break;
-
-		p = ep;
+		if (*ep != '\0')
+			ep++;
 	}
 
 	if (dp + 2 + nbytes > edp) {
@@ -459,6 +471,7 @@ hymod_eeprom_fetch(int which, char *filename, ulong addr)
 	hymod_eehdr_t *hp = (hymod_eehdr_t *)&data[0];
 	ulong crc;
 
+	memset (hp, 0, sizeof *hp);
 	hp->id = HYMOD_EEPROM_ID;
 	hp->ver = HYMOD_EEPROM_VER;
 

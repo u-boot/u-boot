@@ -385,7 +385,7 @@ static int flash_io (int mode)
 {
 	int fd, fdr, rc, otherdev, len, resid;
 	erase_info_t erase;
-	char *data;
+	char *data = NULL;
 
 	if ((fd = open (DEVNAME (curdev), mode)) < 0) {
 		fprintf (stderr,

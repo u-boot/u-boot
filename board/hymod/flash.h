@@ -92,7 +92,7 @@ typedef bank_word_t bank_blk_t[32 * 1024];
 #endif /* EXAMPLE */
 
 /* the sizes of these two types should probably be the same */
-typedef volatile bank_word_t *bank_addr_t;
+typedef bank_word_t *bank_addr_t;
 typedef unsigned long bank_size_t;
 
 /* align bank addresses and sizes to bank word boundaries */

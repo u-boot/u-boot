@@ -219,7 +219,7 @@
 #define	CONFIG_KGDB_EXTC_RATE	3686400	/* serial ext clk rate in Hz */
 #define	CONFIG_KGDB_EXTC_PINSEL	0	/* pin select 0=CLK3/CLK9,1=CLK5/CLK15*/
 # if defined(CONFIG_KGDB_USE_EXTC)
-#define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port at */
+#define CONFIG_KGDB_BAUDRATE	115200	/* speed to run kgdb serial port at */
 # else
 #define CONFIG_KGDB_BAUDRATE	9600	/* speed to run kgdb serial port at */
 # endif
@@ -384,7 +384,7 @@
 #define CFG_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (in ms)	*/
 
 #define	CFG_ENV_IS_IN_FLASH	1
-#define	CFG_ENV_SIZE		0x1000	/* Total Size of Environment Sector */
+#define	CFG_ENV_SIZE		0x40000	/* Total Size of Environment Sector */
 #define CFG_ENV_SECT_SIZE	0x40000	/* see README - env sect real size */
 #define	CFG_ENV_ADDR	(CFG_FLASH_BASE+CFG_MONITOR_LEN-CFG_ENV_SECT_SIZE)
 

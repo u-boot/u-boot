@@ -58,7 +58,7 @@
 # MISCELLANEOUS PARAMETERS
 
 # version must always come first
-version=3
+version=4
 
 # set the ip address based on the main board serial number
 ipaddr=192.168.1.%S
@@ -74,7 +74,7 @@ always_check_env=no
 # BOOTING COMMANDS AND PARAMETERS
 
 # command to run when "auto-booting"
-bootcmd=bootm 40080000 40200000
+bootcmd=bootm 40080000
 
 # how long the "countdown" to automatically running "bootcmd" is
 bootdelay=2
@@ -88,9 +88,9 @@ bootretry=5
 #	r4 - address of initial ramdisk image (0 means no initrd)
 #	r5 - size of initial ramdisk image
 #	r6 - address of command line string
--bootargs=root=/dev/ram rw
+-bootargs=root=/dev/mtdblock5 rootfstype=squashfs ro
 
-# these four are for hymod linux intergrated into our Sun network
+# these four are for hymod linux integrated into our Sun network
 bootargs+=serialno=%S
 bootargs+=nisclient nisdomain=mlb.dmt.csiro.au nissrvadr=138.194.112.4
 bootargs+=nfsclient
@@ -145,14 +145,17 @@ copyaltlinux=cp.b 100000 40140000 $(filesize)
 cmpaltlinux=cmp.b 100000 40140000 $(filesize)
 newaltlinux=run fetchaltlinux erasealtlinux copyaltlinux cmpaltlinux
 
-fetchird=tftp 100000 /hymod/initrd.bin
-eraseird=erase 1:8-47
-copyird=cp.b 100000 40200000 $(filesize)
-cmpird=cmp.b 100000 40200000 $(filesize)
-newinitrd=run fetchird eraseird copyird cmpird
+fetchroot=tftp 100000 /hymod/root.bin
+eraseroot=erase 1:8-47
+copyroot=cp.b 100000 40200000 $(filesize)
+cmproot=cmp.b 100000 40200000 $(filesize)
+newroot=run fetchroot eraseroot copyroot cmproot
 
 fetchard=tftp 100000 /hymod/apprd.bin
 eraseard=erase 1:48-63
 copyard=cp.b 100000 40c00000 $(filesize)
 cmpard=cmp.b 100000 40c00000 $(filesize)
 newapprd=run fetchard eraseard copyard cmpard
+
+# pass above map to linux mtd driver
+bootargs+=mtdparts=phys:256k(u-boot),256k(u-boot-env),768k(linux),768k(altlinux),10m(root),4m(hymod)

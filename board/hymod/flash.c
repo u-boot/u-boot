@@ -43,29 +43,26 @@ flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips */
  * in the flash_info entry "fip". Fatal error if nothing there.
  */
 static void
-bank_probe (flash_info_t *fip, bank_addr_t base)
+bank_probe (flash_info_t *fip, volatile bank_addr_t base)
 {
-	bank_addr_t addr;
+	volatile bank_addr_t addr;
 	bank_word_t word;
 	int i;
 
 	/* reset the flash */
 	*base = BANK_CMD_RST;
 
-	/* check the manufacturer id - must be intel */
+	/* put flash into read id mode */
 	*base = BANK_CMD_RD_ID;
-	word = *BANK_REG_MAN_CODE (base);
-	*base = BANK_CMD_RST;
 
+	/* check the manufacturer id - must be intel */
+	word = *BANK_REG_MAN_CODE (base);
 	if (word != BANK_FILL_WORD (INTEL_MANUFACT&0xff))
 		panic ("\nbad manufacturer's code (0x%08lx) at addr 0x%08lx",
 			(unsigned long)word, (unsigned long)base);
 
 	/* check the device id */
-	*base = BANK_CMD_RD_ID;
 	word = *BANK_REG_DEV_CODE (base);
-	*base = BANK_CMD_RST;
-
 	switch (word) {
 
 	case BANK_FILL_WORD (INTEL_ID_28F320J5&0xff):
@@ -110,12 +107,15 @@ bank_probe (flash_info_t *fip, bank_addr_t base)
 	}
 
 	fip->size = (bank_size_t)addr - (bank_size_t)base;
+
+	/* reset the flash */
+	*base = BANK_CMD_RST;
 }
 
 static void
 bank_reset (flash_info_t *info, int sect)
 {
-	bank_addr_t addr = (bank_addr_t)info->start[sect];
+	volatile bank_addr_t addr = (bank_addr_t)info->start[sect];
 
 #ifdef FLASH_DEBUG
 	printf ("writing reset cmd to addr 0x%08lx\n", (unsigned long)addr);
@@ -127,7 +127,7 @@ bank_reset (flash_info_t *info, int sect)
 static void
 bank_erase_init (flash_info_t *info, int sect)
 {
-	bank_addr_t addr = (bank_addr_t)info->start[sect];
+	volatile bank_addr_t addr = (bank_addr_t)info->start[sect];
 	int flag;
 
 #ifdef FLASH_DEBUG
@@ -152,7 +152,7 @@ bank_erase_init (flash_info_t *info, int sect)
 static int
 bank_erase_poll (flash_info_t *info, int sect)
 {
-	bank_addr_t addr = (bank_addr_t)info->start[sect];
+	volatile bank_addr_t addr = (bank_addr_t)info->start[sect];
 	bank_word_t stat = *addr;
 
 #ifdef FLASH_DEBUG
@@ -176,7 +176,7 @@ bank_erase_poll (flash_info_t *info, int sect)
 }
 
 static int
-bank_write_word (bank_addr_t addr, bank_word_t value)
+bank_write_word (volatile bank_addr_t addr, bank_word_t value)
 {
 	bank_word_t stat;
 	ulong start;

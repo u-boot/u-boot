@@ -23,5 +23,5 @@
 
 PLATFORM_RELFLAGS += -mrelocatable -ffixed-r14 -meabi
 
-PLATFORM_CPPFLAGS += -DCONFIG_8260 -ffixed-r2 -ffixed-r29 -mstring
-##PLATFORM_CPPFLAGS += -DCONFIG_8260 -ffixed-r2 -mstring
+PLATFORM_CPPFLAGS += -DCONFIG_8260 -ffixed-r2 -ffixed-r29 \
+		     -mstring -mcpu=603e -mmultiple
