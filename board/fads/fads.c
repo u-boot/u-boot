@@ -26,12 +26,13 @@
 #include <config.h>
 #include <common.h>
 #include <mpc8xx.h>
+#include <pcmcia.h>
 
 #define	_NOT_USED_	0xFFFFFFFF
 
 /* ========================================================================= */
 
-#ifndef CONFIG_DUET_ADS /* No old DRAM on Duet */
+#ifndef CONFIG_MPC885ADS /* No old DRAM on MPC885ADS */
 
 #if defined(CONFIG_DRAM_50MHZ)
 /* 50MHz tables */
@@ -290,7 +291,7 @@ static void _dramdisable(void)
 
 	/* maybe we should turn off upma here or something */
 }
-#endif /* !CONFIG_DUET_ADS */
+#endif /* !CONFIG_MPC885ADS */
 
 /* ========================================================================= */
 
@@ -604,7 +605,7 @@ long int initdram (int board_type)
 	uint sdramsz = 0;	/* size of sdram in Mbytes */
 	uint base = 0;		/* base of dram in bytes */
 	uint m = 0;		/* size of dram in Mbytes */
-#ifndef CONFIG_DUET_ADS
+#ifndef CONFIG_MPC885ADS
 	uint k, s;
 #endif
 
@@ -614,7 +615,7 @@ long int initdram (int board_type)
 		printf ("(%u MB SDRAM) ", sdramsz);
 	}
 #endif
-#ifndef CONFIG_DUET_ADS /* No old DRAM on Duet */
+#ifndef CONFIG_MPC885ADS /* No old DRAM on MPC885ADS */
 	k = (*((uint *) BCSR2) >> 23) & 0x0f;
 
 	switch (k & 0x3) {
@@ -665,7 +666,7 @@ long int initdram (int board_type)
 		_dramdisable ();
 		m = 0;
 	}
-#endif /* !CONFIG_DUET_ADS */
+#endif /* !CONFIG_MPC885ADS */
 	m += sdramsz;				/* add sdram size to total */
 
 	return (m << 20);
@@ -734,8 +735,8 @@ int checkboard (void)
 
 #if defined(CONFIG_MPC86xADS)
 	puts ("MPC86xADS");
-#elif defined(CONFIG_DUET_ADS)
-	puts ("DUET ADS");
+#elif defined(CONFIG_MPC885ADS)
+	puts ("MPC885ADS");
 	r = 0; /* I've got NR (No Revision) board */
 #elif defined(CONFIG_FADS)
 	puts ("FADS");
@@ -759,7 +760,7 @@ int checkboard (void)
 	case 0x03:
 		puts ("B \n");
 		break;
-#elif defined(CONFIG_DUET_ADS)
+#elif defined(CONFIG_MPC885ADS)
 	case 0x00:
 		puts ("NR\n");
 		break;
@@ -790,7 +791,7 @@ volatile unsigned char *pcmcia_mem = (unsigned char*)CFG_PCMCIA_MEM_ADDR;
 int pcmcia_init(void)
 {
 	volatile pcmconf8xx_t	*pcmp;
-	uint v, slota, slotb;
+	uint v, slota = 0, slotb = 0;
 
 	/*
 	** Enable the PCMCIA for a Flash card.
@@ -805,10 +806,10 @@ int pcmcia_init(void)
 	/* Set all slots to zero by default. */
 	pcmp->pcmc_pgcra = 0;
 	pcmp->pcmc_pgcrb = 0;
-#ifdef PCMCIA_SLOT_A
+#ifdef CONFIG_PCMCIA_SLOT_A
 	pcmp->pcmc_pgcra = 0x40;
 #endif
-#ifdef PCMCIA_SLOT_B
+#ifdef CONFIG_PCMCIA_SLOT_B
 	pcmp->pcmc_pgcrb = 0x40;
 #endif
 
@@ -817,17 +818,17 @@ int pcmcia_init(void)
 
 	/* Check if any PCMCIA card is plugged in. */
 
+#ifdef CONFIG_PCMCIA_SLOT_A
 	slota = (pcmp->pcmc_pipr & 0x18000000) == 0 ;
+#endif
+#ifdef CONFIG_PCMCIA_SLOT_B
 	slotb = (pcmp->pcmc_pipr & 0x00001800) == 0 ;
+#endif
 
 	if (!(slota || slotb)) {
 		printf("No card present\n");
-#ifdef PCMCIA_SLOT_A
 		pcmp->pcmc_pgcra = 0;
-#endif
-#ifdef PCMCIA_SLOT_B
 		pcmp->pcmc_pgcrb = 0;
-#endif
 		return -1;
 	}
 	else
@@ -908,9 +909,10 @@ int pcmcia_init(void)
 
 	udelay(20);
 
-#ifdef PCMCIA_SLOT_A
+#ifdef CONFIG_PCMCIA_SLOT_A
 	pcmp->pcmc_pgcra = 0;
-#elif PCMCIA_SLOT_B
+#endif
+#ifdef CONFIG_PCMCIA_SLOT_B
 	pcmp->pcmc_pgcrb = 0;
 #endif
 

@@ -33,19 +33,14 @@
 #undef	CONFIG_8xx_CONS_NONE
 #define CONFIG_BAUDRATE		38400
 
-# define CFG_8XX_FACT		5		/* Multiply by 5	*/
-# define CFG_8XX_XIN		10000000	/* 10 MHz in	*/
+#define CONFIG_8xx_OSCLK	10000000 /* 10MHz oscillator on EXTCLK  */
 
 #define CONFIG_DRAM_50MHZ       1
 #define CONFIG_SDRAM_50MHZ      1
 
-/*-----------------------------------------------------------------------
- * PLPRCR - PLL, Low-Power, and Reset Control Register		14-22
- *-----------------------------------------------------------------------
- * set the PLL, the low-power modes and the reset control
- */
-#define CFG_PLPRCR ((CFG_8XX_FACT << PLPRCR_MFI_SHIFT) | PLPRCR_TEXPS)
-
 #include "fads.h"
+
+#define CFG_OR5_PRELIM		0xFFFF8110	/* 64Kbyte address space */
+#define CFG_BR5_PRELIM		(CFG_PHYDEV_ADDR | BR_PS_8 | BR_V)
 
 #endif	/* __CONFIG_H */

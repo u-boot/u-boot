@@ -26,14 +26,16 @@
 
 #define CONFIG_BAUDRATE		38400	/* Console baudrate */
 
-/* CFG_8XX_FACT * CFG_8XX_XIN = 50 MHz */
 #if 0
-#define CFG_8XX_XIN		32768	/* 32.768 kHz input frequency	*/
-#define CFG_8XX_FACT		0x5F6	/* Multiply by 1526 */
+#define CFG_8XX_FACT		1526	/* 32.768 kHz crystal on XTAL/EXTAL */
 #else
-#define CFG_8XX_XIN		4000000	/* 4 MHz input frequency	*/
-#define CFG_8XX_FACT		12	/* Multiply by 12 */
+#define CFG_8XX_FACT		12	/* 4 MHz oscillator on EXTCLK */
 #endif
+
+#define CFG_PLPRCR  (((CFG_8XX_FACT-1) << PLPRCR_MF_SHIFT) |	\
+		PLPRCR_SPLSS | PLPRCR_TEXPS | PLPRCR_TMIST)
+
+#define CONFIG_DRAM_50MHZ		1
 
 #define CONFIG_COMMANDS (CONFIG_CMD_DFL   \
 			 | CFG_CMD_DHCP   \
@@ -42,12 +44,8 @@
 			 | CFG_CMD_PING   \
 			)
 
-#define CONFIG_DRAM_50MHZ		1
 
 #include "fads.h"
-
-#define CFG_PLPRCR  (((CFG_8XX_FACT-1) << PLPRCR_MF_SHIFT) |	\
-		PLPRCR_SPLSS | PLPRCR_TEXPS | PLPRCR_TMIST)
 
 #define CFG_PC_IDE_RESET	((ushort)0x0008)    /* PC 12	*/
 

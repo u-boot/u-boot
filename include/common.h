@@ -48,17 +48,17 @@ typedef volatile unsigned char	vu_char;
     defined(CONFIG_MPC859DSL)	|| \
     defined(CONFIG_MPC866)	|| defined(CONFIG_MPC866T)	|| \
     defined(CONFIG_MPC866P)
-# define CONFIG_MPC866_et_al 1
+# define CONFIG_MPC866_FAMILY 1
 #elif defined(CONFIG_MPC870) \
    || defined(CONFIG_MPC875) \
    || defined(CONFIG_MPC880) \
    || defined(CONFIG_MPC885)
-# define CONFIG_DUET   1
+# define CONFIG_MPC885_FAMILY   1
 #endif
 #if   defined(CONFIG_MPC860)	   \
    || defined(CONFIG_MPC860T)	   \
-   || defined(CONFIG_MPC866_et_al) \
-   || defined(CONFIG_DUET)
+   || defined(CONFIG_MPC866_FAMILY) \
+   || defined(CONFIG_MPC885_FAMILY)
 # define CONFIG_MPC86x 1
 #endif
 #elif defined(CONFIG_5xx)

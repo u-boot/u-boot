@@ -27,20 +27,18 @@
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 
 #if 0 /* old FADS */
-# define CFG_8XX_FACT		12		/* Multiply by 12 */
-# define CFG_8XX_XIN		4000000		/* 4 MHz in	*/
+# define CFG_8XX_FACT		12	/* 4 MHz oscillator on EXTCLK */
 #else /* new FADS */
-# define CFG_8XX_FACT		10		/* Multiply by 10 */
-# define CFG_8XX_XIN		5000000		/* 5 MHz in	*/
+# define CFG_8XX_FACT		10	/* 5 MHz oscillator on EXTCLK */
 #endif
+
+#define CFG_PLPRCR  (((CFG_8XX_FACT-1) << PLPRCR_MF_SHIFT) |	\
+		PLPRCR_SPLSS | PLPRCR_TEXPS | PLPRCR_TMIST)
 
 #define CONFIG_DRAM_50MHZ		1
 #define CONFIG_SDRAM_50MHZ              1
 
 #include "fads.h"
-
-#define CFG_PLPRCR	(((CFG_8XX_FACT-1) << PLPRCR_MF_SHIFT) | \
-			 PLPRCR_SPLSS | PLPRCR_TEXPS | PLPRCR_TMIST)
 
 #ifdef USE_REAL_FLASH_VALUES
 /*
@@ -53,6 +51,6 @@
 #define CFG_BR0_PRELIM	0x02800001  /* Real values for the board */
 #endif
 
-#define CFG_DAUGHTERBOARD /* FADS has processor-specfic daughterboard */
+#define CFG_DAUGHTERBOARD /* FADS has processor-specific daughterboard */
 
 #endif	/* __CONFIG_H */

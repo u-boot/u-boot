@@ -2,6 +2,12 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Yuli Barcohen, 19 Apr 2004:
+  - Rename DUET_ADS to MPC885ADS
+  - Rename CONFIG_DUET to CONFIG_MPC885_FAMILY
+  - Rename CONFIG_866_et_al to CONFIG_MPC866_FAMILY
+  - Clean up FADS family port to use the new defines
+
 * Fix PCI support on CPC45 board
 
 * Patch by Scott McNutt, 25 Apr 2004:

@@ -90,7 +90,7 @@ unsigned long measure_gclk(void)
 	ulong timer2_val;
 	ulong msr_val;
 
-#ifdef CONFIG_MPC866_et_al
+#ifdef CFG_8XX_XIN
 	/* dont use OSCM, only use EXTCLK/512 */
 	immr->im_clkrst.car_sccr |= SCCR_RTSEL | SCCR_RTDIV;
 #else
@@ -162,7 +162,7 @@ unsigned long measure_gclk(void)
 	timerp->cpmt_tgcr &= ~(TGCR_RST2 | TGCR_FRZ2 | TGCR_STP2);
 	immr->im_sit.sit_piscr &= ~PISCR_PTE;
 
-#if defined(CONFIG_MPC866_et_al)
+#if defined(CFG_8XX_XIN)
 	/* not using OSCM, using XIN, so scale appropriately */
 	return (((timer2_val + 2) / 4) * (CFG_8XX_XIN/512))/8192 * 100000L;
 #else
@@ -183,22 +183,39 @@ int get_clocks (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
-#ifndef	CONFIG_8xx_GCLK_FREQ
-	gd->cpu_clk = measure_gclk();
-#else /* CONFIG_8xx_GCLK_FREQ */
+	uint immr = get_immr (0);	/* Return full IMMR contents */
+	volatile immap_t *immap = (immap_t *) (immr & 0xFFFF0000);
+	uint sccr = immap->im_clkrst.car_sccr;
 	/*
 	 * If for some reason measuring the gclk frequency won't
 	 * work, we return the hardwired value.
 	 * (For example, the cogent CMA286-60 CPU module has no
 	 * separate oscillator for PITRTCLK)
 	 */
-
+#if defined(CONFIG_8xx_GCLK_FREQ)
 	gd->cpu_clk = CONFIG_8xx_GCLK_FREQ;
+#elif defined(CONFIG_8xx_OSCLK)
+#define PLPRCR_val(a) ((pll & PLPRCR_ ## a ## _MSK) >> PLPRCR_ ## a ## _SHIFT)
+	uint pll = immap->im_clkrst.car_plprcr;
+	uint clk;
 
+	if ((immr & 0x0FFF) >= MPC8xx_NEW_CLK) { /* MPC866/87x/88x series */
+		clk = ((CONFIG_8xx_OSCLK / (PLPRCR_val(PDF)+1)) *
+		       (PLPRCR_val(MFI) + PLPRCR_val(MFN) / (PLPRCR_val(MFD)+1))) /
+			(1<<PLPRCR_val(S));
+	} else {
+		clk = CONFIG_8xx_OSCLK * (PLPRCR_val(MF)+1);
+	}
+	if (pll & PLPRCR_CSRC) {	/* Low frequency division factor is used  */
+		gd->cpu_clk = clk / (2 << ((sccr >> 8) & 7));
+	} else {			/* High frequency division factor is used */
+		gd->cpu_clk = clk / (1 << ((sccr >> 5) & 7));
+	}
+#else
+	gd->cpu_clk = measure_gclk();
 #endif /* CONFIG_8xx_GCLK_FREQ */
 
-	if ((immr->im_clkrst.car_sccr & SCCR_EBDF11) == 0) {
+	if ((sccr & SCCR_EBDF11) == 0) {
 		/* No Bus Divider active */
 		gd->bus_clk = gd->cpu_clk;
 	} else {
@@ -209,7 +226,7 @@ int get_clocks (void)
 	return (0);
 }
 
-#else /* CONFIG_MPC866_et_al */
+#else /* CONFIG_MPC866_FAMILY */
 
 static long init_pll_866 (long clk);
 
@@ -345,7 +362,7 @@ static long init_pll_866 (long clk)
 	return (n);
 }
 
-#endif /* CONFIG_MPC866_et_al */
+#endif /* CONFIG_MPC866_FAMILY */
 
 #if defined(CONFIG_TQM8xxL) && !defined(CONFIG_TQM866M)
 /*

@@ -388,7 +388,7 @@ static void fec_pin_init(int fecidx)
 	fecp->fec_mii_speed <<= 1;
 #endif
 
-#if defined(CONFIG_DUET) && defined(WANT_MII)
+#if defined(CONFIG_MPC885_FAMILY) && defined(WANT_MII)
 	/* use MDC for MII */
 	immr->im_ioport.iop_pdpar |=  0x0080;
 	immr->im_ioport.iop_pddir &= ~0x0080;
@@ -397,7 +397,7 @@ static void fec_pin_init(int fecidx)
 	if (fecidx == 0) {
 #if defined(CONFIG_ETHER_ON_FEC1)
 
-#if defined(CONFIG_DUET)	/* MPC87x/88x have got 2 FECs and different pinout */
+#if defined(CONFIG_MPC885_FAMILY) /* MPC87x/88x have got 2 FECs and different pinout */
 
 #if !defined(CONFIG_RMII)
 
@@ -489,7 +489,7 @@ static void fec_pin_init(int fecidx)
 
 #if defined(CONFIG_ETHER_ON_FEC2)
 
-#if defined(CONFIG_DUET)	/* MPC87x/88x have got 2 FECs and different pinout */
+#if defined(CONFIG_MPC885_FAMILY) /* MPC87x/88x have got 2 FECs and different pinout */
 
 #if !defined(CONFIG_RMII)
 
@@ -516,7 +516,7 @@ static void fec_pin_init(int fecidx)
 		immr->im_cpm.cp_cptr      &= ~0x00000028;
 #endif /* CONFIG_RMII */
 
-#endif /* CONFIG_DUET */
+#endif /* CONFIG_MPC885_FAMILY */
 
 #endif /* CONFIG_ETHER_ON_FEC2 */
 
@@ -533,7 +533,7 @@ static int fec_init (struct eth_device *dev, bd_t * bd)
 
 	if (efis->ether_index == 0) {
 #if defined(CONFIG_FADS)	/* FADS family uses FPGA (BCSR) to control PHYs */
-#if defined(CONFIG_DUET_ADS)
+#if defined(CONFIG_MPC885ADS)
 		*(vu_char *) BCSR5 &= ~(BCSR5_MII1_EN | BCSR5_MII1_RST);
 #else
 		/* configure FADS for fast (FEC) ethernet, half-duplex */
@@ -553,7 +553,7 @@ static int fec_init (struct eth_device *dev, bd_t * bd)
 			*bcsr4 |= BCSR4_FETHRST;
 			udelay (10);
 		}
-#endif /* CONFIG_DUET_ADS */
+#endif /* CONFIG_MPC885ADS */
 #endif /* CONFIG_FADS */
 	}
 
@@ -948,7 +948,7 @@ void mii_init (void)
 	 */
 	fecp->fec_ievent = 0xffc0;
 
-		/* Setup the pin configuration of the FEC(s)
+	/* Setup the pin configuration of the FEC(s)
 	*/
 		fec_pin_init(ether_fcc_info[i].ether_index);
 

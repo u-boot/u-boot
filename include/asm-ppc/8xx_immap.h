@@ -475,7 +475,7 @@ typedef struct comm_proc {
 #define lcd_cmap	fl_un.fl_un_cmap
 	char	res18[0xE00];
 
-	/* The DUET family has a second FEC here */
+	/* The MPC885 family has a second FEC here */
 	fec_t	cp_fec2;
 #define cp_fec1	cp_fec	/* consistency macro */
 

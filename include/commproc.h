@@ -743,7 +743,8 @@ typedef struct scc_enet {
 #endif	/* CONFIG_SCC1_ETHERNET */
 
 /*
- * This ENET stuff is for the MPC860TFADS/MPC86xADS/DUET with ethernet on FEC.
+ * This ENET stuff is for the MPC860TFADS/MPC86xADS/MPC885ADS
+ * with ethernet on FEC.
  */
 
 #ifdef CONFIG_FEC_ENET

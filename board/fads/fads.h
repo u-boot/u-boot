@@ -48,9 +48,6 @@
  * | ...                   |                                 v
  *
  *****************************************************************************/
-/* should ALWAYS define this, measure_gclk in speed.c is unreliable */
-/* in general, we always know this for FADS+new ADS anyway */
-#define CONFIG_8xx_GCLK_FREQ     ((CFG_8XX_XIN) * (CFG_8XX_FACT))
 
 #if 0
 #define CONFIG_BOOTDELAY	-1	/* autoboot disabled		*/
@@ -66,6 +63,7 @@
     "bootm"
 
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
+#define CONFIG_BZIP2	 /* include support for bzip2 compressed images */
 
 /*
  * New MPC86xADS and Duet provide two Ethernet connectivity options:
@@ -90,11 +88,12 @@
 #endif
 
 #ifndef CONFIG_COMMANDS
-#define CONFIG_COMMANDS	(CONFIG_CMD_DFL  \
-			 | CFG_CMD_DHCP  \
-			 | CFG_CMD_IMMAP \
-			 | CFG_CMD_MII   \
-			 | CFG_CMD_PING  \
+#define CONFIG_COMMANDS	(CONFIG_CMD_DFL   \
+			 | CFG_CMD_DHCP   \
+			 | CFG_CMD_IMMAP  \
+			 | CFG_CMD_MII    \
+			 | CFG_CMD_PCMCIA \
+			 | CFG_CMD_PING   \
 			)
 #endif /* !CONFIG_COMMANDS */
 
@@ -146,7 +145,7 @@
  * Please note that CFG_SDRAM_BASE _must_ start at 0
  */
 #define	CFG_SDRAM_BASE		0x00000000
-#if defined(CONFIG_MPC86xADS) || defined(CONFIG_DUET_ADS) /* New ADS or Duet */
+#if defined(CONFIG_MPC86xADS) || defined(CONFIG_MPC885ADS) /* New ADS or Duet */
 #define	CFG_SDRAM_SIZE		0x00800000      	/* 8 Mbyte */
 #elif defined(CONFIG_FADS)				/* Old/new FADS */
 #define	CFG_SDRAM_SIZE		0x00400000		/* 4 Mbyte */
@@ -186,7 +185,12 @@
 
 #define CFG_MONITOR_BASE	CFG_FLASH_BASE
 #define	CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 KB for monitor	*/
+
+#ifdef CONFIG_BZIP2
+#define	CFG_MALLOC_LEN		(2500 << 10)	/* Reserve ~2.5 MB for malloc()	*/
+#else
 #define	CFG_MALLOC_LEN		(384 << 10)	/* Reserve 384 kB for malloc()	*/
+#endif /* CONFIG_BZIP2 */
 
 /*-----------------------------------------------------------------------
  * Cache Configuration
@@ -248,7 +252,16 @@
 #define SCCR_MASK	SCCR_EBDF11
 #define CFG_SCCR	(SCCR_TBS|SCCR_COM00|SCCR_DFSYNC00|SCCR_DFBRG00|SCCR_DFNL000|SCCR_DFNH000|SCCR_DFLCD000|SCCR_DFALCD00)
 
- /*-----------------------------------------------------------------------
+/*-----------------------------------------------------------------------
+ * PLPRCR - PLL, Low-Power, and Reset Control Register		14-22
+ *-----------------------------------------------------------------------
+ * set the PLL, the low-power modes and the reset control
+ */
+#ifndef CFG_PLPRCR
+#define CFG_PLPRCR	PLPRCR_TEXPS
+#endif
+
+/*-----------------------------------------------------------------------
  *
  *-----------------------------------------------------------------------
  *
@@ -407,6 +420,20 @@
 #define BCSR4_DATA_VOICE         ((uint)0x00080000)
 #endif /* CONFIG_MPC850 */
 
+/* BSCR5 exists on MPC86xADS and Duet ADS only */
+
+#define CFG_PHYDEV_ADDR		(BCSR_ADDR + 0x20000)
+
+#define BCSR5			(CFG_PHYDEV_ADDR + 0x300)
+
+#define BCSR5_MII2_EN		0x40
+#define BCSR5_MII2_RST		0x20
+#define BCSR5_T1_RST		0x10
+#define BCSR5_ATM155_RST	0x08
+#define BCSR5_ATM25_RST		0x04
+#define BCSR5_MII1_EN		0x02
+#define BCSR5_MII1_RST		0x01
+
 /* We don't use the 8259.
 */
 #define NR_8259_INTS	0
@@ -419,10 +446,6 @@
  * PCMCIA stuff
  *-----------------------------------------------------------------------
  */
-#if !defined(CONFIG_MPC823) && !defined(CONFIG_MPC850)
-#define PCMCIA_SLOT_A 1
-#endif
-
 #define CFG_PCMCIA_MEM_ADDR	(0xE0000000)
 #define CFG_PCMCIA_MEM_SIZE	( 64 << 20 )
 #define CFG_PCMCIA_DMA_ADDR	(0xE4000000)

@@ -24,8 +24,8 @@
 #
 
 #
-# Motorola old MPC821/860ADS, MPC8xxFADS, new MPC866ADS, and DUET
-# (MPC87x/88x) ADS boards
+# Motorola old MPC821/860ADS, MPC8xxFADS, new MPC866ADS, and
+# MPC885ADS boards
 #
 
 TEXT_BASE = 0xFE000000

@@ -266,10 +266,10 @@ AdderII_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx adderII
 
 ADS860_config     \
-DUET_ADS_config   \
 FADS823_config    \
 FADS850SAR_config \
 MPC86xADS_config  \
+MPC885ADS_config  \
 FADS860T_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx fads
 
