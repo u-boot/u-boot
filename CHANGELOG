@@ -2,6 +2,11 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Klaus Heydeck, 12 May 2004:
+  Using external watchdog for KUP4 boards in mpc8xx/cpu.c;
+  load_sernum_ethaddr() for KUP4 boards in lib_ppc/board.c;
+  various changes to KUP4 board specific files
+
 * Fix minor network problem on MPC5200: need some delay between
   resetting the PHY and sending the first packet. Implemented in a
   "natural" way by invoking the PHY reset and initialization code
@@ -41,7 +46,7 @@ Changes for U-Boot 1.1.1:
   errata from Vitesse Semiconductor.
 
 * Patch by Philippe Robin, 22 Apr 2004:
-  Fix ethernet configuration for "versatile" board 
+  Fix ethernet configuration for "versatile" board
 
 * Patch by Kshitij Gupta, 21 Apr 2004:
   Remove busy loop and use MPU timer fr usleep() on OMAP1510/1610 boards

@@ -24,6 +24,7 @@
 
 #include <common.h>
 #include <mpc8xx.h>
+#include <post.h>
 #include "../common/kup.h"
 #ifdef CONFIG_KUP4K_LOGO
 /* #include "s1d13706.h" */
@@ -123,12 +124,11 @@ int checkboard (void)
 	 */
 	memctl->memc_or4 = 0xFFFF8926;
 	memctl->memc_br4 = 0x90000401;
-
+	__asm__ ("eieio");
 	latch = (volatile uchar *) 0x90000200;
 	rev = (*latch & 0xF8) >> 3;
 	mod = (*latch & 0x03);
-	printf ("Board: KUP4X Rev %d.%d SN: %s\n", rev, mod,
-		getenv ("ethaddr"));
+	printf ("Board: KUP4X Rev %d.%d\n",rev,mod);
 	return (0);
 }
 

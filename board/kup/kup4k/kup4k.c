@@ -129,11 +129,11 @@ int checkboard (void)
 	 */
 	immap->im_memctl.memc_or4 = 0xFFFF8926;
 	immap->im_memctl.memc_br4 = 0x90000401;
-
+	__asm__ ("eieio");
 	latch=(uchar *)0x90000200;
 	rev = (*latch & 0xF8) >> 3;
 	mod=(*latch & 0x03);
-	printf ("Board: KUP4K Rev %d.%d SN: %s\n",rev,mod,getenv("ethaddr"));
+	printf ("Board: KUP4K Rev %d.%d\n",rev,mod);
 	return (0);
 }
 
@@ -346,6 +346,7 @@ void lcd_logo (bd_t * bd)
 	 */
 	memctl->memc_or5 = 0xFFC007F0;	/* 4 MB  17 WS or externel TA */
 	memctl->memc_br5 = 0x80080801;	/* Start at 0x80080000 */
+	__asm__ ("eieio");
 
 	fb_info.VmemAddr = (unsigned char *) (S1D_PHYSICAL_VMEM_ADDR);
 	fb_info.RegAddr = (unsigned char *) (S1D_PHYSICAL_REG_ADDR);

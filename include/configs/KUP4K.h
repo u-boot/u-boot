@@ -72,8 +72,8 @@
 "contrast=55\0"									\
 "silent=1\0"									\
 "load=tftp 200000 bootloader-4k.bitmap;tftp 100000 bootloader-4k.bin\0"		\
-"update=protect off 1:0-5;era 1:0-5;cp.b 100000 40000000 $(filesize);"		\
- "cp.b 200000 40040000 14000\0"
+"update=protect off 1:0-7;era 1:0-7;cp.b 100000 40000000 $(filesize);"		\
+ "cp.b 200000 40050000 14000\0"
 
 #define CONFIG_BOOTCOMMAND  \
     "run slot_a_boot;run slot_b_boot;run nfs_boot;run panic_boot"
@@ -85,7 +85,7 @@
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #undef	CFG_LOADS_BAUD_CHANGE		/* don't allow baudrate change	*/
 
-#undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
+#define	CONFIG_WATCHDOG	1		/* watchdog enabled		*/
 
 #define CONFIG_STATUS_LED	1	/* Status LED enabled		*/
 
@@ -96,23 +96,81 @@
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
 
-#define CONFIG_RTC_MPC8xx		/* use internal RTC of MPC8xx	*/
 
-#define CONFIG_HARD_I2C
-#define CFG_I2C_SPEED	40000
-#define CFG_I2C_SLAVE	0x7F
+/*
+ * enable I2C and select the hardware/software driver
+ */
+#undef	CONFIG_HARD_I2C			/* I2C with hardware support	*/
+#define	CONFIG_SOFT_I2C         1	/* I2C bit-banged		*/
 
-#define CONFIG_ETHADDR			00:0B:64:00:00:00 /* our OUI from IEEE */
-#define CONFIG_KUP4K_LOGO		0x40040000  /* Address of logo bitmap */
+#define CFG_I2C_SPEED		93000	/* 93 kHz is supposed to work	*/
+#define CFG_I2C_SLAVE		0xFE
+
+#ifdef CONFIG_SOFT_I2C
+/*
+ * Software (bit-bang) I2C driver configuration
+ */
+#define PB_SCL		0x00000020	/* PB 26 */
+#define PB_SDA		0x00000010	/* PB 27 */
+
+#define I2C_INIT	(immr->im_cpm.cp_pbdir |=  PB_SCL)
+#define I2C_ACTIVE	(immr->im_cpm.cp_pbdir |=  PB_SDA)
+#define I2C_TRISTATE	(immr->im_cpm.cp_pbdir &= ~PB_SDA)
+#define I2C_READ	((immr->im_cpm.cp_pbdat & PB_SDA) != 0)
+#define I2C_SDA(bit)	if(bit) immr->im_cpm.cp_pbdat |=  PB_SDA; \
+			else    immr->im_cpm.cp_pbdat &= ~PB_SDA
+#define I2C_SCL(bit)	if(bit) immr->im_cpm.cp_pbdat |=  PB_SCL; \
+			else    immr->im_cpm.cp_pbdat &= ~PB_SCL
+#define I2C_DELAY	udelay(2)	/* 1/4 I2C clock duration */
+#endif	/* CONFIG_SOFT_I2C */
+
+
+/*-----------------------------------------------------------------------
+ * I2C Configuration
+ */
+
+#define CFG_I2C_PICIO_ADDR	0x21	/* PCF8574 IO Expander			*/
+#define CFG_I2C_RTC_ADDR	0x51	/* PCF8563 RTC				*/
+
+
+/* List of I2C addresses to be verified by POST */
+
+#define I2C_ADDR_LIST	{CFG_I2C_PICIO_ADDR,	\
+			CFG_I2C_RTC_ADDR,	\
+			}
+
+
+#define CONFIG_RTC_PCF8563		/* use Philips PCF8563 RTC	*/
+
+#define CFG_DISCOVER_PHY
+
+#if 0
+#define CONFIG_ETHADDR                  00:0B:64:00:00:00 /* our OUI from IEEE */
+#endif
+#define CONFIG_KUP4K_LOGO               0x40050000  /* Address of logo bitmap */
 
 /* Define to allow the user to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
+#if 1
+/* POST support */
+
+#define CONFIG_POST		(CFG_POST_CPU	   | \
+				 CFG_POST_RTC	   | \
+				 CFG_POST_I2C)
+
+#ifdef CONFIG_POST
+#define CFG_CMD_POST_DIAG CFG_CMD_DIAG
+#else
+#define CFG_CMD_POST_DIAG 0
+#endif
+#endif
 
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
 				CFG_CMD_DHCP	| \
-				CFG_CMD_IDE	| \
 				CFG_CMD_I2C	| \
-				CFG_CMD_DATE	)
+				CFG_CMD_DATE	| \
+				CFG_CMD_POST_DIAG	| \
+				CFG_CMD_IDE	)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -189,7 +247,7 @@
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
 #define CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_OFFSET		0x30000 /*   Offset   of Environment Sector	*/
+#define CFG_ENV_OFFSET		0x40000 /*   Offset   of Environment Sector	*/
 #define CFG_ENV_SIZE		0x1000	/* Total Size of Environment Sector	*/
 #define CFG_ENV_SECT_SIZE	0x10000
 
@@ -201,10 +259,10 @@
 /*-----------------------------------------------------------------------
  * Hardware Information Block
  */
-#if 0
-#define CFG_HWINFO_OFFSET	0x0003FFC0	/* offset of HW Info block */
-#define CFG_HWINFO_SIZE		0x00000040	/* size	  of HW Info block */
-#define CFG_HWINFO_MAGIC	0x54514D38	/* 'TQM8' */
+#if 1
+#define CFG_HWINFO_OFFSET	0x000F0000	/* offset of HW Info block */
+#define CFG_HWINFO_SIZE		0x00000100	/* size   of HW Info block */
+#define CFG_HWINFO_MAGIC	0x4B26500D	/* 'K&P<CR>' */
 #endif
 /*-----------------------------------------------------------------------
  * Cache Configuration
@@ -220,7 +278,7 @@
  *-----------------------------------------------------------------------
  * Software & Bus Monitor Timer max, Bus Monitor enable, SW Watchdog freeze
  */
-#if defined(CONFIG_WATCHDOG)
+#if 0 && defined(CONFIG_WATCHDOG)       /* KUP uses external TPS3705 WD */
 #define CFG_SYPCR	(SYPCR_SWTC | SYPCR_BMT | SYPCR_BME | SYPCR_SWF | \
 			 SYPCR_SWE  | SYPCR_SWRI| SYPCR_SWP)
 #else

@@ -248,7 +248,7 @@ static int sl811_send_packet(struct usb_device *dev, unsigned long pipe, __u8 *b
 		ctrl |= SL811_USB_CTRL_TOGGLE_1;
 	if (need_preamble)
 		ctrl |= SL811_USB_CTRL_PREAMBLE;
-	
+
 	sl811_write(SL811_INTRSTS, 0xff);
 
 	while (err < 3) {
@@ -386,9 +386,9 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 		sl811_write(SL811_PIDEP_A,
 			    PIDEP(!dir_in ? USB_PID_IN : USB_PID_OUT, ep));
 		usb_settoggle(dev, ep, !usb_pipeout(pipe), 1);
-		if (sl811_send_packet(dev, 
-				      !dir_in ? usb_rcvctrlpipe(dev, ep) : 
-				      usb_sndctrlpipe(dev, ep), 
+		if (sl811_send_packet(dev,
+				      !dir_in ? usb_rcvctrlpipe(dev, ep) :
+				      usb_sndctrlpipe(dev, ep),
 				      0, 0) < 0) {
 			PDEBUG(0, "status phase failed!\n");
 			dev->status = -1;
