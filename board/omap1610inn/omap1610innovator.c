@@ -10,6 +10,8 @@
  * Texas Instruments, <www.ti.com>
  * Kshitij Gupta <Kshitij@ti.com>
  *
+ * Modified for OMAP 1610 H2 board by Nishant Kamat, Jan 2004
+ * 
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -105,7 +107,28 @@ void flash__init (void)
 *************************************************************/
 void ether__init (void)
 {
-#define ETH_CONTROL_REG 0x0400000b
+#define ETH_CONTROL_REG 0x0400030b
+
+#ifdef CONFIG_H2_OMAP1610
+	#define LAN_RESET_REGISTER 0x0400001c
+
+	/* The debug board on which the lan chip resides may not be powered 
+	 * ON at the same time as the OMAP chip. So wait in a loop until the 
+	 * lan reset register (on the debug board) is available (powered on) 
+	 * and reset the lan chip.
+	 */
+
+	*((volatile unsigned short *) LAN_RESET_REGISTER) = 0x0000;
+	do {
+		*((volatile unsigned short *) LAN_RESET_REGISTER) = 0x0001;
+		udelay (3);
+	} while (*((volatile unsigned short *) LAN_RESET_REGISTER) != 0x0001);
+	
+	do {
+		*((volatile unsigned short *) LAN_RESET_REGISTER) = 0x0000;
+		udelay (3);
+	} while (*((volatile unsigned short *) LAN_RESET_REGISTER) != 0x0000);
+#endif
 
 	*((volatile unsigned char *) ETH_CONTROL_REG) &= ~0x01;
 	udelay (3);

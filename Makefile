@@ -912,11 +912,25 @@ shannon_config	:	unconfig
 
 xtract_trab = $(subst _bigram,,$(subst _bigflash,,$(subst _old,,$(subst _config,,$1))))
 
+xtract_omap1610xxx = $(subst _cs0boot,,$(subst _cs3boot,, $(subst _config,,$1)))
+
 omap1510inn_config :	unconfig
 	@./mkconfig $(@:_config=) arm arm925t omap1510inn
 
-omap1610inn_config :	unconfig
-	@./mkconfig $(@:_config=) arm arm926ejs omap1610inn
+omap1610inn_config \
+omap1610inn_cs0boot_config \
+omap1610inn_cs3boot_config \
+omap1610h2_config \
+omap1610h2_cs0boot_config \
+omap1610h2_cs3boot_config :	unconfig
+	@if [ "$(findstring _cs0boot_, $@)" ] ; then \
+		echo "#define CONFIG_CS0_BOOT" >> ./include/config.h ; \
+		echo "Configured for CS0 boot"; \
+	else \
+		echo "#define CONFIG_CS3_BOOT" >> ./include/config.h ; \
+		echo "Configured for CS3 boot"; \
+	fi;
+	@./mkconfig -a $(call xtract_omap1610xxx,$@) arm arm926ejs omap1610inn
 
 smdk2400_config	:	unconfig
 	@./mkconfig $(@:_config=) arm arm920t smdk2400

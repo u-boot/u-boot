@@ -1011,6 +1011,9 @@ void board_init_r (gd_t *id, ulong dest_addr)
 void hang (void)
 {
 	puts ("### ERROR ### Please RESET the board ###\n");
+#ifdef CONFIG_SHOW_BOOT_PROGRESS
+	show_boot_progress(-30);
+#endif
 	for (;;);
 }
 

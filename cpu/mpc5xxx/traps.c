@@ -5,6 +5,7 @@
  *
  * Modified by Cort Dougan (cort@cs.nmt.edu)
  * and Paul Mackerras (paulus@cs.anu.edu.au)
+ * fixed Machine Check Reasons by Reinhard Meyer (r.meyer@emk-elektronik.de)
  *
  * (C) Copyright 2000-2003
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -130,19 +131,20 @@ MachineCheckException(struct pt_regs *regs)
 	printf("Machine check in kernel mode.\n");
 	printf("Caused by (from msr): ");
 	printf("regs %p ",regs);
-	switch( regs->msr & 0x0000F000)
+	/* refer to 603e Manual (MPC603EUM/AD), chapter 4.5.2.1 */
+	switch( regs->msr & 0x000F0000)
 	{
-	case (1<<12) :
+	case (0x80000000>>12) :
 		printf("Machine check signal - probably due to mm fault\n"
 			"with mmu off\n");
 		break;
-	case (1<<13) :
+	case (0x80000000>>13) :
 		printf("Transfer error ack signal\n");
 		break;
-	case (1<<14) :
+	case (0x80000000>>14) :
 		printf("Data parity signal\n");
 		break;
-	case (1<<15) :
+	case (0x80000000>>15) :
 		printf("Address parity signal\n");
 		break;
 	default:

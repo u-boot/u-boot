@@ -2,6 +2,29 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
+* Patches by Reinhard Meyer, 14 Feb 2004:
+  - update board/emk tree; use common flash driver
+  - Corrected tested bits in machine check exception in cpu/mpc5xxx/traps.c
+    [adapted for other PPC CPUs -- wd]
+  - Added support for the M48T08 on the EVAL5200 board in rtc/mk48t59.c
+
+* Patch by Jon Diekema, 13 Feb 2004:
+  Call show_boot_progress() whenever POST "FAILED" is printed.
+
+* Patch by Nishant Kamat, 13 Feb 2004:
+  Add support for TI OMAP1610 H2 Board
+  Fixes for cpu/arm926ejs/interrupt.c
+	(based on Richard Woodruff's patch for arm925, 16 Oct 03)
+  Fix for a timer bug in OMAP1610 Innovator
+  Add support for CS0 (ROM)/CS3 (Flash) boot in OMAP1610 Innovator and H2
+
+* Patches by Stephan Linz, 12 Feb 2004:
+  - add support for NIOS timer with variable period preload counter value
+  - prepare POST framework support for NIOS targets
+
+* Patch by Denis Peter, 11 Feb 2004:
+  add POST support for the MIP405 board
+
 * Patch by Laurent Mohin, 10 Feb 2004:
   Fix buffer overflow in common/usb.c
 

@@ -128,6 +128,10 @@ int interrupt_init (void)
 
 	tmr->control &= ~NIOS_TIMER_ITO;
 	tmr->control |= NIOS_TIMER_STOP;
+#if defined(CFG_NIOS_TMRCNT)
+	tmr->periodl = CFG_NIOS_TMRCNT & 0xffff;
+	tmr->periodh = (CFG_NIOS_TMRCNT >> 16) & 0xffff;
+#endif
 #endif
 
 	for (vec=0; vec<64; vec++ ) {

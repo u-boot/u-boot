@@ -100,6 +100,9 @@ CFG_NIOS_TMRIRQ -- the interrupt request (vector number) assigned to
 
 CFG_NIOS_TMRMS -- the period of the timer in milliseconds.
 
+CFG_NIOS_TMRCNT -- the preloadable counter value for the timer if it has
+	no fixed period.
+
 CFG_NIOS_ASMIBASE -- the base address of the ASMI peripheral.
 	(standard-32: na_asmi_base).
 

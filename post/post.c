@@ -131,8 +131,12 @@ void post_output_backlog ( void )
 			post_log ("POST %s ", post_list[j].cmd);
 			if (gd->post_log_word & post_list[j].testid)
 				post_log ("PASSED\n");
-			else
+			else {
 				post_log ("FAILED\n");
+#ifdef CONFIG_SHOW_BOOT_PROGRESS
+				show_boot_progress(-31);
+#endif
+			}
 		}
 	}
 }
@@ -239,8 +243,12 @@ static int post_run_single (struct post_test *test,
 			if ((*test->test) (flags) == 0)
 				post_log_mark_succ ( test->testid );
 		} else {
-		if ((*test->test) (flags) != 0)
+		if ((*test->test) (flags) != 0) {
 			post_log ("FAILED\n");
+#ifdef CONFIG_SHOW_BOOT_PROGRESS
+			show_boot_progress(-32);
+#endif
+		}
 		else
 			post_log ("PASSED\n");
 		}

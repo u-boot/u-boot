@@ -34,6 +34,10 @@ typedef	struct	global_data {
 	unsigned long	reloc_off;	/* Relocation Offset */
 	unsigned long	env_addr;	/* Address  of Environment struct */
 	unsigned long	env_valid;	/* Checksum of Environment valid */
+#if defined(CONFIG_POST) || defined(CONFIG_LOGBUFFER)
+	unsigned long	post_log_word;	/* Record POST activities */
+	unsigned long	post_init_f_time; /* When post_init_f started */
+#endif
 	void		**jt;		/* Standalone app jump table */
 } gd_t;
 

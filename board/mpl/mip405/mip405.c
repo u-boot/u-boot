@@ -709,6 +709,18 @@ void print_mip405_rev (void)
 			var, pcbrev + 'A', part & 0x7F, vers);
 }
 
+
+#ifdef CONFIG_POST
+/*
+ * Returns 1 if keys pressed to start the power-on long-running tests
+ * Called from board_init_f().
+ */
+int post_hotkeys_pressed(void)
+{
+	return 0;	/* No hotkeys supported */
+}
+#endif
+
 extern void mem_test_reloc(void);
 extern int mk_date (char *, struct rtc_time *);
 

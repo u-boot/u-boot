@@ -314,7 +314,19 @@
 
 #define CFG_HZ			1000	/* decrementer freq: 1 ms ticks */
 
-#define	CONFIG_RTC_MPC5200	1	/* use 5200 RTC */
+#ifdef CONFIG_EVAL5200		/* M48T08 is available with the Evaluation board only */
+  #define CONFIG_RTC_MK48T59	1	/* use M48T08 on EVAL5200 */
+  #define RTC(reg)		(0xf0010000+reg)
+  /* setup CS2 for M48T08. Must MAP 64kB */
+  #define CFG_CS2_START	RTC(0)
+  #define CFG_CS2_SIZE	0x10000
+  /* setup CS2 configuration register: */
+  /* WaitP = 0, WaitX = 4, MX=0, AL=1, AA=1, CE=1 */
+  /* AS=2, DS=0, Bank=0, WTyp=0, WS=0, RS=0, WO=0, RO=0 */
+  #define CFG_CS2_CFG	0x00047800
+#else
+  #define CONFIG_RTC_MPC5200	1	/* use internal MPC5200 RTC */
+#endif
 
 /*
  * Various low-level settings

@@ -146,17 +146,60 @@
 
 #if	(CFG_NIOS_CPU_TICK_TIMER == 0)
 
-#error *** CFG_ERROR: tick timer at TIMER0 not supported, expand your config.h
+#define CFG_NIOS_TMRBASE	CFG_NIOS_CPU_TIMER0 /* TIMER0 as tick	*/
+#define CFG_NIOS_TMRIRQ		CFG_NIOS_CPU_TIMER0_IRQ
+
+#if	(CFG_NIOS_CPU_TIMER0_FP == 1)		    /* fixed period */
+
+#if	(CFG_NIOS_CPU_TIMER0_PER >= CFG_HZ)
+#define CFG_NIOS_TMRMS		(CFG_NIOS_CPU_TIMER0_PER / CFG_HZ)
+#else
+#error *** CFG_ERROR: you have to use a timer periode greater than CFG_HZ
+#endif
+
+#undef	CFG_NIOS_TMRCNT	/* no preloadable counter value */
+
+#elif	(CFG_NIOS_CPU_TIMER0_FP == 0)		    /* variable period */
+
+#if	(CFG_HZ <= 1000)
+#define CFG_NIOS_TMRMS		(1000 / CFG_HZ)
+#else
+#error *** CFG_ERROR: sorry, CFG_HZ have to be less than 1000
+#endif
+
+#define	CFG_NIOS_TMRCNT		(CONFIG_SYS_CLK_FREQ / CFG_HZ)
+
+#else
+#error *** CFG_ERROR: you have to define CFG_NIOS_CPU_TIMER0_FP correct
+#endif
 
 #elif	(CFG_NIOS_CPU_TICK_TIMER == 1)
 
 #define CFG_NIOS_TMRBASE	CFG_NIOS_CPU_TIMER1 /* TIMER1 as tick	*/
 #define CFG_NIOS_TMRIRQ		CFG_NIOS_CPU_TIMER1_IRQ
 
+#if	(CFG_NIOS_CPU_TIMER1_FP == 1)		    /* fixed period */
+
 #if	(CFG_NIOS_CPU_TIMER1_PER >= CFG_HZ)
 #define CFG_NIOS_TMRMS		(CFG_NIOS_CPU_TIMER1_PER / CFG_HZ)
 #else
-#error *** CFG_ERROR: you have to use a timer periode of more than CFG_HZ
+#error *** CFG_ERROR: you have to use a timer periode greater than CFG_HZ
+#endif
+
+#undef	CFG_NIOS_TMRCNT	/* no preloadable counter value */
+
+#elif	(CFG_NIOS_CPU_TIMER1_FP == 0)		    /* variable period */
+
+#if	(CFG_HZ <= 1000)
+#define CFG_NIOS_TMRMS		(1000 / CFG_HZ)
+#else
+#error *** CFG_ERROR: sorry, CFG_HZ have to be less than 1000
+#endif
+
+#define	CFG_NIOS_TMRCNT		(CONFIG_SYS_CLK_FREQ / CFG_HZ)
+
+#else
+#error *** CFG_ERROR: you have to define CFG_NIOS_CPU_TIMER1_FP correct
 #endif
 
 #endif	/* CFG_NIOS_CPU_TICK_TIMER */

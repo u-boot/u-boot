@@ -5,6 +5,8 @@
  * Texas Instruments, <www.ti.com>
  * Kshitij Gupta <Kshitij@ti.com>
  *
+ * Modified for OMAP 1610 H2 board by Nishant Kamat, Jan 2004
+ * 
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -248,6 +250,22 @@ common_tc:
 	ldr	r1,	VAL_TC_EMIFS_CS3_CONFIG
 	ldr	r0,	REG_TC_EMIFS_CS3_CONFIG
 	str	r1,	[r0] /* Chip Select 3 */
+
+#ifdef CONFIG_H2_OMAP1610	
+	/* inserting additional 2 clock cycle hold time for LAN */
+	ldr     r0,     REG_TC_EMIFS_CS1_ADVANCED
+	ldr    	r1,     VAL_TC_EMIFS_CS1_ADVANCED
+	str     r1,     [r0]
+#endif
+	/* Start MPU Timer 1 */
+	ldr	r0,	REG_MPU_LOAD_TIMER
+	ldr	r1,	VAL_MPU_LOAD_TIMER
+	str	r1,	[r0]
+
+	ldr	r0,	REG_MPU_CNTL_TIMER
+	ldr	r1,	VAL_MPU_CNTL_TIMER
+	str	r1,	[r0]
+
 	/* back to arch calling code */
 	mov	pc,	lr
 
@@ -265,6 +283,11 @@ REG_TC_EMIFS_CS2_CONFIG:	/* 32 bits */
 	.word 0xfffecc18
 REG_TC_EMIFS_CS3_CONFIG:	/* 32 bits */
 	.word 0xfffecc1c
+
+#ifdef CONFIG_H2_OMAP1610
+REG_TC_EMIFS_CS1_ADVANCED:	/* 32 bits */
+	.word 0xfffecc54
+#endif
 
 /* MPU clock/reset/power mode control registers */
 REG_ARM_CKCTL:			/* 16 bits */
@@ -338,6 +361,11 @@ REG_DLL_LRD_CONTROL:
 REG_WATCHDOG:
 	.word 0xfffec808
 
+REG_MPU_LOAD_TIMER:
+	.word 0xfffec600
+REG_MPU_CNTL_TIMER:
+	.word 0xfffec500
+
 /* 96 MHz Samsung Mobile DDR */
 SDRAM_CONFIG_VAL:
 	.word 0x001200f4
@@ -350,6 +378,7 @@ VAL_ARM_CKCTL:
 VAL_DPLL1_CTL:
 	.word 0x2830
 
+#ifdef CONFIG_INNOVATOROMAP1610
 VAL_TC_EMIFS_CS0_CONFIG:
 	.word 0x002130b0
 VAL_TC_EMIFS_CS1_CONFIG:
@@ -358,6 +387,21 @@ VAL_TC_EMIFS_CS2_CONFIG:
 	.word 0x000055f0
 VAL_TC_EMIFS_CS3_CONFIG:
 	.word 0x88011131
+#endif
+
+#ifdef CONFIG_H2_OMAP1610
+VAL_TC_EMIFS_CS0_CONFIG:
+	.word 0x00203331
+VAL_TC_EMIFS_CS1_CONFIG:
+	.word 0x8180fff3
+VAL_TC_EMIFS_CS2_CONFIG:
+	.word 0xf800f22a
+VAL_TC_EMIFS_CS3_CONFIG:
+	.word 0x88011131
+VAL_TC_EMIFS_CS1_ADVANCED:
+	.word 0x00000022
+#endif
+
 VAL_TC_EMIFF_SDRAM_CONFIG:
 	.word 0x010290fc
 VAL_TC_EMIFF_MRS:
@@ -375,6 +419,11 @@ WATCHDOG_VAL1:
 	.word 0x000000f5
 WATCHDOG_VAL2:
 	.word 0x000000a0
+
+VAL_MPU_LOAD_TIMER:
+	.word 0xffffffff
+VAL_MPU_CNTL_TIMER:
+	.word 0xffffffa1
 
 /* command values */
 .equ CMD_SDRAM_NOP,		0x00000000

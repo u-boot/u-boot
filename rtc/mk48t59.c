@@ -83,6 +83,18 @@ static void rtc_write (short reg, uchar val)
     out_byte(CMOS_DATA, (uint8)val);
 }
 
+#elif defined(CONFIG_EVAL5200)
+
+static uchar rtc_read (short reg)
+{
+	return in8(RTC(reg));
+}
+
+static void rtc_write (short reg, uchar val)
+{
+	out8(RTC(reg),val);
+}
+
 #else
 # error Board specific rtc access functions should be supplied
 #endif

@@ -55,20 +55,21 @@
  ***********************************************************/
 #define MIP405_COMMON_CMDS \
 		       (CONFIG_CMD_DFL	| \
-			CFG_CMD_IDE	| \
-			CFG_CMD_DHCP	| \
 			CFG_CMD_CACHE	| \
-			CFG_CMD_PCI	| \
-			CFG_CMD_IRQ	| \
+			CFG_CMD_DATE	| \
+			CFG_CMD_DHCP	| \
 			CFG_CMD_ECHO	| \
 			CFG_CMD_EEPROM	| \
-			CFG_CMD_I2C	| \
-			CFG_CMD_REGINFO | \
-			CFG_CMD_DATE	| \
 			CFG_CMD_ELF	| \
+			CFG_CMD_FAT	| \
+			CFG_CMD_I2C	| \
+			CFG_CMD_IDE	| \
+			CFG_CMD_IRQ	| \
+			CFG_CMD_JFFS2	| \
 			CFG_CMD_MII	| \
-			CFG_CMD_FAT | \
+			CFG_CMD_PCI	| \
 			CFG_CMD_PING	| \
+			CFG_CMD_REGINFO | \
 			CFG_CMD_SAVES	| \
 			CFG_CMD_BSP	)
 
@@ -235,6 +236,9 @@
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
+#define CFG_JFFS2_FIRST_BANK    0           /* use for JFFS2 */
+#define CFG_JFFS2_NUM_BANKS     1           /* ! second bank contains U-Boot */
+
 /*-----------------------------------------------------------------------
  * Cache Configuration
  */
@@ -244,6 +248,25 @@
 #define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
 #endif
 
+/*-----------------------------------------------------------------------
+ * Logbuffer Configuration
+ */
+#undef CONFIG_LOGBUFFER 	/* supported but not enabled */
+/*-----------------------------------------------------------------------
+ * Bootcountlimit Configuration
+ */
+#undef CONFIG_BOOTCOUNT_LIMIT	/* supported but not enabled */
+
+/*-----------------------------------------------------------------------
+ * POST Configuration
+ */
+#if 0 /* enable this if POST is desired (is supported but not enabled) */
+#define CONFIG_POST		(CFG_POST_MEMORY	| \
+				 CFG_POST_CPU 		| \
+				 CFG_POST_RTC 		| \
+				 CFG_POST_I2C)
+
+#endif
 /*
  * Init Memory Controller:
  */
@@ -273,7 +296,16 @@
 #define CFG_INIT_RAM_END	CFG_OCM_DATA_SIZE	/* End of On Chip SRAM	       */
 #define CFG_GBL_DATA_SIZE	64		/* size in bytes reserved for initial data */
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
+/* reserve some memory for POST and BOOT limit info */
+#define CFG_INIT_SP_OFFSET	(CFG_GBL_DATA_OFFSET - 32)
+
+#ifdef  CONFIG_POST		/* reserve one word for POST Info */
+#define CFG_POST_WORD_ADDR	(CFG_GBL_DATA_OFFSET - 4)
+#endif
+
+#ifdef CONFIG_BOOTCOUNT_LIMIT /* reserve 2 word for bootcount limit */
+#define CFG_BOOTCOUNT_ADDR (CFG_GBL_DATA_OFFSET - 12)
+#endif
 
 /*
  * Internal Definitions
@@ -298,7 +330,8 @@
  ***********************************************************/
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_PHY_ADDR		1	/* PHY address			*/
-
+#define CONFIG_PHY_RESET_DELAY	300	/* Intel LXT971A needs this */
+#define CONFIG_PHY_CMD_DELAY	40	/* Intel LXT971A needs this */
 /************************************************************
  * RTC
  ***********************************************************/

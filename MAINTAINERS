@@ -187,6 +187,9 @@ Scott McNutt <smcnutt@artesyncp.com>
 
 	EBONY			PPC440GP
 
+Tolunay Orkun <torkun@nextio.com>
+	csb272			PPC4xx
+
 Keith Outwater <Keith_Outwater@mvis.com>
 
 	GEN860T			MPC860T
@@ -307,8 +310,13 @@ Gary Jennejohn <gj@denx.de>
 	trab			ARM920T
 
 Kshitij Gupta <kshitij@ti.com>
+
 	omap1510inn		ARM925T
 	omap1610inn		ARM926EJS
+
+Nishant Kamat <nskamat@ti.com>
+
+	omap1610h2		ARM926EJS
 
 David Müller <d.mueller@elsoft.ch>
 

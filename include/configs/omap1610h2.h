@@ -1,8 +1,8 @@
 /*
- * (C) Copyright 2003
+ * (C) Copyright 2004
  * Texas Instruments.
  * Kshitij Gupta <kshitij@ti.com>
- * Configuation settings for the TI OMAP Innovator board.
+ * Configuration settings for the TI OMAP 1610 H2 board.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -36,20 +36,20 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_ARM926EJS	1	/* This is an arm926ejs CPU core  */
-#define CONFIG_OMAP	1			/* in a TI OMAP core    */
-#define CONFIG_OMAP1610	1		/* which is in a 1610  */
-#define CONFIG_INNOVATOROMAP1610	1	/*  a Innovator Board  */
+#define CONFIG_ARM926EJS	1	/* This is an arm926ejs CPU core */
+#define CONFIG_OMAP		1	/* in a TI OMAP core */
+#define CONFIG_OMAP1610		1	/* which is in a 1610 */
+#define CONFIG_H2_OMAP1610	1	/* on an H2 Board */
 
 /* input clock of PLL */
-/* the OMAP1610 Innovator has 12MHz input clock */
+/* the OMAP1610 H2 has 12MHz input clock */
 #define CONFIG_SYS_CLK_FREQ	12000000
 
 #undef CONFIG_USE_IRQ	/* we don't need IRQ/FIQ stuff */
 
 #define CONFIG_MISC_INIT_R
 
-#define CONFIG_CMDLINE_TAG	1	/* enable passing of ATAGs  */
+#define CONFIG_CMDLINE_TAG	1	/* enable passing of ATAGs */
 #define CONFIG_SETUP_MEMORY_TAGS	1
 
 /*
@@ -61,8 +61,6 @@
 /*
  * Hardware drivers
  */
-/*
-*/
 #define CONFIG_DRIVER_LAN91C96
 #define CONFIG_LAN91C96_BASE 0x04000300
 #define CONFIG_LAN91C96_EXT_PHY
@@ -73,13 +71,13 @@
 #define CFG_NS16550
 #define CFG_NS16550_SERIAL
 #define CFG_NS16550_REG_SIZE	(-4)
-#define CFG_NS16550_CLK		(48000000)	/* can be 12M/32Khz or 48Mhz */
-#define CFG_NS16550_COM1	0xfffb0000	/* uart1, bluetooth uart on helen */
-
+#define CFG_NS16550_CLK	(48000000)		/* can be 12M/32Khz or 48Mhz */
+#define CFG_NS16550_COM1	0xfffb0000	/* uart1, bluetooth uart */
+						
 /*
  * select serial console configuration
  */
-#define CONFIG_SERIAL1		1		/* we use SERIAL 1 on OMAP1610 Innovator */
+#define CONFIG_SERIAL1	1	/* we use SERIAL 1 on OMAP1610 H2 */
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
@@ -111,16 +109,16 @@
 /*
  * Miscellaneous configurable options
  */
-#define CFG_LONGHELP	/* undef to save memory     */
-#define CFG_PROMPT	"OMAP1610 Innovator # "	/* Monitor Command Prompt   */
-#define CFG_CBSIZE	256		/* Console I/O Buffer Size  */
+#define CFG_LONGHELP	/* undef to save memory */
+#define CFG_PROMPT	"OMAP1610 H2 # "	/* Monitor Command Prompt */
+#define CFG_CBSIZE	256		/* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define CFG_PBSIZE	(CFG_CBSIZE+sizeof(CFG_PROMPT)+16)
-#define CFG_MAXARGS	16		/* max number of command args   */
-#define CFG_BARGSIZE	CFG_CBSIZE	/* Boot Argument Buffer Size    */
+#define CFG_MAXARGS	16		/* max number of command args */
+#define CFG_BARGSIZE	CFG_CBSIZE	/* Boot Argument Buffer Size */
 
 #define CFG_MEMTEST_START	0x10000000	/* memtest works on */
-#define CFG_MEMTEST_END	0x12000000	/* 32 MB in DRAM    */
+#define CFG_MEMTEST_END	0x12000000	/* 32 MB in DRAM */
 
 #undef	CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
 
@@ -175,6 +173,6 @@
 
 #define CFG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_SIZE	0x20000	/* Total Size of Environment Sector */
-#define CFG_ENV_OFFSET	0x20000	/* environment starts here  */
+#define CFG_ENV_OFFSET	0x20000	/* environment starts here */
 
 #endif							/* __CONFIG_H */

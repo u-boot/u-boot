@@ -140,19 +140,18 @@ MachineCheckException(struct pt_regs *regs)
 	printf("Machine check in kernel mode.\n");
 	printf("Caused by (from msr): ");
 	printf("regs %p ",regs);
-	switch( regs->msr & 0x0000F000)
-	{
-	case (1<<12) :
+	switch( regs->msr & 0x000F0000) {
+	case (0x80000000>>12):
 		printf("Machine check signal - probably due to mm fault\n"
 			"with mmu off\n");
 		break;
-	case (1<<13) :
+	case (0x80000000>>13):
 		printf("Transfer error ack signal\n");
 		break;
-	case (1<<14) :
+	case (0x80000000>>14):
 		printf("Data parity signal\n");
 		break;
-	case (1<<15) :
+	case (0x80000000>>15):
 		printf("Address parity signal\n");
 		break;
 	default:

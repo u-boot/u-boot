@@ -28,15 +28,33 @@
 
 flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
 
-typedef unsigned char FLASH_PORT_WIDTH;
-typedef volatile unsigned char FLASH_PORT_WIDTHV;
-#define	FLASH_ID_MASK	0xFF
+#if defined (CONFIG_TOP860)
+  typedef unsigned short FLASH_PORT_WIDTH;
+  typedef volatile unsigned short FLASH_PORT_WIDTHV;
+  #define	FLASH_ID_MASK	0xFF
 
-#define FPW	FLASH_PORT_WIDTH
-#define FPWV	FLASH_PORT_WIDTHV
+  #define FPW	FLASH_PORT_WIDTH
+  #define FPWV	FLASH_PORT_WIDTHV
 
-#define FLASH_CYCLE1	0x0aaa
-#define FLASH_CYCLE2	0x0555
+  #define FLASH_CYCLE1	0x0555
+  #define FLASH_CYCLE2	0x02aa
+  #define FLASH_ID1		0
+  #define FLASH_ID2		1
+#endif
+
+#if defined (CONFIG_TOP5200)
+  typedef unsigned char FLASH_PORT_WIDTH;
+  typedef volatile unsigned char FLASH_PORT_WIDTHV;
+  #define	FLASH_ID_MASK	0xFF
+
+  #define FPW	FLASH_PORT_WIDTH
+  #define FPWV	FLASH_PORT_WIDTHV
+
+  #define FLASH_CYCLE1	0x0aaa
+  #define FLASH_CYCLE2	0x0555
+  #define FLASH_ID1		0
+  #define FLASH_ID2		2
+#endif
 
 /*-----------------------------------------------------------------------
  * Functions
@@ -179,12 +197,33 @@ void flash_print_info (flash_info_t *info)
 	printf ("  Sector Start Addresses:");
 
 	for (i=0; i<info->sector_count; ++i) {
+		ulong	size;
+		int		erased;
+		ulong	*flash = (unsigned long *) info->start[i];
+
 		if ((i % 5) == 0) {
 			printf ("\n   ");
 		}
 
-		printf (" %08lX%s", info->start[i],
-			info->protect[i] ? " (RO)" : "     ");
+		/*
+		 * Check if whole sector is erased
+		 */
+		size =
+			(i != (info->sector_count - 1)) ?
+			(info->start[i + 1] - info->start[i]) >> 2 :
+		(info->start[0] + info->size - info->start[i]) >> 2;
+
+		for (
+			flash = (unsigned long *) info->start[i], erased = 1;
+				(flash != (unsigned long *) info->start[i] + size) && erased;
+					flash++
+			)
+			erased = *flash == ~0x0UL;
+
+		printf (" %08lX %s %s",
+			info->start[i],
+			erased ? "E": " ",
+			info->protect[i] ? "(RO)" : "    ");
 	}
 
 	printf ("\n");
@@ -212,7 +251,7 @@ ulong flash_get_size (FPWV *addr, flash_info_t *info)
 	 * This works for any bus width and any FLASH device width.
 	 */
 	udelay(100);
-	switch (addr[0] & 0xff) {
+	switch (addr[FLASH_ID1] & 0xff) {
 
 	case (uchar)AMD_MANUFACT:
 		info->flash_id = FLASH_MAN_AMD;
@@ -225,7 +264,7 @@ ulong flash_get_size (FPWV *addr, flash_info_t *info)
 #endif
 
 	default:
-		printf ("unknown vendor=%x ", addr[0] & 0xff);
+		printf ("unknown vendor=%x ", addr[FLASH_ID1] & 0xff);
 		info->flash_id = FLASH_UNKNOWN;
 		info->sector_count = 0;
 		info->size = 0;
@@ -233,7 +272,7 @@ ulong flash_get_size (FPWV *addr, flash_info_t *info)
 	}
 
 	/* Check 16 bits or 32 bits of ID so work on 32 or 16 bit bus. */
-	if (info->flash_id != FLASH_UNKNOWN) switch ((FPW)addr[2]) {
+	if (info->flash_id != FLASH_UNKNOWN) switch ((FPW)addr[FLASH_ID2]) {
 
 	case (FPW)AMD_ID_LV160B:
 		info->flash_id += FLASH_AM160B;
@@ -255,7 +294,7 @@ ulong flash_get_size (FPWV *addr, flash_info_t *info)
 		break;
 
 	default:
-		printf ("unknown AMD device=%x ", (FPW)addr[2]);
+		printf ("unknown AMD device=%x ", (FPW)addr[FLASH_ID2]);
 		info->flash_id = FLASH_UNKNOWN;
 		info->sector_count = 0;
 		info->size = 0;

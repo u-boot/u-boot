@@ -219,7 +219,7 @@ Directory Hierarchy:
 - board/omap1510inn
 		Files specific to OMAP 1510 Innovator boards
 - board/omap1610inn
-		Files specific to OMAP 1610 Innovator boards
+		Files specific to OMAP 1610 Innovator and H2 boards
 - board/pcippc2 Files specific to PCIPPC2/PCIPPC6 boards
 - board/pm826	Files specific to PM826	     boards
 - board/ppmc8260
@@ -375,11 +375,12 @@ The following options need to be configured:
 		ARM based boards:
 		-----------------
 
-		CONFIG_HHP_CRADLE,  CONFIG_DNP1110,    CONFIG_EP7312,
-		CONFIG_IMPA7,	    CONFIG_LART,       CONFIG_LUBBOCK,
-		CONFIG_INNOVATOROMAP1510,	CONFIG_INNOVATOROMAP1610
-		CONFIG_SHANNON,	    CONFIG_SMDK2400,   CONFIG_SMDK2410,
-		CONFIG_TRAB,	    CONFIG_VCMA9,      CONFIG_AT91RM9200DK
+		CONFIG_HHP_CRADLE,  CONFIG_DNP1110,	CONFIG_EP7312,
+		CONFIG_IMPA7,	    CONFIG_LART,	CONFIG_LUBBOCK,
+		CONFIG_INNOVATOROMAP1510,      CONFIG_INNOVATOROMAP1610,
+		CONFIG_H2_OMAP1610, CONFIG_SHANNON,	CONFIG_SMDK2400,
+		CONFIG_SMDK2410,    CONFIG_TRAB,	CONFIG_VCMA9,
+		CONFIG_AT91RM9200DK
 
 
 - CPU Module Type: (if CONFIG_COGENT is defined)
@@ -1465,6 +1466,10 @@ The following options need to be configured:
    14	common/cmd_bootm.c	No initial ramdisk, no multifile, continue.
    15	common/cmd_bootm.c	All preparation done, transferring control to OS
 
+  -30   lib_ppc/board.c	        Fatal error, hang the system
+  -31   post/post.c	        POST test failed, detected by post_output_backlog()
+  -32   post/post.c	        POST test failed, detected by post_run_single()
+
    -1	common/cmd_doc.c	Bad usage of "doc" command
    -1	common/cmd_doc.c	No boot device
    -1	common/cmd_doc.c	Unknown Chip ID on boot device
@@ -2039,7 +2044,7 @@ configurations; the following names are supported:
     at91rm9200dk_config	  omap1510inn_config	MPC8260ADS_config
     omap1610inn_config	  ZPC1900_config	MPC8540ADS_config
     MPC8560ADS_config	  QS850_config		QS823_config
-    QS860T_config	  DUET_ADS_config
+    QS860T_config	  DUET_ADS_config	omap1610h2_config
 
 Note: for some board special configuration names may exist; check  if
       additional  information is available from the board vendor; for
