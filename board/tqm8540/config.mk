@@ -1,6 +1,6 @@
-#
-# (C) Copyright 2002,2003 Motorola Inc.
-# Xianghua Xiao, X.Xiao@motorola.com
+# Copyright 2004 Freescale Semiconductor.
+# Modified by Xianghua Xiao, X.Xiao@motorola.com
+# (C) Copyright 2002,Motorola Inc.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -21,6 +21,9 @@
 # MA 02111-1307 USA
 #
 
-PLATFORM_RELFLAGS += -fPIC -ffixed-r14 -meabi
-
-PLATFORM_CPPFLAGS += -DCONFIG_MPC85xx -DCONFIG_E500 -ffixed-r2 -ffixed-r29 -Wa,-me500 -msoft-float -O2
+#
+# tqm8540 board
+# default CCARBAR is at 0xff700000
+# assume U-Boot is less than 256k
+#
+TEXT_BASE = 0xfffc0000

@@ -7,6 +7,10 @@
  * (C) Copyright 2004
  * Pierre Aubert, Staubli Faverges <p.aubert@staubli.com>
  *
+ * Note: Much of this code has been derived from Linux 2.4
+ * (C) Copyright 1999 Roman Weissgaerber <weissg@vienna.at>
+ * (C) Copyright 2000-2002 David Brownell
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -24,8 +28,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
- *
- * Note: Part of this code has been derived from linux
  *
  */
 /*

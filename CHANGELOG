@@ -2,6 +2,11 @@
 Changes for U-Boot 1.1.3:
 ======================================================================
 
+* Patch by David Brownell, 10 Mar 2005:
+  Restore copyright statements in OHCI drivers.
+
+* Add support for TQM8540 board
+
 * Patch by Detlev Zundel, 14 Mar 2005:
   NC650: changed NAND flash addressing to using UPMB
 

@@ -46,15 +46,15 @@ struct tsec_info_struct {
  * knowledge that all current implementations have 2 TSEC
  * devices, and one FEC.  The information needed is:
  *  phyaddr - The address of the PHY which is attached to
- *      the given device.
+ *	the given device.
  *
  *  gigabit - This variable indicates whether the device
- *      supports gigabit speed ethernet
+ *	supports gigabit speed ethernet
  *
  *  phyregidx - This variable specifies which ethernet device
- *      controls the MII Management registers which are connected
- *      to the PHY.  For 8540/8560, only TSEC1 (index 0) has
- *      access to the PHYs, so all of the entries have "0".
+ *	controls the MII Management registers which are connected
+ *	to the PHY.  For 8540/8560, only TSEC1 (index 0) has
+ *	access to the PHYs, so all of the entries have "0".
  *
  * The values specified in the table are taken from the board's
  * config file in include/configs/.  When implementing a new
@@ -71,12 +71,18 @@ struct tsec_info_struct {
 static struct tsec_info_struct tsec_info[] = {
 #ifdef CONFIG_MPC85XX_TSEC1
 	{TSEC1_PHY_ADDR, 1, TSEC1_PHYIDX},
+#else
+	{ 0, 0, 0},
 #endif
 #ifdef CONFIG_MPC85XX_TSEC2
 	{TSEC2_PHY_ADDR, 1, TSEC2_PHYIDX},
+#else
+	{ 0, 0, 0},
 #endif
 #ifdef CONFIG_MPC85XX_FEC
 	{FEC_PHY_ADDR, 0, FEC_PHYIDX},
+#else
+	{ 0, 0, 0},
 #endif
 };
 
@@ -160,7 +166,7 @@ int tsec_initialize(bd_t *bis, int index)
 
 
 /* Initializes data structures and registers for the controller,
- * and brings the interface up.  Returns the link status, meaning
+ * and brings the interface up.	 Returns the link status, meaning
  * that it returns success if the link is up, failure otherwise.
  * This allows u-boot to find the first active controller. */
 int tsec_init(struct eth_device* dev, bd_t * bd)
@@ -228,7 +234,7 @@ void write_phy_reg(struct tsec_private *priv, uint regnum, uint value)
 
 
 /* Reads register regnum on the device's PHY through the
- * registers specified in priv.  It lowers and raises the read
+ * registers specified in priv.	 It lowers and raises the read
  * command, and waits for the data to become valid (miimind
  * notvalid bit cleared), and the bus to cease activity (miimind
  * busy bit cleared), and then returns the value
@@ -543,9 +549,9 @@ static void startup_tsec(struct eth_device *dev)
 	regs->dmactrl &= ~(DMACTRL_GRS | DMACTRL_GTS);
 }
 
-/* This returns the status bits of the device.  The return value
+/* This returns the status bits of the device.	The return value
  * is never checked, and this is what the 8260 driver did, so we
- * do the same.  Presumably, this would be zero if there were no
+ * do the same.	 Presumably, this would be zero if there were no
  * errors */
 static int tsec_send(struct eth_device* dev, volatile void *packet, int length)
 {
@@ -669,6 +675,38 @@ struct phy_info phy_info_M88E1011S = {
 	},
 };
 
+struct phy_info phy_info_M88E1111S = {
+	0x01410cc,
+	"Marvell 88E1111S",
+	4,
+	(struct phy_cmd[]) { /* config */
+	  /* Reset and configure the PHY */
+		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+		{0x1d, 0x1f, NULL},
+		{0x1e, 0x200c, NULL},
+		{0x1d, 0x5, NULL},
+		{0x1e, 0x0, NULL},
+		{0x1e, 0x100, NULL},
+		{MIIM_GBIT_CONTROL, MIIM_GBIT_CONTROL_INIT, NULL},
+		{MIIM_ANAR, MIIM_ANAR_INIT, NULL},
+		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+		{MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) { /* startup */
+	  /* Status is read once to clear old link state */
+		{MIIM_STATUS, miim_read, NULL},
+		/* Auto-negotiate */
+		{MIIM_STATUS, miim_read, &mii_parse_sr},
+		/* Read the status */
+		{MIIM_88E1011_PHY_STATUS, miim_read, &mii_parse_88E1011_psr},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) { /* shutdown */
+		{miim_end,}
+	},
+};
+
 struct phy_info phy_info_cis8204 = {
 	0x3f11,
 	"Cicada Cis8204",
@@ -755,19 +793,41 @@ struct phy_info phy_info_dm9161 = {
 	},
 };
 
+static struct phy_info phy_info_lxt971 = {
+	0x0001378e,
+	"LXT971",
+	4,
+	(struct phy_cmd []) {  /* config */
+		{ MIIM_CONTROL, MIIM_CONTROL_INIT, mii_cr_init }, /* autonegotiate */
+		{ miim_end, }
+	},
+	(struct phy_cmd []) {  /* startup - enable interrupts */
+		/* { 0x12, 0x00f2, NULL }, */
+		{ 0x14, 0xd422, NULL }, /* LED config */
+		{ MIIM_STATUS, miim_read, NULL },
+		{ MIIM_STATUS, miim_read, mii_parse_sr },
+		{ miim_end, }
+	},
+	(struct phy_cmd []) {  /* shutdown - disable interrupts */
+		{ miim_end, }
+	},
+};
+
 struct phy_info *phy_info[] = {
 #if 0
 	&phy_info_cis8201,
 #endif
 	&phy_info_cis8204,
 	&phy_info_M88E1011S,
+	&phy_info_M88E1111S,
 	&phy_info_dm9161,
+	&phy_info_lxt971,
 	NULL
 };
 
 
 /* Grab the identifier of the device's PHY, and search through
- * all of the known PHYs to see if one matches.  If so, return
+ * all of the known PHYs to see if one matches.	 If so, return
  * it, if not, return NULL */
 struct phy_info * get_phy_info(struct eth_device *dev)
 {

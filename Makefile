@@ -1171,6 +1171,9 @@ sbc8560_66_config:      unconfig
 stxgp3_config:		unconfig
 	@./mkconfig $(@:_config=) ppc mpc85xx stxgp3
 
+TQM8540_config:      unconfig
+	@./mkconfig $(@:_config=) ppc mpc85xx tqm8540
+
 #########################################################################
 ## 74xx/7xx Systems
 #########################################################################
