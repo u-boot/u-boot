@@ -1,6 +1,7 @@
 /*
- * (C) Copyright 2000-2003
- * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ *  Memory sub-system initialization code for PURPLE development board.
+ *
+ *  Copyright (c) 2003	Wolfgang Denk <wd@denx.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -21,9 +22,14 @@
  * MA 02111-1307 USA
  */
 
-#ifndef	__VERSION_H__
-#define	__VERSION_H__
+#include <config.h>
+#include <version.h>
+#include <asm/regdef.h>
 
-#define	U_BOOT_VERSION	"U-Boot 0.3.0"
 
-#endif	/* __VERSION_H__ */
+	.globl	memsetup
+memsetup:
+
+	j	ra
+	nop
+

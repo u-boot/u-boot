@@ -1000,14 +1000,14 @@ static int k_recv (void)
 		for (;;) {
 			switch (serial_getc ()) {
 			case START_CHAR:	/* start packet */
-				break;
+				goto START;
 			case ETX_CHAR:		/* ^C waiting for packet */
 				return (0);
 			default:
 				;
 			}
 		}
-			
+START:
 		/* get length of packet */
 		sum = 0;
 		new_char = serial_getc ();

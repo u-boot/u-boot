@@ -83,8 +83,12 @@ static void send_reset(void)
 #endif
 	int j;
 
-	I2C_ACTIVE;
+	I2C_SCL(1);
 	I2C_SDA(1);
+#ifdef	I2C_INIT
+	I2C_INIT;
+#endif
+	I2C_TRISTATE;
 	for(j = 0; j < 9; j++) {
 		I2C_SCL(0);
 		I2C_DELAY;
@@ -262,13 +266,6 @@ static uchar read_byte(int ack)
  */
 void i2c_init (int speed, int slaveaddr)
 {
-#ifdef	CONFIG_8xx
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
-#endif
-
-#ifdef	I2C_INIT
-	I2C_INIT;
-#endif
 	/*
          * WARNING: Do NOT save speed in a static variable: if the
          * I2C routines are called before RAM is initialized (to read

@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000
+# (C) Copyright 2003
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -21,33 +21,12 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
+#
+# Purple board with MIPS 5Kc CPU core
+#
 
-# CFLAGS += -DET_DEBUG -DDEBUG
+# ROM version
+TEXT_BASE = 0xB0000000
 
-LIB	= libdrivers.a
-
-OBJS	= 3c589.o 5701rls.o at91rm9200_ether.o \
-	  bcm570x.o bcm570x_autoneg.o \
-	  cfb_console.o cs8900.o ct69000.o dc2114x.o \
-	  eepro100.o i8042.o inca-ip_sw.o \
-	  natsemi.o ns16550.o ns8382x.o ns87308.o \
-	  pci.o pci_auto.o pci_indirect.o \
-	  pcnet.o plb2800_eth.o \
-	  s3c24x0_i2c.o sed13806.o serial.o \
-	  smc91111.o smiLynxEM.o sym53c8xx.o \
-	  tigon3.o w83c553f.o
-
-all:	$(LIB)
-
-$(LIB):	$(OBJS)
-	$(AR) crv $@ $(OBJS)
-
-#########################################################################
-
-.depend:	Makefile $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(OBJS:.o=.c) > $@
-
-sinclude .depend
-
-#########################################################################
+# RAM version
+#TEXT_BASE = 0x80100000

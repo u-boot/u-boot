@@ -250,12 +250,17 @@ dcache_disable:
 * RETURNS: N/A
 *
 */
+#if defined(CONFIG_INCA_IP)
+# define	CACHE_LOCK_SIZE	(CFG_DCACHE_SIZE)
+#elif defined(CONFIG_PURPLE)
+# define	CACHE_LOCK_SIZE	(CFG_DCACHE_SIZE/2)
+#endif
 	.globl	mips_cache_lock
 	.ent	mips_cache_lock
 mips_cache_lock:
-	li	a1, K0BASE - CFG_DCACHE_SIZE/2
+	li	a1, K0BASE - CACHE_LOCK_SIZE
 	addu	a0, a1
-	li	a2, CFG_DCACHE_SIZE/2
+	li	a2, CACHE_LOCK_SIZE
 	li	a3, CFG_CACHELINE_SIZE
 	move	a1, a2
 	icacheop(a0,a1,a2,a3,0x1d)

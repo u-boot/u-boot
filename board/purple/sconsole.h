@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2003
+ * (C) Copyright 2002
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -12,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -21,9 +21,27 @@
  * MA 02111-1307 USA
  */
 
-#ifndef	__VERSION_H__
-#define	__VERSION_H__
+#ifndef _SCONSOLE_H_
+#define _SCONSOLE_H_
 
-#define	U_BOOT_VERSION	"U-Boot 0.3.0"
+#include <config.h>
 
-#endif	/* __VERSION_H__ */
+typedef struct sconsole_buffer_s
+{
+  unsigned long		size;
+  unsigned long		max_size;
+  unsigned long 	pos;
+  char			data [1];
+} sconsole_buffer_t;
+
+#define SCONSOLE_BUFFER		((sconsole_buffer_t *) CFG_SCONSOLE_ADDR)
+
+extern void	(* sconsole_putc) 	(char);
+extern void	(* sconsole_puts) 	(const char *);
+extern int	(* sconsole_getc) 	(void);
+extern int	(* sconsole_tstc) 	(void);
+extern void	(* sconsole_setbrg) 	(void);
+
+extern void	sconsole_flush		(void);
+
+#endif
