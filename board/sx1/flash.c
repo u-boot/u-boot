@@ -26,6 +26,7 @@
 
 #include <common.h>
 #include <linux/byteorder/swab.h>
+#include <environment.h>
 
 #define PHYS_FLASH_SECT_SIZE	0x00020000	/* 256 KB sectors (x2) */
 flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips	   */
@@ -93,6 +94,13 @@ unsigned long flash_init (void)
 			CFG_ENV_ADDR,
 			CFG_ENV_ADDR + CFG_ENV_SIZE - 1,
 			&flash_info[0]);
+
+#ifdef CFG_ENV_ADDR_REDUND
+	flash_protect ( FLAG_PROTECT_SET,
+			CFG_ENV_ADDR_REDUND,
+			CFG_ENV_ADDR_REDUND + CFG_ENV_SIZE_REDUND - 1,
+			&flash_info[0]);
+#endif
 
 	return size;
 }

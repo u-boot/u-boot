@@ -70,12 +70,17 @@ int usbtty_configured_flag = 0;
 
 
 /*
+ * Serial number
+ */
+static char serial_number[16];
+
+/*
  * Descriptors
  */
 static u8 wstrLang[4] = {4,USB_DT_STRING,0x9,0x4};
 static u8 wstrManufacturer[2 + 2*(sizeof(CONFIG_USBD_MANUFACTURER)-1)];
 static u8 wstrProduct[2 + 2*(sizeof(CONFIG_USBD_PRODUCT_NAME)-1)];
-static u8 wstrSerial[2 + 2*(sizeof(CONFIG_USBD_SERIAL_NUMBER)-1)];
+static u8 wstrSerial[2 + 2*(sizeof(serial_number) - 1)];
 static u8 wstrConfiguration[2 + 2*(sizeof(CONFIG_USBD_CONFIGURATION_STR)-1)];
 static u8 wstrInterface[2 + 2*(sizeof(CONFIG_USBD_INTERFACE_STR)-1)];
 
@@ -307,7 +312,20 @@ void usbtty_puts (const char *str)
 int drv_usbtty_init (void)
 {
 	int rc;
-
+	char * sn;
+	int snlen;
+	
+	if (!(sn = getenv("serial#"))) {
+		sn = "000000000000";
+	}
+	snlen = strlen(sn);
+	if (snlen > sizeof(serial_number) - 1) {
+		printf ("Warning: serial number %s is too long (%d > %d)\n",
+			sn, snlen, sizeof(serial_number) - 1);
+		snlen = sizeof(serial_number) - 1;
+	}
+	memcpy (serial_number, sn, snlen);
+	serial_number[snlen] = '\0';
 
 	/* prepare buffers... */
 	buf_init (&usbtty_input, USBTTY_BUFFER_SIZE);
@@ -355,9 +373,9 @@ static void usbtty_init_strings (void)
 	str2wide (CONFIG_USBD_PRODUCT_NAME, string->wData);
 
 	string = (struct usb_string_descriptor *) wstrSerial;
-	string->bLength = sizeof (wstrSerial);
+	string->bLength = 2 + 2*strlen(serial_number);
 	string->bDescriptorType = USB_DT_STRING;
-	str2wide (CONFIG_USBD_SERIAL_NUMBER, string->wData);
+	str2wide (serial_number, string->wData);
 
 	string = (struct usb_string_descriptor *) wstrConfiguration;
 	string->bLength = sizeof (wstrConfiguration);
@@ -392,7 +410,7 @@ static void usbtty_init_instances (void)
 	bus_instance->endpoint_array = endpoint_instance;
 	bus_instance->max_endpoints = 1;
 	bus_instance->maxpacketsize = 64;
-	bus_instance->serial_number_str = CONFIG_USBD_SERIAL_NUMBER;
+	bus_instance->serial_number_str = serial_number;
 
 	/* configuration instance */
 	memset (config_instance, 0,

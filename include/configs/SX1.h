@@ -83,8 +83,6 @@
 #define CONFIG_USBD_PRODUCTID		0x5678
 #define CONFIG_USBD_MANUFACTURER	"Siemens"
 #define CONFIG_USBD_PRODUCT_NAME	"SX1"
-#define CONFIG_USBD_SERIAL_NUMBER	"000000000001"
-
 
 /*
  * I2C configuration
@@ -109,8 +107,8 @@
 #include <cmd_confdefs.h>
 #include <configs/omap1510.h>
 
-#define CONFIG_BOOTDELAY	3
 #define CONFIG_BOOTARGS		"mem=16M console=ttyS0,115200n8 root=/dev/mtdblock3 rw"
+#define CONFIG_PREBOOT		"setenv stdout usbtty;setenv stdin usbtty"
 
 /*
  * Miscellaneous configurable options
@@ -173,5 +171,9 @@
 #define CFG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_SIZE		0x20000 /* Total Size of Environment Sector */
 #define CFG_ENV_OFFSET		0x20000 /* environment starts here  */
+
+/* Address and size of Redundant Environment Sector	*/
+#define CFG_ENV_SIZE_REDUND	0x20000
+#define CFG_ENV_OFFSET_REDUND	0x40000
 
 #endif	/* __CONFIG_H */

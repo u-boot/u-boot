@@ -2,6 +2,9 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
+* SX1 patches: use "serial#" for USB serial #; use redundand environment
+  storage; auto-set console on USB port (using preboot command)
+
 * Add support for SX1 mobile phone; add support for USB-based console
   (enable with "setenv stdout usbtty; setenv stdin usbtty")
 
