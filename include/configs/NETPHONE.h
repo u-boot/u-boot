@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000
+ * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -23,7 +23,7 @@
 
 /*
  * Pantelis Antoniou, Intracom S.A., panto@intracom.gr
- * U-Boot port on NetVia board
+ * U-Boot port on NetTA4 board
  */
 
 #ifndef __CONFIG_H
@@ -34,22 +34,20 @@
  * (easy to change)
  */
 
-#define CONFIG_MPC850		1	/* This is a MPC850 CPU		*/
-#define CONFIG_NETVIA		1	/* ...on a NetVia board		*/
+#define CONFIG_MPC870		1	/* This is a MPC885 CPU		*/
+#define CONFIG_NETPHONE		1	/* ...on a NetPhone board	*/
 
-#if !defined(CONFIG_NETVIA_VERSION) || CONFIG_NETVIA_VERSION == 1
 #define	CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
 #undef	CONFIG_8xx_CONS_SMC2
 #undef	CONFIG_8xx_CONS_NONE
-#else
-#define CONFIG_8xx_CONS_NONE
-#define CONFIG_MAX3100_SERIAL
-#endif
 
 #define CONFIG_BAUDRATE		115200	/* console baudrate = 115kbps	*/
 
-#define CONFIG_XIN		10000000
-#define CONFIG_8xx_GCLK_FREQ	80000000
+/* #define CONFIG_XIN		 10000000 */
+#define CONFIG_XIN		 50000000
+#define MPC8XX_HZ		120000000
+
+#define CONFIG_8xx_GCLK_FREQ	MPC8XX_HZ
 
 #if 0
 #define CONFIG_BOOTDELAY	-1	/* autoboot disabled		*/
@@ -59,7 +57,7 @@
 
 #undef	CONFIG_CLOCKS_IN_MHZ	/* clocks NOT passsed to Linux in MHz */
 
-#define CONFIG_PREBOOT	"echo;echo Type \"run flash_nfs\" to mount root filesystem over NFS;echo"
+#define CONFIG_PREBOOT	"echo;"
 
 #undef	CONFIG_BOOTARGS
 #define CONFIG_BOOTCOMMAND							\
@@ -68,18 +66,16 @@
 	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off; " 	\
 	"bootm"
 
+#define CONFIG_AUTOSCRIPT
 #define CONFIG_LOADS_ECHO	0	/* echo off for serial download	*/
 #undef	CFG_LOADS_BAUD_CHANGE		/* don't allow baudrate change	*/
 
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 
-#define	CONFIG_STATUS_LED	1	/* Status LED enabled		*/
-
-#if defined(CONFIG_NETVIA_VERSION) && CONFIG_NETVIA_VERSION >= 2
-#define CONFIG_BOARD_SPECIFIC_LED	/* version has board specific leds */
-#endif
-
 #undef	CONFIG_CAN_DRIVER		/* CAN Driver support disabled	*/
+
+#define	CONFIG_STATUS_LED	1	/* Status LED enabled		*/
+#define CONFIG_BOARD_SPECIFIC_LED	/* version has board specific leds */
 
 #define CONFIG_BOOTP_MASK		(CONFIG_BOOTP_DEFAULT | CONFIG_BOOTP_BOOTFILESIZE | CONFIG_BOOTP_NISDOMAIN)
 
@@ -88,17 +84,31 @@
 
 #define	CONFIG_RTC_MPC8xx		/* use internal RTC of MPC8xx	*/
 
-#define CONFIG_COMMANDS_BASE  ( CONFIG_CMD_DFL	| \
+#define	CONFIG_NET_MULTI	1 	/* the only way to get the FEC in */
+#define	FEC_ENET		1	/* eth.c needs it that way... */
+#undef CFG_DISCOVER_PHY
+#define CONFIG_MII		1
+#define CONFIG_RMII		1	/* use RMII interface */
+
+#define CONFIG_ETHER_ON_FEC1	1
+#define CONFIG_FEC1_PHY		8 	/* phy address of FEC */
+#define CONFIG_FEC1_PHY_NORXERR 1
+
+#define CONFIG_ETHER_ON_FEC2	1
+#define CONFIG_FEC2_PHY		4
+#define CONFIG_FEC2_PHY_NORXERR 1
+
+#define CONFIG_ENV_OVERWRITE	1	/* allow modification of vendor params */
+
+#define CONFIG_COMMANDS       ( CONFIG_CMD_DFL	| \
+				CFG_CMD_NAND	| \
 				CFG_CMD_DHCP	| \
-				CFG_CMD_PING )
+				CFG_CMD_PING  	| \
+				CFG_CMD_MII 	| \
+				CFG_CMD_CDP	  \
+				)
 
-#if defined(CONFIG_NETVIA_VERSION) && CONFIG_NETVIA_VERSION >= 2
-#define CONFIG_COMMANDS		(CONFIG_COMMANDS_BASE | CFG_CMD_NAND)
-#else
-#define CONFIG_COMMANDS		CONFIG_COMMANDS_BASE
-#endif
-
-#define CONFIG_BOARD_EARLY_INIT_F 1
+#define CONFIG_BOARD_EARLY_INIT_F	1
 #define CONFIG_MISC_INIT_R
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
@@ -109,6 +119,10 @@
  */
 #define	CFG_LONGHELP			/* undef to save memory		*/
 #define	CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
+
+#define CFG_HUSH_PARSER	1
+#define CFG_PROMPT_HUSH_PS2	"> "
+
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 #define	CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
@@ -246,7 +260,59 @@
  * Reset PLL lock status sticky bit, timer expired status bit and timer
  * interrupt status bit
  *
- *
+ */
+
+#if CONFIG_XIN == 10000000
+
+#if MPC8XX_HZ == 120000000
+#define CFG_PLPRCR	((0 << PLPRCR_MFN_SHIFT) | (0 << PLPRCR_MFD_SHIFT) | \
+			 (0 << PLPRCR_S_SHIFT) | (12 << PLPRCR_MFI_SHIFT) | (0 << PLPRCR_PDF_SHIFT) | \
+		 	 PLPRCR_TEXPS)
+#elif MPC8XX_HZ == 100000000
+#define CFG_PLPRCR	((0 << PLPRCR_MFN_SHIFT) | (0 << PLPRCR_MFD_SHIFT) | \
+			 (0 << PLPRCR_S_SHIFT) | (10 << PLPRCR_MFI_SHIFT) | (0 << PLPRCR_PDF_SHIFT) | \
+		 	 PLPRCR_TEXPS)
+#elif MPC8XX_HZ == 50000000
+#define CFG_PLPRCR	((0 << PLPRCR_MFN_SHIFT) | (0 << PLPRCR_MFD_SHIFT) | \
+			 (1 << PLPRCR_S_SHIFT) | (8 << PLPRCR_MFI_SHIFT) | (3 << PLPRCR_PDF_SHIFT) | \
+		 	 PLPRCR_TEXPS)
+#elif MPC8XX_HZ == 25000000
+#define CFG_PLPRCR	((0 << PLPRCR_MFN_SHIFT) | (0 << PLPRCR_MFD_SHIFT) | \
+			 (2 << PLPRCR_S_SHIFT) | (8 << PLPRCR_MFI_SHIFT) | (3 << PLPRCR_PDF_SHIFT) | \
+		 	 PLPRCR_TEXPS)
+#elif MPC8XX_HZ == 40000000
+#define CFG_PLPRCR	((0 << PLPRCR_MFN_SHIFT) | (0 << PLPRCR_MFD_SHIFT) | \
+			 (1 << PLPRCR_S_SHIFT) | (8 << PLPRCR_MFI_SHIFT) | (4 << PLPRCR_PDF_SHIFT) | \
+		 	 PLPRCR_TEXPS)
+#elif MPC8XX_HZ == 75000000
+#define CFG_PLPRCR	((0 << PLPRCR_MFN_SHIFT) | (0 << PLPRCR_MFD_SHIFT) | \
+			 (1 << PLPRCR_S_SHIFT) | (15 << PLPRCR_MFI_SHIFT) | (0 << PLPRCR_PDF_SHIFT) | \
+		 	 PLPRCR_TEXPS)
+#else
+#error unsupported CPU freq for XIN = 10MHz
+#endif
+
+#elif CONFIG_XIN == 50000000
+
+#if MPC8XX_HZ == 120000000
+#define CFG_PLPRCR	((0 << PLPRCR_MFN_SHIFT) | (0 << PLPRCR_MFD_SHIFT) | \
+			 (0 << PLPRCR_S_SHIFT) | (12 << PLPRCR_MFI_SHIFT) | (4 << PLPRCR_PDF_SHIFT) | \
+		 	 PLPRCR_TEXPS)
+#elif MPC8XX_HZ == 100000000
+#define CFG_PLPRCR	((0 << PLPRCR_MFN_SHIFT) | (0 << PLPRCR_MFD_SHIFT) | \
+			 (0 << PLPRCR_S_SHIFT) | (6 << PLPRCR_MFI_SHIFT) | (2 << PLPRCR_PDF_SHIFT) | \
+		 	 PLPRCR_TEXPS)
+#else
+#error unsupported CPU freq for XIN = 50MHz
+#endif
+
+#else
+
+#error unsupported XIN freq
+#endif
+
+
+/*
  *-----------------------------------------------------------------------
  * SCCR - System Clock and reset Control Register		15-27
  *-----------------------------------------------------------------------
@@ -255,23 +321,16 @@
  */
 
 #define SCCR_MASK	SCCR_EBDF11
-
-#if CONFIG_8xx_GCLK_FREQ == 50000000
-
-#define CFG_PLPRCR	( ((5 - 1) << PLPRCR_MF_SHIFT) | PLPRCR_SPLSS | PLPRCR_TEXPS | PLPRCR_TMIST)
-#define CFG_SCCR	(SCCR_TBS     | \
-			 SCCR_COM00   | SCCR_DFSYNC00 | SCCR_DFBRG00  | \
-			 SCCR_DFNL000 | SCCR_DFNH000  | SCCR_DFLCD000 | \
-			 SCCR_DFALCD00)
-
-#elif CONFIG_8xx_GCLK_FREQ == 80000000
-
-#define CFG_PLPRCR	( ((8 - 1) << PLPRCR_MF_SHIFT) | PLPRCR_SPLSS | PLPRCR_TEXPS | PLPRCR_TMIST)
+#if MPC8XX_HZ > 66666666
 #define CFG_SCCR	(SCCR_TBS     | \
 			 SCCR_COM00   | SCCR_DFSYNC00 | SCCR_DFBRG00  | \
 			 SCCR_DFNL000 | SCCR_DFNH000  | SCCR_DFLCD000 | \
 			 SCCR_DFALCD00 | SCCR_EBDF01)
-
+#else
+#define CFG_SCCR	(SCCR_TBS     | \
+			 SCCR_COM00   | SCCR_DFSYNC00 | SCCR_DFBRG00  | \
+			 SCCR_DFNL000 | SCCR_DFNH000  | SCCR_DFLCD000 | \
+			 SCCR_DFALCD00)
 #endif
 
 /*-----------------------------------------------------------------------
@@ -309,27 +368,70 @@
  *
  */
 #define SDRAM_BASE3_PRELIM	0x00000000	/* SDRAM bank #0	*/
-#define	SDRAM_MAX_SIZE		0x04000000	/* max 64 MB per bank	*/
+#define	SDRAM_MAX_SIZE		(256 << 20)	/* max 256MB per bank	*/
 
 /* SDRAM timing: Multiplexed addresses, GPL5 output to GPL5_A (don't care)	*/
 #define CFG_OR_TIMING_SDRAM	(OR_CSNT_SAM | OR_G5LS)
 
 #define CFG_OR3_PRELIM	((0xFFFFFFFFLU & ~(SDRAM_MAX_SIZE - 1)) | CFG_OR_TIMING_SDRAM)
-#define CFG_BR3_PRELIM	((SDRAM_BASE3_PRELIM & BR_BA_MSK) | BR_MS_UPMA | BR_PS_32 | BR_V)
+#define CFG_BR3_PRELIM	((SDRAM_BASE3_PRELIM & BR_BA_MSK) | BR_MS_UPMB | BR_PS_32 | BR_V)
 
 /*
  * Memory Periodic Timer Prescaler
  */
 
-/* periodic timer for refresh */
-#define CFG_MAMR_PTA	208
+/*
+ * Memory Periodic Timer Prescaler
+ *
+ * The Divider for PTA (refresh timer) configuration is based on an
+ * example SDRAM configuration (64 MBit, one bank). The adjustment to
+ * the number of chip selects (NCS) and the actually needed refresh
+ * rate is done by setting MPTPR.
+ *
+ * PTA is calculated from
+ *	PTA = (gclk * Trefresh) / ((2 ^ (2 * DFBRG)) * PTP * NCS)
+ *
+ *	gclk	  CPU clock (not bus clock!)
+ *	Trefresh  Refresh cycle * 4 (four word bursts used)
+ *
+ * 4096  Rows from SDRAM example configuration
+ * 1000  factor s -> ms
+ *   32  PTP (pre-divider from MPTPR) from SDRAM example configuration
+ *    4  Number of refresh cycles per period
+ *   64  Refresh cycle in ms per number of rows
+ * --------------------------------------------
+ * Divider = 4096 * 32 * 1000 / (4 * 64) = 512000
+ *
+ * 50 MHz => 50.000.000 / Divider =  98
+ * 66 Mhz => 66.000.000 / Divider = 129
+ * 80 Mhz => 80.000.000 / Divider = 156
+ */
+
+#define CFG_MAMR_PTA		 234
+
+/*
+ * For 16 MBit, refresh rates could be 31.3 us
+ * (= 64 ms / 2K = 125 / quad bursts).
+ * For a simpler initialization, 15.6 us is used instead.
+ *
+ * #define CFG_MPTPR_2BK_2K	MPTPR_PTP_DIV32		for 2 banks
+ * #define CFG_MPTPR_1BK_2K	MPTPR_PTP_DIV64		for 1 bank
+ */
+#define CFG_MPTPR_2BK_4K	MPTPR_PTP_DIV16		/* setting for 2 banks	*/
+#define CFG_MPTPR_1BK_4K	MPTPR_PTP_DIV32		/* setting for 1 bank	*/
 
 /* refresh rate 7.8 us (= 64 ms / 8K = 31.2 / quad bursts) for 256 MBit		*/
+#define CFG_MPTPR_2BK_8K	MPTPR_PTP_DIV8		/* setting for 2 banks	*/
 #define CFG_MPTPR_1BK_8K	MPTPR_PTP_DIV16		/* setting for 1 bank	*/
 
 /*
  * MAMR settings for SDRAM
  */
+
+/* 8 column SDRAM */
+#define CFG_MAMR_8COL	((CFG_MAMR_PTA << MAMR_PTA_SHIFT)  | MAMR_PTAE	    |	\
+			 MAMR_AMA_TYPE_0 | MAMR_DSA_1_CYCL | MAMR_G0CLA_A11 |	\
+			 MAMR_RLFA_1X	 | MAMR_WLFA_1X	   | MAMR_TLFA_4X)
 
 /* 9 column SDRAM */
 #define CFG_MAMR_9COL	((CFG_MAMR_PTA << MAMR_PTA_SHIFT)  | MAMR_PTAE	    |	\
@@ -344,56 +446,27 @@
 #define	BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
 #define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
-/* Ethernet at SCC2 */
-#define CONFIG_SCC2_ENET
-
 #define CONFIG_ARTOS			/* include ARTOS support */
+
+#define CONFIG_LAST_STAGE_INIT		/* needed to reset the damn phys */
 
 /****************************************************************/
 
 #define DSP_SIZE	0x00010000	/* 64K */
-#define FPGA_SIZE	0x00010000	/* 64K */
-
-#define DSP0_BASE	0xF1000000
-#define DSP1_BASE	(DSP0_BASE + DSP_SIZE)
-#define FPGA_BASE	(DSP1_BASE + DSP_SIZE)
-
-#if defined(CONFIG_NETVIA_VERSION) && CONFIG_NETVIA_VERSION >= 2
-
-#define ER_SIZE		0x00010000	/* 64K */
-#define ER_BASE		(FPGA_BASE + FPGA_SIZE)
-
 #define NAND_SIZE	0x00010000	/* 64K */
-#define NAND_BASE	(ER_BASE + ER_SIZE)
+#define ER_SIZE		0x00010000	/* 64K */
 
-#endif
+#define DSP_BASE	0xF1000000
+#define NAND_BASE	0xF1010000
+#define ER_BASE		0xF1020000
 
 /****************************************************************/
 
-#if defined(CONFIG_NETVIA_VERSION) && CONFIG_NETVIA_VERSION >= 2
-
-#define STATUS_LED_BIT		0x00000001		/* bit 31 */
-#define STATUS_LED_PERIOD	(CFG_HZ / 2)
-#define STATUS_LED_STATE	STATUS_LED_BLINKING
-
-#define STATUS_LED_BIT1		0x00000002		/* bit 30 */
-#define STATUS_LED_PERIOD1	(CFG_HZ / 2)
-#define STATUS_LED_STATE1	STATUS_LED_OFF
-
-#define STATUS_LED_ACTIVE	0		/* LED on for bit == 0	*/
-#define STATUS_LED_BOOT		0		/* LED 0 used for boot status */
-
-#endif
-
-/*****************************************************************************/
-
-#if defined(CONFIG_NETVIA_VERSION) && CONFIG_NETVIA_VERSION >= 2
-
 /* NAND */
-#define CFG_NAND_BASE			NAND_BASE
+#define CFG_NAND_BASE		NAND_BASE
 #define CONFIG_MTD_NAND_ECC_JFFS2
 
-#define CFG_MAX_NAND_DEVICE		1
+#define CFG_MAX_NAND_DEVICE	1
 
 #define SECTORSIZE		512
 #define ADDR_COLUMN		1
@@ -403,39 +476,40 @@
 #define NAND_MAX_FLOORS		1
 #define NAND_MAX_CHIPS		1
 
+/* ALE = PD17, CLE = PE18, CE = PE20, F_RY_BY = PE31 */
 #define NAND_DISABLE_CE(nand) \
 	do { \
-		(((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pddat) |=  0x0040; \
+		(((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pedat) |=  (1 << (31 - 20)); \
 	} while(0)
 
 #define NAND_ENABLE_CE(nand) \
 	do { \
-		(((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pddat) &= ~0x0040; \
+		(((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pedat) &= ~(1 << (31 - 20)); \
 	} while(0)
 
 #define NAND_CTL_CLRALE(nandptr) \
 	do { \
-		(((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pddat) &= ~0x0100; \
+		(((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pedat) &= ~(1 << (31 - 17)); \
 	} while(0)
 
 #define NAND_CTL_SETALE(nandptr) \
 	do { \
-		(((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pddat) |=  0x0100; \
+		(((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pedat) |=  (1 << (31 - 17)); \
 	} while(0)
 
 #define NAND_CTL_CLRCLE(nandptr) \
 	do { \
-		(((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pddat) &= ~0x0080; \
+		(((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pedat) &= ~(1 << (31 - 18)); \
 	} while(0)
 
 #define NAND_CTL_SETCLE(nandptr) \
 	do { \
-		(((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pddat) |=  0x0080; \
+		(((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pedat) |=  (1 << (31 - 18)); \
 	} while(0)
 
 #define NAND_WAIT_READY(nand) \
 	do { \
-		while ((((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pcdat & 0x100) == 0) \
+		while ((((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pedat & (1 << (31 - 31))) == 0) \
 			; \
 	} while (0)
 
@@ -457,73 +531,163 @@
 #define READ_NAND(adr) \
 	((unsigned char)(*(volatile unsigned char *)(unsigned long)(adr)))
 
-#endif
-
 /*****************************************************************************/
+
+#define STATUS_LED_BIT		0x00000008		/* bit 28 */
+#define STATUS_LED_PERIOD	(CFG_HZ / 2)
+#define STATUS_LED_STATE	STATUS_LED_BLINKING
+
+#define STATUS_LED_ACTIVE	0		/* LED on for bit == 0	*/
+#define STATUS_LED_BOOT		0		/* LED 0 used for boot status */
 
 #ifndef __ASSEMBLY__
 
-#if defined(CONFIG_NETVIA_VERSION) && CONFIG_NETVIA_VERSION >= 2
-
 /* LEDs */
 
-/* last value written to the external register; we cannot read back */
-extern unsigned int last_er_val;
-
-/* led_id_t is unsigned long mask */
+/* led_id_t is unsigned int mask */
 typedef unsigned int led_id_t;
 
-static inline void __led_init(led_id_t mask, int state)
-{
-	unsigned int new_er_val;
+#define __led_toggle(_msk) \
+	do { \
+		((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pedat ^= (_msk); \
+	} while(0)
 
-	if (state)
-		new_er_val = last_er_val & ~mask;
-	else
-		new_er_val = last_er_val |  mask;
+#define __led_set(_msk, _st) \
+	do { \
+		if ((_st)) \
+			((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pedat |= (_msk); \
+		else \
+			((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pedat &= ~(_msk); \
+	} while(0)
 
-	*(volatile unsigned int *)ER_BASE = new_er_val;
-	last_er_val = new_er_val;
-}
-
-static inline void __led_toggle(led_id_t mask)
-{
-	unsigned int new_er_val;
-
-	new_er_val = last_er_val ^ mask;
-	*(volatile unsigned int *)ER_BASE = new_er_val;
-	last_er_val = new_er_val;
-}
-
-static inline void __led_set(led_id_t mask, int state)
-{
-	unsigned int new_er_val;
-
-	if (state)
-		new_er_val = last_er_val & ~mask;
-	else
-		new_er_val = last_er_val |  mask;
-
-	*(volatile unsigned int *)ER_BASE = new_er_val;
-	last_er_val = new_er_val;
-}
-
-/* MAX3100 console */
-#define MAX3100_SPI_RXD_PORT	(((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pbdat)
-#define MAX3100_SPI_RXD_BIT	0x00000008
-
-#define MAX3100_SPI_TXD_PORT	(((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pbdat)
-#define MAX3100_SPI_TXD_BIT	0x00000004
-
-#define MAX3100_SPI_CLK_PORT	(((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pbdat)
-#define MAX3100_SPI_CLK_BIT	0x00000002
-
-#define MAX3100_CS_PORT		(((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pddat)
-#define MAX3100_CS_BIT		0x0010
+#define __led_init(msk, st) __led_set(msk, st)
 
 #endif
 
-#endif
+/***********************************************************************************************************
+
+   Pin definitions:
+
+ +------+----------------+--------+------------------------------------------------------------
+ |  #   | Name           | Type   | Comment
+ +------+----------------+--------+------------------------------------------------------------
+ | PA3  | SPIEN_MAX      | Output | MAX serial to uart chip select
+ | PA7  | DSP_INT        | Output | DSP interrupt
+ | PA10 | DSP_RESET      | Output | DSP reset
+ | PA14 | USBOE          | Output | USB (1)
+ | PA15 | USBRXD         | Output | USB (1)
+ | PB19 | BT_RTS         | Output | Bluetooth (0)
+ | PB23 | BT_CTS         | Output | Bluetooth (0)
+ | PB26 | SPIEN_SEP      | Output | Serial EEPROM chip select
+ | PB27 | SPICS_DISP     | Output | Display chip select
+ | PB28 | SPI_RXD_3V     | Input  | SPI Data Rx
+ | PB29 | SPI_TXD        | Output | SPI Data Tx
+ | PB30 | SPI_CLK        | Output | SPI Clock
+ | PC10 | DISPA0         | Output | Display A0
+ | PC11 | BACKLIGHT      | Output | Display backlit
+ | PC12 | SPI2RXD        | Input  | 2nd SPI RXD
+ | PC13 | SPI2TXD        | Output | 2nd SPI TXD
+ | PC15 | SPI2CLK        | Output | 2nd SPI CLK
+ | PE17 | F_ALE          | Output | NAND F_ALE
+ | PE18 | F_CLE          | Output | NAND F_CLE
+ | PE20 | F_CE           | Output | NAND F_CE
+ | PE24 | SPICS_SCOUT    | Output | Codec chip select
+ | PE27 | SPICS_ER       | Output | External serial register CS
+ | PE28 | LEDIO1         | Output | LED
+ | PE29 | LEDIO2         | Output | LED hook for A (TA2)
+ | PE30 | LEDIO3         | Output | LED hook for A (TA2)
+ | PE31 | F_RY_BY        | Input  | NAND F_RY_BY
+ +------+----------------+--------+---------------------------------------------------
+
+ Chip selects:
+
+ +------+----------------+------------------------------------------------------------
+ |  #   | Name           | Comment
+ +------+----------------+------------------------------------------------------------
+ | CS0  | CS0            | Boot flash
+ | CS1  | CS_FLASH       | NAND flash
+ | CS2  | CS_DSP         | DSP
+ | CS3  | DCS_DRAM       | DRAM
+ +------+----------------+------------------------------------------------------------
+
+ Interrupts:
+
+ +------+----------------+------------------------------------------------------------
+ |  #   | Name           | Comment
+ +------+----------------+------------------------------------------------------------
+ | IRQ1 | IRQ_DSP        | DSP interrupt
+ | IRQ3 | S_INTER        | DUSLIC ???
+ | IRQ4 | F_RY_BY        | NAND
+ | IRQ7 | IRQ_MAX        | MAX 3100 interrupt
+ +------+----------------+------------------------------------------------------------
+
+ Interrupts on PCMCIA pins:
+
+ +------+----------------+------------------------------------------------------------
+ |  #   | Name           | Comment
+ +------+----------------+------------------------------------------------------------
+ | IP_A0| PHY1_LINK      | Link status changed for #1 Ethernet interface
+ | IP_A1| PHY2_LINK      | Link status changed for #2 Ethernet interface
+ | IP_A2| RMII1_MDINT    | PHY interrupt for #1
+ | IP_A3| RMII2_MDINT    | PHY interrupt for #2
+ +------+----------------+------------------------------------------------------------
+
+*************************************************************************************************/
+
+#define CONFIG_SED156X			1	/* use SED156X */
+#define CONFIG_SED156X_PG12864Q		1	/* type of display used */
+
+/* serial interfacing macros */
+
+#define SED156X_SPI_RXD_PORT	(((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pbdat)
+#define SED156X_SPI_RXD_MASK	0x00000008
+
+#define SED156X_SPI_TXD_PORT	(((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pbdat)
+#define SED156X_SPI_TXD_MASK	0x00000004
+
+#define SED156X_SPI_CLK_PORT	(((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pbdat)
+#define SED156X_SPI_CLK_MASK	0x00000002
+
+#define SED156X_CS_PORT		(((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pbdat)
+#define SED156X_CS_MASK		0x00000010
+
+#define SED156X_A0_PORT		(((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pcdat)
+#define SED156X_A0_MASK		0x0020
+
+/*************************************************************************************************/
+
+#define CFG_CONSOLE_IS_IN_ENV		1
+#define CFG_CONSOLE_OVERWRITE_ROUTINE	1
+#define CFG_CONSOLE_ENV_OVERWRITE	1
+
+/*************************************************************************************************/
+
+/* use board specific hardware */
+#undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
+#define CONFIG_HW_WATCHDOG
+#define CONFIG_SHOW_ACTIVITY
+
+/*************************************************************************************************/
+
+/* phone console configuration */
+
+#define PHONE_CONSOLE_POLL_HZ		(CFG_HZ/200)	/* poll every 5ms */
+
+/*************************************************************************************************/
+
+#define CONFIG_CDP_DEVICE_ID		20
+#define CONFIG_CDP_DEVICE_ID_PREFIX	"NP"	/* netphone */
+#define CONFIG_CDP_PORT_ID		"eth%d"
+#define CONFIG_CDP_CAPABILITIES		0x00000010
+#define CONFIG_CDP_VERSION		"u-boot" " " __DATE__ " " __TIME__
+#define CONFIG_CDP_PLATFORM		"Intracom NetPhone"
+#define CONFIG_CDP_TRIGGER		0x20020001
+#define CONFIG_CDP_POWER_CONSUMPTION	4300	/* 90 mA @ 48V */
+#define CONFIG_CDP_APPLIANCE_VLAN_TYPE	0x01	/* ipphone */
+
+/*************************************************************************************************/
+
+#define CONFIG_AUTO_COMPLETE	1
 
 /*************************************************************************************************/
 

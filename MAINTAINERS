@@ -27,6 +27,7 @@ Pantelis Antoniou <panto@intracom.gr>
 
 Yuli Barcohen <yuli@arabellasw.com>
 
+	MPC8260ADS		MPC826x/MPC827x/MPC8280
 	ZPC1900			MPC8265
 
 Jerry Van Baren <gerald.vanbaren@smiths-aerospace.com>
@@ -285,7 +286,6 @@ Unknown / orphaned boards:
 
 	MOUSSE			MPC824x
 
-	MPC8260ADS		MPC8260
 	RPXsuper		MPC8260
 	rsdproto		MPC8260
 

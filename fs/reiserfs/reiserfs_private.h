@@ -157,13 +157,13 @@ struct offset_v2 {
    */
 
 #if defined(__LITTLE_ENDIAN_BITFIELD)
-            /* little endian version */
-            __u64 k_offset:60;
-            __u64 k_type: 4;
+	    /* little endian version */
+	    __u64 k_offset:60;
+	    __u64 k_type: 4;
 #elif defined(__BIG_ENDIAN_BITFIELD)
-            /* big endian version */
-            __u64 k_type: 4;
-            __u64 k_offset:60;
+	    /* big endian version */
+	    __u64 k_type: 4;
+	    __u64 k_offset:60;
 #else
 #error "__LITTLE_ENDIAN_BITFIELD or __BIG_ENDIAN_BITFIELD must be defined"
 #endif
@@ -368,7 +368,7 @@ struct reiserfs_de_head
   __u32 deh_dir_id;  /* objectid of the parent directory of the
 			object, that is referenced by directory entry */
   __u32 deh_objectid;/* objectid of the object, that is referenced by
-                        directory entry */
+			directory entry */
   __u16 deh_location;/* offset of name in the whole item */
   __u16 deh_state;   /* whether 1) entry contains stat data (for
 			future), and 2) whether entry is hidden

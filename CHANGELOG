@@ -2,6 +2,15 @@
 Changes for U-Boot 1.1.1:
 ======================================================================
 
+* Patches by Pantelis Antoniou, 30 Mar 2004:
+  - add auto-complete support to the U-Boot CLI
+  - add support for NETTA and NETPHONE boards; fix NETVIA board
+
+* Patch by Yuli Barcohen, 28 Mar 2004:
+  - Add support for MPC8272 family including MPC8247/8248/8271/8272
+  - Add support for MPC8272ADS evaluation board (another flavour of MPC8260ADS)
+  - Change configuration method for MPC8260ADS family
+
 * add startup code to clear the BSS of standalone applications
 
 * Fix if / elif handling bug in HUSH shell

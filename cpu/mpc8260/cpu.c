@@ -36,7 +36,7 @@
  * added 8260 masks by
  * Marius Groeger <mag@sysgo.de>
  *
- * added HiP7 (8270/8275/8280) processors support by
+ * added HiP7 (824x/827x/8280) processors support by
  * Yuli Barcohen <yuli@arabellasw.com>
  */
 
@@ -128,6 +128,10 @@ int checkcpu (void)
 		break;
 	case 0x0A01:
 		puts ("0.1 1K49M");
+		break;
+	case 0x0C00:
+	case 0x0D00:
+		printf ("0.0 0K50M");
 		break;
 	default:
 		printf ("unknown [immr=0x%04x,k=0x%04x]", m, k);

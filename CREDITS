@@ -28,11 +28,17 @@ D: ERIC Support
 
 N: Pantelis Antoniou
 E: panto@intracom.gr
-D: NETVIA board support, ARTOS support.
+D: NETVIA & NETPHONE board support, ARTOS support.
 
 N: Pierre Aubert
 E: <p.aubert@staubli.com>
 D: Support for RPXClassic board
+
+N: Yuli Barcohen
+E: yuli@arabellasw.com
+D: Unified support for Motorola MPC826xADS/MPC8272ADS/PQ2FADS boards.
+D: Support for Zephyr Engineering ZPC.1900 board.
+W: http://www.arabellasw.com
 
 N: Jerry van Baren
 E: <vanbaren@cideas.com>

@@ -48,7 +48,7 @@ LIST_8xx="	\
 	RPXClassic	RPXlite		RRvision	SM850		\
 	SPD823TS	svm_sc8xx	SXNI855T	TOP860		\
 	TQM823L		TQM823L_LCD	TQM850L		TQM855L		\
-	TQM860L		v37						\
+	TQM860L		v37		NETTA		NETPHONE	\
 "
 
 #########################################################################
@@ -85,10 +85,10 @@ LIST_824x="	\
 LIST_8260="	\
 	atc		cogent_mpc8260	CPU86		ep8260		\
 	gw8260		hymod		IPHASE4539	MPC8260ADS	\
-	MPC8266ADS	PM826		PM828		ppmc8260	\
-	RPXsuper	rsdproto	sacsng		sbc8260		\
-	SCM		TQM8260_AC	TQM8260_AD	TQM8260_AE	\
-	ZPC1900		\
+	MPC8266ADS	MPC8272ADS	PM826		PM828		\
+	ppmc8260	PQ2FADS		RPXsuper	rsdproto	\
+	sacsng		sbc8260		SCM		TQM8260_AC	\
+	TQM8260_AD	TQM8260_AE	ZPC1900				\
 "
 
 #########################################################################

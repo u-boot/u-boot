@@ -75,19 +75,19 @@ static void sd_print_item (struct item_head * ih, char * item)
     time_t ttime;
 
     if (stat_data_v1 (ih)) {
-      	struct stat_data_v1 * sd = (struct stat_data_v1 *)item;
-        ttime = sd_v1_mtime(sd);
-        ctime_r(&ttime, filetime);
-        printf ("%-10s %4hd %6d %6d %9d %24.24s",
-                 bb_mode_string(sd_v1_mode(sd)), sd_v1_nlink(sd),sd_v1_uid(sd), sd_v1_gid(sd),
-                 sd_v1_size(sd), filetime);
+	struct stat_data_v1 * sd = (struct stat_data_v1 *)item;
+	ttime = sd_v1_mtime(sd);
+	ctime_r(&ttime, filetime);
+	printf ("%-10s %4hd %6d %6d %9d %24.24s",
+		 bb_mode_string(sd_v1_mode(sd)), sd_v1_nlink(sd),sd_v1_uid(sd), sd_v1_gid(sd),
+		 sd_v1_size(sd), filetime);
     } else {
 	struct stat_data * sd = (struct stat_data *)item;
-        ttime = sd_v2_mtime(sd);
-        ctime_r(&ttime, filetime);
-        printf ("%-10s %4d %6d %6d %9d %24.24s",
-                 bb_mode_string(sd_v2_mode(sd)), sd_v2_nlink(sd),sd_v2_uid(sd),sd_v2_gid(sd),
-                 (__u32) sd_v2_size(sd), filetime);
+	ttime = sd_v2_mtime(sd);
+	ctime_r(&ttime, filetime);
+	printf ("%-10s %4d %6d %6d %9d %24.24s",
+		 bb_mode_string(sd_v2_mode(sd)), sd_v2_nlink(sd),sd_v2_uid(sd),sd_v2_gid(sd),
+		 (__u32) sd_v2_size(sd), filetime);
     }
 }
 
@@ -95,7 +95,7 @@ static int
 journal_read (int block, int len, char *buffer)
 {
   return reiserfs_devread ((INFO->journal_block + block) << INFO->blocksize_shift,
-	 	           0, len, buffer);
+			   0, len, buffer);
 }
 
 /* Read a block from ReiserFS file system, taking the journal into
@@ -247,7 +247,7 @@ journal_init (void)
 	      *journal_table++ = desc.j_len;
 	      for (i = 0; i < __le32_to_cpu(desc.j_len) && i < JOURNAL_TRANS_HALF; i++)
 		{
-	      	  /* both are in the little endian format */
+		  /* both are in the little endian format */
 		  *journal_table++ = desc.j_realblock[i];
 #ifdef REISERDEBUG
 		  printf ("block %d is in journal %d.\n",
@@ -287,7 +287,7 @@ reiserfs_mount (unsigned part_length)
 
   if (part_length < superblock + (sizeof (super) >> SECTOR_BITS)
       || ! reiserfs_devread (superblock, 0, sizeof (struct reiserfs_super_block),
-		             (char *) &super)
+			     (char *) &super)
       || (substring (REISER3FS_SUPER_MAGIC_STRING, super.s_magic) > 0
 	  && substring (REISER2FS_SUPER_MAGIC_STRING, super.s_magic) > 0
 	  && substring (REISERFS_SUPER_MAGIC_STRING, super.s_magic) > 0)
@@ -299,7 +299,7 @@ reiserfs_mount (unsigned part_length)
       superblock = REISERFS_OLD_DISK_OFFSET_IN_BYTES >> SECTOR_BITS;
       if (part_length < superblock + (sizeof (super) >> SECTOR_BITS)
 	  || ! reiserfs_devread (superblock, 0, sizeof (struct reiserfs_super_block),
-			         (char *) &super))
+				 (char *) &super))
 	return 0;
 
       if (substring (REISER2FS_SUPER_MAGIC_STRING, super.s_magic) > 0
@@ -664,7 +664,7 @@ reiserfs_read (char *buf, unsigned len)
 	       * directly without using block_read
 	       */
 	      reiserfs_devread (blocknr << INFO->blocksize_shift,
-	 	                blk_offset, to_read, buf);
+				blk_offset, to_read, buf);
 	    update_buf_len:
 	      len -= to_read;
 	      buf += to_read;
@@ -717,15 +717,15 @@ reiserfs_dir (char *dirname)
 
 #ifdef REISERDEBUG
        printf ("sd_mode=%x sd_size=%d\n",
-               stat_data_v1(INFO->current_ih) ? sd_v1_mode((struct stat_data_v1 *) INFO->current_item) :
-                                                sd_v2_mode((struct stat_data *) (INFO->current_item)),
-               stat_data_v1(INFO->current_ih) ? sd_v1_size((struct stat_data_v1 *) INFO->current_item) :
-                                                sd_v2_size((struct stat_data *) INFO->current_item)
-              );
+	       stat_data_v1(INFO->current_ih) ? sd_v1_mode((struct stat_data_v1 *) INFO->current_item) :
+						sd_v2_mode((struct stat_data *) (INFO->current_item)),
+	       stat_data_v1(INFO->current_ih) ? sd_v1_size((struct stat_data_v1 *) INFO->current_item) :
+						sd_v2_size((struct stat_data *) INFO->current_item)
+	      );
 
 #endif /* REISERDEBUG */
       mode = stat_data_v1(INFO->current_ih) ?
-               sd_v1_mode((struct stat_data_v1 *) INFO->current_item) :
+	       sd_v1_mode((struct stat_data_v1 *) INFO->current_item) :
 	       sd_v2_mode((struct stat_data *) INFO->current_item);
 
       /* If we've got a symbolic link, then chase it. */
@@ -740,8 +740,8 @@ reiserfs_dir (char *dirname)
 
 	  /* Get the symlink size. */
 	  filemax = stat_data_v1(INFO->current_ih) ?
-	             sd_v1_size((struct stat_data_v1 *) INFO->current_item) :
-	             sd_v2_size((struct stat_data *) INFO->current_item);
+		     sd_v1_size((struct stat_data_v1 *) INFO->current_item) :
+		     sd_v2_size((struct stat_data *) INFO->current_item);
 
 	  /* Find out how long our remaining name is. */
 	  len = 0;
@@ -760,7 +760,7 @@ reiserfs_dir (char *dirname)
 
 	  INFO->fileinfo.k_dir_id = dir_id;
 	  INFO->fileinfo.k_objectid = objectid;
-  	  filepos = 0;
+	  filepos = 0;
 	  if (! next_key ()
 	      || reiserfs_read (linkbuf, filemax) != filemax)
 	    {
@@ -804,8 +804,8 @@ reiserfs_dir (char *dirname)
 
 	  filepos = 0;
 	  filemax = stat_data_v1(INFO->current_ih) ?
-	              sd_v1_size((struct stat_data_v1 *) INFO->current_item) :
-	              sd_v2_size((struct stat_data *) INFO->current_item);
+		      sd_v1_size((struct stat_data_v1 *) INFO->current_item) :
+		      sd_v2_size((struct stat_data *) INFO->current_item);
 #if 0
 	  /* If this is a new stat data and size is > 4GB set filemax to
 	   * maximum
@@ -879,22 +879,22 @@ reiserfs_dir (char *dirname)
 		      if (cmp <= 0)
 			{
 			  char fn[PATH_MAX];
-                          struct fsys_reiser_info info_save;
+			  struct fsys_reiser_info info_save;
 
 			  if (print_possibilities > 0)
 			    print_possibilities = -print_possibilities;
 			  *name_end = 0;
 			  strcpy(fn, filename);
-                          *name_end = tmp;
+			  *name_end = tmp;
 
 			  /* If NAME is "." or "..", do not count it.  */
-                          if (strcmp (fn, ".") != 0 && strcmp (fn, "..") != 0) {
-                            memcpy(&info_save, INFO, sizeof(struct fsys_reiser_info));
-                            search_stat (deh_dir_id(de_head), deh_objectid(de_head));
-                            sd_print_item(INFO->current_ih, INFO->current_item);
-                            printf(" %s\n", fn);
-                            search_stat (dir_id, objectid);
-                            memcpy(INFO, &info_save, sizeof(struct fsys_reiser_info));
+			  if (strcmp (fn, ".") != 0 && strcmp (fn, "..") != 0) {
+			    memcpy(&info_save, INFO, sizeof(struct fsys_reiser_info));
+			    search_stat (deh_dir_id(de_head), deh_objectid(de_head));
+			    sd_print_item(INFO->current_ih, INFO->current_item);
+			    printf(" %s\n", fn);
+			    search_stat (dir_id, objectid);
+			    memcpy(INFO, &info_save, sizeof(struct fsys_reiser_info));
 			  }
 			}
 		    }

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000
+ * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -63,6 +63,8 @@
 #elif defined(CONFIG_R360MPI)		/* The R360MPI use SLOT_B	*/
 # define CONFIG_PCMCIA_SLOT_B
 #elif defined(CONFIG_ATC)		/* The ATC use SLOT_A	*/
+# define CONFIG_PCMCIA_SLOT_A
+#elif defined(CONFIG_NETTA)
 # define CONFIG_PCMCIA_SLOT_A
 #else
 # error "PCMCIA Slot not configured"

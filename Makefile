@@ -398,6 +398,22 @@ NETVIA_config:		unconfig
 		 }
 	@./mkconfig -a $(call xtract_NETVIA,$@) ppc mpc8xx netvia
 
+NETPHONE_config:	unconfig
+	@./mkconfig $(@:_config=) ppc mpc8xx netphone
+
+xtract_NETTA = $(subst _ISDN,,$(subst _config,,$1))
+
+NETTA_ISDN_config \
+NETTA_config:		unconfig
+	@ >include/config.h
+	@[ -z "$(findstring NETTA_config,$@)" ] || \
+		 { echo "#undef CONFIG_NETTA_ISDN" >>include/config.h ; \
+		 }
+	@[ -z "$(findstring NETTA_ISDN_config,$@)" ] || \
+		 { echo "#define CONFIG_NETTA_ISDN 1" >>include/config.h ; \
+		 }
+	@./mkconfig -a $(call xtract_NETTA,$@) ppc mpc8xx netta
+
 NX823_config:		unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx nx823
 
@@ -752,8 +768,23 @@ hymod_config:	unconfig
 IPHASE4539_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8260 iphase4539
 
-MPC8260ADS_config:	unconfig
-	@./mkconfig $(@:_config=) ppc mpc8260 mpc8260ads
+MPC8260ADS_config	\
+MPC8260ADS_33MHz_config	\
+MPC8260ADS_40MHz_config	\
+MPC8272ADS_config	\
+PQ2FADS_config		\
+PQ2FADS-VR_config	\
+PQ2FADS-ZU_config	\
+PQ2FADS-ZU_66MHz_config	\
+	:		unconfig
+	$(if $(findstring PQ2FADS,$@), \
+	@echo "#define CONFIG_ADSTYPE CFG_PQ2FADS" > include/config.h, \
+	@echo "#define CONFIG_ADSTYPE CFG_"$(subst MPC,,$(word 1,$(subst _, ,$@))) > include/config.h)
+	$(if $(findstring MHz,$@), \
+	@echo "#define CONFIG_8260_CLKIN" $(subst MHz,,$(word 2,$(subst _, ,$@)))"000000" >> include/config.h, \
+	$(if $(findstring VR,$@), \
+	@echo "#define CONFIG_8260_CLKIN 66000000" >> include/config.h))
+	@./mkconfig -a MPC8260ADS ppc mpc8260 mpc8260ads
 
 MPC8266ADS_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8260 mpc8266ads

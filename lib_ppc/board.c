@@ -93,7 +93,7 @@ extern flash_info_t flash_info[];
 #if defined(CFG_ENV_IS_EMBEDDED)
 #define TOTAL_MALLOC_LEN	CFG_MALLOC_LEN
 #elif ( ((CFG_ENV_ADDR+CFG_ENV_SIZE) < CFG_MONITOR_BASE) || \
-        (CFG_ENV_ADDR >= (CFG_MONITOR_BASE + CFG_MONITOR_LEN)) ) || \
+	(CFG_ENV_ADDR >= (CFG_MONITOR_BASE + CFG_MONITOR_LEN)) ) || \
       defined(CFG_ENV_IS_IN_NVRAM)
 #define	TOTAL_MALLOC_LEN	(CFG_MALLOC_LEN + CFG_ENV_SIZE)
 #else

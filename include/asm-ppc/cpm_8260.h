@@ -83,9 +83,14 @@
  * downloading RAM microcode.
  */
 #define CPM_DATAONLY_BASE	((uint)128)
-#define CPM_DATAONLY_SIZE	((uint)(16 * 1024) - CPM_DATAONLY_BASE)
 #define CPM_DP_NOSPACE		((uint)0x7fffffff)
+#ifndef CONFIG_MPC8272_FAMILY
+#define CPM_DATAONLY_SIZE	((uint)(8 * 1024) - CPM_DATAONLY_BASE)
 #define CPM_FCC_SPECIAL_BASE	((uint)0x0000b000)
+#else  /* 8247/48/71/72 */
+#define CPM_DATAONLY_SIZE	((uint)(4 * 1024) - CPM_DATAONLY_BASE)
+#define CPM_FCC_SPECIAL_BASE	((uint)0x00009000)
+#endif /* !CONFIG_MPC8272_FAMILY */
 
 /* The number of pages of host memory we allocate for CPM.  This is
  * done early in kernel initialization to get physically contiguous

@@ -7,10 +7,11 @@
  * Note: my board is a PILOT rev.
  * Note: the mpc8260ads doesn't come with a proper Ethernet MAC address.
  *
- * (C) Copyright 2003 Arabella Software Ltd.
+ * (C) Copyright 2003-2004 Arabella Software Ltd.
  * Yuli Barcohen <yuli@arabellasw.com>
  * Added support for SDRAM DIMMs SPD EEPROM, MII, JFFS2.
  * Ported to PQ2FADS-ZU and PQ2FADS-VR boards.
+ * Ported to MPC8272ADS board.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -39,17 +40,23 @@
  * (easy to change)
  */
 
-#define CONFIG_MPC8260		1	/* This is an MPC8260 CPU   */
-#define CONFIG_MPC8260ADS	1	/* ...on motorola ads board */
+#define CONFIG_MPC8260ADS	1	/* Motorola PQ2 ADS family board */
 
 /* ADS flavours */
 #define CFG_8260ADS		1	/* MPC8260ADS */
 #define CFG_8266ADS		2	/* MPC8266ADS */
 #define CFG_PQ2FADS		3	/* PQ2FADS-ZU or PQ2FADS-VR */
+#define CFG_8272ADS		4	/* MPC8272ADS */
 
 #ifndef CONFIG_ADSTYPE
 #define CONFIG_ADSTYPE		CFG_8260ADS
 #endif /* CONFIG_ADSTYPE */
+
+#if CONFIG_ADSTYPE == CFG_8272ADS
+#define CONFIG_MPC8272		1
+#else
+#define CONFIG_MPC8260		1
+#endif /* CONFIG_ADSTYPE == CFG_8272ADS */
 
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_early_init_f	*/
 
@@ -92,19 +99,28 @@
 
 #define CONFIG_ETHER_INDEX	2	/* which SCC/FCC channel for ethernet */
 
-#if (CONFIG_ETHER_INDEX == 2)
-/*
- * - Rx-CLK is CLK13
- * - Tx-CLK is CLK14
- * - Select bus for bd/buffers (see 28-13)
- * - Full duplex
- */
-# define CFG_CMXFCR_MASK	(CMXFCR_FC2 | CMXFCR_RF2CS_MSK | CMXFCR_TF2CS_MSK)
+#if   CONFIG_ETHER_INDEX == 1
+
+# define CFG_PHY_ADDR		0
+# define CFG_CMXFCR_VALUE	(CMXFCR_RF1CS_CLK11 | CMXFCR_TF1CS_CLK10)
+# define CFG_CMXFCR_MASK	(CMXFCR_FC1 | CMXFCR_RF1CS_MSK | CMXFCR_TF1CS_MSK)
+
+#elif CONFIG_ETHER_INDEX == 2
+
+#if CONFIG_ADSTYPE == CFG_8272ADS	/* RxCLK is CLK15, TxCLK is CLK16 */
+# define CFG_PHY_ADDR		3
+# define CFG_CMXFCR_VALUE	(CMXFCR_RF2CS_CLK15 | CMXFCR_TF2CS_CLK16)
+#else					/* RxCLK is CLK13, TxCLK is CLK14 */
+# define CFG_PHY_ADDR		0
 # define CFG_CMXFCR_VALUE	(CMXFCR_RF2CS_CLK13 | CMXFCR_TF2CS_CLK14)
-# define CFG_CPMFCR_RAMTYPE	0
-# define CFG_FCC_PSMR		(FCC_PSMR_FDE | FCC_PSMR_LPB)
+#endif /* CONFIG_ADSTYPE == CFG_8272ADS */
+
+# define CFG_CMXFCR_MASK	(CMXFCR_FC2 | CMXFCR_RF2CS_MSK | CMXFCR_TF2CS_MSK)
 
 #endif	/* CONFIG_ETHER_INDEX */
+
+#define CFG_CPMFCR_RAMTYPE	0		/* BDs and buffers on 60x bus */
+#define CFG_FCC_PSMR		(FCC_PSMR_FDE | FCC_PSMR_LPB)  /* Full duplex */
 
 #define CONFIG_MII			/* MII PHY management		*/
 #define CONFIG_BITBANGMII		/* bit-bang MII PHY management	*/
@@ -112,22 +128,31 @@
  * GPIO pins used for bit-banged MII communications
  */
 #define MDIO_PORT	2		/* Port C */
-#define MDIO_ACTIVE	(iop->pdir |=  0x00400000)
-#define MDIO_TRISTATE	(iop->pdir &= ~0x00400000)
-#define MDIO_READ	((iop->pdat &  0x00400000) != 0)
 
-#define MDIO(bit)	if(bit) iop->pdat |=  0x00400000; \
-			else	iop->pdat &= ~0x00400000
+#if CONFIG_ADSTYPE == CFG_8272ADS
+#define CFG_MDIO_PIN	0x00002000	/* PC18 */
+#define CFG_MDC_PIN	0x00001000	/* PC19 */
+#else
+#define CFG_MDIO_PIN	0x00400000	/* PC9  */
+#define CFG_MDC_PIN	0x00200000	/* PC10 */
+#endif /* CONFIG_ADSTYPE == CFG_8272ADS */
 
-#define MDC(bit)	if(bit) iop->pdat |=  0x00200000; \
-			else	iop->pdat &= ~0x00200000
+#define MDIO_ACTIVE	(iop->pdir |=  CFG_MDIO_PIN)
+#define MDIO_TRISTATE	(iop->pdir &= ~CFG_MDIO_PIN)
+#define MDIO_READ	((iop->pdat &  CFG_MDIO_PIN) != 0)
+
+#define MDIO(bit)	if(bit) iop->pdat |=  CFG_MDIO_PIN; \
+			else	iop->pdat &= ~CFG_MDIO_PIN
+
+#define MDC(bit)	if(bit) iop->pdat |=  CFG_MDC_PIN; \
+			else	iop->pdat &= ~CFG_MDC_PIN
 
 #define MIIDELAY	udelay(1)
 
 #endif /* CONFIG_ETHER_ON_FCC */
 
-#if CONFIG_ADSTYPE == CFG_PQ2FADS
-#undef CONFIG_SPD_EEPROM	/* On PQ2FADS-ZU, SDRAM is soldered  */
+#if CONFIG_ADSTYPE >= CFG_PQ2FADS
+#undef CONFIG_SPD_EEPROM	/* On new boards, SDRAM is soldered */
 #else
 #define CONFIG_HARD_I2C		1	/* To enable I2C support	*/
 #define CFG_I2C_SPEED		100000	/* I2C speed and slave address	*/
@@ -136,21 +161,21 @@
 #if defined(CONFIG_SPD_EEPROM) && !defined(CONFIG_SPD_ADDR)
 #define CONFIG_SPD_ADDR         0x50
 #endif
-#endif /* CONFIG_ADSTYPE == CFG_PQ2FADS */
+#endif /* CONFIG_ADSTYPE >= CFG_PQ2FADS */
 
 #ifndef CONFIG_SDRAM_PBI
 #define CONFIG_SDRAM_PBI        0 /* By default, use bank-based interleaving */
 #endif
 
 #ifndef CONFIG_8260_CLKIN
-#if CONFIG_ADSTYPE == CFG_PQ2FADS
+#if CONFIG_ADSTYPE >= CFG_PQ2FADS
 #define CONFIG_8260_CLKIN	100000000	/* in Hz */
 #else
 #define CONFIG_8260_CLKIN	66000000	/* in Hz */
 #endif
 #endif
 
-#define CONFIG_BAUDRATE		115200
+#define CONFIG_BAUDRATE		38400
 
 #define CFG_EXCLUDE		 CFG_CMD_BEDBUG | \
 				 CFG_CMD_BMP	| \
@@ -176,7 +201,7 @@
 				 CFG_CMD_USB	| \
 				 CFG_CMD_VFD
 
-#if CONFIG_ADSTYPE == CFG_PQ2FADS
+#if CONFIG_ADSTYPE >= CFG_PQ2FADS
 #define CONFIG_COMMANDS		(CFG_CMD_ALL & ~( \
 				 CFG_CMD_SDRAM	| \
 				 CFG_CMD_I2C	| \
@@ -184,14 +209,14 @@
 #else
 #define CONFIG_COMMANDS		(CFG_CMD_ALL & ~( \
 				 CFG_EXCLUDE	) )
-#endif /* CONFIG_ADSTYPE == CFG_PQ2FADS */
+#endif /* CONFIG_ADSTYPE >= CFG_PQ2FADS */
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
 
-#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds */
-#define CONFIG_BOOTCOMMAND	"bootm 100000"	/* autoboot command */
-#define CONFIG_BOOTARGS		"root=/dev/ram rw"
+#define CONFIG_BOOTDELAY	5		/* autoboot after 5 seconds */
+#define CONFIG_BOOTCOMMAND	"bootm fff80000"	/* autoboot command */
+#define CONFIG_BOOTARGS		"root=/dev/mtdblock2"
 
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 #undef	CONFIG_KGDB_ON_SMC		/* define if kgdb on SMC */
@@ -256,12 +281,12 @@
 #define RS232EN_2		0x01000001
 #define FETHIEN1		0x08000008
 #define FETH1_RST		0x04000004
-#define FETHIEN2		0x01000000
+#define FETHIEN2		0x10000000
 #define FETH2_RST		0x08000000
 #define BCSR_PCI_MODE		0x01000000
 
 #define CFG_INIT_RAM_ADDR	CFG_IMMR
-#define CFG_INIT_RAM_END	0x4000	/* End of used area in DPRAM	*/
+#define CFG_INIT_RAM_END	0x2000	/* End of used area in DPRAM	*/
 #define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
@@ -273,7 +298,6 @@
 			    ( HRCW_BMS | HRCW_APPC10 )			    |\
 			    ( HRCW_MODCK_H0101 )			     \
 			)
-
 /* no slaves */
 #define CFG_HRCW_SLAVE1 0
 #define CFG_HRCW_SLAVE2 0
@@ -336,8 +360,8 @@
 #define CFG_PISCR		(PISCR_PS|PISCR_PTF|PISCR_PTE)
 #define CFG_RCCR		0
 
-#if CONFIG_ADSTYPE == CFG_8266ADS
-#undef CFG_LSDRAM_BASE		/* No local bus SDRAM on MPC8266ADS */
+#if (CONFIG_ADSTYPE == CFG_8266ADS) || (CONFIG_ADSTYPE == CFG_8272ADS)
+#undef CFG_LSDRAM_BASE		/* No local bus SDRAM on these boards */
 #endif /* CONFIG_ADSTYPE == CFG_8266ADS */
 
 #if CONFIG_ADSTYPE == CFG_PQ2FADS
@@ -346,6 +370,11 @@
 #define CFG_PSRT		0x13
 #define CFG_LSDMR		0x828737A3
 #define CFG_LSRT		0x13
+#define CFG_MPTPR		0x2800
+#elif CONFIG_ADSTYPE == CFG_8272ADS
+#define CFG_OR2			0xFC002CC0
+#define CFG_PSDMR		0x834E24A3
+#define CFG_PSRT		0x13
 #define CFG_MPTPR		0x2800
 #else
 #define CFG_OR2			0xFF000CA0

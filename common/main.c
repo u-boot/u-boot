@@ -365,6 +365,10 @@ void main_loop (void)
 	u_boot_hush_start ();
 #endif
 
+#ifdef CONFIG_AUTO_COMPLETE
+	install_auto_complete();
+#endif
+
 #ifdef CONFIG_PREBOOT
 	if ((p = getenv ("preboot")) != NULL) {
 # ifdef CONFIG_AUTOBOOT_KEYED
@@ -608,6 +612,14 @@ int readline (const char *const prompt)
 			 */
 			if (n < CFG_CBSIZE-2) {
 				if (c == '\t') {	/* expand TABs		*/
+#ifdef CONFIG_AUTO_COMPLETE
+					/* if auto completion triggered just continue */
+					*p = '\0';
+					if (cmd_auto_complete(prompt, console_buffer, &n, &col)) {
+						p = console_buffer + n;	/* reset */
+						continue;
+					}
+#endif
 					puts (tab_seq+(col&07));
 					col += 8 - (col&07);
 				} else {

@@ -260,3 +260,44 @@ void env_relocate (void)
 	disable_nvram();
 #endif
 }
+
+#ifdef CONFIG_AUTO_COMPLETE
+int env_complete(char *var, int maxv, char *cmdv[], int bufsz, char *buf)
+{
+	int i, nxt, len, vallen, found;
+	const char *lval, *rval;
+
+	found = 0;
+	cmdv[0] = NULL;
+
+	len = strlen(var);
+	/* now iterate over the variables and select those that match */
+	for (i=0; env_get_char(i) != '\0'; i=nxt+1) {
+
+		for (nxt=i; env_get_char(nxt) != '\0'; ++nxt)
+			;
+
+		lval = env_get_addr(i);
+		rval = strchr(lval, '=');
+		if (rval != NULL) {
+			vallen = rval - lval;
+			rval++;
+		} else
+			vallen = strlen(lval);
+
+		if (len > 0 && (vallen < len || memcmp(lval, var, len) != 0))
+			continue;
+
+		if (found >= maxv - 2 || bufsz < vallen + 1) {
+			cmdv[found++] = "...";
+			break;
+		}
+		cmdv[found++] = buf;
+		memcpy(buf, lval, vallen); buf += vallen; bufsz -= vallen;
+		*buf++ = '\0'; bufsz--;
+	}
+
+	cmdv[found] = NULL;
+	return found;
+}
+#endif

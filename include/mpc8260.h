@@ -34,8 +34,12 @@
 #define CPU_ID_STR	"MPC8255"
 #endif
 #ifndef CPU_ID_STR
+#if defined(CONFIG_MPC8272_FAMILY)
+#define CPU_ID_STR	"MPC8272"
+#else
 #define CPU_ID_STR	"MPC8260"
 #endif
+#endif /* !CPU_ID_STR */
 
 /*-----------------------------------------------------------------------
  * Exception offsets (PowerPC standard)

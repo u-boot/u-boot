@@ -64,6 +64,15 @@ typedef volatile unsigned char	vu_char;
 #elif defined(CONFIG_5xx)
 #include <asm/5xx_immap.h>
 #elif defined(CONFIG_8260)
+#if   defined(CONFIG_MPC8247) \
+   || defined(CONFIG_MPC8248) \
+   || defined(CONFIG_MPC8271) \
+   || defined(CONFIG_MPC8272)
+#define CONFIG_MPC8272_FAMILY	1
+#endif
+#if defined(CONFIG_MPC8272_FAMILY)
+#define CONFIG_MPC8260	1
+#endif
 #include <asm/immap_8260.h>
 #endif
 #ifdef CONFIG_MPC85xx
@@ -195,6 +204,10 @@ void	setenv	     (char *, char *);
 #ifdef CONFIG_I386		/* x86 version to be fixed! */
 # include <asm/u-boot-i386.h>
 #endif /* CONFIG_I386 */
+
+#ifdef CONFIG_AUTO_COMPLETE
+int env_complete(char *var, int maxv, char *cmdv[], int maxsz, char *buf);
+#endif
 
 void	pci_init      (void);
 void	pci_init_board(void);

@@ -280,7 +280,8 @@ The following options need to be configured:
 		CONFIG_NETVIA,	   CONFIG_RBC823,     CONFIG_ZPC1900,
 		CONFIG_MPC8540ADS, CONFIG_MPC8560ADS, CONFIG_QS850,
 		CONFIG_QS823,	   CONFIG_QS860T,     CONFIG_DB64360,
-		CONFIG_DB64460,	   CONFIG_DUET_ADS
+		CONFIG_DB64460,	   CONFIG_DUET_ADS    CONFIG_NETTA
+		CONFIG_NETPHONE
 
 		ARM based boards:
 		-----------------
@@ -320,7 +321,7 @@ The following options need to be configured:
 			CFG_8260ADS	- original MPC8260ADS
 			CFG_8266ADS	- MPC8266ADS
 			CFG_PQ2FADS	- PQ2FADS-ZU or PQ2FADS-VR
-
+			CFG_8272ADS	- MPC8272ADS
 
 - MPC824X Family Member (if CONFIG_MPC824X is defined)
 		Define exactly one of
@@ -1231,6 +1232,10 @@ The following options need to be configured:
 		default value of 5 is used.
 
 - Command Interpreter:
+		CFG_AUTO_COMPLETE
+
+		Enable auto completion of commands using TAB.
+
 		CFG_HUSH_PARSER
 
 		Define this variable to enable the "hush" shell (from

@@ -9,7 +9,7 @@
  * (C) Copyright 2001, Stuart Hughes, Lineo Inc, stuarth@lineo.com
  * Added support for the 16M dram simm on the 8260ads boards
  *
- * (C) Copyright 2003 Arabella Software Ltd.
+ * (C) Copyright 2003-2004 Arabella Software Ltd.
  * Yuli Barcohen <yuli@arabellasw.com>
  * Added support for SDRAM DIMMs SPD EEPROM, MII, Ethernet PHY init.
  *
@@ -47,121 +47,137 @@
  * according to the five values podr/pdir/ppar/psor/pdat for that entry
  */
 
+#define CFG_FCC1 (CONFIG_ETHER_INDEX == 1)
+#define CFG_FCC2 (CONFIG_ETHER_INDEX == 2)
+#define CFG_FCC3 (CONFIG_ETHER_INDEX == 3)
+
 const iop_conf_t iop_conf_tab[4][32] = {
 
     /* Port A configuration */
-    {	/*	      conf ppar psor pdir podr pdat */
-	/* PA31 */ {   0,   1,   0,   1,   0,   0   }, /* FCC1 TxENB */
-	/* PA30 */ {   0,   1,   0,   0,   0,   0   }, /* FCC1 TxClav   */
-	/* PA29 */ {   0,   1,   0,   1,   0,   0   }, /* FCC1 TxSOC  */
-	/* PA28 */ {   0,   1,   0,   1,   0,   0   }, /* FCC1 RxENB */
-	/* PA27 */ {   0,   1,   0,   0,   0,   0   }, /* FCC1 RxSOC */
-	/* PA26 */ {   0,   1,   0,   0,   0,   0   }, /* FCC1 RxClav */
-	/* PA25 */ {   0,   1,   0,   1,   0,   0   }, /* FCC1 ATMTXD[0] */
-	/* PA24 */ {   0,   1,   0,   1,   0,   0   }, /* FCC1 ATMTXD[1] */
-	/* PA23 */ {   0,   1,   0,   1,   0,   0   }, /* FCC1 ATMTXD[2] */
-	/* PA22 */ {   0,   1,   0,   1,   0,   0   }, /* FCC1 ATMTXD[3] */
-	/* PA21 */ {   0,   1,   0,   1,   0,   0   }, /* FCC1 ATMTXD[4] */
-	/* PA20 */ {   0,   1,   0,   1,   0,   0   }, /* FCC1 ATMTXD[5] */
-	/* PA19 */ {   0,   1,   0,   1,   0,   0   }, /* FCC1 ATMTXD[6] */
-	/* PA18 */ {   0,   1,   0,   1,   0,   0   }, /* FCC1 ATMTXD[7] */
-	/* PA17 */ {   0,   1,   0,   0,   0,   0   }, /* FCC1 ATMRXD[7] */
-	/* PA16 */ {   0,   1,   0,   0,   0,   0   }, /* FCC1 ATMRXD[6] */
-	/* PA15 */ {   0,   1,   0,   0,   0,   0   }, /* FCC1 ATMRXD[5] */
-	/* PA14 */ {   0,   1,   0,   0,   0,   0   }, /* FCC1 ATMRXD[4] */
-	/* PA13 */ {   0,   1,   0,   0,   0,   0   }, /* FCC1 ATMRXD[3] */
-	/* PA12 */ {   0,   1,   0,   0,   0,   0   }, /* FCC1 ATMRXD[2] */
-	/* PA11 */ {   0,   1,   0,   0,   0,   0   }, /* FCC1 ATMRXD[1] */
-	/* PA10 */ {   0,   1,   0,   0,   0,   0   }, /* FCC1 ATMRXD[0] */
-	/* PA9  */ {   0,   1,   1,   1,   0,   0   }, /* FCC1 L1TXD */
-	/* PA8  */ {   0,   1,   1,   0,   0,   0   }, /* FCC1 L1RXD */
-	/* PA7  */ {   0,   0,   0,   1,   0,   0   }, /* PA7 */
-	/* PA6  */ {   1,   1,   1,   1,   0,   0   }, /* TDM A1 L1RSYNC */
-	/* PA5  */ {   0,   0,   0,   1,   0,   0   }, /* PA5 */
-	/* PA4  */ {   0,   0,   0,   1,   0,   0   }, /* PA4 */
-	/* PA3  */ {   0,   0,   0,   1,   0,   0   }, /* PA3 */
-	/* PA2  */ {   0,   0,   0,   1,   0,   0   }, /* PA2 */
-	/* PA1  */ {   1,   0,   0,   0,   0,   0   }, /* FREERUN */
-	/* PA0  */ {   0,   0,   0,   1,   0,   0   }  /* PA0 */
+    {	/*	      conf      ppar psor pdir podr pdat */
+	/* PA31 */ { CFG_FCC1,   1,   1,   0,   0,   0 }, /* FCC1 MII COL   */
+	/* PA30 */ { CFG_FCC1,   1,   1,   0,   0,   0 }, /* FCC1 MII CRS   */
+	/* PA29 */ { CFG_FCC1,   1,   1,   1,   0,   0 }, /* FCC1 MII TX_ER */
+	/* PA28 */ { CFG_FCC1,   1,   1,   1,   0,   0 }, /* FCC1 MII TX_EN */
+	/* PA27 */ { CFG_FCC1,   1,   1,   0,   0,   0 }, /* FCC1 MII RX_DV */
+	/* PA26 */ { CFG_FCC1,   1,   1,   0,   0,   0 }, /* FCC1 MII RX_ER */
+	/* PA25 */ { 0,          0,   0,   0,   0,   0 }, /* PA25 */
+	/* PA24 */ { 0,          0,   0,   0,   0,   0 }, /* PA24 */
+	/* PA23 */ { 0,          0,   0,   0,   0,   0 }, /* PA23 */
+	/* PA22 */ { 0,          0,   0,   0,   0,   0 }, /* PA22 */
+	/* PA21 */ { CFG_FCC1,   1,   0,   1,   0,   0 }, /* FCC1 MII TxD[3] */
+	/* PA20 */ { CFG_FCC1,   1,   0,   1,   0,   0 }, /* FCC1 MII TxD[2] */
+	/* PA19 */ { CFG_FCC1,   1,   0,   1,   0,   0 }, /* FCC1 MII TxD[1] */
+	/* PA18 */ { CFG_FCC1,   1,   0,   1,   0,   0 }, /* FCC1 MII TxD[0] */
+	/* PA17 */ { CFG_FCC1,   1,   0,   0,   0,   0 }, /* FCC1 MII RxD[0] */
+	/* PA16 */ { CFG_FCC1,   1,   0,   0,   0,   0 }, /* FCC1 MII RxD[1] */
+	/* PA15 */ { CFG_FCC1,   1,   0,   0,   0,   0 }, /* FCC1 MII RxD[2] */
+	/* PA14 */ { CFG_FCC1,   1,   0,   0,   0,   0 }, /* FCC1 MII RxD[3] */
+	/* PA13 */ { 0,          0,   0,   0,   0,   0 }, /* PA13 */
+	/* PA12 */ { 0,          0,   0,   0,   0,   0 }, /* PA12 */
+	/* PA11 */ { 0,          0,   0,   0,   0,   0 }, /* PA11 */
+	/* PA10 */ { 0,          0,   0,   0,   0,   0 }, /* PA10 */
+	/* PA9  */ { 0,          0,   0,   0,   0,   0 }, /* PA9 */
+	/* PA8  */ { 0,          0,   0,   0,   0,   0 }, /* PA8 */
+	/* PA7  */ { 0,          0,   0,   1,   0,   0 }, /* PA7 */
+	/* PA6  */ { 0,          0,   0,   0,   0,   0 }, /* PA6 */
+	/* PA5  */ { 0,          0,   0,   1,   0,   0 }, /* PA5 */
+	/* PA4  */ { 0,          0,   0,   1,   0,   0 }, /* PA4 */
+	/* PA3  */ { 0,          0,   0,   1,   0,   0 }, /* PA3 */
+	/* PA2  */ { 0,          0,   0,   1,   0,   0 }, /* PA2 */
+	/* PA1  */ { 0,          0,   0,   0,   0,   0 }, /* PA1 */
+	/* PA0  */ { 0,          0,   0,   1,   0,   0 }  /* PA0 */
     },
 
     /* Port B configuration */
-    {   /*	      conf ppar psor pdir podr pdat */
-	/* PB31 */ {   1,   1,   0,   1,   0,   0   }, /* FCC2 MII TX_ER */
-	/* PB30 */ {   1,   1,   0,   0,   0,   0   }, /* FCC2 MII RX_DV */
-	/* PB29 */ {   1,   1,   1,   1,   0,   0   }, /* FCC2 MII TX_EN */
-	/* PB28 */ {   1,   1,   0,   0,   0,   0   }, /* FCC2 MII RX_ER */
-	/* PB27 */ {   1,   1,   0,   0,   0,   0   }, /* FCC2 MII COL */
-	/* PB26 */ {   1,   1,   0,   0,   0,   0   }, /* FCC2 MII CRS */
-	/* PB25 */ {   1,   1,   0,   1,   0,   0   }, /* FCC2 MII TxD[3] */
-	/* PB24 */ {   1,   1,   0,   1,   0,   0   }, /* FCC2 MII TxD[2] */
-	/* PB23 */ {   1,   1,   0,   1,   0,   0   }, /* FCC2 MII TxD[1] */
-	/* PB22 */ {   1,   1,   0,   1,   0,   0   }, /* FCC2 MII TxD[0] */
-	/* PB21 */ {   1,   1,   0,   0,   0,   0   }, /* FCC2 MII RxD[0] */
-	/* PB20 */ {   1,   1,   0,   0,   0,   0   }, /* FCC2 MII RxD[1] */
-	/* PB19 */ {   1,   1,   0,   0,   0,   0   }, /* FCC2 MII RxD[2] */
-	/* PB18 */ {   1,   1,   0,   0,   0,   0   }, /* FCC2 MII RxD[3] */
-	/* PB17 */ {   0,   1,   0,   0,   0,   0   }, /* FCC3:RX_DIV */
-	/* PB16 */ {   0,   1,   0,   0,   0,   0   }, /* FCC3:RX_ERR */
-	/* PB15 */ {   0,   1,   0,   1,   0,   0   }, /* FCC3:TX_ERR */
-	/* PB14 */ {   0,   1,   0,   1,   0,   0   }, /* FCC3:TX_EN */
-	/* PB13 */ {   0,   1,   0,   0,   0,   0   }, /* FCC3:COL */
-	/* PB12 */ {   0,   1,   0,   0,   0,   0   }, /* FCC3:CRS */
-	/* PB11 */ {   0,   1,   0,   0,   0,   0   }, /* FCC3:RXD */
-	/* PB10 */ {   0,   1,   0,   0,   0,   0   }, /* FCC3:RXD */
-	/* PB9  */ {   0,   1,   0,   0,   0,   0   }, /* FCC3:RXD */
-	/* PB8  */ {   0,   1,   0,   0,   0,   0   }, /* FCC3:RXD */
-	/* PB7  */ {   0,   1,   0,   1,   0,   0   }, /* FCC3:TXD */
-	/* PB6  */ {   0,   1,   0,   1,   0,   0   }, /* FCC3:TXD */
-	/* PB5  */ {   0,   1,   0,   1,   0,   0   }, /* FCC3:TXD */
-	/* PB4  */ {   0,   1,   0,   1,   0,   0   }, /* FCC3:TXD */
-	/* PB3  */ {   0,   0,   0,   0,   0,   0   }, /* pin doesn't exist */
-	/* PB2  */ {   0,   0,   0,   0,   0,   0   }, /* pin doesn't exist */
-	/* PB1  */ {   0,   0,   0,   0,   0,   0   }, /* pin doesn't exist */
-	/* PB0  */ {   0,   0,   0,   0,   0,   0   }  /* pin doesn't exist */
+    {   /*	      conf      ppar psor pdir podr pdat */
+	/* PB31 */ { CFG_FCC2,   1,   0,   1,   0,   0 }, /* FCC2 MII TX_ER */
+	/* PB30 */ { CFG_FCC2,   1,   0,   0,   0,   0 }, /* FCC2 MII RX_DV */
+	/* PB29 */ { CFG_FCC2,   1,   1,   1,   0,   0 }, /* FCC2 MII TX_EN */
+	/* PB28 */ { CFG_FCC2,   1,   0,   0,   0,   0 }, /* FCC2 MII RX_ER */
+	/* PB27 */ { CFG_FCC2,   1,   0,   0,   0,   0 }, /* FCC2 MII COL */
+	/* PB26 */ { CFG_FCC2,   1,   0,   0,   0,   0 }, /* FCC2 MII CRS */
+	/* PB25 */ { CFG_FCC2,   1,   0,   1,   0,   0 }, /* FCC2 MII TxD[3] */
+	/* PB24 */ { CFG_FCC2,   1,   0,   1,   0,   0 }, /* FCC2 MII TxD[2] */
+	/* PB23 */ { CFG_FCC2,   1,   0,   1,   0,   0 }, /* FCC2 MII TxD[1] */
+	/* PB22 */ { CFG_FCC2,   1,   0,   1,   0,   0 }, /* FCC2 MII TxD[0] */
+	/* PB21 */ { CFG_FCC2,   1,   0,   0,   0,   0 }, /* FCC2 MII RxD[0] */
+	/* PB20 */ { CFG_FCC2,   1,   0,   0,   0,   0 }, /* FCC2 MII RxD[1] */
+	/* PB19 */ { CFG_FCC2,   1,   0,   0,   0,   0 }, /* FCC2 MII RxD[2] */
+	/* PB18 */ { CFG_FCC2,   1,   0,   0,   0,   0 }, /* FCC2 MII RxD[3] */
+	/* PB17 */ { CFG_FCC3,   1,   0,   0,   0,   0 }, /* FCC3:RX_DIV */
+	/* PB16 */ { CFG_FCC3,   1,   0,   0,   0,   0 }, /* FCC3:RX_ERR */
+	/* PB15 */ { CFG_FCC3,   1,   0,   1,   0,   0 }, /* FCC3:TX_ERR */
+	/* PB14 */ { CFG_FCC3,   1,   0,   1,   0,   0 }, /* FCC3:TX_EN */
+	/* PB13 */ { CFG_FCC3,   1,   0,   0,   0,   0 }, /* FCC3:COL */
+	/* PB12 */ { CFG_FCC3,   1,   0,   0,   0,   0 }, /* FCC3:CRS */
+	/* PB11 */ { CFG_FCC3,   1,   0,   0,   0,   0 }, /* FCC3:RXD */
+	/* PB10 */ { CFG_FCC3,   1,   0,   0,   0,   0 }, /* FCC3:RXD */
+	/* PB9  */ { CFG_FCC3,   1,   0,   0,   0,   0 }, /* FCC3:RXD */
+	/* PB8  */ { CFG_FCC3,   1,   0,   0,   0,   0 }, /* FCC3:RXD */
+	/* PB7  */ { CFG_FCC3,   1,   0,   1,   0,   0 }, /* FCC3:TXD */
+	/* PB6  */ { CFG_FCC3,   1,   0,   1,   0,   0 }, /* FCC3:TXD */
+	/* PB5  */ { CFG_FCC3,   1,   0,   1,   0,   0 }, /* FCC3:TXD */
+	/* PB4  */ { CFG_FCC3,   1,   0,   1,   0,   0 }, /* FCC3:TXD */
+	/* PB3  */ { 0,          0,   0,   0,   0,   0 }, /* pin doesn't exist */
+	/* PB2  */ { 0,          0,   0,   0,   0,   0 }, /* pin doesn't exist */
+	/* PB1  */ { 0,          0,   0,   0,   0,   0 }, /* pin doesn't exist */
+	/* PB0  */ { 0,          0,   0,   0,   0,   0 }  /* pin doesn't exist */
     },
 
     /* Port C */
-    {   /*	      conf ppar psor pdir podr pdat */
-	/* PC31 */ {   0,   0,   0,   1,   0,   0   }, /* PC31 */
-	/* PC30 */ {   0,   0,   0,   1,   0,   0   }, /* PC30 */
-	/* PC29 */ {   0,   1,   1,   0,   0,   0   }, /* SCC1 EN *CLSN */
-	/* PC28 */ {   0,   0,   0,   1,   0,   0   }, /* PC28 */
-	/* PC27 */ {   0,   0,   0,   1,   0,   0   }, /* UART Clock in */
-	/* PC26 */ {   0,   0,   0,   1,   0,   0   }, /* PC26 */
-	/* PC25 */ {   0,   0,   0,   1,   0,   0   }, /* PC25 */
-	/* PC24 */ {   0,   0,   0,   1,   0,   0   }, /* PC24 */
-	/* PC23 */ {   0,   1,   0,   1,   0,   0   }, /* ATMTFCLK */
-	/* PC22 */ {   0,   1,   0,   0,   0,   0   }, /* ATMRFCLK */
-	/* PC21 */ {   0,   1,   0,   0,   0,   0   }, /* SCC1 EN RXCLK */
-	/* PC20 */ {   0,   1,   0,   0,   0,   0   }, /* SCC1 EN TXCLK */
-	/* PC19 */ {   1,   1,   0,   0,   0,   0   }, /* FCC2 MII Rx Clock (CLK13) */
-	/* PC18 */ {   1,   1,   0,   0,   0,   0   }, /* FCC2 MII Tx Clock (CLK14) */
-	/* PC17 */ {   0,   0,   0,   1,   0,   0   }, /* PC17 */
-	/* PC16 */ {   0,   1,   0,   0,   0,   0   }, /* FCC Tx Clock (CLK16) */
-	/* PC15 */ {   0,   0,   0,   1,   0,   0   }, /* PC15 */
-	/* PC14 */ {   0,   1,   0,   0,   0,   0   }, /* SCC1 EN *CD */
-	/* PC13 */ {   0,   0,   0,   1,   0,   0   }, /* PC13 */
-	/* PC12 */ {   0,   1,   0,   1,   0,   0   }, /* PC12 */
-	/* PC11 */ {   0,   0,   0,   1,   0,   0   }, /* LXT971 transmit control */
-	/* PC10 */ {   1,   0,   0,   1,   0,   0   }, /* LXT970 FETHMDC */
-	/* PC9  */ {   1,   0,   0,   0,   0,   0   }, /* LXT970 FETHMDIO */
-	/* PC8  */ {   0,   0,   0,   1,   0,   0   }, /* PC8 */
-	/* PC7  */ {   0,   0,   0,   1,   0,   0   }, /* PC7 */
-	/* PC6  */ {   0,   0,   0,   1,   0,   0   }, /* PC6 */
-	/* PC5  */ {   0,   0,   0,   1,   0,   0   }, /* PC5 */
-	/* PC4  */ {   0,   0,   0,   1,   0,   0   }, /* PC4 */
-	/* PC3  */ {   0,   0,   0,   1,   0,   0   }, /* PC3 */
-	/* PC2  */ {   0,   0,   0,   1,   0,   1   }, /* ENET FDE */
-	/* PC1  */ {   0,   0,   0,   1,   0,   0   }, /* ENET DSQE */
-	/* PC0  */ {   0,   0,   0,   1,   0,   0   }, /* ENET LBK */
+    {   /*	      conf      ppar psor pdir podr pdat */
+	/* PC31 */ { 0,          0,   0,   0,   0,   0 }, /* PC31 */
+	/* PC30 */ { 0,          0,   0,   0,   0,   0 }, /* PC30 */
+	/* PC29 */ { 0,          0,   0,   0,   0,   0 }, /* PC29 */
+	/* PC28 */ { 0,          0,   0,   0,   0,   0 }, /* PC28 */
+	/* PC27 */ { 0,          0,   0,   0,   0,   0 }, /* PC27 */
+	/* PC26 */ { 0,          0,   0,   0,   0,   0 }, /* PC26 */
+	/* PC25 */ { 0,          0,   0,   0,   0,   0 }, /* PC25 */
+	/* PC24 */ { 0,          0,   0,   0,   0,   0 }, /* PC24 */
+	/* PC23 */ { 0,          0,   0,   0,   0,   0 }, /* PC23 */
+	/* PC22 */ { CFG_FCC1,   1,   0,   0,   0,   0 }, /* FCC1 MII Tx Clock (CLK10) */
+	/* PC21 */ { CFG_FCC1,   1,   0,   0,   0,   0 }, /* FCC1 MII Rx Clock (CLK11) */
+	/* PC20 */ { 0,          0,   0,   0,   0,   0 }, /* PC20 */
+#if CONFIG_ADSTYPE == CFG_8272ADS
+	/* PC19 */ { 1,          0,   0,   1,   0,   0 }, /* FETHMDC  */
+	/* PC18 */ { 1,          0,   0,   0,   0,   0 }, /* FETHMDIO */
+	/* PC17 */ { CFG_FCC2,   1,   0,   0,   0,   0 }, /* FCC2 MII Rx Clock (CLK15) */
+	/* PC16 */ { CFG_FCC2,   1,   0,   0,   0,   0 }, /* FCC2 MII Tx Clock (CLK16) */
+#else
+	/* PC19 */ { CFG_FCC2,   1,   0,   0,   0,   0 }, /* FCC2 MII Rx Clock (CLK13) */
+	/* PC18 */ { CFG_FCC2,   1,   0,   0,   0,   0 }, /* FCC2 MII Tx Clock (CLK14) */
+	/* PC17 */ { 0,          0,   0,   0,   0,   0 }, /* PC17 */
+	/* PC16 */ { 0,          0,   0,   0,   0,   0 }, /* PC16 */
+#endif /* CONFIG_ADSTYPE == CFG_8272ADS */
+	/* PC15 */ { 0,          0,   0,   0,   0,   0 }, /* PC15 */
+	/* PC14 */ { 0,          0,   0,   0,   0,   0 }, /* PC14 */
+	/* PC13 */ { 0,          0,   0,   0,   0,   0 }, /* PC13 */
+	/* PC12 */ { 0,          0,   0,   0,   0,   0 }, /* PC12 */
+	/* PC11 */ { 0,          0,   0,   0,   0,   0 }, /* PC11 */
+#if CONFIG_ADSTYPE == CFG_8272ADS
+	/* PC10 */ { 0,          0,   0,   0,   0,   0 }, /* PC10 */
+	/* PC9  */ { 0,          0,   0,   0,   0,   0 }, /* PC9  */
+#else
+	/* PC10 */ { 1,          0,   0,   1,   0,   0 }, /* FETHMDC  */
+	/* PC9  */ { 1,          0,   0,   0,   0,   0 }, /* FETHMDIO */
+#endif /* CONFIG_ADSTYPE == CFG_8272ADS */
+	/* PC8  */ { 0,          0,   0,   0,   0,   0 }, /* PC8 */
+	/* PC7  */ { 0,          0,   0,   0,   0,   0 }, /* PC7 */
+	/* PC6  */ { 0,          0,   0,   0,   0,   0 }, /* PC6 */
+	/* PC5  */ { 0,          0,   0,   0,   0,   0 }, /* PC5 */
+	/* PC4  */ { 0,          0,   0,   0,   0,   0 }, /* PC4 */
+	/* PC3  */ { 0,          0,   0,   0,   0,   0 }, /* PC3 */
+	/* PC2  */ { 0,          0,   0,   0,   0,   0 }, /* PC2 */
+	/* PC1  */ { 0,          0,   0,   0,   0,   0 }, /* PC1 */
+	/* PC0  */ { 0,          0,   0,   0,   0,   0 }, /* PC0 */
     },
 
     /* Port D */
     {   /*	      conf ppar psor pdir podr pdat */
 	/* PD31 */ {   1,   1,   0,   0,   0,   0   }, /* SCC1 UART RxD */
 	/* PD30 */ {   1,   1,   1,   1,   0,   0   }, /* SCC1 UART TxD */
-	/* PD29 */ {   0,   1,   0,   1,   0,   0   }, /* SCC1 EN TENA */
+	/* PD29 */ {   0,   0,   0,   0,   0,   0   }, /* PD29 */
 	/* PD28 */ {   0,   1,   0,   0,   0,   0   }, /* PD28 */
 	/* PD27 */ {   0,   1,   1,   1,   0,   0   }, /* PD27 */
 	/* PD26 */ {   0,   0,   0,   1,   0,   0   }, /* PD26 */
@@ -198,19 +214,25 @@ void reset_phy (void)
 {
 	vu_long *bcsr = (vu_long *)CFG_BCSR;
 
-	/* reset the FEC port */
-	bcsr[1] &= ~FETH1_RST;
+	/* Reset the PHY */
+#if CFG_PHY_ADDR == 0
+	bcsr[1] &= ~(FETHIEN1 | FETH1_RST);
 	udelay(2);
 	bcsr[1] |=  FETH1_RST;
+#else
+	bcsr[3] &= ~(FETHIEN2 | FETH2_RST);
+	udelay(2);
+	bcsr[3] |=  FETH2_RST;
+#endif /* CFG_PHY_ADDR == 0 */
 	udelay(1000);
 #ifdef CONFIG_MII
-#if CONFIG_ADSTYPE == CFG_PQ2FADS
+#if CONFIG_ADSTYPE >= CFG_PQ2FADS
 	/*
 	 * Do not bypass Rx/Tx (de)scrambler (fix configuration error)
 	 * Enable autonegotiation.
 	 */
-	miiphy_write(0, 16, 0x610);
-	miiphy_write(0, PHY_BMCR, PHY_BMCR_AUTON | PHY_BMCR_RST_NEG);
+	miiphy_write(CFG_PHY_ADDR, 16, 0x610);
+	miiphy_write(CFG_PHY_ADDR, PHY_BMCR, PHY_BMCR_AUTON | PHY_BMCR_RST_NEG);
 #else
 	/*
 	 * Ethernet PHY is configured (by means of configuration pins)
@@ -218,9 +240,9 @@ void reset_phy (void)
 	 * to advertise all capabilities, including 100Mb/s, and
 	 * restart autonegotiation.
 	 */
-	miiphy_write(0, PHY_ANAR, 0x01E1); /* Advertise all capabilities */
-	miiphy_write(0, PHY_DCR,  0x0000); /* Do not bypass Rx/Tx (de)scrambler */
-	miiphy_write(0, PHY_BMCR, PHY_BMCR_AUTON | PHY_BMCR_RST_NEG);
+	miiphy_write(CFG_PHY_ADDR, PHY_ANAR, 0x01E1); /* Advertise all capabilities */
+	miiphy_write(CFG_PHY_ADDR, PHY_DCR,  0x0000); /* Do not bypass Rx/Tx (de)scrambler */
+	miiphy_write(CFG_PHY_ADDR, PHY_BMCR, PHY_BMCR_AUTON | PHY_BMCR_RST_NEG);
 #endif /* CONFIG_ADSTYPE == CFG_PQ2FADS */
 #endif /* CONFIG_MII */
 }
@@ -229,7 +251,12 @@ int board_early_init_f (void)
 {
 	vu_long *bcsr = (vu_long *)CFG_BCSR;
 
-	bcsr[1] = ~FETHIEN1 & ~RS232EN_1;
+#if (CONFIG_CONS_INDEX == 1) || (CONFIG_KGDB_INDEX == 1)
+	bcsr[1] &= ~RS232EN_1;
+#endif
+#if (CONFIG_CONS_INDEX > 1) || (CONFIG_KGDB_INDEX > 1)
+	bcsr[1] &= ~RS232EN_2;
+#endif
 
 #if CONFIG_ADSTYPE != CFG_8260ADS /* PCI mode can be selected */
 #if CONFIG_ADSTYPE == CFG_PQ2FADS
@@ -252,8 +279,10 @@ int board_early_init_f (void)
 
 long int initdram (int board_type)
 {
-#if CONFIG_ADSTYPE == CFG_PQ2FADS
+#if   CONFIG_ADSTYPE == CFG_PQ2FADS
 	long int msize = 32;
+#elif CONFIG_ADSTYPE == CFG_8272ADS
+	long int msize = 64;
 #else
 	long int msize = 16;
 #endif
@@ -470,6 +499,8 @@ int checkboard (void)
 	puts ("Board: Motorola MPC8266ADS\n");
 #elif CONFIG_ADSTYPE == CFG_PQ2FADS
 	puts ("Board: Motorola PQ2FADS-ZU\n");
+#elif CONFIG_ADSTYPE == CFG_8272ADS
+	puts ("Board: Motorola MPC8272ADS\n");
 #else
 	puts ("Board: unknown\n");
 #endif

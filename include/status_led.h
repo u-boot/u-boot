@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000
+ * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -333,6 +333,9 @@ void status_led_set  (int led, int state);
 
 # define STATUS_LED_BOOT	0		/* LED 0 used for boot status */
 
+/*****  NetPhone   ********************************************************/
+#elif defined(CONFIG_NETPHONE)
+/* XXX empty just to avoid the error */
 /************************************************************************/
 #else
 # error Status LED configuration missing
