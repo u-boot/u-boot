@@ -1354,7 +1354,7 @@ static void *lcd_logo (void)
 	sprintf (info, "%s (%s - %s) ", U_BOOT_VERSION, __DATE__, __TIME__);
 	lcd_drawchars (LCD_INFO_X, LCD_INFO_Y, info, strlen(info));
 
-	sprintf (info, "(C) 2003 DENX Software Engineering");
+	sprintf (info, "(C) 2004 DENX Software Engineering");
 	lcd_drawchars (LCD_INFO_X, LCD_INFO_Y + VIDEO_FONT_HEIGHT,
 					info, strlen(info));
 
