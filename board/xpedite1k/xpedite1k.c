@@ -32,7 +32,7 @@
 
 long int fixed_sdram (void);
 
-int board_pre_init (void)
+int board_early_init_f(void)
 {
 	unsigned long sdrreg;
 	/* TBS:	 Setup the GPIO access for the user LEDs */
@@ -51,6 +51,8 @@ int board_pre_init (void)
 	/* set the bus controller */
 	mtebc (pb0ap, 0x04055200);	/* FLASH/SRAM */
 	mtebc (pb0cr, 0xfff18000);	/* BAS=0xfff 1MB R/W 8-bit */
+	mtebc (pb1ap, 0x04055200);	/* FLASH/SRAM */
+	mtebc (pb1cr, 0xfe098000);	/* BAS=0xff8 16MB R/W 8-bit */
 
 	/*--------------------------------------------------------------------
 	 * Setup the interrupt controller polarities, triggers, etc.
@@ -217,17 +219,18 @@ long int fixed_sdram (void)
 int pci_pre_init(struct pci_controller * hose )
 {
 	unsigned long strap;
-
-	/*--------------------------------------------------------------------------+
-	 * TBS:
-	 *	The xpedite1k is a PrPMC board, however for our purposes it is the host
-	 *--------------------------------------------------------------------------*/
-	strap = mfdcr(cpc0_strp1);
-	if( (strap & 0x00100000) == 0 ){
-		printf("PCI: CPC0_STRP1[PAE] not set.\n");
-		return 0;
+	/* See if we're supposed to setup the pci */
+	mfsdr(sdr_sdstp1, strap);
+	if ((strap & 0x00010000) == 0) {
+		return (0);
 	}
 
+#if defined(CFG_PCI_FORCE_PCI_CONV)
+	/* Setup System Device Register PCIX0_XCR */
+	mfsdr(sdr_xcr, strap);
+	strap &= 0x0f000000;
+	mtsdr(sdr_xcr, strap);
+#endif
 	return 1;
 }
 #endif /* defined(CONFIG_PCI) && defined(CFG_PCI_PRE_INIT) */
@@ -292,9 +295,7 @@ void pci_target_init(struct pci_controller * hose )
 #if defined(CONFIG_PCI)
 int is_pci_host(struct pci_controller *hose)
 {
-	/* The ebony board is always configured as host. */
-	/* TBS:	 The xpedite1k is not necessarily the host, however for our purposes, it is. */
-	return(1);
+	return ((in32(CFG_GPIO_BASE + 0x1C) & 0x00000800) == 0);
 }
 #endif /* defined(CONFIG_PCI) */
 

@@ -411,15 +411,23 @@ void pci_440_init (struct pci_controller *hose)
 
 	/*--------------------------------------------------------------------------+
 	 * The PCI initialization sequence enable bit must be set ... if not abort
-     * pci setup since updating the bit requires chip reset.
+	 * pci setup since updating the bit requires chip reset.
 	 *--------------------------------------------------------------------------*/
-    strap = mfdcr(cpc0_strp1);
-    if( (strap & 0x00040000) == 0 ){
-	printf("PCI: CPC0_STRP1[PISE] not set.\n");
-	printf("PCI: Configuration aborted.\n");
-	return;
-    }
-
+#if defined (CONFIG_440_GX)
+	mfsdr(sdr_sdstp1,strap);
+	if ( (strap & 0x00010000) == 0 ){
+		printf("PCI: SDR0_STRP1[PISE] not set.\n");
+		printf("PCI: Configuration aborted.\n");
+		return;
+	}
+#else
+	strap = mfdcr(cpc0_strp1);
+	if( (strap & 0x00040000) == 0 ){
+		printf("PCI: CPC0_STRP1[PISE] not set.\n");
+		printf("PCI: Configuration aborted.\n");
+		return;
+	}
+#endif
 	/*--------------------------------------------------------------------------+
 	 * PCI controller init
 	 *--------------------------------------------------------------------------*/
@@ -463,8 +471,13 @@ void pci_440_init (struct pci_controller *hose)
     out16r( PCIX0_CLS, 0x00060000 ); /* Bridge, host bridge */
 #endif
 
-    out32r( PCIX0_BRDGOPT1, 0x10000060 );               /* PLB Rq pri highest   */
-    out32r( PCIX0_BRDGOPT2, in32(PCIX0_BRDGOPT2) | 1 ); /* Enable host config   */
+#if defined(CONFIG_440_GX)
+	out32r( PCIX0_BRDGOPT1, 0x04000060 );               /* PLB Rq pri highest   */
+	out32r( PCIX0_BRDGOPT2, in32(PCIX0_BRDGOPT2) | 0x83 ); /* Enable host config, clear Timeout, ensure int src1  */
+#else
+	out32r( PCIX0_BRDGOPT1, 0x10000060 );               /* PLB Rq pri highest   */
+	out32r( PCIX0_BRDGOPT2, in32(PCIX0_BRDGOPT2) | 1 ); /* Enable host config   */
+#endif
 
 	/*--------------------------------------------------------------------------+
 	 * PCI master init: default is one 256MB region for PCI memory:

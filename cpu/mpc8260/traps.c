@@ -35,6 +35,7 @@
 #include <common.h>
 #include <command.h>
 #include <asm/processor.h>
+#include <asm/m8260_pci.h>
 
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 int (*debugger_exception_handler)(struct pt_regs *) = 0;
@@ -86,14 +87,12 @@ void show_regs(struct pt_regs * regs)
 
 	printf("\n");
 	for (i = 0;  i < 32;  i++) {
-		if ((i % 8) == 0)
-		{
+		if ((i % 8) == 0) {
 			printf("GPR%02d: ", i);
 		}
 
 		printf("%08lX ", regs->gpr[i]);
-		if ((i % 8) == 7)
-		{
+		if ((i % 8) == 7) {
 			printf("\n");
 		}
 	}
@@ -108,6 +107,24 @@ _exception(int signr, struct pt_regs *regs)
 	panic("Exception in kernel pc %lx signal %d",regs->nip,signr);
 }
 
+#ifdef CONFIG_PCI
+void dump_pci (void)
+{
+
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+
+	printf ("PCI: err status %x err mask %x err ctrl %x\n",
+		le32_to_cpu (immap->im_pci.pci_esr),
+		le32_to_cpu (immap->im_pci.pci_emr),
+		le32_to_cpu (immap->im_pci.pci_ecr));
+	printf ("     error address %x error data %x ctrl %x\n",
+		le32_to_cpu (immap->im_pci.pci_eacr),
+		le32_to_cpu (immap->im_pci.pci_edcr),
+		le32_to_cpu (immap->im_pci.pci_eccr));
+
+}
+#endif
+
 void
 MachineCheckException(struct pt_regs *regs)
 {
@@ -117,6 +134,17 @@ MachineCheckException(struct pt_regs *regs)
 	 * when a device is not present.  Catch it and return to
 	 * the PCI exception handler.
 	 */
+#ifdef CONFIG_PCI
+	volatile immap_t *immap  = (immap_t *)CFG_IMMR;
+#ifdef DEBUG
+	dump_pci();
+#endif
+	/* clear the error in the error status register */
+	if(immap->im_pci.pci_esr && cpu_to_le32(PCI_ERROR_PCI_NO_RSP)) {
+		immap->im_pci.pci_esr = cpu_to_le32(PCI_ERROR_PCI_NO_RSP);
+		return;
+	}
+#endif
 	if ((fixup = search_exception_table(regs->nip)) != 0) {
 		regs->nip = fixup;
 		return;
@@ -130,8 +158,7 @@ MachineCheckException(struct pt_regs *regs)
 	printf("Machine check in kernel mode.\n");
 	printf("Caused by (from msr): ");
 	printf("regs %p ",regs);
-	switch( regs->msr & 0x0000F000)
-	{
+	switch( regs->msr & 0x0000F000) {
 	case (1<<12) :
 		printf("Machine check signal - probably due to mm fault\n"
 			"with mmu off\n");
@@ -150,6 +177,9 @@ MachineCheckException(struct pt_regs *regs)
 	}
 	show_regs(regs);
 	print_backtrace((unsigned long *)regs->gpr[1]);
+#ifdef CONFIG_PCI
+	dump_pci();
+#endif
 	panic("machine check");
 }
 

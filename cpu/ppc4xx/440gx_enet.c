@@ -116,6 +116,10 @@
 
 #undef INFO_440_ENET
 
+#define BI_PHYMODE_NONE  0
+#define BI_PHYMODE_ZMII  1
+#define BI_PHYMODE_RGMII 2
+
 /*-----------------------------------------------------------------------------+
  * Global variables. TX and RX descriptors and buffers.
  *-----------------------------------------------------------------------------*/
@@ -316,11 +320,12 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 		break;
 	}
 
+	bis->bi_phynum[devnum] = reg;
+
 	/* Reset the phy */
 	miiphy_reset (reg);
 
 	/* Start/Restart autonegotiation */
-/*	miiphy_write(reg, PHY_BMCR, 0x9340); */
 	phy_setup_aneg (reg);
 	udelay (1000);
 
@@ -579,13 +584,6 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 		irq_install_handler (VECNUM_ETH0 + (hw_p->devnum * 2),
 				     (interrupt_handler_t *) enetInt, dev);
 	}
-#if 0				/* done by irq_install_handler */
-	/* set up interrupt handler */
-	/* setup interrupt controller to take interrupts from the MAL &
-	   EMAC */
-	mtdcr (uicsr, 0xffffffff);	/* clear pending interrupts */
-	mtdcr (uicer, mfdcr (uicer) | MAL_UIC_DEF | EMAC_UIC_DEF);
-#endif
 
 	mtmsr (msr);		/* enable interrupts again */
 
@@ -1027,33 +1025,49 @@ int ppc_440x_eth_initialize (bd_t * bis)
 	pfc1 &= ~(0x01e00000);
 	pfc1 |= 0x01200000;
 	mtsdr (sdr_pfc1, pfc1);
+	/* set phy num and mode */
+	bis->bi_phynum[0] = CONFIG_PHY_ADDR;
+	bis->bi_phynum[1] = CONFIG_PHY1_ADDR;
+	bis->bi_phynum[2] = CONFIG_PHY2_ADDR;
+	bis->bi_phynum[3] = CONFIG_PHY3_ADDR;
+	bis->bi_phymode[0] = 0;
+	bis->bi_phymode[1] = 0;
+	bis->bi_phymode[2] = 2;
+	bis->bi_phymode[3] = 2;
 
 	for (eth_num = 0; eth_num < EMAC_NUM_DEV; eth_num++) {
 
 		/* See if we can actually bring up the interface, otherwise, skip it */
 		switch (eth_num) {
 		case 0:
-			if (memcmp (bis->bi_enetaddr, "\0\0\0\0\0\0", 6) == 0)
+			if (memcmp (bis->bi_enetaddr, "\0\0\0\0\0\0", 6) == 0) {
+				bis->bi_phymode[eth_num] = BI_PHYMODE_NONE;
 				continue;
+			}
 			break;
 		case 1:
-			if (memcmp (bis->bi_enet1addr, "\0\0\0\0\0\0", 6) ==
-			    0)
+			if (memcmp (bis->bi_enet1addr, "\0\0\0\0\0\0", 6) == 0) {
+				bis->bi_phymode[eth_num] = BI_PHYMODE_NONE;
 				continue;
+			}
 			break;
 		case 2:
-			if (memcmp (bis->bi_enet2addr, "\0\0\0\0\0\0", 6) ==
-			    0)
+			if (memcmp (bis->bi_enet2addr, "\0\0\0\0\0\0", 6) == 0) {
+				bis->bi_phymode[eth_num] = BI_PHYMODE_NONE;
 				continue;
+			}
 			break;
 		case 3:
-			if (memcmp (bis->bi_enet3addr, "\0\0\0\0\0\0", 6) ==
-			    0)
+			if (memcmp (bis->bi_enet3addr, "\0\0\0\0\0\0", 6) == 0) {
+				bis->bi_phymode[eth_num] = BI_PHYMODE_NONE;
 				continue;
+			}
 			break;
 		default:
-			if (memcmp (bis->bi_enetaddr, "\0\0\0\0\0\0", 6) == 0)
+			if (memcmp (bis->bi_enetaddr, "\0\0\0\0\0\0", 6) == 0) {
+				bis->bi_phymode[eth_num] = BI_PHYMODE_NONE;
 				continue;
+			}
 			break;
 		}
 

@@ -92,293 +92,294 @@
 
 /* Special Purpose Registers (SPRNs)*/
 
-#define	SPRN_CDBCR	0x3D7	/* Cache Debug Control Register */
-#define	SPRN_CTR	0x009	/* Count Register */
-#define	SPRN_DABR	0x3F5	/* Data Address Breakpoint Register */
+#define SPRN_CDBCR	0x3D7	/* Cache Debug Control Register */
+#define SPRN_CTR	0x009	/* Count Register */
+#define SPRN_DABR	0x3F5	/* Data Address Breakpoint Register */
 #ifndef CONFIG_BOOKE
-#define	SPRN_DAC1	0x3F6	/* Data Address Compare 1 */
-#define	SPRN_DAC2	0x3F7	/* Data Address Compare 2 */
+#define SPRN_DAC1	0x3F6	/* Data Address Compare 1 */
+#define SPRN_DAC2	0x3F7	/* Data Address Compare 2 */
 #else
 #define SPRN_DAC1       0x13C   /* Book E Data Address Compare 1 */
 #define SPRN_DAC2       0x13D   /* Book E Data Address Compare 2 */
 #endif  /* CONFIG_BOOKE */
-#define	SPRN_DAR	0x013	/* Data Address Register */
-#define	SPRN_DBAT0L	0x219	/* Data BAT 0 Lower Register */
-#define	SPRN_DBAT0U	0x218	/* Data BAT 0 Upper Register */
-#define	SPRN_DBAT1L	0x21B	/* Data BAT 1 Lower Register */
-#define	SPRN_DBAT1U	0x21A	/* Data BAT 1 Upper Register */
-#define	SPRN_DBAT2L	0x21D	/* Data BAT 2 Lower Register */
-#define	SPRN_DBAT2U	0x21C	/* Data BAT 2 Upper Register */
-#define	SPRN_DBAT3L	0x21F	/* Data BAT 3 Lower Register */
-#define	SPRN_DBAT3U	0x21E	/* Data BAT 3 Upper Register */
-#define	SPRN_DBAT4L	0x239   /* Data BAT 4 Lower Register */
-#define	SPRN_DBAT4U	0x238   /* Data BAT 4 Upper Register */
-#define	SPRN_DBAT5L	0x23B   /* Data BAT 5 Lower Register */
-#define	SPRN_DBAT5U	0x23A   /* Data BAT 5 Upper Register */
-#define	SPRN_DBAT6L	0x23D   /* Data BAT 6 Lower Register */
-#define	SPRN_DBAT6U	0x23C   /* Data BAT 6 Upper Register */
-#define	SPRN_DBAT7L	0x23F   /* Data BAT 7 Lower Register */
-#define	SPRN_DBAT7U	0x23E   /* Data BAT 7 Lower Register */
-#define	SPRN_DBCR	0x3F2	/* Debug Control Regsiter */
-#define	  DBCR_EDM	0x80000000
-#define	  DBCR_IDM	0x40000000
-#define	  DBCR_RST(x)	(((x) & 0x3) << 28)
-#define	    DBCR_RST_NONE       	0
-#define	    DBCR_RST_CORE       	1
-#define	    DBCR_RST_CHIP       	2
-#define	    DBCR_RST_SYSTEM		3
-#define	  DBCR_IC	0x08000000	/* Instruction Completion Debug Evnt */
-#define	  DBCR_BT	0x04000000	/* Branch Taken Debug Event */
-#define	  DBCR_EDE	0x02000000	/* Exception Debug Event */
-#define	  DBCR_TDE	0x01000000	/* TRAP Debug Event */
-#define	  DBCR_FER	0x00F80000	/* First Events Remaining Mask */
-#define	  DBCR_FT	0x00040000	/* Freeze Timers on Debug Event */
-#define	  DBCR_IA1	0x00020000	/* Instr. Addr. Compare 1 Enable */
-#define	  DBCR_IA2	0x00010000	/* Instr. Addr. Compare 2 Enable */
-#define	  DBCR_D1R	0x00008000	/* Data Addr. Compare 1 Read Enable */
-#define	  DBCR_D1W	0x00004000	/* Data Addr. Compare 1 Write Enable */
-#define	  DBCR_D1S(x)	(((x) & 0x3) << 12)	/* Data Adrr. Compare 1 Size */
-#define	    DAC_BYTE	0
-#define	    DAC_HALF	1
-#define	    DAC_WORD	2
-#define	    DAC_QUAD	3
-#define	  DBCR_D2R	0x00000800	/* Data Addr. Compare 2 Read Enable */
-#define	  DBCR_D2W	0x00000400	/* Data Addr. Compare 2 Write Enable */
-#define	  DBCR_D2S(x)	(((x) & 0x3) << 8)	/* Data Addr. Compare 2 Size */
-#define	  DBCR_SBT	0x00000040	/* Second Branch Taken Debug Event */
-#define	  DBCR_SED	0x00000020	/* Second Exception Debug Event */
-#define	  DBCR_STD	0x00000010	/* Second Trap Debug Event */
-#define	  DBCR_SIA	0x00000008	/* Second IAC Enable */
-#define	  DBCR_SDA	0x00000004	/* Second DAC Enable */
-#define	  DBCR_JOI	0x00000002	/* JTAG Serial Outbound Int. Enable */
-#define	  DBCR_JII	0x00000001	/* JTAG Serial Inbound Int. Enable */
+#define SPRN_DAR	0x013	/* Data Address Register */
+#define SPRN_DBAT0L	0x219	/* Data BAT 0 Lower Register */
+#define SPRN_DBAT0U	0x218	/* Data BAT 0 Upper Register */
+#define SPRN_DBAT1L	0x21B	/* Data BAT 1 Lower Register */
+#define SPRN_DBAT1U	0x21A	/* Data BAT 1 Upper Register */
+#define SPRN_DBAT2L	0x21D	/* Data BAT 2 Lower Register */
+#define SPRN_DBAT2U	0x21C	/* Data BAT 2 Upper Register */
+#define SPRN_DBAT3L	0x21F	/* Data BAT 3 Lower Register */
+#define SPRN_DBAT3U	0x21E	/* Data BAT 3 Upper Register */
+#define SPRN_DBAT4L	0x239   /* Data BAT 4 Lower Register */
+#define SPRN_DBAT4U	0x238   /* Data BAT 4 Upper Register */
+#define SPRN_DBAT5L	0x23B   /* Data BAT 5 Lower Register */
+#define SPRN_DBAT5U	0x23A   /* Data BAT 5 Upper Register */
+#define SPRN_DBAT6L	0x23D   /* Data BAT 6 Lower Register */
+#define SPRN_DBAT6U	0x23C   /* Data BAT 6 Upper Register */
+#define SPRN_DBAT7L	0x23F   /* Data BAT 7 Lower Register */
+#define SPRN_DBAT7U	0x23E   /* Data BAT 7 Lower Register */
+#define SPRN_DBCR	0x3F2	/* Debug Control Regsiter */
+#define   DBCR_EDM	0x80000000
+#define   DBCR_IDM	0x40000000
+#define   DBCR_RST(x)	(((x) & 0x3) << 28)
+#define     DBCR_RST_NONE       	0
+#define     DBCR_RST_CORE       	1
+#define     DBCR_RST_CHIP       	2
+#define     DBCR_RST_SYSTEM		3
+#define   DBCR_IC	0x08000000	/* Instruction Completion Debug Evnt */
+#define   DBCR_BT	0x04000000	/* Branch Taken Debug Event */
+#define   DBCR_EDE	0x02000000	/* Exception Debug Event */
+#define   DBCR_TDE	0x01000000	/* TRAP Debug Event */
+#define   DBCR_FER	0x00F80000	/* First Events Remaining Mask */
+#define   DBCR_FT	0x00040000	/* Freeze Timers on Debug Event */
+#define   DBCR_IA1	0x00020000	/* Instr. Addr. Compare 1 Enable */
+#define   DBCR_IA2	0x00010000	/* Instr. Addr. Compare 2 Enable */
+#define   DBCR_D1R	0x00008000	/* Data Addr. Compare 1 Read Enable */
+#define   DBCR_D1W	0x00004000	/* Data Addr. Compare 1 Write Enable */
+#define   DBCR_D1S(x)	(((x) & 0x3) << 12)	/* Data Adrr. Compare 1 Size */
+#define     DAC_BYTE	0
+#define     DAC_HALF	1
+#define     DAC_WORD	2
+#define     DAC_QUAD	3
+#define   DBCR_D2R	0x00000800	/* Data Addr. Compare 2 Read Enable */
+#define   DBCR_D2W	0x00000400	/* Data Addr. Compare 2 Write Enable */
+#define   DBCR_D2S(x)	(((x) & 0x3) << 8)	/* Data Addr. Compare 2 Size */
+#define   DBCR_SBT	0x00000040	/* Second Branch Taken Debug Event */
+#define   DBCR_SED	0x00000020	/* Second Exception Debug Event */
+#define   DBCR_STD	0x00000010	/* Second Trap Debug Event */
+#define   DBCR_SIA	0x00000008	/* Second IAC Enable */
+#define   DBCR_SDA	0x00000004	/* Second DAC Enable */
+#define   DBCR_JOI	0x00000002	/* JTAG Serial Outbound Int. Enable */
+#define   DBCR_JII	0x00000001	/* JTAG Serial Inbound Int. Enable */
 #ifndef CONFIG_BOOKE
 #define SPRN_DBCR0      0x3F2           /* Debug Control Register 0 */
 #else
 #define SPRN_DBCR0      0x134           /* Book E Debug Control Register 0 */
 #endif /* CONFIG_BOOKE */
 #ifndef CONFIG_BOOKE
-#define	SPRN_DBCR1	0x3BD	/* Debug Control Register 1 */
-#define	SPRN_DBSR	0x3F0	/* Debug Status Register */
+#define SPRN_DBCR1	0x3BD	/* Debug Control Register 1 */
+#define SPRN_DBSR	0x3F0	/* Debug Status Register */
 #else
 #define SPRN_DBCR1      0x135           /* Book E Debug Control Register 1 */
 #define SPRN_DBSR       0x130           /* Book E Debug Status Register */
 #define   DBSR_IC           0x08000000  /* Book E Instruction Completion  */
 #define   DBSR_TIE          0x01000000  /* Book E Trap Instruction Event */
 #endif /* CONFIG_BOOKE */
-#define	SPRN_DCCR	0x3FA	/* Data Cache Cacheability Register */
-#define	  DCCR_NOCACHE		0	/* Noncacheable */
-#define	  DCCR_CACHE		1	/* Cacheable */
-#define	SPRN_DCMP	0x3D1	/* Data TLB Compare Register */
-#define	SPRN_DCWR	0x3BA	/* Data Cache Write-thru Register */
-#define	  DCWR_COPY		0	/* Copy-back */
-#define	  DCWR_WRITE		1	/* Write-through */
+#define SPRN_DCCR	0x3FA	/* Data Cache Cacheability Register */
+#define   DCCR_NOCACHE		0	/* Noncacheable */
+#define   DCCR_CACHE		1	/* Cacheable */
+#define SPRN_DCMP	0x3D1	/* Data TLB Compare Register */
+#define SPRN_DCWR	0x3BA	/* Data Cache Write-thru Register */
+#define   DCWR_COPY		0	/* Copy-back */
+#define   DCWR_WRITE		1	/* Write-through */
 #ifndef CONFIG_BOOKE
-#define	SPRN_DEAR	0x3D5	/* Data Error Address Register */
+#define SPRN_DEAR	0x3D5	/* Data Error Address Register */
 #else
 #define SPRN_DEAR       0x03D   /* Book E Data Error Address Register */
 #endif /* CONFIG_BOOKE */
-#define	SPRN_DEC	0x016	/* Decrement Register */
-#define	SPRN_DMISS	0x3D0	/* Data TLB Miss Register */
-#define	SPRN_DSISR	0x012	/* Data Storage Interrupt Status Register */
-#define	SPRN_EAR	0x11A	/* External Address Register */
+#define SPRN_DEC	0x016	/* Decrement Register */
+#define SPRN_DMISS	0x3D0	/* Data TLB Miss Register */
+#define SPRN_DSISR	0x012	/* Data Storage Interrupt Status Register */
+#define SPRN_EAR	0x11A	/* External Address Register */
 #ifndef CONFIG_BOOKE
-#define	SPRN_ESR	0x3D4	/* Exception Syndrome Register */
+#define SPRN_ESR	0x3D4	/* Exception Syndrome Register */
 #else
 #define SPRN_ESR        0x03E           /* Book E Exception Syndrome Register */
 #endif /* CONFIG_BOOKE */
-#define	  ESR_IMCP	0x80000000	/* Instr. Machine Check - Protection */
-#define	  ESR_IMCN	0x40000000	/* Instr. Machine Check - Non-config */
-#define	  ESR_IMCB	0x20000000	/* Instr. Machine Check - Bus error */
-#define	  ESR_IMCT	0x10000000	/* Instr. Machine Check - Timeout */
-#define	  ESR_PIL	0x08000000	/* Program Exception - Illegal */
-#define	  ESR_PPR	0x04000000	/* Program Exception - Priveleged */
-#define	  ESR_PTR	0x02000000	/* Program Exception - Trap */
-#define	  ESR_DST	0x00800000	/* Storage Exception - Data miss */
-#define	  ESR_DIZ	0x00400000	/* Storage Exception - Zone fault */
-#define	SPRN_EVPR	0x3D6	/* Exception Vector Prefix Register */
-#define	SPRN_HASH1	0x3D2	/* Primary Hash Address Register */
-#define	SPRN_HASH2	0x3D3	/* Secondary Hash Address Resgister */
-#define	SPRN_HID0	0x3F0	/* Hardware Implementation Register 0 */
-#define	  HID0_EMCP	(1<<31)		/* Enable Machine Check pin */
-#define	  HID0_EBA	(1<<29)		/* Enable Bus Address Parity */
-#define	  HID0_EBD	(1<<28)		/* Enable Bus Data Parity */
-#define	  HID0_SBCLK	(1<<27)
-#define	  HID0_EICE	(1<<26)
-#define	  HID0_ECLK	(1<<25)
-#define	  HID0_PAR	(1<<24)
-#define	  HID0_DOZE	(1<<23)
-#define	  HID0_NAP	(1<<22)
-#define	  HID0_SLEEP	(1<<21)
-#define	  HID0_DPM	(1<<20)
-#define	  HID0_ICE	(1<<15)		/* Instruction Cache Enable */
-#define	  HID0_DCE	(1<<14)		/* Data Cache Enable */
-#define	  HID0_ILOCK	(1<<13)		/* Instruction Cache Lock */
-#define	  HID0_DLOCK	(1<<12)		/* Data Cache Lock */
-#define	  HID0_ICFI	(1<<11)		/* Instr. Cache Flash Invalidate */
-#define	  HID0_DCFI	(1<<10)		/* Data Cache Flash Invalidate */
-#define	  HID0_DCI	HID0_DCFI
+#define   ESR_IMCP	0x80000000	/* Instr. Machine Check - Protection */
+#define   ESR_IMCN	0x40000000	/* Instr. Machine Check - Non-config */
+#define   ESR_IMCB	0x20000000	/* Instr. Machine Check - Bus error */
+#define   ESR_IMCT	0x10000000	/* Instr. Machine Check - Timeout */
+#define   ESR_PIL	0x08000000	/* Program Exception - Illegal */
+#define   ESR_PPR	0x04000000	/* Program Exception - Priveleged */
+#define   ESR_PTR	0x02000000	/* Program Exception - Trap */
+#define   ESR_DST	0x00800000	/* Storage Exception - Data miss */
+#define   ESR_DIZ	0x00400000	/* Storage Exception - Zone fault */
+#define SPRN_EVPR	0x3D6	/* Exception Vector Prefix Register */
+#define SPRN_HASH1	0x3D2	/* Primary Hash Address Register */
+#define SPRN_HASH2	0x3D3	/* Secondary Hash Address Resgister */
+#define SPRN_HID0	0x3F0	/* Hardware Implementation Register 0 */
+#define   HID0_EMCP	(1<<31)		/* Enable Machine Check pin */
+#define   HID0_EBA	(1<<29)		/* Enable Bus Address Parity */
+#define   HID0_EBD	(1<<28)		/* Enable Bus Data Parity */
+#define   HID0_SBCLK	(1<<27)
+#define   HID0_EICE	(1<<26)
+#define   HID0_ECLK	(1<<25)
+#define   HID0_PAR	(1<<24)
+#define   HID0_DOZE	(1<<23)
+#define   HID0_NAP	(1<<22)
+#define   HID0_SLEEP	(1<<21)
+#define   HID0_DPM	(1<<20)
+#define   HID0_ICE	(1<<15)		/* Instruction Cache Enable */
+#define   HID0_DCE	(1<<14)		/* Data Cache Enable */
+#define   HID0_ILOCK	(1<<13)		/* Instruction Cache Lock */
+#define   HID0_DLOCK	(1<<12)		/* Data Cache Lock */
+#define   HID0_ICFI	(1<<11)		/* Instr. Cache Flash Invalidate */
+#define   HID0_DCFI	(1<<10)		/* Data Cache Flash Invalidate */
+#define   HID0_DCI	HID0_DCFI
 #define   HID0_SPD	(1<<9)		/* Speculative disable */
 #define   HID0_SGE	(1<<7)		/* Store Gathering Enable */
-#define	  HID0_SIED	HID_SGE		/* Serial Instr. Execution [Disable] */
+#define   HID0_SIED	HID_SGE		/* Serial Instr. Execution [Disable] */
 #define   HID0_DCFA	(1<<6)		/* Data Cache Flush Assist */
 #define   HID0_BTIC	(1<<5)		/* Branch Target Instruction Cache Enable */
 #define   HID0_ABE	(1<<3)		/* Address Broadcast Enable */
-#define	  HID0_BHTE	(1<<2)		/* Branch History Table Enable */
-#define	  HID0_BTCD	(1<<1)		/* Branch target cache disable */
-#define	SPRN_HID1	0x3F1	/* Hardware Implementation Register 1 */
-#define	SPRN_IABR	0x3F2	/* Instruction Address Breakpoint Register */
+#define   HID0_BHTE	(1<<2)		/* Branch History Table Enable */
+#define   HID0_BTCD	(1<<1)		/* Branch target cache disable */
+#define SPRN_HID1	0x3F1	/* Hardware Implementation Register 1 */
+#define SPRN_IABR	0x3F2	/* Instruction Address Breakpoint Register */
 #ifndef CONFIG_BOOKE
-#define	SPRN_IAC1	0x3F4	/* Instruction Address Compare 1 */
-#define	SPRN_IAC2	0x3F5	/* Instruction Address Compare 2 */
+#define SPRN_IAC1	0x3F4	/* Instruction Address Compare 1 */
+#define SPRN_IAC2	0x3F5	/* Instruction Address Compare 2 */
 #else
 #define SPRN_IAC1       0x138   /* Book E Instruction Address Compare 1 */
 #define SPRN_IAC2       0x139   /* Book E Instruction Address Compare 2 */
 #endif /* CONFIG_BOOKE */
-#define	SPRN_IBAT0L	0x211	/* Instruction BAT 0 Lower Register */
-#define	SPRN_IBAT0U	0x210	/* Instruction BAT 0 Upper Register */
-#define	SPRN_IBAT1L	0x213	/* Instruction BAT 1 Lower Register */
-#define	SPRN_IBAT1U	0x212	/* Instruction BAT 1 Upper Register */
-#define	SPRN_IBAT2L	0x215	/* Instruction BAT 2 Lower Register */
-#define	SPRN_IBAT2U	0x214	/* Instruction BAT 2 Upper Register */
-#define	SPRN_IBAT3L	0x217	/* Instruction BAT 3 Lower Register */
-#define	SPRN_IBAT3U	0x216	/* Instruction BAT 3 Upper Register */
-#define	SPRN_IBAT4L	0x231   /* Instruction BAT 4 Lower Register */
-#define	SPRN_IBAT4U	0x230   /* Instruction BAT 4 Upper Register */
-#define	SPRN_IBAT5L	0x233   /* Instruction BAT 5 Lower Register */
-#define	SPRN_IBAT5U	0x232   /* Instruction BAT 5 Upper Register */
-#define	SPRN_IBAT6L	0x235   /* Instruction BAT 6 Lower Register */
-#define	SPRN_IBAT6U	0x234   /* Instruction BAT 6 Upper Register */
-#define	SPRN_IBAT7L	0x237   /* Instruction BAT 7 Lower Register */
-#define	SPRN_IBAT7U	0x236   /* Instruction BAT 7 Upper Register */
-#define	SPRN_ICCR	0x3FB	/* Instruction Cache Cacheability Register */
-#define	  ICCR_NOCACHE		0	/* Noncacheable */
-#define	  ICCR_CACHE		1	/* Cacheable */
-#define	SPRN_ICDBDR	0x3D3	/* Instruction Cache Debug Data Register */
-#define	SPRN_ICMP	0x3D5	/* Instruction TLB Compare Register */
-#define	SPRN_ICTC	0x3FB	/* Instruction Cache Throttling Control Reg */
-#define	SPRN_IMISS	0x3D4	/* Instruction TLB Miss Register */
-#define	SPRN_IMMR	0x27E  	/* Internal Memory Map Register */
-#define	SPRN_L2CR	0x3F9	/* Level 2 Cache Control Regsiter */
-#define	SPRN_LR		0x008	/* Link Register */
-#define	SPRN_MMCR0	0x3B8	/* Monitor Mode Control Register 0 */
-#define	SPRN_MMCR1	0x3BC	/* Monitor Mode Control Register 1 */
-#define	SPRN_PBL1	0x3FC	/* Protection Bound Lower 1 */
-#define	SPRN_PBL2	0x3FE	/* Protection Bound Lower 2 */
-#define	SPRN_PBU1	0x3FD	/* Protection Bound Upper 1 */
-#define	SPRN_PBU2	0x3FF	/* Protection Bound Upper 2 */
+#define SPRN_IBAT0L	0x211	/* Instruction BAT 0 Lower Register */
+#define SPRN_IBAT0U	0x210	/* Instruction BAT 0 Upper Register */
+#define SPRN_IBAT1L	0x213	/* Instruction BAT 1 Lower Register */
+#define SPRN_IBAT1U	0x212	/* Instruction BAT 1 Upper Register */
+#define SPRN_IBAT2L	0x215	/* Instruction BAT 2 Lower Register */
+#define SPRN_IBAT2U	0x214	/* Instruction BAT 2 Upper Register */
+#define SPRN_IBAT3L	0x217	/* Instruction BAT 3 Lower Register */
+#define SPRN_IBAT3U	0x216	/* Instruction BAT 3 Upper Register */
+#define SPRN_IBAT4L	0x231   /* Instruction BAT 4 Lower Register */
+#define SPRN_IBAT4U	0x230   /* Instruction BAT 4 Upper Register */
+#define SPRN_IBAT5L	0x233   /* Instruction BAT 5 Lower Register */
+#define SPRN_IBAT5U	0x232   /* Instruction BAT 5 Upper Register */
+#define SPRN_IBAT6L	0x235   /* Instruction BAT 6 Lower Register */
+#define SPRN_IBAT6U	0x234   /* Instruction BAT 6 Upper Register */
+#define SPRN_IBAT7L	0x237   /* Instruction BAT 7 Lower Register */
+#define SPRN_IBAT7U	0x236   /* Instruction BAT 7 Upper Register */
+#define SPRN_ICCR	0x3FB	/* Instruction Cache Cacheability Register */
+#define   ICCR_NOCACHE		0	/* Noncacheable */
+#define   ICCR_CACHE		1	/* Cacheable */
+#define SPRN_ICDBDR	0x3D3	/* Instruction Cache Debug Data Register */
+#define SPRN_ICMP	0x3D5	/* Instruction TLB Compare Register */
+#define SPRN_ICTC	0x3FB	/* Instruction Cache Throttling Control Reg */
+#define SPRN_IMISS	0x3D4	/* Instruction TLB Miss Register */
+#define SPRN_IMMR	0x27E  	/* Internal Memory Map Register */
+#define SPRN_L2CR	0x3F9	/* Level 2 Cache Control Regsiter */
+#define SPRN_LR		0x008	/* Link Register */
+#define SPRN_MBAR       0x137   /* System memory base address */
+#define SPRN_MMCR0	0x3B8	/* Monitor Mode Control Register 0 */
+#define SPRN_MMCR1	0x3BC	/* Monitor Mode Control Register 1 */
+#define SPRN_PBL1	0x3FC	/* Protection Bound Lower 1 */
+#define SPRN_PBL2	0x3FE	/* Protection Bound Lower 2 */
+#define SPRN_PBU1	0x3FD	/* Protection Bound Upper 1 */
+#define SPRN_PBU2	0x3FF	/* Protection Bound Upper 2 */
 #ifndef CONFIG_BOOKE
-#define	SPRN_PID	0x3B1	/* Process ID */
-#define	SPRN_PIR	0x3FF	/* Processor Identification Register */
+#define SPRN_PID	0x3B1	/* Process ID */
+#define SPRN_PIR	0x3FF	/* Processor Identification Register */
 #else
 #define SPRN_PID        0x030   /* Book E Process ID */
 #define SPRN_PIR        0x11E   /* Book E Processor Identification Register */
 #endif /* CONFIG_BOOKE */
-#define	SPRN_PIT	0x3DB	/* Programmable Interval Timer */
-#define	SPRN_PMC1	0x3B9	/* Performance Counter Register 1 */
-#define	SPRN_PMC2	0x3BA	/* Performance Counter Register 2 */
-#define	SPRN_PMC3	0x3BD	/* Performance Counter Register 3 */
-#define	SPRN_PMC4	0x3BE	/* Performance Counter Register 4 */
-#define	SPRN_PVR	0x11F	/* Processor Version Register */
-#define	SPRN_RPA	0x3D6	/* Required Physical Address Register */
-#define	SPRN_SDA	0x3BF	/* Sampled Data Address Register */
-#define	SPRN_SDR1	0x019	/* MMU Hash Base Register */
-#define	SPRN_SGR	0x3B9	/* Storage Guarded Register */
-#define	  SGR_NORMAL		0
-#define	  SGR_GUARDED		1
-#define	SPRN_SIA	0x3BB	/* Sampled Instruction Address Register */
-#define	SPRN_SPRG0	0x110	/* Special Purpose Register General 0 */
-#define	SPRN_SPRG1	0x111	/* Special Purpose Register General 1 */
-#define	SPRN_SPRG2	0x112	/* Special Purpose Register General 2 */
-#define	SPRN_SPRG3	0x113	/* Special Purpose Register General 3 */
-#define	SPRN_SRR0	0x01A	/* Save/Restore Register 0 */
-#define	SPRN_SRR1	0x01B	/* Save/Restore Register 1 */
-#define	SPRN_SRR2	0x3DE	/* Save/Restore Register 2 */
-#define	SPRN_SRR3 	0x3DF	/* Save/Restore Register 3 */
-#define	SPRN_TBHI	0x3DC	/* Time Base High */
-#define	SPRN_TBHU	0x3CC	/* Time Base High User-mode */
-#define	SPRN_TBLO	0x3DD	/* Time Base Low */
-#define	SPRN_TBLU	0x3CD	/* Time Base Low User-mode */
-#define	SPRN_TBRL	0x10D	/* Time Base Read Lower Register */
-#define	SPRN_TBRU	0x10C	/* Time Base Read Upper Register */
-#define	SPRN_TBWL	0x11D	/* Time Base Write Lower Register */
-#define	SPRN_TBWU	0x11C	/* Time Base Write Upper Register */
+#define SPRN_PIT	0x3DB	/* Programmable Interval Timer */
+#define SPRN_PMC1	0x3B9	/* Performance Counter Register 1 */
+#define SPRN_PMC2	0x3BA	/* Performance Counter Register 2 */
+#define SPRN_PMC3	0x3BD	/* Performance Counter Register 3 */
+#define SPRN_PMC4	0x3BE	/* Performance Counter Register 4 */
+#define SPRN_PVR	0x11F	/* Processor Version Register */
+#define SPRN_RPA	0x3D6	/* Required Physical Address Register */
+#define SPRN_SDA	0x3BF	/* Sampled Data Address Register */
+#define SPRN_SDR1	0x019	/* MMU Hash Base Register */
+#define SPRN_SGR	0x3B9	/* Storage Guarded Register */
+#define   SGR_NORMAL		0
+#define   SGR_GUARDED		1
+#define SPRN_SIA	0x3BB	/* Sampled Instruction Address Register */
+#define SPRN_SPRG0	0x110	/* Special Purpose Register General 0 */
+#define SPRN_SPRG1	0x111	/* Special Purpose Register General 1 */
+#define SPRN_SPRG2	0x112	/* Special Purpose Register General 2 */
+#define SPRN_SPRG3	0x113	/* Special Purpose Register General 3 */
+#define SPRN_SRR0	0x01A	/* Save/Restore Register 0 */
+#define SPRN_SRR1	0x01B	/* Save/Restore Register 1 */
+#define SPRN_SRR2	0x3DE	/* Save/Restore Register 2 */
+#define SPRN_SRR3 	0x3DF	/* Save/Restore Register 3 */
+#define SPRN_TBHI	0x3DC	/* Time Base High */
+#define SPRN_TBHU	0x3CC	/* Time Base High User-mode */
+#define SPRN_TBLO	0x3DD	/* Time Base Low */
+#define SPRN_TBLU	0x3CD	/* Time Base Low User-mode */
+#define SPRN_TBRL	0x10D	/* Time Base Read Lower Register */
+#define SPRN_TBRU	0x10C	/* Time Base Read Upper Register */
+#define SPRN_TBWL	0x11D	/* Time Base Write Lower Register */
+#define SPRN_TBWU	0x11C	/* Time Base Write Upper Register */
 #ifndef CONFIG_BOOKE
-#define	SPRN_TCR	0x3DA	/* Timer Control Register */
+#define SPRN_TCR	0x3DA	/* Timer Control Register */
 #else
 #define SPRN_TCR        0x154   /* Book E Timer Control Register */
 #endif /* CONFIG_BOOKE */
-#define	  TCR_WP(x)		(((x)&0x3)<<30)	/* WDT Period */
-#define	    WP_2_17		0		/* 2^17 clocks */
-#define	    WP_2_21		1		/* 2^21 clocks */
-#define	    WP_2_25		2		/* 2^25 clocks */
-#define	    WP_2_29		3		/* 2^29 clocks */
-#define	  TCR_WRC(x)		(((x)&0x3)<<28)	/* WDT Reset Control */
-#define	    WRC_NONE		0		/* No reset will occur */
-#define	    WRC_CORE		1		/* Core reset will occur */
-#define	    WRC_CHIP		2		/* Chip reset will occur */
-#define	    WRC_SYSTEM		3		/* System reset will occur */
-#define	  TCR_WIE		0x08000000	/* WDT Interrupt Enable */
-#define	  TCR_PIE		0x04000000	/* PIT Interrupt Enable */
-#define	  TCR_FP(x)		(((x)&0x3)<<24)	/* FIT Period */
-#define	    FP_2_9		0		/* 2^9 clocks */
-#define	    FP_2_13		1		/* 2^13 clocks */
-#define	    FP_2_17		2		/* 2^17 clocks */
-#define	    FP_2_21		3		/* 2^21 clocks */
-#define	  TCR_FIE		0x00800000	/* FIT Interrupt Enable */
-#define	  TCR_ARE		0x00400000	/* Auto Reload Enable */
-#define	SPRN_THRM1	0x3FC	/* Thermal Management Register 1 */
-#define	  THRM1_TIN		(1<<0)
-#define	  THRM1_TIV		(1<<1)
-#define	  THRM1_THRES		(0x7f<<2)
-#define	  THRM1_TID		(1<<29)
-#define	  THRM1_TIE		(1<<30)
-#define	  THRM1_V		(1<<31)
-#define	SPRN_THRM2	0x3FD	/* Thermal Management Register 2 */
-#define	SPRN_THRM3	0x3FE	/* Thermal Management Register 3 */
-#define	  THRM3_E		(1<<31)
+#define   TCR_WP(x)		(((x)&0x3)<<30)	/* WDT Period */
+#define     WP_2_17		0		/* 2^17 clocks */
+#define     WP_2_21		1		/* 2^21 clocks */
+#define     WP_2_25		2		/* 2^25 clocks */
+#define     WP_2_29		3		/* 2^29 clocks */
+#define   TCR_WRC(x)		(((x)&0x3)<<28)	/* WDT Reset Control */
+#define     WRC_NONE		0		/* No reset will occur */
+#define     WRC_CORE		1		/* Core reset will occur */
+#define     WRC_CHIP		2		/* Chip reset will occur */
+#define     WRC_SYSTEM		3		/* System reset will occur */
+#define   TCR_WIE		0x08000000	/* WDT Interrupt Enable */
+#define   TCR_PIE		0x04000000	/* PIT Interrupt Enable */
+#define   TCR_FP(x)		(((x)&0x3)<<24)	/* FIT Period */
+#define     FP_2_9		0		/* 2^9 clocks */
+#define     FP_2_13		1		/* 2^13 clocks */
+#define     FP_2_17		2		/* 2^17 clocks */
+#define     FP_2_21		3		/* 2^21 clocks */
+#define   TCR_FIE		0x00800000	/* FIT Interrupt Enable */
+#define   TCR_ARE		0x00400000	/* Auto Reload Enable */
+#define SPRN_THRM1	0x3FC	/* Thermal Management Register 1 */
+#define   THRM1_TIN		(1<<0)
+#define   THRM1_TIV		(1<<1)
+#define   THRM1_THRES		(0x7f<<2)
+#define   THRM1_TID		(1<<29)
+#define   THRM1_TIE		(1<<30)
+#define   THRM1_V		(1<<31)
+#define SPRN_THRM2	0x3FD	/* Thermal Management Register 2 */
+#define SPRN_THRM3	0x3FE	/* Thermal Management Register 3 */
+#define   THRM3_E		(1<<31)
 #define SPRN_TLBMISS    0x3D4   /* 980 7450 TLB Miss Register */
 #ifndef CONFIG_BOOKE
-#define	SPRN_TSR	0x3D8	/* Timer Status Register */
+#define SPRN_TSR	0x3D8	/* Timer Status Register */
 #else
 #define SPRN_TSR        0x150   /* Book E Timer Status Register */
 #endif /* CONFIG_BOOKE */
-#define	  TSR_ENW		0x80000000	/* Enable Next Watchdog */
-#define	  TSR_WIS		0x40000000	/* WDT Interrupt Status */
-#define	  TSR_WRS(x)		(((x)&0x3)<<28)	/* WDT Reset Status */
-#define	    WRS_NONE		0		/* No WDT reset occurred */
-#define	    WRS_CORE		1		/* WDT forced core reset */
-#define	    WRS_CHIP		2		/* WDT forced chip reset */
-#define	    WRS_SYSTEM		3		/* WDT forced system reset */
-#define	  TSR_PIS		0x08000000	/* PIT Interrupt Status */
-#define	  TSR_FIS		0x04000000	/* FIT Interrupt Status */
-#define	SPRN_UMMCR0	0x3A8	/* User Monitor Mode Control Register 0 */
-#define	SPRN_UMMCR1	0x3AC	/* User Monitor Mode Control Register 0 */
-#define	SPRN_UPMC1	0x3A9	/* User Performance Counter Register 1 */
-#define	SPRN_UPMC2	0x3AA	/* User Performance Counter Register 2 */
-#define	SPRN_UPMC3	0x3AD	/* User Performance Counter Register 3 */
-#define	SPRN_UPMC4	0x3AE	/* User Performance Counter Register 4 */
-#define	SPRN_USIA	0x3AB	/* User Sampled Instruction Address Register */
-#define	SPRN_XER	0x001	/* Fixed Point Exception Register */
-#define	SPRN_ZPR	0x3B0	/* Zone Protection Register */
+#define   TSR_ENW		0x80000000	/* Enable Next Watchdog */
+#define   TSR_WIS		0x40000000	/* WDT Interrupt Status */
+#define   TSR_WRS(x)		(((x)&0x3)<<28)	/* WDT Reset Status */
+#define     WRS_NONE		0		/* No WDT reset occurred */
+#define     WRS_CORE		1		/* WDT forced core reset */
+#define     WRS_CHIP		2		/* WDT forced chip reset */
+#define     WRS_SYSTEM		3		/* WDT forced system reset */
+#define   TSR_PIS		0x08000000	/* PIT Interrupt Status */
+#define   TSR_FIS		0x04000000	/* FIT Interrupt Status */
+#define SPRN_UMMCR0	0x3A8	/* User Monitor Mode Control Register 0 */
+#define SPRN_UMMCR1	0x3AC	/* User Monitor Mode Control Register 0 */
+#define SPRN_UPMC1	0x3A9	/* User Performance Counter Register 1 */
+#define SPRN_UPMC2	0x3AA	/* User Performance Counter Register 2 */
+#define SPRN_UPMC3	0x3AD	/* User Performance Counter Register 3 */
+#define SPRN_UPMC4	0x3AE	/* User Performance Counter Register 4 */
+#define SPRN_USIA	0x3AB	/* User Sampled Instruction Address Register */
+#define SPRN_XER	0x001	/* Fixed Point Exception Register */
+#define SPRN_ZPR	0x3B0	/* Zone Protection Register */
 
 /* Book E definitions */
 #define SPRN_DECAR	0x036	/* Decrementer Auto Reload Register */
 #define SPRN_CSRR0	0x03A	/* Critical SRR0 */
 #define SPRN_CSRR1	0x03B	/* Critical SRR0 */
-#define	SPRN_IVPR	0x03F	/* Interrupt Vector Prefix Register */
+#define SPRN_IVPR	0x03F	/* Interrupt Vector Prefix Register */
 #define SPRN_USPRG0	0x100	/* User Special Purpose Register General 0 */
-#define	SPRN_SPRG4R	0x104	/* Special Purpose Register General 4 Read */
-#define	SPRN_SPRG5R	0x105	/* Special Purpose Register General 5 Read */
-#define	SPRN_SPRG6R	0x106	/* Special Purpose Register General 6 Read */
-#define	SPRN_SPRG7R	0x107	/* Special Purpose Register General 7 Read */
-#define	SPRN_SPRG4W	0x114	/* Special Purpose Register General 4 Write */
-#define	SPRN_SPRG5W	0x115	/* Special Purpose Register General 5 Write */
-#define	SPRN_SPRG6W	0x116	/* Special Purpose Register General 6 Write */
-#define	SPRN_SPRG7W	0x117	/* Special Purpose Register General 7 Write */
+#define SPRN_SPRG4R	0x104	/* Special Purpose Register General 4 Read */
+#define SPRN_SPRG5R	0x105	/* Special Purpose Register General 5 Read */
+#define SPRN_SPRG6R	0x106	/* Special Purpose Register General 6 Read */
+#define SPRN_SPRG7R	0x107	/* Special Purpose Register General 7 Read */
+#define SPRN_SPRG4W	0x114	/* Special Purpose Register General 4 Write */
+#define SPRN_SPRG5W	0x115	/* Special Purpose Register General 5 Write */
+#define SPRN_SPRG6W	0x116	/* Special Purpose Register General 6 Write */
+#define SPRN_SPRG7W	0x117	/* Special Purpose Register General 7 Write */
 #define SPRN_DBCR2	0x136	/* Debug Control Register 2 */
-#define	SPRN_IAC3	0x13A	/* Instruction Address Compare 3 */
-#define	SPRN_IAC4	0x13B	/* Instruction Address Compare 4 */
+#define SPRN_IAC3	0x13A	/* Instruction Address Compare 3 */
+#define SPRN_IAC4	0x13B	/* Instruction Address Compare 4 */
 #define SPRN_DVC1	0x13E	/* Data Value Compare Register 1 */
 #define SPRN_DVC2	0x13F	/* Data Value Compare Register 2 */
 #define SPRN_IVOR0	0x190	/* Interrupt Vector Offset Register 0 */
@@ -406,7 +407,7 @@
 #define   L1CSR1_ICFI           0x00000002      /* Instruction Cache Flash Invalidate */
 #define   L1CSR1_ICE            0x00000001      /* Instruction Cache Enable */
 
-#define	SPRN_MMUCSR0	0x3f4	/* MMU control and status register 0 */
+#define SPRN_MMUCSR0	0x3f4	/* MMU control and status register 0 */
 #define SPRN_MAS0       0x270   /* MMU Assist Register 0 */
 #define SPRN_MAS1       0x271   /* MMU Assist Register 1 */
 #define SPRN_MAS2       0x272   /* MMU Assist Register 2 */
@@ -433,127 +434,128 @@
 
 /* Short-hand versions for a number of the above SPRNs */
 
-#define	CTR	SPRN_CTR	/* Counter Register */
-#define	DAR	SPRN_DAR	/* Data Address Register */
-#define	DABR	SPRN_DABR	/* Data Address Breakpoint Register */
-#define	DAC1	SPRN_DAC1	/* Data Address Register 1 */
-#define	DAC2	SPRN_DAC2	/* Data Address Register 2 */
-#define	DBAT0L	SPRN_DBAT0L	/* Data BAT 0 Lower Register */
-#define	DBAT0U	SPRN_DBAT0U	/* Data BAT 0 Upper Register */
-#define	DBAT1L	SPRN_DBAT1L	/* Data BAT 1 Lower Register */
-#define	DBAT1U	SPRN_DBAT1U	/* Data BAT 1 Upper Register */
-#define	DBAT2L	SPRN_DBAT2L	/* Data BAT 2 Lower Register */
-#define	DBAT2U	SPRN_DBAT2U	/* Data BAT 2 Upper Register */
-#define	DBAT3L	SPRN_DBAT3L	/* Data BAT 3 Lower Register */
-#define	DBAT3U	SPRN_DBAT3U	/* Data BAT 3 Upper Register */
-#define	DBAT4L	SPRN_DBAT4L     /* Data BAT 4 Lower Register */
-#define	DBAT4U	SPRN_DBAT4U     /* Data BAT 4 Upper Register */
-#define	DBAT5L	SPRN_DBAT5L     /* Data BAT 5 Lower Register */
-#define	DBAT5U	SPRN_DBAT5U     /* Data BAT 5 Upper Register */
-#define	DBAT6L	SPRN_DBAT6L     /* Data BAT 6 Lower Register */
-#define	DBAT6U	SPRN_DBAT6U     /* Data BAT 6 Upper Register */
-#define	DBAT7L	SPRN_DBAT7L     /* Data BAT 7 Lower Register */
-#define	DBAT7U	SPRN_DBAT7U     /* Data BAT 7 Upper Register */
-#define	DBCR0	SPRN_DBCR0	/* Debug Control Register 0 */
-#define	DBCR1	SPRN_DBCR1	/* Debug Control Register 1 */
-#define	DBSR	SPRN_DBSR	/* Debug Status Register */
-#define	DCMP	SPRN_DCMP      	/* Data TLB Compare Register */
-#define	DEC	SPRN_DEC       	/* Decrement Register */
-#define	DMISS	SPRN_DMISS     	/* Data TLB Miss Register */
-#define	DSISR	SPRN_DSISR	/* Data Storage Interrupt Status Register */
-#define	EAR	SPRN_EAR       	/* External Address Register */
-#define	ESR	SPRN_ESR	/* Exception Syndrome Register */
-#define	HASH1	SPRN_HASH1	/* Primary Hash Address Register */
-#define	HASH2	SPRN_HASH2	/* Secondary Hash Address Register */
-#define	HID0	SPRN_HID0	/* Hardware Implementation Register 0 */
-#define	HID1	SPRN_HID1	/* Hardware Implementation Register 1 */
-#define	IABR	SPRN_IABR      	/* Instruction Address Breakpoint Register */
-#define	IAC1	SPRN_IAC1	/* Instruction Address Register 1 */
-#define	IAC2	SPRN_IAC2	/* Instruction Address Register 2 */
-#define	IBAT0L	SPRN_IBAT0L	/* Instruction BAT 0 Lower Register */
-#define	IBAT0U	SPRN_IBAT0U	/* Instruction BAT 0 Upper Register */
-#define	IBAT1L	SPRN_IBAT1L	/* Instruction BAT 1 Lower Register */
-#define	IBAT1U	SPRN_IBAT1U	/* Instruction BAT 1 Upper Register */
-#define	IBAT2L	SPRN_IBAT2L	/* Instruction BAT 2 Lower Register */
-#define	IBAT2U	SPRN_IBAT2U	/* Instruction BAT 2 Upper Register */
-#define	IBAT3L	SPRN_IBAT3L	/* Instruction BAT 3 Lower Register */
-#define	IBAT3U	SPRN_IBAT3U	/* Instruction BAT 3 Upper Register */
-#define	IBAT4L	SPRN_IBAT4L	/* Instruction BAT 4 Lower Register */
-#define	IBAT4U	SPRN_IBAT4U	/* Instruction BAT 4 Upper Register */
-#define	IBAT5L	SPRN_IBAT5L	/* Instruction BAT 5 Lower Register */
-#define	IBAT5U	SPRN_IBAT5U	/* Instruction BAT 5 Upper Register */
-#define	IBAT6L	SPRN_IBAT6L	/* Instruction BAT 6 Lower Register */
-#define	IBAT6U	SPRN_IBAT6U	/* Instruction BAT 6 Upper Register */
-#define	IBAT7L 	SPRN_IBAT7L	/* Instruction BAT 7 Lower Register */
-#define	IBAT7U	SPRN_IBAT7U	/* Instruction BAT 7 Lower Register */
-#define	ICMP	SPRN_ICMP	/* Instruction TLB Compare Register */
-#define	IMISS	SPRN_IMISS	/* Instruction TLB Miss Register */
-#define	IMMR	SPRN_IMMR      	/* PPC 860/821 Internal Memory Map Register */
-#define	L2CR	SPRN_L2CR    	/* PPC 750 L2 control register */
-#define	LR	SPRN_LR
+#define CTR	SPRN_CTR	/* Counter Register */
+#define DAR	SPRN_DAR	/* Data Address Register */
+#define DABR	SPRN_DABR	/* Data Address Breakpoint Register */
+#define DAC1	SPRN_DAC1	/* Data Address Register 1 */
+#define DAC2	SPRN_DAC2	/* Data Address Register 2 */
+#define DBAT0L	SPRN_DBAT0L	/* Data BAT 0 Lower Register */
+#define DBAT0U	SPRN_DBAT0U	/* Data BAT 0 Upper Register */
+#define DBAT1L	SPRN_DBAT1L	/* Data BAT 1 Lower Register */
+#define DBAT1U	SPRN_DBAT1U	/* Data BAT 1 Upper Register */
+#define DBAT2L	SPRN_DBAT2L	/* Data BAT 2 Lower Register */
+#define DBAT2U	SPRN_DBAT2U	/* Data BAT 2 Upper Register */
+#define DBAT3L	SPRN_DBAT3L	/* Data BAT 3 Lower Register */
+#define DBAT3U	SPRN_DBAT3U	/* Data BAT 3 Upper Register */
+#define DBAT4L	SPRN_DBAT4L     /* Data BAT 4 Lower Register */
+#define DBAT4U	SPRN_DBAT4U     /* Data BAT 4 Upper Register */
+#define DBAT5L	SPRN_DBAT5L     /* Data BAT 5 Lower Register */
+#define DBAT5U	SPRN_DBAT5U     /* Data BAT 5 Upper Register */
+#define DBAT6L	SPRN_DBAT6L     /* Data BAT 6 Lower Register */
+#define DBAT6U	SPRN_DBAT6U     /* Data BAT 6 Upper Register */
+#define DBAT7L	SPRN_DBAT7L     /* Data BAT 7 Lower Register */
+#define DBAT7U	SPRN_DBAT7U     /* Data BAT 7 Upper Register */
+#define DBCR0	SPRN_DBCR0	/* Debug Control Register 0 */
+#define DBCR1	SPRN_DBCR1	/* Debug Control Register 1 */
+#define DBSR	SPRN_DBSR	/* Debug Status Register */
+#define DCMP	SPRN_DCMP      	/* Data TLB Compare Register */
+#define DEC	SPRN_DEC       	/* Decrement Register */
+#define DMISS	SPRN_DMISS     	/* Data TLB Miss Register */
+#define DSISR	SPRN_DSISR	/* Data Storage Interrupt Status Register */
+#define EAR	SPRN_EAR       	/* External Address Register */
+#define ESR	SPRN_ESR	/* Exception Syndrome Register */
+#define HASH1	SPRN_HASH1	/* Primary Hash Address Register */
+#define HASH2	SPRN_HASH2	/* Secondary Hash Address Register */
+#define HID0	SPRN_HID0	/* Hardware Implementation Register 0 */
+#define HID1	SPRN_HID1	/* Hardware Implementation Register 1 */
+#define IABR	SPRN_IABR      	/* Instruction Address Breakpoint Register */
+#define IAC1	SPRN_IAC1	/* Instruction Address Register 1 */
+#define IAC2	SPRN_IAC2	/* Instruction Address Register 2 */
+#define IBAT0L	SPRN_IBAT0L	/* Instruction BAT 0 Lower Register */
+#define IBAT0U	SPRN_IBAT0U	/* Instruction BAT 0 Upper Register */
+#define IBAT1L	SPRN_IBAT1L	/* Instruction BAT 1 Lower Register */
+#define IBAT1U	SPRN_IBAT1U	/* Instruction BAT 1 Upper Register */
+#define IBAT2L	SPRN_IBAT2L	/* Instruction BAT 2 Lower Register */
+#define IBAT2U	SPRN_IBAT2U	/* Instruction BAT 2 Upper Register */
+#define IBAT3L	SPRN_IBAT3L	/* Instruction BAT 3 Lower Register */
+#define IBAT3U	SPRN_IBAT3U	/* Instruction BAT 3 Upper Register */
+#define IBAT4L	SPRN_IBAT4L	/* Instruction BAT 4 Lower Register */
+#define IBAT4U	SPRN_IBAT4U	/* Instruction BAT 4 Upper Register */
+#define IBAT5L	SPRN_IBAT5L	/* Instruction BAT 5 Lower Register */
+#define IBAT5U	SPRN_IBAT5U	/* Instruction BAT 5 Upper Register */
+#define IBAT6L	SPRN_IBAT6L	/* Instruction BAT 6 Lower Register */
+#define IBAT6U	SPRN_IBAT6U	/* Instruction BAT 6 Upper Register */
+#define IBAT7L 	SPRN_IBAT7L	/* Instruction BAT 7 Lower Register */
+#define IBAT7U	SPRN_IBAT7U	/* Instruction BAT 7 Lower Register */
+#define ICMP	SPRN_ICMP	/* Instruction TLB Compare Register */
+#define IMISS	SPRN_IMISS	/* Instruction TLB Miss Register */
+#define IMMR	SPRN_IMMR      	/* PPC 860/821 Internal Memory Map Register */
+#define L2CR	SPRN_L2CR    	/* PPC 750 L2 control register */
+#define LR	SPRN_LR
+#define MBAR    SPRN_MBAR       /* System memory base address */
 #if defined(CONFIG_E500)
 #define PIR	SPRN_PIR
 #endif
-#define	PVR	SPRN_PVR	/* Processor Version */
-#define	RPA	SPRN_RPA	/* Required Physical Address Register */
-#define	SDR1	SPRN_SDR1      	/* MMU hash base register */
-#define	SPR0	SPRN_SPRG0	/* Supervisor Private Registers */
-#define	SPR1	SPRN_SPRG1
-#define	SPR2	SPRN_SPRG2
-#define	SPR3	SPRN_SPRG3
-#define	SPRG0   SPRN_SPRG0
-#define	SPRG1   SPRN_SPRG1
-#define	SPRG2   SPRN_SPRG2
-#define	SPRG3   SPRN_SPRG3
-#define	SRR0	SPRN_SRR0	/* Save and Restore Register 0 */
-#define	SRR1	SPRN_SRR1	/* Save and Restore Register 1 */
-#define	TBRL	SPRN_TBRL	/* Time Base Read Lower Register */
-#define	TBRU	SPRN_TBRU	/* Time Base Read Upper Register */
-#define	TBWL	SPRN_TBWL	/* Time Base Write Lower Register */
-#define	TBWU	SPRN_TBWU	/* Time Base Write Upper Register */
-#define	TCR	SPRN_TCR	/* Timer Control Register */
-#define	TSR	SPRN_TSR	/* Timer Status Register */
+#define PVR	SPRN_PVR	/* Processor Version */
+#define RPA	SPRN_RPA	/* Required Physical Address Register */
+#define SDR1	SPRN_SDR1      	/* MMU hash base register */
+#define SPR0	SPRN_SPRG0	/* Supervisor Private Registers */
+#define SPR1	SPRN_SPRG1
+#define SPR2	SPRN_SPRG2
+#define SPR3	SPRN_SPRG3
+#define SPRG0   SPRN_SPRG0
+#define SPRG1   SPRN_SPRG1
+#define SPRG2   SPRN_SPRG2
+#define SPRG3   SPRN_SPRG3
+#define SRR0	SPRN_SRR0	/* Save and Restore Register 0 */
+#define SRR1	SPRN_SRR1	/* Save and Restore Register 1 */
+#define TBRL	SPRN_TBRL	/* Time Base Read Lower Register */
+#define TBRU	SPRN_TBRU	/* Time Base Read Upper Register */
+#define TBWL	SPRN_TBWL	/* Time Base Write Lower Register */
+#define TBWU	SPRN_TBWU	/* Time Base Write Upper Register */
+#define TCR	SPRN_TCR	/* Timer Control Register */
+#define TSR	SPRN_TSR	/* Timer Status Register */
 #define ICTC	1019
-#define	THRM1	SPRN_THRM1	/* Thermal Management Register 1 */
-#define	THRM2	SPRN_THRM2	/* Thermal Management Register 2 */
-#define	THRM3	SPRN_THRM3	/* Thermal Management Register 3 */
-#define	XER	SPRN_XER
+#define THRM1	SPRN_THRM1	/* Thermal Management Register 1 */
+#define THRM2	SPRN_THRM2	/* Thermal Management Register 2 */
+#define THRM3	SPRN_THRM3	/* Thermal Management Register 3 */
+#define XER	SPRN_XER
 
-#define	DECAR	SPRN_DECAR
-#define	CSRR0	SPRN_CSRR0
-#define	CSRR1	SPRN_CSRR1
-#define	IVPR	SPRN_IVPR
-#define	USPRG0	SPRN_USPRG0
-#define	SPRG4R	SPRN_SPRG4R
-#define	SPRG5R	SPRN_SPRG5R
-#define	SPRG6R	SPRN_SPRG6R
-#define	SPRG7R	SPRN_SPRG7R
-#define	SPRG4W	SPRN_SPRG4W
-#define	SPRG5W	SPRN_SPRG5W
-#define	SPRG6W	SPRN_SPRG6W
-#define	SPRG7W	SPRN_SPRG7W
+#define DECAR	SPRN_DECAR
+#define CSRR0	SPRN_CSRR0
+#define CSRR1	SPRN_CSRR1
+#define IVPR	SPRN_IVPR
+#define USPRG0	SPRN_USPRG0
+#define SPRG4R	SPRN_SPRG4R
+#define SPRG5R	SPRN_SPRG5R
+#define SPRG6R	SPRN_SPRG6R
+#define SPRG7R	SPRN_SPRG7R
+#define SPRG4W	SPRN_SPRG4W
+#define SPRG5W	SPRN_SPRG5W
+#define SPRG6W	SPRN_SPRG6W
+#define SPRG7W	SPRN_SPRG7W
 #define DEAR	SPRN_DEAR
-#define	DBCR2	SPRN_DBCR2
-#define	IAC3	SPRN_IAC3
-#define	IAC4	SPRN_IAC4
-#define	DVC1	SPRN_DVC1
-#define	DVC2	SPRN_DVC2
-#define	IVOR0	SPRN_IVOR0
-#define	IVOR1	SPRN_IVOR1
-#define	IVOR2	SPRN_IVOR2
-#define	IVOR3	SPRN_IVOR3
-#define	IVOR4	SPRN_IVOR4
-#define	IVOR5	SPRN_IVOR5
-#define	IVOR6	SPRN_IVOR6
-#define	IVOR7	SPRN_IVOR7
-#define	IVOR8	SPRN_IVOR8
-#define	IVOR9	SPRN_IVOR9
-#define	IVOR10	SPRN_IVOR10
-#define	IVOR11	SPRN_IVOR11
-#define	IVOR12	SPRN_IVOR12
-#define	IVOR13	SPRN_IVOR13
-#define	IVOR14	SPRN_IVOR14
-#define	IVOR15	SPRN_IVOR15
+#define DBCR2	SPRN_DBCR2
+#define IAC3	SPRN_IAC3
+#define IAC4	SPRN_IAC4
+#define DVC1	SPRN_DVC1
+#define DVC2	SPRN_DVC2
+#define IVOR0	SPRN_IVOR0
+#define IVOR1	SPRN_IVOR1
+#define IVOR2	SPRN_IVOR2
+#define IVOR3	SPRN_IVOR3
+#define IVOR4	SPRN_IVOR4
+#define IVOR5	SPRN_IVOR5
+#define IVOR6	SPRN_IVOR6
+#define IVOR7	SPRN_IVOR7
+#define IVOR8	SPRN_IVOR8
+#define IVOR9	SPRN_IVOR9
+#define IVOR10	SPRN_IVOR10
+#define IVOR11	SPRN_IVOR11
+#define IVOR12	SPRN_IVOR12
+#define IVOR13	SPRN_IVOR13
+#define IVOR14	SPRN_IVOR14
+#define IVOR15	SPRN_IVOR15
 #define IVOR32	SPRN_IVOR32
 #define IVOR33	SPRN_IVOR33
 #define IVOR34	SPRN_IVOR34
@@ -578,135 +580,135 @@
 
 /* Device Control Registers */
 
-#define	DCRN_BEAR	0x090	/* Bus Error Address Register */
-#define	DCRN_BESR	0x091	/* Bus Error Syndrome Register */
-#define	  BESR_DSES    	0x80000000	/* Data-Side Error Status */
-#define	  BESR_DMES	0x40000000	/* DMA Error Status */
-#define	  BESR_RWS	0x20000000	/* Read/Write Status */
-#define	  BESR_ETMASK	0x1C000000	/* Error Type */
-#define	    ET_PROT	0
-#define	    ET_PARITY	1
-#define	    ET_NCFG	2
-#define	    ET_BUSERR	4
-#define	    ET_BUSTO	6
-#define	DCRN_DMACC0	0x0C4	/* DMA Chained Count Register 0 */
-#define	DCRN_DMACC1	0x0CC	/* DMA Chained Count Register 1 */
-#define	DCRN_DMACC2	0x0D4	/* DMA Chained Count Register 2 */
-#define	DCRN_DMACC3	0x0DC    /* DMA Chained Count Register 3 */
-#define	DCRN_DMACR0	0x0C0    /* DMA Channel Control Register 0 */
-#define	DCRN_DMACR1	0x0C8    /* DMA Channel Control Register 1 */
-#define	DCRN_DMACR2	0x0D0    /* DMA Channel Control Register 2 */
-#define	DCRN_DMACR3	0x0D8    /* DMA Channel Control Register 3 */
-#define	DCRN_DMACT0	0x0C1    /* DMA Count Register 0 */
-#define	DCRN_DMACT1	0x0C9    /* DMA Count Register 1 */
-#define	DCRN_DMACT2	0x0D1    /* DMA Count Register 2 */
-#define	DCRN_DMACT3	0x0D9    /* DMA Count Register 3 */
-#define	DCRN_DMADA0	0x0C2    /* DMA Destination Address Register 0 */
-#define	DCRN_DMADA1	0x0CA    /* DMA Destination Address Register 1 */
-#define	DCRN_DMADA2	0x0D2    /* DMA Destination Address Register 2 */
-#define	DCRN_DMADA3	0x0DA    /* DMA Destination Address Register 3 */
-#define	DCRN_DMASA0	0x0C3    /* DMA Source Address Register 0 */
-#define	DCRN_DMASA1	0x0CB    /* DMA Source Address Register 1 */
-#define	DCRN_DMASA2	0x0D3    /* DMA Source Address Register 2 */
-#define	DCRN_DMASA3	0x0DB    /* DMA Source Address Register 3 */
-#define	DCRN_DMASR	0x0E0    /* DMA Status Register */
-#define	DCRN_EXIER	0x042    /* External Interrupt Enable Register */
-#define	  EXIER_CIE	0x80000000	/* Critical Interrupt Enable */
-#define	  EXIER_SRIE	0x08000000	/* Serial Port Rx Int. Enable */
-#define	  EXIER_STIE	0x04000000	/* Serial Port Tx Int. Enable */
-#define	  EXIER_JRIE	0x02000000	/* JTAG Serial Port Rx Int. Enable */
-#define	  EXIER_JTIE	0x01000000	/* JTAG Serial Port Tx Int. Enable */
-#define	  EXIER_D0IE	0x00800000	/* DMA Channel 0 Interrupt Enable */
-#define	  EXIER_D1IE	0x00400000	/* DMA Channel 1 Interrupt Enable */
-#define	  EXIER_D2IE	0x00200000	/* DMA Channel 2 Interrupt Enable */
-#define	  EXIER_D3IE	0x00100000	/* DMA Channel 3 Interrupt Enable */
-#define	  EXIER_E0IE	0x00000010	/* External Interrupt 0 Enable */
-#define	  EXIER_E1IE	0x00000008	/* External Interrupt 1 Enable */
-#define	  EXIER_E2IE	0x00000004	/* External Interrupt 2 Enable */
-#define	  EXIER_E3IE	0x00000002	/* External Interrupt 3 Enable */
-#define	  EXIER_E4IE	0x00000001	/* External Interrupt 4 Enable */
-#define	DCRN_EXISR	0x040    /* External Interrupt Status Register */
-#define	DCRN_IOCR	0x0A0    /* Input/Output Configuration Register */
-#define	  IOCR_E0TE	0x80000000
-#define	  IOCR_E0LP	0x40000000
-#define	  IOCR_E1TE	0x20000000
-#define	  IOCR_E1LP	0x10000000
-#define	  IOCR_E2TE	0x08000000
-#define	  IOCR_E2LP	0x04000000
-#define	  IOCR_E3TE	0x02000000
-#define	  IOCR_E3LP	0x01000000
-#define	  IOCR_E4TE	0x00800000
-#define	  IOCR_E4LP	0x00400000
-#define	  IOCR_EDT     	0x00080000
-#define	  IOCR_SOR     	0x00040000
-#define	  IOCR_EDO	0x00008000
-#define	  IOCR_2XC	0x00004000
-#define	  IOCR_ATC	0x00002000
-#define	  IOCR_SPD	0x00001000
-#define	  IOCR_BEM	0x00000800
-#define	  IOCR_PTD	0x00000400
-#define	  IOCR_ARE	0x00000080
-#define	  IOCR_DRC	0x00000020
-#define	  IOCR_RDM(x)	(((x) & 0x3) << 3)
-#define	  IOCR_TCS	0x00000004
-#define	  IOCR_SCS	0x00000002
-#define	  IOCR_SPC	0x00000001
+#define DCRN_BEAR	0x090	/* Bus Error Address Register */
+#define DCRN_BESR	0x091	/* Bus Error Syndrome Register */
+#define   BESR_DSES    	0x80000000	/* Data-Side Error Status */
+#define   BESR_DMES	0x40000000	/* DMA Error Status */
+#define   BESR_RWS	0x20000000	/* Read/Write Status */
+#define   BESR_ETMASK	0x1C000000	/* Error Type */
+#define     ET_PROT	0
+#define     ET_PARITY	1
+#define     ET_NCFG	2
+#define     ET_BUSERR	4
+#define     ET_BUSTO	6
+#define DCRN_DMACC0	0x0C4	/* DMA Chained Count Register 0 */
+#define DCRN_DMACC1	0x0CC	/* DMA Chained Count Register 1 */
+#define DCRN_DMACC2	0x0D4	/* DMA Chained Count Register 2 */
+#define DCRN_DMACC3	0x0DC    /* DMA Chained Count Register 3 */
+#define DCRN_DMACR0	0x0C0    /* DMA Channel Control Register 0 */
+#define DCRN_DMACR1	0x0C8    /* DMA Channel Control Register 1 */
+#define DCRN_DMACR2	0x0D0    /* DMA Channel Control Register 2 */
+#define DCRN_DMACR3	0x0D8    /* DMA Channel Control Register 3 */
+#define DCRN_DMACT0	0x0C1    /* DMA Count Register 0 */
+#define DCRN_DMACT1	0x0C9    /* DMA Count Register 1 */
+#define DCRN_DMACT2	0x0D1    /* DMA Count Register 2 */
+#define DCRN_DMACT3	0x0D9    /* DMA Count Register 3 */
+#define DCRN_DMADA0	0x0C2    /* DMA Destination Address Register 0 */
+#define DCRN_DMADA1	0x0CA    /* DMA Destination Address Register 1 */
+#define DCRN_DMADA2	0x0D2    /* DMA Destination Address Register 2 */
+#define DCRN_DMADA3	0x0DA    /* DMA Destination Address Register 3 */
+#define DCRN_DMASA0	0x0C3    /* DMA Source Address Register 0 */
+#define DCRN_DMASA1	0x0CB    /* DMA Source Address Register 1 */
+#define DCRN_DMASA2	0x0D3    /* DMA Source Address Register 2 */
+#define DCRN_DMASA3	0x0DB    /* DMA Source Address Register 3 */
+#define DCRN_DMASR	0x0E0    /* DMA Status Register */
+#define DCRN_EXIER	0x042    /* External Interrupt Enable Register */
+#define   EXIER_CIE	0x80000000	/* Critical Interrupt Enable */
+#define   EXIER_SRIE	0x08000000	/* Serial Port Rx Int. Enable */
+#define   EXIER_STIE	0x04000000	/* Serial Port Tx Int. Enable */
+#define   EXIER_JRIE	0x02000000	/* JTAG Serial Port Rx Int. Enable */
+#define   EXIER_JTIE	0x01000000	/* JTAG Serial Port Tx Int. Enable */
+#define   EXIER_D0IE	0x00800000	/* DMA Channel 0 Interrupt Enable */
+#define   EXIER_D1IE	0x00400000	/* DMA Channel 1 Interrupt Enable */
+#define   EXIER_D2IE	0x00200000	/* DMA Channel 2 Interrupt Enable */
+#define   EXIER_D3IE	0x00100000	/* DMA Channel 3 Interrupt Enable */
+#define   EXIER_E0IE	0x00000010	/* External Interrupt 0 Enable */
+#define   EXIER_E1IE	0x00000008	/* External Interrupt 1 Enable */
+#define   EXIER_E2IE	0x00000004	/* External Interrupt 2 Enable */
+#define   EXIER_E3IE	0x00000002	/* External Interrupt 3 Enable */
+#define   EXIER_E4IE	0x00000001	/* External Interrupt 4 Enable */
+#define DCRN_EXISR	0x040    /* External Interrupt Status Register */
+#define DCRN_IOCR	0x0A0    /* Input/Output Configuration Register */
+#define   IOCR_E0TE	0x80000000
+#define   IOCR_E0LP	0x40000000
+#define   IOCR_E1TE	0x20000000
+#define   IOCR_E1LP	0x10000000
+#define   IOCR_E2TE	0x08000000
+#define   IOCR_E2LP	0x04000000
+#define   IOCR_E3TE	0x02000000
+#define   IOCR_E3LP	0x01000000
+#define   IOCR_E4TE	0x00800000
+#define   IOCR_E4LP	0x00400000
+#define   IOCR_EDT     	0x00080000
+#define   IOCR_SOR     	0x00040000
+#define   IOCR_EDO	0x00008000
+#define   IOCR_2XC	0x00004000
+#define   IOCR_ATC	0x00002000
+#define   IOCR_SPD	0x00001000
+#define   IOCR_BEM	0x00000800
+#define   IOCR_PTD	0x00000400
+#define   IOCR_ARE	0x00000080
+#define   IOCR_DRC	0x00000020
+#define   IOCR_RDM(x)	(((x) & 0x3) << 3)
+#define   IOCR_TCS	0x00000004
+#define   IOCR_SCS	0x00000002
+#define   IOCR_SPC	0x00000001
 
 
 /* Processor Version Register */
 
 /* Processor Version Register (PVR) field extraction */
 
-#define	PVR_VER(pvr)  (((pvr) >>  16) & 0xFFFF)	/* Version field */
-#define	PVR_REV(pvr)  (((pvr) >>   0) & 0xFFFF)	/* Revison field */
+#define PVR_VER(pvr)  (((pvr) >>  16) & 0xFFFF)	/* Version field */
+#define PVR_REV(pvr)  (((pvr) >>   0) & 0xFFFF)	/* Revison field */
 
 /*
  * IBM has further subdivided the standard PowerPC 16-bit version and
  * revision subfields of the PVR for the PowerPC 403s into the following:
  */
 
-#define	PVR_FAM(pvr)	(((pvr) >> 20) & 0xFFF)	/* Family field */
-#define	PVR_MEM(pvr)	(((pvr) >> 16) & 0xF)	/* Member field */
-#define	PVR_CORE(pvr)	(((pvr) >> 12) & 0xF)	/* Core field */
-#define	PVR_CFG(pvr)	(((pvr) >>  8) & 0xF)	/* Configuration field */
-#define	PVR_MAJ(pvr)	(((pvr) >>  4) & 0xF)	/* Major revision field */
-#define	PVR_MIN(pvr)	(((pvr) >>  0) & 0xF)	/* Minor revision field */
+#define PVR_FAM(pvr)	(((pvr) >> 20) & 0xFFF)	/* Family field */
+#define PVR_MEM(pvr)	(((pvr) >> 16) & 0xF)	/* Member field */
+#define PVR_CORE(pvr)	(((pvr) >> 12) & 0xF)	/* Core field */
+#define PVR_CFG(pvr)	(((pvr) >>  8) & 0xF)	/* Configuration field */
+#define PVR_MAJ(pvr)	(((pvr) >>  4) & 0xF)	/* Major revision field */
+#define PVR_MIN(pvr)	(((pvr) >>  0) & 0xF)	/* Minor revision field */
 
 /* Processor Version Numbers */
 
-#define	PVR_403GA	0x00200000
-#define	PVR_403GB	0x00200100
-#define	PVR_403GC	0x00200200
-#define	PVR_403GCX	0x00201400
-#define	PVR_405GP	0x40110000
-#define	PVR_405GP_RB	0x40110040
-#define	PVR_405GP_RC	0x40110082
-#define	PVR_405GP_RD	0x401100C4
-#define	PVR_405GP_RE	0x40110145  /* same as pc405cr rev c */
-#define	PVR_405CR_RA	0x40110041
-#define	PVR_405CR_RB	0x401100C5
-#define	PVR_405CR_RC	0x40110145  /* same as pc405gp rev e */
-#define	PVR_405EP_RA	0x51210950
-#define	PVR_405GPR_RB	0x50910951
-#define	PVR_440GP_RB	0x40120440
-#define	PVR_440GP_RC	0x40120481
-#define	PVR_440GX_RA	0x51B21850
-#define	PVR_440GX_RB	0x51B21851
-#define	PVR_405EP_RB	0x51210950
-#define	PVR_601		0x00010000
-#define	PVR_602		0x00050000
-#define	PVR_603		0x00030000
-#define	PVR_603e	0x00060000
-#define	PVR_603ev	0x00070000
-#define	PVR_603r	0x00071000
-#define	PVR_604		0x00040000
-#define	PVR_604e	0x00090000
-#define	PVR_604r	0x000A0000
-#define	PVR_620		0x00140000
-#define	PVR_740		0x00080000
-#define	PVR_750		PVR_740
-#define	PVR_740P	0x10080000
-#define	PVR_750P	PVR_740P
+#define PVR_403GA	0x00200000
+#define PVR_403GB	0x00200100
+#define PVR_403GC	0x00200200
+#define PVR_403GCX	0x00201400
+#define PVR_405GP	0x40110000
+#define PVR_405GP_RB	0x40110040
+#define PVR_405GP_RC	0x40110082
+#define PVR_405GP_RD	0x401100C4
+#define PVR_405GP_RE	0x40110145  /* same as pc405cr rev c */
+#define PVR_405CR_RA	0x40110041
+#define PVR_405CR_RB	0x401100C5
+#define PVR_405CR_RC	0x40110145  /* same as pc405gp rev e */
+#define PVR_405EP_RA	0x51210950
+#define PVR_405GPR_RB	0x50910951
+#define PVR_440GP_RB	0x40120440
+#define PVR_440GP_RC	0x40120481
+#define PVR_440GX_RA	0x51B21850
+#define PVR_440GX_RB	0x51B21851
+#define PVR_405EP_RB	0x51210950
+#define PVR_601		0x00010000
+#define PVR_602		0x00050000
+#define PVR_603		0x00030000
+#define PVR_603e	0x00060000
+#define PVR_603ev	0x00070000
+#define PVR_603r	0x00071000
+#define PVR_604		0x00040000
+#define PVR_604e	0x00090000
+#define PVR_604r	0x000A0000
+#define PVR_620		0x00140000
+#define PVR_740		0x00080000
+#define PVR_750		PVR_740
+#define PVR_740P	0x10080000
+#define PVR_750P	PVR_740P
 #define PVR_7400        0x000C0000
 #define PVR_7410        0x800C0000
 #define PVR_7450        0x80000000
@@ -719,12 +721,12 @@
  * differentiated by the version number in the Communication Processor
  * Module (CPM).
  */
-#define	PVR_821		0x00500000
-#define	PVR_823		PVR_821
-#define	PVR_850		PVR_821
-#define	PVR_860		PVR_821
-#define	PVR_7400       	0x000C0000
-#define	PVR_8240	0x00810100
+#define PVR_821		0x00500000
+#define PVR_823		PVR_821
+#define PVR_850		PVR_821
+#define PVR_860		PVR_821
+#define PVR_7400       	0x000C0000
+#define PVR_8240	0x00810100
 
 /*
  * PowerQUICC II family processors report different PVR values depending

@@ -115,7 +115,7 @@ void pci_mpc5xxx_init (struct pci_controller *hose)
 
 	/* Map MBAR to PCI space */
 	*(vu_long *)MPC5XXX_PCI_BAR0 = CFG_MBAR;
-	*(vu_long *)MPC5XXX_PCI_TBATR1 = CFG_MBAR | 1;
+	*(vu_long *)MPC5XXX_PCI_TBATR0 = CFG_MBAR | 1;
 
 	/* Map RAM to PCI space */
 	*(vu_long *)MPC5XXX_PCI_BAR1 = CONFIG_PCI_MEMORY_BUS | (1 << 3);

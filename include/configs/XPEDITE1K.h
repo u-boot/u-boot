@@ -37,7 +37,7 @@
 #define CONFIG_4xx		1		/* ... PPC4xx family	*/
 #define CONFIG_440		1
 #define CONFIG_440_GX		1		/* 440 GX */
-#define CONFIG_BOARD_PRE_INIT	1		/* Call board_pre_init	*/
+#define CONFIG_BOARD_EARLY_INIT_F 1		/* Call board_pre_init	*/
 #undef	CFG_DRAM_TEST				/* Disable-takes long time! */
 #define CONFIG_SYS_CLK_FREQ	33333333	/* external freq to pll */
 
@@ -235,7 +235,7 @@ extern void out32(unsigned int, unsigned long);
 
 #define CFG_PCI_SUBSYS_VENDORID 0x1014	/* IBM */
 #define CFG_PCI_SUBSYS_DEVICEID 0xcafe	/* Whatever */
-
+#define CFG_PCI_FORCE_PCI_CONV          /* Force PCI Conventional Mode */
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is

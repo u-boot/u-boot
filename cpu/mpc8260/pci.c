@@ -28,28 +28,28 @@
 #include <pci.h>
 #include <mpc8260.h>
 #include <asm/m8260_pci.h>
-
+#include <asm/io.h>
 /*
- *   Local->PCI map (from CPU)                             controlled by
+ *   Local->PCI map (from CPU)				   controlled by
  *   MPC826x master window
  *
- *   0x80000000 - 0xBFFFFFFF    CPU2PCI space              PCIBR0
- *   0xF4000000 - 0xF7FFFFFF    CPU2PCI space              PCIBR1
+ *   0x80000000 - 0xBFFFFFFF	CPU2PCI space		   PCIBR0
+ *   0xF4000000 - 0xF7FFFFFF	CPU2PCI space		   PCIBR1
  *
- *   0x80000000 - 0x9FFFFFFF    0x80000000 - 0x9FFFFFFF   (Outbound ATU #1)
- *                              PCI Mem with prefetch
+ *   0x80000000 - 0x9FFFFFFF	0x80000000 - 0x9FFFFFFF	  (Outbound ATU #1)
+ *				PCI Mem with prefetch
  *
- *   0xA0000000 - 0xBFFFFFFF    0xA0000000 - 0xBFFFFFFF   (Outbound ATU #2)
- *                              PCI Mem w/o  prefetch
+ *   0xA0000000 - 0xBFFFFFFF	0xA0000000 - 0xBFFFFFFF	  (Outbound ATU #2)
+ *				PCI Mem w/o  prefetch
  *
- *   0xF4000000 - 0xF7FFFFFF    0x00000000 - 0x03FFFFFF   (Outbound ATU #3)
- *                              32-bit PCI IO
+ *   0xF4000000 - 0xF7FFFFFF	0x00000000 - 0x03FFFFFF	  (Outbound ATU #3)
+ *				32-bit PCI IO
  *
  *   PCI->Local map (from PCI)
- *   MPC826x slave window                                  controlled by
+ *   MPC826x slave window				   controlled by
  *
- *   0x00000000 - 0x1FFFFFFF    0x00000000 - 0x1FFFFFFF   (Inbound ATU #1)
- *                              MPC826x local memory
+ *   0x00000000 - 0x1FFFFFFF	0x00000000 - 0x1FFFFFFF	  (Inbound ATU #1)
+ *				MPC826x local memory
  */
 
 /*
@@ -58,13 +58,13 @@
  */
 
 #ifndef CFG_PCI_SLV_MEM_LOCAL
-#define PCI_SLV_MEM_LOCAL CFG_SDRAM_BASE		/* Local base */
+#define PCI_SLV_MEM_LOCAL CFG_SDRAM_BASE	/* Local base */
 #else
 #define PCI_SLV_MEM_LOCAL CFG_PCI_SLV_MEM_LOCAL
 #endif
 
 #ifndef CFG_PCI_SLV_MEM_BUS
-#define PCI_SLV_MEM_BUS 0x00000000		/* PCI base */
+#define PCI_SLV_MEM_BUS 0x00000000	/* PCI base */
 #else
 #define PCI_SLV_MEM_BUS CFG_PCI_SLV_MEM_BUS
 #endif
@@ -85,28 +85,28 @@
 
 /* PCIBR0 */
 #ifndef CFG_PCI_MSTR0_LOCAL
-#define PCI_MSTR0_LOCAL		0x80000000		/* Local base */
+#define PCI_MSTR0_LOCAL		0x80000000	/* Local base */
 #else
 #define PCI_MSTR0_LOCAL CFG_PCI_MSTR0_LOCAL
 #endif
 
 #ifndef CFG_PCIMSK0_MASK
-#define PCIMSK0_MASK		PCIMSK_1GB		/* Size of window */
+#define PCIMSK0_MASK		PCIMSK_1GB	/* Size of window */
 #else
 #define PCIMSK0_MASK	CFG_PCIMSK0_MASK
 #endif
 
 /* PCIBR1 */
 #ifndef CFG_PCI_MSTR1_LOCAL
-#define PCI_MSTR1_LOCAL		0xF4000000		/* Local base */
+#define PCI_MSTR1_LOCAL		0xF4000000	/* Local base */
 #else
 #define PCI_MSTR1_LOCAL		CFG_PCI_MSTR1_LOCAL
 #endif
 
 #ifndef CFG_PCIMSK1_MASK
-#define  PCIMSK1_MASK		PCIMSK_64MB		/* Size of window */
+#define	 PCIMSK1_MASK		PCIMSK_64MB	/* Size of window */
 #else
-#define  PCIMSK1_MASK		CFG_PCIMSK1_MASK
+#define	 PCIMSK1_MASK		CFG_PCIMSK1_MASK
 #endif
 
 /*
@@ -116,13 +116,13 @@
  */
 
 #ifndef CFG_PCI_MSTR_MEM_LOCAL
-#define PCI_MSTR_MEM_LOCAL 0x80000000          /* Local base */
+#define PCI_MSTR_MEM_LOCAL 0x80000000	/* Local base */
 #else
 #define PCI_MSTR_MEM_LOCAL CFG_PCI_MSTR_MEM_LOCAL
 #endif
 
 #ifndef CFG_PCI_MSTR_MEM_BUS
-#define PCI_MSTR_MEM_BUS 0x80000000          /* PCI base   */
+#define PCI_MSTR_MEM_BUS 0x80000000	/* PCI base   */
 #else
 #define PCI_MSTR_MEM_BUS CFG_PCI_MSTR_MEM_BUS
 #endif
@@ -134,7 +134,7 @@
 #endif
 
 #ifndef CFG_PCI_MSTR_MEM_SIZE
-#define PCI_MSTR_MEM_SIZE 0x10000000          /* 256MB */
+#define PCI_MSTR_MEM_SIZE 0x10000000	/* 256MB */
 #else
 #define PCI_MSTR_MEM_SIZE CFG_PCI_MSTR_MEM_SIZE
 #endif
@@ -152,13 +152,13 @@
  */
 
 #ifndef CFG_PCI_MSTR_MEMIO_LOCAL
-#define PCI_MSTR_MEMIO_LOCAL 0x90000000          /* Local base */
+#define PCI_MSTR_MEMIO_LOCAL 0x90000000 /* Local base */
 #else
 #define PCI_MSTR_MEMIO_LOCAL CFG_PCI_MSTR_MEMIO_LOCAL
 #endif
 
 #ifndef CFG_PCI_MSTR_MEMIO_BUS
-#define PCI_MSTR_MEMIO_BUS 0x90000000          /* PCI base   */
+#define PCI_MSTR_MEMIO_BUS 0x90000000	/* PCI base   */
 #else
 #define PCI_MSTR_MEMIO_BUS CFG_PCI_MSTR_MEMIO_BUS
 #endif
@@ -170,13 +170,13 @@
 #endif
 
 #ifndef CFG_PCI_MSTR_MEMIO_SIZE
-#define PCI_MSTR_MEMIO_SIZE 0x10000000          /* 256 MB */
+#define PCI_MSTR_MEMIO_SIZE 0x10000000	/* 256 MB */
 #else
 #define PCI_MSTR_MEMIO_SIZE CFG_PCI_MSTR_MEMIO_SIZE
 #endif
 
 #ifndef CFG_POCMR1_MASK_ATTRIB
-#define POCMR1_MASK_ATTRIB      (POCMR_MASK_512MB | POCMR_ENABLE)
+#define POCMR1_MASK_ATTRIB	(POCMR_MASK_512MB | POCMR_ENABLE)
 #else
 #define POCMR1_MASK_ATTRIB CFG_POCMR1_MASK_ATTRIB
 #endif
@@ -188,13 +188,13 @@
  */
 
 #ifndef CFG_PCI_MSTR_IO_LOCAL
-#define PCI_MSTR_IO_LOCAL 0xA0000000          /* Local base */
+#define PCI_MSTR_IO_LOCAL 0xA0000000	/* Local base */
 #else
 #define PCI_MSTR_IO_LOCAL CFG_PCI_MSTR_IO_LOCAL
 #endif
 
 #ifndef CFG_PCI_MSTR_IO_BUS
-#define PCI_MSTR_IO_BUS 0xA0000000          /* PCI base   */
+#define PCI_MSTR_IO_BUS 0xA0000000	/* PCI base   */
 #else
 #define PCI_MSTR_IO_BUS CFG_PCI_MSTR_IO_BUS
 #endif
@@ -206,13 +206,13 @@
 #endif
 
 #ifndef CFG_PCI_MSTR_IO_SIZE
-#define PCI_MSTR_IO_SIZE 0x10000000          /* 256MB */
+#define PCI_MSTR_IO_SIZE 0x10000000	/* 256MB */
 #else
 #define PCI_MSTR_IO_SIZE CFG_PCI_MSTR_IO_SIZE
 #endif
 
 #ifndef CFG_POCMR2_MASK_ATTRIB
-#define POCMR2_MASK_ATTRIB      (POCMR_MASK_256MB | POCMR_ENABLE | POCMR_PCI_IO)
+#define POCMR2_MASK_ATTRIB	(POCMR_MASK_256MB | POCMR_ENABLE | POCMR_PCI_IO)
 #else
 #define POCMR2_MASK_ATTRIB CFG_POCMR2_MASK_ATTRIB
 #endif
@@ -223,193 +223,198 @@
 #define PCI_CLASS_BRIDGE_CTLR	0x06
 
 
-static inline void  pci_outl(u32 addr, u32 data)
+static inline void pci_outl (u32 addr, u32 data)
 {
-    *(volatile u32 *) addr = cpu_to_le32(data);
+	*(volatile u32 *) addr = cpu_to_le32 (data);
 }
 
-void pci_mpc8250_init(struct pci_controller *hose)
+void pci_mpc8250_init (struct pci_controller *hose)
 {
 #ifdef CONFIG_MPC8266ADS
-    DECLARE_GLOBAL_DATA_PTR;
+	DECLARE_GLOBAL_DATA_PTR;
 #endif
-    u16 tempShort;
-    u32 immr_addr = CFG_IMMR;
-    volatile immap_t *immap = (immap_t *) CFG_IMMR;
-    pci_dev_t host_devno = PCI_BDF(0, 0, 0);
+	u16 tempShort;
 
-    pci_setup_indirect(hose, CFG_IMMR + PCI_CFG_ADDR_REG,
-				 CFG_IMMR + PCI_CFG_DATA_REG);
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	pci_dev_t host_devno = PCI_BDF (0, 0, 0);
 
-    /*
-     * Setting required to enable local bus for PCI (SIUMCR [LBPC]).
-     */
+	pci_setup_indirect (hose, CFG_IMMR + PCI_CFG_ADDR_REG,
+			    CFG_IMMR + PCI_CFG_DATA_REG);
+
+	/*
+	 * Setting required to enable local bus for PCI (SIUMCR [LBPC]).
+	 */
 #ifdef CONFIG_MPC8266ADS
-    immap->im_siu_conf.sc_siumcr = (immap->im_siu_conf.sc_siumcr & ~SIUMCR_LBPC11)
-				   | SIUMCR_LBPC01;
+	immap->im_siu_conf.sc_siumcr =
+		(immap->im_siu_conf.sc_siumcr & ~SIUMCR_LBPC11)
+		| SIUMCR_LBPC01;
 #else
-    /*
-     * Setting required to enable IRQ1-IRQ7 (SIUMCR [DPPC]),
-     * and local bus for PCI (SIUMCR [LBPC]).
-     */
-    immap->im_siu_conf.sc_siumcr = (immap->im_siu_conf.sc_siumcr &
-						  ~SIUMCR_LBPC11 &
+	/*
+	 * Setting required to enable IRQ1-IRQ7 (SIUMCR [DPPC]),
+	 * and local bus for PCI (SIUMCR [LBPC]).
+	 */
+	immap->im_siu_conf.sc_siumcr = (immap->im_siu_conf.sc_siumcr &
+						~SIUMCR_LBPC11 &
 						~SIUMCR_CS10PC11 &
-						 ~SIUMCR_LBPC11) |
-				   SIUMCR_LBPC01 |
-				   SIUMCR_CS10PC01 |
-				   SIUMCR_LBPC01;
+						~SIUMCR_LBPC11) |
+					SIUMCR_LBPC01 |
+					SIUMCR_CS10PC01 |
+					SIUMCR_APPC10;
 #endif
 
-    /* Make PCI lowest priority */
-    /* Each 4 bits is a device bus request  and the MS 4bits
-       is highest priority */
-    /* Bus               4bit value
-	   ---               ----------
-       CPM high          0b0000
-       CPM middle        0b0001
-	   CPM low           0b0010
-       PCI reguest       0b0011
-       Reserved          0b0100
-       Reserved          0b0101
-       Internal Core     0b0110
-       External Master 1 0b0111
-       External Master 2 0b1000
-       External Master 3 0b1001
-       The rest are reserved */
-    immap->im_siu_conf.sc_ppc_alrh = 0x61207893;
+	/* Make PCI lowest priority */
+	/* Each 4 bits is a device bus request	and the MS 4bits
+	   is highest priority */
+	/* Bus		     4bit value
+	   ---		     ----------
+	   CPM high	     0b0000
+	   CPM middle	     0b0001
+	   CPM low	     0b0010
+	   PCI reguest	     0b0011
+	   Reserved	     0b0100
+	   Reserved	     0b0101
+	   Internal Core     0b0110
+	   External Master 1 0b0111
+	   External Master 2 0b1000
+	   External Master 3 0b1001
+	   The rest are reserved */
+	immap->im_siu_conf.sc_ppc_alrh = 0x61207893;
 
-    /* Park bus on core while modifying PCI Bus accesses */
-    immap->im_siu_conf.sc_ppc_acr = 0x6;
+	/* Park bus on core while modifying PCI Bus accesses */
+	immap->im_siu_conf.sc_ppc_acr = 0x6;
 
-    /*
-     * Set up master windows that allow the CPU to access PCI space. These
-     * windows are set up using the two SIU PCIBR registers.
-     */
-    *(volatile unsigned long*)(immr_addr + M8265_PCIMSK0) = PCIMSK0_MASK;
-    *(volatile unsigned long*)(immr_addr + M8265_PCIBR0) =
-	    PCI_MSTR0_LOCAL | PCIBR_ENABLE;
+	/*
+	 * Set up master windows that allow the CPU to access PCI space. These
+	 * windows are set up using the two SIU PCIBR registers.
+	 */
+	immap->im_memctl.memc_pcimsk0 = PCIMSK0_MASK;
+	immap->im_memctl.memc_pcibr0 = PCI_MSTR0_LOCAL | PCIBR_ENABLE;
 
 #ifdef CONFIG_MPC8266ADS
-    *(volatile unsigned long*)(immr_addr + M8265_PCIMSK1) = PCIMSK1_MASK;
-    *(volatile unsigned long*)(immr_addr + M8265_PCIBR1) =
-	    PCI_MSTR1_LOCAL | PCIBR_ENABLE;
+	immap->im_memctl.memc_pcimsk0 = PCIMSK1_MASK;
+	immap->im_memctl.memc_pcibr0 = PCI_MSTR1_LOCAL | PCIBR_ENABLE;
 #endif
 
-    /* Release PCI RST (by default the PCI RST signal is held low)  */
-    pci_outl (immr_addr | PCI_GCR_REG, PCIGCR_PCI_BUS_EN);
+	/* Release PCI RST (by default the PCI RST signal is held low)	*/
+	immap->im_pci.pci_gcr = cpu_to_le32 (PCIGCR_PCI_BUS_EN);
 
-    /* give it some time */
-    {
+	/* give it some time */
+	{
 #ifdef CONFIG_MPC8266ADS
 		/* Give the PCI cards more time to initialize before query
-			This might be good for other boards also
-		*/
-	int i;
-	for (i = 0; i < 1000; ++i)
+		   This might be good for other boards also
+		 */
+		int i;
+
+		for (i = 0; i < 1000; ++i)
 #endif
-	    udelay(1000);
-    }
+			udelay (1000);
+	}
 
-    /*
-     * Set up master window that allows the CPU to access PCI Memory (prefetch)
-     * space. This window is set up using the first set of Outbound ATU registers.
-     */
-    pci_outl (immr_addr | POTAR_REG0, PCI_MSTR_MEM_BUS >> 12);      /* PCI base */
-    pci_outl (immr_addr | POBAR_REG0, PCI_MSTR_MEM_LOCAL >> 12);    /* Local base */
-    pci_outl (immr_addr | POCMR_REG0, POCMR0_MASK_ATTRIB);    /* Size & attribute */
+	/*
+	 * Set up master window that allows the CPU to access PCI Memory (prefetch)
+	 * space. This window is set up using the first set of Outbound ATU registers.
+	 */
+	immap->im_pci.pci_potar0 = cpu_to_le32 (PCI_MSTR_MEM_BUS >> 12);	/* PCI base */
+	immap->im_pci.pci_pobar0 = cpu_to_le32 (PCI_MSTR_MEM_LOCAL >> 12);	/* Local base */
+	immap->im_pci.pci_pocmr0 = cpu_to_le32 (POCMR0_MASK_ATTRIB);	/* Size & attribute */
 
-    /*
-     * Set up master window that allows the CPU to access PCI Memory (non-prefetch)
-     * space. This window is set up using the second set of Outbound ATU registers.
-     */
-    pci_outl (immr_addr | POTAR_REG1, PCI_MSTR_MEMIO_BUS >> 12);    /* PCI base */
-    pci_outl (immr_addr | POBAR_REG1, PCI_MSTR_MEMIO_LOCAL >> 12);  /* Local base */
-    pci_outl (immr_addr | POCMR_REG1, POCMR1_MASK_ATTRIB);    /* Size & attribute */
+	/*
+	 * Set up master window that allows the CPU to access PCI Memory (non-prefetch)
+	 * space. This window is set up using the second set of Outbound ATU registers.
+	 */
+	immap->im_pci.pci_potar1 = cpu_to_le32 (PCI_MSTR_MEMIO_BUS >> 12);	/* PCI base */
+	immap->im_pci.pci_pobar1 = cpu_to_le32 (PCI_MSTR_MEMIO_LOCAL >> 12);	/* Local base */
+	immap->im_pci.pci_pocmr1 = cpu_to_le32 (POCMR1_MASK_ATTRIB);	/* Size & attribute */
 
-    /*
-     * Set up master window that allows the CPU to access PCI IO space. This window
-     * is set up using the third set of Outbound ATU registers.
-     */
-    pci_outl (immr_addr | POTAR_REG2, PCI_MSTR_IO_BUS >> 12);       /* PCI base */
-    pci_outl (immr_addr | POBAR_REG2, PCI_MSTR_IO_LOCAL >> 12);     /* Local base */
-    pci_outl (immr_addr | POCMR_REG2, POCMR2_MASK_ATTRIB);    /* Size & attribute */
+	/*
+	 * Set up master window that allows the CPU to access PCI IO space. This window
+	 * is set up using the third set of Outbound ATU registers.
+	 */
+	immap->im_pci.pci_potar2 = cpu_to_le32 (PCI_MSTR_IO_BUS >> 12); /* PCI base */
+	immap->im_pci.pci_pobar2 = cpu_to_le32 (PCI_MSTR_IO_LOCAL >> 12);	/* Local base */
+	immap->im_pci.pci_pocmr2 = cpu_to_le32 (POCMR2_MASK_ATTRIB);	/* Size & attribute */
 
-    /*
-     * Set up slave window that allows PCI masters to access MPC826x local memory.
-     * This window is set up using the first set of Inbound ATU registers
-     */
-    pci_outl (immr_addr | PITAR_REG0, PCI_SLV_MEM_LOCAL >> 12);     /* Local base */
-    pci_outl (immr_addr | PIBAR_REG0, PCI_SLV_MEM_BUS >> 12);       /* PCI base */
-    pci_outl (immr_addr | PICMR_REG0, PICMR0_MASK_ATTRIB);    /* Size & attribute */
+	/*
+	 * Set up slave window that allows PCI masters to access MPC826x local memory.
+	 * This window is set up using the first set of Inbound ATU registers
+	 */
+	immap->im_pci.pci_pitar0 = cpu_to_le32 (PCI_SLV_MEM_LOCAL >> 12);	/* PCI base */
+	immap->im_pci.pci_pibar0 = cpu_to_le32 (PCI_SLV_MEM_BUS >> 12); /* Local base */
+	immap->im_pci.pci_picmr0 = cpu_to_le32 (PICMR0_MASK_ATTRIB);	/* Size & attribute */
 
-     /* See above for description - puts PCI request as highest priority */
-    immap->im_siu_conf.sc_ppc_alrh = 0x03124567;
+	/* See above for description - puts PCI request as highest priority */
+	immap->im_siu_conf.sc_ppc_alrh = 0x03124567;
 
-    /* Park the bus on the PCI */
-    immap->im_siu_conf.sc_ppc_acr = PPC_ACR_BUS_PARK_PCI;
+	/* Park the bus on the PCI */
+	immap->im_siu_conf.sc_ppc_acr = PPC_ACR_BUS_PARK_PCI;
 
-    /* Host mode - specify the bridge as a host-PCI bridge */
+	/* Host mode - specify the bridge as a host-PCI bridge */
 
-    pci_hose_write_config_byte(hose, host_devno, PCI_CLASS_CODE,
-				   PCI_CLASS_BRIDGE_CTLR);
+	pci_hose_write_config_byte (hose, host_devno, PCI_CLASS_CODE,
+				    PCI_CLASS_BRIDGE_CTLR);
 
-    /* Enable the host bridge to be a master on the PCI bus, and to act as a PCI memory target */
-    pci_hose_read_config_word(hose, host_devno, PCI_COMMAND, &tempShort);
-    pci_hose_write_config_word(hose, host_devno, PCI_COMMAND,
-			 tempShort | PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY);
+	/* Enable the host bridge to be a master on the PCI bus, and to act as a PCI memory target */
+	pci_hose_read_config_word (hose, host_devno, PCI_COMMAND, &tempShort);
+	pci_hose_write_config_word (hose, host_devno, PCI_COMMAND,
+				    tempShort | PCI_COMMAND_MASTER |
+				    PCI_COMMAND_MEMORY);
 
-#ifdef CONFIG_MPC8266ADS
 	/* do some bridge init, should be done on all 8260 based bridges */
-	pci_hose_write_config_byte(hose, host_devno, PCI_CACHE_LINE_SIZE, 0x08);
-	pci_hose_write_config_byte(hose, host_devno, PCI_LATENCY_TIMER, 0xF8);
-#endif
+	pci_hose_write_config_byte (hose, host_devno, PCI_CACHE_LINE_SIZE,
+				    0x08);
+	pci_hose_write_config_byte (hose, host_devno, PCI_LATENCY_TIMER,
+				    0xF8);
 
-    hose->first_busno = 0;
-    hose->last_busno = 0xff;
+	hose->first_busno = 0;
+	hose->last_busno = 0xff;
 
-    /* System memory space */
+	/* System memory space */
 #ifdef CONFIG_MPC8266ADS
-    pci_set_region(hose->regions + 0,
-		       PCI_SLV_MEM_BUS,
-		       PCI_SLV_MEM_LOCAL,
-		       gd->ram_size,
-		       PCI_REGION_MEM | PCI_REGION_MEMORY);
+	pci_set_region (hose->regions + 0,
+			PCI_SLV_MEM_BUS,
+			PCI_SLV_MEM_LOCAL,
+			gd->ram_size, PCI_REGION_MEM | PCI_REGION_MEMORY);
 #else
-    pci_set_region(hose->regions + 0,
-		       CFG_SDRAM_BASE,
-		       CFG_SDRAM_BASE,
-		       0x4000000,
-		       PCI_REGION_MEM | PCI_REGION_MEMORY);
+	pci_set_region (hose->regions + 0,
+			CFG_SDRAM_BASE,
+			CFG_SDRAM_BASE,
+			0x4000000, PCI_REGION_MEM | PCI_REGION_MEMORY);
 #endif
 
-    /* PCI memory space */
+	/* PCI memory space */
 #ifdef CONFIG_MPC8266ADS
-    pci_set_region(hose->regions + 1,
-		       PCI_MSTR_MEMIO_BUS,
-		       PCI_MSTR_MEMIO_LOCAL,
-		       PCI_MSTR_MEMIO_SIZE,
-		       PCI_REGION_MEM);
+	pci_set_region (hose->regions + 1,
+			PCI_MSTR_MEMIO_BUS,
+			PCI_MSTR_MEMIO_LOCAL,
+			PCI_MSTR_MEMIO_SIZE, PCI_REGION_MEM);
 #else
-    pci_set_region(hose->regions + 1,
-		       PCI_MSTR_MEM_BUS,
-		       PCI_MSTR_MEM_LOCAL,
-		       PCI_MSTR_MEM_SIZE,
-		       PCI_REGION_MEM);
+	pci_set_region (hose->regions + 1,
+			PCI_MSTR_MEM_BUS,
+			PCI_MSTR_MEM_LOCAL,
+			PCI_MSTR_MEM_SIZE, PCI_REGION_MEM);
 #endif
 
-    /* PCI I/O space */
-    pci_set_region(hose->regions + 2,
-		       PCI_MSTR_IO_BUS,
-		       PCI_MSTR_IO_LOCAL,
-		       PCI_MSTR_IO_SIZE,
-		       PCI_REGION_IO);
+	/* PCI I/O space */
+	pci_set_region (hose->regions + 2,
+			PCI_MSTR_IO_BUS,
+			PCI_MSTR_IO_LOCAL, PCI_MSTR_IO_SIZE, PCI_REGION_IO);
 
-    hose->region_count = 3;
+	hose->region_count = 3;
 
-    pci_register_hose(hose);
+	pci_register_hose (hose);
+	/* Mask off master abort machine checks */
+	immap->im_pci.pci_emr &= cpu_to_le32 (~PCI_ERROR_PCI_NO_RSP);
+	eieio ();
 
-    hose->last_busno = pci_hose_scan(hose);
+	hose->last_busno = pci_hose_scan (hose);
+
+
+	/* clear the error in the error status register */
+	immap->im_pci.pci_esr = cpu_to_le32 (PCI_ERROR_PCI_NO_RSP);
+
+	/* unmask master abort machine checks */
+	immap->im_pci.pci_emr |= cpu_to_le32 (PCI_ERROR_PCI_NO_RSP);
 }
 
-#endif	/* CONFIG_PCI */
+#endif /* CONFIG_PCI */

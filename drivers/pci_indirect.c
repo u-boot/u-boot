@@ -43,6 +43,19 @@ indirect_##rw##_config_##size(struct pci_controller *hose,               \
 	cfg_##rw(val, hose->cfg_data + (offset & mask), type, op);       \
 	return 0;                                                        \
 }
+#elif defined(CONFIG_440_GX)
+#define INDIRECT_PCI_OP(rw, size, type, op, mask)			 \
+static int								 \
+indirect_##rw##_config_##size(struct pci_controller *hose, 		 \
+			      pci_dev_t dev, int offset, type val)	 \
+{									 \
+	if (PCI_BUS(dev) > 0)                                            \
+		out_le32(hose->cfg_addr, dev | (offset & 0xfc) | 0x80000001); \
+	else                                                             \
+		out_le32(hose->cfg_addr, dev | (offset & 0xfc) | 0x80000000); \
+	cfg_##rw(val, hose->cfg_data + (offset & mask), type, op);	 \
+	return 0;    					 		 \
+}
 #else
 #define INDIRECT_PCI_OP(rw, size, type, op, mask)			 \
 static int								 \

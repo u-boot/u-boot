@@ -69,7 +69,7 @@
 
 /************************ Auto MDIX settings ************************/
 #define INCA_IP_AUTO_MDIX_LAN_PORTS_DIR      INCA_IP_Ports_P1_DIR
-#define INCA_IP_AUTO_MDIX_LAN_PORTS_ALTSEL   INCA_IP_Ports_P1_ALTSEL  
+#define INCA_IP_AUTO_MDIX_LAN_PORTS_ALTSEL   INCA_IP_Ports_P1_ALTSEL
 #define INCA_IP_AUTO_MDIX_LAN_PORTS_OUT      INCA_IP_Ports_P1_OUT
 #define INCA_IP_AUTO_MDIX_LAN_GPIO_PIN_RXTX  16
 
@@ -173,7 +173,7 @@ int inca_switch_initialize(bd_t * bis)
 	inca_dma_init();
 
 	inca_init_switch_chip();
-	
+
 	inca_amdix();
 
 	sprintf(dev->name, "INCA-IP Switch");

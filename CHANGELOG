@@ -2,6 +2,32 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
+* Patch by Travis Sawyer, 09 Feb 2004:
+  o 440GX:
+    - Fix PCI Indirect access for type 1 config cycles with ppc440.
+    - Add phymode for 440 enet
+    - fix pci pre init
+  o XPedite1K:
+    - Change board_pre_init to board_early_init_f
+    - Add user flash to bus controller setup
+    - Fix pci pre init
+    - Fix is_pci_host to check GPIO for monarch bit
+    - Force xpedite1k to pci conventional mode (via #define option)
+
+* Patch by Brad Kemp, 4 Feb 2004:
+  - handle the machine check that is generated during the PCI scans
+    on 82xx processors.
+  - define the registers used in the IMMR by the PCI subsystem.
+
+* Patch by Pierre Aubert, 03 Feb 2004:
+  cpu/mpc5xxx/start.S: copy MBAR into SPR311
+
+* Patch by Jeff Angielski, 03 Feb 2004:
+  Fix copy & paste error in cpu/mpc8260/pci.c
+
+* Patch by Reinhard Meyer, 24 Jan 2004:
+  Fix typo in cpu/mpc5xxx/pci_mpc5200.c
+
 * Add Auto-MDIX support for INCA-IP
 
 * Some code cleanup

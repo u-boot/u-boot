@@ -22,10 +22,8 @@
 #
 
 #
-# esd ADCIOP boards
+# XES XPedite1000 PPC440GX
 #
-
-#TEXT_BASE = 0xFFFE0000
 
 ifeq ($(ramsym),1)
 TEXT_BASE = 0x07FD0000

@@ -145,6 +145,8 @@ lowboot_reentry:
 	lis	r3, CFG_MBAR@h
 	ori	r3, r3, CFG_MBAR@l
 #if defined(CONFIG_MPC5200)
+	/* MBAR is mirrored into the MBAR SPR */
+	mtspr	MBAR,r3
 	rlwinm	r3, r3, 16, 16, 31
 #endif
 #if defined(CONFIG_MGT5100)

@@ -46,16 +46,14 @@ int pciauto_region_allocate(struct pci_region* res, unsigned int size, unsigned 
 {
 	unsigned long addr;
 
-	if (!res)
-	{
+	if (!res) {
 		DEBUGF("No resource");
 		goto error;
 	}
 
 	addr = ((res->bus_lower - 1) | (size - 1)) + 1;
 
-	if (addr - res->bus_start + size > res->size)
-	{
+	if (addr - res->bus_start + size > res->size) {
 		DEBUGF("No room in resource");
 		goto error;
 	}
@@ -90,8 +88,7 @@ void pciauto_setup_device(struct pci_controller *hose,
 	pci_hose_read_config_dword(hose, dev, PCI_COMMAND, &cmdstat);
 	cmdstat = (cmdstat & ~(PCI_COMMAND_IO | PCI_COMMAND_MEMORY)) | PCI_COMMAND_MASTER;
 
-	for (bar = PCI_BASE_ADDRESS_0; bar <= PCI_BASE_ADDRESS_0 + (bars_num*4); bar += 4)
-	{
+	for (bar = PCI_BASE_ADDRESS_0; bar <= PCI_BASE_ADDRESS_0 + (bars_num*4); bar += 4) {
 		/* Tickle the BAR and get the response */
 		pci_hose_write_config_dword(hose, dev, bar, 0xffffffff);
 		pci_hose_read_config_dword(hose, dev, bar, &bar_response);
@@ -103,15 +100,12 @@ void pciauto_setup_device(struct pci_controller *hose,
 		found_mem64 = 0;
 
 		/* Check the BAR type and set our address mask */
-		if (bar_response & PCI_BASE_ADDRESS_SPACE)
-		{
+		if (bar_response & PCI_BASE_ADDRESS_SPACE) {
 			bar_size = ~(bar_response & PCI_BASE_ADDRESS_IO_MASK) + 1;
 			bar_res = io;
 
 			DEBUGF("PCI Autoconfig: BAR %d, I/O, size=0x%x, ", bar_nr, bar_size);
-		}
-		else
-		{
+		} else {
 			if ( (bar_response & PCI_BASE_ADDRESS_MEM_TYPE_MASK) ==
 			     PCI_BASE_ADDRESS_MEM_TYPE_64)
 				found_mem64 = 1;
@@ -122,8 +116,7 @@ void pciauto_setup_device(struct pci_controller *hose,
 			DEBUGF("PCI Autoconfig: BAR %d, Mem, size=0x%x, ", bar_nr, bar_size);
 		}
 
-		if (pciauto_region_allocate(bar_res, bar_size, &bar_value) == 0)
-		{
+		if (pciauto_region_allocate(bar_res, bar_size, &bar_value) == 0) {
 			/* Write it out and update our limit */
 			pci_hose_write_config_dword(hose, dev, bar, bar_value);
 
@@ -132,8 +125,7 @@ void pciauto_setup_device(struct pci_controller *hose,
 			 * upper 32 bits of the bar and force it to locate
 			 * in the lower 4GB of memory.
 			 */
-			if (found_mem64)
-			{
+			if (found_mem64) {
 				bar += 4;
 				pci_hose_write_config_dword(hose, dev, bar, 0x00000000);
 			}
@@ -163,12 +155,10 @@ static void pciauto_prescan_setup_bridge(struct pci_controller *hose,
 
 	/* Configure bus number registers */
 	pci_hose_write_config_byte(hose, dev, PCI_PRIMARY_BUS, PCI_BUS(dev));
-	/* TBS: passed in sub_bus is correct, removed the +1 */
 	pci_hose_write_config_byte(hose, dev, PCI_SECONDARY_BUS, sub_bus);
 	pci_hose_write_config_byte(hose, dev, PCI_SUBORDINATE_BUS, 0xff);
 
-	if (pci_mem)
-	{
+	if (pci_mem) {
 		/* Round memory allocator to 1MB boundary */
 		pciauto_region_align(pci_mem, 0x100000);
 
@@ -179,8 +169,7 @@ static void pciauto_prescan_setup_bridge(struct pci_controller *hose,
 		cmdstat |= PCI_COMMAND_MEMORY;
 	}
 
-	if (pci_io)
-	{
+	if (pci_io) {
 		/* Round I/O allocator to 4KB boundary */
 		pciauto_region_align(pci_io, 0x1000);
 
@@ -209,8 +198,7 @@ static void pciauto_postscan_setup_bridge(struct pci_controller *hose,
 	/* Configure bus number registers */
 	pci_hose_write_config_byte(hose, dev, PCI_SUBORDINATE_BUS, sub_bus);
 
-	if (pci_mem)
-	{
+	if (pci_mem) {
 		/* Round memory allocator to 1MB boundary */
 		pciauto_region_align(pci_mem, 0x100000);
 
@@ -218,8 +206,7 @@ static void pciauto_postscan_setup_bridge(struct pci_controller *hose,
 					(pci_mem->bus_lower-1) >> 16);
 	}
 
-	if (pci_io)
-	{
+	if (pci_io) {
 		/* Round I/O allocator to 4KB boundary */
 		pciauto_region_align(pci_io, 0x1000);
 
@@ -240,10 +227,8 @@ void pciauto_config_init(struct pci_controller *hose)
 
 	hose->pci_io = hose->pci_mem = NULL;
 
-	for (i=0; i<hose->region_count; i++)
-	{
-		switch(hose->regions[i].flags)
-		{
+	for (i=0; i<hose->region_count; i++) {
+		switch(hose->regions[i].flags) {
 		case PCI_REGION_IO:
 			if (!hose->pci_io ||
 			    hose->pci_io->size < hose->regions[i].size)
@@ -258,8 +243,7 @@ void pciauto_config_init(struct pci_controller *hose)
 	}
 
 
-	if (hose->pci_mem)
-	{
+	if (hose->pci_mem) {
 		pciauto_region_init(hose->pci_mem);
 
 		DEBUGF("PCI Autoconfig: Memory region: [%lx-%lx]\n",
@@ -267,8 +251,7 @@ void pciauto_config_init(struct pci_controller *hose)
 		    hose->pci_mem->bus_start + hose->pci_mem->size - 1);
 	}
 
-	if (hose->pci_io)
-	{
+	if (hose->pci_io) {
 		pciauto_region_init(hose->pci_io);
 
 		DEBUGF("PCI Autoconfig: I/O region: [%lx-%lx]\n",
@@ -289,23 +272,22 @@ int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 
 	pci_hose_read_config_word(hose, dev, PCI_CLASS_DEVICE, &class);
 
-	switch(class)
-	{
+	switch(class) {
 	case PCI_CLASS_BRIDGE_PCI:
 		hose->current_busno++;
 		pciauto_setup_device(hose, dev, 2, hose->pci_mem, hose->pci_io);
 
 		DEBUGF("PCI Autoconfig: Found P2P bridge, device %d\n", PCI_DEV(dev));
 
-		/* TBS: Passing in current_busno allows for sibling P2P bridges */
+		/* Passing in current_busno allows for sibling P2P bridges */
 		pciauto_prescan_setup_bridge(hose, dev, hose->current_busno);
 		/*
-		 * TBS: need to figure out if this is a subordinate bridge on the bus
+		 * need to figure out if this is a subordinate bridge on the bus
 		 * to be able to properly set the pri/sec/sub bridge registers.
 		 */
 		n = pci_hose_scan_bus(hose, hose->current_busno);
 
-		/* TBS: figure out the deepest we've gone for this leg */
+		/* figure out the deepest we've gone for this leg */
 		sub_bus = max(n, sub_bus);
 		pciauto_postscan_setup_bridge(hose, dev, sub_bus);
 
@@ -314,11 +296,10 @@ int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 
 	case PCI_CLASS_STORAGE_IDE:
 		pci_hose_read_config_byte(hose, dev, PCI_CLASS_PROG, &prg_iface);
-		if (!(prg_iface & PCIAUTO_IDE_MODE_MASK))
-			{
-				DEBUGF("PCI Autoconfig: Skipping legacy mode IDE controller\n");
-				return sub_bus;
-			}
+		if (!(prg_iface & PCIAUTO_IDE_MODE_MASK)) {
+			DEBUGF("PCI Autoconfig: Skipping legacy mode IDE controller\n");
+			return sub_bus;
+		}
 
 		pciauto_setup_device(hose, dev, 6, hose->pci_mem, hose->pci_io);
 		break;
@@ -327,8 +308,7 @@ int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 		/* just do a minimal setup of the bridge, let the OS take care of the rest */
 		pciauto_setup_device(hose, dev, 0, hose->pci_mem, hose->pci_io);
 
-		DEBUGF("PCI Autoconfig: Found P2CardBus bridge, device %d\n",
-			PCI_DEV(dev));
+		DEBUGF("PCI Autoconfig: Found P2CardBus bridge, device %d\n", PCI_DEV(dev));
 
 		hose->current_busno++;
 		break;
