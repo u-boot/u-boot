@@ -1,0 +1,15 @@
+This port of U-Boot will run on a Motorola Sandpoint 3 development
+system equipped with a Unity X4 PPMC card (MPC8240 CPU) only. It is a
+snapshot of work in progress and far from being completed. In order
+to run it on the target system, it has to be downloaded using the
+DINK32 monitor program that came with your Sandpoint system. Please
+note that DINK32 does not accept the S-Record file created by the
+U-Boot build process unmodified, because it contains CR/LF line
+terminators. You have to strip the CR characters first. There is a
+tiny script named 'dinkdl' I created for this purpose.
+
+The Sandpoint port is based on the work of Rob Taylor, who does not
+seem to maintain it any more. I can be reached by mail as
+tkoeller@gmx.net.
+
+Thomas Koeller
