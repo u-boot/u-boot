@@ -871,7 +871,7 @@ input_swap_data(int dev, ulong *sect_buf, int words)
 			dbuf+=1;
 		}
 	}
-#else	
+#else
 	volatile ushort	*pbuf = (ushort *)(ATA_CURR_BASE(dev)+ATA_DATA_REG);
 	ushort	*dbuf = (ushort *)sect_buf;
 

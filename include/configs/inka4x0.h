@@ -274,6 +274,11 @@
 #define CFG_CS2_SIZE		0x0001000
 #define CFG_CS2_CFG		0x21800  /* for pci_clk = 33 MHz */
 
+/* GPIO in @0x30400000 */
+#define CFG_CS3_START		0x30400000
+#define CFG_CS3_SIZE		0x00100000
+#define CFG_CS3_CFG		0x31800 /* for pci_clk = 33 MHz */
+
 #define CFG_CS_BURST		0x00000000
 #define CFG_CS_DEADCYCLE	0x33333333
 

@@ -43,13 +43,11 @@ static void sdram_start (int hi_addr)
 	long hi_addr_bit = hi_addr ? 0x01000000 : 0;
 
 	/* unlock mode register */
-	*(vu_long *)MPC5XXX_SDRAM_CTRL = SDRAM_CONTROL | 0x80000000 |
-		hi_addr_bit;
+	*(vu_long *)MPC5XXX_SDRAM_CTRL = SDRAM_CONTROL | 0x80000000 | hi_addr_bit;
 	__asm__ volatile ("sync");
 
 	/* precharge all banks */
-	*(vu_long *)MPC5XXX_SDRAM_CTRL = SDRAM_CONTROL | 0x80000002 |
-		hi_addr_bit;
+	*(vu_long *)MPC5XXX_SDRAM_CTRL = SDRAM_CONTROL | 0x80000002 | hi_addr_bit;
 	__asm__ volatile ("sync");
 
 #if SDRAM_DDR
@@ -63,13 +61,11 @@ static void sdram_start (int hi_addr)
 #endif
 
 	/* precharge all banks */
-	*(vu_long *)MPC5XXX_SDRAM_CTRL = SDRAM_CONTROL | 0x80000002 |
-		hi_addr_bit;
+	*(vu_long *)MPC5XXX_SDRAM_CTRL = SDRAM_CONTROL | 0x80000002 | hi_addr_bit;
 	__asm__ volatile ("sync");
 
 	/* auto refresh */
-	*(vu_long *)MPC5XXX_SDRAM_CTRL = SDRAM_CONTROL | 0x80000004 |
-		hi_addr_bit;
+	*(vu_long *)MPC5XXX_SDRAM_CTRL = SDRAM_CONTROL | 0x80000004 | hi_addr_bit;
 	__asm__ volatile ("sync");
 
 	/* set mode register */
@@ -177,27 +173,51 @@ void flash_preinit(void)
 	*(vu_long *)MPC5XXX_BOOTCS_CFG &= ~0x1; /* clear RO */
 }
 
-#define GPIO_PSC3_9     0x04000000UL
+#define GPIO_PSC3_9	0x04000000UL
 
 int misc_init_f (void)
 {
+	/* Initialize GPIO output pins.
+	 */
+	/* Configure GPT as GPIO output */
+	*(vu_long *)MPC5XXX_GPT0_ENABLE =
+	*(vu_long *)MPC5XXX_GPT1_ENABLE =
+	*(vu_long *)MPC5XXX_GPT2_ENABLE =
+	*(vu_long *)MPC5XXX_GPT3_ENABLE =
+	*(vu_long *)MPC5XXX_GPT4_ENABLE =
+	*(vu_long *)MPC5XXX_GPT5_ENABLE = 0x24;
+
+
+	/* Configure PSC3_6,7 as GPIO output */
+	*(vu_long *)MPC5XXX_GPIO_ENABLE |= 0x00003000;
+	*(vu_long *)MPC5XXX_GPIO_DIR |= 0x00003000;
+
+	/* Configure PSC3_8 as GPIO output, no interrupt */
+	*(vu_long *)MPC5XXX_GPIO_SI_ENABLE |= 0x04000000;
+	*(vu_long *)MPC5XXX_GPIO_SI_DIR |= 0x04000000;
+	*(vu_long *)MPC5XXX_GPIO_SI_IEN &= ~0x04000000;
+
+	/* Configure PSC3_9 and GPIO_WKUP6,7 as GPIO output */
+	*(vu_long *)MPC5XXX_WU_GPIO_ENABLE |= 0xc4000000;
+	*(vu_long *)MPC5XXX_WU_GPIO_DIR |= 0xc4000000;
+
 	/*
 	 * Reset Coral-P graphics controller
 	 */
-        *(vu_long *) MPC5XXX_WU_GPIO_ENABLE |= GPIO_PSC3_9;
-        *(vu_long *) MPC5XXX_WU_GPIO_DIR    |= GPIO_PSC3_9;
-        *(vu_long *) MPC5XXX_WU_GPIO_DATA   |= GPIO_PSC3_9;
-        return 0;
+	*(vu_long *) MPC5XXX_WU_GPIO_ENABLE |= GPIO_PSC3_9;
+	*(vu_long *) MPC5XXX_WU_GPIO_DIR    |= GPIO_PSC3_9;
+	*(vu_long *) MPC5XXX_WU_GPIO_DATA   |= GPIO_PSC3_9;
+	return 0;
 }
 
-#ifdef  CONFIG_PCI
+#ifdef	CONFIG_PCI
 static struct pci_controller hose;
 
 extern void pci_mpc5xxx_init(struct pci_controller *);
 
 void pci_init_board(void)
 {
-        pci_mpc5xxx_init(&hose);
+	pci_mpc5xxx_init(&hose);
 }
 #endif
 
@@ -209,7 +229,7 @@ void init_ide_reset (void)
 {
 	debug ("init_ide_reset\n");
 
-    	/* Configure PSC1_4 as GPIO output for ATA reset */
+	/* Configure PSC1_4 as GPIO output for ATA reset */
 	*(vu_long *) MPC5XXX_WU_GPIO_ENABLE |= GPIO_PSC1_4;
 	*(vu_long *) MPC5XXX_WU_GPIO_DIR    |= GPIO_PSC1_4;
 	/* Deassert reset */
