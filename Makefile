@@ -680,9 +680,19 @@ BUBINGA405EP_config:	unconfig
 CANBT_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx canbt esd
 
-CATcenter_config:	unconfig
+CATcenter_config	\
+CATcenter_25_config	\
+CATcenter_33_config:	unconfig
 	@ echo "/* CATcenter uses PPChameleon Model ME */"  > include/config.h
 	@ echo "#define CONFIG_PPCHAMELEON_MODULE_MODEL 1" >> include/config.h
+	@[ -z "$(findstring _25,$@)" ] || \
+		{ echo "#define CONFIG_PPCHAMELEON_CLK_25" >>include/config.h ; \
+		  echo "SysClk = 25MHz" ; \
+		}
+	@[ -z "$(findstring _33,$@)" ] || \
+		{ echo "#define CONFIG_PPCHAMELEON_CLK_33" >>include/config.h ; \
+		  echo "SysClk = 33MHz" ; \
+		}
 	@./mkconfig -a $(call xtract_4xx,$@) ppc ppc4xx PPChameleonEVB dave
 
 CPCI405_config	\
@@ -771,25 +781,25 @@ PPChameleonEVB_BA_33_config	\
 PPChameleonEVB_ME_33_config	\
 PPChameleonEVB_HI_33_config:	unconfig
 	@ >include/config.h
-	@[ -z "$(findstring _MODEL_BA,$@)" ] || \
+	@[ -z "$(findstring EVB_BA,$@)" ] || \
 		{ echo "#define CONFIG_PPCHAMELEON_MODULE_MODEL 0" >>include/config.h ; \
 		  echo "... BASIC model" ; \
 		}
-	@[ -z "$(findstring _MODEL_ME,$@)" ] || \
+	@[ -z "$(findstring EVB_ME,$@)" ] || \
 		{ echo "#define CONFIG_PPCHAMELEON_MODULE_MODEL 1" >>include/config.h ; \
 		  echo "... MEDIUM model" ; \
 		}
-	@[ -z "$(findstring _MODEL_HI,$@)" ] || \
+	@[ -z "$(findstring EVB_HI,$@)" ] || \
 		{ echo "#define CONFIG_PPCHAMELEON_MODULE_MODEL 2" >>include/config.h ; \
 		  echo "... HIGH-END model" ; \
 		}
 	@[ -z "$(findstring _25,$@)" ] || \
 		{ echo "#define CONFIG_PPCHAMELEON_CLK_25" >>include/config.h ; \
-		  echo " SysClk = 25MHz" ; \
+		  echo "SysClk = 25MHz" ; \
 		}
 	@[ -z "$(findstring _33,$@)" ] || \
 		{ echo "#define CONFIG_PPCHAMELEON_CLK_33" >>include/config.h ; \
-		  echo " SysClk = 33MHz" ; \
+		  echo "SysClk = 33MHz" ; \
 		}
 	@./mkconfig -a $(call xtract_4xx,$@) ppc ppc4xx PPChameleonEVB dave
 

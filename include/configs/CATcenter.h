@@ -1,4 +1,6 @@
 /*
+ * ueberarbeitet durch Christoph Seyfert
+ *
  * (C) Copyright 2004 DENX Software Engineering,
  *     Wolfgang Grandegger <wg@denx.de>
  * (C) Copyright 2003
@@ -40,6 +42,20 @@
 #define CONFIG_PPCHAMELEON_MODULE_MODEL CONFIG_PPCHAMELEON_MODULE_BA
 #endif
 
+/* Only one of the following two symbols must be defined (default is 25 MHz)
+ * CONFIG_PPCHAMELEON_CLK_25
+ * CONFIG_PPCHAMELEON_CLK_33
+ */
+#if (!defined(CONFIG_PPCHAMELEON_CLK_25) && !defined(CONFIG_PPCHAMELEON_CLK_33))
+#define CONFIG_PPCHAMELEON_CLK_25
+#endif
+
+#if (defined(CONFIG_PPCHAMELEON_CLK_25) && defined(CONFIG_PPCHAMELEON_CLK_33))
+#error "* Two external frequencies (SysClk) are defined! *"
+#endif
+
+#undef CONFIG_PPCHAMELEON_SMI712
+
 /*
  * Debug stuff
  */
@@ -62,42 +78,52 @@
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* call board_early_init_f()	*/
 #define CONFIG_MISC_INIT_R	1	/* call misc_init_r()		*/
 
+#ifdef CONFIG_PPCHAMELEON_CLK_25
+# define CONFIG_SYS_CLK_FREQ	25000000 /* external frequency to pll   */
+#elif (defined (CONFIG_PPCHAMELEON_CLK_33))
 #define CONFIG_SYS_CLK_FREQ	33333333 /* external frequency to pll	*/
+#else
+# error "* External frequency (SysClk) not defined! *"
+#endif
 
-#define CONFIG_UART1_CONSOLE	1	/* Use second UART	*/
+#define CONFIG_UART1_CONSOLE	1	/* Use second UART		*/
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
+
+#define CONFIG_VERSION_VARIABLE	1	/* add version variable		*/
+#define CONFIG_IDENT_STRING	"1"
 
 #undef	CONFIG_BOOTARGS
 
 /* Ethernet stuff */
 #define CONFIG_ENV_OVERWRITE /* Let the user to change the Ethernet MAC addresses */
-#define CONFIG_ETHADDR	00:50:C2:1E:AF:FC
-#define CONFIG_ETH1ADDR 00:50:C2:1E:AF:FB
+#define CONFIG_ETHADDR	00:50:C2:1E:AF:FE
+#define CONFIG_ETH1ADDR 00:50:C2:1E:AF:FD
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
 
 #undef CONFIG_EXT_PHY
+#define CONFIG_NET_MULTI	1
 
 #define CONFIG_MII		1	/* MII PHY management		*/
 #ifndef	 CONFIG_EXT_PHY
-#define CONFIG_PHY_ADDR		1	/* PHY address			*/
+#define CONFIG_PHY_ADDR		0	/* EMAC0 PHY address		*/
+#define CONFIG_PHY1_ADDR	1	/* EMAC1 PHY address		*/
 #else
 #define CONFIG_PHY_ADDR		2	/* PHY address			*/
 #endif
 #define CONFIG_PHY_CLK_FREQ	EMAC_STACR_CLK_66MHZ
 
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
-				CFG_CMD_DATE	| \
 				CFG_CMD_ELF	| \
 				CFG_CMD_EEPROM	| \
 				CFG_CMD_I2C	| \
 				CFG_CMD_IRQ	| \
+				CFG_CMD_JFFS2	| \
 				CFG_CMD_MII	| \
-				CFG_CMD_NAND	| \
-				CFG_CMD_JFFS2)
+				CFG_CMD_NAND	)
 
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
@@ -118,7 +144,7 @@
 #define CFG_LONGHELP			/* undef to save memory		*/
 #define CFG_PROMPT		"=> "	/* Monitor Command Prompt	*/
 
-#undef	CFG_HUSH_PARSER			/* use "hush" command parser	*/
+#define	CFG_HUSH_PARSER			/* use "hush" command parser	*/
 #ifdef	CFG_HUSH_PARSER
 #define CFG_PROMPT_HUSH_PS2	"> "
 #endif
@@ -294,9 +320,10 @@
 
 #define CONFIG_PCI_SCAN_SHOW		/* print pci devices @ startup	*/
 
-#define CFG_PCI_SUBSYS_VENDORID 0x12FE	/* PCI Vendor ID: esd gmbh	*/
-#define CFG_PCI_SUBSYS_DEVICEID 0x0405	/* PCI Device ID: CPCI-405	*/
+#define CFG_PCI_SUBSYS_VENDORID 0x1014	/* PCI Vendor ID: IBM	*/
+#define CFG_PCI_SUBSYS_DEVICEID 0x0000	/* PCI Device ID: ---	*/
 #define CFG_PCI_CLASSCODE	0x0b20	/* PCI Class Code: Processor/PPC*/
+
 #define CFG_PCI_PTM1LA	0x00000000	/* point to sdram		*/
 #define CFG_PCI_PTM1MS	0xfc000001	/* 64MB, enable hard-wired to 1 */
 #define CFG_PCI_PTM1PCI 0x00000000	/* Host: use this pci address	*/
@@ -417,23 +444,21 @@
 #define CFG_EBC_PB3AP		0x92015480
 #define CFG_EBC_PB3CR		0xFF058000  /* BAS=0xFF0,BS=4MB,BU=R/W,BW=8bit	*/
 
-
-#if 0 /* Roese */
-/* Memory Bank 1 (Flash Bank 1, NAND-FLASH) initialization			*/
-#define CFG_EBC_PB1AP		0x92015480
-#define CFG_EBC_PB1CR		0xFF858000  /* BAS=0xFF8,BS=4MB,BU=R/W,BW=8bit	*/
-
-/* Memory Bank 2 (CAN0, 1) initialization					*/
-#define CFG_EBC_PB2AP		0x010053C0  /* BWT=2,WBN=1,WBF=1,TH=1,RE=1,SOR=1,BEM=1 */
-#define CFG_EBC_PB2CR		0xF0018000  /* BAS=0xF00,BS=1MB,BU=R/W,BW=8bit	*/
-
-/* Memory Bank 3 (CompactFlash IDE) initialization				*/
-#define CFG_EBC_PB3AP		0x010053C0  /* BWT=2,WBN=1,WBF=1,TH=1,RE=1,SOR=1,BEM=1 */
-#define CFG_EBC_PB3CR		0xF011A000  /* BAS=0xF01,BS=1MB,BU=R/W,BW=16bit */
-
-/* Memory Bank 4 (NVRAM/RTC) initialization					*/
-#define CFG_EBC_PB4AP		0x01005280  /* TWT=2,WBN=1,WBF=1,TH=1,SOR=1	*/
-#define CFG_EBC_PB4CR		0xF0218000  /* BAS=0xF02,BS=1MB,BU=R/W,BW=8bit	*/
+#ifdef CONFIG_PPCHAMELEON_SMI712
+/*
+ * Video console (graphic: SMI LynxEM)
+ */
+#define CONFIG_VIDEO
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VIDEO_SMI_LYNXEM
+#define CONFIG_VIDEO_LOGO
+/*#define CONFIG_VIDEO_BMP_LOGO*/
+#define CONFIG_CONSOLE_EXTRA_INFO
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+/* This is the base address (on 405EP-side) used to generate I/O accesses on PCI bus */
+#define CFG_ISA_IO 0xE8000000
+/* see also drivers/videomodes.c */
+#define CFG_DEFAULT_VIDEO_MODE 0x303
 #endif
 
 /*-----------------------------------------------------------------------
@@ -480,7 +505,7 @@
  * Definitions for initial stack pointer and data area (in data cache)
  */
 /* use on chip memory ( OCM ) for temperary stack until sdram is tested */
-#define CFG_TEMP_STACK_OCM	  1
+#define CFG_TEMP_STACK_OCM	1
 
 /* On Chip Memory location */
 #define CFG_OCM_DATA_ADDR	0xF8000000
@@ -539,7 +564,6 @@
 #undef		AUTO_MEMORY_CONFIG
 #define		DIMM_READ_ADDR 0xAB
 #define		DIMM_WRITE_ADDR 0xAA
-
 
 #define CPC0_PLLMR0  (CNTRL_DCR_BASE+0x0)  /* PLL mode 0 register		*/
 #define CPC0_BOOT    (CNTRL_DCR_BASE+0x1)  /* Chip Clock Status register	*/
@@ -652,44 +676,86 @@
 #define PLL_PCIDIV_3		0x00000002
 #define PLL_PCIDIV_4		0x00000003
 
+#ifdef CONFIG_PPCHAMELEON_CLK_25
+/* CPU - PLB/SDRAM - EBC - OPB - PCI (assuming a 25.0 MHz input clock to the 405EP) */
+#define PPCHAMELEON_PLLMR0_133_133_33_66_33	 (PLL_CPUDIV_1 | PLL_PLBDIV_1 |	 \
+			      PLL_OPBDIV_2 | PLL_EXTBUSDIV_4 |	\
+			      PLL_MALDIV_1 | PLL_PCIDIV_4)
+#define PPCHAMELEON_PLLMR1_133_133_33_66_33	 (PLL_FBKDIV_8	|  \
+			      PLL_FWDDIVA_6 | PLL_FWDDIVB_4 |  \
+			      PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
+
+#define PPCHAMELEON_PLLMR0_200_100_50_33 (PLL_CPUDIV_1 | PLL_PLBDIV_2 |  \
+			      PLL_OPBDIV_2 | PLL_EXTBUSDIV_3 |	\
+			      PLL_MALDIV_1 | PLL_PCIDIV_4)
+#define PPCHAMELEON_PLLMR1_200_100_50_33 (PLL_FBKDIV_8  |  \
+			      PLL_FWDDIVA_4 | PLL_FWDDIVB_4 |  \
+			      PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
+
+#define PPCHAMELEON_PLLMR0_266_133_33_66_33 (PLL_CPUDIV_1 | PLL_PLBDIV_2 |	\
+			      PLL_OPBDIV_2 | PLL_EXTBUSDIV_4 |	\
+			      PLL_MALDIV_1 | PLL_PCIDIV_4)
+#define PPCHAMELEON_PLLMR1_266_133_33_66_33 (PLL_FBKDIV_8  |  \
+			      PLL_FWDDIVA_3 | PLL_FWDDIVB_4 |  \
+			      PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
+
+#define PPCHAMELEON_PLLMR0_333_111_37_55_55 (PLL_CPUDIV_1 | PLL_PLBDIV_3 |	\
+			      PLL_OPBDIV_2 | PLL_EXTBUSDIV_3 |	\
+			      PLL_MALDIV_1 | PLL_PCIDIV_2)
+#define PPCHAMELEON_PLLMR1_333_111_37_55_55 (PLL_FBKDIV_10	|  \
+			      PLL_FWDDIVA_3 | PLL_FWDDIVB_4 |  \
+			      PLL_TUNE_15_M_40 | PLL_TUNE_VCO_HI)
+
+#elif (defined (CONFIG_PPCHAMELEON_CLK_33))
+
 /* CPU - PLB/SDRAM - EBC - OPB - PCI (assuming a 33.3MHz input clock to the 405EP) */
-#define PLLMR0_133_133_33_66_33	 (PLL_CPUDIV_1 | PLL_PLBDIV_1 | \
-				  PLL_OPBDIV_2 | PLL_EXTBUSDIV_4 | \
+#define PPCHAMELEON_PLLMR0_133_133_33_66_33	 (PLL_CPUDIV_1 | PLL_PLBDIV_1 |	 \
+				  PLL_OPBDIV_2 | PLL_EXTBUSDIV_4 |	\
 				  PLL_MALDIV_1 | PLL_PCIDIV_4)
-#define PLLMR1_133_133_33_66_33	 (PLL_FBKDIV_4	|  \
-				  PLL_FWDDIVA_6 | PLL_FWDDIVB_6 | \
+#define PPCHAMELEON_PLLMR1_133_133_33_66_33	 (PLL_FBKDIV_4	|  \
+				  PLL_FWDDIVA_6 | PLL_FWDDIVB_6 |  \
 				  PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
-#define PLLMR0_200_100_50_33	 (PLL_CPUDIV_1 | PLL_PLBDIV_2 | \
-				  PLL_OPBDIV_2 | PLL_EXTBUSDIV_3 | \
+
+#define PPCHAMELEON_PLLMR0_200_100_50_33 (PLL_CPUDIV_1 | PLL_PLBDIV_2 |  \
+				  PLL_OPBDIV_2 | PLL_EXTBUSDIV_3 |	\
 				  PLL_MALDIV_1 | PLL_PCIDIV_4)
-#define PLLMR1_200_100_50_33	 (PLL_FBKDIV_6	| \
-				  PLL_FWDDIVA_4 | PLL_FWDDIVB_4 | \
+#define PPCHAMELEON_PLLMR1_200_100_50_33 (PLL_FBKDIV_6  |  \
+				  PLL_FWDDIVA_4 | PLL_FWDDIVB_4 |  \
 				  PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
-#define PLLMR0_266_133_33_66_33	 (PLL_CPUDIV_1 | PLL_PLBDIV_2 | \
-				  PLL_OPBDIV_2 | PLL_EXTBUSDIV_4 | \
+
+#define PPCHAMELEON_PLLMR0_266_133_33_66_33 (PLL_CPUDIV_1 | PLL_PLBDIV_2 |	\
+				  PLL_OPBDIV_2 | PLL_EXTBUSDIV_4 |	\
 				  PLL_MALDIV_1 | PLL_PCIDIV_4)
-#define PLLMR1_266_133_33_66_33	 (PLL_FBKDIV_8	| \
-				  PLL_FWDDIVA_3 | PLL_FWDDIVB_3 | \
+#define PPCHAMELEON_PLLMR1_266_133_33_66_33 (PLL_FBKDIV_8  |  \
+				  PLL_FWDDIVA_3 | PLL_FWDDIVB_3 |  \
 				  PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
-#define PLLMR0_333_111_37_55_55	 (PLL_CPUDIV_1 | PLL_PLBDIV_3 | \
-				  PLL_OPBDIV_2 | PLL_EXTBUSDIV_3 | \
+
+#define PPCHAMELEON_PLLMR0_333_111_37_55_55 (PLL_CPUDIV_1 | PLL_PLBDIV_3 |	\
+				  PLL_OPBDIV_2 | PLL_EXTBUSDIV_3 |	\
 				  PLL_MALDIV_1 | PLL_PCIDIV_2)
-#define PLLMR1_333_111_37_55_55	 (PLL_FBKDIV_10 | \
-				  PLL_FWDDIVA_3 | PLL_FWDDIVB_3 | \
+#define PPCHAMELEON_PLLMR1_333_111_37_55_55 (PLL_FBKDIV_10	|  \
+				  PLL_FWDDIVA_3 | PLL_FWDDIVB_3 |  \
 				  PLL_TUNE_15_M_40 | PLL_TUNE_VCO_HI)
+
+#else
+#error "* External frequency (SysClk) not defined! *"
+#endif
 
 #if   (CONFIG_PPCHAMELEON_MODULE_MODEL == CONFIG_PPCHAMELEON_MODULE_HI)
 /* Model HI */
-#define PLLMR0_DEFAULT		PLLMR0_333_111_37_55_55
-#define PLLMR1_DEFAULT		PLLMR1_333_111_37_55_55
+#define PLLMR0_DEFAULT	PPCHAMELEON_PLLMR0_333_111_37_55_55
+#define PLLMR1_DEFAULT	PPCHAMELEON_PLLMR1_333_111_37_55_55
+#define CFG_OPB_FREQ	55555555
 /* Model ME */
 #elif (CONFIG_PPCHAMELEON_MODULE_MODEL == CONFIG_PPCHAMELEON_MODULE_ME)
-#define PLLMR0_DEFAULT		PLLMR0_266_133_33_66_33
-#define PLLMR1_DEFAULT		PLLMR1_266_133_33_66_33
+#define PLLMR0_DEFAULT	PPCHAMELEON_PLLMR0_266_133_33_66_33
+#define PLLMR1_DEFAULT	PPCHAMELEON_PLLMR1_266_133_33_66_33
+#define CFG_OPB_FREQ	66666666
 #else
 /* Model BA (default) */
-#define PLLMR0_DEFAULT		PLLMR0_133_133_33_66_33
-#define PLLMR1_DEFAULT		PLLMR1_133_133_33_66_33
+#define PLLMR0_DEFAULT	PPCHAMELEON_PLLMR0_133_133_33_66_33
+#define PLLMR1_DEFAULT	PPCHAMELEON_PLLMR1_133_133_33_66_33
+#define CFG_OPB_FREQ	66666666
 #endif
 
 #endif /* CONFIG_NO_SERIAL_EEPROM */
