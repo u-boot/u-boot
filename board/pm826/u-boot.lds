@@ -61,6 +61,7 @@ SECTIONS
     . = ALIGN(16);
     *(.rodata)
     *(.rodata1)
+    *(.rodata.str1.4)
   }
   .fini      : { *(.fini)    } =0
   .ctors     : { *(.ctors)   }

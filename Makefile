@@ -802,7 +802,7 @@ clobber:	clean
 	rm -f u-boot u-boot.bin u-boot.srec u-boot.map System.map
 	rm -f tools/crc32.c tools/environment.c tools/env/crc32.c
 	rm -f tools/inca-swap-bytes cpu/mpc824x/bedbug_603e.c
-	rm -f include/asm/arch include/asm
+	rm -f include/asm/proc include/asm/arch include/asm
 
 mrproper \
 distclean:	clobber unconfig

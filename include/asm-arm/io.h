@@ -20,10 +20,14 @@
 #ifndef __ASM_ARM_IO_H
 #define __ASM_ARM_IO_H
 
+#ifdef __KERNEL__
+
 #include <linux/types.h>
 #include <asm/byteorder.h>
 #include <asm/memory.h>
+#if 0	/* XXX###XXX */
 #include <asm/arch/hardware.h>
+#endif	/* XXX###XXX */
 
 /*
  * Generic virtual read/write.  Note that we don't support half-word
@@ -68,7 +72,9 @@ extern void __raw_readsl(unsigned int addr, void *data, int longlen);
 /*
  * Now, pick up the machine-defined IO definitions
  */
+#if 0	/* XXX###XXX */
 #include <asm/arch/io.h>
+#endif	/* XXX###XXX */
 
 /*
  *  IO port access primitives
@@ -252,10 +258,6 @@ out:
 #define isa_eth_io_copy_and_sum(a,b,c,d) \
 				eth_copy_and_sum((a),__mem_isa(b),(c),(d))
 
-#ifndef PCI_MEMORY_VADDR	/* XXX problem not understood -- wd */
-#define	PCI_MEMORY_VADDR	0
-#endif	/* XXX */
-
 static inline int
 isa_check_signature(unsigned long io_addr, const unsigned char *signature,
 		    int length)
@@ -291,5 +293,5 @@ out:
 #define isa_check_signature(io,sig,len)	(0)
 
 #endif	/* __mem_isa */
-
+#endif	/* __KERNEL__ */
 #endif	/* __ASM_ARM_IO_H */

@@ -32,7 +32,8 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/proc-armv/ptrace.h>
+#include <asm/arch/hardware.h>
+#include <asm/proc/ptrace.h>
 
 extern void reset_cpu(ulong addr);
 

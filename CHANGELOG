@@ -2,6 +2,12 @@
 Changes since U-Boot 0.3.1:
 ======================================================================
 
+* Header file cleanup for ARM
+
+* Patch by Murray Jensen, 24 Jun 2003:
+  - make sure to use only U-boot provided header files
+  - fix problems with ".rodata.str1.4" section as used by GCC-3.x
+
 * Patch by Stefan Roese, 24 Jun 2003:
   - Update esd ASH405 board files.
   - Update esd DASA_SIM config file.

@@ -33,6 +33,7 @@
 #include <common.h>
 #include <command.h>
 #include <asm/io.h>
+#include <asm/arch/hardware.h>
 
 /* read co-processor 15, register #1 (control register) */
 static unsigned long read_p15_c1(void)

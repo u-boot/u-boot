@@ -31,6 +31,7 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <asm/arch/hardware.h>
 
 /* ggi thunder */
 AT91PS_USART us = (AT91PS_USART) AT91C_BASE_DBGU;

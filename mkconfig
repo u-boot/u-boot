@@ -33,6 +33,11 @@ ln -s asm-$2 asm
 rm -f asm-$2/arch
 ln -s arch-$3 asm-$2/arch
 
+if [ "$2" = "arm" ] ; then
+	rm -f asm-$2/proc
+	ln -s proc-armv asm-$2/proc
+fi
+
 #
 # Create include file for Make
 #
