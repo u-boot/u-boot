@@ -72,7 +72,15 @@
 
 #define CONFIG_RTC_M48T35A	1		/* ST Electronics M48 timekeeper */
 
+#if 0 /* test-only */
+#define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT |  \
+				 CONFIG_BOOTP_VENDOREX)
+#else
+#define CONFIG_BOOTP_MASK       (CONFIG_BOOTP_DEFAULT)
+#endif
+
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
+				CFG_CMD_DHCP	| \
 				CFG_CMD_PCI	| \
 				CFG_CMD_IRQ	| \
 				CFG_CMD_IDE	| \
