@@ -104,6 +104,9 @@ boot_warm:
 	mfmsr	r5			/* save msr contents		*/
 
 #if defined(CFG_LOWBOOT)
+#if defined(CFG_RAMBOOT)
+#error CFG_LOWBOOT is incompatible with CFG_RAMBOOT
+#endif /* CFG_RAMBOOT */
 	lis	r4, CFG_DEFAULT_MBAR@h
 	lis	r3,     0x0000FF00@h
 	ori	r3, r3, 0x0000FF00@l

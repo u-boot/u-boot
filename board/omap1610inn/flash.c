@@ -93,6 +93,8 @@ unsigned long flash_init (void)
 		case 0:
 			flash_get_size ((FPW *) PHYS_FLASH_1, &flash_info[i]);
 			flash_get_offsets (PHYS_FLASH_1, &flash_info[i]);
+			/* to reset the lock bit */
+			flash_unlock(&flash_info[i]);
 			break;
 		default:
 			panic ("configured too many flash banks!\n");
@@ -112,6 +114,19 @@ unsigned long flash_init (void)
 			CFG_ENV_ADDR + CFG_ENV_SIZE - 1, &flash_info[0]);
 
 	return size;
+}
+
+/*-----------------------------------------------------------------------
+ */
+flash_unlock(flash_info_t * info)
+{
+        int j;
+        for (j=2;j<CFG_MAX_FLASH_SECT;j++){
+        FPWV *addr = (FPWV *) (info->start[j]);
+        flash_unprotect_sectors (addr);
+        *addr = (FPW) 0x00500050;/* clear status register */
+        *addr = (FPW) 0x00FF00FF;/* resest to read mode */
+        }
 }
 
 /*-----------------------------------------------------------------------
@@ -447,7 +462,6 @@ static int write_data (flash_info_t * info, ulong dest, FPW data)
 		printf ("not erased at %08lx (%x)\n", (ulong) addr, *addr);
 		return (2);
 	}
-	flash_unprotect_sectors (addr);
 	/* Disable interrupts which might cause a timeout here */
 	flag = disable_interrupts ();
 	*addr = (FPW) 0x00400040;	/* write setup */

@@ -2,6 +2,17 @@
 Changes since U-Boot 1.0.1:
 ======================================================================
 
+* Patch by Rahul Shanbhag, 28 Jan 2004:
+  Fix flash protection/locking handling for OMAP1610 innovator board.
+
+* Patch by Rolf Peukert, 28 Jan 2004:
+  fix flash write problems on CSB226 board (write with 32 bit bus width)
+
+* Patches by Mark Jonas, 16 Jan 2004:
+  - fix rounding error when calculating baudrates for MPC5200 PSCs
+  - make sure CFG_RAMBOOT and CFG_LOWBOOT are not enabled at the same
+    time which is not supported
+
 * Patch by Yuli Barcohen, 26 Jan 2004:
   Allow bzip2 compression for small memory footprint boards
 

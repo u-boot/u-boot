@@ -67,10 +67,10 @@ int serial_init (void)
 	/* select clock sources */
 #if defined(CONFIG_MGT5100)
 	psc->psc_clock_select = 0xdd00;
-	baseclk = CFG_MPC5XXX_CLKIN / 32;
+	baseclk = (CFG_MPC5XXX_CLKIN + 16) / 32;
 #elif defined(CONFIG_MPC5200)
 	psc->psc_clock_select = 0;
-	baseclk = gd->ipb_clk / 32;
+	baseclk = (gd->ipb_clk + 16) / 32;
 #endif
 
 	/* switch to UART mode */
@@ -85,8 +85,8 @@ int serial_init (void)
 	psc->mode = PSC_MODE_ONE_STOP;
 
 	/* set up UART divisor */
-	div = baseclk / gd->baudrate;
-	psc->ctur = div >> 8;
+	div = (baseclk + (gd->baudrate/2)) / gd->baudrate;
+	psc->ctur = (div >> 8) & 0xff;
 	psc->ctlr = div & 0xff;
 
 	/* disable all interrupts */
