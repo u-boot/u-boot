@@ -58,6 +58,10 @@
  * Hardware drivers
  */
 
+/* define one of these to choose the DBGU or USART1 as console */
+#define CONFIG_DBGU
+#undef CONFIG_USART1
+
 #undef	CONFIG_HWFLOW			/* don't include RTS/CTS flow control support	*/
 
 #undef	CONFIG_MODEM_SUPPORT		/* disable modem initialization stuff */

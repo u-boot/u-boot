@@ -33,8 +33,17 @@
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 
+#if !defined(CONFIG_DBGU) && !defined(CONFIG_USART1)
+#error must define one of CONFIG_DBGU or CONFIG_USART1
+#endif
+
 /* ggi thunder */
+#ifdef CONFIG_DBGU
 AT91PS_USART us = (AT91PS_USART) AT91C_BASE_DBGU;
+#endif
+#ifdef CONFIG_USART1
+AT91PS_USART us = (AT91PS_USART) AT91C_BASE_US1;
+#endif
 
 void serial_setbrg (void)
 {
@@ -49,8 +58,14 @@ void serial_setbrg (void)
 int serial_init (void)
 {
 	/* make any port initializations specific to this port */
+#ifdef CONFIG_DBGU
 	*AT91C_PIOA_PDR = AT91C_PA31_DTXD | AT91C_PA30_DRXD;	/* PA 31 & 30 */
 	*AT91C_PMC_PCER = 1 << AT91C_ID_SYS;	/* enable clock */
+#endif
+#ifdef CONFIG_USART1
+	*AT91C_PIOB_PDR = AT91C_PB21_TXD1 | AT91C_PB20_RXD1;
+	*AT91C_PMC_PCER |= 1 << AT91C_ID_USART1;	/* enable clock */
+#endif
 	serial_setbrg ();
 
 	us->US_CR = AT91C_US_RSTRX | AT91C_US_RSTTX;

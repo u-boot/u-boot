@@ -35,6 +35,10 @@
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 
+#if !defined(CONFIG_DBGU) && !defined(CONFIG_USART1)
+#error must define one of CONFIG_DBGU or CONFIG_USART1
+#endif
+
 /* read co-processor 15, register #1 (control register) */
 static unsigned long read_p15_c1(void)
 {
@@ -116,7 +120,12 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
     disable_interrupts();
     reset_cpu(0);
 #else
+#ifdef CONFIG_DBGU
+   AT91PS_USART us = AT91C_BASE_DBGU;
+#endif
+#ifdef CONFIG_USART1
    AT91PS_USART us = AT91C_BASE_US1;
+#endif
    AT91PS_PIO pio = AT91C_BASE_PIOA;
 
    /*shutdown the console to avoid strange chars during reset */

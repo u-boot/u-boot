@@ -447,6 +447,7 @@ typedef struct _AT91S_PDC {
 #define AT91C_SPI_CSR   ((AT91_REG *) 	0xFFFE0030) /* (SPI) Chip Select Register */
 #define AT91C_PMC_PCER  ((AT91_REG *) 	0xFFFFFC10) /* (PMC) Peripheral Clock Enable Register */
 #define AT91C_PIOA_PDR  ((AT91_REG *) 	0xFFFFF404) /* (PIOA) PIO Disable Register */
+#define AT91C_PIOB_PDR  ((AT91_REG *) 	0xFFFFF604) /* (PIOB) PIO Disable Register */
 
 #define AT91C_PIO_PA30       ((unsigned int) 1 << 30) /* Pin Controlled by PA30 */
 #define AT91C_PIO_PC0        ((unsigned int) 1 <<  0) /* Pin Controlled by PC0 */
@@ -454,6 +455,10 @@ typedef struct _AT91S_PDC {
 #define AT91C_PA30_DRXD     ((unsigned int) AT91C_PIO_PA30) /*  DBGU Debug Receive Data */
 #define AT91C_PIO_PA31       ((unsigned int) 1 << 31) /* Pin Controlled by PA31 */
 #define AT91C_PA31_DTXD     ((unsigned int) AT91C_PIO_PA31) /*  DBGU Debug Transmit Data */
+#define AT91C_PIO_PB20       ((unsigned int) 1 << 20) /* Pin Controlled by PB20 */
+#define AT91C_PB20_RXD1     ((unsigned int) AT91C_PIO_PB20) /*  USART1 Receive Data */
+#define AT91C_PIO_PB21       ((unsigned int) 1 << 21) /* Pin Controlled by PB21 */
+#define AT91C_PB21_TXD1     ((unsigned int) AT91C_PIO_PB21) /*  USART1 Transmit Data */
 
 #define AT91C_ID_SYS    ((unsigned int)  1) /* System Peripheral */
 #define AT91C_ID_TC0    ((unsigned int) 17) /* Timer Counter 0 */
@@ -461,6 +466,7 @@ typedef struct _AT91S_PDC {
 #define AT91C_ID_SPI    ((unsigned int) 13) /* Serial Peripheral Interface */
 #define AT91C_ID_PIOB	((unsigned int) 3)
 #define AT91C_ID_PIOC	((unsigned int) 4)
+#define AT91C_ID_USART1	((unsigned int) 7)
 
 #define AT91C_PIO_PC1        ((unsigned int) 1 <<  1) /* Pin Controlled by PC1 */
 #define AT91C_PC1_BFRDY_SMOE ((unsigned int) AT91C_PIO_PC1) /*  Burst Flash Ready */
