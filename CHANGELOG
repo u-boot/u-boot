@@ -2,6 +2,8 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Fix build problems under FreeBSD
+
 * Add generic filesystem image type
 
 * Make fatload set filesize environment variable
