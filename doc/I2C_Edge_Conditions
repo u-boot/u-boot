@@ -1,0 +1,41 @@
+I2C Edge Conditions:
+====================
+
+    I2C devices may be left in a write state if a read was occuring
+    and the CPU was reset. This may result in EEPROM data corruption.
+
+    The edge condition is as follows:
+	1) A read operation begins.
+	2) I2C controller issues a start command.
+	3) The I2C writes the device address.
+	4) The CPU is reset at this point.
+
+    Once the CPU reinitializes and the read is tried again:
+	1) The I2C controller issues a start command.
+	2) The I2C controller writes the device address.
+	3) The I2C controller writes the offset.
+
+    The EEPROM sees:
+	1) START
+	2) device address
+	3) START "this start is ignored by most EEPROMs"
+	4) device address "EEPROM interprets this as offset"
+	5) Offset in device, "EEPROM interprets this as data to write"
+
+    The device will interpret this sequence as a WRITE command and
+    write rubbish into itself, i.e. the "offset" will be interpreted
+    as data to be written in location "device address".
+
+Notes
+-----
+!!!THIS IS AN UNDOCUMENTED I2C BUS BUG, NOT A IBM 4xx BUG!!!
+
+This reset edge condition could possibly be present in every I2C
+controller and device available. We should probably have a bus reset
+function for all our target CPUs.
+
+Many thanks to Bill Hunter for finding this serious BUG.
+email to: <williamhunter@attbi.com>
+
+Erik Theisen <etheisen@mindspring.com>
+Tue, 5 Mar 2002 23:02:19 -0500 (Wed 05:02 MET)
