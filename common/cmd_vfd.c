@@ -36,11 +36,10 @@
 #include <command.h>
 
 #if (CONFIG_COMMANDS & CFG_CMD_VFD)
-#ifdef VFD_TEST_LOGO
+
 #include <vfd_logo.h>
 #define VFD_TEST_LOGO_BMPNR 0
 #define VFD_REMOTE_LOGO_BMPNR 1
-#endif
 
 extern int transfer_pic(unsigned char, unsigned char *, int, int);
 
@@ -55,9 +54,15 @@ int do_vfd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return 1;
 	}
 
-	bitmap = simple_strtoul(argv[1], NULL, 10);
+	if (argv[1][0] == '#') {	/* select bitmap by number */
+		bitmap = simple_strtoul(argv[1]+1, NULL, 10);
+		return (trab_vfd(bitmap));
+	}
 
-	return (trab_vfd(bitmap));
+	/* display bitmap at given address */
+	bitmap = simple_strtoul(argv[1], NULL, 16);
+	transfer_pic(1, (uchar *)bitmap, VFD_LOGO_HEIGHT, VFD_LOGO_WIDTH);
+	return 0;
 }
 #endif	/* CFG_CMD_VFD */
 
@@ -65,19 +70,17 @@ int do_vfd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 int trab_vfd (ulong bitmap)
 {
 	switch (bitmap) {
-#ifdef VFD_TEST_LOGO
-		case VFD_TEST_LOGO_BMPNR:
-			transfer_pic(1, &vfd_test_logo_bitmap[0],
-				VFD_TEST_LOGO_HEIGHT, VFD_TEST_LOGO_WIDTH);
-			return 0;
-		case VFD_REMOTE_LOGO_BMPNR:
-			transfer_pic(1, &vfd_remote_logo_bitmap[0],
-				VFD_REMOTE_LOGO_HEIGHT, VFD_REMOTE_LOGO_WIDTH);
-			return 0;
-#endif
-		default:
-			printf("Unknown bitmap %ld\n", bitmap);
-			return 1;
+	case VFD_TEST_LOGO_BMPNR:
+		transfer_pic(1, &vfd_test_logo_bitmap[0],
+			VFD_LOGO_HEIGHT, VFD_LOGO_WIDTH);
+		return 0;
+	case VFD_REMOTE_LOGO_BMPNR:
+		transfer_pic(1, &vfd_remote_logo_bitmap[0],
+			VFD_LOGO_HEIGHT, VFD_LOGO_WIDTH);
+		return 0;
+	default:
+		printf("Unknown bitmap %ld\n", bitmap);
+		return 1;
 	}
 	/* NOTREACHED */
 }

@@ -6,13 +6,13 @@
  */
 
 
-#ifndef __VFD_TEST_LOGO_H__
-#define __VFD_TEST_LOGO_H__
+#ifndef __VFD_LOGO_H__
+#define __VFD_LOGO_H__
 
-#define VFD_TEST_LOGO_WIDTH		112
-#define VFD_TEST_LOGO_HEIGHT		72
-#define VFD_TEST_LOGO_COLORS		0
-#define VFD_TEST_LOGO_OFFSET		0
+#define VFD_LOGO_WIDTH		112
+#define VFD_LOGO_HEIGHT		72
+#define VFD_LOGO_COLORS		0
+#define VFD_LOGO_OFFSET		0
 
 
 unsigned char vfd_test_logo_bitmap[] = {
@@ -522,12 +522,6 @@ unsigned char vfd_test_logo_bitmap[] = {
 	0xFF, 0xFF, 0xFF, 0xFF, 0xFD, 0xDD, 0xDD, 0xDD,
 };
 
-#define VFD_REMOTE_LOGO_WIDTH		112
-#define VFD_REMOTE_LOGO_HEIGHT		72
-#define VFD_REMOTE_LOGO_COLORS		0
-#define VFD_REMOTE_LOGO_OFFSET		0
-
-
 unsigned char vfd_remote_logo_bitmap[] = {
 	0x99, 0x99, 0x99, 0x9F, 0xFF, 0xFF, 0xFF, 0xFF,
 	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
@@ -1035,4 +1029,4 @@ unsigned char vfd_remote_logo_bitmap[] = {
 	0xFF, 0xFF, 0xFF, 0xFF, 0xF9, 0x99, 0x99, 0x99,
 };
 
-#endif /* __VFD_TEST_LOGO_H__ */
+#endif /* __VFD_LOGO_H__ */

@@ -29,10 +29,12 @@
 
 #if (CONFIG_COMMANDS & CFG_CMD_VFD)
 #define	CMD_TBL_VFD	MK_CMD_TBL_ENTRY(					\
-	"vfd",	3,	2,	0,	do_vfd,			\
+	"vfd",	3,	2,	0,	do_vfd,				\
 	"vfd     - load a bitmap to the VFDs on TRAB\n",		\
-	"N\n"							\
-	"    - load bitmap N to the VFDs (N is _decimal_ !!!)\n"\
+	"#N\n"								\
+	"    - load bitmap no. N to the VFDs (N is _decimal_ !!!)\n"	\
+	"vfd addr\n"							\
+	"    - load bitmap at address _addr_ to the VFDs\n"		\
 ),
 
 /* Implemented in common/cmd_misc.c */

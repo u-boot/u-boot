@@ -33,7 +33,7 @@
 #ifdef CFG_BRIGHTNESS
 static void spi_init(void);
 static void wait_transmit_done(void);
-static void tsc2000_write(unsigned int page, unsigned int reg, 
+static void tsc2000_write(unsigned int page, unsigned int reg,
 						  unsigned int data);
 static void tsc2000_set_brightness(void);
 #endif
@@ -328,6 +328,7 @@ static void spi_init(void)
 	for (i = 0; i < 10; i++) {
 		rSPTDAT = 0xFF;
 	}
+	wait_transmit_done();
 }
 
 static void wait_transmit_done(void)
@@ -335,7 +336,7 @@ static void wait_transmit_done(void)
 	while (!(rSPSTA & 0x01)); /* wait until transfer is done */
 }
 
-static void tsc2000_write(unsigned int page, unsigned int reg, 
+static void tsc2000_write(unsigned int page, unsigned int reg,
 						  unsigned int data)
 {
 	unsigned int command;
