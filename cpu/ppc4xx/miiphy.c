@@ -48,7 +48,7 @@
 #include <405_mal.h>
 #include <miiphy.h>
 
-#if defined(CONFIG_405GP) || defined(CONFIG_440)
+#if defined(CONFIG_405GP) || defined(CONFIG_440) || defined(CONFIG_405EP)
 
 
 /***********************************************************/

@@ -90,7 +90,7 @@ int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	 */
 
 /* DBU[dave@cray.com]   For the CRAY-L1, but should be generically 405gp */
-#elif defined (CONFIG_405GP)
+#elif defined (CONFIG_405GP) || defined(CONFIG_405EP)
 	printf("\n405GP registers; MSR=%x\n",mfmsr());
 		printf ("\nUniversal Interrupt Controller Regs\n"
 "uicsr    uicsrs   uicer    uiccr    uicpr    uictr    uicmsr   uicvr    uicvcr"

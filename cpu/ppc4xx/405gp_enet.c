@@ -80,7 +80,7 @@
 #include <malloc.h>
 #include "vecnum.h"
 
-#if defined(CONFIG_405GP) || defined(CONFIG_440)
+#if defined(CONFIG_405GP) || defined(CONFIG_440) || defined(CONFIG_405EP)
 
 #define EMAC_RESET_TIMEOUT 1000	/* 1000 ms reset timeout */
 #define PHY_AUTONEGOTIATE_TIMEOUT 2000	/* 2000 ms autonegotiate timeout */
@@ -705,7 +705,7 @@ void mal_err (unsigned long isr, unsigned long uic, unsigned long maldef,
 	mtdcr (maltxdeir, 0xC0000000);
 	mtdcr (malrxdeir, 0x80000000);
 
-#if 1	/*sr */
+#ifdef INFO_405_ENET
 	printf ("\nMAL error occured.... ISR = %lx UIC = = %lx  MAL_DEF = %lx  MAL_ERR= %lx \n",
 		isr, uic, maldef, mal_errr);
 #else
@@ -716,7 +716,7 @@ void mal_err (unsigned long isr, unsigned long uic, unsigned long maldef,
 	 */
 	printf ("M");			/* just to see something upon mal error */
 #endif
-#endif	/*sr */
+#endif
 
 	eth_init (bis_save);		/* start again... */
 }

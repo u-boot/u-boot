@@ -40,6 +40,24 @@
 void
 cpu_init_f (void)
 {
+#if defined(CONFIG_405EP)
+	/*
+	 * GPIO0 setup (select GPIO or alternate function)
+	 */
+	out32(GPIO0_OSRH, CFG_GPIO0_OSRH);   /* output select */
+	out32(GPIO0_OSRL, CFG_GPIO0_OSRL);
+	out32(GPIO0_ISR1H, CFG_GPIO0_ISR1H); /* input select */
+	out32(GPIO0_ISR1L, CFG_GPIO0_ISR1L);
+	out32(GPIO0_TSRH, CFG_GPIO0_TSRH);   /* three-state select */
+	out32(GPIO0_TSRL, CFG_GPIO0_TSRL);
+	out32(GPIO0_TCR, CFG_GPIO0_TCR);     /* enable output driver for outputs */
+
+	/*
+	 * Set EMAC noise filter bits
+	 */
+	mtdcr(cpc0_epctl, CPC0_EPRCSR_E0NFE | CPC0_EPRCSR_E1NFE);
+#endif /* CONFIG_405EP */
+
 	/*
 	 * External Bus Controller (EBC) Setup
 	 */
@@ -119,12 +137,14 @@ cpu_init_f (void)
  */
 int cpu_init_r (void)
 {
-#ifdef CONFIG_405GP
+#if defined(CONFIG_405GP)  || defined(CONFIG_405EP)
 	DECLARE_GLOBAL_DATA_PTR;
 
 	bd_t *bd = gd->bd;
 	unsigned long reg;
+#if defined(CONFIG_405GP)
 	uint pvr = get_pvr();
+#endif
 
 	/*
 	 * Write Ethernetaddress into on-chip register
@@ -145,6 +165,7 @@ int cpu_init_r (void)
 	reg |= bd->bi_enetaddr[5];
 	out32 (EMAC_IAL, reg);
 
+#if defined(CONFIG_405GP)
 	/*
 	 * Set edge conditioning circuitry on PPC405GPr
 	 * for compatibility to existing PPC405GP designs.
@@ -152,7 +173,7 @@ int cpu_init_r (void)
 	if ((pvr & 0xfffffff0) == (PVR_405GPR_RB & 0xfffffff0)) {
 		mtdcr(ecr, 0x60606000);
 	}
-
-#endif  /* CONFIG_405GP */
+#endif  /* defined(CONFIG_405GP) */
+#endif  /* defined(CONFIG_405GP) || defined(CONFIG_405EP) */
 	return (0);
 }

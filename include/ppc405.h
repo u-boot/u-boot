@@ -151,11 +151,13 @@
 #define memcfga  (SDRAM_DCR_BASE+0x0)   /* Memory configuration address reg  */
 #define memcfgd  (SDRAM_DCR_BASE+0x1)   /* Memory configuration data    reg  */
   /* values for memcfga register - indirect addressing of these regs */
+#ifndef CONFIG_405EP
   #define mem_besra   0x00    /* bus error syndrome reg a	     */
   #define mem_besrsa  0x04    /* bus error syndrome reg set a	     */
   #define mem_besrb   0x08    /* bus error syndrome reg b	     */
   #define mem_besrsb  0x0c    /* bus error syndrome reg set b	     */
   #define mem_bear    0x10    /* bus error address reg		     */
+#endif
   #define mem_mcopt1  0x20    /* memory controller options 1	     */
   #define mem_rtr     0x30    /* refresh timer reg		     */
   #define mem_pmit    0x34    /* power management idle timer	     */
@@ -164,8 +166,10 @@
   #define mem_mb2cf   0x48    /* memory bank 2 configuration	     */
   #define mem_mb3cf   0x4c    /* memory bank 3 configuration	     */
   #define mem_sdtr1   0x80    /* timing reg 1			     */
+#ifndef CONFIG_405EP
   #define mem_ecccf   0x94    /* ECC configuration		     */
   #define mem_eccerr  0x98    /* ECC error status		     */
+#endif
 
 /******************************************************************************
  * Decompression Controller
@@ -227,6 +231,255 @@
   #define pbesr1      0x22    /* periph bus error status reg 1       */
   #define epcr        0x23    /* external periph control reg         */
 
+#ifdef CONFIG_405EP
+/******************************************************************************
+ * Control
+ ******************************************************************************/
+#define CNTRL_DCR_BASE 0x0f0
+#define cpc0_pllmr0   (CNTRL_DCR_BASE+0x0)  /* PLL mode  register 0                */
+#define cpc0_boot     (CNTRL_DCR_BASE+0x1)  /* Clock status register               */
+#define cpc0_epctl    (CNTRL_DCR_BASE+0x3)  /* EMAC to PHY control register        */
+#define cpc0_pllmr1   (CNTRL_DCR_BASE+0x4)  /* PLL mode  register 1                */
+#define cpc0_ucr      (CNTRL_DCR_BASE+0x5)  /* UART control register               */
+#define cpc0_pci      (CNTRL_DCR_BASE+0x9)  /* PCI control register                */
+
+#define CPC0_PLLMR0  (CNTRL_DCR_BASE+0x0)  /* PLL mode 0 register          */
+#define CPC0_BOOT    (CNTRL_DCR_BASE+0x1)  /* Chip Clock Status register   */
+#define CPC0_CR1     (CNTRL_DCR_BASE+0x2)  /* Chip Control 1 register      */
+#define CPC0_EPRCSR  (CNTRL_DCR_BASE+0x3)  /* EMAC PHY Rcv Clk Src register*/
+#define CPC0_PLLMR1  (CNTRL_DCR_BASE+0x4)  /* PLL mode 1 register          */
+#define CPC0_UCR     (CNTRL_DCR_BASE+0x5)  /* UART Control register        */
+#define CPC0_SRR     (CNTRL_DCR_BASE+0x6)  /* Soft Reset register          */
+#define CPC0_JTAGID  (CNTRL_DCR_BASE+0x7)  /* JTAG ID register             */
+#define CPC0_SPARE   (CNTRL_DCR_BASE+0x8)  /* Spare DCR                    */
+#define CPC0_PCI     (CNTRL_DCR_BASE+0x9)  /* PCI Control register         */
+
+/* Bit definitions */
+#define PLLMR0_CPU_DIV_MASK      0x00300000     /* CPU clock divider */
+#define PLLMR0_CPU_DIV_BYPASS    0x00000000
+#define PLLMR0_CPU_DIV_2         0x00100000
+#define PLLMR0_CPU_DIV_3         0x00200000
+#define PLLMR0_CPU_DIV_4         0x00300000
+
+#define PLLMR0_CPU_TO_PLB_MASK   0x00030000     /* CPU:PLB Frequency Divisor */
+#define PLLMR0_CPU_PLB_DIV_1     0x00000000
+#define PLLMR0_CPU_PLB_DIV_2     0x00010000
+#define PLLMR0_CPU_PLB_DIV_3     0x00020000
+#define PLLMR0_CPU_PLB_DIV_4     0x00030000
+
+#define PLLMR0_OPB_TO_PLB_MASK   0x00003000     /* OPB:PLB Frequency Divisor */
+#define PLLMR0_OPB_PLB_DIV_1     0x00000000
+#define PLLMR0_OPB_PLB_DIV_2     0x00001000
+#define PLLMR0_OPB_PLB_DIV_3     0x00002000
+#define PLLMR0_OPB_PLB_DIV_4     0x00003000
+
+#define PLLMR0_EXB_TO_PLB_MASK   0x00000300     /* External Bus:PLB Divisor  */
+#define PLLMR0_EXB_PLB_DIV_2     0x00000000
+#define PLLMR0_EXB_PLB_DIV_3     0x00000100
+#define PLLMR0_EXB_PLB_DIV_4     0x00000200
+#define PLLMR0_EXB_PLB_DIV_5     0x00000300
+
+#define PLLMR0_MAL_TO_PLB_MASK   0x00000030     /* MAL:PLB Divisor  */
+#define PLLMR0_MAL_PLB_DIV_1     0x00000000
+#define PLLMR0_MAL_PLB_DIV_2     0x00000010
+#define PLLMR0_MAL_PLB_DIV_3     0x00000020
+#define PLLMR0_MAL_PLB_DIV_4     0x00000030
+
+#define PLLMR0_PCI_TO_PLB_MASK   0x00000003     /* PCI:PLB Frequency Divisor */
+#define PLLMR0_PCI_PLB_DIV_1     0x00000000
+#define PLLMR0_PCI_PLB_DIV_2     0x00000001
+#define PLLMR0_PCI_PLB_DIV_3     0x00000002
+#define PLLMR0_PCI_PLB_DIV_4     0x00000003
+
+#define PLLMR1_SSCS_MASK         0x80000000     /* Select system clock source */
+#define PLLMR1_PLLR_MASK         0x40000000     /* PLL reset */
+#define PLLMR1_FBMUL_MASK        0x00F00000     /* PLL feedback multiplier value */
+#define PLLMR1_FBMUL_DIV_16      0x00000000
+#define PLLMR1_FBMUL_DIV_1       0x00100000
+#define PLLMR1_FBMUL_DIV_2       0x00200000
+#define PLLMR1_FBMUL_DIV_3       0x00300000
+#define PLLMR1_FBMUL_DIV_4       0x00400000
+#define PLLMR1_FBMUL_DIV_5       0x00500000
+#define PLLMR1_FBMUL_DIV_6       0x00600000
+#define PLLMR1_FBMUL_DIV_7       0x00700000
+#define PLLMR1_FBMUL_DIV_8       0x00800000
+#define PLLMR1_FBMUL_DIV_9       0x00900000
+#define PLLMR1_FBMUL_DIV_10      0x00A00000
+#define PLLMR1_FBMUL_DIV_11      0x00B00000
+#define PLLMR1_FBMUL_DIV_12      0x00C00000
+#define PLLMR1_FBMUL_DIV_13      0x00D00000
+#define PLLMR1_FBMUL_DIV_14      0x00E00000
+#define PLLMR1_FBMUL_DIV_15      0x00F00000
+
+#define PLLMR1_FWDVA_MASK        0x00070000     /* PLL forward divider A value */
+#define PLLMR1_FWDVA_DIV_8       0x00000000
+#define PLLMR1_FWDVA_DIV_7       0x00010000
+#define PLLMR1_FWDVA_DIV_6       0x00020000
+#define PLLMR1_FWDVA_DIV_5       0x00030000
+#define PLLMR1_FWDVA_DIV_4       0x00040000
+#define PLLMR1_FWDVA_DIV_3       0x00050000
+#define PLLMR1_FWDVA_DIV_2       0x00060000
+#define PLLMR1_FWDVA_DIV_1       0x00070000
+#define PLLMR1_FWDVB_MASK        0x00007000     /* PLL forward divider B value */
+#define PLLMR1_TUNING_MASK       0x000003FF     /* PLL tune bits */
+
+/* Defines for CPC0_EPRCSR register */
+#define CPC0_EPRCSR_E0NFE          0x80000000
+#define CPC0_EPRCSR_E1NFE          0x40000000
+#define CPC0_EPRCSR_E1RPP          0x00000080
+#define CPC0_EPRCSR_E0RPP          0x00000040
+#define CPC0_EPRCSR_E1ERP          0x00000020
+#define CPC0_EPRCSR_E0ERP          0x00000010
+#define CPC0_EPRCSR_E1PCI          0x00000002
+#define CPC0_EPRCSR_E0PCI          0x00000001
+
+/* Defines for CPC0_PCI Register */
+#define CPC0_PCI_SPE                       0x00000010 /* PCIINT/WE select       */
+#define CPC0_PCI_HOST_CFG_EN               0x00000008 /* PCI host config Enable */
+#define CPC0_PCI_ARBIT_EN                  0x00000001 /* PCI Internal Arb Enabled*/
+
+/* Defines for CPC0_BOOR Register */
+#define CPC0_BOOT_SEP                      0x00000002 /* serial EEPROM present  */
+
+/* Defines for CPC0_PLLMR1 Register fields */
+#define PLL_ACTIVE                 0x80000000
+#define CPC0_PLLMR1_SSCS           0x80000000
+#define PLL_RESET                  0x40000000
+#define CPC0_PLLMR1_PLLR           0x40000000
+    /* Feedback multiplier */
+#define PLL_FBKDIV                 0x00F00000
+#define CPC0_PLLMR1_FBDV           0x00F00000
+#define PLL_FBKDIV_16              0x00000000
+#define PLL_FBKDIV_1               0x00100000
+#define PLL_FBKDIV_2               0x00200000
+#define PLL_FBKDIV_3               0x00300000
+#define PLL_FBKDIV_4               0x00400000
+#define PLL_FBKDIV_5               0x00500000
+#define PLL_FBKDIV_6               0x00600000
+#define PLL_FBKDIV_7               0x00700000
+#define PLL_FBKDIV_8               0x00800000
+#define PLL_FBKDIV_9               0x00900000
+#define PLL_FBKDIV_10              0x00A00000
+#define PLL_FBKDIV_11              0x00B00000
+#define PLL_FBKDIV_12              0x00C00000
+#define PLL_FBKDIV_13              0x00D00000
+#define PLL_FBKDIV_14              0x00E00000
+#define PLL_FBKDIV_15              0x00F00000
+    /* Forward A divisor */
+#define PLL_FWDDIVA                0x00070000
+#define CPC0_PLLMR1_FWDVA          0x00070000
+#define PLL_FWDDIVA_8              0x00000000
+#define PLL_FWDDIVA_7              0x00010000
+#define PLL_FWDDIVA_6              0x00020000
+#define PLL_FWDDIVA_5              0x00030000
+#define PLL_FWDDIVA_4              0x00040000
+#define PLL_FWDDIVA_3              0x00050000
+#define PLL_FWDDIVA_2              0x00060000
+#define PLL_FWDDIVA_1              0x00070000
+    /* Forward B divisor */
+#define PLL_FWDDIVB                0x00007000
+#define CPC0_PLLMR1_FWDVB          0x00007000
+#define PLL_FWDDIVB_8              0x00000000
+#define PLL_FWDDIVB_7              0x00001000
+#define PLL_FWDDIVB_6              0x00002000
+#define PLL_FWDDIVB_5              0x00003000
+#define PLL_FWDDIVB_4              0x00004000
+#define PLL_FWDDIVB_3              0x00005000
+#define PLL_FWDDIVB_2              0x00006000
+#define PLL_FWDDIVB_1              0x00007000
+    /* PLL tune bits */
+#define PLL_TUNE_MASK            0x000003FF
+#define PLL_TUNE_2_M_3           0x00000133     /*  2 <= M <= 3               */
+#define PLL_TUNE_4_M_6           0x00000134     /*  3 <  M <= 6               */
+#define PLL_TUNE_7_M_10          0x00000138     /*  6 <  M <= 10              */
+#define PLL_TUNE_11_M_14         0x0000013C     /* 10 <  M <= 14              */
+#define PLL_TUNE_15_M_40         0x0000023E     /* 14 <  M <= 40              */
+#define PLL_TUNE_VCO_LOW         0x00000000     /* 500MHz <= VCO <=  800MHz   */
+#define PLL_TUNE_VCO_HI          0x00000080     /* 800MHz <  VCO <= 1000MHz   */
+
+/* Defines for CPC0_PLLMR0 Register fields */
+    /* CPU divisor */
+#define PLL_CPUDIV                 0x00300000
+#define CPC0_PLLMR0_CCDV           0x00300000
+#define PLL_CPUDIV_1               0x00000000
+#define PLL_CPUDIV_2               0x00100000
+#define PLL_CPUDIV_3               0x00200000
+#define PLL_CPUDIV_4               0x00300000
+    /* PLB divisor */
+#define PLL_PLBDIV                 0x00030000
+#define CPC0_PLLMR0_CBDV           0x00030000
+#define PLL_PLBDIV_1               0x00000000
+#define PLL_PLBDIV_2               0x00010000
+#define PLL_PLBDIV_3               0x00020000
+#define PLL_PLBDIV_4               0x00030000
+    /* OPB divisor */
+#define PLL_OPBDIV                 0x00003000
+#define CPC0_PLLMR0_OPDV           0x00003000
+#define PLL_OPBDIV_1               0x00000000
+#define PLL_OPBDIV_2               0x00001000
+#define PLL_OPBDIV_3               0x00002000
+#define PLL_OPBDIV_4               0x00003000
+    /* EBC divisor */
+#define PLL_EXTBUSDIV              0x00000300
+#define CPC0_PLLMR0_EPDV           0x00000300
+#define PLL_EXTBUSDIV_2            0x00000000
+#define PLL_EXTBUSDIV_3            0x00000100
+#define PLL_EXTBUSDIV_4            0x00000200
+#define PLL_EXTBUSDIV_5            0x00000300
+    /* MAL divisor */
+#define PLL_MALDIV                 0x00000030
+#define CPC0_PLLMR0_MPDV           0x00000030
+#define PLL_MALDIV_1               0x00000000
+#define PLL_MALDIV_2               0x00000010
+#define PLL_MALDIV_3               0x00000020
+#define PLL_MALDIV_4               0x00000030
+    /* PCI divisor */
+#define PLL_PCIDIV                 0x00000003
+#define CPC0_PLLMR0_PPFD           0x00000003
+#define PLL_PCIDIV_1               0x00000000
+#define PLL_PCIDIV_2               0x00000001
+#define PLL_PCIDIV_3               0x00000002
+#define PLL_PCIDIV_4               0x00000003
+
+/*
+ *-------------------------------------------------------------------------------
+ * PLL settings for 266MHz CPU, 133MHz PLB/SDRAM, 66MHz EBC, 33MHz PCI,
+ * assuming a 33.3MHz input clock to the 405EP.
+ *-------------------------------------------------------------------------------
+ */
+#define PLLMR0_266_133_66  (PLL_CPUDIV_1 | PLL_PLBDIV_2 |  \
+                            PLL_OPBDIV_2 | PLL_EXTBUSDIV_2 |  \
+                            PLL_MALDIV_1 | PLL_PCIDIV_4)
+#define PLLMR1_266_133_66  (PLL_FBKDIV_8  |  \
+                            PLL_FWDDIVA_3 | PLL_FWDDIVB_3 |  \
+                            PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
+
+#define PLLMR0_133_66_66_33  (PLL_CPUDIV_1 | PLL_PLBDIV_1 |  \
+                              PLL_OPBDIV_2 | PLL_EXTBUSDIV_4 |  \
+                              PLL_MALDIV_1 | PLL_PCIDIV_4)
+#define PLLMR1_133_66_66_33  (PLL_FBKDIV_4  |  \
+                              PLL_FWDDIVA_6 | PLL_FWDDIVB_6 |  \
+                              PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
+#define PLLMR0_200_100_50_33 (PLL_CPUDIV_1 | PLL_PLBDIV_2 |  \
+                              PLL_OPBDIV_2 | PLL_EXTBUSDIV_3 |  \
+                              PLL_MALDIV_1 | PLL_PCIDIV_4)
+#define PLLMR1_200_100_50_33 (PLL_FBKDIV_6  |  \
+                              PLL_FWDDIVA_4 | PLL_FWDDIVB_4 |  \
+                              PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
+#define PLLMR0_266_133_66_33 (PLL_CPUDIV_1 | PLL_PLBDIV_2 |  \
+                              PLL_OPBDIV_2 | PLL_EXTBUSDIV_4 |  \
+                              PLL_MALDIV_1 | PLL_PCIDIV_4)
+#define PLLMR1_266_133_66_33 (PLL_FBKDIV_8  |  \
+                              PLL_FWDDIVA_3 | PLL_FWDDIVB_3 |  \
+                              PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
+
+/*
+ * PLL Voltage Controlled Oscillator (VCO) definitions
+ * Maximum and minimum values (in MHz) for correct PLL operation.
+ */
+#define VCO_MIN     500
+#define VCO_MAX     1000
+#else /* #ifdef CONFIG_405EP */
 /******************************************************************************
  * Control
  ******************************************************************************/
@@ -236,7 +489,8 @@
 #define cntrl1  (CNTRL_DCR_BASE+0x2)  /* Control 1 register		     */
 #define reset   (CNTRL_DCR_BASE+0x3)  /* reset register			     */
 #define strap   (CNTRL_DCR_BASE+0x4)  /* strap register		   	     */
-#define ecr     (0xAA)                /* edge conditioning register (405GPr) */
+
+#define ecr     (0xaa)                /* edge conditioner register (405gpr)  */
 
 /* Bit definitions */
 #define PLLMR_FWD_DIV_MASK      0xE0000000     /* Forward Divisor */
@@ -300,6 +554,7 @@
  */
 #define VCO_MIN     400
 #define VCO_MAX     800
+#endif /* #ifdef CONFIG_405EP */
 
 /******************************************************************************
  * Memory Access Layer
@@ -363,6 +618,25 @@
 #define ocmiscntl  (OCM_DCR_BASE+0x01)  /* OCM I-side control reg            */
 #define ocmdsarc   (OCM_DCR_BASE+0x02)  /* OCM D-side address compare reg    */
 #define ocmdscntl  (OCM_DCR_BASE+0x03)  /* OCM D-side control reg            */
+
+/******************************************************************************
+ * GPIO macro register defines
+ ******************************************************************************/
+#define GPIO_BASE  0xEF600700
+#define GPIO0_OR               (GPIO_BASE+0x0)
+#define GPIO0_TCR              (GPIO_BASE+0x4)
+#define GPIO0_OSRH             (GPIO_BASE+0x8)
+#define GPIO0_OSRL             (GPIO_BASE+0xC)
+#define GPIO0_TSRH             (GPIO_BASE+0x10)
+#define GPIO0_TSRL             (GPIO_BASE+0x14)
+#define GPIO0_ODR              (GPIO_BASE+0x18)
+#define GPIO0_IR               (GPIO_BASE+0x1C)
+#define GPIO0_RR1              (GPIO_BASE+0x20)
+#define GPIO0_RR2              (GPIO_BASE+0x24)
+#define GPIO0_ISR1H            (GPIO_BASE+0x30)
+#define GPIO0_ISR1L            (GPIO_BASE+0x34)
+#define GPIO0_ISR2H            (GPIO_BASE+0x38)
+#define GPIO0_ISR2L            (GPIO_BASE+0x3C)
 
 
 /*

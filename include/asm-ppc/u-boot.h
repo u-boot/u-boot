@@ -57,7 +57,8 @@ typedef struct bd_info {
 #if defined(CONFIG_405GP) || \
     defined(CONFIG_405CR) || \
     defined(CONFIG_440)   || \
-    defined(CONFIG_405)
+    defined(CONFIG_405)   || \
+    defined(CONFIG_405EP)
 	unsigned char	bi_s_version[4];	/* Version of this structure */
 	unsigned char	bi_r_version[32];	/* Version of the ROM (IBM) */
 	unsigned int	bi_procfreq;	/* CPU (Internal) Freq, in Hz */

@@ -118,9 +118,11 @@ long int spd_sdram(int(read_spd)(uint addr))
 	int bank_cnt;
 
 	int sdram0_pmit=0x07c00000;
+#ifndef CONFIG_405EP /* not on PPC405EP */
 	int sdram0_besr0=-1;
 	int sdram0_besr1=-1;
 	int sdram0_eccesr=-1;
+#endif
 	int sdram0_ecccfg;
 
 	int sdram0_rtr=0;
@@ -153,8 +155,46 @@ long int spd_sdram(int(read_spd)(uint addr))
 	 * Calculate the bus period, we do it this
 	 * way to minimize stack utilization.
 	 */
+#ifndef CONFIG_405EP
     	tmp = (mfdcr(pllmd) >> (31-6)) & 0xf;	/* get FBDV bits */
 	tmp = CONFIG_SYS_CLK_FREQ * tmp;	/* get plb freq */
+#else
+	{
+		unsigned long freqCPU;
+		unsigned long pllmr0;
+		unsigned long pllmr1;
+		unsigned long pllFbkDiv;
+		unsigned long pllPlbDiv;
+		unsigned long pllmr0_ccdv;
+
+		/*
+		 * Read PLL Mode registers
+		 */
+		pllmr0 = mfdcr (cpc0_pllmr0);
+		pllmr1 = mfdcr (cpc0_pllmr1);
+
+		pllFbkDiv = ((pllmr1 & PLLMR1_FBMUL_MASK) >> 20);
+		if (pllFbkDiv == 0) {
+			pllFbkDiv = 16;
+		}
+		pllPlbDiv = ((pllmr0 & PLLMR0_CPU_TO_PLB_MASK) >> 16) + 1;
+
+		/*
+		 * Determine CPU clock frequency
+		 */
+		pllmr0_ccdv = ((pllmr0 & PLLMR0_CPU_DIV_MASK) >> 20) + 1;
+		if (pllmr1 & PLLMR1_SSCS_MASK) {
+			freqCPU = (CONFIG_SYS_CLK_FREQ * pllFbkDiv) / pllmr0_ccdv;
+		} else {
+			freqCPU = CONFIG_SYS_CLK_FREQ / pllmr0_ccdv;
+		}
+
+		/*
+		 * Determine PLB clock frequency
+		 */
+		tmp = freqCPU / pllPlbDiv;
+	}
+#endif
 	bus_period = sdram_HZ_to_ns(tmp);	/* get sdram speed */
 
      	/* Make shure we are using SDRAM */
@@ -414,8 +454,12 @@ long int spd_sdram(int(read_spd)(uint addr))
 	sdram0_cfg = 0;
 	mtsdram0( mem_mcopt1, sdram0_cfg );
 
+#ifndef CONFIG_405EP /* not on PPC405EP */
 	mtsdram0( mem_besra , sdram0_besr0 );
 	mtsdram0( mem_besrb , sdram0_besr1 );
+	mtsdram0( mem_ecccf , sdram0_ecccfg );
+	mtsdram0( mem_eccerr, sdram0_eccesr );
+#endif
 	mtsdram0( mem_rtr   , sdram0_rtr );
 	mtsdram0( mem_pmit  , sdram0_pmit );
 	mtsdram0( mem_mb0cf , sdram0_b0cr );
@@ -423,8 +467,6 @@ long int spd_sdram(int(read_spd)(uint addr))
 	mtsdram0( mem_mb2cf , sdram0_b2cr );
 	mtsdram0( mem_mb3cf , sdram0_b3cr );
 	mtsdram0( mem_sdtr1 , sdram0_tr );
-	mtsdram0( mem_ecccf , sdram0_ecccfg );
-	mtsdram0( mem_eccerr, sdram0_eccesr );
 
 	/* SDRAM have a power on delay,  500 micro should do */
 	udelay(500);

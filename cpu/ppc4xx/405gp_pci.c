@@ -78,7 +78,7 @@
 #include <asm/processor.h>
 #include <pci.h>
 
-#if defined(CONFIG_405GP)
+#if defined(CONFIG_405GP) || defined(CONFIG_405EP)
 
 #ifdef CONFIG_PCI
 

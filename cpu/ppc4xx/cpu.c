@@ -48,17 +48,24 @@ static int do_chip_reset( unsigned long sys0, unsigned long sys1 );
 
 int checkcpu (void)
 {
-#if defined(CONFIG_405GP) || defined(CONFIG_405CR) || defined(CONFIG_IOP480) || defined(CONFIG_440)
+#if defined(CONFIG_405GP) || \
+    defined(CONFIG_405CR) || \
+    defined(CONFIG_IOP480) || \
+    defined(CONFIG_440) || \
+    defined(CONFIG_405EP)
 	uint pvr = get_pvr();
 #endif
-#if defined(CONFIG_405GP) || defined(CONFIG_405CR) || defined(CONFIG_IOP480)
+#if defined(CONFIG_405GP) || \
+    defined(CONFIG_405CR) || \
+    defined(CONFIG_IOP480) || \
+    defined(CONFIG_405EP)
 	DECLARE_GLOBAL_DATA_PTR;
 
 	ulong clock = gd->cpu_clk;
 	char buf[32];
 #endif
 
-#if defined(CONFIG_405GP) || defined(CONFIG_405CR)
+#if defined(CONFIG_405GP) || defined(CONFIG_405CR) || defined(CONFIG_405EP)
 	PPC405_SYS_INFO sys_info;
 
 	puts ("CPU:   ");
@@ -74,6 +81,9 @@ int checkcpu (void)
 #endif
 #if CONFIG_405CR
 	puts("IBM PowerPC 405CR Rev. ");
+#endif
+#if CONFIG_405EP
+	puts("IBM PowerPC 405EP Rev. ");
 #endif
 	switch (pvr) {
 	case PVR_405GP_RB:
@@ -98,6 +108,7 @@ int checkcpu (void)
 		putc('A');
 		break;
 	case PVR_405CR_RB:
+	case PVR_405EP_RB:
 		putc('B');
 		break;
 	default:
@@ -110,7 +121,7 @@ int checkcpu (void)
 	       sys_info.freqPLB / sys_info.pllOpbDiv / 1000000,
 	       sys_info.freqPLB / sys_info.pllExtBusDiv / 1000000);
 
-#if CONFIG_405GP
+#if defined(CONFIG_405GP)
 	if (mfdcr(strap) & PSR_PCI_ASYNC_EN)
 		printf("           PCI async ext clock used, ");
 	else
@@ -120,15 +131,27 @@ int checkcpu (void)
 		printf("internal PCI arbiter enabled\n");
 	else
 		printf("external PCI arbiter enabled\n");
+#elif defined(CONFIG_405EP)
+	if (mfdcr(cpc0_boot) & CPC0_BOOT_SEP)
+		printf("           IIC Boot EEPROM enabled\n");
+	else
+		printf("           IIC Boot EEPROM disabled\n");
+	printf("           PCI async ext clock used, ");
+	if (mfdcr(cpc0_pci) & CPC0_PCI_ARBIT_EN)
+		printf("internal PCI arbiter enabled\n");
+	else
+		printf("external PCI arbiter enabled\n");
 #endif
 
+#if defined(CONFIG_405EP)
+	printf("           16 kB I-Cache 16 kB D-Cache");
+#else
 	if ((pvr | 0x00000001) == PVR_405GPR_RB) {
 		printf("           16 kB I-Cache 16 kB D-Cache");
 	} else {
 		printf("           16 kB I-Cache 8 kB D-Cache");
 	}
-
-
+#endif
 #endif  /* defined(CONFIG_405GP) || defined(CONFIG_405CR) */
 
 #ifdef CONFIG_IOP480
@@ -213,7 +236,10 @@ unsigned long get_tbclk (void)
 	get_sys_info(&sys_info);
 	return (sys_info.freqProcessor);
 
-#elif defined(CONFIG_405GP) || defined(CONFIG_405CR) || defined(CONFIG_405)
+#elif defined(CONFIG_405GP) || \
+      defined(CONFIG_405CR) || \
+      defined(CONFIG_405) || \
+      defined(CONFIG_405EP)
 
 	PPC405_SYS_INFO sys_info;
 

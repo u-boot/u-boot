@@ -297,7 +297,7 @@ _start_440:
 	mflr	r1
 	mtspr	srr0,r1
 	rfi
-#endif
+#endif /* CONFIG_440 */
 
 /*
  * r3 - 1st arg to board_init(): IMMP pointer
@@ -504,7 +504,7 @@ _start:
 #endif	/* CONFIG_IOP480 */
 
 /*****************************************************************************/
-#if defined(CONFIG_405GP) || defined(CONFIG_405CR) || defined(CONFIG_405)
+#if defined(CONFIG_405GP) || defined(CONFIG_405CR) || defined(CONFIG_405) || defined(CONFIG_405EP)
 	/*----------------------------------------------------------------------- */
 	/* Clear and set up some registers. */
 	/*----------------------------------------------------------------------- */
@@ -550,6 +550,17 @@ _start:
 	/*----------------------------------------------------------------------- */
 	bl	ext_bus_cntlr_init
 #endif
+
+#if defined(CONFIG_405EP)
+	/*----------------------------------------------------------------------- */
+	/* DMA Status, clear to come up clean */
+	/*----------------------------------------------------------------------- */
+        addis   r3,r0, 0xFFFF         /* Clear all existing DMA status */
+        ori     r3,r3, 0xFFFF
+        mtdcr   dmasr, r3
+
+	bl	ppc405ep_init         /* do ppc405ep specific init */
+#endif /* CONFIG_405EP */
 
 #if defined(CFG_OCM_DATA_ADDR) && defined(CFG_OCM_DATA_SIZE)
 	/********************************************************************
@@ -693,6 +704,7 @@ _start:
 #endif	/* CONFIG_405GP || CONFIG_405CR */
 
 
+/*****************************************************************************/
 	.globl	_start_of_vectors
 _start_of_vectors:
 
@@ -1437,3 +1449,164 @@ trap_reloc:
 	stw	r0, 4(r7)
 
 	blr
+
+
+/**************************************************************************/
+/* PPC405EP specific stuff                                                */
+/**************************************************************************/
+#ifdef CONFIG_405EP
+ppc405ep_init:
+        /*
+        !-----------------------------------------------------------------------
+        ! Check FPGA for PCI internal/external arbitration
+        !   If board is set to internal arbitration, update cpc0_pci
+        !-----------------------------------------------------------------------
+	*/
+        addi    r3,0,CPC0_PCI_HOST_CFG_EN
+#ifdef CONFIG_BUBINGA405EP
+        addis   r5,r0,FPGA_REG1@h      /* set offset for FPGA_REG1 */
+        ori     r5,r5,FPGA_REG1@l
+        lbz     r5,0x0(r5)              /* read to get PCI arb selection */
+        andi.   r6,r5,FPGA_REG1_PCI_INT_ARB  /* using internal arbiter ?*/
+        beq     ..pci_cfg_set             /* if not set, then bypass reg write*/
+#endif
+        ori     r3,r3,CPC0_PCI_ARBIT_EN
+..pci_cfg_set:
+        mtdcr   CPC0_PCI, r3             /* Enable internal arbiter*/
+
+        /*
+        !-----------------------------------------------------------------------
+        ! Check to see if chip is in bypass mode.
+        ! If so, write stored CPC0_PLLMR0 and CPC0_PLLMR1 values and perform a
+        ! CPU reset   Otherwise, skip this step and keep going.
+        ! Note:  Running BIOS in bypass mode is not supported since PLB speed
+        !        will not be fast enough for the SDRAM (min 66MHz)
+        !-----------------------------------------------------------------------
+	*/
+        mfdcr   r5, CPC0_PLLMR1
+        rlwinm  r4,r5,1,0x1            /* get system clock source (SSCS) */
+        cmpi    cr0,0,r4,0x1
+
+        beq    pll_done                   /* if SSCS =b'1' then PLL has */
+                                          /* already been set */
+                                          /* and CPU has been reset */
+                                          /* so skip to next section */
+
+#ifdef CONFIG_BUBINGA405EP
+	/*
+        !-----------------------------------------------------------------------
+        ! Read NVRAM to get value to write in PLLMR.
+        ! If value has not been correctly saved, write default value
+        ! Default config values (assuming on-board 33MHz SYS_CLK) are above.
+        ! See CPU_DEFAULT_200 and CPU_DEFAULT_266 above.
+        !
+        ! WARNING:  This code assumes the first three words in the nvram_t
+        !           structure in openbios.h.  Changing the beginning of
+        !           the structure will break this code.
+        !
+        !-----------------------------------------------------------------------
+	*/
+        addis   r3,0,NVRAM_BASE@h
+        addi    r3,r3,NVRAM_BASE@l
+
+        lwz     r4, 0(r3)
+        addis   r5,0,NVRVFY1@h
+        addi    r5,r5,NVRVFY1@l
+        cmp     cr0,0,r4,r5            /* Compare 1st NVRAM Magic number*/
+        bne     ..no_pllset
+        addi    r3,r3,4
+        lwz     r4, 0(r3)
+        addis   r5,0,NVRVFY2@h
+        addi    r5,r5,NVRVFY2@l
+        cmp     cr0,0,r4,r5            /* Compare 2 NVRAM Magic number */
+        bne     ..no_pllset
+        addi    r3,r3,8                 /* Skip over conf_size */
+        lwz     r4, 4(r3)               /* Load PLLMR1 value from NVRAM */
+        lwz     r3, 0(r3)               /* Load PLLMR0 value from NVRAM */
+        rlwinm  r5,r4,1,0x1             /* get system clock source (SSCS) */
+        cmpi     cr0,0,r5,1             /* See if PLL is locked */
+        beq     pll_write
+..no_pllset:
+#endif /* CONFIG_BUBINGA405EP */
+
+        addis   r3,0,PLLMR0_DEFAULT@h       /* PLLMR0 default value */
+        ori     r3,r3,PLLMR0_DEFAULT@l     /* */
+        addis   r4,0,PLLMR1_DEFAULT@h       /* PLLMR1 default value */
+        ori     r4,r4,PLLMR1_DEFAULT@l     /* */
+
+        b       pll_write                 /* Write the CPC0_PLLMR with new value */
+
+pll_done:
+        /*
+        !-----------------------------------------------------------------------
+        ! Clear Soft Reset Register
+        ! This is needed to enable PCI if not booting from serial EPROM
+        !-----------------------------------------------------------------------
+		*/
+        addi    r3, 0, 0x0
+        mtdcr   CPC0_SRR, r3
+
+        addis    r3,0,0x0010
+        mtctr   r3
+pci_wait:
+        bdnz    pci_wait
+
+	blr				  /* return to main code */
+
+/*
+!-----------------------------------------------------------------------------
+! Function:     pll_write
+! Description:  Updates the value of the CPC0_PLLMR according to CMOS27E documentation
+!               That is:
+!                         1.  Pll is first disabled (de-activated by putting in bypass mode)
+!                         2.  PLL is reset
+!                         3.  Clock dividers are set while PLL is held in reset and bypassed
+!                         4.  PLL Reset is cleared
+!                         5.  Wait 100us for PLL to lock
+!                         6.  A core reset is performed
+! Input: r3 = Value to write to CPC0_PLLMR0
+! Input: r4 = Value to write to CPC0_PLLMR1
+! Output r3 = none
+!-----------------------------------------------------------------------------
+*/
+pll_write:
+        mfdcr  r5, CPC0_UCR
+        andis. r5,r5,0xFFFF
+        ori    r5,r5,0x0101              /* Stop the UART clocks */
+        mtdcr  CPC0_UCR,r5               /* Before changing PLL */
+
+        mfdcr  r5, CPC0_PLLMR1
+        rlwinm r5,r5,0,0x7FFFFFFF        /* Disable PLL */
+        mtdcr   CPC0_PLLMR1,r5
+        oris   r5,r5,0x4000              /* Set PLL Reset */
+        mtdcr   CPC0_PLLMR1,r5
+
+        mtdcr   CPC0_PLLMR0,r3           /* Set clock dividers */
+        rlwinm r5,r4,0,0x3FFFFFFF        /* Reset & Bypass new PLL dividers */
+        oris   r5,r5,0x4000              /* Set PLL Reset */
+        mtdcr   CPC0_PLLMR1,r5           /* Set clock dividers */
+        rlwinm r5,r5,0,0xBFFFFFFF        /* Clear PLL Reset */
+        mtdcr   CPC0_PLLMR1,r5
+
+		/*
+        ! Wait min of 100us for PLL to lock.
+        ! See CMOS 27E databook for more info.
+        ! At 200MHz, that means waiting 20,000 instructions
+		 */
+        addi    r3,0,20000              /* 2000 = 0x4e20 */
+        mtctr   r3
+pll_wait:
+        bdnz    pll_wait
+
+        oris   r5,r5,0x8000             /* Enable PLL */
+        mtdcr   CPC0_PLLMR1,r5          /* Engage */
+
+        /*
+         * Reset CPU to guarantee timings are OK
+         * Not sure if this is needed...
+ 	 */
+        addis r3,0,0x1000
+        mtspr dbcr0,r3               /* This will cause a CPU core reset, and */
+                                     /* execution will continue from the poweron */
+                                     /* vector of 0xfffffffc */
+#endif /* CONFIG_405EP */
