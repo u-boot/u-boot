@@ -1,4 +1,17 @@
 ======================================================================
+Changes for U-Boot 0.4.2:
+======================================================================
+
+* Patch by Seb James, 30 Jun 2003:
+  Improve documentation of I2C configuration in README
+
+* Fix problems with previous log buffer "fixes"
+
+* Fix minor help text issues
+
+* "log append" did not append a newline
+
+======================================================================
 Changes for U-Boot 0.4.1:
 ======================================================================
 

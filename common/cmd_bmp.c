@@ -1,6 +1,6 @@
 /*
  * (C) Copyright 2002
- * Dtlev Zundel, DENX Software Engineering, dzu@denx.de.
+ * Detlev Zundel, DENX Software Engineering, dzu@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
  * project.

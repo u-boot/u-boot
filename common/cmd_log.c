@@ -74,22 +74,26 @@ static unsigned long *ext_logged_chars;
 void logbuff_init_ptrs (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
+	unsigned long *ext_tag;
 	char *s;
 
 	log_buf = (unsigned char *)(gd->bd->bi_memsize-LOGBUFF_LEN);
-	ext_log_start = (unsigned long *)(log_buf)-3;
+	ext_tag = (unsigned long *)(log_buf)-4;
+ 	ext_log_start = (unsigned long *)(log_buf)-3;
 	ext_log_size = (unsigned long *)(log_buf)-2;
 	ext_logged_chars = (unsigned long *)(log_buf)-1;
 #ifdef CONFIG_POST
 	/* The post routines have setup the word so we can simply test it */
- 	if (post_word_load () & POST_POWERON) {
+ 	if ((post_word_load () & 0xffff) == POST_POWERON) {
  		logged_chars = log_size = log_start = 0;
+		*ext_tag = LOGBUFF_MAGIC;
  	}
 #else
 	/* No post routines, so we do our own checking                    */
  	if (post_word_load () != LOGBUFF_MAGIC) {
  		logged_chars = log_size = log_start = 0;
 		post_word_store (LOGBUFF_MAGIC);
+		*ext_tag = LOGBUFF_MAGIC;
  	}
 #endif
 	/* Initialize default loglevel if present */
@@ -162,12 +166,8 @@ int do_log (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (strcmp(argv[1],"append") == 0) {
 		/* Log concatenation of all arguments separated by spaces */
 		for (i=2; i<argc; i++) {
-			if (i<argc-1) {
-				logbuff_printk (argv[i]);
-				logbuff_putc (' ');
-			} else {
-				logbuff_puts (argv[i]);
-			}
+			logbuff_printk (argv[i]);
+			logbuff_putc ((i<argc-1) ? ' ' : '\n');
 		}
 		return 0;
 	}
@@ -205,7 +205,7 @@ int do_log (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 cmd_tbl_t U_BOOT_CMD(LOG) = MK_CMD_ENTRY(
 	"log",     255,	1,	do_log,
 	"log     - manipulate logbuffer\n",
-	"log info   - show pointer details\n"
+	"info   - show pointer details\n"
 	"log reset  - clear contents\n"
 	"log show   - show contents\n"
 	"log append <msg> - append <msg> to the logbuffer\n"
