@@ -149,6 +149,7 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 #define AMD_ID_F016D	0xAD		/* 29F016  ID  ( 2 M x 8)		*/
 #define AMD_ID_F032B	0x41		/* 29F032  ID  ( 4 M x 8)		*/
 #define AMD_ID_LV116DT	0xC7		/* 29LV116DT   ( 2 M x 8, top boot sect) */
+#define AMD_ID_LV116DB  0x4C		/* 29LV116DB   ( 2 M x 8, bottom boot sect) */
 #define AMD_ID_LV016B	0xc8		/* 29LV016 ID  ( 2 M x 8)		*/
 
 #define AMD_ID_PL160CB  0x22452245      /* 29PL160CB ID (16 M, bottom boot sect */
@@ -284,6 +285,7 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 #define FLASH_AM800T	0x0004		/* AMD AM29LV800			*/
 #define FLASH_AM800B	0x0005
 #define FLASH_AM116DT	0x0026		/* AMD AM29LV116DT (2Mx8bit) */
+#define FLASH_AM116DB	0x0027		/* AMD AM29LV116DB (2Mx8bit) */
 #define FLASH_AM160T	0x0006		/* AMD AM29LV160			*/
 #define FLASH_AM160LV	0x0046		/* AMD29LV160DB (2M = 2Mx8bit ) */
 #define FLASH_AM160B	0x0007

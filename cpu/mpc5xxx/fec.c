@@ -870,7 +870,8 @@ int mpc5xxx_fec_initialize(bd_t * bis)
 	fec->tbdBase = (FEC_TBD *)FEC_BD_BASE;
 	fec->rbdBase = (FEC_RBD *)(FEC_BD_BASE + FEC_TBD_NUM * sizeof(FEC_TBD));
 #if defined(CONFIG_ICECUBE) || defined(CONFIG_PM520)   || \
-    defined(CONFIG_TOP5200) || defined(CONFIG_TQM5200)
+    defined(CONFIG_TOP5200) || defined(CONFIG_TQM5200) || \
+    defined(CONFIG_INKA4X0)
 # ifndef CONFIG_FEC_10MBIT
 	fec->xcv_type = MII100;
 # else
