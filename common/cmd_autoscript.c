@@ -47,7 +47,6 @@
 #include <hush.h>
 #endif
 
-#define AUTOSCRIPT_MAGIC	0x09011962
 #if defined(CONFIG_AUTOSCRIPT) || \
 	 (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT )
 

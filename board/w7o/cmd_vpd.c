@@ -27,7 +27,6 @@
 #if (CONFIG_COMMANDS & CFG_CMD_BSP)
 
 #include "vpd.h"
-#include "cmd_bsp.h"
 
 /* ======================================================================
  * Interpreter command to retrieve board specific Vital Product Data, "VPD"

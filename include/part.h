@@ -37,15 +37,20 @@ typedef struct block_dev_desc {
 	unsigned char product[20];/* IDE Serial no, SCSI product */
 	unsigned char revision[8];/* firmware revision */
 	unsigned char removable;	/* removable device */
-	unsigned long (*block_read)(int dev,unsigned long start,unsigned long blkcnt, unsigned long *buffer);
+	unsigned long (*block_read)(int dev,
+				    unsigned long start,
+				    unsigned long blkcnt,
+				    unsigned long *buffer);
 }block_dev_desc_t;
+
 /* Interface types: */
-#define IF_TYPE_UNKNOWN	0
-#define IF_TYPE_IDE			1
+#define IF_TYPE_UNKNOWN		0
+#define IF_TYPE_IDE		1
 #define IF_TYPE_SCSI		2
 #define IF_TYPE_ATAPI		3
-#define IF_TYPE_USB			4
-#define IF_TYPE_DOC			5
+#define IF_TYPE_USB		4
+#define IF_TYPE_DOC		5
+
 /* Part types */
 #define	PART_TYPE_UNKNOWN	0x00
 #define PART_TYPE_MAC		0x01
@@ -53,12 +58,18 @@ typedef struct block_dev_desc {
 #define PART_TYPE_ISO		0x03
 #define PART_TYPE_AMIGA         0x04
 
+/*
+ * Type string for U-Boot bootable partitions
+ */
+#define BOOT_PART_TYPE	"U-Boot"	/* primary boot partition type	*/
+#define BOOT_PART_COMP	"PPCBoot"	/* PPCBoot compatibility type	*/
+
 /* device types */
-#define DEV_TYPE_UNKNOWN 0xff /* not connected */
-#define DEV_TYPE_HARDDISK 0x00 /* harddisk */
-#define DEV_TYPE_TAPE 		0x01 /* Tape */
-#define DEV_TYPE_CDROM 		0x05 /* CD-ROM */
-#define DEV_TYPE_OPDISK 	0x07 /* optical disk */
+#define DEV_TYPE_UNKNOWN	0xff	/* not connected */
+#define DEV_TYPE_HARDDISK	0x00	/* harddisk */
+#define DEV_TYPE_TAPE 		0x01	/* Tape */
+#define DEV_TYPE_CDROM 		0x05	/* CD-ROM */
+#define DEV_TYPE_OPDISK 	0x07	/* optical disk */
 
 typedef	struct disk_partition {
 	ulong	start;		/* # of first block in partition	*/

@@ -152,6 +152,7 @@
 
 #ifdef CONFIG_8xx_CONS_SCC2	/* Can't use ethernet, then */
 #define CONFIG_COMMANDS	     ( (CONFIG_CMD_DFL & ~CFG_CMD_NET) | \
+				CFG_CMD_ASKENV	| \
 				CFG_CMD_DATE	| \
 				CFG_CMD_I2C	| \
 				CFG_CMD_EEPROM	| \
@@ -161,6 +162,7 @@
 				CFG_CMD_POST_DIAG )
 #else
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
+				CFG_CMD_ASKENV	| \
 				CFG_CMD_DHCP	| \
 				CFG_CMD_DATE	| \
 				CFG_CMD_I2C	| \

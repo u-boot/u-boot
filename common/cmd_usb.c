@@ -31,7 +31,6 @@
 #if (CONFIG_COMMANDS & CFG_CMD_USB)
 
 #include <usb.h>
-#include <cmd_disk.h>
 
 #undef	CMD_USB_DEBUG
 

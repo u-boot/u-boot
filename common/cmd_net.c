@@ -26,7 +26,6 @@
  */
 #include <common.h>
 #include <command.h>
-#include <cmd_autoscript.h>
 #include <net.h>
 
 #if (CONFIG_COMMANDS & CFG_CMD_NET)

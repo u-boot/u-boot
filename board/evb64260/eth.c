@@ -22,7 +22,6 @@ Skeleton NIC driver for Etherboot
 
 #include <common.h>
 #include <malloc.h>
-#include <cmd_bsp.h>
 #include <galileo/gt64260R.h>
 #include <galileo/core.h>
 #include <asm/cache.h>

@@ -247,6 +247,21 @@ int do_nand (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
     }
 }
 
+cmd_tbl_t U_BOOT_CMD(NAND) = MK_CMD_ENTRY(
+	"nand",	5,	1,	do_nand,
+	"nand    - NAND sub-system\n",
+	"info  - show available NAND devices\n"
+	"nand device [dev] - show or set current device\n"
+	"nand read[.jffs2]  addr off size\n"
+	"nand write[.jffs2] addr off size - read/write `size' bytes starting\n"
+	"    at offset `off' to/from memory address `addr'\n"
+	"nand erase [clean] [off size] - erase `size' bytes from\n"
+	"    offset `off' (entire device if not specified)\n"
+	"nand bad - show bad blocks\n"
+	"nand read.oob addr off size - read out-of-band data\n"
+	"nand write.oob addr off size - read out-of-band data\n"
+);
+
 int do_nandboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	char *boot_device = NULL;
@@ -347,6 +362,12 @@ int do_nandboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 	return rcode;
 }
+
+cmd_tbl_t U_BOOT_CMD(NBOOT) = MK_CMD_ENTRY(
+	"nboot",	4,	1,	do_nandboot,
+	"nboot   - boot from NAND device\n",
+	"loadAddr dev\n"
+);
 
 /* returns 0 if block containing pos is OK:
  *		valid erase block and

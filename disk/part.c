@@ -24,7 +24,6 @@
 #include <common.h>
 #include <command.h>
 #include <ide.h>
-#include <cmd_disk.h>
 
 #undef	PART_DEBUG
 

@@ -23,7 +23,6 @@
 
 #include <common.h>
 #include <command.h>
-#include <cmd_disk.h>
 #include "part_iso.h"
 
 #if ((CONFIG_COMMANDS & CFG_CMD_IDE) || (CONFIG_COMMANDS & CFG_CMD_SCSI)) && defined(CONFIG_ISO_PARTITION)

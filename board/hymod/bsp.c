@@ -27,7 +27,6 @@
 #include <command.h>
 #include <net.h>
 #include <asm/iopin_8260.h>
-#include <cmd_bsp.h>
 
 /*-----------------------------------------------------------------------
  * Board Special Commands: FPGA load/store, EEPROM erase

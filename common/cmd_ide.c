@@ -39,7 +39,6 @@
 #endif
 #include <ide.h>
 #include <ata.h>
-#include <cmd_disk.h>
 #ifdef CONFIG_STATUS_LED
 # include <status_led.h>
 #endif

@@ -24,7 +24,6 @@
 #include <common.h>
 #include <command.h>
 #include <ide.h>
-#include <cmd_disk.h>
 #include "part_amiga.h"
 
 #if ((CONFIG_COMMANDS & CFG_CMD_IDE) || (CONFIG_COMMANDS & CFG_CMD_SCSI)) && defined(CONFIG_AMIGA_PARTITION)

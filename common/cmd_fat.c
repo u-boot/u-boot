@@ -26,7 +26,6 @@
  */
 #include <common.h>
 #include <command.h>
-#include <cmd_autoscript.h>
 #include <s_record.h>
 #include <net.h>
 #include <ata.h>
@@ -63,6 +62,14 @@ int do_fat_fsload (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return size;
 }
 
+cmd_tbl_t U_BOOT_CMD(FATLOAD) = MK_CMD_ENTRY(
+	"fatload",	4,	0,	do_fat_fsload,
+	"fatload - load binary file from a dos filesystem\n",
+	"[ off ] [ filename ]\n"
+	"    - load binary file from dos filesystem\n"
+	"      with offset 'off'\n"
+);
+
 int do_fat_ls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	char *filename = "/";
@@ -76,6 +83,13 @@ int do_fat_ls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return (ret);
 }
 
+cmd_tbl_t U_BOOT_CMD(FATLS) = MK_CMD_ENTRY(
+	"fatls",	2,	1,	do_fat_ls,
+	"fatls   - list files in a directory (default /)\n",
+	"[ directory ]\n"
+	"    - list files in a directory\n"
+);
+
 int do_fat_fsinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	int ret;
@@ -86,6 +100,13 @@ int do_fat_fsinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	return (ret);
 }
+
+cmd_tbl_t U_BOOT_CMD(FATINFO) = MK_CMD_ENTRY(
+	"fatinfo",	1,	1,	do_fat_fsinfo,
+	"fatinfo - print information about filesystem\n",
+	"\n"
+	"    - print information about filesystem\n"
+);
 
 #ifdef NOT_IMPLEMENTED_YET
 /* find first device whose first partition is a DOS filesystem */

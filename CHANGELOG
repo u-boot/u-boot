@@ -1,6 +1,9 @@
 ======================================================================
-Changes since U-Boot 0.4.0:
+Changes for U-Boot 0.4.1:
 ======================================================================
+
+* Fix some missing commands, cleanup header files
+  (autoscript, bmp, bsp, fat, mmc, nand, portio, ...)
 
 * Rewrite command lookup and help command (fix problems with bubble
   sort when sorting command name list). Minor cleanup here and there.

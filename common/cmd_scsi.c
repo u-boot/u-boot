@@ -33,7 +33,6 @@
 #include <asm/processor.h>
 #include <scsi.h>
 #include <image.h>
-#include <cmd_disk.h>
 #include <pci.h>
 
 

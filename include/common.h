@@ -147,8 +147,11 @@ extern ulong monitor_flash_len;
 /* common/flash.c */
 void flash_perror (int);
 
+/* common/cmd_autoscript.c */
+int	autoscript (ulong addr);
+
 /* common/cmd_bootm.c */
-void print_image_hdr (image_header_t *hdr);
+void	print_image_hdr (image_header_t *hdr);
 
 extern ulong load_addr;		/* Default Load Address	*/
 

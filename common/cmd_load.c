@@ -26,7 +26,6 @@
  */
 #include <common.h>
 #include <command.h>
-#include <cmd_autoscript.h>
 #include <s_record.h>
 #include <net.h>
 #include <syscall.h>

@@ -36,6 +36,12 @@ do_version (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
+cmd_tbl_t U_BOOT_CMD(VERS) = MK_CMD_ENTRY(
+	"version",	1,		1,	do_version,
+ 	"version - print monitor version\n",
+	NULL
+);
+
 int
 do_echo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
@@ -60,6 +66,13 @@ do_echo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		putc('\n');
 	return 0;
 }
+
+cmd_tbl_t U_BOOT_CMD(ECHO) = MK_CMD_ENTRY(
+	"echo",	CFG_MAXARGS,	1,	do_echo,
+ 	"echo    - echo args to console\n",
+ 	"[args..]\n"
+	"    - echo args to console; \\c suppresses newline\n"
+);
 
 /*
  * Use puts() instead of printf() to avoid printf buffer overflow
@@ -160,19 +173,6 @@ cmd_tbl_t U_BOOT_CMD(QUES) = MK_CMD_ENTRY(
 	"?",	CFG_MAXARGS,	1,	do_help,
  	"?       - alias for 'help'\n",
 	NULL
-);
-
-cmd_tbl_t U_BOOT_CMD(VERS) = MK_CMD_ENTRY(
-	"version",	1,		1,	do_version,
- 	"version - print monitor version\n",
-	NULL
-);
-
-cmd_tbl_t U_BOOT_CMD(ECHO) = MK_CMD_ENTRY(
-	"echo",	CFG_MAXARGS,	1,	do_echo,
- 	"echo    - echo args to console\n",
- 	"[args..]\n"
-	"    - echo args to console; \\c suppresses newline\n"
 );
 
 /***************************************************************************
