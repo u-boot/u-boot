@@ -1988,6 +1988,14 @@ Some configuration options can be set using Environment Variables:
 
 		  setenv initrd_high 00c00000
 
+                  If you set initrd_high to 0xFFFFFFFF, this is an
+                  indication to U-Boot that all addresses are legal
+                  for the Linux kernel, including addresses in flash
+                  memory. In this case U-Boot will NOT COPY the
+                  ramdisk at all. This may be useful to reduce the
+                  boot time on your system, but requires that this
+                  feature is supported by your Linux kernel.
+
   ipaddr	- IP address; needed for tftpboot command
 
   loadaddr	- Default load address for commands like "bootp",

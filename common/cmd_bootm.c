@@ -374,6 +374,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	ulong	cmd_start, cmd_end;
 	ulong	initrd_high;
 	ulong	data;
+	int	initrd_copy_to_ram = 1;
 	char    *cmdline;
 	char	*s;
 	bd_t	*kbd;
@@ -385,6 +386,8 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		 * turning the "load high" feature off. This is intentional.
 		 */
 		initrd_high = simple_strtoul(s, NULL, 16);
+		if (initrd_high == ~0)
+			initrd_copy_to_ram = 0;
 	} else {	/* not set, no restrictions to load high */
 		initrd_high = ~0;
 	}
@@ -567,6 +570,10 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	}
 
 	if (data) {
+	    if (!initrd_copy_to_ram) {	/* zero-copy ramdisk support */
+		initrd_start = data;
+		initrd_end = initrd_start + len;
+	    } else {
 		initrd_start  = (ulong)kbd - len;
 		initrd_start &= ~(4096 - 1);	/* align on page */
 
@@ -621,6 +628,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		memmove ((void *)initrd_start, (void *)data, len);
 #endif	/* CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG */
 		printf ("OK\n");
+	    }
 	} else {
 		initrd_start = 0;
 		initrd_end = 0;

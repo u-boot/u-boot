@@ -2,6 +2,8 @@
 Changes since U-Boot 0.3.1:
 ======================================================================
 
+* Add zero-copy ramdisk support (requires corresponding kernel support!)
+
 * Patch by Kyle Harris, 20 May 2003:
   In preparation for an ixp port, rename cpu/xscale and arch-xscale
   into cpu/pxa and arch-pxa.
