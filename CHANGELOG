@@ -2,7 +2,13 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
-* Patch by Pantelis Antoniou, 5 May 2004:
+* Patch by Rishi Bhattacharya, 08 May 2004:
+  Add support for TI OMAP5912 OSK Board
+
+* Patch by Sam Song May, 07 May 2004:
+  Fix typo of UPM table for rmu board
+
+* Patch by Pantelis Antoniou, 05 May 2004:
   - Intracom board update.
   - Add Codec POST.
 

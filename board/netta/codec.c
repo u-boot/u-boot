@@ -38,8 +38,8 @@
 #define PCM_RESYNC_CMD_CH_A	0x42
 #define PCM_RESYNC_CMD_CH_B	0x4A
 
-#define ACTIVE_HOOK_LEV_4       0
-#define ACTIVE_HOOK_LEV_12      1
+#define ACTIVE_HOOK_LEV_4	0
+#define ACTIVE_HOOK_LEV_12	1
 
 #define SLIC_P_NORMAL		0x01
 
@@ -140,17 +140,17 @@
 
 #define CIS_DAT_ADDR		0x00
 
-#define	LEC_LEN_ADDR		0x3A
-#define	LEC_POWR_ADDR		0x3B
-#define	LEC_DELP_ADDR		0x3C
-#define	LEC_DELQ_ADDR		0x3D
-#define	LEC_GAIN_XI_ADDR	0x3E
-#define	LEC_GAIN_RI_ADDR	0x3F
-#define	LEC_GAIN_XO_ADDR	0x40
-#define	LEC_RES_1_ADDR		0x41
+#define LEC_LEN_ADDR		0x3A
+#define LEC_POWR_ADDR		0x3B
+#define LEC_DELP_ADDR		0x3C
+#define LEC_DELQ_ADDR		0x3D
+#define LEC_GAIN_XI_ADDR	0x3E
+#define LEC_GAIN_RI_ADDR	0x3F
+#define LEC_GAIN_XO_ADDR	0x40
+#define LEC_RES_1_ADDR		0x41
 #define LEC_RES_2_ADDR		0x42
 
-#define NLP_POW_LPF_ADDR    	0x30
+#define NLP_POW_LPF_ADDR	0x30
 #define NLP_POW_LPS_ADDR	0x31
 #define NLP_BN_LEV_X_ADDR	0x32
 #define NLP_BN_LEV_R_ADDR	0x33
@@ -170,18 +170,18 @@
 #define NLP_CT_LEV_RE_ADDR	0x41
 #define NLP_CTRL_ADDR		0x42
 
-#define UTD_CF_H_ADDR           0x4B
-#define UTD_CF_L_ADDR           0x4C
-#define UTD_BW_H_ADDR           0x4D
-#define UTD_BW_L_ADDR           0x4E
-#define UTD_NLEV_ADDR           0x4F
-#define UTD_SLEV_H_ADDR         0x50
-#define UTD_SLEV_L_ADDR         0x51
-#define UTD_DELT_ADDR           0x52
-#define UTD_RBRK_ADDR           0x53
-#define UTD_RTIME_ADDR          0x54
-#define UTD_EBRK_ADDR           0x55
-#define UTD_ETIME_ADDR          0x56
+#define UTD_CF_H_ADDR		0x4B
+#define UTD_CF_L_ADDR		0x4C
+#define UTD_BW_H_ADDR		0x4D
+#define UTD_BW_L_ADDR		0x4E
+#define UTD_NLEV_ADDR		0x4F
+#define UTD_SLEV_H_ADDR		0x50
+#define UTD_SLEV_L_ADDR		0x51
+#define UTD_DELT_ADDR		0x52
+#define UTD_RBRK_ADDR		0x53
+#define UTD_RTIME_ADDR		0x54
+#define UTD_EBRK_ADDR		0x55
+#define UTD_ETIME_ADDR		0x56
 
 #define DTMF_LEV_ADDR		0x30
 #define DTMF_TWI_ADDR		0x31
@@ -205,45 +205,45 @@
 
 /*=====================================*/
 
-#define HOOK_LEV_ACT_START_ADDR	0x89
+#define HOOK_LEV_ACT_START_ADDR 0x89
 #define RO1_START_ADDR		0x70
 #define RO2_START_ADDR		0x95
 #define RO3_START_ADDR		0x96
 
 #define TG1_FREQ_START_ADDR	0x38
 #define TG1_GAIN_START_ADDR	0x39
-#define TG1_BANDPASS_START_ADDR	0x3B
+#define TG1_BANDPASS_START_ADDR 0x3B
 #define TG1_BANDPASS_END_ADDR	0x3D
 
 #define TG2_FREQ_START_ADDR	0x40
 #define TG2_GAIN_START_ADDR	0x41
-#define TG2_BANDPASS_START_ADDR	0x43
+#define TG2_BANDPASS_START_ADDR 0x43
 #define TG2_BANDPASS_END_ADDR	0x45
 
 /*====================================*/
 
-#define PCM_HW_B         	0x80
+#define PCM_HW_B		0x80
 #define PCM_HW_A		0x00
-#define PCM_TIME_SLOT_0  	0x00   /*  Byte 0 of PCM Frame (by default is assigned to channel A ) */
-#define PCM_TIME_SLOT_1  	0x01   /*  Byte 1 of PCM Frame (by default is assigned to channel B ) */
-#define PCM_TIME_SLOT_4  	0x04   /*  Byte 4 of PCM Frame (Corresponds to B1 of the Second GCI ) */
+#define PCM_TIME_SLOT_0		0x00   /*  Byte 0 of PCM Frame (by default is assigned to channel A ) */
+#define PCM_TIME_SLOT_1		0x01   /*  Byte 1 of PCM Frame (by default is assigned to channel B ) */
+#define PCM_TIME_SLOT_4		0x04   /*  Byte 4 of PCM Frame (Corresponds to B1 of the Second GCI ) */
 
 #define	 RX_LEV_ADDR	0x28
 #define	 TX_LEV_ADDR	0x30
-#define  Ik1_ADDR	0x83
+#define	 Ik1_ADDR	0x83
 
-#define  AR_ROW		3 /* Is the row (AR Params) of the ac_Coeff array in SMS_CODEC_Defaults struct  */
-#define  AX_ROW		6 /* Is the row (AX Params) of the ac_Coeff array in SMS_CODEC_Defaults struct  */
-#define  DCF_ROW	0 /* Is the row (DCF Params) of the dc_Coeff array in SMS_CODEC_Defaults struct */
+#define	 AR_ROW		3 /* Is the row (AR Params) of the ac_Coeff array in SMS_CODEC_Defaults struct	*/
+#define	 AX_ROW		6 /* Is the row (AX Params) of the ac_Coeff array in SMS_CODEC_Defaults struct	*/
+#define	 DCF_ROW	0 /* Is the row (DCF Params) of the dc_Coeff array in SMS_CODEC_Defaults struct */
 
 /* Mark the start byte of Duslic parameters that we use with configurator */
-#define  Ik1_START_BYTE		3
+#define	 Ik1_START_BYTE		3
 #define	 RX_LEV_START_BYTE	0
 #define	 TX_LEV_START_BYTE	0
 
 /************************************************/
 
-#define INTREG4_CIS_ACT         (1 << 0)
+#define INTREG4_CIS_ACT		(1 << 0)
 
 #define BCR1_SLEEP		0x20
 #define BCR1_REVPOL		0x10
@@ -257,30 +257,30 @@
 #define BCR2_HIMAN		0x08
 #define BCR2_PDOT		0x01
 
-#define BCR3_PCMX_EN            (1 << 4)
+#define BCR3_PCMX_EN		(1 << 4)
 
-#define BCR5_DTMF_EN            (1 << 0)
-#define BCR5_DTMF_SRC           (1 << 1)
-#define BCR5_LEC_EN             (1 << 2)
-#define BCR5_LEC_OUT            (1 << 3)
-#define BCR5_CIS_EN             (1 << 4)
-#define BCR5_CIS_AUTO           (1 << 5)
-#define BCR5_UTDX_EN            (1 << 6)
-#define BCR5_UTDR_EN            (1 << 7)
+#define BCR5_DTMF_EN		(1 << 0)
+#define BCR5_DTMF_SRC		(1 << 1)
+#define BCR5_LEC_EN		(1 << 2)
+#define BCR5_LEC_OUT		(1 << 3)
+#define BCR5_CIS_EN		(1 << 4)
+#define BCR5_CIS_AUTO		(1 << 5)
+#define BCR5_UTDX_EN		(1 << 6)
+#define BCR5_UTDR_EN		(1 << 7)
 
-#define DSCR_TG1_EN             (1 << 0)
-#define DSCR_TG2_EN             (1 << 1)
-#define DSCR_PTG                (1 << 2)
-#define DSCR_COR8               (1 << 3)
-#define DSCR_DG_KEY(x)          (((x) & 0x0F) << 4)
+#define DSCR_TG1_EN		(1 << 0)
+#define DSCR_TG2_EN		(1 << 1)
+#define DSCR_PTG		(1 << 2)
+#define DSCR_COR8		(1 << 3)
+#define DSCR_DG_KEY(x)		(((x) & 0x0F) << 4)
 
-#define CIS_LEC_MODE_CIS_V23    (1 << 0)
-#define CIS_LEC_MODE_CIS_FRM    (1 << 1)
-#define CIS_LEC_MODE_NLP_EN     (1 << 2)
-#define CIS_LEC_MODE_UTDR_SUM   (1 << 4)
-#define CIS_LEC_MODE_UTDX_SUM   (1 << 5)
+#define CIS_LEC_MODE_CIS_V23	(1 << 0)
+#define CIS_LEC_MODE_CIS_FRM	(1 << 1)
+#define CIS_LEC_MODE_NLP_EN	(1 << 2)
+#define CIS_LEC_MODE_UTDR_SUM	(1 << 4)
+#define CIS_LEC_MODE_UTDX_SUM	(1 << 5)
 #define CIS_LEC_MODE_LEC_FREEZE (1 << 6)
-#define CIS_LEC_MODE_LEC_ADAPT  (1 << 7)
+#define CIS_LEC_MODE_LEC_ADAPT	(1 << 7)
 
 #define TSTR4_COR_64		(1 << 5)
 
@@ -290,12 +290,12 @@
 
 
 #define LMCR1_TEST_EN		(1 << 7)
-#define	LMCR1_LM_EN		(1 << 6)
+#define LMCR1_LM_EN		(1 << 6)
 #define LMCR1_LM_THM		(1 << 5)
-#define	LMCR1_LM_ONCE		(1 << 2)
+#define LMCR1_LM_ONCE		(1 << 2)
 #define LMCR1_LM_MASK		(1 << 1)
 
-#define LMCR2_LM_RECT           	(1 << 5)
+#define LMCR2_LM_RECT			(1 << 5)
 #define LMCR2_LM_SEL_VDD		0x0D
 #define LMCR2_LM_SEL_IO3		0x0A
 #define LMCR2_LM_SEL_IO4		0x0B
@@ -313,27 +313,27 @@
 /************************************************/
 
 #define TARGET_ONHOOK_BATH_x100		4600	/* 46.0 Volt */
-#define TARGET_ONHOOK_BATL_x100		2500    /* 25.0 Volt */
+#define TARGET_ONHOOK_BATL_x100		2500	/* 25.0 Volt */
 #define TARGET_V_DIVIDER_RATIO_x100	21376L	/* (R1+R2)/R2 = 213.76 */
 #define DIVIDER_RATIO_ACCURx100		(22 * 100)
 #define V_AD_x10000			10834L	/* VAD = 1.0834 */
 #define TARGET_VDDx100			330	/* VDD = 3.3 * 10 */
 #define VDD_MAX_DIFFx100		20	/* VDD Accur = 0.2*100 */
 
-#define RMS_MULTIPLIERx100              111     /* pi/(2xsqrt(2)) = 1.11*/
-#define K_INTDC_RECT_ON                 4       /* When Rectifier is ON this value is necessary(2^4) */
-#define K_INTDC_RECT_OFF                2       /* 2^2 */
-#define RNG_FREQ                        25
-#define SAMPLING_FREQ                   (2000L)
-#define N_SAMPLES                       (SAMPLING_FREQ/RNG_FREQ)     /* for Ring Freq =25Hz (40ms Integration Period)[Sampling rate 2KHz -->1 Sample every 500us] */
-#define HOOK_THRESH_RING_START_ADDR     0x8B
-#define RING_PARAMS_START_ADDR          0x70
+#define RMS_MULTIPLIERx100		111	/* pi/(2xsqrt(2)) = 1.11*/
+#define K_INTDC_RECT_ON			4	/* When Rectifier is ON this value is necessary(2^4) */
+#define K_INTDC_RECT_OFF		2	/* 2^2 */
+#define RNG_FREQ			25
+#define SAMPLING_FREQ			(2000L)
+#define N_SAMPLES			(SAMPLING_FREQ/RNG_FREQ)     /* for Ring Freq =25Hz (40ms Integration Period)[Sampling rate 2KHz -->1 Sample every 500us] */
+#define HOOK_THRESH_RING_START_ADDR	0x8B
+#define RING_PARAMS_START_ADDR		0x70
 
 #define V_OUT_BATH_MAX_DIFFx100		300	/* 3.0 x100 */
 #define V_OUT_BATL_MAX_DIFFx100		400	/* 4.0 x100 */
-#define MAX_V_RING_MEANx100             50
-#define TARGET_V_RING_RMSx100           2720
-#define V_RMS_RING_MAX_DIFFx100         250
+#define MAX_V_RING_MEANx100		50
+#define TARGET_V_RING_RMSx100		2720
+#define V_RMS_RING_MAX_DIFFx100		250
 
 #define LM_OK_SRC_IRG_2			(1 << 4)
 
@@ -624,97 +624,106 @@ unsigned short codsp_read_cop_short(int duslic_id, int channel, unsigned char ad
 
 /****************************************************************************/
 
-#define MAX_POP_BLOCK   50
+#define MAX_POP_BLOCK	50
 
-void codsp_write_pop_block(int duslic_id, int channel, unsigned char addr, const unsigned char *block, int len)
+void codsp_write_pop_block (int duslic_id, int channel, unsigned char addr,
+			    const unsigned char *block, int len)
 {
 	unsigned char cmd[2 + MAX_POP_BLOCK];
 
-    if (len > MAX_POP_BLOCK) /* truncate */
-            len = MAX_POP_BLOCK;
+	if (len > MAX_POP_BLOCK)	/* truncate */
+		len = MAX_POP_BLOCK;
 
-	cmd[0] = CODSP_WR | CODSP_OP | CODSP_ADR(channel) | CODSP_CMD_POP;
+	cmd[0] = CODSP_WR | CODSP_OP | CODSP_ADR (channel) | CODSP_CMD_POP;
 	cmd[1] = addr;
-	memcpy(cmd + 2, block, len);
-	codsp_send(duslic_id, cmd, 2 + len, 0, 0);
+	memcpy (cmd + 2, block, len);
+	codsp_send (duslic_id, cmd, 2 + len, 0, 0);
 }
 
-void codsp_write_pop_char(int duslic_id, int channel, unsigned char regno, unsigned char val)
+void codsp_write_pop_char (int duslic_id, int channel, unsigned char regno,
+			   unsigned char val)
 {
 	unsigned char cmd[3];
 
-	cmd[0] = CODSP_WR | CODSP_OP | CODSP_ADR(channel) | CODSP_CMD_POP;
+	cmd[0] = CODSP_WR | CODSP_OP | CODSP_ADR (channel) | CODSP_CMD_POP;
 	cmd[1] = regno;
 	cmd[2] = val;
 
-	codsp_send(duslic_id, cmd, 3, 0, 0);
+	codsp_send (duslic_id, cmd, 3, 0, 0);
 }
 
-void codsp_write_pop_short(int duslic_id, int channel, unsigned char regno, unsigned short val)
+void codsp_write_pop_short (int duslic_id, int channel, unsigned char regno,
+			    unsigned short val)
 {
 	unsigned char cmd[4];
 
-	cmd[0] = CODSP_WR | CODSP_OP | CODSP_ADR(channel) | CODSP_CMD_POP;
+	cmd[0] = CODSP_WR | CODSP_OP | CODSP_ADR (channel) | CODSP_CMD_POP;
 	cmd[1] = regno;
-	cmd[2] = (unsigned char)(val >> 8);
-	cmd[3] = (unsigned char)val;
+	cmd[2] = (unsigned char) (val >> 8);
+	cmd[3] = (unsigned char) val;
 
-	codsp_send(duslic_id, cmd, 4, 0, 0);
+	codsp_send (duslic_id, cmd, 4, 0, 0);
 }
 
-void codsp_write_pop_int(int duslic_id, int channel, unsigned char regno, unsigned int val)
+void codsp_write_pop_int (int duslic_id, int channel, unsigned char regno,
+			  unsigned int val)
 {
 	unsigned char cmd[5];
 
-	cmd[0] = CODSP_WR | CODSP_ADR(channel) | CODSP_CMD_POP;
+	cmd[0] = CODSP_WR | CODSP_ADR (channel) | CODSP_CMD_POP;
 	cmd[1] = regno;
-	cmd[2] = (unsigned char)(val >> 24);
-	cmd[3] = (unsigned char)(val >> 16);
-	cmd[4] = (unsigned char)(val >> 8);
-	cmd[5] = (unsigned char)val;
+	cmd[2] = (unsigned char) (val >> 24);
+	cmd[3] = (unsigned char) (val >> 16);
+	cmd[4] = (unsigned char) (val >> 8);
+	cmd[5] = (unsigned char) val;
 
-	codsp_send(duslic_id, cmd, 6, 0, 0);
+	codsp_send (duslic_id, cmd, 6, 0, 0);
 }
 
-unsigned char codsp_read_pop_char(int duslic_id, int channel, unsigned char regno)
+unsigned char codsp_read_pop_char (int duslic_id, int channel,
+				   unsigned char regno)
 {
 	unsigned char cmd[3];
 	unsigned char res[2];
 
-	cmd[0] = CODSP_RD | CODSP_OP | CODSP_ADR(channel) | CODSP_CMD_POP;
+	cmd[0] = CODSP_RD | CODSP_OP | CODSP_ADR (channel) | CODSP_CMD_POP;
 	cmd[1] = regno;
 
-	codsp_send(duslic_id, cmd, 2, res, 2);
+	codsp_send (duslic_id, cmd, 2, res, 2);
 
 	return res[1];
 }
 
-unsigned short codsp_read_pop_short(int duslic_id, int channel, unsigned char regno)
+unsigned short codsp_read_pop_short (int duslic_id, int channel,
+				     unsigned char regno)
 {
 	unsigned char cmd[2];
 	unsigned char res[3];
 
-	cmd[0] = CODSP_RD | CODSP_OP | CODSP_ADR(channel) | CODSP_CMD_POP;
+	cmd[0] = CODSP_RD | CODSP_OP | CODSP_ADR (channel) | CODSP_CMD_POP;
 	cmd[1] = regno;
 
-	codsp_send(duslic_id, cmd, 2, res, 3);
+	codsp_send (duslic_id, cmd, 2, res, 3);
 
-	return ((unsigned short)res[1] << 8) | res[2];
+	return ((unsigned short) res[1] << 8) | res[2];
 }
 
-unsigned int codsp_read_pop_int(int duslic_id, int channel, unsigned char regno)
+unsigned int codsp_read_pop_int (int duslic_id, int channel,
+				 unsigned char regno)
 {
 	unsigned char cmd[2];
 	unsigned char res[5];
 
-	cmd[0] = CODSP_RD | CODSP_OP | CODSP_ADR(channel) | CODSP_CMD_POP;
+	cmd[0] = CODSP_RD | CODSP_OP | CODSP_ADR (channel) | CODSP_CMD_POP;
 	cmd[1] = regno;
 
-	codsp_send(duslic_id, cmd, 2, res, 5);
+	codsp_send (duslic_id, cmd, 2, res, 5);
 
-	return ((unsigned int)res[1] << 24) | ((unsigned int)res[2] << 16) | ((unsigned int)res[3] << 8) | res[4];
+	return (((unsigned int) res[1] << 24) |
+		((unsigned int) res[2] << 16) |
+		((unsigned int) res[3] <<  8) |
+		res[4] );
 }
-
 /****************************************************************************/
 
 struct _coeffs {
@@ -725,12 +734,12 @@ struct _coeffs {
 struct _coeffs ac_coeffs[11] = {
 	{ 0x60, {0xAD,0xDA,0xB5,0x9B,0xC7,0x2A,0x9D,0x00} }, /* 0x60 IM-Filter part 1 */
 	{ 0x68, {0x10,0x00,0xA9,0x82,0x0D,0x77,0x0A,0x00} }, /* 0x68 IM-Filter part 2 */
-	{ 0x18, {0x08,0xC0,0xD2,0xAB,0xA5,0xE2,0xAB,0x07} }, /* 0x18 FRR-Filter       */
-	{ 0x28, {0x44,0x93,0xF5,0x92,0x88,0x00,0x00,0x00} }, /* 0x28 AR-Filter        */
-	{ 0x48, {0x96,0x38,0x29,0x96,0xC9,0x2B,0x8B,0x00} }, /* 0x48 LPR-Filter       */
-	{ 0x20, {0x08,0xB0,0xDA,0x9D,0xA7,0xFA,0x93,0x06} }, /* 0x20 FRX-Filter       */
-	{ 0x30, {0xBA,0xAC,0x00,0x01,0x85,0x50,0xC0,0x1A} }, /* 0x30 AX-Filter        */
-	{ 0x50, {0x96,0x38,0x29,0xF5,0xFA,0x2B,0x8B,0x00} }, /* 0x50 LPX-Filter       */
+	{ 0x18, {0x08,0xC0,0xD2,0xAB,0xA5,0xE2,0xAB,0x07} }, /* 0x18 FRR-Filter	      */
+	{ 0x28, {0x44,0x93,0xF5,0x92,0x88,0x00,0x00,0x00} }, /* 0x28 AR-Filter	      */
+	{ 0x48, {0x96,0x38,0x29,0x96,0xC9,0x2B,0x8B,0x00} }, /* 0x48 LPR-Filter	      */
+	{ 0x20, {0x08,0xB0,0xDA,0x9D,0xA7,0xFA,0x93,0x06} }, /* 0x20 FRX-Filter	      */
+	{ 0x30, {0xBA,0xAC,0x00,0x01,0x85,0x50,0xC0,0x1A} }, /* 0x30 AX-Filter	      */
+	{ 0x50, {0x96,0x38,0x29,0xF5,0xFA,0x2B,0x8B,0x00} }, /* 0x50 LPX-Filter	      */
 	{ 0x00, {0x00,0x08,0x08,0x81,0x00,0x80,0x00,0x08} }, /* 0x00 TH-Filter part 1 */
 	{ 0x08, {0x81,0x00,0x80,0x00,0xD7,0x33,0xBA,0x01} }, /* 0x08 TH-Filter part 2 */
 	{ 0x10, {0xB3,0x6C,0xDC,0xA3,0xA4,0xE5,0x88,0x00} }  /* 0x10 TH-Filter part 3 */
@@ -752,14 +761,14 @@ struct _coeffs ac_coeffs_0dB[11] = {
 
 struct _coeffs dc_coeffs[9] = {
 	{ 0x80, {0x25,0x59,0x9C,0x23,0x24,0x23,0x32,0x1C} }, /* 0x80 DC-Parameter     */
-	{ 0x70, {0x90,0x30,0x1B,0xC0,0x33,0x43,0xAC,0x02} }, /* 0x70 Ringing          */
-	{ 0x90, {0x3F,0xC3,0x2E,0x3A,0x80,0x90,0x00,0x09} }, /* 0x90 LP-Filters       */
+	{ 0x70, {0x90,0x30,0x1B,0xC0,0x33,0x43,0xAC,0x02} }, /* 0x70 Ringing	      */
+	{ 0x90, {0x3F,0xC3,0x2E,0x3A,0x80,0x90,0x00,0x09} }, /* 0x90 LP-Filters	      */
 	{ 0x88, {0xAF,0x80,0x27,0x7B,0x01,0x4C,0x7B,0x02} }, /* 0x88 Hook Levels      */
 	{ 0x78, {0x00,0xC0,0x6D,0x7A,0xB3,0x78,0x89,0x00} }, /* 0x78 Ramp Generator   */
-	{ 0x58, {0xA5,0x44,0x34,0xDB,0x0E,0xA2,0x2A,0x00} }, /* 0x58 TTX              */
-	{ 0x38, {0x33,0x49,0x9A,0x65,0xBB,0x00,0x00,0x00} }, /* 0x38 TG1              */
-	{ 0x40, {0x33,0x49,0x9A,0x65,0xBB,0x00,0x00,0x00} }, /* 0x40 TG2              */
-	{ 0x98, {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00} }  /* 0x98 Reserved         */
+	{ 0x58, {0xA5,0x44,0x34,0xDB,0x0E,0xA2,0x2A,0x00} }, /* 0x58 TTX	      */
+	{ 0x38, {0x33,0x49,0x9A,0x65,0xBB,0x00,0x00,0x00} }, /* 0x38 TG1	      */
+	{ 0x40, {0x33,0x49,0x9A,0x65,0xBB,0x00,0x00,0x00} }, /* 0x40 TG2	      */
+	{ 0x98, {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00} }  /* 0x98 Reserved	      */
 };
 
 void program_coeffs(int duslic_id, int channel, struct _coeffs *coeffs, int tab_size)
@@ -767,7 +776,7 @@ void program_coeffs(int duslic_id, int channel, struct _coeffs *coeffs, int tab_
 	int i;
 
 	for (i = 0; i < tab_size; i++)
-    	codsp_write_cop_block(duslic_id, channel, coeffs[i].addr, coeffs[i].values);
+	codsp_write_cop_block(duslic_id, channel, coeffs[i].addr, coeffs[i].values);
 }
 
 #define SS_OPEN_CIRCUIT			0
@@ -800,7 +809,7 @@ static void codsp_set_slic(int duslic_id, int channel, int state)
 			break;
 
 		case SS_ACTIVE_RING:
-        	case SS_ONHOOKTRNSM:
+		case SS_ONHOOKTRNSM:
 			codsp_write_sop_char(duslic_id, channel, BCR1_ADDR, (v & ~BCR1_ACTL) | BCR1_ACTR);
 			codsp_set_ciop_m(duslic_id, channel, CODSP_M_ANY_ACT);
 			break;
@@ -864,7 +873,7 @@ int wait_level_metering_finish(int duslic_id, int channel)
 }
 
 int measure_on_hook_voltages(int slic_id, long *vdd,
-        	long *v_oh_H, long *v_oh_L, long *ring_mean_v, long *ring_rms_v)
+		long *v_oh_H, long *v_oh_L, long *ring_mean_v, long *ring_rms_v)
 {
 	short LM_Result, Offset_Compensation;	/* Signed 16 bit */
 	long int VDD, VDD_diff, V_in, V_out, Divider_Ratio, Vout_diff ;
@@ -1029,7 +1038,7 @@ int measure_on_hook_voltages(int slic_id, long *vdd,
 			udelay(10000); /* wait at least 500us to be sure that the Integration Result are valid !!! */
 
 			/* Now Read the LM Result Registers (They will hold their value until LM_EN become zero again */
-			/*                                  ==>After that Result Regs will be updated every 500us !!!) */
+			/*				    ==>After that Result Regs will be updated every 500us !!!) */
 			LM_Result = codsp_read_sop_short(duslic_id, channel, LMRES1_ADDR);
 			V_in = (-1) * ( ( (((long int)LM_Result) * V_AD_x10000) / N_SAMPLES) >> (15 - K_INTDC_RECT_OFF)) ;  /* Vin x 10000*/
 
@@ -1080,7 +1089,7 @@ int measure_on_hook_voltages(int slic_id, long *vdd,
 		udelay(10000);
 
 		/* Now Read the LM Result Registers (They will hold their value until LM_EN become zero again */
-		/*                                  ==>After that Result Regs will be updated every 500us !!!) */
+		/*				    ==>After that Result Regs will be updated every 500us !!!) */
 		Offset_Compensation = codsp_read_sop_short(duslic_id, channel, LMRES1_ADDR);
 		Offset_Compensation = (-1) * ((Offset_Compensation * (1 << K_INTDC_RECT_ON)) / N_SAMPLES);
 
@@ -1107,7 +1116,7 @@ int measure_on_hook_voltages(int slic_id, long *vdd,
 			udelay(10000);
 
 			/* Now Read the LM Result Registers (They will hold their value until LM_EN become zero again */
-			/*                                  ==>After that Result Regs will be updated every 500us !!!) */
+			/*				    ==>After that Result Regs will be updated every 500us !!!) */
 			LM_Result = codsp_read_sop_short(duslic_id, channel, LMRES1_ADDR);
 			V_in = (-1) *  ( ( (((long int)LM_Result) * V_AD_x10000) / N_SAMPLES) >> (15 - K_INTDC_RECT_ON) ) ;  /* Vin x 10000*/
 
@@ -1149,22 +1158,22 @@ int test_dtmf(int slic_id)
 	int channel = slic_id & 1;
 
 	for (code = 0; code < 16; code++) {
-    		b = codsp_read_sop_char(duslic_id, channel, DSCR_ADDR);
-    		codsp_write_sop_char(duslic_id, channel, DSCR_ADDR,
-            		(b & ~(DSCR_PTG | DSCR_DG_KEY(15))) | DSCR_DG_KEY(code) | DSCR_TG1_EN | DSCR_TG2_EN);
-        	udelay(80000);
+		b = codsp_read_sop_char(duslic_id, channel, DSCR_ADDR);
+		codsp_write_sop_char(duslic_id, channel, DSCR_ADDR,
+			(b & ~(DSCR_PTG | DSCR_DG_KEY(15))) | DSCR_DG_KEY(code) | DSCR_TG1_EN | DSCR_TG2_EN);
+		udelay(80000);
 
 		intreg = codsp_read_sop_int(duslic_id, channel, INTREG1_ADDR);
-    		if ((intreg & CODSP_INTREG_INT_CH) == 0)
+		if ((intreg & CODSP_INTREG_INT_CH) == 0)
 			break;
 
 		if ((intreg & CODSP_INTREG_DTMF_OK) == 0 ||
 				codsp_dtmf_map[(intreg >> 10) & 15] != codsp_dtmf_map[code])
 			break;
 
-        	b = codsp_read_sop_char(duslic_id, channel, DSCR_ADDR);
-        	codsp_write_sop_char(duslic_id, channel, DSCR_ADDR,
-	                	b & ~(DSCR_COR8 | DSCR_TG1_EN | DSCR_TG2_EN));
+		b = codsp_read_sop_char(duslic_id, channel, DSCR_ADDR);
+		codsp_write_sop_char(duslic_id, channel, DSCR_ADDR,
+				b & ~(DSCR_COR8 | DSCR_TG1_EN | DSCR_TG2_EN));
 
 		udelay(80000);
 
@@ -1172,9 +1181,9 @@ int test_dtmf(int slic_id)
 	}
 
 	if (code != 16) {
-    		b = codsp_read_sop_char(duslic_id, channel, DSCR_ADDR); /* stop dtmf */
-    		codsp_write_sop_char(duslic_id, channel, DSCR_ADDR,
-	            		b & ~(DSCR_COR8 | DSCR_TG1_EN | DSCR_TG2_EN));
+		b = codsp_read_sop_char(duslic_id, channel, DSCR_ADDR); /* stop dtmf */
+		codsp_write_sop_char(duslic_id, channel, DSCR_ADDR,
+				b & ~(DSCR_COR8 | DSCR_TG1_EN | DSCR_TG2_EN));
 		return(1);
 	}
 
@@ -1276,7 +1285,7 @@ static int codsp_chip_full_reset(int duslic_id)
 	}
 
 	if (cnt == 5) {
-	        printf("PCM_Resync(%u) not completed\n", duslic_id);
+		printf("PCM_Resync(%u) not completed\n", duslic_id);
 		return -2;
 	}
 
@@ -1305,11 +1314,11 @@ int slic_self_test(int duslic_mask)
 	for (slic = 0; slic < MAX_SLICS; slic++) { /* voltages self test */
 		if (duslic_mask & (1 << (slic >> 1))) {
 			r = measure_on_hook_voltages(slic, &vdd,
-        			&v_oh_H, &v_oh_L, &ring_mean_v, &ring_rms_v);
+				&v_oh_H, &v_oh_L, &ring_mean_v, &ring_rms_v);
 
 			printf("SLIC %u measured voltages (x100):\n\t"
-        			    "VDD = %ld\tV_OH_H = %ld\tV_OH_L = %ld\tV_RING_MEAN = %ld\tV_RING_RMS = %ld\n",
-        			    slic, vdd, v_oh_H, v_oh_L, ring_mean_v, ring_rms_v);
+				    "VDD = %ld\tV_OH_H = %ld\tV_OH_L = %ld\tV_RING_MEAN = %ld\tV_RING_RMS = %ld\n",
+				    slic, vdd, v_oh_H, v_oh_L, ring_mean_v, ring_rms_v);
 
 			if (r != 0)
 				error |= 1 << slic;

@@ -20,7 +20,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -41,12 +41,12 @@ void ether__init (void);
 void set_muxconf_regs (void);
 void peripheral_power_enable (void);
 
-#define FLASH_ON_CS0    1
-#define FLASH_ON_CS3    0
+#define FLASH_ON_CS0	1
+#define FLASH_ON_CS3	0
 
 static inline void delay (unsigned long loops)
 {
-        __asm__ volatile ("1:\n"
+	__asm__ volatile ("1:\n"
 			  "subs %0, %1, #1\n"
 			  "bne 1b":"=r" (loops):"0" (loops));
 }
@@ -63,7 +63,7 @@ int test_boot_mode(void)
 /* Toggle backup LED indication */
 void toggle_backup_led(void)
 {
-	static int  backupLEDState = 0;  /* Init variable so that the LED will be ON the first time */
+	static int  backupLEDState = 0;	 /* Init variable so that the LED will be ON the first time */
 	volatile unsigned int *IOConfReg;
 
 
@@ -145,18 +145,18 @@ int misc_init_r (void)
 ******************************/
 void flash__init (void)
 {
-        unsigned int regval;
+	unsigned int regval;
 
-        regval = *((volatile unsigned int *) EMIFS_CONFIG);
-        /* Turn off write protection for flash devices. */
-        regval = regval | 0x0001;
-        *((volatile unsigned int *) EMIFS_CONFIG) = regval;
+	regval = *((volatile unsigned int *) EMIFS_CONFIG);
+	/* Turn off write protection for flash devices. */
+	regval = regval | 0x0001;
+	*((volatile unsigned int *) EMIFS_CONFIG) = regval;
 }
 
 /*************************************************************
  Routine:ether__init
  Description: take the Ethernet controller out of reset and wait
-	  		   for the EEPROM load to complete.
+			   for the EEPROM load to complete.
 *************************************************************/
 void ether__init (void)
 {
@@ -196,7 +196,7 @@ int dram_init (void)
 /******************************************************
  Routine: set_muxconf_regs
  Description: Setting up the configuration Mux registers
- 			  specific to the hardware
+			  specific to the hardware
 *******************************************************/
 void set_muxconf_regs (void)
 {
@@ -209,12 +209,12 @@ void set_muxconf_regs (void)
 
 	/* Configure MUXed pin. Mode 6: GPIO_140 */
 	MuxConfReg = (volatile unsigned int *) (PERSEUS2_IO_CONF10);
-	*MuxConfReg &= (0xFFFFFF1F);         /* Clear D_MPU_LPG1 */
-	*MuxConfReg |= 0x000000C0;           /* Set D_MPU_LPG1 to 0x6 */
+	*MuxConfReg &= (0xFFFFFF1F);	     /* Clear D_MPU_LPG1 */
+	*MuxConfReg |= 0x000000C0;	     /* Set D_MPU_LPG1 to 0x6 */
 
 	/* Configure GPIO_140 as output */
 	MuxConfReg = (volatile unsigned int *) ((unsigned int) OMAP730_GPIO_BASE_5 + GPIO_DIRECTION_CONTROL);
-	*MuxConfReg &= (0xFFFFEFFF);         /* Clear direction (output) for GPIO 140 */
+	*MuxConfReg &= (0xFFFFEFFF);	     /* Clear direction (output) for GPIO 140 */
 
 	/*
 	 * Configure GPIOs for battery charge & feedback
@@ -222,24 +222,24 @@ void set_muxconf_regs (void)
 
 	/* Configure MUXed pin. Mode 6: GPIO_35 */
 	MuxConfReg = (volatile unsigned int *) (PERSEUS2_IO_CONF3);
-	*MuxConfReg &= 0xFFFFFFF1;           /* Clear M_CLK_OUT */
-	*MuxConfReg |= 0x0000000C;           /* Set M_CLK_OUT = 0x6 (GPIOs) */
+	*MuxConfReg &= 0xFFFFFFF1;	     /* Clear M_CLK_OUT */
+	*MuxConfReg |= 0x0000000C;	     /* Set M_CLK_OUT = 0x6 (GPIOs) */
 
 	/* Configure MUXed pin. Mode 6: GPIO_72,73,74 */
 	MuxConfReg = (volatile unsigned int *) (PERSEUS2_IO_CONF5);
-	*MuxConfReg &= 0xFFFF1FFF;           /* Clear D_DDR */
-	*MuxConfReg |= 0x0000C000;           /* Set D_DDR = 0x6 (GPIOs) */
+	*MuxConfReg &= 0xFFFF1FFF;	     /* Clear D_DDR */
+	*MuxConfReg |= 0x0000C000;	     /* Set D_DDR = 0x6 (GPIOs) */
 
 	MuxConfReg = (volatile unsigned int *) ((unsigned int) OMAP730_GPIO_BASE_3 + GPIO_DIRECTION_CONTROL);
-	*MuxConfReg |= 0x00000100;           /* Configure GPIO_72 as input */
-	*MuxConfReg &= 0xFFFFFDFF;           /* Configure GPIO_73 as output	*/
+	*MuxConfReg |= 0x00000100;	     /* Configure GPIO_72 as input */
+	*MuxConfReg &= 0xFFFFFDFF;	     /* Configure GPIO_73 as output	*/
 
 	/*
 	 * Allow battery charge
 	 */
 
 	MuxConfReg = (volatile unsigned int *) ((unsigned int) OMAP730_GPIO_BASE_3 + GPIO_DATA_OUTPUT);
-	*MuxConfReg &= (0xFFFFFDFF);         /* Clear GPIO_73 pin */
+	*MuxConfReg &= (0xFFFFFDFF);	     /* Clear GPIO_73 pin */
 
 	/*
 	 * Configure MPU_EXT_NIRQ IO in IO_CONF9 register,

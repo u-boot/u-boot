@@ -347,6 +347,10 @@ Nishant Kamat <nskamat@ti.com>
 
 	omap1610h2		ARM926EJS
 
+Rishi Bhattacharya <rishi@ti.com>
+
+	omap5912osk		ARM926EJS
+
 David Müller <d.mueller@elsoft.ch>
 
 	smdk2410		ARM920T

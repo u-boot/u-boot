@@ -42,9 +42,9 @@ typedef struct {
 	ulong	erase_blk_tout;		/* maximum block erase timeout		*/
 	ulong	write_tout;		/* maximum write timeout		*/
 	ulong	buffer_write_tout;	/* maximum buffer write timeout		*/
-	ushort  vendor;                 /* the primary vendor id                */
-	ushort  cmd_reset;              /* Vendor specific reset command        */
-	ushort  interface;              /* used for x8/x16 adjustments          */
+	ushort	vendor;			/* the primary vendor id		*/
+	ushort	cmd_reset;		/* Vendor specific reset command	*/
+	ushort	interface;		/* used for x8/x16 adjustments		*/
 #endif
 } flash_info_t;
 
@@ -63,7 +63,7 @@ typedef struct {
 #define FLASH_CFI_BY32		0x04
 #define FLASH_CFI_BY64		0x08
 /* convert between bit value and numeric value */
-#define CFI_FLASH_SHIFT_WIDTH      3
+#define CFI_FLASH_SHIFT_WIDTH	3
 /*
  * Values for the flash device interface
  */
@@ -72,7 +72,7 @@ typedef struct {
 #define FLASH_CFI_X8X16		0x02
 
 /* convert between bit value and numeric value */
-#define CFI_FLASH_SHIFT_WIDTH      3
+#define CFI_FLASH_SHIFT_WIDTH	3
 /* Prototypes */
 
 extern unsigned long flash_init (void);
@@ -127,6 +127,7 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 #define INTEL_ALT_MANU	0x00B000B0	/* alternate INTEL namufacturer ID	*/
 #define MX_MANUFACT	0x00C200C2	/* MXIC	   manuf. ID in D23..D16, D7..D0 */
 #define TOSH_MANUFACT	0x00980098	/* TOSHIBA manuf. ID in D23..D16, D7..D0 */
+#define MT2_MANUFACT	0x002C002C	/* alternate MICRON manufacturer ID*/
 
 					/* Micron Technologies (INTEL compat.)	*/
 #define MT_ID_28F400_T	0x44704470	/* 28F400B3 ID ( 4 M, top boot sector)	*/
@@ -241,6 +242,9 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 #define INTEL_ID_28F640J3A  0x00170017	/*  64M = 128K x  64	*/
 #define INTEL_ID_28F128J3A  0x00180018	/* 128M = 128K x 128	*/
 #define INTEL_ID_28F256L18T 0x880D880D	/* 256M = 128K x 255 + 32k x 4 */
+#define INTEL_ID_28F256K3 0x88038803          /* 256M = 128K x 255 + 32k x 4 */
+#define INTEL_ID_28F128K3 0x88028802          /* 128M = 64K x 255 + 32k x 4 */
+#define INTEL_ID_28F64K3  0x88018801          /*  64M = 32K x 255 + 32k x 4 */
 
 #define INTEL_ID_28F160S3   0x00D000D0	/*  16M = 512K x  32 (64kB x 32)	*/
 #define INTEL_ID_28F320S3   0x00D400D4	/*  32M = 512K x  64 (64kB x 64)	*/
@@ -354,6 +358,7 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 #define FLASH_MXLV320T	0x00AC		/* MX  29LV320MT   ( 32M = 2M x 16 )	*/
 /* Intel 28F256L18T 256M = 128K x 255 + 32k x 4	*/
 #define FLASH_28F256L18T 0x00B0
+#define FLASH_28F256K3	0x00A8
 #define FLASH_AMDL163T	0x00B2		/* AMD AM29DL163T (2M x 16 )			*/
 #define FLASH_AMDL163B	0x00B3
 

@@ -28,14 +28,10 @@
  *  675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-
 #ifndef __INCLUDED_OMAP730_H
 #define __INCLUDED_OMAP730_H
 
 #include <asm/arch/sizes.h>
-
-
-
 
 /***************************************************************************
  * OMAP730 Configuration Registers
@@ -87,9 +83,6 @@
 #define DEBUG2                            ((unsigned int)(0xFFFE10E4))
 #define DEBUG_DMA_IRQ                     ((unsigned int)(0xFFFE10E8))
 
-
-
-
 /***************************************************************************
  * OMAP730 EMIFS Registers                                       (TRM 2.5.7)
  **************************************************************************/
@@ -114,8 +107,6 @@
 #define FLASH_ACFG_2_1             (TCMIF_BASE + 0x58)
 #define FLASH_ACFG_3_1             (TCMIF_BASE + 0x5C)
 
-
-
 /***************************************************************************
  * OMAP730 Interrupt handlers
  **************************************************************************/
@@ -123,12 +114,10 @@
 #define OMAP_IH1_BASE		0xFFFECB00     /* MPU Level 1 IRQ handler */
 #define OMAP_IH2_BASE           0xfffe0000
 
-
-
 /***************************************************************************
  * OMAP730 Timers
  *
- * There are three general purpose OS timers in the 730 that can be 
+ * There are three general purpose OS timers in the 730 that can be
  * configured in autoreload or one-shot modes.
  **************************************************************************/
 
@@ -165,8 +154,6 @@
 #define MPUTIM_PTV_BIT            2
 #define MPUTIM_AR                 (1<<1)
 #define MPUTIM_ST                 (1<<0)
-
-
 
 /***************************************************************************
  * OMAP730 GPIO
@@ -231,9 +218,6 @@
 #define GPIO_INTERRUPT_MASK_6        ((unsigned int)(OMAP730_GPIO_BASE_6 + GPIO_INTERRUPT_MASK))
 #define GPIO_INTERRUPT_STATUS_6      ((unsigned int)(OMAP730_GPIO_BASE_6 + GPIO_INTERRUPT_STATUS))
 
-
-
-
 /***************************************************************************
  * OMAP730 Watchdog timers
  **************************************************************************/
@@ -244,16 +228,13 @@
 #define WDTIM_READ                 (WDTIM_BASE + 0x04)    /* MPU_READ_TIMER */
 #define WDTIM_MODE                 (WDTIM_BASE + 0x08)    /* MPU_TIMER_MODE */
 
-
-
-
 /***************************************************************************
  * OMAP730 Interrupt Registers
  **************************************************************************/
 
 /* Interrupt Register offsets */
 
-#define IRQ_ITR                               0x00  
+#define IRQ_ITR                               0x00
 #define IRQ_MIR                               0x04
 #define IRQ_SIR_IRQ                           0x10
 #define IRQ_SIR_FIQ                           0x14
@@ -265,14 +246,12 @@
 #define REG_IHL1_MIR  (OMAP_IH1_BASE + IRQ_MIR)
 #define REG_IHL2_MIR  (OMAP_IH2_BASE + IRQ_MIR)
 
-
 /***************************************************************************
  * OMAP730 Intersystem Communication Register                      (TRM 4.5)
  **************************************************************************/
- 
- 
+
 #define ICR_BASE                   0xFFFBB800
- 
+
 #define M_ICR                      (ICR_BASE + 0x00)
 #define G_ICR                      (ICR_BASE + 0x02)
 #define M_CTL                      (ICR_BASE + 0x04)
@@ -281,7 +260,5 @@
 #define DM_BA                      (ICR_BASE + 0x0C)
 #define RM_BA                      (ICR_BASE + 0x0E)
 #define SSPI_TAS                   (ICR_BASE + 0x12)
-
-
 
 #endif /* ! __INCLUDED_OMAP730_H */

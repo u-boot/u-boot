@@ -31,21 +31,17 @@
 #ifndef __INCLUDED_H2_P2_DBH_BOARD_H
 #define __INCLUDED_H2_P2_DBH_BOARD_H
 
-
 #include <asm/arch/sizes.h>
-
 
 /*
  * The Debug board is designed to function with the P2 Sample, H2
- * Sample and 1610 Innovator boards. The main difference AFAICT is 
+ * Sample and 1610 Innovator boards. The main difference AFAICT is
  * the chip selects used with each system ;
  *
  *   P2 Sample : CS1 of OMAP730 is used to select the CPLD & LAN regs
  *   H2 Sample : CS1a is used to select the CPLD registers.
  *
  */
-
-
 
 /***************************************************************************
  * CPLD Registers
@@ -59,8 +55,6 @@
 #define H2DBG_LAN_STATUS           0x0400001A
 #define H2DBG_LAN_RESET            0x0400001C
 #define H2DBG_ETH_REG_BASE         0x04000300
-
-
 
 /***************************************************************************
  * Ethernet Control Registers
@@ -107,7 +101,7 @@
 #ifndef __ASSEMBLY__
 
 /*
- * A couple of utility inlines to aid debugging using the LED's on the 
+ * A couple of utility inlines to aid debugging using the LED's on the
  * debug board.
  */
 
@@ -122,7 +116,7 @@ static inline void set_led_state(int state)
 
 
 static inline void spin_up_leds()
-{                                  
+{
 	volatile int i, j, k;
 
 	for (k = 0; k < 2; k++) {
@@ -142,4 +136,3 @@ static inline void spin_up_leds()
 #endif    /* !  __ASSEMBLY__ */
 
 #endif    /* !  __INCLUDED_H2_P2_DBH_BOARD_H */
-

@@ -1029,6 +1029,9 @@ versatile_config :	unconfig
 omap1510inn_config :	unconfig
 	@./mkconfig $(@:_config=) arm arm925t omap1510inn
 
+omap5912osk_config :	unconfig
+	@./mkconfig $(@:_config=) arm arm926ejs omap5912osk
+
 omap1610inn_config \
 omap1610inn_cs0boot_config \
 omap1610inn_cs3boot_config \
