@@ -124,6 +124,7 @@ int cpu_init_r (void)
 
 	bd_t *bd = gd->bd;
 	unsigned long reg;
+	uint pvr = get_pvr();
 
 	/*
 	 * Write Ethernetaddress into on-chip register
@@ -143,6 +144,15 @@ int cpu_init_r (void)
 	reg = reg << 8;
 	reg |= bd->bi_enetaddr[5];
 	out32 (EMAC_IAL, reg);
+
+	/*
+	 * Set edge conditioning circuitry on PPC405GPr
+	 * for compatibility to existing PPC405GP designs.
+	 */
+	if ((pvr & 0xfffffff0) == (PVR_405GPR_RA & 0xfffffff0)) {
+		mtdcr(ecr, 0x60606000);
+	}
+
 #endif  /* CONFIG_405GP */
 	return (0);
 }
