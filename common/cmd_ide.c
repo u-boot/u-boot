@@ -1410,27 +1410,31 @@ WR_OUT:
 /*
  * copy src to dest, skipping leading and trailing blanks and null
  * terminate the string
+ * "len" is the size of available memory including the terminating '\0'
  */
-static void ident_cpy (unsigned char *dest, unsigned char *src, unsigned int len)
+static void ident_cpy (unsigned char *dst, unsigned char *src, unsigned int len)
 {
-	int start,end;
+	unsigned char *end, *last;
 
-	start=0;
-	while (start<len) {
-		if (src[start]!=' ')
-			break;
-		start++;
+	last = dst;
+	end  = src + len;
+
+	/* reserve space for '\0' */
+	if (len < 2)
+		goto OUT;
+	
+	/* skip leading white space */
+	while ((*src) && (src<end) && (*src==' '))
+		++src;
+
+	/* copy string, omitting trailing white space */
+	while ((*src) && (src<end)) {
+		*dst++ = *src;
+		if (*src++ != ' ')
+			last = dst;
 	}
-	end=len-1;
-	while (end>start) {
-		if (src[end]!=' ')
-			break;
-		end--;
-	}
-	for ( ; start<=end; start++) {
-		*dest++=src[start];
-	}
-	*dest='\0';
+OUT:
+	*last = '\0';
 }
 
 /* ------------------------------------------------------------------------- */

@@ -37,9 +37,9 @@ typedef struct block_dev_desc {
 #endif
 	unsigned long	lba;	  	/* number of blocks */
 	unsigned long	blksz;		/* block size */
-	unsigned char	vendor[40]; 	/* IDE model, SCSI Vendor */
-	unsigned char	product[20];	/* IDE Serial no, SCSI product */
-	unsigned char	revision[8];	/* firmware revision */
+	unsigned char	vendor [40+1]; 	/* IDE model, SCSI Vendor */
+	unsigned char	product[20+1];	/* IDE Serial no, SCSI product */
+	unsigned char	revision[8+1];	/* firmware revision */
 	unsigned long	(*block_read)(int dev,
 				      unsigned long start,
 				      unsigned long blkcnt,

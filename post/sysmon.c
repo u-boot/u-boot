@@ -115,10 +115,10 @@ struct sysmon_table_s
 static sysmon_table_t sysmon_table[] =
 {
     {"Board temperature", " C", &sysmon_lm87_sgn, NULL, sysmon_ccfl_disable,
-     1, 1, -128, 127, 0xFF, 0x58, 0xD5, 0, 0x67, 0xC6, 0, 0x27},
+     1, 1, -128, 127, 0xFF, 0x58, 0xD5, 0, 0x6C, 0xC6, 0, 0x27},
 
     {"Front temperature", " C", &sysmon_lm87, NULL, sysmon_ccfl_disable,
-     1, 100, -27316, 8984, 0xFF, 0xA4, 0xFC, 0, 0xAE, 0xF1, 0, 0x29},
+     1, 100, -27316, 8984, 0xFF, 0xA4, 0xFC, 0, 0xB2, 0xF1, 0, 0x29},
 
     {"+3.3V CPU logic", "V", &sysmon_lm87, NULL, NULL,
      100, 1000, 0, 4386, 0xFF, 0xB6, 0xC9, 0, 0xB6, 0xC9, 0, 0x22},
@@ -150,8 +150,7 @@ int sysmon_init_f (void)
 	reg |= 0x09;
 	pic_write (0x60, reg);
 
-	for (l = sysmon_list; *l; l++)
-	{
+	for (l = sysmon_list; *l; l++) {
 		(*l)->init(*l);
 	}
 
@@ -165,15 +164,13 @@ void sysmon_reloc (void)
 	sysmon_t ** l;
 	sysmon_table_t * t;
 
-	for (l = sysmon_list; *l; l++)
-	{
+	for (l = sysmon_list; *l; l++) {
 		RELOC(*l);
 		RELOC((*l)->init);
 		RELOC((*l)->read);
 	}
 
-	for (t = sysmon_table; t < sysmon_table + sysmon_table_size; t ++)
-	{
+	for (t = sysmon_table; t < sysmon_table + sysmon_table_size; t ++) {
 		RELOC(t->exec_before);
 		RELOC(t->exec_after);
 		RELOC(t->sysmon);
@@ -204,12 +201,10 @@ static char *sysmon_unit_value (sysmon_table_t *s, uint val)
 
 	dec = s->unit_precision;
 
-	if (dec != 1)
-	{
+	if (dec != 1) {
 		*p++ = '.';
 	}
-	for (dec /= 10; dec != 0; dec /= 10)
-	{
+	for (dec /= 10; dec != 0; dec /= 10) {
 		*p++ = '0' + (frac / dec) % 10;
 	}
 	strcpy(p, s->unit_name);
@@ -223,24 +218,21 @@ static void sysmon_lm87_init (sysmon_t * this)
 
 	/* Detect LM87 chip */
 	if (i2c_read(this->chip, 0x40, 1, &val, 1) || (val & 0x80) != 0 ||
-	    i2c_read(this->chip, 0x3E, 1, &val, 1) || val != 0x02)
-	{
+	    i2c_read(this->chip, 0x3E, 1, &val, 1) || val != 0x02) {
 		printf("Error: LM87 not found at 0x%02X\n", this->chip);
 		return;
 	}
 
 	/* Configure pins 5,6 as AIN */
 	val = 0x03;
-	if (i2c_write(this->chip, 0x16, 1, &val, 1))
-	{
+	if (i2c_write(this->chip, 0x16, 1, &val, 1)) {
 		printf("Error: can't write LM87 config register\n");
 		return;
 	}
 
 	/* Start monitoring */
 	val = 0x01;
-	if (i2c_write(this->chip, 0x40, 1, &val, 1))
-	{
+	if (i2c_write(this->chip, 0x40, 1, &val, 1)) {
 		printf("Error: can't write LM87 config register\n");
 		return;
 	}
@@ -267,8 +259,7 @@ static uint sysmon_i2c_read_sgn (sysmon_t * this, uint addr)
 
 static void sysmon_ccfl_disable (sysmon_table_t * this)
 {
-	if (!this->val_valid_alt)
-	{
+	if (!this->val_valid_alt) {
 		sysmon_temp_invalid = 1;
 	}
 }
@@ -277,10 +268,9 @@ static void sysmon_ccfl_enable (sysmon_table_t * this)
 {
 	ulong reg;
 
-	if (!sysmon_temp_invalid)
-	{
+	if (!sysmon_temp_invalid) {
 		reg = pic_read  (0x60);
-		reg |= 0x02;
+		reg |= 0x06;
 		pic_write (0x60, reg);
 	}
 }
@@ -296,16 +286,13 @@ int sysmon_post_test (int flags)
 	/*
 	 * The A/D conversion on the LM87 sensor takes 300 ms.
 	 */
-	if (! conversion_done)
-	{
+	if (! conversion_done) {
 		while (post_time_ms(gd->post_init_f_time) < 300) WATCHDOG_RESET ();
 		conversion_done = 1;
 	}
 
-	for (t = sysmon_table; t < sysmon_table + sysmon_table_size; t ++)
-	{
-		if (t->exec_before)
-		{
+	for (t = sysmon_table; t < sysmon_table + sysmon_table_size; t ++) {
+		if (t->exec_before) {
 			t->exec_before(t);
 		}
 
@@ -313,13 +300,11 @@ int sysmon_post_test (int flags)
 		t->val_valid = val >= t->val_min && val <= t->val_max;
 		t->val_valid_alt = val >= t->val_min_alt && val <= t->val_max_alt;
 
-		if (t->exec_after)
-		{
+		if (t->exec_after) {
 			t->exec_after(t);
 		}
 
-		if ((!t->val_valid) || (flags & POST_MANUAL))
-		{
+		if ((!t->val_valid) || (flags & POST_MANUAL)) {
 			printf("%-17s = %-10s ", t->name, sysmon_unit_value(t, val));
 			printf("allowed range");
 			printf(" %-8s ..", sysmon_unit_value(t, t->val_min));
@@ -327,8 +312,7 @@ int sysmon_post_test (int flags)
 			printf("     %s\n", t->val_valid ? "OK" : "FAIL");
 		}
 
-		if (!t->val_valid)
-		{
+		if (!t->val_valid) {
 			res = -1;
 		}
 	}

@@ -1057,7 +1057,7 @@ static void lcd_enable (void)
 #if defined(CONFIG_LWMON)
     {	uchar c = pic_read (0x60);
 #if defined(CONFIG_LCD) && defined(CONFIG_LWMON) && (CONFIG_POST & CFG_POST_SYSMON)
-	c |= 0x04;	/* Chip Enable LCD */
+	/* Enable LCD later in sysmon test, only if temperature is OK */
 #else
 	c |= 0x07;	/* Power on CCFL, Enable CCFL, Chip Enable LCD */
 #endif

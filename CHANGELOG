@@ -2,6 +2,13 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
+* Patch by Pierre Aubert, 15 Mar 2004:
+  Fix buffer overflow in IDE identification
+
+* Fix power-off of LCD for out-of-band temperatures on LWMON board
+
+* Remove redundand #define in IceCube.h
+
 * Patch by Steven Scholz, 27 Feb 2004:
   - Adding get_ticks() and get_tbclk() for AT91RM9200
   - Many white space fixes in cpu/at91rm9200/interrupts.c
@@ -29,7 +36,7 @@ Changes for U-Boot 1.0.2:
 * Patch by George G. Davis, 11 Mar 2004:
   add support for ADS GraphicsClient+ board.
 
-* Patch by  Pierre Aubert, 11 Mar 2004:
+* Patch by Pierre Aubert, 11 Mar 2004:
   - add bitmap command and splash screen support in cfb console
   - add [optional] origin in the bitmap display command
 
@@ -57,7 +64,7 @@ Changes for U-Boot 1.0.2:
   Don't overwrite server IP address or boot file name
   when the boot server does not return values
 
-* Patch by listmember@orkun.us, 5 Mar 2004:
+* Patch by Tolunay Orkun, 5 Mar 2004:
   Removed compile time restriction on CFG_I2C_SPEED for DS1338 RTC
 
 * Patch by Tolunay Orkun, 5 Mar 2004:

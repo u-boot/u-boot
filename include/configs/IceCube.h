@@ -89,7 +89,6 @@
 #if 1
 #define CONFIG_USB_OHCI
 #define ADD_USB_CMD             CFG_CMD_USB | CFG_CMD_FAT
-#define CONFIG_DOS_PARTITION
 #define CONFIG_USB_STORAGE
 #else
 #define ADD_USB_CMD             0
