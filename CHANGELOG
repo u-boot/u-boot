@@ -2,6 +2,15 @@
 Changes for U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Sangmoon Kim, 12 Apr 2004:
+  Update max RAM size for debris board
+
+* Patch by Travis Sawyer, 08 Apr 2004:
+  Add TLB entry for second DIMM slot on ocotea
+
+* Patch by Masami Komiya, 08 Apr 2004:
+  add RTL8169 network driver
+
 * Patch by Dan Malek, 07 Apr 2004:
   - Add support for RPC/STx GP3, Motorola 8560 board
   - Update 85xx TSEC driver so it searches MII for first available PHY
@@ -9,7 +18,7 @@ Changes for U-Boot 1.1.1:
   - Add functions to support console MII commands.
 
 * Patch by Tolunay Orkun, 07 Apr 2004:
-  Move  initialization of bi_iic_fast[]
+  Move initialization of bi_iic_fast[]
   from board_init_f() to board_init_r()
 
 * Patch by Yasushi Shoji, 07 Apr 2004:

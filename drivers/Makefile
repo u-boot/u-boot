@@ -37,7 +37,7 @@ OBJS	= 3c589.o 5701rls.o ali512x.o \
 	  pci.o pci_auto.o pci_indirect.o \
 	  pcnet.o plb2800_eth.o \
 	  ps2ser.o ps2mult.o pc_keyb.o keyboard.o \
-	  rtl8019.o rtl8139.o \
+	  rtl8019.o rtl8139.o rtl8169.o \
 	  s3c24x0_i2c.o sed13806.o sed156x.o \
 	  serial.o serial_max3100.o serial_pl010.o serial_pl011.o \
 	  serial_xuartlite.o \

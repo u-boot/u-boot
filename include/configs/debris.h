@@ -175,7 +175,7 @@
  * Please note that CFG_SDRAM_BASE _must_ start at 0
  */
 #define CFG_SDRAM_BASE		0x00000000
-#define CFG_MAX_RAM_SIZE	0x10000000
+#define CFG_MAX_RAM_SIZE	0x20000000
 #define CONFIG_VERY_BIG_RAM
 
 #define CFG_RESET_ADDRESS	0xFFF00100
