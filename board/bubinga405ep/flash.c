@@ -101,6 +101,11 @@ unsigned long flash_init (void)
 				FLASH_BASE0_PRELIM,
 				FLASH_BASE0_PRELIM+CFG_MONITOR_LEN-1,
 				&flash_info[0]);
+	    /* Also protect sector containing initial power-up instruction */
+	    (void)flash_protect(FLAG_PROTECT_SET,
+				0xFFFFFFFC,
+				0xFFFFFFFF,
+				&flash_info[0]);
 	    size_b1 = 0 ;
 	    flash_info[0].size = size_b0;
 	  }
@@ -143,6 +148,16 @@ unsigned long flash_init (void)
 				base_b0+size_b0-CFG_MONITOR_LEN,
 				base_b0+size_b0-1,
 				&flash_info[0]);
+	    /* Also protect sector containing initial power-up instruction */
+	    /* (flash_protect() checks address range - other call ignored) */
+	    (void)flash_protect(FLAG_PROTECT_SET,
+				0xFFFFFFFC,
+				0xFFFFFFFF,
+				&flash_info[0]);
+	    (void)flash_protect(FLAG_PROTECT_SET,
+				0xFFFFFFFC,
+				0xFFFFFFFF,
+				&flash_info[1]);
 
 	    if (size_b1) {
 	      /* Re-do sizing to get full correct info */
@@ -493,18 +508,18 @@ int wait_for_DQ7(flash_info_t *info, int sect)
 	volatile FLASH_WORD_SIZE *addr = (FLASH_WORD_SIZE *)(info->start[sect]);
 
 	start = get_timer (0);
-    last  = start;
-    while ((addr[0] & (FLASH_WORD_SIZE)0x00800080) != (FLASH_WORD_SIZE)0x00800080) {
-	if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
-	    printf ("Timeout\n");
-	    return -1;
+	last  = 0;
+	while ((addr[0] & (FLASH_WORD_SIZE)0x00800080) != (FLASH_WORD_SIZE)0x00800080) {
+		if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+			printf ("Timeout\n");
+			return -1;
+		}
+		/* show that we're waiting */
+		if ((now - last) > 1000) {  /* every second */
+			putc ('.');
+			last = now;
+		}
 	}
-	/* show that we're waiting */
-	if ((now - last) > 1000) {  /* every second */
-	    putc ('.');
-	    last = now;
-	}
-    }
 	return 0;
 }
 

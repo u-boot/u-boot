@@ -23,7 +23,6 @@
 long int spd_sdram (void);
 
 #include <common.h>
-#include "bubinga405ep.h"
 #include <asm/processor.h>
 
 
@@ -82,18 +81,11 @@ int checkboard (void)
 	unsigned char *s = getenv ("serial#");
 	unsigned char *e;
 
-	puts ("Board: ");
+	puts ("Board: IBM 405EP Eval Board");
 
-	if (!s || strncmp (s, "BUBINGA405EP", 9)) {
-		puts ("### No HW ID - assuming WALNUT405");
-	} else {
-		for (e = s; *e; ++e) {
-			if (*e == ' ')
-				break;
-		}
-		for (; s < e; ++s) {
-			putc (*s);
-		}
+	if (s != NULL) {
+		puts (", serial# ");
+		puts (s);
 	}
 	putc ('\n');
 

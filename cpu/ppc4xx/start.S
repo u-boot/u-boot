@@ -1384,14 +1384,94 @@ trap_reloc:
 /**************************************************************************/
 #ifdef CONFIG_405EP
 ppc405ep_init:
+
+#ifdef CONFIG_BUBINGA405EP
+	/*
+	 * Initialize EBC chip selects 1 & 4 and GPIO pins (for alternate
+	 * function) to support FPGA and NVRAM accesses below.
+	 */
+
+	lis	r3,GPIO0_OSRH@h		/* config GPIO output select */
+	ori	r3,r3,GPIO0_OSRH@l
+	lis	r4,CFG_GPIO0_OSRH@h
+	ori	r4,r4,CFG_GPIO0_OSRH@l
+	stw	r4,0(r3)
+	lis	r3,GPIO0_OSRL@h
+	ori	r3,r3,GPIO0_OSRL@l
+	lis	r4,CFG_GPIO0_OSRL@h
+	ori	r4,r4,CFG_GPIO0_OSRL@l
+	stw	r4,0(r3)
+
+	lis	r3,GPIO0_ISR1H@h	/* config GPIO input select */
+	ori	r3,r3,GPIO0_ISR1H@l
+	lis	r4,CFG_GPIO0_ISR1H@h
+	ori	r4,r4,CFG_GPIO0_ISR1H@l
+	stw	r4,0(r3)
+	lis	r3,GPIO0_ISR1L@h
+	ori	r3,r3,GPIO0_ISR1L@l
+	lis	r4,CFG_GPIO0_ISR1L@h
+	ori	r4,r4,CFG_GPIO0_ISR1L@l
+	stw	r4,0(r3)
+
+	lis	r3,GPIO0_TSRH@h		/* config GPIO three-state select */
+	ori	r3,r3,GPIO0_TSRH@l
+	lis	r4,CFG_GPIO0_TSRH@h
+	ori	r4,r4,CFG_GPIO0_TSRH@l
+	stw	r4,0(r3)
+	lis	r3,GPIO0_TSRL@h
+	ori	r3,r3,GPIO0_TSRL@l
+	lis	r4,CFG_GPIO0_TSRL@h
+	ori	r4,r4,CFG_GPIO0_TSRL@l
+	stw	r4,0(r3)
+
+	lis	r3,GPIO0_TCR@h		/* config GPIO driver output enables */
+	ori	r3,r3,GPIO0_TCR@l
+	lis	r4,CFG_GPIO0_TCR@h
+	ori	r4,r4,CFG_GPIO0_TCR@l
+	stw	r4,0(r3)
+
+	li	r3,pb1ap		/* program EBC bank 1 for RTC access */
+	mtdcr	ebccfga,r3
+	lis	r3,CFG_EBC_PB1AP@h
+	ori	r3,r3,CFG_EBC_PB1AP@l
+	mtdcr	ebccfgd,r3
+	li	r3,pb1cr
+	mtdcr	ebccfga,r3
+	lis	r3,CFG_EBC_PB1CR@h
+	ori	r3,r3,CFG_EBC_PB1CR@l
+	mtdcr	ebccfgd,r3
+
+	li	r3,pb1ap		/* program EBC bank 1 for RTC access */
+	mtdcr	ebccfga,r3
+	lis	r3,CFG_EBC_PB1AP@h
+	ori	r3,r3,CFG_EBC_PB1AP@l
+	mtdcr	ebccfgd,r3
+	li	r3,pb1cr
+	mtdcr	ebccfga,r3
+	lis	r3,CFG_EBC_PB1CR@h
+	ori	r3,r3,CFG_EBC_PB1CR@l
+	mtdcr	ebccfgd,r3
+
+	li	r3,pb4ap		/* program EBC bank 4 for FPGA access */
+	mtdcr	ebccfga,r3
+	lis	r3,CFG_EBC_PB4AP@h
+	ori	r3,r3,CFG_EBC_PB4AP@l
+	mtdcr	ebccfgd,r3
+	li	r3,pb4cr
+	mtdcr	ebccfga,r3
+	lis	r3,CFG_EBC_PB4CR@h
+	ori	r3,r3,CFG_EBC_PB4CR@l
+	mtdcr	ebccfgd,r3
+#endif
+
+	addi    r3,0,CPC0_PCI_HOST_CFG_EN
+#ifdef CONFIG_BUBINGA405EP
 	/*
 	!-----------------------------------------------------------------------
 	! Check FPGA for PCI internal/external arbitration
 	!   If board is set to internal arbitration, update cpc0_pci
 	!-----------------------------------------------------------------------
 	*/
-	addi    r3,0,CPC0_PCI_HOST_CFG_EN
-#ifdef CONFIG_BUBINGA405EP
 	addis   r5,r0,FPGA_REG1@h      /* set offset for FPGA_REG1 */
 	ori     r5,r5,FPGA_REG1@l
 	lbz     r5,0x0(r5)              /* read to get PCI arb selection */

@@ -30,6 +30,7 @@
 
 /* Debug options */
 /*#define __DEBUG_START_FROM_SRAM__ */
+/*#define DEBUG	1*/
 
 
 /*
@@ -148,13 +149,21 @@
 */
 
 #define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
-				CFG_CMD_PCI	| \
+				CFG_CMD_CACHE	| \
+				CFG_CMD_DATE	| \
+				CFG_CMD_DHCP	| \
+				CFG_CMD_EEPROM	| \
+				CFG_CMD_ELF	| \
+				CFG_CMD_I2C	| \
 				CFG_CMD_IRQ	| \
 				CFG_CMD_KGDB	| \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_DATE	| \
-				CFG_CMD_DATE	| \
-				CFG_CMD_ELF	)
+				CFG_CMD_MII	| \
+				CFG_CMD_NET	| \
+				CFG_CMD_PCI	| \
+				CFG_CMD_PING	| \
+				CFG_CMD_REGINFO	| \
+				CFG_CMD_SDRAM	| \
+				0		)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -207,6 +216,14 @@
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address	*/
 #define CFG_I2C_SLAVE		0x7F
 
+#define CFG_I2C_NOPROBES	{ 0x69 }	/* avoid iprobe hangup (why?) */
+#define CFG_EEPROM_PAGE_WRITE_DELAY_MS	6	/* 24C02 requires 5ms delay */
+
+#if (CONFIG_COMMANDS & CFG_CMD_EEPROM)
+#define CFG_I2C_EEPROM_ADDR	0x50	/* I2C boot EEPROM (24C02W)	*/
+#define CFG_I2C_EEPROM_ADDR_LEN	1	/* Bytes of address		*/
+#endif
+
 
 /*-----------------------------------------------------------------------
  * PCI stuff
@@ -220,9 +237,11 @@
 #define CONFIG_PCI_HOST	PCI_HOST_FORCE  /* select pci host function     */
 #define CONFIG_PCI_PNP			/* do pci plug-and-play         */
 					/* resource configuration       */
+#define CONFIG_PCI_SCAN_SHOW            /* show pci devices on startup  */
 
-#define CFG_PCI_SUBSYS_VENDORID 0x0000  /* PCI Vendor ID: to-do!!!      */
+#define CFG_PCI_SUBSYS_VENDORID 0x1014  /* IBM */
 #define CFG_PCI_SUBSYS_DEVICEID 0x0000  /* PCI Device ID: to-do!!!      */
+#define CFG_PCI_CLASSCODE       0x0600  /* PCI Class Code: bridge/host  */
 #define CFG_PCI_PTM1LA  0x00000000      /* point to sdram               */
 #define CFG_PCI_PTM1MS  0x80000001      /* 2GB, enable hard-wired to 1  */
 #define CFG_PCI_PTM1PCI 0x00000000      /* Host: use this pci address   */
@@ -291,7 +310,7 @@
 #define CFG_NVRAM_SIZE		0x1ff8		/* NVRAM size	*/
 
 #ifdef CFG_ENV_IS_IN_NVRAM
-#define CFG_ENV_SIZE		0x1000		/* Size of Environment vars	*/
+#define CFG_ENV_SIZE		0x0ff8		/* Size of Environment vars	*/
 #define CFG_ENV_ADDR		\
 	(CFG_NVRAM_BASE_ADDR+CFG_NVRAM_SIZE-CFG_ENV_SIZE)	/* Env	*/
 #endif
@@ -313,9 +332,6 @@
 #define FLASH_BASE0_PRELIM	CFG_FLASH_BASE	/* FLASH bank #0	*/
 #define FLASH_BASE1_PRELIM	0		/* FLASH bank #1	*/
 
-
-/* Configuration Port location */
-#define CONFIG_PORT_ADDR	0xF0000500
 
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in data cache)
