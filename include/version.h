@@ -24,6 +24,6 @@
 #ifndef	__VERSION_H__
 #define	__VERSION_H__
 
-#define	U_BOOT_VERSION	"U-Boot 0.1.1"
+#define	U_BOOT_VERSION	"U-Boot 0.2.0"
 
 #endif	/* __VERSION_H__ */
