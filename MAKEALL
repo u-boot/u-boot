@@ -44,12 +44,13 @@ LIST_8xx="	\
 #########################################################################
 
 LIST_4xx="	\
-	ADCIOP		AR405		CANBT		CPCI405		\
-	CPCI4052 	CPCI440         CPCIISER4	CRAYL1  	\
-	DASA_SIM	DU405    	EBONY           ERIC  		\
-	MIP405  	ML2		OCRTC		ORSG		\
-	PCI405          PIP405		W7OLMC		W7OLMG          \
-	WALNUT405							\
+	ADCIOP		AR405		ASH405          BUBINGA405EP    \
+        CANBT		CPCI405		CPCI4052 	CPCI405AB       \
+        CPCI440         CPCIISER4	CRAYL1  	DASA_SIM	\
+        DU405    	EBONY           ERIC  		MIP405  	\
+        ML2		OCRTC		ORSG		PCI405          \
+        PIP405		PMC405          W7OLMC		W7OLMG          \
+        WALNUT405	\
 "
 
 #########################################################################

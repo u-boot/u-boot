@@ -403,11 +403,18 @@ ADCIOP_config:	unconfig
 AR405_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx ar405 esd
 
+ASH405_config:	unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx ash405 esd
+
+BUBINGA405EP_config:unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx bubinga405ep
+
 CANBT_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx canbt esd
 
-CPCI405_config		\
-CPCI4052_config:	unconfig
+CPCI405_config	\
+CPCI4052_config	\
+CPCI405AB_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx cpci405 esd
 	@echo "BOARD_REVISION = $(@:_config=)"	>>include/config.mk
 
@@ -447,6 +454,9 @@ PCI405_config:	unconfig
 
 PIP405_config:unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx pip405 mpl
+
+PMC405_config:	unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx pmc405 esd
 
 W7OLMC_config	\
 W7OLMG_config: unconfig
