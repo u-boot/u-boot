@@ -79,9 +79,7 @@ int do_bootelf (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 int do_bootvx ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 #if defined(CONFIG_WALNUT405)	|| \
-    defined(CONFIG_CPCI405)	|| \
-    defined(CONFIG_OCRTC)	|| \
-    defined(CONFIG_ORSG)
+    defined(CFG_VXWORKS_MAC_PTR)
 	DECLARE_GLOBAL_DATA_PTR;
 #endif
 
@@ -126,11 +124,8 @@ int do_bootvx ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #if defined(CONFIG_WALNUT405)
 	tmp = (char *) CFG_NVRAM_BASE_ADDR + 0x500;
 	memcpy ((char *) tmp, (char *) &gd->bd->bi_enetaddr[3], 3);
-#elif defined(CONFIG_CPCI405)
-	tmp = (char *) CFG_NVRAM_BASE_ADDR + CFG_NVRAM_VXWORKS_OFFS;
-	memcpy ((char *) tmp, (char *) &gd->bd->bi_enetaddr[0], 6);
-#elif defined(CONFIG_OCRTC) || defined(CONFIG_ORSG)
-	tmp = (char *) CFG_ETHERNET_MAC_ADDR;
+#elif defined(CFG_VXWORKS_MAC_PTR)
+	tmp = (char *) CFG_VXWORKS_MAC_PTR;
 	memcpy ((char *) tmp, (char *) &gd->bd->bi_enetaddr[0], 6);
 #else
 	puts ("## Ethernet MAC address not copied to NV RAM\n");
