@@ -1843,7 +1843,7 @@ static int run_list_real(struct pipe *pi)
 		if (rmode == RES_THEN || rmode == RES_ELSE) if_code = next_if_code;
 		if (rmode == RES_THEN &&  if_code) continue;
 		if (rmode == RES_ELSE && !if_code) continue;
-		if (rmode == RES_ELIF && !if_code) continue;
+		if (rmode == RES_ELIF && !if_code) break;
 		if (rmode == RES_FOR && pi->num_progs) {
 			if (!list) {
 				/* if no variable values after "in" we skip "for" */
