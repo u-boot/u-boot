@@ -117,11 +117,11 @@ reset:
 
 #ifdef CONFIG_INIT_CRITICAL
 	/* scratch stack */
-	ldr 	r1, =0x00204000
+/****	ldr 	r1, =0x00204000		****/
 	/* Insure word alignment */
-	bic     r1, r1, #3
+/****	bic     r1, r1, #3		****/
 	/* Init stack SYS	 */
-	mov     sp, r1
+/****	mov     sp, r1			****/
 	/*
 	 * This does a lot more than just set up the memory, which
 	 * is why it's called lowlevelinit

@@ -81,10 +81,13 @@ ulong get_timer_masked (void)
 
 void udelay_masked (unsigned long usec)
 {
-	ulong start = get_timer_masked();
+	ulong endtime = get_timer_masked() + usec;
+	signed long diff;
 
-	while (get_timer_masked () - start < usec )
-		/*NOP*/;
+	do {
+		ulong now = get_timer_masked ();
+		diff = endtime - now;
+	} while (diff >= 0);
 }
 
 void udelay (unsigned long usec)

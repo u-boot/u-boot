@@ -231,20 +231,19 @@ ulong get_timer_masked (void)
 void udelay_masked (unsigned long usec)
 {
 	ulong tmo;
+	ulong endtime;
+	signed long diff;
 
-#if 0 /* doesn't work for usec < 1000 */
-	tmo = usec / 1000;
-	tmo *= CFG_HZ_CLOCK;
-#else
 	tmo = CFG_HZ_CLOCK / 1000;
 	tmo *= usec;
-#endif
 	tmo /= 1000;
 
-	reset_timer_masked ();
+	endtime = get_timer_raw () + tmo;
 
-	while (get_timer_raw () < tmo)
-		/*NOP*/;
+	do {
+		ulong now = get_timer_raw ();
+		diff = endtime - now;
+	} while (diff >= 0);
 }
 
 /*

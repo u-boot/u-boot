@@ -33,7 +33,7 @@
 
 /* ARM asynchronous clock */
 #define AT91C_MAIN_CLOCK	207360000	/* from 18.432 MHz crystal (18432000 / 4 * 45) */
-#define AT91C_MASTER_CLOCK	69120000	/* peripheral clock (AT91C_MASTER_CLOCK / 3) */
+#define AT91C_MASTER_CLOCK	(AT91C_MAIN_CLOCK/3)	/* peripheral clock */
 
 #define AT91_SLOW_CLOCK		32768	/* slow clock */
 
@@ -203,7 +203,7 @@ struct bd_info_ext {
 #endif	/* __ASSEMBLY__ */
 
 #define CFG_HZ 1000
-#define CFG_HZ_CLOCK AT91C_MASTER_CLOCK/2	/* AT91C_TC0_CMR is implicitly set to */
+#define CFG_HZ_CLOCK (AT91C_MASTER_CLOCK/2)	/* AT91C_TC0_CMR is implicitly set to */
 						/* AT91C_TC_TIMER_DIV1_CLOCK */
 
 #define CONFIG_STACKSIZE	(32*1024)	/* regular stack */
