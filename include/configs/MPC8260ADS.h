@@ -42,6 +42,14 @@
 
 #define CONFIG_MPC8260ADS	1	/* Motorola PQ2 ADS family board */
 
+/*
+ * Figure out if we are booting low via flash HRCW or high via the BCSR.
+ */
+#if (TEXT_BASE != 0xFFF00000)		/* Boot low (flash HRCW) */
+#   define CFG_LOWBOOT          1
+#endif
+
+
 /* ADS flavours */
 #define CFG_8260ADS		1	/* MPC8260ADS */
 #define CFG_8266ADS		2	/* MPC8266ADS */
@@ -252,7 +260,7 @@
 #define CFG_MEMTEST_START	0x00100000	/* memtest works on */
 #define CFG_MEMTEST_END		0x00f00000	/* 1 ... 15 MB in DRAM	*/
 
-#define CFG_LOAD_ADDR		0x100000	/* default load address */
+#define CFG_LOAD_ADDR		0x400000	/* default load address */
 
 #define CFG_HZ			1000	/* decrementer freq: 1 ms ticks */
 
@@ -274,7 +282,9 @@
 #define CFG_JFFS_CUSTOM_PART
 
 /* this is stuff came out of the Motorola docs */
+#ifndef CFG_LOWBOOT
 #define CFG_DEFAULT_IMMR	0x0F010000
+#endif
 
 #define CFG_IMMR		0xF0000000
 #define CFG_BCSR		0xF4500000
@@ -296,12 +306,21 @@
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
 
-/* 0x0EA28205 */
+#ifdef CFG_LOWBOOT
+/* PQ2FADS flash HRCW = 0x0EB4B645 */
+#define CFG_HRCW_MASTER (   ( HRCW_BPS11 | HRCW_CIP )			    |\
+			    ( HRCW_L2CPC10 | HRCW_DPPC11 | HRCW_ISB100 )    |\
+			    ( HRCW_BMS | HRCW_MMR11 | HRCW_LBPC01 | HRCW_APPC10 ) |\
+			    ( HRCW_CS10PC01 | HRCW_MODCK_H0101 )	     \
+			)
+#else
+/* PQ2FADS BCSR HRCW = 0x0CB23645 */
 #define CFG_HRCW_MASTER (   ( HRCW_BPS11 | HRCW_CIP )			    |\
 			    ( HRCW_L2CPC10 | HRCW_DPPC10 | HRCW_ISB010 )    |\
 			    ( HRCW_BMS | HRCW_APPC10 )			    |\
 			    ( HRCW_MODCK_H0101 )			     \
 			)
+#endif
 /* no slaves */
 #define CFG_HRCW_SLAVE1 0
 #define CFG_HRCW_SLAVE2 0

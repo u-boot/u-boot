@@ -992,13 +992,21 @@ ISPAN_REVB_config:	unconfig
 	@./mkconfig -a ISPAN ppc mpc8260 ispan
 
 MPC8260ADS_config	\
+MPC8260ADS_lowboot_config	\
 MPC8260ADS_33MHz_config	\
+MPC8260ADS_33MHz_lowboot_config	\
 MPC8260ADS_40MHz_config	\
+MPC8260ADS_40MHz_lowboot_config	\
 MPC8272ADS_config	\
+MPC8272ADS_lowboot_config	\
 PQ2FADS_config		\
+PQ2FADS_lowboot_config		\
 PQ2FADS-VR_config	\
+PQ2FADS-VR_lowboot_config	\
 PQ2FADS-ZU_config	\
+PQ2FADS-ZU_lowboot_config	\
 PQ2FADS-ZU_66MHz_config	\
+PQ2FADS-ZU_66MHz_lowboot_config	\
 	:		unconfig
 	$(if $(findstring PQ2FADS,$@), \
 	@echo "#define CONFIG_ADSTYPE CFG_PQ2FADS" > include/config.h, \
@@ -1007,6 +1015,10 @@ PQ2FADS-ZU_66MHz_config	\
 	@echo "#define CONFIG_8260_CLKIN" $(subst MHz,,$(word 2,$(subst _, ,$@)))"000000" >> include/config.h, \
 	$(if $(findstring VR,$@), \
 	@echo "#define CONFIG_8260_CLKIN 66000000" >> include/config.h))
+	@[ -z "$(findstring lowboot_,$@)" ] || \
+		{ echo "TEXT_BASE = 0xFF800000" >board/mpc8260ads/config.tmp ; \
+		  echo "... with lowboot configuration" ; \
+		}
 	@./mkconfig -a MPC8260ADS ppc mpc8260 mpc8260ads
 
 MPC8266ADS_config:	unconfig

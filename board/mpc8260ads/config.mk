@@ -29,4 +29,9 @@
 # MPC8260ADS, MPC8266ADS, and PQ2FADS-ZU/VR boards
 #
 
-TEXT_BASE = 0xfff00000
+sinclude $(TOPDIR)/board/$(BOARDDIR)/config.tmp
+
+ifndef TEXT_BASE
+## Standard: boot high
+TEXT_BASE = 0xFFF00000
+endif

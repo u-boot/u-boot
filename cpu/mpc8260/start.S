@@ -172,7 +172,7 @@ _start_warm:
 	b	boot_warm
 
 boot_cold:
-#if defined(CONFIG_MPC8260ADS)
+#if defined(CONFIG_MPC8260ADS) && defined(CFG_DEFAULT_IMMR)
 	lis	r3, CFG_DEFAULT_IMMR@h
 	nop
 	lwz	r4, 0(r3)
@@ -183,7 +183,7 @@ boot_cold:
 	nop
 	stw	r4, 0(r3)
 	nop
-#endif /* CONFIG_MPC8260ADS */
+#endif /* CONFIG_MPC8260ADS && CFG_DEFAULT_IMMR */
 boot_warm:
 	mfmsr	r5			/* save msr contents		*/
 
