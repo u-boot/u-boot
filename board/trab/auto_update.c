@@ -183,9 +183,7 @@ struct flash_layout aufl_layout[AU_MAXFILES - 3] = { \
 #define FIDX_TO_LIDX(idx) ((idx) - 2)
 
 /* where to load files into memory */
-#define LOAD_ADDR ((unsigned char *)0x0C100100)
-/* where to build strings in memory - 256 bytes should be enough */
-#define STRING_ADDR ((char *)0x0C100000)
+#define LOAD_ADDR ((unsigned char *)0x0C100000)
 /* the app is the largest image */
 #define MAX_LOADSZ ausize[IDX_APP]
 
@@ -199,6 +197,9 @@ extern int i2c_write (uchar, uint, int , uchar* , int);
 extern int trab_vfd (ulong);
 extern int transfer_pic(unsigned char, unsigned char *, int, int);
 #endif
+extern int flash_sect_erase(ulong, ulong);
+extern int flash_sect_protect (int, ulong, ulong);
+extern int flash_write (uchar *, ulong, ulong);
 /* change char* to void* to shutup the compiler */
 extern int i2c_write_multiple (uchar, uint, int, void *, int);
 extern int i2c_read_multiple (uchar, uint, int, void *, int);
@@ -305,13 +306,12 @@ au_check_valid(int idx, long nbytes)
 #define POWER_OFF (1 << 1)
 
 int
-au_do_update(int idx, long sz, int repeat)
+au_do_update(int idx, long sz)
 {
 	image_header_t *hdr;
 	char *addr;
 	long start, end;
-	char *strbuf = STRING_ADDR;
-	int off;
+	int off, rc;
 	uint nbytes;
 
 	hdr = (image_header_t *)LOAD_ADDR;
@@ -342,20 +342,14 @@ au_do_update(int idx, long sz, int repeat)
 		start = aufl_layout[1].start;
 		end = aufl_layout[1].end;
 #endif
-		debug ("protect off %lx %lx\n", start, end);
-		sprintf(strbuf, "protect off %lx %lx\n", start, end);
-		parse_string_outer(strbuf, FLAG_PARSE_SEMICOLON);
+		flash_sect_protect(0, start, end);
 	}
 
 	/*
-	 * erase the address range. Multiple erases seem to cause
-	 * problems.
+	 * erase the address range.
 	 */
-	if (repeat == 0) {
-		debug ("erase %lx %lx\n", start, end);
-		sprintf(strbuf, "erase %lx %lx\n", start, end);
-		parse_string_outer(strbuf, FLAG_PARSE_SEMICOLON);
-	}
+	debug ("flash_sect_erase(%lx, %lx);\n", start, end);
+	flash_sect_erase(start, end);
 	wait_ms(100);
 	/* strip the header - except for the kernel and app */
 	if (idx == IDX_FIRMWARE || idx == IDX_DISK) {
@@ -374,9 +368,12 @@ au_do_update(int idx, long sz, int repeat)
 	}
 
 	/* copy the data from RAM to FLASH */
-	debug ("cp.b %p %lx %x\n", addr, start, nbytes);
-	sprintf(strbuf, "cp.b %p %lx %x\n", addr, start, nbytes);
-	parse_string_outer(strbuf, FLAG_PARSE_SEMICOLON);
+	debug ("flash_write(%p, %lx %x)\n", addr, start, nbytes);
+	rc = flash_write(addr, start, nbytes);
+	if (rc != 0) {
+		printf("Flashing failed due to error %d\n", rc);
+		return -1;
+	}
 
 	/* check the dcrc of the copy */
 	if (crc32 (0, (char *)(start + off), ntohl(hdr->ih_size)) != ntohl(hdr->ih_dcrc)) {
@@ -386,11 +383,8 @@ au_do_update(int idx, long sz, int repeat)
 
 	/* protect the address range */
 	/* this assumes that ONLY the firmware is protected! */
-	if (idx == IDX_FIRMWARE) {
-		debug ("protect on %lx %lx\n", start, end);
-		sprintf(strbuf, "protect on %lx %lx\n", start, end);
-		parse_string_outer(strbuf, FLAG_PARSE_SEMICOLON);
-	}
+	if (idx == IDX_FIRMWARE)
+		flash_sect_protect(1, start, end);
 	return 0;
 }
 
@@ -587,7 +581,7 @@ do_auto_update(void)
 		cnt = 0;
 		got_ctrlc = 0;
 		do {
-			res = au_do_update(i, sz, cnt);
+			res = au_do_update(i, sz);
 			/* let the user break out of the loop */
 			if (ctrlc() || had_ctrlc()) {
 				clear_ctrlc();

@@ -2,6 +2,18 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Patch by Martin Krause, 09 Oct 2003:
+  Fixes for TRAB board
+  - /board/trab/rs485.c: correct baudrate
+  - /board/trab/cmd_trab.c: bug fix for problem with timer overflow in 
+    udelay(); fix some timing problems with adc controller
+  - /board/trab/trab_fkt.c: add new commands: gain, eeprom and power;
+    modify commands: touch and buzzer
+
+* Disable CONFIG_SUPPORT_VFAT when used with CONFIG_AUTO_UPDATE
+  (quick & dirty workaround for rogue pointer problem in get_vfatname());
+  Use direct function calls for auto_update instead of hush commands
+
 * Patch by Scott McNutt, 04 Oct 2003:
   - add support for Altera Nios-32 CPU
   - add support for Nios Cyclone Development Kit (DK-1C20)

@@ -29,6 +29,19 @@
 #include "tsc2000.h"
 #include "rs485.h"
 
+/*
+ * define, to wait for the touch to be pressed, before reading coordinates in
+ * command do_touch. If not defined, an error message is printed, when the
+ * command do_touch is invoked and the touch is not pressed within an specific
+ * interval.
+ */
+#undef  CONFIG_TOUCH_WAIT_PRESSED 1
+
+/* max time to wait for touch is pressed */
+#ifndef CONFIG_TOUCH_WAIT_PRESSED
+#define TOUCH_TIMEOUT   5
+#endif /* !CONFIG_TOUCH_WAIT_PRESSED */
+
 /* assignment of CPU internal ADC channels with TRAB hardware */
 #define VCC5V   2
 #define VCC12V  3
@@ -51,7 +64,6 @@
 
 #define PCLK		66000000
 #define BUZZER_FREQ     1000    /* frequency in Hz */
-#define BUZZER_TIME     1000000 /* time in us */
 #define PWM_FREQ        500
 
 
@@ -62,7 +74,7 @@
 #define CALIB_TL 0              /* calibration point in (T)op (L)eft corner */
 #define CALIB_DR 1              /* calibration point in (D)own (R)ight corner */
 
-/* EEPROM addresse map */
+/* EEPROM address map */
 #define SERIAL_NUMBER           8
 #define TOUCH_X0                52
 #define TOUCH_Y0                54
@@ -102,7 +114,7 @@ int do_rotary_switch (void);
 int do_pressure (void);
 int do_v_bat (void);
 int do_vfd_id (void);
-int do_buzzer (void);
+int do_buzzer (char **);
 int do_led (char **);
 int do_full_bridge (char **);
 int do_dac (char **);
@@ -114,19 +126,36 @@ int do_touch (char **);
 int do_rs485 (char **);
 int do_serial_number (char **);
 int do_crc16 (void);
+int do_power_switch (void);
+int do_gain (char **);
+int do_eeprom (char **);
 
 /* helper functions */
 static void adc_init (void);
 static int adc_read (unsigned int channel);
 static void print_identifier (void);
+
+#ifdef CONFIG_TOUCH_WAIT_PRESSED
 static void touch_wait_pressed (void);
+#else
+static int touch_check_pressed (void);
+#endif /* CONFIG_TOUCH_WAIT_PRESSED */
+
 static void touch_read_x_y (int *x, int *y);
 static int touch_write_clibration_values (int calib_point, int x, int y);
 static int rs485_send_line (const char *data);
 static int rs485_receive_chars (char *data, int timeout);
 static unsigned short updcrc(unsigned short icrc, unsigned char *icp,
-                             unsigned int icnt);
+			     unsigned int icnt);
 
+#if (CONFIG_COMMANDS & CFG_CMD_I2C)
+static int trab_eeprom_read (char **argv);
+static int trab_eeprom_write (char **argv);
+int i2c_write_multiple (uchar chip, uint addr, int alen, uchar *buffer,
+			int len);
+int i2c_read_multiple ( uchar chip, uint addr, int alen, uchar *buffer,
+			int len);
+#endif /* CFG_CMD_I2C */
 
 /*
  * TRAB board specific commands. Especially commands for burn-in and function
@@ -135,24 +164,24 @@ static unsigned short updcrc(unsigned short icrc, unsigned char *icp,
 
 int trab_fkt (int argc, char *argv[])
 {
-        int i;
+	int i;
 
-        app_startup(argv);
-        if (get_version () != XF_VERSION) {
-                printf ("Wrong XF_VERSION. Please re-compile with actual "
-                        "u-boot sources\n");
-                printf ("Example expects ABI version %d\n", XF_VERSION);
-                printf ("Actual U-Boot ABI version %d\n", (int)get_version());
-                return 1;
-        }
+	app_startup(argv);
+	if (get_version () != XF_VERSION) {
+		printf ("Wrong XF_VERSION. Please re-compile with actual "
+			"u-boot sources\n");
+		printf ("Example expects ABI version %d\n", XF_VERSION);
+		printf ("Actual U-Boot ABI version %d\n", (int)get_version());
+		return 1;
+	}
 
-        debug ("argc = %d\n", argc);
+	debug ("argc = %d\n", argc);
 
 	for (i=0; i<=argc; ++i) {
 		debug ("argv[%d] = \"%s\"\n", i, argv[i] ? argv[i] : "<NULL>");
-        }
+	}
 
-        adc_init ();
+	adc_init ();
 
 	switch (argc) {
 
@@ -162,103 +191,121 @@ int trab_fkt (int argc, char *argv[])
 
 	case 2:
 		if (strcmp (argv[1], "info") == 0) {
-                        return (do_info ());
+			return (do_info ());
 		}
-                if (strcmp (argv[1], "dip") == 0) {
-                        return (do_dip ());
-                }
-                if (strcmp (argv[1], "vcc5v") == 0) {
-                        return (do_vcc5v ());
-                }
-                if (strcmp (argv[1], "vcc12v") == 0) {
-                        return (do_vcc12v ());
-                }
-                if (strcmp (argv[1], "buttons") == 0) {
-                        return (do_buttons ());
-                }
-                if (strcmp (argv[1], "fill_level") == 0) {
-                        return (do_fill_level ());
-                }
-                if (strcmp (argv[1], "rotary_switch") == 0) {
-                        return (do_rotary_switch ());
-                }
-                if (strcmp (argv[1], "pressure") == 0) {
-                        return (do_pressure ());
-                }
-                if (strcmp (argv[1], "v_bat") == 0) {
-                        return (do_v_bat ());
-                }
-                if (strcmp (argv[1], "vfd_id") == 0) {
-                        return (do_vfd_id ());
-                }
-                if (strcmp (argv[1], "buzzer") == 0) {
-                        return (do_buzzer ());
-                }
-                if (strcmp (argv[1], "motor_contact") == 0) {
-                        return (do_motor_contact ());
-                }
-                if (strcmp (argv[1], "crc16") == 0) {
-                        return (do_crc16 ());
-                }
-                break;
+		if (strcmp (argv[1], "dip") == 0) {
+			return (do_dip ());
+		}
+		if (strcmp (argv[1], "vcc5v") == 0) {
+			return (do_vcc5v ());
+		}
+		if (strcmp (argv[1], "vcc12v") == 0) {
+			return (do_vcc12v ());
+		}
+		if (strcmp (argv[1], "buttons") == 0) {
+			return (do_buttons ());
+		}
+		if (strcmp (argv[1], "fill_level") == 0) {
+			return (do_fill_level ());
+		}
+		if (strcmp (argv[1], "rotary_switch") == 0) {
+			return (do_rotary_switch ());
+		}
+		if (strcmp (argv[1], "pressure") == 0) {
+			return (do_pressure ());
+		}
+		if (strcmp (argv[1], "v_bat") == 0) {
+			return (do_v_bat ());
+		}
+		if (strcmp (argv[1], "vfd_id") == 0) {
+			return (do_vfd_id ());
+		}
+		if (strcmp (argv[1], "motor_contact") == 0) {
+			return (do_motor_contact ());
+		}
+		if (strcmp (argv[1], "crc16") == 0) {
+			return (do_crc16 ());
+		}
+		if (strcmp (argv[1], "power_switch") == 0) {
+			return (do_power_switch ());
+		}
+		break;
 
 	case 3:
-                if (strcmp (argv[1], "full_bridge") == 0) {
-                        return (do_full_bridge (argv));
-                }
-                if (strcmp (argv[1], "dac") == 0) {
-                        return (do_dac (argv));
-                }
-                if (strcmp (argv[1], "motor") == 0) {
-                        return (do_motor (argv));
-                }
-                if (strcmp (argv[1], "pwm") == 0) {
-                        return (do_pwm (argv));
-                }
-                if (strcmp (argv[1], "thermo") == 0) {
-                        return (do_thermo (argv));
-                }
-                if (strcmp (argv[1], "touch") == 0) {
-                        return (do_touch (argv));
-                }
-                if (strcmp (argv[1], "serial_number") == 0) {
-                        return (do_serial_number (argv));
-                }
-                break;
+		if (strcmp (argv[1], "full_bridge") == 0) {
+			return (do_full_bridge (argv));
+		}
+		if (strcmp (argv[1], "dac") == 0) {
+			return (do_dac (argv));
+		}
+		if (strcmp (argv[1], "motor") == 0) {
+			return (do_motor (argv));
+		}
+		if (strcmp (argv[1], "pwm") == 0) {
+			return (do_pwm (argv));
+		}
+		if (strcmp (argv[1], "thermo") == 0) {
+			return (do_thermo (argv));
+		}
+		if (strcmp (argv[1], "touch") == 0) {
+			return (do_touch (argv));
+		}
+		if (strcmp (argv[1], "serial_number") == 0) {
+			return (do_serial_number (argv));
+		}
+		if (strcmp (argv[1], "buzzer") == 0) {
+			return (do_buzzer (argv));
+		}
+		if (strcmp (argv[1], "gain") == 0) {
+			return (do_gain (argv));
+		}
+		break;
 
-        case 4:
-                if (strcmp (argv[1], "led") == 0) {
-                        return (do_led (argv));
-                }
-                if (strcmp (argv[1], "rs485") == 0) {
-                        return (do_rs485 (argv));
-                }
-                if (strcmp (argv[1], "serial_number") == 0) {
-                        return (do_serial_number (argv));
-                }
-                break;
+	case 4:
+		if (strcmp (argv[1], "led") == 0) {
+			return (do_led (argv));
+		}
+		if (strcmp (argv[1], "rs485") == 0) {
+			return (do_rs485 (argv));
+		}
+		if (strcmp (argv[1], "serial_number") == 0) {
+			return (do_serial_number (argv));
+		}
+		break;
+
+	case 5:
+		if (strcmp (argv[1], "eeprom") == 0) {
+			return (do_eeprom (argv));
+		}
+		break;
+
+	case 6:
+		if (strcmp (argv[1], "eeprom") == 0) {
+			return (do_eeprom (argv));
+		}
+		break;
 
 	default:
 		break;
 	}
 
 	printf ("Usage:\n<command> <parameter1> <parameter2> ...\n");
-        return 1;
+	return 1;
 }
 
 int do_info (void)
 {
-        printf ("Stand-alone application for TRAB board function test\n");
-        printf ("Built: %s at %s\n", __DATE__ , __TIME__ );
+	printf ("Stand-alone application for TRAB board function test\n");
+	printf ("Built: %s at %s\n", __DATE__ , __TIME__ );
 
 	return 0;
 }
 
 int do_dip (void)
 {
-        unsigned int result = 0;
-        int adc_val;
-        int i;
+	unsigned int result = 0;
+	int adc_val;
+	int i;
 
 	/***********************************************************
 	 DIP switch connection (according to wa4-cpu.sp.301.pdf, page 3):
@@ -273,10 +320,10 @@ int do_dip (void)
 
 	for (i = 7; i > 3; i--) {
 
-                if ((adc_val = adc_read (i)) == -1) {
-                        printf ("Channel %d could not be read\n", i);
-                        return 1;
-                }
+		if ((adc_val = adc_read (i)) == -1) {
+			printf ("Channel %d could not be read\n", i);
+			return 1;
+		}
 
 		/*
 		 * Input voltage (switch open) is 1.8 V.
@@ -284,18 +331,18 @@ int do_dip (void)
 		 * Set trigger at halve that value.
 		 */
 		if (adc_val < 368)
-                        result |= (1 << (i-4));
-        }
+			result |= (1 << (i-4));
+	}
 
-        /* print result to console */
-        print_identifier ();
-        for (i = 0; i < 4; i++) {
-                if ((result & (1 << i)) == 0)
-                        printf("0");
-                else
-                        printf("1");
-        }
-        printf("\n");
+	/* print result to console */
+	print_identifier ();
+	for (i = 0; i < 4; i++) {
+		if ((result & (1 << i)) == 0)
+			printf("0");
+		else
+			printf("1");
+	}
+	printf("\n");
 
 	return 0;
 }
@@ -303,25 +350,25 @@ int do_dip (void)
 
 int do_vcc5v (void)
 {
-        int result;
+	int result;
 
-        /* VCC5V is connected to channel 2 */
+	/* VCC5V is connected to channel 2 */
 
-        if ((result = adc_read (VCC5V)) == -1) {
-                printf ("VCC5V could not be read\n");
-                return 1;
-        }
+	if ((result = adc_read (VCC5V)) == -1) {
+		printf ("VCC5V could not be read\n");
+		return 1;
+	}
 
-        /*
-         * Calculate voltage value. Split in two parts because there is no
-         * floating point support.  VCC5V is connected over an resistor divider:
-         * VCC5V=ADCval*2,5V/1023*(10K+30K)/10K.
-         */
-        print_identifier ();
-        printf ("%d", (result & 0x3FF)* 10 / 1023);
-        printf (".%d", ((result & 0x3FF)* 10 % 1023)* 10 / 1023);
-        printf ("%d V\n", (((result & 0x3FF) * 10 % 1023 ) * 10 % 1023)
-                * 10 / 1024);
+	/*
+	 * Calculate voltage value. Split in two parts because there is no
+	 * floating point support.  VCC5V is connected over an resistor divider:
+	 * VCC5V=ADCval*2,5V/1023*(10K+30K)/10K.
+	 */
+	print_identifier ();
+	printf ("%d", (result & 0x3FF)* 10 / 1023);
+	printf (".%d", ((result & 0x3FF)* 10 % 1023)* 10 / 1023);
+	printf ("%d V\n", (((result & 0x3FF) * 10 % 1023 ) * 10 % 1023)
+		* 10 / 1024);
 
 	return 0;
 }
@@ -329,299 +376,338 @@ int do_vcc5v (void)
 
 int do_vcc12v (void)
 {
-        int result;
+	int result;
 
-        if ((result = adc_read (VCC12V)) == -1) {
-                printf ("VCC12V could not be read\n");
-                return 1;
-        }
+	if ((result = adc_read (VCC12V)) == -1) {
+		printf ("VCC12V could not be read\n");
+		return 1;
+	}
 
-        /*
-         * Calculate voltage value. Split in two parts because there is no
-         * floating point support.  VCC5V is connected over an resistor divider:
-         * VCC12V=ADCval*2,5V/1023*(30K+270K)/30K.
-         */
-        print_identifier ();
-        printf ("%d", (result & 0x3FF)* 25 / 1023);
-        printf (".%d V\n", ((result & 0x3FF)* 25 % 1023) * 10 / 1023);
+	/*
+	 * Calculate voltage value. Split in two parts because there is no
+	 * floating point support.  VCC5V is connected over an resistor divider:
+	 * VCC12V=ADCval*2,5V/1023*(30K+270K)/30K.
+	 */
+	print_identifier ();
+	printf ("%d", (result & 0x3FF)* 25 / 1023);
+	printf (".%d V\n", ((result & 0x3FF)* 25 % 1023) * 10 / 1023);
 
-    	return 0;
+	return 0;
 }
 
 static int adc_read (unsigned int channel)
 {
-        int j = 1000; /* timeout value for wait loop in us */
-        S3C2400_ADC *padc;
+	int j = 1000; /* timeout value for wait loop in us */
+	int result;
+	S3C2400_ADC *padc;
 
-        padc = S3C2400_GetBase_ADC();
-        channel &= 0x7;
+	padc = S3C2400_GetBase_ADC();
+	channel &= 0x7;
 
-	debug ("%s: adccon %#x\n", __FUNCTION__, padc->ADCCON);
-
-        padc->ADCCON &= ~ADC_STDBM; /* select normal mode */
+	padc->ADCCON &= ~ADC_STDBM; /* select normal mode */
 	padc->ADCCON &= ~(0x7 << 3); /* clear the channel bits */
-        padc->ADCCON |= ((channel << 3) | ADC_ENABLE_START);
+	padc->ADCCON |= ((channel << 3) | ADC_ENABLE_START);
 
-        debug ("%s: reading ch %d, addcon %#x\n", __FUNCTION__,
-            (padc->ADCCON >> 3) & 0x7, padc->ADCCON);
+	while (j--) {
+		if ((padc->ADCCON & ADC_ENABLE_START) == 0)
+			break;
+		udelay (1);
+	}
 
-        while (j--) {
-                if ((padc->ADCCON & ADC_ENABLE_START) == 0)
-                        break;
-                udelay (1);
-        }
+	if (j == 0) {
+		printf("%s: ADC timeout\n", __FUNCTION__);
+		padc->ADCCON |= ADC_STDBM; /* select standby mode */
+		return -1;
+	}
 
-        if (j == 0) {
-                printf("%s: ADC timeout\n", __FUNCTION__);
-                padc->ADCCON |= ADC_STDBM; /* select standby mode */
-                return -1;
-        }
+	result = padc->ADCDAT & 0x3FF;
 
-        padc->ADCCON |= ADC_STDBM; /* select standby mode */
+	padc->ADCCON |= ADC_STDBM; /* select standby mode */
 
-        debug ("%s: return %#x, adccon %#x\n", __FUNCTION__, padc->ADCDAT & 0x3FF,
-            padc->ADCCON);
+	debug ("%s: channel %d, result[DIGIT]=%d\n", __FUNCTION__,
+	       (padc->ADCCON >> 3) & 0x7, result);
 
-        return (padc->ADCDAT & 0x3FF);
+	/*
+	 * Wait for ADC to be ready for next conversion. This delay value was
+	 * estimated, because the datasheet does not specify a value.
+	 */
+	udelay (1000);
+
+	return (result);
 }
 
 
 static void adc_init (void)
 {
-        S3C2400_ADC *padc;
+	S3C2400_ADC *padc;
 
-        padc = S3C2400_GetBase_ADC();
-
-	debug ("%s: adccon %#x\n", __FUNCTION__, padc->ADCCON);
+	padc = S3C2400_GetBase_ADC();
 
 	padc->ADCCON &= ~(0xff << 6); /* clear prescaler bits */
 	padc->ADCCON |= ((65 << 6) | ADC_PRSCEN); /* set prescaler */
 
-	debug ("%s: init completed: adccon %#x\n", __FUNCTION__, padc->ADCCON);
-        return;
+	/*
+	 * Wait some time to avoid problem with very first call of
+	 * adc_read(). Without * this delay, sometimes the first read adc
+	 * value is 0. Perhaps because the * adjustment of prescaler takes
+	 * some clock cycles?
+	 */
+	udelay (1000);
+
+	return;
 }
 
 
 int do_buttons (void)
 {
-        int result;
-        int i;
+	int result;
+	int i;
 
-        result = *CPLD_BUTTONS; /* read CPLD */
-        debug ("%s: cpld_taster (32 bit) %#x\n", __FUNCTION__, result);
+	result = *CPLD_BUTTONS; /* read CPLD */
+	debug ("%s: cpld_taster (32 bit) %#x\n", __FUNCTION__, result);
 
-        /* print result to console */
-        print_identifier ();
-        for (i = 16; i <= 19; i++) {
-                if ((result & (1 << i)) == 0)
-                        printf("0");
-                else
-                        printf("1");
-        }
-        printf("\n");
+	/* print result to console */
+	print_identifier ();
+	for (i = 16; i <= 19; i++) {
+		if ((result & (1 << i)) == 0)
+			printf("0");
+		else
+			printf("1");
+	}
+	printf("\n");
+	return 0;
+}
+
+
+int do_power_switch (void)
+{
+	int result;
+
+	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
+
+	/* configure GPE7 as input */
+	gpio->PECON &= ~(0x3 << (2 * 7));
+
+	/* signal GPE7 from power switch is low active: 0=on , 1=off */
+	result = ((gpio->PEDAT & (1 << 7)) == (1 << 7)) ? 0 : 1;
+
+	print_identifier ();
+	printf("%d\n", result);
 	return 0;
 }
 
 
 int do_fill_level (void)
 {
-        int result;
+	int result;
 
-        result = *CPLD_FILL_LEVEL; /* read CPLD */
-        debug ("%s: cpld_fuellstand (32 bit) %#x\n", __FUNCTION__, result);
+	result = *CPLD_FILL_LEVEL; /* read CPLD */
+	debug ("%s: cpld_fuellstand (32 bit) %#x\n", __FUNCTION__, result);
 
-        /* print result to console */
-        print_identifier ();
-        if ((result & (1 << 16)) == 0)
-                printf("0\n");
-        else
-                printf("1\n");
+	/* print result to console */
+	print_identifier ();
+	if ((result & (1 << 16)) == 0)
+		printf("0\n");
+	else
+		printf("1\n");
 	return 0;
 }
 
 
 int do_rotary_switch (void)
 {
-        int result;
+	int result;
+	/*
+	 * Please note, that the default values of the direction bits are
+	 * undefined after reset. So it is a good idea, to make first a dummy
+	 * call to this function, to clear the direction bits and set so to
+	 * proper values.
+	 */
 
-        result = *CPLD_ROTARY_SWITCH; /* read CPLD */
-        debug ("%s: cpld_inc (32 bit) %#x\n", __FUNCTION__, result);
+	result = *CPLD_ROTARY_SWITCH; /* read CPLD */
+	debug ("%s: cpld_inc (32 bit) %#x\n", __FUNCTION__, result);
 
-        *CPLD_ROTARY_SWITCH |= (3 << 16); /* clear direction bits in CPLD */
+	*CPLD_ROTARY_SWITCH |= (3 << 16); /* clear direction bits in CPLD */
 
-        /* print result to console */
-        print_identifier ();
-        if ((result & (1 << 16)) == (1 << 16))
-                printf("R");
-        if ((result & (1 << 17)) == (1 << 17))
-                printf("L");
-        if (((result & (1 << 16)) == 0) && ((result & (1 << 17)) == 0))
-                printf("0");
-        if ((result & (1 << 18)) == 0)
-                printf("0\n");
-        else
-                printf("1\n");
+	/* print result to console */
+	print_identifier ();
+	if ((result & (1 << 16)) == (1 << 16))
+		printf("R");
+	if ((result & (1 << 17)) == (1 << 17))
+		printf("L");
+	if (((result & (1 << 16)) == 0) && ((result & (1 << 17)) == 0))
+		printf("0");
+	if ((result & (1 << 18)) == 0)
+		printf("0\n");
+	else
+		printf("1\n");
 	return 0;
 }
 
 
 int do_vfd_id (void)
 {
-        int i;
-        long int pcup_old, pccon_old;
-        int vfd_board_id;
-        S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
+	int i;
+	long int pcup_old, pccon_old;
+	int vfd_board_id;
+	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
 
 	/* try to red vfd board id from the value defined by pull-ups */
 
-        pcup_old = gpio->PCUP;
-        pccon_old = gpio->PCCON;
+	pcup_old = gpio->PCUP;
+	pccon_old = gpio->PCCON;
 
 	gpio->PCUP = (gpio->PCUP & 0xFFF0); /* activate  GPC0...GPC3 pull-ups */
 	gpio->PCCON = (gpio->PCCON & 0xFFFFFF00); /* configure GPC0...GPC3 as
-                                                   * inputs */
+						   * inputs */
 	udelay (10);            /* allow signals to settle */
 	vfd_board_id = (~gpio->PCDAT) & 0x000F;	/* read GPC0...GPC3 port pins */
 
-        gpio->PCCON = pccon_old;
-        gpio->PCUP = pcup_old;
+	gpio->PCCON = pccon_old;
+	gpio->PCUP = pcup_old;
 
-        /* print vfd_board_id to console */
-        print_identifier ();
-        for (i = 0; i < 4; i++) {
-                if ((vfd_board_id & (1 << i)) == 0)
-                        printf("0");
-                else
-                        printf("1");
-        }
-        printf("\n");
+	/* print vfd_board_id to console */
+	print_identifier ();
+	for (i = 0; i < 4; i++) {
+		if ((vfd_board_id & (1 << i)) == 0)
+			printf("0");
+		else
+			printf("1");
+	}
+	printf("\n");
 	return 0;
 }
 
-int do_buzzer (void)
+int do_buzzer (char **argv)
 {
-        int counter;
+	int counter;
 
 	S3C24X0_TIMERS * const timers = S3C24X0_GetBase_TIMERS();
-        S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
+	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
 
-        /* configure pin GPD7 as TOUT2 */
-	gpio->PDCON &= ~0xC000;
-	gpio->PDCON |= 0x8000;
-
-        /* set prescaler for timer 2, 3 and 4 */
-        timers->TCFG0 &= ~0xFF00;
+	/* set prescaler for timer 2, 3 and 4 */
+	timers->TCFG0 &= ~0xFF00;
 	timers->TCFG0 |=  0x0F00;
 
-        /* set divider for timer 2 */
+	/* set divider for timer 2 */
 	timers->TCFG1 &= ~0xF00;
 	timers->TCFG1 |=  0x300;
 
-        /* set frequency */
-        counter = (PCLK / BUZZER_FREQ) >> 9;
-        timers->ch[2].TCNTB = counter;
+	/* set frequency */
+	counter = (PCLK / BUZZER_FREQ) >> 9;
+	timers->ch[2].TCNTB = counter;
 	timers->ch[2].TCMPB = counter / 2;
 
-        debug ("%s: frequency: %d, duration: %d\n", __FUNCTION__, BUZZER_FREQ,
-            BUZZER_TIME);
+	if (strcmp (argv[2], "on") == 0) {
+		debug ("%s: frequency: %d\n", __FUNCTION__,
+		       BUZZER_FREQ);
 
-        /* start */
-	timers->TCON = (timers->TCON | UPDATE2 | RELOAD2) & ~INVERT2;
-	timers->TCON = (timers->TCON | START2) & ~UPDATE2;
+		/* configure pin GPD7 as TOUT2 */
+		gpio->PDCON &= ~0xC000;
+		gpio->PDCON |= 0x8000;
 
-        udelay (BUZZER_TIME);
+		/* start */
+		timers->TCON = (timers->TCON | UPDATE2 | RELOAD2) &
+				~INVERT2;
+		timers->TCON = (timers->TCON | START2) & ~UPDATE2;
+		return (0);
+	}
+	else if (strcmp (argv[2], "off") == 0) {
+		/* stop */
+		timers->TCON &= ~(START2 | RELOAD2);
 
-        /* stop */
-	timers->TCON &= ~(START2 | RELOAD2);
+		/* configure GPD7 as output and set to low */
+		gpio->PDCON &= ~0xC000;
+		gpio->PDCON |= 0x4000;
+		gpio->PDDAT &= ~0x80;
+		return (0);
+	}
 
-        /* port pin configuration */
-	gpio->PDCON &= ~0xC000;
-        gpio->PDCON |= 0x4000;
-        gpio->PDDAT &= ~0x80;
-	return 0;
+	printf ("%s: invalid parameter %s\n", __FUNCTION__, argv[2]);
+	return 1;
 }
 
 
 int do_led (char **argv)
 {
-        S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
+	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
 
-        /* configure PC14 and PC15 as output */
-        gpio->PCCON &= ~(0xF << 28);
-        gpio->PCCON |= (0x5 << 28);
+	/* configure PC14 and PC15 as output */
+	gpio->PCCON &= ~(0xF << 28);
+	gpio->PCCON |= (0x5 << 28);
 
-        /* configure PD0 and PD4 as output */
-        gpio->PDCON &= ~((0x3 << 8) | 0x3);
-        gpio->PDCON |= ((0x1 << 8) | 0x1);
+	/* configure PD0 and PD4 as output */
+	gpio->PDCON &= ~((0x3 << 8) | 0x3);
+	gpio->PDCON |= ((0x1 << 8) | 0x1);
 
-        switch (simple_strtoul(argv[2], NULL, 10)) {
+	switch (simple_strtoul(argv[2], NULL, 10)) {
 
 	case 0:
 	case 1:
 		break;
 
-        case 2:
-                if (strcmp (argv[3], "on") == 0)
-                        gpio->PCDAT |= (1 << 14);
-                else
-                        gpio->PCDAT &= ~(1 << 14);
-                return 0;
+	case 2:
+		if (strcmp (argv[3], "on") == 0)
+			gpio->PCDAT |= (1 << 14);
+		else
+			gpio->PCDAT &= ~(1 << 14);
+		return 0;
 
-        case 3:
-                if (strcmp (argv[3], "on") == 0)
-                        gpio->PCDAT |= (1 << 15);
-                else
-                        gpio->PCDAT &= ~(1 << 15);
-                return 0;
+	case 3:
+		if (strcmp (argv[3], "on") == 0)
+			gpio->PCDAT |= (1 << 15);
+		else
+			gpio->PCDAT &= ~(1 << 15);
+		return 0;
 
-        case 4:
-                if (strcmp (argv[3], "on") == 0)
-                        gpio->PDDAT |= (1 << 0);
-                else
-                        gpio->PDDAT &= ~(1 << 0);
-                return 0;
+	case 4:
+		if (strcmp (argv[3], "on") == 0)
+			gpio->PDDAT |= (1 << 0);
+		else
+			gpio->PDDAT &= ~(1 << 0);
+		return 0;
 
-        case 5:
-                if (strcmp (argv[3], "on") == 0)
-                        gpio->PDDAT |= (1 << 4);
-                else
-                        gpio->PDDAT &= ~(1 << 4);
-                return 0;
+	case 5:
+		if (strcmp (argv[3], "on") == 0)
+			gpio->PDDAT |= (1 << 4);
+		else
+			gpio->PDDAT &= ~(1 << 4);
+		return 0;
 
-        default:
-                break;
+	default:
+		break;
 
-        }
-        printf ("%s: invalid parameter %s\n", __FUNCTION__, argv[2]);
-        return 1;
+	}
+	printf ("%s: invalid parameter %s\n", __FUNCTION__, argv[2]);
+	return 1;
 }
 
 
 int do_full_bridge (char **argv)
 {
-        S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
+	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
 
-        /* configure PD5 and PD6 as output */
-        gpio->PDCON &= ~((0x3 << 5*2) | (0x3 << 6*2));
-        gpio->PDCON |= ((0x1 << 5*2) | (0x1 << 6*2));
+	/* configure PD5 and PD6 as output */
+	gpio->PDCON &= ~((0x3 << 5*2) | (0x3 << 6*2));
+	gpio->PDCON |= ((0x1 << 5*2) | (0x1 << 6*2));
 
-        if (strcmp (argv[2], "+") == 0) {
-              gpio->PDDAT |= (1 << 5);
-              gpio->PDDAT |= (1 << 6);
-              return 0;
-        }
-        else if (strcmp (argv[2], "-") == 0) {
-                gpio->PDDAT &= ~(1 << 5);
-                gpio->PDDAT |= (1 << 6);
-                return 0;
-        }
-        else if (strcmp (argv[2], "off") == 0) {
-                gpio->PDDAT &= ~(1 << 5);
-                gpio->PDDAT &= ~(1 << 6);
-                return 0;
-        }
-        printf ("%s: invalid parameter %s\n", __FUNCTION__, argv[2]);
-        return 1;
+	if (strcmp (argv[2], "+") == 0) {
+	      gpio->PDDAT |= (1 << 5);
+	      gpio->PDDAT |= (1 << 6);
+	      return 0;
+	}
+	else if (strcmp (argv[2], "-") == 0) {
+		gpio->PDDAT &= ~(1 << 5);
+		gpio->PDDAT |= (1 << 6);
+		return 0;
+	}
+	else if (strcmp (argv[2], "off") == 0) {
+		gpio->PDDAT &= ~(1 << 5);
+		gpio->PDDAT &= ~(1 << 6);
+		return 0;
+	}
+	printf ("%s: invalid parameter %s\n", __FUNCTION__, argv[2]);
+	return 1;
 }
 
 /* val must be in [0, 4095] */
@@ -633,77 +719,77 @@ static inline unsigned long tsc2000_to_uv (u16 val)
 
 int do_dac (char **argv)
 {
-        int brightness;
+	int brightness;
 
-        /* initialize SPI */
-        spi_init ();
+	/* initialize SPI */
+	spi_init ();
 
-        if  (((brightness = simple_strtoul (argv[2], NULL, 10)) < 0) ||
-             (brightness > 255)) {
-                printf ("%s: invalid parameter %s\n", __FUNCTION__, argv[2]);
-                return 1;
-        }
-        tsc2000_write(TSC2000_REG_DACCTL, 0x0); /* Power up DAC */
+	if  (((brightness = simple_strtoul (argv[2], NULL, 10)) < 0) ||
+	     (brightness > 255)) {
+		printf ("%s: invalid parameter %s\n", __FUNCTION__, argv[2]);
+		return 1;
+	}
+	tsc2000_write(TSC2000_REG_DACCTL, 0x0); /* Power up DAC */
 	tsc2000_write(TSC2000_REG_DAC, brightness & 0xff);
 
-        return 0;
+	return 0;
 }
 
 
 int do_v_bat (void)
 {
-        unsigned long ret, res;
+	unsigned long ret, res;
 
-        /* initialize SPI */
-        spi_init ();
+	/* initialize SPI */
+	spi_init ();
 
 	tsc2000_write(TSC2000_REG_ADC, 0x1836);
 
-        /* now wait for data available */
-        adc_wait_conversion_done();
+	/* now wait for data available */
+	adc_wait_conversion_done();
 
 	ret = tsc2000_read(TSC2000_REG_BAT1);
 	res = (tsc2000_to_uv(ret) + 1250) / 2500;
 	res += (ERROR_BATTERY * res) / 1000;
 
-        print_identifier ();
-        printf ("%ld", (res / 100));
-        printf (".%ld", ((res % 100) / 10));
-        printf ("%ld V\n", (res % 10));
+	print_identifier ();
+	printf ("%ld", (res / 100));
+	printf (".%ld", ((res % 100) / 10));
+	printf ("%ld V\n", (res % 10));
 	return 0;
 }
 
 
 int do_pressure (void)
 {
-        /* initialize SPI */
-        spi_init ();
+	/* initialize SPI */
+	spi_init ();
 
-        tsc2000_write(TSC2000_REG_ADC, 0x2436);
+	tsc2000_write(TSC2000_REG_ADC, 0x2436);
 
-        /* now wait for data available */
-        adc_wait_conversion_done();
+	/* now wait for data available */
+	adc_wait_conversion_done();
 
-        print_identifier ();
-        printf ("%d\n", tsc2000_read(TSC2000_REG_AUX2));
+	print_identifier ();
+	printf ("%d\n", tsc2000_read(TSC2000_REG_AUX2));
 	return 0;
 }
 
 
 int do_motor_contact (void)
 {
-        int result;
+	int result;
 
-        result = *CPLD_FILL_LEVEL; /* read CPLD */
-        debug ("%s: cpld_fuellstand (32 bit) %#x\n", __FUNCTION__, result);
+	result = *CPLD_FILL_LEVEL; /* read CPLD */
+	debug ("%s: cpld_fuellstand (32 bit) %#x\n", __FUNCTION__, result);
 
-        /* print result to console */
-        print_identifier ();
-        if ((result & (1 << 17)) == 0)
-                printf("0\n");
-        else
-                printf("1\n");
-        return 0;
+	/* print result to console */
+	print_identifier ();
+	if ((result & (1 << 17)) == 0)
+		printf("0\n");
+	else
+		printf("1\n");
+	return 0;
 }
 
 int do_motor (char **argv)
@@ -714,276 +800,341 @@ int do_motor (char **argv)
 	gpio->PGCON &= ~(0x3 << 0);
 	gpio->PGCON |= (0x1 << 0);
 
-        if (strcmp (argv[2], "on") == 0) {
-                gpio->PGDAT &= ~(1 << 0);
-                return 0;
-        }
-        if (strcmp (argv[2], "off") == 0) {
-                gpio->PGDAT |= (1 << 0);
-                return 0;
-        }
-        printf ("%s: invalid parameter %s\n", __FUNCTION__, argv[2]);
-        return 1;
+	if (strcmp (argv[2], "on") == 0) {
+		gpio->PGDAT &= ~(1 << 0);
+		return 0;
+	}
+	if (strcmp (argv[2], "off") == 0) {
+		gpio->PGDAT |= (1 << 0);
+		return 0;
+	}
+	printf ("%s: invalid parameter %s\n", __FUNCTION__, argv[2]);
+	return 1;
 }
 
 static void print_identifier (void)
 {
-        printf ("## FKT: ");
+	printf ("## FKT: ");
 }
 
 int do_pwm (char **argv)
 {
-        int counter;
-        S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
+	int counter;
+	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
 	S3C24X0_TIMERS * const timers = S3C24X0_GetBase_TIMERS();
 
-        if (strcmp (argv[2], "on") == 0) {
-                /* configure pin GPD8 as TOUT3 */
-                gpio->PDCON &= ~(0x3 << 8*2);
-                gpio->PDCON |= (0x2 << 8*2);
+	if (strcmp (argv[2], "on") == 0) {
+		/* configure pin GPD8 as TOUT3 */
+		gpio->PDCON &= ~(0x3 << 8*2);
+		gpio->PDCON |= (0x2 << 8*2);
 
-                /* set prescaler for timer 2, 3 and 4 */
-                timers->TCFG0 &= ~0xFF00;
-                timers->TCFG0 |= 0x0F00;
+		/* set prescaler for timer 2, 3 and 4 */
+		timers->TCFG0 &= ~0xFF00;
+		timers->TCFG0 |= 0x0F00;
 
-                /* set divider for timer 3 */
-                timers->TCFG1 &= ~(0xf << 12);
-                timers->TCFG1 |= (0x3 << 12);
+		/* set divider for timer 3 */
+		timers->TCFG1 &= ~(0xf << 12);
+		timers->TCFG1 |= (0x3 << 12);
 
-                /* set frequency */
-                counter = (PCLK / PWM_FREQ) >> 9;
-                timers->ch[3].TCNTB = counter;
-                timers->ch[3].TCMPB = counter / 2;
+		/* set frequency */
+		counter = (PCLK / PWM_FREQ) >> 9;
+		timers->ch[3].TCNTB = counter;
+		timers->ch[3].TCMPB = counter / 2;
 
-                /* start timer */
-                timers->TCON = (timers->TCON | UPDATE3 | RELOAD3) & ~INVERT3;
-                timers->TCON = (timers->TCON | START3) & ~UPDATE3;
-                return 0;
-        }
-        if (strcmp (argv[2], "off") == 0) {
+		/* start timer */
+		timers->TCON = (timers->TCON | UPDATE3 | RELOAD3) & ~INVERT3;
+		timers->TCON = (timers->TCON | START3) & ~UPDATE3;
+		return 0;
+	}
+	if (strcmp (argv[2], "off") == 0) {
 
-                /* stop timer */
-                timers->TCON &= ~(START2 | RELOAD2);
+		/* stop timer */
+		timers->TCON &= ~(START2 | RELOAD2);
 
-                /* configure pin GPD8 as output and set to 0 */
-                gpio->PDCON &= ~(0x3 << 8*2);
-                gpio->PDCON |= (0x1 << 8*2);
-                gpio->PDDAT &= ~(1 << 8);
-                return 0;
-        }
-        printf ("%s: invalid parameter %s\n", __FUNCTION__, argv[2]);
-        return 1;
+		/* configure pin GPD8 as output and set to 0 */
+		gpio->PDCON &= ~(0x3 << 8*2);
+		gpio->PDCON |= (0x1 << 8*2);
+		gpio->PDDAT &= ~(1 << 8);
+		return 0;
+	}
+	printf ("%s: invalid parameter %s\n", __FUNCTION__, argv[2]);
+	return 1;
 }
 
 
 int do_thermo (char **argv)
 {
-        int     channel, res;
+	int     channel, res;
 
-        tsc2000_reg_init ();
-        tsc2000_set_range (3);
+	tsc2000_reg_init ();
 
-        if (strcmp (argv[2], "all") == 0) {
-                int i;
-                for (i=0; i <= 15; i++) {
-                        res = tsc2000_read_channel(i);
-                        print_identifier ();
-                        printf ("c%d: %d\n", i, res);
-                }
-                return 0;
-        }
-        channel = simple_strtoul (argv[2], NULL, 10);
-        res = tsc2000_read_channel(channel);
-        print_identifier ();
-        printf ("%d\n", res);
-        return 0;                 /* return OK */
+	if (strcmp (argv[2], "all") == 0) {
+		int i;
+		for (i=0; i <= 15; i++) {
+			res = tsc2000_read_channel(i);
+			print_identifier ();
+			printf ("c%d: %d\n", i, res);
+		}
+		return 0;
+	}
+	channel = simple_strtoul (argv[2], NULL, 10);
+	res = tsc2000_read_channel(channel);
+	print_identifier ();
+	printf ("%d\n", res);
+	return 0;                 /* return OK */
 }
 
 
 
 int do_touch (char **argv)
 {
-        int     x, y;
+	int     x, y;
 
-        if (strcmp (argv[2], "tl") == 0) {
-                touch_wait_pressed();
-                touch_read_x_y (&x, &y);
+	if (strcmp (argv[2], "tl") == 0) {
+#if CONFIG_TOUCH_WAIT_PRESSED
+		touch_wait_pressed();
+#else
+		{
+			int i;
+			for (i = 0; i < (TOUCH_TIMEOUT * 1000); i++) {
+				if (touch_check_pressed ()) {
+					break;
+				}
+				udelay (1000);  /* pause 1 ms */
+			}
+		}
+		if (!touch_check_pressed()) {
+			print_identifier ();
+			printf ("error: touch not pressed\n");
+			return 1;
+		}
+#endif /* CONFIG_TOUCH_WAIT_PRESSED */
+		touch_read_x_y (&x, &y);
 
-                print_identifier ();
-                printf ("x=%d y=%d\n", x, y);
-                return touch_write_clibration_values (CALIB_TL, x, y);
-        }
-        else if (strcmp (argv[2], "dr") == 0) {
-                touch_wait_pressed();
-                touch_read_x_y (&x, &y);
+		print_identifier ();
+		printf ("x=%d y=%d\n", x, y);
+		return touch_write_clibration_values (CALIB_TL, x, y);
+	}
+	else if (strcmp (argv[2], "dr") == 0) {
+#if CONFIG_TOUCH_WAIT_PRESSED
+		touch_wait_pressed();
+#else
+		{
+			int i;
+			for (i = 0; i < (TOUCH_TIMEOUT * 1000); i++) {
+				if (touch_check_pressed ()) {
+					break;
+				}
+				udelay (1000);  /* pause 1 ms */
+			}
+		}
+		if (!touch_check_pressed()) {
+			print_identifier ();
+			printf ("error: touch not pressed\n");
+			return 1;
+		}
+#endif /* CONFIG_TOUCH_WAIT_PRESSED */
+		touch_read_x_y (&x, &y);
 
-                print_identifier ();
-                printf ("x=%d y=%d\n", x, y);
+		print_identifier ();
+		printf ("x=%d y=%d\n", x, y);
 
-                return touch_write_clibration_values (CALIB_DR, x, y);
-        }
-        return 1;                 /* return error */
+		return touch_write_clibration_values (CALIB_DR, x, y);
+	}
+	return 1;                 /* not "tl", nor "dr", so return error */
 }
 
 
+#ifdef CONFIG_TOUCH_WAIT_PRESSED
 static void touch_wait_pressed (void)
 {
-        while (!(tsc2000_read(TSC2000_REG_ADC) & TC_PSM));
+	while (!(tsc2000_read(TSC2000_REG_ADC) & TC_PSM));
 }
 
+#else
+static int touch_check_pressed (void)
+{
+	return (tsc2000_read(TSC2000_REG_ADC) & TC_PSM);
+}
+#endif /* CONFIG_TOUCH_WAIT_PRESSED */
 
 static int touch_write_clibration_values (int calib_point, int x, int y)
 {
 #if (CONFIG_COMMANDS & CFG_CMD_I2C)
-     tsc2000_reg_init ();
+	int x_verify = 0;
+	int y_verify = 0;
 
-        if (calib_point == CALIB_TL) {
-                if (i2c_write (I2C_EEPROM_DEV_ADDR, TOUCH_X0, 1,
-                               (char *)&x, 2)) {
-                        printf ("could not write to eeprom\n");
-                        return 1;
-                }
-                udelay(11000);
-                if (i2c_write (I2C_EEPROM_DEV_ADDR, TOUCH_Y0, 1,
-                               (char *)&y, 2)) {
-                        printf ("could not write to eeprom\n");
-                        return 1;
-                }
-                udelay(11000);
-                return 0;
-        }
-        else if (calib_point == CALIB_DR) {
-                  if (i2c_write (I2C_EEPROM_DEV_ADDR, TOUCH_X1, 1,
-                               (char *)&x, 2)) {
-                          printf ("could not write to eeprom\n");
-                        return 1;
-                  }
-                udelay(11000);
-                if (i2c_write (I2C_EEPROM_DEV_ADDR, TOUCH_Y1, 1,
-                               (char *)&y, 2)) {
-                        printf ("could not write to eeprom\n");
-                        return 1;
-                }
-                udelay(11000);
-                return 0;
-        }
-        return 1;
+	tsc2000_reg_init ();
+
+	if (calib_point == CALIB_TL) {
+		if (i2c_write_multiple (I2C_EEPROM_DEV_ADDR, TOUCH_X0, 1,
+			       (char *)&x, 2)) {
+			return 1;
+		}
+		if (i2c_write_multiple (I2C_EEPROM_DEV_ADDR, TOUCH_Y0, 1,
+			       (char *)&y, 2)) {
+			return 1;
+		}
+
+		/* verify written values */
+		if (i2c_read_multiple (I2C_EEPROM_DEV_ADDR, TOUCH_X0, 1,
+			      (char *)&x_verify, 2)) {
+			return 1;
+		}
+		if (i2c_read_multiple (I2C_EEPROM_DEV_ADDR, TOUCH_Y0, 1,
+			       (char *)&y_verify, 2)) {
+			return 1;
+		}
+		if ((y != y_verify) || (x != x_verify)) {
+			print_identifier ();
+			printf ("error: verify error\n");
+			return 1;
+		}
+		return 0;       /* no error */
+	}
+	else if (calib_point == CALIB_DR) {
+		  if (i2c_write_multiple (I2C_EEPROM_DEV_ADDR, TOUCH_X1, 1,
+			       (char *)&x, 2)) {
+			return 1;
+		  }
+		if (i2c_write_multiple (I2C_EEPROM_DEV_ADDR, TOUCH_Y1, 1,
+			       (char *)&y, 2)) {
+			return 1;
+		}
+
+		/* verify written values */
+		if (i2c_read_multiple (I2C_EEPROM_DEV_ADDR, TOUCH_X1, 1,
+				       (char *)&x_verify, 2)) {
+			return 1;
+		}
+		if (i2c_read_multiple (I2C_EEPROM_DEV_ADDR, TOUCH_Y1, 1,
+			       (char *)&y_verify, 2)) {
+			return 1;
+		}
+		if ((y != y_verify) || (x != x_verify)) {
+			print_identifier ();
+			printf ("error: verify error\n");
+			return 1;
+		}
+		return 0;
+	}
+	return 1;
 #else
-        printf ("No I2C support enabled (CFG_CMD_I2C), could not write "
-                "to EEPROM\n");
-        return (1);
+	printf ("No I2C support enabled (CFG_CMD_I2C), could not write "
+		"to EEPROM\n");
+	return (1);
 #endif /* CFG_CMD_I2C */
 }
 
 
 static void touch_read_x_y (int *px, int *py)
 {
-        tsc2000_write(TSC2000_REG_ADC, DEFAULT_ADC | TC_AD0 | TC_AD1);
-        adc_wait_conversion_done();
-        *px = tsc2000_read(TSC2000_REG_X);
+	tsc2000_write(TSC2000_REG_ADC, DEFAULT_ADC | TC_AD0 | TC_AD1);
+	adc_wait_conversion_done();
+	*px = tsc2000_read(TSC2000_REG_X);
 
-        tsc2000_write(TSC2000_REG_ADC, DEFAULT_ADC | TC_AD2);
-        adc_wait_conversion_done();
-        *py = tsc2000_read(TSC2000_REG_Y);
+	tsc2000_write(TSC2000_REG_ADC, DEFAULT_ADC | TC_AD2);
+	adc_wait_conversion_done();
+	*py = tsc2000_read(TSC2000_REG_Y);
 }
 
 
 
 int do_rs485 (char **argv)
 {
-        int timeout;
-        char data[RS485_MAX_RECEIVE_BUF_LEN];
+	int timeout;
+	char data[RS485_MAX_RECEIVE_BUF_LEN];
 
-        if (strcmp (argv[2], "send") == 0) {
-                return (rs485_send_line (argv[3]));
-        }
-        else if (strcmp (argv[2], "receive") == 0) {
-                timeout = simple_strtoul(argv[3], NULL, 10);
-                if (rs485_receive_chars (data, timeout) != 0) {
-                        print_identifier ();
-                        printf ("## nothing received\n");
-                        return (1);
-                }
-                else {
-                        print_identifier ();
-                        printf ("%s\n", data);
-                        return (0);
-                }
-        }
-        printf ("%s: unknown command %s\n", __FUNCTION__, argv[2]);
-        return (1);             /* unknown command, return error */
+	if (strcmp (argv[2], "send") == 0) {
+		return (rs485_send_line (argv[3]));
+	}
+	else if (strcmp (argv[2], "receive") == 0) {
+		timeout = simple_strtoul(argv[3], NULL, 10);
+		if (rs485_receive_chars (data, timeout) != 0) {
+			print_identifier ();
+			printf ("## nothing received\n");
+			return (1);
+		}
+		else {
+			print_identifier ();
+			printf ("%s\n", data);
+			return (0);
+		}
+	}
+	printf ("%s: unknown command %s\n", __FUNCTION__, argv[2]);
+	return (1);             /* unknown command, return error */
 }
 
 
 static int rs485_send_line (const char *data)
 {
-        rs485_init ();
-        trab_rs485_enable_tx ();
-        rs485_puts (data);
-        rs485_putc ('\n');
+	rs485_init ();
+	trab_rs485_enable_tx ();
+	rs485_puts (data);
+	rs485_putc ('\n');
 
-        return (0);
+	return (0);
 }
 
 
 static int rs485_receive_chars (char *data, int timeout)
 {
-        int i;
-        int receive_count = 0;
+	int i;
+	int receive_count = 0;
 
-        rs485_init ();
-        trab_rs485_enable_rx ();
+	rs485_init ();
+	trab_rs485_enable_rx ();
 
-        /* test every 1 ms for received characters to avoid a receive FIFO
-         * overrun (@ 38.400 Baud) */
-        for (i = 0; i < (timeout * 1000); i++) {
-                while (rs485_tstc ()) {
-                        if (receive_count >= RS485_MAX_RECEIVE_BUF_LEN-1)
-                                break;
-                        *data++ = rs485_getc ();
-                        receive_count++;
-                }
-                udelay (1000);  /* pause 1 ms */
-        }
-        *data = '\0';           /* terminate string */
+	/* test every 1 ms for received characters to avoid a receive FIFO
+	 * overrun (@ 38.400 Baud) */
+	for (i = 0; i < (timeout * 1000); i++) {
+		while (rs485_tstc ()) {
+			if (receive_count >= RS485_MAX_RECEIVE_BUF_LEN-1)
+				break;
+			*data++ = rs485_getc ();
+			receive_count++;
+		}
+		udelay (1000);  /* pause 1 ms */
+	}
+	*data = '\0';           /* terminate string */
 
-        if (receive_count == 0)
-                return (1);
-        else
-                return (0);
+	if (receive_count == 0)
+		return (1);
+	else
+		return (0);
 }
 
 
 int do_serial_number (char **argv)
 {
 #if (CONFIG_COMMANDS & CFG_CMD_I2C)
-        unsigned int serial_number;
+	unsigned int serial_number;
 
-        if (strcmp (argv[2], "read") == 0) {
-                if (i2c_read (I2C_EEPROM_DEV_ADDR, SERIAL_NUMBER, 1,
-                              (char *)&serial_number, 4)) {
-                        printf ("could not read from eeprom\n");
-                        return (1);
-                }
-                print_identifier ();
-                printf ("%08d\n", serial_number);
-                return (0);
-        }
-        else if (strcmp (argv[2], "write") == 0) {
-                serial_number = simple_strtoul(argv[3], NULL, 10);
-                if (i2c_write (I2C_EEPROM_DEV_ADDR, SERIAL_NUMBER, 1,
-                              (char *)&serial_number, 4)) {
-                        printf ("could not write to eeprom\n");
-                        return (1);
-                }
-                return (0);
-        }
-        printf ("%s: unknown command %s\n", __FUNCTION__, argv[2]);
-        return (1);             /* unknown command, return error */
+	if (strcmp (argv[2], "read") == 0) {
+		if (i2c_read (I2C_EEPROM_DEV_ADDR, SERIAL_NUMBER, 1,
+			      (char *)&serial_number, 4)) {
+			printf ("could not read from eeprom\n");
+			return (1);
+		}
+		print_identifier ();
+		printf ("%08d\n", serial_number);
+		return (0);
+	}
+	else if (strcmp (argv[2], "write") == 0) {
+		serial_number = simple_strtoul(argv[3], NULL, 10);
+		if (i2c_write (I2C_EEPROM_DEV_ADDR, SERIAL_NUMBER, 1,
+			      (char *)&serial_number, 4)) {
+			printf ("could not write to eeprom\n");
+			return (1);
+		}
+		return (0);
+	}
+	printf ("%s: unknown command %s\n", __FUNCTION__, argv[2]);
+	return (1);             /* unknown command, return error */
 #else
-        printf ("No I2C support enabled (CFG_CMD_I2C), could not write "
-                "to EEPROM\n");
-        return (1);
+	printf ("No I2C support enabled (CFG_CMD_I2C), could not write "
+		"to EEPROM\n");
+	return (1);
 #endif /* CFG_CMD_I2C */
 }
 
@@ -991,29 +1142,29 @@ int do_serial_number (char **argv)
 int do_crc16 (void)
 {
 #if (CONFIG_COMMANDS & CFG_CMD_I2C)
-        int crc;
-        char buf[EEPROM_MAX_CRC_BUF];
+	int crc;
+	char buf[EEPROM_MAX_CRC_BUF];
 
-        if (i2c_read (I2C_EEPROM_DEV_ADDR, 0, 1, buf, 60)) {
-                printf ("could not read from eeprom\n");
-                return (1);
-        }
-        crc = 0;                /* start value of crc calculation */
-        crc = updcrc (crc, buf, 60);
+	if (i2c_read (I2C_EEPROM_DEV_ADDR, 0, 1, buf, 60)) {
+		printf ("could not read from eeprom\n");
+		return (1);
+	}
+	crc = 0;                /* start value of crc calculation */
+	crc = updcrc (crc, buf, 60);
 
-        print_identifier ();
-        printf ("crc16=%#04x\n", crc);
+	print_identifier ();
+	printf ("crc16=%#04x\n", crc);
 
-        if (i2c_write (I2C_EEPROM_DEV_ADDR, CRC16, 1, (char *)&crc,
-                       sizeof (crc))) {
-                printf ("could not read from eeprom\n");
-                return (1);
-        }
-        return (0);
+	if (i2c_write (I2C_EEPROM_DEV_ADDR, CRC16, 1, (char *)&crc,
+		       sizeof (crc))) {
+		printf ("could not read from eeprom\n");
+		return (1);
+	}
+	return (0);
 #else
-        printf ("No I2C support enabled (CFG_CMD_I2C), could not write "
-                "to EEPROM\n");
-        return (1);
+	printf ("No I2C support enabled (CFG_CMD_I2C), could not write "
+		"to EEPROM\n");
+	return (1);
 #endif /* CFG_CMD_I2C */
 }
 
@@ -1080,14 +1231,183 @@ static unsigned short crctab[1<<B] = { /* as calculated by initcrctab() */
     };
 
 static unsigned short updcrc(unsigned short icrc, unsigned char *icp,
-                             unsigned int icnt )
+			     unsigned int icnt )
 {
-        register unsigned short crc = icrc;
-        register unsigned char *cp = icp;
-        register unsigned int cnt = icnt;
+	register unsigned short crc = icrc;
+	register unsigned char *cp = icp;
+	register unsigned int cnt = icnt;
 
-        while (cnt--)
-                crc = (crc<<B) ^ crctab[(crc>>(W-B)) ^ *cp++];
+	while (cnt--)
+		crc = (crc<<B) ^ crctab[(crc>>(W-B)) ^ *cp++];
 
-        return (crc);
+	return (crc);
 }
+
+
+int do_gain (char **argv)
+{
+	int range;
+
+	range = simple_strtoul (argv[2], NULL, 10);
+	if ((range < 1) || (range > 3))
+	{
+		printf ("%s: invalid parameter %s\n", __FUNCTION__, argv[2]);
+		return 1;
+	}
+
+	tsc2000_set_range (range);
+	return (0);
+}
+
+
+int do_eeprom (char **argv)
+{
+#if (CONFIG_COMMANDS & CFG_CMD_I2C)
+	if (strcmp (argv[2], "read") == 0) {
+		return (trab_eeprom_read (argv));
+	}
+
+	else if (strcmp (argv[2], "write") == 0) {
+		return (trab_eeprom_write (argv));
+	}
+
+	printf ("%s: invalid parameter %s\n", __FUNCTION__, argv[2]);
+	return (1);
+#else
+	printf ("No I2C support enabled (CFG_CMD_I2C), could not write "
+		"to EEPROM\n");
+	return (1);
+#endif /* CFG_CMD_I2C */
+}
+
+#if (CONFIG_COMMANDS & CFG_CMD_I2C)
+static int trab_eeprom_read (char **argv)
+{
+	int i;
+	int len;
+	unsigned int addr;
+	long int value = 0;
+	uchar *buffer;
+
+	buffer = (uchar *) &value;
+	addr = simple_strtoul (argv[3], NULL, 10);
+	addr &= 0xfff;
+	len = simple_strtoul (argv[4], NULL, 10);
+	if ((len < 1) || (len > 4)) {
+		printf ("%s: invalid parameter %s\n", __FUNCTION__,
+			argv[4]);
+		return (1);
+	}
+	for (i = 0; i < len; i++) {
+		if (i2c_read (I2C_EEPROM_DEV_ADDR, addr+i, 1, buffer+i, 1)) {
+			printf ("%s: could not read from i2c device %#x"
+				", addr %d\n", __FUNCTION__,
+				I2C_EEPROM_DEV_ADDR, addr);
+			return (1);
+		}
+	}
+	print_identifier ();
+	if (strcmp (argv[5], "-") == 0) {
+		if (len == 1)
+			printf ("%d\n", (signed char) value);
+		else if (len == 2)
+			printf ("%d\n", (signed short int) value);
+		else
+			printf ("%ld\n", value);
+	}
+	else {
+		if (len == 1)
+			printf ("%d\n", (unsigned char) value);
+		else if (len == 2)
+			printf ("%d\n", (unsigned short int) value);
+		else
+			printf ("%ld\n", (unsigned long int) value);
+	}
+	return (0);
+}
+
+static int trab_eeprom_write (char **argv)
+{
+	int i;
+	int len;
+	unsigned int addr;
+	long int value = 0;
+	uchar *buffer;
+
+	buffer = (uchar *) &value;
+	addr = simple_strtoul (argv[3], NULL, 10);
+	addr &= 0xfff;
+	len = simple_strtoul (argv[4], NULL, 10);
+	if ((len < 1) || (len > 4)) {
+		printf ("%s: invalid parameter %s\n", __FUNCTION__,
+			argv[4]);
+		return (1);
+	}
+	value = simple_strtol (argv[5], NULL, 10);
+	debug ("value=%ld\n", value);
+	for (i = 0; i < len; i++) {
+		if (i2c_write (I2C_EEPROM_DEV_ADDR, addr+i, 1, buffer+i, 1)) {
+			printf ("%s: could not write to i2c device %d"
+				", addr %d\n", __FUNCTION__,
+				I2C_EEPROM_DEV_ADDR, addr);
+			return (1);
+		}
+#if 0
+		printf ("chip=%#x, addr+i=%#x+%d=%p, alen=%d, *buffer+i="
+			"%#x+%d=%p=%#x \n",I2C_EEPROM_DEV_ADDR_DEV_ADDR , addr,
+			i, addr+i, 1, buffer, i, buffer+i, *(buffer+i));
+#endif
+		udelay (30000); /* wait for EEPROM ready */
+	}
+	return (0);
+}
+
+int i2c_write_multiple (uchar chip, uint addr, int alen,
+			uchar *buffer, int len)
+{
+	int i;
+
+	if (alen != 1) {
+		printf ("%s: addr len other than 1 not supported\n",
+			 __FUNCTION__);
+		return (1);
+	}
+
+	for (i = 0; i < len; i++) {
+		if (i2c_write (chip, addr+i, alen, buffer+i, 1)) {
+			printf ("%s: could not write to i2c device %d"
+				 ", addr %d\n", __FUNCTION__, chip, addr);
+			return (1);
+		}
+#if 0
+		printf ("chip=%#x, addr+i=%#x+%d=%p, alen=%d, *buffer+i="
+			"%#x+%d=%p=\"%.1s\"\n", chip, addr, i, addr+i,
+			alen, buffer, i, buffer+i, buffer+i);
+#endif
+
+		udelay (30000);
+	}
+	return (0);
+}
+
+int i2c_read_multiple ( uchar chip, uint addr, int alen,
+			uchar *buffer, int len)
+{
+	int i;
+
+	if (alen != 1) {
+		printf ("%s: addr len other than 1 not supported\n",
+			 __FUNCTION__);
+		return (1);
+	}
+
+	for (i = 0; i < len; i++) {
+		if (i2c_read (chip, addr+i, alen, buffer+i, 1)) {
+			printf ("%s: could not read from i2c device %#x"
+				 ", addr %d\n", __FUNCTION__, chip, addr);
+			return (1);
+		}
+	}
+	return (0);
+}
+#endif /* CFG_CMD_I2C */

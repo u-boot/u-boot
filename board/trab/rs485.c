@@ -47,8 +47,8 @@ static void rs485_setbrg (void)
 	unsigned int reg = 0;
 
 	/* value is calculated so : (int)(PCLK/16./baudrate) -1 */
-        /* reg = (33000000 / (16 * gd->baudrate)) - 1; */
-        reg = (33000000 / (16 * 38.400)) - 1;
+	/* reg = (33000000 / (16 * gd->baudrate)) - 1; */
+	reg = (33000000 / (16 * 38400)) - 1;
 
 	/* FIFO enable, Tx/Rx FIFO clear */
 	uart->UFCON = 0x07;
@@ -67,18 +67,18 @@ static void rs485_setbrg (void)
 
 static void rs485_cfgio (void)
 {
-        S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
+	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
 
-        gpio->PFCON &= ~(0x3 << 2);
-        gpio->PFCON |=  (0x2 << 2); /* configure GPF1 as RXD1 */
+	gpio->PFCON &= ~(0x3 << 2);
+	gpio->PFCON |=  (0x2 << 2); /* configure GPF1 as RXD1 */
 
-        gpio->PFCON &= ~(0x3 << 6);
-        gpio->PFCON |=  (0x2 << 6); /* configure GPF3 as TXD1 */
+	gpio->PFCON &= ~(0x3 << 6);
+	gpio->PFCON |=  (0x2 << 6); /* configure GPF3 as TXD1 */
 
-        gpio->PFUP |= (1 << 1); /* disable pullup on GPF1 */
-        gpio->PFUP |= (1 << 3); /* disable pullup on GPF3 */
+	gpio->PFUP |= (1 << 1); /* disable pullup on GPF1 */
+	gpio->PFUP |= (1 << 3); /* disable pullup on GPF3 */
 
-        gpio->PACON &= ~(1 << 11); /* set GPA11 (RS485_DE) to output */
+	gpio->PACON &= ~(1 << 11); /* set GPA11 (RS485_DE) to output */
 }
 
 /*
@@ -88,8 +88,8 @@ static void rs485_cfgio (void)
  */
 int rs485_init (void)
 {
-        rs485_cfgio ();
-        rs485_setbrg ();
+	rs485_cfgio ();
+	rs485_setbrg ();
 
 	return (0);
 }
@@ -168,13 +168,13 @@ static void set_rs485re(unsigned char rs485re_state)
 
 static void set_rs485de(unsigned char rs485de_state)
 {
-        S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
+	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
 
-        /* This is on PORT A bit 11 */
-        if(rs485de_state)
-                gpio->PADAT |= (1 << 11);
-        else
-                gpio->PADAT &= ~(1 << 11);
+	/* This is on PORT A bit 11 */
+	if(rs485de_state)
+		gpio->PADAT |= (1 << 11);
+	else
+		gpio->PADAT &= ~(1 << 11);
 }
 
 

@@ -182,7 +182,7 @@
 #define CONFIG_IPADDR		192.168.3.68
 #define CONFIG_HOSTNAME		trab
 #define CONFIG_SERVERIP		192.168.3.1
-#define CONFIG_BOOTCOMMAND	"run flash_nfs"
+#define CONFIG_BOOTCOMMAND	"burn_in"
 
 #ifndef CONFIG_FLASH_8MB	/* current config: 16 MB flash */
 #ifdef CFG_HUSH_PARSER
@@ -331,9 +331,13 @@
 #define CONFIG_MISC_INIT_R		/* have misc_init_r() function	*/
 
 /*-----------------------------------------------------------------------
- * burn-in test stuff
+ * burn-in test stuff.
+ *  
+ * BURN_IN_CYCLE_DELAY defines the seconds to wait between each burn-in cycle
+ * Because the burn-in test itself causes also an delay of about 4 seconds,
+ * this time must be subtracted from the desired overall burn-in cycle time.
  */
-#define BURN_IN_CYCLE_DELAY	20	/* delay in sec between burn-in test cycles */
+#define BURN_IN_CYCLE_DELAY	296	/* seconds between burn-in cycles */
 
 /*-----------------------------------------------------------------------
  * Stack sizes

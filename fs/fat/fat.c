@@ -33,6 +33,11 @@
 
 #if (CONFIG_COMMANDS & CFG_CMD_FAT)
 
+#ifdef CONFIG_AUTO_UPDATE
+/* the VFAT code has a bug which breaks auto update */
+#undef CONFIG_SUPPORT_VFAT
+#endif
+
 /*
  * Convert a string to lowercase.
  */
