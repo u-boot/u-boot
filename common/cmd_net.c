@@ -42,7 +42,7 @@ int do_bootp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	bootp,	3,	1,	do_bootp,
-	"bootp   - boot image via network using BootP/TFTP protocol\n",
+	"bootp\t- boot image via network using BootP/TFTP protocol\n",
 	"[loadAddress] [bootfilename]\n"
 );
 
@@ -76,7 +76,7 @@ int do_dhcp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	dhcp,	3,	1,	do_dhcp,
-	"dhcp    - invoke DHCP client to obtain IP/boot params\n",
+	"dhcp\t- invoke DHCP client to obtain IP/boot params\n",
 	"\n"
 );
 #endif	/* CFG_CMD_DHCP */
@@ -89,7 +89,7 @@ int do_nfs (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	nfs,	3,	1,	do_nfs,
-	"nfs    - boot image via network using NFS protocol\n",
+	"nfs\t- boot image via network using NFS protocol\n",
 	"[loadAddress] [host ip addr:bootfilename]\n"
 );
 #endif	/* CFG_CMD_NFS */
@@ -231,7 +231,7 @@ int do_ping (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	ping,	2,	1,	do_ping,
-	"ping    - send ICMP ECHO_REQUEST to network host\n",
+	"ping\t- send ICMP ECHO_REQUEST to network host\n",
 	"pingAddress\n"
 );
 #endif	/* CFG_CMD_PING */
@@ -275,7 +275,7 @@ int do_cdp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	cdp,	1,	1,	do_cdp,
-	"cdp     - Perform CDP network configuration\n",
+	"cdp\t- Perform CDP network configuration\n",
 );
 #endif	/* CFG_CMD_CDP */
 

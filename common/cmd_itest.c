@@ -194,7 +194,7 @@ int do_itest ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[] )
 
 U_BOOT_CMD(
 	itest, 4, 0, do_itest,
-	"itest	 - return true/false on integer compare\n",
+	"itest\t- return true/false on integer compare\n",
 	"[.b, .w, .l, .s] [*]value1 <op> [*]value2\n"
 );
 #endif	/* CONFIG_COMMANDS & CFG_CMD_ITEST */

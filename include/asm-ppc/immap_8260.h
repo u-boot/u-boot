@@ -385,6 +385,33 @@ typedef struct fcc {
 	u_char	fcc_ftirr_phy[4];
 } fcc_t;
 
+/* Fast controllers continued
+ */
+typedef struct fcc_c {
+	uint	fcc_firper;
+	uint	fcc_firer;
+	uint	fcc_firsr_hi;
+	uint	fcc_firsr_lo;
+	u_char	fcc_gfemr;
+	char	res1[15];
+} fcc_c_t;
+
+/* TC Layer
+ */
+typedef struct tclayer {
+	ushort	tc_tcmode;
+	ushort	tc_cdsmr;
+	ushort	tc_tcer;
+	ushort	tc_rcc;
+	ushort	tc_tcmr;
+	ushort	tc_fcc;
+	ushort	tc_ccc;
+	ushort	tc_icc;
+	ushort	tc_tcc;
+	ushort	tc_ecc;
+	char	res1[12];
+} tclayer_t;
+
 /* I2C
 */
 typedef struct i2c {
@@ -519,11 +546,17 @@ typedef struct immap {
 
 	fcc_t		im_fcc[3];	/* Three FCCs */
 
-	char		res4[159];
+	char		res4[32];
+	fcc_c_t		im_fcc_c[3];	/* Continued FCCs */
+	char		res4a[32];
+
+	tclayer_t	im_tclayer[8];	/* Eight TCLayers */
+	ushort		tc_tcgsr;
+	ushort		tc_tcger;
 
 	/* First set of baud rate generators.
 	*/
-	char		res4a[496];
+	char		res4b[236];
 	uint		im_brgc5;
 	uint		im_brgc6;
 	uint		im_brgc7;

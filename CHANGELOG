@@ -2,6 +2,12 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Thomas Viehweger, 14 May 2004:
+  - flash.h: more flash types added
+  - immap_8260.h: some bits added (useful for RMII)
+  - cmd_coninfo.c: typo corrected, printf -> puts
+  - reduced size by replacing spaces with tab
+
 * Patch by Robert Schwebel, 13 May 2004:
   Add 'imgextract' command: extract one part of a multi file image.
 

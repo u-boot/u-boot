@@ -258,7 +258,7 @@ do_jffs2_chpart(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	fsload,	3,	0,	do_jffs2_fsload,
-	"fsload  - load binary file from a filesystem image\n",
+	"fsload\t- load binary file from a filesystem image\n",
 	"[ off ] [ filename ]\n"
 	"    - load binary file from flash bank\n"
 	"      with offset 'off'\n"
@@ -266,20 +266,20 @@ U_BOOT_CMD(
 
 U_BOOT_CMD(
 	fsinfo,	1,	1,	do_jffs2_fsinfo,
-	"fsinfo  - print information about filesystems\n",
+	"fsinfo\t- print information about filesystems\n",
 	"    - print information about filesystems\n"
 );
 
 U_BOOT_CMD(
 	ls,	2,	1,	do_jffs2_ls,
-	"ls      - list files in a directory (default /)\n",
+	"ls\t- list files in a directory (default /)\n",
 	"[ directory ]\n"
 	"    - list files in a directory.\n"
 );
 
 U_BOOT_CMD(
 	chpart,	2,	0,	do_jffs2_chpart,
-	"chpart  - change active partition\n",
+	"chpart\t- change active partition\n",
 	"    - change active partition\n"
 );
 

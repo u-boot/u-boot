@@ -182,12 +182,18 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 
 #define AMD_ID_DL640	0x227E227E	/* 29DL640D ID (64 M, dual boot sectors)*/
 #define AMD_ID_MIRROR	0x227E227E	/* 1st ID word for MirrorBit family */
-#define AMD_ID_LV640U_2	0x220C220C	/* 2d ID word for AM29LV640M  at 0x38 */
-#define AMD_ID_LV640U_3	0x22012201	/* 3d ID word for AM29LV640M  at 0x3c */
-#define AMD_ID_LV128U_2 0x22122212	/* 2d ID word for AM29LV128M  at 0x38 */
-#define AMD_ID_LV128U_3 0x22002200	/* 3d ID word for AM29LV128M  at 0x3c */
-#define AMD_ID_LV256U_2 0x22122212	/* 2d ID word for AM29LV256M  at 0x38 */
-#define AMD_ID_LV256U_3 0x22012201	/* 3d ID word for AM29LV256M  at 0x3c */
+#define AMD_ID_DL640G_2	0x22022202	/* 2nd ID word for AM29DL640G  at 0x38 */
+#define AMD_ID_DL640G_3	0x22012201	/* 3rd ID word for AM29DL640G  at 0x3c */
+#define AMD_ID_LV640U_2	0x220C220C	/* 2nd ID word for AM29LV640M  at 0x38 */
+#define AMD_ID_LV640U_3	0x22012201	/* 3rd ID word for AM29LV640M  at 0x3c */
+#define AMD_ID_LV640MT_2 0x22102210	/* 2nd ID word for AM29LV640MT at 0x38 */
+#define AMD_ID_LV640MT_3 0x22012201	/* 3rd ID word for AM29LV640MT at 0x3c */
+#define AMD_ID_LV640MB_2 0x22102210	/* 2nd ID word for AM29LV640MB at 0x38 */
+#define AMD_ID_LV640MB_3 0x22002200	/* 3rd ID word for AM29LV640MB at 0x3c */
+#define AMD_ID_LV128U_2 0x22122212	/* 2nd ID word for AM29LV128M  at 0x38 */
+#define AMD_ID_LV128U_3 0x22002200	/* 3rd ID word for AM29LV128M  at 0x3c */
+#define AMD_ID_LV256U_2 0x22122212	/* 2nd ID word for AM29LV256M  at 0x38 */
+#define AMD_ID_LV256U_3 0x22012201	/* 3rd ID word for AM29LV256M  at 0x3c */
 
 #define AMD_ID_LV320B_2	0x221A221A	/* 2d ID word for AM29LV320MB at 0x38 */
 #define AMD_ID_LV320B_3 0x22002200	/* 3d ID word for AM29LV320MB at 0x3c */
@@ -296,6 +302,8 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 
 #define FLASH_AMDL640	0x0016		/* AMD AM29DL640D			*/
 #define FLASH_AMD016	0x0018		/* AMD AM29F016D			*/
+#define FLASH_AMDL640MB	0x0019		/* AMD AM29LV640MB (64M, bottom boot sect)*/
+#define FLASH_AMDL640MT	0x001A		/* AMD AM29LV640MT (64M, top boot sect) */
 
 #define FLASH_SST200A	0x0040		/* SST 39xF200A ID (  2M = 128K x 16 )	*/
 #define FLASH_SST400A	0x0042		/* SST 39xF400A ID (  4M = 256K x 16 )	*/
