@@ -40,61 +40,61 @@
  */
 
 /* flash */
-#define MC_PUIA 0xFFFFFF10
-#define MC_PUIA_VAL 0x00000000
-#define MC_PUP 0xFFFFFF50
-#define MC_PUP_VAL 0x00000000
-#define MC_PUER 0xFFFFFF54
-#define MC_PUER_VAL 0x00000000
-#define MC_ASR 0xFFFFFF04
-#define MC_ASR_VAL 0x00000000
-#define MC_AASR 0xFFFFFF08
-#define MC_AASR_VAL 0x00000000
-#define EBI_CFGR 0xFFFFFF64
-#define EBI_CFGR_VAL 0x00000000
-#define SMC2_CSR 0xFFFFFF70
-#define SMC2_CSR_VAL 0x00003284 /* 16bit, 2 TDF, 4 WS */
+#define MC_PUIA		0xFFFFFF10
+#define MC_PUP		0xFFFFFF50
+#define MC_PUER		0xFFFFFF54
+#define MC_ASR		0xFFFFFF04
+#define MC_AASR		0xFFFFFF08
+#define EBI_CFGR	0xFFFFFF64
+#define SMC2_CSR	0xFFFFFF70
 
 /* clocks */
-#define PLLAR 0xFFFFFC28
-#define PLLAR_VAL 0x20263E04 /* 179.712000 MHz for PCK */
-#define PLLBR 0xFFFFFC2C
-#define PLLBR_VAL 0x10483E0E /* 48.054857 MHz (divider by 2 for USB) */
-#define MCKR 0xFFFFFC30
-#define MCKR_VAL 0x00000202 /* PCK/3 = MCK Master Clock = 59.904000MHz from PLLA */
+#define PLLAR		0xFFFFFC28
+#define PLLBR		0xFFFFFC2C
+#define MCKR		0xFFFFFC30
+
+#define AT91C_BASE_CKGR 0xFFFFFC20
+#define CKGR_MOR 0
 
 /* sdram */
-#define PIOC_ASR 0xFFFFF870
-#define PIOC_ASR_VAL 0xFFFF0000 /* Configure PIOC as peripheral (D16/D31) */
-#define PIOC_BSR 0xFFFFF874
-#define PIOC_BSR_VAL 0x00000000
-#define PIOC_PDR 0xFFFFF804
-#define PIOC_PDR_VAL 0xFFFF0000
-#define EBI_CSA 0xFFFFFF60
-#define EBI_CSA_VAL 0x00000002 /* CS1=SDRAM */
-#define SDRC_CR 0xFFFFFF98
-#define SDRC_CR_VAL 0x2188c155 /* set up the SDRAM */
-#define SDRAM 0x20000000 /* address of the SDRAM */
-#define SDRAM1 0x20000080 /* address of the SDRAM */
-#define SDRAM_VAL 0x00000000 /* value written to SDRAM */
-#define SDRC_MR 0xFFFFFF90
-#define SDRC_MR_VAL 0x00000002 /* Precharge All */
-#define SDRC_MR_VAL1 0x00000004 /* refresh */
-#define SDRC_MR_VAL2 0x00000003 /* Load Mode Register */
-#define SDRC_MR_VAL3 0x00000000 /* Normal Mode */
-#define SDRC_TR 0xFFFFFF94
-#define SDRC_TR_VAL 0x000002E0 /* Write refresh rate */
+#define PIOC_ASR	0xFFFFF870
+#define PIOC_BSR	0xFFFFF874
+#define PIOC_PDR	0xFFFFF804
+#define EBI_CSA		0xFFFFFF60
+#define SDRC_CR		0xFFFFFF98
+#define SDRC_MR		0xFFFFFF90
+#define SDRC_TR		0xFFFFFF94
 
 
-_TEXT_BASE:
+_MTEXT_BASE:
+#undef START_FROM_MEM
+#ifdef START_FROM_MEM
+	.word	TEXT_BASE-PHYS_FLASH_1
+#else
 	.word	TEXT_BASE
+#endif
 
 .globl lowlevelinit
 lowlevelinit:
+	/* Get the CKGR Base Address */
+	ldr     r1, =AT91C_BASE_CKGR
+	/* Main oscillator Enable register */
+#ifdef CFG_USE_MAIN_OSCILLATOR
+	ldr     r0, =0x0000FF01		/* Enable main oscillator,  OSCOUNT = 0xFF */
+#else
+	ldr     r0, =0x0000FF00		/* Disable main oscillator, OSCOUNT = 0xFF */
+#endif
+	str     r0, [r1, #CKGR_MOR]
+	/* Add loop to compensate Main Oscillator startup time */
+	ldr     r0, =0x00000010
+LoopOsc:
+	subs    r0, r0, #1
+	bhi     LoopOsc
+
 	/* memory control configuration */
 	/* this isn't very elegant, but	 what the heck */
 	ldr	r0, =SMRDATA
-	ldr	r1, _TEXT_BASE
+	ldr	r1, _MTEXT_BASE
 	sub	r0, r0, r1
 	add	r2, r0, #80
 0:
@@ -111,7 +111,7 @@ lowlevelinit:
 	subs	r0, r0, #1
 	bhi	1b
 	ldr	r0, =SMRDATA1
-	ldr	r1, _TEXT_BASE
+	ldr	r1, _MTEXT_BASE
 	sub	r0, r0, r1
 	add	r2, r0, #176
 2:

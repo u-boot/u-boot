@@ -116,22 +116,6 @@ reset:
 	msr     cpsr,r0
 
 #ifdef CONFIG_BOOTBINFUNC
-/* code based on entry.S from ATMEL */
-#define AT91C_BASE_CKGR 0xFFFFFC20
-#define CKGR_MOR 0
-	/* Get the CKGR Base Address */
-	ldr     r1, =AT91C_BASE_CKGR
-
-/* Main oscillator Enable register	APMC_MOR : Enable main oscillator , OSCOUNT = 0xFF */
-/*	ldr 	r0, = AT91C_CKGR_MOSCEN:OR:AT91C_CKGR_OSCOUNT */
-	ldr 	r0, =0x0000FF01
-	str     r0, [r1, #CKGR_MOR]
-	/* Add loop to compensate Main Oscillator startup time */
-	ldr 	r0, =0x00000010
-LoopOsc:
-	subs    r0, r0, #1
-	bhi     LoopOsc
-
 	/* scratch stack */
 	ldr 	r1, =0x00204000
 	/* Insure word alignment */
@@ -142,7 +126,7 @@ LoopOsc:
 	 * This does a lot more than just set up the memory, which
 	 * is why it's called lowlevelinit
 	 */
-	bl	lowlevelinit /* in memsetup.S */
+	bl	lowlevelinit /* in lowlevel.S */
 	bl	icache_enable;
 	/*------------------------------------
 	  Read/modify/write CP15 control register

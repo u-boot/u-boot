@@ -28,11 +28,12 @@ LIB	= lib$(CPU).a
 START	= start.o
 OBJS	= serial.o interrupts.o cpu.o \
 	  at91rm9200_ether.o i2c.o
+SOBJS	= lowlevel.o
 
 all:	.depend $(START) $(LIB)
 
-$(LIB):	$(OBJS)
-	$(AR) crv $@ $(OBJS)
+$(LIB):	$(OBJS) $(SOBJS)
+	$(AR) crv $@ $(OBJS) $(SOBJS)
 
 #########################################################################
 
