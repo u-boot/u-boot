@@ -60,6 +60,25 @@
 #define CONFIG_BAUDRATE		115200	/* ... at 115200 bps */
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 
+/*
+ * Video console
+ */
+#if 1
+#define CONFIG_VIDEO_SED13806
+#define CONFIG_VIDEO_SED13806_16BPP
+
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VIDEO_LOGO
+/* #define CONFIG_VIDEO_BMP_LOGO */
+#define CONFIG_CONSOLE_EXTRA_INFO
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_VIDEO_SW_CURSOR
+#define CONFIG_SPLASH_SCREEN
+
+#define ADD_VIDEO_CMD	CFG_CMD_BMP
+#else
+#define ADD_VIDEO_CMD	0
+#endif
 
 #ifdef CONFIG_MPC5200	/* MGT5100 PCI is not supported yet. */
 /*
@@ -114,6 +133,7 @@
 				 CFG_CMD_EEPROM	| \
 				 CFG_CMD_FAT	| \
 				 CFG_CMD_IDE	| \
+				 ADD_VIDEO_CMD  | \
 				 ADD_PCI_CMD	| \
 				 ADD_USB_CMD)
 
@@ -129,7 +149,9 @@
  */
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds */
 
-#define CONFIG_PREBOOT	"echo;"	\
+#define CONFIG_PREBOOT	\
+	"setenv stdout serial;setenv stderr serial;" \
+	"echo;" \
 	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
 	"echo"
 
@@ -150,6 +172,7 @@
 	"net_nfs=tftp 200000 $(bootfile);run nfsargs addip;bootm\0"	\
 	"rootpath=/opt/eldk/ppc_82xx\0"					\
 	"bootfile=/tftpboot/MPC5200/uImage\0"				\
+	"console=serial\0"				\
 	""
 
 #define CONFIG_BOOTCOMMAND	"run flash_self"
@@ -201,7 +224,7 @@
 #   define CFG_FLASH_SIZE	0x06000000
 #endif /* CONFIG_TOTAL5200_REV */
 
-#if !defined(CFG_LOWBOOT)
+#if defined(CFG_LOWBOOT)
 #   define CFG_ENV_ADDR		0xFE040000
 #else	/* CFG_LOWBOOT */
 #   define CFG_ENV_ADDR		0xFFF40000
@@ -223,7 +246,7 @@
 #define CFG_MBAR		0xF0000000	/*   64 kB */
 #define CFG_FPGA_BASE		0xF0010000	/*   64 kB */
 #define CFG_CPLD_BASE		0xF0020000	/*   64 kB */
-#define CFG_LCD_BASE		0xF0100000	/* 2048 kB */
+#define CFG_LCD_BASE		0xF1000000	/* 4096 kB */
 
 /* Use SRAM until RAM will be available */
 #define CFG_INIT_RAM_ADDR	MPC5XXX_SRAM
@@ -332,8 +355,8 @@
 #define CFG_CS1_CFG		0x0019FF00	/* 25WS, MX, AL, AA, CE, AS_25, DS_32 */
 
 #define CFG_CS2_START		CFG_LCD_BASE
-#define CFG_CS2_SIZE		0x00200000	/* 2048 kB */
-#define CFG_CS2_CFG		0x0019FD00	/* 25WS, MX, AL, AA, CE, AS_25, DS_16 */
+#define CFG_CS2_SIZE		0x00400000	/* 4096 kB */
+#define CFG_CS2_CFG		0x0032FD00	/* 50WS, MX, AL, AA, CE, AS_25, DS_16 */
 
 #if CONFIG_TOTAL5200_REV==1
 #   define CFG_CS3_START	CFG_CPLD_BASE

@@ -558,7 +558,7 @@ int do_mem_loopw (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	volatile uint	*longp;
 	volatile ushort *shortp;
 	volatile u_char	*cp;
-	
+
 	if (argc < 4) {
 		printf ("Usage:\n%s\n", cmdtp->usage);
 		return 1;
@@ -580,7 +580,7 @@ int do_mem_loopw (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	/* data to write */
 	data = simple_strtoul(argv[3], NULL, 16);
-	
+
 	/* We want to optimize the loops to run as fast as possible.
 	 * If we have only one object, just run infinite loops.
 	 */

@@ -28,12 +28,12 @@
 #include <common.h>
 #include <malloc.h>
 
-#include <linux/mtd/doc2000.h>
-
 #undef ECC_DEBUG
 #undef PSYCHO_DEBUG
 
 #if (CONFIG_COMMANDS & CFG_CMD_DOC)
+
+#include <linux/mtd/doc2000.h>
 
 /* need to undef it (from asm/termbits.h) */
 #undef B0

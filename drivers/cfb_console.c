@@ -1173,14 +1173,15 @@ int drv_video_init (void)
 
 	skip_dev_init = 0;
 
+	/* Init video chip - returns with framebuffer cleared */
+	if (video_init () == -1)
+		skip_dev_init = 1;
+
 	/* Force console i/o to serial ? */
 	if ((penv = getenv ("console")) != NULL)
 		if (strcmp (penv, "serial") == 0)
 			return 0;
 
-	/* Init video chip - returns with framebuffer cleared */
-	if (video_init () == -1)
-		skip_dev_init = 1;
 #ifdef CONFIG_VGA_AS_SINGLE_DEVICE
 	/* Devices VGA and Keyboard will be assigned seperately */
 	/* Init vga device */

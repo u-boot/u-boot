@@ -18,7 +18,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -84,8 +84,8 @@ static void sdram_start (int hi_addr)
 
 /*
  * ATTENTION: Although partially referenced initdram does NOT make real use
- *            use of CFG_SDRAM_BASE. The code does not work if CFG_SDRAM_BASE
- *            is something else than 0x00000000.
+ *	      use of CFG_SDRAM_BASE. The code does not work if CFG_SDRAM_BASE
+ *	      is something else than 0x00000000.
  */
 
 #if defined(CONFIG_MPC5200)
@@ -352,7 +352,7 @@ int post_hotkeys_pressed(void)
 	/*
 	 * Configure PSC6_1 and PSC6_3 as GPIO. PSC6 then couldn't be used in
 	 * CODEC or UART mode. Consumer IrDA should still be possible.
-         */
+	 */
 	gpio->port_config &= ~(0x07000000);
 	gpio->port_config |=   0x03000000;
 

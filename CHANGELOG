@@ -2,6 +2,13 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Mark Jonas, 05 Jul 2004:
+  add support for the Total5100's and Total5200's LCD screen
+
+* Patches by Dan Eisenhut, 01 Jul 2004:
+  - README fixes.
+  - Move doc2000.h include to prevent compiler warning on some boards
+
 * Patch by Mark Jonas, 01 Jul 2004:
   Added support for Total5100 and Total5200 (Rev.1 and Rev.2)
   MGT5100 and MPC5200 based Freescale platforms.

@@ -596,13 +596,13 @@ The following options need to be configured:
 		-----------------------------------------------
 		CFG_CMD_ALL	all
 
-		CFG_CMD_DFL	Default configuration; at the moment
+		CONFIG_CMD_DFL	Default configuration; at the moment
 				this is includes all commands, except
 				the ones marked with "*" in the list
 				above.
 
 		If you don't define CONFIG_COMMANDS it defaults to
-		CFG_CMD_DFL in include/cmd_confdefs.h. A board can
+		CONFIG_CMD_DFL in include/cmd_confdefs.h. A board can
 		override the default settings in the respective
 		include file.
 

@@ -79,7 +79,7 @@
 #define CFG_RX_ETH_BUFFER	8  /* use 8 rx buffer on eepro100  */
 #define CONFIG_NS8382X		1
 
-#define ADD_PCI_CMD 		0 /* CFG_CMD_PCI */
+#define ADD_PCI_CMD		0 /* CFG_CMD_PCI */
 
 #else	/* MPC5100 */
 
@@ -96,10 +96,10 @@
 /* USB */
 #if 0
 #define CONFIG_USB_OHCI
-#define ADD_USB_CMD             CFG_CMD_USB | CFG_CMD_FAT
+#define ADD_USB_CMD		CFG_CMD_USB | CFG_CMD_FAT
 #define CONFIG_USB_STORAGE
 #else
-#define ADD_USB_CMD             0
+#define ADD_USB_CMD		0
 #endif
 
 /* POST support */
@@ -132,7 +132,7 @@
 				ADD_USB_CMD	| \
 				CFG_CMD_POST_DIAG | \
 				CFG_CMD_DATE	| \
-				CFG_CMD_REGINFO	| \
+				CFG_CMD_REGINFO | \
 				CFG_CMD_MII	| \
 				CFG_CMD_PING	| \
 				ADD_IDE_CMD)
@@ -141,7 +141,7 @@
 #include <cmd_confdefs.h>
 
 #if (TEXT_BASE == 0xFC000000)		/* Boot low */
-#   define CFG_LOWBOOT	        1
+#   define CFG_LOWBOOT		1
 #endif
 
 /*
@@ -149,14 +149,14 @@
  */
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds */
 
-#define CONFIG_PREBOOT	"echo;"	\
+#define CONFIG_PREBOOT	"echo;" \
 	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
 	"echo"
 
 #undef	CONFIG_BOOTARGS
 
 #if defined (CONFIG_TQM5200_AA)
-#define	CONFIG_EXTRA_ENV_SETTINGS					\
+#define CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=$(serverip):$(rootpath)\0"			\
@@ -174,13 +174,13 @@
 	"load=tftp 200000 $(loadfile)\0"				\
 	"load133=tftp 200000 $(loadfile133)\0"				\
 	"loadfile=u-boot_tqm5200_aa_mkr.bin\0"				\
-        "loadfile133=u-boot_tqm5200_aa_133_mkr.bin\0"			\
+	"loadfile133=u-boot_tqm5200_aa_133_mkr.bin\0"			\
 	"update=protect off 1:0-4; erase 1:0-4; cp.b 200000 0xfc000000 $(filesize); protect on 1:0-4\0"		\
 	"serverip=172.20.5.13\0"					\
 	""
 #else
 #if defined (CONFIG_TQM5200_AB)
-#define	CONFIG_EXTRA_ENV_SETTINGS					\
+#define CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=$(serverip):$(rootpath)\0"			\
@@ -198,13 +198,13 @@
 	"load=tftp 200000 $(loadfile)\0"				\
 	"load133=tftp 200000 $(loadfile133)\0"				\
 	"loadfile=u-boot_tqm5200_ab_mkr.bin\0"				\
-        "loadfile133=u-boot_tqm5200_ab_133_mkr.bin\0"			\
+	"loadfile133=u-boot_tqm5200_ab_133_mkr.bin\0"			\
 	"update=protect off 1:0-1; erase 1:0-1; cp.b 200000 0xfc000000 $(filesize); protect on 1:0-1\0"		\
 	"serverip=172.20.5.13\0"					\
 	""
 #else
 #if defined (CONFIG_TQM5200_AC)
-#define	CONFIG_EXTRA_ENV_SETTINGS					\
+#define CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=$(serverip):$(rootpath)\0"			\
@@ -222,7 +222,7 @@
 	"load=tftp 200000 $(loadfile)\0"				\
 	"load133=tftp 200000 $(loadfile133)\0"				\
 	"loadfile=u-boot_tqm5200_ac_mkr.bin\0"				\
-        "loadfile133=u-boot_tqm5200_ac_133_mkr.bin\0"			\
+	"loadfile133=u-boot_tqm5200_ac_133_mkr.bin\0"			\
 	"update=protect off 1:0-4; erase 1:0-4; cp.b 200000 0xfc000000 $(filesize); protect on 1:0-4\0"		\
 	"serverip=172.20.5.13\0"					\
 	""
@@ -235,7 +235,7 @@
 /*
  * IPB Bus clocking configuration.
  */
-#define CFG_IPBSPEED_133   		/* define for 133MHz speed */
+#define CFG_IPBSPEED_133		/* define for 133MHz speed */
 
 #if defined(CFG_IPBSPEED_133)
 /*
@@ -328,8 +328,8 @@
 #endif	/* CFG_LOWBOOT */
 #define CFG_MAX_FLASH_BANKS	1	/* max num of flash banks
 					   (= chip selects) */
-#define CFG_FLASH_ERASE_TOUT	240000	/* Flash Erase Timeout (in ms)  */
-#define CFG_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (in ms)  */
+#define CFG_FLASH_ERASE_TOUT	240000	/* Flash Erase Timeout (in ms)	*/
+#define CFG_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (in ms)	*/
 
 
 /*
@@ -387,8 +387,8 @@
  *	Bit 0 (mask: 0x80000000): 1
  * use ALT CAN position: Bits 2-3 (mask: 0x30000000):
  *	00 -> No Alternatives, I2C1 is used for onboard EEPROM
- *      01 -> CAN1 on I2C1, CAN2 on Tmr0/1 do not use on TQM5200 with onboard
- *            EEPROM
+ *	01 -> CAN1 on I2C1, CAN2 on Tmr0/1 do not use on TQM5200 with onboard
+ *	      EEPROM
  * use PSC1 as UART: Bits 28-31 (mask: 0x00000007): 0100
  * use PSC6_1 and PSC6_3 as GPIO: Bits 9:11 (mask: 0x07000000):
  *	011 -> PSC6 could not be used as UART or CODEC. IrDA still possible.
@@ -495,12 +495,12 @@
  *-----------------------------------------------------------------------
  */
 
-#undef  CONFIG_IDE_8xx_PCCARD		/* Use IDE with PC Card	Adapter	*/
+#undef	CONFIG_IDE_8xx_PCCARD		/* Use IDE with PC Card Adapter */
 
-#undef	CONFIG_IDE_8xx_DIRECT		/* Direct IDE    not supported	*/
-#undef	CONFIG_IDE_LED			/* LED   for ide not supported	*/
+#undef	CONFIG_IDE_8xx_DIRECT		/* Direct IDE	 not supported	*/
+#undef	CONFIG_IDE_LED			/* LED	 for ide not supported	*/
 
-#define	CONFIG_IDE_RESET		/* reset for ide supported	*/
+#define CONFIG_IDE_RESET		/* reset for ide supported	*/
 #define CONFIG_IDE_PREINIT
 
 #define CFG_IDE_MAXBUS		1	/* max. 1 IDE bus		*/
@@ -519,7 +519,7 @@
 /* Offset for alternate registers	*/
 #define CFG_ATA_ALT_OFFSET	(0x005C)
 
-/* Interval between registers                                                */
-#define CFG_ATA_STRIDE          4
+/* Interval between registers						     */
+#define CFG_ATA_STRIDE		4
 
 #endif /* __CONFIG_H */
