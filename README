@@ -470,6 +470,13 @@ The following options need to be configured:
 		Set to 0 to disable this feature (this is the default).
 		This will also disable hardware handshake.
 
+- Console UART Number:
+		CONFIG_UART1_CONSOLE
+
+		IBM PPC4xx only.
+		If defined internal UART1 (and not UART0) is used
+		as default U-Boot console.
+
 - Boot Delay:	CONFIG_BOOTDELAY - in seconds
 		Delay before automatically booting the default image;
 		set to -1 to disable autoboot.
@@ -1710,13 +1717,13 @@ Low Level (hardware related) configuration options:
 		#define'd default value in commproc.h resp.
 		cpm_8260.h.
 
-- CFG_PCI_SLV_MEM_LOCAL, CFG_PCI_SLV_MEM_BUS, CFG_PICMR0_MASK_ATTRIB, 
-  CFG_PCI_MSTR0_LOCAL, CFG_PCIMSK0_MASK, CFG_PCI_MSTR1_LOCAL, 
-  CFG_PCIMSK1_MASK, CFG_PCI_MSTR_MEM_LOCAL, CFG_PCI_MSTR_MEM_BUS, 
-  CFG_CPU_PCI_MEM_START, CFG_PCI_MSTR_MEM_SIZE, CFG_POCMR0_MASK_ATTRIB, 
-  CFG_PCI_MSTR_MEMIO_LOCAL, CFG_PCI_MSTR_MEMIO_BUS, CPU_PCI_MEMIO_START, 
-  CFG_PCI_MSTR_MEMIO_SIZE, CFG_POCMR1_MASK_ATTRIB, CFG_PCI_MSTR_IO_LOCAL, 
-  CFG_PCI_MSTR_IO_BUS, CFG_CPU_PCI_IO_START, CFG_PCI_MSTR_IO_SIZE, 
+- CFG_PCI_SLV_MEM_LOCAL, CFG_PCI_SLV_MEM_BUS, CFG_PICMR0_MASK_ATTRIB,
+  CFG_PCI_MSTR0_LOCAL, CFG_PCIMSK0_MASK, CFG_PCI_MSTR1_LOCAL,
+  CFG_PCIMSK1_MASK, CFG_PCI_MSTR_MEM_LOCAL, CFG_PCI_MSTR_MEM_BUS,
+  CFG_CPU_PCI_MEM_START, CFG_PCI_MSTR_MEM_SIZE, CFG_POCMR0_MASK_ATTRIB,
+  CFG_PCI_MSTR_MEMIO_LOCAL, CFG_PCI_MSTR_MEMIO_BUS, CPU_PCI_MEMIO_START,
+  CFG_PCI_MSTR_MEMIO_SIZE, CFG_POCMR1_MASK_ATTRIB, CFG_PCI_MSTR_IO_LOCAL,
+  CFG_PCI_MSTR_IO_BUS, CFG_CPU_PCI_IO_START, CFG_PCI_MSTR_IO_SIZE,
   CFG_POCMR2_MASK_ATTRIB: (MPC826x only)
 		Overrides the default PCI memory map in cpu/mpc8260/pci.c if set.
 
