@@ -491,7 +491,7 @@ static int mpc5xxx_fec_init(struct eth_device *dev, bd_t * bis)
 	printf("mpc5xxx_fec_init... Done \n");
 #endif
 
-	return 0;
+	return 1;
 }
 
 /********************************************************************/

@@ -277,7 +277,7 @@ int flash_sect_erase (ulong addr_first, ulong addr_last)
 		     ++bank, ++info) {
 			if (s_first[bank]>=0) {
 				erased += s_last[bank] - s_first[bank] + 1;
-				printf ("Erase Flash from 0x%08lx to 0x%08lx "
+				debug ("Erase Flash from 0x%08lx to 0x%08lx "
 					"in Bank # %ld ",
 					info->start[s_first[bank]],
 					(s_last[bank] == info->sector_count) ?
