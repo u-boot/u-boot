@@ -291,8 +291,8 @@ void pci_mpc8250_init (struct pci_controller *hose)
 	immap->im_memctl.memc_pcibr0 = PCI_MSTR0_LOCAL | PCIBR_ENABLE;
 
 #ifdef CONFIG_MPC8266ADS
-	immap->im_memctl.memc_pcimsk0 = PCIMSK1_MASK;
-	immap->im_memctl.memc_pcibr0 = PCI_MSTR1_LOCAL | PCIBR_ENABLE;
+	immap->im_memctl.memc_pcimsk1 = PCIMSK1_MASK;
+	immap->im_memctl.memc_pcibr1 = PCI_MSTR1_LOCAL | PCIBR_ENABLE;
 #endif
 
 	/* Release PCI RST (by default the PCI RST signal is held low)	*/

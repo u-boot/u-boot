@@ -2,6 +2,10 @@
 Changes for U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Rune Torgersen, 06 Apr 2004:
+  - Fix some PCI problems on the MPC8266ADS board
+  - Fix the location of some PCI entries in the immap structure
+
 * Patch by Yasushi Shoji, 07 Apr 2004:
   - add support for microblaze processors
   - add support for AtmarkTechno "suzaku" board
