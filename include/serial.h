@@ -22,6 +22,13 @@ extern struct serial_device serial_smc_device;
 extern struct serial_device serial_scc_device;
 extern struct serial_device * default_serial_console (void);
 
+#if defined(CONFIG_405GP) || defined(CONFIG_405CR) || defined(CONFIG_440) \
+   || defined(CONFIG_405EP)
+extern struct serial_device serial0_device;
+extern struct serial_device serial1_device;
+#endif
+
+
 extern void serial_initialize(void);
 extern void serial_devices_init(void);
 extern int serial_assign(char * name);

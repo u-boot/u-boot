@@ -2,6 +2,13 @@
 Changes for U-Boot 1.1.3:
 ======================================================================
 
+* Patch by Leif Lindholm, 23 Sep 2004:
+  add support for the AMD db1550 board
+
+* Patch by Travis Sawyer, 15 Sep 2004:
+  Add CONFIG_SERIAL_MULTI support for ppc4xx,
+  update README.serial_multi
+
 * Patches by David Snowdon, 07 Sep 2004:
   - add u-boot.hex target in the top level Makefile
   - add support for the UNSW/NICTA PLEB 2 board (pleb2)

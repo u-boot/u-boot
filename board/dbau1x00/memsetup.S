@@ -9,7 +9,8 @@
 #define AU1500_SYS_ADDR		0xB1900000
 #define sys_endian		0x0038
 #define CP0_Config0		$16
-#define MEM_1MS			((396000000/1000000) * 1000)
+#define CPU_SCALE		((CFG_MHZ) / 12) /* CPU clock is a multiple of 12 MHz */
+#define MEM_1MS			((CFG_MHZ) * 1000)
 
 	.text
 	.set noreorder
@@ -23,6 +24,19 @@ memsetup:
 	 * Switch S1.1 Off(bit7 reads 1) is Little Endian
 	 * Switch S1.1 On (bit7 reads 0) is Big Endian
 	 */
+#ifdef CONFIG_DBAU1550
+	li	t0, MEM_STCFG2
+	li	t1, 0x00000040
+	sw	t1, 0(t0)
+
+	li	t0, MEM_STTIME2
+	li	t1, 0x22080a20
+	sw	t1, 0(t0)
+
+	li	t0, MEM_STADDR2
+	li	t1, 0x10c03f00
+	sw	t1, 0(t0)
+#else
 	li	t0, MEM_STCFG1
 	li	t1, 0x00000080
 	sw	t1, 0(t0)
@@ -34,9 +48,10 @@ memsetup:
 	li	t0, MEM_STADDR1
 	li	t1, 0x10c03f00
 	sw	t1, 0(t0)
+#endif
 
-	li	t0, 0xAE000008
-	lw	t1,0(t0)
+	li	t0, DB1XX0_BCSR_ADDR
+	lw	t1,8(t0)
 	andi	t1,t1,0x80
 	beq	zero,t1,big_endian
 	nop
@@ -98,10 +113,82 @@ big_endian:
 	mtc0	zero, CP0_WIRED
 	nop
 
+#ifdef CONFIG_DBAU1550
+	/* No workaround if running from ram */
+	lui	t0, 0xffc0
+	lui	t3, 0xbfc0
+	and	t1, ra, t0
+	bne	t1, t3, noCacheJump
+	nop
+
+	/*** From AMD YAMON ***/
+	/*
+	 * Step 8) Initialize the caches
+	 */
+	li		t0, (16*1024)
+	li		t1, 32
+	li		t2, 0x80000000
+	addu	t3, t0, t2
+cacheloop:
+	cache	0, 0(t2)
+	cache	1, 0(t2)
+	addu	t2, t1
+	bne		t2, t3, cacheloop
+	nop
+
+	/* Save return address */
+	move		t3, ra
+
+	/* Run from cacheable space now */
+	bal		cachehere
+	nop
+cachehere:
+	li		t1, ~0x20000000 /* convert to KSEG0 */
+	and		t0, ra, t1
+	addi	t0, 5*4			/* 5 insns beyond cachehere */
+	jr		t0
+	nop
+
+	/* Restore return address */
+	move		ra, t3
+
+	/*
+	 * Step 9) Initialize the TLB
+	 */
+	li		t0, 0			# index value
+	li		t1, 0x00000000		# entryhi value
+	li		t2, 32			# 32 entries
+
+tlbloop:
+	/* Probe TLB for matching EntryHi */
+	mtc0	t1, CP0_ENTRYHI
+	tlbp
+	nop
+
+	/* Examine Index[P], 1=no matching entry */
+	mfc0	t3, CP0_INDEX
+	li	t4, 0x80000000
+	and	t3, t4, t3
+	addiu	t1, t1, 1		# increment t1 (asid)
+	beq	zero, t3, tlbloop
+	nop
+
+	/* Initialize the TLB entry */
+	mtc0	t0, CP0_INDEX
+	mtc0	zero, CP0_ENTRYLO0
+	mtc0	zero, CP0_ENTRYLO1
+	mtc0	zero, CP0_PAGEMASK
+	tlbwi
+
+	/* Do it again */
+	addiu	t0, t0, 1
+	bne	t0, t2, tlbloop
+	nop
+
 	/* First setup pll:s to make serial work ok */
 	/* We have a 12 MHz crystal */
 	li	t0, SYS_CPUPLL
-	li	t1, 0x21  /* 396 MHz */
+	li	t1, CPU_SCALE  /* CPU clock */
 	sw	t1, 0(t0)
 	sync
 	nop
@@ -119,19 +206,49 @@ big_endian:
 	sync
 
 	/*  Static memory controller */
+	/* RCE0 - can not change while fetching, do so from icache */
+	move		t2, ra /* Store return address */
+	bal		getAddr
+	nop
+
+getAddr:
+	move		t1, ra
+	move		ra, t2 /* Move return addess back */
+
+	cache	0x14,0(t1)
+	cache	0x14,32(t1)
+	/*** /From YAMON ***/
+
+noCacheJump:
+#endif /* CONFIG_DBAU1550 */
+
+#ifdef CONFIG_DBAU1550
+	li	t0, MEM_STTIME0
+	li	t1, 0x040181D7
+	sw	t1, 0(t0)
+
+	/* RCE0 AMD MirrorBit Flash (?) */
+	li	t0, MEM_STCFG0
+	li	t1, 0x00000003
+	sw	t1, 0(t0)
+
+	li	t0, MEM_STADDR0
+	li	t1, 0x11803E00
+	sw	t1, 0(t0)
+#else /* CONFIG_DBAU1550 */
+	li	t0, MEM_STTIME0
+	li	t1, 0x00014C0F
+	sw	t1, 0(t0)
 
 	/* RCE0 AMD 29LV640M MirrorBit Flash */
 	li	t0, MEM_STCFG0
 	li	t1, 0x00000013
 	sw	t1, 0(t0)
 
-	li	t0, MEM_STTIME0
-	li	t1, 0x040181D7
-	sw	t1, 0(t0)
-
 	li	t0, MEM_STADDR0
 	li	t1, 0x11E03F80
 	sw	t1, 0(t0)
+#endif /* CONFIG_DBAU1550 */
 
 	/* RCE1 CPLD Board Logic */
 	li	t0, MEM_STCFG1
@@ -146,7 +263,20 @@ big_endian:
 	li	t1, 0x10c03f00
 	sw	t1, 0(t0)
 
+#ifdef CONFIG_DBAU1550
 	/* RCE2 CPLD Board Logic */
+	li	t0, MEM_STCFG2
+	li	t1, 0x00000040
+	sw	t1, 0(t0)
+
+	li	t0, MEM_STTIME2
+	li	t1, 0x22080a20
+	sw	t1, 0(t0)
+
+	li	t0, MEM_STADDR2
+	li	t1, 0x10c03f00
+	sw	t1, 0(t0)
+#else
 	li	t0, MEM_STCFG2
 	li	t1, 0x00000000
 	sw	t1, 0(t0)
@@ -158,6 +288,7 @@ big_endian:
 	li	t0, MEM_STADDR2
 	li	t1, 0x00000000
 	sw	t1, 0(t0)
+#endif
 
 	/* RCE3 PCMCIA 250ns */
 	li	t0, MEM_STCFG3
@@ -281,6 +412,99 @@ big_endian:
 	bne	t1, zero, 1b
 	nop
 
+#ifdef CONFIG_DBAU1550
+/* SDCS 0,1,2 DDR SDRAM */
+	li	t0, MEM_SDMODE0
+	li	t1, 0x04276221
+	sw	t1, 0(t0)
+
+	li	t0, MEM_SDMODE1
+	li	t1, 0x04276221
+	sw	t1, 0(t0)
+
+	li	t0, MEM_SDMODE2
+	li	t1, 0x04276221
+	sw	t1, 0(t0)
+
+	li	t0, MEM_SDADDR0
+	li	t1, 0xe21003f0
+	sw	t1, 0(t0)
+
+	li	t0, MEM_SDADDR1
+	li	t1, 0xe21043f0
+	sw	t1, 0(t0)
+
+	li	t0, MEM_SDADDR2
+	li	t1, 0xe21083f0
+	sw	t1, 0(t0)
+
+	sync
+
+	li	t0, MEM_SDCONFIGA
+	li	t1, 0x9030060a /* Program refresh - disabled */
+	sw	t1, 0(t0)
+	sync
+
+	li	t0, MEM_SDCONFIGB
+	li	t1, 0x00028000
+	sw	t1, 0(t0)
+	sync
+
+	li	t0, MEM_SDPRECMD /* Precharge all */
+	li	t1, 0
+	sw	t1, 0(t0)
+	sync
+
+	li	t0, MEM_SDWRMD0
+	li	t1, 0x40000000
+	sw	t1, 0(t0)
+	sync
+
+	li	t0, MEM_SDWRMD1
+	li	t1, 0x40000000
+	sw	t1, 0(t0)
+	sync
+
+	li	t0, MEM_SDWRMD2
+	li	t1, 0x40000000
+	sw	t1, 0(t0)
+	sync
+
+	li	t0, MEM_SDWRMD0
+	li	t1, 0x00000063
+	sw	t1, 0(t0)
+	sync
+
+	li	t0, MEM_SDWRMD1
+	li	t1, 0x00000063
+	sw	t1, 0(t0)
+	sync
+
+	li	t0, MEM_SDWRMD2
+	li	t1, 0x00000063
+	sw	t1, 0(t0)
+	sync
+
+	li	t0, MEM_SDPRECMD /* Precharge all */
+	sw	zero, 0(t0)
+	sync
+
+	/* Issue 2 autoref */
+	li	t0, MEM_SDAUTOREF
+	sw	zero, 0(t0)
+	sync
+
+	li	t0, MEM_SDAUTOREF
+	sw	zero, 0(t0)
+	sync
+
+	/* Enable refresh */
+	li	t0, MEM_SDCONFIGA
+	li	t1, 0x9830060a /* Program refresh - enabled */
+	sw	t1, 0(t0)
+	sync
+
+#else /* CONFIG_DBAU1550 */
 /* SDCS 0,1 SDRAM */
 	li	t0, MEM_SDMODE0
 	li	t1, 0x005522AA
@@ -339,6 +563,7 @@ big_endian:
 	sw	t1, 0(t0)
 	sync
 
+#endif /* CONFIG_DBAU1550 */
 	/* wait 1mS after setup */
 	li	t1, MEM_1MS
 1:	add	t1, -1

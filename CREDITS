@@ -253,6 +253,10 @@ E: team@leox.org
 D: Support for LEOX boards, DS164x RTC
 W: http://www.leox.org
 
+N: Leif Lindholm
+E: leif.lindholm@i3micro.com
+D: Support for AMD dbau1550 board.
+
 N: Stephan Linz
 E: linz@li-pro.net
 D: Support for Nios Stratix Development Kit (DK-1S10)

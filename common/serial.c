@@ -38,6 +38,9 @@ struct serial_device *default_serial_console (void)
 #elif defined(CONFIG_8xx_CONS_SCC1) || defined(CONFIG_8xx_CONS_SCC2) \
    || defined(CONFIG_8xx_CONS_SCC3) || defined(CONFIG_8xx_CONS_SCC4)
 	return &serial_scc_device;
+#elif defined(CONFIG_405GP) || defined(CONFIG_405CR) || defined(CONFIG_440) \
+   || defined(CONFIG_405EP)
+	return &serial0_device;
 #else
 #error No default console
 #endif
@@ -69,6 +72,12 @@ void serial_initialize (void)
 #if defined(CONFIG_8xx_CONS_SCC1) || defined(CONFIG_8xx_CONS_SCC2) \
  || defined(CONFIG_8xx_CONS_SCC3) || defined(CONFIG_8xx_CONS_SCC4)
 	serial_register (&serial_scc_device);
+#endif
+
+#if defined(CONFIG_405GP) || defined(CONFIG_405CR) || defined(CONFIG_440) \
+ || defined(CONFIG_405EP)
+	serial_register(&serial0_device);
+	serial_register(&serial1_device);
 #endif
 
 	serial_assign (default_serial_console ()->name);

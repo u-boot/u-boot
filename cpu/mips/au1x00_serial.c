@@ -71,8 +71,8 @@ void serial_setbrg (void)
 	volatile u32 *uart_clk = (volatile u32*)(UART0_ADDR+UART_CLK);
 	volatile u32 *uart_lcr = (volatile u32*)(UART0_ADDR+UART_LCR);
 
-	/* Set baudrate to 115200 */
-	*uart_clk = 0x36;
+	/* Set baudrate - FIXME for bus speeds != CPU/2 */
+	*uart_clk = ((CFG_HZ/(CONFIG_BAUDRATE * 64)));
 
 	/* Set parity, stop bits and word length to 8N1 */
 	*uart_lcr = UART_LCR_WLEN8;

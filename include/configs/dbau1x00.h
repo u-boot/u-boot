@@ -42,7 +42,12 @@
 #ifdef CONFIG_DBAU1500
 #define CONFIG_AU1500		1
 #else
+#ifdef CONFIG_DBAU1550
+/* Cabernet */
+#define CONFIG_AU1550           1
+#else
 #error "No valid board set"
+#endif
 #endif
 #endif
 #endif
@@ -66,23 +71,34 @@
 	"bootfile=/tftpboot/vmlinux.srec\0"				\
 	"load=tftp 80500000 $(u-boot)\0"				\
 	""
+
+#ifdef CONFIG_DBAU1550
+/* Boot from flash by default, revert to bootp */
+#define CONFIG_BOOTCOMMAND	"bootm 0xbfc20000; bootp; bootm"
+
+#define CONFIG_COMMANDS		((CONFIG_CMD_DFL | CFG_CMD_FLASH | CFG_CMD_LOADB | CFG_CMD_NET) & \
+				 ~(CFG_CMD_ENV | CFG_CMD_FAT | CFG_CMD_FPGA | CFG_CMD_IDE | \
+				   CFG_CMD_MII | CFG_CMD_RUN | CFG_CMD_BDI | CFG_CMD_BEDBUG | \
+				   CFG_CMD_NFS | CFG_CMD_ELF | CFG_CMD_PCMCIA | CFG_CMD_I2C))
+#else /* CONFIG_DBAU1550 */
 /* Boot from Compact flash partition 2 as default */
 #define CONFIG_BOOTCOMMAND	"ide reset;disk 0x81000000 0:2;bootm"
 
-#define CONFIG_COMMANDS		((CONFIG_CMD_DFL | \
- CFG_CMD_IDE | \
- CFG_CMD_DHCP	| \
-				 CFG_CMD_ELF	) & \
- ~(CFG_CMD_ENV | CFG_CMD_FAT | CFG_CMD_FLASH | CFG_CMD_FPGA | \
-   CFG_CMD_MII | CFG_CMD_LOADS | CFG_CMD_RUN | CFG_CMD_LOADB | CFG_CMD_ELF | \
-   CFG_CMD_BDI | CFG_CMD_BEDBUG))
+#define CONFIG_COMMANDS		((CONFIG_CMD_DFL | CFG_CMD_IDE | CFG_CMD_DHCP | CFG_CMD_ELF) & \
+				 ~(CFG_CMD_ENV | CFG_CMD_FAT | CFG_CMD_FLASH | CFG_CMD_FPGA | \
+				   CFG_CMD_MII | CFG_CMD_LOADS | CFG_CMD_RUN | CFG_CMD_LOADB | \
+				   CFG_CMD_ELF | CFG_CMD_BDI | CFG_CMD_BEDBUG))
+#endif /* CONFIG_DBAU1550 */
+
 #include <cmd_confdefs.h>
 
 /*
  * Miscellaneous configurable options
  */
 #define	CFG_LONGHELP				/* undef to save memory      */
-#define	CFG_PROMPT		"DbAu1x00 # "	/* Monitor Command Prompt    */
+
+#define	CFG_PROMPT		"DbAu1xx0 # "	/* Monitor Command Prompt    */
+
 #define	CFG_CBSIZE		256		/* Console I/O Buffer Size   */
 #define	CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16)  /* Print Buffer Size */
 #define	CFG_MAXARGS		16		/* max number of command args*/
@@ -91,7 +107,13 @@
 
 #define CFG_BOOTPARAMS_LEN	128*1024
 
-#define CFG_HZ			396000000      /* FIXME causes overflow in net.c */
+#define CFG_MHZ			396
+
+#if (CFG_MHZ % 12) != 0
+#error "Invalid CPU frequency - must be multiple of 12!"
+#endif
+
+#define CFG_HZ                  (CFG_MHZ * 1000000) /* FIXME causes overflow in net.c */
 
 #define CFG_SDRAM_BASE		0x80000000     /* Cached addr */
 
@@ -103,11 +125,28 @@
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
+#ifdef CONFIG_DBAU1550
+
+#define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks */
+#define CFG_MAX_FLASH_SECT	(512)	/* max number of sectors on one chip */
+
+#define PHYS_FLASH_1		0xb8000000 /* Flash Bank #1 */
+#define PHYS_FLASH_2		0xbc000000 /* Flash Bank #2 */
+
+#define CFG_FLASH_BANKS_LIST {PHYS_FLASH_1, PHYS_FLASH_2}
+
+#else /* CONFIG_DBAU1550 */
+
 #define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks */
 #define CFG_MAX_FLASH_SECT	(128)	/* max number of sectors on one chip */
 
 #define PHYS_FLASH_1		0xbec00000 /* Flash Bank #1 */
 #define PHYS_FLASH_2		0xbfc00000 /* Flash Bank #2 */
+
+#endif /* CONFIG_DBAU1550 */
+
+#define CFG_FLASH_CFI           1
+#define CFG_FLASH_CFI_DRIVER    1
 
 /* The following #defines are needed to get flash environment right */
 #define	CFG_MONITOR_BASE	TEXT_BASE
@@ -134,8 +173,15 @@
 
 #define CONFIG_NET_MULTI
 
+#ifdef CONFIG_DBAU1550
+#define MEM_SIZE 192
+#else
+#define MEM_SIZE 64
+#endif
+
 #define CONFIG_MEMSIZE_IN_BYTES
 
+#ifndef CONFIG_DBAU1550
 /*---ATA PCMCIA ------------------------------------*/
 #define CFG_PCMCIA_MEM_SIZE 0x4000000 /* Offset to slot 1 FIXME!!! */
 #define CFG_PCMCIA_MEM_ADDR 0x20000000
@@ -166,6 +212,7 @@
 
 /* Offset for alternate registers       */
 #define CFG_ATA_ALT_OFFSET      0x0100
+#endif /* CONFIG_DBAU1550 */
 
 /*-----------------------------------------------------------------------
  * Cache Configuration
@@ -173,7 +220,5 @@
 #define CFG_DCACHE_SIZE		16384
 #define CFG_ICACHE_SIZE		16384
 #define CFG_CACHELINE_SIZE	32
-
-#define DB1000_BCSR_ADDR 0xAE000000
 
 #endif	/* __CONFIG_H */

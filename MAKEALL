@@ -180,9 +180,9 @@ LIST_mips4kc="incaip"
 
 LIST_mips5kc="purple"
 
-LIST_au1x00="dbau1000 dbau1100 dbau1500"
+LIST_au1xx0="dbau1000 dbau1100 dbau1500 dbau1550 dbau1550_el"
 
-LIST_mips="${LIST_mips4kc} ${LIST_mips5kc} ${LIST_au1x00}"
+LIST_mips="${LIST_mips4kc} ${LIST_mips5kc} ${LIST_au1xx0}"
 
 #########################################################################
 ## i386 Systems

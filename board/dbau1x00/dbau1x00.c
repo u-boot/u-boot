@@ -30,7 +30,7 @@ long int initdram(int board_type)
 {
 	/* Sdram is setup by assembler code */
 	/* If memory could be changed, we should return the true value here */
-	return 64*1024*1024;
+	return MEM_SIZE*1024*1024;
 }
 
 #define BCSR_PCMCIA_PC0DRVEN		0x0010
@@ -42,8 +42,8 @@ void write_one_tlb( int index, u32 pagemask, u32 hi, u32 low0, u32 low1 );
 int checkboard (void)
 {
 	u16 status;
-	volatile u32 *pcmcia_bcsr = (u32*)(DB1000_BCSR_ADDR+0x10);
-	volatile u32 *phy = (u32*)(DB1000_BCSR_ADDR+0xC);
+	volatile u32 *pcmcia_bcsr = (u32*)(DB1XX0_BCSR_ADDR+0x10);
+	volatile u32 *phy = (u32*)(DB1XX0_BCSR_ADDR+0xC);
 	volatile u32 *sys_counter = (volatile u32*)SYS_COUNTER_CNTRL;
 	u32 proc_id;
 
@@ -65,6 +65,11 @@ int checkboard (void)
 	case 2:
 		puts ("Board: DbAu1100\n");
 		printf ("CPU: Au1100, id: 0x%02x, rev: 0x%02x\n",
+			(proc_id >> 8) & 0xFF, proc_id & 0xFF);
+		break;
+	case 3:
+		puts ("Board: DbAu1550\n");
+		printf ("CPU: Au1550, id: 0x%02x, rev: 0x%02x\n",
 			(proc_id >> 8) & 0xFF, proc_id & 0xFF);
 		break;
 	default:

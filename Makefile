@@ -1467,6 +1467,16 @@ dbau1500_config		: 	unconfig
 	@echo "#define CONFIG_DBAU1500 1" >>include/config.h
 	@./mkconfig -a dbau1x00 mips mips dbau1x00
 
+dbau1550_config		:	unconfig
+	@ >include/config.h
+	@echo "#define CONFIG_DBAU1550 1" >>include/config.h
+	@./mkconfig -a dbau1x00 mips mips dbau1x00
+
+dbau1550_el_config	:	unconfig
+	@ >include/config.h
+	@echo "#define CONFIG_DBAU1550 1" >>include/config.h
+	@./mkconfig -a dbau1x00 mips mips dbau1x00 "" little
+
 #########################################################################
 ## MIPS64 5Kc
 #########################################################################
