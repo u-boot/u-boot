@@ -134,8 +134,7 @@ u-boot.dis:	u-boot
 		$(OBJDUMP) -d $< > $@
 
 u-boot:		depend subdirs $(OBJS) $(LIBS) $(LDSCRIPT)
-		UNDEF_SYM=`$(OBJDUMP) -x $(LIBS) |sed  -n -e 's/.*\(__u_boot_cmd_.*\)/-u\1/p'|sort|uniq`;\
-		$(LD) $(LDFLAGS) $$UNDEF_SYM $(OBJS) \
+		$(LD) $(LDFLAGS) $(OBJS) \
 			--start-group $(LIBS) --end-group \
 			-Map u-boot.map -o u-boot
 
@@ -542,6 +541,9 @@ Sandpoint8240_config: unconfig
 
 Sandpoint8245_config: unconfig
 	@./mkconfig $(@:_config=) ppc mpc824x sandpoint
+
+SL8245_config: unconfig
+	@./mkconfig $(@:_config=) ppc mpc824x sl8245
 
 utx8245_config: unconfig
 	@./mkconfig $(@:_config=) ppc mpc824x utx8245

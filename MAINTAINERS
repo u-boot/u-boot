@@ -3,10 +3,7 @@
 # Regular Maintainers for U-Boot board support:				#
 #									#
 # For any board without permanent maintainer, please contact		#
-#    for PowerPC systems:						#
 #	Wolfgang Denk <wd@denx.de>					#
-#    for ARM systems:							#
-#	Marius Gröger <mag@sysgo.de>					#
 # and Cc: the <U-Boot-Users@lists.sourceforge.net> mailing lists.	#
 #									#
 # Note: lists sorted by Maintainer Name					#
@@ -83,6 +80,7 @@ Wolfgang Denk <wd@denx.de>
 
 	CU824			MPC8240
 	Sandpoint8240		MPC8240
+	SL8245			MPC8245
 
 	ATC			MPC8250
 	PM825			MPC8250
