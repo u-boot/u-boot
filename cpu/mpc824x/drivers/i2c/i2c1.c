@@ -125,10 +125,10 @@ I2C_Status I2C_Initialize (unsigned char addr,
  * len is the length of data to send or receive
  * buffer is the address of the data buffer
  * stop = I2C_NO_STOP, don't signal STOP at end of transaction
- *        I2C_STOP, signal STOP at end of transaction
+ *	  I2C_STOP, signal STOP at end of transaction
  * retry is the timeout retry value, currently ignored
  * rsta = I2C_NO_RESTART, this is not continuation of existing transaction
- *        I2C_RESTART, this is a continuation of existing transaction
+ *	  I2C_RESTART, this is a continuation of existing transaction
  */
 I2C_Status I2C_do_transaction ( I2C_INTERRUPT_MODE en_int,
 				I2C_TRANSACTION_MODE act,
@@ -191,12 +191,12 @@ I2C_Status I2C_do_transaction ( I2C_INTERRUPT_MODE en_int,
 	}
 
 	/*
-         * We first have to contact the slave device and transmit the
-         * data address. Be careful about the STOP and restart stuff.
-         * We don't want to signal STOP after sending the data
-         * address, but this could be a continuation if the
-         * application didn't release the bus after the previous
-         * transaction, by not sending a STOP after it.
+	 * We first have to contact the slave device and transmit the
+	 * data address. Be careful about the STOP and restart stuff.
+	 * We don't want to signal STOP after sending the data
+	 * address, but this could be a continuation if the
+	 * application didn't release the bus after the previous
+	 * transaction, by not sending a STOP after it.
 	 */
 	status = I2C_do_buffer (en_int, I2C_MASTER_XMIT, i2c_addr, 1,
 				data_addr_buffer, I2C_NO_STOP, retry, rsta);
@@ -231,10 +231,10 @@ I2C_Status I2C_do_transaction ( I2C_INTERRUPT_MODE en_int,
  * len is the length of data to send or receive
  * buffer is the address of the data buffer
  * stop = I2C_NO_STOP, don't signal STOP at end of transaction
- *        I2C_STOP, signal STOP at end of transaction
+ *	  I2C_STOP, signal STOP at end of transaction
  * retry is the timeout retry value, currently ignored
  * rsta = I2C_NO_RESTART, this is not continuation of existing transaction
- *        I2C_RESTART, this is a continuation of existing transaction
+ *	  I2C_RESTART, this is a continuation of existing transaction
  */
 static I2C_Status I2C_do_buffer (I2C_INTERRUPT_MODE en_int,
 				 I2C_TRANSACTION_MODE act,
@@ -518,9 +518,9 @@ static I2CStatus I2C_Timer_Event (unsigned int eumbbar,
  * function: I2C_Start
  *
  * description: Generate a START signal in the desired mode.
- *              I2C is the master.
+ *		I2C is the master.
  *
- *              Return I2CSUCCESS if no error.
+ *		Return I2CSUCCESS if no error.
  *
  * note:
  ****************************************************/
@@ -594,8 +594,8 @@ static I2CStatus I2C_Start (unsigned int eumbbar, unsigned char slave_addr,	/* a
  * function: I2c_Stop
  *
  * description: Generate a STOP signal to terminate the master
- *              transaction.
- *              return I2CSUCCESS
+ *		transaction.
+ *		return I2CSUCCESS
  *
  **********************************************************/
 static I2CStatus I2C_Stop (unsigned int eumbbar)
@@ -621,10 +621,10 @@ static I2CStatus I2C_Stop (unsigned int eumbbar)
  * function: I2C_Master_Xmit
  *
  * description: Master sends one byte of data to
- *              slave target
+ *		slave target
  *
- *              return I2CSUCCESS if the byte transmitted.
- *              Otherwise no-zero
+ *		return I2CSUCCESS if the byte transmitted.
+ *		Otherwise no-zero
  *
  * Note: condition must meet when this function is called:
  *       I2CSR(MIF) == 1 && I2CSR(MCF)  == 1  && I2CSR(RXAK) == 0
@@ -669,9 +669,9 @@ static I2CStatus I2C_Master_Xmit (unsigned int eumbbar)
  * function: I2C_Master_Rcv
  *
  * description: master reads one byte data
- *              from slave source
+ *		from slave source
  *
- *              return I2CSUCCESS if no error
+ *		return I2CSUCCESS if no error
  *
  * Note: condition must meet when this function is called:
  *       I2CSR(MIF) == 1 && I2CSR(MCF) == 1 &&
@@ -736,10 +736,10 @@ static I2CStatus I2C_Master_Rcv (unsigned int eumbbar)
  * function: I2C_Slave_Xmit
  *
  * description: Slave sends one byte of data to
- *              requesting destination
+ *		requesting destination
  *
- *        return SUCCESS if the byte transmitted. Otherwise
- *        No-zero
+ *	  return SUCCESS if the byte transmitted. Otherwise
+ *	  No-zero
  *
  * Note: condition must meet when this function is called:
  *       I2CSR(MIF) == 1 && I2CSR(MCF) == 1 &&  I2CSR(RXAK) = 0
@@ -757,12 +757,12 @@ static I2CStatus I2C_Slave_Xmit (unsigned int eumbbar)
 			ByteToXmit = 0;
 
 			/*
-                         * do not toggle I2CCR(MTX). Doing so will
-                         * cause bus-hung since current Kahlua design
-                         * does not give master a way to detect slave
-                         * stop. It is always a good idea for master
-                         * to use timer to prevent the long long
-                         * delays
+			 * do not toggle I2CCR(MTX). Doing so will
+			 * cause bus-hung since current Kahlua design
+			 * does not give master a way to detect slave
+			 * stop. It is always a good idea for master
+			 * to use timer to prevent the long long
+			 * delays
 			 */
 
 			return I2CBUFFEMPTY;
@@ -787,9 +787,9 @@ static I2CStatus I2C_Slave_Xmit (unsigned int eumbbar)
  * function: I2C_Slave_Rcv
  *
  * description: slave reads one byte data
- *              from master source
+ *		from master source
  *
- *              return I2CSUCCESS if no error otherwise non-zero
+ *		return I2CSUCCESS if no error otherwise non-zero
  *
  * Note: condition must meet when this function is called:
  *       I2CSR(MIF) == 1 && I2CSR(MCF) == 1 &&
@@ -834,8 +834,8 @@ static I2CStatus I2C_Slave_Rcv (unsigned int eumbbar)
  * function: I2C_Init
  *
  * description: Initialize I2C unit with desired frequency divider,
- *              master's listening address, with interrupt enabled
- *              or disabled.
+ *		master's listening address, with interrupt enabled
+ *		or disabled.
  *
  * note:
  ********************************************************/
@@ -912,7 +912,7 @@ static I2C_STAT I2C_Get_Stat (unsigned int eumbbar)
  * function: I2c_Set_Ctrl
  *
  * description: Change I2C Control bits,
- *              i.e., write to I2CCR
+ *		i.e., write to I2CCR
  *
  ********************************************/
 static void I2C_Set_Ctrl (unsigned int eumbbar, I2C_CTRL ctrl)
@@ -937,7 +937,7 @@ static void I2C_Set_Ctrl (unsigned int eumbbar, I2C_CTRL ctrl)
  * function: I2C_Get_Ctrl
  *
  * description: Query I2C Control bits,
- *              i.e., read I2CCR
+ *		i.e., read I2CCR
  *****************************************/
 static I2C_CTRL I2C_Get_Ctrl (unsigned int eumbbar)
 {
@@ -959,7 +959,7 @@ static I2C_CTRL I2C_Get_Ctrl (unsigned int eumbbar)
  * function: I2C_Slave_Addr
  *
  * description: Process slave address phase.
- *              return I2CSUCCESS if no error
+ *		return I2CSUCCESS if no error
  *
  * note: Precondition for calling this function:
  *       I2CSR(MIF) == 1 &&
@@ -1193,14 +1193,17 @@ int i2c_read (uchar chip, uint addr, int alen, uchar * buffer, int len)
 int i2c_write (uchar chip, uint addr, int alen, uchar * buffer, int len)
 {
 	I2CStatus status;
-	unsigned char dummy_buffer[I2C_RXTX_LEN + 2];
+	uchar dummy_buffer[I2C_RXTX_LEN + 2];
+	uchar *p;
 	int i;
 
-	dummy_buffer[0] = addr & 0xFF;
-	if (alen == 2)
-		dummy_buffer[1] = (addr >> 8) & 0xFF;
-	for (i = 0; i < len; i++)
-		dummy_buffer[i + alen] = buffer[i];
+	p = dummy_buffer;
+	/* fill in address in big endian order */
+	for (i=0; i<alen; ++i)
+		*p++ = (addr >> (i * 8)) & 0xFF;
+	/* fill in data */
+	for (i=0; i<len; ++i)
+		*p++ = *buffer;
 
 	status = I2C_do_buffer (0, I2C_MASTER_XMIT, chip, alen + len,
 				dummy_buffer, I2C_STOP, 1, I2C_NO_RESTART);

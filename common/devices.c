@@ -160,14 +160,16 @@ int devices_init (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
-	int i;
+#ifndef CONFIG_ARM     /* already relocated for current ARM implementation */
 	ulong relocation_offset = gd->reloc_off;
+	int i;
 
 	/* relocate device name pointers */
 	for (i = 0; i < (sizeof (stdio_names) / sizeof (char *)); ++i) {
 		stdio_names[i] = (char *) (((ulong) stdio_names[i]) +
 						relocation_offset);
 	}
+#endif
 
 	/* Initialize the list */
 	devlist = ListCreate (sizeof (device_t));

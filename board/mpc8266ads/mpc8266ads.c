@@ -46,7 +46,7 @@
  *   PSDMR_BUFCMD adds a clock
  *   0            no extra clock
  */
-#define CONFIG_PBI		0
+#define CONFIG_PBI		PSDMR_PBI
 #define PESSIMISTIC_SDRAM	0
 #define EAMUX			0	/* EST requires EAMUX */
 #define BUFCMD			0
@@ -379,6 +379,25 @@ long int initdram(int board_type)
 
 
     sdram_size = 1 << (rows + cols + banks + width);
+    /* hack for high density memory (512MB per CS) */
+    /* !!!!! Will ONLY work with Page Based Interleave !!!!!
+             ( PSDMR[PBI] = 1 ) 
+    */
+    /* mamory actually has 11 column addresses, but the memory controller 
+       doesn't really care. 
+       the calculations that follow will however move the rows so that 
+       they are muxed one bit off if you use 11 bit columns. 
+       The solution is to tell the memory controller the correct size of the memory
+       but change the number of columns to 10 afterwards.
+       The 11th column addre will still be mucxed correctly onto the bus.
+
+       Also be aware that the MPC8266ADS board Rev B has not connected 
+       Row addres 13 to anything.
+
+       The fix is to connect ADD16 (from U37-47) to SADDR12 (U28-126)
+    */
+    if (cols > 10)
+	    cols = 10;
 
 #if(CONFIG_PBI == 0)	/* bank-based interleaving */
     rowst = ((32 - 6) - (rows + cols + width)) * 2;

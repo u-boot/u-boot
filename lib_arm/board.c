@@ -27,7 +27,9 @@
 
 #include <common.h>
 #include <command.h>
+#include <malloc.h>
 #include <devices.h>
+#include <syscall.h>
 #include <version.h>
 #include <net.h>
 
@@ -101,8 +103,7 @@ static int init_baudrate (void)
 
 	uchar tmp[64];	/* long enough for environment variables */
 	int i = getenv_r ("baudrate", tmp, sizeof (tmp));
-
-	gd->baudrate = (i > 0)
+	gd->bd->bi_baudrate = gd->baudrate = (i > 0)
 			? (int) simple_strtoul (tmp, NULL, 10)
 			: CONFIG_BAUDRATE;
 
@@ -186,6 +187,7 @@ init_fnc_t *init_sequence[] = {
 	env_init,		/* initialize environment */
 	init_baudrate,		/* initialze baudrate settings */
 	serial_init,		/* serial communications setup */
+	console_init_f,		/* stage 1 init of console */
 	display_banner,		/* say that we are here */
 	dram_init,		/* configure available RAM banks */
 	display_dram_config,
@@ -282,6 +284,15 @@ void start_armboot (void)
 				s = (*e) ? e + 1 : e;
 		}
 	}
+
+	devices_init ();      /* get the devices list going. */
+
+	/* Syscalls are not implemented for ARM. But allocating
+	 * this allows the console_init routines to work without #ifdefs
+	 */
+	syscall_tbl = (void **) malloc (NR_SYSCALLS * sizeof (void *));
+
+	console_init_r ();	/* fully init console as a device */
 
 #if defined(CONFIG_MISC_INIT_R)
 	/* miscellaneous platform dependent initialisations */

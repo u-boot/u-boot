@@ -2,6 +2,17 @@
 Changes since U-Boot 0.3.1:
 ======================================================================
 
+* Patch by Rune Torgersen, 4 Jun 2003:
+  add large memory support for MPC8266ADS board
+  
+* Patch by Richard Woodruff, 19 June 03:
+  - Enabled standard u-boot device abstraction for ARM
+  - Enabled console device for ARM
+  - Initilized bi_baudrate for ARM
+
+* Patch by Bill Hargen, 23 Apr 2003:
+  fix byte order for 824x I2C addresses (write op)
+
 * Patch by Murray Jensen, 20 Jun 2003:
   - hymod update
   - cleanup (especially for gcc-3.x compilers)
