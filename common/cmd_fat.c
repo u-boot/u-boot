@@ -86,7 +86,7 @@ int do_fat_fsload (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	if (argc < 5) {
 		printf ("usage: fatload <interface> <dev[:part]> <addr> <filename> [bytes]\n");
-		return (0);
+		return 1;
 	}
 	dev = (int)simple_strtoul (argv[2], &ep, 16);
 	dev_desc=get_dev(argv[1],dev);
@@ -114,14 +114,15 @@ int do_fat_fsload (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	if(size==-1) {
 		printf("\n** Unable to read \"%s\" from %s %d:%d **\n",argv[4],argv[1],dev,part);
-	} else {
-		printf ("\n%ld bytes read\n", size);
-
-		sprintf(buf, "%lX", size);
-		setenv("filesize", buf);
+		return 1;
 	}
 
-	return size;
+	printf ("\n%ld bytes read\n", size);
+
+	sprintf(buf, "%lX", size);
+	setenv("filesize", buf);
+
+	return 0;
 }
 
 

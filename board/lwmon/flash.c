@@ -403,6 +403,26 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 			/* Disable interrupts which might cause a timeout here */
 			flag = disable_interrupts();
 
+			*addr = 0x00600060;	/* clear lock bit setup */
+			*addr = 0x00D000D0;	/* clear lock bit confirm */
+
+			udelay (1000);
+			/* This takes awfully long - up to 50 ms and more */
+			while (((status = *addr) & 0x00800080) != 0x00800080) {
+				if ((now=get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+					printf ("Timeout\n");
+					*addr = 0x00FF00FF; /* reset to read mode */
+					return 1;
+				}
+
+				/* show that we're waiting */
+				if ((now - last) > 1000) {	/* every second */
+					putc ('.');
+					last = now;
+				}
+				udelay (1000);	/* to trigger the watchdog */
+			}
+
 			*addr = 0x00500050;	/* clear status register */
 			*addr = 0x00200020;	/* erase setup */
 			*addr = 0x00D000D0;	/* erase confirm */
@@ -427,6 +447,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 					putc ('.');
 					last = now;
 				}
+				udelay (1000);	/* to trigger the watchdog */
 			}
 
 			*addr = 0x00FF00FF;	/* reset to read mode */

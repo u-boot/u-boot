@@ -315,12 +315,12 @@ MiniFAP_config:	unconfig
 	@[ -z "$(findstring AB,$@)" ] || \
 		{ echo "#define CONFIG_TQM5200_AB"	>>include/config.h ; \
 		  echo "... with 64 MB Flash, 64 MB SDRAM, 32 kB EEPROM, 512 kB SRAM" ; \
-		  echo "... with Grafic Controller"; \
+		  echo "... with Graphics Controller"; \
 		}
 	@[ -z "$(findstring AC,$@)" ] || \
 		{ echo "#define CONFIG_TQM5200_AC"	>>include/config.h ; \
 		  echo "... with 4 MB Flash, 128 MB SDRAM" ; \
-		  echo "... with Grafic Controller"; \
+		  echo "... with Graphics Controller"; \
 		}
 	@./mkconfig -a TQM5200 ppc mpc5xxx tqm5200
 

@@ -78,12 +78,24 @@
 
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
+/*
+ * Keyboard commands:
+ * # = 0x28 = ENTER :		enable bootmessages on LCD
+ * 2 = 0x3A+0x3C = F1 + F3 :	enable update mode
+ * 3 = 0x3C+0x3F = F3 + F6 :	enable test mode
+ */
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"kernel_addr=40080000\0"					\
 	"ramdisk_addr=40280000\0"					\
-	"magic_keys=#3\0"						\
+	"magic_keys=#23\0"						\
 	"key_magic#=28\0"						\
 	"key_cmd#=setenv addfb setenv 'bootargs $bootargs console=tty0'\0" \
+	"key_magic2=3A+3C\0"						\
+	"key_cmd2=echo *** Entering Update Mode ***;"			\
+		"if fatload ide 0:3 10000 update.scr;"			\
+			"then autoscr 10000;"				\
+			"else echo *** UPDATE FAILED ***;"		\
+		"fi\0"							\
 	"key_magic3=3C+3F\0"						\
 	"key_cmd3=echo *** Entering Test Mode ***;"			\
 		"setenv add_misc 'setenv bootargs $bootargs testmode'\0" \
@@ -153,6 +165,7 @@
 				CFG_CMD_ASKENV	| \
 				CFG_CMD_DHCP	| \
 				CFG_CMD_DATE	| \
+				CFG_CMD_FAT	| \
 				CFG_CMD_I2C	| \
 				CFG_CMD_EEPROM	| \
 				CFG_CMD_IDE	| \
@@ -276,18 +289,12 @@
  */
 #define CFG_FLASH_BUFFER_SIZE	(2*32)
 
-#if 1
-/* Put environment in flash which is much faster to boot */
+/* Put environment in flash which is much faster to boot than using the EEPROM	*/
 #define CFG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_ADDR	    0x40040000	/* Address    of Environment Sector	*/
 #define CFG_ENV_SIZE		0x2000	/* Total Size of Environment		*/
 #define CFG_ENV_SECT_SIZE	0x40000 /* we have BIG sectors only :-(		*/
-#else
-/* Environment in EEPROM */
-#define CFG_ENV_IS_IN_EEPROM	1
-#define CFG_ENV_OFFSET		0
-#define CFG_ENV_SIZE		2048
-#endif
+
 /*-----------------------------------------------------------------------
  * I2C/EEPROM Configuration
  */
@@ -487,6 +494,8 @@
 
 /* Offset for alternate registers	*/
 #define CFG_ATA_ALT_OFFSET	0x0100
+
+#define CONFIG_SUPPORT_VFAT		/* enable VFAT support */
 
 /*-----------------------------------------------------------------------
  *

@@ -2,6 +2,14 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Add automatic update support for LWMON board
+
+* Clear Block Lock-Bits when erasing flash on LWMON board.
+
+* Fix return code of "fatload" command
+
+* Enable MSDOS/VFAT filesystem support for LWMON board
+
 * Patch by Martin Krause, 03 Aug 2004:
   change timing for SM501 graphics controller on TQM5200 module
 

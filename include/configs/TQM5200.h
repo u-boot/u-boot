@@ -27,8 +27,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define DEBUG 1
-
 /*
  * High Level Configuration Options
  * (easy to change)
@@ -64,7 +62,7 @@
  */
 #define CONFIG_PCI		0
 #define CONFIG_PCI_PNP		1
-#define CONFIG_PCI_SCAN_SHOW	1
+/* #define CONFIG_PCI_SCAN_SHOW	1 */
 
 #define CONFIG_PCI_MEM_BUS	0x40000000
 #define CONFIG_PCI_MEM_PHYS	CONFIG_PCI_MEM_BUS
