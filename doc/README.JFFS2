@@ -1,0 +1,68 @@
+JFFS2 options and usage.
+-----------------------
+
+JFFS2 in U-Boot is a read only implementation of the file system in
+Linux with the same name. To use JFFS2 define CFG_CMD_JFFS2.
+
+The module adds three new commands.
+fsload  - load binary file from a file system image
+fsinfo  - print information about file systems
+ls      - list files in a directory
+
+
+There is two ways for JFFS2 to find the disk. The default way uses
+the flash_info structure to find the start of a JFFS2 disk (called
+partition in the code) and you can change where the partition is with
+two defines.
+
+CFG_JFFS2_FIRST_BANK
+	defined the first flash bank to use
+
+CFG_JFFS2_FIRST_SECTOR
+	defines the first sector to use
+
+
+The second way is to define CFG_JFFS_CUSTOM_PART and implement the
+jffs2_part_info(int part_num) function in your board specific files.
+In this mode CFG_JFFS2_FIRST_BANK and CFG_JFFS2_FIRST_SECTOR is not
+used.
+
+The input is a partition number starting with 0.
+Return a pointer to struct part_info or NULL for error;
+
+Ex jffs2_part_info() for one partition.
+---
+#if defined CFG_JFFS_CUSTOM_PART
+#include <jffs2/jffs2.h>
+
+static struct part_info part;
+
+struct part_info*
+jffs2_part_info(int part_num)
+{
+	if(part_num==0){
+		if(part.usr_priv==(void*)1)
+			return &part;
+
+		memset(&part, 0, sizeof(part));
+		part.offset=(char*)0xFF800000;
+		part.size=1024*1024*8;
+
+		/* Mark the struct as ready */
+		part.usr_priv=(void*)1;
+
+		return &part;
+	}
+	return 0;
+}
+#endif
+---
+
+TODO.
+
+        Add a new command so it's actually possible to change
+	partition.
+
+        Remove the assumption that JFFS can dereference a pointer
+        into the disk. The current code do not work with memory holes
+        or hardware with a sliding window (PCMCIA).

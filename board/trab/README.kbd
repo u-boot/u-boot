@@ -1,0 +1,44 @@
+
+The TRAB keyboard implementation is similar to that for LWMON and
+R360MPI boards. The only difference concerns key naming. There are 4
+keys on TRAB: 1, 2, 3, 4.
+
+1) The "kbd" command provides information about the current state of
+   the keys. For example,
+
+	TRAB # kbd
+	Keys: 1 0 1 0
+
+   means that keys 1 and 3 are pressed. The keyboard status is also
+   stored in the "keybd" environment variable. In this example we get
+
+	keybd=1010
+
+2) The "preboot" variable is set according to current environment
+   settings and keys pressed. This is an example:
+
+	TRAB # setenv magic_keys XY
+	TRAB # setenv key_magicX 12
+	TRAB # setenv key_cmdX echo ## Keys 1 + 2 pressed ##\;echo
+	TRAB # setenv key_magicY 13
+	TRAB # setenv key_cmdY echo ## Keys 1 + 3 pressed ##\;echo
+
+   Here "magic_keys=XY" means that the "key_magicX" and "key_magicY"
+   variables will be checked for a match. Each variable "key_magic*"
+   defines a set of keys. In the our example, if keys 1 and 3 are
+   pressed during reset, then "key_magicY" matches, so the "preboot"
+   variable will be set to the contents of "key_cmdY":
+
+	preboot=echo ## Keys 1 + 3 pressed ##;echo
+
+3) The TRAB board has optional modem support. When a certain key
+   combination is pressed on the keyboard at power-on, the firmware
+   performs the necessary initialization of the modem and allows for
+   dial-in. The key combination is specified in the
+   "include/configs/trab.h" file. For example:
+
+	#define        CONFIG_MODEM_KEY_MAGIC  "23"
+
+   means that modem will be initialized if and only if both keys 2, 3
+   are pressed. Note that the format of this string is similar to the
+   format of "key_magic*" environment variables described above.

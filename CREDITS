@@ -1,0 +1,242 @@
+#
+#   Parts of the development effort for this project have been
+#   sponsored by SIEMENS AG, Austria. Thanks to SIEMENS for
+#   supporting an Open Source project!
+#
+#
+#   This is at least a partial credits-file of individual people that
+#   have contributed to the U-Boot project. It is sorted by name and
+#   formatted to allow easy grepping and beautification by scripts.
+#   The fields are: name (N), email (E), web-address (W), PGP key ID
+#   and fingerprint (P), description (D), and snail-mail address (S).
+#   Thanks,
+#
+#                       Wolfgang Denk
+#----------
+
+N: Dr. Bruno Achauer
+E: bruno@exet-ag.de
+D: Support for NetBSD (both as host and target system)
+
+N: Swen Anderson
+E: sand@peppercon.de
+D: ERIC Support
+
+N: Guillaume Alexandre
+E: guillaume.alexandre@gespac.ch
+D: Add PCIPPC6 configuration
+
+N: Pierre Aubert
+E: <p.aubert@staubli.com>
+D: Support for RPXClassic board
+
+N: Andre Beaudin
+E: <andre.beaudin@colubris.com>
+D: PCMCIA, Ethernet, TFTP
+
+N: Jerry van Baren
+E: <vanbaren@cideas.com>
+D: BedBug port to 603e core (MPC82xx). Code for enhanced memory test.
+
+N: Raphael Bossek
+E: raphael.bossek@solutions4linux.de
+D: 8xxrom-0.3.0
+
+N: David Brown
+E: DBrown03@harris.com
+D: Extensions to 8xxrom-0.3.0
+
+N: Oliver Brown
+E: obrown@adventnetworks.com
+D: Port to the gw8260 board
+
+N: Jonathan De Bruyne
+E: jonathan.debruyne@siemens.atea.be
+D: Port to Siemens IAD210 board
+
+N: Conn Clark
+E: clark@esteem.com
+D: ESTEEM192E support
+
+N: Magnus Damm
+E: eramdam@kieray1.p.y.ki.era.ericsson.se
+D: 8xxrom
+
+N: Kári Davíðsson
+E: kd@flaga.is
+D: FLAGA DM Support
+
+N: Wolfgang Denk
+E: wd@denx.de
+D: U-Boot initial version, continuing maintenance, ARMBoot merge
+W: http://www.denx.de
+
+N: Dan A. Dickey
+E: ddickey@charter.net
+D: FADS Support
+
+N: James F. Dougherty
+E: jfd@GigabitNetworks.COM
+D: Port to the MOUSSE board
+
+N: Dave Ellis
+E: DGE@sixnetio.com
+D: EEPROM Speedup, SXNI855T port
+
+N: Dr. Wolfgang Grandegger
+E: wg@denx.de
+D: Support for Interphase 4539 T1/E1/J1 PMC, PN62, CCM, SCM boards
+W: www.denx.de
+
+N: Frank Gottschling
+E: fgottschling@eltec.de
+D: Support for ELTEC MHPC/BAB7xx/ELPPC boards, cfb-console, i8042, SMI LynxEM
+W: www.eltec.de
+
+N: Marius Groeger
+E: mgroeger@sysgo.de
+D: MBX Support, board specific function interface, EST SBC8260 support; initial support for StrongARM (LART), ARM720TDMI (implementa A7)
+W: www.elinos.com
+
+N: Kirk Haderlie
+E: khaderlie@vividimage.com
+D: Added TFTP to 8xxrom (-> 0.3.1)
+
+N: Chris Hallinan
+E: clh@net1plus.com
+D: DHCP Support
+
+N: Anne-Sophie Harnois
+E: Anne-Sophie.Harnois@nextream.fr
+D: Port to Walnut405 board
+
+N: Andreas Heppel
+E: aheppel@sysgo.de
+D: CPU Support for MPC 75x; board support for Eltec BAB750 [obsolete!]
+
+N: Josh Huber
+E: huber@alum.wpi.edu
+D: Port to the Galileo Evaluation Board, and the MPC74xx cpu series.
+W: http://www.mclx.com/
+
+H: Stuart Hughes
+E: stuarth@lineo.com
+D: Port to MPC8260ADS board
+
+H: Rich Ireland
+E: r.ireland@computer.org
+D: FPGA device configuration driver
+
+N: Gary Jennejohn
+E: garyj@jennejohn.org, gj@denx.de
+D: Support for Samsung ARM920T S3C2400X, ARM920T "TRAB"
+W: www.denx.de
+
+N: Murray Jensen
+E: Murray.Jensen@cmst.csiro.au
+D: Initial 8260 support; GDB support
+D: Port to Cogent+Hymod boards; Hymod Board Database
+W: http://www.msa.cmst.csiro.au/ourstaff/MurrayJensen/mjj.html
+
+N: Yoo. Jonghoon
+E: yooth@ipone.co.kr
+D: Added port to the RPXlite board
+
+N: Brad Kemp
+E: Brad.Kemp@seranoa.com
+D: Port to Windriver ppmc8260 board
+
+N: Thomas Koeller
+E: tkoeller@gmx.net
+D: Port to Motorola Sandpoint 3 (MPC8240)
+
+N: Thomas Lange
+E: thomas@corelatus.com
+D: Support for GTH board; lots of PCMCIA fixes
+
+N: Raymond Lo
+E: lo@routefree.com
+D: Support for DOS partitions
+
+N: Dan Malek
+E: dan@netx4.com
+D: FADSROM, the grandfather of all of this
+
+N: Jay Monkman
+E: jtm@smoothsmoothie.com
+D: EST SBC8260 support
+
+N: Frank Morauf
+E: frank.morauf@salzbrenner.com
+D: Support for Embedded Planet RPX Super Board
+
+N: David Müller
+E: d.mueller@elsoft.ch
+D: Support for Samsung ARM920T SMDK2410 eval board
+
+N: Rolf Offermanns
+E: rof@sysgo.de
+D: Initial support for SSV-DNP1110, SMC91111 driver
+W: www.elinos.com
+
+N: Keith Outwater
+E: Keith_Outwater@mvis.com
+D: Support for GEN860T board
+
+N: Keith Outwater
+E: keith_outwater@mvis.com
+D: Support for generic/custom MPC860T board (GEN860T)
+
+N: Frank Panno
+E: fpanno@delphintech.com
+D: Support for Embedded Planet EP8260 Board
+
+N: Denis Peter
+E: d.peter@mpl.ch
+D: Support for 4xx SCSI, floppy, CDROM, CT69000 video, ...
+D: Support for PIP405 board
+D: Support for MIP405 board
+
+N: Bill Pitts
+E: wlp@mindspring.com
+D: BedBug embedded debugger code
+
+N: Stefan Roese
+E: stefan.roese@esd-electronics.com
+D: IBM PPC401/403/405GP Support; Windows environment support
+
+N: Neil Russell
+E: caret@c-side.com
+D: Author of LiMon-1.4.2, which contributed some ideas
+
+N: Paolo Scaffardi
+E: arsenio@tin.it
+D: FADS823 configuration, MPC823 video support, I2C, wireless keyboard, lots more
+
+N: Robert Schwebel
+E: r.schwebel@pengutronix.de
+D: Support for csb226 board (xscale)
+N: Rob Taylor
+E: robt@flyingpig.com
+D: Port to MBX860T and Sandpoint8240
+
+N: Erik Theisen
+E: etheisen@mindspring.com
+D: MBX8xx and many other patches
+
+N: Jim Thompson
+E: jim@musenki.com
+D: Support for MUSENKI board
+
+N: David Updegraff
+E: dave@cray.com
+D: Port to Cray L1 board; DHCP vendor extensions
+
+N: Christian Vejlbo
+E: christian.vejlbo@tellabs.com
+D: FADS860T ethernet support
+
+N: Alex Zuepke
+E: azu@sysgo.de
+D: Overall improvements on StrongARM, ARM720TDMI; Support for Tuxscreen; initial PCMCIA support for ARM
+W: www.elinos.com
