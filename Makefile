@@ -470,6 +470,11 @@ v37_config:	unconfig
 	@echo "#define CONFIG_SHARP_LQ084V1DG21" >>include/config.h
 	@./mkconfig $(@:_config=) ppc mpc8xx v37
 
+wtk_config:	unconfig
+	@echo "#define CONFIG_LCD" >include/config.h
+	@echo "#define CONFIG_SHARP_LQ065T9DR51U" >>include/config.h
+	@./mkconfig -a TQM823L ppc mpc8xx tqm8xx
+
 #########################################################################
 ## PPC4xx Systems
 #########################################################################

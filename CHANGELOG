@@ -2,6 +2,8 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Add configuration for wtk board
+
 * Add support for the Sharp LQ065T9DR51U LCD display
 
 * Patch by Rune Torgersen, 17 Sep 2003:
