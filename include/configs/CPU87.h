@@ -113,8 +113,6 @@
 
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 
-#undef	CONFIG_CLOCKS_IN_MHZ		
-
 #define CONFIG_PREBOOT								\
 	"echo; "								\
 	"echo Type \"run flash_nfs\" to mount root filesystem over NFS; "	\

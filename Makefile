@@ -972,7 +972,6 @@ CPU87_ROMBOOT_config: unconfig
 	fi; \
 	echo "export CONFIG_BOOT_ROM" >> config.mk;
 
-	
 ep8260_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8260 ep8260
 
@@ -1066,6 +1065,12 @@ PM828_ROMBOOT_PCI_config:	unconfig
 
 ppmc8260_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8260 ppmc8260
+
+Rattler8248_config	\
+Rattler_config:		unconfig
+	$(if $(findstring 8248,$@), \
+	@echo "#define CONFIG_MPC8248" > include/config.h)
+	@./mkconfig -a Rattler ppc mpc8260 rattler
 
 RPXsuper_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8260 rpxsuper

@@ -98,11 +98,12 @@ LIST_824x="	\
 
 LIST_8260="	\
 	atc		cogent_mpc8260	CPU86		CPU87		\
-	ep8260		gw8260		hymod		IPHASE4539	
+	ep8260		gw8260		hymod		IPHASE4539	\
 	ISPAN		MPC8260ADS	MPC8266ADS	MPC8272ADS	\
-	PM826		PM828		ppmc8260	RPXsuper	\
-	rsdproto	sacsng		sbc8260		SCM		\
-	TQM8260_AC	TQM8260_AD	TQM8260_AE	ZPC1900		\
+	PM826		PM828		ppmc8260	Rattler8248	\
+	RPXsuper	rsdproto	sacsng		sbc8260		\
+	SCM		TQM8260_AC	TQM8260_AD	TQM8260_AE	\
+	ZPC1900								\
 "
 
 #########################################################################

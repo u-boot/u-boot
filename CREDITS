@@ -40,6 +40,7 @@ D: Unified support for Motorola MPC826xADS/MPC8272ADS/PQ2FADS boards.
 D: Support for Zephyr Engineering ZPC.1900 board.
 D: Support for Interphase iSPAN boards.
 D: Support for Analogue&Micro Adder boards.
+D: Support for Analogue&Micro Rattler boards.
 W: http://www.arabellasw.com
 
 N: Jerry van Baren

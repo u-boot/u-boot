@@ -134,7 +134,7 @@ void flash_print_info  (flash_info_t *info)
 				break;
 	case FLASH_28F128J3A:   printf ("28F128J3A (128 Mbit, 128 x 128K)\n");
 				break;
-	
+
 	default:		printf ("Unknown Chip Type\n");
 				break;
 	}
@@ -224,14 +224,14 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 		info->size = 0x01000000;
 		sector_offset = 0x40000;
 		break;                          /* => 2x8 MB             */
-	
+
 	case (INTEL_ID_28F128J3A):
 		info->flash_id += FLASH_28F128J3A;
 		info->sector_count = 128;
 		info->size = 0x02000000;
 		sector_offset = 0x40000;
 		break;                          /* => 2x16 MB             */
-	
+
 
 	case SHARP_ID_28F016SCL:
 	case SHARP_ID_28F016SCZ:
@@ -325,7 +325,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 			asm("sync");
 
 			last = start = get_timer (0);
-			
+
 			/* Disable interrupts which might cause a timeout here */
 			flag = disable_interrupts();
 
@@ -367,7 +367,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 					last = now;
 				}
 			}
-			
+
 			/* reset to read mode */
 			*addr = 0xFFFFFFFF;
 			asm("sync");

@@ -40,13 +40,13 @@
 #include <post.h>
 #endif
 #include <lcd.h>
+#include <watchdog.h>
 
 #if defined(CONFIG_PXA250)
 #include <asm/byteorder.h>
 #endif
 
 #if defined(CONFIG_MPC823)
-#include <watchdog.h>
 #include <lcdvideo.h>
 #endif
 

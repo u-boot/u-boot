@@ -34,6 +34,7 @@ Yuli Barcohen <yuli@arabellasw.com>
 	Adder			MPC87x/MPC852T
 	ISPAN			MPC8260
 	MPC8260ADS		MPC826x/MPC827x/MPC8280
+	Rattler			MPC8248
 	ZPC1900			MPC8265
 
 Jerry Van Baren <gerald.vanbaren@smiths-aerospace.com>

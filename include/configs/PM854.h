@@ -144,19 +144,14 @@
 #undef	CFG_RAMBOOT
 #endif
 
-
-#undef CONFIG_CLOCKS_IN_MHZ
-
-
 /*
  * Local Bus Definitions
  */
- 
 #define CFG_LBC_LCRR		0x00030004    /* LB clock ratio reg */
 #define CFG_LBC_LBCR		0x00000000    /* LB config reg */
 #define CFG_LBC_LSRT		0x20000000    /* LB sdram refresh timer */
 #define CFG_LBC_MRTPR		0x20000000    /* LB refresh timer prescal*/
- 
+
 
 #define CONFIG_L1_INIT_RAM
 #define CFG_INIT_RAM_LOCK	1

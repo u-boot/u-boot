@@ -106,6 +106,21 @@ cpu_init_f (void)
 	CONFIG_READ_BYTE(AMBOR,val);
 	CONFIG_WRITE_BYTE(AMBOR,val|0x1);
 
+#if 0
+	/*
+	 * The following bug only affects older (XPC8245) processors.
+	 * DMA transfers initiated by external devices get corrupted due
+	 * to a hardware scheduling problem.
+	 *
+	 * The effect is:
+	 * when transferring X words, the first 32 words are transferred
+	 * OK, the next 3 x 32 words are 'old' data (from previous DMA)
+	 * while the rest of the X words is xferred fine.
+	 *
+	 * Disabling 3 of the 4 32 word hardware buffers solves the problem
+	 * with no significant performance loss.
+	 */
+
 	CONFIG_READ_BYTE(PCMBCR,val);
 	/* in order not to corrupt data which is being read over the PCI bus
 	* with the PPC as slave, we need to reduce the number of PCMRBs to 1,
@@ -117,10 +132,8 @@ cpu_init_f (void)
 #else
 	CONFIG_WRITE_BYTE(PCMBCR,(val|0x80)); /* 2 PCMRBs */
 	CONFIG_WRITE_BYTE(PCMBCR,(val|0x40)); /* 3 PCMRBs */
-	/* default, 4 PCMRBs are used, so don't change the
-	 * register is this is _really_ what you want: data
-	 * corruption with no performance gain
-	 */
+	/* default, 4 PCMRBs are used */
+#endif
 #endif
 #endif
 

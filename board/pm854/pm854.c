@@ -87,9 +87,9 @@ initdram(int board_type)
 	{
 	    volatile ccsr_gur_t *gur= &immap->im_gur;
 	    int i,x;
-	    
+
 	    x = 10;
-	    
+
 	    /*
 	     * Work around to stabilize DDR DLL
 	     */
@@ -106,7 +106,7 @@ initdram(int board_type)
 		asm("sync;isync;msync");
 		x++;
 	    }
-	}	
+	}
 #endif
 
 #if defined(CONFIG_SPD_EEPROM)
