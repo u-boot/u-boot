@@ -2,6 +2,16 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Detlev Zundel, 08 Sep 2004:
+  Update etags build target
+
+* Improve NetConsole support: add support for broadcast destination
+  address and buffered input.
+
+* Cleanup compiler warnings for GCC 3.3.x and later
+
+* Fix problem in cmd_jffs2.c introduced by CFG_JFFS_SINGLE_PART patch
+
 * Add support for IDS "NC650" board
 
 * Add automatic update support for LWMON board

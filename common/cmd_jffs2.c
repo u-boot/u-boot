@@ -257,6 +257,12 @@ do_jffs2_chpart(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 
 }
+
+U_BOOT_CMD(
+	chpart,	2,	0,	do_jffs2_chpart,
+	"chpart\t- change active partition\n",
+	"    - change active partition\n"
+);
 #endif	/* CFG_JFFS_SINGLE_PART */
 
 /***************************************************/
@@ -280,12 +286,6 @@ U_BOOT_CMD(
 	"ls\t- list files in a directory (default /)\n",
 	"[ directory ]\n"
 	"    - list files in a directory.\n"
-);
-
-U_BOOT_CMD(
-	chpart,	2,	0,	do_jffs2_chpart,
-	"chpart\t- change active partition\n",
-	"    - change active partition\n"
 );
 
 #endif /* CFG_CMD_JFFS2 */

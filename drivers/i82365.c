@@ -429,7 +429,8 @@ static int i365_set_io_map (socket_info_t * s, struct pccard_io_map *io)
 	u_char map, ioctl;
 
 	map = io->map;
-	if ((map > 1) || (io->start > 0xffff) || (io->stop > 0xffff) ||
+	/* comment out: comparison is always false due to limited range of data type */
+	if ((map > 1) || /* (io->start > 0xffff) || (io->stop > 0xffff) || */
 		(io->stop < io->start))
 		return -1;
 	/* Turn off the window before changing anything */

@@ -46,7 +46,7 @@
 #define FIRM_START 0xFFF00000
 #endif
 
-extern int gunzip(void *, int, uchar *, int *);
+extern int gunzip(void *, int, uchar *, unsigned long *);
 extern int mem_test(ulong start, ulong ramsize, int quiet);
 
 #define I2C_BACKUP_ADDR 0x7C00		/* 0x200 bytes for backup */
@@ -224,7 +224,7 @@ mpl_prg_image(uchar *ld_addr)
 		switch (hdr->ih_comp) {
 		case IH_COMP_GZIP:
 			puts("Uncompressing (GZIP) ... ");
-			rc = gunzip ((void *)(buf), IMAGE_SIZE, data, (int *)&len);
+			rc = gunzip ((void *)(buf), IMAGE_SIZE, data, &len);
 			if (rc != 0) {
 				puts("GUNZIP ERROR\n");
 				free(buf);

@@ -47,7 +47,7 @@ const unsigned char fpgadata[] =
 
 
 /* Prototypes */
-int gunzip(void *, int, unsigned char *, int *);
+int gunzip(void *, int, unsigned char *, unsigned long *);
 
 
 int board_early_init_f (void)
@@ -101,7 +101,7 @@ int misc_init_r (void)
 
 #if 1 /* test-only */
 	dst = malloc(CFG_FPGA_MAX_SIZE);
-	if (gunzip (dst, CFG_FPGA_MAX_SIZE, (uchar *)fpgadata, (int *)&len) != 0) {
+	if (gunzip (dst, CFG_FPGA_MAX_SIZE, (uchar *)fpgadata, &len) != 0) {
 		printf ("GUNZIP ERROR - must RESET board to recover\n");
 		do_reset (NULL, 0, 0, NULL);
 	}

@@ -76,12 +76,17 @@
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
 
-#define CONFIG_COMMANDS	       ( (CONFIG_CMD_DFL & (~CFG_CMD_NET)	 &  \
-				(~CFG_CMD_RTC) & ~(CFG_CMD_PCI)  & ~(CFG_CMD_I2C)) | \
+#define CONFIG_COMMANDS	       ((CONFIG_CMD_DFL & \
+				     ~( CFG_CMD_NET | \
+					CFG_CMD_RTC | \
+					CFG_CMD_PCI | \
+					CFG_CMD_I2C   \
+				      ) ) | \
 				CFG_CMD_IRQ	| \
 				CFG_CMD_KGDB	| \
 				CFG_CMD_BEDBUG	| \
-				CFG_CMD_ELF	 | CFG_CMD_JFFS2 )
+				CFG_CMD_ELF	| \
+				CFG_CMD_JFFS2	  )
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>

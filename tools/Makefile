@@ -131,6 +131,10 @@ mkimage$(SFX):	mkimage.o crc32.o
 		$(CC) $(CFLAGS) $(HOST_LDFLAGS) -o $@ $^
 		$(STRIP) $@
 
+ncb$(SFX):	ncb.o
+		$(CC) $(CFLAGS) $(HOST_LDFLAGS) -o $@ $^
+		$(STRIP) $@
+
 gen_eth_addr$(SFX):	gen_eth_addr.o
 		$(CC) $(CFLAGS) $(HOST_LDFLAGS) -o $@ $^
 		$(STRIP) $@
@@ -154,6 +158,9 @@ crc32.o:	crc32.c
 		$(CC) -g $(CFLAGS) -c $<
 
 mkimage.o:	mkimage.c
+		$(CC) -g $(CFLAGS) -c $<
+
+ncb.o:		ncb.c
 		$(CC) -g $(CFLAGS) -c $<
 
 gen_eth_addr.o:	gen_eth_addr.c

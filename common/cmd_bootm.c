@@ -73,7 +73,7 @@
 # define CHUNKSZ (64 * 1024)
 #endif
 
-int  gunzip (void *, int, unsigned char *, int *);
+int  gunzip (void *, int, unsigned char *, unsigned long *);
 
 static void *zalloc(void *, unsigned, unsigned);
 static void zfree(void *, void *, unsigned);
@@ -326,7 +326,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	case IH_COMP_GZIP:
 		printf ("   Uncompressing %s ... ", name);
 		if (gunzip ((void *)ntohl(hdr->ih_load), unc_len,
-			    (uchar *)data, (int *)&len) != 0) {
+			    (uchar *)data, &len) != 0) {
 			puts ("GUNZIP ERROR - must RESET board to recover\n");
 			SHOW_BOOT_PROGRESS (-6);
 			do_reset (cmdtp, flag, argc, argv);
@@ -1239,7 +1239,7 @@ static void zfree(void *x, void *addr, unsigned nb)
 
 #define DEFLATED	8
 
-int gunzip(void *dst, int dstlen, unsigned char *src, int *lenp)
+int gunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp)
 {
 	z_stream s;
 	int r, i, flags;

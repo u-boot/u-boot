@@ -33,10 +33,17 @@
 #error define CONFIG_NET_MULTI to use netconsole
 #endif
 
-static uchar nc_buf = 0;	/* input buffer */
+static char input_buffer[512];
+static int input_size = 0;		/* char count in input buffer */
+static int input_offset = 0;		/* offset to valid chars in input buffer */
 static int input_recursion = 0;
 static int output_recursion = 0;
 static int net_timeout;
+static uchar nc_ether[6];		/* server enet address */
+static IPaddr_t nc_ip;			/* server ip */
+static short nc_port;			/* source/target port */
+static const char *output_packet;	/* used by first send udp */
+static int output_packet_len = 0;
 
 static void nc_wait_arp_handler (uchar * pkt, unsigned dest, unsigned src,
 				 unsigned len)
@@ -47,7 +54,7 @@ static void nc_wait_arp_handler (uchar * pkt, unsigned dest, unsigned src,
 static void nc_handler (uchar * pkt, unsigned dest, unsigned src,
 			unsigned len)
 {
-	if (nc_buf)
+	if (input_size)
 		NetState = NETLOOP_SUCCESS;	/* got input - quit net loop */
 }
 
@@ -58,23 +65,45 @@ static void nc_timeout (void)
 
 void NcStart (void)
 {
-	if (memcmp (NetServerEther, NetEtherNullAddr, 6)) {
+	if (!output_packet_len || memcmp (nc_ether, NetEtherNullAddr, 6)) {
 		/* going to check for input packet */
 		NetSetHandler (nc_handler);
 		NetSetTimeout (net_timeout, nc_timeout);
 	} else {
 		/* send arp request */
+		uchar *pkt;
 		NetSetHandler (nc_wait_arp_handler);
-		NetSendUDPPacket (NetServerEther, NetServerIP, 6665, 6666, 0);
+		pkt = (uchar *) NetTxPacket + NetEthHdrSize () + IP_HDR_SIZE;
+		memcpy (pkt, output_packet, output_packet_len);
+		NetSendUDPPacket (nc_ether, nc_ip, nc_port, nc_port, output_packet_len);
 	}
 }
 
 int nc_input_packet (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 {
-	if (dest != 6666 || !len)
+	int end, chunk;
+
+	if (dest != nc_port || !len)
 		return 0;		/* not for us */
 
-	nc_buf = *pkt;
+	if (input_size == sizeof input_buffer)
+		return 1;		/* no space */
+	if (len > sizeof input_buffer - input_size)
+		len = sizeof input_buffer - input_size;
+
+	end = input_offset + input_size;
+	if (end > sizeof input_buffer)
+		end -= sizeof input_buffer;
+
+	chunk = len;
+	if (end + len > sizeof input_buffer) {
+		chunk = sizeof input_buffer - end;
+		memcpy(input_buffer, pkt + chunk, len - chunk);
+	}
+	memcpy (input_buffer + end, pkt, chunk);
+
+	input_size += len;
+
 	return 1;
 }
 
@@ -85,11 +114,20 @@ static void nc_send_packet (const char *buf, int len)
 	struct eth_device *eth;
 	int inited = 0;
 	uchar *pkt;
-
-	if (!memcmp (NetServerEther, NetEtherNullAddr, 6))
-		return;
+	uchar *ether;
+	IPaddr_t ip;
 
 	if ((eth = eth_get_dev ()) == NULL) {
+		return;
+	}
+
+	if (!memcmp (nc_ether, NetEtherNullAddr, 6)) {
+		if (eth->state == ETH_STATE_ACTIVE)
+			return;	/* inside net loop */
+		output_packet = buf;
+		output_packet_len = len;
+		NetLoop (NETCONS);	/* wait for arp reply and send packet */
+		output_packet_len = 0;
 		return;
 	}
 
@@ -100,7 +138,9 @@ static void nc_send_packet (const char *buf, int len)
 	}
 	pkt = (uchar *) NetTxPacket + NetEthHdrSize () + IP_HDR_SIZE;
 	memcpy (pkt, buf, len);
-	NetSendUDPPacket (NetServerEther, NetServerIP, 6666, 6665, len);
+	ether = nc_ether;
+	ip = nc_ip;
+	NetSendUDPPacket (ether, ip, nc_port, nc_port, len);
 
 	if (inited)
 		eth_halt ();
@@ -108,10 +148,31 @@ static void nc_send_packet (const char *buf, int len)
 
 int nc_start (void)
 {
-	if (memcmp (NetServerEther, NetEtherNullAddr, 6))
-		return 0;
+	int netmask, our_ip;
 
-	return NetLoop (NETCONS);	/* wait for arp reply */
+	nc_port = 6666;		/* default port */
+
+	if (getenv ("ncip")) {
+		nc_ip = getenv_IPaddr ("ncip");
+		if (!nc_ip)
+			return -1;	/* ncip is 0.0.0.0 */
+		char *p = strchr (getenv ("ncip"), ':');
+		if (p)
+			nc_port = simple_strtoul (p + 1, NULL, 10);
+	} else
+		nc_ip = ~0;		/* ncip is not set */
+
+	our_ip = getenv_IPaddr ("ipaddr");
+	netmask = getenv_IPaddr ("netmask");
+
+	if (nc_ip == ~0 ||				/* 255.255.255.255 */
+	    ((netmask & our_ip) == (netmask & nc_ip) &&	/* on the same net */
+	    (netmask | nc_ip) == ~0))			/* broadcast to our net */
+		memset (nc_ether, 0xff, sizeof nc_ether);
+	else
+		memset (nc_ether, 0, sizeof nc_ether);	/* force arp request */
+
+	return 0;
 }
 
 void nc_putc (char c)
@@ -146,15 +207,18 @@ int nc_getc (void)
 	input_recursion = 1;
 
 	net_timeout = 0;	/* no timeout */
-	while (!nc_buf)
+	while (!input_size)
 		NetLoop (NETCONS);
 
 	input_recursion = 0;
 
-	uchar tmp = nc_buf;
+	uchar c = input_buffer[input_offset];
+	input_offset++;
+	if (input_offset >= sizeof input_buffer)
+		input_offset -= sizeof input_buffer;
+	input_size--;
 
-	nc_buf = 0;
-	return tmp;
+	return c;
 }
 
 int nc_tstc (void)
@@ -164,7 +228,7 @@ int nc_tstc (void)
 	if (input_recursion)
 		return 0;
 
-	if (nc_buf)
+	if (input_size)
 		return 1;
 
 	eth = eth_get_dev ();
@@ -174,11 +238,11 @@ int nc_tstc (void)
 	input_recursion = 1;
 
 	net_timeout = 1;
-	NetLoop (NETCONS);		/* kind of poll */
+	NetLoop (NETCONS);	/* kind of poll */
 
 	input_recursion = 0;
 
-	return nc_buf != 0;
+	return input_size != 0;
 }
 
 int drv_nc_init (void)

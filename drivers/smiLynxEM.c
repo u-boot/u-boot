@@ -550,7 +550,7 @@ static void smiLoadCcr (struct ctfb_res_modes *var, unsigned short device_id)
 	smiWrite (SMI_INDX_C4, 0x6b, 0x15);
 
 	/* VCLK */
-	freq = 1000000000000L / var -> pixclock;
+	freq = 1000000000000LL / var -> pixclock;
 
 	FindPQ ((unsigned int)freq, &p, &q);
 

@@ -176,6 +176,9 @@ tags:
 
 etags:
 		etags -a `find $(SUBDIRS) include \
+				lib_generic board/$(BOARDDIR) cpu/$(CPU) lib_$(ARCH) \
+				fs/cramfs fs/fat fs/fdos fs/jffs2 \
+				net disk rtc dtt drivers drivers/sk98lin common \
 			\( -name CVS -prune \) -o \( -name '*.[ch]' -print \)`
 
 System.map:	u-boot
@@ -1470,7 +1473,7 @@ clean:
 	      examples/eepro100_eeprom examples/sched \
 	      examples/mem_to_mem_idma2intr examples/82559_eeprom
 	rm -f tools/img2srec tools/mkimage tools/envcrc tools/gen_eth_addr
-	rm -f tools/mpc86x_clk
+	rm -f tools/mpc86x_clk tools/ncb
 	rm -f tools/easylogo/easylogo tools/bmp_logo
 	rm -f tools/gdb/astest tools/gdb/gdbcont tools/gdb/gdbsend
 	rm -f tools/env/fw_printenv tools/env/fw_setenv

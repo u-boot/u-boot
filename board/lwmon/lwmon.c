@@ -643,7 +643,7 @@ static uchar kbd_command_prefix[] = "key_cmd";
 static int compare_magic (uchar *kbd_data, uchar *str)
 {
 	uchar compare[KEYBD_DATALEN-1];
-	uchar *nxt;
+	char *nxt;
 	int i;
 
 	/* Don't include modifier byte */
@@ -655,7 +655,7 @@ static int compare_magic (uchar *kbd_data, uchar *str)
 
 		c = (uchar) simple_strtoul (str, (char **) (&nxt), 16);
 
-		if (str == nxt) {	/* invalid character */
+		if (str == (uchar *)nxt) {	/* invalid character */
 			break;
 		}
 
