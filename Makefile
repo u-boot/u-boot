@@ -706,19 +706,19 @@ ep7312_config	:	unconfig
 #########################################################################
 
 cradle_config	:	unconfig
-	@./mkconfig $(@:_config=) arm xscale cradle
+	@./mkconfig $(@:_config=) arm pxa cradle 
 
 csb226_config	:	unconfig
-	@./mkconfig $(@:_config=) arm xscale csb226
+	@./mkconfig $(@:_config=) arm pxa csb226
 
 innokom_config	:	unconfig
-	@./mkconfig $(@:_config=) arm xscale innokom
+	@./mkconfig $(@:_config=) arm pxa innokom
 
 lubbock_config	:	unconfig
-	@./mkconfig $(@:_config=) arm xscale lubbock
+	@./mkconfig $(@:_config=) arm pxa lubbock
 
 wepep250_config	:	unconfig
-	@./mkconfig $(@:_config=) arm xscale wepep250
+	@./mkconfig $(@:_config=) arm pxa wepep250
 
 #========================================================================
 # i386

@@ -114,10 +114,10 @@ LIST_ARM9="at91rm9200dk smdk2400 smdk2410 trab VCMA9"
 ## Xscale Systems
 #########################################################################
 
-LIST_xscale="cradle csb226 innokom lubbock wepep250"
+LIST_pxa="cradle csb226 innokom lubbock wepep250"
 
 
-LIST_arm="${LIST_SA} ${LIST_ARM7} ${LIST_ARM9} ${LIST_xscale}"
+LIST_arm="${LIST_SA} ${LIST_ARM7} ${LIST_ARM9} ${LIST_pxa}"
 
 #########################################################################
 ## MIPS 4Kc Systems
@@ -150,7 +150,7 @@ build_target() {
 for arg in $@
 do
 	case "$arg" in
-	5xx|8xx|824x|8260|4xx|7xx|74xx|SA|ARM7|ARM9|ppc|arm|xscale|mips)
+	5xx|8xx|824x|8260|4xx|7xx|74xx|SA|ARM7|ARM9|ppc|arm|pxa|mips)
 			for target in `eval echo '$LIST_'${arg}`
 			do
 				build_target ${target}

@@ -2,6 +2,10 @@
 Changes since U-Boot 0.3.1:
 ======================================================================
 
+* Patch by Kyle Harris, 20 May 2003:
+  In preparation for an ixp port, rename cpu/xscale and arch-xscale
+  into cpu/pxa and arch-pxa.
+
 * Patch by Stefan Roese, 23 May 2003:
   - IBM PPC405EP port added.
   - CONFIG_UART1_CONSOLE added. If defined internal UART1 (and not

@@ -31,7 +31,7 @@ SECTIONS
         . = ALIGN(4);
 	.text      :
 	{
-	  cpu/xscale/start.o	(.text)
+	  cpu/pxa/start.o	(.text)
 	  *(.text)
 	}
 
