@@ -148,7 +148,7 @@ int	readline	(const char *const prompt);
 void	init_cmd_timeout(void);
 void	reset_cmd_timeout(void);
 
-/* common/board.c */
+/* lib_$(ARCH)/board.c */
 void	board_init_f  (ulong);
 void	board_init_r  (gd_t *, ulong);
 int	checkboard    (void);
@@ -420,24 +420,24 @@ ulong	video_setmem (ulong);
 void	flush_cache   (unsigned long, unsigned long);
 
 
-/* ppc/ticks.S */
+/* lib_$(ARCH)/ticks.S */
 unsigned long long get_ticks(void);
 void	wait_ticks    (unsigned long);
 
-/* ppc/time.c */
+/* lib_$(ARCH)/time.c */
 void	udelay	      (unsigned long);
 ulong	usec2ticks    (unsigned long usec);
 ulong	ticks2usec    (unsigned long ticks);
 int	init_timebase (void);
 
-/* ppc/vsprintf.c */
+/* lib_generic/vsprintf.c */
 ulong	simple_strtoul(const char *cp,char **endp,unsigned int base);
 long	simple_strtol(const char *cp,char **endp,unsigned int base);
 void	panic(const char *fmt, ...);
 int	sprintf(char * buf, const char *fmt, ...);
 int 	vsprintf(char *buf, const char *fmt, va_list args);
 
-/* ppc/crc32.c */
+/* lib_generic/crc32.c */
 ulong crc32 (ulong, const unsigned char *, uint);
 ulong crc32_no_comp (ulong, const unsigned char *, uint);
 

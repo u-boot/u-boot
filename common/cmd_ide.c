@@ -42,8 +42,12 @@
 #ifdef CONFIG_STATUS_LED
 # include <status_led.h>
 #endif
-#ifdef __I386__
+#ifndef __PPC__
 #include <asm/io.h>
+#ifdef __MIPS__
+/* Macros depend on this variable */
+static unsigned long mips_io_port_base = 0;
+#endif
 #endif
 
 #ifdef CONFIG_SHOW_BOOT_PROGRESS
@@ -65,6 +69,7 @@
 
 #if (CONFIG_COMMANDS & CFG_CMD_IDE)
 
+#ifdef CONFIG_IDE_8xx_DIRECT
 /* Timings for IDE Interface
  *
  * SETUP / LENGTH / HOLD - cycles valid for 50 MHz clk
@@ -101,6 +106,8 @@ static int pio_mode = CFG_PIO_MODE;
 
 #define PCMCIA_MK_CLKS( t, T ) (( (t) * (T) + 999U ) / 1000U )
 
+#endif /* CONFIG_IDE_8xx_DIRECT */
+
 /* ------------------------------------------------------------------------- */
 
 /* Current I/O Device	*/
@@ -116,9 +123,8 @@ ulong ide_bus_offset[CFG_IDE_MAXBUS] = {
 #endif
 };
 
-#ifdef __PPC__
+
 #define	ATA_CURR_BASE(dev)	(CFG_ATA_BASE_ADDR+ide_bus_offset[IDE_BUS(dev)])
-#endif
 
 #ifndef CONFIG_AMIGAONEG3SE
 static int	    ide_bus_ok[CFG_IDE_MAXBUS];
@@ -180,8 +186,6 @@ ulong atapi_read (int device, ulong blknr, ulong blkcnt, ulong *buffer);
 
 #ifdef CONFIG_IDE_8xx_DIRECT
 static void set_pcmcia_timing (int pmode);
-#else
-#define set_pcmcia_timing(a)	/* dummy */
 #endif
 
 /* ------------------------------------------------------------------------- */
@@ -472,9 +476,9 @@ int do_diskboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 void ide_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_IDE_8xx_DIRECT
+	DECLARE_GLOBAL_DATA_PTR;
 	volatile immap_t *immr = (immap_t *)CFG_IMMR;
 	volatile pcmconf8xx_t *pcmp = &(immr->im_pcmcia);
 #endif
@@ -502,6 +506,7 @@ void ide_init (void)
 
 	WATCHDOG_RESET();
 
+#ifdef CONFIG_IDE_8xx_DIRECT
 	/* Initialize PIO timing tables */
 	for (i=0; i <= IDE_MAX_PIO_MODE; ++i) {
 	    pio_config_clk[i].t_setup  = PCMCIA_MK_CLKS(pio_config_ns[i].t_setup,
@@ -518,6 +523,7 @@ void ide_init (void)
 		    pio_config_ns[i].t_length, pio_config_clk[i].t_length,
 		    pio_config_ns[i].t_hold,   pio_config_clk[i].t_hold);
 	}
+#endif /* CONFIG_IDE_8xx_DIRECT */
 
 	/* Reset the IDE just to be sure.
 	 * Light LED's to show
@@ -528,11 +534,11 @@ void ide_init (void)
 #ifdef CONFIG_IDE_8xx_DIRECT
 	/* PCMCIA / IDE initialization for common mem space */
 	pcmp->pcmc_pgcrb = 0;
-#endif
 
 	/* start in PIO mode 0 - most relaxed timings */
 	pio_mode = 0;
 	set_pcmcia_timing (pio_mode);
+#endif /* CONFIG_IDE_8xx_DIRECT */
 
 	/*
 	 * Wait for IDE to get ready.
@@ -763,7 +769,7 @@ ide_outb(int dev, int port, unsigned char val)
 static void __inline__
 ide_outb(int dev, int port, unsigned char val)
 {
-	outb(val, port);
+	outb(val, ATA_CURR_BASE(dev)+port);
 }
 #endif	/* __PPC__ */
 
@@ -785,7 +791,7 @@ ide_inb(int dev, int port)
 static unsigned char __inline__
 ide_inb(int dev, int port)
 {
-	return inb(port);
+  return inb(ATA_CURR_BASE(dev)+port);
 }
 #endif	/* __PPC__ */
 
@@ -846,7 +852,7 @@ output_data(int dev, ulong *sect_buf, int words)
 static void
 output_data(int dev, ulong *sect_buf, int words)
 {
-	outsw(ATA_DATA_REG, sect_buf, words<<1);
+	outsw(ATA_CURR_BASE(dev)+ATA_DATA_REG, sect_buf, words<<1);
 }
 #endif	/* __PPC__ */
 
@@ -870,7 +876,7 @@ input_data(int dev, ulong *sect_buf, int words)
 static void
 input_data(int dev, ulong *sect_buf, int words)
 {
-	insw(ATA_DATA_REG, sect_buf, words << 1);
+	insw(ATA_CURR_BASE(dev)+ATA_DATA_REG, sect_buf, words << 1);
 }
 
 #endif	/* __PPC__ */
@@ -1420,14 +1426,14 @@ input_data_shorts(int dev, ushort *sect_buf, int shorts)
 static void
 output_data_shorts(int dev, ushort *sect_buf, int shorts)
 {
-	outsw(ATA_DATA_REG, sect_buf, shorts);
+	outsw(ATA_CURR_BASE(dev)+ATA_DATA_REG, sect_buf, shorts);
 }
 
 
 static void
 input_data_shorts(int dev, ushort *sect_buf, int shorts)
 {
-	insw(ATA_DATA_REG, sect_buf, shorts);
+	insw(ATA_CURR_BASE(dev)+ATA_DATA_REG, sect_buf, shorts);
 }
 
 #endif	/* __PPC__ */

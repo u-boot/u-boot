@@ -182,6 +182,10 @@ N: Brad Kemp
 E: Brad.Kemp@seranoa.com
 D: Port to Windriver ppmc8260 board
 
+N: Sangmoon Kim
+E: dogoil@etinsys.com
+D: Support for debris board
+
 N: Thomas Koeller
 E: tkoeller@gmx.net
 D: Port to Motorola Sandpoint 3 (MPC8240)

@@ -204,13 +204,13 @@
 #define CFG_ATA_BASE_ADDR	CFG_PCMCIA_ATTRB_ADDR
 
 /* Offset for data I/O			*/
-#define CFG_ATA_DATA_OFFSET	(CFG_ATA_BASE_ADDR)
+#define CFG_ATA_DATA_OFFSET	0
 
 /* Offset for normal register accesses	*/
-#define CFG_ATA_REG_OFFSET	(CFG_ATA_BASE_ADDR)
+#define CFG_ATA_REG_OFFSET	0
 
 /* Offset for alternate registers	*/
-#define CFG_ATA_ALT_OFFSET	(CFG_ATA_BASE_ADDR)
+#define CFG_ATA_ALT_OFFSET	0
 
 /*-----------------------------------------------------------------------
  */

@@ -781,24 +781,27 @@ ZPC1900_config: unconfig
 AmigaOneG3SE_config:	unconfig
 	@./mkconfig $(@:_config=) ppc 74xx_7xx AmigaOneG3SE MAI
 
+BAB7xx_config: unconfig
+	@./mkconfig $(@:_config=) ppc 74xx_7xx bab7xx eltec
+
+debris_config: unconfig
+	@./mkconfig $(@:_config=) ppc mpc824x debris etin
+
+ELPPC_config: unconfig
+	@./mkconfig $(@:_config=) ppc 74xx_7xx elppc eltec
+
 EVB64260_config	\
 EVB64260_750CX_config:	unconfig
 	@./mkconfig EVB64260 ppc 74xx_7xx evb64260
 
-ZUMA_config:	unconfig
+P3G4_config: unconfig
 	@./mkconfig $(@:_config=) ppc 74xx_7xx evb64260
 
 PCIPPC2_config \
 PCIPPC6_config: unconfig
 	@./mkconfig $(@:_config=) ppc 74xx_7xx pcippc2
 
-BAB7xx_config: unconfig
-	@./mkconfig $(@:_config=) ppc 74xx_7xx bab7xx eltec
-
-ELPPC_config: unconfig
-	@./mkconfig $(@:_config=) ppc 74xx_7xx elppc eltec
-
-P3G4_config: unconfig
+ZUMA_config:	unconfig
 	@./mkconfig $(@:_config=) ppc 74xx_7xx evb64260
 
 #========================================================================
