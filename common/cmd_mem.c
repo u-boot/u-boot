@@ -253,6 +253,66 @@ int do_mem_mw ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
+#ifdef CONFIG_MX_CYCLIC
+int do_mem_mdc ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	int i;
+	ulong count;
+
+	if (argc < 4) {
+		printf ("Usage:\n%s\n", cmdtp->usage);
+		return 1;
+	}
+
+	count = simple_strtoul(argv[3], NULL, 10);
+
+	for (;;) {
+		do_mem_md (NULL, 0, 3, argv);
+
+		/* delay for <count> ms... */
+		for (i=0; i<count; i++)
+			udelay (1000);
+
+		/* check for ctrl-c to abort... */
+		if (ctrlc()) {
+			puts("Abort\n");
+			return 0;
+		}
+	}
+
+	return 0;
+}
+
+int do_mem_mwc ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	int i;
+	ulong count;
+
+	if (argc < 4) {
+		printf ("Usage:\n%s\n", cmdtp->usage);
+		return 1;
+	}
+
+	count = simple_strtoul(argv[3], NULL, 10);
+
+	for (;;) {
+		do_mem_mw (NULL, 0, 3, argv);
+
+		/* delay for <count> ms... */
+		for (i=0; i<count; i++)
+			udelay (1000);
+
+		/* check for ctrl-c to abort... */
+		if (ctrlc()) {
+			puts("Abort\n");
+			return 0;
+		}
+	}
+
+	return 0;
+}
+#endif /* CONFIG_MX_CYCLIC */
+
 int do_mem_cmp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	ulong	addr1, addr2, count, ngood;
@@ -1213,6 +1273,20 @@ U_BOOT_CMD(
 	"[start [end [pattern]]]\n"
 	"    - simple RAM read/write test\n"
 );
+
+#ifdef CONFIG_MX_CYCLIC
+U_BOOT_CMD(
+	mdc,     4,     1,      do_mem_mdc,
+	"mdc     - memory display cyclic\n",
+	"[.b, .w, .l] address count delay(ms)\n    - memory display cyclic\n"
+);
+
+U_BOOT_CMD(
+	mwc,     4,     1,      do_mem_mwc,
+	"mwc     - memory write cyclic\n",
+	"[.b, .w, .l] address value delay(ms)\n    - memory write cyclic\n"
+);
+#endif /* CONFIG_MX_CYCLIC */
 
 #endif
 #endif	/* CFG_CMD_MEMORY */
