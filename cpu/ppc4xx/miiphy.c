@@ -101,7 +101,9 @@ int miiphy_read (unsigned char addr, unsigned char reg,
 	sta_reg = reg;				/* reg address */
 	/* set clock (50Mhz) and read flags */
 	sta_reg = (sta_reg | EMAC_STACR_READ) & ~EMAC_STACR_CLK_100MHZ;
+#ifdef CONFIG_PHY_CLK_FREQ
 	sta_reg = sta_reg | CONFIG_PHY_CLK_FREQ;
+#endif
 	sta_reg = sta_reg | (addr << 5);	/* Phy address */
 
 	out32 (EMAC_STACR, sta_reg);
@@ -157,7 +159,9 @@ int miiphy_write (unsigned char addr, unsigned char reg,
 	sta_reg = reg;				/* reg address */
 	/* set clock (50Mhz) and read flags */
 	sta_reg = (sta_reg | EMAC_STACR_WRITE) & ~EMAC_STACR_CLK_100MHZ;
+#ifdef CONFIG_PHY_CLK_FREQ
 	sta_reg = sta_reg | CONFIG_PHY_CLK_FREQ; /* Set clock frequency (PLB freq. dependend) */
+#endif
 	sta_reg = sta_reg | ((unsigned long) addr << 5);	/* Phy address */
 	memcpy (&sta_reg, &value, 2);	/* put in data */
 
