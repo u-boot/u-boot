@@ -32,6 +32,9 @@
 #include <lcdvideo.h>
 #include <linux/types.h>
 #include <devices.h>
+#if defined(CONFIG_POST)
+#include <post.h>
+#endif
 
 
 #ifdef CONFIG_LCD
@@ -982,7 +985,11 @@ static void lcd_enable (void)
 
 #if defined(CONFIG_LWMON)
     {	uchar c = pic_read (0x60);
+#if defined(CONFIG_LCD) && defined(CONFIG_LWMON) && (CONFIG_POST & CFG_POST_SYSMON)
+    	c |= 0x04;	/* Chip Enable LCD */
+#else
     	c |= 0x07;	/* Power on CCFL, Enable CCFL, Chip Enable LCD */
+#endif
 	pic_write (0x60, c);
     }
 #endif /* CONFIG_LWMON */

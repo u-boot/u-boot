@@ -24,11 +24,18 @@
 /*
  * mpc8260.h
  *
- * MPC8260 specific definitions
+ * MPC8255 / MPC8260 specific definitions
  */
 
 #ifndef __MPC8260_H__
 #define __MPC8260_H__
+
+#ifdef CONFIG_MPC8255
+#define CPU_ID_STR	"MPC8255"
+#endif
+#ifndef CPU_ID_STR
+#define CPU_ID_STR	"MPC8260"
+#endif
 
 /*-----------------------------------------------------------------------
  * Exception offsets (PowerPC standard)

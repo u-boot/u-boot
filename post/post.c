@@ -36,6 +36,30 @@
 
 #define BOOTMODE_MAGIC	0xDEAD0000
 
+int post_init_f (void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+
+	int res = 0;
+	unsigned int i;
+
+	for (i = 0; i < post_list_size; i++) {
+		struct post_test *test = post_list + i;
+
+		if (test->init_f && test->init_f()) {
+			res = -1;
+		}
+	}
+	
+	gd->post_init_f_time = post_time_ms(0);
+	if (!gd->post_init_f_time)
+	{
+		printf("post/post.c: post_time_ms seems not to be implemented\n");
+	}
+
+	return res;
+}
+
 void post_bootmode_init (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
@@ -365,7 +389,35 @@ void post_reloc (void)
 			addr = (ulong) (test->test) + gd->reloc_off;
 			test->test = (int (*)(int flags)) addr;
 		}
+
+		if (test->init_f) {
+			addr = (ulong) (test->init_f) + gd->reloc_off;
+			test->init_f = (int (*)(void)) addr;
+		}
+
+		if (test->reloc) {
+			addr = (ulong) (test->reloc) + gd->reloc_off;
+			test->reloc = (void (*)(void)) addr;
+			
+			test->reloc();
+		}
 	}
+}
+
+
+/*
+ * Some tests (e.g. SYSMON) need the time when post_init_f started,
+ * but we cannot use get_timer() at this point.
+ *
+ * On PowerPC we implement it using the timebase register.
+ */
+unsigned long post_time_ms (unsigned long base)
+{
+#ifdef CONFIG_PPC
+	return (unsigned long)get_ticks () / (get_tbclk () / CFG_HZ) - base;
+#else
+	return 0; /* Not implemented yet */
+#endif
 }
 
 #endif /* CONFIG_POST */

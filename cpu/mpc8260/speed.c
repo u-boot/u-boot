@@ -171,7 +171,7 @@ int prt_8260_clks (void)
 
 	cp = &corecnf_tab[corecnf];
 
-	printf ("MPC8260 Clock Configuration\n - Bus-to-Core Mult ");
+	printf (CPU_ID_STR " Clock Configuration\n - Bus-to-Core Mult ");
 
 	switch (cp->b2c_mult) {
 	case _byp:

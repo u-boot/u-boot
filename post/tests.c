@@ -42,6 +42,12 @@ extern int ether_post_test (int flags);
 extern int spi_post_test (int flags);
 extern int usb_post_test (int flags);
 extern int spr_post_test (int flags);
+extern int sysmon_post_test (int flags);
+
+extern int sysmon_init_f (void);
+
+extern void sysmon_reloc (void);
+
 
 struct post_test post_list[] =
 {
@@ -52,6 +58,8 @@ struct post_test post_list[] =
         "This test verifies the CPU cache operation.",
         POST_RAM | POST_ALWAYS,
         &cache_post_test,
+        NULL,
+        NULL,
 	CFG_POST_CACHE
     },
 #endif
@@ -62,6 +70,8 @@ struct post_test post_list[] =
         "This test checks the watchdog timer.",
         POST_RAM | POST_POWERON | POST_POWERFAIL | POST_MANUAL | POST_REBOOT,
         &watchdog_post_test,
+        NULL,
+        NULL,
 	CFG_POST_WATCHDOG
     },
 #endif
@@ -72,6 +82,8 @@ struct post_test post_list[] =
         "This test verifies the I2C operation.",
         POST_RAM | POST_ALWAYS,
         &i2c_post_test,
+        NULL,
+        NULL,
 	CFG_POST_I2C
     },
 #endif
@@ -82,6 +94,8 @@ struct post_test post_list[] =
         "This test verifies the RTC operation.",
         POST_RAM | POST_POWERFAIL | POST_MANUAL,
         &rtc_post_test,
+        NULL,
+        NULL,
 	CFG_POST_RTC
     },
 #endif
@@ -92,6 +106,8 @@ struct post_test post_list[] =
         "This test checks RAM.",
         POST_ROM | POST_POWERON | POST_POWERFAIL | POST_PREREL,
         &memory_post_test,
+        NULL,
+        NULL,
 	CFG_POST_MEMORY
     },
 #endif
@@ -103,6 +119,8 @@ struct post_test post_list[] =
         " CPU.",
         POST_RAM | POST_ALWAYS,
         &cpu_post_test,
+        NULL,
+        NULL,
 	CFG_POST_CPU
     },
 #endif
@@ -113,6 +131,8 @@ struct post_test post_list[] =
         "This test verifies the UART operation.",
         POST_RAM | POST_POWERFAIL | POST_MANUAL,
         &uart_post_test,
+        NULL,
+        NULL,
 	CFG_POST_UART
     },
 #endif
@@ -123,6 +143,8 @@ struct post_test post_list[] =
         "This test verifies the ETHERNET operation.",
         POST_RAM | POST_ALWAYS | POST_MANUAL,
         &ether_post_test,
+        NULL,
+        NULL,
 	CFG_POST_ETHER
     },
 #endif
@@ -133,6 +155,8 @@ struct post_test post_list[] =
         "This test verifies the SPI operation.",
         POST_RAM | POST_ALWAYS | POST_MANUAL,
         &spi_post_test,
+        NULL,
+        NULL,
 	CFG_POST_SPI
     },
 #endif
@@ -143,6 +167,8 @@ struct post_test post_list[] =
         "This test verifies the USB operation.",
         POST_RAM | POST_ALWAYS | POST_MANUAL,
         &usb_post_test,
+        NULL,
+        NULL,
 	CFG_POST_USB
     },
 #endif
@@ -153,7 +179,21 @@ struct post_test post_list[] =
         "This test checks SPR contents.",
         POST_ROM | POST_ALWAYS | POST_PREREL,
         &spr_post_test,
+        NULL,
+        NULL,
 	CFG_POST_SPR
+    },
+#endif
+#if CONFIG_POST & CFG_POST_SYSMON
+    {
+        "SYSMON test",
+        "sysmon",
+        "This test monitors system hardware.",
+        POST_RAM | POST_ALWAYS,
+        &sysmon_post_test,
+        &sysmon_init_f,
+        &sysmon_reloc,
+	CFG_POST_SYSMON
     },
 #endif
 };

@@ -577,6 +577,7 @@ SCM_config:		unconfig
 
 TQM8260_config	\
 TQM8260_L2_config	\
+TQM8255_266MHz_config	\
 TQM8260_266MHz_config	\
 TQM8260_L2_266MHz_config \
 TQM8260_300MHz_config:	unconfig
@@ -596,7 +597,9 @@ TQM8260_300MHz_config:	unconfig
 		{ echo "#define CONFIG_300MHz"	>>include/config.h ; \
 		  echo "... with 300MHz system clock" ; \
 		}
-	@./mkconfig -a $(call xtract_82xx,$@) ppc mpc8260 tqm8260
+	@[ -z "$(findstring TQM8255_,$@)" ] || \
+		{ echo "#define CONFIG_MPC8255"	>>include/config.h ; }
+	@./mkconfig -a TQM8260 ppc mpc8260 tqm8260
 
 #########################################################################
 ## 74xx/7xx Systems

@@ -40,9 +40,12 @@
 #define CONFIG_LWMON		1	/* ...on a LWMON board		*/
 
 #define CONFIG_BOARD_PRE_INIT	1	/* Call board_pre_init		*/
+#define CONFIG_BOARD_POSTCLK_INIT 1	/* Call board_postclk_init	*/
 
 #define CONFIG_LCD		1	/* use LCD controller ...	*/
 #define CONFIG_HLD1045		1	/* ... with a HLD1045 display	*/
+
+#define	CONFIG_SPLASH_SCREEN		/* ... with splashscreen support*/
 
 #if 1
 #define CONFIG_8xx_CONS_SMC2	1	/* Console is on SMC2		*/
@@ -72,7 +75,8 @@
 				 CFG_POST_I2C	   | \
 				 CFG_POST_SPI	   | \
 				 CFG_POST_USB	   | \
-				 CFG_POST_SPR)
+				 CFG_POST_SPR	   | \
+				 CFG_POST_SYSMON)
 
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
@@ -134,7 +138,7 @@
 			else    immr->im_cpm.cp_pbdat &= ~PB_SDA
 #define I2C_SCL(bit)	if(bit) immr->im_cpm.cp_pbdat |=  PB_SCL; \
 			else    immr->im_cpm.cp_pbdat &= ~PB_SCL
-#define I2C_DELAY	udelay(1)	/* 1/4 I2C clock duration */
+#define I2C_DELAY	udelay(2)	/* 1/4 I2C clock duration */
 #endif	/* CONFIG_SOFT_I2C */
 
 
@@ -229,7 +233,7 @@
  */
 #define CFG_INIT_RAM_ADDR	CFG_IMMR
 #define CFG_INIT_RAM_END	0x2F00	/* End of used area in DPRAM	*/
-#define CFG_GBL_DATA_SIZE	64  /* size in bytes reserved for initial data */
+#define CFG_GBL_DATA_SIZE	68  /* size in bytes reserved for initial data */
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
@@ -570,5 +574,10 @@
  */
 #define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
 #define BOOTFLAG_WARM	0x02		/* Software reboot			*/
+
+#define CONFIG_MODEM_SUPPORT	1	/* enable modem initialization stuff */
+#undef CONFIG_MODEM_SUPPORT_DEBUG
+
+#define	CONFIG_MODEM_KEY_MAGIC	"3C+3F"	/* hold down these keys to enable modem */
 
 #endif	/* __CONFIG_H */

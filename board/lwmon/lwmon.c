@@ -47,10 +47,17 @@ V* Verification:  dzu@denx.de
 
 /*------------------------ Local prototypes ---------------------------*/
 static long int dram_size (long int, long int *, long int);
+static void kbd_init (void);
+static int compare_magic (uchar *kbd_data, uchar *str);
 
 
 /*--------------------- Local macros and constants --------------------*/
 #define	_NOT_USED_	0xFFFFFFFF
+
+#ifdef CONFIG_MODEM_SUPPORT
+static int key_pressed(void);
+extern void disable_putc(void);
+#endif /* CONFIG_MODEM_SUPPORT */
 
 /*
  * 66 MHz SDRAM access using UPM A
@@ -396,6 +403,7 @@ int board_pre_init (void)
 	immr->im_cpm.cp_pbodr &= ~PB_ENET_TENA;
 	immr->im_cpm.cp_pbdat &= ~PB_ENET_TENA;	/* set to 0 = disabled */
 	immr->im_cpm.cp_pbdir |= PB_ENET_TENA;
+
 	return (0);
 }
 
@@ -466,38 +474,45 @@ static uchar *key_match (uchar *);
 #define	KEYBD_SET_DEBUGMODE	'#'	/* Magic key to enable debug output */
 
 /***********************************************************************
-F* Function:     int misc_init_r (void) P*A*Z*
+F* Function:     int board_postclk_init (void) P*A*Z*
  *
 P* Parameters:   none
 P*
 P* Returnvalue:  int
-P*                - 0 is always returned, even in the case of a keyboard
-P*                    error.
+P*                - 0 is always returned.
  *
-Z* Intention:    This function is the misc_init_r() method implementation
+Z* Intention:    This function is the board_postclk_init() method implementation
 Z*               for the lwmon board.
-Z*               The keyboard controller is initialized and the result
-Z*               of a read copied to the environment variable "keybd".
-Z*               If KEYBD_SET_DEBUGMODE is defined, a check is made for
-Z*               this key, and if found display to the LCD will be enabled.
-Z*               The keys in "keybd" are checked against the magic
-Z*               keycommands defined in the environment.
-Z*               See also key_match().
  *
-D* Design:       wd@denx.de
-C* Coding:       wd@denx.de
-V* Verification: dzu@denx.de
  ***********************************************************************/
-int misc_init_r (void)
+int board_postclk_init (void)
 {
+	DECLARE_GLOBAL_DATA_PTR;
+
+	kbd_init();
+
+#ifdef CONFIG_MODEM_SUPPORT
+	if (key_pressed()) {
+		disable_putc();	/* modem doesn't understand banner etc */
+		gd->do_mdm_init = 1;
+	}
+#endif
+
+	return (0);
+}
+
+static void kbd_init (void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+
 	uchar kbd_data[KEYBD_DATALEN];
 	uchar tmp_data[KEYBD_DATALEN];
-	uchar keybd_env[2 * KEYBD_DATALEN + 1];
 	uchar val, errcd;
-	uchar *str;
 	int i;
 
 	i2c_init (CFG_I2C_SPEED, CFG_I2C_SLAVE);
+	
+	gd->kbd_status = 0;
 
 	/* Read initial keyboard error code */
 	val = KEYBD_CMD_READ_STATUS;
@@ -508,7 +523,7 @@ int misc_init_r (void)
 	/* clear "irrelevant" bits. Recommended by Martin Rajek, LWN */
 	errcd &= ~(KEYBD_STATUS_H_RESET|KEYBD_STATUS_BROWNOUT);
 	if (errcd) {
-		printf ("KEYBD: Error %02X\n", errcd);
+		gd->kbd_status |= errcd << 8;
 	}
 	/* Reset error code and verify */
 	val = KEYBD_CMD_RESET_ERRORS;
@@ -521,27 +536,9 @@ int misc_init_r (void)
 
 	val &= KEYBD_STATUS_MASK;	/* clear unused bits */
 	if (val) {			/* permanent error, report it */
-		printf ("*** Keyboard error code %02X ***\n", val);
-		sprintf (keybd_env, "%02X", val);
-		setenv ("keybd", keybd_env);
-		return 0;
+		gd->kbd_status |= val;
+		return;
 	}
-
-	/*
-	 * Now we know that we have a working  keyboard,  so  disable
-	 * all output to the LCD except when a key press is detected.
-	 */
-
-	if ((console_assign (stdout, "serial") < 0) ||
-		(console_assign (stderr, "serial") < 0)) {
-		printf ("Can't assign serial port as output device\n");
-	}
-
-	/* Read Version */
-	val = KEYBD_CMD_READ_VERSION;
-	i2c_write (kbd_addr, 0, 0, &val, 1);
-	i2c_read (kbd_addr, 0, 0, kbd_data, KEYBD_VERSIONLEN);
-	printf ("KEYBD: Version %d.%d\n", kbd_data[0], kbd_data[1]);
 
 	/*
 	 * Read current keyboard state.
@@ -569,6 +566,73 @@ int misc_init_r (void)
 		memcpy (tmp_data, kbd_data, KEYBD_DATALEN);
 		udelay (5000);
 	}
+}
+
+/***********************************************************************
+F* Function:     int misc_init_r (void) P*A*Z*
+ *
+P* Parameters:   none
+P*
+P* Returnvalue:  int
+P*                - 0 is always returned, even in the case of a keyboard
+P*                    error.
+ *
+Z* Intention:    This function is the misc_init_r() method implementation
+Z*               for the lwmon board.
+Z*               The keyboard controller is initialized and the result
+Z*               of a read copied to the environment variable "keybd".
+Z*               If KEYBD_SET_DEBUGMODE is defined, a check is made for
+Z*               this key, and if found display to the LCD will be enabled.
+Z*               The keys in "keybd" are checked against the magic
+Z*               keycommands defined in the environment.
+Z*               See also key_match().
+ *
+D* Design:       wd@denx.de
+C* Coding:       wd@denx.de
+V* Verification: dzu@denx.de
+ ***********************************************************************/
+int misc_init_r (void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+
+	uchar kbd_data[KEYBD_DATALEN];
+	uchar keybd_env[2 * KEYBD_DATALEN + 1];
+	uchar kbd_init_status = gd->kbd_status >> 8;
+	uchar kbd_status = gd->kbd_status;
+	uchar val;
+	uchar *str;
+	int i;
+
+	if (kbd_init_status) {
+		printf ("KEYBD: Error %02X\n", kbd_init_status);
+	}
+	if (kbd_status) {		/* permanent error, report it */
+		printf ("*** Keyboard error code %02X ***\n", kbd_status);
+		sprintf (keybd_env, "%02X", kbd_status);
+		setenv ("keybd", keybd_env);
+		return 0;
+	}
+
+	/*
+	 * Now we know that we have a working  keyboard,  so  disable
+	 * all output to the LCD except when a key press is detected.
+	 */
+
+	if ((console_assign (stdout, "serial") < 0) ||
+		(console_assign (stderr, "serial") < 0)) {
+		printf ("Can't assign serial port as output device\n");
+	}
+
+	/* Read Version */
+	val = KEYBD_CMD_READ_VERSION;
+	i2c_write (kbd_addr, 0, 0, &val, 1);
+	i2c_read (kbd_addr, 0, 0, kbd_data, KEYBD_VERSIONLEN);
+	printf ("KEYBD: Version %d.%d\n", kbd_data[0], kbd_data[1]);
+
+	/* Read current keyboard state */
+	val = KEYBD_CMD_READ_KEYS;
+	i2c_write (kbd_addr, 0, 0, &val, 1);
+	i2c_read (kbd_addr, 0, 0, kbd_data, KEYBD_DATALEN);
 
 	for (i = 0; i < KEYBD_DATALEN; ++i) {
 		sprintf (keybd_env + i + i, "%02X", kbd_data[i]);
@@ -597,6 +661,56 @@ int misc_init_r (void)
 
 static uchar kbd_magic_prefix[] = "key_magic";
 static uchar kbd_command_prefix[] = "key_cmd";
+
+static int compare_magic (uchar *kbd_data, uchar *str)
+{
+	uchar compare[KEYBD_DATALEN-1];
+	uchar *nxt;
+	int i;
+
+	/* Don't include modifier byte */
+	memcpy (compare, kbd_data+1, KEYBD_DATALEN-1);
+
+	for (; str != NULL; str = (*nxt) ? nxt+1 : nxt) {
+		uchar c;
+		int k;
+
+		c = (uchar) simple_strtoul (str, (char **) (&nxt), 16);
+
+		if (str == nxt) {	/* invalid character */
+			break;
+		}
+
+		/*
+		 * Check if this key matches the input.
+		 * Set matches to zero, so they match only once
+		 * and we can find duplicates or extra keys
+		 */
+		for (k = 0; k < sizeof(compare); ++k) {
+			if (compare[k] == '\0')	/* only non-zero entries */
+				continue;
+			if (c == compare[k]) {	/* found matching key */
+				compare[k] = '\0';
+				break;
+			}
+		}
+		if (k == sizeof(compare)) {
+			return -1;		/* unmatched key */
+		}
+	}
+
+	/*
+	 * A full match leaves no keys in the `compare' array,
+	 */
+	for (i = 0; i < sizeof(compare); ++i) {
+		if (compare[i])
+		{
+			return -1;
+		}
+	}
+
+	return 0;
+}
 
 /***********************************************************************
 F* Function:     static uchar *key_match (uchar *kbd_data) P*A*Z*
@@ -627,12 +741,9 @@ V* Verification: dzu@denx.de
  ***********************************************************************/
 static uchar *key_match (uchar *kbd_data)
 {
-	uchar compare[KEYBD_DATALEN-1];
 	uchar magic[sizeof (kbd_magic_prefix) + 1];
-	uchar extra;
-	uchar *str, *nxt, *suffix;
+	uchar *suffix;
 	uchar *kbd_magic_keys;
-	int i;
 
 	/*
 	 * The following string defines the characters that can pe appended
@@ -653,50 +764,7 @@ static uchar *key_match (uchar *kbd_data)
 #if 0
 		printf ("### Check magic \"%s\"\n", magic);
 #endif
-		/* Don't include modifier byte */
-		memcpy (compare, kbd_data+1, KEYBD_DATALEN-1);
-
-		extra = 0;
-
-		for (str= getenv(magic); str != NULL; str = (*nxt) ? nxt+1 : nxt) {
-			uchar c;
-			int k;
-
-			c = (uchar) simple_strtoul (str, (char **) (&nxt), 16);
-
-			if (str == nxt) {	/* invalid character */
-				break;
-			}
-
-			/*
-			 * Check if this key matches the input.
-			 * Set matches to zero, so they match only once
-			 * and we can find duplicates or extra keys
-			 */
-			for (k = 0; k < sizeof(compare); ++k) {
-				if (compare[k] == '\0')	/* only non-zero entries */
-					continue;
-				if (c == compare[k]) {	/* found matching key */
-					compare[k] = '\0';
-					break;
-				}
-			}
-			if (k == sizeof(compare)) {
-				extra = 1;		/* unmatched key */
-			}
-		}
-
-		/*
-		 * A full match leaves no keys in the `compare' array,
-		 * and has no extra keys
-		 */
-
-		for (i = 0; i < sizeof(compare); ++i) {
-			if (compare[i])
-				break;
-		}
-
-		if ((i == sizeof(compare)) && (extra == 0)) {
+		if (compare_magic(kbd_data, getenv(magic)) == 0) {
 			uchar cmd_name[sizeof (kbd_command_prefix) + 1];
 			char *cmd;
 
@@ -815,7 +883,9 @@ int do_kbd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	uchar val;
 	int i;
 
+#if 0 /* Done in kbd_init */
 	i2c_init (CFG_I2C_SPEED, CFG_I2C_SLAVE);
+#endif
 
 	/* Read keys */
 	val = KEYBD_CMD_READ_KEYS;
@@ -964,3 +1034,18 @@ void board_poweroff (void)
 
     while (1);
 }
+
+#ifdef CONFIG_MODEM_SUPPORT
+static int key_pressed(void)
+{
+	uchar kbd_data[KEYBD_DATALEN];
+	uchar val;
+
+	/* Read keys */
+	val = KEYBD_CMD_READ_KEYS;
+	i2c_write (kbd_addr, 0, 0, &val, 1);
+	i2c_read (kbd_addr, 0, 0, kbd_data, KEYBD_DATALEN);
+
+	return (compare_magic(kbd_data, CONFIG_MODEM_KEY_MAGIC) == 0);
+}
+#endif	/* CONFIG_MODEM_SUPPORT */

@@ -1,4 +1,18 @@
 ======================================================================
+Changes since U-Boot 0.3.1:
+======================================================================
+
+* LWMON extensions:
+  - Splashscreen support
+  - modem support
+  - sysmon support
+  - temperature dependend enabling of LCD
+
+* Allow booting from old "PPCBoot" disk partitions
+
+* Add support for TQM8255 Board / MPC8255 CPU
+
+======================================================================
 Changes for U-Boot 0.3.1:
 ======================================================================
 

@@ -32,7 +32,7 @@
 #define CMD_TBL_BMP	MK_CMD_TBL_ENTRY(				\
 	"bmp", 3,	3,	1,	do_bmp,				\
 	"bmp     - manipulate BMP image data\n",			\
-	"\nbmp info <imageAddr>    - display image info\n"		\
+	"info <imageAddr>    - display image info\n"			\
 	"bmp display <imageAddr> - display image\n"			\
 ),
 int do_bmp (cmd_tbl_t *cmdtp,  int flag, int argc, char *argv[]);

@@ -31,9 +31,10 @@
 #include <command.h>
 
 /*
- * Type string for PPC bootable partitions
+ * Type string for U-Boot bootable partitions
  */
-#define BOOT_PART_TYPE	"U-Boot"
+#define BOOT_PART_TYPE	"U-Boot"	/* primary boot partition type	*/
+#define BOOT_PART_COMP	"PPCBoot"	/* PPCBoot compatibility type	*/
 
 #if 0
 

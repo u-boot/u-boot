@@ -250,7 +250,7 @@ int prt_8260_rsr (void)
 	int i;
 	char *sep;
 
-	puts ("MPC8260 Reset Status:");
+	puts (CPU_ID_STR " Reset Status:");
 
 	sep = " ";
 	for (i = 0; i < n; i++)

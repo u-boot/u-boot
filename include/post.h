@@ -54,8 +54,11 @@ struct post_test {
 	char *desc;
 	int flags;
 	int (*test) (int flags);
+	int (*init_f) (void);
+	void (*reloc) (void);
 	unsigned long testid;
 };
+int post_init_f (void);
 void post_bootmode_init (void);
 int post_bootmode_get (unsigned int * last_test);
 void post_bootmode_clear (void);
@@ -64,6 +67,7 @@ int post_run (char *name, int flags);
 int post_info (char *name);
 int post_log (char *format, ...);
 void post_reloc (void);
+unsigned long post_time_ms (unsigned long base);
 
 extern struct post_test post_list[];
 extern unsigned int post_list_size;
@@ -81,6 +85,7 @@ extern unsigned int post_list_size;
 #define CFG_POST_SPI		0x00000100
 #define CFG_POST_USB		0x00000200
 #define CFG_POST_SPR		0x00000400
+#define CFG_POST_SYSMON		0x00000800
 
 #endif /* CONFIG_POST */
 

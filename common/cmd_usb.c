@@ -376,7 +376,8 @@ int do_usbboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		info.size=2880;
 		printf("error reading partinfo...try to boot raw\n");
 	}
-	if (strncmp(info.type, BOOT_PART_TYPE, sizeof(info.type)) != 0) {
+	if ((strncmp(info.type, BOOT_PART_TYPE, sizeof(info.type)) != 0) &&
+	    (strncmp(info.type, BOOT_PART_COMP, sizeof(info.type)) != 0)) {
 		printf ("\n** Invalid partition type \"%.32s\""
 			" (expect \"" BOOT_PART_TYPE "\")\n",
 			info.type);

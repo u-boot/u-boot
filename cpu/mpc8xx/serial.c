@@ -246,6 +246,20 @@ serial_setbrg (void)
 		(((gd->cpu_clk / 16 / gd->baudrate)-1) << 1) | CPM_BRG_EN;
 }
 
+#ifdef CONFIG_MODEM_SUPPORT
+void disable_putc(void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+	gd->be_quiet = 1;
+}
+
+void enable_putc(void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+	gd->be_quiet = 0;
+}
+#endif
+
 void
 serial_putc(const char c)
 {
@@ -254,6 +268,13 @@ serial_putc(const char c)
 	volatile smc_uart_t	*up;
         volatile immap_t	*im = (immap_t *)CFG_IMMR;
 	volatile cpm8xx_t	*cpmp = &(im->im_cpm);
+
+#ifdef CONFIG_MODEM_SUPPORT
+	DECLARE_GLOBAL_DATA_PTR;
+
+	if (gd->be_quiet)
+		return;
+#endif
 
 	if (c == '\n')
 		serial_putc ('\r');

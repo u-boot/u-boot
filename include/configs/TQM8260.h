@@ -33,6 +33,7 @@
  *	CONFIG_L2_CACHE
  *	CONFIG_266MHz
  *	CONFIG_300MHz
+ *	CONFIG_MPC8255
  */
 
 /*
@@ -312,10 +313,10 @@
  */
 #if defined(CONFIG_266MHz)
 #define CFG_HRCW_MASTER		(HRCW_CIP | HRCW_ISB111 | HRCW_BMS | \
-				                              HRCW_MODCK_H0111)
+				 HRCW_MODCK_H0111)
 #elif defined(CONFIG_300MHz)
 #define CFG_HRCW_MASTER		(HRCW_CIP | HRCW_ISB111 | HRCW_BMS | \
-				                              HRCW_MODCK_H0110)
+				 HRCW_MODCK_H0110)
 #else
 #define CFG_HRCW_MASTER		(HRCW_CIP | HRCW_ISB111 | HRCW_BMS)
 #endif

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000
+ * (C) Copyright 2000-2003
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -22,12 +22,12 @@
  */
 
 /*
- * CPU specific code for the MPC8260
+ * CPU specific code for the MPC8255 / MPC8260 CPUs
  *
  * written or collected and sometimes rewritten by
  * Magnus Damm <damm@bitsmart.com>
  *
- * minor modifications by
+ * modified by
  * Wolfgang Denk <wd@denx.de>
  *
  * modified for 8260 by
@@ -64,7 +64,7 @@ int checkcpu (void)
 	if ((immr & IMMR_ISB_MSK) != CFG_IMMR)
 		return -1;	/* whoops! someone moved the IMMR */
 
-	printf ("MPC8260 (Rev %02x, Mask ", rev);
+	printf (CPU_ID_STR " (Rev %02x, Mask ", rev);
 
 	/*
 	 * the bottom 16 bits of the immr are the Part Number and Mask Number
@@ -100,6 +100,9 @@ int checkcpu (void)
 		break;
 	case 0x0060:
 		printf ("A.0(A) 2K25A");
+		break;
+	case 0x0062:
+		printf ("B.1 4K25A");
 		break;
 	default:
 		printf ("unknown [immr=0x%04x,k=0x%04x]", m, k);

@@ -262,7 +262,8 @@ int do_scsiboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		printf("error reading partinfo\n");
 		return 1;
 	}
-	if (strncmp(info.type, BOOT_PART_TYPE, sizeof(info.type)) != 0) {
+	if ((strncmp(info.type, BOOT_PART_TYPE, sizeof(info.type)) != 0) &&
+	    (strncmp(info.type, BOOT_PART_COMP, sizeof(info.type)) != 0)) {
 		printf ("\n** Invalid partition type \"%.32s\""
 			" (expect \"" BOOT_PART_TYPE "\")\n",
 			info.type);
