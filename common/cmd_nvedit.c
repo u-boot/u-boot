@@ -180,9 +180,13 @@ int _do_setenv (int flag, int argc, char *argv[])
 #ifndef CONFIG_ENV_OVERWRITE
 
 		/*
-		 * Ethernet Address and serial# can be set only once
+		 * Ethernet Address and serial# can be set only once,
+		 * ver is readonly.
 		 */
 		if ( (strcmp (name, "serial#") == 0) ||
+#if defined(CONFIG_VERSION_VARIABLE)
+		     (strcmp (name, "ver") == 0) ||
+#endif /* CONFIG_VERSION_VARIABLE */
 		    ((strcmp (name, "ethaddr") == 0)
 #if defined(CONFIG_OVERWRITE_ETHADDR_ONCE) && defined(CONFIG_ETHADDR)
 		     && (strcmp (env_get_addr(oldval),MK_STR(CONFIG_ETHADDR)) != 0)
@@ -358,7 +362,7 @@ int _do_setenv (int flag, int argc, char *argv[])
 	}
 #endif	/* CFG_CMD_NET */
 
-#ifdef CONFIG_AMIGAONEG3SE 
+#ifdef CONFIG_AMIGAONEG3SE
 	if (strcmp(argv[1], "vga_fg_color") == 0 ||
 	    strcmp(argv[1], "vga_bg_color") == 0 ) {
 		extern void video_set_color(unsigned char attr);

@@ -279,6 +279,16 @@ void main_loop (void)
 	}
 #endif  /* CONFIG_MODEM_SUPPORT */
 
+#ifdef CONFIG_VERSION_VARIABLE
+	{
+		extern char version_string[];
+		char *str = getenv("ver");
+
+		if (!str)
+			setenv ("ver", version_string);  /* set version variable */
+	}
+#endif /* CONFIG_VERSION_VARIABLE */
+
 #ifdef CFG_HUSH_PARSER
 	u_boot_hush_start ();
 #endif
