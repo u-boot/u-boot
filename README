@@ -320,7 +320,7 @@ The following options need to be configured:
 		CONFIG_GENIETV,    CONFIG_PM826,      CONFIG_ppmc8260,
 		CONFIG_GTH,        CONFIG_RPXClassic, CONFIG_rsdproto,
 		CONFIG_IAD210,     CONFIG_RPXlite,    CONFIG_sbc8260,
-		CONFIG_EBONY,      CONFIG_sacsng
+		CONFIG_EBONY,      CONFIG_sacsng,     CONFIG_FPS860L
 
 		ARM based boards:
 		-----------------
@@ -1665,7 +1665,7 @@ configurations; the following names are supported:
     FADS860T_config	  SXNI855T_config	rsdproto_config
     FPS850L_config	  Sandpoint8240_config	sbc8260_config
     GENIETV_config	  TQM823L_config	PIP405_config
-    GEN860T_config	  EBONY_config
+    GEN860T_config	  EBONY_config		FPS860L_config
 
 Note: for some board special configuration names may exist; check  if
       additional  information is available from the board vendor; for

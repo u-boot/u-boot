@@ -6,6 +6,9 @@
  * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
  * Marius Groeger <mgroeger@sysgo.de>
  *
+ * (C) Copyright 2002
+ * Robert Schwebel, Pengutronix, <r.schwebel@pengutronix.de> 
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -26,6 +29,7 @@
  */
 
 #include <common.h>
+#include <asm/arch/pxa-regs.h>
 
 #define FLASH_BANK_SIZE 0x02000000
 #define MAIN_SECT_SIZE  0x40000         /* 2x16 = 256k per sector */
@@ -33,7 +37,10 @@
 flash_info_t    flash_info[CFG_MAX_FLASH_BANKS];
 
 
-/*-----------------------------------------------------------------------
+/**
+ * flash_init: - initialize data structures for flash chips
+ *
+ * @return: size of the flash
  */
 
 ulong flash_init(void)
@@ -41,8 +48,7 @@ ulong flash_init(void)
     int i, j;
     ulong size = 0;
 
-    for (i = 0; i < CFG_MAX_FLASH_BANKS; i++)
-    {
+	for (i = 0; i < CFG_MAX_FLASH_BANKS; i++) {
 	ulong flashbase = 0;
 	flash_info[i].flash_id =
 	  (INTEL_MANUFACT & FLASH_VENDMASK) |
@@ -51,8 +57,7 @@ ulong flash_init(void)
 	flash_info[i].sector_count = CFG_MAX_FLASH_SECT;
 	memset(flash_info[i].protect, 0, CFG_MAX_FLASH_SECT);
 
-        switch (i)
-        {
+		switch (i) {
            case 0:
 	        flashbase = PHYS_FLASH_1;
                 break;
@@ -60,15 +65,13 @@ ulong flash_init(void)
 	        panic("configured to many flash banks!\n");
                 break;
         }
-	for (j = 0; j < flash_info[i].sector_count; j++)
-	{
+		for (j = 0; j < flash_info[i].sector_count; j++) {
 	    flash_info[i].start[j] = flashbase + j*MAIN_SECT_SIZE;
 	}
 	size += flash_info[i].size;
     }
 
-    /* Protect monitor and environment sectors
-     */
+	/* Protect monitor and environment sectors */
     flash_protect(FLAG_PROTECT_SET,
 		  CFG_FLASH_BASE,
 		  CFG_FLASH_BASE + _armboot_end_data - _armboot_start,
@@ -82,16 +85,21 @@ ulong flash_init(void)
     return size;
 }
 
-/*-----------------------------------------------------------------------
+
+/**
+ * flash_print_info: - print information about the flash situation
+ *
+ * @param info: 
  */
+
 void flash_print_info  (flash_info_t *info)
 {
     int i, j;
 
-    for (j=0; j<CFG_MAX_FLASH_BANKS; j++)
-    {
-        switch (info->flash_id & FLASH_VENDMASK)
-        {
+	for (j=0; j<CFG_MAX_FLASH_BANKS; j++) {
+
+		switch (info->flash_id & FLASH_VENDMASK) {
+
         case (INTEL_MANUFACT & FLASH_VENDMASK):
 	        printf("Intel: ");
 	        break;
@@ -100,38 +108,35 @@ void flash_print_info  (flash_info_t *info)
 	        break;
         }
 
-        switch (info->flash_id & FLASH_TYPEMASK)
-        {
+		switch (info->flash_id & FLASH_TYPEMASK) {
+
         case (INTEL_ID_28F128J3 & FLASH_TYPEMASK):
 	        printf("28F128J3 (128Mbit)\n");
 	        break;
         default:
 	        printf("Unknown Chip Type\n");
-	        goto Done;
-	        break;
+				return;
         }
 
         printf("  Size: %ld MB in %d Sectors\n",
 	        info->size >> 20, info->sector_count);
 
         printf("  Sector Start Addresses:");
-        for (i = 0; i < info->sector_count; i++)
-        {
-	        if ((i % 5) == 0)
-	        {
-	        printf ("\n   ");
-	        }
+		for (i = 0; i < info->sector_count; i++) {
+			if ((i % 5) == 0) printf ("\n   ");
+	        
 	        printf (" %08lX%s", info->start[i],
 		        info->protect[i] ? " (RO)" : "     ");
         }
         printf ("\n");
         info++;
     }
-
-Done:
 }
 
-/*-----------------------------------------------------------------------
+
+/**
+ * flash_erase: - erase flash sectors
+ *
  */
 
 int	flash_erase (flash_info_t *info, int s_first, int s_last)
@@ -146,19 +151,15 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 	return ERR_INVAL;
     }
 
-    if ((info->flash_id & FLASH_VENDMASK) !=
-	(INTEL_MANUFACT & FLASH_VENDMASK)) {
+	if ((info->flash_id & FLASH_VENDMASK) != (INTEL_MANUFACT & FLASH_VENDMASK))
 	return ERR_UNKNOWN_FLASH_VENDOR;
-    }
 
     prot = 0;
     for (sect=s_first; sect<=s_last; ++sect) {
-	if (info->protect[sect]) {
-	    prot++;
+		if (info->protect[sect]) prot++;
 	}
-    }
-    if (prot)
-	return ERR_PROTECTED;
+
+	if (prot) return ERR_PROTECTED;
 
     /*
      * Disable interrupts which might cause a timeout
@@ -178,57 +179,63 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 	reset_timer_masked();
 
 	if (info->protect[sect] == 0) {	/* not protected */
-	    /* vushort *addr = (vushort *)(info->start[sect]); */
-	    ushort *addr = (ushort *)(info->start[sect]);
+			u32 * volatile addr = (u32 * volatile)(info->start[sect]);
 
-	    *addr = 0x20;	/* erase setup */
-	    *addr = 0xD0;	/* erase confirm */
+			/* erase sector:                                    */
+			/* The strata flashs are aligned side by side on    */
+			/* the data bus, so we have to write the commands   */
+			/* to both chips here:                              */
 
-	    while ((*addr & 0x80) != 0x80) {
+			*addr = 0x00200020;	/* erase setup */
+			*addr = 0x00D000D0;	/* erase confirm */
+
+			while ((*addr & 0x00800080) != 0x00800080) {
 		if (get_timer_masked() > CFG_FLASH_ERASE_TOUT) {
-		    *addr = 0xB0; /* suspend erase */
-		    *addr = 0xFF;	/* reset to read mode */
+					*addr = 0x00B000B0; /* suspend erase*/
+					*addr = 0x00FF00FF; /* read mode    */
 		    rc = ERR_TIMOUT;
 		    goto outahere;
 		}
 	    }
 
-	    /* clear status register command */
-	    *addr = 0x50;
-	    /* reset to read mode */
-	    *addr = 0xFF;
+			*addr = 0x00500050; /* clear status register cmd.   */
+			*addr = 0x00FF00FF; /* resest to read mode          */
+
 	}
+		
 	printf("ok.\n");
     }
-    if (ctrlc())
-      printf("User Interrupt!\n");
+
+	if (ctrlc()) printf("User Interrupt!\n");
 
 outahere:
 
     /* allow flash to settle - wait 10 ms */
     udelay_masked(10000);
 
-    if (flag)
-      enable_interrupts();
+	if (flag) enable_interrupts();
 
     return rc;
 }
 
-/*-----------------------------------------------------------------------
- * Copy memory to flash
+
+/**
+ * write_word: - copy memory to flash
+ * 
+ * @param info:
+ * @param dest:
+ * @param data: 
+ * @return:
  */
 
 static int write_word (flash_info_t *info, ulong dest, ushort data)
 {
-    /* vushort *addr = (vushort *)dest, val; */
     ushort *addr = (ushort *)dest, val;
     int rc = ERR_OK;
     int flag;
 
-    /* Check if Flash is (sufficiently) erased
-     */
-    if ((*addr & data) != data)
-        return ERR_NOT_ERASED;
+	/* Check if Flash is (sufficiently) erased */
+	if ((*addr & data) != data) return ERR_NOT_ERASED;
 
     /*
      * Disable interrupts which might cause a timeout
@@ -252,12 +259,10 @@ static int write_word (flash_info_t *info, ulong dest, ushort data)
     reset_timer_masked();
 
     /* wait while polling the status register */
-    while(((val = *addr) & 0x80) != 0x80)
-    {
+	while(((val = *addr) & 0x80) != 0x80) {
 	if (get_timer_masked() > CFG_FLASH_WRITE_TOUT) {
 	    rc = ERR_TIMOUT;
-	    /* suspend program command */
-	    *addr = 0xB0;
+			*addr = 0xB0; /* suspend program command */
 	    goto outahere;
 	}
     }
@@ -285,17 +290,23 @@ static int write_word (flash_info_t *info, ulong dest, ushort data)
     }
 
 outahere:
-    /* read array command */
-    *addr = 0xFF;
 
-    if (flag)
-      enable_interrupts();
+	*addr = 0xFF; /* read array command */
+	if (flag) enable_interrupts();
 
     return rc;
 }
 
-/*-----------------------------------------------------------------------
- * Copy memory to flash.
+
+/**
+ * write_buf: - Copy memory to flash.
+ * 
+ * @param info:	 
+ * @param src:	source of copy transaction
+ * @param addr:	where to copy to
+ * @param cnt: 	number of bytes to copy
+ *
+ * @return	error code
  */
 
 int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
@@ -344,9 +355,7 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 	cnt -= 2;
     }
 
-    if (cnt == 0) {
-	return ERR_OK;
-    }
+	if (cnt == 0) return ERR_OK;
 
     /*
      * handle unaligned tail bytes

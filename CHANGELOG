@@ -2,6 +2,13 @@
 Changes since for U-Boot 0.1.0:
 ======================================================================
 
+* Patch by Robert Schwebel, 04 Nov 2002:
+  - use watchdog to reset PXA250 systems
+  - added progress callbacks to (some of the) ARM code
+  - update for Cogent CSB226 board
+
+* Add support for FPS860 board
+
 * Patch by Guillaume Alexandre,, 04 Nov 2002:
   Improve PCI access on 32-bits Compact PCI bus
 

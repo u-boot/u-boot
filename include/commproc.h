@@ -709,11 +709,11 @@ typedef struct scc_enet {
 
 #endif	/* CONFIG_FADS860T */
 
-/***  FPS850L  *********************************************************/
+/***  FPS850L, FPS860L  ************************************************/
 
-#ifdef CONFIG_FPS850L
+#if defined(CONFIG_FPS850L) || defined(CONFIG_FPS860L)
 /* Bits in parallel I/O port registers that have to be set/cleared
- * to configure the pins for SCC1 use.
+ * to configure the pins for SCC2 use.
  */
 #define	PROFF_ENET	PROFF_SCC2
 #define	CPM_CR_ENET	CPM_CR_CH_SCC2
@@ -732,7 +732,7 @@ typedef struct scc_enet {
  */
 #define SICR_ENET_MASK	((uint)0x0000ff00)
 #define SICR_ENET_CLKRT	((uint)0x00002600)
-#endif	/* CONFIG_FPS850L */
+#endif	/* CONFIG_FPS850L, CONFIG_FPS860L */
 
 /*** GEN860T **********************************************************/
 #if defined(CONFIG_GEN860T)

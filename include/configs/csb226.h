@@ -74,6 +74,7 @@
 #define CONFIG_IPADDR		192.168.1.56
 #define CONFIG_SERVERIP		192.168.1.2
 #define CONFIG_BOOTCOMMAND	"bootm 0x40000"
+#define CONFIG_SHOW_BOOT_PROGRESS
 
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	115200		/* speed to run kgdb serial port */
@@ -156,7 +157,7 @@
 #define CFG_GPCR0_VAL       0x08022080
 #define CFG_GPCR1_VAL       0x00000000
 #define CFG_GPCR2_VAL       0x00000000
-#define CFG_GPDR0_VAL       0xCD82A858
+#define CFG_GPDR0_VAL       0xCD82A878
 #define CFG_GPDR1_VAL       0xFCFFAB80
 #define CFG_GPDR2_VAL       0x0001FFFF
 #define CFG_GAFR0_L_VAL     0x80000000
@@ -191,10 +192,10 @@
 #define CFG_MCIO0_VAL       0x00000000
 #define CFG_MCIO1_VAL       0x00000000
 
-/*
-#define _LED        0x08000010
-#define LED_BLANK  (0x08000040)
-*/
+#define CSB226_USER_LED0	0x00000008
+#define CSB226_USER_LED1	0x00000010
+#define CSB226_USER_LED2	0x00000020
+
 
 /*
  * FLASH and environment organization

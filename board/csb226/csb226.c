@@ -24,12 +24,23 @@
  */
 
 #include <common.h>
+#include <asm/arch/pxa-regs.h>
 
-/* ------------------------------------------------------------------------- */
-
+#ifdef CONFIG_SHOW_BOOT_PROGRESS
+# define SHOW_BOOT_PROGRESS(arg)        show_boot_progress(arg)
+#else
+# define SHOW_BOOT_PROGRESS(arg)
+#endif
 
 /*
  * Miscelaneous platform dependent initialisations
+ */
+
+
+/** 
+ * board_init: - setup some data structures
+ *
+ * @return: 0 in case of success	
  */
 
 int board_init (void)
@@ -48,6 +59,13 @@ int board_init (void)
 	return 0;
 }
 
+
+/** 
+ * dram_init: - setup dynamic RAM
+ *
+ * @return: 0 in case of success
+ */
+
 int dram_init (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
@@ -57,3 +75,62 @@ int dram_init (void)
 
 	return 0;
 }
+
+
+/** 
+ * csb226_set_led: - switch LEDs on or off
+ *
+ * @param led:   LED to switch (0,1,2)
+ * @param state: switch on (1) or off (0)
+ */
+
+void csb226_set_led(int led, int state)
+{
+	switch(led) {
+
+		case 0: if (state==1) { 
+				GPCR0 |= CSB226_USER_LED0; 
+			} else if (state==0) {
+				GPSR0 |= CSB226_USER_LED0;
+			}
+			break;
+
+		case 1: if (state==1) {
+                                GPCR0 |= CSB226_USER_LED1;
+                        } else if (state==0) {
+                                GPSR0 |= CSB226_USER_LED1;
+                        }
+                        break;
+
+		case 2: if (state==1) {
+                                GPCR0 |= CSB226_USER_LED2;
+                        } else if (state==0) {
+                                GPSR0 |= CSB226_USER_LED2;
+                        }
+                        break;
+	}
+
+	return;
+}
+
+
+/**
+ * show_boot_progress: - indicate state of the boot process
+ *
+ * @param status: Status number - see README for details. 
+ *
+ * The CSB226 does only have 3 LEDs, so we switch them on at the most 
+ * important states (1, 5, 15).  
+ */
+
+void show_boot_progress (int status)
+{
+	switch(status) {
+		case  1: csb226_set_led(0,1); break;
+		case  5: csb226_set_led(1,1); break;
+		case 15: csb226_set_led(2,1); break;
+	}
+
+	return;
+}
+

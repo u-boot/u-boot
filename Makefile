@@ -322,6 +322,7 @@ SXNI855T_config:	unconfig
 xtract_8xx = $(subst _66MHz,,$(subst _80MHz,,$(subst _LCD,,$(subst _FEC,,$(subst _config,,$1)))))
 
 FPS850L_config		\
+FPS860L_config		\
 TQM823L_config		\
 TQM823L_66MHz_config	\
 TQM823L_80MHz_config	\

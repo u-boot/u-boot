@@ -17,7 +17,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -32,7 +32,7 @@
 #include <version.h>
 
 .globl _start
-_start:	b       reset
+_start: b	reset
 	ldr	pc, _undefined_instruction
 	ldr	pc, _software_interrupt
 	ldr	pc, _prefetch_abort
@@ -41,7 +41,7 @@ _start:	b       reset
 	ldr	pc, _irq
 	ldr	pc, _fiq
 
-_undefined_instruction:	.word undefined_instruction
+_undefined_instruction: .word undefined_instruction
 _software_interrupt:	.word software_interrupt
 _prefetch_abort:	.word prefetch_abort
 _data_abort:		.word data_abort
@@ -112,20 +112,20 @@ FIQ_STACK_START:
 
 
 /****************************************************************************/
-/*                                                                          */
-/* the actual reset code                                                    */
-/*                                                                          */
+/*									    */
+/* the actual reset code						    */
+/*									    */
 /****************************************************************************/
 
 reset:
-	mrs	r0,cpsr			/* set the cpu to SVC32 mode        */
-	bic	r0,r0,#0x1f		/* (superviser mode, M=10011)       */
+	mrs	r0,cpsr			/* set the cpu to SVC32 mode	    */
+	bic	r0,r0,#0x1f		/* (superviser mode, M=10011)	    */
 	orr	r0,r0,#0x13
 	msr	cpsr,r0
 
-	bl	cpu_init_crit		/* we do sys-critical inits         */
+	bl	cpu_init_crit		/* we do sys-critical inits	    */
 
-relocate:				/* relocate U-Boot to RAM          */
+relocate:				/* relocate U-Boot to RAM	   */
 	adr	r0, _start		/* r0 <- current position of code */
 	ldr	r2, _armboot_start
 	ldr	r3, _armboot_end
@@ -139,41 +139,47 @@ copy_loop:
 	cmp	r0, r2			/* until source end addreee [r2]    */
 	ble	copy_loop
 
-	/* Set up the stack                                                 */
+	/* Set up the stack						    */
 	ldr	r0, _uboot_reloc	/* upper 128 KiB: relocated uboot   */
-	sub	r0, r0, #CFG_MALLOC_LEN	/* malloc area                      */
-					/* FIXME: bdinfo should be here     */
+	sub	r0, r0, #CFG_MALLOC_LEN /* malloc area			    */
+					/* FIXME: bdinfo should be here	    */
 	sub	sp, r0, #12		/* leave 3 words for abort-stack */
 
 	ldr	pc, _start_armboot
 
-_start_armboot:	.word start_armboot
+_start_armboot: .word start_armboot
 
 
 /****************************************************************************/
-/*                                                                          */
-/* CPU_init_critical registers                                              */
-/*                                                                          */
-/* - setup important registers                                              */
-/* - setup memory timing                                                    */
-/*                                                                          */
+/*									    */
+/* CPU_init_critical registers						    */
+/*									    */
+/* - setup important registers						    */
+/* - setup memory timing						    */
+/*									    */
 /****************************************************************************/
 
-	/* Interrupt-Controller base address                                */
+	/* Interrupt-Controller base address				    */
 IC_BASE:	   .word	   0x40d00000
 #define ICMR	0x04
 
 /* Reset-Controller */
-RST_BASE:	.word   0x40f00030
+RST_BASE:	.word	0x40f00030
 #define RCSR	0x00
 
+	/* Operating System Timer */
+OSTIMER_BASE:	.word	0x40a00000
+#define OSMR3	0x0C
+#define OSCR	0x10
+#define OWER	0x18
+#define OIER	0x1C
 
-	/* Clock Manager Registers                                          */
-CC_BASE:		.word	0x41300000
-#define CCCR    0x00
-cpuspeed:	.word   CFG_CPUSPEED
+	/* Clock Manager Registers					    */
+CC_BASE:	.word	0x41300000
+#define CCCR	0x00
+cpuspeed:	.word	CFG_CPUSPEED
 
-	/* RS: ???                                                          */
+	/* RS: ???							    */
 	.macro CPWAIT
 	mrc  p15,0,r0,c2,c0,0
 	mov  r0,r0
@@ -183,7 +189,7 @@ cpuspeed:	.word   CFG_CPUSPEED
 
 cpu_init_crit:
 
-	/* mask all IRQs                                                    */
+	/* mask all IRQs						    */
 	ldr	r0, IC_BASE
 	mov	r1, #0x00
 	str	r1, [r0, #ICMR]
@@ -204,20 +210,20 @@ cpu_init_crit:
 
 	/* Memory interfaces are working. Disable MMU and enable I-cache.   */
 
-	ldr	r0, =0x2001		/* enable access to all coproc.     */
+	ldr	r0, =0x2001		/* enable access to all coproc.	    */
 	mcr	p15, 0, r0, c15, c1, 0
 	CPWAIT
 
 	mcr	p15, 0, r0, c7, c10, 4	/* drain the write & fill buffers   */
 	CPWAIT
 
-	mcr	p15, 0, r0, c7, c7, 0	/* flush Icache, Dcache and BTB     */
+	mcr	p15, 0, r0, c7, c7, 0	/* flush Icache, Dcache and BTB	    */
 	CPWAIT
 
 	mcr	p15, 0, r0, c8, c7, 0	/* flush instuction and data TLBs   */
 	CPWAIT
 
-	/* Enable the Icache                                                */
+	/* Enable the Icache						    */
 /*
 	mrc	p15, 0, r0, c1, c0, 0
 	orr	r0, r0, #0x1800
@@ -228,12 +234,12 @@ cpu_init_crit:
 
 
 /****************************************************************************/
-/*                                                                          */
-/* Interrupt handling                                                       */
-/*                                                                          */
+/*									    */
+/* Interrupt handling							    */
+/*									    */
 /****************************************************************************/
 
-/* IRQ stack frame                                                          */
+/* IRQ stack frame							    */
 
 #define S_FRAME_SIZE	72
 
@@ -259,38 +265,38 @@ cpu_init_crit:
 
 #define MODE_SVC 0x13
 
-	/* use bad_save_user_regs for abort/prefetch/undef/swi ...          */
+	/* use bad_save_user_regs for abort/prefetch/undef/swi ...	    */
 
 	.macro	bad_save_user_regs
 	sub	sp, sp, #S_FRAME_SIZE
-	stmia	sp, {r0 - r12}			/* Calling r0-r12           */
-	add     r8, sp, #S_PC
+	stmia	sp, {r0 - r12}			/* Calling r0-r12	    */
+	add	r8, sp, #S_PC
 
 	ldr	r2, _armboot_end
 	add	r2, r2, #CONFIG_STACKSIZE
 	sub	r2, r2, #8
-	ldmia	r2, {r2 - r4}                   /* get pc, cpsr, old_r0     */
-	add	r0, sp, #S_FRAME_SIZE		/* restore sp_SVC           */
+	ldmia	r2, {r2 - r4}			/* get pc, cpsr, old_r0	    */
+	add	r0, sp, #S_FRAME_SIZE		/* restore sp_SVC	    */
 
 	add	r5, sp, #S_SP
 	mov	r1, lr
-	stmia	r5, {r0 - r4}                   /* save sp_SVC, lr_SVC, pc, cpsr, old_r */
+	stmia	r5, {r0 - r4}			/* save sp_SVC, lr_SVC, pc, cpsr, old_r */
 	mov	r0, sp
 	.endm
 
 
-	/* use irq_save_user_regs / irq_restore_user_regs for                */
-	/* IRQ/FIQ handling                                                  */
+	/* use irq_save_user_regs / irq_restore_user_regs for		     */
+	/* IRQ/FIQ handling						     */
 
 	.macro	irq_save_user_regs
 	sub	sp, sp, #S_FRAME_SIZE
-	stmia	sp, {r0 - r12}			/* Calling r0-r12            */
-	add     r8, sp, #S_PC
-	stmdb   r8, {sp, lr}^                   /* Calling SP, LR            */
-	str     lr, [r8, #0]                    /* Save calling PC           */
-	mrs     r6, spsr
-	str     r6, [r8, #4]                    /* Save CPSR                 */
-	str     r0, [r8, #8]                    /* Save OLD_R0               */
+	stmia	sp, {r0 - r12}			/* Calling r0-r12	     */
+	add	r8, sp, #S_PC
+	stmdb	r8, {sp, lr}^			/* Calling SP, LR	     */
+	str	lr, [r8, #0]			/* Save calling PC	     */
+	mrs	r6, spsr
+	str	r6, [r8, #4]			/* Save CPSR		     */
+	str	r0, [r8, #8]			/* Save OLD_R0		     */
 	mov	r0, sp
 	.endm
 
@@ -309,7 +315,7 @@ cpu_init_crit:
 
 	str	lr, [r13]			@ save caller lr / spsr
 	mrs	lr, spsr
-	str     lr, [r13, #4]
+	str	lr, [r13, #4]
 
 	mov	r13, #MODE_SVC			@ prepare SVC-Mode
 	msr	spsr_c, r13
@@ -327,40 +333,40 @@ cpu_init_crit:
 
 
 /****************************************************************************/
-/*                                                                          */
-/* exception handlers                                                       */
-/*                                                                          */
+/*									    */
+/* exception handlers							    */
+/*									    */
 /****************************************************************************/
 
-	.align  5
+	.align	5
 undefined_instruction:
 	get_bad_stack
 	bad_save_user_regs
-	bl 	do_undefined_instruction
+	bl	do_undefined_instruction
 
 	.align	5
 software_interrupt:
 	get_bad_stack
 	bad_save_user_regs
-	bl 	do_software_interrupt
+	bl	do_software_interrupt
 
 	.align	5
 prefetch_abort:
 	get_bad_stack
 	bad_save_user_regs
-	bl 	do_prefetch_abort
+	bl	do_prefetch_abort
 
 	.align	5
 data_abort:
 	get_bad_stack
 	bad_save_user_regs
-	bl 	do_data_abort
+	bl	do_data_abort
 
 	.align	5
 not_used:
 	get_bad_stack
 	bad_save_user_regs
-	bl 	do_not_used
+	bl	do_not_used
 
 #ifdef CONFIG_USE_IRQ
 
@@ -368,14 +374,14 @@ not_used:
 irq:
 	get_irq_stack
 	irq_save_user_regs
-	bl 	do_irq
+	bl	do_irq
 	irq_restore_user_regs
 
 	.align	5
 fiq:
 	get_fiq_stack
 	irq_save_user_regs		/* someone ought to write a more    */
-	bl 	do_fiq			/* effiction fiq_save_user_regs     */
+	bl	do_fiq			/* effiction fiq_save_user_regs	    */
 	irq_restore_user_regs
 
 #else
@@ -384,28 +390,40 @@ fiq:
 irq:
 	get_bad_stack
 	bad_save_user_regs
-	bl 	do_irq
+	bl	do_irq
 
 	.align	5
 fiq:
 	get_bad_stack
 	bad_save_user_regs
-	bl 	do_fiq
+	bl	do_fiq
 
 #endif
 
-/*
- * FIXME How do we reset??? Watchdog timeout??
- */
+/************************************************************************/
+/*									*/
+/* Reset function: the PXA250 has no reset function, so we have to	*/
+/* perform a watchdog timeout to cause a reset.				*/
+/*									*/
+/************************************************************************/
 	.align	5
 .globl reset_cpu
 reset_cpu:
-	/*
-	ldr	r0, RST_BASE
-	mov	r1, #0x0			@ set bit 3-0 ...
-	str	r1, [r0, #RCSR]			@ ... to clear in RCSR
-	mov	r1, #0x1
-	str	r1, [r0, #RCSR]			@ and perform reset
-	*/
-	b	reset_cpu			@ silly, but repeat endlessly
+	/* We set OWE:WME (watchdog enable) and wait until timeout happens  */
 
+	ldr	r0, OSTIMER_BASE
+	ldr	r1, [r0, #OWER]
+	orr	r1, r1, #0x0001			/* bit0: WME                */
+	str	r1, [r0, #OWER]
+
+	/* OS timer does only wrap every 1165 seconds, so we have to set    */
+	/* the match register as well.                                      */
+
+	ldr	r1, [r0, #OSCR]			/* read OS timer            */
+	add	r1, r1, #0x800			/* let OSMR3 match after    */
+	add	r1, r1, #0x800			/* 4096*(1/3.6864MHz)=1ms   */
+	str	r1, [r0, #OSMR3]
+
+reset_endless:
+
+	b	reset_endless
