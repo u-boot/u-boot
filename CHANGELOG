@@ -2,6 +2,12 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Robert Schwebel, 10 Jun 2004:
+  Add support for Intel K3 strata flash.
+
+* Patch by Thomas Brand, 10 Jun 2004:
+  Fix "loads" command on DK1S10 board
+
 * Patch by Yuli Barcohen, 09 Jun 2004:
   Add support for 8MB flash SIMM and JFFS2 file system on
   Motorola FADS board and its derivatives (MPC86xADS, MPC885ADS).

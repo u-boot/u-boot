@@ -248,9 +248,9 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 #define INTEL_ID_28F640J3A  0x00170017	/*  64M = 128K x  64	*/
 #define INTEL_ID_28F128J3A  0x00180018	/* 128M = 128K x 128	*/
 #define INTEL_ID_28F256L18T 0x880D880D	/* 256M = 128K x 255 + 32k x 4 */
-#define INTEL_ID_28F256K3 0x88038803          /* 256M = 128K x 255 + 32k x 4 */
-#define INTEL_ID_28F128K3 0x88028802          /* 128M = 64K x 255 + 32k x 4 */
-#define INTEL_ID_28F64K3  0x88018801          /*  64M = 32K x 255 + 32k x 4 */
+#define INTEL_ID_28F64K3    0x88018801	/*  64M =  32K x 255 + 32k x 4 */
+#define INTEL_ID_28F128K3   0x88028802	/* 128M =  64K x 255 + 32k x 4 */
+#define INTEL_ID_28F256K3   0x88038803	/* 256M = 128K x 255 + 32k x 4 */
 
 #define INTEL_ID_28F160S3   0x00D000D0	/*  16M = 512K x  32 (64kB x 32)	*/
 #define INTEL_ID_28F320S3   0x00D400D4	/*  32M = 512K x  64 (64kB x 64)	*/
@@ -330,10 +330,6 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 #define FLASH_INTEL640T 0x007A		/* INTEL 28F320B3T ( 64M =  4 M x 16 )	*/
 #define FLASH_INTEL640B 0x007B		/* INTEL 28F320B3B ( 64M =  4 M x 16 )	*/
 
-#define FLASH_28F320J3A 0x007C		/* INTEL 28F320J3A ( 32M = 128K x  32)	*/
-#define FLASH_28F640J3A 0x007D		/* INTEL 28F640J3A ( 64M = 128K x  64)	*/
-#define FLASH_28F128J3A 0x007E		/* INTEL 28F128J3A (128M = 128K x 128)	*/
-
 #define FLASH_28F008S5	0x0080		/* Intel 28F008S5  (  1M =  64K x 16 )	*/
 #define FLASH_28F016SV	0x0081		/* Intel 28F016SV  ( 16M = 512k x 32 )	*/
 #define FLASH_28F800_B	0x0083		/* Intel E28F800B  (  1M = ? )		*/
@@ -364,15 +360,20 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 #define FLASH_AMLV256U	0x00AA		/* AMD 29LV256M	   ( 256M = 16M x 16 )	*/
 #define FLASH_MXLV320B  0x00AB		/* MX  29LV320MB   ( 32M = 2M x 16 )	*/
 #define FLASH_MXLV320T	0x00AC		/* MX  29LV320MT   ( 32M = 2M x 16 )	*/
-/* Intel 28F256L18T 256M = 128K x 255 + 32k x 4	*/
-#define FLASH_28F256L18T 0x00B0
-#define FLASH_28F256K3	0x00A8
+#define FLASH_28F256L18T 0x00B0		/* Intel 28F256L18T 256M = 128K x 255 + 32k x 4 */
 #define FLASH_AMDL163T	0x00B2		/* AMD AM29DL163T (2M x 16 )			*/
 #define FLASH_AMDL163B	0x00B3
+#define FLASH_28F64K3	0x00B4		/* Intel 28F64K3   (  64M)		*/
+#define FLASH_28F128K3	0x00B6		/* Intel 28F128K3  ( 128M = 8M x 16 )   */
+#define FLASH_28F256K3	0x00B8		/* Intel 28F256K3  ( 256M = 16M x 16 )  */
 
-#define FLASH_FUJLV650	0x00B4		/* Fujitsu MBM 29LV650UE/651UE		*/
+#define FLASH_28F320J3A 0x00C0		/* INTEL 28F320J3A ( 32M = 128K x  32)	*/
+#define FLASH_28F640J3A 0x00C2		/* INTEL 28F640J3A ( 64M = 128K x  64)	*/
+#define FLASH_28F128J3A 0x00C4		/* INTEL 28F128J3A (128M = 128K x 128)	*/
 
-#define FLASH_MT28S4M16LC 0x00B5	/* Micron MT28S4M16LC 			*/
+#define FLASH_FUJLV650	0x00D0		/* Fujitsu MBM 29LV650UE/651UE		*/
+#define FLASH_MT28S4M16LC 0x00E1	/* Micron MT28S4M16LC 			*/
+
 #define FLASH_UNKNOWN	0xFFFF		/* unknown flash type			*/
 
 

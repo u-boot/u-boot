@@ -33,26 +33,26 @@ typedef unsigned long * p_u32;
 flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips    */
 
 /*  Following Setting is for CSD1	*/
-#define SFCTL			0x00221004
-#define reg_SFCTL		__REG(SFCTL)
+#define SFCTL		0x00221004
+#define reg_SFCTL	__REG(SFCTL)
 
-#define SYNCFLASH_A10		(0x00100000)
+#define SYNCFLASH_A10	(0x00100000)
 
-#define CMD_NORMAL		(0x81020300)			/* Normal Mode			*/
-#define CMD_PREC		(CMD_NORMAL + 0x10000000) 	/* Precharge Command		*/
-#define CMD_AUTO		(CMD_NORMAL + 0x20000000) 	/* Auto Refresh Command		*/
-#define CMD_LMR			(CMD_NORMAL + 0x30000000) 	/* Load Mode Register Command 	*/
-#define CMD_LCR			(CMD_NORMAL + 0x60000000) 	/* LCR Command			*/
-#define CMD_PROGRAM		(CMD_NORMAL + 0x70000000)
+#define CMD_NORMAL	(0x81020300)			/* Normal Mode			*/
+#define CMD_PREC	(CMD_NORMAL + 0x10000000) 	/* Precharge Command		*/
+#define CMD_AUTO	(CMD_NORMAL + 0x20000000) 	/* Auto Refresh Command		*/
+#define CMD_LMR		(CMD_NORMAL + 0x30000000) 	/* Load Mode Register Command 	*/
+#define CMD_LCR		(CMD_NORMAL + 0x60000000) 	/* LCR Command			*/
+#define CMD_PROGRAM	(CMD_NORMAL + 0x70000000)
 
-#define MODE_REG_VAL		(CFG_FLASH_BASE+0x0008CC00) 	/* Cas Latency 3		*/
+#define MODE_REG_VAL	(CFG_FLASH_BASE+0x0008CC00) 	/* Cas Latency 3		*/
 
 /* LCR Command */
-#define LCR_READSTATUS		(0x0001C000)			/* 0x70				*/
-#define LCR_ERASE_CONFIRM	(0x00008000)			/* 0x20				*/
-#define LCR_ERASE_NVMODE	(0x0000C000)			/* 0x30				*/
-#define LCR_PROG_NVMODE		(0x00028000)			/* 0xA0				*/
-#define LCR_SR_CLEAR		(0x00014000)			/* 0x50				*/
+#define LCR_READSTATUS		(0x0001C000)		/* 0x70				*/
+#define LCR_ERASE_CONFIRM	(0x00008000)		/* 0x20				*/
+#define LCR_ERASE_NVMODE	(0x0000C000)		/* 0x30				*/
+#define LCR_PROG_NVMODE		(0x00028000)		/* 0xA0				*/
+#define LCR_SR_CLEAR		(0x00014000)		/* 0x50				*/
 
 
 /* Get Status register 			*/
@@ -330,5 +330,3 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt) {
 	
 	return ERR_OK;
 }
-
-

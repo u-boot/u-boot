@@ -103,7 +103,7 @@ jffs2_part_info(int part_num)
 
 		memset(&part, 0, sizeof(part));
 
-		part.offset = CONFIG_JFFS2_NAND_OFF;
+		part.offset = (char *)CONFIG_JFFS2_NAND_OFF;
 		part.size = CONFIG_JFFS2_NAND_SIZE; /* the bigger size the slower jffs2 */
 
 #ifndef CONFIG_JFFS2_NAND_DEV

@@ -366,8 +366,9 @@
 #define BCSR1_PCCVCC1            ((uint)0x00010000)
 
 #define BCSR2_FLASH_PD_MASK      ((uint)0xF0000000)
+#define BCSR2_FLASH_PD_SHIFT	 28
 #define BCSR2_DRAM_PD_MASK       ((uint)0x07800000)
-#define BCSR2_DRAM_PD_SHIFT      (23)
+#define BCSR2_DRAM_PD_SHIFT      23
 #define BCSR2_EXTTOLI_MASK       ((uint)0x00780000)
 #define BCSR2_DBREVNR_MASK       ((uint)0x00030000)
 

@@ -142,6 +142,7 @@
 #if	(CFG_NIOS_CPU_UART_NUMS != 0)
 
 #define CFG_NIOS_CONSOLE	CFG_NIOS_CPU_UART0 /* 1st UART is Cons. */
+#define CONFIG_LOADS_ECHO	1	 /* echo on for serial download */
 
 #if	(CFG_NIOS_CPU_UART0_BR != 0)
 #define CFG_NIOS_FIXEDBAUD	1		   /* Baudrate is fixed	*/

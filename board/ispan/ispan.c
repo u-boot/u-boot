@@ -236,6 +236,7 @@ static int seeprom_read (int addr, uchar * data, int size)
  * Serial EEPROM conected to the PSpan bridge. We keep it as
  * simple as possible.
  */
+#ifdef DEBUG
 static int hwc_flash_size (void)
 {
 	uchar byte;
@@ -273,6 +274,7 @@ static int hwc_local_sdram_size (void)
 	}
 	return -1;
 }
+#endif	/* DEBUG */
 
 static int hwc_main_sdram_size (void)
 {
