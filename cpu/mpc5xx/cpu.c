@@ -131,10 +131,10 @@ int do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	ulong addr;
 	
 	/* Interrupts off, enable reset */
-        __asm__ volatile	("  mtspr	81, %r0		\n\t
-				    mfmsr	%r3		\n\t
-				    rlwinm	%r31,%r3,0,25,23\n\t
-				    mtmsr	%r31		\n\t");
+        __asm__ volatile	("  mtspr	81, %r0		\n\t"
+				 "  mfmsr	%r3		\n\t"
+				 "  rlwinm	%r31,%r3,0,25,23\n\t"
+				 "  mtmsr	%r31		\n\t");
         /*
          * Trying to execute the next instruction at a non-existing address
          * should cause a machine check, resulting in reset

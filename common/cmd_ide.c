@@ -792,15 +792,7 @@ ide_inb(int dev, int port)
 #endif	/* __PPC__ */
 
 #ifdef __PPC__
-__inline__ unsigned ld_le16(const volatile unsigned short *addr)
-{
-	unsigned val;
-
-	__asm__ __volatile__ ("lhbrx %0,0,%1" : "=r"(val) : "r"(addr), "m"(*addr));
-	return val;
-}
-
-#ifdef CONFIG_AMIGAONEG3SE
+# ifdef CONFIG_AMIGAONEG3SE
 static void
 output_data_short(int dev, ulong *sect_buf, int words)
 {
@@ -818,7 +810,7 @@ output_data_short(int dev, ulong *sect_buf, int words)
 	if (words&1)
 	    *pbuf = 0;
 }
-#endif
+# endif	/* CONFIG_AMIGAONEG3SE */
 
 static void
 input_swap_data(int dev, ulong *sect_buf, int words)

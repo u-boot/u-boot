@@ -37,6 +37,7 @@
 #include <mpc8260.h>
 #include <i2c.h>
 #include <spd.h>
+#include <miiphy.h>
 
 /*
  * I/O Port configuration table
@@ -133,8 +134,8 @@ const iop_conf_t iop_conf_tab[4][32] = {
 	/* PC22 */ {   0,   1,   0,   0,   0,   0   }, /* ATMRFCLK */
 	/* PC21 */ {   0,   1,   0,   0,   0,   0   }, /* SCC1 EN RXCLK */
 	/* PC20 */ {   0,   1,   0,   0,   0,   0   }, /* SCC1 EN TXCLK */
-	/* PC19 */ {   1,   1,   0,   0,   0,   0   }, /* FCC2 MII RX_CLK CLK13 */
-	/* PC18 */ {   1,   1,   0,   0,   0,   0   }, /* FCC Tx Clock (CLK14) */
+	/* PC19 */ {   1,   1,   0,   0,   0,   0   }, /* FCC2 MII Rx Clock (CLK13) */
+	/* PC18 */ {   1,   1,   0,   0,   0,   0   }, /* FCC2 MII Tx Clock (CLK14) */
 	/* PC17 */ {   0,   0,   0,   1,   0,   0   }, /* PC17 */
 	/* PC16 */ {   0,   1,   0,   0,   0,   0   }, /* FCC Tx Clock (CLK16) */
 	/* PC15 */ {   0,   0,   0,   1,   0,   0   }, /* PC15 */
@@ -142,8 +143,8 @@ const iop_conf_t iop_conf_tab[4][32] = {
 	/* PC13 */ {   0,   0,   0,   1,   0,   0   }, /* PC13 */
 	/* PC12 */ {   0,   1,   0,   1,   0,   0   }, /* PC12 */
 	/* PC11 */ {   0,   0,   0,   1,   0,   0   }, /* LXT971 transmit control */
-	/* PC10 */ {   1,   1,   0,   0,   0,   0   }, /* LXT970 FETHMDC */
-	/* PC9  */ {   1,   1,   0,   0,   0,   0   }, /* LXT970 FETHMDIO */
+	/* PC10 */ {   1,   0,   0,   1,   0,   0   }, /* LXT970 FETHMDC */
+	/* PC9  */ {   1,   0,   0,   0,   0,   0   }, /* LXT970 FETHMDIO */
 	/* PC8  */ {   0,   0,   0,   1,   0,   0   }, /* PC8 */
 	/* PC7  */ {   0,   0,   0,   1,   0,   0   }, /* PC7 */
 	/* PC6  */ {   0,   0,   0,   1,   0,   0   }, /* PC6 */
@@ -157,8 +158,8 @@ const iop_conf_t iop_conf_tab[4][32] = {
 
     /* Port D */
     {   /*	      conf ppar psor pdir podr pdat */
-	/* PD31 */ {   1,   1,   0,   0,   0,   0   }, /* SCC1 EN RxD */
-	/* PD30 */ {   1,   1,   1,   1,   0,   0   }, /* SCC1 EN TxD */
+	/* PD31 */ {   1,   1,   0,   0,   0,   0   }, /* SCC1 UART RxD */
+	/* PD30 */ {   1,   1,   1,   1,   0,   0   }, /* SCC1 UART TxD */
 	/* PD29 */ {   0,   1,   0,   1,   0,   0   }, /* SCC1 EN TENA */
 	/* PD28 */ {   0,   1,   0,   0,   0,   0   }, /* PD28 */
 	/* PD27 */ {   0,   1,   1,   1,   0,   0   }, /* PD27 */
@@ -173,14 +174,14 @@ const iop_conf_t iop_conf_tab[4][32] = {
 	/* PD18 */ {   0,   0,   0,   1,   0,   0   }, /* PD18 */
 	/* PD17 */ {   0,   1,   0,   0,   0,   0   }, /* FCC1 ATMRXPRTY */
 	/* PD16 */ {   0,   1,   0,   1,   0,   0   }, /* FCC1 ATMTXPRTY */
-       /* PD15 */ {   1,   1,   1,   0,   1,   0   }, /* I2C SDA */
-       /* PD14 */ {   1,   1,   1,   0,   1,   0   }, /* I2C SCL */
+	/* PD15 */ {   1,   1,   1,   0,   1,   0   }, /* I2C SDA */
+	/* PD14 */ {   1,   1,   1,   0,   1,   0   }, /* I2C SCL */
 	/* PD13 */ {   0,   0,   0,   0,   0,   0   }, /* PD13 */
 	/* PD12 */ {   0,   0,   0,   0,   0,   0   }, /* PD12 */
 	/* PD11 */ {   0,   0,   0,   0,   0,   0   }, /* PD11 */
 	/* PD10 */ {   0,   0,   0,   0,   0,   0   }, /* PD10 */
-	/* PD9  */ {   1,   1,   0,   1,   0,   0   }, /* SMC1 TXD */
-	/* PD8  */ {   1,   1,   0,   0,   0,   0   }, /* SMC1 RXD */
+	/* PD9  */ {   0,   1,   0,   1,   0,   0   }, /* SMC1 TXD */
+	/* PD8  */ {   0,   1,   0,   0,   0,   0   }, /* SMC1 RXD */
 	/* PD7  */ {   0,   0,   0,   1,   0,   1   }, /* PD7 */
 	/* PD6  */ {   0,   0,   0,   1,   0,   1   }, /* PD6 */
 	/* PD5  */ {   0,   0,   0,   1,   0,   1   }, /* PD5 */
@@ -192,32 +193,33 @@ const iop_conf_t iop_conf_tab[4][32] = {
     }
 };
 
-typedef struct bscr_ {
-	unsigned long bcsr0;
-	unsigned long bcsr1;
-	unsigned long bcsr2;
-	unsigned long bcsr3;
-	unsigned long bcsr4;
-	unsigned long bcsr5;
-	unsigned long bcsr6;
-	unsigned long bcsr7;
-} bcsr_t;
-
 void reset_phy (void)
 {
-	volatile bcsr_t *bcsr = (bcsr_t *) CFG_BCSR;
+	vu_long *bcsr = (vu_long *)CFG_BCSR;
 
 	/* reset the FEC port */
-	bcsr->bcsr1 &= ~FETH_RST;
-	bcsr->bcsr1 |=  FETH_RST;
+	bcsr[1] &= ~FETH_RST;
+	udelay(2);
+	bcsr[1] |=  FETH_RST;
+	udelay(1000);
+#ifdef CONFIG_MII
+	/*
+	 * Ethernet PHY is configured (by means of configuration pins)
+	 * to work at 10Mb/s only. We reconfigure it using MII
+	 * to advertise all capabilities, including 100Mb/s, and
+	 * restart autonegotiation.
+	 */
+	miiphy_write(0, PHY_ANAR, 0x01E1); /* Advertise all capabilities */
+	miiphy_write(0, PHY_DCR,  0x0000); /* Do not bypass Rx/Tx (de)scrambler */
+	miiphy_write(0, PHY_BMCR, PHY_BMCR_AUTON | PHY_BMCR_RST_NEG);
+#endif /* CONFIG_MII */
 }
-
 
 int board_pre_init (void)
 {
-	volatile bcsr_t *bcsr = (bcsr_t *) CFG_BCSR;
+	vu_long *bcsr = (vu_long *)CFG_BCSR;
 
-	bcsr->bcsr1 = ~FETHIEN & ~RS232EN_1;
+	bcsr[1] = ~FETHIEN & ~RS232EN_1;
 
 	return 0;
 }

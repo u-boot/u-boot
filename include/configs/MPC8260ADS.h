@@ -7,6 +7,10 @@
  * Note: my board is a PILOT rev.
  * Note: the mpc8260ads doesn't come with a proper Ethernet MAC address.
  *
+ * (C) Copyright 2003 Arabella Software Ltd.
+ * Yuli Barcohen <yuli@arabellasw.com>
+ * Added support for SDRAM DIMMs SPD EEPROM, MII.
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -145,9 +149,8 @@
 				 CFG_CMD_IDE	| \
 				 CFG_CMD_JFFS2	| \
 				 CFG_CMD_KGDB	| \
-				 CFG_CMD_NAND	| \
-				 CFG_CMD_MII	| \
 				 CFG_CMD_MMC	| \
+				 CFG_CMD_NAND	| \
 				 CFG_CMD_PCI	| \
 				 CFG_CMD_PCMCIA | \
 				 CFG_CMD_SCSI	| \

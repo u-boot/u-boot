@@ -2,6 +2,12 @@
 Changes since U-Boot 0.3.1:
 ======================================================================
 
+* Patch by Yuli Barcohen, 23 Jun 2003:
+  Update for MPC8260ADS board
+
+* Patch by Murray Jensen, 23 Jun 2003:
+  - cleanup of GCC 3.x compiler warnings
+
 * Patch by Rune Torgersen, 4 Jun 2003:
   add large memory support for MPC8266ADS board
   
