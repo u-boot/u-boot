@@ -586,4 +586,9 @@ int	pcmcia_init (void);
 void	show_boot_progress (int status);
 #endif
 
+#ifdef CONFIG_INIT_CRITICAL
+#error CONFIG_INIT_CRITICAL is depracted!
+#error Read section CONFIG_SKIP_LOWLEVEL_INIT in README.
+#endif
+
 #endif	/* __COMMON_H_ */

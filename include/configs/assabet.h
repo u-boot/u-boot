@@ -31,8 +31,6 @@
 
 #undef DEBUG
 
-#define CONFIG_INIT_CRITICAL
-
 /*
  * High Level Configuration Options
  * (easy to change)

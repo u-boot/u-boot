@@ -25,12 +25,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-/*
- * If we are developing, we might want to start armboot from ram
- * so we MUST NOT initialize critical regs like mem-timing ...
- */
-#define CONFIG_INIT_CRITICAL
-
 /* ARM asynchronous clock */
 #define AT91C_MAIN_CLOCK	207360000	/* from 18.432 MHz crystal (18432000 / 4 * 45) */
 #define AT91C_MASTER_CLOCK	(AT91C_MAIN_CLOCK/3)	/* peripheral clock */
@@ -44,7 +38,7 @@
 #define CONFIG_SETUP_MEMORY_TAGS 1
 #define CONFIG_INITRD_TAG	1
 
-#ifdef CONFIG_INIT_CRITICAL
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT
 #define CFG_USE_MAIN_OSCILLATOR		1
 /* flash */
 #define MC_PUIA_VAL	0x00000000
@@ -74,7 +68,7 @@
 #define SDRC_MR_VAL2	0x00000003 /* Load Mode Register */
 #define SDRC_MR_VAL3	0x00000000 /* Normal Mode */
 #define SDRC_TR_VAL	0x000002E0 /* Write refresh rate */
-#endif	/* CONFIG_INIT_CRITICAL */
+#endif	/* CONFIG_SKIP_LOWLEVEL_INIT */
 
 /*
  * Size of malloc() pool

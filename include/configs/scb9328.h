@@ -119,7 +119,6 @@
 
 #define PRECHARGE_CMD 0x910a8200
 #define AUTOREFRESH_CMD 0xa10a8200
-#define CONFIG_INIT_CRITICAL
 
 /*
  * SDRAM Memory Map

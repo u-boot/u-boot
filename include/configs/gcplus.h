@@ -40,7 +40,8 @@
  * boot ROM leaves the MMU enabled when it passes control to U-Boot. So
  * we use lowlevel_init (CONFIG_INIT_CRITICAL) to remedy that problem.
  */
-#define CONFIG_INIT_CRITICAL
+#undef  CONFIG_SKIP_LOWLEVEL_INIT
+#define CONFIG_SKIP_RELOCATE_UBOOT	1
 
 /*
  * High Level Configuration Options

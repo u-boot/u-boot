@@ -34,12 +34,6 @@
 #define DEBUG 1
 
 /*
- * If we are developing, we might want to start U-Boot from ram
- * so we MUST NOT initialize critical regs like mem-timing ...
- */
-#define CONFIG_INIT_CRITICAL
-
-/*
  * High Level Configuration Options
  * (easy to change)
  */

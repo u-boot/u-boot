@@ -28,12 +28,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-/*
- * If we are developing, we might want to start armboot from ram
- * so we MUST NOT initialize critical regs like mem-timing ...
- */
-#define CONFIG_INIT_CRITICAL
-
 /* High Level Configuration Options */
 #define CONFIG_PXA250			1		/* This is an PXA250 CPU    */
 #define CONFIG_XSENGINE			1

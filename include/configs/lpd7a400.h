@@ -23,12 +23,6 @@
 
 #define CONFIG_LPD7A400		/* Logic LH7A400 SDK */
 
-/*
- * If we are developing, we might want to start armboot from ram
- * so we MUST NOT initialize critical regs like mem-timing ...
- */
-#define CONFIG_INIT_CRITICAL
-
 #undef CONFIG_USE_IRQ
 
 /*

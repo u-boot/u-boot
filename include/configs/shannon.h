@@ -28,16 +28,13 @@
 #define __CONFIG_H
 
 /*
- * If we are developing, we might want to start armboot from ram
- * so we MUST NOT initialize critical regs like mem-timing ...
- */
-
-/*
- * we just run in non-critical mode now, because we use the Inferno-Loader to
- * bring us to live
+ * Since we use the Inferno-Loader to bring us to live,
+ * we skip the lowlevel init stuff.
+ * But U-Boot still relocates itself into RAM
  */
 #define CONFIG_INFERNO			/* we are using the inferno bootldr */
-#undef CONFIG_INIT_CRITICAL
+#define CONFIG_SKIP_LOWLEVEL_INIT	1
+#undef  CONFIG_SKIP_RELOCATE_UBOOT
 
 /*
  * High Level Configuration Options

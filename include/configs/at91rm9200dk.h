@@ -25,12 +25,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-/*
- * If we are developing, we might want to start armboot from ram
- * so we MUST NOT initialize critical regs like mem-timing ...
- */
-#define CONFIG_INIT_CRITICAL
-
 /* ARM asynchronous clock */
 #define AT91C_MAIN_CLOCK	179712000	/* from 18.432 MHz crystal (18432000 / 4 * 39) */
 #define AT91C_MASTER_CLOCK	59904000	/* peripheral clock (AT91C_MASTER_CLOCK / 3) */
@@ -44,7 +38,7 @@
 #define CONFIG_SETUP_MEMORY_TAGS 1
 #define CONFIG_INITRD_TAG	1
 
-#ifdef CONFIG_INIT_CRITICAL
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT
 #define CFG_USE_MAIN_OSCILLATOR		1
 /* flash */
 #define MC_PUIA_VAL	0x00000000
@@ -74,7 +68,7 @@
 #define SDRC_MR_VAL2	0x00000003 /* Load Mode Register */
 #define SDRC_MR_VAL3	0x00000000 /* Normal Mode */
 #define SDRC_TR_VAL	0x000002E0 /* Write refresh rate */
-#endif	/* CONFIG_INIT_CRITICAL */
+#endif	/* CONFIG_SKIP_LOWLEVEL_INIT */
 /*
  * Size of malloc() pool
  */
@@ -177,19 +171,19 @@
 #define CFG_ENV_SIZE			0x2000  /* 0x8000 */
 #else
 #define CFG_ENV_IS_IN_FLASH		1
-#ifdef CONFIG_INIT_CRITICAL
+#ifdef CONFIG_SKIP_LOWLEVEL_INIT
 #define CFG_ENV_ADDR			(PHYS_FLASH_1 + 0x60000)  /* after u-boot.bin */
 #define CFG_ENV_SIZE			0x10000 /* sectors are 64K here */
 #else
 #define CFG_ENV_ADDR			(PHYS_FLASH_1 + 0xe000)  /* between boot.bin and u-boot.bin.gz */
 #define CFG_ENV_SIZE			0x2000  /* 0x8000 */
-#endif	/* CONFIG_INIT_CRITICAL */
+#endif	/* CONFIG_SKIP_LOWLEVEL_INIT */
 #endif	/* CFG_ENV_IS_IN_DATAFLASH */
 
 
 #define CFG_LOAD_ADDR		0x21000000  /* default load address */
 
-#ifdef CONFIG_INIT_CRITICAL
+#ifdef CONFIG_SKIP_LOWLEVEL_INIT
 #define CFG_BOOT_SIZE		0x00 /* 0 KBytes */
 #define CFG_U_BOOT_BASE		PHYS_FLASH_1
 #define CFG_U_BOOT_SIZE		0x60000 /* 384 KBytes */
@@ -197,7 +191,7 @@
 #define CFG_BOOT_SIZE		0x6000 /* 24 KBytes */
 #define CFG_U_BOOT_BASE		(PHYS_FLASH_1 + 0x10000)
 #define CFG_U_BOOT_SIZE		0x10000 /* 64 KBytes */
-#endif	/* CONFIG_INIT_CRITICAL */
+#endif	/* CONFIG_SKIP_LOWLEVEL_INIT */
 
 #define CFG_BAUDRATE_TABLE	{115200 , 19200, 38400, 57600, 9600 }
 

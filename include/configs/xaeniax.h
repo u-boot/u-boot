@@ -37,16 +37,6 @@
 #define __CONFIG_H
 
 /*
- * If we are developing, we might want to start armboot from ram
- * so we MUST NOT initialize critical regs like mem-timing ...
- */
-#define CONFIG_INIT_CRITICAL
-
-/*
-#undef CONFIG_INIT_CRITICAL
-*/
-
-/*
  * High Level Configuration Options
  * (easy to change)
  */
