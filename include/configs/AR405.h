@@ -66,8 +66,10 @@
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define	CONFIG_PHY_ADDR		0	/* PHY address			*/
 
-#define CONFIG_COMMANDS         \
-	(CONFIG_CMD_DFL | CFG_CMD_PCI | CFG_CMD_IRQ | CFG_CMD_ASKENV)
+#define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
+				CFG_CMD_PCI	| \
+				CFG_CMD_IRQ	| \
+				CFG_CMD_ELF	)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -227,14 +229,15 @@
 #define CFG_EBC_PB5CR           0xFF85A000  /* BAS=0xFF8,BS=4MB,BU=R/W,BW=16bit */
 
 /*-----------------------------------------------------------------------
- * Definitions for initial stack pointer and data area (in RAM)
+ * Definitions for initial stack pointer and data area (in data cache)
  */
-#define CFG_INIT_RAM_ADDR	0x00df0000 /* inside of SDRAM                   */
-#define CFG_INIT_RAM_END	0x0f00	/* End of used area in RAM	       */
-#define CFG_GBL_DATA_SIZE	64  /* size in bytes reserved for initial data */
-#define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
+#define CFG_INIT_DCACHE_CS      7       /* use cs # 7 for data cache memory    */
 
+#define CFG_INIT_RAM_ADDR       0x40000000  /* use data cache                  */
+#define CFG_INIT_RAM_END        0x2000  /* End of used area in RAM             */
+#define CFG_GBL_DATA_SIZE      128  /* size in bytes reserved for initial data */
+#define CFG_GBL_DATA_OFFSET    (CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
+#define CFG_INIT_SP_OFFSET      CFG_GBL_DATA_OFFSET
 
 /*
  * Internal Definitions
