@@ -2,6 +2,12 @@
 Changes for U-Boot 0.4.2:
 ======================================================================
 
+* Patch by Stefan Roese, 11 Jul 2003:
+  - Fix bug in CONFIG_VERSION_VARIABLE.
+  - AR405 config updated.
+  - OCRTC/ORSG: bsp command added.
+  - ASH405 bsp update.
+
 * Add support for NSCU board
 
 * Add support for TQM823M, TQM850M, TQM855M and TQM860M modules
