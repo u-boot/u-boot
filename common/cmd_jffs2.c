@@ -49,6 +49,8 @@ static int part_num=0;
 
 static struct part_info part;
 
+#ifndef CONFIG_JFFS2_NAND
+
 struct part_info*
 jffs2_part_info(int part_num)
 {
@@ -88,6 +90,33 @@ jffs2_part_info(int part_num)
 	}
 	return 0;
 }
+
+#else /* CONFIG_JFFS2_NAND */
+
+struct part_info*
+jffs2_part_info(int part_num)
+{
+	if(part_num==0){
+
+		if(part.usr_priv==(void*)1)
+			return &part;
+
+		memset(&part, 0, sizeof(part));
+
+		part.offset = CONFIG_JFFS2_NAND_OFF;
+		part.size = CONFIG_JFFS2_NAND_SIZE; /* the bigger size the slower jffs2 */
+
+#ifndef CONFIG_JFFS2_NAND_DEV
+#define CONFIG_JFFS2_NAND_DEV 0
+#endif
+		/* nand device with the JFFS2 parition plus 1 */
+		part.usr_priv = (void*)(CONFIG_JFFS2_NAND_DEV+1);
+		return &part;
+	}
+	return 0;
+}
+
+#endif /* CONFIG_JFFS2_NAND */
 #endif /* ifndef CFG_JFFS_CUSTOM_PART */
 
 int

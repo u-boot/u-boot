@@ -2,6 +2,12 @@
 Changes for U-Boot 1.1.1:
 ======================================================================
  
+* Configure PPChameleon board to use redundand environment in flash
+
+* Configure PPChameleon board to use JFFS2 NAND support.
+
+* Added support for JFFS2 filesystem (read-only) on top of NAND flash
+
 * Patch by Rune Torgersen, 16 Apr 2004:
   LBA48 fixes
 

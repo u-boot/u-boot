@@ -1,0 +1,24 @@
+JFFS2 NAND support:
+
+To ebable, use the following #define in the board configuration file:
+
+#define CONFIG_JFFS2_NAND 1
+
+Configuration of partitions is similar to how this is done in  U-Boot
+for  JFFS2  on top NOR flash. If a single parition is used, it can be
+configured using the following #defines in the configuration file:
+
+#define CONFIG_JFFS2_NAND_DEV 0			/* nand device jffs2 lives on */
+#define CONFIG_JFFS2_NAND_OFF 0			/* start of jffs2 partition */
+#define CONFIG_JFFS2_NAND_SIZE 2*1024*1024	/* size of jffs2 partition */
+
+If more than a single partition is desired, the user can define a
+CFG_JFFS_CUSTOM_PART macro and implement a
+
+	struct part_info* jffs2_part_info(int part_num)
+
+function in a board-specific module. An example of such function is
+available in common/cmd_jffs2.c
+
+The default configuration for the DAVE board has a single JFFS2
+partition of 2 MB size.

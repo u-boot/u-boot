@@ -73,9 +73,6 @@ SECTIONS
     lib_ppc/extable.o	(.text)
     lib_generic/zlib.o		(.text)
 
-/*    . = env_offset;*/
-/*    common/environment.o(.text)*/
-
     *(.text)
     *(.fixup)
     *(.got1)
@@ -142,6 +139,13 @@ SECTIONS
    *(.bss)
    *(COMMON)
   }
+
+  . = 0xFFFF8000;
+  .ppcenv : 
+  {
+    common/environment.o(.ppcenv);
+  }
+
   _end = . ;
   PROVIDE (end = .);
 }

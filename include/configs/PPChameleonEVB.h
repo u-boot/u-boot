@@ -93,7 +93,8 @@
 				CFG_CMD_I2C	| \
 				CFG_CMD_IRQ	| \
 				CFG_CMD_MII	| \
-				CFG_CMD_NAND	)
+				CFG_CMD_NAND	| \
+				CFG_CMD_JFFS2)
 
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
@@ -345,10 +346,11 @@
 /*-----------------------------------------------------------------------
  * Environment Variable setup
  */
-#define CFG_ENV_IS_IN_EEPROM	1	/* use EEPROM for environment vars */
-#define CFG_ENV_OFFSET		0x100	/* environment starts at the beginning of the EEPROM */
-#define CFG_ENV_SIZE		0x700	/* 2048 bytes may be used for env vars*/
-				   /* total size of a CAT24WC16 is 2048 bytes */
+#define CFG_ENV_IS_IN_FLASH	1	/* use FLASH for environment vars */
+#define CFG_ENV_ADDR		0xFFFF8000	/* environment starts at the first small sector */
+#define CFG_ENV_SECT_SIZE	0x2000	/* 8196 bytes may be used for env vars*/
+#define CFG_ENV_ADDR_REDUND	0xFFFFA000
+#define CFG_ENV_SIZE_REDUND	0x2000
 
 #define CFG_NVRAM_BASE_ADDR	0xF0000500		/* NVRAM base address	*/
 #define CFG_NVRAM_SIZE		242			/* NVRAM size		*/
@@ -693,5 +695,11 @@
 #endif
 
 #endif /* CONFIG_NO_SERIAL_EEPROM */
+
+#define CONFIG_JFFS2_NAND 1 			/* jffs2 on nand support */
+#define CONFIG_JFFS2_NAND_DEV 0			/* nand device jffs2 lives on */
+#define CONFIG_JFFS2_NAND_OFF 0			/* start of jffs2 partition */
+#define CONFIG_JFFS2_NAND_SIZE 2*1024*1024	/* size of jffs2 partition */
+#define NAND_CACHE_PAGES 16			/* size of nand cache in 512 bytes pages */
 
 #endif	/* __CONFIG_H */

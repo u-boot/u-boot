@@ -232,7 +232,7 @@ int do_nand (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			     &total, (u_char*)addr);
 
 		printf (" %d bytes %s: %s\n", total,
-			(cmd & NANDRW_READ) ? "read" : "write",
+			(cmd & NANDRW_READ) ? "read" : "written",
 			ret ? "ERROR" : "OK");
 
 		return ret;
@@ -1669,4 +1669,17 @@ static int nand_correct_data (u_char *dat, u_char *read_ecc, u_char *calc_ecc)
 }
 
 #endif
+
+#ifdef CONFIG_JFFS2_NAND
+
+int read_jffs2_nand(size_t start, size_t len,
+		    size_t * retlen, u_char * buf, int nanddev)
+{
+	return nand_rw(nand_dev_desc + nanddev, NANDRW_READ | NANDRW_JFFS2,
+		       start, len, retlen, buf);
+}
+
+#endif /* CONFIG_JFFS2_NAND */
+
+
 #endif /* (CONFIG_COMMANDS & CFG_CMD_NAND) */

@@ -669,8 +669,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 	int i;
 
 	/* Check if Flash is (sufficiently) erased */
-	if ((*((volatile CFG_FLASH_WORD_SIZE *)dest) &
-	     (CFG_FLASH_WORD_SIZE)data) != (CFG_FLASH_WORD_SIZE)data) {
+	if ((*((volatile ulong *)dest) & data) != data) {
 		return (2);
 	}
 	/* Disable interrupts which might cause a timeout here */

@@ -53,7 +53,8 @@
      defined(CONFIG_R360MPI)	|| \
      defined(CONFIG_TQM8xxL)	|| \
      defined(CONFIG_RRVISION)	|| \
-     defined(CONFIG_TRAB)   )	&& \
+     defined(CONFIG_TRAB)   	|| \
+     defined(CONFIG_PPCHAMELEONEVB) )	&& \
      defined(ENV_CRC) /* Environment embedded in U-Boot .ppcenv section */
 /* XXX - This only works with GNU C */
 #  define __PPCENV__ __attribute__ ((section(".ppcenv")))
