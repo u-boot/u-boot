@@ -2,6 +2,9 @@
 Changes since U-Boot 0.2.2:
 ======================================================================
 
+* Patch by Stefan Roese, 25 Mar 2003:
+  - PCI405 update.
+
 * Patch by Stefan Roese, 20 Mar 2003:
   - CPCI4052 update (support for revision 3).
   - Set edge conditioning circuitry on PPC405GPr for compatibility
