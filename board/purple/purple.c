@@ -51,6 +51,69 @@ extern int	asc_serial_getc 	(void);
 extern int	asc_serial_tstc 	(void);
 extern void	asc_serial_setbrg 	(void);
 
+static void sdram_timing_init (ulong size)
+{
+	register uint pass;
+	register uint done;
+	register uint count;
+	register uint p0, p1, p2, p3, p4;
+	register uint addr;
+
+#define WRITE_MC_IOGP_1 *(uint *)0xbf800800 = (p1<<14)+(p2<<13)+(p4<<8)+(p0<<4)+p3;
+#define WRITE_MC_IOGP_2 *(uint *)0xbf800800 = (p1<<14)+(p2<<13)+((p4-16)<<8)+(p0<<4)+p3;
+
+	done = 0;
+	p0 = 2;
+	while (p0 < 4 && done == 0) {
+	    p1 = 0;
+	    while (p1 < 2 && done == 0) {
+		p2 = 0;
+		while (p2 < 2 && done == 0) {
+		    p3 = 0;
+		    while (p3 < 16 && done == 0) {
+			count = 0;
+			p4 = 0;
+			while (p4 < 32 && done == 0) {
+			    WRITE_MC_IOGP_1;
+
+			    for (addr = KSEG1 + 0x4000;
+				 addr < KSEG1ADDR (size);
+				 addr = addr + 4) {
+					*(uint *) addr = 0xaa55aa55;
+			    }
+
+			    pass = 1;
+
+			    for (addr = KSEG1 + 0x4000;
+				 addr < KSEG1ADDR (size) && pass == 1;
+				 addr = addr + 4) {
+					if (*(uint *) addr != 0xaa55aa55)
+						pass = 0;
+			    }
+
+			    if (pass == 1) {
+				count++;
+			    } else {
+				count = 0;
+			    }
+
+			    if (count == 32) {
+				WRITE_MC_IOGP_2;
+				done = 1;
+			    }
+			    p4++;
+			}
+			p3++;
+		    }
+		    p2++;
+		}
+		p1++;
+	    }
+	    p0++;
+	    if (p0 == 1)
+		p0++;
+	}
+}
 
 long int initdram(int board_type)
 {
@@ -64,6 +127,11 @@ long int initdram(int board_type)
 	int	rows	= (cfgpb0 & 0xF0) >> 4;
 	int	dw	= cfgdw & 0xF;
 	ulong	size	= (1 << (rows + cols)) * (1 << (dw - 1)) * CFG_NB;
+	void (*  sdram_init) (ulong);
+
+	sdram_init = (void (*)(ulong)) KSEG0ADDR(&sdram_timing_init);
+
+	sdram_init(0x10000);
 
 	return size;
 }

@@ -2,6 +2,8 @@
 Changes since U-Boot 0.3.1:
 ======================================================================
 
+* Fix SDRAM timing on Purple board
+
 * Add support for CompactFlash on ATC board
   (includes support for Intel 82365 and compatible PC Card controllers,
   and Yenta-compatible PCI-to-CardBus controllers)

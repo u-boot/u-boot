@@ -150,7 +150,8 @@
  * Temporary buffer for serial data until the real serial driver
  * is initialised (memtest will destroy this buffer)
  */
-#define CFG_SCONSOLE_ADDR     CFG_SDRAM_BASE
-#define CFG_SCONSOLE_SIZE     0x0002000
+#define CFG_SCONSOLE_ADDR     (CFG_SDRAM_BASE + CFG_INIT_SP_OFFSET - \
+			       CFG_DCACHE_SIZE / 2)
+#define CFG_SCONSOLE_SIZE     (CFG_DCACHE_SIZE / 4)
 
 #endif	/* __CONFIG_H */
