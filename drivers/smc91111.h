@@ -85,6 +85,19 @@ typedef unsigned long int 		dword;
 	if (__p & 2) __v >>= 8; \
 	else __v &= 0xff; \
 	__v; })
+#elif defined(CONFIG_XAENIAX)
+#define SMC_inl(r)	(*((volatile dword *)(SMC_BASE_ADDRESS+(r))))
+#define SMC_inw(z)	({ \
+	unsigned int __p = (unsigned int)(SMC_BASE_ADDRESS + (z)); \
+	unsigned int __v = *(volatile unsigned int *)((__p) & ~3); \
+	if (__p & 3) __v >>= 16; \
+	else __v &= 0xffff; \
+	__v; })
+#define SMC_inb(p)	({ \
+	unsigned int ___v = SMC_inw((p) & ~1); \
+	if (p & 1) ___v >>= 8; \
+	else ___v &= 0xff; \
+	___v; })
 #else
 #define	SMC_inl(r) 	(*((volatile dword *)(SMC_BASE_ADDRESS+(r))))
 #define	SMC_inw(r) 	(*((volatile word *)(SMC_BASE_ADDRESS+(r))))
@@ -99,6 +112,15 @@ typedef unsigned long int 		dword;
 #ifdef CONFIG_XSENGINE
 #define	SMC_outl(d,r)	(*((volatile dword *)(SMC_BASE_ADDRESS+(r<<1))) = d)
 #define	SMC_outw(d,r)	(*((volatile word *)(SMC_BASE_ADDRESS+(r<<1))) = d)
+#elif defined (CONFIG_XAENIAX)
+#define SMC_outl(d,r)	(*((volatile dword *)(SMC_BASE_ADDRESS+(r))) = d)
+#define SMC_outw(d,p)	({ \
+	dword __dwo = SMC_inl((p) & ~3); \
+	dword __dwn = (word)(d); \
+	__dwo &= ((p) & 3) ? 0x0000ffff : 0xffff0000; \
+	__dwo |= ((p) & 3) ? __dwn << 16 : __dwn; \
+	SMC_outl(__dwo, (p) & ~3); \
+})
 #else
 #define	SMC_outl(d,r)	(*((volatile dword *)(SMC_BASE_ADDRESS+(r))) = d)
 #define	SMC_outw(d,r)	(*((volatile word *)(SMC_BASE_ADDRESS+(r))) = d)

@@ -640,8 +640,15 @@ again:
 	}
 
 	/* we have a packet address, so tell the card to use it */
+#ifndef CONFIG_XAENIAX
 	SMC_outb (packet_no, PN_REG);
-
+#else
+	/* On Xaeniax board, we can't use SMC_outb here because that way
+	 * the Allocate MMU command will end up written to the command register
+	 * as well, which will lead to a problem.
+	 */
+	SMC_outl (packet_no << 16, 0);
+#endif
 	/* do not write new ptr value if Write data fifo not empty */
 	while ( saved_ptr & PTR_NOTEMPTY )
 		printf ("Write data fifo not empty!\n");
@@ -702,7 +709,9 @@ again:
 
 		/* release packet */
 		/* no need to release, MMU does that now */
-		/* SMC_outw (MC_FREEPKT, MMU_CMD_REG); */
+#ifdef CONFIG_XAENIAX
+		 SMC_outw (MC_FREEPKT, MMU_CMD_REG);
+#endif
 
 		/* wait for MMU getting ready (low) */
 		while (SMC_inw (MMU_CMD_REG) & MC_BUSY) {
@@ -722,7 +731,9 @@ again:
 
 		/* release packet */
 		/* no need to release, MMU does that now */
-		/* SMC_outw (MC_FREEPKT, MMU_CMD_REG); */
+#ifdef CONFIG_XAENIAX
+		SMC_outw (MC_FREEPKT, MMU_CMD_REG);
+#endif
 
 		/* wait for MMU getting ready (low) */
 		while (SMC_inw (MMU_CMD_REG) & MC_BUSY) {
@@ -735,7 +746,15 @@ again:
 	}
 
 	/* restore previously saved registers */
+#ifndef CONFIG_XAENIAX
 	SMC_outb( saved_pnr, PN_REG );
+#else
+	/* On Xaeniax board, we can't use SMC_outb here because that way
+	 * the Allocate MMU command will end up written to the command register
+	 * as well, which will lead to a problem.
+	 */
+	SMC_outl(saved_pnr << 16, 0);
+#endif
 	SMC_outw( saved_ptr, PTR_REG );
 
 	return length;
@@ -913,7 +932,15 @@ static int smc_rcv()
 		udelay(1); /* Wait until not busy */
 
 	/* restore saved registers */
+#ifndef CONFIG_XAENIAX
 	SMC_outb( saved_pnr, PN_REG );
+#else
+	/* On Xaeniax board, we can't use SMC_outb here because that way
+	 * the Allocate MMU command will end up written to the command register
+	 * as well, which will lead to a problem.
+	 */
+	SMC_outl( saved_pnr << 16, 0);
+#endif
 	SMC_outw( saved_ptr, PTR_REG );
 
 	if (!is_error) {
