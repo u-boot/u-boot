@@ -155,6 +155,11 @@ void cpu_init_f (void)
 #if defined(CFG_GPS_PORT_CONFIG)
 	*(vu_long *)MPC5XXX_GPS_PORT_CONFIG = CFG_GPS_PORT_CONFIG;
 #endif
+
+#if defined(CONFIG_MPC5200)
+	/* enable timebase */
+	*(vu_long *)(MPC5XXX_XLBARB + 0x40) |= (1 << 13);
+#endif
 }
 
 /*
@@ -170,11 +175,6 @@ int cpu_init_r (void)
 #endif
 	*(vu_long *)MPC5XXX_ICTL_CRIT |= 0x0001ffff;
 	*(vu_long *)MPC5XXX_ICTL_EXT &= ~0x00000f00;
-
-#if defined(CONFIG_MPC5200)
-	/* enable timebase */
-	*(vu_long *)(MPC5XXX_XLBARB + 0x40) |= (1 << 13);
-#endif
 
 #if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_MPC5XXX_FEC)
 	/* load FEC microcode */
