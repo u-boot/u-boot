@@ -84,6 +84,11 @@ int board_pre_init (void)
 	cntrl0Reg = mfdcr(cntrl0);
 	mtdcr(cntrl0, cntrl0Reg | 0x00008000);
 
+	/*
+	 * EBC Configuration Register: set ready timeout to 512 ebc-clks -> ca. 25 us
+	 */
+	mtebc (epcr, 0xa8400000); /* ebc always driven */
+
 	return 0;
 }
 
@@ -186,7 +191,7 @@ int misc_init_r (void)
 			}
 		}
 		mtdcr(uicsr, 0xFFFFFFFF);        /* clear all ints */
-		
+
 		*magic = 0;      /* clear pci reconfig magic again */
 	}
 
