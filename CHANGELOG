@@ -2,6 +2,12 @@
 Changes since U-Boot 0.2.2:
 ======================================================================
 
+* Patch by Stefan Roese, 20 Mar 2003:
+  - CPCI4052 update (support for revision 3).
+  - Set edge conditioning circuitry on PPC405GPr for compatibility
+    to existing PPC405GP designs.
+  - Clip udiv to 5 bits on PPC405 (serial.c).
+
 * Avoid flicker on the TRAB's VFD by synchronizing the enable with
   the HSYNC/VSYNC. Requires new CPLD code (Version 101 for Rev. 100
   boards, version 153 for Rev. 200 boards).
@@ -82,9 +88,9 @@ Changes since U-Boot 0.2.2:
   lubbock.c - fix init funcs to return proper value
 
 * Patch by Kenneth Johansson, 26 Feb 2003:
-  - Fixed off by one in RFTA calculation. 
+  - Fixed off by one in RFTA calculation.
   - No need to abort when LDF is lower than we can program it's only
-    minimum timing so clamp it to what we can do. 
+    minimum timing so clamp it to what we can do.
   - Takes function pointer to function for reading the spd_nvram. Usefull
     for faking data or hardcode a module without the nvram.
   - fix other user for above change
