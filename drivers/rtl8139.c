@@ -254,7 +254,7 @@ static int rtl8139_probe(struct eth_device *dev, bd_t *bis)
 
 	addr_len = read_eeprom(0,8) == 0x8129 ? 8 : 6;
 	for (i = 0; i < 3; i++)
-		*ap++ = read_eeprom(i + 7, addr_len);
+		*ap++ = le16_to_cpu (read_eeprom(i + 7, addr_len));
 
 	speed10 = inb(ioaddr + MediaStatus) & MSRSpeed10;
 	fullduplex = inw(ioaddr + MII_BMCR) & BMCRDuplex;

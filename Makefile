@@ -900,6 +900,9 @@ debris_config: unconfig
 eXalion_config: unconfig
 	@./mkconfig $(@:_config=) ppc mpc824x eXalion
 
+HIDDEN_DRAGON_config: unconfig
+	@./mkconfig $(@:_config=) ppc mpc824x hidden_dragon
+
 MOUSSE_config: unconfig
 	@./mkconfig $(@:_config=) ppc mpc824x mousse
 

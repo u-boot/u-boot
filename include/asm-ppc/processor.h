@@ -818,6 +818,7 @@
 #define _MACH_sandpoint 0x00004000	/* Motorola SPS Processor eval board */
 #define _MACH_tqm860	0x00008000	/* TQM860/L */
 #define _MACH_tqm8xxL	0x00010000	/* TQM8xxL */
+#define _MACH_hidden_dragon 0x00020000	/* Motorola Hidden Dragon eval board */
 
 
 /* see residual.h for these */
@@ -1036,6 +1037,8 @@ void _nmask_and_or_msr(unsigned long nmask, unsigned long or_val);
 #define have_of 0
 #elif defined(CONFIG_SANDPOINT)
 #define _machine _MACH_sandpoint
+#elif defined(CONFIG_HIDDEN_DRAGON)
+#define _machine _MACH_hidden_dragon
 #define have_of 0
 #else
 #error "Machine not defined correctly"

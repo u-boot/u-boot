@@ -1,0 +1,60 @@
+U-Boot for Hidden Dragon board
+------------------------------
+
+Hidden Dragon is a MPC824x-based board by Motorola. For the most
+part it is similar to Sandpoint8245 board. So unless otherwise
+mentioned, the codes in this directory are adapted from ../sandpoint
+directory.
+
+Apparently there are very few of this board out there. Even Motorola
+website does not have any info on it.
+
+RAM:
+  start = 0x0000 0000
+  size	= 0x0200 0000 (32 MB)
+
+Flash:
+  BANK ONE:
+    start = 0xFFE0 0000
+    size  = 0x0020 0000 (2 MB)
+    flash chip = 29LV160TE (1x16 Mbits or 2x8 Mbits)
+    flash sectors = 16K, 2x8K, 32K, 31x64K
+
+  BANK TWO:
+    NONE
+
+The processor interrupt vectors reside on the first 256 bytes
+starting from address 0xFFF00000. The "reset vector" (first
+instruction executed after reset) is located on 0xFFF0 0100.
+
+U-Boot is configured to reside in flash starting at the address of
+0xFFF00000. The environment space is located in flash separately from
+U-Boot, at the second sector of the first flash bank, starting from
+0xFFE04000 until 0xFFE06000 (8KB).
+
+Network:
+  - RTL8139 chip on the base board	  (SUPPORTED)
+  - RTL8129 chip on the processor board	  (NOT SUPPORTED)
+
+Serial:
+  - Two NS16550 compatible UART on the processor board	(SUPPORTED)
+  - One NS16550 compatible UART on the base board	(UNTESTED)
+
+Misc:
+  VIA686A PCI SuperIO peripheral controller
+  - 2 USB ports		    (UNTESTED)
+  - 2 PS2 ports		    (UNTESTED)
+  - Parallel port	    (UNTESTED)
+  - IDE & floppy interface  (UNTESTED)
+
+  S3 Savage4 video card	    (UNTESTED)
+
+TODO:
+-----
+- Support for the VIA686A based peripherals
+- The RTL8139 driver frequently gives rx error.
+- Support for RTL8129 network controller. (Why is the support removed from
+  rtl8139.c driver?)
+
+(C) Copyright 2004
+Yusdi Santoso, Adaptec Inc., yusdi_santoso@adaptec.com
