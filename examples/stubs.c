@@ -94,6 +94,18 @@ gd_t *global_data;
 "	move.l	(%%a0), %%a0\n"		\
 "	jmp	(%%a0)\n"			\
 	: : "i"(offsetof(gd_t, jt)), "i"(XF_ ## x * sizeof(void *)) : "a0");
+#elif defined(CONFIG_MICROBLZE)
+/*
+ * r31 holds the pointer to the global_data. r5 is a call-clobbered.
+ */
+#define EXPORT_FUNC(x)				\
+	asm volatile (				\
+"	.globl " #x "\n"			\
+#x ":\n"					\
+"	lwi	r5, r31, %0\n"			\
+"	lwi	r5, r5, %1\n"			\
+"	bra	r5\n"				\
+	: : "i"(offsetof(gd_t, jt)), "i"(XF_ ## x * sizeof(void *)) : "r5");
 #else
 #error stubs definition missing for this architecture
 #endif

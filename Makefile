@@ -75,6 +75,9 @@ endif
 ifeq ($(ARCH),m68k)
 CROSS_COMPILE = m68k-elf-
 endif
+ifeq ($(ARCH),microblaze)
+CROSS_COMPILE = mb-
+endif
 endif
 endif
 
@@ -1249,6 +1252,17 @@ ADNPESC1_config: unconfig
 		}
 	@./mkconfig -a ADNPESC1 nios nios adnpesc1 ssv
 
+
+#========================================================================
+# MicroBlaze
+#========================================================================
+#########################################################################
+## Microblaze
+#########################################################################
+suzaku_config:	unconfig
+	@ >include/config.h
+	@echo "#define CONFIG_SUZAKU 1" >> include/config.h
+	@./mkconfig -a $(@:_config=) microblaze microblaze suzaku AtmarkTechno
 
 #########################################################################
 ## MIPS32 AU1X00

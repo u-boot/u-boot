@@ -240,6 +240,10 @@ The following options need to be configured:
 		CONFIG_ARM7
 		CONFIG_PXA250
 
+		MicroBlaze based CPUs:
+		----------------------
+		CONFIG_MICROBLZE
+
 
 - Board Type:	Define exactly one of
 
@@ -291,6 +295,11 @@ The following options need to be configured:
 		CONFIG_INNOVATOROMAP1510,   CONFIG_INNOVATOROMAP1610,	CONFIG_LART,
 		CONFIG_LUBBOCK,			CONFIG_SHANNON,		CONFIG_SMDK2400,
 		CONFIG_SMDK2410,		CONFIG_TRAB,		CONFIG_VCMA9,
+
+		MicroBlaze based boards:
+		------------------------
+
+		CONFIG_SUZAKU
 
 
 - CPU Module Type: (if CONFIG_COGENT is defined)

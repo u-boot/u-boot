@@ -45,6 +45,10 @@ ifeq ($(ARCH),m68k)
 LOAD_ADDR = 0x20000  -L $(clibdir)
 endif
 
+ifeq ($(ARCH),microblaze)
+LOAD_ADDR = 0x80F00000
+endif
+
 include $(TOPDIR)/config.mk
 
 SREC	= hello_world.srec

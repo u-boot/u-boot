@@ -1,7 +1,11 @@
 ======================================================================
 Changes for U-Boot 1.1.1:
 ======================================================================
- 
+
+* Patch by Yasushi Shoji, 07 Apr 2004:
+  - add support for microblaze processors
+  - add support for AtmarkTechno "suzaku" board
+
 * Configure PPChameleon board to use redundand environment in flash
 
 * Configure PPChameleon board to use JFFS2 NAND support.

@@ -182,8 +182,8 @@ static int read_nand_cached(u32 off, u32 size, u_char *buf)
 			if (!nand_cache) {
 				/* This memory never gets freed but 'cause
 				   it's a bootloader, nobody cares */
-				nand_cache = malloc(NAND_CACHE_SIZE); 
-				if (!nand_cache) { 
+				nand_cache = malloc(NAND_CACHE_SIZE);
+				if (!nand_cache) {
 					printf("read_nand_cached: can't alloc cache size %d bytes\n",
 					       NAND_CACHE_SIZE);
 					return -1;
@@ -241,7 +241,7 @@ static void *get_node_mem(u32 off)
 	return ret;
 }
 
-static void put_fl_mem(void *buf) 
+static void put_fl_mem(void *buf)
 {
 	free(buf);
 }
@@ -258,7 +258,7 @@ static inline void *get_node_mem(u32 off)
 	return (void*)off;
 }
 
-static inline void put_fl_mem(void *buf) 
+static inline void put_fl_mem(void *buf)
 {
 }
 
@@ -414,7 +414,7 @@ static int compare_dirents(struct b_node *new, struct b_node *old)
 	struct jffs2_raw_dirent ojOld;
 	struct jffs2_raw_dirent *jNew =
 		(struct jffs2_raw_dirent *)get_fl_mem(new->offset, sizeof(ojNew), &ojNew);
-	struct jffs2_raw_dirent *jOld = 
+	struct jffs2_raw_dirent *jOld =
 		(struct jffs2_raw_dirent *)get_fl_mem(old->offset, sizeof(ojOld), &ojOld);
 	int cmp;
 
@@ -511,7 +511,7 @@ jffs2_1pass_read_inode(struct b_lists *pL, u32 inode, char *dest)
 	 * we will live with it.
 	 */
 	for (b = pL->frag.listHead; b != NULL; b = b->next) {
-		jNode = (struct jffs2_raw_inode *) get_fl_mem(b->offset, 
+		jNode = (struct jffs2_raw_inode *) get_fl_mem(b->offset,
 		        sizeof(struct jffs2_raw_inode), NULL);
 		if ((inode == jNode->ino)) {
 			/* get actual file length from the newest node */

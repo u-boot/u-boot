@@ -242,6 +242,8 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (hdr->ih_arch != IH_CPU_NIOS)
 #elif defined(__M68K__)
 	if (hdr->ih_arch != IH_CPU_M68K)
+#elif defined(__microblaze__)
+	if (hdr->ih_arch != IH_CPU_MICROBLAZE)
 #else
 # error Unknown CPU type
 #endif
@@ -1185,6 +1187,7 @@ print_type (image_header_t *hdr)
 	case IH_CPU_SPARC:	arch = "SPARC";			break;
 	case IH_CPU_SPARC64:	arch = "SPARC 64 Bit";		break;
 	case IH_CPU_M68K:	arch = "M68K"; 			break;
+	case IH_CPU_MICROBLAZE:	arch = "Microblaze"; 		break;
 	default:		arch = "Unknown Architecture";	break;
 	}
 
