@@ -135,7 +135,7 @@ int misc_init_r (void)
 	return (0);
 }
 
-void pci_init (void)
+void pci_init_board (void)
 {
 	cpc710_pci_init ();
 

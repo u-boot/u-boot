@@ -90,7 +90,7 @@ static struct pci_controller hose = {
   fixup_irq: pci_pip405_fixup_irq,
 };
 
-void pci_init(void)
+void pci_init_board(void)
 {
 	/*we want the ptrs to RAM not flash (ie don't use init list)*/
 	hose.fixup_irq    = pci_pip405_fixup_irq;

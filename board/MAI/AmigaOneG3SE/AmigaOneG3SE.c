@@ -107,7 +107,7 @@ int misc_init_r (void)
 }
 
 
-void pci_init (void)
+void pci_init_board (void)
 {
 #ifndef CONFIG_RAMBOOT
 	articiaS_pci_init ();

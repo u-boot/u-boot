@@ -166,7 +166,7 @@ static struct pci_controller pci9054_hose = {
   config_table: pci9054_config_table,
 };
 
-void pci_init(void)
+void pci_init_board(void)
 {
   struct pci_controller *hose = &pci9054_hose;
 

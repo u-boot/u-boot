@@ -376,7 +376,7 @@ static struct pci_controller hose = {
 	config_table: pci_405gp_config_table,
 };
 
-void pci_init(void)
+void pci_init_board(void)
 {
 	/*we want the ptrs to RAM not flash (ie don't use init list)*/
 	hose.fixup_irq    = pci_405gp_fixup_irq;
@@ -494,7 +494,7 @@ void pci_440_init (struct pci_controller *hose)
 }
 
 
-void pci_init(void)
+void pci_init_board(void)
 {
 	pci_440_init (&ppc440_hose);
 }

@@ -597,7 +597,7 @@ struct pci_controller pci1_hose = {
 };
 
 void
-pci_init(void)
+pci_init_board(void)
 {
     unsigned int command;
 

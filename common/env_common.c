@@ -128,6 +128,9 @@ uchar default_environment[] = {
 #ifdef  CONFIG_CLOCKS_IN_MHZ
 	"clocks_in_mhz=1\0"
 #endif
+#if defined(CONFIG_PCI_BOOTDELAY) && (CONFIG_PCI_BOOTDELAY > 0)
+	"pcidelay="	MK_STR(CONFIG_PCI_BOOTDELAY)	"\0"
+#endif
 #ifdef  CONFIG_EXTRA_ENV_SETTINGS
 	CONFIG_EXTRA_ENV_SETTINGS
 #endif

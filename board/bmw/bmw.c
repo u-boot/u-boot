@@ -102,7 +102,7 @@ int misc_init_f (void)
  */
 struct pci_controller hose;
 
-void pci_init (void)
+void pci_init_board (void)
 {
     pci_mpc824x_init(&hose);
     /* pci_dev_init(0); */

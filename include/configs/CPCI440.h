@@ -237,6 +237,10 @@
 #define CONFIG_PCI_PNP			/* do pci plug-and-play		*/
 					/* resource configuration	*/
 
+#define CONFIG_PCI_SCAN_SHOW            /* print pci devices @ startup  */
+
+#define CONFIG_PCI_BOOTDELAY    0       /* enable pci bootdelay variable*/
+
 #define CFG_PCI_SUBSYS_VENDORID 0x0000	/* PCI Vendor ID: to-do!!!	*/
 #define CFG_PCI_SUBSYS_DEVICEID 0x0000	/* PCI Device ID: to-do!!!	*/
 #define CFG_PCI_PTM1LA	0x00000000	/* point to sdram		*/

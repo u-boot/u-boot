@@ -80,6 +80,7 @@
 				CFG_CMD_DATE	| \
 				CFG_CMD_JFFS2	| \
 				CFG_CMD_I2C	| \
+				CFG_CMD_MII	| \
 				CFG_CMD_EEPROM  )
 
 #define CONFIG_MAC_PARTITION
@@ -149,6 +150,8 @@
                                         /* resource configuration       */
 
 #define CONFIG_PCI_SCAN_SHOW            /* print pci devices @ startup  */
+
+#define CONFIG_PCI_BOOTDELAY    0       /* enable pci bootdelay variable*/
 
 #define CFG_PCI_SUBSYS_VENDORID 0x12FE  /* PCI Vendor ID: esd gmbh      */
 #define CFG_PCI_SUBSYS_DEVICEID 0x0405  /* PCI Device ID: CPCI-405      */

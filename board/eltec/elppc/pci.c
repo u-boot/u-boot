@@ -33,7 +33,7 @@
 
 struct pci_controller local_hose;
 
-void pci_init(void)
+void pci_init_board(void)
 {
     struct pci_controller* hose = (struct pci_controller *)&local_hose;
     u16 reg16;

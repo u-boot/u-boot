@@ -2,6 +2,12 @@
 Changes since U-Boot 0.2.1:
 ======================================================================
 
+* Patch by Stefan Roese, 13 Feb 2003:
+  Add "pcidelay" environment variable (in ms, enabled via
+  CONFIG_PCI_BOOTDELAY).
+  PCI spec 2.2 defines, that a pci target has 2^25 pci clocks after
+  RST# to respond to configuration cycles (33MHz -> 1s).
+
 * Patch by Stefan Roese, 10 Feb 2003:
   Add support for 4MB and 128MB onboard SDRAM (cpu/ppc4xx/sdram.c)
 

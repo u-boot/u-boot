@@ -505,4 +505,23 @@ int pci_hose_scan(struct pci_controller *hose)
 	return pci_hose_scan_bus(hose, hose->first_busno);
 }
 
+void pci_init(void)
+{
+#if defined(CONFIG_PCI_BOOTDELAY)
+	char *s;
+	int i;
+
+	/* wait "pcidelay" ms (if defined)... */
+	s = getenv ("pcidelay");
+	if (s) {
+		int val = simple_strtoul (s, NULL, 10);
+		for (i=0; i<val; i++)
+			udelay (1000);
+	}
+#endif /* CONFIG_PCI_BOOTDELAY */
+
+	/* now call board specific pci_init()... */
+	pci_init_board();
+}
+
 #endif /* CONFIG_PCI */

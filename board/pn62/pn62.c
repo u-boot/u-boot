@@ -137,7 +137,7 @@ long int initdram (int board_type)
 struct pci_controller hose = {
 };
 
-void pci_init (void)
+void pci_init_board (void)
 {
 	show_startup_phase (4);
 	pci_mpc824x_init (&hose);

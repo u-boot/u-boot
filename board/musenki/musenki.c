@@ -124,7 +124,7 @@ struct pci_controller hose = {
 #endif
 };
 
-void pci_init(void)
+void pci_init_board(void)
 {
 	pci_mpc824x_init(&hose);
 }

@@ -143,7 +143,7 @@ static struct pci_controller utx8245_hose = {
 #endif /*CONFIG_PCI_PNP*/
 };
 
-void pci_init (void)
+void pci_init_board (void)
 {
 	pci_mpc824x_init(&utx8245_hose);
 

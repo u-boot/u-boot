@@ -120,6 +120,8 @@
 
 #define CONFIG_PCI_SCAN_SHOW            /* print pci devices @ startup  */
 
+#define CONFIG_PCI_BOOTDELAY    0       /* enable pci bootdelay variable*/
+
 #define CFG_PCI_SUBSYS_VENDORID 0x12FE  /* PCI Vendor ID: esd gmbh      */
 #define CFG_PCI_SUBSYS_DEVICEID 0x0410  /* PCI Device ID: OCRTC         */
 #define CFG_PCI_CLASSCODE       0x0b20  /* PCI Class Code: Processor/PPC*/
