@@ -46,8 +46,39 @@
 #endif
 
 #define CONFIG_CONS_INDEX	1
-#define CONFIG_BAUDRATE		115200
-#define CONFIG_DRAM_SPEED	100		/* MHz				*/
+#define CONFIG_BAUDRATE		9600
+
+#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
+
+#define	CONFIG_TIMESTAMP		/* Print image info with timestamp */
+
+#define CONFIG_PREBOOT	"echo;"	\
+	"echo Type \"run net_nfs\" to mount root filesystem over NFS;" \
+	"echo"
+
+#undef	CONFIG_BOOTARGS
+
+#define	CONFIG_EXTRA_ENV_SETTINGS					\
+	"netdev=eth0\0"							\
+	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
+		"nfsroot=$(serverip):$(rootpath)\0"			\
+	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
+	"addip=setenv bootargs $(bootargs) "				\
+		"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask)"	\
+		":$(hostname):$(netdev):off panic=1\0"			\
+	"net_self=tftp $(kernel_addr) $(bootfile);"			\
+		"tftp $(ramdisk_addr) $(ramdisk);"			\
+		"run ramargs addip;"					\
+		"bootm $(kernel_addr) $(ramdisk_addr)\0"		\
+	"net_nfs=tftp $(kernel_addr) $(bootfile);"			\
+		"run nfsargs addip;bootm\0"				\
+	"rootpath=/opt/eldk/ppc_82xx\0"					\
+	"bootfile=/tftpboot/SP8240/uImage\0"				\
+	"ramdisk=/tftpboot/SP8240/uRamdisk\0"				\
+	"kernel_addr=200000\0"						\
+	"ramdisk_addr=400000\0"						\
+	""
+#define CONFIG_BOOTCOMMAND	"run flash_self"
 
 #define CONFIG_COMMANDS		( (CONFIG_CMD_DFL & ~CFG_CMD_AUTOSCRIPT) | \
 				  CFG_CMD_ELF    | \
@@ -59,6 +90,7 @@
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any)	*/
 #include <cmd_confdefs.h>
 
+#define CONFIG_DRAM_SPEED	100		/* MHz				*/
 
 /*
  * Miscellaneous configurable options

@@ -83,7 +83,7 @@
 #if defined(CONFIG_405GP) || defined(CONFIG_440) || defined(CONFIG_405EP)
 
 #define EMAC_RESET_TIMEOUT 1000	/* 1000 ms reset timeout */
-#define PHY_AUTONEGOTIATE_TIMEOUT 2000	/* 2000 ms autonegotiate timeout */
+#define PHY_AUTONEGOTIATE_TIMEOUT 4000	/* 4000 ms autonegotiate timeout */
 
 #define NUM_TX_BUFF 1
 /* AS.HARNOIS
@@ -271,18 +271,18 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 		puts ("Waiting for PHY auto negotiation to complete");
 		i = 0;
 		while (!(reg_short & PHY_BMSR_AUTN_COMP)) {
-			if ((i++ % 100) == 0)
-				putc ('.');
-			udelay (10000);		/* 10 ms */
-			miiphy_read (CONFIG_PHY_ADDR, PHY_BMSR, &reg_short);
-
 			/*
 			 * Timeout reached ?
 			 */
-			if (i * 10 > PHY_AUTONEGOTIATE_TIMEOUT) {
+			if (i > PHY_AUTONEGOTIATE_TIMEOUT) {
 				puts (" TIMEOUT !\n");
 				break;
 			}
+
+			if ((i++ % 1000) == 0)
+				putc ('.');
+			udelay (1000);	/* 1 ms */
+			miiphy_read (CONFIG_PHY_ADDR, PHY_BMSR, &reg_short);
 		}
 		puts (" done\n");
 		udelay (500000);	/* another 500 ms (results in faster booting) */

@@ -410,6 +410,10 @@
  *
  ******************************************************************************/
 
+#include <config.h>
+
+#ifdef CONFIG_SK98
+
 #include "h/skdrv1st.h"
 #include "h/skdrv2nd.h"
 
@@ -4388,5 +4392,7 @@ SK_BOOL	StartTest)	/* flag for start / get result */
 
 	return(0);
 }	/* SkGmCableDiagStatus */
+
+#endif /* CONFIG_SK98 */
 
 /* End of file */

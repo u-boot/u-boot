@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2002
+ * (C) Copyright 2002-2003
  * Gary Jennejohn <gj@denx.de>
  *
  * Configuation settings for the TRAB board.
@@ -40,6 +40,7 @@
 #define CONFIG_S3C2400		1	/* in a SAMSUNG S3C2400 SoC	*/
 #define CONFIG_TRAB		1	/* on a TRAB Board		*/
 #undef CONFIG_TRAB_50MHZ		/* run the CPU at 50 MHz	*/
+#define LITTLEENDIAN		1	/* used by usb_ohci.c		*/
 
 /* input clock of PLL */
 #define CONFIG_SYS_CLK_FREQ	12000000 /* TRAB has 12 MHz input clock */
@@ -66,6 +67,11 @@
 #define CFG_I2C_EEPROM_ADDR_OVERFLOW 0x01
 #define CFG_EEPROM_PAGE_WRITE_BITS 3	/* 8 bytes page write mode on 24C04 */
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS 10
+
+/* USB stuff */
+#define CONFIG_USB_OHCI		1
+#define CONFIG_USB_STORAGE	1
+#define CONFIG_DOS_PARTITION	1
 
 /*
  * Size of malloc() pool
@@ -139,6 +145,8 @@
 				 CONFIG_COMMANDS_ADD_HWFLOW	| \
 				 CONFIG_COMMANDS_ADD_VFD	| \
 				 CONFIG_COMMANDS_ADD_EEPROM	| \
+				 CFG_CMD_USB			| \
+				 CFG_CMD_FAT			| \
 				 CONFIG_COMMANDS_I2C		)
 #else
 #define CONFIG_COMMANDS		(CONFIG_CMD_DFL			| \
@@ -147,8 +155,13 @@
 				 CONFIG_COMMANDS_ADD_HWFLOW	| \
 				 CONFIG_COMMANDS_ADD_VFD	| \
 				 CONFIG_COMMANDS_ADD_EEPROM	| \
+				 CFG_CMD_USB			| \
+				 CFG_CMD_FAT			| \
 				 CONFIG_COMMANDS_I2C		)
 #endif
+
+/* moved up */
+#define CFG_HUSH_PARSER		1	/* use "hush" command parser	*/
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -164,6 +177,28 @@
 #define CONFIG_BOOTCOMMAND	"run flash_nfs"
 
 #ifndef CONFIG_BIG_FLASH
+#ifdef CFG_HUSH_PARSER
+#define	CONFIG_EXTRA_ENV_SETTINGS	\
+	"nfs_args=setenv bootargs root=/dev/nfs rw " \
+		"nfsroot=$serverip:$rootpath\0" \
+	"rootpath=/opt/eldk/arm_920TDI\0" \
+	"ram_args=setenv bootargs root=/dev/ram rw\0" \
+	"add_net=setenv bootargs $bootargs ethaddr=$ethaddr " \
+		"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname::off\0" \
+	"add_misc=setenv bootargs $bootargs console=ttyS0 panic=1\0" \
+	"load=tftp 0xC100000 /tftpboot/TRAB/u-boot.bin\0" \
+	"update=protect off 1:0-8;era 1:0-8;cp.b 0xc100000 0 $filesize;" \
+		"setenv filesize;saveenv\0" \
+	"loadfile=/tftpboot/TRAB/uImage\0" \
+	"loadaddr=c400000\0" \
+	"net_load=tftpboot $loadaddr $loadfile\0" \
+	"net_nfs=run net_load nfs_args add_net add_misc;bootm\0" \
+	"kernel_addr=00040000\0" \
+	"flash_nfs=run nfs_args add_net add_misc;bootm $kernel_addr\0" \
+	"mdm_init1=ATZ\0" \
+	"mdm_init2=ATS0=1\0" \
+	"mdm_flow_control=rts/cts\0"
+#else /* !CFG_HUSH_PARSER */
 #define	CONFIG_EXTRA_ENV_SETTINGS	\
 	"nfs_args=setenv bootargs root=/dev/nfs rw " \
 		"nfsroot=$(serverip):$(rootpath)\0" \
@@ -184,7 +219,29 @@
 	"mdm_init1=ATZ\0" \
 	"mdm_init2=ATS0=1\0" \
 	"mdm_flow_control=rts/cts\0"
+#endif /* CFG_HUSH_PARSER */
 #else	/* CONFIG_BIG_FLASH */
+#ifdef CFG_HUSH_PARSER
+#define	CONFIG_EXTRA_ENV_SETTINGS	\
+	"nfs_args=setenv bootargs root=/dev/nfs rw " \
+		"nfsroot=$serverip:$rootpath\0" \
+	"rootpath=/opt/eldk/arm_920TDI\0" \
+	"ram_args=setenv bootargs root=/dev/ram rw\0" \
+	"add_net=setenv bootargs $bootargs ethaddr=$ethaddr " \
+		"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname::off\0" \
+	"add_misc=setenv bootargs $bootargs console=ttyS0 panic=1\0" \
+	"load=tftp 0xC100000 /tftpboot/TRAB/u-boot.bin\0" \
+	"update=protect off 1:0;era 1:0;cp.b 0xc100000 0 $filesize\0" \
+	"loadfile=/tftpboot/TRAB/uImage\0" \
+	"loadaddr=c400000\0" \
+	"net_load=tftpboot $loadaddr $loadfile\0" \
+	"net_nfs=run net_load nfs_args add_net add_misc;bootm\0" \
+	"kernel_addr=00040000\0" \
+	"flash_nfs=run nfs_args add_net add_misc;bootm $kernel_addr\0" \
+	"mdm_init1=ATZ\0" \
+	"mdm_init2=ATS0=1\0" \
+	"mdm_flow_control=rts/cts\0"
+#else /* !CFG_HUSH_PARSER */
 #define	CONFIG_EXTRA_ENV_SETTINGS	\
 	"nfs_args=setenv bootargs root=/dev/nfs rw " \
 		"nfsroot=$(serverip):$(rootpath)\0" \
@@ -204,6 +261,7 @@
 	"mdm_init1=ATZ\0" \
 	"mdm_init2=ATS0=1\0" \
 	"mdm_flow_control=rts/cts\0"
+#endif /* CFG_HUSH_PARSER */
 #endif	/* CONFIG_BIG_FLASH */
 
 #if 0	/* disabled for development */
@@ -223,7 +281,6 @@
  */
 #define	CFG_LONGHELP				/* undef to save memory		*/
 #define	CFG_PROMPT		"TRAB # "	/* Monitor Command Prompt	*/
-/* #define CFG_HUSH_PARSER		1 */	/* use "hush" command parser	*/
 #ifdef	CFG_HUSH_PARSER
 #define CFG_PROMPT_HUSH_PS2	"> "
 #endif

@@ -2,8 +2,12 @@
  * (C) Copyright 2001
  * Denis Peter, MPL AG Switzerland
  *
+ * For BBB support (C) Copyright 2003
+ * Gary Jennejohn, DENX Software Engineering <gj@denx.de>
+ *
  * Most of this source has been derived from the Linux USB
- * project.
+ * project. BBB support based on /sys/dev/usb/umass.c from
+ * FreeBSD.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -29,6 +33,13 @@
  * Currently only the CBI transport protocoll has been implemented, and it
  * is only tested with a TEAC USB Floppy. Other Massstorages with CBI or CB
  * transport protocoll may work as well.
+ */
+/*
+ * New Note:
+ * Support for USB Mass Storage Devices (BBB) has been added. It has
+ * only been tested with USB memory sticks.
+ * Nota bene: if you are using the BBB support with a little-endian
+ * CPU then you MUST define LITTLEENDIAN in the configuration file!
  */
 
 
@@ -71,6 +82,41 @@ static ccb usb_ccb;
 
 #define US_CBI_ADSC		0
 
+/*
+ * BULK only
+ */
+#define US_BBB_RESET		0xff
+#define US_BBB_GET_MAX_LUN	0xfe
+
+/* Command Block Wrapper */
+typedef struct {
+	__u32		dCBWSignature;
+#	define CBWSIGNATURE	0x43425355
+	__u32		dCBWTag;
+	__u32		dCBWDataTransferLength;
+	__u8		bCBWFlags;
+#	define CBWFLAGS_OUT	0x00
+#	define CBWFLAGS_IN	0x80
+	__u8		bCBWLUN;
+	__u8		bCDBLength;
+#	define CBWCDBLENGTH	16
+	__u8		CBWCDB[CBWCDBLENGTH];
+} umass_bbb_cbw_t;
+#define	UMASS_BBB_CBW_SIZE	31
+static __u32 CBWTag = 0;
+
+/* Command Status Wrapper */
+typedef struct {
+	__u32		dCSWSignature;
+#	define CSWSIGNATURE	0x53425355
+	__u32		dCSWTag;
+	__u32		dCSWDataResidue;
+	__u8		bCSWStatus;
+#	define CSWSTATUS_GOOD	0x0
+#	define CSWSTATUS_FAILED	0x1
+#	define CSWSTATUS_PHASE	0x2
+} umass_bbb_csw_t;
+#define	UMASS_BBB_CSW_SIZE	13
 
 #define USB_MAX_STOR_DEV 5
 static int usb_max_devs; /* number of highest available usb device */
@@ -137,6 +183,9 @@ int usb_stor_scan(int mode)
 {
 	unsigned char i;
 	struct usb_device *dev;
+
+	/* GJ */
+	memset(usb_stor_buf, 0, sizeof(usb_stor_buf));
 
 	if(mode==1) {
 		printf("scanning bus for storage devices...\n");
@@ -293,6 +342,51 @@ static int us_one_transfer(struct us_data *us, int pipe, char *buf, int length)
 	return 0;
 }
 
+static int usb_stor_BBB_reset(struct us_data *us)
+{
+	int result;
+	unsigned int pipe;
+
+	/*
+	 * Reset recovery (5.3.4 in Universal Serial Bus Mass Storage Class)
+	 *
+	 * For Reset Recovery the host shall issue in the following order:
+	 * a) a Bulk-Only Mass Storage Reset
+	 * b) a Clear Feature HALT to the Bulk-In endpoint
+	 * c) a Clear Feature HALT to the Bulk-Out endpoint
+	 *
+	 * This is done in 3 steps.
+	 *
+	 * If the reset doesn't succeed, the device should be port reset.
+	 *
+	 * This comment stolen from FreeBSD's /sys/dev/usb/umass.c.
+	 */
+	USB_STOR_PRINTF("BBB_reset\n");
+	result = usb_control_msg(us->pusb_dev, usb_sndctrlpipe(us->pusb_dev,0),
+				 US_BBB_RESET, USB_TYPE_CLASS | USB_RECIP_INTERFACE,
+				 0, us->ifnum, 0, 0, USB_CNTL_TIMEOUT*5);
+	if((result < 0) && (us->pusb_dev->status & USB_ST_STALLED))
+	{
+		USB_STOR_PRINTF("RESET:stall\n");
+		return -1;
+	}
+	/* long wait for reset */
+	wait_ms(150);
+	USB_STOR_PRINTF("BBB_reset result %d: status %X reset\n",result,us->pusb_dev->status);
+	pipe = usb_rcvbulkpipe(us->pusb_dev, us->ep_in);
+	result = usb_clear_halt(us->pusb_dev, pipe);
+	/* long wait for reset */
+	wait_ms(150);
+	USB_STOR_PRINTF("BBB_reset result %d: status %X clearing IN endpoint\n",result,us->pusb_dev->status);
+	/* long wait for reset */
+	pipe = usb_sndbulkpipe(us->pusb_dev, us->ep_out);
+	result = usb_clear_halt(us->pusb_dev, pipe);
+	wait_ms(150);
+	USB_STOR_PRINTF("BBB_reset result %d: status %X clearing OUT endpoint\n",result,us->pusb_dev->status);
+	USB_STOR_PRINTF("BBB_reset done\n");
+	return 0;
+}
+
 /* FIXME: this reset function doesn't really reset the port, and it
  * should. Actually it should probably do what it's doing here, and
  * reset the port physically
@@ -318,6 +412,52 @@ static int usb_stor_CB_reset(struct us_data *us)
 
 	USB_STOR_PRINTF("CB_reset done\n");
 	return 0;
+}
+
+/*
+ * Set up the command for a BBB device. Note that the actual SCSI
+ * command is copied into cbw.CBWCDB.
+ */
+int usb_stor_BBB_comdat(ccb *srb, struct us_data *us)
+{
+	int result;
+	int actlen;
+	int dir_in;
+	unsigned int pipe;
+	umass_bbb_cbw_t cbw;
+
+	dir_in = US_DIRECTION(srb->cmd[0]);
+
+#ifdef BBB_COMDAT_TRACE
+	printf("dir %d lun %d cmdlen %d cmd %p datalen %d pdata %p\n", dir_in, srb->lun, srb->cmdlen, srb->cmd, srb->datalen, srb->pdata);
+	if (srb->cmdlen) {
+		for(result = 0;result < srb->cmdlen;result++)
+			printf("cmd[%d] %#x ", result, srb->cmd[result]);
+		printf("\n");
+	}
+#endif
+	/* sanity checks */
+	if (!(srb->cmdlen <= CBWCDBLENGTH)) {
+		USB_STOR_PRINTF("usb_stor_BBB_comdat:cmdlen too large\n");
+		return -1;
+	}
+
+	/* always OUT to the ep */
+	pipe = usb_sndbulkpipe(us->pusb_dev, us->ep_out);
+
+	cbw.dCBWSignature = swap_32(CBWSIGNATURE);
+	cbw.dCBWTag = swap_32(CBWTag++);
+	cbw.dCBWDataTransferLength = swap_32(srb->datalen);
+	cbw.bCBWFlags = (dir_in? CBWFLAGS_IN : CBWFLAGS_OUT);
+	cbw.bCBWLUN = srb->lun;
+	cbw.bCDBLength = srb->cmdlen;
+	/* copy the command data into the CBW command data buffer */
+	/* DST SRC LEN!!! */
+	memcpy(cbw.CBWCDB, srb->cmd, srb->cmdlen);
+	result = usb_bulk_msg(us->pusb_dev, pipe, &cbw, UMASS_BBB_CBW_SIZE, &actlen, USB_CNTL_TIMEOUT*5);
+	if (result < 0)
+		USB_STOR_PRINTF("usb_stor_BBB_comdat:usb_bulk_msg error\n");
+	return result;
 }
 
 /* FIXME: we also need a CBI_command which sets up the completion
@@ -422,6 +562,134 @@ int usb_stor_CBI_get_status(ccb *srb, struct us_data *us)
 #define USB_TRANSPORT_UNKNOWN_RETRY 5
 #define USB_TRANSPORT_NOT_READY_RETRY 10
 
+/* clear a stall on an endpoint - special for BBB devices */
+int usb_stor_BBB_clear_endpt_stall(struct us_data *us, __u8 endpt)
+{
+	int result;
+
+	/* ENDPOINT_HALT = 0, so set value to 0 */
+	result = usb_control_msg(us->pusb_dev, usb_sndctrlpipe(us->pusb_dev,0),
+				USB_REQ_CLEAR_FEATURE, USB_RECIP_ENDPOINT,
+				0, endpt, 0, 0, USB_CNTL_TIMEOUT*5);
+	return result;
+}
+
+int usb_stor_BBB_transport(ccb *srb, struct us_data *us)
+{
+	int result, retry;
+	int dir_in;
+	int actlen, data_actlen;
+	unsigned int pipe, pipein, pipeout;
+	umass_bbb_csw_t csw;
+#ifdef BBB_XPORT_TRACE
+	unsigned char *ptr;
+	int index;
+#endif
+
+	dir_in = US_DIRECTION(srb->cmd[0]);
+
+	/* COMMAND phase */
+	USB_STOR_PRINTF("COMMAND phase\n");
+	result = usb_stor_BBB_comdat(srb, us);
+	if (result < 0) {
+		USB_STOR_PRINTF("failed to send CBW status %ld\n",
+			us->pusb_dev->status);
+		usb_stor_BBB_reset(us);
+		return USB_STOR_TRANSPORT_FAILED;
+	}
+	wait_ms(5);
+	pipein = usb_rcvbulkpipe(us->pusb_dev, us->ep_in);
+	pipeout = usb_sndbulkpipe(us->pusb_dev, us->ep_out);
+	/* DATA phase + error handling */
+	USB_STOR_PRINTF("DATA phase\n");
+	data_actlen = 0;
+	/* no data, go immediately to the STATUS phase */
+	if (srb->datalen == 0)
+		goto st;
+	if (dir_in)
+		pipe = pipein;
+	else
+		pipe = pipeout;
+	result = usb_bulk_msg(us->pusb_dev, pipe, srb->pdata, srb->datalen, &data_actlen, USB_CNTL_TIMEOUT*5);
+	/* special handling of STALL in DATA phase */
+	if((result < 0) && (us->pusb_dev->status & USB_ST_STALLED)) {
+		printf("DATA:stall\n");
+		/* clear the STALL on the endpoint */
+		result = usb_stor_BBB_clear_endpt_stall(us, dir_in? us->ep_in : us->ep_out);
+		if (result >= 0)
+			/* continue on to STATUS phase */
+			goto st;
+	}
+	if (result < 0) {
+		USB_STOR_PRINTF("usb_bulk_msg error status %ld\n",
+			us->pusb_dev->status);
+		usb_stor_BBB_reset(us);
+		return USB_STOR_TRANSPORT_FAILED;
+	}
+#ifdef BBB_XPORT_TRACE
+	for (index = 0; index < data_actlen; index++)
+		printf("pdata[%d] %#x ", index, srb->pdata[index]);
+	printf("\n");
+#endif
+	/* STATUS phase + error handling */
+   st:
+	retry = 0;
+   again:
+	USB_STOR_PRINTF("STATUS phase\n");
+	result = usb_bulk_msg(us->pusb_dev, pipein, &csw, UMASS_BBB_CSW_SIZE, &actlen, USB_CNTL_TIMEOUT*5);
+	/* special handling of STALL in STATUS phase */
+	if((result < 0) && (retry < 1) && (us->pusb_dev->status & USB_ST_STALLED)) {
+		USB_STOR_PRINTF("STATUS:stall\n");
+		/* clear the STALL on the endpoint */
+		result = usb_stor_BBB_clear_endpt_stall(us, us->ep_in);
+		if (result >= 0 && (retry++ < 1))
+			/* do a retry */
+			goto again;
+	}
+	if (result < 0) {
+		USB_STOR_PRINTF("usb_bulk_msg error status %ld\n",
+			us->pusb_dev->status);
+		usb_stor_BBB_reset(us);
+		return USB_STOR_TRANSPORT_FAILED;
+	}
+#ifdef BBB_XPORT_TRACE
+	ptr = (unsigned char *)&csw;
+	for (index = 0; index < UMASS_BBB_CSW_SIZE; index++)
+		printf("ptr[%d] %#x ", index, ptr[index]);
+	printf("\n");
+#endif
+	/* misuse pipe to get the residue */
+	pipe = swap_32(csw.dCSWDataResidue);
+	if (pipe == 0 && srb->datalen != 0 && srb->datalen - data_actlen != 0)
+		pipe = srb->datalen - data_actlen;
+	if (CSWSIGNATURE != swap_32(csw.dCSWSignature)) {
+		USB_STOR_PRINTF("!CSWSIGNATURE\n");
+		usb_stor_BBB_reset(us);
+		return USB_STOR_TRANSPORT_FAILED;
+	} else if ((CBWTag - 1) != swap_32(csw.dCSWTag)) {
+		USB_STOR_PRINTF("!Tag\n");
+		usb_stor_BBB_reset(us);
+		return USB_STOR_TRANSPORT_FAILED;
+	} else if (csw.bCSWStatus > CSWSTATUS_PHASE) {
+		USB_STOR_PRINTF(">PHASE\n");
+		usb_stor_BBB_reset(us);
+		return USB_STOR_TRANSPORT_FAILED;
+	} else if (csw.bCSWStatus == CSWSTATUS_PHASE) {
+		USB_STOR_PRINTF("=PHASE\n");
+		usb_stor_BBB_reset(us);
+		return USB_STOR_TRANSPORT_FAILED;
+	} else if (data_actlen > srb->datalen) {
+		USB_STOR_PRINTF("transferred %dB instead of %dB\n",
+			data_actlen, srb->datalen);
+		return USB_STOR_TRANSPORT_FAILED;
+	} else if (csw.bCSWStatus == CSWSTATUS_FAILED) {
+		USB_STOR_PRINTF("FAILED\n");
+		return USB_STOR_TRANSPORT_FAILED;
+	}
+
+	return result;
+}
+
 int usb_stor_CB_transport(ccb *srb, struct us_data *us)
 {
 	int result,status;
@@ -495,29 +763,28 @@ do_retry:
 		return USB_STOR_TRANSPORT_GOOD;
 	/* Check the auto request result */
 	switch(srb->sense_buf[2]) {
-		case 0x01: /* Recovered Error */
-			return USB_STOR_TRANSPORT_GOOD;
-		 	break;
-		case 0x02: /* Not Ready */
-			if(notready++ > USB_TRANSPORT_NOT_READY_RETRY) {
-				printf("cmd 0x%02X returned 0x%02X 0x%02X 0x%02X 0x%02X (NOT READY)\n",
-					srb->cmd[0],srb->sense_buf[0],srb->sense_buf[2],srb->sense_buf[12],srb->sense_buf[13]);
-				return USB_STOR_TRANSPORT_FAILED;
-			}
-			else {
-				wait_ms(100);
-				goto do_retry;
-			}
-			break;
-		default:
-			if(retry++ > USB_TRANSPORT_UNKNOWN_RETRY) {
-				printf("cmd 0x%02X returned 0x%02X 0x%02X 0x%02X 0x%02X\n",
-					srb->cmd[0],srb->sense_buf[0],srb->sense_buf[2],srb->sense_buf[12],srb->sense_buf[13]);
-				return USB_STOR_TRANSPORT_FAILED;
-			}
-			else
-				goto do_retry;
-			break;
+	case 0x01: /* Recovered Error */
+		return USB_STOR_TRANSPORT_GOOD;
+	 	break;
+	case 0x02: /* Not Ready */
+		if(notready++ > USB_TRANSPORT_NOT_READY_RETRY) {
+			printf("cmd 0x%02X returned 0x%02X 0x%02X 0x%02X 0x%02X (NOT READY)\n",
+				srb->cmd[0],srb->sense_buf[0],srb->sense_buf[2],srb->sense_buf[12],srb->sense_buf[13]);
+			return USB_STOR_TRANSPORT_FAILED;
+		} else {
+			wait_ms(100);
+			goto do_retry;
+		}
+		break;
+	default:
+		if(retry++ > USB_TRANSPORT_UNKNOWN_RETRY) {
+			printf("cmd 0x%02X returned 0x%02X 0x%02X 0x%02X 0x%02X\n",
+				srb->cmd[0],srb->sense_buf[0],srb->sense_buf[2],srb->sense_buf[12],srb->sense_buf[13]);
+			return USB_STOR_TRANSPORT_FAILED;
+		} else {
+			goto do_retry;
+		}
+		break;
 	}
 	return USB_STOR_TRANSPORT_FAILED;
 }
@@ -538,7 +805,8 @@ static int usb_inquiry(ccb *srb,struct us_data *ss)
 		USB_STOR_PRINTF("inquiry returns %d\n",i);
 		if(i==0)
 			break;
-	}while(retry--);
+	} while(retry--);
+
 	if(!retry) {
 		printf("error in inquiry\n");
 		return -1;
@@ -567,17 +835,18 @@ static int usb_request_sense(ccb *srb,struct us_data *ss)
 static int usb_test_unit_ready(ccb *srb,struct us_data *ss)
 {
 	int retries=10;
+
 	do {
 		memset(&srb->cmd[0],0,12);
 		srb->cmd[0]=SCSI_TST_U_RDY;
 		srb->cmd[1]=srb->lun<<5;
 		srb->datalen=0;
 		srb->cmdlen=12;
-		if(ss->transport(srb,ss)==USB_STOR_TRANSPORT_GOOD)
-		{
+		if(ss->transport(srb,ss)==USB_STOR_TRANSPORT_GOOD) {
 			return 0;
 		}
 	} while(retries--);
+
 	return -1;
 }
 
@@ -594,7 +863,8 @@ static int usb_read_capacity(ccb *srb,struct us_data *ss)
 		if(ss->transport(srb,ss)==USB_STOR_TRANSPORT_GOOD) {
 			return 0;
 		}
-	}while(retry--);
+	} while(retry--);
+
 	return -1;
 }
 
@@ -654,8 +924,7 @@ unsigned long usb_stor_read(int device, unsigned long blknr, unsigned long blkcn
 		srb->pdata=(unsigned char *)buf_addr;
 		if(blks>USB_MAX_READ_BLK) {
 			smallblks=USB_MAX_READ_BLK;
-		}
-		else {
+		} else {
 			smallblks=(unsigned short) blks;
 		}
 retry_it:
@@ -751,6 +1020,11 @@ int usb_storage_probe(struct usb_device *dev, unsigned int ifnum,struct us_data 
 		ss->transport = usb_stor_CB_transport;
 		ss->transport_reset = usb_stor_CB_reset;
 		break;
+	case US_PR_BULK:
+		USB_STOR_PRINTF("Bulk/Bulk/Bulk\n");
+		ss->transport = usb_stor_BBB_transport;
+		ss->transport_reset = usb_stor_BBB_reset;
+		break;
 	default:
 		printf("USB Starage Transport unknown / not yet implemented\n");
 		return 0;
@@ -793,15 +1067,14 @@ int usb_storage_probe(struct usb_device *dev, unsigned int ifnum,struct us_data 
 		return 0;
 	}
 	/* set class specific stuff */
-	/* We only handle certain protocols.  Currently, this is
-	 * the only one.
+	/* We only handle certain protocols.  Currently, these are
+	 * the only ones.
 	 */
-	if (ss->subclass != US_SC_UFI) {
+	if (ss->subclass != US_SC_UFI && ss->subclass != US_SC_SCSI) {
 		printf("Sorry, protocol %d not yet supported.\n",ss->subclass);
 		return 0;
 	}
-	if(ss->ep_int) /* we had found an interrupt endpoint, prepare irq pipe */
-	{
+	if(ss->ep_int) { /* we had found an interrupt endpoint, prepare irq pipe */
 		/* set up the IRQ pipe and handler */
 
 		ss->irqinterval = (ss->irqinterval > 0) ? ss->irqinterval : 255;
@@ -865,6 +1138,19 @@ int usb_stor_get_info(struct usb_device *dev,struct us_data *ss,block_dev_desc_t
 	if(cap[0]>(0x200000 * 10)) /* greater than 10 GByte */
 		cap[0]>>=16;
 #endif
+#ifdef LITTLEENDIAN
+	cap[0] = ((unsigned long)(
+		(((unsigned long)(cap[0]) & (unsigned long)0x000000ffUL) << 24) |
+		(((unsigned long)(cap[0]) & (unsigned long)0x0000ff00UL) <<  8) |
+		(((unsigned long)(cap[0]) & (unsigned long)0x00ff0000UL) >>  8) |
+		(((unsigned long)(cap[0]) & (unsigned long)0xff000000UL) >> 24) ));
+	cap[1] = ((unsigned long)(
+		(((unsigned long)(cap[1]) & (unsigned long)0x000000ffUL) << 24) |
+		(((unsigned long)(cap[1]) & (unsigned long)0x0000ff00UL) <<  8) |
+		(((unsigned long)(cap[1]) & (unsigned long)0x00ff0000UL) >>  8) |
+		(((unsigned long)(cap[1]) & (unsigned long)0xff000000UL) >> 24) ));
+#endif
+	/* this assumes bigendian! */
 	cap[0]+=1;
 	capacity=&cap[0];
 	blksz=&cap[1];
@@ -881,5 +1167,5 @@ int usb_stor_get_info(struct usb_device *dev,struct us_data *ss,block_dev_desc_t
 	return 1;
 }
 
-#endif
 #endif /* CONFIG_USB_STORAGE */
+#endif /* CFG_CMD_USB */

@@ -33,7 +33,9 @@
 #define PRINTF(fmt,args...)
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_IDE) || (CONFIG_COMMANDS & CFG_CMD_SCSI)
+#if ((CONFIG_COMMANDS & CFG_CMD_IDE)	|| \
+     (CONFIG_COMMANDS & CFG_CMD_SCSI)	|| \
+     (CONFIG_COMMANDS & CFG_CMD_USB)	)
 
 /* ------------------------------------------------------------------------- */
 /*

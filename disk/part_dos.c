@@ -35,7 +35,9 @@
 #include <ide.h>
 #include "part_dos.h"
 
-#if ((CONFIG_COMMANDS & CFG_CMD_IDE) || (CONFIG_COMMANDS & CFG_CMD_SCSI)) && defined(CONFIG_DOS_PARTITION)
+#if ((CONFIG_COMMANDS & CFG_CMD_IDE)	|| \
+     (CONFIG_COMMANDS & CFG_CMD_SCSI)	|| \
+     (CONFIG_COMMANDS & CFG_CMD_USB)	) && defined(CONFIG_DOS_PARTITION)
 
 /* Convert char[4] in little endian format to the host format integer
  */

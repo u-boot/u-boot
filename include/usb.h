@@ -169,7 +169,7 @@ struct usb_device {
  * this is how the lowlevel part communicate with the outer world
  */
 
-#ifdef CONFIG_USB_UHCI
+#if defined(CONFIG_USB_UHCI) || defined(CONFIG_USB_OHCI)
 int usb_lowlevel_init(void);
 int usb_lowlevel_stop(void);
 int submit_bulk_msg(struct usb_device *dev, unsigned long pipe, void *buffer,int transfer_len);
@@ -228,6 +228,11 @@ int usb_string(struct usb_device *dev, int index, char *buf, size_t size);
 int usb_set_interface(struct usb_device *dev, int interface, int alternate);
 
 /* big endian -> little endian conversion */
+/* some CPUs are already little endian e.g. the ARM920T */
+#ifdef LITTLEENDIAN
+#define swap_16(x) ((unsigned short)(x))
+#define swap_32(x) ((unsigned long)(x))
+#else
 #define swap_16(x) \
 	((unsigned short)( \
 		(((unsigned short)(x) & (unsigned short)0x00ffU) << 8) | \
@@ -238,6 +243,7 @@ int usb_set_interface(struct usb_device *dev, int interface, int alternate);
 		(((unsigned long)(x) & (unsigned long)0x0000ff00UL) <<  8) | \
 		(((unsigned long)(x) & (unsigned long)0x00ff0000UL) >>  8) | \
 		(((unsigned long)(x) & (unsigned long)0xff000000UL) >> 24) ))
+#endif /* LITTLEENDIAN */
 
 /*
  * Calling this entity a "pipe" is glorifying it. A USB pipe

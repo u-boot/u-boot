@@ -238,7 +238,9 @@ int board_pre_init (void)
 
 long int initdram (int board_type)
 {
+#if CONFIG_ADSTYPE == CFG_PQ2FADS
 	vu_long *bcsr = (vu_long *)CFG_BCSR;
+#endif
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile memctl8260_t *memctl = &immap->im_memctl;
 	volatile uchar *ramaddr, c = 0xff;

@@ -51,6 +51,8 @@
 
 #define CONFIG_BOOTDELAY	5
 
+#define	CONFIG_TIMESTAMP		/* Print image info with timestamp */
+
 #define CONFIG_COMMANDS		(CONFIG_CMD_DFL | CFG_CMD_PCI)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) 	*/
@@ -68,7 +70,7 @@
 /* Print Buffer Size
  */
 #define CFG_PBSIZE	(CFG_CBSIZE + sizeof(CFG_PROMPT) + 16)
-#define CFG_MAXARGS	8		/* Max number of command args	*/
+#define CFG_MAXARGS	32		/* Max number of command args	*/
 #define CFG_BARGSIZE	CFG_CBSIZE	/* Boot Argument Buffer Size	*/
 #define CFG_LOAD_ADDR	0x00400000	/* Default load address		*/
 

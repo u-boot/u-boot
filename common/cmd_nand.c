@@ -38,7 +38,7 @@ struct nand_oob_config {
 	int eccvalid_pos;	/* position of ECC valid flag inside oob -1 = inactive */
 } oob_config = { {0}, 0, 0};
 
-#undef	NAND_DEBUG
+#define	NAND_DEBUG
 #undef	PSYCHO_DEBUG
 
 /* ****************** WARNING *********************

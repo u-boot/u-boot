@@ -161,6 +161,8 @@ typedef struct  s_Sensor SK_SENSOR;
 /*
  * Define READ and WRITE Constants.
  */
+#undef	I2C_READ		/* just in case */
+#undef	I2C_WRITE		/* just in case */
 #define I2C_READ	0
 #define I2C_WRITE	1
 #define I2C_BURST	1

@@ -1,6 +1,11 @@
 ======================================================================
-Changes for U-Boot 0.4.7:
+Changes for U-Boot 0.4.8:
 ======================================================================
+
+* Add support for USB Mass Storage Devices (BBB)
+  (tested with USB memory sticks only)
+
+* Avoid flicker on TRAB's VFD
 
 * Add support for SK98xx driver
 
@@ -26,6 +31,10 @@ Changes for U-Boot 0.4.7:
 
 * Patch by Yuli Barcohen, 7 Aug 2003:
   check BCSR to detect if the board is configured in PCI mode
+
+======================================================================
+Changes for U-Boot 0.4.7:
+======================================================================
 
 * Patch by Raghu Krishnaprasad, 7 Aug 2003:
   add support for Adder II MPC852T module
@@ -263,7 +272,7 @@ Changes for U-Boot 0.4.1:
   - PIC on LWMON board needs delay after power-on
   - Add missing RSR definitions for MPC8xx
   - Improve log buffer handling: guarantee clean reset after power-on
-  - Add support for EXBITGEN board
+  - Add support for EXBITGEN board (aka "genie")
   - Add support for SL8245 board
 
 * Code cleanup:

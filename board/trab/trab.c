@@ -105,6 +105,10 @@ int board_init ()
 	gpio->PGUP  = 0x0;
 	gpio->OPENCR= 0x0;
 
+	/* suppress flicker of the VFDs */
+	gpio->MISCCR = 0x40;
+	gpio->PFCON |= (2<<12);
+
 	/* arch number of SAMSUNG-Board */
 	/* MACH_TYPE_SMDK2400 */
 	/* XXX this isn't really correct, but keep it for now */

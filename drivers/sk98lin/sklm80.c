@@ -98,6 +98,10 @@
  ******************************************************************************/
 
 
+#include <config.h>
+
+#ifdef CONFIG_SK98
+
 /*
 	LM80 functions
 */
@@ -284,3 +288,5 @@ SK_SENSOR	*pSen)	/* Sensor to be read */
 	/* Not completed */
 	return(0);
 }
+
+#endif /* CONFIG_SK98 */

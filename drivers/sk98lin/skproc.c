@@ -70,6 +70,10 @@
  *
  ******************************************************************************/
 
+#include <config.h>
+
+#ifdef CONFIG_SK98
+
 #include <linux/proc_fs.h>
 
 #include "h/skdrv1st.h"
@@ -511,5 +515,4 @@ char * SkNumber(char * str, long long num, int base, int size, int precision
 	return strorg;
 }
 
-
-
+#endif /* CONFIG_SK98 */
