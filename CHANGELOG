@@ -1,5 +1,5 @@
 ======================================================================
-Changes for U-Boot 1.0.2:
+Changes for U-Boot 1.1.0:
 ======================================================================
 
 * Patch by Mark Jonas: Remove config.tmp files only when
