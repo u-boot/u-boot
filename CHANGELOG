@@ -2,6 +2,17 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Stefan Roese, 16 Dez 2004:
+  - ext2fs support added
+  - Tundra universe support added
+  - Coldfire MCF5249 support added (no preloader needed!)
+  - MCF5249 board TASREG added
+  - PPC boards added: APC405, CPCI405DT, CPCI750, G2000, HH405,
+    VOM405, WUH405
+  - some esd boards updated
+  - memory commands "mdc" and "mwc" added for cyclic read/write
+    (CONFIG_MX_CYCLIC, see README for further description)
+
 * Add support for INKA4X0 board
 
 * Patch by Steven Scholz, 12 Dec 2004:
