@@ -64,7 +64,7 @@ get_cpu_type(void)
 	case 0x0008:
 		type = CPU_750;
 
-                if (((pvr >> 8) & 0xff) == 0x01) {
+		if (((pvr >> 8) & 0xff) == 0x01) {
 			type = CPU_750CX;	/* old CX (80100 and 8010x?)*/
 		} else if (((pvr >> 8) & 0xff) == 0x22) {
 			type = CPU_750CX;	/* CX (82201,82202) and CXe (82214) */
@@ -72,14 +72,18 @@ get_cpu_type(void)
 			type = CPU_750CX;	/* CXe (83311) */
 		} else if (((pvr >> 12) & 0xF) == 0x3) {
 			type = CPU_755;
-                }
+		}
+		break;
+
+	case 0x7000:
+		type = CPU_750FX;
 		break;
 
 	case 0x800C:
 		type = CPU_7410;
 		break;
 
-        case 0x8000:
+	case 0x8000:
 		type = CPU_7450;
 		break;
 
@@ -116,6 +120,10 @@ int checkcpu (void)
 		str = "750";
 		break;
 
+	case CPU_750FX:
+		str = "750FX";
+		break;
+
 	case CPU_755:
 		str = "755";
 		break;
@@ -124,16 +132,16 @@ int checkcpu (void)
 		str = "MPC7400";
 		break;
 
-        case CPU_7410:
-                str = "MPC7410";
+	case CPU_7410:
+		str = "MPC7410";
 		break;
 
-        case CPU_7450:
-                str = "MPC7450";
+	case CPU_7450:
+		str = "MPC7450";
 		break;
 
 	default:
-                printf("Unknown CPU -- PVR: 0x%08x\n", pvr);
+		printf("Unknown CPU -- PVR: 0x%08x\n", pvr);
 		return -1;
 	}
 
@@ -146,8 +154,8 @@ PR_CLK:
 #endif
 /* these two functions are unimplemented currently [josh] */
 
-/* ------------------------------------------------------------------------- */
-/* L1 i-cache                                                                */
+/* -------------------------------------------------------------------- */
+/* L1 i-cache								*/
 
 int
 checkicache(void)
@@ -155,8 +163,8 @@ checkicache(void)
 	return 0; /* XXX */
 }
 
-/* ------------------------------------------------------------------------- */
-/* L1 d-cache                                                                */
+/* -------------------------------------------------------------------- */
+/* L1 d-cache								*/
 
 int
 checkdcache(void)
@@ -164,7 +172,7 @@ checkdcache(void)
 	return 0; /* XXX */
 }
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------- */
 
 static inline void
 soft_restart(unsigned long addr)

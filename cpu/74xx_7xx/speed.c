@@ -48,6 +48,33 @@ static const int hid1_multipliers_x_10[] = {
 	0	/* 1111 - off */
 };
 
+static const int hid1_fx_multipliers_x_10[] = {
+        00,     /* 0000 - off */
+        00,     /* 0001 - off */
+        10,     /* 0010 - bypass */
+        10,     /* 0011 - bypass */
+        20,     /* 0100 - 2x */
+        25,     /* 0101 - 2.5x */
+        30,     /* 0110 - 3x */
+        35,     /* 0111 - 3.5x */
+        40,     /* 1000 - 4x */
+        45,     /* 1001 - 4.5x */
+        50,     /* 1010 - 5x */
+        55,     /* 1011 - 5.5x */
+        60,     /* 1100 - 6x */
+        65,     /* 1101 - 6.5x */
+        70,     /* 1110 - 7x */
+        75,     /* 1111 - 7.5 */
+        80,     /* 10000 - 8x */
+        85,     /* 10001 - 8.5x */
+        90,     /* 10010 - 9x */
+        95,     /* 10011 - 9.5x */
+        100,    /* 10100 - 10x */
+        110,    /* 10101 - 11x */
+        120,    /* 10110 - 12x */
+};
+
+
 /* ------------------------------------------------------------------------- */
 
 /*
@@ -59,9 +86,13 @@ static const int hid1_multipliers_x_10[] = {
 int get_clocks (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-
+#ifdef CONFIG_750FX
+        ulong clock = CFG_BUS_CLK * \
+                      hid1_fx_multipliers_x_10[get_hid1 () >> 27] / 10;
+#else
 	ulong clock = CFG_BUS_CLK * \
 		      hid1_multipliers_x_10[get_hid1 () >> 28] / 10;
+#endif
 	gd->cpu_clk = clock;
 	gd->bus_clk = CFG_BUS_CLK;
 

@@ -2,6 +2,9 @@
 Changes since U-Boot 0.3.1:
 ======================================================================
 
+* Patch by Tom Guilliams, 20 Jun 2003:
+  added CONFIG_750FX support for IBM 750FX processors
+
 * Patch by Devin Crumb, 02 Apr 2003:
   Fix clock divider rounding problem in drivers/serial.c
 

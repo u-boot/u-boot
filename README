@@ -301,6 +301,7 @@ The following options need to be configured:
 	or	CONFIG_405GP
 	or	CONFIG_440
 	or	CONFIG_MPC74xx
+	or	CONFIG_750FX
 
 		ARM based CPUs:
 		---------------
