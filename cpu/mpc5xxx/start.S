@@ -103,7 +103,7 @@ boot_cold:
 boot_warm:
 	mfmsr	r5			/* save msr contents		*/
 
-#if defined(CFG_DEFAULT_MBAR)
+#if defined(CFG_DEFAULT_MBAR) && !defined(CFG_RAMBOOT)
 	lis	r3, CFG_MBAR@h
 	ori	r3, r3, CFG_MBAR@l
 #if defined(CONFIG_MPC5200)

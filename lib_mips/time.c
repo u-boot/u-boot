@@ -75,9 +75,7 @@ void udelay (unsigned long usec)
 	ulong tmo;
 	ulong start = get_timer(0);
 
-	tmo = usec * CFG_HZ / 1000;
-	tmo /= 1000;
-
+	tmo = usec * (CFG_HZ / 1000000);
 	while ((ulong)((mips_count_get() - start)) < tmo)
 		/*NOP*/;
 }

@@ -323,6 +323,13 @@ int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 		hose->current_busno++;
 		break;
 
+#ifdef CONFIG_MPC5200
+	case PCI_CLASS_BRIDGE_OTHER:
+		DEBUGF("PCI Autoconfig: Skipping bridge device %d\n",
+		       PCI_DEV(dev));
+		break;
+#endif
+
 	default:
 		pciauto_setup_device(hose, dev, 6, hose->pci_mem, hose->pci_io);
 		break;

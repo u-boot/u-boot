@@ -116,14 +116,15 @@ unsigned long flash_init (void)
 
 #ifdef	CFG_ENV_IS_IN_FLASH
 	/* ENV protection ON by default */
-	debug ("Protect %senvironment: %08lx ... %08lx\n",
 # ifdef CFG_ENV_ADDR_REDUND
-		"primary   ",
-# else
-		"",
-# endif
+	debug ("Protect primary   environment: %08lx ... %08lx\n",
 		(ulong)CFG_ENV_ADDR,
 		(ulong)CFG_ENV_ADDR + CFG_ENV_SECT_SIZE - 1);
+# else
+	debug ("Protect environment: %08lx ... %08lx\n",
+		(ulong)CFG_ENV_ADDR,
+		(ulong)CFG_ENV_ADDR + CFG_ENV_SECT_SIZE - 1);
+# endif
 
 	flash_protect(FLAG_PROTECT_SET,
 		      CFG_ENV_ADDR,

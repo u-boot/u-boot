@@ -51,9 +51,6 @@ static int mpc5200_read_config_dword(struct pci_controller *hose,
 	*value = in_le32((volatile u32 *)CONFIG_PCI_IO_PHYS);
 	eieio();
 	*(volatile u32 *)MPC5XXX_PCI_CAR = 0;
-	/* skip MPC5200 */
-	if (offset == 0 && *value == 0x58031057)
-		*value = 0xffffffff;
 	return 0;
 }
 

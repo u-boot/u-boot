@@ -2,6 +2,18 @@
 Changes for U-Boot 0.4.5:
 ======================================================================
 
+* Make Ethernet autonegotiation on INCA-IP work for all clock rates;
+  allow selection of clock frequency as "make" target
+
+* Implement memory autosizing code for IceCube boards
+
+* Configure network port on INCA-IP for autonegotiation
+
+* Fix overflow problem in network timeout code
+
+* Patch by Richard Woodruff, 8 Aug 2003:
+  Allow crc32 to be used at address 0x000 (crc32_no_comp, too).
+
 * Update for TQM board defaults:
   disable clocks_in_mhz, enable boot count limit
 

@@ -240,7 +240,7 @@ TftpHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 static void
 TftpTimeout (void)
 {
-	if (++TftpTimeoutCount >= TIMEOUT_COUNT) {
+	if (++TftpTimeoutCount > TIMEOUT_COUNT) {
 		puts ("\nRetry count exceeded; starting again\n");
 		NetStartAgain ();
 	} else {

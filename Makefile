@@ -848,8 +848,30 @@ sc520_spunk_rel_config	:	unconfig
 ## MIPS32 4Kc
 #########################################################################
 
-incaip_config :		unconfig
-	@./mkconfig $(@:_config=) mips mips incaip
+xtract_incaip = $(subst _100MHz,,$(subst _133MHz,,$(subst _150MHz,,$(subst _config,,$1))))
+
+incaip_100MHz_config	\
+incaip_133MHz_config	\
+incaip_150MHz_config	\
+incaip_config: unconfig
+	@ >include/config.h
+	@[ -z "$(findstring _100MHz,$@)" ] || \
+		{ echo "#define CPU_CLOCK_RATE 100000000" >>include/config.h ; \
+		  echo "... with 100MHz system clock" ; \
+		}
+	@[ -z "$(findstring _133MHz,$@)" ] || \
+		{ echo "#define CPU_CLOCK_RATE 133000000" >>include/config.h ; \
+		  echo "... with 133MHz system clock" ; \
+		}
+	@[ -z "$(findstring _150MHz,$@)" ] || \
+		{ echo "#define CPU_CLOCK_RATE 150000000" >>include/config.h ; \
+		  echo "... with 150MHz system clock" ; \
+		}
+	@./mkconfig -a $(call xtract_incaip,$@) mips mips incaip
+
+#########################################################################
+## MIPS64 5Kc
+#########################################################################
 
 purple_config :		unconfig
 	@./mkconfig $(@:_config=) mips mips purple

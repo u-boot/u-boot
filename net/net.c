@@ -125,7 +125,8 @@ volatile uchar *NetRxPackets[PKTBUFSRX]; /* Receive packets			*/
 
 static rxhand_f *packetHandler;		/* Current RX packet handler		*/
 static thand_f *timeHandler;		/* Current timeout handler		*/
-static ulong	timeValue;		/* Current timeout value		*/
+static ulong	timeStart;		/* Time base value			*/
+static ulong	timeDelta;		/* Current timeout value		*/
 volatile uchar *NetTxPacket = 0;	/* THE transmit packet			*/
 
 static int net_check_prereq (proto_t protocol);
@@ -391,7 +392,7 @@ restart:
 		 *	Check for a timeout, and run the timeout handler
 		 *	if we have one.
 		 */
-		if (timeHandler && (get_timer(0) > timeValue)) {
+		if (timeHandler && ((get_timer(0) - timeStart) > timeDelta)) {
 			thand_f *x;
 
 			x = timeHandler;
@@ -491,7 +492,8 @@ NetSetTimeout(int iv, thand_f * f)
 		timeHandler = (thand_f *)0;
 	} else {
 		timeHandler = f;
-		timeValue = get_timer(0) + iv;
+		timeStart = get_timer(0);
+		timeDelta = iv;
 	}
 }
 

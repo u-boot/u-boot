@@ -25,35 +25,84 @@
 #include <mpc5xxx.h>
 #include <pci.h>
 
+static long int dram_size(long int *base, long int maxsize)
+{
+	volatile long int *addr;
+	ulong cnt, val;
+	ulong save[32];			/* to make test non-destructive */
+	unsigned char i = 0;
+
+	for (cnt = (maxsize / sizeof (long)) >> 1; cnt > 0; cnt >>= 1) {
+		addr = base + cnt;		/* pointer arith! */
+
+		save[i++] = *addr;
+		*addr = ~cnt;
+	}
+
+	/* write 0 to base address */
+	addr = base;
+	save[i] = *addr;
+	*addr = 0;
+
+	/* check at base address */
+	if ((val = *addr) != 0) {
+		*addr = save[i];
+		return (0);
+	}
+
+	for (cnt = 1; cnt < maxsize / sizeof (long); cnt <<= 1) {
+		addr = base + cnt;		/* pointer arith! */
+
+		val = *addr;
+		*addr = save[--i];
+
+		if (val != (~cnt)) {
+			return (cnt * sizeof (long));
+		}
+	}
+	return (maxsize);
+}
+
+static void sdram_start (int hi_addr)
+{
+	long hi_addr_bit = hi_addr ? 0x01000000 : 0;
+
+	/* unlock mode register */
+	*(vu_long *)MPC5XXX_SDRAM_CTRL = 0xd04f0000 | hi_addr_bit;
+	/* precharge all banks */
+	*(vu_long *)MPC5XXX_SDRAM_CTRL = 0xd04f0002 | hi_addr_bit;
+	/* set mode register */
+#if defined(CONFIG_MPC5200)
+	*(vu_long *)MPC5XXX_SDRAM_MODE = 0x408d0000;
+#elif defined(CONFIG_MGT5100)
+	*(vu_long *)MPC5XXX_SDRAM_MODE = 0x008d0000;
+#endif
+	/* precharge all banks */
+	*(vu_long *)MPC5XXX_SDRAM_CTRL = 0xd04f0002 | hi_addr_bit;
+	/* auto refresh */
+	*(vu_long *)MPC5XXX_SDRAM_CTRL = 0xd04f0004 | hi_addr_bit;
+	/* set mode register */
+	*(vu_long *)MPC5XXX_SDRAM_MODE = 0x008d0000;
+	/* normal operation */
+	*(vu_long *)MPC5XXX_SDRAM_CTRL = 0x504f0000 | hi_addr_bit;
+}
+
 long int initdram (int board_type)
 {
+	ulong test1, test2, dramsize = 0;
 #ifndef CFG_RAMBOOT
 	/* configure SDRAM start/end */
 #if defined(CONFIG_MPC5200)
-	*(vu_long *)MPC5XXX_SDRAM_CS0CFG = 0x00000018;/* 32M at 0x0 */
-	*(vu_long *)MPC5XXX_SDRAM_CS1CFG = 0x02000000;/* disabled */
+	*(vu_long *)MPC5XXX_SDRAM_CS0CFG = 0x0000001e;/* 2G at 0x0 */
+	*(vu_long *)MPC5XXX_SDRAM_CS1CFG = 0x80000000;/* disabled */
 
 	/* setup config registers */
 	*(vu_long *)MPC5XXX_SDRAM_CONFIG1 = 0xc2233a00;
 	*(vu_long *)MPC5XXX_SDRAM_CONFIG2 = 0x88b70004;
 
-	/* unlock mode register */
-	*(vu_long *)MPC5XXX_SDRAM_CTRL = 0xd04f0000;
-	/* precharge all banks */
-	*(vu_long *)MPC5XXX_SDRAM_CTRL = 0xd04f0002;
-	/* set mode register */
-	*(vu_long *)MPC5XXX_SDRAM_MODE = 0x408d0000;
-	/* precharge all banks */
-	*(vu_long *)MPC5XXX_SDRAM_CTRL = 0xd04f0002;
-	/* auto refresh */
-	*(vu_long *)MPC5XXX_SDRAM_CTRL = 0xd04f0004;
-	/* set mode register */
-	*(vu_long *)MPC5XXX_SDRAM_MODE = 0x008d0000;
-	/* normal operation */
-	*(vu_long *)MPC5XXX_SDRAM_CTRL = 0x504f0000;
 #elif defined(CONFIG_MGT5100)
 	*(vu_long *)MPC5XXX_SDRAM_START = 0x00000000;
-	*(vu_long *)MPC5XXX_SDRAM_STOP = 0x000007ff;/* 64M */
+	*(vu_long *)MPC5XXX_SDRAM_STOP = 0x0000ffff;/* 2G */
 	*(vu_long *)MPC5XXX_ADDECR |= (1 << 22); /* Enable SDRAM */
 
 	/* setup config registers */
@@ -62,33 +111,32 @@ long int initdram (int board_type)
 
 	/* address select register */
 	*(vu_long *)MPC5XXX_SDRAM_XLBSEL = 0x03000000;
-
-	/* unlock mode register */
-	*(vu_long *)MPC5XXX_SDRAM_CTRL = 0xd14f0000;
-	/* precharge all banks */
-	*(vu_long *)MPC5XXX_SDRAM_CTRL = 0xd14f0002;
-	/* set mode register */
-	*(vu_long *)MPC5XXX_SDRAM_MODE = 0x008d0000;
-	/* precharge all banks */
-	*(vu_long *)MPC5XXX_SDRAM_CTRL = 0xd14f0002;
-	/* auto refresh */
-	*(vu_long *)MPC5XXX_SDRAM_CTRL = 0xd14f0004;
-	/* set mode register */
-	*(vu_long *)MPC5XXX_SDRAM_MODE = 0x008d0000;
-	/* normal operation */
-	*(vu_long *)MPC5XXX_SDRAM_CTRL = 0x514f0000;
 #endif
+	sdram_start(0);
+	test1 = dram_size((ulong *)CFG_SDRAM_BASE, 0x80000000);
+	sdram_start(1);
+	test2 = dram_size((ulong *)CFG_SDRAM_BASE, 0x80000000);
+	if (test1 > test2) {
+		sdram_start(0);
+		dramsize = test1;
+	} else {
+		dramsize = test2;
+	}
+#if defined(CONFIG_MPC5200)
+	*(vu_long *)MPC5XXX_SDRAM_CS0CFG =
+		(0x13 + __builtin_ffs(dramsize >> 20) - 1);
+	*(vu_long *)MPC5XXX_SDRAM_CS1CFG = dramsize; /* disabled */
+#elif defined(CONFIG_MGT5100)
+	*(vu_long *)MPC5XXX_SDRAM_STOP = ((dramsize - 1) >> 15);
+#endif
+
 #else
 #ifdef CONFIG_MGT5100
 	*(vu_long *)MPC5XXX_ADDECR |= (1 << 22); /* Enable SDRAM */
 #endif
 #endif
 	/* return total ram size */
-#if defined(CONFIG_MGT5100)
-	return (64 * 1024 * 1024);
-#elif defined(CONFIG_MPC5200)
-	return (32 * 1024 * 1024);
-#endif
+	return dramsize;
 }
 
 int checkboard (void)

@@ -152,6 +152,9 @@ inca-swap-bytes.o:	inca-swap-bytes.c
 		$(CC) -g $(CFLAGS) -c $<
 
 subdirs:
+ifeq ($(TOOLSUBDIRS),)
+		@:
+else
 		@for dir in $(TOOLSUBDIRS) ; do \
 		    $(MAKE) \
 			HOSTOS=$(HOSTOS) \
@@ -160,6 +163,8 @@ subdirs:
 		   	HOST_LDFLAGS="$(HOST_LDFLAGS)" \
 			-C $$dir || exit 1 ; \
 		done
+endif
+
 environment.c:
 		ln -s ../common/environment.c environment.c
 

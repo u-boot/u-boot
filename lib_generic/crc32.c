@@ -178,7 +178,6 @@ uLong ZEXPORT crc32(crc, buf, len)
  */
 uLong ZEXPORT crc32_no_comp(uLong crc, const Bytef *buf, uInt len)
 {
-    if (buf == Z_NULL) return 0L;
 #ifdef DYNAMIC_CRC_TABLE
     if (crc_table_empty)
       make_crc_table();

@@ -70,10 +70,8 @@
 
 typedef struct
 {
-	union
-	{
-		struct
-		{
+	union {
+		struct {
 			volatile u32 HOLD                :1;
 			volatile u32 ICpt                :1;
 			volatile u32 IEop                :1;
@@ -89,10 +87,8 @@ typedef struct
 
 	volatile u32 RxDataPtr;
 
-	union
-	{
-		struct
-		{
+	union {
+		struct {
 			volatile u32 C                   :1;
 			volatile u32 Sop                 :1;
 			volatile u32 Eop                 :1;
@@ -108,10 +104,8 @@ typedef struct
 
 typedef struct
 {
-	union
-	{
-		struct
-		{
+	union {
+		struct {
 			volatile u32 HOLD                :1;
 			volatile u32 Eop                 :1;
 			volatile u32 Sop                 :1;
@@ -159,8 +153,7 @@ int inca_switch_initialize(bd_t * bis)
 	printf("Entered inca_switch_initialize()\n");
 #endif
 
-	if (!(dev = (struct eth_device *) malloc (sizeof *dev)))
-	{
+	if (!(dev = (struct eth_device *) malloc (sizeof *dev))) {
 		printf("Failed to allocate memory\n");
 		return 0;
 	}
@@ -196,8 +189,8 @@ static int inca_switch_init(struct eth_device *dev, bd_t * bis)
 	printf("Entering inca_switch_init()\n");
 #endif
 
-		/* Set MAC address.
-		 */
+	/* Set MAC address.
+	 */
 	wTmp = (u16)dev->enetaddr[0];
 	regValue = (wTmp << 8) | dev->enetaddr[1];
 
@@ -211,35 +204,32 @@ static int inca_switch_init(struct eth_device *dev, bd_t * bis)
 
 	SW_WRITE_REG(INCA_IP_Switch_PMAC_SA2, regValue);
 
-		/* Initialize the descriptor rings.
-		 */
+	/* Initialize the descriptor rings.
+	 */
 	for (i = 0; i < NUM_RX_DESC; i++)
 	{
 		inca_rx_descriptor_t * rx_desc = KSEG1ADDR(&rx_ring[i]);
 		memset(rx_desc, 0, sizeof(rx_ring[i]));
 
-			/* Set maximum size of receive buffer.
-			 */
+		/* Set maximum size of receive buffer.
+		 */
 		rx_desc->params.field.NFB = PKTSIZE_ALIGN;
 
-			/* Set the offset of the receive buffer. Zero means
-			 * that the offset mechanism is not used.
-			 */
+		/* Set the offset of the receive buffer. Zero means
+		 * that the offset mechanism is not used.
+		 */
 		rx_desc->params.field.offset = 0;
 
 		/* Check if it is the last descriptor.
 		 */
-		if (i == (NUM_RX_DESC - 1))
-		{
-				/* Let the last descriptor point to the first
-				 * one.
-				 */
+		if (i == (NUM_RX_DESC - 1)) {
+			/* Let the last descriptor point to the first
+			 * one.
+			 */
 			rx_desc->nextRxDescPtr = KSEG1ADDR((u32)rx_ring);
-		}
-		else
-		{
-				/* Set the address of the next descriptor.
-				 */
+		} else {
+			/* Set the address of the next descriptor.
+			 */
 			rx_desc->nextRxDescPtr = (u32)KSEG1ADDR(&rx_ring[i+1]);
 		}
 
@@ -251,8 +241,7 @@ static int inca_switch_init(struct eth_device *dev, bd_t * bis)
 	printf("tx_ring = 0x%08X 0x%08X\n", (u32)tx_ring, (u32)&tx_ring[0]);
 #endif
 
-	for (i = 0; i < NUM_TX_DESC; i++)
-	{
+	for (i = 0; i < NUM_TX_DESC; i++) {
 		inca_tx_descriptor_t * tx_desc = KSEG1ADDR(&tx_ring[i]);
 
 		memset(tx_desc, 0, sizeof(tx_ring[i]));
@@ -263,46 +252,43 @@ static int inca_switch_init(struct eth_device *dev, bd_t * bis)
 
 			/* Check if it is the last descriptor.
 			 */
-		if (i == (NUM_TX_DESC - 1))
-		{
+		if (i == (NUM_TX_DESC - 1)) {
 				/* Let the last descriptor point to the
 				 * first one.
 				 */
 			tx_desc->nextTxDescPtr = KSEG1ADDR((u32)tx_ring);
-		}
-		else
-		{
+		} else {
 				/* Set the address of the next descriptor.
 				 */
 			tx_desc->nextTxDescPtr = (u32)KSEG1ADDR(&tx_ring[i+1]);
 		}
 	}
 
-		/* Initialize RxDMA.
-		 */
+	/* Initialize RxDMA.
+	 */
 	DMA_READ_REG(INCA_IP_DMA_DMA_RXISR, v);
 #if 0
 	printf("RX status = 0x%08X\n", v);
 #endif
 
-		/* Writing to the FRDA of CHANNEL.
-		 */
+	/* Writing to the FRDA of CHANNEL.
+	 */
 	DMA_WRITE_REG(INCA_IP_DMA_DMA_RXFRDA0, (u32)rx_ring);
 
-		/* Writing to the COMMAND REG.
-		 */
+	/* Writing to the COMMAND REG.
+	 */
 	DMA_WRITE_REG(INCA_IP_DMA_DMA_RXCCR0,
 		      INCA_IP_DMA_DMA_RXCCR0_INIT);
 
-		/* Initialize TxDMA.
-		 */
+	/* Initialize TxDMA.
+	 */
 	DMA_READ_REG(INCA_IP_DMA_DMA_TXISR, v);
 #if 0
 	printf("TX status = 0x%08X\n", v);
 #endif
 
-		/* Writing to the FRDA of CHANNEL.
-		 */
+	/* Writing to the FRDA of CHANNEL.
+	 */
 	DMA_WRITE_REG(INCA_IP_DMA_DMA_TXFRDA0, (u32)tx_ring);
 
 	tx_new = rx_new = 0;
@@ -313,12 +299,12 @@ static int inca_switch_init(struct eth_device *dev, bd_t * bis)
 #if 0
 	rx_ring[rx_hold].params.field.HOLD = 1;
 #endif
-	   /* enable spanning tree forwarding, enable the CPU port */
-	   /* ST_PT:
-		 CPS (CPU port status)   0x3 (forwarding)
-		 LPS (LAN port status)   0x3 (forwarding)
-		 PPS (PC port status)    0x3 (forwarding)
-	   */
+	/* enable spanning tree forwarding, enable the CPU port */
+	/* ST_PT:
+	 *	CPS (CPU port status)   0x3 (forwarding)
+	 *	LPS (LAN port status)   0x3 (forwarding)
+	 *	PPS (PC port status)    0x3 (forwarding)
+	 */
 	SW_WRITE_REG(INCA_IP_Switch_ST_PT,0x3f);
 
 #if 0
@@ -342,23 +328,19 @@ static int inca_switch_send(struct eth_device *dev, volatile void *packet,
 	printf("Entered inca_switch_send()\n");
 #endif
 
-	if (length <= 0)
-	{
+	if (length <= 0) {
 		printf ("%s: bad packet size: %d\n", dev->name, length);
 		goto Done;
 	}
 
-	for(i = 0; tx_desc->C == 0; i++)
-	{
-		if (i >= TOUT_LOOP)
-		{
+	for(i = 0; tx_desc->C == 0; i++) {
+		if (i >= TOUT_LOOP) {
 			printf("%s: tx error buffer not ready\n", dev->name);
 			goto Done;
 		}
 	}
 
-	if (tx_old_hold >= 0)
-	{
+	if (tx_old_hold >= 0) {
 		KSEG1ADDR(&tx_ring[tx_old_hold])->params.field.HOLD = 1;
 	}
 	tx_old_hold = tx_hold;
@@ -376,13 +358,10 @@ static int inca_switch_send(struct eth_device *dev, volatile void *packet,
 	tx_new  = (tx_new + 1) % NUM_TX_DESC;
 
 
-	if (! initialized)
-	{
+	if (! initialized) {
 		command = INCA_IP_DMA_DMA_TXCCR0_INIT;
 		initialized = 1;
-	}
-	else
-	{
+	} else {
 		command = INCA_IP_DMA_DMA_TXCCR0_HR;
 	}
 
@@ -394,10 +373,8 @@ static int inca_switch_send(struct eth_device *dev, volatile void *packet,
 	DMA_WRITE_REG(INCA_IP_DMA_DMA_TXCCR0, regValue);
 
 #if 1
-	for(i = 0; KSEG1ADDR(&tx_ring[tx_hold])->C == 0; i++)
-	{
-		if (i >= TOUT_LOOP)
-		{
+	for(i = 0; KSEG1ADDR(&tx_ring[tx_hold])->C == 0; i++) {
+		if (i >= TOUT_LOOP) {
 			printf("%s: tx buffer not ready\n", dev->name);
 			goto Done;
 		}
@@ -421,12 +398,10 @@ static int inca_switch_recv(struct eth_device *dev)
 	printf("Entered inca_switch_recv()\n");
 #endif
 
-	for (;;)
-	{
+	for (;;) {
 		rx_desc = KSEG1ADDR(&rx_ring[rx_new]);
 
-		if (rx_desc->status.field.C == 0)
-		{
+		if (rx_desc->status.field.C == 0) {
 			break;
 		}
 
@@ -434,8 +409,7 @@ static int inca_switch_recv(struct eth_device *dev)
 		rx_ring[rx_new].params.field.HOLD = 1;
 #endif
 
-		if (! rx_desc->status.field.Eop)
-		{
+		if (! rx_desc->status.field.Eop) {
 			printf("Partly received packet!!!\n");
 			break;
 		}
@@ -454,16 +428,13 @@ static int inca_switch_recv(struct eth_device *dev)
 }
 #endif
 
-		if (length)
-		{
+		if (length) {
 #if 0
 			printf("Received %d bytes\n", length);
 #endif
 			NetReceive((void*)KSEG1ADDR(NetRxPackets[rx_new]),
 				    length - 4);
-		}
-		else
-		{
+		} else {
 #if 1
 			printf("Zero length!!!\n");
 #endif
@@ -495,16 +466,16 @@ static void inca_switch_halt(struct eth_device *dev)
 	initialized = 0;
 #endif
 #if 1
-		/* Disable forwarding to the CPU port.
-		 */
+	/* Disable forwarding to the CPU port.
+	 */
 	SW_WRITE_REG(INCA_IP_Switch_ST_PT,0xf);
 
-		/* Close RxDMA channel.
-		 */
+	/* Close RxDMA channel.
+	 */
 	DMA_WRITE_REG(INCA_IP_DMA_DMA_RXCCR0, INCA_IP_DMA_DMA_RXCCR0_OFF);
 
-		/* Close TxDMA channel.
-		 */
+	/* Close TxDMA channel.
+	 */
 	DMA_WRITE_REG(INCA_IP_DMA_DMA_TXCCR0, INCA_IP_DMA_DMA_TXCCR0_OFF);
 
 
@@ -519,88 +490,89 @@ static void inca_init_switch_chip(void)
 {
 	u32 regValue;
 
-		/* To workaround a problem with collision counter
-		 * (see Errata sheet).
-		 */
+	/* To workaround a problem with collision counter
+	 * (see Errata sheet).
+	 */
 	SW_WRITE_REG(INCA_IP_Switch_PC_TX_CTL, 0x00000001);
 	SW_WRITE_REG(INCA_IP_Switch_LAN_TX_CTL, 0x00000001);
 
 #if 1
-	   /* init MDIO configuration:
-		 MDS (Poll speed):       0x01 (4ms)
-		 PHY_LAN_ADDR:           0x06
-		 PHY_PC_ADDR:            0x05
-		 UEP (Use External PHY): 0x00 (Internal PHY is used)
-		 PS (Port Select):       0x00 (PT/UMM for LAN)
-		 PT (PHY Test):          0x00 (no test mode)
-		 UMM (Use MDIO Mode):    0x00 (state machine is disabled)
-	   */
+	/* init MDIO configuration:
+	 *	MDS (Poll speed):       0x01 (4ms)
+	 *	PHY_LAN_ADDR:           0x06
+	 *	PHY_PC_ADDR:            0x05
+	 *	UEP (Use External PHY): 0x00 (Internal PHY is used)
+	 *	PS (Port Select):       0x00 (PT/UMM for LAN)
+	 *	PT (PHY Test):          0x00 (no test mode)
+	 *	UMM (Use MDIO Mode):    0x00 (state machine is disabled)
+	 */
 	SW_WRITE_REG(INCA_IP_Switch_MDIO_CFG, 0x4c50);
 
-	   /* init PHY:
-		 SL (Auto Neg. Speed for LAN)
-		 SP (Auto Neg. Speed for PC)
-		 LL (Link Status for LAN)
-		 LP (Link Status for PC)
-		 DL (Duplex Status for LAN)
-		 DP (Duplex Status for PC)
-		 PL (Auto Neg. Pause Status for LAN)
-		 PP (Auto Neg. Pause Status for PC)
-	   */
+	/* init PHY:
+	 *	SL (Auto Neg. Speed for LAN)
+	 *	SP (Auto Neg. Speed for PC)
+	 *	LL (Link Status for LAN)
+	 *	LP (Link Status for PC)
+	 *	DL (Duplex Status for LAN)
+	 *	DP (Duplex Status for PC)
+	 *	PL (Auto Neg. Pause Status for LAN)
+	 *	PP (Auto Neg. Pause Status for PC)
+	 */
 	SW_WRITE_REG (INCA_IP_Switch_EPHY, 0xff);
 
-	   /* MDIO_ACC:
-		 RA (Request/Ack)  0x01 (Request)
-		 RW (Read/Write)   0x01 (Write)
-		 PHY_ADDR          0x05 (PC)
-		 REG_ADDR          0x00 (PHY_BCR: basic control register)
-		 PHY_DATA          0x8000
-				      Reset                   - software reset
-				      LB (loop back)          - normal
-				      SS (speed select)       - 10 Mbit/s
-				      ANE (auto neg. enable)  - disable
-				      PD (power down)         - normal
-				      ISO (isolate)           - normal
-				      RAN (restart auto neg.) - normal
-				      DM (duplex mode)        - half duplex
-				      CT (collision test)     - enable
-	   */
-	SW_WRITE_REG(INCA_IP_Switch_MDIO_ACC, 0xc0a08000);
+	/* MDIO_ACC:
+	 *	RA (Request/Ack)  0x01 (Request)
+	 *	RW (Read/Write)   0x01 (Write)
+	 *	PHY_ADDR          0x05 (PC)
+	 *	REG_ADDR          0x00 (PHY_BCR: basic control register)
+	 *	PHY_DATA          0x8000
+	 *		      Reset                   - software reset
+	 *		      LB (loop back)          - normal
+	 *		      SS (speed select)       - 10 Mbit/s
+	 *		      ANE (auto neg. enable)  - enable
+	 *		      PD (power down)         - normal
+	 *		      ISO (isolate)           - normal
+	 *		      RAN (restart auto neg.) - normal
+	 *		      DM (duplex mode)        - half duplex
+	 *		      CT (collision test)     - enable
+	 */
+	SW_WRITE_REG(INCA_IP_Switch_MDIO_ACC, 0xc0a09000);
 
-	   /* MDIO_ACC:
-		 RA (Request/Ack)  0x01 (Request)
-		 RW (Read/Write)   0x01 (Write)
-		 PHY_ADDR          0x06 (LAN)
-		 REG_ADDR          0x00 (PHY_BCR: basic control register)
-		 PHY_DATA          0x8000
-				      Reset                   - software reset
-				      LB (loop back)          - normal
-				      SS (speed select)       - 10 Mbit/s
-				      ANE (auto neg. enable)  - disable
-				      PD (power down)         - normal
-				      ISO (isolate)           - normal
-				      RAN (restart auto neg.) - normal
-				      DM (duplex mode)        - half duplex
-				      CT (collision test)     - enable
-	   */
-	SW_WRITE_REG(INCA_IP_Switch_MDIO_ACC, 0xc0c08000);
+	/* MDIO_ACC:
+	 *	RA (Request/Ack)  0x01 (Request)
+	 *	RW (Read/Write)   0x01 (Write)
+	 *	PHY_ADDR          0x06 (LAN)
+	 *	REG_ADDR          0x00 (PHY_BCR: basic control register)
+	 *	PHY_DATA          0x8000
+	 *		      Reset                   - software reset
+	 *		      LB (loop back)          - normal
+	 *		      SS (speed select)       - 10 Mbit/s
+	 *		      ANE (auto neg. enable)  - enable
+	 *		      PD (power down)         - normal
+	 *		      ISO (isolate)           - normal
+	 *		      RAN (restart auto neg.) - normal
+	 *		      DM (duplex mode)        - half duplex
+	 *		      CT (collision test)     - enable
+	 */
+   	SW_WRITE_REG(INCA_IP_Switch_MDIO_ACC, 0xc0c09000);
+
 #endif
 
-		/* Make sure the CPU port is disabled for now. We
-		 * don't want packets to get stacked for us until
-		 * we enable DMA and are prepared to receive them.
-		 */
+	/* Make sure the CPU port is disabled for now. We
+	 * don't want packets to get stacked for us until
+	 * we enable DMA and are prepared to receive them.
+	 */
 	SW_WRITE_REG(INCA_IP_Switch_ST_PT,0xf);
 
 	SW_READ_REG(INCA_IP_Switch_ARL_CTL, regValue);
 
-		/* CRC GEN is enabled.
-		 */
+	/* CRC GEN is enabled.
+	 */
 	regValue |= 0x00000200;
 	SW_WRITE_REG(INCA_IP_Switch_ARL_CTL, regValue);
 
-		/* ADD TAG is disabled.
-		 */
+	/* ADD TAG is disabled.
+	 */
 	SW_READ_REG(INCA_IP_Switch_PMAC_HD_CTL, regValue);
 	regValue &= ~0x00000002;
 	SW_WRITE_REG(INCA_IP_Switch_PMAC_HD_CTL, regValue);
@@ -609,8 +581,8 @@ static void inca_init_switch_chip(void)
 
 static void inca_dma_init(void)
 {
-		/* Switch off all DMA channels.
-		 */
+	/* Switch off all DMA channels.
+	 */
 	DMA_WRITE_REG(INCA_IP_DMA_DMA_RXCCR0, INCA_IP_DMA_DMA_RXCCR0_OFF);
 	DMA_WRITE_REG(INCA_IP_DMA_DMA_RXCCR1, INCA_IP_DMA_DMA_RXCCR1_OFF);
 
@@ -618,20 +590,20 @@ static void inca_dma_init(void)
 	DMA_WRITE_REG(INCA_IP_DMA_DMA_TXCCR1, INCA_IP_DMA_DMA_TXCCR1_OFF);
 	DMA_WRITE_REG(INCA_IP_DMA_DMA_TXCCR2, INCA_IP_DMA_DMA_TXCCR2_OFF);
 
-		/* Setup TX channel polling time.
-		 */
+	/* Setup TX channel polling time.
+	 */
 	DMA_WRITE_REG(INCA_IP_DMA_DMA_TXPOLL, INCA_DMA_TX_POLLING_TIME);
 
-		/* Setup RX channel polling time.
-		 */
+	/* Setup RX channel polling time.
+	 */
 	DMA_WRITE_REG(INCA_IP_DMA_DMA_RXPOLL, INCA_DMA_RX_POLLING_TIME);
 
-		/* ERRATA: write reset value into the DMA RX IMR register.
-		 */
+	/* ERRATA: write reset value into the DMA RX IMR register.
+	 */
 	DMA_WRITE_REG(INCA_IP_DMA_DMA_RXIMR, 0xFFFFFFFF);
 
-		/* Just in case: disable all transmit interrupts also.
-		 */
+	/* Just in case: disable all transmit interrupts also.
+	 */
 	DMA_WRITE_REG(INCA_IP_DMA_DMA_TXIMR, 0xFFFFFFFF);
 
 	DMA_WRITE_REG(INCA_IP_DMA_DMA_TXISR, 0xFFFFFFFF);
