@@ -189,9 +189,9 @@
 #define CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
 
 #define	CFG_HUSH_PARSER		1	/* use "hush" command parser	*/
-#endif
 #ifdef	CFG_HUSH_PARSER
 #define	CFG_PROMPT_HUSH_PS2	"> "
+#endif
 
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 #define CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/

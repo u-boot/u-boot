@@ -372,6 +372,7 @@ xtract_8xx = $(subst _66MHz,,$(subst _80MHz,,$(subst _100MHz,,$(subst _LCD,,$(su
 
 FPS850L_config		\
 FPS860L_config		\
+NSCU_config		\
 TQM823L_config		\
 TQM823L_66MHz_config	\
 TQM823L_80MHz_config	\
@@ -390,6 +391,15 @@ TQM860L_80MHz_config	\
 TQM862L_config		\
 TQM862L_66MHz_config	\
 TQM862L_80MHz_config	\
+TQM855M_config		\
+TQM855M_66MHz_config	\
+TQM855M_80MHz_config	\
+TQM860M_config		\
+TQM860M_66MHz_config	\
+TQM860M_80MHz_config	\
+TQM862M_config		\
+TQM862M_66MHz_config	\
+TQM862M_80MHz_config	\
 TQM862M_100MHz_config:	unconfig
 	@ >include/config.h
 	@[ -z "$(findstring _66MHz,$@)" ] || \

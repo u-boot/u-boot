@@ -1048,9 +1048,9 @@ int do_hwflow (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 /* -------------------------------------------------------------------- */
 
 U_BOOT_CMD(
-	hwflow [on|off], 2, 0,	do_hwflow,
+	hwflow, 2, 0,	do_hwflow,
 	"hwflow  - turn the harwdare flow control on/off\n",
-	"\n - change RTS/CTS hardware flow control over serial line\n"
+	"[on|off]\n - change RTS/CTS hardware flow control over serial line\n"
 );
 
 #endif /* CFG_CMD_HWFLOW */

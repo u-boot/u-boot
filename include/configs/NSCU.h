@@ -33,18 +33,18 @@
  * (easy to change)
  */
 
-#define CONFIG_MPC860		1	/* This is a MPC860 CPU		*/
-#define CONFIG_TQM860L		1	/* ...on a TQM8xxL module	*/
+#define CONFIG_MPC855		1	/* This is a MPC855 CPU		*/
+#define CONFIG_TQM855M		1	/* ...on a TQM8xxM module	*/
 
-#define	CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
-#undef	CONFIG_8xx_CONS_SMC2
-#undef	CONFIG_8xx_CONS_NONE
+#define	CONFIG_8xx_CONS_SCC1	1	/* Console is on SMC1		*/
+
+#define	CONFIG_66MHz		1	/* running at 66 MHz, 1:1 clock	*/
 
 #define CONFIG_BAUDRATE		115200	/* console baudrate = 115kbps	*/
 
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 
-#define	CONFIG_CLOCKS_IN_MHZ	1	/* clocks passsed to Linux in MHz */
+#undef	CONFIG_CLOCKS_IN_MHZ		/* clocks passsed to Linux in Hz */
 
 #define CONFIG_BOARD_TYPES	1	/* support board types		*/
 
@@ -55,6 +55,7 @@
 #undef	CONFIG_BOOTARGS
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
+	"netdev=eth0\0"							\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=$(serverip):$(rootpath)\0"			\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
@@ -67,9 +68,9 @@
 		"bootm $(kernel_addr) $(ramdisk_addr)\0"		\
 	"net_nfs=tftp 200000 $(bootfile);run nfsargs addip;bootm\0"	\
 	"rootpath=/opt/eldk/ppc_8xx\0"					\
-	"bootfile=/tftpboot/TQM860L/uImage\0"				\
-	"kernel_addr=40040000\0"					\
-	"ramdisk_addr=40100000\0"					\
+	"bootfile=/tftpboot/NSCU/uImage\0"				\
+	"kernel_addr=40080000\0"					\
+	"ramdisk_addr=40180000\0"					\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
@@ -92,7 +93,6 @@
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
 				CFG_CMD_ASKENV	| \
 				CFG_CMD_DHCP	| \
-				CFG_CMD_ELF	| \
 				CFG_CMD_IDE	| \
 				CFG_CMD_DATE	)
 
@@ -170,18 +170,19 @@
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
-#define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	71	/* max number of sectors on one chip	*/
+#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
+#define CFG_MAX_FLASH_SECT	256	/* max number of sectors on one chip	*/
 
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
 #define	CFG_ENV_IS_IN_FLASH	1
-#define	CFG_ENV_OFFSET		0x8000	/*   Offset   of Environment Sector	*/
-#define	CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
+#define	CFG_ENV_OFFSET		0x40000	/*   Offset   of Environment Sector	*/
+#define	CFG_ENV_SIZE		0x08000	/* Total Size of Environment Sector	*/
+#define	CFG_ENV_SECT_SIZE	0x20000	/* Total Size of Environment Sector	*/
 
 /* Address and size of Redundant Environment Sector	*/
-#define CFG_ENV_OFFSET_REDUND	(CFG_ENV_OFFSET+CFG_ENV_SIZE)
+#define CFG_ENV_OFFSET_REDUND	(CFG_ENV_OFFSET+CFG_ENV_SECT_SIZE)
 #define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
 
 /*-----------------------------------------------------------------------
@@ -462,8 +463,8 @@
 #define	BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
 #define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
-#define CONFIG_SCC1_ENET
+#undef CONFIG_SCC1_ENET
 #define CONFIG_FEC_ENET
-#define CONFIG_ETHPRIME		"SCC ETHERNET"
+/* #define CONFIG_ETHPRIME		"FEC ETHERNET" */
 
 #endif	/* __CONFIG_H */

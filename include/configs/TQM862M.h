@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000, 2001, 2002
+ * (C) Copyright 2000-2003
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -260,7 +260,7 @@
 #if defined(CONFIG_80MHz) || defined(CONFIG_100MHz)
 #define CFG_PLPRCR							\
 		( (5-1)<<PLPRCR_MF_SHIFT | PLPRCR_TEXPS | PLPRCR_TMIST )
-#else			/* up to 50 MHz we use a 1:1 clock */
+#else			/* up to 66 MHz we use a 1:1 clock */
 #define CFG_PLPRCR	(PLPRCR_SPLSS | PLPRCR_TEXPS | PLPRCR_TMIST)
 #endif	/* CONFIG_80MHz | CONFIG_100MHz */
 
@@ -276,7 +276,7 @@
 			 SCCR_COM00   | SCCR_DFSYNC00 | SCCR_DFBRG00  | \
 			 SCCR_DFNL000 | SCCR_DFNH000  | SCCR_DFLCD000 | \
 			 SCCR_DFALCD00)
-#else			/* up to 50 MHz we use a 1:1 clock */
+#else			/* up to 66 MHz we use a 1:1 clock */
 #define CFG_SCCR	(SCCR_TBS     | \
 			 SCCR_COM00   | SCCR_DFSYNC00 | SCCR_DFBRG00  | \
 			 SCCR_DFNL000 | SCCR_DFNH000  | SCCR_DFLCD000 | \

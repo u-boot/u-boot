@@ -2,6 +2,13 @@
 Changes for U-Boot 0.4.2:
 ======================================================================
 
+* Add support for NSCU board
+
+* Add support for TQM823M, TQM850M, TQM855M and TQM860M modules
+
+* Add support for Am29LV160ML, Am29LV320ML, and Am29LV640ML
+  mirror bit flash on TQM8xxM modules
+
 * Patch by Kenneth Johansson, 30 Jun 2003:
   get rid of MK_CMD_ENTRY macro; update doc/README.command
 
