@@ -387,7 +387,9 @@ static int mpc5xxx_fec_init(struct eth_device *dev, bd_t * bis)
 			/*
 			 * Force 10Base-T, FDX operation
 			 */
+#if (DEBUG & 0x2)
 			printf("Forcing 10 Mbps ethernet link... ");
+#endif
 			miiphy_read(phyAddr, 0x1, &phyStatus);
 			/*
 			miiphy_write(fec, phyAddr, 0x0, 0x0100);
@@ -427,11 +429,7 @@ static int mpc5xxx_fec_init(struct eth_device *dev, bd_t * bis)
 			/*
 			 * Set the auto-negotiation advertisement register bits
 			 */
-#ifndef CONFIG_FEC_10MBIT
 			miiphy_write(phyAddr, 0x4, 0x01e1);
-#else
-			miiphy_write(phyAddr, 0x4, 0x061);/* Advertise 10FDX */
-#endif
 
 			/*
 			 * Set MDIO bit 0.12 = 1(&& bit 0.9=1?) to enable auto-negotiation
@@ -826,7 +824,13 @@ int mpc5xxx_fec_initialize(bd_t * bis)
 	fec->tbdBase = (FEC_TBD *)FEC_BD_BASE;
 	fec->rbdBase = (FEC_RBD *)(FEC_BD_BASE + FEC_TBD_NUM * sizeof(FEC_TBD));
 #ifdef CONFIG_ICECUBE
+#ifndef CONFIG_FEC_10MBIT
 	fec->xcv_type = MII100;
+#else
+	fec->xcv_type = MII10;
+#endif
+#else
+#error fec->xcv_type not initialized.
 #endif
 
 	dev->priv = (void *)fec;
