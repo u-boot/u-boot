@@ -25,7 +25,7 @@
  */
 
 /*
- * TQM8540 board configuration file
+ * TQM8560 board configuration file
  *
  * Make sure you change the MAC address and other network params first,
  * search for CONFIG_ETHADDR, CONFIG_SERVERIP, etc in this file.
@@ -38,8 +38,8 @@
 #define CONFIG_BOOKE		1	/* BOOKE */
 #define CONFIG_E500		1	/* BOOKE e500 family */
 #define CONFIG_MPC85xx		1	/* MPC8540/MPC8560 */
-#define CONFIG_MPC8540		1	/* MPC8540 specific */
-#define CONFIG_TQM8540		1	/* TQM8540 board specific */
+#define CONFIG_MPC8560		1	/* MPC8560 specific */
+#define CONFIG_TQM8560		1	/* TQM8560 board specific */
 
 #undef CONFIG_PCI
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
@@ -210,18 +210,14 @@
 #define CFG_MALLOC_LEN		(128 * 1024)	/* Reserved for malloc */
 
 /* Serial Port */
-#define CONFIG_CONS_INDEX     1
-#undef	CONFIG_SERIAL_SOFTWARE_FIFO
-#define CFG_NS16550
-#define CFG_NS16550_SERIAL
-#define CFG_NS16550_REG_SIZE	1
-#define CFG_NS16550_CLK		get_bus_freq(0)
+#define CONFIG_CONS_ON_SCC      /* define if console on SCC */
+#undef  CONFIG_CONS_NONE        /* define if console on something else */
+#define CONFIG_CONS_INDEX       1  /* which serial channel for console */
+
+#define CONFIG_BAUDRATE         115200
 
 #define CFG_BAUDRATE_TABLE  \
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400,115200}
-
-#define CFG_NS16550_COM1	(CFG_CCSRBAR+0x4500)
-#define CFG_NS16550_COM2	(CFG_CCSRBAR+0x4600)
 
 /* Use the HUSH parser */
 #define CFG_HUSH_PARSER
@@ -279,16 +275,16 @@
 #endif
 
 #define CONFIG_MII		1	/* MII PHY management */
-#undef CONFIG_MPC85XX_TSEC1
 #define CONFIG_MPC85XX_TSEC2	1
-#define TSEC1_PHY_ADDR		0
 #define TSEC2_PHY_ADDR		1
-#define TSEC1_PHYIDX		0
 #define TSEC2_PHYIDX		0
 
-#define CONFIG_MPC85XX_FEC	1
-#define FEC_PHY_ADDR		0
-#define FEC_PHYIDX		0
+#define CONFIG_ETHER_ON_FCC
+#define CONFIG_ETHER_ON_FCC3
+#define CFG_CMXFCR_MASK3      (CMXFCR_FC3 | CMXFCR_RF3CS_MSK | CMXFCR_TF3CS_MSK)
+#define CFG_CMXFCR_VALUE3     (CMXFCR_RF2CS_CLK15 | CMXFCR_TF2CS_CLK14)
+#define CFG_CPMFCR_RAMTYPE    0
+#define CFG_FCC_PSMR          (FCC_PSMR_FDE)
 
 #define CONFIG_ETHPRIME		"ENET1"
 
@@ -416,7 +412,7 @@
 	"net_nfs=tftp $loadaddr $bootfile;"				\
 		"run nfsargs addip addcons;bootm\0"			\
 	"rootpath=/opt/eldk/ppc_85xx\0"					\
-	"bootfile=/tftpboot/tqm8540/uImage\0"				\
+	"bootfile=/tftpboot/tqm8560/uImage\0"				\
 	"kernel_addr=FE000000\0"					\
 	"ramdisk_addr=FE100000\0"					\
 	""
