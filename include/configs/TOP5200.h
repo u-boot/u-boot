@@ -92,8 +92,19 @@
 /*
  * Supported commands
  */
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL | ADD_PCI_CMD | \
-				 CFG_CMD_I2C | CFG_CMD_EEPROM)
+#define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
+				ADD_PCI_CMD	| \
+				CFG_CMD_ASKENV	| \
+				CFG_CMD_DATE	| \
+				CFG_CMD_DHCP	| \
+				CFG_CMD_I2C	| \
+				CFG_CMD_EEPROM	| \
+				CFG_CMD_REGINFO	| \
+				CFG_CMD_IMMAP	| \
+				CFG_CMD_ELF	| \
+				CFG_CMD_MII 	| \
+				CFG_CMD_BEDBUG	\
+			      )
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -302,6 +313,8 @@
 #define CFG_LOAD_ADDR		0x100000	/* default load address */
 
 #define CFG_HZ			1000	/* decrementer freq: 1 ms ticks */
+
+#define	CONFIG_RTC_MPC5200	1	/* use 5200 RTC */
 
 /*
  * Various low-level settings

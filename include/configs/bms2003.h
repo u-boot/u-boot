@@ -12,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -41,15 +41,19 @@
 #define CONFIG_NEC_NL6448BC33_54	/* NEC NL6448BC33_54 display	*/
 
 #ifdef	CONFIG_LCD			/* with LCD controller ?	*/
-#define	CONFIG_SPLASH_SCREEN		/* ... with splashscreen support*/
+#define CONFIG_SPLASH_SCREEN		/* ... with splashscreen support*/
 #endif
 
-#define	CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
+#define CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
 #undef	CONFIG_8xx_CONS_SMC2
 #undef	CONFIG_8xx_CONS_NONE
 #define CONFIG_BAUDRATE		115200	/* console baudrate = 115kbps	*/
 
-#define	CONFIG_BOOTCOUNT_LIMIT
+#define CONFIG_PS2KBD			/* AT-PS/2 Keyboard		*/
+#define CONFIG_PS2MULT			/* .. on PS/2 Multiplexer		*/
+#define CONFIG_PS2SERIAL	2	/* .. on COM3			*/
+
+#define CONFIG_BOOTCOUNT_LIMIT
 
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 
@@ -59,7 +63,7 @@
 
 #undef	CONFIG_BOOTARGS
 
-#define	CONFIG_EXTRA_ENV_SETTINGS					\
+#define CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=$(serverip):$(rootpath)\0"			\
@@ -78,6 +82,8 @@
 	"ramdisk_addr=40100000\0"					\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
+
+#define CONFIG_MISC_INIT_R  1
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #undef	CFG_LOADS_BAUD_CHANGE		/* don't allow baudrate change	*/
@@ -98,9 +104,9 @@
 #define I2C_TRISTATE	(immr->im_cpm.cp_pbdir &= ~PB_SDA)
 #define I2C_READ	((immr->im_cpm.cp_pbdat & PB_SDA) != 0)
 #define I2C_SDA(bit)	if(bit) immr->im_cpm.cp_pbdat |=  PB_SDA; \
-			else    immr->im_cpm.cp_pbdat &= ~PB_SDA
+			else	immr->im_cpm.cp_pbdat &= ~PB_SDA
 #define I2C_SCL(bit)	if(bit) immr->im_cpm.cp_pbdat |=  PB_SCL; \
-			else    immr->im_cpm.cp_pbdat &= ~PB_SCL
+			else	immr->im_cpm.cp_pbdat &= ~PB_SCL
 #define I2C_DELAY	udelay(5)	/* 1/4 I2C clock duration */
 
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
@@ -140,31 +146,31 @@
 /*
  * Miscellaneous configurable options
  */
-#define	CFG_LONGHELP			/* undef to save memory		*/
-#define	CFG_PROMPT		"=> "	/* Monitor Command Prompt	*/
+#define CFG_LONGHELP			/* undef to save memory		*/
+#define CFG_PROMPT		"=> "	/* Monitor Command Prompt	*/
 
 #if 0
-#define	CFG_HUSH_PARSER		1	/* use "hush" command parser	*/
+#define CFG_HUSH_PARSER		1	/* use "hush" command parser	*/
 #endif
 #ifdef	CFG_HUSH_PARSER
-#define	CFG_PROMPT_HUSH_PS2	"> "
+#define CFG_PROMPT_HUSH_PS2	"> "
 #endif
 
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
-#define	CFG_CBSIZE		1024	/* Console I/O Buffer Size	*/
+#define CFG_CBSIZE		1024	/* Console I/O Buffer Size	*/
 #else
-#define	CFG_CBSIZE		256	/* Console I/O Buffer Size	*/
+#define CFG_CBSIZE		256	/* Console I/O Buffer Size	*/
 #endif
-#define	CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define	CFG_MAXARGS		16	/* max number of command args	*/
+#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
+#define CFG_MAXARGS		16	/* max number of command args	*/
 #define CFG_BARGSIZE	CFG_CBSIZE	/* Boot Argument Buffer Size	*/
 
 #define CFG_MEMTEST_START	0x0400000	/* memtest works on	*/
 #define CFG_MEMTEST_END		0x0C00000	/* 4 ... 12 MB in DRAM	*/
 
-#define	CFG_LOAD_ADDR		0x100000	/* default load address	*/
+#define CFG_LOAD_ADDR		0x100000	/* default load address */
 
-#define	CFG_HZ			1000	/* decrementer freq: 1 ms ticks	*/
+#define CFG_HZ			1000	/* decrementer freq: 1 ms ticks */
 
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
@@ -182,28 +188,28 @@
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
 #define CFG_INIT_RAM_ADDR	CFG_IMMR
-#define	CFG_INIT_RAM_END	0x2F00	/* End of used area in DPRAM	*/
-#define	CFG_GBL_DATA_SIZE	64  /* size in bytes reserved for initial data */
+#define CFG_INIT_RAM_END	0x2F00	/* End of used area in DPRAM	*/
+#define CFG_GBL_DATA_SIZE	64  /* size in bytes reserved for initial data */
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define	CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
+#define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration
  * (Set up by the startup code)
  * Please note that CFG_SDRAM_BASE _must_ start at 0
  */
-#define	CFG_SDRAM_BASE		0x00000000
+#define CFG_SDRAM_BASE		0x00000000
 #define CFG_FLASH_BASE		0x40000000
-#define	CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
+#define CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
 #define CFG_MONITOR_BASE	CFG_FLASH_BASE
-#define	CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
+#define CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
 
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define	CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux	*/
+#define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
 /*-----------------------------------------------------------------------
  * FLASH organization
@@ -214,9 +220,9 @@
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
-#define	CFG_ENV_IS_IN_FLASH	1
-#define	CFG_ENV_OFFSET		0x8000	/*   Offset   of Environment Sector	*/
-#define	CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
+#define CFG_ENV_IS_IN_FLASH	1
+#define CFG_ENV_OFFSET		0x8000	/*   Offset   of Environment Sector	*/
+#define CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
 
 /* Address and size of Redundant Environment Sector	*/
 #define CFG_ENV_OFFSET_REDUND	(CFG_ENV_OFFSET+CFG_ENV_SIZE)
@@ -226,7 +232,7 @@
  * Hardware Information Block
  */
 #define CFG_HWINFO_OFFSET	0x0003FFC0	/* offset of HW Info block */
-#define CFG_HWINFO_SIZE		0x00000040	/* size   of HW Info block */
+#define CFG_HWINFO_SIZE		0x00000040	/* size	  of HW Info block */
 #define CFG_HWINFO_MAGIC	0x54514D38	/* 'TQM8' */
 
 /*-----------------------------------------------------------------------
@@ -255,7 +261,7 @@
  *-----------------------------------------------------------------------
  * PCMCIA config., multi-function pin tri-state
  */
-#ifndef	CONFIG_CAN_DRIVER
+#ifndef CONFIG_CAN_DRIVER
 #define CFG_SIUMCR	(SIUMCR_DBGC00 | SIUMCR_DBPC00 | SIUMCR_MLRC01)
 #else	/* we must activate GPL5 in the SIUMCR for CAN */
 #define CFG_SIUMCR	(SIUMCR_DBGC11 | SIUMCR_DBPC00 | SIUMCR_MLRC01)
@@ -338,7 +344,7 @@
 #define CFG_PCMCIA_ATTRB_SIZE	( 64 << 20 )
 #define CFG_PCMCIA_IO_ADDR	(0xEC100000)
 #define CFG_PCMCIA_IO_SIZE	( 64 << 20 )
-#define NSCU_OE_INV		1 		/* PCMCIA_GCRX_CXOE is inverted */
+#define NSCU_OE_INV		1		/* PCMCIA_GCRX_CXOE is inverted */
 #endif
 
 /*-----------------------------------------------------------------------
@@ -346,11 +352,13 @@
  *-----------------------------------------------------------------------
  */
 
-#define	CONFIG_IDE_8xx_PCCARD	1	/* Use IDE with PC Card	Adapter	*/
+#define CONFIG_IDE_8xx_PCCARD	1	/* Use IDE with PC Card Adapter */
 
-#undef	CONFIG_IDE_8xx_DIRECT		/* Direct IDE    not supported	*/
-#undef	CONFIG_IDE_LED			/* LED   for ide not supported	*/
+#undef	CONFIG_IDE_8xx_DIRECT		/* Direct IDE	 not supported	*/
 #undef	CONFIG_IDE_RESET		/* reset for ide not supported	*/
+#ifndef CONFIG_STATUS_LED		/* Status and IDE LED's are mutually exclusive */
+#define CONFIG_IDE_LED		1	/* LED   for ide supported	*/
+#endif
 
 #define CFG_IDE_MAXBUS		1	/* max. 1 IDE bus		*/
 #define CFG_IDE_MAXDEVICE	1	/* max. 1 drive per IDE bus	*/
@@ -373,7 +381,7 @@
  *-----------------------------------------------------------------------
  *
  */
-#define CFG_DER	0
+#define CFG_DER 0
 
 /*
  * Init Memory Controller:
@@ -396,7 +404,7 @@
  */
 #if   defined(CONFIG_80MHz)
 /* 80 MHz CPU - 40 MHz bus: ACS = 00, TRLX = 0, CSNT = 1, SCY = 3, EHTR = 1 */
-#define CFG_OR_TIMING_FLASH	(OR_ACS_DIV1  | 0       | OR_CSNT_SAM | \
+#define CFG_OR_TIMING_FLASH	(OR_ACS_DIV1  | 0	| OR_CSNT_SAM | \
 				 OR_SCY_3_CLK | OR_EHTR | OR_BI)
 #elif defined(CONFIG_66MHz)
 /* 66 MHz CPU - 66 MHz bus: ACS = 00, TRLX = 1, CSNT = 1, SCY = 3, EHTR = 1 */
@@ -422,7 +430,7 @@
  */
 #define SDRAM_BASE2_PRELIM	0x00000000	/* SDRAM bank #0	*/
 #define SDRAM_BASE3_PRELIM	0x20000000	/* SDRAM bank #1	*/
-#define	SDRAM_MAX_SIZE		0x04000000	/* max 64 MB per bank	*/
+#define SDRAM_MAX_SIZE		0x04000000	/* max 64 MB per bank	*/
 
 /* SDRAM timing: Multiplexed addresses, GPL5 output to GPL5_A (don't care)	*/
 #define CFG_OR_TIMING_SDRAM	0x00000A00
@@ -430,11 +438,11 @@
 #define CFG_OR2_PRELIM	(CFG_PRELIM_OR_AM | CFG_OR_TIMING_SDRAM )
 #define CFG_BR2_PRELIM	((SDRAM_BASE2_PRELIM & BR_BA_MSK) | BR_MS_UPMA | BR_V )
 
-#ifndef	CONFIG_CAN_DRIVER
-#define	CFG_OR3_PRELIM	CFG_OR2_PRELIM
+#ifndef CONFIG_CAN_DRIVER
+#define CFG_OR3_PRELIM	CFG_OR2_PRELIM
 #define CFG_BR3_PRELIM	((SDRAM_BASE3_PRELIM & BR_BA_MSK) | BR_MS_UPMA | BR_V )
 #else	/* CAN uses CS3#, so we can have only one SDRAM bank anyway */
-#define	CFG_CAN_BASE		0xC0000000	/* CAN mapped at 0xC0000000	*/
+#define CFG_CAN_BASE		0xC0000000	/* CAN mapped at 0xC0000000	*/
 #define CFG_CAN_OR_AM		0xFFFF8000	/* 32 kB address mask		*/
 #define CFG_OR3_CAN		(CFG_CAN_OR_AM | OR_G5LA | OR_BI)
 #define CFG_BR3_CAN		((CFG_CAN_BASE & BR_BA_MSK) | \
@@ -455,11 +463,11 @@
  *	gclk	  CPU clock (not bus clock!)
  *	Trefresh  Refresh cycle * 4 (four word bursts used)
  *
- * 4096  Rows from SDRAM example configuration
- * 1000  factor s -> ms
- *   32  PTP (pre-divider from MPTPR) from SDRAM example configuration
- *    4  Number of refresh cycles per period
- *   64  Refresh cycle in ms per number of rows
+ * 4096	 Rows from SDRAM example configuration
+ * 1000	 factor s -> ms
+ *   32	 PTP (pre-divider from MPTPR) from SDRAM example configuration
+ *    4	 Number of refresh cycles per period
+ *   64	 Refresh cycle in ms per number of rows
  * --------------------------------------------
  * Divider = 4096 * 32 * 1000 / (4 * 64) = 512000
  *
@@ -509,7 +517,7 @@
  *
  * Boot Flags
  */
-#define	BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
+#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
 #define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
 #endif	/* __CONFIG_H */

@@ -67,6 +67,9 @@
 #if defined(CFG_INIT_RAM_LOCK) && defined(CONFIG_E500)
 #include <asm/cache.h>
 #endif
+#ifdef CONFIG_PS2KBD
+#include <keyboard.h>
+#endif
 
 #if (CONFIG_COMMANDS & CFG_CMD_DOC)
 void doc_init (void);
@@ -954,6 +957,11 @@ void board_init_r (gd_t *id, ulong dest_addr)
 		sprintf (memsz, "%ldk", (bd->bi_memsize / 1024) - pram);
 		setenv ("mem", memsz);
 	}
+#endif
+
+#ifdef CONFIG_PS2KBD
+	puts ("PS/2:  ");
+	kbd_init();
 #endif
 
 #ifdef CONFIG_MODEM_SUPPORT

@@ -36,12 +36,13 @@ OBJS	= 3c589.o 5701rls.o ali512x.o \
 	  ns16550.o ns8382x.o ns87308.o \
 	  pci.o pci_auto.o pci_indirect.o \
 	  pcnet.o plb2800_eth.o \
+	  ps2ser.o ps2mult.o pc_keyb.o keyboard.o \
 	  rtl8019.o rtl8139.o \
 	  s3c24x0_i2c.o sed13806.o serial.o \
 	  serial_max3100.o \
 	  smc91111.o smiLynxEM.o              sym53c8xx.o \
-	  ti_pci1410a.o tigon3.o w83c553f.o \
-	  status_led.o
+	  status_led.o \
+	  ti_pci1410a.o tigon3.o w83c553f.o
 
 ## Disabled for now:
 ##	  cs8900.o ct69000.o dataflash.o dc2114x.o ds1722.o \

@@ -27,6 +27,9 @@
 
 #include <common.h>
 #include <mpc8xx.h>
+#ifdef CONFIG_PS2MULT
+#include <ps2mult.h>
+#endif
 
 /* ------------------------------------------------------------------------- */
 
@@ -404,4 +407,52 @@ static long int dram_size (long int mamr_value, long int *base, long int maxsize
 	return (get_ram_size(base, maxsize));
 }
 
+/* ------------------------------------------------------------------------- */
+
+#ifdef CONFIG_PS2MULT
+
+#ifdef CONFIG_BMS2003
+#define BASE_BAUD ( 1843200 / 16 )
+struct serial_state rs_table[] = {
+	{ BASE_BAUD, 4,  (void*)0xec140000 },
+	{ BASE_BAUD, 2,  (void*)0xec150000 },
+	{ BASE_BAUD, 6,  (void*)0xec160000 },
+	{ BASE_BAUD, 10, (void*)0xec170000 },
+};
+#endif /* CONFIG_BMS2003 */
+
+#endif /* CONFIG_PS2MULT */
+
+/* ------------------------------------------------------------------------- */
+#ifdef CONFIG_BMS2003
+
+int misc_init_r (void)
+{
+#ifdef CONFIG_IDE_LED
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+
+	/* Configure PA15 as output port */
+	immap->im_ioport.iop_padir |= 0x0001;
+	immap->im_ioport.iop_paodr |= 0x0001;
+	immap->im_ioport.iop_papar &= ~0x0001;
+	immap->im_ioport.iop_padat &= ~0x0001;	/* turn it off */
+#endif
+	return (0);
+}
+
+#ifdef CONFIG_IDE_LED
+void ide_led (uchar led, uchar status)
+{
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+
+	/* We have one led for both pcmcia slots */
+	if (status) {				/* led on */
+		immap->im_ioport.iop_padat |= 0x0001;
+	} else {
+		immap->im_ioport.iop_padat &= ~0x0001;
+	}
+}
+#endif
+
+#endif /* CONFIG_BMS2003 */
 /* ------------------------------------------------------------------------- */

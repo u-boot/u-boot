@@ -2,6 +2,18 @@
 Changes since U-Boot 1.0.1:
 ======================================================================
 
+* Patch by Reinhard Meyer, 09 Jan 2004:
+  - add RTC support for MPC5200 based boards (requires RTC_XTAL)
+
+* Add support for IDE LED on BMS2003 board
+  (exclusive with status LED!)
+
+* Add support for PS/2 keyboard (used with PS/2 multiplexor on
+  BMS2003 board)
+
+* Patches by Reinhard Meyer, 4 Jan 2004 + 7 Jan 2004:
+  Add common files for "emk" boards
+
 * Add a common get_ram_size() function and modify the the
   board-specific files to invoke that common implementation.
 
