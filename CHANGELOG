@@ -2,6 +2,8 @@
 Changes since U-Boot 0.3.1:
 ======================================================================
 
+* Fix problem with usage of "true" (undefined in current versions of bfd.h)
+
 * Add support for Promess ATC board
 
 * Patch by Keith Outwater, 28 Apr 2003:

@@ -81,7 +81,7 @@ main(int ac, char **av)
 	close(ifd);
 	Error("bfd_fdopenr of file '%s' failed", ifn);
     }
-    bfdp->cacheable = true;
+    bfdp->cacheable = 1;
 
     if (!bfd_check_format(bfdp, bfd_object) ||
       (bfd_get_file_flags(bfdp) & EXEC_P) == 0) {
