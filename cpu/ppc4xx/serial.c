@@ -451,6 +451,8 @@ int serial_init (void)
 #else
 	tmp = CFG_BASE_BAUD * 16;
 	udiv = (clk + tmp / 2) / tmp;
+	if (udiv > 32)                          /* max. 5 bits for udiv */
+		udiv = 32;
 #endif
 #endif
 
