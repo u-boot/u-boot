@@ -789,6 +789,13 @@ hymod_config:	unconfig
 IPHASE4539_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8260 iphase4539
 
+ISPAN_config		\
+ISPAN_REVB_config:	unconfig
+	@if [ "$(findstring _REVB_,$@)" ] ; then \
+		echo "#define CFG_REV_B" > include/config.h ; \
+	fi
+	@./mkconfig -a ISPAN ppc mpc8260 ispan
+
 MPC8260ADS_config	\
 MPC8260ADS_33MHz_config	\
 MPC8260ADS_40MHz_config	\

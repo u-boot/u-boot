@@ -220,6 +220,77 @@ int get_rom_mac(char *v_rom_mac);
  ------------------------------------------------------------
 */
 
+#ifdef CONFIG_SMC_USE_IOFUNCS
+/*
+ * input and output functions
+ *
+ * Implemented due to inx,outx macros accessing the device improperly
+ * and putting the device into an unkown state.
+ *
+ * For instance, on Sharp LPD7A400 SDK, affects were chip memory
+ * could not be free'd (hence the alloc failures), duplicate packets,
+ * packets being corrupt (shifted) on the wire, etc.  Switching to the
+ * inx,outx functions fixed this problem.
+ */
+static inline word SMC_inw(dword offset);
+static inline void SMC_outw(word value, dword offset);
+static inline byte SMC_inb(dword offset);
+static inline void SMC_outb(byte value, dword offset);
+static inline void SMC_insw(dword offset, volatile uchar* buf, dword len);
+static inline void SMC_outsw(dword offset, uchar* buf, dword len);
+
+#define barrier() __asm__ __volatile__("": : :"memory")
+
+static inline word SMC_inw(dword offset)
+{
+	word v;
+	v = *((volatile word*)(SMC_BASE_ADDRESS+offset));
+	barrier(); *(volatile u32*)(0xc0000000);
+	return v;
+}
+
+static inline void SMC_outw(word value, dword offset)
+{
+	*((volatile word*)(SMC_BASE_ADDRESS+offset)) = value;
+	barrier(); *(volatile u32*)(0xc0000000);
+}
+
+static inline byte SMC_inb(dword offset)
+{
+	word  _w;
+
+	_w = SMC_inw(offset & ~((dword)1));
+	return (offset & 1) ? (byte)(_w >> 8) : (byte)(_w);
+}
+
+static inline void SMC_outb(byte value, dword offset)
+{
+	word  _w;
+
+	_w = SMC_inw(offset & ~((dword)1));
+	if (offset & 1)
+			*((volatile word*)(SMC_BASE_ADDRESS+(offset & ~((dword)1)))) = (value<<8) | (_w & 0x00ff);
+	else
+			*((volatile word*)(SMC_BASE_ADDRESS+offset)) = value | (_w & 0xff00);
+}
+
+static inline void SMC_insw(dword offset, volatile uchar* buf, dword len)
+{
+	while (len-- > 0) {
+		*((word*)buf)++ = SMC_inw(offset);
+		barrier(); *((volatile u32*)(0xc0000000));
+	}
+}
+
+static inline void SMC_outsw(dword offset, uchar* buf, dword len)
+{
+	while (len-- > 0) {
+		SMC_outw(*((word*)buf)++, offset);
+		barrier(); *(volatile u32*)(0xc0000000);
+	}
+}
+#endif  /* CONFIG_SMC_USE_IOFUNCS */
+
 static char unsigned smc_mac_addr[6] = {0x02, 0x80, 0xad, 0x20, 0x31, 0xb8};
 
 /*

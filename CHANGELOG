@@ -2,7 +2,12 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
-* Patch by Paul Ruhland, 17 May 2004:
+* Patch by Yuli Barcohen, 20 May 2004:
+  Add support for Interphase iSPAN boards.
+
+* Patches by Paul Ruhland, 17 May 2004:
+  - Add I/O functions to the smc91111 ethernet driver to support the
+    Logic LPD7A40x boards.
   - Add support for the Logic Zoom LH7A40x based SDK board(s),
     specifically the LPD7A400.
 

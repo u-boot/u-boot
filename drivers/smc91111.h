@@ -139,6 +139,7 @@ typedef unsigned long int 		dword;
 
 #else /* if not CONFIG_PXA250 */
 
+#ifndef CONFIG_SMC_USE_IOFUNCS /* these macros don't work on some boards */
 /*
  * We have only 16 Bit PCMCIA access on Socket 0
  */
@@ -185,6 +186,8 @@ typedef unsigned long int 		dword;
 					};  \
 				})
 #endif
+
+#endif  /* CONFIG_SMC_USE_IOFUNCS */
 
 #if defined(CONFIG_SMC_USE_32_BIT)
 
