@@ -91,7 +91,7 @@ uint dpram_base_align (uint align)
 }
 #endif	/* CFG_ALLOC_DPRAM */
 
-#ifdef CONFIG_POST
+#if defined(CONFIG_POST) || defined(CONFIG_LOGBUFFER)
 
 void post_word_store (ulong a)
 {
@@ -109,4 +109,4 @@ ulong post_word_load (void)
 	return *(volatile ulong *) save_addr;
 }
 
-#endif	/* CONFIG_POST */
+#endif	/* CONFIG_POST || CONFIG_LOGBUFFER*/

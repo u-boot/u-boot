@@ -2,6 +2,14 @@
 Changes since U-Boot 0.4.0:
 ======================================================================
 
+* Allow to call sysmon function interactively
+
+* PIC on LWMON board needs delay after power-on
+
+* Add missing RSR definitions for MPC8xx
+
+* Improve log buffer handling: guarantee clean reset after power-on
+
 * Add support for EXBITGEN board
 
 * Add support for SL8245 board

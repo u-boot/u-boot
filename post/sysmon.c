@@ -32,7 +32,7 @@
  * This test performs the system hardware monitoring.
  * The test passes when all the following voltages and temperatures
  * are within allowed ranges:
- *
+ * 
  * Board temperature
  * Front temperature
  * +3.3V CPU logic
@@ -40,7 +40,7 @@
  * +12V PCMCIA
  * +12V CCFL
  * +5V standby
- *
+ * 
  * CCFL is not enabled if temperature values are not within allowed ranges
  *
  * See the list off all parameters in the sysmon_table below
@@ -150,7 +150,7 @@ int sysmon_init_f (void)
 	{
 		(*l)->init(*l);
 	}
-
+	
 	return 0;
 }
 
@@ -185,24 +185,24 @@ static char * sysmon_unit_value (sysmon_table_t * s, uint val)
 	int dec, frac;
 
 	sprintf(buf, "%+d", unit_val / s->unit_div);
-
+	
 	frac = (unit_val > 0 ? unit_val : -unit_val) % s->unit_div;
 	p = buf + strlen(buf);
-
+	
 	dec = s->unit_div;
-
+	
 	if (dec != 1)
 	{
 		*p++ = '.';
 	}
-
+	
 	for (dec /= 10; dec != 0; dec /= 10)
 	{
 		*p++ = '0' + frac / dec % 10;
 	}
-
+	
 	strcpy(p, s->unit_name);
-
+	
 	return buf;
 }
 
@@ -217,7 +217,7 @@ static void sysmon_lm87_init (sysmon_t * this)
 		printf("Error: LM87 not found at 0x%02X\n", this->chip);
 		return;
 	}
-
+	
 	/* Configure pins 5,6 as AIN */
 	val = 0x03;
 	if (i2c_write(this->chip, 0x16, 1, &val, 1))
@@ -306,9 +306,7 @@ int sysmon_post_test (int flags)
 			t->exec_after(t);
 		}
 
-#ifndef DEBUG
-		if (!t->val_valid)
-#endif
+		if ((!t->val_valid) || (flags & POST_MANUAL))
 		{
 			printf("%-17s = %-10s ", t->name, sysmon_unit_value(t, val));
 			printf("allowed range");
