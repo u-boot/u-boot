@@ -55,6 +55,11 @@
 #endif
 #include <version.h>
 
+#if defined(CONFIG_HARD_I2C) || \
+    defined(CONFIG_SOFT_I2C)
+#include <i2c.h>
+#endif
+
 static char *failed = "*** failed ***\n";
 
 #ifdef	CONFIG_PCU_E
@@ -202,6 +207,18 @@ static int init_func_ram (void)
 
 /***********************************************************************/
 
+#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
+static int init_func_i2c (void)
+{
+	puts ("I2C:   ");
+	i2c_init (CFG_I2C_SPEED, CFG_I2C_SLAVE);
+	puts ("ready\n");
+	return (0);
+}
+#endif
+
+/***********************************************************************/
+
 /************************************************************************
  * Initialization sequence						*
  ************************************************************************
@@ -215,6 +232,9 @@ init_fnc_t *init_sequence[] = {
 	display_options,
 	checkcpu,
 	checkboard,
+#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
+	init_func_i2c,
+#endif
 	init_func_ram,
 #if defined(CFG_DRAM_TEST)
 	testdram,
@@ -560,6 +580,11 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 	/* Initialize the console (after the relocation and devices init) */
 	console_init_r ();
+
+#if defined(CONFIG_MISC_INIT_R)
+	/* miscellaneous platform dependent initialisations */
+	misc_init_r ();
+#endif
 
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 	WATCHDOG_RESET ();
