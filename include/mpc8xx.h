@@ -40,8 +40,8 @@
 /*-----------------------------------------------------------------------
  * SYPCR - System Protection Control Register				11-9
  */
-#define SYPCR_SWTC	0xffff0000	/* Software Watchdog Timer Count	*/
-#define SYPCR_BMT	0x0000ff00	/* Bus Monitor Timing			*/
+#define SYPCR_SWTC	0xFFFF0000	/* Software Watchdog Timer Count	*/
+#define SYPCR_BMT	0x0000FF00	/* Bus Monitor Timing			*/
 #define SYPCR_BME	0x00000080	/* Bus Monitor Enable			*/
 #define SYPCR_SWF	0x00000008	/* Software Watchdog Freeze		*/
 #define SYPCR_SWE	0x00000004	/* Software Watchdog Enable		*/
@@ -78,7 +78,7 @@
 #define SIUMCR_MLRC00	0x00000000	/* Multi Level Reserva. Ctrl		*/
 #define SIUMCR_MLRC01	0x00000400	/* - " -				*/
 #define SIUMCR_MLRC10	0x00000800	/* - " -				*/
-#define SIUMCR_MLRC11	0x00000c00	/* - " -				*/
+#define SIUMCR_MLRC11	0x00000C00	/* - " -				*/
 #define SIUMCR_AEME	0x00000200	/* Asynchro External Master		*/
 #define SIUMCR_SEME	0x00000100	/* Synchro External Master		*/
 #define SIUMCR_BSC	0x00000080	/* Byte Select Configuration		*/
@@ -120,7 +120,7 @@
 /*-----------------------------------------------------------------------
  * PLPRCR - PLL, Low-Power, and Reset Control Register			15-30
  */
-#define PLPRCR_MF_MSK	0xfff00000	/* Multiplication factor bits		*/
+#define PLPRCR_MF_MSK	0xFFF00000	/* Multiplication factor bits		*/
 #define PLPRCR_MF_SHIFT 0x00000014	/* Multiplication factor shift value	*/
 #define PLPRCR_SPLSS	0x00008000	/* SPLL Lock Status Sticky bit		*/
 #define PLPRCR_TEXPS	0x00004000	/* TEXP Status				*/
@@ -182,24 +182,24 @@
 /*-----------------------------------------------------------------------
  * BR - Memory Controler: Base Register					16-9
  */
-#define BR_BA_MSK	0xffff8000	/* Base Address Mask			*/
+#define BR_BA_MSK	0xFFFF8000	/* Base Address Mask			*/
 #define BR_AT_MSK	0x00007000	/* Address Type Mask			*/
-#define BR_PS_MSK	0x00000c00	/* Port Size Mask			*/
+#define BR_PS_MSK	0x00000C00	/* Port Size Mask			*/
 #define BR_PS_32	0x00000000	/* 32 bit port size			*/
 #define BR_PS_16	0x00000800	/* 16 bit port size			*/
 #define BR_PS_8		0x00000400	/*  8 bit port size			*/
 #define BR_PARE		0x00000200	/* Parity Enable			*/
 #define BR_WP		0x00000100	/* Write Protect			*/
-#define BR_MS_MSK	0x000000c0	/* Machine Select Mask			*/
+#define BR_MS_MSK	0x000000C0	/* Machine Select Mask			*/
 #define BR_MS_GPCM	0x00000000	/* G.P.C.M. Machine Select		*/
 #define BR_MS_UPMA	0x00000080	/* U.P.M.A Machine Select		*/
-#define BR_MS_UPMB	0x000000c0	/* U.P.M.B Machine Select		*/
+#define BR_MS_UPMB	0x000000C0	/* U.P.M.B Machine Select		*/
 #define BR_V		0x00000001	/* Bank Valid				*/
 
 /*-----------------------------------------------------------------------
  * OR - Memory Controler: Option Register				16-11
  */
-#define OR_AM_MSK	0xffff8000	/* Address Mask Mask			*/
+#define OR_AM_MSK	0xFFFF8000	/* Address Mask Mask			*/
 #define OR_ATM_MSK	0x00007000	/* Address Type Mask Mask		*/
 #define OR_CSNT_SAM	0x00000800	/* Chip Select Negation Time/ Start	*/
 					/* Address Multiplex			*/
@@ -210,7 +210,7 @@
 #define OR_G5LA		0x00000400	/* Output #GPL5 on #GPL_A5		*/
 #define OR_G5LS		0x00000200	/* Drive #GPL high on falling edge of...*/
 #define OR_BI		0x00000100	/* Burst inhibit			*/
-#define OR_SCY_MSK	0x000000f0	/* Cycle Lenght in Clocks		*/
+#define OR_SCY_MSK	0x000000F0	/* Cycle Lenght in Clocks		*/
 #define OR_SCY_0_CLK	0x00000000	/* 0 clock cycles wait states		*/
 #define OR_SCY_1_CLK	0x00000010	/* 1 clock cycles wait states		*/
 #define OR_SCY_2_CLK	0x00000020	/* 2 clock cycles wait states		*/
@@ -221,12 +221,12 @@
 #define OR_SCY_7_CLK	0x00000070	/* 7 clock cycles wait states		*/
 #define OR_SCY_8_CLK	0x00000080	/* 8 clock cycles wait states		*/
 #define OR_SCY_9_CLK	0x00000090	/* 9 clock cycles wait states		*/
-#define OR_SCY_10_CLK	0x000000a0	/* 10 clock cycles wait states		*/
-#define OR_SCY_11_CLK	0x000000b0	/* 11 clock cycles wait states		*/
-#define OR_SCY_12_CLK	0x000000c0	/* 12 clock cycles wait states		*/
-#define OR_SCY_13_CLK	0x000000d0	/* 13 clock cycles wait states		*/
-#define OR_SCY_14_CLK	0x000000e0	/* 14 clock cycles wait states		*/
-#define OR_SCY_15_CLK	0x000000f0	/* 15 clock cycles wait states		*/
+#define OR_SCY_10_CLK	0x000000A0	/* 10 clock cycles wait states		*/
+#define OR_SCY_11_CLK	0x000000B0	/* 11 clock cycles wait states		*/
+#define OR_SCY_12_CLK	0x000000C0	/* 12 clock cycles wait states		*/
+#define OR_SCY_13_CLK	0x000000D0	/* 13 clock cycles wait states		*/
+#define OR_SCY_14_CLK	0x000000E0	/* 14 clock cycles wait states		*/
+#define OR_SCY_15_CLK	0x000000F0	/* 15 clock cycles wait states		*/
 #define OR_SETA		0x00000008	/* External Transfer Acknowledge	*/
 #define OR_TRLX		0x00000004	/* Timing Relaxed			*/
 #define OR_EHTR		0x00000002	/* Extended Hold Time on Read		*/
@@ -235,7 +235,7 @@
 /*-----------------------------------------------------------------------
  * MPTPR - Memory Periodic Timer Prescaler Register			16-17
  */
-#define MPTPR_PTP_MSK	0xff00		/* Periodic Timers Prescaler Mask	*/
+#define MPTPR_PTP_MSK	0xFF00		/* Periodic Timers Prescaler Mask	*/
 #define MPTPR_PTP_DIV2	0x2000		/* BRGCLK divided by 2			*/
 #define MPTPR_PTP_DIV4	0x1000		/* BRGCLK divided by 4			*/
 #define MPTPR_PTP_DIV8	0x0800		/* BRGCLK divided by 8			*/
@@ -265,7 +265,7 @@
 /*-----------------------------------------------------------------------
  * Machine A Mode Register						16-13
  */
-#define MAMR_PTA_MSK	0xff000000	/* Periodic Timer A period mask		*/
+#define MAMR_PTA_MSK	0xFF000000	/* Periodic Timer A period mask		*/
 #define MAMR_PTA_SHIFT	0x00000018	/* Periodic Timer A period shift	*/
 #define MAMR_PTAE	0x00800000	/* Periodic Timer A Enable		*/
 #define MAMR_AMA_MSK	0x00700000	/* Addess Multiplexing size A		*/
@@ -280,17 +280,17 @@
 #define MAMR_DSA_2_CYCL 0x00020000	/* 2 cycle Disable Period		*/
 #define MAMR_DSA_3_CYCL 0x00040000	/* 3 cycle Disable Period		*/
 #define MAMR_DSA_4_CYCL 0x00060000	/* 4 cycle Disable Period		*/
-#define MAMR_G0CLA_MSK	0x0000e000	/* General Line 0 Control A		*/
+#define MAMR_G0CLA_MSK	0x0000E000	/* General Line 0 Control A		*/
 #define MAMR_G0CLA_A12	0x00000000	/* General Line 0 : A12			*/
 #define MAMR_G0CLA_A11	0x00002000	/* General Line 0 : A11			*/
 #define MAMR_G0CLA_A10	0x00004000	/* General Line 0 : A10			*/
 #define MAMR_G0CLA_A9	0x00006000	/* General Line 0 : A9			*/
 #define MAMR_G0CLA_A8	0x00008000	/* General Line 0 : A8			*/
-#define MAMR_G0CLA_A7	0x0000a000	/* General Line 0 : A7			*/
-#define MAMR_G0CLA_A6	0x0000c000	/* General Line 0 : A6			*/
-#define MAMR_G0CLA_A5	0x0000e000	/* General Line 0 : A5			*/
+#define MAMR_G0CLA_A7	0x0000A000	/* General Line 0 : A7			*/
+#define MAMR_G0CLA_A6	0x0000C000	/* General Line 0 : A6			*/
+#define MAMR_G0CLA_A5	0x0000E000	/* General Line 0 : A5			*/
 #define MAMR_GPL_A4DIS	0x00001000	/* GPL_A4 ouput line Disable		*/
-#define MAMR_RLFA_MSK	0x00000f00	/* Read Loop Field A mask		*/
+#define MAMR_RLFA_MSK	0x00000F00	/* Read Loop Field A mask		*/
 #define MAMR_RLFA_1X	0x00000100	/* The Read Loop is executed 1 time	*/
 #define MAMR_RLFA_2X	0x00000200	/* The Read Loop is executed 2 times	*/
 #define MAMR_RLFA_3X	0x00000300	/* The Read Loop is executed 3 times	*/
@@ -300,14 +300,14 @@
 #define MAMR_RLFA_7X	0x00000700	/* The Read Loop is executed 7 times	*/
 #define MAMR_RLFA_8X	0x00000800	/* The Read Loop is executed 8 times	*/
 #define MAMR_RLFA_9X	0x00000900	/* The Read Loop is executed 9 times	*/
-#define MAMR_RLFA_10X	0x00000a00	/* The Read Loop is executed 10 times	*/
-#define MAMR_RLFA_11X	0x00000b00	/* The Read Loop is executed 11 times	*/
-#define MAMR_RLFA_12X	0x00000c00	/* The Read Loop is executed 12 times	*/
-#define MAMR_RLFA_13X	0x00000d00	/* The Read Loop is executed 13 times	*/
-#define MAMR_RLFA_14X	0x00000e00	/* The Read Loop is executed 14 times	*/
-#define MAMR_RLFA_15X	0x00000f00	/* The Read Loop is executed 15 times	*/
+#define MAMR_RLFA_10X	0x00000A00	/* The Read Loop is executed 10 times	*/
+#define MAMR_RLFA_11X	0x00000B00	/* The Read Loop is executed 11 times	*/
+#define MAMR_RLFA_12X	0x00000C00	/* The Read Loop is executed 12 times	*/
+#define MAMR_RLFA_13X	0x00000D00	/* The Read Loop is executed 13 times	*/
+#define MAMR_RLFA_14X	0x00000E00	/* The Read Loop is executed 14 times	*/
+#define MAMR_RLFA_15X	0x00000F00	/* The Read Loop is executed 15 times	*/
 #define MAMR_RLFA_16X	0x00000000	/* The Read Loop is executed 16 times	*/
-#define MAMR_WLFA_MSK	0x000000f0	/* Write Loop Field A mask		*/
+#define MAMR_WLFA_MSK	0x000000F0	/* Write Loop Field A mask		*/
 #define MAMR_WLFA_1X	0x00000010	/* The Write Loop is executed 1 time	*/
 #define MAMR_WLFA_2X	0x00000020	/* The Write Loop is executed 2 times	*/
 #define MAMR_WLFA_3X	0x00000030	/* The Write Loop is executed 3 times	*/
@@ -317,14 +317,14 @@
 #define MAMR_WLFA_7X	0x00000070	/* The Write Loop is executed 7 times	*/
 #define MAMR_WLFA_8X	0x00000080	/* The Write Loop is executed 8 times	*/
 #define MAMR_WLFA_9X	0x00000090	/* The Write Loop is executed 9 times	*/
-#define MAMR_WLFA_10X	0x000000a0	/* The Write Loop is executed 10 times	*/
-#define MAMR_WLFA_11X	0x000000b0	/* The Write Loop is executed 11 times	*/
-#define MAMR_WLFA_12X	0x000000c0	/* The Write Loop is executed 12 times	*/
-#define MAMR_WLFA_13X	0x000000d0	/* The Write Loop is executed 13 times	*/
-#define MAMR_WLFA_14X	0x000000e0	/* The Write Loop is executed 14 times	*/
-#define MAMR_WLFA_15X	0x000000f0	/* The Write Loop is executed 15 times	*/
+#define MAMR_WLFA_10X	0x000000A0	/* The Write Loop is executed 10 times	*/
+#define MAMR_WLFA_11X	0x000000B0	/* The Write Loop is executed 11 times	*/
+#define MAMR_WLFA_12X	0x000000C0	/* The Write Loop is executed 12 times	*/
+#define MAMR_WLFA_13X	0x000000D0	/* The Write Loop is executed 13 times	*/
+#define MAMR_WLFA_14X	0x000000E0	/* The Write Loop is executed 14 times	*/
+#define MAMR_WLFA_15X	0x000000F0	/* The Write Loop is executed 15 times	*/
 #define MAMR_WLFA_16X	0x00000000	/* The Write Loop is executed 16 times	*/
-#define MAMR_TLFA_MSK	0x0000000f	/* Timer Loop Field A mask		*/
+#define MAMR_TLFA_MSK	0x0000000F	/* Timer Loop Field A mask		*/
 #define MAMR_TLFA_1X	0x00000001	/* The Timer Loop is executed 1 time	*/
 #define MAMR_TLFA_2X	0x00000002	/* The Timer Loop is executed 2 times	*/
 #define MAMR_TLFA_3X	0x00000003	/* The Timer Loop is executed 3 times	*/
@@ -334,18 +334,18 @@
 #define MAMR_TLFA_7X	0x00000007	/* The Timer Loop is executed 7 times	*/
 #define MAMR_TLFA_8X	0x00000008	/* The Timer Loop is executed 8 times	*/
 #define MAMR_TLFA_9X	0x00000009	/* The Timer Loop is executed 9 times	*/
-#define MAMR_TLFA_10X	0x0000000a	/* The Timer Loop is executed 10 times	*/
-#define MAMR_TLFA_11X	0x0000000b	/* The Timer Loop is executed 11 times	*/
-#define MAMR_TLFA_12X	0x0000000c	/* The Timer Loop is executed 12 times	*/
-#define MAMR_TLFA_13X	0x0000000d	/* The Timer Loop is executed 13 times	*/
-#define MAMR_TLFA_14X	0x0000000e	/* The Timer Loop is executed 14 times	*/
-#define MAMR_TLFA_15X	0x0000000f	/* The Timer Loop is executed 15 times	*/
+#define MAMR_TLFA_10X	0x0000000A	/* The Timer Loop is executed 10 times	*/
+#define MAMR_TLFA_11X	0x0000000B	/* The Timer Loop is executed 11 times	*/
+#define MAMR_TLFA_12X	0x0000000C	/* The Timer Loop is executed 12 times	*/
+#define MAMR_TLFA_13X	0x0000000D	/* The Timer Loop is executed 13 times	*/
+#define MAMR_TLFA_14X	0x0000000E	/* The Timer Loop is executed 14 times	*/
+#define MAMR_TLFA_15X	0x0000000F	/* The Timer Loop is executed 15 times	*/
 #define MAMR_TLFA_16X	0x00000000	/* The Timer Loop is executed 16 times	*/
 
 /*-----------------------------------------------------------------------
  * Machine B Mode Register						16-13
  */
-#define MAMR_PTB_MSK	0xff000000	/* Periodic Timer B period mask		*/
+#define MAMR_PTB_MSK	0xFF000000	/* Periodic Timer B period mask		*/
 #define MAMR_PTB_SHIFT	0x00000018	/* Periodic Timer B period shift	*/
 #define MAMR_PTBE	0x00800000	/* Periodic Timer B Enable		*/
 #define MAMR_AMB_MSK	0x00700000	/* Addess Multiplex size B		*/
@@ -360,17 +360,17 @@
 #define MAMR_DSB_2_CYCL 0x00020000	/* 2 cycle Disable Period		*/
 #define MAMR_DSB_3_CYCL 0x00040000	/* 3 cycle Disable Period		*/
 #define MAMR_DSB_4_CYCL 0x00060000	/* 4 cycle Disable Period		*/
-#define MAMR_G0CLB_MSK	0x0000e000	/* General Line 0 Control B		*/
+#define MAMR_G0CLB_MSK	0x0000E000	/* General Line 0 Control B		*/
 #define MAMR_G0CLB_A12	0x00000000	/* General Line 0 : A12			*/
 #define MAMR_G0CLB_A11	0x00002000	/* General Line 0 : A11			*/
 #define MAMR_G0CLB_A10	0x00004000	/* General Line 0 : A10			*/
 #define MAMR_G0CLB_A9	0x00006000	/* General Line 0 : A9			*/
 #define MAMR_G0CLB_A8	0x00008000	/* General Line 0 : A8			*/
-#define MAMR_G0CLB_A7	0x0000a000	/* General Line 0 : A7			*/
-#define MAMR_G0CLB_A6	0x0000b000	/* General Line 0 : A6			*/
-#define MAMR_G0CLB_A5	0x0000e000	/* General Line 0 : A5			*/
+#define MAMR_G0CLB_A7	0x0000A000	/* General Line 0 : A7			*/
+#define MAMR_G0CLB_A6	0x0000C000	/* General Line 0 : A6			*/
+#define MAMR_G0CLB_A5	0x0000E000	/* General Line 0 : A5			*/
 #define MAMR_GPL_B4DIS	0x00001000	/* GPL_B4 ouput line Disable		*/
-#define MAMR_RLFB_MSK	0x00000f00	/* Read Loop Field B mask		*/
+#define MAMR_RLFB_MSK	0x00000F00	/* Read Loop Field B mask		*/
 #define MAMR_RLFB_1X	0x00000100	/* The Read Loop is executed 1 time	*/
 #define MAMR_RLFB_2X	0x00000200	/* The Read Loop is executed 2 times	*/
 #define MAMR_RLFB_3X	0x00000300	/* The Read Loop is executed 3 times	*/
@@ -380,14 +380,14 @@
 #define MAMR_RLFB_7X	0x00000700	/* The Read Loop is executed 7 times	*/
 #define MAMR_RLFB_8X	0x00000800	/* The Read Loop is executed 8 times	*/
 #define MAMR_RLFB_9X	0x00000900	/* The Read Loop is executed 9 times	*/
-#define MAMR_RLFB_10X	0x00000a00	/* The Read Loop is executed 10 times	*/
-#define MAMR_RLFB_11X	0x00000b00	/* The Read Loop is executed 11 times	*/
-#define MAMR_RLFB_12X	0x00000c00	/* The Read Loop is executed 12 times	*/
-#define MAMR_RLFB_13X	0x00000d00	/* The Read Loop is executed 13 times	*/
-#define MAMR_RLFB_14X	0x00000e00	/* The Read Loop is executed 14 times	*/
+#define MAMR_RLFB_10X	0x00000A00	/* The Read Loop is executed 10 times	*/
+#define MAMR_RLFB_11X	0x00000B00	/* The Read Loop is executed 11 times	*/
+#define MAMR_RLFB_12X	0x00000C00	/* The Read Loop is executed 12 times	*/
+#define MAMR_RLFB_13X	0x00000D00	/* The Read Loop is executed 13 times	*/
+#define MAMR_RLFB_14X	0x00000E00	/* The Read Loop is executed 14 times	*/
 #define MAMR_RLFB_15X	0x00000f00	/* The Read Loop is executed 15 times	*/
 #define MAMR_RLFB_16X	0x00000000	/* The Read Loop is executed 16 times	*/
-#define MAMR_WLFB_MSK	0x000000f0	/* Write Loop Field B mask		*/
+#define MAMR_WLFB_MSK	0x000000F0	/* Write Loop Field B mask		*/
 #define MAMR_WLFB_1X	0x00000010	/* The Write Loop is executed 1 time	*/
 #define MAMR_WLFB_2X	0x00000020	/* The Write Loop is executed 2 times	*/
 #define MAMR_WLFB_3X	0x00000030	/* The Write Loop is executed 3 times	*/
@@ -397,14 +397,14 @@
 #define MAMR_WLFB_7X	0x00000070	/* The Write Loop is executed 7 times	*/
 #define MAMR_WLFB_8X	0x00000080	/* The Write Loop is executed 8 times	*/
 #define MAMR_WLFB_9X	0x00000090	/* The Write Loop is executed 9 times	*/
-#define MAMR_WLFB_10X	0x000000a0	/* The Write Loop is executed 10 times	*/
-#define MAMR_WLFB_11X	0x000000b0	/* The Write Loop is executed 11 times	*/
-#define MAMR_WLFB_12X	0x000000c0	/* The Write Loop is executed 12 times	*/
-#define MAMR_WLFB_13X	0x000000d0	/* The Write Loop is executed 13 times	*/
-#define MAMR_WLFB_14X	0x000000e0	/* The Write Loop is executed 14 times	*/
-#define MAMR_WLFB_15X	0x000000f0	/* The Write Loop is executed 15 times	*/
+#define MAMR_WLFB_10X	0x000000A0	/* The Write Loop is executed 10 times	*/
+#define MAMR_WLFB_11X	0x000000B0	/* The Write Loop is executed 11 times	*/
+#define MAMR_WLFB_12X	0x000000C0	/* The Write Loop is executed 12 times	*/
+#define MAMR_WLFB_13X	0x000000D0	/* The Write Loop is executed 13 times	*/
+#define MAMR_WLFB_14X	0x000000E0	/* The Write Loop is executed 14 times	*/
+#define MAMR_WLFB_15X	0x000000F0	/* The Write Loop is executed 15 times	*/
 #define MAMR_WLFB_16X	0x00000000	/* The Write Loop is executed 16 times	*/
-#define MAMR_TLFB_MSK	0x0000000f	/* Timer Loop Field B mask		*/
+#define MAMR_TLFB_MSK	0x0000000F	/* Timer Loop Field B mask		*/
 #define MAMR_TLFB_1X	0x00000001	/* The Timer Loop is executed 1 time	*/
 #define MAMR_TLFB_2X	0x00000002	/* The Timer Loop is executed 2 times	*/
 #define MAMR_TLFB_3X	0x00000003	/* The Timer Loop is executed 3 times	*/
@@ -414,12 +414,12 @@
 #define MAMR_TLFB_7X	0x00000007	/* The Timer Loop is executed 7 times	*/
 #define MAMR_TLFB_8X	0x00000008	/* The Timer Loop is executed 8 times	*/
 #define MAMR_TLFB_9X	0x00000009	/* The Timer Loop is executed 9 times	*/
-#define MAMR_TLFB_10X	0x0000000a	/* The Timer Loop is executed 10 times	*/
-#define MAMR_TLFB_11X	0x0000000b	/* The Timer Loop is executed 11 times	*/
-#define MAMR_TLFB_12X	0x0000000c	/* The Timer Loop is executed 12 times	*/
-#define MAMR_TLFB_13X	0x0000000d	/* The Timer Loop is executed 13 times	*/
-#define MAMR_TLFB_14X	0x0000000e	/* The Timer Loop is executed 14 times	*/
-#define MAMR_TLFB_15X	0x0000000f	/* The Timer Loop is executed 15 times	*/
+#define MAMR_TLFB_10X	0x0000000A	/* The Timer Loop is executed 10 times	*/
+#define MAMR_TLFB_11X	0x0000000B	/* The Timer Loop is executed 11 times	*/
+#define MAMR_TLFB_12X	0x0000000C	/* The Timer Loop is executed 12 times	*/
+#define MAMR_TLFB_13X	0x0000000D	/* The Timer Loop is executed 13 times	*/
+#define MAMR_TLFB_14X	0x0000000E	/* The Timer Loop is executed 14 times	*/
+#define MAMR_TLFB_15X	0x0000000F	/* The Timer Loop is executed 15 times	*/
 #define MAMR_TLFB_16X	0x00000000	/* The Timer Loop is executed 16 times	*/
 
 /*-----------------------------------------------------------------------
@@ -446,13 +446,13 @@
 /*-----------------------------------------------------------------------
  * Timer Mode Register							18-9
  */
-#define TMR_PS_MSK              0xff00  /* Prescaler Value 			*/
+#define TMR_PS_MSK              0xFF00  /* Prescaler Value 			*/
 #define TMR_PS_SHIFT                 8  /* Prescaler position			*/
-#define TMR_CE_MSK              0x00c0  /* Capture Edge and Enable Interrupt	*/
+#define TMR_CE_MSK              0x00C0  /* Capture Edge and Enable Interrupt	*/
 #define TMR_CE_INTR_DIS         0x0000  /* Disable Interrupt on capture event 	*/
 #define TMR_CE_RISING           0x0040  /* Capture on Rising TINx edge only 	*/
 #define TMR_CE_FALLING          0x0080  /* Capture on Falling TINx edge only 	*/
-#define TMR_CE_ANY              0x00c0  /* Capture on any TINx edge 		*/
+#define TMR_CE_ANY              0x00C0  /* Capture on any TINx edge 		*/
 #define TMR_OM                  0x0020  /* Output Mode 				*/
 #define TMR_ORI                 0x0010  /* Output Reference Interrupt Enable	*/
 #define TMR_FRR                 0x0008  /* Free Run/Restart 			*/
@@ -505,7 +505,7 @@
 
 #define PCMCIA_VS1(slot)	(0x80000000 >> (slot << 4))
 #define PCMCIA_VS2(slot)	(0x40000000 >> (slot << 4))
-#define PCMCIA_VS_MASK(slot)	(0xc0000000 >> (slot << 4))
+#define PCMCIA_VS_MASK(slot)	(0xC0000000 >> (slot << 4))
 #define PCMCIA_VS_SHIFT(slot)	(30 - (slot << 4))
 
 #define PCMCIA_WP(slot)		(0x20000000 >> (slot << 4))

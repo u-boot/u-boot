@@ -170,7 +170,7 @@
 #endif
 
 #ifndef CFG_PCI_MSTR_MEMIO_SIZE 
-#define PCI_MSTR_MEMIO_SIZE 0x20000000          /* 512MB */ 
+#define PCI_MSTR_MEMIO_SIZE 0x10000000          /* 256 MB */ 
 #else 
 #define PCI_MSTR_MEMIO_SIZE CFG_PCI_MSTR_MEMIO_SIZE 
 #endif

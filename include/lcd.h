@@ -29,6 +29,12 @@
 #ifndef _LCD_H_
 #define _LCD_H_
 
+#if defined(CONFIG_RBC823)
+void	lcd_disable (void);
+#endif
+
+extern char lcd_is_enabled;
+
 /* Video functions */
 
 int	lcd_init	(void *lcdbase);

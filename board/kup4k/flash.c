@@ -172,6 +172,9 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 	value = value|(value<<16);
 
 	switch (value) {
+	case AMD_MANUFACT:
+		info->flash_id = FLASH_MAN_AMD;
+		break;
 	case FUJ_MANUFACT:
 		info->flash_id = FLASH_MAN_FUJ;
 		break;
@@ -191,6 +194,16 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 		info->sector_count = 19;
 		info->size = 0x00100000;
 		break;				/* => 1 MB		*/
+	case AMD_ID_LV800T:
+		info->flash_id += FLASH_AM800T;
+		info->sector_count = 19;
+		info->size = 0x00200000;
+		break;				/* => 2 MB		*/
+	case AMD_ID_LV800B:
+		info->flash_id += FLASH_AM800B;
+		info->sector_count = 19;
+		info->size = 0x00200000;
+		break;				/* => 2 MB		*/
 	default:
 		info->flash_id = FLASH_UNKNOWN;
 		return (0);			/* => no or unknown flash */

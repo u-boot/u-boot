@@ -63,7 +63,7 @@
 
 /* Wireless 56Khz 4PPM keyboard on SMCx */
 
-/*#define CONFIG_WL_4PPM_KEYBOARD		0 */
+/*#define CONFIG_KEYBOARD		0 */
 /*#define CONFIG_WL_4PPM_KEYBOARD_SMC	0	/  SMC to use (0 indexed) */
 
 /*

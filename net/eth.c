@@ -31,6 +31,7 @@
 extern int gt6426x_eth_initialize(bd_t *bis);
 #endif
 
+extern int e1000_initialize(bd_t*);
 extern int eepro100_initialize(bd_t*);
 extern int natsemi_initialize(bd_t*);
 extern int ns8382x_initialize(bd_t*);
@@ -102,6 +103,9 @@ int eth_initialize(bd_t *bis)
 #endif
 #ifdef CONFIG_PLB2800_ETHER
 	plb2800_eth_initialize(bis);
+#endif
+#ifdef CONFIG_E1000
+	e1000_initialize(bis);
 #endif
 #ifdef CONFIG_EEPRO100
 	eepro100_initialize(bis);

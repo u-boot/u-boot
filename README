@@ -344,7 +344,7 @@ The following options need to be configured:
 		CONFIG_IAD210,     CONFIG_RPXlite,    CONFIG_sbc8260,
 		CONFIG_EBONY,      CONFIG_sacsng,     CONFIG_FPS860L,
 		CONFIG_V37,        CONFIG_ELPT860,    CONFIG_CMI,
-		CONFIG_NETVIA
+		CONFIG_NETVIA,     CONFIG_RBC823
 
 		ARM based boards:
 		-----------------
@@ -688,6 +688,9 @@ The following options need to be configured:
 		CFG_SCSI_SYM53C8XX_CCF to fix clock timing (80Mhz)
 
 - NETWORK Support (PCI):
+		CONFIG_E1000
+		Support for Intel 8254x gigabit chips.
+		
 		CONFIG_EEPRO100
 		Support for Intel 82557/82559/82559ER chips.
 		Optional CONFIG_EEPRO100_SROM_WRITE enables eeprom
@@ -766,6 +769,13 @@ The following options need to be configured:
 		and 16bpp modes defined by CONFIG_VIDEO_SED13806_8BPP
 		or CONFIG_VIDEO_SED13806_16BPP
 
+- Keyboard Support:
+                CONFIG_KEYBOARD
+
+                Define this to enable a custom keyboard support.
+                This simply calls drv_keyboard_init() which must be
+                defined in your board-specific files.
+                The only board using this so far is RBC823.
 
 - LCD Support:	CONFIG_LCD
 

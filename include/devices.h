@@ -102,8 +102,8 @@ int	drv_vfd_init (void);
 #if defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE)
 int	drv_video_init (void);
 #endif
-#ifdef CONFIG_WL_4PPM_KEYBOARD
-int	drv_wlkbd_init (void);
+#ifdef CONFIG_KEYBOARD
+int	drv_keyboard_init (void);
 #endif
 
 #endif	/* _DEVICES_H_ */

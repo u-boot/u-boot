@@ -185,8 +185,8 @@ int devices_init (void)
 #if defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE)
 	drv_video_init ();
 #endif
-#ifdef CONFIG_WL_4PPM_KEYBOARD
-	drv_wlkbd_init ();
+#ifdef CONFIG_KEYBOARD
+	drv_keyboard_init ();
 #endif
 #ifdef CONFIG_LOGBUFFER
 	drv_logbuff_init ();

@@ -55,7 +55,7 @@ ulong		seed1, seed2;
 
 #if (CONFIG_COMMANDS & CFG_CMD_DHCP)
 dhcp_state_t dhcp_state = INIT;
-unsigned int dhcp_leasetime = 0;
+unsigned long dhcp_leasetime = 0;
 IPaddr_t NetDHCPServerIP = 0;
 static void DhcpHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len);
 
@@ -712,7 +712,7 @@ static void DhcpOptionsProcess(uchar *popt)
 				NetOurRootPath[size] = 0 ;
 				break;
 			case 51:
-				dhcp_leasetime = *(unsigned int *)(popt + 2);
+				NetCopyLong (&dhcp_leasetime, (ulong *)(popt + 2));
 				break;
 			case 53:		/* Ignore Message Type Option */
 				break;

@@ -23,25 +23,17 @@
 
 include $(TOPDIR)/config.mk
 
-# CFLAGS += -DET_DEBUG
+LIB	= lib$(BOARD).a
 
-LIB	= lib$(CPU).a
+OBJS	= $(BOARD).o flash.o kbd.o
 
-START	= start.o kgdb.o
-OBJS	= bedbug_860.o commproc.o cpu.o cpu_init.o	\
-	  fec.o i2c.o interrupts.o lcd.o scc.o		\
-	  serial.o speed.o spi.o status_led.o\
-	  traps.o upatch.o video.o
-
-all:	.depend $(START) $(LIB)
-
-$(LIB):	$(OBJS)
-	$(AR) crv $@ $(OBJS) kgdb.o
+$(LIB):	.depend $(OBJS)
+	$(AR) crv $@ $^
 
 #########################################################################
 
-.depend:	Makefile $(START:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(START:.o=.S) $(OBJS:.o=.c) > $@
+.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
+		$(CC) -M $(CFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
 
 sinclude .depend
 

@@ -314,6 +314,9 @@ pcu_e_config:		unconfig
 R360MPI_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx r360mpi
 
+RBC823_config:	unconfig
+	@./mkconfig $(@:_config=) ppc mpc8xx rbc823
+
 RPXClassic_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx RPXClassic
 

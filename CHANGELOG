@@ -2,6 +2,27 @@
 Changes since U-Boot 0.3.1:
 ======================================================================
 
+* Patches by Udi Finkelstein, 2 June 2003:
+  - Added support for custom keyboards, initialized by defining a
+    board-specific drv_keyboard_init as well as defining CONFIG_KEYBOARD .
+  - Added support for the RBC823 board.
+  - cpu/mpc8xx/lcd.c now automatically calculates the
+    Horizontal Pixel Count field.
+
+* Fix alignment problem in BOOTP (dhcp_leasetime option)
+  [pointed out by Nicolas Lacressonnière, 2 Jun 2003]
+
+* Patch by Mark Rakes, 14 May 2003:
+  add support for Intel e1000 gig cards.
+
+* Patch by Nye Liu, 3 Jun 2003:
+  fix critical typo in MAMR definition (include/mpc8xx.h)
+
+* Fix requirement to align U-Boot image on 16 kB boundaries on PPC.
+
+* Patch by Klaus Heydeck, 2 Jun 2003
+  Minor changes for KUP4K configuration
+
 * Patch by Marc Singer, 29 May 2003:
   Fixed rarp boot method for IA32 and other little-endian CPUs.
 

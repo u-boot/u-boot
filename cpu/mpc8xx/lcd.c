@@ -36,7 +36,7 @@
 #if defined(CONFIG_POST)
 #include <post.h>
 #endif
-
+#include <lcd.h>
 
 #ifdef CONFIG_LCD
 
@@ -132,6 +132,19 @@ static vidinfo_t panel_info = {
 		/* wbl, vpw, lcdac, wbf */
 };
 #endif /* CONFIG_KYOCERA_KCS057QV1AJ */
+/*----------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------*/
+#ifdef CONFIG_HITACHI_SP19X001_Z1A
+/*
+ *  Hitachi SP19X001-. Active, color, single scan.
+ */
+static vidinfo_t panel_info = {
+    640, 480, 154, 116, CFG_HIGH, CFG_HIGH, CFG_HIGH, CFG_HIGH, CFG_HIGH,
+    LCD_COLOR8, 1, 0, 1, 0, 0, 0, 0, 0
+		/* wbl, vpw, lcdac, wbf */
+};
+#endif /* CONFIG_HITACHI_SP19X001_Z1A */
 /*----------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------*/
@@ -307,7 +320,7 @@ static int lcd_line_length;
 static int lcd_color_fg;
 static int lcd_color_bg;
 
-static char lcd_is_enabled = 0;		/* Indicate that LCD is enabled	*/
+char lcd_is_enabled = 0;		/* Indicate that LCD is enabled	*/
 
 /*
  * Frame buffer memory information
@@ -395,7 +408,8 @@ static void	lcd_drawchars  (ushort x, ushort y, uchar *str, int count);
 static inline void lcd_puts_xy (ushort x, ushort y, uchar *s);
 static inline void lcd_putc_xy (ushort x, ushort y, uchar  c);
 
-static int	lcd_init (void *lcdbase);
+int	lcd_init (void *lcdbase);
+
 static void	lcd_ctrl_init (void *lcdbase);
 static void	lcd_enable (void);
 static void    *lcd_logo (void);
@@ -410,8 +424,11 @@ static int	lcd_getbgcolor (void);
 static void	lcd_setfgcolor (int color);
 static void	lcd_setbgcolor (int color);
 
+#if defined(CONFIG_RBC823)
+void	lcd_disable (void);
+#endif
+
 #ifdef	NOT_USED_SO_FAR
-static void	lcd_disable (void);
 static void	lcd_getcolreg (ushort regno,
 				ushort *red, ushort *green, ushort *blue);
 static int	lcd_getfgcolor (void);
@@ -675,7 +692,7 @@ int drv_lcd_init (void)
 
 /*----------------------------------------------------------------------*/
 
-static int lcd_init (void *lcdbase)
+int lcd_init (void *lcdbase)
 {
 	/* Initialize the lcd controller */
 	debug ("[LCD] Initializing LCD frambuffer at %p\n", lcdbase);
@@ -778,6 +795,7 @@ static void lcd_ctrl_init (void *lcdbase)
 	volatile lcd823_t *lcdp = &immr->im_lcd;
 
 	uint lccrtmp;
+	uint lchcr_hpc_tmp;
 
 	/* Initialize the LCD control register according to the LCD
 	 * parameters defined.  We do everything here but enable
@@ -808,6 +826,9 @@ static void lcd_ctrl_init (void *lcdbase)
 
 	/* Initialize LCD controller bus priorities.
 	 */
+#ifdef CONFIG_RBC823
+	immr->im_siu_conf.sc_sdcr = (immr->im_siu_conf.sc_sdcr & ~0x0f) | 1;	/* RAID = 01, LAID = 00 */
+#else
 	immr->im_siu_conf.sc_sdcr &= ~0x0f;	/* RAID = LAID = 0 */
 
 	/* set SHFT/CLOCK division factor 4
@@ -821,7 +842,21 @@ static void lcd_ctrl_init (void *lcdbase)
 	immr->im_clkrst.car_sccr &= ~0x1F;
 	immr->im_clkrst.car_sccr |= LCD_DF;	/* was 8 */
 
-#ifndef CONFIG_EDT32F10
+#endif /* CONFIG_RBC823 */
+
+#if defined(CONFIG_RBC823)
+	/* Enable LCD on port D.
+	 */
+	immr->im_ioport.iop_pddat &= 0x0300;
+	immr->im_ioport.iop_pdpar |= 0x1CFF;
+	immr->im_ioport.iop_pddir |= 0x1CFF;
+
+	/* Configure LCD_ON, VEE_ON, CCFL_ON on port B.
+	 */
+	immr->im_cpm.cp_pbdat &= ~0x00005001;
+	immr->im_cpm.cp_pbpar &= ~0x00005001;
+	immr->im_cpm.cp_pbdir |=  0x00005001;
+#elif !defined(CONFIG_EDT32F10)
 	/* Enable LCD on port D.
 	 */
 	immr->im_ioport.iop_pdpar |= 0x1FFF;
@@ -850,18 +885,22 @@ static void lcd_ctrl_init (void *lcdbase)
 
 	/* MORE HACKS...This must be updated according to 823 manual
 	 * for different panels.
+	 * Udi Finkelstein - done - see below:
+	 * Note: You better not try unsupported combinations such as
+	 * 4-bit wide passive dual scan LCD at 4/8 Bit color.
 	 */
-#ifndef CONFIG_EDT32F10
+	lchcr_hpc_tmp =
+	       	(panel_info.vl_col *
+		 (panel_info.vl_tft ? 8 :
+			(((2 - panel_info.vl_lbw) << /* 4 bit=2, 8-bit = 1 */
+			 /* use << to mult by: single scan = 1, dual scan = 2 */
+			  panel_info.vl_splt) *
+			 (panel_info.vl_bpix | 1)))) >> 3; /* 2/4 BPP = 1, 8/16 BPP = 3 */
+
 	lcdp->lcd_lchcr = LCHCR_BO |
 			  LCDBIT (LCHCR_AT_BIT, 4) |
-			  LCDBIT (LCHCR_HPC_BIT, panel_info.vl_col) |
+			  LCDBIT (LCHCR_HPC_BIT, lchcr_hpc_tmp) |
 			  panel_info.vl_wbl;
-#else
-	lcdp->lcd_lchcr = LCHCR_BO |
-			  LCDBIT (LCHCR_AT_BIT, 4) |
-			  LCDBIT (LCHCR_HPC_BIT, panel_info.vl_col/4) |
-			  panel_info.vl_wbl;
-#endif
 
 	lcdp->lcd_lcvcr = LCDBIT (LCVCR_VPW_BIT, panel_info.vl_vpw) |
 			  LCDBIT (LCVCR_LCD_AC_BIT, panel_info.vl_lcdac) |
@@ -975,13 +1014,18 @@ static void lcd_enable (void)
 	volatile lcd823_t *lcdp = &immr->im_lcd;
 
 	/* Enable the LCD panel */
+#ifndef CONFIG_RBC823
 	immr->im_siu_conf.sc_sdcr |= (1 << (31 - 25));		/* LAM = 1 */
+#endif
 	lcdp->lcd_lccr |= LCCR_PON;
 
 #ifdef CONFIG_V37
 	/* Turn on display backlight */
 	immr->im_cpm.cp_pbpar |= 0x00008000;
 	immr->im_cpm.cp_pbdir |= 0x00008000;
+#elif defined(CONFIG_RBC823)
+	/* Turn on display backlight */
+	immr->im_cpm.cp_pbdat |= 0x00004000;
 #endif
 
 #if defined(CONFIG_LWMON)
@@ -1005,12 +1049,20 @@ static void lcd_enable (void)
 	r360_i2c_lcd_write(0x47, 0xFF);
     }
 #endif /* CONFIG_R360MPI */
+#ifdef CONFIG_RBC823
+	udelay(200000); /* wait 200ms */
+	/* Turn VEE_ON first */
+	immr->im_cpm.cp_pbdat |= 0x00000001;
+	udelay(200000); /* wait 200ms */
+	/* Now turn on LCD_ON */
+	immr->im_cpm.cp_pbdat |= 0x00001000;
+#endif
 }
 
 /*----------------------------------------------------------------------*/
 
-#ifdef	NOT_USED_SO_FAR
-static void lcd_disable (void)
+#if defined (CONFIG_RBC823)
+void lcd_disable (void)
 {
 	volatile immap_t *immr = (immap_t *) CFG_IMMR;
 	volatile lcd823_t *lcdp = &immr->im_lcd;
@@ -1032,9 +1084,14 @@ static void lcd_disable (void)
 #endif /* CONFIG_LWMON */
 	/* Disable the LCD panel */
 	lcdp->lcd_lccr &= ~LCCR_PON;
+#ifdef CONFIG_RBC823
+	/* Turn off display backlight, VEE and LCD_ON */
+	immr->im_cpm.cp_pbdat &= ~0x00005001;
+#else
 	immr->im_siu_conf.sc_sdcr &= ~(1 << (31 - 25));	/* LAM = 0 */
+#endif /* CONFIG_RBC823 */
 }
-#endif	/* NOT_USED_SO_FAR */
+#endif	/* NOT_USED_SO_FAR || CONFIG_RBC823 */
 
 
 /************************************************************************/

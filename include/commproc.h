@@ -1331,6 +1331,7 @@ typedef struct scc_enet {
 
 #if (defined(CONFIG_MVS) && CONFIG_MVS < 2) || \
     defined(CONFIG_R360MPI) || \
+    defined(CONFIG_RBC823) || \
     defined(CONFIG_TQM823L) || \
     defined(CONFIG_TQM850L) || \
     defined(CONFIG_ETX094)  || \

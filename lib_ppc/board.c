@@ -438,10 +438,10 @@ void board_init_f (ulong bootflag)
 
 	/*
 	 * reserve memory for U-Boot code, data & bss
-	 * round down to next 16 kB limit
+	 * round down to next 4 kB limit
 	 */
 	addr -= len;
-	addr &= ~(16 * 1024 - 1);
+	addr &= ~(4096 - 1);
 
 #ifdef DEBUG
 	printf ("Reserving %ldk for U-Boot at: %08lx\n", len >> 10, addr);

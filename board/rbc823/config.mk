@@ -21,28 +21,8 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
+#
+# RBC823 boards
+#
 
-# CFLAGS += -DET_DEBUG
-
-LIB	= lib$(CPU).a
-
-START	= start.o kgdb.o
-OBJS	= bedbug_860.o commproc.o cpu.o cpu_init.o	\
-	  fec.o i2c.o interrupts.o lcd.o scc.o		\
-	  serial.o speed.o spi.o status_led.o\
-	  traps.o upatch.o video.o
-
-all:	.depend $(START) $(LIB)
-
-$(LIB):	$(OBJS)
-	$(AR) crv $@ $(OBJS) kgdb.o
-
-#########################################################################
-
-.depend:	Makefile $(START:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(START:.o=.S) $(OBJS:.o=.c) > $@
-
-sinclude .depend
-
-#########################################################################
+TEXT_BASE = 0xFFF00000

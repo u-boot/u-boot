@@ -556,7 +556,7 @@ trap_init:
 	lwz	r7, GOT(_start)
 	lwz	r8, GOT(_end_of_vectors)
 
-	rlwinm	r9, r7, 0, 22, 31	/* _start & 0x3FF	*/
+	li	r9, 0x100		/* reset vector always at 0x100 */
 
 	cmplw	0, r7, r8
 	bgelr				/* return if r7>=r8 - just in case */
