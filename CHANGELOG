@@ -2,6 +2,12 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Shlomo Kut, 29 Mar 2004:
+  Add support for MKS Instruments "Quantum" board
+
+* Fix build problem with Cogent boards;
+  avoid using <asm/byteorder.h> when using the host compiler
+
 * Patch by Ganapathi C, 04 Aug 2004:
   Fix NFS timeout issue
 

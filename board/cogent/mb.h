@@ -54,7 +54,7 @@
  * i.e. they are 8 bytes apart. For big endian addressing, the 8 bit register
  * will be at byte 7 (the address + 7). For little endian addressing, the
  * register will be at byte 0 (the address + 0). To learn the endianess
- * we must include <asm/byteorder.h>
+ * we must include <endian.h>
  *
  * Take the CMA102 and CMA111 motherboards as examples...
  *
@@ -230,16 +230,20 @@
 
 #ifndef __ASSEMBLY__
 
-#include <asm/byteorder.h>
+#ifdef USE_HOSTCC
+#include <endian.h>		/* avoid using private kernel header files */
+#else
+#include <asm/byteorder.h>	/* use U-Boot provided headers */
+#endif
 
 /* a single CMA10x motherboard i/o register */
 typedef
     struct {
-#if defined(__LITTLE_ENDIAN)
+#if __BYTE_ORDER == __LITTLE_ENDIAN
 	unsigned char value;
 #endif
 	unsigned char filler[7];
-#if defined(__BIG_ENDIAN)
+#if __BYTE_ORDER == __BIG_ENDIAN
 	unsigned char value;
 #endif
     }
@@ -357,7 +361,7 @@ cma_mb_dipsw;
 /* V360EPC PCI Bridge */
 typedef
     struct {
-#if defined(__LITTLE_ENDIAN)
+#if __BYTE_ORDER == __LITTLE_ENDIAN
 	unsigned short v3_pci_vendor;		/* 0x00 */
 	unsigned short v3_pci_device;
 	unsigned short v3_pci_cmd;		/* 0x04 */
@@ -436,7 +440,7 @@ typedef
 	unsigned long  reserved8:24;
 	unsigned long  reserved9[7];		/* 0xe4 */
 #endif
-#if defined(__BIG_ENDIAN)
+#if __BYTE_ORDER == __BIG_ENDIAN
 	unsigned short v3_pci_device;		/* 0x00 */
 	unsigned short v3_pci_vendor;
 	unsigned short v3_pci_stat;		/* 0x04 */

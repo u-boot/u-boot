@@ -7,6 +7,7 @@
 #ifndef __BIG_ENDIAN_BITFIELD
 #define __BIG_ENDIAN_BITFIELD
 #endif
+#define	__BYTE_ORDER	__BIG_ENDIAN
 
 #include <linux/byteorder/swab.h>
 

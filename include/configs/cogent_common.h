@@ -204,5 +204,5 @@
 #if (CMA_MB_CAPS & CMA_MB_CAP_SER2) && !(CMA_MB_CAPS & CMA_MB_CAP_SERPAR)
 #error 2nd dual serial capability defined without serial/parallel capability
 #endif
-#include <board/cogent/mb.h>
+#include "../board/cogent/mb.h"
 #endif	/* _CONFIG_COGENT_COMMON_H */

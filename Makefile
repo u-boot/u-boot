@@ -553,6 +553,9 @@ QS823_config:	unconfig
 QS860T_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx qs860t snmc
 
+quantum_config:	unconfig
+	@./mkconfig $(@:_config=) ppc mpc8xx quantum
+
 R360MPI_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx r360mpi
 
