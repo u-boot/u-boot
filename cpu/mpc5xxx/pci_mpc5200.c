@@ -129,11 +129,6 @@ void pci_mpc5xxx_init (struct pci_controller *hose)
 	*(vu_long *)(MPC5XXX_XLBARB + 0x40) &= ~((7 << 8) | (3 << 5));
 	*(vu_long *)(MPC5XXX_XLBARB + 0x40) |= (3 << 8) | (3 << 5);
 
-#if 0
-	/* Enable piplining */
-	*(vu_long *)(MPC5XXX_XLBARB + 0x40) &= ~(1 << 31);
-#endif
-
 	/* Disable interrupts from PCI controller */
 	*(vu_long *)MPC5XXX_PCI_GSCR &= ~(7 << 12);
 	*(vu_long *)MPC5XXX_PCI_ICR &= ~(7 << 24);

@@ -96,7 +96,7 @@
  *	byte order. This list is terminated by an "(uint32_t)0".
  *	Immediately after the terminating 0 follow the images, one by
  *	one, all aligned on "uint32_t" boundaries (size rounded up to
- *	a multiple of 4 bytes).
+ *	a multiple of 4 bytes - except for the last file).
  *
  * "Firmware Images" are binary images containing firmware (like
  *	U-Boot or FPGA images) which usually will be programmed to

@@ -1115,7 +1115,7 @@ static int flash_write_cfiword (flash_info_t * info, ulong dest,
 		flag = ((cptr.lp[0] & cword.l) == cword.l);
 		break;
 	case FLASH_CFI_64BIT:
-		flag = ((cptr.lp[0] & cword.ll) == cword.ll);
+		flag = ((cptr.llp[0] & cword.ll) == cword.ll);
 		break;
 	default:
 		return 2;

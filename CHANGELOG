@@ -2,6 +2,22 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Gridish Shlomi, 30 Aug 2004:
+  - Add support to revA version of PQ27 and PQ27E.
+  - Reverted MPC8260ADS baudrate back to original 115200
+
+* Patch by Hojin, 17 Sep 2004:
+  Fix typo in cfi_flash.c
+  
+* Patch by Mark Jonas, 09 September 2004:
+  mtest's data line test (with CFG_ALT_MEMTEST set) returned a wrong
+  error message
+
+* Patch by Mark Jonas, 31 August 2004:
+  Added option CFG_XLB_PIPELINING to enable XLB pipelining. This
+  improves FTP performance for MPC5200 systems. Enabled for IceCube
+  by default.
+
 * Patch by Michael Bendzick, 30 Aug 2004:
   - Improve platform.S code for omap1510inn that detects whether code
     is running from SDRAM or not. Patch allows SDRAM to be configured

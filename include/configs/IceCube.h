@@ -68,6 +68,8 @@
 #define CONFIG_PCI_IO_PHYS	CONFIG_PCI_IO_BUS
 #define CONFIG_PCI_IO_SIZE	0x01000000
 
+#define CFG_XLB_PIPELINING	1
+
 #define CONFIG_NET_MULTI	1
 #define CONFIG_EEPRO100		1
 #define CFG_RX_ETH_BUFFER	8  /* use 8 rx buffer on eepro100  */

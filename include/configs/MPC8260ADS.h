@@ -175,7 +175,7 @@
 #endif
 #endif
 
-#define CONFIG_BAUDRATE		38400
+#define CONFIG_BAUDRATE		115200
 
 #define CFG_EXCLUDE		 CFG_CMD_BEDBUG | \
 				 CFG_CMD_BMP	| \

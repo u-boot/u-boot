@@ -125,7 +125,10 @@ int get_clocks (void)
 	busdf = (scmr & SCMR_BUSDF_MSK) >> SCMR_BUSDF_SHIFT;
 	cpmdf = (scmr & SCMR_CPMDF_MSK) >> SCMR_CPMDF_SHIFT;
 
-	if ((get_pvr () == PVR_8260_HIP7) || (get_pvr () == PVR_8260_HIP7R1)) { /* HiP7 */
+	/* HiP7, HiP7 Rev01, HiP7 RevA */
+	if ((get_pvr () == PVR_8260_HIP7) ||
+	    (get_pvr () == PVR_8260_HIP7R1) ||
+	    (get_pvr () == PVR_8260_HIP7RA)) {
 		pllmf = (scmr & SCMR_PLLMF_MSKH7) >> SCMR_PLLMF_SHIFT;
 		gd->vco_out = clkin * (pllmf + 1);
 	} else {                        /* HiP3, HiP4 */

@@ -736,7 +736,7 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			if(readback != ~val) {
 			    printf ("FAILURE (data line): "
 				"Is %08lx, should be %08lx\n",
-					val, readback);
+					readback, ~val);
 			}
 		    }
 		}

@@ -170,6 +170,11 @@ void cpu_init_f (void)
 	/* Configure the XLB Arbiter */
 	*(vu_long *)MPC5XXX_XLBARB_MPRIEN = 0xff;
 	*(vu_long *)MPC5XXX_XLBARB_MPRIVAL = 0x11111111;
+
+# if defined(CFG_XLB_PIPELINING)
+	/* Enable piplining */
+	*(vu_long *)(MPC5XXX_XLBARB + 0x40) &= ~(1 << 31);
+# endif
 #endif	/* CONFIG_MPC5200 */
 }
 

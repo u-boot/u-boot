@@ -68,6 +68,7 @@ int checkcpu (void)
 		k = 4;
 		break;
 	case PVR_8260_HIP7R1:
+	case PVR_8260_HIP7RA:
 	case PVR_8260_HIP7:
 		k = 7;
 		break;
@@ -129,9 +130,20 @@ int checkcpu (void)
 	case 0x0A01:
 		puts ("0.1 1K49M");
 		break;
+	case 0x0A10:
+		puts ("1.0 1K49M");
+		break;
 	case 0x0C00:
+		puts ("0.0 0K50M");
+		break;
+	case 0x0C10:
+		puts ("1.0 0K50M");
+		break;
 	case 0x0D00:
-		printf ("0.0 0K50M");
+		puts ("0.0 0K50M");
+		break;
+	case 0x0D10:
+		puts ("1.0 0K50M");
 		break;
 	default:
 		printf ("unknown [immr=0x%04x,k=0x%04x]", m, k);

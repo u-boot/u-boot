@@ -149,7 +149,7 @@ i2c_roundrate(int hz, int speed, int filter, int modval,
 
     PRINTD(("\t\tmoddiv=%d, brgdiv=%d\n", moddiv, brgdiv));
 
-    *brgval = (brgdiv / 2) - 3 - (2*filter);
+    *brgval = ((brgdiv + 1) / 2) - 3 - (2*filter);
 
     if ((*brgval < 0) || (*brgval > 255)) {
 	  PRINTD(("\t\trejected brgval=%d\n", *brgval));
@@ -158,7 +158,7 @@ i2c_roundrate(int hz, int speed, int filter, int modval,
 
     brgdiv = 2 * (*brgval + 3 + (2 * filter));
     div = moddiv * brgdiv ;
-    *totspeed = (hz + div - 1) / div;
+    *totspeed = hz / div;
 
     PRINTD(("\t\taccepted brgval=%d, totspeed=%d\n", *brgval, *totspeed));
 
