@@ -65,6 +65,10 @@
 #include "bootp.h"
 #include "tftp.h"
 #include "rarp.h"
+#ifdef CONFIG_STATUS_LED
+#include <status_led.h>
+#include <miiphy.h>
+#endif
 
 #if (CONFIG_COMMANDS & CFG_CMD_NET)
 
@@ -361,6 +365,18 @@ restart:
 		break;
 	}
 
+#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+#if defined(CFG_FAULT_ECHO_LINK_DOWN) && defined(CONFIG_STATUS_LED) && defined(STATUS_LED_RED)
+	/*
+	 * Echo the inverted link state to the fault LED. 
+	 */
+	if(miiphy_link(CFG_FAULT_MII_ADDR)) {
+		status_led_set (STATUS_LED_RED, STATUS_LED_OFF);
+	} else {
+		status_led_set (STATUS_LED_RED, STATUS_LED_ON);
+	}
+#endif /* CFG_FAULT_ECHO_LINK_DOWN, ... */
+#endif /* CONFIG_MII, ... */
 
 	/*
 	 *	Main packet reception loop.  Loop receiving packets until
@@ -398,6 +414,18 @@ restart:
 		if (timeHandler && ((get_timer(0) - timeStart) > timeDelta)) {
 			thand_f *x;
 
+#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+#if defined(CFG_FAULT_ECHO_LINK_DOWN) && defined(CONFIG_STATUS_LED) && defined(STATUS_LED_RED)
+			/*
+			 * Echo the inverted link state to the fault LED. 
+			 */
+			if(miiphy_link(CFG_FAULT_MII_ADDR)) {
+				status_led_set (STATUS_LED_RED, STATUS_LED_OFF);
+			} else {
+				status_led_set (STATUS_LED_RED, STATUS_LED_ON);
+			}
+#endif /* CFG_FAULT_ECHO_LINK_DOWN, ... */
+#endif /* CONFIG_MII, ... */
 			x = timeHandler;
 			timeHandler = (thand_f *)0;
 			(*x)();

@@ -61,8 +61,8 @@ short pll_pci_to_mem_multiplier[] = {
 	25,  0, 10,  0, 15, 15,  0,  0,
 #elif defined(CONFIG_MPC8245)
 	30, 30, 10, 10, 20, 10, 10, 10,
-	10, 20, 20, 15, 20, 15, 20,  0,
-	30,  0, 15, 40, 20, 25, 20, 40,
+	10, 20, 20, 15, 20, 15, 20, 30,
+	30, 40, 15, 40, 20, 25, 20, 40,
 	25, 20, 10, 20, 15, 15, 15,  0,
 #else
 #error Specific type of MPC824x must be defined (i.e. CONFIG_MPC8240)

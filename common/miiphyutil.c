@@ -169,4 +169,27 @@ int miiphy_duplex (unsigned char addr)
 	}
 }
 
+#ifdef CFG_FAULT_ECHO_LINK_DOWN
+/*****************************************************************************
+ *
+ * Determine link status
+ */
+int miiphy_link (unsigned char addr)
+{
+	unsigned short reg;
+
+	if (miiphy_read (addr, PHY_BMSR, &reg)) {
+		printf ("PHY_BMSR read failed, assuming no link\n");
+		return (0);
+	}
+
+	/* Determine if a link is active */
+	if ((reg & PHY_BMSR_LS) != 0) {
+		return (1);
+	} else {
+		return (0);
+	}
+}
+#endif
+
 #endif /* CONFIG_MII || (CONFIG_COMMANDS & CFG_CMD_MII) */

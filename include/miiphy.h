@@ -46,6 +46,9 @@ int  miiphy_info(unsigned char addr, unsigned int  *oui, unsigned char *model,
 int  miiphy_reset(unsigned char addr);
 int  miiphy_speed(unsigned char addr);
 int  miiphy_duplex(unsigned char addr);
+#ifdef CFG_FAULT_ECHO_LINK_DOWN
+int  miiphy_link(unsigned char addr);
+#endif
 
 
 /* phy seed setup */

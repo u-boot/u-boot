@@ -2,6 +2,25 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Patch by Sangmoon Kim, 23 Sep 2003:
+  fix pll_pci_to_mem_multiplier table for MPC8245
+
+* Patch by Anders Larsen, 22 Sep 2003:
+  enable timed autoboot on PXA
+
+* Patch by David Müller, 22 Sep 2003:
+
+  - add $(CFLAGS) to "-print-libgcc-filename" so compiler driver
+    returns correct libgcc file path
+  - "latency" reduction of busy-loop waiting to improve "U-Boot" boot
+    time on s3c24x0 systems
+
+* Patch by Jon Diekema, 19 Sep 2003:
+  - Add CFG_FAULT_ECHO_LINK_DOWN option to echo the inverted Ethernet
+    link state to the fault LED.
+  - In NetLoop, make the Fault LED reflect the link status.  The link
+    status gets updated on entry, and on timeouts.
+     
 * Patch by Anders Larsen, 18 Sep 2003:
   allow mkimage to build and run on Cygwin-hosted systems
 
