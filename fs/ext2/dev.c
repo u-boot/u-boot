@@ -33,7 +33,6 @@
 static block_dev_desc_t *ext2fs_block_dev_desc;
 static disk_partition_t part_info;
 
-#undef DEBUG
 int ext2fs_set_blk_dev (block_dev_desc_t * rbdd, int part)
 {
 	ext2fs_block_dev_desc = rbdd;
@@ -74,9 +73,7 @@ int ext2fs_devread (int sector, int byte_offset, int byte_len, char *buf) {
 	sector += byte_offset >> SECTOR_BITS;
 	byte_offset &= SECTOR_SIZE - 1;
 
-#if defined(DEBUG)
-	printf (" <%d, %d, %d>\n", sector, byte_offset, byte_len);
-#endif
+	debug (" <%d, %d, %d>\n", sector, byte_offset, byte_len);
 
 	if (ext2fs_block_dev_desc == NULL) {
 		printf ("** Invalid Block Device Descriptor (NULL)\n");

@@ -80,11 +80,16 @@
  * Supported commands
  */
 #define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
+				CFG_CMD_EXT2	| \
+				CFG_CMD_FAT	| \
+				CFG_CMD_IDE	| \
 				CFG_CMD_PCI	| \
 				CFG_CMD_USB	)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
+
+#define	CONFIG_TIMESTAMP	1	/* Print image info with timestamp */
 
 #if (TEXT_BASE == 0xFFE00000)		/* Boot low */
 #   define CFG_LOWBOOT		1
@@ -280,5 +285,39 @@
 #define CONFIG_USB_CLOCK	0x00015555
 #define CONFIG_USB_CONFIG	0x00001000
 #define CONFIG_USB_STORAGE
+
+/*-----------------------------------------------------------------------
+ * IDE/ATA stuff Supports IDE harddisk
+ *-----------------------------------------------------------------------
+ */
+
+#undef  CONFIG_IDE_8xx_PCCARD		/* Use IDE with PC Card	Adapter	*/
+
+#undef	CONFIG_IDE_8xx_DIRECT		/* Direct IDE    not supported	*/
+#undef	CONFIG_IDE_LED			/* LED   for ide not supported	*/
+
+#define	CONFIG_IDE_RESET		/* reset for ide supported	*/
+#define CONFIG_IDE_PREINIT
+
+#define CFG_IDE_MAXBUS		1	/* max. 1 IDE bus		*/
+#define CFG_IDE_MAXDEVICE	2	/* max. 1 drive per IDE bus	*/
+
+#define CFG_ATA_IDE0_OFFSET	0x0000
+
+#define CFG_ATA_BASE_ADDR	MPC5XXX_ATA
+
+/* Offset for data I/O			*/
+#define CFG_ATA_DATA_OFFSET	(0x0060)
+
+/* Offset for normal register accesses	*/
+#define CFG_ATA_REG_OFFSET	(CFG_ATA_DATA_OFFSET)
+
+/* Offset for alternate registers	*/
+#define CFG_ATA_ALT_OFFSET	(0x005C)
+
+/* Interval between registers                                                */
+#define CFG_ATA_STRIDE          4
+
+#define CONFIG_ATAPI            1
 
 #endif /* __CONFIG_H */
