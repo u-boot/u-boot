@@ -874,7 +874,7 @@ jffs2_1pass_resolve_inode(struct b_lists * pL, u32 ino)
 	while (b2) {
 		jNode = (struct jffs2_raw_inode *) get_node_mem(b2->offset);
 		if (jNode->ino == jDirFoundIno) {
-			src = (unsigned char *) (b2->offset + sizeof(struct jffs2_raw_inode));
+			src = (unsigned char *)jNode + sizeof(struct jffs2_raw_inode);
 
 #if 0
 			putLabeledWord("\t\t dsize = ", jNode->dsize);

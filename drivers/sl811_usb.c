@@ -229,8 +229,8 @@ int usb_lowlevel_stop(void)
 int sl811_send_packet(int dir_to_host, int data1, __u8 *buffer, int len)
 {
 	__u8 ctrl = SL811_USB_CTRL_ARM | SL811_USB_CTRL_ENABLE;
-	__u16 status;
-	int err = 0;
+	__u16 status = 0;
+	int err = 0, timeout = get_timer(0) + 5*CFG_HZ;
 
 	if (len > 239)
 		return -1;
@@ -240,19 +240,26 @@ int sl811_send_packet(int dir_to_host, int data1, __u8 *buffer, int len)
 	if (data1)
 		ctrl |= SL811_USB_CTRL_TOGGLE_1;
 
-	sl811_write(SL811_ADDR_A, 0x10);
-	sl811_write(SL811_LEN_A, len);
-	if (!dir_to_host && len)
-		sl811_write_buf(0x10, buffer, len);
+	sl811_write(SL811_INTRSTS, 0xff);
 
 	while (err < 3) {
+		sl811_write(SL811_ADDR_A, 0x10);
+		sl811_write(SL811_LEN_A, len);
+		if (!dir_to_host && len)
+			sl811_write_buf(0x10, buffer, len);
+
 		if (sl811_read(SL811_SOFCNTDIV)*64 < len * 8 * 2)
 			ctrl |= SL811_USB_CTRL_SOF;
 		else
 			ctrl &= ~SL811_USB_CTRL_SOF;
+
 		sl811_write(SL811_CTRL_A, ctrl);
-		while (!(sl811_read(SL811_INTRSTS) & SL811_INTR_DONE_A))
-			; /* do nothing */
+ 		while (!(sl811_read(SL811_INTRSTS) & SL811_INTR_DONE_A)) {
+			if (timeout < get_timer(0)) {
+				printf("USB transmit timed out\n");
+				return -USB_ST_CRC_ERR;
+			}
+		}
 
 		sl811_write(SL811_INTRSTS, 0xff);
 		status = sl811_read(SL811_STS_A);
@@ -275,7 +282,16 @@ int sl811_send_packet(int dir_to_host, int data1, __u8 *buffer, int len)
 		err++;
 	}
 
-	return -1;
+	err = 0;
+
+	if (status & SL811_USB_STS_ERROR)
+		err |= USB_ST_BUF_ERR;
+	if (status & SL811_USB_STS_TIMEOUT)
+		err |= USB_ST_CRC_ERR;
+	if (status & SL811_USB_STS_STALL)
+		err |= USB_ST_STALLED;
+
+	return -err;
 }
 
 int submit_bulk_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
@@ -299,7 +315,7 @@ int submit_bulk_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 					    buf+done,
 					    max > len - done ? len - done : max);
 		if (res < 0) {
-			dev->status = res;
+			dev->status = -res;
 			return res;
 		}
 
@@ -345,8 +361,10 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 		while (done < len) {
 			int res = sl811_send_packet(dir_in, data1, buf+done,
 						    max > len - done ? len - done : max);
-			if (res < 0)
-				return res;
+			if (res < 0) {
+				dev->status = -res;
+				return 0;
+			}
 			done += res;
 
 			if (dir_in && res < max) /* short packet */
@@ -375,7 +393,7 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 int submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 		   int len, int interval)
 {
-	PDEBUG(7, "dev = %p pipe = %#lx buf = %p size = %d int = %d\n", dev, pipe,
+	PDEBUG(0, "dev = %p pipe = %#lx buf = %p size = %d int = %d\n", dev, pipe,
 	       buffer, len, interval);
 	return -1;
 }

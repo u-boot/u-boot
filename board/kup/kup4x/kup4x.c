@@ -115,7 +115,8 @@ int checkboard (void)
 {
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
-	uchar *latch, rev, mod;
+	volatile uchar *latch;
+	uchar rev, mod;
 
 	/*
 	 * Init ChipSelect #4 (CAN + HW-Latch)
@@ -123,7 +124,7 @@ int checkboard (void)
 	memctl->memc_or4 = 0xFFFF8926;
 	memctl->memc_br4 = 0x90000401;
 
-	latch = (uchar *) 0x90000200;
+	latch = (volatile uchar *) 0x90000200;
 	rev = (*latch & 0xF8) >> 3;
 	mod = (*latch & 0x03);
 	printf ("Board: KUP4X Rev %d.%d SN: %s\n", rev, mod,

@@ -1105,7 +1105,10 @@ int usb_stor_get_info(struct usb_device *dev,struct us_data *ss,block_dev_desc_t
 	unsigned long *capacity,*blksz;
 	ccb *pccb=&usb_ccb;
 
-	ss->transport_reset(ss);
+	/* For some mysterious reason the 256MB flash disk of Ours Technology, Inc
+	 * doesn't survive this reset */
+	if (dev->descriptor.idVendor != 0xea0 || dev->descriptor.idProduct != 0x6828)
+		ss->transport_reset(ss);
 	pccb->pdata=usb_stor_buf;
 
 	dev_desc->target=dev->devnum;

@@ -2042,1253 +2042,1238 @@ configurations; the following names are supported:
 	TQM850L_config		TQM855L_config		TQM860L_config
 	WALNUT405_config	ZPC1900_config
 
-	Note: for some board special configuration names may exist; check  if
-	      additional  information is available from the board vendor; for
-	      instance, the TQM8xxL systems run normally at 50 MHz and use  a
-	      SCC  for	10baseT	 ethernet; there are also systems with 80 MHz
-	      CPU clock, and an optional Fast Ethernet	module	is  available
-	      for  CPU's  with FEC. You can select such additional "features"
-	      when chosing the configuration, i. e.
-
-	      make TQM860L_config
-		- will configure for a plain TQM860L, i. e. 50MHz, no FEC
-
-	      make TQM860L_FEC_config
-		- will configure for a TQM860L at 50MHz with FEC for ethernet
-
-	      make TQM860L_80MHz_config
-		- will configure for a TQM860L at 80 MHz, with normal 10baseT
-		  interface
-
-	      make TQM860L_FEC_80MHz_config
-		- will configure for a TQM860L at 80 MHz with FEC for ethernet
-
-	      make TQM823L_LCD_config
-		- will configure for a TQM823L with U-Boot console on LCD
-
-	      make TQM823L_LCD_80MHz_config
-		- will configure for a TQM823L at 80 MHz with U-Boot console on LCD
-
-	      etc.
-
-
-	Finally, type "make all", and you should get some working U-Boot
-	images ready for download to / installation on your system:
-
-	- "u-boot.bin" is a raw binary image
-	- "u-boot" is an image in ELF binary format
-	- "u-boot.srec" is in Motorola S-Record format
-
-
-	Please be aware that the Makefiles assume you are using GNU make, so
-	for instance on NetBSD you might need to use "gmake" instead of
-	native "make".
-
-
-	If the system board that you have is not listed, then you will need
-	to port U-Boot to your hardware platform. To do this, follow these
-	steps:
-
-	1.  Add a new configuration option for your board to the toplevel
-	    "Makefile" and to the "MAKEALL" script, using the existing
-	    entries as examples. Note that here and at many other places
-	    boards and other names are listed in alphabetical sort order. Please
-	    keep this order.
-	2.  Create a new directory to hold your board specific code. Add any
-	    files you need. In your board directory, you will need at least
-	    the "Makefile", a "<board>.c", "flash.c" and "u-boot.lds".
-	3.  Create a new configuration file "include/configs/<board>.h" for
-	    your board
-	3.  If you're porting U-Boot to a new CPU, then also create a new
-	    directory to hold your CPU specific code. Add any files you need.
-	4.  Run "make <board>_config" with your new name.
-	5.  Type "make", and you should get a working "u-boot.srec" file
-	    to be installed on your target system.
-	6.  Debug and solve any problems that might arise.
-	    [Of course, this last step is much harder than it sounds.]
-
-
-	Testing of U-Boot Modifications, Ports to New Hardware, etc.:
-	==============================================================
-
-	If you have modified U-Boot sources (for instance added a new	board
-	or  support  for  new  devices,	 a new CPU, etc.) you are expected to
-	provide feedback to the other developers. The feedback normally takes
-	the form of a "patch", i. e. a context diff against a certain (latest
-	official or latest in CVS) version of U-Boot sources.
-
-	But before you submit such a patch, please verify that	your  modifi-
-	cation	did not break existing code. At least make sure that *ALL* of
-	the supported boards compile WITHOUT ANY compiler warnings. To do so,
-	just run the "MAKEALL" script, which will configure and build U-Boot
-	for ALL supported system. Be warned, this will take a while. You  can
-	select	which  (cross)	compiler  to use by passing a `CROSS_COMPILE'
-	environment variable to the script, i. e. to use the cross tools from
-	MontaVista's Hard Hat Linux you can type
-
-		CROSS_COMPILE=ppc_8xx- MAKEALL
-
-	or to build on a native PowerPC system you can type
-
-		CROSS_COMPILE=' ' MAKEALL
-
-	See also "U-Boot Porting Guide" below.
-
-
-	Monitor Commands - Overview:
-	============================
-
-	go	- start application at address 'addr'
-	run	- run commands in an environment variable
-	bootm	- boot application image from memory
-	bootp	- boot image via network using BootP/TFTP protocol
-	tftpboot- boot image via network using TFTP protocol
-		       and env variables "ipaddr" and "serverip"
-		       (and eventually "gatewayip")
-	rarpboot- boot image via network using RARP/TFTP protocol
-	diskboot- boot from IDE devicebootd   - boot default, i.e., run 'bootcmd'
-	loads	- load S-Record file over serial line
-	loadb	- load binary file over serial line (kermit mode)
-	md	- memory display
-	mm	- memory modify (auto-incrementing)
-	nm	- memory modify (constant address)
-	mw	- memory write (fill)
-	cp	- memory copy
-	cmp	- memory compare
-	crc32	- checksum calculation
-	imd	- i2c memory display
-	imm	- i2c memory modify (auto-incrementing)
-	inm	- i2c memory modify (constant address)
-	imw	- i2c memory write (fill)
-	icrc32	- i2c checksum calculation
-	iprobe	- probe to discover valid I2C chip addresses
-	iloop	- infinite loop on address range
-	isdram	- print SDRAM configuration information
-	sspi	- SPI utility commands
-	base	- print or set address offset
-	printenv- print environment variables
-	setenv	- set environment variables
-	saveenv - save environment variables to persistent storage
-	protect - enable or disable FLASH write protection
-	erase	- erase FLASH memory
-	flinfo	- print FLASH memory information
-	bdinfo	- print Board Info structure
-	iminfo	- print header information for application image
-	coninfo - print console devices and informations
-	ide	- IDE sub-system
-	loop	- infinite loop on address range
-	mtest	- simple RAM test
-	icache	- enable or disable instruction cache
-	dcache	- enable or disable data cache
-	reset	- Perform RESET of the CPU
-	echo	- echo args to console
-	version - print monitor version
-	help	- print online help
-	?	- alias for 'help'
-
-
-	Monitor Commands - Detailed Description:
-	========================================
-
-	TODO.
-
-	For now: just type "help <command>".
-
-
-	Environment Variables:
-	======================
-
-	U-Boot supports user configuration using Environment Variables which
-	can be made persistent by saving to Flash memory.
-
-	Environment Variables are set using "setenv", printed using
-	"printenv", and saved to Flash using "saveenv". Using "setenv"
-	without a value can be used to delete a variable from the
-	environment. As long as you don't save the environment you are
-	working with an in-memory copy. In case the Flash area containing the
-	environment is erased by accident, a default environment is provided.
-
-	Some configuration options can be set using Environment Variables:
-
-	  baudrate	- see CONFIG_BAUDRATE
-
-	  bootdelay	- see CONFIG_BOOTDELAY
-
-	  bootcmd	- see CONFIG_BOOTCOMMAND
-
-	  bootargs	- Boot arguments when booting an RTOS image
-
-	  bootfile	- Name of the image to load with TFTP
-
-	  autoload	- if set to "no" (any string beginning with 'n'),
-			  "bootp" will just load perform a lookup of the
-			  configuration from the BOOTP server, but not try to
-			  load any image using TFTP
-
-	  autostart	- if set to "yes", an image loaded using the "bootp",
-			  "rarpboot", "tftpboot" or "diskboot" commands will
-			  be automatically started (by internally calling
-			  "bootm")
-
-			  If set to "no", a standalone image passed to the
-			  "bootm" command will be copied to the load address
-			  (and eventually uncompressed), but NOT be started.
-			  This can be used to load and uncompress arbitrary
-			  data.
-
-	  initrd_high	- restrict positioning of initrd images:
-			  If this variable is not set, initrd images will be
-			  copied to the highest possible address in RAM; this
-			  is usually what you want since it allows for
-			  maximum initrd size. If for some reason you want to
-			  make sure that the initrd image is loaded below the
-			  CFG_BOOTMAPSZ limit, you can set this environment
-			  variable to a value of "no" or "off" or "0".
-			  Alternatively, you can set it to a maximum upper
-			  address to use (U-Boot will still check that it
-			  does not overwrite the U-Boot stack and data).
-
-			  For instance, when you have a system with 16 MB
-			  RAM, and want to reserve 4 MB from use by Linux,
-			  you can do this by adding "mem=12M" to the value of
-			  the "bootargs" variable. However, now you must make
-			  sure that the initrd image is placed in the first
-			  12 MB as well - this can be done with
-
-			  setenv initrd_high 00c00000
-
-			  If you set initrd_high to 0xFFFFFFFF, this is an
-			  indication to U-Boot that all addresses are legal
-			  for the Linux kernel, including addresses in flash
-			  memory. In this case U-Boot will NOT COPY the
-			  ramdisk at all. This may be useful to reduce the
-			  boot time on your system, but requires that this
-			  feature is supported by your Linux kernel.
-
-	  ipaddr	- IP address; needed for tftpboot command
-
-	  loadaddr	- Default load address for commands like "bootp",
-			  "rarpboot", "tftpboot", "loadb" or "diskboot"
-
-	  loads_echo	- see CONFIG_LOADS_ECHO
-
-	  serverip	- TFTP server IP address; needed for tftpboot command
-
-	  bootretry	- see CONFIG_BOOT_RETRY_TIME
-
-	  bootdelaykey	- see CONFIG_AUTOBOOT_DELAY_STR
-
-	  bootstopkey	- see CONFIG_AUTOBOOT_STOP_STR
-
-	  ethprime	- When CONFIG_NET_MULTI is enabled controls which
-			  interface is used first.
-
-	  ethact	- When CONFIG_NET_MULTI is enabled controls which
-			  interface is currently active. For example you
-			  can do the following
-
-			  => setenv ethact FEC ETHERNET
-			  => ping 192.168.0.1 # traffic sent on FEC ETHERNET
-			  => setenv ethact SCC ETHERNET
-			  => ping 10.0.0.1 # traffic sent on SCC ETHERNET
-
-	   netretry	- When set to "no" each network operation will
-			  either succeed or fail without retrying.
-			  When set to "once" the network operation will
-			  fail when all the available network interfaces
-			  are tried once without success.
-			  Useful on scripts which control the retry operation
-			  themselves.
-
-	   vlan		- When set to a value < 4095 the traffic over
-			  ethernet is encapsulated/received over 802.1q
-			  VLAN tagged frames.
-
-	The following environment variables may be used and automatically
-	updated by the network boot commands ("bootp" and "rarpboot"),
-	depending the information provided by your boot server:
-
-	  bootfile	- see above
-	  dnsip		- IP address of your Domain Name Server
-	  dnsip2	- IP address of your secondary Domain Name Server
-	  gatewayip	- IP address of the Gateway (Router) to use
-	  hostname	- Target hostname
-	  ipaddr	- see above
-	  netmask	- Subnet Mask
-	  rootpath	- Pathname of the root filesystem on the NFS server
-	  serverip	- see above
-
-
-	There are two special Environment Variables:
-
-	  serial#	- contains hardware identification information such
-			  as type string and/or serial number
-	  ethaddr	- Ethernet address
-
-	These variables can be set only once (usually during manufacturing of
-	the board). U-Boot refuses to delete or overwrite these variables
-	once they have been set once.
-
-
-	Further special Environment Variables:
-
-	  ver		- Contains the U-Boot version string as printed
-			  with the "version" command. This variable is
-			  readonly (see CONFIG_VERSION_VARIABLE).
-
-
-	Please note that changes to some configuration parameters may take
-	only effect after the next boot (yes, that's just like Windoze :-).
-
-
-	Command Line Parsing:
-	=====================
-
-	There are two different command line parsers available with U-Boot:
-	the old "simple" one, and the much more powerful "hush" shell:
-
-	Old, simple command line parser:
-	--------------------------------
-
-	- supports environment variables (through setenv / saveenv commands)
-	- several commands on one line, separated by ';'
-	- variable substitution using "... $(name) ..." syntax
-	- special characters ('$', ';') can be escaped by prefixing with '\',
-	  for example:
-		setenv bootcmd bootm \$(address)
-	- You can also escape text by enclosing in single apostrophes, for example:
-		setenv addip 'setenv bootargs $bootargs ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname::off'
-
-	Hush shell:
-	-----------
-
-	- similar to Bourne shell, with control structures like
-	  if...then...else...fi, for...do...done; while...do...done,
-	  until...do...done, ...
-	- supports environment ("global") variables (through setenv / saveenv
-	  commands) and local shell variables (through standard shell syntax
-	  "name=value"); only environment variables can be used with "run"
-	  command
-
-	General rules:
-	--------------
-
-	(1) If a command line (or an environment variable executed by a "run"
-	    command) contains several commands separated by semicolon, and
-	    one of these commands fails, then the remaining commands will be
-	    executed anyway.
-
-	(2) If you execute several variables with one call to run (i. e.
-	    calling run with a list af variables as arguments), any failing
-	    command will cause "run" to terminate, i. e. the remaining
-	    variables are not executed.
-
-	Note for Redundant Ethernet Interfaces:
-	=======================================
-
-	Some boards come with redundant ethernet interfaces; U-Boot supports
-	such configurations and is capable of automatic selection of a
-	"working" interface when needed. MAC assignment works as follows:
-
-	Network interfaces are numbered eth0, eth1, eth2, ... Corresponding
-	MAC addresses can be stored in the environment as "ethaddr" (=>eth0),
-	"eth1addr" (=>eth1), "eth2addr", ...
-
-	If the network interface stores some valid MAC address (for instance
-	in SROM), this is used as default address if there is NO correspon-
-	ding setting in the environment; if the corresponding environment
-	variable is set, this overrides the settings in the card; that means:
-
-	o If the SROM has a valid MAC address, and there is no address in the
-	  environment, the SROM's address is used.
-
-	o If there is no valid address in the SROM, and a definition in the
-	  environment exists, then the value from the environment variable is
-	  used.
-
-	o If both the SROM and the environment contain a MAC address, and
-	  both addresses are the same, this MAC address is used.
-
-	o If both the SROM and the environment contain a MAC address, and the
-	  addresses differ, the value from the environment is used and a
-	  warning is printed.
-
-	o If neither SROM nor the environment contain a MAC address, an error
-	  is raised.
-
-
-	Image Formats:
-	==============
-
-	The "boot" commands of this monitor operate on "image" files which
-	can be basicly anything, preceeded by a special header; see the
-	definitions in include/image.h for details; basicly, the header
-	defines the following image properties:
-
-	* Target Operating System (Provisions for OpenBSD, NetBSD, FreeBSD,
-	  4.4BSD, Linux, SVR4, Esix, Solaris, Irix, SCO, Dell, NCR, VxWorks,
-	  LynxOS, pSOS, QNX, RTEMS, ARTOS;
-	  Currently supported: Linux, NetBSD, VxWorks, QNX, RTEMS, ARTOS, LynxOS).
-	* Target CPU Architecture (Provisions for Alpha, ARM, Intel x86,
-	  IA64, MIPS, NIOS, PowerPC, IBM S390, SuperH, Sparc, Sparc 64 Bit;
-	  Currently supported: ARM, Intel x86, MIPS, NIOS, PowerPC).
-	* Compression Type (uncompressed, gzip, bzip2)
-	* Load Address
-	* Entry Point
-	* Image Name
-	* Image Timestamp
-
-	The header is marked by a special Magic Number, and both the header
-	and the data portions of the image are secured against corruption by
-	CRC32 checksums.
-
-
-	Linux Support:
-	==============
-
-	Although U-Boot should support any OS or standalone application
-	easily, the main focus has always been on Linux during the design of
-	U-Boot.
-
-	U-Boot includes many features that so far have been part of some
-	special "boot loader" code within the Linux kernel. Also, any
-	"initrd" images to be used are no longer part of one big Linux image;
-	instead, kernel and "initrd" are separate images. This implementation
-	serves several purposes:
-
-	- the same features can be used for other OS or standalone
-	  applications (for instance: using compressed images to reduce the
-	  Flash memory footprint)
-
-	- it becomes much easier to port new Linux kernel versions because
-	  lots of low-level, hardware dependent stuff are done by U-Boot
-
-	- the same Linux kernel image can now be used with different "initrd"
-	  images; of course this also means that different kernel images can
-	  be run with the same "initrd". This makes testing easier (you don't
-	  have to build a new "zImage.initrd" Linux image when you just
-	  change a file in your "initrd"). Also, a field-upgrade of the
-	  software is easier now.
-
-
-	Linux HOWTO:
-	============
-
-	Porting Linux to U-Boot based systems:
-	---------------------------------------
-
-	U-Boot cannot save you from doing all the necessary modifications to
-	configure the Linux device drivers for use with your target hardware
-	(no, we don't intend to provide a full virtual machine interface to
-	Linux :-).
-
-	But now you can ignore ALL boot loader code (in arch/ppc/mbxboot).
-
-	Just make sure your machine specific header file (for instance
-	include/asm-ppc/tqm8xx.h) includes the same definition of the Board
-	Information structure as we define in include/u-boot.h, and make
-	sure that your definition of IMAP_ADDR uses the same value as your
-	U-Boot configuration in CFG_IMMR.
-
-
-	Configuring the Linux kernel:
-	-----------------------------
-
-	No specific requirements for U-Boot. Make sure you have some root
-	device (initial ramdisk, NFS) for your target system.
-
-
-	Building a Linux Image:
-	-----------------------
-
-	With U-Boot, "normal" build targets like "zImage" or "bzImage" are
-	not used. If you use recent kernel source, a new build target
-	"uImage" will exist which automatically builds an image usable by
-	U-Boot. Most older kernels also have support for a "pImage" target,
-	which was introduced for our predecessor project PPCBoot and uses a
-	100% compatible format.
-
-	Example:
-
-		make TQM850L_config
-		make oldconfig
-		make dep
-		make uImage
-
-	The "uImage" build target uses a special tool (in 'tools/mkimage') to
-	encapsulate a compressed Linux kernel image with header	 information,
-	CRC32 checksum etc. for use with U-Boot. This is what we are doing:
-
-	* build a standard "vmlinux" kernel image (in ELF binary format):
-
-	* convert the kernel into a raw binary image:
-
-		${CROSS_COMPILE}-objcopy -O binary \
-					 -R .note -R .comment \
-					 -S vmlinux linux.bin
-
-	* compress the binary image:
-
-		gzip -9 linux.bin
-
-	* package compressed binary image for U-Boot:
-
-		mkimage -A ppc -O linux -T kernel -C gzip \
-			-a 0 -e 0 -n "Linux Kernel Image" \
-			-d linux.bin.gz uImage
-
-
-	The "mkimage" tool can also be used to create ramdisk images for use
-	with U-Boot, either separated from the Linux kernel image, or
-	combined into one file. "mkimage" encapsulates the images with a 64
-	byte header containing information about target architecture,
-	operating system, image type, compression method, entry points, time
-	stamp, CRC32 checksums, etc.
-
-	"mkimage" can be called in two ways: to verify existing images and
-	print the header information, or to build new images.
-
-	In the first form (with "-l" option) mkimage lists the information
-	contained in the header of an existing U-Boot image; this includes
-	checksum verification:
-
-		tools/mkimage -l image
-		  -l ==> list image header information
-
-	The second form (with "-d" option) is used to build a U-Boot image
-	from a "data file" which is used as image payload:
-
-		tools/mkimage -A arch -O os -T type -C comp -a addr -e ep \
-			      -n name -d data_file image
-		  -A ==> set architecture to 'arch'
-		  -O ==> set operating system to 'os'
-		  -T ==> set image type to 'type'
-		  -C ==> set compression type 'comp'
-		  -a ==> set load address to 'addr' (hex)
-		  -e ==> set entry point to 'ep' (hex)
-		  -n ==> set image name to 'name'
-		  -d ==> use image data from 'datafile'
-
-	Right now, all Linux kernels use the same load address	(0x00000000),
-	but the entry point address depends on the kernel version:
-
-	- 2.2.x kernels have the entry point at 0x0000000C,
-	- 2.3.x and later kernels have the entry point at 0x00000000.
-
-	So a typical call to build a U-Boot image would read:
-
-		-> tools/mkimage -n '2.4.4 kernel for TQM850L' \
-		> -A ppc -O linux -T kernel -C gzip -a 0 -e 0 \
-		> -d /opt/elsk/ppc_8xx/usr/src/linux-2.4.4/arch/ppc/coffboot/vmlinux.gz \
-		> examples/uImage.TQM850L
-		Image Name:   2.4.4 kernel for TQM850L
-		Created:      Wed Jul 19 02:34:59 2000
-		Image Type:   PowerPC Linux Kernel Image (gzip compressed)
-		Data Size:    335725 Bytes = 327.86 kB = 0.32 MB
-		Load Address: 0x00000000
-		Entry Point:  0x00000000
-
-	To verify the contents of the image (or check for corruption):
-
-		-> tools/mkimage -l examples/uImage.TQM850L
-		Image Name:   2.4.4 kernel for TQM850L
-		Created:      Wed Jul 19 02:34:59 2000
-		Image Type:   PowerPC Linux Kernel Image (gzip compressed)
-		Data Size:    335725 Bytes = 327.86 kB = 0.32 MB
-		Load Address: 0x00000000
-		Entry Point:  0x00000000
-
-	NOTE: for embedded systems where boot time is critical you can trade
-	speed for memory and install an UNCOMPRESSED image instead: this
-	needs more space in Flash, but boots much faster since it does not
-	need to be uncompressed:
-
-		-> gunzip /opt/elsk/ppc_8xx/usr/src/linux-2.4.4/arch/ppc/coffboot/vmlinux.gz
-		-> tools/mkimage -n '2.4.4 kernel for TQM850L' \
-		> -A ppc -O linux -T kernel -C none -a 0 -e 0 \
-		> -d /opt/elsk/ppc_8xx/usr/src/linux-2.4.4/arch/ppc/coffboot/vmlinux \
-		> examples/uImage.TQM850L-uncompressed
-		Image Name:   2.4.4 kernel for TQM850L
-		Created:      Wed Jul 19 02:34:59 2000
-		Image Type:   PowerPC Linux Kernel Image (uncompressed)
-		Data Size:    792160 Bytes = 773.59 kB = 0.76 MB
-		Load Address: 0x00000000
-		Entry Point:  0x00000000
-
-
-	Similar you can build U-Boot images from a 'ramdisk.image.gz' file
-	when your kernel is intended to use an initial ramdisk:
-
-		-> tools/mkimage -n 'Simple Ramdisk Image' \
-		> -A ppc -O linux -T ramdisk -C gzip \
-		> -d /LinuxPPC/images/SIMPLE-ramdisk.image.gz examples/simple-initrd
-		Image Name:   Simple Ramdisk Image
-		Created:      Wed Jan 12 14:01:50 2000
-		Image Type:   PowerPC Linux RAMDisk Image (gzip compressed)
-		Data Size:    566530 Bytes = 553.25 kB = 0.54 MB
-		Load Address: 0x00000000
-		Entry Point:  0x00000000
-
-
-	Installing a Linux Image:
-	-------------------------
-
-	To downloading a U-Boot image over the serial (console) interface,
-	you must convert the image to S-Record format:
-
-		objcopy -I binary -O srec examples/image examples/image.srec
-
-	The 'objcopy' does not understand the information in the U-Boot
-	image header, so the resulting S-Record file will be relative to
-	address 0x00000000. To load it to a given address, you need to
-	specify the target address as 'offset' parameter with the 'loads'
-	command.
-
-	Example: install the image to address 0x40100000 (which on the
-	TQM8xxL is in the first Flash bank):
-
-		=> erase 40100000 401FFFFF
-
-		.......... done
-		Erased 8 sectors
-
-		=> loads 40100000
-		## Ready for S-Record download ...
-		~>examples/image.srec
-		1 2 3 4 5 6 7 8 9 10 11 12 13 ...
-		...
-		15989 15990 15991 15992
-		[file transfer complete]
-		[connected]
-		## Start Addr = 0x00000000
-
-
-	You can check the success of the download using the 'iminfo' command;
-	this includes a checksum verification so you  can  be  sure  no	 data
-	corruption happened:
-
-		=> imi 40100000
-
-		## Checking Image at 40100000 ...
-		   Image Name:	 2.2.13 for initrd on TQM850L
-		   Image Type:	 PowerPC Linux Kernel Image (gzip compressed)
-		   Data Size:	 335725 Bytes = 327 kB = 0 MB
-		   Load Address: 00000000
-		   Entry Point:	 0000000c
-		   Verifying Checksum ... OK
-
-
-	Boot Linux:
-	-----------
-
-	The "bootm" command is used to boot an application that is stored in
-	memory (RAM or Flash). In case of a Linux kernel image, the contents
-	of the "bootargs" environment variable is passed to the kernel as
-	parameters. You can check and modify this variable using the
-	"printenv" and "setenv" commands:
-
-
-		=> printenv bootargs
-		bootargs=root=/dev/ram
-
-		=> setenv bootargs root=/dev/nfs rw nfsroot=10.0.0.2:/LinuxPPC nfsaddrs=10.0.0.99:10.0.0.2
-
-		=> printenv bootargs
-		bootargs=root=/dev/nfs rw nfsroot=10.0.0.2:/LinuxPPC nfsaddrs=10.0.0.99:10.0.0.2
-
-		=> bootm 40020000
-		## Booting Linux kernel at 40020000 ...
-		   Image Name:	 2.2.13 for NFS on TQM850L
-		   Image Type:	 PowerPC Linux Kernel Image (gzip compressed)
-		   Data Size:	 381681 Bytes = 372 kB = 0 MB
-		   Load Address: 00000000
-		   Entry Point:	 0000000c
-		   Verifying Checksum ... OK
-		   Uncompressing Kernel Image ... OK
-		Linux version 2.2.13 (wd@denx.local.net) (gcc version 2.95.2 19991024 (release)) #1 Wed Jul 19 02:35:17 MEST 2000
-		Boot arguments: root=/dev/nfs rw nfsroot=10.0.0.2:/LinuxPPC nfsaddrs=10.0.0.99:10.0.0.2
-		time_init: decrementer frequency = 187500000/60
-		Calibrating delay loop... 49.77 BogoMIPS
-		Memory: 15208k available (700k kernel code, 444k data, 32k init) [c0000000,c1000000]
-		...
-
-	If you want to boot a Linux kernel with initial ram disk, you pass
-	the memory addresses of both the kernel and the initrd image (PPBCOOT
-	format!) to the "bootm" command:
-
-		=> imi 40100000 40200000
-
-		## Checking Image at 40100000 ...
-		   Image Name:	 2.2.13 for initrd on TQM850L
-		   Image Type:	 PowerPC Linux Kernel Image (gzip compressed)
-		   Data Size:	 335725 Bytes = 327 kB = 0 MB
-		   Load Address: 00000000
-		   Entry Point:	 0000000c
-		   Verifying Checksum ... OK
-
-		## Checking Image at 40200000 ...
-		   Image Name:	 Simple Ramdisk Image
-		   Image Type:	 PowerPC Linux RAMDisk Image (gzip compressed)
-		   Data Size:	 566530 Bytes = 553 kB = 0 MB
-		   Load Address: 00000000
-		   Entry Point:	 00000000
-		   Verifying Checksum ... OK
-
-		=> bootm 40100000 40200000
-		## Booting Linux kernel at 40100000 ...
-		   Image Name:	 2.2.13 for initrd on TQM850L
-		   Image Type:	 PowerPC Linux Kernel Image (gzip compressed)
-		   Data Size:	 335725 Bytes = 327 kB = 0 MB
-		   Load Address: 00000000
-		   Entry Point:	 0000000c
-		   Verifying Checksum ... OK
-		   Uncompressing Kernel Image ... OK
-		## Loading RAMDisk Image at 40200000 ...
-		   Image Name:	 Simple Ramdisk Image
-		   Image Type:	 PowerPC Linux RAMDisk Image (gzip compressed)
-		   Data Size:	 566530 Bytes = 553 kB = 0 MB
-		   Load Address: 00000000
-		   Entry Point:	 00000000
-		   Verifying Checksum ... OK
-		   Loading Ramdisk ... OK
-		Linux version 2.2.13 (wd@denx.local.net) (gcc version 2.95.2 19991024 (release)) #1 Wed Jul 19 02:32:08 MEST 2000
-		Boot arguments: root=/dev/ram
-		time_init: decrementer frequency = 187500000/60
-		Calibrating delay loop... 49.77 BogoMIPS
-		...
-		RAMDISK: Compressed image found at block 0
-		VFS: Mounted root (ext2 filesystem).
-
-		bash#
-
-	More About U-Boot Image Types:
-	------------------------------
-
-	U-Boot supports the following image types:
-
-	   "Standalone Programs" are directly runnable in the environment
-		provided by U-Boot; it is expected that (if they behave
-		well) you can continue to work in U-Boot after return from
-		the Standalone Program.
-	   "OS Kernel Images" are usually images of some Embedded OS which
-		will take over control completely. Usually these programs
-		will install their own set of exception handlers, device
-		drivers, set up the MMU, etc. - this means, that you cannot
-		expect to re-enter U-Boot except by resetting the CPU.
-	   "RAMDisk Images" are more or less just data blocks, and their
-		parameters (address, size) are passed to an OS kernel that is
-		being started.
-	   "Multi-File Images" contain several images, typically an OS
-		(Linux) kernel image and one or more data images like
-		RAMDisks. This construct is useful for instance when you want
-		to boot over the network using BOOTP etc., where the boot
-		server provides just a single image file, but you want to get
-		for instance an OS kernel and a RAMDisk image.
-
-		"Multi-File Images" start with a list of image sizes, each
-		image size (in bytes) specified by an "uint32_t" in network
-		byte order. This list is terminated by an "(uint32_t)0".
-		Immediately after the terminating 0 follow the images, one by
-		one, all aligned on "uint32_t" boundaries (size rounded up to
-		a multiple of 4 bytes).
-
-	   "Firmware Images" are binary images containing firmware (like
-		U-Boot or FPGA images) which usually will be programmed to
-		flash memory.
-
-	   "Script files" are command sequences that will be executed by
-		U-Boot's command interpreter; this feature is especially
-		useful when you configure U-Boot to use a real shell (hush)
-		as command interpreter.
-
-
-	Standalone HOWTO:
-	=================
-
-	One of the features of U-Boot is that you can dynamically load and
-	run "standalone" applications, which can use some resources of
-	U-Boot like console I/O functions or interrupt services.
-
-	Two simple examples are included with the sources:
-
-	"Hello World" Demo:
-	-------------------
-
-	'examples/hello_world.c' contains a small "Hello World" Demo
-	application; it is automatically compiled when you build U-Boot.
-	It's configured to run at address 0x00040004, so you can play with it
-	like that:
-
-		=> loads
-		## Ready for S-Record download ...
-		~>examples/hello_world.srec
-		1 2 3 4 5 6 7 8 9 10 11 ...
-		[file transfer complete]
-		[connected]
-		## Start Addr = 0x00040004
-
-		=> go 40004 Hello World! This is a test.
-		## Starting application at 0x00040004 ...
-		Hello World
-		argc = 7
-		argv[0] = "40004"
-		argv[1] = "Hello"
-		argv[2] = "World!"
-		argv[3] = "This"
-		argv[4] = "is"
-		argv[5] = "a"
-		argv[6] = "test."
-		argv[7] = "<NULL>"
-		Hit any key to exit ...
-
-		## Application terminated, rc = 0x0
-
-	Another example, which demonstrates how to register a CPM interrupt
-	handler with the U-Boot code, can be found in 'examples/timer.c'.
-	Here, a CPM timer is set up to generate an interrupt every second.
-	The interrupt service routine is trivial, just printing a '.'
-	character, but this is just a demo program. The application can be
-	controlled by the following keys:
-
-		? - print current values og the CPM Timer registers
-		b - enable interrupts and start timer
-		e - stop timer and disable interrupts
-		q - quit application
-
-		=> loads
-		## Ready for S-Record download ...
-		~>examples/timer.srec
-		1 2 3 4 5 6 7 8 9 10 11 ...
-		[file transfer complete]
-		[connected]
-		## Start Addr = 0x00040004
-
-		=> go 40004
-		## Starting application at 0x00040004 ...
-		TIMERS=0xfff00980
-		Using timer 1
-		  tgcr @ 0xfff00980, tmr @ 0xfff00990, trr @ 0xfff00994, tcr @ 0xfff00998, tcn @ 0xfff0099c, ter @ 0xfff009b0
-
-	Hit 'b':
-		[q, b, e, ?] Set interval 1000000 us
-		Enabling timer
-	Hit '?':
-		[q, b, e, ?] ........
-		tgcr=0x1, tmr=0xff1c, trr=0x3d09, tcr=0x0, tcn=0xef6, ter=0x0
-	Hit '?':
-		[q, b, e, ?] .
-		tgcr=0x1, tmr=0xff1c, trr=0x3d09, tcr=0x0, tcn=0x2ad4, ter=0x0
-	Hit '?':
-		[q, b, e, ?] .
-		tgcr=0x1, tmr=0xff1c, trr=0x3d09, tcr=0x0, tcn=0x1efc, ter=0x0
-	Hit '?':
-		[q, b, e, ?] .
-		tgcr=0x1, tmr=0xff1c, trr=0x3d09, tcr=0x0, tcn=0x169d, ter=0x0
-	Hit 'e':
-		[q, b, e, ?] ...Stopping timer
-	Hit 'q':
-		[q, b, e, ?] ## Application terminated, rc = 0x0
-
-
-	Minicom warning:
-	================
-
-	Over time, many people have reported problems when trying to use the
-	"minicom" terminal emulation program for serial download. I (wd)
-	consider minicom to be broken, and recommend not to use it. Under
-	Unix, I recommend to use C-Kermit for general purpose use (and
-	especially for kermit binary protocol download ("loadb" command), and
-	use "cu" for S-Record download ("loads" command).
-
-	Nevertheless, if you absolutely want to use it try adding this
-	configuration to your "File transfer protocols" section:
-
-		   Name	   Program			Name U/D FullScr IO-Red. Multi
-		X  kermit  /usr/bin/kermit -i -l %l -s	 Y    U	   Y	   N	  N
-		Y  kermit  /usr/bin/kermit -i -l %l -r	 N    D	   Y	   N	  N
-
-
-	NetBSD Notes:
-	=============
-
-	Starting at version 0.9.2, U-Boot supports NetBSD both as host
-	(build U-Boot) and target system (boots NetBSD/mpc8xx).
-
-	Building requires a cross environment; it is known to work on
-	NetBSD/i386 with the cross-powerpc-netbsd-1.3 package (you will also
-	need gmake since the Makefiles are not compatible with BSD make).
-	Note that the cross-powerpc package does not install include files;
-	attempting to build U-Boot will fail because <machine/ansi.h> is
-	missing.  This file has to be installed and patched manually:
-
-		# cd /usr/pkg/cross/powerpc-netbsd/include
-		# mkdir powerpc
-		# ln -s powerpc machine
-		# cp /usr/src/sys/arch/powerpc/include/ansi.h powerpc/ansi.h
-		# ${EDIT} powerpc/ansi.h	## must remove __va_list, _BSD_VA_LIST
-
-	Native builds *don't* work due to incompatibilities between native
-	and U-Boot include files.
-
-	Booting assumes that (the first part of) the image booted is a
-	stage-2 loader which in turn loads and then invokes the kernel
-	proper. Loader sources will eventually appear in the NetBSD source
-	tree (probably in sys/arc/mpc8xx/stand/u-boot_stage2/); in the
-	meantime, send mail to bruno@exet-ag.de and/or wd@denx.de for
-	details.
-
-
-	Implementation Internals:
-	=========================
-
-	The following is not intended to be a complete description of every
-	implementation detail. However, it should help to understand the
-	inner workings of U-Boot and make it easier to port it to custom
-	hardware.
-
-
-	Initial Stack, Global Data:
-	---------------------------
-
-	The implementation of U-Boot is complicated by the fact that U-Boot
-	starts running out of ROM (flash memory), usually without access to
-	system RAM (because the memory controller is not initialized yet).
-	This means that we don't have writable Data or BSS segments, and BSS
-	is not initialized as zero. To be able to get a C environment working
-	at all, we have to allocate at least a minimal stack. Implementation
-	options for this are defined and restricted by the CPU used: Some CPU
-	models provide on-chip memory (like the IMMR area on MPC8xx and
-	MPC826x processors), on others (parts of) the data cache can be
-	locked as (mis-) used as memory, etc.
-
-		Chris Hallinan posted a good summary of	 these	issues	to  the
-		u-boot-users mailing list:
-
-		Subject: RE: [U-Boot-Users] RE: More On Memory Bank x (nothingness)?
-		From: "Chris Hallinan" <clh@net1plus.com>
-		Date: Mon, 10 Feb 2003 16:43:46 -0500 (22:43 MET)
-		...
-
-		Correct me if I'm wrong, folks, but the way I understand it
-		is this: Using DCACHE as initial RAM for Stack, etc, does not
-		require any physical RAM backing up the cache. The cleverness
-		is that the cache is being used as a temporary supply of
-		necessary storage before the SDRAM controller is setup. It's
-		beyond the scope of this list to expain the details, but you
-		can see how this works by studying the cache architecture and
-		operation in the architecture and processor-specific manuals.
-
-		OCM is On Chip Memory, which I believe the 405GP has 4K. It
-		is another option for the system designer to use as an
-		initial stack/ram area prior to SDRAM being available. Either
-		option should work for you. Using CS 4 should be fine if your
-		board designers haven't used it for something that would
-		cause you grief during the initial boot! It is frequently not
-		used.
-
-		CFG_INIT_RAM_ADDR should be somewhere that won't interfere
-		with your processor/board/system design. The default value
-		you will find in any recent u-boot distribution in
-		Walnut405.h should work for you. I'd set it to a value larger
-		than your SDRAM module. If you have a 64MB SDRAM module, set
-		it above 400_0000. Just make sure your board has no resources
-		that are supposed to respond to that address! That code in
-		start.S has been around a while and should work as is when
-		you get the config right.
-
-		-Chris Hallinan
-		DS4.COM, Inc.
-
-	It is essential to remember this, since it has some impact on the C
-	code for the initialization procedures:
-
-	* Initialized global data (data segment) is read-only. Do not attempt
-	  to write it.
-
-	* Do not use any unitialized global data (or implicitely initialized
-	  as zero data - BSS segment) at all - this is undefined, initiali-
-	  zation is performed later (when relocating to RAM).
-
-	* Stack space is very limited. Avoid big data buffers or things like
-	  that.
-
-	Having only the stack as writable memory limits means we cannot use
-	normal global data to share information beween the code. But it
-	turned out that the implementation of U-Boot can be greatly
-	simplified by making a global data structure (gd_t) available to all
-	functions. We could pass a pointer to this data as argument to _all_
-	functions, but this would bloat the code. Instead we use a feature of
-	the GCC compiler (Global Register Variables) to share the data: we
-	place a pointer (gd) to the global data into a register which we
-	reserve for this purpose.
-
-	When choosing a register for such a purpose we are restricted by the
-	relevant  (E)ABI  specifications for the current architecture, and by
-	GCC's implementation.
-
-	For PowerPC, the following registers have specific use:
-		R1:	stack pointer
-		R2:	TOC pointer
-		R3-R4:	parameter passing and return values
-		R5-R10: parameter passing
-		R13:	small data area pointer
-		R30:	GOT pointer
-		R31:	frame pointer
-
-		(U-Boot also uses R14 as internal GOT pointer.)
-
-	    ==> U-Boot will use R29 to hold a pointer to the global data
-
-	    Note: on PPC, we could use a static initializer (since the
-	    address of the global data structure is known at compile time),
-	    but it turned out that reserving a register results in somewhat
-	    smaller code - although the code savings are not that big (on
-	    average for all boards 752 bytes for the whole U-Boot image,
-	    624 text + 127 data).
-
-	On ARM, the following registers are used:
-
-		R0:	function argument word/integer result
-		R1-R3:	function argument word
-		R9:	GOT pointer
-		R10:	stack limit (used only if stack checking if enabled)
-		R11:	argument (frame) pointer
-		R12:	temporary workspace
-		R13:	stack pointer
-		R14:	link register
-		R15:	program counter
-
-	    ==> U-Boot will use R8 to hold a pointer to the global data
-
-
-	Memory Management:
-	------------------
-
-	U-Boot runs in system state and uses physical addresses, i.e. the
-	MMU is not used either for address mapping nor for memory protection.
-
-	The available memory is mapped to fixed addresses using the memory
-	controller. In this process, a contiguous block is formed for each
-	memory type (Flash, SDRAM, SRAM), even when it consists of several
-	physical memory banks.
-
-	U-Boot is installed in the first 128 kB of the first Flash bank (on
-	TQM8xxL modules this is the range 0x40000000 ... 0x4001FFFF). After
-	booting and sizing and initializing DRAM, the code relocates itself
-	to the upper end of DRAM. Immediately below the U-Boot code some
-	memory is reserved for use by malloc() [see CFG_MALLOC_LEN
-	configuration setting]. Below that, a structure with global Board
-	Info data is placed, followed by the stack (growing downward).
-
-	Additionally, some exception handler code is copied to the low 8 kB
-	of DRAM (0x00000000 ... 0x00001FFF).
-
-	So a typical memory configuration with 16 MB of DRAM could look like
-	this:
-
-		0x0000 0000	Exception Vector code
-		      :
-		0x0000 1FFF
-		0x0000 2000	Free for Application Use
-		      :
-		      :
-
-		      :
-		      :
-		0x00FB FF20	Monitor Stack (Growing downward)
-		0x00FB FFAC	Board Info Data and permanent copy of global data
-		0x00FC 0000	Malloc Arena
-		      :
-		0x00FD FFFF
-		0x00FE 0000	RAM Copy of Monitor Code
-		...		eventually: LCD or video framebuffer
-		...		eventually: pRAM (Protected RAM - unchanged by reset)
-		0x00FF FFFF	[End of RAM]
-
-
-	System Initialization:
-	----------------------
-
-	In the reset configuration, U-Boot starts at the reset entry point
-	(on most PowerPC systens at address 0x00000100). Because of the reset
-	configuration for CS0# this is a mirror of the onboard Flash memory.
-	To be able to re-map memory U-Boot then jumps to its link address.
-	To be able to implement the initialization code in C, a (small!)
-	initial stack is set up in the internal Dual Ported RAM (in case CPUs
-	which provide such a feature like MPC8xx or MPC8260), or in a locked
-	part of the data cache. After that, U-Boot initializes the CPU core,
-	the caches and the SIU.
-
-	Next, all (potentially) available memory banks are mapped using a
-	preliminary mapping. For example, we put them on 512 MB boundaries
-	(multiples of 0x20000000: SDRAM on 0x00000000 and 0x20000000, Flash
-	on 0x40000000 and 0x60000000, SRAM on 0x80000000). Then UPM A is
-	programmed for SDRAM access. Using the temporary configuration, a
-	simple memory test is run that determines the size of the SDRAM
-	banks.
-
-	When there is more than one SDRAM bank, and the banks are of
-	different size, the largest is mapped first. For equal size, the first
-	bank (CS2#) is mapped first. The first mapping is always for address
-	0x00000000, with any additional banks following immediately to create
-	contiguous memory starting from 0.
-
-	Then, the monitor installs itself at the upper end of the SDRAM area
-	and allocates memory for use by malloc() and for the global Board
-	Info data; also, the exception vector code is copied to the low RAM
-	pages, and the final stack is set up.
-
-	Only after this relocation will you have a "normal" C environment;
-	until that you are restricted in several ways, mostly because you are
-	running from ROM, and because the code will have to be relocated to a
-	new address in RAM.
-
-
-	U-Boot Porting Guide:
-	----------------------
-
-	[Based on messages by Jerry Van Baren in the U-Boot-Users mailing
-	list, October 2002]
-
-
-	int main (int argc, char *argv[])
-	{
-		sighandler_t no_more_time;
-
-		signal (SIGALRM, no_more_time);
-		alarm (PROJECT_DEADLINE - toSec (3 * WEEK));
-
-		if (available_money > available_manpower) {
-			pay consultant to port U-Boot;
-			return 0;
-		}
-
-		Download latest U-Boot source;
-
-		Subscribe to u-boot-users mailing list;
-
-		if (clueless) {
-			email ("Hi, I am new to U-Boot, how do I get started?");
-		}
-
-		while (learning) {
-			Read the README file in the top level directory;
-			Read http://www.denx.de/twiki/bin/view/DULG/Manual ;
-			Read the source, Luke;
-		}
-
-		if (available_money > toLocalCurrency ($2500)) {
-			Buy a BDI2000;
-		} else {
-			Add a lot of aggravation and time;
-		}
-
-		Create your own board support subdirectory;
-
-		Create your own board config file;
-
-		while (!running) {
-			do {
-				Add / modify source code;
-			} until (compiles);
-			Debug;
-			if (clueless)
-				email ("Hi, I am having problems...");
-		}
-		Send patch file to Wolfgang;
+Note: for some board special configuration names may exist; check if
+      additional information is available from the board vendor; for
+      instance, the TQM823L systems are available without (standard)
+      or with LCD support. You can select such additional "features"
+      when chosing the configuration, i. e.
+
+      make TQM823L_config
+	- will configure for a plain TQM823L, i. e. no LCD support
+
+      make TQM823L_LCD_config
+	- will configure for a TQM823L with U-Boot console on LCD
+
+      etc.
+
+
+Finally, type "make all", and you should get some working U-Boot
+images ready for download to / installation on your system:
+
+- "u-boot.bin" is a raw binary image
+- "u-boot" is an image in ELF binary format
+- "u-boot.srec" is in Motorola S-Record format
+
+
+Please be aware that the Makefiles assume you are using GNU make, so
+for instance on NetBSD you might need to use "gmake" instead of
+native "make".
+
+
+If the system board that you have is not listed, then you will need
+to port U-Boot to your hardware platform. To do this, follow these
+steps:
+
+1.  Add a new configuration option for your board to the toplevel
+    "Makefile" and to the "MAKEALL" script, using the existing
+    entries as examples. Note that here and at many other places
+    boards and other names are listed in alphabetical sort order. Please
+    keep this order.
+2.  Create a new directory to hold your board specific code. Add any
+    files you need. In your board directory, you will need at least
+    the "Makefile", a "<board>.c", "flash.c" and "u-boot.lds".
+3.  Create a new configuration file "include/configs/<board>.h" for
+    your board
+3.  If you're porting U-Boot to a new CPU, then also create a new
+    directory to hold your CPU specific code. Add any files you need.
+4.  Run "make <board>_config" with your new name.
+5.  Type "make", and you should get a working "u-boot.srec" file
+    to be installed on your target system.
+6.  Debug and solve any problems that might arise.
+    [Of course, this last step is much harder than it sounds.]
+
+
+Testing of U-Boot Modifications, Ports to New Hardware, etc.:
+==============================================================
+
+If you have modified U-Boot sources (for instance added a new	board
+or  support  for  new  devices,	 a new CPU, etc.) you are expected to
+provide feedback to the other developers. The feedback normally takes
+the form of a "patch", i. e. a context diff against a certain (latest
+official or latest in CVS) version of U-Boot sources.
+
+But before you submit such a patch, please verify that	your  modifi-
+cation	did not break existing code. At least make sure that *ALL* of
+the supported boards compile WITHOUT ANY compiler warnings. To do so,
+just run the "MAKEALL" script, which will configure and build U-Boot
+for ALL supported system. Be warned, this will take a while. You  can
+select	which  (cross)	compiler  to use by passing a `CROSS_COMPILE'
+environment variable to the script, i. e. to use the cross tools from
+MontaVista's Hard Hat Linux you can type
+
+	CROSS_COMPILE=ppc_8xx- MAKEALL
+
+or to build on a native PowerPC system you can type
+
+	CROSS_COMPILE=' ' MAKEALL
+
+See also "U-Boot Porting Guide" below.
+
+
+Monitor Commands - Overview:
+============================
+
+go	- start application at address 'addr'
+run	- run commands in an environment variable
+bootm	- boot application image from memory
+bootp	- boot image via network using BootP/TFTP protocol
+tftpboot- boot image via network using TFTP protocol
+	       and env variables "ipaddr" and "serverip"
+	       (and eventually "gatewayip")
+rarpboot- boot image via network using RARP/TFTP protocol
+diskboot- boot from IDE devicebootd   - boot default, i.e., run 'bootcmd'
+loads	- load S-Record file over serial line
+loadb	- load binary file over serial line (kermit mode)
+md	- memory display
+mm	- memory modify (auto-incrementing)
+nm	- memory modify (constant address)
+mw	- memory write (fill)
+cp	- memory copy
+cmp	- memory compare
+crc32	- checksum calculation
+imd	- i2c memory display
+imm	- i2c memory modify (auto-incrementing)
+inm	- i2c memory modify (constant address)
+imw	- i2c memory write (fill)
+icrc32	- i2c checksum calculation
+iprobe	- probe to discover valid I2C chip addresses
+iloop	- infinite loop on address range
+isdram	- print SDRAM configuration information
+sspi	- SPI utility commands
+base	- print or set address offset
+printenv- print environment variables
+setenv	- set environment variables
+saveenv - save environment variables to persistent storage
+protect - enable or disable FLASH write protection
+erase	- erase FLASH memory
+flinfo	- print FLASH memory information
+bdinfo	- print Board Info structure
+iminfo	- print header information for application image
+coninfo - print console devices and informations
+ide	- IDE sub-system
+loop	- infinite loop on address range
+mtest	- simple RAM test
+icache	- enable or disable instruction cache
+dcache	- enable or disable data cache
+reset	- Perform RESET of the CPU
+echo	- echo args to console
+version - print monitor version
+help	- print online help
+?	- alias for 'help'
+
+
+Monitor Commands - Detailed Description:
+========================================
+
+TODO.
+
+For now: just type "help <command>".
+
+
+Environment Variables:
+======================
+
+U-Boot supports user configuration using Environment Variables which
+can be made persistent by saving to Flash memory.
+
+Environment Variables are set using "setenv", printed using
+"printenv", and saved to Flash using "saveenv". Using "setenv"
+without a value can be used to delete a variable from the
+environment. As long as you don't save the environment you are
+working with an in-memory copy. In case the Flash area containing the
+environment is erased by accident, a default environment is provided.
+
+Some configuration options can be set using Environment Variables:
+
+  baudrate	- see CONFIG_BAUDRATE
+
+  bootdelay	- see CONFIG_BOOTDELAY
+
+  bootcmd	- see CONFIG_BOOTCOMMAND
+
+  bootargs	- Boot arguments when booting an RTOS image
+
+  bootfile	- Name of the image to load with TFTP
+
+  autoload	- if set to "no" (any string beginning with 'n'),
+		  "bootp" will just load perform a lookup of the
+		  configuration from the BOOTP server, but not try to
+		  load any image using TFTP
+
+  autostart	- if set to "yes", an image loaded using the "bootp",
+		  "rarpboot", "tftpboot" or "diskboot" commands will
+		  be automatically started (by internally calling
+		  "bootm")
+
+		  If set to "no", a standalone image passed to the
+		  "bootm" command will be copied to the load address
+		  (and eventually uncompressed), but NOT be started.
+		  This can be used to load and uncompress arbitrary
+		  data.
+
+  initrd_high	- restrict positioning of initrd images:
+		  If this variable is not set, initrd images will be
+		  copied to the highest possible address in RAM; this
+		  is usually what you want since it allows for
+		  maximum initrd size. If for some reason you want to
+		  make sure that the initrd image is loaded below the
+		  CFG_BOOTMAPSZ limit, you can set this environment
+		  variable to a value of "no" or "off" or "0".
+		  Alternatively, you can set it to a maximum upper
+		  address to use (U-Boot will still check that it
+		  does not overwrite the U-Boot stack and data).
 
+		  For instance, when you have a system with 16 MB
+		  RAM, and want to reserve 4 MB from use by Linux,
+		  you can do this by adding "mem=12M" to the value of
+		  the "bootargs" variable. However, now you must make
+		  sure that the initrd image is placed in the first
+		  12 MB as well - this can be done with
+
+		  setenv initrd_high 00c00000
+
+		  If you set initrd_high to 0xFFFFFFFF, this is an
+		  indication to U-Boot that all addresses are legal
+		  for the Linux kernel, including addresses in flash
+		  memory. In this case U-Boot will NOT COPY the
+		  ramdisk at all. This may be useful to reduce the
+		  boot time on your system, but requires that this
+		  feature is supported by your Linux kernel.
+
+  ipaddr	- IP address; needed for tftpboot command
+
+  loadaddr	- Default load address for commands like "bootp",
+		  "rarpboot", "tftpboot", "loadb" or "diskboot"
+
+  loads_echo	- see CONFIG_LOADS_ECHO
+
+  serverip	- TFTP server IP address; needed for tftpboot command
+
+  bootretry	- see CONFIG_BOOT_RETRY_TIME
+
+  bootdelaykey	- see CONFIG_AUTOBOOT_DELAY_STR
+
+  bootstopkey	- see CONFIG_AUTOBOOT_STOP_STR
+
+  ethprime	- When CONFIG_NET_MULTI is enabled controls which
+		  interface is used first.
+
+  ethact	- When CONFIG_NET_MULTI is enabled controls which
+		  interface is currently active. For example you
+		  can do the following
+
+		  => setenv ethact FEC ETHERNET
+		  => ping 192.168.0.1 # traffic sent on FEC ETHERNET
+		  => setenv ethact SCC ETHERNET
+		  => ping 10.0.0.1 # traffic sent on SCC ETHERNET
+
+   netretry	- When set to "no" each network operation will
+		  either succeed or fail without retrying.
+		  When set to "once" the network operation will
+		  fail when all the available network interfaces
+		  are tried once without success.
+		  Useful on scripts which control the retry operation
+		  themselves.
+
+   vlan		- When set to a value < 4095 the traffic over
+		  ethernet is encapsulated/received over 802.1q
+		  VLAN tagged frames.
+
+The following environment variables may be used and automatically
+updated by the network boot commands ("bootp" and "rarpboot"),
+depending the information provided by your boot server:
+
+  bootfile	- see above
+  dnsip		- IP address of your Domain Name Server
+  dnsip2	- IP address of your secondary Domain Name Server
+  gatewayip	- IP address of the Gateway (Router) to use
+  hostname	- Target hostname
+  ipaddr	- see above
+  netmask	- Subnet Mask
+  rootpath	- Pathname of the root filesystem on the NFS server
+  serverip	- see above
+
+
+There are two special Environment Variables:
+
+  serial#	- contains hardware identification information such
+		  as type string and/or serial number
+  ethaddr	- Ethernet address
+
+These variables can be set only once (usually during manufacturing of
+the board). U-Boot refuses to delete or overwrite these variables
+once they have been set once.
+
+
+Further special Environment Variables:
+
+  ver		- Contains the U-Boot version string as printed
+		  with the "version" command. This variable is
+		  readonly (see CONFIG_VERSION_VARIABLE).
+
+
+Please note that changes to some configuration parameters may take
+only effect after the next boot (yes, that's just like Windoze :-).
+
+
+Command Line Parsing:
+=====================
+
+There are two different command line parsers available with U-Boot:
+the old "simple" one, and the much more powerful "hush" shell:
+
+Old, simple command line parser:
+--------------------------------
+
+- supports environment variables (through setenv / saveenv commands)
+- several commands on one line, separated by ';'
+- variable substitution using "... $(name) ..." syntax
+- special characters ('$', ';') can be escaped by prefixing with '\',
+  for example:
+	setenv bootcmd bootm \$(address)
+- You can also escape text by enclosing in single apostrophes, for example:
+	setenv addip 'setenv bootargs $bootargs ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname::off'
+
+Hush shell:
+-----------
+
+- similar to Bourne shell, with control structures like
+  if...then...else...fi, for...do...done; while...do...done,
+  until...do...done, ...
+- supports environment ("global") variables (through setenv / saveenv
+  commands) and local shell variables (through standard shell syntax
+  "name=value"); only environment variables can be used with "run"
+  command
+
+General rules:
+--------------
+
+(1) If a command line (or an environment variable executed by a "run"
+    command) contains several commands separated by semicolon, and
+    one of these commands fails, then the remaining commands will be
+    executed anyway.
+
+(2) If you execute several variables with one call to run (i. e.
+    calling run with a list af variables as arguments), any failing
+    command will cause "run" to terminate, i. e. the remaining
+    variables are not executed.
+
+Note for Redundant Ethernet Interfaces:
+=======================================
+
+Some boards come with redundant ethernet interfaces; U-Boot supports
+such configurations and is capable of automatic selection of a
+"working" interface when needed. MAC assignment works as follows:
+
+Network interfaces are numbered eth0, eth1, eth2, ... Corresponding
+MAC addresses can be stored in the environment as "ethaddr" (=>eth0),
+"eth1addr" (=>eth1), "eth2addr", ...
+
+If the network interface stores some valid MAC address (for instance
+in SROM), this is used as default address if there is NO correspon-
+ding setting in the environment; if the corresponding environment
+variable is set, this overrides the settings in the card; that means:
+
+o If the SROM has a valid MAC address, and there is no address in the
+  environment, the SROM's address is used.
+
+o If there is no valid address in the SROM, and a definition in the
+  environment exists, then the value from the environment variable is
+  used.
+
+o If both the SROM and the environment contain a MAC address, and
+  both addresses are the same, this MAC address is used.
+
+o If both the SROM and the environment contain a MAC address, and the
+  addresses differ, the value from the environment is used and a
+  warning is printed.
+
+o If neither SROM nor the environment contain a MAC address, an error
+  is raised.
+
+
+Image Formats:
+==============
+
+The "boot" commands of this monitor operate on "image" files which
+can be basicly anything, preceeded by a special header; see the
+definitions in include/image.h for details; basicly, the header
+defines the following image properties:
+
+* Target Operating System (Provisions for OpenBSD, NetBSD, FreeBSD,
+  4.4BSD, Linux, SVR4, Esix, Solaris, Irix, SCO, Dell, NCR, VxWorks,
+  LynxOS, pSOS, QNX, RTEMS, ARTOS;
+  Currently supported: Linux, NetBSD, VxWorks, QNX, RTEMS, ARTOS, LynxOS).
+* Target CPU Architecture (Provisions for Alpha, ARM, Intel x86,
+  IA64, MIPS, NIOS, PowerPC, IBM S390, SuperH, Sparc, Sparc 64 Bit;
+  Currently supported: ARM, Intel x86, MIPS, NIOS, PowerPC).
+* Compression Type (uncompressed, gzip, bzip2)
+* Load Address
+* Entry Point
+* Image Name
+* Image Timestamp
+
+The header is marked by a special Magic Number, and both the header
+and the data portions of the image are secured against corruption by
+CRC32 checksums.
+
+
+Linux Support:
+==============
+
+Although U-Boot should support any OS or standalone application
+easily, the main focus has always been on Linux during the design of
+U-Boot.
+
+U-Boot includes many features that so far have been part of some
+special "boot loader" code within the Linux kernel. Also, any
+"initrd" images to be used are no longer part of one big Linux image;
+instead, kernel and "initrd" are separate images. This implementation
+serves several purposes:
+
+- the same features can be used for other OS or standalone
+  applications (for instance: using compressed images to reduce the
+  Flash memory footprint)
+
+- it becomes much easier to port new Linux kernel versions because
+  lots of low-level, hardware dependent stuff are done by U-Boot
+
+- the same Linux kernel image can now be used with different "initrd"
+  images; of course this also means that different kernel images can
+  be run with the same "initrd". This makes testing easier (you don't
+  have to build a new "zImage.initrd" Linux image when you just
+  change a file in your "initrd"). Also, a field-upgrade of the
+  software is easier now.
+
+
+Linux HOWTO:
+============
+
+Porting Linux to U-Boot based systems:
+---------------------------------------
+
+U-Boot cannot save you from doing all the necessary modifications to
+configure the Linux device drivers for use with your target hardware
+(no, we don't intend to provide a full virtual machine interface to
+Linux :-).
+
+But now you can ignore ALL boot loader code (in arch/ppc/mbxboot).
+
+Just make sure your machine specific header file (for instance
+include/asm-ppc/tqm8xx.h) includes the same definition of the Board
+Information structure as we define in include/u-boot.h, and make
+sure that your definition of IMAP_ADDR uses the same value as your
+U-Boot configuration in CFG_IMMR.
+
+
+Configuring the Linux kernel:
+-----------------------------
+
+No specific requirements for U-Boot. Make sure you have some root
+device (initial ramdisk, NFS) for your target system.
+
+
+Building a Linux Image:
+-----------------------
+
+With U-Boot, "normal" build targets like "zImage" or "bzImage" are
+not used. If you use recent kernel source, a new build target
+"uImage" will exist which automatically builds an image usable by
+U-Boot. Most older kernels also have support for a "pImage" target,
+which was introduced for our predecessor project PPCBoot and uses a
+100% compatible format.
+
+Example:
+
+	make TQM850L_config
+	make oldconfig
+	make dep
+	make uImage
+
+The "uImage" build target uses a special tool (in 'tools/mkimage') to
+encapsulate a compressed Linux kernel image with header	 information,
+CRC32 checksum etc. for use with U-Boot. This is what we are doing:
+
+* build a standard "vmlinux" kernel image (in ELF binary format):
+
+* convert the kernel into a raw binary image:
+
+	${CROSS_COMPILE}-objcopy -O binary \
+				 -R .note -R .comment \
+				 -S vmlinux linux.bin
+
+* compress the binary image:
+
+	gzip -9 linux.bin
+
+* package compressed binary image for U-Boot:
+
+	mkimage -A ppc -O linux -T kernel -C gzip \
+		-a 0 -e 0 -n "Linux Kernel Image" \
+		-d linux.bin.gz uImage
+
+
+The "mkimage" tool can also be used to create ramdisk images for use
+with U-Boot, either separated from the Linux kernel image, or
+combined into one file. "mkimage" encapsulates the images with a 64
+byte header containing information about target architecture,
+operating system, image type, compression method, entry points, time
+stamp, CRC32 checksums, etc.
+
+"mkimage" can be called in two ways: to verify existing images and
+print the header information, or to build new images.
+
+In the first form (with "-l" option) mkimage lists the information
+contained in the header of an existing U-Boot image; this includes
+checksum verification:
+
+	tools/mkimage -l image
+	  -l ==> list image header information
+
+The second form (with "-d" option) is used to build a U-Boot image
+from a "data file" which is used as image payload:
+
+	tools/mkimage -A arch -O os -T type -C comp -a addr -e ep \
+		      -n name -d data_file image
+	  -A ==> set architecture to 'arch'
+	  -O ==> set operating system to 'os'
+	  -T ==> set image type to 'type'
+	  -C ==> set compression type 'comp'
+	  -a ==> set load address to 'addr' (hex)
+	  -e ==> set entry point to 'ep' (hex)
+	  -n ==> set image name to 'name'
+	  -d ==> use image data from 'datafile'
+
+Right now, all Linux kernels use the same load address	(0x00000000),
+but the entry point address depends on the kernel version:
+
+- 2.2.x kernels have the entry point at 0x0000000C,
+- 2.3.x and later kernels have the entry point at 0x00000000.
+
+So a typical call to build a U-Boot image would read:
+
+	-> tools/mkimage -n '2.4.4 kernel for TQM850L' \
+	> -A ppc -O linux -T kernel -C gzip -a 0 -e 0 \
+	> -d /opt/elsk/ppc_8xx/usr/src/linux-2.4.4/arch/ppc/coffboot/vmlinux.gz \
+	> examples/uImage.TQM850L
+	Image Name:   2.4.4 kernel for TQM850L
+	Created:      Wed Jul 19 02:34:59 2000
+	Image Type:   PowerPC Linux Kernel Image (gzip compressed)
+	Data Size:    335725 Bytes = 327.86 kB = 0.32 MB
+	Load Address: 0x00000000
+	Entry Point:  0x00000000
+
+To verify the contents of the image (or check for corruption):
+
+	-> tools/mkimage -l examples/uImage.TQM850L
+	Image Name:   2.4.4 kernel for TQM850L
+	Created:      Wed Jul 19 02:34:59 2000
+	Image Type:   PowerPC Linux Kernel Image (gzip compressed)
+	Data Size:    335725 Bytes = 327.86 kB = 0.32 MB
+	Load Address: 0x00000000
+	Entry Point:  0x00000000
+
+NOTE: for embedded systems where boot time is critical you can trade
+speed for memory and install an UNCOMPRESSED image instead: this
+needs more space in Flash, but boots much faster since it does not
+need to be uncompressed:
+
+	-> gunzip /opt/elsk/ppc_8xx/usr/src/linux-2.4.4/arch/ppc/coffboot/vmlinux.gz
+	-> tools/mkimage -n '2.4.4 kernel for TQM850L' \
+	> -A ppc -O linux -T kernel -C none -a 0 -e 0 \
+	> -d /opt/elsk/ppc_8xx/usr/src/linux-2.4.4/arch/ppc/coffboot/vmlinux \
+	> examples/uImage.TQM850L-uncompressed
+	Image Name:   2.4.4 kernel for TQM850L
+	Created:      Wed Jul 19 02:34:59 2000
+	Image Type:   PowerPC Linux Kernel Image (uncompressed)
+	Data Size:    792160 Bytes = 773.59 kB = 0.76 MB
+	Load Address: 0x00000000
+	Entry Point:  0x00000000
+
+
+Similar you can build U-Boot images from a 'ramdisk.image.gz' file
+when your kernel is intended to use an initial ramdisk:
+
+	-> tools/mkimage -n 'Simple Ramdisk Image' \
+	> -A ppc -O linux -T ramdisk -C gzip \
+	> -d /LinuxPPC/images/SIMPLE-ramdisk.image.gz examples/simple-initrd
+	Image Name:   Simple Ramdisk Image
+	Created:      Wed Jan 12 14:01:50 2000
+	Image Type:   PowerPC Linux RAMDisk Image (gzip compressed)
+	Data Size:    566530 Bytes = 553.25 kB = 0.54 MB
+	Load Address: 0x00000000
+	Entry Point:  0x00000000
+
+
+Installing a Linux Image:
+-------------------------
+
+To downloading a U-Boot image over the serial (console) interface,
+you must convert the image to S-Record format:
+
+	objcopy -I binary -O srec examples/image examples/image.srec
+
+The 'objcopy' does not understand the information in the U-Boot
+image header, so the resulting S-Record file will be relative to
+address 0x00000000. To load it to a given address, you need to
+specify the target address as 'offset' parameter with the 'loads'
+command.
+
+Example: install the image to address 0x40100000 (which on the
+TQM8xxL is in the first Flash bank):
+
+	=> erase 40100000 401FFFFF
+
+	.......... done
+	Erased 8 sectors
+
+	=> loads 40100000
+	## Ready for S-Record download ...
+	~>examples/image.srec
+	1 2 3 4 5 6 7 8 9 10 11 12 13 ...
+	...
+	15989 15990 15991 15992
+	[file transfer complete]
+	[connected]
+	## Start Addr = 0x00000000
+
+
+You can check the success of the download using the 'iminfo' command;
+this includes a checksum verification so you  can  be  sure  no	 data
+corruption happened:
+
+	=> imi 40100000
+
+	## Checking Image at 40100000 ...
+	   Image Name:	 2.2.13 for initrd on TQM850L
+	   Image Type:	 PowerPC Linux Kernel Image (gzip compressed)
+	   Data Size:	 335725 Bytes = 327 kB = 0 MB
+	   Load Address: 00000000
+	   Entry Point:	 0000000c
+	   Verifying Checksum ... OK
+
+
+Boot Linux:
+-----------
+
+The "bootm" command is used to boot an application that is stored in
+memory (RAM or Flash). In case of a Linux kernel image, the contents
+of the "bootargs" environment variable is passed to the kernel as
+parameters. You can check and modify this variable using the
+"printenv" and "setenv" commands:
+
+
+	=> printenv bootargs
+	bootargs=root=/dev/ram
+
+	=> setenv bootargs root=/dev/nfs rw nfsroot=10.0.0.2:/LinuxPPC nfsaddrs=10.0.0.99:10.0.0.2
+
+	=> printenv bootargs
+	bootargs=root=/dev/nfs rw nfsroot=10.0.0.2:/LinuxPPC nfsaddrs=10.0.0.99:10.0.0.2
+
+	=> bootm 40020000
+	## Booting Linux kernel at 40020000 ...
+	   Image Name:	 2.2.13 for NFS on TQM850L
+	   Image Type:	 PowerPC Linux Kernel Image (gzip compressed)
+	   Data Size:	 381681 Bytes = 372 kB = 0 MB
+	   Load Address: 00000000
+	   Entry Point:	 0000000c
+	   Verifying Checksum ... OK
+	   Uncompressing Kernel Image ... OK
+	Linux version 2.2.13 (wd@denx.local.net) (gcc version 2.95.2 19991024 (release)) #1 Wed Jul 19 02:35:17 MEST 2000
+	Boot arguments: root=/dev/nfs rw nfsroot=10.0.0.2:/LinuxPPC nfsaddrs=10.0.0.99:10.0.0.2
+	time_init: decrementer frequency = 187500000/60
+	Calibrating delay loop... 49.77 BogoMIPS
+	Memory: 15208k available (700k kernel code, 444k data, 32k init) [c0000000,c1000000]
+	...
+
+If you want to boot a Linux kernel with initial ram disk, you pass
+the memory addresses of both the kernel and the initrd image (PPBCOOT
+format!) to the "bootm" command:
+
+	=> imi 40100000 40200000
+
+	## Checking Image at 40100000 ...
+	   Image Name:	 2.2.13 for initrd on TQM850L
+	   Image Type:	 PowerPC Linux Kernel Image (gzip compressed)
+	   Data Size:	 335725 Bytes = 327 kB = 0 MB
+	   Load Address: 00000000
+	   Entry Point:	 0000000c
+	   Verifying Checksum ... OK
+
+	## Checking Image at 40200000 ...
+	   Image Name:	 Simple Ramdisk Image
+	   Image Type:	 PowerPC Linux RAMDisk Image (gzip compressed)
+	   Data Size:	 566530 Bytes = 553 kB = 0 MB
+	   Load Address: 00000000
+	   Entry Point:	 00000000
+	   Verifying Checksum ... OK
+
+	=> bootm 40100000 40200000
+	## Booting Linux kernel at 40100000 ...
+	   Image Name:	 2.2.13 for initrd on TQM850L
+	   Image Type:	 PowerPC Linux Kernel Image (gzip compressed)
+	   Data Size:	 335725 Bytes = 327 kB = 0 MB
+	   Load Address: 00000000
+	   Entry Point:	 0000000c
+	   Verifying Checksum ... OK
+	   Uncompressing Kernel Image ... OK
+	## Loading RAMDisk Image at 40200000 ...
+	   Image Name:	 Simple Ramdisk Image
+	   Image Type:	 PowerPC Linux RAMDisk Image (gzip compressed)
+	   Data Size:	 566530 Bytes = 553 kB = 0 MB
+	   Load Address: 00000000
+	   Entry Point:	 00000000
+	   Verifying Checksum ... OK
+	   Loading Ramdisk ... OK
+	Linux version 2.2.13 (wd@denx.local.net) (gcc version 2.95.2 19991024 (release)) #1 Wed Jul 19 02:32:08 MEST 2000
+	Boot arguments: root=/dev/ram
+	time_init: decrementer frequency = 187500000/60
+	Calibrating delay loop... 49.77 BogoMIPS
+	...
+	RAMDISK: Compressed image found at block 0
+	VFS: Mounted root (ext2 filesystem).
+
+	bash#
+
+More About U-Boot Image Types:
+------------------------------
+
+U-Boot supports the following image types:
+
+   "Standalone Programs" are directly runnable in the environment
+	provided by U-Boot; it is expected that (if they behave
+	well) you can continue to work in U-Boot after return from
+	the Standalone Program.
+   "OS Kernel Images" are usually images of some Embedded OS which
+	will take over control completely. Usually these programs
+	will install their own set of exception handlers, device
+	drivers, set up the MMU, etc. - this means, that you cannot
+	expect to re-enter U-Boot except by resetting the CPU.
+   "RAMDisk Images" are more or less just data blocks, and their
+	parameters (address, size) are passed to an OS kernel that is
+	being started.
+   "Multi-File Images" contain several images, typically an OS
+	(Linux) kernel image and one or more data images like
+	RAMDisks. This construct is useful for instance when you want
+	to boot over the network using BOOTP etc., where the boot
+	server provides just a single image file, but you want to get
+	for instance an OS kernel and a RAMDisk image.
+
+	"Multi-File Images" start with a list of image sizes, each
+	image size (in bytes) specified by an "uint32_t" in network
+	byte order. This list is terminated by an "(uint32_t)0".
+	Immediately after the terminating 0 follow the images, one by
+	one, all aligned on "uint32_t" boundaries (size rounded up to
+	a multiple of 4 bytes).
+
+   "Firmware Images" are binary images containing firmware (like
+	U-Boot or FPGA images) which usually will be programmed to
+	flash memory.
+
+   "Script files" are command sequences that will be executed by
+	U-Boot's command interpreter; this feature is especially
+	useful when you configure U-Boot to use a real shell (hush)
+	as command interpreter.
+
+
+Standalone HOWTO:
+=================
+
+One of the features of U-Boot is that you can dynamically load and
+run "standalone" applications, which can use some resources of
+U-Boot like console I/O functions or interrupt services.
+
+Two simple examples are included with the sources:
+
+"Hello World" Demo:
+-------------------
+
+'examples/hello_world.c' contains a small "Hello World" Demo
+application; it is automatically compiled when you build U-Boot.
+It's configured to run at address 0x00040004, so you can play with it
+like that:
+
+	=> loads
+	## Ready for S-Record download ...
+	~>examples/hello_world.srec
+	1 2 3 4 5 6 7 8 9 10 11 ...
+	[file transfer complete]
+	[connected]
+	## Start Addr = 0x00040004
+
+	=> go 40004 Hello World! This is a test.
+	## Starting application at 0x00040004 ...
+	Hello World
+	argc = 7
+	argv[0] = "40004"
+	argv[1] = "Hello"
+	argv[2] = "World!"
+	argv[3] = "This"
+	argv[4] = "is"
+	argv[5] = "a"
+	argv[6] = "test."
+	argv[7] = "<NULL>"
+	Hit any key to exit ...
+
+	## Application terminated, rc = 0x0
+
+Another example, which demonstrates how to register a CPM interrupt
+handler with the U-Boot code, can be found in 'examples/timer.c'.
+Here, a CPM timer is set up to generate an interrupt every second.
+The interrupt service routine is trivial, just printing a '.'
+character, but this is just a demo program. The application can be
+controlled by the following keys:
+
+	? - print current values og the CPM Timer registers
+	b - enable interrupts and start timer
+	e - stop timer and disable interrupts
+	q - quit application
+
+	=> loads
+	## Ready for S-Record download ...
+	~>examples/timer.srec
+	1 2 3 4 5 6 7 8 9 10 11 ...
+	[file transfer complete]
+	[connected]
+	## Start Addr = 0x00040004
+
+	=> go 40004
+	## Starting application at 0x00040004 ...
+	TIMERS=0xfff00980
+	Using timer 1
+	  tgcr @ 0xfff00980, tmr @ 0xfff00990, trr @ 0xfff00994, tcr @ 0xfff00998, tcn @ 0xfff0099c, ter @ 0xfff009b0
+
+Hit 'b':
+	[q, b, e, ?] Set interval 1000000 us
+	Enabling timer
+Hit '?':
+	[q, b, e, ?] ........
+	tgcr=0x1, tmr=0xff1c, trr=0x3d09, tcr=0x0, tcn=0xef6, ter=0x0
+Hit '?':
+	[q, b, e, ?] .
+	tgcr=0x1, tmr=0xff1c, trr=0x3d09, tcr=0x0, tcn=0x2ad4, ter=0x0
+Hit '?':
+	[q, b, e, ?] .
+	tgcr=0x1, tmr=0xff1c, trr=0x3d09, tcr=0x0, tcn=0x1efc, ter=0x0
+Hit '?':
+	[q, b, e, ?] .
+	tgcr=0x1, tmr=0xff1c, trr=0x3d09, tcr=0x0, tcn=0x169d, ter=0x0
+Hit 'e':
+	[q, b, e, ?] ...Stopping timer
+Hit 'q':
+	[q, b, e, ?] ## Application terminated, rc = 0x0
+
+
+Minicom warning:
+================
+
+Over time, many people have reported problems when trying to use the
+"minicom" terminal emulation program for serial download. I (wd)
+consider minicom to be broken, and recommend not to use it. Under
+Unix, I recommend to use C-Kermit for general purpose use (and
+especially for kermit binary protocol download ("loadb" command), and
+use "cu" for S-Record download ("loads" command).
+
+Nevertheless, if you absolutely want to use it try adding this
+configuration to your "File transfer protocols" section:
+
+	   Name	   Program			Name U/D FullScr IO-Red. Multi
+	X  kermit  /usr/bin/kermit -i -l %l -s	 Y    U	   Y	   N	  N
+	Y  kermit  /usr/bin/kermit -i -l %l -r	 N    D	   Y	   N	  N
+
+
+NetBSD Notes:
+=============
+
+Starting at version 0.9.2, U-Boot supports NetBSD both as host
+(build U-Boot) and target system (boots NetBSD/mpc8xx).
+
+Building requires a cross environment; it is known to work on
+NetBSD/i386 with the cross-powerpc-netbsd-1.3 package (you will also
+need gmake since the Makefiles are not compatible with BSD make).
+Note that the cross-powerpc package does not install include files;
+attempting to build U-Boot will fail because <machine/ansi.h> is
+missing.  This file has to be installed and patched manually:
+
+	# cd /usr/pkg/cross/powerpc-netbsd/include
+	# mkdir powerpc
+	# ln -s powerpc machine
+	# cp /usr/src/sys/arch/powerpc/include/ansi.h powerpc/ansi.h
+	# ${EDIT} powerpc/ansi.h	## must remove __va_list, _BSD_VA_LIST
+
+Native builds *don't* work due to incompatibilities between native
+and U-Boot include files.
+
+Booting assumes that (the first part of) the image booted is a
+stage-2 loader which in turn loads and then invokes the kernel
+proper. Loader sources will eventually appear in the NetBSD source
+tree (probably in sys/arc/mpc8xx/stand/u-boot_stage2/); in the
+meantime, send mail to bruno@exet-ag.de and/or wd@denx.de for
+details.
+
+
+Implementation Internals:
+=========================
+
+The following is not intended to be a complete description of every
+implementation detail. However, it should help to understand the
+inner workings of U-Boot and make it easier to port it to custom
+hardware.
+
+
+Initial Stack, Global Data:
+---------------------------
+
+The implementation of U-Boot is complicated by the fact that U-Boot
+starts running out of ROM (flash memory), usually without access to
+system RAM (because the memory controller is not initialized yet).
+This means that we don't have writable Data or BSS segments, and BSS
+is not initialized as zero. To be able to get a C environment working
+at all, we have to allocate at least a minimal stack. Implementation
+options for this are defined and restricted by the CPU used: Some CPU
+models provide on-chip memory (like the IMMR area on MPC8xx and
+MPC826x processors), on others (parts of) the data cache can be
+locked as (mis-) used as memory, etc.
+
+	Chris Hallinan posted a good summary of	 these	issues	to  the
+	u-boot-users mailing list:
+
+	Subject: RE: [U-Boot-Users] RE: More On Memory Bank x (nothingness)?
+	From: "Chris Hallinan" <clh@net1plus.com>
+	Date: Mon, 10 Feb 2003 16:43:46 -0500 (22:43 MET)
+	...
+
+	Correct me if I'm wrong, folks, but the way I understand it
+	is this: Using DCACHE as initial RAM for Stack, etc, does not
+	require any physical RAM backing up the cache. The cleverness
+	is that the cache is being used as a temporary supply of
+	necessary storage before the SDRAM controller is setup. It's
+	beyond the scope of this list to expain the details, but you
+	can see how this works by studying the cache architecture and
+	operation in the architecture and processor-specific manuals.
+
+	OCM is On Chip Memory, which I believe the 405GP has 4K. It
+	is another option for the system designer to use as an
+	initial stack/ram area prior to SDRAM being available. Either
+	option should work for you. Using CS 4 should be fine if your
+	board designers haven't used it for something that would
+	cause you grief during the initial boot! It is frequently not
+	used.
+
+	CFG_INIT_RAM_ADDR should be somewhere that won't interfere
+	with your processor/board/system design. The default value
+	you will find in any recent u-boot distribution in
+	Walnut405.h should work for you. I'd set it to a value larger
+	than your SDRAM module. If you have a 64MB SDRAM module, set
+	it above 400_0000. Just make sure your board has no resources
+	that are supposed to respond to that address! That code in
+	start.S has been around a while and should work as is when
+	you get the config right.
+
+	-Chris Hallinan
+	DS4.COM, Inc.
+
+It is essential to remember this, since it has some impact on the C
+code for the initialization procedures:
+
+* Initialized global data (data segment) is read-only. Do not attempt
+  to write it.
+
+* Do not use any unitialized global data (or implicitely initialized
+  as zero data - BSS segment) at all - this is undefined, initiali-
+  zation is performed later (when relocating to RAM).
+
+* Stack space is very limited. Avoid big data buffers or things like
+  that.
+
+Having only the stack as writable memory limits means we cannot use
+normal global data to share information beween the code. But it
+turned out that the implementation of U-Boot can be greatly
+simplified by making a global data structure (gd_t) available to all
+functions. We could pass a pointer to this data as argument to _all_
+functions, but this would bloat the code. Instead we use a feature of
+the GCC compiler (Global Register Variables) to share the data: we
+place a pointer (gd) to the global data into a register which we
+reserve for this purpose.
+
+When choosing a register for such a purpose we are restricted by the
+relevant  (E)ABI  specifications for the current architecture, and by
+GCC's implementation.
+
+For PowerPC, the following registers have specific use:
+	R1:	stack pointer
+	R2:	TOC pointer
+	R3-R4:	parameter passing and return values
+	R5-R10: parameter passing
+	R13:	small data area pointer
+	R30:	GOT pointer
+	R31:	frame pointer
+
+	(U-Boot also uses R14 as internal GOT pointer.)
+
+    ==> U-Boot will use R29 to hold a pointer to the global data
+
+    Note: on PPC, we could use a static initializer (since the
+    address of the global data structure is known at compile time),
+    but it turned out that reserving a register results in somewhat
+    smaller code - although the code savings are not that big (on
+    average for all boards 752 bytes for the whole U-Boot image,
+    624 text + 127 data).
+
+On ARM, the following registers are used:
+
+	R0:	function argument word/integer result
+	R1-R3:	function argument word
+	R9:	GOT pointer
+	R10:	stack limit (used only if stack checking if enabled)
+	R11:	argument (frame) pointer
+	R12:	temporary workspace
+	R13:	stack pointer
+	R14:	link register
+	R15:	program counter
+
+    ==> U-Boot will use R8 to hold a pointer to the global data
+
+
+Memory Management:
+------------------
+
+U-Boot runs in system state and uses physical addresses, i.e. the
+MMU is not used either for address mapping nor for memory protection.
+
+The available memory is mapped to fixed addresses using the memory
+controller. In this process, a contiguous block is formed for each
+memory type (Flash, SDRAM, SRAM), even when it consists of several
+physical memory banks.
+
+U-Boot is installed in the first 128 kB of the first Flash bank (on
+TQM8xxL modules this is the range 0x40000000 ... 0x4001FFFF). After
+booting and sizing and initializing DRAM, the code relocates itself
+to the upper end of DRAM. Immediately below the U-Boot code some
+memory is reserved for use by malloc() [see CFG_MALLOC_LEN
+configuration setting]. Below that, a structure with global Board
+Info data is placed, followed by the stack (growing downward).
+
+Additionally, some exception handler code is copied to the low 8 kB
+of DRAM (0x00000000 ... 0x00001FFF).
+
+So a typical memory configuration with 16 MB of DRAM could look like
+this:
+
+	0x0000 0000	Exception Vector code
+	      :
+	0x0000 1FFF
+	0x0000 2000	Free for Application Use
+	      :
+	      :
+
+	      :
+	      :
+	0x00FB FF20	Monitor Stack (Growing downward)
+	0x00FB FFAC	Board Info Data and permanent copy of global data
+	0x00FC 0000	Malloc Arena
+	      :
+	0x00FD FFFF
+	0x00FE 0000	RAM Copy of Monitor Code
+	...		eventually: LCD or video framebuffer
+	...		eventually: pRAM (Protected RAM - unchanged by reset)
+	0x00FF FFFF	[End of RAM]
+
+
+System Initialization:
+----------------------
+
+In the reset configuration, U-Boot starts at the reset entry point
+(on most PowerPC systens at address 0x00000100). Because of the reset
+configuration for CS0# this is a mirror of the onboard Flash memory.
+To be able to re-map memory U-Boot then jumps to its link address.
+To be able to implement the initialization code in C, a (small!)
+initial stack is set up in the internal Dual Ported RAM (in case CPUs
+which provide such a feature like MPC8xx or MPC8260), or in a locked
+part of the data cache. After that, U-Boot initializes the CPU core,
+the caches and the SIU.
+
+Next, all (potentially) available memory banks are mapped using a
+preliminary mapping. For example, we put them on 512 MB boundaries
+(multiples of 0x20000000: SDRAM on 0x00000000 and 0x20000000, Flash
+on 0x40000000 and 0x60000000, SRAM on 0x80000000). Then UPM A is
+programmed for SDRAM access. Using the temporary configuration, a
+simple memory test is run that determines the size of the SDRAM
+banks.
+
+When there is more than one SDRAM bank, and the banks are of
+different size, the largest is mapped first. For equal size, the first
+bank (CS2#) is mapped first. The first mapping is always for address
+0x00000000, with any additional banks following immediately to create
+contiguous memory starting from 0.
+
+Then, the monitor installs itself at the upper end of the SDRAM area
+and allocates memory for use by malloc() and for the global Board
+Info data; also, the exception vector code is copied to the low RAM
+pages, and the final stack is set up.
+
+Only after this relocation will you have a "normal" C environment;
+until that you are restricted in several ways, mostly because you are
+running from ROM, and because the code will have to be relocated to a
+new address in RAM.
+
+
+U-Boot Porting Guide:
+----------------------
+
+[Based on messages by Jerry Van Baren in the U-Boot-Users mailing
+list, October 2002]
+
+
+int main (int argc, char *argv[])
+{
+	sighandler_t no_more_time;
+
+	signal (SIGALRM, no_more_time);
+	alarm (PROJECT_DEADLINE - toSec (3 * WEEK));
+
+	if (available_money > available_manpower) {
+		pay consultant to port U-Boot;
 		return 0;
 	}
 
-	void no_more_time (int sig)
-	{
-	      hire_a_guru();
+	Download latest U-Boot source;
+
+	Subscribe to u-boot-users mailing list;
+
+	if (clueless) {
+		email ("Hi, I am new to U-Boot, how do I get started?");
 	}
 
+	while (learning) {
+		Read the README file in the top level directory;
+		Read http://www.denx.de/twiki/bin/view/DULG/Manual ;
+		Read the source, Luke;
+	}
 
-	Coding Standards:
-	-----------------
+	if (available_money > toLocalCurrency ($2500)) {
+		Buy a BDI2000;
+	} else {
+		Add a lot of aggravation and time;
+	}
 
-	All contributions to U-Boot should conform to the Linux kernel
-	coding style; see the file "Documentation/CodingStyle" in your Linux
-	kernel source directory.
+	Create your own board support subdirectory;
 
-	Please note that U-Boot is implemented in C (and to some small parts
-	in Assembler); no C++ is used, so please do not use C++ style
-	comments (//) in your code.
+	Create your own board config file;
 
-	Please also stick to the following formatting rules:
-	- remove any trailing white space
-	- use TAB characters for indentation, not spaces
-	- make sure NOT to use DOS '\r\n' line feeds
-	- do not add more than 2 empty lines to source files
-	- do not add trailing empty lines to source files
+	while (!running) {
+		do {
+			Add / modify source code;
+		} until (compiles);
+		Debug;
+		if (clueless)
+			email ("Hi, I am having problems...");
+	}
+	Send patch file to Wolfgang;
 
-	Submissions which do not conform to the standards may be returned
-	with a request to reformat the changes.
+	return 0;
+}
 
-
-	Submitting Patches:
-	-------------------
-
-	Since the number of patches for U-Boot is growing, we need to
-	establish some rules. Submissions which do not conform to these rules
-	may be rejected, even when they contain important and valuable stuff.
-
-
-	When you send a patch, please include the following information with
-	it:
-
-	* For bug fixes: a description of the bug and how your patch fixes
-	  this bug. Please try to include a way of demonstrating that the
-	  patch actually fixes something.
-
-	* For new features: a description of the feature and your
-	  implementation.
-
-	* A CHANGELOG entry as plaintext (separate from the patch)
-
-	* For major contributions, your entry to the CREDITS file
-
-	* When you add support for a new board, don't forget to add this
-	  board to the MAKEALL script, too.
-
-	* If your patch adds new configuration options, don't forget to
-	  document these in the README file.
-
-	* The patch itself. If you are accessing the CVS repository use "cvs
-	  update; cvs diff -puRN"; else, use "diff -purN OLD NEW". If your
-	  version of diff does not support these options, then get the latest
-	  version of GNU diff.
-
-	  The current directory when running this command shall be the top
-	  level directory of the U-Boot source tree, or it's parent directory
-	  (i. e. please make sure that your patch includes sufficient
-	  directory information for the affected files).
-
-	  We accept patches as plain text, MIME attachments or as uuencoded
-	  gzipped text.
-
-	* If one logical set of modifications affects or creates several
-	  files, all these changes shall be submitted in a SINGLE patch file.
-
-	* Changesets that contain different, unrelated modifications shall be
-	  submitted as SEPARATE patches, one patch per changeset.
+void no_more_time (int sig)
+{
+      hire_a_guru();
+}
 
 
-	Notes:
+Coding Standards:
+-----------------
 
-	* Before sending the patch, run the MAKEALL script on your patched
-	  source tree and make sure that no errors or warnings are reported
-	  for any of the boards.
+All contributions to U-Boot should conform to the Linux kernel
+coding style; see the file "Documentation/CodingStyle" in your Linux
+kernel source directory.
 
-	* Keep your modifications to the necessary minimum: A patch
-	  containing several unrelated changes or arbitrary reformats will be
-	  returned with a request to re-formatting / split it.
+Please note that U-Boot is implemented in C (and to some small parts
+in Assembler); no C++ is used, so please do not use C++ style
+comments (//) in your code.
 
-	* If you modify existing code, make sure that your new code does not
-	  add to the memory footprint of the code ;-) Small is beautiful!
-	  When adding new features, these should compile conditionally only
-	  (using #ifdef), and the resulting code with the new feature
-	  disabled must not need more memory than the old code without your
-	  modification.
+Please also stick to the following formatting rules:
+- remove any trailing white space
+- use TAB characters for indentation, not spaces
+- make sure NOT to use DOS '\r\n' line feeds
+- do not add more than 2 empty lines to source files
+- do not add trailing empty lines to source files
+
+Submissions which do not conform to the standards may be returned
+with a request to reformat the changes.
+
+
+Submitting Patches:
+-------------------
+
+Since the number of patches for U-Boot is growing, we need to
+establish some rules. Submissions which do not conform to these rules
+may be rejected, even when they contain important and valuable stuff.
+
+
+When you send a patch, please include the following information with
+it:
+
+* For bug fixes: a description of the bug and how your patch fixes
+  this bug. Please try to include a way of demonstrating that the
+  patch actually fixes something.
+
+* For new features: a description of the feature and your
+  implementation.
+
+* A CHANGELOG entry as plaintext (separate from the patch)
+
+* For major contributions, your entry to the CREDITS file
+
+* When you add support for a new board, don't forget to add this
+  board to the MAKEALL script, too.
+
+* If your patch adds new configuration options, don't forget to
+  document these in the README file.
+
+* The patch itself. If you are accessing the CVS repository use "cvs
+  update; cvs diff -puRN"; else, use "diff -purN OLD NEW". If your
+  version of diff does not support these options, then get the latest
+  version of GNU diff.
+
+  The current directory when running this command shall be the top
+  level directory of the U-Boot source tree, or it's parent directory
+  (i. e. please make sure that your patch includes sufficient
+  directory information for the affected files).
+
+  We accept patches as plain text, MIME attachments or as uuencoded
+  gzipped text.
+
+* If one logical set of modifications affects or creates several
+  files, all these changes shall be submitted in a SINGLE patch file.
+
+* Changesets that contain different, unrelated modifications shall be
+  submitted as SEPARATE patches, one patch per changeset.
+
+
+Notes:
+
+* Before sending the patch, run the MAKEALL script on your patched
+  source tree and make sure that no errors or warnings are reported
+  for any of the boards.
+
+* Keep your modifications to the necessary minimum: A patch
+  containing several unrelated changes or arbitrary reformats will be
+  returned with a request to re-formatting / split it.
+
+* If you modify existing code, make sure that your new code does not
+  add to the memory footprint of the code ;-) Small is beautiful!
+  When adding new features, these should compile conditionally only
+  (using #ifdef), and the resulting code with the new feature
+  disabled must not need more memory than the old code without your
+  modification.

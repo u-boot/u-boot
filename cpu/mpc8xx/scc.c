@@ -45,7 +45,7 @@
 
 #define TX_BUF_CNT 2
 
-#define TOUT_LOOP 100
+#define TOUT_LOOP 10000	/* 10 ms to have a packet sent */
 
 static char txbuf[DBUF_LENGTH];
 

@@ -1,4 +1,17 @@
 ======================================================================
+Changes since U-Boot 1.1.1:
+======================================================================
+
+* Fix minor NAND JFFS2 related issue
+
+* Fixes for SL811 USB controller:
+  - implement workaround for broken memory stick
+  - improve error handling
+
+* Increase packet send timeout to 1 ms in cpu/mpc8xx/scc.c to better
+  cope with congested networks.
+
+======================================================================
 Changes for U-Boot 1.1.1:
 ======================================================================
 
