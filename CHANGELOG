@@ -2,6 +2,15 @@
 Changes since U-Boot 1.0.0:
 ======================================================================
 
+* Patch by Bill Hargen, 09 Dec 2003:
+  - BUBINGA405EP: changed flash driver to protect top sector containing
+    first instruction.
+  - BUBINGA405EP: configured "eeprom" command to access boot config EEPROM.
+  - BUBINGA405EP: fixed PLL init (init chip selects before FPGA/NVRAM access).
+  - 405EP: fixed SPD-based SDRAM init (only use banks 0 and 1).
+  - 405EP: added/fixed support for "reginfo" command.
+  - 4xx: removed spurious MII error messages on "mii info" command.
+
 * Patch by Bernhard Kuhn, 28 Nov 2003:
   add support for Coldfire CPU
   add support for Motorola M5272C3 and M5282EVB boards
