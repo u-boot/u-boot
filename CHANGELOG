@@ -2,6 +2,8 @@
 Changes for U-Boot 0.4.5:
 ======================================================================
 
+* Fix PCI support for MPC5200 / IceCube Board
+
 * Map ISP1362 USB OTG controller for NSCU board
 
 * Patch by Brad Parker, 02 Aug 2003:

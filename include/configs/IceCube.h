@@ -37,7 +37,7 @@
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH  */
 #define BOOTFLAG_WARM		0x02	/* Software reboot	     */
 
-#define CFG_CACHELINE_SIZE	32	/* For MPC8260 CPU */
+#define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs */
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 #  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
@@ -49,10 +49,41 @@
 #define CONFIG_BAUDRATE		115200	/* ... at 115200 bps */
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 
+
+#ifdef CONFIG_MPC5200	/* MPC5100 PCI is not supported yet. */
+/*
+ * PCI Mapping:
+ * 0x40000000 - 0x4fffffff - PCI Memory
+ * 0x50000000 - 0x50ffffff - PCI IO Space
+ */
+#define CONFIG_PCI		1
+#define CONFIG_PCI_PNP		1
+#define CONFIG_PCI_SCAN_SHOW	1
+
+#define CONFIG_PCI_MEM_BUS	0x40000000
+#define CONFIG_PCI_MEM_PHYS	CONFIG_PCI_MEM_BUS
+#define CONFIG_PCI_MEM_SIZE	0x10000000
+
+#define CONFIG_PCI_IO_BUS	0x50000000
+#define CONFIG_PCI_IO_PHYS	CONFIG_PCI_IO_BUS
+#define CONFIG_PCI_IO_SIZE	0x01000000
+
+#define CONFIG_NET_MULTI	1
+#define CONFIG_EEPRO100		1
+#define CFG_RX_ETH_BUFFER	8  /* use 8 rx buffer on eepro100  */
+
+#define ADD_PCI_CMD 		CFG_CMD_PCI
+
+#else	/* MPC5100 */
+
+#define ADD_PCI_CMD		0  /* no CFG_CMD_PCI */
+
+#endif
+
 /*
  * Supported commands
  */
-#define CONFIG_COMMANDS		CONFIG_CMD_DFL
+#define CONFIG_COMMANDS		(CONFIG_CMD_DFL | ADD_PCI_CMD)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -83,17 +114,17 @@
 #define CFG_FLASH_ERASE_TOUT	240000	/* Flash Erase Timeout (in ms)  */
 #define CFG_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (in ms)  */
 
-#undef CONFIG_FLASH_16BIT /* Flash is 8-bit */
+#undef CONFIG_FLASH_16BIT	/* Flash is 8-bit */
 
 
 /*
  * Environment settings
  */
-#define CFG_ENV_IS_IN_FLASH 1
+#define CFG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_SIZE		0x10000
-#define CFG_ENV_ADDR        (CFG_FLASH_BASE + 0x740000)
-#define CFG_ENV_SECT_SIZE   0x10000
-
+#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x740000)
+#define CFG_ENV_SECT_SIZE	0x10000
+#define CONFIG_ENV_OVERWRITE	1
 
 /*
  * Memory map
@@ -112,7 +143,7 @@
 
 #define CFG_MONITOR_BASE    TEXT_BASE
 #if (CFG_MONITOR_BASE < CFG_FLASH_BASE)
-#   define CFG_RAMBOOT 1
+#   define CFG_RAMBOOT		1
 #endif
 
 #define CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
