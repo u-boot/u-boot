@@ -80,8 +80,14 @@ jffs2_part_info(int part_num)
 			flash_info[CFG_JFFS2_FIRST_BANK].start[0];
 #endif
 
-		/* unused in current jffs2 loader */
-		part.erasesize = 0;
+		/* FIXME: Fast hack to get erase size set */
+
+		/* We assume that our JFFS2 partition has
+		 * all erase blocks with the same size
+		 * If we have a clue about the erasesize
+		 * we can skip empty blocks
+		 */
+		part.erasesize = PHYS_FLASH_SECT_SIZE;
 
 		/* Mark the struct as ready */
 		part.usr_priv=(void*)1;

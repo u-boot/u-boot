@@ -215,16 +215,9 @@ void set_timer (ulong t)
 	timestamp = t;
 }
 
-/* delay x useconds AND perserve advance timstamp value */
+/* delay x useconds AND preserve advance timestamp value */
 void udelay (unsigned long usec)
 {
-#ifdef CONFIG_INNOVATOROMAP1510
-#define LOOPS_PER_MSEC 60		/* tuned on omap1510 */
-	volatile int i, time_remaining = LOOPS_PER_MSEC * usec;
-
-	for (i = time_remaining; i > 0; i--) {
-	}
-#else
 	ulong tmo, tmp;
 
 	if(usec >= 1000){		/* if "big" number, spread normalization to seconds */
@@ -242,9 +235,8 @@ void udelay (unsigned long usec)
 	else
 		tmo += tmp;		/* else, set advancing stamp wake up time */
 
-	while (get_timer_masked () < tmo)/* loop till event */
+	while (get_timer_masked () < tmo) /* loop till event */
 		/*NOP*/;
-#endif
 }
 
 void reset_timer_masked (void)

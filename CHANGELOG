@@ -2,6 +2,25 @@
 Changes for U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Christian Hohnstaedt, 23 Apr 2004:
+  JFFS2 speed enhancements:
+  - repair header CRC calculation in jffs2_1pass.c
+  - add eraseblock size to the partition information to skip empty
+    eraseblocks if we find more then 4k of free space.
+  - The JFFS2 scanner is now fast enough to remove the spinning wheel
+    so #ifdef-ed out.
+  - add watchdog calls in long running loops
+
+* Patch by Philippe Robin, 22 Apr 2004:
+  Fix ethernet configuration for "versatile" board 
+
+* Patch by Kshitij Gupta, 21 Apr 2004:
+  Remove busy loop and use MPU timer fr usleep() on OMAP1510/1610 boards
+
+* Patch by Steven Scholz, 24 Feb 2004:
+  Fix a bug in AT91RM9200 ethernet driver:
+  The MII interface is now initialized before accessing the PHY.
+
 * Patch by John Kerl, 19 Apr 2004:
   Use U-boot's miiphy.h for PHY register names, rather than
   introducing a new header file.

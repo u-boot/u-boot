@@ -266,7 +266,7 @@ static int ns8382x_poll(struct eth_device *dev);
 static void ns8382x_disable(struct eth_device *dev);
 
 static struct pci_device_id supported[] = {
-	{PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_8382x},
+	{PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_83820},
 	{}
 };
 

@@ -494,7 +494,7 @@ static struct proc_dir_entry	*pSkRootDir;
 static struct pci_device_id supported[] = {
 	{PCI_VENDOR_ID_3COM, 0x1700},
 	{PCI_VENDOR_ID_SYSKONNECT, PCI_DEVICE_ID_SYSKONNECT_GE},
-	{PCI_VENDOR_ID_SYSKONNECT, PCI_DEVICE_ID_SYSKONNECT_GE_SA},
+	{PCI_VENDOR_ID_SYSKONNECT, PCI_DEVICE_ID_SYSKONNECT_YU},
 	{}
 };
 

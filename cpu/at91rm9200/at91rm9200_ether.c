@@ -378,14 +378,21 @@ int eth_init (bd_t * bd)
 
 	p_mac = AT91C_BASE_EMAC;
 
-	*AT91C_PIOA_PDR = AT91C_PA16_EMDIO | AT91C_PA15_EMDC | AT91C_PA14_ERXER | AT91C_PA13_ERX1 | AT91C_PA12_ERX0 | AT91C_PA11_ECRS_ECRSDV | AT91C_PA10_ETX1 | AT91C_PA9_ETX0 | AT91C_PA8_ETXEN | AT91C_PA7_ETXCK_EREFCK;	/* PIO Disable Register */
+	/* PIO Disable Register */
+	*AT91C_PIOA_PDR = AT91C_PA16_EMDIO | AT91C_PA15_EMDC | AT91C_PA14_ERXER |
+			  AT91C_PA13_ERX1 | AT91C_PA12_ERX0 | AT91C_PA11_ECRS_ECRSDV |
+			  AT91C_PA10_ETX1 | AT91C_PA9_ETX0 | AT91C_PA8_ETXEN |
+			  AT91C_PA7_ETXCK_EREFCK;
 
 	*AT91C_PIOB_PDR = AT91C_PB25_EF100 |
-			AT91C_PB19_ERXCK | AT91C_PB18_ECOL | AT91C_PB17_ERXDV |
-			AT91C_PB16_ERX3 | AT91C_PB15_ERX2 | AT91C_PB14_ETXER |
-			AT91C_PB13_ETX3 | AT91C_PB12_ETX2;
+			  AT91C_PB19_ERXCK | AT91C_PB18_ECOL | AT91C_PB17_ERXDV |
+			  AT91C_PB16_ERX3 | AT91C_PB15_ERX2 | AT91C_PB14_ETXER |
+			  AT91C_PB13_ETX3 | AT91C_PB12_ETX2;
 
-	*AT91C_PIOB_BSR = AT91C_PB25_EF100 | AT91C_PB19_ERXCK | AT91C_PB18_ECOL | AT91C_PB17_ERXDV | AT91C_PB16_ERX3 | AT91C_PB15_ERX2 | AT91C_PB14_ETXER | AT91C_PB13_ETX3 | AT91C_PB12_ETX2;	/* Select B Register */
+	/* Select B Register */
+	*AT91C_PIOB_BSR = AT91C_PB25_EF100 | AT91C_PB19_ERXCK | AT91C_PB18_ECOL |
+			  AT91C_PB17_ERXDV | AT91C_PB16_ERX3 | AT91C_PB15_ERX2 |
+			  AT91C_PB14_ETXER | AT91C_PB13_ETX3 | AT91C_PB12_ETX2;
 
 	*AT91C_PMC_PCER = 1 << AT91C_ID_EMAC;	/* Peripheral Clock Enable Register */
 
@@ -399,6 +406,22 @@ int eth_init (bd_t * bd)
 	}
 	rbfdt[RBF_FRAMEMAX - 1].addr |= RBF_WRAP;
 	rbfp = &rbfdt[0];
+
+	p_mac->EMAC_SA2L = (bd->bi_enetaddr[3] << 24) | (bd->bi_enetaddr[2] << 16)
+			 | (bd->bi_enetaddr[1] <<  8) | (bd->bi_enetaddr[0]);
+	p_mac->EMAC_SA2H = (bd->bi_enetaddr[5] <<  8) | (bd->bi_enetaddr[4]);
+
+	p_mac->EMAC_RBQP = (long) (&rbfdt[0]);
+	p_mac->EMAC_RSR &= ~(AT91C_EMAC_RSR_OVR | AT91C_EMAC_REC | AT91C_EMAC_BNA);
+
+	p_mac->EMAC_CFG = (p_mac->EMAC_CFG | AT91C_EMAC_CAF | AT91C_EMAC_NBC)
+			& ~AT91C_EMAC_CLK;
+
+#ifdef CONFIG_AT91C_USE_RMII
+	p_mac->EMAC_CFG |= AT91C_EMAC_RMII;
+#endif
+
+	p_mac->EMAC_CTL |= AT91C_EMAC_TE | AT91C_EMAC_RE;
 
 	at91rm92000_GetPhyInterface ();
 
@@ -415,22 +438,6 @@ int eth_init (bd_t * bd)
 		printf ("No link\n\r");
 		return 0;
 	}
-
-	p_mac->EMAC_SA2L = (bd->bi_enetaddr[3] << 24) | (bd->bi_enetaddr[2] << 16)
-			 | (bd->bi_enetaddr[1] << 8) | (bd->bi_enetaddr[0]);
-	p_mac->EMAC_SA2H = (bd->bi_enetaddr[5] << 8) | (bd->bi_enetaddr[4]);
-
-	p_mac->EMAC_RBQP = (long) (&rbfdt[0]);
-	p_mac->EMAC_RSR &= ~(AT91C_EMAC_RSR_OVR | AT91C_EMAC_REC | AT91C_EMAC_BNA);
-
-	p_mac->EMAC_CFG = (p_mac->EMAC_CFG | AT91C_EMAC_CAF | AT91C_EMAC_NBC)
-			& ~AT91C_EMAC_CLK;
-
-#ifdef CONFIG_AT91C_USE_RMII
-	p_mac->EMAC_CFG |= AT91C_EMAC_RMII;
-#endif
-
-	p_mac->EMAC_CTL |= AT91C_EMAC_TE | AT91C_EMAC_RE;
 
 	return 0;
 }
