@@ -29,7 +29,7 @@
  * If we are developing, we might want to start armboot from ram
  * so we MUST NOT initialize critical regs like mem-timing ...
  */
-#define CONFIG_INIT_CRITICAL		/* undef for developing */
+#define CONFIG_INIT_CRITICAL
 
 /* ARM asynchronous clock */
 #define AT91C_MAIN_CLOCK	207360000	/* from 18.432 MHz crystal (18432000 / 4 * 45) */
@@ -44,15 +44,7 @@
 #define CONFIG_SETUP_MEMORY_TAGS 1
 #define CONFIG_INITRD_TAG	1
 
-/* define this to include the functionality of boot.bin in u-boot */
-#define CONFIG_BOOTBINFUNC
-
-/* just to make sure */
-#ifndef CONFIG_BOOTBINFUNC
-#define CONFIG_BOOTBINFUNC
-#endif
-
-#ifdef CONFIG_BOOTBINFUNC
+#ifdef CONFIG_INIT_CRITICAL
 #define CFG_USE_MAIN_OSCILLATOR		1
 /* flash */
 #define MC_PUIA_VAL	0x00000000
@@ -82,7 +74,7 @@
 #define SDRC_MR_VAL2	0x00000003 /* Load Mode Register */
 #define SDRC_MR_VAL3	0x00000000 /* Normal Mode */
 #define SDRC_TR_VAL	0x000002E0 /* Write refresh rate */
-#endif
+#endif	/* CONFIG_INIT_CRITICAL */
 
 /*
  * Size of malloc() pool

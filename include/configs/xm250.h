@@ -32,7 +32,7 @@
  * If we are developing, we might want to start armboot from ram
  * so we MUST NOT initialize critical regs like mem-timing ...
  */
-#define CONFIG_INIT_CRITICAL		/* undef for developing */
+#define CONFIG_INIT_CRITICAL
 
 /*
  * High Level Configuration Options
@@ -330,7 +330,7 @@
 #define CFG_MSC2_VAL	    0x35f435fc	/* IDE	   / BCR + WatchDog (cs4)/(cS5)	  */
 #define CFG_MDCNFG_VAL	    0x000009c9
 #define CFG_MDMRS_VAL	    0x00220022
-#define CFG_MDREFR_VAL	    0x000da018	/* Initial setting, individual bits set in memsetup.S */
+#define CFG_MDREFR_VAL	    0x000da018	/* Initial setting, individual bits set in lowlevel_init.S */
 
 /*
  * PCMCIA and CF Interfaces (NOT USED, these values from lubbock init)

@@ -243,7 +243,7 @@ reset:
 
 	/* Initialize any external memory.
 	 */
-	bal	memsetup
+	bal	lowlevel_init
 	nop
 
 	/* Initialize caches...

@@ -33,7 +33,7 @@
  * Also swap the flash1 and flash2 addresses during debug.
  *
  */
-#define CONFIG_INIT_CRITICAL		/* undef for developing */
+#define CONFIG_INIT_CRITICAL
 
 /*
  * High Level Configuration Options

@@ -34,7 +34,7 @@
  * If we are developing, we might want to start armboot from ram
  * so we MUST NOT initialize critical regs like mem-timing ...
  */
-#define CONFIG_INIT_CRITICAL		/* undef for developing */
+#define CONFIG_INIT_CRITICAL
 
 /*
  * High Level Configuration Options
@@ -208,8 +208,8 @@
 #define CFG_MDCNFG_VAL		0x00000aC9 /* Memory timings for the SDRAM.
 					      tRP=2, CL=2, tRCD=2, tRAS=5, tRC=8 */
 
-#define CFG_MDREFR_VAL		0x00403018 /* Initial setting, individual
-					      bits set in memsetup.S	  */
+#define CFG_MDREFR_VAL		0x00403018 /* Initial setting, individual	*/
+					   /* bits set in lowlevel_init.S	*/
 #define CFG_MDMRS_VAL		0x00000000
 
 /*

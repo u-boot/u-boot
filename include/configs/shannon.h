@@ -37,7 +37,7 @@
  * bring us to live
  */
 #define CONFIG_INFERNO			/* we are using the inferno bootldr */
-#undef CONFIG_INIT_CRITICAL		/* undef for developing */
+#undef CONFIG_INIT_CRITICAL
 
 /*
  * High Level Configuration Options

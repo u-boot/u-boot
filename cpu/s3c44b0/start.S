@@ -117,9 +117,9 @@ reset:
 	/*
 	 * before relocating, we have to setup RAM timing
 	 * because memory timing is board-dependend, you will
-	 * find a memsetup.S in your board directory.
+	 * find a lowlevel_init.S in your board directory.
 	 */
-	bl	memsetup
+	bl	lowlevel_init
 #endif
 
 relocate:				/* relocate U-Boot to RAM	    */

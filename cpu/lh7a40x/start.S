@@ -229,10 +229,10 @@ cpu_init_crit:
 	/*
 	 * before relocating, we have to setup RAM timing
 	 * because memory timing is board-dependend, you will
-	 * find a memsetup.S in your board directory.
+	 * find a lowlevel_init.S in your board directory.
 	 */
 	mov	ip, lr
-	bl	memsetup
+	bl	lowlevel_init
 	mov	lr, ip
 
 	mov	pc, lr

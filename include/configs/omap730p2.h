@@ -32,7 +32,7 @@
  * so we MUST NOT initialize critical regs like mem-timing ...
  */
 
-#define CONFIG_INIT_CRITICAL		     /* undef for developing */
+#define CONFIG_INIT_CRITICAL
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE

@@ -28,7 +28,7 @@ include $(TOPDIR)/config.mk
 LIB	= lib$(BOARD).a
 
 OBJS	= $(BOARD).o flash.o vr4131-pci.o
-SOBJS	= memsetup.o
+SOBJS	= lowlevel_init.o
 
 $(LIB):	.depend $(OBJS) $(SOBJS)
 	$(AR) crv $@ $(OBJS) $(SOBJS)

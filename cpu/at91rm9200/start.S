@@ -115,7 +115,7 @@ reset:
 	orr     r0,r0,#0xd3 /* was 13 */
 	msr     cpsr,r0
 
-#ifdef CONFIG_BOOTBINFUNC
+#ifdef CONFIG_INIT_CRITICAL
 	/* scratch stack */
 	ldr 	r1, =0x00204000
 	/* Insure word alignment */
@@ -141,7 +141,7 @@ reset:
 	orr	r0, r0, #0x00001000	@ set bit 12 (I) I-Cache
 	orr	r0, r0, #0xC0000000	@ set bits 31:30 (iA, nF)
 	mcr     p15, 0, r0, c1, c0, 0	@ write r0 in cp15 control register (cp15 r1)
-#endif /* CONFIG_BOOTBINFUNC */
+#endif /* CONFIG_INIT_CRITICAL */
 	/*
 	 * relocate exeception table
 	 */
@@ -160,9 +160,7 @@ copyex:
 	 */
 #ifdef CONFIG_INIT_CRITICAL
 	bl      cpu_init_crit
-#endif
 
-#ifdef CONFIG_BOOTBINFUNC
 relocate:				/* relocate U-Boot to RAM	    */
 	adr	r0, _start		/* r0 <- current position of code   */
 	ldr	r1, _TEXT_BASE		/* test if we run from flash or RAM */
@@ -179,7 +177,7 @@ copy_loop:
 	stmia	r1!, {r3-r10}		/* copy to   target address [r1]    */
 	cmp	r0, r2			/* until source end addreee [r2]    */
 	ble	copy_loop
-#endif /* CONFIG_BOOTBINFUNC */
+#endif /* CONFIG_INIT_CRITICAL */
 
 	/* Set up the stack						    */
 stack_setup:

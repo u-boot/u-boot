@@ -47,7 +47,7 @@ Files:
 
 cpu/arm720t/serial_netarm.c .. serial I/O for the cpu
 
-board/modnet50/memsetup.S   .. memory setup for ModNET50
+board/modnet50/lowlevel_init.S   .. memory setup for ModNET50
 board/modnet50/flash.c	    .. flash routines
 board/modnet50/modnet50.c   .. some board init stuff
 

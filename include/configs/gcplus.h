@@ -38,7 +38,7 @@
  * e.g. bootp/tftp download of the kernel is a far more convenient
  * when testing new kernels on this target. However the ADS GCPlus Linux
  * boot ROM leaves the MMU enabled when it passes control to U-Boot. So
- * we use memsetup (CONFIG_INIT_CRITICAL) to remedy that problem.
+ * we use lowlevel_init (CONFIG_INIT_CRITICAL) to remedy that problem.
  */
 #define CONFIG_INIT_CRITICAL
 

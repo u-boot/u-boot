@@ -29,7 +29,7 @@
  * If we are developing, we might want to start armboot from ram
  * so we MUST NOT initialize critical regs like mem-timing ...
  */
-#define CONFIG_INIT_CRITICAL		/* undef for developing */
+#define CONFIG_INIT_CRITICAL
 
 /* ARM asynchronous clock */
 #define AT91C_MAIN_CLOCK	179712000	/* from 18.432 MHz crystal (18432000 / 4 * 39) */
@@ -44,10 +44,7 @@
 #define CONFIG_SETUP_MEMORY_TAGS 1
 #define CONFIG_INITRD_TAG	1
 
-/* define this to include the functionality of boot.bin in u-boot */
-#undef CONFIG_BOOTBINFUNC
-
-#ifdef CONFIG_BOOTBINFUNC
+#ifdef CONFIG_INIT_CRITICAL
 #define CFG_USE_MAIN_OSCILLATOR		1
 /* flash */
 #define MC_PUIA_VAL	0x00000000
@@ -77,7 +74,7 @@
 #define SDRC_MR_VAL2	0x00000003 /* Load Mode Register */
 #define SDRC_MR_VAL3	0x00000000 /* Normal Mode */
 #define SDRC_TR_VAL	0x000002E0 /* Write refresh rate */
-#endif
+#endif	/* CONFIG_INIT_CRITICAL */
 /*
  * Size of malloc() pool
  */
@@ -180,19 +177,19 @@
 #define CFG_ENV_SIZE			0x2000  /* 0x8000 */
 #else
 #define CFG_ENV_IS_IN_FLASH		1
-#ifdef CONFIG_BOOTBINFUNC
+#ifdef CONFIG_INIT_CRITICAL
 #define CFG_ENV_ADDR			(PHYS_FLASH_1 + 0x60000)  /* after u-boot.bin */
 #define CFG_ENV_SIZE			0x10000 /* sectors are 64K here */
 #else
 #define CFG_ENV_ADDR			(PHYS_FLASH_1 + 0xe000)  /* between boot.bin and u-boot.bin.gz */
 #define CFG_ENV_SIZE			0x2000  /* 0x8000 */
-#endif
-#endif
+#endif	/* CONFIG_INIT_CRITICAL */
+#endif	/* CFG_ENV_IS_IN_DATAFLASH */
 
 
 #define CFG_LOAD_ADDR		0x21000000  /* default load address */
 
-#ifdef CONFIG_BOOTBINFUNC
+#ifdef CONFIG_INIT_CRITICAL
 #define CFG_BOOT_SIZE		0x00 /* 0 KBytes */
 #define CFG_U_BOOT_BASE		PHYS_FLASH_1
 #define CFG_U_BOOT_SIZE		0x60000 /* 384 KBytes */
@@ -200,7 +197,7 @@
 #define CFG_BOOT_SIZE		0x6000 /* 24 KBytes */
 #define CFG_U_BOOT_BASE		(PHYS_FLASH_1 + 0x10000)
 #define CFG_U_BOOT_SIZE		0x10000 /* 64 KBytes */
-#endif
+#endif	/* CONFIG_INIT_CRITICAL */
 
 #define CFG_BAUDRATE_TABLE	{115200 , 19200, 38400, 57600, 9600 }
 

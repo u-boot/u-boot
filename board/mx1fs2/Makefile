@@ -26,7 +26,7 @@ include $(TOPDIR)/config.mk
 LIB	= lib$(BOARD).a
 
 OBJS	:= mx1fs2.o flash.o
-SOBJS	:= memsetup.o
+SOBJS	:= lowlevel_init.o
 
 $(LIB):	$(OBJS) $(SOBJS)
 	$(AR) crv $@ $^

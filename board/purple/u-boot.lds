@@ -35,7 +35,7 @@ SECTIONS
 	.text       :
 	{
 	  cpu/mips/start.o		(.text)
-	  board/purple/memsetup.o	(.text)
+	  board/purple/lowlevel_init.o	(.text)
 	  cpu/mips/cache.o		(.text)
 	  common/main.o			(.text)
 	  common/dlmalloc.o		(.text)

@@ -27,7 +27,7 @@
  * If we are developing, we might want to start armboot from ram
  * so we MUST NOT initialize critical regs like mem-timing ...
  */
-#define CONFIG_INIT_CRITICAL            /* undef for developing */
+#define CONFIG_INIT_CRITICAL
 
 #define CONFIG_PXA250          1        /* this is an PXA250 CPU     */
 #define CONFIG_WEPEP250        1        /* config for wepep250 board */

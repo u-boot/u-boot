@@ -80,8 +80,8 @@ BCR_DB1110:	.long	ASSABET_BCR_DB1110
 LEDS:		.long	NEPONSET_LEDS
 
 
-	.globl memsetup
-memsetup:
+	.globl lowlevel_init
+lowlevel_init:
 
 	/* Setting up the memory and stuff */
 
