@@ -583,7 +583,7 @@ relocate_code:
 
 	/* First our own GOT */
 	add	r14, r14, r15
-	/* the the one used by the C code */
+	/* then the one used by the C code */
 	add	r30, r30, r15
 
 	/*

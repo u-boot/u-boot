@@ -203,7 +203,14 @@
 
 #define CFG_HZ			1000	/* decrementer freq: 1 ms ticks */
 
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+/*
+ * When the watchdog is enabled, output must be fast enough in Linux.
+ */
+#ifdef CONFIG_WATCHDOG
+#define CFG_BAUDRATE_TABLE	{		38400, 57600, 115200 }
+#else
+#define CFG_BAUDRATE_TABLE	{  9600, 19200, 38400, 57600, 115200 }
+#endif
 
 /*
  * Low Level Configuration Settings

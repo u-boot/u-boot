@@ -2,6 +2,14 @@
 Changes since U-Boot 0.2.0:
 ======================================================================
 
+* Update baudrate in bd_info when it gets changed
+
+* Add watchdog trigger points while waiting for serial port
+  (so far only 8xx -- needed on LWMON with 100ms watchdog)
+
+* Improve command line tool to access the U-Boot's environment
+  (figuration of the utility, using a config file)
+
 * Add single quote support for (old) command line parser
 
 * Switch LWMON board default config from FRAM to EEPROM;

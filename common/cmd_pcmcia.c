@@ -282,7 +282,7 @@ static int check_ide_device (int slot)
 
 	addr = (volatile uchar *)(CFG_PCMCIA_MEM_ADDR +
 				  CFG_PCMCIA_MEM_SIZE * (slot * 4));
-	debug ("PCMCIA MEM: %08X\n", addr);
+	debug ("PCMCIA MEM: %08lX\n", (ulong)addr);
 
 	start = p = (volatile uchar *) addr;
 

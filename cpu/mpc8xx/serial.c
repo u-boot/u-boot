@@ -24,6 +24,7 @@
 #include <common.h>
 #include <commproc.h>
 #include <command.h>
+#include <watchdog.h>
 
 #if !defined(CONFIG_8xx_CONS_NONE)	/* No Console at all */
 
@@ -265,20 +266,16 @@ serial_putc(const char c)
 	*/
 
 	buf = (char *)tbdf->cbd_bufaddr;
-#if 0
-	__asm__("eieio");
-	while (tbdf->cbd_sc & BD_SC_READY)
-		__asm__("eieio");
-#endif
 
 	*buf = c;
 	tbdf->cbd_datlen = 1;
 	tbdf->cbd_sc |= BD_SC_READY;
 	__asm__("eieio");
-#if 1
-	while (tbdf->cbd_sc & BD_SC_READY)
+
+	while (tbdf->cbd_sc & BD_SC_READY) {
+		WATCHDOG_RESET ();
 		__asm__("eieio");
-#endif
+	}
 }
 
 int
@@ -298,8 +295,10 @@ serial_getc(void)
 	/* Wait for character to show up.
 	*/
 	buf = (unsigned char *)rbdf->cbd_bufaddr;
+
 	while (rbdf->cbd_sc & BD_SC_EMPTY)
-		;
+		WATCHDOG_RESET ();
+
 	c = *buf;
 	rbdf->cbd_sc |= BD_SC_EMPTY;
 
@@ -524,20 +523,16 @@ serial_putc(const char c)
 	*/
 
 	buf = (char *)tbdf->cbd_bufaddr;
-#if 0
-	__asm__("eieio");
-	while (tbdf->cbd_sc & BD_SC_READY)
-		__asm__("eieio");
-#endif
 
 	*buf = c;
 	tbdf->cbd_datlen = 1;
 	tbdf->cbd_sc |= BD_SC_READY;
 	__asm__("eieio");
-#if 1
-	while (tbdf->cbd_sc & BD_SC_READY)
+
+	while (tbdf->cbd_sc & BD_SC_READY) {
 		__asm__("eieio");
-#endif
+		WATCHDOG_RESET ();
+	}
 }
 
 int
@@ -557,8 +552,10 @@ serial_getc(void)
 	/* Wait for character to show up.
 	*/
 	buf = (unsigned char *)rbdf->cbd_bufaddr;
+
 	while (rbdf->cbd_sc & BD_SC_EMPTY)
-		;
+		WATCHDOG_RESET ();
+
 	c = *buf;
 	rbdf->cbd_sc |= BD_SC_EMPTY;
 

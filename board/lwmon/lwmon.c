@@ -833,7 +833,7 @@ int do_kbd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 /* Read and set LSB switch */
-#define CFG_PC_TXD1_ENA		0x0008
+#define CFG_PC_TXD1_ENA		0x0008		/* PC.12 */
 
 /***********************************************************************
 F* Function:     int do_lsb (cmd_tbl_t *cmdtp, int flag,

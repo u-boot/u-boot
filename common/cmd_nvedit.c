@@ -232,6 +232,10 @@ int _do_setenv (int flag, int argc, char *argv[])
 				baudrate);
 			udelay(50000);
 			gd->baudrate = baudrate;
+#ifdef CONFIG_PPC
+			gd->bd->bi_baudrate = baudrate;
+#endif
+
 			serial_setbrg ();
 			udelay(50000);
 			for (;;) {

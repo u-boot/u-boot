@@ -167,7 +167,7 @@ env_t environment __PPCENV__ = {
 #ifdef  CONFIG_EXTRA_ENV_SETTINGS
 	CONFIG_EXTRA_ENV_SETTINGS
 #endif
-	"\0"		/* Term. env_t.data with 2 NULLs */
+	"\0"		/* Term. env_t.data with 2 NULs */
 	}
 };
 #ifdef CFG_ENV_ADDR_REDUND
