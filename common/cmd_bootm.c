@@ -567,10 +567,10 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		kbd->bi_sccfreq /= 1000000L;
 		kbd->bi_vco     /= 1000000L;
 #endif /* CONFIG_8260 */
-#if defined(CONFIG_MPC5XXXX)
+#if defined(CONFIG_MPC5XXX)
 		kbd->bi_ipbfreq /= 1000000L;
 		kbd->bi_pcifreq /= 1000000L;
-#endif /* CONFIG_MPC5XXXX */
+#endif /* CONFIG_MPC5XXX */
 	}
 
 	kernel = (void (*)(bd_t *, ulong, ulong, ulong, ulong))hdr->ih_ep;

@@ -2,6 +2,8 @@
 Changes since U-Boot 1.0.0:
 ======================================================================
 
+* Fix type in MPC5XXX code (pointed out by Victor Wren)
+
 * Enabled password check on RMU board
 
 * Fix configuration problem with IceCube in LOWBOOT configuration:
