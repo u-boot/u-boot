@@ -1,0 +1,57 @@
+#!/bin/sh -e
+
+# Script to create header files and links to configure
+# U-Boot for a specific board.
+#
+# Parameters:  Target  Architecture  CPU  Board
+#
+# (C) 2002 DENX Software Engineering, Wolfgang Denk <wd@denx.de>
+#
+
+APPEND=no	# Default: Create new config file
+
+while [ $# -gt 0 ] ; do
+	case "$1" in
+	--) shift ; break ;;
+	-a) shift ; APPEND=yes ;;
+	*)  break ;;
+	esac
+done
+
+[ $# -lt 4 ] && exit 1
+[ $# -gt 5 ] && exit 1
+
+echo "Configuring for $1 board..."
+
+cd ./include
+
+#
+# Create link to architecture specific headers
+#
+rm -f asm
+ln -s asm-$2 asm
+rm -f asm-$2/arch
+ln -s arch-$3 asm-$2/arch
+
+#
+# Create include file for Make
+#
+echo "ARCH  = $2" >  config.mk
+echo "CPU   = $3" >> config.mk
+echo "BOARD = $4" >> config.mk
+
+[ "$5" ] && echo "VENDOR = $5" >> config.mk
+
+#
+# Create board specific header file
+#
+if [ "$APPEND" = "yes" ]	# Append to existing config file
+then
+	echo >> config.h
+else
+	> config.h		# Create new config file
+fi
+echo "/* Automatically generated - do not edit */" >>config.h
+echo "#include <configs/$1.h>" >>config.h
+
+exit 0

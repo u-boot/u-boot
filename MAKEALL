@@ -1,0 +1,138 @@
+#!/bin/sh
+
+if [ "${CROSS_COMPILE}" ] ; then
+	MAKE="make CROSS_COMPILE=${CROSS_COMPILE}"
+else
+	MAKE=make
+fi
+
+[ -d LOG ] || mkdir LOG || exit 1
+
+LIST=""
+
+#########################################################################
+## MPC8xx Systems
+#########################################################################
+
+LIST_8xx="	\
+	ADS860		AMX860		c2mon		CCM		\
+	cogent_mpc8xx	ESTEEM192E	ETX094		FADS823		\
+	FADS850SAR	FADS860T	FLAGADM		FPS850L		\
+	GEN860T		GENIETV		GTH		hermes		\
+	IAD210		ICU862_100MHz	IP860		IVML24		\
+	IVML24_128	IVML24_256	IVMS8		IVMS8_128	\
+	IVMS8_256	LANTEC		lwmon		MBX		\
+	MBX860T		MHPC		MVS1		NETVIA		\
+	NX823		pcu_e		R360MPI		RPXClassic	\
+	RPXlite		RRvision	SM850		SPD823TS	\
+	SXNI855T	TQM823L		TQM823L_LCD	TQM850L		\
+	TQM855L		TQM860L		TQM860L_FEC	TTTech		\
+"
+
+#########################################################################
+## PPC4xx Systems
+#########################################################################
+
+LIST_4xx="	\
+	ADCIOP		AR405		CANBT		CPCI405		\
+	CPCI4052 	CPCI440         CPCIISER4	CRAYL1  	\
+	DASA_SIM	DU405    	EBONY           ERIC  		\
+	MIP405  	ML2		OCRTC		ORSG		\
+	PCI405          PIP405		W7OLMC		W7OLMG          \
+	WALNUT405							\
+"
+
+#########################################################################
+## MPC824x Systems
+#########################################################################
+
+LIST_824x="	\
+	BMW		CU824		MOUSSE		MUSENKI		\
+	OXC		PN62		Sandpoint8240	Sandpoint8245	\
+	utx8245								\
+"
+
+#########################################################################
+## MPC8260 Systems
+#########################################################################
+
+LIST_8260="	\
+	cogent_mpc8260	CPU86		ep8260		gw8260		\
+	hymod		IPHASE4539	MPC8260ADS	PM826		\
+	ppmc8260	RPXsuper	rsdproto	sacsng		\
+	sbc8260		SCM		TQM8260				\
+"
+
+#########################################################################
+## 74xx/7xx Systems
+#########################################################################
+
+LIST_74xx="	\
+	EVB64260	PCIPPC2		PCIPPC6		ZUMA		\
+"
+
+LIST_7xx="	\
+	BAB7xx		ELPPC						\
+"
+
+LIST_ppc="${LIST_8xx} ${LIST_824x} ${LIST_8260} \
+	  ${LIST_4xx} ${LIST_74xx} ${LIST_7xx}"
+
+#########################################################################
+## StrongARM Systems
+#########################################################################
+
+LIST_SA="lart shannon dnp1110"
+
+#########################################################################
+## ARM7 Systems
+#########################################################################
+
+LIST_ARM7="impa7 ep7312"
+
+#########################################################################
+## ARM9 Systems
+#########################################################################
+
+LIST_ARM9="smdk2400 smdk2410 trab"
+
+#########################################################################
+## Xscale Systems
+#########################################################################
+
+LIST_xscale="lubbock cradle csb226"
+
+
+LIST_arm="${LIST_SA} ${LIST_ARM7} ${LIST_ARM9} ${LIST_xscale}"
+
+
+#----- for now, just run PPC by default -----
+[ $# = 0 ] && set $LIST_ppc
+
+#-----------------------------------------------------------------------
+
+build_target() {
+	target=$1
+
+	${MAKE} distclean >/dev/null
+	${MAKE} ${target}_config
+	${MAKE} all 2>&1 >LOG/$target.MAKELOG | tee LOG/$target.ERR
+	${CROSS_COMPILE:-ppc_8xx-}size u-boot | tee -a LOG/$target.MAKELOG
+}
+
+#-----------------------------------------------------------------------
+
+
+for arg in $@
+do
+	case "$arg" in
+	8xx|824x|8260|4xx|7xx|74xx|SA|ARM7|ARM9|ppc|arm|xscale)
+			for target in `eval echo '$LIST_'${arg}`
+			do
+				build_target ${target}
+			done
+			;;
+	*)		build_target ${arg}
+			;;
+	esac
+done
