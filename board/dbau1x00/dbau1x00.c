@@ -104,17 +104,17 @@ int checkboard (void)
 		      CFG_PCMCIA_ATTR_BASE, /* Hi */
 		      0x3D000017,           /* Lo0 */
 		      0x3D200017);          /* Lo1 */
-#endif
+#endif	/* 0 */
 	write_one_tlb(22,                   /* index */
 		      0x01ffe000,           /* Pagemask, 16 MB pages */
 		      CFG_PCMCIA_MEM_ADDR,  /* Hi */
 		      0x3E000017,           /* Lo0 */
 		      0x3E200017);          /* Lo1 */
+#endif	/* CONFIG_IDE_PCMCIA */
 
 	/* Release reset of ethernet PHY chips */
 	/* Always do this, because linux does not know about it */
 	*phy = 3;
 
 	return 0;
-#endif
 }

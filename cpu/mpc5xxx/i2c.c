@@ -285,6 +285,7 @@ int i2c_probe(uchar chip)
 
 		if (! do_address(chip, 0)) {
 			mpc_reg_out(&regs->mcr, 0, I2C_STA);
+			udelay(500);
 			break;
 		}
 
