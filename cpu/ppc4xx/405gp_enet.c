@@ -173,17 +173,16 @@ static bd_t *bis_save = NULL;	/* for eth_init upon mal error */
 static int is_receiving = 0;	/* sync with eth interrupt */
 static int print_speed = 1;	/* print speed message upon start */
 
-static void enet_rcv (unsigned long malisr);
-
 /*-----------------------------------------------------------------------------+
  * Prototypes and externals.
  *-----------------------------------------------------------------------------*/
-void mal_err (unsigned long isr, unsigned long uic, unsigned long mal_def,
+static void enet_rcv (unsigned long malisr);
+static int  enetInt(void);
+static void mal_err (unsigned long isr, unsigned long uic, unsigned long mal_def,
 	      unsigned long mal_errr);
-void emac_err (unsigned long isr);
+static void emac_err (unsigned long isr);
 
-
-void eth_halt (void)
+static void ppc_4xx_eth_halt (struct eth_device *dev)
 {
 	mtdcr (malier, 0x00000000);	/* disable mal interrupts */
 	out32 (EMAC_IER, 0x00000000);	/* disable emac interrupts */
@@ -202,7 +201,7 @@ void eth_halt (void)
 }
 
 
-int eth_init (bd_t * bis)
+static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 {
 	int i;
 	unsigned long reg;
@@ -478,11 +477,11 @@ int eth_init (bd_t * bis)
 	bis_save = bis;
 	first_init = 1;
 
-	return (0);
+	return (1);
 }
 
 
-int eth_send (volatile void *ptr, int len)
+static int ppc_4xx_eth_send (struct eth_device *dev, volatile void *ptr, int len)
 {
 	struct enet_frame *ef_ptr;
 	ulong time_start, time_now;
@@ -539,7 +538,7 @@ int eth_send (volatile void *ptr, int len)
 				return (-1);
 			}
 		} else {
-			return (0);
+			return (len);
 		}
 	}
 }
@@ -696,7 +695,7 @@ int enetInt ()
 /*-----------------------------------------------------------------------------+
  *  MAL Error Routine
  *-----------------------------------------------------------------------------*/
-void mal_err (unsigned long isr, unsigned long uic, unsigned long maldef,
+static void mal_err (unsigned long isr, unsigned long uic, unsigned long maldef,
 	      unsigned long mal_errr)
 {
 	mtdcr (malesr, isr);		/* clear interrupt */
@@ -724,7 +723,7 @@ void mal_err (unsigned long isr, unsigned long uic, unsigned long maldef,
 /*-----------------------------------------------------------------------------+
  *  EMAC Error Routine
  *-----------------------------------------------------------------------------*/
-void emac_err (unsigned long isr)
+static void emac_err (unsigned long isr)
 {
 	printf ("EMAC error occured.... ISR = %lx\n", isr);
 	out32 (EMAC_ISR, isr);
@@ -816,7 +815,7 @@ static void enet_rcv (unsigned long malisr)
 }
 
 
-int eth_rx (void)
+static int ppc_4xx_eth_rx (struct eth_device *dev)
 {
 	int length;
 	int user_index;
@@ -863,5 +862,47 @@ int eth_rx (void)
 
 	return length;
 }
+
+#if defined(CONFIG_NET_MULTI)
+int ppc_4xx_eth_initialize(bd_t *bis)
+{
+        struct eth_device *dev;
+        int                eth_num = 0;
+
+        dev = malloc (sizeof *dev);
+        if (dev == NULL) {
+                printf(__FUNCTION__ ": Cannot allocate eth_device\n");
+                return (-1);
+        }
+
+        sprintf(dev->name, "ppc_4xx_eth%d", eth_num);
+        dev->priv = (void *) eth_num;
+        dev->init = ppc_4xx_eth_init;
+        dev->halt = ppc_4xx_eth_halt;
+        dev->send = ppc_4xx_eth_send;
+        dev->recv = ppc_4xx_eth_rx;
+
+        eth_register (dev);
+}
+#else /* !defined(CONFIG_NET_MULTI) */
+void eth_halt (void)
+{
+        ppc_4xx_eth_halt(NULL);
+}
+
+int eth_init (bd_t *bis)
+{
+        return (ppc_4xx_eth_init(NULL, bis));
+}
+int eth_send(volatile void *packet, int length)
+{
+        return (ppc_4xx_eth_send(NULL, packet, length));
+}
+
+int eth_rx(void)
+{
+        return (ppc_4xx_eth_rx(NULL));
+}
+#endif /* !defined(CONFIG_NET_MULTI) */
 
 #endif	/* CONFIG_405GP */
