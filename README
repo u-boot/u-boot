@@ -620,6 +620,13 @@ The following options need to be configured:
 		SIU Watchdog feature is enabled in the SYPCR
 		register.
 
+- U-Boot Version:
+		CONFIG_VERSION_VARIABLE
+		If this variable is defined, an environment variable
+		named "ver" is created by U-Boot showing the U-Boot
+		version as printed by the "version" command.
+		This variable is readonly.
+
 - Real-Time Clock:
 
 		When CFG_CMD_DATE is selected, the type of the RTC
@@ -733,7 +740,7 @@ The following options need to be configured:
 	16,7 Mill (24bit)     315       318       31b
 		(i.e. setenv videomode 317; saveenv; reset;)
 
-		CONFIG_VIDEO_SED13806 
+		CONFIG_VIDEO_SED13806
 		Enable Epson SED13806 driver. This driver supports 8bpp
 		and 16bpp modes defined by CONFIG_VIDEO_SED13806_8BPP
 		or CONFIG_VIDEO_SED13806_16BPP
@@ -1973,6 +1980,13 @@ the board). U-Boot refuses to delete or overwrite these variables
 once they have been set once.
 
 
+Further special Environment Variables:
+
+  ver		- Contains the U-Boot version string as printed
+		  with the "version" command. This variable is
+		  readonly (see CONFIG_VERSION_VARIABLE).
+
+
 Please note that changes to some configuration parameters may take
 only effect after the next boot (yes, that's just like Windoze :-).
 
@@ -2381,18 +2395,18 @@ U-Boot supports the following image types:
   	to boot over the network using BOOTP etc., where the boot
   	server provides just a single image file, but you want to get
   	for instance an OS kernel and a RAMDisk image.
-  
+
   	"Multi-File Images" start with a list of image sizes, each
   	image size (in bytes) specified by an "uint32_t" in network
   	byte order. This list is terminated by an "(uint32_t)0".
   	Immediately after the terminating 0 follow the images, one by
   	one, all aligned on "uint32_t" boundaries (size rounded up to
   	a multiple of 4 bytes).
-  
+
    "Firmware Images" are binary images containing firmware (like
   	U-Boot or FPGA images) which usually will be programmed to
   	flash memory.
-  
+
    "Script files" are command sequences that will be executed by
   	U-Boot's command interpreter; this feature is especially
   	useful when you configure U-Boot to use a real shell (hush)
