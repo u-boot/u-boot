@@ -93,7 +93,9 @@ int miiphy_read (unsigned char addr, unsigned char reg,
 	while ((in32 (EMAC_STACR) & EMAC_STACR_OC) == 0) {
 		udelay (7);
 		if (i > 5) {
+#if 0	/* test-only */
 			printf ("read err 1\n");
+#endif
 			return -1;
 		}
 		i++;
@@ -116,16 +118,20 @@ int miiphy_read (unsigned char addr, unsigned char reg,
 	while ((sta_reg & EMAC_STACR_OC) == 0) {
 		udelay (7);
 		if (i > 5) {
+#if 0	/* test-only */
 			printf ("read err 2\n");
+#endif
 			return -1;
 		}
 		i++;
 		sta_reg = in32 (EMAC_STACR);
 	}
 	if ((sta_reg & EMAC_STACR_PHYE) != 0) {
+#if 0	/* test-only */
 		printf ("read err 3\n");
 		printf ("a2: read: EMAC_STACR=0x%0lx, i=%d\n",
 			sta_reg, (int) i);	/* test-only */
+#endif
 		return -1;
 	}
 
