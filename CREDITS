@@ -223,6 +223,10 @@ N: Sangmoon Kim
 E: dogoil@etinsys.com
 D: Support for debris board
 
+N: Frederick W. Klatt
+E: fred.klatt@windriver.com
+D: Support for Wind River SBC8540/SBC8560 boards
+
 N: Thomas Koeller
 E: tkoeller@gmx.net
 D: Port to Motorola Sandpoint 3 (MPC8240)

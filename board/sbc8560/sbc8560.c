@@ -235,7 +235,11 @@ int checkboard (void)
 
 	get_sys_info (&sysinfo);
 
+#ifdef CONFIG_SBC8560
 	printf ("Board: Wind River SBC8560 Board\n");
+#else
+	printf ("Board: Wind River SBC8540 Board\n");
+#endif
 	printf ("\tCPU: %lu MHz\n", sysinfo.freqProcessor / 1000000);
 	printf ("\tCCB: %lu MHz\n", sysinfo.freqSystemBus / 1000000);
 	printf ("\tDDR: %lu MHz\n", sysinfo.freqSystemBus / 2000000);

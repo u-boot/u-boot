@@ -1096,11 +1096,23 @@ MPC8541CDS_config:	unconfig
 MPC8555CDS_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc85xx mpc8555cds cds
 
+sbc8540_config \
+sbc8540_33_config \
+sbc8540_66_config:	unconfig
+	@if [ "$(findstring _66_,$@)" ] ; then \
+		echo "#define CONFIG_PCI_66"	>>include/config.h ; \
+		echo "... 66 MHz PCI" ; \
+	else \
+		>include/config.h ; \
+		echo "... 33 MHz PCI" ; \
+	fi
+	@./mkconfig -a SBC8540 ppc mpc85xx sbc8560
+
 sbc8560_config \
 sbc8560_33_config \
 sbc8560_66_config:      unconfig
 	@if [ "$(findstring _66_,$@)" ] ; then \
-		echo "#define CONFIG_PCI_66"  >>include/config.h ; \
+		echo "#define CONFIG_PCI_66"	>>include/config.h ; \
 		echo "... 66 MHz PCI" ; \
 	else \
 		>include/config.h ; \

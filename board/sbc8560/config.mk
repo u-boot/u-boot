@@ -22,7 +22,6 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
 #
-
 #
 # based on mpc8560ads board
 # default CCARBAR is at 0xff700000

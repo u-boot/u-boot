@@ -159,8 +159,15 @@ lock_end:
 	 */
 	mov r0, #0x10000000                 /* Load physical SDRAM base. */
 	mov r1, pc                          /* Get current execution location. */
-	cmp r1, r0                          /* Compare. */
-	bge skip_sdram                      /* Skip over EMIF-fast initialization if running from SDRAM. */
+	/* Zero all but top 6 bits of PC, as they alone detect whether an 
+	 * address is in the range 0x1000:0000-0x13ff:ffff, the 64M sized
+	 * valid range for SDRAM on the OMAP 1510/5910.
+	 */
+	and r1, r1, #0xfc000000
+	cmp r1, r0			/* Compare. */
+	beq skip_sdram			/* Skip over EMIF-fast initialization
+					 * if running from SDRAM.
+					 */
 
 	/*
 	 * Delay for SDRAM initialization.
