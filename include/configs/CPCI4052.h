@@ -136,6 +136,8 @@
 
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 
+#define CONFIG_VERSION_VARIABLE	1       /* include version env variable */
+
 /*-----------------------------------------------------------------------
  * PCI stuff
  *-----------------------------------------------------------------------
