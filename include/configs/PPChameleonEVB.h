@@ -38,6 +38,18 @@
 #define CONFIG_PPCHAMELEON_MODULE_MODEL CONFIG_PPCHAMELEON_MODULE_BA
 #endif
 
+
+/* Only one of the following two symbols must be defined (default is 25 MHz)
+ * CONFIG_PPCHAMELEON_CLK_25
+ * CONFIG_PPCHAMELEON_CLK_33
+ */
+
+#if (defined(CONFIG_PPCHAMELEON_CLK_25) && defined(CONFIG_PPCHAMELEON_CLK_33))
+#error "* Two external frequencies (SysClk) are defined! *"
+#endif
+
+#undef	CONFIG_PPCHAMELEON_SMI712
+
 /*
  * Debug stuff
  */
@@ -60,7 +72,14 @@
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* call board_early_init_f()	*/
 #define CONFIG_MISC_INIT_R	1	/* call misc_init_r()		*/
 
+
+#ifdef CONFIG_PPCHAMELEON_CLK_25
+	#define CONFIG_SYS_CLK_FREQ	25000000 /* external frequency to pll	*/
+#elif (defined (CONFIG_PPCHAMELEON_CLK_33))
 #define CONFIG_SYS_CLK_FREQ	33333333 /* external frequency to pll	*/
+#else
+#error "* External frequency (SysClk) not defined! *"
+#endif
 
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
@@ -74,7 +93,6 @@
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
-
 
 #undef CONFIG_EXT_PHY
 #define CONFIG_NET_MULTI	1
@@ -184,7 +202,6 @@
 #define CFG_NAND1_ALE (0x80000000 >> 16)  /* our ALE is GPIO16 */
 #define CFG_NAND1_RDY (0x80000000 >> 31)  /* our RDY is GPIO31 */
 
-
 #define NAND_DISABLE_CE(nand) do \
 { \
 	switch((unsigned long)(((struct nand_chip *)nand)->IO_ADDR)) \
@@ -210,7 +227,6 @@
 		break; \
 	} \
 } while(0)
-
 
 #define NAND_CTL_CLRALE(nandptr) do \
 { \
@@ -292,9 +308,10 @@
 
 #define CONFIG_PCI_SCAN_SHOW		/* print pci devices @ startup	*/
 
-#define CFG_PCI_SUBSYS_VENDORID 0x12FE	/* PCI Vendor ID: esd gmbh	*/
-#define CFG_PCI_SUBSYS_DEVICEID 0x0405	/* PCI Device ID: CPCI-405	*/
+#define CFG_PCI_SUBSYS_VENDORID 0x1014	/* PCI Vendor ID: IBM	*/
+#define CFG_PCI_SUBSYS_DEVICEID 0x0000	/* PCI Device ID: ---	*/
 #define CFG_PCI_CLASSCODE	0x0b20	/* PCI Class Code: Processor/PPC*/
+
 #define CFG_PCI_PTM1LA	0x00000000	/* point to sdram		*/
 #define CFG_PCI_PTM1MS	0xfc000001	/* 64MB, enable hard-wired to 1 */
 #define CFG_PCI_PTM1PCI 0x00000000	/* Host: use this pci address	*/
@@ -349,11 +366,22 @@
 /*-----------------------------------------------------------------------
  * Environment Variable setup
  */
+#ifdef ENVIRONMENT_IN_EEPROM
+
+#define CFG_ENV_IS_IN_EEPROM	1	/* use EEPROM for environment vars */
+#define CFG_ENV_OFFSET		0x100	/* environment starts at the beginning of the EEPROM */
+#define CFG_ENV_SIZE		0x700	/* 2048-256 bytes may be used for env vars (total size of a CAT24WC16 is 2048 bytes)*/
+
+#else	/* DEFAULT: environment in flash, using redundand flash sectors */
+
 #define CFG_ENV_IS_IN_FLASH	1	/* use FLASH for environment vars */
 #define CFG_ENV_ADDR		0xFFFF8000	/* environment starts at the first small sector */
 #define CFG_ENV_SECT_SIZE	0x2000	/* 8196 bytes may be used for env vars*/
 #define CFG_ENV_ADDR_REDUND	0xFFFFA000
 #define CFG_ENV_SIZE_REDUND	0x2000
+
+#endif	/* ENVIRONMENT_IN_EEPROM */
+
 
 #define CFG_NVRAM_BASE_ADDR	0xF0000500		/* NVRAM base address	*/
 #define CFG_NVRAM_SIZE		242			/* NVRAM size		*/
@@ -414,23 +442,21 @@
 #define CFG_EBC_PB3AP		0x92015480
 #define CFG_EBC_PB3CR		0xFF058000  /* BAS=0xFF0,BS=4MB,BU=R/W,BW=8bit	*/
 
-
-#if 0 /* Roese */
-/* Memory Bank 1 (Flash Bank 1, NAND-FLASH) initialization			*/
-#define CFG_EBC_PB1AP		0x92015480
-#define CFG_EBC_PB1CR		0xFF858000  /* BAS=0xFF8,BS=4MB,BU=R/W,BW=8bit	*/
-
-/* Memory Bank 2 (CAN0, 1) initialization					*/
-#define CFG_EBC_PB2AP		0x010053C0  /* BWT=2,WBN=1,WBF=1,TH=1,RE=1,SOR=1,BEM=1 */
-#define CFG_EBC_PB2CR		0xF0018000  /* BAS=0xF00,BS=1MB,BU=R/W,BW=8bit	*/
-
-/* Memory Bank 3 (CompactFlash IDE) initialization				*/
-#define CFG_EBC_PB3AP		0x010053C0  /* BWT=2,WBN=1,WBF=1,TH=1,RE=1,SOR=1,BEM=1 */
-#define CFG_EBC_PB3CR		0xF011A000  /* BAS=0xF01,BS=1MB,BU=R/W,BW=16bit */
-
-/* Memory Bank 4 (NVRAM/RTC) initialization					*/
-#define CFG_EBC_PB4AP		0x01005280  /* TWT=2,WBN=1,WBF=1,TH=1,SOR=1	*/
-#define CFG_EBC_PB4CR		0xF0218000  /* BAS=0xF02,BS=1MB,BU=R/W,BW=8bit	*/
+#ifdef CONFIG_PPCHAMELEON_SMI712
+/*
+ * Video console (graphic: SMI LynxEM)
+ */
+#define CONFIG_VIDEO
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VIDEO_SMI_LYNXEM
+#define CONFIG_VIDEO_LOGO
+/*#define CONFIG_VIDEO_BMP_LOGO*/
+#define CONFIG_CONSOLE_EXTRA_INFO
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+/* This is the base address (on 405EP-side) used to generate I/O accesses on PCI bus */
+#define CFG_ISA_IO 0xE8000000
+/* see also drivers/videomodes.c */
+#define CFG_DEFAULT_VIDEO_MODE 0x303
 #endif
 
 /*-----------------------------------------------------------------------
@@ -485,6 +511,7 @@
 #define CFG_INIT_RAM_ADDR	CFG_OCM_DATA_ADDR /* inside of SDRAM		*/
 #define CFG_INIT_RAM_END	CFG_OCM_DATA_SIZE /* End of used area in RAM	*/
 
+
 #define CFG_GBL_DATA_SIZE      128  /* size in bytes reserved for initial data */
 #define CFG_GBL_DATA_OFFSET    (CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
@@ -525,7 +552,6 @@
 /*--------------------------------------------------------------------*/
 #ifdef CONFIG_NO_SERIAL_EEPROM
 
-
 /*
 !-----------------------------------------------------------------------
 ! Defines for entry options.
@@ -536,7 +562,6 @@
 #undef		AUTO_MEMORY_CONFIG
 #define		DIMM_READ_ADDR 0xAB
 #define		DIMM_WRITE_ADDR 0xAA
-
 
 #define CPC0_PLLMR0  (CNTRL_DCR_BASE+0x0)  /* PLL mode 0 register		*/
 #define CPC0_BOOT    (CNTRL_DCR_BASE+0x1)  /* Chip Clock Status register	*/
@@ -649,50 +674,92 @@
 #define PLL_PCIDIV_3		0x00000002
 #define PLL_PCIDIV_4		0x00000003
 
+
+#ifdef CONFIG_PPCHAMELEON_CLK_25
+/* CPU - PLB/SDRAM - EBC - OPB - PCI (assuming a 25.0 MHz input clock to the 405EP) */
+#define PPCHAMELEON_PLLMR0_133_133_33_66_33	 (PLL_CPUDIV_1 | PLL_PLBDIV_1 |	 \
+			      PLL_OPBDIV_2 | PLL_EXTBUSDIV_4 |	\
+			      PLL_MALDIV_1 | PLL_PCIDIV_4)
+#define PPCHAMELEON_PLLMR1_133_133_33_66_33	 (PLL_FBKDIV_8	|  \
+			      PLL_FWDDIVA_6 | PLL_FWDDIVB_4 |  \
+			      PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
+
+#define PPCHAMELEON_PLLMR0_200_100_50_33 (PLL_CPUDIV_1 | PLL_PLBDIV_2 |  \
+			      PLL_OPBDIV_2 | PLL_EXTBUSDIV_3 |	\
+			      PLL_MALDIV_1 | PLL_PCIDIV_4)
+#define PPCHAMELEON_PLLMR1_200_100_50_33 (PLL_FBKDIV_8  |  \
+			      PLL_FWDDIVA_4 | PLL_FWDDIVB_4 |  \
+			      PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
+
+#define PPCHAMELEON_PLLMR0_266_133_33_66_33 (PLL_CPUDIV_1 | PLL_PLBDIV_2 |	\
+			      PLL_OPBDIV_2 | PLL_EXTBUSDIV_4 |	\
+			      PLL_MALDIV_1 | PLL_PCIDIV_4)
+#define PPCHAMELEON_PLLMR1_266_133_33_66_33 (PLL_FBKDIV_8  |  \
+			      PLL_FWDDIVA_3 | PLL_FWDDIVB_4 |  \
+			      PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
+
+#define PPCHAMELEON_PLLMR0_333_111_37_55_55 (PLL_CPUDIV_1 | PLL_PLBDIV_3 |	\
+			      PLL_OPBDIV_2 | PLL_EXTBUSDIV_3 |	\
+			      PLL_MALDIV_1 | PLL_PCIDIV_2)
+#define PPCHAMELEON_PLLMR1_333_111_37_55_55 (PLL_FBKDIV_10	|  \
+			      PLL_FWDDIVA_3 | PLL_FWDDIVB_4 |  \
+			      PLL_TUNE_15_M_40 | PLL_TUNE_VCO_HI)
+
+#elif (defined (CONFIG_PPCHAMELEON_CLK_33))
+
 /* CPU - PLB/SDRAM - EBC - OPB - PCI (assuming a 33.3MHz input clock to the 405EP) */
-#define PLLMR0_133_133_33_66_33	 (PLL_CPUDIV_1 | PLL_PLBDIV_1 |	 \
+#define PPCHAMELEON_PLLMR0_133_133_33_66_33	 (PLL_CPUDIV_1 | PLL_PLBDIV_1 |	 \
 				  PLL_OPBDIV_2 | PLL_EXTBUSDIV_4 |	\
 				  PLL_MALDIV_1 | PLL_PCIDIV_4)
-#define PLLMR1_133_133_33_66_33	 (PLL_FBKDIV_4	|  \
+#define PPCHAMELEON_PLLMR1_133_133_33_66_33	 (PLL_FBKDIV_4	|  \
 				  PLL_FWDDIVA_6 | PLL_FWDDIVB_6 |  \
 				  PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
-#define PLLMR0_200_100_50_33	 (PLL_CPUDIV_1 | PLL_PLBDIV_2 |	 \
+
+#define PPCHAMELEON_PLLMR0_200_100_50_33 (PLL_CPUDIV_1 | PLL_PLBDIV_2 |  \
 				  PLL_OPBDIV_2 | PLL_EXTBUSDIV_3 |	\
 				  PLL_MALDIV_1 | PLL_PCIDIV_4)
-#define PLLMR1_200_100_50_33	 (PLL_FBKDIV_6	|  \
+#define PPCHAMELEON_PLLMR1_200_100_50_33 (PLL_FBKDIV_6  |  \
 				  PLL_FWDDIVA_4 | PLL_FWDDIVB_4 |  \
 				  PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
-#define PLLMR0_266_133_33_66_33	 (PLL_CPUDIV_1 | PLL_PLBDIV_2 | \
+
+#define PPCHAMELEON_PLLMR0_266_133_33_66_33 (PLL_CPUDIV_1 | PLL_PLBDIV_2 |	\
 				  PLL_OPBDIV_2 | PLL_EXTBUSDIV_4 |	\
 				  PLL_MALDIV_1 | PLL_PCIDIV_4)
-#define PLLMR1_266_133_33_66_33	 (PLL_FBKDIV_8	|  \
+#define PPCHAMELEON_PLLMR1_266_133_33_66_33 (PLL_FBKDIV_8  |  \
 				  PLL_FWDDIVA_3 | PLL_FWDDIVB_3 |  \
 				  PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
-#define PLLMR0_333_111_37_55_55	 (PLL_CPUDIV_1 | PLL_PLBDIV_3 | \
+
+#define PPCHAMELEON_PLLMR0_333_111_37_55_55 (PLL_CPUDIV_1 | PLL_PLBDIV_3 |	\
 				  PLL_OPBDIV_2 | PLL_EXTBUSDIV_3 |	\
 				  PLL_MALDIV_1 | PLL_PCIDIV_2)
-#define PLLMR1_333_111_37_55_55	 (PLL_FBKDIV_10 |  \
+#define PPCHAMELEON_PLLMR1_333_111_37_55_55 (PLL_FBKDIV_10	|  \
 				  PLL_FWDDIVA_3 | PLL_FWDDIVB_3 |  \
 				  PLL_TUNE_15_M_40 | PLL_TUNE_VCO_HI)
 
+#else
+#error "* External frequency (SysClk) not defined! *"
+#endif
+
 #if   (CONFIG_PPCHAMELEON_MODULE_MODEL == CONFIG_PPCHAMELEON_MODULE_HI)
 /* Model HI */
-#define PLLMR0_DEFAULT	 PLLMR0_333_111_37_55_55
-#define PLLMR1_DEFAULT	 PLLMR1_333_111_37_55_55
+#define PLLMR0_DEFAULT	 PPCHAMELEON_PLLMR0_333_111_37_55_55
+#define PLLMR1_DEFAULT	 PPCHAMELEON_PLLMR1_333_111_37_55_55
+#define CFG_OPB_FREQ	55555555
 /* Model ME */
 #elif (CONFIG_PPCHAMELEON_MODULE_MODEL == CONFIG_PPCHAMELEON_MODULE_ME)
-#define PLLMR0_DEFAULT	 PLLMR0_266_133_33_66_33
-#define PLLMR1_DEFAULT	 PLLMR1_266_133_33_66_33
+#define PLLMR0_DEFAULT	 PPCHAMELEON_PLLMR0_266_133_33_66_33
+#define PLLMR1_DEFAULT	 PPCHAMELEON_PLLMR1_266_133_33_66_33
+#define CFG_OPB_FREQ	66666666
 #else
 /* Model BA (default) */
-#define PLLMR0_DEFAULT	 PLLMR0_133_133_33_66_33
-#define PLLMR1_DEFAULT	 PLLMR1_133_133_33_66_33
+#define PLLMR0_DEFAULT	 PPCHAMELEON_PLLMR0_133_133_33_66_33
+#define PLLMR1_DEFAULT	 PPCHAMELEON_PLLMR1_133_133_33_66_33
+#define CFG_OPB_FREQ	66666666
+#endif
 
 #endif
 
-#endif /* CONFIG_NO_SERIAL_EEPROM */
-
-#define CONFIG_JFFS2_NAND 1			/* jffs2 on nand support */
+#define CONFIG_JFFS2_NAND 0			/* jffs2 on nand support */
 #define CONFIG_JFFS2_NAND_DEV 0			/* nand device jffs2 lives on */
 #define CONFIG_JFFS2_NAND_OFF 0			/* start of jffs2 partition */
 #define CONFIG_JFFS2_NAND_SIZE 2*1024*1024	/* size of jffs2 partition */

@@ -606,7 +606,7 @@ wtk_config:	unconfig
 #########################################################################
 ## PPC4xx Systems
 #########################################################################
-xtract_4xx = $(subst _MODEL_BA,,$(subst _MODEL_ME,,$(subst _MODEL_HI,,$(subst _config,,$1))))
+xtract_4xx = $(subst _25,,$(subst _33,,$(subst _BA,,$(subst _ME,,$(subst _HI,,$(subst _config,,$1))))))
 
 ADCIOP_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx adciop esd
@@ -706,10 +706,12 @@ PLU405_config:	unconfig
 PMC405_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx pmc405 esd
 
-PPChameleonEVB_MODEL_BA_config	\
-PPChameleonEVB_MODEL_ME_config	\
-PPChameleonEVB_MODEL_HI_config	\
-PPChameleonEVB_config:	unconfig
+PPChameleonEVB_BA_25_config	\
+PPChameleonEVB_ME_25_config	\
+PPChameleonEVB_HI_25_config	\
+PPChameleonEVB_BA_33_config	\
+PPChameleonEVB_ME_33_config	\
+PPChameleonEVB_HI_33_config:	unconfig
 	@ >include/config.h
 	@[ -z "$(findstring _MODEL_BA,$@)" ] || \
 		{ echo "#define CONFIG_PPCHAMELEON_MODULE_MODEL 0" >>include/config.h ; \
@@ -722,6 +724,14 @@ PPChameleonEVB_config:	unconfig
 	@[ -z "$(findstring _MODEL_HI,$@)" ] || \
 		{ echo "#define CONFIG_PPCHAMELEON_MODULE_MODEL 2" >>include/config.h ; \
 		  echo "... HIGH-END model" ; \
+		}
+	@[ -z "$(findstring _25,$@)" ] || \
+		{ echo "#define CONFIG_PPCHAMELEON_CLK_25" >>include/config.h ; \
+		  echo " SysClk = 25MHz" ; \
+		}
+	@[ -z "$(findstring _33,$@)" ] || \
+		{ echo "#define CONFIG_PPCHAMELEON_CLK_33" >>include/config.h ; \
+		  echo " SysClk = 33MHz" ; \
 		}
 	@./mkconfig -a $(call xtract_4xx,$@) ppc ppc4xx PPChameleonEVB dave
 

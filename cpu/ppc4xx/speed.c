@@ -383,8 +383,13 @@ void get_sys_info (PPC405_SYS_INFO * sysInfo)
 	 */
 	pllmr0_ccdv = ((pllmr0 & PLLMR0_CPU_DIV_MASK) >> 20) + 1;
 	if (pllmr1 & PLLMR1_SSCS_MASK) {
-		sysInfo->freqProcessor = (CONFIG_SYS_CLK_FREQ * sysInfo->pllFbkDiv)
-			/ pllmr0_ccdv;
+		/*
+		 * This is true if FWDVA == FWDVB:
+		 * sysInfo->freqProcessor = (CONFIG_SYS_CLK_FREQ * sysInfo->pllFbkDiv)
+		 *	/ pllmr0_ccdv;
+		 */
+		sysInfo->freqProcessor = (CONFIG_SYS_CLK_FREQ * sysInfo->pllFbkDiv * sysInfo->pllFwdDivB)
+			/ sysInfo->pllFwdDiv / pllmr0_ccdv;
 	} else {
 		sysInfo->freqProcessor = CONFIG_SYS_CLK_FREQ / pllmr0_ccdv;
 	}

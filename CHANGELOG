@@ -2,6 +2,12 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Andrea Marson, 11 Jun 2004:
+  Update for PPChameleon board:
+  - support for SysClk @ 25MHz
+  - support for Silicon Motion SM712 VGA controller
+  - some clean ups
+
 * Patches by Richard Woodruff, 10 Jun 2004:
   - fix problems with examples/stubs.c for GCC >= 3.4
   - fix problems with gd initialization

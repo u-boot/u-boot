@@ -254,6 +254,11 @@ N: Dan Malek
 E: dan@netx4.com
 D: FADSROM, the grandfather of all of this
 
+N: Andrea "llandre" Marson
+E: andrea.marson@dave-tech.it
+D: Port to PPChameleonEVB board
+W: www.dave-tech.it
+
 N: Reinhard Meyer
 E: r.meyer@emk-elektronik.de
 D: Port to EMK TOP860 Module
@@ -337,6 +342,11 @@ D: Support for csb226, logodl and innokom boards (PXA2xx)
 N: Kurt Stremerch
 E: kurt@exys.be
 D: Support for Exys XSEngine board
+
+N: Andrea Scian
+E: andrea.scian@dave-tech.it
+D: Port to B2 board
+W: www.dave-tech.it
 
 N: Rob Taylor
 E: robt@flyingpig.com

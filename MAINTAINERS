@@ -185,6 +185,10 @@ Eran Man <eran@nbase.co.il>
 
 	EVB64260_750CX		MPC750CX
 
+Andrea "llandre" Marson <andrea.marson@dave-tech.it>
+
+	PPChameleonEVB	PPC405EP
+ 
 Reinhard Meyer <r.meyer@emk-elektronik.de>
 
 	TOP860			MPC860T
@@ -373,6 +377,10 @@ Robert Schwebel <r.schwebel@pengutronix.de>
 	csb226			xscale
 	innokom			xscale
 
+Andrea Scian <andrea.scian@dave-tech.it>
+
+	B2				ARM7TDMI (S3C44B0X)
+ 
 Alex Züpke <azu@sysgo.de>
 
 	lart			SA1100

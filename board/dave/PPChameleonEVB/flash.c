@@ -50,6 +50,9 @@ unsigned long flash_init (void)
 	unsigned long base;
 	int size_val = 0;
 
+	debug("[%s, %d] Entering ...\n", __FUNCTION__, __LINE__);
+	debug("[%s, %d] flash_info = 0x%08X ...\n", __FUNCTION__, __LINE__, flash_info);
+
 	/* Init: no FLASHes known */
 	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
@@ -57,6 +60,7 @@ unsigned long flash_init (void)
 
 	/* Static FLASH Bank configuration here - FIXME XXX */
 
+	debug("[%s, %d] Calling flash_get_size ...\n", __FUNCTION__, __LINE__);
 	size = flash_get_size((vu_long *)FLASH_BASE0_PRELIM, &flash_info[0]);
 
 	if (flash_info[0].flash_id == FLASH_UNKNOWN) {
@@ -64,8 +68,11 @@ unsigned long flash_init (void)
 			size, size<<20);
 	}
 
+	debug("[%s, %d] Test point ...\n", __FUNCTION__, __LINE__);
+
 	/* Setup offsets */
 	flash_get_offsets (-size, &flash_info[0]);
+	debug("[%s, %d] Test point ...\n", __FUNCTION__, __LINE__);
 
 	/* Re-do sizing to get full correct info */
 	mtdcr(ebccfga, pb0cr);
@@ -91,6 +98,7 @@ unsigned long flash_init (void)
 	}
 	pbcr = (pbcr & 0x0001ffff) | base | (size_val << 17);
 	mtdcr(ebccfgd, pbcr);
+	debug("[%s, %d] Test point ...\n", __FUNCTION__, __LINE__);
 
 	/* Monitor protection ON by default */
 	(void)flash_protect(FLAG_PROTECT_SET,
@@ -98,6 +106,7 @@ unsigned long flash_init (void)
 			    0xffffffff,
 			    &flash_info[0]);
 
+	debug("[%s, %d] Test point ...\n", __FUNCTION__, __LINE__);
 	flash_info[0].size  = size;
 
 	return (size);

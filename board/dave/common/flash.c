@@ -220,6 +220,8 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 	ulong base = (ulong)addr;
 	volatile CFG_FLASH_WORD_SIZE *addr2 = (CFG_FLASH_WORD_SIZE *)addr;
 
+	debug("[%s, %d] Entering ...\n", __FUNCTION__, __LINE__);
+
 	/* Write auto select command: read Manufacturer ID */
 	addr2[CFG_FLASH_ADDR0] = (CFG_FLASH_WORD_SIZE)0x00AA00AA;
 	addr2[CFG_FLASH_ADDR1] = (CFG_FLASH_WORD_SIZE)0x00550055;
