@@ -332,6 +332,7 @@ load_serial (ulong offset)
 		case SREC_DATA3:
 		case SREC_DATA4:
 		    store_addr = addr + offset;
+#ifndef CFG_NO_FLASH
 		    if (addr2info(store_addr)) {
 			int rc;
 
@@ -340,7 +341,9 @@ load_serial (ulong offset)
 				flash_perror (rc);
 				return (~0);
 			}
-		    } else {
+		    } else
+#endif
+		    {
 			memcpy ((char *)(store_addr), binbuf, binlen);
 		    }
 		    if ((store_addr) < start_addr)

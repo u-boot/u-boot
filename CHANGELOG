@@ -2,6 +2,9 @@
 Changes since U-Boot 0.3.1:
 ======================================================================
 
+* Patch by Christophe Lindheimer, 20 May 2003:
+  allow the use of CFG_LOADS when CFG_NO_FLASH is set
+
 * Fix SDRAM timing on Purple board
 
 * Add support for CompactFlash on ATC board
