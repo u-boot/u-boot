@@ -57,7 +57,7 @@ ifeq ($(ARCH),ppc)
 CROSS_COMPILE = ppc_8xx-
 endif
 ifeq ($(ARCH),arm)
-CROSS_COMPILE = arm_920TDI-
+CROSS_COMPILE = arm-linux-
 endif
 ifeq ($(ARCH),i386)
 #CROSS_COMPILE = i386-elf-
@@ -313,6 +313,10 @@ SM850_config	:	unconfig
 
 SPD823TS_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx spd8xx
+
+svm_sc8xx_config:	unconfig
+	@ >include/config.h
+	@./mkconfig $(@:_config=) ppc mpc8xx svm_sc8xx
 
 SXNI855T_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx sixnet
@@ -623,6 +627,9 @@ ELPPC_config: unconfig
 #########################################################################
 ## StrongARM Systems
 #########################################################################
+
+at91rm9200dk_config	:	unconfig
+	@./mkconfig $(@:_config=) arm at91rm9200 at91rm9200dk
 
 lart_config	:	unconfig
 	@./mkconfig $(@:_config=) arm sa1100 lart

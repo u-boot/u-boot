@@ -54,9 +54,11 @@ void cpu_init_f (volatile immap_t * immr)
 #endif /* CONFIG_WATCHDOG */
 
 	/* SIUMCR - contains debug pin configuration (11-6) */
-
+#ifndef CONFIG_SVM_SC8xx
 	immr->im_siu_conf.sc_siumcr |= CFG_SIUMCR;
-
+#else
+	immr->im_siu_conf.sc_siumcr = CFG_SIUMCR;
+#endif
 	/* initialize timebase status and control register (11-26) */
 	/* unlock TBSCRK */
 

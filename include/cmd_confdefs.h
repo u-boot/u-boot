@@ -78,6 +78,7 @@
 #define CFG_CMD_SPI	0x0000100000000000	/* SPI utility			*/
 #define CFG_CMD_FDOS	0x0000200000000000	/* Floppy DOS support		*/
 #define CFG_CMD_VFD	0x0000400000000000	/* VFD support (TRAB)		*/
+#define CFG_CMD_NAND	0x0000800000000000	/* NAND support        		*/
 
 #define CFG_CMD_ALL	0xFFFFFFFFFFFFFFFF	/* ALL commands			*/
 
@@ -106,6 +107,7 @@
 			CFG_CMD_JFFS2	| \
 			CFG_CMD_KGDB	| \
 			CFG_CMD_MII	| \
+			CFG_CMD_NAND	| \
 			CFG_CMD_PCI	| \
 			CFG_CMD_PCMCIA	| \
 			CFG_CMD_REGINFO | \

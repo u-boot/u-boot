@@ -53,17 +53,19 @@ void serial_setbrg (void)
 		hang ();
 
 #ifdef CONFIG_SERIAL1
+	/* SA1110 uart function */
+	Ser1SDCR0 |= SDCR0_SUS;
+
 	/* Wait until port is ready ... */
-	while (Ser1UTSR1 & UTSR1_TBY) {
-	}
+	while(Ser1UTSR1 & UTSR1_TBY) {}
 
 	/* init serial serial 1 */
 	Ser1UTCR3 = 0x00;
 	Ser1UTSR0 = 0xff;
-	Ser1UTCR0 = (UTCR0_1StpBit | UTCR0_8BitData);
+	Ser1UTCR0 = ( UTCR0_1StpBit | UTCR0_8BitData );
 	Ser1UTCR1 = 0;
-	Ser1UTCR2 = (u32) reg;
-	Ser1UTCR3 = (UTCR3_RXE | UTCR3_TXE);
+	Ser1UTCR2 = (u32)reg;
+	Ser1UTCR3 = ( UTCR3_RXE | UTCR3_TXE );
 #elif CONFIG_SERIAL3
 	/* Wait until port is ready ... */
 	while (Ser3UTSR1 & UTSR1_TBY) {

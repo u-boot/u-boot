@@ -153,10 +153,9 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	print_num ("boot_params",	(ulong)bd->bi_boot_params);
 
 	for (i=0; i<CONFIG_NR_DRAM_BANKS; ++i) {
-		printf ("DRAM:%02d.start = %08lX\n",
-			i, bd->bi_dram[i].start);
-		printf ("DRAM:%02d.size  = %08lX\n",
-			i, bd->bi_dram[i].size);
+		print_num("DRAM bank",	i);
+		print_num("-> start",	bd->bi_dram[i].start);
+		print_num("-> size",	bd->bi_dram[i].size);
 	}
 
 	printf ("ethaddr     =");
@@ -200,7 +199,7 @@ int do_go (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	addr = simple_strtoul(argv[1], NULL, 16);
 
-	printf ("## Starting application at 0x%08lx ...\n", addr);
+	printf ("## Starting application at 0x%08lX ...\n", addr);
 
 	/*
 	 * pass address parameter as argv[0] (aka command name),
@@ -209,7 +208,7 @@ int do_go (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	rc = ((ulong (*)(int, char *[]))addr) (--argc, &argv[1]);
 	if (rc != 0) rcode = 1;
 
-	printf ("## Application terminated, rc = 0x%lx\n", rc);
+	printf ("## Application terminated, rc = 0x%lX\n", rc);
 	return rcode;
 }
 
@@ -285,7 +284,7 @@ int do_load_serial (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		printf ("## S-Record download aborted\n");
 		rcode = 1;
 	} else {
-		printf ("## Start Addr      = 0x%08lx\n", addr);
+		printf ("## Start Addr      = 0x%08lX\n", addr);
 		load_addr = addr;
 	}
 
@@ -345,9 +344,9 @@ load_serial (ulong offset)
 			memcpy ((char *)(store_addr), binbuf, binlen);
 		    }
 		    if ((store_addr) < start_addr)
-		    	start_addr = store_addr;
+			start_addr = store_addr;
 		    if ((store_addr + binlen - 1) > end_addr)
-		    	end_addr = store_addr + binlen - 1;
+			end_addr = store_addr + binlen - 1;
 		    break;
 		case SREC_END2:
 		case SREC_END3:
@@ -606,9 +605,17 @@ int do_load_serial_bin (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	ulong offset = 0;
 	ulong addr;
-	int i;
 	int load_baudrate, current_baudrate;
 	int rcode = 0;
+	char *s;
+
+	/* pre-set offset from CFG_LOAD_ADDR */
+	offset = CFG_LOAD_ADDR;
+
+	/* pre-set offset from $loadaddr */
+	if ((s = getenv("loadaddr")) != NULL) {
+		offset = simple_strtoul(s, NULL, 16);
+	}
 
 	load_baudrate = current_baudrate = gd->baudrate;
 
@@ -635,28 +642,19 @@ int do_load_serial_bin (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 				break;
 		}
 	}
-	printf ("## Ready for binary (kermit) download ...\n");
 
+	printf ("## Ready for binary (kermit) download "
+		"to 0x%08lX at %d bps...\n",
+		offset,
+		current_baudrate);
 	addr = load_serial_bin (offset);
-
-	/*
-	 * Gather any trailing characters (for instance, the ^D which
-	 * is sent by 'cu' after sending a file), and give the
-	 * box some time (100 * 1 ms)
-	 */
-	for (i=0; i<100; ++i) {
-		if (serial_tstc()) {
-			(void) serial_getc();
-		}
-		udelay(1000);
-	}
 
 	if (addr == ~0) {
 		load_addr = 0;
 		printf ("## Binary (kermit) download aborted\n");
 		rcode = 1;
 	} else {
-		printf ("## Start Addr      = 0x%08lx\n", addr);
+		printf ("## Start Addr      = 0x%08lX\n", addr);
 		load_addr = addr;
 	}
 

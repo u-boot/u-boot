@@ -2,6 +2,29 @@
 Changes since U-Boot 0.2.2:
 ======================================================================
 
+* Patch by Rick Bronson, 16 Mar 2003:
+  Add support for Atmel AT91RM9200DK w/NAND
+
+* Patches by Robert Schwebel, 19 Mar 2003:
+  - use arm-linux-gcc as default compiler for ARM
+  - fix i2c fixup code
+  - fix missing baudrate setting
+  - added $loadaddr / CFG_LOAD_ADDR support to loadb
+  - moved "ignoring trailing characters" _before_ u-boot wants to
+    print out diagnostics messages; removes bogus characters at the
+    end of transmission
+
+* Patch by John Zhan, 18 Mar 2003:
+  Add support for SinoVee Microsystems SC8xx boards
+
+* Patch by Rolf Offermanns, 21 Mar 2003:
+  ported the dnp1110 related changes from the current armboot cvs to
+  current u-boot cvs. smc91111 does not work. problem marked in
+  smc91111.c, grep for "FIXME".
+
+* Patch by Brian Auld, 25 Mar 2003:
+  Add support for STM flash chips on ebony board
+
 * Add PCI support for MPC8250 Boards (PM825 module)
 
 * Patch by Stefan Roese, 25 Mar 2003:

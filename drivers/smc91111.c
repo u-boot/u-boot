@@ -493,6 +493,13 @@ static int smc_send_packet(volatile void *packet, int packet_length)
 	SMC_SELECT_BANK( 2 );
 	SMC_outw( MC_ALLOC | numPages, MMU_CMD_REG );
 
+	/* FIXME: the ALLOC_INT bit never gets set *
+	 * so the following will always give a     *
+	 * memory allocation error.                *
+	 * same code works in armboot though       *
+	 * -ro
+	 */
+
 again:
 	try++;
 	time_out = MEMORY_WAIT_TIME;

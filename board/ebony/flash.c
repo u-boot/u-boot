@@ -327,6 +327,9 @@ void flash_print_info  (flash_info_t *info)
 			case (FLASH_WORD_SIZE)SST_MANUFACT:
 				info->flash_id = FLASH_MAN_SST;
 				break;
+			case (FLASH_WORD_SIZE)STM_MANUFACT:
+				info->flash_id = FLASH_MAN_STM;
+				break;
 			default:
 				info->flash_id = FLASH_UNKNOWN;
 				info->sector_count = 0;
@@ -349,6 +352,11 @@ void flash_print_info  (flash_info_t *info)
 				info->sector_count = 32;
 				info->size = 0x00200000;
 				break;				/* => 2 MB		*/
+                        case (FLASH_WORD_SIZE)STM_ID_F040B:
+                                info->flash_id += FLASH_AM040;
+                                info->sector_count = 8;
+                                info->size = 0x0080000; /* => 512 ko */
+                                break;				
 			case (FLASH_WORD_SIZE)AMD_ID_F040B:
 				info->flash_id += FLASH_AM040;
 				info->sector_count = 8;

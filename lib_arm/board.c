@@ -31,6 +31,9 @@
 #include <version.h>
 #include <net.h>
 
+#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+void nand_init (void);
+#endif
 
 const char version_string[] =
 	U_BOOT_VERSION" (" __DATE__ " - " __TIME__ ")";
@@ -226,6 +229,10 @@ void start_armboot (void)
 	/* armboot_real_end is defined in the board-specific linker script */
 	mem_malloc_init (_armboot_real_end);
 #endif /* CONFIG_VFD */
+
+#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+	nand_init();		/* go init the NAND */
+#endif
 
 	/* initialize environment */
 	env_relocate ();

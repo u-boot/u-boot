@@ -76,7 +76,7 @@
 #define CONFIG_NETMASK          255.255.0.0
 #define CONFIG_IPADDR		172.22.2.23
 #define CONFIG_SERVERIP		172.22.2.22
-#define CONFIG_BOOTFILE		"elinos-dnp1110"
+#define CONFIG_BOOTFILE		"dnp1110"
 #define CONFIG_BOOTCOMMAND	"tftp; bootm"
 
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
@@ -128,21 +128,23 @@
 
 #define PHYS_FLASH_1		0x00000000 /* Flash Bank #1 */
 #define PHYS_FLASH_SIZE		0x01000000 /* 16 MB */
+#define PHYS_FLASH_BANK_SIZE    0x01000000 /* 32 MB Banks */
+#define PHYS_FLASH_SECT_SIZE    0x00020000 /* 256 KB sectors (x2) */
 
 #define CFG_FLASH_BASE		PHYS_FLASH_1
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	(31+8)	/* max number of sectors on one chip	*/
+#define CFG_MAX_FLASH_BANKS	1		/* max number of memory banks		*/
+#define CFG_MAX_FLASH_SECT	128		/* max number of sectors on one chip	*/
 
 /* timeout values are in ticks */
 #define CFG_FLASH_ERASE_TOUT	(2*CFG_HZ) /* Timeout for Flash Erase */
 #define CFG_FLASH_WRITE_TOUT	(2*CFG_HZ) /* Timeout for Flash Write */
 
 #define	CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_ADDR		(PHYS_FLASH_1 + 0x1C000)	/* Addr of Environment Sector	*/
-#define CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
+#define CFG_ENV_ADDR			(PHYS_FLASH_1 + 0xF80000)	/* Addr of Environment Sector	*/
+#define CFG_ENV_SIZE			0x20000						/* Total Size of Environment Sector	*/
 
 #endif	/* __CONFIG_H */

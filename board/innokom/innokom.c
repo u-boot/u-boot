@@ -39,20 +39,28 @@
  * The Innokom board has GPIO70 connected to SCLK which can be toggled
  * until all chips think that their current cycles are finished.
  */
-void i2c_init_board(void)
+int i2c_init_board(void)
 {
-	int i;
+	int i, icr;
 
-	/* set gpio pin to output */
-        GPDR(70) |= GPIO_bit(70);
-	for (i = 0; i < 11; i++) {
+	/* disable I2C controller first, otherwhise it thinks we want to    */
+	/* talk to the slave port...                                        */
+	icr = ICR; ICR &= ~(ICR_SCLE | ICR_IUE);
+	
+	/* set gpio pin low _before_ we change direction to output          */
 		GPCR(70) = GPIO_bit(70);
+	
+	/* now toggle between output=low and high-impedance                 */
+	for (i = 0; i < 20; i++) {
+		GPDR(70) |= GPIO_bit(70);  /* output */
 		udelay(10);
-		GPSR(70)  = GPIO_bit(70);
+		GPDR(70) &= ~GPIO_bit(70); /* input  */
 		udelay(10);
 	}
-        /* set gpio pin to input */
-        GPDR(70) &= ~GPIO_bit(70);
+
+	ICR = icr;
+
+	return 0;
 }
 
 
@@ -97,6 +105,9 @@ int board_init (void)
 
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0xa0000100;
+
+	/* baud rate */
+	gd->bd->bi_baudrate = CONFIG_BAUDRATE;
 
 	return 0;
 }

@@ -269,6 +269,20 @@ void status_led_set  (int led, int state);
 
 # define STATUS_LED_BOOT	0		/* LED 0 used for boot status */
 
+#elif defined(CONFIG_SVM_SC8xx)
+# define STATUS_LED_PAR         im_cpm.cp_pbpar
+# define STATUS_LED_DIR         im_cpm.cp_pbdir
+# define STATUS_LED_ODR         im_cpm.cp_pbodr
+# define STATUS_LED_DAT         im_cpm.cp_pbdat
+
+# define STATUS_LED_BIT         0x00000001
+# define STATUS_LED_PERIOD      (CFG_HZ / 2)
+# define STATUS_LED_STATE       STATUS_LED_BLINKING
+
+# define STATUS_LED_ACTIVE      1               /* LED on for bit == 1  */
+
+# define STATUS_LED_BOOT        0               /* LED 0 used for boot status */
+
 /************************************************************************/
 #else
 # error Status LED configuration missing

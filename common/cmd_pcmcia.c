@@ -514,12 +514,17 @@ static int hardware_disable(int slot)
 
 /* -------------------------------------------------------------------- */
 /* TQM8xxL Boards by TQ Components					*/
+/* SC8xx   Boards by SinoVee Microsystems				*/
 /* -------------------------------------------------------------------- */
 
+#if defined(CONFIG_TQM8xxL) || defined(CONFIG_SVM_SC8xx)
+
 #if defined(CONFIG_TQM8xxL)
-
 #define PCMCIA_BOARD_MSG "TQM8xxL"
-
+#endif
+#if defined(CONFIG_SVM_SC8xx)
+#define PCMCIA_BOARD_MSG "SC8xx"
+#endif
 
 static int hardware_enable(int slot)
 {

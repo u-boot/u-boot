@@ -105,6 +105,7 @@ extern int flash_real_protect(flash_info_t *info, long sector, int prot);
 
 #define AMD_MANUFACT	0x00010001	/* AMD     manuf. ID in D23..D16, D7..D0 */
 #define FUJ_MANUFACT	0x00040004	/* FUJITSU manuf. ID in D23..D16, D7..D0 */
+#define ATM_MANUFACT    0x001F001F      /* ATMEL */
 #define STM_MANUFACT	0x00200020	/* STM (Thomson) manuf. ID in D23.. -"-	*/
 #define SST_MANUFACT	0x00BF00BF	/* SST     manuf. ID in D23..D16, D7..D0 */
 #define MT_MANUFACT	0x00890089	/* MT      manuf. ID in D23..D16, D7..D0 */
@@ -155,6 +156,8 @@ extern int flash_real_protect(flash_info_t *info, long sector, int prot);
 
 #define AMD_ID_DL640	0x227E227E	/* 29DL640D ID (64 M, dual boot sectors)*/
 #define AMD_ID_LV640U	0x22D722D7	/* 29LV640U ID (64 M, uniform sectors)	*/
+
+#define ATM_ID_BV1614   0x000000C0      /* 49BV1614 ID */
 
 #define FUJI_ID_29F800BA  0x22582258   /* MBM29F800BA ID  (8M) */
 #define FUJI_ID_29F800TA  0x22D622D6   /* MBM29F800TA ID  (8M) */

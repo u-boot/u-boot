@@ -58,6 +58,7 @@
 #include <cmd_mii.h>
 #include <cmd_dcr.h>		/* 4xx DCR register access */
 #include <cmd_doc.h>
+#include <cmd_nand.h>
 #include <cmd_jffs2.h>
 #include <cmd_fpga.h>
 
@@ -307,6 +308,8 @@ cmd_tbl_t cmd_tbl[] = {
 	CMD_TBL_MTEST
 	CMD_TBL_MUXINFO
 	CMD_TBL_MW
+	CMD_TBL_NAND
+	CMD_TBL_NANDBOOT
 	CMD_TBL_NEXT
 	CMD_TBL_NM
 	CMD_TBL_PCI

@@ -1,7 +1,6 @@
 /*
  * (C) Copyright 2002
- * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
- * Marius Groeger <mgroeger@sysgo.de>
+ * Gary Jennejohn, DENX Software Engineering, <gj@denx.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -22,38 +21,34 @@
  * MA 02111-1307 USA
  */
 
-#include <common.h>
-#include <SA-1100.h>
-/* ------------------------------------------------------------------------- */
-
-
-/*
- * Miscelaneous platform dependent initialisations
- */
-
-int board_init (void)
+OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
+/*OUTPUT_FORMAT("elf32-arm", "elf32-arm", "elf32-arm")*/
+OUTPUT_ARCH(arm)
+ENTRY(_start)
+SECTIONS
 {
-	DECLARE_GLOBAL_DATA_PTR;
+        . = 0x00000000;
 
-	/* memory and cpu-speed are setup before relocation */
-	/* so we do _nothing_ here */
+        . = ALIGN(4);
+	.text      :
+	{
+	  cpu/at91rm9200/start.o	(.text)
+	  *(.text)
+	}
 
-	/* arch number of DNP1110-Board */
-	gd->bd->bi_arch_number = 255;
+        . = ALIGN(4);
+        .rodata : { *(.rodata) }
 
-    /* flash vpp on */
-    PPDR |= 0x80;	/* assumes LCD controller is off */
-    PPSR |= 0x80;
+        . = ALIGN(4);
+        .data : { *(.data) }
 
-	return 0;
-}
+        . = ALIGN(4);
+        .got : { *(.got) }
 
-int dram_init (void)
-{
-	DECLARE_GLOBAL_DATA_PTR;
+	armboot_end_data = .;
 
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
+        . = ALIGN(4);
+        .bss : { *(.bss) }
 
-	return (0);
+	armboot_end = .;
 }

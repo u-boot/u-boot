@@ -48,7 +48,7 @@
 # else
 #  define CONFIG_PCMCIA_SLOT_B
 # endif
-#elif defined(CONFIG_TQM8xxL)
+#elif defined(CONFIG_TQM8xxL) || defined(CONFIG_SVM_SC8xx)
 # define	CONFIG_PCMCIA_SLOT_B	/* The TQM8xxL use SLOT_B	*/
 #elif defined(CONFIG_SPD823TS)		/* The SPD8xx  use SLOT_B	*/
 # define CONFIG_PCMCIA_SLOT_B

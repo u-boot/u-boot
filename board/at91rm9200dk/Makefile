@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000
+# (C) Copyright 2003
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -21,54 +21,27 @@
 # MA 02111-1307 USA
 #
 
-LOAD_ADDR = 0x40000
-
 include $(TOPDIR)/config.mk
 
-SREC	= hello_world.srec
-BIN	= hello_world.bin
+LIB	= lib$(BOARD).a
 
-ifeq ($(CPU),mips)
-SREC =
-endif
+OBJS	:= at91rm9200dk.o flash.o
+SOBJS	:=
 
-# The following example is pretty 8xx specific...
-ifeq ($(CPU),mpc8xx)
-SREC   += timer.srec
-endif
+$(LIB):	$(OBJS) $(SOBJS)
+	$(AR) crv $@ $^
 
-# Utility for resetting i82559 EEPROM
-ifeq ($(BOARD),oxc)
-SREC   += eepro100_eeprom.srec
-endif
+clean:
+	rm -f $(SOBJS) $(OBJS)
 
-OBJS	= $(SREC:.srec=.o)
-
-LIB		= libsyscall.a
-LIBAOBJS= syscall.o
-LIBCOBJS=
-LIBOBJS	= $(LIBAOBJS) $(LIBCOBJS)
-
-CPPFLAGS += -I..
-
-all:	.depend $(LIB) $(SREC) $(BIN)
-
-#########################################################################
-$(LIB): .depend $(LIBOBJS)
-	$(AR) crv $@ $(LIBOBJS)
-
-%.srec:	%.o $(LIB)
-	$(LD) -g -Ttext $(LOAD_ADDR) -o $(<:.o=) -e $(<:.o=) $< $(LIB)
-	$(OBJCOPY) -O srec $(<:.o=) $@
-
-%.bin:	%.srec
-	$(OBJCOPY) -O binary $< $@
+distclean:	clean
+	rm -f $(LIB) core *.bak .depend
 
 #########################################################################
 
-.depend:	Makefile $(OBJS:.o=.c) $(LIBCOBJS:.o=.c) $(LIBAOBJS:.o=.S)
-		$(CC) -M $(CFLAGS) $(OBJS:.o=.c) $(LIBCOBJS:.o=.c) $(LIBAOBJS:.o=.S) > $@
+.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
+		$(CC) -M $(CPPFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
 
-sinclude .depend
+-include .depend
 
 #########################################################################

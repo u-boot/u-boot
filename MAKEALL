@@ -25,9 +25,10 @@ LIST_8xx="	\
 	lwmon   	MBX		MBX860T		MHPC		\
 	MVS1		NETVIA		NX823		pcu_e		\
 	R360MPI		RPXClassic	RPXlite		RRvision	\
-	SM850		SPD823TS	SXNI855T	TOP860		\
-	TQM823L		TQM823L_LCD	TQM850L		TQM855L		\
-	TQM860L		TQM860L_FEC	TTTech		v37		\
+	SM850		SPD823TS	svm_sc8xx	SXNI855T	\
+	TOP860		TQM823L		TQM823L_LCD	TQM850L		\
+	TQM855L		TQM860L		TQM860L_FEC	TTTech		\
+	v37								\
 "
 
 #########################################################################
@@ -83,13 +84,13 @@ LIST_ppc="${LIST_8xx} ${LIST_824x} ${LIST_8260} \
 ## StrongARM Systems
 #########################################################################
 
-LIST_SA="lart shannon dnp1110"
+LIST_SA="at91rm9200dk dnp1110 lart shannon"
 
 #########################################################################
 ## ARM7 Systems
 #########################################################################
 
-LIST_ARM7="impa7 ep7312"
+LIST_ARM7="ep7312 impa7"
 
 #########################################################################
 ## ARM9 Systems
@@ -101,7 +102,7 @@ LIST_ARM9="smdk2400 smdk2410 trab VCMA9"
 ## Xscale Systems
 #########################################################################
 
-LIST_xscale="lubbock cradle csb226 innokom"
+LIST_xscale="cradle csb226 innokom lubbock"
 
 
 LIST_arm="${LIST_SA} ${LIST_ARM7} ${LIST_ARM9} ${LIST_xscale}"

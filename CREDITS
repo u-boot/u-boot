@@ -46,6 +46,10 @@ N: Raphael Bossek
 E: raphael.bossek@solutions4linux.de
 D: 8xxrom-0.3.0
 
+N: Rick Bronson
+E: rick@efn.org
+D: Atmel AT91RM9200DK w/NAND support
+
 N: David Brown
 E: DBrown03@harris.com
 D: Extensions to 8xxrom-0.3.0
@@ -261,6 +265,10 @@ D: Port to Cray L1 board; DHCP vendor extensions
 N: Christian Vejlbo
 E: christian.vejlbo@tellabs.com
 D: FADS860T ethernet support
+
+N: John Zhan
+E: zhanz@sinovee.com
+D: Support for SinoVee Microsystems SC8xx SBC
 
 N: Alex Zuepke
 E: azu@sysgo.de

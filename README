@@ -1549,6 +1549,7 @@ configuration.
 
 
 Low Level (hardware related) configuration options:
+---------------------------------------------------
 
 - CFG_CACHELINE_SIZE:
 		Cache Line Size of the CPU.
@@ -1928,7 +1929,7 @@ Some configuration options can be set using Environment Variables:
   ipaddr	- IP address; needed for tftpboot command
 
   loadaddr	- Default load address for commands like "bootp",
-		  "rarpboot", "tftpboot" or "diskboot"
+		  "rarpboot", "tftpboot", "loadb" or "diskboot"
 
   loads_echo	- see CONFIG_LOADS_ECHO
 
