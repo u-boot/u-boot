@@ -81,6 +81,10 @@
 
 #endif
 
+/* Partitions */
+#define CONFIG_MAC_PARTITION
+#define CONFIG_DOS_PARTITION
+
 /* USB */
 #if 1
 #define CONFIG_USB_OHCI
@@ -94,8 +98,12 @@
 /*
  * Supported commands
  */
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL | ADD_PCI_CMD | \
-				 CFG_CMD_I2C | CFG_CMD_EEPROM | \
+#define CONFIG_COMMANDS		(CONFIG_CMD_DFL	| \
+				 CFG_CMD_EEPROM	| \
+				 CFG_CMD_FAT	| \
+				 CFG_CMD_I2C	| \
+				 CFG_CMD_IDE	| \
+				 ADD_PCI_CMD	| \
 				 ADD_USB_CMD)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
@@ -292,5 +300,37 @@
 #define CFG_CS_DEADCYCLE	0x33333333
 
 #define CFG_RESET_ADDRESS	0xff000000
+
+/*-----------------------------------------------------------------------
+ * IDE/ATA stuff Supports IDE harddisk
+ *-----------------------------------------------------------------------
+ */
+
+#undef  CONFIG_IDE_8xx_PCCARD		/* Use IDE with PC Card	Adapter	*/
+
+#undef	CONFIG_IDE_8xx_DIRECT		/* Direct IDE    not supported	*/
+#undef	CONFIG_IDE_LED			/* LED   for ide not supported	*/
+
+#define	CONFIG_IDE_RESET		/* reset for ide supported	*/
+#define CONFIG_IDE_PREINIT
+
+#define CFG_IDE_MAXBUS		1	/* max. 1 IDE bus		*/
+#define CFG_IDE_MAXDEVICE	1	/* max. 1 drive per IDE bus	*/
+
+#define CFG_ATA_IDE0_OFFSET	0x0000
+
+#define CFG_ATA_BASE_ADDR	MPC5XXX_ATA
+
+/* Offset for data I/O			*/
+#define CFG_ATA_DATA_OFFSET	(0x0060)
+
+/* Offset for normal register accesses	*/
+#define CFG_ATA_REG_OFFSET	(CFG_ATA_DATA_OFFSET)
+
+/* Offset for alternate registers	*/
+#define CFG_ATA_ALT_OFFSET	(0x005c)
+
+/* Interval between registers                                                */
+#define CFG_ATA_STRIDE          4
 
 #endif /* __CONFIG_H */

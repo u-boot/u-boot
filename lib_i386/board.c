@@ -343,7 +343,7 @@ void start_i386boot (void)
 	/* Must happen after interrupts are initialized since
 	 * an irq handler gets installed
 	 */
-#ifdef CONFIG_SERIAL_SOFTWARE_FIFO
+#if CONFIG_SERIAL_SOFTWARE_FIFO
 	serial_buffered_init();
 #endif
 

@@ -89,6 +89,7 @@
 #define MPC5XXX_ICTL		(CFG_MBAR + 0x0500)
 #define MPC5XXX_GPT		(CFG_MBAR + 0x0600)
 #define MPC5XXX_GPIO		(CFG_MBAR + 0x0b00)
+#define MPC5XXX_WU_GPIO         (CFG_MBAR + 0x0c00)
 #define MPC5XXX_PCI		(CFG_MBAR + 0x0d00)
 #define MPC5XXX_USB		(CFG_MBAR + 0x1000)
 #define MPC5XXX_SDMA		(CFG_MBAR + 0x1200)
@@ -108,6 +109,7 @@
 #endif
 
 #define	MPC5XXX_FEC		(CFG_MBAR + 0x3000)
+#define MPC5XXX_ATA             (CFG_MBAR + 0x3A00)
 
 #define MPC5XXX_I2C1		(CFG_MBAR + 0x3D00)
 #define MPC5XXX_I2C2		(CFG_MBAR + 0x3D40)
@@ -163,6 +165,12 @@
 /* GPIO registers */
 #define MPC5XXX_GPS_PORT_CONFIG	(MPC5XXX_GPIO + 0x0000)
 
+/* WakeUp GPIO registers */
+#define MPC5XXX_WU_GPIO_ENABLE  (MPC5XXX_WU_GPIO + 0x0000)
+#define MPC5XXX_WU_GPIO_ODE     (MPC5XXX_WU_GPIO + 0x0004)
+#define MPC5XXX_WU_GPIO_DIR     (MPC5XXX_WU_GPIO + 0x0008)
+#define MPC5XXX_WU_GPIO_DATA    (MPC5XXX_WU_GPIO + 0x000c)
+
 /* PCI registers */
 #define MPC5XXX_PCI_CMD		(MPC5XXX_PCI + 0x04)
 #define MPC5XXX_PCI_CFG		(MPC5XXX_PCI + 0x0c)
@@ -208,6 +216,12 @@
 /* General Purpose Timers registers */
 #define MPC5XXX_GPT0_ENABLE		(MPC5XXX_GPT + 0x0)
 #define MPC5XXX_GPT0_COUNTER		(MPC5XXX_GPT + 0x4)
+
+/* ATA registers */
+#define MPC5XXX_ATA_HOST_CONFIG         (MPC5XXX_ATA + 0x0000)
+#define MPC5XXX_ATA_PIO1                (MPC5XXX_ATA + 0x0008)
+#define MPC5XXX_ATA_PIO2                (MPC5XXX_ATA + 0x000C)
+#define MPC5XXX_ATA_SHARE_COUNT         (MPC5XXX_ATA + 0x002C)
 
 /* I2Cn control register bits */
 #define I2C_EN		0x80
@@ -286,6 +300,15 @@
 #define PSC_MODE_ONE_STOP_5_BITS	0x00
 #define PSC_MODE_ONE_STOP		0x07
 #define PSC_MODE_TWO_STOP		0x0f
+
+/* ATA config fields */
+#define MPC5xxx_ATA_HOSTCONF_SMR	0x80000000UL	/* State machine
+							   reset */
+#define MPC5xxx_ATA_HOSTCONF_FR		0x40000000UL	/* FIFO Reset */
+#define MPC5xxx_ATA_HOSTCONF_IE		0x02000000UL	/* Enable interrupt
+							   in PIO */
+#define MPC5xxx_ATA_HOSTCONF_IORDY	0x01000000UL	/* Drive supports
+							   IORDY protocol */
 
 #ifndef __ASSEMBLY__
 struct mpc5xxx_psc {

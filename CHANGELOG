@@ -2,6 +2,16 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
+* Patch by Pierre Aubert, 26 Feb 2004
+  add IDE support for MPC5200
+
+* Patch by Masami Komiya, 26 Feb 2004:
+  add autoload via NFS
+
+* Patch by Stephen Williams
+  Use of CONFIG_SERIAL_SOFTWARE_FIFO in board.c consistent with uses
+  elsewhere in the source.
+
 * Patch by Steven Scholz, 25 Feb 2004:
   - Timeouts in FPGA code should be based on CFG_HZ
   - Minor cleanup in code for Altera FPGA ACEX1K
@@ -15,7 +25,7 @@ Changes for U-Boot 1.0.2:
 * Patch by Markus Pietrek, 24 Feb 2004:
   NS9750 DevBoard added
 
-* Patch by Pierre AUBERT, 24 Feb 2004
+* Patch by Pierre Aubert, 24 Feb 2004
   add USB support for MPC5200
 
 * Patch by Steven Scholz, 24 Feb 2004:

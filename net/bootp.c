@@ -331,13 +331,21 @@ BootpHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len)
 
 	debug ("Got good BOOTP\n");
 
-	if (((s = getenv("autoload")) != NULL) && (*s == 'n')) {
-		/*
-		 * Just use BOOTP to configure system;
-		 * Do not use TFTP to load the bootfile.
-		 */
-		NetState = NETLOOP_SUCCESS;
-		return;
+	if ((s = getenv("autoload")) != NULL) {
+		if (*s == 'n') {
+			/*
+			 * Just use BOOTP to configure system;
+			 * Do not use TFTP to load the bootfile.
+			 */
+			NetState = NETLOOP_SUCCESS;
+			return;
+		} else if (strcmp(s, "NFS") == 0) {
+			/*
+			 * Use NFS to load the bootfile.
+			 */
+			NfsStart();
+			return;
+		}
 	}
 
 	TftpStart();
@@ -881,9 +889,21 @@ DhcpHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len)
 			printf("\n");
 
 			/* Obey the 'autoload' setting */
-			if (((s = getenv("autoload")) != NULL) && (*s == 'n')) {
-				NetState = NETLOOP_SUCCESS;
-				return;
+			if ((s = getenv("autoload")) != NULL) {
+				if (*s == 'n') {
+					/*
+					 * Just use BOOTP to configure system;
+					 * Do not use TFTP to load the bootfile.
+					 */
+					NetState = NETLOOP_SUCCESS;
+					return;
+				} else if (strcmp(s, "NFS") == 0) {
+					/*
+					 * Use NFS to load the bootfile.
+					 */
+					NfsStart();
+					return;
+				}
 			}
 			TftpStart();
 			return;

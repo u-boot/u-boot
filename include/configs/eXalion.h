@@ -50,13 +50,13 @@
 #error #### Specific type of MPC824x must be defined (i.e. CONFIG_MPC8240)
 #endif
 /* older kernels need clock in MHz newer in Hz */
-					/* #define CONFIG_CLOCKS_IN_MHZ 1 *//* clocks passsed to Linux in MHz	    */
+					/* #define CONFIG_CLOCKS_IN_MHZ 1 */ /* clocks passsed to Linux in MHz	    */
 #undef CONFIG_CLOCKS_IN_MHZ
 
 #define CONFIG_BOOTDELAY	10
 
 
-						    /*#define CONFIG_DRAM_SPEED	      66   *//* MHz			     */
+						    /*#define CONFIG_DRAM_SPEED	      66   */ /* MHz			     */
 
 #define CONFIG_COMMANDS		(   CONFIG_CMD_DFL  | \
 				    CFG_CMD_FLASH   | \
@@ -230,7 +230,7 @@
 #define CONFIG_SYS_CLK_FREQ	33333333	/* external frequency to pll	*/
 #define CONFIG_PLL_PCI_TO_MEM_MULTIPLIER  2	/* for MPC8240 only		*/
 
-				       /*#define CONFIG_133MHZ_DRAM	 1 *//* For 133 MHZ DRAM only !!!!!!!!!!!    */
+				       /*#define CONFIG_133MHZ_DRAM	 1 */ /* For 133 MHZ DRAM only !!!!!!!!!!!    */
 
 #if defined (CONFIG_MPC8245)
 /* Bit-field values for PMCR2.							*/
