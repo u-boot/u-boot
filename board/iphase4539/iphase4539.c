@@ -198,9 +198,8 @@ long int initdram (int board_type)
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile memctl8260_t *memctl = &immap->im_memctl;
 	volatile uchar *base;
-	volatile ulong *addr, cnt, val;
-	ulong save[32];				/* to make test non-destructive */
-	int i, maxsize;
+	ulong maxsize;
+	int i;
 
 	memctl->memc_psrt = CFG_PSRT;
 	memctl->memc_mptpr = CFG_MPTPR;
@@ -237,43 +236,10 @@ long int initdram (int board_type)
 	 */
 	maxsize = (1 + (~memctl->memc_or1 | 0x7fff)) / 2;
 
-	/*
-	 * Check memory range for valid RAM. A simple memory test determines
-	 * the actually available RAM size between addresses `base' and
-	 * `base + maxsize'. Some (not all) hardware errors are detected:
-	 * - short between address lines
-	 * - short between data lines
-	 */
-	i = 0;
-	for (cnt = maxsize / sizeof (long); cnt > 0; cnt >>= 1) {
-		addr = (volatile ulong *) base + cnt;	/* pointer arith! */
-		save[i++] = *addr;
-		*addr = ~cnt;
-	}
+	maxsize = get_ram_size((long *)base, maxsize);
 
-	addr = (volatile ulong *) base;
-	save[i] = *addr;
-	*addr = 0;
+	memctl->memc_or1 |= ~(maxsize - 1);
 
-	if ((val = *addr) != 0) {
-		*addr = save[i];
-		return (0);
-	}
-
-	for (cnt = 1; cnt <= maxsize / sizeof (long); cnt <<= 1) {
-		addr = (volatile ulong *) base + cnt;	/* pointer arith! */
-		val = *addr;
-		*addr = save[--i];
-		if (val != ~cnt) {
-			/* Write the actual size to ORx
-			 */
-			memctl->memc_or1 |= ~(cnt * sizeof (long) - 1);
-			maxsize = cnt * sizeof (long) / 2;
-			break;
-		}
-	}
-
-	maxsize *= 2;
 	if (maxsize != hwc_main_sdram_size ())
 		printf ("Oops: memory test has not found all memory!\n");
 #endif

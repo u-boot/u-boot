@@ -92,9 +92,9 @@ typedef volatile unsigned char	vu_char;
 #define debugX(level,fmt,args...)
 #endif	/* DEBUG */
 
-typedef	void (interrupt_handler_t)(void *);
+typedef void (interrupt_handler_t)(void *);
 
-#include <asm/u-boot.h>	/* boot information for Linux kernel */
+#include <asm/u-boot.h> /* boot information for Linux kernel */
 #include <asm/global_data.h>	/* global data used for startup functions */
 
 /*
@@ -142,11 +142,11 @@ int	serial_buffered_getc (void);
 int	serial_buffered_tstc (void);
 #endif /* CONFIG_SERIAL_SOFTWARE_FIFO */
 
-void	hang	      (void) __attribute__ ((noreturn));
+void	hang		(void) __attribute__ ((noreturn));
 
 /* */
 long int initdram (int);
-int	display_options	(void);
+int	display_options (void);
 void	print_size (ulong, const char *);
 
 /* common/main.c */
@@ -175,18 +175,18 @@ int	autoscript (ulong addr);
 /* common/cmd_bootm.c */
 void	print_image_hdr (image_header_t *hdr);
 
-extern ulong load_addr;		/* Default Load Address	*/
+extern ulong load_addr;		/* Default Load Address */
 
 /* common/cmd_nvedit.c */
 int	env_init     (void);
 void	env_relocate (void);
-char 	*getenv      (uchar *);
+char	*getenv	     (uchar *);
 int	getenv_r     (uchar *name, uchar *buf, unsigned len);
-int	saveenv      (void);
+int	saveenv	     (void);
 #ifdef CONFIG_PPC		/* ARM version to be fixed! */
 void inline setenv   (char *, char *);
 #else
-void    setenv       (char *, char *);
+void	setenv	     (char *, char *);
 #endif /* CONFIG_PPC */
 #ifdef CONFIG_ARM
 # include <asm/setup.h>
@@ -196,21 +196,21 @@ void    setenv       (char *, char *);
 # include <asm/u-boot-i386.h>
 #endif /* CONFIG_I386 */
 
-void    pci_init      (void);
-void    pci_init_board(void);
-void    pciinfo       (int, int);
+void	pci_init      (void);
+void	pci_init_board(void);
+void	pciinfo	      (int, int);
 
 #if defined(CONFIG_PCI) && defined(CONFIG_440)
 #   if defined(CFG_PCI_PRE_INIT)
-    int    pci_pre_init        (struct pci_controller * );
+    int	   pci_pre_init	       (struct pci_controller * );
 #   endif
 #   if defined(CFG_PCI_TARGET_INIT)
-	void    pci_target_init      (struct pci_controller *);
+	void	pci_target_init	     (struct pci_controller *);
 #   endif
 #   if defined(CFG_PCI_MASTER_INIT)
-	void    pci_master_init      (struct pci_controller *);
+	void	pci_master_init	     (struct pci_controller *);
 #   endif
-    int     is_pci_host         (struct pci_controller *);
+    int	    is_pci_host		(struct pci_controller *);
 #endif
 
 int	misc_init_f   (void);
@@ -219,9 +219,12 @@ int	misc_init_r   (void);
 /* common/exports.c */
 void	jumptable_init(void);
 
+/* common/memsize.c */
+int	get_ram_size  (volatile long *, long);
+
 /* $(BOARD)/$(BOARD).c */
 void	reset_phy     (void);
-void    fdc_hw_init   (void);
+void	fdc_hw_init   (void);
 
 /* $(BOARD)/eeprom.c */
 void eeprom_init  (void);
@@ -248,7 +251,7 @@ extern void  pic_write (uchar reg, uchar val);
 #if defined(CONFIG_SPI)
 extern void spi_init_f (void);
 extern void spi_init_r (void);
-extern ssize_t spi_read  (uchar *, int, uchar *, int);
+extern ssize_t spi_read	 (uchar *, int, uchar *, int);
 extern ssize_t spi_write (uchar *, int, uchar *, int);
 #endif
 
@@ -292,11 +295,11 @@ int testdram(void);
 #endif /* CFG_DRAM_TEST */
 
 /* $(CPU)/start.S */
-#if defined(CONFIG_5xx)	|| \
+#if defined(CONFIG_5xx) || \
     defined(CONFIG_8xx)
 uint	get_immr      (uint);
 #endif
-uint	get_pir       (void);
+uint	get_pir	      (void);
 uint	get_pvr	      (void);
 uint	rd_ic_cst     (void);
 void	wr_ic_cst     (uint);
@@ -318,19 +321,19 @@ void	trap_init     (ulong);
     defined (CONFIG_74x)	|| \
     defined (CONFIG_75x)	|| \
     defined (CONFIG_74xx)
-unsigned char   in8(unsigned int);
-void            out8(unsigned int, unsigned char);
-unsigned short  in16(unsigned int);
-unsigned short  in16r(unsigned int);
-void            out16(unsigned int, unsigned short value);
-void            out16r(unsigned int, unsigned short value);
-unsigned long   in32(unsigned int);
-unsigned long   in32r(unsigned int);
-void            out32(unsigned int, unsigned long value);
-void            out32r(unsigned int, unsigned long value);
-void            ppcDcbf(unsigned long value);
-void            ppcDcbi(unsigned long value);
-void            ppcSync(void);
+unsigned char	in8(unsigned int);
+void		out8(unsigned int, unsigned char);
+unsigned short	in16(unsigned int);
+unsigned short	in16r(unsigned int);
+void		out16(unsigned int, unsigned short value);
+void		out16r(unsigned int, unsigned short value);
+unsigned long	in32(unsigned int);
+unsigned long	in32r(unsigned int);
+void		out32(unsigned int, unsigned long value);
+void		out32r(unsigned int, unsigned long value);
+void		ppcDcbf(unsigned long value);
+void		ppcDcbi(unsigned long value);
+void		ppcSync(void);
 #endif
 
 /* $(CPU)/cpu.c */
@@ -368,13 +371,13 @@ ulong	get_PCLK (void);
 ulong	get_UCLK (void);
 #endif
 #if defined CONFIG_INCA_IP
-uint    incaip_get_cpuclk (void);
+uint	incaip_get_cpuclk (void);
 #endif
 ulong	get_bus_freq  (ulong);
 
 #if defined(CONFIG_MPC85xx)
 typedef MPC85xx_SYS_INFO sys_info_t;
-void    get_sys_info  ( sys_info_t * );
+void	get_sys_info  ( sys_info_t * );
 #endif
 
 #if defined(CONFIG_4xx) || defined(CONFIG_IOP480)
@@ -383,7 +386,7 @@ void    get_sys_info  ( sys_info_t * );
 #  else
     typedef PPC405_SYS_INFO sys_info_t;
 #  endif
-void    get_sys_info  ( sys_info_t * );
+void	get_sys_info  ( sys_info_t * );
 #endif
 
 /* $(CPU)/cpu_init.c */
@@ -399,8 +402,8 @@ int	prt_8260_rsr  (void);
 #endif
 
 /* $(CPU)/interrupts.c */
-int	interrupt_init     (void);
-void	timer_interrupt    (struct pt_regs *);
+int	interrupt_init	   (void);
+void	timer_interrupt	   (struct pt_regs *);
 void	external_interrupt (struct pt_regs *);
 void	irq_install_handler(int, interrupt_handler_t *, void *);
 void	irq_free_handler   (int);
@@ -453,7 +456,7 @@ ulong	simple_strtoul(const char *cp,char **endp,unsigned int base);
 long	simple_strtol(const char *cp,char **endp,unsigned int base);
 void	panic(const char *fmt, ...);
 int	sprintf(char * buf, const char *fmt, ...);
-int 	vsprintf(char *buf, const char *fmt, va_list args);
+int	vsprintf(char *buf, const char *fmt, va_list args);
 
 /* lib_generic/crc32.c */
 ulong crc32 (ulong, const unsigned char *, uint);

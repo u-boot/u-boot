@@ -221,13 +221,10 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 						  ulong orx, volatile uchar * base)
 {
 	volatile uchar c = 0xff;
-	volatile ulong cnt, val;
-	volatile ulong *addr;
 	volatile uint *sdmr_ptr;
 	volatile uint *orx_ptr;
+	ulong maxsize, size;
 	int i;
-	ulong save[32];				/* to make test non-destructive */
-	ulong maxsize;
 
 	/* We must be able to test a location outsize the maximum legal size
 	 * to find out THAT we are outside; but this address still has to be
@@ -274,41 +271,11 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 	*sdmr_ptr = sdmr | PSDMR_OP_NORM | PSDMR_RFEN;
 	*base = c;
 
-	/*
-	 * Check memory range for valid RAM. A simple memory test determines
-	 * the actually available RAM size between addresses `base' and
-	 * `base + maxsize'. Some (not all) hardware errors are detected:
-	 * - short between address lines
-	 * - short between data lines
-	 */
-	i = 0;
-	for (cnt = maxsize / sizeof (long); cnt > 0; cnt >>= 1) {
-		addr = (volatile ulong *) base + cnt;	/* pointer arith! */
-		save[i++] = *addr;
-		*addr = ~cnt;
-	}
+	size = get_ram_size((long *)base, maxsize);
 
-	addr = (volatile ulong *) base;
-	save[i] = *addr;
-	*addr = 0;
+	*orx_ptr = orx | ~(size - 1);
 
-	if ((val = *addr) != 0) {
-		*addr = save[i];
-		return (0);
-	}
-
-	for (cnt = 1; cnt <= maxsize / sizeof (long); cnt <<= 1) {
-		addr = (volatile ulong *) base + cnt;	/* pointer arith! */
-		val = *addr;
-		*addr = save[--i];
-		if (val != ~cnt) {
-			/* Write the actual size to ORx
-			 */
-			*orx_ptr = orx | ~(cnt * sizeof (long) - 1);
-			return (cnt * sizeof (long));
-		}
-	}
-	return (maxsize);
+	return (size);
 }
 
 

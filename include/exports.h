@@ -1,5 +1,5 @@
-#ifndef __MON_SYS_CALL_H__
-#define __MON_SYS_CALL_H__
+#ifndef __EXPORTS_H__
+#define __EXPORTS_H__
 
 #ifndef __ASSEMBLY__
 
@@ -43,4 +43,4 @@ enum {
 extern gd_t *global_data;
 #endif
 
-#endif
+#endif	/* __EXPORTS_H__ */

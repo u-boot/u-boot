@@ -39,13 +39,12 @@ static long int dram_size (long int, long int *, long int);
 
 #define	_NOT_USED_	0xFFFFFFFF
 
-const uint sdram_table[] =
-{
+const uint sdram_table[] = {
 	/*
 	 * Single Read. (Offset 0 in UPMA RAM)
 	 */
 	0x1f07fc04, 0xeeaefc04, 0x11adfc04, 0xefbbbc00,
-	0x1ff77c47, /* last */
+	0x1ff77c47,		/* last */
 	/*
 	 * SDRAM Initialization (offset 5 in UPMA RAM)
 	 *
@@ -54,39 +53,39 @@ const uint sdram_table[] =
 	 * sequence, which is executed by a RUN command.
 	 *
 	 */
-	0x1ff77c35, 0xefeabc34, 0x1fb57c35, /* last */
+	0x1ff77c35, 0xefeabc34, 0x1fb57c35,	/* last */
 	/*
 	 * Burst Read. (Offset 8 in UPMA RAM)
 	 */
 	0x1f07fc04, 0xeeaefc04, 0x10adfc04, 0xf0affc00,
-	0xf0affc00, 0xf1affc00,	0xefbbbc00, 0x1ff77c47, /* last */
+	0xf0affc00, 0xf1affc00, 0xefbbbc00, 0x1ff77c47,	/* last */
 	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 	/*
 	 * Single Write. (Offset 18 in UPMA RAM)
 	 */
- 	0x1f27fc04, 0xeeaebc00, 0x01b93c04, 0x1ff77c47, /* last */
+	0x1f27fc04, 0xeeaebc00, 0x01b93c04, 0x1ff77c47,	/* last */
 	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 	/*
 	 * Burst Write. (Offset 20 in UPMA RAM)
 	 */
 	0x1f07fc04, 0xeeaebc00, 0x10ad7c00, 0xf0affc00,
-	0xf0affc00, 0xe1bbbc04, 0x1ff77c47, /* last */
-					    _NOT_USED_,
+	0xf0affc00, 0xe1bbbc04, 0x1ff77c47,	/* last */
+	_NOT_USED_,
 	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 	/*
 	 * Refresh  (Offset 30 in UPMA RAM)
 	 */
 	0x1ff5fc84, 0xfffffc04, 0xfffffc04, 0xfffffc04,
-	0xfffffc84, 0xfffffc07, 0xfffffc07, /* last */
-					    _NOT_USED_,
+	0xfffffc84, 0xfffffc07, 0xfffffc07,	/* last */
+	_NOT_USED_,
 	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 	/*
 	 * Exception. (Offset 3c in UPMA RAM)
 	 */
-	0x7ffffc07, /* last */
-		    _NOT_USED_, _NOT_USED_, _NOT_USED_,
+	0x7ffffc07,		/* last */
+	_NOT_USED_, _NOT_USED_, _NOT_USED_,
 };
 
 /* ------------------------------------------------------------------------- */
@@ -104,7 +103,7 @@ const uint sdram_table[] =
 
 int checkboard (void)
 {
-	printf("Board: Lantec special edition rev.%d\n", CONFIG_LANTEC);
+	printf ("Board: Lantec special edition rev.%d\n", CONFIG_LANTEC);
 	return 0;
 }
 
@@ -112,7 +111,7 @@ int checkboard (void)
 
 long int initdram (int board_type)
 {
-	volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	long int size_b0;
 	int i;
@@ -120,16 +119,17 @@ long int initdram (int board_type)
 	/*
 	 * Configure UPMA for SDRAM
 	 */
-	upmconfig(UPMA, (uint *)sdram_table, sizeof(sdram_table)/sizeof(uint));
+	upmconfig (UPMA, (uint *) sdram_table,
+		   sizeof (sdram_table) / sizeof (uint));
 
-	memctl->memc_mptpr = CFG_MPTPR_1BK_8K /* XXX CFG_MPTPR XXX */;
+	memctl->memc_mptpr = CFG_MPTPR_1BK_8K /* XXX CFG_MPTPR XXX */ ;
 
 	/* burst length=4, burst type=sequential, CAS latency=2 */
 	memctl->memc_mar = 0x00000088;
 
 	/*
-	* Map controller bank 3 to the SDRAM bank at preliminary address.
-	*/
+	 * Map controller bank 3 to the SDRAM bank at preliminary address.
+	 */
 	memctl->memc_or3 = CFG_OR3_PRELIM;
 	memctl->memc_br3 = CFG_BR3_PRELIM;
 
@@ -137,26 +137,30 @@ long int initdram (int board_type)
 	memctl->memc_mamr = CFG_MAMR_8COL;	/* refresh not enabled yet */
 
 	/* mode initialization (offset 5) */
-	udelay(200);	/* 0x80006105 */
-	memctl->memc_mcr = MCR_OP_RUN | MCR_MB_CS3 | MCR_MLCF(1) | MCR_MAD(0x05);
+	udelay (200);		/* 0x80006105 */
+	memctl->memc_mcr =
+		MCR_OP_RUN | MCR_MB_CS3 | MCR_MLCF (1) | MCR_MAD (0x05);
 
 	/* run 2 refresh sequence with 4-beat refresh burst (offset 0x30) */
-	udelay(1);		/* 0x80006130 */
-	memctl->memc_mcr = MCR_OP_RUN | MCR_MB_CS3 | MCR_MLCF(1) | MCR_MAD(0x30);
-	udelay(1);		/* 0x80006130 */
-	memctl->memc_mcr = MCR_OP_RUN | MCR_MB_CS3 | MCR_MLCF(1) | MCR_MAD(0x30);
+	udelay (1);		/* 0x80006130 */
+	memctl->memc_mcr =
+		MCR_OP_RUN | MCR_MB_CS3 | MCR_MLCF (1) | MCR_MAD (0x30);
+	udelay (1);		/* 0x80006130 */
+	memctl->memc_mcr =
+		MCR_OP_RUN | MCR_MB_CS3 | MCR_MLCF (1) | MCR_MAD (0x30);
 
-	udelay(1);		/* 0x80006106 */
-	memctl->memc_mcr = MCR_OP_RUN | MCR_MB_CS3 | MCR_MLCF(1) | MCR_MAD(0x06);
+	udelay (1);		/* 0x80006106 */
+	memctl->memc_mcr =
+		MCR_OP_RUN | MCR_MB_CS3 | MCR_MLCF (1) | MCR_MAD (0x06);
 
 	memctl->memc_mamr |= MAMR_PTAE;	/* refresh enabled */
 
-	udelay(200);
+	udelay (200);
 
 	/* Need at least 10 DRAM accesses to stabilize */
-	for (i=0; i<10; ++i) {
-		volatile unsigned long *addr = \
-				(volatile unsigned long *)SDRAM_BASE3_PRELIM;
+	for (i = 0; i < 10; ++i) {
+		volatile unsigned long *addr =
+			(volatile unsigned long *) SDRAM_BASE3_PRELIM;
 		unsigned long val;
 
 		val = *(addr + i);
@@ -164,11 +168,10 @@ long int initdram (int board_type)
 	}
 
 	/*
-	* Check Bank 0 Memory Size for re-configuration
-	*/
+	 * Check Bank 0 Memory Size for re-configuration
+	 */
 	size_b0 = dram_size (CFG_MAMR_8COL,
-			     (ulong *)SDRAM_BASE3_PRELIM,
-			     SDRAM_MAX_SIZE);
+			     (ulong *) SDRAM_BASE3_PRELIM, SDRAM_MAX_SIZE);
 
 	memctl->memc_mamr = CFG_MAMR_8COL | MAMR_PTAE;
 
@@ -178,7 +181,7 @@ long int initdram (int board_type)
 
 	memctl->memc_or3 = ((-size_b0) & 0xFFFF0000) | CFG_OR_TIMING_SDRAM;
 	memctl->memc_br3 = (CFG_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V;
-	udelay(1000);
+	udelay (1000);
 
 	return (size_b0);
 }
@@ -193,44 +196,13 @@ long int initdram (int board_type)
  * - short between data lines
  */
 
-static long int dram_size (long int mamr_value, long int *base, long int maxsize)
+static long int dram_size (long int mamr_value, long int *base,
+			   long int maxsize)
 {
-    volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
-    volatile memctl8xx_t *memctl = &immap->im_memctl;
-    volatile long int	 *addr;
-    ulong		  cnt, val;
-    ulong		  save[32];	/* to make test non-destructive */
-    unsigned char	  i = 0;
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile memctl8xx_t *memctl = &immap->im_memctl;
 
-    memctl->memc_mamr = mamr_value;
+	memctl->memc_mamr = mamr_value;
 
-    for (cnt = maxsize/sizeof(long); cnt > 0; cnt >>= 1) {
-	addr = base + cnt;	/* pointer arith! */
-
-	save[i++] = *addr;
-	*addr = ~cnt;
-    }
-
-    /* write 0 to base address */
-    addr = base;
-    save[i] = *addr;
-    *addr = 0;
-
-    /* check at base address */
-    if ((val = *addr) != 0) {
-	*addr = save[i];
-	return (0);
-    }
-
-    for (cnt = 1; cnt <= maxsize/sizeof(long); cnt <<= 1) {
-	addr = base + cnt;	/* pointer arith! */
-
-	val = *addr;
-	*addr = save[--i];
-
-	if (val != (~cnt)) {
-	    return (cnt * sizeof(long));
-	}
-    }
-    return (maxsize);
+	return (get_ram_size (base, maxsize));
 }

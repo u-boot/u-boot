@@ -49,11 +49,10 @@ int checkboard(void)
 long int initdram(int board_type)
 {
 #if 1
-	int				i, cnt;
-	volatile uchar	*base =	CFG_SDRAM_BASE;
-	volatile ulong	*addr;
-	ulong			save[SAVE_SZ];
-	ulong			val, ret  = 0;
+	long size;
+	long new_bank0_end;
+	long mear1;
+	long emear1;
 /*
 	write_bat(IBAT1, ((CFG_MAX_RAM_SIZE/2) | BATU_BL_256M | BATU_VS | BATU_VP),
 			( (CFG_MAX_RAM_SIZE/2)| BATL_PP_10 | BATL_MEMCOHERENCE));
@@ -61,48 +60,19 @@ long int initdram(int board_type)
 	write_bat(DBAT1, ((CFG_MAX_RAM_SIZE/2) | BATU_BL_256M | BATU_VS | BATU_VP),
 			( (CFG_MAX_RAM_SIZE/2)| BATL_PP_10 | BATL_MEMCOHERENCE));
 */
-	for (i=0; i<SAVE_SZ; i++) {
-		save[i] = 0;		/* clear table */
-	}
+	size = get_ram_size(CFG_SDRAM_BASE, CFG_MAX_RAM_SIZE);
 
-	for (i=0, cnt=(CFG_MAX_RAM_SIZE / sizeof(long)) >> 1; cnt > 0; cnt >>= 1) {
-		addr = (volatile ulong *)base + cnt;
-		save[i++] = *addr;
-		*addr = ~cnt;
-	}
+	new_bank0_end = size - 1;
+	mear1 = mpc824x_mpc107_getreg(MEAR1);
+	emear1 = mpc824x_mpc107_getreg(EMEAR1);
+	mear1 = (mear1  & 0xFFFFFF00) |
+		((new_bank0_end & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT);
+	emear1 = (emear1 & 0xFFFFFF00) |
+		((new_bank0_end & MICR_ADDR_MASK) >> MICR_EADDR_SHIFT);
+	mpc824x_mpc107_setreg(MEAR1, mear1);
+	mpc824x_mpc107_setreg(EMEAR1, emear1);
 
-	addr = (volatile ulong *)base;
-	save[i] = *addr;
-	*addr = 0;
-
-	if (*addr != 0) {
-		*addr = save[i];
-		goto Done;
-	}
-
-	for (cnt = 1; cnt < CFG_MAX_RAM_SIZE / sizeof(long); cnt <<= 1) {
-		addr = (volatile ulong *)base + cnt;
-		val = *addr;
-		*addr = save[--i];
-		if (val != ~cnt) {
-			ulong new_bank0_end = cnt * sizeof(long) - 1;
-			ulong mear1  = mpc824x_mpc107_getreg(MEAR1);
-			ulong emear1 = mpc824x_mpc107_getreg(EMEAR1);
-			mear1 =  (mear1  & 0xFFFFFF00) |
-			  ((new_bank0_end & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT);
-			emear1 = (emear1 & 0xFFFFFF00) |
-			  ((new_bank0_end & MICR_ADDR_MASK) >> MICR_EADDR_SHIFT);
-			mpc824x_mpc107_setreg(MEAR1,  mear1);
-			mpc824x_mpc107_setreg(EMEAR1, emear1);
-
-			ret = cnt * sizeof(long);
-			goto Done;
-		}
-	}
-
-	ret = CFG_MAX_RAM_SIZE;
-Done:
-	return ret;
+	return (size);
 #else
 	return (CFG_MAX_RAM_SIZE);
 #endif

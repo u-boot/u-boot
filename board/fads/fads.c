@@ -187,45 +187,6 @@ static const uint edo_70ns[] =
 #endif
 
 /* ------------------------------------------------------------------------- */
-static long int dram_size (long int *base, long int maxsize)
-{
-	volatile long int *addr=base;
-	ulong cnt, val;
-	ulong save[32];				/* to make test non-destructive */
-	unsigned char i = 0;
-
-	for (cnt = maxsize / sizeof (long); cnt > 0; cnt >>= 1) {
-		addr = base + cnt;		/* pointer arith! */
-
-		save[i++] = *addr;
-		*addr = ~cnt;
-	}
-
-	/* write 0 to base address */
-	addr = base;
-	save[i] = *addr;
-	*addr = 0;
-
-	/* check at base address */
-	if ((val = *addr) != 0) {
-		*addr = save[i];
-		return (0);
-	}
-
-	for (cnt = 1; cnt <= maxsize / sizeof (long); cnt <<= 1) {
-		addr = base + cnt;		/* pointer arith! */
-
-		val = *addr;
-		*addr = save[--i];
-
-		if (val != (~cnt)) {
-			return (cnt * sizeof (long));
-		}
-	}
-	return (maxsize);
-}
-
-/* ------------------------------------------------------------------------- */
 static int _draminit (uint base, uint noMbytes, uint edo, uint delay)
 {
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
@@ -306,10 +267,10 @@ static int _draminit (uint base, uint noMbytes, uint edo, uint delay)
 	/* if no dimm is inserted, noMbytes is still detected as 8m, so
 	 * sanity check top and bottom of memory */
 
-	/* check bytes / 2 because dram_size tests at base+bytes, which
+	/* check bytes / 2 because get_ram_size tests at base+bytes, which
 	 * is not mapped */
 	if (noMbytes == 8)
-		if (dram_size ((long *) base, noMbytes << 19) != noMbytes << 19) {
+		if (get_ram_size ((long *) base, noMbytes << 19) != noMbytes << 19) {
 			*((uint *) BCSR1) |= BCSR1_DRAM_EN;	/* disable dram */
 			return -1;
 		}

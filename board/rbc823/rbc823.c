@@ -127,109 +127,112 @@ const uint static_table[] =
 
 int checkboard (void)
 {
-    unsigned char *s = getenv("serial#");
+	unsigned char *s = getenv ("serial#");
 
-    if (!s || strncmp(s, "TQM8", 4)) {
-	printf ("### No HW ID - assuming RBC823\n");
+	if (!s || strncmp (s, "TQM8", 4)) {
+		printf ("### No HW ID - assuming RBC823\n");
+		return (0);
+	}
+
+	puts (s);
+	putc ('\n');
+
 	return (0);
-    }
-
-    puts(s);
-    putc ('\n');
-
-    return (0);
 }
 
 /* ------------------------------------------------------------------------- */
 
 long int initdram (int board_type)
 {
-    volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
-    volatile memctl8xx_t *memctl = &immap->im_memctl;
-    long int size_b0, size8, size9;
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile memctl8xx_t *memctl = &immap->im_memctl;
+	long int size_b0, size8, size9;
 
-    upmconfig(UPMA, (uint *)sdram_table, sizeof(sdram_table)/sizeof(uint));
+	upmconfig (UPMA, (uint *) sdram_table,
+		   sizeof (sdram_table) / sizeof (uint));
 
-    /*
-     * 1 Bank of 64Mbit x 2 devices
-     */
-    memctl->memc_mptpr = CFG_MPTPR_1BK_4K;
-    memctl->memc_mar  = 0x00000088;
+	/*
+	 * 1 Bank of 64Mbit x 2 devices
+	 */
+	memctl->memc_mptpr = CFG_MPTPR_1BK_4K;
+	memctl->memc_mar = 0x00000088;
 
-    /*
-     * Map controller SDRAM bank 0
-     */
-    memctl->memc_or4 = CFG_OR4_PRELIM;
-    memctl->memc_br4 = CFG_BR4_PRELIM;
-    memctl->memc_mamr = CFG_MAMR_8COL & (~(MAMR_PTAE)); /* no refresh yet */
-    udelay(200);
+	/*
+	 * Map controller SDRAM bank 0
+	 */
+	memctl->memc_or4 = CFG_OR4_PRELIM;
+	memctl->memc_br4 = CFG_BR4_PRELIM;
+	memctl->memc_mamr = CFG_MAMR_8COL & (~(MAMR_PTAE));	/* no refresh yet */
+	udelay (200);
 
-    /*
-     * Perform SDRAM initializsation sequence
-     */
-    memctl->memc_mcr  = 0x80008105;	/* SDRAM bank 0 */
-    udelay(1);
-    memctl->memc_mamr = (CFG_MAMR_8COL & ~(MAMR_TLFA_MSK)) | MAMR_TLFA_8X;
-    udelay(200);
-    memctl->memc_mcr  = 0x80008130;	/* SDRAM bank 0 - execute twice */
-    udelay(1);
-    memctl->memc_mamr = (CFG_MAMR_8COL & ~(MAMR_TLFA_MSK)) | MAMR_TLFA_4X;
-    udelay(200);
+	/*
+	 * Perform SDRAM initializsation sequence
+	 */
+	memctl->memc_mcr = 0x80008105;	/* SDRAM bank 0 */
+	udelay (1);
+	memctl->memc_mamr = (CFG_MAMR_8COL & ~(MAMR_TLFA_MSK)) | MAMR_TLFA_8X;
+	udelay (200);
+	memctl->memc_mcr = 0x80008130;	/* SDRAM bank 0 - execute twice */
+	udelay (1);
+	memctl->memc_mamr = (CFG_MAMR_8COL & ~(MAMR_TLFA_MSK)) | MAMR_TLFA_4X;
+	udelay (200);
 
-    memctl->memc_mamr |= MAMR_PTAE;	/* enable refresh */
-    udelay (1000);
+	memctl->memc_mamr |= MAMR_PTAE;	/* enable refresh */
+	udelay (1000);
 
-    /*
-     * Preliminary prescaler for refresh (depends on number of
-     * banks): This value is selected for four cycles every 62.4 us
-     * with two SDRAM banks or four cycles every 31.2 us with one
-     * bank. It will be adjusted after memory sizing.
-     */
-    memctl->memc_mptpr = CFG_MPTPR_2BK_4K; /* 16: but should be: CFG_MPTPR_1BK_4K */
+	/*
+	 * Preliminary prescaler for refresh (depends on number of
+	 * banks): This value is selected for four cycles every 62.4 us
+	 * with two SDRAM banks or four cycles every 31.2 us with one
+	 * bank. It will be adjusted after memory sizing.
+	 */
+	memctl->memc_mptpr = CFG_MPTPR_2BK_4K;	/* 16: but should be: CFG_MPTPR_1BK_4K */
 
-    /*
-     * Check Bank 0 Memory Size for re-configuration
-     *
-     * try 8 column mode
-     */
-    size8 = dram_size (CFG_MAMR_8COL, (ulong *)SDRAM_BASE4_PRELIM, SDRAM_MAX_SIZE);
-    udelay (1000);
+	/*
+	 * Check Bank 0 Memory Size for re-configuration
+	 *
+	 * try 8 column mode
+	 */
+	size8 = dram_size (CFG_MAMR_8COL, (ulong *) SDRAM_BASE4_PRELIM,
+			   SDRAM_MAX_SIZE);
+	udelay (1000);
 
-    /*
-     * try 9 column mode
-     */
-    size9 = dram_size (CFG_MAMR_9COL, (ulong *)SDRAM_BASE4_PRELIM, SDRAM_MAX_SIZE);
+	/*
+	 * try 9 column mode
+	 */
+	size9 = dram_size (CFG_MAMR_9COL, (ulong *) SDRAM_BASE4_PRELIM,
+			   SDRAM_MAX_SIZE);
 
-    if (size8 < size9) {		/* leave configuration at 9 columns	*/
-	size_b0 = size9;
+	if (size8 < size9) {	/* leave configuration at 9 columns     */
+		size_b0 = size9;
 /*	debug ("SDRAM Bank 0 in 9 column mode: %ld MB\n", size >> 20);	*/
-    } else {				/* back to 8 columns			*/
-	size_b0 = size8;
-	memctl->memc_mamr = CFG_MAMR_8COL;
-	udelay(500);
+	} else {		/* back to 8 columns                    */
+		size_b0 = size8;
+		memctl->memc_mamr = CFG_MAMR_8COL;
+		udelay (500);
 /*	debug ("SDRAM Bank 0 in 8 column mode: %ld MB\n", size >> 20);	*/
-    }
+	}
 
-    udelay (1000);
+	udelay (1000);
 
-    /*
-     * Adjust refresh rate depending on SDRAM type, both banks
-     * For types > 128 MBit leave it at the current (fast) rate
-     */
-    if ((size_b0 < 0x02000000) ) {
-	/* reduce to 15.6 us (62.4 us / quad) */
-	memctl->memc_mptpr = CFG_MPTPR_2BK_4K;
-	udelay(1000);
-    }
+	/*
+	 * Adjust refresh rate depending on SDRAM type, both banks
+	 * For types > 128 MBit leave it at the current (fast) rate
+	 */
+	if ((size_b0 < 0x02000000)) {
+		/* reduce to 15.6 us (62.4 us / quad) */
+		memctl->memc_mptpr = CFG_MPTPR_2BK_4K;
+		udelay (1000);
+	}
 
-    /* SDRAM Bank 0 is bigger - map first	*/
+	/* SDRAM Bank 0 is bigger - map first       */
 
-    memctl->memc_or4 = ((-size_b0) & 0xFFFF0000) | CFG_OR_TIMING_SDRAM;
-    memctl->memc_br4 = (CFG_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V;
+	memctl->memc_or4 = ((-size_b0) & 0xFFFF0000) | CFG_OR_TIMING_SDRAM;
+	memctl->memc_br4 = (CFG_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V;
 
-    udelay(10000);
+	udelay (10000);
 
-    return (size_b0);
+	return (size_b0);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -242,50 +245,25 @@ long int initdram (int board_type)
  * - short between data lines
  */
 
-static long int dram_size (long int mamr_value, long int *base, long int maxsize)
+static long int dram_size (long int mamr_value, long int *base,
+			   long int maxsize)
 {
-    volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
-    volatile memctl8xx_t *memctl = &immap->im_memctl;
-    volatile long int	 *addr;
-    long int		  cnt, val;
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile memctl8xx_t *memctl = &immap->im_memctl;
 
-    memctl->memc_mamr = mamr_value;
+	memctl->memc_mamr = mamr_value;
 
-    for (cnt = maxsize/sizeof(long)/2; cnt > 0; cnt >>= 1) {
-	addr = base + cnt;	/* pointer arith! */
-
-	*addr = ~cnt;
-    }
-
-    /* write 0 to base address */
-    addr = base;
-    *addr = 0;
-
-    /* check at base address */
-    if ((val = *addr) != 0) {
-	return (0);
-    }
-
-    for (cnt = 1; cnt < maxsize/sizeof(long) ; cnt <<= 1) {
-	addr = base + cnt;	/* pointer arith! */
-
-	val = *addr;
-
-	if (val != (~cnt)) {
-	    return (cnt * sizeof(long));
-	}
-    }
-    return cnt * sizeof(long);
-    /* NOTREACHED */
+	return (get_ram_size (base, maxsize));
 }
 
-void doc_init(void)
+void doc_init (void)
 {
-    volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
-    volatile memctl8xx_t *memctl = &immap->im_memctl;
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile memctl8xx_t *memctl = &immap->im_memctl;
 
-    upmconfig(UPMB, (uint *)static_table, sizeof(static_table)/sizeof(uint));
-    memctl->memc_mbmr = MAMR_DSA_1_CYCL;
+	upmconfig (UPMB, (uint *) static_table,
+		   sizeof (static_table) / sizeof (uint));
+	memctl->memc_mbmr = MAMR_DSA_1_CYCL;
 
-    doc_probe(FLASH_BASE1_PRELIM);
+	doc_probe (FLASH_BASE1_PRELIM);
 }

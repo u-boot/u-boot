@@ -47,52 +47,6 @@ static ulong max_sdram_size(void)
 	return size;
 }
 
-/*
- * Check memory range for valid RAM. A simple memory test determines
- * the actually available RAM size between addresses `base' and
- * `base + maxsize'. Some (not all) hardware errors are detected:
- * - short between address lines
- * - short between data lines
- */
-
-static long int dram_size(long int *base, long int maxsize)
-{
-	volatile long int *addr;
-	ulong cnt, val;
-	ulong save[32];			/* to make test non-destructive */
-	unsigned char i = 0;
-
-	for (cnt = (maxsize / sizeof (long)) >> 1; cnt > 0; cnt >>= 1) {
-		addr = base + cnt;		/* pointer arith! */
-
-		save[i++] = *addr;
-		*addr = ~cnt;
-	}
-
-	/* write 0 to base address */
-	addr = base;
-	save[i] = *addr;
-	*addr = 0;
-
-	/* check at base address */
-	if ((val = *addr) != 0) {
-		*addr = save[i];
-		return (0);
-	}
-
-	for (cnt = 1; cnt < maxsize / sizeof (long); cnt <<= 1) {
-		addr = base + cnt;		/* pointer arith! */
-
-		val = *addr;
-		*addr = save[--i];
-
-		if (val != (~cnt)) {
-			return (cnt * sizeof (long));
-		}
-	}
-	return (maxsize);
-}
-
 long int initdram(int board_type)
 {
 	int   rows, cols, best_val = *INCA_IP_SDRAM_MC_CFGPB0;
@@ -114,7 +68,7 @@ long int initdram(int board_type)
 		{
 			*INCA_IP_SDRAM_MC_CFGPB0 = (0x14 << 8) |
 			                           (rows << 4) | cols;
-			size = dram_size((ulong *)CFG_SDRAM_BASE,
+			size = get_ram_size((ulong *)CFG_SDRAM_BASE,
 			                                     max_sdram_size());
 
 			if (size > max_size)

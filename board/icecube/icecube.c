@@ -26,44 +26,6 @@
 #include <pci.h>
 
 #ifndef CFG_RAMBOOT
-static long int dram_size(long int *base, long int maxsize)
-{
-	volatile long int *addr;
-	ulong cnt, val;
-	ulong save[32];			/* to make test non-destructive */
-	unsigned char i = 0;
-
-	for (cnt = (maxsize / sizeof (long)) >> 1; cnt > 0; cnt >>= 1) {
-		addr = base + cnt;		/* pointer arith! */
-
-		save[i++] = *addr;
-		*addr = ~cnt;
-	}
-
-	/* write 0 to base address */
-	addr = base;
-	save[i] = *addr;
-	*addr = 0;
-
-	/* check at base address */
-	if ((val = *addr) != 0) {
-		*addr = save[i];
-		return (0);
-	}
-
-	for (cnt = 1; cnt < maxsize / sizeof (long); cnt <<= 1) {
-		addr = base + cnt;		/* pointer arith! */
-
-		val = *addr;
-		*addr = save[--i];
-
-		if (val != (~cnt)) {
-			return (cnt * sizeof (long));
-		}
-	}
-	return (maxsize);
-}
-
 static void sdram_start (int hi_addr)
 {
 	long hi_addr_bit = hi_addr ? 0x01000000 : 0;
@@ -148,9 +110,9 @@ long int initdram (int board_type)
 	*(vu_long *)MPC5XXX_SDRAM_XLBSEL = 0x03000000;
 #endif
 	sdram_start(0);
-	test1 = dram_size((ulong *)CFG_SDRAM_BASE, 0x80000000);
+	test1 = get_ram_size((ulong *)CFG_SDRAM_BASE, 0x80000000);
 	sdram_start(1);
-	test2 = dram_size((ulong *)CFG_SDRAM_BASE, 0x80000000);
+	test2 = get_ram_size((ulong *)CFG_SDRAM_BASE, 0x80000000);
 	if (test1 > test2) {
 		sdram_start(0);
 		dramsize = test1;
@@ -163,9 +125,9 @@ long int initdram (int board_type)
 #ifdef CONFIG_MPC5200_DDR
 	*(vu_long *)MPC5XXX_SDRAM_CS1CFG = dramsize + 0x0000001e;/* 2G */
 	sdram_start(0);
-	test1 = dram_size((ulong *)(CFG_SDRAM_BASE + dramsize), 0x80000000);
+	test1 = get_ram_size((ulong *)(CFG_SDRAM_BASE + dramsize), 0x80000000);
 	sdram_start(1);
-	test2 = dram_size((ulong *)(CFG_SDRAM_BASE + dramsize), 0x80000000);
+	test2 = get_ram_size((ulong *)(CFG_SDRAM_BASE + dramsize), 0x80000000);
 	if (test1 > test2) {
 		sdram_start(0);
 		dramsize2 = test1;

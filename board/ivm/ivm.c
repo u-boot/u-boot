@@ -41,14 +41,13 @@ static long int dram_size (long int, long int *, long int);
 /*
  * 50 MHz SHARC access using UPM A
  */
-const uint sharc_table[] =
-{
+const uint sharc_table[] = {
 	/*
 	 * Single Read. (Offset 0 in UPM RAM)
 	 */
 	0x0FF3FC04, 0x0FF3EC00, 0x7FFFEC04, 0xFFFFEC04,
-	0xFFFFEC05, /* last */
-		    _NOT_USED_, _NOT_USED_, _NOT_USED_,
+	0xFFFFEC05,		/* last */
+	_NOT_USED_, _NOT_USED_, _NOT_USED_,
 	/*
 	 * Burst Read. (Offset 8 in UPM RAM)
 	 */
@@ -61,8 +60,8 @@ const uint sharc_table[] =
 	 * Single Write. (Offset 18 in UPM RAM)
 	 */
 	0x0FAFFC04, 0x0FAFEC00, 0x7FFFEC04, 0xFFFFEC04,
-	0xFFFFEC05, /* last */
-		    _NOT_USED_, _NOT_USED_, _NOT_USED_,
+	0xFFFFEC05,		/* last */
+	_NOT_USED_, _NOT_USED_, _NOT_USED_,
 	/*
 	 * Burst Write. (Offset 20 in UPM RAM)
 	 */
@@ -81,16 +80,15 @@ const uint sharc_table[] =
 	/*
 	 * Exception. (Offset 3c in UPM RAM)
 	 */
-	0x7FFFFC07, /* last */
-		    _NOT_USED_, _NOT_USED_, _NOT_USED_,
+	0x7FFFFC07,		/* last */
+	_NOT_USED_, _NOT_USED_, _NOT_USED_,
 };
 
 
 /*
  * 50 MHz SDRAM access using UPM B
  */
-const uint sdram_table[] =
-{
+const uint sdram_table[] = {
 	/*
 	 * Single Read. (Offset 0 in UPM RAM)
 	 */
@@ -104,40 +102,40 @@ const uint sdram_table[] =
 	 * sequence, which is executed by a RUN command.
 	 *
 	 */
-		    0x1FF77C35, 0xEFEABC34, 0x1FB57C35, /* last */
+	0x1FF77C35, 0xEFEABC34, 0x1FB57C35,	/* last */
 	/*
 	 * Burst Read. (Offset 8 in UPM RAM)
 	 */
 	0x0E26FC04, 0x10ADFC04, 0xF0AFFC00, 0xF0AFFC00,
-	0xF1AFFC00, 0xEFBBBC00, 0x1FF77C45, /* last */
-					    _NOT_USED_,
+	0xF1AFFC00, 0xEFBBBC00, 0x1FF77C45,	/* last */
+	_NOT_USED_,
 	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 	/*
 	 * Single Write. (Offset 18 in UPM RAM)
 	 */
-	0x1F27FC04, 0xEEAEBC04, 0x01B93C00, 0x1FF77C45, /* last */
+	0x1F27FC04, 0xEEAEBC04, 0x01B93C00, 0x1FF77C45,	/* last */
 	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 	/*
 	 * Burst Write. (Offset 20 in UPM RAM)
 	 */
 	0x0E26BC00, 0x10AD7C00, 0xF0AFFC00, 0xF0AFFC00,
-	0xE1BBBC04, 0x1FF77C45, /* last */
-				_NOT_USED_, _NOT_USED_,
+	0xE1BBBC04, 0x1FF77C45,	/* last */
+	_NOT_USED_, _NOT_USED_,
 	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 	/*
 	 * Refresh  (Offset 30 in UPM RAM)
 	 */
 	0x1FF5FC84, 0xFFFFFC04, 0xFFFFFC04, 0xFFFFFC84,
-	0xFFFFFC05, /* last */
-		    _NOT_USED_, _NOT_USED_, _NOT_USED_,
+	0xFFFFFC05,		/* last */
+	_NOT_USED_, _NOT_USED_, _NOT_USED_,
 	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 	/*
 	 * Exception. (Offset 3c in UPM RAM)
 	 */
-	0x7FFFFC07, /* last */
-		    _NOT_USED_, _NOT_USED_, _NOT_USED_,
+	0x7FFFFC07,		/* last */
+	_NOT_USED_, _NOT_USED_, _NOT_USED_,
 };
 
 /* ------------------------------------------------------------------------- */
@@ -161,101 +159,104 @@ int checkboard (void)
 
 /* ------------------------------------------------------------------------- */
 
-long int
-initdram (int board_type)
+long int initdram (int board_type)
 {
-    volatile immap_t     *immr  = (immap_t *)CFG_IMMR;
-    volatile memctl8xx_t *memctl = &immr->im_memctl;
-    long int size_b0;
+	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile memctl8xx_t *memctl = &immr->im_memctl;
+	long int size_b0;
 
-    /* enable SDRAM clock ("switch on" SDRAM) */
-    immr->im_cpm.cp_pbpar &= ~(CFG_PB_SDRAM_CLKE);	/* GPIO */
-    immr->im_cpm.cp_pbodr &= ~(CFG_PB_SDRAM_CLKE);	/* active output */
-    immr->im_cpm.cp_pbdir |=   CFG_PB_SDRAM_CLKE ;	/* output */
-    immr->im_cpm.cp_pbdat |=   CFG_PB_SDRAM_CLKE ;	/* assert SDRAM CLKE */
-    udelay(1);
+	/* enable SDRAM clock ("switch on" SDRAM) */
+	immr->im_cpm.cp_pbpar &= ~(CFG_PB_SDRAM_CLKE);	/* GPIO */
+	immr->im_cpm.cp_pbodr &= ~(CFG_PB_SDRAM_CLKE);	/* active output */
+	immr->im_cpm.cp_pbdir |= CFG_PB_SDRAM_CLKE;	/* output */
+	immr->im_cpm.cp_pbdat |= CFG_PB_SDRAM_CLKE;	/* assert SDRAM CLKE */
+	udelay (1);
 
-    /*
-     * Map controller bank 1 for ELIC SACCO
-     */
-    memctl->memc_or1 = CFG_OR1;
-    memctl->memc_br1 = CFG_BR1;
+	/*
+	 * Map controller bank 1 for ELIC SACCO
+	 */
+	memctl->memc_or1 = CFG_OR1;
+	memctl->memc_br1 = CFG_BR1;
 
-    /*
-     * Map controller bank 2 for ELIC EPIC
-     */
-    memctl->memc_or2 = CFG_OR2;
-    memctl->memc_br2 = CFG_BR2;
+	/*
+	 * Map controller bank 2 for ELIC EPIC
+	 */
+	memctl->memc_or2 = CFG_OR2;
+	memctl->memc_br2 = CFG_BR2;
 
-    /*
-     * Configure UPMA for SHARC
-     */
-    upmconfig(UPMA, (uint *)sharc_table, sizeof(sharc_table)/sizeof(uint));
+	/*
+	 * Configure UPMA for SHARC
+	 */
+	upmconfig (UPMA, (uint *) sharc_table,
+		   sizeof (sharc_table) / sizeof (uint));
 
 #if defined(CONFIG_IVML24)
-    /*
-     * Map controller bank 4 for HDLC Address space
-     */
-    memctl->memc_or4 = CFG_OR4;
-    memctl->memc_br4 = CFG_BR4;
+	/*
+	 * Map controller bank 4 for HDLC Address space
+	 */
+	memctl->memc_or4 = CFG_OR4;
+	memctl->memc_br4 = CFG_BR4;
 #endif
 
-    /*
-     * Map controller bank 5 for SHARC
-     */
-    memctl->memc_or5 = CFG_OR5;
-    memctl->memc_br5 = CFG_BR5;
+	/*
+	 * Map controller bank 5 for SHARC
+	 */
+	memctl->memc_or5 = CFG_OR5;
+	memctl->memc_br5 = CFG_BR5;
 
-    memctl->memc_mamr = 0x00001000;
+	memctl->memc_mamr = 0x00001000;
 
-    /*
-     * Configure UPMB for SDRAM
-     */
-    upmconfig(UPMB, (uint *)sdram_table, sizeof(sdram_table)/sizeof(uint));
+	/*
+	 * Configure UPMB for SDRAM
+	 */
+	upmconfig (UPMB, (uint *) sdram_table,
+		   sizeof (sdram_table) / sizeof (uint));
 
-    memctl->memc_mptpr = CFG_MPTPR_1BK_8K;
+	memctl->memc_mptpr = CFG_MPTPR_1BK_8K;
 
-    memctl->memc_mar = 0x00000088;
+	memctl->memc_mar = 0x00000088;
 
-    /*
-     * Map controller bank 3 to the SDRAM bank at preliminary address.
-     */
-    memctl->memc_or3 = CFG_OR3_PRELIM;
-    memctl->memc_br3 = CFG_BR3_PRELIM;
+	/*
+	 * Map controller bank 3 to the SDRAM bank at preliminary address.
+	 */
+	memctl->memc_or3 = CFG_OR3_PRELIM;
+	memctl->memc_br3 = CFG_BR3_PRELIM;
 
-    memctl->memc_mbmr = CFG_MBMR_8COL;	/* refresh not enabled yet */
+	memctl->memc_mbmr = CFG_MBMR_8COL;	/* refresh not enabled yet */
 
-    udelay(200);
-    memctl->memc_mcr = 0x80806105;	/* precharge */
-    udelay(1);
-    memctl->memc_mcr = 0x80806106;	/* load mode register */
-    udelay(1);
-    memctl->memc_mcr = 0x80806130;	/* autorefresh */
-    udelay(1);
-    memctl->memc_mcr = 0x80806130;	/* autorefresh */
-    udelay(1);
-    memctl->memc_mcr = 0x80806130;	/* autorefresh */
-    udelay(1);
-    memctl->memc_mcr = 0x80806130;	/* autorefresh */
-    udelay(1);
-    memctl->memc_mcr = 0x80806130;	/* autorefresh */
-    udelay(1);
-    memctl->memc_mcr = 0x80806130;	/* autorefresh */
-    udelay(1);
-    memctl->memc_mcr = 0x80806130;	/* autorefresh */
-    udelay(1);
-    memctl->memc_mcr = 0x80806130;	/* autorefresh */
+	udelay (200);
+	memctl->memc_mcr = 0x80806105;	/* precharge */
+	udelay (1);
+	memctl->memc_mcr = 0x80806106;	/* load mode register */
+	udelay (1);
+	memctl->memc_mcr = 0x80806130;	/* autorefresh */
+	udelay (1);
+	memctl->memc_mcr = 0x80806130;	/* autorefresh */
+	udelay (1);
+	memctl->memc_mcr = 0x80806130;	/* autorefresh */
+	udelay (1);
+	memctl->memc_mcr = 0x80806130;	/* autorefresh */
+	udelay (1);
+	memctl->memc_mcr = 0x80806130;	/* autorefresh */
+	udelay (1);
+	memctl->memc_mcr = 0x80806130;	/* autorefresh */
+	udelay (1);
+	memctl->memc_mcr = 0x80806130;	/* autorefresh */
+	udelay (1);
+	memctl->memc_mcr = 0x80806130;	/* autorefresh */
 
-    memctl->memc_mbmr |= MBMR_PTBE;	/* refresh enabled */
+	memctl->memc_mbmr |= MBMR_PTBE;	/* refresh enabled */
 
-    /*
-     * Check Bank 0 Memory Size for re-configuration
-     */
-    size_b0 = dram_size (CFG_MBMR_8COL, (ulong *)SDRAM_BASE3_PRELIM, SDRAM_MAX_SIZE);
+	/*
+	 * Check Bank 0 Memory Size for re-configuration
+	 */
+	size_b0 =
+		dram_size (CFG_MBMR_8COL, (ulong *) SDRAM_BASE3_PRELIM,
+			   SDRAM_MAX_SIZE);
 
-    memctl->memc_mbmr = CFG_MBMR_8COL | MBMR_PTBE;
+	memctl->memc_mbmr = CFG_MBMR_8COL | MBMR_PTBE;
 
-    return (size_b0);
+	return (size_b0);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -268,60 +269,29 @@ initdram (int board_type)
  * - short between data lines
  */
 
-static long int dram_size (long int mamr_value, long int *base, long int maxsize)
+static long int dram_size (long int mamr_value, long int *base,
+			   long int maxsize)
 {
-    volatile immap_t     *immr  = (immap_t *)CFG_IMMR;
-    volatile memctl8xx_t *memctl = &immr->im_memctl;
-    volatile long int	 *addr;
-    ulong		  cnt, val;
-    ulong		  save[32];	/* to make test non-destructive */
-    unsigned char	  i = 0;
+	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile memctl8xx_t *memctl = &immr->im_memctl;
 
-    memctl->memc_mbmr = mamr_value;
+	memctl->memc_mbmr = mamr_value;
 
-    for (cnt = maxsize/sizeof(long); cnt > 0; cnt >>= 1) {
-	addr = base + cnt;	/* pointer arith! */
-
-	save[i++] = *addr;
-	*addr = ~cnt;
-    }
-
-    /* write 0 to base address */
-    addr = base;
-    save[i] = *addr;
-    *addr = 0;
-
-    /* check at base address */
-    if ((val = *addr) != 0) {
-	*addr = save[i];
-	return (0);
-    }
-
-    for (cnt = 1; cnt <= maxsize/sizeof(long); cnt <<= 1) {
-	addr = base + cnt;	/* pointer arith! */
-
-	val = *addr;
-	*addr = save[--i];
-
-	if (val != (~cnt)) {
-	    return (cnt * sizeof(long));
-	}
-    }
-    return (maxsize);
+	return (get_ram_size (base, maxsize));
 }
 
 /* ------------------------------------------------------------------------- */
 
-void	reset_phy(void)
+void reset_phy (void)
 {
-	immap_t *immr = (immap_t *)CFG_IMMR;
+	immap_t *immr = (immap_t *) CFG_IMMR;
 
 	/* De-assert Ethernet Powerdown */
-	immr->im_cpm.cp_pbpar &= ~(CFG_PB_ETH_POWERDOWN); /* GPIO */
-	immr->im_cpm.cp_pbodr &= ~(CFG_PB_ETH_POWERDOWN); /* active output */
-	immr->im_cpm.cp_pbdir |=   CFG_PB_ETH_POWERDOWN ; /* output */
-	immr->im_cpm.cp_pbdat &= ~(CFG_PB_ETH_POWERDOWN); /* Enable PHY power */
-	udelay(1000);
+	immr->im_cpm.cp_pbpar &= ~(CFG_PB_ETH_POWERDOWN);	/* GPIO */
+	immr->im_cpm.cp_pbodr &= ~(CFG_PB_ETH_POWERDOWN);	/* active output */
+	immr->im_cpm.cp_pbdir |= CFG_PB_ETH_POWERDOWN;	/* output */
+	immr->im_cpm.cp_pbdat &= ~(CFG_PB_ETH_POWERDOWN);	/* Enable PHY power */
+	udelay (1000);
 
 	/*
 	 * RESET is implemented by a positive pulse of at least 1 us
@@ -330,15 +300,15 @@ void	reset_phy(void)
 	 * Configure RESET pins for NS DP83843 PHY, and RESET chip.
 	 *
 	 * Note: The RESET pin is high active, but there is an
-	 *	 inverter on the SPD823TS board...
+	 *       inverter on the SPD823TS board...
 	 */
 	immr->im_ioport.iop_pcpar &= ~(CFG_PC_ETH_RESET);
-	immr->im_ioport.iop_pcdir |=   CFG_PC_ETH_RESET;
+	immr->im_ioport.iop_pcdir |= CFG_PC_ETH_RESET;
 	/* assert RESET signal of PHY */
 	immr->im_ioport.iop_pcdat &= ~(CFG_PC_ETH_RESET);
 	udelay (10);
 	/* de-assert RESET signal of PHY */
-	immr->im_ioport.iop_pcdat |=   CFG_PC_ETH_RESET;
+	immr->im_ioport.iop_pcdat |= CFG_PC_ETH_RESET;
 	udelay (10);
 }
 
@@ -350,19 +320,19 @@ void show_boot_progress (int status)
 # if defined(STATUS_LED_YELLOW)
 	status_led_set (STATUS_LED_YELLOW,
 			(status < 0) ? STATUS_LED_ON : STATUS_LED_OFF);
-# endif /* STATUS_LED_YELLOW */
+# endif	/* STATUS_LED_YELLOW */
 # if defined(STATUS_LED_BOOT)
 	if (status == 6)
-	  status_led_set(STATUS_LED_BOOT, STATUS_LED_OFF);
-# endif /* STATUS_LED_BOOT */
+		status_led_set (STATUS_LED_BOOT, STATUS_LED_OFF);
+# endif	/* STATUS_LED_BOOT */
 #endif /* CONFIG_STATUS_LED */
 }
 
 /* ------------------------------------------------------------------------- */
 
-void ide_set_reset(int on)
+void ide_set_reset (int on)
 {
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CFG_IMMR;
 
 	/*
 	 * Configure PC for IDE Reset Pin
@@ -370,13 +340,13 @@ void ide_set_reset(int on)
 	if (on) {		/* assert RESET */
 		immr->im_ioport.iop_pcdat &= ~(CFG_PC_IDE_RESET);
 	} else {		/* release RESET */
-		immr->im_ioport.iop_pcdat |=   CFG_PC_IDE_RESET;
+		immr->im_ioport.iop_pcdat |= CFG_PC_IDE_RESET;
 	}
 
 	/* program port pin as GPIO output */
 	immr->im_ioport.iop_pcpar &= ~(CFG_PC_IDE_RESET);
-	immr->im_ioport.iop_pcso  &= ~(CFG_PC_IDE_RESET);
-	immr->im_ioport.iop_pcdir |=   CFG_PC_IDE_RESET;
+	immr->im_ioport.iop_pcso &= ~(CFG_PC_IDE_RESET);
+	immr->im_ioport.iop_pcdir |= CFG_PC_IDE_RESET;
 }
 
 /* ------------------------------------------------------------------------- */

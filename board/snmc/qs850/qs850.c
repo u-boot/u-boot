@@ -222,32 +222,8 @@ static long int dram_size (long int mamr_value, long int *base, long int maxsize
 {
 	volatile immap_t *immap = (immap_t *)CFG_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
-	volatile long int *addr;
-	long int cnt, val;
 
 	memctl->memc_mamr = mamr_value;
 
-	for (cnt = maxsize/sizeof(long); cnt > 0; cnt >>= 1) {
-		addr = base + cnt; /* pointer arith! */
-		*addr = ~cnt;
-	}
-
-	/* write 0 to base address */
-	addr = base;
-	*addr = 0;
-
-	/* check at base address */
-	if ((val = *addr) != 0) {
-		return (0);
-	}
-
-	for (cnt = 1; ; cnt <<= 1) {
-		addr = base + cnt; /* pointer arith! */
-		val = *addr;
-
-		if (val != (~cnt)) {
-			return (cnt * sizeof(long));
-		}
-	}
-	/* NOTREACHED */
+	return (get_ram_size(base, maxsize));
 }

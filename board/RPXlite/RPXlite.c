@@ -40,20 +40,19 @@ static long int dram_size (long int, long int *, long int);
 
 #define	_NOT_USED_	0xFFFFCC25
 
-const uint sdram_table[] =
-{
+const uint sdram_table[] = {
 	/*
 	 * Single Read. (Offset 00h in UPMA RAM)
 	 */
 	0xCFFFCC24, 0x0FFFCC04, 0X0CAFCC04, 0X03AFCC08,
-	0x3FBFCC27, /* last */
+	0x3FBFCC27,		/* last */
 	_NOT_USED_, _NOT_USED_, _NOT_USED_,
 
 	/*
 	 * Burst Read. (Offset 08h in UPMA RAM)
 	 */
 	0xCFFFCC24, 0x0FFFCC04, 0x0CAFCC84, 0x03AFCC88,
-	0x3FBFCC27, /* last */
+	0x3FBFCC27,		/* last */
 	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 	_NOT_USED_, _NOT_USED_, _NOT_USED_,
@@ -62,14 +61,14 @@ const uint sdram_table[] =
 	 * Single Write. (Offset 18h in UPMA RAM)
 	 */
 	0xCFFFCC24, 0x0FFFCC04, 0x0CFFCC04, 0x03FFCC00,
-	0x3FFFCC27, /* last */
+	0x3FFFCC27,		/* last */
 	_NOT_USED_, _NOT_USED_, _NOT_USED_,
 
 	/*
 	 * Burst Write. (Offset 20h in UPMA RAM)
 	 */
 	0xCFFFCC24, 0x0FFFCC04, 0x0CFFCC80, 0x03FFCC8C,
-	0x0CFFCC00, 0x33FFCC27, /* last */
+	0x0CFFCC00, 0x33FFCC27,	/* last */
 	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 	_NOT_USED_, _NOT_USED_,
@@ -78,7 +77,7 @@ const uint sdram_table[] =
 	 * Refresh. (Offset 30h in UPMA RAM)
 	 */
 	0xC0FFCC24, 0x03FFCC24, 0x0FFFCC24, 0x0FFFCC24,
-	0x3FFFCC27, /* last */
+	0x3FFFCC27,		/* last */
 	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 	_NOT_USED_, _NOT_USED_, _NOT_USED_,
 
@@ -97,49 +96,51 @@ const uint sdram_table[] =
 
 int checkboard (void)
 {
-	puts ("Board: RPXlite\n") ;
-	return (0) ;
+	puts ("Board: RPXlite\n");
+	return (0);
 }
 
 /* ------------------------------------------------------------------------- */
 
 long int initdram (int board_type)
 {
-    volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
-    volatile memctl8xx_t *memctl = &immap->im_memctl;
-    long int size10 ;
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile memctl8xx_t *memctl = &immap->im_memctl;
+	long int size10;
 
-    upmconfig(UPMA, (uint *)sdram_table, sizeof(sdram_table)/sizeof(uint));
+	upmconfig (UPMA, (uint *) sdram_table,
+		   sizeof (sdram_table) / sizeof (uint));
 
 	/* Refresh clock prescalar */
-    memctl->memc_mptpr = CFG_MPTPR ;
+	memctl->memc_mptpr = CFG_MPTPR;
 
-    memctl->memc_mar  = 0x00000000;
+	memctl->memc_mar = 0x00000000;
 
 	/* Map controller banks 1 to the SDRAM bank */
-    memctl->memc_or1 = CFG_OR1_PRELIM;
-    memctl->memc_br1 = CFG_BR1_PRELIM;
+	memctl->memc_or1 = CFG_OR1_PRELIM;
+	memctl->memc_br1 = CFG_BR1_PRELIM;
 
-    memctl->memc_mamr = CFG_MAMR_10COL & (~(MAMR_PTAE)); /* no refresh yet */
+	memctl->memc_mamr = CFG_MAMR_10COL & (~(MAMR_PTAE));	/* no refresh yet */
 
-    udelay(200);
+	udelay (200);
 
-    /* perform SDRAM initializsation sequence */
+	/* perform SDRAM initializsation sequence */
 
-	memctl->memc_mcr  = 0x80002230 ; /* SDRAM bank 0 - refresh twice */
-    udelay(1);
+	memctl->memc_mcr = 0x80002230;	/* SDRAM bank 0 - refresh twice */
+	udelay (1);
 
-    memctl->memc_mamr |= MAMR_PTAE;	/* enable refresh */
+	memctl->memc_mamr |= MAMR_PTAE;	/* enable refresh */
 
-    udelay (1000);
+	udelay (1000);
 
 	/* Check Bank 0 Memory Size
 	 * try 10 column mode
 	 */
 
-	size10 = dram_size (CFG_MAMR_10COL, (ulong *)SDRAM_BASE_PRELIM, SDRAM_MAX_SIZE) ;
+	size10 = dram_size (CFG_MAMR_10COL, (ulong *) SDRAM_BASE_PRELIM,
+			    SDRAM_MAX_SIZE);
 
-    return (size10);
+	return (size10);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -152,44 +153,13 @@ long int initdram (int board_type)
  * - short between data lines
  */
 
-static long int dram_size (long int mamr_value, long int *base, long int maxsize)
+static long int dram_size (long int mamr_value, long int *base,
+			   long int maxsize)
 {
-    volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
-    volatile memctl8xx_t *memctl = &immap->im_memctl;
-    volatile long int	 *addr;
-    ulong		  cnt, val;
-    ulong		  save[32];	/* to make test non-destructive */
-    unsigned char	  i = 0;
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile memctl8xx_t *memctl = &immap->im_memctl;
 
-    memctl->memc_mamr = mamr_value;
+	memctl->memc_mamr = mamr_value;
 
-    for (cnt = maxsize/sizeof(long); cnt > 0; cnt >>= 1) {
-	addr = base + cnt;	/* pointer arith! */
-
-	save[i++] = *addr;
-	*addr = ~cnt;
-    }
-
-    /* write 0 to base address */
-    addr = base;
-    save[i] = *addr;
-    *addr = 0;
-
-    /* check at base address */
-    if ((val = *addr) != 0) {
-	*addr = save[i];
-	return (0);
-    }
-
-    for (cnt = 1; cnt <= maxsize/sizeof(long); cnt <<= 1) {
-	addr = base + cnt;	/* pointer arith! */
-
-	val = *addr;
-	*addr = save[--i];
-
-	if (val != (~cnt)) {
-	    return (cnt * sizeof(long));
-	}
-    }
-    return (maxsize);
+	return (get_ram_size (base, maxsize));
 }

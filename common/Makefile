@@ -47,7 +47,7 @@ COBJS	= main.o ACEX1K.o altera.o bedbug.o \
 	  hush.o kgdb.o lists.o lynxkdi.o miiphybb.o miiphyutil.o \
 	  s_record.o soft_i2c.o soft_spi.o spartan2.o \
 	  usb.o usb_kbd.o usb_storage.o \
-	  virtex2.o xilinx.o
+	  virtex2.o xilinx.o memsize.o
 
 OBJS	= $(AOBJS) $(COBJS)
 
