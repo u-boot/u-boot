@@ -835,7 +835,7 @@ The following options need to be configured:
 		function struct part_info* jffs2_part_info(int part_num)
 
 		If you define only one JFFS2 partition you may also want to
-		#define CFG_JFFS_SINGLE_PART    1
+		#define CFG_JFFS_SINGLE_PART	1
 		to disable the command chpart. This is the default when you
 		have not defined a custom partition
 
@@ -1978,7 +1978,7 @@ Low Level (hardware related) configuration options:
 		initializations.
 
 - CFG_IMMR:	Physical address of the Internal Memory.
-                DO NOT CHANGE unless you know exactly what you're
+		DO NOT CHANGE unless you know exactly what you're
 		doing! (11-4) [MPC8xx/82xx systems only]
 
 - CFG_INIT_RAM_ADDR:
@@ -2118,13 +2118,13 @@ Low Level (hardware related) configuration options:
 		"md/mw" commands.
 		Examples:
 
-                => mdc.b 10 4 500
+		=> mdc.b 10 4 500
 		This command will print 4 bytes (10,11,12,13) each 500 ms.
 
-                => mwc.l 100 12345678 10
+		=> mwc.l 100 12345678 10
 		This command will write 12345678 to address 100 all 10 ms.
 
-                This only takes effect if the memory commands are activated
+		This only takes effect if the memory commands are activated
 		globally (CFG_CMD_MEM).
 
 Building the Software:

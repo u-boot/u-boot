@@ -143,8 +143,6 @@
 
 #define MCFSIM_PLLCR 		0x180 		/* PLL Control register */
 
-
-
 /*
  *  Some symbol defines for the above...
  */

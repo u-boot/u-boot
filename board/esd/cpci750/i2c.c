@@ -72,28 +72,28 @@ static void i2c_init (int speed, int slaveaddr)
 	/* Setup bus */
 	/* gtI2cReset */
 	GT_REG_WRITE (I2C_SOFT_RESET, 0);
-        asm(" sync");
+	asm(" sync");
 	GT_REG_WRITE (I2C_CONTROL, 0);
-        asm(" sync");
+	asm(" sync");
 
 	DP (puts ("set baudrate\n"));
 
 	GT_REG_WRITE (I2C_STATUS_BAUDE_RATE, (actualM << 3) | actualN);
-        asm(" sync");
+	asm(" sync");
 
 	DP (puts ("udelay...\n"));
 
 	udelay (I2C_DELAY);
 
 	GT_REG_WRITE (I2C_CONTROL, (0x1 << 2) | (0x1 << 6));
-        asm(" sync");
+	asm(" sync");
 }
 
 
 static uchar i2c_select_device (uchar dev_addr, uchar read, int ten_bit)
 {
 	unsigned int status, data, bits = 7;
-        unsigned int control;
+	unsigned int control;
 	int count = 0;
 
 	DP (puts ("i2c_select_device\n"));
@@ -107,19 +107,19 @@ static uchar i2c_select_device (uchar dev_addr, uchar read, int ten_bit)
 	GT_REG_READ (I2C_CONTROL, &control);
 	control |=  (0x1 << 2);
 	GT_REG_WRITE (I2C_CONTROL, control);
-        asm(" sync");
+	asm(" sync");
 
 	GT_REG_READ (I2C_CONTROL, &control);
 	control |= (0x1 << 5);	/* generate the I2C_START_BIT */
 	GT_REG_WRITE (I2C_CONTROL, control);
-        asm(" sync");
+	asm(" sync");
 	RESET_REG_BITS (I2C_CONTROL, (0x01 << 3));
-        asm(" sync");
+	asm(" sync");
 
 	GT_REG_READ (I2C_CONTROL, &status);
 	while ((status & 0x08) != 0x08) {
-	        GT_REG_READ (I2C_CONTROL, &status);
-	        }
+		GT_REG_READ (I2C_CONTROL, &status);
+		}
 
 
 	count = 0;
@@ -128,7 +128,7 @@ static uchar i2c_select_device (uchar dev_addr, uchar read, int ten_bit)
 	while (((status & 0xff) != 0x08) && ((status & 0xff) != 0x10)){
 		if (count > 200) {
 #ifdef DEBUG_I2C
-		        printf ("Failed to set startbit: 0x%02x\n", status);
+			printf ("Failed to set startbit: 0x%02x\n", status);
 #endif
 			GT_REG_WRITE (I2C_CONTROL, (0x1 << 4));	/*stop */
 			asm(" sync");
@@ -146,21 +146,21 @@ static uchar i2c_select_device (uchar dev_addr, uchar read, int ten_bit)
 	/* set the read bit */
 	data |= read;
 	GT_REG_WRITE (I2C_DATA, data);
-        asm(" sync");
+	asm(" sync");
 	RESET_REG_BITS (I2C_CONTROL, BIT3);
-        asm(" sync");
+	asm(" sync");
 
 	GT_REG_READ (I2C_CONTROL, &status);
 	while ((status & 0x08) != 0x08) {
-	        GT_REG_READ (I2C_CONTROL, &status);
-	        }
+		GT_REG_READ (I2C_CONTROL, &status);
+		}
 
 	GT_REG_READ (I2C_STATUS_BAUDE_RATE, &status);
 	count = 0;
 	while (((status & 0xff) != 0x40) && ((status & 0xff) != 0x18)) {
 		if (count > 200) {
 #ifdef DEBUG_I2C
-		        printf ("Failed to write address: 0x%02x\n", status);
+			printf ("Failed to write address: 0x%02x\n", status);
 #endif
 			GT_REG_WRITE (I2C_CONTROL, (0x1 << 4));	/*stop */
 			return (status);
@@ -195,15 +195,15 @@ static uchar i2c_get_data (uchar * return_data, int len)
 
 		GT_REG_READ (I2C_CONTROL, &status);
 		while ((status & 0x08) != 0x08) {
-		        GT_REG_READ (I2C_CONTROL, &status);
-		        }
+			GT_REG_READ (I2C_CONTROL, &status);
+			}
 
 		GT_REG_READ (I2C_STATUS_BAUDE_RATE, &status);
 		count++;
 		while ((status & 0xff) != 0x50) {
 			if (count > 20) {
 #ifdef DEBUG_I2C
-			        printf ("Failed to get data len status: 0x%02x\n", status);
+				printf ("Failed to get data len status: 0x%02x\n", status);
 #endif
 				GT_REG_WRITE (I2C_CONTROL, (0x1 << 4));	/*stop */
 				asm(" sync");
@@ -219,13 +219,13 @@ static uchar i2c_get_data (uchar * return_data, int len)
 
 	}
 	RESET_REG_BITS (I2C_CONTROL, BIT2 | BIT3);
-        asm(" sync");
+	asm(" sync");
 	count = 0;
 
 	GT_REG_READ (I2C_CONTROL, &status);
 	while ((status & 0x08) != 0x08) {
-	        GT_REG_READ (I2C_CONTROL, &status);
-	        }
+		GT_REG_READ (I2C_CONTROL, &status);
+		}
 
 	while ((status & 0xff) != 0x58) {
 		if (count > 2000) {
@@ -236,9 +236,9 @@ static uchar i2c_get_data (uchar * return_data, int len)
 		count++;
 	}
 	GT_REG_WRITE (I2C_CONTROL, (0x1 << 4));	/* stop */
-        asm(" sync");
+	asm(" sync");
 	RESET_REG_BITS (I2C_CONTROL, (0x1 << 3));
-        asm(" sync");
+	asm(" sync");
 
 	return (0);
 }
@@ -254,7 +254,7 @@ static uchar i2c_write_data (unsigned int *data, int len)
 	DP (puts ("i2c_write_data\n"));
 
 	while (len) {
-	        count = 0;
+		count = 0;
 		temp = (unsigned int) (*temp_ptr);
 		GT_REG_WRITE (I2C_DATA, temp);
 		asm(" sync");
@@ -264,7 +264,7 @@ static uchar i2c_write_data (unsigned int *data, int len)
 		GT_REG_READ (I2C_CONTROL, &status);
 		while ((status & 0x08) != 0x08) {
 			GT_REG_READ (I2C_CONTROL, &status);
-	                }
+			}
 
 		GT_REG_READ (I2C_STATUS_BAUDE_RATE, &status);
 		count++;
@@ -294,7 +294,7 @@ static uchar i2c_write_byte (unsigned char *data, int len)
 	DP (puts ("i2c_write_byte\n"));
 
 	while (len) {
-	        count = 0;
+		count = 0;
 		/* Set and assert the data */
 		temp = *temp_ptr;
 		GT_REG_WRITE (I2C_DATA, temp);
@@ -306,7 +306,7 @@ static uchar i2c_write_byte (unsigned char *data, int len)
 		GT_REG_READ (I2C_CONTROL, &status);
 		while ((status & 0x08) != 0x08) {
 			GT_REG_READ (I2C_CONTROL, &status);
-	                }
+			}
 
 		GT_REG_READ (I2C_STATUS_BAUDE_RATE, &status);
 		count++;
@@ -419,7 +419,7 @@ i2c_read (uchar dev_addr, unsigned int offset, int alen, uchar * data,
 void i2c_stop (void)
 {
 	GT_REG_WRITE (I2C_CONTROL, (0x1 << 4));
-        asm(" sync");
+	asm(" sync");
 }
 
 
@@ -441,7 +441,7 @@ i2c_write (uchar dev_addr, unsigned int offset, int alen, uchar * data,
 			status);
 #endif
 		return status;
-	        }
+		}
 
 
 	status = i2c_write_byte (data, len);	/* write the data */
@@ -450,7 +450,7 @@ i2c_write (uchar dev_addr, unsigned int offset, int alen, uchar * data,
 		printf ("Data not written: 0x%02x\n", status);
 #endif
 		return status;
-	        }
+		}
 	/* issue a stop bit */
 	i2c_stop ();
 	return 0;

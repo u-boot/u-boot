@@ -23,11 +23,9 @@
 #ifndef _universe_h
 #define _universe_h
 
-
 typedef struct _UNIVERSE UNIVERSE;
 typedef struct _SLAVE_IMAGE SLAVE_IMAGE;
 typedef struct _TDMA_CMD_PACKET TDMA_CMD_PACKET;
-
 
 struct _SLAVE_IMAGE {
 	unsigned int ctl;      /* Control     */
@@ -148,10 +146,3 @@ struct _TDMA_CMD_PACKET {
 #define PCI_MS_Mxx		0x03
 
 #endif
-
-
-
-
-
-
-

@@ -85,11 +85,7 @@
 #define FLASH_OFFSET_USER_PROTECTION    0x85
 #define FLASH_OFFSET_INTEL_PROTECTION   0x81
 
-
 #define FLASH_MAN_CFI			0x01000000
-
-
-
 
 typedef union {
 	unsigned char c;
@@ -107,12 +103,9 @@ typedef union {
 
 flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
-
 /*-----------------------------------------------------------------------
  * Functions
  */
-
-
 
 static void flash_add_byte(flash_info_t *info, cfiword_t * cword, uchar c);
 static void flash_make_cmd(flash_info_t * info, uchar cmd, void * cmdbuf);
@@ -286,28 +279,28 @@ void flash_print_info  (flash_info_t *info)
 		int erased;
 		volatile unsigned long *flash;
 
-                /*
-                 * Check if whole sector is erased
-                 */
-                if (i != (info->sector_count-1))
-                  size = info->start[i+1] - info->start[i];
-                else
-                  size = info->start[0] + info->size - info->start[i];
-                erased = 1;
-                flash = (volatile unsigned long *)info->start[i];
-                size = size >> 2;        /* divide by 4 for longword access */
-                for (k=0; k<size; k++)
-                  {
-                    if (*flash++ != 0xffffffff)
-                      {
-                        erased = 0;
-                        break;
-                      }
-                  }
+		/*
+		 * Check if whole sector is erased
+		 */
+		if (i != (info->sector_count-1))
+		  size = info->start[i+1] - info->start[i];
+		else
+		  size = info->start[0] + info->size - info->start[i];
+		erased = 1;
+		flash = (volatile unsigned long *)info->start[i];
+		size = size >> 2;        /* divide by 4 for longword access */
+		for (k=0; k<size; k++)
+		  {
+		    if (*flash++ != 0xffffffff)
+		      {
+			erased = 0;
+			break;
+		      }
+		  }
 
 		if ((i % 5) == 0)
 			printf ("\n   ");
-                /* print empty and read-only info */
+		/* print empty and read-only info */
 		printf (" %08lX%s%s",
 			info->start[i],
 			erased ? " E" : "  ",
@@ -464,7 +457,7 @@ static int flash_full_status_check(flash_info_t * info, ulong sector, ulong tout
 			printf("Command Sequence Error.\n");
 		} else if(flash_isset(info, sector, 0, FLASH_STATUS_ECLBS)){
 			printf("Block Erase Error.\n");
-		        retcode = ERR_NOT_ERASED;
+			retcode = ERR_NOT_ERASED;
 		} else if (flash_isset(info, sector, 0, FLASH_STATUS_PSLBS)) {
 			printf("Locking Error\n");
 		}

@@ -86,7 +86,7 @@ int misc_init_r (void)
 	*duart2_mcr = 0x08;
 	*duart3_mcr = 0x08;
 
-        /*
+	/*
 	 * Set RS232/RS422 control (RS232 = high on GPIO)
 	 */
 	val = in32(GPIO0_OR);

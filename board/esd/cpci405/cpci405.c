@@ -559,11 +559,11 @@ void ide_set_reset(int on)
 #ifdef CONFIG_CPCI405AB
 
 #define ONE_WIRE_CLEAR   (*(volatile unsigned short *)(CFG_FPGA_BASE_ADDR + CFG_FPGA_MODE) \
-                          |= CFG_FPGA_MODE_1WIRE_DIR)
+			  |= CFG_FPGA_MODE_1WIRE_DIR)
 #define ONE_WIRE_SET     (*(volatile unsigned short *)(CFG_FPGA_BASE_ADDR + CFG_FPGA_MODE) \
-                          &= ~CFG_FPGA_MODE_1WIRE_DIR)
+			  &= ~CFG_FPGA_MODE_1WIRE_DIR)
 #define ONE_WIRE_GET     (*(volatile unsigned short *)(CFG_FPGA_BASE_ADDR + CFG_FPGA_STATUS) \
-                          & CFG_FPGA_MODE_1WIRE)
+			  & CFG_FPGA_MODE_1WIRE)
 
 /*
  * Generate a 1-wire reset, return 1 if no presence detect was found,

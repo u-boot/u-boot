@@ -25,7 +25,6 @@
 #include <asm/processor.h>
 #include <command.h>
 
-
 #define MEM_MCOPT1_INIT_VAL     0x00800000
 #define MEM_RTR_INIT_VAL        0x04070000
 #define MEM_PMIT_INIT_VAL       0x07c00000
@@ -34,10 +33,7 @@
 #define MEM_SDTR1_INIT_VAL      0x00854005
 #define SDRAM0_CFG_ENABLE       0x80000000
 
-
-
 #define CFG_SDRAM_SIZE          0x04000000      /* 64 MB */
-
 
 int board_early_init_f (void)
 {
@@ -119,19 +115,19 @@ int checkboard (void)
 long int init_sdram_static_settings(void)
 {
 #define mtsdram0(reg, data)  mtdcr(memcfga,reg);mtdcr(memcfgd,data)
-        /* disable memcontroller so updates work */
-        mtsdram0( mem_mcopt1, MEM_MCOPT1_INIT_VAL );
-        mtsdram0( mem_rtr   , MEM_RTR_INIT_VAL   );
-        mtsdram0( mem_pmit  , MEM_PMIT_INIT_VAL  );
-        mtsdram0( mem_mb0cf , MEM_MB0CF_INIT_VAL );
-        mtsdram0( mem_mb1cf , MEM_MB1CF_INIT_VAL );
-        mtsdram0( mem_sdtr1 , MEM_SDTR1_INIT_VAL );
+	/* disable memcontroller so updates work */
+	mtsdram0( mem_mcopt1, MEM_MCOPT1_INIT_VAL );
+	mtsdram0( mem_rtr   , MEM_RTR_INIT_VAL   );
+	mtsdram0( mem_pmit  , MEM_PMIT_INIT_VAL  );
+	mtsdram0( mem_mb0cf , MEM_MB0CF_INIT_VAL );
+	mtsdram0( mem_mb1cf , MEM_MB1CF_INIT_VAL );
+	mtsdram0( mem_sdtr1 , MEM_SDTR1_INIT_VAL );
 
-        /* SDRAM have a power on delay,  500 micro should do */
-        udelay(500);
-        mtsdram0( mem_mcopt1, MEM_MCOPT1_INIT_VAL|SDRAM0_CFG_ENABLE );
+	/* SDRAM have a power on delay,  500 micro should do */
+	udelay(500);
+	mtsdram0( mem_mcopt1, MEM_MCOPT1_INIT_VAL|SDRAM0_CFG_ENABLE );
 
-        return (CFG_SDRAM_SIZE); /* CFG_SDRAM_SIZE is in G2000.h */
+	return (CFG_SDRAM_SIZE); /* CFG_SDRAM_SIZE is in G2000.h */
  }
 
 
@@ -141,9 +137,9 @@ long int initdram (int board_type)
 
 /* flzt, we can still turn this on in the future */
 /* #ifdef CONFIG_SPD_EEPROM
-        ret = spd_sdram ();
+	ret = spd_sdram ();
 #else
-        ret = init_sdram_static_settings();
+	ret = init_sdram_static_settings();
 #endif
 */
 

@@ -50,186 +50,174 @@
 write_without_sync:
 		/*
 		 * Write one values to host via pci busmastering
-                 * ptr = 0xc0000000 -> 0x01000000 (PCI)
-                 * *ptr = 0x01234567;
+		 * ptr = 0xc0000000 -> 0x01000000 (PCI)
+		 * *ptr = 0x01234567;
 		 */
-        addi    r31,0,0
-        lis     r31,0xc000
+	addi    r31,0,0
+	lis     r31,0xc000
 
 start1:
-        lis     r0,0x0123
-        ori     r0,r0,0x4567
-        stw     r0,0(r31)
+	lis     r0,0x0123
+	ori     r0,r0,0x4567
+	stw     r0,0(r31)
 
 		/*
 		 * Read one value back
-                 * ptr = (volatile unsigned long *)addr;
-                 * val = *ptr;
+		 * ptr = (volatile unsigned long *)addr;
+		 * val = *ptr;
 		 */
 
-        lwz     r0,0(r31)
+	lwz     r0,0(r31)
 
 		/*
 		 * One pci config write
-                 * ibmPciConfigWrite(0x2e, 2, 0x1234);
+		 * ibmPciConfigWrite(0x2e, 2, 0x1234);
 		 */
 		/* subsystem id */
 
+	li      r4,0x002C
+	oris    r4,r4,0x8000
+	lis     r3,0xEEC0
+	stwbrx  r4,0,r3
 
+	li      r5,0x1234
+	ori     r3,r3,0x4
+	stwbrx  r5,0,r3
 
-        li      r4,0x002C
-        oris    r4,r4,0x8000
-        lis     r3,0xEEC0
-        stwbrx  r4,0,r3
-
-        li      r5,0x1234
-        ori     r3,r3,0x4
-        stwbrx  r5,0,r3
-
-        b       start1
+	b       start1
 
 	blr	/* never reached !!!! */
-
-
 
 	.globl	write_with_sync
 write_with_sync:
 		/*
 		 * Write one values to host via pci busmastering
-                 * ptr = 0xc0000000 -> 0x01000000 (PCI)
-                 * *ptr = 0x01234567;
+		 * ptr = 0xc0000000 -> 0x01000000 (PCI)
+		 * *ptr = 0x01234567;
 		 */
-        addi    r31,0,0
-        lis     r31,0xc000
+	addi    r31,0,0
+	lis     r31,0xc000
 
 start2:
-        lis     r0,0x0123
-        ori     r0,r0,0x4567
-        stw     r0,0(r31)
+	lis     r0,0x0123
+	ori     r0,r0,0x4567
+	stw     r0,0(r31)
 
 		/*
 		 * Read one value back
-                 * ptr = (volatile unsigned long *)addr;
-                 * val = *ptr;
+		 * ptr = (volatile unsigned long *)addr;
+		 * val = *ptr;
 		 */
 
-        lwz     r0,0(r31)
+	lwz     r0,0(r31)
 
 		/*
 		 * One pci config write
-                 * ibmPciConfigWrite(0x2e, 2, 0x1234);
+		 * ibmPciConfigWrite(0x2e, 2, 0x1234);
 		 */
 		/* subsystem id */
 
+	li      r4,0x002C
+	oris    r4,r4,0x8000
+	lis     r3,0xEEC0
+	stwbrx  r4,0,r3
+	sync
 
+	li      r5,0x1234
+	ori     r3,r3,0x4
+	stwbrx  r5,0,r3
+	sync
 
-        li      r4,0x002C
-        oris    r4,r4,0x8000
-        lis     r3,0xEEC0
-        stwbrx  r4,0,r3
-        sync
-
-        li      r5,0x1234
-        ori     r3,r3,0x4
-        stwbrx  r5,0,r3
-        sync
-
-        b       start2
+	b       start2
 
 	blr	/* never reached !!!! */
-
 
 	.globl	write_with_less_sync
 write_with_less_sync:
 		/*
 		 * Write one values to host via pci busmastering
-                 * ptr = 0xc0000000 -> 0x01000000 (PCI)
-                 * *ptr = 0x01234567;
+		 * ptr = 0xc0000000 -> 0x01000000 (PCI)
+		 * *ptr = 0x01234567;
 		 */
-        addi    r31,0,0
-        lis     r31,0xc000
+	addi    r31,0,0
+	lis     r31,0xc000
 
 start2b:
-        lis     r0,0x0123
-        ori     r0,r0,0x4567
-        stw     r0,0(r31)
+	lis     r0,0x0123
+	ori     r0,r0,0x4567
+	stw     r0,0(r31)
 
 		/*
 		 * Read one value back
-                 * ptr = (volatile unsigned long *)addr;
-                 * val = *ptr;
+		 * ptr = (volatile unsigned long *)addr;
+		 * val = *ptr;
 		 */
 
-        lwz     r0,0(r31)
+	lwz     r0,0(r31)
 
 		/*
 		 * One pci config write
-                 * ibmPciConfigWrite(0x2e, 2, 0x1234);
+		 * ibmPciConfigWrite(0x2e, 2, 0x1234);
 		 */
 		/* subsystem id */
 
+	li      r4,0x002C
+	oris    r4,r4,0x8000
+	lis     r3,0xEEC0
+	stwbrx  r4,0,r3
+	sync
 
-
-        li      r4,0x002C
-        oris    r4,r4,0x8000
-        lis     r3,0xEEC0
-        stwbrx  r4,0,r3
-        sync
-
-        li      r5,0x1234
-        ori     r3,r3,0x4
-        stwbrx  r5,0,r3
+	li      r5,0x1234
+	ori     r3,r3,0x4
+	stwbrx  r5,0,r3
 /*        sync */
 
-        b       start2b
+	b       start2b
 
 	blr	/* never reached !!!! */
-
 
 	.globl	write_with_more_sync
 write_with_more_sync:
 		/*
 		 * Write one values to host via pci busmastering
-                 * ptr = 0xc0000000 -> 0x01000000 (PCI)
-                 * *ptr = 0x01234567;
+		 * ptr = 0xc0000000 -> 0x01000000 (PCI)
+		 * *ptr = 0x01234567;
 		 */
-        addi    r31,0,0
-        lis     r31,0xc000
+	addi    r31,0,0
+	lis     r31,0xc000
 
 start3:
-        lis     r0,0x0123
-        ori     r0,r0,0x4567
-        stw     r0,0(r31)
-        sync
+	lis     r0,0x0123
+	ori     r0,r0,0x4567
+	stw     r0,0(r31)
+	sync
 
 		/*
 		 * Read one value back
-                 * ptr = (volatile unsigned long *)addr;
-                 * val = *ptr;
+		 * ptr = (volatile unsigned long *)addr;
+		 * val = *ptr;
 		 */
 
-        lwz     r0,0(r31)
-        sync
+	lwz     r0,0(r31)
+	sync
 
 		/*
 		 * One pci config write
-                 * ibmPciConfigWrite(0x2e, 2, 0x1234);
+		 * ibmPciConfigWrite(0x2e, 2, 0x1234);
 		 */
 		/* subsystem id (PCIC0_SBSYSVID)*/
 
+	li      r4,0x002C
+	oris    r4,r4,0x8000
+	lis     r3,0xEEC0
+	stwbrx  r4,0,r3
+	sync
 
+	li      r5,0x1234
+	ori     r3,r3,0x4
+	stwbrx  r5,0,r3
+	sync
 
-        li      r4,0x002C
-        oris    r4,r4,0x8000
-        lis     r3,0xEEC0
-        stwbrx  r4,0,r3
-        sync
-
-        li      r5,0x1234
-        ori     r3,r3,0x4
-        stwbrx  r5,0,r3
-        sync
-
-        b       start3
+	b       start3
 
 	blr	/* never reached !!!! */

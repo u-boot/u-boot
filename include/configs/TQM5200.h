@@ -426,7 +426,7 @@
  * use PSC6:
  *   on STK52xx:
  *      use as UART. Pins PSC6_0 to PSC6_3 are used.
-        Bits 9:11 (mask: 0x00700000):
+	Bits 9:11 (mask: 0x00700000):
  *	   101 -> PSC6 : Extended POST test is not available
  *   on MINI-FAP and TQM5200_IB:
  *      use PSC6_1 and PSC6_3 as GPIO: Bits 9:11 (mask: 0x00700000):

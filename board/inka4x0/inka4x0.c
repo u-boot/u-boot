@@ -176,4 +176,3 @@ void flash_preinit(void)
 	 */
 	*(vu_long *)MPC5XXX_BOOTCS_CFG &= ~0x1; /* clear RO */
 }
-

@@ -123,4 +123,3 @@ static S1D_REGS regs_13806_1024_768_8bpp[] =
 	{0x01F4,0x00},   /* CPU-to-Memory Access Watchdog Timer Register */
 	{0x01FC,0x01},   /* Display Mode Register */
 };
-

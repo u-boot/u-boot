@@ -158,13 +158,13 @@ board_asm_init:
 	rlwinm  r3, r3, 16, 16, 31
 	lis	r4, CFG_GT_REGS@h
 	ori	r4, r4, CFG_GT_REGS@l
-        li	r5, INTEGRATED_SRAM_BASE_ADDR
-        stwbrx  r3, r5, r4
+	li	r5, INTEGRATED_SRAM_BASE_ADDR
+	stwbrx  r3, r5, r4
 
 2:	lwbrx	r6, r5, r4
 	cmp	cr0, r3, r6
-	bne	2b	
-	
+	bne	2b
+
 	/* done! */
 	blr
 #endif

@@ -51,9 +51,9 @@
 #undef CONFIG_MONITOR_IS_IN_RAM	              /* no pre-loader required!!! ;-) */
 
 #define CONFIG_COMMANDS	      ((CONFIG_CMD_DFL        |    \
-                                CFG_CMD_BSP           |    \
-                                CFG_CMD_EEPROM        |    \
-                                CFG_CMD_I2C            ) & \
+				CFG_CMD_BSP           |    \
+				CFG_CMD_EEPROM        |    \
+				CFG_CMD_I2C            ) & \
 			       ~(CFG_CMD_NET))
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */

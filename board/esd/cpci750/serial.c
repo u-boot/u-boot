@@ -4,7 +4,7 @@
  *
  * modified for marvell db64360 eval board by
  * Ingo Assmus <ingo.assmus@keymile.com>
- *  
+ *
  * modified for cpci750 board by
  * Reinhard Arlt <reinhard.arlt@esd-electronics.com>
  *

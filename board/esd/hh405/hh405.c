@@ -278,13 +278,13 @@ int misc_init_r (void)
 	udelay(1000);
 	out32(GPIO0_OR, in32(GPIO0_OR) | CFG_TOUCH_RST);
 
-        /*
-         * Enable power on PS/2 interface (with reset)
-         */
-        *fpga_ctrl &= ~(CFG_FPGA_CTRL_PS2_PWR);
-        for (i=0;i<500;i++)
-                udelay(1000);
-        *fpga_ctrl |= (CFG_FPGA_CTRL_PS2_PWR);
+	/*
+	 * Enable power on PS/2 interface (with reset)
+	 */
+	*fpga_ctrl &= ~(CFG_FPGA_CTRL_PS2_PWR);
+	for (i=0;i<500;i++)
+		udelay(1000);
+	*fpga_ctrl |= (CFG_FPGA_CTRL_PS2_PWR);
 
 	/*
 	 * Get contrast value from environment variable

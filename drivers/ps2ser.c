@@ -163,7 +163,7 @@ void ps2ser_putc(int chr)
 
 #ifdef CONFIG_MPC5xxx
 	while (!(psc->psc_status & PSC_SR_TXRDY));
-	
+
 	psc->psc_buffer_8 = chr;
 #else
 	while (!(ps2ser_in(UART_LSR) & UART_LSR_THRE));
@@ -259,7 +259,7 @@ static void ps2ser_interrupt(void *dev_id)
 			printf ("ps2ser.c: buffer overflow\n");
 		}
 #ifdef CONFIG_MPC5xxx
-	} while (status & PSC_SR_RXRDY);		
+	} while (status & PSC_SR_RXRDY);
 #else
 	} while (status & UART_IIR_RDI);
 #endif

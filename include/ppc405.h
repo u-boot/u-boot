@@ -482,11 +482,11 @@
 			      PLL_FWDDIVA_3 | PLL_FWDDIVB_3 |  \
 			      PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
 #define PLLMR0_266_66_33_33 (PLL_CPUDIV_1 | PLL_PLBDIV_4 |  \
-                              PLL_OPBDIV_2 | PLL_EXTBUSDIV_2 |  \
-                              PLL_MALDIV_1 | PLL_PCIDIV_2)
+			      PLL_OPBDIV_2 | PLL_EXTBUSDIV_2 |  \
+			      PLL_MALDIV_1 | PLL_PCIDIV_2)
 #define PLLMR1_266_66_33_33 (PLL_FBKDIV_8  |  \
-                              PLL_FWDDIVA_3 | PLL_FWDDIVB_3 |  \
-                              PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
+			      PLL_FWDDIVA_3 | PLL_FWDDIVB_3 |  \
+			      PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
 
 /*
  * PLL Voltage Controlled Oscillator (VCO) definitions

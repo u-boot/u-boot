@@ -60,7 +60,7 @@ const unsigned char fpgadata[] =
 
 int checkboard (void) {
 	ulong val;
-        uchar val8;
+	uchar val8;
 
 	puts ("Board: ");
 	puts("esd TASREG");

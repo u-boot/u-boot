@@ -145,11 +145,11 @@
 			 | CFG_CMD_PCI     \
 			 | CFG_CMD_ELF	   \
 			 | CFG_CMD_DATE	   \
-                         | CFG_CMD_NET     \
-                         | CFG_CMD_PING    \
-                         | CFG_CMD_IDE     \
-                         | CFG_CMD_FAT     \
-                         | CFG_CMD_EXT2    \
+			 | CFG_CMD_NET     \
+			 | CFG_CMD_PING    \
+			 | CFG_CMD_IDE     \
+			 | CFG_CMD_FAT     \
+			 | CFG_CMD_EXT2    \
 					)
 
 #define CONFIG_DOS_PARTITION
@@ -331,11 +331,11 @@
 #define CFG_DEV3_PAR		0x8FCFFFFF				/* nvram/can    */
 #define CFG_BOOT_PAR		0x8FDFFFFF				/* 16 bit flash */
 
-        /*   c    4    a      8     2     4    1      c		*/
-        /* 33 22|2222|22 22|111 1|11 11|1 1  |    |		*/
-        /* 10 98|7654|32 10|987 6|54 32|1 098|7 654|3 210	*/
-        /* 11|00|0100|10 10|100|0 00|10 0|100 0|001 1|100	*/
-        /*  3| 0|.... ..| 2| 4 |  0 |  4 |  8  |  3  | 4	*/
+	/*   c    4    a      8     2     4    1      c		*/
+	/* 33 22|2222|22 22|111 1|11 11|1 1  |    |		*/
+	/* 10 98|7654|32 10|987 6|54 32|1 098|7 654|3 210	*/
+	/* 11|00|0100|10 10|100|0 00|10 0|100 0|001 1|100	*/
+	/*  3| 0|.... ..| 2| 4 |  0 |  4 |  8  |  3  | 4	*/
 
 
 /* MPP Control MV64360 Appendix P P. 632*/
@@ -391,8 +391,6 @@
 
 #define CFG_PCI0_0_MEM_SPACE	(CFG_PCI0_MEM_BASE)
 #define CFG_PCI1_0_MEM_SPACE	(CFG_PCI1_MEM_BASE)
-
-
 
 /* PCI I/O MAP section */
 #define CFG_PCI0_IO_BASE	0xfa000000

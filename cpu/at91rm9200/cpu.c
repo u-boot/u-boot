@@ -134,7 +134,7 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
    /*shutdown the console to avoid strange chars during reset */
    us->US_CR = (AT91C_US_RSTRX | AT91C_US_RSTTX);
 
-#ifdef CONFIG_AT91RM9200DK 
+#ifdef CONFIG_AT91RM9200DK
    /* Clear PA19 to trigger the hard reset */
    pio->PIO_CODR = 0x00080000;
    pio->PIO_OER  = 0x00080000;

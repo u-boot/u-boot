@@ -293,7 +293,7 @@ int misc_init_r (void)
 	 */
 #define PCI0_BRDGOPT1 0x4a
 	pci_write_config_word(PCIDEVID_405GP, PCI0_BRDGOPT1, 0x3f20);
-//	pci_write_config_word(PCIDEVID_405GP, PCI0_BRDGOPT1, 0x3f60);
+/*	pci_write_config_word(PCIDEVID_405GP, PCI0_BRDGOPT1, 0x3f60);	*/
 
 #define plb0_acr      0x87
 	/*
@@ -303,10 +303,10 @@ int misc_init_r (void)
 
 #if 0 /* test-only */
 	printf("CCR0=%08x\n", mfspr(ccr0)); /* test-only */
-//	mtspr(ccr0, (mfspr(ccr0) & 0xff8fffff) | 0x00100000);
+/*	mtspr(ccr0, (mfspr(ccr0) & 0xff8fffff) | 0x00100000);	*/
 	mtspr(ccr0, (mfspr(ccr0) & 0xff8fffff) | 0x00000000);
 #endif
-//	printf("CCR0=%08x\n", mfspr(ccr0)); /* test-only */
+/*	printf("CCR0=%08x\n", mfspr(ccr0)); /* test-only */	*/
 #endif
 
 	free(dst);

@@ -1,6 +1,6 @@
 /*
  * (C) Copyright 2003
- * Ingo Assmus <ingo.assmus@keymile.com> 
+ * Ingo Assmus <ingo.assmus@keymile.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -35,7 +35,7 @@
 
 /* This tells PPCBoot that the config options are compiled in */
 /* #undef ENV_IS_EMBEDDED */
-/* Don't touch this! PPCBOOT figures this out  based on other 
+/* Don't touch this! PPCBOOT figures this out  based on other
  * magic. */
 
 /* Uncomment and define any of the below options */

@@ -136,7 +136,7 @@ void lcd_init(uchar *lcd_reg, uchar *lcd_mem, S1D_REGS *regs, int reg_count,
 		}
 		s1dValue = regs[i].Value;
 		lcd_reg[s1dReg] = s1dValue;
-        }
+	}
 
 	/*
 	 * Decompress bmp image

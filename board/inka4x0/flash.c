@@ -142,9 +142,9 @@ void flash_print_info (flash_info_t *info)
 	}
 
 	switch (info->flash_id & FLASH_TYPEMASK) {
-        case FLASH_AM116DB:
-                printf ("AM29LV116DB (16Mbit, bottom boot sect)\n");
-                break;
+	case FLASH_AM116DB:
+		printf ("AM29LV116DB (16Mbit, bottom boot sect)\n");
+		break;
 	case FLASH_AMLV128U:
 		printf ("AM29LV128ML (128Mbit, uniform sector size)\n");
 		break;
@@ -220,21 +220,21 @@ ulong flash_get_size (FPWV *addr, flash_info_t *info)
 
 	case (uchar)AMD_ID_LV116DB:
 		debug ("Chip: AM29LV116DB\n");
-                info->flash_id += FLASH_AM116DB;
-                info->sector_count = 35;
-                info->size = 0x00200000;
-                /*
-                 * The first 4 sectors are 16 kB, 8 kB, 8 kB and 32 kB, all
-                 * the other ones are 64 kB
-                 */
-                info->start[0] = base + 0x00000000;
-                info->start[1] = base + 0x00004000;
-                info->start[2] = base + 0x00006000;
-                info->start[3] = base + 0x00008000;
-                for( i = 4; i < info->sector_count; i++ )
-                        info->start[i] =
-                                base + (i * (64 << 10)) - 0x00030000;
-                break;          /* => 2 MB */
+		info->flash_id += FLASH_AM116DB;
+		info->sector_count = 35;
+		info->size = 0x00200000;
+		/*
+		 * The first 4 sectors are 16 kB, 8 kB, 8 kB and 32 kB, all
+		 * the other ones are 64 kB
+		 */
+		info->start[0] = base + 0x00000000;
+		info->start[1] = base + 0x00004000;
+		info->start[2] = base + 0x00006000;
+		info->start[3] = base + 0x00008000;
+		for( i = 4; i < info->sector_count; i++ )
+			info->start[i] =
+				base + (i * (64 << 10)) - 0x00030000;
+		break;          /* => 2 MB */
 
 	case (FPW)AMD_ID_LV160B:
 		debug ("Chip: AM29LV160MB\n");
@@ -377,8 +377,8 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 
 	for (i = 0; i < cnt; i++)
 		if ((rc = write_word_amd(info, (FPW *)(addr+i), src[i])) != 0) {
-                        return (rc);
-                }
+			return (rc);
+		}
 
 	return rc;
 }

@@ -419,7 +419,7 @@ int last_stage_init (void)
 	/* save origianl SRAM content  */
 	save = *(volatile u16 *)CFG_CS2_START;
 	restore = 1;
-	
+
 	/* write test pattern to SRAM */
 	*(volatile u16 *)CFG_CS2_START = 0xA5A5;
 	__asm__ volatile ("sync");
@@ -430,7 +430,7 @@ int last_stage_init (void)
 	tmp = *(volatile u16 *)CFG_FLASH_BASE;
 	if (tmp == 0xA5A5)
 		puts ("!! possible error in SRAM detection\n");
-	
+
 	if (*(volatile u16 *)CFG_CS2_START != 0xA5A5) {
 		/* no SRAM at all, disable cs */
 		*(vu_long *)MPC5XXX_ADDECR &= ~(1 << 18);
@@ -445,31 +445,31 @@ int last_stage_init (void)
 		__asm__ volatile ("sync");
 		if (*(volatile u16 *)(CFG_CS2_START + (1<<19)) == 0x1111) {
 			/* SRAM size = 512 kByte */
-			*(vu_long *)MPC5XXX_CS2_STOP = STOP_REG(CFG_CS2_START, 
+			*(vu_long *)MPC5XXX_CS2_STOP = STOP_REG(CFG_CS2_START,
 								0x80000);
 			__asm__ volatile ("sync");
 			puts ("SRAM:  512 kB\n");
 		}
 		else
-			puts ("!! possible error in SRAM detection\n");	
+			puts ("!! possible error in SRAM detection\n");
 	}
 	else {
-		puts ("SRAM:  1 MB\n");	
+		puts ("SRAM:  1 MB\n");
 	}
 	/* restore origianl SRAM content  */
 	if (restore) {
 		*(volatile u16 *)CFG_CS2_START = save;
 		__asm__ volatile ("sync");
 	}
-	
-	/* 
+
+	/*
 	 * Check for Grafic Controller
 	 */
 
 	/* save origianl FB content  */
 	save = *(volatile u16 *)CFG_CS1_START;
 	restore = 1;
-	
+
 	/* write test pattern to FB memory */
 	*(volatile u16 *)CFG_CS1_START = 0xA5A5;
 	__asm__ volatile ("sync");
@@ -480,7 +480,7 @@ int last_stage_init (void)
 	tmp = *(volatile u16 *)CFG_FLASH_BASE;
 	if (tmp == 0xA5A5)
 		puts ("!! possible error in grafic controller detection\n");
-	
+
 	if (*(volatile u16 *)CFG_CS1_START != 0xA5A5) {
 		/* no grafic controller at all, disable cs */
 		*(vu_long *)MPC5XXX_ADDECR &= ~(1 << 17);
@@ -490,14 +490,14 @@ int last_stage_init (void)
 		__asm__ volatile ("sync");
 	}
 	else {
-		puts ("VGA:   SMI501 (Voyager) with 8 MB\n");	
+		puts ("VGA:   SMI501 (Voyager) with 8 MB\n");
 	}
 	/* restore origianl FB content  */
 	if (restore) {
 		*(volatile u16 *)CFG_CS1_START = save;
 		__asm__ volatile ("sync");
 	}
-	
+
 	return 0;
 }
 #endif /* CONFIG_CS_AUTOCONF */
