@@ -86,6 +86,8 @@ table_entry_t arch_name[] = {
     {	IH_CPU_MICROBLAZE,	"microblaze",	"MicroBlaze",	},
     {	IH_CPU_MIPS,		"mips",		"MIPS",		},
     {	IH_CPU_MIPS64,		"mips64",	"MIPS 64 Bit",	},
+    {	IH_CPU_NIOS,		"nios",		"NIOS",		},
+    {	IH_CPU_NIOS2,		"nios2",	"NIOS II",	},
     {	IH_CPU_PPC,		"ppc",		"PowerPC",	},
     {	IH_CPU_S390,		"s390",		"IBM S390",	},
     {	IH_CPU_SH,		"sh",		"SuperH",	},

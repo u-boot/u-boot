@@ -1197,6 +1197,8 @@ print_type (image_header_t *hdr)
 	case IH_CPU_SPARC64:	arch = "SPARC 64 Bit";		break;
 	case IH_CPU_M68K:	arch = "M68K"; 			break;
 	case IH_CPU_MICROBLAZE:	arch = "Microblaze"; 		break;
+	case IH_CPU_NIOS:	arch = "Nios";			break;
+	case IH_CPU_NIOS2:	arch = "Nios-II";		break;
 	default:		arch = "Unknown Architecture";	break;
 	}
 
