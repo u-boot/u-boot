@@ -347,4 +347,32 @@ static long init_pll_866 (long clk)
 
 #endif /* CONFIG_MPC866_et_al */
 
+#if defined(CONFIG_TQM8xxL) && !defined(CONFIG_TQM866M)
+/*
+ * Adjust sdram refresh rate to actual CPU clock
+ * and set timebase source according to actual CPU clock
+ */
+int adjust_sdram_tbs_8xx (void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+
+	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	long		  mamr;
+	long              sccr;
+
+	mamr = immr->im_memctl.memc_mamr;
+	mamr &= ~MAMR_PTA_MSK;
+	mamr |= ((gd->cpu_clk / CFG_PTA_PER_CLK) << MAMR_PTA_SHIFT);
+	immr->im_memctl.memc_mamr = mamr;
+
+	if (gd->cpu_clk < 67000000) {
+		sccr = immr->im_clkrst.car_sccr;
+		sccr |= SCCR_TBS;
+		immr->im_clkrst.car_sccr = sccr;
+	}
+
+	return (0);
+}
+#endif /* CONFIG_TQM8xxL/M, !TQM866M */
+
 /* ------------------------------------------------------------------------- */

@@ -29,6 +29,15 @@
 #include <mpc8xx.h>
 #include <environment.h>
 
+#include <asm/processor.h>
+
+#if defined(CONFIG_TQM8xxL) && !defined(CONFIG_TQM866M)
+# ifndef CFG_OR_TIMING_FLASH_AT_50MHZ
+#  define CFG_OR_TIMING_FLASH_AT_50MHZ	(OR_ACS_DIV1  | OR_TRLX | OR_CSNT_SAM | \
+					 OR_SCY_2_CLK | OR_EHTR | OR_BI)
+# endif
+#endif /* CONFIG_TQM8xxL/M, !TQM866M */
+
 #ifndef	CFG_ENV_ADDR
 #define CFG_ENV_ADDR	(CFG_FLASH_BASE + CFG_ENV_OFFSET)
 #endif
@@ -51,6 +60,50 @@ unsigned long flash_init (void)
 	unsigned long size_b0, size_b1;
 	int i;
 
+#ifdef	CFG_OR_TIMING_FLASH_AT_50MHZ
+	int scy, trlx, flash_or_timing, clk_diff;
+
+	DECLARE_GLOBAL_DATA_PTR;
+
+	scy = (CFG_OR_TIMING_FLASH_AT_50MHZ & OR_SCY_MSK) >> 4;
+	if (CFG_OR_TIMING_FLASH_AT_50MHZ & OR_TRLX) {
+		trlx = OR_TRLX;
+		scy *= 2;
+	} else
+		trlx = 0;
+
+		/* We assume that each 10MHz of bus clock require 1-clk SCY
+		 * adjustment.
+		 */
+	clk_diff = (gd->bus_clk / 1000000) - 50;
+
+		/* We need proper rounding here. This is what the "+5" and "-5"
+		 * are here for.
+		 */
+	if (clk_diff >= 0)
+		scy += (clk_diff + 5) / 10;
+	else
+		scy += (clk_diff - 5) / 10;
+
+		/* For bus frequencies above 50MHz, we want to use relaxed timing
+		 * (OR_TRLX).
+		 */
+	if (gd->bus_clk >= 50000000)
+		trlx = OR_TRLX;
+	else
+		trlx = 0;
+
+	if (trlx)
+		scy /= 2;
+
+	if (scy > 0xf)
+		scy = 0xf;
+	if (scy < 1)
+		scy = 1;
+
+	flash_or_timing = (scy << 4) | trlx |
+	                  (CFG_OR_TIMING_FLASH_AT_50MHZ & ~(OR_TRLX | OR_SCY_MSK));
+#endif
 	/* Init: no FLASHes known */
 	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
@@ -95,7 +148,11 @@ unsigned long flash_init (void)
 		memctl->memc_br1, memctl->memc_or1);
 
 	/* Remap FLASH according to real size */
+#ifndef	CFG_OR_TIMING_FLASH_AT_50MHZ
 	memctl->memc_or0 = CFG_OR_TIMING_FLASH | (-size_b0 & OR_AM_MSK);
+#else
+	memctl->memc_or0 = flash_or_timing | (-size_b0 & OR_AM_MSK);
+#endif
 	memctl->memc_br0 = (CFG_FLASH_BASE & BR_BA_MSK) | BR_MS_GPCM | BR_V;
 
 	debug ("## BR0: 0x%08x    OR0: 0x%08x\n",
@@ -146,7 +203,11 @@ unsigned long flash_init (void)
 #endif
 
 	if (size_b1) {
+#ifndef	CFG_OR_TIMING_FLASH_AT_50MHZ
 		memctl->memc_or1 = CFG_OR_TIMING_FLASH | (-size_b1 & 0xFFFF8000);
+#else
+		memctl->memc_or1 = flash_or_timing | (-size_b1 & 0xFFFF8000);
+#endif
 		memctl->memc_br1 = ((CFG_FLASH_BASE + size_b0) & BR_BA_MSK) |
 				    BR_MS_GPCM | BR_V;
 

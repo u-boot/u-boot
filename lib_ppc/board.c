@@ -265,6 +265,9 @@ init_fnc_t *init_sequence[] = {
 
 #if !defined(CONFIG_TQM866M)
 	get_clocks,		/* get CPU and bus clocks (etc.) */
+#if defined(CONFIG_TQM8xxL) && !defined(CONFIG_TQM866M)
+	adjust_sdram_tbs_8xx,
+#endif
 	init_timebase,
 #endif
 #ifdef CFG_ALLOC_DPRAM

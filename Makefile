@@ -486,66 +486,26 @@ TOP860_config:		unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx top860 emk
 
 # Play some tricks for configuration selection
-# All boards can come with 50 MHz (default), 66MHz, 80MHz or 100 MHz clock,
-# but only 855 and 860 boards may come with FEC
-# and 823 boards may have LCD support
-xtract_8xx = $(subst _66MHz,,$(subst _80MHz,,$(subst _100MHz,,$(subst _133MHz,,$(subst _LCD,,$(subst _config,,$1))))))
+# Only 855 and 860 boards may come with FEC
+# and only 823 boards may have LCD support
+xtract_8xx = $(subst _LCD,,$(subst _config,,$1))
 
 FPS850L_config		\
 FPS860L_config		\
 NSCU_config		\
 TQM823L_config		\
-TQM823L_66MHz_config	\
-TQM823L_80MHz_config	\
 TQM823L_LCD_config	\
-TQM823L_LCD_66MHz_config \
-TQM823L_LCD_80MHz_config \
 TQM850L_config		\
-TQM850L_66MHz_config	\
-TQM850L_80MHz_config	\
 TQM855L_config		\
-TQM855L_66MHz_config	\
-TQM855L_80MHz_config	\
 TQM860L_config		\
-TQM860L_66MHz_config	\
-TQM860L_80MHz_config	\
 TQM862L_config		\
-TQM862L_66MHz_config	\
-TQM862L_80MHz_config	\
 TQM823M_config		\
-TQM823M_66MHz_config	\
-TQM823M_80MHz_config	\
 TQM850M_config		\
-TQM850M_66MHz_config	\
-TQM850M_80MHz_config	\
 TQM855M_config		\
-TQM855M_66MHz_config	\
-TQM855M_80MHz_config	\
 TQM860M_config		\
-TQM860M_66MHz_config	\
-TQM860M_80MHz_config	\
 TQM862M_config		\
-TQM862M_66MHz_config	\
-TQM862M_80MHz_config	\
-TQM862M_100MHz_config	\
 TQM866M_config:		unconfig
 	@ >include/config.h
-	@[ -z "$(findstring _66MHz,$@)" ] || \
-		{ echo "#define CONFIG_66MHz"		>>include/config.h ; \
-		  echo "... with 66MHz system clock" ; \
-		}
-	@[ -z "$(findstring _80MHz,$@)" ] || \
-		{ echo "#define CONFIG_80MHz"		>>include/config.h ; \
-		  echo "... with 80MHz system clock" ; \
-		}
-	@[ -z "$(findstring _100MHz,$@)" ] || \
-		{ echo "#define CONFIG_100MHz"		>>include/config.h ; \
-		  echo "... with 100MHz system clock" ; \
-		}
-	@[ -z "$(findstring _133MHz,$@)" ] || \
-		{ echo "#define CONFIG_133MHz"		>>include/config.h ; \
-		  echo "... with 133MHz system clock" ; \
-		}
 	@[ -z "$(findstring _LCD,$@)" ] || \
 		{ echo "#define CONFIG_LCD"		>>include/config.h ; \
 		  echo "#define CONFIG_NEC_NL6448BC20"	>>include/config.h ; \
