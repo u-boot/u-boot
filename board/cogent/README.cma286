@@ -1,0 +1,69 @@
+CPU module revisions
+--------------------
+
+My cpu module has the model number "CMA286-60-990526-01". My motherboard
+has the model number "CMA102-32M-990526-01". These are both fairly old,
+and may not reflect current design. In particular, I can see from the
+Cogent web site that the CMA286 has been significantly redesigned - it
+now has on board RAM (4M), ethernet 10baseT PHY (on SCC2), 2 serial ports
+(SMC1 and SMC2), and 48pin DIN for the FEC (if present i.e. MPC860T), and
+also the EPROM is 512K.
+
+My CMA286-60 has none of this, and only 128K EPROM. In addition, the CPU
+clock is listed as 66MHz, whereas mine is 33.333MHz.
+
+Clocks
+------
+
+Quote from my "CMA286 MPC860/821 User's Manual":
+
+"When setting up the Periodic Interrupt Timer (PIT), be aware that the
+CMA286 places the MPC860/821 in PLL X1 Mode. This means that we feed
+a 25MHz clock directly into the MPC860/821. This mode sets the divisor
+for the PIT to be 512. In addition, the Time Base Register (TMB)
+divisor is set to 16."
+
+I interpreted this information to mean that EXTCLK is 25MHz and that at
+power on reset, MODCK1=1 and MODCK2=0, which selects EXTCLK as the
+source for OSCCLK and PITRTCLK, sets RTDIV to 512 and sets MF (the
+multiplication factor) to 1 (I assume this is what they mean by X1
+mode above). MF=1 means the cpus internal clock runs at the same
+rate as EXTCLK i.e. 25MHz.
+
+Furthermore, since SCCR[TBS] (the Time Base Source selector bit in the
+System Clock and Reset Control register) is set in the cpu initialisation
+code, the TMBCLK source is forced to be GCLK2 and the TMBCLK prescale is
+forced to be 16. This results in TMBCLK=1562500.
+
+One problem - since PITRTCLK source is EXTCLK (25Mhz) and RTDIV is 512,
+PITRTCLK will be 48828.125 (huh?). Another quote from the MPC860 Users
+Manual:
+
+"When used by the real-time clock (RTC), the PITRTCLK source is first
+divided as determined by RTDIV, and then divided in the RTC circuits by
+either 8192 or 9600. Therefore, in order for the RTC to count in
+seconds, the clock source must satisfy:
+
+	(EXTCLK or OSCM) / [(4 or 512) x (8192 or 9600)] = 1
+
+The RTC will operate with other frequencies, but it will not count in
+units of seconds."
+
+Therefore, the internal RTC of the MPC860 is not going to count in
+seconds, so we must use the motherboard RTC (if we need a RTC).
+
+I presume this means that they do not provide a fixed oscillator for
+OSCM. The code in get_gclk_freq() assumes PITRTCLK source is OSCM,
+RTDIV is 4, and that OSCM/4 is 8192 (i.e. a ~32KHz oscillator). Since
+the CMA286-60 doesn't have this (at least mine doesn't) we can't use
+the code in get_gclk_freq().
+
+Finally, it appears that the internal clock in my CMA286-60 is actually
+33.333MHz. Which makes TMBCLK=2083312.5 (another huh?) and
+PITRTCLK=65103.515625 (bloody hell!).
+
+If anyone finds anything wrong with the stuff above, I would appreciate
+an email about it.
+
+Murray Jensen <Murray.Jensen@cmst.csiro.au>
+21-Aug-00
