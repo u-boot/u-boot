@@ -25,10 +25,12 @@ include $(TOPDIR)/config.mk
 
 LIB	= lib$(BOARD).a
 
-OBJS	= $(BOARD).o flash.o cmd_pci405.o
+OBJS	= $(BOARD).o flash.o ../common/misc.o cmd_pci405.o
+SOBJS	= writeibm.o
 
 $(LIB):	$(OBJS) $(SOBJS)
-	$(AR) crv $@ $(OBJS)
+#	$(AR) crv $@ $(OBJS)
+	$(AR) crv $@ $(OBJS) $(SOBJS)
 
 clean:
 	rm -f $(SOBJS) $(OBJS)
