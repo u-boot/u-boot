@@ -224,7 +224,7 @@
 #define CONFIG_MODEM_SUPPORT	1	/* enable modem initialization stuff */
 #undef CONFIG_MODEM_SUPPORT_DEBUG
 
-#define	CONFIG_MODEM_KEY_MAGIC	"3C+3F"	/* press F3 + F6 keys to enable modem */
+#define	CONFIG_MODEM_KEY_MAGIC	"3C+3D"	/* press F3 + F4 keys to enable modem */
 #define	CONFIG_POST_KEY_MAGIC	"3C+3E"	/* press F3 + F5 keys to force POST */
 #if 0
 #define	CONFIG_AUTOBOOT_KEYED		/* Enable "password" protection	*/
