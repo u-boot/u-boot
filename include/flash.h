@@ -128,6 +128,7 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 #define MX_MANUFACT	0x00C200C2	/* MXIC	   manuf. ID in D23..D16, D7..D0 */
 #define TOSH_MANUFACT	0x00980098	/* TOSHIBA manuf. ID in D23..D16, D7..D0 */
 #define MT2_MANUFACT	0x002C002C	/* alternate MICRON manufacturer ID*/
+#define EXCEL_MANUFACT	0x004A004A	/* Excel Semiconductor                  */
 
 					/* Micron Technologies (INTEL compat.)	*/
 #define MT_ID_28F400_T	0x44704470	/* 28F400B3 ID ( 4 M, top boot sector)	*/
@@ -215,6 +216,12 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 #define SST_ID_xF400A	0x27802780	/* 39xF400A ID ( 4M = 256K x 16 )	*/
 #define SST_ID_xF800A	0x27812781	/* 39xF800A ID ( 8M = 512K x 16 )	*/
 #define SST_ID_xF160A	0x27822782	/* 39xF800A ID (16M =	1M x 16 )	*/
+#define SST_ID_xF1601	0x234B234B	/* 39xF1601 ID (16M =	1M x 16 )	*/
+#define SST_ID_xF1602	0x234A234A	/* 39xF1602 ID (16M =	1M x 16 )	*/
+#define SST_ID_xF3201	0x235B235B	/* 39xF3201 ID (32M =	2M x 16 )	*/
+#define SST_ID_xF3202	0x235A235A	/* 39xF3202 ID (32M =	2M x 16 )	*/
+#define SST_ID_xF6401	0x236B236B	/* 39xF6401 ID (64M =	4M x 16 )	*/
+#define SST_ID_xF6402	0x236A236A	/* 39xF6402 ID (64M =	4M x 16 )	*/
 #define SST_ID_xF040	0xBFD7BFD7	/* 39xF040 ID (512KB = 4Mbit x 8)	*/
 
 #define STM_ID_F040B	0xE2		/* M29F040B ID ( 4M = 512K x 8	)	*/
@@ -314,6 +321,8 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 #define FLASH_SST400A	0x0042		/* SST 39xF400A ID (  4M = 256K x 16 )	*/
 #define FLASH_SST800A	0x0044		/* SST 39xF800A ID (  8M = 512K x 16 )	*/
 #define FLASH_SST160A	0x0046		/* SST 39xF160A ID ( 16M =   1M x 16 )	*/
+#define FLASH_SST320	0x0048		/* SST 39xF160A ID ( 16M =   1M x 16 )	*/
+#define FLASH_SST640	0x004A		/* SST 39xF160A ID ( 16M =   1M x 16 )	*/
 #define FLASH_SST040	0x000E		/* SST 39xF040 ID (512KB = 4Mbit x 8 )	*/
 
 #define FLASH_STM800AB	0x0051		/* STM M29WF800AB  (  8M = 512K x 16 )	*/
@@ -391,6 +400,7 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 #define FLASH_MAN_MX	0x00030000	/* MXIC					*/
 #define FLASH_MAN_STM	0x00040000
 #define FLASH_MAN_TOSH	0x00050000	/* Toshiba				*/
+#define FLASH_MAN_EXCEL 0x00060000      /* Excel Semiconductor                  */
 #define FLASH_MAN_SST	0x00100000
 #define FLASH_MAN_INTEL 0x00300000
 #define FLASH_MAN_MT	0x00400000
