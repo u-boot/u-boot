@@ -2,7 +2,7 @@
  * (C) Copyright 2001
  * Kyle Harris, Nexus Technologies, Inc. kharris@nexus-tech.net
  *
- * (C) Copyright 2001
+ * (C) Copyright 2001-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * (C) Copyright 2003
@@ -80,6 +80,7 @@ void flash_print_info (flash_info_t * info);
 void flash_unprotect_sectors (FPWV * addr);
 int flash_erase (flash_info_t * info, int s_first, int s_last);
 int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt);
+void flash_unlock(flash_info_t * info);
 
 /*-----------------------------------------------------------------------
  */
@@ -118,7 +119,7 @@ unsigned long flash_init (void)
 
 /*-----------------------------------------------------------------------
  */
-flash_unlock(flash_info_t * info)
+void flash_unlock(flash_info_t * info)
 {
 	int j;
 	for (j=2;j<CFG_MAX_FLASH_SECT;j++){

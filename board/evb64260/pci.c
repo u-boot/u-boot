@@ -9,11 +9,11 @@
 
 static const unsigned char pci_irq_swizzle[2][PCI_MAX_DEVICES] = {
 #ifdef CONFIG_ZUMA_V2
-	{0, 0, 0, 0, 0, 0, 0, 29,[8...PCI_MAX_DEVICES - 1] = 0},
-	{0, 0, 0, 0, 0, 0, 0, 28,[8...PCI_MAX_DEVICES - 1] = 0}
+	{0, 0, 0, 0, 0, 0, 0, 29,[8 ... PCI_MAX_DEVICES - 1] = 0},
+	{0, 0, 0, 0, 0, 0, 0, 28,[8 ... PCI_MAX_DEVICES - 1] = 0}
 #else				/* EVB??? This is a guess */
-	{0, 0, 0, 0, 0, 0, 0, 27, 27,[9...PCI_MAX_DEVICES - 1] = 0},
-	{0, 0, 0, 0, 0, 0, 0, 29, 29,[9...PCI_MAX_DEVICES - 1] = 0}
+	{0, 0, 0, 0, 0, 0, 0, 27, 27,[9 ... PCI_MAX_DEVICES - 1] = 0},
+	{0, 0, 0, 0, 0, 0, 0, 29, 29,[9 ... PCI_MAX_DEVICES - 1] = 0}
 #endif
 };
 

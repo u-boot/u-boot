@@ -71,12 +71,12 @@ extern int spi_chipsel_cnt;
 
 static unsigned int bin2bcd (unsigned int n);
 static unsigned char bcd2bin (unsigned char c);
-static unsigned char rtc_read (unsigned char reg);
-static void rtc_write (unsigned char reg, unsigned char val);
 
 /* ************************************************************************* */
 #ifdef CONFIG_SXNI855T		/* !!! SHOULD BE CHANGED TO NEW CODE !!! */
 
+static unsigned char rtc_read (unsigned char reg);
+static void rtc_write (unsigned char reg, unsigned char val);
 static void soft_spi_send (unsigned char n);
 static unsigned char soft_spi_read (void);
 static void init_spi (void);
