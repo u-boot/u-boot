@@ -463,7 +463,8 @@ int flash_sect_protect (int p, ulong addr_first, ulong addr_last)
 			}
 
 			if (s_first[bank]>=0 && s_first[bank]<=s_last[bank]) {
-				debug ("Protecting sectors %d..%d in bank %ld\n",
+				debug ("%sProtecting sectors %d..%d in bank %ld\n",
+					p ? "" : "Un-",
 					s_first[bank], s_last[bank], bank+1);
 				protected += s_last[bank] - s_first[bank] + 1;
 				for (i=s_first[bank]; i<=s_last[bank]; ++i) {
