@@ -24,7 +24,7 @@
  */
 
 #include <config.h>
-#include <mpc75x.h>
+#include <74xx_7xx.h>
 #include <mpc106.h>
 #include <version.h>
 

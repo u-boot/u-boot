@@ -177,7 +177,7 @@ int devices_init (void)
 #ifdef CONFIG_LCD
 	drv_lcd_init ();
 #endif
-#ifdef CONFIG_VIDEO
+#if defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE)
 	drv_video_init ();
 #endif
 #ifdef CONFIG_WL_4PPM_KEYBOARD

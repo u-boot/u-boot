@@ -45,7 +45,7 @@
 #if 0
 #define CONFIG_BOOTDELAY	-1	/* autoboot disabled		*/
 #else
-#define CONFIG_BOOTDELAY	1	/* autoboot after 1 second	*/
+#define CONFIG_BOOTDELAY	5	/* autoboot after 1 second	*/
 #endif
 
 #define	CONFIG_CLOCKS_IN_MHZ	1	/* clocks passsed to Linux in MHz */
@@ -429,10 +429,12 @@
 #define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
 
+#if NOT_USED_FOR_NOW
 #define CONFIG_AUTOBOOT_KEYED		/* use key strings to stop autoboot */
 #if 0
 #define CONFIG_AUTOBOOT_PROMPT		"Boote in %d Sekunden - stop mit \"2\"\n"
 #endif
 #define CONFIG_AUTOBOOT_STOP_STR	"2" /* easy to stop for now */
+#endif /* NOT_USED_FOR_NOW */
 
 #endif	/* __CONFIG_H */

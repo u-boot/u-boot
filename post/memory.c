@@ -266,7 +266,7 @@ static int memory_post_addrline(ulong *testaddr, ulong *base, ulong size)
 	ulong xor;
 	int   ret = 0;
 
-	end = base + size;
+	end = (ulong *)((ulong)base + size);	/* pointer arith! */
 	xor = 0;
 	for(xor = sizeof(ulong); xor > 0; xor <<= 1) {
 		target = (ulong *)((ulong)testaddr ^ xor);

@@ -423,6 +423,9 @@ The following options need to be configured:
 						(requires CFG_CMD_DATE)
 			CONFIG_VIDEO_LOGO	display Linux logo in
 						upper left corner
+			CONFIG_VIDEO_BMP_LOGO	use bmp_logo.h instead of
+						linux_logo.h for logo.
+						Requires CONFIG_VIDEO_LOGO
 			CONFIG_CONSOLE_EXTRA_INFO
 						addional board info beside
 						the logo
@@ -709,6 +712,12 @@ The following options need to be configured:
             65536 (16bit)     314       317       31a
         16,7 Mill (24bit)     315       318       31b
 		(i.e. setenv videomode 317; saveenv; reset;)
+
+		CONFIG_VIDEO_SED13806 
+                Enable Epson SED13806 driver. This driver supports 8bpp
+		and 16bpp modes defined by CONFIG_VIDEO_SED13806_8BPP
+		or CONFIG_VIDEO_SED13806_16BPP
+
 
 - LCD Support:	CONFIG_LCD
 

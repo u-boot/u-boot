@@ -250,8 +250,9 @@ NXTARG:		;
 	 */
 	if (xflag) {
 		if (ep != addr + sizeof(image_header_t)) {
-			fprintf (stderr, "%s: For XIP, the entry point must be the load addr + %d\n",
-				cmdname, sizeof(image_header_t));
+			fprintf (stderr, "%s: For XIP, the entry point must be the load addr + %lu\n",
+				cmdname,
+				(unsigned long)sizeof(image_header_t));
 			exit (EXIT_FAILURE);
 		}
 	}

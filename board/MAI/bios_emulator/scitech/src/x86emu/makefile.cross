@@ -30,6 +30,9 @@
 #
 #############################################################################
 
+CC = $(CROSS_COMPILE)gcc
+AR = $(CROSS_COMPILE)ar
+
 TARGETLIB = libx86emu.a
 TARGETDEBUGLIB =libx86emud.a
 
@@ -54,26 +57,26 @@ DEBUGOBJS=debug.d \
 all: $(TARGETLIB) $(TARGETDEBUGLIB)
 
 $(TARGETLIB): $(OBJS)
-	ppc-elf32-ar rv $(TARGETLIB) $(OBJS)
+	$(AR) rv $(TARGETLIB) $(OBJS)
 
 $(TARGETDEBUGLIB): $(DEBUGOBJS)
-	ppc-elf32-ar rv $(TARGETDEBUGLIB) $(DEBUGOBJS)
+	$(AR) rv $(TARGETDEBUGLIB) $(DEBUGOBJS)
 
 INCS   = -I. -Ix86emu -I../../include
 CFLAGS = -D__DRIVER__ -DFORCE_POST -D_CEXPORT= -DNO_LONG_LONG -Dprintk=printf -fsigned-char  -fomit-frame-pointer -mrelocatable -ffixed-r14 -meabi -mrelocatable -ffixed-r14 -meabi
 CDEBUGFLAGS = -DDEBUG
 
 .c.o:
-	ppc-elf32-gcc -g -O2 -Wall -c $(CFLAGS) $(INCS) $*.c
+	$(CC) -g -O2 -Wall -c $(CFLAGS) $(INCS) $*.c
 
 .c.d:
-	ppc-elf32-gcc -g -O2 -Wall -c -o$*.d $(CFLAGS) $(CDEBUGFLAGS) $(INCS) $*.c
+	$(CC) -g -O2 -Wall -c -o$*.d $(CFLAGS) $(CDEBUGFLAGS) $(INCS) $*.c
 
 .cpp.o:
-	ppc-elf32-gcc -c $(CFLAGS) $(INCS) $*.cpp
+	$(CC) -c $(CFLAGS) $(INCS) $*.cpp
 
 clean:
 	rm -f *.a *.o *.d
 
 validate:	validate.o libx86emu.a
-	ppc-elf32-gcc -o validate validate.o -lx86emu -L.
+	$(CC) -o validate validate.o -lx86emu -L.

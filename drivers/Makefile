@@ -31,7 +31,7 @@ OBJS	= 3c589.o 5701rls.o bcm570x.o bcm570x_autoneg.o \
 	  cfb_console.o cs8900.o dc2114x.o eepro100.o \
 	  i8042.o natsemi.o ns16550.o ns8382x.o ns87308.o \
 	  pci.o pci_auto.o pci_indirect.o \
-	  pcnet.o serial.o \
+	  pcnet.o sed13806.o serial.o \
 	  smc91111.o smiLynxEM.o sym53c8xx.o \
 	  tigon3.o w83c553f.o ct69000.o
 

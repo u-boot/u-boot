@@ -47,12 +47,26 @@
 #undef	CONFIG_8xx_CONS_NONE
 #define CONFIG_BAUDRATE		9600	/* console baudrate = 9600bps	*/
 
-
 /* Define CONFIG_FEC_ENET to use Fast ethernet instead of ethernet on SCC1   */
-#undef CONFIG_FEC_ENET
+#define CONFIG_FEC_ENET
 #ifdef CONFIG_FEC_ENET
 #define CFG_DISCOVER_PHY        1
+#define CONFIG_MII              1
 #endif /* CONFIG_FEC_ENET */
+
+/* Video console (graphic: Epson SED13806 on ECCX board, no keyboard         */
+#if 1
+#define CONFIG_VIDEO_SED13806
+#define CONFIG_NEC_NL6448BC20
+#define CONFIG_VIDEO_SED13806_16BPP
+
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_VIDEO_BMP_LOGO
+#define CONFIG_CONSOLE_EXTRA_INFO
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_VIDEO_SW_CURSOR
+#endif
 
 #if 0
 #define CONFIG_BOOTDELAY	-1	/* autoboot disabled		*/
@@ -168,7 +182,7 @@
 #define	CFG_SDRAM_BASE		0x00000000
 #define CFG_FLASH_BASE	0xFF000000
 
-#if defined(DEBUG) || (CONFIG_COMMANDS & CFG_CMD_IDE)
+#if defined(DEBUG) || defined (CONFIG_VIDEO_SED13806) || (CONFIG_COMMANDS & CFG_CMD_IDE) 
 #define	CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
 #else
 #define	CFG_MONITOR_LEN		(128 << 10)	/* Reserve 128 kB for Monitor	*/
@@ -196,7 +210,8 @@
 #if 0
 #define	CFG_ENV_IS_IN_FLASH	1
 #define	CFG_ENV_OFFSET		0x20000	/*   Offset   of Environment Sector  */
-#define	CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector  */
+#define CFG_ENV_SECT_SIZE       0x8000
+#define	CFG_ENV_SIZE		0x8000	/* Total Size of Environment Sector  */
 #else
 #define CFG_ENV_IS_IN_NVRAM     1
 #define CFG_ENV_ADDR            0xfa000100
@@ -352,6 +367,48 @@
 #define CFG_OR3_PRELIM	0xff7f8970
 #define	CFG_BR4_PRELIM	0xFA000401		/* NVRAM&SRAM */
 #define CFG_OR4_PRELIM	0xFFF80970
+
+/* ECCX CS settings                                                          */
+#define SED13806_OR             0xFFC00108     /* - 4 Mo
+                                                   - Burst inhibit
+                                                   - external TA             */
+#define SED13806_REG_ADDR       0xa0000000
+#define SED13806_ACCES          0x801           /* 16 bit access             */
+
+
+/* Global definitions for the ECCX board                                     */
+#define ECCX_CSR_ADDR           (0xfac00000)
+#define ECCX_CSR8_OFFSET        (0x8)
+#define ECCX_CSR11_OFFSET       (0xB)
+#define ECCX_CSR12_OFFSET       (0xC)
+
+#define ECCX_CSR8  (volatile unsigned char *)(ECCX_CSR_ADDR + ECCX_CSR8_OFFSET)
+#define ECCX_CSR11 (volatile unsigned char *)(ECCX_CSR_ADDR + ECCX_CSR11_OFFSET)
+#define ECCX_CSR12 (volatile unsigned char *)(ECCX_CSR_ADDR + ECCX_CSR12_OFFSET)
+
+
+#define REG_GPIO_CTRL 0x008
+
+/* Definitions for CSR8                                                      */
+#define ECCX_ENEPSON            0x80    /* Bit 0:
+                                           0= disable and reset SED1386
+                                           1= enable SED1386                 */
+/* Bit 1:   0= SED1386 in Big Endian mode                                    */
+/*          1= SED1386 in little endian mode                                 */
+#define ECCX_LE                 0x40
+#define ECCX_BE                 0x00
+
+/* Bit 2,3: Selection                                                        */
+/*      00 = Disabled                                                        */
+/*      01 = CS2 is used for the SED1386                                     */
+/*      10 = CS5 is used for the SED1386                                     */
+/*      11 = reserved                                                        */
+#define ECCX_CS2                0x10
+#define ECCX_CS5                0x20
+
+/* Definitions for CSR12                                                     */
+#define ECCX_ID                 0x02
+#define ECCX_860                0x01
 
 /*
  * Memory Periodic Timer Prescaler

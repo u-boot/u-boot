@@ -99,7 +99,7 @@ int	drv_lcd_init (void);
 #ifdef CONFIG_VFD
 int	drv_vfd_init (void);
 #endif
-#ifdef CONFIG_VIDEO
+#if defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE)
 int	drv_video_init (void);
 #endif
 #ifdef CONFIG_WL_4PPM_KEYBOARD

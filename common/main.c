@@ -21,6 +21,8 @@
  * MA 02111-1307 USA
  */
 
+/* #define	DEBUG	*/
+
 #include <common.h>
 #include <watchdog.h>
 #include <command.h>
@@ -304,9 +306,7 @@ void main_loop (void)
 	s = getenv ("bootdelay");
 	bootdelay = s ? (int)simple_strtol(s, NULL, 10) : CONFIG_BOOTDELAY;
 
-#if 0
-	printf ("### main_loop entered:\n\n");
-#endif
+	debug ("### main_loop entered: bootdelay=%d\n\n", bootdelay);
 
 # ifdef CONFIG_BOOT_RETRY_TIME
 	s = getenv ("bootretry");
@@ -319,6 +319,9 @@ void main_loop (void)
 # endif	/* CONFIG_BOOT_RETRY_TIME */
 
 	s = getenv ("bootcmd");
+
+	debug ("### main_loop: bootcmd=\"%s\"\n", s ? s : "<UNDEFINED>");
+
 	if (bootdelay >= 0 && s && !abortboot (bootdelay)) {
 # ifdef CONFIG_AUTOBOOT_KEYED
 		int prev = disable_ctrlc(1);	/* disable Control C checking */
@@ -337,11 +340,9 @@ void main_loop (void)
 	}
 
 # ifdef CONFIG_MENUKEY
-	if (menukey == CONFIG_MENUKEY)
-	{
+	if (menukey == CONFIG_MENUKEY) {
 	    s = getenv("menucmd");
-	    if (s)
-	    {
+	    if (s) {
 # ifndef CFG_HUSH_PARSER
 		run_command (s, bd, 0);
 # else

@@ -60,6 +60,12 @@ static void udelay_no_timer (int usec)
 
 int board_init ()
 {
+#if defined(CONFIG_MODEM_SUPPORT) && defined(CONFIG_VFD)
+	ulong size;
+	unsigned long addr;
+	extern void mem_malloc_init (ulong);
+	extern int drv_vfd_init(void);
+#endif
 	DECLARE_GLOBAL_DATA_PTR;
 
 	/* memory and cpu-speed are setup before relocation */
@@ -102,25 +108,24 @@ int board_init ()
 	gd->bd->bi_boot_params = 0x0c000100;
 
 #ifdef CONFIG_MODEM_SUPPORT
-	/* This stuff is needed by the CPLD to read keyboard data.
-	 * (Copied from the LCD initialization routine.)
-	 */
-	if (rLCDCON1 == 0) {
-		extern void init_grid_ctrl(void);
-
-		rPCCON = (rPCCON & 0xFFFFFF00)| 0x000000AA;
-		rPDCON = (rPDCON & 0xFFFFFF03)| 0x000000A8;
-#if 0
-		rPDCON = (rPDCON & 0xFFFFFF00)| 0x000000AA;
+#ifdef CONFIG_VFD
+#ifndef PAGE_SIZE
+#define PAGE_SIZE 4096
 #endif
-		rLCDCON2 = 0x000DC000;
-		rLCDCON3 = 0x0051000A;
-		rLCDCON4 = 0x00000001;
-		rLCDCON5 = 0x00000440;
-		rLCDCON1 = 0x00000B75;
-
-		init_grid_ctrl();
-	}
+	/*
+	 * reserve memory for VFD display (always full pages)
+	 */
+	/* armboot_real_end is defined in the board-specific linker script */
+	addr = (_armboot_real_end + (PAGE_SIZE - 1)) & ~(PAGE_SIZE - 1);
+	size = vfd_setmem (addr);
+	gd->fb_base = addr;
+	/* round to the next page boundary */
+	addr += size;
+	addr = (addr + (PAGE_SIZE - 1)) & ~(PAGE_SIZE - 1);
+	mem_malloc_init (addr);
+	/* must do this after the framebuffer is allocated */
+	drv_vfd_init();
+#endif /* CONFIG_VFD */
 
 	udelay_no_timer (KBD_MDELAY);
 

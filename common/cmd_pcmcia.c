@@ -2062,7 +2062,7 @@ static int hardware_enable(int slot)
 	/*
 	 * Power On.
 	 */
-	printf("\n Slot %c:", 'A' + slot);
+	printf("%s  Slot %c:", slot ? "" : "\n", 'A' + slot);
 	mask = PCMCIA_VS1(slot) | PCMCIA_VS2(slot);
 	reg  = pcmp->pcmc_pipr;
 	debug ("PIPR: 0x%x ==> VS1=o%s, VS2=o%s\n",

@@ -339,8 +339,13 @@ void transfer_pic(int display, unsigned char *adr, int height, int width)
 int drv_vfd_init(void)
 {
 	ulong palette;
+	static int vfd_init_done = 0;
 
 	DECLARE_GLOBAL_DATA_PTR;
+
+	if (vfd_init_done != 0)
+		return;
+	vfd_init_done = 1;
 
 	vfdbase = gd->fb_base;
 	create_vfd_table();

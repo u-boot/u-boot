@@ -2,6 +2,12 @@
 Changes since for U-Boot 0.1.0:
 ======================================================================
 
+* Fix startup problems with VFD display on TRAB
+
+* Patch by Pierre Aubert, 20 Nov 2002
+  Add driver for Epson SED13806 graphic controller.
+  Add support for BMP logos in cfb_console driver.
+
 * Added support for both PCMCIA slots (at the same time!) on MPC8xx
 
 * Patch by Rod Boyce, 21 Nov 2002:

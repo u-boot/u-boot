@@ -65,6 +65,7 @@
  CONFIG_CONSOLE_TIME         - display time/date in upper right corner,
                                needs CFG_CMD_DATE and CONFIG_CONSOLE_CURSOR
  CONFIG_VIDEO_LOGO           - display Linux Logo in upper left corner
+ CONFIG_VIDEO_BMP_LOGO       - use bmp_logo instead of linux_logo
  CONFIG_CONSOLE_EXTRA_INFO   - display additional board information strings
                                that normaly goes to serial port. This define
                                requires a board specific function:
@@ -93,6 +94,8 @@ CONFIG_VIDEO_HW_CURSOR:      - Uses the hardware cursor capability of the
 
 #ifdef CONFIG_CFB_CONSOLE
 
+#include <malloc.h>
+
 /*****************************************************************************/
 /* Console device defines with SMI graphic                                   */
 /* Any other graphic must change this section                                */
@@ -109,6 +112,16 @@ CONFIG_VIDEO_HW_CURSOR:      - Uses the hardware cursor capability of the
 /* Defines for the CT69000 driver                                            */
 /*****************************************************************************/
 #ifdef  CONFIG_VIDEO_CT69000
+
+#define VIDEO_FB_LITTLE_ENDIAN
+#define VIDEO_HW_RECTFILL
+#define VIDEO_HW_BITBLT
+#endif
+
+/*****************************************************************************/
+/* Defines for the SED13806 driver                                           */
+/*****************************************************************************/
+#ifdef CONFIG_VIDEO_SED13806
 
 #define VIDEO_FB_LITTLE_ENDIAN
 #define VIDEO_HW_RECTFILL
@@ -217,6 +230,14 @@ void    console_cursor (int state);
 #endif  /* CONFIG_VIDEO_HW_CURSOR */
 
 #ifdef  CONFIG_VIDEO_LOGO
+#ifdef  CONFIG_VIDEO_BMP_LOGO
+#include <bmp_logo.h>
+#define VIDEO_LOGO_WIDTH        BMP_LOGO_WIDTH
+#define VIDEO_LOGO_HEIGHT       BMP_LOGO_HEIGHT
+#define VIDEO_LOGO_LUT_OFFSET   BMP_LOGO_OFFSET
+#define VIDEO_LOGO_COLORS       BMP_LOGO_COLORS
+
+#else   /* CONFIG_VIDEO_BMP_LOGO */
 #define LINUX_LOGO_WIDTH        80
 #define LINUX_LOGO_HEIGHT       80
 #define LINUX_LOGO_COLORS       214
@@ -225,13 +246,15 @@ void    console_cursor (int state);
 #include <linux_logo.h>
 #define VIDEO_LOGO_WIDTH        LINUX_LOGO_WIDTH
 #define VIDEO_LOGO_HEIGHT       LINUX_LOGO_HEIGHT
-
+#define VIDEO_LOGO_LUT_OFFSET   LINUX_LOGO_LUT_OFFSET
+#define VIDEO_LOGO_COLORS       LINUX_LOGO_COLORS
+#endif  /* CONFIG_VIDEO_BMP_LOGO */
 #define VIDEO_INFO_X            (VIDEO_LOGO_WIDTH)
 #define VIDEO_INFO_Y            (VIDEO_FONT_HEIGHT/2)
-#else
+#else   /* CONFIG_VIDEO_LOGO */
 #define VIDEO_LOGO_WIDTH        0
 #define VIDEO_LOGO_HEIGHT       0
-#endif
+#endif  /* CONFIG_VIDEO_LOGO */
 
 #define VIDEO_COLS              VIDEO_VISIBLE_COLS
 #define VIDEO_ROWS              VIDEO_VISIBLE_ROWS
@@ -463,11 +486,7 @@ static inline void video_drawstring(int xx, int yy, unsigned char *s)
 
 static void video_putchar(int xx, int yy, unsigned char c)
 {
-#ifdef CONFIG_VIDEO_LOGO
     video_drawchars (xx, yy + VIDEO_LOGO_HEIGHT, &c, 1);
-#else
-    video_drawchars (xx, yy, &c, 1);
-#endif
 }
 
 /*****************************************************************************/
@@ -676,83 +695,107 @@ void video_puts (const char *s)
 #ifdef CONFIG_VIDEO_LOGO
 void logo_plot (void *screen, int width, int x, int y)
 {
-    int skip = (width - LINUX_LOGO_WIDTH) * VIDEO_PIXEL_SIZE,
-        xcount, i,
-        ycount = LINUX_LOGO_HEIGHT;
-    unsigned char
-        *source = linux_logo,
-        *dest   = (unsigned char *) screen + ((y * width * VIDEO_PIXEL_SIZE) + x),
-        r, g, b;
 
+    int skip = (width - VIDEO_LOGO_WIDTH) * VIDEO_PIXEL_SIZE,
+        xcount, i,
+        ycount = VIDEO_LOGO_HEIGHT;
+    unsigned char
+        *source,
+        *dest   = (unsigned char *) screen + ((y * width * VIDEO_PIXEL_SIZE) + x),
+        r, g, b, *logo_red, *logo_blue, *logo_green;
+
+#ifdef CONFIG_VIDEO_BMP_LOGO
+    source = bmp_logo_bitmap;
+    
+    /* Allocate temporary space for computing colormap                       */
+    logo_red = malloc (BMP_LOGO_COLORS);
+    logo_green = malloc (BMP_LOGO_COLORS);
+    logo_blue = malloc (BMP_LOGO_COLORS);
+    /* Compute color map                                                     */
+    for (i = 0; i < VIDEO_LOGO_COLORS; i++) {
+        logo_red [i] = (bmp_logo_palette [i] & 0x0f00) >> 4;
+        logo_green [i] = (bmp_logo_palette [i] & 0x00f0);
+        logo_blue [i] = (bmp_logo_palette [i] & 0x000f) << 4;
+    }
+#else
+    source = linux_logo;
+    logo_red = linux_logo_red;
+    logo_green = linux_logo_green;
+    logo_blue = linux_logo_blue;
+#endif
+    
     if (VIDEO_DATA_FORMAT == GDF__8BIT_INDEX)
     {
-        for (i = 0; i < LINUX_LOGO_COLORS; i++)
+        for (i = 0; i < VIDEO_LOGO_COLORS; i++)
         {
-            r = (unsigned char)linux_logo_red  [i];
-            g = (unsigned char)linux_logo_green[i];
-            b = (unsigned char)linux_logo_blue [i];
-            video_set_lut (LINUX_LOGO_LUT_OFFSET + i, r, g, b);
+            video_set_lut (i + VIDEO_LOGO_LUT_OFFSET,
+                           logo_red [i], logo_green [i], logo_blue [i]);
         }
     }
 
     while (ycount--)
     {
-    xcount = LINUX_LOGO_WIDTH;
-    while (xcount--)
-    {
-        r = (unsigned char)linux_logo_red  [*source - LINUX_LOGO_LUT_OFFSET];
-        g = (unsigned char)linux_logo_green[*source - LINUX_LOGO_LUT_OFFSET];
-        b = (unsigned char)linux_logo_blue [*source - LINUX_LOGO_LUT_OFFSET];
-
-        switch (VIDEO_DATA_FORMAT)
+        xcount = VIDEO_LOGO_WIDTH;
+        while (xcount--)
         {
-        case GDF__8BIT_INDEX:
-            *dest = *source;
-            break;
-        case GDF__8BIT_332RGB:
-            *dest = ((r>>5)<<5) | ((g>>5)<<2) | (b>>6);
-            break;
-        case GDF_15BIT_555RGB:
-            *(unsigned short *)dest =
-            SWAP16((unsigned short)(((r>>3)<<10) | ((g>>3)<<5) | (b>>3)));
-            break;
-        case GDF_16BIT_565RGB:
-            *(unsigned short *)dest =
-            SWAP16((unsigned short)(((r>>3)<<11) | ((g>>2)<<5) | (b>>3)));
-            break;
-        case GDF_32BIT_X888RGB:
-            *(unsigned long  *)dest =
-            SWAP32((unsigned long)((r<<16) | (g<<8) | b));
-            break;
-        case GDF_24BIT_888RGB:
+            r = logo_red [*source - VIDEO_LOGO_LUT_OFFSET];
+            g = logo_green [*source - VIDEO_LOGO_LUT_OFFSET];
+            b = logo_blue [*source - VIDEO_LOGO_LUT_OFFSET];
+            
+            switch (VIDEO_DATA_FORMAT)
+            {
+            case GDF__8BIT_INDEX:
+                *dest = *source;
+                break;
+            case GDF__8BIT_332RGB:
+                *dest = ((r>>5)<<5) | ((g>>5)<<2) | (b>>6);
+                break;
+            case GDF_15BIT_555RGB:
+                *(unsigned short *)dest =
+                    SWAP16((unsigned short)(((r>>3)<<10) | ((g>>3)<<5) | (b>>3)));
+                break;
+            case GDF_16BIT_565RGB:
+                *(unsigned short *)dest =
+                    SWAP16((unsigned short)(((r>>3)<<11) | ((g>>2)<<5) | (b>>3)));
+                break;
+            case GDF_32BIT_X888RGB:
+                *(unsigned long  *)dest =
+                    SWAP32((unsigned long)((r<<16) | (g<<8) | b));
+                break;
+            case GDF_24BIT_888RGB:
 #ifdef VIDEO_FB_LITTLE_ENDIAN
-            dest[0] = b;
-            dest[1] = g;
-            dest[2] = r;
+                dest[0] = b;
+                dest[1] = g;
+                dest[2] = r;
 #else
-            dest[0] = r;
-            dest[1] = g;
-            dest[2] = b;
+                dest[0] = r;
+                dest[1] = g;
+                dest[2] = b;
 #endif
-            break;
+                break;
+            }
+            source++;
+            dest += VIDEO_PIXEL_SIZE;
         }
-        source++;
-        dest += VIDEO_PIXEL_SIZE;
+        dest += skip;
     }
-    dest += skip;
-    }
+#ifdef CONFIG_VIDEO_BMP_LOGO
+    free (logo_red);
+    free (logo_green);
+    free (logo_blue);
+#endif
 }
-
 
 /*****************************************************************************/
 
 static void *video_logo (void)
 {
     char info[128];
+    extern char version_string;
 
     logo_plot (video_fb_address, VIDEO_COLS, 0, 0);
 
-    sprintf(info, " %s (%s - %s)", U_BOOT_VERSION, __DATE__, __TIME__);
+    sprintf(info, " %s", &version_string);
     video_drawstring (VIDEO_INFO_X, VIDEO_INFO_Y, info);
 
 #ifdef CONFIG_CONSOLE_EXTRA_INFO
