@@ -2,6 +2,11 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Dan Poirot, 06 Jul 2004:
+  Fix sbc8260 environment variables
+
+* Cleanup redundand "console" environment variable
+
 * Patch by Mark Jonas, 05 Jul 2004:
   add support for the Total5100's and Total5200's LCD screen
 

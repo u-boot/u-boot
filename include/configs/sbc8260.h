@@ -352,7 +352,7 @@
  *
  */
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"serverip=192.168.123.205\0\0" \
+	"serverip=192.168.123.205\0" \
 	"ipaddr=192.168.123.213\0" \
 	"reprog="\
 		"bootp;" \

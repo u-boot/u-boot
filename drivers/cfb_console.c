@@ -1177,11 +1177,6 @@ int drv_video_init (void)
 	if (video_init () == -1)
 		skip_dev_init = 1;
 
-	/* Force console i/o to serial ? */
-	if ((penv = getenv ("console")) != NULL)
-		if (strcmp (penv, "serial") == 0)
-			return 0;
-
 #ifdef CONFIG_VGA_AS_SINGLE_DEVICE
 	/* Devices VGA and Keyboard will be assigned seperately */
 	/* Init vga device */
@@ -1206,7 +1201,7 @@ int drv_video_init (void)
 	/* Init console device */
 	if (!skip_dev_init) {
 		memset (&console_dev, 0, sizeof (console_dev));
-		strcpy (console_dev.name, "console");
+		strcpy (console_dev.name, "vga");
 		console_dev.ext = DEV_EXT_VIDEO;	/* Video extensions */
 		console_dev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_INPUT | DEV_FLAGS_SYSTEM;
 		console_dev.putc = video_putc;	/* 'putc' function */

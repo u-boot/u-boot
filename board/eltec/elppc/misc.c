@@ -250,10 +250,6 @@ int misc_init_r (void)
 		 eerev.etheraddr[4], eerev.etheraddr[5]);
 	setenv ("ethaddr", buf);
 
-	/* set serial console as default */
-	if ((ptr = getenv ("console")) == NULL)
-		setenv ("console", "serial");
-
 	/* print actual board identification */
 	printf ("Ident: %s  Ser %s  Rev %c%c\n",
 		eerev.board, (char *) &eerev.serial,

@@ -328,12 +328,6 @@ int drv_phone_init(void)
 	device_t console_dev;
 	char *penv;
 
-	/*
-	 * Force console i/o to serial ?
-	 */
-	if ((penv = getenv("console")) != NULL && strcmp(penv, "serial") == 0)
-		return 0;
-
 	console_init();
 
 	memset(&console_dev, 0, sizeof(console_dev));
