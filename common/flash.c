@@ -21,6 +21,8 @@
  * MA 02111-1307 USA
  */
 
+/* #define DEBUG */
+
 #include <common.h>
 #include <flash.h>
 
@@ -44,6 +46,11 @@ flash_protect (int flag, ulong from, ulong to, flash_info_t *info)
 	ulong b_end = info->start[0] + info->size - 1;	/* bank end address */
 	short s_end = info->sector_count - 1;	/* index of last sector */
 	int i;
+
+	debug ("flash_protect %s: from 0x%08lX to 0x%08lX\n",
+		(flag & FLAG_PROTECT_SET) ? "ON" :
+			(flag & FLAG_PROTECT_CLEAR) ? "OFF" : "???",
+		from, to);
 
 	/* Do nothing if input data is bad. */
 	if (info->sector_count == 0 || info->size == 0 || to < from) {
@@ -73,6 +80,7 @@ flash_protect (int flag, ulong from, ulong to, flash_info_t *info)
 #else
 				info->protect[i] = 0;
 #endif	/* CFG_FLASH_PROTECTION */
+				debug ("protect off %d\n", i);
 			}
 			else if (flag & FLAG_PROTECT_SET) {
 #if defined(CFG_FLASH_PROTECTION)
@@ -80,6 +88,7 @@ flash_protect (int flag, ulong from, ulong to, flash_info_t *info)
 #else
 				info->protect[i] = 1;
 #endif	/* CFG_FLASH_PROTECTION */
+				debug ("protect on %d\n", i);
 			}
 		}
 	}

@@ -286,16 +286,8 @@ static int mpc5xxx_fec_init(struct eth_device *dev, bd_t * bis)
 		fec->eth->r_cntrl = 0x05ee0024;	/*0x05ee0004;FIXME */
 	}
 
-	if (fec->xcv_type == SEVENWIRE) {
-		/*
-		 * Set FEC-Lite transmit control register(X_CNTRL):
-		 */
-		/*fec->eth->x_cntrl = 0x00000002; */  /* half-duplex, heartbeat */
-		fec->eth->x_cntrl = 0x00000000;	/* half-duplex, heartbeat disabled */
-	} else {
-		/*fec->eth->x_cntrl = 0x00000006; */  /* full-duplex, heartbeat */
-		fec->eth->x_cntrl = 0x00000004;	/* full-duplex, heartbeat disabled */
-
+	fec->eth->x_cntrl = 0x00000000;	/* half-duplex, heartbeat disabled */
+	if (fec->xcv_type != SEVENWIRE) {
 		/*
 		 * Set MII_SPEED = (1/(mii_speed * 2)) * System Clock
 		 * and do not drop the Preamble.
@@ -485,7 +477,7 @@ static int mpc5xxx_fec_init(struct eth_device *dev, bd_t * bis)
 #endif
 					return -1;
 				}
-			} while ((phyStatus & 0x0020) != 0x0020);
+			} while (!(phyStatus & 0x0004));
 
 #if (DEBUG & 0x2)
 			printf("PHY auto neg complete! \n");

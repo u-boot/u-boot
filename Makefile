@@ -187,7 +187,7 @@ endif
 #########################################################################
 
 unconfig:
-	rm -f include/config.h include/config.mk
+	rm -f include/config.h include/config.mk board/*/config.tmp
 
 #========================================================================
 # PowerPC
@@ -1231,7 +1231,7 @@ clean:
 	rm -f tools/gdb/astest tools/gdb/gdbcont tools/gdb/gdbsend
 	rm -f tools/env/fw_printenv tools/env/fw_setenv
 	rm -f board/cray/L1/bootscript.c board/cray/L1/bootscript.image
-	rm -f board/trab/trab_fkt board/*/config.tmp
+	rm -f board/trab/trab_fkt
 
 clobber:	clean
 	find . -type f \

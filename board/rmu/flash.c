@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000
+ * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -20,6 +20,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
+
+/* #define DEBUG */
 
 #include <common.h>
 #include <mpc8xx.h>
@@ -49,28 +51,35 @@ unsigned long flash_init (void)
 	}
 
 	/* Static FLASH Bank configuration here - FIXME XXX */
+
+	debug ("\n## Get flash bank size @ 0x%08x\n", FLASH_BASE_PRELIM);
+
 	size_b0 = flash_get_size((vu_long *)FLASH_BASE_PRELIM, &flash_info[0]);
 	if (flash_info[0].flash_id == FLASH_UNKNOWN) {
 		printf ("## Unknown FLASH on Bank 0 - Size = 0x%08lx = %ld MB\n",
 			size_b0, size_b0<<20);
 	}
 
+	debug  ("## Before remap:  BR0: 0x%08x    OR0: 0x%08x\n",
+		memctl->memc_br0, memctl->memc_or0);
+
 	/* Remap FLASH according to real size */
 	memctl->memc_or0 = CFG_OR_TIMING_FLASH | (-size_b0 & 0xFFFF8000);
 	memctl->memc_br0 = (CFG_FLASH_BASE & BR_BA_MSK) | BR_MS_GPCM | BR_V;
+
+	debug ("## BR0: 0x%08x    OR0: 0x%08x\n",
+		memctl->memc_br0, memctl->memc_or0);
 
 	/* Re-do sizing to get full correct info */
 
 	size_b0 = flash_get_size((vu_long *)CFG_FLASH_BASE, &flash_info[0]);
 	flash_get_offsets (CFG_FLASH_BASE, &flash_info[0]);
 
-#if CFG_MONITOR_BASE >= CFG_FLASH_BASE
 	/* monitor protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
 		      CFG_MONITOR_BASE,
 		      CFG_MONITOR_BASE+monitor_flash_len-1,
 		      &flash_info[0]);
-#endif
 
 #ifdef	CFG_ENV_IS_IN_FLASH
 	/* ENV protection ON by default */
@@ -80,7 +89,20 @@ unsigned long flash_init (void)
 		      &flash_info[0]);
 #endif
 
+#if defined(CFG_ENV_ADDR_REDUND) || defined(CFG_ENV_OFFSET_REDUND)
+	debug ("Protect redundand environment: %08lx ... %08lx\n",
+		(ulong)CFG_ENV_ADDR_REDUND,
+		(ulong)CFG_ENV_ADDR_REDUND + CFG_ENV_SIZE - 1);
+
+	flash_protect(FLAG_PROTECT_SET,
+		      CFG_ENV_ADDR_REDUND,
+		      CFG_ENV_ADDR_REDUND + CFG_ENV_SIZE_REDUND - 1,
+		      &flash_info[0]);
+#endif
+
 	flash_info[0].size = size_b0;
+
+	debug ("## Final Flash bank size: %08lx\n", size_b0);
 
 	return (size_b0);
 }
@@ -192,6 +214,8 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 
 	value = addr[0] ;
 
+	debug ("Manuf. ID @ 0x%08lx: 0x%08lx\n", (ulong)addr, value);
+
 	switch (value & 0x00FF00FF) {
 	case AMD_MANUFACT:
 		info->flash_id = FLASH_MAN_AMD;
@@ -207,6 +231,8 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 	}
 
 	value = addr[2] ;		/* device ID		*/
+
+	debug ("Device ID @ 0x%08lx: 0x%08lx\n", (ulong)(&addr[1]), value);
 
 	switch (value & 0x00FF00FF) {
 	case (AMD_ID_LV400T & 0x00FF00FF):
@@ -244,25 +270,22 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 		info->sector_count = 35;
 		info->size = 0x00800000;
 		break;				/* => 8 MB		*/
-#if 0	/* enable when device IDs are available */
-	case AMD_ID_LV320T:
+	case (AMD_ID_LV320T & 0x00FF00FF):
 		info->flash_id += FLASH_AM320T;
 		info->sector_count = 67;
 		info->size = 0x00800000;
 		break;				/* => 8 MB		*/
 
-	case AMD_ID_LV320B:
+	case (AMD_ID_LV320B & 0x00FF00FF):
 		info->flash_id += FLASH_AM320B;
 		info->sector_count = 67;
 		info->size = 0x01000000;
 		break;				/* => 16 MB		*/
-#endif
 	default:
 		info->flash_id = FLASH_UNKNOWN;
 		return (0);			/* => no or unknown flash */
 
 	}
-	/*%%% sector start address modified */
 	/* set up sector start address table */
 	if (info->flash_id & FLASH_BTYPE) {
 		/* set sector offsets for bottom boot block type	*/
@@ -313,6 +336,8 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 	vu_long *addr = (vu_long*)(info->start[0]);
 	int flag, prot, sect, l_sect;
 	ulong start, now, last;
+
+	debug ("flash_erase: first: %d last: %d\n", s_first, s_last);
 
 	if ((s_first < 0) || (s_first > s_last)) {
 		if (info->flash_id == FLASH_UNKNOWN) {

@@ -232,7 +232,10 @@
  * Ethernet configuration
  */
 #define CONFIG_MPC5xxx_FEC	1
-#define CONFIG_FEC_10MBIT 1 /* Workaround for FEC 100Mbit problem */
+/* 
+ * Define CONFIG_FEC_10MBIT to force FEC at 10Mb
+ */
+/* #define CONFIG_FEC_10MBIT 1 */
 #define CONFIG_PHY_ADDR		0x00
 
 /*
@@ -278,10 +281,10 @@
 
 #ifdef CONFIG_MPC5200_DDR
 
-#define CFG_BOOTCS_START	0xFF800000
+#define CFG_BOOTCS_START	(CFG_CS1_START + CFG_CS1_SIZE)
 #define CFG_BOOTCS_SIZE		0x00800000
 #define CFG_BOOTCS_CFG		0x00047801
-#define CFG_CS1_START		0xFF000000
+#define CFG_CS1_START		CFG_FLASH_BASE
 #define CFG_CS1_SIZE		0x00800000
 #define CFG_CS1_CFG		0x00047800
 

@@ -49,8 +49,6 @@
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 #endif
 
-#define	CONFIG_CLOCKS_IN_MHZ	1	/* clocks passsed to Linux in MHz */
-
 #undef	CONFIG_BOOTARGS
 #define CONFIG_BOOTCOMMAND							\
 	"bootp; " 								\
@@ -151,15 +149,13 @@
  * Please note that CFG_SDRAM_BASE _must_ start at 0
  */
 #define	CFG_SDRAM_BASE		0x00000000
-#define CFG_FLASH_BASE	0xFF800000
-/*%%% #define CFG_FLASH_BASE		0xFFF00000 */
+#define CFG_FLASH_BASE		(0-flash_info[0].size)	/* Put flash at end	*/
 #if defined(DEBUG) || (CONFIG_COMMANDS & CFG_CMD_IDE)
 #define	CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
 #else
 #define	CFG_MONITOR_LEN		(128 << 10)	/* Reserve 128 kB for Monitor	*/
 #endif
-#define CFG_MONITOR_BASE	0xFFF00000
-/*%%% #define CFG_MONITOR_BASE	CFG_FLASH_BASE */
+#define CFG_MONITOR_BASE	TEXT_BASE
 #define	CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
 
 /*
@@ -173,18 +169,17 @@
  * FLASH organization
  */
 #define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	35	/* max number of sectors on one chip	*/
+#define CFG_MAX_FLASH_SECT	67	/* max number of sectors on one chip	*/
 
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
 #define	CFG_ENV_IS_IN_FLASH	1
-#define	CFG_ENV_OFFSET	    0x00740000	/*   Offset   of Environment Sector	*/
+#define CFG_ENV_ADDR		((TEXT_BASE) + 0x40000)
 #define	CFG_ENV_SIZE		0x40000	/* Total Size of Environment Sector	*/
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + CFG_ENV_OFFSET)
 
 /* Address and size of Redundant Environment Sector	*/
-#define CFG_ENV_OFFSET_REDUND	(CFG_ENV_OFFSET+CFG_ENV_SIZE)
+#define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR+CFG_ENV_SIZE)
 #define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
 
 /*-----------------------------------------------------------------------
@@ -317,8 +312,8 @@
  * BR0 and OR0 (FLASH)
  */
 
-#define FLASH_BASE_PRELIM	0xFE000000	/* FLASH base */
-#define CFG_PRELIM_OR_AM	0xFE000000	/* OR addr mask */
+#define FLASH_BASE_PRELIM	0xFC000000	/* FLASH base - up to 64 MB of flash */
+#define CFG_PRELIM_OR_AM	0xFC000000	/* OR addr mask - map 64 MB */
 
 /* FLASH timing: ACS = 0, TRLX = 0, CSNT = 0, SCY = 4, ETHR = 0, BIH = 1 */
 #define CFG_OR_TIMING_FLASH (OR_SCY_4_CLK | OR_BI)
@@ -340,9 +335,13 @@
 #define CFG_BR1_PRELIM	((SDRAM_BASE_PRELIM & BR_BA_MSK) | BR_MS_UPMA | BR_V )
 
 /* RPXLITE mem setting */
-#define	CFG_BR3_PRELIM	0xFA400001		/* BCSR */
+#define CFG_NVRAM_BASE	0xFA000000		/* NVRAM & SRAM base */
+/*      IMMR:		0xFA200000		   IMMR base address - see above */
+#define	CFG_BCSR_BASE	0xFA400000		/* BCSR base address */
+
+#define	CFG_BR3_PRELIM	(CFG_BCSR_BASE | BR_V)			/* BCSR */
 #define CFG_OR3_PRELIM	0xFFFF8910
-#define	CFG_BR4_PRELIM	0xFA000401		/* NVRAM&SRAM */
+#define CFG_BR4_PRELIM  (CFG_NVRAM_BASE | BR_PS_8 | BR_V)	/* NVRAM & SRAM */
 #define CFG_OR4_PRELIM	0xFFFE0970
 
 /*
@@ -381,10 +380,10 @@
  *
  */
 
-#define BCSR0 0xFA400000
-#define BCSR1 0xFA400001
-#define BCSR2 0xFA400002
-#define BCSR3 0xFA400003
+#define BCSR0	(CFG_BCSR_BASE + 0)
+#define BCSR1	(CFG_BCSR_BASE + 1)
+#define BCSR2	(CFG_BCSR_BASE + 2)
+#define BCSR3	(CFG_BCSR_BASE + 3)
 
 #define BCSR0_ENMONXCVR	0x01	/* Monitor XVCR Control */
 #define BCSR0_ENNVRAM	0x02 	/* CS4# Control */

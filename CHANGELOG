@@ -2,6 +2,11 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
+* Patch by Mark Jonas: Remove config.tmp files only when
+  unconfiguring the board
+
+* Adapt RMU board for bigger flash memory
+
 * Patch by Klaus Heydeck, 13 Mar 2003:
   Add support for KUP4X Board
 

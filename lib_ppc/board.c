@@ -84,15 +84,15 @@ void nand_init (void);
 
 static char *failed = "*** failed ***\n";
 
-#if defined(CONFIG_PCU_E) || defined(CONFIG_OXC)
 extern flash_info_t flash_info[];
-#endif
 
 #include <environment.h>
 
-#if ( ((CFG_ENV_ADDR+CFG_ENV_SIZE) < CFG_MONITOR_BASE) || \
-      (CFG_ENV_ADDR >= (CFG_MONITOR_BASE + CFG_MONITOR_LEN)) ) || \
-    defined(CFG_ENV_IS_IN_NVRAM)
+#if defined(CFG_ENV_IS_EMBEDDED)
+#define TOTAL_MALLOC_LEN	CFG_MALLOC_LEN
+#elif ( ((CFG_ENV_ADDR+CFG_ENV_SIZE) < CFG_MONITOR_BASE) || \
+        (CFG_ENV_ADDR >= (CFG_MONITOR_BASE + CFG_MONITOR_LEN)) ) || \
+      defined(CFG_ENV_IS_IN_NVRAM)
 #define	TOTAL_MALLOC_LEN	(CFG_MALLOC_LEN + CFG_ENV_SIZE)
 #else
 #define	TOTAL_MALLOC_LEN	CFG_MALLOC_LEN
@@ -684,10 +684,8 @@ void board_init_r (gd_t *id, ulong dest_addr)
 		s = getenv ("flashchecksum");
 		if (s && (*s == 'y')) {
 			printf ("  CRC: %08lX",
-					crc32 (0,
-						   (const unsigned char *) CFG_FLASH_BASE,
-						   flash_size)
-					);
+				crc32 (0, (const unsigned char *) CFG_FLASH_BASE, flash_size)
+			);
 		}
 		putc ('\n');
 # else	/* !CFG_FLASH_CHECKSUM */
@@ -700,8 +698,9 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 	bd->bi_flashstart = CFG_FLASH_BASE;	/* update start of FLASH memory    */
 	bd->bi_flashsize = flash_size;	/* size of FLASH memory (final value) */
-# if defined(CONFIG_PCU_E) || defined(CONFIG_OXC)
-	bd->bi_flashoffset = 0;
+# if defined(CONFIG_PCU_E) || defined(CONFIG_OXC) || defined(CONFIG_RMU)
+	/* flash mapped at end of memory map */
+	bd->bi_flashoffset = TEXT_BASE + flash_size;
 # elif CFG_MONITOR_BASE == CFG_FLASH_BASE
 	bd->bi_flashoffset = monitor_flash_len;	/* reserved area for startup monitor  */
 # else
@@ -900,8 +899,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	udelay (20);
 
 	set_timer (0);
-
-	/* Insert function pointers now that we have relocated the code */
 
 	/* Initialize from environment */
 	if ((s = getenv ("loadaddr")) != NULL) {

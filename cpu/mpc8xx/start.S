@@ -27,12 +27,12 @@
  *
  *  The processor starts at 0x00000100 and the code is executed
  *  from flash. The code is organized to be at an other address
- *  in memory, but as long we don't jump around before relocating.
+ *  in memory, but as long we don't jump around before relocating,
  *  board_init lies at a quite high address and when the cpu has
  *  jumped there, everything is ok.
  *  This works because the cpu gives the FLASH (CS0) the whole
  *  address space at startup, and board_init lies as a echo of
- *  the flash somewhere up there in the memorymap.
+ *  the flash somewhere up there in the memory map.
  *
  *  board_init will change CS0 to be positioned at the correct
  *  address and (s)dram will be positioned at address 0

@@ -155,6 +155,7 @@ void cpu_init_f (volatile immap_t * immr)
     defined(CONFIG_MHPC)	|| \
     defined(CONFIG_PCU_E)	|| \
     defined(CONFIG_R360MPI)	|| \
+    defined(CONFIG_RMU)		|| \
     defined(CONFIG_RPXCLASSIC)	|| \
     defined(CONFIG_RPXLITE)	|| \
     defined(CONFIG_SPD823TS)
