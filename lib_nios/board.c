@@ -132,12 +132,6 @@ void board_init (void)
 	bd->bi_sramstart= CFG_SRAM_BASE;
 	bd->bi_sramsize	= CFG_SRAM_SIZE;
 	bd->bi_baudrate	= CONFIG_BAUDRATE;
-	bd->bi_ip_addr = getenv_IPaddr ("ipaddr");
-	s = getenv ("ethaddr");
-	for (i = 0; i < 6; ++i) {
-		bd->bi_enetaddr[i] = s ? simple_strtoul (s, &e, 16) : 0;
-		if (s) s = (*e) ? e + 1 : e;
-	}
 
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
 		if ((*init_fnc_ptr) () != 0) {
@@ -150,6 +144,13 @@ void board_init (void)
 	mem_malloc_init();
 	malloc_bin_reloc();
 	env_relocate();
+
+	bd->bi_ip_addr = getenv_IPaddr ("ipaddr");
+	s = getenv ("ethaddr");
+	for (i = 0; i < 6; ++i) {
+		bd->bi_enetaddr[i] = s ? simple_strtoul (s, &e, 16) : 0;
+		if (s) s = (*e) ? e + 1 : e;
+	}
 
 	devices_init();
 	jumptable_init();

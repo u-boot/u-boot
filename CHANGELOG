@@ -2,6 +2,13 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Patch by Stephan Linz, 28 Oct 2003:
+  fix init sequence error for NIOS port
+
+* Allow lowercase spelling for IceCube_5200; support MPC5200LITE name
+
+* Add CONFIG_VERSION_VARIABLE to TRAB configuration
+
 * Patch by Xiao Xianghua, 23 Oct 2003:
   small patch for mpc85xx
 

@@ -62,6 +62,8 @@
 #define CFG_DEVICE_NULLDEV	 1	/* enble null device		*/
 #define CONFIG_SILENT_CONSOLE	 1	/* enable silent startup	*/
 
+#define CONFIG_VERSION_VARIABLE	1       /* include version env variable */
+
 /***********************************************************
  * I2C stuff:
  * the TRAB is equipped with an ATMEL 24C04 EEPROM at

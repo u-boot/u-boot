@@ -203,14 +203,16 @@ cmi_mpc5xx_config:	unconfig
 #########################################################################
 ## MPC5xxx Systems
 #########################################################################
+MPC5200LITE		\
+icecube_5200_config	\
 IceCube_5200_config	\
 IceCube_5100_config:		unconfig
 	@ >include/config.h
-	@[ -z "$(findstring _5200,$@)" ] || \
+	@[ -z "$(findstring 5200,$@)" ] || \
 		{ echo "#define CONFIG_MPC5200"		>>include/config.h ; \
 		  echo "... with MPC5200 processor" ; \
 		}
-	@[ -z "$(findstring _5100,$@)" ] || \
+	@[ -z "$(findstring 5100,$@)" ] || \
 		{ echo "#define CONFIG_MGT5100"		>>include/config.h ; \
 		  echo "... with MGT5100 processor" ; \
 		}
