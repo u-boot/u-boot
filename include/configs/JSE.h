@@ -152,7 +152,7 @@
   /* watchdog disabled */
 #undef CONFIG_WATCHDOG
   /* SPD EEPROM (sdram speed config) disabled */
-#undef CONFIG_SPD_EEPRO
+#undef CONFIG_SPD_EEPROM
 #undef SPD_EEPROM_ADDRESS
 
 /*

@@ -2,6 +2,14 @@
 Changes for U-Boot 1.1.1:
 ======================================================================
 
+* Patch by John Kerl, 16 Apr 2004:
+  Enable ranges in mii command, e.g. mii read 0-1f 0 or
+  mii read 4-7 18-1a.  Also add mii dump subcommand for
+  pretty-printing standard regs 0-5.
+
+* Patch by  Stephen Williams, 16 April 2004:
+  fix typo in JSE.h; update MAINTAINERS
+
 * Patch by Matthew S. McClintock, 14 Apr 2004:
   fix initdram function for utx8245 board
 
