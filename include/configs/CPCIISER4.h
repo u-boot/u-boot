@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001
+ * (C) Copyright 2001-2003
  * Stefan Roese, esd gmbh germany, stefan.roese@esd-electronics.com
  *
  * See file CREDITS for list of people who contributed to this
@@ -56,6 +56,7 @@
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
 				CFG_CMD_PCI	| \
 				CFG_CMD_IRQ	| \
+				CFG_CMD_MII	| \
 				CFG_CMD_ELF	| \
 				CFG_CMD_EEPROM  )
 
@@ -223,12 +224,12 @@
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
-#define CFG_INIT_RAM_ADDR	0x00df0000 /* inside of SDRAM                   */
-#define CFG_INIT_RAM_END	0x0f00	/* End of used area in RAM	       */
-#define CFG_GBL_DATA_SIZE	64  /* size in bytes reserved for initial data */
-#define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
-
+#define CFG_INIT_DCACHE_CS      7       /* use cs # 7 for data cache memory    */
+#define CFG_INIT_RAM_ADDR       0x40000000  /* use data cache                  */
+#define CFG_INIT_RAM_END        0x2000  /* End of used area in RAM             */
+#define CFG_GBL_DATA_SIZE      128  /* size in bytes reserved for initial data */
+#define CFG_GBL_DATA_OFFSET    (CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
+#define CFG_INIT_SP_OFFSET      CFG_GBL_DATA_OFFSET
 
 /*
  * Internal Definitions

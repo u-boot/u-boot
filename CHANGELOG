@@ -2,6 +2,9 @@
 Changes since U-Boot 0.2.1:
 ======================================================================
 
+* Patch by Stefan Roese, 18 Feb 2003:
+  CPCIISER4 configuration updated.
+
 * Patch by Stefan Roese, 17 Feb 2003:
   Fixed bug in ext. serial clock setup on PPC405 (since PPC440 port).
 
