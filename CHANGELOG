@@ -1,5 +1,5 @@
 ======================================================================
-Changes since for U-Boot 0.1.0:
+Changes for U-Boot 0.2.0:
 ======================================================================
 
 * Use 1-byte-read instead of -write for iprobe() function
