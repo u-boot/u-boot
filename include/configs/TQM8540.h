@@ -42,7 +42,6 @@
 
 #undef CONFIG_PCI
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
-#define CONFIG_ENV_OVERWRITE
 #undef CONFIG_DDR_ECC			/* only for ECC DDR module */
 #define CONFIG_DDR_DLL			/* possible DLL fix needed */
 #define CONFIG_DDR_2T_TIMING		/* Sets the 2T timing bit */
@@ -432,8 +431,8 @@
 		"run nfsargs addip addcons;bootm\0"			\
 	"rootpath=/opt/eldk/ppc_85xx\0"					\
 	"bootfile=/tftpboot/tqm8540/uImage\0"				\
-	"kernel_addr=40040000\0"					\
-	"ramdisk_addr=40100000\0"					\
+	"kernel_addr=FE000000\0"					\
+	"ramdisk_addr=FE100000\0"					\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
