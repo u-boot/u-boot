@@ -124,9 +124,9 @@ reset:
 /****	mov     sp, r1			****/
 	/*
 	 * This does a lot more than just set up the memory, which
-	 * is why it's called lowlevelinit
+	 * is why it's called lowlevel_init
 	 */
-	bl	lowlevelinit /* in lowlevel.S */
+	bl	lowlevel_init /* in lowlevel.S */
 
 	/*
 	 * Read/modify/write CP15 control register

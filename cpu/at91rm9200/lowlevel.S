@@ -74,8 +74,8 @@ _MTEXT_BASE:
 	.word	TEXT_BASE
 #endif
 
-.globl lowlevelinit
-lowlevelinit:
+.globl lowlevel_init
+lowlevel_init:
 	/* Get the CKGR Base Address */
 	ldr     r1, =AT91C_BASE_CKGR
 	/* Main oscillator Enable register */
