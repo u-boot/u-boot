@@ -2,6 +2,9 @@
 Changes since for U-Boot 0.1.0:
 ======================================================================
 
+* Patch by Guillaume Alexandre,, 04 Nov 2002:
+  Improve PCI access on 32-bits Compact PCI bus
+
 * Fix mdelay() on TRAB - this was still the debugging version with
   seconds instead of ms.
 

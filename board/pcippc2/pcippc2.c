@@ -117,6 +117,8 @@ int misc_init_r (void)
 {
 	pcippc2_fpga_init ();
 
+	pcippc2_cpci3264_init ();
+
 #if defined(CONFIG_WATCHDOG)
 	pcippc2_wdt_init ();
 #endif
@@ -145,6 +147,25 @@ void pci_init (void)
 void doc_init (void)
 {
 	doc_probe (pcippc2_fpga1_phys + HW_FPGA1_DOC);
+}
+
+void pcippc2_cpci3264_init (void)
+{
+  pci_dev_t		bdf = pci_find_device(FPGA_VENDOR_ID, FPGA_DEVICE_ID, 0);
+
+  if (bdf == -1)
+  {
+    puts("Unable to find FPGA !\n");
+    hang();
+  }
+
+	if((in32(pcippc2_fpga0_phys + HW_FPGA0_BOARD) & 0x01000000) == 0x01000000)
+	/* 32-bits Compact PCI bus - LSB bit */
+	{
+		iobarrier_rw();
+		out32(BRIDGE(CPCI, PCIDG), 0x40000000);	/* 32-bits bridge, Pipeline */
+		iobarrier_rw();
+	}
 }
 
 #if defined(CONFIG_WATCHDOG)

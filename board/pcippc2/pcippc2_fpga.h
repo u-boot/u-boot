@@ -28,6 +28,7 @@
 #define FPGA_DEVICE_ID			0x000d
 
 #define HW_FPGA0_INT			0x0000
+#define HW_FPGA0_BOARD		0x0060
 #define HW_FPGA0_UART1			0x0080
 #define HW_FPGA0_UART2			0x0100
 #define HW_FPGA0_RTC			0x2000

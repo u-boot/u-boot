@@ -72,7 +72,7 @@ int trab_vfd (ulong bitmap)
 			return 0;
 		case VFD_REMOTE_LOGO_BMPNR:
 			transfer_pic(1, &vfd_remote_logo_bitmap[0],
-				VFD_TEST_LOGO_HEIGHT, VFD_TEST_LOGO_WIDTH);
+				VFD_REMOTE_LOGO_HEIGHT, VFD_REMOTE_LOGO_WIDTH);
 			return 0;
 #endif
 		default:

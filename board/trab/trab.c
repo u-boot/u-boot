@@ -42,13 +42,13 @@ extern int do_mdm_init; /* defined in common/main.c */
  * is that timers are not available yet, so we use a manually timed
  * loop.
  */
-#define KBD_MDELAY	1000
-static void mdelay_no_timer (int msec)
+#define KBD_MDELAY	5000
+static void udelay_no_timer (int usec)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
 	int i;
-	int delay = msec * 3;
+	int delay = usec * 3;
 
 	for (i = 0; i < delay; i ++) gd->bd->bi_arch_number = 145;
 }
@@ -102,12 +102,12 @@ int board_init ()
 	gd->bd->bi_boot_params = 0x0c000100;
 
 #ifdef CONFIG_MODEM_SUPPORT
-	/* This stuff is needed to get interrupts on stop-position
-	 * contact events.
+	/* This stuff is needed by the CPLD to read keyboard data.
 	 * (Copied from the LCD initialization routine.)
 	 */
-	if (rLCDCON1 == 0)
-	{
+	if (rLCDCON1 == 0) {
+		extern void init_grid_ctrl(void);
+
 		rPCCON = (rPCCON & 0xFFFFFF00)| 0x000000AA;
 		rPDCON = (rPDCON & 0xFFFFFF03)| 0x000000A8;
 #if 0
@@ -118,9 +118,11 @@ int board_init ()
 		rLCDCON4 = 0x00000001;
 		rLCDCON5 = 0x00000440;
 		rLCDCON1 = 0x00000B75;
+
+		init_grid_ctrl();
 	}
 
-	mdelay_no_timer (KBD_MDELAY);
+	udelay_no_timer (KBD_MDELAY);
 
 	if (key_pressed()) {
 		disable_putc();	/* modem doesn't understand banner etc */

@@ -835,14 +835,6 @@ static void video_ctrl_init (void *memptr)
 	{
 		volatile immap_t *immr = (immap_t *) CFG_IMMR;
 
-		debug ("[RRvision] PD3 -> clk output: ");
-		immr->im_ioport.iop_pdpar |=   0x1000 ;
-#if 0	/* This is supposed to be an output XXX XXX */
-		immr->im_ioport.iop_pddir |=   0x1000 ;
-#else
-		immr->im_ioport.iop_pddir &= ~(0x1000);
-#endif
-		udelay (1000);
 		debug ("PDPAR=%04X PDDIR=%04X PDDAT=%04X\n",
 			immr->im_ioport.iop_pdpar,
 			immr->im_ioport.iop_pddir,

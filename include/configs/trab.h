@@ -135,7 +135,7 @@
 		"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off\0" \
 	"add_misc=setenv bootargs $(bootargs) console=ttyS0 panic=1\0" \
 	"load=tftp 0xC100000 /tftpboot/TRAB/u-boot.bin\0" \
-	"update=protect off 1:0-7;era 1:0-7;cp.b 0xc100000 0 $(filesize);" \
+	"update=protect off 1:0-8;era 1:0-8;cp.b 0xc100000 0 $(filesize);" \
 		"setenv filesize;saveenv\0" \
 	"loadfile=/tftpboot/TRAB/pImage\0" \
 	"loadaddr=c400000\0" \

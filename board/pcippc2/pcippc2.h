@@ -40,6 +40,8 @@ extern u32	pcippc2_sdram_size		(void);
 
 extern void 	pcippc2_fpga_init		(void);
 
+extern void 	pcippc2_cpci3264_init	(void);
+
 extern void 	cpc710_pci_init			(void);
 extern void	cpc710_pci_enable_timeout	(void);
 
