@@ -535,6 +535,10 @@ static dir_entry *get_dentfromdir (fsdata * mydata, int startsect,
 	    char s_name[14], l_name[256];
 
 	    l_name[0] = '\0';
+	    if (dentptr->name[0] == DELETED_FLAG) {
+		    dentptr++;
+		    continue;
+	    }
 	    if ((dentptr->attr & ATTR_VOLUME)) {
 #ifdef CONFIG_SUPPORT_VFAT
 		if ((dentptr->attr & ATTR_VFAT) &&

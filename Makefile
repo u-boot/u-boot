@@ -908,11 +908,14 @@ ZUMA_config:	unconfig
 at91rm9200dk_config	:	unconfig
 	@./mkconfig $(@:_config=) arm at91rm9200 at91rm9200dk
 
-lart_config	:	unconfig
-	@./mkconfig $(@:_config=) arm sa1100 lart
-
 dnp1110_config	:	unconfig
 	@./mkconfig $(@:_config=) arm sa1100 dnp1110
+
+gcplus_config	:	unconfig
+	@./mkconfig $(@:_config=) arm sa1100 gcplus
+
+lart_config	:	unconfig
+	@./mkconfig $(@:_config=) arm sa1100 lart
 
 shannon_config	:	unconfig
 	@./mkconfig $(@:_config=) arm sa1100 shannon

@@ -175,6 +175,100 @@ static void ppc_440x_eth_halt (struct eth_device *dev)
 extern int phy_setup_aneg (unsigned char addr);
 extern int miiphy_reset (unsigned char addr);
 
+#if defined (CONFIG_440_GX)
+int ppc_440x_eth_setup_bridge(int devnum, bd_t * bis)
+{
+	unsigned long pfc1;
+	unsigned long zmiifer;
+	unsigned long rmiifer;
+
+	mfsdr(sdr_pfc1, pfc1);
+	pfc1 = SDR0_PFC1_EPS_DECODE(pfc1);
+
+	zmiifer = 0;
+	rmiifer = 0;
+
+	switch (pfc1) {
+	case 1:
+		zmiifer |= ZMII_FER_RMII << ZMII_FER_V(0);
+		zmiifer |= ZMII_FER_RMII << ZMII_FER_V(1);
+		zmiifer |= ZMII_FER_RMII << ZMII_FER_V(2);
+		zmiifer |= ZMII_FER_RMII << ZMII_FER_V(3);
+		bis->bi_phymode[0] = BI_PHYMODE_ZMII;
+		bis->bi_phymode[1] = BI_PHYMODE_ZMII;
+		bis->bi_phymode[2] = BI_PHYMODE_ZMII;
+		bis->bi_phymode[3] = BI_PHYMODE_ZMII;
+		break;
+	case 2:
+		zmiifer = ZMII_FER_SMII << ZMII_FER_V(0);
+		zmiifer = ZMII_FER_SMII << ZMII_FER_V(1);
+		zmiifer = ZMII_FER_SMII << ZMII_FER_V(2);
+		zmiifer = ZMII_FER_SMII << ZMII_FER_V(3);
+		bis->bi_phymode[0] = BI_PHYMODE_ZMII;
+		bis->bi_phymode[1] = BI_PHYMODE_ZMII;
+		bis->bi_phymode[2] = BI_PHYMODE_ZMII;
+		bis->bi_phymode[3] = BI_PHYMODE_ZMII;
+		break;
+	case 3:
+		zmiifer |= ZMII_FER_RMII << ZMII_FER_V(0);
+		rmiifer |= RGMII_FER_RGMII << RGMII_FER_V(2);
+		bis->bi_phymode[0] = BI_PHYMODE_ZMII;
+		bis->bi_phymode[1] = BI_PHYMODE_NONE;
+		bis->bi_phymode[2] = BI_PHYMODE_RGMII;
+		bis->bi_phymode[3] = BI_PHYMODE_NONE;
+		break;
+	case 4:
+		zmiifer |= ZMII_FER_SMII << ZMII_FER_V(0);
+		zmiifer |= ZMII_FER_SMII << ZMII_FER_V(1);
+		rmiifer |= RGMII_FER_RGMII << RGMII_FER_V (2);
+		rmiifer |= RGMII_FER_RGMII << RGMII_FER_V (3);
+		bis->bi_phymode[0] = BI_PHYMODE_ZMII;
+		bis->bi_phymode[1] = BI_PHYMODE_ZMII;
+		bis->bi_phymode[2] = BI_PHYMODE_RGMII;
+		bis->bi_phymode[3] = BI_PHYMODE_RGMII;
+		break;
+	case 5:
+		zmiifer |= ZMII_FER_SMII << ZMII_FER_V (0);
+		zmiifer |= ZMII_FER_SMII << ZMII_FER_V (1);
+		zmiifer |= ZMII_FER_SMII << ZMII_FER_V (2);
+		rmiifer |= RGMII_FER_RGMII << RGMII_FER_V(3);
+		bis->bi_phymode[0] = BI_PHYMODE_ZMII;
+		bis->bi_phymode[1] = BI_PHYMODE_ZMII;
+		bis->bi_phymode[2] = BI_PHYMODE_ZMII;
+		bis->bi_phymode[3] = BI_PHYMODE_RGMII;
+		break;
+	case 6:
+		zmiifer |= ZMII_FER_SMII << ZMII_FER_V (0);
+		zmiifer |= ZMII_FER_SMII << ZMII_FER_V (1);
+		rmiifer |= RGMII_FER_RGMII << RGMII_FER_V(2);
+		rmiifer |= RGMII_FER_RGMII << RGMII_FER_V(3);
+		bis->bi_phymode[0] = BI_PHYMODE_ZMII;
+		bis->bi_phymode[1] = BI_PHYMODE_ZMII;
+		bis->bi_phymode[2] = BI_PHYMODE_RGMII;
+		bis->bi_phymode[3] = BI_PHYMODE_RGMII;
+		break;
+	case 0:
+	default:
+		zmiifer = ZMII_FER_MII << ZMII_FER_V(devnum);
+		rmiifer = 0x0;
+		bis->bi_phymode[0] = BI_PHYMODE_ZMII;
+		bis->bi_phymode[1] = BI_PHYMODE_ZMII;
+		bis->bi_phymode[2] = BI_PHYMODE_ZMII;
+		bis->bi_phymode[3] = BI_PHYMODE_ZMII;
+		break;
+	}
+
+	/* Ensure we setup mdio for this devnum and ONLY this devnum */
+	zmiifer |= (ZMII_FER_MDI) << ZMII_FER_V(devnum);
+
+	out32 (ZMII_FER, zmiifer);
+	out32 (RGMII_FER, rmiifer);
+
+	return ((int)pfc1);
+
+}
+#endif
+
 static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 {
 	int i;
@@ -187,11 +281,7 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 	unsigned short devnum;
 	unsigned short reg_short;
 	sys_info_t sysinfo;
-#if defined (CONFIG_440_GX)
-	unsigned long pfc1;
-	unsigned long zmiifer;
-	unsigned long rmiifer;
-#endif
+	int ethgroup;
 
 	EMAC_440GX_HW_PST hw_p = dev->priv;
 
@@ -269,66 +359,7 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 	udelay (100);
 
 #if defined(CONFIG_440_GX)
-	mfsdr(sdr_pfc1, pfc1);
-	pfc1 = SDR0_PFC1_EPS_DECODE(pfc1);
-
-	switch (pfc1) {
-	case 1:
-		zmiifer = (ZMII_FER_MDI | ZMII_FER_RMII) << ZMII_FER_V(devnum);
-		rmiifer = 0x0;
-		break;
-	case 2:
-		zmiifer = (ZMII_FER_MDI | ZMII_FER_SMII) << ZMII_FER_V(devnum);
-		rmiifer = 0x0;
-		break;
-	case 3:
-		if (devnum == 0) {
-			zmiifer = (ZMII_FER_MDI | ZMII_FER_RMII) << ZMII_FER_V(devnum);
-			rmiifer = 0x0;
-		} else if (devnum == 2) {
-			zmiifer = (ZMII_FER_MDI | ZMII_FER_RMII) << ZMII_FER_V(devnum);
-			rmiifer = RGMII_FER_RGMII << RGMII_FER_V(devnum);
-		} else { /* invalid case */
-			zmiifer = 0x0;
-			rmiifer = 0x0;
-		}
-		break;
-	case 4:
-		if ((devnum == 0) || (devnum == 1)) {
-			zmiifer = (ZMII_FER_MDI | ZMII_FER_SMII) << ZMII_FER_V (devnum);
-			rmiifer = 0x0;
-		} else { /* ((devnum == 2) || (devnum == 3)) */
-			zmiifer = (ZMII_FER_MDI/* | ZMII_FER_RMII */) << ZMII_FER_V (devnum);
-			rmiifer = RGMII_FER_RGMII << RGMII_FER_V (devnum);
-		}
-		break;
-	case 5:
-		if ((devnum == 0) || (devnum == 1) || (devnum == 2)) {
-			zmiifer = (ZMII_FER_MDI | ZMII_FER_SMII) << ZMII_FER_V (devnum);
-			rmiifer = 0x0;
-		} else {
-			zmiifer = (ZMII_FER_MDI | ZMII_FER_RMII) << ZMII_FER_V(devnum);
-			rmiifer = RGMII_FER_RGMII << RGMII_FER_V(devnum);
-		}
-		break;
-	case 6:
-		if ((devnum == 0) || (devnum == 1)) {
-			zmiifer = (ZMII_FER_MDI | ZMII_FER_SMII) << ZMII_FER_V (devnum);
-			rmiifer = 0x0;
-		} else {
-			zmiifer = (ZMII_FER_MDI | ZMII_FER_RMII) << ZMII_FER_V(devnum);
-			rmiifer = RGMII_FER_RGMII << RGMII_FER_V(devnum);
-		}
-		break;
-	case 0:
-	default:
-		zmiifer = (ZMII_FER_MDI | ZMII_FER_MII) << ZMII_FER_V(devnum);
-		rmiifer = 0x0;
-		break;
-	}
-
-	out32 (ZMII_FER, zmiifer);
-	out32 (RGMII_FER, rmiifer);
+	ethgroup = ppc_440x_eth_setup_bridge(devnum, bis);
 #else
 	if ((devnum == 0) || (devnum == 1)) {
 		out32 (ZMII_FER, (ZMII_FER_SMII | ZMII_FER_MDI) << ZMII_FER_V (devnum));
@@ -338,6 +369,7 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 		out32 (RGMII_FER, ((RGMII_FER_RGMII << RGMII_FER_V (2)) |
 				   (RGMII_FER_RGMII << RGMII_FER_V (3))));
 	}
+
 #endif
 	out32 (ZMII_SSR, ZMII_SSR_SP << ZMII_SSR_V(devnum));
 	__asm__ volatile ("eieio");
@@ -397,16 +429,17 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 	/* Reset the phy */
 	miiphy_reset (reg);
 
+#if defined(CONFIG_440_GX)
 #if defined(CONFIG_CIS8201_PHY)
 	/*
 	 * Cicada 8201 PHY needs to have an extended register whacked
 	 * for RGMII mode.
 	 */
-	if ( ((devnum == 2) || (devnum ==3)) && (4 == pfc1) ) {
+	if ( ((devnum == 2) || (devnum ==3)) && (4 == ethgroup) ) {
 		miiphy_write (reg, 23, 0x1200);
 	}
 #endif
-
+#endif
 	/* Start/Restart autonegotiation */
 	phy_setup_aneg (reg);
 	udelay (1000);
@@ -451,7 +484,7 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 
 	/* Set ZMII/RGMII speed according to the phy link speed */
 	reg = in32 (ZMII_SSR);
-	if (speed == 100)
+	if ( (speed == 100) || (speed == 1000) )
 		out32 (ZMII_SSR, reg | (ZMII_SSR_SP << ZMII_SSR_V (devnum)));
 	else
 		out32 (ZMII_SSR,
@@ -619,8 +652,9 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 	mode_reg |= EMAC_M1_RFS_4K | EMAC_M1_TX_FIFO_2K;
 
 	/* set speed */
-	/* TBS: do 1GbE */
-	if (speed == _100BASET)
+	if (speed == _1000BASET)
+		mode_reg = mode_reg | EMAC_M1_MF_1000MBPS | EMAC_M1_IST;
+	else if (speed == _100BASET)
 		mode_reg = mode_reg | EMAC_M1_MF_100MBPS | EMAC_M1_IST;
 	else
 		mode_reg = mode_reg & ~0x00C00000;	/* 10 MBPS */

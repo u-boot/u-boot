@@ -94,12 +94,9 @@
 
 #define CONFIG_BOOTDELAY	3
 #define CONFIG_BOOTARGS	"mem=32M console=ttyS0,115200n8 noinitrd \
-				root=/dev/nfs rw nfsroot=157.87.82.48:\
-				/home/a0875451/mwd/myfs/target ip=dhcp"
-#define CONFIG_NETMASK	255.255.254.0	/* talk on MY local net */
-#define CONFIG_IPADDR	156.117.97.156	/* static IP I currently own */
-#define CONFIG_SERVERIP	156.117.97.139	/* current IP of my dev pc */
-#define CONFIG_BOOTFILE	"uImage"	/* file to load */
+				root=/dev/nfs ip=dhcp"
+#define CONFIG_BOOTCOMMAND      "bootp;tftp;bootm"
+#define CFG_AUTOLOAD            "n"             /* No autoload */
 
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	115200	/* speed to run kgdb serial port */

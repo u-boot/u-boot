@@ -53,6 +53,7 @@ int  miiphy_link(unsigned char addr);
 
 /* phy seed setup */
 #define AUTO			99
+#define _1000BASET              1000
 #define _100BASET		100
 #define _10BASET		10
 #define HALF			22
@@ -67,6 +68,9 @@ int  miiphy_link(unsigned char addr);
 #define PHY_ANLPAR		0x05
 #define PHY_ANER		0x06
 #define PHY_ANNPTR		0x07
+#define PHY_ANLPNP              0x08
+#define PHY_1000BTCR            0x09
+#define PHY_1000BTSR            0x0A
 #define PHY_PHYSTS		0x10
 #define PHY_MIPSCR		0x11
 #define PHY_MIPGSR		0x12
@@ -113,4 +117,13 @@ int  miiphy_link(unsigned char addr);
 #define PHY_ANLPAR_10FD		0x0040
 #define PHY_ANLPAR_10		0x0020
 #define PHY_ANLPAR_100		0x0380	    /* we can run at 100 */
+
+/* PHY_1000BTSR */
+#define PHY_1000BTSR_MSCF       0x8000
+#define PHY_1000BTSR_MSCR       0x4000
+#define PHY_1000BTSR_LRS        0x2000
+#define PHY_1000BTSR_RRS        0x1000
+#define PHY_1000BTSR_1000FD     0x0800
+#define PHY_1000BTSR_1000HD     0x0400
+
 #endif

@@ -101,9 +101,14 @@
 #define AMD_CMD_WRITE			0xA0
 #define AMD_CMD_ERASE_START		0x80
 #define AMD_CMD_ERASE_SECTOR		0x30
+#define AMD_CMD_UNLOCK_START		0xAA
+#define AMD_CMD_UNLOCK_ACK		0x55
 
 #define AMD_STATUS_TOGGLE		0x40
 #define AMD_STATUS_ERROR		0x20
+#define AMD_ADDR_ERASE_START		0x555
+#define AMD_ADDR_START			0x555
+#define AMD_ADDR_ACK			0x2AA
 
 #define FLASH_OFFSET_CFI		0x55
 #define FLASH_OFFSET_CFI_RESP		0x10
@@ -377,7 +382,8 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 			case CFI_CMDSET_AMD_STANDARD:
 			case CFI_CMDSET_AMD_EXTENDED:
 				flash_unlock_seq (info, sect);
-				flash_write_cmd (info, sect, 0x555, AMD_CMD_ERASE_START);
+				flash_write_cmd (info, sect, AMD_ADDR_ERASE_START,
+							AMD_CMD_ERASE_START);
 				flash_unlock_seq (info, sect);
 				flash_write_cmd (info, sect, 0, AMD_CMD_ERASE_SECTOR);
 				break;
@@ -479,24 +485,6 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 #ifdef CFG_FLASH_USE_BUFFER_WRITE
 	int buffered_size;
 #endif
-	int x8mode = 0;
-
-	/* special handling of 16 bit devices in 8 bit mode */
-	if ((info->interface == FLASH_CFI_X8X16)
-	    && (info->chipwidth == FLASH_CFI_BY8)) {
-		switch (info->vendor) {
-		case CFI_CMDSET_INTEL_STANDARD:
-		case CFI_CMDSET_INTEL_EXTENDED:
-			x8mode = info->portwidth;
-			info->portwidth >>= 1;	/* XXX - Need to test on x9/x16 in parallel. */
-			/*info->portwidth = FLASH_CFI_8BIT; */ /* XXX - Need to test on x9/x16 in parallel. */
-			break;
-		case CFI_CMDSET_AMD_STANDARD:
-		case CFI_CMDSET_AMD_EXTENDED:
-		default:
-			break;
-		}
-	}
 	/* get lower aligned address */
 	/* get lower aligned address */
 	wp = (addr & ~(info->portwidth - 1));
@@ -560,10 +548,6 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 		flash_add_byte (info, &cword, (*(uchar *) cp));
 	}
 
-	/* special handling of 16 bit devices in 8 bit mode */
-	if (x8mode) {
-		info->portwidth = x8mode;;
-	}
 	return flash_write_cfiword (info, wp, cword);
 }
 
@@ -847,8 +831,8 @@ static void flash_write_cmd (flash_info_t * info, flash_sect_t sect, uint offset
 
 static void flash_unlock_seq (flash_info_t * info, flash_sect_t sect)
 {
-	flash_write_cmd (info, sect, 0x555, 0xAA);
-	flash_write_cmd (info, sect, 0x2AA, 0x55);
+	flash_write_cmd (info, sect, AMD_ADDR_START, AMD_CMD_UNLOCK_START);
+	flash_write_cmd (info, sect, AMD_ADDR_ACK, AMD_CMD_UNLOCK_ACK);
 }
 
 /*-----------------------------------------------------------------------
@@ -1078,6 +1062,9 @@ static ulong flash_get_size (ulong base, int banknum)
 		tmp = 1 << flash_read_uchar (info, FLASH_OFFSET_WTOUT);
 		info->write_tout = (tmp * (1 << flash_read_uchar (info, FLASH_OFFSET_WMAX_TOUT))) / 1000;
 		info->flash_id = FLASH_MAN_CFI;
+		if ((info->interface == FLASH_CFI_X8X16) && (info->chipwidth == FLASH_CFI_BY8)) {
+			info->portwidth >>= 1;	/* XXX - Need to test on x8/x16 in parallel. */
+		}
 	}
 
 	flash_write_cmd (info, 0, 0, FLASH_CMD_RESET);
@@ -1131,7 +1118,7 @@ static int flash_write_cfiword (flash_info_t * info, ulong dest,
 	case CFI_CMDSET_AMD_EXTENDED:
 	case CFI_CMDSET_AMD_STANDARD:
 		flash_unlock_seq (info, 0);
-		flash_write_cmd (info, 0, 0x555, AMD_CMD_WRITE);
+		flash_write_cmd (info, 0, AMD_ADDR_START, AMD_CMD_WRITE);
 		break;
 	}
 
@@ -1182,6 +1169,10 @@ static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
 	int retcode;
 	volatile cfiptr_t src;
 	volatile cfiptr_t dst;
+	/* buffered writes in the AMD chip set is not supported yet */
+	if((info->vendor ==  CFI_CMDSET_AMD_STANDARD) ||
+		(info->vendor == CFI_CMDSET_AMD_EXTENDED))
+		return ERR_INVAL;
 
 	src.cp = cp;
 	dst.cp = (uchar *) dest;

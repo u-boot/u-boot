@@ -135,11 +135,20 @@ int miiphy_speed (unsigned char addr)
 {
 	unsigned short reg;
 
+	if (miiphy_read (addr, PHY_1000BTSR, &reg)) {
+		printf ("PHY 1000BT Status read failed\n");
+	} else {
+		if (reg != 0xFFFF) {
+			if ((reg & (PHY_1000BTSR_1000FD | PHY_1000BTSR_1000HD)) !=0) {
+				return (_1000BASET);
+			}
+		}
+	}
+
 	if (miiphy_read (addr, PHY_ANLPAR, &reg)) {
 		printf ("PHY speed1 read failed, assuming 10bT\n");
 		return (_10BASET);
 	}
-
 	if ((reg & PHY_ANLPAR_100) != 0) {
 		return (_100BASET);
 	} else {
@@ -155,6 +164,20 @@ int miiphy_speed (unsigned char addr)
 int miiphy_duplex (unsigned char addr)
 {
 	unsigned short reg;
+
+
+	if (miiphy_read (addr, PHY_1000BTSR, &reg)) {
+		printf ("PHY 1000BT Status read failed\n");
+	} else {
+		if ( (reg != 0xFFFF) &&
+		     (reg & (PHY_1000BTSR_1000FD | PHY_1000BTSR_1000HD)) ) {
+			if ((reg & PHY_1000BTSR_1000FD) !=0) {
+				return (FULL);
+			} else {
+				return (HALF);
+			}
+		}
+	}
 
 	if (miiphy_read (addr, PHY_ANLPAR, &reg)) {
 		printf ("PHY duplex read failed, assuming half duplex\n");

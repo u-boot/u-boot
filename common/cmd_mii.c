@@ -103,7 +103,7 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 					"Rev = 0x%02X, "
 					"%3dbaseT, %s\n",
 					j, oui, model, rev,
-					miiphy_speed (j) == _100BASET ? 100 : 10,
+					miiphy_speed (j),
 					miiphy_duplex (j) == FULL ? "FDX" : "HDX");
 			}
 		}
