@@ -90,7 +90,7 @@ cpu_init_f (void)
 #endif
 
 	CONFIG_WRITE_BYTE(PCLSR, 0x8);	/* set PCI cache line size */
-
+	CONFIG_WRITE_BYTE (PLTR, 0x40); /* set PCI latency timer */
 	/*
 	* Note that although this bit is cleared after a hard reset, it
 	* must be explicitly set and then cleared by software during
