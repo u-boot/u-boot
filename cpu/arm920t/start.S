@@ -433,39 +433,3 @@ fiq:
 	bl 	do_fiq
 
 #endif
-
-	.align	5
-.globl reset_cpu
-reset_cpu:
-#ifdef CONFIG_S3C2400
-	bl	disable_interrupts
-# ifdef CONFIG_TRAB
-	bl	disable_vfd
-# endif
-	ldr	r1, _rWTCON
-	ldr	r2, _rWTCNT
-	/* Disable watchdog */
-	mov	r3, #0x0000
-	str	r3, [r1]
-	/* Initialize watchdog timer count register */
-	mov	r3, #0x0001
-	str	r3, [r2]
-	/* Enable watchdog timer; assert reset at timer timeout */
-	mov	r3, #0x0021
-	str	r3, [r1]
-_loop_forever:
-	b	_loop_forever
-_rWTCON:
-	.word	0x15300000
-_rWTCNT:
-	.word	0x15300008
-#else /* ! CONFIG_S3C2400 */
-	mov     ip, #0
-	mcr     p15, 0, ip, c7, c7, 0           @ invalidate cache
-	mcr     p15, 0, ip, c8, c7, 0           @ flush TLB (v4)
-	mrc     p15, 0, ip, c1, c0, 0           @ get ctrl register
-	bic     ip, ip, #0x000f                 @ ............wcam
-	bic     ip, ip, #0x2100                 @ ..v....s........
-	mcr     p15, 0, ip, c1, c0, 0           @ ctrl register
-	mov     pc, r0
-#endif /* CONFIG_S3C2400 */

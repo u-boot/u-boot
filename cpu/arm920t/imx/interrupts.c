@@ -117,4 +117,23 @@ ulong get_tbclk (void)
 	return tbclk;
 }
 
+/*
+ * Reset the cpu by setting up the watchdog timer and let him time out
+ */
+void reset_cpu (ulong ignored)
+{
+	/* Disable watchdog and set Time-Out field to 0 */
+	WCR = 0x00000000;
+
+	/* Write Service Sequence */
+	WSR = 0x00005555;
+	WSR = 0x0000AAAA;
+
+	/* Enable watchdog */
+	WCR = 0x00000001;
+
+	while (1);
+	/*NOTREACHED*/
+}
+
 #endif /* defined (CONFIG_IMX) */

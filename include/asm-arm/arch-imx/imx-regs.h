@@ -52,6 +52,12 @@
 #define IMX_AITC_BASE              (0x23000 + IMX_IO_BASE)
 #define IMX_CSI_BASE               (0x24000 + IMX_IO_BASE)
 
+/* Watchdog Registers*/
+
+#define WCR  __REG(IMX_WDT_BASE + 0x00) /* Watchdog Control Register */
+#define WSR  __REG(IMX_WDT_BASE + 0x04) /* Watchdog Service Register */
+#define WSTR __REG(IMX_WDT_BASE + 0x08) /* Watchdog Status Register  */
+
 /* SYSCTRL Registers */
 #define SIDR   __REG(IMX_SYSCTRL_BASE + 0x4) /* Silicon ID Register		    */
 #define FMCR   __REG(IMX_SYSCTRL_BASE + 0x8) /* Function Multiplex Control Register */

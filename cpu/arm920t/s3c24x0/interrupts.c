@@ -185,4 +185,31 @@ ulong get_tbclk (void)
 	return tbclk;
 }
 
+/*
+ * reset the cpu by setting up the watchdog timer and let him time out
+ */
+void reset_cpu (ulong ignored)
+{
+	S3C24X0_WATCHDOG * const watchdog;
+
+#ifdef CONFIG_TRAB
+	disable_vfd();
+#endif
+
+	watchdog = S3C24X0_GetBase_WATCHDOG();
+
+	/* Disable watchdog */
+	watchdog->WTCON = 0x0000;
+
+	/* Initialize watchdog timer count register */
+	watchdog->WTCNT = 0x0001;
+
+	/* Enable watchdog timer; assert reset at timer timeout */
+	watchdog->WTCON = 0x0021;
+
+	while(1);	/* loop forever and wait for reset to happen */
+
+	/*NOTREACHED*/
+}
+
 #endif /* defined(CONFIG_S3C2400) || defined (CONFIG_S3C2410) || defined (CONFIG_TRAB) */

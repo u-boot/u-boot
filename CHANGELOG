@@ -2,6 +2,14 @@
 Changes for U-Boot 1.1.3:
 ======================================================================
 
+* Patch by Steven Scholz, 05 Apr 2005:
+  Use i.MX watchdog timer for reset_cpu()
+
+* Patch by Steven Scholz, 05 Apr 2005:
+  Move reset_cpu() out of cpu/arm920t/start.S into the SoC specific
+  subdirectories cpu/arm920t/imx/ and cpu/arm920t/s3c24x0/
+  (now in interupts.c)
+
 * Add support for MPC8220 based "sorcery" board.
 
 * Add support for TQM8560 board.
