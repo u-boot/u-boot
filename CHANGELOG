@@ -2,6 +2,17 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Configure SX1 board to use drivers/cfi_flash.c
+
+* Patches by Michael Bendzick, 30 Aug 2004:
+  - Configure omap1510inn board to use drivers/cfi_flash.c
+  - Make drivers/cfi_flash.c protect environment and redundant
+    environment.
+
+* Patch by Steven Scholz, 23 Jun 2004:
+  - Add script (tools/img2brec.sh) to programm U-Boot into
+    (Synch)Flash using the Bootstrap Mode of the MC9328MX1/L
+
 * Patches by Scott McNutt, 24 Aug 2004:
   - Add support for Altera Nios-II processors.
   - Add support for Psyent PCI-5441 board.

@@ -161,16 +161,30 @@
  * FLASH and environment organization
  */
 #define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks */
+#define PHYS_FLASH_SIZE		(16 << 10) /* 16 MB */
+#define PHYS_FLASH_SECT_SIZE	(128*1024) /* Size of a sector (128kB) */
 #define CFG_MAX_FLASH_SECT	(128)	/* max number of sectors on one chip */
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x020000) /* addr of environment */
+#define CFG_ENV_ADDR	(CFG_FLASH_BASE + PHYS_FLASH_SECT_SIZE) /* addr of environment */
+#define CFG_MONITOR_BASE	CFG_FLASH_BASE	/* Monitor at beginning of flash */
+#define CFG_MONITOR_LEN		PHYS_FLASH_SECT_SIZE	/* Reserve 1 sector */
+#define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE, CFG_FLASH_BASE + PHYS_FLASH_SIZE }
+
+/*-----------------------------------------------------------------------
+ * FLASH driver setup
+ */
+#define CFG_FLASH_CFI		1	/* Flash memory is CFI compliant */
+#define CFG_FLASH_CFI_DRIVER	1	/* Use drivers/cfi_flash.c */
+#define CFG_FLASH_USE_BUFFER_WRITE 1	/* Use buffered writes (~10x faster) */
+#define CFG_FLASH_PROTECTION	1	/* Use hardware sector protection */
 
 /* timeout values are in ticks */
 #define CFG_FLASH_ERASE_TOUT	(20*CFG_HZ) /* Timeout for Flash Erase */
 #define CFG_FLASH_WRITE_TOUT	(20*CFG_HZ) /* Timeout for Flash Write */
 
 #define CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_SIZE		0x20000 /* Total Size of Environment Sector */
-#define CFG_ENV_OFFSET		0x20000 /* environment starts here  */
+#define CFG_ENV_SECT_SIZE	PHYS_FLASH_SECT_SIZE
+#define CFG_ENV_SIZE		CFG_ENV_SECT_SIZE /* Total Size of Environment Sector */
+#define CFG_ENV_OFFSET	( CFG_MONITOR_BASE + CFG_MONITOR_LEN ) /* Environment after Monitor */
 
 /* Address and size of Redundant Environment Sector	*/
 #define CFG_ENV_SIZE_REDUND	0x20000
