@@ -2,6 +2,9 @@
 Changes since U-Boot 0.2.1:
 ======================================================================
 
+* Patch by Stefan Roese, 10 Feb 2003:
+  Add support for 4MB and 128MB onboard SDRAM (cpu/ppc4xx/sdram.c)
+
 * Add dual ethernet support on PM826
 
 * Add support for LXT971 PHY on PM826
