@@ -2,6 +2,9 @@
 Changes since U-Boot 0.2.0:
 ======================================================================
 
+* Add support for V37 board
+  (patch by Jón Benediktsson, 11 Dec 2002)
+
 * Update baudrate in bd_info when it gets changed
 
 * Add watchdog trigger points while waiting for serial port

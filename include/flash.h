@@ -111,6 +111,7 @@ extern int flash_real_protect(flash_info_t *info, long sector, int prot);
 #define INTEL_MANUFACT	0x00890089	/* INTEL   manuf. ID in D23..D16, D7..D0 */
 #define	INTEL_ALT_MANU	0x00B000B0	/* alternate INTEL namufacturer ID	*/
 #define MX_MANUFACT	0x00C200C2	/* MXIC	   manuf. ID in D23..D16, D7..D0 */
+#define TOSH_MANUFACT	0x00980098	/* TOSHIBA manuf. ID in D23..D16, D7..D0 */
 
 					/* Micron Technologies (INTEL compat.)	*/
 #define MT_ID_28F400_T	0x44704470	/* 28F400B3 ID ( 4 M, top boot sector)	*/
@@ -205,6 +206,9 @@ extern int flash_real_protect(flash_info_t *info, long sector, int prot);
 #define SHARP_ID_28F016SCZ  0xA0A0A0A0	/* LH28F016SCT-Z4  2Mx8, 32 64k blocks	*/
 #define SHARP_ID_28F008SC   0xA6A6A6A6	/* LH28F008SCT-L12 1Mx8, 16 64k blocks	*/
 					/* LH28F008SCR-L85 1Mx8, 16 64k blocks	*/
+
+#define TOSH_ID_FVT160	0xC2		/* TC58FVT160 ID (16 M, top )           */
+#define TOSH_ID_FVB160	0x43		/* TC58FVT160 ID (16 M, bottom )        */
 
 /*-----------------------------------------------------------------------
  * Internal FLASH identification codes
@@ -301,6 +305,7 @@ extern int flash_real_protect(flash_info_t *info, long sector, int prot);
 #define FLASH_MAN_BM	0x00020000	/* Bright Microelectronics		*/
 #define FLASH_MAN_MX	0x00030000	/* MXIC					*/
 #define FLASH_MAN_STM	0x00040000
+#define FLASH_MAN_TOSH	0x00050000	/* Toshiba                		*/
 #define FLASH_MAN_SST	0x00100000
 #define FLASH_MAN_INTEL	0x00300000
 #define FLASH_MAN_MT	0x00400000

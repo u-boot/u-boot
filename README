@@ -337,7 +337,8 @@ The following options need to be configured:
 		CONFIG_GENIETV,    CONFIG_PM826,      CONFIG_ppmc8260,
 		CONFIG_GTH,        CONFIG_RPXClassic, CONFIG_rsdproto,
 		CONFIG_IAD210,     CONFIG_RPXlite,    CONFIG_sbc8260,
-		CONFIG_EBONY,      CONFIG_sacsng,     CONFIG_FPS860L
+		CONFIG_EBONY,      CONFIG_sacsng,     CONFIG_FPS860L,
+		CONFIG_V37
 
 		ARM based boards:
 		-----------------

@@ -380,6 +380,11 @@ TTTech_config:	unconfig
 	@echo "#define CONFIG_SHARP_LQ104V7DS01" >>include/config.h
 	@./mkconfig -a TQM823L ppc mpc8xx tqm8xx
 
+v37_config:	unconfig
+	@echo "#define CONFIG_LCD" >include/config.h
+	@echo "#define CONFIG_SHARP_LQ084V1DG21" >>include/config.h
+	@./mkconfig $(@:_config=) ppc mpc8xx v37
+
 #########################################################################
 ## PPC4xx Systems
 #########################################################################

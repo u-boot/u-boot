@@ -30,13 +30,17 @@ N: Pierre Aubert
 E: <p.aubert@staubli.com>
 D: Support for RPXClassic board
 
+N: Jerry van Baren
+E: <vanbaren@cideas.com>
+D: BedBug port to 603e core (MPC82xx). Code for enhanced memory test.
+
 N: Andre Beaudin
 E: <andre.beaudin@colubris.com>
 D: PCMCIA, Ethernet, TFTP
 
-N: Jerry van Baren
-E: <vanbaren@cideas.com>
-D: BedBug port to 603e core (MPC82xx). Code for enhanced memory test.
+N: Jon Benediktsson
+E: jonb@marel.is
+D: Support for Marel V37 board
 
 N: Raphael Bossek
 E: raphael.bossek@solutions4linux.de

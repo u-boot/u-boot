@@ -43,6 +43,12 @@
 #define CONFIG_LCD_LOGO
 #define LCD_INFO		/* Display Logo, (C) and system info	*/
 #endif
+
+#ifdef CONFIG_V37
+#undef CONFIG_LCD_LOGO
+#undef LCD_INFO
+#endif
+
 /* #define LCD_TEST_PATTERN */	/* color backgnd for frame/color adjust */
 /* #define CFG_INVERT_COLORS */	/* Not needed - adjust vl_dp instead 	*/
 /************************************************************************/
@@ -190,6 +196,18 @@ static vidinfo_t panel_info = {
 		/* wbl, vpw, lcdac, wbf */
 };
 #endif /* CONFIG_SHARP_LQ64D341 */
+
+#ifdef CONFIG_SHARP_LQ084V1DG21
+/*
+ * Sharp LQ084V1DG21 display, 640x480. Active, color, single scan.
+ */
+static vidinfo_t panel_info = {
+    640, 480, 171, 129, CFG_HIGH, CFG_HIGH, CFG_LOW, CFG_LOW, CFG_LOW,
+    3, 0, 0, 1, 1, 160, 3, 0, 48
+		/* wbl, vpw, lcdac, wbf */
+};
+#endif /* CONFIG_SHARP_LQ084V1DG21 */
+
 /*----------------------------------------------------------------------*/
 
 #ifdef CONFIG_HLD1045
@@ -947,6 +965,13 @@ static void lcd_enable (void)
 	/* Enable the LCD panel */
 	immr->im_siu_conf.sc_sdcr |= (1 << (31 - 25));		/* LAM = 1 */
 	lcdp->lcd_lccr |= LCCR_PON;
+
+#ifdef CONFIG_V37
+	/* Turn on display backlight */
+	immr->im_cpm.cp_pbpar |= 0x00008000;
+	immr->im_cpm.cp_pbdir |= 0x00008000;
+#endif
+
 #if defined(CONFIG_LWMON)
     {	uchar c = pic_read (0x60);
     	c |= 0x07;	/* Power on CCFL, Enable CCFL, Chip Enable LCD */
