@@ -179,6 +179,7 @@
  * Ethernet configuration
  */
 #define CONFIG_MPC5XXX_FEC	1
+#define CONFIG_FEC_10MBIT 1 /* Workaround for FEC 100Mbit problem */
 
 /*
  * GPIO configuration

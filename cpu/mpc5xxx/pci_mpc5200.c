@@ -48,9 +48,11 @@ static int mpc5200_read_config_dword(struct pci_controller *hose,
 {
 	*(volatile u32 *)MPC5XXX_PCI_CAR = (1 << 31) | dev | offset;
 	eieio();
+	udelay(10);
 	*value = in_le32((volatile u32 *)CONFIG_PCI_IO_PHYS);
 	eieio();
 	*(volatile u32 *)MPC5XXX_PCI_CAR = 0;
+	udelay(10);
 	return 0;
 }
 
@@ -59,9 +61,11 @@ static int mpc5200_write_config_dword(struct pci_controller *hose,
 {
 	*(volatile u32 *)MPC5XXX_PCI_CAR = (1 << 31) | dev | offset;
 	eieio();
+	udelay(10);
 	out_le32((volatile u32 *)CONFIG_PCI_IO_PHYS, value);
 	eieio();
 	*(volatile u32 *)MPC5XXX_PCI_CAR = 0;
+	udelay(10);
 	return 0;
 }
 

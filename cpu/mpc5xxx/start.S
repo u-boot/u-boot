@@ -382,6 +382,14 @@ init_5xxx_core:
 	mtspr	DBAT2L, r0
 	mtspr	DBAT3U, r0
 	mtspr	DBAT3L, r0
+	mtspr	DBAT4U, r0
+	mtspr	DBAT4L, r0
+	mtspr	DBAT5U, r0
+	mtspr	DBAT5L, r0
+	mtspr	DBAT6U, r0
+	mtspr	DBAT6L, r0
+	mtspr	DBAT7U, r0
+	mtspr	DBAT7L, r0
 	mtspr	IBAT0U, r0
 	mtspr	IBAT0L, r0
 	mtspr	IBAT1U, r0
@@ -390,6 +398,14 @@ init_5xxx_core:
 	mtspr	IBAT2L, r0
 	mtspr	IBAT3U, r0
 	mtspr	IBAT3L, r0
+	mtspr	IBAT4U, r0
+	mtspr	IBAT4L, r0
+	mtspr	IBAT5U, r0
+	mtspr	IBAT5L, r0
+	mtspr	IBAT6U, r0
+	mtspr	IBAT6L, r0
+	mtspr	IBAT7U, r0
+	mtspr	IBAT7L, r0
 	SYNC
 
 	/* invalidate all tlb's						*/

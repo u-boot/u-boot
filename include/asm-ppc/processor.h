@@ -95,14 +95,14 @@
 #define	SPRN_DBAT2U	0x21C	/* Data BAT 2 Upper Register */
 #define	SPRN_DBAT3L	0x21F	/* Data BAT 3 Lower Register */
 #define	SPRN_DBAT3U	0x21E	/* Data BAT 3 Upper Register */
-#define	SPRN_DBAT4L	0x238   /* Data BAT 4 Lower Register */
-#define	SPRN_DBAT4U	0x239   /* Data BAT 4 Upper Register */
-#define	SPRN_DBAT5L	0x23A   /* Data BAT 5 Lower Register */
-#define	SPRN_DBAT5U	0x23B   /* Data BAT 5 Upper Register */
-#define	SPRN_DBAT6L	0x23C   /* Data BAT 6 Lower Register */
-#define	SPRN_DBAT6U	0x23D   /* Data BAT 6 Upper Register */
-#define	SPRN_DBAT7L	0x23E   /* Data BAT 7 Lower Register */
-#define	SPRN_DBAT7U	0x23F   /* Data BAT 7 Lower Register */
+#define	SPRN_DBAT4L	0x239   /* Data BAT 4 Lower Register */
+#define	SPRN_DBAT4U	0x238   /* Data BAT 4 Upper Register */
+#define	SPRN_DBAT5L	0x23B   /* Data BAT 5 Lower Register */
+#define	SPRN_DBAT5U	0x23A   /* Data BAT 5 Upper Register */
+#define	SPRN_DBAT6L	0x23D   /* Data BAT 6 Lower Register */
+#define	SPRN_DBAT6U	0x23C   /* Data BAT 6 Upper Register */
+#define	SPRN_DBAT7L	0x23F   /* Data BAT 7 Lower Register */
+#define	SPRN_DBAT7U	0x23E   /* Data BAT 7 Lower Register */
 #define	SPRN_DBCR	0x3F2	/* Debug Control Regsiter */
 #define	  DBCR_EDM	0x80000000
 #define	  DBCR_IDM	0x40000000
@@ -203,14 +203,14 @@
 #define	SPRN_IBAT2U	0x214	/* Instruction BAT 2 Upper Register */
 #define	SPRN_IBAT3L	0x217	/* Instruction BAT 3 Lower Register */
 #define	SPRN_IBAT3U	0x216	/* Instruction BAT 3 Upper Register */
-#define	SPRN_IBAT4L	0x230   /* Instruction BAT 4 Lower Register */
-#define	SPRN_IBAT4U	0x231   /* Instruction BAT 4 Upper Register */
-#define	SPRN_IBAT5L	0x232   /* Instruction BAT 5 Lower Register */
-#define	SPRN_IBAT5U	0x233   /* Instruction BAT 5 Upper Register */
-#define	SPRN_IBAT6L	0x234   /* Instruction BAT 6 Lower Register */
-#define	SPRN_IBAT6U	0x235   /* Instruction BAT 6 Upper Register */
-#define	SPRN_IBAT7L	0x236   /* Instruction BAT 7 Lower Register */
-#define	SPRN_IBAT7U	0x237   /* Instruction BAT 7 Lower Register */
+#define	SPRN_IBAT4L	0x231   /* Instruction BAT 4 Lower Register */
+#define	SPRN_IBAT4U	0x230   /* Instruction BAT 4 Upper Register */
+#define	SPRN_IBAT5L	0x233   /* Instruction BAT 5 Lower Register */
+#define	SPRN_IBAT5U	0x232   /* Instruction BAT 5 Upper Register */
+#define	SPRN_IBAT6L	0x235   /* Instruction BAT 6 Lower Register */
+#define	SPRN_IBAT6U	0x234   /* Instruction BAT 6 Upper Register */
+#define	SPRN_IBAT7L	0x237   /* Instruction BAT 7 Lower Register */
+#define	SPRN_IBAT7U	0x236   /* Instruction BAT 7 Upper Register */
 #define	SPRN_ICCR	0x3FB	/* Instruction Cache Cacheability Register */
 #define	  ICCR_NOCACHE		0	/* Noncacheable */
 #define	  ICCR_CACHE		1	/* Cacheable */

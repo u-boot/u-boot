@@ -27,6 +27,7 @@
 #include <asm/processor.h>
 #include <asm/pci_io.h>
 #include <commproc.h>
+#include <watchdog.h>
 #include "drivers/epic.h"
 
 /****************************************************************************/
@@ -149,15 +150,9 @@ void timer_interrupt (struct pt_regs *regs)
 
 	timestamp++;
 
-#if defined(CONFIG_WATCHDOG)
+#if defined(CONFIG_WATCHDOG) || defined (CONFIG_HW_WATCHDOG)
 	if ((timestamp % (CFG_HZ / 2)) == 0) {
-#if defined(CONFIG_OXC)
-		{
-			extern void oxc_wdt_reset (void);
-
-			oxc_wdt_reset ();
-		}
-#endif
+		WATCHDOG_RESET ();
 	}
 #endif							/* CONFIG_WATCHDOG */
 #if defined(CONFIG_SHOW_ACTIVITY) && defined(CONFIG_OXC)

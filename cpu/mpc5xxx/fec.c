@@ -427,7 +427,11 @@ static int mpc5xxx_fec_init(struct eth_device *dev, bd_t * bis)
 			/*
 			 * Set the auto-negotiation advertisement register bits
 			 */
+#ifndef CONFIG_FEC_10MBIT
 			miiphy_write(phyAddr, 0x4, 0x01e1);
+#else
+			miiphy_write(phyAddr, 0x4, 0x061);/* Advertise 10FDX */
+#endif
 
 			/*
 			 * Set MDIO bit 0.12 = 1(&& bit 0.9=1?) to enable auto-negotiation

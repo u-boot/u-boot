@@ -2,6 +2,15 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Patch by Gleb Natapov, 14 Sep 2003:
+  enable watchdog support for all MPC824x boards that have a watchdog
+
+* On MPC5200, restrict FEC to a maximum of 10 Mbps to work around the
+  "Non-octet Aligned Frame" errors we see at 100 Mbps
+
+* Patch by Sharad Gupta, 14 Sep 2003:
+  fix SPR numbers for upper BAT register ([ID]BAT[4-7][UL])
+
 * Patch by llandre, 11 Sep 2003:
   update configuration for PPChameleonEVB board
 
