@@ -250,42 +250,43 @@ The following options need to be configured:
 		PowerPC based boards:
 		---------------------
 
-		CONFIG_ADCIOP,		CONFIG_ADS860,		CONFIG_AMX860,
-		CONFIG_AR405,		CONFIG_BAB7xx,		CONFIG_c2mon,
-		CONFIG_CANBT,		CONFIG_CCM,		CONFIG_CMI,
-		CONFIG_cogent_mpc8260,	CONFIG_cogent_mpc8xx,	CONFIG_CPCI405,
-		CONFIG_CPCI4052,	CONFIG_CPCIISER4,	CONFIG_CPU86,
-		CONFIG_CRAYL1,		CONFIG_CU824,		CONFIG_DASA_SIM,
-		CONFIG_DB64360,		CONFIG_DB64460,		CONFIG_DU405,
-		CONFIG_DUET_ADS,	CONFIG_EBONY,		CONFIG_ELPPC,
-		CONFIG_ELPT860,		CONFIG_ep8260,		CONFIG_ERIC,
-		CONFIG_ESTEEM192E,	CONFIG_ETX094,		CONFIG_EVB64260,
-		CONFIG_FADS823,		CONFIG_FADS850SAR,	CONFIG_FADS860T,
-		CONFIG_FLAGADM,		CONFIG_FPS850L,		CONFIG_FPS860L,
-		CONFIG_GEN860T,		CONFIG_GENIETV,		CONFIG_GTH,
-		CONFIG_gw8260,		CONFIG_hermes,		CONFIG_hymod,
-		CONFIG_IAD210,		CONFIG_ICU862,		CONFIG_IP860,
-		CONFIG_IPHASE4539,	CONFIG_IVML24,		CONFIG_IVML24_128,
-		CONFIG_IVML24_256,	CONFIG_IVMS8,		CONFIG_IVMS8_128,
-		CONFIG_IVMS8_256,	CONFIG_JSE,		CONFIG_LANTEC,
-		CONFIG_lwmon,		CONFIG_MBX,		CONFIG_MBX860T,
-		CONFIG_MHPC,		CONFIG_MIP405,		CONFIG_MOUSSE,
-		CONFIG_MPC8260ADS,	CONFIG_MPC8540ADS,	CONFIG_MPC8560ADS,
-		CONFIG_MUSENKI,		CONFIG_MVS1,		CONFIG_NETPHONE,
-		CONFIG_NETTA,		CONFIG_NETVIA,		CONFIG_NX823,
-		CONFIG_OCRTC,		CONFIG_ORSG,		CONFIG_OXC,
-		CONFIG_PCI405,		CONFIG_PCIPPC2,		CONFIG_PCIPPC6,
-		CONFIG_pcu_e,		CONFIG_PIP405,		CONFIG_PM826,
-		CONFIG_ppmc8260,	CONFIG_QS823,		CONFIG_QS850,
-		CONFIG_QS860T,		CONFIG_RBC823,		CONFIG_RPXClassic,
-		CONFIG_RPXlite,		CONFIG_RPXsuper,	CONFIG_rsdproto,
-		CONFIG_sacsng,		CONFIG_Sandpoint8240,	CONFIG_Sandpoint8245,
-		CONFIG_sbc8260,		CONFIG_SM850,		CONFIG_SPD823TS,
-		CONFIG_STXGP3,		CONFIG_SXNI855T,	CONFIG_TQM823L,
-		CONFIG_TQM8260,		CONFIG_TQM850L,		CONFIG_TQM855L,
-		CONFIG_TQM860L,		CONFIG_TTTech,		CONFIG_UTX8245,
-		CONFIG_V37,		CONFIG_W7OLMC,		CONFIG_W7OLMG,
-		CONFIG_WALNUT405,	CONFIG_ZPC1900,		CONFIG_ZUMA,
+		CONFIG_ADCIOP		CONFIG_GEN860T		CONFIG_PCI405
+		CONFIG_ADS860		CONFIG_GENIETV		CONFIG_PCIPPC2
+		CONFIG_AMX860		CONFIG_GTH		CONFIG_PCIPPC6
+		CONFIG_AR405		CONFIG_gw8260		CONFIG_pcu_e
+		CONFIG_BAB7xx		CONFIG_hermes		CONFIG_PIP405
+		CONFIG_c2mon		CONFIG_hymod		CONFIG_PM826
+		CONFIG_CANBT		CONFIG_IAD210		CONFIG_ppmc8260
+		CONFIG_CCM		CONFIG_ICU862		CONFIG_QS823
+		CONFIG_CMI		CONFIG_IP860		CONFIG_QS850
+		CONFIG_cogent_mpc8260	CONFIG_IPHASE4539	CONFIG_QS860T
+		CONFIG_cogent_mpc8xx	CONFIG_IVML24		CONFIG_RBC823
+		CONFIG_CPCI405		CONFIG_IVML24_128	CONFIG_RPXClassic
+		CONFIG_CPCI4052		CONFIG_IVML24_256	CONFIG_RPXlite
+		CONFIG_CPCIISER4	CONFIG_IVMS8		CONFIG_RPXsuper
+		CONFIG_CPU86		CONFIG_IVMS8_128	CONFIG_rsdproto
+		CONFIG_CRAYL1		CONFIG_IVMS8_256	CONFIG_sacsng
+		CONFIG_CSB272		CONFIG_JSE		CONFIG_Sandpoint8240
+		CONFIG_CU824		CONFIG_LANTEC		CONFIG_Sandpoint8245
+		CONFIG_DASA_SIM		CONFIG_lwmon		CONFIG_sbc8260
+		CONFIG_DB64360		CONFIG_MBX		CONFIG_SM850
+		CONFIG_DB64460		CONFIG_MBX860T		CONFIG_SPD823TS
+		CONFIG_DU405		CONFIG_MHPC		CONFIG_STXGP3
+		CONFIG_DUET_ADS		CONFIG_MIP405		CONFIG_SXNI855T
+		CONFIG_EBONY		CONFIG_MOUSSE		CONFIG_TQM823L
+		CONFIG_ELPPC		CONFIG_MPC8260ADS	CONFIG_TQM8260
+		CONFIG_ELPT860		CONFIG_MPC8540ADS	CONFIG_TQM850L
+		CONFIG_ep8260		CONFIG_MPC8560ADS	CONFIG_TQM855L
+		CONFIG_ERIC		CONFIG_MUSENKI		CONFIG_TQM860L
+		CONFIG_ESTEEM192E	CONFIG_MVS1		CONFIG_TTTech
+		CONFIG_ETX094		CONFIG_NETPHONE		CONFIG_UTX8245
+		CONFIG_EVB64260		CONFIG_NETTA		CONFIG_V37
+		CONFIG_FADS823		CONFIG_NETVIA		CONFIG_W7OLMC
+		CONFIG_FADS850SAR	CONFIG_NX823		CONFIG_W7OLMG
+		CONFIG_FADS860T		CONFIG_OCRTC		CONFIG_WALNUT405
+		CONFIG_FLAGADM		CONFIG_ORSG		CONFIG_ZPC1900
+		CONFIG_FPS850L		CONFIG_OXC		CONFIG_ZUMA
+		CONFIG_FPS860L
 
 		ARM based boards:
 		-----------------
@@ -895,6 +896,32 @@ The following options need to be configured:
 		the malloc area (as defined by CFG_MALLOC_LEN) should
 		be at least 4MB.
 
+- MII/PHY support:
+		CONFIG_PHY_ADDR
+
+		The address of PHY on MII bus.
+
+		CONFIG_PHY_CLOCK_FREQ (ppc4xx)
+
+		The clock frequency of the MII bus
+
+		CONFIG_PHY_GIGE
+
+		If this option is set, support for speed/duplex
+		detection of Gigabit PHY is included.
+
+		CONFIG_PHY_RESET_DELAY
+
+		Some PHY like Intel LXT971A need extra delay after
+		reset before any MII register access is possible.
+		For such PHY, set this option to the usec delay
+		required. (minimum 300usec for LXT971A)
+
+		CONFIG_PHY_CMD_DELAY (ppc4xx)
+
+		Some PHY like Intel LXT971A need extra delay after
+		command issued before MII status register can be read
+
 - Ethernet address:
 		CONFIG_ETHADDR
 		CONFIG_ETH2ADDR
@@ -1128,6 +1155,12 @@ The following options need to be configured:
 		connected to the bus. If this option is defined a
 		custom i2c_init_board() routine in boards/xxx/board.c
 		is run early in the boot sequence.
+
+		CONFIG_I2CFAST (PPC405GP|PPC405EP only)
+
+		This option enables configuration of bi_iic_fast[] flags
+		in u-boot bd_info structure based on u-boot environment
+		variable "i2cfast". (see also i2cfast)
 
 - SPI Support:	CONFIG_SPI
 
@@ -2020,27 +2053,27 @@ is done by typing:
 where "NAME_config" is the name of one of the existing
 configurations; the following names are supported:
 
-	ADCIOP_config		ADS860_config		AR405_config
-	at91rm9200dk_config	CANBT_config		cmi_mpc5xx_config
-	cogent_common_config	cogent_mpc8260_config	cogent_mpc8xx_config
-	CPCI405_config		CPCIISER4_config	CU824_config
-	DUET_ADS_config		EBONY_config		ELPT860_config
-	ESTEEM192E_config	ETX094_config		FADS823_config
-	FADS850SAR_config	FADS860T_config		FPS850L_config
-	FPS860L_config		GEN860T_config		GENIETV_config
-	GTH_config		hermes_config		hymod_config
-	IP860_config		IVML24_config		IVMS8_config
-	JSE_config		LANTEC_config		lwmon_config
-	MBX860T_config		MBX_config		MPC8260ADS_config
-	MPC8540ADS_config	MPC8560ADS_config	NETVIA_config
-	omap1510inn_config	omap1610h2_config	omap1610inn_config
-	pcu_e_config		PIP405_config		QS823_config
-	QS850_config		QS860T_config		RPXlite_config
-	RPXsuper_config		rsdproto_config		Sandpoint8240_config
-	sbc8260_config		SM850_config		SPD823TS_config
-	stxgp3_config		SXNI855T_config		TQM823L_config
-	TQM850L_config		TQM855L_config		TQM860L_config
-	WALNUT405_config	ZPC1900_config
+	ADCIOP_config		FPS850L_config		omap1610inn_config
+	ADS860_config		FPS860L_config		pcu_e_config
+	AR405_config		GEN860T_config		PIP405_config
+	at91rm9200dk_config	GENIETV_config		QS823_config
+	CANBT_config		GTH_config		QS850_config
+	cmi_mpc5xx_config	hermes_config		QS860T_config
+	cogent_common_config	hymod_config		RPXlite_config
+	cogent_mpc8260_config	IP860_config		RPXsuper_config
+	cogent_mpc8xx_config	IVML24_config		rsdproto_config
+	CPCI405_config		IVMS8_config		Sandpoint8240_config
+	CPCIISER4_config	JSE_config		sbc8260_config
+	csb272_config		LANTEC_config		SM850_config
+	CU824_config		lwmon_config		SPD823TS_config
+	DUET_ADS_config		MBX860T_config		stxgp3_config
+	EBONY_config		MBX_config		SXNI855T_config
+	ELPT860_config		MPC8260ADS_config	TQM823L_config
+	ESTEEM192E_config	MPC8540ADS_config	TQM850L_config
+	ETX094_config		MPC8560ADS_config	TQM855L_config
+	FADS823_config		NETVIA_config		TQM860L_config
+	FADS850SAR_config	omap1510inn_config	WALNUT405_config
+	FADS860T_config		omap1610h2_config	ZPC1900_config
 
 Note: for some board special configuration names may exist; check if
       additional information is available from the board vendor; for
@@ -2220,6 +2253,12 @@ Some configuration options can be set using Environment Variables:
 		  (and eventually uncompressed), but NOT be started.
 		  This can be used to load and uncompress arbitrary
 		  data.
+
+  i2cfast	- (PPC405GP|PPC405EP only)
+		  if set to 'y' configures Linux I2C driver for fast
+		  mode (400kHZ). This environment variable is used in
+		  initialization code. So, for changes to be effective
+		  it must be saved and board must be reset.
 
   initrd_high	- restrict positioning of initrd images:
 		  If this variable is not set, initrd images will be

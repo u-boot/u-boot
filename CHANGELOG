@@ -2,6 +2,11 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Tolunay Orkun, 20 Apr 2004:
+  - README update: add CONFIG_CSB272 and csb272_config
+  - add descriptions for some MII/PHY options, CONFIG_I2CFAST, and
+    i2cfast environment variable
+
 * Patch by Yuli Barcohen, 19 Apr 2004:
   - Rename DUET_ADS to MPC885ADS
   - Rename CONFIG_DUET to CONFIG_MPC885_FAMILY
