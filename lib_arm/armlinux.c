@@ -231,7 +231,7 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
     setup_ramdisk_tag(bd);
 #endif
 #if defined (CONFIG_VFD)
-    setup_videolfb_tag(gd);
+    setup_videolfb_tag((gd_t *)gd);
 #endif
     setup_end_tag(bd);
 #endif

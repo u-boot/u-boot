@@ -1,156 +1,96 @@
 Design Notes on Exporting U-Boot Functions to Standalone Applications:
 ======================================================================
 
-1. Add a field to the global_data structure, the pointer to a jump
-   table.
+1. The functions are exported by U-Boot via a jump table. The jump
+   table is allocated and initialized in the jumptable_init() routine
+   (common/exports.c). Other routines may also modify the jump table,
+   however. The jump table can be accessed as the 'jt' field of the
+   'global_data' structure. The slot numbers for the jump table are
+   defined in the <include/exports.h> header. E.g., to substitute the
+   malloc() and free() functions that will be available to standalone
+   applications, one should do the following:
 
-2. Jump table itself is allocated and filled in the same way as the
-   syscall table is (allocated with malloc() after the code has been
-   relocated to RAM); a special function, fixed to the table element
-   number 0, will be added which returns the ABI version so
-   applications can check for compatibility issues.
+	DECLARE_GLOBAL_DATA_PTR;
 
-3. It is application's responsibility to check the ABI version and
-   act accordingly.
+	gd->jt[XF_malloc]	= my_malloc;
+	gd->jt[XF_free]		= my_free;
 
-4. Pointer to the global_data is passed to the application in the
-   dedicated register that is used in the U-Boot to hold this
-   pointer. This assumes that the application is built with the same
-   register- allocation flags as the U-Boot itself. (Actually, this
-   is a requirement even now, as the 'go' command does not perform
-   any actions to protect this register against being clobbered by
-   the application).
+   Note that the pointers to the functions all have 'void *' type and
+   thus the compiler cannot perform type checks on these assignments.
 
-   This approach won't work on the x86 architecture. See below.
+2. The pointer to the jump table is passed to the application in a
+   machine-dependent way. PowerPC, ARM and MIPS architectures use a
+   dedicated register to hold the pointer to the 'global_data'
+   structure: r29 on PowerPC, r8 on ARM and k0 on MIPS. The x86
+   architecture does not use such a register; instead, the pointer to
+   the 'global_data' structure is passed as 'argv[-1]' pointer.
 
-5. Application now calls standard library functions like printf()
-   instead of specially prefixed names like mon_printf() as it did
-   before. Present implementation of these functions (using the
-   system calls mechanism) will be replaced with jump stubs.
+   The application can access the 'global_data' structure in the same
+   way as U-Boot does:
 
-6. To export additional functions, the following steps will have to be 
-   taken:
+	DECLARE_GLOBAL_DATA_PTR;
 
-   - Add the xxx() U-Boot function to the EXPORT_FUNC list
-   - Add initialization of the appropriate slot in the jump table
+	printf("U-Boot relocation offset: %x\n", gd->reloc_off);
 
-7. To port to a new architecture, the appropriate stub code should be
-   provided. No other machine-dependent code is used. Once the stub
-   template is available, no additional coding is needed when
-   exporting new U-Boot functions. A pre-processor macro will be used
-   to automatically instantiate the stub definition for each exported
-   function.
+3. The application should call the app_startup() function before any
+   call to the exported functions. Also, implementor of the
+   application may want to check the version of the ABI provided by
+   U-Boot. To facilitate this, a get_version() function is exported
+   that returns the ABI version of the running U-Boot. I.e., a
+   typical application startup may look like this:
 
-Note the following:
+	int my_app (int argc, char *argv[])
+	{
+		app_startup (argv);
+		if (get_version () != XF_VERSION)
+			return 1;
+	}
 
-- This approach uses a jump table with fixed slot allocation. That
-  said, to retain the ABI compatibility, no table reordering,
-  inserting new functions in the middle of the list or deleting
-  functions from the list is allowed. Any such action will break the
-  ABI compatibility.
+4. The default load and start addresses of the applications are as
+   follows:
 
-- The x86 architecture does not use a dedicated register to store the
-  pointer to the global_data structure. There are the following
-  approaches available:
+		Load address	Start address
+	x86	0x00040000	0x00040000
+	PowerPC	0x00040000	0x00040004
+	ARM	0x0c100000	0x0c100000
+	MIPS	0x80200000	0x80200000
 
-  * Pass the global_data pointer to the application in a register or
-    as an additional argument. This requires special machine-
-    dependent startup code to be compiled into the application.
+   For example, the "hello world" application may be loaded and
+   executed on a PowerPC board with the following commands:
 
-  * Make the x86 consistent with the rest of architectures and use a
-    dedicated register. This renders one register unusable in the
-    rest of the U-Boot code and thus increases the size of the U-Boot
-    binary and decreases it performance.
-
-The following changes will be made:
-
-- The syscall handling code will be removed.
-
-- The include/_exports.h file will be introduced, containing the list
-  of the exported functions in the following form:
-
-  EXPORT_FUNC(getc)
-  EXPORT_FUNC(tstc)
-  ...
-
-  This list will be used to assign the slot numbers in the jump
-  table, to determine the size of the jump table and to generate the
-  code for the stub functions.
-
-- The include/exports.h file will be introduced, containing the
-  prototypes of the exported functions and the assigned slot numbers.
-
-- The examples/stubs.c file will be introduced, containing the code
-  for the jump stubs for each of the exported functions.
-
-Implementation Notes on Exporting U-Boot Functions:
-===================================================
-
-1. The patch was applied against TOT as of 7/24 12:50 MEST; the
-   resulting images were tested on the following boards:
-
-   * lwmon (PowerPC)
-   * trab  (ARM)
-   * inca  (MIPS)
-
-   The hello_world application was loaded and executed then:
-
-   [lwmon]
-   => tftp 0x40000 /tftpboot/LWMON/hello_world.bin-avn
+   => tftp 0x40000 hello_world.bin
    => go 0x40004
 
-   [trab]
-   TRAB # tftp 0xc100000 /tftpboot/TRAB/hello_world.bin-avn
-   TRAB # go 0xc100000
+5. To export some additional function foobar(), the following steps
+   should be undertaken:
 
-   [inca]
-   INCA-IP # tftp 0x80200000 /tftpboot/INCA/hello_world.bin-avn
-   INCA-IP # go 0x80200000
+   - Append the following line at the end of the include/_exports.h
+     file:
 
-2. As neither of supported x86 boards can be built from the TOT
-   sources currently, the patch build was verified by manually
-   running the following command in the U-Boot top directory:
+	EXPORT_FUNC(foobar)
 
-   > make -C examples TOPDIR=`pwd` ARCH=i386 CROSS_COMPILE=
+   - Add the prototype for this function to the include/exports.h
+     file:
 
-   The rest of the code is mostly machine-independent and was not
-   verified.
+	void foobar(void);
 
-3. To test the x86 assembly code, a small standalone application was
-   written. It was built and run on the RedHat Linux 8.0 (x86). The
-   application performs a jump using a pointer to jump table and a
-   function's index in it.
+   - Add the initialization of the jump table slot wherever
+     appropriate (most likely, to the jumptable_init() function):
 
-4. For the MIPS architecture, the linker script is also provided for
-   linking applications. The default linker script places the .text
-   and .data sections too far from each other so that the resulting
-   .bin files span about 256Mb in size.
+	gd->jt[XF_foobar] = foobar;
 
-5. Several example applications required updating for the new API.
-   These applications relied upon the bd_t pointer being passed as
-   the 1st argument to the main function; this had changed when the
-   system calls were introduced, but apparently, these applications
-   weren't fixed at that moment. This is fixed now.
+   - Increase the XF_VERSION value by one in the include/exports.h
+     file
 
-6. GCC issues warnings for the 'sched' application. Since now the
-   mon_printf() function is renamed to printf(), GCC applies its
-   knowledge of the format specifiers to check the arguments,
-   complaining about ints passed as longs and vice versa. This is not
-   fixed yet.
+6. The code for exporting the U-Boot functions to applications is
+   mostly machine-independent. The only places written in assembly
+   language are stub functions that perform the jump through the jump
+   table. That said, to port this code to a new architecture, the
+   only thing to be provided is the code in the examples/stubs.c
+   file. If this architecture, however, uses some uncommon method of
+   passing the 'global_data' pointer (like x86 does), one should add
+   the respective code to the app_startup() function in that file.
 
-7. Only the hello_world example application was modified to make use
-   of the newly supplied get_version() function. The application now
-   prints two ABI versions, the one that the application was compiled
-   for and the other, actual ABI version.
-
-8. The following new files were added:
-   common/exports.c
-   examples/mips.lds
-   examples/stubs.c
-   include/_exports.h
-   include/exports.h
-   doc/README.standalone
-
-   The following files are no longer used and will be removed:
-   examples/syscall.S
-   include/syscall.h
+   Note that these functions may only use call-clobbered registers;
+   those registers that are used to pass the function's arguments,
+   the stack contents and the return address should be left intact.

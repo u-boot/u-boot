@@ -9,6 +9,7 @@
  * to the application program.
  */
 static void **jt;
+gd_t *global_data;
 
 #define EXPORT_FUNC(x) \
 	asm volatile (			\
@@ -80,7 +81,8 @@ void app_startup(char **argv)
 {
 #if defined(CONFIG_I386)
 	/* x86 does not have a dedicated register for passing global_data */
-	jt = ((gd_t *)argv[-1])->jt;
+	global_data = (gd_t *)argv[-1];
+	jt = global_data->jt;
 #endif
 }
 

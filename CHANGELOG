@@ -2,6 +2,14 @@
 Changes for U-Boot 0.4.5:
 ======================================================================
 
+* Allow crc32 to be used at address 0x000
+
+* Provide consistent interface to standalone applications to access
+  the 'global_data' structure
+  Provide a doc/README.standalone more useful to users/developers.
+
+* Make IceCube MGT5100 FEC driver work
+
 * Implement new mechanism to export U-Boot's functions to standalone
   applications: instead of using (PPC-specific) system calls we now
   use a jump table; please see doc/README.standalone for details

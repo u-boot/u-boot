@@ -52,7 +52,7 @@
 /*
  * Supported commands
  */
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL & ~(CFG_CMD_NET))
+#define CONFIG_COMMANDS		CONFIG_CMD_DFL
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -122,10 +122,7 @@
 /*
  * Ethernet configuration
  */
-#if 0
-#define CONFIG_NET_MULTI	1
 #define CONFIG_MPC5XXX_FEC	1
-#endif
 
 /*
  * GPIO configuration

@@ -21,6 +21,14 @@
 # endif
 #endif	/* CONFIG_8xx */
 
+#if defined(CONFIG_MPC5XXX)
+# if !defined(CONFIG_NET_MULTI)
+#  if defined(CONFIG_MPC5XXX_FEC)
+#   define CONFIG_NET_MULTI
+#  endif
+# endif
+#endif	/* CONFIG_MPC5XXX */
+
 #if !defined(CONFIG_NET_MULTI) && defined(CONFIG_8260)
 #include <config.h>
 #if defined(CONFIG_ETHER_ON_FCC)

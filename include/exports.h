@@ -33,4 +33,8 @@ enum {
 
 #define XF_VERSION	1
 
+#if defined(CONFIG_I386)
+extern gd_t *global_data;
+#endif
+
 #endif

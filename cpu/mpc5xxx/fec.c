@@ -14,7 +14,7 @@
 #include "sdma.h"
 #include "fec.h"
 
-#define DEBUG	0x8
+/* #define DEBUG	0x28 */
 
 #if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_NET_MULTI) && \
 	defined(CONFIG_MPC5XXX_FEC)
@@ -28,25 +28,33 @@ static void rfifo_print(mpc5xxx_fec_priv *fec);
 static uint32 local_crc32(char *string, unsigned int crc_value, int len);
 #endif
 
+typedef struct {
+    uint8 data[1500];           /* actual data */
+    int length;                 /* actual length */
+    int used;                   /* buffer in use or not */
+    uint8 head[16];             /* MAC header(6 + 6 + 2) + 2(aligned) */
+} NBUF;
+
 /********************************************************************/
 static int mpc5xxx_fec_rbd_init(mpc5xxx_fec_priv *fec)
 {
 	int ix;
 	char *data;
+	static int once = 0;
 
-	/*
-	 * the receive ring is located right after the transmit one
-	 */
 	for (ix = 0; ix < FEC_RBD_NUM; ix++) {
-		data = (char *)malloc(FEC_MAX_PKT_SIZE);
-		if (data == NULL) {
-			printf ("RBD INIT FAILED\n");
-			return -1;
+		if (!once) {
+			data = (char *)malloc(FEC_MAX_PKT_SIZE);
+			if (data == NULL) {
+				printf ("RBD INIT FAILED\n");
+				return -1;
+			}
+			fec->rbdBase[ix].dataPointer = (uint32)data;
 		}
 		fec->rbdBase[ix].status = FEC_RBD_EMPTY;
 		fec->rbdBase[ix].dataLength = 0;
-		fec->rbdBase[ix].dataPointer = (uint32)data;
 	}
+	once ++;
 
 	/*
 	 * have the last RBD to close the ring
@@ -336,11 +344,6 @@ static int mpc5xxx_fec_init(struct eth_device *dev, bd_t * bis)
 	SDMA_CLEAR_IEVENT(FEC_RECV_TASK_NO);
 
 	/*
-	 * Set SmartDMA intMask register to enable SmartDMA task interrupts
-	 */
-	SDMA_INT_ENABLE(FEC_RECV_TASK_NO);
-
-	/*
 	 * Initialize SmartDMA parameters stored in SRAM
 	 */
 	*(int *)FEC_TBD_BASE = (int)fec->tbdBase;
@@ -494,8 +497,10 @@ static int mpc5xxx_fec_init(struct eth_device *dev, bd_t * bis)
 /********************************************************************/
 static void mpc5xxx_fec_halt(struct eth_device *dev)
 {
-	mpc5xxx_fec_priv *fec = (mpc5xxx_fec_priv *)dev->priv;
+#if defined(CONFIG_MPC5200)
 	struct mpc5xxx_sdma *sdma = (struct mpc5xxx_sdma *)MPC5XXX_SDMA;
+#endif
+	mpc5xxx_fec_priv *fec = (mpc5xxx_fec_priv *)dev->priv;
 	int counter = 0xffff;
 
 #if (DEBUG & 0x2)
@@ -529,8 +534,6 @@ static void mpc5xxx_fec_halt(struct eth_device *dev)
 	 * wait for graceful stop to register
 	 */
 	while ((counter--) && (!(fec->eth->ievent & 0x10000000))) ;
-
-	SDMA_INT_DISABLE (FEC_RECV_TASK_NO);
 
 	/*
 	 * Disable SmartDMA tasks
@@ -671,7 +674,7 @@ static int mpc5xxx_fec_send(struct eth_device *dev, volatile void *eth_data,
 	pTbd = &fec->tbdBase[fec->tbdIndex];
 	pTbd->dataLength = data_length;
 	pTbd->dataPointer = (uint32)eth_data;
-	pTbd->status |= FEC_TBD_READY;
+	pTbd->status |= FEC_TBD_LAST | FEC_TBD_TC | FEC_TBD_READY;
 	fec->tbdIndex = (fec->tbdIndex + 1) % FEC_TBD_NUM;
 
 #if (DEBUG & 0x100)
@@ -729,8 +732,9 @@ static int mpc5xxx_fec_recv(struct eth_device *dev)
 	mpc5xxx_fec_priv *fec = (mpc5xxx_fec_priv *)dev->priv;
 	FEC_RBD *pRbd = &fec->rbdBase[fec->rbdIndex];
 	unsigned long ievent;
-	int frame_length;
-	char *frame;
+	int frame_length, len = 0;
+	NBUF *frame;
+	char buff[FEC_MAX_PKT_SIZE];
 
 #if (DEBUG & 0x1)
 	printf ("mpc5xxx_fec_recv %d Start...\n", fec->rbdIndex);
@@ -763,41 +767,40 @@ static int mpc5xxx_fec_recv(struct eth_device *dev)
 		}
 	}
 
-	/*
-	 * Do we have data in Rx FIFO?
-	 */
-	if ((pRbd->status & FEC_RBD_EMPTY) || !(pRbd->status & FEC_RBD_LAST)){
-		return 0;
-	}
+	if (!(pRbd->status & FEC_RBD_EMPTY)) {
+		if ((pRbd->status & FEC_RBD_LAST) && !(pRbd->status & FEC_RBD_ERR) &&
+			((pRbd->dataLength - 4) > 14)) {
 
-	/*
-	 * Pass the packet up only if reception was Ok
-	 */
-	if ((pRbd->dataLength <= 14) || (pRbd->status & FEC_RBD_ERR)) {
-		mpc5xxx_fec_rbd_clean(fec, pRbd);
-#if (DEBUG & 0x8)
-		printf( "X0" );
+			/*
+			 * Get buffer address and size
+			 */
+			frame = (NBUF *)pRbd->dataPointer;
+			frame_length = pRbd->dataLength - 4;
+
+#if (DEBUG & 0x20)
+			{
+				int i;
+				printf("recv data hdr:");
+				for (i = 0; i < 14; i++)
+					printf("%x ", *(frame->head + i));
+				printf("\n");
+			}
 #endif
-		return 0;
+			/*
+			 *  Fill the buffer and pass it to upper layers
+			 */
+			memcpy(buff, frame->head, 14);
+			memcpy(buff + 14, frame->data, frame_length);
+			NetReceive(buff, frame_length);
+			len = frame_length;
+		}
+		/*
+		 * Reset buffer descriptor as empty
+		 */
+		mpc5xxx_fec_rbd_clean(fec, pRbd);
 	}
-
-	/*
-	 * Get buffer address and size
-	 */
-	frame = (char *)pRbd->dataPointer;
-	frame_length = pRbd->dataLength;
-
-	/*
-	 * Pass the buffer to upper layers
-	 */
-	NetReceive(frame, frame_length);
-
-	/*
-	 * Reset buffer descriptor as empty
-	 */
-	mpc5xxx_fec_rbd_clean(fec, pRbd);
-
-	return frame_length;
+	SDMA_CLEAR_IEVENT (FEC_RECV_TASK_NO);
+	return len;
 }
 
 
@@ -824,6 +827,7 @@ int mpc5xxx_fec_initialize(bd_t * bis)
 	dev->send = mpc5xxx_fec_send;
 	dev->recv = mpc5xxx_fec_recv;
 
+	sprintf(dev->name, "FEC ETHERNET");
 	eth_register(dev);
 
 	return 1;
