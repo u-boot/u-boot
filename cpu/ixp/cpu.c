@@ -37,22 +37,16 @@
 int cpu_init (void)
 {
 	/*
-	 * setup up stack if necessary
+	 * setup up stacks if necessary
 	 */
-/*
-
-  FIXME: the stack is _below_ the uboot code!!
-
 #ifdef CONFIG_USE_IRQ
-	IRQ_STACK_START = _armboot_end +
-			CONFIG_STACKSIZE + CONFIG_STACKSIZE_IRQ - 4;
-	FIQ_STACK_START = IRQ_STACK_START + CONFIG_STACKSIZE_FIQ;
-	_armboot_real_end = FIQ_STACK_START + 4;
-#else
-	_armboot_real_end = _armboot_end + CONFIG_STACKSIZE;
+	DECLARE_GLOBAL_DATA_PTR;
+
+	IRQ_STACK_START = _armboot_start - CFG_MALLOC_LEN - CFG_GBL_DATA_SIZE - 4;
+	FIQ_STACK_START = IRQ_STACK_START - CONFIG_STACKSIZE_IRQ;
 #endif
-*/
-   pci_init();
+
+	pci_init();
 	return 0;
 }
 
@@ -84,7 +78,7 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	extern void reset_cpu (ulong addr);
 
-	printf ("reseting ...\n");
+	printf ("resetting ...\n");
 
 	udelay (50000);				/* wait 50 ms */
 	disable_interrupts ();

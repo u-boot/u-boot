@@ -31,8 +31,8 @@
 
 /* for the following variables, see start.S */
 extern ulong _armboot_start;	/* code start */
-extern ulong _armboot_end_data;	/* code + data end */
-extern ulong _armboot_end;	/* BSS end */
+extern ulong _bss_start;	/* code + data end == BSS start */
+extern ulong _bss_end;		/* BSS end */
 extern ulong IRQ_STACK_START;	/* top of IRQ stack */
 extern ulong FIQ_STACK_START;	/* top of FIQ stack */
 

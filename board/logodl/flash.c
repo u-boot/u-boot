@@ -105,7 +105,7 @@ ulong flash_init(void)
      */
     flash_protect(FLAG_PROTECT_SET,
 		  CFG_FLASH_BASE,
-		  CFG_FLASH_BASE + _armboot_end_data - _armboot_start,
+		  CFG_FLASH_BASE + _bss_start - _armboot_start,
 		  &flash_info[0]);
 
     flash_protect(FLAG_PROTECT_SET,

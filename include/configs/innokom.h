@@ -82,9 +82,7 @@
  */
 
 /*
- * Size of malloc() pool; this lives below the uppermost 128 KiB which are
- * used for the RAM copy of the uboot code
- *
+ * Size of malloc() pool
  */
 #define CFG_MALLOC_LEN		(256*1024)
 #define CFG_GBL_DATA_SIZE	128		/* size in bytes reserved for initial data */

@@ -89,16 +89,15 @@ _armboot_start:
 	.word _start
 
 /*
- * Note: _armboot_end_data and _armboot_end are defined
- * by the (board-dependent) linker script.
- * _armboot_end_data is the first usable FLASH address after armboot
+ * These are defined in the board-specific linker script.
  */
-.globl _armboot_end_data
-_armboot_end_data:
-	.word armboot_end_data
-.globl _armboot_end
-_armboot_end:
-	.word armboot_end
+.globl _bss_start
+_bss_start:
+	.word __bss_start
+
+.globl _bss_end
+_bss_end:
+	.word _end
 
 #ifdef CONFIG_USE_IRQ
 /* IRQ stack memory (calculated at run-time) */
@@ -176,7 +175,7 @@ relocate:				/* relocate U-Boot to RAM	    */
 	beq     stack_setup
 
 	ldr	r2, _armboot_start
-	ldr	r3, _armboot_end
+	ldr	r3, _bss_start
 	sub	r2, r3, r2		/* r2 <- size of armboot            */
 	add	r2, r0, r2		/* r2 <- source end address         */
 
@@ -195,6 +194,17 @@ stack_setup:
 	sub	r0, r0, #(CONFIG_STACKSIZE_IRQ+CONFIG_STACKSIZE_FIQ)
 #endif
 	sub	sp, r0, #12		/* leave 3 words for abort-stack    */
+
+clear_bss:
+	ldr	r0, _bss_start		/* find start of bss segment        */
+	add	r0, r0, #4		/* start at first byte of bss       */
+	ldr	r1, _bss_end		/* stop here                        */
+	mov 	r2, #0x00000000		/* clear                            */
+
+clbss_l:str	r2, [r0]		/* clear loop...                    */
+	add	r0, r0, #4
+	cmp	r0, r1
+	bne	clbss_l
 
 	ldr	pc, _start_armboot
 
@@ -283,9 +293,9 @@ cpu_init_crit:
 	sub	sp, sp, #S_FRAME_SIZE           @ carve out a frame on current user stack
 	stmia	sp, {r0 - r12}			@ Save user registers (now in svc mode) r0-r12
 
-	ldr	r2, _armboot_end                @ find top of stack
-	add	r2, r2, #CONFIG_STACKSIZE       @ find base of normal stack
-	sub	r2, r2, #8                      @ set base 2 words into abort stack
+	ldr	r2, _armboot_start
+	sub	r2, r2, #(CONFIG_STACKSIZE+CFG_MALLOC_LEN)
+	sub	r2, r2, #(CFG_GBL_DATA_SIZE+8)  @ set base 2 words into abort stack
 	ldmia	r2, {r2 - r3}                   @ get values for "aborted" pc and cpsr (into parm regs)
 	add	r0, sp, #S_FRAME_SIZE		@ grab pointer to old stack
 
@@ -316,9 +326,9 @@ cpu_init_crit:
 	.endm
 
 	.macro get_bad_stack
-	ldr	r13, _armboot_end		@ get bottom of stack (into sp by by user stack pointer).
-	add	r13, r13, #CONFIG_STACKSIZE	@ head to reserved words at the top of the stack
-	sub	r13, r13, #8                    @ reserved a couple spots in abort stack
+	ldr	r13, _armboot_start		@ setup our mode stack
+	sub	r13, r13, #(CONFIG_STACKSIZE+CFG_MALLOC_LEN)
+	sub	r13, r13, #(CFG_GBL_DATA_SIZE+8) @ reserved a couple spots in abort stack
 
 	str	lr, [r13]			@ save caller lr in position 0 of saved stack
 	mrs	lr, spsr                        @ get the spsr

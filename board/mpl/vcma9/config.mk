@@ -14,11 +14,11 @@
 # Linux-Kernel is expected to be at 3000'8000, entry 3000'8000
 # optionally with a ramdisk at 3040'0000
 #
-# we load ourself to 30F8'0000
+# we load ourself to 33F8'0000
 #
 # download area is 3080'0000
 #
 
 
 #TEXT_BASE = 0x30F80000
-TEXT_BASE = 0x33F00000
+TEXT_BASE = 0x33F80000

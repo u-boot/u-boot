@@ -18,9 +18,9 @@
 # Linux-Kernel is expected to be at 1000'8000, entry 1000'8000
 # (mem base + reserved)
 #
-# we load ourself to 1100'0000
+# we load ourself to 1108'0000
 #
 #
 
 
-TEXT_BASE = 0x11000000
+TEXT_BASE = 0x11080000

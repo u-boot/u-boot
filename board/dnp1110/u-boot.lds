@@ -44,16 +44,12 @@ SECTIONS
 	. = ALIGN(4);
 	.got : { *(.got) }
 
-
-  __u_boot_cmd_start = .;
-  .u_boot_cmd : { *(.u_boot_cmd) }
-  __u_boot_cmd_end = .;
-
-
-	armboot_end_data = .;
+	__u_boot_cmd_start = .;
+	.u_boot_cmd : { *(.u_boot_cmd) }
+	__u_boot_cmd_end = .;
 
 	. = ALIGN(4);
+	__bss_start = .;
 	.bss : { *(.bss) }
-
-	armboot_end = .;
+	_end = .;
 }

@@ -48,12 +48,8 @@ SECTIONS
 	.u_boot_cmd : { *(.u_boot_cmd) }
 	__u_boot_cmd_end = .;
 
-	armboot_end_data = .;
-
 	. = ALIGN(4);
-	bss_start = .;
+	__bss_start = .;
 	.bss : { *(.bss) }
-	bss_end = .;
-
-	armboot_end = .;
+	_end = .;
 }

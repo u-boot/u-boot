@@ -193,7 +193,7 @@ void putc (const char c)
 
 #ifdef CONFIG_SILENT_CONSOLE
 	if (gd->flags & GD_FLG_SILENT)
-		return(0);
+		return;
 #endif
 
 	if (gd->flags & GD_FLG_DEVINIT) {

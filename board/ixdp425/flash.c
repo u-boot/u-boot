@@ -72,7 +72,7 @@ unsigned long flash_init (void)
 			flash_get_offsets (PHYS_FLASH_1, &flash_info[i]);
 			break;
 		default:
-			panic ("configured to many flash banks!\n");
+			panic ("configured too many flash banks!\n");
 			break;
 		}
 		size += flash_info[i].size;
@@ -82,7 +82,7 @@ unsigned long flash_init (void)
 	 */
 	flash_protect (FLAG_PROTECT_SET,
 		       CFG_FLASH_BASE,
-		       CFG_FLASH_BASE + _armboot_end_data - _armboot_start,
+		       CFG_FLASH_BASE + _bss_start - _armboot_start,
 		       &flash_info[0]);
 
 	flash_protect (FLAG_PROTECT_SET,

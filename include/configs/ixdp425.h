@@ -49,6 +49,7 @@
  * Size of malloc() pool
  */
 #define CFG_MALLOC_LEN      (CFG_ENV_SIZE + 128*1024)
+#define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE

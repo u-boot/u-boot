@@ -2,6 +2,16 @@
 Changes since U-Boot 1.0.1:
 ======================================================================
 
+* Patch by Anders Larsen, 09 Jan 2004:
+
+  ARM memory layout fixes: the abort-stack is now set up in the
+  correct RAM area, and the BSS is zeroed out as it should be.
+
+  Furthermore, the magic variables 'armboot_end' and 'armboot_end_data'
+  of the linker scripts are replaced by '__bss_start' and '_end',
+  resp., which is a further step to eliminate unnecessary differences
+  between the implementation of the CPU architectures.
+
 * Patch by liang a lei, 9 Jan 2004:
   Fix Intel 28F128J3 ID in include/flash.h
 

@@ -117,7 +117,7 @@ static int display_banner (void)
 {
 	printf ("\n\n%s\n\n", version_string);
 	printf ("U-Boot code: %08lX -> %08lX  BSS: -> %08lX\n",
-		_armboot_start, _armboot_end_data, _armboot_end);
+		_armboot_start, _bss_start, _bss_end);
 #ifdef CONFIG_MODEM_SUPPORT
 	puts ("Modem Support enabled\n");
 #endif
@@ -173,7 +173,7 @@ static void display_flash_config (ulong size)
  * All attempts to come up with a "common" initialization sequence
  * that works for all boards and architectures failed: some of the
  * requirements are just _too_ different. To get rid of the resulting
- * mess of board dependend #ifdef'ed code we now make the whole
+ * mess of board dependent #ifdef'ed code we now make the whole
  * initialization sequence configurable to the user.
  *
  * The requirements for any new initalization function is simple: it
@@ -217,7 +217,7 @@ void start_armboot (void)
 	gd->bd = (bd_t*)((char*)gd - sizeof(bd_t));
 	memset (gd->bd, 0, sizeof (bd_t));
 
-	monitor_flash_len = _armboot_end_data - _armboot_start;
+	monitor_flash_len = _bss_start - _armboot_start;
 
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
 		if ((*init_fnc_ptr)() != 0) {
@@ -237,7 +237,7 @@ void start_armboot (void)
 	 * reserve memory for VFD display (always full pages)
 	 */
 	/* armboot_end is defined in the board-specific linker script */
-	addr = (_armboot_end + (PAGE_SIZE - 1)) & ~(PAGE_SIZE - 1);
+	addr = (_bss_start + (PAGE_SIZE - 1)) & ~(PAGE_SIZE - 1);
 	size = vfd_setmem (addr);
 	gd->fb_base = addr;
 #endif /* CONFIG_VFD */

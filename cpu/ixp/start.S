@@ -101,42 +101,15 @@ _armboot_start:
 	.word _start
 
 /*
- * Note: _armboot_end_data and _armboot_end are defined
- * by the (board-dependent) linker script.
- * _armboot_end_data is the first usable FLASH address after armboot
- */
-.globl _armboot_end_data
-_armboot_end_data:
-	.word armboot_end_data
-.globl _armboot_end
-_armboot_end:
-	.word armboot_end
-
-/*
- * This is defined in the board specific linker script
+ * These are defined in the board-specific linker script.
  */
 .globl _bss_start
 _bss_start:
-	.word bss_start
+	.word __bss_start
 
 .globl _bss_end
 _bss_end:
-	.word bss_end
-
-/*
- * _armboot_real_end is the first usable RAM address behind armboot
- * and the various stacks
- */
-.globl _armboot_real_end
-_armboot_real_end:
-	.word 0x0badc0de
-
-/*
- * We relocate uboot to this address (end of RAM - 128 KiB)
- */
-.globl _uboot_reloc
-_uboot_reloc:
-	.word TEXT_BASE
+	.word _end
 
 #ifdef CONFIG_USE_IRQ
 /* IRQ stack memory (calculated at run-time) */
@@ -294,7 +267,7 @@ relocate:				/* relocate U-Boot to RAM	    */
 	beq     stack_setup
 
 	ldr	r2, _armboot_start
-	ldr	r3, _armboot_end
+	ldr	r3, _bss_start
 	sub	r2, r3, r2		/* r2 <- size of armboot            */
 	add	r2, r0, r2		/* r2 <- source end address         */
 
@@ -305,16 +278,16 @@ copy_loop:
 	ble	copy_loop
 
 	/* Set up the stack						    */
-
 stack_setup:
-
-	ldr	r0, _uboot_reloc	/* upper 128 KiB: relocated uboot   */
-	sub	r0, r0, #CFG_MALLOC_LEN /* malloc area			    */
-					/* FIXME: bdinfo should be here	    */
+	ldr	r0, _TEXT_BASE		/* upper 128 KiB: relocated uboot   */
+	sub	r0, r0, #CFG_MALLOC_LEN	/* malloc area                      */
+	sub	r0, r0, #CFG_GBL_DATA_SIZE /* bdinfo                        */
+#ifdef CONFIG_USE_IRQ
+	sub	r0, r0, #(CONFIG_STACKSIZE_IRQ+CONFIG_STACKSIZE_FIQ)
+#endif
 	sub	sp, r0, #12		/* leave 3 words for abort-stack    */
 
 clear_bss:
-
 	ldr	r0, _bss_start		/* find start of bss segment        */
 	add	r0, r0, #4		/* start at first byte of bss       */
 	ldr	r1, _bss_end		/* stop here                        */
@@ -324,7 +297,6 @@ clbss_l:str	r2, [r0]		/* clear loop...                    */
 	add	r0, r0, #4
 	cmp	r0, r1
 	bne	clbss_l
-
 
 	ldr	pc, _start_armboot
 
@@ -370,9 +342,9 @@ _start_armboot: .word start_armboot
 	stmia	sp, {r0 - r12}			/* Calling r0-r12	    */
 	add	r8, sp, #S_PC
 
-	ldr	r2, _armboot_end
-	add	r2, r2, #CONFIG_STACKSIZE
-	sub	r2, r2, #8
+	ldr	r2, _armboot_start
+	sub	r2, r2, #(CONFIG_STACKSIZE+CFG_MALLOC_LEN)
+	sub	r2, r2, #(CFG_GBL_DATA_SIZE+8)  @ set base 2 words into abort stack
 	ldmia	r2, {r2 - r4}			/* get pc, cpsr, old_r0	    */
 	add	r0, sp, #S_FRAME_SIZE		/* restore sp_SVC	    */
 
@@ -407,9 +379,9 @@ _start_armboot: .word start_armboot
 	.endm
 
 	.macro get_bad_stack
-	ldr	r13, _armboot_end		@ setup our mode stack
-	add	r13, r13, #CONFIG_STACKSIZE	@ resides at top of normal stack
-	sub	r13, r13, #8
+	ldr	r13, _armboot_start		@ setup our mode stack
+	sub	r13, r13, #(CONFIG_STACKSIZE+CFG_MALLOC_LEN)
+	sub	r13, r13, #(CFG_GBL_DATA_SIZE+8) @ reserved a couple spots in abort stack
 
 	str	lr, [r13]			@ save caller lr / spsr
 	mrs	lr, spsr
