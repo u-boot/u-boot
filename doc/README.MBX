@@ -1,0 +1,68 @@
+IMPORTANT NOTE - read before defining CFG_USE_OSCCLK in your board
+		 config file!!!
+
+
+WARNING: Wrong settings of this parameter have the potential to
+damage hardware by running the MBX's CPU at frequencies that exceed
+it's rating and/or overdriving the it's SPLL!
+
+
+Ramblings:
+1) Motorola offered 12 different variants of the MBX, 6 823s and 6 860s.
+2) Of these 12 variants, only 2 were entry level boards.
+3) I believe that the 2 entry level boards were the only ones that
+   used OSCM clocking. I can't be completely certain of this at this
+   point.
+4) Motorola never offered an MBX that ran faster than 50Mhz.
+5) The 10, non-entry level boards, ran at 40Mhz.
+6) The EXTCLK input has a minimum clock of 15Mhz for the 823/860.
+7) Motorola no longer sells MBXs.
+
+Based on this information, I can surmise that the default power-on
+reset clocking was one of the following three options.
+
+Multiplier       SPLL Options
+------------------------------------
+513              OSCM is SPLL input
+5                OSCM is SPLL input
+1                EXTCLK is SPLL input
+
+The forth option:
+
+5                EXTCLK is SPLL input
+
+is not possible on MBXs. This is because the minimum EXTCLK input
+frequency is 15Mhz. 5 * 15Mhz = 75 Mhz. There was no variant that ran
+above 50 Mhz.
+
+The board I have borrowed definitely uses a multiplier of 1 for
+EXTCLK and runs at 40Mhz. I even went so far as to put a scope on it.
+
+One of the two default OSCM modes are most likely what was used on
+the entry level boards to cheapen them by eliminating the external
+crystal oscillator.
+
+To add insult to injury, the stupid 860 PLPRCR register retains it's
+multiplication factor through hard resets. You can't clear it out
+because it is battery backed and once it is set wrong, it stays
+wrong. The only way to reset it, so that it takes on it's default
+multiplier is to disconnect all power including external, batteries,
+as well discharging caps on the board. This precludes the fact that
+your 860 may be quite DEAD by this time!
+
+If you don't setup the multiplication factor for boards that use the
+OSCM input, they won't run correctly, but at least they won't be
+dead.
+
+Addtionally, there is no good way to determine the clock input source
+from CPU register data. The only way to deal with this is either hard
+code it, determine the correct value with some rather NASTY timing
+loops, or try to grok it from external data sources. Motorola
+firmware opts for the NASTY timing loops, but needs to configure the
+serial ports to do so.
+
+
+You may have a legitimate need to define CFG_USE_OSCCLK if your
+MBX8xx board is using the OSCM clocking mode.
+
+You better know what you are doing here.
