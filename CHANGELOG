@@ -2,6 +2,13 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Yuli Barcohen, 13 Jul 2004:
+  Allow clock setting on MPC866/MPC885 series chips according to
+  environment variable `cpuclk'
+
+* Patch by Yuli Barcohen, 20 Apr 2004:
+  Remove unnecessary redefine of CPM_DATAONLY_SIZE for MPC826x
+
 * Patch by Vincent Dubey, 24 Sep 2004:
   Add support for xaeniax board
 

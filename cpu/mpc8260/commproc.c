@@ -20,13 +20,6 @@
 #include <common.h>
 #include <asm/cpm_8260.h>
 
-/*
- * because we have stack and init data in dual port ram
- * we must reduce the size
- */
-#undef	CPM_DATAONLY_SIZE
-#define CPM_DATAONLY_SIZE	((uint)(8 * 1024) - CPM_DATAONLY_BASE)
-
 void
 m8260_cpm_reset(void)
 {

@@ -44,25 +44,25 @@
 /*
  * 10 MHz - PLL input clock
  */
-#define CFG_866_OSCCLK		10000000
+#define CFG_8xx_OSCCLK			10000000
 
 /*
  * 50 MHz - default CPU clock
  */
-#define CFG_866_CPUCLK_DEFAULT	50000000
+#define CONFIG_8xx_CPUCLK_DEFAULT	50000000
 
 /*
  * 15 MHz - CPU minimum clock
  */
-#define CFG_866_CPUCLK_MIN	15000000
+#define CFG_8xx_CPUCLK_MIN		15000000
 
 /*
  * 133 MHz - CPU maximum clock
  */
-#define CFG_866_CPUCLK_MAX	133000000
+#define CFG_8xx_CPUCLK_MAX		133000000
 
 #define CFG_MEASURE_CPUCLK
-#define CFG_8XX_XIN		CFG_866_OSCCLK
+#define CFG_8XX_XIN			CFG_8xx_OSCCLK
 
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 
@@ -307,7 +307,7 @@
  * 4    Number of refresh cycles per period
  * 64   Refresh cycle in ms per number of rows
  */
-#define CFG_866_PTA_PER_CLK	((4096 * 64 * 1000) / (4 * 64))
+#define CFG_PTA_PER_CLK		((4096 * 64 * 1000) / (4 * 64))
 
 /*
  * Memory Periodic Timer Prescaler

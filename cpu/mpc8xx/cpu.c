@@ -124,13 +124,13 @@ static int check_CPU (long clock, uint pvr, uint immr)
 		printf ("unknown M%s (0x%08x)", id_str, k);
 
 
-#if defined(CFG_866_CPUCLK_MIN) && defined(CFG_866_CPUCLK_MAX)
+#if defined(CFG_8xx_CPUCLK_MIN) && defined(CFG_8xx_CPUCLK_MAX)
 	printf (" at %s MHz [%d.%d...%d.%d MHz]\n       ",
 		strmhz (buf, clock),
-		CFG_866_CPUCLK_MIN / 1000000,
-		((CFG_866_CPUCLK_MIN % 1000000) + 50000) / 100000,
-		CFG_866_CPUCLK_MAX / 1000000,
-		((CFG_866_CPUCLK_MAX % 1000000) + 50000) / 100000
+		CFG_8xx_CPUCLK_MIN / 1000000,
+		((CFG_8xx_CPUCLK_MIN % 1000000) + 50000) / 100000,
+		CFG_8xx_CPUCLK_MAX / 1000000,
+		((CFG_8xx_CPUCLK_MAX % 1000000) + 50000) / 100000
 	);
 #else
 	printf (" at %s MHz: ", strmhz (buf, clock));
@@ -140,7 +140,7 @@ static int check_CPU (long clock, uint pvr, uint immr)
 		checkdcache () >> 10
 	);
 
-	/* do we have a FEC (860T/P or 852/859/866)? */
+	/* do we have a FEC (860T/P or 852/859/866/885)? */
 
 	immap->im_cpm.cp_fec.fec_addr_low = 0x12345678;
 	if (immap->im_cpm.cp_fec.fec_addr_low == 0x12345678) {

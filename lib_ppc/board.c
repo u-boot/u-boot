@@ -264,7 +264,7 @@ init_fnc_t *init_sequence[] = {
 	board_early_init_f,
 #endif
 
-#if !defined(CONFIG_TQM866M) && !defined(CONFIG_NC650)
+#if !defined(CONFIG_8xx_CPUCLK_DEFAULT)
 	get_clocks,		/* get CPU and bus clocks (etc.) */
 #if defined(CONFIG_TQM8xxL) && !defined(CONFIG_TQM866M)
 	adjust_sdram_tbs_8xx,
@@ -280,7 +280,7 @@ init_fnc_t *init_sequence[] = {
 	board_postclk_init,
 #endif
 	env_init,
-#if defined(CONFIG_TQM866M) || defined(CONFIG_NC650)
+#if defined(CONFIG_8xx_CPUCLK_DEFAULT)
 	get_clocks_866,		/* get CPU and bus clocks according to the environment variable */
 	sdram_adjust_866,	/* adjust sdram refresh rate according to the new clock */
 	init_timebase,

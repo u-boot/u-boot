@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2003
+ * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -36,10 +36,10 @@
 #define CONFIG_MPC866		1	/* This is a MPC866 CPU		*/
 #define CONFIG_TQM866M		1	/* ...on a TQM8xxM module	*/
 
-#define CFG_866_OSCCLK		 10000000	/*  10 MHz - PLL input clock		*/
-#define CFG_866_CPUCLK_MIN	 15000000	/*  15 MHz - CPU minimum clock		*/
-#define CFG_866_CPUCLK_MAX	133000000	/* 133 MHz - CPU maximum clock		*/
-#define CFG_866_CPUCLK_DEFAULT	 50000000	/*  50 MHz - CPU default clock		*/
+#define CONFIG_8xx_OSCLK		10000000	/*  10 MHz - PLL input clock	*/
+#define CFG_8xx_CPUCLK_MIN		15000000	/*  15 MHz - CPU minimum clock	*/
+#define CFG_8xx_CPUCLK_MAX		133000000	/* 133 MHz - CPU maximum clock	*/
+#define CONFIG_8xx_CPUCLK_DEFAULT	50000000	/*  50 MHz - CPU default clock	*/
 						/* (it will be used if there is no	*/
 						/* 'cpuclk' variable with valid value)	*/
 
@@ -404,12 +404,12 @@
  * 4	Number of refresh cycles per period
  * 64	Refresh cycle in ms per number of rows
  */
-#define CFG_866_PTA_PER_CLK	((4096 * 64 * 1000) / (4 * 64))
+#define CFG_PTA_PER_CLK	((4096 * 64 * 1000) / (4 * 64))
 
 /*
  * Memory Periodic Timer Prescaler
  * Periodic timer for refresh, start with refresh rate for 40 MHz clock
- * (CFG_866_CPUCLK_MIN / CFG_866_PTA_PER_CLK)
+ * (CFG_8xx_CPUCLK_MIN / CFG_PTA_PER_CLK)
  */
 #define CFG_MAMR_PTA		39
 

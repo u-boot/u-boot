@@ -25,7 +25,7 @@
 #include <mpc8xx.h>
 #include <asm/processor.h>
 
-#if !defined(CONFIG_TQM866M) || defined(CFG_MEASURE_CPUCLK)
+#if !defined(CONFIG_8xx_CPUCLK_DEFAULT) || defined(CFG_MEASURE_CPUCLK)
 
 #define PITC_SHIFT 16
 #define PITR_SHIFT 16
@@ -172,7 +172,7 @@ unsigned long measure_gclk(void)
 
 #endif
 
-#if !defined(CONFIG_TQM866M) && !defined(CONFIG_NC650)
+#if !defined(CONFIG_8xx_CPUCLK_DEFAULT)
 
 /*
  * get_clocks() fills in gd->cpu_clock depending on CONFIG_8xx_GCLK_FREQ
@@ -226,15 +226,15 @@ int get_clocks (void)
 	return (0);
 }
 
-#else /* CONFIG_MPC866_FAMILY */
+#else /* CONFIG_8xx_CPUCLK_DEFAULT defined, use dynamic clock setting */
 
 static long init_pll_866 (long clk);
 
 /* This function sets up PLL (init_pll_866() is called) and
  * fills gd->cpu_clk and gd->bus_clk according to the environment
- * variable 'cpuclk' or to CFG_866_CPUCLK_DEFAULT (if 'cpuclk'
+ * variable 'cpuclk' or to CONFIG_8xx_CPUCLK_DEFAULT (if 'cpuclk'
  * contains invalid value).
- * This functions requires an MPC866 series CPU.
+ * This functions requires an MPC866 or newer series CPU.
  */
 int get_clocks_866 (void)
 {
@@ -248,8 +248,8 @@ int get_clocks_866 (void)
 	if (getenv_r ("cpuclk", tmp, sizeof (tmp)) > 0)
 		cpuclk = simple_strtoul (tmp, NULL, 10) * 1000000;
 
-	if ((CFG_866_CPUCLK_MIN > cpuclk) || (CFG_866_CPUCLK_MAX < cpuclk))
-		cpuclk = CFG_866_CPUCLK_DEFAULT;
+	if ((CFG_8xx_CPUCLK_MIN > cpuclk) || (CFG_8xx_CPUCLK_MAX < cpuclk))
+		cpuclk = CONFIG_8xx_CPUCLK_DEFAULT;
 
 	gd->cpu_clk = init_pll_866 (cpuclk);
 #if defined(CFG_MEASURE_CPUCLK)
@@ -284,13 +284,13 @@ int sdram_adjust_866 (void)
 
 	mamr = immr->im_memctl.memc_mamr;
 	mamr &= ~MAMR_PTA_MSK;
-	mamr |= ((gd->cpu_clk / CFG_866_PTA_PER_CLK) << MAMR_PTA_SHIFT);
+	mamr |= ((gd->cpu_clk / CFG_PTA_PER_CLK) << MAMR_PTA_SHIFT);
 	immr->im_memctl.memc_mamr = mamr;
 
 	return (0);
 }
 
-/* Configure PLL for MPC866/859 CPU series
+/* Configure PLL for MPC866/859/885 CPU series
  * PLL multiplication factor is set to the value nearest to the desired clk,
  * assuming a oscclk of 10 MHz.
  */
@@ -312,19 +312,19 @@ static long init_pll_866 (long clk)
 
 	if (clk < 40000000) {
 		s = 2;
-		step_mfi = CFG_866_OSCCLK / 4;
+		step_mfi = CONFIG_8xx_OSCLK / 4;
 		mfd = 7;
-		step_mfn = CFG_866_OSCCLK / 30;
+		step_mfn = CONFIG_8xx_OSCLK / 30;
 	} else if (clk < 80000000) {
 		s = 1;
-		step_mfi = CFG_866_OSCCLK / 2;
+		step_mfi = CONFIG_8xx_OSCLK / 2;
 		mfd = 14;
-		step_mfn = CFG_866_OSCCLK / 30;
+		step_mfn = CONFIG_8xx_OSCLK / 30;
 	} else {
 		s = 0;
-		step_mfi = CFG_866_OSCCLK;
+		step_mfi = CONFIG_8xx_OSCLK;
 		mfd = 29;
-		step_mfn = CFG_866_OSCCLK / 30;
+		step_mfn = CONFIG_8xx_OSCLK / 30;
 	}
 
 	/* Calculate integer part of multiplication factor
@@ -362,7 +362,7 @@ static long init_pll_866 (long clk)
 	return (n);
 }
 
-#endif /* CONFIG_MPC866_FAMILY */
+#endif /* CONFIG_8xx_CPUCLK_DEFAULT */
 
 #if defined(CONFIG_TQM8xxL) && !defined(CONFIG_TQM866M)
 /*

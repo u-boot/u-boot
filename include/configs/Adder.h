@@ -41,7 +41,14 @@
 #define FEC_ENET
 #endif /* CONFIG_FEC_ENET */
 
-#define CONFIG_8xx_OSCLK	10000000	/* 10 MHz oscillator on EXTCLK  */
+#define CONFIG_8xx_OSCLK		10000000 /* 10 MHz oscillator on EXTCLK */
+#define CONFIG_8xx_CPUCLK_DEFAULT	50000000
+#define CFG_8xx_CPUCLK_MIN		40000000
+#ifdef CONFIG_MPC852T
+#define CFG_8xx_CPUCLK_MAX		50000000
+#else
+#define CFG_8xx_CPUCLK_MAX		120000000
+#endif /* CONFIG_MPC852T */
 
 #define CONFIG_COMMANDS		(CONFIG_CMD_DFL  \
 				| CFG_CMD_DHCP   \
@@ -88,6 +95,15 @@
 #define CFG_BR1_PRELIM  	(CFG_SDRAM_BASE | BR_PS_32 | BR_MS_UPMA | BR_V)
 
 #define CFG_MAMR		0x00802114
+
+/*
+ * 2048	SDRAM rows
+ * 1000	factor s -> ms
+ * 64	PTP (pre-divider from MPTPR) from SDRAM example configuration
+ * 4	Number of refresh cycles per period
+ * 64	Refresh cycle in ms per number of rows
+ */
+#define CFG_PTA_PER_CLK		((2048 * 64 * 1000) / (4 * 64))
 
 #define CFG_MEMTEST_START	0x00100000	/* memtest works on		*/
 #define CFG_MEMTEST_END		0x00700000	/* 1 ... 7 MB in SDRAM		*/

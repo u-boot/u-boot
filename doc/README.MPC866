@@ -1,12 +1,12 @@
 The current implementation allows the user to specify the desired CPU
 clock value, in MHz, via an environment variable "cpuclk".
 
-Three compile-time constants are used:
+Four compile-time constants are used:
 
-	CFG_866_OSCCLK            - input quartz clock
-	CFG_866_CPUCLK_MIN        - minimum allowed CPU clock
-	CFG_866_CPUCLK_MAX        - maximum allowed CPU clock
-	CFG_866_CPUCLK_DEFAULT    - default CPU clock value
+	CONFIG_8xx_OSCLK          - input quartz clock
+	CFG_8xx_CPUCLK_MIN        - minimum allowed CPU clock
+	CFG_8xx_CPUCLK_MAX        - maximum allowed CPU clock
+	CONFIG_8xx_CPUCLK_DEFAULT - default CPU clock value
 
 If the "cpuclk" environment variable value is within the CPUCLK_MIN /
 CPUCLK_MAX limits, the specified value is used. Otherwise, the
@@ -16,8 +16,9 @@ Please make sure you understand what you are doing, and understand
 the restrictions of your hardware (board, processor). For example,
 ethernet will stop working for CPU clock frequencies below 25 MHz.
 
-Please note that for now the new clock-handling code has been enabled
-for the TQM866M board only, even though it should be pretty much
-common for other MPC859 / MPC866 based boards also. Our intention
-here was to move in small steps and not to break the existing code
-for other boards.
+Please note that the new clock-handling code is enabled if
+CONFIG_8xx_CPUCLK_DEFAULT is defined. Since this mechanism supports
+only MPC866 and newer CPUs, this constant MUST NOT be defined for
+MPC823/850/860/862 series. The clock generation algorithm for older
+chips is different and has not been implemented yet. If you need it,
+your patch is welcome.
