@@ -29,6 +29,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <command.h>
 #include <watchdog.h>
 #include <version.h>
 #include <stdarg.h>
@@ -434,8 +435,9 @@ static void	lcd_drawchars  (ushort x, ushort y, uchar *str, int count);
 static inline void lcd_puts_xy (ushort x, ushort y, uchar *s);
 static inline void lcd_putc_xy (ushort x, ushort y, uchar  c);
 
-int	lcd_init (void *lcdbase);
+static int	lcd_init (void *lcdbase);
 
+static int	lcd_clear (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[]);
 static void	lcd_ctrl_init (void *lcdbase);
 static void	lcd_enable (void);
 static void    *lcd_logo (void);
@@ -718,13 +720,8 @@ int drv_lcd_init (void)
 
 /*----------------------------------------------------------------------*/
 
-int lcd_init (void *lcdbase)
+static int lcd_clear (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
-	/* Initialize the lcd controller */
-	debug ("[LCD] Initializing LCD frambuffer at %p\n", lcdbase);
-
-	lcd_ctrl_init (lcdbase);
-
 #if LCD_BPP == LCD_MONOCHROME
 	/* Setting the palette */
 	lcd_initcolregs();
@@ -758,12 +755,32 @@ int lcd_init (void *lcdbase)
 		COLOR_MASK(lcd_getbgcolor()),
 		lcd_line_length*panel_info.vl_row);
 #endif
-
-	lcd_enable ();
-
 	/* Paint the logo and retrieve LCD base address */
 	debug ("[LCD] Drawing the logo...\n");
 	lcd_console_address = lcd_logo ();
+
+	console_col = 0;
+	console_row = 0;
+
+	return (0);
+}
+
+U_BOOT_CMD(
+	cls,	1,	1,	lcd_clear,
+	"cls     - clear screen\n",
+	NULL
+);
+
+/*----------------------------------------------------------------------*/
+
+static int lcd_init (void *lcdbase)
+{
+	/* Initialize the lcd controller */
+	debug ("[LCD] Initializing LCD frambuffer at %p\n", lcdbase);
+
+	lcd_ctrl_init (lcdbase);
+	lcd_clear (NULL, 1, 1, NULL);	/* dummy args */
+	lcd_enable ();
 
 	/* Initialize the console */
 	console_col = 0;

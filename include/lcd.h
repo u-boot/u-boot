@@ -37,7 +37,7 @@ extern char lcd_is_enabled;
 
 /* Video functions */
 
-int	lcd_init	(void *lcdbase);
+/* int	lcd_init	(void *lcdbase); */
 void	lcd_putc	(const char c);
 void	lcd_puts	(const char *s);
 void	lcd_printf	(const char *fmt, ...);

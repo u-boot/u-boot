@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Add "cls" function to MPC823 LCD driver so we can reinitialize the
+  display even after showing a bitmap
+
 * Patch by Josef Wagner, 04 Jun 2004:
   - DDR Ram support for PM520 (MPC5200)
   - support for different flash types (PM520)
