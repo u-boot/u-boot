@@ -58,13 +58,14 @@ Torsten Demke <torsten.demke@fci.com>
 
 Wolfgang Denk <wd@denx.de>
 
+	IceCube_5100		MGT5100
+	IceCube_5200		MPC5200
+
 	AMX860			MPC860
 	ETX094			MPC850
 	FPS850L			MPC850
 	FPS860L			MPC860
 	ICU862			MPC862
-	IceCube_5100		MGT5100
-	IceCube_5200		MPC5200
 	IP860			MPC860
 	IVML24			MPC860
 	IVML24_128		MPC860
@@ -74,6 +75,7 @@ Wolfgang Denk <wd@denx.de>
 	IVMS8_256		MPC860
 	LANTEC			MPC850
 	LWMON			MPC823
+	NC650			MPC852
 	R360MPI			MPC823
 	RMU			MPC850
 	RRvision		MPC823

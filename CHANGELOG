@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Add support for IDS "NC650" board
+
 * Add automatic update support for LWMON board
 
 * Clear Block Lock-Bits when erasing flash on LWMON board.
@@ -16,7 +18,7 @@ Changes since U-Boot 1.1.1:
 * Patch by Mark Jonas, 13 July 2004:
   - Total5200 LCD now run in little endian mode. Endianess conversion
     is done in hardware.
-  - Removed last reference to "console" environment variable. 
+  - Removed last reference to "console" environment variable.
 
 * Patches by Lars Munch, 12 Jul 2004:
   - move at45.c to board/at91rm9200dk/ since this is at91rm9200dk

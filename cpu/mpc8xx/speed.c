@@ -172,7 +172,7 @@ unsigned long measure_gclk(void)
 
 #endif
 
-#if !defined(CONFIG_TQM866M)
+#if !defined(CONFIG_TQM866M) && !defined(CONFIG_NC650)
 
 /*
  * get_clocks() fills in gd->cpu_clock depending on CONFIG_8xx_GCLK_FREQ

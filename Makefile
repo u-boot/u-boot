@@ -532,6 +532,9 @@ NETTA2_config:		unconfig
 		 }
 	@./mkconfig -a $(call xtract_NETTA2,$@) ppc mpc8xx netta2
 
+NC650_config:	unconfig
+	@./mkconfig $(@:_config=) ppc mpc8xx nc650
+
 NX823_config:		unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx nx823
 
