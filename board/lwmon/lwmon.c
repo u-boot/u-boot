@@ -1087,7 +1087,6 @@ int post_hotkeys_pressed(gd_t *gd)
 	i2c_write (kbd_addr, 0, 0, &val, 1);
 	i2c_read (kbd_addr, 0, 0, kbd_data, KEYBD_DATALEN);
 
-	return (gd->post_hotkeys_latch = 
-			(compare_magic(kbd_data, CONFIG_POST_KEY_MAGIC) == 0));
+	return (compare_magic(kbd_data, CONFIG_POST_KEY_MAGIC) == 0);
 }
 #endif

@@ -73,7 +73,6 @@ typedef	struct	global_data {
 #ifdef CONFIG_POST
 	unsigned long	post_log_word;  /* Record POST activities */
 	unsigned long	post_init_f_time;  /* When post_init_f started */
-	unsigned long	post_hotkeys_latch; /* If the post hotkeys pressed */
 #endif
 #ifdef CONFIG_BOARD_TYPES
 	unsigned long	board_type;

@@ -3048,6 +3048,11 @@ it:
   version of diff does not support these options, then get the latest
   version of GNU diff.
 
+  The current directory when running this command shall be the top
+  level directory of the U-Boot source tree, or it's parent directory
+  (i. e. please make sure that your patch includes sufficient
+  directory information for the affected files).
+
   We accept patches as plain text, MIME attachments or as uuencoded
   gzipped text.
 

@@ -65,9 +65,11 @@ void post_bootmode_init (void)
 	DECLARE_GLOBAL_DATA_PTR;
 	int bootmode = post_bootmode_get (0);
 
-	if (bootmode == 0) {
+	if (post_hotkeys_pressed(gd) && !(bootmode & POST_POWERTEST)) {
+		bootmode = POST_SLOWTEST;
+	} else if (bootmode == 0) {
 		bootmode = POST_POWERON;
-	} else if (bootmode == POST_POWERON) {
+	} else if (bootmode == POST_POWERON || bootmode == POST_SLOWTEST) {
 		bootmode = POST_NORMAL;
 	} else {
 		return;
@@ -94,11 +96,6 @@ int post_bootmode_get (unsigned int *last_test)
 	}
 
 	return bootmode;
-}
-
-void post_bootmode_clear (void)
-{
-	post_word_store (0);
 }
 
 /* POST tests run before relocation only mark status bits .... */
@@ -201,6 +198,12 @@ static void post_get_flags (int *test_flags)
 			}
 
 			name = s + 1;
+		}
+	}
+
+	for (j = 0; j < post_list_size; j++) {
+		if (test_flags[j] & POST_POWERON) {
+			test_flags[j] |= POST_SLOWTEST;
 		}
 	}
 }

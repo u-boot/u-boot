@@ -210,6 +210,12 @@ int do_ping (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	return 0;
 }
+
+U_BOOT_CMD(
+	ping,	2,	1,	do_ping,
+	"ping    - send ICMP ECHO_REQUEST to network host\n",
+	"pingAddress\n"
+);
 #endif	/* CFG_CMD_PING */
 
 #endif	/* CFG_CMD_NET */

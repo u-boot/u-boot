@@ -37,9 +37,9 @@
  * (easy to change)
  */
 #define CONFIG_ARM920T		1	/* This is an arm920t CPU	*/
-#define CONFIG_S3C2400		1	/* in a SAMSUNG S3C2400 SoC     */
-#define CONFIG_TRAB		1	/* on a TRAB Board      */
-#undef CONFIG_TRAB_50MHZ		/* run the CPU at 50 MHz */
+#define CONFIG_S3C2400		1	/* in a SAMSUNG S3C2400 SoC	*/
+#define CONFIG_TRAB		1	/* on a TRAB Board		*/
+#undef CONFIG_TRAB_50MHZ		/* run the CPU at 50 MHz	*/
 
 /* input clock of PLL */
 #define CONFIG_SYS_CLK_FREQ	12000000 /* TRAB has 12 MHz input clock */
@@ -49,6 +49,23 @@
 #define CONFIG_CMDLINE_TAG	 1	/* enable passing of ATAGs	*/
 #define CONFIG_SETUP_MEMORY_TAGS 1
 #define CONFIG_INITRD_TAG	 1
+
+
+/***********************************************************
+ * I2C stuff:
+ * the TRAB is equipped with an ATMEL 24C04 EEPROM at
+ * address 0x54 with 8bit addressing
+ ***********************************************************/
+#define CONFIG_HARD_I2C			/* I2C with hardware support */
+#define CFG_I2C_SPEED 		100000	/* I2C speed */
+#define CFG_I2C_SLAVE 		0x7F	/* I2C slave addr */
+
+#define CFG_I2C_EEPROM_ADDR	0x54	/* EEPROM address */
+#define CFG_I2C_EEPROM_ADDR_LEN	1	/* 1 address byte */
+
+#define CFG_I2C_EEPROM_ADDR_OVERFLOW 0x01
+#define CFG_EEPROM_PAGE_WRITE_BITS 3	/* 8 bytes page write mode on 24C04 */
+#define CFG_EEPROM_PAGE_WRITE_DELAY_MS 10
 
 /*
  * Size of malloc() pool
@@ -62,13 +79,15 @@
 #define CS8900_BASE		0x07000300 /* agrees with WIN CE PA */
 #define CS8900_BUS16		1 /* the Linux driver does accesses as shorts */
 
+#define CONFIG_DRIVER_S3C24X0_I2C 1	/* we use the buildin I2C controller */
+
 #define CONFIG_VFD		1	/* VFD linear frame buffer driver */
 #define VFD_TEST_LOGO		1	/* output a test logo to the VFDs */
 
 /*
  * select serial console configuration
  */
-#define CONFIG_SERIAL1          1	/* we use SERIAL 1 on TRAB */
+#define CONFIG_SERIAL1		1	/* we use SERIAL 1 on TRAB */
 
 #define CONFIG_HWFLOW			/* include RTS/CTS flow control support	*/
 
@@ -105,18 +124,30 @@
 #define CONFIG_COMMANDS_ADD_VFD		0
 #endif
 
+#ifdef CONFIG_DRIVER_S3C24X0_I2C
+#define CONFIG_COMMANDS_ADD_EEPROM	CFG_CMD_EEPROM
+#define CONFIG_COMMANDS_I2C		CFG_CMD_I2C
+#else
+#define CONFIG_COMMANDS_ADD_EEPROM	0
+#define CONFIG_COMMANDS_I2C		0
+#endif
+
 #ifndef USE_920T_MMU
 #define CONFIG_COMMANDS		((CONFIG_CMD_DFL & ~CFG_CMD_CACHE) | \
 				 CFG_CMD_BSP			| \
 				 CFG_CMD_DATE			| \
 				 CONFIG_COMMANDS_ADD_HWFLOW	| \
-				 CONFIG_COMMANDS_ADD_VFD	)
+				 CONFIG_COMMANDS_ADD_VFD	| \
+				 CONFIG_COMMANDS_ADD_EEPROM	| \
+				 CONFIG_COMMANDS_I2C		)
 #else
 #define CONFIG_COMMANDS		(CONFIG_CMD_DFL			| \
 				 CFG_CMD_BSP			| \
 				 CFG_CMD_DATE			| \
 				 CONFIG_COMMANDS_ADD_HWFLOW	| \
-				 CONFIG_COMMANDS_ADD_VFD	)
+				 CONFIG_COMMANDS_ADD_VFD	| \
+				 CONFIG_COMMANDS_ADD_EEPROM	| \
+				 CONFIG_COMMANDS_I2C		)
 #endif
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
@@ -125,8 +156,8 @@
 #define CONFIG_BOOTDELAY	5
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* allow to break in always */
 #define CONFIG_PREBOOT		"echo;echo *** booting ***;echo"
-#define CONFIG_BOOTARGS    	"console=ttyS0"
-#define CONFIG_NETMASK          255.255.0.0
+#define CONFIG_BOOTARGS		"console=ttyS0"
+#define CONFIG_NETMASK		255.255.0.0
 #define CONFIG_IPADDR		192.168.3.68
 #define CONFIG_HOSTNAME		trab
 #define CONFIG_SERVERIP		192.168.3.1
@@ -192,6 +223,11 @@
  */
 #define	CFG_LONGHELP				/* undef to save memory		*/
 #define	CFG_PROMPT		"TRAB # "	/* Monitor Command Prompt	*/
+/* #define CFG_HUSH_PARSER		1 */	/* use "hush" command parser	*/
+#ifdef	CFG_HUSH_PARSER
+#define CFG_PROMPT_HUSH_PS2	"> "
+#endif
+
 #define	CFG_CBSIZE		256		/* Console I/O Buffer Size	*/
 #define	CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
 #define	CFG_MAXARGS		16		/* max number of command args	*/
@@ -200,7 +236,7 @@
 #define CFG_MEMTEST_START	0x0c000000	/* memtest works on	*/
 #define CFG_MEMTEST_END		0x0d000000	/* 16 MB in DRAM	*/
 
-#undef  CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
+#undef CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
 
 #define	CFG_LOAD_ADDR		0x0cf00000	/* default load address	*/
 
@@ -235,11 +271,11 @@
 /*-----------------------------------------------------------------------
  * Physical Memory Map
  */
-#define CONFIG_NR_DRAM_BANKS	1	   /* we have 1 bank of DRAM */
-#define PHYS_SDRAM_1		0x0c000000 /* SDRAM Bank #1 */
-#define PHYS_SDRAM_1_SIZE	0x01000000 /* 16 MB */
+#define CONFIG_NR_DRAM_BANKS	1		/* we have 1 bank of DRAM */
+#define PHYS_SDRAM_1		0x0c000000	/* SDRAM Bank #1 */
+#define PHYS_SDRAM_1_SIZE	0x01000000	/* 16 MB */
 
-#define CFG_FLASH_BASE		0x00000000 /* Flash Bank #1 */
+#define CFG_FLASH_BASE		0x00000000	/* Flash Bank #1 */
 
 /* The following #defines are needed to get flash environment right */
 #define	CFG_MONITOR_BASE	CFG_FLASH_BASE

@@ -2,6 +2,12 @@
 Changes for U-Boot 0.4.3:
 ======================================================================
 
+* Patches by Martin Krause, 14 Jul 2003:
+  - add I2C support for s3c2400 systems (trab board)
+  - (re-) add "ping" to command table
+
+* Fix handling of "slow" POST routines
+
 * Patches by Yuli Barcohen, 13 Jul 2003:
   - Correct flash and JFFS2 support for MPC8260ADS
   - fix PVR values and clock generation for PowerQUICC II family

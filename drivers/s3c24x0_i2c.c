@@ -63,7 +63,12 @@ static int GetI2CSDA(void)
 {
 	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
 
+#ifdef CONFIG_S3C2410
 	return (gpio->GPEDAT & 0x8000) >> 15;
+#endif
+#ifdef CONFIG_S3C2400
+	return (gpio->PGDAT & 0x0020) >> 5;
+#endif
 }
 
 #if 0
@@ -77,7 +82,12 @@ static void SetI2CSCL(int x)
 {
 	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
 
+#ifdef CONFIG_S3C2410
 	gpio->GPEDAT = (gpio->GPEDAT & ~0x4000) | (x&1) << 14;
+#endif
+#ifdef CONFIG_S3C2400
+	gpio->PGDAT = (gpio->PGDAT & ~0x0040) | (x&1) << 6;
+#endif
 }
 
 
@@ -129,11 +139,22 @@ void i2c_init (int speed, int slaveadd)
     }
 
     if ((status & I2CSTAT_BSY) || GetI2CSDA() == 0) {
+#ifdef CONFIG_S3C2410
 	ulong old_gpecon = gpio->GPECON;
+#endif
+#ifdef CONFIG_S3C2400
+	ulong old_gpecon = gpio->PGCON;
+#endif
 	/* bus still busy probably by (most) previously interrupted transfer */
 
+#ifdef CONFIG_S3C2410
 	/* set I2CSDA and I2CSCL (GPE15, GPE14) to GPIO */
 	gpio->GPECON = (gpio->GPECON & ~0xF0000000) | 0x10000000;
+#endif
+#ifdef CONFIG_S3C2400
+	/* set I2CSDA and I2CSCL (PG5, PG6) to GPIO */
+	gpio->PGCON = (gpio->PGCON & ~0x00003c00) | 0x00000c00;
+#endif
 
 	/* toggle I2CSCL until bus idle */
 	SetI2CSCL(0); udelay(1000);
@@ -146,7 +167,12 @@ void i2c_init (int speed, int slaveadd)
 	SetI2CSCL(1); udelay(1000);
 
 	/* restore pin functions */
+#ifdef CONFIG_S3C2410
 	gpio->GPECON = old_gpecon;
+#endif
+#ifdef CONFIG_S3C2400
+	gpio->PGCON = old_gpecon;
+#endif
     }
 
     /* calculate prescaler and divisor values */

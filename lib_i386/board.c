@@ -418,10 +418,6 @@ void start_i386boot (void)
 
 #ifdef CONFIG_POST
 	post_run (NULL, POST_RAM | post_bootmode_get(0));
-	if (post_bootmode_get(0) & POST_SLOWTEST) {
-		post_bootmode_clear();
-		board_poweroff();
-	}
 #endif
 
 

@@ -130,6 +130,11 @@ int board_init ()
 	}
 #endif	/* CONFIG_MODEM_SUPPORT */
 
+#ifdef CONFIG_DRIVER_S3C24X0_I2C
+	/* Configure I/O ports PG5 und PG6 for I2C */
+ 	gpio->PGCON = (gpio->PGCON & 0x003c00) | 0x003c00;
+#endif /* CONFIG_DRIVER_S3C24X0_I2C */
+
 	return 0;
 }
 
