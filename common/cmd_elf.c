@@ -111,7 +111,7 @@ int do_bootvx ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	/* Check to see if we need to tftp the image ourselves before starting */
 
 	if ((argc == 2) && (strcmp (argv[1], "tftp") == 0)) {
-		if (NetLoop (TFTP) == 0)
+		if (NetLoop (TFTP) <= 0)
 			return 1;
 		printf ("Automatic boot of VxWorks image at address 0x%08lx ... \n", addr);
 	}

@@ -32,14 +32,20 @@
 
 #if (CONFIG_COMMANDS & CFG_CMD_SPI)
 
-#define MAX_SPI_BYTES	32	/* max number of bytes we can handle */
+/*-----------------------------------------------------------------------
+ * Definitions
+ */
+
+#ifndef MAX_SPI_BYTES
+#   define MAX_SPI_BYTES 32	/* Maximum number of bytes we can handle */
+#endif
 
 /*
  * External table of chip select functions (see the appropriate board
  * support for the actual definition of the table).
  */
 extern spi_chipsel_type spi_chipsel[];
-
+extern int spi_chipsel_cnt;
 
 /*
  * Values from last command.
@@ -60,7 +66,7 @@ static uchar din[MAX_SPI_BYTES];
  * The command prints out the hexadecimal string received via SPI.
  */
 
-int do_spi (cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
+int do_spi (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	char  *cp = 0;
 	uchar tmp;
@@ -78,26 +84,38 @@ int do_spi (cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
 			device = simple_strtoul(argv[1], NULL, 10);
 		if (argc >= 3)
 			bitlen = simple_strtoul(argv[2], NULL, 10);
-		if (argc >= 4)
-		cp = argv[3];
-		for(j = 0; *cp; j++, cp++) {
-			tmp = *cp - '0';
-			if(tmp > 9)
-				tmp -= ('A' - '0') - 10;
-			if(tmp > 15)
-				tmp -= ('a' - 'A');
-			if(tmp > 15) {
-				printf("Conversion error on %c, bailing out.\n", *cp);
-				break;
+		if (argc >= 4) {
+			cp = argv[3];
+			for(j = 0; *cp; j++, cp++) {
+				tmp = *cp - '0';
+				if(tmp > 9)
+					tmp -= ('A' - '0') - 10;
+				if(tmp > 15)
+					tmp -= ('a' - 'A');
+				if(tmp > 15) {
+					printf("Hex conversion error on %c, giving up.\n", *cp);
+					return 1;
+				}
+				if((j % 2) == 0)
+					dout[j / 2] = (tmp << 4);
+				else
+					dout[j / 2] |= tmp;
 			}
-			if((j % 2) == 0)
-				dout[j / 2] = (tmp << 4);
-			else
-				dout[j / 2] |= tmp;
 		}
 	}
 
-printf("spi_chipsel[%d] = %08X\n", device, (uint)spi_chipsel[device]);
+	if ((device < 0) || (device >=  spi_chipsel_cnt)) {
+		printf("Invalid device %d, giving up.\n", device);
+		return 1;
+	} 
+	if ((bitlen < 0) || (bitlen >  (MAX_SPI_BYTES * 8))) {
+		printf("Invalid bitlen %d, giving up.\n", bitlen);
+		return 1;
+	} 
+
+	debug ("spi_chipsel[%d] = %08X\n",
+		device, (uint)spi_chipsel[device]);
+
 	if(spi_xfer(spi_chipsel[device], bitlen, dout, din) != 0) {
 		printf("Error with the SPI transaction.\n");
 		rcode = 1;
@@ -113,4 +131,3 @@ printf("spi_chipsel[%d] = %08X\n", device, (uint)spi_chipsel[device]);
 }
 
 #endif	/* CFG_CMD_SPI */
-

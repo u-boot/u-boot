@@ -132,11 +132,15 @@ netboot_common (int proto, cmd_tbl_t *cmdtp, int argc, char *argv[])
 		return 1;
 	}
 
-	if ((size = NetLoop(proto)) == 0)
+	if ((size = NetLoop(proto)) < 0)
 		return 1;
 
 	/* NetLoop ok, update environment */
 	netboot_update_env();
+
+	/* done if no file was loaded (no errors though) */
+	if (size == 0)
+		return 0;
 
 	/* flush cache */
 	flush_cache(load_addr, size);

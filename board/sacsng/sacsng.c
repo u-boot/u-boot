@@ -26,7 +26,6 @@
 #include <common.h>
 #include <ioports.h>
 #include <mpc8260.h>
-/*NO// #include <memtest.h> */
 #include <i2c.h>
 #include <spi.h>
 
@@ -486,9 +485,25 @@ int misc_init_r(void)
 	}
     }
 
+    /* 
+     * Stop the clocks and wait for at least 1 LRCLK period
+     * to make sure the clocking has really stopped.
+     */
+    Daq_Stop_Clocks();
+    udelay((1000000 / sample_rate) * NUM_LRCLKS_TO_STABILIZE);
+
+    /*
+     * Initialize the clocks with the new rates
+     */
     Daq_Init_Clocks(sample_rate, sample_64x);
     sample_rate = Daq_Get_SampleRate();
+
+    /*
+     * Start the clocks and wait for at least 1 LRCLK period
+     * to make sure the clocking has become stable.
+     */
     Daq_Start_Clocks(sample_rate);
+    udelay((1000000 / sample_rate) * NUM_LRCLKS_TO_STABILIZE);
 
     sprintf(str_buf, "%d", sample_rate);
     setenv("DaqSampleRate", str_buf);
@@ -792,10 +807,12 @@ void spi_dac_chipsel(int cs)
  * chip selects: it calls the appropriate function to control the SPI
  * chip selects.
  */
-spi_chipsel_type spi_chipsel[2] = {
+spi_chipsel_type spi_chipsel[] = {
 	spi_adc_chipsel,
 	spi_dac_chipsel
 };
+int spi_chipsel_cnt = sizeof(spi_chipsel) / sizeof(spi_chipsel[0]);
+
 #endif /* CFG_CMD_SPI */
 
 #endif /* CONFIG_MISC_INIT_R */

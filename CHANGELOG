@@ -2,7 +2,22 @@
 Changes since for U-Boot 0.1.0:
 ======================================================================
 
-* Vince Husovsky, 7 Nov 2002:
+* Patch by Andreas Oberritter, 09 Nov 2002:
+  Change behaviour of NetLoop(): return -1 for errors, filesize
+  otherwise; return code 0 is valid an means no file loaded - in this
+  case the environment still gets updated!
+
+* Patches by Jon Diekema, 9 Nov 2002:
+  - improve ADC/DAC clocking on the SACSng board to align
+    the failing edges of LRCLK and SCLK
+  - sbc8260 configuration tweaks
+  - add status LED support for 82xx systems
+  - wire sspi/sspo commands into command handler; improved error
+    handlering
+  - add timestamp support and alternate memory test to the
+    SACSng configuration
+
+* Patch by Vince Husovsky, 7 Nov 2002:
   Add "-n" to linker options to get rid of "Not enough room for
   program headers" problem
 

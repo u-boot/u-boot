@@ -29,9 +29,6 @@
 
 #if defined(CONFIG_SOFT_SPI)
 
-#define DEBUG_SPI
-
-
 /*-----------------------------------------------------------------------
  * Definitions
  */

@@ -89,7 +89,7 @@ fetch_and_parse(bd_t *bd, char *fn, ulong addr, int (*cback)(uchar *, uchar *))
     copy_filename(BootFile, fn, sizeof (BootFile));
     load_addr = addr;
 
-    if (NetLoop(TFTP) == 0) {
+    if (NetLoop(TFTP) <= 0) {
 	printf("tftp transfer of file '%s' failed\n", fn);
 	return (0);
     }

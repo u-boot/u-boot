@@ -46,6 +46,7 @@
 
 #include <cmd_eeprom.h>
 #include <cmd_i2c.h>
+#include <cmd_spi.h>
 #include <cmd_immap.h>
 #include <cmd_rtc.h>
 
@@ -316,6 +317,7 @@ cmd_tbl_t cmd_tbl[] = {
 	CMD_TBL_MISC		/* sleep */
 	CMD_TBL_SMCINFO
 	CMD_TBL_SPIINFO
+	CMD_TBL_SPI
 	CMD_TBL_STACK
 	CMD_TBL_STEP
 	CMD_TBL_TFTPB

@@ -286,7 +286,6 @@ uint Daq_BRG_Rate(uint brg)
 }
 
 uint Daq_Get_SampleRate(void)
-
 {
      /*
       * Read the BRG's to return the actual sample rate.
@@ -294,68 +293,12 @@ uint Daq_Get_SampleRate(void)
      return (Daq_BRG_Rate(MCLK_BRG) / (MCLK_DIVISOR * SCLK_DIVISOR));
 }
 
-uint Daq_Set_SampleRate(uint rate, uint force)
-
+void Daq_Init_Clocks(int sample_rate, int sample_64x)
 {
     DECLARE_GLOBAL_DATA_PTR;
-    uint mclk_divisor; /* MCLK divisor */
-    uint rate_curr;    /* Current sample rate */
-
-    /*
-     * Limit the sample rate to some sensible values.
-     */
-    if (Daq64xSampling) {
-      if (rate > MAX_64x_SAMPLE_RATE) {
-	  rate = MAX_64x_SAMPLE_RATE;
-      }
-    }
-    else {
-      if (rate > MAX_128x_SAMPLE_RATE) {
-	  rate = MAX_128x_SAMPLE_RATE;
-      }
-    }
-    if (rate < MIN_SAMPLE_RATE) {
-        rate = MIN_SAMPLE_RATE;
-    }
-
-    /* Check to see if we are really changing rates */
-    rate_curr = Daq_Get_SampleRate();
-    if ((rate != rate_curr) || force) {
-        /*
-	 * Dynamically adjust MCLK based on the new sample rate.
-	 */
-
-        /* Compute the divisors */
-        mclk_divisor = BRG_INT_CLK / (rate * MCLK_DIVISOR * SCLK_DIVISOR);
-
-	/* Setup MCLK */
-	Daq_BRG_Set_Count(MCLK_BRG, mclk_divisor);
-
-	/* Setup SCLK */
-#       ifdef RUN_SCLK_ON_BRG_INT
-	   Daq_BRG_Set_Count(SCLK_BRG, mclk_divisor * MCLK_DIVISOR);
-#       else
-	   Daq_BRG_Set_Count(SCLK_BRG, MCLK_DIVISOR);
-#       endif
-
-#       ifdef RUN_LRCLK_ON_BRG_INT
-	    Daq_BRG_Set_Count(LRCLK_BRG,
-			      mclk_divisor * MCLK_DIVISOR * SCLK_DIVISOR);
-#       else
-	    Daq_BRG_Set_Count(LRCLK_BRG, SCLK_DIVISOR);
-#       endif
-
-	/* Read the BRG's to return the actual sample rate. */
-	rate_curr = Daq_Get_SampleRate();
-    }
-
-    return (rate_curr);
-}
-
-void Daq_Init_Clocks(int sample_rate, int sample_64x)
-
-{
     volatile ioport_t *iopa = ioport_addr((immap_t *)CFG_IMMR, 0 /* port A */);
+    uint mclk_divisor; /* MCLK divisor */
+    int  flag;         /* Interrupt state */ 
 
     /* Save off the clocking data */
     Daq64xSampling = sample_64x;
@@ -363,18 +306,11 @@ void Daq_Init_Clocks(int sample_rate, int sample_64x)
     /*
      * Limit the sample rate to some sensible values.
      */
-    if (Daq64xSampling) {
-      if (sample_rate > MAX_64x_SAMPLE_RATE) {
-	  sample_rate = MAX_64x_SAMPLE_RATE;
-      }
-    }
-    else {
-      if (sample_rate > MAX_128x_SAMPLE_RATE) {
-	  sample_rate = MAX_128x_SAMPLE_RATE;
-      }
+    if (sample_rate > MAX_64x_SAMPLE_RATE) {
+        sample_rate = MAX_64x_SAMPLE_RATE;	
     }
     if (sample_rate < MIN_SAMPLE_RATE) {
-        sample_rate = MIN_SAMPLE_RATE;
+        sample_rate = MIN_SAMPLE_RATE;	
     }
 
     /*
@@ -398,8 +334,41 @@ void Daq_Init_Clocks(int sample_rate, int sample_64x)
         Daq_BRG_Set_ExtClk(LRCLK_BRG, CPM_BRG_EXTC_CLK5);
 #   endif
 
-    /* Setup the BRG rates */
-    Daq_Set_SampleRate(sample_rate, TRUE);
+    /*
+     * Dynamically adjust MCLK based on the new sample rate.
+     */
+
+    /* Compute the divisors */
+    mclk_divisor = BRG_INT_CLK / (sample_rate * MCLK_DIVISOR * SCLK_DIVISOR);
+
+    /*
+     * Disable interrupt and save the current state
+     */
+    flag = disable_interrupts();
+
+    /* Setup MCLK */
+    Daq_BRG_Set_Count(MCLK_BRG, mclk_divisor);
+
+    /* Setup SCLK */
+#   ifdef RUN_SCLK_ON_BRG_INT
+	Daq_BRG_Set_Count(SCLK_BRG, mclk_divisor * MCLK_DIVISOR);
+#   else
+	Daq_BRG_Set_Count(SCLK_BRG, MCLK_DIVISOR);
+#   endif
+
+#   ifdef RUN_LRCLK_ON_BRG_INT
+	Daq_BRG_Set_Count(LRCLK_BRG, 
+			  mclk_divisor * MCLK_DIVISOR * SCLK_DIVISOR);
+#   else
+	Daq_BRG_Set_Count(LRCLK_BRG, SCLK_DIVISOR);
+#   endif
+
+    /*
+     * Restore the Interrupt state
+     */
+     if (flag) {
+         enable_interrupts();
+     }
 
     /* Enable the clock drivers */
     iopa->pdat &= ~SLRCLK_EN_MASK;
@@ -410,116 +379,276 @@ void Daq_Stop_Clocks(void)
 {
 #ifdef TIGHTEN_UP_BRG_TIMING
     volatile immap_t *immr = (immap_t *)CFG_IMMR;
+    register uint mclk_brg;       /* MCLK  BRG value */
+    register uint sclk_brg;       /* SCLK  BRG value */
+    register uint lrclk_brg;      /* LRCLK BRG value */
+    unsigned long flag;           /* Interrupt flags */
 #endif
 
 #   ifdef TIGHTEN_UP_BRG_TIMING
-        /*
-         * Reset MCLK BRG
+        /* 
+         * Obtain MCLK BRG reset/disabled value
          */
 #       if (MCLK_BRG == 0)
-            immr->im_brgc1 |=  CPM_BRG_RST;
-            immr->im_brgc1 &= ~CPM_BRG_RST;
+            mclk_brg = (*IM_BRGC1 | CPM_BRG_RST) & ~CPM_BRG_EN;
 #       endif
 #       if (MCLK_BRG == 1)
-            immr->im_brgc2 |=  CPM_BRG_RST;
-            immr->im_brgc2 &= ~CPM_BRG_RST;
+            mclk_brg = (*IM_BRGC2 | CPM_BRG_RST) & ~CPM_BRG_EN;
 #       endif
 #       if (MCLK_BRG == 2)
-            immr->im_brgc3 |=  CPM_BRG_RST;
-            immr->im_brgc3 &= ~CPM_BRG_RST;
+            mclk_brg = (*IM_BRGC3 | CPM_BRG_RST) & ~CPM_BRG_EN;
 #       endif
 #       if (MCLK_BRG == 3)
-            immr->im_brgc4 |=  CPM_BRG_RST;
-            immr->im_brgc4 &= ~CPM_BRG_RST;
+            mclk_brg = (*IM_BRGC4 | CPM_BRG_RST) & ~CPM_BRG_EN;
 #       endif
 #       if (MCLK_BRG == 4)
-            immr->im_brgc5 |=  CPM_BRG_RST;
-            immr->im_brgc5 &= ~CPM_BRG_RST;
+            mclk_brg = (*IM_BRGC5 | CPM_BRG_RST) & ~CPM_BRG_EN;
 #       endif
 #       if (MCLK_BRG == 5)
-            immr->im_brgc6 |=  CPM_BRG_RST;
-            immr->im_brgc6 &= ~CPM_BRG_RST;
+            mclk_brg = (*IM_BRGC6 | CPM_BRG_RST) & ~CPM_BRG_EN;
 #       endif
 #       if (MCLK_BRG == 6)
-            immr->im_brgc7 |=  CPM_BRG_RST;
-            immr->im_brgc7 &= ~CPM_BRG_RST;
+            mclk_brg = (*IM_BRGC7 | CPM_BRG_RST) & ~CPM_BRG_EN;
 #       endif
 #       if (MCLK_BRG == 7)
-            immr->im_brgc8 |=  CPM_BRG_RST;
-            immr->im_brgc8 &= ~CPM_BRG_RST;
+            mclk_brg = (*IM_BRGC8 | CPM_BRG_RST) & ~CPM_BRG_EN;
 #       endif
 
-        /*
-         * Reset SCLK BRG
+        /* 
+         * Obtain SCLK BRG reset/disabled value
          */
 #       if (SCLK_BRG == 0)
-            immr->im_brgc1 |=  CPM_BRG_RST;
-            immr->im_brgc1 &= ~CPM_BRG_RST;
+            sclk_brg = (*IM_BRGC1 | CPM_BRG_RST) & ~CPM_BRG_EN;
 #       endif
 #       if (SCLK_BRG == 1)
-            immr->im_brgc2 |=  CPM_BRG_RST;
-            immr->im_brgc2 &= ~CPM_BRG_RST;
+            sclk_brg = (*IM_BRGC2 | CPM_BRG_RST) & ~CPM_BRG_EN;
 #       endif
 #       if (SCLK_BRG == 2)
-            immr->im_brgc3 |=  CPM_BRG_RST;
-            immr->im_brgc3 &= ~CPM_BRG_RST;
+            sclk_brg = (*IM_BRGC3 | CPM_BRG_RST) & ~CPM_BRG_EN;
 #       endif
 #       if (SCLK_BRG == 3)
-            immr->im_brgc4 |=  CPM_BRG_RST;
-            immr->im_brgc4 &= ~CPM_BRG_RST;
+            sclk_brg = (*IM_BRGC4 | CPM_BRG_RST) & ~CPM_BRG_EN;
 #       endif
 #       if (SCLK_BRG == 4)
-            immr->im_brgc5 |=  CPM_BRG_RST;
-            immr->im_brgc5 &= ~CPM_BRG_RST;
+            sclk_brg = (*IM_BRGC5 | CPM_BRG_RST) & ~CPM_BRG_EN;
 #       endif
 #       if (SCLK_BRG == 5)
-            immr->im_brgc6 |=  CPM_BRG_RST;
-            immr->im_brgc6 &= ~CPM_BRG_RST;
+            sclk_brg = (*IM_BRGC6 | CPM_BRG_RST) & ~CPM_BRG_EN;
 #       endif
 #       if (SCLK_BRG == 6)
-            immr->im_brgc7 |=  CPM_BRG_RST;
-            immr->im_brgc7 &= ~CPM_BRG_RST;
+            sclk_brg = (*IM_BRGC7 | CPM_BRG_RST) & ~CPM_BRG_EN;
 #       endif
 #       if (SCLK_BRG == 7)
-            immr->im_brgc8 |=  CPM_BRG_RST;
-            immr->im_brgc8 &= ~CPM_BRG_RST;
+            sclk_brg = (*IM_BRGC8 | CPM_BRG_RST) & ~CPM_BRG_EN;
 #       endif
 
-        /*
-         * Reset LRCLK BRG
+        /* 
+         * Obtain LRCLK BRG reset/disabled value
          */
 #       if (LRCLK_BRG == 0)
-            immr->im_brgc1 |=  CPM_BRG_RST;
-            immr->im_brgc1 &= ~CPM_BRG_RST;
+            lrclk_brg = (*IM_BRGC1 | CPM_BRG_RST) & ~CPM_BRG_EN;
 #       endif
 #       if (LRCLK_BRG == 1)
-            immr->im_brgc2 |=  CPM_BRG_RST;
-            immr->im_brgc2 &= ~CPM_BRG_RST;
+            lrclk_brg = (*IM_BRGC2 | CPM_BRG_RST) & ~CPM_BRG_EN;
 #       endif
 #       if (LRCLK_BRG == 2)
-            immr->im_brgc3 |=  CPM_BRG_RST;
-            immr->im_brgc3 &= ~CPM_BRG_RST;
+            lrclk_brg = (*IM_BRGC3 | CPM_BRG_RST) & ~CPM_BRG_EN;
 #       endif
 #       if (LRCLK_BRG == 3)
-            immr->im_brgc4 |=  CPM_BRG_RST;
-            immr->im_brgc4 &= ~CPM_BRG_RST;
+            lrclk_brg = (*IM_BRGC4 | CPM_BRG_RST) & ~CPM_BRG_EN;
 #       endif
 #       if (LRCLK_BRG == 4)
-            immr->im_brgc5 |=  CPM_BRG_RST;
-            immr->im_brgc5 &= ~CPM_BRG_RST;
+            lrclk_brg = (*IM_BRGC5 | CPM_BRG_RST) & ~CPM_BRG_EN;
 #       endif
 #       if (LRCLK_BRG == 5)
-            immr->im_brgc6 |=  CPM_BRG_RST;
-            immr->im_brgc6 &= ~CPM_BRG_RST;
+            lrclk_brg = (*IM_BRGC6 | CPM_BRG_RST) & ~CPM_BRG_EN;
 #       endif
 #       if (LRCLK_BRG == 6)
-            immr->im_brgc7 |=  CPM_BRG_RST;
-            immr->im_brgc7 &= ~CPM_BRG_RST;
+            lrclk_brg = (*IM_BRGC7 | CPM_BRG_RST) & ~CPM_BRG_EN;
 #       endif
 #       if (LRCLK_BRG == 7)
-            immr->im_brgc8 |=  CPM_BRG_RST;
-            immr->im_brgc8 &= ~CPM_BRG_RST;
+            lrclk_brg = (*IM_BRGC8 | CPM_BRG_RST) & ~CPM_BRG_EN;
 #       endif
+	
+	/*
+	 * Disable interrupt and save the current state
+	 */
+	flag = disable_interrupts();
+
+        /* 
+         * Set reset on MCLK BRG
+         */
+#       if (MCLK_BRG == 0)
+            *IM_BRGC1 = mclk_brg;
+#       endif
+#       if (MCLK_BRG == 1)
+            *IM_BRGC2 = mclk_brg;
+#       endif
+#       if (MCLK_BRG == 2)
+            *IM_BRGC3 = mclk_brg;
+#       endif
+#       if (MCLK_BRG == 3)
+            *IM_BRGC4 = mclk_brg;
+#       endif
+#       if (MCLK_BRG == 4)
+            *IM_BRGC5 = mclk_brg;
+#       endif
+#       if (MCLK_BRG == 5)
+            *IM_BRGC6 = mclk_brg;
+#       endif
+#       if (MCLK_BRG == 6)
+            *IM_BRGC7 = mclk_brg;
+#       endif
+#       if (MCLK_BRG == 7)
+            *IM_BRGC8 = mclk_brg;
+#       endif
+
+        /* 
+         * Set reset on SCLK BRG
+         */
+#       if (SCLK_BRG == 0)
+            *IM_BRGC1 = sclk_brg;
+#       endif
+#       if (SCLK_BRG == 1)
+            *IM_BRGC2 = sclk_brg;
+#       endif
+#       if (SCLK_BRG == 2)
+            *IM_BRGC3 = sclk_brg;
+#       endif
+#       if (SCLK_BRG == 3)
+            *IM_BRGC4 = sclk_brg;
+#       endif
+#       if (SCLK_BRG == 4)
+            *IM_BRGC5 = sclk_brg;
+#       endif
+#       if (SCLK_BRG == 5)
+            *IM_BRGC6 = sclk_brg;
+#       endif
+#       if (SCLK_BRG == 6)
+            *IM_BRGC7 = sclk_brg;
+#       endif
+#       if (SCLK_BRG == 7)
+            *IM_BRGC8 = sclk_brg;
+#       endif
+
+        /* 
+         * Set reset on LRCLK BRG
+         */
+#       if (LRCLK_BRG == 0)
+            *IM_BRGC1 = lrclk_brg;
+#       endif
+#       if (LRCLK_BRG == 1)
+            *IM_BRGC2 = lrclk_brg;
+#       endif
+#       if (LRCLK_BRG == 2)
+            *IM_BRGC3 = lrclk_brg;
+#       endif
+#       if (LRCLK_BRG == 3)
+            *IM_BRGC4 = lrclk_brg;
+#       endif
+#       if (LRCLK_BRG == 4)
+            *IM_BRGC5 = lrclk_brg;
+#       endif
+#       if (LRCLK_BRG == 5)
+            *IM_BRGC6 = lrclk_brg;
+#       endif
+#       if (LRCLK_BRG == 6)
+            *IM_BRGC7 = lrclk_brg;
+#       endif
+#       if (LRCLK_BRG == 7)
+            *IM_BRGC8 = lrclk_brg;
+#       endif
+	
+        /* 
+         * Clear reset on MCLK BRG
+         */
+#       if (MCLK_BRG == 0)
+            *IM_BRGC1 = mclk_brg & ~CPM_BRG_RST;
+#       endif
+#       if (MCLK_BRG == 1)
+            *IM_BRGC2 = mclk_brg & ~CPM_BRG_RST;
+#       endif
+#       if (MCLK_BRG == 2)
+            *IM_BRGC3 = mclk_brg & ~CPM_BRG_RST;
+#       endif
+#       if (MCLK_BRG == 3)
+            *IM_BRGC4 = mclk_brg & ~CPM_BRG_RST;
+#       endif
+#       if (MCLK_BRG == 4)
+            *IM_BRGC5 = mclk_brg & ~CPM_BRG_RST;
+#       endif
+#       if (MCLK_BRG == 5)
+            *IM_BRGC6 = mclk_brg & ~CPM_BRG_RST;
+#       endif
+#       if (MCLK_BRG == 6)
+            *IM_BRGC7 = mclk_brg & ~CPM_BRG_RST;
+#       endif
+#       if (MCLK_BRG == 7)
+            *IM_BRGC8 = mclk_brg & ~CPM_BRG_RST;
+#       endif
+
+        /* 
+         * Clear reset on SCLK BRG
+         */
+#       if (SCLK_BRG == 0)
+            *IM_BRGC1 = sclk_brg & ~CPM_BRG_RST;
+#       endif
+#       if (SCLK_BRG == 1)
+            *IM_BRGC2 = sclk_brg & ~CPM_BRG_RST;
+#       endif
+#       if (SCLK_BRG == 2)
+            *IM_BRGC3 = sclk_brg & ~CPM_BRG_RST;
+#       endif
+#       if (SCLK_BRG == 3)
+            *IM_BRGC4 = sclk_brg & ~CPM_BRG_RST;
+#       endif
+#       if (SCLK_BRG == 4)
+            *IM_BRGC5 = sclk_brg & ~CPM_BRG_RST;
+#       endif
+#       if (SCLK_BRG == 5)
+            *IM_BRGC6 = sclk_brg & ~CPM_BRG_RST;
+#       endif
+#       if (SCLK_BRG == 6)
+            *IM_BRGC7 = sclk_brg & ~CPM_BRG_RST;
+#       endif
+#       if (SCLK_BRG == 7)
+            *IM_BRGC8 = sclk_brg & ~CPM_BRG_RST;
+#       endif
+
+        /* 
+         * Clear reset on LRCLK BRG
+         */
+#       if (LRCLK_BRG == 0)
+            *IM_BRGC1 = lrclk_brg & ~CPM_BRG_RST;
+#       endif
+#       if (LRCLK_BRG == 1)
+            *IM_BRGC2 = lrclk_brg & ~CPM_BRG_RST;
+#       endif
+#       if (LRCLK_BRG == 2)
+            *IM_BRGC3 = lrclk_brg & ~CPM_BRG_RST;
+#       endif
+#       if (LRCLK_BRG == 3)
+            *IM_BRGC4 = lrclk_brg & ~CPM_BRG_RST;
+#       endif
+#       if (LRCLK_BRG == 4)
+            *IM_BRGC5 = lrclk_brg & ~CPM_BRG_RST;
+#       endif
+#       if (LRCLK_BRG == 5)
+            *IM_BRGC6 = lrclk_brg & ~CPM_BRG_RST;
+#       endif
+#       if (LRCLK_BRG == 6)
+            *IM_BRGC7 = lrclk_brg & ~CPM_BRG_RST;
+#       endif
+#       if (LRCLK_BRG == 7)
+            *IM_BRGC8 = lrclk_brg & ~CPM_BRG_RST;
+#       endif
+	
+	/*
+	 * Restore the Interrupt state
+	 */
+	if (flag) {
+            enable_interrupts();
+	}
 #   else
         /*
          * Reset the clocks
@@ -536,99 +665,99 @@ void Daq_Start_Clocks(int sample_rate)
 #ifdef TIGHTEN_UP_BRG_TIMING
     volatile immap_t *immr = (immap_t *)CFG_IMMR;
 
-    uint          mclk_brg;       /* MCLK  BRG value */
-    uint          sclk_brg;       /* SCLK  BRG value */
+    register uint mclk_brg;       /* MCLK  BRG value */
+    register uint sclk_brg;       /* SCLK  BRG value */
+    register uint temp_lrclk_brg; /* Temporary LRCLK BRG value */
+    register uint real_lrclk_brg; /* Permanent LRCLK BRG value */
     uint          lrclk_brg;      /* LRCLK BRG value */
-    uint          temp_lrclk_brg; /* Temporary LRCLK BRG value */
-    uint	  real_lrclk_brg; /* Permanent LRCLK BRG value */
     unsigned long flags;          /* Interrupt flags */
     uint          sclk_cnt;       /* SCLK count */
     uint          delay_cnt;      /* Delay count */
 #endif
 
 #   ifdef TIGHTEN_UP_BRG_TIMING
-        /*
+        /* 
          * Obtain the enabled MCLK BRG value
          */
 #       if (MCLK_BRG == 0)
-            mclk_brg = (immr->im_brgc1 & ~CPM_BRG_RST) | CPM_BRG_EN;
+            mclk_brg = (*IM_BRGC1 & ~CPM_BRG_RST) | CPM_BRG_EN;
 #       endif
 #       if (MCLK_BRG == 1)
-            mclk_brg = (immr->im_brgc2 & ~CPM_BRG_RST) | CPM_BRG_EN;
+            mclk_brg = (*IM_BRGC2 & ~CPM_BRG_RST) | CPM_BRG_EN;
 #       endif
 #       if (MCLK_BRG == 2)
-            mclk_brg = (immr->im_brgc3 & ~CPM_BRG_RST) | CPM_BRG_EN;
+            mclk_brg = (*IM_BRGC3 & ~CPM_BRG_RST) | CPM_BRG_EN;
 #       endif
 #       if (MCLK_BRG == 3)
-            mclk_brg = (immr->im_brgc4 & ~CPM_BRG_RST) | CPM_BRG_EN;
+            mclk_brg = (*IM_BRGC4 & ~CPM_BRG_RST) | CPM_BRG_EN;
 #       endif
 #       if (MCLK_BRG == 4)
-            mclk_brg = (immr->im_brgc5 & ~CPM_BRG_RST) | CPM_BRG_EN;
+            mclk_brg = (*IM_BRGC5 & ~CPM_BRG_RST) | CPM_BRG_EN;
 #       endif
 #       if (MCLK_BRG == 5)
-            mclk_brg = (immr->im_brgc6 & ~CPM_BRG_RST) | CPM_BRG_EN;
+            mclk_brg = (*IM_BRGC6 & ~CPM_BRG_RST) | CPM_BRG_EN;
 #       endif
 #       if (MCLK_BRG == 6)
-            mclk_brg = (immr->im_brgc7 & ~CPM_BRG_RST) | CPM_BRG_EN;
+            mclk_brg = (*IM_BRGC7 & ~CPM_BRG_RST) | CPM_BRG_EN;
 #       endif
 #       if (MCLK_BRG == 7)
-            mclk_brg = (immr->im_brgc8 & ~CPM_BRG_RST) | CPM_BRG_EN;
+            mclk_brg = (*IM_BRGC8 & ~CPM_BRG_RST) | CPM_BRG_EN;
 #       endif
 
-        /*
+        /* 
          * Obtain the enabled SCLK BRG value
          */
 #       if (SCLK_BRG == 0)
-            sclk_brg = (immr->im_brgc1 & ~CPM_BRG_RST) | CPM_BRG_EN;
+            sclk_brg = (*IM_BRGC1 & ~CPM_BRG_RST) | CPM_BRG_EN;
 #       endif
 #       if (SCLK_BRG == 1)
-            sclk_brg = (immr->im_brgc2 & ~CPM_BRG_RST) | CPM_BRG_EN;
+            sclk_brg = (*IM_BRGC2 & ~CPM_BRG_RST) | CPM_BRG_EN;
 #       endif
 #       if (SCLK_BRG == 2)
-            sclk_brg = (immr->im_brgc3 & ~CPM_BRG_RST) | CPM_BRG_EN;
+            sclk_brg = (*IM_BRGC3 & ~CPM_BRG_RST) | CPM_BRG_EN;
 #       endif
 #       if (SCLK_BRG == 3)
-            sclk_brg = (immr->im_brgc4 & ~CPM_BRG_RST) | CPM_BRG_EN;
+            sclk_brg = (*IM_BRGC4 & ~CPM_BRG_RST) | CPM_BRG_EN;
 #       endif
 #       if (SCLK_BRG == 4)
-            sclk_brg = (immr->im_brgc5 & ~CPM_BRG_RST) | CPM_BRG_EN;
+            sclk_brg = (*IM_BRGC5 & ~CPM_BRG_RST) | CPM_BRG_EN;
 #       endif
 #       if (SCLK_BRG == 5)
-            sclk_brg = (immr->im_brgc6 & ~CPM_BRG_RST) | CPM_BRG_EN;
+            sclk_brg = (*IM_BRGC6 & ~CPM_BRG_RST) | CPM_BRG_EN;
 #       endif
 #       if (SCLK_BRG == 6)
-            sclk_brg = (immr->im_brgc7 & ~CPM_BRG_RST) | CPM_BRG_EN;
+            sclk_brg = (*IM_BRGC7 & ~CPM_BRG_RST) | CPM_BRG_EN;
 #       endif
 #       if (SCLK_BRG == 7)
-            sclk_brg = (immr->im_brgc8 & ~CPM_BRG_RST) | CPM_BRG_EN;
+            sclk_brg = (*IM_BRGC8 & ~CPM_BRG_RST) | CPM_BRG_EN;
 #       endif
 
-        /*
+        /* 
          * Obtain the enabled LRCLK BRG value
          */
 #       if (LRCLK_BRG == 0)
-            lrclk_brg = (immr->im_brgc1 & ~CPM_BRG_RST) | CPM_BRG_EN;
+            lrclk_brg = (*IM_BRGC1 & ~CPM_BRG_RST) | CPM_BRG_EN;
 #       endif
 #       if (LRCLK_BRG == 1)
-            lrclk_brg = (immr->im_brgc2 & ~CPM_BRG_RST) | CPM_BRG_EN;
+            lrclk_brg = (*IM_BRGC2 & ~CPM_BRG_RST) | CPM_BRG_EN;
 #       endif
 #       if (LRCLK_BRG == 2)
-            lrclk_brg = (immr->im_brgc3 & ~CPM_BRG_RST) | CPM_BRG_EN;
+            lrclk_brg = (*IM_BRGC3 & ~CPM_BRG_RST) | CPM_BRG_EN;
 #       endif
 #       if (LRCLK_BRG == 3)
-            lrclk_brg = (immr->im_brgc4 & ~CPM_BRG_RST) | CPM_BRG_EN;
+            lrclk_brg = (*IM_BRGC4 & ~CPM_BRG_RST) | CPM_BRG_EN;
 #       endif
 #       if (LRCLK_BRG == 4)
-            lrclk_brg = (immr->im_brgc5 & ~CPM_BRG_RST) | CPM_BRG_EN;
+            lrclk_brg = (*IM_BRGC5 & ~CPM_BRG_RST) | CPM_BRG_EN;
 #       endif
 #       if (LRCLK_BRG == 5)
-            lrclk_brg = (immr->im_brgc6 & ~CPM_BRG_RST) | CPM_BRG_EN;
+            lrclk_brg = (*IM_BRGC6 & ~CPM_BRG_RST) | CPM_BRG_EN;
 #       endif
 #       if (LRCLK_BRG == 6)
-            lrclk_brg = (immr->im_brgc7 & ~CPM_BRG_RST) | CPM_BRG_EN;
+            lrclk_brg = (*IM_BRGC7 & ~CPM_BRG_RST) | CPM_BRG_EN;
 #       endif
 #       if (LRCLK_BRG == 7)
-            lrclk_brg = (immr->im_brgc8 & ~CPM_BRG_RST) | CPM_BRG_EN;
+            lrclk_brg = (*IM_BRGC8 & ~CPM_BRG_RST) | CPM_BRG_EN;
 #       endif
 
 	/* Save off the real LRCLK value */
@@ -639,7 +768,7 @@ void Daq_Start_Clocks(int sample_rate)
 
 	/* Compute the delay as a function of SCLK count */
         delay_cnt = ((sclk_cnt / 4) - 2) * 10 + 6;
-	if (sample_rate == 43402) {
+	if (DaqSampleRate == 43402) {
 	  delay_cnt++;
 	}
 
@@ -649,117 +778,129 @@ void Daq_Start_Clocks(int sample_rate)
         /* Insert the count */
 	temp_lrclk_brg |= ((delay_cnt + (sclk_cnt / 2) - 1) << 1) &  0x00001FFE;
 
-        /*
+	/*
+	 * Disable interrupt and save the current state
+	 */
+	flag = disable_interrupts();
+
+        /* 
          * Enable MCLK BRG
          */
 #       if (MCLK_BRG == 0)
-            immr->im_brgc1 = mclk_brg;
+            *IM_BRGC1 = mclk_brg;
 #       endif
 #       if (MCLK_BRG == 1)
-            immr->im_brgc2 = mclk_brg;
+            *IM_BRGC2 = mclk_brg;
 #       endif
 #       if (MCLK_BRG == 2)
-            immr->im_brgc3 = mclk_brg;
+            *IM_BRGC3 = mclk_brg;
 #       endif
 #       if (MCLK_BRG == 3)
-            immr->im_brgc4 = mclk_brg;
+            *IM_BRGC4 = mclk_brg;
 #       endif
 #       if (MCLK_BRG == 4)
-            immr->im_brgc5 = mclk_brg;
+            *IM_BRGC5 = mclk_brg;
 #       endif
 #       if (MCLK_BRG == 5)
-            immr->im_brgc6 = mclk_brg;
+            *IM_BRGC6 = mclk_brg;
 #       endif
 #       if (MCLK_BRG == 6)
-            immr->im_brgc7 = mclk_brg;
+            *IM_BRGC7 = mclk_brg;
 #       endif
 #       if (MCLK_BRG == 7)
-            immr->im_brgc8 = mclk_brg;
+            *IM_BRGC8 = mclk_brg;
 #       endif
 
-        /*
+        /* 
          * Enable SCLK BRG
          */
 #       if (SCLK_BRG == 0)
-            immr->im_brgc1 = sclk_brg;
+            *IM_BRGC1 = sclk_brg;
 #       endif
 #       if (SCLK_BRG == 1)
-            immr->im_brgc2 = sclk_brg;
+            *IM_BRGC2 = sclk_brg;
 #       endif
 #       if (SCLK_BRG == 2)
-            immr->im_brgc3 = sclk_brg;
+            *IM_BRGC3 = sclk_brg;
 #       endif
 #       if (SCLK_BRG == 3)
-            immr->im_brgc4 = sclk_brg;
+            *IM_BRGC4 = sclk_brg;
 #       endif
 #       if (SCLK_BRG == 4)
-            immr->im_brgc5 = sclk_brg;
+            *IM_BRGC5 = sclk_brg;
 #       endif
 #       if (SCLK_BRG == 5)
-            immr->im_brgc6 = sclk_brg;
+            *IM_BRGC6 = sclk_brg;
 #       endif
 #       if (SCLK_BRG == 6)
-            immr->im_brgc7 = sclk_brg;
+            *IM_BRGC7 = sclk_brg;
 #       endif
 #       if (SCLK_BRG == 7)
-            immr->im_brgc8 = sclk_brg;
+            *IM_BRGC8 = sclk_brg;
 #       endif
 
-        /*
+        /* 
          * Enable LRCLK BRG (1st time - temporary)
          */
 #       if (LRCLK_BRG == 0)
-             immr->im_brgc1 = temp_lrclk_brg;
+            *IM_BRGC1 = temp_lrclk_brg;
 #       endif
 #       if (LRCLK_BRG == 1)
-             immr->im_brgc2 = temp_lrclk_brg;
+            *IM_BRGC2 = temp_lrclk_brg;
 #       endif
 #       if (LRCLK_BRG == 2)
-             immr->im_brgc3 = temp_lrclk_brg;
+            *IM_BRGC3 = temp_lrclk_brg;
 #       endif
 #       if (LRCLK_BRG == 3)
-             immr->im_brgc4 = temp_lrclk_brg;
+            *IM_BRGC4 = temp_lrclk_brg;
 #       endif
 #       if (LRCLK_BRG == 4)
-             immr->im_brgc5 = temp_lrclk_brg;
+            *IM_BRGC5 = temp_lrclk_brg;
 #       endif
 #       if (LRCLK_BRG == 5)
-             immr->im_brgc6 = temp_lrclk_brg;
+            *IM_BRGC6 = temp_lrclk_brg;
 #       endif
 #       if (LRCLK_BRG == 6)
-             immr->im_brgc7 = temp_lrclk_brg;
+            *IM_BRGC7 = temp_lrclk_brg;
 #       endif
 #       if (LRCLK_BRG == 7)
-             immr->im_brgc8 = temp_lrclk_brg;
+            *IM_BRGC8 = temp_lrclk_brg;
 #       endif
-
-        /*
+	
+        /* 
          * Enable LRCLK BRG (2nd time - permanent)
          */
 #       if (LRCLK_BRG == 0)
-             immr->im_brgc1 = real_lrclk_brg;
+            *IM_BRGC1 = real_lrclk_brg;
 #       endif
 #       if (LRCLK_BRG == 1)
-             immr->im_brgc2 = real_lrclk_brg;
+            *IM_BRGC2 = real_lrclk_brg;
 #       endif
 #       if (LRCLK_BRG == 2)
-             immr->im_brgc3 = real_lrclk_brg;
+            *IM_BRGC3 = real_lrclk_brg;
 #       endif
 #       if (LRCLK_BRG == 3)
-             immr->im_brgc4 = real_lrclk_brg;
+            *IM_BRGC4 = real_lrclk_brg;
 #       endif
 #       if (LRCLK_BRG == 4)
-             immr->im_brgc5 = real_lrclk_brg;
+            *IM_BRGC5 = real_lrclk_brg;
 #       endif
 #       if (LRCLK_BRG == 5)
-             immr->im_brgc6 = real_lrclk_brg;
+            *IM_BRGC6 = real_lrclk_brg;
 #       endif
 #       if (LRCLK_BRG == 6)
-             immr->im_brgc7 = real_lrclk_brg;
+            *IM_BRGC7 = real_lrclk_brg;
 #       endif
 #       if (LRCLK_BRG == 7)
-             immr->im_brgc8 = real_lrclk_brg;
+            *IM_BRGC8 = real_lrclk_brg;
 #       endif
+
+	/*
+	 * Restore the Interrupt state
+	 */
+	if (flag) {
+	    enable_interrupts();
+        }
 #   else
         /*
          * Enable the clocks

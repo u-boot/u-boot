@@ -61,6 +61,9 @@
                                  /* The 8260 (Mask B.3) seems to have     */
                                  /* problems generating LRCLK from SCLK   */
 
+#define NUM_LRCLKS_TO_STABILIZE 1  /* Number of LRCLK period (sample)     */
+				   /* to wait for the clock to stabilize  */
+
 #define CPM_CLK      (gd->bd->bi_cpmfreq)
 #define DFBRG        4
 #define BRG_INT_CLK  (CPM_CLK * 2 / DFBRG)
@@ -79,6 +82,15 @@
 #define CPM_BRG_EXTC_CLK9       CPM_BRG_EXTC_CLK3
 #define CPM_BRG_EXTC_CLK5       2
 #define CPM_BRG_EXTC_CLK15      CPM_BRG_EXTC_CLK5
+
+#define IM_BRGC1 ((uint *)0xf00119f0)
+#define IM_BRGC2 ((uint *)0xf00119f4)
+#define IM_BRGC3 ((uint *)0xf00119f8)
+#define IM_BRGC4 ((uint *)0xf00119fc)
+#define IM_BRGC5 ((uint *)0xf00115f0)
+#define IM_BRGC6 ((uint *)0xf00115f4)
+#define IM_BRGC7 ((uint *)0xf00115f8)
+#define IM_BRGC8 ((uint *)0xf00115fc)
 
 /*
  * External declarations
@@ -105,7 +117,6 @@ extern void Daq_BRG_Set_ExtClk(uint brg, uint extc);
 extern uint Daq_BRG_Rate(uint brg);
 
 extern uint Daq_Get_SampleRate(void);
-extern uint Daq_Set_SampleRate(uint rate, uint force);
 
 extern void Daq_Init_Clocks(int sample_rate, int sample_64x);
 extern void Daq_Stop_Clocks(void);
