@@ -1020,7 +1020,7 @@ shannon_config	:	unconfig
 
 xtract_trab = $(subst _bigram,,$(subst _bigflash,,$(subst _old,,$(subst _config,,$1))))
 
-xtract_omap1610xxx = $(subst _cs0boot,,$(subst _cs3boot,, $(subst _config,,$1)))
+xtract_omap1610xxx = $(subst _cs0boot,,$(subst _cs3boot,,$(subst _cs_autoboot,,$(subst _config,,$1))))
 
 xtract_omap730p2 = $(subst _cs0boot,,$(subst _cs3boot,, $(subst _config,,$1)))
 
@@ -1045,12 +1045,17 @@ omap5912osk_config :	unconfig
 omap1610inn_config \
 omap1610inn_cs0boot_config \
 omap1610inn_cs3boot_config \
+omap1610inn_cs_autoboot_config \
 omap1610h2_config \
 omap1610h2_cs0boot_config \
-omap1610h2_cs3boot_config :	unconfig
+omap1610h2_cs3boot_config \
+omap1610h2_cs_autoboot_config:	unconfig
 	@if [ "$(findstring _cs0boot_, $@)" ] ; then \
 		echo "#define CONFIG_CS0_BOOT" >> ./include/config.h ; \
 		echo "... configured for CS0 boot"; \
+	elif [ "$(findstring _cs_autoboot_, $@)" ] ; then \
+		echo "#define CONFIG_CS_AUTOBOOT" >> ./include/config.h ; \
+		echo "... configured for CS_AUTO boot"; \
 	else \
 		echo "#define CONFIG_CS3_BOOT" >> ./include/config.h ; \
 		echo "... configured for CS3 boot"; \

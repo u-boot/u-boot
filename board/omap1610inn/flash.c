@@ -89,11 +89,12 @@ unsigned long flash_init (void)
 {
 	int i;
 	ulong size = 0;
+
 	for (i = 0; i < CFG_MAX_FLASH_BANKS; i++) {
 		switch (i) {
 		case 0:
-			flash_get_size ((FPW *) PHYS_FLASH_1, &flash_info[i]);
-			flash_get_offsets (PHYS_FLASH_1, &flash_info[i]);
+			flash_get_size ((FPW *) CFG_FLASH_BASE, &flash_info[i]);
+			flash_get_offsets (CFG_FLASH_BASE, &flash_info[i]);
 			/* to reset the lock bit */
 			flash_unlock(&flash_info[i]);
 			break;

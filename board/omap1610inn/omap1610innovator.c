@@ -36,6 +36,10 @@
 #include <./configs/omap1510.h>
 #endif
 
+#ifdef CONFIG_CS_AUTOBOOT
+unsigned long omap_flash_base;
+#endif
+
 void flash__init (void);
 void ether__init (void);
 void set_muxconf_regs (void);
@@ -95,6 +99,12 @@ void flash__init (void)
 {
 #define EMIFS_GlB_Config_REG 0xfffecc0c
 	unsigned int regval;
+
+#ifdef CONFIG_CS_AUTOBOOT
+	 /* Check swapping of CS0 and CS3, set flash base accordingly */
+        omap_flash_base = ((*((u32 *)OMAP_EMIFS_CONFIG_REG) & 0x02) == 0) ?
+			                PHYS_FLASH_1_BM0 : PHYS_FLASH_1_BM1;
+#endif
 	regval = *((volatile unsigned int *) EMIFS_GlB_Config_REG);
 	/* Turn off write protection for flash devices. */
 	regval = regval | 0x0001;

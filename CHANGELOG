@@ -2,6 +2,14 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Imre Deak, 26 May 2004:
+  On OMAP1610 platforms check if booting from RAM(CS0) or flash(CS3).
+  Set flash base accordingly, and decide whether to do or skip board
+  specific setup steps.
+
+* Patch by Josef Baumgartner, 26 May 2004:
+  Add missing define in include/asm-m68k/global_data.h
+
 * Patch by Josef Baumgartner, 25 May 2004:
   Add missing functions get_ticks() and get_tbclk() in lib_m68k/time.c
 

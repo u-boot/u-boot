@@ -147,18 +147,29 @@
 /*-----------------------------------------------------------------------
  * Physical Memory Map
  */
-#define CONFIG_NR_DRAM_BANKS	1	/* we have 1 bank of DRAM */
-#define PHYS_SDRAM_1	0x10000000	/* SDRAM Bank #1 */
+#define CONFIG_NR_DRAM_BANKS	1		/* we have 1 bank of DRAM */
+#define PHYS_SDRAM_1		0x10000000	/* SDRAM Bank #1 */
 #define PHYS_SDRAM_1_SIZE	0x02000000	/* 32 MB */
 
-#ifdef CONFIG_CS0_BOOT
-#define PHYS_FLASH_1	0x0C000000
-#endif
-#ifdef CONFIG_CS3_BOOT
-#define PHYS_FLASH_1	0x00000000
-#endif
+#define PHYS_FLASH_1_BM1	0x00000000	/* Flash Bank #1 if booting from flash */
+#define PHYS_FLASH_1_BM0	0x0C000000	/* Flash Bank #1 if booting from RAM */
 
-#define CFG_FLASH_BASE	PHYS_FLASH_1
+#ifdef CONFIG_CS_AUTOBOOT			/* Determine CS assignment in runtime */
+				
+#ifndef __ASSEMBLY__
+extern unsigned long omap_flash_base;		/* set in flash__init */
+#endif
+#define CFG_FLASH_BASE		omap_flash_base
+
+#elif defined(CONFIG_CS0_BOOT)
+
+#define CFG_FLASH_BASE		PHYS_FLASH_1_BM0
+
+#else
+
+#define CFG_FLASH_BASE		PHYS_FLASH_1_BM1
+
+#endif
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization

@@ -71,6 +71,12 @@ platformsetup:
 	ldr	r1,	VAL_ARM_IDLECT3
 	str	r1,	[r0]
 
+#ifdef CONFIG_CS_AUTOBOOT		/* do the setup depending on boot mode */
+	ldr	r0, CONF_STATUS
+	ldr	r1, [r0]
+	tst	r1, #0x02
+	beq	disable_wd		/* booting from RAM, skip setup */
+#endif
 
 	mov	r1,	#0x01		/* PER_EN bit */
 	ldr	r0,	REG_ARM_RSTCT2
@@ -118,6 +124,7 @@ lock_end:
 	/*------------------------------------------------------*
 	 * Turn off the watchdog during init...			*
  	 *------------------------------------------------------*/
+disable_wd:
 	ldr	r0,	REG_WATCHDOG
 	ldr	r1,	WATCHDOG_VAL1
 	str	r1,	[r0]
@@ -281,6 +288,10 @@ common_tc:
 	/* the literal pools origin */
 	.ltorg
 
+#ifdef CONFIG_CS_AUTOBOOT
+CONF_STATUS:
+	.word 0xfffe1130	/* 32 bits */
+#endif
 
 REG_TC_EMIFS_CONFIG:		/* 32 bits */
 	.word 0xfffecc0c
