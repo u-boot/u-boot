@@ -683,19 +683,39 @@ again:
 	 */
 #ifdef USE_32_BIT
 	SMC_outsl (SMC91111_DATA_REG, buf, length >> 2);
+#ifndef CONFIG_XAENIAX
 	if (length & 0x2)
 		SMC_outw (*((word *) (buf + (length & 0xFFFFFFFC))),
 			  SMC91111_DATA_REG);
 #else
+	/* On XANEIAX, we can only use 32-bit writes, so we need to handle
+	 * unaligned tail part specially. The standard code doesn't work.
+	 */
+	if ((length & 3) == 3) {
+		u16 * ptr = (u16*) &buf[length-3];
+		SMC_outl((*ptr) | ((0x2000 | buf[length-1]) << 16),
+				SMC91111_DATA_REG);
+	} else if ((length & 2) == 2) {
+		u16 * ptr = (u16*) &buf[length-2];
+		SMC_outl(*ptr, SMC91111_DATA_REG);
+	} else if (length & 1) {
+		SMC_outl((0x2000 | buf[length-1]), SMC91111_DATA_REG);
+	} else {
+		SMC_outl(0, SMC91111_DATA_REG);
+	}
+#endif
+#else
 	SMC_outsw (SMC91111_DATA_REG, buf, (length) >> 1);
 #endif /* USE_32_BIT */
 
+#ifndef CONFIG_XAENIAX
 	/* Send the last byte, if there is one.	  */
 	if ((length & 1) == 0) {
 		SMC_outw (0, SMC91111_DATA_REG);
 	} else {
 		SMC_outw (buf[length - 1] | 0x2000, SMC91111_DATA_REG);
 	}
+#endif
 
 	/* and let the chipset deal with it */
 	SMC_outw (MC_ENQUEUE, MMU_CMD_REG);

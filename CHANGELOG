@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Fix smc91111 ethernet driver for Xaeniax board (need to handle
+  unaligned tail part specially).
+
 * Update for AT91RM9200DK and CMC_PU2 boards:
   - Enable booting directly from flash
   - fix CMC_PU2 flash driver
