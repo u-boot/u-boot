@@ -98,6 +98,7 @@ static int check_CPU (long clock, uint pvr, uint immr)
 	case 0x00310065: mid = "SR"; suf = "C1"; m = 1; break;
 	case 0x05010000: suf = "D3"; m = 1; break;
 	case 0x05020000: suf = "D4"; m = 1; break;
+	case 0x08000003: suf = ""; m = 1; break;
 		/* this value is not documented anywhere */
 	case 0x40000000: pre = 'P'; suf = "D"; m = 1; break;
 #endif

@@ -210,6 +210,9 @@ IceCube_5100_config:		unconfig
 ## MPC8xx Systems
 #########################################################################
 
+AdderII_config:	unconfig
+	@./mkconfig $(@:_config=) ppc mpc8xx adderII
+
 ADS860_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx fads
 

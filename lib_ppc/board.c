@@ -632,7 +632,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	puts ("FLASH: ");
 
 	if ((flash_size = flash_init ()) > 0) {
-#ifdef CFG_FLASH_CHECKSUM
+# ifdef CFG_FLASH_CHECKSUM
 		print_size (flash_size, "");
 		/*
 		 * Compute and print flash CRC if flashchecksum is set to 'y'
@@ -648,9 +648,9 @@ void board_init_r (gd_t *id, ulong dest_addr)
 					);
 		}
 		putc ('\n');
-#else
+# else	/* !CFG_FLASH_CHECKSUM */
 		print_size (flash_size, "\n");
-#endif /* CFG_FLASH_CHECKSUM */
+# endif /* CFG_FLASH_CHECKSUM */
 	} else {
 		puts (failed);
 		hang ();
@@ -658,14 +658,14 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 	bd->bi_flashstart = CFG_FLASH_BASE;	/* update start of FLASH memory    */
 	bd->bi_flashsize = flash_size;	/* size of FLASH memory (final value) */
-#if defined(CONFIG_PCU_E) || defined(CONFIG_OXC)
+# if defined(CONFIG_PCU_E) || defined(CONFIG_OXC)
 	bd->bi_flashoffset = 0;
-#elif CFG_MONITOR_BASE == CFG_FLASH_BASE
+# elif CFG_MONITOR_BASE == CFG_FLASH_BASE
 	bd->bi_flashoffset = monitor_flash_len;	/* reserved area for startup monitor  */
-#else
+# else
 	bd->bi_flashoffset = 0;
-#endif
-#else
+# endif
+#else	/* CFG_NO_FLASH */
 
 	bd->bi_flashsize = 0;
 	bd->bi_flashstart = 0;

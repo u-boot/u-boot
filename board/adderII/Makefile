@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= lib$(BOARD).a
 
-OBJS	= $(BOARD).o flash.o load_sernum_ethaddr.o
+OBJS	= $(BOARD).o flash.o
 
 $(LIB):	.depend $(OBJS)
 	$(AR) crv $@ $(OBJS)

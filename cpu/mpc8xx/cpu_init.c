@@ -132,7 +132,8 @@ void cpu_init_f (volatile immap_t * immr)
 	 *  I owe him a free beer. - wd]
 	 */
 
-#if defined(CONFIG_GTH)	        || \
+#if defined(CONFIG_ADDERII)	|| \
+    defined(CONFIG_GTH)	        || \
     defined(CONFIG_HERMES)	|| \
     defined(CONFIG_ICU862)	|| \
     defined(CONFIG_IP860)	|| \
