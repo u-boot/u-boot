@@ -179,7 +179,7 @@ int do_irqinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	int vec;
 
 	printf ("\nInterrupt-Information:\n");
-	printf ("Nr  Routine   Arg       CouIt's ok to cnt\n");
+	printf ("Nr  Routine   Arg       Count\n");
 
 	for (vec=0; vec<64; vec++) {
 		if (irq_vecs[vec].handler != NULL) {

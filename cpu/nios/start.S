@@ -93,6 +93,14 @@ _start:
 	subi	%g6, 4			/* %g6 <- src addr */
 	ld	%g7, [%g7]		/* %g7 <- dst addr */
 
+	/* No need to move text sections if we're already located
+	 * at the proper address.
+	 */
+	cmp	%g7, %g6
+	ifs	cc_z
+	br	reloc
+	nop				/* delay slot */
+
 1:	cmp	%g7, %g5
 	skps	cc_nz
 	br	2f
@@ -114,6 +122,7 @@ _start:
 	 pfx	%xhi(reloc@h)
 	 movhi	%g0, %xlo(reloc@h)
 	 jmp	%g0
+	 nop				/* delay slot */
 reloc:
 
 	/*
@@ -139,6 +148,48 @@ reloc:
 	br	3b
 	nop				/* delay slot */
 4:
+
+	/*
+	 * INIT VECTOR TABLE
+	 */
+	pfx	%hi(CFG_VECT_BASE)
+	movi	%g0, %lo(CFG_VECT_BASE)
+	pfx	%xhi(CFG_VECT_BASE)
+	movhi	%g0, %xlo(CFG_VECT_BASE)	/* dst */
+	mov	%l0, %g0
+
+	pfx	%hi(_vectors)
+	movi	%g1, %lo(_vectors)
+	pfx	%xhi(_vectors)
+	movhi	%g1, %xlo(_vectors)	/* src */
+	bgen	%g2, 6			/* cnt = 64 */
+
+	ldp	%g3, [%l0, 3]		/* bkpt vector */
+	ldp	%g4, [%l0, 4]		/* single step vector */
+
+5:	ld	%g7, [%g1]
+	addi	%g1, 4			/* src++ */
+	st	[%g0], %g7
+	addi	%g0, 4			/* dst++ */
+
+	subi	%g2, 1			/* cnt-- */
+	ifrnz	%g2
+	br	5b
+	nop				/* delay slot */
+
+#if defined(CONFIG_ROM_STUBS)
+	/* Restore the breakpoint and single step exception
+	 * vectors to their original values.
+	 */
+	stp	[%l0,3], %g3		/* breakpoint */
+	stp	[%l0,4], %g4		/* single step */
+#endif
+
+	/* For debug startup convenience ... software breakpoints
+	 * set prior to this point may not succeed ;-)
+	 */
+	.global __start
+__start:
 
 	/*
 	 * Call board_init -- never returns

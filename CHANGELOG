@@ -2,6 +2,12 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Scott McNutt, 25 Apr 2004:
+  Add Nios GDB/JTAG Console support:
+  - Add stubs to support gdb via JTAG.
+  - Add support for console over JTAG.
+  - Minor cleanup.
+
 * Add support for CATcenter board (based on PPChameleon ME module)
 
 * Patch by Klaus Heydeck, 12 May 2004:

@@ -38,7 +38,7 @@ LOAD_ADDR = 0x80200000 -T mips.lds
 endif
 
 ifeq ($(ARCH),nios)
-LOAD_ADDR = 0x01000000 -L $(gcclibdir)/m32 -T nios.lds
+LOAD_ADDR = 0x00800000 -L $(gcclibdir)/m32 -T nios.lds
 endif
 
 ifeq ($(ARCH),m68k)

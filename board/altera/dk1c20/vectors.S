@@ -38,6 +38,8 @@
  *	_cwp_lolimit	-Handles register window underflows.
  *	_cwp_hilimit	-Handles register window overflows.
  *	_timebase_int	-Increments the timebase.
+ *	_brkpt_hw_int	-Hardware breakpoint handler.
+ *	_brkpt_sw_int	-Software breakpoint handler.
  *	_def_xhandler	-Default exception handler.
  *
  * _timebase_int handles a Nios Timer interrupt and increments the
@@ -58,9 +60,8 @@ _vectors:
 	.long	_def_xhandler@h		/* Vector 0  - NMI */
 	.long	_cwp_lolimit@h		/* Vector 1  -  underflow */
 	.long	_cwp_hilimit@h		/* Vector 2  - overflow	*/
-
-	.long	_def_xhandler@h		/* Vector 3 - GNUPro debug */
-	.long	_def_xhandler@h		/* Vector 4 - GNUPro debug */
+	.long	_brkpt_hw_int@h		/* Vector 3 - Breakpoint */
+	.long	_brkpt_sw_int@h		/* Vector 4 - Single step*/
 	.long	_def_xhandler@h		/* Vector 5 - GNUPro debug */
 	.long	_def_xhandler@h		/* Vector 6 - future reserved */
 	.long	_def_xhandler@h		/* Vector 7 - future reserved */

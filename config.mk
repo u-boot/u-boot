@@ -126,7 +126,7 @@ endif
 # this option have to be placed behind -Wall -- that's why it is here
 ifeq ($(ARCH),nios)
 ifeq ($(findstring 2.9,$(shell $(CC) --version)),2.9)
-CFLAGS := $(CPPFLAGS) -Wno-trigraphs
+CFLAGS := $(CPPFLAGS) -Wall -Wno-trigraphs
 endif
 endif
 

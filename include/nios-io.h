@@ -167,4 +167,17 @@ typedef volatile struct nios_asmi_t {
 #define NIOS_ASMI_IEOP		(1 << 9)	/* rx eop int ena */
 #define NIOS_ASMI_SSO		(1 << 10)	/* slave select enable */
 
+/*------------------------------------------------------------------------
+ * JTAG UART
+ *----------------------------------------------------------------------*/
+typedef volatile struct nios_jtag_t {
+	unsigned short	rxcntl;			/* Rx data/cntl reg */
+	unsigned short	txcntl;			/* Tx data/cntl reg */
+	unsigned short	errcntl;		/* Err dta/cntl reg */
+}nios_jtag_t;
+
+/* status register */
+#define NIOS_JTAG_TRDY		(1 << 8)	/* tx ready bit */
+#define NIOS_JTAG_RRDY		(1 << 8)	/* rx ready bit */
+
 #endif /* __NIOSIO_H__ */

@@ -49,7 +49,6 @@
 
 extern void malloc_bin_reloc (void);
 typedef int (init_fnc_t) (void);
-extern unsigned _vectors[];
 
 /*
  * Begin and End of memory area for malloc(), and current "brk"
@@ -119,10 +118,6 @@ void board_init (void)
 	 */
 	gd = (gd_t *)CFG_GBL_DATA_OFFSET;
 	memset( gd, 0, CFG_GBL_DATA_SIZE );
-
-	/* Copy exception vectors to the correct location.
-	 */
-	memcpy( (void *)CFG_VECT_BASE, _vectors, 256 );
 
 	gd->bd = (bd_t *)(gd+1);	/* At end of global data */
 	gd->baudrate = CONFIG_BAUDRATE;

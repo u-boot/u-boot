@@ -557,3 +557,26 @@ _timebase_int:
 	mov	%fp, %sp
 
 	tret	%o7			/* Done */
+
+/*************************************************************************
+ * GDB stubs
+ ************************************************************************/
+	.text
+	.global _brkpt_hw_int, _brkpt_sw_int
+	.align	4
+
+_brkpt_hw_int:
+	movi	%l1, 9
+	pfx	3
+	wrctl	%l1
+	pfx	4
+	wrctl	%l1
+
+_brkpt_sw_int:
+	movi	%l1, 9
+	pfx	3
+	wrctl	%l1
+	pfx	4
+	wrctl	%l1
+
+	tret	%o7
