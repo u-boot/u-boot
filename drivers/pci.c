@@ -103,14 +103,14 @@ int pci_hose_write_config_##size##_via_dword(struct pci_controller *hose,\
 					     pci_dev_t dev, 		\
 					     int offset, type val)	\
 {									\
-	u32 val32, mask, ldata;						\
+	u32 val32, mask, ldata, shift;					\
 									\
 	if (pci_hose_read_config_dword(hose, dev, offset & 0xfc, &val32) < 0)\
 		return -1;						\
 									\
-	mask = val_mask;						\
-	ldata = (((unsigned long)val) & mask) << ((offset & (int)off_mask) * 8);\
-	mask <<= ((mask & (int)off_mask) * 8);				\
+	shift = ((offset & (int)off_mask) * 8);				\
+	ldata = (((unsigned long)val) & val_mask) << shift;		\
+	mask = val_mask << shift;					\
 	val32 = (val32 & ~mask) | ldata;				\
 									\
 	if (pci_hose_write_config_dword(hose, dev, offset & 0xfc, val32) < 0)\

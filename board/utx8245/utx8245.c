@@ -48,35 +48,30 @@ int checkboard(void)
 
 long int initdram(int board_type)
 {
-#if 1
 	long size;
 	long new_bank0_end;
+	long new_bank1_end;
 	long mear1;
 	long emear1;
-/*
-	write_bat(IBAT1, ((CFG_MAX_RAM_SIZE/2) | BATU_BL_256M | BATU_VS | BATU_VP),
-			( (CFG_MAX_RAM_SIZE/2)| BATL_PP_10 | BATL_MEMCOHERENCE));
 
-	write_bat(DBAT1, ((CFG_MAX_RAM_SIZE/2) | BATU_BL_256M | BATU_VS | BATU_VP),
-			( (CFG_MAX_RAM_SIZE/2)| BATL_PP_10 | BATL_MEMCOHERENCE));
-*/
 	size = get_ram_size(CFG_SDRAM_BASE, CFG_MAX_RAM_SIZE);
 
-	new_bank0_end = size - 1;
+	new_bank0_end = size/2 - 1;
+	new_bank1_end = size - 1;
 	mear1 = mpc824x_mpc107_getreg(MEAR1);
 	emear1 = mpc824x_mpc107_getreg(EMEAR1);
-	mear1 = (mear1  & 0xFFFFFF00) |
-		((new_bank0_end & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT);
-	emear1 = (emear1 & 0xFFFFFF00) |
-		((new_bank0_end & MICR_ADDR_MASK) >> MICR_EADDR_SHIFT);
+
+	mear1 = (mear1  & 0xFFFF0000) |
+		((new_bank0_end & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT) |
+		((new_bank1_end & MICR_ADDR_MASK) >> MICR_ADDR_SHIFT << 8);
+	emear1 = (emear1 & 0xFFFF0000) |
+		((new_bank0_end & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT) |
+		((new_bank1_end & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT << 8);
+		
 	mpc824x_mpc107_setreg(MEAR1, mear1);
 	mpc824x_mpc107_setreg(EMEAR1, emear1);
 
 	return (size);
-#else
-	return (CFG_MAX_RAM_SIZE);
-#endif
-
 }
 
 

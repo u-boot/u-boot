@@ -2,6 +2,18 @@
 Changes for U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Matthew S. McClintock, 14 Apr 2004:
+  fix initdram function for utx8245 board
+
+* Patch by Markus Pietrek, 14 Apr 2004:
+  use ATAG_INITRD2 instead of deprecated ATAG_INITRD tag
+
+* Patch by Reinhard Meyer, 18 Apr 2004:
+  provide the IDE Reset Function for EMK 5200 boards
+
+* Patch by Masami Komiya, 12 Apr 2004:
+  fix pci_hose_write_config_{byte,word}_via_dword problems
+
 * Patch by Sangmoon Kim, 12 Apr 2004:
   Update max RAM size for debris board
 

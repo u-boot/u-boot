@@ -94,7 +94,11 @@
 
 #  define CONFIG_USB_OHCI
 #  define CONFIG_USB_CLOCK	0x0001bbbb
-#  define CONFIG_USB_CONFIG	0x00005000
+#  if defined (CONFIG_EVAL5200)
+#    define CONFIG_USB_CONFIG	0x00005100
+#  else
+#    define CONFIG_USB_CONFIG	0x00001000
+#  endif
 #  define ADD_USB_CMD             CFG_CMD_USB | CFG_CMD_FAT
 #  define CONFIG_DOS_PARTITION
 #  define CONFIG_USB_STORAGE
@@ -325,7 +329,7 @@
  * PCI disabled
  * Ethernet 100 with MD
  */
-#define CFG_GPS_PORT_CONFIG	0x00058444
+#define CFG_GPS_PORT_CONFIG	0x00058044
 
 /*
  * Miscellaneous configurable options

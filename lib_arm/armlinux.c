@@ -340,7 +340,7 @@ static void setup_initrd_tag (bd_t *bd, ulong initrd_start, ulong initrd_end)
 	/* an ATAG_INITRD node tells the kernel where the compressed
 	 * ramdisk can be found. ATAG_RDIMG is a better name, actually.
 	 */
-	params->hdr.tag = ATAG_INITRD;
+	params->hdr.tag = ATAG_INITRD2;
 	params->hdr.size = tag_size (tag_initrd);
 
 	params->u.initrd.start = initrd_start;
