@@ -27,7 +27,7 @@ LIB	= libcommon.a
 
 AOBJS	=
 
-COBJS	= main.o ACEX1K.o altera.o bedbug.o \
+COBJS	= main.o ACEX1K.o altera.o bedbug.o circbuf.o \
 	  cmd_ace.o cmd_autoscript.o \
 	  cmd_bdinfo.o cmd_bedbug.o cmd_bmp.o cmd_boot.o cmd_bootm.o \
 	  cmd_cache.o cmd_console.o \
@@ -44,10 +44,11 @@ COBJS	= main.o ACEX1K.o altera.o bedbug.o \
 	  environment.o env_common.o \
 	  env_nand.o env_dataflash.o env_flash.o env_eeprom.o env_nvram.o env_nowhere.o exports.o \
 	  flash.o fpga.o \
-	  hush.o kgdb.o lists.o lynxkdi.o memsize.o miiphybb.o miiphyutil.o \
+	  hush.o kgdb.o lcd.o lists.o lynxkdi.o \
+	  memsize.o miiphybb.o miiphyutil.o \
 	  s_record.o serial.o soft_i2c.o soft_spi.o spartan2.o \
 	  usb.o usb_kbd.o usb_storage.o \
-	  virtex2.o xilinx.o circbuf.o
+	  virtex2.o xilinx.o
 
 OBJS	= $(AOBJS) $(COBJS)
 

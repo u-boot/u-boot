@@ -120,25 +120,13 @@ int main (int argc, char *argv[])
 		b->palette[(int)(i*3+0)] = fgetc(fp);
 		x=fgetc(fp);
 
-#if 0
-		if ((i%4) == 0)
-			putchar ('\t');
-		printf ("0x%02X, 0x%02X, 0x%02X,%s",
-			b->palette[(int)(i*3+0)],
-			b->palette[(int)(i*3+1)],
-			b->palette[(int)(i*3+2)],
-			((i%4) == 3) ? "\n" : "	   "
-		);
-#else
-		if ((i%8) == 0)
-			putchar ('\t');
-		printf ("0x0%X%X%X,%s",
+		printf ("%s0x0%X%X%X,%s",
+			((i%8) == 0) ? "\t" : "  ",
 			(b->palette[(int)(i*3+0)] >> 4) & 0x0F,
 			(b->palette[(int)(i*3+1)] >> 4) & 0x0F,
 			(b->palette[(int)(i*3+2)] >> 4) & 0x0F,
-			((i%8) == 7) ? "\n" : "  "
+			((i%8) == 7) ? "\n" : ""
 		);
-#endif
 	}
 
 	/* read the bitmap; leave room for default color map */

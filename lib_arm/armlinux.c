@@ -38,7 +38,8 @@ extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
     defined (CONFIG_INITRD_TAG) || \
     defined (CONFIG_SERIAL_TAG) || \
     defined (CONFIG_REVISION_TAG) || \
-    defined (CONFIG_VFD)
+    defined (CONFIG_VFD) || \
+    defined (CONFIG_LCD)
 static void setup_start_tag (bd_t *bd);
 
 # ifdef CONFIG_SETUP_MEMORY_TAGS
@@ -55,7 +56,7 @@ static void setup_initrd_tag (bd_t *bd, ulong initrd_start,
 # endif
 static void setup_end_tag (bd_t *bd);
 
-# if defined (CONFIG_VFD)
+# if defined (CONFIG_VFD) || defined (CONFIG_LCD)
 static void setup_videolfb_tag (gd_t *gd);
 # endif
 
@@ -229,6 +230,7 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
     defined (CONFIG_INITRD_TAG) || \
     defined (CONFIG_SERIAL_TAG) || \
     defined (CONFIG_REVISION_TAG) || \
+    defined (CONFIG_LCD) || \
     defined (CONFIG_VFD)
 	setup_start_tag (bd);
 #ifdef CONFIG_SERIAL_TAG
@@ -247,7 +249,7 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	if (initrd_start && initrd_end)
 		setup_initrd_tag (bd, initrd_start, initrd_end);
 #endif
-#if defined (CONFIG_VFD)
+#if defined (CONFIG_VFD) || defined (CONFIG_LCD)
 	setup_videolfb_tag ((gd_t *) gd);
 #endif
 	setup_end_tag (bd);
@@ -274,6 +276,7 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
     defined (CONFIG_INITRD_TAG) || \
     defined (CONFIG_SERIAL_TAG) || \
     defined (CONFIG_REVISION_TAG) || \
+    defined (CONFIG_LCD) || \
     defined (CONFIG_VFD)
 static void setup_start_tag (bd_t *bd)
 {
@@ -351,7 +354,8 @@ static void setup_initrd_tag (bd_t *bd, ulong initrd_start, ulong initrd_end)
 #endif /* CONFIG_INITRD_TAG */
 
 
-#if defined (CONFIG_VFD)
+#if defined (CONFIG_VFD) || defined (CONFIG_LCD)
+extern ulong calc_fbsize (void);
 static void setup_videolfb_tag (gd_t *gd)
 {
 	/* An ATAG_VIDEOLFB node tells the kernel where and how large
@@ -365,12 +369,13 @@ static void setup_videolfb_tag (gd_t *gd)
 	params->hdr.size = tag_size (tag_videolfb);
 
 	params->u.videolfb.lfb_base = (u32) gd->fb_base;
-	/* 7168 = 256*4*56/8 - actually 2 pages (8192 bytes) are allocated */
-	params->u.videolfb.lfb_size = 7168;
+	/* Fb size is calculated according to parameters for our panel
+	 */
+	params->u.videolfb.lfb_size = calc_fbsize();
 
 	params = tag_next (params);
 }
-#endif
+#endif /* CONFIG_VFD || CONFIG_LCD */
 
 static void setup_end_tag (bd_t *bd)
 {

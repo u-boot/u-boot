@@ -28,6 +28,7 @@
 #include <common.h>
 #include <bmp_layout.h>
 #include <command.h>
+#include <asm/byteorder.h>
 
 #if (CONFIG_COMMANDS & CFG_CMD_BMP)
 
