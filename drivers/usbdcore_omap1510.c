@@ -31,7 +31,9 @@
 #if defined(CONFIG_OMAP1510) && defined(CONFIG_USB_DEVICE)
 
 #include <asm/io.h>
+#ifdef CONFIG_OMAP_SX1
 #include <i2c.h>
+#endif
 
 #include "usbdcore.h"
 #include "usbdcore_omap1510.h"
@@ -1084,7 +1086,7 @@ void udc_endpoint_write (struct usb_endpoint_instance *endpoint)
 int udc_init (void)
 {
 	u16 udc_rev;
-	uchar wert;
+	uchar value;
 
 	udc_device = NULL;
 
@@ -1117,15 +1119,15 @@ int udc_init (void)
 	printf ("USB:   TI OMAP1510 USB function module rev %d.%d\n",
 		udc_rev >> 4, udc_rev & 0xf);
 
-	/* Configure some Sofia Unit registers
-	 */
-	i2c_read (0x32, 0x04, 1, &wert, 1);	/* SOF_Control_CONT */
-	wert |= 0x04;		/* SOF_ContCONT_dis_usb_det */
-	i2c_write (0x32, 0x04, 1, &wert, 1);
+#ifdef CONFIG_OMAP_SX1
+	i2c_read (0x32, 0x04, 1, &value, 1);
+	value |= 0x04;
+	i2c_write (0x32, 0x04, 1, &value, 1);
 
-	i2c_read (0x32, 0x03, 1, &wert, 1);	/* SOF_Control */
-	wert |= 0x01;		/* SOF_Cont_usb_en */
-	i2c_write (0x32, 0x03, 1, &wert, 1);
+	i2c_read (0x32, 0x03, 1, &value, 1);
+	value |= 0x01;
+	i2c_write (0x32, 0x03, 1, &value, 1);
+#endif
 
 	/* The VBUS_MODE bit selects whether VBUS detection is done via
 	 * software (1) or hardware (0).  When software detection is
