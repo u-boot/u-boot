@@ -2,6 +2,12 @@
 Changes since U-Boot 0.2.2:
 ======================================================================
 
+* Patch by Stefan Roese, 4 Apr 2003:
+  - U-Boot version environment variable "ver" added
+    (CONFIG_VERSION_VARIABLE).
+  - Changed PPC405GPr version from A to B.
+  - Changed CPCI405 to use CTS instead of DSR on PPC405 UART1.
+
 * Patch by Martin Winistoerfer, 23 Mar 2003
   - Add port to MPC555/556 microcontrollers
   - Add support for cmi customer board with
@@ -17,7 +23,7 @@ Changes since U-Boot 0.2.2:
   - add ctrl-c support for kermit download
   - align bdinfo output on ARM
 
-* Add CPU ID, version, and clock speed for INCA-IP 
+* Add CPU ID, version, and clock speed for INCA-IP
 
 * Patches by Dave Ellis, 18 Mar 2003 for SXNI855T board:
   - fix SRAM and SDRAM memory sizing
