@@ -47,8 +47,15 @@
 # if !defined(CFG_ENV_ADDR_REDUND) && defined(CFG_ENV_OFFSET_REDUND)
 #  define CFG_ENV_ADDR_REDUND	(CFG_FLASH_BASE + CFG_ENV_OFFSET_REDUND)
 # endif
-# ifndef  CFG_ENV_SIZE
-#  define CFG_ENV_SIZE	CFG_ENV_SECT_SIZE
+# if defined(CFG_ENV_SECT_SIZE) || defined(CFG_ENV_SIZE)
+#  ifndef  CFG_ENV_SECT_SIZE
+#   define CFG_ENV_SECT_SIZE	CFG_ENV_SIZE
+#  endif
+#  ifndef  CFG_ENV_SIZE
+#   define CFG_ENV_SIZE	CFG_ENV_SECT_SIZE
+#  endif
+# else
+#  error "Both CFG_ENV_SECT_SIZE and CFG_ENV_SIZE undefined"
 # endif
 # if defined(CFG_ENV_ADDR_REDUND) && !defined(CFG_ENV_SIZE_REDUND)
 #  define CFG_ENV_SIZE_REDUND	CFG_ENV_SIZE

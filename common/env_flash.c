@@ -160,9 +160,11 @@ int  env_init(void)
 #ifdef CMD_SAVEENV
 int saveenv(void)
 {
-	int rc = 1;
-	ulong up_data = 0;
 	char *saved_data = NULL;
+	int rc = 1;
+#if CFG_ENV_SECT_SIZE > CFG_ENV_SIZE
+	ulong up_data = 0;
+#endif
 
 	debug ("Protect off %08lX ... %08lX\n",
 		(ulong)flash_addr, end_addr);
