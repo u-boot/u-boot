@@ -262,6 +262,14 @@ PM520_config:	unconfig
 ## MPC8xx Systems
 #########################################################################
 
+Adder_config    \
+Adder87x_config \
+Adder852_config \
+	:		unconfig
+	$(if $(findstring 852,$@), \
+	@echo "#define CONFIG_MPC852T" > include/config.h)
+	@./mkconfig -a Adder ppc mpc8xx adder
+
 AdderII_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx adderII
 
@@ -1048,17 +1056,14 @@ xtract_omap1610xxx = $(subst _cs0boot,,$(subst _cs3boot,,$(subst _cs_autoboot,,$
 
 xtract_omap730p2 = $(subst _cs0boot,,$(subst _cs3boot,, $(subst _config,,$1)))
 
-SX1_config :		unconfig
-	@./mkconfig $(@:_config=) arm arm925t sx1
-
 integratorcp_config :	unconfig
 	@./mkconfig $(@:_config=) arm arm926ejs integratorcp
 
 integratorap_config :	unconfig
 	@./mkconfig $(@:_config=) arm arm926ejs integratorap
 
-versatile_config :	unconfig
-	@./mkconfig $(@:_config=) arm arm926ejs versatile
+lpd7a400_config:	unconfig
+	@./mkconfig $(@:_config=) arm lh7a40x lpd7a40x
 
 omap1510inn_config :	unconfig
 	@./mkconfig $(@:_config=) arm arm925t omap1510inn
@@ -1104,6 +1109,12 @@ smdk2400_config	:	unconfig
 smdk2410_config	:	unconfig
 	@./mkconfig $(@:_config=) arm arm920t smdk2410
 
+SX1_config :		unconfig
+	@./mkconfig $(@:_config=) arm arm925t sx1
+
+mx1ads_config	:	unconfig
+	@./mkconfig $(@:_config=) arm mc9328 mx1ads
+
 # TRAB default configuration:	8 MB Flash, 32 MB RAM
 trab_config \
 trab_bigram_config \
@@ -1132,8 +1143,8 @@ trab_old_config:	unconfig
 VCMA9_config	:	unconfig
 	@./mkconfig $(@:_config=) arm arm920t vcma9 mpl
 
-lpd7a400_config:	unconfig
-	@./mkconfig $(@:_config=) arm lh7a40x lpd7a40x
+versatile_config :	unconfig
+	@./mkconfig $(@:_config=) arm arm926ejs versatile
 
 #########################################################################
 ## S3C44B0 Systems
@@ -1143,14 +1154,21 @@ B2_config	:	unconfig
 	@./mkconfig $(@:_config=) arm s3c44b0 B2 dave
 
 #########################################################################
+## MC9328 (Dragonball) Systems
+#########################################################################
+
+mx1ads_config	:	unconfig
+	@./mkconfig $(@:_config=) arm mc9328 mx1ads
+
+#########################################################################
 ## ARM720T Systems
 #########################################################################
 
-impa7_config	:	unconfig
-	@./mkconfig $(@:_config=) arm arm720t impa7
-
 ep7312_config	:	unconfig
 	@./mkconfig $(@:_config=) arm arm720t ep7312
+
+impa7_config	:	unconfig
+	@./mkconfig $(@:_config=) arm arm720t impa7
 
 modnet50_config :	unconfig
 	@./mkconfig $(@:_config=) arm arm720t modnet50

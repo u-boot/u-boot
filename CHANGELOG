@@ -2,6 +2,12 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Yuli Barcohen, 09 Jun 2004:
+  Add support for Analogue&Micro Adder87x and the older AdderII board.
+
+* Patch by Ming-Len Wu, 09 Jun 2004:
+  Add suppport for MC9328 (Dargonball) CPU and Motorola MX1ADS board
+
 * Patch by Sam Song, 09 Jun 2004:
   - Add support for RPXlite_DW board
   - Update FLASH driver for 4*AM29DL323DB90VI

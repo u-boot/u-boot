@@ -372,6 +372,7 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 
 #define FLASH_FUJLV650	0x00B4		/* Fujitsu MBM 29LV650UE/651UE		*/
 
+#define FLASH_MT28S4M16LC 0x00B5	/* Micron MT28S4M16LC 			*/
 #define FLASH_UNKNOWN	0xFFFF		/* unknown flash type			*/
 
 

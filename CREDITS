@@ -39,6 +39,7 @@ E: yuli@arabellasw.com
 D: Unified support for Motorola MPC826xADS/MPC8272ADS/PQ2FADS boards.
 D: Support for Zephyr Engineering ZPC.1900 board.
 D: Support for Interphase iSPAN boards.
+D: Support for Analogue&Micro Adder boards.
 W: http://www.arabellasw.com
 
 N: Jerry van Baren
@@ -307,6 +308,10 @@ N: Erwin Rol
 E: erwin@muffin.org
 D: boot support for RTEMS
 
+N: Paul Ruhland
+E: pruhland@rochester.rr.com
+D: Port to Logic Zoom LH7A40x SDK board(s)
+
 N: Neil Russell
 E: caret@c-side.com
 D: Author of LiMon-1.4.2, which contributed some ideas
@@ -347,13 +352,22 @@ N: David Updegraff
 E: dave@cray.com
 D: Port to Cray L1 board; DHCP vendor extensions
 
+N: Christian Vejlbo
+E: christian.vejlbo@tellabs.com
+D: FADS860T ethernet support
+
 N: Martin Winistoerfer
 E: martinwinistoerfer@gmx.ch
 D: Port to MPC555/556 microcontrollers and support for cmi board
 
-N: Christian Vejlbo
-E: christian.vejlbo@tellabs.com
-D: FADS860T ethernet support
+N: Ming-Len Wu
+E: minglen_wu@techware.com.tw
+D: Motorola MX1ADS board support 
+W: http://www.techware.com.tw/
+
+N: Xianghua Xiao
+E: x.xiao@motorola.com
+D: Support for Motorola 85xx(PowerQUICC III) chip, MPC8540ADS and MPC8560ADS boards.
 
 N: John Zhan
 E: zhanz@sinovee.com
@@ -363,11 +377,3 @@ N: Alex Zuepke
 E: azu@sysgo.de
 D: Overall improvements on StrongARM, ARM720TDMI; Support for Tuxscreen; initial PCMCIA support for ARM
 W: www.elinos.com
-
-N: Xianghua Xiao
-E: x.xiao@motorola.com
-D: Support for Motorola 85xx(PowerQUICC III) chip, MPC8540ADS and MPC8560ADS boards.
-
-N: Paul Ruhland
-E: pruhland@rochester.rr.com
-D: Port to Logic Zoom LH7A40x SDK board(s)
