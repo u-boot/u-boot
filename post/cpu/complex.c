@@ -116,7 +116,7 @@ int cpu_post_test_complex (void)
 
     if (ret != 0)
     {
-        post_log ("Error at complex test !\n");
+	post_log ("Error at complex test !\n");
     }
 
     return ret;

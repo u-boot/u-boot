@@ -41,6 +41,6 @@ int main(void)
     fflush(stdout);
     printf("\n\n%s\n", CPU_getProcessorName());
     if (CPU_haveRDTSC())
-        printf("\nProcessor supports Read Time Stamp Counter performance timer.\n");
+	printf("\nProcessor supports Read Time Stamp Counter performance timer.\n");
     return 0;
 }

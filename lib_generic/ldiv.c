@@ -17,8 +17,8 @@
    Boston, MA 02111-1307, USA.  */
 
 typedef struct {
-        long    quot;
-        long    rem;
+	long    quot;
+	long    rem;
 } ldiv_t;
 /* Return the `ldiv_t' representation of NUMER over DENOM.  */
 ldiv_t

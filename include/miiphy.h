@@ -42,7 +42,7 @@
 int  miiphy_read(unsigned char addr, unsigned char reg, unsigned short * value);
 int  miiphy_write(unsigned char addr, unsigned char reg, unsigned short value);
 int  miiphy_info(unsigned char addr, unsigned int  *oui, unsigned char *model,
-                 unsigned char *rev);
+		 unsigned char *rev);
 int  miiphy_reset(unsigned char addr);
 int  miiphy_speed(unsigned char addr);
 int  miiphy_duplex(unsigned char addr);

@@ -52,7 +52,7 @@ Commands:
    nand read addr ofs size
       Read `size' bytes from `ofs' in NAND flash to `addr'. If a page
       cannot be read because it is marked bad or an uncorrectable data
-      error is found the command stops with an error. 
+      error is found the command stops with an error.
 
    nand read.jffs2 addr ofs size
       Like `read', but the data for blocks that are marked bad is read as
@@ -68,7 +68,7 @@ Commands:
    nand write addr ofs size
       Write `size' bytes from `addr' to `ofs' in NAND flash. If a page
       cannot be written because it is marked bad or the write fails the
-      command stops with an error. 
+      command stops with an error.
 
    nand write.jffs2 addr ofs size
       Like `write', but blocks that are marked bad are skipped and the
@@ -158,13 +158,13 @@ NAND Interface:
    #define NAND_CTL_SETCLE(nandptr)
       Set CLE (command latch enable) high. If CLE control is handled by
       WRITE_NAND_ADDRESS() this can be empty.
-	
+
 More Definitions:
 
    These definitions are needed in the board configuration for now, but
    may really belong in a header file.
    TODO: Figure which ones are truly configuration settings and rename
-         them to CFG_NAND_... and move the rest somewhere appropriate.
+	 them to CFG_NAND_... and move the rest somewhere appropriate.
 
    #define SECTORSIZE 512
    #define ADDR_COLUMN 1
@@ -173,4 +173,3 @@ More Definitions:
    #define NAND_ChipID_UNKNOWN 0x00
    #define NAND_MAX_FLOORS 1
    #define NAND_MAX_CHIPS 1
-

@@ -35,4 +35,3 @@ memsetup:
 	sw	t1, 0(t0)
 	j	ra
 	nop
-

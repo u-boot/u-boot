@@ -855,13 +855,13 @@ static void video_ctrl_init (void *memptr)
 	debug ("[VIDEO CTRL] Blanking the screen...\n");
 	video_fill (VIDEO_BG_COL);
 
-        /*
-         * Turns on Aggressive Mode. Normally, turning on the caches
-         * will cause the screen to flicker when the caches try to
-         * fill. This gives the FIFO's for the Video Controller
-         * higher priority and prevents flickering because of
-         * underrun. This may still be an issue when using FLASH,
-         * since accessing data from Flash is so slow.
+	/*
+	 * Turns on Aggressive Mode. Normally, turning on the caches
+	 * will cause the screen to flicker when the caches try to
+	 * fill. This gives the FIFO's for the Video Controller
+	 * higher priority and prevents flickering because of
+	 * underrun. This may still be an issue when using FLASH,
+	 * since accessing data from Flash is so slow.
 	 */
 	debug ("[VIDEO CTRL] Turning on aggressive mode...\n");
 	immap->im_siu_conf.sc_sdcr = 0x40;
@@ -1251,7 +1251,5 @@ ulong video_setmem (ulong addr)
 
 	return (addr);
 }
-
-
 
 #endif

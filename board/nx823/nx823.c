@@ -482,4 +482,3 @@ void load_sernum_ethaddr (void)
 	bd->bi_enetaddr[4] = bd->bi_sernum[5];
 	bd->bi_enetaddr[5] = bd->bi_sernum[6];
 }
-

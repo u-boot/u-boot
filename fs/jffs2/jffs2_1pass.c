@@ -802,7 +802,7 @@ dump_fragments(struct b_lists *pL)
 		putLabeledWord("\tbuild_list: compr = ", jNode->compr);
 		putLabeledWord("\tbuild_list: usercompr = ", jNode->usercompr);
 		putLabeledWord("\tbuild_list: flags = ", jNode->flags);
-		putLabeledWord("\tbuild_list: offset = ", b->offset);	// FIXME: ? [RS]
+		putLabeledWord("\tbuild_list: offset = ", b->offset);	/* FIXME: ? [RS] */
 		b = b->next;
 	}
 }
@@ -832,7 +832,7 @@ dump_dirents(struct b_lists *pL)
 		putLabeledWord("\tbuild_list: type = ", jDir->type);
 		putLabeledWord("\tbuild_list: node_crc = ", jDir->node_crc);
 		putLabeledWord("\tbuild_list: name_crc = ", jDir->name_crc);
-		putLabeledWord("\tbuild_list: offset = ", b->offset); 	// FIXME: ? [RS]
+		putLabeledWord("\tbuild_list: offset = ", b->offset); 	/* FIXME: ? [RS] */
 		b = b->next;
 	}
 }
@@ -935,9 +935,6 @@ jffs2_1pass_build_lists(struct part_info * part)
 }
 
 
-
-
-
 static u32
 jffs2_1pass_fill_info(struct b_lists * pL, struct b_jffs2_info * piL)
 {
@@ -963,7 +960,6 @@ jffs2_1pass_fill_info(struct b_lists * pL, struct b_jffs2_info * piL)
 	}
 	return 0;
 }
-
 
 
 static struct b_lists *
@@ -1003,9 +999,6 @@ jffs2_1pass_ls(struct part_info * part, const char *fname)
 
 	return ret;
 }
-
-
-
 
 
 /* Load a file from flash into memory. fname can be a full path */

@@ -71,7 +71,6 @@
 
 #include <common.h>
 #include <command.h>
-#include <cmd_boot.h>
 #if !defined(CONFIG_440)
 #include <405gp_pci.h>
 #endif
@@ -195,7 +194,7 @@ void pci_405gp_init(struct pci_controller *hose)
 	/*--------------------------------------------------------------------------+
 	 * PMM2 is not used.  Initialize them to zero.
 	 *--------------------------------------------------------------------------*/
-	out32r(PMM2MA,    (pmmma[2]&~0x1)); 
+	out32r(PMM2MA,    (pmmma[2]&~0x1));
 	out32r(PMM2LA,    pmmla[2]);
 	out32r(PMM2PCILA, pmmpcila[2]);
 	out32r(PMM2PCIHA, pmmpciha[2]);
@@ -303,7 +302,7 @@ void pci_405gp_setup_bridge(struct pci_controller *hose, pci_dev_t dev,
 			    struct pci_config_table *entry)
 {
 #ifdef DEBUG
-        printf("405gp_setup_bridge\n");
+	printf("405gp_setup_bridge\n");
 #endif
 }
 
@@ -409,9 +408,9 @@ void pci_440_init (struct pci_controller *hose)
 	 *--------------------------------------------------------------------------*/
     strap = mfdcr(cpc0_strp1);
     if( (strap & 0x00040000) == 0 ){
-        printf("PCI: CPC0_STRP1[PISE] not set.\n");
-        printf("PCI: Configuration aborted.\n");
-        return;
+	printf("PCI: CPC0_STRP1[PISE] not set.\n");
+	printf("PCI: Configuration aborted.\n");
+	return;
     }
 
 	/*--------------------------------------------------------------------------+
@@ -438,9 +437,9 @@ void pci_440_init (struct pci_controller *hose)
 #if defined(CFG_PCI_PRE_INIT)
     /* Let board change/modify hose & do initial checks */
     if( pci_pre_init (hose) == 0 ){
-        printf("PCI: Board-specific initialization failed.\n");
-        printf("PCI: Configuration aborted.\n");
-        return;
+	printf("PCI: Board-specific initialization failed.\n");
+	printf("PCI: Configuration aborted.\n");
+	return;
     }
 #endif
 
@@ -486,10 +485,10 @@ void pci_440_init (struct pci_controller *hose)
 	 *--------------------------------------------------------------------------*/
     if( is_pci_host(hose) ){
 #ifdef CONFIG_PCI_SCAN_SHOW
-        printf("PCI:   Bus Dev VenId DevId Class Int\n");
+	printf("PCI:   Bus Dev VenId DevId Class Int\n");
 #endif
-        out16r( PCIX0_CMD, in16r( PCIX0_CMD ) | PCI_COMMAND_MASTER);
-        hose->last_busno = pci_hose_scan(hose);
+	out16r( PCIX0_CMD, in16r( PCIX0_CMD ) | PCI_COMMAND_MASTER);
+	hose->last_busno = pci_hose_scan(hose);
     }
 }
 

@@ -83,7 +83,7 @@
 #define USB_MAX_TEMP_INT_TD  32   /* number of temporary TDs for Interrupt transfers */
 
 
-//#define USB_UHCI_DEBUG
+/*#define USB_UHCI_DEBUG */
 
 #ifdef	USB_UHCI_DEBUG
 #define	USB_UHCI_PRINTF(fmt,args...)	printf (fmt ,##args)
@@ -599,7 +599,7 @@ int usb_lowlevel_init(void)
 		printf("Error USB UHCI (%04X,%04X) not found\n",USB_UHCI_VEND_ID,USB_UHCI_DEV_ID);
 		return -1;
 	}
-	
+
 #if 1
 	s = getenv("usb_irq");
 	if (s)
@@ -1113,7 +1113,6 @@ static void usb_display_wValue(unsigned short wValue,unsigned short wIndex)
 }
 
 #endif
-
 
 
 #ifdef	USB_UHCI_DEBUG

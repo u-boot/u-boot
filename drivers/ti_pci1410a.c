@@ -63,7 +63,6 @@
 #include <asm/io.h>
 
 #include <pcmcia.h>
-#include <cmd_pcmcia.h>
 
 #if (CONFIG_COMMANDS & CFG_CMD_PCMCIA) && defined(CONFIG_IDE_TI_CARDBUS)
 
@@ -94,7 +93,7 @@ int do_pinit(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #endif
 
 	int rcode = 0;
-	
+
 	if (argc != 2) {
 		printf ("Usage: pinit {on | off}\n");
 		return 1;
@@ -107,7 +106,7 @@ int do_pinit(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		printf ("Usage: pinit {on | off}\n");
 		return 1;
 	}
-	
+
 	return rcode;
 }
 
@@ -125,14 +124,14 @@ static u32 socket_base;
 static u32 pcmcia_cis_ptr;
 
 int pcmcia_on(int ide_base_bus)
-{	
+{
 	u16 dev_id;
 	u32 socket_status;
 	int slot = 0;
 	int cis_len;
 	u16 io_base;
 	u16 io_len;
-	
+
 	/*
 	 * Find the CardBus PCI device(s).
 	 */
@@ -140,9 +139,9 @@ int pcmcia_on(int ide_base_bus)
 		printf("Ti CardBus: not found\n");
 		return 1;
 	}
-	
+
 	pci_read_config_word(devbusfn, PCI_DEVICE_ID, &dev_id);
-	
+
 	if (dev_id == 0xac56) {
 		debug("Enable PCMCIA Ti PCI1510\n");
 	} else {
@@ -153,7 +152,7 @@ int pcmcia_on(int ide_base_bus)
 	cis_len = CFG_PCMCIA_CIS_WIN_SIZE;
 
 	io_base = CFG_PCMCIA_IO_WIN;
-	io_len = CFG_PCMCIA_IO_WIN_SIZE;	
+	io_len = CFG_PCMCIA_IO_WIN_SIZE;
 
 	/*
 	 * Setup the PCI device.
@@ -164,9 +163,9 @@ int pcmcia_on(int ide_base_bus)
 	socket_status = readl(socket_base+8);
 	if ((socket_status & 6) == 0) {
 		printf("Card Present: ");
-		
+
 		switch (socket_status & 0x3c00) {
-			
+
 		case 0x400:
 			printf("5V ");
 			break;
@@ -188,44 +187,44 @@ int pcmcia_on(int ide_base_bus)
 			printf("32bit CardBus Card\n");
 			break;
 		default:
-			printf("8bit PC-Card\n");		
+			printf("8bit PC-Card\n");
 			break;
-		}	
+		}
 	}
-	
-	
+
+
 	writeb(0x41, socket_base + 0x806); /* Enable I/O window 0 and memory window 0 */
 	writeb(0x0e, socket_base + 0x807); /* Reset I/O window options */
 
 	/* Careful: the linux yenta driver do not seem to reset the offset
 	 * in the i/o windows, so leaving them non-zero is a problem */
-	
+
 	writeb(io_base & 0xff, socket_base + 0x808); /* I/O window 0 base address */
 	writeb(io_base>>8, socket_base + 0x809);
 	writeb((io_base + io_len - 1) & 0xff, socket_base + 0x80a); /* I/O window 0 end address */
 	writeb((io_base + io_len - 1)>>8, socket_base + 0x80b);
-	writeb(0x00, socket_base + 0x836);      /* I/O window 0 offset address 0x000 */				     
+	writeb(0x00, socket_base + 0x836);      /* I/O window 0 offset address 0x000 */
 	writeb(0x00, socket_base + 0x837);
 
-	
-	writeb((pcmcia_cis_ptr&0x000ff000) >> 12, 
+
+	writeb((pcmcia_cis_ptr&0x000ff000) >> 12,
 	       socket_base + 0x810); /* Memory window 0 start address bits 19-12 */
-	writeb((pcmcia_cis_ptr&0x00f00000) >> 20, 
+	writeb((pcmcia_cis_ptr&0x00f00000) >> 20,
 	       socket_base + 0x811);  /* Memory window 0 start address bits 23-20 */
-	writeb(((pcmcia_cis_ptr+cis_len-1) & 0x000ff000) >> 12, 
+	writeb(((pcmcia_cis_ptr+cis_len-1) & 0x000ff000) >> 12,
 		socket_base + 0x812); /* Memory window 0 end address bits 19-12*/
-	writeb(((pcmcia_cis_ptr+cis_len-1) & 0x00f00000) >> 20, 
+	writeb(((pcmcia_cis_ptr+cis_len-1) & 0x00f00000) >> 20,
 		socket_base + 0x813); /* Memory window 0 end address bits 23-20*/
-	writeb(0x00, socket_base + 0x814); /* Memory window 0 offset bits 19-12 */ 
-	writeb(0x40, socket_base + 0x815); /* Memory window 0 offset bits 23-20 and 
+	writeb(0x00, socket_base + 0x814); /* Memory window 0 offset bits 19-12 */
+	writeb(0x40, socket_base + 0x815); /* Memory window 0 offset bits 23-20 and
 					    * options (read/write, attribute access) */
 	writeb(0x00, socket_base + 0x816); /* ExCA card-detect and general control  */
 	writeb(0x00, socket_base + 0x81e); /* ExCA global control (interrupt modes) */
-	
-	writeb((pcmcia_cis_ptr & 0xff000000) >> 24, 
+
+	writeb((pcmcia_cis_ptr & 0xff000000) >> 24,
 	       socket_base + 0x840); /* Memory window address bits 31-24 */
 
-		
+
 	/* turn off voltage */
 	if (voltage_set(slot, 0, 0)) {
 		return 1;
@@ -235,11 +234,11 @@ int pcmcia_on(int ide_base_bus)
 	if (hardware_enable(slot)) {
 		return 1;
 	}
-	
+
 	if (check_ide_device(slot, ide_base_bus)) {
 		return 1;
 	}
-	
+
 	return 0;
 }
 
@@ -249,30 +248,30 @@ int pcmcia_on(int ide_base_bus)
 static int pcmcia_off (void)
 {
 	int slot = 0;
-	
+
 	writeb(0x00, socket_base + 0x806); /* disable all I/O and memory windows */
-	
+
 	writeb(0x00, socket_base + 0x808); /* I/O window 0 base address */
 	writeb(0x00, socket_base + 0x809);
 	writeb(0x00, socket_base + 0x80a); /* I/O window 0 end address */
 	writeb(0x00, socket_base + 0x80b);
-	writeb(0x00, socket_base + 0x836); /* I/O window 0 offset address  */				     
+	writeb(0x00, socket_base + 0x836); /* I/O window 0 offset address  */
 	writeb(0x00, socket_base + 0x837);
-	
+
 	writeb(0x00, socket_base + 0x80c); /* I/O window 1 base address  */
 	writeb(0x00, socket_base + 0x80d);
 	writeb(0x00, socket_base + 0x80e); /* I/O window 1 end address  */
 	writeb(0x00, socket_base + 0x80f);
-	writeb(0x00, socket_base + 0x838); /* I/O window 1 offset address  */				     
+	writeb(0x00, socket_base + 0x838); /* I/O window 1 offset address  */
 	writeb(0x00, socket_base + 0x839);
-	
+
 	writeb(0x00, socket_base + 0x810); /* Memory window 0 start address */
 	writeb(0x00, socket_base + 0x811);
 	writeb(0x00, socket_base + 0x812); /* Memory window 0 end address  */
 	writeb(0x00, socket_base + 0x813);
 	writeb(0x00, socket_base + 0x814); /* Memory window 0 offset */
 	writeb(0x00, socket_base + 0x815);
-	
+
 	writeb(0xc0, socket_base + 0x840); /* Memory window 0 page address */
 
 
@@ -282,7 +281,7 @@ static int pcmcia_off (void)
 	/* disable external hardware */
 	printf ("Shutdown and Poweroff Ti PCI1410A\n");
 	hardware_disable(slot);
-	
+
 	return 0;
 }
 
@@ -307,14 +306,14 @@ static int check_ide_device(int slot, int ide_base_bus)
 	u32 socket_status;
 
 	debug ("PCMCIA MEM: %08X\n", pcmcia_cis_ptr);
-	
+
 	socket_status = readl(socket_base+8);
-	
+
 	if ((socket_status & 6) != 0 || (socket_status & 0x20) != 0) {
 		printf("no card or CardBus card\n");
 		return 1;
 	}
-	
+
 	start = p = (volatile uchar *) pcmcia_cis_ptr;
 
 	while ((p - start) < MAX_TUPEL_SZ) {
@@ -327,7 +326,7 @@ static int check_ide_device(int slot, int ide_base_bus)
 
 		len = *p; p += 2;
 #if defined(DEBUG) && (DEBUG > 1)
-		{ 
+		{
 			volatile uchar *q = p;
 			printf ("\nTuple code %02x  length %d\n\tData:",
 				code, len);
@@ -378,28 +377,27 @@ static int check_ide_device(int slot, int ide_base_bus)
 		printf("unknown card type\n");
 		return 1;
 	}
-	
+
 	/* select config index 1 */
-	writeb(1, pcmcia_cis_ptr + config_base);	
+	writeb(1, pcmcia_cis_ptr + config_base);
 
 #if 0
 	printf("Confiuration Option Register: %02x\n", readb(pcmcia_cis_ptr + config_base));
 	printf("Card Confiuration and Status Register: %02x\n", readb(pcmcia_cis_ptr + config_base + 2));
 	printf("Pin Replacement Register Register: %02x\n", readb(pcmcia_cis_ptr + config_base + 4));
 	printf("Socket and Copy Register: %02x\n", readb(pcmcia_cis_ptr + config_base + 6));
-#endif	
+#endif
 	ide_devices_found |= (1 << (slot+ide_base_bus));
-	
+
 	return 0;
 }
-
 
 
 static int voltage_set(int slot, int vcc, int vpp)
 {
 	u32 socket_control;
 	int reg=0;
-	
+
 	switch (slot) {
 	case 0:
 		reg = socket_base + 0x10;
@@ -407,10 +405,10 @@ static int voltage_set(int slot, int vcc, int vpp)
 	default:
 		return 1;
 	}
-	
+
 	socket_control = 0;
-	
-	
+
+
 	switch (vcc) {
 	case 50:
 		socket_control |= 0x20;
@@ -421,7 +419,7 @@ static int voltage_set(int slot, int vcc, int vpp)
 	case 0:
 	default:
 	}
-	
+
 	switch (vpp) {
 	case 120:
 		socket_control |= 0x1;
@@ -437,27 +435,27 @@ static int voltage_set(int slot, int vcc, int vpp)
 	}
 
 	writel(socket_control, reg);
-	
+
 	debug ("voltage_set: Ti PCI1410A Slot %d, Vcc=%d.%d, Vpp=%d.%d\n",
 		slot, vcc/10, vcc%10, vpp/10, vpp%10);
-	
+
 	udelay(500);
 	return 0;
 }
 
-	
+
 static int hardware_enable(int slot)
 {
 	u32 socket_status;
 	u16 brg_ctrl;
 	int is_82365sl;
-	
+
 	socket_status = readl(socket_base+8);
-	
+
 	if ((socket_status & 6) == 0) {
-		
+
 		switch (socket_status & 0x3c00) {
-			
+
 		case 0x400:
 			printf("5V ");
 			voltage_set(slot, 50, 0);
@@ -475,23 +473,22 @@ static int hardware_enable(int slot)
 	} else {
 		voltage_set(slot, 0, 0);
 	}
-	
+
 	pci_read_config_word(devbusfn, PCI_BRIDGE_CONTROL, &brg_ctrl);
 	brg_ctrl &= ~PCI_BRIDGE_CTL_BUS_RESET;
 	pci_write_config_word(devbusfn, PCI_BRIDGE_CONTROL, brg_ctrl);
-	is_82365sl = ((readb(socket_base+0x800) & 0x0f) == 2); 
+	is_82365sl = ((readb(socket_base+0x800) & 0x0f) == 2);
 	writeb(is_82365sl?0x90:0x98, socket_base+0x802);
 	writeb(0x67, socket_base+0x803);
 	udelay(100000);
-#if 0	
-	printf("ExCA Id %02x, Card Status %02x, Power config %02x, Interrupt Config %02x, bridge control %04x %d\n", 
+#if 0
+	printf("ExCA Id %02x, Card Status %02x, Power config %02x, Interrupt Config %02x, bridge control %04x %d\n",
 	       readb(socket_base+0x800), readb(socket_base+0x801),
 	       readb(socket_base+0x802), readb(socket_base+0x803), brg_ctrl, is_82365sl);
-#endif	
-	
+#endif
+
 	return ((readb(socket_base+0x801)&0x6c)==0x6c)?0:1;
 }
-
 
 
 static int hardware_disable(int slot)
@@ -546,11 +543,11 @@ static void print_fixed(volatile uchar *p)
 		return;
 
 	puts(indent);
-	
+
 	switch (*p) {
 	case CISTPL_FUNCE_IDE_IFACE:
 		{   uchar iface = *(p+2);
-			
+
 			puts ((iface == CISTPL_IDE_INTERFACE) ? " IDE" : " unknown");
 			puts (" interface ");
 			break;
@@ -560,43 +557,43 @@ static void print_fixed(volatile uchar *p)
 		{
 			uchar f1 = *(p+2);
 			uchar f2 = *(p+4);
-			
+
 			puts((f1 & CISTPL_IDE_SILICON) ? " [silicon]" : " [rotating]");
-			
+
 			if (f1 & CISTPL_IDE_UNIQUE) {
 				puts(" [unique]");
 			}
-			
+
 			puts((f1 & CISTPL_IDE_DUAL) ? " [dual]" : " [single]");
-			
+
 			if (f2 & CISTPL_IDE_HAS_SLEEP) {
 				puts(" [sleep]");
 			}
-			
+
 			if (f2 & CISTPL_IDE_HAS_STANDBY) {
 				puts(" [standby]");
 			}
-			
+
 			if (f2 & CISTPL_IDE_HAS_IDLE) {
 				puts(" [idle]");
 			}
-			
+
 			if (f2 & CISTPL_IDE_LOW_POWER) {
 				puts(" [low power]");
 			}
-			
+
 			if (f2 & CISTPL_IDE_REG_INHIBIT) {
 				puts(" [reg inhibit]");
 			}
-			
+
 			if (f2 & CISTPL_IDE_HAS_INDEX) {
 				puts(" [index]");
 			}
-			
+
 			if (f2 & CISTPL_IDE_IOIS16) {
 				puts(" [IOis16]");
 			}
-			
+
 			break;
 		}
 	}
@@ -623,10 +620,10 @@ static int identify(volatile uchar *p)
 
 	if (p == NULL)
 		return (0);	/* Don't know */
-	
+
 	t = id_str;
 	done =0;
-	
+
 	for (i=0; i<=4 && !done; ++i, p+=2) {
 		while ((data = *p) != '\0') {
 			if (data == 0xFF) {
@@ -661,7 +658,7 @@ static int identify(volatile uchar *p)
 			return 1;
 		}
 	}
-	
+
 	return 0;	/* don't know */
 }
 

@@ -56,7 +56,7 @@ static uchar rtc_read (uchar reg)
 {
 	uchar val;
 
-    	*(volatile unsigned char*)(RTC_PORT_ADDR) = reg;
+	*(volatile unsigned char*)(RTC_PORT_ADDR) = reg;
 	__asm__ __volatile__ ("sync");
 
 	val = *(volatile unsigned char*)(RTC_PORT_DATA);
@@ -65,7 +65,7 @@ static uchar rtc_read (uchar reg)
 
 static void rtc_write (uchar reg, uchar val)
 {
-    	*(volatile unsigned char*)(RTC_PORT_ADDR) = reg;
+	*(volatile unsigned char*)(RTC_PORT_ADDR) = reg;
 	__asm__ __volatile__ ("sync");
 
 	*(volatile unsigned char*)(RTC_PORT_DATA) = val;
@@ -218,14 +218,14 @@ void rtc_reset (void)
 	tmp.tm_sec = 0;
 
 #ifdef RTC_DEBUG
-        printf ( "RTC:   %4d-%02d-%02d %2d:%02d:%02d UTC\n",
-    		    tmp.tm_year, tmp.tm_mon, tmp.tm_mday,
+	printf ( "RTC:   %4d-%02d-%02d %2d:%02d:%02d UTC\n",
+		    tmp.tm_year, tmp.tm_mon, tmp.tm_mday,
 		    tmp.tm_hour, tmp.tm_min, tmp.tm_sec);
 #endif
 
 	ctrl_rg = RTC_CB_SET | RTC_CB_24_12 | RTC_CB_DM;
 	rtc_write(RTC_CONTROL_B,ctrl_rg);
-    	rtc_set(&tmp);
+	rtc_set(&tmp);
 
 	rtc_write(RTC_HOURS_ALARM, 0),
 	rtc_write(RTC_MINUTES_ALARM, 0),

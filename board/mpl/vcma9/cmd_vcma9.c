@@ -141,4 +141,3 @@ int do_vcma9(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	return (do_mplcommon(cmdtp, flag, argc, argv));
 }
-

@@ -207,8 +207,8 @@ char * strrchr(const char * s, int c)
 {
        const char *p = s + strlen(s);
        do {
-           if (*p == (char)c)
-               return (char *)p;
+	   if (*p == (char)c)
+	       return (char *)p;
        } while (--p >= s);
        return NULL;
 }
@@ -498,7 +498,7 @@ void * memscan(void * addr, int c, size_t size)
 		p++;
 		size--;
 	}
-  	return (void *) p;
+	return (void *) p;
 }
 #endif
 
@@ -540,7 +540,7 @@ void *memchr(const void *s, int c, size_t n)
 {
 	const unsigned char *p = s;
 	while (n-- != 0) {
-        	if ((unsigned char)c == *p++) {
+		if ((unsigned char)c == *p++) {
 			return (void *)(p-1);
 		}
 	}

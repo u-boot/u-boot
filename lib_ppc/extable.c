@@ -50,20 +50,20 @@ search_one_table(const struct exception_table_entry *first,
 		 const struct exception_table_entry *last,
 		 unsigned long value)
 {
-        while (first <= last) {
+	while (first <= last) {
 		const struct exception_table_entry *mid;
 		long diff;
 
 		mid = (last - first) / 2 + first;
 		diff = mid->insn - value;
-                if (diff == 0)
-                        return mid->fixup;
-                else if (diff < 0)
-                        first = mid+1;
-                else
-                        last = mid-1;
-        }
-        return 0;
+		if (diff == 0)
+			return mid->fixup;
+		else if (diff < 0)
+			first = mid+1;
+		else
+			last = mid-1;
+	}
+	return 0;
 }
 
 int	ex_tab_message = 1;

@@ -5,8 +5,7 @@
 #include <common.h>
 #include <command.h>
 #include <linux/ctype.h>
-
-#include <cmd_bedbug.h>
+#include <bedbug/type.h>
 #include <bedbug/bedbug.h>
 #include <bedbug/regs.h>
 #include <bedbug/ppc.h>

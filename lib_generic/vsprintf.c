@@ -17,7 +17,8 @@
 #include <common.h>
 #if !defined (CONFIG_PANIC_HANG)
 #include <command.h>
-#include <cmd_boot.h>		/* for do_reset() prototype */
+/*cmd_boot.c*/
+extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 #endif
 
 unsigned long simple_strtoul(const char *cp,char **endp,unsigned int base)

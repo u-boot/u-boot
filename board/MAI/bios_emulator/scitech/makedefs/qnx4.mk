@@ -162,4 +162,3 @@ PMLIB           := -lpm
 # Define which file contains our rules
 
    RULES_MAK	:= qnx4.mk
-

@@ -44,5 +44,4 @@ PMLIB :=
 %$L:     ; $(LIB) $(LIBFLAGS) $@ $&
 
 # Implicit rule for building an executable file
-%$E:     ; $(LD) $(LDFLAGS) -o $@ $& $(EXELIBS) $(PMLIB) 
-
+%$E:     ; $(LD) $(LDFLAGS) -o $@ $& $(EXELIBS) $(PMLIB)

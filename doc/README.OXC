@@ -22,4 +22,3 @@ CONFIG_SHOW_BOOT_PROGRESS
   When this option is on, U-Boot switches the Active LED
 off before booting an image and switches it on if booting
 failed due to some reasons.
-

@@ -72,7 +72,7 @@
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 
 #define CONFIG_COMMANDS		( CFG_CMD_NET | CONFIG_CMD_DFL | CFG_CMD_SDRAM | \
-                              CFG_CMD_PCMCIA | CFG_CMD_IDE )
+			      CFG_CMD_PCMCIA | CFG_CMD_IDE )
 
 #define CONFIG_DOS_PARTITION
 

@@ -28,7 +28,7 @@ LIB	= lib$(BOARD).a
 OBJS	= $(BOARD).o flash.o ../tqm8xx/load_sernum_ethaddr.o
 
 $(LIB):	.depend $(OBJS)
-	$(AR) crv $@ $^
+	$(AR) crv $@ $(OBJS)
 
 #########################################################################
 

@@ -175,9 +175,9 @@ void ArpRequest(void)
 	    }
 	    NetArpWaitReplyIP = NetOurGatewayIP;
 	} else
-            NetArpWaitReplyIP = NetArpWaitPacketIP;
+	    NetArpWaitReplyIP = NetArpWaitPacketIP;
 
-        NetWriteIP((uchar*)&arp->ar_data[16], NetArpWaitReplyIP);
+	NetWriteIP((uchar*)&arp->ar_data[16], NetArpWaitReplyIP);
 	(void) eth_send(NetTxPacket, ETHER_HDR_SIZE + ARP_HDR_SIZE);
 }
 
@@ -295,8 +295,8 @@ restart:
 	case BOOTP:
 	case RARP:
 		/*
-                 * initialize our IP addr to 0 in order to accept ANY
-                 * IP addr assigned to us by the BOOTP / RARP server
+		 * initialize our IP addr to 0 in order to accept ANY
+		 * IP addr assigned to us by the BOOTP / RARP server
 		 */
 		NetOurIP = 0;
 		NetServerIP = 0;
@@ -380,7 +380,7 @@ restart:
 		 *	Abort if ctrl-c was pressed.
 		 */
 		if (ctrlc()) {
-		        eth_halt();
+			eth_halt();
 			printf("\nAbort\n");
 			return (-1);
 		}
@@ -671,12 +671,12 @@ NetReceive(volatile uchar * pkt, int len)
 	case PROT_ARP:
 		/*
 		 * We have to deal with two types of ARP packets:
-                 * - REQUEST packets will be answered by sending  our
-                 *   IP address - if we know it.
-                 * - REPLY packates are expected only after we asked
-                 *   for the TFTP server's or the gateway's ethernet
-                 *   address; so if we receive such a packet, we set
-                 *   the server ethernet address
+		 * - REQUEST packets will be answered by sending  our
+		 *   IP address - if we know it.
+		 * - REPLY packates are expected only after we asked
+		 *   for the TFTP server's or the gateway's ethernet
+		 *   address; so if we receive such a packet, we set
+		 *   the server ethernet address
 		 */
 #ifdef ET_DEBUG
 		printf("Got ARP\n");
@@ -818,19 +818,19 @@ NetReceive(volatile uchar * pkt, int len)
 		/*
 		 * watch for ICMP host redirects
 		 *
-                 * There is no real handler code (yet). We just watch
-                 * for ICMP host redirect messages. In case anybody
-                 * sees these messages: please contact me
-                 * (wd@denx.de), or - even better - send me the
-                 * necessary fixes :-)
+		 * There is no real handler code (yet). We just watch
+		 * for ICMP host redirect messages. In case anybody
+		 * sees these messages: please contact me
+		 * (wd@denx.de), or - even better - send me the
+		 * necessary fixes :-)
 		 *
-                 * Note: in all cases where I have seen this so far
-                 * it was a problem with the router configuration,
-                 * for instance when a router was configured in the
-                 * BOOTP reply, but the TFTP server was on the same
-                 * subnet. So this is probably a warning that your
-                 * configuration might be wrong. But I'm not really
-                 * sure if there aren't any other situations.
+		 * Note: in all cases where I have seen this so far
+		 * it was a problem with the router configuration,
+		 * for instance when a router was configured in the
+		 * BOOTP reply, but the TFTP server was on the same
+		 * subnet. So this is probably a warning that your
+		 * configuration might be wrong. But I'm not really
+		 * sure if there aren't any other situations.
 		 */
 		if (ip->ip_p == IPPROTO_ICMP) {
 			ICMP_t *icmph = (ICMP_t *)&(ip->udp_src);
@@ -918,7 +918,7 @@ static int net_check_prereq (proto_t protocol)
 				puts ("*** ERROR: `ethaddr' not set\n");
 				break;
 			    default:
-			        printf ("*** ERROR: `eth%daddr' not set\n",
+				printf ("*** ERROR: `eth%daddr' not set\n",
 					num);
 				break;
 			    }
@@ -1023,7 +1023,7 @@ void ip_to_string (IPaddr_t x, char *s)
 {
     x = ntohl(x);
     sprintf (s,"%d.%d.%d.%d",
-    	(int)((x >> 24) & 0xff),
+	(int)((x >> 24) & 0xff),
 	(int)((x >> 16) & 0xff),
 	(int)((x >>  8) & 0xff),
 	(int)((x >>  0) & 0xff)

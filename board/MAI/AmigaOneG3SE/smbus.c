@@ -26,18 +26,18 @@ void sm_write_byte(uint8 writeme)
 {
     int i;
     int level;
-    
+
     out_byte(0xA539, 0x00);
 
     level = 0;
 
     for (i=0; i<8; i++)
     {
-	if ((writeme & 0x80) == (level<<7)) 
-        {
+	if ((writeme & 0x80) == (level<<7))
+	{
 	    /* Bit did not change, rewrite strobe */
 	    out_byte(0xA539, level | 0x02);
-	    out_byte(0xA539, level); 
+	    out_byte(0xA539, level);
 	}
 	else
 	{
@@ -68,7 +68,7 @@ uint8 sm_read_byte(void)
     }
 
     return retme;
-} 
+}
 
 int sm_get_ack(void)
 {
@@ -106,36 +106,36 @@ void sm_send_stop(void)
 
 int sm_read_byte_from_device(uint8 addr, uint8 reg, uint8 *storage)
 {
-    // S Addr Wr
+    /* S Addr Wr */
     sm_write_mode();
     sm_send_start();
     sm_write_byte((addr<<1));
-    
-    // [A]
+
+    /* [A] */
     sm_read_mode();
     if (sm_get_ack() == FALSE) return FALSE;
 
-    // Comm
+    /* Comm */
     sm_write_mode();
     sm_write_byte(reg);
-    
-    // [A]
+
+    /* [A] */
     sm_read_mode();
     if (sm_get_ack() == FALSE) return FALSE;
 
-    // S Addr Rd
+    /* S Addr Rd */
     sm_write_mode();
     sm_send_start();
     sm_write_byte((addr<<1)|1);
-    
-    // [A]
+
+    /* [A] */
     sm_read_mode();
     if (sm_get_ack() == FALSE) return FALSE;
 
-    // [Data]
+    /* [Data] */
     *storage = sm_read_byte();
-    
-    // NA
+
+    /* NA */
     sm_write_mode();
     sm_write_nack();
     sm_send_stop();
@@ -144,10 +144,10 @@ int sm_read_byte_from_device(uint8 addr, uint8 reg, uint8 *storage)
 }
 
 void sm_init(void)
-{  
+{
     /* Switch to PMC mode */
     pci_write_cfg_byte(0, 0, REG_GROUP, (uint8)(REG_GROUP_SPECIAL|REG_GROUP_POWER));
- 
+
     /* Set GPIO Base */
     pci_write_cfg_long(0, 0, 0x40, 0xa500);
 
@@ -155,12 +155,12 @@ void sm_init(void)
     pci_write_cfg_byte(0, 0, 0x44, 0x11);
 
     /* Set both GPIO 0 and 1 as output */
-    out_byte(0xA53A, 0x03); 
+    out_byte(0xA53A, 0x03);
 }
 
 
 void sm_term(void)
-{  
+{
     /* Switch to normal mode */
     pci_write_cfg_byte(0, 0, REG_GROUP, 0);
 }
@@ -173,7 +173,7 @@ int sm_get_data(uint8 *DataArray, int dimm_socket)
 #if 0
     /* Switch to PMC mode */
     pci_write_cfg_byte(0, 0, REG_GROUP, (uint8)(REG_GROUP_SPECIAL|REG_GROUP_POWER));
- 
+
     /* Set GPIO Base */
     pci_write_cfg_long(0, 0, 0x40, 0xa500);
 
@@ -181,7 +181,7 @@ int sm_get_data(uint8 *DataArray, int dimm_socket)
     pci_write_cfg_byte(0, 0, 0x44, 0x11);
 
     /* Set both GPIO 0 and 1 as output */
-    out_byte(0xA53A, 0x03); 
+    out_byte(0xA53A, 0x03);
 #endif
 
     sm_init();

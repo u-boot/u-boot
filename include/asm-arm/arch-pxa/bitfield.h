@@ -11,7 +11,6 @@
  */
 
 
-
 #ifndef __BITFIELD_H
 #define __BITFIELD_H
 
@@ -88,7 +87,7 @@
  */
 
 #define FInsrt(Value, Field) \
-                	(UData (Value) << FShft (Field))
+			(UData (Value) << FShft (Field))
 
 
 /*
@@ -107,7 +106,7 @@
  */
 
 #define FExtr(Data, Field) \
-                	((UData (Data) >> FShft (Field)) & FAlnMsk (Field))
+			((UData (Data) >> FShft (Field)) & FAlnMsk (Field))
 
 
 #endif /* __BITFIELD_H */

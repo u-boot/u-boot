@@ -96,8 +96,8 @@ unsigned long flash_init (void)
 			      FLASH_BASE0_PRELIM+size_b0+size_b1-monitor_flash_len,
 			      FLASH_BASE0_PRELIM+size_b0+size_b1-1,
 			      &flash_info[1]);
-                /* monitor protection OFF by default (one is enough) */
-                flash_protect(FLAG_PROTECT_CLEAR,
+		/* monitor protection OFF by default (one is enough) */
+		flash_protect(FLAG_PROTECT_CLEAR,
 			      FLASH_BASE0_PRELIM+size_b0-monitor_flash_len,
 			      FLASH_BASE0_PRELIM+size_b0-1,
 			      &flash_info[0]);

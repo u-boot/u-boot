@@ -15,7 +15,6 @@ Linux-Kernel  übergeben  und  dort z. B. in einem Device-Treiber oder
 einer Applikation ausgewertet werden.
 
 
-
 Sonderfunktionen beim Booten:
 
 Es lassen sich eine oder mehrere (beliebig viele) Tasten oder Tasten-

@@ -1,6 +1,6 @@
 /*
  * (C) Copyright 2001
- * Hans-Joerg Frieden, Hyperion Entertainment 
+ * Hans-Joerg Frieden, Hyperion Entertainment
  * Hans-JoergF@hyperion-entertainment.com
  *
  * See file CREDITS for list of people who contributed to this
@@ -72,7 +72,7 @@ static void bstr_print(char *string)
     int len = *string++;
     char buffer[256];
     int i;
-    
+
     i = 0;
     while (len)
     {
@@ -97,7 +97,7 @@ int sum_block(struct block_header *header)
 
     for (i = 0; i < header->summed_longs; i++)
 	sum += *block++;
-    
+
     return (sum != 0);
 }
 
@@ -126,12 +126,12 @@ static void print_disk_type(u32 disk_type)
 static void print_part_info(struct partition_block *p)
 {
     struct amiga_part_geometry *g;
-    
+
     g = (struct amiga_part_geometry *)&(p->environment);
 
     bstr_print(p->drive_name);
-    printf("%6d\t%6d\t", 
-	   g->low_cyl * g->block_per_track * g->surfaces , 
+    printf("%6d\t%6d\t",
+	   g->low_cyl * g->block_per_track * g->surfaces ,
 	   (g->high_cyl - g->low_cyl + 1) * g->block_per_track * g->surfaces - 1);
     print_disk_type(g->dos_type);
     printf("\t%5d\n", g->boot_priority);
@@ -178,7 +178,7 @@ struct rigid_disk_block *get_rdisk(block_dev_desc_t *dev_desc)
     return NULL;
 }
 
-/* 
+/*
  * Search for boot code
  * Again, the first boot block must be located somewhere in the first 16 blocks, or rooted in the
  * Ridgid disk block
@@ -221,7 +221,7 @@ struct bootcode_block *get_bootcode(block_dev_desc_t *dev_desc)
     return 0;
 }
 
-/* 
+/*
  * Test if the given partition has an Amiga partition table/Rigid
  * Disk block
  */
@@ -231,7 +231,7 @@ int test_part_amiga(block_dev_desc_t *dev_desc)
     struct bootcode_block *bootcode;
 
     PRINTF("test_part_amiga: Testing for an Amiga RDB partition\n");
-    
+
     rdb = get_rdisk(dev_desc);
     if (rdb)
     {
@@ -243,7 +243,7 @@ int test_part_amiga(block_dev_desc_t *dev_desc)
 
 	return 0;
     }
-    else 
+    else
     {
 	PRINTF("test_part_amiga: no RDB found\n");
 	return -1;
@@ -251,7 +251,7 @@ int test_part_amiga(block_dev_desc_t *dev_desc)
 
 }
 
-/* 
+/*
  * Find partition number partnum on the given drive.
  */
 static struct partition_block *find_partition(block_dev_desc_t *dev_desc, int partnum)
@@ -262,12 +262,12 @@ static struct partition_block *find_partition(block_dev_desc_t *dev_desc, int pa
 
     PRINTF("Trying to find partition block %d\n", partnum);
     rdb = get_rdisk(dev_desc);
-    if (!rdb) 
+    if (!rdb)
     {
 	PRINTF("find_partition: no rdb found\n");
 	return NULL;
     }
-    
+
     PRINTF("find_partition: Scanning partition list\n");
 
     block = rdb->partition_list;
@@ -286,7 +286,7 @@ static struct partition_block *find_partition(block_dev_desc_t *dev_desc, int pa
 		if (sum_block((struct block_header *)p) == 0)
 		{
 		    if (partnum == 0) break;
-		    else 
+		    else
 		    {
 			partnum--;
 			block = p->next;
@@ -296,7 +296,7 @@ static struct partition_block *find_partition(block_dev_desc_t *dev_desc, int pa
 	} else block = 0xFFFFFFFF;
     }
 
-    if (block == 0xFFFFFFFF) 
+    if (block == 0xFFFFFFFF)
     {
 	PRINTF("PART block not found\n");
 	return NULL;
@@ -305,7 +305,7 @@ static struct partition_block *find_partition(block_dev_desc_t *dev_desc, int pa
     return (struct partition_block *)block_buffer;
 }
 
-/* 
+/*
  * Get info about a partition
  */
 int get_partition_info_amiga (block_dev_desc_t *dev_desc, int part, disk_partition_t *info)
@@ -321,7 +321,7 @@ int get_partition_info_amiga (block_dev_desc_t *dev_desc, int part, disk_partiti
     info->size  = (g->high_cyl - g->low_cyl + 1) * g->block_per_track * g->surfaces - 1;
     info->blksz = rdb.block_bytes;
     bcpl_strcpy(info->name, p->drive_name);
-    
+
 
     disk_type = g->dos_type;
 
@@ -331,12 +331,12 @@ int get_partition_info_amiga (block_dev_desc_t *dev_desc, int part, disk_partiti
     info->type[3] = '\\';
     info->type[4] = (disk_type & 0x000000FF) + '0';
     info->type[5] = 0;
-   
+
     return 0;
 }
 
 void print_part_amiga (block_dev_desc_t *dev_desc)
-{    
+{
     struct rigid_disk_block *rdb;
     struct bootcode_block *boot;
     struct partition_block *p;
@@ -344,12 +344,12 @@ void print_part_amiga (block_dev_desc_t *dev_desc)
     int i = 1;
 
     rdb = get_rdisk(dev_desc);
-    if (!rdb) 
+    if (!rdb)
     {
 	PRINTF("print_part_amiga: no rdb found\n");
 	return;
     }
-    
+
     PRINTF("print_part_amiga: Scanning partition list\n");
 
     block = rdb->partition_list;
@@ -370,7 +370,7 @@ void print_part_amiga (block_dev_desc_t *dev_desc)
 	ulong res;
 
 	PRINTF("Trying to load block #0x%X\n", block);
-	
+
 	res = dev_desc->block_read(dev_desc->dev, block, 1,
 				   (ulong *)block_buffer);
 	if (res == 1)

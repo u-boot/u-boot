@@ -23,7 +23,7 @@
 #define TOUT_LOOP	100000
 
 /* Set base address for second FPI interrupt control register bank */
-#define SFPI_INTCON_BASEADDR	0xBF0F0000 
+#define SFPI_INTCON_BASEADDR	0xBF0F0000
 
 /* Register offset from base address */
 #define FBS_ISR		0x00000000	/* Interrupt status register */
@@ -75,11 +75,11 @@ int serial_init (void)
     /* we have to set PMU.EN13 bit to enable an ASC device*/
     INCAASC_PMU_ENABLE(13);
 #endif
-    
+
     /* and we have to set CLC register*/
     CLEAR_BIT(pAsc->asc_clc, ASCCLC_DISS);
     SET_BITFIELD(pAsc->asc_clc, ASCCLC_RMCMASK, ASCCLC_RMCOFFSET, 0x0001);
-    
+
     /* initialy we are in async mode */
     pAsc->asc_con = ASCCON_M_8ASYNC;
 
@@ -89,13 +89,13 @@ int serial_init (void)
 #ifdef ASC_FIFO_PRESENT
     /* TXFIFO's filling level */
     SET_BITFIELD(pAsc->asc_txfcon, ASCTXFCON_TXFITLMASK,
-                    ASCTXFCON_TXFITLOFF, INCAASC_TXFIFO_FL);
+		    ASCTXFCON_TXFITLOFF, INCAASC_TXFIFO_FL);
     /* enable TXFIFO */
     SET_BIT(pAsc->asc_txfcon, ASCTXFCON_TXFEN);
 
     /* RXFIFO's filling level */
-    SET_BITFIELD(pAsc->asc_txfcon, ASCRXFCON_RXFITLMASK, 
-                    ASCRXFCON_RXFITLOFF, INCAASC_RXFIFO_FL);
+    SET_BITFIELD(pAsc->asc_txfcon, ASCRXFCON_RXFITLMASK,
+		    ASCRXFCON_RXFITLOFF, INCAASC_RXFIFO_FL);
     /* enable RXFIFO */
     SET_BIT(pAsc->asc_rxfcon, ASCRXFCON_RXFEN);
 #endif
@@ -123,7 +123,7 @@ int serial_init (void)
 
     /* set the options */
     serial_setopt();
-    
+
     return 0;
 }
 
@@ -141,25 +141,25 @@ void serial_setbrg (void)
 #ifndef INCAASC_USE_FDV
     fdv = 2;
     uiReloadValue = (f_ASC / (fdv * 16 * CONFIG_BAUDRATE)) - 1;
-#else 
+#else
     fdv = INCAASC_FDV_HIGH_BAUDRATE;
     uiReloadValue = (f_ASC / (8192 * CONFIG_BAUDRATE / fdv)) - 1;
 #endif /* INCAASC_USE_FDV */
-    
+
     if ( (uiReloadValue < 0) || (uiReloadValue > 8191) )
     {
 #ifndef INCAASC_USE_FDV
-        fdv = 3;
-        uiReloadValue = (f_ASC / (fdv * 16 * CONFIG_BAUDRATE)) - 1;
-#else 
-        fdv = INCAASC_FDV_LOW_BAUDRATE;
-        uiReloadValue = (f_ASC / (8192 * CONFIG_BAUDRATE / fdv)) - 1;
+	fdv = 3;
+	uiReloadValue = (f_ASC / (fdv * 16 * CONFIG_BAUDRATE)) - 1;
+#else
+	fdv = INCAASC_FDV_LOW_BAUDRATE;
+	uiReloadValue = (f_ASC / (8192 * CONFIG_BAUDRATE / fdv)) - 1;
 #endif /* INCAASC_USE_FDV */
-        
-        if ( (uiReloadValue < 0) || (uiReloadValue > 8191) )
-        {
-            return;    /* can't impossibly generate that baud rate */
-        }
+
+	if ( (uiReloadValue < 0) || (uiReloadValue > 8191) )
+	{
+	    return;    /* can't impossibly generate that baud rate */
+	}
     }
 
     /* Disable Baud Rate Generator; BG should only be written when R=0 */
@@ -174,9 +174,9 @@ void serial_setbrg (void)
     CLEAR_BIT(pAsc->asc_con, ASCCON_FDE);
 
     if ( fdv == 2 )
-        CLEAR_BIT(pAsc->asc_con, ASCCON_BRS);   /* BRS = 0 */
+	CLEAR_BIT(pAsc->asc_con, ASCCON_BRS);   /* BRS = 0 */
     else
-        SET_BIT(pAsc->asc_con, ASCCON_BRS); /* BRS = 1 */
+	SET_BIT(pAsc->asc_con, ASCCON_BRS); /* BRS = 1 */
 
 #else /* INCAASC_USE_FDV */
 
@@ -217,42 +217,42 @@ static int serial_setopt (void)
     {
     /* 7-bit-data */
     case ASCOPT_CS7:
-        con = ASCCON_M_7ASYNCPAR;   /* 7-bit-data and parity bit */
-        break;
+	con = ASCCON_M_7ASYNCPAR;   /* 7-bit-data and parity bit */
+	break;
 
     /* 8-bit-data */
     case ASCOPT_CS8:
-        if ( ASC_OPTIONS & ASCOPT_PARENB )
-            con = ASCCON_M_8ASYNCPAR;   /* 8-bit-data and parity bit */
-        else
-            con = ASCCON_M_8ASYNC;      /* 8-bit-data no parity */
-        break;
-    
-    /* 
+	if ( ASC_OPTIONS & ASCOPT_PARENB )
+	    con = ASCCON_M_8ASYNCPAR;   /* 8-bit-data and parity bit */
+	else
+	    con = ASCCON_M_8ASYNC;      /* 8-bit-data no parity */
+	break;
+
+    /*
      *  only 7 and 8-bit frames are supported
-     *  if we don't use IOCTL extensions 
+     *  if we don't use IOCTL extensions
      */
     default:
-        return -1;
+	return -1;
     }
 
     if ( ASC_OPTIONS & ASCOPT_STOPB )
-        SET_BIT(con, ASCCON_STP);       /* 2 stop bits */
+	SET_BIT(con, ASCCON_STP);       /* 2 stop bits */
     else
-        CLEAR_BIT(con, ASCCON_STP);     /* 1 stop bit */
+	CLEAR_BIT(con, ASCCON_STP);     /* 1 stop bit */
 
     if ( ASC_OPTIONS & ASCOPT_PARENB )
-        SET_BIT(con, ASCCON_PEN);           /* enable parity checking */    
+	SET_BIT(con, ASCCON_PEN);           /* enable parity checking */
     else
-        CLEAR_BIT(con, ASCCON_PEN);         /* disable parity checking */
-    
+	CLEAR_BIT(con, ASCCON_PEN);         /* disable parity checking */
+
     if ( ASC_OPTIONS & ASCOPT_PARODD )
-        SET_BIT(con, ASCCON_ODD);       /* odd parity */
+	SET_BIT(con, ASCCON_ODD);       /* odd parity */
     else
-        CLEAR_BIT(con, ASCCON_ODD);     /* even parity */
+	CLEAR_BIT(con, ASCCON_ODD);     /* even parity */
 
     if ( ASC_OPTIONS & ASCOPT_CREAD )
-        SET_BIT(pAsc->asc_whbcon, ASCWHBCON_SETREN); /* Receiver enable */
+	SET_BIT(pAsc->asc_whbcon, ASCWHBCON_SETREN); /* Receiver enable */
 
     pAsc->asc_con |= con;
 
@@ -293,14 +293,14 @@ void serial_putc (const char c)
 
 #ifndef ASC_FIFO_PRESENT
     *(volatile unsigned long*)(SFPI_INTCON_BASEADDR + FBS_ISR) = FBS_ISR_AB |
-                                                                 FBS_ISR_AT;
+								 FBS_ISR_AT;
 #endif
-    
+
     /* check for errors */
     if ( pAsc->asc_con & ASCCON_OE )
     {
-        SET_BIT(pAsc->asc_whbcon, ASCWHBCON_CLROE);
-        return;
+	SET_BIT(pAsc->asc_whbcon, ASCWHBCON_CLROE);
+	return;
     }
 }
 
@@ -321,7 +321,7 @@ int serial_getc (void)
 
     symbol_mask =
 	((ASC_OPTIONS & ASCOPT_CSIZE) == ASCOPT_CS7) ? (0x7f) : (0xff);
-    
+
     c = (char)(pAsc->asc_rbuf & symbol_mask);
 
 #ifndef ASC_FIFO_PRESENT
@@ -338,30 +338,30 @@ int serial_tstc (void)
 #ifdef ASC_FIFO_PRESENT
     if ( (pAsc->asc_fstat & ASCFSTAT_RXFFLMASK) == 0 )
     {
-        res = 0;
+	res = 0;
     }
 #else
     if (!(*(volatile unsigned long*)(SFPI_INTCON_BASEADDR + FBS_ISR) &
-			    					FBS_ISR_AR))
-    
+								FBS_ISR_AR))
+
     {
-        res = 0;
+	res = 0;
     }
 #endif
     else if ( pAsc->asc_con & ASCCON_FE )
     {
-        SET_BIT(pAsc->asc_whbcon, ASCWHBCON_CLRFE);
-        res = 0;
+	SET_BIT(pAsc->asc_whbcon, ASCWHBCON_CLRFE);
+	res = 0;
     }
     else if ( pAsc->asc_con & ASCCON_PE )
     {
-        SET_BIT(pAsc->asc_whbcon, ASCWHBCON_CLRPE);
-        res = 0;
+	SET_BIT(pAsc->asc_whbcon, ASCWHBCON_CLRPE);
+	res = 0;
     }
     else if ( pAsc->asc_con & ASCCON_OE )
     {
-        SET_BIT(pAsc->asc_whbcon, ASCWHBCON_CLROE);
-        res = 0;
+	SET_BIT(pAsc->asc_whbcon, ASCWHBCON_CLROE);
+	res = 0;
     }
 
     return res;

@@ -54,7 +54,7 @@ void * calloc(
 {
     void *p = PM_mallocShared(nelem * size);
     if (p)
-        memset(p,0,nelem * size);
+	memset(p,0,nelem * size);
     return p;
 }
 
@@ -68,9 +68,9 @@ void * realloc(
 {
     void *p = PM_mallocShared(size);
     if (p) {
-        memcpy(p,ptr,size);
-        PM_freeShared(ptr);
-        }
+	memcpy(p,ptr,size);
+	PM_freeShared(ptr);
+	}
     return p;
 }
 
@@ -102,21 +102,21 @@ UNICODE_STRING *_PM_CStringToUnicodeString(
     ANSI_STRING     ansiStr;
     UNICODE_STRING  *uniStr;
 
-    // Allocate memory for the string structure
+    /* Allocate memory for the string structure */
     if ((uniStr = ExAllocatePool(NonPagedPool, sizeof(UNICODE_STRING))) == NULL)
-        return NULL;
+	return NULL;
 
-    // Allocate memory for the wide string itself
+    /* Allocate memory for the wide string itself */
     length = (strlen(cstr) * sizeof(WCHAR)) + sizeof(WCHAR);
     if ((uniStr->Buffer = ExAllocatePool(NonPagedPool, length)) == NULL) {
-        ExFreePool(uniStr);
-        return NULL;
-        }
+	ExFreePool(uniStr);
+	return NULL;
+	}
     RtlZeroMemory(uniStr->Buffer, length);
     uniStr->Length = 0;
     uniStr->MaximumLength = (USHORT)length;
 
-    // Convert filename string to ansi string and then to UniCode string
+    /* Convert filename string to ansi string and then to UniCode string */
     RtlInitAnsiString(&ansiStr, cstr);
     RtlAnsiStringToUnicodeString(uniStr, &ansiStr, FALSE);
     return uniStr;
@@ -133,8 +133,7 @@ void _PM_FreeUnicodeString(
     UNICODE_STRING *uniStr)
 {
     if (uniStr) {
-        ExFreePool(uniStr->Buffer);
-        ExFreePool(uniStr);
-        }
+	ExFreePool(uniStr->Buffer);
+	ExFreePool(uniStr);
+	}
 }
-

@@ -90,12 +90,12 @@ void fill(int startx, int starty, int endx, int endy, unsigned char c,
     int             x,y;
 
     for (y = starty; y <= endy; y++) {
-        v = SCREEN(startx,y);
-        for (x = startx; x <= endx; x++) {
-            *v++ = c;
-            *v++ = attr;
-            }
-        }
+	v = SCREEN(startx,y);
+	for (x = startx; x <= endx; x++) {
+	    *v++ = c;
+	    *v++ = attr;
+	    }
+	}
 }
 
 /* Routine to display a single character using direct video writes */
@@ -124,18 +124,18 @@ void border(int startx, int starty, int endx, int endy, unsigned char attr)
     b = border_chars;
 
     for (i = starty+1; i < endy; i++) {
-        writeChar(startx, i, *b, attr);
-        writeChar(endx, i, *b, attr);
-        }
+	writeChar(startx, i, *b, attr);
+	writeChar(endx, i, *b, attr);
+	}
     b++;
     for (i = startx+1, v = SCREEN(startx+1, starty); i < endx; i++) {
-        *v++ = *b;
-        *v++ = attr;
-        }
+	*v++ = *b;
+	*v++ = attr;
+	}
     for (i = startx+1, v = SCREEN(startx+1, endy); i < endx; i++) {
-        *v++ = *b;
-        *v++ = attr;
-        }
+	*v++ = *b;
+	*v++ = attr;
+	}
     b++;
     writeChar(startx, starty, *b++, attr);
     writeChar(endx, starty, *b++, attr);
@@ -150,16 +150,16 @@ int main(void)
 
     printf("Program running in ");
     switch (PM_getModeType()) {
-        case PM_realMode:
-            printf("real mode.\n\n");
-            break;
-        case PM_286:
-            printf("16 bit protected mode.\n\n");
-            break;
-        case PM_386:
-            printf("32 bit protected mode.\n\n");
-            break;
-        }
+	case PM_realMode:
+	    printf("real mode.\n\n");
+	    break;
+	case PM_286:
+	    printf("16 bit protected mode.\n\n");
+	    break;
+	case PM_386:
+	    printf("32 bit protected mode.\n\n");
+	    break;
+	}
 
     hwndConsole = PM_openConsole(0,0,0,0,0,true);
     printf("Hit any key to start 80x25 text mode and perform some direct video output.\n");
@@ -167,17 +167,17 @@ int main(void)
 
     /* Allocate a buffer to save console state and save the state */
     if ((stateBuf = PM_malloc(PM_getConsoleStateSize())) == NULL) {
-        printf("Unable to allocate console state buffer!\n");
-        exit(1);
-        }
+	printf("Unable to allocate console state buffer!\n");
+	exit(1);
+	}
     PM_saveConsoleState(stateBuf,0);
     bios = PM_getBIOSPointer();
     orgMode = getVideoMode();
     setVideoMode(0x3);
     if ((videoPtr = PM_mapPhysicalAddr(0xB8000,0xFFFF,true)) == NULL) {
-        printf("Unable to obtain pointer to framebuffer!\n");
-        exit(1);
-        }
+	printf("Unable to obtain pointer to framebuffer!\n");
+	exit(1);
+	}
 
     /* Draw some text on the screen */
     fill(0, 0, 79, 24, 176, 0x1E);
@@ -197,4 +197,3 @@ int main(void)
     printf("Video Memory = %08X\n", (int)videoPtr);
     return 0;
 }
-

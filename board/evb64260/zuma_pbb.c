@@ -3,7 +3,6 @@
 
 #if (CONFIG_COMMANDS & CFG_CMD_BSP)
 #include <command.h>
-#include <cmd_bsp.h>
 #endif
 
 #include <pci.h>
@@ -16,9 +15,11 @@
 #define PAT_HI 0x04050607
 
 static PBB_DMA_REG_MAP *zuma_pbb_reg = NULL;
-
 static char test_buf1[2048];
 static char test_buf2[2048];
+void zuma_init_pbb(void);
+int zuma_mbox_init(void);
+int zuma_test_dma(int cmd, int size);
 
 int zuma_test_dma (int cmd, int size)
 {
@@ -196,5 +197,24 @@ do_zuma_init_mbox (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	zuma_mbox_init ();
 	return 0;
 }
+
+cmd_tbl_t U_BOOT_CMD(zuma_init_pbb) = MK_CMD_ENTRY(
+	"zinit",	 1,	 0,	 do_zuma_init_pbb,
+	"zinit   - init zuma pbb\n",
+	"\n"
+	"    - init zuma pbb\n"
+);
+cmd_tbl_t U_BOOT_CMD(zuma_test_dma) = MK_CMD_ENTRY(
+	"zdtest",	  3,	  1,	  do_zuma_test_dma,
+	"zdtest  - run dma test\n",
+	"[cmd [count]]\n"
+	"    - run dma cmd (w=0,v=1,cp=2,cmp=3,wi=4,vi=5), count bytes\n"
+);
+cmd_tbl_t U_BOOT_CMD(zuma_init_mbox) = MK_CMD_ENTRY(
+	"zminit",	  1,	  0,	  do_zuma_init_mbox,
+	"zminit  - init zuma mbox\n",
+	"\n"
+	"    - init zuma mbox\n"
+);
 
 #endif /* CFG_CMD_BSP */

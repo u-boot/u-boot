@@ -186,5 +186,3 @@ struct virt_root_hub {
 
 
 #endif /* _USB_UHCI_H_ */
-
-

@@ -53,32 +53,32 @@ static struct cpu_post_two_s
 } cpu_post_two_table[] =
 {
     {
-    	OP_NEG,
+	OP_NEG,
 	3,
 	-3
     },
     {
-    	OP_NEG,
+	OP_NEG,
 	5,
 	-5
     },
     {
-        OP_ADDME,
+	OP_ADDME,
 	6,
 	5
     },
     {
-        OP_ADDZE,
+	OP_ADDZE,
 	5,
 	5
     },
     {
-        OP_SUBFME,
+	OP_SUBFME,
 	6,
 	~6 - 1
     },
     {
-        OP_SUBFZE,
+	OP_SUBFZE,
 	5,
 	~5
     },
@@ -101,7 +101,7 @@ int cpu_post_test_two (void)
 	    unsigned int reg0 = (reg + 0) % 32;
 	    unsigned int reg1 = (reg + 1) % 32;
 	    unsigned int stk = reg < 16 ? 31 : 15;
-    	    unsigned long code[] =
+	    unsigned long code[] =
 	    {
 		ASM_STW(stk, 1, -4),
 		ASM_ADDI(stk, 1, -16),
@@ -118,7 +118,7 @@ int cpu_post_test_two (void)
 		ASM_LWZ(stk, 1, -4),
 		ASM_BLR,
 	    };
-    	    unsigned long codecr[] =
+	    unsigned long codecr[] =
 	    {
 		ASM_STW(stk, 1, -4),
 		ASM_ADDI(stk, 1, -16),
@@ -140,34 +140,34 @@ int cpu_post_test_two (void)
 
 	    if (ret == 0)
 	    {
- 	    	cr = 0;
-	    	cpu_post_exec_21 (code, & cr, & res, test->op);
+		cr = 0;
+		cpu_post_exec_21 (code, & cr, & res, test->op);
 
-	    	ret = res == test->res && cr == 0 ? 0 : -1;
+		ret = res == test->res && cr == 0 ? 0 : -1;
 
-	    	if (ret != 0)
-	    	{
-	            post_log ("Error at two test %d !\n", i);
-	    	}
+		if (ret != 0)
+		{
+		    post_log ("Error at two test %d !\n", i);
+		}
 	    }
 
 	    if (ret == 0)
 	    {
-	    	cpu_post_exec_21 (codecr, & cr, & res, test->op);
+		cpu_post_exec_21 (codecr, & cr, & res, test->op);
 
-	    	ret = res == test->res &&
+		ret = res == test->res &&
 		      (cr & 0xe0000000) == cpu_post_makecr (res) ? 0 : -1;
 
-	    	if (ret != 0)
-	    	{
-	            post_log ("Error at two test %d !\n", i);
-	        }
+		if (ret != 0)
+		{
+		    post_log ("Error at two test %d !\n", i);
+		}
 	    }
 	}
     }
 
     if (flag)
-    	enable_interrupts();
+	enable_interrupts();
 
     return ret;
 }

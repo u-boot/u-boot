@@ -22,12 +22,12 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <malloc.h>
 #include <net.h>
 #include <asm/io.h>
 #include <pci.h>
 #include <405gp_pci.h>
-#include <cmd_bsp.h>
 
 #include "pci405.h"
 

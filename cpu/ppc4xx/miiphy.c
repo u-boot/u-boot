@@ -76,7 +76,6 @@ void miiphy_dump (unsigned char addr)
 } /* end dump */
 
 
-
 /***********************************************************/
 /* read a phy reg and return the value with a rc           */
 /***********************************************************/

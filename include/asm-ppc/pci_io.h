@@ -9,20 +9,20 @@
 
 #define pci_read_le16(addr, dest) \
     __asm__ __volatile__("lhbrx %0,0,%1" : "=r" (dest) : \
-                  "r" (addr), "m" (*addr));
+		  "r" (addr), "m" (*addr));
 
 #define pci_write_le16(addr, val) \
     __asm__ __volatile__("sthbrx %1,0,%2" : "=m" (*addr) : \
-                  "r" (val), "r" (addr));
+		  "r" (val), "r" (addr));
 
 
 #define pci_read_le32(addr, dest) \
     __asm__ __volatile__("lwbrx %0,0,%1" : "=r" (dest) : \
-                 "r" (addr), "m" (*addr));
+		 "r" (addr), "m" (*addr));
 
 #define pci_write_le32(addr, val) \
 __asm__ __volatile__("stwbrx %1,0,%2" : "=m" (*addr) : \
-                 "r" (val), "r" (addr));
+		 "r" (val), "r" (addr));
 
 #define pci_readb(addr,b) ((b) = *(volatile u8 *) (addr))
 #define pci_writeb(b,addr) ((*(volatile u8 *) (addr)) = (b))

@@ -432,7 +432,6 @@ cp.b 200000 40040000 14000\0"                                                   
 #define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
 
-
 #define CONFIG_AUTOBOOT_KEYED		/* use key strings to stop autoboot */
 #if 0
 #define CONFIG_AUTOBOOT_PROMPT		"Boote in %d Sekunden - stop mit \"2\"\n"

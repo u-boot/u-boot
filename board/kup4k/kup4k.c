@@ -329,9 +329,6 @@ void lcd_logo (bd_t * bd)
 	memctl->memc_br5 = 0x80080801;	/* Start at 0x80080000 */
 
 
-
-
-
 	fb_info.VmemAddr = (unsigned char *) (S1D_PHYSICAL_VMEM_ADDR);
 	fb_info.RegAddr = (unsigned char *) (S1D_PHYSICAL_REG_ADDR);
 

@@ -324,8 +324,8 @@ typedef enum _PnP_INTERFACE {
   GeneralFloppy = 0,
   Compatible765 = 1,
   NS398_Floppy = 2,                     /* NS Super I/O wired to use index
-                                           register at port 398 and data
-                                           register at port 399               */
+					   register at port 398 and data
+					   register at port 399               */
   NS26E_Floppy = 3,                     /* Ports 26E and 26F                  */
   NS15C_Floppy = 4,                     /* Ports 15C and 15D                  */
   NS2E_Floppy = 5,                      /* Ports 2E and 2F                    */
@@ -366,8 +366,8 @@ typedef enum _PnP_INTERFACE {
   Compatible16450 = 2,
   Compatible16550 = 3,
   NS398SerPort = 4,                     /* NS Super I/O wired to use index
-                                           register at port 398 and data
-                                           register at port 399               */
+					   register at port 398 and data
+					   register at port 399               */
   NS26ESerPort = 5,                     /* Ports 26E and 26F                  */
   NS15CSerPort = 6,                     /* Ports 15C and 15D                  */
   NS2ESerPort = 7,                      /* Ports 2E and 2F                    */
@@ -375,8 +375,8 @@ typedef enum _PnP_INTERFACE {
   GeneralParPort = 0,
   LPTx = 1,
   NS398ParPort = 2,                     /* NS Super I/O wired to use index
-                                           register at port 398 and data
-                                           register at port 399               */
+					   register at port 398 and data
+					   register at port 399               */
   NS26EParPort = 3,                     /* Ports 26E and 26F                  */
   NS15CParPort = 4,                     /* Ports 15C and 15D                  */
   NS2EParPort = 5,                      /* Ports 2E and 2F                    */
@@ -436,14 +436,14 @@ typedef enum _PnP_INTERFACE {
 
 typedef struct _SERIAL_ID {
   unsigned char VendorID0;              /*    Bit(7)=0                        */
-                                        /*    Bits(6:2)=1st character in      */
-                                        /*       compressed ASCII             */
-                                        /*    Bits(1:0)=2nd character in      */
-                                        /*       compressed ASCII bits(4:3)   */
+					/*    Bits(6:2)=1st character in      */
+					/*       compressed ASCII             */
+					/*    Bits(1:0)=2nd character in      */
+					/*       compressed ASCII bits(4:3)   */
   unsigned char VendorID1;              /*    Bits(7:5)=2nd character in      */
-                                        /*       compressed ASCII bits(2:0)   */
-                                        /*    Bits(4:0)=3rd character in      */
-                                        /*       compressed ASCII             */
+					/*       compressed ASCII bits(2:0)   */
+					/*    Bits(4:0)=3rd character in      */
+					/*       compressed ASCII             */
   unsigned char VendorID2;              /* Product number - vendor assigned   */
   unsigned char VendorID3;              /* Product number - vendor assigned   */
 
@@ -511,8 +511,8 @@ typedef union _PnP_TAG_PACKET {
     unsigned char Tag;                  /* small tag = 0x15 or 0x16           */
     unsigned char DevId[4];             /* Logical device id                  */
     unsigned char Flags[2];             /* bit(0) boot device;                */
-                                        /* bit(7:1) cmd in range x31-x37      */
-                                        /* bit(7:0) cmd in range x28-x3f (opt)*/
+					/* bit(7:1) cmd in range x31-x37      */
+					/* bit(7:0) cmd in range x28-x3f (opt)*/
     } S2_Pack;
 
   struct _S3_Pack{                      /* COMPATIBLE DEVICE ID PACKET        */
@@ -523,13 +523,13 @@ typedef union _PnP_TAG_PACKET {
   struct _S4_Pack{                      /* IRQ PACKET                         */
     unsigned char Tag;                  /* small tag = 0x22 or 0x23           */
     unsigned char IRQMask[2];           /* bit(0) is IRQ0, ...;               */
-                                        /* bit(0) is IRQ8 ...                 */
+					/* bit(0) is IRQ8 ...                 */
     unsigned char IRQInfo;              /* optional; assume bit(0)=1; else    */
-                                        /*  bit(0) - high true edge sensitive */
-                                        /*  bit(1) - low true edge sensitive  */
-                                        /*  bit(2) - high true level sensitive*/
-                                        /*  bit(3) - low true level sensitive */
-                                        /*  bit(7:4) - must be 0              */
+					/*  bit(0) - high true edge sensitive */
+					/*  bit(1) - low true edge sensitive  */
+					/*  bit(2) - high true level sensitive*/
+					/*  bit(3) - low true level sensitive */
+					/*  bit(7:4) - must be 0              */
     } S4_Pack;
 
   struct _S5_Pack{                      /* DMA PACKET                         */
@@ -541,9 +541,9 @@ typedef union _PnP_TAG_PACKET {
   struct _S6_Pack{                      /* START DEPENDENT FUNCTION PACKET    */
     unsigned char Tag;                  /* small tag = 0x30 or 0x31           */
     unsigned char Priority;             /* Optional; if missing then x01; else*/
-                                        /*  x00 = best possible               */
-                                        /*  x01 = acceptible                  */
-                                        /*  x02 = sub-optimal but functional  */
+					/*  x00 = best possible               */
+					/*  x01 = acceptible                  */
+					/*  x02 = sub-optimal but functional  */
     } S6_Pack;
 
   struct _S7_Pack{                      /* END DEPENDENT FUNCTION PACKET      */
@@ -571,9 +571,9 @@ typedef union _PnP_TAG_PACKET {
     union _S14_Data{
       unsigned char Data[7];            /* Vendor defined                     */
       struct _S14_PPCPack{              /* Pr*p s14 pack                      */
-         unsigned char Type;            /* 00=non-IBM                         */
-         unsigned char PPCData[6];      /* Vendor defined                     */
-        } S14_PPCPack;
+	 unsigned char Type;            /* 00=non-IBM                         */
+	 unsigned char PPCData[6];      /* Vendor defined                     */
+	} S14_PPCPack;
       } S14_Data;
     } S14_Pack;
 
@@ -587,7 +587,7 @@ typedef union _PnP_TAG_PACKET {
     unsigned char Count0;               /* x09                                */
     unsigned char Count1;               /* x00                                */
     unsigned char Data[9];              /* a variable array of bytes,         */
-                                        /* count in tag                       */
+					/* count in tag                       */
     } L1_Pack;
 
   struct _L2_Pack{                      /* ANSI ID STRING PACKET              */
@@ -595,7 +595,7 @@ typedef union _PnP_TAG_PACKET {
     unsigned char Count0;               /* Length of string                   */
     unsigned char Count1;
     unsigned char Identifier[1];        /* a variable array of bytes,         */
-                                        /* count in tag                       */
+					/* count in tag                       */
     } L2_Pack;
 
   struct _L3_Pack{                      /* UNICODE ID STRING PACKET           */
@@ -605,7 +605,7 @@ typedef union _PnP_TAG_PACKET {
     unsigned char Country0;             /* TBD                                */
     unsigned char Country1;             /* TBD                                */
     unsigned char Identifier[1];        /* a variable array of bytes,         */
-                                        /* count in tag                       */
+					/* count in tag                       */
     } L3_Pack;
 
   struct _L4_Pack{                      /* VENDOR DEFINED PACKET              */
@@ -614,12 +614,12 @@ typedef union _PnP_TAG_PACKET {
     unsigned char Count1;
     union _L4_Data{
       unsigned char Data[1];            /* a variable array of bytes,         */
-                                        /* count in tag                       */
+					/* count in tag                       */
       struct _L4_PPCPack{               /* Pr*p L4 packet                     */
-         unsigned char Type;            /* 00=non-IBM                         */
-         unsigned char PPCData[1];      /* a variable array of bytes,         */
-                                        /* count in tag                       */
-        } L4_PPCPack;
+	 unsigned char Type;            /* 00=non-IBM                         */
+	 unsigned char PPCData[1];      /* a variable array of bytes,         */
+					/* count in tag                       */
+	} L4_PPCPack;
       } L4_Data;
     } L4_Pack;
 

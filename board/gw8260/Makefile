@@ -29,7 +29,7 @@ OBJS	:= gw8260.o flash.o
 SOBJS   :=
 
 $(LIB):	$(OBJS) $(SOBJS)
-	$(AR) crv $@ $^
+	$(AR) crv $@ $(OBJS)
 
 clean:
 	rm -f $(SOBJS) $(OBJS)

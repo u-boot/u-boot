@@ -58,4 +58,14 @@ int do_coninfo (cmd_tbl_t * cmd, int flag, int argc, char *argv[])
 	}
 	return 0;
 }
+
+
+/***************************************************/
+
+cmd_tbl_t U_BOOT_CMD(CONINFO) = MK_CMD_ENTRY(
+	"coninfo",	3,	1,	do_coninfo,
+	"coninfo - print console devices and informations\n",
+	""
+);
+
 #endif /* CFG_CMD_CONSOLE */

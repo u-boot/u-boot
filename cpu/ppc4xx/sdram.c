@@ -128,7 +128,7 @@ void sdram_init(void)
 	 * Now test for 64 MByte...
 	 */
 
-        /*
+	/*
 	 * Disable memory controller.
 	 */
 	mtsdram0(mem_mcopt1, 0x00000000);
@@ -179,7 +179,7 @@ void sdram_init(void)
 	 * Now test for 32 MByte...
 	 */
 
-        /*
+	/*
 	 * Disable memory controller.
 	 */
 	mtsdram0(mem_mcopt1, 0x00000000);
@@ -221,7 +221,7 @@ void sdram_init(void)
 	/*
 	 * Now test for 16 MByte...
 	 */
-        /*
+	/*
 	 * Disable memory controller.
 	 */
 	mtsdram0(mem_mcopt1, 0x00000000);
@@ -266,7 +266,7 @@ void sdram_init(void)
 	 * Setup for 4 MByte...
 	 */
 
-        /*
+	/*
 	 * Disable memory controller.
 	 */
 	mtsdram0(mem_mcopt1, 0x00000000);

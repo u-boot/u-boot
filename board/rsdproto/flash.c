@@ -59,9 +59,9 @@ static unsigned char write_ull(flash_info_t *info,
 
 /* from flash_asm.S */
 extern void ull_write(unsigned long long volatile *address,
-                      unsigned long long volatile *data);
+		      unsigned long long volatile *data);
 extern void ull_read(unsigned long long volatile *address,
-                     unsigned long long volatile *data);
+		     unsigned long long volatile *data);
 
 /*-----------------------------------------------------------------------
  */
@@ -268,7 +268,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 			ull_write(f_addr, &f_command);
 			printf (" timeout\n");
 			return 1;
-        }
+	}
 	} while(*f_addr != 0xFFFFFFFFFFFFFFFFULL);
 
     printf (" done\n");

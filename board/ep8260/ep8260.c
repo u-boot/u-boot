@@ -307,4 +307,3 @@ initdram(int board_type)
 #endif /* CFG_RAMBOOT */
 	return (size * 1024 * 1024);
 }
-

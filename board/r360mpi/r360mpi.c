@@ -28,7 +28,6 @@
 
 #include <commproc.h>
 #include <command.h>
-#include <cmd_bsp.h>
 #include <malloc.h>
 
 #include <linux/types.h>
@@ -54,37 +53,37 @@
 
 const uint sdram_table[]=
 {
-        /* single read. (offset 0 in upm RAM) */
-        0x1f07fc04, 0xeeaefc04, 0x11adfc04, 0xefbbbc00,
-        0x1ff77c47,
+	/* single read. (offset 0 in upm RAM) */
+	0x1f07fc04, 0xeeaefc04, 0x11adfc04, 0xefbbbc00,
+	0x1ff77c47,
 
-        /* MRS initialization (offset 5) */
+	/* MRS initialization (offset 5) */
 
-        0x1ff77c34, 0xefeabc34, 0x1fb57c35,
+	0x1ff77c34, 0xefeabc34, 0x1fb57c35,
 
-        /* burst read. (offset 8 in upm RAM) */
-        0x1f07fc04, 0xeeaefc04, 0x10adfc04, 0xf0affc00,
-        0xf0affc00, 0xf1affc00, 0xefbbbc00, 0x1ff77c47,
-        _not_used_, _not_used_, _not_used_, _not_used_,
-        _not_used_, _not_used_, _not_used_, _not_used_,
+	/* burst read. (offset 8 in upm RAM) */
+	0x1f07fc04, 0xeeaefc04, 0x10adfc04, 0xf0affc00,
+	0xf0affc00, 0xf1affc00, 0xefbbbc00, 0x1ff77c47,
+	_not_used_, _not_used_, _not_used_, _not_used_,
+	_not_used_, _not_used_, _not_used_, _not_used_,
 
-        /* single write. (offset 18 in upm RAM) */
-        0x1f27fc04, 0xeeaebc00, 0x01b93c04, 0x1ff77c47,
-        _not_used_, _not_used_, _not_used_, _not_used_,
+	/* single write. (offset 18 in upm RAM) */
+	0x1f27fc04, 0xeeaebc00, 0x01b93c04, 0x1ff77c47,
+	_not_used_, _not_used_, _not_used_, _not_used_,
 
-        /* burst write. (offset 20 in upm RAM) */
-        0x1f07fc04, 0xeeaebc00, 0x10ad7c00, 0xf0affc00,
-        0xf0affc00, 0xe1bbbc04, 0x1ff77c47, _not_used_,
-        _not_used_, _not_used_, _not_used_, _not_used_,
-        _not_used_, _not_used_, _not_used_, _not_used_,
+	/* burst write. (offset 20 in upm RAM) */
+	0x1f07fc04, 0xeeaebc00, 0x10ad7c00, 0xf0affc00,
+	0xf0affc00, 0xe1bbbc04, 0x1ff77c47, _not_used_,
+	_not_used_, _not_used_, _not_used_, _not_used_,
+	_not_used_, _not_used_, _not_used_, _not_used_,
 
-        /* refresh. (offset 30 in upm RAM) */
-        0x1ff5fc84, 0xfffffc04, 0xfffffc04, 0xfffffc04,
-        0xfffffc84, 0xfffffc07, _not_used_, _not_used_,
-        _not_used_, _not_used_, _not_used_, _not_used_,
+	/* refresh. (offset 30 in upm RAM) */
+	0x1ff5fc84, 0xfffffc04, 0xfffffc04, 0xfffffc04,
+	0xfffffc84, 0xfffffc07, _not_used_, _not_used_,
+	_not_used_, _not_used_, _not_used_, _not_used_,
 
-        /* exception. (offset 3c in upm RAM) */
-        0x7ffffc07, _not_used_, _not_used_, _not_used_ };
+	/* exception. (offset 3c in upm RAM) */
+	0x7ffffc07, _not_used_, _not_used_, _not_used_ };
 
 /* ------------------------------------------------------------------------- */
 
@@ -443,3 +442,9 @@ int do_kbd (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	setenv ("keybd", keybd_env);
 	return 0;
 }
+
+cmd_tbl_t U_BOOT_CMD(kbd) = MK_CMD_ENTRY(
+	"kbd",	1,	1,	do_kbd,
+	"kbd     - read keyboard status\n",
+	NULL
+);

@@ -361,7 +361,7 @@
  * HID1 has only read-only information - nothing to set.
  */
 #define CFG_HID0_INIT   (HID0_ICE|HID0_DCE|HID0_ICFI|\
-                         HID0_DCI|HID0_IFEM|HID0_ABE)
+			 HID0_DCI|HID0_IFEM|HID0_ABE)
 #define CFG_HID0_FINAL  (HID0_IFEM|HID0_ABE)
 #define CFG_HID2        0
 
@@ -394,10 +394,10 @@
  */
 #if defined(CONFIG_WATCHDOG)
 #define CFG_SYPCR       (SYPCR_SWTC|SYPCR_BMT|SYPCR_PBME|SYPCR_LBME|\
-                         SYPCR_SWRI|SYPCR_SWP|SYPCR_SWE)
+			 SYPCR_SWRI|SYPCR_SWP|SYPCR_SWE)
 #else
 #define CFG_SYPCR       (SYPCR_SWTC|SYPCR_BMT|SYPCR_PBME|SYPCR_LBME|\
-                         SYPCR_SWRI|SYPCR_SWP)
+			 SYPCR_SWRI|SYPCR_SWP)
 #endif /* CONFIG_WATCHDOG */
 
 /*-----------------------------------------------------------------------
@@ -498,55 +498,55 @@
 /* Bank 0 - Boot ROM
  */
 #define CFG_BR0_PRELIM  ((CFG_BOOTROM_BASE & BRx_BA_MSK)|\
-                         BRx_PS_8                       |\
-                         BRx_MS_GPCM_P                  |\
-                         BRx_V)
+			 BRx_PS_8                       |\
+			 BRx_MS_GPCM_P                  |\
+			 BRx_V)
 
 #define CFG_OR0_PRELIM  (P2SZ_TO_AM(CFG_BOOTROM_SIZE)   |\
-                         ORxG_CSNT                      |\
-                         ORxG_ACS_DIV1                  |\
-                         ORxG_SCY_3_CLK                 |\
-                         ORxU_EHTR_8IDLE)
+			 ORxG_CSNT                      |\
+			 ORxG_ACS_DIV1                  |\
+			 ORxG_SCY_3_CLK                 |\
+			 ORxU_EHTR_8IDLE)
 
 /* Bank 1 - FLASH
  */
 #define CFG_BR1_PRELIM  ((CFG_FLASH_BASE & BRx_BA_MSK)  |\
-                         BRx_PS_64                      |\
-                         BRx_MS_GPCM_P                  |\
-                         BRx_V)
+			 BRx_PS_64                      |\
+			 BRx_MS_GPCM_P                  |\
+			 BRx_V)
 
 #define CFG_OR1_PRELIM  (P2SZ_TO_AM(CFG_FLASH_SIZE)     |\
-                         ORxG_CSNT                      |\
-                         ORxG_ACS_DIV1                  |\
-                         ORxG_SCY_3_CLK                 |\
-                         ORxU_EHTR_8IDLE)
+			 ORxG_CSNT                      |\
+			 ORxG_ACS_DIV1                  |\
+			 ORxG_SCY_3_CLK                 |\
+			 ORxU_EHTR_8IDLE)
 
 #else /* CONFIG_BOOT_ROM */
 /* Bank 0 - FLASH
  */
 #define CFG_BR0_PRELIM  ((CFG_FLASH_BASE & BRx_BA_MSK)  |\
-                         BRx_PS_64                      |\
-                         BRx_MS_GPCM_P                  |\
-                         BRx_V)
+			 BRx_PS_64                      |\
+			 BRx_MS_GPCM_P                  |\
+			 BRx_V)
 
 #define CFG_OR0_PRELIM  (P2SZ_TO_AM(CFG_FLASH_SIZE)     |\
-                         ORxG_CSNT                      |\
-                         ORxG_ACS_DIV1                  |\
-                         ORxG_SCY_3_CLK                 |\
-                         ORxU_EHTR_8IDLE)
+			 ORxG_CSNT                      |\
+			 ORxG_ACS_DIV1                  |\
+			 ORxG_SCY_3_CLK                 |\
+			 ORxU_EHTR_8IDLE)
 
 /* Bank 1 - Boot ROM
  */
 #define CFG_BR1_PRELIM  ((CFG_BOOTROM_BASE & BRx_BA_MSK)|\
-                         BRx_PS_8                       |\
-                         BRx_MS_GPCM_P                  |\
-                         BRx_V)
+			 BRx_PS_8                       |\
+			 BRx_MS_GPCM_P                  |\
+			 BRx_V)
 
 #define CFG_OR1_PRELIM  (P2SZ_TO_AM(CFG_BOOTROM_SIZE)   |\
-                         ORxG_CSNT                      |\
-                         ORxG_ACS_DIV1                  |\
-                         ORxG_SCY_3_CLK                 |\
-                         ORxU_EHTR_8IDLE)
+			 ORxG_CSNT                      |\
+			 ORxG_ACS_DIV1                  |\
+			 ORxG_SCY_3_CLK                 |\
+			 ORxU_EHTR_8IDLE)
 
 #endif /* CONFIG_BOOT_ROM */
 
@@ -555,9 +555,9 @@
  */
 #ifndef CFG_RAMBOOT
 #define CFG_BR2_PRELIM  ((CFG_SDRAM_BASE & BRx_BA_MSK)  |\
-                         BRx_PS_64                      |\
-                         BRx_MS_SDRAM_P                 |\
-                         BRx_V)
+			 BRx_PS_64                      |\
+			 BRx_MS_SDRAM_P                 |\
+			 BRx_V)
 
 #define CFG_OR2_PRELIM	 CFG_OR2_9COL
 
@@ -567,88 +567,88 @@
 /* Bank 3 - Dual Ported SRAM
  */
 #define CFG_BR3_PRELIM  ((CFG_DPSRAM_BASE & BRx_BA_MSK) |\
-                         BRx_PS_16                      |\
-                         BRx_MS_GPCM_P                  |\
-                         BRx_V)
+			 BRx_PS_16                      |\
+			 BRx_MS_GPCM_P                  |\
+			 BRx_V)
 
 #define CFG_OR3_PRELIM  (P2SZ_TO_AM(CFG_DPSRAM_SIZE)    |\
-                         ORxG_CSNT                      |\
-                         ORxG_ACS_DIV1                  |\
-                         ORxG_SCY_5_CLK                 |\
-                         ORxG_SETA)
+			 ORxG_CSNT                      |\
+			 ORxG_ACS_DIV1                  |\
+			 ORxG_SCY_5_CLK                 |\
+			 ORxG_SETA)
 
 /* Bank 4 - DiskOnChip
  */
 #define CFG_BR4_PRELIM  ((CFG_DOC_BASE & BRx_BA_MSK)    |\
-                         BRx_PS_8                       |\
-                         BRx_MS_GPCM_P                  |\
-                         BRx_V)
+			 BRx_PS_8                       |\
+			 BRx_MS_GPCM_P                  |\
+			 BRx_V)
 
 #define CFG_OR4_PRELIM  (P2SZ_TO_AM(CFG_DOC_SIZE)       |\
-                         ORxG_ACS_DIV2                  |\
-                         ORxG_SCY_5_CLK                 |\
-                         ORxU_EHTR_8IDLE)
+			 ORxG_ACS_DIV2                  |\
+			 ORxG_SCY_5_CLK                 |\
+			 ORxU_EHTR_8IDLE)
 
 /* Bank 5 - FDC37C78 controller
  */
 #define CFG_BR5_PRELIM  ((CFG_FDC37C78_BASE & BRx_BA_MSK) |\
-                         BRx_PS_8                         |\
-                         BRx_MS_GPCM_P                    |\
-                         BRx_V)
+			 BRx_PS_8                         |\
+			 BRx_MS_GPCM_P                    |\
+			 BRx_V)
 
 #define CFG_OR5_PRELIM  (P2SZ_TO_AM(CFG_FDC37C78_SIZE)    |\
-                         ORxG_ACS_DIV2                    |\
-                         ORxG_SCY_8_CLK                   |\
-                         ORxU_EHTR_8IDLE)
+			 ORxG_ACS_DIV2                    |\
+			 ORxG_SCY_8_CLK                   |\
+			 ORxU_EHTR_8IDLE)
 
 /* Bank 6 - Board control registers
  */
 #define CFG_BR6_PRELIM  ((CFG_BCRS_BASE & BRx_BA_MSK)   |\
-                         BRx_PS_8                       |\
-                         BRx_MS_GPCM_P                  |\
-                         BRx_V)
+			 BRx_PS_8                       |\
+			 BRx_MS_GPCM_P                  |\
+			 BRx_V)
 
 #define CFG_OR6_PRELIM  (P2SZ_TO_AM(CFG_BCRS_SIZE)      |\
-                         ORxG_CSNT                      |\
-                         ORxG_SCY_5_CLK)
+			 ORxG_CSNT                      |\
+			 ORxG_SCY_5_CLK)
 
 /* Bank 7 - VME Extended Access Range
  */
 #define CFG_BR7_PRELIM  ((CFG_VMEEAR_BASE & BRx_BA_MSK) |\
-                         BRx_PS_32                      |\
-                         BRx_MS_GPCM_P                  |\
-                         BRx_V)
+			 BRx_PS_32                      |\
+			 BRx_MS_GPCM_P                  |\
+			 BRx_V)
 
 #define CFG_OR7_PRELIM  (P2SZ_TO_AM(CFG_VMEEAR_SIZE)    |\
-                         ORxG_CSNT                      |\
-                         ORxG_ACS_DIV1                  |\
-                         ORxG_SCY_5_CLK                 |\
-                         ORxG_SETA)
+			 ORxG_CSNT                      |\
+			 ORxG_ACS_DIV1                  |\
+			 ORxG_SCY_5_CLK                 |\
+			 ORxG_SETA)
 
 /* Bank 8 - VME Standard Access Range
  */
 #define CFG_BR8_PRELIM  ((CFG_VMESAR_BASE & BRx_BA_MSK) |\
-                         BRx_PS_16                      |\
-                         BRx_MS_GPCM_P                  |\
-                         BRx_V)
+			 BRx_PS_16                      |\
+			 BRx_MS_GPCM_P                  |\
+			 BRx_V)
 
 #define CFG_OR8_PRELIM  (P2SZ_TO_AM(CFG_VMESAR_SIZE)    |\
-                         ORxG_CSNT                      |\
-                         ORxG_ACS_DIV1                  |\
-                         ORxG_SCY_5_CLK                 |\
-                         ORxG_SETA)
+			 ORxG_CSNT                      |\
+			 ORxG_ACS_DIV1                  |\
+			 ORxG_SCY_5_CLK                 |\
+			 ORxG_SETA)
 
 /* Bank 9 - VME Short I/O Access Range
  */
 #define CFG_BR9_PRELIM  ((CFG_VMESIOAR_BASE & BRx_BA_MSK) |\
-                         BRx_PS_16                        |\
-                         BRx_MS_GPCM_P                    |\
-                         BRx_V)
+			 BRx_PS_16                        |\
+			 BRx_MS_GPCM_P                    |\
+			 BRx_V)
 
 #define CFG_OR9_PRELIM  (P2SZ_TO_AM(CFG_VMESIOAR_SIZE)    |\
-                         ORxG_CSNT                        |\
-                         ORxG_ACS_DIV1                    |\
-                         ORxG_SCY_5_CLK                   |\
-                         ORxG_SETA)
+			 ORxG_CSNT                        |\
+			 ORxG_ACS_DIV1                    |\
+			 ORxG_SCY_5_CLK                   |\
+			 ORxG_SETA)
 
 #endif	/* __CONFIG_H */

@@ -33,7 +33,6 @@
 #ifdef CONFIG_PCI
 
 #include <command.h>
-#include <cmd_boot.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <pci.h>

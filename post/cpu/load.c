@@ -61,112 +61,112 @@ static struct cpu_post_load_s
 } cpu_post_load_table[] =
 {
     {
-    	OP_LWZ,
+	OP_LWZ,
 	4,
 	0,
 	0,
 	4
     },
     {
-    	OP_LHA,
+	OP_LHA,
 	3,
 	0,
 	0,
 	2
     },
     {
-    	OP_LHZ,
+	OP_LHZ,
 	2,
 	0,
 	0,
 	2
     },
     {
-    	OP_LBZ,
+	OP_LBZ,
 	1,
 	0,
 	0,
 	1
     },
     {
-    	OP_LWZU,
+	OP_LWZU,
 	4,
 	1,
 	0,
 	4
     },
     {
-    	OP_LHAU,
+	OP_LHAU,
 	3,
 	1,
 	0,
 	2
     },
     {
-    	OP_LHZU,
+	OP_LHZU,
 	2,
 	1,
 	0,
 	2
     },
     {
-    	OP_LBZU,
+	OP_LBZU,
 	1,
 	1,
 	0,
 	1
     },
     {
-    	OP_LWZX,
+	OP_LWZX,
 	4,
 	0,
 	1,
 	4
     },
     {
-    	OP_LHAX,
+	OP_LHAX,
 	3,
 	0,
 	1,
 	2
     },
     {
-    	OP_LHZX,
+	OP_LHZX,
 	2,
 	0,
 	1,
 	2
     },
     {
-    	OP_LBZX,
+	OP_LBZX,
 	1,
 	0,
 	1,
 	1
     },
     {
-    	OP_LWZUX,
+	OP_LWZUX,
 	4,
 	1,
 	1,
 	4
     },
     {
-    	OP_LHAUX,
+	OP_LHAUX,
 	3,
 	1,
 	1,
 	2
     },
     {
-    	OP_LHZUX,
+	OP_LHZUX,
 	2,
 	1,
 	1,
 	2
     },
     {
-    	OP_LBZUX,
+	OP_LBZUX,
 	1,
 	1,
 	1,
@@ -186,7 +186,7 @@ int cpu_post_test_load (void)
 	struct cpu_post_load_s *test = cpu_post_load_table + i;
 	uchar data[16] =
 	{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
-    	ulong base0 = (ulong) (data + 8);
+	ulong base0 = (ulong) (data + 8);
 	ulong base = base0;
 	ulong value;
 
@@ -194,7 +194,7 @@ int cpu_post_test_load (void)
 	{
 	    ulong code[] =
 	    {
-	    	ASM_12(test->cmd, 5, 3, 4),
+		ASM_12(test->cmd, 5, 3, 4),
 		ASM_BLR,
 	    };
 
@@ -204,7 +204,7 @@ int cpu_post_test_load (void)
 	{
 	    ulong code[] =
 	    {
-	    	ASM_11I(test->cmd, 4, 3, test->offset),
+		ASM_11I(test->cmd, 4, 3, test->offset),
 		ASM_BLR,
 	    };
 
@@ -224,27 +224,27 @@ int cpu_post_test_load (void)
 	    switch (test->width)
 	    {
 	    case 1:
-	        ret = *(uchar *)(base0 + test->offset) == value ?
+		ret = *(uchar *)(base0 + test->offset) == value ?
 		      0 : -1;
-	        break;
+		break;
 	    case 2:
-	        ret = *(ushort *)(base0 + test->offset) == value ?
+		ret = *(ushort *)(base0 + test->offset) == value ?
 		      0 : -1;
-	        break;
+		break;
 	    case 3:
-	        ret = *(short *)(base0 + test->offset) == value ?
+		ret = *(short *)(base0 + test->offset) == value ?
 		      0 : -1;
-	        break;
+		break;
 	    case 4:
-	        ret = *(ulong *)(base0 + test->offset) == value ?
+		ret = *(ulong *)(base0 + test->offset) == value ?
 		      0 : -1;
-	        break;
+		break;
 	    }
 	}
 
 	if (ret != 0)
 	{
-            post_log ("Error at load test %d !\n", i);
+	    post_log ("Error at load test %d !\n", i);
 	}
     }
 

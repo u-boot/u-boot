@@ -25,10 +25,10 @@ include $(TOPDIR)/config.mk
 
 LIB	= lib$(CPU).a
 
-START	= start.o start16.o reset.o 
-COBJS	= serial.o interrupts.o cpu.o timer.o sc520.o 
+START	= start.o start16.o reset.o
+COBJS	= serial.o interrupts.o cpu.o timer.o sc520.o
 AOBJS	= sc520_asm.o
-	
+
 all:	.depend $(START) $(LIB)
 
 $(LIB):	$(COBJS) $(AOBJS)

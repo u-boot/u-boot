@@ -285,7 +285,7 @@ extern __inline__ int ext2_test_bit(int nr, __const__ void * addr)
  */
 
 #define ext2_find_first_zero_bit(addr, size) \
-        ext2_find_next_zero_bit((addr), (size), 0)
+	ext2_find_next_zero_bit((addr), (size), 0)
 
 extern __inline__ unsigned long ext2_find_next_zero_bit(void *addr,
 	unsigned long size, unsigned long offset)

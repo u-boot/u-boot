@@ -323,4 +323,3 @@
 #define CONFIG_FPGAS_BANK_SIZE	0x00100000L	/* FPGAs' mmap bank size	*/
 
 #endif	/* __CONFIG_H */
-

@@ -1,7 +1,7 @@
 /*
  * (C) Copyright 2002
  * John W. Linville, linville@tuxdriver.com
- * 
+ *
  * Modified from code for support of MIP405 and PIP405 boards.  Previous
  * copyright follows.
  *
@@ -48,7 +48,6 @@ void i8259_unmask_irq(unsigned int irq);
 
 
 #undef KBG_DEBUG
-//#define KBG_DEBUG
 
 #ifdef KBG_DEBUG
 #define	PRINTF(fmt,args...)	printf (fmt ,##args)
@@ -143,8 +142,6 @@ void i8259_unmask_irq(unsigned int irq);
 #define 	KBD_BUFFER_LEN 0x20  /* size of the keyboardbuffer */
 
 
-
-
 static volatile char kbd_buffer[KBD_BUFFER_LEN];
 static volatile int in_pointer = 0;
 static volatile int out_pointer = 0;
@@ -172,7 +169,7 @@ static unsigned char kbd_plain_xlate[] = {
 	 '2', '3', '0', '.',0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,  /* 0x50 - 0x5F */
 	'\r',0xff,0xff
 	};
-	  	  
+
 static unsigned char kbd_shift_xlate[] = {
 	0xff,0x1b, '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+','\b','\t',	/* 0x00 - 0x0f */
 	 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}','\r',0xff, 'A', 'S',	/* 0x10 - 0x1f */
@@ -194,7 +191,7 @@ static unsigned char kbd_ctrl_xlate[] = {
 	};
 
 /******************************************************************
- * Init 
+ * Init
  ******************************************************************/
 
 int isa_kbd_init(void)
@@ -252,7 +249,7 @@ int drv_isa_kbd_init (void)
 			error=console_assign(stdin,DEVNAME);
 			if(error==0)
 				return 1;
-			else 
+			else
 				return error;
 		}
 		return 1;
@@ -261,7 +258,7 @@ int drv_isa_kbd_init (void)
 }
 
 /******************************************************************
- * Queue handling 
+ * Queue handling
  ******************************************************************/
 /* puts character in the queue and sets up the in and out pointer */
 void kbd_put_queue(char data)
@@ -287,7 +284,7 @@ int kbd_testc(void)
 	if(in_pointer==out_pointer)
 		return(0); /* no data */
 	else
-		return(1);	
+		return(1);
 }
 /* gets the character from the queue */
 int kbd_getc(void)
@@ -295,13 +292,13 @@ int kbd_getc(void)
 	char c;
 
 	while(in_pointer==out_pointer);
-	if((out_pointer+1)==KBD_BUFFER_LEN) 
+	if((out_pointer+1)==KBD_BUFFER_LEN)
 		out_pointer=0;
 	else
 		out_pointer++;
 	c=kbd_buffer[out_pointer];
 	return (int)c;
-	
+
 }
 
 
@@ -324,7 +321,7 @@ void kbd_set_leds(void)
 	kbd_send_data(KBD_CMD_SET_LEDS);
 	kbd_send_data(leds);
 }
-	
+
 
 void handle_keyboard_event(unsigned char scancode)
 {
@@ -381,11 +378,11 @@ void handle_keyboard_event(unsigned char scancode)
 		console_changed = 1;
 	    }
 	    return;
-	case 0x2A: 
+	case 0x2A:
 		case 0x36: /* shift pressed */
 			shift=1;
 			return; /* do nothing else */
-		case 0xAA: 
+		case 0xAA:
 		case 0xB6: /* shift released */
 			shift=0;
 			return; /* do nothing else */
@@ -408,15 +405,15 @@ void handle_keyboard_event(unsigned char scancode)
 		case 0x3A: /* capslock pressed */
 			caps_lock=~caps_lock;
 			kbd_set_leds();
-			return; 
+			return;
 		case 0x45: /* numlock pressed */
 			num_lock=~num_lock;
 			kbd_set_leds();
-			return; 
+			return;
 		case 0xC6: /* scroll lock released */
 		case 0xC5: /* num lock released */
 		case 0xBA: /* caps lock released */
-			return; /* just swallow */ 
+			return; /* just swallow */
 	}
 	if((scancode&0x80)==0x80) /* key released */
 		return;
@@ -456,7 +453,7 @@ void handle_keyboard_event(unsigned char scancode)
 		PRINTF("unkown scancode %X\n",scancode);
 		return; /* swallow unknown codes */
 	}
-	
+
 	kbd_put_queue(keycode);
 	PRINTF("%x\n",keycode);
 }
@@ -494,30 +491,29 @@ unsigned char handle_kbd_event(void)
 }
 
 
-
 /******************************************************************************
  * Lowlevel Part of keyboard section
- */  
+ */
 unsigned char kbd_read_status(void)
 {
 	return(in8(CFG_ISA_IO_BASE_ADDRESS + KDB_COMMAND_PORT));
-} 
-  
+}
+
 unsigned char kbd_read_input(void)
 {
 	return(in8(CFG_ISA_IO_BASE_ADDRESS + KDB_DATA_PORT));
-} 
+}
 
 void kbd_write_command(unsigned char cmd)
 {
 	out8(CFG_ISA_IO_BASE_ADDRESS + KDB_COMMAND_PORT,cmd);
-} 
-  
+}
+
 void kbd_write_output(unsigned char data)
 {
 	out8(CFG_ISA_IO_BASE_ADDRESS + KDB_DATA_PORT, data);
-} 
- 
+}
+
 int kbd_read_data(void)
 {
 	int val;
@@ -537,7 +533,7 @@ int kbd_wait_for_input(void)
 {
 	unsigned long timeout;
 	int val;
-	
+
 	timeout = KBD_TIMEOUT;
 	val=kbd_read_data();
 	while(val < 0)
@@ -602,7 +598,7 @@ char * kbd_initialize(void)
 	 * If the test is successful a x55 is placed in the input buffer.
 	 */
 	kbd_write_command_w(KBD_CCMD_SELF_TEST);
-	if (kbd_wait_for_input() != 0x55) 
+	if (kbd_wait_for_input() != 0x55)
 		return "Kbd:   failed self test";
 	/*
 	 * Perform a keyboard interface test.  This causes the controller
@@ -610,7 +606,7 @@ char * kbd_initialize(void)
 	 * test are placed in the input buffer.
 	 */
 	kbd_write_command_w(KBD_CCMD_KBD_TEST);
-	if (kbd_wait_for_input() != 0x00) 
+	if (kbd_wait_for_input() != 0x00)
 		return "Kbd:   interface failed self test";
 	/*
 	 * Enable the keyboard by allowing the keyboard clock to run.
@@ -628,7 +624,7 @@ char * kbd_initialize(void)
 	do {
 		kbd_write_output_w(KBD_CMD_RESET);
 		status = kbd_wait_for_input();
-		if (status == KBD_REPLY_ACK) 
+		if (status == KBD_REPLY_ACK)
 			break;
 		if (status != KBD_REPLY_RESEND)
 		{
@@ -692,8 +688,3 @@ void kbd_interrupt(void)
 {
 	handle_kbd_event();
 }
-
-
-
-/* eof */
-

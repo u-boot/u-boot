@@ -3,9 +3,9 @@ Summary:
 ========
 
 This file contains information about the cmi board configuration.
-Please see cmi_mpc5xx_config for further details. The cmi board is 
-a customer specific board but should work with small modifications 
-on every board which has a MPC5xx and either a 28F128J3A, 
+Please see cmi_mpc5xx_config for further details. The cmi board is
+a customer specific board but should work with small modifications
+on every board which has a MPC5xx and either a 28F128J3A,
 28F320J3A or 28F640J3A Intel flash mounted.
 
 Board Discription:
@@ -16,14 +16,14 @@ Board Discription:
 * Intel flash 28F640J3A
 * Micron SRAM 1M
 * Altera PLD
-     
+
 Bootstrap:
 ==========
 
 In contrast to the usual boot sequence used in U-Boot, on the
 cmi board we don't boot from the external flash directly.
 Because of we use a 16-bit flash and don't sample a RCW
-from the data bus to set the startup buswidth to 16-bit. 
+from the data bus to set the startup buswidth to 16-bit.
 Unfortunatly the default width, sampled from the default RCW
 is 32-bit. For this reason we burn the proper RCW into the
 internal flash shadow location and boot after power-on or
@@ -35,16 +35,16 @@ Memory Map:
 
 Memory Map after relocation:
 
-    0x0000 0000		CFG_SDRAM_BASE 
+    0x0000 0000		CFG_SDRAM_BASE
 	  :
     0x000F 9FFF
 	  :
-          :
-    0x0100 0000		CFG_IMMR (Internal memory map base adress)	    
+	  :
+    0x0100 0000		CFG_IMMR (Internal memory map base adress)
 	  :
     0x0130 7FFF
 	  :
-    	  :
+	  :
     0x0200 0000		CFG_FLASH_BASE
 	  :
     0x027C FFFF
@@ -53,15 +53,15 @@ Memory Map after relocation:
     0x0300 0000		PLD_BASE
 
 Flash Partition:
-    
-    0x0200 0000		Block 0 and 1 contain U-Boot except 
+
+    0x0200 0000		Block 0 and 1 contain U-Boot except
 	  :		environment
 	  :
     0x0201 FFFF
     0x0202 0000		Block 2 contains environment (.ppcenv)
 	  :
-    0x0202 FFFF 
- 
+    0x0202 FFFF
+
 See README file for futher information about U-Boot relocation
 and partitioning.
 
@@ -71,7 +71,7 @@ Tested Features:
 * U-Boot commands: go, loads, loadb, all memory features, printenv,
   setenv, saveenv, protect, erase, fli, bdi, mtest, reset, version,
   coninfo, help (see configuration file for available commands)
-  
+
 * Blinking led to indicate boot process
 
 Added or Changed Files:

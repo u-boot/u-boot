@@ -17,5 +17,3 @@ NVRAM : 512 kb from 0xfa000000
 - Mac address is read from EEPROM
 - ethernet on SCC1 or fast ethernet on FEC are running (depending on the
   configuration flag CONFIG_FEC_ENET)
-
-

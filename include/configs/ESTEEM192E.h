@@ -113,7 +113,6 @@
 #define	CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
 
-
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration
  * (Set up by the startup code)
@@ -299,7 +298,6 @@
 /* 8 column SDRAM */
 #define CFG_MAMR_8COL	0x18803112
 #define CFG_MAMR_9COL	0x18803112	/* same as 8 column because its just easier to port with*/
-
 
 
 /*

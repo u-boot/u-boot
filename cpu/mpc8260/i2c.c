@@ -223,7 +223,7 @@ void i2c_init(int speed, int slaveadd)
 	volatile I2C_BD *rxbd, *txbd;
 	uint dpaddr;
 
-#ifdef CFG_I2C_INIT_BOARD        
+#ifdef CFG_I2C_INIT_BOARD
 	/* call board specific i2c bus reset routine before accessing the   */
 	/* environment, which might be in a chip on that bus. For details   */
 	/* about this problem see doc/I2C_Edge_Conditions.                  */
@@ -494,7 +494,7 @@ int i2c_doio(i2c_state_t *state)
 	volatile iic_t *iip;
 	volatile i2c8260_t *i2c	= (i2c8260_t *)&immap->im_i2c;
 	volatile I2C_BD *txbd, *rxbd;
-        int  n, i, b, rxcnt = 0, rxtimeo = 0, txcnt = 0, txtimeo = 0, rc = 0;
+	int  n, i, b, rxcnt = 0, rxtimeo = 0, txcnt = 0, txtimeo = 0, rc = 0;
 	uint dpaddr;
 
 	PRINTD(("[I2C] i2c_doio\n"));
@@ -543,7 +543,7 @@ int i2c_doio(i2c_state_t *state)
 
 		rxbd = ((I2C_BD*)state->rxbd) - n;
 		for (i = 0; i < n; i++) {
-        		rxtimeo += TOUT_LOOP * rxbd->length;
+			rxtimeo += TOUT_LOOP * rxbd->length;
 			rxbd++;
 		}
 
@@ -670,7 +670,7 @@ i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	  * and the extra bits end up in the "chip address" bit slots.
 	  * This makes a 24WC08 (1Kbyte) chip look like four 256 byte
 	  * chips.
-  	  *
+	  *
 	  * Note that we consider the length of the address field to still
 	  * be one byte because the extra address bits are hidden in the
 	  * chip address.
@@ -719,7 +719,7 @@ i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	  * and the extra bits end up in the "chip address" bit slots.
 	  * This makes a 24WC08 (1Kbyte) chip look like four 256 byte
 	  * chips.
-  	  *
+	  *
 	  * Note that we consider the length of the address field to still
 	  * be one byte because the extra address bits are hidden in the
 	  * chip address.

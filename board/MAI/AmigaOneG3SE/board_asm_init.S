@@ -1,14 +1,13 @@
-	#include	"macros.h"
-	
-	
+#include	"macros.h"
 
-#define GLOBALINFO0	      0x50	
+
+#define GLOBALINFO0	      0x50
 #define GLOBALINFO0_BO        (1<<7)
 #define GLOBALINFO2_B1ARBITER (1<<6)
 #define HBUSACR0              0x5c
 #define HBUSACR2_BURST        (1<<0)
 #define HBUSACR2_LAT          (1<<1)
-	
+
 #define RECEIVER_HOLDING 0
 #define TRANSMITTER_HOLDING 0
 #define INTERRUPT_ENABLE 1
@@ -35,9 +34,9 @@
 
 #define SUPERIO_1               ((7 << 3) | (0))
 #define SUPERIO_2               ((7 << 3) | (1))
-	
+
 	.globl	board_asm_init
-	
+
 board_asm_init:
 	mflr	r29
 	/* Set 'Must-set' register */
@@ -77,7 +76,7 @@ board_asm_init:
 	li	r5, 0x47
 	bl	pci_write_cfg_byte*/
 
-	
+
 	/* Enable NVRAM for environment */
 	li	r3, 0
 	li	r4, 0
@@ -91,7 +90,7 @@ board_asm_init:
 	siowb	0x40, 0x08
 	siowb	0x41, 0x01
 	siowb	0x45, 0x80
-	siowb	0x46, 0x60	
+	siowb	0x46, 0x60
 	siowb	0x47, 0x20
 	siowb	0x48, 0x01
 	siowb	0x4a, 0xc4
@@ -103,7 +102,7 @@ board_asm_init:
 	siowb	0x56, 0x99
 	siowb	0x57, 0x90
 	siowb	0x85, 0x01
-		
+
 	/* Enable configuration mode for SuperIO */
 	li	r3, 0
 	li	r4, (7<<3)
@@ -128,7 +127,7 @@ board_asm_init:
 	ori	r3, r3, 0x0c
 	outb	0x3f0, 0xe2
 	outbr	0x3f1, r3
-	
+
 	/* Disable configuration mode */
 	li	r3, 0
 	li	r4, (7<<3)
@@ -145,7 +144,7 @@ board_asm_init:
 	mtlr	r29
 	blr
 
-		
+
 	.globl	new_reset
 	.globl	new_reset_end
 new_reset:
@@ -153,5 +152,5 @@ new_reset:
 	oris	r0, r0, 0xFFF0
 	mtlr	r0
 	blr
-	
-new_reset_end:	
+
+new_reset_end:

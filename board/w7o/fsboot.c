@@ -24,11 +24,12 @@
 #include <common.h>
 #include <config.h>
 #include <command.h>
-#include <cmd_elf.h>
 
 /*
  * FIXME: Add code to test image and it's header.
  */
+extern int valid_elf_image (unsigned long addr);
+
 static int
 image_check(ulong addr)
 {
@@ -87,4 +88,3 @@ init_fsboot(void)
 
     return;
 }
-

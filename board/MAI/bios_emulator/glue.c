@@ -401,7 +401,7 @@ int find_image(u32 rom_address, u32 rom_size, void **image, u32 *image_size)
 {
     int i = 0;
     unsigned char *rom = (unsigned char *)rom_address;
-    /* if (*rom != 0x55 || *(rom+1) != 0xAA) return 0; // No bios rom this is, yes. */
+    /* if (*rom != 0x55 || *(rom+1) != 0xAA) return 0; /* No bios rom this is, yes. */ */
 
     for (;;)
     {
@@ -479,7 +479,6 @@ void show_bat_mapping(void)
 }
 
 
-
 void remove_init_data(void)
 {
     char *s;
@@ -497,19 +496,19 @@ void remove_init_data(void)
     }
     else if (s)
     {
-        if (strcmp(s, "dcache")==0)
-        {
-            dcache_enable();
-        }
-        else if (strcmp(s, "icache") == 0)
-        {
-            icache_enable();
-        }
-        else if (strcmp(s, "on")== 0 || strcmp(s, "both") == 0)
-        {
-            dcache_enable();
-            icache_enable();
-        }
+	if (strcmp(s, "dcache")==0)
+	{
+	    dcache_enable();
+	}
+	else if (strcmp(s, "icache") == 0)
+	{
+	    icache_enable();
+	}
+	else if (strcmp(s, "on")== 0 || strcmp(s, "both") == 0)
+	{
+	    dcache_enable();
+	    icache_enable();
+	}
     }
 
     /*   show_bat_mapping();*/

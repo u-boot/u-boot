@@ -462,4 +462,3 @@ static int write_data (flash_info_t *info, ulong dest, FPW data)
 
 	return (0);
 }
-

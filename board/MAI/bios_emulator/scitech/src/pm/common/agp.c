@@ -54,22 +54,22 @@ size of the available AGP aperture in megabytes.
 ulong PMAPI PM_agpInit(void)
 {
     if ((agp = AGP_loadDriver(0)) == NULL)
-        return 0;
+	return 0;
     driver.dwSize = sizeof(driver);
     if (!agp->QueryFunctions(AGP_GET_DRIVERFUNCS,&driver))
-        return 0;
+	return 0;
     switch (driver.GetApertureSize()) {
-        case agpSize4MB:    return 4;
-        case agpSize8MB:    return 8;
-        case agpSize16MB:   return 16;
-        case agpSize32MB:   return 32;
-        case agpSize64MB:   return 64;
-        case agpSize128MB:  return 128;
-        case agpSize256MB:  return 256;
-        case agpSize512MB:  return 512;
-        case agpSize1GB:    return 1024;
-        case agpSize2GB:    return 2048;
-        }
+	case agpSize4MB:    return 4;
+	case agpSize8MB:    return 8;
+	case agpSize16MB:   return 16;
+	case agpSize32MB:   return 32;
+	case agpSize64MB:   return 64;
+	case agpSize128MB:  return 128;
+	case agpSize256MB:  return 256;
+	case agpSize512MB:  return 512;
+	case agpSize1GB:    return 1024;
+	case agpSize2GB:    return 2048;
+	}
     return 0;
 }
 
@@ -106,18 +106,18 @@ ibool PMAPI PM_agpReservePhysical(
     PM_physAddr *physAddr)
 {
     switch (type) {
-        case PM_agpUncached:        
-            type = agpUncached;     
-            break;
-        case PM_agpWriteCombine:    
-            type = agpWriteCombine; 
-            break;
-        case PM_agpIntelDCACHE:     
-            type = agpIntelDCACHE;      
-            break;  
-        default:
-            return false;
-        }
+	case PM_agpUncached:
+	    type = agpUncached;
+	    break;
+	case PM_agpWriteCombine:
+	    type = agpWriteCombine;
+	    break;
+	case PM_agpIntelDCACHE:
+	    type = agpIntelDCACHE;
+	    break;
+	default:
+	    return false;
+	}
     return driver.ReservePhysical(numPages,type,physContext,physAddr) == nOK;
 }
 
@@ -187,4 +187,3 @@ ibool PMAPI PM_agpFreePhysical(
 }
 
 #endif  /* !REALMODE */
-

@@ -40,24 +40,24 @@ int board_init (void)
 
 #ifdef CONFIG_INFERNO
 	{
-        unsigned long temp;
-        __asm__ __volatile__(/* disable MMU, enable icache */
-                             "mrc p15, 0, %0, c1, c0\n"
-                             "bic %0, %0, #0x00002000\n"
-                             "bic %0, %0, #0x0000000f\n"
-                             "orr %0, %0, #0x00001000\n"
-                             "orr %0, %0, #0x00000002\n"
-                             "mcr p15, 0, %0, c1, c0\n"
-                             /* flush caches */
-                             "mov %0, #0\n"
-                             "mcr p15, 0, %0, c7, c7, 0\n"
-                             "mcr p15, 0, %0, c8, c7, 0\n"
-                             : "=r" (temp)
-                             :
-                             : "memory");
-        /* setup PCMCIA timing */
-        temp = 0xa0000018;
-        *(unsigned long *)temp = 0x00060006;
+	unsigned long temp;
+	__asm__ __volatile__(/* disable MMU, enable icache */
+			     "mrc p15, 0, %0, c1, c0\n"
+			     "bic %0, %0, #0x00002000\n"
+			     "bic %0, %0, #0x0000000f\n"
+			     "orr %0, %0, #0x00001000\n"
+			     "orr %0, %0, #0x00000002\n"
+			     "mcr p15, 0, %0, c1, c0\n"
+			     /* flush caches */
+			     "mov %0, #0\n"
+			     "mcr p15, 0, %0, c7, c7, 0\n"
+			     "mcr p15, 0, %0, c8, c7, 0\n"
+			     : "=r" (temp)
+			     :
+			     : "memory");
+	/* setup PCMCIA timing */
+	temp = 0xa0000018;
+	*(unsigned long *)temp = 0x00060006;
 
 	}
 #endif /* CONFIG_INIT_CRITICAL */

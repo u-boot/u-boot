@@ -551,4 +551,3 @@ typedef struct
 						     line aligned data. */
 
 #endif	/* __PPC440_H__ */
-

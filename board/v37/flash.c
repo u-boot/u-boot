@@ -57,8 +57,8 @@ unsigned long flash_init (void)
 	volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	unsigned long size_b0, size_b1;
-        short manu, dev_id;
-        int i;
+	short manu, dev_id;
+	int i;
 
 	/* Init: no FLASHes known */
 	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {
@@ -67,11 +67,11 @@ unsigned long flash_init (void)
 
 	/* Do sizing to get full correct info */
 
-        flash_get_id_word((void*)CFG_FLASH_BASE0,&manu,&dev_id);
+	flash_get_id_word((void*)CFG_FLASH_BASE0,&manu,&dev_id);
 
-        size_b0 = flash_get_size(manu, dev_id, &flash_info[0]);
+	size_b0 = flash_get_size(manu, dev_id, &flash_info[0]);
 
-        flash_get_offsets (CFG_FLASH_BASE0, &flash_info[0],0);
+	flash_get_offsets (CFG_FLASH_BASE0, &flash_info[0],0);
 
 	memctl->memc_or0 = CFG_OR_TIMING_FLASH | (0 - size_b0);
 
@@ -83,32 +83,32 @@ unsigned long flash_init (void)
 		      &flash_info[0]);
 #endif
 
-        flash_get_id_long((void*)CFG_FLASH_BASE1,&manu,&dev_id);
+	flash_get_id_long((void*)CFG_FLASH_BASE1,&manu,&dev_id);
 
-        size_b1 = 2 * flash_get_size(manu, dev_id, &flash_info[1]);
+	size_b1 = 2 * flash_get_size(manu, dev_id, &flash_info[1]);
 
-        flash_get_offsets(CFG_FLASH_BASE1, &flash_info[1],1);
+	flash_get_offsets(CFG_FLASH_BASE1, &flash_info[1],1);
 
 	memctl->memc_or1 = CFG_OR_TIMING_FLASH | (0 - size_b1);
 
 	flash_info[0].size = size_b0;
 	flash_info[1].size = size_b1;
 
-        return (size_b0+size_b1);
+	return (size_b0+size_b1);
 }
 
 /*-----------------------------------------------------------------------
  */
 static void flash_get_offsets (ulong base, flash_info_t *info, int two_chips)
 {
-        int i, addr_shift;
-        vu_short *addr = (vu_short*)base;
+	int i, addr_shift;
+	vu_short *addr = (vu_short*)base;
 
 	addr[0x555] = 0x00AA ;
 	addr[0xAAA] = 0x0055 ;
 	addr[0x555] = 0x0090 ;
 
-        addr_shift = (two_chips ? 2 : 1 );
+	addr_shift = (two_chips ? 2 : 1 );
 
 	/* set up sector start address table */
 	if (info->flash_id & FLASH_BTYPE) {
@@ -210,7 +210,7 @@ void flash_print_info  (flash_info_t *info)
 
 static void flash_get_id_word( void *ptr,  short *ptr_manuf, short *ptr_dev_id)
 {
-        vu_short *addr = (vu_short*)ptr;
+	vu_short *addr = (vu_short*)ptr;
 
 	addr[0x555] = 0x00AA ;
 	addr[0xAAA] = 0x0055 ;
@@ -219,26 +219,26 @@ static void flash_get_id_word( void *ptr,  short *ptr_manuf, short *ptr_dev_id)
 	*ptr_manuf  = addr[0];
 	*ptr_dev_id = addr[1];
 
-        addr[0] = 0xf0f0;       /* return to normal */
+	addr[0] = 0xf0f0;       /* return to normal */
 }
 
 static void flash_get_id_long( void *ptr,  short *ptr_manuf, short *ptr_dev_id)
 {
-        vu_short *addr = (vu_short*)ptr;
-        vu_short *addr1, *addr2, *addr3;
+	vu_short *addr = (vu_short*)ptr;
+	vu_short *addr1, *addr2, *addr3;
 
-        addr1 = (vu_short*) ( ((int)ptr) + (0x5555<<2) );
-        addr2 = (vu_short*) ( ((int)ptr) + (0x2AAA<<2) );
-        addr3 = (vu_short*) ( ((int)ptr) + (0x5555<<2) );
+	addr1 = (vu_short*) ( ((int)ptr) + (0x5555<<2) );
+	addr2 = (vu_short*) ( ((int)ptr) + (0x2AAA<<2) );
+	addr3 = (vu_short*) ( ((int)ptr) + (0x5555<<2) );
 
-        *addr1 = 0xAAAA;
-        *addr2 = 0x5555;
-        *addr3 = 0x9090;
+	*addr1 = 0xAAAA;
+	*addr2 = 0x5555;
+	*addr3 = 0x9090;
 
 	*ptr_manuf  = addr[0];
 	*ptr_dev_id = addr[2];
 
-        addr[0] = 0xf0f0;       /* return to normal */
+	addr[0] = 0xf0f0;       /* return to normal */
 }
 
 static ulong flash_get_size ( short manu, short dev_id, flash_info_t *info)
@@ -295,7 +295,7 @@ static ulong flash_get_size ( short manu, short dev_id, flash_info_t *info)
 	case ((short)AMD_ID_LV800B):
 		info->flash_id += FLASH_AM800B;
 		info->sector_count = 19;
-		info->size = 0x00400000;	//%%% Size doubled by yooth
+		info->size = 0x00400000;	/*%%% Size doubled by yooth */
 		break;				/* => 4 MB		*/
 
 	case ((short)AMD_ID_LV160T):
@@ -315,7 +315,7 @@ static ulong flash_get_size ( short manu, short dev_id, flash_info_t *info)
 
 	}
 
-        return(info->size);
+	return(info->size);
 }
 
 

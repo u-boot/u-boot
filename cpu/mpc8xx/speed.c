@@ -114,18 +114,18 @@ int get_clocks (void)
 	/*
 	 * PIT setup:
 	 *
-         * We want to time for SPEED_PITC_COUNTS counts (of 8192 Hz),
-         * so the count value would be SPEED_PITC_COUNTS - 1.
-         * But there would be an uncertainty in the start time of 1/4
-         * count since when we enable the PIT the count is not
-         * synchronized to the 32768 Hz oscillator. The trick here is
-         * to start the count higher and wait until the PIT count
-         * changes to the required value before starting timer 2.
+	 * We want to time for SPEED_PITC_COUNTS counts (of 8192 Hz),
+	 * so the count value would be SPEED_PITC_COUNTS - 1.
+	 * But there would be an uncertainty in the start time of 1/4
+	 * count since when we enable the PIT the count is not
+	 * synchronized to the 32768 Hz oscillator. The trick here is
+	 * to start the count higher and wait until the PIT count
+	 * changes to the required value before starting timer 2.
 	 *
-         * One count high should be enough, but occasionally the start
-         * is off by 1 or 2 counts of 32768 Hz. With the start value
-         * set two counts high it seems very reliable.
-         */
+	 * One count high should be enough, but occasionally the start
+	 * is off by 1 or 2 counts of 32768 Hz. With the start value
+	 * set two counts high it seems very reliable.
+	 */
 
 	immr->im_sitk.sitk_pitck = KAPWR_KEY;	/* PIT initialization */
 	immr->im_sit.sit_pitc = SPEED_PITC_INIT;
@@ -163,10 +163,10 @@ int get_clocks (void)
 #else /* CONFIG_8xx_GCLK_FREQ */
 
 	/*
-         * If for some reason measuring the gclk frequency won't
-         * work, we return the hardwired value.
-         * (For example, the cogent CMA286-60 CPU module has no
-         * separate oscillator for PITRTCLK)
+	 * If for some reason measuring the gclk frequency won't
+	 * work, we return the hardwired value.
+	 * (For example, the cogent CMA286-60 CPU module has no
+	 * separate oscillator for PITRTCLK)
 	 */
 
 	gd->cpu_clk = CONFIG_8xx_GCLK_FREQ;

@@ -29,7 +29,6 @@
 #define _ASMI386_I8954_H_       1
 
 
-
 #define PIT_T0		0x00		/* PIT channel 0 count/status */
 #define PIT_T1		0x01		/* PIT channel 1 count/status */
 #define PIT_T2		0x02		/* PIT channel 2 count/status */

@@ -70,143 +70,143 @@ void _EVT_pumpMessages(void)
     MSG     charMsg;
     event_t evt;
 
-    // TODO: Add support for DirectInput! We can't support relative mouse
-    //       movement motion counters without DirectInput ;-(.
+    /* TODO: Add support for DirectInput! We can't support relative mouse */
+    /*       movement motion counters without DirectInput ;-(. */
     while (PeekMessage(&msg,NULL,0,0,PM_REMOVE)) {
-        memset(&evt,0,sizeof(evt));
-        switch (msg.message) {
-            case WM_MOUSEMOVE:
-                evt.what = EVT_MOUSEMOVE;
-                break;
-            case WM_LBUTTONDBLCLK:
-                evt.what = EVT_MOUSEDOWN;
-                evt.message = EVT_LEFTBMASK | EVT_DBLCLICK;
-                break;
-            case WM_LBUTTONDOWN:
-                evt.what = EVT_MOUSEDOWN;
-                evt.message = EVT_LEFTBMASK;
-                break;
-            case WM_LBUTTONUP:
-                evt.what = EVT_MOUSEUP;
-                evt.message = EVT_LEFTBMASK;
-                break;
-            case WM_RBUTTONDBLCLK:
-                evt.what = EVT_MOUSEDOWN | EVT_DBLCLICK;
-                evt.message = EVT_RIGHTBMASK;
-                break;
-            case WM_RBUTTONDOWN:
-                evt.what = EVT_MOUSEDOWN;
-                evt.message = EVT_RIGHTBMASK;
-                break;
-            case WM_RBUTTONUP:
-                evt.what = EVT_MOUSEUP;
-                evt.message = EVT_RIGHTBMASK;
-                break;
-            case WM_MBUTTONDBLCLK:
-                evt.what = EVT_MOUSEDOWN | EVT_DBLCLICK;
-                evt.message = EVT_MIDDLEBMASK;
-                break;
-            case WM_MBUTTONDOWN:
-                evt.what = EVT_MOUSEDOWN;
-                evt.message = EVT_MIDDLEBMASK;
-                break;
-            case WM_MBUTTONUP:
-                evt.what = EVT_MOUSEUP;
-                evt.message = EVT_MIDDLEBMASK;
-                break;
-            case WM_KEYDOWN:
-            case WM_SYSKEYDOWN:
-                if (HIWORD(msg.lParam) & KF_REPEAT) {
-                    evt.what = EVT_KEYREPEAT;
-                    }
-                else {
-                    evt.what = EVT_KEYDOWN;
-                    }
-                break;
-            case WM_KEYUP:
-            case WM_SYSKEYUP:
-                evt.what = EVT_KEYUP;
-                break;
-            }
+	memset(&evt,0,sizeof(evt));
+	switch (msg.message) {
+	    case WM_MOUSEMOVE:
+		evt.what = EVT_MOUSEMOVE;
+		break;
+	    case WM_LBUTTONDBLCLK:
+		evt.what = EVT_MOUSEDOWN;
+		evt.message = EVT_LEFTBMASK | EVT_DBLCLICK;
+		break;
+	    case WM_LBUTTONDOWN:
+		evt.what = EVT_MOUSEDOWN;
+		evt.message = EVT_LEFTBMASK;
+		break;
+	    case WM_LBUTTONUP:
+		evt.what = EVT_MOUSEUP;
+		evt.message = EVT_LEFTBMASK;
+		break;
+	    case WM_RBUTTONDBLCLK:
+		evt.what = EVT_MOUSEDOWN | EVT_DBLCLICK;
+		evt.message = EVT_RIGHTBMASK;
+		break;
+	    case WM_RBUTTONDOWN:
+		evt.what = EVT_MOUSEDOWN;
+		evt.message = EVT_RIGHTBMASK;
+		break;
+	    case WM_RBUTTONUP:
+		evt.what = EVT_MOUSEUP;
+		evt.message = EVT_RIGHTBMASK;
+		break;
+	    case WM_MBUTTONDBLCLK:
+		evt.what = EVT_MOUSEDOWN | EVT_DBLCLICK;
+		evt.message = EVT_MIDDLEBMASK;
+		break;
+	    case WM_MBUTTONDOWN:
+		evt.what = EVT_MOUSEDOWN;
+		evt.message = EVT_MIDDLEBMASK;
+		break;
+	    case WM_MBUTTONUP:
+		evt.what = EVT_MOUSEUP;
+		evt.message = EVT_MIDDLEBMASK;
+		break;
+	    case WM_KEYDOWN:
+	    case WM_SYSKEYDOWN:
+		if (HIWORD(msg.lParam) & KF_REPEAT) {
+		    evt.what = EVT_KEYREPEAT;
+		    }
+		else {
+		    evt.what = EVT_KEYDOWN;
+		    }
+		break;
+	    case WM_KEYUP:
+	    case WM_SYSKEYUP:
+		evt.what = EVT_KEYUP;
+		break;
+	    }
 
-        /* Convert mouse event modifier flags */
-        if (evt.what & EVT_MOUSEEVT) {
-            if (_PM_deskX) {
-                evt.where_x = ((long)msg.pt.x * rangeX) / _PM_deskX;
-                evt.where_y = ((long)msg.pt.y * rangeY) / _PM_deskY;
-                }
-            else {
-                ScreenToClient(_PM_hwndConsole, &msg.pt);
-                evt.where_x = msg.pt.x;
-                evt.where_y = msg.pt.y;
-                }
-            if (evt.what == EVT_MOUSEMOVE) {
-                /* Save the current mouse position */
-                EVT.mx = evt.where_x;
-                EVT.my = evt.where_y;
-                if (EVT.oldMove != -1) {
-                    EVT.evtq[EVT.oldMove].where_x = evt.where_x;/* Modify existing one  */
-                    EVT.evtq[EVT.oldMove].where_y = evt.where_y;
-//                  EVT.evtq[EVT.oldMove].relative_x += mickeyX;    // TODO!
-//                  EVT.evtq[EVT.oldMove].relative_y += mickeyY;    // TODO!
-                    evt.what = 0;
-                    }
-                else {
-                    EVT.oldMove = EVT.freeHead; /* Save id of this move event   */
-//                  evt.relative_x = mickeyX;    // TODO!
-//                  evt.relative_y = mickeyY;    // TODO!
-                    }
-                }
-            else
-                EVT.oldMove = -1;
-            if (msg.wParam & MK_LBUTTON)
-                evt.modifiers |= EVT_LEFTBUT;
-            if (msg.wParam & MK_RBUTTON)
-                evt.modifiers |= EVT_RIGHTBUT;
-            if (msg.wParam & MK_MBUTTON)
-                evt.modifiers |= EVT_MIDDLEBUT;
-            if (msg.wParam & MK_SHIFT)
-                evt.modifiers |= EVT_SHIFTKEY;
-            if (msg.wParam & MK_CONTROL)
-                evt.modifiers |= EVT_CTRLSTATE;
-            }
+	/* Convert mouse event modifier flags */
+	if (evt.what & EVT_MOUSEEVT) {
+	    if (_PM_deskX) {
+		evt.where_x = ((long)msg.pt.x * rangeX) / _PM_deskX;
+		evt.where_y = ((long)msg.pt.y * rangeY) / _PM_deskY;
+		}
+	    else {
+		ScreenToClient(_PM_hwndConsole, &msg.pt);
+		evt.where_x = msg.pt.x;
+		evt.where_y = msg.pt.y;
+		}
+	    if (evt.what == EVT_MOUSEMOVE) {
+		/* Save the current mouse position */
+		EVT.mx = evt.where_x;
+		EVT.my = evt.where_y;
+		if (EVT.oldMove != -1) {
+		    EVT.evtq[EVT.oldMove].where_x = evt.where_x;/* Modify existing one  */
+		    EVT.evtq[EVT.oldMove].where_y = evt.where_y;
+/*                  EVT.evtq[EVT.oldMove].relative_x += mickeyX;    // TODO! */
+/*                  EVT.evtq[EVT.oldMove].relative_y += mickeyY;    // TODO! */
+		    evt.what = 0;
+		    }
+		else {
+		    EVT.oldMove = EVT.freeHead; /* Save id of this move event   */
+/*                  evt.relative_x = mickeyX;    // TODO! */
+/*                  evt.relative_y = mickeyY;    // TODO! */
+		    }
+		}
+	    else
+		EVT.oldMove = -1;
+	    if (msg.wParam & MK_LBUTTON)
+		evt.modifiers |= EVT_LEFTBUT;
+	    if (msg.wParam & MK_RBUTTON)
+		evt.modifiers |= EVT_RIGHTBUT;
+	    if (msg.wParam & MK_MBUTTON)
+		evt.modifiers |= EVT_MIDDLEBUT;
+	    if (msg.wParam & MK_SHIFT)
+		evt.modifiers |= EVT_SHIFTKEY;
+	    if (msg.wParam & MK_CONTROL)
+		evt.modifiers |= EVT_CTRLSTATE;
+	    }
 
-        /* Convert keyboard codes */
-        TranslateMessage(&msg);
-        if (evt.what & EVT_KEYEVT) {
-            int scanCode = (msg.lParam >> 16) & 0xFF;
-            if (evt.what == EVT_KEYUP) {
-                /* Get message for keyup code from table of cached down values */
-                evt.message = keyUpMsg[scanCode];
-                keyUpMsg[scanCode] = 0;
-                }
-            else {
-                if (PeekMessage(&charMsg,NULL,WM_CHAR,WM_CHAR,PM_REMOVE))
-                    evt.message = charMsg.wParam;
-                if (PeekMessage(&charMsg,NULL,WM_SYSCHAR,WM_SYSCHAR,PM_REMOVE))
-                    evt.message = charMsg.wParam;
-                evt.message |= ((msg.lParam >> 8) & 0xFF00);
-                keyUpMsg[scanCode] = (ushort)evt.message;
-                }
-            if (evt.what == EVT_KEYREPEAT)
-                evt.message |= (msg.lParam << 16);
-            if (HIWORD(msg.lParam) & KF_ALTDOWN)
-                evt.modifiers |= EVT_ALTSTATE;
-            if (GetKeyState(VK_SHIFT) & 0x8000U)
-                evt.modifiers |= EVT_SHIFTKEY;
-            if (GetKeyState(VK_CONTROL) & 0x8000U)
-                evt.modifiers |= EVT_CTRLSTATE;
-            EVT.oldMove = -1;
-            }
+	/* Convert keyboard codes */
+	TranslateMessage(&msg);
+	if (evt.what & EVT_KEYEVT) {
+	    int scanCode = (msg.lParam >> 16) & 0xFF;
+	    if (evt.what == EVT_KEYUP) {
+		/* Get message for keyup code from table of cached down values */
+		evt.message = keyUpMsg[scanCode];
+		keyUpMsg[scanCode] = 0;
+		}
+	    else {
+		if (PeekMessage(&charMsg,NULL,WM_CHAR,WM_CHAR,PM_REMOVE))
+		    evt.message = charMsg.wParam;
+		if (PeekMessage(&charMsg,NULL,WM_SYSCHAR,WM_SYSCHAR,PM_REMOVE))
+		    evt.message = charMsg.wParam;
+		evt.message |= ((msg.lParam >> 8) & 0xFF00);
+		keyUpMsg[scanCode] = (ushort)evt.message;
+		}
+	    if (evt.what == EVT_KEYREPEAT)
+		evt.message |= (msg.lParam << 16);
+	    if (HIWORD(msg.lParam) & KF_ALTDOWN)
+		evt.modifiers |= EVT_ALTSTATE;
+	    if (GetKeyState(VK_SHIFT) & 0x8000U)
+		evt.modifiers |= EVT_SHIFTKEY;
+	    if (GetKeyState(VK_CONTROL) & 0x8000U)
+		evt.modifiers |= EVT_CTRLSTATE;
+	    EVT.oldMove = -1;
+	    }
 
-        if (evt.what != 0) {
-            /* Add time stamp and add the event to the queue */
-            evt.when = msg.time;
-            if (EVT.count < EVENTQSIZE)
-                addEvent(&evt);
-            }
-        DispatchMessage(&msg);
-        }
+	if (evt.what != 0) {
+	    /* Add time stamp and add the event to the queue */
+	    evt.when = msg.time;
+	    if (EVT.count < EVENTQSIZE)
+		addEvent(&evt);
+	    }
+	DispatchMessage(&msg);
+	}
 }
 
 /****************************************************************************
@@ -299,7 +299,7 @@ and this function can be used to resume it again later.
 ****************************************************************************/
 void EVT_resume(void)
 {
-    // Do nothing for Win32
+    /* Do nothing for Win32 */
 }
 
 /****************************************************************************
@@ -309,7 +309,7 @@ de-install the event handling code.
 ****************************************************************************/
 void EVT_suspend(void)
 {
-    // Do nothing for Win32
+    /* Do nothing for Win32 */
 }
 
 /****************************************************************************
@@ -343,7 +343,7 @@ EVT_joySetLowerRight, EVT_joySetCenter, EVT_joyIsPresent
 ****************************************************************************/
 int EVTAPI EVT_joyIsPresent(void)
 {
-    // TODO: Implement joystick code based on DirectX!
+    /* TODO: Implement joystick code based on DirectX! */
     return 0;
 }
 
@@ -362,9 +362,9 @@ All information polled from the joystick will be posted to the event
 queue for later retrieval.
 
 Note:   Most analogue joysticks will provide readings that change even
-        though the joystick has not moved. Hence if you call this routine
-        you will likely get an EVT_JOYMOVE event every time through your
-        event loop.
+	though the joystick has not moved. Hence if you call this routine
+	you will likely get an EVT_JOYMOVE event every time through your
+	event loop.
 
 SEE ALSO:
 EVT_getNext, EVT_peekNext, EVT_joySetUpperLeft, EVT_joySetLowerRight,
@@ -457,4 +457,3 @@ EVT_joySetUpperLeft, EVT_joySetLowerRight, EVT_joySetCenter
 void EVTAPI EVT_joySetCenter(void)
 {
 }
-

@@ -319,7 +319,7 @@
 #define L2_INIT     0       /* cpu 750 CXe*/
 #else
 #define L2_INIT     (L2CR_L2SIZ_2M | L2CR_L2CLK_3 | L2CR_L2RAM_BURST | \
-                     L2CR_L2OH_5   | L2CR_L2CTL | L2CR_L2WT)
+		     L2CR_L2OH_5   | L2CR_L2CTL | L2CR_L2WT)
 #endif
 #define L2_ENABLE   (L2_INIT | L2CR_L2E)
 

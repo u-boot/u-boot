@@ -22,7 +22,6 @@
  */
 
 
-
 #ifndef _PIIX4_PCI_H
 #define _PIIX4_PCI_H
 
@@ -161,7 +160,6 @@
 #define	PCI_CFG_PIIX4_DEVRESI	0x78
 #define	PCI_CFG_PIIX4_PMMISC	0x80
 #define	PCI_CFG_PIIX4_SMBBA	0x90
-
 
 
 #endif

@@ -276,7 +276,30 @@ do_fpga (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	printf ("Usage:\n%s\n", cmdtp->usage);
 	return 1;
 }
-
+cmd_tbl_t U_BOOT_CMD(fpga) = MK_CMD_ENTRY(
+	"fpga",	6,	1,	do_fpga,
+	"fpga    - FPGA sub-system\n",
+	"load [type] addr size\n"
+	"  - write the configuration data at memory address `addr',\n"
+	"    size `size' bytes, into the FPGA of type `type' (either\n"
+	"    `main' or `mezz', default `main'). e.g.\n"
+	"        `fpga load 100000 7d8f'\n"
+	"    loads the main FPGA with config data at address 100000\n"
+	"    HEX, size 7d8f HEX (32143 DEC) bytes\n"
+	"fpga tftp file addr\n"
+	"  - transfers `file' from the tftp server into memory at\n"
+	"    address `addr', then writes the entire file contents\n"
+	"    into the main FPGA\n"
+	"fpga store addr\n"
+	"  - read configuration data from the main FPGA (the mezz\n"
+	"    FPGA is write-only), into address `addr'. There must be\n"
+	"    enough memory available at `addr' to hold all the config\n"
+	"    data - the size of which is determined by VC:???\n"
+	"fpga info\n"
+	"  - print information about the Hymod FPGA, namely the\n"
+	"    memory addresses at which the four FPGA local bus\n"
+	"    address spaces appear in the physical address space\n"
+);
 /* ------------------------------------------------------------------------- */
 int
 do_eecl (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
@@ -312,14 +335,16 @@ do_eecl (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 	return 0;
 }
+cmd_tbl_t U_BOOT_CMD(eec) = MK_CMD_ENTRY(
+	"eeclear",	1,	0,	do_eecl,
+	"eeclear - Clear the eeprom on a Hymod board \n",
+	"[type]\n"
+	"  - write zeroes into the EEPROM on the board of type `type'\n"
+	"    (`type' is either `main' or `mezz' - default `main')\n"
+	"    Note: the EEPROM write enable jumper must be installed\n"
+);
 
 /* ------------------------------------------------------------------------- */
-
-#if 0
-static uchar test_bitfile[] = {
-	/* one day ... */
-};
-#endif
 
 int
 do_htest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])

@@ -18,24 +18,24 @@ static void ds1722_select(int dev)
 u8 ds1722_read(int dev, int addr)
 {
 	u8 res;
-	
+
 	ds1722_select(dev);
-	
-	ssi_tx_byte(addr);	
-	res = ssi_rx_byte();   	
-	
+
+	ssi_tx_byte(addr);
+	res = ssi_rx_byte();
+
 	ssi_chip_select(0);
-	
+
 	return res;
 }
 
 void ds1722_write(int dev, int addr, u8 data)
 {
 	ds1722_select(dev);
-	
-	ssi_tx_byte(0x80|addr);	
-	ssi_tx_byte(data);   	
-	
+
+	ssi_tx_byte(0x80|addr);
+	ssi_tx_byte(data);
+
 	ssi_chip_select(0);
 }
 
@@ -43,26 +43,26 @@ void ds1722_write(int dev, int addr, u8 data)
 u16 ds1722_temp(int dev, int resolution)
 {
 	static int useconds[] = {
-		75000, 150000, 300000, 600000, 1200000 
+		75000, 150000, 300000, 600000, 1200000
 	};
 	char temp;
 	u16 res;
-	
-	
+
+
 	/* set up the desired resulotion ... */
 	ds1722_write(dev, 0, 0xe0 | (resolution << 1));
-			
+
 	/* wait while the chip measures the tremperature */
-	udelay(useconds[resolution]); 	
-	
+	udelay(useconds[resolution]);
+
 	res = (temp = ds1722_read(dev, 2)) << 8;
-	
-	if (temp < 0) { 
+
+	if (temp < 0) {
 		temp = (16 - (ds1722_read(dev, 1) >> 4)) & 0x0f;
 	} else {
 		temp = (ds1722_read(dev, 1) >> 4);
 	}
-	
+
 	switch (temp) {
 	case 0:
 		/* .0000 */
@@ -129,7 +129,7 @@ u16 ds1722_temp(int dev, int resolution)
 		break;
 	}
 	return res;
-			
+
 }
 
 int ds1722_probe(int dev)

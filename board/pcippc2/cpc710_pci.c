@@ -53,7 +53,7 @@ void cpc710_pci_init (void)
   u32			sdram_size = pcippc2_sdram_size();
 
   cpc710_mapped_ram = sdram_size < PCI_MEMORY_MAXSIZE ?
-                      sdram_size : PCI_MEMORY_MAXSIZE;
+		      sdram_size : PCI_MEMORY_MAXSIZE;
 
     /* Select the local PCI
      */

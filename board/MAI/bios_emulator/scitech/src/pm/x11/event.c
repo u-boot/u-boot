@@ -83,7 +83,7 @@ ulong _EVT_getTicks(void)
 {
   static unsigned starttime = 0;
   struct timeval t;
-  
+
   gettimeofday(&t, NULL);
   if (starttime == 0)
     starttime = t.tv_sec * 1000 + (t.tv_usec/1000);
@@ -105,14 +105,14 @@ static void _EVT_pumpX11Messages(void)
 static void _EVT_pumpMessages(void)
 #endif
 {
-  // TODO: The purpose of this function is to read all keyboard and mouse
-  //         events from the OS specific event queue, translate them and post
-  //         them into the SciTech event queue.
+  /* TODO: The purpose of this function is to read all keyboard and mouse */
+  /*         events from the OS specific event queue, translate them and post */
+  /*         them into the SciTech event queue. */
   event_t evt;
   XEvent  ev;
   static int old_mx = 0, old_my = 0, buts = 0, c;
   char buf[2];
-  
+
   while (XPending(_EVT_dpy) && XNextEvent(_EVT_dpy,&ev)) {
     evt.when = _MGL_getTicks();
 
@@ -129,36 +129,36 @@ static void _EVT_pumpMessages(void)
       evt.what = EVT_KEYUP;
       evt.message = keyUpMsg[c];
       if(count < EVENTQSIZE)
-        addEvent(&evt);
+	addEvent(&evt);
       keyUpMsg[c] = 0;
       repeatKey[c] = 0;
       break;
     case ButtonPress:
       evt.what = EVT_MOUSEDOWN;
       if(ev.xbutton.button == 1){
-        buts |= EVT_LEFTBUT;
-        evt.message = EVT_LEFTBMASK;
+	buts |= EVT_LEFTBUT;
+	evt.message = EVT_LEFTBMASK;
       }else if(ev.xbutton.button == 2){
-        buts |= EVT_MIDDLEBUT;
-        evt.message = EVT_MIDDLEBMASK;
+	buts |= EVT_MIDDLEBUT;
+	evt.message = EVT_MIDDLEBMASK;
       }else if(ev.xbutton.button == 3){
-        buts |= EVT_RIGHTBUT;
-        evt.message = EVT_RIGHTBMASK;
+	buts |= EVT_RIGHTBUT;
+	evt.message = EVT_RIGHTBMASK;
       }
       evt.modifiers = modifiers | buts;
-      
+
       break;
     case ButtonRelease:
       evt.what = EVT_MOUSEUP;
       if(ev.xbutton.button == 1){
-        buts &= ~EVT_LEFTBUT;
-        evt.message = EVT_LEFTBMASK;
+	buts &= ~EVT_LEFTBUT;
+	evt.message = EVT_LEFTBMASK;
       }else if(ev.xbutton.button == 2){
-        buts &= ~EVT_MIDDLEBUT;
-        evt.message = EVT_MIDDLEBMASK;
+	buts &= ~EVT_MIDDLEBUT;
+	evt.message = EVT_MIDDLEBMASK;
       }else if(ev.xbutton.button == 3){
-        buts &= ~EVT_RIGHTBUT;
-        evt.message = EVT_RIGHTBMASK;
+	buts &= ~EVT_RIGHTBUT;
+	evt.message = EVT_RIGHTBMASK;
       }
       evt.modifiers = modifiers | buts;
 
@@ -226,7 +226,7 @@ void EVTAPI EVT_init(
   _mouseMove = mouseMove;
   initEventQueue();
   memset(keyUpMsg,0,sizeof(keyUpMsg));
-  
+
 
   /* query server for input extensions */
   result =XQueryExtension(_EVT_dpy,"XInputExtension",&i,&j,&k);
@@ -269,7 +269,7 @@ and this function can be used to resume it again later.
 ****************************************************************************/
 void EVT_resume(void)
 {
-    // Do nothing for non DOS systems
+    /* Do nothing for non DOS systems */
 }
 
 /****************************************************************************
@@ -279,7 +279,7 @@ de-install the event handling code.
 ****************************************************************************/
 void EVT_suspend(void)
 {
-    // Do nothing for non DOS systems
+    /* Do nothing for non DOS systems */
 }
 
 /****************************************************************************
@@ -293,7 +293,7 @@ void EVT_exit(void)
     signal(SIGFPE, SIG_DFL);
     signal(SIGINT, SIG_DFL);
 
-    // TODO: Do any OS specific cleanup in here
+    /* TODO: Do any OS specific cleanup in here */
 }
 
 /****************************************************************************

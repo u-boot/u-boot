@@ -70,4 +70,3 @@ SMDK board, and this setting should be stored in modem NVRAM. For the
 Rockwell OEM modem this can to be done with the following command:
 
 AT&D0&W
-

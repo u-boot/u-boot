@@ -309,7 +309,6 @@ void usb_show_tree(struct usb_device *dev)
 }
 
 
-
 /******************************************************************************
  * usb boot command intepreter. Derived from diskboot
  */
@@ -431,7 +430,6 @@ int do_usbboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 #endif /* CONFIG_USB_STORAGE */
-
 
 
 /*********************************************************************************
@@ -594,3 +592,37 @@ int do_usb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #endif /* (CONFIG_COMMANDS & CFG_CMD_USB) */
 
 
+#if (CONFIG_COMMANDS & CFG_CMD_USB)
+
+#ifdef CONFIG_USB_STORAGE
+cmd_tbl_t U_BOOT_CMD(USB) = MK_CMD_ENTRY(
+	"usb",	5,	1,	do_usb,
+	"usb     - USB sub-system\n",
+	"reset - reset (rescan) USB controller\n"
+	"usb  stop [f]  - stop USB [f]=force stop\n"
+	"usb  tree  - show USB device tree\n"
+	"usb  info [dev] - show available USB devices\n"
+	"usb  scan  - (re-)scan USB bus for storage devices\n"
+	"usb  device [dev] - show or set current USB storage device\n"
+	"usb  part [dev] - print partition table of one or all USB storage devices\n"
+	"usb  read addr blk# cnt - read `cnt' blocks starting at block `blk#'\n"
+	"     to memory address `addr'\n"
+);
+
+
+cmd_tbl_t U_BOOT_CMD(USBBOOT) = MK_CMD_ENTRY(
+	"usbboot",	3,	1,	do_usbboot,
+	"usbboot - boot from USB device\n",
+	"loadAddr dev:part\n"
+);
+
+#else
+cmd_tbl_t U_BOOT_CMD(USB) = MK_CMD_ENTRY(
+	"usb",	5,	1,	do_usb,
+	"usb     - USB sub-system\n",
+	"reset - reset (rescan) USB controller\n"
+	"usb  tree  - show USB device tree\n"
+	"usb  info [dev] - show available USB devices\n"
+);
+#endif
+#endif

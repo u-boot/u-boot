@@ -164,4 +164,3 @@ typedef enum {
 #endif  /* !__OS2__ */
 
 #endif  /* __PMHELP_H */
-

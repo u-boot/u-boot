@@ -1,7 +1,7 @@
 /*
  * (C) Copyright 2002
  * Daniel Engström, Omicron Ceti AB, daniel@omicron.se
- * 
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -87,27 +87,27 @@ extern void *rm_def_int;
 extern void *realmode_reset;
 extern void *realmode_pci_bios_call_entry;
 
-static int set_jmp_vector(int entry_point, void *target) 
+static int set_jmp_vector(int entry_point, void *target)
 {
 	if (entry_point & ~0xffff) {
 		return -1;
 	}
-	
+
 	if (((u32)target-0xf0000) & ~0xffff) {
 		return -1;
 	}
 	printf("set_jmp_vector: 0xf000:%04x -> %p\n",
 	       entry_point, target);
-	
+
 	/* jmp opcode */
 	writeb(0xea, 0xf0000 + entry_point);
-	
+
 	/* offset */
 	writew(((u32)target-0xf0000), 0xf0000 + entry_point + 1);
-	
+
 	/* segment */
 	writew(0xf000, 0xf0000 + entry_point + 3);
-	
+
 	return 0;
 }
 
@@ -123,40 +123,40 @@ static void setvector(int vector, u16 segment, void *handler)
 	u16 *ptr = (u16*)(vector*4);
 	ptr[0] = ((u32)handler - (segment << 4))&0xffff;
 	ptr[1] = segment;
-	
-#if 0	
+
+#if 0
 	printf("setvector: int%02x -> %04x:%04x\n",
 	       vector, ptr[1], ptr[0]);
-#endif	
+#endif
 }
 
-#define RELOC_16_LONG(seg, off) *(u32*)(seg << 4 | (u32)&off) 
-#define RELOC_16_WORD(seg, off) *(u16*)(seg << 4 | (u32)&off) 
-#define RELOC_16_BYTE(seg, off) *(u8*)(seg << 4 | (u32)&off) 
+#define RELOC_16_LONG(seg, off) *(u32*)(seg << 4 | (u32)&off)
+#define RELOC_16_WORD(seg, off) *(u16*)(seg << 4 | (u32)&off)
+#define RELOC_16_BYTE(seg, off) *(u8*)(seg << 4 | (u32)&off)
 
 int bios_setup(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-	static int done=0;	
+	static int done=0;
 	int vector;
 	struct pci_controller *pri_hose;
-	
+
 	if (done) {
 		return 0;
 	}
 	done = 1;
-	
+
 	if (i386boot_bios_size > 65536) {
-		printf("BIOS too large (%ld bytes, max is 65536)\n", 
+		printf("BIOS too large (%ld bytes, max is 65536)\n",
 		       i386boot_bios_size);
 		return -1;
 	}
-	
+
 	memcpy(BIOS_BASE, (void*)i386boot_bios, i386boot_bios_size);
 
 	/* clear bda */
 	memset(BIOS_DATA, 0, BIOS_DATA_SIZE);
-	
+
 	/* enter some values to the bda */
 	writew(0x3f8, BIOS_DATA);   /* com1 addr */
 	writew(0x2f8, BIOS_DATA+2); /* com2 addr */
@@ -169,12 +169,12 @@ int bios_setup(void)
 	 */
 	writew(0, BIOS_DATA+0x13);  /* base memory size */
 
-	
-	/* setup realmode interrupt vectors */	
+
+	/* setup realmode interrupt vectors */
 	for (vector = 0; vector < NUMVECTS; vector++) {
 		setvector(vector, BIOS_CS, &rm_def_int);
 	}
-	
+
 	setvector(0x00, BIOS_CS, &rm_int00);
 	setvector(0x01, BIOS_CS, &rm_int01);
 	setvector(0x02, BIOS_CS, &rm_int02);
@@ -210,25 +210,24 @@ int bios_setup(void)
 
 	set_jmp_vector(0xfff0, &realmode_reset);
 	set_jmp_vector(0xfe6e, &realmode_pci_bios_call_entry);
-	
+
 	/* fill in data area */
 	RELOC_16_WORD(0xf000, ram_in_64kb_chunks) = gd->ram_size >> 16;
 	RELOC_16_WORD(0xf000, bios_equipment) = 0; /* FixMe */
-	
+
 	/* If we assume only one PCI hose, this PCI hose
-	 * will own PCI bus #0, and the last PCI bus of 
-	 * that PCI hose will be the last PCI bus in the 
-	 * system. 
+	 * will own PCI bus #0, and the last PCI bus of
+	 * that PCI hose will be the last PCI bus in the
+	 * system.
 	 * (This, ofcause break on multi hose systems,
-	 *  but our PCI BIOS only support one hose anyway) 
+	 *  but our PCI BIOS only support one hose anyway)
 	 */
 	pri_hose = pci_bus_to_hose(0);
 	if (NULL != pri_hose) {
-		/* fill in last pci bus number for use by the realmode 
+		/* fill in last pci bus number for use by the realmode
 		 * PCI BIOS */
 		RELOC_16_BYTE(0xf000, pci_last_bus) = pri_hose->last_busno;
 	}
-	
+
 	return 0;
 }
-

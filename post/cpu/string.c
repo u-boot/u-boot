@@ -54,7 +54,7 @@ int cpu_post_test_string (void)
     {
 	char src [31], dst [31];
 
-    	ulong code[] =
+	ulong code[] =
 	{
 	    ASM_LSWI(5, 3, 31),
 	    ASM_STSWI(5, 4, 31),
@@ -76,7 +76,7 @@ int cpu_post_test_string (void)
     {
 	char src [95], dst [95];
 
-    	ulong code[] =
+	ulong code[] =
 	{
 	    ASM_LSWX(8, 3, 5),
 	    ASM_STSWX(8, 4, 5),
@@ -96,7 +96,7 @@ int cpu_post_test_string (void)
 
     if (ret != 0)
     {
-        post_log ("Error at string test !\n");
+	post_log ("Error at string test !\n");
     }
 
     return ret;

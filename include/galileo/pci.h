@@ -41,20 +41,20 @@
 /* typedefs */
 
 typedef enum __pciAccessRegions{REGION0,REGION1,REGION2,REGION3,REGION4,REGION5,
-                                REGION6,REGION7} PCI_ACCESS_REGIONS;
+				REGION6,REGION7} PCI_ACCESS_REGIONS;
 
 typedef enum __pciAgentPrio{LOW_AGENT_PRIO,HI_AGENT_PRIO} PCI_AGENT_PRIO;
 typedef enum __pciAgentPark{PARK_ON_AGENT,DONT_PARK_ON_AGENT} PCI_AGENT_PARK;
 
 typedef enum __pciSnoopType{PCI_NO_SNOOP,PCI_SNOOP_WT,PCI_SNOOP_WB}
-                            PCI_SNOOP_TYPE;
+			    PCI_SNOOP_TYPE;
 typedef enum __pciSnoopRegion{PCI_SNOOP_REGION0,PCI_SNOOP_REGION1,
-                              PCI_SNOOP_REGION2,PCI_SNOOP_REGION3}
-                              PCI_SNOOP_REGION;
+			      PCI_SNOOP_REGION2,PCI_SNOOP_REGION3}
+			      PCI_SNOOP_REGION;
 
 typedef enum __memPciHost{PCI_HOST0,PCI_HOST1} PCI_HOST;
 typedef enum __memPciRegion{PCI_REGION0,PCI_REGION1,
-   			 PCI_REGION2,PCI_REGION3,
+			 PCI_REGION2,PCI_REGION3,
 			 PCI_IO}
 			 PCI_REGION;
 
@@ -62,23 +62,23 @@ typedef enum __memPciRegion{PCI_REGION0,PCI_REGION1,
 void pciWriteConfigReg(PCI_HOST host, unsigned int regOffset,
 		       unsigned int pciDevNum, unsigned int data);
 unsigned int pciReadConfigReg (PCI_HOST host, unsigned int regOffset,
-                               unsigned int pciDevNum);
+			       unsigned int pciDevNum);
 
 /* read/write configuration registers on another PCI bus. */
 void pciOverBridgeWriteConfigReg(PCI_HOST host,
 				 unsigned int regOffset,
-                                 unsigned int pciDevNum,
-                                 unsigned int busNum,unsigned int data);
+				 unsigned int pciDevNum,
+				 unsigned int busNum,unsigned int data);
 unsigned int pciOverBridgeReadConfigReg(PCI_HOST host,
 					unsigned int regOffset,
-                                        unsigned int pciDevNum,
-                                        unsigned int busNum);
+					unsigned int pciDevNum,
+					unsigned int busNum);
 
 /*      Master`s memory space   */
 bool pciMapSpace(PCI_HOST host, PCI_REGION region,
 		unsigned int remapBase,
 		unsigned int deviceBase,
-	        unsigned int deviceLength);
+		unsigned int deviceLength);
 unsigned int pciGetSpaceBase(PCI_HOST host, PCI_REGION region);
 unsigned int pciGetSpaceSize(PCI_HOST host, PCI_REGION region);
 
@@ -99,15 +99,15 @@ void  pciDisableAccessRegion(PCI_HOST host, PCI_ACCESS_REGIONS region);
 bool pciArbiterEnable(PCI_HOST host);
 bool pciArbiterDisable(PCI_HOST host);
 bool pciParkingDisable(PCI_HOST host, PCI_AGENT_PARK internalAgent,
-                        PCI_AGENT_PARK externalAgent0,
-                        PCI_AGENT_PARK externalAgent1,
-                        PCI_AGENT_PARK externalAgent2,
-                        PCI_AGENT_PARK externalAgent3,
-                        PCI_AGENT_PARK externalAgent4,
-                        PCI_AGENT_PARK externalAgent5);
+			PCI_AGENT_PARK externalAgent0,
+			PCI_AGENT_PARK externalAgent1,
+			PCI_AGENT_PARK externalAgent2,
+			PCI_AGENT_PARK externalAgent3,
+			PCI_AGENT_PARK externalAgent4,
+			PCI_AGENT_PARK externalAgent5);
 bool pciSetRegionSnoopMode(PCI_HOST host, PCI_SNOOP_REGION region,
 			    PCI_SNOOP_TYPE snoopType,
-                            unsigned int baseAddress,
-                            unsigned int regionLength);
+			    unsigned int baseAddress,
+			    unsigned int regionLength);
 
 #endif /* __INCpcih */

@@ -39,4 +39,3 @@
 #include "os2/mon.h"
 
 void __PM_checkConsoleSwitch(void);
-

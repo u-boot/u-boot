@@ -106,26 +106,26 @@ static int MTRR_haveWriteCombine(void)
     ulong   config,dummy;
 
     switch (cpuFamily) {
-        case CPU_AMD:
-            if (cpuType < CPU_AMDAthlon) {
-                /* AMD K6-2 stepping 8 and later support the MTRR registers.
-                 * The earlier K6-2 steppings (300Mhz models) do not
-                 * support MTRR's.
-                 */
-                if ((cpuType < CPU_AMDK6_2) || (cpuType == CPU_AMDK6_2 && cpuStepping < 8))
-                    return 0;
-                return 1;
-                }
-            /* Fall through for AMD Athlon which uses P6 style MTRR's */
-        case CPU_Intel:
-            _MTRR_readMSR(INTEL_cap_MSR,&config,&dummy);
-            return (config & (1 << 10));
-        case CPU_Cyrix:
-            /* Cyrix 6x86 and later support the MTRR registers */
-            if (cpuType < CPU_Cyrix6x86)
-                return 0;
-            return 1;
-        }
+	case CPU_AMD:
+	    if (cpuType < CPU_AMDAthlon) {
+		/* AMD K6-2 stepping 8 and later support the MTRR registers.
+		 * The earlier K6-2 steppings (300Mhz models) do not
+		 * support MTRR's.
+		 */
+		if ((cpuType < CPU_AMDK6_2) || (cpuType == CPU_AMDK6_2 && cpuStepping < 8))
+		    return 0;
+		return 1;
+		}
+	    /* Fall through for AMD Athlon which uses P6 style MTRR's */
+	case CPU_Intel:
+	    _MTRR_readMSR(INTEL_cap_MSR,&config,&dummy);
+	    return (config & (1 << 10));
+	case CPU_Cyrix:
+	    /* Cyrix 6x86 and later support the MTRR registers */
+	    if (cpuType < CPU_Cyrix6x86)
+		return 0;
+	    return 1;
+	}
     return 0;
 }
 
@@ -149,10 +149,10 @@ static int GENERIC_getFreeRegion(
     ulong   lbase,lsize;
 
     for (i = 0; i < numMTRR; i++) {
-        getMTRR(i,&lbase,&lsize,&ltype);
-        if (lsize < 1)
-            return i;
-        }
+	getMTRR(i,&lbase,&lsize,&ltype);
+	if (lsize < 1)
+	    return i;
+	}
     (void)base;
     (void)size;
     return -1;
@@ -178,10 +178,10 @@ static int AMDK6_getFreeRegion(
     ulong   lbase,lsize;
 
     for (i = 0; i < numMTRR; i++) {
-        getMTRR(i,&lbase,&lsize,&ltype);
-        if (lsize < 1)
-            return i;
-        }
+	getMTRR(i,&lbase,&lsize,&ltype);
+	if (lsize < 1)
+	    return i;
+	}
     (void)base;
     (void)size;
     return -1;
@@ -207,23 +207,23 @@ static int CYRIX_getFreeRegion(
     ulong   lbase, lsize;
 
     if (size > 0x2000000UL) {
-        /* If we are to set up a region >32M then look at ARR7 immediately */
-        getMTRR(7,&lbase,&lsize,&ltype);
-        if (lsize < 1)
-            return 7;
-        }
+	/* If we are to set up a region >32M then look at ARR7 immediately */
+	getMTRR(7,&lbase,&lsize,&ltype);
+	if (lsize < 1)
+	    return 7;
+	}
     else {
-        /* Check ARR0-6 registers */
-        for (i = 0; i < 7; i++) {
-            getMTRR(i,&lbase,&lsize,&ltype);
-            if (lsize < 1)
-                return i;
-            }
-        /* Try ARR7 but its size must be at least 256K */
-        getMTRR(7,&lbase,&lsize,&ltype);
-        if ((lsize < 1) && (size >= 0x40000))
-            return i;
-        }
+	/* Check ARR0-6 registers */
+	for (i = 0; i < 7; i++) {
+	    getMTRR(i,&lbase,&lsize,&ltype);
+	    if (lsize < 1)
+		return i;
+	    }
+	/* Try ARR7 but its size must be at least 256K */
+	getMTRR(7,&lbase,&lsize,&ltype);
+	if ((lsize < 1) && (size >= 0x40000))
+	    return i;
+	}
     (void)base;
     return -1;
 }
@@ -240,20 +240,20 @@ static void MTRR_beginUpdate(
 {
     c->flags = _MTRR_disableInt();
     if (cpuFamily != CPU_AMD || (cpuFamily == CPU_AMD && cpuType >= CPU_AMDAthlon)) {
-        switch (cpuFamily) {
-            case CPU_Intel:
-            case CPU_AMD:
-                /* Disable MTRRs, and set the default type to uncached */
-                c->cr4Val = _MTRR_saveCR4();
-                _MTRR_readMSR(INTEL_defType_MSR,&c->defTypeLo,&c->defTypeHi);
-                _MTRR_writeMSR(INTEL_defType_MSR,c->defTypeLo & 0xF300UL,c->defTypeHi);
-                break;
-            case CPU_Cyrix:
-                c->ccr3 = _MTRR_getCx86(CX86_CCR3);
-                _MTRR_setCx86(CX86_CCR3, (uchar)((c->ccr3 & 0x0F) | 0x10));
-                break;
-            }
-        }
+	switch (cpuFamily) {
+	    case CPU_Intel:
+	    case CPU_AMD:
+		/* Disable MTRRs, and set the default type to uncached */
+		c->cr4Val = _MTRR_saveCR4();
+		_MTRR_readMSR(INTEL_defType_MSR,&c->defTypeLo,&c->defTypeHi);
+		_MTRR_writeMSR(INTEL_defType_MSR,c->defTypeLo & 0xF300UL,c->defTypeHi);
+		break;
+	    case CPU_Cyrix:
+		c->ccr3 = _MTRR_getCx86(CX86_CCR3);
+		_MTRR_setCx86(CX86_CCR3, (uchar)((c->ccr3 & 0x0F) | 0x10));
+		break;
+	    }
+	}
 }
 
 /****************************************************************************
@@ -267,18 +267,18 @@ static void MTRR_endUpdate(
     MTRRContext *c)
 {
     if (cpuFamily != CPU_AMD || (cpuFamily == CPU_AMD && cpuType >= CPU_AMDAthlon)) {
-        PM_flushTLB();
-        switch (cpuFamily) {
-            case CPU_Intel:
-            case CPU_AMD:
-                _MTRR_writeMSR(INTEL_defType_MSR,c->defTypeLo,c->defTypeHi);
-                _MTRR_restoreCR4(c->cr4Val);
-                break;
-            case CPU_Cyrix:
-                _MTRR_setCx86(CX86_CCR3,(uchar)c->ccr3);
-                break;
-            }
-        }
+	PM_flushTLB();
+	switch (cpuFamily) {
+	    case CPU_Intel:
+	    case CPU_AMD:
+		_MTRR_writeMSR(INTEL_defType_MSR,c->defTypeLo,c->defTypeHi);
+		_MTRR_restoreCR4(c->cr4Val);
+		break;
+	    case CPU_Cyrix:
+		_MTRR_setCx86(CX86_CCR3,(uchar)c->ccr3);
+		break;
+	    }
+	}
 
     /* Re-enable interrupts (if enabled previously) */
     _MTRR_restoreInt(c->flags);
@@ -304,12 +304,12 @@ static void INTEL_getMTRR(
 
     _MTRR_readMSR(INTEL_physMask_MSR(reg),&maskLo,&hi);
     if ((maskLo & 0x800) == 0) {
-        /* MTRR is disabled, so it is free */
-        *base = 0;
-        *size = 0;
-        *type = 0;
-        return;
-        }
+	/* MTRR is disabled, so it is free */
+	*base = 0;
+	*size = 0;
+	*type = 0;
+	return;
+	}
     _MTRR_readMSR(INTEL_physBase_MSR(reg),&baseLo,&hi);
     maskLo = (maskLo & 0xFFFFF000UL);
     *size = ~(maskLo - 1);
@@ -338,15 +338,15 @@ static void INTEL_setMTRR(
 
     MTRR_beginUpdate(&c);
     if (size == 0) {
-        /* The invalid bit is kept in the mask, so we simply clear the
-         * relevant mask register to disable a range.
-         */
-        _MTRR_writeMSR(INTEL_physMask_MSR(reg),0,0);
-        }
+	/* The invalid bit is kept in the mask, so we simply clear the
+	 * relevant mask register to disable a range.
+	 */
+	_MTRR_writeMSR(INTEL_physMask_MSR(reg),0,0);
+	}
     else {
-        _MTRR_writeMSR(INTEL_physBase_MSR(reg),base | type,0);
-        _MTRR_writeMSR(INTEL_physMask_MSR(reg),~(size - 1) | 0x800,0);
-        }
+	_MTRR_writeMSR(INTEL_physBase_MSR(reg),base | type,0);
+	_MTRR_writeMSR(INTEL_physMask_MSR(reg),~(size - 1) | 0x800,0);
+	}
     MTRR_endUpdate(&c);
 }
 
@@ -386,19 +386,19 @@ static void AMD_getMTRR(
     /*  Upper dword is region 1, lower is region 0  */
     _MTRR_readMSR(0xC0000085, &low, &high);
     if (reg == 1)
-        low = high;
+	low = high;
 
     /* Find the base and type for the region */
     *base = low & 0xFFFE0000;
     *type = 0;
     if (low & 1)
-        *type = PM_MTRR_UNCACHABLE;
+	*type = PM_MTRR_UNCACHABLE;
     if (low & 2)
-        *type = PM_MTRR_WRCOMB;
+	*type = PM_MTRR_WRCOMB;
     if ((low & 3) == 0) {
-        *size = 0;
-        return;
-        }
+	*size = 0;
+	return;
+	}
 
     /* This needs a little explaining. The size is stored as an
      * inverted mask of bits of 128K granularity 15 bits long offset
@@ -441,26 +441,26 @@ static void AMD_setMTRR(
     MTRR_beginUpdate(&c);
     _MTRR_readMSR(0xC0000085, &low, &high);
     if (size == 0) {
-        /* Clear register to disable */
-        if (reg)
-            high = 0;
-        else
-            low = 0;
-        }
+	/* Clear register to disable */
+	if (reg)
+	    high = 0;
+	else
+	    low = 0;
+	}
     else {
-        /* Set the register to the base (already shifted for us), the
-         * type (off by one) and an inverted bitmask of the size
-         * The size is the only odd bit. We are fed say 512K
-         * We invert this and we get 111 1111 1111 1011 but
-         * if you subtract one and invert you get the desired
-         * 111 1111 1111 1100 mask
-         */
-        newVal = (((~(size-1)) >> 15) & 0x0001FFFC) | base | (type+1);
-        if (reg)
-            high = newVal;
-        else
-            low = newVal;
-        }
+	/* Set the register to the base (already shifted for us), the
+	 * type (off by one) and an inverted bitmask of the size
+	 * The size is the only odd bit. We are fed say 512K
+	 * We invert this and we get 111 1111 1111 1011 but
+	 * if you subtract one and invert you get the desired
+	 * 111 1111 1111 1100 mask
+	 */
+	newVal = (((~(size-1)) >> 15) & 0x0001FFFC) | base | (type+1);
+	if (reg)
+	    high = newVal;
+	else
+	    low = newVal;
+	}
 
     /* The writeback rule is quite specific. See the manual. Its
      * disable local interrupts, write back the cache, set the MTRR
@@ -507,29 +507,29 @@ static void CYRIX_getMTRR(
      * Note: shift==0xF means 4G, this is unsupported.
      */
     if (shift)
-        *size = (reg < 7 ? 0x800UL : 0x20000UL) << shift;
+	*size = (reg < 7 ? 0x800UL : 0x20000UL) << shift;
     else
-        *size = 0;
+	*size = 0;
 
     /* Bit 0 is Cache Enable on ARR7, Cache Disable on ARR0-ARR6 */
     if (reg < 7) {
-        switch (rcr) {
-            case  1: *type = PM_MTRR_UNCACHABLE; break;
-            case  8: *type = PM_MTRR_WRBACK;     break;
-            case  9: *type = PM_MTRR_WRCOMB;     break;
-            case 24:
-            default: *type = PM_MTRR_WRTHROUGH;  break;
-            }
-        }
+	switch (rcr) {
+	    case  1: *type = PM_MTRR_UNCACHABLE; break;
+	    case  8: *type = PM_MTRR_WRBACK;     break;
+	    case  9: *type = PM_MTRR_WRCOMB;     break;
+	    case 24:
+	    default: *type = PM_MTRR_WRTHROUGH;  break;
+	    }
+	}
     else {
-        switch (rcr) {
-            case  0: *type = PM_MTRR_UNCACHABLE; break;
-            case  8: *type = PM_MTRR_WRCOMB;     break;
-            case  9: *type = PM_MTRR_WRBACK;     break;
-            case 25:
-            default: *type = PM_MTRR_WRTHROUGH;  break;
-            }
-        }
+	switch (rcr) {
+	    case  0: *type = PM_MTRR_UNCACHABLE; break;
+	    case  8: *type = PM_MTRR_WRCOMB;     break;
+	    case  9: *type = PM_MTRR_WRBACK;     break;
+	    case 25:
+	    default: *type = PM_MTRR_WRTHROUGH;  break;
+	    }
+	}
 }
 
 /****************************************************************************
@@ -557,23 +557,23 @@ static void CYRIX_setMTRR(
     size >>= (reg < 7 ? 12 : 18);
     size &= 0x7FFF; /* Make sure arr_size <= 14 */
     for (arr_size = 0; size; arr_size++, size >>= 1)
-        ;
+	;
     if (reg < 7) {
-        switch (type) {
-            case PM_MTRR_UNCACHABLE:    arr_type =  1; break;
-            case PM_MTRR_WRCOMB:        arr_type =  9; break;
-            case PM_MTRR_WRTHROUGH:     arr_type = 24; break;
-            default:                    arr_type =  8; break;
-            }
-        }
+	switch (type) {
+	    case PM_MTRR_UNCACHABLE:    arr_type =  1; break;
+	    case PM_MTRR_WRCOMB:        arr_type =  9; break;
+	    case PM_MTRR_WRTHROUGH:     arr_type = 24; break;
+	    default:                    arr_type =  8; break;
+	    }
+	}
     else {
-        switch (type) {
-            case PM_MTRR_UNCACHABLE:    arr_type =  0; break;
-            case PM_MTRR_WRCOMB:        arr_type =  8; break;
-            case PM_MTRR_WRTHROUGH:     arr_type = 25; break;
-            default:                    arr_type =  9; break;
-            }
-        }
+	switch (type) {
+	    case PM_MTRR_UNCACHABLE:    arr_type =  0; break;
+	    case PM_MTRR_WRCOMB:        arr_type =  8; break;
+	    case PM_MTRR_WRTHROUGH:     arr_type = 25; break;
+	    default:                    arr_type =  9; break;
+	    }
+	}
     MTRR_beginUpdate(&c);
     _MTRR_setCx86((uchar)arr,     ((uchar*)&base)[3]);
     _MTRR_setCx86((uchar)(arr+1), ((uchar*)&base)[2]);
@@ -615,28 +615,28 @@ static void CYRIX_initARR(void)
     ccr[5] = _MTRR_getCx86(CX86_CCR5);
     ccr[6] = _MTRR_getCx86(CX86_CCR6);
     if (ccr[3] & 1)
-        ccrc[3] = 1;
+	ccrc[3] = 1;
     else {
-        /* Disable SMM mode (bit 1), access to SMM memory (bit 2) and
-         * access to SMM memory through ARR3 (bit 7).
-         */
-        if (ccr[6] & 0x02) {
-            ccr[6] &= 0xFD;
-            ccrc[6] = 1;        /* Disable write protection of ARR3. */
-            _MTRR_setCx86(CX86_CCR6,ccr[6]);
-            }
-        }
+	/* Disable SMM mode (bit 1), access to SMM memory (bit 2) and
+	 * access to SMM memory through ARR3 (bit 7).
+	 */
+	if (ccr[6] & 0x02) {
+	    ccr[6] &= 0xFD;
+	    ccrc[6] = 1;        /* Disable write protection of ARR3. */
+	    _MTRR_setCx86(CX86_CCR6,ccr[6]);
+	    }
+	}
 
     /* If we changed CCR1 in memory, change it in the processor, too. */
     if (ccrc[1])
-        _MTRR_setCx86(CX86_CCR1,ccr[1]);
+	_MTRR_setCx86(CX86_CCR1,ccr[1]);
 
     /* Enable ARR usage by the processor */
     if (!(ccr[5] & 0x20)) {
-        ccr[5] |= 0x20;
-        ccrc[5] = 1;
-        _MTRR_setCx86(CX86_CCR5,ccr[5]);
-        }
+	ccr[5] |= 0x20;
+	ccrc[5] = 1;
+	_MTRR_setCx86(CX86_CCR5,ccr[5]);
+	}
 
     /* We are finished updating */
     MTRR_endUpdate(&c);
@@ -654,72 +654,72 @@ void MTRR_init(void)
 
     /* Check that we have a compatible CPU */
     if (numMTRR == -1) {
-        numMTRR = 0;
-        if (!_MTRR_isRing0())
-            return;
-        cpu = CPU_getProcessorType();
-        cpuFamily = cpu & CPU_familyMask;
-        cpuType = cpu & CPU_mask;
-        cpuStepping = (cpu & CPU_steppingMask) >> CPU_steppingShift;
-        switch (cpuFamily) {
-            case CPU_Intel:
-                /* Intel Pentium Pro and later support the MTRR registers */
-                if (cpuType < CPU_PentiumPro)
-                    return;
-                _MTRR_readMSR(INTEL_cap_MSR,&eax,&edx);
-                numMTRR = eax & 0xFF;
-                getMTRR = INTEL_getMTRR;
-                setMTRR = INTEL_setMTRR;
-                getFreeRegion = GENERIC_getFreeRegion;
-                INTEL_disableBankedWriteCombine();
-                break;
-            case CPU_AMD:
-                /* AMD K6-2 and later support the MTRR registers */
-                if ((cpuType < CPU_AMDK6_2) || (cpuType == CPU_AMDK6_2 && cpuStepping < 8))
-                    return;
-                if (cpuType < CPU_AMDAthlon) {
-                    numMTRR = 2;        /* AMD CPU's have 2 MTRR's */
-                    getMTRR = AMD_getMTRR;
-                    setMTRR = AMD_setMTRR;
-                    getFreeRegion = AMDK6_getFreeRegion;
+	numMTRR = 0;
+	if (!_MTRR_isRing0())
+	    return;
+	cpu = CPU_getProcessorType();
+	cpuFamily = cpu & CPU_familyMask;
+	cpuType = cpu & CPU_mask;
+	cpuStepping = (cpu & CPU_steppingMask) >> CPU_steppingShift;
+	switch (cpuFamily) {
+	    case CPU_Intel:
+		/* Intel Pentium Pro and later support the MTRR registers */
+		if (cpuType < CPU_PentiumPro)
+		    return;
+		_MTRR_readMSR(INTEL_cap_MSR,&eax,&edx);
+		numMTRR = eax & 0xFF;
+		getMTRR = INTEL_getMTRR;
+		setMTRR = INTEL_setMTRR;
+		getFreeRegion = GENERIC_getFreeRegion;
+		INTEL_disableBankedWriteCombine();
+		break;
+	    case CPU_AMD:
+		/* AMD K6-2 and later support the MTRR registers */
+		if ((cpuType < CPU_AMDK6_2) || (cpuType == CPU_AMDK6_2 && cpuStepping < 8))
+		    return;
+		if (cpuType < CPU_AMDAthlon) {
+		    numMTRR = 2;        /* AMD CPU's have 2 MTRR's */
+		    getMTRR = AMD_getMTRR;
+		    setMTRR = AMD_setMTRR;
+		    getFreeRegion = AMDK6_getFreeRegion;
 
-                    /* For some reason some IBM systems with K6-2 processors
-                     * have write combined enabled for the system BIOS
-                     * region from 0xE0000 to 0xFFFFFF. We need *both* MTRR's
-                     * for our own graphics drivers, so if we detect any
-                     * regions below the 1Meg boundary, we remove them
-                     * so we can use this MTRR register ourselves.
-                     */
-                    for (i = 0; i < numMTRR; i++) {
-                        getMTRR(i,&lbase,&lsize,&ltype);
-                        if (lbase < 0x100000)
-                            setMTRR(i,0,0,0);
-                        }
-                    }
-                else {
-                    /* AMD Athlon uses P6 style MTRR's */
-                    _MTRR_readMSR(INTEL_cap_MSR,&eax,&edx);
-                    numMTRR = eax & 0xFF;
-                    getMTRR = INTEL_getMTRR;
-                    setMTRR = INTEL_setMTRR;
-                    getFreeRegion = GENERIC_getFreeRegion;
-                    INTEL_disableBankedWriteCombine();
-                    }
-                break;
-            case CPU_Cyrix:
-                /* Cyrix 6x86 and later support the MTRR registers */
-                if (cpuType < CPU_Cyrix6x86 || cpuType >= CPU_CyrixMediaGX)
-                    return;
-                numMTRR = 8;        /* Cyrix CPU's have 8 ARR's */
-                getMTRR = CYRIX_getMTRR;
-                setMTRR = CYRIX_setMTRR;
-                getFreeRegion = CYRIX_getFreeRegion;
-                CYRIX_initARR();
-                break;
-            default:
-                return;
-            }
-        }
+		    /* For some reason some IBM systems with K6-2 processors
+		     * have write combined enabled for the system BIOS
+		     * region from 0xE0000 to 0xFFFFFF. We need *both* MTRR's
+		     * for our own graphics drivers, so if we detect any
+		     * regions below the 1Meg boundary, we remove them
+		     * so we can use this MTRR register ourselves.
+		     */
+		    for (i = 0; i < numMTRR; i++) {
+			getMTRR(i,&lbase,&lsize,&ltype);
+			if (lbase < 0x100000)
+			    setMTRR(i,0,0,0);
+			}
+		    }
+		else {
+		    /* AMD Athlon uses P6 style MTRR's */
+		    _MTRR_readMSR(INTEL_cap_MSR,&eax,&edx);
+		    numMTRR = eax & 0xFF;
+		    getMTRR = INTEL_getMTRR;
+		    setMTRR = INTEL_setMTRR;
+		    getFreeRegion = GENERIC_getFreeRegion;
+		    INTEL_disableBankedWriteCombine();
+		    }
+		break;
+	    case CPU_Cyrix:
+		/* Cyrix 6x86 and later support the MTRR registers */
+		if (cpuType < CPU_Cyrix6x86 || cpuType >= CPU_CyrixMediaGX)
+		    return;
+		numMTRR = 8;        /* Cyrix CPU's have 8 ARR's */
+		getMTRR = CYRIX_getMTRR;
+		setMTRR = CYRIX_setMTRR;
+		getFreeRegion = CYRIX_getFreeRegion;
+		CYRIX_initARR();
+		break;
+	    default:
+		return;
+	    }
+	}
 }
 
 /****************************************************************************
@@ -745,93 +745,93 @@ int MTRR_enableWriteCombine(
 
     /* Check that we have a CPU that supports MTRR's and type is valid */
     if (numMTRR <= 0) {
-        if (!_MTRR_isRing0())
-            return PM_MTRR_ERR_NO_OS_SUPPORT;
-        return PM_MTRR_NOT_SUPPORTED;
-        }
+	if (!_MTRR_isRing0())
+	    return PM_MTRR_ERR_NO_OS_SUPPORT;
+	return PM_MTRR_NOT_SUPPORTED;
+	}
     if (type >= PM_MTRR_MAX)
-        return PM_MTRR_ERR_PARAMS;
+	return PM_MTRR_ERR_PARAMS;
 
     /* If the type is WC, check that this processor supports it */
     if (!MTRR_haveWriteCombine())
-        return PM_MTRR_ERR_NOWRCOMB;
+	return PM_MTRR_ERR_NOWRCOMB;
 
     /* Adjust the boundaries depending on the CPU type */
     switch (cpuFamily) {
-        case CPU_AMD:
-            if (cpuType < CPU_AMDAthlon) {
-                /* Apply the K6 block alignment and size rules. In order:
-                 *  o Uncached or gathering only
-                 *  o 128K or bigger block
-                 *  o Power of 2 block
-                 *  o base suitably aligned to the power
-                 */
-                if (type > PM_MTRR_WRCOMB && (size < (1 << 17) || (size & ~(size-1))-size || (base & (size-1))))
-                    return PM_MTRR_ERR_NOT_ALIGNED;
-                break;
-                }
-            /* Fall through for AMD Athlon which uses P6 style MTRR's */
-        case CPU_Intel:
-        case CPU_Cyrix:
-            if ((base & 0xFFF) || (size & 0xFFF)) {
-                /* Base and size must be multiples of 4Kb */
-                return PM_MTRR_ERR_NOT_4KB_ALIGNED;
-                }
-            if (base < 0x100000) {
-                /* Base must be >= 1Mb */
-                return PM_MTRR_ERR_BELOW_1MB;
-                }
+	case CPU_AMD:
+	    if (cpuType < CPU_AMDAthlon) {
+		/* Apply the K6 block alignment and size rules. In order:
+		 *  o Uncached or gathering only
+		 *  o 128K or bigger block
+		 *  o Power of 2 block
+		 *  o base suitably aligned to the power
+		 */
+		if (type > PM_MTRR_WRCOMB && (size < (1 << 17) || (size & ~(size-1))-size || (base & (size-1))))
+		    return PM_MTRR_ERR_NOT_ALIGNED;
+		break;
+		}
+	    /* Fall through for AMD Athlon which uses P6 style MTRR's */
+	case CPU_Intel:
+	case CPU_Cyrix:
+	    if ((base & 0xFFF) || (size & 0xFFF)) {
+		/* Base and size must be multiples of 4Kb */
+		return PM_MTRR_ERR_NOT_4KB_ALIGNED;
+		}
+	    if (base < 0x100000) {
+		/* Base must be >= 1Mb */
+		return PM_MTRR_ERR_BELOW_1MB;
+		}
 
-            /* Check upper bits of base and last are equal and lower bits
-             * are 0 for base and 1 for last
-             */
-            last = base + size - 1;
-            for (lbase = base; !(lbase & 1) && (last & 1); lbase = lbase >> 1, last = last >> 1)
-                ;
-            if (lbase != last) {
-                /* Base is not aligned on the correct boundary */
-                return PM_MTRR_ERR_NOT_ALIGNED;
-                }
-            break;
-        default:
-            return PM_MTRR_NOT_SUPPORTED;
-        }
+	    /* Check upper bits of base and last are equal and lower bits
+	     * are 0 for base and 1 for last
+	     */
+	    last = base + size - 1;
+	    for (lbase = base; !(lbase & 1) && (last & 1); lbase = lbase >> 1, last = last >> 1)
+		;
+	    if (lbase != last) {
+		/* Base is not aligned on the correct boundary */
+		return PM_MTRR_ERR_NOT_ALIGNED;
+		}
+	    break;
+	default:
+	    return PM_MTRR_NOT_SUPPORTED;
+	}
 
     /* Search for existing MTRR */
     for (i = 0; i < numMTRR; ++i) {
-        getMTRR(i,&lbase,&lsize,&ltype);
-        if (lbase == 0 && lsize == 0)
-            continue;
-        if (base > lbase + (lsize-1))
-            continue;
-        if ((base < lbase) && (base+size-1 < lbase))
-            continue;
+	getMTRR(i,&lbase,&lsize,&ltype);
+	if (lbase == 0 && lsize == 0)
+	    continue;
+	if (base > lbase + (lsize-1))
+	    continue;
+	if ((base < lbase) && (base+size-1 < lbase))
+	    continue;
 
-        /* Check that we don't overlap an existing region */
-        if (type != PM_MTRR_UNCACHABLE) {
-            if ((base < lbase) || (base+size-1 > lbase+lsize-1))
-                return PM_MTRR_ERR_OVERLAP;
-            }
-        else if (base == lbase && size == lsize) {
-            /* The region already exists so leave it alone */
-            return PM_MTRR_ERR_OK;
-            }
+	/* Check that we don't overlap an existing region */
+	if (type != PM_MTRR_UNCACHABLE) {
+	    if ((base < lbase) || (base+size-1 > lbase+lsize-1))
+		return PM_MTRR_ERR_OVERLAP;
+	    }
+	else if (base == lbase && size == lsize) {
+	    /* The region already exists so leave it alone */
+	    return PM_MTRR_ERR_OK;
+	    }
 
-        /* New region is enclosed by an existing region, so only allow
-         * a new type to be created if we are setting a region to be
-         * uncacheable (such as MMIO registers within a framebuffer).
-         */
-        if (ltype != (int)type) {
-            if (type == PM_MTRR_UNCACHABLE)
-                continue;
-            return PM_MTRR_ERR_TYPE_MISMATCH;
-            }
-        return PM_MTRR_ERR_OK;
-        }
+	/* New region is enclosed by an existing region, so only allow
+	 * a new type to be created if we are setting a region to be
+	 * uncacheable (such as MMIO registers within a framebuffer).
+	 */
+	if (ltype != (int)type) {
+	    if (type == PM_MTRR_UNCACHABLE)
+		continue;
+	    return PM_MTRR_ERR_TYPE_MISMATCH;
+	    }
+	return PM_MTRR_ERR_OK;
+	}
 
     /* Search for an empty MTRR */
     if ((i = getFreeRegion(base,size)) < 0)
-        return PM_MTRR_ERR_NONE_FREE;
+	return PM_MTRR_ERR_NONE_FREE;
     setMTRR(i,base,size,type);
     return PM_MTRR_ERR_OK;
 }
@@ -852,16 +852,16 @@ int PMAPI PM_enumWriteCombine(
 
     /* Check that we have a CPU that supports MTRR's and type is valid */
     if (numMTRR <= 0) {
-        if (!_MTRR_isRing0())
-            return PM_MTRR_ERR_NO_OS_SUPPORT;
-        return PM_MTRR_NOT_SUPPORTED;
-        }
+	if (!_MTRR_isRing0())
+	    return PM_MTRR_ERR_NO_OS_SUPPORT;
+	return PM_MTRR_NOT_SUPPORTED;
+	}
 
     /* Enumerate all existing MTRR's */
     for (i = 0; i < numMTRR; ++i) {
-        getMTRR(i,&lbase,&lsize,&ltype);
-        callback(lbase,lsize,ltype);
-        }
+	getMTRR(i,&lbase,&lsize,&ltype);
+	callback(lbase,lsize,ltype);
+	}
     return PM_MTRR_ERR_OK;
 }
 #endif

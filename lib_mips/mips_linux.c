@@ -23,7 +23,6 @@
 
 #include <common.h>
 #include <command.h>
-#include <cmd_boot.h>
 #include <image.h>
 #include <zlib.h>
 #include <asm/byteorder.h>
@@ -40,6 +39,8 @@
 #endif
 
 extern image_header_t header;           /* from cmd_bootm.c */
+
+extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 static int	linux_argc;
 static char **	linux_argv;
@@ -112,7 +113,7 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	    csum = crc32 (0, (char *)data, len);
 	    if (csum != ntohl(hdr->ih_dcrc)) {
 		printf ("Bad Data CRC\n");
-	        SHOW_BOOT_PROGRESS (-12);
+		SHOW_BOOT_PROGRESS (-12);
 		do_reset (cmdtp, flag, argc, argv);
 	    }
 	    printf ("OK\n");
@@ -154,7 +155,7 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	/*
 	 * no initrd image
 	 */
-        SHOW_BOOT_PROGRESS (14);
+	SHOW_BOOT_PROGRESS (14);
 
 	data = 0;
     }
@@ -219,19 +220,19 @@ static void linux_params_init (ulong start, char * line)
 	quote = strchr (line, '"');
 	next = strchr (line, ' ');
 
-        while (next != NULL && quote != NULL && quote < next)
+	while (next != NULL && quote != NULL && quote < next)
 	{
 	    /* we found a left quote before the next blank
-             * now we have to find the matching right quote
-             */
-            next = strchr (quote + 1, '"');
-            if (next != NULL)
+	     * now we have to find the matching right quote
+	     */
+	    next = strchr (quote + 1, '"');
+	    if (next != NULL)
 	    {
-                quote = strchr (next + 1, '"');
-                next = strchr (next + 1, ' ');
-            }
-        }
-	
+		quote = strchr (next + 1, '"');
+		next = strchr (next + 1, ' ');
+	    }
+	}
+
 	if (next == NULL)
 	{
 	    next = line + strlen (line);
@@ -243,9 +244,9 @@ static void linux_params_init (ulong start, char * line)
 
 	argp += next - line + 1;
 	linux_argc ++;
-        
+
 	if (*next) next ++;
-	
+
 	line = next;
     }
 
@@ -269,7 +270,7 @@ static void linux_env_set (char * env_name, char * env_val)
 
 	strcpy (linux_env_p, env_val);
 	linux_env_p += strlen (env_val);
-	
+
 	linux_env_p ++;
 	linux_env [++ linux_env_idx] = 0;
     }

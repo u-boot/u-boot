@@ -1088,7 +1088,6 @@ static void usb_display_wValue(unsigned short wValue,unsigned short wIndex)
 #endif
 
 
-
 #ifdef	USB_UHCI_DEBUG
 
 static int usb_display_td(uhci_td_t *td)

@@ -511,7 +511,6 @@ unsigned short get_pld_parvers (void)
 }
 
 
-
 void user_led0 (unsigned char on)
 {
 	if (on)
@@ -762,5 +761,3 @@ void print_mip405_info (void)
 	printf ("  PIIX INIT: %s\n", (irq_reg & 0x8) ? "inactive" : "active");
 	printf ("  PIIX NMI:  %s\n", (irq_reg & 0x4) ? "inactive" : "active");
 }
-
-

@@ -187,7 +187,6 @@ void scsi_low_level_init(int busdevfunc);
 void scsi_init(void);
 
 
-
 #define SCSI_IDENTIFY					0xC0  /* not used */
 
 /* Hardware errors  */
@@ -199,7 +198,6 @@ void scsi_init(void);
 #define SCSI_INT_STATE				 0x00010000  /* unknown Interrupt number is stored in 16 LSB */
 
 
-
 #ifndef TRUE
 #define TRUE 1
 #endif
@@ -207,9 +205,4 @@ void scsi_init(void);
 #define FALSE 0
 #endif
 
-
-
-
-
 #endif /* _SCSI_H */
-

@@ -152,4 +152,3 @@ void    PMAPI BE_exit(void);
 #endif
 
 #endif /* __BIOSEMU_H */
-

@@ -843,9 +843,9 @@ u8 rcl_byte(u8 d, u8 s)
     /* s is the rotate distance.  It varies from 0 - 8. */
 	/* have
 
-       CF  B_7 B_6 B_5 B_4 B_3 B_2 B_1 B_0 
+       CF  B_7 B_6 B_5 B_4 B_3 B_2 B_1 B_0
 
-       want to rotate through the carry by "s" bits.  We could 
+       want to rotate through the carry by "s" bits.  We could
        loop, but that's inefficient.  So the width is 9,
        and we split into three parts:
 
@@ -855,12 +855,12 @@ u8 rcl_byte(u8 d, u8 s)
 
        The new rotate is done mod 9, and given this,
        for a rotation of n bits (mod 9) the new carry flag is
-       then located n bits from the MSB.  The low part is 
+       then located n bits from the MSB.  The low part is
        then shifted up cnt bits, and the high part is or'd
-       in.  Using CAPS for new values, and lowercase for the 
+       in.  Using CAPS for new values, and lowercase for the
        original values, this can be expressed as:
 
-       IF n > 0 
+       IF n > 0
        1) CF <-  b_(8-n)
        2) B_(7) .. B_(n)  <-  b_(8-(n+1)) .. b_0
        3) B_(n-1) <- cf
@@ -868,37 +868,37 @@ u8 rcl_byte(u8 d, u8 s)
 	 */
 	res = d;
 	if ((cnt = s % 9) != 0) {
-        /* extract the new CARRY FLAG. */
-        /* CF <-  b_(8-n)             */
-        cf = (d >> (8 - cnt)) & 0x1;
+	/* extract the new CARRY FLAG. */
+	/* CF <-  b_(8-n)             */
+	cf = (d >> (8 - cnt)) & 0x1;
 
-        /* get the low stuff which rotated 
-           into the range B_7 .. B_cnt */
-        /* B_(7) .. B_(n)  <-  b_(8-(n+1)) .. b_0  */
-        /* note that the right hand side done by the mask */
+	/* get the low stuff which rotated
+	   into the range B_7 .. B_cnt */
+	/* B_(7) .. B_(n)  <-  b_(8-(n+1)) .. b_0  */
+	/* note that the right hand side done by the mask */
 		res = (d << cnt) & 0xff;
 
-        /* now the high stuff which rotated around 
-           into the positions B_cnt-2 .. B_0 */
-        /* B_(n-2) .. B_0 <-  b_7 .. b_(8-(n-1)) */
-        /* shift it downward, 7-(n-2) = 9-n positions. 
-           and mask off the result before or'ing in. 
-         */
-        mask = (1 << (cnt - 1)) - 1;
-        res |= (d >> (9 - cnt)) & mask;
+	/* now the high stuff which rotated around
+	   into the positions B_cnt-2 .. B_0 */
+	/* B_(n-2) .. B_0 <-  b_7 .. b_(8-(n-1)) */
+	/* shift it downward, 7-(n-2) = 9-n positions.
+	   and mask off the result before or'ing in.
+	 */
+	mask = (1 << (cnt - 1)) - 1;
+	res |= (d >> (9 - cnt)) & mask;
 
-        /* if the carry flag was set, or it in.  */
+	/* if the carry flag was set, or it in.  */
 		if (ACCESS_FLAG(F_CF)) {     /* carry flag is set */
-            /*  B_(n-1) <- cf */
-            res |= 1 << (cnt - 1);
-        }
-        /* set the new carry flag, based on the variable "cf" */
+	    /*  B_(n-1) <- cf */
+	    res |= 1 << (cnt - 1);
+	}
+	/* set the new carry flag, based on the variable "cf" */
 		CONDITIONAL_SET_FLAG(cf, F_CF);
-        /* OVERFLOW is set *IFF* cnt==1, then it is the 
-           xor of CF and the most significant bit.  Blecck. */
-        /* parenthesized this expression since it appears to
-           be causing OF to be misset */
-        CONDITIONAL_SET_FLAG(cnt == 1 && XOR2(cf + ((res >> 6) & 0x2)),
+	/* OVERFLOW is set *IFF* cnt==1, then it is the
+	   xor of CF and the most significant bit.  Blecck. */
+	/* parenthesized this expression since it appears to
+	   be causing OF to be misset */
+	CONDITIONAL_SET_FLAG(cnt == 1 && XOR2(cf + ((res >> 6) & 0x2)),
 							 F_OF);
 
     }
@@ -963,22 +963,22 @@ u8 rcr_byte(u8 d, u8 s)
 	u32	mask, cf, ocf = 0;
 
 	/* rotate right through carry */
-    /* 
+    /*
        s is the rotate distance.  It varies from 0 - 8.
-       d is the byte object rotated.  
+       d is the byte object rotated.
 
-       have 
+       have
 
-       CF  B_7 B_6 B_5 B_4 B_3 B_2 B_1 B_0 
+       CF  B_7 B_6 B_5 B_4 B_3 B_2 B_1 B_0
 
        The new rotate is done mod 9, and given this,
        for a rotation of n bits (mod 9) the new carry flag is
-       then located n bits from the LSB.  The low part is 
+       then located n bits from the LSB.  The low part is
        then shifted up cnt bits, and the high part is or'd
-       in.  Using CAPS for new values, and lowercase for the 
+       in.  Using CAPS for new values, and lowercase for the
        original values, this can be expressed as:
 
-       IF n > 0 
+       IF n > 0
        1) CF <-  b_(n-1)
        2) B_(8-(n+1)) .. B_(0)  <-  b_(7) .. b_(n)
        3) B_(8-n) <- cf
@@ -986,49 +986,49 @@ u8 rcr_byte(u8 d, u8 s)
 	 */
 	res = d;
 	if ((cnt = s % 9) != 0) {
-        /* extract the new CARRY FLAG. */
-        /* CF <-  b_(n-1)              */
-        if (cnt == 1) {
-            cf = d & 0x1;
-            /* note hackery here.  Access_flag(..) evaluates to either
-               0 if flag not set
-               non-zero if flag is set.
-               doing access_flag(..) != 0 casts that into either 
+	/* extract the new CARRY FLAG. */
+	/* CF <-  b_(n-1)              */
+	if (cnt == 1) {
+	    cf = d & 0x1;
+	    /* note hackery here.  Access_flag(..) evaluates to either
+	       0 if flag not set
+	       non-zero if flag is set.
+	       doing access_flag(..) != 0 casts that into either
 			   0..1 in any representation of the flags register
-               (i.e. packed bit array or unpacked.)
-             */
+	       (i.e. packed bit array or unpacked.)
+	     */
 			ocf = ACCESS_FLAG(F_CF) != 0;
-        } else
-            cf = (d >> (cnt - 1)) & 0x1;
+	} else
+	    cf = (d >> (cnt - 1)) & 0x1;
 
-        /* B_(8-(n+1)) .. B_(0)  <-  b_(7) .. b_n  */
-        /* note that the right hand side done by the mask
-           This is effectively done by shifting the 
-           object to the right.  The result must be masked,
-           in case the object came in and was treated 
-           as a negative number.  Needed??? */
+	/* B_(8-(n+1)) .. B_(0)  <-  b_(7) .. b_n  */
+	/* note that the right hand side done by the mask
+	   This is effectively done by shifting the
+	   object to the right.  The result must be masked,
+	   in case the object came in and was treated
+	   as a negative number.  Needed??? */
 
-        mask = (1 << (8 - cnt)) - 1;
-        res = (d >> cnt) & mask;
+	mask = (1 << (8 - cnt)) - 1;
+	res = (d >> cnt) & mask;
 
-        /* now the high stuff which rotated around 
-           into the positions B_cnt-2 .. B_0 */
-        /* B_(7) .. B_(8-(n-1)) <-  b_(n-2) .. b_(0) */
-        /* shift it downward, 7-(n-2) = 9-n positions. 
-           and mask off the result before or'ing in. 
-         */
-        res |= (d << (9 - cnt));
+	/* now the high stuff which rotated around
+	   into the positions B_cnt-2 .. B_0 */
+	/* B_(7) .. B_(8-(n-1)) <-  b_(n-2) .. b_(0) */
+	/* shift it downward, 7-(n-2) = 9-n positions.
+	   and mask off the result before or'ing in.
+	 */
+	res |= (d << (9 - cnt));
 
-        /* if the carry flag was set, or it in.  */
+	/* if the carry flag was set, or it in.  */
 		if (ACCESS_FLAG(F_CF)) {     /* carry flag is set */
-            /*  B_(8-n) <- cf */
-            res |= 1 << (8 - cnt);
-        }
-        /* set the new carry flag, based on the variable "cf" */
+	    /*  B_(8-n) <- cf */
+	    res |= 1 << (8 - cnt);
+	}
+	/* set the new carry flag, based on the variable "cf" */
 		CONDITIONAL_SET_FLAG(cf, F_CF);
-        /* OVERFLOW is set *IFF* cnt==1, then it is the 
-           xor of CF and the most significant bit.  Blecck. */
-        /* parenthesized... */
+	/* OVERFLOW is set *IFF* cnt==1, then it is the
+	   xor of CF and the most significant bit.  Blecck. */
+	/* parenthesized... */
 		if (cnt == 1) {
 			CONDITIONAL_SET_FLAG(XOR2(ocf + ((d >> 6) & 0x2)),
 								 F_OF);
@@ -1111,18 +1111,18 @@ u8 rol_byte(u8 d, u8 s)
     register unsigned int res, cnt, mask;
 
     /* rotate left */
-    /* 
+    /*
        s is the rotate distance.  It varies from 0 - 8.
-       d is the byte object rotated.  
+       d is the byte object rotated.
 
-       have 
+       have
 
-       CF  B_7 ... B_0 
+       CF  B_7 ... B_0
 
        The new rotate is done mod 8.
        Much simpler than the "rcl" or "rcr" operations.
 
-       IF n > 0 
+       IF n > 0
        1) B_(7) .. B_(n)  <-  b_(8-(n+1)) .. b_(0)
        2) B_(n-1) .. B_(0) <-  b_(7) .. b_(8-n)
 	 */
@@ -1210,34 +1210,34 @@ u8 ror_byte(u8 d, u8 s)
     register unsigned int res, cnt, mask;
 
     /* rotate right */
-    /* 
+    /*
        s is the rotate distance.  It varies from 0 - 8.
-       d is the byte object rotated.  
+       d is the byte object rotated.
 
-       have 
+       have
 
-       B_7 ... B_0 
+       B_7 ... B_0
 
        The rotate is done mod 8.
 
-       IF n > 0 
+       IF n > 0
        1) B_(8-(n+1)) .. B_(0)  <-  b_(7) .. b_(n)
        2) B_(7) .. B_(8-n) <-  b_(n-1) .. b_(0)
 	 */
 	res = d;
 	if ((cnt = s % 8) != 0) {           /* not a typo, do nada if cnt==0 */
-        /* B_(7) .. B_(8-n) <-  b_(n-1) .. b_(0) */
-        res = (d << (8 - cnt));
+	/* B_(7) .. B_(8-n) <-  b_(n-1) .. b_(0) */
+	res = (d << (8 - cnt));
 
-        /* B_(8-(n+1)) .. B_(0)  <-  b_(7) .. b_(n) */
-        mask = (1 << (8 - cnt)) - 1;
-        res |= (d >> (cnt)) & mask;
+	/* B_(8-(n+1)) .. B_(0)  <-  b_(7) .. b_(n) */
+	mask = (1 << (8 - cnt)) - 1;
+	res |= (d >> (cnt)) & mask;
 
-        /* set the new carry flag, Note that it is the low order 
-           bit of the result!!!                               */
+	/* set the new carry flag, Note that it is the low order
+	   bit of the result!!!                               */
 		CONDITIONAL_SET_FLAG(res & 0x80, F_CF);
 		/* OVERFLOW is set *IFF* s==1, then it is the
-           xor of the two most significant bits.  Blecck. */
+	   xor of the two most significant bits.  Blecck. */
 		CONDITIONAL_SET_FLAG(s == 1 && XOR2(res >> 6), F_OF);
 	} else if (s != 0) {
 		/* set the new carry flag, Note that it is the low order
@@ -1363,9 +1363,9 @@ u16 shl_word(u16 d, u8 s)
 									(((res & 0x8000) == 0x8000) ^
 									 (ACCESS_FLAG(F_CF) != 0)),
 									F_OF);
-        } else {
+	} else {
 			CLEAR_FLAG(F_OF);
-        }
+	}
     } else {
 		res = 0;
 		CONDITIONAL_SET_FLAG((d << (s-1)) & 0x8000, F_CF);
@@ -1474,9 +1474,9 @@ u16 shr_word(u16 d, u8 s)
 
 		if (cnt == 1) {
 			CONDITIONAL_SET_FLAG(XOR2(res >> 14), F_OF);
-        } else {
+	} else {
 			CLEAR_FLAG(F_OF);
-        }
+	}
 	} else {
 		res = 0;
 		CLEAR_FLAG(F_CF);
@@ -1505,16 +1505,16 @@ u32 shr_long(u32 d, u8 s)
 			CONDITIONAL_SET_FLAG((res & 0xffffffff) == 0, F_ZF);
 			CONDITIONAL_SET_FLAG(res & 0x80000000, F_SF);
 			CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-        } else {
-            res = d;
-        }
-        if (cnt == 1) {
+	} else {
+	    res = d;
+	}
+	if (cnt == 1) {
 			CONDITIONAL_SET_FLAG(XOR2(res >> 30), F_OF);
-        } else {
+	} else {
 			CLEAR_FLAG(F_OF);
-        }
+	}
     } else {
-        res = 0;
+	res = 0;
 		CLEAR_FLAG(F_CF);
 		CLEAR_FLAG(F_OF);
 		SET_FLAG(F_ZF);
@@ -1547,8 +1547,8 @@ u8 sar_byte(u8 d, u8 s)
 		CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
 		CONDITIONAL_SET_FLAG(res & 0x80, F_SF);
     } else if (cnt >= 8) {
-        if (sf) {
-            res = 0xff;
+	if (sf) {
+	    res = 0xff;
 			SET_FLAG(F_CF);
 			CLEAR_FLAG(F_ZF);
 			SET_FLAG(F_SF);
@@ -1576,30 +1576,30 @@ u16 sar_word(u16 d, u8 s)
     cnt = s % 16;
 	res = d;
 	if (cnt > 0 && cnt < 16) {
-        mask = (1 << (16 - cnt)) - 1;
-        cf = d & (1 << (cnt - 1));
-        res = (d >> cnt) & mask;
+	mask = (1 << (16 - cnt)) - 1;
+	cf = d & (1 << (cnt - 1));
+	res = (d >> cnt) & mask;
 		CONDITIONAL_SET_FLAG(cf, F_CF);
-        if (sf) {
-            res |= ~mask;
-        }
+	if (sf) {
+	    res |= ~mask;
+	}
 		CONDITIONAL_SET_FLAG((res & 0xffff) == 0, F_ZF);
 		CONDITIONAL_SET_FLAG(res & 0x8000, F_SF);
 		CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
     } else if (cnt >= 16) {
-        if (sf) {
-            res = 0xffff;
+	if (sf) {
+	    res = 0xffff;
 			SET_FLAG(F_CF);
 			CLEAR_FLAG(F_ZF);
 			SET_FLAG(F_SF);
 			SET_FLAG(F_PF);
-        } else {
-            res = 0;
+	} else {
+	    res = 0;
 			CLEAR_FLAG(F_CF);
 			SET_FLAG(F_ZF);
 			CLEAR_FLAG(F_SF);
 			CLEAR_FLAG(F_PF);
-        }
+	}
     }
 	return (u16)res;
 }
@@ -1616,19 +1616,19 @@ u32 sar_long(u32 d, u8 s)
     cnt = s % 32;
 	res = d;
 	if (cnt > 0 && cnt < 32) {
-        mask = (1 << (32 - cnt)) - 1;
+	mask = (1 << (32 - cnt)) - 1;
 		cf = d & (1 << (cnt - 1));
-        res = (d >> cnt) & mask;
+	res = (d >> cnt) & mask;
 		CONDITIONAL_SET_FLAG(cf, F_CF);
-        if (sf) {
-            res |= ~mask;
-        }
+	if (sf) {
+	    res |= ~mask;
+	}
 		CONDITIONAL_SET_FLAG((res & 0xffffffff) == 0, F_ZF);
 		CONDITIONAL_SET_FLAG(res & 0x80000000, F_SF);
 		CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
     } else if (cnt >= 32) {
-        if (sf) {
-            res = 0xffffffff;
+	if (sf) {
+	    res = 0xffffffff;
 			SET_FLAG(F_CF);
 			CLEAR_FLAG(F_ZF);
 			SET_FLAG(F_SF);
@@ -1741,9 +1741,9 @@ u16 shrd_word (u16 d, u16 fill, u8 s)
 
 		if (cnt == 1) {
 			CONDITIONAL_SET_FLAG(XOR2(res >> 14), F_OF);
-        } else {
+	} else {
 			CLEAR_FLAG(F_OF);
-        }
+	}
 	} else {
 		res = 0;
 		CLEAR_FLAG(F_CF);
@@ -1777,9 +1777,9 @@ u32 shrd_long (u32 d, u32 fill, u8 s)
 		}
 		if (cnt == 1) {
 			CONDITIONAL_SET_FLAG(XOR2(res >> 30), F_OF);
-        } else {
+	} else {
 			CLEAR_FLAG(F_OF);
-        }
+	}
 	} else {
 		res = 0;
 		CLEAR_FLAG(F_CF);
@@ -1826,9 +1826,9 @@ u16 sbb_word(u16 d, u16 s)
     register u32 bc;
 
 	if (ACCESS_FLAG(F_CF))
-        res = d - s - 1;
+	res = d - s - 1;
     else
-        res = d - s;
+	res = d - s;
 	CONDITIONAL_SET_FLAG(res & 0x8000, F_SF);
 	CONDITIONAL_SET_FLAG((res & 0xffff) == 0, F_ZF);
 	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
@@ -1851,9 +1851,9 @@ u32 sbb_long(u32 d, u32 s)
 	register u32 bc;
 
 	if (ACCESS_FLAG(F_CF))
-        res = d - s - 1;
+	res = d - s - 1;
     else
-        res = d - s;
+	res = d - s;
 	CONDITIONAL_SET_FLAG(res & 0x80000000, F_SF);
 	CONDITIONAL_SET_FLAG((res & 0xffffffff) == 0, F_ZF);
 	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
@@ -2219,7 +2219,7 @@ void idiv_byte(u8 s)
 	dvd = (s16)M.x86.R_AX;
 	if (s == 0) {
 		x86emu_intr_raise(0);
-        return;
+	return;
 	}
 	div = dvd / (s8)s;
 	mod = dvd % (s8)s;
@@ -2297,7 +2297,7 @@ void idiv_long(u32 s)
 	do {
 		div <<= 1;
 		carry = (l_dvd >= l_s) ? 0 : 1;
-		
+
 		if (abs_h_dvd < (h_s + carry)) {
 			h_s >>= 1;
 			l_s = abs_s << (--counter);
@@ -2311,7 +2311,7 @@ void idiv_long(u32 s)
 			div |= 1;
 			continue;
 		}
-		
+
 	} while (counter > -1);
 	/* overflow */
 	if (abs_h_dvd || (l_dvd > abs_s)) {
@@ -2344,13 +2344,13 @@ void div_byte(u8 s)
 	dvd = M.x86.R_AX;
     if (s == 0) {
 		x86emu_intr_raise(0);
-        return;
+	return;
     }
 	div = dvd / (u8)s;
 	mod = dvd % (u8)s;
 	if (abs(div) > 0xff) {
 		x86emu_intr_raise(0);
-        return;
+	return;
 	}
 	M.x86.R_AL = (u8)div;
 	M.x86.R_AH = (u8)mod;
@@ -2367,7 +2367,7 @@ void div_word(u16 s)
 	dvd = (((u32)M.x86.R_DX) << 16) | M.x86.R_AX;
 	if (s == 0) {
 		x86emu_intr_raise(0);
-        return;
+	return;
     }
 	div = dvd / (u16)s;
 	mod = dvd % (u16)s;
@@ -2413,7 +2413,7 @@ void div_long(u32 s)
 	u32 l_s = 0;
 	int counter = 32;
 	int carry;
-		
+
 	if (s == 0) {
 		x86emu_intr_raise(0);
 		return;
@@ -2421,7 +2421,7 @@ void div_long(u32 s)
 	do {
 		div <<= 1;
 		carry = (l_dvd >= l_s) ? 0 : 1;
-		
+
 		if (h_dvd < (h_s + carry)) {
 			h_s >>= 1;
 			l_s = s << (--counter);
@@ -2435,7 +2435,7 @@ void div_long(u32 s)
 			div |= 1;
 			continue;
 		}
-		
+
 	} while (counter > -1);
 	/* overflow */
 	if (h_dvd || (l_dvd > s)) {
@@ -2468,54 +2468,54 @@ void ins(int size)
 		inc = -size;
 	}
 	if (M.x86.mode & (SYSMODE_PREFIX_REPE | SYSMODE_PREFIX_REPNE)) {
-        /* dont care whether REPE or REPNE */
-        /* in until CX is ZERO. */
+	/* dont care whether REPE or REPNE */
+	/* in until CX is ZERO. */
 		u32 count = ((M.x86.mode & SYSMODE_PREFIX_DATA) ?
 					 M.x86.R_ECX : M.x86.R_CX);
-        switch (size) {
-          case 1:
-            while (count--) {
+	switch (size) {
+	  case 1:
+	    while (count--) {
 				store_data_byte_abs(M.x86.R_ES, M.x86.R_DI,
 									(*sys_inb)(M.x86.R_DX));
 				M.x86.R_DI += inc;
-            }
-            break;
+	    }
+	    break;
 
-          case 2:
-            while (count--) {
+	  case 2:
+	    while (count--) {
 				store_data_word_abs(M.x86.R_ES, M.x86.R_DI,
 									(*sys_inw)(M.x86.R_DX));
 				M.x86.R_DI += inc;
-            }
-            break;
-          case 4:
-            while (count--) {
+	    }
+	    break;
+	  case 4:
+	    while (count--) {
 				store_data_long_abs(M.x86.R_ES, M.x86.R_DI,
 									(*sys_inl)(M.x86.R_DX));
 				M.x86.R_DI += inc;
-                break;
-            }
-        }
+		break;
+	    }
+	}
 		M.x86.R_CX = 0;
 		if (M.x86.mode & SYSMODE_PREFIX_DATA) {
 			M.x86.R_ECX = 0;
-        }
+	}
 		M.x86.mode &= ~(SYSMODE_PREFIX_REPE | SYSMODE_PREFIX_REPNE);
     } else {
-        switch (size) {
-          case 1:
+	switch (size) {
+	  case 1:
 			store_data_byte_abs(M.x86.R_ES, M.x86.R_DI,
 								(*sys_inb)(M.x86.R_DX));
-            break;
-          case 2:
+	    break;
+	  case 2:
 			store_data_word_abs(M.x86.R_ES, M.x86.R_DI,
 								(*sys_inw)(M.x86.R_DX));
-            break;
-          case 4:
+	    break;
+	  case 4:
 			store_data_long_abs(M.x86.R_ES, M.x86.R_DI,
 								(*sys_inl)(M.x86.R_DX));
-            break;
-        }
+	    break;
+	}
 		M.x86.R_DI += inc;
     }
 }
@@ -2529,57 +2529,57 @@ void outs(int size)
     int inc = size;
 
 	if (ACCESS_FLAG(F_DF)) {
-        inc = -size;
+	inc = -size;
     }
 	if (M.x86.mode & (SYSMODE_PREFIX_REPE | SYSMODE_PREFIX_REPNE)) {
-        /* dont care whether REPE or REPNE */
-        /* out until CX is ZERO. */
+	/* dont care whether REPE or REPNE */
+	/* out until CX is ZERO. */
 		u32 count = ((M.x86.mode & SYSMODE_PREFIX_DATA) ?
 					 M.x86.R_ECX : M.x86.R_CX);
-        switch (size) {
-          case 1:
-            while (count--) {
+	switch (size) {
+	  case 1:
+	    while (count--) {
 				(*sys_outb)(M.x86.R_DX,
 						 fetch_data_byte_abs(M.x86.R_ES, M.x86.R_SI));
 				M.x86.R_SI += inc;
-            }
-            break;
+	    }
+	    break;
 
-          case 2:
-            while (count--) {
+	  case 2:
+	    while (count--) {
 				(*sys_outw)(M.x86.R_DX,
 						 fetch_data_word_abs(M.x86.R_ES, M.x86.R_SI));
 				M.x86.R_SI += inc;
-            }
-            break;
-          case 4:
-            while (count--) {
+	    }
+	    break;
+	  case 4:
+	    while (count--) {
 				(*sys_outl)(M.x86.R_DX,
 						 fetch_data_long_abs(M.x86.R_ES, M.x86.R_SI));
 				M.x86.R_SI += inc;
-                break;
-            }
-        }
+		break;
+	    }
+	}
 		M.x86.R_CX = 0;
 		if (M.x86.mode & SYSMODE_PREFIX_DATA) {
 			M.x86.R_ECX = 0;
-        }
+	}
 		M.x86.mode &= ~(SYSMODE_PREFIX_REPE | SYSMODE_PREFIX_REPNE);
     } else {
-        switch (size) {
-          case 1:
+	switch (size) {
+	  case 1:
 			(*sys_outb)(M.x86.R_DX,
 					 fetch_data_byte_abs(M.x86.R_ES, M.x86.R_SI));
-            break;
-          case 2:
+	    break;
+	  case 2:
 			(*sys_outw)(M.x86.R_DX,
 					 fetch_data_word_abs(M.x86.R_ES, M.x86.R_SI));
-            break;
-          case 4:
+	    break;
+	  case 4:
 			(*sys_outl)(M.x86.R_DX,
 					 fetch_data_long_abs(M.x86.R_ES, M.x86.R_SI));
-            break;
-        }
+	    break;
+	}
 		M.x86.R_SI += inc;
     }
 }

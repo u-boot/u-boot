@@ -24,7 +24,6 @@
 #include <common.h>
 #include <asm/processor.h>
 #include <command.h>
-#include <cmd_boot.h>
 #include <malloc.h>
 #include <pci.h>
 #include <405gp_pci.h>
@@ -33,7 +32,7 @@
 
 
 /* ------------------------------------------------------------------------- */
-
+extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);/*cmd_boot.c*/
 #if 0
 #define FPGA_DEBUG
 #endif

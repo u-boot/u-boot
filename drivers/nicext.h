@@ -49,35 +49,35 @@ struct nice_req
     union
     {
 #ifdef __KERNEL__
-        /* cmd = NICE_CMD_SET_RX or NICE_CMD_GET_RX */
-        struct
-        {
-            void (*nrqus1_rx)( struct sk_buff*, void* );
-            void* nrqus1_ctx;
-        } nrqu_nrqus1;
+	/* cmd = NICE_CMD_SET_RX or NICE_CMD_GET_RX */
+	struct
+	{
+	    void (*nrqus1_rx)( struct sk_buff*, void* );
+	    void* nrqus1_ctx;
+	} nrqu_nrqus1;
 
-        /* cmd = NICE_CMD_QUERY_SUPPORT */
-        struct
-        {
-            __u32 nrqus2_magic;
-            __u32 nrqus2_support_rx:1;
-            __u32 nrqus2_support_vlan:1;
-            __u32 nrqus2_support_get_speed:1;
-        } nrqu_nrqus2;
+	/* cmd = NICE_CMD_QUERY_SUPPORT */
+	struct
+	{
+	    __u32 nrqus2_magic;
+	    __u32 nrqus2_support_rx:1;
+	    __u32 nrqus2_support_vlan:1;
+	    __u32 nrqus2_support_get_speed:1;
+	} nrqu_nrqus2;
 #endif
 
-        /* cmd = NICE_CMD_GET_SPEED */
-        struct
-        {
-            unsigned int nrqus3_speed; /* 0 if link is down, */
-                                       /* otherwise speed in Mbps */
-        } nrqu_nrqus3;
+	/* cmd = NICE_CMD_GET_SPEED */
+	struct
+	{
+	    unsigned int nrqus3_speed; /* 0 if link is down, */
+				       /* otherwise speed in Mbps */
+	} nrqu_nrqus3;
 
-        /* cmd = NICE_CMD_BLINK_LED */
-        struct
-        {
-            unsigned int nrqus4_blink_time; /* blink duration in seconds */
-        } nrqu_nrqus4;
+	/* cmd = NICE_CMD_BLINK_LED */
+	struct
+	{
+	    unsigned int nrqus4_blink_time; /* blink duration in seconds */
+	} nrqu_nrqus4;
 
     } nrq_nrqu;
 };
@@ -107,4 +107,3 @@ struct nice_req
 #define NICE_CMD_BLINK_LED              0x00000005
 
 #endif  /* _nicext_h_ */
-

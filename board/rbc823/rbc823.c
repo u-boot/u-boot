@@ -151,7 +151,7 @@ long int initdram (int board_type)
     upmconfig(UPMA, (uint *)sdram_table, sizeof(sdram_table)/sizeof(uint));
 
     /*
-     * 1 Bank of 64Mbit x 2 devices 
+     * 1 Bank of 64Mbit x 2 devices
      */
     memctl->memc_mptpr = CFG_MPTPR_1BK_4K;
     memctl->memc_mar  = 0x00000088;
@@ -164,8 +164,8 @@ long int initdram (int board_type)
     memctl->memc_mamr = CFG_MAMR_8COL & (~(MAMR_PTAE)); /* no refresh yet */
     udelay(200);
 
-    /* 
-     * Perform SDRAM initializsation sequence 
+    /*
+     * Perform SDRAM initializsation sequence
      */
     memctl->memc_mcr  = 0x80008105;	/* SDRAM bank 0 */
     udelay(1);
@@ -174,7 +174,7 @@ long int initdram (int board_type)
     memctl->memc_mcr  = 0x80008130;	/* SDRAM bank 0 - execute twice */
     udelay(1);
     memctl->memc_mamr = (CFG_MAMR_8COL & ~(MAMR_TLFA_MSK)) | MAMR_TLFA_4X;
-    udelay(200); 
+    udelay(200);
 
     memctl->memc_mamr |= MAMR_PTAE;	/* enable refresh */
     udelay (1000);
@@ -185,7 +185,7 @@ long int initdram (int board_type)
      * with two SDRAM banks or four cycles every 31.2 us with one
      * bank. It will be adjusted after memory sizing.
      */
-    memctl->memc_mptpr = CFG_MPTPR_2BK_4K; // 16: but should be: CFG_MPTPR_1BK_4K
+    memctl->memc_mptpr = CFG_MPTPR_2BK_4K; /* 16: but should be: CFG_MPTPR_1BK_4K */
 
     /*
      * Check Bank 0 Memory Size for re-configuration
@@ -289,4 +289,3 @@ void doc_init(void)
 
     doc_probe(FLASH_BASE1_PRELIM);
 }
-

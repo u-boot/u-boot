@@ -57,9 +57,9 @@ static void __LZTimerOn(
     LZTimerObject *tm)
 {
     if (havePerformanceCounter)
-        QueryPerformanceCounter((LARGE_INTEGER*)&tm->start);
+	QueryPerformanceCounter((LARGE_INTEGER*)&tm->start);
     else
-        tm->start.low = timeGetTime();
+	tm->start.low = timeGetTime();
 }
 
 /****************************************************************************
@@ -72,14 +72,14 @@ static ulong __LZTimerLap(
     CPU_largeInteger    tmLap,tmCount;
 
     if (havePerformanceCounter) {
-        QueryPerformanceCounter((LARGE_INTEGER*)&tmLap);
-        _CPU_diffTime64(&tm->start,&tmLap,&tmCount);
-        return _CPU_calcMicroSec(&tmCount,countFreq.low);
-        }
+	QueryPerformanceCounter((LARGE_INTEGER*)&tmLap);
+	_CPU_diffTime64(&tm->start,&tmLap,&tmCount);
+	return _CPU_calcMicroSec(&tmCount,countFreq.low);
+	}
     else {
-        tmLap.low = timeGetTime();
-        return (tmLap.low - tm->start.low) * 1000L;
-        }
+	tmLap.low = timeGetTime();
+	return (tmLap.low - tm->start.low) * 1000L;
+	}
 }
 
 /****************************************************************************
@@ -90,9 +90,9 @@ static void __LZTimerOff(
     LZTimerObject *tm)
 {
     if (havePerformanceCounter)
-        QueryPerformanceCounter((LARGE_INTEGER*)&tm->end);
+	QueryPerformanceCounter((LARGE_INTEGER*)&tm->end);
     else
-        tm->end.low = timeGetTime();
+	tm->end.low = timeGetTime();
 }
 
 /****************************************************************************
@@ -105,11 +105,11 @@ static ulong __LZTimerCount(
     CPU_largeInteger    tmCount;
 
     if (havePerformanceCounter) {
-        _CPU_diffTime64(&tm->start,&tm->end,&tmCount);
-        return _CPU_calcMicroSec(&tmCount,countFreq.low);
-        }
+	_CPU_diffTime64(&tm->start,&tm->end,&tmCount);
+	return _CPU_calcMicroSec(&tmCount,countFreq.low);
+	}
     else
-        return (tm->end.low - tm->start.low) * 1000L;
+	return (tm->end.low - tm->start.low) * 1000L;
 }
 
 /****************************************************************************

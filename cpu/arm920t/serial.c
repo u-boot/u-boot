@@ -92,7 +92,7 @@ int serial_init (void)
 int serial_getc (void)
 {
 	S3C24X0_UART * const uart = S3C24X0_GetBase_UART(UART_NR);
-	
+
 	/* wait for character to arrive */
 	while (!(uart->UTRSTAT & 0x1));
 

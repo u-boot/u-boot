@@ -29,7 +29,7 @@ OBJS	= $(BOARD).o flash.o serial.o
 SOBJS	= init.o
 
 $(LIB):	$(OBJS) $(SOBJS)
-	$(AR) crv $@ $^
+	$(AR) crv $@ $(OBJS)
 
 clean:
 	rm -f $(SOBJS) $(OBJS)

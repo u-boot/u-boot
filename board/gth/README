@@ -16,5 +16,3 @@ When using 1 or 2, the image is supposed to be launched
 from miniboot that boots the first U-Boot image found in
 flash.
 For miniboot code, description, see www.opensource.se
-
-

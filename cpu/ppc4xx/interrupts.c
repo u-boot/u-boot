@@ -27,7 +27,6 @@
 #include <common.h>
 #include <watchdog.h>
 #include <command.h>
-#include <cmd_boot.h>
 #include <asm/processor.h>
 #include <ppc4xx.h>
 #include <ppc_asm.tmpl>

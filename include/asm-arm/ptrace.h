@@ -31,4 +31,3 @@ extern void show_regs(struct pt_regs *);
 #endif /* __ASSEMBLY__ */
 
 #endif
-

@@ -75,9 +75,9 @@ GA_sharedInfo * NAPI GA_getSharedInfo(
     PM_init();
     inBuf[0] = device;
     if (DeviceIoControl(_PM_hDevice, PMHELP_GETSHAREDINFO32, inBuf, sizeof(inBuf),
-            outBuf, sizeof(outBuf), &count, NULL)) {
-        return (GA_sharedInfo*)outBuf[0];
-        }
+	    outBuf, sizeof(outBuf), &count, NULL)) {
+	return (GA_sharedInfo*)outBuf[0];
+	}
     return NULL;
 }
 
@@ -102,16 +102,16 @@ static ibool NAPI _GA_softStereoInit(
     GA_devCtx *dc)
 {
     if (_PM_hDevice) {
-        DWORD   inBuf[1];   /* Buffer to send data to VxD       */
-        DWORD   outBuf[1];  /* Buffer to receive data from VxD  */
-        DWORD   count;      /* Count of bytes returned from VxD */
+	DWORD   inBuf[1];   /* Buffer to send data to VxD       */
+	DWORD   outBuf[1];  /* Buffer to receive data from VxD  */
+	DWORD   count;      /* Count of bytes returned from VxD */
 
-        inBuf[0] = (ulong)dc;
-        if (DeviceIoControl(_PM_hDevice, PMHELP_GASTEREOINIT32, inBuf, sizeof(inBuf),
-                outBuf, sizeof(outBuf), &count, NULL)) {
-            return outBuf[0];
-            }
-        }
+	inBuf[0] = (ulong)dc;
+	if (DeviceIoControl(_PM_hDevice, PMHELP_GASTEREOINIT32, inBuf, sizeof(inBuf),
+		outBuf, sizeof(outBuf), &count, NULL)) {
+	    return outBuf[0];
+	    }
+	}
     return false;
 }
 
@@ -122,9 +122,9 @@ This function turns on software stereo mode, either directly or via the VxD.
 static void NAPI _GA_softStereoOn(void)
 {
     if (_PM_hDevice) {
-        DeviceIoControl(_PM_hDevice, PMHELP_GASTEREOON32, NULL, 0,
-            NULL, 0, NULL, NULL);
-        }
+	DeviceIoControl(_PM_hDevice, PMHELP_GASTEREOON32, NULL, 0,
+	    NULL, 0, NULL, NULL);
+	}
 }
 
 /****************************************************************************
@@ -137,14 +137,14 @@ static void NAPI _GA_softStereoScheduleFlip(
     N_uint32 rightAddr)
 {
     if (_PM_hDevice) {
-        DWORD   inBuf[2];   /* Buffer to send data to VxD       */
-        DWORD   count;      /* Count of bytes returned from VxD */
+	DWORD   inBuf[2];   /* Buffer to send data to VxD       */
+	DWORD   count;      /* Count of bytes returned from VxD */
 
-        inBuf[0] = (ulong)leftAddr;
-        inBuf[1] = (ulong)rightAddr;
-        DeviceIoControl(_PM_hDevice, PMHELP_GASTEREOFLIP32, inBuf, sizeof(inBuf),
-            NULL, 0, &count, NULL);
-        }
+	inBuf[0] = (ulong)leftAddr;
+	inBuf[1] = (ulong)rightAddr;
+	DeviceIoControl(_PM_hDevice, PMHELP_GASTEREOFLIP32, inBuf, sizeof(inBuf),
+	    NULL, 0, &count, NULL);
+	}
 }
 
 /****************************************************************************
@@ -154,14 +154,14 @@ This function turns off software stereo mode, either directly or via the VxD.
 static N_int32 NAPI _GA_softStereoGetFlipStatus(void)
 {
     if (_PM_hDevice) {
-        DWORD   outBuf[1];  /* Buffer to receive data from VxD  */
-        DWORD   count;      /* Count of bytes returned from VxD */
+	DWORD   outBuf[1];  /* Buffer to receive data from VxD  */
+	DWORD   count;      /* Count of bytes returned from VxD */
 
-        if (DeviceIoControl(_PM_hDevice, PMHELP_GASTEREOFLIPSTATUS32, NULL, 0,
-                outBuf, sizeof(outBuf), &count, NULL)) {
-            return outBuf[0];
-            }
-        }
+	if (DeviceIoControl(_PM_hDevice, PMHELP_GASTEREOFLIPSTATUS32, NULL, 0,
+		outBuf, sizeof(outBuf), &count, NULL)) {
+	    return outBuf[0];
+	    }
+	}
     return 0;
 }
 
@@ -172,7 +172,7 @@ This function turns off software stereo mode, either directly or via the VxD.
 static void NAPI _GA_softStereoWaitTillFlipped(void)
 {
     while (!_GA_softStereoGetFlipStatus())
-        ;
+	;
 }
 
 /****************************************************************************
@@ -182,9 +182,9 @@ This function turns off software stereo mode, either directly or via the VxD.
 static void NAPI _GA_softStereoOff(void)
 {
     if (_PM_hDevice) {
-        DeviceIoControl(_PM_hDevice, PMHELP_GASTEREOOFF32, NULL, 0,
-            NULL, 0, NULL, NULL);
-        }
+	DeviceIoControl(_PM_hDevice, PMHELP_GASTEREOOFF32, NULL, 0,
+	    NULL, 0, NULL, NULL);
+	}
 }
 
 /****************************************************************************
@@ -195,9 +195,9 @@ the VxD.
 static void NAPI _GA_softStereoExit(void)
 {
     if (_PM_hDevice) {
-        DeviceIoControl(_PM_hDevice, PMHELP_GASTEREOEXIT32, NULL, 0,
-            NULL, 0, NULL, NULL);
-        }
+	DeviceIoControl(_PM_hDevice, PMHELP_GASTEREOEXIT32, NULL, 0,
+	    NULL, 0, NULL, NULL);
+	}
 }
 
 /****************************************************************************
@@ -217,14 +217,14 @@ static GA_devCtx * NAPI _GA_loadDriver(
     N_int32     totalMemory = 0,oldIOPL;
 
     if (deviceIndex >= GA_MAX_DEVICES)
-        PM_fatalError("DeviceIndex too large in GA_loadDriver!");
+	PM_fatalError("DeviceIndex too large in GA_loadDriver!");
     PM_init();
     inBuf[0] = deviceIndex;
     if (DeviceIoControl(_PM_hDevice, PMHELP_GETMEMSIZE32,
-            inBuf, sizeof(inBuf), outBuf, sizeof(outBuf), NULL, NULL))
-        totalMemory = outBuf[0];
+	    inBuf, sizeof(inBuf), outBuf, sizeof(outBuf), NULL, NULL))
+	totalMemory = outBuf[0];
     if (totalMemory == 0)
-        totalMemory = 8192;
+	totalMemory = 8192;
     _GA_exports.GA_forceMemSize(totalMemory,shared);
     oldIOPL = PM_setIOPL(3);
     dc = ORG_GA_loadDriver(deviceIndex,shared);
@@ -240,13 +240,13 @@ Nucleus loader library.
 ibool NAPI GA_TimerInit(void)
 {
     if (_GA_haveCPUID() && (_GA_getCPUIDFeatures() & CPU_HaveRDTSC) != 0) {
-        haveRDTSC = true;
-        return true;
-        }
+	haveRDTSC = true;
+	return true;
+	}
     else if (QueryPerformanceFrequency((LARGE_INTEGER*)&countFreq)) {
-        haveRDTSC = false;
-        return true;
-        }
+	haveRDTSC = false;
+	return true;
+	}
     return false;
 }
 
@@ -258,7 +258,7 @@ void NAPI GA_TimerRead(
     GA_largeInteger *value)
 {
     if (haveRDTSC)
-        _GA_readTimeStamp(value);
+	_GA_readTimeStamp(value);
     else
-        QueryPerformanceCounter((LARGE_INTEGER*)value);
+	QueryPerformanceCounter((LARGE_INTEGER*)value);
 }

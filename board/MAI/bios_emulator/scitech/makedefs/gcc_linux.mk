@@ -178,4 +178,3 @@ PMLIB           := -lpm
 # Define which file contains our rules
 
    RULES_MAK	:= gcc_linux.mk
-

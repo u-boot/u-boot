@@ -26,7 +26,7 @@ include $(TOPDIR)/config.mk
 LIB	= lib$(BOARD).a
 
 OBJS	= $(BOARD).o flash.o
-SOBJS	= init.o 
+SOBJS	= init.o
 
 # HACK: depend needs bootscript.c, which needs tools/mkimage, which is not
 # built in the depend stage.  So... put bootscript.o here, not in OBJS

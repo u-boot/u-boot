@@ -1,3 +1,4 @@
+
 #
 # (C) Copyright 2000
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -29,7 +30,7 @@ OBJS	:= lubbock.o flash.o
 SOBJS	:= memsetup.o
 
 $(LIB):	$(OBJS) $(SOBJS)
-	$(AR) crv $@ $^
+	$(AR) crv $@ $(OBJS) $(SOBJS)
 
 clean:
 	rm -f $(SOBJS) $(OBJS)

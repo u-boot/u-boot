@@ -71,7 +71,7 @@ unsigned long flash_init (void)
 	int i;
 
 	/* Init: no FLASHes known */
-	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) 
+	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i)
 	{
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 
@@ -81,7 +81,7 @@ unsigned long flash_init (void)
 */
 		size_b[i] = flash_get_size((vu_char *) 0xff800000 , &flash_info[i]);
 
-		if (flash_info[i].flash_id == FLASH_UNKNOWN) 
+		if (flash_info[i].flash_id == FLASH_UNKNOWN)
 		{
 			printf ("## Unknown FLASH on Bank %d: "
 				"ID 0x%lx, Size = 0x%08lx = %ld MB\n",
@@ -119,7 +119,7 @@ unsigned long flash_init (void)
 
 	size = 0;
 	DEBUGF("## Final Flash bank sizes: ");
-	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) 
+	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i)
 	{
 		DEBUGF("%08lx ", size_b[i]);
 		size += size_b[i];
@@ -174,16 +174,16 @@ void flash_print_info  (flash_info_t *info)
 	}
 
 	switch (info->flash_id & FLASH_TYPEMASK) {
-	case FLASH_28F320J3A:	
+	case FLASH_28F320J3A:
 			printf ("28F320J3A (32Mbit = 128K x 32)\n");
 			break;
-	case FLASH_28F640J3A:	
+	case FLASH_28F640J3A:
 			printf ("28F640J3A (64Mbit = 128K x 64)\n");
 			break;
-	case FLASH_28F128J3A:	
+	case FLASH_28F128J3A:
 			printf ("28F128J3A (128Mbit = 128K x 128)\n");
 			break;
-	default:		
+	default:
 			printf ("Unknown Chip Type\n");
 			break;
 	}

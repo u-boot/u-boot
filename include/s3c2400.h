@@ -465,7 +465,6 @@ static inline S3C2400_MMC * const S3C2400_GetBase_MMC(void)
 #define rMMDAT		(*(volatile unsigned *)0x15a0003C)
 
 
-
 /* ISR */
 #define pISR_RESET	(*(unsigned *)(_ISR_STARTADDRESS+0x0))
 #define pISR_UNDEF	(*(unsigned *)(_ISR_STARTADDRESS+0x4))

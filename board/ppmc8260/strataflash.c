@@ -90,8 +90,6 @@
 #define FLASH_MAN_CFI			0x01000000
 
 
-
-
 typedef union {
 	unsigned char c;
 	unsigned short w;
@@ -112,7 +110,6 @@ flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 /*-----------------------------------------------------------------------
  * Functions
  */
-
 
 
 static void flash_add_byte(flash_info_t *info, cfiword_t * cword, uchar c);

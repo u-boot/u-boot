@@ -81,18 +81,18 @@ typedef struct  {
 
 unsigned long el_srom_checksum (unsigned char *ptr, unsigned long size);
 int el_srom_load  (unsigned char addr, unsigned char *buf, int cnt,
-                   unsigned char device, unsigned char block);
+		   unsigned char device, unsigned char block);
 int el_srom_store (unsigned char addr, unsigned char *buf, int cnt,
-                   unsigned char device, unsigned char block);
+		   unsigned char device, unsigned char block);
 
 int mpc107_i2c_init (unsigned long eumb_addr, unsigned long divider);
 int mpc107_i2c_read_byte (unsigned char device, unsigned char block, unsigned char offset);
 int mpc107_i2c_write_byte (unsigned char device, unsigned char block,
-                           unsigned char offset, unsigned char val);
+			   unsigned char offset, unsigned char val);
 int mpc107_srom_load (unsigned char addr, unsigned char *pBuf, int cnt,
-                      unsigned char device, unsigned char block);
+		      unsigned char device, unsigned char block);
 int mpc107_srom_store (unsigned char addr, unsigned char *pBuf, int cnt,
-                       unsigned char device, unsigned char block);
+		       unsigned char device, unsigned char block);
 
 int dc_srom_load (unsigned short *dest);
 int dc_srom_store (unsigned short *src);

@@ -28,7 +28,6 @@ They are meant as EXAMPLE code, so it is very likely  that  you  will
 have to modify them before use.
 
 
-
 Short description:
 ==================
 
@@ -40,11 +39,11 @@ dot.kermrc:
 
 flash_param:
 
-        "kermit" script to automatically initialize the environment
-        variables on your target. This is most useful during
-        development when your environment variables are stored in an
-        embedded flash sector which is erased whenever you install a
-        new U-Boot image.
+	"kermit" script to automatically initialize the environment
+	variables on your target. This is most useful during
+	development when your environment variables are stored in an
+	embedded flash sector which is erased whenever you install a
+	new U-Boot image.
 
 	by Swen Anderson, 10 May 2001
 
@@ -52,9 +51,9 @@ send_cmd:
 
 	send_cmd U_BOOT_COMMAND
 
-        "kermit" script to send a U-Boot command and print the
-        results. When used from a shell with history (like the bash)
-        this indirectly adds kind of history to U-Boot ;-)
+	"kermit" script to send a U-Boot command and print the
+	results. When used from a shell with history (like the bash)
+	this indirectly adds kind of history to U-Boot ;-)
 
 	by Swen Anderson, 10 May 2001
 
@@ -62,7 +61,7 @@ send_image:
 
 	send_image FILE_NAME OFFSET
 
-        "kermit" script to automatically download a file to the
-        target using the "loadb" command (kermit binary protocol)
+	"kermit" script to automatically download a file to the
+	target using the "loadb" command (kermit binary protocol)
 
 	by Swen Anderson, 10 May 2001

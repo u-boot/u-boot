@@ -28,7 +28,7 @@ LIB	= lib$(BOARD).a
 OBJS	= $(BOARD).o flash.o bsp.o eeprom.o fetch.o input.o env.o
 
 $(LIB):	.depend $(OBJS)
-	$(AR) crv $@ $^
+	$(AR) crv $@ $(OBJS)
 
 #########################################################################
 

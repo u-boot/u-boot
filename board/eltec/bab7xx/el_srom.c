@@ -83,14 +83,14 @@ static unsigned char eepReadByte (void)
 
     for (i = 0; i < 8; i++)
     {
-        out8(I2C_BUS_DAT, 0x00);    /* SCLK = low   SDIO = high */
-        udelay(10);
-        out8(I2C_BUS_DAT, 0x40);    /* SCLK = high  SDIO = high */
-        udelay(15);
-        buf <<= 1;
-        buf = (in8(I2C_BUS_DAT) & 0x20) ? (buf | 0x01) : (buf & 0xFE);
-        out8(I2C_BUS_DAT, 0x00);    /* SCLK = low   SDIO = high */
-        udelay(10);
+	out8(I2C_BUS_DAT, 0x00);    /* SCLK = low   SDIO = high */
+	udelay(10);
+	out8(I2C_BUS_DAT, 0x40);    /* SCLK = high  SDIO = high */
+	udelay(15);
+	buf <<= 1;
+	buf = (in8(I2C_BUS_DAT) & 0x20) ? (buf | 0x01) : (buf & 0xFE);
+	out8(I2C_BUS_DAT, 0x00);    /* SCLK = low   SDIO = high */
+	udelay(10);
     }
     return(buf);
 }
@@ -113,13 +113,13 @@ static void eepWriteByte (register unsigned char buf)
 
     for (i = 7; i >= 0; i--)
     {
-        (buf & 0x80) ? out8(I2C_BUS_DAT, 0x20) : out8(I2C_BUS_DAT, 0x00); /* SCLK=low  SDIO=data */
-        udelay(10);
-        (buf & 0x80) ? out8(I2C_BUS_DAT, 0x60) : out8(I2C_BUS_DAT, 0x40); /* SCLK=high SDIO=data */
-        udelay(15);
-        (buf & 0x80) ? out8(I2C_BUS_DAT, 0x20) : out8(I2C_BUS_DAT, 0x00); /* SCLK=low  SDIO=data */
-        udelay(10);
-        buf <<= 1;
+	(buf & 0x80) ? out8(I2C_BUS_DAT, 0x20) : out8(I2C_BUS_DAT, 0x00); /* SCLK=low  SDIO=data */
+	udelay(10);
+	(buf & 0x80) ? out8(I2C_BUS_DAT, 0x60) : out8(I2C_BUS_DAT, 0x40); /* SCLK=high SDIO=data */
+	udelay(15);
+	(buf & 0x80) ? out8(I2C_BUS_DAT, 0x20) : out8(I2C_BUS_DAT, 0x00); /* SCLK=low  SDIO=data */
+	udelay(10);
+	buf <<= 1;
     }
 }
 
@@ -184,39 +184,39 @@ unsigned char block;
 
     for (i=0;i<cnt;i++)
     {
-        eepStart();
-        eepWriteByte(0xA0 | device | block);
-        if (eepReadAck() == ERROR)
-        {
-           eepStop();
-            return(ERROR);
-        }
-        eepWriteByte(addr++);
-        if (eepReadAck() == ERROR)
-        {
-            eepStop();
-            return(ERROR);
-        }
-        eepStart();
+	eepStart();
+	eepWriteByte(0xA0 | device | block);
+	if (eepReadAck() == ERROR)
+	{
+	   eepStop();
+	    return(ERROR);
+	}
+	eepWriteByte(addr++);
+	if (eepReadAck() == ERROR)
+	{
+	    eepStop();
+	    return(ERROR);
+	}
+	eepStart();
 
-        eepWriteByte(0xA1 | device | block);
-        if (eepReadAck() == ERROR)
-        {
-            eepStop();
-            return(ERROR);
-        }
+	eepWriteByte(0xA1 | device | block);
+	if (eepReadAck() == ERROR)
+	{
+	    eepStop();
+	    return(ERROR);
+	}
 
-        *buf++ = eepReadByte();
-        eepWriteAck(1);
-        eepStop();
+	*buf++ = eepReadByte();
+	eepWriteAck(1);
+	eepStop();
 
-        if ((addr == 0) && (i != (cnt-1)))    /* is it the same block ? */
-        {
-            if (block == FIRST_BLOCK)
-                block = SECOND_BLOCK;
-            else
-                return(ERROR);
-        }
+	if ((addr == 0) && (i != (cnt-1)))    /* is it the same block ? */
+	{
+	    if (block == FIRST_BLOCK)
+		block = SECOND_BLOCK;
+	    else
+		return(ERROR);
+	}
     }
     return(cnt);
 }
@@ -235,31 +235,31 @@ int        cnt;
 
     for (i=0;i<cnt;i++)
     {
-        retVal = ERROR;
-        do
-        {
-            eepStart();
-            eepWriteByte(0xA0 | device | block);
-            if ((retVal = eepReadAck()) == ERROR)
-                eepStop();
-        } while (retVal == ERROR);
+	retVal = ERROR;
+	do
+	{
+	    eepStart();
+	    eepWriteByte(0xA0 | device | block);
+	    if ((retVal = eepReadAck()) == ERROR)
+		eepStop();
+	} while (retVal == ERROR);
 
-        eepWriteByte(addr++);
-        if (eepReadAck() == ERROR)  return(ERROR);
+	eepWriteByte(addr++);
+	if (eepReadAck() == ERROR)  return(ERROR);
 
-        if ((addr == 0) && (i != (cnt-1)))    /* is it the same block ? */
-        {
-            if (block == FIRST_BLOCK)
-                block = SECOND_BLOCK;
-            else
-            return(ERROR);
-        }
+	if ((addr == 0) && (i != (cnt-1)))    /* is it the same block ? */
+	{
+	    if (block == FIRST_BLOCK)
+		block = SECOND_BLOCK;
+	    else
+	    return(ERROR);
+	}
 
-        eepWriteByte(*buf++);
-        if (eepReadAck() == ERROR)
-            return(ERROR);
+	eepWriteByte(*buf++);
+	if (eepReadAck() == ERROR)
+	    return(ERROR);
 
-        eepStop();
+	eepStop();
     }
     return(cnt);
 }
@@ -278,13 +278,13 @@ unsigned long size;
 
     for (; size; size--)
     {
-        byte = *ptr++;
-        for (i = 8; i; i--)
-        {
-            f =  ((byte & 1) ^ (accu & 1)) ? 0x84083001 : 0;
-            accu >>= 1; accu ^= f;
-            byte >>= 1;
-        }
+	byte = *ptr++;
+	for (i = 8; i; i--)
+	{
+	    f =  ((byte & 1) ^ (accu & 1)) ? 0x84083001 : 0;
+	    accu >>= 1; accu ^= f;
+	    byte >>= 1;
+	}
     }
     return(accu);
 }

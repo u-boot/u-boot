@@ -38,7 +38,7 @@ mii_discover_phy(void)
 	if (phy_reg & 0x0400)
 	    printf("Phy operating at %d MBit/s in %s-duplex mode\n",
 		phy_reg & 0x4000 ? 100 : 10,
-	    	phy_reg & 0x0200 ? "full" : "half");
+		phy_reg & 0x0200 ? "full" : "half");
 	else
 	    printf("bad link!!\n");
 /*
@@ -59,7 +59,7 @@ mii_phy_read(unsigned short reg)
     tmp = 0x6002 | (adr << 7) | (reg << 2);
     regs->bcsr4 = 0xC3;
     for (i = 0; i < 64; i++) {
-        regs->bcsr4 ^= MII_MDCK;
+	regs->bcsr4 ^= MII_MDCK;
     }
     for (i = 0; i < 16; i++) {
 	regs->bcsr4 &= ~MII_MDCK;
@@ -92,7 +92,7 @@ mii_phy_write(unsigned short reg, unsigned short val)
     }
     for (i = 0; i < 16; i++) {
 	regs->bcsr4 &= ~MII_MDCK;
-        if (tmp & 0x8000) regs->bcsr4 |= MII_MDIO;
+	if (tmp & 0x8000) regs->bcsr4 |= MII_MDIO;
 	else regs->bcsr4 &= ~MII_MDIO;
 	regs->bcsr4 |= MII_MDCK;
 	tmp <<= 1;
@@ -105,4 +105,3 @@ mii_phy_write(unsigned short reg, unsigned short val)
 	val <<= 1;
     }
 }
-

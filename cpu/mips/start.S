@@ -65,7 +65,7 @@ _start:
 	RVECENT(romReserved,14)
 	RVECENT(romReserved,15)
 	RVECENT(romReserved,16)
-	RVECENT(romReserved,17) 
+	RVECENT(romReserved,17)
 	RVECENT(romReserved,18)
 	RVECENT(romReserved,19)
 	RVECENT(romReserved,20)
@@ -111,7 +111,7 @@ _start:
 	RVECENT(romReserved,60)
 	RVECENT(romReserved,61)
 	RVECENT(romReserved,62)
-	RVECENT(romReserved,63) 
+	RVECENT(romReserved,63)
 	XVECENT(romExcHandle,0x200)	/* bfc00200: R4000 tlbmiss vector */
 	RVECENT(romReserved,65)
 	RVECENT(romReserved,66)
@@ -127,7 +127,7 @@ _start:
 	RVECENT(romReserved,76)
 	RVECENT(romReserved,77)
 	RVECENT(romReserved,78)
-	RVECENT(romReserved,79) 
+	RVECENT(romReserved,79)
 	XVECENT(romExcHandle,0x280)	/* bfc00280: R4000 xtlbmiss vector */
 	RVECENT(romReserved,81)
 	RVECENT(romReserved,82)
@@ -143,7 +143,7 @@ _start:
 	RVECENT(romReserved,92)
 	RVECENT(romReserved,93)
 	RVECENT(romReserved,94)
-	RVECENT(romReserved,95) 
+	RVECENT(romReserved,95)
 	XVECENT(romExcHandle,0x300)	/* bfc00300: R4000 cache vector */
 	RVECENT(romReserved,97)
 	RVECENT(romReserved,98)
@@ -176,7 +176,7 @@ _start:
 	RVECENT(romReserved,125)
 	RVECENT(romReserved,126)
 	RVECENT(romReserved,127)
-   
+
 	/* We hope there are no more reserved vectors!
 	 * 128 * 8 == 1024 == 0x400
 	 * so this is address R_VEC+0x400 == 0xbfc00400
@@ -237,7 +237,7 @@ reset:
 	nop
 #endif
 
-	/* Initialize any external memory. 
+	/* Initialize any external memory.
 	 */
 	bal	memsetup
 	nop
@@ -300,7 +300,7 @@ relocate_code:
 	sub	gp, CFG_MONITOR_BASE
 	add	gp, a2			/* gp now adjusted		*/
 	sub	t6, gp, t6		/* t6 <-- relocation offset	*/
-	
+
 	li	t0, CFG_MONITOR_BASE
 	la	t3, in_ram
 	lw	t2, -12(t3)	/* t2 <-- uboot_end_data	*/
@@ -363,14 +363,13 @@ in_ram:
 1:	addi	t1, 4
 	bltl	t1, t2, 1b
 	sw	zero, 0(t1)	/* delay slot			*/
-	
+
 	move	a0, a1
 	la	t9, board_init_r
 	j	t9
 	move	a1, a2		/* delay slot			*/
 
 	.end	relocate_code
-	
 
 
 	/* Exception handlers.
@@ -380,4 +379,3 @@ romReserved:
 
 romExcHandle:
 	b romExcHandle
-

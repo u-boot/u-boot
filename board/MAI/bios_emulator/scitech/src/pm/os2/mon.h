@@ -63,55 +63,55 @@ typedef struct _MLNPACKET {
   USHORT  KbdDDFlagWord;
 } MLNPACKET;
 
-// DBCSStatus
+/* DBCSStatus */
 
-#define SF_SHIFTS              1  // If set to 1, shift status returned without a character
-#define SF_NOTCHAR             2  // 0 - Scan code is a character
-                                  // 1 - Scan code is not a character;
-                                  //     instead it is an extended key code from the keyboard.
-#define SF_IMMEDIATE          32  // If set to 1, immediate conversion requested
-#define SF_TYPEMASK          192  // Has the following values:
-                                  // 00 - Undefined
-                                  // 01 - Final character; interim character flag is turned off
-                                  // 10 - Interim character
-                                  // 11 - Final character; interim character flag is turned on.
-// MonFlagWord
+#define SF_SHIFTS              1  /* If set to 1, shift status returned without a character */
+#define SF_NOTCHAR             2  /* 0 - Scan code is a character */
+				  /* 1 - Scan code is not a character; */
+				  /*     instead it is an extended key code from the keyboard. */
+#define SF_IMMEDIATE          32  /* If set to 1, immediate conversion requested */
+#define SF_TYPEMASK          192  /* Has the following values: */
+				  /* 00 - Undefined */
+				  /* 01 - Final character; interim character flag is turned off */
+				  /* 10 - Interim character */
+				  /* 11 - Final character; interim character flag is turned on. */
+/* MonFlagWord */
 
-#define MF_OPEN                1  // open
-#define MF_CLOSE               2  // close
-#define MF_FLUSH               4  // is flush packet
+#define MF_OPEN                1  /* open */
+#define MF_CLOSE               2  /* close */
+#define MF_FLUSH               4  /* is flush packet */
 
-// KbdDDFlagWord
+/* KbdDDFlagWord */
 
-#define KF_NOTSQPACKET      1024  // Don't put this packet in SQ buffer
-#define KF_ACCENTEDKEY       512  // Key was translated using previous accent.
-#define KF_MULTIMAKE         256  // Key was repeated make of a toggle key.
-#define KF_SECONDARYKEY      128  // Previous scan code was the E0 prefix code.
-#define KF_KEYBREAK           64  // This is the break of the key.
-#define KF_KEYTYPEMASK        63  // Isolates the Key Type field of DDFlags.
-#define KF_UNDEFKEY           63  // Key packet is undefined
-#define KF_SYSREQKEY          23  // This key packet is the SysReq key (4990)
-#define KF_PRINTFLUSHKEY      22  // This packet is Ct-Alt-PrtScr
-#define KF_PSPRINTECHOKEY     21  // This packet is Ctl-P
-#define KF_PRINTECHOKEY       20  // This packet is Ctl-PrtScr
-#define KF_PRTSCRKEY          19  // This packet is PrtScr
-#define KF_PSBREAKKEY         18  // This packet is Ctl-C
-#define KF_BREAKKEY           17  // This packet is Ctl-Break
-#define KF_ACCENTKEY          16  // This packet is an accent key
-#define KF_XRORPNOT           13  // This packet is a Read or Peek Notification Pct.
-#define KF_MLNOTIFICATION     14  // packet is a Multi-Layer NLS packet
-#define KF_HOTKEYPACKET       12  // This packet is the hot key.
-#define KF_BADKEYCOMBO        11  // Accent/char combo undefined, beep only.
-#define KF_WAKEUPKEY          10  // This packet is one following PAUSEKEY
-#define KF_PSPAUSEKEY          9  // This packet is Ctl-S
-#define KF_PAUSEKEY            8  // This packet is Ctl-Numlock or PAUSE
-#define KF_SHIFTMASK           7  // Key is a shift Key
-#define KF_DUMPKEY             6  // This packet is Ctl-Numlock-NumLock
-#define KF_REBOOTKEY           5  // This packet is Ctl-Alt-Del
-#define KF_RESENDCODE          4  // This packet is resend code from controller
-#define KF_OVERRUNCODE         3  // This packet is overrun code from controller
-#define KF_SECPREFIXCODE       2  // This packet is E0/E1 scan code
-#define KF_ACKCODE             1  // This packet is ack code from keyboard
+#define KF_NOTSQPACKET      1024  /* Don't put this packet in SQ buffer */
+#define KF_ACCENTEDKEY       512  /* Key was translated using previous accent. */
+#define KF_MULTIMAKE         256  /* Key was repeated make of a toggle key. */
+#define KF_SECONDARYKEY      128  /* Previous scan code was the E0 prefix code. */
+#define KF_KEYBREAK           64  /* This is the break of the key. */
+#define KF_KEYTYPEMASK        63  /* Isolates the Key Type field of DDFlags. */
+#define KF_UNDEFKEY           63  /* Key packet is undefined */
+#define KF_SYSREQKEY          23  /* This key packet is the SysReq key (4990) */
+#define KF_PRINTFLUSHKEY      22  /* This packet is Ct-Alt-PrtScr */
+#define KF_PSPRINTECHOKEY     21  /* This packet is Ctl-P */
+#define KF_PRINTECHOKEY       20  /* This packet is Ctl-PrtScr */
+#define KF_PRTSCRKEY          19  /* This packet is PrtScr */
+#define KF_PSBREAKKEY         18  /* This packet is Ctl-C */
+#define KF_BREAKKEY           17  /* This packet is Ctl-Break */
+#define KF_ACCENTKEY          16  /* This packet is an accent key */
+#define KF_XRORPNOT           13  /* This packet is a Read or Peek Notification Pct. */
+#define KF_MLNOTIFICATION     14  /* packet is a Multi-Layer NLS packet */
+#define KF_HOTKEYPACKET       12  /* This packet is the hot key. */
+#define KF_BADKEYCOMBO        11  /* Accent/char combo undefined, beep only. */
+#define KF_WAKEUPKEY          10  /* This packet is one following PAUSEKEY */
+#define KF_PSPAUSEKEY          9  /* This packet is Ctl-S */
+#define KF_PAUSEKEY            8  /* This packet is Ctl-Numlock or PAUSE */
+#define KF_SHIFTMASK           7  /* Key is a shift Key */
+#define KF_DUMPKEY             6  /* This packet is Ctl-Numlock-NumLock */
+#define KF_REBOOTKEY           5  /* This packet is Ctl-Alt-Del */
+#define KF_RESENDCODE          4  /* This packet is resend code from controller */
+#define KF_OVERRUNCODE         3  /* This packet is overrun code from controller */
+#define KF_SECPREFIXCODE       2  /* This packet is E0/E1 scan code */
+#define KF_ACKCODE             1  /* This packet is ack code from keyboard */
 
 
 typedef struct _MONBUF {
@@ -120,29 +120,29 @@ typedef struct _MONBUF {
   BYTE      Reserved[20];
 } MONBUF;
 
-#define RS_SYSREG      32768  // Bit 15  SysReq key down
-#define RS_CAPSLOCK    16384  // Bit 14  Caps Lock key down
-#define RS_NUMLOCK      8192  // Bit 13  NumLock key down
-#define RS_SCROLLLOCK   4096  // Bit 12  Scroll Lock key down
-#define RS_RALT         2048  // Bit 11  Right Alt key down
-#define RS_RCONTROL     1024  // Bit 10  Right Ctrl key down
-#define RS_LALT          512  // Bit  9  Left Alt key down
-#define RS_LCONTROL      256  // Bit  8  Left Ctrl key down
-#define RS_INSERT        128  // Bit  7  Insert on
-#define RS_CAPS           64  // Bit  6  Caps Lock on
-#define RS_NUM            32  // Bit  5  NumLock on
-#define RS_SCROLL         16  // Bit  4  Scroll Lock on
-#define RS_ALT             8  // Bit  3  Either Alt key down
-#define RS_CONTROL         4  // Bit  2  Either Ctrl key down
-#define RS_LSHIFT          2  // Bit  1  Left Shift key down
-#define RS_RSHIFT          1  // Bit  0  Right Shift key down
+#define RS_SYSREG      32768  /* Bit 15  SysReq key down */
+#define RS_CAPSLOCK    16384  /* Bit 14  Caps Lock key down */
+#define RS_NUMLOCK      8192  /* Bit 13  NumLock key down */
+#define RS_SCROLLLOCK   4096  /* Bit 12  Scroll Lock key down */
+#define RS_RALT         2048  /* Bit 11  Right Alt key down */
+#define RS_RCONTROL     1024  /* Bit 10  Right Ctrl key down */
+#define RS_LALT          512  /* Bit  9  Left Alt key down */
+#define RS_LCONTROL      256  /* Bit  8  Left Ctrl key down */
+#define RS_INSERT        128  /* Bit  7  Insert on */
+#define RS_CAPS           64  /* Bit  6  Caps Lock on */
+#define RS_NUM            32  /* Bit  5  NumLock on */
+#define RS_SCROLL         16  /* Bit  4  Scroll Lock on */
+#define RS_ALT             8  /* Bit  3  Either Alt key down */
+#define RS_CONTROL         4  /* Bit  2  Either Ctrl key down */
+#define RS_LSHIFT          2  /* Bit  1  Left Shift key down */
+#define RS_RSHIFT          1  /* Bit  0  Right Shift key down */
 
 
-#define CS_RCONTROL     91    // Right Control
-#define CS_LSHIFT       42    // Left Shift
-#define CS_RSHIFT       54    // Right Shift
-#define CS_LALT         56    // Left Alt
-#define CS_RALT         94    // Right Alt
+#define CS_RCONTROL     91    /* Right Control */
+#define CS_LSHIFT       42    /* Left Shift */
+#define CS_RSHIFT       54    /* Right Shift */
+#define CS_LALT         56    /* Left Alt */
+#define CS_RALT         94    /* Right Alt */
 
 
 /* DosMon* prototypes */

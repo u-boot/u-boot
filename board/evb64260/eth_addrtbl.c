@@ -52,7 +52,7 @@ unsigned int initAddressTable( u32 port, u32 hashMode, u32 hashSizeSelector)
 	tableBase = (unsigned int)addressTableBase[port];
 	/* we get called for every probe, so only do this once */
 	if ( !tableBase ) {
-    	int bytes = hashLength[hashSizeSelector] * sizeof(addrTblEntry);
+	int bytes = hashLength[hashSizeSelector] * sizeof(addrTblEntry);
 
 		tableBase = (unsigned int)realAddrTableBase[port] = malloc(bytes+64);
 
@@ -62,12 +62,12 @@ unsigned int initAddressTable( u32 port, u32 hashMode, u32 hashSizeSelector)
 			return 0;
 		}
 
-    	/* align to octal byte */
+	/* align to octal byte */
 	    if(tableBase&63) tableBase=(tableBase+63) & ~63;
 
-    	addressTableHashMode[port] = hashMode;
+	addressTableHashMode[port] = hashMode;
 	    addressTableHashSize[port] = hashSizeSelector;
-    	addressTableBase[port] = (addrTblEntry *)tableBase;
+	addressTableBase[port] = (addrTblEntry *)tableBase;
 
 	    memset((void *)tableBase,0,bytes);
 	}
@@ -105,40 +105,40 @@ hashTableFunction( u32 macH, u32 macL, u32 HashSize, u32 hash_mode)
     addrL = NIBBLE_SWAPPING_32_BIT( macL );
 
     addrHSwapped =   FLIP_4_BITS(  addrH        & 0xf )
-                 + ((FLIP_4_BITS( (addrH >>  4) & 0xf)) <<  4)
-                 + ((FLIP_4_BITS( (addrH >>  8) & 0xf)) <<  8)
-                 + ((FLIP_4_BITS( (addrH >> 12) & 0xf)) << 12);
+		 + ((FLIP_4_BITS( (addrH >>  4) & 0xf)) <<  4)
+		 + ((FLIP_4_BITS( (addrH >>  8) & 0xf)) <<  8)
+		 + ((FLIP_4_BITS( (addrH >> 12) & 0xf)) << 12);
 
     addrLSwapped =   FLIP_4_BITS(  addrL        & 0xf )
-                 + ((FLIP_4_BITS( (addrL >>  4) & 0xf)) <<  4)
-                 + ((FLIP_4_BITS( (addrL >>  8) & 0xf)) <<  8)
-                 + ((FLIP_4_BITS( (addrL >> 12) & 0xf)) << 12)
-                 + ((FLIP_4_BITS( (addrL >> 16) & 0xf)) << 16)
-                 + ((FLIP_4_BITS( (addrL >> 20) & 0xf)) << 20)
-                 + ((FLIP_4_BITS( (addrL >> 24) & 0xf)) << 24)
-                 + ((FLIP_4_BITS( (addrL >> 28) & 0xf)) << 28);
+		 + ((FLIP_4_BITS( (addrL >>  4) & 0xf)) <<  4)
+		 + ((FLIP_4_BITS( (addrL >>  8) & 0xf)) <<  8)
+		 + ((FLIP_4_BITS( (addrL >> 12) & 0xf)) << 12)
+		 + ((FLIP_4_BITS( (addrL >> 16) & 0xf)) << 16)
+		 + ((FLIP_4_BITS( (addrL >> 20) & 0xf)) << 20)
+		 + ((FLIP_4_BITS( (addrL >> 24) & 0xf)) << 24)
+		 + ((FLIP_4_BITS( (addrL >> 28) & 0xf)) << 28);
 
     addrH = addrHSwapped;
     addrL = addrLSwapped;
 
     if( hash_mode == 0 )  {
-        addr0 =  (addrL >>  2) & 0x03f;
-        addr1 =  (addrL        & 0x003) | ((addrL >> 8) & 0x7f) << 2;
-        addr2 =  (addrL >> 15) & 0x1ff;
-        addr3 = ((addrL >> 24) & 0x0ff) | ((addrH &  1)         << 8);
+	addr0 =  (addrL >>  2) & 0x03f;
+	addr1 =  (addrL        & 0x003) | ((addrL >> 8) & 0x7f) << 2;
+	addr2 =  (addrL >> 15) & 0x1ff;
+	addr3 = ((addrL >> 24) & 0x0ff) | ((addrH &  1)         << 8);
     } else  {
-        addr0 = FLIP_6_BITS(    addrL        & 0x03f );
-        addr1 = FLIP_9_BITS(  ((addrL >>  6) & 0x1ff));
-        addr2 = FLIP_9_BITS(   (addrL >> 15) & 0x1ff);
-        addr3 = FLIP_9_BITS( (((addrL >> 24) & 0x0ff) | ((addrH & 0x1) << 8)));
+	addr0 = FLIP_6_BITS(    addrL        & 0x03f );
+	addr1 = FLIP_9_BITS(  ((addrL >>  6) & 0x1ff));
+	addr2 = FLIP_9_BITS(   (addrL >> 15) & 0x1ff);
+	addr3 = FLIP_9_BITS( (((addrL >> 24) & 0x0ff) | ((addrH & 0x1) << 8)));
     }
 
     hashResult = (addr0 << 9) | (addr1 ^ addr2 ^ addr3);
 
     if( HashSize == _8K_TABLE )  {
-        hashResult = hashResult & 0xffff;
+	hashResult = hashResult & 0xffff;
     } else  {
-        hashResult = hashResult & 0x07ff;
+	hashResult = hashResult & 0x07ff;
     }
 
     return( hashResult );
@@ -174,20 +174,20 @@ addAddressTableEntry(
     u32           i;
 
     newLo = (((macH >>  4) & 0xf) << 15)
-          | (((macH >>  0) & 0xf) << 11)
-          | (((macH >> 12) & 0xf) <<  7)
-          | (((macH >>  8) & 0xf) <<  3)
-          | (((macL >> 20) & 0x1) << 31)
-          | (((macL >> 16) & 0xf) << 27)
-          | (((macL >> 28) & 0xf) << 23)
-          | (((macL >> 24) & 0xf) << 19)
-          |   (skip << SKIP_BIT)  |  (rd << 2) | VALID;
+	  | (((macH >>  0) & 0xf) << 11)
+	  | (((macH >> 12) & 0xf) <<  7)
+	  | (((macH >>  8) & 0xf) <<  3)
+	  | (((macL >> 20) & 0x1) << 31)
+	  | (((macL >> 16) & 0xf) << 27)
+	  | (((macL >> 28) & 0xf) << 23)
+	  | (((macL >> 24) & 0xf) << 19)
+	  |   (skip << SKIP_BIT)  |  (rd << 2) | VALID;
 
     newHi = (((macL >>  4) & 0xf) << 15)
-          | (((macL >>  0) & 0xf) << 11)
-          | (((macL >> 12) & 0xf) <<  7)
-          | (((macL >>  8) & 0xf) <<  3)
-          | (((macL >> 21) & 0x7) <<  0);
+	  | (((macL >>  0) & 0xf) << 11)
+	  | (((macL >> 12) & 0xf) <<  7)
+	  | (((macL >>  8) & 0xf) <<  3)
+	  | (((macL >> 21) & 0x7) <<  0);
 
     /*
      * Pick the appropriate table, start scanning for free/reusable
@@ -195,22 +195,22 @@ addAddressTableEntry(
      */
     entry  = addressTableBase[port];
     entry += hashTableFunction( macH, macL, addressTableHashSize[port],
-                                            addressTableHashMode[port]  );
+					    addressTableHashMode[port]  );
     for( i = 0;  i < HOP_NUMBER;  i++, entry++ )  {
-        if( !(entry->lo & VALID)   /*|| (entry->lo & SKIP)*/   )  {
-            break;
-        } else  {                    /* if same address put in same position */
-            if(   ((entry->lo & 0xfffffff8) == (newLo & 0xfffffff8))
-                && (entry->hi               ==  newHi) )
-            {
-                    break;
-            }
-        }
+	if( !(entry->lo & VALID)   /*|| (entry->lo & SKIP)*/   )  {
+	    break;
+	} else  {                    /* if same address put in same position */
+	    if(   ((entry->lo & 0xfffffff8) == (newLo & 0xfffffff8))
+		&& (entry->hi               ==  newHi) )
+	    {
+		    break;
+	    }
+	}
     }
 
     if( i == HOP_NUMBER )  {
-        PRINTF( "addGT64260addressTableEntry: table section is full\n" );
-        return( FALSE );
+	PRINTF( "addGT64260addressTableEntry: table section is full\n" );
+	return( FALSE );
     }
 
     /*

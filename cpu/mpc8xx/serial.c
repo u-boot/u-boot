@@ -77,7 +77,7 @@
 
 int serial_init (void)
 {
-        volatile immap_t *im = (immap_t *)CFG_IMMR;
+	volatile immap_t *im = (immap_t *)CFG_IMMR;
 	volatile smc_t *sp;
 	volatile smc_uart_t *up;
 	volatile cbd_t *tbdf, *rbdf;
@@ -231,7 +231,7 @@ serial_setbrg (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
-        volatile immap_t *im = (immap_t *)CFG_IMMR;
+	volatile immap_t *im = (immap_t *)CFG_IMMR;
 	volatile cpm8xx_t *cp = &(im->im_cpm);
 
 	/* Set up the baud rate generator.
@@ -266,7 +266,7 @@ serial_putc(const char c)
 	volatile cbd_t		*tbdf;
 	volatile char		*buf;
 	volatile smc_uart_t	*up;
-        volatile immap_t	*im = (immap_t *)CFG_IMMR;
+	volatile immap_t	*im = (immap_t *)CFG_IMMR;
 	volatile cpm8xx_t	*cpmp = &(im->im_cpm);
 
 #ifdef CONFIG_MODEM_SUPPORT
@@ -305,7 +305,7 @@ serial_getc(void)
 	volatile cbd_t		*rbdf;
 	volatile unsigned char	*buf;
 	volatile smc_uart_t	*up;
-        volatile immap_t	*im = (immap_t *)CFG_IMMR;
+	volatile immap_t	*im = (immap_t *)CFG_IMMR;
 	volatile cpm8xx_t	*cpmp = &(im->im_cpm);
 	unsigned char		c;
 
@@ -331,7 +331,7 @@ serial_tstc()
 {
 	volatile cbd_t		*rbdf;
 	volatile smc_uart_t	*up;
-        volatile immap_t	*im = (immap_t *)CFG_IMMR;
+	volatile immap_t	*im = (immap_t *)CFG_IMMR;
 	volatile cpm8xx_t	*cpmp = &(im->im_cpm);
 
 	up = (smc_uart_t *)&cpmp->cp_dparam[PROFF_SMC];
@@ -345,7 +345,7 @@ serial_tstc()
 
 int serial_init (void)
 {
-        volatile immap_t *im = (immap_t *)CFG_IMMR;
+	volatile immap_t *im = (immap_t *)CFG_IMMR;
 	volatile scc_t *sp;
 	volatile scc_uart_t *up;
 	volatile cbd_t *tbdf, *rbdf;
@@ -508,7 +508,7 @@ serial_setbrg (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
-        volatile immap_t *im = (immap_t *)CFG_IMMR;
+	volatile immap_t *im = (immap_t *)CFG_IMMR;
 	volatile cpm8xx_t *cp = &(im->im_cpm);
 
 	/* Set up the baud rate generator.
@@ -530,7 +530,7 @@ serial_putc(const char c)
 	volatile cbd_t		*tbdf;
 	volatile char		*buf;
 	volatile scc_uart_t	*up;
-        volatile immap_t	*im = (immap_t *)CFG_IMMR;
+	volatile immap_t	*im = (immap_t *)CFG_IMMR;
 	volatile cpm8xx_t	*cpmp = &(im->im_cpm);
 
 	if (c == '\n')
@@ -562,7 +562,7 @@ serial_getc(void)
 	volatile cbd_t		*rbdf;
 	volatile unsigned char	*buf;
 	volatile scc_uart_t	*up;
-        volatile immap_t	*im = (immap_t *)CFG_IMMR;
+	volatile immap_t	*im = (immap_t *)CFG_IMMR;
 	volatile cpm8xx_t	*cpmp = &(im->im_cpm);
 	unsigned char		c;
 
@@ -588,7 +588,7 @@ serial_tstc()
 {
 	volatile cbd_t		*rbdf;
 	volatile scc_uart_t	*up;
-        volatile immap_t	*im = (immap_t *)CFG_IMMR;
+	volatile immap_t	*im = (immap_t *)CFG_IMMR;
 	volatile cpm8xx_t	*cpmp = &(im->im_cpm);
 
 	up = (scc_uart_t *)&cpmp->cp_dparam[PROFF_SCC];

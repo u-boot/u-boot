@@ -33,8 +33,8 @@ void cpm_load_patch (volatile immap_t *immr)
 #endif
 
 	/*
-         * Enable DPRAM microcode to execute from the first 512 bytes
-         * and a 256 byte extension of DPRAM.
+	 * Enable DPRAM microcode to execute from the first 512 bytes
+	 * and a 256 byte extension of DPRAM.
 	 */
 	immr->im_cpm.cp_rccr |= 0x0001;
 }

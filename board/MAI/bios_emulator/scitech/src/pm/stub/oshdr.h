@@ -28,6 +28,6 @@
 *
 ****************************************************************************/
 
-// TODO: This is where you include OS specific headers for the event handling
-//       library. You may leave this empty if you have no OS specific headers
-//       to include.
+/* TODO: This is where you include OS specific headers for the event handling */
+/*       library. You may leave this empty if you have no OS specific headers */
+/*       to include. */

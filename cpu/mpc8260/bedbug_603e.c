@@ -5,8 +5,7 @@
 #include <common.h>
 #include <command.h>
 #include <linux/ctype.h>
-
-#include <cmd_bedbug.h>
+#include <bedbug/type.h>
 #include <bedbug/bedbug.h>
 #include <bedbug/regs.h>
 #include <bedbug/ppc.h>
@@ -64,7 +63,7 @@ void bedbug603e_init( void )
  * ====================================================================== */
 
 void bedbug603e_do_break (cmd_tbl_t *cmdtp, int flag, int argc,
-                         char *argv[])
+			 char *argv[])
 {
   long		addr;           /* Address to break at  */
   int		which_bp;       /* Breakpoint number    */
@@ -116,8 +115,8 @@ void bedbug603e_do_break (cmd_tbl_t *cmdtp, int flag, int argc,
   /* Set a breakpoint at the address */
 
   if(!(( isdigit( argv[ 1 ][ 0 ] )) ||
-        (( argv[ 1 ][ 0 ] >= 'a' ) && ( argv[ 1 ][ 0 ] <= 'f' )) ||
-        (( argv[ 1 ][ 0 ] >= 'A' ) && ( argv[ 1 ][ 0 ] <= 'F' ))))
+	(( argv[ 1 ][ 0 ] >= 'a' ) && ( argv[ 1 ][ 0 ] <= 'f' )) ||
+	(( argv[ 1 ][ 0 ] >= 'A' ) && ( argv[ 1 ][ 0 ] <= 'F' ))))
   {
     printf ("Usage:\n%s\n", cmdtp->usage);
     return;
@@ -236,4 +235,3 @@ int bedbug603e_clear( int which_bp )
 
 /* ====================================================================== */
 #endif
-

@@ -5,7 +5,7 @@
 /*
  * This isn't nice, but there are a lot of incompatibilities in the U-Boot and scitech include
  * files that this is the only really workable solution.
- * Might be cleaned out later. 
+ * Might be cleaned out later.
  */
 
 #ifdef DEBUG
@@ -45,7 +45,7 @@ typedef long LONG;
 #define EMULATOR_BIOS_OFFSET    0xC0000
 #define EMULATOR_STRAP_OFFSET   0x30000
 #define EMULATOR_STACK_OFFSET   0x20000
-#define EMULATOR_LOGO_OFFSET    0x40000 // If you change this, change the strap code, too
+#define EMULATOR_LOGO_OFFSET    0x40000 /* If you change this, change the strap code, too */
 #define VIDEO_BASE (void *)0xFD0B8000
 
 extern char *getenv(char *);
@@ -72,7 +72,7 @@ void cons_gets(char *buffer)
     char c = 0;
 
     buffer[0] = 0;
-    if (getenv("x86_runthru")) return; //FIXME:
+    if (getenv("x86_runthru")) return; /*FIXME: */
     while (c != 0x0D && c != 0x0A)
     {
 	while (!tstc());
@@ -167,7 +167,7 @@ static int log_low = 0;
 
 int dolog(int port)
 {
-    if (log_init && log_do) 
+    if (log_init && log_do)
     {
 	if (log_low && port > 0x400) return 0;
 	return 1;
@@ -178,7 +178,7 @@ int dolog(int port)
 	log_init = 1;
 	log_do = (getenv("x86_logio") != (char *)0);
 	log_low = (getenv("x86_loglow") != (char *)0);
-	if (log_do) 
+	if (log_do)
 	{
 	    if (log_low && port > 0x400) return 0;
 	    return 1;
@@ -187,12 +187,12 @@ int dolog(int port)
     return 0;
 }
 
-// Converts an emulator address to a physical address.
-// Handles all special cases (bios date, model etc), and might need work
+/* Converts an emulator address to a physical address. */
+/* Handles all special cases (bios date, model etc), and might need work */
 u32 memaddr(u32 addr)
 {
-//    if (addr >= 0xF0000 && addr < 0xFFFFF) printf("WARNING: Segment F access (0x%x)\n", addr);
-//    printf("MemAddr=%p\n", addr);
+/*    if (addr >= 0xF0000 && addr < 0xFFFFF) printf("WARNING: Segment F access (0x%x)\n", addr); */
+/*    printf("MemAddr=%p\n", addr); */
     if (addr >= 0xA0000 && addr < 0xC0000)
 	return 0xFD000000 + addr;
     else if (addr >= 0xFFFF5 && addr < 0xFFFFE)
@@ -205,7 +205,7 @@ u32 memaddr(u32 addr)
 	return (u32)&submodel;
     else if (addr >= 0x80000000)
     {
-	//printf("Warning: High memory access at 0x%x\n", addr);
+	/*printf("Warning: High memory access at 0x%x\n", addr); */
 	return addr;
     }
     else
@@ -251,7 +251,7 @@ void A1_wrl(u32 addr, u32 val)
     write_long_little((ULONG *)memaddr(addr), val);
 }
 
-X86EMU_memFuncs _A1_mem = 
+X86EMU_memFuncs _A1_mem =
 {
     A1_rdb,
     A1_rdw,
@@ -282,7 +282,7 @@ u32 port_to_mem(int port)
 u8 A1_inb(int port)
 {
     u8 a;
-    //if (port == 0x3BA) return 0;
+    /*if (port == 0x3BA) return 0; */
     a = in_byte(port);
     LOGIO(port, "inb: %Xh -> %d (%Xh)\n", port, a, a);
     return a;
@@ -324,7 +324,7 @@ void A1_outl(int port, u32 val)
     out_long(port, val);
 }
 
-X86EMU_pioFuncs _A1_pio = 
+X86EMU_pioFuncs _A1_pio =
 {
     A1_inb,
     A1_inw,
@@ -353,7 +353,7 @@ void reloc_ops(void *reloc_addr)
 	x86emu_optab[i] -= delta;
 	x86emu_optab2[i] -= delta;
     }
-    
+
     _A1_mem.rdb = A1_rdb;
     _A1_mem.rdw = A1_rdw;
     _A1_mem.rdl = A1_rdl;
@@ -367,7 +367,7 @@ void reloc_ops(void *reloc_addr)
     _A1_pio.outb = A1_outb;
     _A1_pio.outw = A1_outw;
     _A1_pio.outl = A1_outl;
-    
+
     tables_relocate(delta);
 
 }
@@ -379,9 +379,9 @@ void reloc_ops(void *reloc_addr)
 
 
 unsigned char more_strap[] = {
-        0xb4, 0x0, 0xb0, 0x2, 0xcd, 0x10,
+	0xb4, 0x0, 0xb0, 0x2, 0xcd, 0x10,
 };
-#define MORE_STRAP_BYTES 6 // Additional bytes of strap code
+#define MORE_STRAP_BYTES 6 /* Additional bytes of strap code */
 
 
 unsigned char *done_msg="VGA Initialized\0";
@@ -415,12 +415,12 @@ int execute_bios(pci_dev_t gr_dev, void *reloc_addr)
     PRINTF("Attempting to run emulator on %02x:%02x:%02x\n",
 	   PCI_BUS(gr_dev), PCI_DEV(gr_dev), PCI_FUNC(gr_dev));
 
-    // Enable compatibility hole for emulator access to frame buffer
+    /* Enable compatibility hole for emulator access to frame buffer */
     PRINTF("Enabling compatibility hole\n");
     enable_compatibility_hole();
 
-    // Allocate memory
-    // FIXME: We shouldn't use this much memory really.
+    /* Allocate memory */
+    /* FIXME: We shouldn't use this much memory really. */
     memset(&M, 0, sizeof(X86EMU_sysEnv));
     M.mem_base = malloc(EMULATOR_MEM_SIZE);
     M.mem_size = EMULATOR_MEM_SIZE;
@@ -470,10 +470,10 @@ int execute_bios(pci_dev_t gr_dev, void *reloc_addr)
     {
 	easteregg_active = 1;
     }
-    
+
     if (easteregg_active)
     {
-	// Yay!
+	/* Yay! */
 	setenv("x86_mode", "1");
 	setenv("vga_fg_color", "11");
 	setenv("vga_bg_color", "1");
@@ -493,9 +493,9 @@ int execute_bios(pci_dev_t gr_dev, void *reloc_addr)
 	}
     }
 
-    /* 
+    /*
      * Poke the strap routine. This might need a bit of extending
-     * if there is a mode switch involved, i.e. we want to int10 
+     * if there is a mode switch involved, i.e. we want to int10
      * afterwards to set a different graphics mode, or alternatively
      * there might be a different start address requirement if the
      * ROM doesn't have an x86 image in its first image.
@@ -503,19 +503,19 @@ int execute_bios(pci_dev_t gr_dev, void *reloc_addr)
 
     PRINTF("Poking strap...\n");
 
-    // FAR CALL c000:0003
+    /* FAR CALL c000:0003 */
     *strap++ = 0x9A; *strap++ = 0x03; *strap++ = 0x00;
-    *strap++ = 0x00; *strap++ = 0xC0; 
+    *strap++ = 0x00; *strap++ = 0xC0;
 
 #if 1
-    // insert additional strap code
+    /* insert additional strap code */
     for (i=0; i < MORE_STRAP_BYTES; i++)
     {
 	*strap++ = more_strap[i];
     }
 #endif
-    // HALT
-    *strap++ = 0xF4; 
+    /* HALT */
+    *strap++ = 0xF4;
 
     PRINTF("Setting up logo data\n");
     logo = (unsigned char *)M.mem_base + EMULATOR_LOGO_OFFSET;
@@ -530,28 +530,28 @@ int execute_bios(pci_dev_t gr_dev, void *reloc_addr)
      * must contain the devfn, encoded as (dev<<3)|fn
      */
 
-    // Execution starts here
-    M.x86.R_CS = SEG(EMULATOR_STRAP_OFFSET); 
-    M.x86.R_IP = OFF(EMULATOR_STRAP_OFFSET); 
+    /* Execution starts here */
+    M.x86.R_CS = SEG(EMULATOR_STRAP_OFFSET);
+    M.x86.R_IP = OFF(EMULATOR_STRAP_OFFSET);
 
-    // Stack at top of ram
+    /* Stack at top of ram */
     M.x86.R_SS = SEG(EMULATOR_STACK_OFFSET);
     M.x86.R_SP = OFF(EMULATOR_STACK_OFFSET);
 
-    // Input parameters
+    /* Input parameters */
     M.x86.R_AH = PCI_BUS(gr_dev);
     M.x86.R_AL = (PCI_DEV(gr_dev)<<3) | PCI_FUNC(gr_dev);
 
-    // Set the I/O and memory access functions
+    /* Set the I/O and memory access functions */
     X86EMU_setupMemFuncs(&_A1_mem);
     X86EMU_setupPioFuncs(&_A1_pio);
 
-    // Enable timer 2
-    cfg = in_byte(0x61); // Get Misc control
-    cfg |= 0x01;         // Enable timer 2
-    out_byte(0x61, cfg); // output again
+    /* Enable timer 2 */
+    cfg = in_byte(0x61); /* Get Misc control */
+    cfg |= 0x01;         /* Enable timer 2 */
+    out_byte(0x61, cfg); /* output again */
 
-    // Set up the timers
+    /* Set up the timers */
     out_byte(0x43, 0x54);
     out_byte(0x41, 0x18);
 
@@ -563,10 +563,10 @@ int execute_bios(pci_dev_t gr_dev, void *reloc_addr)
     out_byte(0x42, 0x31);
     out_byte(0x42, 0x13);
 
-    // Init the "BIOS".
+    /* Init the "BIOS". */
     bios_init();
 
-    // Video Card Reset
+    /* Video Card Reset */
     out_byte(0x3D8, 0);
     out_byte(0x3B8, 1);
     (void)in_byte(0x3BA);
@@ -583,7 +583,7 @@ int execute_bios(pci_dev_t gr_dev, void *reloc_addr)
     }
 #endif
 
-    // Ready set go...
+    /* Ready set go... */
     PRINTF("Running emulator\n");
     X86EMU_exec();
     PRINTF("Done running emulator\n");
@@ -593,8 +593,8 @@ int execute_bios(pci_dev_t gr_dev, void *reloc_addr)
     if (pal_reset && strcmp(pal_reset, "on") == 0)
     {
 	PRINTF("Palette reset\n");
-	//(void)in_byte(0x3da);
-	//out_byte(0x3c0, 0);
+	/*(void)in_byte(0x3da); */
+	/*out_byte(0x3c0, 0); */
 
 	out_byte(0x3C8, 0);
 	out_byte(0x3C9, 0);
@@ -645,15 +645,15 @@ int execute_bios(pci_dev_t gr_dev, void *reloc_addr)
     if (getenv("x86_do_inout")) do_inout();
 #endif
 
-//FIXME:    dcache_disable();
+/*FIXME:    dcache_disable(); */
     return 1;
 }
 
-// Clean up the x86 mess
+/* Clean up the x86 mess */
 void shutdown_bios(void)
 {
-//    disable_compatibility_hole();
-    // Free the memory associated
+/*    disable_compatibility_hole(); */
+    /* Free the memory associated */
     free(M.mem_base);
 
 }
@@ -663,7 +663,7 @@ int to_int(char *buffer)
     int base = 0;
     int res  = 0;
 
-    if (*buffer == '$') 
+    if (*buffer == '$')
     {
 	base = 16;
 	buffer++;
@@ -687,27 +687,27 @@ int to_int(char *buffer)
 	case 'b':
 	    res *= base;
 	    res += 11;
-	    break;	    
+	    break;
 	case 'C':
 	case 'c':
 	    res *= base;
 	    res += 12;
-	    break;	    
+	    break;
 	case 'D':
 	case 'd':
 	    res *= base;
 	    res += 13;
-	    break;	    
+	    break;
 	case 'E':
 	case 'e':
 	    res *= base;
 	    res += 14;
-	    break;	    
+	    break;
 	case 'F':
 	case 'f':
 	    res *= base;
 	    res += 15;
-	    break;	
+	    break;
 	default:
 	    return res;
 	}

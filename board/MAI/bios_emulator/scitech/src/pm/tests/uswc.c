@@ -66,50 +66,50 @@ static int PCI_enumerateDevices(void)
     int             i,j;
     PCIDeviceInfo   *info;
 
-    // If this is the first time we have been called, enumerate all
-    // devices on the PCI bus.
+    /* If this is the first time we have been called, enumerate all */
+    /* devices on the PCI bus. */
     if (NumPCI == -1) {
-        if ((NumPCI = PCI_getNumDevices()) == 0)
-            return -1;
-        PCI = malloc(NumPCI * sizeof(PCI[0]));
-        BridgeIndex = malloc(NumPCI * sizeof(BridgeIndex[0]));
-        DeviceIndex = malloc(NumPCI * sizeof(DeviceIndex[0]));
-        if (!PCI || !BridgeIndex || !DeviceIndex)
-            return -1;
-        for (i = 0; i < NumPCI; i++)
-            PCI[i].dwSize = sizeof(PCI[i]);
-        if (PCI_enumerate(PCI) == 0)
-            return -1;
+	if ((NumPCI = PCI_getNumDevices()) == 0)
+	    return -1;
+	PCI = malloc(NumPCI * sizeof(PCI[0]));
+	BridgeIndex = malloc(NumPCI * sizeof(BridgeIndex[0]));
+	DeviceIndex = malloc(NumPCI * sizeof(DeviceIndex[0]));
+	if (!PCI || !BridgeIndex || !DeviceIndex)
+	    return -1;
+	for (i = 0; i < NumPCI; i++)
+	    PCI[i].dwSize = sizeof(PCI[i]);
+	if (PCI_enumerate(PCI) == 0)
+	    return -1;
 
-        // Build a list of all PCI bridge devices
-        for (i = 0,NumBridges = 0,BridgeIndex[0] = -1; i < NumPCI; i++) {
-            if (PCI[i].BaseClass == PCI_BRIDGE_CLASS)
-                BridgeIndex[NumBridges++] = i;
-            }
+	/* Build a list of all PCI bridge devices */
+	for (i = 0,NumBridges = 0,BridgeIndex[0] = -1; i < NumPCI; i++) {
+	    if (PCI[i].BaseClass == PCI_BRIDGE_CLASS)
+		BridgeIndex[NumBridges++] = i;
+	    }
 
-        // Now build a list of all display class devices
-        for (i = 0,NumDevices = 1,DeviceIndex[0] = -1; i < NumPCI; i++) {
-            if (PCI_IS_DISPLAY_CLASS(&PCI[i])) {
-                if ((PCI[i].Command & 0x3) == 0x3)
-                    DeviceIndex[0] = i;
-                else
-                    DeviceIndex[NumDevices++] = i;
-                if (PCI[i].slot.p.Bus != 0) {
-                    // This device is on a different bus than the primary
-                    // PCI bus, so it is probably an AGP device. Find the
-                    // AGP bus device that controls that bus so we can
-                    // control it.
-                    for (j = 0; j < NumBridges; j++) {
-                        info = (PCIDeviceInfo*)&PCI[BridgeIndex[j]];
-                        if (info->u.type1.SecondayBusNumber == PCI[i].slot.p.Bus) {
-                            AGPBridge = info;
-                            break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
+	/* Now build a list of all display class devices */
+	for (i = 0,NumDevices = 1,DeviceIndex[0] = -1; i < NumPCI; i++) {
+	    if (PCI_IS_DISPLAY_CLASS(&PCI[i])) {
+		if ((PCI[i].Command & 0x3) == 0x3)
+		    DeviceIndex[0] = i;
+		else
+		    DeviceIndex[NumDevices++] = i;
+		if (PCI[i].slot.p.Bus != 0) {
+		    /* This device is on a different bus than the primary */
+		    /* PCI bus, so it is probably an AGP device. Find the */
+		    /* AGP bus device that controls that bus so we can */
+		    /* control it. */
+		    for (j = 0; j < NumBridges; j++) {
+			info = (PCIDeviceInfo*)&PCI[BridgeIndex[j]];
+			if (info->u.type1.SecondayBusNumber == PCI[i].slot.p.Bus) {
+			    AGPBridge = info;
+			    break;
+			    }
+			}
+		    }
+		}
+	    }
+	}
     return NumDevices;
 }
 
@@ -125,17 +125,17 @@ static void ShowDisplayDevices(void)
     printf("\n");
     printf("DeviceID  SubSystem  Base10h  (length  )  Base14h  (length  )\n");
     for (index = 0; index < NumDevices; index++) {
-        i = DeviceIndex[index];
-        printf("%04X:%04X %04X:%04X  %08lX (%6ld KB) %08lX (%6ld KB)\n",
-            PCI[i].VendorID,
-            PCI[i].DeviceID,
-            PCI[i].u.type0.SubSystemVendorID,
-            PCI[i].u.type0.SubSystemID,
-            PCI[i].u.type0.BaseAddress10,
-            PCI[i].u.type0.BaseAddress10Len / 1024,
-            PCI[i].u.type0.BaseAddress14,
-            PCI[i].u.type0.BaseAddress14Len / 1024);
-        }
+	i = DeviceIndex[index];
+	printf("%04X:%04X %04X:%04X  %08lX (%6ld KB) %08lX (%6ld KB)\n",
+	    PCI[i].VendorID,
+	    PCI[i].DeviceID,
+	    PCI[i].u.type0.SubSystemVendorID,
+	    PCI[i].u.type0.SubSystemID,
+	    PCI[i].u.type0.BaseAddress10,
+	    PCI[i].u.type0.BaseAddress10Len / 1024,
+	    PCI[i].u.type0.BaseAddress14,
+	    PCI[i].u.type0.BaseAddress14Len / 1024);
+	}
     printf("\n");
 }
 
@@ -147,16 +147,16 @@ static char *DecodeWCType(
     uint type)
 {
     static char *names[] = {
-        "UNCACHABLE",
-        "WRCOMB",
-        "UNKNOWN",
-        "UNKNOWN",
-        "WRTHROUGH",
-        "WRPROT",
-        "WRBACK",
-        };
+	"UNCACHABLE",
+	"WRCOMB",
+	"UNKNOWN",
+	"UNKNOWN",
+	"WRTHROUGH",
+	"WRPROT",
+	"WRBACK",
+	};
     if (type <= PM_MTRR_MAX)
-        return names[type];
+	return names[type];
     return "UNKNOWN";
 }
 
@@ -183,42 +183,42 @@ static void LogMTRRError(
     int err)
 {
     if (err == PM_MTRR_ERR_OK)
-        return;
+	return;
     switch (err) {
-        case PM_MTRR_NOT_SUPPORTED:
-            printf("Failed: MTRR is not supported by host CPU\n");
-            break;
-        case PM_MTRR_ERR_PARAMS:
-            printf("Failed: Invalid parameters passed to PM_enableWriteCombined!\n");
-            break;
-        case PM_MTRR_ERR_NOT_4KB_ALIGNED:
-            printf("Failed: Address is not 4Kb aligned!\n");
-            break;
-        case PM_MTRR_ERR_BELOW_1MB:
-            printf("Failed: Addresses below 1Mb cannot be write combined!\n");
-            break;
-        case PM_MTRR_ERR_NOT_ALIGNED:
-            printf("Failed: Address is not correctly aligned for processor!\n");
-            break;
-        case PM_MTRR_ERR_OVERLAP:
-            printf("Failed: Address overlaps an existing region!\n");
-            break;
-        case PM_MTRR_ERR_TYPE_MISMATCH:
-            printf("Failed: Adress is contained with existing region, but type is different!\n");
-            break;
-        case PM_MTRR_ERR_NONE_FREE:
-            printf("Failed: Out of MTRR registers!\n");
-            break;
-        case PM_MTRR_ERR_NOWRCOMB:
-            printf("Failed: This processor does not support write combining!\n");
-            break;
-        case PM_MTRR_ERR_NO_OS_SUPPORT:
-            printf("Failed: MTRR is not supported by host OS\n");
-            break;
-        default:
-            printf("Failed: UNKNOWN ERROR!\n");
-            break;
-        }
+	case PM_MTRR_NOT_SUPPORTED:
+	    printf("Failed: MTRR is not supported by host CPU\n");
+	    break;
+	case PM_MTRR_ERR_PARAMS:
+	    printf("Failed: Invalid parameters passed to PM_enableWriteCombined!\n");
+	    break;
+	case PM_MTRR_ERR_NOT_4KB_ALIGNED:
+	    printf("Failed: Address is not 4Kb aligned!\n");
+	    break;
+	case PM_MTRR_ERR_BELOW_1MB:
+	    printf("Failed: Addresses below 1Mb cannot be write combined!\n");
+	    break;
+	case PM_MTRR_ERR_NOT_ALIGNED:
+	    printf("Failed: Address is not correctly aligned for processor!\n");
+	    break;
+	case PM_MTRR_ERR_OVERLAP:
+	    printf("Failed: Address overlaps an existing region!\n");
+	    break;
+	case PM_MTRR_ERR_TYPE_MISMATCH:
+	    printf("Failed: Adress is contained with existing region, but type is different!\n");
+	    break;
+	case PM_MTRR_ERR_NONE_FREE:
+	    printf("Failed: Out of MTRR registers!\n");
+	    break;
+	case PM_MTRR_ERR_NOWRCOMB:
+	    printf("Failed: This processor does not support write combining!\n");
+	    break;
+	case PM_MTRR_ERR_NO_OS_SUPPORT:
+	    printf("Failed: MTRR is not supported by host OS\n");
+	    break;
+	default:
+	    printf("Failed: UNKNOWN ERROR!\n");
+	    break;
+	}
     exit(-1);
 }
 
@@ -242,20 +242,20 @@ static void EnableWriteCombine(void)
     int i,index;
 
     for (index = 0; index < NumDevices; index++) {
-        i = DeviceIndex[index];
-        if (PCI[i].u.type0.BaseAddress10 & 0x8) {
-            LogMTRRError(PM_enableWriteCombine(
-                PCI[i].u.type0.BaseAddress10 & 0xFFFFFFF0,
-                PCI[i].u.type0.BaseAddress10Len,
-                PM_MTRR_WRCOMB));
-            }
-        if (PCI[i].u.type0.BaseAddress14 & 0x8) {
-            LogMTRRError(PM_enableWriteCombine(
-                PCI[i].u.type0.BaseAddress14 & 0xFFFFFFF0,
-                PCI[i].u.type0.BaseAddress14Len,
-                PM_MTRR_WRCOMB));
-            }
-        }
+	i = DeviceIndex[index];
+	if (PCI[i].u.type0.BaseAddress10 & 0x8) {
+	    LogMTRRError(PM_enableWriteCombine(
+		PCI[i].u.type0.BaseAddress10 & 0xFFFFFFF0,
+		PCI[i].u.type0.BaseAddress10Len,
+		PM_MTRR_WRCOMB));
+	    }
+	if (PCI[i].u.type0.BaseAddress14 & 0x8) {
+	    LogMTRRError(PM_enableWriteCombine(
+		PCI[i].u.type0.BaseAddress14 & 0xFFFFFFF0,
+		PCI[i].u.type0.BaseAddress14Len,
+		PM_MTRR_WRCOMB));
+	    }
+	}
     printf("\n");
     ShowDisplayDevices();
     ShowWriteCombine();
@@ -270,20 +270,20 @@ static void DisableWriteCombine(void)
     int i,index;
 
     for (index = 0; index < NumDevices; index++) {
-        i = DeviceIndex[index];
-        if (PCI[i].u.type0.BaseAddress10 & 0x8) {
-            LogMTRRError(PM_enableWriteCombine(
-                PCI[i].u.type0.BaseAddress10 & 0xFFFFFFF0,
-                PCI[i].u.type0.BaseAddress10Len,
-                PM_MTRR_UNCACHABLE));
-            }
-        if (PCI[i].u.type0.BaseAddress14 & 0x8) {
-            LogMTRRError(PM_enableWriteCombine(
-                PCI[i].u.type0.BaseAddress14 & 0xFFFFFFF0,
-                PCI[i].u.type0.BaseAddress14Len,
-                PM_MTRR_UNCACHABLE));
-            }
-        }
+	i = DeviceIndex[index];
+	if (PCI[i].u.type0.BaseAddress10 & 0x8) {
+	    LogMTRRError(PM_enableWriteCombine(
+		PCI[i].u.type0.BaseAddress10 & 0xFFFFFFF0,
+		PCI[i].u.type0.BaseAddress10Len,
+		PM_MTRR_UNCACHABLE));
+	    }
+	if (PCI[i].u.type0.BaseAddress14 & 0x8) {
+	    LogMTRRError(PM_enableWriteCombine(
+		PCI[i].u.type0.BaseAddress14 & 0xFFFFFFF0,
+		PCI[i].u.type0.BaseAddress14Len,
+		PM_MTRR_UNCACHABLE));
+	    }
+	}
     printf("\n");
     ShowDisplayDevices();
     ShowWriteCombine();
@@ -293,19 +293,19 @@ int main(int argc,char *argv[])
 {
     PM_init();
     if (PCI_enumerateDevices() < 1) {
-        printf("No PCI display devices found!\n");
-        return -1;
-        }
+	printf("No PCI display devices found!\n");
+	return -1;
+	}
     if (argc < 2) {
-        printf("usage: uswc [-show -on -off]\n\n");
-        ShowDisplayDevices();
-        return -1;
-        }
+	printf("usage: uswc [-show -on -off]\n\n");
+	ShowDisplayDevices();
+	return -1;
+	}
     if (stricmp(argv[1],"-show") == 0)
-        ShowWriteCombine();
+	ShowWriteCombine();
     else if (stricmp(argv[1],"-on") == 0)
-        EnableWriteCombine();
+	EnableWriteCombine();
     else if (stricmp(argv[1],"-off") == 0)
-        DisableWriteCombine();
+	DisableWriteCombine();
     return 0;
 }

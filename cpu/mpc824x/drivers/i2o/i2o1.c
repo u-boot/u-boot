@@ -34,10 +34,10 @@ FIFOSTAT fifo_stat = { QSIZE_4K, 0xffffffff };
  * PCI master needs to enable the outbound interrupts of devices it wants to handle(REMOTE)
  ************************************************************************************/
 I2OSTATUS I2OMsgEnable ( LOCATION loc,        /*  REMOTE/LOCAL   */
-                         unsigned int base,   /* pcsrbar/eumbbar */
-                         unsigned char n )    /* b'1' - msg 0
-				               * b'10'- msg 1
-		 		               * b'11'- both
+			 unsigned int base,   /* pcsrbar/eumbbar */
+			 unsigned char n )    /* b'1' - msg 0
+					       * b'10'- msg 1
+					       * b'11'- both
 					       */
 {
     unsigned int reg, val;
@@ -73,8 +73,8 @@ I2OSTATUS I2OMsgEnable ( LOCATION loc,        /*  REMOTE/LOCAL   */
  *  PCI master needs to disable outbound interrupts of devices it is not interested(REMOTE)
  *********************************************************************************/
 I2OSTATUS I2OMsgDisable( LOCATION loc,      /*  REMOTE/LOCAL   */
-                         unsigned int base, /* pcsrbar/eumbbar */
-                         unsigned char n )  /* b'1' - msg 0
+			 unsigned int base, /* pcsrbar/eumbbar */
+			 unsigned char n )  /* b'1' - msg 0
 					     * b'10'- msg 1
 					     * b'11'- both
 					     */
@@ -114,9 +114,9 @@ I2OSTATUS I2OMsgDisable( LOCATION loc,      /*  REMOTE/LOCAL   */
  * If it is remote, outbound msg on the device is read; otherwise local inbound msg is read
  *************************************************************************/
 I2OSTATUS I2OMsgGet ( LOCATION loc,             /* REMOTE/LOCAL */
-                         unsigned int base,        /*pcsrbar/eumbbar */
-                         unsigned int n,           /* 0 or 1 */
-                         unsigned int *msg )
+			 unsigned int base,        /*pcsrbar/eumbbar */
+			 unsigned int n,           /* 0 or 1 */
+			 unsigned int *msg )
 {
     if ( n >= I2O_NUM_MSG || msg == 0 )
     {
@@ -151,9 +151,9 @@ I2OSTATUS I2OMsgGet ( LOCATION loc,             /* REMOTE/LOCAL */
  * If it is remote, inbound msg on the device is written; otherwise local outbound msg is written
  ***************************************************************/
 I2OSTATUS I2OMsgPost( LOCATION loc,             /* REMOTE/LOCAL */
-                      unsigned int base,        /*pcsrbar/eumbbar */
-                      unsigned int n,           /* 0 or 1 */
-                      unsigned int msg )
+		      unsigned int base,        /*pcsrbar/eumbbar */
+		      unsigned int n,           /* 0 or 1 */
+		      unsigned int msg )
 {
     if ( n >= I2O_NUM_MSG )
     {
@@ -190,8 +190,8 @@ I2OSTATUS I2OMsgPost( LOCATION loc,             /* REMOTE/LOCAL */
  * PCI master needs to enable the outbound doorbell interrupts of device it wants to handle
  **********************************************************************/
 I2OSTATUS I2ODBEnable( LOCATION loc,        /*  REMOTE/LOCAL   */
-                  unsigned int base,   /* pcsrbar/eumbbar */
-                  unsigned int in_db ) /* when LOCAL, I2O_IN_DB, MC, I2O_IN_DB|MC */
+		  unsigned int base,   /* pcsrbar/eumbbar */
+		  unsigned int in_db ) /* when LOCAL, I2O_IN_DB, MC, I2O_IN_DB|MC */
 {
 
     /* LOCATION - REMOTE : PCI master initializes outbound doorbell message of device
@@ -209,15 +209,15 @@ I2OSTATUS I2ODBEnable( LOCATION loc,        /*  REMOTE/LOCAL   */
 	/* pcsrbar is base */
 	val = load_runtime_reg( base, I2O_OMIMR );
 	val &= 0xfffffff7;
-        store_runtime_reg( base, I2O_OMIMR , val );
+	store_runtime_reg( base, I2O_OMIMR , val );
     }
     else
     {
 	/* eumbbar is base */
 	val = load_runtime_reg( base, I2O_IMIMR);
-        in_db = ( (~in_db) & 0x3 ) << 3;
-        val = ( val & 0xffffffe7) | in_db;
-        store_runtime_reg( base,  I2O_IMIMR, val );
+	in_db = ( (~in_db) & 0x3 ) << 3;
+	val = ( val & 0xffffffe7) | in_db;
+	store_runtime_reg( base,  I2O_IMIMR, val );
     }
 
     return I2OSUCCESS;
@@ -237,8 +237,8 @@ I2OSTATUS I2ODBEnable( LOCATION loc,        /*  REMOTE/LOCAL   */
  * PCI master needs to disable outbound doorbell interrupts of device it is not interested
  ************************************************************************************/
 I2OSTATUS I2ODBDisable( LOCATION loc,          /*  REMOTE/LOCAL   */
-                        unsigned int base,     /* pcsrbar/eumbbar */
-                        unsigned int in_db )   /* when LOCAL, I2O_IN_DB, MC, I2O_IN_DB|MC */
+			unsigned int base,     /* pcsrbar/eumbbar */
+			unsigned int in_db )   /* when LOCAL, I2O_IN_DB, MC, I2O_IN_DB|MC */
 {
     /* LOCATION - REMOTE : handle device's out bound message initialization
      *            LOCAL  : handle local in bound message initialization
@@ -255,14 +255,14 @@ I2OSTATUS I2ODBDisable( LOCATION loc,          /*  REMOTE/LOCAL   */
 	/* pcsrbar is the base */
 	val = load_runtime_reg( base, I2O_OMIMR );
 	val |= 0x8;
-        store_runtime_reg( base, I2O_OMIMR, val );
+	store_runtime_reg( base, I2O_OMIMR, val );
     }
     else
     {
 	    val = load_runtime_reg( base, I2O_IMIMR);
-            in_db = ( in_db & 0x3 ) << 3;
-            val |= in_db;
-            store_runtime_reg( base, I2O_IMIMR, val );
+	    in_db = ( in_db & 0x3 ) << 3;
+	    val |= in_db;
+	    store_runtime_reg( base, I2O_IMIMR, val );
     }
 
     return I2OSUCCESS;
@@ -287,22 +287,22 @@ I2OSTATUS I2ODBDisable( LOCATION loc,          /*  REMOTE/LOCAL   */
  * will cause interrupt pending.
  *********************************************************************************/
 unsigned int I2ODBGet( LOCATION loc,         /*  REMOTE/LOCAL   */
-                       unsigned int base)    /* pcsrbar/eumbbar */
+		       unsigned int base)    /* pcsrbar/eumbbar */
 {
     unsigned int msg, val;
 
     if ( loc == REMOTE )
     {
 	/* read outbound doorbell register of device, pcsrbar is the base */
-        val = load_runtime_reg( base, I2O_ODBR );
-        msg = val & 0xe0000000;
-        store_runtime_reg( base, I2O_ODBR, val ); /* clear the register */
+	val = load_runtime_reg( base, I2O_ODBR );
+	msg = val & 0xe0000000;
+	store_runtime_reg( base, I2O_ODBR, val ); /* clear the register */
     }
     else
     {
 	/* read the inbound doorbell register, eumbbar is the base */
-        val = load_runtime_reg( base, I2O_IDBR );
-        store_runtime_reg( base, I2O_IDBR, val ); /* clear the register */
+	val = load_runtime_reg( base, I2O_IDBR );
+	store_runtime_reg( base, I2O_IDBR, val ); /* clear the register */
 	msg = val;
     }
 
@@ -323,8 +323,8 @@ unsigned int I2ODBGet( LOCATION loc,         /*  REMOTE/LOCAL   */
  * Otherwise local out doorbell is written
  *********************************************************************/
 void I2ODBPost( LOCATION loc,             /*  REMOTE/LOCAL   */
-                unsigned int base,        /* pcsrbar/eumbbar */
-                unsigned int msg )        /*   in   / out    */
+		unsigned int base,        /* pcsrbar/eumbbar */
+		unsigned int msg )        /*   in   / out    */
 {
     if ( loc == REMOTE )
     {
@@ -527,8 +527,8 @@ void I2OFIFODisable( unsigned int eumbbar )
  *
  ****************************************************/
 I2OSTATUS I2OFIFOAlloc( LOCATION loc,
-		        unsigned int base,
-		        void         **pMsg )
+			unsigned int base,
+			void         **pMsg )
 {
     I2OSTATUS stat = I2OSUCCESS;
     void *pHdr, *pTil;
@@ -543,12 +543,12 @@ I2OSTATUS I2OFIFOAlloc( LOCATION loc,
     {
 	/* pcsrbar is the base and read the inbound free tail ptr */
 	pTil = (void *)load_runtime_reg( base, I2O_IFQPR );
-        if ( ( (unsigned int)pTil & 0xFFFFFFF ) == 0xFFFFFFFF )
-        {
+	if ( ( (unsigned int)pTil & 0xFFFFFFF ) == 0xFFFFFFFF )
+	{
 	    stat = I2OQUEEMPTY;
-        }
+	}
 	else
-        {
+	{
 	    *pMsg = pTil;
 	}
     }
@@ -562,7 +562,7 @@ I2OSTATUS I2OFIFOAlloc( LOCATION loc,
 	if ( pHdr == pTil )
 	{
 	    /* hdr and til point to the same fifo item, no free MFA */
-            stat = I2OQUEEMPTY;
+	    stat = I2OQUEEMPTY;
 	}
 	else
 	{
@@ -615,7 +615,7 @@ I2OSTATUS I2OFIFOFree( LOCATION loc,
     {
 	/* eumbbar is the base */
 	pHdr = (void **)load_runtime_reg( base, I2O_IFHPR );
-        pTil = (void **)load_runtime_reg( base, I2O_IFTPR );
+	pTil = (void **)load_runtime_reg( base, I2O_IFTPR );
 
 	/* store MFA */
 	*pHdr = pMsg;
@@ -633,7 +633,7 @@ I2OSTATUS I2OFIFOFree( LOCATION loc,
 	if ( pHdr != pTil )
 	{
 	   store_runtime_reg( base, I2O_OPHPR, (unsigned int)pHdr);
-        }
+	}
 	else
 	{
 	    stat = I2OQUEFULL;
@@ -677,7 +677,7 @@ I2OSTATUS I2OFIFOPost( LOCATION loc,
     {
 	/* eumbbar is the base */
 	pHdr = (void **)load_runtime_reg( base, I2O_OPHPR );
-        pTil = (void **)load_runtime_reg( base, I2O_OPTPR );
+	pTil = (void **)load_runtime_reg( base, I2O_OPTPR );
 
 	/* store MFA */
 	*pHdr = pMsg;
@@ -695,7 +695,7 @@ I2OSTATUS I2OFIFOPost( LOCATION loc,
 	if ( pHdr != pTil )
 	{
 	   store_runtime_reg( base, I2O_OPHPR, (unsigned int)pHdr);
-        }
+	}
 	else
 	{
 	    stat = I2OQUEFULL;
@@ -734,12 +734,12 @@ I2OSTATUS I2OFIFOGet( LOCATION loc,
     {
 	/* pcsrbar is the base */
 	pTil = (void *)load_runtime_reg( base, I2O_OFQPR );
-        if ( ( (unsigned int)pTil & 0xFFFFFFF ) == 0xFFFFFFFF )
-        {
+	if ( ( (unsigned int)pTil & 0xFFFFFFF ) == 0xFFFFFFFF )
+	{
 	    stat = I2OQUEEMPTY;
-        }
+	}
 	else
-        {
+	{
 	    *pMsg = pTil;
 	}
     }
@@ -753,7 +753,7 @@ I2OSTATUS I2OFIFOGet( LOCATION loc,
 	if ( pHdr == pTil )
 	{
 	    /* no free MFA */
-            stat = I2OQUEEMPTY;
+	    stat = I2OQUEEMPTY;
 	}
 	else
 	{
@@ -783,8 +783,8 @@ I2OSTATUS I2OFIFOGet( LOCATION loc,
  *       should pass eumbbar.
  *********************************************************/
 I2OSTATUS I2OPCIConfigGet( LOCATION loc,
-		        unsigned int base,
-		        I2OIOP * val)
+			unsigned int base,
+			I2OIOP * val)
 {
     unsigned int tmp;
     if ( val == 0 )

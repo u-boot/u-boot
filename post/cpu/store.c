@@ -62,7 +62,7 @@ static struct cpu_post_store_s
 } cpu_post_store_table[] =
 {
     {
-    	OP_STW,
+	OP_STW,
 	4,
 	0,
 	0,
@@ -70,7 +70,7 @@ static struct cpu_post_store_s
 	0xff00ff00
     },
     {
-    	OP_STH,
+	OP_STH,
 	2,
 	0,
 	0,
@@ -78,7 +78,7 @@ static struct cpu_post_store_s
 	0xff00
     },
     {
-    	OP_STB,
+	OP_STB,
 	1,
 	0,
 	0,
@@ -86,7 +86,7 @@ static struct cpu_post_store_s
 	0xff
     },
     {
-    	OP_STWU,
+	OP_STWU,
 	4,
 	1,
 	0,
@@ -94,7 +94,7 @@ static struct cpu_post_store_s
 	0xff00ff00
     },
     {
-    	OP_STHU,
+	OP_STHU,
 	2,
 	1,
 	0,
@@ -102,7 +102,7 @@ static struct cpu_post_store_s
 	0xff00
     },
     {
-    	OP_STBU,
+	OP_STBU,
 	1,
 	1,
 	0,
@@ -110,7 +110,7 @@ static struct cpu_post_store_s
 	0xff
     },
     {
-    	OP_STWX,
+	OP_STWX,
 	4,
 	0,
 	1,
@@ -118,7 +118,7 @@ static struct cpu_post_store_s
 	0xff00ff00
     },
     {
-    	OP_STHX,
+	OP_STHX,
 	2,
 	0,
 	1,
@@ -126,7 +126,7 @@ static struct cpu_post_store_s
 	0xff00
     },
     {
-    	OP_STBX,
+	OP_STBX,
 	1,
 	0,
 	1,
@@ -134,7 +134,7 @@ static struct cpu_post_store_s
 	0xff
     },
     {
-    	OP_STWUX,
+	OP_STWUX,
 	4,
 	1,
 	1,
@@ -142,7 +142,7 @@ static struct cpu_post_store_s
 	0xff00ff00
     },
     {
-    	OP_STHUX,
+	OP_STHUX,
 	2,
 	1,
 	1,
@@ -150,7 +150,7 @@ static struct cpu_post_store_s
 	0xff00
     },
     {
-    	OP_STBUX,
+	OP_STBUX,
 	1,
 	1,
 	1,
@@ -171,14 +171,14 @@ int cpu_post_test_store (void)
 	struct cpu_post_store_s *test = cpu_post_store_table + i;
 	uchar data[16] =
 	{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
-    	ulong base0 = (ulong) (data + 8);
+	ulong base0 = (ulong) (data + 8);
 	ulong base = base0;
 
 	if (test->index)
 	{
 	    ulong code[] =
 	    {
-	    	ASM_12(test->cmd, 5, 3, 4),
+		ASM_12(test->cmd, 5, 3, 4),
 		ASM_BLR,
 	    };
 
@@ -188,7 +188,7 @@ int cpu_post_test_store (void)
 	{
 	    ulong code[] =
 	    {
-	    	ASM_11I(test->cmd, 4, 3, test->offset),
+		ASM_11I(test->cmd, 4, 3, test->offset),
 		ASM_BLR,
 	    };
 
@@ -208,23 +208,23 @@ int cpu_post_test_store (void)
 	    switch (test->width)
 	    {
 	    case 1:
-	        ret = *(uchar *)(base0 + test->offset) == test->value ?
+		ret = *(uchar *)(base0 + test->offset) == test->value ?
 		      0 : -1;
-	        break;
+		break;
 	    case 2:
-	        ret = *(ushort *)(base0 + test->offset) == test->value ?
+		ret = *(ushort *)(base0 + test->offset) == test->value ?
 		      0 : -1;
-	        break;
+		break;
 	    case 4:
-	        ret = *(ulong *)(base0 + test->offset) == test->value ?
+		ret = *(ulong *)(base0 + test->offset) == test->value ?
 		      0 : -1;
-	        break;
+		break;
 	    }
 	}
 
 	if (ret != 0)
 	{
-            post_log ("Error at store test %d !\n", i);
+	    post_log ("Error at store test %d !\n", i);
 	}
     }
 

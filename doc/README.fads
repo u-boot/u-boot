@@ -87,4 +87,3 @@ Next, in MPC8BUG:
   go
 
 Now U-Boot is running with the U-Boot value for SYPCR.
-

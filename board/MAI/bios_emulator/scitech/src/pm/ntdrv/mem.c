@@ -1,7 +1,7 @@
 /****************************************************************************
 *
 *                   SciTech OS Portability Manager Library
-*																																			
+*
 *  ========================================================================
 *
 *    The contents of this file are subject to the SciTech MGL Public
@@ -70,7 +70,7 @@ static memlocked    locked[MAX_MEMORY_LOCKED];
 
 ulong   PMAPI _PM_getPDB(void);
 
-// Page table entry flags
+/* Page table entry flags */
 
 #define PAGE_FLAGS_PRESENT			0x00000001
 #define PAGE_FLAGS_WRITEABLE		0x00000002
@@ -100,14 +100,14 @@ static ulong _PM_mapPhysicalToLinear(
     ulong               length = limit+1;
     PHYSICAL_ADDRESS    paIoBase = {0};
 
-    // NT loves large Ints
+    /* NT loves large Ints */
     paIoBase = RtlConvertUlongToLargeInteger( base );
 
-    // Map IO space into Kernel
+    /* Map IO space into Kernel */
     if (isCached)
-        return (ULONG)MmMapIoSpace(paIoBase, length, MmCached );
+	return (ULONG)MmMapIoSpace(paIoBase, length, MmCached );
     else
-        return (ULONG)MmMapIoSpace(paIoBase, length, MmNonCached );
+	return (ULONG)MmMapIoSpace(paIoBase, length, MmNonCached );
 }
 
 /****************************************************************************
@@ -135,7 +135,7 @@ static void _PM_adjustPageTables(
 		mask &= ~PAGE_FLAGS_USER;
 		bits |= PAGE_FLAGS_USER;
 		}
-		
+
 	/* Disable PCD bit if page table entry should be uncached */
 	if (!isCached) {
 		mask &= ~(PAGE_FLAGS_CACHE_DISABLE | PAGE_FLAGS_WRITE_THROUGH);
@@ -144,30 +144,30 @@ static void _PM_adjustPageTables(
 
     pPDB = (ulong*)_PM_mapPhysicalToLinear(_PM_getPDB(),0xFFF,true);
     if (pPDB) {
-        startPDB = (linear >> 22) & 0x3FF;
-        startPage = (linear >> 12) & 0x3FF;
-        endPDB = ((linear+limit) >> 22) & 0x3FF;
-        endPage = ((linear+limit) >> 12) & 0x3FF;
-        for (iPDB = startPDB; iPDB <= endPDB; iPDB++) {
-            // Set the bits in the page directory entry - required as per
-            // Pentium 4 manual. This also takes care of the 4MB page entries
-            pPDB[iPDB] = (pPDB[iPDB] & mask) | bits;
-            if (!(pPDB[iPDB] & PAGE_FLAGS_4MB)) {
-                // If we are dealing with 4KB pages then we need to iterate
-                // through each of the page table entries
-                pageTable = pPDB[iPDB] & ~0xFFF;
-                pPageTable = (ulong*)_PM_mapPhysicalToLinear(pageTable,0xFFF,true);
-                start = (iPDB == startPDB) ? startPage : 0;
-                end = (iPDB == endPDB) ? endPage : 0x3FF;
-                for (iPage = start; iPage <= end; iPage++) {
-                    pPageTable[iPage] = (pPageTable[iPage] & mask) | bits;
-                    }
-                MmUnmapIoSpace(pPageTable,0xFFF);
-                }
-            }
-        MmUnmapIoSpace(pPDB,0xFFF);
-        PM_flushTLB();
-        }
+	startPDB = (linear >> 22) & 0x3FF;
+	startPage = (linear >> 12) & 0x3FF;
+	endPDB = ((linear+limit) >> 22) & 0x3FF;
+	endPage = ((linear+limit) >> 12) & 0x3FF;
+	for (iPDB = startPDB; iPDB <= endPDB; iPDB++) {
+	    /* Set the bits in the page directory entry - required as per */
+	    /* Pentium 4 manual. This also takes care of the 4MB page entries */
+	    pPDB[iPDB] = (pPDB[iPDB] & mask) | bits;
+	    if (!(pPDB[iPDB] & PAGE_FLAGS_4MB)) {
+		/* If we are dealing with 4KB pages then we need to iterate */
+		/* through each of the page table entries */
+		pageTable = pPDB[iPDB] & ~0xFFF;
+		pPageTable = (ulong*)_PM_mapPhysicalToLinear(pageTable,0xFFF,true);
+		start = (iPDB == startPDB) ? startPage : 0;
+		end = (iPDB == endPDB) ? endPage : 0x3FF;
+		for (iPage = start; iPage <= end; iPage++) {
+		    pPageTable[iPage] = (pPageTable[iPage] & mask) | bits;
+		    }
+		MmUnmapIoSpace(pPageTable,0xFFF);
+		}
+	    }
+	MmUnmapIoSpace(pPDB,0xFFF);
+	PM_flushTLB();
+	}
 }
 
 /****************************************************************************
@@ -183,24 +183,24 @@ void * PMAPI PM_mallocShared(
 {
     int         i;
 
-    // First find a free slot in our shared memory table
+    /* First find a free slot in our shared memory table */
     for (i = 0; i < MAX_MEMORY_SHARED; i++) {
-        if (shared[i].linear == 0)
-            break;
-        }
+	if (shared[i].linear == 0)
+	    break;
+	}
     if (i == MAX_MEMORY_SHARED)
-        return NULL;
+	return NULL;
 
-    // Allocate the paged pool
+    /* Allocate the paged pool */
     shared[i].linear = ExAllocatePool(PagedPool, size);
 
-    // Create a list to manage this allocation
+    /* Create a list to manage this allocation */
     shared[i].pMdl = IoAllocateMdl(shared[i].linear,size,FALSE,FALSE,(PIRP) NULL);
 
-    // Lock this allocation in memory
+    /* Lock this allocation in memory */
     MmProbeAndLockPages(shared[i].pMdl,KernelMode,IoModifyAccess);
 
-    // Modify bits to grant user access
+    /* Modify bits to grant user access */
     _PM_adjustPageTables((ulong)shared[i].linear, size, true, true);
     return (void*)shared[i].linear;
 }
@@ -214,23 +214,23 @@ void PMAPI PM_freeShared(
 {
     int i;
 
-    // Find a shared memory block in our table and free it
+    /* Find a shared memory block in our table and free it */
     for (i = 0; i < MAX_MEMORY_SHARED; i++) {
-        if (shared[i].linear == p) {
-            // Unlock what we locked
-            MmUnlockPages(shared[i].pMdl);
+	if (shared[i].linear == p) {
+	    /* Unlock what we locked */
+	    MmUnlockPages(shared[i].pMdl);
 
-            // Free our MDL
-            IoFreeMdl(shared[i].pMdl);
+	    /* Free our MDL */
+	    IoFreeMdl(shared[i].pMdl);
 
-            // Free our mem
-            ExFreePool(shared[i].linear);
+	    /* Free our mem */
+	    ExFreePool(shared[i].linear);
 
-            // Flag that is entry is available
-            shared[i].linear = 0;
-            break;
-            }
-        }
+	    /* Flag that is entry is available */
+	    shared[i].linear = 0;
+	    break;
+	    }
+	}
 }
 
 /****************************************************************************
@@ -245,27 +245,27 @@ void * PMAPI PM_mapPhysicalAddr(
     ulong   linear,length = limit+1;
     int     i;
 
-    // Search table of existing mappings to see if we have already mapped
-    // a region of memory that will serve this purpose.
+    /* Search table of existing mappings to see if we have already mapped */
+    /* a region of memory that will serve this purpose. */
     for (i = 0; i < numMappings; i++) {
-        if (maps[i].physical == base && maps[i].length == length && maps[i].isCached == isCached) {
-            _PM_adjustPageTables((ulong)maps[i].linear, maps[i].length, true, isCached);
-            return (void*)maps[i].linear;
-            }
-        }
+	if (maps[i].physical == base && maps[i].length == length && maps[i].isCached == isCached) {
+	    _PM_adjustPageTables((ulong)maps[i].linear, maps[i].length, true, isCached);
+	    return (void*)maps[i].linear;
+	    }
+	}
     if (numMappings == MAX_MEMORY_MAPPINGS)
-        return NULL;
+	return NULL;
 
-    // We did not find any previously mapped memory region, so maps it in.
+    /* We did not find any previously mapped memory region, so maps it in. */
     if ((linear = _PM_mapPhysicalToLinear(base,limit,isCached)) == 0xFFFFFFFF)
-        return NULL;
+	return NULL;
     maps[numMappings].physical = base;
     maps[numMappings].length = length;
     maps[numMappings].linear = linear;
     maps[numMappings].isCached = isCached;
     numMappings++;
 
-    // Grant user access to this I/O space
+    /* Grant user access to this I/O space */
     _PM_adjustPageTables((ulong)linear, length, true, isCached);
     return (void*)linear;
 }
@@ -278,8 +278,8 @@ void PMAPI PM_freePhysicalAddr(
     void *ptr,
     ulong limit)
 {
-    // We don't free the memory mappings in here because we cache all
-    // the memory mappings we create in the system for later use.
+    /* We don't free the memory mappings in here because we cache all */
+    /* the memory mappings we create in the system for later use. */
 }
 
 /****************************************************************************
@@ -291,7 +291,7 @@ void PMAPI _PM_freeMemoryMappings(void)
     int i;
 
     for (i = 0; i < numMappings; i++)
-        MmUnmapIoSpace((void *)maps[i].linear,maps[i].length);
+	MmUnmapIoSpace((void *)maps[i].linear,maps[i].length);
 }
 
 /****************************************************************************
@@ -320,10 +320,10 @@ ibool PMAPI PM_getPhysicalAddrRange(
     ulong   linear = (ulong)p & ~0xFFF;
 
     for (i = (length + 0xFFF) >> 12; i > 0; i--) {
-        if ((*physAddress++ = PM_getPhysicalAddr((void*)linear)) == 0xFFFFFFFF)
-            return false;
-        linear += 4096;
-        }
+	if ((*physAddress++ = PM_getPhysicalAddr((void*)linear)) == 0xFFFFFFFF)
+	    return false;
+	linear += 4096;
+	}
     return true;
 }
 
@@ -340,58 +340,58 @@ void * PMAPI PM_allocLockedMem(
     int                 i;
     PHYSICAL_ADDRESS    paOurAddress;
 
-    // First find a free slot in our shared memory table
+    /* First find a free slot in our shared memory table */
     for (i = 0; i < MAX_MEMORY_LOCKED; i++) {
-        if (locked[i].linear == 0)
-            break;
-        }
+	if (locked[i].linear == 0)
+	    break;
+	}
     if (i == MAX_MEMORY_LOCKED)
-        return NULL;
+	return NULL;
 
-    // HighestAcceptableAddress - Specifies the highest valid physical address
-    // the driver can use. For example, if a device can only reference physical
-    // memory in the lower 16MB, this value would be set to 0x00000000FFFFFF.
+    /* HighestAcceptableAddress - Specifies the highest valid physical address */
+    /* the driver can use. For example, if a device can only reference physical */
+    /* memory in the lower 16MB, this value would be set to 0x00000000FFFFFF. */
     paOurAddress.HighPart = 0;
     if (below16M)
-        paOurAddress.LowPart = 0x00FFFFFF;
+	paOurAddress.LowPart = 0x00FFFFFF;
     else
-        paOurAddress.LowPart = 0xFFFFFFFF;
+	paOurAddress.LowPart = 0xFFFFFFFF;
 
     if (contiguous) {
-        // Allocate from the non-paged pool (unfortunately 4MB pages)
-        locked[i].linear = MmAllocateContiguousMemory(size, paOurAddress);
-        if (!locked[i].linear)
-            return NULL;
+	/* Allocate from the non-paged pool (unfortunately 4MB pages) */
+	locked[i].linear = MmAllocateContiguousMemory(size, paOurAddress);
+	if (!locked[i].linear)
+	    return NULL;
 
-        // Flag no MDL
-        locked[i].pMdl = NULL;
+	/* Flag no MDL */
+	locked[i].pMdl = NULL;
 
-        // Map the physical address for the memory so we can manage
-        // the page tables in 4KB chunks mapped into user space.
+	/* Map the physical address for the memory so we can manage */
+	/* the page tables in 4KB chunks mapped into user space. */
 
-        // TODO: Map this with the physical address to the linear addresss
-        locked[i].mmIoMapped = locked[i].linear;
+	/* TODO: Map this with the physical address to the linear addresss */
+	locked[i].mmIoMapped = locked[i].linear;
 
-        // Modify bits to grant user access, flag not cached
-        _PM_adjustPageTables((ulong)locked[i].mmIoMapped, size, true, false);
-        return (void*)locked[i].mmIoMapped;
-        }
+	/* Modify bits to grant user access, flag not cached */
+	_PM_adjustPageTables((ulong)locked[i].mmIoMapped, size, true, false);
+	return (void*)locked[i].mmIoMapped;
+	}
     else {
-        // Allocate from the paged pool
-        locked[i].linear = ExAllocatePool(PagedPool, size);
-        if (!locked[i].linear)
-            return NULL;
+	/* Allocate from the paged pool */
+	locked[i].linear = ExAllocatePool(PagedPool, size);
+	if (!locked[i].linear)
+	    return NULL;
 
-        // Create a list to manage this allocation
-        locked[i].pMdl = IoAllocateMdl(locked[i].linear,size,FALSE,FALSE,(PIRP) NULL);
+	/* Create a list to manage this allocation */
+	locked[i].pMdl = IoAllocateMdl(locked[i].linear,size,FALSE,FALSE,(PIRP) NULL);
 
-        // Lock this allocation in memory
-        MmProbeAndLockPages(locked[i].pMdl,KernelMode,IoModifyAccess);
+	/* Lock this allocation in memory */
+	MmProbeAndLockPages(locked[i].pMdl,KernelMode,IoModifyAccess);
 
-        // Modify bits to grant user access, flag not cached
-        _PM_adjustPageTables((ulong)locked[i].linear, size, true, false);
-        return (void*)locked[i].linear;
-        }
+	/* Modify bits to grant user access, flag not cached */
+	_PM_adjustPageTables((ulong)locked[i].linear, size, true, false);
+	return (void*)locked[i].linear;
+	}
 }
 
 /****************************************************************************
@@ -407,27 +407,27 @@ void PMAPI PM_freeLockedMem(
 
     /* Find a locked memory block in our table and free it */
     for (i = 0; i < MAX_MEMORY_LOCKED; i++) {
-        if (locked[i].linear == p) {
-            // An Mdl indicates that we used the paged pool, and locked it,
-            // so now we have to unlock, free the MDL, and free paged
-            if (locked[i].pMdl) {
-                // Unlock what we locked and free the Mdl
-                MmUnlockPages(locked[i].pMdl);
-                IoFreeMdl(locked[i].pMdl);
-                ExFreePool(locked[i].linear);
-                }
-            else {
-                // TODO: Free the mmIoMap mapping for the memory!
+	if (locked[i].linear == p) {
+	    /* An Mdl indicates that we used the paged pool, and locked it, */
+	    /* so now we have to unlock, free the MDL, and free paged */
+	    if (locked[i].pMdl) {
+		/* Unlock what we locked and free the Mdl */
+		MmUnlockPages(locked[i].pMdl);
+		IoFreeMdl(locked[i].pMdl);
+		ExFreePool(locked[i].linear);
+		}
+	    else {
+		/* TODO: Free the mmIoMap mapping for the memory! */
 
-                // Free non-paged pool
-                MmFreeContiguousMemory(locked[i].linear);
-                }
+		/* Free non-paged pool */
+		MmFreeContiguousMemory(locked[i].linear);
+		}
 
-            // Flag that is entry is available
-            locked[i].linear = 0;
-            break;
-            }
-        }
+	    /* Flag that is entry is available */
+	    locked[i].linear = 0;
+	    break;
+	    }
+	}
 }
 
 /****************************************************************************
@@ -437,11 +437,11 @@ Allocates a page aligned and page sized block of memory
 void * PMAPI PM_allocPage(
     ibool locked)
 {
-    // Allocate the memory from the non-paged pool if we want the memory
-    // to be locked.
+    /* Allocate the memory from the non-paged pool if we want the memory */
+    /* to be locked. */
     return ExAllocatePool(
-        locked ? NonPagedPoolCacheAligned : PagedPoolCacheAligned,
-        PAGE_SIZE);
+	locked ? NonPagedPoolCacheAligned : PagedPoolCacheAligned,
+	PAGE_SIZE);
 }
 
 /****************************************************************************
@@ -465,11 +465,11 @@ int PMAPI PM_lockDataPages(
 {
     MDL *pMdl;
 
-    // Create a list to manage this allocation
+    /* Create a list to manage this allocation */
     if ((pMdl = IoAllocateMdl(p,len,FALSE,FALSE,(PIRP)NULL)) == NULL)
-        return false;
+	return false;
 
-    // Lock this allocation in memory
+    /* Lock this allocation in memory */
     MmProbeAndLockPages(pMdl,KernelMode,IoModifyAccess);
     *((PMDL*)(&lh->h)) = pMdl;
     return true;
@@ -485,11 +485,11 @@ int PMAPI PM_unlockDataPages(
     PM_lockHandle *lh)
 {
     if (p && lh) {
-        // Unlock what we locked
-        MDL *pMdl = *((PMDL*)(&lh->h));
-        MmUnlockPages(pMdl);
-        IoFreeMdl(pMdl);
-        }
+	/* Unlock what we locked */
+	MDL *pMdl = *((PMDL*)(&lh->h));
+	MmUnlockPages(pMdl);
+	IoFreeMdl(pMdl);
+	}
     return true;
 }
 
@@ -516,4 +516,3 @@ int PMAPI PM_unlockCodePages(
 {
     return PM_unlockDataPages((void*)p,len,lh);
 }
-

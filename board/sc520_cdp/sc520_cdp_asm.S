@@ -23,7 +23,7 @@
 
 /* now setup the General purpose bus to give us access to the LEDs.
  * We can then use the leds to display status information.
- */ 
+ */
 
 sc520_cdp_registers:
 /* size    offset        value */
@@ -45,12 +45,12 @@ sc520_cdp_registers:
 /* board early intialization */
 .globl early_board_init
 early_board_init:
-        movl    $sc520_cdp_registers,%esi
-init_loop:	
-        movl    $0xfffef000,%edi     /* MMCR base to edi */					
+	movl    $sc520_cdp_registers,%esi
+init_loop:
+	movl    $0xfffef000,%edi     /* MMCR base to edi */
 	movw	(%esi), %bx          /* load sizer to bx */
 	cmpw	$0, %bx              /* if sie is 0 we're done */
-	je	done 
+	je	done
 	xorl	%edx,%edx
 	movw	2(%esi), %dx        /* load MMCR offset to dx */
 	addl	%edx, %edi          /* add offset to base in edi */
@@ -61,7 +61,7 @@ init_loop:
 	je	word                 /* word op? */
 	movl	%eax, (%edi)         /* must be long, then */
 	jmp	next
-byte:   movb    %al,(%edi)        
+byte:   movb    %al,(%edi)
 	jmp	next
 word:	movw	%ax,(%edi)
 next:	addl	$8, %esi             /* advance esi */
@@ -83,4 +83,3 @@ __show_boot_progress:
 	movw	$0x680, %dx
 	out	%al, %dx
 	jmp	*%ebp
-	

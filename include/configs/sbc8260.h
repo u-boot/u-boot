@@ -284,7 +284,7 @@
 /* What should the console's baud rate be? */
 #define CONFIG_BAUDRATE		9600
 
-/* Ethernet MAC address 
+/* Ethernet MAC address
  *     Note: We are using the EST Corporation OUI (00:a0:1e:xx:xx:xx)
  *           http://standards.ieee.org/regauth/oui/index.shtml
  */
@@ -315,38 +315,38 @@
 
 /* Define this to contain any number of null terminated strings that
  * will be part of the default enviroment compiled into the boot image.
- * 
+ *
  * Variable		Usage
  * --------------       -------------------------------------------------------
- * serverip		server IP address 
+ * serverip		server IP address
  * ipaddr		my IP address
  * reprog		Reload flash with a new copy of U-Boot
  * zapenv		Erase the environment area in flash
  * root-on-initrd       Set the bootcmd variable to allow booting of an initial
  *                      ram disk.
- * root-on-nfs          Set the bootcmd variable to allow booting of a NFS 
+ * root-on-nfs          Set the bootcmd variable to allow booting of a NFS
  *                      mounted root filesystem.
- * boot-hook            Convenient stub to do something useful before the 
+ * boot-hook            Convenient stub to do something useful before the
  *                      bootm command is executed.
- * 
+ *
  * Example usage of root-on-initrd and root-on-nfs :
  *
  * Note: The lines have been wrapped to improved its readability.
  *
  * => printenv bootcmd
  * bootcmd=version;echo;bootp;setenv bootargs root=/dev/nfs rw
- * nfsroot=$(serverip):$(rootpath) 
+ * nfsroot=$(serverip):$(rootpath)
  * ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;run boot-hook;bootm
  *
  * => run root-on-initrd
  * => printenv bootcmd
  * bootcmd=version;echo;bootp;setenv bootargs root=/dev/ram0 rw
  * ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;run boot-hook;bootm
- * 
+ *
  * => run root-on-nfs
  * => printenv bootcmd
  * bootcmd=version;echo;bootp;setenv bootargs root=/dev/nfs rw
- * nfsroot=$(serverip):$(rootpath) 
+ * nfsroot=$(serverip):$(rootpath)
  * ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;run boot-hook;bootm
  *
  */

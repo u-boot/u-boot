@@ -77,11 +77,11 @@ void PMAPI PM_init(void)
 
     if (VRegs == NULL) {
 #ifdef  __QNXNTO__
-        ThreadCtl(_NTO_TCTL_IO, 0); /* Get IO privilidge */
+	ThreadCtl(_NTO_TCTL_IO, 0); /* Get IO privilidge */
 #endif
-        force = getenv("VBIOS_METHOD");
-        VRegs = VBIOSinit(force ? atoi(force) : 0);
-        }
+	force = getenv("VBIOS_METHOD");
+	VRegs = VBIOSinit(force ? atoi(force) : 0);
+	}
 #ifndef  __QNXNTO__
     MTRR_init();
 #endif
@@ -100,9 +100,9 @@ void PMAPI PM_backslash(char *s)
 {
     uint pos = strlen(s);
     if (s[pos-1] != '/') {
-        s[pos] = '/';
-        s[pos+1] = '\0';
-        }
+	s[pos] = '/';
+	s[pos+1] = '\0';
+	}
 }
 
 void PMAPI PM_setFatalErrorCleanup(
@@ -114,7 +114,7 @@ void PMAPI PM_setFatalErrorCleanup(
 void PMAPI PM_fatalError(const char *msg)
 {
     if (fatalErrorCleanup)
-        fatalErrorCleanup();
+	fatalErrorCleanup();
     fprintf(stderr,"%s\n", msg);
     exit(1);
 }
@@ -122,18 +122,18 @@ void PMAPI PM_fatalError(const char *msg)
 static void ExitVBEBuf(void)
 {
     if (VESABuf_ptr)
-        PM_freeRealSeg(VESABuf_ptr);
+	PM_freeRealSeg(VESABuf_ptr);
     VESABuf_ptr = 0;
 }
 
 void * PMAPI PM_getVESABuf(uint *len,uint *rseg,uint *roff)
 {
     if (!VESABuf_ptr) {
-        /* Allocate a global buffer for communicating with the VESA VBE */
-        if ((VESABuf_ptr = PM_allocRealSeg(VESABuf_len, &VESABuf_rseg, &VESABuf_roff)) == NULL)
-            return NULL;
-        atexit(ExitVBEBuf);
-        }
+	/* Allocate a global buffer for communicating with the VESA VBE */
+	if ((VESABuf_ptr = PM_allocRealSeg(VESABuf_len, &VESABuf_rseg, &VESABuf_roff)) == NULL)
+	    return NULL;
+	atexit(ExitVBEBuf);
+	}
     *len = VESABuf_len;
     *rseg = VESABuf_rseg;
     *roff = VESABuf_roff;
@@ -145,11 +145,11 @@ static int term_raw(void)
     struct termios  termios_p;
 
     if (raw_count++ > 0)
-        return 0;
+	return 0;
 
     /* Go into "raw" input mode */
     if (tcgetattr(STDIN_FILENO, &termios_p))
-        return -1;
+	return -1;
 
     termios_p.c_cc[VMIN] =  1;
     termios_p.c_cc[VTIME] =  0;
@@ -163,7 +163,7 @@ static void term_restore(void)
     struct termios  termios_p;
 
     if (raw_count-- != 1)
-        return;
+	return;
 
     tcgetattr(STDIN_FILENO, &termios_p);
     termios_p.c_lflag |= (ECHO|ICANON|ISIG|ECHOE|ECHOK|ECHONL);
@@ -176,7 +176,7 @@ int PMAPI PM_kbhit(void)
     int blocking, c;
 
     if (term_raw() == -1)
-        return 0;
+	return 0;
 
     /* Go into non blocking mode */
     blocking = fcntl(STDIN_FILENO, F_GETFL) | O_NONBLOCK;
@@ -187,9 +187,9 @@ int PMAPI PM_kbhit(void)
     fcntl(STDIN_FILENO, F_SETFL, blocking & ~O_NONBLOCK);
     term_restore();
     if (c != EOF) {
-        ungetc(c, stdin);
-        return c;
-        }
+	ungetc(c, stdin);
+	return c;
+	}
     clearerr(stdin);
     return 0;
 }
@@ -199,13 +199,13 @@ int PMAPI PM_getch(void)
     int c;
 
     if (term_raw() == -1)
-        return (0);
+	return (0);
     c = getc(stdin);
 #if defined(__QNX__) && !defined(__QNXNTO__)
     if (c == 0xA)
-        c = 0x0D;
+	c = 0x0D;
     else if (c == 0x7F)
-        c = 0x08;
+	c = 0x08;
 #endif
     term_restore();
     return c;
@@ -223,13 +223,13 @@ PM_HWND PMAPI PM_openConsole(
     int fd;
 
     if (console_count++)
-        return 0;
+	return 0;
     if ((fd = open("/dev/con1", O_RDWR)) == -1)
-        return -1;
+	return -1;
     cc = console_open(fd, O_RDWR);
     close(fd);
     if (cc == NULL)
-        return -1;
+	return -1;
 #endif
     return 1;
 }
@@ -246,7 +246,7 @@ void PMAPI PM_saveConsoleState(void *stateBuf,int console_id)
     int     flags;
 
     if ((fd = open("/dev/con1", O_RDWR)) == -1)
-        return;
+	return;
     flags = _CONCTL_INVISIBLE_CHG | _CONCTL_INVISIBLE;
     devctl(fd, DCMD_CHR_SERCTL, &flags, sizeof flags, 0);
     close(fd);
@@ -255,10 +255,10 @@ void PMAPI PM_saveConsoleState(void *stateBuf,int console_id)
 
     /* Save QNX 4 console state */
     console_read(cc, -1, 0, NULL, 0,
-        (int *)buf+1, (int *)buf+2, NULL);
+	(int *)buf+1, (int *)buf+2, NULL);
     *(int *)buf = console_ctrl(cc, -1,
-        CONSOLE_NORESIZE | CONSOLE_NOSWITCH | CONSOLE_INVISIBLE,
-        CONSOLE_NORESIZE | CONSOLE_NOSWITCH | CONSOLE_INVISIBLE);
+	CONSOLE_NORESIZE | CONSOLE_NOSWITCH | CONSOLE_INVISIBLE,
+	CONSOLE_NORESIZE | CONSOLE_NOSWITCH | CONSOLE_INVISIBLE);
 
     /* Save state of VGA registers */
     PM_saveVGAState(stateBuf);
@@ -277,7 +277,7 @@ void PMAPI PM_restoreConsoleState(const void *stateBuf,PM_HWND hwndConsole)
     int     flags;
 
     if ((fd = open("/dev/con1", O_RDWR)) == -1)
-        return;
+	return;
     flags = _CONCTL_INVISIBLE_CHG;
     devctl(fd, DCMD_CHR_SERCTL, &flags, sizeof flags, 0);
     close(fd);
@@ -289,9 +289,9 @@ void PMAPI PM_restoreConsoleState(const void *stateBuf,PM_HWND hwndConsole)
 
     /* Restore QNX 4 console state */
     console_ctrl(cc, -1, *(int *)buf,
-        CONSOLE_NORESIZE | CONSOLE_NOSWITCH | CONSOLE_INVISIBLE);
+	CONSOLE_NORESIZE | CONSOLE_NOSWITCH | CONSOLE_INVISIBLE);
     console_write(cc, -1, 0, NULL, 0,
-        (int *)buf+1, (int *)buf+2, NULL);
+	(int *)buf+1, (int *)buf+2, NULL);
 #endif
 }
 
@@ -299,16 +299,16 @@ void PMAPI PM_closeConsole(PM_HWND hwndConsole)
 {
 #ifndef __QNXNTO__
     if (--console_count == 0) {
-        console_close(cc);
-        cc = NULL;
-        }
+	console_close(cc);
+	cc = NULL;
+	}
 #endif
 }
 
 void PM_setOSCursorLocation(int x,int y)
 {
     if (!cc)
-        return;
+	return;
 #ifndef __QNXNTO__
     console_write(cc, -1, 0, NULL, 0, &y, &x, NULL);
 #endif
@@ -320,18 +320,18 @@ void PM_setOSScreenWidth(int width,int height)
 
 ibool PMAPI PM_setRealTimeClockHandler(PM_intHandler ih, int frequency)
 {
-    // TODO: Implement this for QNX
+    /* TODO: Implement this for QNX */
     return false;
 }
 
 void PMAPI PM_setRealTimeClockFrequency(int frequency)
 {
-    // TODO: Implement this for QNX
+    /* TODO: Implement this for QNX */
 }
 
 void PMAPI PM_restoreRealTimeClockHandler(void)
 {
-    // TODO: Implement this for QNX
+    /* TODO: Implement this for QNX */
 }
 
 char * PMAPI PM_getCurrentPath(
@@ -388,10 +388,10 @@ const char * PMAPI PM_getNucleusConfigPath(void)
     sprintf(path,"/etc/config/scitech/%d/config", getnid());
 #endif
     if ((env = getenv("NUCLEUS_PATH")) != NULL) {
-        strcpy(path,env);
-        PM_backslash(path);
-        strcat(path,"config");
-        }
+	strcpy(path,env);
+	PM_backslash(path);
+	strcat(path,"config");
+	}
     return path;
 }
 
@@ -429,26 +429,26 @@ void * PMAPI PM_getA0000Pointer(void)
     unsigned offset, i, maplen;
 
     if (ptr != NULL)
-        return ptr;
+	return ptr;
 
     /* Some trickery is required to get the linear address 64K aligned */
     for (i = 0; i < 5; i++) {
-        ptr = PM_mapPhysicalAddr(0xA0000,0xFFFF,true);
-        offset = 0x10000 - ((unsigned)ptr % 0x10000);
-        if (!offset)
-            break;
-        munmap(ptr, 0x10000);
-        maplen = 0x10000 + offset;
-        freeptr = PM_mapPhysicalAddr(0xA0000-offset, maplen-1,true);
-        ptr = (void *)(offset + (unsigned)freeptr);
-        if (0x10000 - ((unsigned)ptr % 0x10000))
-            break;
-        munmap(freeptr, maplen);
-        }
+	ptr = PM_mapPhysicalAddr(0xA0000,0xFFFF,true);
+	offset = 0x10000 - ((unsigned)ptr % 0x10000);
+	if (!offset)
+	    break;
+	munmap(ptr, 0x10000);
+	maplen = 0x10000 + offset;
+	freeptr = PM_mapPhysicalAddr(0xA0000-offset, maplen-1,true);
+	ptr = (void *)(offset + (unsigned)freeptr);
+	if (0x10000 - ((unsigned)ptr % 0x10000))
+	    break;
+	munmap(freeptr, maplen);
+	}
     if (i == 5) {
-        printf("Could not get a 64K aligned linear address for A0000 region\n");
-        exit(1);
-        }
+	printf("Could not get a 64K aligned linear address for A0000 region\n");
+	exit(1);
+	}
     return ptr;
 }
 
@@ -468,31 +468,31 @@ void * PMAPI PM_mapPhysicalAddr(ulong base,ulong limit,ibool isCached)
 #endif
 
     if (rounddown) {
-        if (base < rounddown)
-            return NULL;
-        base -= rounddown;
-        limit += rounddown;
-        }
+	if (base < rounddown)
+	    return NULL;
+	base -= rounddown;
+	limit += rounddown;
+	}
 
 #ifndef __QNXNTO__
     if (__VidFD < 0) {
-        if ((__VidFD = shm_open( "Physical", O_RDWR, 0777 )) == -1) {
-            perror( "Cannot open Physical memory" );
-            exit(1);
-            }
-        }
+	if ((__VidFD = shm_open( "Physical", O_RDWR, 0777 )) == -1) {
+	    perror( "Cannot open Physical memory" );
+	    exit(1);
+	    }
+	}
     o = base & 0xFFF;
     limit = (limit + o + 0xFFF) & ~0xFFF;
     if ((int)(p = mmap( 0, limit, prot, MAP_SHARED,
-            __VidFD, base )) == -1 ) {
-        return NULL;
-        }
+	    __VidFD, base )) == -1 ) {
+	return NULL;
+	}
     p += o;
 #else
     if ((p = mmap(0, limit, prot, MAP_PHYS | MAP_SHARED,
-            NOFD, base)) == MAP_FAILED) {
-        return (void *)-1;
-        }
+	    NOFD, base)) == MAP_FAILED) {
+	return (void *)-1;
+	}
 #endif
     return (p + rounddown);
 }
@@ -504,8 +504,8 @@ void PMAPI PM_freePhysicalAddr(void *ptr,ulong limit)
 
 ulong PMAPI PM_getPhysicalAddr(void *p)
 {
-    // TODO: This function should find the physical address of a linear
-    //       address.
+    /* TODO: This function should find the physical address of a linear */
+    /*       address. */
     return 0xFFFFFFFFUL;
 }
 
@@ -514,35 +514,35 @@ ibool PMAPI PM_getPhysicalAddrRange(
     ulong length,
     ulong *physAddress)
 {
-    // TODO: Implement this!
+    /* TODO: Implement this! */
     return false;
 }
 
 void PMAPI PM_sleep(ulong milliseconds)
 {
-    // TODO: Put the process to sleep for milliseconds
+    /* TODO: Put the process to sleep for milliseconds */
 }
 
 int PMAPI PM_getCOMPort(int port)
 {
-    // TODO: Re-code this to determine real values using the Plug and Play
-    //       manager for the OS.
+    /* TODO: Re-code this to determine real values using the Plug and Play */
+    /*       manager for the OS. */
     switch (port) {
-        case 0: return 0x3F8;
-        case 1: return 0x2F8;
-        }
+	case 0: return 0x3F8;
+	case 1: return 0x2F8;
+	}
     return 0;
 }
 
 int PMAPI PM_getLPTPort(int port)
 {
-    // TODO: Re-code this to determine real values using the Plug and Play
-    //       manager for the OS.
+    /* TODO: Re-code this to determine real values using the Plug and Play */
+    /*       manager for the OS. */
     switch (port) {
-        case 0: return 0x3BC;
-        case 1: return 0x378;
-        case 2: return 0x278;
-        }
+	case 0: return 0x3BC;
+	case 1: return 0x378;
+	case 2: return 0x278;
+	}
     return 0;
 }
 
@@ -566,20 +566,20 @@ void * PMAPI PM_mapRealPointer(uint r_seg,uint r_off)
     PM_init();
 
     if ((p = VBIOSgetmemptr(r_seg, r_off, VRegs)) == (void *)-1)
-        return NULL;
+	return NULL;
     return p;
 }
 
 void * PMAPI PM_allocRealSeg(uint size,uint *r_seg,uint *r_off)
 {
     if (size > 1024) {
-        printf("PM_allocRealSeg: can't handle %d bytes\n", size);
-        return 0;
-        }
+	printf("PM_allocRealSeg: can't handle %d bytes\n", size);
+	return 0;
+	}
     if (rmbuf_inuse != 0) {
-        printf("PM_allocRealSeg: transfer area already in use\n");
-        return 0;
-        }
+	printf("PM_allocRealSeg: transfer area already in use\n");
+	return 0;
+	}
     PM_init();
     rmbuf_inuse = 1;
     *r_seg = VBIOS_TransBufVSeg(VRegs);
@@ -590,9 +590,9 @@ void * PMAPI PM_allocRealSeg(uint size,uint *r_seg,uint *r_off)
 void PMAPI PM_freeRealSeg(void *mem)
 {
     if (rmbuf_inuse == 0) {
-        printf("PM_freeRealSeg: nothing was allocated\n");
-        return;
-        }
+	printf("PM_freeRealSeg: nothing was allocated\n");
+	return;
+	}
     rmbuf_inuse = 0;
 }
 
@@ -600,7 +600,7 @@ void PMAPI DPMI_int86(int intno, DPMI_regs *regs)
 {
     PM_init();
     if (VRegs == NULL)
-        return;
+	return;
 
     VRegs->l.eax = regs->eax;
     VRegs->l.ebx = regs->ebx;
@@ -624,7 +624,7 @@ int PMAPI PM_int86(int intno, RMREGS *in, RMREGS *out)
 {
     PM_init();
     if (VRegs == NULL)
-        return 0;
+	return 0;
 
     VRegs->l.eax = in->e.eax;
     VRegs->l.ebx = in->e.ebx;
@@ -651,41 +651,41 @@ int PMAPI PM_int86x(int intno, RMREGS *in, RMREGS *out,
 {
     PM_init();
     if (VRegs == NULL)
-        return 0;
+	return 0;
 
     if (intno == 0x21) {
-        time_t today = time(NULL);
-        struct tm *t;
-        t = localtime(&today);
-        out->x.cx = t->tm_year + 1900;
-        out->h.dh = t->tm_mon + 1;
-        out->h.dl = t->tm_mday;
-        return 0;
-        }
+	time_t today = time(NULL);
+	struct tm *t;
+	t = localtime(&today);
+	out->x.cx = t->tm_year + 1900;
+	out->h.dh = t->tm_mon + 1;
+	out->h.dl = t->tm_mday;
+	return 0;
+	}
     else {
-        VRegs->l.eax = in->e.eax;
-        VRegs->l.ebx = in->e.ebx;
-        VRegs->l.ecx = in->e.ecx;
-        VRegs->l.edx = in->e.edx;
-        VRegs->l.esi = in->e.esi;
-        VRegs->l.edi = in->e.edi;
-        VRegs->w.es = sregs->es;
-        VRegs->w.ds = sregs->ds;
+	VRegs->l.eax = in->e.eax;
+	VRegs->l.ebx = in->e.ebx;
+	VRegs->l.ecx = in->e.ecx;
+	VRegs->l.edx = in->e.edx;
+	VRegs->l.esi = in->e.esi;
+	VRegs->l.edi = in->e.edi;
+	VRegs->w.es = sregs->es;
+	VRegs->w.ds = sregs->ds;
 
-        VBIOSint(intno, VRegs, 1024);
+	VBIOSint(intno, VRegs, 1024);
 
-        out->e.eax = VRegs->l.eax;
-        out->e.ebx = VRegs->l.ebx;
-        out->e.ecx = VRegs->l.ecx;
-        out->e.edx = VRegs->l.edx;
-        out->e.esi = VRegs->l.esi;
-        out->e.edi = VRegs->l.edi;
-        out->x.cflag = VRegs->w.flags & 0x1;
-        sregs->es = VRegs->w.es;
-        sregs->ds = VRegs->w.ds;
+	out->e.eax = VRegs->l.eax;
+	out->e.ebx = VRegs->l.ebx;
+	out->e.ecx = VRegs->l.ecx;
+	out->e.edx = VRegs->l.edx;
+	out->e.esi = VRegs->l.esi;
+	out->e.edi = VRegs->l.edi;
+	out->x.cflag = VRegs->w.flags & 0x1;
+	sregs->es = VRegs->w.es;
+	sregs->ds = VRegs->w.ds;
 
-        return out->x.ax;
-        }
+	return out->x.ax;
+	}
 }
 
 void PMAPI PM_callRealMode(uint seg,uint off, RMREGS *in,
@@ -693,7 +693,7 @@ void PMAPI PM_callRealMode(uint seg,uint off, RMREGS *in,
 {
     PM_init();
     if (VRegs == NULL)
-        return;
+	return;
 
     VRegs->l.eax = in->e.eax;
     VRegs->l.ebx = in->e.ebx;
@@ -730,7 +730,7 @@ void * PMAPI PM_allocLockedMem(
     ibool contiguous,
     ibool below16M)
 {
-    // TODO: Implement this on QNX
+    /* TODO: Implement this on QNX */
     return NULL;
 }
 
@@ -739,27 +739,27 @@ void PMAPI PM_freeLockedMem(
     uint size,
     ibool contiguous)
 {
-    // TODO: Implement this on QNX
+    /* TODO: Implement this on QNX */
 }
 
 void * PMAPI PM_allocPage(
     ibool locked)
 {
-    // TODO: Implement this on QNX
+    /* TODO: Implement this on QNX */
     return NULL;
 }
 
 void PMAPI PM_freePage(
     void *p)
 {
-    // TODO: Implement this on QNX
+    /* TODO: Implement this on QNX */
 }
 
 void PMAPI PM_setBankA(int bank)
 {
     PM_init();
     if (VRegs == NULL)
-        return;
+	return;
 
     VRegs->l.eax = 0x4F05;
     VRegs->l.ebx = 0x0000;
@@ -771,7 +771,7 @@ void PMAPI PM_setBankAB(int bank)
 {
     PM_init();
     if (VRegs == NULL)
-        return;
+	return;
 
     VRegs->l.eax = 0x4F05;
     VRegs->l.ebx = 0x0000;
@@ -788,7 +788,7 @@ void PMAPI PM_setCRTStart(int x,int y,int waitVRT)
 {
     PM_init();
     if (VRegs == NULL)
-        return;
+	return;
 
     VRegs->l.eax = 0x4F07;
     VRegs->l.ebx = waitVRT;
@@ -837,7 +837,7 @@ int PMAPI PM_unlockCodePages(void (*p)(),uint len,PM_lockHandle *lh)
 PM_MODULE PMAPI PM_loadLibrary(
     const char *szDLLName)
 {
-    // TODO: Implement this to load shared libraries!
+    /* TODO: Implement this to load shared libraries! */
     (void)szDLLName;
     return NULL;
 }
@@ -846,7 +846,7 @@ void * PMAPI PM_getProcAddress(
     PM_MODULE hModule,
     const char *szProcName)
 {
-    // TODO: Implement this!
+    /* TODO: Implement this! */
     (void)hModule;
     (void)szProcName;
     return NULL;
@@ -855,14 +855,14 @@ void * PMAPI PM_getProcAddress(
 void PMAPI PM_freeLibrary(
     PM_MODULE hModule)
 {
-    // TODO: Implement this!
+    /* TODO: Implement this! */
     (void)hModule;
 }
 
 int PMAPI PM_setIOPL(
     int level)
 {
-    // QNX handles IOPL selection at the program link level.
+    /* QNX handles IOPL selection at the program link level. */
     return level;
 }
 

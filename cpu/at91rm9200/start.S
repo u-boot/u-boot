@@ -24,7 +24,6 @@
  */
 
 
-
 #include "config.h"
 #include "version.h"
 
@@ -124,12 +123,12 @@ FIQ_STACK_START:
 
 reset:
 	/*
-         * set the cpu to SVC32 mode
-         */
-        mrs     r0,cpsr
-        bic     r0,r0,#0x1f
-        orr     r0,r0,#0x13
-        msr     cpsr,r0
+	 * set the cpu to SVC32 mode
+	 */
+	mrs     r0,cpsr
+	bic     r0,r0,#0x1f
+	orr     r0,r0,#0x13
+	msr     cpsr,r0
 
 	/*
 	 * relocate exeception table
@@ -144,18 +143,18 @@ copyex:
 	bne	copyex
 
 	/*
-         * we do sys-critical inits only at reboot,
-         * not when booting from ram!
-         */
+	 * we do sys-critical inits only at reboot,
+	 * not when booting from ram!
+	 */
 #ifdef CONFIG_INIT_CRITICAL
-        bl      cpu_init_crit
+	bl      cpu_init_crit
 #endif
 
-        /* set up the stack */
-        ldr     r0, _armboot_end
-        add     r0, r0, #CONFIG_STACKSIZE
-        sub     sp, r0, #12             /* leave 3 words for abort-stack */
-        ldr pc,_start_armboot
+	/* set up the stack */
+	ldr     r0, _armboot_end
+	add     r0, r0, #CONFIG_STACKSIZE
+	sub     sp, r0, #12             /* leave 3 words for abort-stack */
+	ldr pc,_start_armboot
 
 _start_armboot: .word start_armboot
 
@@ -170,8 +169,6 @@ _start_armboot: .word start_armboot
 cpu_init_crit:
 	# actually do nothing for now!
 	mov	pc, lr
-
-
 
 
 /*

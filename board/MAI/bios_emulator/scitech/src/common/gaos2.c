@@ -83,11 +83,11 @@ static ulong CallSDDHelp(
      * can't fail here.
      */
     DosOpen(PMHELP_NAME,&hSDDHelp,&result[0],0,0,
-            FILE_OPEN, OPEN_SHARE_DENYNONE | OPEN_ACCESS_READWRITE,
-            NULL);
+	    FILE_OPEN, OPEN_SHARE_DENYNONE | OPEN_ACCESS_READWRITE,
+	    NULL);
     DosDevIOCtl(hSDDHelp,PMHELP_IOCTL,func,
-             &parms, inLen = sizeof(parms), &inLen,
-            &result, outLen = sizeof(result), &outLen);
+	     &parms, inLen = sizeof(parms), &inLen,
+	    &result, outLen = sizeof(result), &outLen);
     DosClose(hSDDHelp);
     return result[0];
 }
@@ -147,17 +147,17 @@ ibool NAPI GA_getSharedExports(
     /* Initialise the PM library and connect to our runtime DLL's */
     PM_init();
     if (CallSDDHelp(PMHELP_GETSHAREDEXP) != 0) {
-        /* We have found the shared Nucleus exports. Because not all processes
-         * map to SDDPMI.DLL, we need to ensure that we connect to this
-         * DLL so that it gets mapped into our address space (that is
-         * where the shared Nucleus loader code is located). Simply doing a
-         * DosLoadModule on it is enough for this.
-         */
-        DosLoadModule((PSZ)buf,sizeof(buf),(PSZ)"SDDPMI.DLL",&hModSDDPMI);
-        exp = (GA_exports*)result[0];
-        memcpy(gaExp,exp,MIN(gaExp->dwSize,exp->dwSize));
-        return true;
-        }
+	/* We have found the shared Nucleus exports. Because not all processes
+	 * map to SDDPMI.DLL, we need to ensure that we connect to this
+	 * DLL so that it gets mapped into our address space (that is
+	 * where the shared Nucleus loader code is located). Simply doing a
+	 * DosLoadModule on it is enough for this.
+	 */
+	DosLoadModule((PSZ)buf,sizeof(buf),(PSZ)"SDDPMI.DLL",&hModSDDPMI);
+	exp = (GA_exports*)result[0];
+	memcpy(gaExp,exp,MIN(gaExp->dwSize,exp->dwSize));
+	return true;
+	}
 #endif
     (void)shared;
     return false;
@@ -197,7 +197,7 @@ Nucleus loader library.
 ibool NAPI GA_TimerInit(void)
 {
     if (_GA_haveCPUID() && (_GA_getCPUIDFeatures() & CPU_HaveRDTSC) != 0)
-        haveRDTSC = true;
+	haveRDTSC = true;
     return true;
 }
 
@@ -209,9 +209,9 @@ void NAPI GA_TimerRead(
     GA_largeInteger *value)
 {
     if (haveRDTSC)
-        _GA_readTimeStamp(value);
+	_GA_readTimeStamp(value);
     else
-        DosTmrQueryTime((QWORD*)value);
+	DosTmrQueryTime((QWORD*)value);
 }
 
 /****************************************************************************

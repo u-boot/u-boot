@@ -115,8 +115,8 @@ struct mips_fpu_soft_struct {
 };
 
 union mips_fpu_union {
-        struct mips_fpu_hard_struct hard;
-        struct mips_fpu_soft_struct soft;
+	struct mips_fpu_hard_struct hard;
+	struct mips_fpu_soft_struct soft;
 };
 
 #define INIT_FPU { \
@@ -173,11 +173,11 @@ struct thread_struct {
 #endif /* !defined (_LANGUAGE_ASSEMBLY) */
 
 #define INIT_THREAD  { \
-        /* \
-         * saved main processor registers \
-         */ \
+	/* \
+	 * saved main processor registers \
+	 */ \
 	0, 0, 0, 0, 0, 0, 0, 0, \
-	               0, 0, 0, \
+		       0, 0, 0, \
 	/* \
 	 * saved cp0 stuff \
 	 */ \

@@ -47,7 +47,6 @@
 #endif
 
 
-
 #undef USB_DEBUG
 
 #ifdef	USB_DEBUG

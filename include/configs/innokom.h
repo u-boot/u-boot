@@ -113,7 +113,7 @@
 
 #define CFG_MONITOR_LEN		0x20000		/* 128 KiB */
 
-                                                /* valid baudrates */
+						/* valid baudrates */
 #define CFG_BAUDRATE_TABLE      { 9600, 19200, 38400, 57600, 115200 }
 
 /*
@@ -175,7 +175,7 @@
  * JFFS2 Partitions
  */
 #define CFG_JFFS_CUSTOM_PART	1		/* see board/innokom/flash.c */
-#define CONFIG_MTD_INNOKOM_16MB 1		/* development flash         */	
+#define CONFIG_MTD_INNOKOM_16MB 1		/* development flash         */
 #undef  CONFIG_MTD_INNOKOM_64MB			/* production flash          */
 
 

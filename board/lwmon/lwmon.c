@@ -38,7 +38,6 @@ V* Verification:  dzu@denx.de
 #include <commproc.h>
 #include <i2c.h>
 #include <command.h>
-#include <cmd_bsp.h>
 #include <malloc.h>
 #include <post.h>
 
@@ -73,9 +72,9 @@ const uint sdram_table[] =
 	/*
 	 * SDRAM Initialization (offset 5 in UPM RAM)
 	 *
-         * This is no UPM entry point. The following definition uses
-         * the remaining space to establish an initialization
-         * sequence, which is executed by a RUN command.
+	 * This is no UPM entry point. The following definition uses
+	 * the remaining space to establish an initialization
+	 * sequence, which is executed by a RUN command.
 	 *
 	 */
 		    0x1FF5FC34, 0xEFEABC34, 0x1FB57C35, /* last */
@@ -121,9 +120,9 @@ const uint sdram_table[] =
 	/*
 	 * SDRAM Initialization (offset 5 in UPM RAM)
 	 *
-         * This is no UPM entry point. The following definition uses
-         * the remaining space to establish an initialization
-         * sequence, which is executed by a RUN command.
+	 * This is no UPM entry point. The following definition uses
+	 * the remaining space to establish an initialization
+	 * sequence, which is executed by a RUN command.
 	 *
 	 */
 		    0x1FF5FC34, 0xEFEABC34, 0x1FB57C35, /* last */
@@ -132,7 +131,7 @@ const uint sdram_table[] =
 	 */
 	0x0E2DBC04, 0x10AF7C04, 0xF0AFFC00, 0xF0AFFC00,
 	0xF1AFFC00, 0xEFBAFC00, 0x1FF5FC47, /* last */
-				 	    _NOT_USED_,
+					    _NOT_USED_,
 	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 	/*
@@ -146,7 +145,7 @@ const uint sdram_table[] =
 	 */
 	0x0E29BC04, 0x10A77C00, 0xF0AFFC00, 0xF0AFFC00,
 	0xE1BAFC04, 0x1FF5FC47, /* last */
-			        _NOT_USED_, _NOT_USED_,
+				_NOT_USED_, _NOT_USED_,
 	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 	/*
@@ -511,7 +510,7 @@ static void kbd_init (void)
 	int i;
 
 	i2c_init (CFG_I2C_SPEED, CFG_I2C_SLAVE);
-	
+
 	gd->kbd_status = 0;
 
 	/* Read initial keyboard error code */
@@ -543,13 +542,13 @@ static void kbd_init (void)
 	/*
 	 * Read current keyboard state.
 	 *
-         * After the error reset it may take some time before the
-         * keyboard PIC picks up a valid keyboard scan - the total
-         * scan time is approx. 1.6 ms (information by Martin Rajek,
-         * 28 Sep 2002). We read a couple of times for the keyboard
-         * to stabilize, using a big enough delay.
-         * 10 times should be enough. If the data is still changing,
-         * we use what we get :-(
+	 * After the error reset it may take some time before the
+	 * keyboard PIC picks up a valid keyboard scan - the total
+	 * scan time is approx. 1.6 ms (information by Martin Rajek,
+	 * 28 Sep 2002). We read a couple of times for the keyboard
+	 * to stabilize, using a big enough delay.
+	 * 10 times should be enough. If the data is still changing,
+	 * we use what we get :-(
 	 */
 
 	memset (tmp_data, 0xFF, KEYBD_DATALEN);	/* impossible value */
@@ -849,6 +848,12 @@ int do_pic (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	printf ("Usage:\n%s\n", cmdtp->usage);
 	return 1;
 }
+cmd_tbl_t U_BOOT_CMD(pic) = MK_CMD_ENTRY(
+	"pic",	4,	1,	do_pic,
+	"pic     - read and write PIC registers\n",
+	"read  reg      - read PIC register `reg'\n"
+	"pic write reg val  - write value `val' to PIC register `reg'\n"
+);
 
 /***********************************************************************
 F* Function:     int do_kbd (cmd_tbl_t *cmdtp, int flag,
@@ -901,6 +906,12 @@ int do_kbd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	setenv ("keybd", keybd_env);
 	return 0;
 }
+
+cmd_tbl_t U_BOOT_CMD(kdb) = MK_CMD_ENTRY(
+	"kbd",	1,	1,	do_kbd,
+	"kbd     - read keyboard status\n",
+	NULL
+);
 
 /* Read and set LSB switch */
 #define CFG_PC_TXD1_ENA		0x0008		/* PC.12 */
@@ -967,6 +978,14 @@ int do_lsb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	printf ("Usage:\n%s\n", cmdtp->usage);
 	return 1;
 }
+
+cmd_tbl_t U_BOOT_CMD(lsb) = MK_CMD_ENTRY(
+	"lsb",	2,	1,	do_lsb,
+	"lsb     - check and set LSB switch\n",
+	"on  - switch LSB on\n"
+	"lsb off - switch LSB off\n"
+	"lsb     - print current setting\n"
+);
 
 #endif /* CFG_CMD_BSP */
 

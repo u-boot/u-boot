@@ -87,8 +87,8 @@ Converts a mickey movement value to a pixel adjustment value.
 static int MickeyToPixel(
     int mickey)
 {
-    // TODO: We can add some code in here to handle 'acceleration' for
-    //       the mouse cursor. For now just use the mickeys.
+    /* TODO: We can add some code in here to handle 'acceleration' for */
+    /*       the mouse cursor. For now just use the mickeys. */
     return mickey;
 }
 
@@ -116,196 +116,196 @@ static void _EVT_pumpMessages(void)
 
     /* Pump all keyboard messages from our circular buffer */
     for (;;) {
-        /* Check that the monitor thread is still running */
-        if (!bMonRunning)
-            PM_fatalError("Keyboard monitor thread died!");
+	/* Check that the monitor thread is still running */
+	if (!bMonRunning)
+	    PM_fatalError("Keyboard monitor thread died!");
 
-        /* Protect keypacket buffer with mutex */
-        DosRequestMutexSem(hmtxKeyBuf, SEM_INDEFINITE_WAIT);
-        if (kpHead == kpTail) {
-            DosReleaseMutexSem(hmtxKeyBuf);
-            break;
-            }
+	/* Protect keypacket buffer with mutex */
+	DosRequestMutexSem(hmtxKeyBuf, SEM_INDEFINITE_WAIT);
+	if (kpHead == kpTail) {
+	    DosReleaseMutexSem(hmtxKeyBuf);
+	    break;
+	    }
 
-        noInput = FALSE;
+	noInput = FALSE;
 
-        /* Read packet from circular buffer and remove it */
-        memcpy(&kp, &keyMonPkts[kpTail], sizeof(KEYPACKET));
-        if (++kpTail == KEYBUFSIZE)
-            kpTail = 0;
-        DosReleaseMutexSem(hmtxKeyBuf);
+	/* Read packet from circular buffer and remove it */
+	memcpy(&kp, &keyMonPkts[kpTail], sizeof(KEYPACKET));
+	if (++kpTail == KEYBUFSIZE)
+	    kpTail = 0;
+	DosReleaseMutexSem(hmtxKeyBuf);
 
-        /* Compensate for the 0xE0 character */
-        if (kp.XlatedScan && kp.XlatedChar == 0xE0)
-            kp.XlatedChar = 0;
+	/* Compensate for the 0xE0 character */
+	if (kp.XlatedScan && kp.XlatedChar == 0xE0)
+	    kp.XlatedChar = 0;
 
-        /* Determine type of keyboard event */
-        memset(&evt,0,sizeof(evt));
-        if (kp.KbdDDFlagWord & KEY_RELEASE)
-            evt.what = EVT_KEYUP;
-        else
-            evt.what = EVT_KEYDOWN;
+	/* Determine type of keyboard event */
+	memset(&evt,0,sizeof(evt));
+	if (kp.KbdDDFlagWord & KEY_RELEASE)
+	    evt.what = EVT_KEYUP;
+	else
+	    evt.what = EVT_KEYDOWN;
 
-        /* Convert keyboard codes */
-        scan = kp.MonFlagWord >> 8;
-        if (evt.what == EVT_KEYUP) {
-            /* Get message for keyup code from table of cached down values */
-            evt.message = keyUpMsg[scan];
-            keyUpMsg[scan] = 0;
-            oldKeyMessage = -1;
-            }
-        else {
-            evt.message = ((ulong)scan << 8) | kp.XlatedChar;
-            if (evt.message == keyUpMsg[scan]) {
-                evt.what = EVT_KEYREPEAT;
-                evt.message |= 0x10000;
-                }
-            oldKeyMessage = evt.message & 0x0FFFF;
-            keyUpMsg[scan] = (ushort)evt.message;
-            }
+	/* Convert keyboard codes */
+	scan = kp.MonFlagWord >> 8;
+	if (evt.what == EVT_KEYUP) {
+	    /* Get message for keyup code from table of cached down values */
+	    evt.message = keyUpMsg[scan];
+	    keyUpMsg[scan] = 0;
+	    oldKeyMessage = -1;
+	    }
+	else {
+	    evt.message = ((ulong)scan << 8) | kp.XlatedChar;
+	    if (evt.message == keyUpMsg[scan]) {
+		evt.what = EVT_KEYREPEAT;
+		evt.message |= 0x10000;
+		}
+	    oldKeyMessage = evt.message & 0x0FFFF;
+	    keyUpMsg[scan] = (ushort)evt.message;
+	    }
 
-         /* Convert shift state modifiers */
-         if (kp.u.ShiftState & 0x0001)
-             evt.modifiers |= EVT_RIGHTSHIFT;
-         if (kp.u.ShiftState & 0x0002)
-             evt.modifiers |= EVT_LEFTSHIFT;
-         if (kp.u.ShiftState & 0x0100)
-             evt.modifiers |= EVT_LEFTCTRL;
-         if (kp.u.ShiftState & 0x0200)
-             evt.modifiers |= EVT_LEFTALT;
-         if (kp.u.ShiftState & 0x0400)
-             evt.modifiers |= EVT_RIGHTCTRL;
-         if (kp.u.ShiftState & 0x0800)
-             evt.modifiers |= EVT_RIGHTALT;
-         EVT.oldMove = -1;
+	 /* Convert shift state modifiers */
+	 if (kp.u.ShiftState & 0x0001)
+	     evt.modifiers |= EVT_RIGHTSHIFT;
+	 if (kp.u.ShiftState & 0x0002)
+	     evt.modifiers |= EVT_LEFTSHIFT;
+	 if (kp.u.ShiftState & 0x0100)
+	     evt.modifiers |= EVT_LEFTCTRL;
+	 if (kp.u.ShiftState & 0x0200)
+	     evt.modifiers |= EVT_LEFTALT;
+	 if (kp.u.ShiftState & 0x0400)
+	     evt.modifiers |= EVT_RIGHTCTRL;
+	 if (kp.u.ShiftState & 0x0800)
+	     evt.modifiers |= EVT_RIGHTALT;
+	 EVT.oldMove = -1;
 
-         /* Add time stamp and add the event to the queue */
-         evt.when = key.time;
-         if (EVT.count < EVENTQSIZE)
-             addEvent(&evt);
-         }
+	 /* Add time stamp and add the event to the queue */
+	 evt.when = key.time;
+	 if (EVT.count < EVENTQSIZE)
+	     addEvent(&evt);
+	 }
 
     /* Don't just flush because that terminally confuses the monitor */
     do {
-        KbdCharIn(&key, IO_NOWAIT, 0);
-        } while (key.fbStatus & KBDTRF_FINAL_CHAR_IN);
+	KbdCharIn(&key, IO_NOWAIT, 0);
+	} while (key.fbStatus & KBDTRF_FINAL_CHAR_IN);
 
     /* Pump all mouse messages */
     KbdGetStatus(&keyInfo,0);
     /* Check return code - mouse may not be operational!! */
     if (MouGetNumQueEl(&mqueue,_EVT_hMouse) == NO_ERROR) {
-        while (mqueue.cEvents) {
-            while (mqueue.cEvents--) {
-                memset(&evt,0,sizeof(evt));
-                mWait = MOU_NOWAIT;
-                MouReadEventQue(&mouse,&mWait,_EVT_hMouse);
+	while (mqueue.cEvents) {
+	    while (mqueue.cEvents--) {
+		memset(&evt,0,sizeof(evt));
+		mWait = MOU_NOWAIT;
+		MouReadEventQue(&mouse,&mWait,_EVT_hMouse);
 
-                /* Update the mouse position. We get the mouse coordinates
-                 * in mickeys so we have to translate these into pixels and
-                 * move our mouse position. If we don't do this, OS/2 gives
-                 * us the coordinates in character positions since it still
-                 * thinks we are in text mode!
-                 */
-                EVT.mx += MickeyToPixel(mouse.col);
-                EVT.my += MickeyToPixel(mouse.row);
-                if (EVT.mx < 0) EVT.mx = 0;
-                if (EVT.my < 0) EVT.my = 0;
-                if (EVT.mx > rangeX)    EVT.mx = rangeX;
-                if (EVT.my > rangeY)    EVT.my = rangeY;
-                evt.where_x = EVT.mx;
-                evt.where_y = EVT.my;
-                evt.relative_x = mouse.col;
-                evt.relative_y = mouse.row;
-                evt.when = key.time;
-                if (mouse.fs & (MOUSE_BN1_DOWN | MOUSE_MOTION_WITH_BN1_DOWN))
-                    evt.modifiers |= EVT_LEFTBUT;
-                if (mouse.fs & (MOUSE_BN2_DOWN | MOUSE_MOTION_WITH_BN2_DOWN))
-                    evt.modifiers |= EVT_RIGHTBUT;
-                if (mouse.fs & (MOUSE_BN3_DOWN | MOUSE_MOTION_WITH_BN3_DOWN))
-                    evt.modifiers |= EVT_MIDDLEBUT;
-                if (keyInfo.fsState & 0x0001)
-                    evt.modifiers |= EVT_RIGHTSHIFT;
-                if (keyInfo.fsState & 0x0002)
-                    evt.modifiers |= EVT_LEFTSHIFT;
-                if (keyInfo.fsState & 0x0100)
-                    evt.modifiers |= EVT_LEFTCTRL;
-                if (keyInfo.fsState & 0x0200)
-                    evt.modifiers |= EVT_LEFTALT;
-                if (keyInfo.fsState & 0x0400)
-                    evt.modifiers |= EVT_RIGHTCTRL;
-                if (keyInfo.fsState & 0x0800)
-                    evt.modifiers |= EVT_RIGHTALT;
+		/* Update the mouse position. We get the mouse coordinates
+		 * in mickeys so we have to translate these into pixels and
+		 * move our mouse position. If we don't do this, OS/2 gives
+		 * us the coordinates in character positions since it still
+		 * thinks we are in text mode!
+		 */
+		EVT.mx += MickeyToPixel(mouse.col);
+		EVT.my += MickeyToPixel(mouse.row);
+		if (EVT.mx < 0) EVT.mx = 0;
+		if (EVT.my < 0) EVT.my = 0;
+		if (EVT.mx > rangeX)    EVT.mx = rangeX;
+		if (EVT.my > rangeY)    EVT.my = rangeY;
+		evt.where_x = EVT.mx;
+		evt.where_y = EVT.my;
+		evt.relative_x = mouse.col;
+		evt.relative_y = mouse.row;
+		evt.when = key.time;
+		if (mouse.fs & (MOUSE_BN1_DOWN | MOUSE_MOTION_WITH_BN1_DOWN))
+		    evt.modifiers |= EVT_LEFTBUT;
+		if (mouse.fs & (MOUSE_BN2_DOWN | MOUSE_MOTION_WITH_BN2_DOWN))
+		    evt.modifiers |= EVT_RIGHTBUT;
+		if (mouse.fs & (MOUSE_BN3_DOWN | MOUSE_MOTION_WITH_BN3_DOWN))
+		    evt.modifiers |= EVT_MIDDLEBUT;
+		if (keyInfo.fsState & 0x0001)
+		    evt.modifiers |= EVT_RIGHTSHIFT;
+		if (keyInfo.fsState & 0x0002)
+		    evt.modifiers |= EVT_LEFTSHIFT;
+		if (keyInfo.fsState & 0x0100)
+		    evt.modifiers |= EVT_LEFTCTRL;
+		if (keyInfo.fsState & 0x0200)
+		    evt.modifiers |= EVT_LEFTALT;
+		if (keyInfo.fsState & 0x0400)
+		    evt.modifiers |= EVT_RIGHTCTRL;
+		if (keyInfo.fsState & 0x0800)
+		    evt.modifiers |= EVT_RIGHTALT;
 
-                /* Check for left mouse click events */
-                /* 0x06 == (MOUSE_BN1_DOWN | MOUSE_MOTION_WITH_BN1_DOWN) */
-                if (((mouse.fs & 0x0006) && !(oldMouseState & 0x0006))
-                        || (!(mouse.fs & 0x0006) && (oldMouseState & 0x0006))) {
-                    if (mouse.fs & 0x0006)
-                        evt.what = EVT_MOUSEDOWN;
-                    else
-                        evt.what = EVT_MOUSEUP;
-                    evt.message = EVT_LEFTBMASK;
-                    EVT.oldMove = -1;
-                    if (EVT.count < EVENTQSIZE)
-                        addEvent(&evt);
-                    }
+		/* Check for left mouse click events */
+		/* 0x06 == (MOUSE_BN1_DOWN | MOUSE_MOTION_WITH_BN1_DOWN) */
+		if (((mouse.fs & 0x0006) && !(oldMouseState & 0x0006))
+			|| (!(mouse.fs & 0x0006) && (oldMouseState & 0x0006))) {
+		    if (mouse.fs & 0x0006)
+			evt.what = EVT_MOUSEDOWN;
+		    else
+			evt.what = EVT_MOUSEUP;
+		    evt.message = EVT_LEFTBMASK;
+		    EVT.oldMove = -1;
+		    if (EVT.count < EVENTQSIZE)
+			addEvent(&evt);
+		    }
 
-                /* Check for right mouse click events */
-                /* 0x0018 == (MOUSE_BN2_DOWN | MOUSE_MOTION_WITH_BN2_DOWN) */
-                if (((mouse.fs & 0x0018) && !(oldMouseState & 0x0018))
-                        || (!(mouse.fs & 0x0018) && (oldMouseState & 0x0018))) {
-                    if (mouse.fs & 0x0018)
-                        evt.what = EVT_MOUSEDOWN;
-                    else
-                        evt.what = EVT_MOUSEUP;
-                    evt.message = EVT_RIGHTBMASK;
-                    EVT.oldMove = -1;
-                    if (EVT.count < EVENTQSIZE)
-                        addEvent(&evt);
-                    }
+		/* Check for right mouse click events */
+		/* 0x0018 == (MOUSE_BN2_DOWN | MOUSE_MOTION_WITH_BN2_DOWN) */
+		if (((mouse.fs & 0x0018) && !(oldMouseState & 0x0018))
+			|| (!(mouse.fs & 0x0018) && (oldMouseState & 0x0018))) {
+		    if (mouse.fs & 0x0018)
+			evt.what = EVT_MOUSEDOWN;
+		    else
+			evt.what = EVT_MOUSEUP;
+		    evt.message = EVT_RIGHTBMASK;
+		    EVT.oldMove = -1;
+		    if (EVT.count < EVENTQSIZE)
+			addEvent(&evt);
+		    }
 
-                /* Check for middle mouse click events */
-                /* 0x0060 == (MOUSE_BN3_DOWN | MOUSE_MOTION_WITH_BN3_DOWN) */
-                if (((mouse.fs & 0x0060) && !(oldMouseState & 0x0060))
-                        || (!(mouse.fs & 0x0060) && (oldMouseState & 0x0060))) {
-                    if (mouse.fs & 0x0060)
-                        evt.what = EVT_MOUSEDOWN;
-                    else
-                        evt.what = EVT_MOUSEUP;
-                    evt.message = EVT_MIDDLEBMASK;
-                    EVT.oldMove = -1;
-                    if (EVT.count < EVENTQSIZE)
-                        addEvent(&evt);
-                    }
+		/* Check for middle mouse click events */
+		/* 0x0060 == (MOUSE_BN3_DOWN | MOUSE_MOTION_WITH_BN3_DOWN) */
+		if (((mouse.fs & 0x0060) && !(oldMouseState & 0x0060))
+			|| (!(mouse.fs & 0x0060) && (oldMouseState & 0x0060))) {
+		    if (mouse.fs & 0x0060)
+			evt.what = EVT_MOUSEDOWN;
+		    else
+			evt.what = EVT_MOUSEUP;
+		    evt.message = EVT_MIDDLEBMASK;
+		    EVT.oldMove = -1;
+		    if (EVT.count < EVENTQSIZE)
+			addEvent(&evt);
+		    }
 
-                /* Check for mouse movement event */
-                if (mouse.fs & 0x002B) {
-                    evt.what = EVT_MOUSEMOVE;
-                    if (EVT.oldMove != -1) {
-                        EVT.evtq[EVT.oldMove].where_x = evt.where_x;/* Modify existing one  */
-                        EVT.evtq[EVT.oldMove].where_y = evt.where_y;
-                        }
-                    else {
-                        EVT.oldMove = EVT.freeHead; /* Save id of this move event   */
-                        if (EVT.count < EVENTQSIZE)
-                            addEvent(&evt);
-                        }
-                    }
+		/* Check for mouse movement event */
+		if (mouse.fs & 0x002B) {
+		    evt.what = EVT_MOUSEMOVE;
+		    if (EVT.oldMove != -1) {
+			EVT.evtq[EVT.oldMove].where_x = evt.where_x;/* Modify existing one  */
+			EVT.evtq[EVT.oldMove].where_y = evt.where_y;
+			}
+		    else {
+			EVT.oldMove = EVT.freeHead; /* Save id of this move event   */
+			if (EVT.count < EVENTQSIZE)
+			    addEvent(&evt);
+			}
+		    }
 
-                /* Save current mouse state */
-                oldMouseState = mouse.fs;
-                }
-            MouGetNumQueEl(&mqueue,_EVT_hMouse);
-            }
-            noInput = FALSE;
-        }
+		/* Save current mouse state */
+		oldMouseState = mouse.fs;
+		}
+	    MouGetNumQueEl(&mqueue,_EVT_hMouse);
+	    }
+	    noInput = FALSE;
+	}
 
     /* If there was no input available, give up the current timeslice
      * Note: DosSleep(0) will effectively do nothing if no other thread is ready. Hence
      * DosSleep(0) will still use 100% CPU _but_ should not interfere with other programs.
      */
     if (noInput)
-        DosSleep(0);
+	DosSleep(0);
 }
 
 /****************************************************************************
@@ -341,78 +341,78 @@ static void _kbdMonThread(
 
     /* Register the buffers to be used for monitoring for current session */
     if (DosMonReg(_EVT_hKbdMon, &monInbuf, (ULONG*)&monOutbuf,MONITOR_END, -1)) {
-        DosPostEventSem(hevStart);  /* unblock the main thread */
-        return;
-        }
+	DosPostEventSem(hevStart);  /* unblock the main thread */
+	return;
+	}
 
     /* Unblock the main thread and tell it we're OK*/
     bMonRunning = TRUE;
     DosPostEventSem(hevStart);
     while (bMonRunning) {  /* Start an endless loop */
-        /* Read data from keyboard driver */
-        rc = DosMonRead((PBYTE)&monInbuf, IO_WAIT, (PBYTE)&kp, (PUSHORT)&count);
-        if (rc) {
+	/* Read data from keyboard driver */
+	rc = DosMonRead((PBYTE)&monInbuf, IO_WAIT, (PBYTE)&kp, (PUSHORT)&count);
+	if (rc) {
 #ifdef CHECKED
-            if (bMonRunning)
-                printf("Error in DosMonRead, rc = %ld\n", rc);
+	    if (bMonRunning)
+		printf("Error in DosMonRead, rc = %ld\n", rc);
 #endif
-            bMonRunning = FALSE;
-            return;
-            }
+	    bMonRunning = FALSE;
+	    return;
+	    }
 
-        /* Pass FLUSH packets immediately */
-        if (kp.MonFlagWord & 4) {
+	/* Pass FLUSH packets immediately */
+	if (kp.MonFlagWord & 4) {
 #ifdef CHECKED
-            printf("Flush packet!\n");
+	    printf("Flush packet!\n");
 #endif
-            DosMonWrite((PBYTE)&monOutbuf, (PBYTE)&kp, count);
-            continue;
-            }
+	    DosMonWrite((PBYTE)&monOutbuf, (PBYTE)&kp, count);
+	    continue;
+	    }
 
-        //TODO: to be removed
-        /* Skip extended scancodes & some others */
-        if (((kp.MonFlagWord >> 8) == 0xE0) || ((kp.KbdDDFlagWord & 0x0F) == 0x0F)) {
-            DosMonWrite((PBYTE)&monOutbuf, (PBYTE)&kp, count);
-            continue;
-            }
+	/*TODO: to be removed */
+	/* Skip extended scancodes & some others */
+	if (((kp.MonFlagWord >> 8) == 0xE0) || ((kp.KbdDDFlagWord & 0x0F) == 0x0F)) {
+	    DosMonWrite((PBYTE)&monOutbuf, (PBYTE)&kp, count);
+	    continue;
+	    }
 
-//      printf("RawScan = %X, XlatedScan = %X, fbStatus = %X, KbdDDFlags = %X\n",
-//          kp.MonFlagWord >> 8, kp.XlatedScan, kp.u.ShiftState, kp.KbdDDFlagWord);
+/*      printf("RawScan = %X, XlatedScan = %X, fbStatus = %X, KbdDDFlags = %X\n", */
+/*          kp.MonFlagWord >> 8, kp.XlatedScan, kp.u.ShiftState, kp.KbdDDFlagWord); */
 
-        /* Protect access to buffer with mutex semaphore */
-        rc = DosRequestMutexSem(hmtxKeyBuf, 1000);
-        if (rc) {
+	/* Protect access to buffer with mutex semaphore */
+	rc = DosRequestMutexSem(hmtxKeyBuf, 1000);
+	if (rc) {
 #ifdef CHECKED
-            printf("Can't get access to mutex, rc = %ld\n", rc);
+	    printf("Can't get access to mutex, rc = %ld\n", rc);
 #endif
-            bMonRunning = FALSE;
-            return;
-            }
+	    bMonRunning = FALSE;
+	    return;
+	    }
 
-        /* Store packet in circular buffer, drop it if it's full */
-        kpNew = kpHead + 1;
-        if (kpNew == KEYBUFSIZE)
-            kpNew = 0;
-        if (kpNew != kpTail) {
-            memcpy(&keyMonPkts[kpHead], &kp, sizeof(KEYPACKET));
-            // TODO: fix this!
-            /* Convert break to make code */
-            keyMonPkts[kpHead].MonFlagWord &= 0x7FFF;
-            kpHead = kpNew;
-            }
-        DosReleaseMutexSem(hmtxKeyBuf);
+	/* Store packet in circular buffer, drop it if it's full */
+	kpNew = kpHead + 1;
+	if (kpNew == KEYBUFSIZE)
+	    kpNew = 0;
+	if (kpNew != kpTail) {
+	    memcpy(&keyMonPkts[kpHead], &kp, sizeof(KEYPACKET));
+	    /* TODO: fix this! */
+	    /* Convert break to make code */
+	    keyMonPkts[kpHead].MonFlagWord &= 0x7FFF;
+	    kpHead = kpNew;
+	    }
+	DosReleaseMutexSem(hmtxKeyBuf);
 
-        /* Finally write the packet */
-        rc = DosMonWrite((PBYTE)&monOutbuf, (PBYTE)&kp, count);
-        if (rc) {
+	/* Finally write the packet */
+	rc = DosMonWrite((PBYTE)&monOutbuf, (PBYTE)&kp, count);
+	if (rc) {
 #ifdef CHECKED
-            if (bMonRunning)
-                printf("Error in DosMonWrite, rc = %ld\n", rc);
+	    if (bMonRunning)
+		printf("Error in DosMonWrite, rc = %ld\n", rc);
 #endif
-            bMonRunning = FALSE;
-            return;
-            }
-        }
+	    bMonRunning = FALSE;
+	    return;
+	    }
+	}
     (void)params;
 }
 
@@ -461,15 +461,15 @@ void EVTAPI EVT_init(
 
     /* Open the keyboard monitor  */
     if (DosMonOpen((PSZ)"KBD$", &_EVT_hKbdMon))
-        PM_fatalError("Unable to open keyboard monitor!");
+	PM_fatalError("Unable to open keyboard monitor!");
 
     /* Create event semaphore, the monitor will post it when it's initalized */
     if (DosCreateEventSem(NULL, &hevStart, 0, FALSE))
-        PM_fatalError("Unable to create event semaphore!");
+	PM_fatalError("Unable to create event semaphore!");
 
     /* Create mutex semaphore protecting the keypacket buffer */
     if (DosCreateMutexSem(NULL, &hmtxKeyBuf, 0, FALSE))
-        PM_fatalError("Unable to create mutex semaphore!");
+	PM_fatalError("Unable to create mutex semaphore!");
 
     /* Start keyboard monitor thread, use 32K stack */
     kbdMonTID = _beginthread(_kbdMonThread, NULL, 0x8000, NULL);
@@ -478,9 +478,9 @@ void EVTAPI EVT_init(
     /* Give the thread one second */
     DosWaitEventSem(hevStart, 1000);
     if (!bMonRunning) {  /* Check the thread is OK */
-        DosMonClose(_EVT_hKbdMon);
-        PM_fatalError("Keyboard monitor thread didn't initialize!");
-        }
+	DosMonClose(_EVT_hKbdMon);
+	PM_fatalError("Keyboard monitor thread didn't initialize!");
+	}
 
     /* Catch program termination signals so we can clean up properly */
     signal(SIGABRT, _EVT_abort);
@@ -517,7 +517,7 @@ and this function can be used to resume it again later.
 ****************************************************************************/
 void EVT_resume(void)
 {
-    // Do nothing for OS/2
+    /* Do nothing for OS/2 */
 }
 
 /****************************************************************************
@@ -527,7 +527,7 @@ de-install the event handling code.
 ****************************************************************************/
 void EVT_suspend(void)
 {
-    // Do nothing for OS/2
+    /* Do nothing for OS/2 */
 }
 
 /****************************************************************************
@@ -551,16 +551,15 @@ void EVT_exit(void)
     rc = DosKillThread(kbdMonTID);
 #ifdef CHECKED
     if (rc)
-        printf("DosKillThread failed, rc = %ld\n", rc);
+	printf("DosKillThread failed, rc = %ld\n", rc);
 #endif
     rc = DosMonClose(_EVT_hKbdMon);
 #ifdef CHECKED
     if (rc) {
-        printf("DosMonClose failed, rc = %ld\n", rc);
-        }
+	printf("DosMonClose failed, rc = %ld\n", rc);
+	}
 #endif
     DosCloseEventSem(hevStart);
     DosCloseMutexSem(hmtxKeyBuf);
     KbdFlushBuffer(0);
 }
-

@@ -109,13 +109,13 @@ typedef enum _i2c_mode
  */
 static I2CStatus I2C_put( unsigned int  eumbbar,
 						  unsigned char rcv_addr,    /* receiver's address */
-	                      unsigned char *buffer_ptr, /* pointer of data to be sent */
+			      unsigned char *buffer_ptr, /* pointer of data to be sent */
 					      unsigned int  length,      /* number of byte of in the buffer */
 					      unsigned int  stop_flag,   /* 1 - signal STOP when buffer is empty
-					                                  * 0 - no STOP signal when buffer is empty
-											          */
+									  * 0 - no STOP signal when buffer is empty
+												  */
 						  unsigned int  is_cnt );    /* 1 - this is a restart, don't check MBB
-                                                      * 0 - this is a new start, check MBB
+						      * 0 - this is a new start, check MBB
 													  */
 
 /* Receive a buffer of data from the desired sender_addr
@@ -130,12 +130,12 @@ static I2CStatus I2C_put( unsigned int  eumbbar,
 static I2CStatus I2C_get( unsigned int  eumbbar,
 						  unsigned char sender_addr, /* sender's address */
 					      unsigned char *buffer_ptr, /* pointer of receiving buffer */
-				          unsigned int  length,      /* length of the receiving buffer */
+					  unsigned int  length,      /* length of the receiving buffer */
 					      unsigned int  stop_flag,   /* 1 - signal STOP when buffer is full
-					                                  * 0 - no STOP signal when buffer is full
+									  * 0 - no STOP signal when buffer is full
 												      */
 						  unsigned int  is_cnt );    /* 1 - this is a restart, don't check MBB
-                                                      * 0 - this is a new start, check MBB
+						      * 0 - this is a new start, check MBB
 													  */
 
 #if 0 /* the I2C_write and I2C_read functions are not active */
@@ -160,10 +160,10 @@ static I2CStatus I2C_get( unsigned int  eumbbar,
  */
 static I2CStatus I2C_write( unsigned int eumbbar,
 						    unsigned char *buffer_ptr, /* pointer of data to be sent */
-					        unsigned int  length,      /* number of byte of in the buffer */
-					        unsigned int  stop_flag ); /* 1 - signal STOP when buffer is empty
-								                        * 0 - no STOP signal when buffer is empty
-											            */
+						unsigned int  length,      /* number of byte of in the buffer */
+						unsigned int  stop_flag ); /* 1 - signal STOP when buffer is empty
+											* 0 - no STOP signal when buffer is empty
+												    */
 
  /* Receive a buffer of data from the sending master.
  * If stop_flag is set, when the buffer is full and the
@@ -175,8 +175,8 @@ static I2CStatus I2C_write( unsigned int eumbbar,
 static I2CStatus I2C_read(unsigned int  eumbbar,
 						  unsigned char *buffer_ptr, /* pointer of receiving buffer */
 					      unsigned int  length,      /* length of the receiving buffer */
-				          unsigned int  stop_flag ); /* 1 - signal STOP when buffer is full
-					                                  * 0 - no STOP signal when buffer is full
+					  unsigned int  stop_flag ); /* 1 - signal STOP when buffer is full
+									  * 0 - no STOP signal when buffer is full
 												      */
 #endif /* of if0 for turning off I2C_read & I2C_write */
 
@@ -203,12 +203,12 @@ static I2CStatus I2C_Timer_Event( unsigned int eumbbar, I2CStatus (*handler)( un
  */
 static I2CStatus I2C_Start( unsigned int  eumbbar,
 						    unsigned char slave_addr, /* address of the receiver */
-	                        I2C_MODE     mode,       /* XMIT(1) - put (write)
-							                          * RCV(0)  - get (read)
+				I2C_MODE     mode,       /* XMIT(1) - put (write)
+										  * RCV(0)  - get (read)
 													  */
 						    unsigned int is_cnt ); /* 1 - this is a restart, don't check MBB
 													* 0 - this is a new start, check MBB
-                                                    */
+						    */
 
 /* Generate a STOP signal to terminate the transaction. */
 static I2CStatus I2C_Stop( unsigned int eumbbar );
@@ -258,10 +258,10 @@ static I2CStatus I2C_Slave_Addr( unsigned int eumbbar );
  */
 static I2CStatus I2C_Init( unsigned int  eumbbar,
 						   unsigned char fdr,       /* frequency divider */
-	                       unsigned char addr,      /* driver's address used for receiving */
-	 			           unsigned int en_int);    /* 1 - enable I2C interrupt
-					                                 * 0 - disable I2C interrup
-											         */
+			       unsigned char addr,      /* driver's address used for receiving */
+					   unsigned int en_int);    /* 1 - enable I2C interrupt
+									 * 0 - disable I2C interrup
+												 */
 
 /* I2C interrupt service routine.
  *
@@ -299,11 +299,11 @@ static I2C_CTRL I2C_Get_Ctrl( unsigned int eumbbar );
  *        I2C_RESTART, this is a continuation of existing transaction
  */
 static I2C_Status I2C_do_buffer( I2C_INTERRUPT_MODE en_int,
-                                 I2C_TRANSACTION_MODE act,
-                                 unsigned char i2c_addr,
-                                 int len,
-                                 unsigned char *buffer,
-                                 I2C_STOP_MODE stop,
-                                 int retry,
-                                 I2C_RESTART_MODE rsta);
+				 I2C_TRANSACTION_MODE act,
+				 unsigned char i2c_addr,
+				 int len,
+				 unsigned char *buffer,
+				 I2C_STOP_MODE stop,
+				 int retry,
+				 I2C_RESTART_MODE rsta);
 #endif

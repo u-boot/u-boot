@@ -34,7 +34,7 @@
 
 #define MAX_PATH	128		/* Max size of the MSDOS PATH        */
 #define MAX_DIR_SECS	64		/* Taille max d'un repertoire (en    */
-                                        /* secteurs)                         */
+					/* secteurs)                         */
 /* Misc. definitions                                                         */
 #define DELMARK         '\xe5'
 #define EXTENDED_BOOT   (0x29)
@@ -119,7 +119,6 @@ typedef struct directory {
 } __attribute__ ((packed))  Directory_t;
 
 
-
 #define MAX_VFAT_SUBENTRIES 20
 #define VSE_NAMELEN 13
 
@@ -145,7 +144,7 @@ typedef struct directory {
 
 struct vfat_subentry {
     unsigned char id;		        /* VSE_LAST pour la fin, VSE_MASK    */
-                                        /* pour un VSE                       */
+					/* pour un VSE                       */
     char text1 [VSE1SIZE * 2];          /* Caracteres encodes sur 16 bits    */
     unsigned char attribute;	        /* 0x0f pour les VFAT                */
     unsigned char hash1;		/* toujours 0                        */
@@ -161,7 +160,7 @@ struct vfat_state {
     int status;             /* is now a bit map of 32 bits                   */
     int subentries;
     unsigned char sum;      /* no need to remember the sum for each          */
-                            /*   entry, it is the same anyways               */
+			    /*   entry, it is the same anyways               */
 } __attribute__ ((packed)) ;
 
 /* Conversion macros                                                         */
@@ -174,4 +173,3 @@ struct vfat_state {
 
 
 #endif
-

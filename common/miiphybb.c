@@ -228,4 +228,3 @@ int miiphy_write(unsigned char  addr,
 }
 
 #endif /* CONFIG_BITBANGMII */
-

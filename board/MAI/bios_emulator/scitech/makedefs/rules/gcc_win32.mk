@@ -88,4 +88,3 @@ LD	:= $(LDXX)
     @$(ECHO) ld $@
     @$(LD) $(LDFLAGS) -o $@ @$(mktmp $(&:s/\/\\) $(EXELIBS) $(PMLIB) -lm)
 .ENDIF
-

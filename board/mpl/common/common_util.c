@@ -56,7 +56,6 @@ extern flash_info_t flash_info[];	/* info for FLASH chips */
 static image_header_t header;
 
 
-
 int mpl_prg(unsigned long src,unsigned long size)
 {
 	unsigned long start;
@@ -348,7 +347,6 @@ void check_env(void)
 }
 
 
-
 extern device_t *stdio_devices[];
 extern char *stdio_names[];
 
@@ -454,10 +452,10 @@ int get_boot_mode(void)
 	unsigned long pbcr;
 	int res = 0;
 	pbcr = mfdcr (strap);
-	if ((pbcr & PSR_ROM_WIDTH_MASK) == 0) 
+	if ((pbcr & PSR_ROM_WIDTH_MASK) == 0)
 		/* boot via MPS or MPS mapping */
 		res = BOOT_MPS;
-	if(pbcr & PSR_ROM_LOC) 
+	if(pbcr & PSR_ROM_LOC)
 		/* boot via PCI.. */
 		res |= BOOT_PCI;
 	 return res;

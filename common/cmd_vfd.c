@@ -64,6 +64,13 @@ int do_vfd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	transfer_pic(3, (uchar *)bitmap, VFD_LOGO_HEIGHT, VFD_LOGO_WIDTH);
 	return 0;
 }
+
+cmd_tbl_t U_BOOT_CMD(VFD) = MK_CMD_ENTRY(
+ 	"vfd",	2,	0,	do_vfd,
+ 	"vfd     - load a bitmap to the VFDs on TRAB\n",
+ 	"N\n"
+ 	"    - load bitmap N to the VFDs (N is _decimal_ !!!)\n"
+);
 #endif	/* CFG_CMD_VFD */
 
 #ifdef CONFIG_VFD

@@ -17,8 +17,6 @@
 #include <command.h>
 #include <linux/ctype.h>
 #include <net.h>
-
-#include <cmd_elf.h>
 #include <elf.h>
 
 
@@ -28,6 +26,8 @@
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 #endif
 
+int valid_elf_image (unsigned long addr);
+unsigned long load_elf_image (unsigned long addr);
 
 /* ======================================================================
  * Interpreter command to boot an arbitrary ELF image from memory.
@@ -136,11 +136,11 @@ int do_bootvx ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	printf ("## Ethernet MAC address not copied to NV RAM\n");
 #endif
 
-        /*
-         * Use bootaddr to find the location in memory that VxWorks
-         * will look for the bootline string. The default value for
-         * PowerPC is LOCAL_MEM_LOCAL_ADRS + BOOT_LINE_OFFSET which
-         * defaults to 0x4200
+	/*
+	 * Use bootaddr to find the location in memory that VxWorks
+	 * will look for the bootline string. The default value for
+	 * PowerPC is LOCAL_MEM_LOCAL_ADRS + BOOT_LINE_OFFSET which
+	 * defaults to 0x4200
 	 */
 
 	if ((tmp = getenv ("bootaddr")) == NULL)
@@ -148,10 +148,10 @@ int do_bootvx ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	else
 		bootaddr = simple_strtoul (tmp, NULL, 16);
 
-        /*
-         * Check to see if the bootline is defined in the 'bootargs'
-         * parameter. If it is not defined, we may be able to
-         * construct the info
+	/*
+	 * Check to see if the bootline is defined in the 'bootargs'
+	 * parameter. If it is not defined, we may be able to
+	 * construct the info
 	 */
 
 	if ((bootline = getenv ("bootargs")) != NULL) {
@@ -194,10 +194,10 @@ int do_bootvx ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		flush_cache (bootaddr, MAX(strlen(build_buf), 255));
 #else
 
-                /*
-                 * I'm not sure what the device should be for other
-                 * PPC flavors, the hostname and ipaddr should be ok
-                 * to just copy
+		/*
+		 * I'm not sure what the device should be for other
+		 * PPC flavors, the hostname and ipaddr should be ok
+		 * to just copy
 		 */
 
 		printf ("No bootargs defined\n");
@@ -205,10 +205,10 @@ int do_bootvx ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #endif
 	}
 
-        /*
-         * If the data at the load address is an elf image, then
-         * treat it like an elf image. Otherwise, assume that it is a
-         * binary image
+	/*
+	 * If the data at the load address is an elf image, then
+	 * treat it like an elf image. Otherwise, assume that it is a
+	 * binary image
 	 */
 
 	if (valid_elf_image (addr)) {
@@ -321,4 +321,16 @@ unsigned long load_elf_image (unsigned long addr)
 }
 
 /* ====================================================================== */
+cmd_tbl_t U_BOOT_CMD(BOOTELF) = MK_CMD_ENTRY(
+	"bootelf",      2,      0,      do_bootelf,
+	"bootelf - Boot from an ELF image in memory\n",
+	" [address] - load address of ELF image.\n"
+);
+
+cmd_tbl_t U_BOOT_CMD(BOOTVX) = MK_CMD_ENTRY(
+	"bootvx",      2,      0,      do_bootvx,
+	"bootvx  - Boot vxWorks from an ELF image\n",
+	" [address] - load address of vxWorks ELF image.\n"
+);
+
 #endif	/* CFG_CMD_ELF */

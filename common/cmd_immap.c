@@ -27,7 +27,6 @@
 
 #include <common.h>
 #include <command.h>
-#include <cmd_immap.h>
 
 #if (CONFIG_COMMANDS & CFG_CMD_IMMAP) && \
     (defined(CONFIG_8xx) || defined(CONFIG_8260))
@@ -592,4 +591,112 @@ do_mccinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	unimplemented (cmdtp, flag, argc, argv);
 	return 0;
 }
+
+/***************************************************/
+
+cmd_tbl_t U_BOOT_CMD(SIUINFO) = MK_CMD_ENTRY(
+	"siuinfo",	1,	1,	do_siuinfo,
+	"siuinfo - print System Interface Unit (SIU) registers\n",
+	NULL
+);
+
+cmd_tbl_t U_BOOT_CMD(MEMCINFO) = MK_CMD_ENTRY(
+	"memcinfo",	1,	1,	do_memcinfo,
+	"memcinfo- print Memory Controller registers\n",
+	NULL
+);
+
+cmd_tbl_t U_BOOT_CMD(SITINFO) = MK_CMD_ENTRY(
+	"sitinfo",	1,	1,	do_sitinfo,
+	"sitinfo - print System Integration Timers (SIT) registers\n",
+	NULL
+);
+
+#ifdef CONFIG_8260
+cmd_tbl_t U_BOOT_CMD(ICINFO) = MK_CMD_ENTRY(
+	"icinfo",	1,	1,	do_icinfo,
+	"icinfo  - print Interrupt Controller registers\n",
+	NULL
+);
+#endif
+
+cmd_tbl_t U_BOOT_CMD(CARINFO) = MK_CMD_ENTRY(
+	"carinfo",	1,	1,	do_carinfo,
+	"carinfo - print Clocks and Reset registers\n",
+	NULL
+);
+
+cmd_tbl_t U_BOOT_CMD(IOPINFO) = MK_CMD_ENTRY(
+	"iopinfo",	1,	1,	do_iopinfo,
+	"iopinfo - print I/O Port registers\n",
+	NULL
+);
+
+cmd_tbl_t U_BOOT_CMD(IOPSET) = 	MK_CMD_ENTRY(
+	"iopset",	5,	0,	do_iopset,
+	"iopset - set I/O Port registers\n",
+	"PORT PIN CMD VALUE\nPORT: A-D, PIN: 0-31, CMD: [dat|dir|odr|sor], VALUE: 0|1"
+);
+
+cmd_tbl_t U_BOOT_CMD(DMAINFO) = MK_CMD_ENTRY(
+	"dmainfo",	1,	1,	do_dmainfo,
+	"dmainfo - print SDMA/IDMA registers\n",
+	NULL
+);
+
+cmd_tbl_t U_BOOT_CMD(FCCINFO) = MK_CMD_ENTRY(
+	"fccinfo",	1,	1,	do_fccinfo,
+	"fccinfo - print FCC registers\n",
+	NULL
+);
+
+cmd_tbl_t U_BOOT_CMD(BRGINFO) = MK_CMD_ENTRY(
+	"brginfo",	1,	1,	do_brginfo,
+	"brginfo - print Baud Rate Generator (BRG) registers\n",
+	NULL
+);
+
+cmd_tbl_t U_BOOT_CMD(I2CINFO) = MK_CMD_ENTRY(
+	"i2cinfo",	1,	1,	do_i2cinfo,
+	"i2cinfo - print I2C registers\n",
+	NULL
+);
+
+cmd_tbl_t U_BOOT_CMD(SCCINFO) = MK_CMD_ENTRY(
+	"sccinfo",	1,	1,	do_sccinfo,
+	"sccinfo - print SCC registers\n",
+	NULL
+);
+
+cmd_tbl_t U_BOOT_CMD(SMCINFO) = MK_CMD_ENTRY(
+	"smcinfo",	1,	1,	do_smcinfo,
+	"smcinfo - print SMC registers\n",
+	NULL
+);
+
+cmd_tbl_t U_BOOT_CMD(SPIINFO) = MK_CMD_ENTRY(
+	"spiinfo",	1,	1,	do_spiinfo,
+	"spiinfo - print Serial Peripheral Interface (SPI) registers\n",
+	NULL
+);
+
+cmd_tbl_t U_BOOT_CMD(MUXINFO) = MK_CMD_ENTRY(
+	"muxinfo",	1,	1,	do_muxinfo,
+	"muxinfo - print CPM Multiplexing registers\n",
+	NULL
+);
+
+cmd_tbl_t U_BOOT_CMD(SIINFO) = MK_CMD_ENTRY(
+	"siinfo",	1,	1,	do_siinfo,
+	"siinfo  - print Serial Interface (SI) registers\n",
+	NULL
+);
+
+cmd_tbl_t U_BOOT_CMD(MCCINFO) = MK_CMD_ENTRY(
+	"mccinfo",	1,	1,	do_mccinfo,
+	"mccinfo - print MCC registers\n",
+	NULL
+);
+
+
 #endif	/* CFG_CMD_IMMAP && (CONFIG_8xx || CONFIG_8260) */

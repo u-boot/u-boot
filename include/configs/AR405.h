@@ -67,7 +67,7 @@
 #define	CONFIG_PHY_ADDR		0	/* PHY address			*/
 
 #define CONFIG_COMMANDS         \
-        (CONFIG_CMD_DFL | CFG_CMD_PCI | CFG_CMD_IRQ | CFG_CMD_ASKENV)
+	(CONFIG_CMD_DFL | CFG_CMD_PCI | CFG_CMD_IRQ | CFG_CMD_ASKENV)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -99,8 +99,8 @@
 
 /* The following table includes the supported baudrates */
 #define CFG_BAUDRATE_TABLE      \
-        { 300, 600, 1200, 2400, 4800, 9600, 19200, 38400,     \
-         57600, 115200, 230400, 460800, 921600 }
+	{ 300, 600, 1200, 2400, 4800, 9600, 19200, 38400,     \
+	 57600, 115200, 230400, 460800, 921600 }
 
 #define CFG_LOAD_ADDR	0x100000	/* default load address */
 #define CFG_EXTBDINFO	1		/* To use extended board_into (bd_t) */
@@ -120,7 +120,7 @@
 #define CONFIG_PCI			/* include pci support	        */
 #define CONFIG_PCI_HOST	PCI_HOST_FORCE  /* select pci host function     */
 #define CONFIG_PCI_PNP			/* do pci plug-and-play         */
-                                        /* resource configuration       */
+					/* resource configuration       */
 
 #define CONFIG_PCI_SCAN_SHOW            /* print pci devices @ startup  */
 

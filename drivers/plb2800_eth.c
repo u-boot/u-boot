@@ -57,7 +57,7 @@
 #define MBOX_STAT_MB		0x00000001
 #define EN_MA_LEARN		0x02000000
 #define EN_DA_LKUP		0x01000000
-#define MA_DEST_SHF		11 
+#define MA_DEST_SHF		11
 #define DA_DEST_SHF		11
 #define DA_STATE_SHF		19
 #define TSTAMP_MS		0x00000000
@@ -121,23 +121,23 @@ int plb2800_eth_initialize(bd_t * bis)
 
 	eth_register(dev);
 
-	/* bug fix */ 	
-	*(ulong *)0xb800e800 = 0x838;	
+	/* bug fix */
+	*(ulong *)0xb800e800 = 0x838;
 
 	/* Set MBOX ownership */
 	temp = CMAC_CRIT << MBOX_STAT_ID_SHF;
 	MBOX_REG(0)->stat = temp;
 	MBOX_REG(1)->stat = temp;
 
-	temp = CMAC_NON_CRIT << MBOX_STAT_ID_SHF;	
+	temp = CMAC_NON_CRIT << MBOX_STAT_ID_SHF;
 	MBOX_REG(2)->stat = temp;
 	MBOX_REG(3)->stat = temp;
-	
+
 	plb2800_set_mac_addr(dev, plb2800_get_mac_addr());
 
 	/* Disable all Mbox interrupt */
 	temp = MIPS_H_MASK;
-	temp &= ~ (SW_H_MBOX1_MASK | SW_H_MBOX2_MASK | SW_H_MBOX3_MASK | SW_H_MBOX4_MASK) ;			
+	temp &= ~ (SW_H_MBOX1_MASK | SW_H_MBOX2_MASK | SW_H_MBOX3_MASK | SW_H_MBOX4_MASK) ;
 	MIPS_H_MASK = temp;
 
 #ifdef DEBUG
@@ -222,7 +222,7 @@ static int plb2800_eth_send(struct eth_device *dev, volatile void *packet,
 
 	CMAC_CRX_CTRL = temp;
 	mb->cmd = MBOX_STAT_CP;
-	
+
 #ifdef DEBUG
 	printf("2 mb->stat = 0x%x\n",  mb->stat);
 #endif
@@ -257,7 +257,7 @@ static int plb2800_eth_recv(struct eth_device *dev)
 		{
 			break;
 		}
-		
+
 		length = ((*(hdr + 6) & 0x3f) << 8) + *(hdr + 7);
 		memcpy((void *)NetRxPackets[rx_new], hdr + 12, length);
 
@@ -323,13 +323,13 @@ static void plb2800_set_mac_addr(struct eth_device *dev, unsigned char * addr)
 	{
 		return;
 	}
-	
+
 	/* send one packet through CPU port
 	 * in order to learn system MAC address
-	 */		
+	 */
 
 	/* Set DA_LOOKUP register */
-	temp = EN_MA_LEARN | (0 << DA_STATE_SHF) | (63 << DA_DEST_SHF); 
+	temp = EN_MA_LEARN | (0 << DA_STATE_SHF) | (63 << DA_DEST_SHF);
 	DA_LOOKUP = temp;
 
 	/* Set MA_LEARN register */
@@ -339,7 +339,7 @@ static void plb2800_set_mac_addr(struct eth_device *dev, unsigned char * addr)
 	/* set destination address */
 	for (ix=0;ix<6;ix++)
 		packet[ix] = 0xff;
- 
+
 	/* set source address = system MAC address */
 	for (ix=0;ix<6;ix++)
 		packet[6+ix] = addr[ix];
@@ -351,7 +351,7 @@ static void plb2800_set_mac_addr(struct eth_device *dev, unsigned char * addr)
 	/* set data field */
 	for(ix=14;ix<60;ix++)
 		packet[ix] = 0x00;
-	
+
 #ifdef DEBUG
 	for (ix=0;ix<6;ix++)
 		printf("mac_addr[%d]=%02X\n", ix, (unsigned char)packet[6+ix]);
@@ -364,10 +364,10 @@ static void plb2800_set_mac_addr(struct eth_device *dev, unsigned char * addr)
 	for(ix=0;ix<65535;ix++)
 		temp = ~temp;
 
-	/* Set CMAC_CTX_CTRL register */	
+	/* Set CMAC_CTX_CTRL register */
 	temp = TSTAMP_MS;	/* no autocast */
 	CMAC_CTX_CTRL = temp;
-         
+
 	/* Set DA_LOOKUP register */
 	temp = EN_DA_LKUP;
 	DA_LOOKUP = temp;
@@ -380,10 +380,10 @@ static unsigned char * plb2800_get_mac_addr(void)
 	static unsigned char addr[6];
 	char *tmp, *end;
 	int i;
-	
+
 	tmp = getenv ("ethaddr");
 	if (NULL == tmp) return NULL;
-	
+
 	for (i=0; i<6; i++) {
 		addr[i] = tmp ? simple_strtoul(tmp, &end, 16) : 0;
 		if (tmp)

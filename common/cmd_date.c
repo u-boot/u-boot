@@ -189,4 +189,15 @@ int mk_date (char *datestr, struct rtc_time *tmp)
 	return (-1);
 }
 
+/***************************************************/
+
+cmd_tbl_t U_BOOT_CMD(DATE) = MK_CMD_ENTRY(
+	"date",	2,	1,	do_date,
+	"date    - get/set/reset date & time\n",
+	"[MMDDhhmm[[CC]YY][.ss]]\ndate reset\n"
+	"  - without arguments: print date & time\n"
+	"  - with numeric argument: set the system date & time\n"
+	"  - with 'reset' argument: reset the RTC\n"
+);
+
 #endif	/* CFG_CMD_DATE */

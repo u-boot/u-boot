@@ -106,6 +106,6 @@ passed, so if this happens we will be generating erronous results.
 ulong __ULZElapsedTime(ulong start,ulong finish)
 {
     if (finish < start)
-        finish += 1573040L;         /* Number of ticks in 24 hours      */
+	finish += 1573040L;         /* Number of ticks in 24 hours      */
     return finish - start;
 }

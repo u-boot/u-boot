@@ -36,26 +36,26 @@
 #include <asm/pci.h>
 #include <asm/ic/sc520.h>
 
-/* 
- * utility functions for boards based on the AMD sc520 
- * 
+/*
+ * utility functions for boards based on the AMD sc520
+ *
  * void write_mmcr_byte(u16 mmcr, u8 data)
  * void write_mmcr_word(u16 mmcr, u16 data)
  * void write_mmcr_long(u16 mmcr, u32 data)
- * 
+ *
  * u8   read_mmcr_byte(u16 mmcr)
  * u16  read_mmcr_word(u16 mmcr)
  * u32  read_mmcr_long(u16 mmcr)
- * 
+ *
  * void init_sc520(void)
  * unsigned long init_sc520_dram(void)
  * void pci_sc520_init(struct pci_controller *hose)
- * 
+ *
  * void reset_timer(void)
  * ulong get_timer(ulong base)
  * void set_timer(ulong t)
  * void udelay(unsigned long usec)
- * 
+ *
  */
 
 static u32 mmcr_base= 0xfffef000;
@@ -67,7 +67,7 @@ void write_mmcr_byte(u16 mmcr, u8 data)
 
 void write_mmcr_word(u16 mmcr, u16 data)
 {
-	writew(data, mmcr+mmcr_base);	
+	writew(data, mmcr+mmcr_base);
 }
 
 void write_mmcr_long(u16 mmcr, u32 data)
@@ -82,7 +82,7 @@ u8 read_mmcr_byte(u16 mmcr)
 
 u16 read_mmcr_word(u16 mmcr)
 {
-	return readw(mmcr+mmcr_base);	
+	return readw(mmcr+mmcr_base);
 }
 
 u32 read_mmcr_long(u16 mmcr)
@@ -94,19 +94,19 @@ u32 read_mmcr_long(u16 mmcr)
 void init_sc520(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-	
+
 	/* Set the UARTxCTL register at it's slower,
-	 * baud clock giving us a 1.8432 MHz reference 
+	 * baud clock giving us a 1.8432 MHz reference
 	 */
 	write_mmcr_byte(SC520_UART1CTL, 7);
 	write_mmcr_byte(SC520_UART2CTL, 7);
-	
+
 	/* first set the timer pin mapping */
 	write_mmcr_byte(SC520_CLKSEL, 0x72);	/* no clock frequency selected, use 1.1892MHz */
-	
+
 	/* enable PCI bus arbitrer */
 	write_mmcr_byte(SC520_SYSARBCTL,0x02);  /* enable concurrent mode */
-	
+
 	write_mmcr_word(SC520_SYSARBMENB,0x1f); /* enable external grants */
 	write_mmcr_word(SC520_HBCTL,0x04);      /* enable posted-writes */
 
@@ -120,10 +120,10 @@ void init_sc520(void)
 		printf("## CPU Speed set to 100MHz\n");
 		gd->cpu_clk = 100000000;
 	}
-	
+
 
 	/* wait at least one millisecond */
-        asm("movl	$0x2000,%%ecx\n"
+	asm("movl	$0x2000,%%ecx\n"
 	    "wait_loop:	pushl %%ecx\n"
 	    "popl	%%ecx\n"
 	    "loop wait_loop\n": : : "ecx");
@@ -141,19 +141,19 @@ unsigned long init_sc520_dram(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 	bd_t *bd = gd->bd;
-	
+
 	u32 dram_present=0;
 	u32 dram_ctrl;
 
 	int val;
-	
-	int cas_precharge_delay = CFG_SDRAM_PRECHARGE_DELAY;	
-	int refresh_rate        = CFG_SDRAM_REFRESH_RATE;	
+
+	int cas_precharge_delay = CFG_SDRAM_PRECHARGE_DELAY;
+	int refresh_rate        = CFG_SDRAM_REFRESH_RATE;
 	int ras_cas_delay       = CFG_SDRAM_RAS_CAS_DELAY;
-	
+
 	/* set SDRAM speed here */
-	
-	refresh_rate/=78;	
+
+	refresh_rate/=78;
 	if (refresh_rate<=1) {
 		val = 0;  /* 7.8us */
 	} else if (refresh_rate==2) {
@@ -164,22 +164,22 @@ unsigned long init_sc520_dram(void)
 		val = 3;  /* 62.4us */
 	}
 	write_mmcr_byte(SC520_DRCCTL, (read_mmcr_byte(SC520_DRCCTL) & 0xcf) | (val<<4));
-	
+
 	val = read_mmcr_byte(SC520_DRCTMCTL);
 	val &= 0xf0;
-	
-	if (cas_precharge_delay==3) {		
+
+	if (cas_precharge_delay==3) {
 		val |= 0x04;   /* 3T */
-	} else if (cas_precharge_delay==4) {		
+	} else if (cas_precharge_delay==4) {
 		val |= 0x08;   /* 4T */
-	} else if (cas_precharge_delay>4) {		
+	} else if (cas_precharge_delay>4) {
 		val |= 0x0c;
-	} 
-	
+	}
+
 	if (ras_cas_delay > 3) {
-		val |= 2; 
+		val |= 2;
 	} else {
-		val |= 1; 
+		val |= 1;
 	}
 	write_mmcr_byte(SC520_DRCTMCTL, val);
 
@@ -187,37 +187,37 @@ unsigned long init_sc520_dram(void)
 	/* We read-back the configuration of the dram
 	 * controller that the assembly code wrote */
 	dram_ctrl = read_mmcr_long(SC520_DRCBENDADR);
-	
+
 
 	bd->bi_dram[0].start = 0;
 	if (dram_ctrl & 0x80) {
 		/* bank 0 enabled */
 		dram_present = bd->bi_dram[1].start = (dram_ctrl & 0x7f) << 22;
-		bd->bi_dram[0].size = bd->bi_dram[1].start; 
+		bd->bi_dram[0].size = bd->bi_dram[1].start;
 
 	} else {
 		bd->bi_dram[0].size = 0;
 		bd->bi_dram[1].start = bd->bi_dram[0].start;
 	}
-	
+
 	if (dram_ctrl & 0x8000) {
 		/* bank 1 enabled */
 		dram_present = bd->bi_dram[2].start = (dram_ctrl & 0x7f00) << 14;
-		bd->bi_dram[1].size = bd->bi_dram[2].start -  bd->bi_dram[1].start; 
+		bd->bi_dram[1].size = bd->bi_dram[2].start -  bd->bi_dram[1].start;
 	} else {
 		bd->bi_dram[1].size = 0;
 		bd->bi_dram[2].start = bd->bi_dram[1].start;
 	}
-	
+
 	if (dram_ctrl & 0x800000) {
 		/* bank 2 enabled */
 		dram_present = bd->bi_dram[3].start = (dram_ctrl & 0x7f0000) << 6;
-		bd->bi_dram[2].size = bd->bi_dram[3].start -  bd->bi_dram[2].start; 
+		bd->bi_dram[2].size = bd->bi_dram[3].start -  bd->bi_dram[2].start;
 	} else {
 		bd->bi_dram[2].size = 0;
 		bd->bi_dram[3].start = bd->bi_dram[2].start;
-	} 
-	
+	}
+
 	if (dram_ctrl & 0x80000000) {
 		/* bank 3 enabled */
 		dram_present  = (dram_ctrl & 0x7f000000) >> 2;
@@ -226,12 +226,12 @@ unsigned long init_sc520_dram(void)
 		bd->bi_dram[3].size = 0;
 	}
 
-	
-#if 0	
+
+#if 0
 	printf("Configured %d bytes of dram\n", dram_present);
-#endif	
+#endif
 	gd->ram_size = dram_present;
-	
+
 	return dram_present;
 }
 
@@ -265,19 +265,19 @@ static struct {
 
 
 /* The interrupt used for PCI INTA-INTD  */
-int sc520_pci_ints[15] = { 
+int sc520_pci_ints[15] = {
 	-1, -1, -1, -1, -1, -1, -1, -1,
 		-1, -1, -1, -1, -1, -1, -1
 };
 
 /* utility function to configure a pci interrupt */
-int pci_sc520_set_irq(int pci_pin, int irq) 
+int pci_sc520_set_irq(int pci_pin, int irq)
 {
 	int i;
-	
+
 # if 0
 	printf("set_irq(): map INT%c to IRQ%d\n", pci_pin + 'A', irq);
-#endif	
+#endif
 	if (irq < 0 || irq > 15) {
 		return -1; /* illegal irq */
 	}
@@ -286,7 +286,7 @@ int pci_sc520_set_irq(int pci_pin, int irq)
 		return -1; /* illegal pci int pin */
 	}
 
-	/* first disable any non-pci interrupt source that use 
+	/* first disable any non-pci interrupt source that use
 	 * this level */
 	for (i=SC520_GPTMR0MAP;i<=SC520_GP10IMAP;i++) {
 		if (i>=SC520_PCIINTAMAP&&i<=SC520_PCIINTDMAP) {
@@ -296,31 +296,31 @@ int pci_sc520_set_irq(int pci_pin, int irq)
 			write_mmcr_byte(i, SC520_IRQ_DISABLED);
 		}
 	}
-	
+
 	/* Set the trigger to level */
-	write_mmcr_byte(sc520_irq[irq].level_reg, 
+	write_mmcr_byte(sc520_irq[irq].level_reg,
 			read_mmcr_byte(sc520_irq[irq].level_reg) | sc520_irq[irq].level_bit);
-	
-	
+
+
 	if (pci_pin < 4) {
 		/* PCI INTA-INTD */
 		/* route the interrupt */
 		write_mmcr_byte(SC520_PCIINTAMAP + pci_pin, sc520_irq[irq].priority);
-		
-		
+
+
 	} else {
 		/* GPIRQ0-GPIRQ10 used for additional PCI INTS */
 		write_mmcr_byte(SC520_GP0IMAP + pci_pin - 4, sc520_irq[irq].priority);
-		
+
 		/* also set the polarity in this case */
-		write_mmcr_word(SC520_INTPINPOL, 
+		write_mmcr_word(SC520_INTPINPOL,
 				read_mmcr_word(SC520_INTPINPOL) | (1 << (pci_pin-4)));
-		
+
 	}
-	
-	/* register the pin */		
+
+	/* register the pin */
 	sc520_pci_ints[pci_pin] = irq;
-	
+
 
 	return 0; /* OK */
 }
@@ -331,35 +331,35 @@ void pci_sc520_init(struct pci_controller *hose)
 	hose->last_busno = 0xff;
 
 	/* System memory space */
-	pci_set_region(hose->regions + 0, 
+	pci_set_region(hose->regions + 0,
 		       SC520_PCI_MEMORY_BUS,
 		       SC520_PCI_MEMORY_PHYS,
 		       SC520_PCI_MEMORY_SIZE,
 		       PCI_REGION_MEM | PCI_REGION_MEMORY);
 
 	/* PCI memory space */
-	pci_set_region(hose->regions + 1, 
+	pci_set_region(hose->regions + 1,
 		       SC520_PCI_MEM_BUS,
 		       SC520_PCI_MEM_PHYS,
 		       SC520_PCI_MEM_SIZE,
 		       PCI_REGION_MEM);
 
 	/* ISA/PCI memory space */
-	pci_set_region(hose->regions + 2, 
+	pci_set_region(hose->regions + 2,
 		       SC520_ISA_MEM_BUS,
 		       SC520_ISA_MEM_PHYS,
 		       SC520_ISA_MEM_SIZE,
 		       PCI_REGION_MEM);
 
 	/* PCI I/O space */
-	pci_set_region(hose->regions + 3, 
+	pci_set_region(hose->regions + 3,
 		       SC520_PCI_IO_BUS,
 		       SC520_PCI_IO_PHYS,
 		       SC520_PCI_IO_SIZE,
 		       PCI_REGION_IO);
 
 	/* ISA/PCI I/O space */
-	pci_set_region(hose->regions + 4, 
+	pci_set_region(hose->regions + 4,
 		       SC520_ISA_IO_BUS,
 		       SC520_ISA_IO_PHYS,
 		       SC520_ISA_IO_SIZE,
@@ -374,13 +374,12 @@ void pci_sc520_init(struct pci_controller *hose)
 	pci_register_hose(hose);
 
 	hose->last_busno = pci_hose_scan(hose);
-	
+
 	/* enable target memory acceses on host brige */
-	pci_write_config_word(0, PCI_COMMAND, 
+	pci_write_config_word(0, PCI_COMMAND,
 			      PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
 
 }
-
 
 
 #endif
@@ -392,7 +391,7 @@ void reset_timer(void)
 {
 	write_mmcr_word(SC520_GPTMR0CNT, 0);
 	write_mmcr_word(SC520_GPTMR0CTL, 0x6001);
-	
+
 }
 
 ulong get_timer(ulong base)
@@ -414,19 +413,19 @@ void udelay(unsigned long usec)
 {
 	int m=0;
 	long u;
-	
+
 	read_mmcr_word(SC520_SWTMRMILLI);
 	read_mmcr_word(SC520_SWTMRMICRO);
-	     
+
 #if 0
 	/* do not enable this line, udelay is used in the serial driver -> recursion */
 	printf("udelay: %ld m.u %d.%d  tm.tu %d.%d\n", usec, m, u, tm, tu);
-#endif	
+#endif
 	while (1) {
-		
+
 		m += read_mmcr_word(SC520_SWTMRMILLI);
 		u = read_mmcr_word(SC520_SWTMRMICRO) + (m * 1000);
-		
+
 		if (usec <= u) {
 			break;
 		}
@@ -440,13 +439,13 @@ int ssi_set_interface(int freq, int lsb_first, int inv_clock, int inv_phase)
 	u8 temp=0;
 
 	if (freq >= 8192) {
-		temp |= CTL_CLK_SEL_4; 
+		temp |= CTL_CLK_SEL_4;
 	} else if (freq >= 4096) {
-		temp |= CTL_CLK_SEL_8;        
+		temp |= CTL_CLK_SEL_8;
 	} else if (freq >= 2048) {
-		temp |= CTL_CLK_SEL_16;  
+		temp |= CTL_CLK_SEL_16;
 	} else if (freq >= 1024) {
-		temp |= CTL_CLK_SEL_32;  
+		temp |= CTL_CLK_SEL_32;
 	} else if (freq >= 512) {
 		temp |= CTL_CLK_SEL_64;
 	} else if (freq >= 256) {
@@ -456,47 +455,47 @@ int ssi_set_interface(int freq, int lsb_first, int inv_clock, int inv_phase)
 	} else {
 		temp |= CTL_CLK_SEL_512;
 	}
-	
+
 	if (!lsb_first) {
 		temp |= MSBF_ENB;
 	}
-		
+
 	if (inv_clock) {
 		temp |= CLK_INV_ENB;
 	}
-	
+
 	if (inv_phase) {
 		temp |= PHS_INV_ENB;
 	}
-		
+
 	write_mmcr_byte(SC520_SSICTL, temp);
-	
+
 	return 0;
 }
 
-u8 ssi_txrx_byte(u8 data) 
+u8 ssi_txrx_byte(u8 data)
 {
 	write_mmcr_byte(SC520_SSIXMIT, data);
 	while ((read_mmcr_byte(SC520_SSISTA)) & SSISTA_BSY);
 	write_mmcr_byte(SC520_SSICMD, SSICMD_CMD_SEL_XMITRCV);
 	while ((read_mmcr_byte(SC520_SSISTA)) & SSISTA_BSY);
-	return read_mmcr_byte(SC520_SSIRCV);	
-}      
+	return read_mmcr_byte(SC520_SSIRCV);
+}
 
 
-void ssi_tx_byte(u8 data) 
+void ssi_tx_byte(u8 data)
 {
 	write_mmcr_byte(SC520_SSIXMIT, data);
-	while ((read_mmcr_byte(SC520_SSISTA)) & SSISTA_BSY); 
+	while ((read_mmcr_byte(SC520_SSISTA)) & SSISTA_BSY);
 	write_mmcr_byte(SC520_SSICMD, SSICMD_CMD_SEL_XMIT);
 }
 
-u8 ssi_rx_byte(void) 
+u8 ssi_rx_byte(void)
 {
 	while ((read_mmcr_byte(SC520_SSISTA)) & SSISTA_BSY);
 	write_mmcr_byte(SC520_SSICMD, SSICMD_CMD_SEL_RCV);
 	while ((read_mmcr_byte(SC520_SSISTA)) & SSISTA_BSY);
 	return read_mmcr_byte(SC520_SSIRCV);
-} 
+}
 
 #endif /* CONFIG_SC520 */

@@ -26,8 +26,7 @@
  */
 #include <common.h>
 #include <command.h>
-#include <cmd_boot.h>
-#include <flash.h>
+
 
 #ifdef CONFIG_HAS_DATAFLASH
 #include <dataflash.h>
@@ -437,5 +436,42 @@ int flash_sect_protect (int p, ulong addr_first, ulong addr_last)
 	}
 	return rcode;
 }
+
+
+/**************************************************/
+
+cmd_tbl_t U_BOOT_CMD(FLINFO) = MK_CMD_ENTRY(
+	"flinfo",    2,    1,    do_flinfo,
+	"flinfo  - print FLASH memory information\n",
+	"\n    - print information for all FLASH memory banks\n"
+	"flinfo N\n    - print information for FLASH memory bank # N\n"
+);
+
+cmd_tbl_t U_BOOT_CMD(ERASE) = MK_CMD_ENTRY(
+	"erase",   3,   1,  do_flerase,
+	"erase   - erase FLASH memory\n",
+	"start end\n"
+	"    - erase FLASH from addr 'start' to addr 'end'\n"
+	"erase N:SF[-SL]\n    - erase sectors SF-SL in FLASH bank # N\n"
+	"erase bank N\n    - erase FLASH bank # N\n"
+	"erase all\n    - erase all FLASH banks\n"
+);
+
+cmd_tbl_t U_BOOT_CMD(PROTECT) = MK_CMD_ENTRY(
+	"protect",  4,  1,   do_protect,
+	"protect - enable or disable FLASH write protection\n",
+	"on  start end\n"
+	"    - protect FLASH from addr 'start' to addr 'end'\n"
+	"protect on  N:SF[-SL]\n"
+	"    - protect sectors SF-SL in FLASH bank # N\n"
+	"protect on  bank N\n    - protect FLASH bank # N\n"
+	"protect on  all\n    - protect all FLASH banks\n"
+	"protect off start end\n"
+	"    - make FLASH from addr 'start' to addr 'end' writable\n"
+	"protect off N:SF[-SL]\n"
+	"    - make sectors SF-SL writable in FLASH bank # N\n"
+	"protect off bank N\n    - make FLASH bank # N writable\n"
+	"protect off all\n    - make all FLASH banks writable\n"
+);
 
 #endif	/* CFG_CMD_FLASH */

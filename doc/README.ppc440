@@ -1,6 +1,6 @@
-                           PowerPC 440
+			   PowerPC 440
 
-                    Last Update: September 11, 2002
+		    Last Update: September 11, 2002
 =======================================================================
 
 
@@ -197,8 +197,6 @@ to decide at run-time. If your board is always configured a certain way,
 then just hardcode a return of 1 or 0 as appropriate.
 
 
-
 Regards,
 --Scott
 <smcnutt@artesyncp.com>
-

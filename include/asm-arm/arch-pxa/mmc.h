@@ -1,7 +1,7 @@
 /*
- *  linux/drivers/mmc/mmc_pxa.h 
+ *  linux/drivers/mmc/mmc_pxa.h
  *
- *  Author: Vladimir Shebordaev, Igor Oblakov   
+ *  Author: Vladimir Shebordaev, Igor Oblakov
  *  Copyright:  MontaVista Software Inc.
  *
  *  $Id: mmc_pxa.h,v 0.3.1.6 2002/09/25 19:25:48 ted Exp ted $
@@ -76,7 +76,7 @@
 #define MMC_BLK_LEN_MAX	 		(0x03ffUL) /* [9:0] */
 
 /* MMC_PRTBUF */
-#define MMC_PRTBUF_BUF_PART_FULL       	(0x01UL) 
+#define MMC_PRTBUF_BUF_PART_FULL       	(0x01UL)
 #define MMC_PRTBUF_BUF_FULL		(0x00UL    )
 
 /* MMC_I_MASK */

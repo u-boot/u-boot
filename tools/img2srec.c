@@ -351,34 +351,34 @@ static void ConvertELF(char* fileName, DWORD loadOffset)
   loadAddr  =  0;
   for (i = 0; i < elfHeader.e_shnum; i++) {
     if (    (sectHeader[i].sh_type == SHT_PROGBITS)
-         && (sectHeader[i].sh_size != 0)
-         ) {
+	 && (sectHeader[i].sh_size != 0)
+	 ) {
       loadSize = sectHeader[i].sh_size;
       if (sectHeader[i].sh_flags != 0) {
-        loadAddr = sectHeader[i].sh_addr;
-        loadDiff = loadAddr - sectHeader[i].sh_offset;
+	loadAddr = sectHeader[i].sh_addr;
+	loadDiff = loadAddr - sectHeader[i].sh_offset;
       } /* if */
       else {
-        loadAddr = sectHeader[i].sh_offset + loadDiff;
+	loadAddr = sectHeader[i].sh_offset + loadDiff;
       } /* else */
 
       if (loadAddr < firstAddr)
-        firstAddr = loadAddr;
+	firstAddr = loadAddr;
 
       /* build s-records */
       loadSize = sectHeader[i].sh_size;
       fseek(file, sectHeader[i].sh_offset, SEEK_SET);
       while (loadSize) {
-        rxCount = fread(rxBlock, 1, (loadSize > 32) ? 32 : loadSize, file);
-        if (rxCount < 0) {
-          fclose(file);
-          fprintf (stderr, "*** illegal file format\n");
-        return;
-        } /* if */
-        (void)BuildSRecord(srecLine, 3, loadAddr + loadOffset, rxBlock, rxCount);
-        loadSize -= rxCount;
-        loadAddr += rxCount;
-        printf("%s\r\n",srecLine);
+	rxCount = fread(rxBlock, 1, (loadSize > 32) ? 32 : loadSize, file);
+	if (rxCount < 0) {
+	  fclose(file);
+	  fprintf (stderr, "*** illegal file format\n");
+	return;
+	} /* if */
+	(void)BuildSRecord(srecLine, 3, loadAddr + loadOffset, rxBlock, rxCount);
+	loadSize -= rxCount;
+	loadAddr += rxCount;
+	printf("%s\r\n",srecLine);
       } /* while */
     } /* if */
   } /* for */

@@ -30,7 +30,7 @@ OBJS	= scm.o flash.o fpga_scm.o ../common/fpga.o \
 
 
 $(LIB):	.depend $(OBJS)
-	$(AR) crv $@ $^
+	$(AR) crv $@ $(OBJS)
 
 #########################################################################
 

@@ -209,7 +209,6 @@ in_flash:
 	bl	board_init_f	/* run 1st part of board init code (from Flash) */
 
 
-
 	.globl	_start_of_vectors
 _start_of_vectors:
 
@@ -650,8 +649,8 @@ in_ram:
 	/*
 	 * Relocation Function, r14 point to got2+0x8000
 	 *
-         * Adjust got2 pointers, no need to check for 0, this code
-         * already puts a few entries in the table.
+	 * Adjust got2 pointers, no need to check for 0, this code
+	 * already puts a few entries in the table.
 	 */
 	li	r0,__got2_entries@sectoff@l
 	la	r3,GOT(_GOT2_TABLE_)
@@ -665,7 +664,7 @@ in_ram:
 	bdnz	1b
 
 	/*
-         * Now adjust the fixups and the pointers to the fixups
+	 * Now adjust the fixups and the pointers to the fixups
 	 * in case we need to move ourselves again.
 	 */
 2:	li	r0,__fixup_entries@sectoff@l

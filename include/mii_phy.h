@@ -6,4 +6,3 @@ unsigned short mii_phy_read(unsigned short reg);
 void mii_phy_write(unsigned short reg, unsigned short val);
 
 #endif
-

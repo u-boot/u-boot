@@ -599,4 +599,3 @@ const unsigned int n_sprs = sizeof(spr_map) / sizeof(spr_map[0]);
  * warranties of merchantability and fitness for a particular
  * purpose.
  */
-

@@ -28,7 +28,7 @@ include $(TOPDIR)/config.mk
 LIB	= libfdos.a
 
 AOBJS	=
-COBJS	= fat.o vfat.o dev.o fdos.o fs.o subdir.o 
+COBJS	= fat.o vfat.o dev.o fdos.o fs.o subdir.o
 OBJS	= $(AOBJS) $(COBJS)
 
 #CPPFLAGS +=

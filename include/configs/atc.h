@@ -299,7 +299,7 @@
  * HID1 has only read-only information - nothing to set.
  */
 #define CFG_HID0_INIT   (HID0_ICE|HID0_DCE|HID0_ICFI|\
-                         HID0_DCI|HID0_IFEM|HID0_ABE)
+			 HID0_DCI|HID0_IFEM|HID0_ABE)
 #define CFG_HID0_FINAL  (HID0_IFEM|HID0_ABE)
 #define CFG_HID2        0
 
@@ -332,10 +332,10 @@
  */
 #if defined(CONFIG_WATCHDOG)
 #define CFG_SYPCR       (SYPCR_SWTC|SYPCR_BMT|SYPCR_PBME|SYPCR_LBME|\
-                         SYPCR_SWRI|SYPCR_SWP|SYPCR_SWE)
+			 SYPCR_SWRI|SYPCR_SWP|SYPCR_SWE)
 #else
 #define CFG_SYPCR       (SYPCR_SWTC|SYPCR_BMT|SYPCR_PBME|SYPCR_LBME|\
-                         SYPCR_SWRI|SYPCR_SWP)
+			 SYPCR_SWRI|SYPCR_SWP)
 #endif /* CONFIG_WATCHDOG */
 
 /*-----------------------------------------------------------------------
@@ -437,24 +437,24 @@
 /* Bank 0 - FLASH
  */
 #define CFG_BR0_PRELIM  ((CFG_FLASH_BASE & BRx_BA_MSK)  |\
-                         BRx_PS_16                      |\
-                         BRx_MS_GPCM_P                  |\
-                         BRx_V)
+			 BRx_PS_16                      |\
+			 BRx_MS_GPCM_P                  |\
+			 BRx_V)
 
 #define CFG_OR0_PRELIM  (P2SZ_TO_AM(CFG_FLASH_SIZE)     |\
-                         ORxG_CSNT                      |\
-                         ORxG_ACS_DIV1                  |\
-                         ORxG_SCY_3_CLK                 |\
-                         ORxU_EHTR_8IDLE)
+			 ORxG_CSNT                      |\
+			 ORxG_ACS_DIV1                  |\
+			 ORxG_SCY_3_CLK                 |\
+			 ORxU_EHTR_8IDLE)
 
 
 /* Bank 2 - 60x bus SDRAM
  */
 #ifndef CFG_RAMBOOT
 #define CFG_BR2_PRELIM  ((CFG_SDRAM_BASE & BRx_BA_MSK)  |\
-                         BRx_PS_64                      |\
-                         BRx_MS_SDRAM_P                 |\
-                         BRx_V)
+			 BRx_PS_64                      |\
+			 BRx_MS_SDRAM_P                 |\
+			 BRx_V)
 
 #define CFG_OR2_PRELIM	 CFG_OR2_8COL
 
@@ -462,12 +462,12 @@
 #endif /* CFG_RAMBOOT */
 
 #define CFG_BR4_PRELIM  ((RTC_BASE_ADDR & BRx_BA_MSK)   |\
-                         BRx_PS_8                       |\
-                         BRx_MS_UPMA                    |\
-                         BRx_V)
+			 BRx_PS_8                       |\
+			 BRx_MS_UPMA                    |\
+			 BRx_V)
 
 #define CFG_OR4_PRELIM  (ORxU_AM_MSK | ORxU_BI)
-									   
+
 /*-----------------------------------------------------------------------
  * PCMCIA stuff
  *-----------------------------------------------------------------------

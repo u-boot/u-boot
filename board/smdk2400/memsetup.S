@@ -28,7 +28,6 @@
  */
 
 
-
 #include <config.h>
 #include <version.h>
 
@@ -162,4 +161,3 @@ SMRDATA:
 	.word	0x10	/* BUSWIDTH=32, SCLK power saving mode, BANKSIZE 32M/32M */
 	.word	0x30	/* MRSR6, CL=3clk */
 	.word	0x30	/* MRSR7 */
-

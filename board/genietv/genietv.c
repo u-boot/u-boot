@@ -49,9 +49,9 @@ const uint sdram_table[] =
 	/*
 	 * SDRAM Initialization (offset 5 in UPMB RAM)
 	 *
-         * This is no UPM entry point. The following definition uses
-         * the remaining space to establish an initialization
-         * sequence, which is executed by a RUN command.
+	 * This is no UPM entry point. The following definition uses
+	 * the remaining space to establish an initialization
+	 * sequence, which is executed by a RUN command.
 	 *
 	 */
 		    0x1FFDDC34, 0xEFEEAC34, 0x1FBD5C35, /* last */
@@ -198,21 +198,21 @@ long int initdram (int board_type)
 
     if (size_b1 > 0)
     {
-        /*
-         * Position Bank 1 immediately above Bank 0
-         */
-        memctl->memc_or2 = ((-size_b1) & 0xFFFF0000) | CFG_OR_TIMING_SDRAM;
-        memctl->memc_br2 = ((CFG_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMB | BR_V) +
-	                   (size_b0 & BR_BA_MSK);
+	/*
+	 * Position Bank 1 immediately above Bank 0
+	 */
+	memctl->memc_or2 = ((-size_b1) & 0xFFFF0000) | CFG_OR_TIMING_SDRAM;
+	memctl->memc_br2 = ((CFG_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMB | BR_V) +
+			   (size_b0 & BR_BA_MSK);
     }
 	else
     {
-        /*
-         * No bank 1
-         *
-         * invalidate bank
-         */
-        memctl->memc_br2 = 0;
+	/*
+	 * No bank 1
+	 *
+	 * invalidate bank
+	 */
+	memctl->memc_br2 = 0;
 	/* adjust refresh rate depending on SDRAM type, one bank */
 	memctl->memc_mptpr = CFG_MPTPR_1BK_4K;
     }

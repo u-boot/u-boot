@@ -99,5 +99,3 @@ ulong get_tbclk(void)
 {
 	return CFG_HZ;
 }
-
-

@@ -43,7 +43,7 @@
 GraphicDevice sed13806;
 
 /*-----------------------------------------------------------------------------
- * EpsonSetRegs -- 
+ * EpsonSetRegs --
  *-----------------------------------------------------------------------------
  */
 static void EpsonSetRegs (void)
@@ -51,13 +51,13 @@ static void EpsonSetRegs (void)
     /* the content of the chipset register depends on the board (clocks, ...)*/
     const S1D_REGS *preg = board_get_regs ();
     while (preg -> Index) {
-        writeByte (preg -> Index, preg -> Value);
-        preg ++;
+	writeByte (preg -> Index, preg -> Value);
+	preg ++;
     }
 }
-    
+
 /*-----------------------------------------------------------------------------
- * video_hw_init -- 
+ * video_hw_init --
  *-----------------------------------------------------------------------------
  */
 void *video_hw_init (void)
@@ -70,7 +70,7 @@ void *video_hw_init (void)
        Retreive base address of the chipset
        (see board/RPXClassic/eccx.c)                                         */
     if ((sed13806.isaBase = board_video_init ()) == 0) {
-        return (NULL);
+	return (NULL);
     }
 
     sed13806.frameAdrs = sed13806.isaBase + FRAME_BUFFER_OFFSET;
@@ -80,7 +80,7 @@ void *video_hw_init (void)
 #if defined(CONFIG_VIDEO_SED13806_8BPP)
     sed13806.gdfIndex = GDF__8BIT_INDEX;
     sed13806.gdfBytesPP = 1;
-    
+
 #elif defined(CONFIG_VIDEO_SED13806_16BPP)
     sed13806.gdfIndex = GDF_16BIT_565RGB;
     sed13806.gdfBytesPP = 2;
@@ -101,9 +101,9 @@ void *video_hw_init (void)
     i = sed13806.memSize/4;
     vm = (unsigned int *)sed13806.frameAdrs;
     while(i--)
-        *vm++ = 0;
-    
-    
+	*vm++ = 0;
+
+
     return (&sed13806);
 }
 /*-----------------------------------------------------------------------------
@@ -119,7 +119,7 @@ static void Epson_wait_idle (void)
 }
 
 /*-----------------------------------------------------------------------------
- * video_hw_bitblt -- 
+ * video_hw_bitblt --
  *-----------------------------------------------------------------------------
  */
 void video_hw_bitblt (
@@ -140,29 +140,29 @@ void video_hw_bitblt (
     dstAddr = (dst_y * stride) + (dst_x * bpp);
 
     Epson_wait_idle ();
-    
-    writeByte(BLT_ROP,0x0C);	// source
-    writeByte(BLT_OP,0x02);// move blit in positive direction with ROP
+
+    writeByte(BLT_ROP,0x0C);	/* source */
+    writeByte(BLT_OP,0x02);/* move blit in positive direction with ROP */
     writeWord(BLT_MEM_OFF0, stride / 2);
     if (pGD -> gdfIndex == GDF__8BIT_INDEX) {
-        writeByte(BLT_CTRL1,0x00);
+	writeByte(BLT_CTRL1,0x00);
     }
     else {
-        writeByte(BLT_CTRL1,0x01);
+	writeByte(BLT_CTRL1,0x01);
     }
 
     writeWord(BLT_WIDTH0,(dim_x - 1));
     writeWord(BLT_HEIGHT0,(dim_y - 1));
-    
+
     /* set up blit registers                                                 */
     writeByte(BLT_SRC_ADDR0,srcAddr);
-    writeByte(BLT_SRC_ADDR1,srcAddr>>8); 
-    writeByte(BLT_SRC_ADDR2,srcAddr>>16); 
-    
+    writeByte(BLT_SRC_ADDR1,srcAddr>>8);
+    writeByte(BLT_SRC_ADDR2,srcAddr>>16);
+
     writeByte(BLT_DST_ADDR0,dstAddr);
-    writeByte(BLT_DST_ADDR1,dstAddr>>8); 
-    writeByte(BLT_DST_ADDR2,dstAddr>>16); 
-    
+    writeByte(BLT_DST_ADDR1,dstAddr>>8);
+    writeByte(BLT_DST_ADDR2,dstAddr>>16);
+
     /* Engage the blt engine                                                 */
     /* rectangular region for src and dst                                    */
     writeByte(BLT_CTRL0,0x80);
@@ -171,7 +171,7 @@ void video_hw_bitblt (
     Epson_wait_idle ();
 }
 /*-----------------------------------------------------------------------------
- * video_hw_rectfill -- 
+ * video_hw_rectfill --
  *-----------------------------------------------------------------------------
  */
 void video_hw_rectfill (
@@ -193,8 +193,8 @@ void video_hw_rectfill (
 
     /* set up blit registers                                                 */
     writeByte(BLT_DST_ADDR0,dstAddr);
-    writeByte(BLT_DST_ADDR1,dstAddr>>8); 
-    writeByte(BLT_DST_ADDR2,dstAddr>>16); 
+    writeByte(BLT_DST_ADDR1,dstAddr>>8);
+    writeByte(BLT_DST_ADDR2,dstAddr>>16);
 
     writeWord(BLT_WIDTH0,(dim_x - 1));
     writeWord(BLT_HEIGHT0,(dim_y - 1));
@@ -204,12 +204,12 @@ void video_hw_rectfill (
     writeWord(BLT_MEM_OFF0,stride / 2);
 
     if (pGD -> gdfIndex == GDF__8BIT_INDEX) {
-        writeByte(BLT_CTRL1,0x00);
+	writeByte(BLT_CTRL1,0x00);
     }
     else {
-        writeByte(BLT_CTRL1,0x01);
+	writeByte(BLT_CTRL1,0x01);
     }
-	
+
     /* Engage the blt engine                                                 */
     /* rectangular region for src and dst                                    */
     writeByte(BLT_CTRL0,0x80);
@@ -219,7 +219,7 @@ void video_hw_rectfill (
 }
 
 /*-----------------------------------------------------------------------------
- * video_set_lut -- 
+ * video_set_lut --
  *-----------------------------------------------------------------------------
  */
 void video_set_lut (
@@ -236,7 +236,7 @@ void video_set_lut (
 }
 #ifdef CONFIG_VIDEO_HW_CURSOR
 /*-----------------------------------------------------------------------------
- * video_set_hw_cursor -- 
+ * video_set_hw_cursor --
  *-----------------------------------------------------------------------------
  */
 void video_set_hw_cursor (int x, int y)
@@ -248,7 +248,7 @@ void video_set_hw_cursor (int x, int y)
 }
 
 /*-----------------------------------------------------------------------------
- * video_init_hw_cursor -- 
+ * video_init_hw_cursor --
  *-----------------------------------------------------------------------------
  */
 void video_init_hw_cursor (int font_width, int font_height)
@@ -256,47 +256,47 @@ void video_init_hw_cursor (int font_width, int font_height)
     volatile unsigned char *ptr;
     unsigned char pattern;
     int i;
-    
+
 
     /* Init cursor content
        Cursor size is 64x64 pixels
        Start of the cursor memory depends on panel type (dual panel ...)     */
     if ((i = readByte (LCD_CURSOR_START)) == 0) {
-        ptr = (unsigned char *)(sed13806.frameAdrs + DEFAULT_VIDEO_MEMORY_SIZE - HWCURSORSIZE);
+	ptr = (unsigned char *)(sed13806.frameAdrs + DEFAULT_VIDEO_MEMORY_SIZE - HWCURSORSIZE);
     }
     else {
-        ptr = (unsigned char *)(sed13806.frameAdrs + DEFAULT_VIDEO_MEMORY_SIZE - (i * 8192));
+	ptr = (unsigned char *)(sed13806.frameAdrs + DEFAULT_VIDEO_MEMORY_SIZE - (i * 8192));
     }
 
     /* Fill the first line and the first empty line after cursor             */
     for (i = 0, pattern = 0; i < 64; i++) {
-        if (i < font_width) {
-            /* Invert background                                             */
-            pattern |= 0x3;
-            
-        }
-        else {
-            /* Background                                                    */
-            pattern |= 0x2;
-        }
-        if ((i & 3) == 3) {
-            *ptr = pattern;
-            *(ptr + font_height * 16) = 0xaa;
-            ptr ++;
-            pattern = 0;
-        }
-        pattern <<= 2;
+	if (i < font_width) {
+	    /* Invert background                                             */
+	    pattern |= 0x3;
+
+	}
+	else {
+	    /* Background                                                    */
+	    pattern |= 0x2;
+	}
+	if ((i & 3) == 3) {
+	    *ptr = pattern;
+	    *(ptr + font_height * 16) = 0xaa;
+	    ptr ++;
+	    pattern = 0;
+	}
+	pattern <<= 2;
     }
 
     /* Duplicate this line                                                   */
     for (i = 1; i < font_height; i++) {
-        memcpy ((void *)ptr, (void *)(ptr - 16), 16);
-        ptr += 16;
+	memcpy ((void *)ptr, (void *)(ptr - 16), 16);
+	ptr += 16;
     }
-    
+
     for (; i < 64; i++) {
-        memcpy ((void *)(ptr + 16), (void *)ptr, 16);
-        ptr += 16;
+	memcpy ((void *)(ptr + 16), (void *)ptr, 16);
+	ptr += 16;
     }
 
     /* Select cursor mode                                                    */

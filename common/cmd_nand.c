@@ -98,7 +98,7 @@ int do_nand (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	printf ("Usage:\n%s\n", cmdtp->usage);
 	return 1;
     case 2:
-        if (strcmp(argv[1],"info") == 0) {
+	if (strcmp(argv[1],"info") == 0) {
 		int i;
 
 		putc ('\n');
@@ -376,7 +376,7 @@ int check_block(struct nand_chip* nand, unsigned long pos)
 
 	return 0;
 }
-	
+
 /* print bad blocks in NAND flash */
 static void nand_print_bad(struct nand_chip* nand)
 {
@@ -473,7 +473,7 @@ static void nand_print(struct nand_chip *nand)
 		       nand->totlen >> 20, nand->erasesize >> 10);
 	}
 	else {
-		printf("%s at 0x%lx (", nand->chips_name, nand->IO_ADDR); 
+		printf("%s at 0x%lx (", nand->chips_name, nand->IO_ADDR);
 		print_size(nand->totlen, ", ");
 		print_size(nand->erasesize, " sector)\n");
 	}
@@ -599,7 +599,7 @@ static int NanD_IdentChip(struct nand_chip *nand, int floor, int chip)
 
 	id = READ_NAND(nand->IO_ADDR);
 
-        NAND_DISABLE_CE(nand);  /* set pin high */
+	NAND_DISABLE_CE(nand);  /* set pin high */
 	/* No response - return failure */
 	if (mfr == 0xff || mfr == 0) {
 		printf("NanD_Command (ReadID) got %d %d\n", mfr, id);
@@ -806,7 +806,7 @@ static int nand_read_ecc(struct nand_chip *nand, size_t start, size_t len,
 			goto readdata;
 		/* Send the read command */
 		NanD_Command(nand, NAND_CMD_READ0);
-                NanD_Address(nand, ADDR_COLUMN_PAGE, (page << nand->page_shift) + col);
+		NanD_Address(nand, ADDR_COLUMN_PAGE, (page << nand->page_shift) + col);
 		/* Read in a page + oob data */
 		NanD_ReadBuf(nand, nand->data_buf, nand->oobblock + nand->oobsize);
 
@@ -873,7 +873,7 @@ readdata:
 #else
 		/* Send the read command */
 		NanD_Command(nand, NAND_CMD_READ0);
-                NanD_Address(nand, ADDR_COLUMN_PAGE, (page << nand->page_shift) + col);
+		NanD_Address(nand, ADDR_COLUMN_PAGE, (page << nand->page_shift) + col);
 		/* Read the data directly into the return buffer */
 		if ((*retlen + (nand->oobblock - col)) >= len) {
 			NanD_ReadBuf(nand, buf + *retlen, len - *retlen);
@@ -1136,11 +1136,11 @@ static int nand_read_oob(struct nand_chip* nand, size_t ofs, size_t len,
 
 	*retlen = len;
 	/* Reading the full OOB data drops us off of the end of the page,
-         * causing the flash device to go into busy mode, so we need
-         * to wait until ready 11.4.1 and Toshiba TC58256FT nands */
+	 * causing the flash device to go into busy mode, so we need
+	 * to wait until ready 11.4.1 and Toshiba TC58256FT nands */
 
 	ret = NanD_WaitReady(nand);
-        NAND_DISABLE_CE(nand);  /* set pin high */
+	NAND_DISABLE_CE(nand);  /* set pin high */
 
 	return ret;
 
@@ -1244,7 +1244,7 @@ static int nand_erase(struct nand_chip* nand, size_t ofs, size_t len, int clean)
 
 	if (ofs & (nand->erasesize-1) || len & (nand->erasesize-1)) {
 		printf ("Offset and size must be sector aligned, erasesize = %d\n",
-                        (int) nand->erasesize);
+			(int) nand->erasesize);
 		return -1;
 	}
 

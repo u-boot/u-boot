@@ -48,7 +48,7 @@ typedef struct menu_s
  * Text:
  *   A single line/limited number of characters text entry box. Text can be restricted
  *   to a certain charset (digits/hex digits/all/custom). Result is also available as an
- *   int if numeric. 
+ *   int if numeric.
  *
  * Selection:
  *   One-of-many type of selection entry. User may choose on of a set of strings, which
@@ -122,7 +122,7 @@ typedef struct menu_select_s
 
     int num_options;             /* Number of mappings */
     menu_select_option_t **options;
-                                 /* Option list array */
+				 /* Option list array */
 } menu_select_t;
 
 
@@ -133,10 +133,10 @@ typedef struct menu_routine_s
 {
     OPTION_PREAMBLE
     menu_routine_callback callback;
-                                 /* routine to be called */ 
+				 /* routine to be called */
     void *user_data;             /* User data, don't care for system */
 } menu_routine_t;
-    
+
 
 #define MENU_CUSTOM_TYPE 5
 typedef void (*menu_custom_draw)(struct menu_custom_s *);

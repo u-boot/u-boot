@@ -103,11 +103,10 @@ void dev_print (block_dev_desc_t *dev_desc)
 }
 
 
-
 #if defined(CONFIG_MAC_PARTITION) || \
     defined(CONFIG_DOS_PARTITION) || \
     defined(CONFIG_ISO_PARTITION) || \
-    defined(CONFIG_AMIGA_PARTITION) 
+    defined(CONFIG_AMIGA_PARTITION)
 
 void init_part (block_dev_desc_t * dev_desc)
 {

@@ -37,7 +37,7 @@
 #define CONFIG_SC520		1	/* Include support for AMD SC520 */
 #define CONFIG_ALI152X		1	/* Include support for Ali 152x SIO */
 
-#define CFG_SDRAM_PRECHARGE_DELAY 6     /* 6T */	
+#define CFG_SDRAM_PRECHARGE_DELAY 6     /* 6T */
 #define CFG_SDRAM_REFRESH_RATE    78    /* 7.8uS (choices are 7.8, 15.6, 31.2 or 62.5uS) */
 #define CFG_SDRAM_RAS_CAS_DELAY   3     /* 3T */
 
@@ -123,7 +123,7 @@
 #define CFG_FLASH_WRITE_TOUT	(2*CFG_HZ) /* Timeout for Flash Write */
 
 #define CONFIG_SPI_EEPROM      /* Support for SPI EEPROMs (AT25128) */
-#define CONFIG_MW_EEPROM       /* Support for MicroWire EEPROMs (AT93LC46) */ 
+#define CONFIG_MW_EEPROM       /* Support for MicroWire EEPROMs (AT93LC46) */
 
 
 /* allow to overwrite serial and ethaddr */
@@ -134,7 +134,7 @@
 #define CFG_ENV_IS_IN_EEPROM   1
 #define CONFIG_SPI
 #define CFG_ENV_SIZE	       0x4000	/* Total Size of Environment EEPROM 16k is SPI is used or 128 bytes if MW is used*/
-#define CFG_ENV_OFFSET         0      
+#define CFG_ENV_OFFSET         0
 #define CONFIG_SC520_CDP_USE_SPI  /* Store configuration in the SPI part */
 #undef CONFIG_SC520_CDP_USE_MW    /* Store configuration in the MicroWire part */
 #define CONFIG_SPI_X 1
@@ -157,7 +157,7 @@
 #define CFG_IDE_MAXDEVICE	(CFG_IDE_MAXBUS*2) /* max. 2 drives per IDE bus */
 
 #define CFG_ATA_IDE0_OFFSET	0x01F0	/* ide0 offste */
-//#define CFG_ATA_IDE1_OFFSET	0x0170	/* ide1 offset */
+/*#define CFG_ATA_IDE1_OFFSET	0x0170	/###* ide1 offset */
 #define CFG_ATA_DATA_OFFSET	0	/* data reg offset	*/
 #define CFG_ATA_REG_OFFSET	0	/* reg offset */
 #define CFG_ATA_ALT_OFFSET	0x200	/* alternate register offset */
@@ -187,7 +187,6 @@
 #define CFG_ISA_IO 0
 
 
-
 /************************************************************
  * RTC
  ***********************************************************/
@@ -202,9 +201,8 @@
 #define CONFIG_PCI_SCAN_SHOW
 
 #define	CFG_FIRST_PCI_IRQ   10
-#define	CFG_SECOND_PCI_IRQ  9 
-#define CFG_THIRD_PCI_IRQ   11 
+#define	CFG_SECOND_PCI_IRQ  9
+#define CFG_THIRD_PCI_IRQ   11
 #define	CFG_FORTH_PCI_IRQ   15
-
 
 #endif	/* __CONFIG_H */

@@ -49,56 +49,56 @@
 
 static unsigned char video_encoder_data[] = {
 #ifdef VIDEO_MODE_NTSC
-    				        0x04, /* Mode Register 0	*/
+					0x04, /* Mode Register 0	*/
 #ifdef VIDEO_DEBUG_COLORBARS
 					0x82,
 #else
-	                                0x02, /* Mode Register 1	*/
+					0x02, /* Mode Register 1	*/
 #endif
-                                        0x16, /* Subcarrier Freq 0	*/
-                                        0x7c, /* Subcarrier Freq 1	*/
-                            		0xf0, /* Subcarrier Freq 2	*/
-                                        0x21, /* Subcarrier Freq 3	*/
-                                        0x00, /* Subcarrier phase	*/
-                                        0x02, /* Timing Register 0	*/
-                                	0x00, /* Extended Captioning 0	*/
-                                        0x00, /* Extended Captioning 1	*/
-                                        0x00, /* Closed Captioning 0	*/
-                                	0x00, /* Closed Captioning 1	*/
-                                        0x00, /* Timing Register 1	*/
-                                        0x08, /* Mode Register 2	*/
-                                	0x00, /* Pedestal Register 0	*/
-                                        0x00, /* Pedestal Register 1	*/
-                                        0x00, /* Pedestal Register 2	*/
-                                        0x00, /* Pedestal Register 3	*/
-                                        0x00  /* Mode Register 3	*/
+					0x16, /* Subcarrier Freq 0	*/
+					0x7c, /* Subcarrier Freq 1	*/
+					0xf0, /* Subcarrier Freq 2	*/
+					0x21, /* Subcarrier Freq 3	*/
+					0x00, /* Subcarrier phase	*/
+					0x02, /* Timing Register 0	*/
+					0x00, /* Extended Captioning 0	*/
+					0x00, /* Extended Captioning 1	*/
+					0x00, /* Closed Captioning 0	*/
+					0x00, /* Closed Captioning 1	*/
+					0x00, /* Timing Register 1	*/
+					0x08, /* Mode Register 2	*/
+					0x00, /* Pedestal Register 0	*/
+					0x00, /* Pedestal Register 1	*/
+					0x00, /* Pedestal Register 2	*/
+					0x00, /* Pedestal Register 3	*/
+					0x00  /* Mode Register 3	*/
 
 #endif	/* VIDEO_MODE_NTSC */
 
 #ifdef VIDEO_MODE_PAL
-    				        0x05, /* Mode Register 0	*/
+					0x05, /* Mode Register 0	*/
 #ifdef VIDEO_DEBUG_COLORBARS
 					0x82,
 #else
-	                                0x02, /* Mode Register 1 (2)	*/
+					0x02, /* Mode Register 1 (2)	*/
 #endif
-                                        0xcb, /* Subcarrier Freq 0	*/
-                                        0x8a, /* Subcarrier Freq 1	*/
-                                        0x09, /* Subcarrier Freq 2	*/
-                                        0x2a, /* Subcarrier Freq 3	*/
-                                        0x00, /* Subcarrier phase	*/
-                                        0x0a, /* Timing Register 0 (a)	*/
-                                        0x00, /* Extended Captioning 0	*/
-                                        0x00, /* Extended Captioning 1	*/
-                                        0x00, /* Closed Captioning 0	*/
-                                        0x00, /* Closed Captioning 1	*/
-                                        0x00, /* Timing Register 1	*/
-                                        0x08, /* Mode Register 2 (8)	*/
-                                        0x00, /* Pedestal Register 0	*/
-                                        0x00, /* Pedestal Register 1	*/
-                                        0x00, /* Pedestal Register 2	*/
-                                        0x00, /* Pedestal Register 3	*/
-                                        0x00  /* Mode Register 3	*/
+					0xcb, /* Subcarrier Freq 0	*/
+					0x8a, /* Subcarrier Freq 1	*/
+					0x09, /* Subcarrier Freq 2	*/
+					0x2a, /* Subcarrier Freq 3	*/
+					0x00, /* Subcarrier phase	*/
+					0x0a, /* Timing Register 0 (a)	*/
+					0x00, /* Extended Captioning 0	*/
+					0x00, /* Extended Captioning 1	*/
+					0x00, /* Closed Captioning 0	*/
+					0x00, /* Closed Captioning 1	*/
+					0x00, /* Timing Register 1	*/
+					0x08, /* Mode Register 2 (8)	*/
+					0x00, /* Pedestal Register 0	*/
+					0x00, /* Pedestal Register 1	*/
+					0x00, /* Pedestal Register 2	*/
+					0x00, /* Pedestal Register 3	*/
+					0x00  /* Mode Register 3	*/
 #endif	/* VIDEO_MODE_PAL */
 } ;
 

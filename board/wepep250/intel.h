@@ -97,4 +97,3 @@
 #define	CFI_CHIPN_INTEL_28F256K18		"28F256K18"
 
 #endif /* FLASH_INTEL_H */
-

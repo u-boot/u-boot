@@ -106,49 +106,49 @@ int getcmdopt(
     char    *formatchar;
 
     if (argc > nextargv) {
-        if (nextchar == NULL) {
-            nextchar = argv[nextargv];      /* Index next argument      */
-            if (nextchar == NULL) {
-                nextargv++;
-                return ALLDONE;             /* No more options          */
-                }
-            if (IS_NOT_SWITCH_CHAR(*nextchar)) {
-                nextchar = NULL;
-                return PARAMETER;           /* We have a parameter      */
-                }
-            nextchar++;                     /* Move past switch operator */
-            if (IS_SWITCH_CHAR(*nextchar)) {
-                nextchar = NULL;
-                return INVALID;             /* Ignore rest of line      */
-                }
-            }
-        if ((ch = *(nextchar++)) == 0) {
-            nextchar = NULL;
-            return INVALID;                 /* No options on line       */
-            }
+	if (nextchar == NULL) {
+	    nextchar = argv[nextargv];      /* Index next argument      */
+	    if (nextchar == NULL) {
+		nextargv++;
+		return ALLDONE;             /* No more options          */
+		}
+	    if (IS_NOT_SWITCH_CHAR(*nextchar)) {
+		nextchar = NULL;
+		return PARAMETER;           /* We have a parameter      */
+		}
+	    nextchar++;                     /* Move past switch operator */
+	    if (IS_SWITCH_CHAR(*nextchar)) {
+		nextchar = NULL;
+		return INVALID;             /* Ignore rest of line      */
+		}
+	    }
+	if ((ch = *(nextchar++)) == 0) {
+	    nextchar = NULL;
+	    return INVALID;                 /* No options on line       */
+	    }
 
-        if (ch == ':' ||  (formatchar = strchr(format, ch)) == NULL)
-            return INVALID;
+	if (ch == ':' ||  (formatchar = strchr(format, ch)) == NULL)
+	    return INVALID;
 
-        if (*(++formatchar) == ':') {   /* Expect an argument after option */
-            nextargv++;
-            if (*nextchar == 0) {
-                if (argc <= nextargv)
-                    return INVALID;
-                nextchar = argv[nextargv++];
-                }
-            *argument = nextchar;
-            nextchar = NULL;
-            }
-        else {                      /* We have a switch style option    */
-            if (*nextchar == 0) {
-                nextargv++;
-                nextchar = NULL;
-                }
-            *argument = NULL;
-            }
-        return ch;                  /* return the option specifier      */
-        }
+	if (*(++formatchar) == ':') {   /* Expect an argument after option */
+	    nextargv++;
+	    if (*nextchar == 0) {
+		if (argc <= nextargv)
+		    return INVALID;
+		nextchar = argv[nextargv++];
+		}
+	    *argument = nextchar;
+	    nextchar = NULL;
+	    }
+	else {                      /* We have a switch style option    */
+	    if (*nextchar == 0) {
+		nextargv++;
+		nextchar = NULL;
+		}
+	    *argument = NULL;
+	    }
+	return ch;                  /* return the option specifier      */
+	}
     nextchar = NULL;
     nextargv++;
     return ALLDONE;                 /* no arguments on command line     */
@@ -174,51 +174,51 @@ static int parse_option(
     int     num_read;
 
     switch ((int)(optarr->type)) {
-        case OPT_INTEGER:
-            num_read = sscanf(argument,"%d",(int*)optarr->arg);
-            break;
-        case OPT_HEX:
-            num_read = sscanf(argument,"%x",(int*)optarr->arg);
-            break;
-        case OPT_OCTAL:
-            num_read = sscanf(argument,"%o",(int*)optarr->arg);
-            break;
-        case OPT_UNSIGNED:
-            num_read = sscanf(argument,"%u",(uint*)optarr->arg);
-            break;
-        case OPT_LINTEGER:
-            num_read = sscanf(argument,"%ld",(long*)optarr->arg);
-            break;
-        case OPT_LHEX:
-            num_read = sscanf(argument,"%lx",(long*)optarr->arg);
-            break;
-        case OPT_LOCTAL:
-            num_read = sscanf(argument,"%lo",(long*)optarr->arg);
-            break;
-        case OPT_LUNSIGNED:
-            num_read = sscanf(argument,"%lu",(ulong*)optarr->arg);
-            break;
-        case OPT_FLOAT:
-            num_read = sscanf(argument,"%f",(float*)optarr->arg);
-            break;
-        case OPT_DOUBLE:
-            num_read = sscanf(argument,"%lf",(double*)optarr->arg);
-            break;
-        case OPT_LDOUBLE:
-            num_read = sscanf(argument,"%Lf",(long double*)optarr->arg);
-            break;
-        case OPT_STRING:
-            num_read = 1;           /* This always works    */
-            *((char**)optarr->arg) = argument;
-            break;
-        default:
-            return INVALID;
-        }
+	case OPT_INTEGER:
+	    num_read = sscanf(argument,"%d",(int*)optarr->arg);
+	    break;
+	case OPT_HEX:
+	    num_read = sscanf(argument,"%x",(int*)optarr->arg);
+	    break;
+	case OPT_OCTAL:
+	    num_read = sscanf(argument,"%o",(int*)optarr->arg);
+	    break;
+	case OPT_UNSIGNED:
+	    num_read = sscanf(argument,"%u",(uint*)optarr->arg);
+	    break;
+	case OPT_LINTEGER:
+	    num_read = sscanf(argument,"%ld",(long*)optarr->arg);
+	    break;
+	case OPT_LHEX:
+	    num_read = sscanf(argument,"%lx",(long*)optarr->arg);
+	    break;
+	case OPT_LOCTAL:
+	    num_read = sscanf(argument,"%lo",(long*)optarr->arg);
+	    break;
+	case OPT_LUNSIGNED:
+	    num_read = sscanf(argument,"%lu",(ulong*)optarr->arg);
+	    break;
+	case OPT_FLOAT:
+	    num_read = sscanf(argument,"%f",(float*)optarr->arg);
+	    break;
+	case OPT_DOUBLE:
+	    num_read = sscanf(argument,"%lf",(double*)optarr->arg);
+	    break;
+	case OPT_LDOUBLE:
+	    num_read = sscanf(argument,"%Lf",(long double*)optarr->arg);
+	    break;
+	case OPT_STRING:
+	    num_read = 1;           /* This always works    */
+	    *((char**)optarr->arg) = argument;
+	    break;
+	default:
+	    return INVALID;
+	}
 
     if (num_read == 0)
-        return INVALID;
+	return INVALID;
     else
-        return ALLDONE;
+	return ALLDONE;
 }
 
 /****************************************************************************
@@ -261,8 +261,8 @@ int getargs(
     int num_opt,
     Option optarr[],
     int (*do_param)(
-        char *param,
-        int num))
+	char *param,
+	int num))
 {
     int     i,opt;
     char    *argument;
@@ -273,51 +273,51 @@ int getargs(
 
     strcpy(cmdstr,"hH?");
     for (i = 0,opt = 3; i < num_opt; i++,opt++) {
-        cmdstr[opt] = optarr[i].opt;
-        if (optarr[i].type != OPT_SWITCH) {
-            cmdstr[++opt] = ':';
-            }
-        }
+	cmdstr[opt] = optarr[i].opt;
+	if (optarr[i].type != OPT_SWITCH) {
+	    cmdstr[++opt] = ':';
+	    }
+	}
     cmdstr[opt] = '\0';
 
     for (;;) {
-        opt = getcmdopt(argc,argv,cmdstr,&argument);
-        switch (opt) {
-            case 'H':
-            case 'h':
-            case '?':
-                return HELP;
-            case ALLDONE:
-                return ALLDONE;
-            case INVALID:
-                return INVALID;
-            case PARAMETER:
-                if (do_param == NULL)
-                    return INVALID;
-                if (do_param(argv[nextargv],param_num) == INVALID)
-                    return INVALID;
-                nextargv++;
-                param_num++;
-                break;
-            default:
+	opt = getcmdopt(argc,argv,cmdstr,&argument);
+	switch (opt) {
+	    case 'H':
+	    case 'h':
+	    case '?':
+		return HELP;
+	    case ALLDONE:
+		return ALLDONE;
+	    case INVALID:
+		return INVALID;
+	    case PARAMETER:
+		if (do_param == NULL)
+		    return INVALID;
+		if (do_param(argv[nextargv],param_num) == INVALID)
+		    return INVALID;
+		nextargv++;
+		param_num++;
+		break;
+	    default:
 
-                /* Search for the option in the option array. We are
-                 * guaranteed to find it.
-                 */
+		/* Search for the option in the option array. We are
+		 * guaranteed to find it.
+		 */
 
-                for (i = 0; i < num_opt; i++) {
-                    if (optarr[i].opt == opt)
-                        break;
-                    }
-                if (optarr[i].type == OPT_SWITCH)
-                    *((ibool*)optarr[i].arg) = true;
-                else {
-                    if (parse_option(&optarr[i],argument) == INVALID)
-                        return INVALID;
-                    }
-                break;
-            }
-        }
+		for (i = 0; i < num_opt; i++) {
+		    if (optarr[i].opt == opt)
+			break;
+		    }
+		if (optarr[i].type == OPT_SWITCH)
+		    *((ibool*)optarr[i].arg) = true;
+		else {
+		    if (parse_option(&optarr[i],argument) == INVALID)
+			return INVALID;
+		    }
+		break;
+	    }
+	}
 }
 
 /****************************************************************************
@@ -340,11 +340,11 @@ void print_desc(
     int     i;
 
     for (i = 0; i < num_opt; i++) {
-        if (optarr[i].type == OPT_SWITCH)
-            printf("  -%c       %s\n",optarr[i].opt,optarr[i].desc);
-        else
-            printf("  -%c<arg>  %s\n",optarr[i].opt,optarr[i].desc);
-        }
+	if (optarr[i].type == OPT_SWITCH)
+	    printf("  -%c       %s\n",optarr[i].opt,optarr[i].desc);
+	else
+	    printf("  -%c<arg>  %s\n",optarr[i].opt,optarr[i].desc);
+	}
 }
 
 /****************************************************************************
@@ -382,45 +382,45 @@ int parse_commandline(
     argv[argc++] = filename;
     cmdLine = strncpy(str, cmdLine, sizeof(str)-1);
     while (*cmdLine) {
-        switch (*cmdLine) {
-            case '"' :
-                if (prevWord != NULL) {
-                    if (inQuote) {
-                        if (!noStrip)
-                            *cmdLine = '\0';
-                        argv [argc++] = prevWord;
-                        prevWord = NULL;
-                        }
-                    else
-                        noStrip = TRUE;
-                    }
-                inQuote = !inQuote;
-                break;
-            case ' ' :
-            case '\t' :
-                if (!inQuote) {
-                    if (prevWord != NULL) {
-                        *cmdLine = '\0';
-                        argv [argc++] = prevWord;
-                        prevWord = NULL;
-                        noStrip = FALSE;
-                        }
-                    }
-                break;
-            default :
-                if (prevWord == NULL)
-                    prevWord = cmdLine;
-                break;
-                }
-        if (argc >= maxArgv - 1)
-            break;
-        cmdLine++;
-        }
+	switch (*cmdLine) {
+	    case '"' :
+		if (prevWord != NULL) {
+		    if (inQuote) {
+			if (!noStrip)
+			    *cmdLine = '\0';
+			argv [argc++] = prevWord;
+			prevWord = NULL;
+			}
+		    else
+			noStrip = TRUE;
+		    }
+		inQuote = !inQuote;
+		break;
+	    case ' ' :
+	    case '\t' :
+		if (!inQuote) {
+		    if (prevWord != NULL) {
+			*cmdLine = '\0';
+			argv [argc++] = prevWord;
+			prevWord = NULL;
+			noStrip = FALSE;
+			}
+		    }
+		break;
+	    default :
+		if (prevWord == NULL)
+		    prevWord = cmdLine;
+		break;
+		}
+	if (argc >= maxArgv - 1)
+	    break;
+	cmdLine++;
+	}
 
     if ((prevWord != NULL || (inQuote && prevWord != NULL)) && argc < maxArgv - 1) {
-        *cmdLine = '\0';
-        argv [argc++] = prevWord;
-        }
+	*cmdLine = '\0';
+	argv [argc++] = prevWord;
+	}
     argv[argc] = NULL;
 
     /* Return updated parameters */

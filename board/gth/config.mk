@@ -38,4 +38,3 @@ endif
 endif
 
 OBJCFLAGS =	--set-section-flags=.ppcenv=contents,alloc,load,data
-

@@ -118,7 +118,7 @@ static void srom_address(u_int command, u_long addr, u_char offset)
     a = (char)(offset << 2);
     for (i=0; i<6; i++, a <<= 1)
     {
-        srom_latch(command | ((a < 0) ? DT_IN : 0), addr);
+	srom_latch(command | ((a < 0) ? DT_IN : 0), addr);
     }
     udelay(1);
 
@@ -136,11 +136,11 @@ static short srom_data_rd (u_int command, u_long addr)
 
     for (i=0; i<16; i++)
     {
-        sendto_srom(command  | DT_CLK, addr);
-        tmp = getfrom_srom(addr);
-        sendto_srom(command, addr);
+	sendto_srom(command  | DT_CLK, addr);
+	tmp = getfrom_srom(addr);
+	sendto_srom(command, addr);
 
-        word = (word << 1) | ((tmp >> 3) & 0x01);
+	word = (word << 1) | ((tmp >> 3) & 0x01);
     }
 
     sendto_srom(command & 0x0000ff00, addr);
@@ -160,13 +160,13 @@ static int srom_data_wr (u_int command, u_long addr, short val)
 
     for (i=0; i<16; i++)
     {
-        tmp = (longVal & 0x8000)>>13;
+	tmp = (longVal & 0x8000)>>13;
 
-        sendto_srom (tmp | command, addr);
-        sendto_srom (tmp | command  | DT_CLK, addr);
-        sendto_srom (tmp | command, addr);
+	sendto_srom (tmp | command, addr);
+	sendto_srom (tmp | command  | DT_CLK, addr);
+	sendto_srom (tmp | command, addr);
 
-        longVal = longVal<<1;
+	longVal = longVal<<1;
     }
 
     sendto_srom(command & 0x0000ff00, addr);
@@ -175,15 +175,15 @@ static int srom_data_wr (u_int command, u_long addr, short val)
     tmp = 100;
     do
     {
-        if ((getfrom_srom(dc_srom_iobase) & 0x8) == 0x8)
-            break;
-        udelay(1000);
+	if ((getfrom_srom(dc_srom_iobase) & 0x8) == 0x8)
+	    break;
+	udelay(1000);
     } while (--tmp);
 
     if (tmp == 0)
     {
-        printf("Write DEC21143 SRom timed out !\n");
-        return (-1);
+	printf("Write DEC21143 SRom timed out !\n");
+	return (-1);
     }
 
     return 0;
@@ -218,7 +218,7 @@ static void srom_wr_enable (u_long addr)
 
     for (i=0; i<6; i++)
     {
-        srom_latch (SROM_WR | SROM_SR | DT_IN | DT_CS, addr);
+	srom_latch (SROM_WR | SROM_SR | DT_IN | DT_CS, addr);
     }
 }
 
@@ -256,8 +256,8 @@ int dc_srom_load (u_short *dest)
     memset (dest, 0, 128);
     for (offset=0; offset<64; offset++)
     {
-        tmp = srom_rd (dc_srom_iobase, offset);
-        *dest++ = le16_to_cpu(tmp);
+	tmp = srom_rd (dc_srom_iobase, offset);
+	*dest++ = le16_to_cpu(tmp);
     }
 
     return (0);
@@ -280,9 +280,9 @@ int dc_srom_store (u_short *src)
 
     for (offset=0; offset<64; offset++)
     {
-        if (srom_wr (dc_srom_iobase, offset, *src) == -1)
-                return (-1);
-        src++;
+	if (srom_wr (dc_srom_iobase, offset, *src) == -1)
+		return (-1);
+	src++;
     }
 
     return (0);

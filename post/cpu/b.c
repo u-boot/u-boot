@@ -84,8 +84,8 @@ static int cpu_post_test_bc (ulong cmd, ulong bo, ulong bi,
     }
     if (ret == 0)
     {
-    	if (link)
-            ret = lr == (ulong) code + 24 ? 0 : -1;
+	if (link)
+	    ret = lr == (ulong) code + 24 ? 0 : -1;
 	else
 	    ret = lr == 0 ? 0 : -1;
     }
@@ -100,7 +100,7 @@ int cpu_post_test_b (void)
 
     if (ret == 0)
     {
-    	ulong code[] =
+	ulong code[] =
 	{
 	   ASM_MFLR(4),
 	   ASM_MTLR(3),
@@ -115,15 +115,15 @@ int cpu_post_test_b (void)
 
 	ret = res == 0 ? 0 : -1;
 
-    	if (ret != 0)
-    	{
-            post_log ("Error at b1 test !\n");
-    	}
+	if (ret != 0)
+	{
+	    post_log ("Error at b1 test !\n");
+	}
     }
 
     if (ret == 0)
     {
-    	ulong code[] =
+	ulong code[] =
 	{
 	   ASM_MFLR(4),
 	   ASM_MTLR(3),
@@ -138,15 +138,15 @@ int cpu_post_test_b (void)
 
 	ret = res == (ulong)code + 12 ? 0 : -1;
 
-    	if (ret != 0)
-    	{
-            post_log ("Error at b2 test !\n");
-    	}
+	if (ret != 0)
+	{
+	    post_log ("Error at b2 test !\n");
+	}
     }
 
     if (ret == 0)
     {
-        ulong cc, cd;
+	ulong cc, cd;
 	int cond;
 	ulong ctr;
 	int link;
@@ -157,30 +157,30 @@ int cpu_post_test_b (void)
 	{
 	    for (cd = 0; cd < 4 && ret == 0; cd++)
 	    {
-	        for (link = 0; link <= 1 && ret == 0; link++)
+		for (link = 0; link <= 1 && ret == 0; link++)
 		{
 		    for (cond = 0; cond <= 1 && ret == 0; cond++)
 		    {
-		        for (ctr = 1; ctr <= 2 && ret == 0; ctr++)
+			for (ctr = 1; ctr <= 2 && ret == 0; ctr++)
 			{
 			    int dec = cd < 2;
 			    int cr = cond ? 0x80000000 : 0x00000000;
 			    int jumpc = cc >= 2 ||
-			                (cc == 0 && !cond) ||
-    			    		(cc == 1 && cond);
+					(cc == 0 && !cond) ||
+					(cc == 1 && cond);
 			    int jumpd = cd >= 2 ||
-			                (cd == 0 && ctr != 1) ||
-    			    		(cd == 1 && ctr == 1);
+					(cd == 0 && ctr != 1) ||
+					(cd == 1 && ctr == 1);
 			    int jump = jumpc && jumpd;
 
 			    ret = cpu_post_test_bc (link ? OP_BCL : OP_BC,
-			        (cc << 3) + (cd << 1), 0, jump, dec, link,
+				(cc << 3) + (cd << 1), 0, jump, dec, link,
 				ctr, cr);
 
-		    	    if (ret != 0)
-		    	    {
-		                post_log ("Error at b3 test %d !\n", i);
-		            }
+			    if (ret != 0)
+			    {
+				post_log ("Error at b3 test %d !\n", i);
+			    }
 
 			    i++;
 			}

@@ -45,14 +45,14 @@
 #define DMA_WRITE_REG(reg, value) *((volatile u32 *)reg) = (u32)value;
 #define DMA_READ_REG(reg, value)    value = (u32)*((volatile u32*)reg)
 #define SW_WRITE_REG(reg, value)   \
-         *((volatile u32*)reg) = (u32)value;\
-         DELAY;\
-         *((volatile u32*)reg) = (u32)value;
+	 *((volatile u32*)reg) = (u32)value;\
+	 DELAY;\
+	 *((volatile u32*)reg) = (u32)value;
 
 #define SW_READ_REG(reg, value)    \
-         value = (u32)*((volatile u32*)reg);\
-         DELAY;\
-         value = (u32)*((volatile u32*)reg);
+	 value = (u32)*((volatile u32*)reg);\
+	 DELAY;\
+	 value = (u32)*((volatile u32*)reg);
 
 #define INCA_DMA_TX_POLLING_TIME       0x07
 #define INCA_DMA_RX_POLLING_TIME       0x07
@@ -149,7 +149,6 @@ static int inca_switch_recv(struct eth_device *dev);
 static void inca_switch_halt(struct eth_device *dev);
 static void inca_init_switch_chip(void);
 static void inca_dma_init(void);
-
 
 
 int inca_switch_initialize(bd_t * bis)
@@ -293,7 +292,7 @@ static int inca_switch_init(struct eth_device *dev, bd_t * bis)
 		/* Writing to the COMMAND REG.
 		 */
 	DMA_WRITE_REG(INCA_IP_DMA_DMA_RXCCR0,
-	              INCA_IP_DMA_DMA_RXCCR0_INIT);
+		      INCA_IP_DMA_DMA_RXCCR0_INIT);
 
 		/* Initialize TxDMA.
 		 */
@@ -316,9 +315,9 @@ static int inca_switch_init(struct eth_device *dev, bd_t * bis)
 #endif
 	   /* enable spanning tree forwarding, enable the CPU port */
 	   /* ST_PT:
-	         CPS (CPU port status)   0x3 (forwarding)
-	         LPS (LAN port status)   0x3 (forwarding)
-	         PPS (PC port status)    0x3 (forwarding)
+		 CPS (CPU port status)   0x3 (forwarding)
+		 LPS (LAN port status)   0x3 (forwarding)
+		 PPS (PC port status)    0x3 (forwarding)
 	   */
 	SW_WRITE_REG(INCA_IP_Switch_ST_PT,0x3f);
 
@@ -348,7 +347,7 @@ static int inca_switch_send(struct eth_device *dev, volatile void *packet,
 		printf ("%s: bad packet size: %d\n", dev->name, length);
 		goto Done;
 	}
-	
+
 	for(i = 0; tx_desc->C == 0; i++)
 	{
 		if (i >= TOUT_LOOP)
@@ -365,7 +364,7 @@ static int inca_switch_send(struct eth_device *dev, volatile void *packet,
 	tx_old_hold = tx_hold;
 
 	tx_desc->params.word =
-	                (INCA_DMA_TX_SOP | INCA_DMA_TX_EOP | INCA_DMA_TX_HOLD);
+			(INCA_DMA_TX_SOP | INCA_DMA_TX_EOP | INCA_DMA_TX_HOLD);
 
 	tx_desc->C = 0;
 	tx_desc->TxDataPtr = (u32)packet;
@@ -386,7 +385,7 @@ static int inca_switch_send(struct eth_device *dev, volatile void *packet,
 	{
 		command = INCA_IP_DMA_DMA_TXCCR0_HR;
 	}
-	
+
 	DMA_READ_REG(INCA_IP_DMA_DMA_TXCCR0, regValue);
 	regValue |= command;
 #if 0
@@ -443,7 +442,7 @@ static int inca_switch_recv(struct eth_device *dev)
 
 		length = rx_desc->status.field.NBT;
 		rx_desc->status.word &=
-		         ~(INCA_DMA_RX_EOP | INCA_DMA_RX_SOP | INCA_DMA_RX_C);
+			 ~(INCA_DMA_RX_EOP | INCA_DMA_RX_SOP | INCA_DMA_RX_C);
 #if 0
 {
   int i;
@@ -461,7 +460,7 @@ static int inca_switch_recv(struct eth_device *dev)
 			printf("Received %d bytes\n", length);
 #endif
 			NetReceive((void*)KSEG1ADDR(NetRxPackets[rx_new]),
-			            length - 4);
+				    length - 4);
 		}
 		else
 		{
@@ -527,62 +526,62 @@ static void inca_init_switch_chip(void)
 	SW_WRITE_REG(INCA_IP_Switch_LAN_TX_CTL, 0x00000001);
 
 #if 1
-	   /* init MDIO configuration: 
-	         MDS (Poll speed):       0x01 (4ms)
-	         PHY_LAN_ADDR:           0x06
-	         PHY_PC_ADDR:            0x05
-	         UEP (Use External PHY): 0x00 (Internal PHY is used)
-	         PS (Port Select):       0x00 (PT/UMM for LAN)
-	         PT (PHY Test):          0x00 (no test mode)
-	         UMM (Use MDIO Mode):    0x00 (state machine is disabled)
+	   /* init MDIO configuration:
+		 MDS (Poll speed):       0x01 (4ms)
+		 PHY_LAN_ADDR:           0x06
+		 PHY_PC_ADDR:            0x05
+		 UEP (Use External PHY): 0x00 (Internal PHY is used)
+		 PS (Port Select):       0x00 (PT/UMM for LAN)
+		 PT (PHY Test):          0x00 (no test mode)
+		 UMM (Use MDIO Mode):    0x00 (state machine is disabled)
 	   */
 	SW_WRITE_REG(INCA_IP_Switch_MDIO_CFG, 0x4c50);
 
-	   /* init PHY: 
-	         SL (Auto Neg. Speed for LAN)
-	         SP (Auto Neg. Speed for PC)
-	         LL (Link Status for LAN)
-	         LP (Link Status for PC)
-	         DL (Duplex Status for LAN)
-	         DP (Duplex Status for PC)
-	         PL (Auto Neg. Pause Status for LAN)
-	         PP (Auto Neg. Pause Status for PC)
+	   /* init PHY:
+		 SL (Auto Neg. Speed for LAN)
+		 SP (Auto Neg. Speed for PC)
+		 LL (Link Status for LAN)
+		 LP (Link Status for PC)
+		 DL (Duplex Status for LAN)
+		 DP (Duplex Status for PC)
+		 PL (Auto Neg. Pause Status for LAN)
+		 PP (Auto Neg. Pause Status for PC)
 	   */
 	SW_WRITE_REG (INCA_IP_Switch_EPHY, 0xff);
 
 	   /* MDIO_ACC:
-	         RA (Request/Ack)  0x01 (Request)
-	         RW (Read/Write)   0x01 (Write)
-	         PHY_ADDR          0x05 (PC)
-	         REG_ADDR          0x00 (PHY_BCR: basic control register)
-	         PHY_DATA          0x8000
-	                              Reset                   - software reset
-	                              LB (loop back)          - normal
-	                              SS (speed select)       - 10 Mbit/s
-	                              ANE (auto neg. enable)  - disable
-	                              PD (power down)         - normal
-	                              ISO (isolate)           - normal
-	                              RAN (restart auto neg.) - normal
-	                              DM (duplex mode)        - half duplex
-	                              CT (collision test)     - enable
+		 RA (Request/Ack)  0x01 (Request)
+		 RW (Read/Write)   0x01 (Write)
+		 PHY_ADDR          0x05 (PC)
+		 REG_ADDR          0x00 (PHY_BCR: basic control register)
+		 PHY_DATA          0x8000
+				      Reset                   - software reset
+				      LB (loop back)          - normal
+				      SS (speed select)       - 10 Mbit/s
+				      ANE (auto neg. enable)  - disable
+				      PD (power down)         - normal
+				      ISO (isolate)           - normal
+				      RAN (restart auto neg.) - normal
+				      DM (duplex mode)        - half duplex
+				      CT (collision test)     - enable
 	   */
 	SW_WRITE_REG(INCA_IP_Switch_MDIO_ACC, 0xc0a08000);
 
 	   /* MDIO_ACC:
-	         RA (Request/Ack)  0x01 (Request)
-	         RW (Read/Write)   0x01 (Write)
-	         PHY_ADDR          0x06 (LAN)
-	         REG_ADDR          0x00 (PHY_BCR: basic control register)
-	         PHY_DATA          0x8000
-	                              Reset                   - software reset
-	                              LB (loop back)          - normal
-	                              SS (speed select)       - 10 Mbit/s
-	                              ANE (auto neg. enable)  - disable
-	                              PD (power down)         - normal
-	                              ISO (isolate)           - normal
-	                              RAN (restart auto neg.) - normal
-	                              DM (duplex mode)        - half duplex
-	                              CT (collision test)     - enable
+		 RA (Request/Ack)  0x01 (Request)
+		 RW (Read/Write)   0x01 (Write)
+		 PHY_ADDR          0x06 (LAN)
+		 REG_ADDR          0x00 (PHY_BCR: basic control register)
+		 PHY_DATA          0x8000
+				      Reset                   - software reset
+				      LB (loop back)          - normal
+				      SS (speed select)       - 10 Mbit/s
+				      ANE (auto neg. enable)  - disable
+				      PD (power down)         - normal
+				      ISO (isolate)           - normal
+				      RAN (restart auto neg.) - normal
+				      DM (duplex mode)        - half duplex
+				      CT (collision test)     - enable
 	   */
 	SW_WRITE_REG(INCA_IP_Switch_MDIO_ACC, 0xc0c08000);
 #endif
@@ -640,7 +639,3 @@ static void inca_dma_init(void)
 }
 
 #endif
-
-	/* End of file.
-	 */
-

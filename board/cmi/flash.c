@@ -458,7 +458,7 @@ static int write_short (flash_info_t *info, ulong dest, ushort data)
 	if (!(info->flash_id & FLASH_VENDMASK)) {
 		return 4;
 	}
-        *addr = FLASH_CMD_ERASE_CONFIRM;
+	*addr = FLASH_CMD_ERASE_CONFIRM;
 	*addr = FLASH_CMD_WRITE;
 
 	*((vu_short *)dest) = data;
@@ -474,7 +474,7 @@ static int write_short (flash_info_t *info, ulong dest, ushort data)
 	/* wait for error or finish */
 	while(!(addr[0] & FLASH_STATUS_DONE)){
 		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
-		  	addr[0] = FLASH_CMD_RESET;
+			addr[0] = FLASH_CMD_RESET;
 			return (1);
 		}
 	}
@@ -505,7 +505,7 @@ int flash_real_protect(flash_info_t *info, long sector, int prot)
 	start = get_timer (0);
 	while(!(addr[0] & FLASH_STATUS_DONE)){
 		if (get_timer(start) > CFG_FLASH_ERASE_TOUT) {
-		  	printf("Flash protect timeout at address %lx\n",  info->start[sector]);
+			printf("Flash protect timeout at address %lx\n",  info->start[sector]);
 			addr[0] = FLASH_CMD_RESET;
 			return (1);
 		}

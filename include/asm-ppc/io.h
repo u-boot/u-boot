@@ -126,7 +126,7 @@ extern inline int in_le16(volatile u16 *addr)
     int ret;
 
     __asm__ __volatile__("lhbrx %0,0,%1; eieio" : "=r" (ret) :
-                  "r" (addr), "m" (*addr));
+		  "r" (addr), "m" (*addr));
     return ret;
 }
 
@@ -141,7 +141,7 @@ extern inline int in_be16(volatile u16 *addr)
 extern inline void out_le16(volatile u16 *addr, int val)
 {
     __asm__ __volatile__("sthbrx %1,0,%2; eieio" : "=m" (*addr) :
-                  "r" (val), "r" (addr));
+		  "r" (val), "r" (addr));
 }
 
 extern inline void out_be16(volatile u16 *addr, int val)
@@ -154,7 +154,7 @@ extern inline unsigned in_le32(volatile u32 *addr)
     unsigned ret;
 
     __asm__ __volatile__("lwbrx %0,0,%1; eieio" : "=r" (ret) :
-                 "r" (addr), "m" (*addr));
+		 "r" (addr), "m" (*addr));
     return ret;
 }
 
@@ -169,7 +169,7 @@ extern inline unsigned in_be32(volatile u32 *addr)
 extern inline void out_le32(volatile unsigned *addr, int val)
 {
     __asm__ __volatile__("stwbrx %1,0,%2; eieio" : "=m" (*addr) :
-                 "r" (val), "r" (addr));
+		 "r" (val), "r" (addr));
 }
 
 extern inline void out_be32(volatile unsigned *addr, int val)

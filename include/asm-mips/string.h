@@ -27,7 +27,7 @@ extern __inline__ char *strcpy(char *__dest, __const__ char *__src)
 	".set\tat\n\t"
 	".set\treorder"
 	: "=r" (__dest), "=r" (__src)
-        : "0" (__dest), "1" (__src)
+	: "0" (__dest), "1" (__src)
 	: "$1","memory");
 
   return __xdest;
@@ -54,9 +54,9 @@ extern __inline__ char *strncpy(char *__dest, __const__ char *__src, size_t __n)
 	"2:\n\t"
 	".set\tat\n\t"
 	".set\treorder"
-        : "=r" (__dest), "=r" (__src), "=r" (__n)
-        : "0" (__dest), "1" (__src), "2" (__n)
-        : "$1","memory");
+	: "=r" (__dest), "=r" (__src), "=r" (__n)
+	: "0" (__dest), "1" (__src), "2" (__n)
+	: "$1","memory");
 
   return __dest;
 }
@@ -110,7 +110,7 @@ strncmp(__const__ char *__cs, __const__ char *__ct, size_t __count)
 	"2:\n\t"
 #if defined(CONFIG_CPU_R3000)
 	"nop\n\t"
-#endif	
+#endif
 	"move\t%3,$1\n"
 	"3:\tsubu\t%3,$1\n\t"
 	".set\tat\n\t"

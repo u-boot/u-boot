@@ -29,7 +29,7 @@ OBJS	:= dnp1110.o flash.o
 SOBJS	:= memsetup.o
 
 $(LIB):	$(OBJS) $(SOBJS)
-	$(AR) crv $@ $^
+	$(AR) crv $@ $(OBJS) $(SOBJS)
 
 clean:
 	rm -f $(SOBJS) $(OBJS)

@@ -69,8 +69,8 @@ int main(void)
 
     LZTimerOn();
     for (j = 0; j < 10; j++)
-        for (i = 0; i < 20000; i++)
-            i = i;
+	for (i = 0; i < 20000; i++)
+	    i = i;
     LZTimerOff();
     ReportTime(LZTimerCount());
 
@@ -80,7 +80,7 @@ int main(void)
     delay(DELAY_SECS * 1000);
     finish = ULZReadTime();
     printf("Delay of %d secs took %d 1/10ths of a second\n",
-        DELAY_SECS,ULZElapsedTime(start,finish));
+	DELAY_SECS,ULZElapsedTime(start,finish));
 #endif
 
     return 0;

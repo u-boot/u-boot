@@ -100,35 +100,35 @@ static ibool LoadDriver(void)
 
     /* Check if we have already loaded the driver */
     if (loaded)
-        return true;
+	return true;
     PM_init();
     _AA_exports.dwSize = sizeof(_AA_exports);
 
     /* Open the BPD file */
     if (!PM_findBPD(DLL_NAME,bpdpath))
-        return false;
+	return false;
     strcpy(filename,bpdpath);
     strcat(filename,DLL_NAME);
     if ((hModBPD = PE_loadLibrary(filename,false)) == NULL)
-        return false;
+	return false;
     if ((AA_initLibrary = (AA_initLibrary_t)PE_getProcAddress(hModBPD,"_AA_initLibrary")) == NULL)
-        return false;
+	return false;
     bpdpath[strlen(bpdpath)-1] = 0;
     if (strcmp(bpdpath,PM_getNucleusPath()) == 0)
-        strcpy(bpdpath,PM_getNucleusConfigPath());
+	strcpy(bpdpath,PM_getNucleusConfigPath());
     else {
-        PM_backslash(bpdpath);
-        strcat(bpdpath,"config");
-        }
+	PM_backslash(bpdpath);
+	strcat(bpdpath,"config");
+	}
     if ((aaExp = AA_initLibrary(bpdpath,filename,&_PM_imports,&_N_imports,&_AA_imports)) == NULL)
-        PM_fatalError("AA_initLibrary failed!\n");
+	PM_fatalError("AA_initLibrary failed!\n");
 
     /* Initialize all default imports to point to fatal error handler
      * for upwards compatibility, and copy the exported functions.
      */
     max = sizeof(_AA_exports)/sizeof(AA_initLibrary_t);
     for (i = 0,p = (ulong*)&_AA_exports; i < max; i++)
-        *p++ = (ulong)_AA_fatalErrorHandler;
+	*p++ = (ulong)_AA_fatalErrorHandler;
     memcpy(&_AA_exports,aaExp,MIN(sizeof(_AA_exports),aaExp->dwSize));
     loaded = true;
     return true;
@@ -143,7 +143,7 @@ static ibool LoadDriver(void)
 int NAPI AA_status(void)
 {
     if (!loaded)
-        return nDriverNotFound;
+	return nDriverNotFound;
     return _AA_exports.AA_status();
 }
 
@@ -152,7 +152,7 @@ const char * NAPI AA_errorMsg(
     N_int32 status)
 {
     if (!loaded)
-        return "Unable to load Nucleus device driver!";
+	return "Unable to load Nucleus device driver!";
     return _AA_exports.AA_errorMsg(status);
 }
 
@@ -160,7 +160,7 @@ const char * NAPI AA_errorMsg(
 int NAPI AA_getDaysLeft(void)
 {
     if (!LoadDriver())
-        return -1;
+	return -1;
     return _AA_exports.AA_getDaysLeft();
 }
 
@@ -168,7 +168,7 @@ int NAPI AA_getDaysLeft(void)
 int NAPI AA_registerLicense(uchar *license)
 {
     if (!LoadDriver())
-        return 0;
+	return 0;
     return _AA_exports.AA_registerLicense(license);
 }
 
@@ -176,7 +176,7 @@ int NAPI AA_registerLicense(uchar *license)
 int NAPI AA_enumerateDevices(void)
 {
     if (!LoadDriver())
-        return 0;
+	return 0;
     return _AA_exports.AA_enumerateDevices();
 }
 
@@ -184,7 +184,7 @@ int NAPI AA_enumerateDevices(void)
 AA_devCtx * NAPI AA_loadDriver(N_int32 deviceIndex)
 {
     if (!LoadDriver())
-        return NULL;
+	return NULL;
     return _AA_exports.AA_loadDriver(deviceIndex);
 }
 #endif
@@ -211,15 +211,15 @@ void NAPI _OS_delay(
     LZTimerObject   tm;
 
     if (_GA_haveCPUID() && (_GA_getCPUIDFeatures() & CPU_HaveRDTSC) != 0) {
-        if (!inited) {
-            ZTimerInit();
-            inited = true;
-            }
-        LZTimerOnExt(&tm);
-        while (LZTimerLapExt(&tm) < microSeconds)
-            ;
-        LZTimerOnExt(&tm);
-        }
+	if (!inited) {
+	    ZTimerInit();
+	    inited = true;
+	    }
+	LZTimerOnExt(&tm);
+	while (LZTimerLapExt(&tm) < microSeconds)
+	    ;
+	LZTimerOnExt(&tm);
+	}
     else
-        _OS_delay8253(microSeconds);
+	_OS_delay8253(microSeconds);
 }

@@ -574,7 +574,6 @@ enum {
 /* Uses the same bit definitions as PHY_INT_REG */
 
 
-
 /*-------------------------------------------------------------------------
  .  I define some macros to make it easier to do somewhat common
  . or slightly complicated, repeated tasks.
@@ -616,4 +615,3 @@ enum {
 	IM_MDINT)
 
 #endif  /* _SMC_91111_H_ */
-

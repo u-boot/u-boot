@@ -50,7 +50,6 @@ extern int drv_isa_kbd_init (void);
 #endif
 
 
-
 /* fdc (logical device 0) */
 const SIO_LOGDEV_TABLE sio_fdc[] = {
 	{0x60, 3},			/* set IO to FDPort (3F0) */
@@ -184,7 +183,6 @@ void isa_sio_setup(void)
 		close_cfg_super_IO(0x3F0);
 	}
 }
-
 
 
 /******************************************************************************
@@ -396,18 +394,17 @@ int handle_isa_int(void)
 		/* we should handle cascaded interrupts here also */
 		/* printf("ISA Irq %d\n",irq); */
 		isa_irqs[irq].count++;
-  	if (isa_irqs[irq].handler != NULL)
-  		(*isa_irqs[irq].handler)(isa_irqs[irq].arg);      /* call isr */
-  	else
-  	{
-     	PRINTF ("bogus interrupt vector 0x%x\n", irq);
-  	}
+	if (isa_irqs[irq].handler != NULL)
+		(*isa_irqs[irq].handler)(isa_irqs[irq].arg);      /* call isr */
+	else
+	{
+	PRINTF ("bogus interrupt vector 0x%x\n", irq);
+	}
 	}
 	/* issue EOI instruction to clear the IRQ */
 	mask_and_ack_8259A(irq);
 	return 0;
 }
-
 
 
 /******************************************************************
@@ -418,12 +415,12 @@ void isa_irq_install_handler(int vec, interrupt_handler_t *handler, void *arg)
 {
   if (isa_irqs[vec].handler != NULL) {
    printf ("ISA Interrupt vector %d: handler 0x%x replacing 0x%x\n",
-           vec, (uint)handler, (uint)isa_irqs[vec].handler);
+	   vec, (uint)handler, (uint)isa_irqs[vec].handler);
   }
   isa_irqs[vec].handler = handler;
   isa_irqs[vec].arg     = arg;
   enable_8259A_irq(vec);
- 	PRINTF ("Install ISA IRQ %d ==> %p, @ %p mask=%04x\n", vec, handler, &isa_irqs[vec].handler,cached_irq_mask);
+	PRINTF ("Install ISA IRQ %d ==> %p, @ %p mask=%04x\n", vec, handler, &isa_irqs[vec].handler,cached_irq_mask);
 
 }
 
@@ -432,7 +429,7 @@ void isa_irq_free_handler(int vec)
 	disable_8259A_irq(vec);
   isa_irqs[vec].handler = NULL;
   isa_irqs[vec].arg     = NULL;
- 	printf ("Free ISA IRQ %d mask=%04x\n", vec, cached_irq_mask);
+	printf ("Free ISA IRQ %d mask=%04x\n", vec, cached_irq_mask);
 
 }
 
@@ -464,6 +461,3 @@ int isa_init(void)
 	drv_isa_kbd_init();
 	return 0;
 }
-
-
-

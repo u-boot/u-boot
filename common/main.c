@@ -26,16 +26,18 @@
 #include <common.h>
 #include <watchdog.h>
 #include <command.h>
-#include <cmd_nvedit.h>
-#include <cmd_bootm.h>
 #include <malloc.h>
-#if defined(CONFIG_BOOT_RETRY_TIME) && defined(CONFIG_RESET_TO_RETRY)
-#include <cmd_boot.h>		/* for do_reset() prototype */
-#endif
 
 #ifdef CFG_HUSH_PARSER
 #include <hush.h>
 #endif
+
+#if defined(CONFIG_BOOT_RETRY_TIME) && defined(CONFIG_RESET_TO_RETRY)
+extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);		/* for do_reset() prototype */
+#endif
+
+extern int do_bootd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+
 
 #define MAX_DELAY_STOP_STR 32
 
@@ -143,7 +145,7 @@ static __inline__ int abortboot(int bootdelay)
 			if (delaykey[i].len > 0 &&
 			    presskey_len >= delaykey[i].len &&
 			    memcmp (presskey + presskey_len - delaykey[i].len,
-		        	    delaykey[i].str,
+				    delaykey[i].str,
 				    delaykey[i].len) == 0) {
 #  if DEBUG_BOOTKEYS
 				printf("got %skey\n",
@@ -196,17 +198,17 @@ static __inline__ int abortboot(int bootdelay)
 #endif
 
 #if defined CONFIG_ZERO_BOOTDELAY_CHECK
-        /*
-         * Check if key already pressed
-         * Don't check if bootdelay < 0
-         */
+	/*
+	 * Check if key already pressed
+	 * Don't check if bootdelay < 0
+	 */
 	if (bootdelay >= 0) {
 		if (tstc()) {	/* we got a key press	*/
 			(void) getc();  /* consume input	*/
 			printf ("\b\b\b 0\n");
 			return 1; 	/* don't auto boot	*/
 		}
-        }
+	}
 #endif
 
 	while (bootdelay > 0) {
@@ -633,7 +635,7 @@ static void process_macros (const char *input, char *output)
 	int state = 0;	/* 0 = waiting for '$'	*/
 			/* 1 = waiting for '('	*/
 			/* 2 = waiting for ')'	*/
-	                /* 3 = waiting for '''  */
+			/* 3 = waiting for '''  */
 #ifdef DEBUG_PARSER
 	char *output_start = output;
 
@@ -652,7 +654,7 @@ static void process_macros (const char *input, char *output)
 		if (inputcnt-- == 0)
 			break;
 		prev = c;
-	    	c = *input++;
+		c = *input++;
 	    }
 	    }
 

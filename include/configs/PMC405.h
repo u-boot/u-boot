@@ -119,8 +119,8 @@
 
 /* The following table includes the supported baudrates */
 #define CFG_BAUDRATE_TABLE      \
-        { 300, 600, 1200, 2400, 4800, 9600, 19200, 38400,     \
-         57600, 115200, 230400, 460800, 921600 }
+	{ 300, 600, 1200, 2400, 4800, 9600, 19200, 38400,     \
+	 57600, 115200, 230400, 460800, 921600 }
 
 #define CFG_LOAD_ADDR	0x100000	/* default load address */
 #define CFG_EXTBDINFO	1		/* To use extended board_into (bd_t) */
@@ -144,7 +144,7 @@
 #define CONFIG_PCI			/* include pci support	        */
 #define CONFIG_PCI_HOST	PCI_HOST_FORCE  /* select pci host function     */
 #define CONFIG_PCI_PNP			/* do pci plug-and-play         */
-                                        /* resource configuration       */
+					/* resource configuration       */
 
 #undef CONFIG_PCI_SCAN_SHOW             /* print pci devices @ startup  */
 
@@ -197,7 +197,7 @@
 #define CFG_ENV_IS_IN_EEPROM    1       /* use EEPROM for environment vars */
 #define CFG_ENV_OFFSET          0x000   /* environment starts at the beginning of the EEPROM */
 #define CFG_ENV_SIZE            0x800   /* 2048 bytes may be used for env vars*/
-                                   /* total size of a CAT24WC16 is 2048 bytes */
+				   /* total size of a CAT24WC16 is 2048 bytes */
 
 #define CFG_NVRAM_BASE_ADDR	0xF0000500		/* NVRAM base address	*/
 #define CFG_NVRAM_SIZE		242		        /* NVRAM size		*/
@@ -223,7 +223,7 @@
  * Cache Configuration
  */
 #define CFG_DCACHE_SIZE		16384	/* For IBM 405 CPUs, older 405 ppc's    */
-                                        /* have only 8kB, 16kB is save here     */
+					/* have only 8kB, 16kB is save here     */
 #define CFG_CACHELINE_SIZE	32	/* ...			*/
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/

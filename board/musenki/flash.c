@@ -56,7 +56,6 @@ static int write_data (flash_info_t *info, uchar *dest, uchar data);
 static void flash_get_offsets (ulong base, flash_info_t *info);
 
 
-
 /*
  * don't ask.  its stupid, but more than one soul has had to live with this mistake
  * "swaptab[i]" is the value of "i" with the bits reversed.

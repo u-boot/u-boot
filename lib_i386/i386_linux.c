@@ -23,12 +23,13 @@
 
 #include <common.h>
 #include <command.h>
-#include <cmd_boot.h>
 #include <image.h>
 #include <zlib.h>
 #include <asm/byteorder.h>
 #include <asm/zimage.h>
 
+/*cmd_boot.c*/
+extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 extern image_header_t header;           /* from cmd_bootm.c */
 
@@ -39,7 +40,7 @@ image_header_t *fake_header(image_header_t *hdr, void *ptr, int size)
 	if (NULL != fake_zimage_header(hdr, ptr, size)) {
 		return hdr;
 	}
-	
+
 	return NULL;
 }
 
@@ -48,47 +49,47 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		ulong addr, ulong *len_ptr, int   verify)
 {
 	void *base_ptr;
-	
+
 	ulong len = 0, checksum;
 	ulong initrd_start, initrd_end;
 	ulong data;
 	image_header_t *hdr = &header;
-	
+
 	/*
 	 * Check if there is an initrd image
 	 */
 	if (argc >= 3) {
 		addr = simple_strtoul(argv[2], NULL, 16);
-		
+
 		printf ("## Loading Ramdisk Image at %08lx ...\n", addr);
-		
+
 		/* Copy header so we can blank CRC field for re-calculation */
 		memcpy (&header, (char *)addr, sizeof(image_header_t));
-		
+
 		if (ntohl(hdr->ih_magic) != IH_MAGIC) {
 			printf ("Bad Magic Number\n");
 			do_reset (cmdtp, flag, argc, argv);
 		}
-		
+
 		data = (ulong)&header;
 		len  = sizeof(image_header_t);
-		
+
 		checksum = ntohl(hdr->ih_hcrc);
 		hdr->ih_hcrc = 0;
-		
+
 		if (crc32 (0, (char *)data, len) != checksum) {
 			printf ("Bad Header Checksum\n");
 			do_reset (cmdtp, flag, argc, argv);
 		}
-		
+
 		print_image_hdr (hdr);
-		
+
 		data = addr + sizeof(image_header_t);
 		len  = ntohl(hdr->ih_size);
-		
+
 		if (verify) {
 			ulong csum = 0;
-			
+
 			printf ("   Verifying Checksum ... ");
 			csum = crc32 (0, (char *)data, len);
 			if (csum != ntohl(hdr->ih_dcrc)) {
@@ -97,21 +98,21 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 			}
 			printf ("OK\n");
 		}
-		
+
 		if ((hdr->ih_os   != IH_OS_LINUX)	||
 		    (hdr->ih_arch != IH_CPU_I386)	||
 		    (hdr->ih_type != IH_TYPE_RAMDISK)	) {
 			printf ("No Linux i386 Ramdisk Image\n");
 			do_reset (cmdtp, flag, argc, argv);
 		}
-		
+
 		/*
 		 * Now check if we have a multifile image
 		 */
 	} else if ((hdr->ih_type==IH_TYPE_MULTI) && (len_ptr[1])) {
 		ulong tail    = ntohl(len_ptr[0]) % 4;
 		int i;
-		
+
 		/* skip kernel length and terminator */
 		data = (ulong)(&len_ptr[2]);
 		/* skip any additional image length fields */
@@ -122,22 +123,22 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		if (tail) {
 			data += 4 - tail;
 		}
-		
+
 		len   = ntohl(len_ptr[1]);
-		
+
 	} else {
 		/*
 		 * no initrd image
 		 */
 		data = 0;
 	}
-	
+
 #ifdef	DEBUG
 	if (!data) {
 		printf ("No initrd\n");
 	}
 #endif
-	
+
 	if (data) {
 		initrd_start = data;
 		initrd_end   = initrd_start + len;
@@ -149,26 +150,24 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		initrd_start = 0;
 		initrd_end = 0;
 	}
-	
-	base_ptr = load_zimage((void*)addr + sizeof(image_header_t), ntohl(hdr->ih_size), 
+
+	base_ptr = load_zimage((void*)addr + sizeof(image_header_t), ntohl(hdr->ih_size),
 			       initrd_start, initrd_end-initrd_start, 0);
 
 	if (NULL == base_ptr) {
 		printf ("## Kernel loading failed ...\n");
 		do_reset(cmdtp, flag, argc, argv);
-		
+
 	}
-		
+
 #ifdef DEBUG
 	printf ("## Transferring control to Linux (at address %08x) ...\n",
 		(u32)base_ptr);
 #endif
-		
+
 	/* we assume that the kernel is in place */
 	printf("\nStarting kernel ...\n\n");
-		
+
 	boot_zimage(base_ptr);
-	
+
 }
-
-

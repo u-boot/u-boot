@@ -55,7 +55,7 @@ static fpga_desc desc_table[CONFIG_MAX_FPGA_DEVICES];
 /* Local static functions */
 static const fpga_desc * const fpga_get_desc( int devnum );
 static const fpga_desc * const fpga_validate( int devnum, void *buf,
-                                         size_t bsize, char *fn );
+					 size_t bsize, char *fn );
 static int fpga_dev_info( int devnum );
 
 
@@ -100,7 +100,7 @@ static const fpga_desc * const fpga_get_desc( int devnum )
  *	generic parameter checking code
  */
 static const fpga_desc * const fpga_validate( int devnum, void *buf,
-                                         size_t bsize, char *fn )
+					 size_t bsize, char *fn )
 {
 	const fpga_desc * const desc = fpga_get_desc( devnum );
 

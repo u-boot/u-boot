@@ -178,7 +178,7 @@ typedef struct _tag_dma_desc_level{
 	    V32 res1:8;	/* bits 24-31 */
 	} _le_bits;
 	V8 byte[4];
-    	V32 word;
+	V32 word;
     } desc;
     V32 pad1;
 } DMA_DESC_LEVEL;
@@ -214,7 +214,7 @@ typedef struct _tag_pbb_dma_reg_map {
 
     /* 39/40 (0x138/0x140) */
     union {
-        /* NOTE!! 4 dwords */
+	/* NOTE!! 4 dwords */
 	struct {
 	    V32 channel_3:8;
 	    V32 channel_2:8;

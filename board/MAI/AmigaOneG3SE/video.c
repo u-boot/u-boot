@@ -1,6 +1,6 @@
 /*
  * (C) Copyright 2002
- * Hyperion Entertainment, Hans-JoergF@hyperion-entertainment.com 
+ * Hyperion Entertainment, Hans-JoergF@hyperion-entertainment.com
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -100,7 +100,7 @@ int drv_video_init(void)
     video_inited = 1;
     video_init();
     memset (&vgadev, 0, sizeof(vgadev));
-    
+
     strcpy(vgadev.name, VIDEO_NAME);
     vgadev.flags =  DEV_FLAGS_OUTPUT | DEV_FLAGS_SYSTEM;
     vgadev.putc = video_putc;
@@ -108,7 +108,7 @@ int drv_video_init(void)
     vgadev.getc = NULL;
     vgadev.tstc = NULL;
     vgadev.start = video_start;
-    
+
     error = device_register (&vgadev);
 
     if (error == 0)
@@ -129,11 +129,11 @@ int drv_video_init(void)
 
 int video_init(void)
 {
-    cursor_position = VIDEO_BASE; // Color text display base
+    cursor_position = VIDEO_BASE; /* Color text display base */
     cursor_row = 0;
     cursor_col = 0;
-    current_attr = video_get_attr(); // Currently selected value for attribute.
-//    video_test();
+    current_attr = video_get_attr(); /* Currently selected value for attribute. */
+/*    video_test(); */
     video_set_color(current_attr);
 
     return 0;
@@ -283,7 +283,7 @@ void video_bios_print_string(char *s, int x, int y, int attr, int count)
 
 void video_draw_box(int style, int attr, char *title, int separate, int x, int y, int w, int h)
 {
-    unsigned char *fb, *fb2; 
+    unsigned char *fb, *fb2;
     unsigned char *st = (style == SINGLE_BOX)?video_single_box : video_double_box;
     unsigned char *ti = (style == SINGLE_BOX)?video_single_title : video_double_title;
     int i;
@@ -324,11 +324,11 @@ void video_draw_box(int style, int attr, char *title, int separate, int x, int y
 	*fb = st[3];
 	*(fb+1) = attr; fb += 2*VIDEO_COLS;
 
-	*fb2 = st[4]; 
+	*fb2 = st[4];
 	*(fb2+1) = attr; fb2 += 2*VIDEO_COLS;
     }
-    
-    // Draw title
+
+    /* Draw title */
     if (title)
     {
 	if (separate == 0)
@@ -370,7 +370,7 @@ void video_draw_box(int style, int attr, char *title, int separate, int x, int y
 		fb += 2;
 	    }
 	    fb = video_addr(x+2, y+1);
-	    
+
 	    while (*title)
 	    {
 		*fb = *title;
@@ -414,7 +414,7 @@ void video_save_rect(int x, int y, int w, int h, void *save_area, int clearchar,
 }
 
 void video_restore_rect(int x, int y, int w, int h, void *save_area)
-{   
+{
     unsigned char *save = (unsigned char *)save_area;
     unsigned char *fb = video_addr(x,y);
     int i,j;
@@ -484,7 +484,7 @@ void video_banner(void)
     int i;
     char *s;
     int maxdev;
-    
+
 
     if (video_inited == 0) return;
 #ifdef EASTEREGG

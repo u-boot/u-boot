@@ -46,7 +46,7 @@ static int SetMaxThreadPriority(void)
 
     oldPriority = GetThreadPriority(hThread);
     if (oldPriority != THREAD_PRIORITY_ERROR_RETURN)
-        SetThreadPriority(hThread, THREAD_PRIORITY_TIME_CRITICAL);
+	SetThreadPriority(hThread, THREAD_PRIORITY_TIME_CRITICAL);
     return oldPriority;
 }
 
@@ -60,7 +60,7 @@ static void RestoreThreadPriority(
     HANDLE  hThread = GetCurrentThread();
 
     if (oldPriority != THREAD_PRIORITY_ERROR_RETURN)
-        SetThreadPriority(hThread, oldPriority);
+	SetThreadPriority(hThread, oldPriority);
 }
 
 /****************************************************************************
@@ -71,12 +71,12 @@ static void GetCounterFrequency(
     CPU_largeInteger *freq)
 {
     if (!QueryPerformanceFrequency((LARGE_INTEGER*)freq)) {
-        havePerformanceCounter = false;
-        freq->low = 100000;
-        freq->high = 0;
-        }
+	havePerformanceCounter = false;
+	freq->low = 100000;
+	freq->high = 0;
+	}
     else
-        havePerformanceCounter = true;
+	havePerformanceCounter = true;
 }
 
 /****************************************************************************
@@ -86,9 +86,9 @@ Read the counter and return the counter value.
 #define GetCounter(t)                                       \
 {                                                           \
     if (havePerformanceCounter)                             \
-        QueryPerformanceCounter((LARGE_INTEGER*)t);         \
+	QueryPerformanceCounter((LARGE_INTEGER*)t);         \
     else {                                                  \
-        (t)->low = timeGetTime() * 100;                     \
-        (t)->high = 0;                                      \
-        }                                                   \
+	(t)->low = timeGetTime() * 100;                     \
+	(t)->high = 0;                                      \
+	}                                                   \
 }

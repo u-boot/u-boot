@@ -85,11 +85,11 @@ static void DisableAutoPlay(void)
     HKEY    hKey;
 
     if (RegOpenKeyEx(HKEY_CURRENT_USER,szAutoPlayKey,0,KEY_EXECUTE | KEY_WRITE,&hKey) == ERROR_SUCCESS) {
-        RegQueryValueEx(hKey,szAutoPlayValue,NULL,NULL,(void*)&dwAutoPlay,&dwSize);
-        dwAutoPlay |= AUTOPLAY_DRIVE_CDROM;
-        RegSetValueEx(hKey,szAutoPlayValue,0,REG_DWORD,(void*)&dwAutoPlay,dwSize);
-        RegCloseKey(hKey);
-        }
+	RegQueryValueEx(hKey,szAutoPlayValue,NULL,NULL,(void*)&dwAutoPlay,&dwSize);
+	dwAutoPlay |= AUTOPLAY_DRIVE_CDROM;
+	RegSetValueEx(hKey,szAutoPlayValue,0,REG_DWORD,(void*)&dwAutoPlay,dwSize);
+	RegCloseKey(hKey);
+	}
 }
 
 /****************************************************************************
@@ -102,11 +102,11 @@ static void RestoreAutoPlay(void)
     HKEY    hKey;
 
     if (RegOpenKeyEx(HKEY_CURRENT_USER,szAutoPlayKey,0,KEY_EXECUTE | KEY_WRITE,&hKey) == ERROR_SUCCESS) {
-        RegQueryValueEx(hKey,szAutoPlayValue,NULL,NULL,(void*)&dwAutoPlay,&dwSize);
-        dwAutoPlay &= ~AUTOPLAY_DRIVE_CDROM;
-        RegSetValueEx(hKey,szAutoPlayValue,0,REG_DWORD,(void*)&dwAutoPlay,dwSize);
-        RegCloseKey(hKey);
-        }
+	RegQueryValueEx(hKey,szAutoPlayValue,NULL,NULL,(void*)&dwAutoPlay,&dwSize);
+	dwAutoPlay &= ~AUTOPLAY_DRIVE_CDROM;
+	RegSetValueEx(hKey,szAutoPlayValue,0,REG_DWORD,(void*)&dwAutoPlay,dwSize);
+	RegCloseKey(hKey);
+	}
 }
 
 /****************************************************************************
@@ -121,20 +121,20 @@ static void LeaveFullScreen(void)
     int retCode = PM_SUSPEND_APP;
 
     if (backInGDI)
-        return;
+	return;
     if (suspendApp)
-        retCode = suspendApp(PM_DEACTIVATE);
+	retCode = suspendApp(PM_DEACTIVATE);
     RestoreAutoPlay();
     backInGDI = true;
 
     /* Now process messages normally until we are re-activated */
     waitActive = true;
     if (retCode != PM_NO_SUSPEND_APP) {
-        while (waitActive) {
-            _EVT_pumpMessages();
-            Sleep(200);
-            }
-        }
+	while (waitActive) {
+	    _EVT_pumpMessages();
+	    Sleep(200);
+	    }
+	}
 }
 
 /****************************************************************************
@@ -147,27 +147,27 @@ static void RestoreFullScreen(void)
     static ibool    firstTime = true;
 
     if (firstTime) {
-        /* Clear the message queue while waiting for the surfaces to be
-         * restored.
-         */
-        firstTime = false;
-        while (1) {
-            /* Continue looping until out application has been restored
-             * and we have reset the display mode.
-             */
-            _EVT_pumpMessages();
-            if (GetActiveWindow() == _PM_hwndConsole) {
-                if (suspendApp)
-                    suspendApp(PM_REACTIVATE);
-                DisableAutoPlay();
-                backInGDI = false;
-                waitActive = false;
-                firstTime = true;
-                return;
-                }
-            Sleep(200);
-            }
-        }
+	/* Clear the message queue while waiting for the surfaces to be
+	 * restored.
+	 */
+	firstTime = false;
+	while (1) {
+	    /* Continue looping until out application has been restored
+	     * and we have reset the display mode.
+	     */
+	    _EVT_pumpMessages();
+	    if (GetActiveWindow() == _PM_hwndConsole) {
+		if (suspendApp)
+		    suspendApp(PM_REACTIVATE);
+		DisableAutoPlay();
+		backInGDI = false;
+		waitActive = false;
+		firstTime = true;
+		return;
+		}
+	    Sleep(200);
+	    }
+	}
 }
 
 /****************************************************************************
@@ -192,17 +192,17 @@ void PMAPI PM_doSuspendApp(void)
 
     /* Call system DLL version if found */
     if (_PM_imports.PM_doSuspendApp != PM_doSuspendApp) {
-        _PM_imports.PM_doSuspendApp();
-        return;
-        }
+	_PM_imports.PM_doSuspendApp();
+	return;
+	}
 
     if (firstTime) {
-        if (suspendApp)
-            suspendApp(PM_DEACTIVATE);
-        RestoreAutoPlay();
-        firstTime = false;
-        backInGDI = true;
-        }
+	if (suspendApp)
+	    suspendApp(PM_DEACTIVATE);
+	RestoreAutoPlay();
+	firstTime = false;
+	backInGDI = true;
+	}
     RestoreFullScreen();
     firstTime = true;
 }
@@ -220,60 +220,60 @@ static LONG CALLBACK PM_winProc(
     LONG lParam)
 {
     switch (msg) {
-        case WM_SYSCHAR:
-            /* Stop Alt-Space from pausing our application */
-            return 0;
-        case WM_KEYDOWN:
-        case WM_SYSKEYDOWN:
-            if (HIWORD(lParam) & KF_REPEAT) {
-                if (msg == WM_SYSKEYDOWN)
-                    return 0;
-                break;
-                }
-            /* Fall through for keydown events */
-        case WM_KEYUP:
-        case WM_SYSKEYUP:
-            if (msg == WM_SYSKEYDOWN || msg == WM_SYSKEYUP) {
-                if ((HIWORD(lParam) & KF_ALTDOWN) && wParam == VK_RETURN)
-                    break;
-                /* We ignore the remainder of the system keys to stop the
-                 * system menu from being activated from the keyboard and pausing
-                 * our app while fullscreen (ie: pressing the Alt key).
-                 */
-                return 0;
-                }
-            break;
-        case WM_SYSCOMMAND:
-            switch (wParam & ~0x0F) {
-                case SC_SCREENSAVE:
-                case SC_MONITORPOWER:
-                    /* Ignore screensaver requests in fullscreen modes */
-                    return 0;
-                }
-            break;
-        case WM_SIZE:
-            if (waitActive && backInGDI && (wParam != SIZE_MINIMIZED)) {
-                /* Start the re-activation process */
-                PostMessage(hwnd,WM_DO_SUSPEND_APP,WM_PM_RESTORE_FULLSCREEN,0);
-                }
-            else if (!waitActive && isFullScreen && !backInGDI && (wParam == SIZE_MINIMIZED)) {
-                /* Start the de-activation process */
-                PostMessage(hwnd,WM_DO_SUSPEND_APP,WM_PM_LEAVE_FULLSCREEN,0);
-                }
-            break;
-        case WM_DO_SUSPEND_APP:
-            switch (wParam) {
+	case WM_SYSCHAR:
+	    /* Stop Alt-Space from pausing our application */
+	    return 0;
+	case WM_KEYDOWN:
+	case WM_SYSKEYDOWN:
+	    if (HIWORD(lParam) & KF_REPEAT) {
+		if (msg == WM_SYSKEYDOWN)
+		    return 0;
+		break;
+		}
+	    /* Fall through for keydown events */
+	case WM_KEYUP:
+	case WM_SYSKEYUP:
+	    if (msg == WM_SYSKEYDOWN || msg == WM_SYSKEYUP) {
+		if ((HIWORD(lParam) & KF_ALTDOWN) && wParam == VK_RETURN)
+		    break;
+		/* We ignore the remainder of the system keys to stop the
+		 * system menu from being activated from the keyboard and pausing
+		 * our app while fullscreen (ie: pressing the Alt key).
+		 */
+		return 0;
+		}
+	    break;
+	case WM_SYSCOMMAND:
+	    switch (wParam & ~0x0F) {
+		case SC_SCREENSAVE:
+		case SC_MONITORPOWER:
+		    /* Ignore screensaver requests in fullscreen modes */
+		    return 0;
+		}
+	    break;
+	case WM_SIZE:
+	    if (waitActive && backInGDI && (wParam != SIZE_MINIMIZED)) {
+		/* Start the re-activation process */
+		PostMessage(hwnd,WM_DO_SUSPEND_APP,WM_PM_RESTORE_FULLSCREEN,0);
+		}
+	    else if (!waitActive && isFullScreen && !backInGDI && (wParam == SIZE_MINIMIZED)) {
+		/* Start the de-activation process */
+		PostMessage(hwnd,WM_DO_SUSPEND_APP,WM_PM_LEAVE_FULLSCREEN,0);
+		}
+	    break;
+	case WM_DO_SUSPEND_APP:
+	    switch (wParam) {
 				case WM_PM_RESTORE_FULLSCREEN:
 					RestoreFullScreen();
 					break;
 				case WM_PM_LEAVE_FULLSCREEN:
 					LeaveFullScreen();
 					break;
-                }
-            return 0;
-        }
+		}
+	    return 0;
+	}
     if (oldWinProc)
-        return oldWinProc(hwnd,msg,wParam,lParam);
+	return oldWinProc(hwnd,msg,wParam,lParam);
     return DefWindowProc(hwnd,msg,wParam,lParam);
 }
 
@@ -349,32 +349,32 @@ void * PMAPI PM_loadDirectDraw(
 
     /* Call system DLL version if found */
     if (_PM_imports.PM_loadDirectDraw != PM_loadDirectDraw)
-        return _PM_imports.PM_loadDirectDraw(device);
+	return _PM_imports.PM_loadDirectDraw(device);
 
-    // TODO: Handle multi-monitor!!
+    /* TODO: Handle multi-monitor!! */
     if (device != 0)
-        return NULL;
+	return NULL;
 
     /* Load the DirectDraw DLL if not presently loaded */
     GET_DEFAULT_CW();
     if (!hInstDD) {
-        hdc = GetDC(NULL);
-        bits = GetDeviceCaps(hdc,BITSPIXEL);
-        ReleaseDC(NULL,hdc);
-        if (bits < 8)
-            return NULL;
-        if ((hInstDD = LoadLibrary("ddraw.dll")) == NULL)
-            return NULL;
-        pDirectDrawCreate = (void*)GetProcAddress(hInstDD,"DirectDrawCreate");
-        if (!pDirectDrawCreate)
-            return NULL;
-        }
+	hdc = GetDC(NULL);
+	bits = GetDeviceCaps(hdc,BITSPIXEL);
+	ReleaseDC(NULL,hdc);
+	if (bits < 8)
+	    return NULL;
+	if ((hInstDD = LoadLibrary("ddraw.dll")) == NULL)
+	    return NULL;
+	pDirectDrawCreate = (void*)GetProcAddress(hInstDD,"DirectDrawCreate");
+	if (!pDirectDrawCreate)
+	    return NULL;
+	}
 
     /* Create the DirectDraw object */
     if (!lpDD && pDirectDrawCreate(NULL, &lpDD, NULL) != DD_OK) {
-        lpDD = NULL;
-        return NULL;
-        }
+	lpDD = NULL;
+	return NULL;
+	}
     RESET_DEFAULT_CW();
     return lpDD;
 }
@@ -394,13 +394,13 @@ void PMAPI PM_unloadDirectDraw(
 {
     /* Call system DLL version if found */
     if (_PM_imports.PM_unloadDirectDraw != PM_unloadDirectDraw) {
-        _PM_imports.PM_unloadDirectDraw(device);
-        return;
-        }
+	_PM_imports.PM_unloadDirectDraw(device);
+	return;
+	}
     if (lpDD) {
-        IDirectDraw_Release(lpDD);
-        lpDD = NULL;
-        }
+	IDirectDraw_Release(lpDD);
+	lpDD = NULL;
+	}
     (void)device;
 }
 
@@ -423,56 +423,56 @@ PM_HWND PMAPI PM_openConsole(
     /* Call system DLL version if found */
     GA_getSystemPMImports();
     if (_PM_imports.PM_openConsole != PM_openConsole) {
-        if (fullScreen) {
-            _PM_deskX = xRes;
-            _PM_deskY = yRes;
-            }
-        return _PM_imports.PM_openConsole(hWndUser,device,xRes,yRes,bpp,fullScreen);
-        }
+	if (fullScreen) {
+	    _PM_deskX = xRes;
+	    _PM_deskY = yRes;
+	    }
+	return _PM_imports.PM_openConsole(hWndUser,device,xRes,yRes,bpp,fullScreen);
+	}
 
     /* Create the fullscreen window if necessary */
     hwndUser = hWndUser;
     if (fullScreen) {
-        if (!classRegistered) {
-            /* Create a Window class for the fullscreen window in here, since
-             * we need to register one that will do all our event handling for
-             * us.
-             */
-            hInstApp            = GetModuleHandle(NULL);
-            cls.hCursor         = LoadCursor(NULL,IDC_ARROW);
-            cls.hIcon           = LoadIcon(hInstApp,MAKEINTRESOURCE(1));
-            cls.lpszMenuName    = NULL;
-            cls.lpszClassName   = szWinClassName;
-            cls.hbrBackground   = GetStockObject(BLACK_BRUSH);
-            cls.hInstance       = hInstApp;
-            cls.style           = CS_DBLCLKS;
-            cls.lpfnWndProc     = PM_winProc;
-            cls.cbWndExtra      = 0;
-            cls.cbClsExtra      = 0;
-            if (!RegisterClass(&cls))
-                return NULL;
-            classRegistered = true;
-            }
-        _PM_deskX = xRes;
-        _PM_deskY = yRes;
-        if (!hwndUser) {
-            char windowTitle[80];
-            if (LoadString(hInstApp,1,windowTitle,sizeof(windowTitle)) == 0)
-                strcpy(windowTitle,"MGL Fullscreen Application");
-            _PM_hwndConsole = CreateWindowEx(WS_EX_APPWINDOW,szWinClassName,
-                windowTitle,WS_POPUP | WS_SYSMENU,0,0,xRes,yRes,
-                NULL,NULL,hInstApp,NULL);
-            }
-        else {
-            _PM_hwndConsole = _PM_convertUserWindow(hwndUser,xRes,yRes);
-            }
-        ShowCursor(false);
-        isFullScreen = true;
-        }
+	if (!classRegistered) {
+	    /* Create a Window class for the fullscreen window in here, since
+	     * we need to register one that will do all our event handling for
+	     * us.
+	     */
+	    hInstApp            = GetModuleHandle(NULL);
+	    cls.hCursor         = LoadCursor(NULL,IDC_ARROW);
+	    cls.hIcon           = LoadIcon(hInstApp,MAKEINTRESOURCE(1));
+	    cls.lpszMenuName    = NULL;
+	    cls.lpszClassName   = szWinClassName;
+	    cls.hbrBackground   = GetStockObject(BLACK_BRUSH);
+	    cls.hInstance       = hInstApp;
+	    cls.style           = CS_DBLCLKS;
+	    cls.lpfnWndProc     = PM_winProc;
+	    cls.cbWndExtra      = 0;
+	    cls.cbClsExtra      = 0;
+	    if (!RegisterClass(&cls))
+		return NULL;
+	    classRegistered = true;
+	    }
+	_PM_deskX = xRes;
+	_PM_deskY = yRes;
+	if (!hwndUser) {
+	    char windowTitle[80];
+	    if (LoadString(hInstApp,1,windowTitle,sizeof(windowTitle)) == 0)
+		strcpy(windowTitle,"MGL Fullscreen Application");
+	    _PM_hwndConsole = CreateWindowEx(WS_EX_APPWINDOW,szWinClassName,
+		windowTitle,WS_POPUP | WS_SYSMENU,0,0,xRes,yRes,
+		NULL,NULL,hInstApp,NULL);
+	    }
+	else {
+	    _PM_hwndConsole = _PM_convertUserWindow(hwndUser,xRes,yRes);
+	    }
+	ShowCursor(false);
+	isFullScreen = true;
+	}
     else {
-        _PM_hwndConsole = hwndUser;
-        isFullScreen = false;
-        }
+	_PM_hwndConsole = hwndUser;
+	isFullScreen = false;
+	}
     SetFocus(_PM_hwndConsole);
     SetForegroundWindow(_PM_hwndConsole);
     DisableAutoPlay();
@@ -488,7 +488,7 @@ int PMAPI PM_getConsoleStateSize(void)
 {
     /* Call system DLL version if found */
     if (_PM_imports.PM_getConsoleStateSize != PM_getConsoleStateSize)
-        return _PM_imports.PM_getConsoleStateSize();
+	return _PM_imports.PM_getConsoleStateSize();
 
     /* Not used in Windows */
     return 1;
@@ -504,9 +504,9 @@ void PMAPI PM_saveConsoleState(
 {
     /* Call system DLL version if found */
     if (_PM_imports.PM_saveConsoleState != PM_saveConsoleState) {
-        _PM_imports.PM_saveConsoleState(stateBuf,hwndConsole);
-        return;
-        }
+	_PM_imports.PM_saveConsoleState(stateBuf,hwndConsole);
+	return;
+	}
 
     /* Not used in Windows */
     (void)stateBuf;
@@ -522,9 +522,9 @@ void PMAPI PM_setSuspendAppCallback(
 {
     /* Call system DLL version if found */
     if (_PM_imports.PM_setSuspendAppCallback != PM_setSuspendAppCallback) {
-        _PM_imports.PM_setSuspendAppCallback(saveState);
-        return;
-        }
+	_PM_imports.PM_setSuspendAppCallback(saveState);
+	return;
+	}
     suspendApp = saveState;
 }
 
@@ -538,9 +538,9 @@ void PMAPI PM_restoreConsoleState(
 {
     /* Call system DLL version if found */
     if (_PM_imports.PM_restoreConsoleState != PM_restoreConsoleState) {
-        _PM_imports.PM_restoreConsoleState(stateBuf,hwndConsole);
-        return;
-        }
+	_PM_imports.PM_restoreConsoleState(stateBuf,hwndConsole);
+	return;
+	}
 
     /* Not used in Windows */
     (void)stateBuf;
@@ -556,15 +556,15 @@ void PMAPI PM_closeConsole(
 {
     /* Call system DLL version if found */
     if (_PM_imports.PM_closeConsole != PM_closeConsole) {
-        _PM_imports.PM_closeConsole(hwndConsole);
-        return;
-        }
+	_PM_imports.PM_closeConsole(hwndConsole);
+	return;
+	}
     ShowCursor(true);
     RestoreAutoPlay();
     if (hwndUser)
-        _PM_restoreUserWindow(hwndConsole);
+	_PM_restoreUserWindow(hwndConsole);
     else
-        DestroyWindow(hwndConsole);
+	DestroyWindow(hwndConsole);
     hwndUser = NULL;
     _PM_hwndConsole = NULL;
 }
@@ -577,7 +577,6 @@ PM_HWND PMAPI PM_getDirectDrawWindow(void)
 {
     /* Call system DLL version if found */
     if (_PM_imports.PM_getDirectDrawWindow != PM_getDirectDrawWindow)
-        return _PM_imports.PM_getDirectDrawWindow();
+	return _PM_imports.PM_getDirectDrawWindow();
     return _PM_hwndConsole;
 }
-

@@ -21,7 +21,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
- 
+
 #ifndef AT91RM9200_H
 #define AT91RM9200_H
 
@@ -205,13 +205,13 @@ typedef struct _AT91S_PMC {
 	AT91_REG	 PMC_SCER; 	/* System Clock Enable Register */
 	AT91_REG	 PMC_SCDR; 	/* System Clock Disable Register */
 	AT91_REG	 PMC_SCSR; 	/* System Clock Status Register */
-	AT91_REG	 Reserved0[1]; 	/* */ 
+	AT91_REG	 Reserved0[1]; 	/* */
 	AT91_REG	 PMC_PCER; 	/* Peripheral Clock Enable Register */
 	AT91_REG	 PMC_PCDR; 	/* Peripheral Clock Disable Register */
 	AT91_REG	 PMC_PCSR; 	/* Peripheral Clock Status Register */
-	AT91_REG	 Reserved1[5]; 	/* */ 
+	AT91_REG	 Reserved1[5]; 	/* */
 	AT91_REG	 PMC_MCKR; 	/* Master Clock Register */
-	AT91_REG	 Reserved2[3]; 	/* */ 
+	AT91_REG	 Reserved2[3]; 	/* */
 	AT91_REG	 PMC_PCKR[8]; 	/* Programmable Clock Register */
 	AT91_REG	 PMC_IER; 	/* Interrupt Enable Register */
 	AT91_REG	 PMC_IDR; 	/* Interrupt Disable Register */
@@ -281,9 +281,9 @@ typedef struct _AT91S_EMAC {
 #define AT91C_EMAC_BP         ((unsigned int) 0x1 <<  8) /* (EMAC) Back pressure. */
 /* -------- EMAC_CFG : (EMAC Offset: 0x4) Network Configuration Register --------  */
 #define AT91C_EMAC_SPD        ((unsigned int) 0x1 <<  0) /* (EMAC) Speed. */
-#define AT91C_EMAC_FD         ((unsigned int) 0x1 <<  1) /* (EMAC) Full duplex. */ 
+#define AT91C_EMAC_FD         ((unsigned int) 0x1 <<  1) /* (EMAC) Full duplex. */
 #define AT91C_EMAC_BR         ((unsigned int) 0x1 <<  2) /* (EMAC) Bit rate. */
-#define AT91C_EMAC_CAF        ((unsigned int) 0x1 <<  4) /* (EMAC) Copy all frames. */ 
+#define AT91C_EMAC_CAF        ((unsigned int) 0x1 <<  4) /* (EMAC) Copy all frames. */
 #define AT91C_EMAC_NBC        ((unsigned int) 0x1 <<  5) /* (EMAC) No broadcast. */
 #define AT91C_EMAC_MTI        ((unsigned int) 0x1 <<  6) /* (EMAC) Multicast hash enable */
 #define AT91C_EMAC_UNI        ((unsigned int) 0x1 <<  7) /* (EMAC) Unicast hash enable. */
@@ -328,10 +328,10 @@ typedef struct _AT91S_EMAC {
 #define AT91C_EMAC_ROVR       ((unsigned int) 0x1 << 10) /* (EMAC) */
 #define AT91C_EMAC_HRESP      ((unsigned int) 0x1 << 11) /* (EMAC) */
 /* -------- EMAC_IER : (EMAC Offset: 0x28) Interrupt Enable Register -------- */
-/* -------- EMAC_IDR : (EMAC Offset: 0x2c) Interrupt Disable Register -------- */ 
+/* -------- EMAC_IDR : (EMAC Offset: 0x2c) Interrupt Disable Register -------- */
 /* -------- EMAC_IMR : (EMAC Offset: 0x30) Interrupt Mask Register -------- */
 /* -------- EMAC_MAN : (EMAC Offset: 0x34) PHY Maintenance Register -------- */
-#define AT91C_EMAC_DATA       ((unsigned int) 0xFFFF <<  0) /* (EMAC) */ 
+#define AT91C_EMAC_DATA       ((unsigned int) 0xFFFF <<  0) /* (EMAC) */
 #define AT91C_EMAC_CODE       ((unsigned int) 0x3 << 16) /* (EMAC) */
 #define         AT91C_EMAC_CODE_802_3 ((unsigned int) 0x2 << 16) /* (EMAC) Write Operation */
 #define AT91C_EMAC_REGA       ((unsigned int) 0x1F << 18) /* (EMAC) */
@@ -356,7 +356,7 @@ typedef struct _AT91S_SPI {
 	AT91_REG	 SPI_IMR; 	/* Interrupt Mask Register */
 	AT91_REG	 Reserved0[4]; 	/* */
 	AT91_REG	 SPI_CSR[4]; 	/* Chip Select Register */
-	AT91_REG	 Reserved1[48]; /* */ 
+	AT91_REG	 Reserved1[48]; /* */
 	AT91_REG	 SPI_RPR; 	/* Receive Pointer Register */
 	AT91_REG	 SPI_RCR; 	/* Receive Counter Register */
 	AT91_REG	 SPI_TPR; 	/* Transmit Pointer Register */

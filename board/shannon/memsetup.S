@@ -24,7 +24,6 @@
  */
 
 
-
 #include <config.h>
 #include <version.h>
 
@@ -91,4 +90,3 @@ memsetup:
 
 	/* everything is fine now */
 	mov	pc, lr
-

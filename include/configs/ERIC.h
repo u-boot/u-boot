@@ -156,7 +156,7 @@
 #define CONFIG_PCI			/* include pci support	        */
 #define CONFIG_PCI_HOST	PCI_HOST_FORCE  /* select pci host function     */
 #undef  CONFIG_PCI_PNP			/* no pci plug-and-play         */
-                                        /* resource configuration       */
+					/* resource configuration       */
 
 #define CFG_PCI_SUBSYS_VENDORID 0x1743	/* PCI Vendor ID: Peppercon AG	*/
 #define CFG_PCI_SUBSYS_DEVICEID 0x0405	/* PCI Device ID: 405GP		*/

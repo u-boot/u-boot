@@ -1,7 +1,7 @@
 /****************************************************************************
 *
 *                   SciTech OS Portability Manager Library
-*																																			
+*
 *  ========================================================================
 *
 *    The contents of this file are subject to the SciTech MGL Public
@@ -67,41 +67,41 @@ void PMAPI PM_setRealTimeClockFrequency(
     int frequency)
 {
     static short convert[] = {
-        8192,
-        4096,
-        2048,
-        1024,
-        512,
-        256,
-        128,
-        64,
-        32,
-        16,
-        8,
-        4,
-        2,
-        -1,
-        };
+	8192,
+	4096,
+	2048,
+	1024,
+	512,
+	256,
+	128,
+	64,
+	32,
+	16,
+	8,
+	4,
+	2,
+	-1,
+	};
     int i;
 
     /* First clear any pending RTC timeout if not cleared */
     _PM_readCMOS(0x0C);
     if (frequency == 0) {
-        /* Disable RTC timout */
-        _PM_writeCMOS(0x0A,(uchar)_PM_oldCMOSRegA);
-        _PM_writeCMOS(0x0B,(uchar)(_PM_oldCMOSRegB & 0x0F));
-        }
+	/* Disable RTC timout */
+	_PM_writeCMOS(0x0A,(uchar)_PM_oldCMOSRegA);
+	_PM_writeCMOS(0x0B,(uchar)(_PM_oldCMOSRegB & 0x0F));
+	}
     else {
-        /* Convert frequency value to RTC clock indexes */
-        for (i = 0; convert[i] != -1; i++) {
-            if (convert[i] == frequency)
-                break;
-            }
+	/* Convert frequency value to RTC clock indexes */
+	for (i = 0; convert[i] != -1; i++) {
+	    if (convert[i] == frequency)
+		break;
+	    }
 
-        /* Set RTC timout value and enable timeout */
-        _PM_writeCMOS(0x0A,(uchar)(0x20 | (i+3)));
-        _PM_writeCMOS(0x0B,(uchar)((_PM_oldCMOSRegB & 0x0F) | 0x40));
-        }
+	/* Set RTC timout value and enable timeout */
+	_PM_writeCMOS(0x0A,(uchar)(0x20 | (i+3)));
+	_PM_writeCMOS(0x0B,(uchar)((_PM_oldCMOSRegB & 0x0F) | 0x40));
+	}
 }
 
 ibool PMAPI PM_setRealTimeClockHandler(PM_intHandler th,int frequency)
@@ -130,14 +130,13 @@ ibool PMAPI PM_setRealTimeClockHandler(PM_intHandler th,int frequency)
 void PMAPI PM_restoreRealTimeClockHandler(void)
 {
     if (_PM_rtcHandler) {
-        /* Restore CMOS registers and mask RTC clock */
-        _PM_writeCMOS(0x0A,_PM_oldCMOSRegA);
-        _PM_writeCMOS(0x0B,_PM_oldCMOSRegB);
-        PM_outpb(0xA1,(uchar)((PM_inpb(0xA1) & 0xFE) | (_PM_oldRTCPIC2 & ~0xFE)));
+	/* Restore CMOS registers and mask RTC clock */
+	_PM_writeCMOS(0x0A,_PM_oldCMOSRegA);
+	_PM_writeCMOS(0x0B,_PM_oldCMOSRegB);
+	PM_outpb(0xA1,(uchar)((PM_inpb(0xA1) & 0xFE) | (_PM_oldRTCPIC2 & ~0xFE)));
 
-        /* Restore the interrupt vector */
-        _PM_restoreISR(RTC_idtEntry, &_PM_prevRTC);
-        _PM_rtcHandler = NULL;
-        }
+	/* Restore the interrupt vector */
+	_PM_restoreISR(RTC_idtEntry, &_PM_prevRTC);
+	_PM_rtcHandler = NULL;
+	}
 }
-

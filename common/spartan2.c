@@ -438,11 +438,11 @@ static int Spartan2_sp_reloc (Xilinx_desc * desc, ulong reloc_offset)
 
 static int Spartan2_ss_load (Xilinx_desc * desc, void *buf, size_t bsize)
 {
-        int ret_val = FPGA_FAIL;	/* assume the worst */
+	int ret_val = FPGA_FAIL;	/* assume the worst */
 	Xilinx_Spartan2_Slave_Serial_fns *fn = desc->iface_fns;
-        int i;
-        char  val;
-        
+	int i;
+	char  val;
+
 	PRINTF ("%s: start with interface functions @ 0x%p\n",
 			__FUNCTION__, fn);
 
@@ -460,8 +460,8 @@ static int Spartan2_ss_load (Xilinx_desc * desc, void *buf, size_t bsize)
 				"clk:\t0x%p\n"
 				"wr:\t0x%p\n"
 				"done:\t0x%p\n\n",
-				__FUNCTION__, &fn, fn, fn->pgm, fn->init, 
-				fn->clk, fn->wr, fn->done); 
+				__FUNCTION__, &fn, fn, fn->pgm, fn->init,
+				fn->clk, fn->wr, fn->done);
 #ifdef CFG_FPGA_PROG_FEEDBACK
 		printf ("Loading FPGA Device %d...\n", cookie);
 #endif
@@ -476,7 +476,7 @@ static int Spartan2_ss_load (Xilinx_desc * desc, void *buf, size_t bsize)
 		/* Establish the initial state */
 		(*fn->pgm) (TRUE, TRUE, cookie);	/* Assert the program, commit */
 
-                /* Wait for INIT state (init low)                            */
+		/* Wait for INIT state (init low)                            */
 		ts = get_timer (0);		/* get current time */
 		do {
 			CONFIG_FPGA_DELAY ();
@@ -485,7 +485,7 @@ static int Spartan2_ss_load (Xilinx_desc * desc, void *buf, size_t bsize)
 				return FPGA_FAIL;
 			}
 		} while (!(*fn->init) (cookie));
-                
+
 		/* Get ready for the burn */
 		CONFIG_FPGA_DELAY ();
 		(*fn->pgm) (FALSE, TRUE, cookie);	/* Deassert the program, commit */
@@ -502,29 +502,29 @@ static int Spartan2_ss_load (Xilinx_desc * desc, void *buf, size_t bsize)
 
 		/* Load the data */
 		while (bytecount < bsize) {
-                    
-                        /* Xilinx detects an error if INIT goes low (active)
-                           while DONE is low (inactive) */
-                        if ((*fn->done) (cookie) == 0 && (*fn->init) (cookie)) {
-                                puts ("** CRC error during FPGA load.\n");
-                                return (FPGA_FAIL);
-                        }
-                        val = data [bytecount ++];
-                        i = 8;
-                        do {
-                                /* Deassert the clock */
-                                (*fn->clk) (FALSE, TRUE, cookie);
-                                CONFIG_FPGA_DELAY ();
-                                /* Write data */
-                                (*fn->wr) ((val < 0), TRUE, cookie);
-                                CONFIG_FPGA_DELAY ();
-                                /* Assert the clock */
-                                (*fn->clk) (TRUE, TRUE, cookie);
-                                CONFIG_FPGA_DELAY ();
-                                val <<= 1;
-                                i --;
-                        } while (i > 0);
-                        
+
+			/* Xilinx detects an error if INIT goes low (active)
+			   while DONE is low (inactive) */
+			if ((*fn->done) (cookie) == 0 && (*fn->init) (cookie)) {
+				puts ("** CRC error during FPGA load.\n");
+				return (FPGA_FAIL);
+			}
+			val = data [bytecount ++];
+			i = 8;
+			do {
+				/* Deassert the clock */
+				(*fn->clk) (FALSE, TRUE, cookie);
+				CONFIG_FPGA_DELAY ();
+				/* Write data */
+				(*fn->wr) ((val < 0), TRUE, cookie);
+				CONFIG_FPGA_DELAY ();
+				/* Assert the clock */
+				(*fn->clk) (TRUE, TRUE, cookie);
+				CONFIG_FPGA_DELAY ();
+				val <<= 1;
+				i --;
+			} while (i > 0);
+
 #ifdef CFG_FPGA_PROG_FEEDBACK
 			if (bytecount % (bsize / 40) == 0)
 				putc ('.');		/* let them know we are alive */
@@ -540,7 +540,7 @@ static int Spartan2_ss_load (Xilinx_desc * desc, void *buf, size_t bsize)
 		/* now check for done signal */
 		ts = get_timer (0);		/* get current time */
 		ret_val = FPGA_SUCCESS;
-                (*fn->wr) (TRUE, TRUE, cookie);
+		(*fn->wr) (TRUE, TRUE, cookie);
 
 		while (! (*fn->done) (cookie)) {
 			/* XXX - we should have a check in here somewhere to
@@ -551,8 +551,8 @@ static int Spartan2_ss_load (Xilinx_desc * desc, void *buf, size_t bsize)
 			CONFIG_FPGA_DELAY ();
 			(*fn->clk) (TRUE, TRUE, cookie);	/* Assert the clock pin */
 
-                        putc ('*');
-                        
+			putc ('*');
+
 			if (get_timer (ts) > CFG_FPGA_WAIT) {	/* check the time */
 				puts ("** Timeout waiting for DONE to clear.\n");
 				ret_val = FPGA_FAIL;
@@ -579,8 +579,8 @@ static int Spartan2_ss_load (Xilinx_desc * desc, void *buf, size_t bsize)
 
 static int Spartan2_ss_dump (Xilinx_desc * desc, void *buf, size_t bsize)
 {
-        /* Readback is only available through the Slave Parallel and         */
-        /* boundary-scan interfaces.                                         */
+	/* Readback is only available through the Slave Parallel and         */
+	/* boundary-scan interfaces.                                         */
 	printf ("%s: Slave Serial Dumping is unavailable\n",
 			__FUNCTION__);
 	return FPGA_FAIL;

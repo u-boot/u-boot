@@ -211,18 +211,18 @@ void via_cfgfunc_via686(struct pci_controller *host, pci_dev_t dev, struct pci_c
 
 __asm         ("    .globl via_calibrate_time_base \n"
 	       "via_calibrate_time_base: 	   \n"
-               "   lis     9, 0xfe00		   \n"
-               "   li      0, 0x00		   \n"
+	       "   lis     9, 0xfe00		   \n"
+	       "   li      0, 0x00		   \n"
 	       "   mttbu   0			   \n"
 	       "   mttbl   0			   \n"
 	       "ctb_loop:			   \n"
-               "   lbz     0, 0x61(9)		   \n"
-               "   eieio			   \n"
-               "   andi.   0, 0, 0x20		   \n"
-               "   beq     ctb_loop		   \n"
-               "ctb_done:			   \n"
-               "   mftb    3			   \n"
-               "   blr");
+	       "   lbz     0, 0x61(9)		   \n"
+	       "   eieio			   \n"
+	       "   andi.   0, 0, 0x20		   \n"
+	       "   beq     ctb_loop		   \n"
+	       "ctb_done:			   \n"
+	       "   mftb    3			   \n"
+	       "   blr");
 
 extern unsigned long via_calibrate_time_base(void);
 

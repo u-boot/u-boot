@@ -28,7 +28,6 @@
 #include <common.h>
 #include <config.h>
 #include <command.h>
-#include <cmd_dcr.h>
 
 #if defined(CONFIG_4xx) && defined(CFG_CMD_SETGETDCR)
 
@@ -41,10 +40,12 @@ int do_getdcr ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[] )
     unsigned short dcrn;                     /* Device Control Register Num */
     unsigned long value;                     /* DCR's value */
 
+    unsigned long get_dcr(unsigned short);
+
     /* Validate arguments */
     if (argc < 2) {
-        printf("Usage:\n%s\n", cmdtp->usage);
-        return 1;
+	printf("Usage:\n%s\n", cmdtp->usage);
+	return 1;
     }
 
     /* Get a DCR */
@@ -63,41 +64,57 @@ int do_getdcr ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[] )
 */
 int do_setdcr ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
+   unsigned long get_dcr(unsigned short );
+   unsigned long set_dcr(unsigned short , unsigned long );
     unsigned short dcrn;                     /* Device Control Register Num */
-    unsigned long value;                     /* DCR's value */
+   unsigned long value;
+		    /* DCR's value */
     int nbytes;
     extern char console_buffer[];
 
     /* Validate arguments */
     if (argc < 2) {
-        printf("Usage:\n%s\n", cmdtp->usage);
-        return 1;
+	printf("Usage:\n%s\n", cmdtp->usage);
+	return 1;
     }
 
     /* Set a DCR */
     dcrn = (unsigned short)simple_strtoul(argv[1], NULL, 16);
     do {
-        value = get_dcr(dcrn);
-        printf("%04x: %08lx", dcrn, value);
-        nbytes = readline(" ? ");
-        if (nbytes == 0) {
-            /*
-             * <CR> pressed as only input, don't modify current
-             * location and exit command.
-             */
-            nbytes = 1;
-            return 0;
-        } else {
-            unsigned long i;
-            char *endp;
-            i = simple_strtoul(console_buffer, &endp, 16);
-            nbytes = endp - console_buffer;
-            if (nbytes)
-                set_dcr(dcrn, i);
-        }
+	value = get_dcr(dcrn);
+	printf("%04x: %08lx", dcrn, value);
+	nbytes = readline(" ? ");
+	if (nbytes == 0) {
+	    /*
+	     * <CR> pressed as only input, don't modify current
+	     * location and exit command.
+	     */
+	    nbytes = 1;
+	    return 0;
+	} else {
+	    unsigned long i;
+	    char *endp;
+	    i = simple_strtoul(console_buffer, &endp, 16);
+	    nbytes = endp - console_buffer;
+	    if (nbytes)
+		set_dcr(dcrn, i);
+	}
     } while (nbytes);
 
     return 0;
 } /* do_setdcr */
+
+/***************************************************/
+
+cmd_tbl_t U_BOOT_CMD(GETDCR) = MK_CMD_ENTRY(
+	"getdcr",	2,	1,	do_getdcr,
+	"getdcr  - Get an IBM PPC 4xx DCR's value\n",
+	"dcrn - return a DCR's value.\n"
+);
+cmd_tbl_t U_BOOT_CMD(SETDCR) = MK_CMD_ENTRY(
+	"setdcr",	2,	1,	do_setdcr,
+	"setdcr  - Set an IBM PPC 4xx DCR's value\n",
+	"dcrn - set a DCR's value.\n"
+);
 
 #endif /* CONFIG_4xx & CFG_CMD_SETGETDCR */

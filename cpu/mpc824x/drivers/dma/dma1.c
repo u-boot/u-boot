@@ -129,12 +129,12 @@ DMA_Status DMA_Initialize( int (*p)(char *,...))
  * snoop is the snoop enable control
  */
 extern DMA_Status DMA_direct_transfer( DMA_INTERRUPT_STEER int_steer,
-                                       DMA_TRANSFER_TYPE type,
-                                       unsigned int source,
-                                       unsigned int dest,
-                                       unsigned int len,
-                                       DMA_CHANNEL channel,
-                                       DMA_SNOOP_MODE snoop)
+				       DMA_TRANSFER_TYPE type,
+				       unsigned int source,
+				       unsigned int dest,
+				       unsigned int len,
+				       DMA_CHANNEL channel,
+				       DMA_SNOOP_MODE snoop)
 {
     DMA_MR md;
     DMA_CDAR cdar;
@@ -755,7 +755,7 @@ DMAStatus DMA_ISR( unsigned int eumbbar,
 	}
 	else if ( stat.pe == 1 )
 	{
-        /* PCI error */
+	/* PCI error */
 		rval = DMAPERROR;
 		if ( pe_func != 0 )
 		{
@@ -783,7 +783,7 @@ DMAStatus DMA_ISR( unsigned int eumbbar,
 	}
 
     temp = ( stat.reserved0 & 0xffffff ) << 8;
-   	temp |= ( ( stat.lme       & 0x1 ) << 7 );  /* write one to clear */
+	temp |= ( ( stat.lme       & 0x1 ) << 7 );  /* write one to clear */
 	temp |= ( ( stat.reserved1 & 0x3 ) << 5 );
     temp |= ( ( stat.pe        & 0x1 ) << 4 );  /* write one to clear */
     temp |= ( ( stat.reserved2 & 0x1 ) << 3 );

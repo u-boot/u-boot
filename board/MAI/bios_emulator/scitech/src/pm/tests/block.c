@@ -61,9 +61,9 @@ int main(void)
     ZTimerInit();
     LZTimerOn();
     for (i = 0; i < LOOPS; i++) {
-        PM_blockUntilTimeout(DELAY_MSECS);
-        ReportTime(LZTimerLap());
-        }
+	PM_blockUntilTimeout(DELAY_MSECS);
+	ReportTime(LZTimerLap());
+	}
     LZTimerOff();
     return 0;
 }

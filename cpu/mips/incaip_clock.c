@@ -25,14 +25,13 @@
 #include <asm/inca-ip.h>
 
 
-
 /*******************************************************************************
 *
-* get_cpuclk - returns the frequency of the CPU. 
+* get_cpuclk - returns the frequency of the CPU.
 *
 * Gets the value directly from the INCA-IP hardware.
 *
-* RETURNS: 
+* RETURNS:
 *          150.000.000 for 150 MHz
 *          130.000.000. for 130 Mhz
 *          100.000.000. for 100 Mhz
@@ -55,24 +54,24 @@ uint incaip_get_cpuclk(void)
    else
    {
       /* MUX I set to 100/133 MHz clock */
-      if (*((volatile ulong*)INCA_IP_CGU_CGU_DIVCR) & 0x40) 
+      if (*((volatile ulong*)INCA_IP_CGU_CGU_DIVCR) & 0x40)
       {
-         /* Division value is 1/3, maximum CPU operating */
-         /* frequency is 133.3 MHz                       */
-         return 130000000;
+	 /* Division value is 1/3, maximum CPU operating */
+	 /* frequency is 133.3 MHz                       */
+	 return 130000000;
       }
       else
       {
-         /* Division value is 1/4, maximum CPU operating */
-         /* frequency is 100 MHz                         */
-         return 100000000;
+	 /* Division value is 1/4, maximum CPU operating */
+	 /* frequency is 100 MHz                         */
+	 return 100000000;
       }
    }
 }
 
 /*******************************************************************************
 *
-* get_fpiclk - returns the frequency of the FPI bus. 
+* get_fpiclk - returns the frequency of the FPI bus.
 *
 * Gets the value directly from the INCA-IP hardware.
 *
@@ -82,26 +81,24 @@ uint incaip_get_cpuclk(void)
 *   This functions should be used by the hardware driver to get the correct
 *   frequency of the CPU. Don't use the macros, which are set to init the CPU
 *   frequency in the ROM code.
-*   The calculation for the 
+*   The calculation for the
 */
 uint incaip_get_fpiclk(void)
 {
    uint  clkCPU;
-   
+
    clkCPU = incaip_get_cpuclk();
-   
+
    switch (*((volatile ulong*)INCA_IP_CGU_CGU_DIVCR) & 0xC)
    {
       case 0x4:
-         return clkCPU >> 1; /* devided by 2 */
-         break;
+	 return clkCPU >> 1; /* devided by 2 */
+	 break;
       case 0x8:
-         return clkCPU >> 2; /* devided by 4 */
-         break;
+	 return clkCPU >> 2; /* devided by 4 */
+	 break;
       default:
-         return clkCPU;
-         break;
+	 return clkCPU;
+	 break;
    }
 }
-
-

@@ -46,7 +46,7 @@ unsigned int eepromReadLong(int offs)
       ret = *(unsigned short *)EEPROM_CAP;
 
       if ((ret & 0x8000) != 0)
-        break;
+	break;
     }
 
   value = *(unsigned long *)EEPROM_DATA;
@@ -83,7 +83,7 @@ void eepromWriteLong(int offs, unsigned int value)
       ret = *(unsigned short *)EEPROM_CAP;
 
       if ((ret & 0x8000) == 0)
-        break;
+	break;
     }
 }
 
@@ -107,7 +107,7 @@ void i2c_read (uchar *addr, int alen, uchar *buffer, int len)
   int i;
   int len2, ptr;
 
-  /*  printf("\naddr=%x alen=%x buffer=%x len=%x", addr[0], addr[1], *(short *)addr, alen, buffer, len); // test-only */
+  /*  printf("\naddr=%x alen=%x buffer=%x len=%x", addr[0], addr[1], *(short *)addr, alen, buffer, len); /###* test-only */
 
   ptr = *(short *)addr;
 
@@ -146,7 +146,7 @@ void i2c_write (uchar *addr, int alen, uchar *buffer, int len)
   int i;
   int len2, ptr;
 
-  /*  printf("\naddr=%x alen=%x buffer=%x len=%x", addr[0], addr[1], *(short *)addr, alen, buffer, len); // test-only */
+  /*  printf("\naddr=%x alen=%x buffer=%x len=%x", addr[0], addr[1], *(short *)addr, alen, buffer, len); /###* test-only */
 
   ptr = *(short *)addr;
 

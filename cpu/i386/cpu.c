@@ -1,7 +1,7 @@
 /*
  * (C) Copyright 2002
  * Daniel Engström, Omicron Ceti AB, daniel@omicron.se.
- * 
+ *
  * (C) Copyright 2002
  * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
  * Marius Groeger <mgroeger@sysgo.de>
@@ -40,11 +40,11 @@ int cpu_init(void)
 {
 	/* initialize FPU, reset EM, set MP and NE */
 	asm ("fninit\n" \
-             "movl %cr0, %eax\n" \
-             "andl $~0x4, %eax\n" \
-             "orl  $0x22, %eax\n" \
-             "movl %eax, %cr0\n" );
-	
+	     "movl %cr0, %eax\n" \
+	     "andl $~0x4, %eax\n" \
+	     "orl  $0x22, %eax\n" \
+	     "movl %eax, %cr0\n" );
+
 	return 0;
 }
 
@@ -66,4 +66,3 @@ void  flush_cache (unsigned long dummy1, unsigned long dummy2)
 	asm("wbinvd\n");
 	return;
 }
-

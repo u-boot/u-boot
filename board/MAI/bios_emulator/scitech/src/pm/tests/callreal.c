@@ -58,22 +58,22 @@ int main(void)
 
     printf("Program running in ");
     switch (PM_getModeType()) {
-        case PM_realMode:
-            printf("real mode.\n\n");
-            break;
-        case PM_286:
-            printf("16 bit protected mode.\n\n");
-            break;
-        case PM_386:
-            printf("32 bit protected mode.\n\n");
-            break;
-        }
+	case PM_realMode:
+	    printf("real mode.\n\n");
+	    break;
+	case PM_286:
+	    printf("16 bit protected mode.\n\n");
+	    break;
+	case PM_386:
+	    printf("32 bit protected mode.\n\n");
+	    break;
+	}
 
     /* Allocate a the block of real mode memory */
     if ((p = PM_allocRealSeg(sizeof(realModeCode), &r_seg, &r_off)) == NULL) {
-        printf("Unable to allocate real mode memory!\n");
-        exit(1);
-        }
+	printf("Unable to allocate real mode memory!\n");
+	exit(1);
+	}
 
     /* Copy the real mode code */
     memcpy(p,realModeCode,sizeof(realModeCode));
@@ -89,17 +89,17 @@ int main(void)
     sregs.ds = 8;
     PM_callRealMode(r_seg,r_off,&regs,&sregs);
     if (regs.x.ax != 2 || regs.x.bx != 1 || regs.x.cx != 4 || regs.x.dx != 3
-            || regs.x.si != 5 || regs.x.di != 6 || sregs.es != 7
-            || sregs.ds != 8) {
-        printf("Real mode call failed!\n");
-        printf("\n");
-        printf("ax = %04X, bx = %04X, cx = %04X, dx = %04X\n",
-            regs.x.ax,regs.x.bx,regs.x.cx,regs.x.dx);
-        printf("si = %04X, di = %04X, es = %04X, ds = %04X\n",
-            regs.x.si,regs.x.di,sregs.es,sregs.ds);
-        }
+	    || regs.x.si != 5 || regs.x.di != 6 || sregs.es != 7
+	    || sregs.ds != 8) {
+	printf("Real mode call failed!\n");
+	printf("\n");
+	printf("ax = %04X, bx = %04X, cx = %04X, dx = %04X\n",
+	    regs.x.ax,regs.x.bx,regs.x.cx,regs.x.dx);
+	printf("si = %04X, di = %04X, es = %04X, ds = %04X\n",
+	    regs.x.si,regs.x.di,sregs.es,sregs.ds);
+	}
     else
-        printf("Real mode call succeeded!\n");
+	printf("Real mode call succeeded!\n");
 
     /* Free the memory we allocated */
     PM_freeRealSeg(p);

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2003 ETC s.r.o.
  *
  * This program is free software; you can redistribute it and/or
@@ -52,7 +52,7 @@
 /*
  * Boot options. Setting delay to -1 stops autostart count down.
  * NOTE: Sending parameters to kernel depends on kernel version and
- * 2.4.19-rmk6-pxa1 patch used while my u-boot coding didn't accept 
+ * 2.4.19-rmk6-pxa1 patch used while my u-boot coding didn't accept
  * parameters at all! Do not get confused by them so.
  */
 #define CONFIG_BOOTDELAY   -1
@@ -71,7 +71,7 @@
 #define CFG_BARGSIZE            CFG_CBSIZE            /* boot args buf size  */
 
 #define CFG_MEMTEST_START       0xa0400000            /* memtest test area   */
-#define CFG_MEMTEST_END         0xa0800000      
+#define CFG_MEMTEST_END         0xa0800000
 
 #undef  CFG_CLKS_IN_HZ                       /* use HZ for freq. display     */
 
@@ -128,7 +128,7 @@
 #define CFG_MAX_FLASH_BANKS    	1  	/* FLASH banks count (not chip count)*/
 #define CFG_MAX_FLASH_SECT     	128	/* number of sector in FLASH bank    */
 #define WEP_FLASH_BUS_WIDTH 	4	/* we use 32 bit FLASH memory...     */
-#define WEP_FLASH_INTERLEAVE	2	/* ... made of 2 chips */ 
+#define WEP_FLASH_INTERLEAVE	2	/* ... made of 2 chips */
 #define WEP_FLASH_BANK_SIZE  0x2000000  /* size of one flash bank*/
 #define WEP_FLASH_SECT_SIZE  0x0040000  /* size of erase sector */
 #define WEP_FLASH_BASE       0x0000000  /* location of flash memory */
@@ -137,9 +137,9 @@
 
 /* This should be defined if CFI FLASH device is present. Actually benefit
    is not so clear to me. In other words we can provide more informations
-   to user, but this expects more complex flash handling we do not provide 
+   to user, but this expects more complex flash handling we do not provide
    now.*/
-#undef  CFG_FLASH_CFI	
+#undef  CFG_FLASH_CFI
 
 #define CFG_FLASH_ERASE_TOUT    (2*CFG_HZ)    /* timeout for Erase operation */
 #define CFG_FLASH_WRITE_TOUT    (2*CFG_HZ)    /* timeout for Write operation */
@@ -173,7 +173,7 @@
 #define CFG_MONITOR_LEN		0x20000		/* 128kb ( 1 flash sector )  */
 #define CFG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_ADDR		0x20000	        /* absolute address for now  */
-#define CFG_ENV_SIZE		0x2000	        
+#define CFG_ENV_SIZE		0x2000
 
 #undef  CONFIG_ENV_OVERWRITE                    /* env is not writable now   */
 
@@ -185,4 +185,3 @@
 #define CFG_LOAD_ADDR        0x40000
 
 #endif  /* __CONFIG_H */
-

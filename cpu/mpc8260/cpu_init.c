@@ -70,13 +70,13 @@ static void config_8260_ioports (volatile immap_t * immr)
 			uint tpmsk = ~pmsk;
 
 			/*
-                         * the (somewhat confused) paragraph at the
-                         * bottom of page 35-5 warns that there might
-                         * be "unknown behaviour" when programming
-                         * PSORx and PDIRx, if PPARx = 1, so I
-                         * decided this meant I had to disable the
-                         * dedicated function first, and enable it
-                         * last.
+			 * the (somewhat confused) paragraph at the
+			 * bottom of page 35-5 warns that there might
+			 * be "unknown behaviour" when programming
+			 * PSORx and PDIRx, if PPARx = 1, so I
+			 * decided this meant I had to disable the
+			 * dedicated function first, and enable it
+			 * last.
 			 */
 			iop->ppar &= tpmsk;
 			iop->psor = (iop->psor & tpmsk) | psor;

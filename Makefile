@@ -134,7 +134,8 @@ u-boot.dis:	u-boot
 		$(OBJDUMP) -d $< > $@
 
 u-boot:		depend subdirs $(OBJS) $(LIBS) $(LDSCRIPT)
-		$(LD) $(LDFLAGS) $(OBJS) \
+		UNDEF_SYM=`$(OBJDUMP) -x $(LIBS) |sed  -n -e 's/.*\(__u_boot_cmd_.*\)/-u\1/p'|sort|uniq`;\
+		$(LD) $(LDFLAGS) $$UNDEF_SYM $(OBJS) \
 			--start-group $(LIBS) --end-group \
 			-Map u-boot.map -o u-boot
 
@@ -741,7 +742,7 @@ ep7312_config	:	unconfig
 #########################################################################
 
 cradle_config	:	unconfig
-	@./mkconfig $(@:_config=) arm pxa cradle 
+	@./mkconfig $(@:_config=) arm pxa cradle
 
 csb226_config	:	unconfig
 	@./mkconfig $(@:_config=) arm pxa csb226

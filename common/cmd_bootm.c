@@ -27,12 +27,15 @@
 #include <common.h>
 #include <watchdog.h>
 #include <command.h>
-#include <cmd_boot.h>
 #include <image.h>
 #include <malloc.h>
 #include <zlib.h>
 #include <environment.h>
 #include <asm/byteorder.h>
+
+ /*cmd_boot.c*/
+ extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+
 #if (CONFIG_COMMANDS & CFG_CMD_DATE) || defined(CONFIG_TIMESTAMP)
 #include <rtc.h>
 #endif
@@ -96,6 +99,10 @@ typedef void boot_os_Fcn (cmd_tbl_t *cmdtp, int flag,
 			  ulong	addr,		/* of image to boot */
 			  ulong	*len_ptr,	/* multi-file image length table */
 			  int	verify);	/* getenv("verify")[0] != 'n' */
+
+#ifdef	DEBUG
+extern int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+#endif
 
 #ifdef CONFIG_PPC
 static boot_os_Fcn do_bootm_linux;
@@ -192,7 +199,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		read_dataflash(data, len, (char *)CFG_LOAD_ADDR);
 		data = CFG_LOAD_ADDR;
 	}
-#endif	
+#endif
 
 	if (verify) {
 		printf ("   Verifying Checksum ... ");
@@ -214,7 +221,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #elif defined(__I386__)
 	if (hdr->ih_arch != IH_CPU_I386)
 #elif defined(__mips__)
-	if (hdr->ih_arch != IH_CPU_MIPS)	
+	if (hdr->ih_arch != IH_CPU_MIPS)
 #else
 # error Unknown CPU type
 #endif
@@ -253,7 +260,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 #ifdef CONFIG_AMIGAONEG3SE
 	/*
-	 * We've possible left the caches enabled during 
+	 * We've possible left the caches enabled during
 	 * bios emulation, so turn them off again
 	 */
 	icache_disable();
@@ -342,12 +349,12 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	    do_bootm_netbsd (cmdtp, flag, argc, argv,
 			     addr, len_ptr, verify);
 	    break;
-	    
+
 	case IH_OS_RTEMS:
 	    do_bootm_rtems (cmdtp, flag, argc, argv,
 			     addr, len_ptr, verify);
 	    break;
-	     
+
 #if (CONFIG_COMMANDS & CFG_CMD_ELF)
 	case IH_OS_VXWORKS:
 	    do_bootm_vxworks (cmdtp, flag, argc, argv,
@@ -373,6 +380,14 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #endif
 	return 1;
 }
+
+cmd_tbl_t U_BOOT_CMD(BOOTM) =  MK_CMD_ENTRY(
+ 	"bootm",	CFG_MAXARGS,	1,	do_bootm,
+ 	"bootm   - boot application image from memory\n",
+ 	"[addr [arg ...]]\n    - boot application image stored in memory\n"
+ 	"        passing arguments 'arg ...'; when booting a Linux kernel,\n"
+ 	"        'arg' can be the address of an initrd image\n"
+);
 
 #ifdef CONFIG_PPC
 static void
@@ -856,6 +871,13 @@ int do_bootd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #endif
 	return rcode;
 }
+
+cmd_tbl_t U_BOOT_CMD(BOOTD) = MK_CMD_ENTRY(
+ 	"bootd",	1,	1,	do_bootd,
+ 	"bootd   - boot default, i.e., run 'bootcmd'\n",
+	NULL
+);
+
 #endif
 
 #if (CONFIG_COMMANDS & CFG_CMD_IMI)
@@ -916,6 +938,15 @@ static int image_info (ulong addr)
 	printf ("OK\n");
 	return 0;
 }
+cmd_tbl_t U_BOOT_CMD(IMINFO) = MK_CMD_ENTRY(
+	"iminfo",	CFG_MAXARGS,	1,	do_iminfo,
+	"iminfo  - print header information for application image\n",
+	"addr [addr ...]\n"
+	"    - print header information for application image starting at\n"
+	"      address 'addr' in memory; this includes verification of the\n"
+	"      image contents (magic number, header and payload checksums)\n"
+);
+
 #endif	/* CFG_CMD_IMI */
 
 void

@@ -6,12 +6,10 @@
 #include <command.h>
 #include <linux/ctype.h>
 #include <net.h>
-
-#include <cmd_bedbug.h>
+#include <bedbug/type.h>
 #include <bedbug/bedbug.h>
 #include <bedbug/regs.h>
 #include <bedbug/ppc.h>
-#include <elf.h>
 
 #if (CONFIG_COMMANDS & CFG_CMD_BEDBUG)
 
@@ -110,8 +108,11 @@ int do_bedbug_dis (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
   dis_last_len = len;
   return 0;
 } /* do_bedbug_dis */
-
-
+cmd_tbl_t U_BOOT_CMD(DIS) = MK_CMD_ENTRY(
+	"ds",      3,      1,      do_bedbug_dis,
+	"ds      - disassemble memory\n",
+	"ds <address> [# instructions]\n"
+);
 
 /* ======================================================================
  * Entry point from the interpreter to the assembler.  Assembles
@@ -154,7 +155,7 @@ int do_bedbug_asm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
       else
       {
 	printf( "*** Error: %s ***\n", asm_error_str( asm_err ));
-        rcode = 1;
+	rcode = 1;
       }
     }
     else
@@ -164,8 +165,11 @@ int do_bedbug_asm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
   }
   return rcode;
 } /* do_bedbug_asm */
-
-
+cmd_tbl_t U_BOOT_CMD(ASM) = MK_CMD_ENTRY(
+	"as",      2,      0,      do_bedbug_asm,
+	"as      - assemble memory\n",
+	"as <address>\n"
+);
 
 /* ======================================================================
  * Used to set a break point from the interpreter.  Simply calls into the
@@ -180,8 +184,14 @@ int do_bedbug_break (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
     return 0;
 
 } /* do_bedbug_break */
-
-
+cmd_tbl_t U_BOOT_CMD(BREAK) = MK_CMD_ENTRY(
+	"break",      3,      0,      do_bedbug_break,
+	"break   - set or clear a breakpoint\n",
+	" - Set or clear a breakpoint\n"
+	"break <address> - Break at an address\n"
+	"break off <bp#> - Disable breakpoint.\n"
+	"break show      - List breakpoints.\n"
+);
 
 /* ======================================================================
  * Called from the debug interrupt routine.  Simply calls the CPU-specific
@@ -278,8 +288,11 @@ int do_bedbug_continue (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
   bug_ctx.stopped = 0;
   return 0;
 } /* do_bedbug_continue */
-
-
+cmd_tbl_t U_BOOT_CMD(CONTINUE) = MK_CMD_ENTRY(
+	"continue",      1,      0,      do_bedbug_continue,
+	"continue- continue from a breakpoint\n",
+	" - continue from a breakpoint.\n"
+);
 
 /* ======================================================================
  * Interpreter command to continue to the next instruction, stepping into
@@ -307,8 +320,11 @@ int do_bedbug_step (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
   bug_ctx.stopped = 0;
   return 0;
 } /* do_bedbug_step */
-
-
+cmd_tbl_t U_BOOT_CMD(STEP) = MK_CMD_ENTRY(
+	"step",      1,      1,      do_bedbug_step,
+	"step    - single step execution.\n",
+	" - single step execution.\n"
+);
 
 /* ======================================================================
  * Interpreter command to continue to the next instruction, stepping over
@@ -336,8 +352,11 @@ int do_bedbug_next (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
   bug_ctx.stopped = 0;
   return 0;
 } /* do_bedbug_next */
-
-
+cmd_tbl_t U_BOOT_CMD(NEXT) = MK_CMD_ENTRY(
+	"next",      1,      1,      do_bedbug_next,
+	"next    - single step execution, stepping over subroutines.\n",
+	" - single step execution, stepping over subroutines.\n"
+);
 
 /* ======================================================================
  * Interpreter command to print the current stack.  This assumes an EABI
@@ -382,8 +401,11 @@ int do_bedbug_stack (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
   }
   return 0;
 } /* do_bedbug_stack */
-
-
+cmd_tbl_t U_BOOT_CMD(STACK) = MK_CMD_ENTRY(
+	"where",     1,      1,      do_bedbug_stack,
+	"where   - Print the running stack.\n",
+	" - Print the running stack.\n"
+);
 
 /* ======================================================================
  * Interpreter command to dump the registers.  Calls the CPU-specific
@@ -402,8 +424,11 @@ int do_bedbug_rdump (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
   show_regs( bug_ctx.regs );
   return 0;
 } /* do_bedbug_rdump */
-
-
+cmd_tbl_t U_BOOT_CMD(RDUMP) = MK_CMD_ENTRY(
+	"rdump",     1,      1,      do_bedbug_rdump,
+	"rdump   - Show registers.\n",
+	" - Show registers.\n"
+);
 /* ====================================================================== */
 #endif	/* CFG_CMD_BEDBUG */
 

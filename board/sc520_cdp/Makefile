@@ -25,11 +25,11 @@ include $(TOPDIR)/config.mk
 
 LIB	= lib$(BOARD).a
 
-OBJS	:= sc520_cdp.o flash.o 
+OBJS	:= sc520_cdp.o flash.o
 SOBJS	:= sc520_cdp_asm.o sc520_cdp_asm16.o
 
 $(LIB):	$(OBJS) $(SOBJS)
-	$(AR) crv $@ $^
+	$(AR) crv $@ $(OBJS)
 
 clean:
 	rm -f $(SOBJS) $(OBJS)

@@ -174,7 +174,7 @@ int board_postclk_init (void)
 
 	/* write program data to FPGA at the programming address
 	 * so extra /CS1 strobes at end of configuration don't actually
-         * write to any registers.
+	 * write to any registers.
 	 */
 	fpga = 0xff;		/* first write is ignored	*/
 	fpga = 0xff;		/* fill byte			*/
@@ -378,7 +378,7 @@ static long ram_size(ulong *base, long maxsize)
 	ramsize = 0;		/* no RAM present, or defective */
     else {
 	*base_addr = 0xaaaa5555;
-        *(base_addr + 1) = 0x5555aaaa;	/* use write to modify data bus */
+	*(base_addr + 1) = 0x5555aaaa;	/* use write to modify data bus */
 	if (*base_addr != 0xaaaa5555)
 	    ramsize = 0;	/* no RAM present, or defective */
     }
@@ -422,7 +422,7 @@ const uint sdram_table[] =
 	_not_used_, _not_used_, _not_used_, _not_used_,
 
 	/* single write. (offset 18 in upm RAM) */
-        /* FADS had 0x1f27fc04, ...
+	/* FADS had 0x1f27fc04, ...
 	 * but most other boards have 0x1f07fc04, which
 	 * sets GPL0 from A11MPC to 0 1/4 clock earlier,
 	 * like the single read.
@@ -518,7 +518,7 @@ long int initdram(int board_type)
 	 * This may be too fast, but works for any memory.
 	 * It is adjusted to 4096 cycles in 64 milliseconds if
 	 * possible once we know what memory we have.
-         *
+	 *
 	 * We have to be careful changing UPM registers after we
 	 * ask it to run these commands.
 	 *
@@ -532,7 +532,7 @@ long int initdram(int board_type)
 	 *    SCCR[DFBRG] 0
 	 *    PTP divide by 8
 	 *    1 chip select
-         */
+	 */
 	memctl->memc_mptpr = MPTPR_PTP_DIV8;	/* 0x0800 */
 	memctl->memc_mamr = SDRAM_MAMR_8COL & (~MAMR_PTAE); /* no refresh yet */
 
@@ -602,4 +602,3 @@ long int initdram(int board_type)
 
 	return (size_sdram);
 }
-

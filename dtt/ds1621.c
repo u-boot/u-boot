@@ -29,7 +29,7 @@
 
 #ifdef CONFIG_DTT_DS1621
 #if !defined(CFG_EEPROM_PAGE_WRITE_ENABLE) || \
-        (CFG_EEPROM_PAGE_WRITE_BITS < 1)
+	(CFG_EEPROM_PAGE_WRITE_BITS < 1)
 # error "CFG_EEPROM_PAGE_WRITE_ENABLE must be defined and CFG_EEPROM_PAGE_WRITE_BITS must be greater than 1 to use CONFIG_DTT_DS1621"
 #endif
 #include <i2c.h>
@@ -188,4 +188,3 @@ int dtt_get_temp(int sensor)
 
 
 #endif /* CONFIG_DTT_DS1621 */
-

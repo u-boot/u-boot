@@ -45,7 +45,7 @@
 
 #define GPIO 0  /* PPARx 0: General Purpose I/O */
 #define SPEC 1  /* PPARx 1: dedicated to a peripheral function, */
-                /*          i.e. the port has a SPECial use. */
+		/*          i.e. the port has a SPECial use. */
 
 #define ACTV 0  /* PODRx 0: ACTiVely driven as an output */
 #define OPEN 1  /* PODRx 1: OPEN-drain driver */
@@ -67,12 +67,12 @@ const iop_conf_t iop_conf_tab[4][32] = {
 	/* PA21 */ { CONF, GPIO,   0,  DOUT, ACTV,   1   }, /* STLED1_EN*     */
 	/* PA20 */ { CONF, GPIO,   0,  DOUT, ACTV,   1   }, /* PLED3_EN*      */
 	/* PA19 */ { CONF, GPIO,   0,  DOUT, ACTV,   1   }, /* PLED2_EN*      */
-        /* PA18 */ { CONF, GPIO,   0,  DOUT, ACTV,   0   }, /* PLED1_EN*      */
+	/* PA18 */ { CONF, GPIO,   0,  DOUT, ACTV,   0   }, /* PLED1_EN*      */
 	/* PA17 */ { CONF, GPIO,   0,  DOUT, ACTV,   0   }, /* N/C            */
 	/* PA16 */ { CONF, GPIO,   0,  DOUT, ACTV,   0   }, /* DAC_RST*       */
 	/* PA15 */ { CONF, GPIO,   0,  DOUT, ACTV,   1   }, /* CH34SDATA_PU   */
-        /* PA14 */ { CONF, GPIO,   0,  DOUT, ACTV,   1   }, /* CH12SDATA_PU   */
-        /* PA13 */ { CONF, GPIO,   0,  DOUT, ACTV,   1   }, /* SLRCLK_EN*     */
+	/* PA14 */ { CONF, GPIO,   0,  DOUT, ACTV,   1   }, /* CH12SDATA_PU   */
+	/* PA13 */ { CONF, GPIO,   0,  DOUT, ACTV,   1   }, /* SLRCLK_EN*     */
 	/* PA12 */ { CONF, GPIO,   0,  DOUT, ACTV,   1   }, /* MTRX_4ACDC*    */
 	/* PA11 */ { CONF, GPIO,   0,  DOUT, ACTV,   1   }, /* MTRX_4TEDS*    */
 	/* PA10 */ { CONF, GPIO,   0,  DOUT, ACTV,   1   }, /* MTRX_4XTDS*    */
@@ -143,7 +143,7 @@ const iop_conf_t iop_conf_tab[4][32] = {
 	/* PC20 */ { CONF, GPIO,   0,  DOUT, ACTV,   0   }, /* N/C            */
 	/* PC19 */ { CONF, SPEC,   0,  DIN,  ACTV,   0   }, /* CLK13, MII_RXCLK  */
 	/* PC18 */ { CONF, SPEC,   0,  DIN,  ACTV,   0   }, /* CLK14, MII_TXCLK  */
-        /* PC17 */ { CONF, SPEC,   0,  DOUT, ACTV,   0   }, /* BRGO8 (SCLK)   */
+	/* PC17 */ { CONF, SPEC,   0,  DOUT, ACTV,   0   }, /* BRGO8 (SCLK)   */
 	/* PC16 */ { CONF, GPIO,   0,  DOUT, ACTV,   0   }, /* N/C            */
 	/* PC15 */ { CONF, SPEC,   0,  DOUT, ACTV,   0   }, /* SMC2_TX        */
 	/* PC14 */ { CONF, GPIO,   0,  DOUT, ACTV,   0   }, /* N/C            */
@@ -156,11 +156,11 @@ const iop_conf_t iop_conf_tab[4][32] = {
 	/* PC7  */ { CONF, GPIO,   0,  DIN,  ACTV,   0   }, /* BPDIS_IN1      */
 	/* PC6  */ { CONF, GPIO,   0,  DOUT, ACTV,   0   }, /* N/C            */
 	/* PC5  */ { CONF, GPIO,   0,  DIN,  ACTV,   0   }, /* BTST_IN2*      */
-        /* PC4  */ { CONF, GPIO,   0,  DIN,  ACTV,   0   }, /* BTST_IN1*      */
+	/* PC4  */ { CONF, GPIO,   0,  DIN,  ACTV,   0   }, /* BTST_IN1*      */
 	/* PC3  */ { CONF, GPIO,   0,  DIN,  ACTV,   0   }, /* MUSH_STAT      */
 	/* PC2  */ { CONF, GPIO,   0,  DIN,  ACTV,   0   }, /* OUTDRV_STAT    */
 	/* PC1  */ { CONF, GPIO,   0,  DOUT, OPEN,   1   }, /* PHY_MDIO       */
-        /* PC0  */ { CONF, GPIO,   0,  DOUT, ACTV,   1   }, /* PHY_MDC        */
+	/* PC0  */ { CONF, GPIO,   0,  DOUT, ACTV,   1   }, /* PHY_MDC        */
     },
 
     /* Port D */
@@ -215,4 +215,3 @@ const iop_conf_t iop_conf_tab[4][32] = {
 	/* PD0  */ { SKIP, GPIO,   0,  DIN,  ACTV,   0   }  /* pin doesn't exist */
     }
 };
-

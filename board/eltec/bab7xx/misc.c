@@ -62,7 +62,7 @@ int misc_init_r (void)
     u_int  i, l, initSrom, copyNv;
     char buf[256];
     char hex[23] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0,
-             0, 0, 0, 0, 10, 11, 12, 13, 14, 15 };
+	     0, 0, 0, 0, 10, 11, 12, 13, 14, 15 };
     pci_dev_t bdf;
 
     char sromSYM[] = {
@@ -131,204 +131,204 @@ int misc_init_r (void)
 
     /* read out current revision srom contens */
     el_srom_load (0x0000, (u_char*)&eerev, sizeof(revinfo),
-                SECOND_DEVICE, FIRST_BLOCK);
+		SECOND_DEVICE, FIRST_BLOCK);
 
     /* read out current nvram shadow image */
     nvram_read (buf, CFG_NV_SROM_COPY_ADDR, CFG_SROM_SIZE);
 
     if (strcmp (eerev.magic, "ELTEC") != 0)
     {
-        /* srom is not initialized -> create a default revision info */
-        for (i = 0, ptr = (u_char *)&eerev; i < sizeof(revinfo); i++)
-            *ptr++ = 0x00;
-        strcpy(eerev.magic, "ELTEC");
-        eerev.revrev[0] = 1;
-        eerev.revrev[1] = 0;
-        eerev.size = 0x00E0;
-        eerev.category[0] = 0x01;
+	/* srom is not initialized -> create a default revision info */
+	for (i = 0, ptr = (u_char *)&eerev; i < sizeof(revinfo); i++)
+	    *ptr++ = 0x00;
+	strcpy(eerev.magic, "ELTEC");
+	eerev.revrev[0] = 1;
+	eerev.revrev[1] = 0;
+	eerev.size = 0x00E0;
+	eerev.category[0] = 0x01;
 
-        /* node id from dead e128 as default */
-        eerev.etheraddr[0] = 0x00;
-        eerev.etheraddr[1] = 0x00;
-        eerev.etheraddr[2] = 0x5B;
-        eerev.etheraddr[3] = 0x00;
-        eerev.etheraddr[4] = 0x2E;
-        eerev.etheraddr[5] = 0x4D;
+	/* node id from dead e128 as default */
+	eerev.etheraddr[0] = 0x00;
+	eerev.etheraddr[1] = 0x00;
+	eerev.etheraddr[2] = 0x5B;
+	eerev.etheraddr[3] = 0x00;
+	eerev.etheraddr[4] = 0x2E;
+	eerev.etheraddr[5] = 0x4D;
 
-        /* cache config word for bab750 */
-        *(int*)&eerev.res[0] = CLK2P0TO1_1MB_PB_0P5DH;
+	/* cache config word for bab750 */
+	*(int*)&eerev.res[0] = CLK2P0TO1_1MB_PB_0P5DH;
 
-        initSrom = 1;  /* force dialog */
-        copyNv   = 1;  /* copy to nvram */
+	initSrom = 1;  /* force dialog */
+	copyNv   = 1;  /* copy to nvram */
     }
 
     if ((copyNv == 0) &&   (el_srom_checksum((u_char*)&eerev, CFG_SROM_SIZE) !=
-                el_srom_checksum((u_char*)buf, CFG_SROM_SIZE)))
+		el_srom_checksum((u_char*)buf, CFG_SROM_SIZE)))
     {
-        printf ("Invalid revision info copy in nvram !\n");
-        printf ("Press key:\n  <c> to copy current revision info to nvram.\n");
-        printf ("  <r> to reenter revision info.\n");
-        printf ("=> ");
-        if (0 != readline (NULL))
-        {
-            switch ((char)toupper(console_buffer[0]))
-            {
-            case 'C':
-                copyNv = 1;
-                break;
-            case 'R':
-                copyNv = 1;
-                initSrom = 1;
-                break;
-            }
-        }
+	printf ("Invalid revision info copy in nvram !\n");
+	printf ("Press key:\n  <c> to copy current revision info to nvram.\n");
+	printf ("  <r> to reenter revision info.\n");
+	printf ("=> ");
+	if (0 != readline (NULL))
+	{
+	    switch ((char)toupper(console_buffer[0]))
+	    {
+	    case 'C':
+		copyNv = 1;
+		break;
+	    case 'R':
+		copyNv = 1;
+		initSrom = 1;
+		break;
+	    }
+	}
     }
 
     if (initSrom)
     {
-        memcpy (buf, &eerev.revision[0][0], 14);     /* save all revision info */
-        printf ("Enter revision number (0-9): %c  ", eerev.revision[0][0]);
-        if (0 != readline (NULL))
-        {
-            eerev.revision[0][0] = (char)toupper(console_buffer[0]);
-            memcpy (&eerev.revision[1][0], buf, 12); /* shift rest of rev info */
-        }
+	memcpy (buf, &eerev.revision[0][0], 14);     /* save all revision info */
+	printf ("Enter revision number (0-9): %c  ", eerev.revision[0][0]);
+	if (0 != readline (NULL))
+	{
+	    eerev.revision[0][0] = (char)toupper(console_buffer[0]);
+	    memcpy (&eerev.revision[1][0], buf, 12); /* shift rest of rev info */
+	}
 
-        printf ("Enter revision character (A-Z): %c  ", eerev.revision[0][1]);
-        if (1 == readline (NULL))
-        {
-            eerev.revision[0][1] = (char)toupper(console_buffer[0]);
-        }
+	printf ("Enter revision character (A-Z): %c  ", eerev.revision[0][1]);
+	if (1 == readline (NULL))
+	{
+	    eerev.revision[0][1] = (char)toupper(console_buffer[0]);
+	}
 
-        printf ("Enter board name (V-XXXX-XXXX): %s  ", (char *)&eerev.board);
-        if (11 == readline (NULL))
-        {
-            for (i=0; i<11; i++)
-                eerev.board[i] =  (char)toupper(console_buffer[i]);
-            eerev.board[11] = '\0';
-        }
+	printf ("Enter board name (V-XXXX-XXXX): %s  ", (char *)&eerev.board);
+	if (11 == readline (NULL))
+	{
+	    for (i=0; i<11; i++)
+		eerev.board[i] =  (char)toupper(console_buffer[i]);
+	    eerev.board[11] = '\0';
+	}
 
-        printf ("Enter serial number: %s ", (char *)&eerev.serial );
-        if (6 == readline (NULL))
-        {
-            for (i=0; i<6; i++)
-                eerev.serial[i] = console_buffer[i];
-            eerev.serial[6] = '\0';
-        }
+	printf ("Enter serial number: %s ", (char *)&eerev.serial );
+	if (6 == readline (NULL))
+	{
+	    for (i=0; i<6; i++)
+		eerev.serial[i] = console_buffer[i];
+	    eerev.serial[6] = '\0';
+	}
 
-        printf ("Enter ether node ID with leading zero (HEX): %02x%02x%02x%02x%02x%02x  ",
-            eerev.etheraddr[0], eerev.etheraddr[1],
-            eerev.etheraddr[2], eerev.etheraddr[3],
-            eerev.etheraddr[4], eerev.etheraddr[5]);
-        if (12 == readline (NULL))
-        {
-            for (i=0; i<12; i+=2)
-            eerev.etheraddr[i>>1] = (char)(16*hex[toupper(console_buffer[i])-'0'] +
-                               hex[toupper(console_buffer[i+1])-'0']);
-        }
+	printf ("Enter ether node ID with leading zero (HEX): %02x%02x%02x%02x%02x%02x  ",
+	    eerev.etheraddr[0], eerev.etheraddr[1],
+	    eerev.etheraddr[2], eerev.etheraddr[3],
+	    eerev.etheraddr[4], eerev.etheraddr[5]);
+	if (12 == readline (NULL))
+	{
+	    for (i=0; i<12; i+=2)
+	    eerev.etheraddr[i>>1] = (char)(16*hex[toupper(console_buffer[i])-'0'] +
+			       hex[toupper(console_buffer[i+1])-'0']);
+	}
 
-        l = strlen ((char *)&eerev.text);
-        printf("Add to text section (max 64 chr): %s ", (char *)&eerev.text );
-        if (0 != readline (NULL))
-        {
-            for (i = l; i<63; i++)
-                eerev.text[i] = console_buffer[i-l];
-            eerev.text[63] = '\0';
-        }
+	l = strlen ((char *)&eerev.text);
+	printf("Add to text section (max 64 chr): %s ", (char *)&eerev.text );
+	if (0 != readline (NULL))
+	{
+	    for (i = l; i<63; i++)
+		eerev.text[i] = console_buffer[i-l];
+	    eerev.text[63] = '\0';
+	}
 
-        if (strstr ((char *)&eerev.board, "75") != NULL)
-            eltec_board = 750;
-        else
-            eltec_board = 740;
+	if (strstr ((char *)&eerev.board, "75") != NULL)
+	    eltec_board = 750;
+	else
+	    eltec_board = 740;
 
-        if (eltec_board == 750)
-        {
-            if (CPU_TYPE == CPU_TYPE_750)
-                *(int*)&eerev.res[0] = CLK2P0TO1_1MB_PB_0P5DH;
-                else
-                *(int*)&eerev.res[0] = CLK2P5TO1_1MB_PB_0P5DH;
+	if (eltec_board == 750)
+	{
+	    if (CPU_TYPE == CPU_TYPE_750)
+		*(int*)&eerev.res[0] = CLK2P0TO1_1MB_PB_0P5DH;
+		else
+		*(int*)&eerev.res[0] = CLK2P5TO1_1MB_PB_0P5DH;
 
-            printf("Enter L2Cache config word with leading zero (HEX): %08X  ",
-                    *(int*)&eerev.res[0] );
-            if (0 != readline (NULL))
-            {
-                for (i=0; i<7; i+=2)
-                {
-                    eerev.res[i>>1] =
-                    (char)(16*hex[toupper(console_buffer[i])-'0'] +
-                    hex[toupper(console_buffer[i+1])-'0']);
-                }
-            }
+	    printf("Enter L2Cache config word with leading zero (HEX): %08X  ",
+		    *(int*)&eerev.res[0] );
+	    if (0 != readline (NULL))
+	    {
+		for (i=0; i<7; i+=2)
+		{
+		    eerev.res[i>>1] =
+		    (char)(16*hex[toupper(console_buffer[i])-'0'] +
+		    hex[toupper(console_buffer[i+1])-'0']);
+		}
+	    }
 
-            /* prepare network eeprom */
-            sromMII[20] = eerev.etheraddr[0];
-            sromMII[21] = eerev.etheraddr[1];
-            sromMII[22] = eerev.etheraddr[2];
-            sromMII[23] = eerev.etheraddr[3];
-            sromMII[24] = eerev.etheraddr[4];
-            sromMII[25] = eerev.etheraddr[5];
-            printf("\nSRom:  Writing DEC21143 MII info .. ");
+	    /* prepare network eeprom */
+	    sromMII[20] = eerev.etheraddr[0];
+	    sromMII[21] = eerev.etheraddr[1];
+	    sromMII[22] = eerev.etheraddr[2];
+	    sromMII[23] = eerev.etheraddr[3];
+	    sromMII[24] = eerev.etheraddr[4];
+	    sromMII[25] = eerev.etheraddr[5];
+	    printf("\nSRom:  Writing DEC21143 MII info .. ");
 
-            if (dc_srom_store ((u_short *)sromMII) == -1)
-                printf("FAILED\n");
-            else
-                printf("OK\n");
-        }
+	    if (dc_srom_store ((u_short *)sromMII) == -1)
+		printf("FAILED\n");
+	    else
+		printf("OK\n");
+	}
 
-        if (eltec_board == 740)
-        {
-            *(int *)&eerev.res[0] = 0;
-            sromSYM[20] = eerev.etheraddr[0];
-            sromSYM[21] = eerev.etheraddr[1];
-            sromSYM[22] = eerev.etheraddr[2];
-            sromSYM[23] = eerev.etheraddr[3];
-            sromSYM[24] = eerev.etheraddr[4];
-            sromSYM[25] = eerev.etheraddr[5];
-            printf("\nSRom:  Writing DEC21143 SYM info .. ");
+	if (eltec_board == 740)
+	{
+	    *(int *)&eerev.res[0] = 0;
+	    sromSYM[20] = eerev.etheraddr[0];
+	    sromSYM[21] = eerev.etheraddr[1];
+	    sromSYM[22] = eerev.etheraddr[2];
+	    sromSYM[23] = eerev.etheraddr[3];
+	    sromSYM[24] = eerev.etheraddr[4];
+	    sromSYM[25] = eerev.etheraddr[5];
+	    printf("\nSRom:  Writing DEC21143 SYM info .. ");
 
-            if (dc_srom_store ((u_short *)sromSYM) == -1)
-                printf("FAILED\n");
-            else
-                printf("OK\n");
-        }
+	    if (dc_srom_store ((u_short *)sromSYM) == -1)
+		printf("FAILED\n");
+	    else
+		printf("OK\n");
+	}
 
-        /* update CRC */
-        eerev.crc = el_srom_checksum((u_char *)eerev.board, eerev.size);
+	/* update CRC */
+	eerev.crc = el_srom_checksum((u_char *)eerev.board, eerev.size);
 
-        /* write new values */
-        printf("\nSRom:  Writing revision info ...... ");
-        if (el_srom_store((BLOCK_SIZE-sizeof(revinfo)), (u_char *)&eerev,
-                            sizeof(revinfo), SECOND_DEVICE, FIRST_BLOCK) == -1)
-            printf("FAILED\n\n");
-        else
-            printf("OK\n\n");
+	/* write new values */
+	printf("\nSRom:  Writing revision info ...... ");
+	if (el_srom_store((BLOCK_SIZE-sizeof(revinfo)), (u_char *)&eerev,
+			    sizeof(revinfo), SECOND_DEVICE, FIRST_BLOCK) == -1)
+	    printf("FAILED\n\n");
+	else
+	    printf("OK\n\n");
 
-        /* write new values as shadow image to nvram */
-        nvram_write (CFG_NV_SROM_COPY_ADDR, (void *)&eerev, CFG_SROM_SIZE);
+	/* write new values as shadow image to nvram */
+	nvram_write (CFG_NV_SROM_COPY_ADDR, (void *)&eerev, CFG_SROM_SIZE);
 
     } /*if (initSrom) */
 
     /* copy current values as shadow image to nvram */
     if (initSrom == 0 && copyNv == 1)
-        nvram_write (CFG_NV_SROM_COPY_ADDR, (void *)&eerev, CFG_SROM_SIZE);
+	nvram_write (CFG_NV_SROM_COPY_ADDR, (void *)&eerev, CFG_SROM_SIZE);
 
     /* update environment */
     sprintf (buf, "%02x:%02x:%02x:%02x:%02x:%02x",
-            eerev.etheraddr[0], eerev.etheraddr[1],
-            eerev.etheraddr[2], eerev.etheraddr[3],
-            eerev.etheraddr[4], eerev.etheraddr[5]);
+	    eerev.etheraddr[0], eerev.etheraddr[1],
+	    eerev.etheraddr[2], eerev.etheraddr[3],
+	    eerev.etheraddr[4], eerev.etheraddr[5]);
     setenv ("ethaddr", buf);
 
     /* print actual board identification */
     printf("Ident: %s  Ser %s  Rev %c%c\n",
-            eerev.board, (char *)&eerev.serial,
-            eerev.revision[0][0], eerev.revision[0][1]);
+	    eerev.board, (char *)&eerev.serial,
+	    eerev.revision[0][0], eerev.revision[0][1]);
 
     /* global board ident */
     if (strstr ((char *)&eerev.board, "75") != NULL)
-        eltec_board = 750;
+	eltec_board = 750;
     else
-        eltec_board = 740;
+	eltec_board = 740;
 
    /*
     * L2 cache configuration
@@ -337,12 +337,12 @@ int misc_init_r (void)
     ptr = getenv("l2cache");
     if (*ptr == '0')
     {
-        printf ("Cache: L2 NOT activated on BAB%d\n", eltec_board);
+	printf ("Cache: L2 NOT activated on BAB%d\n", eltec_board);
     }
     else
     {
-        printf ("Cache: L2 activated on BAB%d\n", eltec_board);
-        l2_cache_enable(*(int*)&eerev.res[0]);
+	printf ("Cache: L2 activated on BAB%d\n", eltec_board);
+	l2_cache_enable(*(int*)&eerev.res[0]);
     }
 #endif
 
@@ -351,12 +351,12 @@ int misc_init_r (void)
     */
     if ((ptr = getenv ("ata_reset_time")) != NULL)
     {
-        ata_reset_time = (int)simple_strtoul (ptr, NULL, 10);
+	ata_reset_time = (int)simple_strtoul (ptr, NULL, 10);
     }
     else
     {
-        sprintf (buf, "%d", ata_reset_time);
-        setenv ("ata_reset_time", buf);
+	sprintf (buf, "%d", ata_reset_time);
+	setenv ("ata_reset_time", buf);
     }
 
    /*
@@ -364,55 +364,55 @@ int misc_init_r (void)
     */
     if ((ptr = getenv ("scsi_reset_time")) != NULL)
     {
-        scsi_reset_time = (int)simple_strtoul (ptr, NULL, 10);
+	scsi_reset_time = (int)simple_strtoul (ptr, NULL, 10);
     }
     else
     {
-        sprintf (buf, "%d", scsi_reset_time);
-        setenv ("scsi_reset_time", buf);
+	sprintf (buf, "%d", scsi_reset_time);
+	setenv ("scsi_reset_time", buf);
     }
 
 
     if ((bdf = pci_find_device(PCI_VENDOR_ID_WINBOND, PCI_DEVICE_ID_WINBOND_83C553, 0)) > 0)
     {
-        if (pci_find_device(PCI_VENDOR_ID_NCR, PCI_DEVICE_ID_NCR_53C860, 0) > 0)
-        {
-            /* BAB740 with SCSI=IRQ 11; SCC=IRQ 9; no IDE; NCR860 at 80 Mhz */
-            scsi_dev_id = PCI_DEVICE_ID_NCR_53C860;
-            scsi_max_scsi_id = 7;
-            scsi_sym53c8xx_ccf = 0x15;
-            pci_write_config_byte (bdf, WINBOND_IDEIRCR, 0xb0);
-        }
+	if (pci_find_device(PCI_VENDOR_ID_NCR, PCI_DEVICE_ID_NCR_53C860, 0) > 0)
+	{
+	    /* BAB740 with SCSI=IRQ 11; SCC=IRQ 9; no IDE; NCR860 at 80 Mhz */
+	    scsi_dev_id = PCI_DEVICE_ID_NCR_53C860;
+	    scsi_max_scsi_id = 7;
+	    scsi_sym53c8xx_ccf = 0x15;
+	    pci_write_config_byte (bdf, WINBOND_IDEIRCR, 0xb0);
+	}
 
-        if ((ptr = getenv ("ide_dma_off")) != NULL)
-        {
-            u_long dma_off = simple_strtoul (ptr, NULL, 10);
-            /*
-            * setup user defined registers
-            * s.a. linux/drivers/ide/sl82c105.c
-            */
-            bdf |= PCI_BDF(0,0,1);            /* ide user reg at bdf function 1 */
-            if (dma_off & 1)
-            {
-                pci_write_config_byte (bdf, 0x46, 1);
-                printf("IDE:   DMA off flag set: Bus 0 : Dev 0\n");
-            }
-            if (dma_off & 2)
-            {
-                pci_write_config_byte (bdf, 0x4a, 1);
-                printf("IDE:   DMA off flag set: Bus 0 : Dev 1\n");
-            }
-            if (dma_off & 4)
-            {
-                pci_write_config_byte (bdf, 0x4e, 1);
-                printf("IDE:   DMA off flag set: Bus 1 : Dev 0\n");
-            }
-            if (dma_off & 8)
-            {
-                pci_write_config_byte (bdf, 0x52, 1);
-                printf("IDE:   DMA off flag set: Bus 1 : Dev 1\n");
-            }
-        }
+	if ((ptr = getenv ("ide_dma_off")) != NULL)
+	{
+	    u_long dma_off = simple_strtoul (ptr, NULL, 10);
+	    /*
+	    * setup user defined registers
+	    * s.a. linux/drivers/ide/sl82c105.c
+	    */
+	    bdf |= PCI_BDF(0,0,1);            /* ide user reg at bdf function 1 */
+	    if (dma_off & 1)
+	    {
+		pci_write_config_byte (bdf, 0x46, 1);
+		printf("IDE:   DMA off flag set: Bus 0 : Dev 0\n");
+	    }
+	    if (dma_off & 2)
+	    {
+		pci_write_config_byte (bdf, 0x4a, 1);
+		printf("IDE:   DMA off flag set: Bus 0 : Dev 1\n");
+	    }
+	    if (dma_off & 4)
+	    {
+		pci_write_config_byte (bdf, 0x4e, 1);
+		printf("IDE:   DMA off flag set: Bus 1 : Dev 0\n");
+	    }
+	    if (dma_off & 8)
+	    {
+		pci_write_config_byte (bdf, 0x52, 1);
+		printf("IDE:   DMA off flag set: Bus 1 : Dev 1\n");
+	    }
+	}
     }
     return (0);
 }
@@ -498,48 +498,48 @@ void dc21x4x_select_media(struct eth_device* dev)
 
     if (eltec_board == 740)
     {
-        printf("SYM media select "); /* BAB740 */
-        /* start autoneg. with 10 mbit */
-        media_reg_init (dev, 0x3ffff, 0x08af0008, 0x00a10008, 0x00a50008, 0x02400080);
-        ext = status = 0;
-        for (i=0; i<2000+ext; i++)
-        {
-            status = INL(dev, DE4X5_SISR);
-            udelay(1000);
-            if (status & 0x2000) ext = 2000;
-            if ((status & 0x7000) == 0x5000) break;
-        }
+	printf("SYM media select "); /* BAB740 */
+	/* start autoneg. with 10 mbit */
+	media_reg_init (dev, 0x3ffff, 0x08af0008, 0x00a10008, 0x00a50008, 0x02400080);
+	ext = status = 0;
+	for (i=0; i<2000+ext; i++)
+	{
+	    status = INL(dev, DE4X5_SISR);
+	    udelay(1000);
+	    if (status & 0x2000) ext = 2000;
+	    if ((status & 0x7000) == 0x5000) break;
+	}
 
-        /* autoneg. ok -> 100MB FD */
-        if ((status & 0x0100f000) == 0x0100d000)
-        {
-            media_reg_init (dev, 0x37f7f, 0x08270008, 0x00210008, 0x00250008, 0x03c40280);
-            printf("100baseTx-FD\n");
-        }
-        /* autoneg. ok -> 100MB HD */
-        else if ((status & 0x0080f000) == 0x0080d000)
-        {
-            media_reg_init (dev, 0x17f7f, 0x08270008, 0x00210008, 0x00250008, 0x03c40080);
-            printf("100baseTx\n");
-        }
-        /* autoneg. ok -> 10MB FD */
-        else if ((status & 0x0040f000) == 0x0040d000)
-        {
-            media_reg_init (dev, 0x07f7f, 0x08af0008, 0x00a10008, 0x00a50008, 0x02400280);
-            printf("10baseT-FD\n");
-        }
-        /* autoneg. fail -> 10MB HD */
-        else
-        {
-            media_reg_init (dev, 0x7f7f, 0x08af0008, 0x00a10008, 0x00a50008,
-                        (OMR_SDP | OMR_TTM | OMR_PM));
-            printf("10baseT\n");
-        }
+	/* autoneg. ok -> 100MB FD */
+	if ((status & 0x0100f000) == 0x0100d000)
+	{
+	    media_reg_init (dev, 0x37f7f, 0x08270008, 0x00210008, 0x00250008, 0x03c40280);
+	    printf("100baseTx-FD\n");
+	}
+	/* autoneg. ok -> 100MB HD */
+	else if ((status & 0x0080f000) == 0x0080d000)
+	{
+	    media_reg_init (dev, 0x17f7f, 0x08270008, 0x00210008, 0x00250008, 0x03c40080);
+	    printf("100baseTx\n");
+	}
+	/* autoneg. ok -> 10MB FD */
+	else if ((status & 0x0040f000) == 0x0040d000)
+	{
+	    media_reg_init (dev, 0x07f7f, 0x08af0008, 0x00a10008, 0x00a50008, 0x02400280);
+	    printf("10baseT-FD\n");
+	}
+	/* autoneg. fail -> 10MB HD */
+	else
+	{
+	    media_reg_init (dev, 0x7f7f, 0x08af0008, 0x00a10008, 0x00a50008,
+			(OMR_SDP | OMR_TTM | OMR_PM));
+	    printf("10baseT\n");
+	}
     }
     else
     {
-        printf("MII media selected\n");                     /* BAB750 */
-        OUTL(dev, OMR_SDP | OMR_PS | OMR_PM, DE4X5_OMR);    /* CSR6 */
+	printf("MII media selected\n");                     /* BAB750 */
+	OUTL(dev, OMR_SDP | OMR_PS | OMR_PM, DE4X5_OMR);    /* CSR6 */
     }
 }
 #endif /* CONFIG_TULIP_SELECT_MEDIA */

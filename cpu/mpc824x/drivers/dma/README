@@ -98,5 +98,3 @@ USAGE:
 7. The DMA driver routines contains a set
    of utilities, Set and Get, for host system
    to query and modify the desired DMA registers.
-
-

@@ -221,7 +221,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
     /* Check if Flash is (sufficiently) erased
      */
     if ((*addr & data) != data)
-        return ERR_NOT_ERASED;
+	return ERR_NOT_ERASED;
 
     /*
      * Disable interrupts which might cause a timeout

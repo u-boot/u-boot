@@ -124,11 +124,11 @@ typedef struct _i2o_im_stat
  PCI master needs to enable the devices' outbound interrupts it wants to handle (REMOTE)
  **/
 extern I2OSTATUS I2OMsgEnable( LOCATION,            /*  REMOTE/LOCAL   */
-                               unsigned int base,   /* pcsrbar/eumbbar */
-                               unsigned char n );   /* b'1' - msg 0
-						                             * b'10'- msg 1
-						                             * b'11'- both
-						                             */
+			       unsigned int base,   /* pcsrbar/eumbbar */
+			       unsigned char n );   /* b'1' - msg 0
+									     * b'10'- msg 1
+									     * b'11'- both
+									     */
 
 /**
  Disable the interrupt associated with in/out bound msg
@@ -138,11 +138,11 @@ extern I2OSTATUS I2OMsgEnable( LOCATION,            /*  REMOTE/LOCAL   */
  PCI master needs to disable outbound interrupts of devices it is not interested (REMOTE)
  **/
 extern I2OSTATUS I2OMsgDisable( LOCATION,          /*  REMOTE/LOCAL   */
-                                unsigned int base, /* pcsrbar/eumbbar */
-                                unsigned char n ); /* b'1' - msg 0
-			   			                            * b'10'- msg 1
-						                            * b'11'- both
-						                            */
+				unsigned int base, /* pcsrbar/eumbbar */
+				unsigned char n ); /* b'1' - msg 0
+									    * b'10'- msg 1
+									    * b'11'- both
+									    */
 
 /**
  Read the msg register either from local inbound msg 0/1,
@@ -155,9 +155,9 @@ extern I2OSTATUS I2OMsgDisable( LOCATION,          /*  REMOTE/LOCAL   */
  Otherwise local inbound msg is read.
  **/
 extern I2OSTATUS I2OMsgGet ( LOCATION,                 /* REMOTE/LOCAL */
-                             unsigned int base,        /*pcsrbar/eumbbar */
-                             unsigned int n,           /* 0 or 1 */
-                             unsigned int *msg );
+			     unsigned int base,        /*pcsrbar/eumbbar */
+			     unsigned int n,           /* 0 or 1 */
+			     unsigned int *msg );
 
 /**
  Write to nth Msg register either on local outbound msg 0/1,
@@ -170,9 +170,9 @@ extern I2OSTATUS I2OMsgGet ( LOCATION,                 /* REMOTE/LOCAL */
  Otherwise local outbound msg is written.
  **/
 extern I2OSTATUS I2OMsgPost( LOCATION,                 /* REMOTE/LOCAL */
-                                unsigned int base,        /*pcsrbar/eumbbar */
-                                unsigned int n,           /* 0 or 1 */
-                                unsigned int msg );
+				unsigned int base,        /*pcsrbar/eumbbar */
+				unsigned int n,           /* 0 or 1 */
+				unsigned int msg );
 
 /**
  Enable the In/Out DoorBell Interrupt
@@ -184,8 +184,8 @@ extern I2OSTATUS I2OMsgPost( LOCATION,                 /* REMOTE/LOCAL */
  PCI master needs to enable outbound doorbell interrupts of the devices it wants to handle
  **/
 extern I2OSTATUS I2ODBEnable( LOCATION,            /*  REMOTE/LOCAL   */
-                              unsigned int base,   /* pcsrbar/eumbbar */
-                              unsigned int in_db );/* when LOCAL, I2O_IN_DB, MC, I2O_IN_DB|MC */
+			      unsigned int base,   /* pcsrbar/eumbbar */
+			      unsigned int in_db );/* when LOCAL, I2O_IN_DB, MC, I2O_IN_DB|MC */
 
 /**
  Disable the In/Out DoorBell Interrupt
@@ -196,8 +196,8 @@ extern I2OSTATUS I2ODBEnable( LOCATION,            /*  REMOTE/LOCAL   */
 
  **/
 extern I2OSTATUS I2ODBDisable( LOCATION,              /*  REMOTE/LOCAL   */
-                               unsigned int base,     /* pcsrbar/eumbbar */
-                               unsigned int in_db );  /* when LOCAL, I2O_IN_DB, MC, I2O_IN_DB|MC */
+			       unsigned int base,     /* pcsrbar/eumbbar */
+			       unsigned int in_db );  /* when LOCAL, I2O_IN_DB, MC, I2O_IN_DB|MC */
 
 /**
  Read a local indoorbell register, or an outdoorbell of devices.
@@ -210,7 +210,7 @@ extern I2OSTATUS I2ODBDisable( LOCATION,              /*  REMOTE/LOCAL   */
  Otherwise local in doorbell is read
  **/
 extern unsigned int I2ODBGet( LOCATION,             /*  REMOTE/LOCAL   */
-                              unsigned int base);   /* pcsrbar/eumbbar */
+			      unsigned int base);   /* pcsrbar/eumbbar */
 
 /**
  Write to a local outdoorbell register, or an indoorbell register of devices.
@@ -222,8 +222,8 @@ extern unsigned int I2ODBGet( LOCATION,             /*  REMOTE/LOCAL   */
  Otherwise local out doorbell is written
  **/
 extern void I2ODBPost( LOCATION,                 /*  REMOTE/LOCAL   */
-                       unsigned int base,        /* pcsrbar/eumbbar */
-                       unsigned int msg );       /*   in   / out    */
+		       unsigned int base,        /* pcsrbar/eumbbar */
+		       unsigned int msg );       /*   in   / out    */
 
 /**
  Read the outbound msg unit interrupt status of devices. Reading an interrupt status register,
@@ -252,8 +252,8 @@ extern I2OSTATUS I2OInMsgStatGet( unsigned int eumbbar, I2OIMSTAT * );
  MUCR.
  **/
 extern I2OSTATUS I2OFIFOInit( unsigned int eumbbar,
-				              QUEUE_SIZE,
-				              unsigned int qba);/* queue base address that must be aligned at 1M */
+					      QUEUE_SIZE,
+					      unsigned int qba);/* queue base address that must be aligned at 1M */
 /**
  Enable the circular queue
  **/
@@ -297,8 +297,8 @@ extern void I2OFIFOOverflowIntDisable( unsigned int eumbbar );
  Unless both free queues are initialized, allocating a free MF will return 0xffffffff
  **/
 extern I2OSTATUS I2OFIFOAlloc( LOCATION,
-			 	               unsigned int base,
-				               void         **pMsg);
+					       unsigned int base,
+					       void         **pMsg);
 /**
  Free a used msg frame back to free queue
  PCI Master frees a MFA through outbound queue port of device(OFQPR)
@@ -311,8 +311,8 @@ extern I2OSTATUS I2OFIFOAlloc( LOCATION,
  and by device to initialize Outbound free queue before I2OFIFOAlloc can be used.
  **/
 extern I2OSTATUS I2OFIFOFree( LOCATION,
-			                  unsigned int base,
-			                  void        *pMsg );
+					  unsigned int base,
+					  void        *pMsg );
 
 /**
  Post a msg into FIFO
@@ -323,8 +323,8 @@ extern I2OSTATUS I2OFIFOFree( LOCATION,
  Otherwise queue overflow interrupt will assert.
  **/
 extern I2OSTATUS I2OFIFOPost( LOCATION,
-		                      unsigned int base,
-		                      void         *pMsg );
+				      unsigned int base,
+				      void         *pMsg );
 
 /**
  Read a msg from FIFO
@@ -332,14 +332,14 @@ extern I2OSTATUS I2OFIFOPost( LOCATION,
  while local processor reads a msg from its inbound post queue(IPTPR)
  **/
 extern I2OSTATUS I2OFIFOGet( LOCATION,
-	 		                  unsigned int base,
+					  unsigned int base,
 							  void     **pMsg );
 
 /**
  Get the I2O PCI configuration identification register
  **/
 extern I2OSTATUS I2OPCIConfigGet( LOCATION,
-			                   unsigned int base,
+					   unsigned int base,
 							   I2OIOP *);
 
 #endif

@@ -66,11 +66,13 @@ long initdram (int board_type)
 	return cpc710_ram_init ();
 }
 
-void do_reset (cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
+int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	out32 (REG (CPC0, SPOR), 0);
 	iobarrier_rw ();
 	while (1);
+	/* notreached */
+	return (-1);
 }
 
 int board_pre_init (void)
@@ -201,7 +203,7 @@ void watchdog_reset (void)
 }
 
 #if (CONFIG_COMMANDS & CFG_CMD_BSP)
-int do_wd (cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
+int do_wd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	switch (argc) {
 	case 1:
@@ -230,6 +232,14 @@ int do_wd (cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
 	printf ("Usage:\n%s\n", cmdtp->usage);
 	return 1;
 }
+
+cmd_tbl_t U_BOOT_CMD(wd) = MK_CMD_ENTRY(
+	"wd",	2,	1,	do_wd,
+	"wd      - check and set watchdog\n",
+	"on   - switch watchDog on\n"
+	"wd off  - switch watchdog off\n"
+	"wd      - print current status\n"
+);
 
 #endif	/* CFG_CMD_BSP */
 #endif	/* CONFIG_WATCHDOG */

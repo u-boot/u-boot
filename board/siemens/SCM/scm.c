@@ -97,20 +97,20 @@ const iop_conf_t iop_conf_tab[4][32] = {
 	/* PB20 */ {   1,   1,   1,   0,   0,   0   }, /* TDM_D2 L1RSYNC */
 	/* PB19 */ {   1,   0,   0,   0,   0,   0   }, /* UID */
 	/* PB18 */ {   0,   1,   0,   0,   0,   0   },
-        /* PB17 */ {   1,   1,   0,   0,   0,   0   }, /* FCC3 MII RX_DV */
-        /* PB16 */ {   1,   1,   0,   0,   0,   0   }, /* FCC3 MII RX_ER */
-        /* PB15 */ {   1,   1,   0,   1,   0,   0   }, /* FCC3 MII TX_ER */
-        /* PB14 */ {   1,   1,   0,   1,   0,   0   }, /* FCC3 MII TX_EN */
-        /* PB13 */ {   1,   1,   0,   0,   0,   0   }, /* FCC3 MII COL */
-        /* PB12 */ {   1,   1,   0,   0,   0,   0   }, /* FCC3 MII CRS */
-        /* PB11 */ {   1,   1,   0,   0,   0,   0   }, /* FCC3 MII RxD[3] */
-        /* PB10 */ {   1,   1,   0,   0,   0,   0   }, /* FCC3 MII RxD[2] */
-        /* PB9  */ {   1,   1,   0,   0,   0,   0   }, /* FCC3 MII RxD[1] */
-        /* PB8  */ {   1,   1,   0,   0,   0,   0   }, /* FCC3 MII RxD[0] */
-        /* PB7  */ {   1,   1,   0,   1,   0,   0   }, /* FCC3 MII TxD[3] */
-        /* PB6  */ {   1,   1,   0,   1,   0,   0   }, /* FCC3 MII TxD[2] */
-        /* PB5  */ {   1,   1,   0,   1,   0,   0   }, /* FCC3 MII TxD[1] */
-        /* PB4  */ {   1,   1,   0,   1,   0,   0   }, /* FCC3 MII TxD[0] */
+	/* PB17 */ {   1,   1,   0,   0,   0,   0   }, /* FCC3 MII RX_DV */
+	/* PB16 */ {   1,   1,   0,   0,   0,   0   }, /* FCC3 MII RX_ER */
+	/* PB15 */ {   1,   1,   0,   1,   0,   0   }, /* FCC3 MII TX_ER */
+	/* PB14 */ {   1,   1,   0,   1,   0,   0   }, /* FCC3 MII TX_EN */
+	/* PB13 */ {   1,   1,   0,   0,   0,   0   }, /* FCC3 MII COL */
+	/* PB12 */ {   1,   1,   0,   0,   0,   0   }, /* FCC3 MII CRS */
+	/* PB11 */ {   1,   1,   0,   0,   0,   0   }, /* FCC3 MII RxD[3] */
+	/* PB10 */ {   1,   1,   0,   0,   0,   0   }, /* FCC3 MII RxD[2] */
+	/* PB9  */ {   1,   1,   0,   0,   0,   0   }, /* FCC3 MII RxD[1] */
+	/* PB8  */ {   1,   1,   0,   0,   0,   0   }, /* FCC3 MII RxD[0] */
+	/* PB7  */ {   1,   1,   0,   1,   0,   0   }, /* FCC3 MII TxD[3] */
+	/* PB6  */ {   1,   1,   0,   1,   0,   0   }, /* FCC3 MII TxD[2] */
+	/* PB5  */ {   1,   1,   0,   1,   0,   0   }, /* FCC3 MII TxD[1] */
+	/* PB4  */ {   1,   1,   0,   1,   0,   0   }, /* FCC3 MII TxD[0] */
 	/* PB3  */ {   0,   0,   0,   0,   0,   0   }, /* pin doesn't exist */
 	/* PB2  */ {   0,   0,   0,   0,   0,   0   }, /* pin doesn't exist */
 	/* PB1  */ {   0,   0,   0,   0,   0,   0   }, /* pin doesn't exist */
@@ -133,8 +133,8 @@ const iop_conf_t iop_conf_tab[4][32] = {
 	/* PC20 */ {   1,   1,   0,   0,   0,   0   }, /* FCC1 MII RX_CLK */
 	/* PC19 */ {   0,   1,   0,   0,   0,   0   },
 	/* PC18 */ {   0,   1,   0,   0,   0,   0   },
-        /* PC17 */ {   1,   1,   0,   0,   0,   0   }, /* FCC3 MII RX_CLK */
-        /* PC16 */ {   1,   1,   0,   0,   0,   0   }, /* FCC3 MII TX_CLK */
+	/* PC17 */ {   1,   1,   0,   0,   0,   0   }, /* FCC3 MII RX_CLK */
+	/* PC16 */ {   1,   1,   0,   0,   0,   0   }, /* FCC3 MII TX_CLK */
 	/* PC15 */ {   0,   0,   0,   1,   0,   0   },
 	/* PC14 */ {   0,   1,   0,   0,   0,   0   },
 	/* PC13 */ {   0,   0,   0,   1,   0,   0   }, /* RES_PHY_L */
@@ -360,7 +360,7 @@ long int initdram (int board_type)
     ulong start =  memctl->memc_ ## brX & 0xFFFF8000;	\
     ulong sizem = ~memctl->memc_ ## orX | 0x00007FFF;	\
     printf ("\n"					\
-    	    #brX " 0x%08x  " #orX " 0x%08x "		\
+	    #brX " 0x%08x  " #orX " 0x%08x "		\
 	    "==> 0x%08lx ... 0x%08lx = %ld MB\n",	\
 	memctl->memc_ ## brX, memctl->memc_ ## orX,	\
 	start, start+sizem, (sizem+1)>>20);		\

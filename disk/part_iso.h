@@ -127,8 +127,6 @@ typedef struct iso_part_rec {
 }iso_part_rec_t;
 
 
-
-
 typedef struct iso_val_entry {
 	unsigned char	header_id;		/* Header ID must be 0x01 */
 	unsigned char	platform;			/* Platform: 0=x86, 1=PowerPC, 2=MAC */
@@ -159,13 +157,4 @@ typedef struct iso_init_def_entry {
 
 void print_partition_cd(int dev);
 
-
-
-
-
-
-
-
 #endif /* _PART_CD_H */
-
-

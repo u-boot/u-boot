@@ -28,7 +28,7 @@ LIB	= lib$(BOARD).a
 OBJS	= $(BOARD).o flash.o eccx.o
 
 $(LIB):	.depend $(OBJS)
-	$(AR) crv $@ $^
+	$(AR) crv $@ $(OBJS)
 
 #########################################################################
 

@@ -1,6 +1,6 @@
 /*
  * (C) Copyright 2002
- * Thomas Frieden, Hyperion Entertainment 
+ * Thomas Frieden, Hyperion Entertainment
  * ThomasF@hyperion-entertainment.com
  *
  * See file CREDITS for list of people who contributed to this
@@ -34,4 +34,3 @@ void disable_nvram(void)
 {
     pci_write_cfg_byte(0, 0, 0x56, 0x0);
 }
-

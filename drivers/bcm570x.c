@@ -19,7 +19,6 @@
 #include <malloc.h>
 
 
-
 /*
  * PCI Registers and definitions.
  */
@@ -31,7 +30,6 @@
  */
 #define BCM570X_MBAR 	0x80100000
 #define BCM570X_ILINE   1
-
 
 
 #define SECOND_USEC	1000000
@@ -96,7 +94,6 @@ static unsigned int tx_max_coalesce_frames[MAX_UNITS] =
 #define ST_COAL_TK DEFAULT_STATS_COALESCING_TICKS
 static unsigned int stats_coalesce_ticks[MAX_UNITS] =
 	{ST_COAL_TK, ST_COAL_TK, ST_COAL_TK, ST_COAL_TK};
-
 
 
 /*
@@ -272,7 +269,6 @@ struct pci_device_table {
 };
 
 #define n570xDevices   (sizeof(bcm570xDevices)/sizeof(bcm570xDevices[0]))
-
 
 
 /*
@@ -522,7 +518,7 @@ int eth_init(bd_t *bis)
     else if ((pDevice->PhyId & PHY_ID_MASK) == PHY_BCM5701_PHY_ID)
 	printf("Broadcom BCM5701 Integrated Copper ");
     else if ((pDevice->PhyId & PHY_ID_MASK) == PHY_BCM5703_PHY_ID)
-        printf("Broadcom BCM5703 Integrated Copper ");
+	printf("Broadcom BCM5703 Integrated Copper ");
     else if ((pDevice->PhyId & PHY_ID_MASK) == PHY_BCM8002_PHY_ID)
 	printf("Broadcom BCM8002 SerDes ");
     else if (pDevice->EnableTbi)
@@ -556,21 +552,21 @@ eth_isr(void)
     if (pDevice->UseTaggedStatus) {
 	if ((pDevice->pStatusBlkVirt->Status & STATUS_BLOCK_UPDATED) ||
 	    pUmDevice->adapter_just_inited) {
-            MB_REG_WR(pDevice, Mailbox.Interrupt[0].Low, 1);
-            oldtag = pDevice->pStatusBlkVirt->StatusTag;
+	    MB_REG_WR(pDevice, Mailbox.Interrupt[0].Low, 1);
+	    oldtag = pDevice->pStatusBlkVirt->StatusTag;
 
-            for (i = 0; ; i++) {
-                pDevice->pStatusBlkVirt->Status &= ~STATUS_BLOCK_UPDATED;
-                LM_ServiceInterrupts(pDevice);
-                newtag = pDevice->pStatusBlkVirt->StatusTag;
-                if ((newtag == oldtag) || (i > 50)) {
-                    MB_REG_WR(pDevice, Mailbox.Interrupt[0].Low, newtag << 24);
-                    if (pDevice->UndiFix) {
-                        REG_WR(pDevice, Grc.LocalCtrl,
+	    for (i = 0; ; i++) {
+		pDevice->pStatusBlkVirt->Status &= ~STATUS_BLOCK_UPDATED;
+		LM_ServiceInterrupts(pDevice);
+		newtag = pDevice->pStatusBlkVirt->StatusTag;
+		if ((newtag == oldtag) || (i > 50)) {
+		    MB_REG_WR(pDevice, Mailbox.Interrupt[0].Low, newtag << 24);
+		    if (pDevice->UndiFix) {
+			REG_WR(pDevice, Grc.LocalCtrl,
 			       pDevice->GrcLocalCtrl | 0x2);
-                    }
-                    break;
-                 }
+		    }
+		    break;
+		 }
 		oldtag = newtag;
 	    }
 	}
@@ -625,8 +621,8 @@ eth_send(volatile void *packet, int length)
     /* Link down, return */
     while(pDevice->LinkStatus == LM_STATUS_LINK_DOWN) {
 #if 0
-        printf("eth%d: link down - check cable or link partner.\n",
-               pUmDevice->index);
+	printf("eth%d: link down - check cable or link partner.\n",
+	       pUmDevice->index);
 #endif
 	eth_isr();
 
@@ -672,7 +668,7 @@ eth_send(volatile void *packet, int length)
      * used to send the packet.
      */
     if (MM_CoalesceTxBuffer (pDevice, pPacket) != LM_STATUS_SUCCESS) {
-        if (pUmPacket->skbuff == NULL){
+	if (pUmPacket->skbuff == NULL){
 	    /* Packet was discarded */
 	    printf("TX: failed (1)\n");
 	    status = 1;
@@ -680,8 +676,8 @@ eth_send(volatile void *packet, int length)
 	    printf("TX: failed (2)\n");
 	    status = 2;
 	}
-        QQ_PushHead (&pDevice->TxPacketFreeQ.Container, pPacket);
-        return status;
+	QQ_PushHead (&pDevice->TxPacketFreeQ.Container, pPacket);
+	return status;
     }
 
     /* Copy packet to DMA buffer */
@@ -694,11 +690,11 @@ eth_send(volatile void *packet, int length)
     pPacket->Flags &= ~SND_BD_FLAG_TCP_UDP_CKSUM;
 
     if ( LM_SendPacket(pDevice, pPacket) == LM_STATUS_FAILURE){
-        /*
-         *  A lower level send failure will push the packet descriptor back
-         *  in the free queue, so just deal with the VxWorks clusters.
-         */
-        if (pUmPacket->skbuff == NULL){
+	/*
+	 *  A lower level send failure will push the packet descriptor back
+	 *  in the free queue, so just deal with the VxWorks clusters.
+	 */
+	if (pUmPacket->skbuff == NULL){
 	    printf("TX failed (1)!\n");
 	    /* Packet was discarded */
 	    status = 3;
@@ -804,7 +800,6 @@ eth_rx(void)
 }
 
 
-
 /* Shut down device */
 void
 eth_halt(void)
@@ -814,19 +809,19 @@ eth_halt(void)
     if (pDevice && pUmDevice && pUmDevice->opened){
 	printf("\neth%d:%s,", pUmDevice->index, pUmDevice->name);
 	printf("HALT,");
-        /* stop device */
-        LM_Halt(pDevice);
+	/* stop device */
+	LM_Halt(pDevice);
 	printf("POWER DOWN,");
-        LM_SetPowerState(pDevice, LM_POWER_STATE_D3);
+	LM_SetPowerState(pDevice, LM_POWER_STATE_D3);
 
-        /* Free the memory allocated by the device in tigon3 */
-        for (i = 0; i < pUmDevice->mem_list_num; i++)  {
-            if (pUmDevice->mem_list[i])  {
+	/* Free the memory allocated by the device in tigon3 */
+	for (i = 0; i < pUmDevice->mem_list_num; i++)  {
+	    if (pUmDevice->mem_list[i])  {
 		/* sanity check */
-                if (pUmDevice->dma_list[i]) {  /* cache-safe memory */
-                    free(pUmDevice->mem_list[i]);
+		if (pUmDevice->dma_list[i]) {  /* cache-safe memory */
+		    free(pUmDevice->mem_list[i]);
 		} else {
-                    free(pUmDevice->mem_list[i]);  /* normal memory   */
+		    free(pUmDevice->mem_list[i]);  /* normal memory   */
 		}
 	    }
 	}
@@ -838,8 +833,6 @@ eth_halt(void)
 	printf("done - offline.\n");
     }
 }
-
-
 
 
 /*
@@ -929,7 +922,6 @@ MM_AllocateSharedMemory(PLM_DEVICE_BLOCK pDevice, LM_UINT32 BlockSize,
 
     return LM_STATUS_SUCCESS;
 }
-
 
 
 LM_STATUS
@@ -1183,26 +1175,26 @@ MM_IndicateStatus(PLM_DEVICE_BLOCK pDevice, LM_STATUS Status)
     if (Status == LM_STATUS_LINK_DOWN) {
 	sprintf(buf,"eth%d: %s: NIC Link is down\n",
 		pUmDevice->index,pUmDevice->name);
-        lcd[0] = 'L';lcd[1]='N';lcd[2]='K';lcd[3] = '?';
+	lcd[0] = 'L';lcd[1]='N';lcd[2]='K';lcd[3] = '?';
     } else if (Status == LM_STATUS_LINK_ACTIVE) {
 	sprintf(buf,"eth%d:%s: ", pUmDevice->index, pUmDevice->name);
 
 	if (pDevice->LineSpeed == LM_LINE_SPEED_1000MBPS){
 	    strcat(buf,"1000 Mbps ");
-            lcd[0] = '1';lcd[1]='G';lcd[2]='B';
+	    lcd[0] = '1';lcd[1]='G';lcd[2]='B';
 	} else if (pDevice->LineSpeed == LM_LINE_SPEED_100MBPS){
 	    strcat(buf,"100 Mbps ");
-            lcd[0] = '1';lcd[1]='0';lcd[2]='0';
+	    lcd[0] = '1';lcd[1]='0';lcd[2]='0';
 	} else if (pDevice->LineSpeed == LM_LINE_SPEED_10MBPS){
 	    strcat(buf,"10 Mbps ");
-            lcd[0] = '1';lcd[1]='0';lcd[2]=' ';
+	    lcd[0] = '1';lcd[1]='0';lcd[2]=' ';
 	}
 	if (pDevice->DuplexMode == LM_DUPLEX_MODE_FULL){
 	    strcat(buf, "full duplex");
-            lcd[3] = 'F';
+	    lcd[3] = 'F';
 	} else {
 	    strcat(buf, "half duplex");
-            lcd[3] = 'H';
+	    lcd[3] = 'H';
 	}
 	strcat(buf, " link up");
 
@@ -1223,7 +1215,7 @@ MM_IndicateStatus(PLM_DEVICE_BLOCK pDevice, LM_STATUS Status)
 	} else {
 	    strcat(buf, ", flow control OFF");
 	}
-        strcat(buf,"\n");
+	strcat(buf,"\n");
 	printf("%s",buf);
     }
 #if 0
@@ -1275,20 +1267,20 @@ MM_CoalesceTxBuffer(PLM_DEVICE_BLOCK pDevice, PLM_PACKET pPacket)
     int len = 0;
 
     if (len == 0)
-        return (LM_STATUS_SUCCESS);
+	return (LM_STATUS_SUCCESS);
 
     if (len > MAX_PACKET_SIZE){
-        printf ("eth%d: xmit frame discarded, too big!, size = %d\n",
+	printf ("eth%d: xmit frame discarded, too big!, size = %d\n",
 		pUmDevice->index, len);
-        return (LM_STATUS_FAILURE);
+	return (LM_STATUS_FAILURE);
     }
 
     skbnew = bcm570xPktAlloc(pUmDevice->index, MAX_PACKET_SIZE);
 
     if (skbnew == NULL) {
-        pUmDevice->tx_full = 1;
-        printf ("eth%d: out of transmit buffers", pUmDevice->index);
-        return (LM_STATUS_FAILURE);
+	pUmDevice->tx_full = 1;
+	printf ("eth%d: out of transmit buffers", pUmDevice->index);
+	return (LM_STATUS_FAILURE);
     }
 
     /* New packet values */
@@ -1325,13 +1317,13 @@ MM_IndicateTxPackets(PLM_DEVICE_BLOCK pDevice)
 	pUmPacket = (PUM_PACKET) pPacket;
 	skb = (void*)pUmPacket->skbuff;
 
-        /*
-        * Free MBLK if we transmitted a fragmented packet or a
-        * non-fragmented packet straight from the VxWorks
-        * buffer pool. If packet was copied to a local transmit
-        * buffer, then there's no MBUF to free, just free
-        * the transmit buffer back to the cluster pool.
-        */
+	/*
+	* Free MBLK if we transmitted a fragmented packet or a
+	* non-fragmented packet straight from the VxWorks
+	* buffer pool. If packet was copied to a local transmit
+	* buffer, then there's no MBUF to free, just free
+	* the transmit buffer back to the cluster pool.
+	*/
 
 	if (skb)
 	    bcm570xPktFree (pUmDevice->index, skb);
@@ -1383,22 +1375,22 @@ void
 MM_SetAddr (LM_PHYSICAL_ADDRESS *paddr, dma_addr_t addr)
 {
 #if (BITS_PER_LONG == 64)
-        paddr->High = ((unsigned long) addr) >> 32;
-        paddr->Low = ((unsigned long) addr) & 0xffffffff;
+	paddr->High = ((unsigned long) addr) >> 32;
+	paddr->Low = ((unsigned long) addr) & 0xffffffff;
 #else
-        paddr->High = 0;
-        paddr->Low = (unsigned long) addr;
+	paddr->High = 0;
+	paddr->Low = (unsigned long) addr;
 #endif
 }
 
 void
 MM_SetT3Addr(T3_64BIT_HOST_ADDR *paddr, dma_addr_t addr)
 {
-        unsigned long baddr = (unsigned long) addr;
+	unsigned long baddr = (unsigned long) addr;
 #if (BITS_PER_LONG == 64)
-        set_64bit_addr(paddr, baddr & 0xffffffff, baddr >> 32);
+	set_64bit_addr(paddr, baddr & 0xffffffff, baddr >> 32);
 #else
-        set_64bit_addr(paddr, baddr, 0);
+	set_64bit_addr(paddr, baddr, 0);
 #endif
 }
 
@@ -1465,7 +1457,6 @@ unsigned int QueueSize) {
 } /* QQ_InitQueue */
 
 
-
 /******************************************************************************/
 /* Description:                                                               */
 /*                                                                            */
@@ -1482,7 +1473,6 @@ PQQ_CONTAINER pQueue) {
 } /* QQ_Full */
 
 
-
 /******************************************************************************/
 /* Description:                                                               */
 /*                                                                            */
@@ -1493,7 +1483,6 @@ QQ_Empty(
 PQQ_CONTAINER pQueue) {
     return(pQueue->Head == pQueue->Tail);
 } /* QQ_Empty */
-
 
 
 /******************************************************************************/
@@ -1508,7 +1497,6 @@ PQQ_CONTAINER pQueue) {
 } /* QQ_GetSize */
 
 
-
 /******************************************************************************/
 /* Description:                                                               */
 /*                                                                            */
@@ -1519,7 +1507,6 @@ QQ_GetEntryCnt(
 PQQ_CONTAINER pQueue) {
     return atomic_read(&pQueue->EntryCnt);
 } /* QQ_GetEntryCnt */
-
 
 
 /******************************************************************************/
@@ -1539,7 +1526,7 @@ PQQ_ENTRY pEntry) {
 
 #if !defined(QQ_NO_OVERFLOW_CHECK)
     if(Head == pQueue->Tail) {
-        return 0;
+	return 0;
     } /* if */
 #endif /* QQ_NO_OVERFLOW_CHECK */
 
@@ -1550,7 +1537,6 @@ PQQ_ENTRY pEntry) {
 
     return -1;
 } /* QQ_PushHead */
-
 
 
 /******************************************************************************/
@@ -1568,13 +1554,13 @@ PQQ_ENTRY pEntry) {
 
     Tail = pQueue->Tail;
     if(Tail == 0) {
-        Tail = pQueue->Size;
+	Tail = pQueue->Size;
     } /* if */
     Tail--;
 
 #if !defined(QQ_NO_OVERFLOW_CHECK)
     if(Tail == pQueue->Head) {
-        return 0;
+	return 0;
     } /* if */
 #endif /* QQ_NO_OVERFLOW_CHECK */
 
@@ -1585,7 +1571,6 @@ PQQ_ENTRY pEntry) {
 
     return -1;
 } /* QQ_PushTail */
-
 
 
 /******************************************************************************/
@@ -1603,12 +1588,12 @@ PQQ_CONTAINER pQueue) {
 
 #if !defined(QQ_NO_UNDERFLOW_CHECK)
     if(Head == pQueue->Tail) {
-        return (PQQ_ENTRY) 0;
+	return (PQQ_ENTRY) 0;
     } /* if */
 #endif /* QQ_NO_UNDERFLOW_CHECK */
 
     if(Head == 0) {
-        Head = pQueue->Size;
+	Head = pQueue->Size;
     } /* if */
     Head--;
 
@@ -1620,7 +1605,6 @@ PQQ_CONTAINER pQueue) {
 
     return Entry;
 } /* QQ_PopHead */
-
 
 
 /******************************************************************************/
@@ -1638,7 +1622,7 @@ PQQ_CONTAINER pQueue) {
 
 #if !defined(QQ_NO_UNDERFLOW_CHECK)
     if(Tail == pQueue->Head) {
-        return (PQQ_ENTRY) 0;
+	return (PQQ_ENTRY) 0;
     } /* if */
 #endif /* QQ_NO_UNDERFLOW_CHECK */
 
@@ -1649,7 +1633,6 @@ PQQ_CONTAINER pQueue) {
 
     return Entry;
 } /* QQ_PopTail */
-
 
 
 /******************************************************************************/
@@ -1664,22 +1647,21 @@ QQ_GetHead(
 {
     if(Idx >= atomic_read(&pQueue->EntryCnt))
     {
-        return (PQQ_ENTRY) 0;
+	return (PQQ_ENTRY) 0;
     }
 
     if(pQueue->Head > Idx)
     {
-        Idx = pQueue->Head - Idx;
+	Idx = pQueue->Head - Idx;
     }
     else
     {
-        Idx = pQueue->Size - (Idx - pQueue->Head);
+	Idx = pQueue->Size - (Idx - pQueue->Head);
     }
     Idx--;
 
     return pQueue->Array[Idx];
 }
-
 
 
 /******************************************************************************/
@@ -1694,13 +1676,13 @@ QQ_GetTail(
 {
     if(Idx >= atomic_read(&pQueue->EntryCnt))
     {
-        return (PQQ_ENTRY) 0;
+	return (PQQ_ENTRY) 0;
     }
 
     Idx += pQueue->Tail;
     if(Idx >= pQueue->Size)
     {
-        Idx = Idx - pQueue->Size;
+	Idx = Idx - pQueue->Size;
     }
 
     return pQueue->Array[Idx];

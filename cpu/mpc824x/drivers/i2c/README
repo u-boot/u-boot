@@ -102,4 +102,3 @@ USAGE:
    host system a way to use its own event
    handler instead of the I2C_ISR provided
    here.
-

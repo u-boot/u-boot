@@ -31,4 +31,3 @@ int disable_interrupts(void)
 {
 	return 0;
 }
-

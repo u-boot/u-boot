@@ -59,7 +59,7 @@ Initialise the PM library.
 ****************************************************************************/
 void PMAPI PM_init(void)
 {
-    // TODO: dO any special init code in here.
+    /* TODO: dO any special init code in here. */
     MTRR_init();
 }
 
@@ -90,9 +90,9 @@ void PMAPI PM_backslash(
 {
     uint pos = strlen(s);
     if (s[pos-1] != '\\') {
-        s[pos] = '\\';
-        s[pos+1] = '\0';
-        }
+	s[pos] = '\\';
+	s[pos+1] = '\0';
+	}
 }
 
 /****************************************************************************
@@ -113,9 +113,9 @@ void PMAPI PM_fatalError(
     const char *msg)
 {
     if (fatalErrorCleanup)
-        fatalErrorCleanup();
-    // TODO: Display a fatal error message and exit!
-//  MessageBox(NULL,msg,"Fatal Error!", MB_ICONEXCLAMATION);
+	fatalErrorCleanup();
+    /* TODO: Display a fatal error message and exit! */
+/*  MessageBox(NULL,msg,"Fatal Error!", MB_ICONEXCLAMATION); */
     exit(1);
 }
 
@@ -138,7 +138,7 @@ Check if a key has been pressed.
 ****************************************************************************/
 int PMAPI PM_kbhit(void)
 {
-    // TODO: Need to check if a key is waiting on the keyboard queue
+    /* TODO: Need to check if a key is waiting on the keyboard queue */
     return true;
 }
 
@@ -148,7 +148,7 @@ Wait for and return the next keypress.
 ****************************************************************************/
 int PMAPI PM_getch(void)
 {
-    // TODO: Need to obtain the next keypress, and block until one is hit
+    /* TODO: Need to obtain the next keypress, and block until one is hit */
     return 0xD;
 }
 
@@ -240,7 +240,7 @@ Return the path to the Nucleus driver files.
 ****************************************************************************/
 const char * PMAPI PM_getNucleusPath(void)
 {
-    // TODO: Point this at the path when the Nucleus drivers will be found
+    /* TODO: Point this at the path when the Nucleus drivers will be found */
     return "c:\\nucleus";
 }
 
@@ -294,7 +294,7 @@ void * PMAPI PM_getA0000Pointer(void)
 {
     static void *bankPtr;
     if (!bankPtr)
-        bankPtr = PM_mapPhysicalAddr(0xA0000,0xFFFF,true);
+	bankPtr = PM_mapPhysicalAddr(0xA0000,0xFFFF,true);
     return bankPtr;
 }
 
@@ -307,7 +307,7 @@ void * PMAPI PM_mapPhysicalAddr(
     ulong limit,
     ibool isCached)
 {
-    // TODO: Map a physical memory address to a linear address
+    /* TODO: Map a physical memory address to a linear address */
     return NULL;
 }
 
@@ -319,13 +319,13 @@ void PMAPI PM_freePhysicalAddr(
     void *ptr,
     ulong limit)
 {
-    // TODO: Free the physical address mapping
+    /* TODO: Free the physical address mapping */
 }
 
 ulong PMAPI PM_getPhysicalAddr(void *p)
 {
-    // TODO: This function should find the physical address of a linear
-    //       address.
+    /* TODO: This function should find the physical address of a linear */
+    /*       address. */
     return 0xFFFFFFFFUL;
 }
 
@@ -336,24 +336,24 @@ void PMAPI PM_sleep(ulong milliseconds)
 
 int PMAPI PM_getCOMPort(int port)
 {
-    // TODO: Re-code this to determine real values using the Plug and Play
-    //       manager for the OS.
+    /* TODO: Re-code this to determine real values using the Plug and Play */
+    /*       manager for the OS. */
     switch (port) {
-        case 0: return 0x3F8;
-        case 1: return 0x2F8;
-        }
+	case 0: return 0x3F8;
+	case 1: return 0x2F8;
+	}
     return 0;
 }
 
 int PMAPI PM_getLPTPort(int port)
 {
-    // TODO: Re-code this to determine real values using the Plug and Play
-    //       manager for the OS.
+    /* TODO: Re-code this to determine real values using the Plug and Play */
+    /*       manager for the OS. */
     switch (port) {
-        case 0: return 0x3BC;
-        case 1: return 0x378;
-        case 2: return 0x278;
-        }
+	case 0: return 0x3BC;
+	case 1: return 0x378;
+	case 2: return 0x278;
+	}
     return 0;
 }
 
@@ -484,8 +484,8 @@ void PMAPI PM_availableMemory(
     ulong *physical,
     ulong *total)
 {
-    // TODO: Figure out how to determine the available memory. Not entirely
-    //       critical so returning 0 is OK.
+    /* TODO: Figure out how to determine the available memory. Not entirely */
+    /*       critical so returning 0 is OK. */
     *physical = *total = 0;
 }
 
@@ -499,7 +499,7 @@ void * PMAPI PM_allocLockedMem(
     ibool contiguous,
     ibool below16M)
 {
-    // TODO: Allocate a block of locked, phsyically contigous memory for DMA
+    /* TODO: Allocate a block of locked, phsyically contigous memory for DMA */
     return 0;
 }
 
@@ -510,10 +510,10 @@ Free a block of locked physical memory.
 void PMAPI PM_freeLockedMem(
     void *p,
     uint size,
-    
+
     ibool contiguous)
 {
-    // TODO: Free a locked memory buffer
+    /* TODO: Free a locked memory buffer */
 }
 
 /****************************************************************************
@@ -564,7 +564,7 @@ ibool PMAPI PM_doBIOSPOST(
 PM_MODULE PMAPI PM_loadLibrary(
     const char *szDLLName)
 {
-    // TODO: Implement this to load shared libraries!
+    /* TODO: Implement this to load shared libraries! */
     (void)szDLLName;
     return NULL;
 }
@@ -573,7 +573,7 @@ void * PMAPI PM_getProcAddress(
     PM_MODULE hModule,
     const char *szProcName)
 {
-    // TODO: Implement this!
+    /* TODO: Implement this! */
     (void)hModule;
     (void)szProcName;
     return NULL;
@@ -582,7 +582,7 @@ void * PMAPI PM_getProcAddress(
 void PMAPI PM_freeLibrary(
     PM_MODULE hModule)
 {
-    // TODO: Implement this!
+    /* TODO: Implement this! */
     (void)hModule;
 }
 
@@ -594,9 +594,9 @@ ulong PMAPI PM_findFirstFile(
     const char *filename,
     PM_findData *findData)
 {
-    // TODO: This function should start a directory enumeration search
-    //       given the filename (with wildcards). The data should be
-    //       converted and returned in the findData standard form.
+    /* TODO: This function should start a directory enumeration search */
+    /*       given the filename (with wildcards). The data should be */
+    /*       converted and returned in the findData standard form. */
     (void)filename;
     (void)findData;
     return PM_FILE_INVALID;
@@ -610,10 +610,10 @@ ibool PMAPI PM_findNextFile(
     ulong handle,
     PM_findData *findData)
 {
-    // TODO: This function should find the next file in directory enumeration
-    //       search given the search criteria defined in the call to
-    //       PM_findFirstFile. The data should be converted and returned
-    //       in the findData standard form.
+    /* TODO: This function should find the next file in directory enumeration */
+    /*       search given the search criteria defined in the call to */
+    /*       PM_findFirstFile. The data should be converted and returned */
+    /*       in the findData standard form. */
     (void)handle;
     (void)findData;
     return false;
@@ -626,8 +626,8 @@ Function to close the find process
 void PMAPI PM_findClose(
     ulong handle)
 {
-    // TODO: This function should close the find process. This may do
-    //       nothing for some OS'es.
+    /* TODO: This function should close the find process. This may do */
+    /*       nothing for some OS'es. */
     (void)handle;
 }
 
@@ -648,7 +648,7 @@ ibool PMAPI PM_driveValid(
     char drive)
 {
     if (drive == 3)
-        return true;
+	return true;
     return false;
 }
 
@@ -675,7 +675,7 @@ void PMAPI PM_setFileAttr(
     const char *filename,
     uint attrib)
 {
-    // TODO: Set the file attributes for a file
+    /* TODO: Set the file attributes for a file */
     (void)filename;
     (void)attrib;
 }

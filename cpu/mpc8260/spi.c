@@ -213,12 +213,12 @@ void spi_init_f (void)
 
 	/***********IMPORTANT******************/
 
-        /*
-         * Setting transmit and receive buffer descriptor pointers
-         * initially to rbase and tbase. Only the microcode patches
-         * documentation talks about initializing this pointer. This
-         * is missing from the sample I2C driver. If you dont
-         * initialize these pointers, the kernel hangs.
+	/*
+	 * Setting transmit and receive buffer descriptor pointers
+	 * initially to rbase and tbase. Only the microcode patches
+	 * documentation talks about initializing this pointer. This
+	 * is missing from the sample I2C driver. If you dont
+	 * initialize these pointers, the kernel hangs.
 	 */
 	spi->spi_rbptr = spi->spi_rbase;
 	spi->spi_tbptr = spi->spi_tbase;

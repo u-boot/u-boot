@@ -92,5 +92,3 @@ tlbtab:
     tlbentry( CFG_ISRAM_BASE + 0x1000, SZ_4K, 0x80001000, 0, AC_R|AC_W|AC_X )
     tlbentry( CFG_SDRAM_BASE, SZ_256M, 0x00000000, 0, AC_R|AC_W|AC_X )
     tlbtab_end
-
-

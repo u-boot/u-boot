@@ -262,4 +262,3 @@ sdram_init:
 	blr				/* Return to calling function */
 .Lfe1:	.size	sdram_init,.Lfe1-sdram_init
 /* end sdram_init() */
-

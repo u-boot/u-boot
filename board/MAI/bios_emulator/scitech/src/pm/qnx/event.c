@@ -37,7 +37,7 @@
 #ifndef __QNXNTO__
 static struct _mouse_ctrl   *_PM_mouse_ctl;
 static int          _PM_keyboard_fd = -1;
-//static int            _PM_modifiers, _PM_leds;
+/*static int            _PM_modifiers, _PM_leds; */
 #else
 static int          kbd_fd = -1, mouse_fd = -1;
 #endif
@@ -58,7 +58,7 @@ typedef struct {
     int map;
     } keymap;
 
-// TODO: Fix this and set it up so we can do a binary search!
+/* TODO: Fix this and set it up so we can do a binary search! */
 
 keymap keymaps[] = {
     {96, KB_padEnter},
@@ -146,8 +146,8 @@ Converts a mickey movement value to a pixel adjustment value.
 static int MickeyToPixel(
     int mickey)
 {
-    // TODO: We can add some code in here to handle 'acceleration' for
-    //       the mouse cursor. For now just use the mickeys.
+    /* TODO: We can add some code in here to handle 'acceleration' for */
+    /*       the mouse cursor. For now just use the mickeys. */
     return mickey;
 }
 
@@ -167,110 +167,110 @@ static void _EVT_pumpMessages(void)
     event_t         evt;
 
     while (EVT.count < EVENTQSIZE) {
-        rc1 = read(kbd_fd, (void *)&key, sizeof(key));
-        if (rc1 == -1) {
-            if (errno == EAGAIN)
-                rc1 = 0;
-            else {
-                perror("getEvents");
-                PM_fatalError("Keyboard error");
-                }
-            }
-        if (rc1 > 0) {
-            memset(&evt, 0, sizeof(evt));
-            if (key.data.modifiers & KEYMOD_SHIFT)
-                mods |= EVT_LEFTSHIFT;
-            if (key.data.modifiers & KEYMOD_CTRL)
-                mods |= EVT_CTRLSTATE;
-            if (key.data.modifiers & KEYMOD_ALT)
-                mods |= EVT_ALTSTATE;
+	rc1 = read(kbd_fd, (void *)&key, sizeof(key));
+	if (rc1 == -1) {
+	    if (errno == EAGAIN)
+		rc1 = 0;
+	    else {
+		perror("getEvents");
+		PM_fatalError("Keyboard error");
+		}
+	    }
+	if (rc1 > 0) {
+	    memset(&evt, 0, sizeof(evt));
+	    if (key.data.modifiers & KEYMOD_SHIFT)
+		mods |= EVT_LEFTSHIFT;
+	    if (key.data.modifiers & KEYMOD_CTRL)
+		mods |= EVT_CTRLSTATE;
+	    if (key.data.modifiers & KEYMOD_ALT)
+		mods |= EVT_ALTSTATE;
 
-            /* Now store the keyboard event data */
-            evt.when = TIME_TO_MSEC(key.time);
-            if (key.data.flags & KEY_SCAN_VALID)
-                evt.message |= (key.data.key_scan & 0x7F) << 8;
-            if ((key.data.flags & KEY_SYM_VALID) &&
-                (((key.data.key_sym & 0xff00) == 0xf000 &&
-                (key.data.key_sym & 0xff) < 0x20) ||
-                key.data.key_sym < 0x80))
-                evt.message |= (key.data.key_sym & 0xFF);
-            evt.modifiers = mods;
-            if (key.data.flags & KEY_DOWN) {
-                evt.what = EVT_KEYDOWN;
-                keyUpMsg[evt.message >> 8] = (ushort)evt.message;
-                }
-            else if (key.data.flags & KEY_REPEAT) {
-                evt.message |= 0x10000;
-                evt.what = EVT_KEYREPEAT;
-                }
-            else {
-                evt.what = EVT_KEYUP;
-                evt.message = keyUpMsg[evt.message >> 8];
-                if (evt.message == 0)
-                    continue;
-                keyUpMsg[evt.message >> 8] = 0;
-                }
+	    /* Now store the keyboard event data */
+	    evt.when = TIME_TO_MSEC(key.time);
+	    if (key.data.flags & KEY_SCAN_VALID)
+		evt.message |= (key.data.key_scan & 0x7F) << 8;
+	    if ((key.data.flags & KEY_SYM_VALID) &&
+		(((key.data.key_sym & 0xff00) == 0xf000 &&
+		(key.data.key_sym & 0xff) < 0x20) ||
+		key.data.key_sym < 0x80))
+		evt.message |= (key.data.key_sym & 0xFF);
+	    evt.modifiers = mods;
+	    if (key.data.flags & KEY_DOWN) {
+		evt.what = EVT_KEYDOWN;
+		keyUpMsg[evt.message >> 8] = (ushort)evt.message;
+		}
+	    else if (key.data.flags & KEY_REPEAT) {
+		evt.message |= 0x10000;
+		evt.what = EVT_KEYREPEAT;
+		}
+	    else {
+		evt.what = EVT_KEYUP;
+		evt.message = keyUpMsg[evt.message >> 8];
+		if (evt.message == 0)
+		    continue;
+		keyUpMsg[evt.message >> 8] = 0;
+		}
 
-            /* Now add the new event to the event queue */
-            addEvent(&evt);
-            }
-        rc2 = read(mouse_fd, (void *)&ms, sizeof (ms));
-        if (rc2 == -1) {
-            if (errno == EAGAIN)
-                rc2 = 0;
-            else {
-                perror("getEvents");
-                PM_fatalError("Mouse error");
-                }
-            }
-        if (rc2 > 0) {
-            memset(&evt, 0, sizeof(evt));
-            ms.hdr.buttons &=
-                (_POINTER_BUTTON_LEFT | _POINTER_BUTTON_RIGHT);
-            if (ms.hdr.buttons & _POINTER_BUTTON_LEFT)
-                but_stat = EVT_LEFTBUT;
-            if ((ms.hdr.buttons & _POINTER_BUTTON_LEFT) !=
-                (old_buttons & _POINTER_BUTTON_LEFT))
-                message = EVT_LEFTBMASK;
-            if (ms.hdr.buttons & _POINTER_BUTTON_RIGHT)
-                but_stat |= EVT_RIGHTBUT;
-            if ((ms.hdr.buttons & _POINTER_BUTTON_RIGHT) !=
-                (old_buttons & _POINTER_BUTTON_RIGHT))
-                message |= EVT_RIGHTBMASK;
-            if (ms.dx || ms.dy) {
-                ms.dy = -ms.dy;
-                EVT.mx += MickeyToPixel(ms.dx);
-                EVT.my += MickeyToPixel(ms.dy);
-                if (EVT.mx < 0) EVT.mx = 0;
-                if (EVT.my < 0) EVT.my = 0;
-                if (EVT.mx > rangeX)    EVT.mx = rangeX;
-                if (EVT.my > rangeY)    EVT.my = rangeY;
-                evt.what = EVT_MOUSEMOVE;
-                evt.when = TIME_TO_MSEC(ms.hdr.time);
-                evt.where_x = EVT.mx;
-                evt.where_y = EVT.my;
-                evt.relative_x = ms.dx;
-                evt.relative_y = ms.dy;
-                evt.modifiers = but_stat;
-                addEvent(&evt);
-                }
-            evt.what = ms.hdr.buttons < old_buttons ?
-                EVT_MOUSEUP : EVT_MOUSEDOWN;
-            evt.when = TIME_TO_MSEC(ms.hdr.time);
-            evt.where_x = EVT.mx;
-            evt.where_y = EVT.my;
-            evt.relative_x = ms.dx;
-            evt.relative_y = ms.dy;
-            evt.modifiers = but_stat;
-            evt.message = message;
-            if (ms.hdr.buttons != old_buttons) {
-                addEvent(&evt);
-                old_buttons = ms.hdr.buttons;
-                }
-            }
-        if (rc1 + rc2 == 0)
-            break;
-        }
+	    /* Now add the new event to the event queue */
+	    addEvent(&evt);
+	    }
+	rc2 = read(mouse_fd, (void *)&ms, sizeof (ms));
+	if (rc2 == -1) {
+	    if (errno == EAGAIN)
+		rc2 = 0;
+	    else {
+		perror("getEvents");
+		PM_fatalError("Mouse error");
+		}
+	    }
+	if (rc2 > 0) {
+	    memset(&evt, 0, sizeof(evt));
+	    ms.hdr.buttons &=
+		(_POINTER_BUTTON_LEFT | _POINTER_BUTTON_RIGHT);
+	    if (ms.hdr.buttons & _POINTER_BUTTON_LEFT)
+		but_stat = EVT_LEFTBUT;
+	    if ((ms.hdr.buttons & _POINTER_BUTTON_LEFT) !=
+		(old_buttons & _POINTER_BUTTON_LEFT))
+		message = EVT_LEFTBMASK;
+	    if (ms.hdr.buttons & _POINTER_BUTTON_RIGHT)
+		but_stat |= EVT_RIGHTBUT;
+	    if ((ms.hdr.buttons & _POINTER_BUTTON_RIGHT) !=
+		(old_buttons & _POINTER_BUTTON_RIGHT))
+		message |= EVT_RIGHTBMASK;
+	    if (ms.dx || ms.dy) {
+		ms.dy = -ms.dy;
+		EVT.mx += MickeyToPixel(ms.dx);
+		EVT.my += MickeyToPixel(ms.dy);
+		if (EVT.mx < 0) EVT.mx = 0;
+		if (EVT.my < 0) EVT.my = 0;
+		if (EVT.mx > rangeX)    EVT.mx = rangeX;
+		if (EVT.my > rangeY)    EVT.my = rangeY;
+		evt.what = EVT_MOUSEMOVE;
+		evt.when = TIME_TO_MSEC(ms.hdr.time);
+		evt.where_x = EVT.mx;
+		evt.where_y = EVT.my;
+		evt.relative_x = ms.dx;
+		evt.relative_y = ms.dy;
+		evt.modifiers = but_stat;
+		addEvent(&evt);
+		}
+	    evt.what = ms.hdr.buttons < old_buttons ?
+		EVT_MOUSEUP : EVT_MOUSEDOWN;
+	    evt.when = TIME_TO_MSEC(ms.hdr.time);
+	    evt.where_x = EVT.mx;
+	    evt.where_y = EVT.my;
+	    evt.relative_x = ms.dx;
+	    evt.relative_y = ms.dy;
+	    evt.modifiers = but_stat;
+	    evt.message = message;
+	    if (ms.hdr.buttons != old_buttons) {
+		addEvent(&evt);
+		old_buttons = ms.hdr.buttons;
+		}
+	    }
+	if (rc1 + rc2 == 0)
+	    break;
+	}
 }
 #else
 /****************************************************************************
@@ -290,66 +290,66 @@ static void _EVT_pumpMessages(void)
 
     /* Poll keyboard events */
     while ((numkeys = read(_PM_keyboard_fd, buf, sizeof buf)) > 0) {
-        for (i = 0; i < numkeys; i++) {
-            processRawScanCode(buf[i]);
-            }
-        }
+	for (i = 0; i < numkeys; i++) {
+	    processRawScanCode(buf[i]);
+	    }
+	}
 
     if (_PM_mouse_ctl == NULL)
-        return;
+	return;
 
     /* Gobble pending mouse events */
     while (EVT.count < EVENTQSIZE) {
-        rc = mouse_read(_PM_mouse_ctl, &ev, 1, 0, NULL);
-        if (rc == -1) {
-            perror("getEvents");
-            PM_fatalError("Mouse error (Input terminated?)");
-            }
-        if (rc == 0)
-            break;
+	rc = mouse_read(_PM_mouse_ctl, &ev, 1, 0, NULL);
+	if (rc == -1) {
+	    perror("getEvents");
+	    PM_fatalError("Mouse error (Input terminated?)");
+	    }
+	if (rc == 0)
+	    break;
 
-        message = 0, but_stat = 0;
-        memset(&evt, 0, sizeof(evt));
+	message = 0, but_stat = 0;
+	memset(&evt, 0, sizeof(evt));
 
-        ev.buttons &= (_MOUSE_LEFT | _MOUSE_RIGHT);
-        if (ev.buttons & _MOUSE_LEFT)
-            but_stat = EVT_LEFTBUT;
-        if ((ev.buttons & _MOUSE_LEFT) != (old_buttons & _MOUSE_LEFT))
-            message = EVT_LEFTBMASK;
-        if (ev.buttons & _MOUSE_RIGHT)
-            but_stat |= EVT_RIGHTBUT;
-        if ((ev.buttons & _MOUSE_RIGHT) != (old_buttons & _MOUSE_RIGHT))
-            message |= EVT_RIGHTBMASK;
-        if (ev.dx || ev.dy) {
-            ev.dy = -ev.dy;
-            EVT.mx += MickeyToPixel(ev.dx);
-            EVT.my += MickeyToPixel(ev.dy);
-            if (EVT.mx < 0) EVT.mx = 0;
-            if (EVT.my < 0) EVT.my = 0;
-            if (EVT.mx > rangeX)    EVT.mx = rangeX;
-            if (EVT.my > rangeY)    EVT.my = rangeY;
-            evt.what = EVT_MOUSEMOVE;
-            evt.when = ev.timestamp*100;
-            evt.where_x = EVT.mx;
-            evt.where_y = EVT.my;
-            evt.relative_x = ev.dx;
-            evt.relative_y = ev.dy;
-            evt.modifiers = but_stat;
-            addEvent(&evt);
-            }
-        evt.what = ev.buttons < old_buttons ? EVT_MOUSEUP : EVT_MOUSEDOWN;
-        evt.when = ev.timestamp*100;
-        evt.where_x = EVT.mx;
-        evt.where_y = EVT.my;
-        evt.relative_x = ev.dx;
-        evt.relative_y = ev.dy;
-        evt.modifiers = but_stat;
-        evt.message = message;
-        if (ev.buttons != old_buttons) {
-            addEvent(&evt);
-            old_buttons = ev.buttons;
-            }
-        }
+	ev.buttons &= (_MOUSE_LEFT | _MOUSE_RIGHT);
+	if (ev.buttons & _MOUSE_LEFT)
+	    but_stat = EVT_LEFTBUT;
+	if ((ev.buttons & _MOUSE_LEFT) != (old_buttons & _MOUSE_LEFT))
+	    message = EVT_LEFTBMASK;
+	if (ev.buttons & _MOUSE_RIGHT)
+	    but_stat |= EVT_RIGHTBUT;
+	if ((ev.buttons & _MOUSE_RIGHT) != (old_buttons & _MOUSE_RIGHT))
+	    message |= EVT_RIGHTBMASK;
+	if (ev.dx || ev.dy) {
+	    ev.dy = -ev.dy;
+	    EVT.mx += MickeyToPixel(ev.dx);
+	    EVT.my += MickeyToPixel(ev.dy);
+	    if (EVT.mx < 0) EVT.mx = 0;
+	    if (EVT.my < 0) EVT.my = 0;
+	    if (EVT.mx > rangeX)    EVT.mx = rangeX;
+	    if (EVT.my > rangeY)    EVT.my = rangeY;
+	    evt.what = EVT_MOUSEMOVE;
+	    evt.when = ev.timestamp*100;
+	    evt.where_x = EVT.mx;
+	    evt.where_y = EVT.my;
+	    evt.relative_x = ev.dx;
+	    evt.relative_y = ev.dy;
+	    evt.modifiers = but_stat;
+	    addEvent(&evt);
+	    }
+	evt.what = ev.buttons < old_buttons ? EVT_MOUSEUP : EVT_MOUSEDOWN;
+	evt.when = ev.timestamp*100;
+	evt.where_x = EVT.mx;
+	evt.where_y = EVT.my;
+	evt.relative_x = ev.dx;
+	evt.relative_y = ev.dy;
+	evt.modifiers = but_stat;
+	evt.message = message;
+	if (ev.buttons != old_buttons) {
+	    addEvent(&evt);
+	    old_buttons = ev.buttons;
+	    }
+	}
 }
 #endif  /* __QNXNTO__ */
 
@@ -400,7 +400,7 @@ void EVTAPI EVT_init(
     char        buf[128];
     FILE        *p;
     int         argno,len;
-#endif  
+#endif
 
 #ifdef __QNXNTO__
     ThreadCtl(_NTO_TCTL_IO, 0); /* So joystick code won't blow up */
@@ -410,7 +410,7 @@ void EVTAPI EVT_init(
     EVT.mouseMove = mouseMove;
     initEventQueue();
     memset(keyUpMsg,0,sizeof(keyUpMsg));
-    
+
 #ifdef __QNXNTO__
     /*
      * User may already have input running with the right parameters.
@@ -419,82 +419,82 @@ void EVTAPI EVT_init(
      * manager.
      */
     if ((mouse_fd = open("/dev/mouse0", O_RDONLY | O_NONBLOCK)) < 0) {
-        /* Run inputtrap to get the args for input */
-        if ((p = popen("inputtrap", "r")) == NULL)
-            PM_fatalError("Error running 'inputtrap'");
-        fgets(buf, sizeof(buf), p);
-        pclose(p);
+	/* Run inputtrap to get the args for input */
+	if ((p = popen("inputtrap", "r")) == NULL)
+	    PM_fatalError("Error running 'inputtrap'");
+	fgets(buf, sizeof(buf), p);
+	pclose(p);
 
-        /* Build the argument list */
-        len = strlen(buf);
-        iarg[0] = buf;
-        for (i = 0, argno = 0; i < len && argno < 15;) {
-            if (argno == 1) {
-                /*
-                 * Add flags to input's arg list.
-                 * '-r' means run as resource
-                 * manager, providing the /dev/mouse
-                 * and /dev/keyboard interfaces.
-                 * '-P' supresses the /dev/photon
-                 * mechanism.
-                 */
-                iarg[argno++] = "-Pr";
-                continue;
-                }
-            while (buf[i] == ' ')
-                i++;
-            if (buf[i] == '\0' || buf[i] == '\n')
-                break;
-            iarg[argno++] = &buf[i];
-            while (buf[i] != ' '
-                && buf[i] != '\0' && buf[i] != '\n')
-                i++;
-            buf[i++] = '\0';
-            }
-        iarg[argno] = NULL;
-            
-        if ((kill_pid = spawnvp(P_NOWAITO, iarg[0], iarg)) == -1) {
-            perror("spawning input resmgr");
-            PM_fatalError("Could not start input resmgr");
-            }
-        for (i = 0; i < 10; i++) {
-            if (stat("/dev/mouse0", &st) == 0)
-                break;
-            sleep(1);
-            }
-        if ((mouse_fd = open("/dev/mouse0", O_RDONLY|O_NONBLOCK)) < 0) {
-            perror("/dev/mouse0");
-            PM_fatalError("Could not open /dev/mouse0");
-            }
-        }
+	/* Build the argument list */
+	len = strlen(buf);
+	iarg[0] = buf;
+	for (i = 0, argno = 0; i < len && argno < 15;) {
+	    if (argno == 1) {
+		/*
+		 * Add flags to input's arg list.
+		 * '-r' means run as resource
+		 * manager, providing the /dev/mouse
+		 * and /dev/keyboard interfaces.
+		 * '-P' supresses the /dev/photon
+		 * mechanism.
+		 */
+		iarg[argno++] = "-Pr";
+		continue;
+		}
+	    while (buf[i] == ' ')
+		i++;
+	    if (buf[i] == '\0' || buf[i] == '\n')
+		break;
+	    iarg[argno++] = &buf[i];
+	    while (buf[i] != ' '
+		&& buf[i] != '\0' && buf[i] != '\n')
+		i++;
+	    buf[i++] = '\0';
+	    }
+	iarg[argno] = NULL;
+
+	if ((kill_pid = spawnvp(P_NOWAITO, iarg[0], iarg)) == -1) {
+	    perror("spawning input resmgr");
+	    PM_fatalError("Could not start input resmgr");
+	    }
+	for (i = 0; i < 10; i++) {
+	    if (stat("/dev/mouse0", &st) == 0)
+		break;
+	    sleep(1);
+	    }
+	if ((mouse_fd = open("/dev/mouse0", O_RDONLY|O_NONBLOCK)) < 0) {
+	    perror("/dev/mouse0");
+	    PM_fatalError("Could not open /dev/mouse0");
+	    }
+	}
     if ((kbd_fd = open("/dev/keyboard0", O_RDONLY|O_NONBLOCK)) < 0) {
-        perror("/dev/keyboard0");
-        PM_fatalError("Could not open /dev/keyboard0");
-        }
+	perror("/dev/keyboard0");
+	PM_fatalError("Could not open /dev/keyboard0");
+	}
 #else
     /* Connect to Input/Mouse for event handling */
     if (_PM_mouse_ctl == NULL) {
-        _PM_mouse_ctl = mouse_open(0, "/dev/mouse", 0);
+	_PM_mouse_ctl = mouse_open(0, "/dev/mouse", 0);
 
-        /* "Mouse" is not running; attempt to start it */
-        if (_PM_mouse_ctl == NULL) {
-            iarg[0] = "mousetrap";
-            iarg[1] = "start";
-            iarg[2] = NULL;
-            if ((kill_pid = spawnvp(P_NOWAITO, iarg[0], (void*)iarg)) == -1)
-                perror("spawn (mousetrap)");
-            else {
-                for (i = 0; i < 10; i++) {
-                    if (stat("/dev/mouse", &st) == 0)
-                        break;
-                    sleep(1);
-                    }
-                _PM_mouse_ctl = mouse_open(0, "/dev/mouse", 0);
-                }
-            }
-        }
+	/* "Mouse" is not running; attempt to start it */
+	if (_PM_mouse_ctl == NULL) {
+	    iarg[0] = "mousetrap";
+	    iarg[1] = "start";
+	    iarg[2] = NULL;
+	    if ((kill_pid = spawnvp(P_NOWAITO, iarg[0], (void*)iarg)) == -1)
+		perror("spawn (mousetrap)");
+	    else {
+		for (i = 0; i < 10; i++) {
+		    if (stat("/dev/mouse", &st) == 0)
+			break;
+		    sleep(1);
+		    }
+		_PM_mouse_ctl = mouse_open(0, "/dev/mouse", 0);
+		}
+	    }
+	}
     if (_PM_keyboard_fd == -1)
-        _PM_keyboard_fd = open("/dev/kbd", O_RDONLY|O_NONBLOCK);
+	_PM_keyboard_fd = open("/dev/kbd", O_RDONLY|O_NONBLOCK);
 #endif
 
     /* Catch program termination signals so we can clean up properly */
@@ -532,7 +532,7 @@ and this function can be used to resume it again later.
 ****************************************************************************/
 void EVT_resume(void)
 {
-    // Do nothing for QNX
+    /* Do nothing for QNX */
 }
 
 /****************************************************************************
@@ -542,7 +542,7 @@ de-install the event handling code.
 ****************************************************************************/
 void EVT_suspend(void)
 {
-    // Do nothing for QNX
+    /* Do nothing for QNX */
 }
 
 /****************************************************************************
@@ -556,13 +556,13 @@ void EVT_exit(void)
     int flags;
 
     if (kbd_fd != -1) {
-        close(kbd_fd);
-        kbd_fd = -1;
-        }
+	close(kbd_fd);
+	kbd_fd = -1;
+	}
     if (mouse_fd != -1) {
-        close(mouse_fd);
-        mouse_fd = -1;
-        }
+	close(mouse_fd);
+	mouse_fd = -1;
+	}
 #endif
 
     /* Restore signal handlers */
@@ -573,30 +573,29 @@ void EVT_exit(void)
 #ifndef __QNXNTO__
     /* Kill the Input/Mouse driver if we have spawned it */
     if (_PM_mouse_ctl != NULL) {
-        struct _fd_entry    fde;
-        uint            pid = 0;
+	struct _fd_entry    fde;
+	uint            pid = 0;
 
-        /* Find out the pid of the mouse driver */
-        if (kill_pid > 0) {
-            if (qnx_fd_query(0,
-                0, _PM_mouse_ctl->fd, &fde) != -1)
-                pid = fde.pid;
-            }
-        mouse_close(_PM_mouse_ctl);
-        _PM_mouse_ctl = NULL;
+	/* Find out the pid of the mouse driver */
+	if (kill_pid > 0) {
+	    if (qnx_fd_query(0,
+		0, _PM_mouse_ctl->fd, &fde) != -1)
+		pid = fde.pid;
+	    }
+	mouse_close(_PM_mouse_ctl);
+	_PM_mouse_ctl = NULL;
 
-        if (pid > 0) {
-            /* For some reasons the PID's are different under QNX4,
-             * so we use the old mechanism to kill the mouse server.
-             */
-            kill(pid, SIGTERM);
-            kill_pid = 0;
-            }
-        }
+	if (pid > 0) {
+	    /* For some reasons the PID's are different under QNX4,
+	     * so we use the old mechanism to kill the mouse server.
+	     */
+	    kill(pid, SIGTERM);
+	    kill_pid = 0;
+	    }
+	}
 #endif
     if (kill_pid > 0) {
-        kill(kill_pid, SIGTERM);
-        kill_pid = 0;
-        }
+	kill(kill_pid, SIGTERM);
+	kill_pid = 0;
+	}
 }
-

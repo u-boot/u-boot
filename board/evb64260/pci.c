@@ -79,11 +79,11 @@ void pciWriteConfigReg(PCI_HOST host, unsigned int regOffset,unsigned int pciDev
     unsigned int addr;
 
     if(pciDevNum > 32) /* illegal device Number */
-        return;
+	return;
     if(pciDevNum == SELF) /* configure our configuration space. */
     {
-        pciDevNum = (GTREGREAD(pci_p2p_configuration_reg[host]) >> 24) & 0x1f;
-        busNum = GTREGREAD(pci_p2p_configuration_reg[host]) & 0xff0000;
+	pciDevNum = (GTREGREAD(pci_p2p_configuration_reg[host]) >> 24) & 0x1f;
+	busNum = GTREGREAD(pci_p2p_configuration_reg[host]) & 0xff0000;
     }
     functionNum =  regOffset & 0x00000700;
     pciDevNum = pciDevNum << 11;
@@ -116,16 +116,16 @@ void pciWriteConfigReg(PCI_HOST host, unsigned int regOffset,unsigned int pciDev
 unsigned int pciReadConfigReg (PCI_HOST host, unsigned int regOffset,unsigned int pciDevNum)
 {
     volatile unsigned int DataForAddrReg;
-   	unsigned int data;
+	unsigned int data;
     unsigned int functionNum;
     unsigned int busNum = PCI_BUS(pciDevNum);
 
     if(pciDevNum > 32) /* illegal device Number */
-        return 0xffffffff;
+	return 0xffffffff;
     if(pciDevNum == SELF) /* configure our configuration space. */
     {
-        pciDevNum = (GTREGREAD(pci_p2p_configuration_reg[host]) >> 24) & 0x1f;
-        busNum = GTREGREAD(pci_p2p_configuration_reg[host]) & 0xff0000;
+	pciDevNum = (GTREGREAD(pci_p2p_configuration_reg[host]) >> 24) & 0x1f;
+	busNum = GTREGREAD(pci_p2p_configuration_reg[host]) & 0xff0000;
     }
     functionNum = regOffset & 0x00000700;
     pciDevNum = pciDevNum << 11;
@@ -134,7 +134,7 @@ unsigned int pciReadConfigReg (PCI_HOST host, unsigned int regOffset,unsigned in
     GT_REG_WRITE(pci_configuration_address[host],DataForAddrReg);
     GT_REG_READ(pci_configuration_address[host], &data);
     if (data != DataForAddrReg)
-        return 0xffffffff;
+	return 0xffffffff;
     GT_REG_READ(pci_configuration_data[host], &data);
     return data;
 }
@@ -163,34 +163,34 @@ unsigned int pciReadConfigReg (PCI_HOST host, unsigned int regOffset,unsigned in
 *********************************************************************/
 void pciOverBridgeWriteConfigReg(PCI_HOST host,
 				 unsigned int regOffset,
-                                 unsigned int pciDevNum,
-                                 unsigned int busNum,unsigned int data)
+				 unsigned int pciDevNum,
+				 unsigned int busNum,unsigned int data)
 {
-   	unsigned int   DataForReg;
+	unsigned int   DataForReg;
     unsigned int   functionNum;
 
-   	functionNum =  regOffset & 0x00000700;
+	functionNum =  regOffset & 0x00000700;
     pciDevNum = pciDevNum << 11;
     regOffset = regOffset & 0xff;
     busNum = busNum << 16;
     if(pciDevNum == SELF) /* This board */
     {
-        DataForReg = ( regOffset | pciDevNum | functionNum) | BIT0;
+	DataForReg = ( regOffset | pciDevNum | functionNum) | BIT0;
     }
     else
     {
-        DataForReg = ( regOffset | pciDevNum | functionNum | busNum) |
-            BIT31 | BIT0;
+	DataForReg = ( regOffset | pciDevNum | functionNum | busNum) |
+	    BIT31 | BIT0;
     }
     GT_REG_WRITE(pci_configuration_address[host],DataForReg);
     if(pciDevNum == SELF) /* This board */
     {
-        GT_REG_WRITE(pci_configuration_data[host],data);
+	GT_REG_WRITE(pci_configuration_data[host],data);
     }
     else /* configuration Transaction over the pci. */
     {
-        /* The PCI is working in LE Mode So it swap the Data. */
-        GT_REG_WRITE(pci_configuration_data[host],WORD_SWAP(data));
+	/* The PCI is working in LE Mode So it swap the Data. */
+	GT_REG_WRITE(pci_configuration_data[host],WORD_SWAP(data));
     }
 }
 
@@ -218,8 +218,8 @@ void pciOverBridgeWriteConfigReg(PCI_HOST host,
 *********************************************************************/
 unsigned int pciOverBridgeReadConfigReg(PCI_HOST host,
 					unsigned int regOffset,
-                                        unsigned int pciDevNum,
-                                        unsigned int busNum)
+					unsigned int pciDevNum,
+					unsigned int busNum)
 {
     unsigned int DataForReg;
     unsigned int data;
@@ -231,23 +231,23 @@ unsigned int pciOverBridgeReadConfigReg(PCI_HOST host,
     busNum = busNum << 16;
     if (pciDevNum == SELF) /* This board */
     {
-        DataForReg = (regOffset | pciDevNum | functionNum) | BIT31 ;
+	DataForReg = (regOffset | pciDevNum | functionNum) | BIT31 ;
     }
     else /* agent on another bus */
     {
-        DataForReg = (regOffset | pciDevNum | functionNum | busNum) |
-        BIT0 | BIT31 ;
+	DataForReg = (regOffset | pciDevNum | functionNum | busNum) |
+	BIT0 | BIT31 ;
     }
     GT_REG_WRITE(pci_configuration_address[host],DataForReg);
     if (pciDevNum == SELF) /* This board */
-   	{
-        GT_REG_READ(pci_configuration_data[host], &data);
-    	return data;
+	{
+	GT_REG_READ(pci_configuration_data[host], &data);
+	return data;
     }
     else /* The PCI is working in LE Mode So it swap the Data. */
     {
-        GT_REG_READ(pci_configuration_data[host], &data);
-    	return WORD_SWAP(data);
+	GT_REG_READ(pci_configuration_data[host], &data);
+	return WORD_SWAP(data);
     }
 }
 
@@ -356,12 +356,12 @@ unsigned int pciGetSpaceSize(PCI_HOST host, PCI_REGION region)
 *********************************************************************/
 void pciMapMemoryBank(PCI_HOST host, MEMORY_BANK bank, unsigned int pciDramBase,unsigned int pciDramSize)
 {
-  	pciDramBase = pciDramBase & 0xfffff000;
+	pciDramBase = pciDramBase & 0xfffff000;
     pciDramBase = pciDramBase | (pciReadConfigReg(host,
-        PCI_SCS_0_BASE_ADDRESS + 4*bank,SELF) & 0x00000fff);
+	PCI_SCS_0_BASE_ADDRESS + 4*bank,SELF) & 0x00000fff);
     pciWriteConfigReg(host,PCI_SCS_0_BASE_ADDRESS + 4*bank,SELF,pciDramBase);
     if(pciDramSize == 0)
-        pciDramSize ++;
+	pciDramSize ++;
     GT_REG_WRITE(pci_scs_bank_size[host][bank], pciDramSize-1);
 }
 
@@ -378,7 +378,7 @@ void pciMapMemoryBank(PCI_HOST host, MEMORY_BANK bank, unsigned int pciDramBase,
 * Returns: false if one of the parameters is erroneous true otherwise.
 *********************************************************************/
 bool pciSetRegionFeatures(PCI_HOST host, PCI_ACCESS_REGIONS region,unsigned int features,
-                           unsigned int baseAddress,unsigned int regionLength)
+			   unsigned int baseAddress,unsigned int regionLength)
 {
     unsigned int accessLow;
     unsigned int accessHigh;
@@ -386,8 +386,8 @@ bool pciSetRegionFeatures(PCI_HOST host, PCI_ACCESS_REGIONS region,unsigned int 
 
     if(regionLength == 0) /* close the region. */
     {
-        pciDisableAccessRegion(host, region);
-        return true;
+	pciDisableAccessRegion(host, region);
+	return true;
     }
     /* base Address is store is bits [11:0] */
     accessLow = (baseAddress & 0xfff00000) >> 20;
@@ -464,21 +464,21 @@ bool pciArbiterDisable(PCI_HOST host)
 * Returns:  true
 *********************************************************************/
 bool pciParkingDisable(PCI_HOST host, PCI_AGENT_PARK internalAgent,
-                        PCI_AGENT_PARK externalAgent0,
-                        PCI_AGENT_PARK externalAgent1,
-                        PCI_AGENT_PARK externalAgent2,
-                        PCI_AGENT_PARK externalAgent3,
-                        PCI_AGENT_PARK externalAgent4,
-                        PCI_AGENT_PARK externalAgent5)
+			PCI_AGENT_PARK externalAgent0,
+			PCI_AGENT_PARK externalAgent1,
+			PCI_AGENT_PARK externalAgent2,
+			PCI_AGENT_PARK externalAgent3,
+			PCI_AGENT_PARK externalAgent4,
+			PCI_AGENT_PARK externalAgent5)
 {
     unsigned int regData;
     unsigned int writeData;
 
     GT_REG_READ(pci_arbiter_control[host],&regData);
     writeData = (internalAgent << 14) + (externalAgent0 << 15) +     \
-                (externalAgent1 << 16) + (externalAgent2 << 17) +    \
-                (externalAgent3 << 18) + (externalAgent4 << 19) +    \
-                (externalAgent5 << 20);
+		(externalAgent1 << 16) + (externalAgent2 << 17) +    \
+		(externalAgent3 << 18) + (externalAgent4 << 19) +    \
+		(externalAgent5 << 20);
     regData = (regData & ~(0x7f<<14)) | writeData;
     GT_REG_WRITE(pci_arbiter_control[host],regData);
     return true;
@@ -498,8 +498,8 @@ bool pciParkingDisable(PCI_HOST host, PCI_AGENT_PARK internalAgent,
 * Returns: false if one of the parameters is wrong otherwise return true.
 *********************************************************************/
 bool pciSetRegionSnoopMode(PCI_HOST host, PCI_SNOOP_REGION region,PCI_SNOOP_TYPE snoopType,
-                            unsigned int baseAddress,
-                            unsigned int regionLength)
+			    unsigned int baseAddress,
+			    unsigned int regionLength)
 {
     unsigned int snoopXbaseAddress;
     unsigned int snoopXtopAddress;
@@ -507,14 +507,14 @@ bool pciSetRegionSnoopMode(PCI_HOST host, PCI_SNOOP_REGION region,PCI_SNOOP_TYPE
     unsigned int snoopHigh = baseAddress + regionLength;
 
     if( (region > PCI_SNOOP_REGION3) || (snoopType > PCI_SNOOP_WB) )
-        return false;
+	return false;
     snoopXbaseAddress = pci_snoop_control_base_0_low[host] + 0x10 * region;
     snoopXtopAddress = pci_snoop_control_top_0[host] + 0x10 * region;
     if(regionLength == 0) /* closing the region */
     {
-        GT_REG_WRITE(snoopXbaseAddress,0x0000ffff);
-        GT_REG_WRITE(snoopXtopAddress,0);
-        return true;
+	GT_REG_WRITE(snoopXbaseAddress,0x0000ffff);
+	GT_REG_WRITE(snoopXtopAddress,0);
+	return true;
     }
     baseAddress = baseAddress & 0xfff00000; /* Granularity of 1MByte */
     data = (baseAddress >> 20) | snoopType << 12;
@@ -533,12 +533,12 @@ static int gt_read_config_dword(struct pci_controller *hose,
 				int offset, u32* value)
 {
 	int bus = PCI_BUS(dev);
-	
+
 	if ((bus == local_buses[0]) || (bus == local_buses[1])){
-		*value = pciReadConfigReg((PCI_HOST) hose->cfg_addr, offset, 
+		*value = pciReadConfigReg((PCI_HOST) hose->cfg_addr, offset,
 					  PCI_DEV(dev));
 	} else {
-		*value = pciOverBridgeReadConfigReg((PCI_HOST) hose->cfg_addr, 
+		*value = pciOverBridgeReadConfigReg((PCI_HOST) hose->cfg_addr,
 						    offset, PCI_DEV(dev), bus);
 	}
 	return 0;
@@ -551,10 +551,10 @@ static int gt_write_config_dword(struct pci_controller *hose,
 	int bus = PCI_BUS(dev);
 
 	if ((bus == local_buses[0]) || (bus == local_buses[1])){
-		pciWriteConfigReg((PCI_HOST)hose->cfg_addr, offset, 
+		pciWriteConfigReg((PCI_HOST)hose->cfg_addr, offset,
 				  PCI_DEV(dev), value);
 	} else {
-		pciOverBridgeWriteConfigReg((PCI_HOST)hose->cfg_addr, offset, 
+		pciOverBridgeWriteConfigReg((PCI_HOST)hose->cfg_addr, offset,
 					    PCI_DEV(dev), value, bus);
 	}
 	return 0;

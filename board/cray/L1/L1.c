@@ -25,9 +25,6 @@
 #include <asm/processor.h>
 #include <405gp_i2c.h>
 #include <command.h>
-#include <cmd_nvedit.h>
-#include <cmd_bootm.h>
-#include <cmd_boot.h>
 #include <rtc.h>
 #include <post.h>
 #include <net.h>
@@ -249,7 +246,7 @@ int testdram (void)
 			*p = 0xaaaaaaaa;
 		for (p = pstart; p < pend; p++) {
 			if (*p != 0xaaaaaaaa) {
-				printf ("SDRAM test fails at: %08x, was %08x expected %08x\n", 
+				printf ("SDRAM test fails at: %08x, was %08x expected %08x\n",
 						(uint) p, *p, 0xaaaaaaaa);
 				return 1;
 			}
@@ -259,7 +256,7 @@ int testdram (void)
 			*p = 0x55555555;
 		for (p = pstart; p < pend; p++) {
 			if (*p != 0x55555555) {
-				printf ("SDRAM test fails at: %08x, was %08x expected %08x\n", 
+				printf ("SDRAM test fails at: %08x, was %08x expected %08x\n",
 						(uint) p, *p, 0x55555555);
 				return 1;
 			}
@@ -269,7 +266,7 @@ int testdram (void)
 			*p = (unsigned)p;
 		for (p = pstart; p < pend; p++) {
 			if (*p != (unsigned)p) {
-				printf ("SDRAM test fails at: %08x, was %08x expected %08x\n", 
+				printf ("SDRAM test fails at: %08x, was %08x expected %08x\n",
 						(uint) p, *p, (uint)p);
 				return 1;
 			}

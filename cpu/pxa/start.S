@@ -86,8 +86,8 @@ _armboot_end:
 /*
  * This is defined in the board specific linker script
  */
-.globl _bss_start	
-_bss_start:	
+.globl _bss_start
+_bss_start:
 	.word bss_start
 
 .globl _bss_end
@@ -138,7 +138,7 @@ reset:
 
 relocate:				/* relocate U-Boot to RAM	    */
 	adr	r0, _start		/* r0 <- current position of code   */
-	ldr	r1, _TEXT_BASE		/* test if we run from flash or RAM */	
+	ldr	r1, _TEXT_BASE		/* test if we run from flash or RAM */
 	cmp     r0, r1                  /* don't reloc during debug         */
 	beq     stack_setup
 
@@ -172,7 +172,7 @@ clear_bss:
 clbss_l:str	r2, [r0]		/* clear loop...                    */
 	add	r0, r0, #4
 	cmp	r0, r1
-	bne	clbss_l	 
+	bne	clbss_l
 
 
 	ldr	pc, _start_armboot
@@ -471,4 +471,3 @@ reset_cpu:
 reset_endless:
 
 	b	reset_endless
-

@@ -179,7 +179,6 @@ static int smc_close (void);
 static int smc_rcv (void);
 
 
-
 /* ------------------------------------------------------------
  * Internal routines
  * ------------------------------------------------------------
@@ -250,7 +249,6 @@ static void print_packet (byte *, int);
 #endif
 
 /* #define tx_done(dev) 1 */
-
 
 
 /* this does a soft reset on the device */
@@ -666,7 +664,6 @@ static int smc_rcv ()
 	if (!(status & FRAME_FILTER)) {
 		/* Adjust for having already read the first two words */
 		packet_length -= 4;		/*4; */
-
 
 
 		/* set odd length for bug in LAN91C111, */

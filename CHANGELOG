@@ -1,11 +1,25 @@
 ======================================================================
-Changes since U-Boot 0.3.1:
+Changes since U-Boot 0.4.0:
+======================================================================
+
+* Code cleanup:
+  - remove trailing white space, trailing empty lines, C++ comments, etc.
+  - split cmd_boot.c (separate cmd_bdinfo.c and cmd_load.c)
+
+* Patches by Kenneth Johansson, 25 Jun 2003:
+  - major rework of command structure
+    (work done mostly by Michal Cendrowski and Joakim Kristiansen)
+
+======================================================================
+Changes for U-Boot 0.4.0:
 ======================================================================
 
 * Patches by Robert Schwebel, 26 Jun 2003:
-  - logdl
-  - csb226
-  - innokom
+  - csb226 configuration updated
+  - credits for logodl port updated
+  - innokom configuration updated
+  - logodl tree update, still with coding style inconsistencies
+  - added OCM for ppc405 warning to README
 
 * Patch by Pantelis Antoniou, 25 Jun 2003:
   update NetVia with V2 board support

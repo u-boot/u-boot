@@ -26,7 +26,6 @@
  */
 #include <common.h>
 #include <command.h>
-#include <cmd_boot.h>
 #include <flash.h>
 
 #if (CONFIG_COMMANDS & CFG_CMD_FLASH)
@@ -227,7 +226,7 @@ int flash_sect_erase (ulong addr_first, ulong addr_last)
 		}
 	}
 	if (erased) {
-	    //	mon_printf ("Erased %d sectors\n", erased);
+	    /*	mon_printf ("Erased %d sectors\n", erased); */
 	} else {
 		mon_printf ("Error: start and/or end address"
 			" not on sector boundary\n");
@@ -264,8 +263,8 @@ int do_protect(cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
 			if (info->flash_id == FLASH_UNKNOWN) {
 				continue;
 			}
-			//mon_printf ("%sProtect Flash Bank # %ld\n",
-			//	p ? "" : "Un-", bank);
+			/*mon_printf ("%sProtect Flash Bank # %ld\n", */
+			/*	p ? "" : "Un-", bank); */
 
 			for (i=0; i<info->sector_count; ++i) {
 #if defined(CFG_FLASH_PROTECTION)
@@ -290,9 +289,9 @@ int do_protect(cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
 			mon_printf("Bad sector specification\n");
 			return 1;
 		}
-		//mon_printf("%sProtect Flash Sectors %d-%d in Bank # %d\n",
-		//	p ? "" : "Un-", sect_first, sect_last,
-		//	(info-flash_info)+1);
+		/*mon_printf("%sProtect Flash Sectors %d-%d in Bank # %d\n", */
+		/*	p ? "" : "Un-", sect_first, sect_last, */
+		/*	(info-flash_info)+1); */
 		for (i = sect_first; i <= sect_last; i++) {
 #if defined(CFG_FLASH_PROTECTION)
 			if (flash_real_protect(info, i, p))
@@ -418,8 +417,8 @@ int flash_sect_protect (int p, ulong addr_first, ulong addr_last)
 
 	}
 	if (protected) {
-	    //	mon_printf ("%sProtected %d sectors\n",
-	    //	p ? "" : "Un-", protected);
+	    /*	mon_printf ("%sProtected %d sectors\n", */
+	    /*	p ? "" : "Un-", protected); */
 	} else {
 	    mon_printf ("Error: start and/or end address"
 			" not on sector boundary\n");

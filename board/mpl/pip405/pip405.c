@@ -530,7 +530,6 @@ int board_pre_init (void)
 	mtdcr (memcfgd, tmp);
 
 
-
    /*-------------------------------------------------------------------------+
    | Interrupt controller setup for the PIP405 board.
    | Note: IRQ 0-15  405GP internally generated; active high; level sensitive
@@ -671,7 +670,6 @@ int overwrite_console (void)
 {
 	return (in8 (CONFIG_PORT_ADDR) & 0x1);	/* return TRUE if console should be overwritten */
 }
-
 
 
 extern int isa_init (void);
@@ -943,5 +941,3 @@ void ide_set_reset (int idereset)
 	}
 	out8 (PLD_SCSI_RST_REG, resreg);
 }
-
-

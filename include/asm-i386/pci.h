@@ -32,6 +32,4 @@ int pci_shadow_rom(pci_dev_t dev, unsigned char *dest);
 void pci_remove_rom_window(struct pci_controller* hose, u32 addr);
 u32 pci_get_rom_window(struct pci_controller* hose, int size);
 
-
-
 #endif

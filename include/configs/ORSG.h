@@ -95,8 +95,8 @@
 
 /* The following table includes the supported baudrates */
 #define CFG_BAUDRATE_TABLE      \
-        { 300, 600, 1200, 2400, 4800, 9600, 19200, 38400,     \
-         57600, 115200, 230400, 460800, 921600 }
+	{ 300, 600, 1200, 2400, 4800, 9600, 19200, 38400,     \
+	 57600, 115200, 230400, 460800, 921600 }
 
 #define CFG_LOAD_ADDR	0x100000	/* default load address */
 #define CFG_EXTBDINFO	1		/* To use extended board_into (bd_t) */
@@ -116,7 +116,7 @@
 #define CONFIG_PCI			/* include pci support	        */
 #define CONFIG_PCI_HOST	PCI_HOST_ADAPTER /* select pci adapter          */
 #undef  CONFIG_PCI_PNP			/* no pci plug-and-play         */
-                                        /* resource configuration       */
+					/* resource configuration       */
 
 #undef  CONFIG_PCI_SCAN_SHOW            /* print pci devices @ startup  */
 
@@ -186,7 +186,7 @@
 #define CFG_ENV_IS_IN_EEPROM    1       /* use EEPROM for environment vars */
 #define CFG_ENV_OFFSET          0x000   /* environment starts at the beginning of the EEPROM */
 #define CFG_ENV_SIZE            0x300   /* 768 bytes may be used for env vars */
-                                   /* total size of a CAT24WC08 is 1024 bytes */
+				   /* total size of a CAT24WC08 is 1024 bytes */
 #endif
 
 /*-----------------------------------------------------------------------
@@ -238,32 +238,32 @@
 
 /* Memory Bank 2 (PLD - FPGA-boot) initialization                               */
 #define CFG_EBC_PB2AP           0x02015480  /* BME=0x0,TWT=0x04,CSN=0x0,OEN=0x1 */
-                                            /* WBN=0x1,WBF=0x1,TH=0x2,RE=0x0,SOR=0x1,BEM=0x0,PEN=0x0*/
+					    /* WBN=0x1,WBF=0x1,TH=0x2,RE=0x0,SOR=0x1,BEM=0x0,PEN=0x0*/
 #define CFG_EBC_PB2CR           0xF0018000  /* BAS=0xF00,BS=1MB,BU=R/W,BW=8bit  */
 
 /* Memory Bank 3 (PLD - OSL) initialization                                     */
 #define CFG_EBC_PB3AP           0x02015480  /* BME=0x0,TWT=0x04,CSN=0x0,OEN=0x1 */
-                                            /* WBN=0x1,WBF=0x1,TH=0x2,RE=0x0,SOR=0x1,BEM=0x0,PEN=0x0*/
+					    /* WBN=0x1,WBF=0x1,TH=0x2,RE=0x0,SOR=0x1,BEM=0x0,PEN=0x0*/
 #define CFG_EBC_PB3CR           0xF0118000  /* BAS=0xF01,BS=1MB,BU=R/W,BW=8bit  */
 
 /* Memory Bank 4 (Spartan2 1) initialization                                    */
 #define CFG_EBC_PB4AP           0x02015580  /* BME=0x0,TWT=0x04,CSN=0x0,OEN=0x1 */
-                                            /* WBN=0x1,WBF=0x1,TH=0x2,RE=0x1,SOR=0x1,BEM=0x0,PEN=0x0*/
+					    /* WBN=0x1,WBF=0x1,TH=0x2,RE=0x1,SOR=0x1,BEM=0x0,PEN=0x0*/
 #define CFG_EBC_PB4CR           0xF209C000  /* BAS=0xF20,BS=16MB,BU=R/W,BW=32bit*/
 
 /* Memory Bank 5 (Spartan2 2) initialization                                    */
 #define CFG_EBC_PB5AP           0x02015580  /* BME=0x0,TWT=0x04,CSN=0x0,OEN=0x1 */
-                                            /* WBN=0x1,WBF=0x1,TH=0x2,RE=0x1,SOR=0x1,BEM=0x0,PEN=0x0*/
+					    /* WBN=0x1,WBF=0x1,TH=0x2,RE=0x1,SOR=0x1,BEM=0x0,PEN=0x0*/
 #define CFG_EBC_PB5CR           0xF309C000  /* BAS=0xF30,BS=16MB,BU=R/W,BW=32bit*/
 
 /* Memory Bank 6 (Virtex 1) initialization                                      */
 #define CFG_EBC_PB6AP           0x02015580  /* BME=0x0,TWT=0x04,CSN=0x0,OEN=0x1 */
-                                            /* WBN=0x1,WBF=0x1,TH=0x2,RE=0x1,SOR=0x1,BEM=0x0,PEN=0x0*/
+					    /* WBN=0x1,WBF=0x1,TH=0x2,RE=0x1,SOR=0x1,BEM=0x0,PEN=0x0*/
 #define CFG_EBC_PB6CR           0xF409A000  /* BAS=0xF40,BS=16MB,BU=R/W,BW=16bit*/
 
 /* Memory Bank 7 (Virtex 2) initialization                                      */
 #define CFG_EBC_PB7AP           0x02015580  /* BME=0x0,TWT=0x04,CSN=0x0,OEN=0x1 */
-                                            /* WBN=0x1,WBF=0x1,TH=0x2,RE=0x1,SOR=0x1,BEM=0x0,PEN=0x0*/
+					    /* WBN=0x1,WBF=0x1,TH=0x2,RE=0x1,SOR=0x1,BEM=0x0,PEN=0x0*/
 #define CFG_EBC_PB7CR           0xF509A000  /* BAS=0xF50,BS=16MB,BU=R/W,BW=16bit*/
 
 

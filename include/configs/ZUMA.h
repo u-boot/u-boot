@@ -207,7 +207,6 @@
 	/*  3| 0|.... ..| 1| 5 |  5 |  5 |   5 |   8 | 5  */
 
 
-
 #define CFG_8BIT_BOOT_PAR	0xc00b5e7c
 
 #define CFG_MPP_CONTROL_0	0x00007777 /* GPP[7:4] : REQ0[1:0] GNT0[1:0] */

@@ -167,7 +167,7 @@ void    setenv       (char *, char *);
 # include <asm/u-boot-arm.h>	/* ARM version to be fixed! */
 #endif /* CONFIG_ARM */
 #ifdef CONFIG_I386		/* x86 version to be fixed! */
-# include <asm/u-boot-i386.h>  
+# include <asm/u-boot-i386.h>
 #endif /* CONFIG_I386 */
 
 void    pci_init      (void);

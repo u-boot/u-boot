@@ -239,7 +239,6 @@
 #define MULTI_PURPOSE_SOCKET_ADDR 0xF8000000
 
 
-
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in On Chip SRAM)
  */

@@ -123,7 +123,7 @@ void epicVendorId( unsigned int *step,
        unsigned int *venId
      );
 void epicFeatures( unsigned int *noIRQs,
-             unsigned int *noCPUs,
+	     unsigned int *noCPUs,
        unsigned int *VerId );
 extern void epicInit( unsigned int IRQType, unsigned int clkRatio);
 ULONG sysEUMBBARRead ( ULONG regNum );
@@ -131,8 +131,8 @@ void sysEUMBBARWrite ( ULONG regNum, ULONG regVal);
 extern void epicTmFrequencySet( unsigned int frq );
 extern unsigned int epicTmFrequencyGet(void);
 extern unsigned int epicTmBaseSet( ULONG srcAddr,
-                 unsigned int cnt,
-                 unsigned int inhibit );
+		 unsigned int cnt,
+		 unsigned int inhibit );
 extern unsigned int epicTmBaseGet ( ULONG srcAddr, unsigned int *val );
 extern unsigned int epicTmCountGet( ULONG srcAddr, unsigned int *val );
 extern unsigned int epicTmInhibit( unsigned int timer );
@@ -144,7 +144,7 @@ extern void epicIntTaskSet( unsigned char val );
 extern unsigned int epicIntAck(void);
 extern void epicSprSet( unsigned int eumbbar, unsigned char );
 extern void epicConfigGet( unsigned int *clkRatio,
-               unsigned int *serEnable );
+	       unsigned int *serEnable );
 extern void SrcVecTableInit(void);
 extern unsigned int  epicModeGet(void);
 extern void epicIntEnable(int Vect);

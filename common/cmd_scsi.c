@@ -30,7 +30,6 @@
 
 #include <common.h>
 #include <command.h>
-#include <cmd_boot.h>
 #include <asm/processor.h>
 #include <scsi.h>
 #include <image.h>
@@ -181,7 +180,6 @@ removable:
 }
 
 
-
 void scsi_init(void)
 {
 	int busdevfunc;
@@ -204,7 +202,6 @@ block_dev_desc_t * scsi_get_dev(int dev)
 {
 	return((block_dev_desc_t *)&scsi_dev_desc[dev]);
 }
-
 
 
 /******************************************************************************
@@ -494,7 +491,6 @@ void scsi_ident_cpy (unsigned char *dest, unsigned char *src, unsigned int len)
 }
 
 
-
 /* Trim trailing blanks, and NUL-terminate string
  */
 void scsi_trim_trail (unsigned char *str, unsigned int len)
@@ -594,5 +590,3 @@ void scsi_setup_inquiry(ccb * pccb)
 }
 
 #endif /* #if (CONFIG_COMMANDS & CFG_CMD_SCSI) */
-
-

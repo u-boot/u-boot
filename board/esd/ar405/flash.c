@@ -43,8 +43,8 @@ unsigned long flash_init (void)
 {
 	unsigned long size_b0, size_b1;
 	int i;
-        uint pbcr;
-        unsigned long base_b0, base_b1;
+	uint pbcr;
+	unsigned long base_b0, base_b1;
 
 	/* Init: no FLASHes known */
 	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {
@@ -66,27 +66,27 @@ unsigned long flash_init (void)
 
 	/* Re-do sizing to get full correct info */
 
-        if (size_b1)
-          {
-            mtdcr(ebccfga, pb0cr);
-            pbcr = mfdcr(ebccfgd);
-            mtdcr(ebccfga, pb0cr);
-            base_b1 = -size_b1;
-            pbcr = (pbcr & 0x0001ffff) | base_b1 | (((size_b1/1024/1024)-1)<<17);
-            mtdcr(ebccfgd, pbcr);
-            /*          printf("pb1cr = %x\n", pbcr); */
-          }
+	if (size_b1)
+	  {
+	    mtdcr(ebccfga, pb0cr);
+	    pbcr = mfdcr(ebccfgd);
+	    mtdcr(ebccfga, pb0cr);
+	    base_b1 = -size_b1;
+	    pbcr = (pbcr & 0x0001ffff) | base_b1 | (((size_b1/1024/1024)-1)<<17);
+	    mtdcr(ebccfgd, pbcr);
+	    /*          printf("pb1cr = %x\n", pbcr); */
+	  }
 
-        if (size_b0)
-          {
-            mtdcr(ebccfga, pb1cr);
-            pbcr = mfdcr(ebccfgd);
-            mtdcr(ebccfga, pb1cr);
-            base_b0 = base_b1 - size_b0;
-            pbcr = (pbcr & 0x0001ffff) | base_b0 | (((size_b0/1024/1024)-1)<<17);
-            mtdcr(ebccfgd, pbcr);
-            /*            printf("pb0cr = %x\n", pbcr); */
-          }
+	if (size_b0)
+	  {
+	    mtdcr(ebccfga, pb1cr);
+	    pbcr = mfdcr(ebccfgd);
+	    mtdcr(ebccfga, pb1cr);
+	    base_b0 = base_b1 - size_b0;
+	    pbcr = (pbcr & 0x0001ffff) | base_b0 | (((size_b0/1024/1024)-1)<<17);
+	    mtdcr(ebccfgd, pbcr);
+	    /*            printf("pb0cr = %x\n", pbcr); */
+	  }
 
 	size_b0 = flash_get_size((vu_long *)base_b0, &flash_info[0]);
 
@@ -109,11 +109,11 @@ unsigned long flash_init (void)
 				    base_b1+size_b1-monitor_flash_len,
 				    base_b1+size_b1-1,
 				    &flash_info[1]);
-                /* monitor protection OFF by default (one is enough) */
-                (void)flash_protect(FLAG_PROTECT_CLEAR,
-                                    base_b0+size_b0-monitor_flash_len,
-                                    base_b0+size_b0-1,
-                                    &flash_info[0]);
+		/* monitor protection OFF by default (one is enough) */
+		(void)flash_protect(FLAG_PROTECT_CLEAR,
+				    base_b0+size_b0-monitor_flash_len,
+				    base_b0+size_b0-1,
+				    &flash_info[0]);
 	} else {
 		flash_info[1].flash_id = FLASH_UNKNOWN;
 		flash_info[1].sector_count = -1;

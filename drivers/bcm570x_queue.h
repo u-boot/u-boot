@@ -103,12 +103,11 @@ typedef struct {
 
 /* Declare queue type macro. */
 #define DECLARE_QUEUE_TYPE(_QUEUE_TYPE, _QUEUE_SIZE)            \
-                                                                \
+								\
     typedef struct {                                            \
-        QQ_CONTAINER Container;                                 \
-        PQQ_ENTRY EntryBuffer[_QUEUE_SIZE];                     \
+	QQ_CONTAINER Container;                                 \
+	PQQ_ENTRY EntryBuffer[_QUEUE_SIZE];                     \
     } _QUEUE_TYPE, *P##_QUEUE_TYPE
-
 
 
 /******************************************************************************/
@@ -144,7 +143,6 @@ unsigned int QueueSize) {
 } /* QQ_InitQueue */
 
 
-
 /******************************************************************************/
 /* Description:                                                               */
 /*                                                                            */
@@ -161,7 +159,6 @@ PQQ_CONTAINER pQueue) {
 } /* QQ_Full */
 
 
-
 /******************************************************************************/
 /* Description:                                                               */
 /*                                                                            */
@@ -172,7 +169,6 @@ QQ_Empty(
 PQQ_CONTAINER pQueue) {
     return(pQueue->Head == pQueue->Tail);
 } /* QQ_Empty */
-
 
 
 /******************************************************************************/
@@ -187,7 +183,6 @@ PQQ_CONTAINER pQueue) {
 } /* QQ_GetSize */
 
 
-
 /******************************************************************************/
 /* Description:                                                               */
 /*                                                                            */
@@ -198,7 +193,6 @@ QQ_GetEntryCnt(
 PQQ_CONTAINER pQueue) {
     return atomic_read(&pQueue->EntryCnt);
 } /* QQ_GetEntryCnt */
-
 
 
 /******************************************************************************/
@@ -218,7 +212,7 @@ PQQ_ENTRY pEntry) {
 
 #if !defined(QQ_NO_OVERFLOW_CHECK)
     if(Head == pQueue->Tail) {
-        return 0;
+	return 0;
     } /* if */
 #endif /* QQ_NO_OVERFLOW_CHECK */
 
@@ -229,7 +223,6 @@ PQQ_ENTRY pEntry) {
 
     return -1;
 } /* QQ_PushHead */
-
 
 
 /******************************************************************************/
@@ -247,13 +240,13 @@ PQQ_ENTRY pEntry) {
 
     Tail = pQueue->Tail;
     if(Tail == 0) {
-        Tail = pQueue->Size;
+	Tail = pQueue->Size;
     } /* if */
     Tail--;
 
 #if !defined(QQ_NO_OVERFLOW_CHECK)
     if(Tail == pQueue->Head) {
-        return 0;
+	return 0;
     } /* if */
 #endif /* QQ_NO_OVERFLOW_CHECK */
 
@@ -264,7 +257,6 @@ PQQ_ENTRY pEntry) {
 
     return -1;
 } /* QQ_PushTail */
-
 
 
 /******************************************************************************/
@@ -282,12 +274,12 @@ PQQ_CONTAINER pQueue) {
 
 #if !defined(QQ_NO_UNDERFLOW_CHECK)
     if(Head == pQueue->Tail) {
-        return (PQQ_ENTRY) 0;
+	return (PQQ_ENTRY) 0;
     } /* if */
 #endif /* QQ_NO_UNDERFLOW_CHECK */
 
     if(Head == 0) {
-        Head = pQueue->Size;
+	Head = pQueue->Size;
     } /* if */
     Head--;
 
@@ -302,7 +294,6 @@ PQQ_CONTAINER pQueue) {
 
     return Entry;
 } /* QQ_PopHead */
-
 
 
 /******************************************************************************/
@@ -320,7 +311,7 @@ PQQ_CONTAINER pQueue) {
 
 #if !defined(QQ_NO_UNDERFLOW_CHECK)
     if(Tail == pQueue->Head) {
-        return (PQQ_ENTRY) 0;
+	return (PQQ_ENTRY) 0;
     } /* if */
 #endif /* QQ_NO_UNDERFLOW_CHECK */
 
@@ -337,7 +328,6 @@ PQQ_CONTAINER pQueue) {
 } /* QQ_PopTail */
 
 
-
 /******************************************************************************/
 /* Description:                                                               */
 /*                                                                            */
@@ -350,22 +340,21 @@ QQ_GetHead(
 {
     if(Idx >= atomic_read(&pQueue->EntryCnt))
     {
-        return (PQQ_ENTRY) 0;
+	return (PQQ_ENTRY) 0;
     }
 
     if(pQueue->Head > Idx)
     {
-        Idx = pQueue->Head - Idx;
+	Idx = pQueue->Head - Idx;
     }
     else
     {
-        Idx = pQueue->Size - (Idx - pQueue->Head);
+	Idx = pQueue->Size - (Idx - pQueue->Head);
     }
     Idx--;
 
     return pQueue->Array[Idx];
 }
-
 
 
 /******************************************************************************/
@@ -380,20 +369,19 @@ QQ_GetTail(
 {
     if(Idx >= atomic_read(&pQueue->EntryCnt))
     {
-        return (PQQ_ENTRY) 0;
+	return (PQQ_ENTRY) 0;
     }
 
     Idx += pQueue->Tail;
     if(Idx >= pQueue->Size)
     {
-        Idx = Idx - pQueue->Size;
+	Idx = Idx - pQueue->Size;
     }
 
     return pQueue->Array[Idx];
 }
 
 #endif /* QQ_USE_MACROS */
-
 
 
 #endif /* QUEUE_H */

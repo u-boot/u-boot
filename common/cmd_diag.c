@@ -26,7 +26,6 @@
  */
 #include <common.h>
 #include <command.h>
-#include <cmd_diag.h>
 #include <post.h>
 
 #if (CONFIG_COMMANDS & CFG_CMD_DIAG) && defined(CONFIG_POST)
@@ -65,5 +64,17 @@ int do_diag (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 	return 0;
 }
+/***************************************************/
+
+cmd_tbl_t U_BOOT_CMD(DIAG) = MK_CMD_ENTRY(
+	"diag",	CFG_MAXARGS,	0,	do_diag,
+	"diag    - perform board diagnostics\n",
+	     "    - print list of available tests\n"
+	"diag [test1 [test2]]\n"
+	"         - print information about specified tests\n"
+	"diag run - run all available tests\n"
+	"diag run [test1 [test2]]\n"
+	"         - run specified tests\n"
+);
 
 #endif /* CFG_CMD_DIAG */

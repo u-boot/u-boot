@@ -240,8 +240,8 @@ flash_print_info  (flash_info_t *info)
 
 static inline void flash_cmd(int width, volatile unsigned char *addr, int offset, unsigned char cmd)
 {
-        /* supports 1x8, 1x16, and 2x16 */
-        /* 2x8 and 4x8 are not supported */
+	/* supports 1x8, 1x16, and 2x16 */
+	/* 2x8 and 4x8 are not supported */
 	if(width==4) {
 	    /* assuming chips are in 16 bit mode */
 	    /* 2x16 */

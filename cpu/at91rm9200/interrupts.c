@@ -45,7 +45,6 @@ extern void reset_cpu(ulong addr);
 AT91PS_TC tmr;
 
 
-
 void enable_interrupts (void)
 {
     return;
@@ -209,11 +208,11 @@ ulong get_timer_masked(void)
     ulong now = READ_TIMER;
     if (now >= lastinc)
     {
-        /* normal mode */
-        timestamp += now - lastinc;
+	/* normal mode */
+	timestamp += now - lastinc;
     } else {
-        /* we have an overflow ... */
-        timestamp += now + TIMER_LOAD_VAL - lastinc;
+	/* we have an overflow ... */
+	timestamp += now + TIMER_LOAD_VAL - lastinc;
     }
     lastinc = now;
 
@@ -233,5 +232,3 @@ void udelay_masked(unsigned long usec)
     while(get_timer_masked() < tmo);
       /*NOP*/;
 }
-
-

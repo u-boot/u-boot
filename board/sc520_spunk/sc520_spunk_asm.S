@@ -23,7 +23,7 @@
 
 /* now setup the General purpose bus to give us access to the LEDs.
  * We can then use the leds to display status information.
- */ 
+ */
 
 sc520_cdp_registers:
 /* size    offset        value */
@@ -44,12 +44,12 @@ sc520_cdp_registers:
 /* board early intialization */
 .globl early_board_init
 early_board_init:
-        movl    $sc520_cdp_registers,%esi
-init_loop:	
-        movl    $0xfffef000,%edi     /* MMCR base to edi */					
+	movl    $sc520_cdp_registers,%esi
+init_loop:
+	movl    $0xfffef000,%edi     /* MMCR base to edi */
 	movw	(%esi), %bx          /* load size to bx */
 	cmpw	$0, %bx              /* if size is 0 we're done */
-	je	done 
+	je	done
 	xorl	%edx,%edx
 	movw	2(%esi), %dx        /* load MMCR offset to dx */
 	addl	%edx, %edi          /* add offset to base in edi */
@@ -60,23 +60,22 @@ init_loop:
 	je	word                 /* word op? */
 	movl	%eax, (%edi)         /* must be long, then */
 	jmp	next
-byte:   movb    %al,(%edi)        
+byte:   movb    %al,(%edi)
 	jmp	next
 word:	movw	%ax,(%edi)
 next:	addl	$8, %esi             /* advance esi */
 	jmp	init_loop
 
 	/* light all leds */
-done:   movl    $0xfffefc32,%edx 
-	movw    $0000,(%edx)              
+done:   movl    $0xfffefc32,%edx
+	movw    $0000,(%edx)
 
 	jmp 	*%ebp		     /* return to caller */
 
 
 .globl __show_boot_progress
 __show_boot_progress:
-	movl    $0xfffefc32,%edx 
-	xorw    $0xffff, %ax 
-	movw    %ax,(%edx)              
+	movl    $0xfffefc32,%edx
+	xorw    $0xffff, %ax
+	movw    %ax,(%edx)
 	jmp	*%ebp
-

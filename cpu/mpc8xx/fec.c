@@ -411,7 +411,6 @@ static int fec_init(struct eth_device* dev, bd_t * bd)
 }
 
 
-
 static void fec_halt(struct eth_device* dev)
 {
 #if 0

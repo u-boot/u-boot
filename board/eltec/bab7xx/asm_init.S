@@ -204,7 +204,7 @@ configSDRAM:
     beq     SD16MB2B
 
     li      r3, 0x0011          /* get number of internal banks */
-                                /* from spd for bank0/1 */
+				/* from spd for bank0/1 */
     bl      spdRead
 
     cmpli   0, 0, r3, 0x02
@@ -244,7 +244,7 @@ SDRow2nd:
  * set the Memory Configuration Reg. 2
  */
     li      r3, 0x0111          /* get number of internal banks */
-                                /* from spd for bank2/3 */
+				/* from spd for bank2/3 */
     bl      spdRead
 
     cmpli   0, 0, r3, 0x02
@@ -269,13 +269,13 @@ S2D16MB2B:
  */
 S2D64MB4B:
     lis     r21, 0x8630         /* BSTOPRE = 0x80, REFREC = 6, */
-                                /* RDLAT = 3 */
+				/* RDLAT = 3 */
 
 /*
  * set the Memory Configuration Reg. 4
  */
     lis     r22, 0x2430         /* PRETOACT = 2, ACTOPRE = 4, */
-                                /* WCBUF = 1, RCBUF = 1 */
+				/* WCBUF = 1, RCBUF = 1 */
     ori     r22, r22, 0x2220    /* SDMODE = 0x022, ACTORW = 2 */
 
 /*
@@ -285,10 +285,10 @@ S2D64MB4B:
     bl      spdRead
 
     rlwinm  r16, r3, 2, 24, 29  /* calculate size in MByte */
-                                /* (128 MB max.) */
+				/* (128 MB max.) */
 
     li      r3, 0x0005          /* get number of banks from spd */
-                                /* for bank0/1 */
+				/* for bank0/1 */
     bl      spdRead
 
     cmpi    0, 0, r3, 2         /* 2 banks ? */
@@ -336,10 +336,10 @@ configSDRAM23:
     bl      spdRead
 
     rlwinm  r18, r3, 2, 24, 29  /* calculate size in MByte */
-                                /* (128 MB max.) */
+				/* (128 MB max.) */
 
     li      r3, 0x0105          /* get number of banks from */
-                                /* spd bank0/1 */
+				/* spd bank0/1 */
     bl      spdRead
 
     cmpi    0, 0, r3, 2         /* 2 banks ? */
@@ -365,7 +365,7 @@ configEDO0:
 
 getSpdRowBank01:
     li      r3, 0x0003          /* get number of row bits from */
-                                /* spd from bank0/1 */
+				/* spd from bank0/1 */
     bl      spdRead
     ori     r20, r20, (MCCR1_BK0_9BITS | MCCR1_BK1_9BITS)
     cmpli   0, 0, r3, 0x0009    /* bank0 -  9 row bits */
@@ -392,7 +392,7 @@ getSpdRowBank01:
 
 getSpdRowBank23:
     li     r3, 0x0103           /* get number of row bits from */
-                                /* spd for bank2/3 */
+				/* spd for bank2/3 */
     bl      spdRead
 
     ori     r20, r20, (MCCR1_BK2_9BITS | MCCR1_BK3_9BITS)
@@ -415,13 +415,13 @@ getSpdRowBank23:
 writeRowBits:
     lis     r21, 0x000a         /* CPX = 1, RAS6P = 4 */
     ori     r21, r21, 0x2293    /* CAS5 = 2, CP4 = 1, */
-                                /* CAS3 = 2, RCD2 = 2, RP = 3 */
+				/* CAS3 = 2, RCD2 = 2, RP = 3 */
 /*
  * set the Memory Configuration Reg. 4
  */
     lis     r22, 0x0010         /* all SDRAM parameter 0, */
-                                /* WCBUF flow through, */
-                                /* RCBUF registered */
+				/* WCBUF flow through, */
+				/* RCBUF registered */
 /*
  * get the size of bank 0-3
  */
@@ -429,7 +429,7 @@ writeRowBits:
     bl      spdRead
 
     li      r16, 0              /* bank size is: */
-                                /* (8*2^row*2^column)/0x100000 MB */
+				/* (8*2^row*2^column)/0x100000 MB */
     ori     r16, r16, 0x8000
     rlwnm   r16, r16, r3, 0, 31
 
@@ -439,7 +439,7 @@ writeRowBits:
     rlwnm   r16, r16, r3, 0, 31
 
     li      r3, 0x0005          /* get number of banks from */
-                                /* spd for bank0/1 */
+				/* spd for bank0/1 */
     bl      spdRead
 
     cmpi    0, 0, r3, 2         /* 2 banks ? */
@@ -487,7 +487,7 @@ EDObank2:
     bl      spdRead
 
     li      r18, 0              /* bank size is: */
-                                /* (8*2^row*2^column)/0x100000 MB */
+				/* (8*2^row*2^column)/0x100000 MB */
     ori     r18, r18, 0x8000
     rlwnm   r18, r18, r3, 0, 31
 
@@ -497,7 +497,7 @@ EDObank2:
     rlwnm   r18, r18, r3, 0, 31
 
     li      r3, 0x0105          /* get number of banks from */
-                                /* spd for bank2/3 */
+				/* spd for bank2/3 */
     bl      spdRead
 
     cmpi    0, 0, r3, 2         /* 2 banks ? */
@@ -701,28 +701,28 @@ common2:
 
 common3:
     li      r4, 0x1010          /* refesh cycle 1028 clocks */
-                                /*  left shifted 2 */
+				/*  left shifted 2 */
     cmpli   0, 0, r3, 0x0000    /* 15.6 us ? */
     beq     writeRefresh
 
     li      r4, 0x0808          /* refesh cycle 514 clocks */
-                                /* left shifted 2 */
+				/* left shifted 2 */
     cmpli   0, 0, r3, 0x0002    /* 7.8 us ? */
     beq     writeRefresh
 
     li      r4, 0x2020          /* refesh cycle 2056 clocks */
-                                /* left shifted 2 */
+				/* left shifted 2 */
     cmpli   0, 0, r3, 0x0003    /* 31.3 us ? */
     beq     writeRefresh
 
     li      r4, 0x4040          /* refesh cycle 4112 clocks */
-                                /* left shifted 2 */
+				/* left shifted 2 */
     cmpli   0, 0, r3, 0x0004    /* 62.5 us ? */
     beq     writeRefresh
 
     li      r4, 0
     ori     r4, r4, 0x8080      /* refesh cycle 8224 clocks */
-                                /* left shifted 2 */
+				/* left shifted 2 */
     cmpli   0, 0, r3, 0x0005    /* 125 us ? */
     beq     writeRefresh
 
@@ -916,7 +916,7 @@ toggleError2:
     eieio
     li      r9, 0x03
     stb     r9, 3(r8)           /* 8 data bits, 1 stop bit, */
-                                /* no parity */
+				/* no parity */
     eieio
     li      r9, 0x0b
     stb     r9, 4(r8)           /* enable the receiver and transmitter */
@@ -928,7 +928,7 @@ waitEmpty:
     beq     waitEmpty
     li      r9, 0x47
     stb     r9, 3(r8)           /* send break, 8 data bits, */
-                                /* 2 stop bits, no parity */
+				/* 2 stop bits, no parity */
     eieio
 
     lis     r0, 0x0001
@@ -944,7 +944,7 @@ waitEmpty1:
     beq     waitEmpty1
     li      r9, 0x07
     stb     r9, 3(r8)           /* 8 data bits, 2 stop bits, */
-                                /* no parity */
+				/* no parity */
     eieio
 
 /*
@@ -1473,15 +1473,3 @@ Mactivate:
 Mmbyte:
     .ascii  " MB .......... \000"
     .align  4
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1146,4 +1146,3 @@ int     PMAPI PM_int386x(int intno, PMREGS *in, PMREGS *out,PMSREGS *sregs);
 #endif
 
 #endif /* __PMAPI_H */
-

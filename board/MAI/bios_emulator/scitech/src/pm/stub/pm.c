@@ -38,13 +38,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-// TODO: Include any OS specific headers here!
+/* TODO: Include any OS specific headers here! */
 
 /*--------------------------- Global variables ----------------------------*/
 
-// TODO: If you support access to the BIOS, the following VESABuf globals
-//       keep track of a single VESA transfer buffer. If you don't support
-//       access to the BIOS, remove these variables.
+/* TODO: If you support access to the BIOS, the following VESABuf globals */
+/*       keep track of a single VESA transfer buffer. If you don't support */
+/*       access to the BIOS, remove these variables. */
 
 static uint VESABuf_len = 1024;     /* Length of the VESABuf buffer     */
 static void *VESABuf_ptr = NULL;    /* Near pointer to VESABuf          */
@@ -61,12 +61,12 @@ Initialise the PM library.
 ****************************************************************************/
 void PMAPI PM_init(void)
 {
-    // TODO: Do any initialisation in here. This includes getting IOPL
-    //       access for the process calling PM_init. This will get called
-    //       more than once.
+    /* TODO: Do any initialisation in here. This includes getting IOPL */
+    /*       access for the process calling PM_init. This will get called */
+    /*       more than once. */
 
-    // TODO: If you support the supplied MTRR register stuff (you need to
-    //       be at ring 0 for this!), you should initialise it in here.
+    /* TODO: If you support the supplied MTRR register stuff (you need to */
+    /*       be at ring 0 for this!), you should initialise it in here. */
 
 /* MTRR_init(); */
 }
@@ -77,7 +77,7 @@ Return the operating system type identifier.
 ****************************************************************************/
 long PMAPI PM_getOSType(void)
 {
-    // TODO: Change this to return the define for your OS from drvlib/os.h
+    /* TODO: Change this to return the define for your OS from drvlib/os.h */
     return _OS_MYOS;
 }
 
@@ -97,9 +97,9 @@ void PMAPI PM_backslash(
 {
     uint pos = strlen(s);
     if (s[pos-1] != '/') {
-        s[pos] = '/';
-        s[pos+1] = '\0';
-        }
+	s[pos] = '/';
+	s[pos+1] = '\0';
+	}
 }
 
 /****************************************************************************
@@ -119,11 +119,11 @@ Report a fatal error condition and halt the program.
 void PMAPI PM_fatalError(
     const char *msg)
 {
-    // TODO: If you are running in a GUI environment without a console,
-    //       this needs to be changed to bring up a fatal error message
-    //       box and terminate the program.
+    /* TODO: If you are running in a GUI environment without a console, */
+    /*       this needs to be changed to bring up a fatal error message */
+    /*       box and terminate the program. */
     if (fatalErrorCleanup)
-        fatalErrorCleanup();
+	fatalErrorCleanup();
     fprintf(stderr,"%s\n", msg);
     exit(1);
 }
@@ -134,9 +134,9 @@ Exit handler to kill the VESA transfer buffer.
 ****************************************************************************/
 static void ExitVBEBuf(void)
 {
-    // TODO: If you do not have BIOS access, remove this function.
+    /* TODO: If you do not have BIOS access, remove this function. */
     if (VESABuf_ptr)
-        PM_freeRealSeg(VESABuf_ptr);
+	PM_freeRealSeg(VESABuf_ptr);
     VESABuf_ptr = 0;
 }
 
@@ -149,14 +149,14 @@ void * PMAPI PM_getVESABuf(
     uint *rseg,
     uint *roff)
 {
-    // TODO: If you do not have BIOS access, simply delete the guts of
-    //       this function and return NULL.
+    /* TODO: If you do not have BIOS access, simply delete the guts of */
+    /*       this function and return NULL. */
     if (!VESABuf_ptr) {
-        /* Allocate a global buffer for communicating with the VESA VBE */
-        if ((VESABuf_ptr = PM_allocRealSeg(VESABuf_len, &VESABuf_rseg, &VESABuf_roff)) == NULL)
-            return NULL;
-        atexit(ExitVBEBuf);
-        }
+	/* Allocate a global buffer for communicating with the VESA VBE */
+	if ((VESABuf_ptr = PM_allocRealSeg(VESABuf_len, &VESABuf_rseg, &VESABuf_roff)) == NULL)
+	    return NULL;
+	atexit(ExitVBEBuf);
+	}
     *len = VESABuf_len;
     *rseg = VESABuf_rseg;
     *roff = VESABuf_roff;
@@ -169,9 +169,9 @@ Check if a key has been pressed.
 ****************************************************************************/
 int PMAPI PM_kbhit(void)
 {
-    // TODO: This function checks if a key is available to be read. This
-    //       should be implemented, but is mostly used by the test programs
-    //       these days.
+    /* TODO: This function checks if a key is available to be read. This */
+    /*       should be implemented, but is mostly used by the test programs */
+    /*       these days. */
     return true;
 }
 
@@ -181,9 +181,9 @@ Wait for and return the next keypress.
 ****************************************************************************/
 int PMAPI PM_getch(void)
 {
-    // TODO: This returns the ASCII code of the key pressed. This
-    //       should be implemented, but is mostly used by the test programs
-    //       these days.
+    /* TODO: This returns the ASCII code of the key pressed. This */
+    /*       should be implemented, but is mostly used by the test programs */
+    /*       these days. */
     return 0xD;
 }
 
@@ -193,12 +193,12 @@ Open a fullscreen console mode for output.
 ****************************************************************************/
 int PMAPI PM_openConsole(void)
 {
-    // TODO: Opens up a fullscreen console for graphics output. If your
-    //       console does not have graphics/text modes, this can be left
-    //       empty. The main purpose of this is to disable console switching
-    //       when in graphics modes if you can switch away from fullscreen
-    //       consoles (if you want to allow switching, this can be done
-    //       elsewhere with a full save/restore state of the graphics mode).
+    /* TODO: Opens up a fullscreen console for graphics output. If your */
+    /*       console does not have graphics/text modes, this can be left */
+    /*       empty. The main purpose of this is to disable console switching */
+    /*       when in graphics modes if you can switch away from fullscreen */
+    /*       consoles (if you want to allow switching, this can be done */
+    /*       elsewhere with a full save/restore state of the graphics mode). */
     return 0;
 }
 
@@ -208,9 +208,9 @@ Return the size of the state buffer used to save the console state.
 ****************************************************************************/
 int PMAPI PM_getConsoleStateSize(void)
 {
-    // TODO: Returns the size of the console state buffer used to save the
-    //       state of the console before going into graphics mode. This is
-    //       used to restore the console back to normal when we are done.
+    /* TODO: Returns the size of the console state buffer used to save the */
+    /*       state of the console before going into graphics mode. This is */
+    /*       used to restore the console back to normal when we are done. */
     return 1;
 }
 
@@ -222,11 +222,11 @@ void PMAPI PM_saveConsoleState(
     void *stateBuf,
     int console_id)
 {
-    // TODO: Saves the state of the console into the state buffer. This is
-    //       used to restore the console back to normal when we are done.
-    //       We will always restore 80x25 text mode after being in graphics
-    //       mode, so if restoring text mode is all you need to do this can
-    //       be left empty.
+    /* TODO: Saves the state of the console into the state buffer. This is */
+    /*       used to restore the console back to normal when we are done. */
+    /*       We will always restore 80x25 text mode after being in graphics */
+    /*       mode, so if restoring text mode is all you need to do this can */
+    /*       be left empty. */
 }
 
 /****************************************************************************
@@ -237,11 +237,11 @@ void PMAPI PM_restoreConsoleState(
     const void *stateBuf,
     int console_id)
 {
-    // TODO: Restore the state of the console from the state buffer. This is
-    //       used to restore the console back to normal when we are done.
-    //       We will always restore 80x25 text mode after being in graphics
-    //       mode, so if restoring text mode is all you need to do this can
-    //       be left empty.
+    /* TODO: Restore the state of the console from the state buffer. This is */
+    /*       used to restore the console back to normal when we are done. */
+    /*       We will always restore 80x25 text mode after being in graphics */
+    /*       mode, so if restoring text mode is all you need to do this can */
+    /*       be left empty. */
 }
 
 /****************************************************************************
@@ -251,7 +251,7 @@ Close the console and return to non-fullscreen console mode.
 void PMAPI PM_closeConsole(
     int console_id)
 {
-    // TODO: Close the console when we are done, going back to text mode.
+    /* TODO: Close the console when we are done, going back to text mode. */
 }
 
 /****************************************************************************
@@ -262,8 +262,8 @@ void PM_setOSCursorLocation(
     int x,
     int y)
 {
-    // TODO: Set the OS console cursor location to the new value. This is
-    //       generally used for new OS ports (used mostly for DOS).
+    /* TODO: Set the OS console cursor location to the new value. This is */
+    /*       generally used for new OS ports (used mostly for DOS). */
 }
 
 /****************************************************************************
@@ -274,8 +274,8 @@ void PM_setOSScreenWidth(
     int width,
     int height)
 {
-    // TODO: Set the OS console screen width. This is generally unused for
-    //       new OS ports.
+    /* TODO: Set the OS console screen width. This is generally unused for */
+    /*       new OS ports. */
 }
 
 /****************************************************************************
@@ -286,12 +286,12 @@ ibool PMAPI PM_setRealTimeClockHandler(
     PM_intHandler ih,
     int frequency)
 {
-    // TODO: Install a real time clock interrupt handler. Normally this
-    //       will not be supported from most OS'es in user land, so an
-    //       alternative mechanism is needed to enable software stereo.
-    //       Hence leave this unimplemented unless you have a high priority
-    //       mechanism to call the 32-bit callback when the real time clock
-    //       interrupt fires.
+    /* TODO: Install a real time clock interrupt handler. Normally this */
+    /*       will not be supported from most OS'es in user land, so an */
+    /*       alternative mechanism is needed to enable software stereo. */
+    /*       Hence leave this unimplemented unless you have a high priority */
+    /*       mechanism to call the 32-bit callback when the real time clock */
+    /*       interrupt fires. */
     return false;
 }
 
@@ -302,9 +302,9 @@ Set the real time clock frequency (for stereo modes).
 void PMAPI PM_setRealTimeClockFrequency(
     int frequency)
 {
-    // TODO: Set the real time clock interrupt frequency. Used for stereo
-    //       LC shutter glasses when doing software stereo. Usually sets
-    //       the frequency to around 2048 Hz.
+    /* TODO: Set the real time clock interrupt frequency. Used for stereo */
+    /*       LC shutter glasses when doing software stereo. Usually sets */
+    /*       the frequency to around 2048 Hz. */
 }
 
 /****************************************************************************
@@ -313,7 +313,7 @@ Restore the original real time clock handler.
 ****************************************************************************/
 void PMAPI PM_restoreRealTimeClockHandler(void)
 {
-    // TODO: Restores the real time clock handler.
+    /* TODO: Restores the real time clock handler. */
 }
 
 /****************************************************************************
@@ -333,8 +333,8 @@ Return the drive letter for the boot drive.
 ****************************************************************************/
 char PMAPI PM_getBootDrive(void)
 {
-    // TODO: Return the boot drive letter for the OS. Normally this is 'c'
-    //       for DOS based OS'es and '/' for Unices.
+    /* TODO: Return the boot drive letter for the OS. Normally this is 'c' */
+    /*       for DOS based OS'es and '/' for Unices. */
     return '/';
 }
 
@@ -353,8 +353,8 @@ Return the path to the Nucleus driver files.
 ****************************************************************************/
 const char * PMAPI PM_getNucleusPath(void)
 {
-    // TODO: Change this to the default path to Nucleus driver files. The
-    //       following is the default for Unices.
+    /* TODO: Change this to the default path to Nucleus driver files. The */
+    /*       following is the default for Unices. */
     char *env = getenv("NUCLEUS_PATH");
     return env ? env : "/usr/lib/nucleus";
 }
@@ -378,8 +378,8 @@ Return a unique identifier for the machine if possible.
 ****************************************************************************/
 const char * PMAPI PM_getUniqueID(void)
 {
-    // TODO: Return a unique ID for the machine. If a unique ID is not
-    //       available, return the machine name.
+    /* TODO: Return a unique ID for the machine. If a unique ID is not */
+    /*       available, return the machine name. */
     static char buf[128];
     gethostname(buf, 128);
     return buf;
@@ -391,7 +391,7 @@ Get the name of the machine on the network.
 ****************************************************************************/
 const char * PMAPI PM_getMachineName(void)
 {
-    // TODO: Return the network machine name for the machine.
+    /* TODO: Return the network machine name for the machine. */
     static char buf[128];
     gethostname(buf, 128);
     return buf;
@@ -403,10 +403,10 @@ Return a pointer to the real mode BIOS data area.
 ****************************************************************************/
 void * PMAPI PM_getBIOSPointer(void)
 {
-    // TODO: This returns a pointer to the real mode BIOS data area. If you
-    //       do not support BIOS access, you can simply return NULL here.
+    /* TODO: This returns a pointer to the real mode BIOS data area. If you */
+    /*       do not support BIOS access, you can simply return NULL here. */
     if (!zeroPtr)
-        zeroPtr = PM_mapPhysicalAddr(0,0xFFFFF,true);
+	zeroPtr = PM_mapPhysicalAddr(0,0xFFFFF,true);
     return (void*)(zeroPtr + 0x400);
 }
 
@@ -418,7 +418,7 @@ void * PMAPI PM_getA0000Pointer(void)
 {
     static void *bankPtr;
     if (!bankPtr)
-        bankPtr = PM_mapPhysicalAddr(0xA0000,0xFFFF,true);
+	bankPtr = PM_mapPhysicalAddr(0xA0000,0xFFFF,true);
     return bankPtr;
 }
 
@@ -431,23 +431,23 @@ void * PMAPI PM_mapPhysicalAddr(
     ulong limit,
     ibool isCached)
 {
-    // TODO: This function maps a physical memory address to a linear
-    //       address in the address space of the calling process.
+    /* TODO: This function maps a physical memory address to a linear */
+    /*       address in the address space of the calling process. */
 
-    // NOTE: This function *must* be able to handle any phsyical base
-    //       address, and hence you will have to handle rounding of
-    //       the physical base address to a page boundary (ie: 4Kb on
-    //       x86 CPU's) to be able to properly map in the memory
-    //       region.
+    /* NOTE: This function *must* be able to handle any phsyical base */
+    /*       address, and hence you will have to handle rounding of */
+    /*       the physical base address to a page boundary (ie: 4Kb on */
+    /*       x86 CPU's) to be able to properly map in the memory */
+    /*       region. */
 
-    // NOTE: If possible the isCached bit should be used to ensure that
-    //       the PCD (Page Cache Disable) and PWT (Page Write Through)
-    //       bits are set to disable caching for a memory mapping used
-    //       for MMIO register access. We also disable caching using
-    //       the MTRR registers for Pentium Pro and later chipsets so if
-    //       MTRR support is enabled for your OS then you can safely ignore
-    //       the isCached flag and always enable caching in the page
-    //       tables.
+    /* NOTE: If possible the isCached bit should be used to ensure that */
+    /*       the PCD (Page Cache Disable) and PWT (Page Write Through) */
+    /*       bits are set to disable caching for a memory mapping used */
+    /*       for MMIO register access. We also disable caching using */
+    /*       the MTRR registers for Pentium Pro and later chipsets so if */
+    /*       MTRR support is enabled for your OS then you can safely ignore */
+    /*       the isCached flag and always enable caching in the page */
+    /*       tables. */
     return NULL;
 }
 
@@ -459,9 +459,9 @@ void PMAPI PM_freePhysicalAddr(
     void *ptr,
     ulong limit)
 {
-    // TODO: This function will free a physical memory mapping previously
-    //       allocated with PM_mapPhysicalAddr() if at all possible. If
-    //       you can't free physical memory mappings, simply do nothing.
+    /* TODO: This function will free a physical memory mapping previously */
+    /*       allocated with PM_mapPhysicalAddr() if at all possible. If */
+    /*       you can't free physical memory mappings, simply do nothing. */
 }
 
 /****************************************************************************
@@ -470,36 +470,36 @@ Find the physical address of a linear memory address in current process.
 ****************************************************************************/
 ulong PMAPI PM_getPhysicalAddr(void *p)
 {
-    // TODO: This function should find the physical address of a linear
-    //       address.
+    /* TODO: This function should find the physical address of a linear */
+    /*       address. */
     return 0xFFFFFFFFUL;
 }
 
 void PMAPI PM_sleep(ulong milliseconds)
 {
-    // TODO: Put the process to sleep for milliseconds
+    /* TODO: Put the process to sleep for milliseconds */
 }
 
 int PMAPI PM_getCOMPort(int port)
 {
-    // TODO: Re-code this to determine real values using the Plug and Play
-    //       manager for the OS.
+    /* TODO: Re-code this to determine real values using the Plug and Play */
+    /*       manager for the OS. */
     switch (port) {
-        case 0: return 0x3F8;
-        case 1: return 0x2F8;
-        }
+	case 0: return 0x3F8;
+	case 1: return 0x2F8;
+	}
     return 0;
 }
 
 int PMAPI PM_getLPTPort(int port)
 {
-    // TODO: Re-code this to determine real values using the Plug and Play
-    //       manager for the OS.
+    /* TODO: Re-code this to determine real values using the Plug and Play */
+    /*       manager for the OS. */
     switch (port) {
-        case 0: return 0x3BC;
-        case 1: return 0x378;
-        case 2: return 0x278;
-        }
+	case 0: return 0x3BC;
+	case 1: return 0x378;
+	case 2: return 0x278;
+	}
     return 0;
 }
 
@@ -510,11 +510,11 @@ Allocate a block of (unnamed) shared memory.
 void * PMAPI PM_mallocShared(
     long size)
 {
-    // TODO: This is used to allocate memory that is shared between process
-    //       that all access the common Nucleus drivers via a common display
-    //       driver DLL. If your OS does not support shared memory (or if
-    //       the display driver does not need to allocate shared memory
-    //       for each process address space), this should just call PM_malloc.
+    /* TODO: This is used to allocate memory that is shared between process */
+    /*       that all access the common Nucleus drivers via a common display */
+    /*       driver DLL. If your OS does not support shared memory (or if */
+    /*       the display driver does not need to allocate shared memory */
+    /*       for each process address space), this should just call PM_malloc. */
     return PM_malloc(size);
 }
 
@@ -525,10 +525,10 @@ Free a block of shared memory.
 void PMAPI PM_freeShared(
     void *ptr)
 {
-    // TODO: Free the shared memory block. This will be called in the context
-    //       of the original calling process that allocated the shared
-    //       memory with PM_mallocShared. Simply call PM_free if you do not
-    //       need this.
+    /* TODO: Free the shared memory block. This will be called in the context */
+    /*       of the original calling process that allocated the shared */
+    /*       memory with PM_mallocShared. Simply call PM_free if you do not */
+    /*       need this. */
     PM_free(ptr);
 }
 
@@ -542,16 +542,16 @@ void * PMAPI PM_mapToProcess(
     void *base,
     ulong limit)
 {
-    // TODO: This function is used to map a physical memory mapping
-    //       previously allocated with PM_mapPhysicalAddr into the
-    //       address space of the calling process. If the memory mapping
-    //       allocated by PM_mapPhysicalAddr is global to all processes,
-    //       simply return the pointer.
+    /* TODO: This function is used to map a physical memory mapping */
+    /*       previously allocated with PM_mapPhysicalAddr into the */
+    /*       address space of the calling process. If the memory mapping */
+    /*       allocated by PM_mapPhysicalAddr is global to all processes, */
+    /*       simply return the pointer. */
 
-    // NOTE: This function must also handle rounding to page boundaries,
-    //       since this function is used to map in shared memory buffers
-    //       allocated with PM_mapPhysicalAddr(). Hence if you aligned
-    //       the physical address above, then you also need to do it here.
+    /* NOTE: This function must also handle rounding to page boundaries, */
+    /*       since this function is used to map in shared memory buffers */
+    /*       allocated with PM_mapPhysicalAddr(). Hence if you aligned */
+    /*       the physical address above, then you also need to do it here. */
     return base;
 }
 
@@ -563,11 +563,11 @@ void * PMAPI PM_mapRealPointer(
     uint r_seg,
     uint r_off)
 {
-    // TODO: This function maps a real mode memory pointer into the
-    //       calling processes address space as a 32-bit near pointer. If
-    //       you do not support BIOS access, simply return NULL here.
+    /* TODO: This function maps a real mode memory pointer into the */
+    /*       calling processes address space as a 32-bit near pointer. If */
+    /*       you do not support BIOS access, simply return NULL here. */
     if (!zeroPtr)
-        zeroPtr = PM_mapPhysicalAddr(0,0xFFFFF);
+	zeroPtr = PM_mapPhysicalAddr(0,0xFFFFF);
     return (void*)(zeroPtr + MK_PHYS(r_seg,r_off));
 }
 
@@ -580,10 +580,10 @@ void * PMAPI PM_allocRealSeg(
     uint *r_seg,
     uint *r_off)
 {
-    // TODO: This function allocates a block of real mode memory for the
-    //       calling process used to communicate with real mode BIOS
-    //       functions. If you do not support BIOS access, simply return
-    //       NULL here.
+    /* TODO: This function allocates a block of real mode memory for the */
+    /*       calling process used to communicate with real mode BIOS */
+    /*       functions. If you do not support BIOS access, simply return */
+    /*       NULL here. */
     return NULL;
 }
 
@@ -594,8 +594,8 @@ Free a block of real mode memory.
 void PMAPI PM_freeRealSeg(
     void *mem)
 {
-    // TODO: Frees a previously allocated real mode memory block. If you
-    //       do not support BIOS access, this function should be empty.
+    /* TODO: Frees a previously allocated real mode memory block. If you */
+    /*       do not support BIOS access, this function should be empty. */
 }
 
 /****************************************************************************
@@ -606,9 +606,9 @@ void PMAPI DPMI_int86(
     int intno,
     DPMI_regs *regs)
 {
-    // TODO: This function calls the real mode BIOS using the passed in
-    //       register structure. If you do not support real mode BIOS
-    //       access, this function should be empty.
+    /* TODO: This function calls the real mode BIOS using the passed in */
+    /*       register structure. If you do not support real mode BIOS */
+    /*       access, this function should be empty. */
 }
 
 /****************************************************************************
@@ -620,9 +620,9 @@ int PMAPI PM_int86(
     RMREGS *in,
     RMREGS *out)
 {
-    // TODO: This function calls the real mode BIOS using the passed in
-    //       register structure. If you do not support real mode BIOS
-    //       access, this function should return 0.
+    /* TODO: This function calls the real mode BIOS using the passed in */
+    /*       register structure. If you do not support real mode BIOS */
+    /*       access, this function should return 0. */
     return 0;
 }
 
@@ -636,9 +636,9 @@ int PMAPI PM_int86x(
     RMREGS *out,
     RMSREGS *sregs)
 {
-    // TODO: This function calls the real mode BIOS using the passed in
-    //       register structure. If you do not support real mode BIOS
-    //       access, this function should return 0.
+    /* TODO: This function calls the real mode BIOS using the passed in */
+    /*       register structure. If you do not support real mode BIOS */
+    /*       access, this function should return 0. */
     return 0;
 }
 
@@ -652,9 +652,9 @@ void PMAPI PM_callRealMode(
     RMREGS *in,
     RMSREGS *sregs)
 {
-    // TODO: This function calls a real mode far function with a far call.
-    //       If you do not support BIOS access, this function should be
-    //       empty.
+    /* TODO: This function calls a real mode far function with a far call. */
+    /*       If you do not support BIOS access, this function should be */
+    /*       empty. */
 }
 
 /****************************************************************************
@@ -665,9 +665,9 @@ void PMAPI PM_availableMemory(
     ulong *physical,
     ulong *total)
 {
-    // TODO: Report the amount of available memory, both the amount of
-    //       physical memory left and the amount of virtual memory left.
-    //       If the OS does not provide these services, report 0's.
+    /* TODO: Report the amount of available memory, both the amount of */
+    /*       physical memory left and the amount of virtual memory left. */
+    /*       If the OS does not provide these services, report 0's. */
     *physical = *total = 0;
 }
 
@@ -681,10 +681,10 @@ void * PMAPI PM_allocLockedMem(
     ibool contiguous,
     ibool below16M)
 {
-    // TODO: Allocate a block of locked, physical memory of the specified
-    //       size. This is used for bus master operations. If this is not
-    //       supported by the OS, return NULL and bus mastering will not
-    //       be used.
+    /* TODO: Allocate a block of locked, physical memory of the specified */
+    /*       size. This is used for bus master operations. If this is not */
+    /*       supported by the OS, return NULL and bus mastering will not */
+    /*       be used. */
     return NULL;
 }
 
@@ -697,7 +697,7 @@ void PMAPI PM_freeLockedMem(
     uint size,
     ibool contiguous)
 {
-    // TODO: Free a memory block allocated with PM_allocLockedMem.
+    /* TODO: Free a memory block allocated with PM_allocLockedMem. */
 }
 
 /****************************************************************************
@@ -709,9 +709,9 @@ void PMAPI PM_setBankA(
 {
     RMREGS  regs;
 
-    // TODO: This does a bank switch function by calling the real mode
-    //       VESA BIOS. If you do not support BIOS access, this function should
-    //       be empty.
+    /* TODO: This does a bank switch function by calling the real mode */
+    /*       VESA BIOS. If you do not support BIOS access, this function should */
+    /*       be empty. */
     regs.x.ax = 0x4F05;
     regs.x.bx = 0x0000;
     regs.x.dx = bank;
@@ -727,9 +727,9 @@ void PMAPI PM_setBankAB(
 {
     RMREGS  regs;
 
-    // TODO: This does a bank switch function by calling the real mode
-    //       VESA BIOS. If you do not support BIOS access, this function should
-    //       be empty.
+    /* TODO: This does a bank switch function by calling the real mode */
+    /*       VESA BIOS. If you do not support BIOS access, this function should */
+    /*       be empty. */
     regs.x.ax = 0x4F05;
     regs.x.bx = 0x0000;
     regs.x.dx = bank;
@@ -751,9 +751,9 @@ void PMAPI PM_setCRTStart(
 {
     RMREGS  regs;
 
-    // TODO: This changes the display start address by calling the real mode
-    //       VESA BIOS. If you do not support BIOS access, this function
-    //       should be empty.
+    /* TODO: This changes the display start address by calling the real mode */
+    /*       VESA BIOS. If you do not support BIOS access, this function */
+    /*       should be empty. */
     regs.x.ax = 0x4F07;
     regs.x.bx = waitVRT;
     regs.x.cx = x;
@@ -770,17 +770,17 @@ ibool PMAPI PM_enableWriteCombine(
     ulong length,
     uint type)
 {
-    // TODO: This function should enable Pentium Pro and Pentium II MTRR
-    //       write combining for the passed in physical memory base address
-    //       and length. Normally this is done via calls to an OS specific
-    //       device driver as this can only be done at ring 0.
-    //
-    // NOTE: This is a *very* important function to implement! If you do
-    //       not implement, graphics performance on the latest Intel chips
-    //       will be severly impaired. For sample code that can be used
-    //       directly in a ring 0 device driver, see the MSDOS implementation
-    //       which includes assembler code to do this directly (if the
-    //       program is running at ring 0).
+    /* TODO: This function should enable Pentium Pro and Pentium II MTRR */
+    /*       write combining for the passed in physical memory base address */
+    /*       and length. Normally this is done via calls to an OS specific */
+    /*       device driver as this can only be done at ring 0. */
+    /* */
+    /* NOTE: This is a *very* important function to implement! If you do */
+    /*       not implement, graphics performance on the latest Intel chips */
+    /*       will be severly impaired. For sample code that can be used */
+    /*       directly in a ring 0 device driver, see the MSDOS implementation */
+    /*       which includes assembler code to do this directly (if the */
+    /*       program is running at ring 0). */
     return false;
 }
 
@@ -793,19 +793,19 @@ ibool PMAPI PM_doBIOSPOST(
     ulong BIOSPhysAddr,
     void *mappedBIOS)
 {
-    // TODO: This function is used to run the BIOS POST code on a secondary
-    //       controller to initialise it for use. This is not necessary
-    //       for multi-controller operation, but it will make it a lot
-    //       more convenicent for end users (otherwise they have to boot
-    //       the system once with the secondary controller as primary, and
-    //       then boot with both controllers installed).
-    //
-    //       Even if you don't support full BIOS access, it would be
-    //       adviseable to be able to POST the secondary controllers in the
-    //       system using this function as a minimum requirement. Some
-    //       graphics hardware has registers that contain values that only
-    //       the BIOS knows about, which makes bring up a card from cold
-    //       reset difficult if the BIOS has not POST'ed it.
+    /* TODO: This function is used to run the BIOS POST code on a secondary */
+    /*       controller to initialise it for use. This is not necessary */
+    /*       for multi-controller operation, but it will make it a lot */
+    /*       more convenicent for end users (otherwise they have to boot */
+    /*       the system once with the secondary controller as primary, and */
+    /*       then boot with both controllers installed). */
+    /* */
+    /*       Even if you don't support full BIOS access, it would be */
+    /*       adviseable to be able to POST the secondary controllers in the */
+    /*       system using this function as a minimum requirement. Some */
+    /*       graphics hardware has registers that contain values that only */
+    /*       the BIOS knows about, which makes bring up a card from cold */
+    /*       reset difficult if the BIOS has not POST'ed it. */
     return false;
 }
 
@@ -817,8 +817,8 @@ shared libraries, simply return NULL.
 PM_MODULE PMAPI PM_loadLibrary(
     const char *szDLLName)
 {
-    // TODO: This function should load a native shared library from disk
-    //       given the path to the library.
+    /* TODO: This function should load a native shared library from disk */
+    /*       given the path to the library. */
     (void)szDLLName;
     return NULL;
 }
@@ -831,8 +831,8 @@ void * PMAPI PM_getProcAddress(
     PM_MODULE hModule,
     const char *szProcName)
 {
-    // TODO: This function should return the address of a named procedure
-    //       from a native shared library.
+    /* TODO: This function should return the address of a named procedure */
+    /*       from a native shared library. */
     (void)hModule;
     (void)szProcName;
     return NULL;
@@ -845,7 +845,7 @@ Unload a shared library.
 void PMAPI PM_freeLibrary(
     PM_MODULE hModule)
 {
-    // TODO: This function free a previously loaded native shared library.
+    /* TODO: This function free a previously loaded native shared library. */
     (void)hModule;
 }
 
@@ -860,8 +860,8 @@ the switch occurred so it can be properly restored.
 int PMAPI PM_setIOPL(
     int level)
 {
-    // TODO: This function should enable IOPL for the task (if IOPL is
-    //       not always enabled for the app through some other means).
+    /* TODO: This function should enable IOPL for the task (if IOPL is */
+    /*       not always enabled for the app through some other means). */
     return level;
 }
 
@@ -873,9 +873,9 @@ void *PMAPI PM_findFirstFile(
     const char *filename,
     PM_findData *findData)
 {
-    // TODO: This function should start a directory enumeration search
-    //       given the filename (with wildcards). The data should be
-    //       converted and returned in the findData standard form.
+    /* TODO: This function should start a directory enumeration search */
+    /*       given the filename (with wildcards). The data should be */
+    /*       converted and returned in the findData standard form. */
     (void)filename;
     (void)findData;
     return PM_FILE_INVALID;
@@ -889,10 +889,10 @@ ibool PMAPI PM_findNextFile(
     void *handle,
     PM_findData *findData)
 {
-    // TODO: This function should find the next file in directory enumeration
-    //       search given the search criteria defined in the call to
-    //       PM_findFirstFile. The data should be converted and returned
-    //       in the findData standard form.
+    /* TODO: This function should find the next file in directory enumeration */
+    /*       search given the search criteria defined in the call to */
+    /*       PM_findFirstFile. The data should be converted and returned */
+    /*       in the findData standard form. */
     (void)handle;
     (void)findData;
     return false;
@@ -905,8 +905,8 @@ Function to close the find process
 void PMAPI PM_findClose(
     void *handle)
 {
-    // TODO: This function should close the find process. This may do
-    //       nothing for some OS'es.
+    /* TODO: This function should close the find process. This may do */
+    /*       nothing for some OS'es. */
     (void)handle;
 }
 
@@ -927,7 +927,7 @@ ibool PMAPI PM_driveValid(
     char drive)
 {
     if (drive == 3)
-        return true;
+	return true;
     return false;
 }
 
@@ -954,7 +954,7 @@ void PMAPI PM_setFileAttr(
     const char *filename,
     uint attrib)
 {
-    // TODO: Set the file attributes for a file
+    /* TODO: Set the file attributes for a file */
     (void)filename;
     (void)attrib;
 }

@@ -28,7 +28,7 @@
 #include </usr/include/unistd.h>
 #include <errno.h>
 #include <asm/unistd.h>
-//#include <syscall-list.h>
+/*#include <syscall-list.h> */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -50,10 +50,10 @@
 struct pio P;
 
 void
-setup_io(void) 
+setup_io(void)
 {
     if (!Config.PrintPort && !Config.IoStatistics) {
-    
+
 #if defined (__i386__)
     P.inb = (u8(*)(u16))inb;
     P.inw = (u16(*)(u16))inw;
@@ -86,19 +86,19 @@ void
 x86emu_do_int(int num)
 {
     struct regs86 regs;
-        
+
     i_printf("int 0x%x received: ax:0x%x",num,CPU_REG(AX));
     if (Config.PrintIp)
-        i_printf(" at: 0x%x\n",getIP());
+	i_printf(" at: 0x%x\n",getIP());
     else
-        i_printf("\n");
-    
+	i_printf("\n");
+
     /* try to run bios interrupt */
-    
+
     /* if not installed fall back */
 #define COPY(x,y) regs.y = M.x86.x
 #define COPY_R(x,y) M.x86.x = regs.y
-    
+
     COPY(R_EAX,eax);
     COPY(R_EBX,ebx);
     COPY(R_ECX,ecx);
@@ -117,12 +117,12 @@ x86emu_do_int(int num)
     COPY(R_EFLG,eflags);
 
     if (!(int_handler(num,&regs))) {
-        if (!run_bios_int(num,&regs))
-            goto unknown_int;
-        else
-            return;
+	if (!run_bios_int(num,&regs))
+	    goto unknown_int;
+	else
+	    return;
     }
-    
+
     COPY_R(R_EAX,eax);
     COPY_R(R_EBX,ebx);
     COPY_R(R_ECX,ecx);
@@ -145,7 +145,7 @@ x86emu_do_int(int num)
     fprintf(stderr,"\nUnknown vm86_int: %X\n\n",num);
     X86EMU_halt_sys();
     return;
-    
+
 #undef COPY
 #undef COPY_R
 }
@@ -159,12 +159,12 @@ setup_x86emu(unsigned long bios_start, i86biosRegsPtr regs)
     X86EMU_intrFuncs intFuncs[256];
 
     X86EMU_pioFuncs pioFuncs = {
-        (u8(*)(u16))P.inb,
-        (u16(*)(u16))P.inw,
-        (u32(*)(u16))P.inl,
-        (void(*)(u16,u8))P.outb,
-        (void(*)(u16,u16))P.outw,
-        (void(*)(u16,u32))P.outl
+	(u8(*)(u16))P.inb,
+	(u16(*)(u16))P.inw,
+	(u32(*)(u16))P.inl,
+	(void(*)(u16,u8))P.outb,
+	(void(*)(u16,u16))P.outw,
+	(void(*)(u16,u32))P.outl
     };
 #ifdef __alpha__
     X86EMU_memFuncs memFuncs = {
@@ -178,29 +178,29 @@ setup_x86emu(unsigned long bios_start, i86biosRegsPtr regs)
 #endif
     M.mem_base = 0;
     M.mem_size = 1024*1024 + 1024;
-    //  M.x86.debug = DEBUG_DISASSEMBLE_F | DEBUG_TRACE_F | DEBUG_DECODE_F;
-    //  M.x86.debug |= DEBUG_DECODE_F |  DEBUG_TRACE_F;
+    /*  M.x86.debug = DEBUG_DISASSEMBLE_F | DEBUG_TRACE_F | DEBUG_DECODE_F; */
+    /*  M.x86.debug |= DEBUG_DECODE_F |  DEBUG_TRACE_F; */
 /*
  * For single step tracing compile x86emu with option -DDEBUG
  */
     M.x86.debug = 0;
     if (Config.PrintIp)
-        M.x86.debug = DEBUG_SAVE_CS_IP;
+	M.x86.debug = DEBUG_SAVE_CS_IP;
 
     if (Config.Trace)
-        X86EMU_trace_on();
+	X86EMU_trace_on();
 
     X86EMU_setupPioFuncs(&pioFuncs);
 #ifdef __alpha__
     X86EMU_setupMemFuncs(&memFuncs);
 #endif
     for (i=0;i<256;i++)
-        intFuncs[i] = x86emu_do_int;
+	intFuncs[i] = x86emu_do_int;
     X86EMU_setupIntrFuncs(intFuncs);
 
     eip = bios_start & 0xFFFF;
     cs = (bios_start & 0xFF0000) >> 4;
-    
+
     CPU_REG(EAX) = regs->ax;
     CPU_REG(EBX) = regs->bx;
     CPU_REG(ECX) = regs->cx;
@@ -209,7 +209,7 @@ setup_x86emu(unsigned long bios_start, i86biosRegsPtr regs)
     CPU_REG(EDI) = regs->di;
     CPU_REG(EBP) = 0;
     CPU_REG(EIP) = eip;
-    CPU_REG(CS) = cs;               
+    CPU_REG(CS) = cs;
     CPU_REG(SP) = 0x100;
     CPU_REG(SS) = 0x30;               /* This is the standard pc bios stack */
     CPU_REG(ES) = regs->es;
@@ -252,14 +252,14 @@ do_x86(unsigned long bios_start, i86biosRegsPtr regs)
 
     setup_x86emu(bios_start,regs);
     if (setjmp(x86_esc) == 0) {
-        org_handler = signal(2,vmexit);
-        do_x86emu();
-        signal(2,org_handler);
-        collect_bios_regs(regs);
+	org_handler = signal(2,vmexit);
+	do_x86emu();
+	signal(2,org_handler);
+	collect_bios_regs(regs);
     } else {
-        signal(2,org_handler);
-        printf("interrupted at 0x%x\n",((CARD16)CPU_REG(CS)) << 4
-               | (CARD16)CPU_REG(EIP));
+	signal(2,org_handler);
+	printf("interrupted at 0x%x\n",((CARD16)CPU_REG(CS)) << 4
+	       | (CARD16)CPU_REG(EIP));
     }
 }
 
@@ -272,23 +272,23 @@ run_bios_int(int num, struct regs86 *regs)
     /* check if bios vector is initialized */
     if (((CARD16*)0)[(num<<1)+1] == 0x0000) { /* SYS_BIOS_SEG ?*/
 #ifdef V86BIOS_DEBUG
-        i_printf("card BIOS not loaded\n");
+	i_printf("card BIOS not loaded\n");
 #endif
-        return 0;
+	return 0;
     }
-    
+
 #ifdef V86BIOS_DEBUG
     if (firsttime) {
-        dprint(0,0x3D0);
-        firsttime = 0;
+	dprint(0,0x3D0);
+	firsttime = 0;
     }
 #endif
-    
+
     i_printf("calling card BIOS at: ");
     i_printf("0x%x:%x\n",((CARD16 *) 0)[(num << 1) + 1],
-             (CARD32)((CARD16 *) 0)[num << 1]);
+	     (CARD32)((CARD16 *) 0)[num << 1]);
     X86EMU_prepareForInt(num);
-    
+
     return 1;
 }
 

@@ -75,7 +75,7 @@ Return true if ring 0 (or if we can call the helpers functions at ring 0)
 ibool _ASMAPI _MTRR_isRing0(void)
 {
 #ifdef __QNXNTO__
-    return false;   // Not implemented yet!
+    return false;   /* Not implemented yet! */
 #else
     return true;
 #endif
@@ -101,15 +101,15 @@ static void CallRing0(void)
 #endif
 #ifdef __QNXNTO__
     if ((intrid = InterruptAttach(_NTO_INTR_CLASS_EXTERNAL | clock_intno,
-        _PM_ring0_isr, (void*)&_PM_R0, sizeof(_PM_R0), _NTO_INTR_FLAGS_END)) == -1) {
+	_PM_ring0_isr, (void*)&_PM_R0, sizeof(_PM_R0), _NTO_INTR_FLAGS_END)) == -1) {
 #else
     if ((intrid = qnx_hint_attach(clock_intno, _PM_ring0_isr, FP_SEG(&_PM_R0))) == -1) {
 #endif
-        perror("Attach");
-        exit(-1);
-        }
+	perror("Attach");
+	exit(-1);
+	}
     while (_PM_R0.service != -1)
-        ;
+	;
 #ifdef __QNXNTO__
     InterruptDetachId(intrid);
 #else

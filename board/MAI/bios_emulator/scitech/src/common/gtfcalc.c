@@ -107,9 +107,9 @@ static void GetInternalConstants(GTF_constants *c)
     c->hSync = GC.hSync;
     c->minVSyncBP = GC.minVSyncBP;
     if (GC.k == 0)
-        c->k = 0.001;
+	c->k = 0.001;
     else
-        c->k = GC.k;
+	c->k = GC.k;
     c->m = (c->k / 256) * GC.m;
     c->c = (GC.c - GC.j) * (c->k / 256) + GC.j;
     c->j = GC.j;
@@ -165,89 +165,89 @@ void GTF_calcTimings(double hPixels,double vLines,double freq,
     vFieldRate = vFreq;
     interlace = 0;
     if (wantInterlace)
-        dotClock *= 2;
+	dotClock *= 2;
 
     /* Determine the lines for margins */
     if (wantMargins) {
-        topMarginLines = round(c.margin / 100 * vLines);
-        botMarginLines = round(c.margin / 100 * vLines);
-        }
+	topMarginLines = round(c.margin / 100 * vLines);
+	botMarginLines = round(c.margin / 100 * vLines);
+	}
     else {
-        topMarginLines = 0;
-        botMarginLines = 0;
-        }
+	topMarginLines = 0;
+	botMarginLines = 0;
+	}
 
     if (type != GTF_lockPF) {
-        if (type == GTF_lockVF) {
-            /* Estimate the horizontal period */
-            hPeriodEst = ((1/vFieldRate) - (c.minVSyncBP/1000000)) /
-                (vLines + (2*topMarginLines) + c.minPorch + interlace) * 1000000;
+	if (type == GTF_lockVF) {
+	    /* Estimate the horizontal period */
+	    hPeriodEst = ((1/vFieldRate) - (c.minVSyncBP/1000000)) /
+		(vLines + (2*topMarginLines) + c.minPorch + interlace) * 1000000;
 
-            /* Find the number of lines in vSync + back porch */
-            vSyncBP = round(c.minVSyncBP / hPeriodEst);
-            }
-        else if (type == GTF_lockHF) {
-            /* Find the number of lines in vSync + back porch */
-            vSyncBP = round((c.minVSyncBP * hFreq) / 1000);
-            }
+	    /* Find the number of lines in vSync + back porch */
+	    vSyncBP = round(c.minVSyncBP / hPeriodEst);
+	    }
+	else if (type == GTF_lockHF) {
+	    /* Find the number of lines in vSync + back porch */
+	    vSyncBP = round((c.minVSyncBP * hFreq) / 1000);
+	    }
 
-        /* Find the number of lines in the V back porch alone */
-        vBackPorch = vSyncBP - c.vSyncRqd;
+	/* Find the number of lines in the V back porch alone */
+	vBackPorch = vSyncBP - c.vSyncRqd;
 
-        /* Find the total number of lines in the vertical period */
-        vTotalLines = vLines + topMarginLines + botMarginLines + vSyncBP
-            + interlace + c.minPorch;
+	/* Find the total number of lines in the vertical period */
+	vTotalLines = vLines + topMarginLines + botMarginLines + vSyncBP
+	    + interlace + c.minPorch;
 
-        if (type == GTF_lockVF) {
-            /* Estimate the vertical frequency */
-            vFieldRateEst = 1000000 / (hPeriodEst * vTotalLines);
+	if (type == GTF_lockVF) {
+	    /* Estimate the vertical frequency */
+	    vFieldRateEst = 1000000 / (hPeriodEst * vTotalLines);
 
-            /* Find the actual horizontal period */
-            hPeriod = (hPeriodEst * vFieldRateEst) / vFieldRate;
+	    /* Find the actual horizontal period */
+	    hPeriod = (hPeriodEst * vFieldRateEst) / vFieldRate;
 
-            /* Find the actual vertical field frequency */
-            vFieldRate = 1000000 / (hPeriod * vTotalLines);
-            }
-        else if (type == GTF_lockHF) {
-            /* Find the actual vertical field frequency */
-            vFieldRate = (hFreq / vTotalLines) * 1000;
-            }
-        }
+	    /* Find the actual vertical field frequency */
+	    vFieldRate = 1000000 / (hPeriod * vTotalLines);
+	    }
+	else if (type == GTF_lockHF) {
+	    /* Find the actual vertical field frequency */
+	    vFieldRate = (hFreq / vTotalLines) * 1000;
+	    }
+	}
 
     /* Find the number of pixels in the left and right margins */
     if (wantMargins) {
-        leftMarginPixels = round(hPixels * c.margin) / (100 * c.cellGran);
-        rightMarginPixels = round(hPixels * c.margin) / (100 * c.cellGran);
-        }
+	leftMarginPixels = round(hPixels * c.margin) / (100 * c.cellGran);
+	rightMarginPixels = round(hPixels * c.margin) / (100 * c.cellGran);
+	}
     else {
-        leftMarginPixels = 0;
-        rightMarginPixels = 0;
-        }
+	leftMarginPixels = 0;
+	rightMarginPixels = 0;
+	}
 
     /* Find the total number of active pixels in image + margins */
     hTotalActivePixels = hPixels + leftMarginPixels + rightMarginPixels;
 
     if (type == GTF_lockVF) {
-        /* Find the ideal blanking duty cycle */
-        idealDutyCycle = c.c - ((c.m * hPeriod) / 1000);
-        }
+	/* Find the ideal blanking duty cycle */
+	idealDutyCycle = c.c - ((c.m * hPeriod) / 1000);
+	}
     else if (type == GTF_lockHF) {
-        /* Find the ideal blanking duty cycle */
-        idealDutyCycle = c.c - (c.m / hFreq);
-        }
+	/* Find the ideal blanking duty cycle */
+	idealDutyCycle = c.c - (c.m / hFreq);
+	}
     else if (type == GTF_lockPF) {
-        /* Find ideal horizontal period from blanking duty cycle formula */
-        idealHPeriod = (((c.c - 100) + (sqrt((pow(100-c.c,2)) +
-            (0.4 * c.m * (hTotalActivePixels + rightMarginPixels +
-            leftMarginPixels) / dotClock)))) / (2 * c.m)) * 1000;
+	/* Find ideal horizontal period from blanking duty cycle formula */
+	idealHPeriod = (((c.c - 100) + (sqrt((pow(100-c.c,2)) +
+	    (0.4 * c.m * (hTotalActivePixels + rightMarginPixels +
+	    leftMarginPixels) / dotClock)))) / (2 * c.m)) * 1000;
 
-        /* Find the ideal blanking duty cycle */
-        idealDutyCycle = c.c - ((c.m * idealHPeriod) / 1000);
-        }
+	/* Find the ideal blanking duty cycle */
+	idealDutyCycle = c.c - ((c.m * idealHPeriod) / 1000);
+	}
 
     /* Find the number of pixels in blanking time */
     hBlankPixels = round((hTotalActivePixels * idealDutyCycle) /
-        ((100 - idealDutyCycle) * c.cellGran)) * c.cellGran;
+	((100 - idealDutyCycle) * c.cellGran)) * c.cellGran;
 
     /* Find the total number of pixels */
     hTotalPixels = hTotalActivePixels + hBlankPixels;
@@ -262,35 +262,35 @@ void GTF_calcTimings(double hPixels,double vLines,double freq,
     hSyncBP = hBackPorch + hSyncWidth;
 
     if (type == GTF_lockPF) {
-        /* Find the horizontal frequency */
-        hFreq = (dotClock / hTotalPixels) * 1000;
+	/* Find the horizontal frequency */
+	hFreq = (dotClock / hTotalPixels) * 1000;
 
-        /* Find the number of lines in vSync + back porch */
-        vSyncBP = round((c.minVSyncBP * hFreq) / 1000);
+	/* Find the number of lines in vSync + back porch */
+	vSyncBP = round((c.minVSyncBP * hFreq) / 1000);
 
-        /* Find the number of lines in the V back porch alone */
-        vBackPorch = vSyncBP - c.vSyncRqd;
+	/* Find the number of lines in the V back porch alone */
+	vBackPorch = vSyncBP - c.vSyncRqd;
 
-        /* Find the total number of lines in the vertical period */
-        vTotalLines = vLines + topMarginLines + botMarginLines + vSyncBP
-            + interlace + c.minPorch;
+	/* Find the total number of lines in the vertical period */
+	vTotalLines = vLines + topMarginLines + botMarginLines + vSyncBP
+	    + interlace + c.minPorch;
 
-        /* Find the actual vertical field frequency */
-        vFieldRate = (hFreq / vTotalLines) * 1000;
-        }
+	/* Find the actual vertical field frequency */
+	vFieldRate = (hFreq / vTotalLines) * 1000;
+	}
     else {
-        if (type == GTF_lockVF) {
-            /* Find the horizontal frequency */
-            hFreq = 1000 / hPeriod;
-            }
-        else if (type == GTF_lockHF) {
-            /* Find the horizontal frequency */
-            hPeriod = 1000 / hFreq;
-            }
+	if (type == GTF_lockVF) {
+	    /* Find the horizontal frequency */
+	    hFreq = 1000 / hPeriod;
+	    }
+	else if (type == GTF_lockHF) {
+	    /* Find the horizontal frequency */
+	    hPeriod = 1000 / hFreq;
+	    }
 
-        /* Find the pixel clock frequency */
-        dotClock = hTotalPixels / hPeriod;
-        }
+	/* Find the pixel clock frequency */
+	dotClock = hTotalPixels / hPeriod;
+	}
 
     /* Return the computed frequencies */
     t->vFreq = vFieldRate;
@@ -315,16 +315,16 @@ void GTF_calcTimings(double hPixels,double vLines,double freq,
     t->v.vSyncWidth = (int)c.vSyncRqd;
     t->v.vBackPorch = (int)vBackPorch;
     if (wantInterlace) {
-        /* Halve the timings for interlaced modes */
-        t->v.vTotal /= 2;
-        t->v.vDisp /= 2;
-        t->v.vSyncStart /= 2;
-        t->v.vSyncEnd /= 2;
-        t->v.vFrontPorch /= 2;
-        t->v.vSyncWidth /= 2;
-        t->v.vBackPorch /= 2;
-        t->dotClock /= 2;
-        }
+	/* Halve the timings for interlaced modes */
+	t->v.vTotal /= 2;
+	t->v.vDisp /= 2;
+	t->v.vSyncStart /= 2;
+	t->v.vSyncEnd /= 2;
+	t->v.vFrontPorch /= 2;
+	t->v.vSyncWidth /= 2;
+	t->v.vBackPorch /= 2;
+	t->dotClock /= 2;
+	}
 
     /* Mark as GTF timing using the sync polarities */
     t->interlace = (wantInterlace) ? 'I' : 'N';
@@ -348,30 +348,30 @@ void main(int argc,char *argv[])
     GTF_timings t;
 
     if (argc != 5 && argc != 6) {
-        printf("Usage: GTFCALC <xPixels> <yPixels> <freq> [[Hz] [KHz] [MHz]] [I]\n");
-        printf("\n");
-        printf("where <xPixels> is the horizontal resolution of the mode, <yPixels> is the\n");
-        printf("vertical resolution of the mode. The <freq> value will be the frequency to\n");
-        printf("drive the calculations, and will be either the vertical frequency (in Hz)\n");
-        printf("the horizontal frequency (in KHz) or the dot clock (in MHz). To generate\n");
-        printf("timings for an interlaced mode, add 'I' to the end of the command line.\n");
-        printf("\n");
-        printf("For example to generate timings for 640x480 at 60Hz vertical:\n");
-        printf("\n");
-        printf("    GTFCALC 640 480 60 Hz\n");
-        printf("\n");
-        printf("For example to generate timings for 640x480 at 31.5KHz horizontal:\n");
-        printf("\n");
-        printf("    GTFCALC 640 480 31.5 KHz\n");
-        printf("\n");
-        printf("For example to generate timings for 640x480 with a 25.175Mhz dot clock:\n");
-        printf("\n");
-        printf("    GTFCALC 640 480 25.175 MHz\n");
-        printf("\n");
-        printf("GTFCALC will print a summary of the results found, and dump the CRTC\n");
-        printf("values to the UVCONFIG.CRT file in the format used by SciTech Display Doctor.\n");
-        exit(1);
-        }
+	printf("Usage: GTFCALC <xPixels> <yPixels> <freq> [[Hz] [KHz] [MHz]] [I]\n");
+	printf("\n");
+	printf("where <xPixels> is the horizontal resolution of the mode, <yPixels> is the\n");
+	printf("vertical resolution of the mode. The <freq> value will be the frequency to\n");
+	printf("drive the calculations, and will be either the vertical frequency (in Hz)\n");
+	printf("the horizontal frequency (in KHz) or the dot clock (in MHz). To generate\n");
+	printf("timings for an interlaced mode, add 'I' to the end of the command line.\n");
+	printf("\n");
+	printf("For example to generate timings for 640x480 at 60Hz vertical:\n");
+	printf("\n");
+	printf("    GTFCALC 640 480 60 Hz\n");
+	printf("\n");
+	printf("For example to generate timings for 640x480 at 31.5KHz horizontal:\n");
+	printf("\n");
+	printf("    GTFCALC 640 480 31.5 KHz\n");
+	printf("\n");
+	printf("For example to generate timings for 640x480 with a 25.175Mhz dot clock:\n");
+	printf("\n");
+	printf("    GTFCALC 640 480 25.175 MHz\n");
+	printf("\n");
+	printf("GTFCALC will print a summary of the results found, and dump the CRTC\n");
+	printf("values to the UVCONFIG.CRT file in the format used by SciTech Display Doctor.\n");
+	exit(1);
+	}
 
     /* Get values from command line */
     xPixels = atof(argv[1]);
@@ -381,33 +381,33 @@ void main(int argc,char *argv[])
 
     /* Compute the CRTC timings */
     if (toupper(argv[4][0]) == 'H')
-        GTF_calcTimings(xPixels,yPixels,freq,GTF_lockVF,false,interlace,&t);
+	GTF_calcTimings(xPixels,yPixels,freq,GTF_lockVF,false,interlace,&t);
     else if (toupper(argv[4][0]) == 'K')
-        GTF_calcTimings(xPixels,yPixels,freq,GTF_lockHF,false,interlace,&t);
+	GTF_calcTimings(xPixels,yPixels,freq,GTF_lockHF,false,interlace,&t);
     else if (toupper(argv[4][0]) == 'M')
-        GTF_calcTimings(xPixels,yPixels,freq,GTF_lockPF,false,interlace,&t);
+	GTF_calcTimings(xPixels,yPixels,freq,GTF_lockPF,false,interlace,&t);
     else {
-        printf("Unknown command line!\n");
-        exit(1);
-        }
+	printf("Unknown command line!\n");
+	exit(1);
+	}
 
     /* Dump summary info to standard output */
     printf("CRTC values for %.0fx%.0f @ %.2f %s\n", xPixels, yPixels, freq, argv[4]);
     printf("\n");
     printf("  hTotal      = %-4d    vTotal      = %-4d\n",
-        t.h.hTotal, t.v.vTotal);
+	t.h.hTotal, t.v.vTotal);
     printf("  hDisp       = %-4d    vDisp       = %-4d\n",
-        t.h.hDisp, t.v.vDisp);
+	t.h.hDisp, t.v.vDisp);
     printf("  hSyncStart  = %-4d    vSyncStart  = %-4d\n",
-        t.h.hSyncStart, t.v.vSyncStart);
+	t.h.hSyncStart, t.v.vSyncStart);
     printf("  hSyncEnd    = %-4d    vSyncEnd    = %-4d\n",
-        t.h.hSyncEnd, t.v.vSyncEnd);
+	t.h.hSyncEnd, t.v.vSyncEnd);
     printf("  hFrontPorch = %-4d    vFrontPorch = %-4d\n",
-        t.h.hFrontPorch, t.v.vFrontPorch);
+	t.h.hFrontPorch, t.v.vFrontPorch);
     printf("  hSyncWidth  = %-4d    vSyncWidth  = %-4d\n",
-        t.h.hSyncWidth, t.v.vSyncWidth);
+	t.h.hSyncWidth, t.v.vSyncWidth);
     printf("  hBackPorch  = %-4d    vBackPorch  = %-4d\n",
-        t.h.hBackPorch, t.v.vBackPorch);
+	t.h.hBackPorch, t.v.vBackPorch);
     printf("\n");
     printf("  Interlaced  = %s\n", (t.interlace == 'I') ? "Yes" : "No");
     printf("  H sync pol  = %c\n", t.hSyncPol);
@@ -419,18 +419,18 @@ void main(int argc,char *argv[])
 
     /* Dump to file in format used by SciTech Display Doctor */
     if ((f = fopen("UVCONFIG.CRT","w")) != NULL) {
-        fprintf(f, "[%.0f %.0f]\n", xPixels, yPixels);
-        fprintf(f, "%d %d %d %d '%c' %s\n",
-            t.h.hTotal, t.h.hDisp,
-            t.h.hSyncStart, t.h.hSyncEnd,
-            t.hSyncPol, (t.interlace == 'I') ? "I" : "NI");
-        fprintf(f, "%d %d %d %d '%c'\n",
-            t.v.vTotal, t.v.vDisp,
-            t.v.vSyncStart, t.v.vSyncEnd,
-            t.vSyncPol);
-        fprintf(f, "%.2f\n", t.dotClock);
-        fclose(f);
-        }
+	fprintf(f, "[%.0f %.0f]\n", xPixels, yPixels);
+	fprintf(f, "%d %d %d %d '%c' %s\n",
+	    t.h.hTotal, t.h.hDisp,
+	    t.h.hSyncStart, t.h.hSyncEnd,
+	    t.hSyncPol, (t.interlace == 'I') ? "I" : "NI");
+	fprintf(f, "%d %d %d %d '%c'\n",
+	    t.v.vTotal, t.v.vDisp,
+	    t.v.vSyncStart, t.v.vSyncEnd,
+	    t.vSyncPol);
+	fprintf(f, "%.2f\n", t.dotClock);
+	fclose(f);
+	}
 }
 
 #endif  /* TESTING */

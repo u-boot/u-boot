@@ -29,7 +29,7 @@ OBJS	= $(BOARD).o flash.o
 SOBJS	= memsetup.o
 
 $(LIB):	.depend $(OBJS) $(SOBJS)
-	$(AR) crv $@ $^
+	$(AR) crv $@ $(OBJS) $(SOBJS)
 
 #########################################################################
 

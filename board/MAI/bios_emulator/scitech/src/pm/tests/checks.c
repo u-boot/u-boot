@@ -80,21 +80,21 @@ void _CHK_defaultFail(
 
     sprintf(buf,msg,cond,file,line);
     if (log) {
-        fputs(buf,log);
-        fflush(log);
-        fclose(log);
+	fputs(buf,log);
+	fflush(log);
+	fclose(log);
 #ifdef  __WINDOWS__
-        OutputDebugStr(buf);
+	OutputDebugStr(buf);
 #endif
-        }
+	}
     if (fatal) {
 #ifdef  __WINDOWS__
-        MessageBox(NULL, buf,"Fatal Error!",MB_ICONEXCLAMATION);
+	MessageBox(NULL, buf,"Fatal Error!",MB_ICONEXCLAMATION);
 #else
-        fputs(buf,stderr);
+	fputs(buf,stderr);
 #endif
-        exit(-1);
-        }
+	exit(-1);
+	}
 }
 
 #endif  /* CHECKED */

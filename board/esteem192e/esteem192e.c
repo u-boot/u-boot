@@ -47,14 +47,14 @@ const uint sdram_table[] =
 	/*
 	 * SDRAM Initialization (offset 5 in UPMA RAM)
 	 *
-         * This is no UPM entry point. The following definition uses
-         * the remaining space to establish an initialization
-         * sequence, which is executed by a RUN command.
+	 * This is no UPM entry point. The following definition uses
+	 * the remaining space to establish an initialization
+	 * sequence, which is executed by a RUN command.
 	 * NOP, Program
 	 */
-        0x0F0A8C34, 0x1F354C37, /* last */
+	0x0F0A8C34, 0x1F354C37, /* last */
 
-        _NOT_USED_,  /* Not used */
+	_NOT_USED_,  /* Not used */
 
 	/*
 	 * Burst Read. (Offset 8 in UPMA RAM)
@@ -87,7 +87,7 @@ const uint sdram_table[] =
 	 * Exception. (Offset 3c in UPMA RAM)
 	 */
 	0x0FFB8C00, 0x1FF74C03, /* last */
-	                        _NOT_USED_, _NOT_USED_
+				_NOT_USED_, _NOT_USED_
 };
 
 /* ------------------------------------------------------------------------- */
@@ -186,38 +186,38 @@ long int initdram (int board_type)
     else {
 
        if(size_b0 < size_b1) {
-          memctl->memc_br2 &= 0x00007FFE;
-          memctl->memc_br3 &= 0x00007FFF;
+	  memctl->memc_br2 &= 0x00007FFE;
+	  memctl->memc_br3 &= 0x00007FFF;
 
-         /*
-          * Adjust OR3 for size of bank 1
-          */
-          memctl->memc_or3 |= 15 * size_b1;
+	 /*
+	  * Adjust OR3 for size of bank 1
+	  */
+	  memctl->memc_or3 |= 15 * size_b1;
 
-         /*
-          * Adjust OR2 for size of bank 0
-          */
-          memctl->memc_or2 |= 15 * size_b0;
+	 /*
+	  * Adjust OR2 for size of bank 0
+	  */
+	  memctl->memc_or2 |= 15 * size_b0;
 
-          memctl->memc_br2 += (size_b1 + 1);
+	  memctl->memc_br2 += (size_b1 + 1);
 
        }
        else {
 
-          memctl->memc_br3 &= 0x00007FFE;
+	  memctl->memc_br3 &= 0x00007FFE;
 
 
-         /*
-          * Adjust OR2 for size of bank 0
-          */
-          memctl->memc_or2 |= 15 * size_b0;
+	 /*
+	  * Adjust OR2 for size of bank 0
+	  */
+	  memctl->memc_or2 |= 15 * size_b0;
 
-         /*
-          * Adjust OR3 for size of bank 1
-          */
-          memctl->memc_or3 |= 15 * size_b1;
+	 /*
+	  * Adjust OR3 for size of bank 1
+	  */
+	  memctl->memc_or3 |= 15 * size_b1;
 
-          memctl->memc_br3 += (size_b0 + 1);
+	  memctl->memc_br3 += (size_b0 + 1);
 
 
        }
@@ -267,8 +267,6 @@ long int initdram (int board_type)
     immap->im_ioport.iop_pddir &= 0xE000;     /* set bit 3 & 4 as inputs */
     immap->im_ioport.iop_pddir |= 0x07FF;     /* set bits 5 - 15 as outputs */
     immap->im_ioport.iop_pddat = 0x0055;      /* set alternating pattern on test port */
-
-
 
 
     return (size_b0 + size_b1);

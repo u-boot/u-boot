@@ -37,7 +37,7 @@
 int main(void)
 {
     PM_HWND hwndConsole;
-    ulong   stateSize;      
+    ulong   stateSize;
     void    *stateBuf;
     FILE    *f;
 
@@ -45,26 +45,25 @@ int main(void)
     hwndConsole = PM_openConsole(0,0,0,0,0,true);
     stateSize = PM_getConsoleStateSize();
     if ((stateBuf = PM_malloc(stateSize)) == NULL) {
-        PM_closeConsole(hwndConsole);
-        printf("Unable to allocate console state buffer!\n");
-        return -1;
-        }
+	PM_closeConsole(hwndConsole);
+	printf("Unable to allocate console state buffer!\n");
+	return -1;
+	}
     PM_saveConsoleState(stateBuf,0);
-    
+
     /* Restore the console state on exit */
     PM_restoreConsoleState(stateBuf,0);
     PM_closeConsole(hwndConsole);
-    
+
     /* Write the saved console state buffer to disk */
     if ((f = fopen("/etc/pmsave.dat","wb")) == NULL)
-        printf("Unable to open /etc/pmsave/dat for writing!\n");
+	printf("Unable to open /etc/pmsave/dat for writing!\n");
     else {
-        fwrite(&stateSize,1,sizeof(stateSize),f);
-        fwrite(stateBuf,1,stateSize,f);
-        fclose(f);
-        printf("Console state successfully saved to /etc/pmsave.dat\n");
-        }   
+	fwrite(&stateSize,1,sizeof(stateSize),f);
+	fwrite(stateBuf,1,stateSize,f);
+	fclose(f);
+	printf("Console state successfully saved to /etc/pmsave.dat\n");
+	}
     PM_free(stateBuf);
     return 0;
 }
-

@@ -93,7 +93,7 @@ void X86EMU_exec(void)
 
     M.x86.intr = 0;
     DB(x86emu_end_instr();)
-	
+
     for (;;) {
 	DB(if (CHECK_IP_FETCH()) x86emu_check_ip_access();)
 	/* If debugging, save the IP and CS values. */
@@ -745,11 +745,11 @@ unsigned decode_rm00_address(
 		return M.x86.R_ECX;
 	    case 2:
 		DECODE_PRINTF("[EDX]");
-//		M.x86.mode |= SYSMODE_SEG_DS_SS;
+/*		M.x86.mode |= SYSMODE_SEG_DS_SS; */
 		return M.x86.R_EDX;
 	    case 3:
 		DECODE_PRINTF("[EBX]");
-//		M.x86.mode |= SYSMODE_SEG_DS_SS;
+/*		M.x86.mode |= SYSMODE_SEG_DS_SS; */
 		return M.x86.R_EBX;
 	    case 4:
 		printk("Unsupported SIB encoding\n");
@@ -933,7 +933,7 @@ unsigned decode_rm10_address(
     }
     else
     {
-	int displacement = (s16)fetch_word_imm(); 
+	int displacement = (s16)fetch_word_imm();
 	switch (rm) {
 	case 0:
 	    DECODE_PRINTF2("%d[BX+SI]", displacement);

@@ -1,7 +1,7 @@
 /*
  * (C) Copyright 2002
  * Daniel Engström, Omicron Ceti AB, daniel@omicron.se
- * 
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -31,11 +31,11 @@
  *	e08 edx;
  *	e0c esi;
  *	e10 edi;
- *	e14 ebp; 
+ *	e14 ebp;
  *	e18 eax;
- *	e1c ds;  
+ *	e1c ds;
  *	e20 es;
- *	e24 fs;  
+ *	e24 fs;
  *	e28 gs;
  *	e2c orig_eax;
  *	e30 eip;
@@ -46,7 +46,7 @@
  */
 
 #define a32		.byte 0x67;		/* address size prefix 32 */
-#define o32		.byte 0x66;		/* operand size prefix 32 */ 
+#define o32		.byte 0x66;		/* operand size prefix 32 */
 
 .section .realmode, "ax"
 .code16
@@ -56,11 +56,11 @@ realmode_enter:
 o32	pusha
 o32	pushf
 	cli
-        sidt   	saved_idt
-        sgdt    saved_gdt
-        movl    %esp, %eax
-        movl    %eax, saved_protected_mode_esp
-	
+	sidt   	saved_idt
+	sgdt    saved_gdt
+	movl    %esp, %eax
+	movl    %eax, saved_protected_mode_esp
+
 	movl	$0x10, %eax
 	movl    %eax, %esp
 	movw	$0x28, %ax
@@ -74,21 +74,21 @@ o32	pushf
 	andl	$0x7ffffffe, %eax         	/* clearing PE to 0 */
 	movl	%eax, %cr0
 	ljmp	$0x0,$do_realmode             	/* switch to real mode */
-						
-do_realmode:					/* realmode code from here */ 
+
+do_realmode:					/* realmode code from here */
 	movw	%cs,%ax
 	movw	%ax,%ds
 	movw	%ax,%es
 	movw	%ax,%fs
 	movw	%ax,%gs
-	
+
 						/* create a temporary stack */
-	                               
-	movw	$0xc0, %ax             
-	movw	%ax, %ss                
-	movw	$0x200, %ax           
-	movw	%ax, %sp 
-	
+
+	movw	$0xc0, %ax
+	movw	%ax, %ss
+	movw	$0x200, %ax
+	movw	%ax, %sp
+
 	popl	%ebx
 	popl	%ecx
 	popl	%edx
@@ -117,11 +117,11 @@ o32	popf
 cs	movl	temp_eax, %eax
 	wbinvd                                  /* self-modifying code,
 						 * better flush the cache */
-	
+
 	.byte	0x9a				/* lcall */
 temp_ip:
 	.word	0	     			/* new ip */
-temp_cs:	
+temp_cs:
 	.word   0				/* new cs */
 realmode_ret:
 						/* save eax, esp and ss */
@@ -130,16 +130,16 @@ cs	movl	%eax, saved_eax
 cs	movl	%eax, saved_esp
 	movw    %ss, %ax
 cs	movw	%ax, saved_ss
-	
+
 	/* restore the stack, note that we set sp to 0x244;
 	 * pt_regs is 0x44 bytes long and we push the structure
 	 * backwards on to the stack, bottom first */
-	 
-	movw	$0xc0, %ax             
-	movw	%ax, %ss                
-	movw	$0x244, %ax           
-	movw	%ax, %sp 
-	
+
+	movw	$0xc0, %ax
+	movw	%ax, %ss
+	movw	$0x244, %ax
+	movw	%ax, %sp
+
 	xorl	%eax,%eax
 cs	movw	saved_ss, %ax
 	pushl	%eax
@@ -172,28 +172,28 @@ cs	movw	temp_ip, %ax
 o32 cs	lidt	saved_idt
 o32 cs	lgdt    saved_gdt			/* Set GDTR */
 
-        movl    %cr0, %eax              	/* Go back into protected mode */
-        orl     $1,%eax                 	/* reset PE to 1 */
-        movl    %eax, %cr0               
-        jmp     next_line               	/* flush prefetch queue */
-next_line:    
-        movw	$return_ptr, %ax          
-        movw    %ax,%bp
+	movl    %cr0, %eax              	/* Go back into protected mode */
+	orl     $1,%eax                 	/* reset PE to 1 */
+	movl    %eax, %cr0
+	jmp     next_line               	/* flush prefetch queue */
+next_line:
+	movw	$return_ptr, %ax
+	movw    %ax,%bp
 o32 cs	ljmp	*(%bp)
 
 .code32
 protected_mode:
-        movl    $0x18,%eax         		/* reload GDT[3] */
-        movw    %ax,%fs                 	/* reset FS */
+	movl    $0x18,%eax         		/* reload GDT[3] */
+	movw    %ax,%fs                 	/* reset FS */
 	movw	%ax,%ds                		/* reset DS */
-        movw    %ax,%gs                 	/* reset GS */
-        movw    %ax,%es                 	/* reset ES */
-        movw    %ax,%ss                 	/* reset SS */
-        movl    saved_protected_mode_esp, %eax
+	movw    %ax,%gs                 	/* reset GS */
+	movw    %ax,%es                 	/* reset ES */
+	movw    %ax,%ss                 	/* reset SS */
+	movl    saved_protected_mode_esp, %eax
 	movl	%eax, %esp
 	popf
 	popa
-        ret
+	ret
 
 temp_eax:
 	.long	0
@@ -204,19 +204,19 @@ saved_esp:
 	.long	0
 saved_eax:
 	.long	0
-	
+
 realmode_idt_ptr:
-	.word	0x400			       
-	.word	0x0, 0x0		
-	
-saved_gdt:  
-  	.word 	0, 0, 0, 0
+	.word	0x400
+	.word	0x0, 0x0
+
+saved_gdt:
+	.word 	0, 0, 0, 0
 saved_idt:
-  	.word 	0, 0, 0, 0
+	.word 	0, 0, 0, 0
 
 saved_protected_mode_esp:
 	.long 	0
-	
+
 return_ptr:
 	.long	protected_mode
 	.word	0x10

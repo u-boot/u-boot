@@ -106,8 +106,8 @@ queue. This routine assumes that at least one spot is available on the
 freeList for the event to be inserted.
 
 NOTE:   Interrupts MUST be OFF while this routine is called to ensure we have
-        mutually exclusive access to our internal data structures for
-        interrupt driven systems (like under DOS).
+	mutually exclusive access to our internal data structures for
+	interrupt driven systems (like under DOS).
 ****************************************************************************/
 static void addEvent(
     event_t *evt)
@@ -116,35 +116,35 @@ static void addEvent(
 
     /* Check for mouse double click events */
     if (evt->what & EVT_MOUSEEVT) {
-        EVT.autoMouse_x = evt->where_x;
-        EVT.autoMouse_y = evt->where_y;
-        if ((evt->what & EVT_MOUSEDOWN) && !(evt->message & EVT_DBLCLICK)) {
-            /* Determine if the last mouse event was a double click event */
-            uint diff_x = ABS(evt->where_x - EVT.downMouse.where_x);
-            uint diff_y = ABS(evt->where_y - EVT.downMouse.where_y);
-            if ((evt->message == EVT.downMouse.message)
-                && ((evt->when - EVT.downMouse.when) <= EVT.doubleClick)
-                && (diff_x <= EVT.doubleClickThresh)
-                && (diff_y <= EVT.doubleClickThresh)) {
-                evt->message |= EVT_DBLCLICK;
-                EVT.downMouse = *evt;
-                EVT.downMouse.when = 0;
-                }
-            else
-                EVT.downMouse = *evt;
-            EVT.autoTicks = _EVT_getTicks();
-            }
-        else if (evt->what & EVT_MOUSEUP) {
-            EVT.downMouse.what = EVT_NULLEVT;
-            EVT.firstAuto = true;
-            }
-        }
+	EVT.autoMouse_x = evt->where_x;
+	EVT.autoMouse_y = evt->where_y;
+	if ((evt->what & EVT_MOUSEDOWN) && !(evt->message & EVT_DBLCLICK)) {
+	    /* Determine if the last mouse event was a double click event */
+	    uint diff_x = ABS(evt->where_x - EVT.downMouse.where_x);
+	    uint diff_y = ABS(evt->where_y - EVT.downMouse.where_y);
+	    if ((evt->message == EVT.downMouse.message)
+		&& ((evt->when - EVT.downMouse.when) <= EVT.doubleClick)
+		&& (diff_x <= EVT.doubleClickThresh)
+		&& (diff_y <= EVT.doubleClickThresh)) {
+		evt->message |= EVT_DBLCLICK;
+		EVT.downMouse = *evt;
+		EVT.downMouse.when = 0;
+		}
+	    else
+		EVT.downMouse = *evt;
+	    EVT.autoTicks = _EVT_getTicks();
+	    }
+	else if (evt->what & EVT_MOUSEUP) {
+	    EVT.downMouse.what = EVT_NULLEVT;
+	    EVT.firstAuto = true;
+	    }
+	}
 
     /* Call user supplied callback to modify the event if desired */
     if (EVT.userEventCallback) {
-        if (!EVT.userEventCallback(evt))
-            return;
-        }
+	if (!EVT.userEventCallback(evt))
+	    return;
+	}
 
     /* Get spot to place the event from the free list */
     evtID = EVT.freeHead;
@@ -154,9 +154,9 @@ static void addEvent(
     evt->next = -1;
     evt->prev = EVT.tail;
     if (EVT.tail != -1)
-        EVT.evtq[EVT.tail].next = evtID;
+	EVT.evtq[EVT.tail].next = evtID;
     else
-        EVT.head = evtID;
+	EVT.head = evtID;
     EVT.tail = evtID;
     EVT.evtq[evtID] = *evt;
     EVT.count++;
@@ -172,7 +172,7 @@ static void initEventQueue(void)
 
     /* Build free list, and initialize global data structures */
     for (i = 0; i < EVENTQSIZE; i++)
-        EVT.evtq[i].next = i+1;
+	EVT.evtq[i].next = i+1;
     EVT.evtq[EVENTQSIZE-1].next = -1;       /* Terminate list           */
     EVT.count = EVT.freeHead = 0;
     EVT.head = EVT.tail = -1;
@@ -217,21 +217,21 @@ static int scaleJoyAxis(
 
     /* Make sure the joystick is calibrated properly */
     if (EVT.joyCenter[axis] - EVT.joyMin[axis] < 5)
-        return raw;
+	return raw;
     if (EVT.joyMax[axis] - EVT.joyCenter[axis] < 5)
-        return raw;
+	return raw;
 
     /* Now scale the coordinates to -128 to 127 */
     raw -= EVT.joyCenter[axis];
     if (raw < 0)
-        range = EVT.joyCenter[axis]-EVT.joyMin[axis];
+	range = EVT.joyCenter[axis]-EVT.joyMin[axis];
     else
-        range = EVT.joyMax[axis]-EVT.joyCenter[axis];
+	range = EVT.joyMax[axis]-EVT.joyCenter[axis];
     scaled = (raw * 128) / range;
     if (scaled < -128)
-        scaled = -128;
+	scaled = -128;
     if (scaled > 127)
-        scaled = 127;
+	scaled = 127;
     return scaled;
 }
 #endif
@@ -308,9 +308,9 @@ int EVTAPI EVT_joyIsPresent(void)
 #endif
     mask = _EVT_readJoyAxis(EVT_JOY_AXIS_ALL,EVT.joyCenter);
     if (mask) {
-        for (i = 0; i < JOY_NUM_AXES; i++)
-            EVT.joyMax[i] = EVT.joyCenter[i]*2;
-        }
+	for (i = 0; i < JOY_NUM_AXES; i++)
+	    EVT.joyMax[i] = EVT.joyCenter[i]*2;
+	}
     return mask;
 }
 
@@ -329,9 +329,9 @@ All information polled from the joystick will be posted to the event
 queue for later retrieval.
 
 Note:   Most analogue joysticks will provide readings that change even
-        though the joystick has not moved. Hence if you call this routine
-        you will likely get an EVT_JOYMOVE event every time through your
-        event loop.
+	though the joystick has not moved. Hence if you call this routine
+	you will likely get an EVT_JOYMOVE event every time through your
+	event loop.
 
 SEE ALSO:
 EVT_getNext, EVT_peekNext, EVT_joySetUpperLeft, EVT_joySetLowerRight,
@@ -343,68 +343,68 @@ void EVTAPI EVT_pollJoystick(void)
     int     i,axis[JOY_NUM_AXES],newButState,mask,moved,ps;
 
     if (EVT.joyMask) {
-        /* Read joystick axes and post movement events if they have
-         * changed since the last time we polled. Until the events are
-         * actually flushed, we keep modifying the same joystick movement
-         * event, so you won't get multiple movement event
-         */
-        mask = _EVT_readJoyAxis(EVT.joyMask,axis);
-        newButState = _EVT_readJoyButtons();
-        moved = false;
-        for (i = 0; i < JOY_NUM_AXES; i++) {
-            if (mask & (EVT_JOY_AXIS_X1 << i))
-                axis[i] = scaleJoyAxis(axis[i],i);
-            else
-                axis[i] = EVT.joyPrev[i];
-            if (axis[i] != EVT.joyPrev[i])
-                moved = true;
-            }
-        if (moved) {
-            memcpy(EVT.joyPrev,axis,sizeof(EVT.joyPrev));
-            ps = _EVT_disableInt();
-            if (EVT.oldJoyMove != -1) {
-                /* Modify the existing joystick movement event */
-                EVT.evtq[EVT.oldJoyMove].message = newButState;
-                EVT.evtq[EVT.oldJoyMove].where_x = EVT.joyPrev[0];
-                EVT.evtq[EVT.oldJoyMove].where_y = EVT.joyPrev[1];
-                EVT.evtq[EVT.oldJoyMove].relative_x = EVT.joyPrev[2];
-                EVT.evtq[EVT.oldJoyMove].relative_y = EVT.joyPrev[3];
-                }
-            else if (EVT.count < EVENTQSIZE) {
-                /* Add a new joystick movement event */
-                EVT.oldJoyMove = EVT.freeHead;
-                memset(&evt,0,sizeof(evt));
-                evt.what = EVT_JOYMOVE;
-                evt.message = EVT.joyButState;
-                evt.where_x = EVT.joyPrev[0];
-                evt.where_y = EVT.joyPrev[1];
-                evt.relative_x = EVT.joyPrev[2];
-                evt.relative_y = EVT.joyPrev[3];
-                addEvent(&evt);
-                }
-            _EVT_restoreInt(ps);
-            }
+	/* Read joystick axes and post movement events if they have
+	 * changed since the last time we polled. Until the events are
+	 * actually flushed, we keep modifying the same joystick movement
+	 * event, so you won't get multiple movement event
+	 */
+	mask = _EVT_readJoyAxis(EVT.joyMask,axis);
+	newButState = _EVT_readJoyButtons();
+	moved = false;
+	for (i = 0; i < JOY_NUM_AXES; i++) {
+	    if (mask & (EVT_JOY_AXIS_X1 << i))
+		axis[i] = scaleJoyAxis(axis[i],i);
+	    else
+		axis[i] = EVT.joyPrev[i];
+	    if (axis[i] != EVT.joyPrev[i])
+		moved = true;
+	    }
+	if (moved) {
+	    memcpy(EVT.joyPrev,axis,sizeof(EVT.joyPrev));
+	    ps = _EVT_disableInt();
+	    if (EVT.oldJoyMove != -1) {
+		/* Modify the existing joystick movement event */
+		EVT.evtq[EVT.oldJoyMove].message = newButState;
+		EVT.evtq[EVT.oldJoyMove].where_x = EVT.joyPrev[0];
+		EVT.evtq[EVT.oldJoyMove].where_y = EVT.joyPrev[1];
+		EVT.evtq[EVT.oldJoyMove].relative_x = EVT.joyPrev[2];
+		EVT.evtq[EVT.oldJoyMove].relative_y = EVT.joyPrev[3];
+		}
+	    else if (EVT.count < EVENTQSIZE) {
+		/* Add a new joystick movement event */
+		EVT.oldJoyMove = EVT.freeHead;
+		memset(&evt,0,sizeof(evt));
+		evt.what = EVT_JOYMOVE;
+		evt.message = EVT.joyButState;
+		evt.where_x = EVT.joyPrev[0];
+		evt.where_y = EVT.joyPrev[1];
+		evt.relative_x = EVT.joyPrev[2];
+		evt.relative_y = EVT.joyPrev[3];
+		addEvent(&evt);
+		}
+	    _EVT_restoreInt(ps);
+	    }
 
-        /* Read the joystick buttons, and post events to reflect the change
-         * in state for the joystick buttons.
-         */
-        if (newButState != EVT.joyButState) {
-            if (EVT.count < EVENTQSIZE) {
-                /* Add a new joystick click event */
-                ps = _EVT_disableInt();
-                memset(&evt,0,sizeof(evt));
-                evt.what = EVT_JOYCLICK;
-                evt.message = newButState;
-                EVT.evtq[EVT.oldJoyMove].where_x = EVT.joyPrev[0];
-                EVT.evtq[EVT.oldJoyMove].where_y = EVT.joyPrev[1];
-                EVT.evtq[EVT.oldJoyMove].relative_x = EVT.joyPrev[2];
-                EVT.evtq[EVT.oldJoyMove].relative_y = EVT.joyPrev[3];
-                addEvent(&evt);
-                _EVT_restoreInt(ps);
-                }
-            EVT.joyButState = newButState;
-            }
-        }
+	/* Read the joystick buttons, and post events to reflect the change
+	 * in state for the joystick buttons.
+	 */
+	if (newButState != EVT.joyButState) {
+	    if (EVT.count < EVENTQSIZE) {
+		/* Add a new joystick click event */
+		ps = _EVT_disableInt();
+		memset(&evt,0,sizeof(evt));
+		evt.what = EVT_JOYCLICK;
+		evt.message = newButState;
+		EVT.evtq[EVT.oldJoyMove].where_x = EVT.joyPrev[0];
+		EVT.evtq[EVT.oldJoyMove].where_y = EVT.joyPrev[1];
+		EVT.evtq[EVT.oldJoyMove].relative_x = EVT.joyPrev[2];
+		EVT.evtq[EVT.oldJoyMove].relative_y = EVT.joyPrev[3];
+		addEvent(&evt);
+		_EVT_restoreInt(ps);
+		}
+	    EVT.joyButState = newButState;
+	    }
+	}
 }
 
 /****************************************************************************
@@ -526,19 +526,19 @@ ibool EVTAPI EVT_post(
     uint    ps;
 
     if (EVT.count < EVENTQSIZE) {
-        /* Save information in event record */
-        ps = _EVT_disableInt();
-        evt.which = which;
-        evt.when = _EVT_getTicks();
-        evt.what = what;
-        evt.message = message;
-        evt.modifiers = modifiers;
-        addEvent(&evt);             /* Add to EVT.tail of event queue   */
-        _EVT_restoreInt(ps);
-        return true;
-        }
+	/* Save information in event record */
+	ps = _EVT_disableInt();
+	evt.which = which;
+	evt.when = _EVT_getTicks();
+	evt.what = what;
+	evt.message = message;
+	evt.modifiers = modifiers;
+	addEvent(&evt);             /* Add to EVT.tail of event queue   */
+	_EVT_restoreInt(ps);
+	return true;
+	}
     else
-        return false;
+	return false;
 }
 
 /****************************************************************************
@@ -565,8 +565,8 @@ void EVTAPI EVT_flush(
     event_t evt;
 
     do {                            /* Flush all events */
-        EVT_getNext(&evt,mask);
-        } while (evt.what != EVT_NULLEVT);
+	EVT_getNext(&evt,mask);
+	} while (evt.what != EVT_NULLEVT);
 }
 
 /****************************************************************************
@@ -596,10 +596,10 @@ void EVTAPI EVT_halt(
     ulong mask)
 {
     do {                            /* Wait for an event    */
-        if (mask & (EVT_JOYEVT))
-            EVT_pollJoystick();
-        EVT_getNext(evt,EVT_EVERYEVT);
-        } while (!(evt->what & mask));
+	if (mask & (EVT_JOYEVT))
+	    EVT_pollJoystick();
+	EVT_getNext(evt,EVT_EVERYEVT);
+	} while (!(evt->what & mask));
 }
 
 /****************************************************************************
@@ -636,31 +636,31 @@ ibool EVTAPI EVT_peekNext(
     uint    ps;
 
     if (EVT.heartBeat)
-        EVT.heartBeat(EVT.heartBeatParams);
+	EVT.heartBeat(EVT.heartBeatParams);
     _EVT_pumpMessages();                /* Pump all messages into queue */
     EVT.mouseMove(EVT.mx,EVT.my);       /* Move the mouse cursor        */
     evt->what = EVT_NULLEVT;            /* Default to null event        */
     if (EVT.count) {
-        /* It is possible that an event be posted while we are trying
-         * to access the event queue. This would create problems since
-         * we may end up with invalid data for our event queue pointers. To
-         * alleviate this, all interrupts are suspended while we manipulate
-         * our pointers.
-         */
-        ps = _EVT_disableInt();             /* disable interrupts       */
-        for (evtID = EVT.head; evtID != -1; evtID = EVT.evtq[evtID].next) {
-            if (EVT.evtq[evtID].what & mask)
-                break;                      /* Found an event           */
-            }
-        if (evtID == -1) {
-            _EVT_restoreInt(ps);
-            return false;                   /* Event was not found      */
-            }
-        *evt = EVT.evtq[evtID];                 /* Return the event         */
-        _EVT_restoreInt(ps);
-        if (evt->what & EVT_KEYEVT)
-            _EVT_maskKeyCode(evt);
-        }
+	/* It is possible that an event be posted while we are trying
+	 * to access the event queue. This would create problems since
+	 * we may end up with invalid data for our event queue pointers. To
+	 * alleviate this, all interrupts are suspended while we manipulate
+	 * our pointers.
+	 */
+	ps = _EVT_disableInt();             /* disable interrupts       */
+	for (evtID = EVT.head; evtID != -1; evtID = EVT.evtq[evtID].next) {
+	    if (EVT.evtq[evtID].what & mask)
+		break;                      /* Found an event           */
+	    }
+	if (evtID == -1) {
+	    _EVT_restoreInt(ps);
+	    return false;                   /* Event was not found      */
+	    }
+	*evt = EVT.evtq[evtID];                 /* Return the event         */
+	_EVT_restoreInt(ps);
+	if (evt->what & EVT_KEYEVT)
+	    _EVT_maskKeyCode(evt);
+	}
     return evt->what != EVT_NULLEVT;
 }
 
@@ -696,10 +696,10 @@ If an event of the specified type was not in the event queue, the what field
 of the event will be set to NULLEVT, and the return value will return false.
 
 Note:   You should /always/ use the EVT_EVERYEVT mask for extracting events
-        from your main event loop handler. Using a mask for only a specific
-        type of event for long periods of time will cause the event queue to
-        fill up with events of the type you are ignoring, eventually causing
-        the application to hang when the event queue becomes full.
+	from your main event loop handler. Using a mask for only a specific
+	type of event for long periods of time will cause the event queue to
+	fill up with events of the type you are ignoring, eventually causing
+	the application to hang when the event queue becomes full.
 
 SEE ALSO:
 EVT_flush, EVT_halt, EVT_peekNext
@@ -712,68 +712,68 @@ ibool EVTAPI EVT_getNext(
     uint    ps;
 
     if (EVT.heartBeat)
-        EVT.heartBeat(EVT.heartBeatParams);
+	EVT.heartBeat(EVT.heartBeatParams);
     _EVT_pumpMessages();                /* Pump all messages into queue */
     EVT.mouseMove(EVT.mx,EVT.my);       /* Move the mouse cursor        */
     evt->what = EVT_NULLEVT;            /* Default to null event        */
     if (EVT.count) {
-        /* It is possible that an event be posted while we are trying
-         * to access the event queue. This would create problems since
-         * we may end up with invalid data for our event queue pointers. To
-         * alleviate this, all interrupts are suspended while we manipulate
-         * our pointers.
-         */
-        ps = _EVT_disableInt();             /* disable interrupts       */
-        for (evtID = EVT.head; evtID != -1; evtID = EVT.evtq[evtID].next) {
-            if (EVT.evtq[evtID].what & mask)
-                break;                      /* Found an event           */
-            }
-        if (evtID == -1) {
-            _EVT_restoreInt(ps);
-            return false;                   /* Event was not found      */
-            }
-        next = EVT.evtq[evtID].next;
-        prev = EVT.evtq[evtID].prev;
-        if (prev != -1)
-            EVT.evtq[prev].next = next;
-        else
-            EVT.head = next;
-        if (next != -1)
-            EVT.evtq[next].prev = prev;
-        else
-            EVT.tail = prev;
-        *evt = EVT.evtq[evtID];                 /* Return the event         */
-        EVT.evtq[evtID].next = EVT.freeHead;        /* and return to free list  */
-        EVT.freeHead = evtID;
-        EVT.count--;
-        if (evt->what == EVT_MOUSEMOVE)
-            EVT.oldMove = -1;
-        if (evt->what == EVT_KEYREPEAT)
-            EVT.oldKey = -1;
-        if (evt->what == EVT_JOYMOVE)
-            EVT.oldJoyMove = -1;
-        _EVT_restoreInt(ps);                /* enable interrupts        */
-        if (evt->what & EVT_KEYEVT)
-            _EVT_maskKeyCode(evt);
-        }
+	/* It is possible that an event be posted while we are trying
+	 * to access the event queue. This would create problems since
+	 * we may end up with invalid data for our event queue pointers. To
+	 * alleviate this, all interrupts are suspended while we manipulate
+	 * our pointers.
+	 */
+	ps = _EVT_disableInt();             /* disable interrupts       */
+	for (evtID = EVT.head; evtID != -1; evtID = EVT.evtq[evtID].next) {
+	    if (EVT.evtq[evtID].what & mask)
+		break;                      /* Found an event           */
+	    }
+	if (evtID == -1) {
+	    _EVT_restoreInt(ps);
+	    return false;                   /* Event was not found      */
+	    }
+	next = EVT.evtq[evtID].next;
+	prev = EVT.evtq[evtID].prev;
+	if (prev != -1)
+	    EVT.evtq[prev].next = next;
+	else
+	    EVT.head = next;
+	if (next != -1)
+	    EVT.evtq[next].prev = prev;
+	else
+	    EVT.tail = prev;
+	*evt = EVT.evtq[evtID];                 /* Return the event         */
+	EVT.evtq[evtID].next = EVT.freeHead;        /* and return to free list  */
+	EVT.freeHead = evtID;
+	EVT.count--;
+	if (evt->what == EVT_MOUSEMOVE)
+	    EVT.oldMove = -1;
+	if (evt->what == EVT_KEYREPEAT)
+	    EVT.oldKey = -1;
+	if (evt->what == EVT_JOYMOVE)
+	    EVT.oldJoyMove = -1;
+	_EVT_restoreInt(ps);                /* enable interrupts        */
+	if (evt->what & EVT_KEYEVT)
+	    _EVT_maskKeyCode(evt);
+	}
 
     /* If there is no event pending, check if we should generate an auto
      * mouse down event if the mouse is still currently down.
      */
     if (evt->what == EVT_NULLEVT && EVT.autoRepeat && (mask & EVT_MOUSEAUTO) && (EVT.downMouse.what & EVT_MOUSEDOWN)) {
-        ulong ticks = _EVT_getTicks();
-        if ((ticks - EVT.autoTicks) >= (EVT.autoRepeat + (EVT.firstAuto ? EVT.autoDelay : 0))) {
-            evt->what = EVT_MOUSEAUTO;
-            evt->message = EVT.downMouse.message;
-            evt->modifiers = EVT.downMouse.modifiers;
-            evt->where_x = EVT.autoMouse_x;
-            evt->where_y = EVT.autoMouse_y;
-            evt->relative_x = 0;
-            evt->relative_y = 0;
-            EVT.autoTicks = evt->when = ticks;
-            EVT.firstAuto = false;
-            }
-        }
+	ulong ticks = _EVT_getTicks();
+	if ((ticks - EVT.autoTicks) >= (EVT.autoRepeat + (EVT.firstAuto ? EVT.autoDelay : 0))) {
+	    evt->what = EVT_MOUSEAUTO;
+	    evt->message = EVT.downMouse.message;
+	    evt->modifiers = EVT.downMouse.modifiers;
+	    evt->where_x = EVT.autoMouse_x;
+	    evt->where_y = EVT.autoMouse_y;
+	    evt->relative_x = 0;
+	    evt->relative_y = 0;
+	    EVT.autoTicks = evt->when = ticks;
+	    EVT.firstAuto = false;
+	    }
+	}
     return evt->what != EVT_NULLEVT;
 }
 
@@ -802,18 +802,18 @@ callback unless you plan to use the events immediately that they are
 recieved.
 
 Note:   Your event callback may be called in response to a hardware
-        interrupt and will be executing in the context of the hardware
-        interrupt handler under MSDOS (ie: keyboard interrupt or mouse
-        interrupt). For this reason the code pages for the callback that
-        you register must be locked in memory with the PM_lockCodePages
-        function. You must also lock down any data pages that your function
-        needs to reference as well.
+	interrupt and will be executing in the context of the hardware
+	interrupt handler under MSDOS (ie: keyboard interrupt or mouse
+	interrupt). For this reason the code pages for the callback that
+	you register must be locked in memory with the PM_lockCodePages
+	function. You must also lock down any data pages that your function
+	needs to reference as well.
 
 Note:   You can also use this filter callback to process events at the
-        time they are activated by the user (ie: when the user hits the
-        key or moves the mouse), but make sure your code runs as fast as
-        possible as it will be executing inside the context of an interrupt
-        handler on some systems.
+	time they are activated by the user (ie: when the user hits the
+	key or moves the mouse), but make sure your code runs as fast as
+	possible as it will be executing inside the context of an interrupt
+	handler on some systems.
 
 SEE ALSO:
 EVT_getNext, EVT_peekNext
@@ -1068,10 +1068,10 @@ the scan code is the result, for example:
     code = EVT_scanCode(EVT.myEvent.message);
 
 NOTE:   Scan codes in the event library are not really hardware scan codes,
-        but rather virtual scan codes as generated by a low level keyboard
-        interface driver. All virtual scan code values are defined by the
-        EVT_scanCodesType enumeration, and will be identical across all
-        supports OS'es and platforms.
+	but rather virtual scan codes as generated by a low level keyboard
+	interface driver. All virtual scan code values are defined by the
+	EVT_scanCodesType enumeration, and will be identical across all
+	supports OS'es and platforms.
 
 SEE ALSO:
 EVT_asciiCode, EVT_repeatCount

@@ -113,7 +113,7 @@
 
 #define CFG_MONITOR_LEN		0x20000		/* 128 KiB */
 
-                                                /* valid baudrates */
+						/* valid baudrates */
 #define CFG_BAUDRATE_TABLE      { 9600, 19200, 38400, 57600, 115200 }
 
 /*
@@ -227,12 +227,12 @@
 
 #define CFG_GAFR0_L_VAL     (_BIT22+_BIT24+_BIT31)
 #define CFG_GAFR0_U_VAL     (_BIT15+_BIT17+_BIT19+\
-                             _BIT20+_BIT22+_BIT24+_BIT26+_BIT29+_BIT31)
+			     _BIT20+_BIT22+_BIT24+_BIT26+_BIT29+_BIT31)
 #define CFG_GAFR1_L_VAL     (_BIT3+_BIT4+_BIT6+_BIT8+_BIT10+_BIT12+_BIT15+_BIT17+_BIT19+\
-                             _BIT20+_BIT23+_BIT24+_BIT27+_BIT28+_BIT31)
+			     _BIT20+_BIT23+_BIT24+_BIT27+_BIT28+_BIT31)
 #define CFG_GAFR1_U_VAL     (_BIT21+_BIT23+_BIT25+_BIT27+_BIT29+_BIT31)
 #define CFG_GAFR2_L_VAL     (_BIT1+_BIT3+_BIT5+_BIT7+_BIT9+_BIT11+_BIT13+_BIT15+_BIT17+\
-                             _BIT19+_BIT21+_BIT23+_BIT25+_BIT27+_BIT29+_BIT31)
+			     _BIT19+_BIT21+_BIT23+_BIT25+_BIT27+_BIT29+_BIT31)
 #define CFG_GAFR2_U_VAL     (_BIT1)
 
 #define CFG_PSSR_VAL        (0x20)
@@ -283,4 +283,3 @@
 #define CFG_ENV_SIZE            0x4000  /* Total Size of Environment Sector     */
 
 #endif  /* __CONFIG_H */
-

@@ -105,7 +105,7 @@ struct i386_special_regs {
     u32 FLAGS;
     };
 
-/*  
+/*
  * Segment registers here represent the 16 bit quantities
  * CS, DS, ES, SS.
  */
@@ -183,8 +183,8 @@ struct i386_segment_regs {
 #define F_ALWAYS_ON  (0x0002)   /* flag bits always on */
 
 /*
- * Define a mask for only those flag bits we will ever pass back 
- * (via PUSHF) 
+ * Define a mask for only those flag bits we will ever pass back
+ * (via PUSHF)
  */
 #define F_MSK (FB_CF|FB_PF|FB_AF|FB_ZF|FB_SF|FB_TF|FB_IF|FB_DF|FB_OF)
 
@@ -235,21 +235,21 @@ struct i386_segment_regs {
 #define SYSMODE_HALTED          0x40000000
 
 #define SYSMODE_SEGMASK (SYSMODE_SEG_DS_SS      | \
-                         SYSMODE_SEGOVR_CS      | \
-                         SYSMODE_SEGOVR_DS      | \
-                         SYSMODE_SEGOVR_ES      | \
-                         SYSMODE_SEGOVR_FS      | \
-                         SYSMODE_SEGOVR_GS      | \
-                         SYSMODE_SEGOVR_SS)
+			 SYSMODE_SEGOVR_CS      | \
+			 SYSMODE_SEGOVR_DS      | \
+			 SYSMODE_SEGOVR_ES      | \
+			 SYSMODE_SEGOVR_FS      | \
+			 SYSMODE_SEGOVR_GS      | \
+			 SYSMODE_SEGOVR_SS)
 #define SYSMODE_CLRMASK (SYSMODE_SEG_DS_SS      | \
-                         SYSMODE_SEGOVR_CS      | \
-                         SYSMODE_SEGOVR_DS      | \
-                         SYSMODE_SEGOVR_ES      | \
-                         SYSMODE_SEGOVR_FS      | \
-                         SYSMODE_SEGOVR_GS      | \
-                         SYSMODE_SEGOVR_SS      | \
-                         SYSMODE_PREFIX_DATA    | \
-                         SYSMODE_PREFIX_ADDR)
+			 SYSMODE_SEGOVR_CS      | \
+			 SYSMODE_SEGOVR_DS      | \
+			 SYSMODE_SEGOVR_ES      | \
+			 SYSMODE_SEGOVR_FS      | \
+			 SYSMODE_SEGOVR_GS      | \
+			 SYSMODE_SEGOVR_SS      | \
+			 SYSMODE_PREFIX_DATA    | \
+			 SYSMODE_PREFIX_ADDR)
 
 #define  INTR_SYNCH           0x1
 #define  INTR_ASYNCH          0x2
@@ -266,8 +266,8 @@ typedef struct {
      *  Delayed flag set        3 bits  (zero, signed, parity)
      *  reserved                6 bits
      *  interrupt #             8 bits  instruction raised interrupt
-     *  BIOS video segregs      4 bits  
-     *  Interrupt Pending       1 bits  
+     *  BIOS video segregs      4 bits
+     *  Interrupt Pending       1 bits
      *  Extern interrupt        1 bits
      *  Halted                  1 bits
      */
@@ -317,12 +317,12 @@ extern "C" {                        /* Use "C" linkage when in C++ mode */
 
 extern    X86EMU_sysEnv _X86EMU_env;
 #define   M             _X86EMU_env
-        
+
 /*-------------------------- Function Prototypes --------------------------*/
 
 /* Function to log information at runtime */
 
-//void    printk(const char *fmt, ...);
+/*void    printk(const char *fmt, ...); */
 
 #ifdef  __cplusplus
 }                                   /* End of "C" linkage for C++       */

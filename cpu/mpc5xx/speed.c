@@ -17,14 +17,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, 
+ * Foundation,
  */
 
 /*
  * File:		speed.c
- * 
+ *
  * Discription:		Provides cpu speed calculation
- * 
+ *
  */
 
 #include <common.h>
@@ -49,8 +49,8 @@ int get_clocks (void)
 		gd->cpu_clk = vcoout / (2^(((immr->im_clkrst.car_sccr & SCCR_DFNL_MSK) >> SCCR_DFNL_SHIFT) + 1));
 	} else {
     		gd->cpu_clk = vcoout / (2^(immr->im_clkrst.car_sccr & SCCR_DFNH_MSK));
-    	}	
-	
+    	}
+
 #else /* CONFIG_5xx_GCLK_FREQ */
 	gd->bus_clk = CONFIG_5xx_GCLK_FREQ;
 #endif /* CONFIG_5xx_GCLK_FREQ */

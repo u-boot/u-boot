@@ -69,15 +69,15 @@ AT91PS_EMAC p_mac;
 /** functions to interface the DAVICOM 10/100Mbps ethernet phy **********/
 
 /*
- * Name: 
+ * Name:
  *	dm9161_IsPhyConnected
- * Description: 
+ * Description:
  *	Reads the 2 PHY ID registers
- * Arguments: 
+ * Arguments:
  *	p_mac - pointer to AT91S_EMAC struct
- * Return value: 
+ * Return value:
  *	TRUE - if id read successfully
- *	FALSE- if error 
+ *	FALSE- if error
  */
 static unsigned int dm9161_IsPhyConnected (AT91PS_EMAC p_mac)
 {
@@ -96,14 +96,14 @@ static unsigned int dm9161_IsPhyConnected (AT91PS_EMAC p_mac)
 }
 
 /*
- * Name: 
+ * Name:
  *	dm9161_GetLinkSpeed
- * Description: 
- *	Link parallel detection status of MAC is checked and set in the 
+ * Description:
+ *	Link parallel detection status of MAC is checked and set in the
  *	MAC configuration registers
- * Arguments: 
- *	p_mac - pointer to MAC 
- * Return value: 
+ * Arguments:
+ *	p_mac - pointer to MAC
+ * Return value:
  *	TRUE - if link status set succesfully
  *	FALSE - if link status not set
  */
@@ -152,14 +152,14 @@ static UCHAR dm9161_GetLinkSpeed (AT91PS_EMAC p_mac)
 
 
 /*
- * Name: 
+ * Name:
  *	dm9161_InitPhy
- * Description: 
- *	MAC starts checking its link by using parallel detection and 
+ * Description:
+ *	MAC starts checking its link by using parallel detection and
  *	Autonegotiation and the same is set in the MAC configuration registers
- * Arguments: 
+ * Arguments:
  *	p_mac - pointer to struct AT91S_EMAC
- * Return value: 
+ * Return value:
  *	TRUE - if link status set succesfully
  *	FALSE - if link status not set
  */
@@ -188,14 +188,14 @@ static UCHAR dm9161_InitPhy (AT91PS_EMAC p_mac)
 
 
 /*
- * Name: 
+ * Name:
  *	dm9161_AutoNegotiate
- * Description: 
- *	MAC Autonegotiates with the partner status of same is set in the 
+ * Description:
+ *	MAC Autonegotiates with the partner status of same is set in the
  *	MAC configuration registers
- * Arguments: 
+ * Arguments:
  *	dev - pointer to struct net_device
- * Return value: 
+ * Return value:
  *	TRUE - if link status set successfully
  *	FALSE - if link status not set
  */
@@ -259,17 +259,15 @@ static UCHAR dm9161_AutoNegotiate (AT91PS_EMAC p_mac, int *status)
 }
 
 
-
-
 /*********** EMAC Phy layer Management functions *************************/
 /*
- * Name: 
+ * Name:
  *	at91rm9200_EmacEnableMDIO
- * Description: 
+ * Description:
  *	Enables the MDIO bit in MAC control register
- * Arguments: 
+ * Arguments:
  *	p_mac - pointer to struct AT91S_EMAC
- * Return value: 
+ * Return value:
  *	none
  */
 static void at91rm9200_EmacEnableMDIO (AT91PS_EMAC p_mac)
@@ -279,13 +277,13 @@ static void at91rm9200_EmacEnableMDIO (AT91PS_EMAC p_mac)
 }
 
 /*
- * Name: 
+ * Name:
  *	at91rm9200_EmacDisableMDIO
- * Description: 
+ * Description:
  *	Disables the MDIO bit in MAC control register
- * Arguments: 
+ * Arguments:
  *	p_mac - pointer to struct AT91S_EMAC
- * Return value: 
+ * Return value:
  *	none
  */
 static void at91rm9200_EmacDisableMDIO (AT91PS_EMAC p_mac)
@@ -296,15 +294,15 @@ static void at91rm9200_EmacDisableMDIO (AT91PS_EMAC p_mac)
 
 
 /*
- * Name: 
+ * Name:
  *	at91rm9200_EmacReadPhy
- * Description: 
+ * Description:
  *	Reads data from the PHY register
- * Arguments: 
+ * Arguments:
  *	dev - pointer to struct net_device
  *	RegisterAddress - unsigned char
- * 	pInput - pointer to value read from register 
- * Return value: 
+ * 	pInput - pointer to value read from register
+ * Return value:
  *	TRUE - if data read successfully
  */
 static UCHAR at91rm9200_EmacReadPhy (AT91PS_EMAC p_mac,
@@ -324,15 +322,15 @@ static UCHAR at91rm9200_EmacReadPhy (AT91PS_EMAC p_mac,
 
 
 /*
- * Name: 
+ * Name:
  *	at91rm9200_EmacWritePhy
- * Description: 
+ * Description:
  *	Writes data to the PHY register
- * Arguments: 
+ * Arguments:
  *	dev - pointer to struct net_device
  *	RegisterAddress - unsigned char
- * 	pOutput - pointer to value to be written in the register 
- * Return value: 
+ * 	pOutput - pointer to value to be written in the register
+ * Return value:
  *	TRUE - if data read successfully
  */
 static UCHAR at91rm9200_EmacWritePhy (AT91PS_EMAC p_mac,
@@ -349,13 +347,13 @@ static UCHAR at91rm9200_EmacWritePhy (AT91PS_EMAC p_mac,
 }
 
 /*
- * Name: 
+ * Name:
  *	at91rm92000_GetPhyInterface
- * Description: 
- *	Initialise the interface functions to the PHY 
- * Arguments: 
+ * Description:
+ *	Initialise the interface functions to the PHY
+ * Arguments:
  *	None
- * Return value: 
+ * Return value:
  *	None
  */
 void at91rm92000_GetPhyInterface (void)

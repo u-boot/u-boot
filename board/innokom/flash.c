@@ -10,7 +10,7 @@
  * Robert Schwebel, Pengutronix, <r.schwebel@pengutronix.de>
  *
  * (C) Copyright 2002
- * Auerswald GmbH & Co KG, Germany 
+ * Auerswald GmbH & Co KG, Germany
  * Kai-Uwe Bloem <kai-uwe.bloem@auerswald.de>
  *
  * See file CREDITS for list of people who contributed to this
@@ -42,7 +42,6 @@
 /* Debugging macros ------------------------------------------------------  */
 
 #undef FLASH_DEBUG
-//#define FLASH_DEBUG 1
 
 /* Some debug macros */
 #if (FLASH_DEBUG > 2 )
@@ -107,10 +106,10 @@ struct part_info* jffs2_part_info(int part_num) {
 	/* u-boot partition                                                 */
 	if(part_num==0){
 		memset(&part, 0, sizeof(part));
-		
+
 		part.offset=(char*)0x00000000;
 		part.size=256*1024;
-		
+
 		/* Mark the struct as ready */
 		current_part = part_num;
 
@@ -121,24 +120,24 @@ struct part_info* jffs2_part_info(int part_num) {
 	/* primary OS+firmware partition                                    */
 	if(part_num==1){
 		memset(&part, 0, sizeof(part));
-		
+
 		part.offset=(char*)0x00040000;
 		part.size=768*1024;
-		
+
 		/* Mark the struct as ready */
 		current_part = part_num;
 
 		PRINTK("part.offset = 0x%08x\n",(unsigned int)part.offset);
 		PRINTK("part.size   = 0x%08x\n",(unsigned int)part.size);
 	}
-	
+
 	/* secondary OS+firmware partition                                  */
 	if(part_num==2){
 		memset(&part, 0, sizeof(part));
-		
+
 		part.offset=(char*)0x00100000;
 		part.size=8*1024*1024;
-		
+
 		/* Mark the struct as ready */
 		current_part = part_num;
 
@@ -149,17 +148,17 @@ struct part_info* jffs2_part_info(int part_num) {
 	/* data partition */
 	if(part_num==3){
 		memset(&part, 0, sizeof(part));
-		
+
 		part.offset=(char*)0x00900000;
 		part.size=7*1024*1024;
-		
+
 		/* Mark the struct as ready */
 		current_part = part_num;
 
 		PRINTK("part.offset = 0x%08x\n",(unsigned int)part.offset);
 		PRINTK("part.size   = 0x%08x\n",(unsigned int)part.size);
 	}
-	
+
 	if (current_part == part_num) {
 		part.usr_priv = &current_part;
 		part.jffs2_priv = jffs2_priv_saved;
@@ -186,10 +185,10 @@ struct part_info* jffs2_part_info(int part_num) {
 	/* u-boot partition                                                 */
 	if(part_num==0){
 		memset(&part, 0, sizeof(part));
-		
+
 		part.offset=(char*)0x00000000;
 		part.size=256*1024;
-		
+
 		/* Mark the struct as ready */
 		current_part = part_num;
 
@@ -200,24 +199,24 @@ struct part_info* jffs2_part_info(int part_num) {
 	/* primary OS+firmware partition                                    */
 	if(part_num==1){
 		memset(&part, 0, sizeof(part));
-		
+
 		part.offset=(char*)0x00040000;
 		part.size=16*1024*1024-128*1024;
-		
+
 		/* Mark the struct as ready */
 		current_part = part_num;
 
 		PRINTK("part.offset = 0x%08x\n",(unsigned int)part.offset);
 		PRINTK("part.size   = 0x%08x\n",(unsigned int)part.size);
 	}
-	
+
 	/* secondary OS+firmware partition                                  */
 	if(part_num==2){
 		memset(&part, 0, sizeof(part));
-		
+
 		part.offset=(char*)0x01020000;
 		part.size=16*1024*1024-128*1024;
-		
+
 		/* Mark the struct as ready */
 		current_part = part_num;
 
@@ -228,17 +227,17 @@ struct part_info* jffs2_part_info(int part_num) {
 	/* data partition */
 	if(part_num==3){
 		memset(&part, 0, sizeof(part));
-		
+
 		part.offset=(char*)0x02000000;
 		part.size=32*1024*1024;
-		
+
 		/* Mark the struct as ready */
 		current_part = part_num;
 
 		PRINTK("part.offset = 0x%08x\n",(unsigned int)part.offset);
 		PRINTK("part.size   = 0x%08x\n",(unsigned int)part.size);
 	}
-	
+
 	if (current_part == part_num) {
 		part.usr_priv = &current_part;
 		part.jffs2_priv = jffs2_priv_saved;
@@ -335,13 +334,13 @@ void flash_print_info  (flash_info_t *info)
 				return;
 		}
 
-		printf("  Size: %ld MB in %d Sectors\n", 
+		printf("  Size: %ld MB in %d Sectors\n",
 			info->size >> 20, info->sector_count);
 
 		printf("  Sector Start Addresses:");
 		for (i = 0; i < info->sector_count; i++) {
 			if ((i % 5) == 0) printf ("\n   ");
-	        
+
 			printf (" %08lX%s", info->start[i],
 				info->protect[i] ? " (RO)" : "     ");
 		}
@@ -370,7 +369,7 @@ int flash_erase(flash_info_t *info, int s_first, int s_last)
 
 	if ((info->flash_id & FLASH_VENDMASK) != (INTEL_MANUFACT & FLASH_VENDMASK))
 		return ERR_UNKNOWN_FLASH_VENDOR;
-	
+
 	prot = 0;
 	for (sect=s_first; sect<=s_last; ++sect) {
 		if (info->protect[sect]) prot++;
@@ -420,13 +419,13 @@ int flash_erase(flash_info_t *info, int s_first, int s_last)
 					goto outahere;
 				}
 			}
-			
+
 			PRINTK("clearing status register\n");
-			*addr = 0x0050; 
+			*addr = 0x0050;
 			PRINTK("resetting to read mode");
-			*addr = 0x00FF; 
+			*addr = 0x00FF;
 		}
-		
+
 		printf("ok.\n");
 	}
 
@@ -595,4 +594,3 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 
 	return write_word(info, wp, data);
 }
-

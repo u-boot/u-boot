@@ -320,4 +320,3 @@ rtc_reset (void)
 {
   m48_tod_init();
 }
-

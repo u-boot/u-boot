@@ -64,63 +64,63 @@ ulong PMAPI PM_installService(
     char        keyPath[MAX_PATH];
     ulong       status;
 
-    // Obtain a handle to the service control manager requesting all access
+    /* Obtain a handle to the service control manager requesting all access */
     if ((scmHandle = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS)) == NULL)
-        return GetLastError();
+	return GetLastError();
 
-    // Find the path to the driver in system directory
+    /* Find the path to the driver in system directory */
     GetSystemDirectory(szDriverPath, sizeof(szDriverPath));
     strcat(szDriverPath, "\\drivers\\");
     strcat(szDriverPath, szDriverName);
 
-    // Create the service with the Service Control Manager.
+    /* Create the service with the Service Control Manager. */
     driverHandle = CreateService(scmHandle,
-                                 szServiceName,
-                                 szServiceName,
-                                 SERVICE_ALL_ACCESS,
-                                 dwServiceType,
-                                 SERVICE_BOOT_START,
-                                 SERVICE_ERROR_NORMAL,
-                                 szDriverPath,
-                                 szLoadGroup,
-                                 NULL,
-                                 NULL,
-                                 NULL,
-                                 NULL);
+				 szServiceName,
+				 szServiceName,
+				 SERVICE_ALL_ACCESS,
+				 dwServiceType,
+				 SERVICE_BOOT_START,
+				 SERVICE_ERROR_NORMAL,
+				 szDriverPath,
+				 szLoadGroup,
+				 NULL,
+				 NULL,
+				 NULL,
+				 NULL);
 
-    // Check to see if the driver could actually be installed.
+    /* Check to see if the driver could actually be installed. */
     if (!driverHandle) {
-        status = GetLastError();
-        CloseServiceHandle(scmHandle);
-        return status;
-        }
+	status = GetLastError();
+	CloseServiceHandle(scmHandle);
+	return status;
+	}
 
-    // Get a handle to the key for driver so that it can be altered in the
-    // next step.
+    /* Get a handle to the key for driver so that it can be altered in the */
+    /* next step. */
     strcpy(keyPath, "SYSTEM\\CurrentControlSet\\Services\\");
     strcat(keyPath, szServiceName);
     if ((status = RegOpenKeyEx(HKEY_LOCAL_MACHINE,keyPath,0,KEY_ALL_ACCESS,&key)) != ERROR_SUCCESS) {
-        // A problem has occured. Delete the service so that it is not installed.
-        status = GetLastError();
-        DeleteService(driverHandle);
-        CloseServiceHandle(driverHandle);
-        CloseServiceHandle(scmHandle);
-        return status;
-        }
+	/* A problem has occured. Delete the service so that it is not installed. */
+	status = GetLastError();
+	DeleteService(driverHandle);
+	CloseServiceHandle(driverHandle);
+	CloseServiceHandle(scmHandle);
+	return status;
+	}
 
-    // Delete the ImagePath value in the newly created key so that the
-    // system looks for the driver in the normal location.
+    /* Delete the ImagePath value in the newly created key so that the */
+    /* system looks for the driver in the normal location. */
     if ((status = RegDeleteValue(key, "ImagePath")) != ERROR_SUCCESS) {
-        // A problem has occurred. Delete the service so that it is not
-        // installed and will not try to start.
-        RegCloseKey(key);
-        DeleteService(driverHandle);
-        CloseServiceHandle(driverHandle);
-        CloseServiceHandle(scmHandle);
-        return status;
-        }
+	/* A problem has occurred. Delete the service so that it is not */
+	/* installed and will not try to start. */
+	RegCloseKey(key);
+	DeleteService(driverHandle);
+	CloseServiceHandle(driverHandle);
+	CloseServiceHandle(scmHandle);
+	return status;
+	}
 
-    // Clean up and exit
+    /* Clean up and exit */
     RegCloseKey(key);
     CloseServiceHandle(driverHandle);
     CloseServiceHandle(scmHandle);
@@ -145,32 +145,32 @@ ulong PMAPI PM_startService(
     SERVICE_STATUS	serviceStatus;
     ulong           status;
 
-    // Obtain a handle to the service control manager requesting all access
+    /* Obtain a handle to the service control manager requesting all access */
     if ((scmHandle = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS)) == NULL)
-        return GetLastError();
+	return GetLastError();
 
-    // Open the service with the Service Control Manager.
+    /* Open the service with the Service Control Manager. */
     if ((driverHandle = OpenService(scmHandle,szServiceName,SERVICE_ALL_ACCESS)) == NULL) {
-        status = GetLastError();
-        CloseServiceHandle(scmHandle);
-        return status;
-        }
+	status = GetLastError();
+	CloseServiceHandle(scmHandle);
+	return status;
+	}
 
-    // Start the service
+    /* Start the service */
     if (!StartService(driverHandle,0,NULL)) {
-        status = GetLastError();
-        CloseServiceHandle(driverHandle);
-        CloseServiceHandle(scmHandle);
-        return status;
-        }
+	status = GetLastError();
+	CloseServiceHandle(driverHandle);
+	CloseServiceHandle(scmHandle);
+	return status;
+	}
 
-    // Query the service to make sure it is there
-    if (!QueryServiceStatus(driverHandle,&serviceStatus)) {	
-        status = GetLastError();
-        CloseServiceHandle(driverHandle);
-        CloseServiceHandle(scmHandle);
-        return status;
-        }
+    /* Query the service to make sure it is there */
+    if (!QueryServiceStatus(driverHandle,&serviceStatus)) {
+	status = GetLastError();
+	CloseServiceHandle(driverHandle);
+	CloseServiceHandle(scmHandle);
+	return status;
+	}
     CloseServiceHandle(driverHandle);
     CloseServiceHandle(scmHandle);
     return ERROR_SUCCESS;
@@ -194,24 +194,24 @@ ulong PMAPI PM_stopService(
     SERVICE_STATUS	serviceStatus;
     ulong           status;
 
-    // Obtain a handle to the service control manager requesting all access
+    /* Obtain a handle to the service control manager requesting all access */
     if ((scmHandle = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS)) == NULL)
-        return GetLastError();
+	return GetLastError();
 
-    // Open the service with the Service Control Manager.
+    /* Open the service with the Service Control Manager. */
     if ((driverHandle = OpenService(scmHandle,szServiceName,SERVICE_ALL_ACCESS)) == NULL) {
-        status = GetLastError();
-        CloseServiceHandle(scmHandle);
-        return status;
-        }
+	status = GetLastError();
+	CloseServiceHandle(scmHandle);
+	return status;
+	}
 
-    // Stop the service from running
+    /* Stop the service from running */
     if (!ControlService(driverHandle, SERVICE_CONTROL_STOP, &serviceStatus)) {
-        status = GetLastError();
-        CloseServiceHandle(driverHandle);
-        CloseServiceHandle(scmHandle);
-        return status;
-        }
+	status = GetLastError();
+	CloseServiceHandle(driverHandle);
+	CloseServiceHandle(scmHandle);
+	return status;
+	}
     CloseServiceHandle(driverHandle);
     CloseServiceHandle(scmHandle);
     return ERROR_SUCCESS;
@@ -234,26 +234,25 @@ ulong PMAPI PM_removeService(
     SC_HANDLE   driverHandle;
     ulong       status;
 
-    // Obtain a handle to the service control manager requesting all access
+    /* Obtain a handle to the service control manager requesting all access */
     if ((scmHandle = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS)) == NULL)
-        return GetLastError();
+	return GetLastError();
 
-    // Open the service with the Service Control Manager.
+    /* Open the service with the Service Control Manager. */
     if ((driverHandle = OpenService(scmHandle,szServiceName,SERVICE_ALL_ACCESS)) == NULL) {
-        status = GetLastError();
-        CloseServiceHandle(scmHandle);
-        return status;
-        }
+	status = GetLastError();
+	CloseServiceHandle(scmHandle);
+	return status;
+	}
 
-    // Remove the service
+    /* Remove the service */
     if (!DeleteService(driverHandle)) {
-        status = GetLastError();
-        CloseServiceHandle(driverHandle);
-        CloseServiceHandle(scmHandle);
-        return status;
-        }
+	status = GetLastError();
+	CloseServiceHandle(driverHandle);
+	CloseServiceHandle(scmHandle);
+	return status;
+	}
     CloseServiceHandle(driverHandle);
     CloseServiceHandle(scmHandle);
     return ERROR_SUCCESS;
 }
-

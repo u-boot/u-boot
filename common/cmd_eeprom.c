@@ -371,3 +371,26 @@ void eeprom_init  (void)
 /*-----------------------------------------------------------------------
  */
 #endif	/* CFG_CMD_EEPROM */
+/***************************************************/
+
+#if (CONFIG_COMMANDS & CFG_CMD_EEPROM)
+
+#ifdef CFG_I2C_MULTI_EEPROMS
+cmd_tbl_t U_BOOT_CMD(EEPROM) = MK_CMD_ENTRY(
+	"eeprom",	6,	1,	do_eeprom,
+	"eeprom  - EEPROM sub-system\n",
+	"read  devaddr addr off cnt\n"
+	"eeprom write devaddr addr off cnt\n"
+	"       - read/write `cnt' bytes from `devaddr` EEPROM at offset `off'\n"
+);
+#else /* One EEPROM */
+cmd_tbl_t U_BOOT_CMD(EEPROM) = MK_CMD_ENTRY(
+	"eeprom",	5,	1,	do_eeprom,
+	"eeprom  - EEPROM sub-system\n",
+	"read  addr off cnt\n"
+	"eeprom write addr off cnt\n"
+	"       - read/write `cnt' bytes at EEPROM offset `off'\n"
+);
+#endif /* CFG_I2C_MULTI_EEPROMS */
+
+#endif	/* CFG_CMD_EEPROM */

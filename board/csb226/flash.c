@@ -7,7 +7,7 @@
  * Marius Groeger <mgroeger@sysgo.de>
  *
  * (C) Copyright 2002
- * Robert Schwebel, Pengutronix, <r.schwebel@pengutronix.de> 
+ * Robert Schwebel, Pengutronix, <r.schwebel@pengutronix.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -89,7 +89,7 @@ ulong flash_init(void)
 /**
  * flash_print_info: - print information about the flash situation
  *
- * @param info: 
+ * @param info:
  */
 
 void flash_print_info  (flash_info_t *info)
@@ -118,13 +118,13 @@ void flash_print_info  (flash_info_t *info)
 				return;
 		}
 
-		printf("  Size: %ld MB in %d Sectors\n", 
+		printf("  Size: %ld MB in %d Sectors\n",
 			info->size >> 20, info->sector_count);
 
 		printf("  Sector Start Addresses:");
 		for (i = 0; i < info->sector_count; i++) {
 			if ((i % 5) == 0) printf ("\n   ");
-	        
+
 			printf (" %08lX%s", info->start[i],
 				info->protect[i] ? " (RO)" : "     ");
 		}
@@ -153,7 +153,7 @@ int flash_erase(flash_info_t *info, int s_first, int s_last)
 
 	if ((info->flash_id & FLASH_VENDMASK) != (INTEL_MANUFACT & FLASH_VENDMASK))
 		return ERR_UNKNOWN_FLASH_VENDOR;
-	
+
 	prot = 0;
 	for (sect=s_first; sect<=s_last; ++sect) {
 		if (info->protect[sect]) prot++;
@@ -203,7 +203,7 @@ int flash_erase(flash_info_t *info, int s_first, int s_last)
 			*addr = 0x00FF00FF; /* resest to read mode          */
 
 		}
-		
+
 		printf("ok.\n");
 	}
 
@@ -222,10 +222,10 @@ int flash_erase(flash_info_t *info, int s_first, int s_last)
 
 /**
  * write_word: - copy memory to flash
- * 
+ *
  * @param info:
  * @param dest:
- * @param data: 
+ * @param data:
  * @return:
  */
 
@@ -301,8 +301,8 @@ static int write_word (flash_info_t *info, ulong dest, ushort data)
 
 /**
  * write_buf: - Copy memory to flash.
- * 
- * @param info:	 
+ *
+ * @param info:
  * @param src:	source of copy transaction
  * @param addr:	where to copy to
  * @param cnt: 	number of bytes to copy
@@ -372,4 +372,3 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 
 	return write_word(info, wp, data);
 }
-

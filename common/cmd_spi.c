@@ -28,7 +28,6 @@
 #include <common.h>
 #include <command.h>
 #include <spi.h>
-#include <cmd_spi.h>
 
 #if (CONFIG_COMMANDS & CFG_CMD_SPI)
 
@@ -107,11 +106,11 @@ int do_spi (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if ((device < 0) || (device >=  spi_chipsel_cnt)) {
 		printf("Invalid device %d, giving up.\n", device);
 		return 1;
-	} 
+	}
 	if ((bitlen < 0) || (bitlen >  (MAX_SPI_BYTES * 8))) {
 		printf("Invalid bitlen %d, giving up.\n", bitlen);
 		return 1;
-	} 
+	}
 
 	debug ("spi_chipsel[%d] = %08X\n",
 		device, (uint)spi_chipsel[device]);
@@ -129,5 +128,16 @@ int do_spi (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	return rcode;
 }
+
+/***************************************************/
+
+cmd_tbl_t U_BOOT_CMD(SPI) = MK_CMD_ENTRY(
+	"sspi",	5,	1,	do_spi,
+	"sspi     - SPI utility commands\n",
+	"<device> <bit_len> <dout> - Send <bit_len> bits from <dout> out the SPI\n"
+	"<device>  - Identifies the chip select of the device\n"
+	"<bit_len> - Number of bits to send (base 10)\n"
+	"<dout>    - Hexadecimal string that gets sent\n"
+);
 
 #endif	/* CFG_CMD_SPI */

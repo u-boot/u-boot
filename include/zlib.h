@@ -93,7 +93,7 @@
 #endif
 
 /* The memory requirements for deflate are (in bytes):
-            1 << (windowBits+2)   +  1 << (memLevel+9)
+	    1 << (windowBits+2)   +  1 << (memLevel+9)
  that is: 128K for windowBits=15  +  128K for memLevel = 8  (default values)
  plus a few kilobytes for small objects. For example, if you want to reduce
  the default memory requirements from 256K to 128K, compile with
@@ -105,7 +105,7 @@
  for small objects.
 */
 
-                        /* Type declarations */
+			/* Type declarations */
 
 #ifndef OF /* function prototypes */
 #  ifdef STDC
@@ -214,7 +214,7 @@ typedef struct z_stream_s {
    a single step).
 */
 
-                        /* constants */
+			/* constants */
 
 #define Z_NO_FLUSH      0
 #define Z_PARTIAL_FLUSH 1
@@ -255,7 +255,7 @@ extern char *zlib_version;
    not compatible with the zlib.h header file used by the application.
  */
 
-                        /* basic functions */
+			/* basic functions */
 
 extern int inflateInit OF((z_stream *strm));
 /*
@@ -333,10 +333,10 @@ extern int inflateEnd OF((z_stream *strm));
    static string (which must not be deallocated).
 */
 
-                        /* advanced functions */
+			/* advanced functions */
 
 extern int inflateInit2 OF((z_stream *strm,
-                            int  windowBits));
+			    int  windowBits));
 /*
      This is another version of inflateInit with more compression options. The
    fields next_out, zalloc and zfree must be initialized before by the caller.
@@ -402,7 +402,7 @@ extern int inflateIncomp OF((z_stream *strm));
    containing the data at next_in (except that the data is not output).
 */
 
-                        /* checksum functions */
+			/* checksum functions */
 
 /*
      This function is not related to compression but is exported

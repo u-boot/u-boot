@@ -27,11 +27,11 @@
  */
 #include <common.h>
 #include <command.h>
-#include <cmd_fpga.h>
-#include <fpga.h>
+#include <cmd_bsp.h>
 #if (CONFIG_COMMANDS & CFG_CMD_NET)
 #include <net.h>
 #endif
+#include <fpga.h>
 
 #if 0
 #define	FPGA_DEBUG
@@ -155,4 +155,13 @@ static int fpga_get_op( char *opstr )
 	return op;
 }
 
+cmd_tbl_t U_BOOT_CMD(FPGA) = MK_CMD_ENTRY(
+	"fpga",    6,     1,     do_fpga,
+	"fpga   - loadable FPGA image support\n",
+	"fpga [operation type] [device number] [image address] [image size]\n"
+	"fpga operations:\n"
+	"\tinfo\tlist known device information.\n"
+	"\tload\tLoad device from memory buffer.\n"
+	"\tdump\tLoad device to memory buffer.\n"
+);
 #endif	/* CONFIG_FPGA && CONFIG_COMMANDS & CFG_CMD_FPGA */

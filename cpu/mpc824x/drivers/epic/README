@@ -100,5 +100,3 @@ USAGE:
    shall always call the epicEOI just before
    rfi instruction. Refer to the routine,
    epic_exception, for a code sample.
-
-

@@ -101,7 +101,7 @@ int checkboard (void)
 /* ------------------------------------------------------------------------- */
 
 long int initdram (int board_type)
-{    
+{
 	volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	long int size_b0 = 0;
@@ -145,7 +145,7 @@ long int initdram (int board_type)
 	udelay(1);
 	memctl->memc_or1 =  0xfc000a00;
 	size_b0 = 0x04000000;
-#else 
+#else
 #error SDRAM size configuration missing.
 #endif
 	memctl->memc_br1 =  0x00000081;
@@ -160,4 +160,3 @@ void doc_init (void)
 	        doc_probe (CFG_DOC_BASE);
 }
 #endif
-

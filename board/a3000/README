@@ -15,4 +15,3 @@ Thus, U-Boot is configured to reside in flash starting at the address of
 U-Boot, at the address of 0xFFFE0000.
 
 There is a National ns83815 10/100M ethernet controller on-board.
-

@@ -93,7 +93,7 @@ typedef struct vpd_header {
 
 
 #define VPD_DATA_SIZE (VPD_MAX_EEPROM_SIZE - SDRAM_SPD_DATA_SIZE - \
-                        sizeof(vpd_header_t))
+			sizeof(vpd_header_t))
 typedef struct vpd_s {
     vpd_header_t header;
     unsigned char packets[VPD_DATA_SIZE];
@@ -132,4 +132,3 @@ extern int vpd_get_data(unsigned char dev_addr, VPD *vpd);
 extern void vpd_print(VPD *vpdInfo);
 
 #endif /* _VPD_H_ */
-

@@ -64,20 +64,20 @@
      "echo Type \"run nfsboot\" to mount root filesystem over NFS;"        \
      "echo"
 
-#undef	  CONFIG_BOOTARGS	
+#undef	  CONFIG_BOOTARGS
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
     "ramargs=setenv bootargs root=/dev/ram rw\0"			\
     "rootargs=setenv rootpath /tftp/$(ipaddr)\0"			\
     "nfsargs=setenv bootargs root=/dev/nfs rw "				\
-        "nfsroot=$(serverip):$(rootpath)\0"				\
+	"nfsroot=$(serverip):$(rootpath)\0"				\
     "addip=setenv bootargs $(bootargs) "				\
-        "ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask)"		\
-        ":$(hostname):eth0:off panic=1\0"				\
+	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask)"		\
+	":$(hostname):eth0:off panic=1\0"				\
     "ramboot=tftp 400000 /home/paugaml/pMulti;"				\
-        "run ramargs;bootm\0"						\
+	"run ramargs;bootm\0"						\
     "nfsboot=tftp 400000 /home/paugaml/uImage;"				\
-        "run rootargs;run nfsargs;run addip;bootm\0"			\
+	"run rootargs;run nfsargs;run addip;bootm\0"			\
     ""
 #define CONFIG_BOOTCOMMAND	"run ramboot"
 
@@ -92,8 +92,8 @@
 #undef	  CFG_LOADS_BAUD_CHANGE		/* don't allow baudrate change	*/
 
 #define CONFIG_COMMANDS	        ( CONFIG_CMD_DFL | \
-                                  CFG_CMD_ASKENV | \
-                                  CFG_CMD_DATE   )
+				  CFG_CMD_ASKENV | \
+				  CFG_CMD_DATE   )
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -212,7 +212,7 @@
  */
 #define CFG_NVRAM_BASE_ADDR     CFG_NVRAM_BASE /* Base address of NVRAM area */
 #define CFG_NVRAM_SIZE          ((128*1024)-8) /* clock regs resident in the */
-                                               /*   8 top NVRAM locations    */
+					       /*   8 top NVRAM locations    */
 
 #if defined(CFG_ENV_IS_IN_NVRAM)
 #  define CFG_ENV_ADDR          CFG_NVRAM_BASE /* Base address of NVRAM area */
@@ -236,10 +236,10 @@
  */
 #if defined(CONFIG_WATCHDOG)
 #  define CFG_SYPCR	(SYPCR_SWTC | SYPCR_BMT  | SYPCR_BME | SYPCR_SWF | \
-                         SYPCR_SWE  | SYPCR_SWRI | SYPCR_SWP)
+			 SYPCR_SWE  | SYPCR_SWRI | SYPCR_SWP)
 #else
 #  define CFG_SYPCR	(SYPCR_SWTC | SYPCR_BMT  | SYPCR_BME | SYPCR_SWF | \
-                                                   SYPCR_SWP)
+						   SYPCR_SWP)
 #endif
 
 /*-----------------------------------------------------------------------

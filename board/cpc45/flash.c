@@ -80,7 +80,7 @@ unsigned long flash_init(void)
 
 
     for (i = 0; i < CFG_MAX_FLASH_BANKS; i++) {
-    	vu_long *addr = (vu_long *)(CFG_FLASH_BASE + i * FLASH_BANK_SIZE);
+	vu_long *addr = (vu_long *)(CFG_FLASH_BASE + i * FLASH_BANK_SIZE);
 
 	addr[0] = 0x00900090;
 
@@ -97,7 +97,7 @@ unsigned long flash_init(void)
 	{
 
 	    flash_info[i].flash_id = (FLASH_MAN_INTEL & FLASH_VENDMASK) |
-	    			     (INTEL_ID_28F160F3T & FLASH_TYPEMASK);
+				     (INTEL_ID_28F160F3T & FLASH_TYPEMASK);
 
 	} else {
 	    flash_info[i].flash_id = FLASH_UNKNOWN;
@@ -115,12 +115,12 @@ unsigned long flash_init(void)
 	for (j = 0; j < flash_info[i].sector_count; j++) {
 		if (j > 30) {
 			flash_info[i].start[j] = CFG_FLASH_BASE +
-			                         i * FLASH_BANK_SIZE +
-			                         (MAIN_SECT_SIZE * 31) + (j - 31) * PARAM_SECT_SIZE;
+						 i * FLASH_BANK_SIZE +
+						 (MAIN_SECT_SIZE * 31) + (j - 31) * PARAM_SECT_SIZE;
 		} else {
 			flash_info[i].start[j] = CFG_FLASH_BASE +
-			                         i * FLASH_BANK_SIZE +
-			                         j * MAIN_SECT_SIZE;
+						 i * FLASH_BANK_SIZE +
+						 j * MAIN_SECT_SIZE;
 		}
 	}
 	size += flash_info[i].size;
@@ -131,28 +131,28 @@ unsigned long flash_init(void)
 #if CFG_MONITOR_BASE >= CFG_FLASH_BASE
 #if CFG_MONITOR_BASE >= CFG_FLASH_BASE + FLASH_BANK_SIZE
     flash_protect(FLAG_PROTECT_SET,
-              CFG_MONITOR_BASE,
-              CFG_MONITOR_BASE + monitor_flash_len - 1,
-              &flash_info[1]);
+	      CFG_MONITOR_BASE,
+	      CFG_MONITOR_BASE + monitor_flash_len - 1,
+	      &flash_info[1]);
 #else
     flash_protect(FLAG_PROTECT_SET,
-              CFG_MONITOR_BASE,
-              CFG_MONITOR_BASE + monitor_flash_len - 1,
-              &flash_info[0]);
+	      CFG_MONITOR_BASE,
+	      CFG_MONITOR_BASE + monitor_flash_len - 1,
+	      &flash_info[0]);
 #endif
 #endif
 
 #if (CFG_ENV_IS_IN_FLASH == 1) && defined(CFG_ENV_ADDR)
 #if CFG_ENV_ADDR >= CFG_FLASH_BASE + FLASH_BANK_SIZE
     flash_protect(FLAG_PROTECT_SET,
-              CFG_ENV_ADDR,
-              CFG_ENV_ADDR + CFG_ENV_SIZE - 1,
-              &flash_info[1]);
+	      CFG_ENV_ADDR,
+	      CFG_ENV_ADDR + CFG_ENV_SIZE - 1,
+	      &flash_info[1]);
 #else
     flash_protect(FLAG_PROTECT_SET,
-              CFG_ENV_ADDR,
-              CFG_ENV_ADDR + CFG_ENV_SIZE - 1,
-              &flash_info[0]);
+	      CFG_ENV_ADDR,
+	      CFG_ENV_ADDR + CFG_ENV_SIZE - 1,
+	      &flash_info[0]);
 #endif
 #endif
 
@@ -275,7 +275,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 			while (((addr[0] & 0x00800080) != 0x00800080) ||
 			       ((addr[1] & 0x00800080) != 0x00800080) ) {
 				if ((now=get_timer(start)) >
-				           CFG_FLASH_ERASE_TOUT) {
+					   CFG_FLASH_ERASE_TOUT) {
 					printf ("Timeout\n");
 					addr[0] = 0x00B000B0; /* suspend erase */
 					addr[0] = 0x00FF00FF; /* to read mode  */
@@ -335,7 +335,7 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 		for (i = 0, cp = wp; i < l; i++, cp++) {
 			if (i >= 4) {
 				*datah = (*datah << 8) |
-				                ((*datal & 0xFF000000) >> 24);
+						((*datal & 0xFF000000) >> 24);
 			}
 
 			*datal = (*datal << 8) | (*(uchar *)cp);
@@ -349,7 +349,7 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 
 			if (i >= 4) {
 				*datah = (*datah << 8) |
-			                        ((*datal & 0xFF000000) >> 24);
+						((*datal & 0xFF000000) >> 24);
 			}
 
 			*datal = (*datal << 8) | tmp;
@@ -360,7 +360,7 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 		for (; cnt == 0 && i < FLASH_WIDTH; ++i, ++cp) {
 			if (i >= 4) {
 				*datah = (*datah << 8) |
-				                ((*datal & 0xFF000000) >> 24);
+						((*datal & 0xFF000000) >> 24);
 			}
 
 			*datal = (*datah << 8) | (*(uchar *)cp);
@@ -401,7 +401,7 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 	for (i = 0, cp = wp; i < FLASH_WIDTH && cnt > 0; ++i, ++cp) {
 		char tmp;
 
-      		tmp = *src;
+		tmp = *src;
 
 		src++;
 

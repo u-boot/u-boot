@@ -33,9 +33,9 @@ LM_STATUS LM_LoadRlsFirmware(PLM_DEVICE_BLOCK pDevice)
   FwImgInfo.Data.Length  = t3FwDataLen;
 
   if (LM_LoadFirmware(pDevice,
-                      &FwImgInfo,
-                      T3_RX_CPU_ID | T3_TX_CPU_ID,
-                      T3_RX_CPU_ID) != LM_STATUS_SUCCESS)
+		      &FwImgInfo,
+		      T3_RX_CPU_ID | T3_TX_CPU_ID,
+		      T3_RX_CPU_ID) != LM_STATUS_SUCCESS)
     {
       return LM_STATUS_FAILURE;
     }

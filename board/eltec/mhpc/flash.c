@@ -193,13 +193,13 @@ static ulong flash_get_size (FPW *addr, flash_info_t *info)
 
    switch (value) {
    case (FPW)INTEL_ID_28F640J5 :
-        info->flash_id += FLASH_28F640J5 ;
-        info->sector_count = 64;
-        info->size = 0x00800000;
-        break;            /* => 8 MB     */
+	info->flash_id += FLASH_28F640J5 ;
+	info->sector_count = 64;
+	info->size = 0x00800000;
+	break;            /* => 8 MB     */
 
-        default:
-                info->flash_id = FLASH_UNKNOWN;
+	default:
+		info->flash_id = FLASH_UNKNOWN;
 		break;
 	}
 
@@ -429,25 +429,3 @@ static int write_data (flash_info_t *info, ulong dest, FPW data)
 
 	return (0);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

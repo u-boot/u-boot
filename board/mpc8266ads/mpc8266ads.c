@@ -63,7 +63,7 @@ const iop_conf_t iop_conf_tab[4][32] = {
 
     /* Port A configuration */
     {	/*	      conf ppar psor pdir podr pdat */
-        /* PA31 */ {   0,   1,   0,   1,   0,   0   }, /* FCC1 TxENB */
+	/* PA31 */ {   0,   1,   0,   1,   0,   0   }, /* FCC1 TxENB */
 	/* PA30 */ {   0,   1,   0,   0,   0,   0   }, /* FCC1 TxClav   */
 	/* PA29 */ {   0,   1,   0,   1,   0,   0   }, /* FCC1 TxSOC  */
 	/* PA28 */ {   0,   1,   0,   1,   0,   0   }, /* FCC1 RxENB */
@@ -241,7 +241,7 @@ int board_pre_init (void)
 
     /* mask all PCI interrupts */
     pci_ic->pci_int_mask |= 0xfff00000;
-    
+
     return 0;
 }
 
@@ -291,7 +291,7 @@ long int initdram(int board_type)
     i2c_read(SDRAM_SPD_ADDR, 0, 1, &data, 1);
     spd_size = data;
     cksum    = data;
-    for(j = 1; j < 64; j++) 
+    for(j = 1; j < 64; j++)
 	{	/* read only the checksummed bytes */
 	/* note: the I2C address autoincrements when alen == 0 */
 		i2c_read(SDRAM_SPD_ADDR, 0, 0, &data, 1);
@@ -301,14 +301,14 @@ long int initdram(int board_type)
 		else if(j ==  7) data_width |= data << 8;
 		else if(j ==  3) rows        = data & 0x0F;
 		else if(j ==  4) cols        = data & 0x0F;
-		else if(j == 12) 
+		else if(j == 12)
 		{
 			/*
 				 * Refresh rate: this assumes the prescaler is set to
-			 * approximately 0.39uSec per tick and the target refresh period 
+			 * approximately 0.39uSec per tick and the target refresh period
 			 * is about 85% of maximum.
 			 */
-			switch(data & 0x7F) 
+			switch(data & 0x7F)
 			{
 					default:
 					case 0:  psrt = 0x21; /*  15.625uS */  break;
@@ -320,7 +320,7 @@ long int initdram(int board_type)
 			}
 		}
 		else if(j == 17) banks       = data;
-		else if(j == 18) 
+		else if(j == 18)
 		{
 			caslatency = 3; /* default CL */
 #		    if(PESSIMISTIC_SDRAM)
@@ -332,15 +332,15 @@ long int initdram(int board_type)
 				else if((data & 0x02) != 0) caslatency = 2;
 				else if((data & 0x04) != 0) caslatency = 3;
 #			endif
-			else 
+			else
 			{
 			printf ("WARNING: Unknown CAS latency 0x%02X, using 3\n",
 					data);
 			}
 		}
-		else if(j == 63) 
+		else if(j == 63)
 		{
-			if(data != cksum) 
+			if(data != cksum)
 			{
 				printf ("WARNING: Configuration data checksum failure:"
 					" is 0x%02x, calculated 0x%02x\n",
@@ -381,17 +381,17 @@ long int initdram(int board_type)
     sdram_size = 1 << (rows + cols + banks + width);
     /* hack for high density memory (512MB per CS) */
     /* !!!!! Will ONLY work with Page Based Interleave !!!!!
-             ( PSDMR[PBI] = 1 ) 
+	     ( PSDMR[PBI] = 1 )
     */
-    /* mamory actually has 11 column addresses, but the memory controller 
-       doesn't really care. 
-       the calculations that follow will however move the rows so that 
-       they are muxed one bit off if you use 11 bit columns. 
+    /* mamory actually has 11 column addresses, but the memory controller
+       doesn't really care.
+       the calculations that follow will however move the rows so that
+       they are muxed one bit off if you use 11 bit columns.
        The solution is to tell the memory controller the correct size of the memory
        but change the number of columns to 10 afterwards.
        The 11th column addre will still be mucxed correctly onto the bus.
 
-       Also be aware that the MPC8266ADS board Rev B has not connected 
+       Also be aware that the MPC8266ADS board Rev B has not connected
        Row addres 13 to anything.
 
        The fix is to connect ADD16 (from U37-47) to SADDR12 (U28-126)
@@ -439,7 +439,7 @@ long int initdram(int board_type)
 	     PSDMR_ACTTORW_8W        |\
 	     PSDMR_WRC_4C            |\
 	     PSDMR_EAMUX             |\
-             PSDMR_BUFCMD)           |\
+	     PSDMR_BUFCMD)           |\
 	     caslatency              |\
 	     ((caslatency - 1) << 6) |	/* LDOTOPRE is CL - 1 */ \
 	     (sdam << 24)            |\
@@ -453,7 +453,7 @@ long int initdram(int board_type)
 	     PSDMR_ACTTORW_2W        |	/* 1 for 7E parts (fast PC-133) */ \
 	     PSDMR_WRC_1C            |	/* 1 clock + 7nSec */
 	     EAMUX                   |\
-             BUFCMD)                 |\
+	     BUFCMD)                 |\
 	     caslatency              |\
 	     ((caslatency - 1) << 6) |	/* LDOTOPRE is CL - 1 */ \
 	     (sdam << 24)            |\
@@ -514,7 +514,7 @@ long int initdram(int board_type)
 
     memctl->memc_br2 = CFG_BR2_PRELIM;
     memctl->memc_or2 = or;
-    
+
     memctl->memc_psdmr = psdmr | PSDMR_OP_PREA;
     *ramaddr = c;
 
@@ -532,9 +532,9 @@ long int initdram(int board_type)
      * Do it a second time for the second set of chips if the DIMM has
      * two chip selects (double sided).
      */
-    if(chipselects > 1) 
+    if(chipselects > 1)
 	{
-        ramaddr += sdram_size;
+	ramaddr += sdram_size;
 
 		memctl->memc_br3 = CFG_BR3_PRELIM + sdram_size;
 		memctl->memc_or3 = or;

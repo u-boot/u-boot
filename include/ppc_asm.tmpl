@@ -248,31 +248,31 @@
  * code except that it uses SRR2 and SRR3 instead of SRR0 and SRR1.
  */
 #define CRITICAL_EXCEPTION_PROLOG       \
-        mtspr   SPRG0,r20;      \
-        mtspr   SPRG1,r21;      \
-        mfcr    r20;            \
-        subi    r21,r1,INT_FRAME_SIZE+STACK_UNDERHEAD;  /* alloc exc. frame */\
-        stw     r20,_CCR(r21);          /* save registers */ \
-        stw     r22,GPR22(r21); \
-        stw     r23,GPR23(r21); \
-        mfspr   r20,SPRG0;      \
-        stw     r20,GPR20(r21); \
-        mfspr   r22,SPRG1;      \
-        stw     r22,GPR21(r21); \
-        mflr    r20;            \
-        stw     r20,_LINK(r21); \
-        mfctr   r22;            \
-        stw     r22,_CTR(r21);  \
-        mfspr   r20,XER;        \
-        stw     r20,_XER(r21);  \
-        mfspr   r22,990;        /* SRR2 */      \
-        mfspr   r23,991;        /* SRR3 */      \
-        stw     r0,GPR0(r21);   \
-        stw     r1,GPR1(r21);   \
-        stw     r2,GPR2(r21);   \
-        stw     r1,0(r21);      \
-        mr      r1,r21;                 /* set new kernel sp */ \
-        SAVE_4GPRS(3, r21);
+	mtspr   SPRG0,r20;      \
+	mtspr   SPRG1,r21;      \
+	mfcr    r20;            \
+	subi    r21,r1,INT_FRAME_SIZE+STACK_UNDERHEAD;  /* alloc exc. frame */\
+	stw     r20,_CCR(r21);          /* save registers */ \
+	stw     r22,GPR22(r21); \
+	stw     r23,GPR23(r21); \
+	mfspr   r20,SPRG0;      \
+	stw     r20,GPR20(r21); \
+	mfspr   r22,SPRG1;      \
+	stw     r22,GPR21(r21); \
+	mflr    r20;            \
+	stw     r20,_LINK(r21); \
+	mfctr   r22;            \
+	stw     r22,_CTR(r21);  \
+	mfspr   r20,XER;        \
+	stw     r20,_XER(r21);  \
+	mfspr   r22,990;        /* SRR2 */      \
+	mfspr   r23,991;        /* SRR3 */      \
+	stw     r0,GPR0(r21);   \
+	stw     r1,GPR1(r21);   \
+	stw     r2,GPR2(r21);   \
+	stw     r1,0(r21);      \
+	mr      r1,r21;                 /* set new kernel sp */ \
+	SAVE_4GPRS(3, r21);
 /*
  * Note: code which follows this uses cr0.eq (set if from kernel),
  * r21, r22 (SRR2), and r23 (SRR3).
@@ -301,17 +301,17 @@ label:							\
 
 
 #define CRIT_EXCEPTION(n, label, hdlr)                  \
-        . = n;                                          \
+	. = n;                                          \
 label:                                                  \
-        CRITICAL_EXCEPTION_PROLOG;                      \
-        lwz     r3,GOT(transfer_to_handler);            \
-        mtlr    r3;                                     \
-        addi    r3,r1,STACK_FRAME_OVERHEAD;             \
-        li      r20,MSR_KERNEL;                         \
-        rlwimi  r20,r23,0,25,25;                        \
-        blrl    ;                                       \
+	CRITICAL_EXCEPTION_PROLOG;                      \
+	lwz     r3,GOT(transfer_to_handler);            \
+	mtlr    r3;                                     \
+	addi    r3,r1,STACK_FRAME_OVERHEAD;             \
+	li      r20,MSR_KERNEL;                         \
+	rlwimi  r20,r23,0,25,25;                        \
+	blrl    ;                                       \
 .L_ ## label :                                          \
-        .long   hdlr - _start + EXC_OFF_SYS_RESET;      \
-        .long   crit_return - _start + EXC_OFF_SYS_RESET
+	.long   hdlr - _start + EXC_OFF_SYS_RESET;      \
+	.long   crit_return - _start + EXC_OFF_SYS_RESET
 
 #endif	/* __PPC_ASM_TMPL__ */

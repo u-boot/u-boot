@@ -41,7 +41,7 @@ const uint sharc_table[] =
 	 */
 	0x0FF3FC04, 0x0FF3EC00, 0x7FFFEC04, 0xFFFFEC04,
 	0xFFFFEC05, /* last */
-	            _NOT_USED_, _NOT_USED_, _NOT_USED_,
+		    _NOT_USED_, _NOT_USED_, _NOT_USED_,
 	/*
 	 * Burst Read. (Offset 8 in UPM RAM)
 	 */
@@ -55,7 +55,7 @@ const uint sharc_table[] =
 	 */
 	0x0FAFFC04, 0x0FAFEC00, 0x7FFFEC04, 0xFFFFEC04,
 	0xFFFFEC05, /* last */
-	            _NOT_USED_, _NOT_USED_, _NOT_USED_,
+		    _NOT_USED_, _NOT_USED_, _NOT_USED_,
 	/*
 	 * Burst Write. (Offset 20 in UPM RAM)
 	 */
@@ -89,9 +89,9 @@ const uint sdram_table[] =
 	/*
 	 * SDRAM Initialization (offset 5 in UPM RAM)
 	 *
-         * This is no UPM entry point. The following definition uses
-         * the remaining space to establish an initialization
-         * sequence, which is executed by a RUN command.
+	 * This is no UPM entry point. The following definition uses
+	 * the remaining space to establish an initialization
+	 * sequence, which is executed by a RUN command.
 	 *
 	 */
 		    0x1FF77C35, 0xEFEABC34, 0x1FB57C35, /* last */
@@ -282,8 +282,8 @@ void	reset_phy(void)
 	immr->im_ioport.iop_padat &= ~(PA_ENET_MDC);	/* set MDC = 0 */
 
 	/*
-         * RESET in implemented by a positive pulse of at least 1 us
-         * at the reset pin.
+	 * RESET in implemented by a positive pulse of at least 1 us
+	 * at the reset pin.
 	 *
 	 * Configure RESET pins for NS DP83843 PHY, and RESET chip.
 	 *

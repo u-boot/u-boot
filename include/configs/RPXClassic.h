@@ -182,7 +182,7 @@
 #define	CFG_SDRAM_BASE		0x00000000
 #define CFG_FLASH_BASE	0xFF000000
 
-#if defined(DEBUG) || defined (CONFIG_VIDEO_SED13806) || (CONFIG_COMMANDS & CFG_CMD_IDE) 
+#if defined(DEBUG) || defined (CONFIG_VIDEO_SED13806) || (CONFIG_COMMANDS & CFG_CMD_IDE)
 #define	CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
 #else
 #define	CFG_MONITOR_LEN		(128 << 10)	/* Reserve 128 kB for Monitor	*/
@@ -370,8 +370,8 @@
 
 /* ECCX CS settings                                                          */
 #define SED13806_OR             0xFFC00108     /* - 4 Mo
-                                                   - Burst inhibit
-                                                   - external TA             */
+						   - Burst inhibit
+						   - external TA             */
 #define SED13806_REG_ADDR       0xa0000000
 #define SED13806_ACCES          0x801           /* 16 bit access             */
 
@@ -391,8 +391,8 @@
 
 /* Definitions for CSR8                                                      */
 #define ECCX_ENEPSON            0x80    /* Bit 0:
-                                           0= disable and reset SED1386
-                                           1= enable SED1386                 */
+					   0= disable and reset SED1386
+					   1= enable SED1386                 */
 /* Bit 1:   0= SED1386 in Big Endian mode                                    */
 /*          1= SED1386 in little endian mode                                 */
 #define ECCX_LE                 0x40

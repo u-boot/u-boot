@@ -117,8 +117,8 @@ Nucleus loader library.
 ibool NAPI GA_TimerInit(void)
 {
     if (_GA_haveCPUID() && (_GA_getCPUIDFeatures() & CPU_HaveRDTSC) != 0) {
-        haveRDTSC = true;
-        }
+	haveRDTSC = true;
+	}
     return true;
 }
 
@@ -130,8 +130,7 @@ void NAPI GA_TimerRead(
     GA_largeInteger *value)
 {
     if (haveRDTSC)
-        _GA_readTimeStamp(value);
+	_GA_readTimeStamp(value);
     else
-        KeQuerySystemTime((LARGE_INTEGER*)value);
+	KeQuerySystemTime((LARGE_INTEGER*)value);
 }
-

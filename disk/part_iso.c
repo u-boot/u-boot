@@ -230,7 +230,6 @@ int get_partition_info_iso(block_dev_desc_t * dev_desc, int part_num, disk_parti
 }
 
 
-
 void print_part_iso(block_dev_desc_t * dev_desc)
 {
 	disk_partition_t info;

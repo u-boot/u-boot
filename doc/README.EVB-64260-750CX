@@ -5,4 +5,3 @@ supported except the following differences:
 * It has a single PCI male connector instead of the 4 PCI female
    connectors on the BP. It also gets power trough the PCI connector.
 * It has only a single DIMM slot instead of the 2 slots in the BP.
-

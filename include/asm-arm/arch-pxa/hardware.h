@@ -4,7 +4,7 @@
  *  Author:	Nicolas Pitre
  *  Created:	Jun 15, 2001
  *  Copyright:	MontaVista Software Inc.
- *  
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
@@ -86,16 +86,16 @@ typedef struct { volatile u32 offset[4096]; } __regbase;
 
 #endif
 #endif /* UBOOT_REG_FIX */
-	
+
 #ifdef UBOOT_REG_FIX
 # undef	io_p2v
 # undef __REG
 # ifndef __ASSEMBLY__
 #  define io_p2v(PhAdd)    (PhAdd)
 #  define __REG(x)	(*((volatile u32 *)io_p2v(x)))
-#  define __REG2(x,y)	(*(volatile u32 *)((u32)&__REG(x) + (y)))	
+#  define __REG2(x,y)	(*(volatile u32 *)((u32)&__REG(x) + (y)))
 # else
-#  define __REG(x) (x)	
+#  define __REG(x) (x)
 #endif /* UBOOT_REG_FIX */
 
 #include "pxa-regs.h"

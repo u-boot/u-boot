@@ -31,46 +31,46 @@
   Parameters can be set via the variable "videomode" in the environment.
   2 diferent ways are possible:
   "videomode=301"   - 301 is a hexadecimal number describing the VESA
-                      mode. Following modes are implemented:
+		      mode. Following modes are implemented:
 
-                      Colors    640x480 800x600 1024x768 1152x864
-                     --------+-----------------------------------
-                      8 bits |  0x301   0x303    0x305    0x161
-                     15 bits |  0x310   0x313    0x316    0x162
-                     16 bits |  0x311   0x314    0x317    0x163
-                     24 bits |  0x312   0x315    0x318      ?
-                     --------+-----------------------------------
+		      Colors    640x480 800x600 1024x768 1152x864
+		     --------+-----------------------------------
+		      8 bits |  0x301   0x303    0x305    0x161
+		     15 bits |  0x310   0x313    0x316    0x162
+		     16 bits |  0x311   0x314    0x317    0x163
+		     24 bits |  0x312   0x315    0x318      ?
+		     --------+-----------------------------------
   "videomode=bootargs"
-                   - the parameters are parsed from the bootargs.
-                      The format is "NAME:VALUE,NAME:VALUE" etc.
-                      Ex.:
-                      "bootargs=video=ctfb:x:800,y:600,depth:16,pclk:25000"
-                      Parameters not included in the list will be taken from
-                      the default mode, which is one of the following:
-                      mode:0  640x480x24
-                      mode:1  800x600x16
-                      mode:2  1024x768x8
-                      mode:3  960x720x24
-                      mode:4  1152x864x16
-                      if "mode" is not provided within the parameter list,
-                      mode:0 is assumed.
-                      Following parameters are supported:
-                      x       xres = visible resolution horizontal
-                      y       yres = visible resolution vertical
-                      pclk    pixelclocks in pico sec
-                      le      left_marging time from sync to picture in pixelclocks
-                      ri      right_marging time from picture to sync in pixelclocks
-                      up      upper_margin time from sync to picture
-                      lo      lower_margin
-                      hs      hsync_len length of horizontal sync
-                      vs      vsync_len length of vertical sync
-                      sync    see FB_SYNC_*
-                      vmode   see FB_VMODE_*
-                      depth   Color depth in bits per pixel
-                      All other parameters in the variable bootargs are ignored.
-                      It is also possible to set the parameters direct in the
-                      variable "videomode", or in another variable i.e.
-                      "myvideo" and setting the variable "videomode=myvideo"..
+		   - the parameters are parsed from the bootargs.
+		      The format is "NAME:VALUE,NAME:VALUE" etc.
+		      Ex.:
+		      "bootargs=video=ctfb:x:800,y:600,depth:16,pclk:25000"
+		      Parameters not included in the list will be taken from
+		      the default mode, which is one of the following:
+		      mode:0  640x480x24
+		      mode:1  800x600x16
+		      mode:2  1024x768x8
+		      mode:3  960x720x24
+		      mode:4  1152x864x16
+		      if "mode" is not provided within the parameter list,
+		      mode:0 is assumed.
+		      Following parameters are supported:
+		      x       xres = visible resolution horizontal
+		      y       yres = visible resolution vertical
+		      pclk    pixelclocks in pico sec
+		      le      left_marging time from sync to picture in pixelclocks
+		      ri      right_marging time from picture to sync in pixelclocks
+		      up      upper_margin time from sync to picture
+		      lo      lower_margin
+		      hs      hsync_len length of horizontal sync
+		      vs      vsync_len length of vertical sync
+		      sync    see FB_SYNC_*
+		      vmode   see FB_VMODE_*
+		      depth   Color depth in bits per pixel
+		      All other parameters in the variable bootargs are ignored.
+		      It is also possible to set the parameters direct in the
+		      variable "videomode", or in another variable i.e.
+		      "myvideo" and setting the variable "videomode=myvideo"..
 ****************************************************************************/
 
 #include <common.h>

@@ -257,7 +257,6 @@ void pciauto_config_init(struct pci_controller *hose)
 	}
 
 
-
 	if (hose->pci_mem)
 	{
 		pciauto_region_init(hose->pci_mem);
@@ -296,7 +295,7 @@ int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 
 		DEBUGF("PCI Autoconfig: Found P2P bridge, device %d\n", PCI_DEV(dev));
 		pciauto_prescan_setup_bridge(hose, dev, sub_bus);
-		
+
 		pci_hose_scan_bus(hose, hose->current_busno);
 
 		pciauto_postscan_setup_bridge(hose, dev, sub_bus);

@@ -68,9 +68,9 @@ jffs2_part_info(int part_num)
 
 TODO.
 
-        Add a new command so it's actually possible to change
+	Add a new command so it's actually possible to change
 	partition.
 
-        Remove the assumption that JFFS can dereference a pointer
-        into the disk. The current code do not work with memory holes
-        or hardware with a sliding window (PCMCIA).
+	Remove the assumption that JFFS can dereference a pointer
+	into the disk. The current code do not work with memory holes
+	or hardware with a sliding window (PCMCIA).

@@ -94,9 +94,6 @@ int misc_init_f (void)
 }
 
 
-
-
-
 /*
  * Initialize PCI Devices, report devices found.
  */

@@ -39,7 +39,6 @@
 #endif
 #include <ide.h>
 #include <ata.h>
-#include <cmd_ide.h>
 #include <cmd_disk.h>
 #ifdef CONFIG_STATUS_LED
 # include <status_led.h>
@@ -798,7 +797,7 @@ output_data_short(int dev, ulong *sect_buf, int words)
 {
 	ushort	*dbuf;
 	volatile ushort	*pbuf;
-	
+
 	pbuf = (ushort *)(ATA_CURR_BASE(dev)+ATA_DATA_REG);
 	dbuf = (ushort *)sect_buf;
 	while (words--) {
@@ -826,8 +825,6 @@ input_swap_data(int dev, ulong *sect_buf, int words)
 #else	/* ! __PPC__ */
 #define input_swap_data(x,y,z) input_data(x,y,z)
 #endif	/* __PPC__ */
-
-
 
 
 #ifdef __PPC__
@@ -1381,7 +1378,6 @@ static void ide_led (uchar led, uchar status)
  */
 
 
-
 #undef	ATAPI_DEBUG
 
 #ifdef	ATAPI_DEBUG
@@ -1681,7 +1677,6 @@ error:
 }
 
 
-
 static void	atapi_inquiry(block_dev_desc_t * dev_desc)
 {
 	unsigned char ccb[12]; /* Command descriptor block */
@@ -1815,5 +1810,24 @@ ulong atapi_read (int device, ulong blknr, ulong blkcnt, ulong *buffer)
 /* ------------------------------------------------------------------------- */
 
 #endif /* CONFIG_ATAPI */
+
+cmd_tbl_t U_BOOT_CMD(IDE) = MK_CMD_ENTRY(
+	"ide",  5,  1,  do_ide,
+	"ide     - IDE sub-system\n",
+	"reset - reset IDE controller\n"
+	"ide info  - show available IDE devices\n"
+	"ide device [dev] - show or set current device\n"
+	"ide part [dev] - print partition table of one or all IDE devices\n"
+	"ide read  addr blk# cnt\n"
+	"ide write addr blk# cnt - read/write `cnt'"
+	" blocks starting at block `blk#'\n"
+	"    to/from memory address `addr'\n"
+);
+
+cmd_tbl_t U_BOOT_CMD(DISK) = MK_CMD_ENTRY(
+	"diskboot",	3,	1,	do_diskboot,
+	"diskboot- boot from IDE device\n",
+	"loadAddr dev:part\n"
+);
 
 #endif	/* CONFIG_COMMANDS & CFG_CMD_IDE */

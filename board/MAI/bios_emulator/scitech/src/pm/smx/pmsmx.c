@@ -134,41 +134,41 @@ void PMAPI PM_resetMouseDriver(int hardReset)
 void PMAPI PM_setRealTimeClockFrequency(int frequency)
 {
     static short convert[] = {
-        8192,
-        4096,
-        2048,
-        1024,
-        512,
-        256,
-        128,
-        64,
-        32,
-        16,
-        8,
-        4,
-        2,
-        -1,
-        };
+	8192,
+	4096,
+	2048,
+	1024,
+	512,
+	256,
+	128,
+	64,
+	32,
+	16,
+	8,
+	4,
+	2,
+	-1,
+	};
     int i;
 
     /* First clear any pending RTC timeout if not cleared */
     _PM_readCMOS(0x0C);
     if (frequency == 0) {
-        /* Disable RTC timout */
-        _PM_writeCMOS(0x0A,_PM_oldCMOSRegA);
-        _PM_writeCMOS(0x0B,_PM_oldCMOSRegB & 0x0F);
-        }
+	/* Disable RTC timout */
+	_PM_writeCMOS(0x0A,_PM_oldCMOSRegA);
+	_PM_writeCMOS(0x0B,_PM_oldCMOSRegB & 0x0F);
+	}
     else {
-        /* Convert frequency value to RTC clock indexes */
-        for (i = 0; convert[i] != -1; i++) {
-            if (convert[i] == frequency)
-                break;
-            }
+	/* Convert frequency value to RTC clock indexes */
+	for (i = 0; convert[i] != -1; i++) {
+	    if (convert[i] == frequency)
+		break;
+	    }
 
-        /* Set RTC timout value and enable timeout */
-        _PM_writeCMOS(0x0A,(_PM_oldCMOSRegA & 0xF0) | (i+3));
-        _PM_writeCMOS(0x0B,(_PM_oldCMOSRegB & 0x0F) | 0x40);
-        }
+	/* Set RTC timout value and enable timeout */
+	_PM_writeCMOS(0x0A,(_PM_oldCMOSRegA & 0xF0) | (i+3));
+	_PM_writeCMOS(0x0B,(_PM_oldCMOSRegB & 0x0F) | 0x40);
+	}
 }
 
 static void PMAPI lockPMHandlers(void)
@@ -176,22 +176,22 @@ static void PMAPI lockPMHandlers(void)
     static int      locked = 0;
     int             stat = 0;
     PM_lockHandle   lh;
-    
+
     /* Lock all of the code and data used by our protected mode interrupt
      * handling routines, so that it will continue to work correctly
      * under real mode.
      */
     if (!locked) {
-        PM_saveDS();
-        stat  = !PM_lockDataPages(&globalDataStart-2048,4096,&lh);
-        stat |= !PM_lockDataPages(&_PM_pmsmxDataStart,(int)&_PM_pmsmxDataEnd - (int)&_PM_pmsmxDataStart,&lh);
-        stat |= !PM_lockCodePages((__codePtr)_PM_pmsmxCodeStart,(int)_PM_pmsmxCodeEnd-(int)_PM_pmsmxCodeStart,&lh);
-        if (stat) {
-            printf("Page locking services failed - interrupt handling not safe!\n");
-            exit(1);
-            }
-        locked = 1;
-        }
+	PM_saveDS();
+	stat  = !PM_lockDataPages(&globalDataStart-2048,4096,&lh);
+	stat |= !PM_lockDataPages(&_PM_pmsmxDataStart,(int)&_PM_pmsmxDataEnd - (int)&_PM_pmsmxDataStart,&lh);
+	stat |= !PM_lockCodePages((__codePtr)_PM_pmsmxCodeStart,(int)_PM_pmsmxCodeEnd-(int)_PM_pmsmxCodeStart,&lh);
+	if (stat) {
+	    printf("Page locking services failed - interrupt handling not safe!\n");
+	    exit(1);
+	    }
+	locked = 1;
+	}
 }
 
 void PMAPI PM_getPMvect(int intno, PMFARPTR *isr)
@@ -245,7 +245,7 @@ int PMAPI PM_setMouseHandler(int mask, PM_mouseHandler mh)
 void PMAPI PM_restoreMouseHandler(void)
 {
     if (_PM_mouseHandler)
-        _PM_mouseHandler = NULL;
+	_PM_mouseHandler = NULL;
 }
 
 static void getISR(int intno, PMFARPTR *pmisr, long *realisr)
@@ -274,9 +274,9 @@ void PMAPI PM_setTimerHandler(PM_intHandler th)
 void PMAPI PM_restoreTimerHandler(void)
 {
     if (_PM_timerHandler) {
-        restoreISR(PM_IRQ0, _PM_prevTimer, _PM_prevRealTimer);
-        _PM_timerHandler = NULL;
-        }
+	restoreISR(PM_IRQ0, _PM_prevTimer, _PM_prevRealTimer);
+	_PM_timerHandler = NULL;
+	}
 }
 
 ibool PMAPI PM_setRealTimeClockHandler(PM_intHandler th,int frequency)
@@ -302,15 +302,15 @@ ibool PMAPI PM_setRealTimeClockHandler(PM_intHandler th,int frequency)
 void PMAPI PM_restoreRealTimeClockHandler(void)
 {
     if (_PM_rtcHandler) {
-        /* Restore CMOS registers and mask RTC clock */
-        _PM_writeCMOS(0x0A,_PM_oldCMOSRegA);
-        _PM_writeCMOS(0x0B,_PM_oldCMOSRegB);
-        PM_outpb(0xA1,(PM_inpb(0xA1) & 0xFE) | (_PM_oldRTCPIC2 & ~0xFE));
+	/* Restore CMOS registers and mask RTC clock */
+	_PM_writeCMOS(0x0A,_PM_oldCMOSRegA);
+	_PM_writeCMOS(0x0B,_PM_oldCMOSRegB);
+	PM_outpb(0xA1,(PM_inpb(0xA1) & 0xFE) | (_PM_oldRTCPIC2 & ~0xFE));
 
-        /* Restore the interrupt vector */
-        restoreISR(0x70, _PM_prevRTC, _PM_prevRealRTC);
-        _PM_rtcHandler = NULL;
-        }
+	/* Restore the interrupt vector */
+	restoreISR(0x70, _PM_prevRTC, _PM_prevRealRTC);
+	_PM_rtcHandler = NULL;
+	}
 }
 
 void PMAPI PM_setKeyHandler(PM_intHandler kh)
@@ -323,9 +323,9 @@ void PMAPI PM_setKeyHandler(PM_intHandler kh)
 void PMAPI PM_restoreKeyHandler(void)
 {
     if (_PM_keyHandler) {
-        restoreISR(PM_IRQ1, _PM_prevKey, _PM_prevRealKey);
-        _PM_keyHandler = NULL;
-        }
+	restoreISR(PM_IRQ1, _PM_prevKey, _PM_prevRealKey);
+	_PM_keyHandler = NULL;
+	}
 }
 
 void PMAPI PM_setKey15Handler(PM_key15Handler kh)
@@ -338,9 +338,9 @@ void PMAPI PM_setKey15Handler(PM_key15Handler kh)
 void PMAPI PM_restoreKey15Handler(void)
 {
     if (_PM_key15Handler) {
-        restoreISR(0x15, _PM_prevKey15, _PM_prevRealKey15);
-        _PM_key15Handler = NULL;
-        }
+	restoreISR(0x15, _PM_prevKey15, _PM_prevRealKey15);
+	_PM_key15Handler = NULL;
+	}
 }
 
 /* Real mode Ctrl-C and Ctrl-Break handler. This handler simply sets a
@@ -385,12 +385,12 @@ void PMAPI PM_installBreakHandler(void)
 void PMAPI PM_restoreBreakHandler(void)
 {
     if (_PM_prevBreak.sel) {
-        restoreISR(0x1B, _PM_prevBreak, prevRealBreak);
-        restoreISR(0x23, _PM_prevCtrlC, prevRealCtrlC);
-        _PM_prevBreak.sel = 0;
-        _PM_breakHandler = NULL;
-        PM_freeRealSeg(_PM_ctrlBPtr);
-        }
+	restoreISR(0x1B, _PM_prevBreak, prevRealBreak);
+	restoreISR(0x23, _PM_prevCtrlC, prevRealCtrlC);
+	_PM_prevBreak.sel = 0;
+	_PM_breakHandler = NULL;
+	PM_freeRealSeg(_PM_ctrlBPtr);
+	}
 }
 
 /* Real mode Critical Error handler. This handler simply saves the AX and
@@ -432,11 +432,11 @@ void PMAPI PM_installCriticalHandler(void)
 void PMAPI PM_restoreCriticalHandler(void)
 {
     if (_PM_prevCritical.sel) {
-        restoreISR(0x24, _PM_prevCritical, prevRealCritical);
-        PM_freeRealSeg(_PM_critPtr);
-        _PM_prevCritical.sel = 0;
-        _PM_critHandler = NULL;
-        }
+	restoreISR(0x24, _PM_prevCritical, prevRealCritical);
+	PM_freeRealSeg(_PM_critPtr);
+	_PM_prevCritical.sel = 0;
+	_PM_critHandler = NULL;
+	}
 }
 
 int PMAPI PM_lockDataPages(void *p,uint len,PM_lockHandle *lh)
@@ -457,9 +457,9 @@ int PMAPI PM_lockCodePages(void (*p)(),uint len,PM_lockHandle *lh)
 {
     PMSREGS sregs;
     PM_segread(&sregs);
-//AM: causes minor glitch with
-//AM: older versions pmEasy which don't allow DPMI 06 on
-//AM: Code selector 0x0C -- assume base is 0 which it should be.
+/*AM: causes minor glitch with */
+/*AM: older versions pmEasy which don't allow DPMI 06 on */
+/*AM: Code selector 0x0C -- assume base is 0 which it should be. */
     return DPMI_lockLinearPages((uint)p,len);
 }
 

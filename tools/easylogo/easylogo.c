@@ -107,7 +107,7 @@ void printlogo_rgb (rgb_t	*data, int w, int h)
 		printf(" ");
 	    else
 		printf("X");
-        printf("\n");
+	printf("\n");
     }
 }
 
@@ -121,7 +121,7 @@ void printlogo_yuyv (unsigned short *data, int w, int h)
 		printf(" ");
 	    else
 		printf("X");
-        printf("\n");
+	printf("\n");
     }
 }
 
@@ -134,7 +134,7 @@ int image_load_tga (image_t *image, char *filename)
     rgb_t *p ;
 
     if( ( file = fopen( filename, "rb" ) ) == NULL )
-    	return -1;
+	return -1;
 
     fread(&header, sizeof(header), 1, file);
 
@@ -146,7 +146,7 @@ int image_load_tga (image_t *image, char *filename)
 			image->yuyv = 0 ;
 			image->palette_size = 0 ;
 			image->palette = NULL ;
-    	    break;
+	    break;
 
 	default:
 	    printf("Format not supported!\n");
@@ -181,19 +181,19 @@ int image_load_tga (image_t *image, char *filename)
 
     if(!(header.ImageDescriptorByte & 0x20))
     {
-    	unsigned char *temp = malloc(image->size);
-    	int linesize = image->pixel_size * image->width ;
+	unsigned char *temp = malloc(image->size);
+	int linesize = image->pixel_size * image->width ;
 	void	*dest = image->data,
 		*source = temp + image->size - linesize ;
 
-        printf("S");
+	printf("S");
 	if (temp == NULL)
 	{
 	    printf("Cannot alloc temp buffer!\n");
 	    return -1;
 	}
 
-    	memcpy(temp, image->data, image->size);
+	memcpy(temp, image->data, image->size);
 	for(i = 0; i<image->height; i++, dest+=linesize, source-=linesize)
 	    memcpy(dest, source, linesize);
 
@@ -242,7 +242,7 @@ int image_rgb_to_yuyv (image_t *rgb_image, image_t *yuyv_image)
 		pixel_rgb_to_yuyv (rgb_ptr++, &yuyv);
 
 		if ((count & 1)==0)	/* Was == 0 */
-	    	    memcpy (dest, ((void *)&yuyv) + 2, sizeof(short));
+		    memcpy (dest, ((void *)&yuyv) + 2, sizeof(short));
 		else
 		    memcpy (dest, (void *)&yuyv, sizeof(short));
 
@@ -346,7 +346,7 @@ int main (int argc, char *argv[])
     case 2:
     case 3:
     case 4:
-        strcpy (inputfile, 	argv[1]);
+	strcpy (inputfile, 	argv[1]);
 
 	if (argc > 2)
 	    strcpy (varname, 	argv[2]);
@@ -375,14 +375,14 @@ int main (int argc, char *argv[])
 		sprintf(outputfile, "%s.h", app);
 	    }
 	}
-        break;
+	break;
 
     default:
-        printf("EasyLogo 1.0 (C) 2000 by Paolo Scaffardi\n\n");
+	printf("EasyLogo 1.0 (C) 2000 by Paolo Scaffardi\n\n");
 
-        printf("Syntax:	easylogo inputfile [outputvar {outputfile}] \n");
-        printf("\n");
-        printf("Where:	'inputfile' 	is the TGA image to load\n");
+	printf("Syntax:	easylogo inputfile [outputvar {outputfile}] \n");
+	printf("\n");
+	printf("Where:	'inputfile' 	is the TGA image to load\n");
 	printf("      	'outputvar' 	is the variable name to create\n");
 	printf("       	'outputfile' 	is the output header file (default is 'inputfile.h')\n");
 
@@ -398,7 +398,7 @@ int main (int argc, char *argv[])
     if (image_load_tga (&rgb_logo, inputfile)<0)
     {
 	printf("input file not found!\n");
-    	exit(1);
+	exit(1);
     }
 
 /* Convert it to YUYV format */

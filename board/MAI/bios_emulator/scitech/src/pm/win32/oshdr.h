@@ -47,7 +47,7 @@
 #define GET_DEFAULT_CW()                    \
 {                                           \
     if (_PM_cw_default == 0)                \
-        _PM_cw_default = _control87(0,0);   \
+	_PM_cw_default = _control87(0,0);   \
 }
 #define RESET_DEFAULT_CW()                  \
     _control87(_PM_cw_default,0xFFFFFFFF)
@@ -77,4 +77,3 @@ extern HWND     _PM_hwndConsole;        /* Window handle for console    */
 /*-------------------------- Internal Functions ---------------------------*/
 
 void _EVT_pumpMessages(void);
-

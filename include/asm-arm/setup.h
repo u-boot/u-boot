@@ -76,7 +76,6 @@ struct param_struct {
 };
 
 
-
 /*
  * The new way of passing information: a list of tagged entries
  */

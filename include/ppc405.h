@@ -25,8 +25,8 @@
 /*--------------------------------------------------------------------- */
 /* Special Purpose Registers						*/
 /*--------------------------------------------------------------------- */
-        #define  srr2  0x3de      /* save/restore register 2 */
-        #define  srr3  0x3df      /* save/restore register 3 */
+	#define  srr2  0x3de      /* save/restore register 2 */
+	#define  srr3  0x3df      /* save/restore register 3 */
 	#define  dbsr  0x3f0      /* debug status register */
 	#define  dbcr0 0x3f2      /* debug control register 0 */
 	#define  dbcr1 0x3bd      /* debug control register 1 */
@@ -44,9 +44,9 @@
 	#define  tsr   0x3d8      /* timer status register */
 	#define  tcr   0x3da      /* timer control register */
 	#define  pit   0x3db      /* programmable interval timer */
-        #define  sgr   0x3b9      /* storage guarded reg      */
-        #define  dcwr  0x3ba      /* data cache write-thru reg*/
-        #define  sler  0x3bb      /* storage little-endian reg */
+	#define  sgr   0x3b9      /* storage guarded reg      */
+	#define  dcwr  0x3ba      /* data cache write-thru reg*/
+	#define  sler  0x3bb      /* storage little-endian reg */
 	#define  cdbcr 0x3d7      /* cache debug cntrl reg    */
 	#define  icdbdr 0x3d3     /* instr cache dbug data reg*/
 	#define  ccr0  0x3b3      /* core configuration register */
@@ -56,8 +56,8 @@
 	#define  su0r  0x3bc      /* storage user-defined register 0 */
 	#define  zpr   0x3b0      /* zone protection regsiter */
 
-        #define  tbl   0x11c      /* time base lower - privileged write */
- 	#define  tbu   0x11d      /* time base upper - privileged write */
+	#define  tbl   0x11c      /* time base lower - privileged write */
+	#define  tbu   0x11d      /* time base upper - privileged write */
 
 	#define  sprg4r 0x104     /* Special purpose general 4 - read only */
 	#define  sprg5r 0x105     /* Special purpose general 5 - read only */
@@ -448,30 +448,30 @@
  *-------------------------------------------------------------------------------
  */
 #define PLLMR0_266_133_66  (PLL_CPUDIV_1 | PLL_PLBDIV_2 |  \
-                            PLL_OPBDIV_2 | PLL_EXTBUSDIV_2 |  \
-                            PLL_MALDIV_1 | PLL_PCIDIV_4)
+			    PLL_OPBDIV_2 | PLL_EXTBUSDIV_2 |  \
+			    PLL_MALDIV_1 | PLL_PCIDIV_4)
 #define PLLMR1_266_133_66  (PLL_FBKDIV_8  |  \
-                            PLL_FWDDIVA_3 | PLL_FWDDIVB_3 |  \
-                            PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
+			    PLL_FWDDIVA_3 | PLL_FWDDIVB_3 |  \
+			    PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
 
 #define PLLMR0_133_66_66_33  (PLL_CPUDIV_1 | PLL_PLBDIV_1 |  \
-                              PLL_OPBDIV_2 | PLL_EXTBUSDIV_4 |  \
-                              PLL_MALDIV_1 | PLL_PCIDIV_4)
+			      PLL_OPBDIV_2 | PLL_EXTBUSDIV_4 |  \
+			      PLL_MALDIV_1 | PLL_PCIDIV_4)
 #define PLLMR1_133_66_66_33  (PLL_FBKDIV_4  |  \
-                              PLL_FWDDIVA_6 | PLL_FWDDIVB_6 |  \
-                              PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
+			      PLL_FWDDIVA_6 | PLL_FWDDIVB_6 |  \
+			      PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
 #define PLLMR0_200_100_50_33 (PLL_CPUDIV_1 | PLL_PLBDIV_2 |  \
-                              PLL_OPBDIV_2 | PLL_EXTBUSDIV_3 |  \
-                              PLL_MALDIV_1 | PLL_PCIDIV_4)
+			      PLL_OPBDIV_2 | PLL_EXTBUSDIV_3 |  \
+			      PLL_MALDIV_1 | PLL_PCIDIV_4)
 #define PLLMR1_200_100_50_33 (PLL_FBKDIV_6  |  \
-                              PLL_FWDDIVA_4 | PLL_FWDDIVB_4 |  \
-                              PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
+			      PLL_FWDDIVA_4 | PLL_FWDDIVB_4 |  \
+			      PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
 #define PLLMR0_266_133_66_33 (PLL_CPUDIV_1 | PLL_PLBDIV_2 |  \
-                              PLL_OPBDIV_2 | PLL_EXTBUSDIV_4 |  \
-                              PLL_MALDIV_1 | PLL_PCIDIV_4)
+			      PLL_OPBDIV_2 | PLL_EXTBUSDIV_4 |  \
+			      PLL_MALDIV_1 | PLL_PCIDIV_4)
 #define PLLMR1_266_133_66_33 (PLL_FBKDIV_8  |  \
-                              PLL_FWDDIVA_3 | PLL_FWDDIVB_3 |  \
-                              PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
+			      PLL_FWDDIVA_3 | PLL_FWDDIVB_3 |  \
+			      PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
 
 /*
  * PLL Voltage Controlled Oscillator (VCO) definitions
@@ -672,4 +672,3 @@ typedef struct
 						     line aligned data. */
 
 #endif	/* __PPC405_H__ */
-

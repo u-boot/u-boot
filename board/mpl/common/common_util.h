@@ -46,4 +46,3 @@ void doc_init (void);
 #endif
 
 #endif /* _COMMON_UTIL_H_ */
-

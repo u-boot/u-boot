@@ -267,10 +267,10 @@ static uchar read_byte(int ack)
 void i2c_init (int speed, int slaveaddr)
 {
 	/*
-         * WARNING: Do NOT save speed in a static variable: if the
-         * I2C routines are called before RAM is initialized (to read
-         * the DIMM SPD, for instance), RAM won't be usable and your
-         * system will crash.
+	 * WARNING: Do NOT save speed in a static variable: if the
+	 * I2C routines are called before RAM is initialized (to read
+	 * the DIMM SPD, for instance), RAM won't be usable and your
+	 * system will crash.
 	 */
 	send_reset ();
 }

@@ -43,7 +43,7 @@
  * "RigidDiskBlock".
  */
 
-struct rigid_disk_block 
+struct rigid_disk_block
 {
     u32 id;
     u32 summed_longs;
@@ -57,7 +57,7 @@ struct rigid_disk_block
     u32 drive_init;
     u32 bootcode_block;
     u32 reserved_1[5];
-    
+
     /* Physical drive geometry */
     u32 cylinders;
     u32 sectors;
@@ -79,14 +79,14 @@ struct rigid_disk_block
     u32 auto_park_seconds;
     u32 high_rdsk_block;
     u32 reserved_4;
-    
+
     char disk_vendor[8];
     char disk_product[16];
     char disk_revision[4];
     char controller_vendor[8];
     char controller_product[16];
     char controller_revision[4];
-    
+
     u32 reserved_5[10];
 };
 
@@ -94,7 +94,7 @@ struct rigid_disk_block
  * Each partition on this drive is defined by such a block
  */
 
-struct partition_block 
+struct partition_block
 {
     u32 id;
     u32 summed_longs;
@@ -110,7 +110,7 @@ struct partition_block
     u32 reserved_3[15];
 };
 
-struct bootcode_block 
+struct bootcode_block
 {
     u32   id;
     u32   summed_longs;
@@ -125,12 +125,12 @@ struct bootcode_block
 #define AMIGA_ID_PART                   0x50415254
 #define AMIGA_ID_BOOT                   0x424f4f54
 
-/* 
+/*
  * The environment array in the partition block
  * describes the partition
  */
 
-struct amiga_part_geometry 
+struct amiga_part_geometry
 {
     u32 table_size;
     u32 size_blocks;

@@ -201,7 +201,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 		} else {
 			printf ("Erasing sector %2d ... ", sector);
 		}
-	
+
 		address = (FLASH_BUS *) (info->start[sector]);
 
 		*address = FLASH_CMD (CFI_INTEL_CMD_BLOCK_ERASE);

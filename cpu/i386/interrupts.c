@@ -29,7 +29,6 @@
 #include <asm/ibmpc.h>
 
 
-
 struct idt_entry {
 	u16	base_low;
 	u16	selector;
@@ -44,7 +43,7 @@ struct idt_entry idt[256];
 
 #define MAX_IRQ 16
 
-typedef struct irq_handler { 
+typedef struct irq_handler {
 	struct irq_handler *next;
 	interrupt_handler_t* isr_func;
 	void *isr_data;
@@ -60,27 +59,26 @@ typedef struct {
 static irq_desc_t irq_table[MAX_IRQ];
 
 
-
 asm(".globl syscall_entry\n" \
-        "syscall_entry:\n" \
-        "popl   %ebx\n"        /* throw away the return address, flags  */ \
-        "popl   %ebx\n"        /* and segment that the INT instruction pushed */ \
-        "popl   %ebx\n"        /* on to the stack */ \
-        "movl   %eax, %ecx\n"  /* load the syscall nr argument*/ \
-        "movl   syscall_tbl, %eax\n" /* load start of syscall table */ \
-        "cmpl   $(11-1), %ecx\n"  /* FixMe: find a way to use NR_SYSCALLS macro here */ \
-        "ja     bad_syscall\n" \
-        "movl   (%eax, %ecx, 4), %eax\n" /* load the handler of the syscall*/ \
-        "test   %eax, %eax\n" /* test for null */ \
-        "je     bad_syscall\n" \
-        "popl   %ecx\n" \
-        "popl   %ebx\n" \
-        "sti    \n" \
-        "jmp    *%eax\n" \
+	"syscall_entry:\n" \
+	"popl   %ebx\n"        /* throw away the return address, flags  */ \
+	"popl   %ebx\n"        /* and segment that the INT instruction pushed */ \
+	"popl   %ebx\n"        /* on to the stack */ \
+	"movl   %eax, %ecx\n"  /* load the syscall nr argument*/ \
+	"movl   syscall_tbl, %eax\n" /* load start of syscall table */ \
+	"cmpl   $(11-1), %ecx\n"  /* FixMe: find a way to use NR_SYSCALLS macro here */ \
+	"ja     bad_syscall\n" \
+	"movl   (%eax, %ecx, 4), %eax\n" /* load the handler of the syscall*/ \
+	"test   %eax, %eax\n" /* test for null */ \
+	"je     bad_syscall\n" \
+	"popl   %ecx\n" \
+	"popl   %ebx\n" \
+	"sti    \n" \
+	"jmp    *%eax\n" \
 "bad_syscall: movl $0xffffffff, %eax\n" \
-        "popl   %ecx\n" \
-        "popl   %ebx\n" \
-        "ret");
+	"popl   %ecx\n" \
+	"popl   %ebx\n" \
+	"ret");
 
 void __attribute__ ((regparm(0))) syscall_entry(void);
 
@@ -104,7 +102,7 @@ char exception_stack[4096];
 		    "pusha \n" \
 		    "pushl $"#x"\n" \
 		    "pushl $irq_return\n" \
-                    "jmp   do_irq\n"); \
+		    "jmp   do_irq\n"); \
 	void __attribute__ ((regparm(0))) irq_##x(void)
 
 #define DECLARE_EXCEPTION(x, f) \
@@ -173,20 +171,20 @@ DECLARE_INTERRUPT(12);
 DECLARE_INTERRUPT(13);
 DECLARE_INTERRUPT(14);
 DECLARE_INTERRUPT(15);
-  
-void __attribute__ ((regparm(0))) default_isr(void); 
+
+void __attribute__ ((regparm(0))) default_isr(void);
 asm ("default_isr: iret\n");
 
-void disable_irq(int irq) 
+void disable_irq(int irq)
 {
 	if (irq >= MAX_IRQ) {
 		return;
 	}
 	irq_table[irq].status |= IRQ_DISABLED;
-	
+
 }
 
-void enable_irq(int irq) 
+void enable_irq(int irq)
 {
 	if (irq >= MAX_IRQ) {
 		return;
@@ -198,7 +196,7 @@ void enable_irq(int irq)
 static void unmask_irq(int irq)
 {
 	int imr_port;
-	
+
 	if (irq >= MAX_IRQ) {
 		return;
 	}
@@ -207,7 +205,7 @@ static void unmask_irq(int irq)
 	} else {
 		imr_port = MASTER_PIC + IMR;
 	}
-	
+
 	outb(inb(imr_port)&~(1<<(irq&7)), imr_port);
 }
 
@@ -216,7 +214,7 @@ static void unmask_irq(int irq)
 static void mask_irq(int irq)
 {
 	int imr_port;
-	
+
 	if (irq >= MAX_IRQ) {
 		return;
 	}
@@ -225,8 +223,8 @@ static void mask_irq(int irq)
 	} else {
 		imr_port = MASTER_PIC + IMR;
 	}
-	
-	outb(inb(imr_port)|(1<<(irq&7)), imr_port); 
+
+	outb(inb(imr_port)|(1<<(irq&7)), imr_port);
 }
 
 
@@ -238,110 +236,110 @@ static void specific_eoi(int irq)
 	if (irq > 7) {
 		outb(OCW2_SEOI|(irq&7), SLAVE_PIC + OCW2);
 		irq = SEOI_IR2;               /* also do IR2 on master */
-	} 
+	}
 	outb(OCW2_SEOI|irq, MASTER_PIC + OCW2);
 }
 
-void __attribute__ ((regparm(0))) do_irq(int irq) 
+void __attribute__ ((regparm(0))) do_irq(int irq)
 {
-	
+
 	mask_irq(irq);
-	
+
 	if (irq_table[irq].status & IRQ_DISABLED) {
 		unmask_irq(irq);
 		specific_eoi(irq);
 		return;
 	}
-	
-	
+
+
 	if (NULL != irq_table[irq].handler) {
 		irq_handler_t *handler;
-		for (handler = irq_table[irq].handler; 
+		for (handler = irq_table[irq].handler;
 		     NULL!= handler; handler = handler->next) {
 			handler->isr_func(handler->isr_data);
 		}
 	} else {
-		if ((irq & 7) != 7) {				
+		if ((irq & 7) != 7) {
 			printf("Spurious irq %d\n", irq);
 		}
-	}		
+	}
 	unmask_irq(irq);
-	specific_eoi(irq);	
+	specific_eoi(irq);
 }
 
 
-void __attribute__ ((regparm(0))) unknown_exception_entry(int cause, int ip, int seg) 
+void __attribute__ ((regparm(0))) unknown_exception_entry(int cause, int ip, int seg)
 {
 	printf("Unknown Exception %d at %04x:%08x\n", cause, seg, ip);
 }
 
-void __attribute__ ((regparm(0))) divide_exception_entry(int cause, int ip, int seg) 
+void __attribute__ ((regparm(0))) divide_exception_entry(int cause, int ip, int seg)
 {
 	printf("Divide Error (Division by zero) at %04x:%08x\n", seg, ip);
 	while(1);
 }
 
-void __attribute__ ((regparm(0))) debug_exception_entry(int cause, int ip, int seg) 
+void __attribute__ ((regparm(0))) debug_exception_entry(int cause, int ip, int seg)
 {
 	printf("Debug Interrupt (Single step) at %04x:%08x\n", seg, ip);
 }
 
-void __attribute__ ((regparm(0))) nmi_entry(int cause, int ip, int seg) 
+void __attribute__ ((regparm(0))) nmi_entry(int cause, int ip, int seg)
 {
 	printf("NMI Interrupt at %04x:%08x\n", seg, ip);
 }
-		
-void __attribute__ ((regparm(0))) invalid_instruction_entry(int cause, int ip, int seg) 
+
+void __attribute__ ((regparm(0))) invalid_instruction_entry(int cause, int ip, int seg)
 {
 	printf("Invalid Instruction at %04x:%08x\n", seg, ip);
 	while(1);
 }
-				
-void __attribute__ ((regparm(0))) double_fault_entry(int cause, int ip, int seg) 
+
+void __attribute__ ((regparm(0))) double_fault_entry(int cause, int ip, int seg)
 {
 	printf("Double fault at %04x:%08x\n", seg, ip);
 	while(1);
 }
 
-void __attribute__ ((regparm(0))) invalid_tss_exception_entry(int cause, int ip, int seg) 
+void __attribute__ ((regparm(0))) invalid_tss_exception_entry(int cause, int ip, int seg)
 {
 	printf("Invalid TSS at %04x:%08x\n", seg, ip);
 }
-		
-void __attribute__ ((regparm(0))) seg_fault_entry(int cause, int ip, int seg) 
+
+void __attribute__ ((regparm(0))) seg_fault_entry(int cause, int ip, int seg)
 {
 	printf("Segmentation fault at %04x:%08x\n", seg, ip);
 	while(1);
 }
 
-void __attribute__ ((regparm(0))) stack_fault_entry(int cause, int ip, int seg) 
+void __attribute__ ((regparm(0))) stack_fault_entry(int cause, int ip, int seg)
 {
 	printf("Stack fault at %04x:%08x\n", seg, ip);
 	while(1);
 }
 
-void __attribute__ ((regparm(0))) gpf_entry(int cause, int ip, int seg) 
+void __attribute__ ((regparm(0))) gpf_entry(int cause, int ip, int seg)
 {
 	printf("General protection fault at %04x:%08x\n", seg, ip);
 }
 
-void __attribute__ ((regparm(0))) page_fault_entry(int cause, int ip, int seg) 
+void __attribute__ ((regparm(0))) page_fault_entry(int cause, int ip, int seg)
 {
 	printf("Page fault at %04x:%08x\n", seg, ip);
 	while(1);
 }
 
-void __attribute__ ((regparm(0))) fp_exception_entry(int cause, int ip, int seg) 
+void __attribute__ ((regparm(0))) fp_exception_entry(int cause, int ip, int seg)
 {
 	printf("Floating point exception at %04x:%08x\n", seg, ip);
 }
 
-void __attribute__ ((regparm(0))) alignment_check_entry(int cause, int ip, int seg) 
+void __attribute__ ((regparm(0))) alignment_check_entry(int cause, int ip, int seg)
 {
 	printf("Alignment check at %04x:%08x\n", seg, ip);
 }
-       
-void __attribute__ ((regparm(0))) machine_check_entry(int cause, int ip, int seg) 
+
+void __attribute__ ((regparm(0))) machine_check_entry(int cause, int ip, int seg)
 {
 	printf("Machine check exception at %04x:%08x\n", seg, ip);
 }
@@ -350,31 +348,31 @@ void __attribute__ ((regparm(0))) machine_check_entry(int cause, int ip, int seg
 void irq_install_handler(int ino, interrupt_handler_t *func, void *pdata)
 {
 	int status;
-	
+
 	if (ino>MAX_IRQ) {
 		return;
 	}
-		
+
 	if (NULL != irq_table[ino].handler) {
 		return;
 	}
-	
+
 	status = disable_interrupts();
 	irq_table[ino].handler = malloc(sizeof(irq_handler_t));
 	if (NULL == irq_table[ino].handler) {
 		return;
 	}
-	
+
 	memset(irq_table[ino].handler, 0, sizeof(irq_handler_t));
-	
+
 	irq_table[ino].handler->isr_func = func;
 	irq_table[ino].handler->isr_data = pdata;
 	if (status) {
 		enable_interrupts();
 	}
-	
+
 	unmask_irq(ino);
-	
+
 	return;
 }
 
@@ -384,7 +382,7 @@ void irq_free_handler(int ino)
 	if (ino>MAX_IRQ) {
 		return;
 	}
-	
+
 	status = disable_interrupts();
 	mask_irq(ino);
 	if (NULL == irq_table[ino].handler) {
@@ -406,33 +404,33 @@ asm ("idt_ptr:\n"
 
 static void set_vector(int intnum, void *routine)
 {
-	idt[intnum].base_high = (u16)((u32)(routine)>>16);	
-	idt[intnum].base_low = (u16)((u32)(routine)&0xffff);	
+	idt[intnum].base_high = (u16)((u32)(routine)>>16);
+	idt[intnum].base_low = (u16)((u32)(routine)&0xffff);
 }
 
 
 int interrupt_init(void)
 {
 	int i;
-	
+
 	/* Just in case... */
 	disable_interrupts();
-		
+
 	/* Initialize the IDT and stuff */
-	
-	
+
+
 	memset(irq_table, 0, sizeof(irq_table));
 
 	/* Setup the IDT */
-	for (i=0;i<256;i++) {		
+	for (i=0;i<256;i++) {
 		idt[i].access = 0x8e;
-		idt[i].res = 0;	
-		idt[i].selector = 0x10;	
+		idt[i].res = 0;
+		idt[i].selector = 0x10;
 		set_vector(i, default_isr);
-	}	
-	
+	}
+
 	asm ("cs lidt idt_ptr\n");
-	
+
 	/* Setup exceptions */
 	set_vector(0x00, exp_0);
 	set_vector(0x01, exp_1);
@@ -487,39 +485,39 @@ int interrupt_init(void)
 	/* vectors 0x30-0x3f are reserved for irq 16-31 */
 	set_vector(0x40, syscall_entry);
 
-	
+
 	/* Mask all interrupts */
 	outb(0xff, MASTER_PIC + IMR);
 	outb(0xff, SLAVE_PIC + IMR);
-	
+
 	/* Master PIC */
-	outb(ICW1_SEL|ICW1_EICW4, MASTER_PIC + ICW1);	
+	outb(ICW1_SEL|ICW1_EICW4, MASTER_PIC + ICW1);
 	outb(0x20, MASTER_PIC + ICW2);          /* Place master PIC interrupts at INT20 */
-	outb(IR2, MASTER_PIC + ICW3);		/* ICW3, One slevc PIC is present */	
+	outb(IR2, MASTER_PIC + ICW3);		/* ICW3, One slevc PIC is present */
 	outb(ICW4_PM, MASTER_PIC + ICW4);
-	
+
 	for (i=0;i<8;i++) {
 		outb(OCW2_SEOI|i, MASTER_PIC + OCW2);
 	}
-	
+
 	/* Slave PIC */
-	outb(ICW1_SEL|ICW1_EICW4, SLAVE_PIC + ICW1);	
+	outb(ICW1_SEL|ICW1_EICW4, SLAVE_PIC + ICW1);
 	outb(0x28, SLAVE_PIC + ICW2);	        /* Place slave PIC interrupts at INT28 */
 	outb(0x02, SLAVE_PIC + ICW3);		/* Slave ID */
-	outb(ICW4_PM, SLAVE_PIC + ICW4);        
-	
+	outb(ICW4_PM, SLAVE_PIC + ICW4);
+
 	for (i=0;i<8;i++) {
 		outb(OCW2_SEOI|i, SLAVE_PIC + OCW2);
 	}
-	
-	
+
+
 	/* enable cascade interrerupt */
 	outb(0xfb, MASTER_PIC + IMR);
 	outb(0xff, SLAVE_PIC + IMR);
-	
+
 	/* It is now safe to enable interrupts */
-	enable_interrupts(); 
-	
+	enable_interrupts();
+
 	return 0;
 }
 
@@ -531,9 +529,9 @@ void enable_interrupts(void)
 int disable_interrupts(void)
 {
 	long flags;
-	
+
 	asm volatile ("pushfl ; popl %0 ; cli\n" : "=g" (flags) : );
-	
+
 	return (flags&0x200); /* IE flags is bit 9 */
 }
 
@@ -541,9 +539,9 @@ int disable_interrupts(void)
 #ifdef CFG_RESET_GENERIC
 
 void __attribute__ ((regparm(0))) generate_gpf(void);
-asm(".globl generate_gpf\n" 
-    "generate_gpf:\n" 
-    "ljmp   $0x70, $0x47114711\n"); /* segment 0x70 is an arbitrary segment which does not 
+asm(".globl generate_gpf\n"
+    "generate_gpf:\n"
+    "ljmp   $0x70, $0x47114711\n"); /* segment 0x70 is an arbitrary segment which does not
 				    * exist */
 void reset_cpu(ulong addr)
 {

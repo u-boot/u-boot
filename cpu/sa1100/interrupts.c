@@ -75,7 +75,6 @@ int disable_interrupts (void)
 #endif
 
 
-
 void bad_mode (void)
 {
 	panic ("Resetting CPU ...\n");

@@ -313,7 +313,7 @@ volatile static int write_hword (flash_info_t *info, ulong dest, ushort data)
      */
     result = *addr;
     if ((result & data) != data)
-        return ERR_NOT_ERASED;
+	return ERR_NOT_ERASED;
 
 
     /*
@@ -366,7 +366,7 @@ volatile static int write_hword (flash_info_t *info, ulong dest, ushort data)
     *addr = CMD_READ_ARRAY;
 
     if (chip == ERR || *addr != data)
-        rc = ERR_PROG_ERROR;
+	rc = ERR_PROG_ERROR;
 
     if (iflag)
       enable_interrupts();

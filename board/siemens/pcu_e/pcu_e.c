@@ -53,9 +53,9 @@ const uint sdram_table[] =
 	/*
 	 * SDRAM Initialization (offset 5 in UPM RAM)
 	 *
-         * This is no UPM entry point. The following definition uses
-         * the remaining space to establish an initialization
-         * sequence, which is executed by a RUN command.
+	 * This is no UPM entry point. The following definition uses
+	 * the remaining space to establish an initialization
+	 * sequence, which is executed by a RUN command.
 	 *
 	 */
 		    0x1ffddc35, 0xefceac34, 0x1f3d5c35, /* last */
@@ -433,6 +433,12 @@ int do_puma (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	printf ("Usage:\n%s\n", cmdtp->usage);
 	return 1;
 }
+cmd_tbl_t U_BOOT_CMD(puma) = MK_CMD_ENTRY(
+	"puma",	4,	1,	do_puma,
+	"puma    - access PUMA FPGA\n",
+	"status - print PUMA status\n"
+	"puma load addr len - load PUMA configuration data\n"
+);
 
 #endif	/* CFG_CMD_BSP */
 

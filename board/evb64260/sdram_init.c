@@ -155,7 +155,7 @@ NSto10PS(unsigned char spd_byte)
 static int
 check_dimm(uchar slot, sdram_info_t *info)
 {
-        /* assume 2 dimms, 2 banks each 256M - we dont have an
+	/* assume 2 dimms, 2 banks each 256M - we dont have an
 	 * dimm i2c so rely on the detection routines later */
 
 	memset(info, 0, sizeof(*info));
@@ -192,7 +192,7 @@ check_dimm(uchar slot, sdram_info_t *info)
 
 	get_clocks ();
 
- 	tmemclk = 1000000000 / (gd->bus_clk / 100);  /* in 10 ps units */
+	tmemclk = 1000000000 / (gd->bus_clk / 100);  /* in 10 ps units */
 
 #ifdef CONFIG_EVB64260_750CX
 	if (0 != slot) {
@@ -284,7 +284,7 @@ check_dimm(uchar slot, sdram_info_t *info)
 #ifdef CFG_BROKEN_CL2
 	if (info->tpar == 2){
 		info->tpar = 3;
-	        DP(printf("tpar fixed-up to: %d\n", info->tpar));
+		DP(printf("tpar fixed-up to: %d\n", info->tpar));
 	}
 #endif
 	/* compute the module DRB size */
@@ -310,7 +310,7 @@ check_dimm(uchar slot, sdram_info_t *info)
 static int
 setup_sdram_common(sdram_info_t info[2])
 {
-    	ulong tmp;
+	ulong tmp;
 	int tpar=2, tras_clocks=5, registered=1, ecc=2;
 
 	if(!info[0].banks && !info[1].banks) return 0;
@@ -500,7 +500,7 @@ initdram(int board_type)
 {
 	ulong checkbank[4] = { [0 ... 3] = 0 };
 	int bank_no;
-        ulong total;
+	ulong total;
 	int nhr;
 	sdram_info_t dimm_info[2];
 
@@ -608,7 +608,7 @@ initdram(int board_type)
 	 * chips)
 	 */
 	if (checkbank[2]==0 && checkbank[3]==0) {
-	    	dimm_info[0].ecc=2;
+		dimm_info[0].ecc=2;
 		GT_REG_WRITE(SDRAM_TIMING, GTREGREAD(SDRAM_TIMING) | (1 << 13));
 		/* TODO: do we have to run MRS cycles again? */
 	}
@@ -624,6 +624,6 @@ initdram(int board_type)
 	dump_dimm_info(&dimm_info[1]);
 #endif
 	/* TODO: return at MOST 256M? */
-        /* return total > GB/4 ? GB/4 : total; */
+	/* return total > GB/4 ? GB/4 : total; */
 	return total;
 }

@@ -133,7 +133,7 @@ b1:
 	sw	t1, MC_MRSCODE(t0)
 
 	/* Set word width to 16 bit */
-	li	t1, 0x2  
+	li	t1, 0x2
 	sw	t1, MC_CFGDW(t0)
 
 	/* Set CS0 to SDRAM parameters */
@@ -154,4 +154,3 @@ b1:
 
 	j	ra
 	nop
-

@@ -35,8 +35,8 @@
 
 
 /*
- * Outbound ATU registers (3 sets). These registers control how 60x bus (local) 
- * addresses are translated to PCI addresses when the MPC826x is a PCI bus 
+ * Outbound ATU registers (3 sets). These registers control how 60x bus (local)
+ * addresses are translated to PCI addresses when the MPC826x is a PCI bus
  * master (initiator).
  */
 
@@ -87,7 +87,7 @@
 #define PCIGCR_PCI_BUS_EN   0x1
 
 /*
- * Inbound ATU registers (2 sets). These registers control how PCI addresses 
+ * Inbound ATU registers (2 sets). These registers control how PCI addresses
  * are translated to 60x bus (local) addresses when the MPC826x is a PCI bus target.
  */
 

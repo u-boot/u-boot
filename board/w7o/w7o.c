@@ -22,6 +22,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include "w7o.h"
 #include <asm/processor.h>
 
@@ -268,4 +269,3 @@ int misc_init_r (void)
 
 	return (0);
 }
-

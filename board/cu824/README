@@ -38,7 +38,7 @@ run     - run commands in an environment variable
 bootm   - boot application image from memory
 bootp   - boot image via network using BootP/TFTP protocol
 tftpboot- boot image via network using TFTP protocol
-               and env variables ipaddr and serverip
+	       and env variables ipaddr and serverip
 rarpboot- boot image via network using RARP/TFTP protocol
 bootd   - boot default, i.e., run 'bootcmd'
 loads   - load S-Record file over serial line

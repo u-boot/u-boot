@@ -89,8 +89,6 @@
 #define PCI_1MEMORY3_HIGH_ADDRESS_REMAP					   	0x358
 
 
-
-
 /****************************************/
 /* CPU Sync Barrier             		*/
 /****************************************/
@@ -229,7 +227,6 @@
 #define X0_SNOOP_COMMAND                                    0x544
 #define X1_SNOOP_ADDRESS                                    0x548
 #define X1_SNOOP_COMMAND                                    0x54c
-
 
 
 /****************************************/

@@ -129,7 +129,7 @@
 #define VX_W0_RESOURCE_CFG	0x08
 #define VX_W0_ADDRESS_CFG	0x06
 #define VX_W0_CONFIG_CTRL	0x04
-        /* Read */
+	/* Read */
 #define VX_W0_PRODUCT_ID	0x02
 #define VX_W0_MFG_ID		0x00
 

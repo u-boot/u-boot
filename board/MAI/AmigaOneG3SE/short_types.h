@@ -2,7 +2,7 @@
  * short type names
  *
  * (C) Copyright 2002
- * Hyperion Entertainment, ThomasF@hyperion-entertainment.com 
+ * Hyperion Entertainment, ThomasF@hyperion-entertainment.com
  *
  * See file CREDITS for list of people who contributed to this
  * project.

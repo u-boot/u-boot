@@ -69,14 +69,14 @@ PMLIB :=
 # Implicit rule for building an executable file using response file
 .IF $(USE_OS2GUI)
 %$E: ;
-        rclink $(LD) $(RC) $@ $(mktmp $(LDFLAGS) $(&:t"+\n":s/\/\\)\n$@\n$*.map\n$(EXELIBS) $(PMLIB)\n$*.def\n)
+	rclink $(LD) $(RC) $@ $(mktmp $(LDFLAGS) $(&:t"+\n":s/\/\\)\n$@\n$*.map\n$(EXELIBS) $(PMLIB)\n$*.def\n)
 .IF $(LXLITE)
-        lxlite $@
+	lxlite $@
 .ENDIF
 .ELSE
 %$E: ;
-        rclink $(LD) $(RC) $@ $(mktmp $(LDFLAGS) $(&:t"+\n":s/\/\\)\n$@\n$*.map\n$(EXELIBS) $(PMLIB)\n\n)
+	rclink $(LD) $(RC) $@ $(mktmp $(LDFLAGS) $(&:t"+\n":s/\/\\)\n$@\n$*.map\n$(EXELIBS) $(PMLIB)\n\n)
 .IF $(LXLITE)
-        lxlite $@
+	lxlite $@
 .ENDIF
 .ENDIF

@@ -63,7 +63,7 @@ SECTIONS
     cpu/74xx_7xx/start.o	(.text)
 /* store the environment in a seperate sector in the boot flash */
 /*    . = env_offset; */
-    common/environment.o(.text) 
+    common/environment.o(.text)
 
     *(.text)
     *(.fixup)
@@ -87,7 +87,7 @@ SECTIONS
   PROVIDE (erotext = .);
   .reloc   :
   {
-    *(.got) 
+    *(.got)
     _GOT2_TABLE_ = .;
     *(.got2)
     _FIXUP_TABLE_ = .;
@@ -107,6 +107,11 @@ SECTIONS
   }
   _edata  =  .;
   PROVIDE (edata = .);
+
+  __u_boot_cmd_start = .;
+  .u_boot_cmd : { *(.u_boot_cmd) }
+  __u_boot_cmd_end = .;
+
 
   __start___ex_table = .;
   __ex_table : { *(__ex_table) }

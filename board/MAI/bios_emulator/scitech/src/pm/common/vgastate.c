@@ -104,7 +104,7 @@ static void vga_delay(void)
      * what we need.
      */
     for (i = 0; i <= 10; i++)
-        PM_outpb(0x80, 0);
+	PM_outpb(0x80, 0);
 }
 
 /****************************************************************************
@@ -152,9 +152,9 @@ static void vga_savepalette(
 
     _port_out(0, PEL_IR);
     for (i = 0; i < 768; i++) {
-        vga_delay();
-        *pal++ = _port_in(PEL_D);
-        }
+	vga_delay();
+	*pal++ = _port_in(PEL_D);
+	}
 }
 
 /****************************************************************************
@@ -169,9 +169,9 @@ static void vga_restorepalette(
     /* restore saved palette */
     _port_out(0, PEL_IW);
     for (i = 0; i < 768; i++) {
-        vga_delay();
-        _port_out(*pal++, PEL_D);
-        }
+	vga_delay();
+	_port_out(*pal++, PEL_D);
+	}
 }
 
 /****************************************************************************
@@ -247,25 +247,25 @@ void PMAPI PM_saveVGAState(
 
     /* Save state of VGA registers */
     for (i = 0; i < CRT_C; i++) {
-        _port_out(i, CRT_I);
-        regs[CRT + i] = _port_in(CRT_D);
-        }
+	_port_out(i, CRT_I);
+	regs[CRT + i] = _port_in(CRT_D);
+	}
     for (i = 0; i < ATT_C; i++) {
-        _port_in(IS1_R);
-        vga_delay();
-        _port_out(i, ATT_IW);
-        vga_delay();
-        regs[ATT + i] = _port_in(ATT_R);
-        vga_delay();
-        }
+	_port_in(IS1_R);
+	vga_delay();
+	_port_out(i, ATT_IW);
+	vga_delay();
+	regs[ATT + i] = _port_in(ATT_R);
+	vga_delay();
+	}
     for (i = 0; i < GRA_C; i++) {
-        _port_out(i, GRA_I);
-        regs[GRA + i] = _port_in(GRA_D);
-        }
+	_port_out(i, GRA_I);
+	regs[GRA + i] = _port_in(GRA_D);
+	}
     for (i = 0; i < SEQ_C; i++) {
-        _port_out(i, SEQ_I);
-        regs[SEQ + i] = _port_in(SEQ_D);
-        }
+	_port_out(i, SEQ_I);
+	regs[SEQ + i] = _port_in(SEQ_D);
+	}
     regs[MIS] = _port_in(MIS_R);
 
     /* Save the VGA palette values */
@@ -302,7 +302,7 @@ void PMAPI PM_restoreVGAState(
 
     /* Delay to allow clock change to settle */
     for (i = 0; i < 10; i++)
-        vga_delay();
+	vga_delay();
 
     /* Synchronous reset on */
     _port_out(0x00,SEQ_I);
@@ -312,9 +312,9 @@ void PMAPI PM_restoreVGAState(
     _port_out(1, SEQ_I);
     _port_out(regs[SEQ + 1] | 0x20, SEQ_D);
     for (i = 2; i < SEQ_C; i++) {
-        _port_out(i, SEQ_I);
-        _port_out(regs[SEQ + i], SEQ_D);
-        }
+	_port_out(i, SEQ_I);
+	_port_out(regs[SEQ + i], SEQ_D);
+	}
 
     /* Synchronous reset off */
     _port_out(0x00,SEQ_I);
@@ -324,21 +324,21 @@ void PMAPI PM_restoreVGAState(
     _port_out(0x11, CRT_I);
     _port_out(_port_in(CRT_D) & 0x7F, CRT_D);
     for (i = 0; i < CRT_C; i++) {
-        _port_out(i, CRT_I);
-        _port_out(regs[CRT + i], CRT_D);
-        }
+	_port_out(i, CRT_I);
+	_port_out(regs[CRT + i], CRT_D);
+	}
     for (i = 0; i < GRA_C; i++) {
-        _port_out(i, GRA_I);
-        _port_out(regs[GRA + i], GRA_D);
-        }
+	_port_out(i, GRA_I);
+	_port_out(regs[GRA + i], GRA_D);
+	}
     for (i = 0; i < ATT_C; i++) {
-        _port_in(IS1_R);        /* reset flip-flop */
-        vga_delay();
-        _port_out(i, ATT_IW);
-        vga_delay();
-        _port_out(regs[ATT + i], ATT_IW);
-        vga_delay();
-        }
+	_port_in(IS1_R);        /* reset flip-flop */
+	vga_delay();
+	_port_out(i, ATT_IW);
+	vga_delay();
+	_port_out(regs[ATT + i], ATT_IW);
+	vga_delay();
+	}
 
     /* Ensure the VGA screen is turned on */
     PM_vgaUnblankDisplay();

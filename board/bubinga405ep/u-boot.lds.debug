@@ -144,4 +144,3 @@ SECTIONS
   _end = . ;
   PROVIDE (end = .);
 }
-

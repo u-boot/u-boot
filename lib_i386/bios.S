@@ -1,7 +1,7 @@
 /*
  * (C) Copyright 2002
  * Daniel Engström, Omicron Ceti AB, daniel@omicron.se
- * 
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -46,9 +46,9 @@
 .section .bios, "ax"
 .code16
 .org 0
-      	/* a call to f000:0 should warmboot */
+	/* a call to f000:0 should warmboot */
 	jmp	realmode_reset
-	
+
 .globl rm_int00
 rm_int00:
 	pushw	$0
@@ -181,18 +181,18 @@ rm_int1f:
 rm_def_int:
 	iret
 
- 
+
 	/*
 	 * All interrupt jumptable entries jump to here
 	 * after pushing the interrupt vector number onto the
 	 * stack.
 	 */
 any_interrupt16:
-        MAKE_BIOS_STACK
+	MAKE_BIOS_STACK
 
 gs	movw	OFFS_VECTOR(%bp), %ax
 	cmpw	$0x10, %ax
-	je	Lint_10h         
+	je	Lint_10h
 	cmpw	$0x11, %ax
 	je	Lint_11h
 	cmpw	$0x12, %ax
@@ -210,10 +210,10 @@ gs	movw	OFFS_VECTOR(%bp), %ax
 Lint_10h:					/* VGA BIOS services */
 	call	bios_10h
 	jmp	Lout
-Lint_11h:	
+Lint_11h:
 	call	bios_11h
 	jmp	Lout
-Lint_12h:	
+Lint_12h:
 	call	bios_12h
 	jmp	Lout
 Lint_13h:					/* BIOS disk services */
@@ -228,13 +228,13 @@ Lint_16h:					/* keyboard services */
 Lint_1ah:					/* PCI bios */
 	call	bios_1ah
 	jmp	Lout
-Lout:	
+Lout:
 	cmpw	$0, %ax
 	je	Lhandeled
-	
+
 	/* Insert code for unhandeled INTs here.
 	 *
-	 * ROLO prints a message to the console 
+	 * ROLO prints a message to the console
 	 * (we could do that but then we're in 16bit mode
 	 * so we'll have to get back into 32bit mode
 	 * to use the console I/O routines (if we do this
@@ -286,7 +286,7 @@ gs	movw	$0x10, OFFS_BX(%bp)		/* indicate CGA/MDA/HGA */
 
 bios_11h:
 cs	movw	bios_equipment, %ax
-gs	movw	%ax, OFFS_AX(%bp)  
+gs	movw	%ax, OFFS_AX(%bp)
 	xorw	%ax, %ax
 	ret
 
@@ -327,14 +327,13 @@ gs	movw	OFFS_AX(%bp), %ax
 	je	Lfunc_15h
 	movw	$0xffff, %ax
 	ret
-Lfunc_15h:	
+Lfunc_15h:
 gs	movw	OFFS_AX(%bp), %ax
 	andw	$0xff, %ax			/* return AH=0->drive not present */
 gs	movw	%ax, OFFS_AX(%bp)
 	xorw	%ax, %ax
 	ret
-	
-	
+
 
 /*
  ***********************************************************
@@ -359,7 +358,7 @@ gs	movw	OFFS_FLAGS(%bp), %ax
 gs	movw	%ax, OFFS_FLAGS(%bp)
 	xorw	%ax, %ax
 	ret
-	
+
 Lfunc_e8h:
 gs	movw	OFFS_AX(%bp), %ax
 	andw	$0xff, %ax
@@ -370,31 +369,31 @@ gs	movw	OFFS_FLAGS(%bp), %ax
 gs	movw	%ax, OFFS_FLAGS(%bp)
 	xorw	%ax, %ax
 	ret
-	
+
 Lfunc_e801h:					/* Get memory size for >64M Configurations */
 cs	movw	ram_in_64kb_chunks, %ax
 	cmpw	$0x100, %ax
 	ja	e801_more_than_16mb
 	shlw	$6, %ax				/* multiply by 64 */
 	subw	$0x400, %ax			/* 1st meg does not count */
- 	
+
 gs	movw	%ax, OFFS_AX(%bp)   		/* return memory size between 1M and 16M in 1kb chunks in AX and CX */
 gs	movw	%ax, OFFS_CX(%bp)
 gs	movw	$0, OFFS_BX(%bp)		/* set BX and DX to 0*/
-gs	movw	$0, OFFS_DX(%bp)	
+gs	movw	$0, OFFS_DX(%bp)
 gs	movw	OFFS_FLAGS(%bp), %ax
 	andw	$0xfffe, %ax			/* clear carry -- function succeeded */
 gs	movw	%ax, OFFS_FLAGS(%bp)
 	xorw	%ax, %ax
 	ret
-	
+
 e801_more_than_16mb:
-	subw	$0x100, %ax			/* subtract 16MB */	
-	
+	subw	$0x100, %ax			/* subtract 16MB */
+
 gs	movw	$0x3c00, OFFS_AX(%bp)		/* return 0x3c00 (16MB-1MB) in AX and CX */
 gs	movw	$0x3c00, OFFS_CX(%bp)
 gs	movw	%ax, OFFS_BX(%bp)		/* set BX and DX to number of 64kb chunks above 16MB */
-gs	movw	%ax, OFFS_DX(%bp)	
+gs	movw	%ax, OFFS_DX(%bp)
 
 gs	movw	OFFS_FLAGS(%bp), %ax
 	andw	$0xfffe, %ax			/* clear carry -- function succeeded */
@@ -410,7 +409,7 @@ cs	movw	ram_in_64kb_chunks, %ax
 b88_not_more_than16:
 	shlw	$6, %ax
 	subw	$0x400, %ax			/* 1st meg does not count */
-		
+
 gs	movw	%ax, OFFS_AX(%bp)		/* return number of kilobytes between 16MB and 16MB in ax */
 
 gs	movw	OFFS_FLAGS(%bp), %ax
@@ -461,4 +460,3 @@ ram_in_64kb_chunks:
 .globl bios_equipment
 bios_equipment:
 	.word 	0
-

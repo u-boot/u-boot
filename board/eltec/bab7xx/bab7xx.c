@@ -45,7 +45,7 @@ ulong bab7xx_get_bus_freq (void)
     unsigned char data = gpio->dta1;
 
     if (data & 0x02)
-        return 66666666;
+	return 66666666;
 
     return 83333333;
 }
@@ -58,7 +58,7 @@ ulong bab7xx_get_bus_freq (void)
 ulong bab7xx_get_gclk_freq (void)
 {
     static const int pllratio_to_factor[] = {
-        00, 75, 70, 00, 20, 65, 100, 45, 30, 55, 40, 50, 80, 60, 35, 00,
+	00, 75, 70, 00, 20, 65, 100, 45, 30, 55, 40, 50, 80, 60, 35, 00,
     };
 
     return pllratio_to_factor[get_hid1 () >> 28] * (bab7xx_get_bus_freq() / 10);
@@ -72,7 +72,7 @@ int checkcpu (void)
 
     printf ("MPC7xx V%d.%d",(pvr >> 8) & 0xFF, pvr & 0xFF);
     printf (" at %ld / %ld MHz\n",  bab7xx_get_gclk_freq()/1000000,
-            bab7xx_get_bus_freq()/1000000);
+	    bab7xx_get_bus_freq()/1000000);
 
     return (0);
 }
@@ -131,8 +131,8 @@ long int dram_size (int board_type)
 
     for (reg = CFG_MEMTEST_START; reg < CFG_MEMTEST_END; reg+=4)
     {
-        if (*reg != reg)
-            return -1;
+	if (*reg != reg)
+	    return -1;
     }
 #endif
 
@@ -147,11 +147,11 @@ long int dram_size (int board_type)
 
     do
     {
-        if (i & 0x01)   /* is bank enabled ? */
-            memSize += (mear1 & 0xff) - (msar1 & 0xff) + 1;
-        msar1 >>= 8;
-        mear1 >>= 8;
-        i     >>= 1;
+	if (i & 0x01)   /* is bank enabled ? */
+	    memSize += (mear1 & 0xff) - (msar1 & 0xff) + 1;
+	msar1 >>= 8;
+	mear1 >>= 8;
+	i     >>= 1;
     } while (i);
 
     return (memSize * 0x100000);
@@ -222,20 +222,20 @@ void video_get_info_str (int line_number, char *info)
     switch (line_number)
     {
     case 1:
-        sprintf (info," MPC7xx V%d.%d at %ld / %ld MHz",
-            (get_pvr() >> 8) & 0xFF,
-            get_pvr() & 0xFF,
-            bab7xx_get_gclk_freq()/1000000,
-            bab7xx_get_bus_freq()/1000000);
-        return;
+	sprintf (info," MPC7xx V%d.%d at %ld / %ld MHz",
+	    (get_pvr() >> 8) & 0xFF,
+	    get_pvr() & 0xFF,
+	    bab7xx_get_gclk_freq()/1000000,
+	    bab7xx_get_bus_freq()/1000000);
+	return;
     case 2:
-        sprintf (info, " ELTEC BAB7xx with %ld MB DRAM and %ld MB FLASH",
-            dram_size(0)/0x100000,
-            flash_init()/0x100000);
-        return;
+	sprintf (info, " ELTEC BAB7xx with %ld MB DRAM and %ld MB FLASH",
+	    dram_size(0)/0x100000,
+	    flash_init()/0x100000);
+	return;
     case 3:
-        sprintf (info, " %s", smi.modeIdent);
-        return;
+	sprintf (info, " %s", smi.modeIdent);
+	return;
     }
 
     /* no more info lines */

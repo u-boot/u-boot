@@ -20,39 +20,39 @@ BMW uses the MPC8245 CHRP Address MAP B found in the MPC8245 Users Manual
 onboard the processor module are listed briefly below:
 
 0x00000000 - 0x40000000 - 64MB SDRAM SIMM
-                          (Unregistered PC-100 SDRAM DIMM Module)
+			  (Unregistered PC-100 SDRAM DIMM Module)
 
 0xFF000000 - 0xFF001FFF - M-Systems DiskOnChip (TM) 2000
-                          TSOP 16MB (MD2211-D16-V3)
+			  TSOP 16MB (MD2211-D16-V3)
 
 0x70000000 - 0x70001FFF - M-Systems DiskOnChip (TM) 2000
-                          DIP32 (Socketed 16MB - 1GB ) *
-                          NOTE: this is not populated on all systems.
+			  DIP32 (Socketed 16MB - 1GB ) *
+			  NOTE: this is not populated on all systems.
 
 0x7c000000 - 0x7c000000 - Reset Register
-                          (Write 0 to reset)
+			  (Write 0 to reset)
 
 0x7c000001 - 0x7c000001 - System LED
-                          (Clear Bit 7 to turn on, set to shut off)
+			  (Clear Bit 7 to turn on, set to shut off)
 
 0x7c000002 - 0x7c000002 - M48T59 Watchdog IRQ3
-                          (Clear bit 7 to reset, set to assert IRQ3)
+			  (Clear bit 7 to reset, set to assert IRQ3)
 
 0x7c000003 - 0x7c000003 - M48T59 Write-Protect Register
-                          (Clear bit 7 to make R/W, set to make R/O)
+			  (Clear bit 7 to make R/W, set to make R/O)
 
 0x7c002000 - 0x7c002003 - Infineon OSRAM DLR2416 4 Character
-                          5x7 Dot Matrix Alphanumeric Display
-                          (Each byte sets the appropriate character)
+			  5x7 Dot Matrix Alphanumeric Display
+			  (Each byte sets the appropriate character)
 
 0x7c004000 - 0x7c005FF0 - SGS-THOMSON M48T59Y 8K NVRAM/RTC
-                          NVRAM Memory Region
+			  NVRAM Memory Region
 
 0x7c005FF0 - 0x7c005FFF - SGS-THOMSON M48T59Y 8K NVRAM/RTC
-                          Realtime Clock Registers
+			  Realtime Clock Registers
 
 0xFFF00000 - 0xFFF80000 - 512K PLCC32 BootRom
-                          (AMD AM29F040, ST 29W040B)
+			  (AMD AM29F040, ST 29W040B)
 
 0xFFF00100 -              System Reset Vector
 
@@ -131,7 +131,6 @@ Supported features:
 - DOC Support - (underway)
 
 
-
 U-Boot 1.2.0 (Aug  6 2002 - 17:44:48)
 
 CPU:   MPC8245 Revision 16.20 at 264 MHz: 16 kB I-Cache 16 kB D-Cache
@@ -167,15 +166,10 @@ Environment size: 315/8172 bytes
 =>boot
 
 
-
-
-
-
-
 DevTools
 ========
 ELDK
-        DENX Embedded Linux Development Kit
+	DENX Embedded Linux Development Kit
 
 ROM Emulator
 	Grammar Engine PROMICE P1160-90-AI21E (2MBx8bit, 90ns access time)
@@ -185,7 +179,6 @@ ROM Emulator
 
 ICE
 	WRS/EST VisionICE-II (PPC8240)
-
 
 
 =>reset
@@ -216,8 +209,8 @@ TFTP from server 172.16.40.111; our IP address is 172.16.40.114
 Filename 'vmlinux.img'.
 Load address: 0x100000
 Loading: #################################################################
-         ####################################T #############################
-         ######################
+	 ####################################T #############################
+	 ######################
 done
 Bytes transferred = 777199 (bdbef hex)
 
@@ -317,7 +310,6 @@ Welcome to Linux/PPC
 MPC8245/BMW
 
 
-
 switch-2 login: root
 Password:
 PAM_unix[49]: (login) session opened for user root by LOGIN(uid=0)
@@ -326,7 +318,6 @@ Last login: Thu Nov 25 11:51:14 1920 on console
 
 Welcome to Linux/PPC
 MPC8245/BMW
-
 
 
 login[49]: ROOT LOGIN on `console'

@@ -35,7 +35,7 @@
 	__asm__ __volatile__("	         	\
 		.set noreorder;		        \
 		.set mips3;		        \
-                cache %1, (%0);	                \
+		cache %1, (%0);	                \
 		.set mips0;			\
 		.set reorder"			\
 		:				\
@@ -182,7 +182,7 @@ static void copydwords (ulong *source, ulong *destination, ulong nlongs)
 		*(ulong *)0xbf0081f8 = temp1 + temp;
 		*destination++ = temp;
 
-	} 
+	}
 }
 
 /*******************************************************************************
@@ -214,8 +214,8 @@ static void programLoad(void)
 	src = (ulong *)(TEXT_BASE + 0x428);
 	dst = (ulong *)0xbf0081d0;
 
-	absEntry = (FUNCPTR)(TEXT_BASE + 0x400);   
-	absEntry(src,dst,0x6);     	
+	absEntry = (FUNCPTR)(TEXT_BASE + 0x400);
+	absEntry(src,dst,0x6);
 
 	src = (ulong *)((ulong)copydwords & 0xfffffff8);
 	dst = (ulong *)0xbf008000;

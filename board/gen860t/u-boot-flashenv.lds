@@ -121,7 +121,7 @@ SECTIONS
    *(.bss)
    *(COMMON)
   }
-  
+
   _end = . ;
   PROVIDE (end = .);
 

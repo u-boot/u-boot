@@ -92,7 +92,6 @@ int board_pre_init (void)
 }
 
 
-
 int checkboard (void)
 {
 	sys_info_t sysinfo;
@@ -225,8 +224,8 @@ int pci_pre_init(struct pci_controller * hose )
 	 *--------------------------------------------------------------------------*/
     strap = mfdcr(cpc0_strp1);
     if( (strap & 0x00100000) == 0 ){
-        printf("PCI: CPC0_STRP1[PAE] not set.\n");
-        return 0;
+	printf("PCI: CPC0_STRP1[PAE] not set.\n");
+	return 0;
     }
 
     return 1;

@@ -52,7 +52,7 @@
  .    o   skeleton.c by Donald Becker ( becker@cesdis.gsfc.nasa.gov )
  .
  . History:
- .      06/19/03  Richard Woodruff Made u-boot environment aware and added mac addr checks. 
+ .      06/19/03  Richard Woodruff Made u-boot environment aware and added mac addr checks.
  .	10/17/01  Marco Hasewinkel Modify for DNP/1110
  .	07/25/01  Woojung Huh      Modify for ADS Bitsy
  .	04/25/01  Daris A Nevil    Initial public release through SMSC
@@ -153,9 +153,6 @@ extern int eth_rx(void);
 extern int eth_send(volatile void *packet, int length);
 
 
-
-
-
 /*
  . This is called by  register_netdev().  It is responsible for
  . checking the portlist for the SMC9000 series chipset.  If it finds
@@ -201,7 +198,7 @@ static void smc_phy_configure(void);
 static int smc_rcv(void);
 
 /* See if a MAC address is defined in the current environment. If so use it. If not
- . print a warning and set the environment and other globals with the default.  
+ . print a warning and set the environment and other globals with the default.
  . If an EEPROM is present it really should be consulted.
 */
 int smc_get_ethaddr(bd_t *bd);
@@ -238,18 +235,18 @@ void smc_set_mac_addr(const char *addr) {
 #if 0
 void smc_get_macaddr( byte *addr ) {
 	/* MAC ADDRESS AT FLASHBLOCK 1 / OFFSET 0x10 */
-        unsigned char *dnp1110_mac = (unsigned char *) (0xE8000000 + 0x20010);
+	unsigned char *dnp1110_mac = (unsigned char *) (0xE8000000 + 0x20010);
 	int i;
 
 
-        for (i=0; i<6; i++) {
-            addr[0] = *(dnp1110_mac+0);
-            addr[1] = *(dnp1110_mac+1);
-            addr[2] = *(dnp1110_mac+2);
-            addr[3] = *(dnp1110_mac+3);
-            addr[4] = *(dnp1110_mac+4);
-            addr[5] = *(dnp1110_mac+5);
-        }
+	for (i=0; i<6; i++) {
+	    addr[0] = *(dnp1110_mac+0);
+	    addr[1] = *(dnp1110_mac+1);
+	    addr[2] = *(dnp1110_mac+2);
+	    addr[3] = *(dnp1110_mac+3);
+	    addr[4] = *(dnp1110_mac+4);
+	    addr[5] = *(dnp1110_mac+5);
+	}
 }
 #endif /* 0 */
 
@@ -258,16 +255,16 @@ void smc_get_macaddr( byte *addr ) {
  ***********************************************/
 void dump_memory_info(void)
 {
-        word mem_info;
-        word old_bank;
+	word mem_info;
+	word old_bank;
 
-        old_bank = SMC_inw(BANK_SELECT)&0xF;
+	old_bank = SMC_inw(BANK_SELECT)&0xF;
 
-        SMC_SELECT_BANK(0);
-        mem_info = SMC_inw( MIR_REG );
-        PRINTK2("Memory: %4d available\n", (mem_info >> 8)*2048);
+	SMC_SELECT_BANK(0);
+	mem_info = SMC_inw( MIR_REG );
+	PRINTK2("Memory: %4d available\n", (mem_info >> 8)*2048);
 
-        SMC_SELECT_BANK(old_bank);
+	SMC_SELECT_BANK(old_bank);
 }
 /*
  . A rather simple routine to print out a packet for debugging purposes.
@@ -277,7 +274,6 @@ static void print_packet( byte *, int );
 #endif
 
 #define tx_done(dev) 1
-
 
 
 /* this does a soft reset on the device */
@@ -308,9 +304,9 @@ static int poll4int( byte mask, int timeout ) {
     SMC_SELECT_BANK(2);
     while((SMC_inw(SMC91111_INT_REG) & mask) == 0)
     {
-        if (get_timer(0) >= tmo) {
+	if (get_timer(0) >= tmo) {
 	  is_timeout = 1;
-          break;
+	  break;
 	}
     }
 
@@ -329,7 +325,7 @@ static inline void smc_wait_mmu_release_complete(void)
 	int count = 0;
 	/* assume bank 2 selected */
 	while ( SMC_inw(MMU_CMD_REG) & MC_BUSY ) {
-		udelay(1); // Wait until not busy
+		udelay(1); /* Wait until not busy */
 		if( ++count > 200) break;
 	}
 }
@@ -398,7 +394,7 @@ static void smc_reset( void )
 
 	/* Note:  It doesn't seem that waiting for the MMU busy is needed here,
 	   but this is a place where future chipsets _COULD_ break.  Be wary
- 	   of issuing another MMU command right after this */
+	   of issuing another MMU command right after this */
 
 	/* Disable all interrupts */
 	SMC_outb( 0, IM_REG );
@@ -526,11 +522,11 @@ again:
 		if ( status & IM_ALLOC_INT ) {
 			/* acknowledge the interrupt */
 			SMC_outb( IM_ALLOC_INT, SMC91111_INT_REG );
-  			break;
+			break;
 		}
-   	} while ( -- time_out );
+	} while ( -- time_out );
 
-   	if ( !time_out ) {
+	if ( !time_out ) {
 			PRINTK2("%s: memory allocation, try %d failed ...\n",
 				SMC_DEV_NAME, try);
 			if (try < SMC_ALLOC_MAX_TRY)
@@ -564,7 +560,7 @@ again:
 	/* point to the beginning of the packet */
 	SMC_outw( PTR_AUTOINC , PTR_REG );
 
-   	PRINTK3("%s: Trying to xmit packet of length %x\n",
+	PRINTK3("%s: Trying to xmit packet of length %x\n",
 		SMC_DEV_NAME, length);
 
 #if SMC_DEBUG > 2
@@ -573,7 +569,7 @@ again:
 #endif
 
 	/* send the packet length ( +6 for status, length and ctl byte )
- 	   and the status word ( set to zeros ) */
+	   and the status word ( set to zeros ) */
 #ifdef USE_32_BIT
 	SMC_outl(  (length +6 ) << 16 , SMC91111_DATA_REG );
 #else
@@ -585,8 +581,8 @@ again:
 	/* send the actual data
 	 . I _think_ it's faster to send the longs first, and then
 	 . mop up by sending the last word.  It depends heavily
- 	 . on alignment, at least on the 486.  Maybe it would be
- 	 . a good idea to check which is optimal?  But that could take
+	 . on alignment, at least on the 486.  Maybe it would be
+	 . a good idea to check which is optimal?  But that could take
 	 . almost as much time as is saved?
 	*/
 #ifdef USE_32_BIT
@@ -614,15 +610,15 @@ again:
 			SMC_DEV_NAME);
 
 		/* release packet */
-	        SMC_outw(MC_FREEPKT, MMU_CMD_REG);
+		SMC_outw(MC_FREEPKT, MMU_CMD_REG);
 
-        	/* wait for MMU getting ready (low) */
-	        while (SMC_inw(MMU_CMD_REG) & MC_BUSY)
-        	{
-                	udelay(10);
-	        }
+		/* wait for MMU getting ready (low) */
+		while (SMC_inw(MMU_CMD_REG) & MC_BUSY)
+		{
+			udelay(10);
+		}
 
-        	PRINTK2("MMU ready\n");
+		PRINTK2("MMU ready\n");
 
 
 		return 0;
@@ -632,15 +628,15 @@ again:
 		PRINTK2("%s: Sent packet of length %d \n", SMC_DEV_NAME, length);
 
 		/* release packet */
-	        SMC_outw(MC_FREEPKT, MMU_CMD_REG);
+		SMC_outw(MC_FREEPKT, MMU_CMD_REG);
 
-        	/* wait for MMU getting ready (low) */
-	        while (SMC_inw(MMU_CMD_REG) & MC_BUSY)
-        	{
-                	udelay(10);
-	        }
+		/* wait for MMU getting ready (low) */
+		while (SMC_inw(MMU_CMD_REG) & MC_BUSY)
+		{
+			udelay(10);
+		}
 
-        	PRINTK2("MMU ready\n");
+		PRINTK2("MMU ready\n");
 
 
 	}
@@ -690,11 +686,11 @@ static int smc_open(bd_t *bd)
 /*	SMC_SELECT_BANK(0); */
 /*	SMC_outw(0, RPC_REG); */
 	SMC_SELECT_BANK(1);
-  
+
     err = smc_get_ethaddr(bd); /* set smc_mac_addr, and sync it with u-boot globals */
-    if(err < 0){   
-        memset(bd->bi_enetaddr, 0, 6);  /* hack to make error stick! upper code will abort if not set*/
-        return(-1);                     /* upper code ignores this, but NOT bi_enetaddr */
+    if(err < 0){
+	memset(bd->bi_enetaddr, 0, 6);  /* hack to make error stick! upper code will abort if not set*/
+	return(-1);                     /* upper code ignores this, but NOT bi_enetaddr */
     }
 
 #ifdef USE_32_BIT
@@ -783,7 +779,6 @@ static int smc_rcv()
 		packet_length -= 4; /*4; */
 
 
-
 		/* set odd length for bug in LAN91C111, */
 		/* which never sets RS_ODDFRAME */
 		/* TODO ? */
@@ -841,7 +836,6 @@ static int smc_rcv()
 	}
 
 }
-
 
 
 /*----------------------------------------------------
@@ -1203,7 +1197,6 @@ static void smc_write_phy_register(byte phyreg, word phydata)
 #endif /* !CONFIG_SMC91111_EXT_PHY */
 
 
-
 /*------------------------------------------------------------
  . Waits the specified number of milliseconds - kernel friendly
  .-------------------------------------------------------------*/
@@ -1213,7 +1206,6 @@ static void smc_wait_ms(unsigned int ms)
 	udelay(ms*1000);
 }
 #endif /* !CONFIG_SMC91111_EXT_PHY */
-
 
 
 /*------------------------------------------------------------
@@ -1231,7 +1223,6 @@ static void smc_phy_configure()
 	int failed = 0;
 
 	PRINTK3("%s:smc_program_phy()\n", SMC_DEV_NAME);
-
 
 
 	/* Get the detected phy address */
@@ -1358,36 +1349,36 @@ static void smc_phy_configure()
 static void print_packet( byte * buf, int length )
 {
 #if 0
-        int i;
-        int remainder;
-        int lines;
+	int i;
+	int remainder;
+	int lines;
 
-        printf("Packet of length %d \n", length );
+	printf("Packet of length %d \n", length );
 
 #if SMC_DEBUG > 3
-        lines = length / 16;
-        remainder = length % 16;
+	lines = length / 16;
+	remainder = length % 16;
 
-        for ( i = 0; i < lines ; i ++ ) {
-                int cur;
+	for ( i = 0; i < lines ; i ++ ) {
+		int cur;
 
-                for ( cur = 0; cur < 8; cur ++ ) {
-                        byte a, b;
+		for ( cur = 0; cur < 8; cur ++ ) {
+			byte a, b;
 
-                        a = *(buf ++ );
-                        b = *(buf ++ );
-                        printf("%02x%02x ", a, b );
-                }
-                printf("\n");
-        }
-        for ( i = 0; i < remainder/2 ; i++ ) {
-                byte a, b;
+			a = *(buf ++ );
+			b = *(buf ++ );
+			printf("%02x%02x ", a, b );
+		}
+		printf("\n");
+	}
+	for ( i = 0; i < remainder/2 ; i++ ) {
+		byte a, b;
 
-                a = *(buf ++ );
-                b = *(buf ++ );
-                printf("%02x%02x ", a, b );
-        }
-        printf("\n");
+		a = *(buf ++ );
+		b = *(buf ++ );
+		printf("%02x%02x ", a, b );
+	}
+	printf("\n");
 #endif
 #endif
 }
@@ -1413,45 +1404,45 @@ int smc_get_ethaddr(bd_t *bd)
 {
     int env_size, rom_valid, env_present = 0, reg;
     char *s = NULL, *e, *v_mac, es[] = "11:22:33:44:55:66";
-    uchar s_env_mac[64], v_env_mac[6], v_rom_mac[6]; 
+    uchar s_env_mac[64], v_env_mac[6], v_rom_mac[6];
 
-    env_size = getenv_r ("ethaddr", s_env_mac, sizeof (s_env_mac)); 
+    env_size = getenv_r ("ethaddr", s_env_mac, sizeof (s_env_mac));
     if ((env_size > 0) && (env_size < sizeof(es))) {  /* exit if env is bad */
-        printf("\n*** ERROR: ethaddr is not set properly!!\n");
-        return(-1);
+	printf("\n*** ERROR: ethaddr is not set properly!!\n");
+	return(-1);
     }
-    
+
     if(env_size > 0){
-        env_present = 1;
-        s = s_env_mac;
+	env_present = 1;
+	s = s_env_mac;
     }
-        
+
     for (reg = 0; reg < 6; ++reg) {     /* turn string into mac value */
-        v_env_mac[reg] = s ? simple_strtoul (s, &e, 16) : 0; 
-        if (s)                                                  
-            s = (*e) ? e + 1 : e;                               
+	v_env_mac[reg] = s ? simple_strtoul (s, &e, 16) : 0;
+	if (s)
+	    s = (*e) ? e + 1 : e;
     }
-                                                                    
-    rom_valid = get_rom_mac(v_rom_mac); /* get ROM mac value if any */   
-    
+
+    rom_valid = get_rom_mac(v_rom_mac); /* get ROM mac value if any */
+
     if(!env_present){                   /* if NO env */
-        if(rom_valid){                  /* but ROM is valid */
-            v_mac = v_rom_mac;
-            sprintf (s_env_mac, "%02X:%02X:%02X:%02X:%02X:%02X", v_mac[0], 
-                     v_mac[1] ,v_mac[2], v_mac[3],v_mac[4], v_mac[5]) ;
-            setenv ("ethaddr", s_env_mac); 
-        }else{                          /* no env, bad ROM */
-            printf("\n*** ERROR: ethaddr is NOT set !!\n");
-            return(-1);
-        }
+	if(rom_valid){                  /* but ROM is valid */
+	    v_mac = v_rom_mac;
+	    sprintf (s_env_mac, "%02X:%02X:%02X:%02X:%02X:%02X", v_mac[0],
+		     v_mac[1] ,v_mac[2], v_mac[3],v_mac[4], v_mac[5]) ;
+	    setenv ("ethaddr", s_env_mac);
+	}else{                          /* no env, bad ROM */
+	    printf("\n*** ERROR: ethaddr is NOT set !!\n");
+	    return(-1);
+	}
     }else                               /* good env, don't care ROM */
       v_mac = v_env_mac;                /* always use a good env over a ROM */
-   
+
     if(env_present && rom_valid)        /* if both env and ROM are good */
-        if(memcmp(v_env_mac, v_rom_mac, 6) != 0){
-            printf("\n*** Warning: Environment and ROM MAC addresses don't match\n");
-            printf("***          Using Environment MAC\n");
-        }
+	if(memcmp(v_env_mac, v_rom_mac, 6) != 0){
+	    printf("\n*** Warning: Environment and ROM MAC addresses don't match\n");
+	    printf("***          Using Environment MAC\n");
+	}
     memcpy (bd->bi_enetaddr, v_mac, 6); /* update global address to match env (allows env changing) */
     smc_set_mac_addr(v_mac);            /* use old function to update smc default */
     return(0);
@@ -1460,7 +1451,7 @@ int smc_get_ethaddr(bd_t *bd)
 int get_rom_mac(char *v_rom_mac)
 {
     int is_rom_present = 0;
-#ifdef HARDCODE_MAC  /* used for testing or to supress run time warnings */    
+#ifdef HARDCODE_MAC  /* used for testing or to supress run time warnings */
     char hw_mac_addr[] = {0x02, 0x80, 0xad, 0x20, 0x31, 0xb8};
 
     memcpy (v_rom_mac, hw_mac_addr, 6);
@@ -1468,12 +1459,12 @@ int get_rom_mac(char *v_rom_mac)
 #else
     if(is_rom_present)
     {
-        /* if eeprom contents are valid
-         *   extract mac address into hw_mac_addr, 8 or 16 bit accesses
-         *   memcpy (v_rom_mac, hc_mac_addr, 6); 
-         *   return(1);
-         */  
-    }        
+	/* if eeprom contents are valid
+	 *   extract mac address into hw_mac_addr, 8 or 16 bit accesses
+	 *   memcpy (v_rom_mac, hc_mac_addr, 6);
+	 *   return(1);
+	 */
+    }
     memset(v_rom_mac, 0, 6);
     return(0);
 #endif

@@ -97,8 +97,8 @@
 
 /* The following table includes the supported baudrates */
 #define CFG_BAUDRATE_TABLE      \
-        { 300, 600, 1200, 2400, 4800, 9600, 19200, 38400,     \
-         57600, 115200, 230400, 460800, 921600 }
+	{ 300, 600, 1200, 2400, 4800, 9600, 19200, 38400,     \
+	 57600, 115200, 230400, 460800, 921600 }
 
 #define CFG_LOAD_ADDR	0x100000	/* default load address */
 #define CFG_EXTBDINFO	1		/* To use extended board_into (bd_t) */
@@ -118,7 +118,7 @@
 #define CONFIG_PCI			/* include pci support	        */
 #define CONFIG_PCI_HOST	PCI_HOST_AUTO   /* select pci host function     */
 #define CONFIG_PCI_PNP			/* do pci plug-and-play         */
-                                        /* resource configuration       */
+					/* resource configuration       */
 
 #define CONFIG_PCI_SCAN_SHOW            /* print pci devices @ startup  */
 
@@ -210,7 +210,7 @@
 #define CFG_ENV_IS_IN_EEPROM    1       /* use EEPROM for environment vars */
 #define CFG_ENV_OFFSET          0x000   /* environment starts at the beginning of the EEPROM */
 #define CFG_ENV_SIZE            0x400   /* 1024 bytes may be used for env vars */
-                                   /* total size of a CAT24WC08 is 1024 bytes */
+				   /* total size of a CAT24WC08 is 1024 bytes */
 
 /*-----------------------------------------------------------------------
  * Cache Configuration

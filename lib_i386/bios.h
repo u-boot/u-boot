@@ -1,7 +1,7 @@
 /*
  * (C) Copyright 2002
  * Daniel Engström, Omicron Ceti AB, daniel@omicron.se
- * 
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -28,9 +28,9 @@
 #define OFFS_GS      2     /* 16bit */
 #define OFFS_DS      4     /* 16bit */
 #define OFFS_EDI     6     /* 32bit */
-#define OFFS_DI      6     /* low 16 bits of EDI */   
+#define OFFS_DI      6     /* low 16 bits of EDI */
 #define OFFS_ESI     10    /* 32bit */
-#define OFFS_SI      10    /* low 16 bits of ESI */   
+#define OFFS_SI      10    /* low 16 bits of ESI */
 #define OFFS_EBP     14    /* 32bit */
 #define OFFS_BP      14    /* low 16 bits of EBP */
 #define OFFS_ESP     18    /* 32bit */
@@ -54,7 +54,7 @@
 #define OFFS_VECTOR  38    /* 16bit */
 #define OFFS_IP      40    /* 16bit */
 #define OFFS_CS      42    /* 16bit */
-#define OFFS_FLAGS   44    /* 16bit */   
+#define OFFS_FLAGS   44    /* 16bit */
 
 #define SEGMENT      0x40
 #define STACK	     0x800  			/* stack at 0x40:0x800 -> 0x800 */
@@ -63,9 +63,9 @@
 /* save some segments     */
 /* save callers stack segment .. */
 /* ... in gs */
-	/* setup my segments */ 
-	/* setup BIOS stackpointer */ 
-	
+	/* setup my segments */
+	/* setup BIOS stackpointer */
+
 #define MAKE_BIOS_STACK \
 	pushal		; \
 	pushw	%ds	; \
@@ -89,6 +89,6 @@
 	popw	%gs     ; \
 	popw	%ds     ; \
 		\
-	popal					/* restore GP registers */ 
+	popal					/* restore GP registers */
 
 #endif

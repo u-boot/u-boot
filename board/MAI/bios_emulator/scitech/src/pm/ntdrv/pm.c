@@ -1,7 +1,7 @@
 /****************************************************************************
 *
 *                   SciTech OS Portability Manager Library
-*																																			
+*
 *  ========================================================================
 *
 *    The contents of this file are subject to the SciTech MGL Public
@@ -88,9 +88,9 @@ void PMAPI PM_backslash(char *s)
 {
     uint pos = strlen(s);
     if (s[pos-1] != '\\') {
-        s[pos] = '\\';
-        s[pos+1] = '\0';
-        }
+	s[pos] = '\\';
+	s[pos+1] = '\0';
+	}
 }
 
 /****************************************************************************
@@ -116,25 +116,25 @@ void PMAPI PM_fatalError(
     ULONG   len;
 
     if (fatalErrorCleanup)
-        fatalErrorCleanup();
+	fatalErrorCleanup();
 
-#ifdef DBG	// Send output to debugger, just return so as not to force a reboot
-#pragma message("INFO: building for debug, PM_fatalError() re-routed")	
-	DBGMSG2("SDDHELP> PM_fatalError(): ERROR: %s\n", msg);	
+#ifdef DBG	/* Send output to debugger, just return so as not to force a reboot */
+#pragma message("INFO: building for debug, PM_fatalError() re-routed")
+	DBGMSG2("SDDHELP> PM_fatalError(): ERROR: %s\n", msg);
 	return ;
 #endif
-    // KeBugCheckEx brings down the system in a controlled
-    // manner when the caller discovers an unrecoverable
-    // inconsistency that would corrupt the system if
-    // the caller continued to run.
-    //
-    // hack - dump the first 20 chars in hex using the variables
-    //      provided - Each ULONG is equal to four characters...
+    /* KeBugCheckEx brings down the system in a controlled */
+    /* manner when the caller discovers an unrecoverable */
+    /* inconsistency that would corrupt the system if */
+    /* the caller continued to run. */
+    /* */
+    /* hack - dump the first 20 chars in hex using the variables */
+    /*      provided - Each ULONG is equal to four characters... */
     for(len = 0; len < 20; len++)
-        if (msg[len] == (char)0)
-            break;
+	if (msg[len] == (char)0)
+	    break;
 
-    // This looks bad but it's quick and reliable...
+    /* This looks bad but it's quick and reliable... */
     p = (char *)&BugCheckCode;
     if(len > 0) p[3] = msg[0];
     if(len > 1) p[2] = msg[1];
@@ -165,7 +165,7 @@ void PMAPI PM_fatalError(
     if(len > 18) p[1] = msg[18];
     if(len > 19) p[0] = msg[19];
 
-    // Halt the system!
+    /* Halt the system! */
     KeBugCheckEx(BugCheckCode, MoreBugCheckData[0], MoreBugCheckData[1], MoreBugCheckData[2], MoreBugCheckData[3]);
 }
 
@@ -209,50 +209,50 @@ static ibool REG_queryString(
     STRING                          stringdata;
     UNICODE_STRING                  unidata;
 
-    // Convert strings to UniCode
+    /* Convert strings to UniCode */
     status = false;
     if ((uniKey = _PM_CStringToUnicodeString(szKey)) == NULL)
-        goto Exit;
+	goto Exit;
     if ((uniValue = _PM_CStringToUnicodeString(szValue)) == NULL)
-        goto Exit;
+	goto Exit;
 
-    // Open the key
+    /* Open the key */
     InitializeObjectAttributes( &keyAttributes,
-                                uniKey,
-                                OBJ_CASE_INSENSITIVE,
-                                NULL,
-                                NULL );
+				uniKey,
+				OBJ_CASE_INSENSITIVE,
+				NULL,
+				NULL );
     rval = ZwOpenKey( &Handle,
-                      KEY_ALL_ACCESS,
-                      &keyAttributes );
+		      KEY_ALL_ACCESS,
+		      &keyAttributes );
     if (!NT_SUCCESS(rval))
-        goto Exit;
+	goto Exit;
 
-    // Query the value
+    /* Query the value */
     length = sizeof (KEY_VALUE_FULL_INFORMATION)
-           + size * sizeof(WCHAR);
+	   + size * sizeof(WCHAR);
     if ((fullInfo = ExAllocatePool (PagedPool, length)) == NULL)
-        goto Exit;
+	goto Exit;
     RtlZeroMemory(fullInfo, length);
     rval = ZwQueryValueKey (Handle,
-                            uniValue,
-                            KeyValueFullInformation,
-                            fullInfo,
-                            length,
-                            &length);
+			    uniValue,
+			    KeyValueFullInformation,
+			    fullInfo,
+			    length,
+			    &length);
     if (NT_SUCCESS (rval)) {
-        // Create the UniCode string so we can convert it
-        unidata.Buffer = (PWCHAR)(((PCHAR)fullInfo) + fullInfo->DataOffset);
-        unidata.Length = (USHORT)fullInfo->DataLength;
-        unidata.MaximumLength = (USHORT)fullInfo->DataLength + sizeof(WCHAR);
+	/* Create the UniCode string so we can convert it */
+	unidata.Buffer = (PWCHAR)(((PCHAR)fullInfo) + fullInfo->DataOffset);
+	unidata.Length = (USHORT)fullInfo->DataLength;
+	unidata.MaximumLength = (USHORT)fullInfo->DataLength + sizeof(WCHAR);
 
-        // Convert unicode univalue to ansi string.
-        rval = RtlUnicodeStringToAnsiString(&stringdata, &unidata, TRUE);
-        if (NT_SUCCESS(rval)) {
-            strcpy(value,stringdata.Buffer);
-            status = true;
-            }
-        }
+	/* Convert unicode univalue to ansi string. */
+	rval = RtlUnicodeStringToAnsiString(&stringdata, &unidata, TRUE);
+	if (NT_SUCCESS(rval)) {
+	    strcpy(value,stringdata.Buffer);
+	    status = true;
+	    }
+	}
 
 Exit:
     if (fullInfo) ExFreePool(fullInfo);
@@ -269,7 +269,7 @@ char PMAPI PM_getBootDrive(void)
 {
     char path[256];
     if (REG_queryString(szNTWindowsKey,szNTSystemRoot,path,sizeof(path)))
-        return 'c';
+	return 'c';
     return path[0];
 }
 
@@ -291,12 +291,12 @@ const char * PMAPI PM_getNucleusPath(void)
     static char path[256];
 
     if (strlen(_PM_nucleusPath) > 0) {
-        strcpy(path,_PM_nucleusPath);
-        PM_backslash(path);
-        return path;
-        }
+	strcpy(path,_PM_nucleusPath);
+	PM_backslash(path);
+	return path;
+	}
     if (!REG_queryString(szNTWindowsKey,szNTSystemRoot,path,sizeof(path)))
-        strcpy(path,"c:\\winnt");
+	strcpy(path,"c:\\winnt");
     PM_backslash(path);
     strcat(path,"system32\\nucleus");
     return path;
@@ -333,9 +333,9 @@ const char * PMAPI PM_getMachineName(void)
     static char name[256];
 
     if (REG_queryString(szMachineNameKey,szMachineName,name,sizeof(name)))
-        return name;
+	return name;
     if (REG_queryString(szMachineNameKeyNT,szMachineName,name,sizeof(name)))
-        return name;
+	return name;
     return "Unknown";
 }
 
@@ -345,7 +345,7 @@ Check if a key has been pressed.
 ****************************************************************************/
 int PMAPI PM_kbhit(void)
 {
-    // Not used in NT drivers
+    /* Not used in NT drivers */
     return true;
 }
 
@@ -355,7 +355,7 @@ Wait for and return the next keypress.
 ****************************************************************************/
 int PMAPI PM_getch(void)
 {
-    // Not used in NT drivers
+    /* Not used in NT drivers */
     return 0xD;
 }
 
@@ -372,7 +372,7 @@ PM_HWND PMAPI PM_openConsole(
     int bpp,
     ibool fullScreen)
 {
-    // Not used in NT drivers
+    /* Not used in NT drivers */
     (void)hwndUser;
     (void)device;
     (void)xRes;
@@ -388,7 +388,7 @@ Find the size of the console state buffer.
 ****************************************************************************/
 int PMAPI PM_getConsoleStateSize(void)
 {
-    // Not used in NT drivers
+    /* Not used in NT drivers */
     return 1;
 }
 
@@ -400,7 +400,7 @@ void PMAPI PM_saveConsoleState(
     void *stateBuf,
     PM_HWND hwndConsole)
 {
-    // Not used in NT drivers
+    /* Not used in NT drivers */
     (void)stateBuf;
     (void)hwndConsole;
 }
@@ -412,7 +412,7 @@ Set the suspend application callback for the fullscreen console.
 void PMAPI PM_setSuspendAppCallback(
     PM_saveState_cb saveState)
 {
-    // Not used in NT drivers
+    /* Not used in NT drivers */
     (void)saveState;
 }
 
@@ -424,7 +424,7 @@ void PMAPI PM_restoreConsoleState(
     const void *stateBuf,
     PM_HWND hwndConsole)
 {
-    // Not used in NT drivers
+    /* Not used in NT drivers */
     (void)stateBuf;
     (void)hwndConsole;
 }
@@ -436,7 +436,7 @@ Close the fullscreen console.
 void PMAPI PM_closeConsole(
     PM_HWND hwndConsole)
 {
-    // Not used in NT drivers
+    /* Not used in NT drivers */
     (void)hwndConsole;
 }
 
@@ -475,7 +475,7 @@ void * PMAPI PM_mapToProcess(
     void *base,
     ulong limit)
 {
-    // Not used anymore
+    /* Not used anymore */
     (void)base;
     (void)limit;
     return NULL;
@@ -491,7 +491,7 @@ ibool PMAPI PM_doBIOSPOST(
     void *mappedBIOS,
     ulong BIOSLen)
 {
-    // This may not be possible in NT and should be done by the OS anyway
+    /* This may not be possible in NT and should be done by the OS anyway */
     (void)axVal;
     (void)BIOSPhysAddr;
     (void)mappedBIOS;
@@ -505,7 +505,7 @@ Return a pointer to the real mode BIOS data area.
 ****************************************************************************/
 void * PMAPI PM_getBIOSPointer(void)
 {
-    // Note that on NT this probably does not do what we expect!
+    /* Note that on NT this probably does not do what we expect! */
     return PM_mapPhysicalAddr(0x400, 0x1000, true);
 }
 
@@ -525,7 +525,7 @@ Sleep for the specified number of milliseconds.
 void PMAPI PM_sleep(
     ulong milliseconds)
 {
-    // We never use this in NT drivers
+    /* We never use this in NT drivers */
     (void)milliseconds;
 }
 
@@ -535,14 +535,14 @@ Return the base I/O port for the specified COM port.
 ****************************************************************************/
 int PMAPI PM_getCOMPort(int port)
 {
-    // TODO: Re-code this to determine real values using the Plug and Play
-    //       manager for the OS.
+    /* TODO: Re-code this to determine real values using the Plug and Play */
+    /*       manager for the OS. */
     switch (port) {
-        case 0: return 0x3F8;
-        case 1: return 0x2F8;
-        case 2: return 0x3E8;
-        case 3: return 0x2E8;
-        }
+	case 0: return 0x3F8;
+	case 1: return 0x2F8;
+	case 2: return 0x3E8;
+	case 3: return 0x2E8;
+	}
     return 0;
 }
 
@@ -552,13 +552,13 @@ Return the base I/O port for the specified LPT port.
 ****************************************************************************/
 int PMAPI PM_getLPTPort(int port)
 {
-    // TODO: Re-code this to determine real values using the Plug and Play
-    //       manager for the OS.
+    /* TODO: Re-code this to determine real values using the Plug and Play */
+    /*       manager for the OS. */
     switch (port) {
-        case 0: return 0x3BC;
-        case 1: return 0x378;
-        case 2: return 0x278;
-        }
+	case 0: return 0x3BC;
+	case 1: return 0x378;
+	case 2: return 0x278;
+	}
     return 0;
 }
 
@@ -580,7 +580,7 @@ OS specific shared libraries not supported inside a VxD
 PM_MODULE PMAPI PM_loadLibrary(
     const char *szDLLName)
 {
-    // Not used in NT drivers
+    /* Not used in NT drivers */
     (void)szDLLName;
     return NULL;
 }
@@ -593,7 +593,7 @@ void * PMAPI PM_getProcAddress(
     PM_MODULE hModule,
     const char *szProcName)
 {
-    // Not used in NT drivers
+    /* Not used in NT drivers */
     (void)hModule;
     (void)szProcName;
     return NULL;
@@ -606,7 +606,7 @@ OS specific shared libraries not supported inside a VxD
 void PMAPI PM_freeLibrary(
     PM_MODULE hModule)
 {
-    // Not used in NT drivers
+    /* Not used in NT drivers */
     (void)hModule;
 }
 
@@ -618,9 +618,9 @@ void *PMAPI PM_findFirstFile(
     const char *filename,
     PM_findData *findData)
 {
-    // TODO: This function should start a directory enumeration search
-    //       given the filename (with wildcards). The data should be
-    //       converted and returned in the findData standard form.
+    /* TODO: This function should start a directory enumeration search */
+    /*       given the filename (with wildcards). The data should be */
+    /*       converted and returned in the findData standard form. */
     (void)filename;
     (void)findData;
     return PM_FILE_INVALID;
@@ -634,10 +634,10 @@ ibool PMAPI PM_findNextFile(
     void *handle,
     PM_findData *findData)
 {
-    // TODO: This function should find the next file in directory enumeration
-    //       search given the search criteria defined in the call to
-    //       PM_findFirstFile. The data should be converted and returned
-    //       in the findData standard form.
+    /* TODO: This function should find the next file in directory enumeration */
+    /*       search given the search criteria defined in the call to */
+    /*       PM_findFirstFile. The data should be converted and returned */
+    /*       in the findData standard form. */
     (void)handle;
     (void)findData;
     return false;
@@ -650,8 +650,8 @@ Function to close the find process
 void PMAPI PM_findClose(
     void *handle)
 {
-    // TODO: This function should close the find process. This may do
-    //       nothing for some OS'es.
+    /* TODO: This function should close the find process. This may do */
+    /*       nothing for some OS'es. */
     (void)handle;
 }
 
@@ -671,7 +671,7 @@ numbering is:
 ibool PMAPI PM_driveValid(
     char drive)
 {
-    // Not supported in NT drivers
+    /* Not supported in NT drivers */
     (void)drive;
     return false;
 }
@@ -687,7 +687,7 @@ void PMAPI PM_getdcwd(
     char *dir,
     int len)
 {
-    // Not supported in NT drivers
+    /* Not supported in NT drivers */
     (void)drive;
     (void)dir;
     (void)len;
@@ -733,67 +733,67 @@ void PMAPI PM_setFileAttr(
     char                    kernelFilename[PM_MAX_PATH+5];
     ULONG                   FileAttributes = 0;
 
-    // Convert file attribute flags
+    /* Convert file attribute flags */
     if (attrib & PM_FILE_READONLY)
-        FileAttributes |= FILE_ATTRIBUTE_READONLY;
+	FileAttributes |= FILE_ATTRIBUTE_READONLY;
     if (attrib & PM_FILE_ARCHIVE)
-        FileAttributes |= FILE_ATTRIBUTE_ARCHIVE;
+	FileAttributes |= FILE_ATTRIBUTE_ARCHIVE;
     if (attrib & PM_FILE_HIDDEN)
-        FileAttributes |= FILE_ATTRIBUTE_HIDDEN;
+	FileAttributes |= FILE_ATTRIBUTE_HIDDEN;
     if (attrib & PM_FILE_SYSTEM)
-        FileAttributes |= FILE_ATTRIBUTE_SYSTEM;
+	FileAttributes |= FILE_ATTRIBUTE_SYSTEM;
 
-    // Add prefix for addressing the file system. "\??\" is short for "\DosDevices\"
+    /* Add prefix for addressing the file system. "\??\" is short for "\DosDevices\" */
     strcpy(kernelFilename, "\\??\\");
     strcat(kernelFilename, filename);
 
-    // Convert filename string to ansi string
+    /* Convert filename string to ansi string */
     if ((uniFile = _PM_CStringToUnicodeString(kernelFilename)) == NULL)
-        goto Exit;
+	goto Exit;
 
-    // Must open a file to query it's attributes
+    /* Must open a file to query it's attributes */
     InitializeObjectAttributes (&ObjectAttributes,
-                                uniFile,
-                                OBJ_CASE_INSENSITIVE,
-                                NULL,
-                                NULL );
+				uniFile,
+				OBJ_CASE_INSENSITIVE,
+				NULL,
+				NULL );
     status = ZwCreateFile( &FileHandle,
-                            DesiredAccess | SYNCHRONIZE,
-                            &ObjectAttributes,
-                            &IoStatusBlock,
-                            NULL,                  //AllocationSize  OPTIONAL,
-                            FILE_ATTRIBUTE_NORMAL,
-                            ShareAccess,
-                            CreateDisposition,
-                            FILE_RANDOM_ACCESS,        //CreateOptions,
-                            NULL,                  //EaBuffer  OPTIONAL,
-                            0                      //EaLength (required if EaBuffer)
-                            );
+			    DesiredAccess | SYNCHRONIZE,
+			    &ObjectAttributes,
+			    &IoStatusBlock,
+			    NULL,                  /*AllocationSize  OPTIONAL, */
+			    FILE_ATTRIBUTE_NORMAL,
+			    ShareAccess,
+			    CreateDisposition,
+			    FILE_RANDOM_ACCESS,        /*CreateOptions, */
+			    NULL,                  /*EaBuffer  OPTIONAL, */
+			    0                      /*EaLength (required if EaBuffer) */
+			    );
     if (!NT_SUCCESS (status))
-        goto Exit;
+	goto Exit;
 
-    // Query timestamps
+    /* Query timestamps */
     status = ZwQueryInformationFile(FileHandle,
-                                    &IoStatusBlock,
-                                    &FileBasic,
-                                    sizeof(FILE_BASIC_INFORMATION),
-                                    FileBasicInformation
-                                    );
+				    &IoStatusBlock,
+				    &FileBasic,
+				    sizeof(FILE_BASIC_INFORMATION),
+				    FileBasicInformation
+				    );
     if (!NT_SUCCESS (status))
-        goto Exit;
+	goto Exit;
 
-    // Change the four bits we change
+    /* Change the four bits we change */
     FileBasic.FileAttributes &= ~(FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_ARCHIVE
-                                  | FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_SYSTEM);
+				  | FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_SYSTEM);
     FileBasic.FileAttributes |= FileAttributes;
 
-    // Set timestamps
+    /* Set timestamps */
     ZwSetInformationFile(   FileHandle,
-                            &IoStatusBlock,
-                            &FileBasic,
-                            sizeof(FILE_BASIC_INFORMATION),
-                            FileBasicInformation
-                            );
+			    &IoStatusBlock,
+			    &FileBasic,
+			    sizeof(FILE_BASIC_INFORMATION),
+			    FileBasicInformation
+			    );
 
 Exit:
     if (FileHandle) ZwClose(FileHandle);
@@ -821,54 +821,54 @@ uint PMAPI PM_getFileAttr(
     ULONG                   FileAttributes = 0;
     uint                    retval = 0;
 
-    // Add prefix for addressing the file system. "\??\" is short for "\DosDevices\"
+    /* Add prefix for addressing the file system. "\??\" is short for "\DosDevices\" */
     strcpy(kernelFilename, "\\??\\");
     strcat(kernelFilename, filename);
 
-    // Convert filename string to ansi string
+    /* Convert filename string to ansi string */
     if ((uniFile = _PM_CStringToUnicodeString(kernelFilename)) == NULL)
-        goto Exit;
+	goto Exit;
 
-    // Must open a file to query it's attributes
+    /* Must open a file to query it's attributes */
     InitializeObjectAttributes (&ObjectAttributes,
-                                uniFile,
-                                OBJ_CASE_INSENSITIVE,
-                                NULL,
-                                NULL );
+				uniFile,
+				OBJ_CASE_INSENSITIVE,
+				NULL,
+				NULL );
     status = ZwCreateFile( &FileHandle,
-                           DesiredAccess | SYNCHRONIZE,
-                           &ObjectAttributes,
-                           &IoStatusBlock,
-                           NULL,                  //AllocationSize  OPTIONAL,
-                           FILE_ATTRIBUTE_NORMAL,
-                           ShareAccess,
-                           CreateDisposition,
-                           FILE_RANDOM_ACCESS,        //CreateOptions,
-                           NULL,                  //EaBuffer  OPTIONAL,
-                           0                      //EaLength (required if EaBuffer)
-                           );
+			   DesiredAccess | SYNCHRONIZE,
+			   &ObjectAttributes,
+			   &IoStatusBlock,
+			   NULL,                  /*AllocationSize  OPTIONAL, */
+			   FILE_ATTRIBUTE_NORMAL,
+			   ShareAccess,
+			   CreateDisposition,
+			   FILE_RANDOM_ACCESS,        /*CreateOptions, */
+			   NULL,                  /*EaBuffer  OPTIONAL, */
+			   0                      /*EaLength (required if EaBuffer) */
+			   );
     if (!NT_SUCCESS (status))
-        goto Exit;
+	goto Exit;
 
-    // Query timestamps
+    /* Query timestamps */
     status = ZwQueryInformationFile(FileHandle,
-                                    &IoStatusBlock,
-                                    &FileBasic,
-                                    sizeof(FILE_BASIC_INFORMATION),
-                                    FileBasicInformation
-                                    );
+				    &IoStatusBlock,
+				    &FileBasic,
+				    sizeof(FILE_BASIC_INFORMATION),
+				    FileBasicInformation
+				    );
     if (!NT_SUCCESS (status))
-        goto Exit;
+	goto Exit;
 
-    // Translate the file attributes
+    /* Translate the file attributes */
     if (FileBasic.FileAttributes & FILE_ATTRIBUTE_READONLY)
-        retval |= PM_FILE_READONLY;
+	retval |= PM_FILE_READONLY;
     if (FileBasic.FileAttributes & FILE_ATTRIBUTE_ARCHIVE)
-        retval |= PM_FILE_ARCHIVE;
+	retval |= PM_FILE_ARCHIVE;
     if (FileBasic.FileAttributes & FILE_ATTRIBUTE_HIDDEN)
-        retval |= PM_FILE_HIDDEN;
+	retval |= PM_FILE_HIDDEN;
     if (FileBasic.FileAttributes & FILE_ATTRIBUTE_SYSTEM)
-        retval |= PM_FILE_SYSTEM;
+	retval |= PM_FILE_SYSTEM;
 
 Exit:
     if (FileHandle) ZwClose(FileHandle);
@@ -883,7 +883,7 @@ Function to create a directory.
 ibool PMAPI PM_mkdir(
     const char *filename)
 {
-    // Not supported in NT drivers
+    /* Not supported in NT drivers */
     (void)filename;
     return false;
 }
@@ -895,7 +895,7 @@ Function to remove a directory.
 ibool PMAPI PM_rmdir(
     const char *filename)
 {
-    // Not supported in NT drivers
+    /* Not supported in NT drivers */
     (void)filename;
     return false;
 }
@@ -909,7 +909,7 @@ ibool PMAPI PM_getFileTime(
     ibool gmTime,
     PM_time *time)
 {
-    // Not supported in NT drivers
+    /* Not supported in NT drivers */
     (void)filename;
     (void)gmTime;
     (void)time;
@@ -925,10 +925,9 @@ ibool PMAPI PM_setFileTime(
     ibool gmTime,
     PM_time *time)
 {
-    // Not supported in NT drivers
+    /* Not supported in NT drivers */
     (void)filename;
     (void)gmTime;
     (void)time;
     return false;
 }
-

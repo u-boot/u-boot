@@ -53,5 +53,11 @@ int do_mip405(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
    	}
 	return (do_mplcommon(cmdtp, flag, argc, argv));
 }
+cmd_tbl_t U_BOOT_CMD(mip405) = MK_CMD_ENTRY(
+	"mip405",	6,	1,	do_mip405,
+	"mip405  - MIP405 specific Cmds\n",
+	"flash mem [SrcAddr] - updates U-Boot with image in memory\n"
+	"mip405 flash mps - updates U-Boot with image from MPS\n"
+);
 
 /* ------------------------------------------------------------------------- */

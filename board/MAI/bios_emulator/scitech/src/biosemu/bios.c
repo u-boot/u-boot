@@ -50,9 +50,9 @@ static void X86API undefined_intr(
     int intno)
 {
     if (BE_rdw(intno * 4 + 2) == BIOS_SEG)
-        printk("biosEmu: undefined interrupt %xh called!\n",intno);
+	printk("biosEmu: undefined interrupt %xh called!\n",intno);
     else
-        X86EMU_prepareForInt(intno);
+	X86EMU_prepareForInt(intno);
 }
 
 /****************************************************************************
@@ -68,26 +68,26 @@ static void X86API int42(
     int intno)
 {
     if (M.x86.R_AH == 0x12 && M.x86.R_BL == 0x32) {
-        if (M.x86.R_AL == 0) {
-            /* Enable CPU accesses to video memory */
-            PM_outpb(0x3c2, PM_inpb(0x3cc) | (u8)0x02);
-            return;
-            }
-        else if (M.x86.R_AL == 1) {
-            /* Disable CPU accesses to video memory */
-            PM_outpb(0x3c2, PM_inpb(0x3cc) & (u8)~0x02);
-            return;
-            }
+	if (M.x86.R_AL == 0) {
+	    /* Enable CPU accesses to video memory */
+	    PM_outpb(0x3c2, PM_inpb(0x3cc) | (u8)0x02);
+	    return;
+	    }
+	else if (M.x86.R_AL == 1) {
+	    /* Disable CPU accesses to video memory */
+	    PM_outpb(0x3c2, PM_inpb(0x3cc) & (u8)~0x02);
+	    return;
+	    }
 #ifdef  DEBUG
-        else {
-            printk("biosEmu/bios.int42: unknown function AH=0x12, BL=0x32, AL=%#02x\n",M.x86.R_AL);
-            }
+	else {
+	    printk("biosEmu/bios.int42: unknown function AH=0x12, BL=0x32, AL=%#02x\n",M.x86.R_AL);
+	    }
 #endif
-        }
+	}
 #ifdef  DEBUG
     else {
-        printk("biosEmu/bios.int42: unknown function AH=%#02x, AL=%#02x, BL=%#02x\n",M.x86.R_AH, M.x86.R_AL, M.x86.R_BL);
-        }
+	printk("biosEmu/bios.int42: unknown function AH=%#02x, AL=%#02x, BL=%#02x\n",M.x86.R_AH, M.x86.R_AL, M.x86.R_BL);
+	}
 #endif
 }
 
@@ -106,9 +106,9 @@ static void X86API int10(
     int intno)
 {
     if (BE_rdw(intno * 4 + 2) == BIOS_SEG)
-        int42(intno);
+	int42(intno);
     else
-        X86EMU_prepareForInt(intno);
+	X86EMU_prepareForInt(intno);
 }
 
 /* Result codes returned by the PCI BIOS */
@@ -142,87 +142,87 @@ static void X86API int1A(
 
     /* Fail if no PCI device information has been registered */
     if (!_BE_env.vgaInfo.pciInfo)
-        return;
+	return;
     pciSlot = (u16)(_BE_env.vgaInfo.pciInfo->slot.i >> 8);
     switch (M.x86.R_AX) {
-        case 0xB101:                    /* PCI bios present? */
-            M.x86.R_AL  = 0x00;         /* no config space/special cycle generation support */
-            M.x86.R_EDX = 0x20494350;   /* " ICP" */
-            M.x86.R_BX  = 0x0210;       /* Version 2.10 */
-            M.x86.R_CL  = 0;            /* Max bus number in system */
-            CLEAR_FLAG(F_CF);
-            break;
-        case 0xB102:                    /* Find PCI device */
-            M.x86.R_AH = DEVICE_NOT_FOUND;
-            if (M.x86.R_DX == _BE_env.vgaInfo.pciInfo->VendorID &&
-                    M.x86.R_CX == _BE_env.vgaInfo.pciInfo->DeviceID &&
-                    M.x86.R_SI == 0) {
-                M.x86.R_AH = SUCCESSFUL;
-                M.x86.R_BX = pciSlot;
-                }
-            CONDITIONAL_SET_FLAG((M.x86.R_AH != SUCCESSFUL), F_CF);
-            break;
-        case 0xB103:                    /* Find PCI class code */
-            M.x86.R_AH = DEVICE_NOT_FOUND;
-            if (M.x86.R_CL == _BE_env.vgaInfo.pciInfo->Interface &&
-                    M.x86.R_CH == _BE_env.vgaInfo.pciInfo->SubClass &&
-                    (u8)(M.x86.R_ECX >> 16) == _BE_env.vgaInfo.pciInfo->BaseClass) {
-                M.x86.R_AH = SUCCESSFUL;
-                M.x86.R_BX = pciSlot;
-                }
-            CONDITIONAL_SET_FLAG((M.x86.R_AH != SUCCESSFUL), F_CF);
-            break;
-        case 0xB108:                    /* Read configuration byte */
-            M.x86.R_AH = BAD_REGISTER_NUMBER;
-            if (M.x86.R_BX == pciSlot) {
-                M.x86.R_AH = SUCCESSFUL;
-                M.x86.R_CL = (u8)PCI_accessReg(M.x86.R_DI,0,PCI_READ_BYTE,_BE_env.vgaInfo.pciInfo);
-                }
-            CONDITIONAL_SET_FLAG((M.x86.R_AH != SUCCESSFUL), F_CF);
-            break;
-        case 0xB109:                    /* Read configuration word */
-            M.x86.R_AH = BAD_REGISTER_NUMBER;
-            if (M.x86.R_BX == pciSlot) {
-                M.x86.R_AH = SUCCESSFUL;
-                M.x86.R_CX = (u16)PCI_accessReg(M.x86.R_DI,0,PCI_READ_WORD,_BE_env.vgaInfo.pciInfo);
-                }
-            CONDITIONAL_SET_FLAG((M.x86.R_AH != SUCCESSFUL), F_CF);
-            break;
-        case 0xB10A:                    /* Read configuration dword */
-            M.x86.R_AH = BAD_REGISTER_NUMBER;
-            if (M.x86.R_BX == pciSlot) {
-                M.x86.R_AH = SUCCESSFUL;
-                M.x86.R_ECX = (u32)PCI_accessReg(M.x86.R_DI,0,PCI_READ_DWORD,_BE_env.vgaInfo.pciInfo);
-                }
-            CONDITIONAL_SET_FLAG((M.x86.R_AH != SUCCESSFUL), F_CF);
-            break;
-        case 0xB10B:                    /* Write configuration byte */
-            M.x86.R_AH = BAD_REGISTER_NUMBER;
-            if (M.x86.R_BX == pciSlot) {
-                M.x86.R_AH = SUCCESSFUL;
-                PCI_accessReg(M.x86.R_DI,M.x86.R_CL,PCI_WRITE_BYTE,_BE_env.vgaInfo.pciInfo);
-                }
-            CONDITIONAL_SET_FLAG((M.x86.R_AH != SUCCESSFUL), F_CF);
-            break;
-        case 0xB10C:                    /* Write configuration word */
-            M.x86.R_AH = BAD_REGISTER_NUMBER;
-            if (M.x86.R_BX == pciSlot) {
-                M.x86.R_AH = SUCCESSFUL;
-                PCI_accessReg(M.x86.R_DI,M.x86.R_CX,PCI_WRITE_WORD,_BE_env.vgaInfo.pciInfo);
-                }
-            CONDITIONAL_SET_FLAG((M.x86.R_AH != SUCCESSFUL), F_CF);
-            break;
-        case 0xB10D:                    /* Write configuration dword */
-            M.x86.R_AH = BAD_REGISTER_NUMBER;
-            if (M.x86.R_BX == pciSlot) {
-                M.x86.R_AH = SUCCESSFUL;
-                PCI_accessReg(M.x86.R_DI,M.x86.R_ECX,PCI_WRITE_DWORD,_BE_env.vgaInfo.pciInfo);
-                }
-            CONDITIONAL_SET_FLAG((M.x86.R_AH != SUCCESSFUL), F_CF);
-            break;
-        default:
-            printk("biosEmu/bios.int1a: unknown function AX=%#04x\n", M.x86.R_AX);
-        }
+	case 0xB101:                    /* PCI bios present? */
+	    M.x86.R_AL  = 0x00;         /* no config space/special cycle generation support */
+	    M.x86.R_EDX = 0x20494350;   /* " ICP" */
+	    M.x86.R_BX  = 0x0210;       /* Version 2.10 */
+	    M.x86.R_CL  = 0;            /* Max bus number in system */
+	    CLEAR_FLAG(F_CF);
+	    break;
+	case 0xB102:                    /* Find PCI device */
+	    M.x86.R_AH = DEVICE_NOT_FOUND;
+	    if (M.x86.R_DX == _BE_env.vgaInfo.pciInfo->VendorID &&
+		    M.x86.R_CX == _BE_env.vgaInfo.pciInfo->DeviceID &&
+		    M.x86.R_SI == 0) {
+		M.x86.R_AH = SUCCESSFUL;
+		M.x86.R_BX = pciSlot;
+		}
+	    CONDITIONAL_SET_FLAG((M.x86.R_AH != SUCCESSFUL), F_CF);
+	    break;
+	case 0xB103:                    /* Find PCI class code */
+	    M.x86.R_AH = DEVICE_NOT_FOUND;
+	    if (M.x86.R_CL == _BE_env.vgaInfo.pciInfo->Interface &&
+		    M.x86.R_CH == _BE_env.vgaInfo.pciInfo->SubClass &&
+		    (u8)(M.x86.R_ECX >> 16) == _BE_env.vgaInfo.pciInfo->BaseClass) {
+		M.x86.R_AH = SUCCESSFUL;
+		M.x86.R_BX = pciSlot;
+		}
+	    CONDITIONAL_SET_FLAG((M.x86.R_AH != SUCCESSFUL), F_CF);
+	    break;
+	case 0xB108:                    /* Read configuration byte */
+	    M.x86.R_AH = BAD_REGISTER_NUMBER;
+	    if (M.x86.R_BX == pciSlot) {
+		M.x86.R_AH = SUCCESSFUL;
+		M.x86.R_CL = (u8)PCI_accessReg(M.x86.R_DI,0,PCI_READ_BYTE,_BE_env.vgaInfo.pciInfo);
+		}
+	    CONDITIONAL_SET_FLAG((M.x86.R_AH != SUCCESSFUL), F_CF);
+	    break;
+	case 0xB109:                    /* Read configuration word */
+	    M.x86.R_AH = BAD_REGISTER_NUMBER;
+	    if (M.x86.R_BX == pciSlot) {
+		M.x86.R_AH = SUCCESSFUL;
+		M.x86.R_CX = (u16)PCI_accessReg(M.x86.R_DI,0,PCI_READ_WORD,_BE_env.vgaInfo.pciInfo);
+		}
+	    CONDITIONAL_SET_FLAG((M.x86.R_AH != SUCCESSFUL), F_CF);
+	    break;
+	case 0xB10A:                    /* Read configuration dword */
+	    M.x86.R_AH = BAD_REGISTER_NUMBER;
+	    if (M.x86.R_BX == pciSlot) {
+		M.x86.R_AH = SUCCESSFUL;
+		M.x86.R_ECX = (u32)PCI_accessReg(M.x86.R_DI,0,PCI_READ_DWORD,_BE_env.vgaInfo.pciInfo);
+		}
+	    CONDITIONAL_SET_FLAG((M.x86.R_AH != SUCCESSFUL), F_CF);
+	    break;
+	case 0xB10B:                    /* Write configuration byte */
+	    M.x86.R_AH = BAD_REGISTER_NUMBER;
+	    if (M.x86.R_BX == pciSlot) {
+		M.x86.R_AH = SUCCESSFUL;
+		PCI_accessReg(M.x86.R_DI,M.x86.R_CL,PCI_WRITE_BYTE,_BE_env.vgaInfo.pciInfo);
+		}
+	    CONDITIONAL_SET_FLAG((M.x86.R_AH != SUCCESSFUL), F_CF);
+	    break;
+	case 0xB10C:                    /* Write configuration word */
+	    M.x86.R_AH = BAD_REGISTER_NUMBER;
+	    if (M.x86.R_BX == pciSlot) {
+		M.x86.R_AH = SUCCESSFUL;
+		PCI_accessReg(M.x86.R_DI,M.x86.R_CX,PCI_WRITE_WORD,_BE_env.vgaInfo.pciInfo);
+		}
+	    CONDITIONAL_SET_FLAG((M.x86.R_AH != SUCCESSFUL), F_CF);
+	    break;
+	case 0xB10D:                    /* Write configuration dword */
+	    M.x86.R_AH = BAD_REGISTER_NUMBER;
+	    if (M.x86.R_BX == pciSlot) {
+		M.x86.R_AH = SUCCESSFUL;
+		PCI_accessReg(M.x86.R_DI,M.x86.R_ECX,PCI_WRITE_DWORD,_BE_env.vgaInfo.pciInfo);
+		}
+	    CONDITIONAL_SET_FLAG((M.x86.R_AH != SUCCESSFUL), F_CF);
+	    break;
+	default:
+	    printk("biosEmu/bios.int1a: unknown function AX=%#04x\n", M.x86.R_AX);
+	}
 }
 
 /****************************************************************************
@@ -240,9 +240,9 @@ void _BE_bios_init(
     X86EMU_intrFuncs    bios_intr_tab[256];
 
     for (i = 0; i < 256; ++i) {
-        intrTab[i] = BIOS_SEG << 16;
-        bios_intr_tab[i] = undefined_intr;
-        }
+	intrTab[i] = BIOS_SEG << 16;
+	bios_intr_tab[i] = undefined_intr;
+	}
     bios_intr_tab[0x10] = int10;
     bios_intr_tab[0x1A] = int1A;
     bios_intr_tab[0x42] = int42;

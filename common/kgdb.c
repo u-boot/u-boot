@@ -573,6 +573,20 @@ do_kgdb(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
     return 0;
 }
 
+cmd_tbl_t U_BOOT_CMD(KGDB) = MK_CMD_ENTRY(
+	"kgdb", CFG_MAXARGS, 1,	do_kgdb,
+	"kgdb    - enter gdb remote debug mode\n",
+	"[arg0 arg1 .. argN]\n"
+	"    - executes a breakpoint so that kgdb mode is\n"
+	"      entered via the exception handler. To return\n"
+	"      to the monitor, the remote gdb debugger must\n"
+	"      execute a \"continue\" or \"quit\" command.\n"
+	"\n"
+	"      if a program is loaded by the remote gdb, any args\n"
+	"      passed to the kgdb command are given to the loaded\n"
+	"      program if it is executed (see the \"hello_world\"\n"
+	"      example program in the U-Boot examples directory)."
+);
 #else
 
 int kgdb_not_configured = 1;

@@ -2,7 +2,7 @@
  * Memory mapped IO
  *
  * (C) Copyright 2002
- * Hyperion Entertainment, ThomasF@hyperion-entertainment.com 
+ * Hyperion Entertainment, ThomasF@hyperion-entertainment.com
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -15,9 +15,9 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- */ 
+ */
 
 #ifndef _MEMIO_H
 #define _MEMIO_H
@@ -97,8 +97,8 @@ static inline void write_long_big(volatile uint32 *to, uint32 x)
 
 #define CONFIG_ADDR(bus, devfn, offset) \
     write_long_big((uint32 *)0xFEC00CF8,           \
-                   ((offset & 0xFC)<<24) | (devfn << 16)  \
-                   | (bus<<8) | 0x80);
+		   ((offset & 0xFC)<<24) | (devfn << 16)  \
+		   | (bus<<8) | 0x80);
 #define CONFIG_DATA(offset,mask) ((void *)(0xFEE00CFC+(offset & mask)))
 
 

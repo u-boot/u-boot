@@ -49,7 +49,7 @@
 #include <asm/mmu.h>
 
 
- 	.globl	ext_bus_cntlr_init
+	.globl	ext_bus_cntlr_init
 ext_bus_cntlr_init:
   mflr    r4                      /* save link register */
   bl      ..getAddr
@@ -58,7 +58,7 @@ ext_bus_cntlr_init:
   mtlr    r4                      /* restore link register */
   addi    r4,0,14                 /* set ctr to 14; used to prefetch */
   mtctr   r4                      /* 14 cache lines to fit this function */
-                                   /* in cache (gives us 8x14=112 instrctns) */
+				   /* in cache (gives us 8x14=112 instrctns) */
 ..ebcloop:
   icbt    r0,r3                   /* prefetch cache line for addr in r3 */
   addi    r3,r3,32								/* move to next cache line */
@@ -211,10 +211,9 @@ ext_bus_cntlr_init:
  * Description:  Configures the internal SRAM memory. and setup the
  *               Stackpointer in it.
  *----------------------------------------------------------------------------- */
-        .globl  sdram_init
+	.globl  sdram_init
 
 sdram_init:
 
 
   blr
-

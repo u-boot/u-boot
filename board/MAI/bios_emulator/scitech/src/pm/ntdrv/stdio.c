@@ -42,7 +42,7 @@ FILE * fopen(
     const char *filename,
     const char *mode)
 {
-    ACCESS_MASK                 DesiredAccess;      // for ZwCreateFile...
+    ACCESS_MASK                 DesiredAccess;      /* for ZwCreateFile... */
     OBJECT_ATTRIBUTES           ObjectAttributes;
     ULONG                       ShareAccess;
     ULONG                       CreateDisposition;
@@ -56,86 +56,86 @@ FILE * fopen(
     char                        kernelFilename[PM_MAX_PATH+5];
     FILE                        *f;
 
-    // Add prefix for addressing the file system. "\??\" is short for "\DosDevices\"
+    /* Add prefix for addressing the file system. "\??\" is short for "\DosDevices\" */
     strcpy(kernelFilename, "\\??\\");
     strcat(kernelFilename, filename);
     if ((f = PM_malloc(sizeof(FILE))) == NULL)
-        goto Error;
+	goto Error;
     f->offset = 0;
     f->text = (mode[1] == 't' || mode[2] == 't');
     f->writemode = (mode[0] == 'w') || (mode[0] == 'a');
     if (mode[0] == 'r') {
-        // omode = OPEN_ACCESS_READONLY | OPEN_SHARE_COMPATIBLE;
-        // action = ACTION_IFEXISTS_OPEN | ACTION_IFNOTEXISTS_FAIL;
-        DesiredAccess = GENERIC_READ;
-        ShareAccess = FILE_SHARE_READ | FILE_SHARE_WRITE;
-        CreateDisposition = FILE_OPEN;
-        }
+	/* omode = OPEN_ACCESS_READONLY | OPEN_SHARE_COMPATIBLE; */
+	/* action = ACTION_IFEXISTS_OPEN | ACTION_IFNOTEXISTS_FAIL; */
+	DesiredAccess = GENERIC_READ;
+	ShareAccess = FILE_SHARE_READ | FILE_SHARE_WRITE;
+	CreateDisposition = FILE_OPEN;
+	}
     else if (mode[0] == 'w') {
-        // omode = OPEN_ACCESS_WRITEONLY | OPEN_SHARE_COMPATIBLE;
-        // action = ACTION_IFEXISTS_TRUNCATE | ACTION_IFNOTEXISTS_CREATE;
-        DesiredAccess = GENERIC_WRITE;
-        ShareAccess = FILE_SHARE_READ | FILE_SHARE_WRITE;
-        CreateDisposition = FILE_SUPERSEDE;
-        }
+	/* omode = OPEN_ACCESS_WRITEONLY | OPEN_SHARE_COMPATIBLE; */
+	/* action = ACTION_IFEXISTS_TRUNCATE | ACTION_IFNOTEXISTS_CREATE; */
+	DesiredAccess = GENERIC_WRITE;
+	ShareAccess = FILE_SHARE_READ | FILE_SHARE_WRITE;
+	CreateDisposition = FILE_SUPERSEDE;
+	}
     else {
-        // omode = OPEN_ACCESS_READWRITE | OPEN_SHARE_COMPATIBLE;
-        // action = ACTION_IFEXISTS_OPEN | ACTION_IFNOTEXISTS_CREATE;
-        DesiredAccess = GENERIC_READ | GENERIC_WRITE;
-        ShareAccess = FILE_SHARE_READ;
-        CreateDisposition = FILE_OPEN_IF;
-        }
+	/* omode = OPEN_ACCESS_READWRITE | OPEN_SHARE_COMPATIBLE; */
+	/* action = ACTION_IFEXISTS_OPEN | ACTION_IFNOTEXISTS_CREATE; */
+	DesiredAccess = GENERIC_READ | GENERIC_WRITE;
+	ShareAccess = FILE_SHARE_READ;
+	CreateDisposition = FILE_OPEN_IF;
+	}
 
-    // Convert filename string to ansi string and then to UniCode string
+    /* Convert filename string to ansi string and then to UniCode string */
     if ((uniFile = _PM_CStringToUnicodeString(kernelFilename)) == NULL)
-        return NULL;
+	return NULL;
 
-    // Create the file
+    /* Create the file */
     InitializeObjectAttributes (&ObjectAttributes,
-                                uniFile,
-                                OBJ_CASE_INSENSITIVE,
-                                NULL,
-                                NULL);
+				uniFile,
+				OBJ_CASE_INSENSITIVE,
+				NULL,
+				NULL);
     status = ZwCreateFile( &FileHandle,
-                            DesiredAccess | SYNCHRONIZE,
-                            &ObjectAttributes,
-                            &IoStatusBlock,
-                            NULL,                   // AllocationSize  OPTIONAL,
-                            FILE_ATTRIBUTE_NORMAL,
-                            ShareAccess,
-                            CreateDisposition,
-                            FILE_RANDOM_ACCESS,     // CreateOptions,
-                            NULL,                   // EaBuffer  OPTIONAL,
-                            0                       // EaLength (required if EaBuffer)
-                            );
+			    DesiredAccess | SYNCHRONIZE,
+			    &ObjectAttributes,
+			    &IoStatusBlock,
+			    NULL,                   /* AllocationSize  OPTIONAL, */
+			    FILE_ATTRIBUTE_NORMAL,
+			    ShareAccess,
+			    CreateDisposition,
+			    FILE_RANDOM_ACCESS,     /* CreateOptions, */
+			    NULL,                   /* EaBuffer  OPTIONAL, */
+			    0                       /* EaLength (required if EaBuffer) */
+			    );
     if (!NT_SUCCESS (status))
-        goto Error;
+	goto Error;
     f->handle = (int)FileHandle;
 
-    // Determine size of the file
+    /* Determine size of the file */
     status = ZwQueryInformationFile(  FileHandle,
-                                      &IoStatusBlock,
-                                      &FileInformation,
-                                      sizeof(FILE_STANDARD_INFORMATION),
-                                      FileStandardInformation
-                                      );
+				      &IoStatusBlock,
+				      &FileInformation,
+				      sizeof(FILE_STANDARD_INFORMATION),
+				      FileStandardInformation
+				      );
     if (!NT_SUCCESS (status))
-        goto Error;
+	goto Error;
     f->filesize = FileInformation.EndOfFile.LowPart;
 
-    // Move to the end of the file if we are appending
+    /* Move to the end of the file if we are appending */
     if (mode[0] == 'a') {
-        FilePosition.CurrentByteOffset.HighPart = 0;
-        FilePosition.CurrentByteOffset.LowPart = f->filesize;
-        status = ZwSetInformationFile(  FileHandle,
-                                        &IoStatusBlock,
-                                        &FilePosition,
-                                        sizeof(FILE_POSITION_INFORMATION),
-                                        FilePositionInformation
-                                        );
-        if (!NT_SUCCESS (status))
-            goto Error;
-        }
+	FilePosition.CurrentByteOffset.HighPart = 0;
+	FilePosition.CurrentByteOffset.LowPart = f->filesize;
+	status = ZwSetInformationFile(  FileHandle,
+					&IoStatusBlock,
+					&FilePosition,
+					sizeof(FILE_POSITION_INFORMATION),
+					FilePositionInformation
+					);
+	if (!NT_SUCCESS (status))
+	    goto Error;
+	}
     return f;
 
 Error:
@@ -158,21 +158,21 @@ size_t fread(
     IO_STATUS_BLOCK IoStatusBlock;
     LARGE_INTEGER   ByteOffset;
 
-    // Read any extra bytes from the file
+    /* Read any extra bytes from the file */
     ByteOffset.HighPart = 0;
     ByteOffset.LowPart = f->offset;
     status = ZwReadFile( (HANDLE)f->handle,
-                         NULL,              //IN HANDLE  Event  OPTIONAL,
-                         NULL,              //  IN PIO_APC_ROUTINE  ApcRoutine  OPTIONAL,
-                         NULL,              //  IN PVOID  ApcContext  OPTIONAL,
-                         &IoStatusBlock,
-                         ptr,               //  OUT PVOID  Buffer,
-                         size * n,          //IN ULONG  Length,
-                         &ByteOffset,       //OPTIONAL,
-                         NULL               //IN PULONG  Key  OPTIONAL
-                         );
+			 NULL,              /*IN HANDLE  Event  OPTIONAL, */
+			 NULL,              /*  IN PIO_APC_ROUTINE  ApcRoutine  OPTIONAL, */
+			 NULL,              /*  IN PVOID  ApcContext  OPTIONAL, */
+			 &IoStatusBlock,
+			 ptr,               /*  OUT PVOID  Buffer, */
+			 size * n,          /*IN ULONG  Length, */
+			 &ByteOffset,       /*OPTIONAL, */
+			 NULL               /*IN PULONG  Key  OPTIONAL */
+			 );
     if (!NT_SUCCESS (status))
-        return 0;
+	return 0;
     f->offset += IoStatusBlock.Information;
     return IoStatusBlock.Information / size;
 }
@@ -192,24 +192,24 @@ size_t fwrite(
     LARGE_INTEGER   ByteOffset;
 
     if (!f->writemode)
-        return 0;
+	return 0;
     ByteOffset.HighPart = 0;
     ByteOffset.LowPart = f->offset;
     status = ZwWriteFile( (HANDLE)f->handle,
-                          NULL,             //IN HANDLE  Event  OPTIONAL,
-                          NULL,             //  IN PIO_APC_ROUTINE  ApcRoutine  OPTIONAL,
-                          NULL,             //  IN PVOID  ApcContext  OPTIONAL,
-                          &IoStatusBlock,
-                          (void*)ptr,       //  OUT PVOID  Buffer,
-                          size * n,         //IN ULONG  Length,
-                          &ByteOffset,      //OPTIONAL,
-                          NULL              //IN PULONG  Key  OPTIONAL
-                          );
+			  NULL,             /*IN HANDLE  Event  OPTIONAL, */
+			  NULL,             /*  IN PIO_APC_ROUTINE  ApcRoutine  OPTIONAL, */
+			  NULL,             /*  IN PVOID  ApcContext  OPTIONAL, */
+			  &IoStatusBlock,
+			  (void*)ptr,       /*  OUT PVOID  Buffer, */
+			  size * n,         /*IN ULONG  Length, */
+			  &ByteOffset,      /*OPTIONAL, */
+			  NULL              /*IN PULONG  Key  OPTIONAL */
+			  );
     if (!NT_SUCCESS (status))
-        return 0;
+	return 0;
     f->offset += IoStatusBlock.Information;
     if (f->offset > f->filesize)
-        f->filesize = f->offset;
+	f->filesize = f->offset;
     return IoStatusBlock.Information / size;
 }
 
@@ -220,7 +220,7 @@ NT driver implementation of the ANSI C fflush function.
 int fflush(
     FILE *f)
 {
-    // Nothing to do here as we are not doing buffered I/O
+    /* Nothing to do here as we are not doing buffered I/O */
     (void)f;
     return 0;
 }
@@ -239,21 +239,21 @@ int fseek(
     IO_STATUS_BLOCK             IoStatusBlock;
 
     if (whence == 0)
-        f->offset = offset;
+	f->offset = offset;
     else if (whence == 1)
-        f->offset += offset;
+	f->offset += offset;
     else if (whence == 2)
-        f->offset = f->filesize + offset;
+	f->offset = f->filesize + offset;
     FilePosition.CurrentByteOffset.HighPart = 0;
     FilePosition.CurrentByteOffset.LowPart = f->offset;
     status = ZwSetInformationFile( (HANDLE)f->handle,
-                                   &IoStatusBlock,
-                                   &FilePosition,
-                                   sizeof(FILE_POSITION_INFORMATION),
-                                   FilePositionInformation
-                                   );
+				   &IoStatusBlock,
+				   &FilePosition,
+				   sizeof(FILE_POSITION_INFORMATION),
+				   FilePositionInformation
+				   );
     if (!NT_SUCCESS (status))
-        return -1;
+	return -1;
     return 0;
 }
 
@@ -289,19 +289,19 @@ char *fgets(
     int     len;
     char    *cs;
 
-    // Read the entire buffer into memory (our functions are unbuffered!)
+    /* Read the entire buffer into memory (our functions are unbuffered!) */
     if ((len = fread(s,1,n,f)) == 0)
-        return NULL;
+	return NULL;
 
-    // Search for '\n' or end of string
+    /* Search for '\n' or end of string */
     if (n > len)
-        n = len;
+	n = len;
     cs = s;
     while (--n > 0) {
-        if (*cs == '\n')
-            break;
-        cs++;
-        }
+	if (*cs == '\n')
+	    break;
+	cs++;
+	}
     *cs = '\0';
     return s;
 }
@@ -328,4 +328,3 @@ int fclose(
     PM_free(f);
     return 0;
 }
-

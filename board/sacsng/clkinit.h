@@ -50,16 +50,16 @@
 
 #define MCLK_DIVISOR  4       /*  SCLK = MCLK / MCLK_DIVISOR */
 #define SCLK_DIVISOR (Daq64xSampling ? 64 : 128)
-		              /* LRCLK = SCLK / SCLK_DIVISOR */
+			      /* LRCLK = SCLK / SCLK_DIVISOR */
 
 #define TIGHTEN_UP_BRG_EN_TIMING /* Tighten up the BRG enable timing      */
 #define RUN_SCLK_ON_BRG_INT      /* Run SCLK on BRG_INT instead of MCLK   */
-                                 /* The 8260 (Mask B.3) seems to have     */
-                                 /* problems generating SCLK from MCLK    */
+				 /* The 8260 (Mask B.3) seems to have     */
+				 /* problems generating SCLK from MCLK    */
 				 /* via CLK9.                             */
 #define RUN_LRCLK_ON_BRG_INT     /* Run LRCLK on BRG_INT instead of SCLK  */
-                                 /* The 8260 (Mask B.3) seems to have     */
-                                 /* problems generating LRCLK from SCLK   */
+				 /* The 8260 (Mask B.3) seems to have     */
+				 /* problems generating LRCLK from SCLK   */
 
 #define NUM_LRCLKS_TO_STABILIZE 1  /* Number of LRCLK period (sample)     */
 				   /* to wait for the clock to stabilize  */
@@ -67,9 +67,9 @@
 #define CPM_CLK      (gd->bd->bi_cpmfreq)
 #define DFBRG        4
 #define BRG_INT_CLK  (CPM_CLK * 2 / DFBRG)
-                              /* BRG = CPM * 2 / DFBRG (Sect 9.8) */
-                              /* BRG = CPM * 2 / 4                */
-                              /* BRG = CPM / 2                    */
+			      /* BRG = CPM * 2 / DFBRG (Sect 9.8) */
+			      /* BRG = CPM * 2 / 4                */
+			      /* BRG = CPM / 2                    */
 
 #define CPM_BRG_EXTC_MASK	((uint)0x0000C000)
 #define CPM_BRG_EXTC_SHIFT      14

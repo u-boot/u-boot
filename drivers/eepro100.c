@@ -679,11 +679,11 @@ int eepro100_write_eeprom (struct eth_device* dev, int location, int addr_len, u
     /* Shift the enable command bits out. */
     for (i = (addr_len+EE_CMD_BITS-1); i >= 0; i--)
     {
-        dataval = (enable_cmd & (1 << i)) ? EE_DATA_WRITE : 0;
-        OUTW(dev, EE_ENB | dataval, SCBeeprom);
-        udelay(1);
-        OUTW(dev, EE_ENB | dataval | EE_SHIFT_CLK, SCBeeprom);
-        udelay(1);
+	dataval = (enable_cmd & (1 << i)) ? EE_DATA_WRITE : 0;
+	OUTW(dev, EE_ENB | dataval, SCBeeprom);
+	udelay(1);
+	OUTW(dev, EE_ENB | dataval | EE_SHIFT_CLK, SCBeeprom);
+	udelay(1);
     }
 
     OUTW(dev, EE_ENB, SCBeeprom);
@@ -696,11 +696,11 @@ int eepro100_write_eeprom (struct eth_device* dev, int location, int addr_len, u
     /* Shift the write command bits out. */
     for (i = (addr_len+EE_CMD_BITS-1); i >= 0; i--)
     {
-        dataval = (write_cmd & (1 << i)) ? EE_DATA_WRITE : 0;
-        OUTW(dev, EE_ENB | dataval, SCBeeprom);
-        udelay(1);
-        OUTW(dev, EE_ENB | dataval | EE_SHIFT_CLK, SCBeeprom);
-        udelay(1);
+	dataval = (write_cmd & (1 << i)) ? EE_DATA_WRITE : 0;
+	OUTW(dev, EE_ENB | dataval, SCBeeprom);
+	udelay(1);
+	OUTW(dev, EE_ENB | dataval | EE_SHIFT_CLK, SCBeeprom);
+	udelay(1);
     }
 
     /* Write the data */
@@ -730,17 +730,17 @@ int eepro100_write_eeprom (struct eth_device* dev, int location, int addr_len, u
     tmplong = 10;
     do
     {
-        dataval = INW(dev, SCBeeprom);
-        if (dataval & EE_DATA_READ)
-            break;
-        udelay(10000);
+	dataval = INW(dev, SCBeeprom);
+	if (dataval & EE_DATA_READ)
+	    break;
+	udelay(10000);
     }
     while (-- tmplong);
 
     if (tmplong == 0)
     {
-        printf ("Write i82559 eeprom timed out (100 ms waiting for data ready.\n");
-        return -1;
+	printf ("Write i82559 eeprom timed out (100 ms waiting for data ready.\n");
+	return -1;
     }
 
     /* Terminate the EEPROM access. */

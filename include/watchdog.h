@@ -98,4 +98,3 @@ reset_8260_watchdog(volatile immap_t *immr)
 #endif /* CONFIG_MPC8260 && !__ASSEMBLY__ */
 
 #endif /* _WATCHDOG_H_ */
-

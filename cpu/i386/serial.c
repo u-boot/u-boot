@@ -1,7 +1,7 @@
 /*
  * (C) Copyright 2002
  * Daniel Engström, Omicron Ceti AB, daniel@omicron.se
- * 
+ *
  * (C) Copyright 2000
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
@@ -81,7 +81,6 @@
 #define asyncLSRRxFifoError1          0x80
 
 
-
 #if CONFIG_SERIAL_SOFTWARE_FIFO
 /*-----------------------------------------------------------------------------+
   | Fifo
@@ -100,7 +99,7 @@ static int serial_buffer_active=0;
 
 static int serial_div(int baudrate)
 {
-	
+
 	switch (baudrate) {
 	case 1200:
 		return 96;
@@ -113,9 +112,9 @@ static int serial_div(int baudrate)
 	case 57600:
 		return 2;
 	case 115200:
-		return 1;		
+		return 1;
 	}
-	
+
 	return 12;
 }
 
@@ -132,7 +131,7 @@ int serial_init(void)
 	volatile char val;
 
 	int bdiv = serial_div(gd->baudrate);
-    
+
 
 	outb(0x80, UART0_BASE + UART_LCR);	/* set DLAB bit */
 	outb(bdiv, UART0_BASE + UART_DLL);	/* set baudrate divisor */
@@ -154,7 +153,7 @@ void serial_setbrg(void)
 	DECLARE_GLOBAL_DATA_PTR;
 
 	unsigned short bdiv;
-	
+
 	bdiv = serial_div(gd->baudrate);
 
 	outb(0x80, UART0_BASE + UART_LCR);	/* set DLAB bit */
@@ -199,7 +198,7 @@ int serial_getc(void)
 		return serial_buffered_getc();
 	}
 #endif
-	
+
 	while (1) {
 #if defined(CONFIG_HW_WATCHDOG)
 		WATCHDOG_RESET();	/* Reset HW Watchdog, if needed */
@@ -262,28 +261,28 @@ void serial_isr(void *arg)
 	} else {
 		space = buf_info.rx_get - rx_put;
 	}
-	
+
 	while (inb(UART0_BASE + UART_LSR) & 1) {
 		c = inb(UART0_BASE);
 		if (space) {
 			buf_info.rx_buffer[rx_put++] = c;
 			space--;
-			
+
 			if (rx_put == buf_info.rx_get) {
 				buf_info.rx_get++;
 				if (rx_put == CONFIG_SERIAL_SOFTWARE_FIFO) {
 					buf_info.rx_get = 0;
 				}
 			}
-			
+
 			if (rx_put == CONFIG_SERIAL_SOFTWARE_FIFO) {
 				rx_put = 0;
 				if (0 == buf_info.rx_get) {
 					buf_info.rx_get = 1;
 				}
-			
+
 			}
-			
+
 		}
 		if (space < CONFIG_SERIAL_SOFTWARE_FIFO / 4) {
 			/* Stop flow by setting RTS inactive */
@@ -309,20 +308,20 @@ void serial_buffered_init(void)
 		buf_info.cts = 0;
 	}
 
-	irq_install_handler ( VECNUM_U0 /*UART0 *//*int vec */ ,
+	irq_install_handler ( VECNUM_U0 /*UART0 */ /*int vec */ ,
 			      serial_isr /*interrupt_handler_t *handler */ ,
 			      (void *) &buf_info /*void *arg */ );
 
 	/* Enable "RX Data Available" Interrupt on UART */
 	/* outb(inb(UART0_BASE + UART_IER) |0x01, UART0_BASE + UART_IER); */
 	outb(0x01, UART0_BASE + UART_IER);
-	
+
 	/* Set DTR and RTS active, enable interrupts  */
 	outb(inb (UART0_BASE + UART_MCR) | 0x0b, UART0_BASE + UART_MCR);
-	
+
 	/* Setup UART FIFO: RX trigger level: 1 byte, Enable FIFO */
 	outb( /*(1 << 6) |*/  1, UART0_BASE + UART_FCR);
-	
+
 	serial_buffer_active = 1;
 }
 
@@ -348,7 +347,7 @@ void serial_buffered_putc (const char c)
 			buf_info.cts = 1;
 		}
 	}
-		
+
 #endif
 	serial_putc (c);
 }
@@ -508,4 +507,3 @@ void kgdb_interruptible(int yes)
 }
 #endif	/* (CONFIG_KGDB_SER_INDEX & 2) */
 #endif	/* CFG_CMD_KGDB */
-

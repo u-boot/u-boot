@@ -57,27 +57,27 @@ const uint sdram_table[] =
 	 *
 	 */
 		    0xFFFAF834, 0xFFE5B435, /* last */
-                                            _NOT_USED_,
+					    _NOT_USED_,
 	/*
 	 * Burst Read. (Offset 8 in UPMA RAM)
 	 */
 	0xFE2DB004, 0xF0AF7404, 0xF0AFFC00, 0xF0AFFC00,
 	0xF0AFFC00, 0xF0AAF800, 0xF1A5E447, /* last */
-                                            _NOT_USED_,
+					    _NOT_USED_,
 	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 	/*
 	 * Single Write. (Offset 18 in UPMA RAM)
 	 */
 	0xFE29B300, 0xF1A27304, 0xFFA5F747,  /* last */
-                                            _NOT_USED_,
+					    _NOT_USED_,
 	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 	/*
 	 * Burst Write. (Offset 20 in UPMA RAM)
 	 */
 	0x1F0DFC04, 0xEEABBC00, 0x10A77C00, 0xF0AFFC00,
 	0xF1AAF804, 0xFFA5F447, /* last */
-			        _NOT_USED_, _NOT_USED_,
+				_NOT_USED_, _NOT_USED_,
 	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 	/*
@@ -90,16 +90,15 @@ const uint sdram_table[] =
 	 * MRS sequence  (Offset 38 in UPMA RAM)
 	 */
 	0xFFAAB834, 0xFFA57434, 0xFFAFFC05, /* last */
-                                            _NOT_USED_,
+					    _NOT_USED_,
 	/*
 	 * Exception. (Offset 3c in UPMA RAM)
 	 */
 	0xFFAFFC04, 0xFFAFFC05, /* last */
-		                _NOT_USED_, _NOT_USED_,
+				_NOT_USED_, _NOT_USED_,
 };
 
 /* ------------------------------------------------------------------------- */
-
 
 
 long int initdram (int board_type)

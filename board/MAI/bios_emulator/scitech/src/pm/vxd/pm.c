@@ -105,7 +105,7 @@ void * VXD_calloc(
 {
     void *p = PM_mallocShared(nelem * size);
     if (p)
-        memset(p,0,nelem * size);
+	memset(p,0,nelem * size);
     return p;
 }
 
@@ -119,9 +119,9 @@ void * VXD_realloc(
 {
     void *p = PM_mallocShared(size);
     if (p) {
-        memcpy(p,ptr,size);
-        PM_freeShared(ptr);
-        }
+	memcpy(p,ptr,size);
+	PM_freeShared(ptr);
+	}
     return p;
 }
 
@@ -166,9 +166,9 @@ void PMAPI PM_backslash(char *s)
 {
     uint pos = strlen(s);
     if (s[pos-1] != '\\') {
-        s[pos] = '\\';
-        s[pos+1] = '\0';
-        }
+	s[pos] = '\\';
+	s[pos+1] = '\0';
+	}
 }
 
 void PMAPI PM_setFatalErrorCleanup(
@@ -180,7 +180,7 @@ void PMAPI PM_setFatalErrorCleanup(
 void PMAPI PM_fatalError(const char *msg)
 {
     if (fatalErrorCleanup)
-        fatalErrorCleanup();
+	fatalErrorCleanup();
     Fatal_Error_Handler(msg,0);
 }
 
@@ -204,11 +204,11 @@ void * PMAPI PM_getVESABuf(
      * transfer buffer to return, so we fail the call.
      */
     if (_PM_rmBufAddr) {
-        *len = VESA_BUF_SIZE;
-        *rseg = (ulong)(_PM_rmBufAddr) >> 4;
-        *roff = (ulong)(_PM_rmBufAddr) & 0xF;
-        return _PM_rmBufAddr;
-        }
+	*len = VESA_BUF_SIZE;
+	*rseg = (ulong)(_PM_rmBufAddr) >> 4;
+	*roff = (ulong)(_PM_rmBufAddr) & 0xF;
+	return _PM_rmBufAddr;
+	}
     return NULL;
 }
 
@@ -276,10 +276,10 @@ static ibool REG_queryString(
 
     memset(value,0,sizeof(value));
     if (RegOpenKey(HKEY_LOCAL_MACHINE,szKey,&hKey) == ERROR_SUCCESS) {
-        if (RegQueryValueEx(hKey,(PCHAR)szValue,(ulong*)NULL,(ulong*)&type,value,(ulong*)&size) == ERROR_SUCCESS)
-            status = true;
-        RegCloseKey(hKey);
-        }
+	if (RegQueryValueEx(hKey,(PCHAR)szValue,(ulong*)NULL,(ulong*)&type,value,(ulong*)&size) == ERROR_SUCCESS)
+	    status = true;
+	RegCloseKey(hKey);
+	}
     return status;
 }
 
@@ -288,12 +288,12 @@ const char * PMAPI PM_getNucleusPath(void)
     static char path[256];
 
     if (strlen(_PM_nucleusPath) > 0) {
-        strcpy(path,_PM_nucleusPath);
-        PM_backslash(path);
-        return path;
-        }
+	strcpy(path,_PM_nucleusPath);
+	PM_backslash(path);
+	return path;
+	}
     if (!REG_queryString(szWindowsKey,szSystemRoot,path,sizeof(path)))
-        strcpy(path,"c:\\windows");
+	strcpy(path,"c:\\windows");
     PM_backslash(path);
     strcat(path,"system\\nucleus");
     return path;
@@ -315,7 +315,7 @@ const char * PMAPI PM_getMachineName(void)
 {
     static char name[256];
     if (REG_queryString(szMachineNameKey,szMachineName,name,sizeof(name)))
-        return name;
+	return name;
     return "Unknown";
 }
 
@@ -352,7 +352,7 @@ void PMAPI PM_saveConsoleState(
 
 void PMAPI PM_setSuspendAppCallback(
     int (_ASMAPIP saveState)(
-        int flags))
+	int flags))
 {
     /* Unused in VxDs */
 }
@@ -405,16 +405,16 @@ void * PMAPI PM_mallocShared(
 
     /* First find a free slot in our shared memory table */
     for (i = 0; i < MAX_MEMORY_SHARED; i++) {
-        if (shared[i].linear == 0)
-            break;
-        }
+	if (shared[i].linear == 0)
+	    break;
+	}
     if (i < MAX_MEMORY_SHARED) {
-        PageAllocate(nPages,PG_SYS,0,0,0,0,NULL,0,&hMem,&shared[i].linear);
-        shared[i].npages = nPages;
-        pgNum = (ulong)shared[i].linear >> 12;
-        shared[i].global = LinPageLock(pgNum,nPages,PAGEMAPGLOBAL);
-        return (void*)shared[i].global;
-        }
+	PageAllocate(nPages,PG_SYS,0,0,0,0,NULL,0,&hMem,&shared[i].linear);
+	shared[i].npages = nPages;
+	pgNum = (ulong)shared[i].linear >> 12;
+	shared[i].global = LinPageLock(pgNum,nPages,PAGEMAPGLOBAL);
+	return (void*)shared[i].global;
+	}
     return NULL;
 }
 
@@ -428,13 +428,13 @@ void PMAPI PM_freeShared(void *p)
 
     /* Find a shared memory block in our table and free it */
     for (i = 0; i < MAX_MEMORY_SHARED; i++) {
-        if (shared[i].global == (ulong)p) {
-            LinPageUnLock(shared[i].global >> 12,shared[i].npages,PAGEMAPGLOBAL);
-            PageFree((ulong)shared[i].linear,0);
-            shared[i].linear = 0;
-            break;
-            }
-        }
+	if (shared[i].global == (ulong)p) {
+	    LinPageUnLock(shared[i].global >> 12,shared[i].npages,PAGEMAPGLOBAL);
+	    PageFree((ulong)shared[i].linear,0);
+	    shared[i].linear = 0;
+	    break;
+	    }
+	}
 }
 
 /****************************************************************************
@@ -455,7 +455,7 @@ ibool PMAPI PM_doBIOSPOST(
     void *mappedBIOS,
     ulong BIOSLen)
 {
-    // TODO: Figure out how to do this
+    /* TODO: Figure out how to do this */
     return false;
 }
 
@@ -485,29 +485,29 @@ ulong _PM_mapPhysicalToLinear(
     int     i,ppage,flags;
 
     if (base < 0x100000) {
-        /* Windows 9x is zero based for the first meg of memory */
-        return base;
-        }
+	/* Windows 9x is zero based for the first meg of memory */
+	return base;
+	}
     ppage = base >> 12;
     *npages = (length + (base & 0xFFF) + 4095) >> 12;
     flags = PR_FIXED | PR_STATIC;
     if (base == 0xA0000) {
-        /* We require the linear address to be aligned to a 64Kb boundary
-         * for mapping the banked framebuffer (so we can do efficient
-         * carry checking for bank changes in the assembler code). The only
-         * way to ensure this is to force the linear address to be aligned
-         * to a 4Mb boundary.
-         */
-        flags |= PR_4MEG;
-        }
+	/* We require the linear address to be aligned to a 64Kb boundary
+	 * for mapping the banked framebuffer (so we can do efficient
+	 * carry checking for bank changes in the assembler code). The only
+	 * way to ensure this is to force the linear address to be aligned
+	 * to a 4Mb boundary.
+	 */
+	flags |= PR_4MEG;
+	}
     if ((linear = (ulong)PageReserve(PR_SYSTEM,*npages,flags)) == (ulong)-1)
-        return 0xFFFFFFFF;
+	return 0xFFFFFFFF;
     if (!PageCommitPhys(linear >> 12,*npages,ppage,PC_INCR | PC_USER | PC_WRITEABLE))
-        return 0xFFFFFFFF;
+	return 0xFFFFFFFF;
     return linear + (base & 0xFFF);
 }
 
-// Page table flags
+/* Page table flags */
 
 #define PAGE_FLAGS_PRESENT			0x00000001
 #define PAGE_FLAGS_WRITEABLE		0x00000002
@@ -535,9 +535,9 @@ memory below 1Mb, which gets this memory out of the way of the Windows VDD's
 sticky paws.
 
 NOTE:   If the memory is not expected to be cached, this function will
-        directly re-program the PCD (Page Cache Disable) bit in the
-        page tables. There does not appear to be a mechanism in the VMM
-        to control this bit via the regular interface.
+	directly re-program the PCD (Page Cache Disable) bit in the
+	page tables. There does not appear to be a mechanism in the VMM
+	to control this bit via the regular interface.
 ****************************************************************************/
 void * PMAPI PM_mapPhysicalAddr(
     ulong base,
@@ -552,11 +552,11 @@ void * PMAPI PM_mapPhysicalAddr(
      * a region of memory that will serve this purpose.
      */
     for (i = 0; i < numMappings; i++) {
-        if (maps[i].physical == base && maps[i].length == length && maps[i].isCached == isCached)
-            return (void*)maps[i].linear;
-        }
+	if (maps[i].physical == base && maps[i].length == length && maps[i].isCached == isCached)
+	    return (void*)maps[i].linear;
+	}
     if (numMappings == MAX_MEMORY_MAPPINGS)
-        return NULL;
+	return NULL;
 
     /* We did not find any previously mapped memory region, so maps it in.
      * Note that we do not use MapPhysToLinear, since this function appears
@@ -564,7 +564,7 @@ void * PMAPI PM_mapPhysicalAddr(
      * Hence we use PageReserve and PageCommitPhys.
      */
     if ((linear = _PM_mapPhysicalToLinear(base,limit,&npages)) == 0xFFFFFFFF)
-        return NULL;
+	return NULL;
     maps[numMappings].physical = base;
     maps[numMappings].length = length;
     maps[numMappings].linear = linear;
@@ -574,34 +574,34 @@ void * PMAPI PM_mapPhysicalAddr(
 
     /* Finally disable caching where necessary */
     if (!isCached && (PDB = _PM_getPDB()) != 0) {
-        int     startPDB,endPDB,iPDB,startPage,endPage,start,end,iPage;
-        ulong   pageTable,*pPageTable;
-        pPDB = (ulong*)_PM_mapPhysicalToLinear(PDB,0xFFF,&npages);
-        if (pPDB) {
-            startPDB = (linear >> 22) & 0x3FF;
-            startPage = (linear >> 12) & 0x3FF;
-            endPDB = ((linear+limit) >> 22) & 0x3FF;
-            endPage = ((linear+limit) >> 12) & 0x3FF;
-            for (iPDB = startPDB; iPDB <= endPDB; iPDB++) {
-                // Set the bits in the page directory entry - required as per
-                // Pentium 4 manual. This also takes care of the 4MB page entries
-                pPDB[iPDB] = pPDB[iPDB] |= (PAGE_FLAGS_WRITE_THROUGH | PAGE_FLAGS_CACHE_DISABLE);
-                if (!(pPDB[iPDB] & PAGE_FLAGS_4MB)) {
-                    // If we are dealing with 4KB pages then we need to iterate
-                    // through each of the page table entries
-                    pageTable = pPDB[iPDB] & ~0xFFF;
-                    pPageTable = (ulong*)_PM_mapPhysicalToLinear(pageTable,0xFFF,&npages);
-                    start = (iPDB == startPDB) ? startPage : 0;
-                    end = (iPDB == endPDB) ? endPage : 0x3FF;
-                    for (iPage = start; iPage <= end; iPage++)
-                        pPageTable[iPage] |= (PAGE_FLAGS_WRITE_THROUGH | PAGE_FLAGS_CACHE_DISABLE);
-                    PageFree((ulong)pPageTable,PR_STATIC);
-                    }
-                }
-            PageFree((ulong)pPDB,PR_STATIC);
-            PM_flushTLB();
-            }
-        }
+	int     startPDB,endPDB,iPDB,startPage,endPage,start,end,iPage;
+	ulong   pageTable,*pPageTable;
+	pPDB = (ulong*)_PM_mapPhysicalToLinear(PDB,0xFFF,&npages);
+	if (pPDB) {
+	    startPDB = (linear >> 22) & 0x3FF;
+	    startPage = (linear >> 12) & 0x3FF;
+	    endPDB = ((linear+limit) >> 22) & 0x3FF;
+	    endPage = ((linear+limit) >> 12) & 0x3FF;
+	    for (iPDB = startPDB; iPDB <= endPDB; iPDB++) {
+		/* Set the bits in the page directory entry - required as per */
+		/* Pentium 4 manual. This also takes care of the 4MB page entries */
+		pPDB[iPDB] = pPDB[iPDB] |= (PAGE_FLAGS_WRITE_THROUGH | PAGE_FLAGS_CACHE_DISABLE);
+		if (!(pPDB[iPDB] & PAGE_FLAGS_4MB)) {
+		    /* If we are dealing with 4KB pages then we need to iterate */
+		    /* through each of the page table entries */
+		    pageTable = pPDB[iPDB] & ~0xFFF;
+		    pPageTable = (ulong*)_PM_mapPhysicalToLinear(pageTable,0xFFF,&npages);
+		    start = (iPDB == startPDB) ? startPage : 0;
+		    end = (iPDB == endPDB) ? endPage : 0x3FF;
+		    for (iPage = start; iPage <= end; iPage++)
+			pPageTable[iPage] |= (PAGE_FLAGS_WRITE_THROUGH | PAGE_FLAGS_CACHE_DISABLE);
+		    PageFree((ulong)pPageTable,PR_STATIC);
+		    }
+		}
+	    PageFree((ulong)pPDB,PR_STATIC);
+	    PM_flushTLB();
+	    }
+	}
     return (void*)linear;
 }
 
@@ -619,26 +619,26 @@ void PMAPI PM_sleep(ulong milliseconds)
 
 int PMAPI PM_getCOMPort(int port)
 {
-    // TODO: Re-code this to determine real values using the Plug and Play
-    //       manager for the OS.
+    /* TODO: Re-code this to determine real values using the Plug and Play */
+    /*       manager for the OS. */
     switch (port) {
-        case 0: return 0x3F8;
-        case 1: return 0x2F8;
-        case 2: return 0x3E8;
-        case 3: return 0x2E8;
-        }
+	case 0: return 0x3F8;
+	case 1: return 0x2F8;
+	case 2: return 0x3E8;
+	case 3: return 0x2E8;
+	}
     return 0;
 }
 
 int PMAPI PM_getLPTPort(int port)
 {
-    // TODO: Re-code this to determine real values using the Plug and Play
-    //       manager for the OS.
+    /* TODO: Re-code this to determine real values using the Plug and Play */
+    /*       manager for the OS. */
     switch (port) {
-        case 0: return 0x3BC;
-        case 1: return 0x378;
-        case 2: return 0x278;
-        }
+	case 0: return 0x3BC;
+	case 1: return 0x378;
+	case 2: return 0x278;
+	}
     return 0;
 }
 
@@ -647,18 +647,18 @@ ulong PMAPI PM_getPhysicalAddr(
 {
     DWORD   pte;
 
-    // Touch the memory before calling CopyPageTable. For some reason
-    // we need to do this on Windows 9x, otherwise the memory may not
-    // be paged in correctly. Of course if the passed in pointer is
-    // invalid, this function will fault, but we shouldn't be passed bogus
-    // pointers anyway ;-)
+    /* Touch the memory before calling CopyPageTable. For some reason */
+    /* we need to do this on Windows 9x, otherwise the memory may not */
+    /* be paged in correctly. Of course if the passed in pointer is */
+    /* invalid, this function will fault, but we shouldn't be passed bogus */
+    /* pointers anyway ;-) */
     pte = *((ulong*)p);
 
-    // Return assembled address value only if VMM service succeeds
+    /* Return assembled address value only if VMM service succeeds */
     if (CopyPageTable(((DWORD)p) >> 12, 1, (PVOID*)&pte, 0))
-        return (pte & ~0xFFF) | (((DWORD)p) & 0xFFF);
+	return (pte & ~0xFFF) | (((DWORD)p) & 0xFFF);
 
-    // Return failure to the caller!
+    /* Return failure to the caller! */
     return 0xFFFFFFFFUL;
 }
 
@@ -671,10 +671,10 @@ ibool PMAPI PM_getPhysicalAddrRange(
     ulong   linear = (ulong)p & ~0xFFF;
 
     for (i = (length + 0xFFF) >> 12; i > 0; i--) {
-        if ((*physAddress++ = PM_getPhysicalAddr((void*)linear)) == 0xFFFFFFFF)
-            return false;
-        linear += 4096;
-        }
+	if ((*physAddress++ = PM_getPhysicalAddr((void*)linear)) == 0xFFFFFFFF)
+	    return false;
+	linear += 4096;
+	}
     return true;
 }
 
@@ -682,7 +682,7 @@ void PMAPI _PM_freeMemoryMappings(void)
 {
     int i;
     for (i = 0; i < numMappings; i++)
-        PageFree(maps[i].linear,PR_STATIC);
+	PageFree(maps[i].linear,PR_STATIC);
 }
 
 void * PMAPI PM_mapRealPointer(
@@ -777,7 +777,7 @@ void PMAPI PM_callRealMode(
      * loaded, and not statically loaded.
      */
     if (!_PM_haveBIOS)
-        return;
+	return;
 
     _TRACE("SDDHELP: Entering PM_callRealMode()\n");
     Begin_Nest_V86_Exec();
@@ -807,16 +807,16 @@ int PMAPI PM_int86(
      * loaded, and not statically loaded.
      */
     if (!_PM_haveBIOS) {
-        *out = *in;
-        return out->x.ax;
-        }
+	*out = *in;
+	return out->x.ax;
+	}
 
     /* Disable pass-up to our VxD handler so we directly call BIOS */
     _TRACE("SDDHELP: Entering PM_int86()\n");
     if (disableTSRFlag) {
-        oldDisable = *disableTSRFlag;
-        *disableTSRFlag = 0;
-        }
+	oldDisable = *disableTSRFlag;
+	*disableTSRFlag = 0;
+	}
     Begin_Nest_V86_Exec();
     LoadV86Registers(&saveRegs,in,&sregs);
     Exec_Int(intno);
@@ -825,7 +825,7 @@ int PMAPI PM_int86(
 
     /* Re-enable pass-up to our VxD handler if previously enabled */
     if (disableTSRFlag)
-        *disableTSRFlag = oldDisable;
+	*disableTSRFlag = oldDisable;
 
     _TRACE("SDDHELP: Exiting PM_int86()\n");
     return out->x.ax;
@@ -849,16 +849,16 @@ int PMAPI PM_int86x(
      * loaded, and not statically loaded.
      */
     if (!_PM_haveBIOS) {
-        *out = *in;
-        return out->x.ax;
-        }
+	*out = *in;
+	return out->x.ax;
+	}
 
     /* Disable pass-up to our VxD handler so we directly call BIOS */
     _TRACE("SDDHELP: Entering PM_int86x()\n");
     if (disableTSRFlag) {
-        oldDisable = *disableTSRFlag;
-        *disableTSRFlag = 0;
-        }
+	oldDisable = *disableTSRFlag;
+	*disableTSRFlag = 0;
+	}
     Begin_Nest_V86_Exec();
     LoadV86Registers(&saveRegs,in,sregs);
     Exec_Int(intno);
@@ -867,7 +867,7 @@ int PMAPI PM_int86x(
 
     /* Re-enable pass-up to our VxD handler if previously enabled */
     if (disableTSRFlag)
-        *disableTSRFlag = oldDisable;
+	*disableTSRFlag = oldDisable;
 
     _TRACE("SDDHELP: Exiting PM_int86x()\n");
     return out->x.ax;
@@ -900,14 +900,14 @@ void * PMAPI PM_allocLockedMem(
     DWORD       maxPhys = below16M ? 0x00FFFFFF : 0xFFFFFFFF;
     void        *p;
 
-    // TODO: This may need to be modified if the memory needs to be globally
-    //       accessible. Check how we implemented PM_mallocShared() as we
-    //       may need to do something similar in here.
+    /* TODO: This may need to be modified if the memory needs to be globally */
+    /*       accessible. Check how we implemented PM_mallocShared() as we */
+    /*       may need to do something similar in here. */
     PageAllocate(nPages,PG_SYS,0,0,0,maxPhys,physAddr,flags,&hMem,&p);
 
-    // TODO: We may need to modify the memory blocks to disable caching via
-    //       the page tables (PCD|PWT) since DMA memory blocks *cannot* be
-    //       cached!
+    /* TODO: We may need to modify the memory blocks to disable caching via */
+    /*       the page tables (PCD|PWT) since DMA memory blocks *cannot* be */
+    /*       cached! */
     return p;
 }
 
@@ -921,7 +921,7 @@ void PMAPI PM_freeLockedMem(
     ibool contiguous)
 {
     if (p)
-        PageFree((ulong)p,0);
+	PageFree((ulong)p,0);
 }
 
 /****************************************************************************
@@ -934,9 +934,9 @@ void * PMAPI PM_allocPage(
     MEMHANDLE   hMem;
     void        *p;
 
-    // TODO: This will need to be modified if the memory needs to be globally
-    //       accessible. Check how we implemented PM_mallocShared() as we
-    //       may need to do something similar in here.
+    /* TODO: This will need to be modified if the memory needs to be globally */
+    /*       accessible. Check how we implemented PM_mallocShared() as we */
+    /*       may need to do something similar in here. */
     PageAllocate(1,PG_SYS,0,0,0,0,0,PAGEFIXED,&hMem,&p);
     return p;
 }
@@ -949,7 +949,7 @@ void PMAPI PM_freePage(
     void *p)
 {
     if (p)
-        PageFree((ulong)p,0);
+	PageFree((ulong)p,0);
 }
 
 /****************************************************************************
@@ -1012,41 +1012,41 @@ void PMAPI PM_setRealTimeClockFrequency(
     int frequency)
 {
     static short convert[] = {
-        8192,
-        4096,
-        2048,
-        1024,
-        512,
-        256,
-        128,
-        64,
-        32,
-        16,
-        8,
-        4,
-        2,
-        -1,
-        };
+	8192,
+	4096,
+	2048,
+	1024,
+	512,
+	256,
+	128,
+	64,
+	32,
+	16,
+	8,
+	4,
+	2,
+	-1,
+	};
     int i;
 
     /* First clear any pending RTC timeout if not cleared */
     _PM_readCMOS(0x0C);
     if (frequency == 0) {
-        /* Disable RTC timout */
-        _PM_writeCMOS(0x0A,_PM_oldCMOSRegA);
-        _PM_writeCMOS(0x0B,_PM_oldCMOSRegB & 0x0F);
-        }
+	/* Disable RTC timout */
+	_PM_writeCMOS(0x0A,_PM_oldCMOSRegA);
+	_PM_writeCMOS(0x0B,_PM_oldCMOSRegB & 0x0F);
+	}
     else {
-        /* Convert frequency value to RTC clock indexes */
-        for (i = 0; convert[i] != -1; i++) {
-            if (convert[i] == frequency)
-                break;
-            }
+	/* Convert frequency value to RTC clock indexes */
+	for (i = 0; convert[i] != -1; i++) {
+	    if (convert[i] == frequency)
+		break;
+	    }
 
-        /* Set RTC timout value and enable timeout */
-        _PM_writeCMOS(0x0A,0x20 | (i+3));
-        _PM_writeCMOS(0x0B,(_PM_oldCMOSRegB & 0x0F) | 0x40);
-        }
+	/* Set RTC timout value and enable timeout */
+	_PM_writeCMOS(0x0A,0x20 | (i+3));
+	_PM_writeCMOS(0x0B,(_PM_oldCMOSRegB & 0x0F) | 0x40);
+	}
 }
 
 /****************************************************************************
@@ -1072,11 +1072,11 @@ static BOOL __stdcall RTCInt_Handler(
      * new one comes along; if that happens we ignore the old one).
      */
     if (!inside) {
-        inside = 1;
-        enable();
-        _PM_rtcHandler();
-        inside = 0;
-        }
+	inside = 1;
+	enable();
+	_PM_rtcHandler();
+	inside = 0;
+	}
     return TRUE;
 }
 
@@ -1106,7 +1106,7 @@ ibool PMAPI PM_setRealTimeClockHandler(
     IRQdesc.VID_IRET_Proc       = 0;
     IRQdesc.VID_IRET_Time_Out   = 500;
     if ((RTCIRQHandle = VPICD_Virtualize_IRQ(&IRQdesc)) == 0)
-        return false;
+	return false;
 
     /* Program the real time clock default frequency */
     PM_setRealTimeClockFrequency(frequency);
@@ -1123,15 +1123,15 @@ Restore the original real time clock handler.
 void PMAPI PM_restoreRealTimeClockHandler(void)
 {
     if (RTCIRQHandle) {
-        /* Restore CMOS registers and mask RTC clock */
-        _PM_writeCMOS(0x0A,_PM_oldCMOSRegA);
-        _PM_writeCMOS(0x0B,_PM_oldCMOSRegB);
+	/* Restore CMOS registers and mask RTC clock */
+	_PM_writeCMOS(0x0A,_PM_oldCMOSRegA);
+	_PM_writeCMOS(0x0B,_PM_oldCMOSRegB);
 
-        /* Restore the interrupt vector */
-        VPICD_Set_Auto_Masking(RTCIRQHandle);
-        VPICD_Force_Default_Behavior(RTCIRQHandle);
-        RTCIRQHandle = 0;
-        }
+	/* Restore the interrupt vector */
+	VPICD_Set_Auto_Masking(RTCIRQHandle);
+	VPICD_Force_Default_Behavior(RTCIRQHandle);
+	RTCIRQHandle = 0;
+	}
 }
 
 /****************************************************************************
@@ -1176,9 +1176,9 @@ void *PMAPI PM_findFirstFile(
     const char *filename,
     PM_findData *findData)
 {
-    // TODO: This function should start a directory enumeration search
-    //       given the filename (with wildcards). The data should be
-    //       converted and returned in the findData standard form.
+    /* TODO: This function should start a directory enumeration search */
+    /*       given the filename (with wildcards). The data should be */
+    /*       converted and returned in the findData standard form. */
     (void)filename;
     (void)findData;
     return PM_FILE_INVALID;
@@ -1192,10 +1192,10 @@ ibool PMAPI PM_findNextFile(
     void *handle,
     PM_findData *findData)
 {
-    // TODO: This function should find the next file in directory enumeration
-    //       search given the search criteria defined in the call to
-    //       PM_findFirstFile. The data should be converted and returned
-    //       in the findData standard form.
+    /* TODO: This function should find the next file in directory enumeration */
+    /*       search given the search criteria defined in the call to */
+    /*       PM_findFirstFile. The data should be converted and returned */
+    /*       in the findData standard form. */
     (void)handle;
     (void)findData;
     return false;
@@ -1208,8 +1208,8 @@ Function to close the find process
 void PMAPI PM_findClose(
     void *handle)
 {
-    // TODO: This function should close the find process. This may do
-    //       nothing for some OS'es.
+    /* TODO: This function should close the find process. This may do */
+    /*       nothing for some OS'es. */
     (void)handle;
 }
 
@@ -1229,7 +1229,7 @@ numbering is:
 ibool PMAPI PM_driveValid(
     char drive)
 {
-    // Not supported in a VxD
+    /* Not supported in a VxD */
     (void)drive;
     return false;
 }
@@ -1245,7 +1245,7 @@ void PMAPI PM_getdcwd(
     char *dir,
     int len)
 {
-    // Not supported in a VxD
+    /* Not supported in a VxD */
     (void)drive;
     (void)dir;
     (void)len;
@@ -1279,7 +1279,7 @@ void PMAPI PM_setFileAttr(
     const char *filename,
     uint attrib)
 {
-    // TODO: Implement this
+    /* TODO: Implement this */
     (void)filename;
     (void)attrib;
     PM_fatalError("PM_setFileAttr not implemented yet!");
@@ -1292,7 +1292,7 @@ Function to get the file attributes for a specific file.
 uint PMAPI PM_getFileAttr(
     const char *filename)
 {
-    // TODO: Implement this
+    /* TODO: Implement this */
     (void)filename;
     PM_fatalError("PM_getFileAttr not implemented yet!");
     return 0;
@@ -1305,7 +1305,7 @@ Function to create a directory.
 ibool PMAPI PM_mkdir(
     const char *filename)
 {
-    // TODO: Implement this
+    /* TODO: Implement this */
     (void)filename;
     PM_fatalError("PM_mkdir not implemented yet!");
     return false;
@@ -1318,7 +1318,7 @@ Function to remove a directory.
 ibool PMAPI PM_rmdir(
     const char *filename)
 {
-    // TODO: Implement this
+    /* TODO: Implement this */
     (void)filename;
     PM_fatalError("PM_rmdir not implemented yet!");
     return false;
@@ -1333,7 +1333,7 @@ ibool PMAPI PM_getFileTime(
     ibool gmTime,
     PM_time *time)
 {
-    // TODO: Implement this!
+    /* TODO: Implement this! */
     (void)filename;
     (void)gmTime;
     (void)time;
@@ -1350,11 +1350,10 @@ ibool PMAPI PM_setFileTime(
     ibool gmTime,
     PM_time *time)
 {
-    // TODO: Implement this!
+    /* TODO: Implement this! */
     (void)filename;
     (void)gmTime;
     (void)time;
     PM_fatalError("PM_setFileTime not implemented yet!");
     return false;
 }
-

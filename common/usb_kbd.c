@@ -402,7 +402,6 @@ struct hid_item {
 #define HID_ITEM_TAG_LONG	15
 
 
-
 static struct usb_hid_descriptor usb_kbd_hid_desc;
 
 void usb_kbd_display_hid(struct usb_hid_descriptor *hid)
@@ -541,7 +540,6 @@ static int fetch_item(unsigned char *start,unsigned char *end, struct hid_item *
 #define HID_LOCAL_ITEM_TAG_DELIMITER		10
 
 
-
 static void usb_kbd_show_item(struct hid_item *item)
 {
 	switch(item->type) {
@@ -666,7 +664,6 @@ static void usb_kbd_show_item(struct hid_item *item)
 }
 
 
-
 static int usb_kbd_get_hid_desc(struct usb_device *dev)
 {
 	unsigned char buffer[256];
@@ -729,6 +726,3 @@ static int usb_kbd_get_hid_desc(struct usb_device *dev)
 #endif
 
 #endif /* CONFIG_USB_KEYBOARD */
-
-/* eof */
-

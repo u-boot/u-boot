@@ -105,7 +105,7 @@ void rtc_get (struct rtc_time *tmp)
 		rtc_write (RTC_SEC_REG_ADDR,
 			   rtc_read (RTC_SEC_REG_ADDR) & ~RTC_SEC_BIT_CH);
 	}
-	
+
 	tmp->tm_sec  = bcd2bin (sec & 0x7F);
 	tmp->tm_min  = bcd2bin (min & 0x7F);
 	tmp->tm_hour = bcd2bin (hour & 0x3F);
@@ -133,7 +133,7 @@ void rtc_set (struct rtc_time *tmp)
 
 	if (tmp->tm_year < 1970 || tmp->tm_year > 2069)
 		printf("WARNING: year should be between 1970 and 2069!\n");
-		
+
 	rtc_write (RTC_YR_REG_ADDR, bin2bcd (tmp->tm_year % 100));
 	rtc_write (RTC_MON_REG_ADDR, bin2bcd (tmp->tm_mon));
 	rtc_write (RTC_DAY_REG_ADDR, bin2bcd (tmp->tm_wday + 1));
@@ -145,8 +145,8 @@ void rtc_set (struct rtc_time *tmp)
 
 
 /*
- * Reset the RTC. We setting the date back to 1970-01-01. 
- * We also enable the oscillator output on the SQW/OUT pin and program 
+ * Reset the RTC. We setting the date back to 1970-01-01.
+ * We also enable the oscillator output on the SQW/OUT pin and program
  * it for 32,768 Hz output. Note that according to the datasheet, turning
  * on the square wave output increases the current drain on the backup
  * battery to something between 480nA and 800nA.

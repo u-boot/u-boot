@@ -6,8 +6,8 @@
 * VERSION 2.6.6  Sun Mar  5 19:10:03 2000  Doug Lea  (dl at gee)
 
    Note: There may be an updated version of this malloc obtainable at
-           ftp://g.oswego.edu/pub/misc/malloc.c
-         Check before installing!
+	   ftp://g.oswego.edu/pub/misc/malloc.c
+	 Check before installing!
 
 * Why use this malloc?
 
@@ -84,7 +84,7 @@
        and status information.
 
   Minimum allocated size: 4-byte ptrs:  16 bytes    (including 4 overhead)
-                          8-byte ptrs:  24/32 bytes (including, 4/8 overhead)
+			  8-byte ptrs:  24/32 bytes (including, 4/8 overhead)
 
        When a chunk is freed, 12 (for 4byte ptrs) or 20 (for 8 byte
        ptrs but 4 byte size) or 24 (for 8/8) additional bytes are
@@ -96,7 +96,7 @@
        pointer to something of the minimum allocatable size.
 
   Maximum allocated size: 4-byte size_t: 2^31 -  8 bytes
-                          8-byte size_t: 2^63 - 16 bytes
+			  8-byte size_t: 2^63 - 16 bytes
 
        It is assumed that (possibly signed) size_t bit values suffice to
        represent chunk sizes. `Possibly signed' is due to the fact
@@ -112,11 +112,11 @@
        make the normal worst-case wastage 15 bytes (i.e., up to 15
        more bytes will be allocated than were requested in malloc), with
        two exceptions:
-         1. Because requests for zero bytes allocate non-zero space,
-            the worst case wastage for a request of zero bytes is 24 bytes.
-         2. For requests >= mmap_threshold that are serviced via
-            mmap(), the worst case wastage is 8 bytes plus the remainder
-            from a system page (the minimal mmap unit); typically 4096 bytes.
+	 1. Because requests for zero bytes allocate non-zero space,
+	    the worst case wastage for a request of zero bytes is 24 bytes.
+	 2. For requests >= mmap_threshold that are serviced via
+	    mmap(), the worst case wastage is 8 bytes plus the remainder
+	    from a system page (the minimal mmap unit); typically 4096 bytes.
 
 * Limitations
 
@@ -372,8 +372,8 @@ void* memset(void*, int, size_t);
 void* memcpy(void*, const void*, size_t);
 #else
 #ifdef WIN32
-// On Win32 platforms, 'memset()' and 'memcpy()' are already declared in
-// 'windows.h'
+/* On Win32 platforms, 'memset()' and 'memcpy()' are already declared in */
+/* 'windows.h' */
 #else
 Void_t* memset();
 Void_t* memcpy();
@@ -393,14 +393,14 @@ do {                                                                          \
   if(mzsz <= 9*sizeof(mzsz)) {                                                \
     INTERNAL_SIZE_T* mz = (INTERNAL_SIZE_T*) (charp);                         \
     if(mzsz >= 5*sizeof(mzsz)) {     *mz++ = 0;                               \
-                                     *mz++ = 0;                               \
+				     *mz++ = 0;                               \
       if(mzsz >= 7*sizeof(mzsz)) {   *mz++ = 0;                               \
-                                     *mz++ = 0;                               \
-        if(mzsz >= 9*sizeof(mzsz)) { *mz++ = 0;                               \
-                                     *mz++ = 0; }}}                           \
-                                     *mz++ = 0;                               \
-                                     *mz++ = 0;                               \
-                                     *mz   = 0;                               \
+				     *mz++ = 0;                               \
+	if(mzsz >= 9*sizeof(mzsz)) { *mz++ = 0;                               \
+				     *mz++ = 0; }}}                           \
+				     *mz++ = 0;                               \
+				     *mz++ = 0;                               \
+				     *mz   = 0;                               \
   } else memset((charp), 0, mzsz);                                            \
 } while(0)
 
@@ -411,14 +411,14 @@ do {                                                                          \
     INTERNAL_SIZE_T* mcsrc = (INTERNAL_SIZE_T*) (src);                        \
     INTERNAL_SIZE_T* mcdst = (INTERNAL_SIZE_T*) (dest);                       \
     if(mcsz >= 5*sizeof(mcsz)) {     *mcdst++ = *mcsrc++;                     \
-                                     *mcdst++ = *mcsrc++;                     \
+				     *mcdst++ = *mcsrc++;                     \
       if(mcsz >= 7*sizeof(mcsz)) {   *mcdst++ = *mcsrc++;                     \
-                                     *mcdst++ = *mcsrc++;                     \
-        if(mcsz >= 9*sizeof(mcsz)) { *mcdst++ = *mcsrc++;                     \
-                                     *mcdst++ = *mcsrc++; }}}                 \
-                                     *mcdst++ = *mcsrc++;                     \
-                                     *mcdst++ = *mcsrc++;                     \
-                                     *mcdst   = *mcsrc  ;                     \
+				     *mcdst++ = *mcsrc++;                     \
+	if(mcsz >= 9*sizeof(mcsz)) { *mcdst++ = *mcsrc++;                     \
+				     *mcdst++ = *mcsrc++; }}}                 \
+				     *mcdst++ = *mcsrc++;                     \
+				     *mcdst++ = *mcsrc++;                     \
+				     *mcdst   = *mcsrc  ;                     \
   } else memcpy(dest, src, mcsz);                                             \
 } while(0)
 
@@ -567,7 +567,6 @@ do {                                                                          \
 #endif
 
 
-
 /*
 
   This version of malloc supports the standard SVID/XPG mallinfo
@@ -629,7 +628,6 @@ struct mallinfo {
 #define M_TOP_PAD           -2
 #define M_MMAP_THRESHOLD    -3
 #define M_MMAP_MAX          -4
-
 
 
 #ifndef DEFAULT_TRIM_THRESHOLD
@@ -695,11 +693,11 @@ struct mallinfo {
       retain whenever sbrk is called. It is used in two ways internally:
 
       * When sbrk is called to extend the top of the arena to satisfy
-        a new malloc request, this much padding is added to the sbrk
-        request.
+	a new malloc request, this much padding is added to the sbrk
+	request.
 
       * When malloc_trim is called automatically from free(),
-        it is used as the `pad' argument.
+	it is used as the `pad' argument.
 
       In both cases, the actual amount of padding is rounded
       so that the end of the arena is always a system page boundary.
@@ -745,22 +743,21 @@ struct mallinfo {
 
       However, it has the disadvantages that:
 
-         1. The space cannot be reclaimed, consolidated, and then
-            used to service later requests, as happens with normal chunks.
-         2. It can lead to more wastage because of mmap page alignment
-            requirements
-         3. It causes malloc performance to be more dependent on host
-            system memory management support routines which may vary in
-            implementation quality and may impose arbitrary
-            limitations. Generally, servicing a request via normal
-            malloc steps is faster than going through a system's mmap.
+	 1. The space cannot be reclaimed, consolidated, and then
+	    used to service later requests, as happens with normal chunks.
+	 2. It can lead to more wastage because of mmap page alignment
+	    requirements
+	 3. It causes malloc performance to be more dependent on host
+	    system memory management support routines which may vary in
+	    implementation quality and may impose arbitrary
+	    limitations. Generally, servicing a request via normal
+	    malloc steps is faster than going through a system's mmap.
 
       All together, these considerations should lead you to use mmap
       only for relatively large requests.
 
 
 */
-
 
 
 #ifndef DEFAULT_MMAP_MAX
@@ -775,22 +772,20 @@ struct mallinfo {
     M_MMAP_MAX is the maximum number of requests to simultaneously
       service using mmap. This parameter exists because:
 
-         1. Some systems have a limited number of internal tables for
-            use by mmap.
-         2. In most systems, overreliance on mmap can degrade overall
-            performance.
-         3. If a program allocates many large regions, it is probably
-            better off using normal sbrk-based allocation routines that
-            can reclaim and reallocate normal heap memory. Using a
-            small value allows transition into this mode after the
-            first few allocations.
+	 1. Some systems have a limited number of internal tables for
+	    use by mmap.
+	 2. In most systems, overreliance on mmap can degrade overall
+	    performance.
+	 3. If a program allocates many large regions, it is probably
+	    better off using normal sbrk-based allocation routines that
+	    can reclaim and reallocate normal heap memory. Using a
+	    small value allows transition into this mode after the
+	    first few allocations.
 
       Setting to 0 disables all use of mmap.  If HAVE_MMAP is not set,
       the default value is 0, and attempts to set it to non-zero values
       in mallopt will fail.
 */
-
-
 
 
 /*
@@ -801,8 +796,6 @@ struct mallinfo {
 */
 
 /* #define USE_DL_PREFIX */
-
-
 
 
 /*

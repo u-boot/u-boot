@@ -104,7 +104,6 @@ typedef struct tid_8xx_cpmtimer_s {
 #define	CPMT_MR_CE_ANY		0x00C0	/* Capt./Interr. on any TIN edge*/
 
 
-
 /*
  * which CPM timer to use - index starts at 0 (= timer 1)
  */

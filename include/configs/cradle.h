@@ -100,7 +100,7 @@
 #define CFG_HZ                  3686400         /* incrementer freq: 3.6864 MHz */
 #define CFG_CPUSPEED            0x141           /* set core clock to 200/200/100 MHz */
 
-                                                /* valid baudrates */
+						/* valid baudrates */
 #define CFG_BAUDRATE_TABLE      { 9600, 19200, 38400, 57600, 115200 }
 
 /*

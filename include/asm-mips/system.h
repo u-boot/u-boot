@@ -8,7 +8,7 @@
  * Copyright (C) 1994 - 1999 by Ralf Baechle
  *
  * Changed set_except_vector declaration to allow return of previous
- * vector address value - necessary for "borrowing" vectors. 
+ * vector address value - necessary for "borrowing" vectors.
  *
  * Kevin D. Kissell, kevink@mips.org and Carsten Langgaard, carstenl@mips.com
  * Copyright (C) 2000 MIPS Technologies, Inc.
@@ -124,7 +124,7 @@ extern void __global_cli(void);
 extern unsigned long __global_save_flags(void);
 extern void __global_restore_flags(unsigned long);
 #  define sti() __global_sti()
-#  define cli() __global_cli() 
+#  define cli() __global_cli()
 #  define save_flags(x) do { x = __global_save_flags(); } while (0)
 #  define restore_flags(x) __global_restore_flags(x)
 #  define save_and_cli(x) do { save_flags(x); cli(); } while(0)

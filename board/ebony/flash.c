@@ -55,14 +55,14 @@
 flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
 static  unsigned    long    flash_addr_table[8][CFG_MAX_FLASH_BANKS] = {
-        {0xffc00000, 0xffe00000, 0xff880000},   /* 0:000: configuraton 3 */
-        {0xffc00000, 0xffe00000, 0xff800000},   /* 1:001: configuraton 4 */
-        {0xffc00000, 0xffe00000, 0x00000000},   /* 2:010: configuraton 7 */
-        {0xffc00000, 0xffe00000, 0x00000000},   /* 3:011: configuraton 8 */
-        {0xff800000, 0xffa00000, 0xfff80000},   /* 4:100: configuraton 1 */
-        {0xff800000, 0xffa00000, 0xfff00000},   /* 5:101: configuraton 2 */
-        {0xffc00000, 0xffe00000, 0x00000000},   /* 6:110: configuraton 5 */
-        {0xffc00000, 0xffe00000, 0x00000000}    /* 7:111: configuraton 6 */
+	{0xffc00000, 0xffe00000, 0xff880000},   /* 0:000: configuraton 3 */
+	{0xffc00000, 0xffe00000, 0xff800000},   /* 1:001: configuraton 4 */
+	{0xffc00000, 0xffe00000, 0x00000000},   /* 2:010: configuraton 7 */
+	{0xffc00000, 0xffe00000, 0x00000000},   /* 3:011: configuraton 8 */
+	{0xff800000, 0xffa00000, 0xfff80000},   /* 4:100: configuraton 1 */
+	{0xff800000, 0xffa00000, 0xfff00000},   /* 5:101: configuraton 2 */
+	{0xffc00000, 0xffe00000, 0x00000000},   /* 6:110: configuraton 5 */
+	{0xffc00000, 0xffe00000, 0x00000000}    /* 7:111: configuraton 6 */
 };
 
 /*-----------------------------------------------------------------------
@@ -156,7 +156,6 @@ unsigned long flash_init (void) {
 }
 
 
-
 /*-----------------------------------------------------------------------
  */
 #if 0
@@ -199,10 +198,10 @@ static void flash_get_offsets (ulong base, flash_info_t *info)
 void flash_print_info  (flash_info_t *info)
 {
 	int i;
-        int k;
-        int size;
-        int erased;
-        volatile unsigned long *flash;
+	int k;
+	int size;
+	int erased;
+	volatile unsigned long *flash;
 
 	if (info->flash_id == FLASH_UNKNOWN) {
 		printf ("missing or unknown FLASH type\n");
@@ -250,17 +249,17 @@ void flash_print_info  (flash_info_t *info)
 
 	printf ("  Sector Start Addresses:");
 	for (i=0; i<info->sector_count; ++i) {
-                /*
-                 * Check if whole sector is erased
-                 */
-                if (i != (info->sector_count-1))
+		/*
+		 * Check if whole sector is erased
+		 */
+		if (i != (info->sector_count-1))
 			size = info->start[i+1] - info->start[i];
-                else
+		else
 			size = info->start[0] + info->size - info->start[i];
-                erased = 1;
-                flash = (volatile unsigned long *)info->start[i];
-                size = size >> 2;        /* divide by 4 for longword access */
-                for (k=0; k<size; k++)
+		erased = 1;
+		flash = (volatile unsigned long *)info->start[i];
+		size = size >> 2;        /* divide by 4 for longword access */
+		for (k=0; k<size; k++)
 		{
 			if (*flash++ != 0xffffffff)
 			{
@@ -298,16 +297,16 @@ void flash_print_info  (flash_info_t *info)
 			ulong base = (ulong)addr;
 			volatile FLASH_WORD_SIZE *addr2 = (FLASH_WORD_SIZE *)addr;
 
-            DEBUGF("FLASH ADDR: %08x\n", (unsigned)addr );
+	    DEBUGF("FLASH ADDR: %08x\n", (unsigned)addr );
 
 			/* Write auto select command: read Manufacturer ID */
-            udelay(10000);
+	    udelay(10000);
 			addr2[ADDR0] = (FLASH_WORD_SIZE)0x00AA00AA;
-            udelay(1000);
+	    udelay(1000);
 			addr2[ADDR1] = (FLASH_WORD_SIZE)0x00550055;
-            udelay(1000);
+	    udelay(1000);
 			addr2[ADDR0] = (FLASH_WORD_SIZE)0x00900090;
-            udelay(1000);
+	    udelay(1000);
 
 #ifdef CONFIG_ADCIOP
 			value = addr2[2];
@@ -352,11 +351,11 @@ void flash_print_info  (flash_info_t *info)
 				info->sector_count = 32;
 				info->size = 0x00200000;
 				break;				/* => 2 MB		*/
-                        case (FLASH_WORD_SIZE)STM_ID_F040B:
-                                info->flash_id += FLASH_AM040;
-                                info->sector_count = 8;
-                                info->size = 0x0080000; /* => 512 ko */
-                                break;				
+			case (FLASH_WORD_SIZE)STM_ID_F040B:
+				info->flash_id += FLASH_AM040;
+				info->sector_count = 8;
+				info->size = 0x0080000; /* => 512 ko */
+				break;
 			case (FLASH_WORD_SIZE)AMD_ID_F040B:
 				info->flash_id += FLASH_AM040;
 				info->sector_count = 8;

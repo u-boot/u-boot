@@ -35,7 +35,7 @@
 #define DEFAULT_VIDEO_MEMORY_SIZE  0x140000     /* Video Memory Size */
 
 #define HWCURSORSIZE 		   1024     /* Size of memory reserved
-                                                   for HW cursor*/ 
+						   for HW cursor*/
 
 /* Offset of chipset registers                                               */
 #define	BLT_CTRL0	(0x0100)
@@ -85,7 +85,6 @@ typedef struct
     unsigned short      Index;
     unsigned char       Value;
 } S1D_REGS;
-
 
 
 /* Board specific functions                                                  */

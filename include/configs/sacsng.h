@@ -256,8 +256,8 @@
  */
 #define CONFIG_SOFT_SPI		/* Enable SPI driver */
 #define MAX_SPI_BYTES   4	/* Maximum number of bytes we can handle */
-#undef  DEBUG_SPI               /* Disable SPI debugging */  
- 
+#undef  DEBUG_SPI               /* Disable SPI debugging */
+
 /*
  * Software (bit-bang) SPI driver configuration
  */
@@ -273,9 +273,9 @@
 #undef  SPI_INIT			/* no port initialization needed */
 #define SPI_READ        ((immr->im_ioport.iop_pdatd & I2C_MISO) != 0)
 #define SPI_SDA(bit)    if(bit) immr->im_ioport.iop_pdatd |=  I2C_MOSI; \
-                        else    immr->im_ioport.iop_pdatd &= ~I2C_MOSI
+			else    immr->im_ioport.iop_pdatd &= ~I2C_MOSI
 #define SPI_SCL(bit)    if(bit) immr->im_ioport.iop_pdatd |=  I2C_SCLK; \
-                        else    immr->im_ioport.iop_pdatd &= ~I2C_SCLK
+			else    immr->im_ioport.iop_pdatd &= ~I2C_SCLK
 #define SPI_DELAY                       /* No delay is needed */
 #endif /* CONFIG_SOFT_SPI */
 

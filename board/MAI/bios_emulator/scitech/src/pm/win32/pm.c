@@ -69,10 +69,10 @@ static char *szMachineName      = "ComputerName";
 #define CHECK_FOR_PMHELP()                                                  \
 {                                                                           \
     if (_PM_hDevice == INVALID_HANDLE_VALUE)                                \
-        if (_PM_haveWinNT)                                                  \
-            PM_fatalError("Unable to connect to PMHELP.SYS or SDDHELP.SYS!"); \
-        else                                                                  \
-            PM_fatalError("Unable to connect to PMHELP.VXD or SDDHELP.VXD!"); \
+	if (_PM_haveWinNT)                                                  \
+	    PM_fatalError("Unable to connect to PMHELP.SYS or SDDHELP.SYS!"); \
+	else                                                                  \
+	    PM_fatalError("Unable to connect to PMHELP.VXD or SDDHELP.VXD!"); \
 }
 
 /****************************************************************************
@@ -95,71 +95,71 @@ void PMAPI PM_init(void)
      * of SDD is loaded, we use the PMHELP VxD instead.
      */
     if (!inited) {
-        /* Determine if we are running under Windows NT or not and
-         * set the global OS type variable.
-         */
-        _PM_haveWinNT = false;
-        if ((GetVersion() & 0x80000000UL) == 0)
-            _PM_haveWinNT = true;
-        ___drv_os_type = (_PM_haveWinNT) ? _OS_WINNT : _OS_WIN95;
+	/* Determine if we are running under Windows NT or not and
+	 * set the global OS type variable.
+	 */
+	_PM_haveWinNT = false;
+	if ((GetVersion() & 0x80000000UL) == 0)
+	    _PM_haveWinNT = true;
+	___drv_os_type = (_PM_haveWinNT) ? _OS_WINNT : _OS_WIN95;
 
-        /* Now try to connect to SDDHELP.VXD or SDDHELP.SYS */
-        _PM_hDevice = CreateFile(SDDHELP_MODULE_PATH, 0,0,0, CREATE_NEW, FILE_FLAG_DELETE_ON_CLOSE, 0);
-        if (_PM_hDevice != INVALID_HANDLE_VALUE) {
-            if (!DeviceIoControl(_PM_hDevice, PMHELP_GETVER32, NULL, 0,
-                    outBuf, sizeof(outBuf), &count, NULL) || outBuf[0] < PMHELP_VERSION) {
-                /* Old version of SDDHELP loaded, so use PMHELP instead */
-                CloseHandle(_PM_hDevice);
-                _PM_hDevice = INVALID_HANDLE_VALUE;
-                }
-            }
-        if (_PM_hDevice == INVALID_HANDLE_VALUE) {
-            /* First try to see if there is a currently loaded PMHELP driver.
-             * This is usually the case when we are running under Windows NT/2K.
-             */
-            _PM_hDevice = CreateFile(PMHELP_MODULE_PATH, 0,0,0, CREATE_NEW, FILE_FLAG_DELETE_ON_CLOSE, 0);
-            if (_PM_hDevice == INVALID_HANDLE_VALUE) {
-                /* The driver was not staticly loaded, so try creating a file handle
-                 * to a dynamic version of the VxD if possible. Note that on WinNT/2K we
-                 * cannot support dynamically loading the drivers.
-                 */
-                _PM_hDevice = CreateFile(PMHELP_VXD_PATH, 0,0,0, CREATE_NEW, FILE_FLAG_DELETE_ON_CLOSE, 0);
-                }
-            }
-        if (_PM_hDevice != INVALID_HANDLE_VALUE) {
-            /* Call the driver to determine the version number */
-            if (!DeviceIoControl(_PM_hDevice, PMHELP_GETVER32, inBuf, sizeof(inBuf),
-                    outBuf, sizeof(outBuf), &count, NULL) || outBuf[0] < PMHELP_VERSION) {
-                if (_PM_haveWinNT)
-                    PM_fatalError("Older version of PMHELP.SYS found!");
-                else
-                    PM_fatalError("Older version of PMHELP.VXD found!");
-                }
+	/* Now try to connect to SDDHELP.VXD or SDDHELP.SYS */
+	_PM_hDevice = CreateFile(SDDHELP_MODULE_PATH, 0,0,0, CREATE_NEW, FILE_FLAG_DELETE_ON_CLOSE, 0);
+	if (_PM_hDevice != INVALID_HANDLE_VALUE) {
+	    if (!DeviceIoControl(_PM_hDevice, PMHELP_GETVER32, NULL, 0,
+		    outBuf, sizeof(outBuf), &count, NULL) || outBuf[0] < PMHELP_VERSION) {
+		/* Old version of SDDHELP loaded, so use PMHELP instead */
+		CloseHandle(_PM_hDevice);
+		_PM_hDevice = INVALID_HANDLE_VALUE;
+		}
+	    }
+	if (_PM_hDevice == INVALID_HANDLE_VALUE) {
+	    /* First try to see if there is a currently loaded PMHELP driver.
+	     * This is usually the case when we are running under Windows NT/2K.
+	     */
+	    _PM_hDevice = CreateFile(PMHELP_MODULE_PATH, 0,0,0, CREATE_NEW, FILE_FLAG_DELETE_ON_CLOSE, 0);
+	    if (_PM_hDevice == INVALID_HANDLE_VALUE) {
+		/* The driver was not staticly loaded, so try creating a file handle
+		 * to a dynamic version of the VxD if possible. Note that on WinNT/2K we
+		 * cannot support dynamically loading the drivers.
+		 */
+		_PM_hDevice = CreateFile(PMHELP_VXD_PATH, 0,0,0, CREATE_NEW, FILE_FLAG_DELETE_ON_CLOSE, 0);
+		}
+	    }
+	if (_PM_hDevice != INVALID_HANDLE_VALUE) {
+	    /* Call the driver to determine the version number */
+	    if (!DeviceIoControl(_PM_hDevice, PMHELP_GETVER32, inBuf, sizeof(inBuf),
+		    outBuf, sizeof(outBuf), &count, NULL) || outBuf[0] < PMHELP_VERSION) {
+		if (_PM_haveWinNT)
+		    PM_fatalError("Older version of PMHELP.SYS found!");
+		else
+		    PM_fatalError("Older version of PMHELP.VXD found!");
+		}
 
-            /* Now set the current path inside the VxD so it knows what the
-             * current directory is for loading Nucleus drivers.
-             */
-            inBuf[0] = (ulong)PM_getCurrentPath(cntPath,sizeof(cntPath));
-            if (!DeviceIoControl(_PM_hDevice, PMHELP_SETCNTPATH32, inBuf, sizeof(inBuf), outBuf, sizeof(outBuf), &count, NULL))
-                PM_fatalError("Unable to set VxD current path!");
+	    /* Now set the current path inside the VxD so it knows what the
+	     * current directory is for loading Nucleus drivers.
+	     */
+	    inBuf[0] = (ulong)PM_getCurrentPath(cntPath,sizeof(cntPath));
+	    if (!DeviceIoControl(_PM_hDevice, PMHELP_SETCNTPATH32, inBuf, sizeof(inBuf), outBuf, sizeof(outBuf), &count, NULL))
+		PM_fatalError("Unable to set VxD current path!");
 
-            /* Now pass down the NUCLEUS_PATH environment variable to the device
-             * driver so it can use this value if it is found.
-             */
-            if ((env = getenv("NUCLEUS_PATH")) != NULL) {
-                inBuf[0] = (ulong)env;
-                if (!DeviceIoControl(_PM_hDevice, PMHELP_SETNUCLEUSPATH32, inBuf, sizeof(inBuf), outBuf, sizeof(outBuf), &count, NULL))
-                    PM_fatalError("Unable to set VxD Nucleus path!");
-                }
+	    /* Now pass down the NUCLEUS_PATH environment variable to the device
+	     * driver so it can use this value if it is found.
+	     */
+	    if ((env = getenv("NUCLEUS_PATH")) != NULL) {
+		inBuf[0] = (ulong)env;
+		if (!DeviceIoControl(_PM_hDevice, PMHELP_SETNUCLEUSPATH32, inBuf, sizeof(inBuf), outBuf, sizeof(outBuf), &count, NULL))
+		    PM_fatalError("Unable to set VxD Nucleus path!");
+		}
 
-            /* Enable IOPL for ring-3 code by default if driver is present */
-            if (_PM_haveWinNT)
-                PM_setIOPL(3);
-            }
+	    /* Enable IOPL for ring-3 code by default if driver is present */
+	    if (_PM_haveWinNT)
+		PM_setIOPL(3);
+	    }
 
-        /* Indicate that we have been initialised */
-        inited = true;
-        }
+	/* Indicate that we have been initialised */
+	inited = true;
+	}
 }
 
 /****************************************************************************
@@ -177,14 +177,14 @@ int PMAPI PM_setIOPL(
 
     /* Enable I/O by adjusting the I/O permissions map on Windows NT */
     if (_PM_haveWinNT) {
-        CHECK_FOR_PMHELP();
-        if (iopl == 3)
-            DeviceIoControl(_PM_hDevice, PMHELP_ENABLERING3IOPL, inBuf, sizeof(inBuf),outBuf, sizeof(outBuf), &count, NULL);
-        else
-            DeviceIoControl(_PM_hDevice, PMHELP_DISABLERING3IOPL, inBuf, sizeof(inBuf),outBuf, sizeof(outBuf), &count, NULL);
-        cntIOPL = iopl;
-        return oldIOPL;
-        }
+	CHECK_FOR_PMHELP();
+	if (iopl == 3)
+	    DeviceIoControl(_PM_hDevice, PMHELP_ENABLERING3IOPL, inBuf, sizeof(inBuf),outBuf, sizeof(outBuf), &count, NULL);
+	else
+	    DeviceIoControl(_PM_hDevice, PMHELP_DISABLERING3IOPL, inBuf, sizeof(inBuf),outBuf, sizeof(outBuf), &count, NULL);
+	cntIOPL = iopl;
+	return oldIOPL;
+	}
 
     /* We always have IOPL on Windows 9x */
     return 3;
@@ -197,9 +197,9 @@ We do have BIOS access under Windows 9x, but not under Windows NT.
 ibool PMAPI PM_haveBIOSAccess(void)
 {
     if (PM_getOSType() == _OS_WINNT)
-        return false;
+	return false;
     else
-        return _PM_hDevice != INVALID_HANDLE_VALUE;
+	return _PM_hDevice != INVALID_HANDLE_VALUE;
 }
 
 /****************************************************************************
@@ -209,9 +209,9 @@ Return the operating system type identifier.
 long PMAPI PM_getOSType(void)
 {
     if ((GetVersion() & 0x80000000UL) == 0)
-        return ___drv_os_type = _OS_WINNT;
+	return ___drv_os_type = _OS_WINNT;
     else
-        return ___drv_os_type = _OS_WIN95;
+	return ___drv_os_type = _OS_WIN95;
 }
 
 /****************************************************************************
@@ -232,9 +232,9 @@ void PMAPI PM_backslash(
 {
     uint pos = strlen(s);
     if (s[pos-1] != '\\') {
-        s[pos] = '\\';
-        s[pos+1] = '\0';
-        }
+	s[pos] = '\\';
+	s[pos+1] = '\0';
+	}
 }
 
 /****************************************************************************
@@ -255,7 +255,7 @@ void PMAPI PM_fatalError(
     const char *msg)
 {
     if (fatalErrorCleanup)
-        fatalErrorCleanup();
+	fatalErrorCleanup();
     MessageBox(NULL,msg,"Fatal Error!", MB_ICONEXCLAMATION);
     exit(1);
 }
@@ -279,19 +279,19 @@ void * PMAPI PM_getVESABuf(
      * memory blocks out of order).
      */
     if (!inited)
-        PM_init();
+	PM_init();
     if (!VESABuf_ptr) {
-        CHECK_FOR_PMHELP();
-        if (DeviceIoControl(_PM_hDevice, PMHELP_GETVESABUF32, NULL, 0,
-                outBuf, sizeof(outBuf), &count, NULL)) {
-            if (!outBuf[0])
-                return NULL;
-            VESABuf_ptr = (void*)outBuf[0];
-            VESABuf_len = outBuf[1];
-            VESABuf_rseg = outBuf[2];
-            VESABuf_roff = outBuf[3];
-            }
-        }
+	CHECK_FOR_PMHELP();
+	if (DeviceIoControl(_PM_hDevice, PMHELP_GETVESABUF32, NULL, 0,
+		outBuf, sizeof(outBuf), &count, NULL)) {
+	    if (!outBuf[0])
+		return NULL;
+	    VESABuf_ptr = (void*)outBuf[0];
+	    VESABuf_len = outBuf[1];
+	    VESABuf_rseg = outBuf[2];
+	    VESABuf_roff = outBuf[3];
+	    }
+	}
     *len = VESABuf_len;
     *rseg = VESABuf_rseg;
     *roff = VESABuf_roff;
@@ -405,7 +405,7 @@ static ibool REG_queryStringEx(
     DWORD   type;
 
     if (RegQueryValueEx(hKey,(PCHAR)szValue,(PDWORD)NULL,(PDWORD)&type,(LPBYTE)value,(PDWORD)&size) == ERROR_SUCCESS)
-        return true;
+	return true;
     return false;
 }
 
@@ -424,9 +424,9 @@ static ibool REG_queryString(
 
     memset(value,0,sizeof(value));
     if (RegOpenKey(HKEY_LOCAL_MACHINE,szKey,&hKey) == ERROR_SUCCESS) {
-        status = REG_queryStringEx(hKey,szValue,value,size);
-        RegCloseKey(hKey);
-        }
+	status = REG_queryStringEx(hKey,szValue,value,size);
+	RegCloseKey(hKey);
+	}
     return status;
 }
 
@@ -460,7 +460,7 @@ const char * PMAPI PM_getNucleusPath(void)
     char        *env;
 
     if ((env = getenv("NUCLEUS_PATH")) != NULL)
-        return env;
+	return env;
     GetSystemDirectory(path,sizeof(path));
     strcat(path,"\\nucleus");
     return path;
@@ -497,9 +497,9 @@ const char * PMAPI PM_getMachineName(void)
     static char name[256];
 
     if (REG_queryString(szMachineNameKey,szMachineName,name,sizeof(name)))
-        return name;
+	return name;
     if (REG_queryString(szMachineNameKeyNT,szMachineName,name,sizeof(name)))
-        return name;
+	return name;
     return "Unknown";
 }
 
@@ -510,13 +510,13 @@ Return a pointer to the real mode BIOS data area.
 void * PMAPI PM_getBIOSPointer(void)
 {
     if (_PM_haveWinNT) {
-        /* On Windows NT we have to map it physically directly */
+	/* On Windows NT we have to map it physically directly */
 	    return PM_mapPhysicalAddr(0x400, 0x1000, true);
-        }
+	}
     else {
-        /* For Windows 9x we can access this memory directly */
-        return (void*)0x400;
-        }
+	/* For Windows 9x we can access this memory directly */
+	return (void*)0x400;
+	}
 }
 
 /****************************************************************************
@@ -526,16 +526,16 @@ Return a pointer to 0xA0000 physical VGA graphics framebuffer.
 void * PMAPI PM_getA0000Pointer(void)
 {
     if (_PM_haveWinNT) {
-        /* On Windows NT we have to map it physically directly */
+	/* On Windows NT we have to map it physically directly */
 	    return PM_mapPhysicalAddr(0xA0000, 0x0FFFF, false);
-        }
+	}
     else {
-        /* Always use the 0xA0000 linear address so that we will use
-         * whatever page table mappings are set up for us (ie: for virtual
-         * bank switching.
-         */
-        return (void*)0xA0000;
-        }
+	/* Always use the 0xA0000 linear address so that we will use
+	 * whatever page table mappings are set up for us (ie: for virtual
+	 * bank switching.
+	 */
+	return (void*)0xA0000;
+	}
 }
 
 /****************************************************************************
@@ -552,14 +552,14 @@ void * PMAPI PM_mapPhysicalAddr(
     DWORD   count;      /* Count of bytes returned from VxD */
 
     if (!inited)
-        PM_init();
+	PM_init();
     inBuf[0] = base;
     inBuf[1] = limit;
     inBuf[2] = isCached;
     CHECK_FOR_PMHELP();
     if (DeviceIoControl(_PM_hDevice, PMHELP_MAPPHYS32, inBuf, sizeof(inBuf),
-            outBuf, sizeof(outBuf), &count, NULL))
-        return (void*)outBuf[0];
+	    outBuf, sizeof(outBuf), &count, NULL))
+	return (void*)outBuf[0];
     return NULL;
 }
 
@@ -590,12 +590,12 @@ ulong PMAPI PM_getPhysicalAddr(
     DWORD   count;      /* Count of bytes returned from VxD */
 
     if (!inited)
-        PM_init();
+	PM_init();
     inBuf[0] = (ulong)p;
     CHECK_FOR_PMHELP();
     if (DeviceIoControl(_PM_hDevice, PMHELP_GETPHYSICALADDR32, inBuf, sizeof(inBuf),
-            outBuf, sizeof(outBuf), &count, NULL))
-        return outBuf[0];
+	    outBuf, sizeof(outBuf), &count, NULL))
+	return outBuf[0];
     return 0xFFFFFFFFUL;
 }
 
@@ -613,14 +613,14 @@ ibool PMAPI PM_getPhysicalAddrRange(
     DWORD   count;      /* Count of bytes returned from VxD */
 
     if (!inited)
-        PM_init();
+	PM_init();
     inBuf[0] = (ulong)p;
     inBuf[1] = (ulong)length;
     inBuf[2] = (ulong)physAddress;
     CHECK_FOR_PMHELP();
     if (DeviceIoControl(_PM_hDevice, PMHELP_GETPHYSICALADDRRANGE32, inBuf, sizeof(inBuf),
-            outBuf, sizeof(outBuf), &count, NULL))
-        return outBuf[0];
+	    outBuf, sizeof(outBuf), &count, NULL))
+	return outBuf[0];
     return false;
 }
 
@@ -640,14 +640,14 @@ Return the base I/O port for the specified COM port.
 ****************************************************************************/
 int PMAPI PM_getCOMPort(int port)
 {
-    // TODO: Re-code this to determine real values using the Plug and Play
-    //       manager for the OS.
+    /* TODO: Re-code this to determine real values using the Plug and Play */
+    /*       manager for the OS. */
     switch (port) {
-        case 0: return 0x3F8;
-        case 1: return 0x2F8;
-        case 2: return 0x3E8;
-        case 3: return 0x2E8;
-        }
+	case 0: return 0x3F8;
+	case 1: return 0x2F8;
+	case 2: return 0x3E8;
+	case 3: return 0x2E8;
+	}
     return 0;
 }
 
@@ -657,13 +657,13 @@ Return the base I/O port for the specified LPT port.
 ****************************************************************************/
 int PMAPI PM_getLPTPort(int port)
 {
-    // TODO: Re-code this to determine real values using the Plug and Play
-    //       manager for the OS.
+    /* TODO: Re-code this to determine real values using the Plug and Play */
+    /*       manager for the OS. */
     switch (port) {
-        case 0: return 0x3BC;
-        case 1: return 0x378;
-        case 2: return 0x278;
-        }
+	case 0: return 0x3BC;
+	case 1: return 0x378;
+	case 2: return 0x278;
+	}
     return 0;
 }
 
@@ -685,8 +685,8 @@ void * PMAPI PM_mallocShared(
     inBuf[0] = size;
     CHECK_FOR_PMHELP();
     if (DeviceIoControl(_PM_hDevice, PMHELP_MALLOCSHARED32, inBuf, sizeof(inBuf),
-            outBuf, sizeof(outBuf), &count, NULL))
-        return (void*)outBuf[0];
+	    outBuf, sizeof(outBuf), &count, NULL))
+	return (void*)outBuf[0];
     return NULL;
 }
 
@@ -772,12 +772,12 @@ void PMAPI DPMI_int86(
     DWORD   count;      /* Count of bytes returned from VxD */
 
     if (!inited)
-        PM_init();
+	PM_init();
     inBuf[0] = intno;
     inBuf[1] = (ulong)regs;
     CHECK_FOR_PMHELP();
     DeviceIoControl(_PM_hDevice, PMHELP_DPMIINT8632, inBuf, sizeof(inBuf),
-        NULL, 0, &count, NULL);
+	NULL, 0, &count, NULL);
 }
 
 /****************************************************************************
@@ -794,14 +794,14 @@ int PMAPI PM_int86(
     DWORD   count;      /* Count of bytes returned from VxD */
 
     if (!inited)
-        PM_init();
+	PM_init();
     inBuf[0] = intno;
     inBuf[1] = (ulong)in;
     inBuf[2] = (ulong)out;
     CHECK_FOR_PMHELP();
     if (DeviceIoControl(_PM_hDevice, PMHELP_INT8632, inBuf, sizeof(inBuf),
-            outBuf, sizeof(outBuf), &count, NULL))
-        return outBuf[0];
+	    outBuf, sizeof(outBuf), &count, NULL))
+	return outBuf[0];
     return 0;
 }
 
@@ -820,15 +820,15 @@ int PMAPI PM_int86x(
     DWORD   count;      /* Count of bytes returned from VxD */
 
     if (!inited)
-        PM_init();
+	PM_init();
     inBuf[0] = intno;
     inBuf[1] = (ulong)in;
     inBuf[2] = (ulong)out;
     inBuf[3] = (ulong)sregs;
     CHECK_FOR_PMHELP();
     if (DeviceIoControl(_PM_hDevice, PMHELP_INT86X32, inBuf, sizeof(inBuf),
-            outBuf, sizeof(outBuf), &count, NULL))
-        return outBuf[0];
+	    outBuf, sizeof(outBuf), &count, NULL))
+	return outBuf[0];
     return 0;
 }
 
@@ -846,14 +846,14 @@ void PMAPI PM_callRealMode(
     DWORD   count;      /* Count of bytes returned from VxD */
 
     if (!inited)
-        PM_init();
+	PM_init();
     inBuf[0] = seg;
     inBuf[1] = off;
     inBuf[2] = (ulong)in;
     inBuf[3] = (ulong)sregs;
     CHECK_FOR_PMHELP();
     DeviceIoControl(_PM_hDevice, PMHELP_CALLREALMODE32, inBuf, sizeof(inBuf),
-        NULL, 0, &count, NULL);
+	NULL, 0, &count, NULL);
 }
 
 /****************************************************************************
@@ -883,15 +883,15 @@ void * PMAPI PM_allocLockedMem(
     DWORD   count;      /* Count of bytes returned from VxD */
 
     if (!inited)
-        PM_init();
+	PM_init();
     inBuf[0] = size;
     inBuf[1] = (ulong)physAddr;
     inBuf[2] = (ulong)contiguous;
     inBuf[3] = (ulong)below16M;
     CHECK_FOR_PMHELP();
     if (DeviceIoControl(_PM_hDevice, PMHELP_ALLOCLOCKED32, inBuf, sizeof(inBuf),
-            outBuf, sizeof(outBuf), &count, NULL))
-        return (void*)outBuf[0];
+	    outBuf, sizeof(outBuf), &count, NULL))
+	return (void*)outBuf[0];
     return NULL;
 }
 
@@ -908,13 +908,13 @@ void PMAPI PM_freeLockedMem(
     DWORD   count;      /* Count of bytes returned from VxD */
 
     if (!inited)
-        PM_init();
+	PM_init();
     inBuf[0] = (ulong)p;
     inBuf[1] = size;
     inBuf[2] = contiguous;
     CHECK_FOR_PMHELP();
     DeviceIoControl(_PM_hDevice, PMHELP_FREELOCKED32, inBuf, sizeof(inBuf),
-        NULL, 0, &count, NULL);
+	NULL, 0, &count, NULL);
 }
 
 /****************************************************************************
@@ -929,12 +929,12 @@ void * PMAPI PM_allocPage(
     DWORD   count;      /* Count of bytes returned from VxD */
 
     if (!inited)
-        PM_init();
+	PM_init();
     inBuf[0] = locked;
     CHECK_FOR_PMHELP();
     if (DeviceIoControl(_PM_hDevice, PMHELP_ALLOCPAGE32, inBuf, sizeof(inBuf),
-            outBuf, sizeof(outBuf), &count, NULL))
-        return (void*)outBuf[0];
+	    outBuf, sizeof(outBuf), &count, NULL))
+	return (void*)outBuf[0];
     return NULL;
 }
 
@@ -949,11 +949,11 @@ void PMAPI PM_freePage(
     DWORD   count;      /* Count of bytes returned from VxD */
 
     if (!inited)
-        PM_init();
+	PM_init();
     inBuf[0] = (ulong)p;
     CHECK_FOR_PMHELP();
     DeviceIoControl(_PM_hDevice, PMHELP_FREEPAGE32, inBuf, sizeof(inBuf),
-        NULL, 0, &count, NULL);
+	NULL, 0, &count, NULL);
 }
 
 /****************************************************************************
@@ -971,8 +971,8 @@ int PMAPI PM_lockDataPages(void *p,uint len,PM_lockHandle *lh)
     inBuf[2] = (ulong)lh;
     CHECK_FOR_PMHELP();
     if (DeviceIoControl(_PM_hDevice, PMHELP_LOCKDATAPAGES32, inBuf, sizeof(inBuf),
-            outBuf, sizeof(outBuf), &count, NULL))
-        return outBuf[0];
+	    outBuf, sizeof(outBuf), &count, NULL))
+	return outBuf[0];
     return 0;
 }
 
@@ -991,8 +991,8 @@ int PMAPI PM_unlockDataPages(void *p,uint len,PM_lockHandle *lh)
     inBuf[2] = (ulong)lh;
     CHECK_FOR_PMHELP();
     if (DeviceIoControl(_PM_hDevice, PMHELP_UNLOCKDATAPAGES32, inBuf, sizeof(inBuf),
-            outBuf, sizeof(outBuf), &count, NULL))
-        return outBuf[0];
+	    outBuf, sizeof(outBuf), &count, NULL))
+	return outBuf[0];
     return 0;
 }
 
@@ -1011,8 +1011,8 @@ int PMAPI PM_lockCodePages(void (*p)(),uint len,PM_lockHandle *lh)
     inBuf[2] = (ulong)lh;
     CHECK_FOR_PMHELP();
     if (DeviceIoControl(_PM_hDevice, PMHELP_LOCKCODEPAGES32, inBuf, sizeof(inBuf),
-            outBuf, sizeof(outBuf), &count, NULL))
-        return outBuf[0];
+	    outBuf, sizeof(outBuf), &count, NULL))
+	return outBuf[0];
     return 0;
 }
 
@@ -1031,8 +1031,8 @@ int PMAPI PM_unlockCodePages(void (*p)(),uint len,PM_lockHandle *lh)
     inBuf[2] = (ulong)lh;
     CHECK_FOR_PMHELP();
     if (DeviceIoControl(_PM_hDevice, PMHELP_UNLOCKCODEPAGES32, inBuf, sizeof(inBuf),
-            outBuf, sizeof(outBuf), &count, NULL))
-        return outBuf[0];
+	    outBuf, sizeof(outBuf), &count, NULL))
+	return outBuf[0];
     return 0;
 }
 
@@ -1099,14 +1099,14 @@ ibool PMAPI PM_enableWriteCombine(
     DWORD   count;      /* Count of bytes returned from VxD */
 
     if (!inited)
-        PM_init();
+	PM_init();
     inBuf[0] = base;
     inBuf[1] = length;
     inBuf[2] = type;
     CHECK_FOR_PMHELP();
     if (DeviceIoControl(_PM_hDevice, PMHELP_ENABLELFBCOMB32, inBuf, sizeof(inBuf),
-            outBuf, sizeof(outBuf), &count, NULL))
-        return outBuf[0];
+	    outBuf, sizeof(outBuf), &count, NULL))
+	return outBuf[0];
     return false;
 }
 
@@ -1121,8 +1121,8 @@ ulong PMAPI _PM_getPDB(void)
 
     CHECK_FOR_PMHELP();
     if (DeviceIoControl(_PM_hDevice, PMHELP_GETPDB32, NULL, 0,
-            outBuf, sizeof(outBuf), &count, NULL))
-        return outBuf[0];
+	    outBuf, sizeof(outBuf), &count, NULL))
+	return outBuf[0];
     return 0;
 }
 
@@ -1201,15 +1201,15 @@ static void convertFindData(
     memset(findData,0,findData->dwSize);
     findData->dwSize = dwSize;
     if (blk->dwFileAttributes & FILE_ATTRIBUTE_READONLY)
-        findData->attrib |= PM_FILE_READONLY;
+	findData->attrib |= PM_FILE_READONLY;
     if (blk->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-        findData->attrib |= PM_FILE_DIRECTORY;
+	findData->attrib |= PM_FILE_DIRECTORY;
     if (blk->dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE)
-        findData->attrib |= PM_FILE_ARCHIVE;
+	findData->attrib |= PM_FILE_ARCHIVE;
     if (blk->dwFileAttributes & FILE_ATTRIBUTE_HIDDEN)
-        findData->attrib |= PM_FILE_HIDDEN;
+	findData->attrib |= PM_FILE_HIDDEN;
     if (blk->dwFileAttributes & FILE_ATTRIBUTE_SYSTEM)
-        findData->attrib |= PM_FILE_SYSTEM;
+	findData->attrib |= PM_FILE_SYSTEM;
     findData->sizeLo = blk->nFileSizeLow;
     findData->sizeHi = blk->nFileSizeHigh;
     strncpy(findData->name,blk->cFileName,PM_MAX_PATH);
@@ -1228,9 +1228,9 @@ void *PMAPI PM_findFirstFile(
     HANDLE          hfile;
 
     if ((hfile = FindFirstFile(filename,&blk)) != INVALID_HANDLE_VALUE) {
-        convertFindData(findData,&blk);
-        return (void*)hfile;
-        }
+	convertFindData(findData,&blk);
+	return (void*)hfile;
+	}
     return PM_FILE_INVALID;
 }
 
@@ -1245,9 +1245,9 @@ ibool PMAPI PM_findNextFile(
     WIN32_FIND_DATA blk;
 
     if (FindNextFile((HANDLE)handle,&blk)) {
-        convertFindData(findData,&blk);
-        return true;
-        }
+	convertFindData(findData,&blk);
+	return true;
+	}
     return false;
 }
 
@@ -1295,8 +1295,8 @@ void PMAPI PM_getdcwd(
     char *dir,
     int len)
 {
-    // NT stores the current directory for drive N in the magic environment
-    // variable =N: so we simply look for that environment variable.
+    /* NT stores the current directory for drive N in the magic environment */
+    /* variable =N: so we simply look for that environment variable. */
     char envname[4];
 
     envname[0] = '=';
@@ -1304,14 +1304,14 @@ void PMAPI PM_getdcwd(
     envname[2] = ':';
     envname[3] = '\0';
     if (GetEnvironmentVariable(envname,dir,len) == 0) {
-        // The current directory or the drive has not been set yet, so
-        // simply set it to the root.
-        dir[0] = envname[1];
-        dir[1] = ':';
-        dir[2] = '\\';
-        dir[3] = '\0';
-        SetEnvironmentVariable(envname,dir);
-        }
+	/* The current directory or the drive has not been set yet, so */
+	/* simply set it to the root. */
+	dir[0] = envname[1];
+	dir[1] = ':';
+	dir[2] = '\\';
+	dir[3] = '\0';
+	SetEnvironmentVariable(envname,dir);
+	}
 }
 
 /****************************************************************************
@@ -1325,13 +1325,13 @@ void PMAPI PM_setFileAttr(
     DWORD attr = 0;
 
     if (attrib & PM_FILE_READONLY)
-        attr |= FILE_ATTRIBUTE_READONLY;
+	attr |= FILE_ATTRIBUTE_READONLY;
     if (attrib & PM_FILE_ARCHIVE)
-        attr |= FILE_ATTRIBUTE_ARCHIVE;
+	attr |= FILE_ATTRIBUTE_ARCHIVE;
     if (attrib & PM_FILE_HIDDEN)
-        attr |= FILE_ATTRIBUTE_HIDDEN;
+	attr |= FILE_ATTRIBUTE_HIDDEN;
     if (attrib & PM_FILE_SYSTEM)
-        attr |= FILE_ATTRIBUTE_SYSTEM;
+	attr |= FILE_ATTRIBUTE_SYSTEM;
     SetFileAttributes((LPSTR)filename, attr);
 }
 
@@ -1346,13 +1346,13 @@ uint PMAPI PM_getFileAttr(
     uint    attrib = 0;
 
     if (attr & FILE_ATTRIBUTE_READONLY)
-        attrib |= PM_FILE_READONLY;
+	attrib |= PM_FILE_READONLY;
     if (attr & FILE_ATTRIBUTE_ARCHIVE)
-        attrib |= PM_FILE_ARCHIVE;
+	attrib |= PM_FILE_ARCHIVE;
     if (attr & FILE_ATTRIBUTE_HIDDEN)
-        attrib |= PM_FILE_HIDDEN;
+	attrib |= PM_FILE_HIDDEN;
     if (attr & FILE_ATTRIBUTE_SYSTEM)
-        attrib |= PM_FILE_SYSTEM;
+	attrib |= PM_FILE_SYSTEM;
     return attrib;
 }
 
@@ -1393,17 +1393,17 @@ ibool PMAPI PM_getFileTime(
 
     of.cBytes = sizeof(of);
     if ((f = OpenFile(filename,&of,OF_READ)) == HFILE_ERROR)
-        return false;
+	return false;
     if (!GetFileTime((HANDLE)f,NULL,NULL,&utcTime))
-        goto Exit;
+	goto Exit;
     if (!gmTime) {
-        if (!FileTimeToLocalFileTime(&utcTime,&localTime))
-            goto Exit;
-        }
+	if (!FileTimeToLocalFileTime(&utcTime,&localTime))
+	    goto Exit;
+	}
     else
-        localTime = utcTime;
+	localTime = utcTime;
     if (!FileTimeToSystemTime(&localTime,&sysTime))
-        goto Exit;
+	goto Exit;
     time->year = sysTime.wYear;
     time->mon = sysTime.wMonth-1;
     time->day = sysTime.wYear;
@@ -1434,7 +1434,7 @@ ibool PMAPI PM_setFileTime(
 
     of.cBytes = sizeof(of);
     if ((f = OpenFile(filename,&of,OF_WRITE)) == HFILE_ERROR)
-        return false;
+	return false;
     sysTime.wYear = time->year;
     sysTime.wMonth = time->mon+1;
     sysTime.wYear = time->day;
@@ -1442,19 +1442,18 @@ ibool PMAPI PM_setFileTime(
     sysTime.wMinute = time->min;
     sysTime.wSecond = time->sec;
     if (!SystemTimeToFileTime(&sysTime,&localTime))
-        goto Exit;
+	goto Exit;
     if (!gmTime) {
-        if (!LocalFileTimeToFileTime(&localTime,&utcTime))
-            goto Exit;
-        }
+	if (!LocalFileTimeToFileTime(&localTime,&utcTime))
+	    goto Exit;
+	}
     else
-        utcTime = localTime;
+	utcTime = localTime;
     if (!SetFileTime((HANDLE)f,NULL,NULL,&utcTime))
-        goto Exit;
+	goto Exit;
     status = true;
 
 Exit:
     CloseHandle((HANDLE)f);
     return status;
 }
-

@@ -9,7 +9,7 @@
  * Software distributed under the License is distributed on an "AS IS"
  * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See
  * the License for the specific language governing rights and
- * limitations under the License. 
+ * limitations under the License.
  *
  * The initial developer of the original code is David A. Hinds
  * <dahinds@users.sourceforge.net>.  Portions created by David A. Hinds
@@ -115,7 +115,7 @@
 #define  TI113X_SCR_CDMA_EN		0x00000008
 #define  TI113X_SCR_ASYNC_IRQ		0x00000004
 #define  TI113X_SCR_KEEPCLK		0x00000002
-#define  TI113X_SCR_CLKRUN_ENA		0x00000001  
+#define  TI113X_SCR_CLKRUN_ENA		0x00000001
 
 #define  TI122X_SCR_SER_STEP		0xc0000000
 #define  TI122X_SCR_INTRTIE		0x20000000

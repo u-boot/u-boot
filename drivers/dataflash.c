@@ -97,7 +97,6 @@ int AT91F_DataflashInit (void)
 }
 
 
-
 void dataflash_print_info (void)
 {
 	int i;

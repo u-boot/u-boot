@@ -123,14 +123,14 @@ struct pci_irq_fixup_table fixuptab [] =
 {
     { 0, 0, 0, 0xff},        /* Articia S host bridge */
     { 0, 1, 0, 0xff},        /* Articia S AGP bridge */
-//    { 0, 6, 0, 0x05},        /* 3COM ethernet */
+/*    { 0, 6, 0, 0x05},        /###* 3COM ethernet */
     { 0, 7, 0, 0xff},        /* VIA southbridge */
     { 0, 7, 1, 0x0e},        /* IDE controller in legacy mode */
-//    { 0, 7, 2, 0x05},        /* First USB controller */
-//    { 0, 7, 3, 0x0c},        /* Second USB controller (shares interrupt with ethernet) */
+/*    { 0, 7, 2, 0x05},        /###* First USB controller */
+/*    { 0, 7, 3, 0x0c},        /###* Second USB controller (shares interrupt with ethernet) */
     { 0, 7, 4, 0xff},        /* ACPI Power Management */
-//    { 0, 7, 5, 0x08},        /* AC97 */
-//    { 0, 7, 6, 0x08},        /* MC97 */
+/*    { 0, 7, 5, 0x08},        /###* AC97 */
+/*    { 0, 7, 6, 0x08},        /###* MC97 */
     { 0xff, 0xff, 0xff, 0xff}
 };
 
@@ -287,7 +287,7 @@ void articiaS_pci_init (void)
 
     PRINTF("atriciaS_pci_init\n");
 
-    // Why aren't these relocated??
+    /* Why aren't these relocated?? */
     for (i=0; config_table[i].config_device; i++)
     {
 	switch((int)config_table[i].config_device)
@@ -333,7 +333,6 @@ void articiaS_pci_init (void)
 		   ARTICIAS_ISAIO_PHYS,
 		   ARTICIAS_ISAIO_MAXSIZE,
 		   PCI_REGION_IO);
-
 
 
     articiaS_hose.region_count = 4;
@@ -410,8 +409,8 @@ pci_dev_t pci_hose_find_class(struct pci_controller *hose, int bus, short find_c
 	    pci_hose_read_config_byte(hose, dev, 0x0B, &c1);
 	    pci_hose_read_config_byte(hose, dev, 0x0A, &c2);
 	    class = c1<<8 | c2;
-	    //printf("At %02x:%02x:%02x: class %x\n",
-	    //	   PCI_BUS(dev), PCI_DEV(dev), PCI_FUNC(dev), class);
+	    /*printf("At %02x:%02x:%02x: class %x\n", */
+	    /*	   PCI_BUS(dev), PCI_DEV(dev), PCI_FUNC(dev), class); */
 	    if (class == find_class)
 	    {
 		if (index == 0)
@@ -441,7 +440,7 @@ pci_dev_t pci_find_bridge_for_bus(struct pci_controller *hose, int busnr)
 
     if (hose == NULL) hose = &articiaS_hose;
 
-    if (busnr < hose->first_busno || busnr > hose->last_busno) return PCI_ANY_ID; // Not in range
+    if (busnr < hose->first_busno || busnr > hose->last_busno) return PCI_ANY_ID; /* Not in range */
 
     /*
      * The bridge must be on a lower bus number
@@ -467,7 +466,7 @@ pci_dev_t pci_find_bridge_for_bus(struct pci_controller *hose, int busnr)
 
 		if (!PCI_FUNC(dev))
 		    found_multi = header_type & 0x80;
-		if (header_type == 1) // Bridge device header
+		if (header_type == 1) /* Bridge device header */
 		{
 		    pci_hose_read_config_byte(hose, dev, PCI_SECONDARY_BUS, &secondary_bus);
 		    if ((int)secondary_bus == busnr) return dev;
@@ -512,7 +511,7 @@ int articiaS_init_vga (void)
 	PRINTF("Searching for class 0x%x on bus %d\n", classes[classnr], busnr);
 	/* Find the first of this class on this bus */
 	dev = pci_hose_find_class(&articiaS_hose, busnr, classes[classnr], 0);
-	if (dev != ~0) 
+	if (dev != ~0)
 	{
 	    PRINTF("Found VGA Card at %02x:%02x:%02x\n", PCI_BUS(dev), PCI_DEV(dev), PCI_FUNC(dev));
 	    break;

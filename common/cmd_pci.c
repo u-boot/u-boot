@@ -34,10 +34,8 @@
 #ifdef CONFIG_PCI
 
 #include <command.h>
-#include <cmd_boot.h>
 #include <asm/processor.h>
 #include <asm/io.h>
-#include <cmd_pci.h>
 #include <pci.h>
 
 #if (CONFIG_COMMANDS & CFG_CMD_PCI)
@@ -116,63 +114,63 @@ void pciinfo(int BusNum, int ShortPCIListing)
 static char *pci_classes_str(u8 class)
 {
 	switch (class) {
-        case PCI_CLASS_NOT_DEFINED:
-                return "Build before PCI Rev2.0";
-                break;
-        case PCI_BASE_CLASS_STORAGE:
-                return "Mass storage controller";
-                break;
-        case PCI_BASE_CLASS_NETWORK:
-                return "Network controller";
-                break;
-        case PCI_BASE_CLASS_DISPLAY:
-                return "Display controller";
-                break;
-        case PCI_BASE_CLASS_MULTIMEDIA:
-                return "Multimedia device";
-                break;
-        case PCI_BASE_CLASS_MEMORY:
-                return "Memory controller";
-                break;
-        case PCI_BASE_CLASS_BRIDGE:
-                return "Bridge device";
-                break;
-        case PCI_BASE_CLASS_COMMUNICATION:
-                return "Simple comm. controller";
-                break;
-        case PCI_BASE_CLASS_SYSTEM:
-                return "Base system peripheral";
-                break;
-        case PCI_BASE_CLASS_INPUT:
-                return "Input device";
-                break;
-        case PCI_BASE_CLASS_DOCKING:
-                return "Docking station";
-                break;
-        case PCI_BASE_CLASS_PROCESSOR:
-                return "Processor";
-                break;
-        case PCI_BASE_CLASS_SERIAL:
-                return "Serial bus controller";
-                break;
-        case PCI_BASE_CLASS_INTELLIGENT:
-                return "Intelligent controller";
-                break;
-        case PCI_BASE_CLASS_SATELLITE:
-                return "Satellite controller";
-                break;
-        case PCI_BASE_CLASS_CRYPT:
-                return "Cryptographic device";
-                break;
-        case PCI_BASE_CLASS_SIGNAL_PROCESSING:
-                return "DSP";
-                break;
-        case PCI_CLASS_OTHERS:
-                return "Does not fit any class";
-                break;
-        default:
+	case PCI_CLASS_NOT_DEFINED:
+		return "Build before PCI Rev2.0";
+		break;
+	case PCI_BASE_CLASS_STORAGE:
+		return "Mass storage controller";
+		break;
+	case PCI_BASE_CLASS_NETWORK:
+		return "Network controller";
+		break;
+	case PCI_BASE_CLASS_DISPLAY:
+		return "Display controller";
+		break;
+	case PCI_BASE_CLASS_MULTIMEDIA:
+		return "Multimedia device";
+		break;
+	case PCI_BASE_CLASS_MEMORY:
+		return "Memory controller";
+		break;
+	case PCI_BASE_CLASS_BRIDGE:
+		return "Bridge device";
+		break;
+	case PCI_BASE_CLASS_COMMUNICATION:
+		return "Simple comm. controller";
+		break;
+	case PCI_BASE_CLASS_SYSTEM:
+		return "Base system peripheral";
+		break;
+	case PCI_BASE_CLASS_INPUT:
+		return "Input device";
+		break;
+	case PCI_BASE_CLASS_DOCKING:
+		return "Docking station";
+		break;
+	case PCI_BASE_CLASS_PROCESSOR:
+		return "Processor";
+		break;
+	case PCI_BASE_CLASS_SERIAL:
+		return "Serial bus controller";
+		break;
+	case PCI_BASE_CLASS_INTELLIGENT:
+		return "Intelligent controller";
+		break;
+	case PCI_BASE_CLASS_SATELLITE:
+		return "Satellite controller";
+		break;
+	case PCI_BASE_CLASS_CRYPT:
+		return "Cryptographic device";
+		break;
+	case PCI_BASE_CLASS_SIGNAL_PROCESSING:
+		return "DSP";
+		break;
+	case PCI_CLASS_OTHERS:
+		return "Does not fit any class";
+		break;
+	default:
 	return  "???";
-                break;
+		break;
 	};
 }
 
@@ -234,7 +232,7 @@ void pci_header_show(pci_dev_t dev)
 	PRINT ("  status register =             0x%.4x\n", word, PCI_STATUS);
 	PRINT ("  revision ID =                 0x%.2x\n", byte, PCI_REVISION_ID);
 	PRINT2("  class code =                  0x%.2x (%s)\n", byte, PCI_CLASS_CODE,
-	       							pci_classes_str);
+								pci_classes_str);
 	PRINT ("  sub class code =              0x%.2x\n", byte, PCI_CLASS_SUB_CODE);
 	PRINT ("  programming interface =       0x%.2x\n", byte, PCI_CLASS_PROG);
 	PRINT ("  cache line =                  0x%.2x\n", byte, PCI_CACHE_LINE_SIZE);
@@ -259,7 +257,7 @@ void pci_header_show(pci_dev_t dev)
 		PRINT ("  min Grant =                   0x%.2x\n", byte, PCI_MIN_GNT);
 		PRINT ("  max Latency =                 0x%.2x\n", byte, PCI_MAX_LAT);
 		break;
-		
+
 	case PCI_HEADER_TYPE_BRIDGE:	/* PCI-to-PCI bridge */
 
 		PRINT ("  base address 1 =              0x%.8x\n", dword, PCI_BASE_ADDRESS_1);
@@ -291,7 +289,7 @@ void pci_header_show(pci_dev_t dev)
 		PRINT ("  primary bus number =          0x%.2x\n", byte, PCI_CB_PRIMARY_BUS);
 		PRINT ("  CardBus number =              0x%.2x\n", byte, PCI_CB_CARD_BUS);
 		PRINT ("  subordinate bus number =      0x%.2x\n", byte, PCI_CB_SUBORDINATE_BUS);
-		PRINT ("  CardBus latency timer =       0x%.2x\n", byte, PCI_CB_LATENCY_TIMER);		
+		PRINT ("  CardBus latency timer =       0x%.2x\n", byte, PCI_CB_LATENCY_TIMER);
 		PRINT ("  CardBus memory base 0 =       0x%.8x\n", dword, PCI_CB_MEMORY_BASE_0);
 		PRINT ("  CardBus memory limit 0 =      0x%.8x\n", dword, PCI_CB_MEMORY_LIMIT_0);
 		PRINT ("  CardBus memory base 1 =       0x%.8x\n", dword, PCI_CB_MEMORY_BASE_1);
@@ -311,10 +309,10 @@ void pci_header_show(pci_dev_t dev)
 		PRINT ("  subdevice ID =                0x%.4x\n", word, PCI_CB_SUBSYSTEM_ID);
 		PRINT ("  PC Card 16bit base address =  0x%.8x\n", dword, PCI_CB_LEGACY_MODE_BASE);
 		break;
-		
+
 	default:
 		printf("unknown header\n");
-		break;	
+		break;
     }
 
 #undef PRINT
@@ -546,6 +544,26 @@ int do_pci (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	printf ("Usage:\n%s\n", cmdtp->usage);
 	return 1;
 }
+
+/***************************************************/
+
+
+cmd_tbl_t U_BOOT_CMD(PCI) = MK_CMD_ENTRY(
+	"pci",	5,	1,	do_pci,
+	"pci     - list and access PCI Configuraton Space\n",
+	"[bus] [long]\n"
+	"    - short or long list of PCI devices on bus 'bus'\n"
+	"pci header b.d.f\n"
+	"    - show header of PCI device 'bus.device.function'\n"
+	"pci display[.b, .w, .l] b.d.f [address] [# of objects]\n"
+	"    - display PCI configuration space (CFG)\n"
+	"pci next[.b, .w, .l] b.d.f address\n"
+	"    - modify, read and keep CFG address\n"
+	"pci modify[.b, .w, .l] b.d.f address\n"
+	"    -  modify, auto increment CFG address\n"
+	"pci write[.b, .w, .l] b.d.f address value\n"
+	"    - write to CFG address\n"
+);
 
 #endif /* (CONFIG_COMMANDS & CFG_CMD_PCI) */
 

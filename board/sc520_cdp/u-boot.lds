@@ -26,60 +26,65 @@ OUTPUT_ARCH(i386)
 ENTRY(_start)
 
 SECTIONS
-{	
+{
 	. = 0x387c0000;                     /* Where bootcode in the flash is mapped */
 	.text  : { *(.text); }
-	
-        . = ALIGN(4);
-        .rodata : { *(.rodata) }
 
-        . = 0x400000; 	                    /* Ram data segment to use */
+	. = ALIGN(4);
+	.rodata : { *(.rodata) }
+
+	. = 0x400000; 	                    /* Ram data segment to use */
 	_i386boot_romdata_dest = ABSOLUTE(.);
-        .data : AT ( LOADADDR(.rodata) + SIZEOF(.rodata) ) { *(.data) }
-	_i386boot_romdata_start = LOADADDR(.data); 	
+	.data : AT ( LOADADDR(.rodata) + SIZEOF(.rodata) ) { *(.data) }
+	_i386boot_romdata_start = LOADADDR(.data);
 
-        . = ALIGN(4);
-        .got : AT ( LOADADDR(.data) + SIZEOF(.data) ) { *(.got) }
-	_i386boot_romdata_size = SIZEOF(.data) + SIZEOF(.got); 	
+	. = ALIGN(4);
+	.got : AT ( LOADADDR(.data) + SIZEOF(.data) ) { *(.got) }
+	_i386boot_romdata_size = SIZEOF(.data) + SIZEOF(.got);
 
 
-        . = ALIGN(4);
+	. = ALIGN(4);
 	_i386boot_bss_start = ABSOLUTE(.);
-        .bss : { *(.bss) }	
+	.bss : { *(.bss) }
 	_i386boot_bss_size = SIZEOF(.bss);
-	
-	
+
+
 	/* 16bit realmode trampoline code */
 	.realmode 0x7c0 : AT ( LOADADDR(.got) + SIZEOF(.got) ) { *(.realmode) }
-    
+
 	_i386boot_realmode = LOADADDR(.realmode);
 	_i386boot_realmode_size = SIZEOF(.realmode);
-	
+
 	/* 16bit BIOS emulation code (just enough to boot Linux) */
 	.bios 0 : AT ( LOADADDR(.realmode) + SIZEOF(.realmode) ) { *(.bios) }
-    
+
 	_i386boot_bios = LOADADDR(.bios);
 	_i386boot_bios_size = SIZEOF(.bios);
-	
+
+
+  __u_boot_cmd_start = .;
+  .u_boot_cmd : { *(.u_boot_cmd) }
+  __u_boot_cmd_end = .;
+
 
 	/* The load addresses below assumes that the flash
 	 * will be mapped so that 0x387f0000 == 0xffff0000
 	 * at reset time
 	 *
-	 * The fe00 and ff00 offsets of the start32 and start16 
+	 * The fe00 and ff00 offsets of the start32 and start16
 	 * segments are arbitrary, the just have to be mapped
 	 * at reset and the code have to fit.
 	 * The fff0 offset of reset is important, however.
 	 */
-	 
-	 
+
+
 	. = 0xfffffe00;
-	.start32 : AT (0x387ffe00) { *(.start32); } 
-	
+	.start32 : AT (0x387ffe00) { *(.start32); }
+
 	. = 0xff00;
-	.start16 : AT (0x387fff00) { *(.start16); }  
-	
+	.start16 : AT (0x387fff00) { *(.start16); }
+
 	. = 0xfff0;
-	.reset : AT (0x387ffff0) { *(.reset); }  
+	.reset : AT (0x387ffff0) { *(.reset); }
 	_i386boot_end = (LOADADDR(.reset) + SIZEOF(.reset) );
 }

@@ -178,4 +178,3 @@ int dtt_get_temp(int sensor)
 } /* dtt_get_temp() */
 
 #endif /* CONFIG_DTT_LM75 */
-

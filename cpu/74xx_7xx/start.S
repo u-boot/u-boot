@@ -233,9 +233,9 @@ _end_back:
 	STD_EXCEPTION(0xe00, Trap_0e, UnknownException)
 	STD_EXCEPTION(0xf00, Trap_0f, UnknownException)
 
-        /*
-         * On the MPC8xx, this is a software emulation interrupt. It
-         * occurs for all unimplemented and illegal instructions.
+	/*
+	 * On the MPC8xx, this is a software emulation interrupt. It
+	 * occurs for all unimplemented and illegal instructions.
 	 */
 	STD_EXCEPTION(0x1000, SoftEmu, SoftEmuException)
 
@@ -282,9 +282,9 @@ boot_warm:
 #if defined(CONFIG_ALTIVEC) && defined(CONFIG_74xx)
 	.long	0x7e00066c
 		/*
-                 * dssall instruction, gas doesn't have it yet
-                 * ...for altivec, data stream stop all this probably
-                 * isn't needed unless we warm (software) reboot U-Boot
+		 * dssall instruction, gas doesn't have it yet
+		 * ...for altivec, data stream stop all this probably
+		 * isn't needed unless we warm (software) reboot U-Boot
 		 */
 #endif
 
@@ -325,15 +325,15 @@ in_flash:
 	 * Cache must be enabled here for stack-in-cache trick.
 	 * This means we need to enable the BATS.
 	 * This means:
-         *   1) for the EVB, original gt regs need to be mapped
+	 *   1) for the EVB, original gt regs need to be mapped
 	 *   2) need to have an IBAT for the 0xf region,
 	 *      we are running there!
-         * Cache should be turned on after BATs, since by default
-         * everything is write-through.
-         * The init-mem BAT can be reused after reloc. The old
-         * gt-regs BAT can be reused after board_init_f calls
-         * board_pre_init (EVB only).
-         */
+	 * Cache should be turned on after BATs, since by default
+	 * everything is write-through.
+	 * The init-mem BAT can be reused after reloc. The old
+	 * gt-regs BAT can be reused after board_init_f calls
+	 * board_pre_init (EVB only).
+	 */
 #if !defined(CONFIG_BAB7xx) && !defined(CONFIG_ELPPC)
 	/* enable address translation */
 	bl	enable_addr_trans
@@ -391,10 +391,10 @@ invalidate_bats:
 	mtspr	DBAT2U, r0
 	mtspr	DBAT3U, r0
 #ifdef CONFIG_750FX
-        mtspr   DBAT4U, r0
-        mtspr   DBAT5U, r0
-        mtspr   DBAT6U, r0
-        mtspr   DBAT7U, r0
+	mtspr   DBAT4U, r0
+	mtspr   DBAT5U, r0
+	mtspr   DBAT6U, r0
+	mtspr   DBAT7U, r0
 #endif
 	isync
 	sync
@@ -479,76 +479,76 @@ setup_bats:
 
 #ifdef CONFIG_750FX
 	/* IBAT 4 */
-        addis   r4, r0, CFG_IBAT4L@h
-        ori     r4, r4, CFG_IBAT4L@l
-        addis   r3, r0, CFG_IBAT4U@h
-        ori     r3, r3, CFG_IBAT4U@l
-        mtspr   IBAT4L, r4
-        mtspr   IBAT4U, r3
-        isync
+	addis   r4, r0, CFG_IBAT4L@h
+	ori     r4, r4, CFG_IBAT4L@l
+	addis   r3, r0, CFG_IBAT4U@h
+	ori     r3, r3, CFG_IBAT4U@l
+	mtspr   IBAT4L, r4
+	mtspr   IBAT4U, r3
+	isync
 
 	/* DBAT 4 */
-        addis   r4, r0, CFG_DBAT4L@h
-        ori     r4, r4, CFG_DBAT4L@l
-        addis   r3, r0, CFG_DBAT4U@h
-        ori     r3, r3, CFG_DBAT4U@l
-        mtspr   DBAT4L, r4
-        mtspr   DBAT4U, r3
-        isync
+	addis   r4, r0, CFG_DBAT4L@h
+	ori     r4, r4, CFG_DBAT4L@l
+	addis   r3, r0, CFG_DBAT4U@h
+	ori     r3, r3, CFG_DBAT4U@l
+	mtspr   DBAT4L, r4
+	mtspr   DBAT4U, r3
+	isync
 
-        /* IBAT 5 */
-        addis   r4, r0, CFG_IBAT5L@h
-        ori     r4, r4, CFG_IBAT5L@l
-        addis   r3, r0, CFG_IBAT5U@h
-        ori     r3, r3, CFG_IBAT5U@l
-        mtspr   IBAT5L, r4
-        mtspr   IBAT5U, r3
-        isync
+	/* IBAT 5 */
+	addis   r4, r0, CFG_IBAT5L@h
+	ori     r4, r4, CFG_IBAT5L@l
+	addis   r3, r0, CFG_IBAT5U@h
+	ori     r3, r3, CFG_IBAT5U@l
+	mtspr   IBAT5L, r4
+	mtspr   IBAT5U, r3
+	isync
 
 	/* DBAT 5 */
-        addis   r4, r0, CFG_DBAT5L@h
-        ori     r4, r4, CFG_DBAT5L@l
-        addis   r3, r0, CFG_DBAT5U@h
-        ori     r3, r3, CFG_DBAT5U@l
-        mtspr   DBAT5L, r4
-        mtspr   DBAT5U, r3
-        isync
+	addis   r4, r0, CFG_DBAT5L@h
+	ori     r4, r4, CFG_DBAT5L@l
+	addis   r3, r0, CFG_DBAT5U@h
+	ori     r3, r3, CFG_DBAT5U@l
+	mtspr   DBAT5L, r4
+	mtspr   DBAT5U, r3
+	isync
 
-        /* IBAT 6 */
-        addis   r4, r0, CFG_IBAT6L@h
-        ori     r4, r4, CFG_IBAT6L@l
-        addis   r3, r0, CFG_IBAT6U@h
-        ori     r3, r3, CFG_IBAT6U@l
-        mtspr   IBAT6L, r4
-        mtspr   IBAT6U, r3
-        isync
+	/* IBAT 6 */
+	addis   r4, r0, CFG_IBAT6L@h
+	ori     r4, r4, CFG_IBAT6L@l
+	addis   r3, r0, CFG_IBAT6U@h
+	ori     r3, r3, CFG_IBAT6U@l
+	mtspr   IBAT6L, r4
+	mtspr   IBAT6U, r3
+	isync
 
 	/* DBAT 6 */
-        addis   r4, r0, CFG_DBAT6L@h
-        ori     r4, r4, CFG_DBAT6L@l
-        addis   r3, r0, CFG_DBAT6U@h
-        ori     r3, r3, CFG_DBAT6U@l
-        mtspr   DBAT6L, r4
-        mtspr   DBAT6U, r3
-        isync
+	addis   r4, r0, CFG_DBAT6L@h
+	ori     r4, r4, CFG_DBAT6L@l
+	addis   r3, r0, CFG_DBAT6U@h
+	ori     r3, r3, CFG_DBAT6U@l
+	mtspr   DBAT6L, r4
+	mtspr   DBAT6U, r3
+	isync
 
-        /* IBAT 7 */
-        addis   r4, r0, CFG_IBAT7L@h
-        ori     r4, r4, CFG_IBAT7L@l
-        addis   r3, r0, CFG_IBAT7U@h
-        ori     r3, r3, CFG_IBAT7U@l
-        mtspr   IBAT7L, r4
-        mtspr   IBAT7U, r3
-        isync
+	/* IBAT 7 */
+	addis   r4, r0, CFG_IBAT7L@h
+	ori     r4, r4, CFG_IBAT7L@l
+	addis   r3, r0, CFG_IBAT7U@h
+	ori     r3, r3, CFG_IBAT7U@l
+	mtspr   IBAT7L, r4
+	mtspr   IBAT7U, r3
+	isync
 
 	/* DBAT 7 */
-        addis   r4, r0, CFG_DBAT7L@h
-        ori     r4, r4, CFG_DBAT7L@l
-        addis   r3, r0, CFG_DBAT7U@h
-        ori     r3, r3, CFG_DBAT7U@l
-        mtspr   DBAT7L, r4
-        mtspr   DBAT7U, r3
-        isync
+	addis   r4, r0, CFG_DBAT7L@h
+	ori     r4, r4, CFG_DBAT7L@l
+	addis   r3, r0, CFG_DBAT7U@h
+	ori     r3, r3, CFG_DBAT7U@l
+	mtspr   DBAT7L, r4
+	mtspr   DBAT7U, r3
+	isync
 #endif
 
 	/* bats are done, now invalidate the TLBs */
@@ -768,8 +768,8 @@ in_ram:
 	/*
 	 * Relocation Function, r14 point to got2+0x8000
 	 *
-         * Adjust got2 pointers, no need to check for 0, this code
-         * already puts a few entries in the table.
+	 * Adjust got2 pointers, no need to check for 0, this code
+	 * already puts a few entries in the table.
 	 */
 	li	r0,__got2_entries@sectoff@l
 	la	r3,GOT(_GOT2_TABLE_)
@@ -783,7 +783,7 @@ in_ram:
 	bdnz	1b
 
 	/*
-         * Now adjust the fixups and the pointers to the fixups
+	 * Now adjust the fixups and the pointers to the fixups
 	 * in case we need to move ourselves again.
 	 */
 2:	li	r0,__fixup_entries@sectoff@l

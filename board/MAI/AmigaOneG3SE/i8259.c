@@ -75,16 +75,16 @@ void i8259_init(void)
 	char dummy;
 	PRINTF("Initializing Interrupt controller\n");
 	/* init master interrupt controller */
-	out8(0x20, 0x11); //0x19); // was: 0x11); /* Start init sequence */
+	out8(0x20, 0x11); /* 0x19); /###* Start init sequence */
 	out8(0x21, 0x00); /* Vector base */
 	out8(0x21, 0x04); /* edge tiggered, Cascade (slave) on IRQ2 */
-	out8(0x21, 0x11); // was: 0x01); /* Select 8086 mode */
+	out8(0x21, 0x11); /* was: 0x01); /###* Select 8086 mode */
 
 	/* init slave interrupt controller */
-	out8(0xA0, 0x11); //0x19); // was: 0x11); /* Start init sequence */
+	out8(0xA0, 0x11); /* 0x19); /###* Start init sequence */
 	out8(0xA1, 0x08); /* Vector base */
 	out8(0xA1, 0x02); /* edge triggered, Cascade (slave) on IRQ2 */
-	out8(0xA1, 0x11); // was: 0x01); /* Select 8086 mode */
+	out8(0xA1, 0x11); /* was: 0x01); /###* Select 8086 mode */
 
 	/* always read ISR */
 	out8(0x20, 0x0B);

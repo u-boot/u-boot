@@ -80,7 +80,6 @@ int disable_interrupts (void)
 #endif
 
 
-
 void bad_mode (void)
 {
 	panic ("Resetting CPU ...\n");
@@ -91,7 +90,7 @@ void show_regs (struct pt_regs *regs)
 {
 	unsigned long flags;
 	const char *processor_modes[] =
-			{ "USER_26", "FIQ_26", "IRQ_26", "SVC_26", "UK4_26", "UK5_26",
+		{ "USER_26", "FIQ_26", "IRQ_26", "SVC_26", "UK4_26", "UK5_26",
 "UK6_26", "UK7_26",
 		"UK8_26", "UK9_26", "UK10_26", "UK11_26", "UK12_26", "UK13_26",
 				"UK14_26", "UK15_26",

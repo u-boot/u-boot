@@ -59,7 +59,7 @@ Pumps all messages in the message queue from OS/2 into our event queue.
 ****************************************************************************/
 static void _EVT_pumpMessages(void)
 {
-    // TODO: Implement this for OS/2 Presentation Manager apps!
+    /* TODO: Implement this for OS/2 Presentation Manager apps! */
 }
 
 /****************************************************************************
@@ -105,7 +105,7 @@ void EVTAPI EVT_init(
     oldKeyMessage = 0;
     memset(keyUpMsg,0,sizeof(keyUpMsg));
 
-    // TODO: OS/2 PM specific initialisation code!
+    /* TODO: OS/2 PM specific initialisation code! */
 
     /* Catch program termination signals so we can clean up properly */
     signal(SIGABRT, _EVT_abort);
@@ -135,7 +135,7 @@ and this function can be used to resume it again later.
 ****************************************************************************/
 void EVT_resume(void)
 {
-    // Do nothing for OS/2
+    /* Do nothing for OS/2 */
 }
 
 /****************************************************************************
@@ -145,7 +145,7 @@ de-install the event handling code.
 ****************************************************************************/
 void EVT_suspend(void)
 {
-    // Do nothing for OS/2
+    /* Do nothing for OS/2 */
 }
 
 /****************************************************************************
@@ -159,7 +159,7 @@ void EVT_exit(void)
     signal(SIGFPE, SIG_DFL);
     signal(SIGINT, SIG_DFL);
 
-    // TODO: OS/2 PM specific exit code
+    /* TODO: OS/2 PM specific exit code */
 }
 
 /****************************************************************************

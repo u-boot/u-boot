@@ -48,7 +48,7 @@ void smc1_setbrg (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
-        volatile immap_t *im = (immap_t *)CFG_IMMR;
+	volatile immap_t *im = (immap_t *)CFG_IMMR;
 	volatile cpm8xx_t *cp = &(im->im_cpm);
 
 	/* Set up the baud rate generator.
@@ -65,7 +65,7 @@ void smc1_setbrg (void)
 
 int smc1_init (void)
 {
-        volatile immap_t *im = (immap_t *)CFG_IMMR;
+	volatile immap_t *im = (immap_t *)CFG_IMMR;
 	volatile smc_t *sp;
 	volatile smc_uart_t *up;
 	volatile cbd_t *tbdf, *rbdf;
@@ -182,7 +182,7 @@ void smc1_putc(const char c)
 	volatile cbd_t		*tbdf;
 	volatile char		*buf;
 	volatile smc_uart_t	*up;
-        volatile immap_t	*im = (immap_t *)CFG_IMMR;
+	volatile immap_t	*im = (immap_t *)CFG_IMMR;
 	volatile cpm8xx_t	*cpmp = &(im->im_cpm);
 
 	up = (smc_uart_t *)&cpmp->cp_dparam[PROFF_SMC];
@@ -210,7 +210,7 @@ int smc1_getc(void)
 	volatile cbd_t		*rbdf;
 	volatile unsigned char	*buf;
 	volatile smc_uart_t	*up;
-        volatile immap_t	*im = (immap_t *)CFG_IMMR;
+	volatile immap_t	*im = (immap_t *)CFG_IMMR;
 	volatile cpm8xx_t	*cpmp = &(im->im_cpm);
 	unsigned char		c;
 
@@ -235,7 +235,7 @@ int smc1_tstc(void)
 {
 	volatile cbd_t		*rbdf;
 	volatile smc_uart_t	*up;
-        volatile immap_t	*im = (immap_t *)CFG_IMMR;
+	volatile immap_t	*im = (immap_t *)CFG_IMMR;
 	volatile cpm8xx_t	*cpmp = &(im->im_cpm);
 
 	up = (smc_uart_t *)&cpmp->cp_dparam[PROFF_SMC];

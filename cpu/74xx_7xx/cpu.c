@@ -194,7 +194,7 @@ soft_restart(unsigned long addr)
     !defined(CONFIG_ELPPC)
 /* no generic way to do board reset. simply call soft_reset. */
 void
-do_reset (cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
+do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
     	ulong addr;
 	/* flush and disable I/D cache */

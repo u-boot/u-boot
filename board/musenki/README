@@ -68,10 +68,9 @@ run     - run commands in an environment variable
 saveenv - save environment variables to persistent storage
 setenv  - set environment variables
 tftpboot- boot image via network using TFTP protocol
-               and env variables ipaddr and serverip
+	       and env variables ipaddr and serverip
 version - print monitor version
 ?       - alias for 'help'
-
 
 
 x.x.x CONFIG_CONS_INDEX 2
@@ -165,7 +164,6 @@ Bank # 1: Intel 28F320J3A (32Mbit = 128K x 32)
 
 Bank # 2: missing or unknown FLASH type
 =>
-
 
 
 x.x.x Flash Programming
@@ -298,4 +296,3 @@ Hit any key to exit ...
 x.x Image download and run over ethernet interface
 
 untested (not working yet, actually)
-

@@ -44,7 +44,7 @@
 #define MAX_MEMORY_SHARED           100
 #define MAX_MEMORY_MAPPINGS         100
 
-// TODO: I think the global and linear members will be the same, but not sure yet.
+/* TODO: I think the global and linear members will be the same, but not sure yet. */
 typedef struct {
     void    *linear;
     ulong   global;
@@ -90,18 +90,18 @@ void PMAPI PM_init(void)
 {
     MTRR_init();
 
-    // Initialize VDD-specific data
-    // Note: PM_init must be (obviously) called in VDM task context!
+    /* Initialize VDD-specific data */
+    /* Note: PM_init must be (obviously) called in VDM task context! */
     VDHCreateSem(&hevFarCallRet, VDH_EVENTSEM);
     VDHCreateSem(&hevIRet, VDH_EVENTSEM);
     hhookUserReturnHook = VDHAllocHook(VDH_RETURN_HOOK, (PFNARM)UserReturnHook, 0);
     hhookUserIRetHook   = VDHAllocHook(VDH_RETURN_HOOK, (PFNARM)UserIRetHook, 0);
 
     if ((hevIRet == NULL) || (hevFarCallRet == NULL) ||
-        (hhookUserReturnHook == NULL) || (hhookUserIRetHook == NULL)) {
-        // something failed, we can't go on
-        // TODO: take some action here!
-        }
+	(hhookUserReturnHook == NULL) || (hhookUserIRetHook == NULL)) {
+	/* something failed, we can't go on */
+	/* TODO: take some action here! */
+	}
 }
 
 /* Do some cleaning up */
@@ -109,17 +109,17 @@ void PMAPI PM_exit(void)
 {
     /* Note: Hooks allocated during or after VDM creation are deallocated automatically */
     if (hevIRet != NULL)
-        VDHDestroySem(hevIRet);
+	VDHDestroySem(hevIRet);
 
     if (hevFarCallRet != NULL)
-        VDHDestroySem(hevFarCallRet);
+	VDHDestroySem(hevFarCallRet);
 }
 
 ibool PMAPI PM_haveBIOSAccess(void)
 { return _PM_haveBIOS; }
 
 long PMAPI PM_getOSType(void)
-{ return /*_OS_OS2VDD*/ _OS_OS2; }  //FIX!!
+{ return /*_OS_OS2VDD*/ _OS_OS2; }  /*FIX!! */
 
 int PMAPI PM_getModeType(void)
 { return PM_386; }
@@ -128,9 +128,9 @@ void PMAPI PM_backslash(char *s)
 {
     uint pos = strlen(s);
     if (s[pos-1] != '\\') {
-        s[pos] = '\\';
-        s[pos+1] = '\0';
-        }
+	s[pos] = '\\';
+	s[pos+1] = '\0';
+	}
 }
 
 void PMAPI PM_setFatalErrorCleanup(
@@ -142,8 +142,8 @@ void PMAPI PM_setFatalErrorCleanup(
 void PMAPI PM_fatalError(const char *msg)
 {
     if (fatalErrorCleanup)
-        fatalErrorCleanup();
-//    Fatal_Error_Handler(msg,0);  TODO: implement somehow!
+	fatalErrorCleanup();
+/*    Fatal_Error_Handler(msg,0);  TODO: implement somehow! */
 }
 
 /****************************************************************************
@@ -162,11 +162,11 @@ void * PMAPI PM_getVESABuf(
     uint *roff)
 {
     if (_PM_rmBufAddr) {
-        *len = 0; //VESA_BUF_SIZE;
-        *rseg = (ulong)(_PM_rmBufAddr) >> 4;
-        *roff = (ulong)(_PM_rmBufAddr) & 0xF;
-        return _PM_rmBufAddr;
-        }
+	*len = 0; /*VESA_BUF_SIZE; */
+	*rseg = (ulong)(_PM_rmBufAddr) >> 4;
+	*roff = (ulong)(_PM_rmBufAddr) & 0xF;
+	return _PM_rmBufAddr;
+	}
     return NULL;
 }
 
@@ -200,12 +200,12 @@ const char * PMAPI PM_getVBEAFPath(void)
 
 const char * PMAPI PM_getNucleusPath(void)
 {
-        static char path[CCHMAXPATH];
-        strcpy(path,"x:\\os2\\drivers");
-        path[0] = PM_getBootDrive();
-        PM_backslash(path);
-        strcat(path,"nucleus");
-        return path;
+	static char path[CCHMAXPATH];
+	strcpy(path,"x:\\os2\\drivers");
+	path[0] = PM_getBootDrive();
+	PM_backslash(path);
+	strcat(path,"nucleus");
+	return path;
 }
 
 const char * PMAPI PM_getNucleusConfigPath(void)
@@ -292,15 +292,15 @@ void * PMAPI PM_mallocShared(long size)
 
     /* First find a free slot in our shared memory table */
     for (i = 0; i < MAX_MEMORY_SHARED; i++) {
-        if (shared[i].linear == 0)
-            break;
-        }
+	if (shared[i].linear == 0)
+	    break;
+	}
     if (i < MAX_MEMORY_SHARED) {
-        shared[i].linear = VDHAllocPages(NULL, nPages, VDHAP_SYSTEM | VDHAP_FIXED);
-        shared[i].npages = nPages;
-        shared[i].global = (ULONG)shared[i].linear;
-        return (void*)shared[i].global;
-        }
+	shared[i].linear = VDHAllocPages(NULL, nPages, VDHAP_SYSTEM | VDHAP_FIXED);
+	shared[i].npages = nPages;
+	shared[i].global = (ULONG)shared[i].linear;
+	return (void*)shared[i].global;
+	}
     return NULL;
 }
 
@@ -314,12 +314,12 @@ void PMAPI PM_freeShared(void *p)
 
     /* Find a shared memory block in our table and free it */
     for (i = 0; i < MAX_MEMORY_SHARED; i++) {
-        if (shared[i].global == (ulong)p) {
-            VDHFreePages(shared[i].linear);
-            shared[i].linear = 0;
-            break;
-            }
-        }
+	if (shared[i].global == (ulong)p) {
+	    VDHFreePages(shared[i].linear);
+	    shared[i].linear = 0;
+	    break;
+	    }
+	}
 }
 
 void * PMAPI PM_mapToProcess(void *base,ulong limit)
@@ -331,7 +331,7 @@ ibool PMAPI PM_doBIOSPOST(
     void *mappedBIOS,
     ulong BIOSLen)
 {
-    // TODO: Figure out how to do this
+    /* TODO: Figure out how to do this */
     return false;
 }
 
@@ -364,18 +364,18 @@ ulong MapPhysicalToLinear(
     *npages = (length + (base & 0xFFF) + 4095) >> 12;
     flags = PR_FIXED | PR_STATIC;
     if (base == 0xA0000) {
-        /* We require the linear address to be aligned to a 64Kb boundary
-         * for mapping the banked framebuffer (so we can do efficient
-         * carry checking for bank changes in the assembler code). The only
-         * way to ensure this is to force the linear address to be aligned
-         * to a 4Mb boundary.
-         */
-        flags |= PR_4MEG;
-        }
+	/* We require the linear address to be aligned to a 64Kb boundary
+	 * for mapping the banked framebuffer (so we can do efficient
+	 * carry checking for bank changes in the assembler code). The only
+	 * way to ensure this is to force the linear address to be aligned
+	 * to a 4Mb boundary.
+	 */
+	flags |= PR_4MEG;
+	}
     if ((linear = (ulong)PageReserve(PR_SYSTEM,*npages,flags)) == (ulong)-1)
-        return 0;
+	return 0;
     if (!PageCommitPhys(linear >> 12,*npages,ppage,PC_INCR | PC_USER | PC_WRITEABLE))
-        return 0;
+	return 0;
 #endif
     return linear + (base & 0xFFF);
 }
@@ -397,9 +397,9 @@ memory below 1Mb, which gets this memory out of the way of the Windows VxD's
 sticky paws.
 
 NOTE:   If the memory is not expected to be cached, this function will
-        directly re-program the PCD (Page Cache Disable) bit in the
-        page tables. There does not appear to be a mechanism in the VMM
-        to control this bit via the regular interface.
+	directly re-program the PCD (Page Cache Disable) bit in the
+	page tables. There does not appear to be a mechanism in the VMM
+	to control this bit via the regular interface.
 ****************************************************************************/
 void * PMAPI PM_mapPhysicalAddr(
     ulong base,
@@ -414,11 +414,11 @@ void * PMAPI PM_mapPhysicalAddr(
      * a region of memory that will serve this purpose.
      */
     for (i = 0; i < numMappings; i++) {
-        if (maps[i].physical == base && maps[i].length == length && maps[i].isCached == isCached)
-            return (void*)maps[i].linear;
-        }
+	if (maps[i].physical == base && maps[i].length == length && maps[i].isCached == isCached)
+	    return (void*)maps[i].linear;
+	}
     if (numMappings == MAX_MEMORY_MAPPINGS)
-        return NULL;
+	return NULL;
 
     /* We did not find any previously mapped memory region, so map it in.
      * Note that we do not use MapPhysToLinear, since this function appears
@@ -426,7 +426,7 @@ void * PMAPI PM_mapPhysicalAddr(
      * Hence we use PageReserve and PageCommitPhys.
      */
     if ((linear = MapPhysicalToLinear(base,limit,&npages)) == 0)
-        return NULL;
+	return NULL;
     maps[numMappings].physical = base;
     maps[numMappings].length = length;
     maps[numMappings].linear = linear;
@@ -437,33 +437,33 @@ void * PMAPI PM_mapPhysicalAddr(
 #if 0
     /* Finally disable caching where necessary */
     if (!isCached && (PDB = _PM_getPDB()) != 0) {
-        int     startPDB,endPDB,iPDB,startPage,endPage,start,end,iPage;
-        ulong   pageTable,*pPageTable;
+	int     startPDB,endPDB,iPDB,startPage,endPage,start,end,iPage;
+	ulong   pageTable,*pPageTable;
 
-        if (PDB >= 0x100000)
-            pPDB = (ulong*)MapPhysicalToLinear(PDB,0xFFF,&npages);
-        else
-            pPDB = (ulong*)PDB;
-        if (pPDB) {
-            startPDB = (linear >> 22) & 0x3FF;
-            startPage = (linear >> 12) & 0x3FF;
-            endPDB = ((linear+limit) >> 22) & 0x3FF;
-            endPage = ((linear+limit) >> 12) & 0x3FF;
-            for (iPDB = startPDB; iPDB <= endPDB; iPDB++) {
-                pageTable = pPDB[iPDB] & ~0xFFF;
-                if (pageTable >= 0x100000)
-                    pPageTable = (ulong*)MapPhysicalToLinear(pageTable,0xFFF,&npages);
-                else
-                    pPageTable = (ulong*)pageTable;
-                start = (iPDB == startPDB) ? startPage : 0;
-                end = (iPDB == endPDB) ? endPage : 0x3FF;
-                for (iPage = start; iPage <= end; iPage++)
-                    pPageTable[iPage] |= 0x10;
-                PageFree((ulong)pPageTable,PR_STATIC);
-                }
-            PageFree((ulong)pPDB,PR_STATIC);
-            }
-        }
+	if (PDB >= 0x100000)
+	    pPDB = (ulong*)MapPhysicalToLinear(PDB,0xFFF,&npages);
+	else
+	    pPDB = (ulong*)PDB;
+	if (pPDB) {
+	    startPDB = (linear >> 22) & 0x3FF;
+	    startPage = (linear >> 12) & 0x3FF;
+	    endPDB = ((linear+limit) >> 22) & 0x3FF;
+	    endPage = ((linear+limit) >> 12) & 0x3FF;
+	    for (iPDB = startPDB; iPDB <= endPDB; iPDB++) {
+		pageTable = pPDB[iPDB] & ~0xFFF;
+		if (pageTable >= 0x100000)
+		    pPageTable = (ulong*)MapPhysicalToLinear(pageTable,0xFFF,&npages);
+		else
+		    pPageTable = (ulong*)pageTable;
+		start = (iPDB == startPDB) ? startPage : 0;
+		end = (iPDB == endPDB) ? endPage : 0x3FF;
+		for (iPage = start; iPage <= end; iPage++)
+		    pPageTable[iPage] |= 0x10;
+		PageFree((ulong)pPageTable,PR_STATIC);
+		}
+	    PageFree((ulong)pPDB,PR_STATIC);
+	    }
+	}
 #endif
     return (void*)linear;
 }
@@ -480,39 +480,39 @@ void PMAPI PM_sleep(ulong milliseconds)
 
 int PMAPI PM_getCOMPort(int port)
 {
-    // TODO: Re-code this to determine real values using the Plug and Play
-    //       manager for the OS.
+    /* TODO: Re-code this to determine real values using the Plug and Play */
+    /*       manager for the OS. */
     switch (port) {
-        case 0: return 0x3F8;
-        case 1: return 0x2F8;
-        }
+	case 0: return 0x3F8;
+	case 1: return 0x2F8;
+	}
     return 0;
 }
 
 int PMAPI PM_getLPTPort(int port)
 {
-    // TODO: Re-code this to determine real values using the Plug and Play
-    //       manager for the OS.
+    /* TODO: Re-code this to determine real values using the Plug and Play */
+    /*       manager for the OS. */
     switch (port) {
-        case 0: return 0x3BC;
-        case 1: return 0x378;
-        case 2: return 0x278;
-        }
+	case 0: return 0x3BC;
+	case 1: return 0x378;
+	case 2: return 0x278;
+	}
     return 0;
 }
 
 ulong PMAPI PM_getPhysicalAddr(void *p)
 {
-        // TODO: This function should find the physical address of a linear
-        //               address.
-        return 0xFFFFFFFFUL;
+	/* TODO: This function should find the physical address of a linear */
+	/*               address. */
+	return 0xFFFFFFFFUL;
 }
 
 void PMAPI _PM_freeMemoryMappings(void)
 {
     int i;
-//    for (i = 0; i < numMappings; i++)
-//        PageFree(maps[i].linear,PR_STATIC);
+/*    for (i = 0; i < numMappings; i++) */
+/*        PageFree(maps[i].linear,PR_STATIC); */
 }
 
 void * PMAPI PM_mapRealPointer(uint r_seg,uint r_off)
@@ -539,16 +539,16 @@ static void LoadV86Registers(
     RMREGS *in,
     RMSREGS *sregs)
 {
-    PCRF            pcrf;     // current client register frame
+    PCRF            pcrf;     /* current client register frame */
 
-    // get pointer to registers
+    /* get pointer to registers */
     pcrf = (PCRF)VDHQuerySysValue(CURRENT_VDM, VDHLSV_PCRF);
 
-    // Note: We could do VDHPushRegs instead but this should be safer as it
-    // doesn't rely on the VDM session having enough free stack space.
-    *saveRegs = *pcrf;        // save all registers
+    /* Note: We could do VDHPushRegs instead but this should be safer as it */
+    /* doesn't rely on the VDM session having enough free stack space. */
+    *saveRegs = *pcrf;        /* save all registers */
 
-    pcrf->crf_eax = in->e.eax;    // load new values
+    pcrf->crf_eax = in->e.eax;    /* load new values */
     pcrf->crf_ebx = in->e.ebx;
     pcrf->crf_ecx = in->e.ecx;
     pcrf->crf_edx = in->e.edx;
@@ -568,12 +568,12 @@ static void ReadV86Registers(
     RMREGS *out,
     RMSREGS *sregs)
 {
-    PCRF            pcrf;     // current client register frame
+    PCRF            pcrf;     /* current client register frame */
 
-    // get pointer to registers
+    /* get pointer to registers */
     pcrf = (PCRF)VDHQuerySysValue(CURRENT_VDM, VDHLSV_PCRF);
 
-    // read new register values
+    /* read new register values */
     out->e.eax = pcrf->crf_eax;
     out->e.ebx = pcrf->crf_ebx;
     out->e.ecx = pcrf->crf_ecx;
@@ -583,7 +583,7 @@ static void ReadV86Registers(
     sregs->es  = pcrf->crf_es;
     sregs->ds  = pcrf->crf_ds;
 
-    // restore original client registers
+    /* restore original client registers */
     *pcrf = *saveRegs;
 }
 
@@ -626,18 +626,18 @@ void PMAPI PM_callRealMode(
     TRACE("SDDHELP: Entering PM_callRealMode()\n");
     LoadV86Registers(SSToDS(&saveRegs),regs,sregs);
 
-    // set up return hook for call
+    /* set up return hook for call */
     rc = VDHArmReturnHook(hhookUserReturnHook, VDHARH_CSEIP_HOOK);
 
     VDHResetEventSem(hevFarCallRet);
 
-    // the address is a 16:32 pointer
+    /* the address is a 16:32 pointer */
     OFFSETOF32(fnAddress)  = off;
     SEGMENTOF32(fnAddress) = seg;
     rc = VDHPushFarCall(fnAddress);
     VDHYield(0);
 
-    // wait until the V86 call returns - our return hook posts the semaphore
+    /* wait until the V86 call returns - our return hook posts the semaphore */
     rc = VDHWaitEventSem(hevFarCallRet, SEM_INDEFINITE_WAIT);
 
     ReadV86Registers(SSToDS(&saveRegs),regs,sregs);
@@ -662,13 +662,13 @@ int PMAPI PM_int86(
 
     memset(SSToDS(&sregs), 0, sizeof(sregs));
 
-#if 0   // do we need this??
+#if 0   /* do we need this?? */
     /* Disable pass-up to our VDD handler so we directly call BIOS */
     TRACE("SDDHELP: Entering PM_int86()\n");
     if (disableTSRFlag) {
-        oldDisable = *disableTSRFlag;
-        *disableTSRFlag = 0;
-        }
+	oldDisable = *disableTSRFlag;
+	*disableTSRFlag = 0;
+	}
 #endif
 
     LoadV86Registers(SSToDS(&saveRegs), in, SSToDS(&sregs));
@@ -676,20 +676,20 @@ int PMAPI PM_int86(
     VDHResetEventSem(hevIRet);
     rc = VDHPushInt(intno);
 
-    // set up return hook for interrupt
+    /* set up return hook for interrupt */
     rc = VDHArmReturnHook(hhookUserIRetHook, VDHARH_NORMAL_IRET);
 
     VDHYield(0);
 
-    // wait until the V86 IRETs - our return hook posts the semaphore
-    rc = VDHWaitEventSem(hevIRet, 5000); //SEM_INDEFINITE_WAIT);
+    /* wait until the V86 IRETs - our return hook posts the semaphore */
+    rc = VDHWaitEventSem(hevIRet, 5000); /*SEM_INDEFINITE_WAIT); */
 
     ReadV86Registers(SSToDS(&saveRegs), out, SSToDS(&sregs));
 
 #if 0
     /* Re-enable pass-up to our VDD handler if previously enabled */
     if (disableTSRFlag)
-        *disableTSRFlag = oldDisable;
+	*disableTSRFlag = oldDisable;
 #endif
 
     TRACE("SDDHELP: Exiting PM_int86()\n");
@@ -716,29 +716,29 @@ int PMAPI PM_int86x(
     /* Disable pass-up to our VxD handler so we directly call BIOS */
     TRACE("SDDHELP: Entering PM_int86x()\n");
     if (disableTSRFlag) {
-        oldDisable = *disableTSRFlag;
-        *disableTSRFlag = 0;
-        }
+	oldDisable = *disableTSRFlag;
+	*disableTSRFlag = 0;
+	}
 #endif
     LoadV86Registers(SSToDS(&saveRegs), in, sregs);
 
     VDHResetEventSem(hevIRet);
     rc = VDHPushInt(intno);
 
-    // set up return hook for interrupt
+    /* set up return hook for interrupt */
     rc = VDHArmReturnHook(hhookUserIRetHook, VDHARH_NORMAL_IRET);
 
     VDHYield(0);
 
-    // wait until the V86 IRETs - our return hook posts the semaphore
-    rc = VDHWaitEventSem(hevIRet, 5000); //SEM_INDEFINITE_WAIT);
+    /* wait until the V86 IRETs - our return hook posts the semaphore */
+    rc = VDHWaitEventSem(hevIRet, 5000); /*SEM_INDEFINITE_WAIT); */
 
     ReadV86Registers(SSToDS(&saveRegs), out, sregs);
 
 #if 0
     /* Re-enable pass-up to our VxD handler if previously enabled */
     if (disableTSRFlag)
-        *disableTSRFlag = oldDisable;
+	*disableTSRFlag = oldDisable;
 #endif
 
     TRACE("SDDHELP: Exiting PM_int86x()\n");
@@ -776,7 +776,7 @@ void PMAPI PM_freeLockedMem(
     ibool contiguous)
 {
     if (p)
-        VDHFreePages((PVOID)p);
+	VDHFreePages((PVOID)p);
 }
 
 /****************************************************************************
@@ -787,7 +787,7 @@ int PMAPI PM_lockDataPages(void *p,uint len,PM_lockHandle *lh)
 {
     ULONG  lockHandle;
 
-    // TODO: the lock handle is essential for the unlock operation!!
+    /* TODO: the lock handle is essential for the unlock operation!! */
     lockHandle = VDHLockMem(p, len, 0, (PVOID)VDHLM_NO_ADDR, NULL);
 
     if (lockHandle != NULL)
@@ -802,8 +802,8 @@ Unlock linear memory so it won't be paged.
 ****************************************************************************/
 int PMAPI PM_unlockDataPages(void *p,uint len,PM_lockHandle *lh)
 {
-    // TODO: implement - use a table of lock handles?
-    // VDHUnlockPages(lockHandle);
+    /* TODO: implement - use a table of lock handles? */
+    /* VDHUnlockPages(lockHandle); */
     return 0;
 }
 
@@ -867,9 +867,9 @@ void *PMAPI PM_findFirstFile(
     const char *filename,
     PM_findData *findData)
 {
-    // TODO: This function should start a directory enumeration search
-    //       given the filename (with wildcards). The data should be
-    //       converted and returned in the findData standard form.
+    /* TODO: This function should start a directory enumeration search */
+    /*       given the filename (with wildcards). The data should be */
+    /*       converted and returned in the findData standard form. */
     (void)filename;
     (void)findData;
     return PM_FILE_INVALID;
@@ -883,10 +883,10 @@ ibool PMAPI PM_findNextFile(
     void *handle,
     PM_findData *findData)
 {
-    // TODO: This function should find the next file in directory enumeration
-    //       search given the search criteria defined in the call to
-    //       PM_findFirstFile. The data should be converted and returned
-    //       in the findData standard form.
+    /* TODO: This function should find the next file in directory enumeration */
+    /*       search given the search criteria defined in the call to */
+    /*       PM_findFirstFile. The data should be converted and returned */
+    /*       in the findData standard form. */
     (void)handle;
     (void)findData;
     return false;
@@ -899,8 +899,8 @@ Function to close the find process
 void PMAPI PM_findClose(
     void *handle)
 {
-    // TODO: This function should close the find process. This may do
-    //       nothing for some OS'es.
+    /* TODO: This function should close the find process. This may do */
+    /*       nothing for some OS'es. */
     (void)handle;
 }
 
@@ -920,7 +920,7 @@ numbering is:
 ibool PMAPI PM_driveValid(
     char drive)
 {
-    // Not applicable in a VDD
+    /* Not applicable in a VDD */
     (void)drive;
     return false;
 }
@@ -936,7 +936,7 @@ void PMAPI PM_getdcwd(
     char *dir,
     int len)
 {
-    // Not applicable in a VDD
+    /* Not applicable in a VDD */
     (void)drive;
     (void)dir;
     (void)len;
@@ -970,7 +970,7 @@ void PMAPI PM_setFileAttr(
     const char *filename,
     uint attrib)
 {
-    // TODO: Implement this ?
+    /* TODO: Implement this ? */
     (void)filename;
     (void)attrib;
     PM_fatalError("PM_setFileAttr not implemented!");
@@ -983,7 +983,7 @@ Function to get the file attributes for a specific file.
 uint PMAPI PM_getFileAttr(
     const char *filename)
 {
-    // TODO: Implement this ?
+    /* TODO: Implement this ? */
     (void)filename;
     PM_fatalError("PM_getFileAttr not implemented!");
     return 0;
@@ -996,7 +996,7 @@ Function to create a directory.
 ibool PMAPI PM_mkdir(
     const char *filename)
 {
-    // TODO: Implement this ?
+    /* TODO: Implement this ? */
     (void)filename;
     PM_fatalError("PM_mkdir not implemented!");
     return false;
@@ -1009,7 +1009,7 @@ Function to remove a directory.
 ibool PMAPI PM_rmdir(
     const char *filename)
 {
-    // TODO: Implement this ?
+    /* TODO: Implement this ? */
     (void)filename;
     PM_fatalError("PM_rmdir not implemented!");
     return false;
@@ -1024,7 +1024,7 @@ ibool PMAPI PM_getFileTime(
     ibool gmTime,
     PM_time *time)
 {
-    // TODO: Implement this ?
+    /* TODO: Implement this ? */
     (void)filename;
     (void)gmTime;
     (void)time;
@@ -1041,7 +1041,7 @@ ibool PMAPI PM_setFileTime(
     ibool gmTime,
     PM_time *time)
 {
-    // TODO: Implement this ?
+    /* TODO: Implement this ? */
     (void)filename;
     (void)gmTime;
     (void)time;

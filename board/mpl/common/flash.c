@@ -251,7 +251,7 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 	/*	printf("Device value %x\n",value); */
 	switch (value) {
 	case (FLASH_WORD_SIZE)AMD_ID_F040B:
-	        info->flash_id += FLASH_AM040;
+		info->flash_id += FLASH_AM040;
 		info->sector_count = 8;
 		info->size = 0x0080000; /* => 512 ko */
 		break;
@@ -494,7 +494,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 				wait_for_DQ7(info, sect);
 			}
 			else {
-		  		if((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_INTEL){
+				if((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_INTEL){
 					addr2[0] = (FLASH_WORD_SIZE)0x00600060;  /* unlock sector */
 					addr2[0] = (FLASH_WORD_SIZE)0x00D000D0;  /* sector erase */
 					intel_wait_for_DQ7(info, sect);
@@ -659,7 +659,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 {
 	volatile FLASH_WORD_SIZE *addr2 = (FLASH_WORD_SIZE *)(info->start[0]);
 	volatile FLASH_WORD_SIZE *dest2 = (FLASH_WORD_SIZE *)dest;
- 	volatile FLASH_WORD_SIZE *data2 = (FLASH_WORD_SIZE *)&data;
+	volatile FLASH_WORD_SIZE *data2 = (FLASH_WORD_SIZE *)&data;
 	ulong start;
 	int flag;
 	int i;
@@ -708,7 +708,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 			while ((dest2[i] & (FLASH_WORD_SIZE)0x00800080) !=
 				(data2[i] & (FLASH_WORD_SIZE)0x00800080)) {
 				if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
-        				return (1);
+					return (1);
 				}
 			}
 		}

@@ -71,11 +71,11 @@ typedef enum _i2c_restart
 extern I2C_Status I2C_Initialize(
 	unsigned char addr,            /* driver's I2C slave address */
 	I2C_INTERRUPT_MODE en_int,     /* 1 - enable I2C interrupt
-	                                * 0 - disable I2C interrupt
-	                                */
-        int (*app_print_function)(char *,...)); /* pointer to optional "printf"
-                                                 * provided by application
-                                                 */
+					* 0 - disable I2C interrupt
+					*/
+	int (*app_print_function)(char *,...)); /* pointer to optional "printf"
+						 * provided by application
+						 */
 
 /* Perform the given I2C transaction, only MASTER_XMIT and MASTER_RCV
  * are implemented.  Both are only in polling mode.
@@ -92,12 +92,12 @@ extern I2C_Status I2C_Initialize(
  *        I2C_RESTART, this is a continuation of existing transaction
  */
 extern I2C_Status I2C_do_transaction( I2C_INTERRUPT_MODE en_int,
-                                      I2C_TRANSACTION_MODE act,
-                                      unsigned char i2c_addr,
-                                      unsigned char data_addr,
-                                      int len,
-                                      char *buffer,
-                                      I2C_STOP_MODE stop,
-                                      int retry,
-                                      I2C_RESTART_MODE rsta);
+				      I2C_TRANSACTION_MODE act,
+				      unsigned char i2c_addr,
+				      unsigned char data_addr,
+				      int len,
+				      char *buffer,
+				      I2C_STOP_MODE stop,
+				      int retry,
+				      I2C_RESTART_MODE rsta);
 #endif

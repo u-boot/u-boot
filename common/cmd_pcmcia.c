@@ -57,7 +57,6 @@
 #include <command.h>
 #include <config.h>
 #include <pcmcia.h>
-#include <cmd_pcmcia.h>
 #if defined(CONFIG_IDE_8xx_PCCARD) && defined(CONFIG_8xx)
 #include <mpc8xx.h>
 #endif
@@ -669,7 +668,6 @@ static int hardware_enable(int slot)
 }
 
 
-
 #if (CONFIG_COMMANDS & CFG_CMD_PCMCIA)
 static int hardware_disable(int slot)
 {
@@ -696,7 +694,6 @@ static int hardware_disable(int slot)
 	return (0);
 }
 #endif	/* CFG_CMD_PCMCIA */
-
 
 
 static int voltage_set(int slot, int vcc, int vpp)
@@ -890,7 +887,6 @@ static int hardware_enable(int slot)
 }
 
 
-
 #if (CONFIG_COMMANDS & CFG_CMD_PCMCIA)
 static int hardware_disable(int slot)
 {
@@ -931,7 +927,6 @@ static int hardware_disable(int slot)
 	return (0);
 }
 #endif	/* CFG_CMD_PCMCIA */
-
 
 
 static int voltage_set(int slot, int vcc, int vpp)
@@ -1206,7 +1201,6 @@ static int hardware_enable(int slot)
 }
 
 
-
 #if (CONFIG_COMMANDS & CFG_CMD_PCMCIA)
 static int hardware_disable(int slot)
 {
@@ -1236,7 +1230,6 @@ static int hardware_disable(int slot)
 	return (0);
 }
 #endif	/* CFG_CMD_PCMCIA */
-
 
 
 static int voltage_set(int slot, int vcc, int vpp)
@@ -1470,7 +1463,6 @@ static int hardware_enable(int slot)
 }
 
 
-
 #if (CONFIG_COMMANDS & CFG_CMD_PCMCIA)
 static int hardware_disable(int slot)
 {
@@ -1500,7 +1492,6 @@ static int hardware_disable(int slot)
 	return (0);
 }
 #endif	/* CFG_CMD_PCMCIA */
-
 
 
 static int voltage_set(int slot, int vcc, int vpp)
@@ -1895,7 +1886,6 @@ static int hardware_enable(int slot)
 }
 
 
-
 #if (CONFIG_COMMANDS & CFG_CMD_PCMCIA)
 static int hardware_disable(int slot)
 {
@@ -1924,7 +1914,6 @@ static int hardware_disable(int slot)
 	return (0);
 }
 #endif	/* CFG_CMD_PCMCIA */
-
 
 
 static int voltage_set(int slot, int vcc, int vpp)
@@ -2115,7 +2104,6 @@ static int hardware_enable(int slot)
 }
 
 
-
 #if (CONFIG_COMMANDS & CFG_CMD_PCMCIA)
 static int hardware_disable(int slot)
 {
@@ -2146,7 +2134,6 @@ static int hardware_disable(int slot)
 	return (0);
 }
 #endif	/* CFG_CMD_PCMCIA */
-
 
 
 static int voltage_set(int slot, int vcc, int vpp)
@@ -2225,9 +2212,6 @@ static int voltage_set(int slot, int vcc, int vpp)
 }
 
 #endif	/* KUP4K */
-
-
-
 
 
 /* -------------------------------------------------------------------- */
@@ -2499,3 +2483,14 @@ static int identify  (volatile uchar *p)
 /* -------------------------------------------------------------------- */
 
 #endif /* CFG_CMD_PCMCIA || (CFG_CMD_IDE && CONFIG_IDE_8xx_PCCARD) */
+
+/**************************************************/
+
+#if (CONFIG_COMMANDS & CFG_CMD_PCMCIA)
+cmd_tbl_t U_BOOT_CMD(PINIT) = MK_CMD_ENTRY(
+	"pinit",	2,	1,	do_pinit,
+	"pinit   - PCMCIA sub-system\n",
+	"on  - power on PCMCIA socket\n"
+	"pinit off - power off PCMCIA socket\n"
+);
+#endif

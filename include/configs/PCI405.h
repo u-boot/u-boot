@@ -47,10 +47,10 @@
 
 #if 0
 #define CONFIG_PREBOOT                                                          \
-        "crc32 f0207004 ffc 0;"                                                 \
-        "if cmp 0 f0207000 1;"                                                  \
-        "then;echo Old CRC is correct;crc32 f0207004 ff4 f0207000;"             \
-        "else;echo Old CRC is bad;fi"
+	"crc32 f0207004 ffc 0;"                                                 \
+	"if cmp 0 f0207000 1;"                                                  \
+	"then;echo Old CRC is correct;crc32 f0207004 ff4 f0207000;"             \
+	"else;echo Old CRC is bad;fi"
 #endif
 
 #undef	CONFIG_BOOTARGS
@@ -60,8 +60,8 @@
 #else
 #define CONFIG_BOOTCOMMAND							\
 	"mw.l 0 ffffffff; mw.l 4 ffffffff;"                                     \
-        "while cmp 0 4 1; do echo Waiting for Host...;done;"                    \
-        "bootm 400000"
+	"while cmp 0 4 1; do echo Waiting for Host...;done;"                    \
+	"bootm 400000"
 #endif
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
@@ -123,8 +123,8 @@
 
 /* The following table includes the supported baudrates */
 #define CFG_BAUDRATE_TABLE      \
-        { 300, 600, 1200, 2400, 4800, 9600, 19200, 38400,     \
-         57600, 115200, 230400, 460800, 921600 }
+	{ 300, 600, 1200, 2400, 4800, 9600, 19200, 38400,     \
+	 57600, 115200, 230400, 460800, 921600 }
 
 #define CFG_LOAD_ADDR	0x100000	/* default load address */
 #define CFG_EXTBDINFO	1		/* To use extended board_into (bd_t) */
@@ -144,7 +144,7 @@
 #define CONFIG_PCI			/* include pci support	        */
 #define CONFIG_PCI_HOST	PCI_HOST_ADAPTER /* select pci host function    */
 #undef  CONFIG_PCI_PNP			/* no pci plug-and-play         */
-                                        /* resource configuration       */
+					/* resource configuration       */
 
 #define CONFIG_PCI_SCAN_SHOW            /* print pci devices @ startup  */
 
@@ -218,7 +218,7 @@
 #define CFG_ENV_IS_IN_EEPROM    1       /* use EEPROM for environment vars */
 #define CFG_ENV_OFFSET          0x000   /* environment starts at the beginning of the EEPROM */
 #define CFG_ENV_SIZE            0x400   /* 1024 bytes may be used for env vars*/
-                                   /* total size of a CAT24WC08 is 1024 bytes */
+				   /* total size of a CAT24WC08 is 1024 bytes */
 #endif
 
 #define CFG_NVRAM_BASE_ADDR	0xf0200000		/* NVRAM base address	*/

@@ -25,7 +25,11 @@
 #include "canbt.h"
 #include <asm/processor.h>
 #include <command.h>
-#include <cmd_boot.h>
+
+
+/*cmd_boot.c*/
+extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+
 
 /* ------------------------------------------------------------------------- */
 

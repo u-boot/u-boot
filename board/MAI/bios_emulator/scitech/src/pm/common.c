@@ -98,9 +98,9 @@ static ibool TryPath(
     strcpy(filename,bpdpath);
     strcat(filename,dllname);
     if ((f = fopen(filename,"rb")) == NULL)
-        return false;
+	return false;
     if (cachedpath)
-        strcpy(cachedpath,bpdpath);
+	strcpy(cachedpath,bpdpath);
     fclose(f);
     return true;
 }
@@ -121,20 +121,20 @@ static ibool GetLocalOverride(void)
     static ibool    local_override = -1;
 
     if (local_override == -1) {
-        local_override = false;
-        strcpy(filename,PM_getNucleusPath());
-        PM_backslash(filename);
-        strcat(filename,"graphics.ini");
-        if ((f = fopen(filename,"r")) != NULL) {
-            while (!feof(f) && fgets(filename,sizeof(filename),f)) {
-                if (strnicmp(filename,"uselocal",8) == 0) {
-                    local_override = ((*(filename+9) - '0') == 1);
-                    break;
-                    }
-                }
-            fclose(f);
-            }
-        }
+	local_override = false;
+	strcpy(filename,PM_getNucleusPath());
+	PM_backslash(filename);
+	strcat(filename,"graphics.ini");
+	if ((f = fopen(filename,"r")) != NULL) {
+	    while (!feof(f) && fgets(filename,sizeof(filename),f)) {
+		if (strnicmp(filename,"uselocal",8) == 0) {
+		    local_override = ((*(filename+9) - '0') == 1);
+		    break;
+		    }
+		}
+	    fclose(f);
+	    }
+	}
     return local_override;
 }
 
@@ -164,44 +164,44 @@ ibool PMAPI PM_findBPD(
 
     /* On the first call determine the path to the Nucleus drivers */
     if (cachedpath[0] == 0) {
-        /* First try in the global system Nucleus driver path if
-         * the local override setting is not enabled.
-         */
-        PM_init();
-        if (!GetLocalOverride()) {
-            if (TryPath(bpdpath,cachedpath,PM_getNucleusPath(),"",dllname))
-                return true;
-            }
+	/* First try in the global system Nucleus driver path if
+	 * the local override setting is not enabled.
+	 */
+	PM_init();
+	if (!GetLocalOverride()) {
+	    if (TryPath(bpdpath,cachedpath,PM_getNucleusPath(),"",dllname))
+		return true;
+	    }
 
-        /* Next try in the local application directory if available */
-        if (localBPDPath[0] != 0) {
-            if (TryPath(bpdpath,cachedpath,localBPDPath,"",dllname))
-                return true;
-            }
-        else {
+	/* Next try in the local application directory if available */
+	if (localBPDPath[0] != 0) {
+	    if (TryPath(bpdpath,cachedpath,localBPDPath,"",dllname))
+		return true;
+	    }
+	else {
 #if !defined(__WIN32_VXD__) && !defined(__NT_DRIVER__)
-            char    *mgl_root;
-            if ((mgl_root = getenv("MGL_ROOT")) != NULL) {
-                if (TryPath(bpdpath,cachedpath,mgl_root,"drivers",dllname))
-                    return true;
-                }
+	    char    *mgl_root;
+	    if ((mgl_root = getenv("MGL_ROOT")) != NULL) {
+		if (TryPath(bpdpath,cachedpath,mgl_root,"drivers",dllname))
+		    return true;
+		}
 #endif
-            PM_getCurrentPath(bpdpath,PM_MAX_PATH);
-            if (TryPath(bpdpath,cachedpath,bpdpath,"drivers",dllname))
-                return true;
-            }
+	    PM_getCurrentPath(bpdpath,PM_MAX_PATH);
+	    if (TryPath(bpdpath,cachedpath,bpdpath,"drivers",dllname))
+		return true;
+	    }
 
-        /* Finally try in the global system path again so that we
-         * will still find the drivers in the global system path if
-         * the local override option is on, but the application does
-         * not have any local override drivers.
-         */
-        if (TryPath(bpdpath,cachedpath,PM_getNucleusPath(),"",dllname))
-            return true;
+	/* Finally try in the global system path again so that we
+	 * will still find the drivers in the global system path if
+	 * the local override option is on, but the application does
+	 * not have any local override drivers.
+	 */
+	if (TryPath(bpdpath,cachedpath,PM_getNucleusPath(),"",dllname))
+	    return true;
 
-        /* Whoops, we can't find the BPD file! */
-        return false;
-        }
+	/* Whoops, we can't find the BPD file! */
+	return false;
+	}
 
     /* Always try in the previously discovered path */
     return TryPath(bpdpath,NULL,cachedpath,"",dllname);
@@ -216,9 +216,9 @@ static char *_stpcpy(
     const char *_src)
 {
     if (!_dest || !_src)
-        return 0;
+	return 0;
     while ((*_dest++ = *_src++) != 0)
-        ;
+	;
     return --_dest;
 }
 
@@ -233,13 +233,13 @@ static void safe_strncpy(
     unsigned maxlen)
 {
     if (dst) {
-        if(strlen(src) >= maxlen) {
-            strncpy(dst, src, maxlen);
-            dst[maxlen] = 0;
-            }
-        else
-            strcpy(dst, src);
-        }
+	if(strlen(src) >= maxlen) {
+	    strncpy(dst, src, maxlen);
+	    dst[maxlen] = 0;
+	    }
+	else
+	    strcpy(dst, src);
+	}
 }
 
 /****************************************************************************
@@ -250,16 +250,16 @@ static int findDot(
     char *p)
 {
     if (*(p-1) == '.')
-        p--;
+	p--;
     switch (*--p) {
-        case ':':
-            if (*(p-2) != '\0')
-                break;
-        case '/':
-        case '\\':
-        case '\0':
-            return true;
-        }
+	case ':':
+	    if (*(p-2) != '\0')
+		break;
+	case '/':
+	case '\\':
+	case '\0':
+	    return true;
+	}
     return false;
 }
 
@@ -299,25 +299,25 @@ void PMAPI PM_makepath(
     const char *ext)
 {
     if (drive && *drive) {
-        *path++ = *drive;
-        *path++ = ':';
-        }
+	*path++ = *drive;
+	*path++ = ':';
+	}
     if (dir && *dir) {
-        path = _stpcpy(path,dir);
-        if (*(path-1) != '\\' && *(path-1) != '/')
+	path = _stpcpy(path,dir);
+	if (*(path-1) != '\\' && *(path-1) != '/')
 #ifdef  __UNIX__
-            *path++ = '/';
+	    *path++ = '/';
 #else
-            *path++ = '\\';
+	    *path++ = '\\';
 #endif
-        }
+	}
     if (name)
-        path = _stpcpy(path,name);
+	path = _stpcpy(path,name);
     if (ext && *ext) {
-        if (*ext != '.')
-            *path++ = '.';
-        path = _stpcpy(path,ext);
-        }
+	if (*ext != '.')
+	    *path++ = '.';
+	path = _stpcpy(path,ext);
+	}
     *path = 0;
 }
 
@@ -377,7 +377,7 @@ int PMAPI PM_splitpath(
     /* Copy filename into template up to PM_MAX_PATH characters */
     p = buf;
     if ((temp = strlen(path)) > PM_MAX_PATH)
-        temp = PM_MAX_PATH;
+	temp = PM_MAX_PATH;
     *p++ = 0;
     strncpy(p, path, temp);
     *(p += temp) = 0;
@@ -385,53 +385,53 @@ int PMAPI PM_splitpath(
     /* Split the filename and fill corresponding nonzero pointers */
     temp = 0;
     for (;;) {
-        switch (*--p) {
-            case '.':
-                if (!temp && (*(p+1) == '\0'))
-                    temp = findDot(p);
-                if ((!temp) && ((ret & PM_HAS_EXTENSION) == 0)) {
-                    ret |= PM_HAS_EXTENSION;
-                    safe_strncpy(ext, p, PM_MAX_PATH - 1);
-                    *p = 0;
-                    }
-                continue;
-            case ':':
-                if (p != &buf[2])
-                    continue;
-            case '\0':
-                if (temp) {
-                    if (*++p)
-                        ret |= PM_HAS_DIRECTORY;
-                    safe_strncpy(dir, p, PM_MAX_PATH - 1);
-                    *p-- = 0;
-                    break;
-                    }
-            case '/':
-            case '\\':
-                if (!temp) {
-                    temp++;
-                    if (*++p)
-                        ret |= PM_HAS_FILENAME;
-                    safe_strncpy(name, p, PM_MAX_PATH - 1);
-                    *p-- = 0;
-                    if (*p == 0 || (*p == ':' && p == &buf[2]))
-                        break;
-                    }
-                continue;
-            case '*':
-            case '?':
-                if (!temp)
-                    ret |= PM_HAS_WILDCARDS;
-            default:
-                continue;
-            }
-        break;
-        }
+	switch (*--p) {
+	    case '.':
+		if (!temp && (*(p+1) == '\0'))
+		    temp = findDot(p);
+		if ((!temp) && ((ret & PM_HAS_EXTENSION) == 0)) {
+		    ret |= PM_HAS_EXTENSION;
+		    safe_strncpy(ext, p, PM_MAX_PATH - 1);
+		    *p = 0;
+		    }
+		continue;
+	    case ':':
+		if (p != &buf[2])
+		    continue;
+	    case '\0':
+		if (temp) {
+		    if (*++p)
+			ret |= PM_HAS_DIRECTORY;
+		    safe_strncpy(dir, p, PM_MAX_PATH - 1);
+		    *p-- = 0;
+		    break;
+		    }
+	    case '/':
+	    case '\\':
+		if (!temp) {
+		    temp++;
+		    if (*++p)
+			ret |= PM_HAS_FILENAME;
+		    safe_strncpy(name, p, PM_MAX_PATH - 1);
+		    *p-- = 0;
+		    if (*p == 0 || (*p == ':' && p == &buf[2]))
+			break;
+		    }
+		continue;
+	    case '*':
+	    case '?':
+		if (!temp)
+		    ret |= PM_HAS_WILDCARDS;
+	    default:
+		continue;
+	    }
+	break;
+	}
     if (*p == ':') {
-        if (buf[1])
-            ret |= PM_HAS_DRIVE;
-        safe_strncpy(drive, &buf[1], PM_MAX_DRIVE - 1);
-        }
+	if (buf[1])
+	    ret |= PM_HAS_DRIVE;
+	safe_strncpy(drive, &buf[1], PM_MAX_DRIVE - 1);
+	}
     return ret;
 }
 
@@ -466,15 +466,15 @@ void PMAPI PM_blockUntilTimeout(
     static ibool            firstTime = true;
 
     if (firstTime) {
-        firstTime = false;
-        LZTimerOnExt(&tm);
-        }
+	firstTime = false;
+	LZTimerOnExt(&tm);
+	}
     else {
-        if ((msDelay = (microseconds - LZTimerLapExt(&tm)) / 1000L) > 0)
-            PM_sleep(msDelay);
-        while (LZTimerLapExt(&tm) < microseconds)
-            ;
-        LZTimerOffExt(&tm);
-        LZTimerOnExt(&tm);
-        }
+	if ((msDelay = (microseconds - LZTimerLapExt(&tm)) / 1000L) > 0)
+	    PM_sleep(msDelay);
+	while (LZTimerLapExt(&tm) < microseconds)
+	    ;
+	LZTimerOffExt(&tm);
+	LZTimerOnExt(&tm);
+	}
 }

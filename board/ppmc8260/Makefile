@@ -28,7 +28,7 @@ LIB	= lib$(BOARD).a
 OBJS	:= ppmc8260.o strataflash.o
 
 $(LIB):	$(OBJS) $(SOBJS)
-	$(AR) crv $@ $^
+	$(AR) crv $@ $(OBJS)
 
 clean:
 	rm -f $(SOBJS) $(OBJS)

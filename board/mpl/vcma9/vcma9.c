@@ -166,9 +166,9 @@ static inline void NF_Init(void)
 #define TWRPH0  3
 #define TWRPH1  0
     NF_Conf((1<<15)|(0<<14)|(0<<13)|(1<<12)|(1<<11)|(TACLS<<8)|(TWRPH0<<4)|(TWRPH1<<0));
-    //nand->NFCONF = (1<<15)|(1<<14)|(1<<13)|(1<<12)|(1<<11)|(TACLS<<8)|(TWRPH0<<4)|(TWRPH1<<0);
-    // 1  1    1     1,   1      xxx,  r xxx,   r xxx
-    // En 512B 4step ECCR nFCE=H tACLS   tWRPH0   tWRPH1
+    /*nand->NFCONF = (1<<15)|(1<<14)|(1<<13)|(1<<12)|(1<<11)|(TACLS<<8)|(TWRPH0<<4)|(TWRPH1<<0); */
+    /* 1  1    1     1,   1      xxx,  r xxx,   r xxx */
+    /* En 512B 4step ECCR nFCE=H tACLS   tWRPH0   tWRPH1 */
 
     NF_Reset();
 }
@@ -255,7 +255,6 @@ int checkboard(void)
 	printf("\n");
 	return(0);
 }
-
 
 
 void print_vcma9_rev(void)

@@ -26,14 +26,11 @@
  */
 #include <common.h>
 #include <command.h>
-#include <cmd_boot.h>
-#include <cmd_autoscript.h>
 #include <s_record.h>
+#include <jffs2/load_kernel.h>
 #include <net.h>
 
 #if (CONFIG_COMMANDS & CFG_CMD_JFFS2)
-
-#include <jffs2/jffs2.h>
 static int part_num=0;
 
 #ifndef CFG_JFFS_CUSTOM_PART
@@ -83,6 +80,9 @@ jffs2_part_info(int part_num)
 int
 do_jffs2_fsload(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
+    struct part_info* jffs2_part_info(int);
+    int jffs2_1pass_load(char *, struct part_info *,const char *);
+
 	char *filename = "uImage";
 	ulong offset = CFG_LOAD_ADDR;
 	int size;
@@ -120,7 +120,10 @@ do_jffs2_fsload(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 int
 do_jffs2_ls(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	char *filename = "/";
+   struct part_info* jffs2_part_info(int);
+   int jffs2_1pass_ls(struct part_info *,char *);
+
+   char *filename = "/";
 	int ret;
 	struct part_info *part;
 
@@ -140,6 +143,9 @@ do_jffs2_ls(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 int
 do_jffs2_fsinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
+   struct part_info* jffs2_part_info(int);
+   int jffs2_1pass_info(struct part_info *);
+
 	int ret;
 	struct part_info *part;
 
@@ -157,8 +163,9 @@ int
 do_jffs2_chpart(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	int tmp_part;
+   struct part_info* jffs2_part_info(int);
 
-	if (argc >= 2) {
+   if (argc >= 2) {
 		tmp_part = simple_strtoul(argv[1], NULL, 16);
 	}else{
 		printf("Need partition number in argument list\n");
@@ -176,4 +183,34 @@ do_jffs2_chpart(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 
 }
+
+/***************************************************/
+
+cmd_tbl_t U_BOOT_CMD(JFFS2_FSLOAD) = MK_CMD_ENTRY(
+	"fsload",	3,	0,	do_jffs2_fsload,
+	"fsload  - load binary file from a filesystem image\n",
+	"[ off ] [ filename ]\n"
+	"    - load binary file from flash bank\n"
+	"      with offset 'off'\n"
+);
+
+cmd_tbl_t U_BOOT_CMD(JFFS2_FSINFO) = MK_CMD_ENTRY(
+	"fsinfo",	1,	1,	do_jffs2_fsinfo,
+	"fsinfo  - print information about filesystems\n",
+	"    - print information about filesystems\n"
+);
+
+cmd_tbl_t U_BOOT_CMD(JFFS2_LS) = MK_CMD_ENTRY(
+	"ls",	2,	1,	do_jffs2_ls,
+	"ls      - list files in a directory (default /)\n",
+	"[ directory ]\n"
+	"    - list files in a directory.\n"
+);
+
+cmd_tbl_t U_BOOT_CMD(JFFS2_CHPART) = MK_CMD_ENTRY(
+	"chpart",	2,	0,	do_jffs2_chpart,
+	"chpart  - change active partition\n",
+	"    - change active partition\n"
+);
+
 #endif /* CFG_CMD_JFFS2 */

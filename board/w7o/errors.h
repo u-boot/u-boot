@@ -95,4 +95,3 @@ Debugging suggestions:
 (13) SDRAM address shorted or unconnected, check sdram caps
 */
 #endif /* _ERRORS_H_ */
-

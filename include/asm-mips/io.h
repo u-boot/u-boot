@@ -203,7 +203,7 @@ extern void iounmap(void *addr);
 #define isa_eth_io_copy_and_sum(a,b,c,d) eth_copy_and_sum((a),(b),(c),(d))
 
 static inline int check_signature(unsigned long io_addr,
-                                  const unsigned char *signature, int length)
+				  const unsigned char *signature, int length)
 {
 	int retval = 0;
 	do {
@@ -286,15 +286,15 @@ extern inline void __outs##s(unsigned int port, const void * addr, unsigned long
 #define __OUTS2(m) \
 if (count) \
 __asm__ __volatile__ ( \
-        ".set\tnoreorder\n\t" \
-        ".set\tnoat\n" \
-        "1:\tl" #m "\t$1,(%0)\n\t" \
-        "subu\t%1,1\n\t" \
-        "s" #m "\t$1,%4(%5)\n\t" \
-        "bne\t$0,%1,1b\n\t" \
-        "addiu\t%0,%6\n\t" \
-        ".set\tat\n\t" \
-        ".set\treorder"
+	".set\tnoreorder\n\t" \
+	".set\tnoat\n" \
+	"1:\tl" #m "\t$1,(%0)\n\t" \
+	"subu\t%1,1\n\t" \
+	"s" #m "\t$1,%4(%5)\n\t" \
+	"bne\t$0,%1,1b\n\t" \
+	"addiu\t%0,%6\n\t" \
+	".set\tat\n\t" \
+	".set\treorder"
 
 #define __OUTS(m,s,i) \
 __OUTS1(s) __OUTS2(m) \

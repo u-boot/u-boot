@@ -1,3 +1,4 @@
+
 #
 # (C) Copyright 2000
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -28,7 +29,7 @@ LIB	= lib$(BOARD).a
 OBJS	= $(BOARD).o flash.o cmd_dasa_sim.o eeprom.o ../common/pci.o
 
 $(LIB):	$(OBJS)
-	$(AR) crv $@ $^
+	$(AR) crv $@ $(OBJS)
 
 clean:
 	rm -f $(SOBJS) $(OBJS)

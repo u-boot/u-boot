@@ -1,3 +1,4 @@
+
 #
 # (C) Copyright 2001
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -28,7 +29,7 @@ LIB	= lib$(BOARD).a
 OBJS	= $(BOARD).o m48t59y.o pci.o flash.o
 
 $(LIB):	.depend $(OBJS)
-	$(AR) crv $@ $^
+	$(AR) crv $@ $(OBJS)
 
 #########################################################################
 

@@ -1,7 +1,7 @@
 /****************************************************************************
 *
 *                   SciTech OS Portability Manager Library
-*																																			
+*
 *  ========================================================================
 *
 *    The contents of this file are subject to the SciTech MGL Public
@@ -43,7 +43,7 @@ We do have limited BIOS access under Windows NT device drivers.
 ****************************************************************************/
 ibool PMAPI PM_haveBIOSAccess(void)
 {
-    // Return false unless we have full buffer passing!
+    /* Return false unless we have full buffer passing! */
     return false;
 }
 
@@ -63,8 +63,8 @@ void * PMAPI PM_getVESABuf(
     uint *rseg,
     uint *roff)
 {
-    // No buffers supported under Windows NT (Windows XP has them however if
-    // we ever decide to support this!)
+    /* No buffers supported under Windows NT (Windows XP has them however if */
+    /* we ever decide to support this!) */
     return NULL;
 }
 
@@ -90,7 +90,7 @@ void * PMAPI PM_mapRealPointer(
     uint r_seg,
     uint r_off)
 {
-    // Not used for Windows NT drivers!
+    /* Not used for Windows NT drivers! */
     return NULL;
 }
 
@@ -103,7 +103,7 @@ void * PMAPI PM_allocRealSeg(
     uint *r_seg,
     uint *r_off)
 {
-    // Not supported in NT drivers
+    /* Not supported in NT drivers */
     (void)size;
     (void)r_seg;
     (void)r_off;
@@ -117,7 +117,7 @@ Free a block of real mode memory.
 void PMAPI PM_freeRealSeg(
     void *mem)
 {
-    // Not supported in NT drivers
+    /* Not supported in NT drivers */
     (void)mem;
 }
 
@@ -129,7 +129,7 @@ void PMAPI DPMI_int86(
     int intno,
     DPMI_regs *regs)
 {
-    // Not used in NT drivers
+    /* Not used in NT drivers */
 }
 
 /****************************************************************************
@@ -143,7 +143,7 @@ void PMAPI PM_callRealMode(
     RMREGS *regs,
     RMSREGS *sregs)
 {
-    // TODO!!
+    /* TODO!! */
 #if 0
     CLIENT_STRUCT saveRegs;
 
@@ -151,7 +151,7 @@ void PMAPI PM_callRealMode(
      * loaded, and not statically loaded.
      */
     if (!_PM_haveBIOS)
-        return;
+	return;
 
     TRACE("SDDHELP: Entering PM_callRealMode()\n");
     Begin_Nest_V86_Exec();
@@ -174,7 +174,7 @@ int PMAPI PM_int86(
     RMREGS *in,
     RMREGS *out)
 {
-    // TODO!!
+    /* TODO!! */
 #if 0
     RMSREGS         sregs = {0};
     CLIENT_STRUCT   saveRegs;
@@ -183,9 +183,9 @@ int PMAPI PM_int86(
     /* Disable pass-up to our VxD handler so we directly call BIOS */
     TRACE("SDDHELP: Entering PM_int86()\n");
     if (disableTSRFlag) {
-        oldDisable = *disableTSRFlag;
-        *disableTSRFlag = 0;
-        }
+	oldDisable = *disableTSRFlag;
+	*disableTSRFlag = 0;
+	}
     Begin_Nest_V86_Exec();
     LoadV86Registers(&saveRegs,in,&sregs);
     Exec_Int(intno);
@@ -194,7 +194,7 @@ int PMAPI PM_int86(
 
     /* Re-enable pass-up to our VxD handler if previously enabled */
     if (disableTSRFlag)
-        *disableTSRFlag = oldDisable;
+	*disableTSRFlag = oldDisable;
 
     TRACE("SDDHELP: Exiting PM_int86()\n");
 #else
@@ -214,7 +214,7 @@ int PMAPI PM_int86x(
     RMREGS *out,
     RMSREGS *sregs)
 {
-    // TODO!!
+    /* TODO!! */
 #if 0
     CLIENT_STRUCT   saveRegs;
     ushort          oldDisable;
@@ -223,16 +223,16 @@ int PMAPI PM_int86x(
      * loaded, and not statically loaded.
      */
     if (!_PM_haveBIOS) {
-        *out = *in;
-        return out->x.ax;
-        }
+	*out = *in;
+	return out->x.ax;
+	}
 
     /* Disable pass-up to our VxD handler so we directly call BIOS */
     TRACE("SDDHELP: Entering PM_int86x()\n");
     if (disableTSRFlag) {
-        oldDisable = *disableTSRFlag;
-        *disableTSRFlag = 0;
-        }
+	oldDisable = *disableTSRFlag;
+	*disableTSRFlag = 0;
+	}
     Begin_Nest_V86_Exec();
     LoadV86Registers(&saveRegs,in,sregs);
     Exec_Int(intno);
@@ -241,7 +241,7 @@ int PMAPI PM_int86x(
 
     /* Re-enable pass-up to our VxD handler if previously enabled */
     if (disableTSRFlag)
-        *disableTSRFlag = oldDisable;
+	*disableTSRFlag = oldDisable;
 
     TRACE("SDDHELP: Exiting PM_int86x()\n");
 #else
@@ -249,4 +249,3 @@ int PMAPI PM_int86x(
 #endif
     return out->x.ax;
 }
-

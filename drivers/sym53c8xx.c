@@ -38,7 +38,6 @@
 #ifdef CONFIG_SCSI_SYM53C8XX
 
 #include <command.h>
-#include <cmd_boot.h>
 #include <pci.h>
 #include <asm/processor.h>
 #include <sym53c8xx.h>
@@ -180,7 +179,6 @@ void scsi_print_error(ccb *pccb)
 	}
 
 }
-
 
 
 /******************************************************************************
@@ -404,7 +402,6 @@ void scsi_print_script(void)
 }
 
 
-
 void scsi_set_script(ccb *pccb)
 {
 	int busdevfunc = pccb->priv;
@@ -587,7 +584,6 @@ void scsi_set_script(ccb *pccb)
 }
 
 
-
 void scsi_issue(ccb *pccb)
 {
 	int busdevfunc = pccb->priv;
@@ -748,8 +744,6 @@ retry:
 	PRINTF("Status = %X\n",pccb->status);
 	return FALSE;
 }
-
-
 
 
 void scsi_chip_init(void)

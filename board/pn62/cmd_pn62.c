@@ -26,9 +26,7 @@
 #include <net.h>
 #include <asm/io.h>
 #include <pci.h>
-#include <cmd_autoscript.h>
-#include <cmd_bsp.h>
-
+#include <command.h>
 #include "pn62.h"
 
 #if (CONFIG_COMMANDS & CFG_CMD_BSP)
@@ -53,6 +51,12 @@ int do_led (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
     set_led (number, function);
     return 0;
 }
+cmd_tbl_t U_BOOT_CMD(led) = MK_CMD_ENTRY(
+	"led"    ,	3,	1,	do_led,
+	"led     - set LED 0..11 on the PN62 board\n",
+	"i fun\n"
+	"    - set 'i'th LED to function 'fun'\n"
+);
 
 /*
  * Command loadpci: loads a image over PCI.
@@ -160,5 +164,12 @@ int do_loadpci (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #endif
     return rcode;
 }
+
+cmd_tbl_t U_BOOT_CMD(loadpci) = MK_CMD_ENTRY(
+	"loadpci",	2,	1,	do_loadpci,
+	"loadpci - load binary file over PCI\n",
+	"[addr]\n"
+	"    - load binary file over PCI to address 'addr'\n"
+);
 
 #endif

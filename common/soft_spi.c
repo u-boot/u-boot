@@ -40,7 +40,6 @@
 #endif
 
 
-
 /*=====================================================================*/
 /*                         Public Functions                            */
 /*=====================================================================*/
@@ -132,4 +131,3 @@ int  spi_xfer(spi_chipsel_type chipsel, int bitlen, uchar *dout, uchar *din)
 }
 
 #endif	/* CONFIG_SOFT_SPI */
-

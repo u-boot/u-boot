@@ -67,7 +67,6 @@ static void print_one_part (dos_partition_t *p, int ext_part_sector, int part_nu
 }
 
 
-
 int test_part_dos (block_dev_desc_t *dev_desc)
 {
 	unsigned char buffer[DEFAULT_SECTOR_SIZE];
@@ -75,7 +74,7 @@ int test_part_dos (block_dev_desc_t *dev_desc)
 	if ((dev_desc->block_read(dev_desc->dev, 0, 1, (ulong *) buffer) != 1) ||
 	    (buffer[DOS_PART_MAGIC_OFFSET + 0] != 0x55) ||
 	    (buffer[DOS_PART_MAGIC_OFFSET + 1] != 0xaa) ) {
-	    	return (-1);
+		return (-1);
 	}
 	return (0);
 }
@@ -106,7 +105,7 @@ static void print_partition_extended (block_dev_desc_t *dev_desc, int ext_part_s
 	pt = (dos_partition_t *) (buffer + DOS_PART_TBL_OFFSET);
 	for (i = 0; i < 4; i++, pt++) {
 		/*
-                 * fdisk does not show the extended partitions that
+		 * fdisk does not show the extended partitions that
 		 * are not in the MBR
 		 */
 
@@ -166,8 +165,8 @@ static int get_partition_info_extended (block_dev_desc_t *dev_desc, int ext_part
 	pt = (dos_partition_t *) (buffer + DOS_PART_TBL_OFFSET);
 	for (i = 0; i < 4; i++, pt++) {
 		/*
-                 * fdisk does not show the extended partitions that
-                 * are not in the MBR
+		 * fdisk does not show the extended partitions that
+		 * are not in the MBR
 		 */
 		if ((pt->sys_ind != 0) &&
 		    (part_num == which_part) &&
@@ -229,7 +228,6 @@ int get_partition_info_dos (block_dev_desc_t *dev_desc, int part, disk_partition
 {
 	return get_partition_info_extended (dev_desc, 0, 0, 1, part, info);
 }
-
 
 
 #endif	/* (CONFIG_COMMANDS & CFG_CMD_IDE) && CONFIG_DOS_PARTITION */

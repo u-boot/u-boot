@@ -351,4 +351,3 @@ LIB_BASE_DIR	:= $(SCITECH_LIB)\lib\release
 # Define which file contains our rules
 
    RULES_MAK	:= wc32.mk
-

@@ -1,20 +1,20 @@
 =============================================================================
 
-             U-Boot port on the LEOX's ELPT860 CPU board
-             -------------------------------------------
+	     U-Boot port on the LEOX's ELPT860 CPU board
+	     -------------------------------------------
 
 LEOX.org is about the development of free hardware and software resources
-         for system on chip.
+	 for system on chip.
 
 For more information, contact The LEOX team <team@leox.org>
 
 References:
 ~~~~~~~~~~
     1) Get the last stable release from denx.de:
-           o ftp://ftp.denx.de/pub/u-boot/u-boot-0.2.0.tar.bz2
+	   o ftp://ftp.denx.de/pub/u-boot/u-boot-0.2.0.tar.bz2
     2) Get the current CVS snapshot:
-           o cvs -d:pserver:anonymous@cvs.u-boot.sourceforge.net:/cvsroot/u-boot login
-           o cvs -z6 -d:pserver:anonymous@cvs.u-boot.sourceforge.net:/cvsroot/u-boot co -P u-boot
+	   o cvs -d:pserver:anonymous@cvs.u-boot.sourceforge.net:/cvsroot/u-boot login
+	   o cvs -z6 -d:pserver:anonymous@cvs.u-boot.sourceforge.net:/cvsroot/u-boot co -P u-boot
 
 =============================================================================
 
@@ -42,7 +42,7 @@ U-Boot, at the address of 0x03000000.
 
 =============================================================================
 
-                        U-Boot test results
+			U-Boot test results
 
 =============================================================================
 
@@ -54,7 +54,7 @@ U-Boot, at the address of 0x03000000.
 U-Boot 0.2.2 (Jan 19 2003 - 11:08:39)
 
 CPU:   XPC860xxZPnnB at 50 MHz: 4 kB I-Cache 4 kB D-Cache FEC present
-         *** Warning: CPU Core has Silicon Bugs -- Check the Errata ***
+	 *** Warning: CPU Core has Silicon Bugs -- Check the Errata ***
 Board: ### No HW ID - assuming ELPT860
 DRAM:  16 MB
 FLASH: 512 kB
@@ -101,7 +101,7 @@ saveenv - save environment variables to persistent storage
 setenv  - set environment variables
 sleep   - delay execution for some time
 tftpboot- boot image via network using TFTP protocol
-               and env variables ipaddr and serverip
+	       and env variables ipaddr and serverip
 version - print monitor version
 ?       - alias for 'help'
 
@@ -143,8 +143,8 @@ LEOX_elpt860: flinfo
 Bank # 1: AMD AM29F040   (4 Mbits)
   Size: 512 KB in 8 Sectors
   Sector Start Addresses:
-    02000000 (RO) 02010000 (RO) 02020000 (RO) 02030000 (RO) 02040000     
-    02050000      02060000      02070000     
+    02000000 (RO) 02010000 (RO) 02020000 (RO) 02030000 (RO) 02040000
+    02050000      02060000      02070000
 
 ##################################################
 # Board Information Structure
@@ -177,7 +177,7 @@ baudrate    =   9600 bps
 U-Boot 0.2.2 (Jan 19 2003 - 11:08:39)
 
 CPU:   XPC860xxZPnnB at 50 MHz: 4 kB I-Cache 4 kB D-Cache FEC present
-         *** Warning: CPU Core has Silicon Bugs -- Check the Errata ***
+	 *** Warning: CPU Core has Silicon Bugs -- Check the Errata ***
 Board: ### No HW ID - assuming ELPT860
 DRAM:  16 MB
 FLASH: 512 kB
@@ -219,7 +219,7 @@ Hit any key to exit ...
 U-Boot 0.2.2 (Jan 19 2003 - 11:08:39)
 
 CPU:   XPC860xxZPnnB at 50 MHz: 4 kB I-Cache 4 kB D-Cache FEC present
-         *** Warning: CPU Core has Silicon Bugs -- Check the Errata ***
+	 *** Warning: CPU Core has Silicon Bugs -- Check the Errata ***
 Board: ### No HW ID - assuming ELPT860
 DRAM:  16 MB
 FLASH: 512 kB
@@ -237,7 +237,7 @@ TFTP from server 192.168.0.1; our IP address is 192.168.0.30
 Filename '/home/leox/uImage'.
 Load address: 0x400000
 Loading: #################################################################
-         #############################
+	 #############################
 done
 Bytes transferred = 477294 (7486e hex)
 ## Booting image at 00400000 ...
@@ -282,8 +282,8 @@ Looking up port of RPC 100005/2 on 192.168.0.1
 VFS: Mounted root (nfs filesystem).
 Freeing unused kernel memory: 44k init
 INIT: version 2.78 booting
-                Welcome to DENX Embedded Linux Environment
-                Press 'I' to enter interactive startup.
+		Welcome to DENX Embedded Linux Environment
+		Press 'I' to enter interactive startup.
 Mounting proc filesystem:  [  OK  ]
 Configuring kernel parameters:  [  OK  ]
 Cannot access the Hardware Clock via any known method.
@@ -316,7 +316,7 @@ bash-2.04#
 U-Boot 0.2.2 (Jan 19 2003 - 11:08:39)
 
 CPU:   XPC860xxZPnnB at 50 MHz: 4 kB I-Cache 4 kB D-Cache FEC present
-         *** Warning: CPU Core has Silicon Bugs -- Check the Errata ***
+	 *** Warning: CPU Core has Silicon Bugs -- Check the Errata ***
 Board: ### No HW ID - assuming ELPT860
 DRAM:  16 MB
 FLASH: 512 kB
@@ -334,11 +334,11 @@ TFTP from server 192.168.0.1; our IP address is 192.168.0.30
 Filename '/home/leox/pMulti'.
 Load address: 0x400000
 Loading: #################################################################
-         #################################################################
-         #################################################################
-         #################################################################
-         #################################################################
-         ########################################################
+	 #################################################################
+	 #################################################################
+	 #################################################################
+	 #################################################################
+	 ########################################################
 done
 Bytes transferred = 1947816 (1db8a8 hex)
 ## Booting image at 00400000 ...
@@ -398,22 +398,22 @@ ELPT860 login: root
 Password:
 Welcome to Linux-2.4.4 for ELPT CPU board (MPC860T @ 50MHz)
 
-                                              a8888b.
-                                             d888888b.
-                                             8P"YP"Y88
+					      a8888b.
+					     d888888b.
+					     8P"YP"Y88
      _      _                                8|o||o|88
     | |    |_|                               8'    .88
     | |     _ ____  _   _  _  _              8`._.' Y8.
     | |    | |  _ \| | | |\ \/ /            d/      `8b.
     | |___ | | | | | |_| |/    \          .dP   .     Y8b.
     |_____||_|_| |_|\____|\_/\_/         d8:'   "   `::88b.
-                                        d8"           `Y88b
-                                       :8P     '       :888
-                                        8a.    :      _a88P
-                                      ._/"Yaa_ :    .| 88P|
-                                      \    YP"      `| 8P  `.
-                                      /     \._____.d|    .'
-                                      `--..__)888888P`._.'
+					d8"           `Y88b
+				       :8P     '       :888
+					8a.    :      _a88P
+				      ._/"Yaa_ :    .| 88P|
+				      \    YP"      `| 8P  `.
+				      /     \._____.d|    .'
+				      `--..__)888888P`._.'
 login[21]: root login  on `ttyS0'
 
 

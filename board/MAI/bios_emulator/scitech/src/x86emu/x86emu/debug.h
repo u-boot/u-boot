@@ -118,7 +118,7 @@
 
 #define SAVE_IP_CS(x,y)                               			\
 	if (DEBUG_DECODE() | DEBUG_TRACECALL() | DEBUG_BREAK() \
-              | DEBUG_IO_TRACE() | DEBUG_SAVE_IP_CS()) { \
+	      | DEBUG_IO_TRACE() | DEBUG_SAVE_IP_CS()) { \
 		M.x86.saved_cs = x;                          			\
 		M.x86.saved_ip = y;                          			\
 	}

@@ -27,7 +27,6 @@
 #include <common.h>
 #include <command.h>
 #include <environment.h>
-#include <cmd_nvedit.h>
 #include <linux/stddef.h>
 #include <malloc.h>
 

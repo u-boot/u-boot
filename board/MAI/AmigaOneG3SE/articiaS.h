@@ -99,14 +99,14 @@
 #define XDBCR_HWTOXD          (1<<0)
 #define XDBCR_KBTOXD          (1<<1)
 #define XDBCR_RTCTOXD         (1<<2)
-#define XDBCR_SCALE_1_1       (0x0<<3)       
-#define XDBCR_SCALE_2_2       (0x1<<3)       
-#define XDBCR_SCALE_3_2       (0x2<<3)       
-#define XDBCR_SCALE_4_4       (0x3<<3)       
-#define XDBCR_SCALE_5_8       (0x4<<3)       
-#define XDBCR_SCALE_6_8       (0x5<<3)       
-#define XDBCR_SCALE_8_8       (0x6<<3)       
-#define XDBCR_SCALE_0_16      (0x7<<3)       
+#define XDBCR_SCALE_1_1       (0x0<<3)
+#define XDBCR_SCALE_2_2       (0x1<<3)
+#define XDBCR_SCALE_3_2       (0x2<<3)
+#define XDBCR_SCALE_4_4       (0x3<<3)
+#define XDBCR_SCALE_5_8       (0x4<<3)
+#define XDBCR_SCALE_6_8       (0x5<<3)
+#define XDBCR_SCALE_8_8       (0x6<<3)
+#define XDBCR_SCALE_0_16      (0x7<<3)
 #define XDBCR_XDPROM          (1<<7)
 
 
@@ -132,7 +132,6 @@
 #define ARTICIAS_ISAIO_BUS     0x00002000
 #define ARTICIAS_ISAIO_MAXSIZE 0x0000d000
 #define ARTICIAS_ISAIO_PHYS    0xfe002000
-
 
 
 /* Prototypes */

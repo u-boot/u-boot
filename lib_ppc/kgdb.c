@@ -320,7 +320,7 @@ kgdb_breakpoint(int argc, char *argv[])
 {
 	asm("	.globl breakinst\n\
 	     breakinst: .long 0x7d821008\n\
-            ");
+	    ");
 }
 
 #endif /* CFG_CMD_KGDB */

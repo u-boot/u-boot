@@ -20,7 +20,6 @@ SW3.1: OFF	SW3.2: on	SW3.3: OFF	SW3.4: OFF
 SW3.5: on	SW3.6: OFF	SW3.7: OFF	SW3.8: on
 
 
-
 The followind detailed description of installation and initial steps
 with U-Boot and QNX was provided by Jim Sandoz <sandoz@lucent.com>:
 
@@ -38,19 +37,18 @@ http://e-www.motorola.com/collateral/SPX3UM.pdf
 http://e-www.motorola.com/collateral/UNITYX4CONFIG.pdf
 
 
-
 Connection Diagram:
-                                            ===========
+					    ===========
  ===                     =====             |-----      |
 |   | <---------------> |     |            |     |     |
 |PC |       rs232       | BDI |=============[]   |     |
 |   |                   |2000 |  BDM probe |     |     |
 |   | <---------------> |     |            |-----      |
  ===       ethernet      =====             |           |
-                                           |           |
-                                            ===========
-                                         Sandpoint X3 with
-                                          Unity 8240 proc
+					   |           |
+					    ===========
+					 Sandpoint X3 with
+					  Unity 8240 proc
 
 
 PART 1)
@@ -354,9 +352,9 @@ TFTP from server 145.17.242.46; our IP address is 145.17.228.42; sending through
 Filename 'sandpoint-simple.elf'.
 Load address: 0x800000
 Loading: #################################################################
-         #################################################################
-         #################################################################
-         ########################
+	 #################################################################
+	 #################################################################
+	 ########################
 done
 Bytes transferred = 1120284 (11181c hex)
 ==>
@@ -394,4 +392,3 @@ password for anonymous, simply press the Enter key.
 cvs -d:pserver:anonymous@cvs.u-boot.sourceforge.net:/cvsroot/u-boot login
 
 cvs -z6 -d:pserver:anonymous@cvs.u-boot.sourceforge.net:/cvsroot/u-boot co -P u-boot
-

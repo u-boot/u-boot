@@ -27,7 +27,7 @@ LIB	= lib$(CPU).a
 
 START	= start.S drivers/i2c/i2c2.o
 OBJS	= traps.o cpu.o cpu_init.o interrupts.o speed.o \
-          drivers/epic/epic1.o drivers/i2c/i2c1.o pci.o bedbug_603e.o
+	  drivers/epic/epic1.o drivers/i2c/i2c1.o pci.o bedbug_603e.o
 
 all:	.depend $(START) $(LIB)
 

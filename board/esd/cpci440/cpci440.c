@@ -66,7 +66,6 @@ int board_pre_init (void)
 }
 
 
-
 int checkboard (void)
 {
 	sys_info_t sysinfo;

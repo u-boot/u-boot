@@ -17,14 +17,14 @@
  **********************************************/
 		.text
 		.align 2
-        .global CoreExtIntEnable
+	.global CoreExtIntEnable
 CoreExtIntEnable:
-         mfmsr    r3
+	 mfmsr    r3
 
-         ori      r3,r3,0x8000         /* enable external interrupt */
-         mtmsr    r3
+	 ori      r3,r3,0x8000         /* enable external interrupt */
+	 mtmsr    r3
 
-         bclr 20, 0
+	 bclr 20, 0
 
 /*******************************************
  * function: CoreExtIntDisable
@@ -35,20 +35,20 @@ CoreExtIntEnable:
  *******************************************/
 		.text
 		.align 2
-        .global CoreExtIntDisable
+	.global CoreExtIntDisable
 CoreExtIntDisable:
-        mfmsr    r4
+	mfmsr    r4
 
 	xor	r3,r3,r3
 	or      r3,r3,r4
 
 	andis.	r4,r4,0xffff
-        andi.   r3,r3,0x7fff         /* disable external interrupt */
+	andi.   r3,r3,0x7fff         /* disable external interrupt */
 
 	or      r3,r3,r4
-        mtmsr    r3
+	mtmsr    r3
 
-        bclr 20, 0
+	bclr 20, 0
 
 /*********************************************************
  * function: epicEOI
@@ -61,20 +61,20 @@ CoreExtIntDisable:
  ********************************************************/
 		.text
 		.align 2
-        .global epicEOI
+	.global epicEOI
 epicEOI:
 	lis	r5,0x0006	        /* Build End Of Interrupt Register offset */
 	ori	r5,r5,0x00b0
 	xor	r7,r7,r7	        /* Clear r7 */
 	stwbrx	r7,r5,r3	    /* Save r7, writing to this register will
-				             * intidate the end of processing the
-	 			             * highest interrupt.
-                             */
+					     * intidate the end of processing the
+					     * highest interrupt.
+			     */
 	sync
 
 	/* ---RESTORE MACHINE STATE */
 	mfmsr	r13		        /* Clear Recoverable Interrupt bit in MSR */
-        or      r7,r7,r13
+	or      r7,r7,r13
 
 	andis.  r7,r7,0xffff
 	andi.	r13,r13,0x7ffd	/* (and disable interrupts) */
@@ -147,8 +147,8 @@ epic_exception:
 	stw     r3,0x1c(r1) /* Push CTR */
 
 	mtspr	SPRG0,r1	/* Save updated Supervisor stack pointer
-				         * value to SPRG0
-                         */
+					 * value to SPRG0
+			 */
 	mfmsr	r3
 	ori	    r3,r3,0x0002	/* Set Recoverable Interrupt bit in MSR */
 	mtmsr	r3
@@ -159,8 +159,8 @@ epic_exception:
 
 	/* ---READ EPIC REGISTER:	PROCESSOR INTERRUPT ACKNOWLEDGE REGISTER */
 	lis	r5,0x0006	        /* Build Interrupt Acknowledge Register
-				             * offset
-                             */
+					     * offset
+			     */
 	ori	r5,r5,0x00a0
 	lwbrx	r7,r5,r6    /* Load interrupt vector into r7 */
 	sync

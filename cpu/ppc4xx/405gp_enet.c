@@ -218,10 +218,10 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	/* AS.HARNOIS
 	 * We should have :
 	 * packetHandled <=  packetReceived <= packetHandled+PKTBUFSRX
-         * In the most cases packetHandled = packetReceived, but it
-         * is possible that new packets (without relationship with
-         * current transfer) have got the time to arrived before
-         * netloop calls eth_halt
+	 * In the most cases packetHandled = packetReceived, but it
+	 * is possible that new packets (without relationship with
+	 * current transfer) have got the time to arrived before
+	 * netloop calls eth_halt
 	 */
 	printf ("About preceeding transfer:\n"
 		"- Sent packet number %d\n"
@@ -251,8 +251,8 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	tx_u_index = 0;			/* Transmit User Queue Index */
 
 #if defined(CONFIG_440)
-        /* set RMII mode */
-        out32 (ZMII_FER, ZMII_RMII | ZMII_MDI0);
+	/* set RMII mode */
+	out32 (ZMII_FER, ZMII_RMII | ZMII_MDI0);
 #endif /* CONFIG_440 */
 
 	/* EMAC RESET */
@@ -426,8 +426,8 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	/* set receive  low/high water mark register */
 #if defined(CONFIG_440)
 	/* 440GP has a 64 byte burst length */
-        out32 (EMAC_RX_HI_LO_WMARK, 0x80009000);
-        out32 (EMAC_TXM1,           0xf8640000);
+	out32 (EMAC_RX_HI_LO_WMARK, 0x80009000);
+	out32 (EMAC_TXM1,           0xf8640000);
 #else /* CONFIG_440 */
 	/* 405s have a 16 byte burst length */
 	out32 (EMAC_RX_HI_LO_WMARK, 0x0f002000);
@@ -530,8 +530,8 @@ static int ppc_4xx_eth_send (struct eth_device *dev, volatile void *ptr, int len
 		/* loop until either TINT turns on or 3 seconds elapse */
 		if ((temp_txm0 & EMAC_TXM0_GNP0) != 0) {
 			/* transmit is done, so now check for errors
-                         * If there is an error, an interrupt should
-                         * happen when we return
+			 * If there is an error, an interrupt should
+			 * happen when we return
 			 */
 			time_now = get_timer (0);
 			if ((time_now - time_start) > 3000) {
@@ -568,16 +568,16 @@ int enetInt ()
 		my_uic1msr = mfdcr (uic1msr);
 
 		if (!(my_uic0msr & UIC_MRE)
-                    && !(my_uic1msr & (UIC_ETH0 | UIC_MS | UIC_MTDE | UIC_MRDE))) {
-                        /* not for us */
+		    && !(my_uic1msr & (UIC_ETH0 | UIC_MS | UIC_MTDE | UIC_MRDE))) {
+			/* not for us */
 			return (rc);
 		}
 
 		/* get and clear controller status interrupts */
 		/* look at Mal and EMAC interrupts */
 		if ((my_uic0msr & UIC_MRE)
-                    || (my_uic1msr & (UIC_MS | UIC_MTDE | UIC_MRDE))) {
-                        /* we have a MAL interrupt */
+		    || (my_uic1msr & (UIC_MS | UIC_MTDE | UIC_MRDE))) {
+			/* we have a MAL interrupt */
 			mal_isr = mfdcr (malesr);
 			/* look for mal error */
 			if (my_uic1msr & (UIC_MS | UIC_MTDE | UIC_MRDE)) {
@@ -595,7 +595,7 @@ int enetInt ()
 			}
 		}
 		if ((emac_ier & emac_isr)
-                    || (my_uic1msr & (UIC_MS | UIC_MTDE | UIC_MRDE))) {
+		    || (my_uic1msr & (UIC_MS | UIC_MTDE | UIC_MRDE))) {
 			mtdcr (uic0sr, UIC_MRE); /* Clear */
 			mtdcr (uic1sr, UIC_ETH0 | UIC_MS | UIC_MTDE | UIC_MRDE); /* Clear */
 			return (rc);		/* we had errors so get out */
@@ -614,8 +614,8 @@ int enetInt ()
 				rc = 0;
 			}
 		}
-                mtdcr (uic0sr, UIC_MRE); /* Clear */
-                mtdcr (uic1sr, UIC_ETH0 | UIC_MS | UIC_MTDE | UIC_MRDE); /* Clear */
+		mtdcr (uic0sr, UIC_MRE); /* Clear */
+		mtdcr (uic1sr, UIC_ETH0 | UIC_MS | UIC_MTDE | UIC_MRDE); /* Clear */
 	} while (serviced);
 
 	return (rc);
@@ -866,42 +866,42 @@ static int ppc_4xx_eth_rx (struct eth_device *dev)
 #if defined(CONFIG_NET_MULTI)
 int ppc_4xx_eth_initialize(bd_t *bis)
 {
-        struct eth_device *dev;
-        int                eth_num = 0;
+	struct eth_device *dev;
+	int                eth_num = 0;
 
-        dev = malloc (sizeof *dev);
-        if (dev == NULL) {
-                printf(__FUNCTION__ ": Cannot allocate eth_device\n");
-                return (-1);
-        }
+	dev = malloc (sizeof *dev);
+	if (dev == NULL) {
+		printf(__FUNCTION__ ": Cannot allocate eth_device\n");
+		return (-1);
+	}
 
-        sprintf(dev->name, "ppc_4xx_eth%d", eth_num);
-        dev->priv = (void *) eth_num;
-        dev->init = ppc_4xx_eth_init;
-        dev->halt = ppc_4xx_eth_halt;
-        dev->send = ppc_4xx_eth_send;
-        dev->recv = ppc_4xx_eth_rx;
+	sprintf(dev->name, "ppc_4xx_eth%d", eth_num);
+	dev->priv = (void *) eth_num;
+	dev->init = ppc_4xx_eth_init;
+	dev->halt = ppc_4xx_eth_halt;
+	dev->send = ppc_4xx_eth_send;
+	dev->recv = ppc_4xx_eth_rx;
 
-        eth_register (dev);
+	eth_register (dev);
 }
 #else /* !defined(CONFIG_NET_MULTI) */
 void eth_halt (void)
 {
-        ppc_4xx_eth_halt(NULL);
+	ppc_4xx_eth_halt(NULL);
 }
 
 int eth_init (bd_t *bis)
 {
-        return (ppc_4xx_eth_init(NULL, bis));
+	return (ppc_4xx_eth_init(NULL, bis));
 }
 int eth_send(volatile void *packet, int length)
 {
-        return (ppc_4xx_eth_send(NULL, packet, length));
+	return (ppc_4xx_eth_send(NULL, packet, length));
 }
 
 int eth_rx(void)
 {
-        return (ppc_4xx_eth_rx(NULL));
+	return (ppc_4xx_eth_rx(NULL));
 }
 #endif /* !defined(CONFIG_NET_MULTI) */
 

@@ -5,14 +5,14 @@ Summary:
 This file contains information about the port of U-Boot to the
 Motorola mpc5xx series of CPUs. Most of this code is taken from
 existing code mainly from the mpc8xx port. In contrast to mpc8xx,
-the mpc5xx has no CPM, MMU and cache facilities. 
+the mpc5xx has no CPM, MMU and cache facilities.
 
-The implemented features have been tested on the cmi board, a 
-customer specific board (see README.cmi). 
+The implemented features have been tested on the cmi board, a
+customer specific board (see README.cmi).
 
-Hence this port is only tested on the cmi board further possible 
+Hence this port is only tested on the cmi board further possible
 tests on other boards will be very valuable.
-  
+
 Not Tested Features:
 ====================
 

@@ -55,6 +55,3 @@ int NS16550_tstc(volatile struct NS16550 *com_port)
 {
  return ((com_port->lsr & LSR_DR) != 0);
 }
-
-
-

@@ -258,7 +258,7 @@ static long int dram_size (long int mamr_value, long int *base, long int maxsize
 	return (maxsize);
 }
 /*-----------------------------------------------------------------------------
- * aschex_to_byte -- 
+ * aschex_to_byte --
  *-----------------------------------------------------------------------------
  */
 static unsigned char aschex_to_byte (unsigned char *cp)

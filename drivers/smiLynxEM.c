@@ -54,9 +54,9 @@ GraphicDevice smi;
  */
 #define VIDEO_MODES             7
 #define DUAL_800_600            0   /* SMI710:VGA1:75Hz     (pitch=1600) */
-                                    /*        VGA2:60/120Hz (pitch=1600) */
-                                    /* SMI810:VGA1:75Hz     (pitch=1600) */
-                                    /*        VGA2:75Hz     (pitch=1600) */
+				    /*        VGA2:60/120Hz (pitch=1600) */
+				    /* SMI810:VGA1:75Hz     (pitch=1600) */
+				    /*        VGA2:75Hz     (pitch=1600) */
 #define DUAL_1024_768           1   /* VGA1:75Hz VGA2:73Hz (pitch=2048)  */
 #define SINGLE_800_600          2   /* VGA1:75Hz (pitch=800)             */
 #define SINGLE_1024_768         3   /* VGA1:75Hz (pitch=1024)            */
@@ -125,7 +125,6 @@ typedef struct {
     unsigned short srcOffset;
     unsigned short fifoControl;
 } SmiCapturePort;
-
 
 
 /*
@@ -514,8 +513,8 @@ static void smiLoadRegs (
 
     for (i=0; i<tabSize; i+=2)
     {
-        out8 (iReg, regTab[i]);
-        out8 (dReg, regTab[i+1]);
+	out8 (iReg, regTab[i]);
+	out8 (dReg, regTab[i+1]);
     }
 }
 
@@ -568,39 +567,39 @@ static void smiInitVideoProcessor (void)
 
     /* data width and offset */
     out32r ((pGD->vprBase + 0x0010),
-        ((pVP->offset   / 8 * pGD->gdfBytesPP) << 16) |
-         (pGD->plnSizeX / 8 * pGD->gdfBytesPP));
+	((pVP->offset   / 8 * pGD->gdfBytesPP) << 16) |
+	 (pGD->plnSizeX / 8 * pGD->gdfBytesPP));
 
     /* video window 1 */
     out32r ((pGD->vprBase + 0x0014),
-        ((pVWin->top << 16) | pVWin->left));
+	((pVWin->top << 16) | pVWin->left));
 
     out32r ((pGD->vprBase + 0x0018),
-        ((pVWin->bottom << 16) | pVWin->right));
+	((pVWin->bottom << 16) | pVWin->right));
 
     out32r ((pGD->vprBase + 0x001c), pVWin->srcStart / 8);
 
     out32r ((pGD->vprBase + 0x0020),
-        (((pVWin->offset / 8) << 16) | (pVWin->width / 8)));
+	(((pVWin->offset / 8) << 16) | (pVWin->width / 8)));
 
     out32r ((pGD->vprBase + 0x0024),
-        (((pVWin->hStretch) << 8) | pVWin->vStretch));
+	(((pVWin->hStretch) << 8) | pVWin->vStretch));
 
     /* video window 2 */
     out32r ((pGD->vprBase + 0x0028),
-        ((pVWin->top << 16) | pVWin->left));
+	((pVWin->top << 16) | pVWin->left));
 
     out32r ((pGD->vprBase + 0x002c),
-        ((pVWin->bottom << 16) | pVWin->right));
+	((pVWin->bottom << 16) | pVWin->right));
 
     out32r ((pGD->vprBase + 0x0030),
-        pVWin->srcStart / 8);
+	pVWin->srcStart / 8);
 
     out32r ((pGD->vprBase + 0x0034),
-        (((pVWin->offset / 8) << 16) | (pVWin->width / 8)));
+	(((pVWin->offset / 8) << 16) | (pVWin->width / 8)));
 
     out32r ((pGD->vprBase + 0x0038),
-        (((pVWin->hStretch) << 8) | pVWin->vStretch));
+	(((pVWin->hStretch) << 8) | pVWin->vStretch));
 
     /* fifo prio control */
     out32r ((pGD->vprBase + 0x0054), pVP->fifoPrio);
@@ -634,31 +633,31 @@ static void smiInitDrawingEngine (void)
     /* set clip rect */
     out32r ((pGD->dprBase + 0x002c), 0);
     out32r ((pGD->dprBase + 0x0030),
-        ((pGD->winSizeY<<16) | pGD->winSizeX * pGD->gdfBytesPP ));
+	((pGD->winSizeY<<16) | pGD->winSizeX * pGD->gdfBytesPP ));
 
     /* src row pitch */
     val = 0xffff0000 & (in32r ((pGD->dprBase + 0x0010)));
     out32r ((pGD->dprBase + 0x0010),
-        (val | pGD->plnSizeX * pGD->gdfBytesPP));
+	(val | pGD->plnSizeX * pGD->gdfBytesPP));
 
     /* dst row pitch */
     val = 0x0000ffff & (in32r ((pGD->dprBase + 0x0010)));
     out32r ((pGD->dprBase + 0x0010),
-        (((pGD->plnSizeX * pGD->gdfBytesPP)<<16) | val));
+	(((pGD->plnSizeX * pGD->gdfBytesPP)<<16) | val));
 
     /* window width src/dst */
     out32r ((pGD->dprBase + 0x003c),
-        (((pGD->plnSizeX * pGD->gdfBytesPP & 0x0fff)<<16) |
-          (pGD->plnSizeX * pGD->gdfBytesPP & 0x0fff)));
+	(((pGD->plnSizeX * pGD->gdfBytesPP & 0x0fff)<<16) |
+	  (pGD->plnSizeX * pGD->gdfBytesPP & 0x0fff)));
     out16r ((pGD->dprBase + 0x001e), 0x0000);
 
     /* src base adrs */
     out32r ((pGD->dprBase + 0x0040),
-        (((pGD->frameAdrs/8) & 0x000fffff)));
+	(((pGD->frameAdrs/8) & 0x000fffff)));
 
     /* dst base adrs */
     out32r ((pGD->dprBase + 0x0044),
-        (((pGD->frameAdrs/8) & 0x000fffff)));
+	(((pGD->frameAdrs/8) & 0x000fffff)));
 
     /* foreground color */
     out32r ((pGD->dprBase + 0x0014), pGD->fg);
@@ -702,29 +701,29 @@ void *video_hw_init (void)
     unsigned int gdfTab[] = { 1, 2, 2, 4, 3, 1 };
     char *penv;
     char *gdfModes[] =
-            {
-            "8 Bit Index Color",
-            "15 Bit 5-5-5 RGB",
-            "16 Bit 5-6-5 RGB",
-            "32 Bit X-8-8-8 RGB",
-            "24 Bit 8-8-8 RGB",
-            "8 Bit 3-3-2 RGB"
-            };
+	    {
+	    "8 Bit Index Color",
+	    "15 Bit 5-5-5 RGB",
+	    "16 Bit 5-6-5 RGB",
+	    "32 Bit X-8-8-8 RGB",
+	    "24 Bit 8-8-8 RGB",
+	    "8 Bit 3-3-2 RGB"
+	    };
     int vgaModes[16][2] =
-            {
-            {769, -1}, {771, 0x00002}, {773, 0x00003}, {775, 0x00004},
-            {784, -1}, {787, 0x10002}, {790, 0x10003}, {793, 0x10004},
-            {785, -1}, {788, 0x20002}, {791, 0x20003}, {794, 0x20004},
-            {786, -1}, {789, 0x40002}, {792, 0x40003}, {795, 0x40004}
-            };
+	    {
+	    {769, -1}, {771, 0x00002}, {773, 0x00003}, {775, 0x00004},
+	    {784, -1}, {787, 0x10002}, {790, 0x10003}, {793, 0x10004},
+	    {785, -1}, {788, 0x20002}, {791, 0x20003}, {794, 0x20004},
+	    {786, -1}, {789, 0x40002}, {792, 0x40003}, {795, 0x40004}
+	    };
 
     /* Search for video chip */
     printf("Video: ");
 
     if ((devbusfn = pci_find_devices(supported, 0)) < 0)
     {
-        printf ("Controller not found !\n");
-        return (NULL);
+	printf ("Controller not found !\n");
+	return (NULL);
     }
 
     /* PCI setup */
@@ -735,29 +734,29 @@ void *video_hw_init (void)
 
     /* Initialize the video controller */
     if ((penv = getenv ("videomode")) != NULL)
-        videomode = (int)simple_strtoul (penv, NULL, 16);
+	videomode = (int)simple_strtoul (penv, NULL, 16);
     else
-        videomode = 0x303;                    /* Default 800x600 8 bit index color */
+	videomode = 0x303;                    /* Default 800x600 8 bit index color */
 
     /* Compare with common vga mode numbers */
     for (i=0; i<16; i++)
     {
-        if (vgaModes[i][0] == videomode)
-        {
-            if (vgaModes[i][1] == -1)
-            {
-                printf("Videomode not supported !\n");
-                return (NULL);                /* mode not supported */
-            }
-            pGD->mode = vgaModes[i][1];        /* use driver int. mode number */
-            break;
-        }
+	if (vgaModes[i][0] == videomode)
+	{
+	    if (vgaModes[i][1] == -1)
+	    {
+		printf("Videomode not supported !\n");
+		return (NULL);                /* mode not supported */
+	    }
+	    pGD->mode = vgaModes[i][1];        /* use driver int. mode number */
+	    break;
+	}
     }
 
     /* Extract graphic data format */
     pGD->gdfIndex = (pGD->mode & 0x00070000) >> 16;
     if (pGD->gdfIndex > 5)
-        pGD->gdfIndex = 0;
+	pGD->gdfIndex = 0;
     pGD->gdfBytesPP = gdfTab[pGD->gdfIndex];
 
     /* Extract graphic resolution */
@@ -766,71 +765,71 @@ void *video_hw_init (void)
     /* Exit for not supported resolutions */
     if (((pGD->mode==DUAL_800_600) || (pGD->mode==DUAL_1024_768)) && (pGD->gdfBytesPP > 1))
     {
-        printf ("Dual screen for 1BPP only !\n");
-        return (NULL);
+	printf ("Dual screen for 1BPP only !\n");
+	return (NULL);
     }
 
     if ((pGD->mode==SINGLE_1280_1024) && (pGD->gdfBytesPP==4))
     {
-        printf ("Out of memory !\n");
-        return (NULL);
+	printf ("Out of memory !\n");
+	return (NULL);
     }
 
     /* Set graphic parameters */
     switch (pGD->mode)
     {
     case DUAL_800_600:
-            pGD->winSizeX = 800;
-            pGD->winSizeY = 600;
-            pGD->plnSizeX = 1600;
-            pGD->plnSizeY = 600;
-            sprintf (pGD->modeIdent, "Dual Screen 800x600 with %s", gdfModes[pGD->gdfIndex]);
-            break;
+	    pGD->winSizeX = 800;
+	    pGD->winSizeY = 600;
+	    pGD->plnSizeX = 1600;
+	    pGD->plnSizeY = 600;
+	    sprintf (pGD->modeIdent, "Dual Screen 800x600 with %s", gdfModes[pGD->gdfIndex]);
+	    break;
     case DUAL_1024_768:
-            pGD->winSizeX = 1024;
-            pGD->winSizeY = 768;
-            pGD->plnSizeX = 2048;
-            pGD->plnSizeY = 768;
-            sprintf (pGD->modeIdent, "Dual Screen 1024x768 with %s", gdfModes[pGD->gdfIndex]);
-            break;
+	    pGD->winSizeX = 1024;
+	    pGD->winSizeY = 768;
+	    pGD->plnSizeX = 2048;
+	    pGD->plnSizeY = 768;
+	    sprintf (pGD->modeIdent, "Dual Screen 1024x768 with %s", gdfModes[pGD->gdfIndex]);
+	    break;
     case SINGLE_800_600:
-            pGD->winSizeX = 800;
-            pGD->winSizeY = 600;
-            pGD->plnSizeX = 800;
-            pGD->plnSizeY = 600;
-            sprintf (pGD->modeIdent, "Single Screen 800x600 with %s", gdfModes[pGD->gdfIndex]);
-            break;
+	    pGD->winSizeX = 800;
+	    pGD->winSizeY = 600;
+	    pGD->plnSizeX = 800;
+	    pGD->plnSizeY = 600;
+	    sprintf (pGD->modeIdent, "Single Screen 800x600 with %s", gdfModes[pGD->gdfIndex]);
+	    break;
     case SINGLE_1024_768:
-            pGD->winSizeX = 1024;
-            pGD->winSizeY = 768;
-            pGD->plnSizeX = 1024;
-            pGD->plnSizeY = 768;
-            sprintf (pGD->modeIdent,"Single Screen 1024x768 with %s", gdfModes[pGD->gdfIndex]);
-            break;
+	    pGD->winSizeX = 1024;
+	    pGD->winSizeY = 768;
+	    pGD->plnSizeX = 1024;
+	    pGD->plnSizeY = 768;
+	    sprintf (pGD->modeIdent,"Single Screen 1024x768 with %s", gdfModes[pGD->gdfIndex]);
+	    break;
     case TV_MODE_CCIR:
-            pGD->winSizeX = 720;
-            pGD->winSizeY = 576;
-            pGD->plnSizeX = 720;
-            pGD->plnSizeY = 576;
-            sprintf (pGD->modeIdent, "TV Mode CCIR with %s", gdfModes[pGD->gdfIndex]);
-            break;
+	    pGD->winSizeX = 720;
+	    pGD->winSizeY = 576;
+	    pGD->plnSizeX = 720;
+	    pGD->plnSizeY = 576;
+	    sprintf (pGD->modeIdent, "TV Mode CCIR with %s", gdfModes[pGD->gdfIndex]);
+	    break;
     case TV_MODE_EIA:
-            pGD->winSizeX = 720;
-            pGD->winSizeY = 484;
-            pGD->plnSizeX = 720;
-            pGD->plnSizeY = 484;
-            sprintf (pGD->modeIdent, "TV Mode EIA with %s", gdfModes[pGD->gdfIndex]);
-            break;
+	    pGD->winSizeX = 720;
+	    pGD->winSizeY = 484;
+	    pGD->plnSizeX = 720;
+	    pGD->plnSizeY = 484;
+	    sprintf (pGD->modeIdent, "TV Mode EIA with %s", gdfModes[pGD->gdfIndex]);
+	    break;
     case SINGLE_1280_1024:
-            pGD->winSizeX = 1280;
-            pGD->winSizeY = 1024;
-            pGD->plnSizeX = 1280;
-            pGD->plnSizeY = 1024;
-            sprintf (pGD->modeIdent, "Single Screen 1280x1024 with %s", gdfModes[pGD->gdfIndex]);
-            break;
+	    pGD->winSizeX = 1280;
+	    pGD->winSizeY = 1024;
+	    pGD->plnSizeX = 1280;
+	    pGD->plnSizeY = 1024;
+	    sprintf (pGD->modeIdent, "Single Screen 1280x1024 with %s", gdfModes[pGD->gdfIndex]);
+	    break;
     default:
-            printf("Videomode not supported !\n");
-            return (NULL);
+	    printf("Videomode not supported !\n");
+	    return (NULL);
     }
 
 
@@ -856,51 +855,51 @@ void *video_hw_init (void)
 
     /* Sytem Control Register */
     smiLoadRegs (SMI_INDX_C4, SMI_DATA_C5,
-         SMI_SCR, sizeof(SMI_SCR));
+	 SMI_SCR, sizeof(SMI_SCR));
 
     /* extented CRT Register */
     smiLoadRegs (SMI_INDX_D4, SMI_DATA_D5,
-         SMI_EXT_CRT[pGD->mode], sizeof(SMI_EXT_CRT)/VIDEO_MODES);
+	 SMI_EXT_CRT[pGD->mode], sizeof(SMI_EXT_CRT)/VIDEO_MODES);
 
     /* Sequencer Register */
     smiLoadRegs (SMI_INDX_C4, SMI_DATA_C5,
-         SMI_SEQR, sizeof(SMI_SEQR));
+	 SMI_SEQR, sizeof(SMI_SEQR));
 
     /* Power Control Register */
     smiLoadRegs (SMI_INDX_C4, SMI_DATA_C5,
-         SMI_PCR[pGD->mode], sizeof(SMI_PCR)/VIDEO_MODES);
+	 SMI_PCR[pGD->mode], sizeof(SMI_PCR)/VIDEO_MODES);
 
     /* Memory Control Register */
     smiLoadRegs (SMI_INDX_C4, SMI_DATA_C5,
-         SMI_MCR[pGD->mode], sizeof(SMI_MCR)/VIDEO_MODES);
+	 SMI_MCR[pGD->mode], sizeof(SMI_MCR)/VIDEO_MODES);
 
     /* Clock Control Register */
     smiLoadRegs (SMI_INDX_C4, SMI_DATA_C5,
-         SMI_CCR[pGD->mode], sizeof(SMI_CCR)/VIDEO_MODES);
+	 SMI_CCR[pGD->mode], sizeof(SMI_CCR)/VIDEO_MODES);
 
     /* Shadow VGA Register */
     smiLoadRegs (SMI_INDX_D4, SMI_DATA_D5,
-         SMI_SHVGA[pGD->mode], sizeof(SMI_SHVGA)/VIDEO_MODES);
+	 SMI_SHVGA[pGD->mode], sizeof(SMI_SHVGA)/VIDEO_MODES);
 
     /* General Purpose Register */
     smiLoadRegs (SMI_INDX_C4, SMI_DATA_C5,
-         SMI_GPR[pGD->mode], sizeof(SMI_GPR)/VIDEO_MODES);
+	 SMI_GPR[pGD->mode], sizeof(SMI_GPR)/VIDEO_MODES);
 
     /* Hardware Cusor Register */
     smiLoadRegs (SMI_INDX_C4, SMI_DATA_C5,
-         SMI_HCR[pGD->mode], sizeof(SMI_HCR)/VIDEO_MODES);
+	 SMI_HCR[pGD->mode], sizeof(SMI_HCR)/VIDEO_MODES);
 
     /* Flat Panel Register */
     smiLoadRegs (SMI_INDX_C4, SMI_DATA_C5,
-         SMI_FPR[pGD->mode], sizeof(SMI_FPR)/VIDEO_MODES);
+	 SMI_FPR[pGD->mode], sizeof(SMI_FPR)/VIDEO_MODES);
 
     /* CRTC Register */
     smiLoadRegs (SMI_INDX_D4, SMI_DATA_D5,
-         SMI_CRTCR[pGD->mode], sizeof(SMI_CRTCR)/VIDEO_MODES);
+	 SMI_CRTCR[pGD->mode], sizeof(SMI_CRTCR)/VIDEO_MODES);
 
     /* Graphics Controller Register */
     smiLoadRegs (SMI_INDX_CE, SMI_DATA_CF,
-         SMI_GCR, sizeof(SMI_GCR));
+	 SMI_GCR, sizeof(SMI_GCR));
 
     /* Patch memory and refresh settings for SMI710 */
     if (device_id == PCI_DEVICE_ID_SMI_710)

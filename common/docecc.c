@@ -98,30 +98,30 @@ for(ci=(n)-1;ci >=0;ci--)\
 
 /* generate GF(2**m) from the irreducible polynomial p(X) in Pp[0]..Pp[m]
    lookup tables:  index->polynomial form   alpha_to[] contains j=alpha**i;
-                   polynomial form -> index form  index_of[j=alpha**i] = i
+		   polynomial form -> index form  index_of[j=alpha**i] = i
    alpha=2 is the primitive element of GF(2**m)
    HARI's COMMENT: (4/13/94) alpha_to[] can be used as follows:
-        Let @ represent the primitive element commonly called "alpha" that
+	Let @ represent the primitive element commonly called "alpha" that
    is the root of the primitive polynomial p(x). Then in GF(2^m), for any
    0 <= i <= 2^m-2,
-        @^i = a(0) + a(1) @ + a(2) @^2 + ... + a(m-1) @^(m-1)
+	@^i = a(0) + a(1) @ + a(2) @^2 + ... + a(m-1) @^(m-1)
    where the binary vector (a(0),a(1),a(2),...,a(m-1)) is the representation
    of the integer "alpha_to[i]" with a(0) being the LSB and a(m-1) the MSB. Thus for
    example the polynomial representation of @^5 would be given by the binary
    representation of the integer "alpha_to[5]".
-                   Similarily, index_of[] can be used as follows:
-        As above, let @ represent the primitive element of GF(2^m) that is
+		   Similarily, index_of[] can be used as follows:
+	As above, let @ represent the primitive element of GF(2^m) that is
    the root of the primitive polynomial p(x). In order to find the power
    of @ (alpha) that has the polynomial representation
-        a(0) + a(1) @ + a(2) @^2 + ... + a(m-1) @^(m-1)
+	a(0) + a(1) @ + a(2) @^2 + ... + a(m-1) @^(m-1)
    we consider the integer "i" whose binary representation with a(0) being LSB
    and a(m-1) MSB is (a(0),a(1),...,a(m-1)) and locate the entry
    "index_of[i]". Now, @^index_of[i] is that element whose polynomial
     representation is (a(0),a(1),a(2),...,a(m-1)).
    NOTE:
-        The element alpha_to[2^m-1] = 0 always signifying that the
+	The element alpha_to[2^m-1] = 0 always signifying that the
    representation of "@^infinity" = 0 is (0,0,0,...,0).
-        Similarily, the element index_of[0] = A0 always signifying
+	Similarily, the element index_of[0] = A0 always signifying
    that the power of alpha which has the polynomial representation
    (0,0,...,0) is "infinity".
 
@@ -183,8 +183,8 @@ generate_gf(dtype Alpha_to[NN + 1], dtype Index_of[NN + 1])
  * */
 static int
 eras_dec_rs(dtype Alpha_to[NN + 1], dtype Index_of[NN + 1],
-            gf bb[NN - KK + 1], gf eras_val[NN-KK], int eras_pos[NN-KK],
-            int no_eras)
+	    gf bb[NN - KK + 1], gf eras_val[NN-KK], int eras_pos[NN-KK],
+	    int no_eras)
 {
   int deg_lambda, el, deg_omega;
   int i, j, r,k;
@@ -225,7 +225,7 @@ eras_dec_rs(dtype Alpha_to[NN + 1], dtype Index_of[NN + 1],
   for(i=1;i<=NN-KK;i++) {
       tmp = Index_of[s[i]];
       if (tmp != A0)
-          tmp = modnn(tmp + 2 * KK * (B0+i-1)*PRIM);
+	  tmp = modnn(tmp + 2 * KK * (B0+i-1)*PRIM);
       s[i] = tmp;
   }
 
@@ -412,9 +412,9 @@ eras_dec_rs(dtype Alpha_to[NN + 1], dtype Index_of[NN + 1],
     }
     /* Apply error to data */
     if (num1 != 0) {
-        eras_val[j] = Alpha_to[modnn(Index_of[num1] + Index_of[num2] + NN - Index_of[den])];
+	eras_val[j] = Alpha_to[modnn(Index_of[num1] + Index_of[num2] + NN - Index_of[den])];
     } else {
-        eras_val[j] = 0;
+	eras_val[j] = 0;
     }
   }
  finish:
@@ -447,12 +447,12 @@ int doc_decode_ecc(unsigned char sector[SECTOR_SIZE], unsigned char ecc1[6])
     /* init log and exp tables here to save memory. However, it is slower */
     Alpha_to = malloc((NN + 1) * sizeof(dtype));
     if (!Alpha_to)
-        return -1;
+	return -1;
 
     Index_of = malloc((NN + 1) * sizeof(dtype));
     if (!Index_of) {
-        free(Alpha_to);
-        return -1;
+	free(Alpha_to);
+	return -1;
     }
 
     generate_gf(Alpha_to, Index_of);
@@ -465,48 +465,48 @@ int doc_decode_ecc(unsigned char sector[SECTOR_SIZE], unsigned char ecc1[6])
     bb[3] = ((ecc1[3] & 0xc0) >> 6) | ((ecc1[0] & 0xff) << 2);
 
     nb_errors = eras_dec_rs(Alpha_to, Index_of, bb,
-                            error_val, error_pos, 0);
+			    error_val, error_pos, 0);
     if (nb_errors <= 0)
-        goto the_end;
+	goto the_end;
 
     /* correct the errors */
     for(i=0;i<nb_errors;i++) {
-        pos = error_pos[i];
-        if (pos >= NB_DATA && pos < KK) {
-            nb_errors = -1;
-            goto the_end;
-        }
-        if (pos < NB_DATA) {
-            /* extract bit position (MSB first) */
-            pos = 10 * (NB_DATA - 1 - pos) - 6;
-            /* now correct the following 10 bits. At most two bytes
-               can be modified since pos is even */
-            index = (pos >> 3) ^ 1;
-            bitpos = pos & 7;
-            if ((index >= 0 && index < SECTOR_SIZE) ||
-                index == (SECTOR_SIZE + 1)) {
-                val = error_val[i] >> (2 + bitpos);
-                parity ^= val;
-                if (index < SECTOR_SIZE)
-                    sector[index] ^= val;
-            }
-            index = ((pos >> 3) + 1) ^ 1;
-            bitpos = (bitpos + 10) & 7;
-            if (bitpos == 0)
-                bitpos = 8;
-            if ((index >= 0 && index < SECTOR_SIZE) ||
-                index == (SECTOR_SIZE + 1)) {
-                val = error_val[i] << (8 - bitpos);
-                parity ^= val;
-                if (index < SECTOR_SIZE)
-                    sector[index] ^= val;
-            }
-        }
+	pos = error_pos[i];
+	if (pos >= NB_DATA && pos < KK) {
+	    nb_errors = -1;
+	    goto the_end;
+	}
+	if (pos < NB_DATA) {
+	    /* extract bit position (MSB first) */
+	    pos = 10 * (NB_DATA - 1 - pos) - 6;
+	    /* now correct the following 10 bits. At most two bytes
+	       can be modified since pos is even */
+	    index = (pos >> 3) ^ 1;
+	    bitpos = pos & 7;
+	    if ((index >= 0 && index < SECTOR_SIZE) ||
+		index == (SECTOR_SIZE + 1)) {
+		val = error_val[i] >> (2 + bitpos);
+		parity ^= val;
+		if (index < SECTOR_SIZE)
+		    sector[index] ^= val;
+	    }
+	    index = ((pos >> 3) + 1) ^ 1;
+	    bitpos = (bitpos + 10) & 7;
+	    if (bitpos == 0)
+		bitpos = 8;
+	    if ((index >= 0 && index < SECTOR_SIZE) ||
+		index == (SECTOR_SIZE + 1)) {
+		val = error_val[i] << (8 - bitpos);
+		parity ^= val;
+		if (index < SECTOR_SIZE)
+		    sector[index] ^= val;
+	    }
+	}
     }
 
     /* use parity to test extra errors */
     if ((parity & 0xff) != 0)
-        nb_errors = -1;
+	nb_errors = -1;
 
  the_end:
     free(Alpha_to);

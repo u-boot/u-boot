@@ -32,7 +32,6 @@
 
 #include <command.h>
 #include <environment.h>
-#include <cmd_nvedit.h>
 #include <linux/stddef.h>
 #include <malloc.h>
 
@@ -185,14 +184,14 @@ int saveenv(void)
 	debug ("Data to save 0x%x\n", up_data);
 	if (up_data) {
 		if ((saved_data = malloc(up_data)) == NULL) {
-			printf("Unable to save the rest of sector (%ld)\n", 
+			printf("Unable to save the rest of sector (%ld)\n",
 				up_data);
 			goto Done;
 		}
-		memcpy(saved_data, 
+		memcpy(saved_data,
 			(void *)((long)flash_addr_new + CFG_ENV_SIZE), up_data);
-		debug ("Data (start 0x%x, len 0x%x) saved at 0x%x\n", 
-			   (long)flash_addr_new + CFG_ENV_SIZE, 
+		debug ("Data (start 0x%x, len 0x%x) saved at 0x%x\n",
+			   (long)flash_addr_new + CFG_ENV_SIZE,
 				up_data, saved_data);
 	}
 #endif
@@ -209,19 +208,19 @@ int saveenv(void)
 		(ulong)&(flash_addr_new->data),
 		sizeof(env_ptr->data)+(ulong)&(flash_addr_new->data));
 	if (flash_write(env_ptr->data,
-	                (ulong)&(flash_addr_new->data),
+			(ulong)&(flash_addr_new->data),
 			sizeof(env_ptr->data)) ||
 
 	    flash_write((char *)&(env_ptr->crc),
-	                (ulong)&(flash_addr_new->crc),
+			(ulong)&(flash_addr_new->crc),
 			sizeof(env_ptr->crc)) ||
 
 	    flash_write((char *)&obsolete_flag,
-	                (ulong)&(flash_addr->flags),
+			(ulong)&(flash_addr->flags),
 			sizeof(flash_addr->flags)) ||
 
 	    flash_write((char *)&active_flag,
-	                (ulong)&(flash_addr_new->flags),
+			(ulong)&(flash_addr_new->flags),
 			sizeof(flash_addr_new->flags)))
 	{
 		flash_perror (rc);
@@ -233,8 +232,8 @@ int saveenv(void)
 	if (up_data) { /* restore the rest of sector */
 		debug ("Restoring the rest of data to 0x%x len 0x%x\n",
 			   (long)flash_addr_new + CFG_ENV_SIZE, up_data);
-		if (flash_write(saved_data, 
-				(long)flash_addr_new + CFG_ENV_SIZE, 
+		if (flash_write(saved_data,
+				(long)flash_addr_new + CFG_ENV_SIZE,
 				up_data)) {
 			flash_perror(rc);
 			goto Done;
@@ -381,8 +380,8 @@ void env_relocate_spec (void)
 		gd->env_valid = 2;
 		flash_sect_protect (0, (ulong)flash_addr_new, end_addr_new);
 		flash_write((char *)&obsolete_flag,
-                    	    (ulong)&(flash_addr_new->flags),
-	        	    sizeof(flash_addr_new->flags));
+			    (ulong)&(flash_addr_new->flags),
+			    sizeof(flash_addr_new->flags));
 		flash_sect_protect (1, (ulong)flash_addr_new, end_addr_new);
 	}
 
@@ -392,8 +391,8 @@ void env_relocate_spec (void)
 		gd->env_valid = 2;
 		flash_sect_protect (0, (ulong)flash_addr, end_addr);
 		flash_write((char *)&active_flag,
-                    	    (ulong)&(flash_addr->flags),
-	        	    sizeof(flash_addr->flags));
+			    (ulong)&(flash_addr->flags),
+			    sizeof(flash_addr->flags));
 		flash_sect_protect (1, (ulong)flash_addr, end_addr);
 	}
 

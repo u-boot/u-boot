@@ -1,6 +1,6 @@
-                           IBM Ebony Board
+			   IBM Ebony Board
 
-                    Last Update: September 12, 2002
+		    Last Update: September 12, 2002
 =======================================================================
 
 This file contains some handy info regarding U-Boot and the IBM
@@ -131,8 +131,6 @@ We never tested anything other than 33 MHz/32-bit cards. If you have
 the chance to do this, please let me know how things turn out :-)
 
 
-
 Regards,
 --Scott
 <smcnutt@artesyncp.com>
-

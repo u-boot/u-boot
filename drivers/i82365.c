@@ -36,7 +36,6 @@
 #include <command.h>
 #include <pci.h>
 #include <pcmcia.h>
-#include <cmd_pcmcia.h>
 #include <asm/io.h>
 
 #include <pcmcia/ss.h>
@@ -153,7 +152,7 @@ static void i365_set_pair (socket_info_t * s, u_short reg, u_short data)
     Code to save and restore global state information for TI 1130 and
     TI 1131 controllers, and to set and report global configuration
     options.
-    
+
 ======================================================================*/
 
 static void ti113x_get_state (socket_info_t * s)
@@ -195,7 +194,7 @@ static u_int ti113x_set_opts (socket_info_t * s)
 /*======================================================================
 
     Routines to handle common CardBus options
-    
+
 ======================================================================*/
 
 /* Default settings for PCI command configuration register */
@@ -239,7 +238,7 @@ static void cb_set_opts (socket_info_t * s)
 
     Power control for Cardbus controllers: used both for 16-bit and
     Cardbus cards.
-    
+
 ======================================================================*/
 
 static int cb_set_power (socket_info_t * s, socket_state_t * state)
@@ -286,7 +285,7 @@ static int cb_set_power (socket_info_t * s, socket_state_t * state)
 /*======================================================================
 
     Generic routines to get and set controller options
-    
+
 ======================================================================*/
 
 static void get_bridge_state (socket_info_t * s)
@@ -560,7 +559,7 @@ void i82365_exit (void)
 /*======================================================================
 
     Debug stuff
-    
+
 ======================================================================*/
 
 #ifdef DEBUG

@@ -56,7 +56,7 @@ extern unsigned long cr_alignment;	/* defined in entry-armv.S */
 	:							\
 	: "memory");						\
 	})
-	
+
 /*
  * Enable IRQs
  */

@@ -45,4 +45,3 @@ void hw_watchdog_reset(void)
 } /* hw_watchdog_reset() */
 
 #endif /* CONFIG_HW_WATCHDOG */
-

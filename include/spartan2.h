@@ -89,4 +89,3 @@ typedef struct {
 { Xilinx_Spartan2, iface, XILINX_XC2S150_SIZE, fn_table, cookie }
 
 #endif /* _SPARTAN2_H_ */
-

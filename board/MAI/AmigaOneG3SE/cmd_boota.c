@@ -1,6 +1,5 @@
 #include <common.h>
 #include <command.h>
-#include <cmd_boota.h>
 #include "../disk/part_amiga.h"
 #include <asm/cache.h>
 
@@ -121,3 +120,10 @@ int do_boota (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 	return 0;
 }
+#if defined(CONFIG_AMIGAONEG3SE) && (CONFIG_COMMANDS & CFG_CMD_BSP)
+cmd_tbl_t U_BOOT_CMD(BOOTA) = MK_CMD_ENTRY(
+	"boota",   3,      1,      do_boota,
+	"boota   - boot an Amiga kernel\n",
+	"address disk"
+);
+#endif /* _CMD_BOOTA_H */

@@ -59,7 +59,6 @@ struct devrequest {
 } __attribute__ ((packed));
 
 
-
 /* All standard descriptors have these 2 fields in common */
 struct usb_descriptor_header {
 	unsigned char  bLength;
@@ -141,7 +140,7 @@ struct usb_device {
 	int maxpacketsize;		    /* Maximum packet size; encoded as 0,1,2,3 = 8,16,32,64 */
 	unsigned int toggle[2];		/* one bit for each endpoint ([0] = IN, [1] = OUT) */
 	unsigned int halted[2];		/* endpoint halts; one bit per endpoint # & direction; */
-                            /* [0] = IN, [1] = OUT */
+			    /* [0] = IN, [1] = OUT */
 	int epmaxpacketin[16];		/* INput endpoint specific maximums */
 	int epmaxpacketout[16];		/* OUTput endpoint specific maximums */
 

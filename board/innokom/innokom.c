@@ -46,10 +46,10 @@ int i2c_init_board(void)
 	/* disable I2C controller first, otherwhise it thinks we want to    */
 	/* talk to the slave port...                                        */
 	icr = ICR; ICR &= ~(ICR_SCLE | ICR_IUE);
-	
+
 	/* set gpio pin low _before_ we change direction to output          */
 	GPCR(70) = GPIO_bit(70);
-	
+
 	/* now toggle between output=low and high-impedance                 */
 	for (i = 0; i < 20; i++) {
 		GPDR(70) |= GPIO_bit(70);  /* output */
@@ -144,18 +144,18 @@ void innokom_set_led(int led, int state)
 			break;
 
 		case 1: if (state==1) {
-                                GPCR0 |= CSB226_USER_LED1;
-                        } else if (state==0) {
-                                GPSR0 |= CSB226_USER_LED1;
-                        }
-                        break;
+				GPCR0 |= CSB226_USER_LED1;
+			} else if (state==0) {
+				GPSR0 |= CSB226_USER_LED1;
+			}
+			break;
 
 		case 2: if (state==1) {
-                                GPCR0 |= CSB226_USER_LED2;
-                        } else if (state==0) {
-                                GPSR0 |= CSB226_USER_LED2;
-                        }
-                        break;
+				GPCR0 |= CSB226_USER_LED2;
+			} else if (state==0) {
+				GPSR0 |= CSB226_USER_LED2;
+			}
+			break;
 */
 	}
 
@@ -184,4 +184,3 @@ void show_boot_progress (int status)
 
 	return;
 }
-

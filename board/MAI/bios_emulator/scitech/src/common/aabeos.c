@@ -70,7 +70,7 @@ Nucleus loader library.
 ibool NAPI GA_TimerInit(void)
 {
     if (_GA_haveCPUID() && (_GA_getCPUIDFeatures() & CPU_HaveRDTSC) != 0)
-        haveRDTSC = true;
+	haveRDTSC = true;
     return true;
 }
 
@@ -82,11 +82,11 @@ void NAPI GA_TimerRead(
     GA_largeInteger *value)
 {
     if (haveRDTSC)
-        _GA_readTimeStamp(value);
+	_GA_readTimeStamp(value);
     else {
-        struct timeval t;
-        gettimeofday(&t, NULL);
-        value->low = t.tv_sec*1000000 + t.tv_usec;
-        value->high = 0;
-        }
+	struct timeval t;
+	gettimeofday(&t, NULL);
+	value->low = t.tv_sec*1000000 + t.tv_usec;
+	value->high = 0;
+	}
 }

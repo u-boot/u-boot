@@ -890,7 +890,7 @@ static void lcd_ctrl_init (void *lcdbase)
 	 * 4-bit wide passive dual scan LCD at 4/8 Bit color.
 	 */
 	lchcr_hpc_tmp =
-	       	(panel_info.vl_col *
+		(panel_info.vl_col *
 		 (panel_info.vl_tft ? 8 :
 			(((2 - panel_info.vl_lbw) << /* 4 bit=2, 8-bit = 1 */
 			 /* use << to mult by: single scan = 1, dual scan = 2 */
@@ -955,7 +955,7 @@ lcd_setcolreg (ushort regno, ushort red, ushort green, ushort blue)
 	debug ("setcolreg: reg %2d @ %p: R=%02X G=%02X B=%02X => %02X%02X\n",
 		regno, &(cp->lcd_cmap[regno * 2]),
 		red, green, blue,
-                cp->lcd_cmap[ regno * 2 ], cp->lcd_cmap[(regno * 2) + 1]);
+		cp->lcd_cmap[ regno * 2 ], cp->lcd_cmap[(regno * 2) + 1]);
 }
 #endif	/* LCD_COLOR8 */
 
@@ -1031,9 +1031,9 @@ static void lcd_enable (void)
 #if defined(CONFIG_LWMON)
     {	uchar c = pic_read (0x60);
 #if defined(CONFIG_LCD) && defined(CONFIG_LWMON) && (CONFIG_POST & CFG_POST_SYSMON)
-    	c |= 0x04;	/* Chip Enable LCD */
+	c |= 0x04;	/* Chip Enable LCD */
 #else
-    	c |= 0x07;	/* Power on CCFL, Enable CCFL, Chip Enable LCD */
+	c |= 0x07;	/* Power on CCFL, Enable CCFL, Chip Enable LCD */
 #endif
 	pic_write (0x60, c);
     }
@@ -1069,7 +1069,7 @@ void lcd_disable (void)
 
 #if defined(CONFIG_LWMON)
     {	uchar c = pic_read (0x60);
-    	c &= ~0x07;	/* Power off CCFL, Disable CCFL, Chip Disable LCD */
+	c &= ~0x07;	/* Power off CCFL, Disable CCFL, Chip Disable LCD */
 	pic_write (0x60, c);
     }
 #elif defined(CONFIG_R360MPI)

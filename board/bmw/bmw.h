@@ -46,13 +46,13 @@
 #define LED_REG_BASE		(XROM_BASE_ADDR | 0x2000)
 #define TOD_BASE		(XROM_BASE_ADDR | 0x4000)
 #define LED_REG(x)              (*(volatile unsigned char *) \
-                                  (LED_REG_BASE + (x)))
+				  (LED_REG_BASE + (x)))
 #define XROM_DEV_SIZE		0x00006000
 
 #define ENET_DEV_BASE		0x80000000
 
 #define PLD_REG(off)		(*(volatile unsigned char *)\
-                                  (PLD_REG_BASE + (off)))
+				  (PLD_REG_BASE + (off)))
 
 #define PLD_REVID_B1		0x7f	/* Fix me */
 #define PLD_REVID_B2		0x01	/* Fix me */

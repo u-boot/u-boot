@@ -36,7 +36,7 @@ Initialise the Zen Timer module internals.
 ****************************************************************************/
 void _ZTimerInit(void)
 {
-    // TODO: Do any specific internal initialisation in here
+    /* TODO: Do any specific internal initialisation in here */
 }
 
 /****************************************************************************
@@ -46,8 +46,8 @@ Start the Zen Timer counting.
 static void _LZTimerOn(
     LZTimerObject *tm)
 {
-    // TODO: Start the Zen Timer counting. This should be a macro if
-    //       possible.
+    /* TODO: Start the Zen Timer counting. This should be a macro if */
+    /*       possible. */
 }
 
 /****************************************************************************
@@ -57,8 +57,8 @@ Compute the lap time since the timer was started.
 static ulong _LZTimerLap(
     LZTimerObject *tm)
 {
-    // TODO: Compute the lap time between the current time and when the
-    //       timer was started.
+    /* TODO: Compute the lap time between the current time and when the */
+    /*       timer was started. */
     return 0;
 }
 
@@ -69,7 +69,7 @@ Stop the Zen Timer counting.
 static void _LZTimerOff(
     LZTimerObject *tm)
 {
-    // TODO: Stop the timer counting. Should be a macro if possible.
+    /* TODO: Stop the timer counting. Should be a macro if possible. */
 }
 
 /****************************************************************************
@@ -79,7 +79,7 @@ Compute the elapsed time in microseconds between start and end timings.
 static ulong _LZTimerCount(
     LZTimerObject *tm)
 {
-    // TODO: Compute the elapsed time and return it. Always microseconds.
+    /* TODO: Compute the elapsed time and return it. Always microseconds. */
     return 0;
 }
 
@@ -95,9 +95,9 @@ Read the Long Period timer from the OS
 ****************************************************************************/
 static ulong _ULZReadTime(void)
 {
-    // TODO: Read the long period timer from the OS. The resolution of this
-    //       timer should be around 1/20 of a second for timing long
-    //       periods if possible.
+    /* TODO: Read the long period timer from the OS. The resolution of this */
+    /*       timer should be around 1/20 of a second for timing long */
+    /*       periods if possible. */
 }
 
 /****************************************************************************

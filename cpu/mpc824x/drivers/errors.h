@@ -30,7 +30,7 @@
 #include "config.h"
 
 /*
-         1         2         3         4         5         6         7         8
+	 1         2         3         4         5         6         7         8
 01234567890123456789012345678901234567890123456789012345678901234567890123456789
 */
 /* List define statements here */
@@ -76,7 +76,6 @@ to standardize the error handling in the current project */
 #define INVALID_BAUD_RATE	0xfb08 	/* invalid baud rate from sb command */
 #define UNSUPPORTED_REGISTER	0xfb09 	/* Special register is not supported */
 #define FOR_BOARD_ONLY		0xfb0a  /* "Not available for Unix." */
-
 
 
 /*----------------------------------------------------------------------*/
@@ -147,9 +146,6 @@ to standardize the error handling in the current project */
 #define UNKNOWN_PARAMETER	0xFE01 /* "unknown type of parameter "*/
 
 
-
-
-
 /*----------------------------------------------------------------------*/
 /* these are for the tokenizer toolbox 					*/
 
@@ -164,7 +160,6 @@ to standardize the error handling in the current project */
 #define NO_OPEN_IBS		0xFF08 /* "no open input buffers" */
 
 
-
 /* these are for the read from screen toolbox */
 
 #define RESERVED_WORD		0xFC00 /* used a reserved word as an arguement*/
@@ -173,7 +168,6 @@ to standardize the error handling in the current project */
 /* these are for the breakpoint routines */
 
 #define FULL_BPDS		0xFA00 /* breakpoint data structure is full */
-
 
 
 /* THESE are for the downloader */

@@ -1177,8 +1177,8 @@ typedef struct scc_enet {
 
 # endif /* CONFIG_FEC_ENET */
 #endif  /* CONFIG_SVM_SC8xx */
-	
-	
+
+
 #if defined(CONFIG_NETVIA)
 /* Bits in parallel I/O port registers that have to be set/cleared
  * to configure the pins for SCC2 use.

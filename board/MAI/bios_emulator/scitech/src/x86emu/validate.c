@@ -63,63 +63,63 @@
 	int         f,failed = false;                                   \
     char        buf1[80],buf2[80];                                  \
     for (d = 0; d < dmax; d += dincr) {                             \
-        for (s = 0; s < smax; s += sincr) {                         \
-            M.x86.R_EFLG = inflags = flags = def_flags;             \
-            for (f = 0; f < 2; f++) {
+	for (s = 0; s < smax; s += sincr) {                         \
+	    M.x86.R_EFLG = inflags = flags = def_flags;             \
+	    for (f = 0; f < 2; f++) {
 
 #define VAL_TEST_BINARY(name)                                           \
-                r_asm = name##_asm(&flags,d,s);                         \
-                r = name(d,s);                                  \
-                if (r != r_asm || M.x86.R_EFLG != flags)                \
-                    failed = true;                                      \
-                if (failed || trace) {
+		r_asm = name##_asm(&flags,d,s);                         \
+		r = name(d,s);                                  \
+		if (r != r_asm || M.x86.R_EFLG != flags)                \
+		    failed = true;                                      \
+		if (failed || trace) {
 
 #define VAL_TEST_BINARY_VOID(name)                                      \
-                name##_asm(&flags,d,s);                                 \
-                name(d,s);                                      \
-                r = r_asm = 0;                                          \
-                if (M.x86.R_EFLG != flags)                              \
-                    failed = true;                                      \
-                if (failed || trace) {
+		name##_asm(&flags,d,s);                                 \
+		name(d,s);                                      \
+		r = r_asm = 0;                                          \
+		if (M.x86.R_EFLG != flags)                              \
+		    failed = true;                                      \
+		if (failed || trace) {
 
 #define VAL_FAIL_BYTE_BYTE_BINARY(name)                                                                 \
-                    if (failed)                                                                         \
-                        printk("fail\n");                                                               \
-                    printk("0x%02X = %-15s(0x%02X,0x%02X), flags = %s -> %s\n",                         \
-                        r, #name, d, s, print_flags(buf1,inflags), print_flags(buf2,M.x86.R_EFLG));     \
-                    printk("0x%02X = %-15s(0x%02X,0x%02X), flags = %s -> %s\n",                         \
-                        r_asm, #name"_asm", d, s, print_flags(buf1,inflags), print_flags(buf2,flags));
+		    if (failed)                                                                         \
+			printk("fail\n");                                                               \
+		    printk("0x%02X = %-15s(0x%02X,0x%02X), flags = %s -> %s\n",                         \
+			r, #name, d, s, print_flags(buf1,inflags), print_flags(buf2,M.x86.R_EFLG));     \
+		    printk("0x%02X = %-15s(0x%02X,0x%02X), flags = %s -> %s\n",                         \
+			r_asm, #name"_asm", d, s, print_flags(buf1,inflags), print_flags(buf2,flags));
 
 #define VAL_FAIL_WORD_WORD_BINARY(name)                                                                 \
-                    if (failed)                                                                         \
-                        printk("fail\n");                                                               \
-                    printk("0x%04X = %-15s(0x%04X,0x%04X), flags = %s -> %s\n",                         \
-                        r, #name, d, s, print_flags(buf1,inflags), print_flags(buf2,M.x86.R_EFLG));   \
-                    printk("0x%04X = %-15s(0x%04X,0x%04X), flags = %s -> %s\n",                         \
-                        r_asm, #name"_asm", d, s, print_flags(buf1,inflags), print_flags(buf2,flags));
+		    if (failed)                                                                         \
+			printk("fail\n");                                                               \
+		    printk("0x%04X = %-15s(0x%04X,0x%04X), flags = %s -> %s\n",                         \
+			r, #name, d, s, print_flags(buf1,inflags), print_flags(buf2,M.x86.R_EFLG));   \
+		    printk("0x%04X = %-15s(0x%04X,0x%04X), flags = %s -> %s\n",                         \
+			r_asm, #name"_asm", d, s, print_flags(buf1,inflags), print_flags(buf2,flags));
 
 #define VAL_FAIL_LONG_LONG_BINARY(name)                                                                 \
-                    if (failed)                                                                         \
-                        printk("fail\n");                                                               \
-                    printk("0x%08X = %-15s(0x%08X,0x%08X), flags = %s -> %s\n",                         \
-                        r, #name, d, s, print_flags(buf1,inflags), print_flags(buf2,M.x86.R_EFLG)); \
-                    printk("0x%08X = %-15s(0x%08X,0x%08X), flags = %s -> %s\n",                         \
-                        r_asm, #name"_asm", d, s, print_flags(buf1,inflags), print_flags(buf2,flags));
+		    if (failed)                                                                         \
+			printk("fail\n");                                                               \
+		    printk("0x%08X = %-15s(0x%08X,0x%08X), flags = %s -> %s\n",                         \
+			r, #name, d, s, print_flags(buf1,inflags), print_flags(buf2,M.x86.R_EFLG)); \
+		    printk("0x%08X = %-15s(0x%08X,0x%08X), flags = %s -> %s\n",                         \
+			r_asm, #name"_asm", d, s, print_flags(buf1,inflags), print_flags(buf2,flags));
 
 #define VAL_END_BINARY()                                                    \
-                    }                                                       \
-                M.x86.R_EFLG = inflags = flags = def_flags | (ALL_FLAGS & ~F_OF);   \
-                if (failed)                                                 \
-                    break;                                                  \
-                }                                                           \
-            if (failed)                                                     \
-                break;                                                      \
-            }                                                               \
-        if (failed)                                                         \
-            break;                                                          \
-        }                                                                   \
+		    }                                                       \
+		M.x86.R_EFLG = inflags = flags = def_flags | (ALL_FLAGS & ~F_OF);   \
+		if (failed)                                                 \
+		    break;                                                  \
+		}                                                           \
+	    if (failed)                                                     \
+		break;                                                      \
+	    }                                                               \
+	if (failed)                                                         \
+	    break;                                                          \
+	}                                                                   \
     if (!failed)                                                            \
-        printk("passed\n");                                                 \
+	printk("passed\n");                                                 \
 }
 
 #define VAL_BYTE_BYTE_BINARY(name)          \
@@ -194,51 +194,51 @@
     int         f,failed = false;                                   \
     char        buf1[80],buf2[80];                                  \
     for (d = 0; d < dmax; d += dincr) {                             \
-        for (s = 0; s < smax; s += sincr) {                         \
-            for (shift = 0; shift < maxshift; shift += 1) {        \
-                M.x86.R_EFLG = inflags = flags = def_flags;         \
-                for (f = 0; f < 2; f++) {
+	for (s = 0; s < smax; s += sincr) {                         \
+	    for (shift = 0; shift < maxshift; shift += 1) {        \
+		M.x86.R_EFLG = inflags = flags = def_flags;         \
+		for (f = 0; f < 2; f++) {
 
 #define VAL_TEST_TERNARY(name)                                          \
-                    r_asm = name##_asm(&flags,d,s,shift);               \
-                    r = name(d,s,shift);                           \
-                    if (r != r_asm || M.x86.R_EFLG != flags)            \
-                        failed = true;                                  \
-                    if (failed || trace) {
+		    r_asm = name##_asm(&flags,d,s,shift);               \
+		    r = name(d,s,shift);                           \
+		    if (r != r_asm || M.x86.R_EFLG != flags)            \
+			failed = true;                                  \
+		    if (failed || trace) {
 
 #define VAL_FAIL_WORD_WORD_TERNARY(name)                                                                \
-                        if (failed)                                                                         \
-                            printk("fail\n");                                                               \
-                        printk("0x%04X = %-15s(0x%04X,0x%04X,%d), flags = %s -> %s\n",                      \
-                            r, #name, d, s, shift, print_flags(buf1,inflags), print_flags(buf2,M.x86.R_EFLG));   \
-                        printk("0x%04X = %-15s(0x%04X,0x%04X,%d), flags = %s -> %s\n",                      \
-                            r_asm, #name"_asm", d, s, shift, print_flags(buf1,inflags), print_flags(buf2,flags));
+			if (failed)                                                                         \
+			    printk("fail\n");                                                               \
+			printk("0x%04X = %-15s(0x%04X,0x%04X,%d), flags = %s -> %s\n",                      \
+			    r, #name, d, s, shift, print_flags(buf1,inflags), print_flags(buf2,M.x86.R_EFLG));   \
+			printk("0x%04X = %-15s(0x%04X,0x%04X,%d), flags = %s -> %s\n",                      \
+			    r_asm, #name"_asm", d, s, shift, print_flags(buf1,inflags), print_flags(buf2,flags));
 
 #define VAL_FAIL_LONG_LONG_TERNARY(name)                                                                \
-                        if (failed)                                                                         \
-                            printk("fail\n");                                                               \
-                        printk("0x%08X = %-15s(0x%08X,0x%08X,%d), flags = %s -> %s\n",                      \
-                            r, #name, d, s, shift, print_flags(buf1,inflags), print_flags(buf2,M.x86.R_EFLG));  \
-                        printk("0x%08X = %-15s(0x%08X,0x%08X,%d), flags = %s -> %s\n",                      \
-                            r_asm, #name"_asm", d, s, shift, print_flags(buf1,inflags), print_flags(buf2,flags));
+			if (failed)                                                                         \
+			    printk("fail\n");                                                               \
+			printk("0x%08X = %-15s(0x%08X,0x%08X,%d), flags = %s -> %s\n",                      \
+			    r, #name, d, s, shift, print_flags(buf1,inflags), print_flags(buf2,M.x86.R_EFLG));  \
+			printk("0x%08X = %-15s(0x%08X,0x%08X,%d), flags = %s -> %s\n",                      \
+			    r_asm, #name"_asm", d, s, shift, print_flags(buf1,inflags), print_flags(buf2,flags));
 
 #define VAL_END_TERNARY()                                                   \
-                        }                                                       \
-                    M.x86.R_EFLG = inflags = flags = def_flags | (ALL_FLAGS & ~F_OF);   \
-                    if (failed)                                                 \
-                        break;                                                  \
-                    }                                                           \
-                if (failed)                                                     \
-                    break;                                                      \
-                }                                                               \
-            if (failed)                                                     \
-                break;                                                      \
-            }                                                               \
-        if (failed)                                                         \
-            break;                                                          \
-        }                                                                   \
+			}                                                       \
+		    M.x86.R_EFLG = inflags = flags = def_flags | (ALL_FLAGS & ~F_OF);   \
+		    if (failed)                                                 \
+			break;                                                  \
+		    }                                                           \
+		if (failed)                                                     \
+		    break;                                                      \
+		}                                                               \
+	    if (failed)                                                     \
+		break;                                                      \
+	    }                                                               \
+	if (failed)                                                         \
+	    break;                                                          \
+	}                                                                   \
     if (!failed)                                                            \
-        printk("passed\n");                                                 \
+	printk("passed\n");                                                 \
 }
 
 #define VAL_WORD_ROTATE_DBL(name)                           \
@@ -262,47 +262,47 @@
     int         f,failed = false;                           \
     char        buf1[80],buf2[80];                          \
     for (d = 0; d < max; d += incr) {                       \
-        M.x86.R_EFLG = inflags = flags = def_flags;         \
-        for (f = 0; f < 2; f++) {
+	M.x86.R_EFLG = inflags = flags = def_flags;         \
+	for (f = 0; f < 2; f++) {
 
 #define VAL_TEST_UNARY(name)                                \
-            r_asm = name##_asm(&flags,d);                   \
-            r = name(d);                                \
-            if (r != r_asm || M.x86.R_EFLG != flags) {      \
-                failed = true;
+	    r_asm = name##_asm(&flags,d);                   \
+	    r = name(d);                                \
+	    if (r != r_asm || M.x86.R_EFLG != flags) {      \
+		failed = true;
 
 #define VAL_FAIL_BYTE_UNARY(name)                                                               \
-                printk("fail\n");                                                               \
-                printk("0x%02X = %-15s(0x%02X), flags = %s -> %s\n",                            \
-                    r, #name, d, print_flags(buf1,inflags), print_flags(buf2,M.x86.R_EFLG));    \
-                printk("0x%02X = %-15s(0x%02X), flags = %s -> %s\n",                            \
-                    r_asm, #name"_asm", d, print_flags(buf1,inflags), print_flags(buf2,flags));
+		printk("fail\n");                                                               \
+		printk("0x%02X = %-15s(0x%02X), flags = %s -> %s\n",                            \
+		    r, #name, d, print_flags(buf1,inflags), print_flags(buf2,M.x86.R_EFLG));    \
+		printk("0x%02X = %-15s(0x%02X), flags = %s -> %s\n",                            \
+		    r_asm, #name"_asm", d, print_flags(buf1,inflags), print_flags(buf2,flags));
 
 #define VAL_FAIL_WORD_UNARY(name)                                                               \
-                printk("fail\n");                                                               \
-                printk("0x%04X = %-15s(0x%04X), flags = %s -> %s\n",                            \
-                    r, #name, d, print_flags(buf1,inflags), print_flags(buf2,M.x86.R_EFLG));  \
-                printk("0x%04X = %-15s(0x%04X), flags = %s -> %s\n",                            \
-                    r_asm, #name"_asm", d, print_flags(buf1,inflags), print_flags(buf2,flags));
+		printk("fail\n");                                                               \
+		printk("0x%04X = %-15s(0x%04X), flags = %s -> %s\n",                            \
+		    r, #name, d, print_flags(buf1,inflags), print_flags(buf2,M.x86.R_EFLG));  \
+		printk("0x%04X = %-15s(0x%04X), flags = %s -> %s\n",                            \
+		    r_asm, #name"_asm", d, print_flags(buf1,inflags), print_flags(buf2,flags));
 
 #define VAL_FAIL_LONG_UNARY(name)                                                               \
-                printk("fail\n");                                                               \
-                printk("0x%08X = %-15s(0x%08X), flags = %s -> %s\n",                            \
-                    r, #name, d, print_flags(buf1,inflags), print_flags(buf2,M.x86.R_EFLG));    \
-                printk("0x%08X = %-15s(0x%08X), flags = %s -> %s\n",                            \
-                    r_asm, #name"_asm", d, print_flags(buf1,inflags), print_flags(buf2,flags));
+		printk("fail\n");                                                               \
+		printk("0x%08X = %-15s(0x%08X), flags = %s -> %s\n",                            \
+		    r, #name, d, print_flags(buf1,inflags), print_flags(buf2,M.x86.R_EFLG));    \
+		printk("0x%08X = %-15s(0x%08X), flags = %s -> %s\n",                            \
+		    r_asm, #name"_asm", d, print_flags(buf1,inflags), print_flags(buf2,flags));
 
 #define VAL_END_UNARY()                                                 \
-                }                                                       \
-            M.x86.R_EFLG = inflags = flags = def_flags | ALL_FLAGS;     \
-            if (failed)                                                 \
-                break;                                                  \
-            }                                                           \
-        if (failed)                                                     \
-            break;                                                      \
-        }                                                               \
+		}                                                       \
+	    M.x86.R_EFLG = inflags = flags = def_flags | ALL_FLAGS;     \
+	    if (failed)                                                 \
+		break;                                                  \
+	    }                                                           \
+	if (failed)                                                     \
+	    break;                                                      \
+	}                                                               \
     if (!failed)                                                        \
-        printk("passed\n");                                             \
+	printk("passed\n");                                             \
 }
 
 #define VAL_BYTE_UNARY(name)                \
@@ -342,35 +342,35 @@
     int         f,failed = false;                                       \
     char        buf1[80],buf2[80];                                      \
     for (d = 0; d < 0xFF; d += 1) {                                     \
-        for (s = 0; s < 0xFF; s += 1) {                                 \
-            M.x86.R_EFLG = inflags = flags = def_flags;                 \
-            for (f = 0; f < 2; f++) {                                   \
-                name##_asm(&flags,&r_asm,d,s);                          \
-                M.x86.R_AL = d;                                         \
-                name(s);                                            \
-                r = M.x86.R_AX;                                         \
-                if (r != r_asm || M.x86.R_EFLG != flags)                \
-                    failed = true;                                      \
-                if (failed || trace) {                                  \
-                    if (failed)                                         \
-                        printk("fail\n");                               \
-                    printk("0x%04X = %-15s(0x%02X,0x%02X), flags = %s -> %s\n",                         \
-                        r, #name, d, s, print_flags(buf1,inflags), print_flags(buf2,M.x86.R_EFLG));     \
-                    printk("0x%04X = %-15s(0x%02X,0x%02X), flags = %s -> %s\n",                         \
-                        r_asm, #name"_asm", d, s, print_flags(buf1,inflags), print_flags(buf2,flags));  \
-                    }                                                       \
-                M.x86.R_EFLG = inflags = flags = def_flags | (ALL_FLAGS & ~F_OF);   \
-                if (failed)                                                 \
-                    break;                                                  \
-                }                                                           \
-            if (failed)                                                     \
-                break;                                                      \
-            }                                                               \
-        if (failed)                                                         \
-            break;                                                          \
-        }                                                                   \
+	for (s = 0; s < 0xFF; s += 1) {                                 \
+	    M.x86.R_EFLG = inflags = flags = def_flags;                 \
+	    for (f = 0; f < 2; f++) {                                   \
+		name##_asm(&flags,&r_asm,d,s);                          \
+		M.x86.R_AL = d;                                         \
+		name(s);                                            \
+		r = M.x86.R_AX;                                         \
+		if (r != r_asm || M.x86.R_EFLG != flags)                \
+		    failed = true;                                      \
+		if (failed || trace) {                                  \
+		    if (failed)                                         \
+			printk("fail\n");                               \
+		    printk("0x%04X = %-15s(0x%02X,0x%02X), flags = %s -> %s\n",                         \
+			r, #name, d, s, print_flags(buf1,inflags), print_flags(buf2,M.x86.R_EFLG));     \
+		    printk("0x%04X = %-15s(0x%02X,0x%02X), flags = %s -> %s\n",                         \
+			r_asm, #name"_asm", d, s, print_flags(buf1,inflags), print_flags(buf2,flags));  \
+		    }                                                       \
+		M.x86.R_EFLG = inflags = flags = def_flags | (ALL_FLAGS & ~F_OF);   \
+		if (failed)                                                 \
+		    break;                                                  \
+		}                                                           \
+	    if (failed)                                                     \
+		break;                                                      \
+	    }                                                               \
+	if (failed)                                                         \
+	    break;                                                          \
+	}                                                                   \
     if (!failed)                                                            \
-        printk("passed\n");                                                 \
+	printk("passed\n");                                                 \
 }
 
 #define VAL_WORD_MUL(name)                                              \
@@ -383,36 +383,36 @@
     int         f,failed = false;                                       \
     char        buf1[80],buf2[80];                                      \
     for (d = 0; d < 0xFF00; d += 0x100) {                               \
-        for (s = 0; s < 0xFF00; s += 0x100) {                           \
-            M.x86.R_EFLG = inflags = flags = def_flags;                 \
-            for (f = 0; f < 2; f++) {                                   \
-                name##_asm(&flags,&r_asm_lo,&r_asm_hi,d,s);             \
-                M.x86.R_AX = d;                                         \
-                name(s);                                            \
-                r_lo = M.x86.R_AX;                                      \
-                r_hi = M.x86.R_DX;                                      \
-                if (r_lo != r_asm_lo || r_hi != r_asm_hi || M.x86.R_EFLG != flags)\
-                    failed = true;                                      \
-                if (failed || trace) {                                  \
-                    if (failed)                                         \
-                        printk("fail\n");                               \
-                    printk("0x%04X:0x%04X = %-15s(0x%04X,0x%04X), flags = %s -> %s\n",                              \
-                        r_hi,r_lo, #name, d, s, print_flags(buf1,inflags), print_flags(buf2,M.x86.R_EFLG));       \
-                    printk("0x%04X:0x%04X = %-15s(0x%04X,0x%04X), flags = %s -> %s\n",                              \
-                        r_asm_hi,r_asm_lo, #name"_asm", d, s, print_flags(buf1,inflags), print_flags(buf2,flags));  \
-                    }                                                                                               \
-                M.x86.R_EFLG = inflags = flags = def_flags | (ALL_FLAGS & ~F_OF);   \
-                if (failed)                                                 \
-                    break;                                                  \
-                }                                                           \
-            if (failed)                                                     \
-                break;                                                      \
-            }                                                               \
-        if (failed)                                                         \
-            break;                                                          \
-        }                                                                   \
+	for (s = 0; s < 0xFF00; s += 0x100) {                           \
+	    M.x86.R_EFLG = inflags = flags = def_flags;                 \
+	    for (f = 0; f < 2; f++) {                                   \
+		name##_asm(&flags,&r_asm_lo,&r_asm_hi,d,s);             \
+		M.x86.R_AX = d;                                         \
+		name(s);                                            \
+		r_lo = M.x86.R_AX;                                      \
+		r_hi = M.x86.R_DX;                                      \
+		if (r_lo != r_asm_lo || r_hi != r_asm_hi || M.x86.R_EFLG != flags)\
+		    failed = true;                                      \
+		if (failed || trace) {                                  \
+		    if (failed)                                         \
+			printk("fail\n");                               \
+		    printk("0x%04X:0x%04X = %-15s(0x%04X,0x%04X), flags = %s -> %s\n",                              \
+			r_hi,r_lo, #name, d, s, print_flags(buf1,inflags), print_flags(buf2,M.x86.R_EFLG));       \
+		    printk("0x%04X:0x%04X = %-15s(0x%04X,0x%04X), flags = %s -> %s\n",                              \
+			r_asm_hi,r_asm_lo, #name"_asm", d, s, print_flags(buf1,inflags), print_flags(buf2,flags));  \
+		    }                                                                                               \
+		M.x86.R_EFLG = inflags = flags = def_flags | (ALL_FLAGS & ~F_OF);   \
+		if (failed)                                                 \
+		    break;                                                  \
+		}                                                           \
+	    if (failed)                                                     \
+		break;                                                      \
+	    }                                                               \
+	if (failed)                                                         \
+	    break;                                                          \
+	}                                                                   \
     if (!failed)                                                            \
-        printk("passed\n");                                                 \
+	printk("passed\n");                                                 \
 }
 
 #define VAL_LONG_MUL(name)                                              \
@@ -425,36 +425,36 @@
     int         f,failed = false;                                       \
     char        buf1[80],buf2[80];                                      \
     for (d = 0; d < 0xFF000000; d += 0x1000000) {                       \
-        for (s = 0; s < 0xFF000000; s += 0x1000000) {                   \
-            M.x86.R_EFLG = inflags = flags = def_flags;                 \
-            for (f = 0; f < 2; f++) {                                   \
-                name##_asm(&flags,&r_asm_lo,&r_asm_hi,d,s);             \
-                M.x86.R_EAX = d;                                        \
-                name(s);                                            \
-                r_lo = M.x86.R_EAX;                                     \
-                r_hi = M.x86.R_EDX;                                     \
-                if (r_lo != r_asm_lo || r_hi != r_asm_hi || M.x86.R_EFLG != flags)\
-                    failed = true;                                      \
-                if (failed || trace) {                                  \
-                    if (failed)                                         \
-                        printk("fail\n");                               \
-                    printk("0x%08X:0x%08X = %-15s(0x%08X,0x%08X), flags = %s -> %s\n",                              \
-                        r_hi,r_lo, #name, d, s, print_flags(buf1,inflags), print_flags(buf2,M.x86.R_EFLG));       \
-                    printk("0x%08X:0x%08X = %-15s(0x%08X,0x%08X), flags = %s -> %s\n",                              \
-                        r_asm_hi,r_asm_lo, #name"_asm", d, s, print_flags(buf1,inflags), print_flags(buf2,flags));  \
-                    }                                                                                               \
-                M.x86.R_EFLG = inflags = flags = def_flags | (ALL_FLAGS & ~F_OF);   \
-                if (failed)                                                 \
-                    break;                                                  \
-                }                                                           \
-            if (failed)                                                     \
-                break;                                                      \
-            }                                                               \
-        if (failed)                                                         \
-            break;                                                          \
-        }                                                                   \
+	for (s = 0; s < 0xFF000000; s += 0x1000000) {                   \
+	    M.x86.R_EFLG = inflags = flags = def_flags;                 \
+	    for (f = 0; f < 2; f++) {                                   \
+		name##_asm(&flags,&r_asm_lo,&r_asm_hi,d,s);             \
+		M.x86.R_EAX = d;                                        \
+		name(s);                                            \
+		r_lo = M.x86.R_EAX;                                     \
+		r_hi = M.x86.R_EDX;                                     \
+		if (r_lo != r_asm_lo || r_hi != r_asm_hi || M.x86.R_EFLG != flags)\
+		    failed = true;                                      \
+		if (failed || trace) {                                  \
+		    if (failed)                                         \
+			printk("fail\n");                               \
+		    printk("0x%08X:0x%08X = %-15s(0x%08X,0x%08X), flags = %s -> %s\n",                              \
+			r_hi,r_lo, #name, d, s, print_flags(buf1,inflags), print_flags(buf2,M.x86.R_EFLG));       \
+		    printk("0x%08X:0x%08X = %-15s(0x%08X,0x%08X), flags = %s -> %s\n",                              \
+			r_asm_hi,r_asm_lo, #name"_asm", d, s, print_flags(buf1,inflags), print_flags(buf2,flags));  \
+		    }                                                                                               \
+		M.x86.R_EFLG = inflags = flags = def_flags | (ALL_FLAGS & ~F_OF);   \
+		if (failed)                                                 \
+		    break;                                                  \
+		}                                                           \
+	    if (failed)                                                     \
+		break;                                                      \
+	    }                                                               \
+	if (failed)                                                         \
+	    break;                                                          \
+	}                                                                   \
     if (!failed)                                                            \
-        printk("passed\n");                                                 \
+	printk("passed\n");                                                 \
 }
 
 #define VAL_BYTE_DIV(name)                                              \
@@ -466,39 +466,39 @@
     int         f,failed = false;                                       \
     char        buf1[80],buf2[80];                                      \
     for (d = 0; d < 0xFF00; d += 0x100) {                               \
-        for (s = 1; s < 0xFF; s += 1) {                                 \
-            M.x86.R_EFLG = inflags = flags = def_flags;                 \
-            for (f = 0; f < 2; f++) {                                   \
-                M.x86.intr = 0;                                         \
-                M.x86.R_AX = d;                                         \
-                name(s);                                            \
-                r_quot = M.x86.R_AL;                                    \
-                r_rem = M.x86.R_AH;                                     \
-                if (M.x86.intr & INTR_SYNCH)                            \
-                    continue;                                           \
-                name##_asm(&flags,&r_asm_quot,&r_asm_rem,d,s);          \
-                if (r_quot != r_asm_quot || r_rem != r_asm_rem || M.x86.R_EFLG != flags) \
-                    failed = true;                                      \
-                if (failed || trace) {                                  \
-                    if (failed)                                         \
-                        printk("fail\n");                               \
-                    printk("0x%02X:0x%02X = %-15s(0x%04X,0x%02X), flags = %s -> %s\n",                      \
-                        r_quot, r_rem, #name, d, s, print_flags(buf1,inflags), print_flags(buf2,M.x86.R_EFLG));     \
-                    printk("0x%02X:0x%02X = %-15s(0x%04X,0x%02X), flags = %s -> %s\n",                      \
-                        r_asm_quot, r_asm_rem, #name"_asm", d, s, print_flags(buf1,inflags), print_flags(buf2,flags));  \
-                    }                                                       \
-                M.x86.R_EFLG = inflags = flags = def_flags | (ALL_FLAGS & ~F_OF);   \
-                if (failed)                                                 \
-                    break;                                                  \
-                }                                                           \
-            if (failed)                                                     \
-                break;                                                      \
-            }                                                               \
-        if (failed)                                                         \
-            break;                                                          \
-        }                                                                   \
+	for (s = 1; s < 0xFF; s += 1) {                                 \
+	    M.x86.R_EFLG = inflags = flags = def_flags;                 \
+	    for (f = 0; f < 2; f++) {                                   \
+		M.x86.intr = 0;                                         \
+		M.x86.R_AX = d;                                         \
+		name(s);                                            \
+		r_quot = M.x86.R_AL;                                    \
+		r_rem = M.x86.R_AH;                                     \
+		if (M.x86.intr & INTR_SYNCH)                            \
+		    continue;                                           \
+		name##_asm(&flags,&r_asm_quot,&r_asm_rem,d,s);          \
+		if (r_quot != r_asm_quot || r_rem != r_asm_rem || M.x86.R_EFLG != flags) \
+		    failed = true;                                      \
+		if (failed || trace) {                                  \
+		    if (failed)                                         \
+			printk("fail\n");                               \
+		    printk("0x%02X:0x%02X = %-15s(0x%04X,0x%02X), flags = %s -> %s\n",                      \
+			r_quot, r_rem, #name, d, s, print_flags(buf1,inflags), print_flags(buf2,M.x86.R_EFLG));     \
+		    printk("0x%02X:0x%02X = %-15s(0x%04X,0x%02X), flags = %s -> %s\n",                      \
+			r_asm_quot, r_asm_rem, #name"_asm", d, s, print_flags(buf1,inflags), print_flags(buf2,flags));  \
+		    }                                                       \
+		M.x86.R_EFLG = inflags = flags = def_flags | (ALL_FLAGS & ~F_OF);   \
+		if (failed)                                                 \
+		    break;                                                  \
+		}                                                           \
+	    if (failed)                                                     \
+		break;                                                      \
+	    }                                                               \
+	if (failed)                                                         \
+	    break;                                                          \
+	}                                                                   \
     if (!failed)                                                            \
-        printk("passed\n");                                                 \
+	printk("passed\n");                                                 \
 }
 
 #define VAL_WORD_DIV(name)                                              \
@@ -510,40 +510,40 @@
     int         f,failed = false;                                       \
     char        buf1[80],buf2[80];                                      \
     for (d = 0; d < 0xFF000000; d += 0x1000000) {                       \
-        for (s = 0x100; s < 0xFF00; s += 0x100) {                       \
-            M.x86.R_EFLG = inflags = flags = def_flags;                 \
-            for (f = 0; f < 2; f++) {                                   \
-                M.x86.intr = 0;                                         \
-                M.x86.R_AX = d & 0xFFFF;                                \
-                M.x86.R_DX = d >> 16;                                   \
-                name(s);                                            \
-                r_quot = M.x86.R_AX;                                    \
-                r_rem = M.x86.R_DX;                                     \
-                if (M.x86.intr & INTR_SYNCH)                            \
-                    continue;                                           \
-                name##_asm(&flags,&r_asm_quot,&r_asm_rem,d & 0xFFFF,d >> 16,s);\
-                if (r_quot != r_asm_quot || r_rem != r_asm_rem || M.x86.R_EFLG != flags) \
-                    failed = true;                                      \
-                if (failed || trace) {                                  \
-                    if (failed)                                         \
-                        printk("fail\n");                               \
-                    printk("0x%04X:0x%04X = %-15s(0x%08X,0x%04X), flags = %s -> %s\n",                      \
-                        r_quot, r_rem, #name, d, s, print_flags(buf1,inflags), print_flags(buf2,M.x86.R_EFLG));     \
-                    printk("0x%04X:0x%04X = %-15s(0x%08X,0x%04X), flags = %s -> %s\n",                      \
-                        r_asm_quot, r_asm_rem, #name"_asm", d, s, print_flags(buf1,inflags), print_flags(buf2,flags));  \
-                    }                                                       \
-                M.x86.R_EFLG = inflags = flags = def_flags | (ALL_FLAGS & ~F_OF);   \
-                if (failed)                                                 \
-                    break;                                                  \
-                }                                                           \
-            if (failed)                                                     \
-                break;                                                      \
-            }                                                               \
-        if (failed)                                                         \
-            break;                                                          \
-        }                                                                   \
+	for (s = 0x100; s < 0xFF00; s += 0x100) {                       \
+	    M.x86.R_EFLG = inflags = flags = def_flags;                 \
+	    for (f = 0; f < 2; f++) {                                   \
+		M.x86.intr = 0;                                         \
+		M.x86.R_AX = d & 0xFFFF;                                \
+		M.x86.R_DX = d >> 16;                                   \
+		name(s);                                            \
+		r_quot = M.x86.R_AX;                                    \
+		r_rem = M.x86.R_DX;                                     \
+		if (M.x86.intr & INTR_SYNCH)                            \
+		    continue;                                           \
+		name##_asm(&flags,&r_asm_quot,&r_asm_rem,d & 0xFFFF,d >> 16,s);\
+		if (r_quot != r_asm_quot || r_rem != r_asm_rem || M.x86.R_EFLG != flags) \
+		    failed = true;                                      \
+		if (failed || trace) {                                  \
+		    if (failed)                                         \
+			printk("fail\n");                               \
+		    printk("0x%04X:0x%04X = %-15s(0x%08X,0x%04X), flags = %s -> %s\n",                      \
+			r_quot, r_rem, #name, d, s, print_flags(buf1,inflags), print_flags(buf2,M.x86.R_EFLG));     \
+		    printk("0x%04X:0x%04X = %-15s(0x%08X,0x%04X), flags = %s -> %s\n",                      \
+			r_asm_quot, r_asm_rem, #name"_asm", d, s, print_flags(buf1,inflags), print_flags(buf2,flags));  \
+		    }                                                       \
+		M.x86.R_EFLG = inflags = flags = def_flags | (ALL_FLAGS & ~F_OF);   \
+		if (failed)                                                 \
+		    break;                                                  \
+		}                                                           \
+	    if (failed)                                                     \
+		break;                                                      \
+	    }                                                               \
+	if (failed)                                                         \
+	    break;                                                          \
+	}                                                                   \
     if (!failed)                                                            \
-        printk("passed\n");                                                 \
+	printk("passed\n");                                                 \
 }
 
 #define VAL_LONG_DIV(name)                                              \
@@ -555,40 +555,40 @@
     int         f,failed = false;                                       \
     char        buf1[80],buf2[80];                                      \
     for (d = 0; d < 0xFF000000; d += 0x1000000) {                       \
-        for (s = 0x100; s < 0xFF00; s += 0x100) {                       \
-            M.x86.R_EFLG = inflags = flags = def_flags;                 \
-            for (f = 0; f < 2; f++) {                                   \
-                M.x86.intr = 0;                                         \
-                M.x86.R_EAX = d;                                        \
-                M.x86.R_EDX = 0;                                        \
-                name(s);                                            \
-                r_quot = M.x86.R_EAX;                                   \
-                r_rem = M.x86.R_EDX;                                    \
-                if (M.x86.intr & INTR_SYNCH)                            \
-                    continue;                                           \
-                name##_asm(&flags,&r_asm_quot,&r_asm_rem,d,0,s);        \
-                if (r_quot != r_asm_quot || r_rem != r_asm_rem || M.x86.R_EFLG != flags) \
-                    failed = true;                                      \
-                if (failed || trace) {                                  \
-                    if (failed)                                         \
-                        printk("fail\n");                               \
-                    printk("0x%08X:0x%08X = %-15s(0x%08X:0x%08X,0x%08X), flags = %s -> %s\n",                       \
-                        r_quot, r_rem, #name, 0, d, s, print_flags(buf1,inflags), print_flags(buf2,M.x86.R_EFLG));  \
-                    printk("0x%08X:0x%08X = %-15s(0x%08X:0x%08X,0x%08X), flags = %s -> %s\n",                       \
-                        r_asm_quot, r_asm_rem, #name"_asm", 0, d, s, print_flags(buf1,inflags), print_flags(buf2,flags));   \
-                    }                                                       \
-                M.x86.R_EFLG = inflags = flags = def_flags | (ALL_FLAGS & ~F_OF);   \
-                if (failed)                                                 \
-                    break;                                                  \
-                }                                                           \
-            if (failed)                                                     \
-                break;                                                      \
-            }                                                               \
-        if (failed)                                                         \
-            break;                                                          \
-        }                                                                   \
+	for (s = 0x100; s < 0xFF00; s += 0x100) {                       \
+	    M.x86.R_EFLG = inflags = flags = def_flags;                 \
+	    for (f = 0; f < 2; f++) {                                   \
+		M.x86.intr = 0;                                         \
+		M.x86.R_EAX = d;                                        \
+		M.x86.R_EDX = 0;                                        \
+		name(s);                                            \
+		r_quot = M.x86.R_EAX;                                   \
+		r_rem = M.x86.R_EDX;                                    \
+		if (M.x86.intr & INTR_SYNCH)                            \
+		    continue;                                           \
+		name##_asm(&flags,&r_asm_quot,&r_asm_rem,d,0,s);        \
+		if (r_quot != r_asm_quot || r_rem != r_asm_rem || M.x86.R_EFLG != flags) \
+		    failed = true;                                      \
+		if (failed || trace) {                                  \
+		    if (failed)                                         \
+			printk("fail\n");                               \
+		    printk("0x%08X:0x%08X = %-15s(0x%08X:0x%08X,0x%08X), flags = %s -> %s\n",                       \
+			r_quot, r_rem, #name, 0, d, s, print_flags(buf1,inflags), print_flags(buf2,M.x86.R_EFLG));  \
+		    printk("0x%08X:0x%08X = %-15s(0x%08X:0x%08X,0x%08X), flags = %s -> %s\n",                       \
+			r_asm_quot, r_asm_rem, #name"_asm", 0, d, s, print_flags(buf1,inflags), print_flags(buf2,flags));   \
+		    }                                                       \
+		M.x86.R_EFLG = inflags = flags = def_flags | (ALL_FLAGS & ~F_OF);   \
+		if (failed)                                                 \
+		    break;                                                  \
+		}                                                           \
+	    if (failed)                                                     \
+		break;                                                      \
+	    }                                                               \
+	if (failed)                                                         \
+	    break;                                                          \
+	}                                                                   \
     if (!failed)                                                            \
-        printk("passed\n");                                                 \
+	printk("passed\n");                                                 \
 }
 
 void printk(const char *fmt, ...)
@@ -606,37 +606,37 @@ char * print_flags(char *buf,ulong flags)
 
     buf[0] = 0;
     if (flags & F_CF) {
-        strcat(buf,separator);
-        strcat(buf,"CF");
-        separator = ",";
-        }
+	strcat(buf,separator);
+	strcat(buf,"CF");
+	separator = ",";
+	}
     if (flags & F_PF) {
-        strcat(buf,separator);
-        strcat(buf,"PF");
-        separator = ",";
-        }
+	strcat(buf,separator);
+	strcat(buf,"PF");
+	separator = ",";
+	}
     if (flags & F_AF) {
-        strcat(buf,separator);
-        strcat(buf,"AF");
-        separator = ",";
-        }
+	strcat(buf,separator);
+	strcat(buf,"AF");
+	separator = ",";
+	}
     if (flags & F_ZF) {
-        strcat(buf,separator);
-        strcat(buf,"ZF");
-        separator = ",";
-        }
+	strcat(buf,separator);
+	strcat(buf,"ZF");
+	separator = ",";
+	}
     if (flags & F_SF) {
-        strcat(buf,separator);
-        strcat(buf,"SF");
-        separator = ",";
-        }
+	strcat(buf,separator);
+	strcat(buf,"SF");
+	separator = ",";
+	}
     if (flags & F_OF) {
-        strcat(buf,separator);
-        strcat(buf,"OF");
-        separator = ",";
-        }
+	strcat(buf,separator);
+	strcat(buf,"OF");
+	separator = ",";
+	}
     if (separator[0] == 0)
-        strcpy(buf,"None");
+	strcpy(buf,"None");
     return buf;
 }
 
@@ -646,7 +646,7 @@ int main(int argc)
     int trace = false;
 
     if (argc > 1)
-        trace = true;
+	trace = true;
     memset(&M, 0, sizeof(M));
     def_flags = get_flags_asm() & ~ALL_FLAGS;
 
@@ -673,7 +673,7 @@ int main(int argc)
     VAL_LONG_LONG_BINARY(cmp_long);
 
     VAL_BYTE_UNARY(daa_byte);
-    VAL_BYTE_UNARY(das_byte);   // Fails for 0x9A (out of range anyway)
+    VAL_BYTE_UNARY(das_byte);   /* Fails for 0x9A (out of range anyway) */
 
     VAL_BYTE_UNARY(dec_byte);
     VAL_WORD_UNARY(dec_word);

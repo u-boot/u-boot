@@ -50,7 +50,7 @@ const iop_conf_t iop_conf_tab[4][32] = {
 
     /* Port A configuration */
     {	/*	      conf ppar psor pdir podr pdat */
-        /* PA31 */ {   0,   1,   0,   1,   0,   0   }, /* FCC1 TxENB */
+	/* PA31 */ {   0,   1,   0,   1,   0,   0   }, /* FCC1 TxENB */
 	/* PA30 */ {   0,   1,   0,   0,   0,   0   }, /* FCC1 TxClav   */
 	/* PA29 */ {   0,   1,   0,   1,   0,   0   }, /* FCC1 TxSOC  */
 	/* PA28 */ {   0,   1,   0,   1,   0,   0   }, /* FCC1 RxENB */

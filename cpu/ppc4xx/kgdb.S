@@ -45,13 +45,13 @@ kgdb_flush_cache_all:
 	iccci   r0,r0		/* iccci invalidates the entire I cache */
 	/* dcache */
 	addi    r6,0,0x0000     /* clear GPR 6 */
-        addi    r7,r0, 128 	/* do loop for # of dcache lines */
+	addi    r7,r0, 128 	/* do loop for # of dcache lines */
 				/* NOTE: dccci invalidates both */
-        mtctr   r7              /* ways in the D cache */
+	mtctr   r7              /* ways in the D cache */
 ..dcloop:
-        dccci   0,r6            /* invalidate line */
-        addi    r6,r6, 32	/* bump to next line */
-        bdnz    ..dcloop
+	dccci   0,r6            /* invalidate line */
+	addi    r6,r6, 32	/* bump to next line */
+	bdnz    ..dcloop
 	blr
 
 	.globl	kgdb_flush_cache_range

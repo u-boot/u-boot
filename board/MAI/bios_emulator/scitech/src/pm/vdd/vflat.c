@@ -32,12 +32,12 @@
 
 ibool PMAPI VF_available(void)
 {
-        return false;
+	return false;
 }
 
 void * PMAPI VF_init(ulong baseAddr,int bankSize,int codeLen,void *bankFunc)
 {
-        return NULL;
+	return NULL;
 }
 
 void PMAPI VF_exit(void)

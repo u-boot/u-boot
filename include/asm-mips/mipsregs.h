@@ -75,7 +75,7 @@
 #define CP0_IWATCH $18
 #define CP0_DWATCH $19
 
-/* 
+/*
  * Coprocessor 0 Set 1 register names
  */
 #define CP0_S1_DERRADDR0  $26
@@ -175,69 +175,69 @@
  */
 #define read_32bit_cp0_register(source)                         \
 ({ int __res;                                                   \
-        __asm__ __volatile__(                                   \
+	__asm__ __volatile__(                                   \
 	".set\tpush\n\t"					\
 	".set\treorder\n\t"					\
-        "mfc0\t%0,"STR(source)"\n\t"                            \
+	"mfc0\t%0,"STR(source)"\n\t"                            \
 	".set\tpop"						\
-        : "=r" (__res));                                        \
-        __res;})
+	: "=r" (__res));                                        \
+	__res;})
 
 #define read_32bit_cp0_set1_register(source)                    \
 ({ int __res;                                                   \
-        __asm__ __volatile__(                                   \
+	__asm__ __volatile__(                                   \
 	".set\tpush\n\t"					\
 	".set\treorder\n\t"					\
-        "cfc0\t%0,"STR(source)"\n\t"                            \
+	"cfc0\t%0,"STR(source)"\n\t"                            \
 	".set\tpop"						\
-        : "=r" (__res));                                        \
-        __res;})
+	: "=r" (__res));                                        \
+	__res;})
 
 /*
  * For now use this only with interrupts disabled!
  */
 #define read_64bit_cp0_register(source)                         \
 ({ int __res;                                                   \
-        __asm__ __volatile__(                                   \
-        ".set\tmips3\n\t"                                       \
-        "dmfc0\t%0,"STR(source)"\n\t"                           \
-        ".set\tmips0"                                           \
-        : "=r" (__res));                                        \
-        __res;})
+	__asm__ __volatile__(                                   \
+	".set\tmips3\n\t"                                       \
+	"dmfc0\t%0,"STR(source)"\n\t"                           \
+	".set\tmips0"                                           \
+	: "=r" (__res));                                        \
+	__res;})
 
 #define write_32bit_cp0_register(register,value)                \
-        __asm__ __volatile__(                                   \
-        "mtc0\t%0,"STR(register)"\n\t"				\
+	__asm__ __volatile__(                                   \
+	"mtc0\t%0,"STR(register)"\n\t"				\
 	"nop"							\
-        : : "r" (value));
+	: : "r" (value));
 
 #define write_32bit_cp0_set1_register(register,value)           \
-        __asm__ __volatile__(                                   \
-        "ctc0\t%0,"STR(register)"\n\t"				\
+	__asm__ __volatile__(                                   \
+	"ctc0\t%0,"STR(register)"\n\t"				\
 	"nop"							\
-        : : "r" (value));
+	: : "r" (value));
 
 #define write_64bit_cp0_register(register,value)                \
-        __asm__ __volatile__(                                   \
-        ".set\tmips3\n\t"                                       \
-        "dmtc0\t%0,"STR(register)"\n\t"                         \
-        ".set\tmips0"                                           \
-        : : "r" (value))
+	__asm__ __volatile__(                                   \
+	".set\tmips3\n\t"                                       \
+	"dmtc0\t%0,"STR(register)"\n\t"                         \
+	".set\tmips0"                                           \
+	: : "r" (value))
 
-/* 
- * This should be changed when we get a compiler that support the MIPS32 ISA. 
+/*
+ * This should be changed when we get a compiler that support the MIPS32 ISA.
  */
 #define read_mips32_cp0_config1()                               \
 ({ int __res;                                                   \
-        __asm__ __volatile__(                                   \
+	__asm__ __volatile__(                                   \
 	".set\tnoreorder\n\t"                                   \
 	".set\tnoat\n\t"                                        \
-     	".word\t0x40018001\n\t"                                 \
+	".word\t0x40018001\n\t"                                 \
 	"move\t%0,$1\n\t"                                       \
 	".set\tat\n\t"                                          \
 	".set\treorder"                                         \
 	:"=r" (__res));                                         \
-        __res;})
+	__res;})
 
 /*
  * R4x00 interrupt enable / cause bits
@@ -273,11 +273,11 @@ extern __inline__ unsigned int                                  \
 set_cp0_##name(unsigned int set)				\
 {                                                               \
 	unsigned int res;                                       \
-                                                                \
+								\
 	res = read_32bit_cp0_register(register);                \
 	res |= set;						\
 	write_32bit_cp0_register(register, res);        	\
-                                                                \
+								\
 	return res;                                             \
 }								\
 								\
@@ -285,11 +285,11 @@ extern __inline__ unsigned int                                  \
 clear_cp0_##name(unsigned int clear)				\
 {                                                               \
 	unsigned int res;                                       \
-                                                                \
+								\
 	res = read_32bit_cp0_register(register);                \
 	res &= ~clear;						\
 	write_32bit_cp0_register(register, res);		\
-                                                                \
+								\
 	return res;                                             \
 }								\
 								\
@@ -297,13 +297,13 @@ extern __inline__ unsigned int                                  \
 change_cp0_##name(unsigned int change, unsigned int new)	\
 {                                                               \
 	unsigned int res;                                       \
-                                                                \
+								\
 	res = read_32bit_cp0_register(register);                \
 	res &= ~change;                                         \
 	res |= (new & change);                                  \
 	if(change)                                              \
 		write_32bit_cp0_register(register, res);        \
-                                                                \
+								\
 	return res;                                             \
 }
 

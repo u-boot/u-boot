@@ -26,7 +26,6 @@
  */
 #include <common.h>
 #include <command.h>
-#include <cmd_cache.h>
 
 #if (CONFIG_COMMANDS & CFG_CMD_CACHE)
 
@@ -94,5 +93,20 @@ static int on_off (const char *s)
 	}
 	return (-1);
 }
+
+
+cmd_tbl_t U_BOOT_CMD(ICACHE) = MK_CMD_ENTRY(
+	"icache",   2,   1,     do_icache,
+	"icache  - enable or disable instruction cache\n",
+	"[on, off]\n"
+	"    - enable or disable instruction cache\n"
+);
+
+cmd_tbl_t U_BOOT_CMD(DCACHE) = MK_CMD_ENTRY(
+	"dcache",   2,   1,     do_dcache,
+	"dcache  - enable or disable data cache\n",
+	"[on, off]\n"
+	"    - enable or disable data (writethrough) cache\n"
+);
 
 #endif	/* CFG_CMD_CACHE */

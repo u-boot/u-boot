@@ -60,19 +60,19 @@ void _EXPORT CenterWindow(HWND hWndCenter, HWND parent, BOOL repaint)
     CenterY = ((RectParent.bottom - RectParent.top) - Height) / 2;
 
     if ((CenterX < 0) || (CenterY < 0)) {
-        /* The Center Window is smaller than the parent window. */
-        if (hWndParent != GetDesktopWindow()) {
-            /* If the parent window is not the desktop use the desktop size. */
-            CenterX = (GetSystemMetrics(SM_CXSCREEN) - Width) / 2;
-            CenterY = (GetSystemMetrics(SM_CYSCREEN) - Height) / 2;
-            }
-        CenterX = (CenterX < 0) ? 0: CenterX;
-        CenterY = (CenterY < 0) ? 0: CenterY;
-        }
+	/* The Center Window is smaller than the parent window. */
+	if (hWndParent != GetDesktopWindow()) {
+	    /* If the parent window is not the desktop use the desktop size. */
+	    CenterX = (GetSystemMetrics(SM_CXSCREEN) - Width) / 2;
+	    CenterY = (GetSystemMetrics(SM_CYSCREEN) - Height) / 2;
+	    }
+	CenterX = (CenterX < 0) ? 0: CenterX;
+	CenterY = (CenterY < 0) ? 0: CenterY;
+	}
     else {
-        CenterX += RectParent.left;
-        CenterY += RectParent.top;
-        }
+	CenterX += RectParent.left;
+	CenterY += RectParent.top;
+	}
 
     /* Copy the values into RectCenter */
     RectCenter.left = CenterX;
@@ -82,8 +82,8 @@ void _EXPORT CenterWindow(HWND hWndCenter, HWND parent, BOOL repaint)
 
     /* Move the window to the new location */
     MoveWindow(hWndCenter, RectCenter.left, RectCenter.top,
-            (RectCenter.right - RectCenter.left),
-            (RectCenter.bottom - RectCenter.top), repaint);
+	    (RectCenter.right - RectCenter.left),
+	    (RectCenter.bottom - RectCenter.top), repaint);
 }
 
 void _EXPORT CenterLogo(HWND hWndLogo, HWND hWndParent, int CenterY)
@@ -117,7 +117,6 @@ void _EXPORT CenterLogo(HWND hWndLogo, HWND hWndParent, int CenterY)
 
     /* Move the window to the new location */
     MoveWindow(hWndLogo, RectCenter.left, RectCenter.top,
-            (RectCenter.right - RectCenter.left),
-            (RectCenter.bottom - RectCenter.top), false);
+	    (RectCenter.right - RectCenter.left),
+	    (RectCenter.bottom - RectCenter.top), false);
 }
-

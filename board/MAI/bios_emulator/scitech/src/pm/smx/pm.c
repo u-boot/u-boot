@@ -147,9 +147,9 @@ void PMAPI PM_backslash(char *s)
 {
     uint pos = strlen(s);
     if (s[pos-1] != '\\') {
-        s[pos] = '\\';
-        s[pos+1] = '\0';
-        }
+	s[pos] = '\\';
+	s[pos+1] = '\0';
+	}
 }
 
 void PMAPI PM_setFatalErrorCleanup(
@@ -163,28 +163,28 @@ void MGLOutput(char *);
 void PMAPI PM_fatalError(const char *msg)
 {
     if (fatalErrorCleanup)
-        fatalErrorCleanup();
+	fatalErrorCleanup();
     MGLOutput(msg);
-// No support for fprintf() under smx currently!
-//  fprintf(stderr,"%s\n", msg);
+/* No support for fprintf() under smx currently! */
+/*  fprintf(stderr,"%s\n", msg); */
     exit(1);
 }
 
 static void ExitVBEBuf(void)
 {
     if (VESABuf_ptr)
-        PM_freeRealSeg(VESABuf_ptr);
+	PM_freeRealSeg(VESABuf_ptr);
     VESABuf_ptr = 0;
 }
 
 void * PMAPI PM_getVESABuf(uint *len,uint *rseg,uint *roff)
 {
     if (!VESABuf_ptr) {
-        /* Allocate a global buffer for communicating with the VESA VBE */
-        if ((VESABuf_ptr = PM_allocRealSeg(VESABuf_len, &VESABuf_rseg, &VESABuf_roff)) == NULL)
-            return NULL;
-        atexit(ExitVBEBuf);
-        }
+	/* Allocate a global buffer for communicating with the VESA VBE */
+	if ((VESABuf_ptr = PM_allocRealSeg(VESABuf_len, &VESABuf_rseg, &VESABuf_roff)) == NULL)
+	    return NULL;
+	atexit(ExitVBEBuf);
+	}
     *len = VESABuf_len;
     *rseg = VESABuf_rseg;
     *roff = VESABuf_roff;
@@ -234,12 +234,12 @@ void PMAPI _PM_addRealModeBlock(void *mem,uint tag)
     int i;
 
     for (i = 0; i < MAX_RM_BLOCKS; i++) {
-        if (rmBlocks[i].p == NULL) {
-            rmBlocks[i].p = mem;
-            rmBlocks[i].tag = tag;
-            return;
-            }
-        }
+	if (rmBlocks[i].p == NULL) {
+	    rmBlocks[i].p = mem;
+	    rmBlocks[i].tag = tag;
+	    return;
+	    }
+	}
     PM_fatalError("To many real mode memory block allocations!");
 }
 
@@ -248,9 +248,9 @@ uint PMAPI _PM_findRealModeBlock(void *mem)
     int i;
 
     for (i = 0; i < MAX_RM_BLOCKS; i++) {
-        if (rmBlocks[i].p == mem)
-            return rmBlocks[i].tag;
-        }
+	if (rmBlocks[i].p == mem)
+	    return rmBlocks[i].tag;
+	}
     PM_fatalError("Could not find prior real mode memory block allocation!");
     return 0;
 }
@@ -274,7 +274,7 @@ const char * PMAPI PM_getNucleusPath(void)
     char        *env;
 
     if ((env = getenv("NUCLEUS_PATH")) != NULL)
-        return env;
+	return env;
     return "c:\\nucleus";
 }
 
@@ -339,12 +339,12 @@ void PMAPI PM_saveConsoleState(void *stateBuf,PM_HWND hwndConsole)
     sb->oldMode = regs.h.al & 0x7F;
     sb->old50Lines = false;
     if (sb->oldMode == 0x3) {
-        regs.x.ax = 0x1130;
-        regs.x.bx = 0;
-        regs.x.dx = 0;
-        PM_int86(0x10,&regs,&regs);
-        sb->old50Lines = (regs.h.dl == 42 || regs.h.dl == 49);
-        }
+	regs.x.ax = 0x1130;
+	regs.x.bx = 0;
+	regs.x.dx = 0;
+	PM_int86(0x10,&regs,&regs);
+	sb->old50Lines = (regs.h.dl == 42 || regs.h.dl == 49);
+	}
     (void)hwndConsole;
 }
 
@@ -361,10 +361,10 @@ void PMAPI PM_restoreConsoleState(const void *stateBuf,PM_HWND hwndConsole)
 
     /* Retore 50 line mode if set */
     if (sb->old50Lines) {
-        regs.x.ax = 0x1112;
-        regs.x.bx = 0;
-        PM_int86(0x10,&regs,&regs);
-        }
+	regs.x.ax = 0x1112;
+	regs.x.bx = 0;
+	PM_int86(0x10,&regs,&regs);
+	}
     (void)hwndConsole;
 }
 
@@ -388,13 +388,13 @@ void PMAPI PM_setOSScreenWidth(int width,int height)
     PM_setWord(_biosPtr+0x4C,width*2);
     PM_setByte(_biosPtr+0x84,height-1);
     if (height > 25) {
-        PM_setWord(_biosPtr+0x60,0x0607);
-        PM_setByte(_biosPtr+0x85,0x08);
-        }
+	PM_setWord(_biosPtr+0x60,0x0607);
+	PM_setByte(_biosPtr+0x85,0x08);
+	}
     else {
-        PM_setWord(_biosPtr+0x60,0x0D0E);
-        PM_setByte(_biosPtr+0x85,0x016);
-        }
+	PM_setWord(_biosPtr+0x60,0x0D0E);
+	PM_setByte(_biosPtr+0x85,0x016);
+	}
 }
 
 void * PMAPI PM_mallocShared(long size)
@@ -424,22 +424,22 @@ ibool PMAPI PM_doBIOSPOST(
 
     /* Create a zero memory mapping for us to use */
     if (firstTime) {
-        rmZeroPtr = PM_mapPhysicalAddr(0,0x7FFF,true);
-        firstTime = false;
-        }
+	rmZeroPtr = PM_mapPhysicalAddr(0,0x7FFF,true);
+	firstTime = false;
+	}
 
     /* Remap the secondary BIOS to 0xC0000 physical */
     if (BIOSPhysAddr != 0xC0000L || BIOSLen > 32768) {
-        /* SMX cannot virtually remap the BIOS, so we can only work if all
-         * the secondary controllers are identical, and we then use the
-         * BIOS on the first controller for all the remaining controllers.
-         *
-         * For OS'es that do virtual memory, and remapping of 0xC0000
-         * physical (perhaps a copy on write mapping) should be all that
-         * is needed.
-         */
-        return false;
-        }
+	/* SMX cannot virtually remap the BIOS, so we can only work if all
+	 * the secondary controllers are identical, and we then use the
+	 * BIOS on the first controller for all the remaining controllers.
+	 *
+	 * For OS'es that do virtual memory, and remapping of 0xC0000
+	 * physical (perhaps a copy on write mapping) should be all that
+	 * is needed.
+	 */
+	return false;
+	}
 
     /* Save current handlers of int 10h and 6Dh */
     GetRMVect(0x10,&Current10);
@@ -457,9 +457,9 @@ ibool PMAPI PM_doBIOSPOST(
 
     /* Second the primary BIOS mappin 1:1 for 0xC0000 physical */
     if (BIOSPhysAddr != 0xC0000L) {
-        /* SMX does not support this */
-        (void)mappedBIOS;
-        }
+	/* SMX does not support this */
+	(void)mappedBIOS;
+	}
     return true;
 }
 
@@ -470,26 +470,26 @@ void PMAPI PM_sleep(ulong milliseconds)
 
     LZTimerOnExt(&tm);
     while (LZTimerLapExt(&tm) < microseconds)
-        ;
+	;
     LZTimerOffExt(&tm);
 }
 
 int PMAPI PM_getCOMPort(int port)
 {
     switch (port) {
-        case 0: return 0x3F8;
-        case 1: return 0x2F8;
-        }
+	case 0: return 0x3F8;
+	case 1: return 0x2F8;
+	}
     return 0;
 }
 
 int PMAPI PM_getLPTPort(int port)
 {
     switch (port) {
-        case 0: return 0x3BC;
-        case 1: return 0x378;
-        case 2: return 0x278;
-        }
+	case 0: return 0x3BC;
+	case 1: return 0x378;
+	case 2: return 0x278;
+	}
     return 0;
 }
 
@@ -534,15 +534,15 @@ static void convertFindData(
     memset(findData,0,findData->dwSize);
     findData->dwSize = dwSize;
     if (blk->attrib & _A_RDONLY)
-        findData->attrib |= PM_FILE_READONLY;
+	findData->attrib |= PM_FILE_READONLY;
     if (blk->attrib & _A_SUBDIR)
-        findData->attrib |= PM_FILE_DIRECTORY;
+	findData->attrib |= PM_FILE_DIRECTORY;
     if (blk->attrib & _A_ARCH)
-        findData->attrib |= PM_FILE_ARCHIVE;
+	findData->attrib |= PM_FILE_ARCHIVE;
     if (blk->attrib & _A_HIDDEN)
-        findData->attrib |= PM_FILE_HIDDEN;
+	findData->attrib |= PM_FILE_HIDDEN;
     if (blk->attrib & _A_SYSTEM)
-        findData->attrib |= PM_FILE_SYSTEM;
+	findData->attrib |= PM_FILE_SYSTEM;
     findData->sizeLo = blk->size;
     strncpy(findData->name,blk->name,PM_MAX_PATH);
     findData->name[PM_MAX_PATH-1] = 0;
@@ -561,11 +561,11 @@ void * PMAPI PM_findFirstFile(
     struct find_t *blk;
 
     if ((blk = PM_malloc(sizeof(*blk))) == NULL)
-        return PM_FILE_INVALID;
+	return PM_FILE_INVALID;
     if (_dos_findfirst((char*)filename,FIND_MASK,blk) == 0) {
-        convertFindData(findData,blk);
-        return blk;
-        }
+	convertFindData(findData,blk);
+	return blk;
+	}
     return PM_FILE_INVALID;
 }
 
@@ -580,9 +580,9 @@ ibool PMAPI PM_findNextFile(
     struct find_t *blk = handle;
 
     if (_dos_findnext(blk) == 0) {
-        convertFindData(findData,blk);
-        return true;
-        }
+	convertFindData(findData,blk);
+	return true;
+	}
     return false;
 }
 
@@ -614,9 +614,9 @@ ibool PMAPI PM_driveValid(
 {
     RMREGS  regs;
     regs.h.dl = (uchar)(drive - 'A' + 1);
-    regs.h.ah = 0x36;               // Get disk information service
+    regs.h.ah = 0x36;               /* Get disk information service */
     PM_int86(0x21,&regs,&regs);
-    return regs.x.ax != 0xFFFF;     // AX = 0xFFFF if disk is invalid
+    return regs.x.ax != 0xFFFF;     /* AX = 0xFFFF if disk is invalid */
 }
 
 /****************************************************************************
@@ -649,25 +649,25 @@ void PMAPI PM_setFileAttr(
     DWORD attr = 0;
 
     if (attrib & PM_FILE_READONLY)
-        attr |= FILE_ATTRIBUTE_READONLY;
+	attr |= FILE_ATTRIBUTE_READONLY;
     if (attrib & PM_FILE_ARCHIVE)
-        attr |= FILE_ATTRIBUTE_ARCHIVE;
+	attr |= FILE_ATTRIBUTE_ARCHIVE;
     if (attrib & PM_FILE_HIDDEN)
-        attr |= FILE_ATTRIBUTE_HIDDEN;
+	attr |= FILE_ATTRIBUTE_HIDDEN;
     if (attrib & PM_FILE_SYSTEM)
-        attr |= FILE_ATTRIBUTE_SYSTEM;
+	attr |= FILE_ATTRIBUTE_SYSTEM;
     SetFileAttributes((LPSTR)filename, attr);
 #else
     uint attr = 0;
 
     if (attrib & PM_FILE_READONLY)
-        attr |= _A_RDONLY;
+	attr |= _A_RDONLY;
     if (attrib & PM_FILE_ARCHIVE)
-        attr |= _A_ARCH;
+	attr |= _A_ARCH;
     if (attrib & PM_FILE_HIDDEN)
-        attr |= _A_HIDDEN;
+	attr |= _A_HIDDEN;
     if (attrib & PM_FILE_SYSTEM)
-        attr |= _A_SYSTEM;
+	attr |= _A_SYSTEM;
     _dos_setfileattr(filename,attr);
 #endif
 }
@@ -682,7 +682,7 @@ ibool PMAPI PM_mkdir(
 #ifdef  __GNUC__
     return mkdir(filename,S_IRUSR) == 0;
 #else
-//AM:   return mkdir(filename) == 0;
+/*AM:   return mkdir(filename) == 0; */
     return(false);
 #endif
 }
@@ -694,7 +694,7 @@ Function to remove a directory.
 ibool PMAPI PM_rmdir(
     const char *filename)
 {
-//AM:   return rmdir(filename) == 0;
+/*AM:   return rmdir(filename) == 0; */
     return(false);
 }
 
@@ -719,9 +719,9 @@ void * PMAPI PM_allocLockedMem(
      * properly page align the start of the memory block for DMA operations.
      */
     if (size > 4096)
-        return NULL;
+	return NULL;
     if ((p = PM_allocRealSeg((size + 0xFFF) & ~0xFFF,&r_seg,&r_off)) == NULL)
-        return NULL;
+	return NULL;
     *physAddr = ((r_seg << 4) + r_off + 0xFFF) & ~0xFFF;
     PM_lockDataPages(p,size*2,&lh);
     return p;
@@ -743,11 +743,11 @@ ulong PMAPI DPMI_mapPhysicalToLinear(ulong physAddr,ulong limit)
     ulong   physOfs;
 
     if (physAddr < 0x100000L) {
-        /* We can't map memory below 1Mb, but the linear address are already
-         * mapped 1:1 for this memory anyway so we just return the base address.
-         */
-        return physAddr;
-        }
+	/* We can't map memory below 1Mb, but the linear address are already
+	 * mapped 1:1 for this memory anyway so we just return the base address.
+	 */
+	return physAddr;
+	}
 
     /* Round the physical address to a 4Kb boundary and the limit to a
      * 4Kb-1 boundary before passing the values to DPMI as some extenders
@@ -766,7 +766,7 @@ ulong PMAPI DPMI_mapPhysicalToLinear(ulong physAddr,ulong limit)
     r.x.di = limit & 0xFFFF;
     PM_int386(0x31, &r, &r);
     if (r.x.cflag)
-        return 0xFFFFFFFFUL;
+	return 0xFFFFFFFFUL;
     return ((ulong)r.x.bx << 16) + r.x.cx + physOfs;
 }
 
@@ -780,7 +780,7 @@ int PMAPI DPMI_setSelectorBase(ushort sel,ulong linAddr)
     r.x.dx = linAddr & 0xFFFF;
     PM_int386(0x31, &r, &r);
     if (r.x.cflag)
-        return 0;
+	return 0;
     return 1;
 }
 
@@ -804,7 +804,7 @@ int PMAPI DPMI_setSelectorLimit(ushort sel,ulong limit)
     r.x.dx = limit & 0xFFFF;
     PM_int386(0x31, &r, &r);
     if (r.x.cflag)
-        return 0;
+	return 0;
     return 1;
 }
 
@@ -830,11 +830,11 @@ uint PMAPI DPMI_createSelector(ulong base,ulong limit)
 
     /* Map physical memory and create selector */
     if ((base = DPMI_mapPhysicalToLinear(base,limit)) == 0xFFFFFFFFUL)
-        return 0;
+	return 0;
     if (!DPMI_setSelectorBase(sel,base))
-        return 0;
+	return 0;
     if (!DPMI_setSelectorLimit(sel,limit))
-        return 0;
+	return 0;
     return sel;
 }
 
@@ -883,28 +883,28 @@ void * PMAPI DPMI_mapPhysicalAddr(ulong base,ulong limit,ibool isCached)
     PM_segread(&sregs);
     DSBaseAddr = DPMI_getSelectorBase(sregs.ds);
     if ((base < 0x100000) && (DSBaseAddr == 0)) {
-        /* DS is zero based, so we can directly access the first 1Mb of
-         * system memory (like under DOS4GW).
-         */
-        return (void*)base;
-        }
+	/* DS is zero based, so we can directly access the first 1Mb of
+	 * system memory (like under DOS4GW).
+	 */
+	return (void*)base;
+	}
 
     /* Map the memory to a linear address using DPMI function 0x800 */
     if ((linAddr = DPMI_mapPhysicalToLinear(base,limit)) == 0) {
-        if (base >= 0x100000)
-            return NULL;
-        /* If the linear address mapping fails but we are trying to
-         * map an area in the first 1Mb of system memory, then we must
-         * be running under a Windows or OS/2 DOS box. Under these
-         * environments we can use the segment wrap around as a fallback
-         * measure, as this does work properly.
-         */
-        linAddr = base;
-        }
+	if (base >= 0x100000)
+	    return NULL;
+	/* If the linear address mapping fails but we are trying to
+	 * map an area in the first 1Mb of system memory, then we must
+	 * be running under a Windows or OS/2 DOS box. Under these
+	 * environments we can use the segment wrap around as a fallback
+	 * measure, as this does work properly.
+	 */
+	linAddr = base;
+	}
 
     /* Now expand the default DS selector to 4Gb so we can access it */
     if (!DPMI_setSelectorLimit(sregs.ds,0xFFFFFFFFUL))
-        return NULL;
+	return NULL;
 
     /* Finally enable caching for the page tables that we just mapped in,
      * since DOS4GW and PMODE/W create the page table entries without
@@ -916,34 +916,34 @@ void * PMAPI DPMI_mapPhysicalAddr(ulong base,ulong limit,ibool isCached)
      * caching) so that MMIO register regions do not screw up.
      */
     if (isCached) {
-        if ((PDB = _PM_getPDB()) != 0 && DSBaseAddr == 0) {
-            int     startPDB,endPDB,iPDB,startPage,endPage,start,end,iPage;
-            ulong   pageTable,*pPageTable;
-            if (!pPDB) {
-                if (PDB >= 0x100000)
-                    pPDB = (ulong*)DPMI_mapPhysicalToLinear(PDB,0xFFF);
-                else
-                    pPDB = (ulong*)PDB;
-                }
-            if (pPDB) {
-                startPDB = (linAddr >> 22) & 0x3FF;
-                startPage = (linAddr >> 12) & 0x3FF;
-                endPDB = ((linAddr+limit) >> 22) & 0x3FF;
-                endPage = ((linAddr+limit) >> 12) & 0x3FF;
-                for (iPDB = startPDB; iPDB <= endPDB; iPDB++) {
-                    pageTable = pPDB[iPDB] & ~0xFFF;
-                    if (pageTable >= 0x100000)
-                        pPageTable = (ulong*)DPMI_mapPhysicalToLinear(pageTable,0xFFF);
-                    else
-                        pPageTable = (ulong*)pageTable;
-                    start = (iPDB == startPDB) ? startPage : 0;
-                    end = (iPDB == endPDB) ? endPage : 0x3FF;
-                    for (iPage = start; iPage <= end; iPage++)
-                        pPageTable[iPage] &= ~0x18;
-                    }
-                }
-            }
-        }
+	if ((PDB = _PM_getPDB()) != 0 && DSBaseAddr == 0) {
+	    int     startPDB,endPDB,iPDB,startPage,endPage,start,end,iPage;
+	    ulong   pageTable,*pPageTable;
+	    if (!pPDB) {
+		if (PDB >= 0x100000)
+		    pPDB = (ulong*)DPMI_mapPhysicalToLinear(PDB,0xFFF);
+		else
+		    pPDB = (ulong*)PDB;
+		}
+	    if (pPDB) {
+		startPDB = (linAddr >> 22) & 0x3FF;
+		startPage = (linAddr >> 12) & 0x3FF;
+		endPDB = ((linAddr+limit) >> 22) & 0x3FF;
+		endPage = ((linAddr+limit) >> 12) & 0x3FF;
+		for (iPDB = startPDB; iPDB <= endPDB; iPDB++) {
+		    pageTable = pPDB[iPDB] & ~0xFFF;
+		    if (pageTable >= 0x100000)
+			pPageTable = (ulong*)DPMI_mapPhysicalToLinear(pageTable,0xFFF);
+		    else
+			pPageTable = (ulong*)pageTable;
+		    start = (iPDB == startPDB) ? startPage : 0;
+		    end = (iPDB == endPDB) ? endPage : 0x3FF;
+		    for (iPage = start; iPage <= end; iPage++)
+			pPageTable[iPage] &= ~0x18;
+		    }
+		}
+	    }
+	}
 
     /* Now return the base address of the memory into the default DS */
     return (void*)(linAddr - DSBaseAddr);
@@ -971,10 +971,10 @@ void PMAPI PM_callRealMode(uint seg,uint off, RMREGS *in,
     uint    oldSeg,oldOff;
 
     if (!crPtr) {
-        /* Allocate and copy the memory block only once */
-        crPtr = PM_allocRealSeg(sizeof(int6AHandler), &crRSeg, &crROff);
-        memcpy(crPtr,int6AHandler,sizeof(int6AHandler));
-        }
+	/* Allocate and copy the memory block only once */
+	crPtr = PM_allocRealSeg(sizeof(int6AHandler), &crRSeg, &crROff);
+	memcpy(crPtr,int6AHandler,sizeof(int6AHandler));
+	}
     PM_setWord(crPtr,off);              /* Plug in address to call  */
     PM_setWord(crPtr+2,seg);
     p = PM_mapRealPointer(0,0x6A * 4);
@@ -1003,8 +1003,8 @@ void PMAPI PM_freePhysicalAddr(void *ptr,ulong limit)
 
 ulong PMAPI PM_getPhysicalAddr(void *p)
 {
-    // TODO: This function should find the physical address of a linear
-    //       address.
+    /* TODO: This function should find the physical address of a linear */
+    /*       address. */
     (void)p;
     return 0xFFFFFFFFUL;
 }
@@ -1020,7 +1020,7 @@ void * PMAPI PM_mapRealPointer(uint r_seg,uint r_off)
     static uchar *zeroPtr = NULL;
 
     if (!zeroPtr)
-        zeroPtr = PM_mapPhysicalAddr(0,0xFFFFF,true);
+	zeroPtr = PM_mapPhysicalAddr(0,0xFFFFF,true);
     return (void*)(zeroPtr + MK_PHYS(r_seg,r_off));
 }
 
@@ -1033,7 +1033,7 @@ void * PMAPI PM_allocRealSeg(uint size,uint *r_seg,uint *r_off)
     r.x.bx = (size + 0xF) >> 4;     /* number of paragraphs             */
     PM_int386(0x31, &r, &r);
     if (r.x.cflag)
-        return NULL;                /* DPMI call failed                 */
+	return NULL;                /* DPMI call failed                 */
     *r_seg = r.x.ax;                /* Real mode segment                */
     *r_off = 0;
     p = PM_mapRealPointer(*r_seg,*r_off);
@@ -1063,9 +1063,9 @@ void PMAPI DPMI_int86(int intno, DPMI_regs *regs)
     PMSREGS     sr;
 
     if (intno == 0x10 && DPMI_int10) {
-        if (DPMI_int10(regs))
-            return;
-        }
+	if (DPMI_int10(regs))
+	    return;
+	}
     PM_segread(&sr);
     r.x.ax = 0x300;                 /* DPMI issue real interrupt    */
     r.h.bl = intno;
@@ -1086,8 +1086,8 @@ int PMAPI PM_int86(int intno, RMREGS *in, RMREGS *out)
     memset(&rmregs, 0, sizeof(rmregs));
     IN(eax); IN(ebx); IN(ecx); IN(edx); IN(esi); IN(edi);
 
-// These real mode ints may cause crashes.
-//AM:   DPMI_int86(intno,&rmregs);      /* DPMI issue real interrupt    */
+/* These real mode ints may cause crashes. */
+/*AM:   DPMI_int86(intno,&rmregs);      /###* DPMI issue real interrupt    */
 
     OUT(eax); OUT(ebx); OUT(ecx); OUT(edx); OUT(esi); OUT(edi);
     out->x.cflag = rmregs.flags & 0x1;
@@ -1104,7 +1104,7 @@ int PMAPI PM_int86x(int intno, RMREGS *in, RMREGS *out,
     rmregs.es = sregs->es;
     rmregs.ds = sregs->ds;
 
-//AM:   DPMI_int86(intno,&rmregs);      /* DPMI issue real interrupt    */
+/*AM:   DPMI_int86(intno,&rmregs);      /###* DPMI issue real interrupt    */
 
     OUT(eax); OUT(ebx); OUT(ecx); OUT(edx); OUT(esi); OUT(edi);
     sregs->es = rmregs.es;
@@ -1118,17 +1118,17 @@ int PMAPI PM_int86x(int intno, RMREGS *in, RMREGS *out,
 #pragma pack(1)
 
 typedef struct {
-        uint    LargestBlockAvail;
-        uint    MaxUnlockedPage;
-        uint    LargestLockablePage;
-        uint    LinAddrSpace;
-        uint    NumFreePagesAvail;
-        uint    NumPhysicalPagesFree;
-        uint    TotalPhysicalPages;
-        uint    FreeLinAddrSpace;
-        uint    SizeOfPageFile;
-        uint    res[3];
-        } MemInfo;
+	uint    LargestBlockAvail;
+	uint    MaxUnlockedPage;
+	uint    LargestLockablePage;
+	uint    LinAddrSpace;
+	uint    NumFreePagesAvail;
+	uint    NumPhysicalPagesFree;
+	uint    TotalPhysicalPages;
+	uint    FreeLinAddrSpace;
+	uint    SizeOfPageFile;
+	uint    res[3];
+	} MemInfo;
 
 #pragma pack()
 
@@ -1146,7 +1146,7 @@ void PMAPI PM_availableMemory(ulong *physical,ulong *total)
     *physical = memInfo.NumPhysicalPagesFree * 4096;
     *total = memInfo.LargestBlockAvail;
     if (*total < *physical)
-        *physical = *total;
+	*physical = *total;
 }
 
 /****************************************************************************
@@ -1156,7 +1156,7 @@ Function to get the file attributes for a specific file.
 uint PMAPI PM_getFileAttr(
     const char *filename)
 {
-    // TODO: Implement this!
+    /* TODO: Implement this! */
     return 0;
 }
 
@@ -1169,7 +1169,7 @@ ibool PMAPI PM_getFileTime(
     ibool gmTime,
     PM_time *time)
 {
-    // TODO: Implement this!
+    /* TODO: Implement this! */
     return false;
 }
 
@@ -1182,6 +1182,6 @@ ibool PMAPI PM_setFileTime(
     ibool gmTime,
     PM_time *time)
 {
-    // TODO: Implement this!
+    /* TODO: Implement this! */
     return false;
 }

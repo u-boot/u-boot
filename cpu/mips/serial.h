@@ -24,7 +24,7 @@
 
 #ifdef INCAASC_USE_FDV
    #define INCAASC_FDV_LOW_BAUDRATE        71
-   #define INCAASC_FDV_HIGH_BAUDRATE       453   
+   #define INCAASC_FDV_HIGH_BAUDRATE       453
 #endif /*INCAASC_USE_FDV*/
 
 
@@ -41,7 +41,7 @@
 #define INCAASC_IRQ_LINE_EIR            0x00040000      /* EIR - Err */
 #define INCAASC_IRQ_LINE_TBIR           0x00080000      /* TBIR - Tx Buf*/
 
-/* interrupt controller access macros */    
+/* interrupt controller access macros */
 #define ASC_INTERRUPTS_ENABLE(X)  \
    *((volatile unsigned int*) INCA_IP_ICU_IM2_IER) |= X;
 #define ASC_INTERRUPTS_DISABLE(X) \
@@ -96,9 +96,9 @@
 #define ASCABCON_FCDETEN    0x0010
 #define ASCABCON_EMMASK     0x0300
     #define ASCABCON_EMOFF          8
-        #define ASCABCON_EM_DISAB       0x0
-        #define ASCABCON_EM_DURAB       0x1
-        #define ASCABCON_EM_ALWAYS      0x2
+	#define ASCABCON_EM_DISAB       0x0
+	#define ASCABCON_EM_DURAB       0x1
+	#define ASCABCON_EM_ALWAYS      0x2
 #define ASCABCON_TXINV      0x0400
 #define ASCABCON_RXINV      0x0800
 
@@ -175,4 +175,3 @@ typedef  struct         /* incaAsc_t */
 } incaAsc_t;
 
 #endif /* __INCincaAscSioh */
-

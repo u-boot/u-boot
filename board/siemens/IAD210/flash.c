@@ -140,7 +140,7 @@ void flash_print_info  (flash_info_t *info)
   }
 
   printf ("  Size: %ld MB in %d Sectors\n",
-          info->size >> 20, info->sector_count);
+	  info->size >> 20, info->sector_count);
 
   printf ("  Sector Start Addresses:");
   for (i=0; i<info->sector_count; ++i) {
@@ -149,7 +149,7 @@ void flash_print_info  (flash_info_t *info)
     printf (" %08lX%s",
 			info->start[i],
 			info->protect[i] ? " (RO)" : "     "
-            );
+	    );
   }
   printf ("\n");
 }

@@ -49,19 +49,19 @@
 
 #undef	CONFIG_MODEM_SUPPORT		/* disable modem initialization stuff */
 
-#define CONFIG_BOOTDELAY      3  
+#define CONFIG_BOOTDELAY      3
 /* #define CONFIG_ENV_OVERWRITE  1 */
 
 #define CONFIG_COMMANDS		\
 		       ((CONFIG_CMD_DFL	| \
 			CFG_CMD_DHCP ) & \
-                      ~(CFG_CMD_BDI | \
-                        CFG_CMD_IMI | \
-                        CFG_CMD_AUTOSCRIPT | \
-                        CFG_CMD_FPGA | \
-                        CFG_CMD_MISC | \
-                        CFG_CMD_LOADS ))
-                     
+		      ~(CFG_CMD_BDI | \
+			CFG_CMD_IMI | \
+			CFG_CMD_AUTOSCRIPT | \
+			CFG_CMD_FPGA | \
+			CFG_CMD_MISC | \
+			CFG_CMD_LOADS ))
+
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
 
@@ -155,7 +155,7 @@ struct bd_info_ext
 #endif
 
 #define	CFG_HZ AT91C_MASTER_CLOCK/2  /* AT91C_TC0_CMR is implicitly set to
-                                        AT91C_TC_TIMER_DIV1_CLOCK */
+					AT91C_TC_TIMER_DIV1_CLOCK */
 
 #define CONFIG_STACKSIZE	(32*1024)	/* regular stack */
 

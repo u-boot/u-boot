@@ -83,7 +83,6 @@
 
 #include <common.h>
 #include <command.h>
-#include <cmd_i2c.h>
 #include <i2c.h>
 #include <asm/byteorder.h>
 
@@ -865,4 +864,61 @@ int do_sdram  ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 #endif	/* CFG_CMD_SDRAM */
 
+
+/***************************************************/
+
+cmd_tbl_t U_BOOT_CMD(IMD) = MK_CMD_ENTRY(
+	"imd",	4,	1,	do_i2c_md,		\
+	"imd     - i2c memory display\n",				\
+	"chip address[.0, .1, .2] [# of objects]\n    - i2c memory display\n" \
+);
+
+cmd_tbl_t U_BOOT_CMD(IMM) = MK_CMD_ENTRY(
+ 	"imm",	3,	1,	do_i2c_mm,
+	"imm     - i2c memory modify (auto-incrementing)\n",
+	"chip address[.0, .1, .2]\n"
+	"    - memory modify, auto increment address\n"
+);
+cmd_tbl_t U_BOOT_CMD(INM) = MK_CMD_ENTRY(
+	"inm",	3,	1,	do_i2c_nm,
+	"inm     - memory modify (constant address)\n",
+	"chip address[.0, .1, .2]\n    - memory modify, read and keep address\n"
+);
+
+cmd_tbl_t U_BOOT_CMD(IMW) = MK_CMD_ENTRY(
+	"imw",	5,	1,	do_i2c_mw,
+	"imw     - memory write (fill)\n",
+	"chip address[.0, .1, .2] value [count]\n    - memory write (fill)\n"
+);
+
+cmd_tbl_t U_BOOT_CMD(ICRC) = MK_CMD_ENTRY(
+	"icrc32",	5,	1,	do_i2c_crc,
+	"icrc32  - checksum calculation\n",
+	"chip address[.0, .1, .2] count\n    - compute CRC32 checksum\n"
+);
+
+cmd_tbl_t U_BOOT_CMD(IPROBE) = MK_CMD_ENTRY(
+	"iprobe",	1,	1,	do_i2c_probe,
+	"iprobe  - probe to discover valid I2C chip addresses\n",
+	"\n    -discover valid I2C chip addresses\n"
+);
+
+/*
+ * Require full name for "iloop" because it is an infinite loop!
+ */
+cmd_tbl_t U_BOOT_CMD(ILOOP) = MK_CMD_ENTRY(
+	"iloop",	5,	1,	do_i2c_loop,
+	"iloop   - infinite loop on address range\n",
+	"chip address[.0, .1, .2] [# of objects]\n"
+	"    - loop, reading a set of addresses\n"
+);
+
+#if (CONFIG_COMMANDS & CFG_CMD_SDRAM)
+cmd_tbl_t U_BOOT_CMD(ISDRAM) = MK_CMD_ENTRY(
+	"isdram",	2,	1,	do_sdram,
+	"isdram  - print SDRAM configuration information\n",
+	"chip\n    - print SDRAM configuration information\n"
+	"      (valid chip values 50..57)\n"
+);
+#endif
 #endif	/* CFG_CMD_I2C */

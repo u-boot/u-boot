@@ -34,7 +34,7 @@
 #define CP_RESET                    0x200000
 
 #define CP_ALL                      (CP_INIT | CP_SEND | CP_RCV | CP_INT | \
-                                    CP_RESET | CP_UINIT)
+				    CP_RESET | CP_UINIT)
 
 #define CP_MASK                     0xffff0000
 
@@ -94,7 +94,7 @@
 #if DBG
 #define DbgMessage(CNTRL, MESSAGE)  \
     if((CNTRL & DBG_MSG_CP) && ((CNTRL & LV_MASK) <= DBG_MSG_LV)) \
-        printf MESSAGE
+	printf MESSAGE
 #define DbgBreak()                 DbgBreakPoint()
 #undef STATIC
 #define STATIC
@@ -106,6 +106,4 @@
 #endif /* DBG */
 
 
-
 #endif /* DEBUG_H */
-

@@ -94,7 +94,8 @@
 #include <common.h>        /* readline */
 #include <hush.h>
 #include <command.h>        /* find_cmd */
-#include <cmd_bootm.h>      /* do_bootd */
+/*cmd_boot.c*/
+extern int do_bootd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);      /* do_bootd */
 #endif
 #ifdef CFG_HUSH_PARSER
 #ifndef __U_BOOT__
@@ -1048,12 +1049,12 @@ static void get_user_input(struct in_str *i)
 		i->p = the_command;
 	}
 	else {
-	        if (console_buffer[0] != '\n') {
-	                if (strlen(the_command) + strlen(console_buffer)
+		if (console_buffer[0] != '\n') {
+			if (strlen(the_command) + strlen(console_buffer)
 			    < CFG_CBSIZE) {
-			        n = strlen(the_command);
-			        the_command[n-1] = ' ';
-			        strcpy(&the_command[n],console_buffer);
+				n = strlen(the_command);
+				the_command[n-1] = ' ';
+				strcpy(&the_command[n],console_buffer);
 			}
 			else {
 				the_command[0] = '\n';
@@ -1257,8 +1258,8 @@ static void pseudo_exec(struct child_prog *child)
 			if (p != child->argv[i]) free(p);
 		}
 		child->argv+=i;  /* XXX this hack isn't so horrible, since we are about
-		                        to exit, and therefore don't need to keep data
-		                        structures consistent for free() use. */
+					to exit, and therefore don't need to keep data
+					structures consistent for free() use. */
 		/* If a variable is assigned in a forest, and nobody listens,
 		 * was it ever really set?
 		 */
@@ -1648,14 +1649,18 @@ static int run_pipe_real(struct pipe *pi)
 					child->argv[i]);
 				return -1;
 			}
-		   	/* Look up command in command table */
+			/* Look up command in command table */
+
+
 			if ((cmdtp = find_cmd(child->argv[i])) == NULL) {
 				printf ("Unknown command '%s' - try 'help'\n", child->argv[i]);
 				return -1;	/* give up after bad command */
 			} else {
 				int rcode;
 #if (CONFIG_COMMANDS & CFG_CMD_BOOTD)
-		                /* avoid "bootd" recursion */
+	    extern int do_bootd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+
+				/* avoid "bootd" recursion */
 				if (cmdtp->cmd == do_bootd) {
 					if (flag & CMD_FLAG_BOOTD) {
 						printf ("'bootd' recursion detected\n");
@@ -1665,7 +1670,7 @@ static int run_pipe_real(struct pipe *pi)
 					flag |= CMD_FLAG_BOOTD;
 				}
 #endif	/* CFG_CMD_BOOTD */
-		                /* found - check max args */
+				/* found - check max args */
 				if ((child->argc - i) > cmdtp->maxargs) {
 					printf ("Usage:\n%s\n", cmdtp->usage);
 					return -1;
@@ -1676,15 +1681,20 @@ static int run_pipe_real(struct pipe *pi)
 				rcode = x->function(child);
 #else
 				/* OK - call function to do the command */
+
 				rcode = (cmdtp->cmd)
-					(cmdtp, flag,child->argc-i,&child->argv[i]);
+(cmdtp, flag,child->argc-i,&child->argv[i]);
 				if ( !cmdtp->repeatable )
 					flag_repeat = 0;
+
+
 #endif
 				child->argv-=i;  /* XXX restore hack so free() can work right */
 #ifndef __U_BOOT__
+
 				restore_redirects(squirrel);
 #endif
+
 				return rcode;
 			}
 		}
@@ -1965,11 +1975,11 @@ static int free_pipe(struct pipe *pi, int indent)
 #ifndef __U_BOOT__
 			globfree(&child->glob_result);
 #else
-	                for (a = child->argc;a >= 0;a--) {
-	                        free(child->argv[a]);
-	                }
+			for (a = child->argc;a >= 0;a--) {
+				free(child->argv[a]);
+			}
 					free(child->argv);
-	                child->argc = 0;
+			child->argc = 0;
 #endif
 			child->argv=NULL;
 		} else if (child->group) {
@@ -2103,17 +2113,17 @@ static int xglob(o_string *dest, int flags, glob_t *pglob)
 {
 	int gr;
 
- 	/* short-circuit for null word */
+	/* short-circuit for null word */
 	/* we can code this better when the debug_printf's are gone */
- 	if (dest->length == 0) {
- 		if (dest->nonnull) {
- 			/* bash man page calls this an "explicit" null */
- 			gr = globhack(dest->data, flags, pglob);
- 			debug_printf("globhack returned %d\n",gr);
- 		} else {
+	if (dest->length == 0) {
+		if (dest->nonnull) {
+			/* bash man page calls this an "explicit" null */
+			gr = globhack(dest->data, flags, pglob);
+			debug_printf("globhack returned %d\n",gr);
+		} else {
 			return 0;
 		}
- 	} else if (glob_needed(dest->data)) {
+	} else if (glob_needed(dest->data)) {
 		gr = glob(dest->data, flags, NULL, pglob);
 		debug_printf("glob returned %d\n",gr);
 		if (gr == GLOB_NOMATCH) {
@@ -2462,7 +2472,7 @@ static int done_word(o_string *dest, struct p_context *ctx)
 		}
 #ifndef __U_BOOT__
 		glob_target = &child->glob_result;
- 		if (child->argv) flags |= GLOB_APPEND;
+		if (child->argv) flags |= GLOB_APPEND;
 #else
 		for (cnt = 1, s = dest->data; s && *s; s++) {
 			if (*s == '\\') s++;
@@ -2522,9 +2532,9 @@ static int done_command(struct p_context *ctx)
 	struct child_prog *prog=ctx->child;
 
 	if (prog && prog->group == NULL
-	         && prog->argv == NULL
+		 && prog->argv == NULL
 #ifndef __U_BOOT__
-	         && prog->redirects == NULL) {
+		 && prog->redirects == NULL) {
 #else
 										) {
 #endif
@@ -3339,7 +3349,7 @@ int hush_main(int argc, char **argv)
 	debug_printf("\ninteractive=%d\n", interactive);
 	if (interactive) {
 		/* Looks like they want an interactive shell */
-#ifndef CONFIG_FEATURE_SH_EXTRA_QUIET 
+#ifndef CONFIG_FEATURE_SH_EXTRA_QUIET
 		printf( "\n\n" BB_BANNER " hush - the humble shell v0.01 (testing)\n");
 		printf( "Enter 'help' for a list of built-in commands.\n\n");
 #endif

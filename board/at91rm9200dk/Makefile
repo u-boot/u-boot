@@ -29,7 +29,7 @@ OBJS	:= at91rm9200dk.o flash.o
 SOBJS	:=
 
 $(LIB):	$(OBJS) $(SOBJS)
-	$(AR) crv $@ $^
+	$(AR) crv $@ $(OBJS) $(SOBJS)
 
 clean:
 	rm -f $(SOBJS) $(OBJS)

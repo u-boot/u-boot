@@ -89,7 +89,7 @@ saveenv - save environment variables to persistent storage
 setenv  - set environment variables
 sleep   - delay execution for some time
 tftpboot- boot image via network using TFTP protocol
-               and env variables ipaddr and serverip
+	       and env variables ipaddr and serverip
 version - print monitor version
 ?       - alias for 'help'
 =>

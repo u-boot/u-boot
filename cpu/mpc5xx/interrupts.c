@@ -17,12 +17,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, 
+ * Foundation,
  */
 
 /*
  * File:		interrupt.c
- * 
+ *
  * Discription:		Contains interrupt routines needed by U-Boot
  *
  */
@@ -46,7 +46,7 @@ struct interrupt_action {
 static struct interrupt_action irq_vecs[NR_IRQS];
 
 /*
- * Local function prototypes 
+ * Local function prototypes
  */
 static __inline__ unsigned long get_msr (void)
 {
@@ -78,15 +78,15 @@ static __inline__ void set_dec (unsigned long val)
 }
 
 /*
- * Enable interrupts 
- */ 
+ * Enable interrupts
+ */
 void enable_interrupts (void)
 {
 	set_msr (get_msr () | MSR_EE);
 }
 
-/* 
- * Returns flag if MSR_EE was set before 
+/*
+ * Returns flag if MSR_EE was set before
  */
 int disable_interrupts (void)
 {
@@ -97,7 +97,7 @@ int disable_interrupts (void)
 }
 
 /*
- * Initialise interrupts 
+ * Initialise interrupts
  */
 
 int interrupt_init (void)
@@ -209,7 +209,7 @@ void irq_free_handler (int vec)
 volatile ulong timestamp = 0;
 
 /*
- *  Timer interrupt - gets called when  bit 0 of DEC changes from 
+ *  Timer interrupt - gets called when  bit 0 of DEC changes from
  *  0. Decrementer is enabled with bit TBE in TBSCR.
  */
 void timer_interrupt (struct pt_regs *regs)
@@ -226,7 +226,7 @@ void timer_interrupt (struct pt_regs *regs)
 	immr->im_clkrstk.cark_plprcrk = KAPWR_KEY;
 	__asm__ ("nop");
 	immr->im_clkrst.car_plprcr |= PLPRCR_TEXPS | PLPRCR_TMIST;
-	
+
 	/* Restore Decrementer Count */
 	set_dec (decrementer_count);
 
@@ -249,7 +249,7 @@ void timer_interrupt (struct pt_regs *regs)
 }
 
 /*
- * Reset timer 
+ * Reset timer
  */
 void reset_timer (void)
 {

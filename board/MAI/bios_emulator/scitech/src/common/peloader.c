@@ -79,35 +79,35 @@ static int PE_readHeader(
     result = PE_invalidDLLImage;
     fseek(f, startOffset, SEEK_SET);
     if (fread(&exehdr, 1, sizeof(exehdr), f) != sizeof(exehdr))
-        return false;
+	return false;
     if (exehdr.signature != 0x5A4D)
-        return false;
+	return false;
 
     /* Now seek to the start of the PE header defined at offset 0x3C
      * in the MS-DOS EXE header, and read the signature and check it.
      */
     fseek(f, startOffset+0x3C, SEEK_SET);
     if (fread(&offset, 1, sizeof(offset), f) != sizeof(offset))
-        return false;
+	return false;
     fseek(f, startOffset+offset, SEEK_SET);
     if (fread(&signature, 1, sizeof(signature), f) != sizeof(signature))
-        return false;
+	return false;
     if (signature != 0x00004550)
-        return false;
+	return false;
 
     /* Now read the PE file header and check that it is correct */
     if (fread(filehdr, 1, sizeof(*filehdr), f) != sizeof(*filehdr))
-        return false;
+	return false;
     if (filehdr->Machine != IMAGE_FILE_MACHINE_I386)
-        return false;
+	return false;
     if (!(filehdr->Characteristics & IMAGE_FILE_32BIT_MACHINE))
-        return false;
+	return false;
     if (!(filehdr->Characteristics & IMAGE_FILE_DLL))
-        return false;
+	return false;
     if (fread(opthdr, 1, sizeof(*opthdr), f) != sizeof(*opthdr))
-        return false;
+	return false;
     if (opthdr->Magic != 0x10B)
-        return false;
+	return false;
 
     /* Success, so return true! */
     return true;
@@ -138,15 +138,15 @@ ulong PEAPI PE_getFileSize(
 
     /* Read the PE file headers from disk */
     if (!PE_readHeader(f,startOffset,&filehdr,&opthdr))
-        return 0xFFFFFFFF;
+	return 0xFFFFFFFF;
 
     /* Scan all the section headers summing up the total size */
     size = opthdr.SizeOfHeaders;
     for (i = 0; i < filehdr.NumberOfSections; i++) {
-        if (fread(&secthdr, 1, sizeof(secthdr), f) != sizeof(secthdr))
-            return 0xFFFFFFFF;
-        size += secthdr.SizeOfRawData;
-        }
+	if (fread(&secthdr, 1, sizeof(secthdr), f) != sizeof(secthdr))
+	    return 0xFFFFFFFF;
+	size += secthdr.SizeOfRawData;
+	}
     return size;
 }
 
@@ -199,7 +199,7 @@ PE_MODULE * PEAPI PE_loadLibraryExt(
 
     /* Read the PE file headers from disk */
     if (!PE_readHeader(f,startOffset,&filehdr,&opthdr))
-        return NULL;
+	return NULL;
 
     /* Scan all the section headers and find the necessary sections */
     text_off = data_off = reloc_off = export_off = 0;
@@ -208,56 +208,56 @@ PE_MODULE * PEAPI PE_loadLibraryExt(
     export_addr = export_size = export_end = 0;
     reloc_size = 0;
     for (i = 0; i < filehdr.NumberOfSections; i++) {
-        if (fread(&secthdr, 1, sizeof(secthdr), f) != sizeof(secthdr))
-            goto Error;
-        if (strcmp(secthdr.Name, ".edata") == 0 || strcmp(secthdr.Name, ".rdata") == 0) {
-            /* Exports section */
-            export_off = secthdr.PointerToRawData;
-            export_addr = secthdr.VirtualAddress;
-            export_size = secthdr.SizeOfRawData;
-            export_end = export_addr + export_size;
-            }
-        else if (strcmp(secthdr.Name, ".idata") == 0) {
-            /* Imports section, ignore */
-            }
-        else if (strcmp(secthdr.Name, ".reloc") == 0) {
-            /* Relocations section */
-            reloc_off = secthdr.PointerToRawData;
-            reloc_size = secthdr.SizeOfRawData;
-            }
-        else if (!text_off && secthdr.Characteristics & IMAGE_SCN_CNT_CODE) {
-            /* Code section */
-            text_off = secthdr.PointerToRawData;
-            text_addr = secthdr.VirtualAddress;
-            text_size = secthdr.SizeOfRawData;
-            }
-        else if (!data_off && secthdr.Characteristics & IMAGE_SCN_CNT_INITIALIZED_DATA) {
-            /* Data section */
-            data_off = secthdr.PointerToRawData;
-            data_addr = secthdr.VirtualAddress;
-            data_size = secthdr.SizeOfRawData;
-            data_end = data_addr + data_size;
-            }
-        }
+	if (fread(&secthdr, 1, sizeof(secthdr), f) != sizeof(secthdr))
+	    goto Error;
+	if (strcmp(secthdr.Name, ".edata") == 0 || strcmp(secthdr.Name, ".rdata") == 0) {
+	    /* Exports section */
+	    export_off = secthdr.PointerToRawData;
+	    export_addr = secthdr.VirtualAddress;
+	    export_size = secthdr.SizeOfRawData;
+	    export_end = export_addr + export_size;
+	    }
+	else if (strcmp(secthdr.Name, ".idata") == 0) {
+	    /* Imports section, ignore */
+	    }
+	else if (strcmp(secthdr.Name, ".reloc") == 0) {
+	    /* Relocations section */
+	    reloc_off = secthdr.PointerToRawData;
+	    reloc_size = secthdr.SizeOfRawData;
+	    }
+	else if (!text_off && secthdr.Characteristics & IMAGE_SCN_CNT_CODE) {
+	    /* Code section */
+	    text_off = secthdr.PointerToRawData;
+	    text_addr = secthdr.VirtualAddress;
+	    text_size = secthdr.SizeOfRawData;
+	    }
+	else if (!data_off && secthdr.Characteristics & IMAGE_SCN_CNT_INITIALIZED_DATA) {
+	    /* Data section */
+	    data_off = secthdr.PointerToRawData;
+	    data_addr = secthdr.VirtualAddress;
+	    data_size = secthdr.SizeOfRawData;
+	    data_end = data_addr + data_size;
+	    }
+	}
 
     /* Check to make sure that we have all the sections we need */
     if (!text_off || !data_off || !export_off || !reloc_off) {
-        result = PE_invalidDLLImage;
-        goto Error;
-        }
+	result = PE_invalidDLLImage;
+	goto Error;
+	}
 
     /* Find the size of the image to load allocate memory for it */
     image_size = MAX(export_end,data_end) - text_addr;
     *size = sizeof(PE_MODULE) + image_size + 4096;
     if (shared)
-        hMod = PM_mallocShared(*size);
+	hMod = PM_mallocShared(*size);
     else
-        hMod = PM_malloc(*size);
+	hMod = PM_malloc(*size);
     reloc = PM_malloc(reloc_size);
     if (!hMod || !reloc) {
-        result = PE_outOfMemory;
-        goto Error;
-        }
+	result = PE_outOfMemory;
+	goto Error;
+	}
 
     hMod->text = (uchar*)ROUND_4K((ulong)hMod + sizeof(PE_MODULE));
     hMod->data = (uchar*)((ulong)hMod->text + (data_addr - text_addr));
@@ -272,48 +272,48 @@ PE_MODULE * PEAPI PE_loadLibraryExt(
     result = PE_invalidDLLImage;
     fseek(f, startOffset+text_off, SEEK_SET);
     if (fread(hMod->text, 1, text_size, f) != text_size)
-        goto Error;
+	goto Error;
     fseek(f, startOffset+data_off, SEEK_SET);
     if (fread(hMod->data, 1, data_size, f) != data_size)
-        goto Error;
+	goto Error;
     fseek(f, startOffset+export_off, SEEK_SET);
     if (fread(hMod->export, 1, export_size, f) != export_size)
-        goto Error;
+	goto Error;
     fseek(f, startOffset+reloc_off, SEEK_SET);
     if (fread(reloc, 1, reloc_size, f) != reloc_size)
-        goto Error;
+	goto Error;
 
     /* Now perform relocations on all sections in the image */
     delta = (ulong)hMod->text - opthdr.ImageBase - text_addr;
     baseReloc = (BASE_RELOCATION*)reloc;
     for (;;) {
-        /* Check for termination condition */
-        if (!baseReloc->PageRVA || !baseReloc->BlockSize)
-            break;
+	/* Check for termination condition */
+	if (!baseReloc->PageRVA || !baseReloc->BlockSize)
+	    break;
 
-        /* Do fixups */
-        pageOffset = baseReloc->PageRVA - hMod->textBase;
-        numFixups = (baseReloc->BlockSize - sizeof(BASE_RELOCATION)) / sizeof(ushort);
-        fixup = (ushort*)(baseReloc + 1);
-        for (i = 0; i < numFixups; i++) {
-            relocType = *fixup >> 12;
-            if (relocType) {
-                offset = pageOffset + (*fixup & 0x0FFF);
-                *(ulong*)(hMod->text + offset) += delta;
-                }
-            fixup++;
-            }
+	/* Do fixups */
+	pageOffset = baseReloc->PageRVA - hMod->textBase;
+	numFixups = (baseReloc->BlockSize - sizeof(BASE_RELOCATION)) / sizeof(ushort);
+	fixup = (ushort*)(baseReloc + 1);
+	for (i = 0; i < numFixups; i++) {
+	    relocType = *fixup >> 12;
+	    if (relocType) {
+		offset = pageOffset + (*fixup & 0x0FFF);
+		*(ulong*)(hMod->text + offset) += delta;
+		}
+	    fixup++;
+	    }
 
-        /* Move to next relocation block */
-        baseReloc = (BASE_RELOCATION*)((ulong)baseReloc + baseReloc->BlockSize);
-        }
+	/* Move to next relocation block */
+	baseReloc = (BASE_RELOCATION*)((ulong)baseReloc + baseReloc->BlockSize);
+	}
 
     /* Initialise the C runtime library for the loaded DLL */
     result = PE_unableToInitLibC;
     if ((InitLibC = (InitLibC_t)PE_getProcAddress(hMod,"_InitLibC")) == NULL)
-        goto Error;
+	goto Error;
     if (!InitLibC(&___imports,PM_getOSType()))
-        goto Error;
+	goto Error;
 
     /* Clean up, close the file and return the loaded module handle */
     PM_free(reloc);
@@ -322,9 +322,9 @@ PE_MODULE * PEAPI PE_loadLibraryExt(
 
 Error:
     if (shared)
-        PM_freeShared(hMod);
+	PM_freeShared(hMod);
     else
-        PM_free(hMod);
+	PM_free(hMod);
     PM_free(reloc);
     return NULL;
 }
@@ -360,53 +360,53 @@ PE_MODULE * PEAPI PE_loadLibrary(
 
 #if (defined(__WINDOWS32__) || defined(__DRIVER__)) && defined(CHECKED)
     if (!shared) {
-        PM_MODULE       hInst;
-        InitLibC_t      InitLibC;
+	PM_MODULE       hInst;
+	InitLibC_t      InitLibC;
 
-        /* For Win32 if are building checked libraries for debugging, we use
-         * the real Win32 DLL functions so that we can debug the resulting DLL
-         * files with the Win32 debuggers. Note that we can't do this if
-         * we need to load the files into a shared memory context.
-         */
-        if ((hInst = PM_loadLibrary(szDLLName)) == NULL) {
-            result = PE_fileNotFound;
-            return NULL;
-            }
+	/* For Win32 if are building checked libraries for debugging, we use
+	 * the real Win32 DLL functions so that we can debug the resulting DLL
+	 * files with the Win32 debuggers. Note that we can't do this if
+	 * we need to load the files into a shared memory context.
+	 */
+	if ((hInst = PM_loadLibrary(szDLLName)) == NULL) {
+	    result = PE_fileNotFound;
+	    return NULL;
+	    }
 
-        /* Initialise the C runtime library for the loaded DLL */
-        result = PE_unableToInitLibC;
-        if ((InitLibC = (void*)PM_getProcAddress(hInst,"_InitLibC")) == NULL)
-            return NULL;
-        if (!InitLibC(&___imports,PM_getOSType()))
-            return NULL;
+	/* Initialise the C runtime library for the loaded DLL */
+	result = PE_unableToInitLibC;
+	if ((InitLibC = (void*)PM_getProcAddress(hInst,"_InitLibC")) == NULL)
+	    return NULL;
+	if (!InitLibC(&___imports,PM_getOSType()))
+	    return NULL;
 
-        /* Allocate the PE_MODULE structure */
-        if ((hMod = PM_malloc(sizeof(*hMod))) == NULL)
-            return NULL;
-        hMod->text = (void*)hInst;
-        hMod->shared = -1;
+	/* Allocate the PE_MODULE structure */
+	if ((hMod = PM_malloc(sizeof(*hMod))) == NULL)
+	    return NULL;
+	hMod->text = (void*)hInst;
+	hMod->shared = -1;
 
-        /* DLL loaded successfully so return module handle */
-        result = PE_ok;
-        return hMod;
-        }
+	/* DLL loaded successfully so return module handle */
+	result = PE_ok;
+	return hMod;
+	}
     else
 #endif
-        {
-        FILE        *f;
-        ulong       size;
+	{
+	FILE        *f;
+	ulong       size;
 
-        /* Attempt to open the file on disk */
-        if (shared < 0)
-            shared = 0;
-        if ((f = fopen(szDLLName,"rb")) == NULL) {
-            result = PE_fileNotFound;
-            return NULL;
-            }
-        hMod = PE_loadLibraryExt(f,0,&size,shared);
-        fclose(f);
-        return hMod;
-        }
+	/* Attempt to open the file on disk */
+	if (shared < 0)
+	    shared = 0;
+	if ((f = fopen(szDLLName,"rb")) == NULL) {
+	    result = PE_fileNotFound;
+	    return NULL;
+	    }
+	hMod = PE_loadLibraryExt(f,0,&size,shared);
+	fclose(f);
+	return hMod;
+	}
 }
 
 /****************************************************************************
@@ -445,14 +445,14 @@ PE_MODULE * PEAPI PE_loadLibraryMGL(
      */
 #if !defined(__WIN32_VXD__) && !defined(__NT_DRIVER__)
     if (getenv("MGL_ROOT")) {
-        strcpy(path,getenv("MGL_ROOT"));
-        PM_backslash(path);
-        }
+	strcpy(path,getenv("MGL_ROOT"));
+	PM_backslash(path);
+	}
     strcat(path,"drivers");
     PM_backslash(path);
     strcat(path,szDLLName);
     if ((hMod = PE_loadLibrary(path,shared)) != NULL)
-        return hMod;
+	return hMod;
 #endif
     strcpy(path,"drivers");
     PM_backslash(path);
@@ -488,39 +488,39 @@ void * PEAPI PE_getProcAddress(
 {
 #if (defined(__WINDOWS32__) || defined(__DRIVER__)) && defined(CHECKED)
     if (hModule->shared == -1)
-        return (void*)PM_getProcAddress(hModule->text,szProcName);
+	return (void*)PM_getProcAddress(hModule->text,szProcName);
     else
 #endif
-        {
-        uint                i;
-        EXPORT_DIRECTORY    *exports;
-        ulong               funcOffset;
-        ulong               *AddressTable;
-        ulong               *NameTable;
-        ushort              *OrdinalTable;
-        char                *name;
+	{
+	uint                i;
+	EXPORT_DIRECTORY    *exports;
+	ulong               funcOffset;
+	ulong               *AddressTable;
+	ulong               *NameTable;
+	ushort              *OrdinalTable;
+	char                *name;
 
-        /* Find the address of the export tables from the export section */
-        if (!hModule)
-            return NULL;
-        exports = (EXPORT_DIRECTORY*)(hModule->export + hModule->exportDir);
-        AddressTable = (ulong*)(hModule->export + exports->AddressTableRVA - hModule->exportBase);
-        NameTable = (ulong*)(hModule->export + exports->NameTableRVA - hModule->exportBase);
-        OrdinalTable = (ushort*)(hModule->export + exports->OrdinalTableRVA - hModule->exportBase);
+	/* Find the address of the export tables from the export section */
+	if (!hModule)
+	    return NULL;
+	exports = (EXPORT_DIRECTORY*)(hModule->export + hModule->exportDir);
+	AddressTable = (ulong*)(hModule->export + exports->AddressTableRVA - hModule->exportBase);
+	NameTable = (ulong*)(hModule->export + exports->NameTableRVA - hModule->exportBase);
+	OrdinalTable = (ushort*)(hModule->export + exports->OrdinalTableRVA - hModule->exportBase);
 
-        /* Search the export name table to find the function name */
-        for (i = 0; i < exports->NumberOfNamePointers; i++) {
-            name = (char*)(hModule->export + NameTable[i] - hModule->exportBase);
-            if (strcmp(name,szProcName) == 0)
-                break;
-            }
-        if (i == exports->NumberOfNamePointers)
-            return NULL;
-        funcOffset = AddressTable[OrdinalTable[i]];
-        if (!funcOffset)
-            return NULL;
-        return (void*)(hModule->text + funcOffset - hModule->textBase);
-        }
+	/* Search the export name table to find the function name */
+	for (i = 0; i < exports->NumberOfNamePointers; i++) {
+	    name = (char*)(hModule->export + NameTable[i] - hModule->exportBase);
+	    if (strcmp(name,szProcName) == 0)
+		break;
+	    }
+	if (i == exports->NumberOfNamePointers)
+	    return NULL;
+	funcOffset = AddressTable[OrdinalTable[i]];
+	if (!funcOffset)
+	    return NULL;
+	return (void*)(hModule->text + funcOffset - hModule->textBase);
+	}
 }
 
 /****************************************************************************
@@ -546,25 +546,25 @@ void PEAPI PE_freeLibrary(
 
 #if (defined(__WINDOWS32__) || defined(__DRIVER__)) && defined(CHECKED)
     if (hModule->shared == -1) {
-        /* Run the C runtime library exit code on module unload */
-        if ((TerminateLibC = (TerminateLibC_t)PM_getProcAddress(hModule->text,"_TerminateLibC")) != NULL)
-            TerminateLibC();
-        PM_freeLibrary(hModule->text);
-        PM_free(hModule);
-        }
+	/* Run the C runtime library exit code on module unload */
+	if ((TerminateLibC = (TerminateLibC_t)PM_getProcAddress(hModule->text,"_TerminateLibC")) != NULL)
+	    TerminateLibC();
+	PM_freeLibrary(hModule->text);
+	PM_free(hModule);
+	}
     else
 #endif
-        {
-        if (hModule) {
-            /* Run the C runtime library exit code on module unload */
-            if ((TerminateLibC = (TerminateLibC_t)PE_getProcAddress(hModule,"_TerminateLibC")) != NULL)
-                TerminateLibC();
-            if (hModule->shared)
-                PM_freeShared(hModule);
-            else
-                PM_free(hModule);
-            }
-        }
+	{
+	if (hModule) {
+	    /* Run the C runtime library exit code on module unload */
+	    if ((TerminateLibC = (TerminateLibC_t)PE_getProcAddress(hModule,"_TerminateLibC")) != NULL)
+		TerminateLibC();
+	    if (hModule->shared)
+		PM_freeShared(hModule);
+	    else
+		PM_free(hModule);
+	    }
+	}
 }
 
 /****************************************************************************
@@ -584,4 +584,3 @@ int PEAPI PE_getError(void)
 {
     return result;
 }
-

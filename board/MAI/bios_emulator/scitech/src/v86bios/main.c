@@ -45,12 +45,12 @@
 #define V_BIOS_SIZE 0x1FFFF
 #define BIOS_START 0x7C00            /* default BIOS entry */
 
-//CARD8 code[] = { 0xb8 , 0xf0 , 0xf0, 0xf4 };
+/*CARD8 code[] = { 0xb8 , 0xf0 , 0xf0, 0xf4 }; */
 #define VB_X(x) (V_BIOS >> x) & 0xFF
 CARD8 code[] = { 0x9a, 0x03, 0x00, 0x00, VB_X(12), 0xf4 };
-//CARD8 code[] = { 0x9a, 0x03, 0x00, 0x00, VB_X(12), 0xb8, 0x03, 0x00,
-//0xcd, 0x10, 0xf4 };
-//CARD8 code[] = {  0xb8 , 0xf0 , 0xf0 ,0xf4 };
+/*CARD8 code[] = { 0x9a, 0x03, 0x00, 0x00, VB_X(12), 0xb8, 0x03, 0x00, */
+/*0xcd, 0x10, 0xf4 }; */
+/*CARD8 code[] = {  0xb8 , 0xf0 , 0xf0 ,0xf4 }; */
 
 static void sig_handler(int);
 static int map(void);
@@ -87,154 +87,154 @@ main(void)
     Config.IoStatistics = IO_STATISTICS;
     Config.PrintIrq = PRINT_IRQ;
     Config.PrintPci = PRINT_PCI;
-    Config.ShowAllDev = SHOW_ALL_DEV;        
-    Config.PrintIp = PRINT_IP;           
-    Config.SaveBios = SAVE_BIOS;          
-    Config.Trace = TRACE;             
-    Config.ConfigActiveOnly = CONFIG_ACTIVE_ONLY;  
+    Config.ShowAllDev = SHOW_ALL_DEV;
+    Config.PrintIp = PRINT_IP;
+    Config.SaveBios = SAVE_BIOS;
+    Config.Trace = TRACE;
+    Config.ConfigActiveOnly = CONFIG_ACTIVE_ONLY;
     Config.ConfigActiveDevice = CONFIG_ACTIVE_DEVICE;
-    Config.MapSysBios = MAP_SYS_BIOS;        
-    Config.Resort = RESORT;            
-    Config.FixRom = FIX_ROM;            
-    Config.NoConsole = NO_CONSOLE;         
+    Config.MapSysBios = MAP_SYS_BIOS;
+    Config.Resort = RESORT;
+    Config.FixRom = FIX_ROM;
+    Config.NoConsole = NO_CONSOLE;
     Config.Verbose = VERBOSE;
 
     if (!map())
-        exit(1);
-    
+	exit(1);
+
     if (!setup_system_bios())
-        exit(1);
-    
+	exit(1);
+
     iopl(3);
     setup_io();
-    
+
     scan_pci();
     if (!CurrentPci && !Config.ConfigActiveDevice && !Config.ConfigActiveOnly)
-        exit (1);
+	exit (1);
 #endif
     Console = open_console();
 
     if (Config.ConfigActiveOnly) {
-        CARD16 ax;
-        int activePci = 0;
-        int error = 0;
-        
-        while (CurrentPci) {
-            if (CurrentPci->active) {
-                activePci = 1;
-                            if (!(mapPciRom(NULL) && chksum((CARD8*)V_BIOS)))
-                                error = 1;
-                            break;
-            }
-            CurrentPci = CurrentPci->next;
-        }
-        ax = ((CARD16)(CurrentPci->bus) << 8)
-            | (CurrentPci->dev << 3) | (CurrentPci->func & 0x7);
-        P_printf("ax: 0x%x\n",ax);
-        setup_int_vect();
-        if (!error && (activePci || copy_vbios())) {
-            
-            if (Config.SaveBios) save_bios_to_file();
-            if  (map_vram()) {
-                printf("initializing ISA\n");
-                            bootBIOS(0);
-            }
-        }
-        unmap_vram();
-        sleep(1);       
+	CARD16 ax;
+	int activePci = 0;
+	int error = 0;
+
+	while (CurrentPci) {
+	    if (CurrentPci->active) {
+		activePci = 1;
+			    if (!(mapPciRom(NULL) && chksum((CARD8*)V_BIOS)))
+				error = 1;
+			    break;
+	    }
+	    CurrentPci = CurrentPci->next;
+	}
+	ax = ((CARD16)(CurrentPci->bus) << 8)
+	    | (CurrentPci->dev << 3) | (CurrentPci->func & 0x7);
+	P_printf("ax: 0x%x\n",ax);
+	setup_int_vect();
+	if (!error && (activePci || copy_vbios())) {
+
+	    if (Config.SaveBios) save_bios_to_file();
+	    if  (map_vram()) {
+		printf("initializing ISA\n");
+			    bootBIOS(0);
+	    }
+	}
+	unmap_vram();
+	sleep(1);
     } else {
-        /* disable primary card */
-        save_msr = inb(0x3CC);
-        save_vse = inb(0x3C3);
-        save_46e8 = inb(0x46e8);
-        save_pos102 = inb(0x102);
-        
-        signal(2,sig_handler);
-        signal(11,sig_handler);
-        
-        outb(0x3C2,~(CARD8)0x03 & save_msr);
-        outb(0x3C3,~(CARD8)0x01 & save_vse);
-        outb(0x46e8, ~(CARD8)0x08 & save_46e8);
-        outb(0x102, ~(CARD8)0x01 & save_pos102);
-        
-        pciVideoDisable();
-        
-        while (CurrentPci) {
-            CARD16 ax;
-            
-            if (CurrentPci->active) {
-                Active_is_Pci = 1;
-                if (!Config.ConfigActiveDevice) {
-                    CurrentPci = CurrentPci->next;
-                    continue;
-                }
-            }
-            
-            EnableCurrent();
-            
-            if (CurrentPci->active) {
-                outb(0x102, save_pos102);
-                outb(0x46e8, save_46e8);
-                outb(0x3C3, save_vse);
-                outb(0x3C2, save_msr);
-            }
-            
-            /* clear interrupt vectors */
-            setup_int_vect();
-            
-            ax = ((CARD16)(CurrentPci->bus) << 8)
-                | (CurrentPci->dev << 3) | (CurrentPci->func & 0x7);
-            P_printf("ax: 0x%x\n",ax);
-            
-            if (!((mapPciRom(NULL) && chksum((CARD8*)V_BIOS))
-                  || (CurrentPci->active && copy_vbios()))) {
-                CurrentPci = CurrentPci->next;
-                continue;
-            }
-            if (!map_vram()) {
-                CurrentPci = CurrentPci->next;
-                continue;
-            }
-            if (Config.SaveBios) save_bios_to_file();
-            printf("initializing PCI bus: %i dev: %i func: %i\n",CurrentPci->bus,
-                   CurrentPci->dev,CurrentPci->func);
-            bootBIOS(ax);
-            unmap_vram();
-            
-            CurrentPci = CurrentPci->next;
-        }
-        
-        /* We have an ISA device - configure if requested */
-        if (!Active_is_Pci && Config.ConfigActiveDevice) {
-            pciVideoDisable();
-            
-            outb(0x102, save_pos102);
-            outb(0x46e8, save_46e8);
-            outb(0x3C3, save_vse);
-            outb(0x3C2, save_msr);
+	/* disable primary card */
+	save_msr = inb(0x3CC);
+	save_vse = inb(0x3C3);
+	save_46e8 = inb(0x46e8);
+	save_pos102 = inb(0x102);
 
-            setup_int_vect();
-            if (copy_vbios()) {
-                
-                if (Config.SaveBios) save_bios_to_file();
-                if  (map_vram()) {
-                    printf("initializing ISA\n");
-                    bootBIOS(0);
-                }
-            }
-        
-            unmap_vram();
-            sleep(1);
-        }
-        
-        pciVideoRestore();
+	signal(2,sig_handler);
+	signal(11,sig_handler);
 
-        outb(0x102, save_pos102);
-        outb(0x46e8, save_46e8);
-        outb(0x3C3, save_vse);
-        outb(0x3C2, save_msr);
+	outb(0x3C2,~(CARD8)0x03 & save_msr);
+	outb(0x3C3,~(CARD8)0x01 & save_vse);
+	outb(0x46e8, ~(CARD8)0x08 & save_46e8);
+	outb(0x102, ~(CARD8)0x01 & save_pos102);
+
+	pciVideoDisable();
+
+	while (CurrentPci) {
+	    CARD16 ax;
+
+	    if (CurrentPci->active) {
+		Active_is_Pci = 1;
+		if (!Config.ConfigActiveDevice) {
+		    CurrentPci = CurrentPci->next;
+		    continue;
+		}
+	    }
+
+	    EnableCurrent();
+
+	    if (CurrentPci->active) {
+		outb(0x102, save_pos102);
+		outb(0x46e8, save_46e8);
+		outb(0x3C3, save_vse);
+		outb(0x3C2, save_msr);
+	    }
+
+	    /* clear interrupt vectors */
+	    setup_int_vect();
+
+	    ax = ((CARD16)(CurrentPci->bus) << 8)
+		| (CurrentPci->dev << 3) | (CurrentPci->func & 0x7);
+	    P_printf("ax: 0x%x\n",ax);
+
+	    if (!((mapPciRom(NULL) && chksum((CARD8*)V_BIOS))
+		  || (CurrentPci->active && copy_vbios()))) {
+		CurrentPci = CurrentPci->next;
+		continue;
+	    }
+	    if (!map_vram()) {
+		CurrentPci = CurrentPci->next;
+		continue;
+	    }
+	    if (Config.SaveBios) save_bios_to_file();
+	    printf("initializing PCI bus: %i dev: %i func: %i\n",CurrentPci->bus,
+		   CurrentPci->dev,CurrentPci->func);
+	    bootBIOS(ax);
+	    unmap_vram();
+
+	    CurrentPci = CurrentPci->next;
+	}
+
+	/* We have an ISA device - configure if requested */
+	if (!Active_is_Pci && Config.ConfigActiveDevice) {
+	    pciVideoDisable();
+
+	    outb(0x102, save_pos102);
+	    outb(0x46e8, save_46e8);
+	    outb(0x3C3, save_vse);
+	    outb(0x3C2, save_msr);
+
+	    setup_int_vect();
+	    if (copy_vbios()) {
+
+		if (Config.SaveBios) save_bios_to_file();
+		if  (map_vram()) {
+		    printf("initializing ISA\n");
+		    bootBIOS(0);
+		}
+	    }
+
+	    unmap_vram();
+	    sleep(1);
+	}
+
+	pciVideoRestore();
+
+	outb(0x102, save_pos102);
+	outb(0x46e8, save_46e8);
+	outb(0x3C3, save_vse);
+	outb(0x3C2, save_msr);
     }
-    
+
     close_console(Console);
 #ifdef DELETE
     iopl(0);
@@ -243,24 +243,24 @@ main(void)
     printf("done !\n");
 #endif
     if (Config.IoStatistics)
-        io_statistics();
+	io_statistics();
 #ifdef DELETE
     exit(0);
 #endif
 }
 
-int  
+int
 map(void)
 {
     void* mem;
 
     mem = mmap(0, (size_t)SIZE,
-               PROT_EXEC | PROT_READ | PROT_WRITE,
-               MAP_FIXED | MAP_PRIVATE | MAP_ANON,
-               -1, 0 ); 
+	       PROT_EXEC | PROT_READ | PROT_WRITE,
+	       MAP_FIXED | MAP_PRIVATE | MAP_ANON,
+	       -1, 0 );
     if (mem != 0) {
-        perror("anonymous map");
-        return (0);
+	perror("anonymous map");
+	return (0);
     }
     memset(mem,0,SIZE);
 
@@ -294,33 +294,33 @@ map_vram(void)
     int mem_fd;
 
 #ifdef __ia64__
-    if ((mem_fd = open(MEM_FILE,O_RDWR | O_SYNC))<0) 
+    if ((mem_fd = open(MEM_FILE,O_RDWR | O_SYNC))<0)
 #else
-    if ((mem_fd = open(MEM_FILE,O_RDWR))<0) 
+    if ((mem_fd = open(MEM_FILE,O_RDWR))<0)
 #endif
       {
-        perror("opening memory");
-        return 0;
+	perror("opening memory");
+	return 0;
     }
 
 #ifndef __alpha__
     if (mmap((void *) VRAM_START, (size_t) VRAM_SIZE,
-                     PROT_EXEC | PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED,
-                     mem_fd, VRAM_START) == (void *) -1) 
+		     PROT_EXEC | PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED,
+		     mem_fd, VRAM_START) == (void *) -1)
 #else
-         if (!_bus_base()) sparse_shift = 7; /* Uh, oh, JENSEN... */
-         if (!_bus_base_sparse()) sparse_shift = 0;
-         if ((vram_map = mmap(0,(size_t) (VRAM_SIZE << sparse_shift),
-                                                 PROT_READ | PROT_WRITE,
-                                                 MAP_SHARED,
-                                                 mem_fd, (VRAM_START << sparse_shift)
-                                                 | _bus_base_sparse())) == (void *) -1)
+	 if (!_bus_base()) sparse_shift = 7; /* Uh, oh, JENSEN... */
+	 if (!_bus_base_sparse()) sparse_shift = 0;
+	 if ((vram_map = mmap(0,(size_t) (VRAM_SIZE << sparse_shift),
+						 PROT_READ | PROT_WRITE,
+						 MAP_SHARED,
+						 mem_fd, (VRAM_START << sparse_shift)
+						 | _bus_base_sparse())) == (void *) -1)
 #endif
       {
-        perror("mmap error in map_hardware_ram");
-            close(mem_fd);
-            return (0);
-        }
+	perror("mmap error in map_hardware_ram");
+	    close(mem_fd);
+	    return (0);
+	}
     vram_mapped = 1;
     close(mem_fd);
     return (1);
@@ -330,7 +330,7 @@ static void
 unmap_vram(void)
 {
     if (!vram_mapped) return;
-    
+
     munmap((void*)VRAM_START,VRAM_SIZE);
     vram_mapped = 0;
 }
@@ -343,39 +343,39 @@ copy_vbios(void)
     int size;
 
     if ((mem_fd = open(MEM_FILE,O_RDONLY))<0) {
-        perror("opening memory");
-        return (0);
+	perror("opening memory");
+	return (0);
     }
 
-    if (lseek(mem_fd,(off_t) V_BIOS, SEEK_SET) != (off_t) V_BIOS) { 
-          fprintf(stderr,"Cannot lseek\n");
-          goto Error;
+    if (lseek(mem_fd,(off_t) V_BIOS, SEEK_SET) != (off_t) V_BIOS) {
+	  fprintf(stderr,"Cannot lseek\n");
+	  goto Error;
       }
     tmp = (unsigned char *)malloc(3);
     if (read(mem_fd, (char *)tmp, (size_t) 3) != (size_t) 3) {
-            fprintf(stderr,"Cannot read\n");
-        goto Error;
+	    fprintf(stderr,"Cannot read\n");
+	goto Error;
     }
-    if (lseek(mem_fd,(off_t) V_BIOS,SEEK_SET) != (off_t) V_BIOS) 
-        goto Error;
+    if (lseek(mem_fd,(off_t) V_BIOS,SEEK_SET) != (off_t) V_BIOS)
+	goto Error;
 
     if (*tmp != 0x55 || *(tmp+1) != 0xAA ) {
 #ifdef DEBUG
-        dprint((unsigned long)tmp,0x100);
+	dprint((unsigned long)tmp,0x100);
 #endif
-        fprintf(stderr,"No bios found at: 0x%x\n",V_BIOS);
-        goto Error;
+	fprintf(stderr,"No bios found at: 0x%x\n",V_BIOS);
+	goto Error;
     }
     size = *(tmp+2) * 512;
 
     if (read(mem_fd, (char *)V_BIOS, (size_t) size) != (size_t) size) {
-            fprintf(stderr,"Cannot read\n");
-        goto Error;
+	    fprintf(stderr,"Cannot read\n");
+	goto Error;
     }
     free(tmp);
     close(mem_fd);
     if (!chksum((CARD8)V_BIOS))
-        return (0);
+	return (0);
 
     return (1);
 
@@ -392,14 +392,14 @@ copy_sys_bios(void)
     int mem_fd;
 
     if ((mem_fd = open(MEM_FILE,O_RDONLY))<0) {
-        perror("opening memory");
-        return (0);
+	perror("opening memory");
+	return (0);
     }
-  
-    if (lseek(mem_fd,(off_t) SYS_BIOS,SEEK_SET) != (off_t) SYS_BIOS) 
-        goto Error;
-    if (read(mem_fd, (char *)SYS_BIOS, (size_t) 0xFFFF) != (size_t) 0xFFFF) 
-        goto Error;
+
+    if (lseek(mem_fd,(off_t) SYS_BIOS,SEEK_SET) != (off_t) SYS_BIOS)
+	goto Error;
+    if (read(mem_fd, (char *)SYS_BIOS, (size_t) 0xFFFF) != (size_t) 0xFFFF)
+	goto Error;
 
     close(mem_fd);
     return (1);
@@ -415,16 +415,16 @@ loadCodeToMem(unsigned char *ptr, CARD8 code[])
 {
     int i;
     CARD8 val;
-    
+
     for ( i=0;;i++) {
-        val = code[i];
-        *ptr++ = val;
-        if (val == 0xf4) break;
+	val = code[i];
+	*ptr++ = val;
+	if (val == 0xf4) break;
     }
     return;
 }
-        
-void 
+
+void
 dprint(unsigned long start, unsigned long size)
 {
     int i,j;
@@ -433,13 +433,13 @@ dprint(unsigned long start, unsigned long size)
     for (j = 0; j < (size >> 4); j++) {
     char *d = c;
     printf("\n0x%lx:  ",(unsigned long)c);
-    for (i = 0; i<16; i++) 
-        printf("%2.2x ",(unsigned char) (*(c++)));
+    for (i = 0; i<16; i++)
+	printf("%2.2x ",(unsigned char) (*(c++)));
     c = d;
     for (i = 0; i<16; i++) {
-        printf("%c",((((CARD8)(*c)) > 32) && (((CARD8)(*c)) < 128)) ?
-           (unsigned char) (*(c)): '.');
-        c++;
+	printf("%c",((((CARD8)(*c)) > 32) && (((CARD8)(*c)) < 128)) ?
+	   (unsigned char) (*(c)): '.');
+	c++;
     }
     }
     printf("\n");
@@ -452,16 +452,16 @@ save_bios_to_file(void)
     int size, count;
     char file_name[256];
     int fd;
-    
+
     sprintf(file_name,"bios_%i.fil",num);
     if ((fd =  open(file_name,O_WRONLY | O_CREAT | O_TRUNC,00644)) == -1)
-        return;
+	return;
     size = (*(unsigned char*)(V_BIOS + 2)) * 512;
 #ifdef V86BIOS_DEBUG
     dprint(V_BIOS,20);
 #endif
     if ((count = write(fd,(void *)(V_BIOS),size)) != size)
-        fprintf(stderr,"only saved %i of %i bytes\n",size,count);
+	fprintf(stderr,"only saved %i of %i bytes\n",size,count);
     num++;
 }
 
@@ -511,11 +511,11 @@ setup_int_vect(void)
     const CARD16 cs = 0x0000;
     const CARD16 ip = 0x0;
     int i;
-    
+
     /* let the int vects point to the SYS_BIOS seg */
     for (i=0; i<0x80; i++) {
-        ((CARD16*)0)[i<<1] = ip;
-        ((CARD16*)0)[(i<<1)+1] = cs;
+	((CARD16*)0)[i<<1] = ip;
+	((CARD16*)0)[(i<<1)+1] = cs;
     }
     /* video interrupts default location */
     ((CARD16*)0)[(0x42<<1)+1] = 0xf000;
@@ -566,13 +566,13 @@ setup_system_bios(void)
 {
     char *date = "06/01/99";
     char *eisa_ident = "PCI/ISA";
-    
+
 #if MAP_SYS_BIOS
     if (!copy_sys_bios()) return 0;
     return 1;
 #endif
-//    memset((void *)0xF0000,0xf4,0xfff7);
-    
+/*    memset((void *)0xF0000,0xf4,0xfff7); */
+
     /*
      * we trap the "industry standard entry points" to the BIOS
      * and all other locations by filling them with "hlt"
@@ -586,7 +586,7 @@ setup_system_bios(void)
      * and the font tables (0xfa6e-0xfe6d)
      * from the original bios here
      */
-    
+
     /* set bios date */
     strcpy((char *)0xFFFF5,date);
     /* set up eisa ident string */
@@ -604,10 +604,10 @@ chksum(CARD8 *start)
   CARD8 val = 0;
   int i;
 
-  size = *(start+2) * 512;  
+  size = *(start+2) * 512;
   for (i = 0; i<size; i++)
     val += *(start + i);
-    
+
   if (!val)
     return 1;
 

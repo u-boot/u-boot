@@ -51,7 +51,7 @@ int cpu_post_test_multi (void)
     {
 	ulong src [26], dst [26];
 
-    	ulong code[] =
+	ulong code[] =
 	{
 	    ASM_LMW(5, 3, 0),
 	    ASM_STMW(5, 4, 0),
@@ -71,7 +71,7 @@ int cpu_post_test_multi (void)
 
     if (ret != 0)
     {
-        post_log ("Error at multi test !\n");
+	post_log ("Error at multi test !\n");
     }
 
     return ret;

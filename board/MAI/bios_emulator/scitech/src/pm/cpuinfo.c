@@ -168,144 +168,144 @@ uint ZAPI CPU_getProcessorType(void)
     static ibool    firstTime = true;
 
     if (_CPU_haveCPUID()) {
-        cpu = _CPU_checkCPUID();
-        vendor = cpu & ~CPU_mask;
-        if (vendor == CPU_Intel) {
-            /* Check for Intel processors */
-            switch (cpu & CPU_mask) {
-                case 4: cpu = CPU_i486;         break;
-                case 5: cpu = CPU_Pentium;      break;
-                case 6:
-                    if ((model = _CPU_getCPUIDModel()) == 1)
-                        cpu = CPU_PentiumPro;
-                    else if (model <= 6) {
-                        cacheSize = _CPU_getCacheSize();
-                        if ((model == 5 && cacheSize == 0) ||
-                            (model == 5 && cacheSize == 256) ||
-                            (model == 6 && cacheSize == 128))
-                            cpu = CPU_Celeron;
-                        else
-                            cpu = CPU_PentiumII;
-                        }
-                    else if (model >= 7) {
-                        /* Model 7 == Pentium III */
-                        /* Model 8 == Celeron/Pentium III Coppermine */
-                        cacheSize = _CPU_getCacheSize();
-                        if ((model == 8 && cacheSize == 128))
-                            cpu = CPU_Celeron;
-                        else
-                            cpu = CPU_PentiumIII;
-                        }
-                    break;
-                default:
-                    cpu = CPU_UnkIntel;
-                }
-            }
-        else if (vendor == CPU_Cyrix) {
-            /* Check for Cyrix processors */
-            switch (cpu & CPU_mask) {
-                case 4:
-                    if ((model = _CPU_getCPUIDModel()) == 4)
-                        cpu = CPU_CyrixMediaGX;
-                    else
-                        cpu = CPU_UnkCyrix;
-                    break;
-                case 5:
-                    if ((model = _CPU_getCPUIDModel()) == 2)
-                        cpu = CPU_Cyrix6x86;
-                    else if (model == 4)
-                        cpu = CPU_CyrixMediaGXm;
-                    else
-                        cpu = CPU_UnkCyrix;
-                    break;
-                case 6:
-                    if ((model = _CPU_getCPUIDModel()) <= 1)
-                        cpu = CPU_Cyrix6x86MX;
-                    else
-                        cpu = CPU_UnkCyrix;
-                    break;
-                default:
-                    cpu = CPU_UnkCyrix;
-                }
-            }
-        else if (vendor == CPU_AMD) {
-            /* Check for AMD processors */
-            switch (cpu & CPU_mask) {
-                case 4:
-                    if ((model = _CPU_getCPUIDModel()) == 0)
-                        cpu = CPU_AMDAm5x86;
-                    else
-                        cpu = CPU_AMDAm486;
-                    break;
-                case 5:
-                    if ((model = _CPU_getCPUIDModel()) <= 3)
-                        cpu = CPU_AMDK5;
-                    else if (model <= 7)
-                        cpu = CPU_AMDK6;
-                    else if (model == 8)
-                        cpu = CPU_AMDK6_2;
-                    else if (model == 9)
-                        cpu = CPU_AMDK6_III;
-                    else if (model == 13) {
-                        if (_CPU_getCPUIDStepping() <= 3)
-                            cpu = CPU_AMDK6_IIIplus;
-                        else
-                            cpu = CPU_AMDK6_2plus;
-                        }
-                    else
-                        cpu = CPU_UnkAMD;
-                    break;
-                case 6:
-                    if ((model = _CPU_getCPUIDModel()) == 3)
-                        cpu = CPU_AMDDuron;
-                    else
-                        cpu = CPU_AMDAthlon;
-                    break;
-                default:
-                    cpu = CPU_UnkAMD;
-                }
-            }
-        else if (vendor == CPU_IDT) {
-            /* Check for IDT WinChip processors */
-            switch (cpu & CPU_mask) {
-                case 5:
-                    if ((model = _CPU_getCPUIDModel()) <= 4)
-                        cpu = CPU_WinChipC6;
-                    else if (model == 8)
-                        cpu = CPU_WinChip2;
-                    else
-                        cpu = CPU_UnkIDT;
-                    break;
-                default:
-                    cpu = CPU_UnkIDT;
-                }
-            }
-        else {
-            /* Assume a Pentium compatible Intel clone */
-            cpu = CPU_Pentium;
-            }
-        return cpu | vendor | (_CPU_getCPUIDStepping() << CPU_steppingShift);
-        }
+	cpu = _CPU_checkCPUID();
+	vendor = cpu & ~CPU_mask;
+	if (vendor == CPU_Intel) {
+	    /* Check for Intel processors */
+	    switch (cpu & CPU_mask) {
+		case 4: cpu = CPU_i486;         break;
+		case 5: cpu = CPU_Pentium;      break;
+		case 6:
+		    if ((model = _CPU_getCPUIDModel()) == 1)
+			cpu = CPU_PentiumPro;
+		    else if (model <= 6) {
+			cacheSize = _CPU_getCacheSize();
+			if ((model == 5 && cacheSize == 0) ||
+			    (model == 5 && cacheSize == 256) ||
+			    (model == 6 && cacheSize == 128))
+			    cpu = CPU_Celeron;
+			else
+			    cpu = CPU_PentiumII;
+			}
+		    else if (model >= 7) {
+			/* Model 7 == Pentium III */
+			/* Model 8 == Celeron/Pentium III Coppermine */
+			cacheSize = _CPU_getCacheSize();
+			if ((model == 8 && cacheSize == 128))
+			    cpu = CPU_Celeron;
+			else
+			    cpu = CPU_PentiumIII;
+			}
+		    break;
+		default:
+		    cpu = CPU_UnkIntel;
+		}
+	    }
+	else if (vendor == CPU_Cyrix) {
+	    /* Check for Cyrix processors */
+	    switch (cpu & CPU_mask) {
+		case 4:
+		    if ((model = _CPU_getCPUIDModel()) == 4)
+			cpu = CPU_CyrixMediaGX;
+		    else
+			cpu = CPU_UnkCyrix;
+		    break;
+		case 5:
+		    if ((model = _CPU_getCPUIDModel()) == 2)
+			cpu = CPU_Cyrix6x86;
+		    else if (model == 4)
+			cpu = CPU_CyrixMediaGXm;
+		    else
+			cpu = CPU_UnkCyrix;
+		    break;
+		case 6:
+		    if ((model = _CPU_getCPUIDModel()) <= 1)
+			cpu = CPU_Cyrix6x86MX;
+		    else
+			cpu = CPU_UnkCyrix;
+		    break;
+		default:
+		    cpu = CPU_UnkCyrix;
+		}
+	    }
+	else if (vendor == CPU_AMD) {
+	    /* Check for AMD processors */
+	    switch (cpu & CPU_mask) {
+		case 4:
+		    if ((model = _CPU_getCPUIDModel()) == 0)
+			cpu = CPU_AMDAm5x86;
+		    else
+			cpu = CPU_AMDAm486;
+		    break;
+		case 5:
+		    if ((model = _CPU_getCPUIDModel()) <= 3)
+			cpu = CPU_AMDK5;
+		    else if (model <= 7)
+			cpu = CPU_AMDK6;
+		    else if (model == 8)
+			cpu = CPU_AMDK6_2;
+		    else if (model == 9)
+			cpu = CPU_AMDK6_III;
+		    else if (model == 13) {
+			if (_CPU_getCPUIDStepping() <= 3)
+			    cpu = CPU_AMDK6_IIIplus;
+			else
+			    cpu = CPU_AMDK6_2plus;
+			}
+		    else
+			cpu = CPU_UnkAMD;
+		    break;
+		case 6:
+		    if ((model = _CPU_getCPUIDModel()) == 3)
+			cpu = CPU_AMDDuron;
+		    else
+			cpu = CPU_AMDAthlon;
+		    break;
+		default:
+		    cpu = CPU_UnkAMD;
+		}
+	    }
+	else if (vendor == CPU_IDT) {
+	    /* Check for IDT WinChip processors */
+	    switch (cpu & CPU_mask) {
+		case 5:
+		    if ((model = _CPU_getCPUIDModel()) <= 4)
+			cpu = CPU_WinChipC6;
+		    else if (model == 8)
+			cpu = CPU_WinChip2;
+		    else
+			cpu = CPU_UnkIDT;
+		    break;
+		default:
+		    cpu = CPU_UnkIDT;
+		}
+	    }
+	else {
+	    /* Assume a Pentium compatible Intel clone */
+	    cpu = CPU_Pentium;
+	    }
+	return cpu | vendor | (_CPU_getCPUIDStepping() << CPU_steppingShift);
+	}
     else {
-        if (_CPU_check80386())
-            cpu = CPU_i386;
-        else  if (_CPU_check80486()) {
-            /* If we get here we may have a Cyrix processor so we can try
-             * enabling the CPUID instruction and trying again.
-             */
-            if (firstTime) {
-                firstTime = false;
-                _CPU_enableCyrixCPUID();
-                return CPU_getProcessorType();
-                }
-            cpu = CPU_i486;
-            }
-        else
-            cpu = CPU_Pentium;
-        if (!_CPU_checkClone())
-            return cpu | CPU_Intel;
-        return cpu;
-        }
+	if (_CPU_check80386())
+	    cpu = CPU_i386;
+	else  if (_CPU_check80486()) {
+	    /* If we get here we may have a Cyrix processor so we can try
+	     * enabling the CPUID instruction and trying again.
+	     */
+	    if (firstTime) {
+		firstTime = false;
+		_CPU_enableCyrixCPUID();
+		return CPU_getProcessorType();
+		}
+	    cpu = CPU_i486;
+	    }
+	else
+	    cpu = CPU_Pentium;
+	if (!_CPU_checkClone())
+	    return cpu | CPU_Intel;
+	return cpu;
+	}
 #elif   defined(__ALPHA__)
     return CPU_Alpha;
 #elif   defined(__MIPS__)
@@ -337,7 +337,7 @@ ibool ZAPI CPU_haveMMX(void)
 {
 #ifdef  __INTEL__
     if (_CPU_haveCPUID())
-        return (_CPU_getCPUIDFeatures() & CPU_HaveMMX) != 0;
+	return (_CPU_getCPUIDFeatures() & CPU_HaveMMX) != 0;
     return false;
 #else
     return false;
@@ -366,7 +366,7 @@ ibool ZAPI CPU_have3DNow(void)
 {
 #ifdef  __INTEL__
     if (_CPU_haveCPUID())
-        return _CPU_have3DNow();
+	return _CPU_have3DNow();
     return false;
 #else
     return false;
@@ -395,7 +395,7 @@ ibool ZAPI CPU_haveSSE(void)
 {
 #ifdef  __INTEL__
     if (_CPU_haveCPUID())
-        return (_CPU_getCPUIDFeatures() & CPU_HaveSSE) != 0;
+	return (_CPU_getCPUIDFeatures() & CPU_HaveSSE) != 0;
     return false;
 #else
     return false;
@@ -432,7 +432,7 @@ ibool ZAPI CPU_haveRDTSC(void)
 {
 #ifdef  __INTEL__
     if (_CPU_haveCPUID())
-        return (_CPU_getCPUIDFeatures() & CPU_HaveRDTSC) != 0;
+	return (_CPU_getCPUIDFeatures() & CPU_HaveRDTSC) != 0;
     return false;
 #else
     return false;
@@ -464,22 +464,22 @@ static ulong GetBSFCpuSpeed(
     iPriority = SetMaxThreadPriority();
     GetCounterFrequency(&count_freq);
     for (i = 0; i < SAMPLINGS; i++) {
-        GetCounter(&t0);
-        for (j = 0; j < INNER_LOOPS; j++)
-            _CPU_runBSFLoop(ITERATIONS);
-        GetCounter(&t1);
-        current = t1.low - t0.low;
-        if (current < lowest)
-            lowest = current;
-        }
+	GetCounter(&t0);
+	for (j = 0; j < INNER_LOOPS; j++)
+	    _CPU_runBSFLoop(ITERATIONS);
+	GetCounter(&t1);
+	current = t1.low - t0.low;
+	if (current < lowest)
+	    lowest = current;
+	}
     RestoreThreadPriority(iPriority);
 
     /* Compute frequency */
     ticks = _CPU_mulDiv(lowest,1000000,count_freq.low);
     if ((ticks % count_freq.low) > (count_freq.low/2))
-        ticks++;            /* Round up if necessary */
+	ticks++;            /* Round up if necessary */
     if (ticks == 0)
-        return 0;
+	return 0;
     return ((cycles*INNER_LOOPS)/ticks);
 }
 
@@ -513,44 +513,44 @@ static ulong GetRDTSCCpuSpeed(
     GetCounterFrequency(&count_freq);
     PM_set64(freq,count_freq.high,count_freq.low);
     for (tries = 0; tries < 3; tries++) {
-        /* Loop until 100 ticks have passed since last read of hi-res
-         * counter. This accounts for overhead later.
-         */
-        GetCounter(&t0);
-        t1.low = t0.low;
-        t1.high = t0.high;
-        while ((t1.low - t0.low) < 100) {
-            GetCounter(&t1);
-            _CPU_readTimeStamp(&s0);
-            }
+	/* Loop until 100 ticks have passed since last read of hi-res
+	 * counter. This accounts for overhead later.
+	 */
+	GetCounter(&t0);
+	t1.low = t0.low;
+	t1.high = t0.high;
+	while ((t1.low - t0.low) < 100) {
+	    GetCounter(&t1);
+	    _CPU_readTimeStamp(&s0);
+	    }
 
-        /* Loop until 30000 ticks have passed since last read of hi-res counter.
-         * This allows for elapsed time for sampling. For a hi-res frequency
-         * of 1MHz, this is about 0.03 of a second. The frequency reported
-         * by the OS dependent code should be tuned to provide a good
-         * sample period depending on the accuracy of the OS timers (ie:
-         * if the accuracy is lower, lower the frequency to spend more time
-         * in the inner loop to get better accuracy).
-         */
-        t0.low = t1.low;
-        t0.high = t1.high;
-        while ((t1.low - t0.low) < maxCount) {
-            GetCounter(&t1);
-            _CPU_readTimeStamp(&s1);
-            }
+	/* Loop until 30000 ticks have passed since last read of hi-res counter.
+	 * This allows for elapsed time for sampling. For a hi-res frequency
+	 * of 1MHz, this is about 0.03 of a second. The frequency reported
+	 * by the OS dependent code should be tuned to provide a good
+	 * sample period depending on the accuracy of the OS timers (ie:
+	 * if the accuracy is lower, lower the frequency to spend more time
+	 * in the inner loop to get better accuracy).
+	 */
+	t0.low = t1.low;
+	t0.high = t1.high;
+	while ((t1.low - t0.low) < maxCount) {
+	    GetCounter(&t1);
+	    _CPU_readTimeStamp(&s1);
+	    }
 
-        /* Find the difference during the timing loop */
-        PM_set64(stamp0,s0.high,s0.low);
-        PM_set64(stamp1,s1.high,s1.low);
-        PM_set64(ticks0,t0.high,t0.low);
-        PM_set64(ticks1,t1.high,t1.low);
-        PM_sub64(cycles,stamp1,stamp0);
-        PM_sub64(ticks,ticks1,ticks0);
+	/* Find the difference during the timing loop */
+	PM_set64(stamp0,s0.high,s0.low);
+	PM_set64(stamp1,s1.high,s1.low);
+	PM_set64(ticks0,t0.high,t0.low);
+	PM_set64(ticks1,t1.high,t1.low);
+	PM_sub64(cycles,stamp1,stamp0);
+	PM_sub64(ticks,ticks1,ticks0);
 
-        /* Sum up the results */
-        PM_add64(total_ticks,total_ticks,ticks);
-        PM_add64(total_cycles,total_cycles,cycles);
-        }
+	/* Sum up the results */
+	PM_add64(total_ticks,total_ticks,ticks);
+	PM_add64(total_cycles,total_cycles,cycles);
+	}
     RestoreThreadPriority(iPriority);
 
     /* Compute frequency in Hz */
@@ -598,46 +598,46 @@ ulong ZAPI CPU_getProcessorSpeed(
     ulong   cpuSpeed;
     uint    i;
     static  ulong intel_cycles[] = {
-        115,47,43,
-        };
+	115,47,43,
+	};
     static  ulong cyrix_cycles[] = {
-        38,38,52,52,
-        };
+	38,38,52,52,
+	};
     static  ulong amd_cycles[] = {
-        49,
-        };
+	49,
+	};
     static  ulong known_speeds[] = {
-        1000,950,900,850,800,750,700,650,600,550,500,450,433,400,350,
-        333,300,266,233,200,166,150,133,120,100,90,75,66,60,50,33,20,0,
-        };
+	1000,950,900,850,800,750,700,650,600,550,500,450,433,400,350,
+	333,300,266,233,200,166,150,133,120,100,90,75,66,60,50,33,20,0,
+	};
 
     if (CPU_haveRDTSC()) {
-        cpuSpeed = (GetRDTSCCpuSpeed(accurate) + 500000) / 1000000;
-        }
+	cpuSpeed = (GetRDTSCCpuSpeed(accurate) + 500000) / 1000000;
+	}
     else {
-        int type = CPU_getProcessorType();
-        int processor = type & CPU_mask;
-        int vendor = type & CPU_familyMask;
-        if (vendor == CPU_Intel)
-            cpuSpeed = GetBSFCpuSpeed(ITERATIONS * intel_cycles[processor - CPU_i386]);
-        else if (vendor == CPU_Cyrix)
-            cpuSpeed = GetBSFCpuSpeed(ITERATIONS * cyrix_cycles[processor - CPU_Cyrix6x86]);
-        else if (vendor == CPU_AMD)
-            cpuSpeed = GetBSFCpuSpeed(ITERATIONS * amd_cycles[0]);
-        else
-            return 0;
-        }
+	int type = CPU_getProcessorType();
+	int processor = type & CPU_mask;
+	int vendor = type & CPU_familyMask;
+	if (vendor == CPU_Intel)
+	    cpuSpeed = GetBSFCpuSpeed(ITERATIONS * intel_cycles[processor - CPU_i386]);
+	else if (vendor == CPU_Cyrix)
+	    cpuSpeed = GetBSFCpuSpeed(ITERATIONS * cyrix_cycles[processor - CPU_Cyrix6x86]);
+	else if (vendor == CPU_AMD)
+	    cpuSpeed = GetBSFCpuSpeed(ITERATIONS * amd_cycles[0]);
+	else
+	    return 0;
+	}
 
     /* Now normalise the results given known processors speeds, if the
      * speed we measure is within 2MHz of the expected values
      */
     if (!accurate) {
-        for (i = 0; known_speeds[i] != 0; i++) {
-            if (cpuSpeed >= (known_speeds[i]-3) && cpuSpeed <= (known_speeds[i]+3)) {
-                return known_speeds[i];
-                }
-            }
-        }
+	for (i = 0; known_speeds[i] != 0; i++) {
+	    if (cpuSpeed >= (known_speeds[i]-3) && cpuSpeed <= (known_speeds[i]+3)) {
+		return known_speeds[i];
+		}
+	    }
+	}
     return cpuSpeed;
 #else
     return 0;
@@ -674,8 +674,8 @@ ulong ZAPI CPU_getProcessorSpeedInHZ(
 {
 #if defined(__INTEL__)
     if (CPU_haveRDTSC()) {
-        return GetRDTSCCpuSpeed(accurate);
-        }
+	return GetRDTSCCpuSpeed(accurate);
+	}
     return CPU_getProcessorSpeed(false) * 1000000;
 #else
     return 0;
@@ -706,101 +706,101 @@ char * ZAPI CPU_getProcessorName(void)
     static char name[80];
 
     if (speed == -1) {
-        cpu = CPU_getProcessorType();
-        speed = CPU_getProcessorSpeed(false);
-        }
+	cpu = CPU_getProcessorType();
+	speed = CPU_getProcessorSpeed(false);
+	}
     sprintf(name,"%d MHz ", speed);
     switch (cpu & CPU_mask) {
-        case CPU_i386:
-            strcat(name,"Intel i386 processor");
-            break;
-        case CPU_i486:
-            strcat(name,"Intel i486 processor");
-            break;
-        case CPU_Pentium:
-            strcat(name,"Intel Pentium processor");
-            break;
-        case CPU_PentiumPro:
-            strcat(name,"Intel Pentium Pro processor");
-            break;
-        case CPU_PentiumII:
-            strcat(name,"Intel Pentium II processor");
-            break;
-        case CPU_Celeron:
-            strcat(name,"Intel Celeron processor");
-            break;
-        case CPU_PentiumIII:
-            strcat(name,"Intel Pentium III processor");
-            break;
-        case CPU_UnkIntel:
-            strcat(name,"Unknown Intel processor");
-            break;
-        case CPU_Cyrix6x86:
-            strcat(name,"Cyrix 6x86 processor");
-            break;
-        case CPU_Cyrix6x86MX:
-            strcat(name,"Cyrix 6x86MX processor");
-            break;
-        case CPU_CyrixMediaGX:
-            strcat(name,"Cyrix MediaGX processor");
-            break;
-        case CPU_CyrixMediaGXm:
-            strcat(name,"Cyrix MediaGXm processor");
-            break;
-        case CPU_UnkCyrix:
-            strcat(name,"Unknown Cyrix processor");
-            break;
-        case CPU_AMDAm486:
-            strcat(name,"AMD Am486 processor");
-            break;
-        case CPU_AMDAm5x86:
-            strcat(name,"AMD Am5x86 processor");
-            break;
-        case CPU_AMDK5:
-            strcat(name,"AMD K5 processor");
-            break;
-        case CPU_AMDK6:
-            strcat(name,"AMD K6 processor");
-            break;
-        case CPU_AMDK6_2:
-            strcat(name,"AMD K6-2 processor");
-            break;
-        case CPU_AMDK6_III:
-            strcat(name,"AMD K6-III processor");
-            break;
-        case CPU_AMDK6_2plus:
-            strcat(name,"AMD K6-2+ processor");
-            break;
-        case CPU_AMDK6_IIIplus:
-            strcat(name,"AMD K6-III+ processor");
-            break;
-        case CPU_UnkAMD:
-            strcat(name,"Unknown AMD processor");
-            break;
-        case CPU_AMDAthlon:
-            strcat(name,"AMD Athlon processor");
-            break;
-        case CPU_AMDDuron:
-            strcat(name,"AMD Duron processor");
-            break;
-        case CPU_WinChipC6:
-            strcat(name,"IDT WinChip C6 processor");
-            break;
-        case CPU_WinChip2:
-            strcat(name,"IDT WinChip 2 processor");
-            break;
-        case CPU_UnkIDT:
-            strcat(name,"Unknown IDT processor");
-            break;
-        default:
-            strcat(name,"Unknown processor");
-        }
+	case CPU_i386:
+	    strcat(name,"Intel i386 processor");
+	    break;
+	case CPU_i486:
+	    strcat(name,"Intel i486 processor");
+	    break;
+	case CPU_Pentium:
+	    strcat(name,"Intel Pentium processor");
+	    break;
+	case CPU_PentiumPro:
+	    strcat(name,"Intel Pentium Pro processor");
+	    break;
+	case CPU_PentiumII:
+	    strcat(name,"Intel Pentium II processor");
+	    break;
+	case CPU_Celeron:
+	    strcat(name,"Intel Celeron processor");
+	    break;
+	case CPU_PentiumIII:
+	    strcat(name,"Intel Pentium III processor");
+	    break;
+	case CPU_UnkIntel:
+	    strcat(name,"Unknown Intel processor");
+	    break;
+	case CPU_Cyrix6x86:
+	    strcat(name,"Cyrix 6x86 processor");
+	    break;
+	case CPU_Cyrix6x86MX:
+	    strcat(name,"Cyrix 6x86MX processor");
+	    break;
+	case CPU_CyrixMediaGX:
+	    strcat(name,"Cyrix MediaGX processor");
+	    break;
+	case CPU_CyrixMediaGXm:
+	    strcat(name,"Cyrix MediaGXm processor");
+	    break;
+	case CPU_UnkCyrix:
+	    strcat(name,"Unknown Cyrix processor");
+	    break;
+	case CPU_AMDAm486:
+	    strcat(name,"AMD Am486 processor");
+	    break;
+	case CPU_AMDAm5x86:
+	    strcat(name,"AMD Am5x86 processor");
+	    break;
+	case CPU_AMDK5:
+	    strcat(name,"AMD K5 processor");
+	    break;
+	case CPU_AMDK6:
+	    strcat(name,"AMD K6 processor");
+	    break;
+	case CPU_AMDK6_2:
+	    strcat(name,"AMD K6-2 processor");
+	    break;
+	case CPU_AMDK6_III:
+	    strcat(name,"AMD K6-III processor");
+	    break;
+	case CPU_AMDK6_2plus:
+	    strcat(name,"AMD K6-2+ processor");
+	    break;
+	case CPU_AMDK6_IIIplus:
+	    strcat(name,"AMD K6-III+ processor");
+	    break;
+	case CPU_UnkAMD:
+	    strcat(name,"Unknown AMD processor");
+	    break;
+	case CPU_AMDAthlon:
+	    strcat(name,"AMD Athlon processor");
+	    break;
+	case CPU_AMDDuron:
+	    strcat(name,"AMD Duron processor");
+	    break;
+	case CPU_WinChipC6:
+	    strcat(name,"IDT WinChip C6 processor");
+	    break;
+	case CPU_WinChip2:
+	    strcat(name,"IDT WinChip 2 processor");
+	    break;
+	case CPU_UnkIDT:
+	    strcat(name,"Unknown IDT processor");
+	    break;
+	default:
+	    strcat(name,"Unknown processor");
+	}
     if (CPU_haveMMX())
-        strcat(name," with MMX(R)");
+	strcat(name," with MMX(R)");
     if (CPU_have3DNow())
-        strcat(name,", 3DNow!(R)");
+	strcat(name,", 3DNow!(R)");
     if (CPU_haveSSE())
-        strcat(name,", SSE(R)");
+	strcat(name,", SSE(R)");
     return name;
 #else
     return "Unknown";

@@ -99,7 +99,6 @@ unsigned long flash_init (void)
 }
 
 
-
 /*-----------------------------------------------------------------------
  */
 static void flash_get_offsets (ulong base, flash_info_t *info)
@@ -116,10 +115,10 @@ static void flash_get_offsets (ulong base, flash_info_t *info)
 void flash_print_info  (flash_info_t *info)
 {
 	int i;
-        int k;
-        int size;
-        int erased;
-        volatile unsigned long *flash;
+	int k;
+	int size;
+	int erased;
+	volatile unsigned long *flash;
 
 	if (info->flash_id == FLASH_UNKNOWN) {
 		printf ("missing or unknown FLASH type\n");
@@ -143,24 +142,24 @@ void flash_print_info  (flash_info_t *info)
 
 	printf ("  Sector Start Addresses:");
 	for (i=0; i<info->sector_count; ++i) {
-                /*
-                 * Check if whole sector is erased
-                 */
-                if (i != (info->sector_count-1))
-                  size = info->start[i+1] - info->start[i];
-                else
-                  size = info->start[0] + info->size - info->start[i];
-                erased = 1;
-                flash = (volatile unsigned long *)info->start[i];
-                size = size >> 2;        /* divide by 4 for longword access */
-                for (k=0; k<size; k++)
-                  {
-                    if (*flash++ != 0xffffffff)
-                      {
-                        erased = 0;
-                        break;
-                      }
-                  }
+		/*
+		 * Check if whole sector is erased
+		 */
+		if (i != (info->sector_count-1))
+		  size = info->start[i+1] - info->start[i];
+		else
+		  size = info->start[0] + info->size - info->start[i];
+		erased = 1;
+		flash = (volatile unsigned long *)info->start[i];
+		size = size >> 2;        /* divide by 4 for longword access */
+		for (k=0; k<size; k++)
+		  {
+		    if (*flash++ != 0xffffffff)
+		      {
+			erased = 0;
+			break;
+		      }
+		  }
 
 		if ((i % 5) == 0)
 			printf ("\n   ");
@@ -189,7 +188,7 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 	short i;
 	FLASH_WORD_SIZE value;
 	ulong base = (ulong)addr;
-        volatile FLASH_WORD_SIZE *addr2 = (FLASH_WORD_SIZE *)addr;
+	volatile FLASH_WORD_SIZE *addr2 = (FLASH_WORD_SIZE *)addr;
 
 	/* Write auto select command: read Manufacturer ID */
 	addr2[ADDR0] = (FLASH_WORD_SIZE)0x00AA00AA;
@@ -232,7 +231,7 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 		/* read sector protection at sector address, (A7 .. A0) = 0x02 */
 		/* D0 = 1 if protected */
 		addr2 = (volatile FLASH_WORD_SIZE *)(info->start[i]);
-        info->protect[i] = addr2[2] & 1;
+	info->protect[i] = addr2[2] & 1;
 	}
 
 	/*
@@ -254,15 +253,15 @@ int wait_for_DQ7(flash_info_t *info, int sect)
 	start = get_timer (0);
     last  = start;
     while ((addr[0] & (FLASH_WORD_SIZE)0x00800080) != (FLASH_WORD_SIZE)0x00800080) {
-        if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
-            printf ("Timeout\n");
-            return -1;
-        }
-        /* show that we're waiting */
-        if ((now - last) > 1000) {  /* every second */
-            putc ('.');
-            last = now;
-        }
+	if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+	    printf ("Timeout\n");
+	    return -1;
+	}
+	/* show that we're waiting */
+	if ((now - last) > 1000) {  /* every second */
+	    putc ('.');
+	    last = now;
+	}
     }
 	return 0;
 }
@@ -427,42 +426,42 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
  */
 static int write_word (flash_info_t *info, ulong dest, ulong data)
 {
-        volatile FLASH_WORD_SIZE *addr2 = (FLASH_WORD_SIZE *)(info->start[0]);
-        volatile FLASH_WORD_SIZE *dest2 = (FLASH_WORD_SIZE *)dest;
-        volatile FLASH_WORD_SIZE *data2 = (FLASH_WORD_SIZE *)&data;
+	volatile FLASH_WORD_SIZE *addr2 = (FLASH_WORD_SIZE *)(info->start[0]);
+	volatile FLASH_WORD_SIZE *dest2 = (FLASH_WORD_SIZE *)dest;
+	volatile FLASH_WORD_SIZE *data2 = (FLASH_WORD_SIZE *)&data;
 	ulong start;
 	int flag;
-        int i;
+	int i;
 
 	/* Check if Flash is (sufficiently) erased */
 	if ((*((volatile FLASH_WORD_SIZE *)dest) &
-             (FLASH_WORD_SIZE)data) != (FLASH_WORD_SIZE)data) {
+	     (FLASH_WORD_SIZE)data) != (FLASH_WORD_SIZE)data) {
 		return (2);
 	}
 	/* Disable interrupts which might cause a timeout here */
 	flag = disable_interrupts();
 
-        for (i=0; i<4/sizeof(FLASH_WORD_SIZE); i++)
-          {
-            addr2[ADDR0] = (FLASH_WORD_SIZE)0x00AA00AA;
-            addr2[ADDR1] = (FLASH_WORD_SIZE)0x00550055;
-            addr2[ADDR0] = (FLASH_WORD_SIZE)0x00A000A0;
+	for (i=0; i<4/sizeof(FLASH_WORD_SIZE); i++)
+	  {
+	    addr2[ADDR0] = (FLASH_WORD_SIZE)0x00AA00AA;
+	    addr2[ADDR1] = (FLASH_WORD_SIZE)0x00550055;
+	    addr2[ADDR0] = (FLASH_WORD_SIZE)0x00A000A0;
 
-            dest2[i] = data2[i];
+	    dest2[i] = data2[i];
 
-            /* re-enable interrupts if necessary */
-            if (flag)
-              enable_interrupts();
+	    /* re-enable interrupts if necessary */
+	    if (flag)
+	      enable_interrupts();
 
-            /* data polling for D7 */
-            start = get_timer (0);
-            while ((dest2[i] & (FLASH_WORD_SIZE)0x00800080) !=
-                   (data2[i] & (FLASH_WORD_SIZE)0x00800080)) {
-              if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
-                return (1);
-              }
-            }
-          }
+	    /* data polling for D7 */
+	    start = get_timer (0);
+	    while ((dest2[i] & (FLASH_WORD_SIZE)0x00800080) !=
+		   (data2[i] & (FLASH_WORD_SIZE)0x00800080)) {
+	      if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+		return (1);
+	      }
+	    }
+	  }
 
 	return (0);
 }

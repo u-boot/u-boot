@@ -1,7 +1,7 @@
 /*
  * (C) Copyright 2002
  * Daniel Engström, Omicron Ceti AB, daniel@omicron.se
- * 
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -24,7 +24,7 @@
 #ifndef _ASM_ZIMAGE_H_
 #define _ASM_ZIMAGE_H_
 
-/* linux i386 zImage/bzImage header. Offsets relative to 
+/* linux i386 zImage/bzImage header. Offsets relative to
  * the start of the image */
 
 #define CMD_LINE_MAGIC_OFF  0x020 /* Magic 0xa33f if the offset below is valid */
@@ -62,10 +62,10 @@
 #define SETUP_MAX_SIZE     32768
 
 #define SETUP_START_OFFSET 0x200
-#define BZIMAGE_LOAD_ADDR  0x100000 
+#define BZIMAGE_LOAD_ADDR  0x100000
 #define ZIMAGE_LOAD_ADDR   0x10000
-	
-void *load_zimage(char *image, unsigned long kernel_size, 
+
+void *load_zimage(char *image, unsigned long kernel_size,
 		  unsigned long initrd_addr, unsigned long initrd_size,
 		  int auto_boot);
 

@@ -270,27 +270,27 @@ int _CDECL stub_open(const char *_path, int _oflag, unsigned _mode)
 
     /* Find an empty file handle to use */
     for (i = 3; i < MAX_FILES; i++) {
-        if (!openHandles[i])
-            break;
-        }
+	if (!openHandles[i])
+	    break;
+	}
     if (openHandles[i])
-        return -1;
+	return -1;
 
     /* Find the open flags to use */
     if (_oflag & ___O_TRUNC)
-        strcpy(mode,"w");
+	strcpy(mode,"w");
     else if (_oflag & ___O_CREAT)
-        strcpy(mode,"a");
+	strcpy(mode,"a");
     else
-        strcpy(mode,"r");
+	strcpy(mode,"r");
     if (_oflag & ___O_BINARY)
-        strcat(mode,"b");
+	strcat(mode,"b");
     if (_oflag & ___O_TEXT)
-        strcat(mode,"t");
+	strcat(mode,"t");
 
     /* Open the file and store the file handle */
     if ((openHandles[i] = fopen(_path,mode)) == NULL)
-        return -1;
+	return -1;
     return i;
 }
 
@@ -300,25 +300,25 @@ int _CDECL stub_access(const char *_path, int _amode)
 int _CDECL stub_close(int _fildes)
 {
     if (_fildes >= 3 && openHandles[_fildes]) {
-        fclose(openHandles[_fildes]);
-        openHandles[_fildes] = NULL;
-        }
+	fclose(openHandles[_fildes]);
+	openHandles[_fildes] = NULL;
+	}
     return 0;
 }
 
 off_t _CDECL stub_lseek(int _fildes, off_t _offset, int _whence)
 {
     if (_fildes >= 3) {
-        fseek(openHandles[_fildes],_offset,_whence);
-        return ftell(openHandles[_fildes]);
-        }
+	fseek(openHandles[_fildes],_offset,_whence);
+	return ftell(openHandles[_fildes]);
+	}
     return 0;
 }
 
 size_t _CDECL stub_read(int _fildes, void *_buf, size_t _nbyte)
 {
     if (_fildes >= 3)
-        return fread(_buf,1,_nbyte,openHandles[_fildes]);
+	return fread(_buf,1,_nbyte,openHandles[_fildes]);
     return 0;
 }
 
@@ -327,18 +327,18 @@ int _CDECL stub_unlink(const char *_path)
     WORD error;
 
     if (initComplete) {
-        if (R0_DeleteFile((char*)_path,0,&error))
-            return 0;
-        return -1;
-        }
+	if (R0_DeleteFile((char*)_path,0,&error))
+	    return 0;
+	return -1;
+	}
     else
-        return i_remove(_path);
+	return i_remove(_path);
 }
 
 size_t _CDECL stub_write(int _fildes, const void *_buf, size_t _nbyte)
 {
     if (_fildes >= 3)
-        return fwrite(_buf,1,_nbyte,openHandles[_fildes]);
+	return fwrite(_buf,1,_nbyte,openHandles[_fildes]);
     return _nbyte;
 }
 
@@ -356,7 +356,7 @@ void _CDECL _OS_setfileattr(const char *filename,unsigned attrib)
 {
     WORD error;
     if (initComplete)
-        R0_SetFileAttributes((char*)filename,attrib,&error);
+	R0_SetFileAttributes((char*)filename,attrib,&error);
 }
 
 /* Return the current date in days since 1/1/1980 */
@@ -380,59 +380,59 @@ int _CDECL stub_open(const char *_path, int _oflag, unsigned _mode)
 
     /* Find an empty file handle to use */
     for (i = 3; i < MAX_FILES; i++) {
-        if (!openHandles[i])
-            break;
-        }
+	if (!openHandles[i])
+	    break;
+	}
     if (openHandles[i])
-        return -1;
+	return -1;
 
     /* Find the open flags to use */
     if (_oflag & ___O_TRUNC)
-        strcpy(mode,"w");
+	strcpy(mode,"w");
     else if (_oflag & ___O_CREAT)
-        strcpy(mode,"a");
+	strcpy(mode,"a");
     else
-        strcpy(mode,"r");
+	strcpy(mode,"r");
     if (_oflag & ___O_BINARY)
-        strcat(mode,"b");
+	strcat(mode,"b");
     if (_oflag & ___O_TEXT)
-        strcat(mode,"t");
+	strcat(mode,"t");
 
     /* Open the file and store the file handle */
     if ((openHandles[i] = fopen(_path,mode)) == NULL)
-        return -1;
+	return -1;
     return i;
 }
 
 int _CDECL stub_close(int _fildes)
 {
     if (_fildes >= 3 && openHandles[_fildes]) {
-        fclose(openHandles[_fildes]);
-        openHandles[_fildes] = NULL;
-        }
+	fclose(openHandles[_fildes]);
+	openHandles[_fildes] = NULL;
+	}
     return 0;
 }
 
 off_t _CDECL stub_lseek(int _fildes, off_t _offset, int _whence)
 {
     if (_fildes >= 3) {
-        fseek(openHandles[_fildes],_offset,_whence);
-        return ftell(openHandles[_fildes]);
-        }
+	fseek(openHandles[_fildes],_offset,_whence);
+	return ftell(openHandles[_fildes]);
+	}
     return 0;
 }
 
 size_t _CDECL stub_read(int _fildes, void *_buf, size_t _nbyte)
 {
     if (_fildes >= 3)
-        return fread(_buf,1,_nbyte,openHandles[_fildes]);
+	return fread(_buf,1,_nbyte,openHandles[_fildes]);
     return 0;
 }
 
 size_t _CDECL stub_write(int _fildes, const void *_buf, size_t _nbyte)
 {
     if (_fildes >= 3)
-        return fwrite(_buf,1,_nbyte,openHandles[_fildes]);
+	return fwrite(_buf,1,_nbyte,openHandles[_fildes]);
     return _nbyte;
 }
 
@@ -444,7 +444,7 @@ int _CDECL stub_isatty(int _fildes)
 
 int _CDECL stub_unlink(const char *_path)
 {
-    // TODO: Implement this!
+    /* TODO: Implement this! */
     return -1;
 }
 
@@ -454,7 +454,7 @@ int _CDECL stub_remove(const char *_filename)
 
 int _CDECL stub_rename(const char *_old, const char *_new)
 {
-    // TODO: Implement this!
+    /* TODO: Implement this! */
     return -1;
 }
 
@@ -462,11 +462,11 @@ void _CDECL _OS_setfileattr(const char *filename,unsigned attrib)
 {
     uint _attr = 0;
     if (attrib & __A_RDONLY)
-        _attr |= FILE_ATTRIBUTE_READONLY;
+	_attr |= FILE_ATTRIBUTE_READONLY;
     if (attrib & __A_HIDDEN)
-        _attr |= FILE_ATTRIBUTE_HIDDEN;
+	_attr |= FILE_ATTRIBUTE_HIDDEN;
     if (attrib & __A_SYSTEM)
-        _attr |= FILE_ATTRIBUTE_SYSTEM;
+	_attr |= FILE_ATTRIBUTE_SYSTEM;
     PM_setFileAttr(filename,_attr);
 }
 
@@ -506,7 +506,7 @@ void _CDECL _OS_setfileattr(const char *filename,unsigned attrib)
 {
     FILESTATUS3 s;
     if (DosQueryPathInfo((PSZ)filename,FIL_STANDARD,(PVOID)&s,sizeof(s)))
-        return;
+	return;
     s.attrFile = attrib;
     DosSetPathInfo((PSZ)filename,FIL_STANDARD,(PVOID)&s,sizeof(s),0L);
 }
@@ -528,25 +528,25 @@ int _CDECL stub_open(const char *_path, int _oflag, unsigned _mode)
 
     /* Determine open flags */
     if (_oflag & ___O_CREAT) {
-        if (_oflag & ___O_EXCL)
-            openflag = OPEN_ACTION_FAIL_IF_EXISTS | OPEN_ACTION_CREATE_IF_NEW;
-        else if (_oflag & ___O_TRUNC)
-            openflag = OPEN_ACTION_REPLACE_IF_EXISTS | OPEN_ACTION_CREATE_IF_NEW;
-        else
-            openflag = OPEN_ACTION_OPEN_IF_EXISTS | OPEN_ACTION_CREATE_IF_NEW;
-        }
+	if (_oflag & ___O_EXCL)
+	    openflag = OPEN_ACTION_FAIL_IF_EXISTS | OPEN_ACTION_CREATE_IF_NEW;
+	else if (_oflag & ___O_TRUNC)
+	    openflag = OPEN_ACTION_REPLACE_IF_EXISTS | OPEN_ACTION_CREATE_IF_NEW;
+	else
+	    openflag = OPEN_ACTION_OPEN_IF_EXISTS | OPEN_ACTION_CREATE_IF_NEW;
+	}
     else if (_oflag & ___O_TRUNC)
-        openflag = OPEN_ACTION_REPLACE_IF_EXISTS;
+	openflag = OPEN_ACTION_REPLACE_IF_EXISTS;
     else
-        openflag = OPEN_ACTION_OPEN_IF_EXISTS;
+	openflag = OPEN_ACTION_OPEN_IF_EXISTS;
 
     /* Determine open mode flags */
     if (_oflag & ___O_RDONLY)
-        openmode = OPEN_ACCESS_READONLY | OPEN_SHARE_DENYNONE;
+	openmode = OPEN_ACCESS_READONLY | OPEN_SHARE_DENYNONE;
     else if (_oflag & ___O_WRONLY)
-        openmode = OPEN_ACCESS_WRITEONLY | OPEN_SHARE_DENYWRITE;
+	openmode = OPEN_ACCESS_WRITEONLY | OPEN_SHARE_DENYWRITE;
     else
-        openmode = OPEN_ACCESS_READWRITE | OPEN_SHARE_DENYWRITE;
+	openmode = OPEN_ACCESS_READWRITE | OPEN_SHARE_DENYWRITE;
 
     /* Copy the path to a variable on the stack. We need to do this
      * for OS/2 as when the drivers are loaded into shared kernel
@@ -555,14 +555,14 @@ int _CDECL stub_open(const char *_path, int _oflag, unsigned _mode)
      */
     strcpy(path,_path);
     if (DosOpen(path, &handle, &actiontaken, 0, FILE_NORMAL,
-            openflag, openmode, NULL) != NO_ERROR)
-        return -1;
+	    openflag, openmode, NULL) != NO_ERROR)
+	return -1;
 
     /* Handle append mode of operation */
     if (_oflag & ___O_APPEND) {
-        if (DosSetFilePtr(handle, 0, FILE_END, &error) != NO_ERROR)
-            return -1;
-        }
+	if (DosSetFilePtr(handle, 0, FILE_END, &error) != NO_ERROR)
+	    return -1;
+	}
     return handle;
 }
 
@@ -578,16 +578,16 @@ int _CDECL stub_access(const char *_path, int _amode)
      */
     strcpy(path,_path);
     if (DosQueryPathInfo(path, FIL_STANDARD, &fs, sizeof(fs)) != NO_ERROR)
-        return -1;
+	return -1;
     if ((_amode & W_OK) && (fs.attrFile & FILE_READONLY))
-        return -1;
+	return -1;
     return 0;
 }
 
 int _CDECL stub_close(int _fildes)
 {
     if (DosClose(_fildes) != NO_ERROR)
-        return -1;
+	return -1;
     return 0;
 }
 
@@ -596,17 +596,17 @@ off_t _CDECL stub_lseek(int _fildes, off_t _offset, int _whence)
     ULONG  cbActual, origin;
 
     switch (_whence) {
-        case SEEK_CUR:
-            origin = FILE_CURRENT;
-            break;
-        case SEEK_END:
-            origin = FILE_END;
-            break;
-        default:
-            origin = FILE_BEGIN;
-        }
+	case SEEK_CUR:
+	    origin = FILE_CURRENT;
+	    break;
+	case SEEK_END:
+	    origin = FILE_END;
+	    break;
+	default:
+	    origin = FILE_BEGIN;
+	}
     if (DosSetFilePtr(_fildes, _offset, origin, &cbActual) != NO_ERROR)
-        return -1;
+	return -1;
     return cbActual;
 }
 
@@ -621,19 +621,19 @@ size_t _CDECL stub_read(int _fildes, void *_buf, size_t _nbyte)
      * in kernel space and will cause DosRead to bail internally.
      */
     while (_nbyte > BUF_SIZE) {
-        if (DosRead(_fildes, file_io_buf, BUF_SIZE, &cbRead) != NO_ERROR)
-            return -1;
-        cbActual += cbRead;
-        memcpy(p,file_io_buf,BUF_SIZE);
-        p += BUF_SIZE;
-        _nbyte -= BUF_SIZE;
-        }
+	if (DosRead(_fildes, file_io_buf, BUF_SIZE, &cbRead) != NO_ERROR)
+	    return -1;
+	cbActual += cbRead;
+	memcpy(p,file_io_buf,BUF_SIZE);
+	p += BUF_SIZE;
+	_nbyte -= BUF_SIZE;
+	}
     if (_nbyte) {
-        if (DosRead(_fildes, file_io_buf, _nbyte, &cbRead) != NO_ERROR)
-            return -1;
-        cbActual += cbRead;
-        memcpy(p,file_io_buf,_nbyte);
-        }
+	if (DosRead(_fildes, file_io_buf, _nbyte, &cbRead) != NO_ERROR)
+	    return -1;
+	cbActual += cbRead;
+	memcpy(p,file_io_buf,_nbyte);
+	}
     return cbActual;
 }
 
@@ -648,19 +648,19 @@ size_t _CDECL stub_write(int _fildes, const void *_buf, size_t _nbyte)
      * in kernel space and will cause DosWrite to bail internally.
      */
     while (_nbyte > BUF_SIZE) {
-        memcpy(file_io_buf,p,BUF_SIZE);
-        if (DosWrite(_fildes, file_io_buf, BUF_SIZE, &cbWrite) != NO_ERROR)
-            return -1;
-        cbActual += cbWrite;
-        p += BUF_SIZE;
-        _nbyte -= BUF_SIZE;
-        }
+	memcpy(file_io_buf,p,BUF_SIZE);
+	if (DosWrite(_fildes, file_io_buf, BUF_SIZE, &cbWrite) != NO_ERROR)
+	    return -1;
+	cbActual += cbWrite;
+	p += BUF_SIZE;
+	_nbyte -= BUF_SIZE;
+	}
     if (_nbyte) {
-        memcpy(file_io_buf,p,_nbyte);
-        if (DosWrite(_fildes, file_io_buf, _nbyte, &cbWrite) != NO_ERROR)
-            return -1;
-        cbActual += cbWrite;
-        }
+	memcpy(file_io_buf,p,_nbyte);
+	if (DosWrite(_fildes, file_io_buf, _nbyte, &cbWrite) != NO_ERROR)
+	    return -1;
+	cbActual += cbWrite;
+	}
     return cbActual;
 }
 
@@ -675,7 +675,7 @@ int _CDECL stub_unlink(const char *_path)
      */
     strcpy(path,_path);
     if (DosDelete(path) != NO_ERROR)
-        return -1;
+	return -1;
     return 0;
 }
 
@@ -684,7 +684,7 @@ int _CDECL stub_isatty(int _fildes)
     ULONG  htype, flags;
 
     if (DosQueryHType(_fildes, &htype, &flags) != NO_ERROR)
-        return 0;
+	return 0;
     return ((htype & 0xFF) == HANDTYPE_DEVICE);
 }
 
@@ -700,7 +700,7 @@ int _CDECL stub_remove(const char *_path)
      */
     strcpy(path,_path);
     if (DosDelete(path) != NO_ERROR)
-        return -1;
+	return -1;
     return 0;
 }
 
@@ -717,7 +717,7 @@ int _CDECL stub_rename(const char *_old, const char *_new)
     strcpy(old,_old);
     strcpy(new,_new);
     if (DosMove(old, new) != NO_ERROR)
-        return -1;
+	return -1;
     return 0;
 }
 
@@ -734,23 +734,23 @@ void _CDECL _OS_setfileattr(const char *filename,unsigned attrib)
 int _CDECL stub_open(const char *_path, int _oflag, unsigned _mode)
 {
     int oflag_tab[] = {
-        ___O_RDONLY,    O_RDONLY,
-        ___O_WRONLY,    O_WRONLY,
-        ___O_RDWR,      O_RDWR,
-        ___O_BINARY,    O_BINARY,
-        ___O_TEXT,      O_TEXT,
-        ___O_CREAT,     O_CREAT,
-        ___O_EXCL,      O_EXCL,
-        ___O_TRUNC,     O_TRUNC,
-        ___O_APPEND,    O_APPEND,
-        };
+	___O_RDONLY,    O_RDONLY,
+	___O_WRONLY,    O_WRONLY,
+	___O_RDWR,      O_RDWR,
+	___O_BINARY,    O_BINARY,
+	___O_TEXT,      O_TEXT,
+	___O_CREAT,     O_CREAT,
+	___O_EXCL,      O_EXCL,
+	___O_TRUNC,     O_TRUNC,
+	___O_APPEND,    O_APPEND,
+	};
     int i,oflag = 0;
 
     /* Translate the oflag's to the OS dependent versions */
     for (i = 0; i < sizeof(oflag_tab) / sizeof(int); i += 2) {
-        if (_oflag & oflag_tab[i])
-            oflag |= oflag_tab[i+1];
-        }
+	if (_oflag & oflag_tab[i])
+	    oflag |= oflag_tab[i+1];
+	}
     return open(_path,oflag,_mode);
 }
 
@@ -825,4 +825,3 @@ void * _CDECL stub_signal(int sig, void *handler)
     return (void*)signal(sig,(__code_ptr)handler);
 #endif
 }
-

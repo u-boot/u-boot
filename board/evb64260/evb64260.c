@@ -218,18 +218,18 @@ int board_pre_init (void)
 
 	/* ----- DEVICE BUS SETTINGS ------ */
 
-        /*
+	/*
 	 * EVB
-         * 0 - SRAM
-         * 1 - RTC
-         * 2 - UART
-         * 3 - Flash
-         * boot - BootCS
+	 * 0 - SRAM
+	 * 1 - RTC
+	 * 2 - UART
+	 * 3 - Flash
+	 * boot - BootCS
 	 *
 	 * Zuma
 	 * 0 - Flash
 	 * boot - BootCS
-         */
+	 */
 
 	/*
 	 * the dual 7450 module requires burst access to the boot
@@ -352,40 +352,40 @@ void
 debug_led(int led, int mode)
 {
 #ifndef CONFIG_ZUMA_V2
-        volatile int *addr = NULL;
-        int dummy;
+	volatile int *addr = NULL;
+	int dummy;
 
-        if (mode == 1) {
-                switch (led) {
-                case 0:
-                        addr = (int *)((unsigned int)CFG_DEV1_SPACE | 0x08000);
-                        break;
+	if (mode == 1) {
+		switch (led) {
+		case 0:
+			addr = (int *)((unsigned int)CFG_DEV1_SPACE | 0x08000);
+			break;
 
-                case 1:
-                        addr = (int *)((unsigned int)CFG_DEV1_SPACE | 0x0c000);
-                        break;
+		case 1:
+			addr = (int *)((unsigned int)CFG_DEV1_SPACE | 0x0c000);
+			break;
 
-                case 2:
-                        addr = (int *)((unsigned int)CFG_DEV1_SPACE | 0x10000);
-                        break;
-                }
-        } else if (mode == 0) {
-                switch (led) {
-                case 0:
-                        addr = (int *)((unsigned int)CFG_DEV1_SPACE | 0x14000);
-                        break;
+		case 2:
+			addr = (int *)((unsigned int)CFG_DEV1_SPACE | 0x10000);
+			break;
+		}
+	} else if (mode == 0) {
+		switch (led) {
+		case 0:
+			addr = (int *)((unsigned int)CFG_DEV1_SPACE | 0x14000);
+			break;
 
-                case 1:
-                        addr = (int *)((unsigned int)CFG_DEV1_SPACE | 0x18000);
-                        break;
+		case 1:
+			addr = (int *)((unsigned int)CFG_DEV1_SPACE | 0x18000);
+			break;
 
-                case 2:
-                        addr = (int *)((unsigned int)CFG_DEV1_SPACE | 0x1c000);
-                        break;
-                }
-        }
+		case 2:
+			addr = (int *)((unsigned int)CFG_DEV1_SPACE | 0x1c000);
+			break;
+		}
+	}
 	WRITE_CHAR(addr, 0);
-        dummy = *addr;
+	dummy = *addr;
 #endif /* CONFIG_ZUMA_V2 */
 }
 
@@ -436,4 +436,3 @@ display_mem_map(void)
     printf(" BOOT:  base - 0x%08x\tsize - %dM bytes\twidth - %d bits\n",
 	   base, size>>20, width);
 }
-

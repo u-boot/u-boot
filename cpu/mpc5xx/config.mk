@@ -23,12 +23,11 @@
 
 #
 # File:			config.mk
-# 
+#
 # Discription:		compiler flags and make definitions
 #
- 
+
 
 PLATFORM_RELFLAGS += 	-mrelocatable -ffixed-r14 -meabi
 
 PLATFORM_CPPFLAGS +=	-DCONFIG_5xx -ffixed-r2 -ffixed-r29  -mpowerpc -msoft-float
-

@@ -106,7 +106,7 @@ static inline unsigned long ffz(unsigned long word)
 	if (word & 0x0f000000) { k -= 4;  word <<= 4;  }
 	if (word & 0x30000000) { k -= 2;  word <<= 2;  }
 	if (word & 0x40000000) { k -= 1; }
-        return k;
+	return k;
 }
 
 /*

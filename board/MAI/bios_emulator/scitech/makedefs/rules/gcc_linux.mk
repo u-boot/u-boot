@@ -91,4 +91,3 @@ LD	:= $(LDXX)
     @$(ECHO) ld $@
     @$(LD) $(LDFLAGS) -o $@ $& $(EXELIBS) $(PMLIB) -lm
 .ENDIF
-

@@ -22,7 +22,6 @@
 #include <asm/processor.h>
 
 
-
 int board_pre_init (void)
 {
 	return 0;

@@ -89,7 +89,7 @@ static int WaitForXfer(void)
     i = I2C_TIMEOUT * 1000;
     status = i2c->IICCON;
     while ((i > 0) && !(status & I2CCON_IRPND)) {
-    	udelay(1000);
+	udelay(1000);
 	status = i2c->IICCON;
 	i--;
     }
@@ -181,10 +181,10 @@ void i2c_init (int speed, int slaveadd)
 */
 static
 int i2c_transfer(unsigned char cmd_type,
-                 unsigned char chip,
-                 unsigned char addr[],
-                 unsigned char addr_len,
-                 unsigned char data[],
+		 unsigned char chip,
+		 unsigned char addr[],
+		 unsigned char addr_len,
+		 unsigned char data[],
 		 unsigned short data_len)
 {
     S3C24X0_I2C * const i2c = S3C24X0_GetBase_I2C();
@@ -196,7 +196,7 @@ int i2c_transfer(unsigned char cmd_type,
 	return I2C_NOK;
     }
 
-    //CheckDelay();
+    /*CheckDelay(); */
 
     /* Check I2C bus idle */
     i = I2C_TIMEOUT * 1000;
@@ -210,7 +210,7 @@ int i2c_transfer(unsigned char cmd_type,
 
     if (status & I2CSTAT_BSY) {
 	result = I2C_NOK_TOUT;
-        return(result);
+	return(result);
     }
 
     i2c->IICCON |= 0x80;
@@ -251,7 +251,7 @@ int i2c_transfer(unsigned char cmd_type,
 	    }
 
 	    if (result == I2C_OK)
-	        result = WaitForXfer();
+		result = WaitForXfer();
 
 	    /* send STOP */
 	    i2c->IICSTAT = I2C_MODE_MR | I2C_TXRX_ENA;
@@ -306,7 +306,7 @@ int i2c_transfer(unsigned char cmd_type,
 			/* disable ACK for final READ */
 			if (i == data_len - 1)
 			    i2c->IICCON &= ~0x80;
-		        ReadWriteByte();
+			ReadWriteByte();
 			result = WaitForXfer();
 			data[i] = i2c->IICDS;
 			i++;
@@ -323,7 +323,7 @@ int i2c_transfer(unsigned char cmd_type,
 
 	default:
 	    printf( "i2c_transfer: bad call\n" );
-    	    result = I2C_NOK;
+	    result = I2C_NOK;
 	    break;
     }
 
@@ -356,9 +356,9 @@ int i2c_read (uchar chip, uint addr, int alen, uchar * buffer, int len)
 
     if ( alen > 0 ) {
 	xaddr[0] = (addr >> 24) & 0xFF;
-        xaddr[1] = (addr >> 16) & 0xFF;
-        xaddr[2] = (addr >> 8) & 0xFF;
-        xaddr[3] = addr & 0xFF;
+	xaddr[1] = (addr >> 16) & 0xFF;
+	xaddr[2] = (addr >> 8) & 0xFF;
+	xaddr[3] = addr & 0xFF;
     }
 
 
@@ -378,8 +378,8 @@ int i2c_read (uchar chip, uint addr, int alen, uchar * buffer, int len)
 	chip |= ((addr >> (alen * 8)) & CFG_I2C_EEPROM_ADDR_OVERFLOW);
 #endif
     if( (ret = i2c_transfer(I2C_READ, chip<<1, &xaddr[4-alen], alen, buffer, len )) != 0) {
-        printf( "I2c read: failed %d\n", ret);
-        return 1;
+	printf( "I2c read: failed %d\n", ret);
+	return 1;
     }
     return 0;
 }
@@ -394,10 +394,10 @@ int i2c_write (uchar chip, uint addr, int alen, uchar * buffer, int len)
     }
 
     if ( alen > 0 ) {
-        xaddr[0] = (addr >> 24) & 0xFF;
-        xaddr[1] = (addr >> 16) & 0xFF;
-        xaddr[2] = (addr >> 8) & 0xFF;
-        xaddr[3] = addr & 0xFF;
+	xaddr[0] = (addr >> 24) & 0xFF;
+	xaddr[1] = (addr >> 16) & 0xFF;
+	xaddr[2] = (addr >> 8) & 0xFF;
+	xaddr[3] = addr & 0xFF;
     }
 
 #ifdef CFG_I2C_EEPROM_ADDR_OVERFLOW
@@ -413,7 +413,7 @@ int i2c_write (uchar chip, uint addr, int alen, uchar * buffer, int len)
      * hidden in the chip address.
      */
     if( alen > 0 )
-        chip |= ((addr >> (alen * 8)) & CFG_I2C_EEPROM_ADDR_OVERFLOW);
+	chip |= ((addr >> (alen * 8)) & CFG_I2C_EEPROM_ADDR_OVERFLOW);
 #endif
     return (i2c_transfer(I2C_WRITE, chip<<1, &xaddr[4-alen], alen, buffer, len ) != 0);
 }

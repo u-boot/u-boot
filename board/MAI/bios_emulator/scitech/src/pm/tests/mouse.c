@@ -69,23 +69,23 @@ int main(void)
 
     printf("Program running in ");
     switch (PM_getModeType()) {
-        case PM_realMode:
-            printf("real mode.\n\n");
-            break;
-        case PM_286:
-            printf("16 bit protected mode.\n\n");
-            break;
-        case PM_386:
-            printf("32 bit protected mode.\n\n");
-            break;
-        }
+	case PM_realMode:
+	    printf("real mode.\n\n");
+	    break;
+	case PM_286:
+	    printf("16 bit protected mode.\n\n");
+	    break;
+	case PM_386:
+	    printf("32 bit protected mode.\n\n");
+	    break;
+	}
 
     regs.x.ax = 33;     /* Mouse function 33 - Software reset       */
     PM_int86(0x33,&regs,&regs);
     if (regs.x.bx == 0) {
-        printf("No mouse installed.\n");
-        exit(1);
-        }
+	printf("No mouse installed.\n");
+	exit(1);
+	}
 
     /* Install our mouse handler and lock handler pages in memory. It is
      * difficult to get the size of a function in C, but we know our
@@ -95,9 +95,9 @@ int main(void)
     PM_lockCodePages((__codePtr)mouseHandler,100,&lh);
     PM_lockDataPages((void*)&count,sizeof(count),&lh);
     if (!PM_setMouseHandler(0xFFFF, mouseHandler)) {
-        printf("Unable to install mouse handler!\n");
-        exit(1);
-        }
+	printf("Unable to install mouse handler!\n");
+	exit(1);
+	}
     printf("Mouse handler installed - Hit any key to exit\n");
     PM_getch();
 

@@ -272,7 +272,7 @@ int checkboard (void)
 
   switch(k) {
   case 0x00 : puts ("ENG - this board sucks, check the errata, not supported\n");
-              return -1;
+	      return -1;
   case 0x01 : puts ("PILOT - warning, read errata \n"); break;
   case 0x02 : puts ("A - warning, read errata \n"); break;
   case 0x03 : puts ("B \n"); break;

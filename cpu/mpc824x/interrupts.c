@@ -83,12 +83,12 @@ int interrupt_init (void)
 {
 	decrementer_count = (get_bus_freq (0) / 4) / CFG_HZ;
 
-        /*
-         * It's all broken at the moment and I currently don't need
-         * interrupts. If you want to fix it, have a look at the epic
-         * drivers in dink32 v12. They do everthing and Motorola said
-         * I could use the dink source in this project as long as
-         * copyright notices remain intact.
+	/*
+	 * It's all broken at the moment and I currently don't need
+	 * interrupts. If you want to fix it, have a look at the epic
+	 * drivers in dink32 v12. They do everthing and Motorola said
+	 * I could use the dink source in this project as long as
+	 * copyright notices remain intact.
 	 */
 
 	epicInit (EPIC_DIRECT_IRQ, 0);

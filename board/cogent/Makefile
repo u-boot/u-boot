@@ -29,7 +29,7 @@ OBJS	:= mb.o flash.o dipsw.o lcd.o serial.o # pci.o rtc.o par.o kbm.o
 SOBJS	:=
 
 $(LIB):	$(OBJS)
-	$(AR) crv $@ $^
+	$(AR) crv $@ $(OBJS)
 
 clean:
 	rm -f $(SOBJS) $(OBJS)

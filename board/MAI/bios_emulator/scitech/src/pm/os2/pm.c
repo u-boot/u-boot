@@ -116,16 +116,16 @@ typedef struct _VIDEO_ADAPTER {
 /* PMIREQUEST_SOFTWAREINT structures from OS/2 DDK */
 
 typedef struct {
-    ULONG ulFlags;                              // VDM initialization type
-#define VDM_POSTLOAD                    0x1     // adapter just loaded, used internally for initialization
-#define VDM_INITIALIZE                  0x2     // force initialization of a permanently open VDM, even if previously initialized
-#define VDM_TERMINATE_POSTINITIALIZE    0x6     //start VDM with initialization, but close it afterwards (includes VDM_INITIALIZE)
-#define VDM_QUERY_CAPABILITY            0x10    // query the current int 10 capability
-#define VDM_FULL_VDM_CREATED            0x20    // a full VDM is created
-#define VDM_MINI_VDM_CREATED            0x40    // a mini VDM is created
-#define VDM_MINI_VDM_SUPPORTED          0x80    // mini VDM support is available
-    PCHAR szName;                               // VDM initialization program
-    PCHAR szArgs;                               // VDM initialization arguments
+    ULONG ulFlags;                              /* VDM initialization type */
+#define VDM_POSTLOAD                    0x1     /* adapter just loaded, used internally for initialization */
+#define VDM_INITIALIZE                  0x2     /* force initialization of a permanently open VDM, even if previously initialized */
+#define VDM_TERMINATE_POSTINITIALIZE    0x6     /*start VDM with initialization, but close it afterwards (includes VDM_INITIALIZE) */
+#define VDM_QUERY_CAPABILITY            0x10    /* query the current int 10 capability */
+#define VDM_FULL_VDM_CREATED            0x20    /* a full VDM is created */
+#define VDM_MINI_VDM_CREATED            0x40    /* a mini VDM is created */
+#define VDM_MINI_VDM_SUPPORTED          0x80    /* mini VDM support is available */
+    PCHAR szName;                               /* VDM initialization program */
+    PCHAR szArgs;                               /* VDM initialization arguments */
     }INITVDM;
 
 typedef struct {
@@ -218,7 +218,7 @@ typedef struct _SESWITCHREC {
     HEV             Event;          /* Posted after callback is called      */
     } SESWITCHREC;
 
-// Page sized block cache
+/* Page sized block cache */
 
 #define PAGES_PER_BLOCK     32
 #define PAGE_BLOCK_SIZE     (PAGES_PER_BLOCK * PM_PAGE_SIZE + (PM_PAGE_SIZE-1) + sizeof(pageblock))
@@ -269,29 +269,29 @@ static ulong CallSDDHelp(
     ulong           result;
 
     if ((rc = DosOpen(PMHELP_NAME,&hSDDHelp,&result,0,0,
-            FILE_OPEN, OPEN_SHARE_DENYNONE | OPEN_ACCESS_READWRITE,
-            NULL)) != 0) {
-        if (rc == 4) {  /* Did we run out of file handles? */
-            ULONG   ulNewFHs;
-            LONG    lAddFHs = 5;
+	    FILE_OPEN, OPEN_SHARE_DENYNONE | OPEN_ACCESS_READWRITE,
+	    NULL)) != 0) {
+	if (rc == 4) {  /* Did we run out of file handles? */
+	    ULONG   ulNewFHs;
+	    LONG    lAddFHs = 5;
 
-            if (DosSetRelMaxFH(&lAddFHs, &ulNewFHs) != 0)
-                PM_fatalError("Failed to raise the file handles limit!");
-            else {
-                if ((rc = DosOpen(PMHELP_NAME,&hSDDHelp,&result,0,0,
-                        FILE_OPEN, OPEN_SHARE_DENYNONE | OPEN_ACCESS_READWRITE,
-                        NULL)) != 0) {
-                    PM_fatalError("Unable to open SDDHELP$ helper device driver! (#2)");
-                    }
-                }
-            }
-        else
-            PM_fatalError("Unable to open SDDHELP$ helper device driver!");
-        }
+	    if (DosSetRelMaxFH(&lAddFHs, &ulNewFHs) != 0)
+		PM_fatalError("Failed to raise the file handles limit!");
+	    else {
+		if ((rc = DosOpen(PMHELP_NAME,&hSDDHelp,&result,0,0,
+			FILE_OPEN, OPEN_SHARE_DENYNONE | OPEN_ACCESS_READWRITE,
+			NULL)) != 0) {
+		    PM_fatalError("Unable to open SDDHELP$ helper device driver! (#2)");
+		    }
+		}
+	    }
+	else
+	    PM_fatalError("Unable to open SDDHELP$ helper device driver!");
+	}
     if (DosDevIOCtl(hSDDHelp,PMHELP_IOCTL,func,
-            &parmsIn, inLen = sizeof(parmsIn), &inLen,
-            &parmsOut, outLen = sizeof(parmsOut), &outLen) != 0)
-        PM_fatalError("Failure calling SDDHELP$ helper device driver!");
+	    &parmsIn, inLen = sizeof(parmsIn), &inLen,
+	    &parmsOut, outLen = sizeof(parmsOut), &outLen) != 0)
+	PM_fatalError("Failure calling SDDHELP$ helper device driver!");
     DosClose(hSDDHelp);
     return parmsOut[0];
 }
@@ -310,9 +310,9 @@ ibool __IsDBCSSystem(void)
     /* Get the DBCS vector - if it's not empty, we're on DBCS */
     DosQueryDBCSEnv(sizeof(achDBCSInfo), &ccStruct, achDBCSInfo);
     if (achDBCSInfo[0] != 0)
-        return true;
+	return true;
     else
-        return false;
+	return false;
 }
 
 /****************************************************************************
@@ -324,9 +324,9 @@ ibool __isShellLoaded(void)
     PVOID   ptr;
 
     if (DosGetNamedSharedMem(&ptr, (PSZ)"\\SHAREMEM\\PMGLOBAL.MEM", PAG_READ) == NO_ERROR) {
-        DosFreeMem(ptr);
-        return true;
-        }
+	DosFreeMem(ptr);
+	return true;
+	}
     return false;
 }
 
@@ -339,19 +339,19 @@ message.
 void PMAPI PM_init(void)
 {
     if (!lowMem) {
-        /* Obtain the 32->16 callgate from the device driver to enable IOPL */
-        if ((_PM_gdt = CallSDDHelp(PMHELP_GETGDT32)) == 0)
-            PM_fatalError("Unable to obtain call gate selector!");
+	/* Obtain the 32->16 callgate from the device driver to enable IOPL */
+	if ((_PM_gdt = CallSDDHelp(PMHELP_GETGDT32)) == 0)
+	    PM_fatalError("Unable to obtain call gate selector!");
 
-        PM_setIOPL(3);
+	PM_setIOPL(3);
 
-        /* Map the first Mb of physical memory into lowMem */
-        if ((lowMem = PM_mapPhysicalAddr(0,0xFFFFF,true)) == NULL)
-            PM_fatalError("Unable to map first Mb physical memory!");
+	/* Map the first Mb of physical memory into lowMem */
+	if ((lowMem = PM_mapPhysicalAddr(0,0xFFFFF,true)) == NULL)
+	    PM_fatalError("Unable to map first Mb physical memory!");
 
-        /* Initialise the MTRR interface functions */
-        MTRR_init();
-        }
+	/* Initialise the MTRR interface functions */
+	MTRR_init();
+	}
 }
 
 /****************************************************************************
@@ -367,79 +367,79 @@ static ibool InitInt10(void)
     RESULTCODES resCodes;
 
     if (haveInt10 == -1) {
-        /* Connect to VIDEOPMI and get entry point. Note that we only
-         * do this if GENPMI or SDDPMI are already loaded, since we need
-         * a GRADD based driver for this to work.
-         */
-        PM_init();
-        haveInt10 = false;
-        if (DosQueryModuleHandle((PSZ)"GENPMI.DLL",&hModGENPMI) != 0)
-            hModGENPMI = NULLHANDLE;
-        if (DosQueryModuleHandle((PSZ)"SDDPMI.DLL",&hModSDDPMI) != 0)
-            hModSDDPMI = NULLHANDLE;
-        if (hModGENPMI || hModSDDPMI) {
-            if (DosLoadModule((PSZ)buf,sizeof(buf),(PSZ)"VIDEOPMI.DLL",&hModVideoPMI) == 0) {
-                if (DosQueryProcAddr(hModVideoPMI,0,(PSZ)"VIDEOPMI32Request",(void*)&PM_VIDEOPMI32Request) != 0)
-                    PM_fatalError("Unable to get VIDEOPMI32Request entry point!");
-                strcpy(path,"X:\\OS2\\SVGADATA.PMI");
-                path[0] = PM_getBootDrive();
-                if (PM_VIDEOPMI32Request(&Adapter,PMIREQUEST_LOADPMIFILE,path,NULL) != 0) {
-                    DosFreeModule(hModVideoPMI);
-                    PM_VIDEOPMI32Request = NULL;
-                    haveInt10 = false;
-                    }
-                else {
-                    /* Attempt to initialise the full VDM in the system. This will only
-                     * work if VPRPMI.SYS is loaded, but it provides support for passing
-                     * values in ES/DS/ESI/EDI between the BIOS which does not work with
-                     * kernel VDM's in fixpacks earlier than FP15. FP15 and later and
-                     * the new Warp 4.51 and Warp Server convenience packs should work
-                     * fine with the kernel mini-VDM.
-                     *
-                     * Also the full VDM is the only solution for really old kernels
-                     * (but GRADD won't run on them so this is superfluous ;-).
-                     */
-                    INITVDM InitVDM = {VDM_INITIALIZE,NULL,NULL};
-                    PM_VIDEOPMI32Request(&Adapter,PMIREQUEST_SOFTWAREINT,&InitVDM,NULL);
-                    haveInt10 = true;
-                    }
-                }
-            }
-        else {
-            /* A GRADD driver isn't loaded, hence we can't use VIDEOPMI. But we will try
-             * to access the mini-VDM directly, first verifying that the support is
-             * available in the kernel (it should be for kernels that support GRADD).
-             * This may be needed in a command line boot or if non-GRADD driver is
-             * used (Matrox or classic VGA).
-             * Note: because of problems with mini-VDM support in the kernel, we have to
-             * spawn a daemon process that will do the actual mini-VDM access for us.
-             */
-             /* Try to open shared semaphore to see if our daemon is already up */
-            if (DosOpenEventSem(SHAREDSEM, &hevDaemon) == NO_ERROR) {
-                if (DosWaitEventSem(hevDaemon, 1) == NO_ERROR) {
-                    /* If semaphore is posted, all is well */
-                    useVPMI   = false;
-                    haveInt10 = true;
-                    }
-                }
-            else {
-                /* Create shared event semaphore */
-                if (DosCreateEventSem(SHAREDSEM, &hevDaemon, DC_SEM_SHARED, FALSE) == NO_ERROR) {
-                    PM_findBPD(DAEMON_NAME, path);
-                    strcat(path, DAEMON_NAME);
-                    if (DosExecPgm(buf, sizeof(buf), EXEC_BACKGROUND, (PSZ)DAEMON_NAME,
-                        NULL, &resCodes, (PSZ)path) == NO_ERROR) {
-                        /* The daemon was successfully spawned, now give it a sec to come up */
-                        if (DosWaitEventSem(hevDaemon, 2000) == NO_ERROR) {
-                            /* It's up! */
-                            useVPMI   = false;
-                            haveInt10 = true;
-                            }
-                        }
-                    }
-                }
-            }
-        }
+	/* Connect to VIDEOPMI and get entry point. Note that we only
+	 * do this if GENPMI or SDDPMI are already loaded, since we need
+	 * a GRADD based driver for this to work.
+	 */
+	PM_init();
+	haveInt10 = false;
+	if (DosQueryModuleHandle((PSZ)"GENPMI.DLL",&hModGENPMI) != 0)
+	    hModGENPMI = NULLHANDLE;
+	if (DosQueryModuleHandle((PSZ)"SDDPMI.DLL",&hModSDDPMI) != 0)
+	    hModSDDPMI = NULLHANDLE;
+	if (hModGENPMI || hModSDDPMI) {
+	    if (DosLoadModule((PSZ)buf,sizeof(buf),(PSZ)"VIDEOPMI.DLL",&hModVideoPMI) == 0) {
+		if (DosQueryProcAddr(hModVideoPMI,0,(PSZ)"VIDEOPMI32Request",(void*)&PM_VIDEOPMI32Request) != 0)
+		    PM_fatalError("Unable to get VIDEOPMI32Request entry point!");
+		strcpy(path,"X:\\OS2\\SVGADATA.PMI");
+		path[0] = PM_getBootDrive();
+		if (PM_VIDEOPMI32Request(&Adapter,PMIREQUEST_LOADPMIFILE,path,NULL) != 0) {
+		    DosFreeModule(hModVideoPMI);
+		    PM_VIDEOPMI32Request = NULL;
+		    haveInt10 = false;
+		    }
+		else {
+		    /* Attempt to initialise the full VDM in the system. This will only
+		     * work if VPRPMI.SYS is loaded, but it provides support for passing
+		     * values in ES/DS/ESI/EDI between the BIOS which does not work with
+		     * kernel VDM's in fixpacks earlier than FP15. FP15 and later and
+		     * the new Warp 4.51 and Warp Server convenience packs should work
+		     * fine with the kernel mini-VDM.
+		     *
+		     * Also the full VDM is the only solution for really old kernels
+		     * (but GRADD won't run on them so this is superfluous ;-).
+		     */
+		    INITVDM InitVDM = {VDM_INITIALIZE,NULL,NULL};
+		    PM_VIDEOPMI32Request(&Adapter,PMIREQUEST_SOFTWAREINT,&InitVDM,NULL);
+		    haveInt10 = true;
+		    }
+		}
+	    }
+	else {
+	    /* A GRADD driver isn't loaded, hence we can't use VIDEOPMI. But we will try
+	     * to access the mini-VDM directly, first verifying that the support is
+	     * available in the kernel (it should be for kernels that support GRADD).
+	     * This may be needed in a command line boot or if non-GRADD driver is
+	     * used (Matrox or classic VGA).
+	     * Note: because of problems with mini-VDM support in the kernel, we have to
+	     * spawn a daemon process that will do the actual mini-VDM access for us.
+	     */
+	     /* Try to open shared semaphore to see if our daemon is already up */
+	    if (DosOpenEventSem(SHAREDSEM, &hevDaemon) == NO_ERROR) {
+		if (DosWaitEventSem(hevDaemon, 1) == NO_ERROR) {
+		    /* If semaphore is posted, all is well */
+		    useVPMI   = false;
+		    haveInt10 = true;
+		    }
+		}
+	    else {
+		/* Create shared event semaphore */
+		if (DosCreateEventSem(SHAREDSEM, &hevDaemon, DC_SEM_SHARED, FALSE) == NO_ERROR) {
+		    PM_findBPD(DAEMON_NAME, path);
+		    strcat(path, DAEMON_NAME);
+		    if (DosExecPgm(buf, sizeof(buf), EXEC_BACKGROUND, (PSZ)DAEMON_NAME,
+			NULL, &resCodes, (PSZ)path) == NO_ERROR) {
+			/* The daemon was successfully spawned, now give it a sec to come up */
+			if (DosWaitEventSem(hevDaemon, 2000) == NO_ERROR) {
+			    /* It's up! */
+			    useVPMI   = false;
+			    haveInt10 = true;
+			    }
+			}
+		    }
+		}
+	    }
+	}
     return haveInt10;
 }
 
@@ -480,9 +480,9 @@ void PMAPI PM_backslash(
 {
     uint pos = strlen(s);
     if (s[pos-1] != '\\') {
-        s[pos] = '\\';
-        s[pos+1] = '\0';
-        }
+	s[pos] = '\\';
+	s[pos+1] = '\0';
+	}
 }
 
 /****************************************************************************
@@ -505,9 +505,9 @@ void PMAPI PM_fatalError(
     /* Be prepare to be called recursively (failed to fail situation :-) */
     static int fatalErrorCount = 0;
     if (fatalErrorCount++ == 0) {
-        if (fatalErrorCleanup)
-            fatalErrorCleanup();
-        }
+	if (fatalErrorCleanup)
+	    fatalErrorCleanup();
+	}
     fprintf(stderr,"%s\n", msg);
     exit(1);
 }
@@ -522,10 +522,10 @@ void * PMAPI PM_getVESABuf(
     uint *roff)
 {
     if (!VESABuf_ptr) {
-        /* Allocate a global buffer for communicating with the VESA VBE */
-        if ((VESABuf_ptr = PM_allocRealSeg(VESABuf_len, &VESABuf_rseg, &VESABuf_roff)) == NULL)
-            return NULL;
-        }
+	/* Allocate a global buffer for communicating with the VESA VBE */
+	if ((VESABuf_ptr = PM_allocRealSeg(VESABuf_len, &VESABuf_rseg, &VESABuf_roff)) == NULL)
+	    return NULL;
+	}
     *len = VESABuf_len;
     *rseg = VESABuf_rseg;
     *roff = VESABuf_roff;
@@ -632,11 +632,11 @@ void __PM_checkConsoleSwitch(void)
 
     /* Quick optimized path for most common case */
     if (SesSwitchRec.Flags == -1)
-        return;
+	return;
 
 again:
     if (DosRequestMutexSem(SesSwitchRec.Mutex, 100))
-        return;
+	return;
     Flags = SesSwitchRec.Flags;
     Callback = SesSwitchRec.Callback;
     SesSwitchRec.Flags = -1;
@@ -647,15 +647,15 @@ again:
     isSessionSwitching = false;
     DosPostEventSem(SesSwitchRec.Event);
     if (Flags == PM_DEACTIVATE && Mode == PM_SUSPEND_APP)
-        /* Suspend application until we switch back to our application */
-        for (;;) {
-            DosSleep (500);
-            /* SesSwitchRec.Flags is volatile so optimizer
-             * won't load it into a register
-             */
-            if (SesSwitchRec.Flags != -1)
-                goto again;
-            }
+	/* Suspend application until we switch back to our application */
+	for (;;) {
+	    DosSleep (500);
+	    /* SesSwitchRec.Flags is volatile so optimizer
+	     * won't load it into a register
+	     */
+	    if (SesSwitchRec.Flags != -1)
+		goto again;
+	    }
 }
 
 /****************************************************************************
@@ -669,7 +669,7 @@ static void _PM_SessionSwitchEvent(
     ULONG Count;
 
     if (DosRequestMutexSem(SesSwitchRec.Mutex, 10000))
-        return;
+	return;
 
     /* We're going to wait on that semaphore */
     DosResetEventSem(SesSwitchRec.Event, &Count);
@@ -692,10 +692,10 @@ static void _PM_ConsoleSwitch(
     USHORT NotifyType;
 
     for (;;) {
-        if (VioModeWait(VMWR_POPUP, &NotifyType, 0) != 0)
-            break;
-        _PM_SessionSwitchEvent(saveState, PM_REACTIVATE);
-        }
+	if (VioModeWait(VMWR_POPUP, &NotifyType, 0) != 0)
+	    break;
+	_PM_SessionSwitchEvent(saveState, PM_REACTIVATE);
+	}
     VioModeUndo(UNDOI_RELEASEOWNER, UNDOK_ERRORCODE, (HVIO)0);
 }
 
@@ -709,13 +709,13 @@ static void _PM_ConsolePopup(
 {
     USHORT NotifyType;
     for (;;) {
-        if (VioSavRedrawWait(VSRWI_SAVEANDREDRAW, &NotifyType, 0) != 0)
-            break;
-        if (NotifyType == VSRWN_SAVE)
-            _PM_SessionSwitchEvent(saveState, PM_DEACTIVATE);
-        else if (NotifyType == VSRWN_REDRAW)
-            _PM_SessionSwitchEvent(saveState, PM_REACTIVATE);
-        }
+	if (VioSavRedrawWait(VSRWI_SAVEANDREDRAW, &NotifyType, 0) != 0)
+	    break;
+	if (NotifyType == VSRWN_SAVE)
+	    _PM_SessionSwitchEvent(saveState, PM_DEACTIVATE);
+	else if (NotifyType == VSRWN_REDRAW)
+	    _PM_SessionSwitchEvent(saveState, PM_REACTIVATE);
+	}
     VioSavRedrawUndo(UNDOI_RELEASEOWNER, UNDOK_ERRORCODE, (HVIO)0);
 }
 
@@ -726,24 +726,24 @@ Set the suspend application callback for the fullscreen console.
 void PMAPI PM_setSuspendAppCallback(
     PM_saveState_cb saveState)
 {
-    // If PM isn't loaded, this stuff will cause crashes!
+    /* If PM isn't loaded, this stuff will cause crashes! */
     if (__isShellLoaded()) {
-        if (saveState) {
-            /* Create the threads responsible for tracking console switches */
-            SesSwitchRec.Flags = -1;
-            DosCreateMutexSem(NULL, &SesSwitchRec.Mutex, 0, FALSE);
-            DosCreateEventSem(NULL, &SesSwitchRec.Event, 0, FALSE);
-            _beginthread ((void(*)(void*))_PM_ConsoleSwitch,NULL,SESSION_SWITCH_STACK_SIZE, (void*)saveState);
-            _beginthread ((void(*)(void*))_PM_ConsolePopup,NULL,SESSION_SWITCH_STACK_SIZE, (void*)saveState);
-            }
-        else {
-            /* Kill the threads responsible for tracking console switches */
-            VioModeUndo(UNDOI_RELEASEOWNER, UNDOK_TERMINATE, (HVIO)0);
-            VioSavRedrawUndo(UNDOI_RELEASEOWNER, UNDOK_TERMINATE, (HVIO)0);
-            DosCloseEventSem(SesSwitchRec.Event);
-            DosCloseMutexSem(SesSwitchRec.Mutex);
-            }
-        }
+	if (saveState) {
+	    /* Create the threads responsible for tracking console switches */
+	    SesSwitchRec.Flags = -1;
+	    DosCreateMutexSem(NULL, &SesSwitchRec.Mutex, 0, FALSE);
+	    DosCreateEventSem(NULL, &SesSwitchRec.Event, 0, FALSE);
+	    _beginthread ((void(*)(void*))_PM_ConsoleSwitch,NULL,SESSION_SWITCH_STACK_SIZE, (void*)saveState);
+	    _beginthread ((void(*)(void*))_PM_ConsolePopup,NULL,SESSION_SWITCH_STACK_SIZE, (void*)saveState);
+	    }
+	else {
+	    /* Kill the threads responsible for tracking console switches */
+	    VioModeUndo(UNDOI_RELEASEOWNER, UNDOK_TERMINATE, (HVIO)0);
+	    VioSavRedrawUndo(UNDOI_RELEASEOWNER, UNDOK_TERMINATE, (HVIO)0);
+	    DosCloseEventSem(SesSwitchRec.Event);
+	    DosCloseMutexSem(SesSwitchRec.Mutex);
+	    }
+	}
 }
 
 /****************************************************************************
@@ -758,7 +758,7 @@ void PMAPI PM_restoreConsoleState(
     VIOMODEINFO  vmi;
 
     if (!cs)
-        return;
+	return;
 
     memcpy(&vmi, &cs->vmi, sizeof (VIOMODEINFO));
     VioSetMode(&vmi, (HVIO)0);
@@ -789,7 +789,7 @@ void PM_setOSCursorLocation(
     /* If session switch is in progress, calling into VIO causes deadlocks! */
     /* Also this call to VIO screws up our console library on DBCS boxes... */
     if (!isSessionSwitching && !__IsDBCSSystem())
-        VioSetCurPos(y,x,0);
+	VioSetCurPos(y,x,0);
 }
 
 /****************************************************************************
@@ -813,7 +813,7 @@ ibool PMAPI PM_setRealTimeClockHandler(
     PM_intHandler ih,
     int frequency)
 {
-    // TODO: Implement this!
+    /* TODO: Implement this! */
     (void)ih;
     (void)frequency;
     return false;
@@ -826,7 +826,7 @@ Set the real time clock frequency (for stereo modes).
 void PMAPI PM_setRealTimeClockFrequency(
     int frequency)
 {
-    // TODO: Implement this!
+    /* TODO: Implement this! */
     (void)frequency;
 }
 
@@ -836,7 +836,7 @@ Restore the original real time clock handler.
 ****************************************************************************/
 void PMAPI PM_restoreRealTimeClockHandler(void)
 {
-    // TODO: Implement this!
+    /* TODO: Implement this! */
 }
 
 /****************************************************************************
@@ -881,7 +881,7 @@ const char * PMAPI PM_getNucleusPath(void)
 {
     static char path[CCHMAXPATH];
     if (getenv("NUCLEUS_PATH") != NULL)
-        return getenv("NUCLEUS_PATH");
+	return getenv("NUCLEUS_PATH");
     strcpy(path,"x:\\os2\\drivers");
     path[0] = PM_getBootDrive();
     PM_backslash(path);
@@ -920,10 +920,10 @@ const char * PMAPI PM_getMachineName(void)
     static char name[40],*env;
 
     if ((env = getenv("HOSTNAME")) != NULL) {
-        strncpy(name,env,sizeof(name));
-        name[sizeof(name)-1] = 0;
-        return name;
-        }
+	strncpy(name,env,sizeof(name));
+	name[sizeof(name)-1] = 0;
+	return name;
+	}
     return "OS2";
 }
 
@@ -970,7 +970,7 @@ void * PMAPI PM_mapPhysicalAddr(
     parmsIn[1] = limit;
     parmsIn[2] = isCached;
     if ((linear = CallSDDHelp(PMHELP_MAPPHYS)) == 0)
-        return NULL;
+	return NULL;
     return (void*)(linear + baseOfs);
 }
 
@@ -1031,9 +1031,9 @@ int PMAPI PM_getCOMPort(
     int port)
 {
     switch (port) {
-        case 0: return 0x3F8;
-        case 1: return 0x2F8;
-        }
+	case 0: return 0x3F8;
+	case 1: return 0x2F8;
+	}
     return 0;
 }
 
@@ -1045,10 +1045,10 @@ int PMAPI PM_getLPTPort(
     int port)
 {
     switch (port) {
-        case 0: return 0x3BC;
-        case 1: return 0x378;
-        case 2: return 0x278;
-        }
+	case 0: return 0x3BC;
+	case 1: return 0x378;
+	case 2: return 0x278;
+	}
     return 0;
 }
 
@@ -1112,7 +1112,7 @@ void * PMAPI PM_mapRealPointer(
     uint r_off)
 {
     if (r_seg == 0xFFFF)
-        return &RMBuf[r_off];
+	return &RMBuf[r_off];
     return lowMem + MK_PHYS(r_seg,r_off);
 }
 
@@ -1126,7 +1126,7 @@ void * PMAPI PM_allocRealSeg(
     uint *r_off)
 {
     if (size > sizeof(RMBuf))
-        return NULL;
+	return NULL;
     *r_seg = 0xFFFF;
     *r_off = 0x0000;
     return &RMBuf;
@@ -1160,79 +1160,79 @@ void PMAPI DPMI_int86(
     ulong   eax = 0;
 
     if (!InitInt10())
-        return;
+	return;
     memset(&rmregs, 0, sizeof(rmregs));
     rmregs.ulBIOSIntNo = intno;
     INDPMI(eax); INDPMI(ebx); INDPMI(ecx); INDPMI(edx); INDPMI(esi); INDPMI(edi);
     rmregs.aCRF.reg_ds = regs->ds;
     rmregs.aCRF.reg_es = regs->es;
     if (intno == 0x10) {
-        eax = rmregs.aCRF.reg_eax;
-        switch (eax & 0xFFFF) {
-            case 0x4F00:
-                /* We have to hack the way this function works, due to
-                 * some bugs in the IBM mini-VDM BIOS support. Specifically
-                 * we need to make the input buffer and output buffer the
-                 * 'same' buffer, and that ES:SI points to the output
-                 * buffer (ignored by the BIOS). The data will end up
-                 * being returned in the input buffer, except for the
-                 * first four bytes ('VESA') that will not be returned.
-                 */
-                rmregs.pB[0].bBufferType = INPUT_BUFFER;
-                rmregs.pB[0].bSelCRF = REG_OFFSET(reg_es);
-                rmregs.pB[0].bOffCRF = REG_OFFSET(reg_edi);
-                rmregs.pB[0].pAddress = RMBuf;
-                rmregs.pB[0].ulSize = 4;
-                rmregs.pB[1].bBufferType = OUTPUT_BUFFER;
-                rmregs.pB[1].bSelCRF = REG_OFFSET(reg_es);
-                rmregs.pB[1].bOffCRF = REG_OFFSET(reg_esi);
-                rmregs.pB[1].pAddress = ((PBYTE)RMBuf)+4;
-                rmregs.pB[1].ulSize = 512-4;
-                break;
-            case 0x4F01:
-                rmregs.pB[0].bBufferType = OUTPUT_BUFFER;
-                rmregs.pB[0].bSelCRF = REG_OFFSET(reg_es);
-                rmregs.pB[0].bOffCRF = REG_OFFSET(reg_edi);
-                rmregs.pB[0].pAddress = RMBuf;
-                rmregs.pB[0].ulSize = 256;
-                break;
-            case 0x4F02:
-                rmregs.pB[0].bBufferType = INPUT_BUFFER;
-                rmregs.pB[0].bSelCRF = REG_OFFSET(reg_es);
-                rmregs.pB[0].bOffCRF = REG_OFFSET(reg_edi);
-                rmregs.pB[0].pAddress = RMBuf;
-                rmregs.pB[0].ulSize = 256;
-                break;
-            case 0x4F09:
-                rmregs.pB[0].bBufferType = INPUT_BUFFER;
-                rmregs.pB[0].bSelCRF = REG_OFFSET(reg_es);
-                rmregs.pB[0].bOffCRF = REG_OFFSET(reg_edi);
-                rmregs.pB[0].pAddress = RMBuf;
-                rmregs.pB[0].ulSize = 1024;
-                break;
-            case 0x4F0A:
-                /* Due to bugs in the mini-VDM in OS/2, the 0x4F0A protected
-                 * mode interface functions will not work (we never get any
-                 * selectors returned), so we fail this function here. The
-                 * rest of the VBE/Core driver will work properly if this
-                 * function is failed, because the VBE 2.0 and 3.0 specs
-                 * allow for this.
-                 */
-                regs->eax = 0x014F;
-                return;
-            }
-        }
+	eax = rmregs.aCRF.reg_eax;
+	switch (eax & 0xFFFF) {
+	    case 0x4F00:
+		/* We have to hack the way this function works, due to
+		 * some bugs in the IBM mini-VDM BIOS support. Specifically
+		 * we need to make the input buffer and output buffer the
+		 * 'same' buffer, and that ES:SI points to the output
+		 * buffer (ignored by the BIOS). The data will end up
+		 * being returned in the input buffer, except for the
+		 * first four bytes ('VESA') that will not be returned.
+		 */
+		rmregs.pB[0].bBufferType = INPUT_BUFFER;
+		rmregs.pB[0].bSelCRF = REG_OFFSET(reg_es);
+		rmregs.pB[0].bOffCRF = REG_OFFSET(reg_edi);
+		rmregs.pB[0].pAddress = RMBuf;
+		rmregs.pB[0].ulSize = 4;
+		rmregs.pB[1].bBufferType = OUTPUT_BUFFER;
+		rmregs.pB[1].bSelCRF = REG_OFFSET(reg_es);
+		rmregs.pB[1].bOffCRF = REG_OFFSET(reg_esi);
+		rmregs.pB[1].pAddress = ((PBYTE)RMBuf)+4;
+		rmregs.pB[1].ulSize = 512-4;
+		break;
+	    case 0x4F01:
+		rmregs.pB[0].bBufferType = OUTPUT_BUFFER;
+		rmregs.pB[0].bSelCRF = REG_OFFSET(reg_es);
+		rmregs.pB[0].bOffCRF = REG_OFFSET(reg_edi);
+		rmregs.pB[0].pAddress = RMBuf;
+		rmregs.pB[0].ulSize = 256;
+		break;
+	    case 0x4F02:
+		rmregs.pB[0].bBufferType = INPUT_BUFFER;
+		rmregs.pB[0].bSelCRF = REG_OFFSET(reg_es);
+		rmregs.pB[0].bOffCRF = REG_OFFSET(reg_edi);
+		rmregs.pB[0].pAddress = RMBuf;
+		rmregs.pB[0].ulSize = 256;
+		break;
+	    case 0x4F09:
+		rmregs.pB[0].bBufferType = INPUT_BUFFER;
+		rmregs.pB[0].bSelCRF = REG_OFFSET(reg_es);
+		rmregs.pB[0].bOffCRF = REG_OFFSET(reg_edi);
+		rmregs.pB[0].pAddress = RMBuf;
+		rmregs.pB[0].ulSize = 1024;
+		break;
+	    case 0x4F0A:
+		/* Due to bugs in the mini-VDM in OS/2, the 0x4F0A protected
+		 * mode interface functions will not work (we never get any
+		 * selectors returned), so we fail this function here. The
+		 * rest of the VBE/Core driver will work properly if this
+		 * function is failed, because the VBE 2.0 and 3.0 specs
+		 * allow for this.
+		 */
+		regs->eax = 0x014F;
+		return;
+	    }
+	}
     if (useVPMI)
-        PM_VIDEOPMI32Request(&Adapter,PMIREQUEST_SOFTWAREINT,NULL,&rmregs);
+	PM_VIDEOPMI32Request(&Adapter,PMIREQUEST_SOFTWAREINT,NULL,&rmregs);
     else {
-        DosSysCtl(6, &rmregs);
-        }
+	DosSysCtl(6, &rmregs);
+	}
 
     OUTDPMI(eax); OUTDPMI(ebx); OUTDPMI(ecx); OUTDPMI(edx); OUTDPMI(esi); OUTDPMI(edi);
     if (((regs->eax & 0xFFFF) == 0x004F) && ((eax & 0xFFFF) == 0x4F00)) {
-        /* Hack to fix up the missing 'VESA' string for mini-VDM */
-        memcpy(RMBuf,"VESA",4);
-        }
+	/* Hack to fix up the missing 'VESA' string for mini-VDM */
+	memcpy(RMBuf,"VESA",4);
+	}
     regs->ds = rmregs.aCRF.reg_ds;
     regs->es = rmregs.aCRF.reg_es;
     regs->flags = rmregs.aCRF.reg_eflag;
@@ -1354,13 +1354,13 @@ static pageblock *PM_addNewPageBlock(void)
 
     /* Allocate memory for the new page block, and add to head of list */
     if (DosAllocSharedMem((void**)&newBlock,NULL,PAGE_BLOCK_SIZE,OBJ_GETTABLE | PAG_READ | PAG_WRITE | PAG_COMMIT))
-        return NULL;
+	return NULL;
     if (!PM_lockDataPages(newBlock,PAGE_BLOCK_SIZE,&newBlock->lockHandle))
-        return NULL;
+	return NULL;
     newBlock->prev = NULL;
     newBlock->next = pageBlocks;
     if (pageBlocks)
-        pageBlocks->prev = newBlock;
+	pageBlocks->prev = newBlock;
     pageBlocks = newBlock;
 
     /* Initialise the page aligned free list for the page block */
@@ -1369,7 +1369,7 @@ static pageblock *PM_addNewPageBlock(void)
     newBlock->freeListStart = newBlock->freeList;
     newBlock->freeListEnd = p + (PAGES_PER_BLOCK-1) * PM_PAGE_SIZE;
     for (i = 0; i < PAGES_PER_BLOCK; i++,p = next)
-        FREELIST_NEXT(p) = next = p + PM_PAGE_SIZE;
+	FREELIST_NEXT(p) = next = p + PM_PAGE_SIZE;
     FREELIST_NEXT(p - PM_PAGE_SIZE) = NULL;
     return newBlock;
 }
@@ -1388,11 +1388,11 @@ void * PMAPI PM_allocPage(
      * page block if no free blocks are found.
      */
     for (block = pageBlocks; block != NULL; block = block->next) {
-        if (block->freeCount)
-            break;
-        }
+	if (block->freeCount)
+	    break;
+	}
     if (block == NULL && (block = PM_addNewPageBlock()) == NULL)
-        return NULL;
+	return NULL;
     block->freeCount--;
     p = block->freeList;
     block->freeList = FREELIST_NEXT(p);
@@ -1411,36 +1411,36 @@ void PMAPI PM_freePage(
 
     /* First find the page block that this page belongs to */
     for (block = pageBlocks; block != NULL; block = block->next) {
-        if (p >= block->freeListStart && p <= block->freeListEnd)
-            break;
-        }
+	if (p >= block->freeListStart && p <= block->freeListEnd)
+	    break;
+	}
     CHECK(block != NULL);
 
     /* Now free the block by adding it to the free list */
     FREELIST_NEXT(p) = block->freeList;
     block->freeList = p;
     if (++block->freeCount == PAGES_PER_BLOCK) {
-        /* If all pages in the page block are now free, free the entire
-         * page block itself.
-         */
-        if (block == pageBlocks) {
-            /* Delete from head */
-            pageBlocks = block->next;
-            if (block->next)
-                block->next->prev = NULL;
-            }
-        else {
-            /* Delete from middle of list */
-            CHECK(block->prev != NULL);
-            block->prev->next = block->next;
-            if (block->next)
-                block->next->prev = block->prev;
-            }
+	/* If all pages in the page block are now free, free the entire
+	 * page block itself.
+	 */
+	if (block == pageBlocks) {
+	    /* Delete from head */
+	    pageBlocks = block->next;
+	    if (block->next)
+		block->next->prev = NULL;
+	    }
+	else {
+	    /* Delete from middle of list */
+	    CHECK(block->prev != NULL);
+	    block->prev->next = block->next;
+	    if (block->next)
+		block->next->prev = block->prev;
+	    }
 
-        /* Unlock the memory and free it */
-        PM_unlockDataPages(block,PAGE_BLOCK_SIZE,&block->lockHandle);
-        DosFreeMem(block);
-        }
+	/* Unlock the memory and free it */
+	PM_unlockDataPages(block,PAGE_BLOCK_SIZE,&block->lockHandle);
+	DosFreeMem(block);
+	}
 }
 
 /****************************************************************************
@@ -1453,8 +1453,8 @@ void PMAPI PM_mapSharedPages(void)
 
     /* Map all the page blocks above into the shared memory for process */
     for (block = pageBlocks; block != NULL; block = block->next) {
-        DosGetSharedMem(block, PAG_READ | PAG_WRITE);
-        }
+	DosGetSharedMem(block, PAG_READ | PAG_WRITE);
+	}
 }
 
 /****************************************************************************
@@ -1533,7 +1533,7 @@ void PMAPI PM_setBankA(
     INTCRF  rmregs;
 
     if (!InitInt10())
-        return;
+	return;
     memset(&rmregs, 0, sizeof(rmregs));
     rmregs.ulBIOSIntNo = 0x10;
     rmregs.aCRF.reg_eax = 0x4F05;
@@ -1552,7 +1552,7 @@ void PMAPI PM_setBankAB(
     INTCRF  rmregs;
 
     if (!InitInt10())
-        return;
+	return;
     memset(&rmregs, 0, sizeof(rmregs));
     rmregs.ulBIOSIntNo = 0x10;
     rmregs.aCRF.reg_eax = 0x4F05;
@@ -1578,7 +1578,7 @@ void PMAPI PM_setCRTStart(
     INTCRF  rmregs;
 
     if (!InitInt10())
-        return;
+	return;
     memset(&rmregs, 0, sizeof(rmregs));
     rmregs.ulBIOSIntNo = 0x10;
     rmregs.aCRF.reg_eax = 0x4F07;
@@ -1625,8 +1625,8 @@ int PMAPI PM_enableWriteCombine(
     return MTRR_enableWriteCombine(base,size,type);
 }
 
-// TODO: Move the MTRR helper stuff into the call gate, or better yet
-//       entirely into the ring 0 helper driver!!
+/* TODO: Move the MTRR helper stuff into the call gate, or better yet */
+/*       entirely into the ring 0 helper driver!! */
 
 /* MTRR helper functions. To make it easier to implement the MTRR support
  * under OS/2, we simply put our ring 0 helper functions into the
@@ -1705,7 +1705,7 @@ void _ASMAPI _MTRR_writeMSR(
 PM_MODULE PMAPI PM_loadLibrary(
     const char *szDLLName)
 {
-    // TODO: Implement this to load shared libraries!
+    /* TODO: Implement this to load shared libraries! */
     (void)szDLLName;
     return NULL;
 }
@@ -1714,7 +1714,7 @@ void * PMAPI PM_getProcAddress(
     PM_MODULE hModule,
     const char *szProcName)
 {
-    // TODO: Implement this!
+    /* TODO: Implement this! */
     (void)hModule;
     (void)szProcName;
     return NULL;
@@ -1723,7 +1723,7 @@ void * PMAPI PM_getProcAddress(
 void PMAPI PM_freeLibrary(
     PM_MODULE hModule)
 {
-    // TODO: Implement this!
+    /* TODO: Implement this! */
     (void)hModule;
 }
 
@@ -1740,15 +1740,15 @@ static void convertFindData(
     memset(findData,0,findData->dwSize);
     findData->dwSize = dwSize;
     if (blk->attrFile & FILE_READONLY)
-        findData->attrib |= PM_FILE_READONLY;
+	findData->attrib |= PM_FILE_READONLY;
     if (blk->attrFile & FILE_DIRECTORY)
-        findData->attrib |= PM_FILE_DIRECTORY;
+	findData->attrib |= PM_FILE_DIRECTORY;
     if (blk->attrFile & FILE_ARCHIVED)
-        findData->attrib |= PM_FILE_ARCHIVE;
+	findData->attrib |= PM_FILE_ARCHIVE;
     if (blk->attrFile & FILE_HIDDEN)
-        findData->attrib |= PM_FILE_HIDDEN;
+	findData->attrib |= PM_FILE_HIDDEN;
     if (blk->attrFile & FILE_SYSTEM)
-        findData->attrib |= PM_FILE_SYSTEM;
+	findData->attrib |= PM_FILE_SYSTEM;
     findData->sizeLo = blk->cbFile;
     findData->sizeHi = 0;
     strncpy(findData->name,blk->achName,PM_MAX_PATH);
@@ -1770,9 +1770,9 @@ void *PMAPI PM_findFirstFile(
     ulong           count = 1;
 
     if (DosFindFirst((PSZ)filename,&hdir,FIND_MASK,&blk,sizeof(blk),&count,FIL_STANDARD) == NO_ERROR) {
-        convertFindData(findData,&blk);
-        return (void*)hdir;
-        }
+	convertFindData(findData,&blk);
+	return (void*)hdir;
+	}
     return PM_FILE_INVALID;
 }
 
@@ -1788,9 +1788,9 @@ ibool PMAPI PM_findNextFile(
     ulong           count = 1;
 
     if (DosFindNext((HDIR)handle,&blk,sizeof(blk),&count) == NO_ERROR) {
-        convertFindData(findData,&blk);
-        return true;
-        }
+	convertFindData(findData,&blk);
+	return true;
+	}
     return false;
 }
 
@@ -1857,16 +1857,16 @@ void PMAPI PM_setFileAttr(
     FILESTATUS3 s;
 
     if (DosQueryPathInfo((PSZ)filename,FIL_STANDARD,(PVOID)&s,sizeof(s)))
-        return;
+	return;
     s.attrFile = 0;
     if (attrib & PM_FILE_READONLY)
-        s.attrFile |= FILE_READONLY;
+	s.attrFile |= FILE_READONLY;
     if (attrib & PM_FILE_ARCHIVE)
-        s.attrFile |= FILE_ARCHIVED;
+	s.attrFile |= FILE_ARCHIVED;
     if (attrib & PM_FILE_HIDDEN)
-        s.attrFile |= FILE_HIDDEN;
+	s.attrFile |= FILE_HIDDEN;
     if (attrib & PM_FILE_SYSTEM)
-        s.attrFile |= FILE_SYSTEM;
+	s.attrFile |= FILE_SYSTEM;
     DosSetPathInfo((PSZ)filename,FIL_STANDARD,(PVOID)&s,sizeof(s),0L);
 }
 
@@ -1881,15 +1881,15 @@ uint PMAPI PM_getFileAttr(
     uint        retval = 0;
 
     if (DosQueryPathInfo((PSZ)filename, FIL_STANDARD, &fs3, sizeof(FILESTATUS3)))
-        return 0;
+	return 0;
     if (fs3.attrFile & FILE_READONLY)
-        retval |= PM_FILE_READONLY;
+	retval |= PM_FILE_READONLY;
     if (fs3.attrFile & FILE_ARCHIVED)
-        retval |= PM_FILE_ARCHIVE;
+	retval |= PM_FILE_ARCHIVE;
     if (fs3.attrFile & FILE_HIDDEN)
-        retval |= PM_FILE_HIDDEN;
+	retval |= PM_FILE_HIDDEN;
     if (fs3.attrFile & FILE_SYSTEM)
-        retval |= PM_FILE_SYSTEM;
+	retval |= PM_FILE_SYSTEM;
     return retval;
 }
 
@@ -1928,33 +1928,33 @@ ibool PMAPI PM_getFileTime(
     time_t      tt;
 
     if (DosQueryPathInfo((PSZ)filename, FIL_STANDARD, &fs3, sizeof(FILESTATUS3)))
-        return false;
+	return false;
     if (gmTime) {
-        tc.tm_year = fs3.fdateLastWrite.year + 80;
-        tc.tm_mon = fs3.fdateLastWrite.month - 1;
-        tc.tm_mday = fs3.fdateLastWrite.day;
-        tc.tm_hour = fs3.ftimeLastWrite.hours;
-        tc.tm_min = fs3.ftimeLastWrite.minutes;
-        tc.tm_sec = fs3.ftimeLastWrite.twosecs * 2;
-        if((tt = mktime(&tc)) == -1)
-            return false;
-        if(!(ret = gmtime(&tt)))
-            return false;
-        time->sec = ret->tm_sec;
-        time->day = ret->tm_mday;
-        time->mon = ret->tm_mon + 1;
-        time->year = ret->tm_year - 80;
-        time->min = ret->tm_min;
-        time->hour = ret->tm_hour;
-        }
+	tc.tm_year = fs3.fdateLastWrite.year + 80;
+	tc.tm_mon = fs3.fdateLastWrite.month - 1;
+	tc.tm_mday = fs3.fdateLastWrite.day;
+	tc.tm_hour = fs3.ftimeLastWrite.hours;
+	tc.tm_min = fs3.ftimeLastWrite.minutes;
+	tc.tm_sec = fs3.ftimeLastWrite.twosecs * 2;
+	if((tt = mktime(&tc)) == -1)
+	    return false;
+	if(!(ret = gmtime(&tt)))
+	    return false;
+	time->sec = ret->tm_sec;
+	time->day = ret->tm_mday;
+	time->mon = ret->tm_mon + 1;
+	time->year = ret->tm_year - 80;
+	time->min = ret->tm_min;
+	time->hour = ret->tm_hour;
+	}
     else {
-        time->sec = fs3.ftimeLastWrite.twosecs * 2;
-        time->day = fs3.fdateLastWrite.day;
-        time->mon = fs3.fdateLastWrite.month;
-        time->year = fs3.fdateLastWrite.year;
-        time->min = fs3.ftimeLastWrite.minutes;
-        time->hour = fs3.ftimeLastWrite.hours;
-        }
+	time->sec = fs3.ftimeLastWrite.twosecs * 2;
+	time->day = fs3.fdateLastWrite.day;
+	time->mon = fs3.fdateLastWrite.month;
+	time->year = fs3.fdateLastWrite.year;
+	time->min = fs3.ftimeLastWrite.minutes;
+	time->hour = fs3.ftimeLastWrite.hours;
+	}
     return true;
 }
 
@@ -1973,32 +1973,32 @@ ibool PMAPI PM_setFileTime(
     time_t      tt;
 
     if (DosQueryPathInfo((PSZ)filename,FIL_STANDARD,(PVOID)&fs3,sizeof(fs3)))
-        return false;
+	return false;
     if (gmTime) {
-        tc.tm_year = time->year + 80;
-        tc.tm_mon = time->mon - 1;
-        tc.tm_mday = time->day;
-        tc.tm_hour = time->hour;
-        tc.tm_min = time->min;
-        tc.tm_sec = time->sec;
-        if((tt = mktime(&tc)) == -1)
-            return false;
-        ret = localtime(&tt);
-        fs3.ftimeLastWrite.twosecs = ret->tm_sec / 2;
-        fs3.fdateLastWrite.day = ret->tm_mday;
-        fs3.fdateLastWrite.month = ret->tm_mon + 1;
-        fs3.fdateLastWrite.year = ret->tm_year - 80;
-        fs3.ftimeLastWrite.minutes = ret->tm_min;
-        fs3.ftimeLastWrite.hours = ret->tm_hour;
-        }
+	tc.tm_year = time->year + 80;
+	tc.tm_mon = time->mon - 1;
+	tc.tm_mday = time->day;
+	tc.tm_hour = time->hour;
+	tc.tm_min = time->min;
+	tc.tm_sec = time->sec;
+	if((tt = mktime(&tc)) == -1)
+	    return false;
+	ret = localtime(&tt);
+	fs3.ftimeLastWrite.twosecs = ret->tm_sec / 2;
+	fs3.fdateLastWrite.day = ret->tm_mday;
+	fs3.fdateLastWrite.month = ret->tm_mon + 1;
+	fs3.fdateLastWrite.year = ret->tm_year - 80;
+	fs3.ftimeLastWrite.minutes = ret->tm_min;
+	fs3.ftimeLastWrite.hours = ret->tm_hour;
+	}
     else {
-        fs3.ftimeLastWrite.twosecs = time->sec / 2;
-        fs3.fdateLastWrite.day = time->day;
-        fs3.fdateLastWrite.month = time->mon;
-        fs3.fdateLastWrite.year = time->year;
-        fs3.ftimeLastWrite.minutes = time->min;
-        fs3.ftimeLastWrite.hours = time->hour;
-        }
+	fs3.ftimeLastWrite.twosecs = time->sec / 2;
+	fs3.fdateLastWrite.day = time->day;
+	fs3.fdateLastWrite.month = time->mon;
+	fs3.fdateLastWrite.year = time->year;
+	fs3.ftimeLastWrite.minutes = time->min;
+	fs3.ftimeLastWrite.hours = time->hour;
+	}
     memcpy(&fs3.fdateLastAccess, &fs3.fdateLastWrite, sizeof(FDATE));
     memcpy(&fs3.fdateCreation, &fs3.fdateLastWrite, sizeof(FDATE));
     memcpy(&fs3.ftimeLastAccess, &fs3.ftimeLastWrite, sizeof(FTIME));

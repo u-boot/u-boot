@@ -57,16 +57,16 @@
 #define SET_FPGA(data)         out32(GPIO0_OR, data)
 
 #define FPGA_WRITE_1 {                                                    \
-        SET_FPGA(FPGA_PRG |            FPGA_DATA);  /* set clock to 0 */  \
-        SET_FPGA(FPGA_PRG |            FPGA_DATA);  /* set data to 1  */  \
-        SET_FPGA(FPGA_PRG | FPGA_CLK | FPGA_DATA);  /* set clock to 1 */  \
-        SET_FPGA(FPGA_PRG | FPGA_CLK | FPGA_DATA);} /* set data to 1  */
+	SET_FPGA(FPGA_PRG |            FPGA_DATA);  /* set clock to 0 */  \
+	SET_FPGA(FPGA_PRG |            FPGA_DATA);  /* set data to 1  */  \
+	SET_FPGA(FPGA_PRG | FPGA_CLK | FPGA_DATA);  /* set clock to 1 */  \
+	SET_FPGA(FPGA_PRG | FPGA_CLK | FPGA_DATA);} /* set data to 1  */
 
 #define FPGA_WRITE_0 {                                                    \
-        SET_FPGA(FPGA_PRG |            FPGA_DATA);  /* set clock to 0 */  \
-        SET_FPGA(FPGA_PRG);                         /* set data to 0  */  \
-        SET_FPGA(FPGA_PRG | FPGA_CLK);              /* set clock to 1 */  \
-        SET_FPGA(FPGA_PRG | FPGA_CLK | FPGA_DATA);} /* set data to 1  */
+	SET_FPGA(FPGA_PRG |            FPGA_DATA);  /* set clock to 0 */  \
+	SET_FPGA(FPGA_PRG);                         /* set data to 0  */  \
+	SET_FPGA(FPGA_PRG | FPGA_CLK);              /* set clock to 1 */  \
+	SET_FPGA(FPGA_PRG | FPGA_CLK | FPGA_DATA);} /* set data to 1  */
 
 
 static int fpga_boot(unsigned char *fpgadata, int size)
@@ -94,10 +94,10 @@ static int fpga_boot(unsigned char *fpgadata, int size)
   while (1)
     {
       if ((fpgadata[index] == 0xff) && (fpgadata[index+1] == 0xff) &&
-          (fpgadata[index+2] == 0xff) && (fpgadata[index+3] == 0xff))
-        break; /* preamble found */
+	  (fpgadata[index+2] == 0xff) && (fpgadata[index+3] == 0xff))
+	break; /* preamble found */
       else
-        index++;
+	index++;
     }
 #else
   /* search for preamble 0xFF2X */
@@ -134,10 +134,10 @@ static int fpga_boot(unsigned char *fpgadata, int size)
       udelay(1000); /* wait 1ms */
       /* Check for timeout - 100us max, so use 3ms */
       if (count++ > 3)
-        {
-          DBG("FPGA: Booting failed!\n");
-          return ERROR_FPGA_PRG_INIT_LOW;
-        }
+	{
+	  DBG("FPGA: Booting failed!\n");
+	  return ERROR_FPGA_PRG_INIT_LOW;
+	}
     }
 
   DBG("%s, ",((in32(GPIO0_IR) & FPGA_DONE) == 0) ? "NOT DONE" : "DONE" );
@@ -153,10 +153,10 @@ static int fpga_boot(unsigned char *fpgadata, int size)
       udelay(1000); /* wait 1ms */
       /* Check for timeout */
       if (count++ > 3)
-        {
-          DBG("FPGA: Booting failed!\n");
-          return ERROR_FPGA_PRG_INIT_HIGH;
-        }
+	{
+	  DBG("FPGA: Booting failed!\n");
+	  return ERROR_FPGA_PRG_INIT_HIGH;
+	}
     }
 
   DBG("%s, ",((in32(GPIO0_IR) & FPGA_DONE) == 0) ? "NOT DONE" : "DONE" );
@@ -172,17 +172,17 @@ static int fpga_boot(unsigned char *fpgadata, int size)
   for (i=index; i<size; i++)
     {
       for (j=0; j<8; j++)
-        {
-          if ((fpgadata[i] & 0x80) == 0x80)
+	{
+	  if ((fpgadata[i] & 0x80) == 0x80)
 	    {
-              FPGA_WRITE_1;
+	      FPGA_WRITE_1;
 	    }
-          else
+	  else
 	    {
-              FPGA_WRITE_0;
+	      FPGA_WRITE_0;
 	    }
-          fpgadata[i] <<= 1;
-        }
+	  fpgadata[i] <<= 1;
+	}
     }
 #else
   /* send 0xff 0x20 */
@@ -205,30 +205,30 @@ static int fpga_boot(unsigned char *fpgadata, int size)
       if ((b >= 1) && (b <= MAX_ONES))
 	{
 	  for(bit=0; bit<b; bit++)
-            {
-              FPGA_WRITE_1;
-            }
+	    {
+	      FPGA_WRITE_1;
+	    }
 	  FPGA_WRITE_0;
 	}
       else if (b == (MAX_ONES+1))
 	{
 	  for(bit=1; bit<b; bit++)
-            {
-              FPGA_WRITE_1;
-            }
+	    {
+	      FPGA_WRITE_1;
+	    }
 	}
       else if ((b >= (MAX_ONES+2)) && (b <= 254))
 	{
 	  for(bit=0; bit<(b-(MAX_ONES+2)); bit++)
-            {
-              FPGA_WRITE_0;
-            }
-          FPGA_WRITE_1;
+	    {
+	      FPGA_WRITE_0;
+	    }
+	  FPGA_WRITE_1;
 	}
       else if (b == 255)
-        {
-          FPGA_WRITE_1;
-        }
+	{
+	  FPGA_WRITE_1;
+	}
     }
 #endif
 
@@ -246,10 +246,10 @@ static int fpga_boot(unsigned char *fpgadata, int size)
       udelay(1000); /* wait 1ms */
       /* Check for timeout */
       if (count++ > 3)
-        {
-          DBG("FPGA: Booting failed!\n");
-          return ERROR_FPGA_PRG_DONE;
-        }
+	{
+	  DBG("FPGA: Booting failed!\n");
+	  return ERROR_FPGA_PRG_DONE;
+	}
     }
 
   DBG("FPGA: Booting successful!\n");

@@ -44,33 +44,33 @@ static long int dram_size (void);
 
 const uint sdram_table[] =
 {
-        /*  single read. (offset 0 in upm RAM) */
-        0x1F07D004, 0xEEAEE004, 0x11ADD004, 0xEFBBA000,
-        0x1FF75447, 0x1FF77C34, 0xEFEABC34, 0x1FB57C35,
+	/*  single read. (offset 0 in upm RAM) */
+	0x1F07D004, 0xEEAEE004, 0x11ADD004, 0xEFBBA000,
+	0x1FF75447, 0x1FF77C34, 0xEFEABC34, 0x1FB57C35,
 
-        /* burst read. (Offset 8 in upm RAM)   */
-        0x1F07D004, 0xEEAEE004, 0x00ADC004, 0x00AFC000,
-        0x00AFC000, 0x01AFC000, 0x0FBB8000, 0x1FF75447,
-        0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-        0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
+	/* burst read. (Offset 8 in upm RAM)   */
+	0x1F07D004, 0xEEAEE004, 0x00ADC004, 0x00AFC000,
+	0x00AFC000, 0x01AFC000, 0x0FBB8000, 0x1FF75447,
+	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
+	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
 
-        /* single write. (Offset 0x18 in upm RAM) */
-        0x1F27D004, 0xEEAEA000, 0x01B90004, 0x1FF75447,
-        0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
+	/* single write. (Offset 0x18 in upm RAM) */
+	0x1F27D004, 0xEEAEA000, 0x01B90004, 0x1FF75447,
+	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
 
-        /*  burst write. (Offset 0x20 in upm RAM) */
-        0x1F07D004, 0xEEAEA000, 0x00AD4000, 0x00AFC000,
-        0x00AFC000, 0x01BB8004, 0x1FF75447, 0xFFFFFFFF,
-        0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-        0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
+	/*  burst write. (Offset 0x20 in upm RAM) */
+	0x1F07D004, 0xEEAEA000, 0x00AD4000, 0x00AFC000,
+	0x00AFC000, 0x01BB8004, 0x1FF75447, 0xFFFFFFFF,
+	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
+	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
 
-        /* Refresh cycle, offset 0x30 */
-        0x1FF5DC84, 0xFFFFFC04, 0xFFFFFC04, 0xFFFFFC04,
-        0xFFFFFC84, 0xFFFFFC07, 0xFFFFFFFF, 0xFFFFFFFF,
-        0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
+	/* Refresh cycle, offset 0x30 */
+	0x1FF5DC84, 0xFFFFFC04, 0xFFFFFC04, 0xFFFFFC04,
+	0xFFFFFC84, 0xFFFFFC07, 0xFFFFFFFF, 0xFFFFFFFF,
+	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
 
-        /* Exception, 0ffset 0x3C */
-        0x7FFFFC07, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
+	/* Exception, 0ffset 0x3C */
+	0x7FFFFC07, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
 };
 /* ------------------------------------------------------------------------- */
 
@@ -121,7 +121,7 @@ long int initdram (int board_type)
 
     delay_cnt = 0;
     while( delay_cnt++ < DRAM_DELAY )
-        ;
+	;
 
     /* Run MRS command in location 5-8 of UPMB */
 
@@ -132,7 +132,7 @@ long int initdram (int board_type)
 
     delay_cnt = 0;
     while( delay_cnt++ < DRAM_DELAY )
-        ;
+	;
 
 #ifdef	CONFIG_CAN_DRIVER
     /* Initialize OR3 / BR3 */
@@ -207,12 +207,12 @@ static long int dram_size ()
 
     switch( memory )
     {
-        case 1:
-            return( 32*MBYTE );
-        case 2:
-            return( 64*MBYTE );
-        default:
-            break;
+	case 1:
+	    return( 32*MBYTE );
+	case 2:
+	    return( 64*MBYTE );
+	default:
+	    break;
     }
     return( 16*MBYTE );
 }

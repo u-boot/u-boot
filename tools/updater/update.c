@@ -35,7 +35,7 @@ void _main(void)
     mon_printf("\nUpdate done. Please remove diskette.\n");
     mon_printf("The machine will automatically reset in %d seconds\n", i);
     mon_printf("You can switch off/reset now when the floppy is removed\n\n");
-    
+
     while (i)
     {
 	mon_printf("Resetting in %d\r", i);

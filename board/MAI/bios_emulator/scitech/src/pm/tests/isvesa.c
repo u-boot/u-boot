@@ -68,24 +68,24 @@ int main(void)
 
     printf("Program running in ");
     switch (PM_getModeType()) {
-        case PM_realMode:
-            printf("real mode.\n\n");
-            break;
-        case PM_286:
-            printf("16 bit protected mode.\n\n");
-            break;
-        case PM_386:
-            printf("32 bit protected mode.\n\n");
-            break;
-        }
+	case PM_realMode:
+	    printf("real mode.\n\n");
+	    break;
+	case PM_286:
+	    printf("16 bit protected mode.\n\n");
+	    break;
+	case PM_386:
+	    printf("32 bit protected mode.\n\n");
+	    break;
+	}
 
     /* Allocate a 256 byte block of real memory for communicating with
      * the VESA BIOS.
      */
     if ((vgPtr = PM_getVESABuf(&vgLen,&r_vgseg,&r_vgoff)) == NULL) {
-        printf("Unable to allocate VESA memory buffer!\n");
-        exit(1);
-        }
+	printf("Unable to allocate VESA memory buffer!\n");
+	exit(1);
+	}
 
     /* Call the VESA VBE to see if it is out there */
     regs.x.ax = 0x4F00;
@@ -95,16 +95,16 @@ int main(void)
     PM_int86x(0x10, &regs, &regs, &sregs);
     memcpy(&vgaInfo,vgPtr,sizeof(VgaInfoBlock));
     if (regs.x.ax == 0x4F && strncmp(vgaInfo.VESASignature,"VESA",4) == 0) {
-        printf("VESA VBE version %d.%d BIOS detected\n\n",
-            vgaInfo.VESAVersion >> 8, vgaInfo.VESAVersion & 0xF);
-        printf("Available video modes:\n");
-        mode = PM_mapRealPointer(vgaInfo.VideoModePtr >> 16, vgaInfo.VideoModePtr & 0xFFFF);
-        while (*mode != 0xFFFF) {
-            printf("    %04hXh (%08X)\n", *mode, (int)mode);
-            mode++;
-            }
-        }
+	printf("VESA VBE version %d.%d BIOS detected\n\n",
+	    vgaInfo.VESAVersion >> 8, vgaInfo.VESAVersion & 0xF);
+	printf("Available video modes:\n");
+	mode = PM_mapRealPointer(vgaInfo.VideoModePtr >> 16, vgaInfo.VideoModePtr & 0xFFFF);
+	while (*mode != 0xFFFF) {
+	    printf("    %04hXh (%08X)\n", *mode, (int)mode);
+	    mode++;
+	    }
+	}
     else
-        printf("VESA VBE not found\n");
+	printf("VESA VBE not found\n");
     return 0;
 }

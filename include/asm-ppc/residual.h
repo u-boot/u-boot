@@ -76,15 +76,15 @@ typedef struct _VPD {
 
   /* Box dependent stuff */
   unsigned char PrintableModel[32];     /* Null terminated string.
-                                           Must be of the form:
-                                           vvv,<20h>,<model designation>,<0x0>
-                                           where vvv is the vendor ID
-                                           e.g. IBM PPS MODEL 6015<0x0>       */
+					   Must be of the form:
+					   vvv,<20h>,<model designation>,<0x0>
+					   where vvv is the vendor ID
+					   e.g. IBM PPS MODEL 6015<0x0>       */
   unsigned char Serial[16];             /* 12/94:
-                                           Serial Number; must be of the form:
-                                           vvv<serial number> where vvv is the
-                                           vendor ID.
-                                           e.g. IBM60151234567<20h><20h>      */
+					   Serial Number; must be of the form:
+					   vvv<serial number> where vvv is the
+					   vendor ID.
+					   e.g. IBM60151234567<20h><20h>      */
   unsigned char Reserved[48];
   unsigned long FirmwareSupplier;       /* See FirmwareSuppliers enum         */
   unsigned long FirmwareSupports;       /* See FirmwareSupport enum           */
@@ -103,22 +103,22 @@ typedef struct _VPD {
   unsigned long WordWidth;              /* Word width in bits                 */
   unsigned long PageSize;               /* Page size in bytes                 */
   unsigned long CoherenceBlockSize;     /* Unit of transfer in/out of cache
-                                           for which coherency is maintained;
-                                           normally <= CacheLineSize.         */
+					   for which coherency is maintained;
+					   normally <= CacheLineSize.         */
   unsigned long GranuleSize;            /* Unit of lock allocation to avoid   */
-                                        /*   false sharing of locks.          */
+					/*   false sharing of locks.          */
 
   /* L1 Cache variables */
   unsigned long CacheSize;              /* L1 Cache size in KB. This is the   */
-                                        /*   total size of the L1, whether    */
-                                        /*   combined or split                */
+					/*   total size of the L1, whether    */
+					/*   combined or split                */
   unsigned long CacheAttrib;            /* L1CACHE_TYPE                       */
   unsigned long CacheAssoc;             /* L1 Cache associativity. Use this
-                                           for combined cache. If split, put
-                                           zeros here.                        */
+					   for combined cache. If split, put
+					   zeros here.                        */
   unsigned long CacheLineSize;          /* L1 Cache line size in bytes. Use
-                                           for combined cache. If split, put
-                                           zeros here.                        */
+					   for combined cache. If split, put
+					   zeros here.                        */
   /* For split L1 Cache: (= combined if combined cache) */
   unsigned long I_CacheSize;
   unsigned long I_CacheAssoc;
@@ -131,8 +131,8 @@ typedef struct _VPD {
   unsigned long TLBSize;                /* Total number of TLBs on the system */
   unsigned long TLBAttrib;              /* Combined I+D or split TLB          */
   unsigned long TLBAssoc;               /* TLB Associativity. Use this for
-                                           combined TLB. If split, put zeros
-                                           here.                              */
+					   combined TLB. If split, put zeros
+					   here.                              */
   /* For split TLB: (= combined if combined TLB) */
   unsigned long I_TLBSize;
   unsigned long I_TLBAssoc;
@@ -140,7 +140,7 @@ typedef struct _VPD {
   unsigned long D_TLBAssoc;
 
   unsigned long ExtendedVPD;            /* Offset to extended VPD area;
-                                           null if unused                     */
+					   null if unused                     */
   } VPD;
 
 typedef enum _DEVICE_FLAGS {
@@ -148,11 +148,11 @@ typedef enum _DEVICE_FLAGS {
   Integrated = 0x2000,
   Failed = 0x1000,                      /* 1 - device failed POST code tests  */
   Static = 0x0800,                      /* 0 - dynamically configurable
-                                           1 - static                         */
+					   1 - static                         */
   Dock = 0x0400,                        /* 0 - not a docking station device
-                                           1 - is a docking station device    */
+					   1 - is a docking station device    */
   Boot = 0x0200,                        /* 0 - device cannot be used for BOOT
-                                           1 - can be a BOOT device           */
+					   1 - can be a BOOT device           */
   Configurable = 0x0100,                /* 1 - device is configurable         */
   Disableable = 0x80,                   /* 1 - device can be disabled         */
   PowerManaged = 0x40,                  /* 0 - not managed; 1 - managed       */
@@ -180,7 +180,7 @@ typedef struct _DEVICE_ID {
   unsigned long BusId;                  /* See BUS_ID enum above              */
   unsigned long DevId;                  /* Big Endian format                  */
   unsigned long SerialNum;              /* For multiple usage of a single
-                                           DevId                              */
+					   DevId                              */
   unsigned long Flags;                  /* See DEVICE_FLAGS enum above        */
   unsigned char BaseType;               /* See pnp.h for bit definitions      */
   unsigned char SubType;                /* See pnp.h for bit definitions      */
@@ -196,7 +196,7 @@ typedef union _BUS_ACCESS {
     } PnPAccess;
   struct _ISAAccess{
     unsigned char SlotNumber;           /* ISA Slot Number generally not
-                                           available; 0 if unknown            */
+					   available; 0 if unknown            */
     unsigned char LogicalDevNumber;
     unsigned short ISAReserved;
     } ISAAccess;
@@ -249,9 +249,9 @@ typedef enum _CPU_STATE {
 
 typedef struct _PPC_CPU {
   unsigned long CpuType;                /* Result of mfspr from Processor
-                                           Version Register (PVR).
-                                           PVR(0-15) = Version (e.g. 601)
-                                           PVR(16-31 = EC Level               */
+					   Version Register (PVR).
+					   PVR(0-15) = Version (e.g. 601)
+					   PVR(16-31 = EC Level               */
   unsigned char CpuNumber;              /* CPU Number for this processor      */
   unsigned char CpuState;               /* CPU State, see CPU_STATE enum      */
   unsigned short Reserved;
@@ -259,7 +259,7 @@ typedef struct _PPC_CPU {
 
 typedef struct _PPC_MEM {
   unsigned long SIMMSize;               /* 0 - absent or bad
-                                           8M, 32M (in MB)                    */
+					   8M, 32M (in MB)                    */
   } PPC_MEM;
 
 typedef enum _MEM_USAGE {
@@ -297,8 +297,8 @@ typedef struct _RESIDUAL {
   /* CPU */
   unsigned short MaxNumCpus;            /* Max CPUs in this system            */
   unsigned short ActualNumCpus;         /* ActualNumCpus < MaxNumCpus means   */
-                                        /* that there are unpopulated or      */
-                                        /* otherwise unusable cpu locations   */
+					/* that there are unpopulated or      */
+					/* otherwise unusable cpu locations   */
   PPC_CPU Cpus[MAX_CPUS];
   /* Memory */
   unsigned long TotalMemory;            /* Total amount of memory installed   */
@@ -329,4 +329,3 @@ extern PnP_TAG_PACKET *PnP_find_large_vendor_packet(unsigned char *p,
 						    int n);
 #endif /* __ASSEMBLY__ */
 #endif  /* ndef _RESIDUAL_ */
-

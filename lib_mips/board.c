@@ -212,7 +212,7 @@ void board_init_f(ulong bootflag)
 #ifdef DEBUG
 	printf ("Top of RAM usable for U-Boot at: %08lx\n", addr);
 #endif
-	 
+
 		/* Reserve memory for U-Boot code, data & bss
 		 * round down to next 16 kB limit
 		 */
@@ -304,7 +304,6 @@ void board_init_f(ulong bootflag)
 void board_init_r (gd_t *id, ulong dest_addr)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-
 	cmd_tbl_t *cmdtp;
 	ulong size;
 	extern void malloc_bin_reloc (void);
@@ -329,7 +328,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	/*
 	 * We have to relocate the command table manually
 	 */
-	for (cmdtp = &cmd_tbl[0]; cmdtp->name; cmdtp++) {
+ 	for (cmdtp = &__u_boot_cmd_start; cmdtp !=  &__u_boot_cmd_end; cmdtp++) {
 		ulong addr;
 
 		addr = (ulong) (cmdtp->cmd) + gd->reloc_off;
@@ -358,7 +357,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #ifndef CFG_ENV_IS_NOWHERE
 	env_name_spec += gd->reloc_off;
 #endif
-	
+
 	/* configure available FLASH banks */
 	size = flash_init();
 	display_flash_config (size);
@@ -434,4 +433,3 @@ void hang (void)
 	puts ("### ERROR ### Please RESET the board ###\n");
 	for (;;);
 }
-

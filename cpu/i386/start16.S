@@ -1,5 +1,5 @@
 /*
- *  U-boot - i386 Startup Code 
+ *  U-boot - i386 Startup Code
  *
  *  Copyright (c) 2002, 2003 Omicron Ceti AB, Daniel Engström <denaiel@omicron.se>
  *
@@ -30,37 +30,37 @@
 .section .start16, "ax"
 .code16
 .globl start16
-start16: 
+start16:
 	/* First we let the BSP do some early initialization
 	 * this code have to map the flash to its final position
 	 */
 	mov	$board_init16_ret, %bp
 	jmp	board_init16
-board_init16_ret:	
-	
+board_init16_ret:
+
 	/* Turn of cache (this might require a 486-class CPU) */
-        movl    %cr0, %eax
-        orl     $0x60000000,%eax
-        movl    %eax, %cr0
-        wbinvd  		     
-	
+	movl    %cr0, %eax
+	orl     $0x60000000,%eax
+	movl    %eax, %cr0
+	wbinvd
+
 	/* load the descriptor tables */
 o32 cs	lidt	idt_ptr
-o32 cs	lgdt    gdt_ptr		 
+o32 cs	lgdt    gdt_ptr
 
 
 	/* Now, we enter protected mode */
-        movl    %cr0, %eax               
-        orl     $1,%eax                  
-        movl    %eax, %cr0            
-	
+	movl    %cr0, %eax
+	orl     $1,%eax
+	movl    %eax, %cr0
+
 	/* Flush the prefetch queue */
-        jmp     ff        
+	jmp     ff
 ff:
 
 	/* Finally jump to the 32bit initialization code */
-	movw	$code32start, %ax 
-        movw    %ax,%bp
+	movw	$code32start, %ax
+	movw    %ax,%bp
 o32 cs	ljmp	*(%bp)
 
 	/* 48-bit far pointer */
@@ -71,17 +71,17 @@ code32start:
 idt_ptr:
 	.word	0				/* limit */
 	.long	0		       		/* base */
-	
+
 gdt_ptr:
 	.word	0x30			        /* limit (48 bytes = 6 GDT entries) */
 	.long	BOOT_SEG + gdt	        	/* base */
 
-	/* The GDT table ... 
+	/* The GDT table ...
 	 *
-	 *       Selector	Type 
+	 *       Selector	Type
 	 * 	 0x00		NULL
 	 * 	 0x08		Unused
-	 *	 0x10		32bit code 
+	 *	 0x10		32bit code
 	 *	 0x18		32bit data/stack
 	 *	 0x20		16bit code
 	 *	 0x28	 	16bit data/stack
@@ -100,12 +100,12 @@ gdt:
 	.word	0x0				/* base address = 0 */
 	.word	0x9300				/* data read/write */
 	.word	0x00CF				/* granularity = 4096, 386 (+5th nibble of limit) */
-						
+
 	.word	0xFFFF				/* 64kb */
 	.word	0				/* base address = 0 */
 	.word	0x9b00				/* data read/write */
 	.word	0x0010				/* granularity = 1  (+5th nibble of limit) */
-	
+
 	.word	0xFFFF				/* 64kb */
 	.word	0				/* base address = 0 */
 	.word	0x9300				/* data read/write */

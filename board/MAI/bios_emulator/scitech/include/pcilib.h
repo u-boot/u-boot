@@ -103,14 +103,14 @@ typedef enum {
 
 typedef union {
     struct {
-        uint    Zero:2;
-        uint    Register:6;
-        uint    Function:3;
-        uint    Device:5;
-        uint    Bus:8;
-        uint    Reserved:7;
-        uint    Enable:1;
-        } p;
+	uint    Zero:2;
+	uint    Register:6;
+	uint    Function:3;
+	uint    Device:5;
+	uint    Bus:8;
+	uint    Reserved:7;
+	uint    Enable:1;
+	} p;
     ulong   i;
     } PCIslot;
 
@@ -194,9 +194,9 @@ typedef struct {
     uchar   SubordinateBus;
     uchar   SecondaryLatency;
     struct  {
-        ulong   Base;
-        ulong   Limit;
-        } Range[4];
+	ulong   Base;
+	ulong   Limit;
+	} Range[4];
     uchar   InterruptLine;
     uchar   InterruptPin;
     ushort  BridgeControl;
@@ -224,10 +224,10 @@ typedef struct {
     uchar               HeaderType;
     uchar               BIST;
     union {
-        PCIType0Info    type0;
-        PCIType1Info    type1;
-        PCIType2Info    type2;
-        } u;
+	PCIType0Info    type0;
+	PCIType1Info    type1;
+	PCIType2Info    type2;
+	} u;
     } PCIDeviceInfo;
 
 /* PCI Capability header structure. All PCI capabilities have the
@@ -411,4 +411,3 @@ ulong   _ASMAPI PCIBIOS_getEntry(void);
 #endif
 
 #endif  /* __PCILIB_H */
-

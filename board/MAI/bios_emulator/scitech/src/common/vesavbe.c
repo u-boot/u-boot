@@ -73,10 +73,10 @@ void VBEAPI VBE_init(void)
 ****************************************************************************/
 {
     if (!state->VESABuf_ptr) {
-        /* Allocate a global buffer for communicating with the VESA VBE */
-        if ((state->VESABuf_ptr = PM_getVESABuf(&VESABuf_len, &state->VESABuf_rseg, &state->VESABuf_roff)) == NULL)
-            PM_fatalError("VESAVBE.C: Real mode memory allocation failed!");
-        }
+	/* Allocate a global buffer for communicating with the VESA VBE */
+	if ((state->VESABuf_ptr = PM_getVESABuf(&VESABuf_len, &state->VESABuf_rseg, &state->VESABuf_roff)) == NULL)
+	    PM_fatalError("VESAVBE.C: Real mode memory allocation failed!");
+	}
 }
 
 void * VBEAPI VBE_getRMBuf(uint *len,uint *rseg,uint *roff)
@@ -129,7 +129,7 @@ void VBEAPI VBE_callESDI(RMREGS *regs, void *buffer, int size)
     RMSREGS sregs;
 
     if (!state->VESABuf_ptr)
-        PM_fatalError("You *MUST* call VBE_init() before you can call the VESAVBE.C module!");
+	PM_fatalError("You *MUST* call VBE_init() before you can call the VESAVBE.C module!");
     sregs.es = (ushort)state->VESABuf_rseg;
     regs->x.di = (ushort)state->VESABuf_roff;
     memcpy(state->VESABuf_ptr, buffer, size);
@@ -157,7 +157,7 @@ static char *VBE_copyStrToLocal(char *p,char *realPtr,char *max)
 
     v = PM_mapRealPointer((uint)((ulong)realPtr >> 16), (uint)((ulong)realPtr & 0xFFFF));
     while (*v != 0 && p < max)
-        *p++ = *v++;
+	*p++ = *v++;
     *p++ = 0;
     return p;
 }
@@ -178,7 +178,7 @@ static void VBE_copyShortToLocal(ushort *p,ushort *realPtr)
 
     v = PM_mapRealPointer((uint)((ulong)realPtr >> 16),(uint)((ulong)realPtr & 0xFFFF));
     while (*v != 0xFFFF)
-        *p++ = *v++;
+	*p++ = *v++;
     *p = 0xFFFF;
 }
 #endif
@@ -200,26 +200,26 @@ int VBEAPI VBE_detectEXT(VBE_vgaInfo *vgaInfo,ibool forceUniVBE)
 
     regs.x.ax = 0x4F00;     /* Get SuperVGA information */
     if (forceUniVBE) {
-        regs.x.bx = 0x1234;
-        regs.x.cx = 0x4321;
-        }
+	regs.x.bx = 0x1234;
+	regs.x.cx = 0x4321;
+	}
     else {
-        regs.x.bx = 0;
-        regs.x.cx = 0;
-        }
+	regs.x.bx = 0;
+	regs.x.cx = 0;
+	}
     strncpy(vgaInfo->VESASignature,"VBE2",4);
     VBE_callESDI(&regs, vgaInfo, sizeof(*vgaInfo));
     if (regs.x.ax != VBE_SUCCESS)
-        return 0;
+	return 0;
     if (strncmp(vgaInfo->VESASignature,"VESA",4) != 0)
-        return 0;
+	return 0;
 
     /* Check for bogus BIOSes that return a VBE version number that is
      * not correct, and fix it up. We also check the OemVendorNamePtr for a
      * valid value, and if it is invalid then we also reset to VBE 1.2.
      */
     if (vgaInfo->VESAVersion >= 0x200 && vgaInfo->OemVendorNamePtr == 0)
-        vgaInfo->VESAVersion = 0x102;
+	vgaInfo->VESAVersion = 0x102;
 #ifndef REALMODE
     /* Relocate all the indirect information (mode tables, OEM strings
      * etc) from the low 1Mb memory region into a static buffer in
@@ -227,23 +227,23 @@ int VBEAPI VBE_detectEXT(VBE_vgaInfo *vgaInfo,ibool forceUniVBE)
      * from mapping the strings from real mode to protected mode.
      */
     {
-        char *p,*p2;
+	char *p,*p2;
      p2 = VBE_copyStrToLocal(localBuf,vgaInfo->OemStringPtr,MAX_LOCAL_BUF);
      vgaInfo->OemStringPtr = localBuf;
      if (vgaInfo->VESAVersion >= 0x200) {
-         p = VBE_copyStrToLocal(p2,vgaInfo->OemVendorNamePtr,MAX_LOCAL_BUF);
-         vgaInfo->OemVendorNamePtr = p2;
-         p2 = VBE_copyStrToLocal(p,vgaInfo->OemProductNamePtr,MAX_LOCAL_BUF);
-         vgaInfo->OemProductNamePtr = p;
-         p = VBE_copyStrToLocal(p2,vgaInfo->OemProductRevPtr,MAX_LOCAL_BUF);
-         vgaInfo->OemProductRevPtr = p2;
-         VBE_copyShortToLocal((ushort*)p,vgaInfo->VideoModePtr);
-         vgaInfo->VideoModePtr = (ushort*)p;
-         }
+	 p = VBE_copyStrToLocal(p2,vgaInfo->OemVendorNamePtr,MAX_LOCAL_BUF);
+	 vgaInfo->OemVendorNamePtr = p2;
+	 p2 = VBE_copyStrToLocal(p,vgaInfo->OemProductNamePtr,MAX_LOCAL_BUF);
+	 vgaInfo->OemProductNamePtr = p;
+	 p = VBE_copyStrToLocal(p2,vgaInfo->OemProductRevPtr,MAX_LOCAL_BUF);
+	 vgaInfo->OemProductRevPtr = p2;
+	 VBE_copyShortToLocal((ushort*)p,vgaInfo->VideoModePtr);
+	 vgaInfo->VideoModePtr = (ushort*)p;
+	 }
      else {
-         VBE_copyShortToLocal((ushort*)p2,vgaInfo->VideoModePtr);
-         vgaInfo->VideoModePtr = (ushort*)p2;
-         }
+	 VBE_copyShortToLocal((ushort*)p2,vgaInfo->VideoModePtr);
+	 vgaInfo->VideoModePtr = (ushort*)p2;
+	 }
     }
 #endif
     state->VBEMemory = vgaInfo->TotalMemory * 64;
@@ -253,17 +253,17 @@ int VBEAPI VBE_detectEXT(VBE_vgaInfo *vgaInfo,ibool forceUniVBE)
      */
     haveRiva128 = false;
     if (vgaInfo->VESAVersion >= 0x300 &&
-           (strstr(vgaInfo->OemStringPtr,"NVidia") != NULL ||
-            strstr(vgaInfo->OemStringPtr,"Riva") != NULL)) {
-        haveRiva128 = true;
-        }
+	   (strstr(vgaInfo->OemStringPtr,"NVidia") != NULL ||
+	    strstr(vgaInfo->OemStringPtr,"Riva") != NULL)) {
+	haveRiva128 = true;
+	}
 
     /* Check for Matrox G400 cards which claim to be VBE 3.0
      * compliant yet they don't implement the refresh rate control
      * functions.
      */
     if (vgaInfo->VESAVersion >= 0x300 && (strcmp(vgaInfo->OemProductNamePtr,"Matrox G400") == 0))
-        vgaInfo->VESAVersion = 0x200;
+	vgaInfo->VESAVersion = 0x200;
     return (state->VBEVersion = vgaInfo->VESAVersion);
 }
 
@@ -305,70 +305,70 @@ ibool VBEAPI VBE_getModeInfo(int mode,VBE_modeInfo *modeInfo)
     regs.x.cx = (ushort)mode;
     VBE_callESDI(&regs, modeInfo, sizeof(*modeInfo));
     if (regs.x.ax != VBE_SUCCESS)
-        return false;
+	return false;
     if ((modeInfo->ModeAttributes & vbeMdAvailable) == 0)
-        return false;
+	return false;
 
     /* Map out triple buffer and stereo flags for NVidia Riva128
      * chips.
      */
     if (haveRiva128) {
-        modeInfo->ModeAttributes &= ~vbeMdTripleBuf;
-        modeInfo->ModeAttributes &= ~vbeMdStereo;
-        }
+	modeInfo->ModeAttributes &= ~vbeMdTripleBuf;
+	modeInfo->ModeAttributes &= ~vbeMdStereo;
+	}
 
     /* Support old style RGB definitions for VBE 1.1 BIOSes */
     bits = modeInfo->BitsPerPixel;
     if (modeInfo->MemoryModel == vbeMemPK && bits > 8) {
-        modeInfo->MemoryModel = vbeMemRGB;
-        switch (bits) {
-            case 15:
-                modeInfo->RedMaskSize = 5;
-                modeInfo->RedFieldPosition = 10;
-                modeInfo->GreenMaskSize = 5;
-                modeInfo->GreenFieldPosition = 5;
-                modeInfo->BlueMaskSize = 5;
-                modeInfo->BlueFieldPosition = 0;
-                modeInfo->RsvdMaskSize = 1;
-                modeInfo->RsvdFieldPosition = 15;
-                break;
-            case 16:
-                modeInfo->RedMaskSize = 5;
-                modeInfo->RedFieldPosition = 11;
-                modeInfo->GreenMaskSize = 5;
-                modeInfo->GreenFieldPosition = 5;
-                modeInfo->BlueMaskSize = 5;
-                modeInfo->BlueFieldPosition = 0;
-                modeInfo->RsvdMaskSize = 0;
-                modeInfo->RsvdFieldPosition = 0;
-                break;
-            case 24:
-                modeInfo->RedMaskSize = 8;
-                modeInfo->RedFieldPosition = 16;
-                modeInfo->GreenMaskSize = 8;
-                modeInfo->GreenFieldPosition = 8;
-                modeInfo->BlueMaskSize = 8;
-                modeInfo->BlueFieldPosition = 0;
-                modeInfo->RsvdMaskSize = 0;
-                modeInfo->RsvdFieldPosition = 0;
-                break;
-            }
-        }
+	modeInfo->MemoryModel = vbeMemRGB;
+	switch (bits) {
+	    case 15:
+		modeInfo->RedMaskSize = 5;
+		modeInfo->RedFieldPosition = 10;
+		modeInfo->GreenMaskSize = 5;
+		modeInfo->GreenFieldPosition = 5;
+		modeInfo->BlueMaskSize = 5;
+		modeInfo->BlueFieldPosition = 0;
+		modeInfo->RsvdMaskSize = 1;
+		modeInfo->RsvdFieldPosition = 15;
+		break;
+	    case 16:
+		modeInfo->RedMaskSize = 5;
+		modeInfo->RedFieldPosition = 11;
+		modeInfo->GreenMaskSize = 5;
+		modeInfo->GreenFieldPosition = 5;
+		modeInfo->BlueMaskSize = 5;
+		modeInfo->BlueFieldPosition = 0;
+		modeInfo->RsvdMaskSize = 0;
+		modeInfo->RsvdFieldPosition = 0;
+		break;
+	    case 24:
+		modeInfo->RedMaskSize = 8;
+		modeInfo->RedFieldPosition = 16;
+		modeInfo->GreenMaskSize = 8;
+		modeInfo->GreenFieldPosition = 8;
+		modeInfo->BlueMaskSize = 8;
+		modeInfo->BlueFieldPosition = 0;
+		modeInfo->RsvdMaskSize = 0;
+		modeInfo->RsvdFieldPosition = 0;
+		break;
+	    }
+	}
 
     /* Convert the 32k direct color modes of VBE 1.2+ BIOSes to
      * be recognised as 15 bits per pixel modes.
      */
     if (bits == 16 && modeInfo->RsvdMaskSize == 1)
-        modeInfo->BitsPerPixel = 15;
+	modeInfo->BitsPerPixel = 15;
 
     /* Fix up bogus BIOS'es that report incorrect reserved pixel masks
      * for 32K color modes. Quite a number of BIOS'es have this problem,
      * and this affects our OS/2 drivers in VBE fallback mode.
      */
     if (bits == 15 && (modeInfo->RsvdMaskSize != 1 || modeInfo->RsvdFieldPosition != 15)) {
-        modeInfo->RsvdMaskSize = 1;
-        modeInfo->RsvdFieldPosition = 15;
-        }
+	modeInfo->RsvdMaskSize = 1;
+	modeInfo->RsvdFieldPosition = 15;
+	}
     return true;
 }
 
@@ -391,20 +391,20 @@ long VBEAPI VBE_getPageSize(VBE_modeInfo *mi)
 
     size = (long)mi->BytesPerScanLine * (long)mi->YResolution;
     if (mi->BitsPerPixel == 4) {
-        /* We have a 16 color video mode, so round up the page size to
-         * 8k, 16k, 32k or 64k boundaries depending on how large it is.
-         */
+	/* We have a 16 color video mode, so round up the page size to
+	 * 8k, 16k, 32k or 64k boundaries depending on how large it is.
+	 */
 
-        size = (size + 0x1FFFL) & 0xFFFFE000L;
-        if (size != 0x2000) {
-            size = (size + 0x3FFFL) & 0xFFFFC000L;
-            if (size != 0x4000) {
-                size = (size + 0x7FFFL) & 0xFFFF8000L;
-                if (size != 0x8000)
-                    size = (size + 0xFFFFL) & 0xFFFF0000L;
-                }
-            }
-        }
+	size = (size + 0x1FFFL) & 0xFFFFE000L;
+	if (size != 0x2000) {
+	    size = (size + 0x3FFFL) & 0xFFFFC000L;
+	    if (size != 0x4000) {
+		size = (size + 0x7FFFL) & 0xFFFF8000L;
+		if (size != 0x8000)
+		    size = (size + 0xFFFFL) & 0xFFFF0000L;
+		}
+	    }
+	}
     else size = (size + 0xFFFFL) & 0xFFFF0000L;
     return size;
 }
@@ -425,26 +425,26 @@ ibool VBEAPI VBE_setVideoModeExt(int mode,VBE_CRTCInfo *crtc)
     RMREGS  regs;
 
     if (state->VBEVersion < 0x200 && mode < 0x100) {
-        /* Some VBE implementations barf terribly if you try to set non-VBE
-         * video modes with the VBE set mode call. VBE 2.0 implementations
-         * must be able to handle this.
-         */
-        regs.h.al = (ushort)mode;
-        regs.h.ah = 0;
-        PM_int86(0x10,&regs,&regs);
-        }
+	/* Some VBE implementations barf terribly if you try to set non-VBE
+	 * video modes with the VBE set mode call. VBE 2.0 implementations
+	 * must be able to handle this.
+	 */
+	regs.h.al = (ushort)mode;
+	regs.h.ah = 0;
+	PM_int86(0x10,&regs,&regs);
+	}
     else {
-        if (state->VBEVersion < 0x300 && (mode & vbeRefreshCtrl))
-            return false;
-        regs.x.ax = 0x4F02;
-        regs.x.bx = (ushort)mode;
-        if ((mode & vbeRefreshCtrl) && crtc)
-            VBE_callESDI(&regs, crtc, sizeof(*crtc));
-        else
-            PM_int86(0x10,&regs,&regs);
-        if (regs.x.ax != VBE_SUCCESS)
-            return false;
-        }
+	if (state->VBEVersion < 0x300 && (mode & vbeRefreshCtrl))
+	    return false;
+	regs.x.ax = 0x4F02;
+	regs.x.bx = (ushort)mode;
+	if ((mode & vbeRefreshCtrl) && crtc)
+	    VBE_callESDI(&regs, crtc, sizeof(*crtc));
+	else
+	    PM_int86(0x10,&regs,&regs);
+	if (regs.x.ax != VBE_SUCCESS)
+	    return false;
+	}
     return true;
 }
 
@@ -475,7 +475,7 @@ int VBEAPI VBE_getVideoMode(void)
     regs.x.ax = 0x4F03;
     PM_int86(0x10,&regs,&regs);
     if (regs.x.ax != VBE_SUCCESS)
-        return -1;
+	return -1;
     return regs.x.bx;
 }
 
@@ -515,7 +515,7 @@ int VBEAPI VBE_getBank(int window)
     regs.h.bl = window;
     PM_int86(0x10,&regs,&regs);
     if (regs.x.ax != VBE_SUCCESS)
-        return -1;
+	return -1;
     return regs.x.dx;
 }
 
@@ -637,7 +637,7 @@ ibool VBEAPI VBE_setDisplayStart(int x,int y,ibool waitVRT)
 
     regs.x.ax = 0x4F07;
     if (waitVRT)
-        regs.x.bx = 0x80;
+	regs.x.bx = 0x80;
     else regs.x.bx = 0x00;
     regs.x.cx = x;
     regs.x.dx = y;
@@ -685,12 +685,12 @@ ibool VBEAPI VBE_setDisplayStartAlt(ulong startAddr,ibool waitVRT)
     RMREGS  regs;
 
     if (state->VBEVersion >= 0x300) {
-        regs.x.ax = 0x4F07;
-        regs.x.bx = waitVRT ? 0x82 : 0x02;
-        regs.e.ecx = startAddr;
-        PM_int86(0x10,&regs,&regs);
-        return regs.x.ax == VBE_SUCCESS;
-        }
+	regs.x.ax = 0x4F07;
+	regs.x.bx = waitVRT ? 0x82 : 0x02;
+	regs.e.ecx = startAddr;
+	PM_int86(0x10,&regs,&regs);
+	return regs.x.ax == VBE_SUCCESS;
+	}
     return false;
 }
 
@@ -712,12 +712,12 @@ int VBEAPI VBE_getDisplayStartStatus(void)
     RMREGS  regs;
 
     if (state->VBEVersion >= 0x300) {
-        regs.x.ax = 0x4F07;
-        regs.x.bx = 0x0004;
-        PM_int86(0x10,&regs,&regs);
-        if (regs.x.ax == VBE_SUCCESS)
-            return (regs.x.cx != 0);
-        }
+	regs.x.ax = 0x4F07;
+	regs.x.bx = 0x0004;
+	PM_int86(0x10,&regs,&regs);
+	if (regs.x.ax == VBE_SUCCESS)
+	    return (regs.x.cx != 0);
+	}
     return -1;
 }
 
@@ -738,11 +738,11 @@ ibool VBEAPI VBE_enableStereoMode(void)
     RMREGS  regs;
 
     if (state->VBEVersion >= 0x300) {
-        regs.x.ax = 0x4F07;
-        regs.x.bx = 0x0005;
-        PM_int86(0x10,&regs,&regs);
-        return regs.x.ax == VBE_SUCCESS;
-        }
+	regs.x.ax = 0x4F07;
+	regs.x.bx = 0x0005;
+	PM_int86(0x10,&regs,&regs);
+	return regs.x.ax == VBE_SUCCESS;
+	}
     return false;
 }
 
@@ -762,11 +762,11 @@ ibool VBEAPI VBE_disableStereoMode(void)
     RMREGS  regs;
 
     if (state->VBEVersion >= 0x300) {
-        regs.x.ax = 0x4F07;
-        regs.x.bx = 0x0006;
-        PM_int86(0x10,&regs,&regs);
-        return regs.x.ax == VBE_SUCCESS;
-        }
+	regs.x.ax = 0x4F07;
+	regs.x.bx = 0x0006;
+	PM_int86(0x10,&regs,&regs);
+	return regs.x.ax == VBE_SUCCESS;
+	}
     return false;
 }
 
@@ -793,13 +793,13 @@ ibool VBEAPI VBE_setStereoDisplayStart(ulong leftAddr,ulong rightAddr,
     RMREGS  regs;
 
     if (state->VBEVersion >= 0x300) {
-        regs.x.ax = 0x4F07;
-        regs.x.bx = waitVRT ? 0x83 : 0x03;
-        regs.e.ecx = leftAddr;
-        regs.e.edx = rightAddr;
-        PM_int86(0x10,&regs,&regs);
-        return regs.x.ax == VBE_SUCCESS;
-        }
+	regs.x.ax = 0x4F07;
+	regs.x.bx = waitVRT ? 0x83 : 0x03;
+	regs.e.ecx = leftAddr;
+	regs.e.edx = rightAddr;
+	PM_int86(0x10,&regs,&regs);
+	return regs.x.ax == VBE_SUCCESS;
+	}
     return false;
 }
 
@@ -832,14 +832,14 @@ ulong VBEAPI VBE_getClosestClock(ushort mode,ulong pixelClock)
     RMREGS  regs;
 
     if (state->VBEVersion >= 0x300) {
-        regs.x.ax = 0x4F0B;
-        regs.h.bl = 0x00;
-        regs.e.ecx = pixelClock;
-        regs.x.dx = mode;
-        PM_int86(0x10,&regs,&regs);
-        if (regs.x.ax == VBE_SUCCESS)
-            return regs.e.ecx;
-        }
+	regs.x.ax = 0x4F0B;
+	regs.h.bl = 0x00;
+	regs.e.ecx = pixelClock;
+	regs.x.dx = mode;
+	PM_int86(0x10,&regs,&regs);
+	if (regs.x.ax == VBE_SUCCESS)
+	    return regs.e.ecx;
+	}
     return -1;
 }
 
@@ -875,7 +875,7 @@ int VBEAPI VBE_getDACWidth(void)
     regs.h.bl = 0x01;
     PM_int86(0x10,&regs,&regs);
     if (regs.x.ax != VBE_SUCCESS)
-        return -1;
+	return -1;
     return regs.h.bh;
 }
 
@@ -927,11 +927,11 @@ void * VBEAPI VBE_getBankedPointer(VBE_modeInfo *modeInfo)
      */
     ulong seg = (ushort)modeInfo->WinASegment;
     if (seg != 0) {
-        if (seg == 0xA000)
-            return (void*)PM_getA0000Pointer();
-        else
-            return (void*)PM_mapPhysicalAddr(seg << 4,0xFFFF,true);
-        }
+	if (seg == 0xA000)
+	    return (void*)PM_getA0000Pointer();
+	else
+	    return (void*)PM_mapPhysicalAddr(seg << 4,0xFFFF,true);
+	}
     return NULL;
 }
 
@@ -956,14 +956,14 @@ void * VBEAPI VBE_getLinearPointer(VBE_modeInfo *modeInfo)
 
     /* Search for an already mapped pointer */
     for (i = 0; i < numPtrs; i++) {
-        if (physPtr[i] == modeInfo->PhysBasePtr)
-            return linPtr[i];
-        }
+	if (physPtr[i] == modeInfo->PhysBasePtr)
+	    return linPtr[i];
+	}
     if (numPtrs < MAX_LIN_PTRS) {
-        physPtr[numPtrs] = modeInfo->PhysBasePtr;
-        linPtr[numPtrs] = PM_mapPhysicalAddr(modeInfo->PhysBasePtr,(state->VBEMemory * 1024L)-1,true);
-        return linPtr[numPtrs++];
-        }
+	physPtr[numPtrs] = modeInfo->PhysBasePtr;
+	linPtr[numPtrs] = PM_mapPhysicalAddr(modeInfo->PhysBasePtr,(state->VBEMemory * 1024L)-1,true);
+	return linPtr[numPtrs++];
+	}
     return NULL;
 }
 
@@ -989,56 +989,56 @@ static void InitPMCode(void)
     int         pmLen;
 
     if (!state->pmInfo && state->VBEVersion >= 0x200) {
-        regs.x.ax = 0x4F0A;
-        regs.x.bx = 0;
-        PM_int86x(0x10,&regs,&regs,&sregs);
-        if (regs.x.ax != VBE_SUCCESS)
-            return;
-        if (VBE_shared)
-            state->pmInfo = PM_mallocShared(regs.x.cx);
-        else
-            state->pmInfo = PM_malloc(regs.x.cx);
-        if (state->pmInfo == NULL)
-            return;
-        state->pmInfo32 = state->pmInfo;
-        pmLen = regs.x.cx;
+	regs.x.ax = 0x4F0A;
+	regs.x.bx = 0;
+	PM_int86x(0x10,&regs,&regs,&sregs);
+	if (regs.x.ax != VBE_SUCCESS)
+	    return;
+	if (VBE_shared)
+	    state->pmInfo = PM_mallocShared(regs.x.cx);
+	else
+	    state->pmInfo = PM_malloc(regs.x.cx);
+	if (state->pmInfo == NULL)
+	    return;
+	state->pmInfo32 = state->pmInfo;
+	pmLen = regs.x.cx;
 
-        /* Relocate the block into our local data segment */
-        code = PM_mapRealPointer(sregs.es,regs.x.di);
-        memcpy(state->pmInfo,code,pmLen);
+	/* Relocate the block into our local data segment */
+	code = PM_mapRealPointer(sregs.es,regs.x.di);
+	memcpy(state->pmInfo,code,pmLen);
 
-        /* Now do a sanity check on the information we recieve to ensure
-         * that is is correct. Some BIOS return totally bogus information
-         * in here (Matrox is one)! Under DOS this works OK, but under OS/2
-         * we are screwed.
-         */
-        if (state->pmInfo->setWindow >= pmLen ||
-            state->pmInfo->setDisplayStart >= pmLen ||
-            state->pmInfo->setPalette >= pmLen ||
-            state->pmInfo->IOPrivInfo >= pmLen) {
-            if (VBE_shared)
-                PM_freeShared(state->pmInfo);
-            else
-                PM_free(state->pmInfo);
-            state->pmInfo32 = state->pmInfo = NULL;
-            return;
-            }
+	/* Now do a sanity check on the information we recieve to ensure
+	 * that is is correct. Some BIOS return totally bogus information
+	 * in here (Matrox is one)! Under DOS this works OK, but under OS/2
+	 * we are screwed.
+	 */
+	if (state->pmInfo->setWindow >= pmLen ||
+	    state->pmInfo->setDisplayStart >= pmLen ||
+	    state->pmInfo->setPalette >= pmLen ||
+	    state->pmInfo->IOPrivInfo >= pmLen) {
+	    if (VBE_shared)
+		PM_freeShared(state->pmInfo);
+	    else
+		PM_free(state->pmInfo);
+	    state->pmInfo32 = state->pmInfo = NULL;
+	    return;
+	    }
 
-        /* Read the IO priveledge info and determine if we need to
-         * pass a selector to MMIO registers to the bank switch code.
-         * Since we no longer support selector allocation, we no longer
-         * support this mechanism so we disable the protected mode
-         * interface in this case.
-         */
-        if (state->pmInfo->IOPrivInfo && !state->MMIOSel) {
-            ushort *p = (ushort*)((uchar*)state->pmInfo + state->pmInfo->IOPrivInfo);
-            while (*p != 0xFFFF)
-                p++;
-            p++;
-            if (*p != 0xFFFF)
-                VBE_freePMCode();
-            }
-        }
+	/* Read the IO priveledge info and determine if we need to
+	 * pass a selector to MMIO registers to the bank switch code.
+	 * Since we no longer support selector allocation, we no longer
+	 * support this mechanism so we disable the protected mode
+	 * interface in this case.
+	 */
+	if (state->pmInfo->IOPrivInfo && !state->MMIOSel) {
+	    ushort *p = (ushort*)((uchar*)state->pmInfo + state->pmInfo->IOPrivInfo);
+	    while (*p != 0xFFFF)
+		p++;
+	    p++;
+	    if (*p != 0xFFFF)
+		VBE_freePMCode();
+	    }
+	}
 }
 
 void * VBEAPI VBE_getSetBank(void)
@@ -1050,10 +1050,10 @@ void * VBEAPI VBE_getSetBank(void)
 ****************************************************************************/
 {
     if (state->VBEVersion >= 0x200) {
-        InitPMCode();
-        if (state->pmInfo)
-            return (uchar*)state->pmInfo + state->pmInfo->setWindow;
-        }
+	InitPMCode();
+	if (state->pmInfo)
+	    return (uchar*)state->pmInfo + state->pmInfo->setWindow;
+	}
     return NULL;
 }
 
@@ -1066,10 +1066,10 @@ void * VBEAPI VBE_getSetDisplayStart(void)
 ****************************************************************************/
 {
     if (state->VBEVersion >= 0x200) {
-        InitPMCode();
-        if (state->pmInfo)
-            return (uchar*)state->pmInfo + state->pmInfo->setDisplayStart;
-        }
+	InitPMCode();
+	if (state->pmInfo)
+	    return (uchar*)state->pmInfo + state->pmInfo->setDisplayStart;
+	}
     return NULL;
 }
 
@@ -1082,10 +1082,10 @@ void * VBEAPI VBE_getSetPalette(void)
 ****************************************************************************/
 {
     if (state->VBEVersion >= 0x200) {
-        InitPMCode();
-        if (state->pmInfo)
-            return (uchar*)state->pmInfo + state->pmInfo->setPalette;
-        }
+	InitPMCode();
+	if (state->pmInfo)
+	    return (uchar*)state->pmInfo + state->pmInfo->setPalette;
+	}
     return NULL;
 }
 
@@ -1104,13 +1104,13 @@ void VBEAPI VBE_freePMCode(void)
 ****************************************************************************/
 {
     if (state->pmInfo) {
-        if (VBE_shared)
-            PM_freeShared(state->pmInfo);
-        else
-            PM_free(state->pmInfo);
-        state->pmInfo = NULL;
-        state->pmInfo32 = NULL;
-        }
+	if (VBE_shared)
+	    PM_freeShared(state->pmInfo);
+	else
+	    PM_free(state->pmInfo);
+	state->pmInfo = NULL;
+	state->pmInfo32 = NULL;
+	}
 }
 
 void VBEAPI VBE_sharePMCode(void)
@@ -1183,31 +1183,31 @@ ibool VBEAPI VBE_getBankFunc32(int *codeLen,void **bankFunc,int dualBanks,
 
     InitPMCode();
     if (state->VBEVersion >= 0x200 && state->pmInfo32 && !state->MMIOSel) {
-        code = (uchar*)state->pmInfo32 + state->pmInfo32->setWindow;
-        if (state->pmInfo32->extensionSig == VBE20_EXT_SIG)
-            len = state->pmInfo32->setWindowLen-1;
-        else {
-            /* We are running on a system without the UniVBE 5.2 extension.
-             * We do as best we can by scanning through the code for the
-             * ret function to determine the length. This is not foolproof,
-             * but is the best we can do.
-             */
-            p = code;
-            while (*p != 0xC3)
-                p++;
-            len = p - code;
-            }
-        if ((len + sizeof(VBE20A_bankFunc32_Start) + sizeof(VBE20_bankFunc32_End)) > sizeof(bankFunc32))
-            PM_fatalError("32-bit bank switch function too long!");
-        copy(p,bankFunc32,VBE20A_bankFunc32_Start);
-        memcpy(p,code,len);
-        p += len;
-        copy(p,p,VBE20_bankFunc32_End);
-        *codeLen = p - bankFunc32;
-        bankFunc32[VBE20_adjustOffset] = (uchar)bankAdjust;
-        *bankFunc = bankFunc32;
-        return true;
-        }
+	code = (uchar*)state->pmInfo32 + state->pmInfo32->setWindow;
+	if (state->pmInfo32->extensionSig == VBE20_EXT_SIG)
+	    len = state->pmInfo32->setWindowLen-1;
+	else {
+	    /* We are running on a system without the UniVBE 5.2 extension.
+	     * We do as best we can by scanning through the code for the
+	     * ret function to determine the length. This is not foolproof,
+	     * but is the best we can do.
+	     */
+	    p = code;
+	    while (*p != 0xC3)
+		p++;
+	    len = p - code;
+	    }
+	if ((len + sizeof(VBE20A_bankFunc32_Start) + sizeof(VBE20_bankFunc32_End)) > sizeof(bankFunc32))
+	    PM_fatalError("32-bit bank switch function too long!");
+	copy(p,bankFunc32,VBE20A_bankFunc32_Start);
+	memcpy(p,code,len);
+	p += len;
+	copy(p,p,VBE20_bankFunc32_End);
+	*codeLen = p - bankFunc32;
+	bankFunc32[VBE20_adjustOffset] = (uchar)bankAdjust;
+	*bankFunc = bankFunc32;
+	return true;
+	}
     return false;
 }
 

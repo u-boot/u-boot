@@ -24,9 +24,9 @@
 /* #define DEBUG */
 
 #include <common.h>
-#include <cmd_bsp.h>
 #include <malloc.h>
 #include <s3c2400.h>
+#include <command.h>
 
 /* ------------------------------------------------------------------------- */
 
@@ -297,6 +297,12 @@ int do_kbd (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	setenv ("keybd", keybd_env);
 	return 0;
 }
+
+cmd_tbl_t U_BOOT_CMD(kbd) = MK_CMD_ENTRY(
+ 	"kbd",	1,	1,	do_kbd,
+ 	"kbd     - read keyboard status\n",
+ 	NULL
+);
 
 #ifdef CONFIG_MODEM_SUPPORT
 static int key_pressed(void)

@@ -1,6 +1,6 @@
 /*
  * (C) Copyright 2002
- * Hyperion Entertainment, ThomasF@hyperion-entertainment.com 
+ * Hyperion Entertainment, ThomasF@hyperion-entertainment.com
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -572,7 +572,7 @@ long articiaS_ram_init (void)
 	if (banks[3].used)
 		burst_support = banks[3].burst_len;
 
-	/* 
+	/*
 	   ** Mode register:
 	   ** Bits         Use
 	   ** 0-2          Burst len

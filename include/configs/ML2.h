@@ -76,7 +76,6 @@
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
 
-
 #define CONFIG_COMMANDS	       ( (CONFIG_CMD_DFL & (~CFG_CMD_NET)	 &  \
 				(~CFG_CMD_RTC) & ~(CFG_CMD_PCI)  & ~(CFG_CMD_I2C)) | \
 				CFG_CMD_IRQ	| \
@@ -140,7 +139,6 @@
 #define CFG_EXTBDINFO		1	/* To use extended board_into (bd_t) */
 
 #define	CFG_HZ		1000		/* decrementer freq: 1 ms ticks	*/
-
 
 
 /*-----------------------------------------------------------------------

@@ -130,14 +130,14 @@ static void X86API int1A(int intno)
 
     switch(M.x86.R_AX)
     {
-    case 0xB101: // PCI Bios Present?
+    case 0xB101: /* PCI Bios Present? */
 	M.x86.R_AL  = 0x00;
 	M.x86.R_EDX = 0x20494350;
 	M.x86.R_BX  = 0x0210;
 	M.x86.R_CL  = 3;
 	CLEAR_FLAG(F_CF);
 	break;
-    case 0xB102: // Find device
+    case 0xB102: /* Find device */
 	device = mypci_find_device(M.x86.R_DX, M.x86.R_CX, M.x86.R_SI);
 	if (device != -1)
 	{
@@ -151,52 +151,52 @@ static void X86API int1A(int intno)
 	}
 	CONDITIONAL_SET_FLAG((M.x86.R_AH != PCIBIOS_SUCCESSFUL), F_CF);
 	break;
-    case 0xB103: // Find PCI class code
+    case 0xB103: /* Find PCI class code */
 	M.x86.R_AH = PCIBIOS_DEVICE_NOT_FOUND;
-	//printf("Find by class not yet implmented");
+	/*printf("Find by class not yet implmented"); */
 	CONDITIONAL_SET_FLAG((M.x86.R_AH != PCIBIOS_SUCCESSFUL), F_CF);
 	break;
-    case 0xB108: // read config byte
+    case 0xB108: /* read config byte */
 	M.x86.R_CL = mypci_read_cfg_byte(M.x86.R_BH, M.x86.R_BL, M.x86.R_DI);
 	M.x86.R_AH = PCIBIOS_SUCCESSFUL;
 	CONDITIONAL_SET_FLAG((M.x86.R_AH != PCIBIOS_SUCCESSFUL), F_CF);
-	//printf("read_config_byte %x,%x,%x -> %x\n", M.x86.R_BH, M.x86.R_BL, M.x86.R_DI,
-	//	    M.x86.R_CL);
+	/*printf("read_config_byte %x,%x,%x -> %x\n", M.x86.R_BH, M.x86.R_BL, M.x86.R_DI, */
+	/*	    M.x86.R_CL); */
 	break;
-    case 0xB109: // read config word
+    case 0xB109: /* read config word */
 	M.x86.R_CX = mypci_read_cfg_word(M.x86.R_BH, M.x86.R_BL, M.x86.R_DI);
 	M.x86.R_AH = PCIBIOS_SUCCESSFUL;
 	CONDITIONAL_SET_FLAG((M.x86.R_AH != PCIBIOS_SUCCESSFUL), F_CF);
-	//printf("read_config_word %x,%x,%x -> %x\n", M.x86.R_BH, M.x86.R_BL, M.x86.R_DI,
-	//	    M.x86.R_CX);
+	/*printf("read_config_word %x,%x,%x -> %x\n", M.x86.R_BH, M.x86.R_BL, M.x86.R_DI, */
+	/*	    M.x86.R_CX); */
 	break;
-    case 0xB10A: // read config dword
+    case 0xB10A: /* read config dword */
 	M.x86.R_ECX = mypci_read_cfg_long(M.x86.R_BH, M.x86.R_BL, M.x86.R_DI);
 	M.x86.R_AH = PCIBIOS_SUCCESSFUL;
 	CONDITIONAL_SET_FLAG((M.x86.R_AH != PCIBIOS_SUCCESSFUL), F_CF);
-	//printf("read_config_long %x,%x,%x -> %x\n", M.x86.R_BH, M.x86.R_BL, M.x86.R_DI,
-	//    M.x86.R_ECX);
+	/*printf("read_config_long %x,%x,%x -> %x\n", M.x86.R_BH, M.x86.R_BL, M.x86.R_DI, */
+	/*    M.x86.R_ECX); */
 	break;
-    case 0xB10B: // write config byte
+    case 0xB10B: /* write config byte */
 	mypci_write_cfg_byte(M.x86.R_BH, M.x86.R_BL, M.x86.R_DI, M.x86.R_CL);
 	M.x86.R_AH = PCIBIOS_SUCCESSFUL;
 	CONDITIONAL_SET_FLAG((M.x86.R_AH != PCIBIOS_SUCCESSFUL), F_CF);
-	//printf("write_config_byte %x,%x,%x <- %x\n", M.x86.R_BH, M.x86.R_BL, M.x86.R_DI,
-	//    M.x86.R_CL);
+	/*printf("write_config_byte %x,%x,%x <- %x\n", M.x86.R_BH, M.x86.R_BL, M.x86.R_DI, */
+	/*    M.x86.R_CL); */
 	break;
-    case 0xB10C: // write config word
+    case 0xB10C: /* write config word */
 	mypci_write_cfg_word(M.x86.R_BH, M.x86.R_BL, M.x86.R_DI, M.x86.R_CX);
 	M.x86.R_AH = PCIBIOS_SUCCESSFUL;
 	CONDITIONAL_SET_FLAG((M.x86.R_AH != PCIBIOS_SUCCESSFUL), F_CF);
-	//printf("write_config_word %x,%x,%x <- %x\n", M.x86.R_BH, M.x86.R_BL, M.x86.R_DI,
-	//	    M.x86.R_CX);
+	/*printf("write_config_word %x,%x,%x <- %x\n", M.x86.R_BH, M.x86.R_BL, M.x86.R_DI, */
+	/*	    M.x86.R_CX); */
 	break;
-    case 0xB10D: // write config dword
+    case 0xB10D: /* write config dword */
 	mypci_write_cfg_long(M.x86.R_BH, M.x86.R_BL, M.x86.R_DI, M.x86.R_ECX);
 	M.x86.R_AH = PCIBIOS_SUCCESSFUL;
 	CONDITIONAL_SET_FLAG((M.x86.R_AH != PCIBIOS_SUCCESSFUL), F_CF);
-	//printf("write_config_long %x,%x,%x <- %x\n", M.x86.R_BH, M.x86.R_BL, M.x86.R_DI,
-	//	    M.x86.R_ECX);
+	/*printf("write_config_long %x,%x,%x <- %x\n", M.x86.R_BH, M.x86.R_BL, M.x86.R_DI, */
+	/*	    M.x86.R_ECX); */
 	break;
     default:
 	PRINTF("BIOS int %xh: Unknown function AX=%04xh\n", intno, M.x86.R_AX);
@@ -208,7 +208,7 @@ void bios_init(void)
 {
     int i;
     X86EMU_intrFuncs bios_intr_tab[256];
-    
+
     for (i=0; i<256; i++)
     {
 	write_long_little(M.mem_base+i*4, BIOS_SEG<<16);
@@ -221,7 +221,7 @@ void bios_init(void)
     bios_intr_tab[0x15] = int15;
 
     bios_intr_tab[0x6D] = int42;
-    
+
     X86EMU_setupIntrFuncs(bios_intr_tab);
     video_init();
 }
@@ -252,14 +252,14 @@ unsigned char setup_bw[] =
 
 unsigned char * setup_modes[] =
 {
-    setup_40x25,     // mode 0: 40x25 bw text
-    setup_40x25,     // mode 1: 40x25 col text
-    setup_80x25,     // mode 2: 80x25 bw text
-    setup_80x25,     // mode 3: 80x25 col text
-    setup_graphics,  // mode 4: 320x200 col graphics
-    setup_graphics,  // mode 5: 320x200 bw graphics
-    setup_graphics,  // mode 6: 640x200 bw graphics
-    setup_bw         // mode 7: 80x25 mono text
+    setup_40x25,     /* mode 0: 40x25 bw text */
+    setup_40x25,     /* mode 1: 40x25 col text */
+    setup_80x25,     /* mode 2: 80x25 bw text */
+    setup_80x25,     /* mode 3: 80x25 col text */
+    setup_graphics,  /* mode 4: 320x200 col graphics */
+    setup_graphics,  /* mode 5: 320x200 bw graphics */
+    setup_graphics,  /* mode 6: 640x200 bw graphics */
+    setup_bw         /* mode 7: 80x25 mono text */
 };
 
 unsigned int setup_cols[] =
@@ -280,13 +280,13 @@ unsigned int setup_bufsize[] =
 void bios_set_mode(int mode)
 {
     int i;
-    unsigned char mode_set = setup_modesets[mode]; // Control register value
-    unsigned char *setup_regs = setup_modes[mode]; // Register 3D4 Array
+    unsigned char mode_set = setup_modesets[mode]; /* Control register value */
+    unsigned char *setup_regs = setup_modes[mode]; /* Register 3D4 Array */
 
-    // Switch video off
+    /* Switch video off */
     out_byte(0x3D8, mode_set & 0x37);
 
-    // Set up parameters at 3D4h
+    /* Set up parameters at 3D4h */
     for (i=0; i<16; i++)
     {
 	out_byte(0x3D4, (unsigned char)i);
@@ -294,10 +294,10 @@ void bios_set_mode(int mode)
 	setup_regs++;
     }
 
-    // Enable video
+    /* Enable video */
     out_byte(0x3D8, mode_set);
 
-    // Set overscan
+    /* Set overscan */
     if (mode == 6) out_byte(0x3D9, 0x3F);
     else           out_byte(0x3D9, 0x30);
 }

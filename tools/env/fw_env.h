@@ -21,8 +21,8 @@
  * MA 02111-1307 USA
  */
 
-/* 
- * To build the utility with the run-time configuration 
+/*
+ * To build the utility with the run-time configuration
  * uncomment the next line.
  * See included "fw_env.config" sample file (TRAB board)
  * for notes on configuration.

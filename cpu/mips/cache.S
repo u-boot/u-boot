@@ -150,7 +150,7 @@ mips_cache_reset:
 	sw	zero, 28(a0)
 	addu	a0, 32
 	bltu	a0, a1, 2b
-   
+
 	/* Set invalid tag.
 	 */
 
@@ -267,4 +267,3 @@ mips_cache_lock:
 
 	j	ra
 	.end	mips_cache_lock
-

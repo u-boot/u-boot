@@ -75,7 +75,7 @@ static void EVTAPI _EVT_pumpMessages(void)
 		_EVT_restoreInt(ps);
 		}
 
-    regs.x.ax = 0x0B;           // Reset Move Mouse
+    regs.x.ax = 0x0B;           /* Reset Move Mouse */
     PM_int86(0x33,&regs,&regs);
 }
 #endif
@@ -178,8 +178,8 @@ Adds a new mouse event to the event queue. This routine is called from within
 the mouse interrupt subroutine, so it must be efficient.
 
 NOTE:   Interrupts MUST be OFF while this routine is called to ensure we have
-        mutually exclusive access to our internal data structures for
-        interrupt driven systems (like under DOS).
+	mutually exclusive access to our internal data structures for
+	interrupt driven systems (like under DOS).
 ****************************************************************************/
 static void addMouseEvent(
     uint what,
@@ -193,18 +193,18 @@ static void addMouseEvent(
     event_t evt;
 
     if (EVT.count < EVENTQSIZE) {
-        /* Save information in event record. */
-        evt.when = _EVT_getTicks();
-        evt.what = what;
-        evt.message = message;
-        evt.modifiers = but_stat;
-        evt.where_x = x;                /* Save mouse event position    */
-        evt.where_y = y;
-        evt.relative_x = mickeyX;
-        evt.relative_y = mickeyY;
-        evt.modifiers |= EVT.keyModifiers;
-        addEvent(&evt);                 /* Add to tail of event queue   */
-        }
+	/* Save information in event record. */
+	evt.when = _EVT_getTicks();
+	evt.what = what;
+	evt.message = message;
+	evt.modifiers = but_stat;
+	evt.where_x = x;                /* Save mouse event position    */
+	evt.where_y = y;
+	evt.relative_x = mickeyX;
+	evt.relative_y = mickeyY;
+	evt.modifiers |= EVT.keyModifiers;
+	addEvent(&evt);                 /* Add to tail of event queue   */
+	}
 }
 
 /****************************************************************************
@@ -233,47 +233,47 @@ static void EVTAPI mouseISR(
     uint    buttonMask;
 
     if (mask & 1) {
-        /* Save the current mouse coordinates */
-        EVT.mx = x; EVT.my = y;
+	/* Save the current mouse coordinates */
+	EVT.mx = x; EVT.my = y;
 
-        /* If the last event was a movement event, then modify the last
-         * event rather than post a new one, so that the queue will not
-         * become saturated. Before we modify the data structures, we
-         * MUST ensure that interrupts are off.
-         */
-        ps = _EVT_disableInt();
-        if (EVT.oldMove != -1) {
-            EVT.evtq[EVT.oldMove].where_x = x;  /* Modify existing one  */
-            EVT.evtq[EVT.oldMove].where_y = y;
-            EVT.evtq[EVT.oldMove].relative_x += mickeyX;
-            EVT.evtq[EVT.oldMove].relative_y += mickeyY;
-            }
-        else {
-            EVT.oldMove = EVT.freeHead;         /* Save id of this move event   */
-            addMouseEvent(EVT_MOUSEMOVE,0,x,y,mickeyX,mickeyY,butstate);
-            }
-        _EVT_restoreInt(ps);
-        }
+	/* If the last event was a movement event, then modify the last
+	 * event rather than post a new one, so that the queue will not
+	 * become saturated. Before we modify the data structures, we
+	 * MUST ensure that interrupts are off.
+	 */
+	ps = _EVT_disableInt();
+	if (EVT.oldMove != -1) {
+	    EVT.evtq[EVT.oldMove].where_x = x;  /* Modify existing one  */
+	    EVT.evtq[EVT.oldMove].where_y = y;
+	    EVT.evtq[EVT.oldMove].relative_x += mickeyX;
+	    EVT.evtq[EVT.oldMove].relative_y += mickeyY;
+	    }
+	else {
+	    EVT.oldMove = EVT.freeHead;         /* Save id of this move event   */
+	    addMouseEvent(EVT_MOUSEMOVE,0,x,y,mickeyX,mickeyY,butstate);
+	    }
+	_EVT_restoreInt(ps);
+	}
     if (mask & 0x2A) {
-        ps = _EVT_disableInt();
-        buttonMask = 0;
-        if (mask & 2)  buttonMask |= EVT_LEFTBMASK;
-        if (mask & 8)  buttonMask |= EVT_RIGHTBMASK;
-        if (mask & 32) buttonMask |= EVT_MIDDLEBMASK;
-        addMouseEvent(EVT_MOUSEDOWN,buttonMask,x,y,0,0,butstate);
-        EVT.oldMove = -1;
-        _EVT_restoreInt(ps);
-        }
+	ps = _EVT_disableInt();
+	buttonMask = 0;
+	if (mask & 2)  buttonMask |= EVT_LEFTBMASK;
+	if (mask & 8)  buttonMask |= EVT_RIGHTBMASK;
+	if (mask & 32) buttonMask |= EVT_MIDDLEBMASK;
+	addMouseEvent(EVT_MOUSEDOWN,buttonMask,x,y,0,0,butstate);
+	EVT.oldMove = -1;
+	_EVT_restoreInt(ps);
+	}
     if (mask & 0x54) {
-        ps = _EVT_disableInt();
-        buttonMask = 0;
-        if (mask & 2)  buttonMask |= EVT_LEFTBMASK;
-        if (mask & 8)  buttonMask |= EVT_RIGHTBMASK;
-        if (mask & 32) buttonMask |= EVT_MIDDLEBMASK;
-        addMouseEvent(EVT_MOUSEUP,buttonMask,x,y,0,0,butstate);
-        EVT.oldMove = -1;
-        _EVT_restoreInt(ps);
-        }
+	ps = _EVT_disableInt();
+	buttonMask = 0;
+	if (mask & 2)  buttonMask |= EVT_LEFTBMASK;
+	if (mask & 8)  buttonMask |= EVT_RIGHTBMASK;
+	if (mask & 32) buttonMask |= EVT_MIDDLEBMASK;
+	addMouseEvent(EVT_MOUSEUP,buttonMask,x,y,0,0,butstate);
+	EVT.oldMove = -1;
+	_EVT_restoreInt(ps);
+	}
     EVT.oldKey = -1;
 }
 
@@ -282,7 +282,7 @@ REMARKS:
 Keyboard interrupt handler function.
 
 NOTE:   Interrupts are OFF when this routine is called by the keyboard ISR,
-        and we leave them OFF the entire time.
+	and we leave them OFF the entire time.
 ****************************************************************************/
 static void EVTAPI keyboardISR(void)
 {
@@ -327,7 +327,7 @@ void EVTAPI EVT_init(
      * while the program is initialising.
      */
     while ((i = _EVT_getKeyCode()) != 0)
-        addKeyEvent(EVT_KEYDOWN,i);
+	addKeyEvent(EVT_KEYDOWN,i);
 }
 
 /****************************************************************************
@@ -344,62 +344,62 @@ void EVTAPI EVT_resume(void)
     PM_lockHandle   lh; /* Unused in DOS */
 
     if (_EVT_useEvents) {
-        /* Initialise the event queue and enable our interrupt handlers */
-        initEventQueue();
+	/* Initialise the event queue and enable our interrupt handlers */
+	initEventQueue();
 #ifndef NO_KEYBOARD_INTERRUPT
-        PM_setKeyHandler(keyboardISR);
+	PM_setKeyHandler(keyboardISR);
 #endif
 #ifndef NO_MOUSE_INTERRUPT
-        if ((haveMouse = detectMouse()) != 0) {
-            int oldmode = _EVT_foolMouse();
-            PM_setMouseHandler(0xFFFF,mouseISR);
-            _EVT_unfoolMouse(oldmode);
-            }
+	if ((haveMouse = detectMouse()) != 0) {
+	    int oldmode = _EVT_foolMouse();
+	    PM_setMouseHandler(0xFFFF,mouseISR);
+	    _EVT_unfoolMouse(oldmode);
+	    }
 #endif
 
-        /* Read the keyboard modifier flags from the BIOS to get the
-         * correct initialisation state. The only state we care about is
-         * the correct toggle state flags such as SCROLLLOCK, NUMLOCK and
-         * CAPSLOCK.
-         */
-        EVT.keyModifiers = 0;
-        mods = PM_getByte(_EVT_biosPtr+0x17);
-        if (mods & 0x10)
-            EVT.keyModifiers |= EVT_SCROLLLOCK;
-        if (mods & 0x20)
-            EVT.keyModifiers |= EVT_NUMLOCK;
-        if (mods & 0x40)
-            EVT.keyModifiers |= EVT_CAPSLOCK;
+	/* Read the keyboard modifier flags from the BIOS to get the
+	 * correct initialisation state. The only state we care about is
+	 * the correct toggle state flags such as SCROLLLOCK, NUMLOCK and
+	 * CAPSLOCK.
+	 */
+	EVT.keyModifiers = 0;
+	mods = PM_getByte(_EVT_biosPtr+0x17);
+	if (mods & 0x10)
+	    EVT.keyModifiers |= EVT_SCROLLLOCK;
+	if (mods & 0x20)
+	    EVT.keyModifiers |= EVT_NUMLOCK;
+	if (mods & 0x40)
+	    EVT.keyModifiers |= EVT_CAPSLOCK;
 
-        /* Lock all of the code and data used by our protected mode interrupt
-         * handling routines, so that it will continue to work correctly
-         * under real mode.
-         */
-        if (!locked) {
-            /* It is difficult to ensure that we lock our global data, so we
-             * do this by taking the address of a variable locking all data
-             * 2Kb on either side. This should properly cover the global data
-             * used by the module (the other alternative is to declare the
-             * variables in assembler, in which case we know it will be
-             * correct).
-             */
-            stat  = !PM_lockDataPages(&EVT,sizeof(EVT),&lh);
-            stat |= !PM_lockDataPages(&_EVT_biosPtr,sizeof(_EVT_biosPtr),&lh);
-            stat |= !PM_lockCodePages((__codePtr)_EVT_cCodeStart,(int)_EVT_cCodeEnd-(int)_EVT_cCodeStart,&lh);
-            stat |= !PM_lockCodePages((__codePtr)_EVT_codeStart,(int)_EVT_codeEnd-(int)_EVT_codeStart,&lh);
-            if (stat) {
-                PM_fatalError("Page locking services failed - interrupt handling not safe!");
-                exit(1);
-                }
-            locked = 1;
-            }
+	/* Lock all of the code and data used by our protected mode interrupt
+	 * handling routines, so that it will continue to work correctly
+	 * under real mode.
+	 */
+	if (!locked) {
+	    /* It is difficult to ensure that we lock our global data, so we
+	     * do this by taking the address of a variable locking all data
+	     * 2Kb on either side. This should properly cover the global data
+	     * used by the module (the other alternative is to declare the
+	     * variables in assembler, in which case we know it will be
+	     * correct).
+	     */
+	    stat  = !PM_lockDataPages(&EVT,sizeof(EVT),&lh);
+	    stat |= !PM_lockDataPages(&_EVT_biosPtr,sizeof(_EVT_biosPtr),&lh);
+	    stat |= !PM_lockCodePages((__codePtr)_EVT_cCodeStart,(int)_EVT_cCodeEnd-(int)_EVT_cCodeStart,&lh);
+	    stat |= !PM_lockCodePages((__codePtr)_EVT_codeStart,(int)_EVT_codeEnd-(int)_EVT_codeStart,&lh);
+	    if (stat) {
+		PM_fatalError("Page locking services failed - interrupt handling not safe!");
+		exit(1);
+		}
+	    locked = 1;
+	    }
 
-        /* Catch program termination signals so we can clean up properly */
-        signal(SIGABRT, _EVT_abort);
-        signal(SIGFPE, _EVT_abort);
-        signal(SIGINT, _EVT_abort);
-        _EVT_installed = true;
-        }
+	/* Catch program termination signals so we can clean up properly */
+	signal(SIGABRT, _EVT_abort);
+	signal(SIGFPE, _EVT_abort);
+	signal(SIGINT, _EVT_abort);
+	_EVT_installed = true;
+	}
 }
 
 /****************************************************************************
@@ -415,18 +415,18 @@ void EVTAPI EVT_setMouseRange(
     RMREGS  regs;
 
     if (haveMouse) {
-        int oldmode = _EVT_foolMouse();
-        PM_resetMouseDriver(1);
-        regs.x.ax = 7;  /* Mouse function 7 - Set horizontal min and max */
-        regs.x.cx = 0;
-        regs.x.dx = xRes;
-        PM_int86(0x33,&regs,&regs);
-        regs.x.ax = 8;  /* Mouse function 8 - Set vertical min and max   */
-        regs.x.cx = 0;
-        regs.x.dx = yRes;
-        PM_int86(0x33,&regs,&regs);
-        _EVT_unfoolMouse(oldmode);
-        }
+	int oldmode = _EVT_foolMouse();
+	PM_resetMouseDriver(1);
+	regs.x.ax = 7;  /* Mouse function 7 - Set horizontal min and max */
+	regs.x.cx = 0;
+	regs.x.dx = xRes;
+	PM_int86(0x33,&regs,&regs);
+	regs.x.ax = 8;  /* Mouse function 8 - Set vertical min and max   */
+	regs.x.cx = 0;
+	regs.x.dx = yRes;
+	PM_int86(0x33,&regs,&regs);
+	_EVT_unfoolMouse(oldmode);
+	}
 }
 
 /****************************************************************************
@@ -441,13 +441,13 @@ void _EVT_setMousePos(
     RMREGS  regs;
 
     if (haveMouse) {
-        int oldmode = _EVT_foolMouse();
-        regs.x.ax = 4;      /* Mouse function 4 - Set mouse position    */
-        regs.x.cx = *x;     /* New horizontal coordinate                */
-        regs.x.dx = *y;     /* New vertical coordinate                  */
-        PM_int86(0x33,&regs,&regs);
-        _EVT_unfoolMouse(oldmode);
-        }
+	int oldmode = _EVT_foolMouse();
+	regs.x.ax = 4;      /* Mouse function 4 - Set mouse position    */
+	regs.x.cx = *x;     /* New horizontal coordinate                */
+	regs.x.dx = *y;     /* New vertical coordinate                  */
+	PM_int86(0x33,&regs,&regs);
+	_EVT_unfoolMouse(oldmode);
+	}
 }
 
 /****************************************************************************
@@ -460,28 +460,28 @@ void EVTAPI EVT_suspend(void)
     uchar   mods;
 
     if (_EVT_installed) {
-        /* Restore the interrupt handlers */
-        PM_restoreKeyHandler();
-        if (haveMouse)
-            PM_restoreMouseHandler();
-        signal(SIGABRT, SIG_DFL);
-        signal(SIGFPE, SIG_DFL);
-        signal(SIGINT, SIG_DFL);
+	/* Restore the interrupt handlers */
+	PM_restoreKeyHandler();
+	if (haveMouse)
+	    PM_restoreMouseHandler();
+	signal(SIGABRT, SIG_DFL);
+	signal(SIGFPE, SIG_DFL);
+	signal(SIGINT, SIG_DFL);
 
-        /* Set the keyboard modifier flags in the BIOS to our values */
-        EVT_allowLEDS(true);
-        mods = PM_getByte(_EVT_biosPtr+0x17) & ~0x70;
-        if (EVT.keyModifiers & EVT_SCROLLLOCK)
-            mods |= 0x10;
-        if (EVT.keyModifiers & EVT_NUMLOCK)
-            mods |= 0x20;
-        if (EVT.keyModifiers & EVT_CAPSLOCK)
-            mods |= 0x40;
-        PM_setByte(_EVT_biosPtr+0x17,mods);
+	/* Set the keyboard modifier flags in the BIOS to our values */
+	EVT_allowLEDS(true);
+	mods = PM_getByte(_EVT_biosPtr+0x17) & ~0x70;
+	if (EVT.keyModifiers & EVT_SCROLLLOCK)
+	    mods |= 0x10;
+	if (EVT.keyModifiers & EVT_NUMLOCK)
+	    mods |= 0x20;
+	if (EVT.keyModifiers & EVT_CAPSLOCK)
+	    mods |= 0x40;
+	PM_setByte(_EVT_biosPtr+0x17,mods);
 
-        /* Flag that we are no longer installed */
-        _EVT_installed = false;
-        }
+	/* Flag that we are no longer installed */
+	_EVT_installed = false;
+	}
 }
 
 /****************************************************************************

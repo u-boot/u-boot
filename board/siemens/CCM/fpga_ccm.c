@@ -167,4 +167,3 @@ ulong fpga_control (fpga_t* fpga, int cmd)
     }
     return 0;
 }
-

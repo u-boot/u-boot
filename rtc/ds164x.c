@@ -1,7 +1,7 @@
 /*
  * (C) Copyright 2002
  * ARIO Data Networks, Inc. dchiu@ariodata.com
- * 
+ *
  * modified for DS164x:
  * The LEOX team <team@leox.org>, http://www.leox.org
  *

@@ -131,7 +131,6 @@ void user_led1(unsigned char on);
 #define UART1_CR	((PER_UART1_ADDR & 0xfff00000) + (UART0_BS << 17) + (UART0_BU << 15) + (UART0_BW << 13))
 
 
-
 /* Flash CS0 or CS 1 */
 /* 0x7F8FFE80 slowest timing at all... */
 #define FLASH_BME_B	1 	/* Burst enable */
@@ -199,14 +198,3 @@ void user_led1(unsigned char on);
 #define MPS_CR_B	((FLASH_BASE0_PRELIM & 0xfff00000) + (MPS_BS << 17) + (MPS_BU << 15) + (MPS_BW << 13))
 /* CR register for non Boot */
 #define MPS_CR		((MULTI_PURPOSE_SOCKET_ADDR & 0xfff00000) + (MPS_BS << 17) + (MPS_BU << 15) + (MPS_BW << 13))
-
-
-
-
-
-
-
-
-
-
-

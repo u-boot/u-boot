@@ -282,7 +282,7 @@ outside:
 	addi	r31, 0, 0x00ff		/* r31 = one byte of set bits */
 	stb     r31,0(r28)		/* save ff in referance address */
 
-        /* ghost (inner) loop, now check all posible ghosted addresses */
+	/* ghost (inner) loop, now check all posible ghosted addresses */
 	addi	r29, 0, 0		/* start ghosted loop counter at 0 */
 inside:
 	/*
@@ -323,11 +323,11 @@ Casper:					/* we found a ghost !! */
 	addi	r3, 0, ERR_ADDF		/* get indexed error message */
 	bl	log_err			/* log error led error code */
 gb_done: /*  pack your bags, and go home */
-        lmw     r25, 8(r1)              /* restore r25 - r31 from stack */
-        lwz     r0, +40(r1)             /* Get saved link register */
-        addi    r1, r1, +36             /* Remove frame from stack */
-        mtlr    r0                      /* Restore link register */
-        blr                             /* Return to calling function */
+	lmw     r25, 8(r1)              /* restore r25 - r31 from stack */
+	lwz     r0, +40(r1)             /* Get saved link register */
+	addi    r1, r1, +36             /* Remove frame from stack */
+	mtlr    r0                      /* Restore link register */
+	blr                             /* Return to calling function */
 
 /****************************************************
  ********      SDRAM data fill tests       **********
@@ -373,7 +373,6 @@ Bit_Buster:
 	blr				/* Return to calling function */
 
 
-
 /****************************************************
  ********             fill test              ********
  ***************************************************/
@@ -382,12 +381,12 @@ Bit_Buster:
 /*	r4 = Value to write */
 /*	r3 = Error code */
 fill_test:
-        mflr    r0                      /* Get link register */
-        stwu    r1, -32(r1)             /* Save back chain and move SP */
-        stw     r0, +36(r1)             /* Save link register */
-        stmw    r27, 8(r1)              /* save r27 - r31 on stack */
-                                        /* r31 - scratch register */
-                                        /* r30 - memory address */
+	mflr    r0                      /* Get link register */
+	stwu    r1, -32(r1)             /* Save back chain and move SP */
+	stw     r0, +36(r1)             /* Save link register */
+	stmw    r27, 8(r1)              /* save r27 - r31 on stack */
+					/* r31 - scratch register */
+					/* r30 - memory address */
 	mr	r27, r3
 	mr	r28, r4
 	mr	r29, r5
@@ -412,8 +411,8 @@ ft_0a:	bdnz	ft_0			/* Round and round... */
 	mtctr	r31			/* setup counter */
 	addi	r30, 0, 0		/* Make r30 = addr 0 */
 ft_1:	lwz	r31, 0(r30)		/* get value from memory */
-        xor.	r31, r31, r28		/* Writen = Read ? */
-        bne	ft_err			/* If bad, than halt */
+	xor.	r31, r31, r28		/* Writen = Read ? */
+	bne	ft_err			/* If bad, than halt */
 	addi	r30, r30, 4		/* Increment to next word */
 	andi.	r31, r30, 0xffff	/* check for 2^16 loops*/
 	bne	ft_1a			/* if not there, then skip */
@@ -431,11 +430,11 @@ ft_err:	addi	r29, r27, 0		/* save current led code */
 	bl	log_err			/* output led err code, halt CPU */
 
 fill_done:
-        lmw     r27, 8(r1)              /* restore r27 - r31 from stack */
-        lwz     r0, +36(r1)             /* Get saved link register */
-        addi    r1, r1, +32             /* Remove frame from stack */
-        mtlr    r0                      /* Restore link register */
-        blr                             /* Return to calling function */
+	lmw     r27, 8(r1)              /* restore r27 - r31 from stack */
+	lwz     r0, +36(r1)             /* Get saved link register */
+	addi    r1, r1, +32             /* Remove frame from stack */
+	mtlr    r0                      /* Restore link register */
+	blr                             /* Return to calling function */
 
 
 /****************************************************
@@ -563,7 +562,7 @@ log_warn:	/* output a warning, then continue with operations */
 	mtctr	r3
 log_2:
 	WATCHDOG_RESET			/* this keeps dog from barking, */
-				     	/*   and takes time */
+					/*   and takes time */
 	bdnz	log_2			/* loop till time expires */
 
 	/* restore stack and return */
@@ -585,27 +584,27 @@ temp_uart_init:
 	stwu	r1, -8(r1)		/* Save back chain and move SP */
 	stw	r0, +12(r1)		/* Save link register */
 
-        addis   r3, 0, 0xef60
-        ori     r3, r3, 0x0303          /* r3 = UART0_LCR */
-        addi    r4, 0, 0x83             /* n81 format, divisor regs enabled */
-        stb     r4, 0(r3)
+	addis   r3, 0, 0xef60
+	ori     r3, r3, 0x0303          /* r3 = UART0_LCR */
+	addi    r4, 0, 0x83             /* n81 format, divisor regs enabled */
+	stb     r4, 0(r3)
 
 	/* set baud rate to use internal clock,
 	   baud = (200e6/16)/31/42 = 9600 */
 
-        addis   r3, 0, 0xef60		/* Address of baud divisor reg */
-        ori     r3, r3, 0x0300		/*   UART0_DLM */
-        addi    r4, 0, +42		/* uart baud divisor LSB = 93 */
-        stb     r4, 0(r3)               /* baud = (200 /16)/14/93 */
+	addis   r3, 0, 0xef60		/* Address of baud divisor reg */
+	ori     r3, r3, 0x0300		/*   UART0_DLM */
+	addi    r4, 0, +42		/* uart baud divisor LSB = 93 */
+	stb     r4, 0(r3)               /* baud = (200 /16)/14/93 */
 
-        addi    r3, r3, 0x0001		/* uart baud divisor addr */
-        addi    r4, 0, 0
-        stb     r4, 0(r3)               /* Divisor Latch MSB = 0 */
+	addi    r3, r3, 0x0001		/* uart baud divisor addr */
+	addi    r4, 0, 0
+	stb     r4, 0(r3)               /* Divisor Latch MSB = 0 */
 
-        addis   r3, 0, 0xef60
-        ori     r3, r3, 0x0303          /* r3 = UART0_LCR */
-        addi    r4, 0, 0x03             /* n81 format, tx/rx regs enabled */
-        stb     r4, 0(r3)
+	addis   r3, 0, 0xef60
+	ori     r3, r3, 0x0303          /* r3 = UART0_LCR */
+	addi    r4, 0, 0x03             /* n81 format, tx/rx regs enabled */
+	stb     r4, 0(r3)
 
 	/* output a few line feeds */
 	addi	r3, 0, '\n'		/* load line feed */
@@ -613,7 +612,7 @@ temp_uart_init:
 	addi	r3, 0, '\n'		/* load line feed */
 	bl 	post_putc		/* output the char */
 
-        /* restore stack and return */
+	/* restore stack and return */
 	lwz	r0, +12(r1)		/* Get saved link register */
 	mtlr	r0			/* Restore link register */
 	addi	r1, r1, +8		/* Remove frame from stack */
@@ -633,7 +632,7 @@ post_putc:
 	stw	r0, +24(r1)		/* Save link register */
 	stmw	r29, 8(r1)		/* save	r29 - r31 on stack
 					   r31 - uart base address
-       					   r30 - delay counter
+					   r30 - delay counter
 					   r29 - scratch reg */
 
      addis   r31, 0, 0xef60		/* Point to uart base */
@@ -687,14 +686,13 @@ pputs_err:
 	b	pputs_end		/* were outa here */
 pputs_term:
 	addi 	r3, 0, 1		/* set success code */
- 	/* restore stack and return */
+	/* restore stack and return */
 pputs_end:
 	lwz	r31, 8(r1)		/* restore r27 - r31 from stack */
 	lwz	r0, +16(r1)		/* Get saved link register */
 	addi	r1, r1, +12		/* Remove frame from stack */
 	mtlr	r0			/* Restore link register */
 	blr				/* Return to calling function */
-
 
 
 /********************************************************************
@@ -736,10 +734,9 @@ pputh_skip:
 pputh_err:
 	addi 	r3, 0, -1 		/* set error code */
 pputh_done:
-        /* restore stack and return */
+	/* restore stack and return */
 	lmw	r30, 8(r1)		/*  restore r30 - r31 from stack */
 	lwz	r0, +20(r1)		/* Get saved link register */
 	addi	r1, r1, +16		/* Remove frame from stack */
 	mtlr	r0			/* Restore link register */
 	blr				/* Return to calling function */
-

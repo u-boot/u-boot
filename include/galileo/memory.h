@@ -36,20 +36,20 @@ typedef enum __memBank{BANK0,BANK1,BANK2,BANK3} MEMORY_BANK;
 typedef enum __memDevice{DEVICE0,DEVICE1,DEVICE2,DEVICE3,BOOT_DEVICE} DEVICE;
 
 typedef enum __memoryProtectRegion{MEM_REGION0,MEM_REGION1,MEM_REGION2,       \
-                                   MEM_REGION3,MEM_REGION4,MEM_REGION5,       \
-                                   MEM_REGION6,MEM_REGION7}                   \
-                                   MEMORY_PROTECT_REGION;
+				   MEM_REGION3,MEM_REGION4,MEM_REGION5,       \
+				   MEM_REGION6,MEM_REGION7}                   \
+				   MEMORY_PROTECT_REGION;
 typedef enum __memoryAccess{MEM_ACCESS_ALLOWED,MEM_ACCESS_FORBIDEN}           \
-                            MEMORY_ACCESS;
+			    MEMORY_ACCESS;
 typedef enum __memoryWrite{MEM_WRITE_ALLOWED,MEM_WRITE_FORBIDEN}              \
-                           MEMORY_ACCESS_WRITE;
+			   MEMORY_ACCESS_WRITE;
 typedef enum __memoryCacheProtect{MEM_CACHE_ALLOWED,MEM_CACHE_FORBIDEN}       \
-                                  MEMORY_CACHE_PROTECT;
+				  MEMORY_CACHE_PROTECT;
 typedef enum __memorySnoopType{MEM_NO_SNOOP,MEM_SNOOP_WT,MEM_SNOOP_WB}        \
-                               MEMORY_SNOOP_TYPE;
+			       MEMORY_SNOOP_TYPE;
 typedef enum __memorySnoopRegion{MEM_SNOOP_REGION0,MEM_SNOOP_REGION1,         \
-                                 MEM_SNOOP_REGION2,MEM_SNOOP_REGION3}         \
-                                 MEMORY_SNOOP_REGION;
+				 MEM_SNOOP_REGION2,MEM_SNOOP_REGION3}         \
+				 MEMORY_SNOOP_REGION;
 
 /* functions */
 unsigned int memoryGetBankBaseAddress(MEMORY_BANK bank);
@@ -68,19 +68,18 @@ bool memoryMapInternalRegistersSpace(unsigned int internalRegBase);
 unsigned int memoryGetInternalRegistersSpace(void);
 /* Configurate the protection feature to a given space. */
 bool memorySetProtectRegion(MEMORY_PROTECT_REGION region,
-                            MEMORY_ACCESS memoryAccess,
-                            MEMORY_ACCESS_WRITE memoryWrite,
-                            MEMORY_CACHE_PROTECT cacheProtection,
-                            unsigned int baseAddress,
-                            unsigned int regionLength);
+			    MEMORY_ACCESS memoryAccess,
+			    MEMORY_ACCESS_WRITE memoryWrite,
+			    MEMORY_CACHE_PROTECT cacheProtection,
+			    unsigned int baseAddress,
+			    unsigned int regionLength);
 /* Configurate the snoop feature to a given space. */
 bool memorySetRegionSnoopMode(MEMORY_SNOOP_REGION region,
-                              MEMORY_SNOOP_TYPE snoopType,
-                              unsigned int baseAddress,
-                              unsigned int regionLength);
+			      MEMORY_SNOOP_TYPE snoopType,
+			      unsigned int baseAddress,
+			      unsigned int regionLength);
 
 bool memoryRemapAddress(unsigned int remapReg, unsigned int remapValue);
 bool memoryGetDeviceParam(DEVICE_PARAM *deviceParam, DEVICE deviceNum);
 bool memorySetDeviceParam(DEVICE_PARAM *deviceParam, DEVICE deviceNum);
 #endif  /* __INCmemoryh */
-

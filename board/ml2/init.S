@@ -25,10 +25,10 @@
 #include <asm/mmu.h>
 
 
-     	.globl	ext_bus_cntlr_init
+	.globl	ext_bus_cntlr_init
 ext_bus_cntlr_init:
-        blr
+	blr
 
-        .globl  sdram_init
+	.globl  sdram_init
 sdram_init:
-        blr
+	blr

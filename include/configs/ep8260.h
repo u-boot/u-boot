@@ -370,11 +370,11 @@
 /* get the HRCW ISB field from CFG_IMMR */
 /*
 #define CFG_SBC_HRCW_IMMR ( ((CFG_IMMR & 0x10000000) >> 10) |\
-                            ((CFG_IMMR & 0x01000000) >> 7)  |\
-                            ((CFG_IMMR & 0x00100000) >> 4) )
+			    ((CFG_IMMR & 0x01000000) >> 7)  |\
+			    ((CFG_IMMR & 0x00100000) >> 4) )
 
 #define CFG_HRCW_MASTER (HRCW_EBM                |\
-		         HRCW_L2CPC01            |\
+			 HRCW_L2CPC01            |\
 			 CFG_SBC_HRCW_IMMR       |\
 			 HRCW_APPC10             |\
 			 HRCW_CS10PC01           |\
@@ -512,8 +512,8 @@
  */
 
 #define CFG_SIUMCR      (SIUMCR_L2CPC01 |\
-                         SIUMCR_APPC10  |\
-                         SIUMCR_CS10PC01)
+			 SIUMCR_APPC10  |\
+			 SIUMCR_CS10PC01)
 
 
 /*-----------------------------------------------------------------------
@@ -524,15 +524,15 @@
  */
 #ifdef CFG_LSDRAM
 #define CFG_SYPCR       (SYPCR_SWTC |\
-                         SYPCR_BMT  |\
-                         SYPCR_PBME |\
-                         SYPCR_LBME |\
-                         SYPCR_SWP)
+			 SYPCR_BMT  |\
+			 SYPCR_PBME |\
+			 SYPCR_LBME |\
+			 SYPCR_SWP)
 #else
 #define CFG_SYPCR       (SYPCR_SWTC |\
-                         SYPCR_BMT  |\
-                         SYPCR_PBME |\
-                         SYPCR_SWP)
+			 SYPCR_BMT  |\
+			 SYPCR_PBME |\
+			 SYPCR_SWP)
 #endif
 /*-----------------------------------------------------------------------
  * TMCNTSC - Time Counter Status and Control                     4-40
@@ -541,9 +541,9 @@
  * and enable Time Counter
  */
 #define CFG_TMCNTSC     (TMCNTSC_SEC |\
-                         TMCNTSC_ALR |\
-                         TMCNTSC_TCF |\
-                         TMCNTSC_TCE)
+			 TMCNTSC_ALR |\
+			 TMCNTSC_TCF |\
+			 TMCNTSC_TCE)
 
 /*-----------------------------------------------------------------------
  * PISCR - Periodic Interrupt Status and Control                 4-42
@@ -552,8 +552,8 @@
  * Periodic timer
  */
 /*#define CFG_PISCR       (PISCR_PS  |\
-                         PISCR_PTF |\
-                         PISCR_PTE)*/
+			 PISCR_PTF |\
+			 PISCR_PTE)*/
 #define CFG_PISCR	0
 /*-----------------------------------------------------------------------
  * SCCR - System Clock Control                                   9-8
@@ -604,29 +604,29 @@
  *
  */
 #define CFG_BR0_PRELIM  ((CFG_FLASH0_BASE & BRx_BA_MSK) |\
-                         BRx_PS_64                      |\
+			 BRx_PS_64                      |\
 			 BRx_DECC_NONE                  |\
-                         BRx_MS_GPCM_P                  |\
-                         BRx_V)
+			 BRx_MS_GPCM_P                  |\
+			 BRx_V)
 
 #define CFG_OR0_PRELIM  (MEG_TO_AM(CFG_FLASH0_SIZE)     |\
-		         ORxG_CSNT                      |\
-                         ORxG_ACS_DIV1                  |\
-                         ORxG_SCY_6_CLK                 |\
-                         ORxG_EHTR)
+			 ORxG_CSNT                      |\
+			 ORxG_ACS_DIV1                  |\
+			 ORxG_SCY_6_CLK                 |\
+			 ORxG_EHTR)
 
 /* Bank 1 - SDRAM
  * PSDRAM
  */
 #define CFG_BR1_PRELIM  ((CFG_SDRAM0_BASE & BRx_BA_MSK) |\
-                         BRx_PS_64                      |\
-                         BRx_MS_SDRAM_P                 |\
-                         BRx_V)
+			 BRx_PS_64                      |\
+			 BRx_MS_SDRAM_P                 |\
+			 BRx_V)
 
 #define CFG_OR1_PRELIM  (MEG_TO_AM(CFG_SDRAM0_SIZE)     |\
-                         ORxS_BPD_4                     |\
-                         ORxS_ROWST_PBI1_A6             |\
-                         ORxS_NUMR_12)
+			 ORxS_BPD_4                     |\
+			 ORxS_ROWST_PBI1_A6             |\
+			 ORxS_NUMR_12)
 
 #define CFG_PSDMR       0xC34E2462
 #define CFG_PSRT	0x64
@@ -638,14 +638,14 @@
  */
 
   #define CFG_BR2_PRELIM  ((CFG_SDRAM1_BASE & BRx_BA_MSK) |\
-                           BRx_PS_32                      |\
-                           BRx_MS_SDRAM_L                 |\
-                           BRx_V)
+			   BRx_PS_32                      |\
+			   BRx_MS_SDRAM_L                 |\
+			   BRx_V)
 
   #define CFG_OR2_PRELIM  (MEG_TO_AM(CFG_SDRAM1_SIZE)     |\
-                           ORxS_BPD_4                     |\
-                           ORxS_ROWST_PBI0_A9             |\
-                           ORxS_NUMR_12)
+			   ORxS_BPD_4                     |\
+			   ORxS_ROWST_PBI0_A9             |\
+			   ORxS_NUMR_12)
 
   #define CFG_LSDMR       0x416A2562
   #define CFG_LSRT	0x64
@@ -657,15 +657,15 @@
  * NVRTC and BCSR
  */
 #define CFG_BR4_PRELIM   ((CFG_REGS_BASE & BRx_BA_MSK)  |\
-                           BRx_PS_8                     |\
-                           BRx_MS_GPCM_P                |\
-                           BRx_V)
+			   BRx_PS_8                     |\
+			   BRx_MS_GPCM_P                |\
+			   BRx_V)
 /*
 #define CFG_OR4_PRELIM    (ORxG_AM_MSK                 |\
-                           ORxG_CSNT                   |\
-                           ORxG_ACS_DIV1               |\
-                           ORxG_SCY_10_CLK              |\
-                           ORxG_TRLX)
+			   ORxG_CSNT                   |\
+			   ORxG_ACS_DIV1               |\
+			   ORxG_SCY_10_CLK              |\
+			   ORxG_TRLX)
 */
 #define CFG_OR4_PRELIM 0xfff00854
 
@@ -673,15 +673,15 @@
  * PCMCIA (currently not working!)
  */
 #define CFG_BR8_PRELIM   ((CFG_REGS_BASE & BRx_BA_MSK)  |\
-                           BRx_PS_16                     |\
-                           BRx_MS_GPCM_P                |\
-                           BRx_V)
+			   BRx_PS_16                     |\
+			   BRx_MS_GPCM_P                |\
+			   BRx_V)
 
 #define CFG_OR8_PRELIM    (ORxG_AM_MSK                 |\
-                           ORxG_CSNT                   |\
-                           ORxG_ACS_DIV1               |\
+			   ORxG_CSNT                   |\
+			   ORxG_ACS_DIV1               |\
 			   ORxG_SETA                   |\
-                           ORxG_SCY_10_CLK)
+			   ORxG_SCY_10_CLK)
 
 /*
  * Internal Definitions

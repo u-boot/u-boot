@@ -104,12 +104,12 @@ void ZAPI ZTimerInitExt(
     ibool accurate)
 {
     if (cpuSpeed == -1) {
-        __ZTimerInit();
+	__ZTimerInit();
 #ifdef  __INTEL__
-        cpuSpeed = CPU_getProcessorSpeedInHZ(accurate);
-        haveRDTSC = CPU_haveRDTSC() && (cpuSpeed > 0);
+	cpuSpeed = CPU_getProcessorSpeedInHZ(accurate);
+	haveRDTSC = CPU_haveRDTSC() && (cpuSpeed > 0);
 #endif
-        }
+	}
 }
 
 /****************************************************************************
@@ -174,11 +174,11 @@ void ZAPI LZTimerOnExt(
 {
 #ifdef  __INTEL__
     if (haveRDTSC) {
-        _CPU_readTimeStamp(&tm->start);
-        }
+	_CPU_readTimeStamp(&tm->start);
+	}
     else
 #endif
-        __LZTimerOn(tm);
+	__LZTimerOn(tm);
 }
 
 /****************************************************************************
@@ -210,13 +210,13 @@ ulong ZAPI LZTimerLapExt(
     CPU_largeInteger    tmLap,tmCount;
 
     if (haveRDTSC) {
-        _CPU_readTimeStamp(&tmLap);
-        _CPU_diffTime64(&tm->start,&tmLap,&tmCount);
-        return _CPU_calcMicroSec(&tmCount,cpuSpeed);
-        }
+	_CPU_readTimeStamp(&tmLap);
+	_CPU_diffTime64(&tm->start,&tmLap,&tmCount);
+	return _CPU_calcMicroSec(&tmCount,cpuSpeed);
+	}
     else
 #endif
-        return __LZTimerLap(tm);
+	return __LZTimerLap(tm);
 }
 
 /****************************************************************************
@@ -244,11 +244,11 @@ void ZAPI LZTimerOffExt(
 {
 #ifdef  __INTEL__
     if (haveRDTSC) {
-        _CPU_readTimeStamp(&tm->end);
-        }
+	_CPU_readTimeStamp(&tm->end);
+	}
     else
 #endif
-        __LZTimerOff(tm);
+	__LZTimerOff(tm);
 }
 
 /****************************************************************************
@@ -278,12 +278,12 @@ ulong ZAPI LZTimerCountExt(
     CPU_largeInteger    tmCount;
 
     if (haveRDTSC) {
-        _CPU_diffTime64(&tm->start,&tm->end,&tmCount);
-        return _CPU_calcMicroSec(&tmCount,cpuSpeed);
-        }
+	_CPU_diffTime64(&tm->start,&tm->end,&tmCount);
+	return _CPU_calcMicroSec(&tmCount,cpuSpeed);
+	}
     else
 #endif
-        return __LZTimerCount(tm);
+	return __LZTimerCount(tm);
 }
 
 /****************************************************************************
@@ -514,4 +514,3 @@ ULZReadTime, ULZElapsedTime, ULZTimerCount
 void ZAPI ULZTimerResolution(
 	ulong *resolution)
 { *resolution = ULZTIMER_RESOLUTION; }
-

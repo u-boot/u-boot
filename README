@@ -735,12 +735,12 @@ The following options need to be configured:
 		(TEAC FD-05PUB).
 
 - MMC Support:
-  		The MMC controller on the Intel PXA is supported. To
-		enable this define CONFIG_MMC. The MMC can be 
-		accessed from the boot prompt by mapping the device 
+		The MMC controller on the Intel PXA is supported. To
+		enable this define CONFIG_MMC. The MMC can be
+		accessed from the boot prompt by mapping the device
 		to physical memory similar to flash. Command line is
 		enabled with CFG_CMD_MMC. The MMC driver also works with
-		the FAT fs. This is enabled with CFG_CMD_FAT. 
+		the FAT fs. This is enabled with CFG_CMD_FAT.
 
 - Keyboard Support:
 		CONFIG_ISA_KEYBOARD
@@ -782,12 +782,12 @@ The following options need to be configured:
 		or CONFIG_VIDEO_SED13806_16BPP
 
 - Keyboard Support:
-                CONFIG_KEYBOARD
+		CONFIG_KEYBOARD
 
-                Define this to enable a custom keyboard support.
-                This simply calls drv_keyboard_init() which must be
-                defined in your board-specific files.
-                The only board using this so far is RBC823.
+		Define this to enable a custom keyboard support.
+		This simply calls drv_keyboard_init() which must be
+		defined in your board-specific files.
+		The only board using this so far is RBC823.
 
 - LCD Support:	CONFIG_LCD
 
@@ -834,14 +834,14 @@ The following options need to be configured:
 
 - Spash Screen Support: CONFIG_SPLASH_SCREEN
 
-                If this option is set, the environment is checked for
-                a variable "splashimage". If found, the usual display
-                of logo, copyright and system information on the LCD
-                is supressed and the BMP image at the address
-                specified in "splashimage" is loaded instead. The
-                console is redirected to the "nulldev", too. This
-                allows for a "silent" boot where a splash screen is
-                loaded very quickly after power-on.
+		If this option is set, the environment is checked for
+		a variable "splashimage". If found, the usual display
+		of logo, copyright and system information on the LCD
+		is supressed and the BMP image at the address
+		specified in "splashimage" is loaded instead. The
+		console is redirected to the "nulldev", too. This
+		allows for a "silent" boot where a splash screen is
+		loaded very quickly after power-on.
 
 
 - Ethernet address:
@@ -968,14 +968,14 @@ The following options need to be configured:
 
 		CFG_I2C_INIT_BOARD
 
-                When a board is reset during an i2c bus transfer
-                chips might think that the current transfer is still
-                in progress. On some boards it is possible to access
-                the i2c SCLK line directly, either by using the
-                processor pin as a GPIO or by having a second pin
-                connected to the bus. If this option is defined a
-                custom i2c_init_board() routine in boards/xxx/board.c
-                is run early in the boot sequence.
+		When a board is reset during an i2c bus transfer
+		chips might think that the current transfer is still
+		in progress. On some boards it is possible to access
+		the i2c SCLK line directly, either by using the
+		processor pin as a GPIO or by having a second pin
+		connected to the bus. If this option is defined a
+		custom i2c_init_board() routine in boards/xxx/board.c
+		is run early in the boot sequence.
 
 - SPI Support:	CONFIG_SPI
 
@@ -1006,9 +1006,9 @@ The following options need to be configured:
 
 		Used to specify the types of FPGA devices. For
 		example,
- 		#define CONFIG_FPGA  CFG_XILINX_VIRTEX2
+		#define CONFIG_FPGA  CFG_XILINX_VIRTEX2
 
- 		CFG_FPGA_PROG_FEEDBACK
+		CFG_FPGA_PROG_FEEDBACK
 
 		Enable printing of hash marks during FPGA
 		configuration.
@@ -1054,16 +1054,16 @@ The following options need to be configured:
 
 - FPGA Support:	CONFIG_FPGA_COUNT
 
- 		Specify the number of FPGA devices to support.
+		Specify the number of FPGA devices to support.
 
- 		CONFIG_FPGA
+		CONFIG_FPGA
 
- 		Used to specify the types of FPGA devices.  For example,
- 		#define CONFIG_FPGA  CFG_XILINX_VIRTEX2
+		Used to specify the types of FPGA devices.  For example,
+		#define CONFIG_FPGA  CFG_XILINX_VIRTEX2
 
- 		CFG_FPGA_PROG_FEEDBACK
+		CFG_FPGA_PROG_FEEDBACK
 
- 		Enable printing of hash marks during FPGA configuration.
+		Enable printing of hash marks during FPGA configuration.
 
 		CFG_FPGA_CHECK_BUSY
 
@@ -1205,13 +1205,13 @@ The following options need to be configured:
 
 	Note:
 
-                In the current implementation, the local variables
-                space and global environment variables space are
-                separated. Local variables are those you define by
-                simply typing `name=value'. To access a local
-                variable later on, you have write `$name' or
-                `${name}'; to execute the contents of a variable
-                directly type `$name' at the command prompt.
+		In the current implementation, the local variables
+		space and global environment variables space are
+		separated. Local variables are those you define by
+		simply typing `name=value'. To access a local
+		variable later on, you have write `$name' or
+		`${name}'; to execute the contents of a variable
+		directly type `$name' at the command prompt.
 
 		Global environment variables are those you use
 		setenv/printenv to work with. To run a command stored
@@ -1253,9 +1253,9 @@ The following options need to be configured:
 - DataFlash Support
 		CONFIG_HAS_DATAFLASH
 
-                Defining this option enables DataFlash features and
-                allows to read/write in Dataflash via the standard
-                commands cp, md...
+		Defining this option enables DataFlash features and
+		allows to read/write in Dataflash via the standard
+		commands cp, md...
 
 - Show boot progress
 		CONFIG_SHOW_BOOT_PROGRESS
@@ -1349,8 +1349,6 @@ Modem Support:
 		See also: doc/README.Modem
 
 
-
-
 Configuration Settings:
 -----------------------
 
@@ -1374,16 +1372,16 @@ Configuration Settings:
 		List of legal baudrate settings for this board.
 
 - CFG_CONSOLE_INFO_QUIET
- 		Suppress display of console information at boot.
+		Suppress display of console information at boot.
 
 - CFG_CONSOLE_IS_IN_ENV
- 		If the board specific function
- 			extern int overwrite_console (void);
- 		returns 1, the stdin, stderr and stdout are switched to the
+		If the board specific function
+			extern int overwrite_console (void);
+		returns 1, the stdin, stderr and stdout are switched to the
 		serial port, else the settings in the environment are used.
 
 - CFG_CONSOLE_OVERWRITE_ROUTINE
- 		Enable the call to overwrite_console().
+		Enable the call to overwrite_console().
 
 - CFG_CONSOLE_ENV_OVERWRITE
 		Enable overwrite of previous console environment settings.
@@ -1393,7 +1391,7 @@ Configuration Settings:
 		simple memory test.
 
 - CFG_ALT_MEMTEST:
- 		Enable an alternate, more extensive memory test.
+		Enable an alternate, more extensive memory test.
 
 - CFG_TFTP_LOADADDR:
 		Default load address for network file downloads
@@ -1418,10 +1416,10 @@ Configuration Settings:
 		CFG_FLASH_BASE when booting from flash.
 
 - CFG_MONITOR_LEN:
-                Size of memory reserved for monitor code, used to
-                determine _at_compile_time_ (!) if the environment is
-                embedded within the U-Boot image, or in a separate
-                flash sector.
+		Size of memory reserved for monitor code, used to
+		determine _at_compile_time_ (!) if the environment is
+		embedded within the U-Boot image, or in a separate
+		flash sector.
 
 - CFG_MALLOC_LEN:
 		Size of DRAM reserved for malloc() use.
@@ -1842,7 +1840,6 @@ Note: for some board special configuration names may exist; check  if
       etc.
 
 
-
 Finally, type "make all", and you should get some working U-Boot
 images ready for downlod to / installation on your system:
 
@@ -1904,7 +1901,6 @@ or to build on a native PowerPC system you can type
 	CROSS_COMPILE=' ' MAKEALL
 
 See also "U-Boot Porting Guide" below.
-
 
 
 Monitor Commands - Overview:
@@ -2029,13 +2025,13 @@ Some configuration options can be set using Environment Variables:
 
 		  setenv initrd_high 00c00000
 
-                  If you set initrd_high to 0xFFFFFFFF, this is an
-                  indication to U-Boot that all addresses are legal
-                  for the Linux kernel, including addresses in flash
-                  memory. In this case U-Boot will NOT COPY the
-                  ramdisk at all. This may be useful to reduce the
-                  boot time on your system, but requires that this
-                  feature is supported by your Linux kernel.
+		  If you set initrd_high to 0xFFFFFFFF, this is an
+		  indication to U-Boot that all addresses are legal
+		  for the Linux kernel, including addresses in flash
+		  memory. In this case U-Boot will NOT COPY the
+		  ramdisk at all. This may be useful to reduce the
+		  boot time on your system, but requires that this
+		  feature is supported by your Linux kernel.
 
   ipaddr	- IP address; needed for tftpboot command
 
@@ -2163,7 +2159,6 @@ o If both the SROM and the environment contain a MAC address, and the
 
 o If neither SROM nor the environment contain a MAC address, an error
   is raised.
-
 
 
 Image Formats:
@@ -2428,7 +2423,6 @@ corruption happened:
 	   Verifying Checksum ... OK
 
 
-
 Boot Linux:
 -----------
 
@@ -2518,39 +2512,39 @@ More About U-Boot Image Types:
 U-Boot supports the following image types:
 
    "Standalone Programs" are directly runnable in the environment
-  	provided by U-Boot; it is expected that (if they behave
-  	well) you can continue to work in U-Boot after return from
-  	the Standalone Program.
+	provided by U-Boot; it is expected that (if they behave
+	well) you can continue to work in U-Boot after return from
+	the Standalone Program.
    "OS Kernel Images" are usually images of some Embedded OS which
-  	will take over control completely. Usually these programs
-  	will install their own set of exception handlers, device
-  	drivers, set up the MMU, etc. - this means, that you cannot
-  	expect to re-enter U-Boot except by resetting the CPU.
+	will take over control completely. Usually these programs
+	will install their own set of exception handlers, device
+	drivers, set up the MMU, etc. - this means, that you cannot
+	expect to re-enter U-Boot except by resetting the CPU.
    "RAMDisk Images" are more or less just data blocks, and their
-  	parameters (address, size) are passed to an OS kernel that is
-  	being started.
+	parameters (address, size) are passed to an OS kernel that is
+	being started.
    "Multi-File Images" contain several images, typically an OS
-  	(Linux) kernel image and one or more data images like
-  	RAMDisks. This construct is useful for instance when you want
-  	to boot over the network using BOOTP etc., where the boot
-  	server provides just a single image file, but you want to get
-  	for instance an OS kernel and a RAMDisk image.
+	(Linux) kernel image and one or more data images like
+	RAMDisks. This construct is useful for instance when you want
+	to boot over the network using BOOTP etc., where the boot
+	server provides just a single image file, but you want to get
+	for instance an OS kernel and a RAMDisk image.
 
-  	"Multi-File Images" start with a list of image sizes, each
-  	image size (in bytes) specified by an "uint32_t" in network
-  	byte order. This list is terminated by an "(uint32_t)0".
-  	Immediately after the terminating 0 follow the images, one by
-  	one, all aligned on "uint32_t" boundaries (size rounded up to
-  	a multiple of 4 bytes).
+	"Multi-File Images" start with a list of image sizes, each
+	image size (in bytes) specified by an "uint32_t" in network
+	byte order. This list is terminated by an "(uint32_t)0".
+	Immediately after the terminating 0 follow the images, one by
+	one, all aligned on "uint32_t" boundaries (size rounded up to
+	a multiple of 4 bytes).
 
    "Firmware Images" are binary images containing firmware (like
-  	U-Boot or FPGA images) which usually will be programmed to
-  	flash memory.
+	U-Boot or FPGA images) which usually will be programmed to
+	flash memory.
 
    "Script files" are command sequences that will be executed by
-  	U-Boot's command interpreter; this feature is especially
-  	useful when you configure U-Boot to use a real shell (hush)
-  	as command interpreter.
+	U-Boot's command interpreter; this feature is especially
+	useful when you configure U-Boot to use a real shell (hush)
+	as command interpreter.
 
 
 Standalone HOWTO:
@@ -2639,7 +2633,6 @@ Hit 'e':
 	[q, b, e, ?] ...Stopping timer
 Hit 'q':
 	[q, b, e, ?] ## Application terminated, rc = 0x0
-
 
 
 Minicom warning:
@@ -2813,7 +2806,6 @@ On ARM, the following registers are used:
     ==> U-Boot will use R8 to hold a pointer to the global data
 
 
-
 Memory Management:
 ------------------
 
@@ -2959,7 +2951,6 @@ void no_more_time (int sig)
 }
 
 
-
 Coding Standards:
 -----------------
 
@@ -3016,7 +3007,7 @@ it:
 
 * Changesets that contain different, unrelated modifications shall be
   submitted as SEPARATE patches, one patch per changeset.
-  
+
 
 Notes:
 

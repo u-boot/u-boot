@@ -28,20 +28,7 @@
 
 #if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
 
-#define	CMD_TBL_AUTOSCRIPT	MK_CMD_TBL_ENTRY(					\
-	"autoscr",	5,	2,	0,	do_autoscript,			\
-	"autoscr - run script from memory\n",				\
-	"[addr] - run script starting at addr. " \
-	"A valid autoscr header must be present\n" \
-),
-
 int autoscript (ulong addr);
-int do_autoscript (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
-
-#else
-
-#define	CMD_TBL_AUTOSCRIPT
-
 #endif
 
 #endif	/* _CMD_AUTOSCRIPT_H_ */

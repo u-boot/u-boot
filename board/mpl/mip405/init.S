@@ -63,7 +63,7 @@ ext_bus_cntlr_init:
   mtlr    r4                      /* restore link register */
   addi    r4,0,14                 /* set ctr to 14; used to prefetch */
   mtctr   r4                      /* 14 cache lines to fit this function */
-                                   /* in cache (gives us 8x14=112 instrctns) */
+				   /* in cache (gives us 8x14=112 instrctns) */
 ..ebcloop:
   icbt    r0,r3                   /* prefetch cache line for addr in r3 */
   addi    r3,r3,32								/* move to next cache line */
@@ -116,10 +116,10 @@ ext_bus_cntlr_init:
 
 0:
 
-  	/* 8Bit boot mode: */
+	/* 8Bit boot mode: */
 	/*-----------------------------------------------------------------------
-   	* Memory Bank 0 Multi Purpose Socket initialization
-   	*----------------------------------------------------------------------- */
+	* Memory Bank 0 Multi Purpose Socket initialization
+	*----------------------------------------------------------------------- */
 	/* 0x7F8FFE80 slowest boot */
 	addi    r4,0,pb0ap
 	mtdcr   ebccfga,r4
@@ -133,7 +133,7 @@ ext_bus_cntlr_init:
 	mtdcr   ebccfgd,r4
 
 	addi    r4,0,pb0cr
- 	mtdcr   ebccfga,r4
+	mtdcr   ebccfga,r4
 	/* BS=0x010(4MB),BU=0x3(R/W), */
 /*	addis   r4,0,((FLASH_BASE0_PRELIM & 0xFFF00000) | 0x00050000)@h */
 /*	ori     r4,r4,0x8000          / * BW=0x0( 8 bits) */
@@ -197,7 +197,7 @@ ext_bus_cntlr_init:
  * Description:  Configures the internal SRAM memory. and setup the
  *               Stackpointer in it.
  *----------------------------------------------------------------------------- */
-        .globl  sdram_init
+	.globl  sdram_init
 
 sdram_init:
 
@@ -245,4 +245,3 @@ _start_pci:
   nop
   b	_start		/* normal start */
 #endif
-

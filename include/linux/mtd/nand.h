@@ -24,7 +24,7 @@
  *			bat later if I did something naughty.
  *   10-11-2000 SJH     Added private NAND flash structure for driver
  *   10-24-2000 SJH     Added prototype for 'nand_scan' function
- *   10-29-2001 TG	changed nand_chip structure to support 
+ *   10-29-2001 TG	changed nand_chip structure to support
  *			hardwarespecific function for accessing control lines
  *   02-21-2002 TG	added support for different read/write adress and
  *			ready/busy line access function
@@ -67,7 +67,7 @@ typedef enum {
  *
  * Structure overview:
  *
- *  IO_ADDR - address to access the 8 I/O lines of the flash device 
+ *  IO_ADDR - address to access the 8 I/O lines of the flash device
  *
  *  hwcontrol - hardwarespecific function for accesing control-lines
  *
@@ -119,8 +119,8 @@ struct nand_chip {
 	char pageadrlen;
 	unsigned long IO_ADDR;  /* address to access the 8 I/O lines to the flash device */
 	unsigned long totlen;
-	uint oobblock;  // Size of OOB blocks (e.g. 512)
-	uint oobsize;   // Amount of OOB data per block (e.g. 16)
+	uint oobblock;  /* Size of OOB blocks (e.g. 512) */
+	uint oobsize;   /* Amount of OOB data per block (e.g. 16) */
 	uint eccsize;
 };
 

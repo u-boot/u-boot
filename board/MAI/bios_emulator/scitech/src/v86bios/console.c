@@ -36,43 +36,43 @@ open_console(void)
     char VTname[11];
     console Con = {-1,-1};
     struct vt_stat vts;
-    
+
     if (NO_CONSOLE)
-            return Con;
-    
+	    return Con;
+
     if ((fd = open("/dev/tty0",O_WRONLY,0)) < 0)
-        return Con;
+	return Con;
 
     if ((ioctl(fd, VT_OPENQRY, &VTno) < 0) || (VTno == -1)) {
-        fprintf(stderr,"cannot get a vt\n");    
-        return Con;
+	fprintf(stderr,"cannot get a vt\n");
+	return Con;
     }
-    
+
     close(fd);
     sprintf(VTname,"/dev/tty%i",VTno);
-    
+
     if ((fd = open(VTname, O_RDWR|O_NDELAY, 0)) < 0) {
-        fprintf(stderr,"cannot open console\n");
-        return Con;
+	fprintf(stderr,"cannot open console\n");
+	return Con;
     }
-    
-    if (ioctl(fd, VT_GETSTATE, &vts) == 0) 
-        Con.vt = vts.v_active;
+
+    if (ioctl(fd, VT_GETSTATE, &vts) == 0)
+	Con.vt = vts.v_active;
 
     if (ioctl(fd, VT_ACTIVATE, VTno) != 0) {
-        fprintf(stderr,"cannot activate console\n");
-        close(fd);
-        return Con;
+	fprintf(stderr,"cannot activate console\n");
+	close(fd);
+	return Con;
     }
     if (ioctl(fd, VT_WAITACTIVE, VTno) != 0) {
-        fprintf(stderr,"wait for active console failed\n");
-        close(fd);
-        return Con;
+	fprintf(stderr,"wait for active console failed\n");
+	close(fd);
+	return Con;
     }
 #if 0
     if (ioctl(fd, KDSETMODE, KD_GRAPHICS) < 0) {
-        close(fd);
-        return Con;
+	close(fd);
+	return Con;
     }
 #endif
     Con.fd = fd;
@@ -83,22 +83,13 @@ void
 close_console(console Con)
 {
     if (Con.fd == -1)
-        return;
-    
+	return;
+
 #if 0
     ioctl(Con.fd, KDSETMODE, KD_TEXT);
 #endif
     if (Con.vt >=0)
-        ioctl(Con.fd, VT_ACTIVATE, Con.vt);
-    
+	ioctl(Con.fd, VT_ACTIVATE, Con.vt);
+
     close(Con.fd);
 }
-
-
-    
-
-
-
-
-
-

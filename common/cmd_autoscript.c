@@ -40,8 +40,6 @@
 #include <image.h>
 #include <malloc.h>
 #include <asm/byteorder.h>
-#include <cmd_boot.h>
-#include <cmd_autoscript.h>
 #if defined(CONFIG_8xx)
 #include <mpc8xx.h>
 #endif
@@ -49,8 +47,9 @@
 #include <hush.h>
 #endif
 
+#define AUTOSCRIPT_MAGIC	0x09011962
 #if defined(CONFIG_AUTOSCRIPT) || \
-	 (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+	 (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT )
 
 extern image_header_t header;		/* from cmd_bootm.c */
 int
@@ -118,7 +117,7 @@ autoscript (ulong addr)
 	memmove (cmd, (char *)len_ptr, len);
 	*(cmd + len) = 0;
 
-#ifdef CFG_HUSH_PARSER
+#ifdef CFG_HUSH_PARSER /*?? */
 	rcode = parse_string_outer (cmd, FLAG_PARSE_SEMICOLON);
 #else
 	{
@@ -153,7 +152,7 @@ autoscript (ulong addr)
 }
 
 #endif	/* CONFIG_AUTOSCRIPT || CFG_CMD_AUTOSCRIPT */
-
+/**************************************************/
 #if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
 int
 do_autoscript (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
@@ -171,4 +170,14 @@ do_autoscript (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	rcode = autoscript (addr);
 	return rcode;
 }
+
+#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+cmd_tbl_t U_BOOT_CMD(AUTOSCRIPT) = MK_CMD_ENTRY(
+	"autoscr", 2, 0,	do_autoscript,
+	"autoscr - run script from memory\n",
+	"[addr] - run script starting at addr"
+	" - A valid autoscr header must be present\n"
+);
 #endif /* CFG_CMD_AUTOSCRIPT */
+
+#endif /* CONFIG_AUTOSCRIPT || CFG_CMD_AUTOSCRIPT */

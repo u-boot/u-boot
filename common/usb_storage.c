@@ -32,7 +32,6 @@
  */
 
 
-
 #include <common.h>
 #include <command.h>
 #include <asm/processor.h>
@@ -107,14 +106,9 @@ struct us_data {
 static struct us_data usb_stor[USB_MAX_STOR_DEV];
 
 
-
 #define USB_STOR_TRANSPORT_GOOD    0
 #define USB_STOR_TRANSPORT_FAILED -1
 #define USB_STOR_TRANSPORT_ERROR  -2
-
-
-
-
 
 
 int usb_stor_get_info(struct usb_device *dev, struct us_data *us, block_dev_desc_t *dev_desc);
@@ -529,7 +523,6 @@ do_retry:
 }
 
 
-
 static int usb_inquiry(ccb *srb,struct us_data *ss)
 {
 	int retry,i;
@@ -890,6 +883,3 @@ int usb_stor_get_info(struct usb_device *dev,struct us_data *ss,block_dev_desc_t
 
 #endif
 #endif /* CONFIG_USB_STORAGE */
-
-
-

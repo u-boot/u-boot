@@ -75,7 +75,7 @@
 #define ADC_INITIAL_DELAY (10 * ADC_VREF_CAP) /* 10 usec per uF, in usec */
 #define ADC_SDATA_DELAY    100        /* ADC SDATA release delay in usec */
 #define ADC_CAL_DELAY (1000000 / INITIAL_SAMPLE_RATE * 4500)
-                                      /* Wait at least 4100 LRCLK's */
+				      /* Wait at least 4100 LRCLK's */
 
 #define ADC_REG1_FRAME_START    0x80  /* Frame start */
 #define ADC_REG1_GROUND_CAL     0x40  /* Ground calibration enable */
@@ -201,17 +201,17 @@ long int initdram(int board_type)
 	else if(j ==  4) cols        = data & 0x0F;
 	else if(j == 12) {
 	    /*
-             * Refresh rate: this assumes the prescaler is set to
+	     * Refresh rate: this assumes the prescaler is set to
 	     * approximately 1uSec per tick.
 	     */
 	    switch(data & 0x7F) {
-                default:
-                case 0:  psrt =  14 ; /*  15.625uS */  break;
-                case 1:  psrt =   2;  /*   3.9uS   */  break;
-                case 2:  psrt =   6;  /*   7.8uS   */  break;
-                case 3:  psrt =  29;  /*  31.3uS   */  break;
-                case 4:  psrt =  60;  /*  62.5uS   */  break;
-                case 5:  psrt = 120;  /* 125uS     */  break;
+		default:
+		case 0:  psrt =  14 ; /*  15.625uS */  break;
+		case 1:  psrt =   2;  /*   3.9uS   */  break;
+		case 2:  psrt =   6;  /*   7.8uS   */  break;
+		case 3:  psrt =  29;  /*  31.3uS   */  break;
+		case 4:  psrt =  60;  /*  62.5uS   */  break;
+		case 5:  psrt = 120;  /* 125uS     */  break;
 	    }
 	}
 	else if(j == 17) banks       = data;
@@ -228,13 +228,13 @@ long int initdram(int board_type)
 #endif
 	    else {
 		printf ("WARNING: Unknown CAS latency 0x%02X, using 3\n",
-		        data);
+			data);
 	    }
 	}
 	else if(j == 63) {
 	    if(data != cksum) {
 		printf ("WARNING: Configuration data checksum failure:"
-		        " is 0x%02x, calculated 0x%02x\n",
+			" is 0x%02x, calculated 0x%02x\n",
 			data, cksum);
 	    }
 	}
@@ -309,7 +309,7 @@ long int initdram(int board_type)
 	     PSDMR_ACTTORW_8W        |\
 	     PSDMR_WRC_4C            |\
 	     PSDMR_EAMUX             |\
-             PSDMR_BUFCMD)           |\
+	     PSDMR_BUFCMD)           |\
 	     caslatency              |\
 	     ((caslatency - 1) << 6) |	/* LDOTOPRE is CL - 1 */ \
 	     (sdam << 24)            |\
@@ -323,7 +323,7 @@ long int initdram(int board_type)
 	     PSDMR_ACTTORW_2W        |	/* 1 for 7E parts (fast PC-133) */ \
 	     PSDMR_WRC_1C            |	/* 1 clock + 7nSec */
 	     EAMUX                   |\
-             BUFCMD)                 |\
+	     BUFCMD)                 |\
 	     caslatency              |\
 	     ((caslatency - 1) << 6) |	/* LDOTOPRE is CL - 1 */ \
 	     (sdam << 24)            |\
@@ -400,7 +400,7 @@ long int initdram(int board_type)
      * two chip selects (double sided).
      */
     if(chipselects > 1) {
-        ramaddr += sdram_size;
+	ramaddr += sdram_size;
 
 	memctl->memc_br3 = CFG_BR3_PRELIM + sdram_size;
 	memctl->memc_or3 = or;
@@ -459,13 +459,13 @@ int misc_init_r(void)
 
     sample_rate = INITIAL_SAMPLE_RATE;
     if ((ep = getenv("DaqSampleRate")) != NULL) {
-        sample_rate = simple_strtol(ep, NULL, 10);
+	sample_rate = simple_strtol(ep, NULL, 10);
     }
 
     sample_64x  = INITIAL_SAMPLE_64X;
     sample_128x = INITIAL_SAMPLE_128X;
     if ((ep = getenv("Daq64xSampling")) != NULL) {
-        sample_64x = simple_strtol(ep, NULL, 10);
+	sample_64x = simple_strtol(ep, NULL, 10);
 	if (sample_64x) {
 	    sample_128x = 0;
 	}
@@ -474,18 +474,18 @@ int misc_init_r(void)
 	}
     }
     else {
-        if ((ep = getenv("Daq128xSampling")) != NULL) {
+	if ((ep = getenv("Daq128xSampling")) != NULL) {
 	    sample_128x = simple_strtol(ep, NULL, 10);
 	    if (sample_128x) {
-	        sample_64x = 0;
+		sample_64x = 0;
 	    }
 	    else {
-	        sample_64x = 1;
+		sample_64x = 1;
 	    }
 	}
     }
 
-    /* 
+    /*
      * Stop the clocks and wait for at least 1 LRCLK period
      * to make sure the clocking has really stopped.
      */
@@ -509,12 +509,12 @@ int misc_init_r(void)
     setenv("DaqSampleRate", str_buf);
 
     if (sample_64x) {
-        setenv("Daq64xSampling",  "1");
-        setenv("Daq128xSampling", NULL);
+	setenv("Daq64xSampling",  "1");
+	setenv("Daq128xSampling", NULL);
     }
     else {
-        setenv("Daq64xSampling",  NULL);
-        setenv("Daq128xSampling", "1");
+	setenv("Daq64xSampling",  NULL);
+	setenv("Daq128xSampling", "1");
     }
 
     /* Display the ADC/DAC clocking information */
@@ -526,7 +526,7 @@ int misc_init_r(void)
 
     right_just = INITIAL_RIGHT_JUST;
     if ((ep = getenv("DaqDACRightJustified")) != NULL) {
-        right_just = simple_strtol(ep, NULL, 10);
+	right_just = simple_strtol(ep, NULL, 10);
     }
 
     sprintf(str_buf, "%d", right_just);
@@ -538,7 +538,7 @@ int misc_init_r(void)
 
     mclk_divide = INITIAL_MCLK_DIVIDE;
     if ((ep = getenv("DaqDACMClockDivide")) != NULL) {
-        mclk_divide = simple_strtol(ep, NULL, 10);
+	mclk_divide = simple_strtol(ep, NULL, 10);
     }
 
     sprintf(str_buf, "%d", mclk_divide);
@@ -666,7 +666,7 @@ int misc_init_r(void)
      */
     i2c_reg_write(I2C_DAC_ADDR, 0x01,
 		  (right_just ? DAC_REG1_RIGHT_JUST_24BIT :
-                                DAC_REG1_LEFT_JUST_24_BIT) |
+				DAC_REG1_LEFT_JUST_24_BIT) |
 		  DAC_REG1_DEM_NO |
 		  (sample_rate >= 50000 ? DAC_REG1_DOUBLE : DAC_REG1_SINGLE));
 
@@ -724,7 +724,7 @@ static void flash_code(uchar number, uchar modulo, uchar digits)
      * Recursively do upper digits.
      */
     if(digits > 1) {
-        flash_code(number / modulo, modulo, digits - 1);
+	flash_code(number / modulo, modulo, digits - 1);
     }
 
     number = number % modulo;
@@ -733,20 +733,20 @@ static void flash_code(uchar number, uchar modulo, uchar digits)
      * Zero is indicated by one long flash (dash).
      */
     if(number == 0) {
-        status_led_set(STATUS_LED_BOOT, STATUS_LED_ON);
-        udelay(1000000);
-        status_led_set(STATUS_LED_BOOT, STATUS_LED_OFF);
-        udelay(200000);
+	status_led_set(STATUS_LED_BOOT, STATUS_LED_ON);
+	udelay(1000000);
+	status_led_set(STATUS_LED_BOOT, STATUS_LED_OFF);
+	udelay(200000);
     } else {
-        /*
-         * Non-zero is indicated by short flashes, one per count.
-         */
-        for(j = 0; j < number; j++) {
-            status_led_set(STATUS_LED_BOOT, STATUS_LED_ON);
-            udelay(100000);
-            status_led_set(STATUS_LED_BOOT, STATUS_LED_OFF);
-            udelay(200000);
-        }
+	/*
+	 * Non-zero is indicated by short flashes, one per count.
+	 */
+	for(j = 0; j < number; j++) {
+	    status_led_set(STATUS_LED_BOOT, STATUS_LED_ON);
+	    udelay(100000);
+	    status_led_set(STATUS_LED_BOOT, STATUS_LED_OFF);
+	    udelay(200000);
+	}
     }
     /*
      * Inter-digit pause: we've already waited 200 mSec, wait 1 sec total
@@ -759,16 +759,16 @@ static int last_boot_progress;
 void show_boot_progress (int status)
 {
     if(status != -1) {
-        last_boot_progress = status;
+	last_boot_progress = status;
     } else {
-        /*
-         * Houston, we have a problem.  Blink the last OK status which
-         * indicates where things failed.
-         */
-        status_led_set(STATUS_LED_RED, STATUS_LED_ON);
-        flash_code(last_boot_progress, 5, 3);
-        udelay(1000000);
-        status_led_set(STATUS_LED_RED, STATUS_LED_BLINKING);
+	/*
+	 * Houston, we have a problem.  Blink the last OK status which
+	 * indicates where things failed.
+	 */
+	status_led_set(STATUS_LED_RED, STATUS_LED_ON);
+	flash_code(last_boot_progress, 5, 3);
+	udelay(1000000);
+	status_led_set(STATUS_LED_RED, STATUS_LED_BLINKING);
     }
 }
 #endif /* CONFIG_SHOW_BOOT_PROGRESS */

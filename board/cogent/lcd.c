@@ -112,7 +112,7 @@ lcd_dis(int addr, char *string)
 
     lcd_write_command(clp, LCD_CMD_ADD + addr);
     for (pos = 0; *string != '\0' && pos < linelen; pos++)
-        lcd_write_data(clp, *string++);
+	lcd_write_data(clp, *string++);
 }
 
 void
@@ -131,7 +131,7 @@ lcd_init(void)
     linepos = 0;
 
     for (i = 0; i < LCD_LINE_LENGTH; i++) {
-        lines[0][i] = init_line0[i];
+	lines[0][i] = init_line0[i];
 	lines[1][i] = init_line1[i];
     }
 
@@ -157,25 +157,25 @@ lcd_write_char(const char c)
 	linelen--;
 
     if (c == '\n') {
-        lcd_dis(LCD_LINE0, &lines[curline^1][0]);
-        lcd_dis(LCD_LINE1, &lines[curline][0]);
+	lcd_dis(LCD_LINE0, &lines[curline^1][0]);
+	lcd_dis(LCD_LINE1, &lines[curline][0]);
 
-        /* Do a line feed */
-        curline ^= 1;
+	/* Do a line feed */
+	curline ^= 1;
 	linelen = LCD_LINE_LENGTH;
 	if (heartbeat_active && curline == 0)
 	    linelen--;
-        linepos = 0;
+	linepos = 0;
 
-        for (i = 0; i < linelen; i++)
-            lines[curline][i] = ' ';
+	for (i = 0; i < linelen; i++)
+	    lines[curline][i] = ' ';
 
-        return;
+	return;
     }
 
     /* Only allow to be output if there is room on the LCD line */
     if (linepos < linelen)
-        lines[curline][linepos++] = c;
+	lines[curline][linepos++] = c;
 }
 
 void

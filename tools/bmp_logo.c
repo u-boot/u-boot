@@ -68,8 +68,8 @@ int main (int argc, char *argv[])
 		exit (EXIT_FAILURE);
 	}
 
-        /*
-         * read width and height of the image, and the number of colors used;
+	/*
+	 * read width and height of the image, and the number of colors used;
 	 * ignore the rest
 	 */
 	skip_bytes (fp, 16);
@@ -174,4 +174,3 @@ int main (int argc, char *argv[])
 
 	return (0);
 }
-

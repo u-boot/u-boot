@@ -44,7 +44,7 @@
  * CONFIG_BOOT_PCI is only used for first boot-up and should
  * NOT be enabled for production bootloader
  ***********************************************************/
-/*#define        CONFIG_BOOT_PCI         1*/       
+/*#define        CONFIG_BOOT_PCI         1*/
 /***********************************************************
  * Clock
  ***********************************************************/
@@ -258,7 +258,6 @@
 
 #define MULTI_PURPOSE_SOCKET_ADDR 0xF8000000
 #define CONFIG_PORT_ADDR 	PER_PLD_ADDR + 5
-
 
 
 /*-----------------------------------------------------------------------

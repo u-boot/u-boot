@@ -50,6 +50,6 @@
 /* Function:     sdram_init */
 /* Description:  Dummy implementation here - done in C later */
 /*----------------------------------------------------------------------------- */
-        .globl  sdram_init
+	.globl  sdram_init
 sdram_init:
-        blr
+	blr

@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= lib$(ARCH).a
 
-AOBJS	= 
+AOBJS	=
 
 COBJS	= board.o time.o mips_linux.o
 

@@ -54,7 +54,7 @@ static void write_p15_c1(unsigned long value)
 {
     /*printf("write %08lx to p15/c1\n", value); */
     __asm__ __volatile__(
-        "mcr     p15, 0, %0, c1, c0, 0   @ write it back\n"
+	"mcr     p15, 0, %0, c1, c0, 0   @ write it back\n"
 	: "=r" (value)
 	:
 	: "memory");
@@ -86,7 +86,7 @@ int cpu_init(void)
      */
 #ifdef CONFIG_USE_IRQ
     IRQ_STACK_START = _armboot_end +
-      			CONFIG_STACKSIZE + CONFIG_STACKSIZE_IRQ - 4;
+			CONFIG_STACKSIZE + CONFIG_STACKSIZE_IRQ - 4;
     FIQ_STACK_START = IRQ_STACK_START + CONFIG_STACKSIZE_FIQ;
     _armboot_real_end = FIQ_STACK_START + 4;
 #else

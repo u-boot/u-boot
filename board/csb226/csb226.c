@@ -32,15 +32,15 @@
 # define SHOW_BOOT_PROGRESS(arg)
 #endif
 
-/** 
+/**
  * misc_init_r: - misc initialisation routines
  */
 
 int misc_init_r(void)
 {
-#if 0	
+#if 0
 	uchar *str;
-	
+
 	/* determine if the software update key is pressed during startup */
 	/* not ported yet... */
 	if (GPLR0 & 0x00000800) {
@@ -52,15 +52,15 @@ int misc_init_r(void)
 	}
 
 	setenv("bootcmd",str);
-#endif	
+#endif
 	return 0;
-}	
+}
 
 
-/** 
+/**
  * board_init: - setup some data structures
  *
- * @return: 0 in case of success	
+ * @return: 0 in case of success
  */
 
 int board_init (void)
@@ -80,7 +80,7 @@ int board_init (void)
 }
 
 
-/** 
+/**
  * dram_init: - setup dynamic RAM
  *
  * @return: 0 in case of success
@@ -97,7 +97,7 @@ int dram_init (void)
 }
 
 
-/** 
+/**
  * csb226_set_led: - switch LEDs on or off
  *
  * @param led:   LED to switch (0,1,2)
@@ -108,26 +108,26 @@ void csb226_set_led(int led, int state)
 {
 	switch(led) {
 
-		case 0: if (state==1) { 
-				GPCR0 |= CSB226_USER_LED0; 
+		case 0: if (state==1) {
+				GPCR0 |= CSB226_USER_LED0;
 			} else if (state==0) {
 				GPSR0 |= CSB226_USER_LED0;
 			}
 			break;
 
 		case 1: if (state==1) {
-                                GPCR0 |= CSB226_USER_LED1;
-                        } else if (state==0) {
-                                GPSR0 |= CSB226_USER_LED1;
-                        }
-                        break;
+				GPCR0 |= CSB226_USER_LED1;
+			} else if (state==0) {
+				GPSR0 |= CSB226_USER_LED1;
+			}
+			break;
 
 		case 2: if (state==1) {
-                                GPCR0 |= CSB226_USER_LED2;
-                        } else if (state==0) {
-                                GPSR0 |= CSB226_USER_LED2;
-                        }
-                        break;
+				GPCR0 |= CSB226_USER_LED2;
+			} else if (state==0) {
+				GPSR0 |= CSB226_USER_LED2;
+			}
+			break;
 	}
 
 	return;
@@ -137,10 +137,10 @@ void csb226_set_led(int led, int state)
 /**
  * show_boot_progress: - indicate state of the boot process
  *
- * @param status: Status number - see README for details. 
+ * @param status: Status number - see README for details.
  *
- * The CSB226 does only have 3 LEDs, so we switch them on at the most 
- * important states (1, 5, 15).  
+ * The CSB226 does only have 3 LEDs, so we switch them on at the most
+ * important states (1, 5, 15).
  */
 
 void show_boot_progress (int status)
@@ -153,4 +153,3 @@ void show_boot_progress (int status)
 
 	return;
 }
-

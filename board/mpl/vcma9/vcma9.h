@@ -124,4 +124,3 @@ static inline u32 NF_Read_ECC(void)
 #define PLD_MISC_REG			(PLD_BASE_ADDRESS + 3)
 #define PLD_GPCD_REG			(PLD_BASE_ADDRESS + 4)
 #define PLD_BOARD_REG			(PLD_BASE_ADDRESS + 5)
-

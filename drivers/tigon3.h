@@ -25,9 +25,9 @@
 /* io defines */
 #if !defined(BIG_ENDIAN_HOST)
 #define readl(addr) \
-              (LONGSWAP((*(volatile unsigned int *)(addr))))
+	      (LONGSWAP((*(volatile unsigned int *)(addr))))
 #define writel(b,addr) \
-              ((*(volatile unsigned int *)(addr)) = (LONGSWAP(b)))
+	      ((*(volatile unsigned int *)(addr)) = (LONGSWAP(b)))
 #else
 #if 0 /* !defined(PPC603) */
 #define readl(addr) (*(volatile unsigned int*)(0xa0000000 + (unsigned long)(addr)))
@@ -54,8 +54,6 @@ static __inline void writel(unsigned int b, unsigned int addr){
 #endif
 #endif /* PPC603 */
 #endif
-
-
 
 
 /******************************************************************************/
@@ -95,7 +93,7 @@ static __inline void writel(unsigned int b, unsigned int addr){
 #define BCM5700_BX_MIN_FRAG_BUF_SIZE        16  /* nice aligned size. */
 #define BCM5700_BX_MIN_FRAG_BUF_SIZE_MASK   (BCM5700_BX_MIN_FRAG_BUF_SIZE-1)
 #define BCM5700_BX_TX_COPY_BUF_SIZE         (BCM5700_BX_MIN_FRAG_BUF_SIZE * \
-                                            MAX_FRAGMENT_COUNT)
+					    MAX_FRAGMENT_COUNT)
 
 /* MAGIC number. */
 /* #define T3_MAGIC_NUM                        'KevT' */
@@ -259,13 +257,13 @@ static __inline void writel(unsigned int b, unsigned int addr){
 #define T3_NIC_MINI_RCV_BUFFER_DESC_ADDR_EXT_MEM    0xe000
 
 #define T3_NIC_SND_BUFFER_DESC_SIZE         (T3_SEND_RCB_ENTRY_COUNT * \
-                                            sizeof(T3_SND_BD) / 4)
+					    sizeof(T3_SND_BD) / 4)
 
 #define T3_NIC_STD_RCV_BUFFER_DESC_SIZE     (T3_STD_RCV_RCB_ENTRY_COUNT * \
-                                            sizeof(T3_RCV_BD) / 4)
+					    sizeof(T3_RCV_BD) / 4)
 
 #define T3_NIC_JUMBO_RCV_BUFFER_DESC_SIZE   (T3_JUMBO_RCV_RCB_ENTRY_COUNT * \
-                                            sizeof(T3_EXT_RCV_BD) / 4)
+					    sizeof(T3_EXT_RCV_BD) / 4)
 
 
 /* MBUF pool. */
@@ -319,7 +317,6 @@ typedef struct T3_FWIMG_INFO
   T3_DIR_ENTRY Sbss;
   T3_DIR_ENTRY Bss;
 } T3_FWIMG_INFO, *PT3_FWIMG_INFO;
-
 
 
 /******************************************************************************/
@@ -534,7 +531,6 @@ typedef struct T3_FWIMG_INFO
 #define PHY_AN_EXPANSION_REG                        0x06
 
 
-
 /******************************************************************************/
 /* BCM5400 and BCM5401 phy info. */
 /******************************************************************************/
@@ -559,17 +555,16 @@ typedef struct T3_FWIMG_INFO
 #define PHY_ID_MODEL_MASK                           0x000003f0
 #define PHY_ID_REV_MASK                             0x0000000f
 #define PHY_ID_MASK                                 (PHY_ID_OUI_MASK |      \
-                                                    PHY_ID_MODEL_MASK)
+						    PHY_ID_MODEL_MASK)
 
 
 #define UNKNOWN_PHY_ID(x)   ((((x) & PHY_ID_MASK) != PHY_BCM5400_PHY_ID) && \
-                            (((x) & PHY_ID_MASK) != PHY_BCM5401_PHY_ID) && \
-                            (((x) & PHY_ID_MASK) != PHY_BCM5411_PHY_ID) && \
-                            (((x) & PHY_ID_MASK) != PHY_BCM5701_PHY_ID) && \
-                            (((x) & PHY_ID_MASK) != PHY_BCM5703_PHY_ID) && \
-                            (((x) & PHY_ID_MASK) != PHY_BCM5704_PHY_ID) && \
-                            (((x) & PHY_ID_MASK) != PHY_BCM8002_PHY_ID))
-
+			    (((x) & PHY_ID_MASK) != PHY_BCM5401_PHY_ID) && \
+			    (((x) & PHY_ID_MASK) != PHY_BCM5411_PHY_ID) && \
+			    (((x) & PHY_ID_MASK) != PHY_BCM5701_PHY_ID) && \
+			    (((x) & PHY_ID_MASK) != PHY_BCM5703_PHY_ID) && \
+			    (((x) & PHY_ID_MASK) != PHY_BCM5704_PHY_ID) && \
+			    (((x) & PHY_ID_MASK) != PHY_BCM8002_PHY_ID))
 
 
 /* 1000Base-T control register. */
@@ -697,7 +692,6 @@ typedef struct T3_FWIMG_INFO
 #define BCM540X_INT_MASK_REG                        0x1b
 
 
-
 /******************************************************************************/
 /* Register definitions. */
 /******************************************************************************/
@@ -730,7 +724,6 @@ typedef struct
 }T3_DMA_DESC, *PT3_DMA_DESC;
 
 
-
 /******************************************************************************/
 /* Ring control block. */
 /******************************************************************************/
@@ -739,17 +732,17 @@ typedef struct {
     T3_64BIT_REGISTER HostRingAddr;
 
     union {
-        struct {
+	struct {
 #ifdef BIG_ENDIAN_HOST
-            T3_16BIT_REGISTER MaxLen;
-            T3_16BIT_REGISTER Flags;
+	    T3_16BIT_REGISTER MaxLen;
+	    T3_16BIT_REGISTER Flags;
 #else /* BIG_ENDIAN_HOST */
-            T3_16BIT_REGISTER Flags;
-            T3_16BIT_REGISTER MaxLen;
+	    T3_16BIT_REGISTER Flags;
+	    T3_16BIT_REGISTER MaxLen;
 #endif
-        } s;
+	} s;
 
-        T3_32BIT_REGISTER MaxLen_Flags;
+	T3_32BIT_REGISTER MaxLen_Flags;
     } u;
 
     T3_32BIT_REGISTER NicRingAddr;
@@ -757,7 +750,6 @@ typedef struct {
 
 #define T3_RCB_FLAG_USE_EXT_RECV_BD                     BIT_0
 #define T3_RCB_FLAG_RING_DISABLED                       BIT_1
-
 
 
 /******************************************************************************/
@@ -786,8 +778,8 @@ typedef struct {
     volatile LM_UINT16 RcvMiniConIdx;
 
     struct {
-        volatile LM_UINT16 SendConIdx;   /* Send consumer index. */
-        volatile LM_UINT16 RcvProdIdx;   /* Receive producer index. */
+	volatile LM_UINT16 SendConIdx;   /* Send consumer index. */
+	volatile LM_UINT16 RcvProdIdx;   /* Receive producer index. */
     } Idx[16];
 #else /* BIG_ENDIAN_HOST */
     volatile LM_UINT16 RcvJumboConIdx;
@@ -797,12 +789,11 @@ typedef struct {
     volatile LM_UINT16 Reserved2;
 
     struct {
-        volatile LM_UINT16 RcvProdIdx;   /* Receive producer index. */
-        volatile LM_UINT16 SendConIdx;   /* Send consumer index. */
+	volatile LM_UINT16 RcvProdIdx;   /* Receive producer index. */
+	volatile LM_UINT16 SendConIdx;   /* Send consumer index. */
     } Idx[16];
 #endif
 } T3_STATUS_BLOCK, *PT3_STATUS_BLOCK;
-
 
 
 /******************************************************************************/
@@ -887,7 +878,6 @@ typedef struct {
 #define RCV_BD_FLAG_TCP_PACKET                      0x4000
 
 
-
 /******************************************************************************/
 /* Send buffer descriptor. */
 /******************************************************************************/
@@ -896,31 +886,31 @@ typedef struct {
     T3_64BIT_HOST_ADDR HostAddr;
 
     union {
-        struct {
+	struct {
 #ifdef BIG_ENDIAN_HOST
-            LM_UINT16 Len;
-            LM_UINT16 Flags;
+	    LM_UINT16 Len;
+	    LM_UINT16 Flags;
 #else /* BIG_ENDIAN_HOST */
-            LM_UINT16 Flags;
-            LM_UINT16 Len;
+	    LM_UINT16 Flags;
+	    LM_UINT16 Len;
 #endif
-        } s1;
+	} s1;
 
-        LM_UINT32 Len_Flags;
+	LM_UINT32 Len_Flags;
     } u1;
 
     union {
-        struct {
+	struct {
 #ifdef BIG_ENDIAN_HOST
-            LM_UINT16 Reserved;
-            LM_UINT16 VlanTag;
+	    LM_UINT16 Reserved;
+	    LM_UINT16 VlanTag;
 #else /* BIG_ENDIAN_HOST */
-            LM_UINT16 VlanTag;
-            LM_UINT16 Reserved;
+	    LM_UINT16 VlanTag;
+	    LM_UINT16 Reserved;
 #endif
-        } s2;
+	} s2;
 
-        LM_UINT32 VlanTag;
+	LM_UINT32 VlanTag;
     } u2;
 } T3_SND_BD, *PT3_SND_BD;
 
@@ -1116,7 +1106,6 @@ typedef struct T3_MBUF
 #define T3_MBUF_END    ((T3_NIC_MBUF_POOL_ADDR + T3_NIC_MBUF_POOL_SIZE) >> 7)
 
 
-
 /******************************************************************************/
 /* Statistics block. */
 /******************************************************************************/
@@ -1219,7 +1208,6 @@ typedef struct {
 
     LM_UINT8 Reserved4[0xb00-0x9c0];
 } T3_STATS_BLOCK, *PT3_STATS_BLOCK;
-
 
 
 /******************************************************************************/
@@ -1463,8 +1451,8 @@ typedef struct {
 
     /* MAC addresses. */
     struct {
-        T3_32BIT_REGISTER High;             /* Upper 2 bytes. */
-        T3_32BIT_REGISTER Low;              /* Lower 4 bytes. */
+	T3_32BIT_REGISTER High;             /* Upper 2 bytes. */
+	T3_32BIT_REGISTER Low;              /* Lower 4 bytes. */
     } MacAddr[4];
 
     /* ACPI Mbuf pointer. */
@@ -1578,8 +1566,8 @@ typedef struct {
 
     /* Receive placement rules registers. */
     struct {
-        T3_32BIT_REGISTER Rule;
-        T3_32BIT_REGISTER Value;
+	T3_32BIT_REGISTER Rule;
+	T3_32BIT_REGISTER Value;
     } RcvRules[16];
 
     #define RCV_DISABLE_RULE_MASK                       0x7fffffff
@@ -1623,7 +1611,6 @@ typedef struct {
 } T3_MAC_CONTROL, *PT3_MAC_CONTROL;
 
 
-
 /******************************************************************************/
 /* Send data initiator control registers. */
 /******************************************************************************/
@@ -1665,7 +1652,6 @@ typedef struct {
 } T3_SEND_DATA_INITIATOR, *PT3_SEND_DATA_INITIATOR;
 
 
-
 /******************************************************************************/
 /* Send data completion control registers. */
 /******************************************************************************/
@@ -1678,7 +1664,6 @@ typedef struct {
     /* Unused space. */
     LM_UINT8 Unused[1020];
 } T3_SEND_DATA_COMPLETION, *PT3_SEND_DATA_COMPLETION;
-
 
 
 /******************************************************************************/
@@ -1707,7 +1692,6 @@ typedef struct {
 } T3_SEND_BD_SELECTOR, *PT3_SEND_BD_SELECTOR;
 
 
-
 /******************************************************************************/
 /* Send BD initiator control registers. */
 /******************************************************************************/
@@ -1729,7 +1713,6 @@ typedef struct {
 } T3_SEND_BD_INITIATOR, *PT3_SEND_BD_INITIATOR;
 
 
-
 /******************************************************************************/
 /* Send BD Completion Control. */
 /******************************************************************************/
@@ -1743,7 +1726,6 @@ typedef struct {
     /* Unused space. */
     LM_UINT8 Unused2[1020];
 } T3_SEND_BD_COMPLETION, *PT3_SEND_BD_COMPLETION;
-
 
 
 /******************************************************************************/
@@ -1792,12 +1774,12 @@ typedef struct {
     LM_UINT8 Unused1[224];
 
     struct {
-        T3_32BIT_REGISTER Head;
-        T3_32BIT_REGISTER Tail;
-        T3_32BIT_REGISTER Count;
+	T3_32BIT_REGISTER Head;
+	T3_32BIT_REGISTER Tail;
+	T3_32BIT_REGISTER Count;
 
-        /* Unused space. */
-        LM_UINT8 Unused[4];
+	/* Unused space. */
+	LM_UINT8 Unused[4];
     } RcvSelectorList[16];
 
     /* Local statistics counter. */
@@ -1814,7 +1796,6 @@ typedef struct {
     /* Another unused space. */
     LM_UINT8 Unused2[420];
 } T3_RCV_LIST_PLACEMENT, *PT3_RCV_LIST_PLACEMENT;
-
 
 
 /******************************************************************************/
@@ -1867,7 +1848,6 @@ typedef struct {
 } T3_RCV_DATA_BD_INITIATOR, *PT3_RCV_DATA_BD_INITIATOR;
 
 
-
 /******************************************************************************/
 /* Receive Data Completion Control Registes. */
 /******************************************************************************/
@@ -1881,7 +1861,6 @@ typedef struct {
     /* Unused spaced. */
     LM_UINT8 Unused[1020];
 } T3_RCV_DATA_COMPLETION, *PT3_RCV_DATA_COMPLETION;
-
 
 
 /******************************************************************************/
@@ -1910,7 +1889,6 @@ typedef struct {
 } T3_RCV_BD_INITIATOR, *PT3_RCV_BD_INITIATOR;
 
 
-
 /******************************************************************************/
 /* Receive BD Completion Control Registers. */
 /******************************************************************************/
@@ -1933,7 +1911,6 @@ typedef struct {
 } T3_RCV_BD_COMPLETION, *PT3_RCV_BD_COMPLETION;
 
 
-
 /******************************************************************************/
 /* Receive list selector control register. */
 /******************************************************************************/
@@ -1952,7 +1929,6 @@ typedef struct {
 } T3_RCV_LIST_SELECTOR, *PT3_RCV_LIST_SELECTOR;
 
 
-
 /******************************************************************************/
 /* Mbuf cluster free registers. */
 /******************************************************************************/
@@ -1967,7 +1943,6 @@ typedef struct {
     /* Unused space. */
     LM_UINT8 Unused[1016];
 } T3_MBUF_CLUSTER_FREE, *PT3_MBUF_CLUSTER_FREE;
-
 
 
 /******************************************************************************/
@@ -2056,7 +2031,6 @@ typedef struct {
 } T3_HOST_COALESCING, *PT3_HOST_COALESCING;
 
 
-
 /******************************************************************************/
 /* Memory arbiter registers. */
 /******************************************************************************/
@@ -2074,7 +2048,6 @@ typedef struct {
     /* Unused space. */
     LM_UINT8 Unused[1008];
 } T3_MEM_ARBITER, *PT3_MEM_ARBITER;
-
 
 
 /******************************************************************************/
@@ -2120,7 +2093,6 @@ typedef struct {
     /* Unused space. */
     LM_UINT8 Unused[936];
 } T3_BUFFER_MANAGER, *PT3_BUFFER_MANAGER;
-
 
 
 /******************************************************************************/
@@ -2213,7 +2185,6 @@ typedef struct {
     /* Unused space. */
     LM_UINT8 Unused[1016];
 } T3_DMA_WRITE, *PT3_DMA_WRITE;
-
 
 
 /******************************************************************************/
@@ -2358,7 +2329,6 @@ typedef struct {
 } T3_FTQ, *PT3_FTQ;
 
 
-
 /******************************************************************************/
 /* Message signaled interrupt registers. */
 /******************************************************************************/
@@ -2376,7 +2346,6 @@ typedef struct {
 } T3_MSG_SIGNALED_INT, *PT3_MSG_SIGNALED_INT;
 
 
-
 /******************************************************************************/
 /* DMA Completion registes. */
 /******************************************************************************/
@@ -2389,7 +2358,6 @@ typedef struct {
     /* Unused space. */
     LM_UINT8 Unused[1020];
 } T3_DMA_COMPLETION, *PT3_DMA_COMPLETION;
-
 
 
 /******************************************************************************/
@@ -2603,7 +2571,6 @@ typedef struct {
 } T3_FIRST_32K_SRAM, *PT3_FIRST_32K_SRAM;
 
 
-
 /******************************************************************************/
 /* Memory layout. */
 /******************************************************************************/
@@ -2705,12 +2672,12 @@ typedef struct {
     /* Address register.  This register is located */
     /* in the PCI configuration space. */
     union {                                             /* 0x8000 */
-        T3_FIRST_32K_SRAM First32k;
+	T3_FIRST_32K_SRAM First32k;
 
-        /* Use the memory window base address register to determine the */
-        /* MBUF segment. */
-        LM_UINT32 Mbuf[32768/4];
-        LM_UINT32 MemBlock32K[32768/4];
+	/* Use the memory window base address register to determine the */
+	/* MBUF segment. */
+	LM_UINT32 Mbuf[32768/4];
+	LM_UINT32 MemBlock32K[32768/4];
     } uIntMem;
 } T3_STD_MEM_MAP, *PT3_STD_MEM_MAP;
 
@@ -2736,7 +2703,6 @@ DECLARE_QUEUE_TYPE(LM_RX_PACKET_Q, MAX_RX_PACKET_DESC_COUNT);
 DECLARE_QUEUE_TYPE(LM_TX_PACKET_Q, MAX_TX_PACKET_DESC_COUNT);
 
 
-
 /******************************************************************************/
 /* Tx counters. */
 /******************************************************************************/
@@ -2750,7 +2716,6 @@ typedef struct {
     LM_COUNTER TooManyFragmentsCnt;
     LM_COUNTER NoTxPacketDescCnt;
 } LM_TX_COUNTERS, *PLM_TX_COUNTERS;
-
 
 
 /******************************************************************************/
@@ -2773,7 +2738,6 @@ typedef struct {
 } LM_RX_COUNTERS, *PLM_RX_COUNTERS;
 
 
-
 /******************************************************************************/
 /* Receive producer rings. */
 /******************************************************************************/
@@ -2784,7 +2748,6 @@ typedef enum {
     T3_MINI_RCV_PROD_RING       = 2,
     T3_JUMBO_RCV_PROD_RING      = 3
 } T3_RCV_PROD_RING, *PT3_RCV_PROD_RING;
-
 
 
 /******************************************************************************/
@@ -2806,29 +2769,28 @@ typedef struct _LM_PACKET {
     LM_UINT16 VlanTag;
 
     union {
-        /* Send info. */
-        struct {
-            /* Set up by UM. */
-            LM_UINT32 FragCount;
+	/* Send info. */
+	struct {
+	    /* Set up by UM. */
+	    LM_UINT32 FragCount;
 
-        } Tx;
+	} Tx;
 
-        /* Receive info. */
-        struct {
-            /* This descriptor belongs to either Std, Mini, or Jumbo ring. */
-            T3_RCV_PROD_RING RcvProdRing;
+	/* Receive info. */
+	struct {
+	    /* This descriptor belongs to either Std, Mini, or Jumbo ring. */
+	    T3_RCV_PROD_RING RcvProdRing;
 
-            /* Receive buffer size */
-            LM_UINT32 RxBufferSize;
+	    /* Receive buffer size */
+	    LM_UINT32 RxBufferSize;
 
-            /* Checksum information. */
-            LM_UINT16 IpChecksum;
-            LM_UINT16 TcpUdpChecksum;
+	    /* Checksum information. */
+	    LM_UINT16 IpChecksum;
+	    LM_UINT16 TcpUdpChecksum;
 
-        } Rx;
+	} Rx;
     } u;
 } LM_PACKET;
-
 
 
 /******************************************************************************/
@@ -3322,9 +3284,9 @@ typedef struct _LM_DEVICE_BLOCK {
 #define T3_QID_SW_TYPE2               17
 
 LM_STATUS LM_LoadFirmware(PLM_DEVICE_BLOCK pDevice,
-                          PT3_FWIMG_INFO pFwImg,
-                          LM_UINT32 LoadCpu,
-                          LM_UINT32 StartCpu);
+			  PT3_FWIMG_INFO pFwImg,
+			  LM_UINT32 LoadCpu,
+			  LM_UINT32 StartCpu);
 
 /******************************************************************************/
 /* NIC register read/write macros. */
@@ -3427,19 +3389,19 @@ LM_VOID LM_MemWrInd(PLM_DEVICE_BLOCK pDevice, LM_UINT32 MemAddr,
 
 #define MB_REG_WR(pDevice, OffsetName, Value32)                               \
     ((pDevice)->UndiFix) ?                                                    \
-        LM_RegWrInd(pDevice, OFFSETOF(T3_STD_MEM_MAP, OffsetName)+0x5600,     \
-            Value32) :                                                        \
-        (void) __raw_writel(Value32, &((pDevice)->pMemView->OffsetName))
+	LM_RegWrInd(pDevice, OFFSETOF(T3_STD_MEM_MAP, OffsetName)+0x5600,     \
+	    Value32) :                                                        \
+	(void) __raw_writel(Value32, &((pDevice)->pMemView->OffsetName))
 
 #define MB_REG_RD(pDevice, OffsetName)                                        \
     (((pDevice)->UndiFix) ?                                                   \
-        LM_RegRdInd(pDevice, OFFSETOF(T3_STD_MEM_MAP, OffsetName)+0x5600) :   \
-        __raw_readl(&((pDevice)->pMemView->OffsetName)))
+	LM_RegRdInd(pDevice, OFFSETOF(T3_STD_MEM_MAP, OffsetName)+0x5600) :   \
+	__raw_readl(&((pDevice)->pMemView->OffsetName)))
 
 #define REG_RD(pDevice, OffsetName)                                           \
     (((pDevice)->UndiFix) ?                                                   \
-        LM_RegRdInd(pDevice, OFFSETOF(T3_STD_MEM_MAP, OffsetName)) :          \
-        __raw_readl(&((pDevice)->pMemView->OffsetName)))
+	LM_RegRdInd(pDevice, OFFSETOF(T3_STD_MEM_MAP, OffsetName)) :          \
+	__raw_readl(&((pDevice)->pMemView->OffsetName)))
 
 #if PCIX_TARGET_WORKAROUND
 
@@ -3466,4 +3428,3 @@ LM_VOID LM_MemWrInd(PLM_DEVICE_BLOCK pDevice, LM_UINT32 MemAddr,
     LM_MemWrInd(pDevice, Offset, Value32)
 
 #endif /* TIGON3_H */
-

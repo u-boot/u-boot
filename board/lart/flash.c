@@ -317,7 +317,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 	    *addr = PUZZLE_TO_FLASH(CMD_READ_ARRAY);
 
 	    if ((rc = flash_error(result)) != ERR_OK)
-	    	goto outahere;
+		goto outahere;
 
 	    printf("ok.\n");
 	}
@@ -358,7 +358,7 @@ volatile static int write_word (flash_info_t *info, ulong dest, ulong data)
      */
     result = PUZZLE_FROM_FLASH(*addr);
     if ((result & data) != data)
-        return ERR_NOT_ERASED;
+	return ERR_NOT_ERASED;
 
     /*
      * Disable interrupts which might cause a timeout

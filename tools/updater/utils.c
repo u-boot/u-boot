@@ -15,7 +15,7 @@ get_msr(void)
 static __inline__ void
 set_msr(unsigned long msr)
 {
-	asm volatile("mtmsr %0" : : "r" (msr)); 
+	asm volatile("mtmsr %0" : : "r" (msr));
 }
 
 static __inline__ unsigned long
@@ -31,7 +31,7 @@ get_dec(void)
 static __inline__ void
 set_dec(unsigned long val)
 {
-	asm volatile("mtdec %0" : : "r" (val)); 
+	asm volatile("mtdec %0" : : "r" (val));
 }
 
 
@@ -69,80 +69,80 @@ unsigned long in32(u32 port)
 
 unsigned long simple_strtoul(const char *cp,char **endp,unsigned int base)
 {
-        unsigned long result = 0,value;
+	unsigned long result = 0,value;
 
-        if (*cp == '0') {
-                cp++;
-                if ((*cp == 'x') && isxdigit(cp[1])) {
-                        base = 16;
-                        cp++;
-                }
-                if (!base) {
-                        base = 8;
-                }
-        }
-        if (!base) {
-                base = 10;
-        }
-        while (isxdigit(*cp) && (value = isdigit(*cp) ? *cp-'0' : (islower(*cp)
-            ? toupper(*cp) : *cp)-'A'+10) < base) {
-                result = result*base + value;
-                cp++;
-        }
-        if (endp)
-                *endp = (char *)cp;
-        return result;
+	if (*cp == '0') {
+		cp++;
+		if ((*cp == 'x') && isxdigit(cp[1])) {
+			base = 16;
+			cp++;
+		}
+		if (!base) {
+			base = 8;
+		}
+	}
+	if (!base) {
+		base = 10;
+	}
+	while (isxdigit(*cp) && (value = isdigit(*cp) ? *cp-'0' : (islower(*cp)
+	    ? toupper(*cp) : *cp)-'A'+10) < base) {
+		result = result*base + value;
+		cp++;
+	}
+	if (endp)
+		*endp = (char *)cp;
+	return result;
 }
 
 long simple_strtol(const char *cp,char **endp,unsigned int base)
 {
-        if(*cp=='-')
-                return -simple_strtoul(cp+1,endp,base);
-        return simple_strtoul(cp,endp,base);
+	if(*cp=='-')
+		return -simple_strtoul(cp+1,endp,base);
+	return simple_strtoul(cp,endp,base);
 }
 
 static inline void
 soft_restart(unsigned long addr)
 {
-        /* SRR0 has system reset vector, SRR1 has default MSR value */
-        /* rfi restores MSR from SRR1 and sets the PC to the SRR0 value */
+	/* SRR0 has system reset vector, SRR1 has default MSR value */
+	/* rfi restores MSR from SRR1 and sets the PC to the SRR0 value */
 
-        __asm__ __volatile__ ("mtspr    26, %0"         :: "r" (addr));
-        __asm__ __volatile__ ("li       4, (1 << 6)"    ::: "r4");
-        __asm__ __volatile__ ("mtspr    27, 4");
-        __asm__ __volatile__ ("rfi");
+	__asm__ __volatile__ ("mtspr    26, %0"         :: "r" (addr));
+	__asm__ __volatile__ ("li       4, (1 << 6)"    ::: "r4");
+	__asm__ __volatile__ ("mtspr    27, 4");
+	__asm__ __volatile__ ("rfi");
 
-        while(1);       /* not reached */
+	while(1);       /* not reached */
 }
 
 void
 do_reset (void)
 {
-        ulong addr;
-        /* flush and disable I/D cache */
-        __asm__ __volatile__ ("mfspr    3, 1008"        ::: "r3");
-        __asm__ __volatile__ ("ori      5, 5, 0xcc00"   ::: "r5");
-        __asm__ __volatile__ ("ori      4, 3, 0xc00"    ::: "r4");
-        __asm__ __volatile__ ("andc     5, 3, 5"        ::: "r5");
-        __asm__ __volatile__ ("sync");
-        __asm__ __volatile__ ("mtspr    1008, 4");
-        __asm__ __volatile__ ("isync");
-        __asm__ __volatile__ ("sync");
-        __asm__ __volatile__ ("mtspr    1008, 5");
-        __asm__ __volatile__ ("isync");
-        __asm__ __volatile__ ("sync");
+	ulong addr;
+	/* flush and disable I/D cache */
+	__asm__ __volatile__ ("mfspr    3, 1008"        ::: "r3");
+	__asm__ __volatile__ ("ori      5, 5, 0xcc00"   ::: "r5");
+	__asm__ __volatile__ ("ori      4, 3, 0xc00"    ::: "r4");
+	__asm__ __volatile__ ("andc     5, 3, 5"        ::: "r5");
+	__asm__ __volatile__ ("sync");
+	__asm__ __volatile__ ("mtspr    1008, 4");
+	__asm__ __volatile__ ("isync");
+	__asm__ __volatile__ ("sync");
+	__asm__ __volatile__ ("mtspr    1008, 5");
+	__asm__ __volatile__ ("isync");
+	__asm__ __volatile__ ("sync");
 
 #ifdef CFG_RESET_ADDRESS
-        addr = CFG_RESET_ADDRESS;
+	addr = CFG_RESET_ADDRESS;
 #else
-        /*
-         * note: when CFG_MONITOR_BASE points to a RAM address,
-         * CFG_MONITOR_BASE - sizeof (ulong) is usually a valid
-         * address. Better pick an address known to be invalid on your
-         * system and assign it to CFG_RESET_ADDRESS.
-         */
-        addr = CFG_MONITOR_BASE - sizeof (ulong);
+	/*
+	 * note: when CFG_MONITOR_BASE points to a RAM address,
+	 * CFG_MONITOR_BASE - sizeof (ulong) is usually a valid
+	 * address. Better pick an address known to be invalid on your
+	 * system and assign it to CFG_RESET_ADDRESS.
+	 */
+	addr = CFG_MONITOR_BASE - sizeof (ulong);
 #endif
-        soft_restart(addr);
-        while(1);       /* not reached */
+	soft_restart(addr);
+	while(1);       /* not reached */
 }

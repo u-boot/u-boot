@@ -188,7 +188,7 @@ static int reset_eeprom(unsigned long ioaddr, unsigned char *hwaddr)
 static unsigned int hatoi(char *p, char **errp)
 {
 	unsigned int res = 0;
-	
+
 	while (1) {
 		switch (*p) {
 		case 'a':
@@ -218,7 +218,7 @@ static unsigned int hatoi(char *p, char **errp)
 		case '8':
 		case '9':
 			res |= (*p - '0');
-			break;		
+			break;
 		default:
 			if (errp) {
 				*errp = p;
@@ -231,11 +231,11 @@ static unsigned int hatoi(char *p, char **errp)
 		}
 		res <<= 4;
 	}
-	
+
 	if (errp) {
 		*errp = NULL;
 	}
-	
+
 	return res;
 }
 
@@ -244,7 +244,7 @@ static unsigned char *gethwaddr(char *in, unsigned char *out)
 	char tmp[3];
 	int i;
 	char *err;
-	
+
 	for (i=0;i<6;i++) {
 		if (in[i*3+2] == 0 && i == 5) {
 			out[i] = hatoi(&in[i*3], &err);
@@ -261,46 +261,45 @@ static unsigned char *gethwaddr(char *in, unsigned char *out)
 			}
 		} else {
 			return NULL;
-		}		
+		}
 	}
-	
+
 	return out;
 }
 
 static u32
 read_config_dword(int bus, int dev, int func, int reg)
-{									 
+{
 	u32 res;
-	
+
 	outl(0x80000000|(bus&0xff)<<16|(dev&0x1f)<<11|(func&7)<<8|(reg&0xfc),
 	     0xcf8);
 	res = inl(0xcfc);
-	outl(0, 0xcf8); 
-	return res; 
+	outl(0, 0xcf8);
+	return res;
 }
 
 static u16
 read_config_word(int bus, int dev, int func, int reg)
-{									 
+{
 	u32 res;
-	
+
 	outl(0x80000000|(bus&0xff)<<16|(dev&0x1f)<<11|(func&7)<<8|(reg&0xfc),
 	     0xcf8);
 	res = inw(0xcfc + (reg & 2));
-	outl(0, 0xcf8); 
-	return res; 
+	outl(0, 0xcf8);
+	return res;
 }
 
 static void
 write_config_word(int bus, int dev, int func, int reg, u16 data)
-{									 
-	
+{
+
 	outl(0x80000000|(bus&0xff)<<16|(dev&0x1f)<<11|(func&7)<<8|(reg&0xfc),
 	     0xcf8);
 	outw(data, 0xcfc + (reg & 2));
-	outl(0, 0xcf8); 
+	outl(0, 0xcf8);
 }
-
 
 
 int main (int argc, char *argv[])
@@ -308,13 +307,13 @@ int main (int argc, char *argv[])
 	unsigned char *eth_addr;
 	char buf[6];
 	int instance;
-	
+
 	if (argc != 2) {
 		mon_printf ("call with base Ethernet address\n");
 		return 1;
 	}
-	
-	
+
+
 	eth_addr = gethwaddr(argv[1], buf);
 	if (NULL == eth_addr) {
 		mon_printf ("Can not parse ethernet address\n");
@@ -323,8 +322,8 @@ int main (int argc, char *argv[])
 	if (eth_addr[5] & 0x01) {
 		mon_printf("Base Ethernet address must be even\n");
 	}
-		
-	
+
+
 	for (instance = 0; instance < 2; instance ++)  {
 		unsigned int io_addr;
 		unsigned char mac[6];
@@ -335,19 +334,19 @@ int main (int argc, char *argv[])
 			mon_printf("ETH%d IO=0x%04x\n", instance, bar1 & ~3);
 		}
 		io_addr = (bar1 & (~3L));
-		
-		
-		write_config_word(0, 6+instance, 0, 4, 
+
+
+		write_config_word(0, 6+instance, 0, 4,
 				  read_config_word(0, 6+instance, 0, 4) | 1);
 		mon_printf("ETH%d CMD %04x\n", instance,
 			   read_config_word(0, 6+instance, 0, 4));
-		
+
 		memcpy(mac, eth_addr, 6);
 		mac[5] += instance;
-		
+
 		mon_printf("got io=%04x, ha=%02x:%02x:%02x:%02x:%02x:%02x\n",
-			   io_addr, mac[0], mac[1], mac[2], 
-			   mac[3], mac[4], mac[5]); 
+			   io_addr, mac[0], mac[1], mac[2],
+			   mac[3], mac[4], mac[5]);
 		reset_eeprom(io_addr, mac);
 	}
 	return 0;

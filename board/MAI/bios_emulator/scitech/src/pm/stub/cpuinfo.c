@@ -37,8 +37,8 @@ Increase the thread priority to maximum, if possible.
 ****************************************************************************/
 static int SetMaxThreadPriority(void)
 {
-    // TODO: If you have thread priorities, increase it to maximum for the
-    //       thread for timing the CPU frequency.
+    /* TODO: If you have thread priorities, increase it to maximum for the */
+    /*       thread for timing the CPU frequency. */
     return oldPriority;
 }
 
@@ -49,7 +49,7 @@ Restore the original thread priority.
 static void RestoreThreadPriority(
     int priority)
 {
-    // TODO: Restore the original thread priority on exit.
+    /* TODO: Restore the original thread priority on exit. */
 }
 
 /****************************************************************************
@@ -59,8 +59,8 @@ Initialise the counter and return the frequency of the counter.
 static void GetCounterFrequency(
     CPU_largeInteger *freq)
 {
-    // TODO: Return the frequency of the counter in here. You should try to
-    //       normalise this value to be around 100,000 ticks per second.
+    /* TODO: Return the frequency of the counter in here. You should try to */
+    /*       normalise this value to be around 100,000 ticks per second. */
     freq->low = 0;
     freq->high = 0;
 }

@@ -27,7 +27,7 @@ extern char *symbol_name_from_addr __P ((Elf32_Word, int, int *));
 
 int print_operands __P ((struct ppc_ctx *));
 int get_operand_value __P ((struct opcode *, unsigned long,
-							enum OP_FIELD, unsigned long *));
+				enum OP_FIELD, unsigned long *));
 struct opcode *find_opcode __P ((unsigned long));
 struct opcode *find_opcode_by_name __P ((char *));
 char *spr_name __P ((int));
@@ -35,7 +35,7 @@ int spr_value __P ((char *));
 char *tbr_name __P ((int));
 int tbr_value __P ((char *));
 int parse_operand __P ((unsigned long, struct opcode *,
-						struct operand *, char *, int *));
+			struct operand *, char *, int *));
 int get_word __P ((char **, char *));
 long read_number __P ((char *));
 int downstring __P ((char *));

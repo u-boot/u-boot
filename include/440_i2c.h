@@ -1,6 +1,3 @@
-
-
-
 #ifndef _440_i2c_h_
 #define _440_i2c_h_
 

@@ -195,7 +195,16 @@ int do_log (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return 1;
 	}
 }
-
+#if defined(CONFIG_LOGBUFFER)
+cmd_tbl_t U_BOOT_CMD(LOG) = MK_CMD_ENTRY(
+	"log",     255,	1,	do_log,
+	"log     - manipulate logbuffer\n",
+	"log info   - show pointer details\n"
+	"log reset  - clear contents\n"
+	"log show   - show contents\n"
+	"log append <msg> - append <msg> to the logbuffer\n"
+);
+#endif	/* CONFIG_LOGBUFFER */
 static int logbuff_printk(const char *line)
 {
 	int i;

@@ -198,11 +198,11 @@
 #define CFG_DEV2_PAR		0xc0059bd4
 #define CFG_8BIT_BOOT_PAR	0xc00b5e7c
 #define CFG_32BIT_BOOT_PAR	0xc4a8241c
-        /*   c    4    a      8     2     4    1      c		*/
-        /* 33 22|2222|22 22|111 1|11 11|1 1  |    |		*/
-        /* 10 98|7654|32 10|987 6|54 32|1 098|7 654|3 210	*/
-        /* 11|00|0100|10 10|100|0 00|10 0|100 0|001 1|100	*/
-        /*  3| 0|.... ..| 2| 4 |  0 |  4 |  8  |  3  | 4	*/
+	/*   c    4    a      8     2     4    1      c		*/
+	/* 33 22|2222|22 22|111 1|11 11|1 1  |    |		*/
+	/* 10 98|7654|32 10|987 6|54 32|1 098|7 654|3 210	*/
+	/* 11|00|0100|10 10|100|0 00|10 0|100 0|001 1|100	*/
+	/*  3| 0|.... ..| 2| 4 |  0 |  4 |  8  |  3  | 4	*/
 
 #if 0 /* Wrong?? NTL */
 #define CFG_MPP_CONTROL_0	0x53541717	/* InitAct EOT[4] DBurst TCEn[1] */
@@ -229,11 +229,11 @@
 						/* GPP[27:26] Int[1:0] */
 #else
 # define CFG_MPP_CONTROL_3	0x22090066      /* MREQ MGNT */
-                                                /* GPP[29]    (PCI1Int) */
-                                                /* BClkOut0 */
-                                                /* GPP[27]    (PCI0Int) */
-                                                /* GPP[26]    (RtcInt or PCI1Int) */
-                                                /* CPUInt[25:24] */
+						/* GPP[29]    (PCI1Int) */
+						/* BClkOut0 */
+						/* GPP[27]    (PCI0Int) */
+						/* GPP[26]    (RtcInt or PCI1Int) */
+						/* CPUInt[25:24] */
 #endif
 
 # define CFG_SERIAL_PORT_MUX	0x00000102	/* 0=hiZ  1=MPSC0 2=ETH 0 and 2 RMII */
@@ -242,9 +242,9 @@
 # define CFG_GPP_LEVEL_CONTROL	0x000002c6
 #else
 # define CFG_GPP_LEVEL_CONTROL	0x2c600000	/* 0010 1100 0110 0000 */
-                                                /* gpp[29] */
+						/* gpp[29] */
 						/* gpp[27:26] */
-                                                /* gpp[22:21] */
+						/* gpp[22:21] */
 
 # define CFG_SDRAM_CONFIG	0xd8e18200	/* 0x448 */
 				/* idmas use buffer 1,1
@@ -293,7 +293,6 @@
 
 #define CFG_PCI0_0_MEM_SPACE	(CFG_PCI0_MEM_BASE)
 #define CFG_PCI1_0_MEM_SPACE	(CFG_PCI1_MEM_BASE)
-
 
 
 /* PCI I/O MAP section */

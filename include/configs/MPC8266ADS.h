@@ -38,7 +38,7 @@
    !!  0xfff00000						      !!
    !!  The CFG_HRCW_MASTER define below must also be changed to match !!
    !!                                                                 !!
-   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
 
 #ifndef __CONFIG_H
@@ -398,15 +398,15 @@
 /* Use this HRCW for booting from address 0xfff0000 (JP3 in setting 2-3)  */
 /* #define CFG_HRCW_MASTER 0x0cb23645 */
 
-/* This value should actually be situated in the first 256 bytes of the FLASH  
+/* This value should actually be situated in the first 256 bytes of the FLASH
 	which on the standard MPC8266ADS board is at address 0xFF800000
 	The linker script places it at 0xFFF00000 instead.
 
-	It still works, however, as long as the ADS board jumper JP3 is set to 
-	position 2-3 so the board is using the BCSR as Hardware Configuration Word 
+	It still works, however, as long as the ADS board jumper JP3 is set to
+	position 2-3 so the board is using the BCSR as Hardware Configuration Word
 
-	If you want to use the one defined here instead, ust copy the first 256 bytes from 
-	0xfff00000 to 0xff800000  (for 8MB flash) 
+	If you want to use the one defined here instead, ust copy the first 256 bytes from
+	0xfff00000 to 0xff800000  (for 8MB flash)
 
 	- Rune
 
@@ -514,12 +514,12 @@
 #define CFG_PCI_SLV_MEM_LOCAL	CFG_SDRAM_BASE		/* Local base */
 #define CFG_PCI_SLV_MEM_BUS		0x00000000		/* PCI base */
 #define CFG_PICMR0_MASK_ATTRIB	(PICMR_MASK_512MB | PICMR_ENABLE | \
-                          	 PICMR_PREFETCH_EN)
+				 PICMR_PREFETCH_EN)
 
-/* 
+/*
  * These are the windows that allow the CPU to access PCI address space.
- * All three PCI master windows, which allow the CPU to access PCI 
- * prefetch, non prefetch, and IO space (see below), must all fit within 
+ * All three PCI master windows, which allow the CPU to access PCI
+ * prefetch, non prefetch, and IO space (see below), must all fit within
  * these windows.
  */
 
@@ -530,7 +530,7 @@
 #define CFG_PCI_MSTR1_LOCAL		0xF4000000		/* Local base */
 #define CFG_PCIMSK1_MASK		PCIMSK_64MB		/* Size of window */
 
-/* 
+/*
  * Master window that allows the CPU to access PCI Memory (prefetch).
  * This window will be setup with the first set of Outbound ATU registers
  * in the bridge.
@@ -542,7 +542,7 @@
 #define CFG_PCI_MSTR_MEM_SIZE	0x20000000          /* 512MB */
 #define CFG_POCMR0_MASK_ATTRIB	(POCMR_MASK_512MB | POCMR_ENABLE | POCMR_PREFETCH_EN)
 
-/* 
+/*
  * Master window that allows the CPU to access PCI Memory (non-prefetch).
  * This window will be setup with the second set of Outbound ATU registers
  * in the bridge.
@@ -554,7 +554,7 @@
 #define CFG_PCI_MSTR_MEMIO_SIZE     0x20000000          /* 512MB */
 #define CFG_POCMR1_MASK_ATTRIB      (POCMR_MASK_512MB | POCMR_ENABLE)
 
-/* 
+/*
  * Master window that allows the CPU to access PCI IO space.
  * This window will be setup with the third set of Outbound ATU registers
  * in the bridge.

@@ -53,146 +53,146 @@ struct post_test post_list[] =
 {
 #if CONFIG_POST & CFG_POST_CACHE
     {
-        "Cache test",
-        "cache",
-        "This test verifies the CPU cache operation.",
-        POST_RAM | POST_ALWAYS,
-        &cache_post_test,
-        NULL,
-        NULL,
+	"Cache test",
+	"cache",
+	"This test verifies the CPU cache operation.",
+	POST_RAM | POST_ALWAYS,
+	&cache_post_test,
+	NULL,
+	NULL,
 	CFG_POST_CACHE
     },
 #endif
 #if CONFIG_POST & CFG_POST_WATCHDOG
     {
-        "Watchdog timer test",
-        "watchdog",
-        "This test checks the watchdog timer.",
-        POST_RAM | POST_POWERON | POST_POWERFAIL | POST_MANUAL | POST_REBOOT,
-        &watchdog_post_test,
-        NULL,
-        NULL,
+	"Watchdog timer test",
+	"watchdog",
+	"This test checks the watchdog timer.",
+	POST_RAM | POST_POWERON | POST_POWERFAIL | POST_MANUAL | POST_REBOOT,
+	&watchdog_post_test,
+	NULL,
+	NULL,
 	CFG_POST_WATCHDOG
     },
 #endif
 #if CONFIG_POST & CFG_POST_I2C
     {
-        "I2C test",
-        "i2c",
-        "This test verifies the I2C operation.",
-        POST_RAM | POST_ALWAYS,
-        &i2c_post_test,
-        NULL,
-        NULL,
+	"I2C test",
+	"i2c",
+	"This test verifies the I2C operation.",
+	POST_RAM | POST_ALWAYS,
+	&i2c_post_test,
+	NULL,
+	NULL,
 	CFG_POST_I2C
     },
 #endif
 #if CONFIG_POST & CFG_POST_RTC
     {
-        "RTC test",
-        "rtc",
-        "This test verifies the RTC operation.",
-        POST_RAM | POST_POWERFAIL | POST_MANUAL,
-        &rtc_post_test,
-        NULL,
-        NULL,
+	"RTC test",
+	"rtc",
+	"This test verifies the RTC operation.",
+	POST_RAM | POST_POWERFAIL | POST_MANUAL,
+	&rtc_post_test,
+	NULL,
+	NULL,
 	CFG_POST_RTC
     },
 #endif
 #if CONFIG_POST & CFG_POST_MEMORY
     {
-        "Memory test",
-        "memory",
-        "This test checks RAM.",
-        POST_ROM | POST_POWERON | POST_POWERFAIL | POST_PREREL,
-        &memory_post_test,
-        NULL,
-        NULL,
+	"Memory test",
+	"memory",
+	"This test checks RAM.",
+	POST_ROM | POST_POWERON | POST_POWERFAIL | POST_PREREL,
+	&memory_post_test,
+	NULL,
+	NULL,
 	CFG_POST_MEMORY
     },
 #endif
 #if CONFIG_POST & CFG_POST_CPU
     {
-        "CPU test",
-        "cpu",
-        "This test verifies the arithmetic logic unit of"
-        " CPU.",
-        POST_RAM | POST_ALWAYS,
-        &cpu_post_test,
-        NULL,
-        NULL,
+	"CPU test",
+	"cpu",
+	"This test verifies the arithmetic logic unit of"
+	" CPU.",
+	POST_RAM | POST_ALWAYS,
+	&cpu_post_test,
+	NULL,
+	NULL,
 	CFG_POST_CPU
     },
 #endif
 #if CONFIG_POST & CFG_POST_UART
     {
-        "UART test",
-        "uart",
-        "This test verifies the UART operation.",
-        POST_RAM | POST_POWERFAIL | POST_MANUAL,
-        &uart_post_test,
-        NULL,
-        NULL,
+	"UART test",
+	"uart",
+	"This test verifies the UART operation.",
+	POST_RAM | POST_POWERFAIL | POST_MANUAL,
+	&uart_post_test,
+	NULL,
+	NULL,
 	CFG_POST_UART
     },
 #endif
 #if CONFIG_POST & CFG_POST_ETHER
     {
-        "ETHERNET test",
-        "ethernet",
-        "This test verifies the ETHERNET operation.",
-        POST_RAM | POST_ALWAYS | POST_MANUAL,
-        &ether_post_test,
-        NULL,
-        NULL,
+	"ETHERNET test",
+	"ethernet",
+	"This test verifies the ETHERNET operation.",
+	POST_RAM | POST_ALWAYS | POST_MANUAL,
+	&ether_post_test,
+	NULL,
+	NULL,
 	CFG_POST_ETHER
     },
 #endif
 #if CONFIG_POST & CFG_POST_SPI
     {
-        "SPI test",
-        "spi",
-        "This test verifies the SPI operation.",
-        POST_RAM | POST_ALWAYS | POST_MANUAL,
-        &spi_post_test,
-        NULL,
-        NULL,
+	"SPI test",
+	"spi",
+	"This test verifies the SPI operation.",
+	POST_RAM | POST_ALWAYS | POST_MANUAL,
+	&spi_post_test,
+	NULL,
+	NULL,
 	CFG_POST_SPI
     },
 #endif
 #if CONFIG_POST & CFG_POST_USB
     {
-        "USB test",
-        "usb",
-        "This test verifies the USB operation.",
-        POST_RAM | POST_ALWAYS | POST_MANUAL,
-        &usb_post_test,
-        NULL,
-        NULL,
+	"USB test",
+	"usb",
+	"This test verifies the USB operation.",
+	POST_RAM | POST_ALWAYS | POST_MANUAL,
+	&usb_post_test,
+	NULL,
+	NULL,
 	CFG_POST_USB
     },
 #endif
 #if CONFIG_POST & CFG_POST_SPR
     {
-        "SPR test",
-        "spr",
-        "This test checks SPR contents.",
-        POST_ROM | POST_ALWAYS | POST_PREREL,
-        &spr_post_test,
-        NULL,
-        NULL,
+	"SPR test",
+	"spr",
+	"This test checks SPR contents.",
+	POST_ROM | POST_ALWAYS | POST_PREREL,
+	&spr_post_test,
+	NULL,
+	NULL,
 	CFG_POST_SPR
     },
 #endif
 #if CONFIG_POST & CFG_POST_SYSMON
     {
-        "SYSMON test",
-        "sysmon",
-        "This test monitors system hardware.",
-        POST_RAM | POST_ALWAYS,
-        &sysmon_post_test,
-        &sysmon_init_f,
-        &sysmon_reloc,
+	"SYSMON test",
+	"sysmon",
+	"This test monitors system hardware.",
+	POST_RAM | POST_ALWAYS,
+	&sysmon_post_test,
+	&sysmon_init_f,
+	&sysmon_reloc,
 	CFG_POST_SYSMON
     },
 #endif

@@ -3,7 +3,7 @@
  *  Copyright (C) 1999	Magnus Damm <kieraypc01.p.y.kie.era.ericsson.se>
  *  Copyright (C) 2000, 2001, 2002 Wolfgang Denk <wd@denx.de>
  *  Copyright (C) 2003  Martin Winistoerfer, martinwinistoerfer@gmx.ch.
- * 
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -25,7 +25,7 @@
 
 /*
  * File:		start.S
- * 
+ *
  * Discription:		startup code
  *
  */
@@ -39,9 +39,9 @@
 
 #include <ppc_asm.tmpl>
 #include <ppc_defs.h>
-	
+
 #include <linux/config.h>
-#include <asm/processor.h>	
+#include <asm/processor.h>
 
 #ifndef  CONFIG_IDENT_STRING
 #define  CONFIG_IDENT_STRING ""
@@ -88,7 +88,7 @@ version_string:
 _start:
 	mfspr	r3, 638
 	li	r4, CFG_ISB			/* Set ISB bit */
-	or	r3, r3, r4 
+	or	r3, r3, r4
 	mtspr	638, r3
 	li	r21, BOOTFLAG_COLD		/* Normal Power-On: Boot from FLASH	*/
 	b	boot_cold
@@ -131,7 +131,7 @@ in_flash:
 
 	/* Initialize some SPRs that are hard to access from C			*/
 	/*----------------------------------------------------------------------*/
-	
+
 	lis     r3, CFG_IMMR@h          	/* Pass IMMR as arg1 to C routine */
 	lis	r2, CFG_INIT_SP_ADDR@h
 	ori	r1, r2, CFG_INIT_SP_ADDR@l	/* Set up the stack in internal SRAM */
@@ -167,7 +167,6 @@ in_flash:
 	mr	r3, r21
 	/* r3: BOOTFLAG */
 	bl	board_init_f	/* run 1st part of board init code (from Flash) */
-
 
 
 	.globl	_start_of_vectors
@@ -389,7 +388,7 @@ int_return:
 	SYNC
 	rfi
 
-		
+
 /*
  * unsigned int get_immr (unsigned int mask)
  *
@@ -476,7 +475,7 @@ relocate_code:
 	stwu	r0,-4(r7)
 	bdnz	3b
 
-4:	sync			
+4:	sync
 	isync
 
 /*
@@ -493,8 +492,8 @@ in_ram:
 	/*
 	 * Relocation Function, r14 point to got2+0x8000
 	 *
-         * Adjust got2 pointers, no need to check for 0, this code
-         * already puts a few entries in the table.
+	 * Adjust got2 pointers, no need to check for 0, this code
+	 * already puts a few entries in the table.
 	 */
 	li	r0,__got2_entries@sectoff@l
 	la	r3,GOT(_GOT2_TABLE_)
@@ -508,7 +507,7 @@ in_ram:
 	bdnz	1b
 
 	/*
-         * Now adjust the fixups and the pointers to the fixups
+	 * Now adjust the fixups and the pointers to the fixups
 	 * in case we need to move ourselves again.
 	 */
 2:	li	r0,__fixup_entries@sectoff@l

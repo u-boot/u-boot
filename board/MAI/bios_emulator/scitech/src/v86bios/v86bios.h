@@ -31,11 +31,11 @@
 #include <stdio.h>
 
 #define p_printf(f,a...) do {if (Config.PrintPort) lprintf(f,##a);} \
-                         while(0)
+			 while(0)
 #define i_printf(f,a...) do  {if (Config.PrintIrq) lprintf(f,##a);} \
-                          while(0)
+			  while(0)
 #define P_printf(f,a...) do {if (Config.PrintPci) lprintf(f,##a);} \
-                          while(0)
+			  while(0)
 
 typedef unsigned char CARD8;
 typedef unsigned short CARD16;
@@ -65,7 +65,7 @@ struct config {
     Bool MapSysBios;
     Bool Resort;
     Bool FixRom;
-    Bool NoConsole;         
+    Bool NoConsole;
     Bool BootOnly;
     int  Verbose;
 };
@@ -80,21 +80,21 @@ struct pio {
 };
 
 struct regs86 {
-        long ebx;
-        long ecx;
-        long edx;
-        long esi;
-        long edi;
-        long ebp;
-        long eax;
-        long eip;
-        long esp;
-        unsigned short cs;
-        unsigned short ss;
-        unsigned short es;
-        unsigned short ds;
-        unsigned short fs;
-        unsigned short gs;
+	long ebx;
+	long ecx;
+	long edx;
+	long esi;
+	long edi;
+	long ebp;
+	long eax;
+	long eip;
+	long esp;
+	unsigned short cs;
+	unsigned short ss;
+	unsigned short es;
+	unsigned short ds;
+	unsigned short fs;
+	unsigned short gs;
     long eflags;
 };
 
@@ -127,9 +127,9 @@ struct device {
     union {
       int none;
       struct pci {
-        int bus;
-        int dev;
-        int func;
+	int bus;
+	int dev;
+	int func;
       } pci;
     } loc;
 };
@@ -212,4 +212,3 @@ extern void lprintf(const char *f, ...);
 #endif
 
 #endif
-

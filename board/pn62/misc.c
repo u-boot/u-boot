@@ -154,8 +154,8 @@ int i2155x_read_vpd(int offset, int size, unsigned char *data)
 }
 
 static struct pci_device_id am79c95x_ids [] = {
-        { PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_LANCE },
-        { }
+	{ PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_LANCE },
+	{ }
 };
 
 

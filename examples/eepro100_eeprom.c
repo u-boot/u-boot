@@ -207,4 +207,3 @@ static int reset_eeprom(unsigned long ioaddr, unsigned char *hwaddr)
 	mon_printf("done\n");
 	return 0;
 }
-

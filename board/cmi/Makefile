@@ -29,7 +29,7 @@ OBJS	:= flash.o cmi.o
 SOBJS	:=
 
 $(LIB):	$(OBJS)
-	$(AR) crv $@ $^
+	$(AR) crv $@ $(OBJS)
 
 clean:
 	rm -f $(SOBJS) $(OBJS)

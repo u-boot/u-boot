@@ -43,8 +43,8 @@ static void flash_get_offsets (ulong base, flash_info_t *info);
 unsigned long flash_init (void)
 {
 	unsigned long size_b0;
-        int i;
-        unsigned long base_b0;
+	int i;
+	unsigned long base_b0;
 
 	/* Init: no FLASHes known */
 	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {
@@ -60,18 +60,18 @@ unsigned long flash_init (void)
 			size_b0, size_b0<<20);
 	}
 
-        /* Setup offsets */
-        flash_get_offsets (-size_b0, &flash_info[0]);
+	/* Setup offsets */
+	flash_get_offsets (-size_b0, &flash_info[0]);
 
-        base_b0 = -size_b0;
+	base_b0 = -size_b0;
 
-        /* Monitor protection ON by default */
-        (void)flash_protect(FLAG_PROTECT_SET,
-                            -monitor_flash_len,
-                            0xffffffff,
-                            &flash_info[0]);
+	/* Monitor protection ON by default */
+	(void)flash_protect(FLAG_PROTECT_SET,
+			    -monitor_flash_len,
+			    0xffffffff,
+			    &flash_info[0]);
 
-        flash_info[0].size = size_b0;
+	flash_info[0].size = size_b0;
 
 	return (size_b0);
 }

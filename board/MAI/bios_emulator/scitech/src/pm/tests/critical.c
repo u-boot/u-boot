@@ -45,25 +45,25 @@ int main(void)
 
     printf("Program running in ");
     switch (PM_getModeType()) {
-        case PM_realMode:
-            printf("real mode.\n\n");
-            break;
-        case PM_286:
-            printf("16 bit protected mode.\n\n");
-            break;
-        case PM_386:
-            printf("32 bit protected mode.\n\n");
-            break;
-        }
+	case PM_realMode:
+	    printf("real mode.\n\n");
+	    break;
+	case PM_286:
+	    printf("16 bit protected mode.\n\n");
+	    break;
+	case PM_386:
+	    printf("32 bit protected mode.\n\n");
+	    break;
+	}
 
     PM_installCriticalHandler();
     printf("Critical Error handler installed - trying to read from A: drive...\n");
     f = fopen("a:\bog.bog","rb");
     if (f) fclose(f);
     if (PM_criticalError(&axcode,&dicode,1)) {
-        printf("Critical error occured on INT 21h function %02X!\n",
-            axcode >> 8);
-        }
+	printf("Critical error occured on INT 21h function %02X!\n",
+	    axcode >> 8);
+	}
     else printf("Critical error was not caught!\n");
     PM_restoreCriticalHandler();
     return 0;

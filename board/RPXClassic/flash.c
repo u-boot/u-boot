@@ -58,7 +58,7 @@ unsigned long flash_init (void)
 	size_b0 = flash_get_size((vu_long *)CFG_FLASH_BASE, &flash_info[0]);
 
 
-        flash_get_offsets (CFG_FLASH_BASE, &flash_info[0]);
+	flash_get_offsets (CFG_FLASH_BASE, &flash_info[0]);
 
 #if CFG_MONITOR_BASE >= CFG_FLASH_BASE
 	/* monitor protection ON by default */
@@ -112,12 +112,12 @@ void flash_print_info  (flash_info_t *info)
 	}
 
 	switch (info->flash_id & FLASH_TYPEMASK) {
-        case FLASH_AMDL323B:
-            printf ("AMDL323DB (16 Mbytes, bottom boot sect)\n");
-            break;
+	case FLASH_AMDL323B:
+	    printf ("AMDL323DB (16 Mbytes, bottom boot sect)\n");
+	    break;
 	default:
-            printf ("Unknown Chip Type\n");
-            break;
+	    printf ("Unknown Chip Type\n");
+	    break;
 	}
 
 	printf ("  Size: %ld MB in %d Sectors\n",
@@ -152,11 +152,11 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 	ulong value;
 	ulong base = (ulong)addr;
 
-        /* Reset flash componeny                                             */
-        addr [0] = 0xf0f0f0f0;
+	/* Reset flash componeny                                             */
+	addr [0] = 0xf0f0f0f0;
 
-        /* Write auto select command: read Manufacturer ID */
-        addr[0xAAA] = 0xAAAAAAAA ;
+	/* Write auto select command: read Manufacturer ID */
+	addr[0xAAA] = 0xAAAAAAAA ;
 	addr[0x555] = 0x55555555 ;
 	addr[0xAAA] = 0x90909090 ;
 
@@ -176,48 +176,48 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 	value = addr[2] ;		/* device ID		*/
 
 	switch (value & 0x00FF00FF) {
-        case (AMD_ID_DL323B & 0x00FF00FF):
-            info->flash_id += FLASH_AMDL323B;
-            info->sector_count = 71;
-            info->size = 0x01000000;            /* 16 Mb                     */
+	case (AMD_ID_DL323B & 0x00FF00FF):
+	    info->flash_id += FLASH_AMDL323B;
+	    info->sector_count = 71;
+	    info->size = 0x01000000;            /* 16 Mb                     */
 
-            break;
+	    break;
 	default:
 		info->flash_id = FLASH_UNKNOWN;
 		return (0);			/* => no or unknown flash */
 
 	}
 	/* set up sector start address table */
-        /* set sector offsets for bottom boot block type	*/
-        info->start[0] = base + 0x00000000;
-        info->start[1] = base + 0x00008000;
-        info->start[2] = base + 0x00010000;
-        info->start[3] = base + 0x00018000;
-        info->start[4] = base + 0x00020000;
-        info->start[5] = base + 0x00028000;
-        info->start[6] = base + 0x00030000;
-        info->start[7] = base + 0x00038000;
-        for (i = 8; i < info->sector_count; i++) {
-            info->start[i] = base + ((i-7) * 0x00040000) ;
-        }
+	/* set sector offsets for bottom boot block type	*/
+	info->start[0] = base + 0x00000000;
+	info->start[1] = base + 0x00008000;
+	info->start[2] = base + 0x00010000;
+	info->start[3] = base + 0x00018000;
+	info->start[4] = base + 0x00020000;
+	info->start[5] = base + 0x00028000;
+	info->start[6] = base + 0x00030000;
+	info->start[7] = base + 0x00038000;
+	for (i = 8; i < info->sector_count; i++) {
+	    info->start[i] = base + ((i-7) * 0x00040000) ;
+	}
 
 	/* check for protected sectors */
-        for (i = 0; i < 23; i++) {
-            /* read sector protection at sector address, (A7 .. A0) = 0x02 */
-            /* D0 = 1 if protected */
-            addr = (volatile unsigned long *)(info->start[i]);
-            info->protect[i] = addr[4] & 1 ;
+	for (i = 0; i < 23; i++) {
+	    /* read sector protection at sector address, (A7 .. A0) = 0x02 */
+	    /* D0 = 1 if protected */
+	    addr = (volatile unsigned long *)(info->start[i]);
+	    info->protect[i] = addr[4] & 1 ;
 	}
-        /* Check for protected sectors in the 2nd bank                       */
-        addr[0x100AAA] = 0xAAAAAAAA ;
-        addr[0x100555] = 0x55555555 ;
-        addr[0x100AAA] = 0x90909090 ;
+	/* Check for protected sectors in the 2nd bank                       */
+	addr[0x100AAA] = 0xAAAAAAAA ;
+	addr[0x100555] = 0x55555555 ;
+	addr[0x100AAA] = 0x90909090 ;
 
-        for (i = 23; i < info->sector_count; i++) {
-            /* read sector protection at sector address, (A7 .. A0) = 0x02 */
-            /* D0 = 1 if protected */
-            addr = (volatile unsigned long *)(info->start[i]);
-            info->protect[i] = addr[4] & 1 ;
+	for (i = 23; i < info->sector_count; i++) {
+	    /* read sector protection at sector address, (A7 .. A0) = 0x02 */
+	    /* D0 = 1 if protected */
+	    addr = (volatile unsigned long *)(info->start[i]);
+	    info->protect[i] = addr[4] & 1 ;
 	}
 
 	/*
@@ -330,7 +330,7 @@ DONE:
 	addr[0] = 0xF0F0F0F0;	/* reset bank */
 
 	printf (" done\n");
-        return 0;
+	return 0;
 }
 
 /*-----------------------------------------------------------------------

@@ -322,20 +322,20 @@ int i8042_kbd_init (void)
     keymap = KBD_US;
     if ((penv = getenv ("keymap")) != NULL)
     {
-        if (strncmp (penv, "de", 3) == 0)
-        keymap = KBD_GER;
+	if (strncmp (penv, "de", 3) == 0)
+	keymap = KBD_GER;
     }
 
     for (try = 0; try < KBD_RESET_TRIES; try++)
     {
-        if (kbd_reset() == 0)
-        {
-            kbd_mapping   = keymap;
-            kbd_flags     = NORMAL;
-            kbd_state     = 0;
-            kbd_led_set();
-            return 0;
-            }
+	if (kbd_reset() == 0)
+	{
+	    kbd_mapping   = keymap;
+	    kbd_flags     = NORMAL;
+	    kbd_state     = 0;
+	    kbd_led_set();
+	    return 0;
+	    }
     }
     return -1;
 }
@@ -353,25 +353,25 @@ int i8042_tstc (void)
 #ifdef CONFIG_CONSOLE_CURSOR
     if (--blinkCount == 0)
     {
-        cursor_state ^= 1;
-        console_cursor (cursor_state);
-        blinkCount = CFG_CONSOLE_BLINK_COUNT;
-        udelay (10);
+	cursor_state ^= 1;
+	console_cursor (cursor_state);
+	blinkCount = CFG_CONSOLE_BLINK_COUNT;
+	udelay (10);
     }
 #endif
 
     if ((in8 (I8042_STATUS_REG) & 0x01) == 0)
-        return 0;
+	return 0;
     else
     {
-        scan_code = in8 (I8042_DATA_REG);
-        if (scan_code == 0xfa)
-            return 0;
+	scan_code = in8 (I8042_DATA_REG);
+	if (scan_code == 0xfa)
+	    return 0;
 
-        kbd_conv_char(scan_code);
+	kbd_conv_char(scan_code);
 
-        if (kbd_input != -1)
-            return 1;
+	if (kbd_input != -1)
+	    return 1;
     }
     return 0;
 }
@@ -389,23 +389,23 @@ int i8042_getc (void)
 
     while (kbd_input == -1)
     {
-        while ((in8 (I8042_STATUS_REG) & 0x01) == 0)
-        {
+	while ((in8 (I8042_STATUS_REG) & 0x01) == 0)
+	{
 #ifdef CONFIG_CONSOLE_CURSOR
-            if (--blinkCount==0)
-            {
-                cursor_state ^= 1;
-                console_cursor (cursor_state);
-                blinkCount = CFG_CONSOLE_BLINK_COUNT;
-            }
-            udelay (10);
+	    if (--blinkCount==0)
+	    {
+		cursor_state ^= 1;
+		console_cursor (cursor_state);
+		blinkCount = CFG_CONSOLE_BLINK_COUNT;
+	    }
+	    udelay (10);
 #endif
-        }
+	}
 
-        scan_code = in8 (I8042_DATA_REG);
+	scan_code = in8 (I8042_DATA_REG);
 
-        if (scan_code != 0xfa)
-        kbd_conv_char (scan_code);
+	if (scan_code != 0xfa)
+	kbd_conv_char (scan_code);
     }
     ret_chr = kbd_input;
     kbd_input = -1;
@@ -419,62 +419,62 @@ static void kbd_conv_char (unsigned char scan_code)
 {
     if (scan_code == 0xe0)
     {
-        kbd_flags |= EXT;
-        return;
+	kbd_flags |= EXT;
+	return;
     }
 
     /* if high bit of scan_code, set break flag */
     if (scan_code & 0x80)
-        kbd_flags |=  BRK;
+	kbd_flags |=  BRK;
     else
-        kbd_flags &= ~BRK;
+	kbd_flags &= ~BRK;
 
     if ((scan_code == 0xe1) || (kbd_flags & E1))
     {
-        if (scan_code == 0xe1)
-        {
-            kbd_flags ^= BRK;     /* reset the break flag */
-            kbd_flags ^= E1;      /* bitwise EXOR with E1 flag */
-        }
-        return;
+	if (scan_code == 0xe1)
+	{
+	    kbd_flags ^= BRK;     /* reset the break flag */
+	    kbd_flags ^= E1;      /* bitwise EXOR with E1 flag */
+	}
+	return;
     }
 
     scan_code &= 0x7f;
 
     if (kbd_flags & EXT)
     {
-        int i;
+	int i;
 
-        kbd_flags ^= EXT;
-        for (i=0; ext_key_map[i]; i++)
-        {
-            if (ext_key_map[i] == scan_code)
-            {
-                scan_code = 0x80 + i;
-                break;
-            }
-        }
-        /* not found ? */
-        if (!ext_key_map[i])
-            return;
+	kbd_flags ^= EXT;
+	for (i=0; ext_key_map[i]; i++)
+	{
+	    if (ext_key_map[i] == scan_code)
+	    {
+		scan_code = 0x80 + i;
+		break;
+	    }
+	}
+	/* not found ? */
+	if (!ext_key_map[i])
+	    return;
     }
 
     switch (kbd_fct_map [scan_code])
     {
     case AS:  kbd_normal (scan_code);
-        break;
+	break;
     case SH:  kbd_shift (scan_code);
-        break;
+	break;
     case CN:  kbd_ctrl (scan_code);
-        break;
+	break;
     case NM:  kbd_num (scan_code);
-        break;
+	break;
     case CP:  kbd_caps (scan_code);
-        break;
+	break;
     case ST:  kbd_scroll (scan_code);
-        break;
+	break;
     case AK:  kbd_alt (scan_code);
-        break;
+	break;
     }
     return;
 }
@@ -490,14 +490,14 @@ static void kbd_normal (unsigned char scan_code)
     {
        chr = kbd_key_map [kbd_mapping][kbd_state][scan_code];
        if ((chr == 0xff) || (chr == 0x00))
-        {
-            return;
-        }
+	{
+	    return;
+	}
 
-        /* if caps lock convert upper to lower */
-        if (((kbd_flags & CAPS) == CAPS) && (chr >= 'a' && chr <= 'z'))
+	/* if caps lock convert upper to lower */
+	if (((kbd_flags & CAPS) == CAPS) && (chr >= 'a' && chr <= 'z'))
        {
-           chr -= 'a' - 'A';
+	   chr -= 'a' - 'A';
        }
        kbd_input = chr;
     }
@@ -510,8 +510,8 @@ static void kbd_shift (unsigned char scan_code)
 {
     if ((kbd_flags & BRK) == BRK)
     {
-        kbd_state = AS;
-        kbd_flags &= (~SHIFT);
+	kbd_state = AS;
+	kbd_flags &= (~SHIFT);
     }
     else
     {
@@ -569,12 +569,12 @@ static void kbd_scroll (unsigned char scan_code)
 {
     if ((kbd_flags & BRK) == NORMAL)
     {
-        kbd_flags ^= STP;
-        kbd_led_set ();            /* update keyboard LED */
-        if (kbd_flags & STP)
-            kbd_input = 0x13;
-        else
-            kbd_input = 0x11;
+	kbd_flags ^= STP;
+	kbd_led_set ();            /* update keyboard LED */
+	if (kbd_flags & STP)
+	    kbd_input = 0x13;
+	else
+	    kbd_input = 0x11;
     }
 }
 
@@ -584,13 +584,13 @@ static void kbd_alt (unsigned char scan_code)
 {
     if ((kbd_flags & BRK) == BRK)
     {
-        kbd_state = AS;
-        kbd_flags &= (~ALT);
+	kbd_state = AS;
+	kbd_flags &= (~ALT);
     }
     else
     {
-        kbd_state = AK;
-        kbd_flags &= ALT;
+	kbd_state = AK;
+	kbd_flags &= ALT;
     }
 }
 
@@ -614,7 +614,7 @@ static int kbd_input_empty (void)
 
     /* wait for input buf empty */
     while ((in8 (I8042_STATUS_REG) & 0x02) && kbdTimeout--)
-        udelay(1000);
+	udelay(1000);
 
     return kbdTimeout;
 }
@@ -624,30 +624,30 @@ static int kbd_input_empty (void)
 static int kbd_reset (void)
 {
     if (kbd_input_empty() == 0)
-        return -1;
+	return -1;
 
     out8 (I8042_DATA_REG, 0xff);
 
     udelay(250000);
 
     if (kbd_input_empty() == 0)
-        return -1;
+	return -1;
 
     out8 (I8042_DATA_REG, 0x60);
 
     if (kbd_input_empty() == 0)
-        return -1;
+	return -1;
 
     out8 (I8042_DATA_REG, 0x45);
 
 
     if (kbd_input_empty() == 0)
-        return -1;
+	return -1;
 
     out8 (I8042_COMMAND_REG, 0xae);
 
     if (kbd_input_empty() == 0)
-        return -1;
+	return -1;
 
     return 0;
 }

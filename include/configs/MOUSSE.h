@@ -229,7 +229,7 @@
 
 
 #define CFG_PGMAX           0x32 /* how long the 8240 reatins the currently accessed page in memory
-                                    see 8240 book for details*/
+				    see 8240 book for details*/
 #define PCI_MEM_SPACE1_START	0x80000000
 #define PCI_MEM_SPACE2_START	0xfd000000
 
@@ -296,7 +296,6 @@
 #define CFG_CACHELINE_SIZE  16
 
 
-
 /*
  * Internal Definitions
  *
@@ -328,5 +327,3 @@
 #define CONFIG_TULIP
 
 #endif  /* __CONFIG_H */
-
-

@@ -131,7 +131,7 @@ mpsc_putchar_early(char ch)
 static int
 mpsc_putchar_sdma(char ch)
 {
-    	volatile unsigned int *p;
+	volatile unsigned int *p;
 	unsigned int temp;
 
 
@@ -237,7 +237,7 @@ mpsc_getchar(void)
 	}
 
 	if (done == len) {
-	    	/* nothing left in this descriptor.
+		/* nothing left in this descriptor.
 		 * go to next one
 		 */
 		p[1] = DESC_OWNER | DESC_FIRST | DESC_LAST;
@@ -488,7 +488,7 @@ galsdma_set_RFT(int channel)
 {
 	unsigned int temp;
 
-        temp = GTREGREAD(GALSDMA_0_CONF_REG+(channel*GALSDMA_REG_DIFF));
+	temp = GTREGREAD(GALSDMA_0_CONF_REG+(channel*GALSDMA_REG_DIFF));
 	temp |= 0x00000001;
 	GT_REG_WRITE(GALSDMA_0_CONF_REG+(channel*GALSDMA_REG_DIFF), temp);
 
@@ -500,7 +500,7 @@ galsdma_set_SFM(int channel)
 {
 	unsigned int temp;
 
-        temp = GTREGREAD(GALSDMA_0_CONF_REG+(channel*GALSDMA_REG_DIFF));
+	temp = GTREGREAD(GALSDMA_0_CONF_REG+(channel*GALSDMA_REG_DIFF));
 	temp |= 0x00000002;
 	GT_REG_WRITE(GALSDMA_0_CONF_REG+(channel*GALSDMA_REG_DIFF), temp);
 
@@ -512,7 +512,7 @@ galsdma_set_rxle(int channel)
 {
 	unsigned int temp;
 
-        temp = GTREGREAD(GALSDMA_0_CONF_REG+(channel*GALSDMA_REG_DIFF));
+	temp = GTREGREAD(GALSDMA_0_CONF_REG+(channel*GALSDMA_REG_DIFF));
 	temp |= 0x00000040;
 	GT_REG_WRITE(GALSDMA_0_CONF_REG+(channel*GALSDMA_REG_DIFF), temp);
 
@@ -524,7 +524,7 @@ galsdma_set_txle(int channel)
 {
 	unsigned int temp;
 
-        temp = GTREGREAD(GALSDMA_0_CONF_REG+(channel*GALSDMA_REG_DIFF));
+	temp = GTREGREAD(GALSDMA_0_CONF_REG+(channel*GALSDMA_REG_DIFF));
 	temp |= 0x00000080;
 	GT_REG_WRITE(GALSDMA_0_CONF_REG+(channel*GALSDMA_REG_DIFF), temp);
 

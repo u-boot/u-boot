@@ -24,7 +24,6 @@
  */
 
 
-
 #include "config.h"
 #include "version.h"
 
@@ -39,7 +38,7 @@ MEM_START:	.long	0xc0000000
 #define MDCAS01		0x08		/* CAS waveform rotate reg 1 bank  */
 #define MDCAS02		0x0C		/* CAS waveform rotate reg 2 bank  */
 #define MDREFR		0x1C		/* DRAM refresh control reg        */
-#define MDCAS20		0x20		/* CAS waveform rotate reg 0 bank  */ 
+#define MDCAS20		0x20		/* CAS waveform rotate reg 0 bank  */
 #define MDCAS21		0x24		/* CAS waveform rotate reg 1 bank  */
 #define MDCAS22		0x28		/* CAS waveform rotate reg 2 bank  */
 #define MECR		0x18		/* Expansion memory (PCMCIA) bus configuration  register */

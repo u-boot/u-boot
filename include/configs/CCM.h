@@ -60,10 +60,10 @@
 #undef	CONFIG_BOOTARGS
 
 #define CONFIG_BOOTCOMMAND      "setenv bootargs " \
-                                "mem=$(mem) " \
-                                "root=/dev/ram rw ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off " \
-                                "wt_8xx=timeout:3600; " \
-                                "bootm"
+				"mem=$(mem) " \
+				"root=/dev/ram rw ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off " \
+				"wt_8xx=timeout:3600; " \
+				"bootm"
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #undef	CFG_LOADS_BAUD_CHANGE	/* don't allow baudrate change	*/

@@ -27,11 +27,10 @@
 #include <common.h>
 #include <flash.h>
 #include <asm/io.h>
-#include "memio.h" 
+#include "memio.h"
 
 /*---------------------------------------------------------------------*/
 #undef DEBUG_FLASH
-//#define DEBUG_FLASH
 
 #ifdef DEBUG_FLASH
 #define DEBUGF(fmt,args...) printf(fmt ,##args)
@@ -68,7 +67,7 @@ static void flash_to_mem(void)
     unsigned char x;
 
     flash_xd_nest --;
-   
+
     if (flash_xd_nest == 0)
     {
 	DEBUGF("Flash on memory bus\n");
@@ -327,7 +326,7 @@ static int flash_get_offsets (ulong base, flash_info_t *info)
 			/* set sector offsets for uniform sector type	*/
 			for (i = 0; i < info->sector_count; i++) {
 				info->start[i] = base + i * info->size /
-				                            info->sector_count;
+							    info->sector_count;
 			}
 			break;
 		default:
@@ -478,7 +477,7 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 		}
 
 		if ((rc = write_word(info, wp, data)) != 0) {
-		        flash_to_mem();
+			flash_to_mem();
 			return (rc);
 		}
 		wp += 4;
@@ -493,7 +492,7 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 			data = (data << 8) | *src++;
 		}
 		if ((rc = write_word(info, wp, data)) != 0) {
-		        flash_to_mem();
+			flash_to_mem();
 			return (rc);
 		}
 		wp  += 4;
@@ -582,7 +581,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
  */
 static void flash_reset (ulong addr)
 {
-        flash_to_xd();
+	flash_to_xd();
 	out8(addr, 0xF0);	/* reset bank */
 	iobarrier_rw();
 	flash_to_mem();
@@ -633,10 +632,10 @@ void flash_print_info (flash_info_t *info)
 			info->size / 0x100000, info->sector_count);
 	} else if (info->size % 0x400 == 0) {
 		printf ("  Size: %ld KB in %d Sectors\n",
-		        info->size / 0x400, info->sector_count);
+			info->size / 0x400, info->sector_count);
 	} else {
 		printf ("  Size: %ld B in %d Sectors\n",
-		        info->size, info->sector_count);
+			info->size, info->sector_count);
 	}
 
 	printf ("  Sector Start Addresses:");

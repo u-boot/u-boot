@@ -65,9 +65,9 @@ static void convertFindData(
     strcat(filename,blk->d_name);
     stat(filename,&st);
     if (!(st.st_mode & S_IWRITE))
-        findData->attrib |= PM_FILE_READONLY;
+	findData->attrib |= PM_FILE_READONLY;
     if (st.st_mode & S_IFDIR)
-        findData->attrib |= PM_FILE_DIRECTORY;
+	findData->attrib |= PM_FILE_DIRECTORY;
     findData->sizeLo = st.st_size;
     findData->sizeHi = 0;
     strncpy(findData->name,blk->d_name,PM_MAX_PATH);
@@ -91,24 +91,24 @@ static ibool filematch(
     PM_backslash(fullpath);
     strcat(fullpath, dire->d_name);
     if (stat(fullpath, &st) != 0)
-        return false;
+	return false;
     for (; i < (int)strlen(dire->d_name) && j < (int)strlen(pattern); i++, j++) {
-        if (pattern[j] == '*' && lastchar != '\\') {
-            if (pattern[j+1] == '\0')
-                return true;
-            while (dire->d_name[i++] != pattern[j+1]) {
-                if (dire->d_name[i] == '\0')
-                    return false;
-                }
-            i -= 2;
-            }
-        else if (dire->d_name[i] != pattern[j] &&
-                !(pattern[j] == '?' && lastchar != '\\'))
-            return false;
-        lastchar = pattern[i];
-        }
+	if (pattern[j] == '*' && lastchar != '\\') {
+	    if (pattern[j+1] == '\0')
+		return true;
+	    while (dire->d_name[i++] != pattern[j+1]) {
+		if (dire->d_name[i] == '\0')
+		    return false;
+		}
+	    i -= 2;
+	    }
+	else if (dire->d_name[i] != pattern[j] &&
+		!(pattern[j] == '?' && lastchar != '\\'))
+	    return false;
+	lastchar = pattern[i];
+	}
     if (j == (int)strlen(pattern) && i == (int)strlen(dire->d_name))
-        return true;
+	return true;
     return false;
 }
 
@@ -126,23 +126,23 @@ void * PMAPI PM_findFirstFile(
     char            ext[PM_MAX_PATH];
 
     if ((d = PM_malloc(sizeof(*d))) == NULL)
-        return PM_FILE_INVALID;
+	return PM_FILE_INVALID;
     PM_splitpath(filename,NULL,d->path,name,ext);
     strcpy(d->mask,name);
     strcat(d->mask,ext);
     if (strlen(d->path) == 0)
-        strcpy(d->path, ".");
+	strcpy(d->path, ".");
     if (d->path[strlen(d->path)-1] == '/')
-        d->path[strlen(d->path)-1] = 0;
+	d->path[strlen(d->path)-1] = 0;
     if ((d->d = opendir(d->path)) != NULL) {
-        while ((dire = readdir(d->d)) != NULL) {
-            if (filematch(d->mask,d->path,dire)) {
-                convertFindData(findData,dire,d->path);
-                return d;
-                }
-            }
-        closedir(d->d);
-        }
+	while ((dire = readdir(d->d)) != NULL) {
+	    if (filematch(d->mask,d->path,dire)) {
+		convertFindData(findData,dire,d->path);
+		return d;
+		}
+	    }
+	closedir(d->d);
+	}
     PM_free(d);
     return PM_FILE_INVALID;
 }
@@ -159,11 +159,11 @@ ibool PMAPI PM_findNextFile(
     struct dirent   *dire;
 
     while ((dire = readdir(d->d)) != NULL) {
-        if (filematch(d->mask,d->path,dire)) {
-            convertFindData(findData,dire,d->path);
-            return true;
-            }
-        }
+	if (filematch(d->mask,d->path,dire)) {
+	    convertFindData(findData,dire,d->path);
+	    return true;
+	    }
+	}
     return false;
 }
 
@@ -197,7 +197,7 @@ ibool PMAPI PM_driveValid(
     char drive)
 {
     if (drive == 3)
-        return true;
+	return true;
     return false;
 }
 
@@ -230,9 +230,9 @@ void PMAPI PM_setFileAttr(
     stat(filename,&st);
     mode = st.st_mode;
     if (attrib & PM_FILE_READONLY)
-        mode &= ~S_IWRITE;
+	mode &= ~S_IWRITE;
     else
-        mode |= S_IWRITE;
+	mode |= S_IWRITE;
     chmod(filename,mode);
 }
 
@@ -247,7 +247,7 @@ uint PMAPI PM_getFileAttr(
 
     stat(filename,&st);
     if (st.st_mode & S_IWRITE)
-        return 0;
+	return 0;
     return PM_FILE_READONLY;
 }
 
@@ -280,7 +280,7 @@ ibool PMAPI PM_getFileTime(
     ibool gmTime,
     PM_time *time)
 {
-    // TODO: Implement this!
+    /* TODO: Implement this! */
     (void)filename;
     (void)gmTime;
     (void)time;
@@ -297,7 +297,7 @@ ibool PMAPI PM_setFileTime(
     ibool gmTime,
     PM_time *time)
 {
-    // TODO: Implement this!
+    /* TODO: Implement this! */
     (void)filename;
     (void)gmTime;
     (void)time;

@@ -63,54 +63,54 @@ FILE * fopen(
     ULONG   omode, oflags;
 
     if (f != NULL) {
-        f->offset = 0;
-        f->text = (mode[1] == 't' || mode[2] == 't');
-        f->writemode = (mode[0] == 'w') || (mode[0] == 'a');
-        f->unputc = EOF;
-        f->endp = f->buf + sizeof(f->buf);
-        f->curp = f->startp = f->buf;
+	f->offset = 0;
+	f->text = (mode[1] == 't' || mode[2] == 't');
+	f->writemode = (mode[0] == 'w') || (mode[0] == 'a');
+	f->unputc = EOF;
+	f->endp = f->buf + sizeof(f->buf);
+	f->curp = f->startp = f->buf;
 
-        if (mode[0] == 'r') {
-            #ifdef __OS2_VDD__
-            omode  = VDHOPEN_ACCESS_READONLY | VDHOPEN_SHARE_DENYNONE;
-            oflags = VDHOPEN_ACTION_OPEN_IF_EXISTS | VDHOPEN_ACTION_FAIL_IF_NEW;
-            #else
-            omode  = OPEN_ACCESS_READONLY | OPEN_SHARE_DENYNONE;
-            oflags = OPEN_ACTION_OPEN_IF_EXISTS | OPEN_ACTION_FAIL_IF_NEW;
-            #endif
-            }
-        else if (mode[0] == 'w') {
-            #ifdef __OS2_VDD__
-            omode  = VDHOPEN_ACCESS_WRITEONLY | VDHOPEN_SHARE_DENYWRITE;
-            oflags = VDHOPEN_ACTION_REPLACE_IF_EXISTS | VDHOPEN_ACTION_CREATE_IF_NEW;
-            #else
-            omode  = OPEN_ACCESS_WRITEONLY | OPEN_SHARE_DENYWRITE;
-            oflags = OPEN_ACTION_REPLACE_IF_EXISTS | OPEN_ACTION_CREATE_IF_NEW;
-            #endif
-            }
-        else {
-            #ifdef __OS2_VDD__
-            omode  = VDHOPEN_ACCESS_READWRITE | VDHOPEN_SHARE_DENYWRITE;
-            oflags = VDHOPEN_ACTION_OPEN_IF_EXISTS | VDHOPEN_ACTION_CREATE_IF_NEW;
-            #else
-            omode  = OPEN_ACCESS_READWRITE | OPEN_SHARE_DENYWRITE;
-            oflags = OPEN_ACTION_OPEN_IF_EXISTS | OPEN_ACTION_CREATE_IF_NEW;
-            #endif
-            }
-        rc = _OS2Open((PSZ)filename, (PHFILE)&f->handle, &ulAction, 0, VDHOPEN_FILE_NORMAL, oflags, omode, NULL);
-        if (rc != 0) {
-            PM_free(f);
-            return NULL;
-            }
+	if (mode[0] == 'r') {
+	    #ifdef __OS2_VDD__
+	    omode  = VDHOPEN_ACCESS_READONLY | VDHOPEN_SHARE_DENYNONE;
+	    oflags = VDHOPEN_ACTION_OPEN_IF_EXISTS | VDHOPEN_ACTION_FAIL_IF_NEW;
+	    #else
+	    omode  = OPEN_ACCESS_READONLY | OPEN_SHARE_DENYNONE;
+	    oflags = OPEN_ACTION_OPEN_IF_EXISTS | OPEN_ACTION_FAIL_IF_NEW;
+	    #endif
+	    }
+	else if (mode[0] == 'w') {
+	    #ifdef __OS2_VDD__
+	    omode  = VDHOPEN_ACCESS_WRITEONLY | VDHOPEN_SHARE_DENYWRITE;
+	    oflags = VDHOPEN_ACTION_REPLACE_IF_EXISTS | VDHOPEN_ACTION_CREATE_IF_NEW;
+	    #else
+	    omode  = OPEN_ACCESS_WRITEONLY | OPEN_SHARE_DENYWRITE;
+	    oflags = OPEN_ACTION_REPLACE_IF_EXISTS | OPEN_ACTION_CREATE_IF_NEW;
+	    #endif
+	    }
+	else {
+	    #ifdef __OS2_VDD__
+	    omode  = VDHOPEN_ACCESS_READWRITE | VDHOPEN_SHARE_DENYWRITE;
+	    oflags = VDHOPEN_ACTION_OPEN_IF_EXISTS | VDHOPEN_ACTION_CREATE_IF_NEW;
+	    #else
+	    omode  = OPEN_ACCESS_READWRITE | OPEN_SHARE_DENYWRITE;
+	    oflags = OPEN_ACTION_OPEN_IF_EXISTS | OPEN_ACTION_CREATE_IF_NEW;
+	    #endif
+	    }
+	rc = _OS2Open((PSZ)filename, (PHFILE)&f->handle, &ulAction, 0, VDHOPEN_FILE_NORMAL, oflags, omode, NULL);
+	if (rc != 0) {
+	    PM_free(f);
+	    return NULL;
+	    }
 
-        #ifdef __OS2_VDD__
-        f->filesize = VDHSeek((HFILE)f->handle, 0, VDHSK_END_OF_FILE);
-        #else
-        rc = DosSetFilePtr((HFILE)f->handle, 0, FILE_END, &f->filesize);
-        #endif
+	#ifdef __OS2_VDD__
+	f->filesize = VDHSeek((HFILE)f->handle, 0, VDHSK_END_OF_FILE);
+	#else
+	rc = DosSetFilePtr((HFILE)f->handle, 0, FILE_END, &f->filesize);
+	#endif
 
-        if (mode[0] == 'a')
-            fseek(f,0,2);
+	if (mode[0] == 'a')
+	    fseek(f,0,2);
     }
     return f;
 }
@@ -131,23 +131,23 @@ size_t fread(
 
     /* First copy any data already read into our buffer */
     if ((bytes = (f->curp - f->startp)) > 0) {
-        memcpy(buf,f->curp,bytes);
-        f->startp = f->curp = f->buf;
-        buf += bytes;
-        totalbytes += bytes;
-        bytes = (size * n) - bytes;
-        }
+	memcpy(buf,f->curp,bytes);
+	f->startp = f->curp = f->buf;
+	buf += bytes;
+	totalbytes += bytes;
+	bytes = (size * n) - bytes;
+	}
     else
-        bytes = size * n;
+	bytes = size * n;
     if (bytes) {
-        #ifdef __OS2_VDD__
-        readbytes = VDHRead((HFILE)f->handle, buf, bytes);
-        #else
-        DosRead((HFILE)f->handle, buf, bytes, &readbytes);
-        #endif
-        totalbytes += readbytes;
-        f->offset += readbytes;
-        }
+	#ifdef __OS2_VDD__
+	readbytes = VDHRead((HFILE)f->handle, buf, bytes);
+	#else
+	DosRead((HFILE)f->handle, buf, bytes, &readbytes);
+	#endif
+	totalbytes += readbytes;
+	f->offset += readbytes;
+	}
     return totalbytes / size;
 }
 
@@ -166,7 +166,7 @@ size_t fwrite(
 
     /* Flush anything already in the buffer */
     if (!f->writemode)
-        return 0;
+	return 0;
     fflush(f);
     bytes = size * n;
     #ifdef __OS2_VDD__
@@ -177,7 +177,7 @@ size_t fwrite(
     totalbytes += writtenbytes;
     f->offset += writtenbytes;
     if (f->offset > f->filesize)
-        f->filesize = f->offset;
+	f->filesize = f->offset;
     return totalbytes / size;
 }
 
@@ -192,16 +192,16 @@ int fflush(
 
     /* First copy any data already written into our buffer */
     if (f->writemode && (bytes = (f->curp - f->startp)) > 0) {
-        #ifdef __OS2_VDD__
-        bytes = VDHWrite((HFILE)f->handle, f->startp, bytes);
-        #else
-        DosWrite((HFILE)f->handle, f->startp, bytes, &bytes);
-        #endif
-        f->offset += bytes;
-        if (f->offset > f->filesize)
-            f->filesize = f->offset;
-        f->startp = f->curp = f->buf;
-        }
+	#ifdef __OS2_VDD__
+	bytes = VDHWrite((HFILE)f->handle, f->startp, bytes);
+	#else
+	DosWrite((HFILE)f->handle, f->startp, bytes, &bytes);
+	#endif
+	f->offset += bytes;
+	if (f->offset > f->filesize)
+	    f->filesize = f->offset;
+	f->startp = f->curp = f->buf;
+	}
     return 0;
 }
 
@@ -217,11 +217,11 @@ int fseek(
     fflush(f);
 
     if (whence == 0)
-        f->offset = offset;
+	f->offset = offset;
     else if (whence == 1)
-        f->offset += offset;
+	f->offset += offset;
     else if (whence == 2)
-        f->offset = f->filesize + offset;
+	f->offset = f->filesize + offset;
 
     #ifdef __OS2_VDD__
     VDHSeek((HFILE)f->handle, f->offset, VDHSK_ABSOLUTE);
@@ -267,23 +267,23 @@ static int __getc(
     int c;
 
     if (f->unputc != EOF) {
-        c = f->unputc;
-        f->unputc = EOF;
-        }
+	c = f->unputc;
+	f->unputc = EOF;
+	}
     else {
-        if (f->startp == f->curp) {
-            int bytes = fread(f->buf,1,sizeof(f->buf),f);
-            if (bytes == 0)
-                return EOF;
-            f->curp = f->startp + bytes;
-            }
-        c = *f->startp++;
-        if (f->text && c == '\r') {
-            int nc = __getc(f);
-            if (nc != '\n')
-                f->unputc = nc;
-            }
-        }
+	if (f->startp == f->curp) {
+	    int bytes = fread(f->buf,1,sizeof(f->buf),f);
+	    if (bytes == 0)
+		return EOF;
+	    f->curp = f->startp + bytes;
+	    }
+	c = *f->startp++;
+	if (f->text && c == '\r') {
+	    int nc = __getc(f);
+	    if (nc != '\n')
+		f->unputc = nc;
+	    }
+	}
     return c;
 }
 
@@ -296,11 +296,11 @@ static int __putc(int c,FILE *f)
 {
     int count = 1;
     if (f->text && c == '\n') {
-        __putc('\r',f);
-        count = 2;
-        }
+	__putc('\r',f);
+	count = 2;
+	}
     if (f->curp == f->endp)
-        fflush(f);
+	fflush(f);
     *f->curp++ = c;
     return count;
 }
@@ -319,12 +319,12 @@ char *fgets(
 
     cs = s;
     while (--n > 0 && (c = __getc(f)) != EOF) {
-        *cs++ = c;
-        if (c == '\n')
-            break;
-        }
+	*cs++ = c;
+	if (c == '\n')
+	    break;
+	}
     if (c == EOF && cs == s)
-        return NULL;
+	return NULL;
     *cs = '\0';
     return s;
 }
@@ -341,7 +341,7 @@ int fputs(
     int c;
 
     while ((c = *s++) != 0)
-        r = __putc(c, f);
+	r = __putc(c, f);
     return r;
 }
 

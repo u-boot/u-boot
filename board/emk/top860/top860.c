@@ -85,13 +85,12 @@ long int initdram (int board_type)
 	 * Only initialize memory controller when running from FLASH.
 	 * When running from RAM, don't touch it.
 	 */
-	if ((ulong) initdram & 0xff000000)
-	{
-		volatile uint	*addr1, *addr2;
-		uint			i, j;
+	if ((ulong) initdram & 0xff000000) {
+		volatile uint *addr1, *addr2;
+		uint i, j;
 
 		upmconfig (UPMA, (uint *) edo_60ns_25MHz_tbl,
-			sizeof (edo_60ns_25MHz_tbl) / sizeof (uint));
+			   sizeof (edo_60ns_25MHz_tbl) / sizeof (uint));
 		memctl->memc_mptpr = 0x0200;
 		memctl->memc_mamr = 0x0ca20330;
 		memctl->memc_or2 = -CFG_DRAM_MAX | OR_CSNT_SAM;
@@ -99,11 +98,11 @@ long int initdram (int board_type)
 		/*
 		 * Do 8 read accesses to DRAM
 		 */
-		addr1 = (volatile uint*) 0;
-		addr2 = (volatile uint*) 0x00400000;
-		for (i=0, j=0; i<8; i++)
+		addr1 = (volatile uint *) 0;
+		addr2 = (volatile uint *) 0x00400000;
+		for (i = 0, j = 0; i < 8; i++)
 			j = addr1[0];
-		
+
 		/*
 		 * Now check whether we got 4MB or 16MB populated
 		 */
@@ -111,10 +110,9 @@ long int initdram (int board_type)
 		addr1[1] = 0x9abcdef0;
 		addr2[0] = 0xfeedc0de;
 		addr2[1] = 0x47110815;
-		if (addr1[0] == 0xfeedc0de && addr1[1] == 0x47110815)
-		{
+		if (addr1[0] == 0xfeedc0de && addr1[1] == 0x47110815) {
 			/* only 4MB populated */
-			memctl->memc_or2 = -(CFG_DRAM_MAX/4) | OR_CSNT_SAM;
+			memctl->memc_or2 = -(CFG_DRAM_MAX / 4) | OR_CSNT_SAM;
 		}
 	}
 
@@ -128,31 +126,29 @@ long int initdram (int board_type)
 int misc_init_r (void)
 {
 	/* read 'factory' part of EEPROM */
-	uchar				buf[81];
-	uchar				*p;
-	uint				length;
-	uint				addr;
-	uint				len;
+	uchar buf[81];
+	uchar *p;
+	uint length;
+	uint addr;
+	uint len;
 
 	/* get length first */
 	addr = CFG_FACT_OFFSET;
-	if (eeprom_read (CFG_I2C_FACT_ADDR, addr, buf, 2))
-	{
-bailout:
+	if (eeprom_read (CFG_I2C_FACT_ADDR, addr, buf, 2)) {
+	  bailout:
 		printf ("cannot read factory configuration\n");
 		printf ("be sure to set ethaddr	yourself!\n");
 		return 0;
 	}
-	length = buf[0] + (buf[1]<<8);
+	length = buf[0] + (buf[1] << 8);
 	addr += 2;
 
 	/* sanity check */
-	if (length < 20 || length > CFG_FACT_SIZE-2)
+	if (length < 20 || length > CFG_FACT_SIZE - 2)
 		goto bailout;
 
 	/* read lines */
-	while (length > 0)
-	{
+	while (length > 0) {
 		/* read one line */
 		len = length > 80 ? 80 : length;
 		if (eeprom_read (CFG_I2C_FACT_ADDR, addr, buf, len))
@@ -160,28 +156,22 @@ bailout:
 		/* mark end of buffer */
 		buf[len] = 0;
 		/* search end of line */
-		for (p=buf; *p && *p != 0x0a; p++) ;
+		for (p = buf; *p && *p != 0x0a; p++);
 		if (!*p)
 			goto bailout;
 		*p++ = 0;
 		/* advance to next line start */
-		length -= p-buf;
-		addr += p-buf;
-		/*printf ("%s\n", buf);*/
+		length -= p - buf;
+		addr += p - buf;
+		/*printf ("%s\n", buf); */
 		/* search for our specific entry */
-		if (!strncmp ((char *)buf, "[RLA/lan/Ethernet] ", 19))
-		{
-			setenv ("ethaddr", buf+19);
-		} 
-		else if (!strncmp ((char *)buf, "[BOARD/SERIAL] ", 15))
-		{
-			setenv ("serial#", buf+15);
-		} 
-		else if (!strncmp ((char *)buf, "[BOARD/TYPE] ", 13))
-		{
-			setenv ("board_id", buf+13);
-		} 
+		if (!strncmp ((char *) buf, "[RLA/lan/Ethernet] ", 19)) {
+			setenv ("ethaddr", buf + 19);
+		} else if (!strncmp ((char *) buf, "[BOARD/SERIAL] ", 15)) {
+			setenv ("serial#", buf + 15);
+		} else if (!strncmp ((char *) buf, "[BOARD/TYPE] ", 13)) {
+			setenv ("board_id", buf + 13);
+		}
 	}
 	return (0);
 }
-

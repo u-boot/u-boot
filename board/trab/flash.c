@@ -439,7 +439,7 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 		else {
 			data = *((vu_long *) src);
 		}
-			
+
 		if ((rc = write_word (info, wp, data)) != 0) {
 			return (rc);
 		}

@@ -26,7 +26,7 @@
 #include <asm/processor.h>
 #include <pci.h>
 
-int sysControlDisplay(int digit, uchar ascii_code);			
+int sysControlDisplay(int digit, uchar ascii_code);
 extern void Plx9030Init(void);
 
 	/* We have to clear the initial data area here. Couldn't have done it
@@ -170,4 +170,3 @@ int sysControlDisplay
 
 	return (0);
 }
-

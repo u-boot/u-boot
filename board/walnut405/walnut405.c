@@ -116,7 +116,7 @@ int checkboard (void)
   the necessary info for SDRAM controller configuration
    ------------------------------------------------------------------------- */
 long int initdram (int board_type)
-{	
+{
 	return  spd_sdram (0);
 }
 

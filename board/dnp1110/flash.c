@@ -67,16 +67,16 @@ unsigned long flash_init (void)
 
     for (i = 0; i < CFG_MAX_FLASH_BANKS; i++)
     {
-        switch (i)
-        {
-           case 0:
-            flash_get_size((FPW *)PHYS_FLASH_1, &flash_info[i]);
-	         flash_get_offsets(PHYS_FLASH_1, &flash_info[i]);
-                break;
-           default:
-	        panic("configured to many flash banks!\n");
-                break;
-        }
+	switch (i)
+	{
+	   case 0:
+	    flash_get_size((FPW *)PHYS_FLASH_1, &flash_info[i]);
+		 flash_get_offsets(PHYS_FLASH_1, &flash_info[i]);
+		break;
+	   default:
+		panic("configured to many flash banks!\n");
+		break;
+	}
 	size += flash_info[i].size;
     }
 
@@ -122,7 +122,7 @@ void flash_print_info  (flash_info_t *info)
 	if (info->flash_id == FLASH_UNKNOWN) {
 		printf ("missing or unknown FLASH type\n");
 		return;
-        }
+	}
 
 	switch (info->flash_id & FLASH_VENDMASK) {
 		case FLASH_MAN_INTEL:	printf ("INTEL ");		break;
@@ -133,21 +133,21 @@ void flash_print_info  (flash_info_t *info)
    case FLASH_28F128J3A:
 				printf ("28F128J3A\n"); break;
 	default:		printf ("Unknown Chip Type\n"); break;
-        }
+	}
 
 	printf ("  Size: %ld MB in %d Sectors\n",
-	        info->size >> 20, info->sector_count);
+		info->size >> 20, info->sector_count);
 
 	printf ("  Sector Start Addresses:");
 	for (i=0; i<info->sector_count; ++i) {
-	        if ((i % 5) == 0)
-	        printf ("\n   ");
+		if ((i % 5) == 0)
+		printf ("\n   ");
 		printf (" %08lX%s",
 			info->start[i],
 			info->protect[i] ? " (RO)" : "     "
 		);
-        }
-        printf ("\n");
+	}
+	printf ("\n");
 	return;
 }
 
@@ -164,7 +164,7 @@ static ulong flash_get_size (FPW *addr, flash_info_t *info)
 
    mb();
 	value = addr[0];
-	
+
    switch (value) {
 
    case (FPW)INTEL_MANUFACT:
@@ -280,8 +280,8 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 			*addr = (FPW)0x00FF00FF; /* resest to read mode          */
 
 			printf (" done\n");
-        }
-        }
+	}
+	}
 	return rcode;
 }
 
@@ -350,7 +350,7 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 		cnt -= port_width;
 		if (count++ > 0x800)
 		{
-         spin_wheel();
+	 spin_wheel();
 			count = 0;
 		}
     }
@@ -422,4 +422,3 @@ spin_wheel(void)
    printf("\010%c", w[p]);
    (++p == 3) ? (p = 0) : 0;
 }
-

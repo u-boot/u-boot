@@ -1,9 +1,8 @@
 #include	"macros.h"
 
-	
 
 	.globl pci_read_cfg_byte
-	
+
 pci_read_cfg_byte:
 	config_addr
 	config_data	3
@@ -12,11 +11,10 @@ pci_read_cfg_byte:
 	lbz	r3, 0(r9)
 	blr
 
-	
 
 	.globl pci_write_cfg_byte
-	
-pci_write_cfg_byte:	
+
+pci_write_cfg_byte:
 	config_addr
 	config_data	3
 	stb	r6, 0(r9)
@@ -25,9 +23,8 @@ pci_write_cfg_byte:
 	blr
 
 
-
 	.globl pci_read_cfg_word
-	
+
 pci_read_cfg_word:
 	config_addr
 	config_data	2
@@ -37,9 +34,8 @@ pci_read_cfg_word:
 	blr
 
 
-	
 	.globl pci_write_cfg_word
-	
+
 pci_write_cfg_word:
 	config_addr
 	config_data	2
@@ -48,10 +44,9 @@ pci_write_cfg_word:
 	sync
 	blr
 
-	
 
 	.globl pci_read_cfg_long
-	
+
 pci_read_cfg_long:
 	config_addr
 	config_data	0
@@ -61,9 +56,8 @@ pci_read_cfg_long:
 	blr
 
 
-
 	.globl pci_write_cfg_long
-	
+
 pci_write_cfg_long:
 	config_addr
 	config_data	0
@@ -71,4 +65,3 @@ pci_write_cfg_long:
 	eieio
 	sync
 	blr
-

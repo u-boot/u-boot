@@ -30,4 +30,3 @@
 #endif
 
 #endif	/* __PPC4XX_H__ */
-

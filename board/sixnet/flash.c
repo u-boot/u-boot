@@ -199,32 +199,32 @@ void flash_print_info (flash_info_t *info)
 	case FLASH_AM640U:
 		fmt = "29LV641D (64 Mbit, uniform sectors)\n";
 		break;
-        case FLASH_28F800C3B:
-        case FLASH_28F800C3T:
+	case FLASH_28F800C3B:
+	case FLASH_28F800C3T:
 		fmt = "28F800C3%s (8 Mbit, %s)\n";
 		break;
 	case FLASH_INTEL800B:
 	case FLASH_INTEL800T:
 		fmt = "28F800B3%s (8 Mbit, %s)\n";
 		break;
-        case FLASH_28F160C3B:
-        case FLASH_28F160C3T:
+	case FLASH_28F160C3B:
+	case FLASH_28F160C3T:
 		fmt = "28F160C3%s (16 Mbit, %s)\n";
 		break;
 	case FLASH_INTEL160B:
 	case FLASH_INTEL160T:
 		fmt = "28F160B3%s (16 Mbit, %s)\n";
 		break;
-        case FLASH_28F320C3B:
-        case FLASH_28F320C3T:
+	case FLASH_28F320C3B:
+	case FLASH_28F320C3T:
 		fmt = "28F320C3%s (32 Mbit, %s)\n";
 		break;
 	case FLASH_INTEL320B:
 	case FLASH_INTEL320T:
 		fmt = "28F320B3%s (32 Mbit, %s)\n";
 		break;
-        case FLASH_28F640C3B:
-        case FLASH_28F640C3T:
+	case FLASH_28F640C3B:
+	case FLASH_28F640C3T:
 		fmt = "28F640C3%s (64 Mbit, %s)\n";
 		break;
 	case FLASH_INTEL640B:
@@ -545,15 +545,15 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 	 left > 0 && res == 0;
 	 addr += sizeof(data), left -= sizeof(data) - bytes) {
 
-        bytes = addr & (sizeof(data) - 1);
-        addr &= ~(sizeof(data) - 1);
+	bytes = addr & (sizeof(data) - 1);
+	addr &= ~(sizeof(data) - 1);
 
 	/* combine source and destination data so can program
 	 * an entire word of 16 or 32 bits
 	 */
-        for (i = 0; i < sizeof(data); i++) {
-            data <<= 8;
-            if (i < bytes || i - bytes >= left )
+	for (i = 0; i < sizeof(data); i++) {
+	    data <<= 8;
+	    if (i < bytes || i - bytes >= left )
 		data += *((uchar *)addr + i);
 	    else
 		data += *src++;

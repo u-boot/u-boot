@@ -52,7 +52,7 @@
 
 #undef CONFIG_LCD_LOGO
 
-#define LCD_TEST_PATTERN 
+#define LCD_TEST_PATTERN
 /* #define LCD_TEST_PATTERN */	/* color backgnd for frame/color adjust */
 /* #define CFG_INVERT_COLORS */	/* Not needed - adjust vl_dp instead 	*/
 /************************************************************************/
@@ -163,31 +163,31 @@ typedef struct vidinfo {
 
 /* you have to set lccr0 and lccr3 (including pcd) */
 #define REG_LCCR0	0x003008f8
-#define REG_LCCR3	0x0300FF01 
+#define REG_LCCR3	0x0300FF01
 
 /* 640x480x16 @ 61 Hz */
 static vidinfo_t panel_info = {
-	vl_col: 	640, 
+	vl_col: 	640,
 	vl_row: 	480,
 	vl_width: 	640,
 	vl_height: 	480,
 	vl_clkp: 	CFG_HIGH,
-        vl_oep: 	CFG_HIGH,   
+	vl_oep: 	CFG_HIGH,
 	vl_hsp: 	CFG_HIGH,
-    	vl_vsp: 	CFG_HIGH,
-    	vl_dp: 		CFG_HIGH,
-    	vl_bpix: 	LCD_BPP,
-    	vl_lbw: 	0,
+	vl_vsp: 	CFG_HIGH,
+	vl_dp: 		CFG_HIGH,
+	vl_bpix: 	LCD_BPP,
+	vl_lbw: 	0,
 	vl_splt: 	0,
-    	vl_clor: 	0,
+	vl_clor: 	0,
 	vl_lcdac: 	0,
-    	vl_tft: 	1,
-    	vl_hpw: 	40,
-    	vl_blw: 	56,
-    	vl_elw: 	56,
-    	vl_vpw: 	20,
-    	vl_bfw: 	8,
-    	vl_efw: 	8,
+	vl_tft: 	1,
+	vl_hpw: 	40,
+	vl_blw: 	56,
+	vl_elw: 	56,
+	vl_vpw: 	20,
+	vl_bfw: 	8,
+	vl_efw: 	8,
 };
 #endif /* CONFIG_PXA_VIDEO */
 
@@ -198,30 +198,30 @@ static vidinfo_t panel_info = {
 
 /* you have to set lccr0 and lccr3 (including pcd) */
 #define REG_LCCR0	0x0030087C
-#define REG_LCCR3	0x0340FF08 
+#define REG_LCCR3	0x0340FF08
 
 static vidinfo_t panel_info = {
-	vl_col: 	640, 
+	vl_col: 	640,
 	vl_row: 	480,
 	vl_width: 	157,
 	vl_height: 	118,
 	vl_clkp: 	CFG_HIGH,
-        vl_oep: 	CFG_HIGH,   
+	vl_oep: 	CFG_HIGH,
 	vl_hsp: 	CFG_HIGH,
-    	vl_vsp: 	CFG_HIGH,
-    	vl_dp: 		CFG_HIGH,
-    	vl_bpix: 	LCD_BPP,
-    	vl_lbw: 	0,
+	vl_vsp: 	CFG_HIGH,
+	vl_dp: 		CFG_HIGH,
+	vl_bpix: 	LCD_BPP,
+	vl_lbw: 	0,
 	vl_splt: 	1,
-    	vl_clor: 	1,
+	vl_clor: 	1,
 	vl_lcdac: 	0,
-    	vl_tft: 	0,
-    	vl_hpw: 	1,
-    	vl_blw: 	3,
-    	vl_elw: 	3,
-    	vl_vpw: 	1,
-    	vl_bfw: 	0,
-    	vl_efw: 	0,
+	vl_tft: 	0,
+	vl_hpw: 	1,
+	vl_blw: 	3,
+	vl_elw: 	3,
+	vl_vpw: 	1,
+	vl_bfw: 	0,
+	vl_efw: 	0,
 };
 #endif /* CONFIG_SHARP_LM8V31 */
 
@@ -721,7 +721,7 @@ ulong lcd_setmem (ulong addr)
 
 static void lcd_ctrl_init (void *lcdbase)
 {
-   	pxafb_init_mem(lcdbase, &panel_info);
+	pxafb_init_mem(lcdbase, &panel_info);
 	pxafb_init(&panel_info);
 	pxafb_setup_gpio(&panel_info);
 	pxafb_enable_controller(&panel_info);
@@ -745,7 +745,7 @@ lcd_setcolreg (ushort regno, ushort red, ushort green, ushort blue)
 	struct pxafb_info *fbi = &panel_info.pxa;
 	unsigned short *palette = (unsigned short *)fbi->palette;
 	u_int val;
-   	
+
 	if (regno < fbi->palette_size) {
 		val = ((red << 8) & 0xf800);
 		val |= ((green << 4) & 0x07e0);
@@ -1011,18 +1011,18 @@ static int pxafb_init(vidinfo_t *vid)
 		LCCR1_HorSnchWdth(vid->vl_hpw) +
 		LCCR1_BegLnDel(vid->vl_blw) +
 		LCCR1_EndLnDel(vid->vl_elw);
-		
+
 	fbi->reg_lccr2 =
 		LCCR2_DisHght(vid->vl_row) +
 		LCCR2_VrtSnchWdth(vid->vl_vpw) +
 		LCCR2_BegFrmDel(vid->vl_bfw) +
 		LCCR2_EndFrmDel(vid->vl_efw);
 
-	fbi->reg_lccr3 = REG_LCCR3 & ~(LCCR3_HSP | LCCR3_VSP); 
-	fbi->reg_lccr3 |= 
-		  (vid->vl_hsp ? LCCR3_HorSnchL : LCCR3_HorSnchH) 
+	fbi->reg_lccr3 = REG_LCCR3 & ~(LCCR3_HSP | LCCR3_VSP);
+	fbi->reg_lccr3 |=
+		  (vid->vl_hsp ? LCCR3_HorSnchL : LCCR3_HorSnchH)
 		| (vid->vl_vsp ? LCCR3_VrtSnchL : LCCR3_VrtSnchH);
-		
+
 
 	/* setup dma descriptors */
 	fbi->dmadesc_fblow = (struct pxafb_dma_descriptor *)((unsigned int)fbi->palette - 3*16);
@@ -1030,9 +1030,9 @@ static int pxafb_init(vidinfo_t *vid)
 	fbi->dmadesc_palette = (struct pxafb_dma_descriptor *)((unsigned int)fbi->palette - 1*16);
 
 	#define BYTES_PER_PANEL	((fbi->reg_lccr0 & LCCR0_SDS) ? \
-	      	(vid->vl_col * vid->vl_row * NBITS(vid->vl_bpix) / 8 / 2) : \
-	    	(vid->vl_col * vid->vl_row * NBITS(vid->vl_bpix) / 8))
-	
+		(vid->vl_col * vid->vl_row * NBITS(vid->vl_bpix) / 8 / 2) : \
+		(vid->vl_col * vid->vl_row * NBITS(vid->vl_bpix) / 8))
+
 	/* populate descriptors */
 	fbi->dmadesc_fblow->fdadr = (u_long)fbi->dmadesc_fblow;
 	fbi->dmadesc_fblow->fsadr = fbi->screen + BYTES_PER_PANEL;
@@ -1040,7 +1040,7 @@ static int pxafb_init(vidinfo_t *vid)
 	fbi->dmadesc_fblow->ldcmd = BYTES_PER_PANEL;
 
 	fbi->fdadr1 = (u_long)fbi->dmadesc_fblow; /* only used in dual-panel mode */
-		
+
 	fbi->dmadesc_fbhigh->fsadr = fbi->screen;
 	fbi->dmadesc_fbhigh->fidr = 0;
 	fbi->dmadesc_fbhigh->ldcmd = BYTES_PER_PANEL;
@@ -1055,7 +1055,7 @@ static int pxafb_init(vidinfo_t *vid)
 		fbi->dmadesc_palette->fdadr = (u_long)fbi->dmadesc_fbhigh;
 		fbi->dmadesc_fbhigh->fdadr = (u_long)fbi->dmadesc_palette;
 		/* flips back and forth between pal and fbhigh */
-		fbi->fdadr0 = (u_long)fbi->dmadesc_palette; 
+		fbi->fdadr0 = (u_long)fbi->dmadesc_palette;
 	}
 	else
 	{
@@ -1079,7 +1079,7 @@ static int pxafb_init(vidinfo_t *vid)
 	debug("fbi->dmadesc_fblow->ldcmd = 0x%lx\n", fbi->dmadesc_fblow->ldcmd);
 	debug("fbi->dmadesc_fbhigh->ldcmd = 0x%lx\n", fbi->dmadesc_fbhigh->ldcmd);
 	debug("fbi->dmadesc_palette->ldcmd = 0x%lx\n", fbi->dmadesc_palette->ldcmd);
-	
+
 	return 0;
 }
 

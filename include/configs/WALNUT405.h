@@ -161,7 +161,7 @@
 #define CONFIG_PCI			/* include pci support	        */
 #define CONFIG_PCI_HOST	PCI_HOST_FORCE  /* select pci host function     */
 #define CONFIG_PCI_PNP			/* do pci plug-and-play         */
-                                        /* resource configuration       */
+					/* resource configuration       */
 
 #define CFG_PCI_SUBSYS_VENDORID 0x0000  /* PCI Vendor ID: to-do!!!      */
 #define CFG_PCI_SUBSYS_DEVICEID 0x0000  /* PCI Device ID: to-do!!!      */

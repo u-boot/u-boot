@@ -1,5 +1,4 @@
 /*
- * (C) Copyright 2000
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -68,44 +67,44 @@ unsigned long flash_init (void)
 	}
 #ifdef CFG_DOC_BASE
 #ifndef CONFIG_FEL8xx_AT
-        memctl->memc_or5 = (0xffff8000 | CFG_OR_TIMING_DOC ); /* 32k bytes */
-        memctl->memc_br5 = CFG_DOC_BASE | 0x401;
+	memctl->memc_or5 = (0xffff8000 | CFG_OR_TIMING_DOC ); /* 32k bytes */
+	memctl->memc_br5 = CFG_DOC_BASE | 0x401;
 #else
-        memctl->memc_or3 = (0xffff8000 | CFG_OR_TIMING_DOC ); /* 32k bytes */
-        memctl->memc_br3 = CFG_DOC_BASE | 0x401;
+	memctl->memc_or3 = (0xffff8000 | CFG_OR_TIMING_DOC ); /* 32k bytes */
+	memctl->memc_br3 = CFG_DOC_BASE | 0x401;
 #endif
 #endif
 #if defined( CONFIG_BOOT_8B)
-//        memctl->memc_or0 = 0xfff80ff4; /* 4MB bytes */
-//        memctl->memc_br0 = 0x40000401;
-        size_b0 = 0x80000;  /* 512 K */
-        flash_info[0].flash_id = FLASH_MAN_AMD | FLASH_AM040;
-        flash_info[0].sector_count = 8;
-        flash_info[0].size = 0x00080000;
-        /* set up sector start address table */
-        for (i = 0; i < flash_info[0].sector_count; i++)
-        flash_info[0].start[i] = 0x40000000 + (i * 0x10000);
-        /* protect all sectors */
-        for (i = 0; i < flash_info[0].sector_count; i++)
-        flash_info[0].protect[i] = 0x1;
+/*        memctl->memc_or0 = 0xfff80ff4; /###* 4MB bytes */
+/*        memctl->memc_br0 = 0x40000401; */
+	size_b0 = 0x80000;  /* 512 K */
+	flash_info[0].flash_id = FLASH_MAN_AMD | FLASH_AM040;
+	flash_info[0].sector_count = 8;
+	flash_info[0].size = 0x00080000;
+	/* set up sector start address table */
+	for (i = 0; i < flash_info[0].sector_count; i++)
+	flash_info[0].start[i] = 0x40000000 + (i * 0x10000);
+	/* protect all sectors */
+	for (i = 0; i < flash_info[0].sector_count; i++)
+	flash_info[0].protect[i] = 0x1;
 #elif defined (CONFIG_BOOT_16B)
-//        memctl->memc_or0 = 0xfff80ff4; /* 4MB bytes */
-//        memctl->memc_br0 = 0x40000401;
-        size_b0 = 0x400000;  /* 4MB , assume AMD29LV320B */
-        flash_info[0].flash_id = FLASH_MAN_AMD | FLASH_AM320B;
-        flash_info[0].sector_count = 67;
-        flash_info[0].size = 0x00400000;
-        /* set up sector start address table */
-        flash_info[0].start[0] = 0x40000000  ;
-        flash_info[0].start[1] = 0x40000000 + 0x4000;
-        flash_info[0].start[2] = 0x40000000 + 0x6000;
-        flash_info[0].start[3] = 0x40000000 + 0x8000;
-        for (i = 4; i < flash_info[0].sector_count; i++)
-        flash_info[0].start[i] = 0x40000000 + 0x10000 + ((i-4) * 0x10000);
-        /* protect all sectors */
-        for (i = 0; i < flash_info[0].sector_count; i++)
-        flash_info[0].protect[i] = 0x1;
-#endif									
+/*        memctl->memc_or0 = 0xfff80ff4; /###* 4MB bytes */
+/*        memctl->memc_br0 = 0x40000401; */
+	size_b0 = 0x400000;  /* 4MB , assume AMD29LV320B */
+	flash_info[0].flash_id = FLASH_MAN_AMD | FLASH_AM320B;
+	flash_info[0].sector_count = 67;
+	flash_info[0].size = 0x00400000;
+	/* set up sector start address table */
+	flash_info[0].start[0] = 0x40000000  ;
+	flash_info[0].start[1] = 0x40000000 + 0x4000;
+	flash_info[0].start[2] = 0x40000000 + 0x6000;
+	flash_info[0].start[3] = 0x40000000 + 0x8000;
+	for (i = 4; i < flash_info[0].sector_count; i++)
+	flash_info[0].start[i] = 0x40000000 + 0x10000 + ((i-4) * 0x10000);
+	/* protect all sectors */
+	for (i = 0; i < flash_info[0].sector_count; i++)
+	flash_info[0].protect[i] = 0x1;
+#endif
 
 
 #ifdef CONFIG_BOOT_32B
@@ -482,7 +481,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 	for (sect = s_first; sect<=s_last; sect++) {
 		if (info->protect[sect] == 0) {	/* not protected */
 			addr = (vu_long*)(info->start[sect]);
-			//addr[0] = 0x00300030;
+			/*addr[0] = 0x00300030; */
 			my_out_8(     (unsigned char *) ((ulong)addr),0x30 );
 			l_sect = sect;
 		}
@@ -553,11 +552,11 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 	last  = start;
 	addr = (vu_long*)(info->start[l_sect]);
 #if defined (CONFIG_BOOT_8B)
-	while (  (my_in_8((unsigned char *)addr) & 0x80) != 0x80 ) 
+	while (  (my_in_8((unsigned char *)addr) & 0x80) != 0x80 )
 #elif defined(CONFIG_BOOT_16B )
-	while (  (my_in_be16((unsigned short *)addr) & 0x0080) != 0x0080 ) 
+	while (  (my_in_be16((unsigned short *)addr) & 0x0080) != 0x0080 )
 #elif defined(CONFIG_BOOT_32B)
-	while (  (my_in_be32((unsigned  *)addr) & 0x00800080) != 0x00800080 ) 
+	while (  (my_in_be32((unsigned  *)addr) & 0x00800080) != 0x00800080 )
 #else
 # error CONFIG_BOOT_(size)B missing.
 #endif
@@ -688,7 +687,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 	my_out_8( (unsigned char * )  (addr+0x555) , 0x90 );
 	in_mid=my_in_8( (unsigned char * ) addr );
 	in_did=my_in_8( (unsigned char * ) (addr+1) );
-  	printf(" man ID=0x%x, dev ID=0x%x.\n",in_mid,in_did );
+	printf(" man ID=0x%x, dev ID=0x%x.\n",in_mid,in_did );
 	my_out_8( (unsigned char *)addr, 0xf0);
 	udelay(1);
 	}
@@ -696,7 +695,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
       {
 	int  data_ch[4];
 	data_ch[0]=(int ) ((data>>24) & 0xff);
-	data_ch[1]=(int ) ((data>>16) &0xff ); 
+	data_ch[1]=(int ) ((data>>16) &0xff );
 	data_ch[2]=(int ) ((data >>8) & 0xff);
 	data_ch[3]=(int ) (data & 0xff);
 	for (i=0;i<4;i++ ){
@@ -708,7 +707,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 	if (flag)
 		enable_interrupts();
 
-  	  start = get_timer (0);
+	  start = get_timer (0);
 	last  = start;
 	  while(  ( my_in_8((unsigned char *) (dest+i)) ) != ( data_ch[i]  ) ) {
 		  if (get_timer(start) > CFG_FLASH_WRITE_TOUT ) {
@@ -719,7 +718,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
      }
 #elif defined( CONFIG_BOOT_16B)
 	data_short[0]=(int) (data>>16) & 0xffff;
-	data_short[1]=(int ) data & 0xffff ; 
+	data_short[1]=(int ) data & 0xffff ;
 	for (i=0;i<2;i++ ){
 	my_out_be16(     (unsigned short *) ((ulong)addr+ 0xaaa),0xaa );
 	my_out_be16(     (unsigned short *) ((ulong)addr+ 0x554),0x55 );
@@ -728,7 +727,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 	/* re-enable interrupts if necessary */
 	if (flag)
 		enable_interrupts();
-  	  start = get_timer (0);
+	  start = get_timer (0);
 	last  = start;
 	  while(  ( my_in_be16((unsigned short *) (dest+(i*2))) ) != ( data_short[i]  ) ) {
 		  if (get_timer(start) > CFG_FLASH_WRITE_TOUT ) {
@@ -755,8 +754,8 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 		}
 	}
 #endif
-	
-	
+
+
 	return (0);
 }
 #ifdef  CONFIG_BOOT_8B
@@ -776,8 +775,8 @@ static void my_out_8  ( unsigned char *addr, int val)
 static int my_in_be16( unsigned short *addr)
 {
        int ret;
-        __asm__ __volatile__("lhz%U1%X1 %0,%1; eieio" : "=r" (ret) : "m" (*addr));
-			        return ret;
+	__asm__ __volatile__("lhz%U1%X1 %0,%1; eieio" : "=r" (ret) : "m" (*addr));
+				return ret;
 }
 static void my_out_be16( unsigned short *addr, int val)
 {
@@ -787,15 +786,12 @@ static void my_out_be16( unsigned short *addr, int val)
 #ifdef  CONFIG_BOOT_32B
 static  unsigned my_in_be32( unsigned *addr)
 {
-        unsigned ret;
-        __asm__ __volatile__("lwz%U1%X1 %0,%1; eieio" : "=r" (ret) : "m" (*addr));
-			        return ret;
+	unsigned ret;
+	__asm__ __volatile__("lwz%U1%X1 %0,%1; eieio" : "=r" (ret) : "m" (*addr));
+				return ret;
 }
 static  void my_out_be32( unsigned *addr, int val)
 {
        __asm__ __volatile__("stw%U0%X0 %1,%0; eieio" : "=m" (*addr) : "r" (val));
 }
 #endif
-
-
-

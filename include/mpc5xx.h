@@ -23,7 +23,7 @@
 
 /*
  * File:		mpc5xx.h
- * 
+ *
  * Discription:		mpc5xx specific definitions
  *
  */
@@ -88,7 +88,7 @@
 #define SIUMCR_MTSC	0x00000100	/* Memory transfer      		*/
 
 /*-----------------------------------------------------------------------
- * TBSCR - Time Base Status and Control Register		
+ * TBSCR - Time Base Status and Control Register
  */
 #define TBSCR_REFA	((ushort)0x0080)	/* Reference Interrupt Status A	*/
 #define TBSCR_REFB	((ushort)0x0040)	/* Reference Interrupt Status B */
@@ -113,13 +113,13 @@
 #define PLPRCR_CSR	0x00000080	/* CheskStop Reset value		*/
 
 /*-----------------------------------------------------------------------
- * SCCR - System Clock and reset Control Register	
+ * SCCR - System Clock and reset Control Register
  */
 #define SCCR_DFNL_MSK	0x00000070	/* DFNL mask				*/
 #define SCCR_DFNH_MSK	0x00000007  	/* DFNH mask				*/
 #define SCCR_DFNL_SHIFT 0x0000004	/* DFNL shift value			*/
 #define SCCR_RTSEL	0x00100000	/* RTC circuit input source select	*/
-#define SCCR_EBDF00	0x00000000	/* Division factor 1. CLKOUT is GCLK2   */		
+#define SCCR_EBDF00	0x00000000	/* Division factor 1. CLKOUT is GCLK2   */
 #define SCCR_EBDF11	0x00060000	/* reserved				*/
 #define SCCR_TBS	0x02000000	/* Time Base Source			*/
 #define SCCR_RTDIV	0x01000000	/* RTC Clock Divide 			*/

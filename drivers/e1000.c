@@ -6,26 +6,26 @@ tested on both gig copper and gig fiber boards
 ***************************************************************************/
 /*******************************************************************************
 
-  
+
   Copyright(c) 1999 - 2002 Intel Corporation. All rights reserved.
-  
-  This program is free software; you can redistribute it and/or modify it 
-  under the terms of the GNU General Public License as published by the Free 
-  Software Foundation; either version 2 of the License, or (at your option) 
+
+  This program is free software; you can redistribute it and/or modify it
+  under the terms of the GNU General Public License as published by the Free
+  Software Foundation; either version 2 of the License, or (at your option)
   any later version.
-  
-  This program is distributed in the hope that it will be useful, but WITHOUT 
-  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for 
+
+  This program is distributed in the hope that it will be useful, but WITHOUT
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
   more details.
-  
+
   You should have received a copy of the GNU General Public License along with
-  this program; if not, write to the Free Software Foundation, Inc., 59 
+  this program; if not, write to the Free Software Foundation, Inc., 59
   Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-  
+
   The full GNU General Public License is included in this distribution in the
   file called LICENSE.
-  
+
   Contact Information:
   Linux NICS <linux.nics@intel.com>
   Intel Corporation, 5200 N.E. Elam Young Parkway, Hillsboro, OR 97124-6497
@@ -109,7 +109,7 @@ static int e1000_detect_gig_phy(struct e1000_hw *hw);
 #define E1000_WRITE_REG_ARRAY(a, reg, offset, value) (\
 			writel((value), ((a)->hw_addr + E1000_##reg + ((offset) << 2))))
 #define E1000_READ_REG_ARRAY(a, reg, offset) ( \
-        readl((a)->hw_addr + E1000_##reg + ((offset) << 2)))
+	readl((a)->hw_addr + E1000_##reg + ((offset) << 2)))
 #define E1000_WRITE_FLUSH(a) {uint32_t x; x = E1000_READ_REG(a, STATUS);}
 
 /******************************************************************************
@@ -133,14 +133,14 @@ e1000_raise_ee_clk(struct e1000_hw *hw, uint32_t * eecd)
 /******************************************************************************
  * Lowers the EEPROM's clock input.
  *
- * hw - Struct containing variables accessed by shared code 
+ * hw - Struct containing variables accessed by shared code
  * eecd - EECD's current value
  *****************************************************************************/
 static void
 e1000_lower_ee_clk(struct e1000_hw *hw, uint32_t * eecd)
 {
-	/* Lower the clock input to the EEPROM (by clearing the SK bit), and then 
-	 * wait 50 microseconds. 
+	/* Lower the clock input to the EEPROM (by clearing the SK bit), and then
+	 * wait 50 microseconds.
 	 */
 	*eecd = *eecd & ~E1000_EECD_SK;
 	E1000_WRITE_REG(hw, EECD, *eecd);
@@ -163,7 +163,7 @@ e1000_shift_out_ee_bits(struct e1000_hw *hw, uint16_t data, uint16_t count)
 
 	/* We need to shift "count" bits out to the EEPROM. So, value in the
 	 * "data" parameter will be shifted out to the EEPROM one bit at a time.
-	 * In order to do this, "data" must be broken down into bits. 
+	 * In order to do this, "data" must be broken down into bits.
 	 */
 	mask = 0x01 << (count - 1);
 	eecd = E1000_READ_REG(hw, EECD);
@@ -208,10 +208,10 @@ e1000_shift_in_ee_bits(struct e1000_hw *hw)
 	uint32_t i;
 	uint16_t data;
 
-	/* In order to read a register from the EEPROM, we need to shift 16 bits 
+	/* In order to read a register from the EEPROM, we need to shift 16 bits
 	 * in from the EEPROM. Bits are "shifted in" by raising the clock input to
 	 * the EEPROM (setting the SK bit), and then reading the value of the "DO"
-	 * bit.  During this "shifting in" process the "DI" bit should always be 
+	 * bit.  During this "shifting in" process the "DI" bit should always be
 	 * clear..
 	 */
 
@@ -241,7 +241,7 @@ e1000_shift_in_ee_bits(struct e1000_hw *hw)
  *
  * hw - Struct containing variables accessed by shared code
  *
- * Lowers EEPROM clock. Clears input pin. Sets the chip select pin. This 
+ * Lowers EEPROM clock. Clears input pin. Sets the chip select pin. This
  * function should be called before issuing a command to the EEPROM.
  *****************************************************************************/
 static void
@@ -262,7 +262,7 @@ e1000_setup_eeprom(struct e1000_hw *hw)
 
 /******************************************************************************
  * Returns EEPROM to a "standby" state
- * 
+ *
  * hw - Struct containing variables accessed by shared code
  *****************************************************************************/
 static void
@@ -302,7 +302,7 @@ e1000_standby_eeprom(struct e1000_hw *hw)
  *
  * hw - Struct containing variables accessed by shared code
  * offset - offset of  word in the EEPROM to read
- * data - word read from the EEPROM 
+ * data - word read from the EEPROM
  *****************************************************************************/
 static int
 e1000_read_eeprom(struct e1000_hw *hw, uint16_t offset, uint16_t * data)
@@ -447,7 +447,7 @@ e1000_write_eeprom(struct e1000_hw *hw, uint16_t Reg, uint16_t Data)
 
 /******************************************************************************
  * Verifies that the EEPROM has a valid checksum
- * 
+ *
  * hw - Struct containing variables accessed by shared code
  *
  * Reads the first 64 16 bit words of the EEPROM and sums the values read.
@@ -470,7 +470,7 @@ e1000_validate_eeprom_checksum(struct eth_device *nic)
 		}
 		checksum += eeprom_data;
 	}
-	
+
 	if (checksum == (uint16_t) EEPROM_SUM) {
 		return 0;
 	} else {
@@ -515,7 +515,7 @@ e1000_read_mac_addr(struct eth_device *nic)
 /******************************************************************************
  * Initializes receive address filters.
  *
- * hw - Struct containing variables accessed by shared code 
+ * hw - Struct containing variables accessed by shared code
  *
  * Places the MAC address in receive address register 0 and clears the rest
  * of the receive addresss registers. Clears the multicast table. Assumes
@@ -566,7 +566,7 @@ e1000_clear_vfta(struct e1000_hw *hw)
 
 /******************************************************************************
  * Set the mac type member in the hw struct.
- * 
+ *
  * hw - Struct containing variables accessed by shared code
  *****************************************************************************/
 static int
@@ -711,8 +711,8 @@ e1000_reset_hw(struct e1000_hw *hw)
  * Performs basic configuration of the adapter.
  *
  * hw - Struct containing variables accessed by shared code
- * 
- * Assumes that the controller has previously been reset and is in a 
+ *
+ * Assumes that the controller has previously been reset and is in a
  * post-reset uninitialized state. Initializes the receive address registers,
  * multicast table, and VLAN filter table. Calls routines to setup link
  * configuration and flow control settings. Clears all on-chip counters. Leaves
@@ -857,13 +857,13 @@ e1000_init_hw(struct eth_device *nic)
 
 /******************************************************************************
  * Configures flow control and link settings.
- * 
+ *
  * hw - Struct containing variables accessed by shared code
- * 
+ *
  * Determines which flow control settings to use. Calls the apropriate media-
  * specific link configuration function. Configures the flow control settings.
  * Assuming the adapter has a valid link partner, a valid link should be
- * established. Assumes the hardware has previously been reset and the 
+ * established. Assumes the hardware has previously been reset and the
  * transmitter and receiver are not enabled.
  *****************************************************************************/
 static int
@@ -950,7 +950,7 @@ e1000_setup_link(struct eth_device *nic)
 	 * these registers will be set to a default threshold that may be
 	 * adjusted later by the driver's runtime code.  However, if the
 	 * ability to transmit pause frames in not enabled, then these
-	 * registers will be set to 0. 
+	 * registers will be set to 0.
 	 */
 	if (!(hw->fc & e1000_fc_tx_pause)) {
 		E1000_WRITE_REG(hw, FCRTL, 0);
@@ -992,8 +992,8 @@ e1000_setup_fiber_link(struct eth_device *nic)
 	int32_t ret_val;
 
 	DEBUGFUNC();
-	/* On adapters with a MAC newer that 82544, SW Defineable pin 1 will be 
-	 * set when the optics detect a signal. On older adapters, it will be 
+	/* On adapters with a MAC newer that 82544, SW Defineable pin 1 will be
+	 * set when the optics detect a signal. On older adapters, it will be
 	 * cleared when there is a signal
 	 */
 	ctrl = E1000_READ_REG(hw, CTRL);
@@ -1013,12 +1013,12 @@ e1000_setup_fiber_link(struct eth_device *nic)
 	 * the device accordingly.  If auto-negotiation is enabled, then software
 	 * will have to set the "PAUSE" bits to the correct value in the Tranmsit
 	 * Config Word Register (TXCW) and re-start auto-negotiation.  However, if
-	 * auto-negotiation is disabled, then software will have to manually 
+	 * auto-negotiation is disabled, then software will have to manually
 	 * configure the two flow control enable bits in the CTRL register.
 	 *
 	 * The possible values of the "fc" parameter are:
 	 *      0:  Flow control is completely disabled
-	 *      1:  Rx flow control is enabled (we can receive pause frames, but 
+	 *      1:  Rx flow control is enabled (we can receive pause frames, but
 	 *          not send pause frames).
 	 *      2:  Tx flow control is enabled (we can send pause frames but we do
 	 *          not support receiving pause frames).
@@ -1030,8 +1030,8 @@ e1000_setup_fiber_link(struct eth_device *nic)
 		txcw = (E1000_TXCW_ANE | E1000_TXCW_FD);
 		break;
 	case e1000_fc_rx_pause:
-		/* RX Flow control is enabled and TX Flow control is disabled by a 
-		 * software over-ride. Since there really isn't a way to advertise 
+		/* RX Flow control is enabled and TX Flow control is disabled by a
+		 * software over-ride. Since there really isn't a way to advertise
 		 * that we are capable of RX Pause ONLY, we will advertise that we
 		 * support both symmetric and asymmetric RX PAUSE. Later, we will
 		 *  disable the adapter's ability to send PAUSE frames.
@@ -1039,7 +1039,7 @@ e1000_setup_fiber_link(struct eth_device *nic)
 		txcw = (E1000_TXCW_ANE | E1000_TXCW_FD | E1000_TXCW_PAUSE_MASK);
 		break;
 	case e1000_fc_tx_pause:
-		/* TX Flow control is enabled, and RX Flow control is disabled, by a 
+		/* TX Flow control is enabled, and RX Flow control is disabled, by a
 		 * software over-ride.
 		 */
 		txcw = (E1000_TXCW_ANE | E1000_TXCW_FD | E1000_TXCW_ASM_DIR);
@@ -1070,8 +1070,8 @@ e1000_setup_fiber_link(struct eth_device *nic)
 	mdelay(1);
 
 	/* If we have a signal (the cable is plugged in) then poll for a "Link-Up"
-	 * indication in the Device Status Register.  Time-out if a link isn't 
-	 * seen in 500 milliseconds seconds (Auto-negotiation should complete in 
+	 * indication in the Device Status Register.  Time-out if a link isn't
+	 * seen in 500 milliseconds seconds (Auto-negotiation should complete in
 	 * less than 500 milliseconds even if the other end is doing it in SW).
 	 */
 	if ((E1000_READ_REG(hw, CTRL) & E1000_CTRL_SWDPIN1) == signal) {
@@ -1083,7 +1083,7 @@ e1000_setup_fiber_link(struct eth_device *nic)
 				break;
 		}
 		if (i == (LINK_UP_TIMEOUT / 10)) {
-			/* AutoNeg failed to achieve a link, so we'll call 
+			/* AutoNeg failed to achieve a link, so we'll call
 			 * e1000_check_for_link. This routine will force the link up if we
 			 * detect a signal. This will allow us to communicate with
 			 * non-autonegotiating link partners.
@@ -1284,7 +1284,7 @@ e1000_setup_copper_link(struct eth_device *nic)
 		}
 	}
 #else
-	/* If we do not wait for autonegtation to complete I 
+	/* If we do not wait for autonegtation to complete I
 	 * do not see a valid link status.
 	 */
 	ret_val = e1000_wait_autoneg(hw);
@@ -1558,7 +1558,7 @@ e1000_config_mac_to_phy(struct e1000_hw *hw)
 
 /******************************************************************************
  * Forces the MAC's flow control settings.
- * 
+ *
  * hw - Struct containing variables accessed by shared code
  *
  * Sets the TFCE and RFCE bits in the device control register to reflect
@@ -1625,7 +1625,7 @@ e1000_force_mac_fc(struct e1000_hw *hw)
 
 /******************************************************************************
  * Configures flow control settings after link is established
- * 
+ *
  * hw - Struct containing variables accessed by shared code
  *
  * Should be called immediately after a valid link has been established.
@@ -1859,8 +1859,8 @@ e1000_check_for_link(struct eth_device *nic)
 
 	DEBUGFUNC();
 
-	/* On adapters with a MAC newer that 82544, SW Defineable pin 1 will be 
-	 * set when the optics detect a signal. On older adapters, it will be 
+	/* On adapters with a MAC newer that 82544, SW Defineable pin 1 will be
+	 * set when the optics detect a signal. On older adapters, it will be
 	 * cleared when there is a signal
 	 */
 	ctrl = E1000_READ_REG(hw, CTRL);
@@ -1920,7 +1920,7 @@ e1000_check_for_link(struct eth_device *nic)
 			}
 		}
 
-		/* Configure Flow Control now that Auto-Neg has completed. First, we 
+		/* Configure Flow Control now that Auto-Neg has completed. First, we
 		 * need to restore the desired flow control settings because we may
 		 * have had to re-autoneg with a different link partner.
 		 */
@@ -1950,7 +1950,7 @@ e1000_check_for_link(struct eth_device *nic)
 					     NWAY_LPAR_100TX_HD_CAPS |
 					     NWAY_LPAR_100TX_FD_CAPS |
 					     NWAY_LPAR_100T4_CAPS)) {
-				/* If our link partner advertises anything in addition to 
+				/* If our link partner advertises anything in addition to
 				 * gigabit, we do not need to enable TBI compatibility.
 				 */
 				if (hw->tbi_compatibility_on) {
@@ -2151,7 +2151,7 @@ e1000_shift_out_mdi_bits(struct e1000_hw *hw, uint32_t data, uint16_t count)
 	uint32_t mask;
 
 	/* We need to shift "count" number of bits out to the PHY. So, the value
-	 * in the "data" parameter will be shifted out to the PHY one bit at a 
+	 * in the "data" parameter will be shifted out to the PHY one bit at a
 	 * time. In order to do this, "data" must be broken down into bits.
 	 */
 	mask = 0x01;
@@ -2190,7 +2190,7 @@ e1000_shift_out_mdi_bits(struct e1000_hw *hw, uint32_t data, uint16_t count)
 *
 * hw - Struct containing variables accessed by shared code
 *
-* Bits are shifted in in MSB to LSB order. 
+* Bits are shifted in in MSB to LSB order.
 ******************************************************************************/
 static uint16_t
 e1000_shift_in_mdi_bits(struct e1000_hw *hw)
@@ -2360,12 +2360,12 @@ e1000_write_phy_reg(struct e1000_hw *hw, uint32_t reg_addr, uint16_t phy_data)
 	} else {
 		/* We'll need to use the SW defined pins to shift the write command
 		 * out to the PHY. We first send a preamble to the PHY to signal the
-		 * beginning of the MII instruction.  This is done by sending 32 
+		 * beginning of the MII instruction.  This is done by sending 32
 		 * consecutive "1" bits.
 		 */
 		e1000_shift_out_mdi_bits(hw, PHY_PREAMBLE, PHY_PREAMBLE_SIZE);
 
-		/* Now combine the remaining required fields that will indicate a 
+		/* Now combine the remaining required fields that will indicate a
 		 * write operation. We use this method instead of calling the
 		 * e1000_shift_out_mdi_bits routine for each field in the command. The
 		 * format of a MII write instruction is as follows:

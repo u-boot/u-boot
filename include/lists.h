@@ -3,7 +3,7 @@
 
 #define LIST_START    	-1      /* Handy Constants that substitute for item positions */
 #define LIST_END      	0       /* END_OF_LIST means one past current length of list when */
-                                /* inserting. Otherwise it refers the last item in the list. */
+				/* inserting. Otherwise it refers the last item in the list. */
 
 typedef struct
     {

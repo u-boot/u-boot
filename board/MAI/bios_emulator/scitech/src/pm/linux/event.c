@@ -89,7 +89,7 @@ mouse_info mouse_infos[] = {
     {"BusMouse",        STD_FLG,                            NULL,               {0xf8, 0x80, 0x00, 0x00}, 3, 3},
     {"MouseMan",        CS7 | STD_FLG,                      _EVT_mouse_init,    {0x40, 0x40, 0x40, 0x00}, 3, 1},
     {"IntelliMouse",    CS7 | STD_FLG,                      _EVT_pnpmouse_init, {0xc0, 0x40, 0xc0, 0x00}, 4, 1},
-    {"IMPS2",           CS7 | STD_FLG,                      NULL,               {0xc0, 0x40, 0xc0, 0x00}, 4, 1}, // ?
+    {"IMPS2",           CS7 | STD_FLG,                      NULL,               {0xc0, 0x40, 0xc0, 0x00}, 4, 1}, /* ? */
     };
 
 #define NB_MICE (sizeof(mouse_infos)/sizeof(mouse_info))
@@ -109,7 +109,7 @@ typedef struct {
     int map;
     } keymap;
 
-// TODO: Fix this and set it up so we can do a binary search!
+/* TODO: Fix this and set it up so we can do a binary search! */
 
 keymap keymaps[] = {
     {96, KB_padEnter},
@@ -249,131 +249,131 @@ static ibool readMouseData(
     /* Read the first byte to check for the protocol */
     drv = &mouse_infos[mouse_driver];
     if (read(_EVT_mouse_fd, data, drv->read) != drv->read) {
-        perror("read");
-        return false;
-        }
+	perror("read");
+	return false;
+	}
     if ((data[0] & drv->proto[0]) != drv->proto[1])
-        return false;
+	return false;
 
     /* Load a whole protocol packet */
     cnt += drv->read;
     while (cnt < drv->packet_len) {
-        ret = read(_EVT_mouse_fd, data+cnt, drv->read);
-        if (ret == drv->read)
-            cnt += ret;
-        else {
-            perror("read");
-            return false;
-            }
-        }
+	ret = read(_EVT_mouse_fd, data+cnt, drv->read);
+	if (ret == drv->read)
+	    cnt += ret;
+	else {
+	    perror("read");
+	    return false;
+	    }
+	}
     if ((data[1] & drv->proto[2]) != drv->proto[3])
-        return false;
+	return false;
 
     /* Now decode the protocol packet */
     switch (mouse_driver) {
-        case EVT_microsoft:
-            if (data[0] == 0x40 && !(prev|data[1]|data[2]))
-                *buttons = 2;   /* Third button on MS compatible mouse */
-            else
-                *buttons= ((data[0] & 0x20) >> 3) | ((data[0] & 0x10) >> 4);
-            prev = *buttons;
-            *dx = (char)(((data[0] & 0x03) << 6) | (data[1] & 0x3F));
-            *dy = (char)(((data[0] & 0x0C) << 4) | (data[2] & 0x3F));
-            break;
-        case EVT_ps2:
-            *buttons = !!(data[0]&1) * 4 + !!(data[0]&2) * 1 + !!(data[0]&4) * 2;
-            if (data[1] != 0)
-                *dx = (data[0] & 0x10) ? data[1]-256 : data[1];
-            else
-                *dx = 0;
-            if (data[2] != 0)
-                *dy = -((data[0] & 0x20) ? data[2]-256 : data[2]);
-            else
-                *dy = 0;
-            break;
-        case EVT_mousesystems: case EVT_gpm:
-            *buttons = (~data[0]) & 0x07;
-            *dx = (char)(data[1]) + (char)(data[3]);
-            *dy = -((char)(data[2]) + (char)(data[4]));
-            break;
-        case EVT_logitech:
-            *buttons= data[0] & 0x07;
-            *dx = (data[0] & 0x10) ?   data[1] : - data[1];
-            *dy = (data[0] & 0x08) ? - data[2] :   data[2];
-            break;
-        case EVT_busmouse:
-            *buttons= (~data[0]) & 0x07;
-            *dx = (char)data[1];
-            *dy = -(char)data[2];
-            break;
-        case EVT_MMseries:
-            *buttons = data[0] & 0x07;
-            *dx = (data[0] & 0x10) ?   data[1] : - data[1];
-            *dy = (data[0] & 0x08) ? - data[2] :   data[2];
-            break;
-        case EVT_intellimouse:
-            *buttons = ((data[0] & 0x20) >> 3)  /* left */
-                     | ((data[3] & 0x10) >> 3)  /* middle */
-                     | ((data[0] & 0x10) >> 4); /* right */
-            *dx = (char)(((data[0] & 0x03) << 6) | (data[1] & 0x3F));
-            *dy = (char)(((data[0] & 0x0C) << 4) | (data[2] & 0x3F));
-            break;
-        case EVT_intellimouse_ps2:
-            *buttons = (data[0] & 0x04) >> 1 /* Middle */
-                | (data[0] & 0x02) >> 1 /* Right */
-                | (data[0] & 0x01) << 2; /* Left */
-            *dx = (data[0] & 0x10) ?    data[1]-256  :  data[1];
-            *dy = (data[0] & 0x20) ?  -(data[2]-256) : -data[2];
-            break;
-        case EVT_mouseman: {
-            static int      getextra;
-            static uchar    prev=0;
-            uchar           b;
+	case EVT_microsoft:
+	    if (data[0] == 0x40 && !(prev|data[1]|data[2]))
+		*buttons = 2;   /* Third button on MS compatible mouse */
+	    else
+		*buttons= ((data[0] & 0x20) >> 3) | ((data[0] & 0x10) >> 4);
+	    prev = *buttons;
+	    *dx = (char)(((data[0] & 0x03) << 6) | (data[1] & 0x3F));
+	    *dy = (char)(((data[0] & 0x0C) << 4) | (data[2] & 0x3F));
+	    break;
+	case EVT_ps2:
+	    *buttons = !!(data[0]&1) * 4 + !!(data[0]&2) * 1 + !!(data[0]&4) * 2;
+	    if (data[1] != 0)
+		*dx = (data[0] & 0x10) ? data[1]-256 : data[1];
+	    else
+		*dx = 0;
+	    if (data[2] != 0)
+		*dy = -((data[0] & 0x20) ? data[2]-256 : data[2]);
+	    else
+		*dy = 0;
+	    break;
+	case EVT_mousesystems: case EVT_gpm:
+	    *buttons = (~data[0]) & 0x07;
+	    *dx = (char)(data[1]) + (char)(data[3]);
+	    *dy = -((char)(data[2]) + (char)(data[4]));
+	    break;
+	case EVT_logitech:
+	    *buttons= data[0] & 0x07;
+	    *dx = (data[0] & 0x10) ?   data[1] : - data[1];
+	    *dy = (data[0] & 0x08) ? - data[2] :   data[2];
+	    break;
+	case EVT_busmouse:
+	    *buttons= (~data[0]) & 0x07;
+	    *dx = (char)data[1];
+	    *dy = -(char)data[2];
+	    break;
+	case EVT_MMseries:
+	    *buttons = data[0] & 0x07;
+	    *dx = (data[0] & 0x10) ?   data[1] : - data[1];
+	    *dy = (data[0] & 0x08) ? - data[2] :   data[2];
+	    break;
+	case EVT_intellimouse:
+	    *buttons = ((data[0] & 0x20) >> 3)  /* left */
+		     | ((data[3] & 0x10) >> 3)  /* middle */
+		     | ((data[0] & 0x10) >> 4); /* right */
+	    *dx = (char)(((data[0] & 0x03) << 6) | (data[1] & 0x3F));
+	    *dy = (char)(((data[0] & 0x0C) << 4) | (data[2] & 0x3F));
+	    break;
+	case EVT_intellimouse_ps2:
+	    *buttons = (data[0] & 0x04) >> 1 /* Middle */
+		| (data[0] & 0x02) >> 1 /* Right */
+		| (data[0] & 0x01) << 2; /* Left */
+	    *dx = (data[0] & 0x10) ?    data[1]-256  :  data[1];
+	    *dy = (data[0] & 0x20) ?  -(data[2]-256) : -data[2];
+	    break;
+	case EVT_mouseman: {
+	    static int      getextra;
+	    static uchar    prev=0;
+	    uchar           b;
 
-            /* The damned MouseMan has 3/4 bytes packets. The extra byte
-             * is only there if the middle button is active.
-             * I get the extra byte as a packet with magic numbers in it.
-             * and then switch to 4-byte mode.
-             */
-            if (data[1] == 0xAA && data[2] == 0x55) {
-                /* Got unexpected fourth byte */
-                if ((b = (*data>>4)) > 0x3)
-                    return false;  /* just a sanity check */
-                *dx = *dy = 0;
-                drv->packet_len=4;
-                getextra=0;
-                }
-            else {
-                /* Got 3/4, as expected */
-                /* Motion is independent of packetlen... */
-                *dx = (char)(((data[0] & 0x03) << 6) | (data[1] & 0x3F));
-                *dy = (char)(((data[0] & 0x0C) << 4) | (data[2] & 0x3F));
-                prev = ((data[0] & 0x20) >> 3) | ((data[0] & 0x10) >> 4);
-                if (drv->packet_len==4)
-                    b = data[3]>>4;
-                }
-            if (drv->packet_len == 4) {
-                if (b == 0) {
-                    drv->packet_len = 3;
-                    getextra = 1;
-                    }
-                else {
-                    if (b & 0x2)
-                        prev |= 2;
-                    }
-                }
-            *buttons = prev;
+	    /* The damned MouseMan has 3/4 bytes packets. The extra byte
+	     * is only there if the middle button is active.
+	     * I get the extra byte as a packet with magic numbers in it.
+	     * and then switch to 4-byte mode.
+	     */
+	    if (data[1] == 0xAA && data[2] == 0x55) {
+		/* Got unexpected fourth byte */
+		if ((b = (*data>>4)) > 0x3)
+		    return false;  /* just a sanity check */
+		*dx = *dy = 0;
+		drv->packet_len=4;
+		getextra=0;
+		}
+	    else {
+		/* Got 3/4, as expected */
+		/* Motion is independent of packetlen... */
+		*dx = (char)(((data[0] & 0x03) << 6) | (data[1] & 0x3F));
+		*dy = (char)(((data[0] & 0x0C) << 4) | (data[2] & 0x3F));
+		prev = ((data[0] & 0x20) >> 3) | ((data[0] & 0x10) >> 4);
+		if (drv->packet_len==4)
+		    b = data[3]>>4;
+		}
+	    if (drv->packet_len == 4) {
+		if (b == 0) {
+		    drv->packet_len = 3;
+		    getextra = 1;
+		    }
+		else {
+		    if (b & 0x2)
+			prev |= 2;
+		    }
+		}
+	    *buttons = prev;
 
-            /* This "chord-middle" behaviour was reported by David A. van Leeuwen */
-            if (((prev ^ *buttons) & 5) == 5)
-                *buttons = *buttons ? 2 : 0;
-            prev = *buttons;
-            break;
-            }
-        case EVT_noMouse:
-            return false;
-            break;
-        }
+	    /* This "chord-middle" behaviour was reported by David A. van Leeuwen */
+	    if (((prev ^ *buttons) & 5) == 5)
+		*buttons = *buttons ? 2 : 0;
+	    prev = *buttons;
+	    break;
+	    }
+	case EVT_noMouse:
+	    return false;
+	    break;
+	}
     return true;
 }
 
@@ -389,9 +389,9 @@ static int getKeyMapping(
     int i;
 
     for(i = 0; i < nb; i++) {
-        if (tab[i].scan == key)
-            return tab[i].map;
-        }
+	if (tab[i].scan == key)
+	    return tab[i].map;
+	}
     return key;
 }
 
@@ -411,21 +411,21 @@ static void makeJoyEvent(
 {
     evt->message = 0;
     if (buts0 && axis0) {
-        if (buts0[0]) evt->message |= EVT_JOY1_BUTTONA;
-        if (buts0[1]) evt->message |= EVT_JOY1_BUTTONB;
-        evt->where_x = axis0[0];
-        evt->where_y = axis0[1];
-        }
+	if (buts0[0]) evt->message |= EVT_JOY1_BUTTONA;
+	if (buts0[1]) evt->message |= EVT_JOY1_BUTTONB;
+	evt->where_x = axis0[0];
+	evt->where_y = axis0[1];
+	}
     else
-        evt->where_x = evt->where_y = 0;
+	evt->where_x = evt->where_y = 0;
     if (buts1 && axis1) {
-        if (buts1[0]) evt->message |= EVT_JOY2_BUTTONA;
-        if (buts1[1]) evt->message |= EVT_JOY2_BUTTONB;
-        evt->where_x = axis1[0];
-        evt->where_y = axis1[1];
-        }
+	if (buts1[0]) evt->message |= EVT_JOY2_BUTTONA;
+	if (buts1[1]) evt->message |= EVT_JOY2_BUTTONB;
+	evt->where_x = axis1[0];
+	evt->where_y = axis1[1];
+	}
     else
-        evt->where_x = evt->where_y = 0;
+	evt->where_x = evt->where_y = 0;
 }
 
 /****************************************************************************
@@ -439,39 +439,39 @@ int EVTAPI _EVT_readJoyAxis(
     int mask = 0;
 
     if ((js_version & ~0xffff) == 0) {
-        /* Old 0.x driver */
-        struct JS_DATA_TYPE js;
-        if (joystick0_fd && read(joystick0_fd, &js, JS_RETURN) == JS_RETURN) {
-            if (jmask & EVT_JOY_AXIS_X1)
-                axis[0] = js.x;
-            if (jmask & EVT_JOY_AXIS_Y1)
-                axis[1] = js.y;
-            mask |= EVT_JOY_AXIS_X1|EVT_JOY_AXIS_Y1;
-            }
-        if (joystick1_fd && read(joystick1_fd, &js, JS_RETURN) == JS_RETURN) {
-            if (jmask & EVT_JOY_AXIS_X2)
-                axis[2] = js.x;
-            if (jmask & EVT_JOY_AXIS_Y2)
-                axis[3] = js.y;
-            mask |= EVT_JOY_AXIS_X2|EVT_JOY_AXIS_Y2;
-            }
-        }
+	/* Old 0.x driver */
+	struct JS_DATA_TYPE js;
+	if (joystick0_fd && read(joystick0_fd, &js, JS_RETURN) == JS_RETURN) {
+	    if (jmask & EVT_JOY_AXIS_X1)
+		axis[0] = js.x;
+	    if (jmask & EVT_JOY_AXIS_Y1)
+		axis[1] = js.y;
+	    mask |= EVT_JOY_AXIS_X1|EVT_JOY_AXIS_Y1;
+	    }
+	if (joystick1_fd && read(joystick1_fd, &js, JS_RETURN) == JS_RETURN) {
+	    if (jmask & EVT_JOY_AXIS_X2)
+		axis[2] = js.x;
+	    if (jmask & EVT_JOY_AXIS_Y2)
+		axis[3] = js.y;
+	    mask |= EVT_JOY_AXIS_X2|EVT_JOY_AXIS_Y2;
+	    }
+	}
     else {
-        if (axis0) {
-            if (jmask & EVT_JOY_AXIS_X1)
-                axis[0] = axis0[0];
-            if (jmask & EVT_JOY_AXIS_Y1)
-                axis[1] = axis0[1];
-            mask |= EVT_JOY_AXIS_X1 | EVT_JOY_AXIS_Y1;
-            }
-        if (axis1) {
-            if (jmask & EVT_JOY_AXIS_X2)
-                axis[2] = axis1[0];
-            if (jmask & EVT_JOY_AXIS_Y2)
-                axis[3] = axis1[1];
-            mask |= EVT_JOY_AXIS_X2 | EVT_JOY_AXIS_Y2;
-            }
-        }
+	if (axis0) {
+	    if (jmask & EVT_JOY_AXIS_X1)
+		axis[0] = axis0[0];
+	    if (jmask & EVT_JOY_AXIS_Y1)
+		axis[1] = axis0[1];
+	    mask |= EVT_JOY_AXIS_X1 | EVT_JOY_AXIS_Y1;
+	    }
+	if (axis1) {
+	    if (jmask & EVT_JOY_AXIS_X2)
+		axis[2] = axis1[0];
+	    if (jmask & EVT_JOY_AXIS_Y2)
+		axis[3] = axis1[1];
+	    mask |= EVT_JOY_AXIS_X2 | EVT_JOY_AXIS_Y2;
+	    }
+	}
     return mask;
 }
 
@@ -484,19 +484,19 @@ int EVTAPI _EVT_readJoyButtons(void)
     int buts = 0;
 
     if ((js_version & ~0xffff) == 0) {
-        /* Old 0.x driver */
-        struct JS_DATA_TYPE js;
-        if (joystick0_fd && read(joystick0_fd, &js, JS_RETURN) == JS_RETURN)
-            buts = js.buttons;
-        if (joystick1_fd && read(joystick1_fd, &js, JS_RETURN) == JS_RETURN)
-            buts |= js.buttons << 2;
-        }
+	/* Old 0.x driver */
+	struct JS_DATA_TYPE js;
+	if (joystick0_fd && read(joystick0_fd, &js, JS_RETURN) == JS_RETURN)
+	    buts = js.buttons;
+	if (joystick1_fd && read(joystick1_fd, &js, JS_RETURN) == JS_RETURN)
+	    buts |= js.buttons << 2;
+	}
     else {
-        if (buts0)
-            buts |= EVT_JOY1_BUTTONA*buts0[0] + EVT_JOY1_BUTTONB*buts0[1];
-        if (buts1)
-            buts |= EVT_JOY2_BUTTONA*buts1[0] + EVT_JOY2_BUTTONB*buts1[1];
-        }
+	if (buts0)
+	    buts |= EVT_JOY1_BUTTONA*buts0[0] + EVT_JOY1_BUTTONB*buts0[1];
+	if (buts1)
+	    buts |= EVT_JOY2_BUTTONA*buts1[0] + EVT_JOY2_BUTTONB*buts1[1];
+	}
     return buts;
 }
 
@@ -525,97 +525,97 @@ int EVTAPI EVT_joyIsPresent(void)
     static ibool    inited = false;
 
     if (inited)
-        return mask;
+	return mask;
     memset(EVT.joyMin,0,sizeof(EVT.joyMin));
     memset(EVT.joyCenter,0,sizeof(EVT.joyCenter));
     memset(EVT.joyMax,0,sizeof(EVT.joyMax));
     memset(EVT.joyPrev,0,sizeof(EVT.joyPrev));
     EVT.joyButState = 0;
     if ((tmp = getenv(ENV_JOYDEV0)) != NULL)
-        strcpy(joystick0_dev,tmp);
+	strcpy(joystick0_dev,tmp);
     if ((tmp = getenv(ENV_JOYDEV1)) != NULL)
-        strcpy(joystick1_dev,tmp);
+	strcpy(joystick1_dev,tmp);
     if ((joystick0_fd = open(joystick0_dev, O_RDONLY)) < 0)
-        joystick0_fd = 0;
+	joystick0_fd = 0;
     if ((joystick1_fd = open(joystick1_dev, O_RDONLY)) < 0)
-        joystick1_fd = 0;
-    if (!joystick0_fd && !joystick1_fd) // No joysticks detected
-        return 0;
+	joystick1_fd = 0;
+    if (!joystick0_fd && !joystick1_fd) /* No joysticks detected */
+	return 0;
     inited = true;
     if (ioctl(joystick0_fd ? joystick0_fd : joystick1_fd, JSIOCGVERSION, &js_version) < 0)
-        return 0;
+	return 0;
 
     /* Initialise joystick 0 */
     if (joystick0_fd) {
-        ioctl(joystick0_fd, JSIOCGNAME(sizeof(name0)), name0);
-        if (js_version & ~0xffff) {
-            struct js_event js;
+	ioctl(joystick0_fd, JSIOCGNAME(sizeof(name0)), name0);
+	if (js_version & ~0xffff) {
+	    struct js_event js;
 
-            ioctl(joystick0_fd, JSIOCGAXES, &js0_axes);
-            ioctl(joystick0_fd, JSIOCGBUTTONS, &js0_buttons);
-            axis0 = PM_calloc((int)js0_axes, sizeof(short));
-            buts0 = PM_malloc((int)js0_buttons);
-            /* Read the initial events */
-            while(dataReady(joystick0_fd)
-                  && read(joystick0_fd, &js, sizeof(struct js_event)) == sizeof(struct js_event)
-                  && (js.type & JS_EVENT_INIT)
-                  ) {
-                if (js.type & JS_EVENT_BUTTON)
-                    buts0[js.number] = js.value;
-                else if (js.type & JS_EVENT_AXIS)
-                    axis0[js.number] = scaleJoyAxis(js.value,js.number);
-                }
-            }
-        else {
-            js0_axes = 2;
-            js0_buttons = 2;
-            axis0 = PM_calloc((int)js0_axes, sizeof(short));
-            buts0 = PM_malloc((int)js0_buttons);
-            }
-        }
+	    ioctl(joystick0_fd, JSIOCGAXES, &js0_axes);
+	    ioctl(joystick0_fd, JSIOCGBUTTONS, &js0_buttons);
+	    axis0 = PM_calloc((int)js0_axes, sizeof(short));
+	    buts0 = PM_malloc((int)js0_buttons);
+	    /* Read the initial events */
+	    while(dataReady(joystick0_fd)
+		  && read(joystick0_fd, &js, sizeof(struct js_event)) == sizeof(struct js_event)
+		  && (js.type & JS_EVENT_INIT)
+		  ) {
+		if (js.type & JS_EVENT_BUTTON)
+		    buts0[js.number] = js.value;
+		else if (js.type & JS_EVENT_AXIS)
+		    axis0[js.number] = scaleJoyAxis(js.value,js.number);
+		}
+	    }
+	else {
+	    js0_axes = 2;
+	    js0_buttons = 2;
+	    axis0 = PM_calloc((int)js0_axes, sizeof(short));
+	    buts0 = PM_malloc((int)js0_buttons);
+	    }
+	}
 
     /* Initialise joystick 1 */
     if (joystick1_fd) {
-        ioctl(joystick1_fd, JSIOCGNAME(sizeof(name1)), name1);
-        if (js_version & ~0xffff) {
-            struct js_event js;
+	ioctl(joystick1_fd, JSIOCGNAME(sizeof(name1)), name1);
+	if (js_version & ~0xffff) {
+	    struct js_event js;
 
-            ioctl(joystick1_fd, JSIOCGAXES, &js1_axes);
-            ioctl(joystick1_fd, JSIOCGBUTTONS, &js1_buttons);
-            axis1 = PM_calloc((int)js1_axes, sizeof(short));
-            buts1 = PM_malloc((int)js1_buttons);
-            /* Read the initial events */
-            while(dataReady(joystick1_fd)
-                  && read(joystick1_fd, &js, sizeof(struct js_event))==sizeof(struct js_event)
-                  && (js.type & JS_EVENT_INIT)
-                  ) {
-                if (js.type & JS_EVENT_BUTTON)
-                    buts1[js.number] = js.value;
-                else if (js.type & JS_EVENT_AXIS)
-                    axis1[js.number] = scaleJoyAxis(js.value,js.number<<2);
-                }
-            }
-        else {
-            js1_axes = 2;
-            js1_buttons = 2;
-            axis1 = PM_calloc((int)js1_axes, sizeof(short));
-            buts1 = PM_malloc((int)js1_buttons);
-            }
-        }
+	    ioctl(joystick1_fd, JSIOCGAXES, &js1_axes);
+	    ioctl(joystick1_fd, JSIOCGBUTTONS, &js1_buttons);
+	    axis1 = PM_calloc((int)js1_axes, sizeof(short));
+	    buts1 = PM_malloc((int)js1_buttons);
+	    /* Read the initial events */
+	    while(dataReady(joystick1_fd)
+		  && read(joystick1_fd, &js, sizeof(struct js_event))==sizeof(struct js_event)
+		  && (js.type & JS_EVENT_INIT)
+		  ) {
+		if (js.type & JS_EVENT_BUTTON)
+		    buts1[js.number] = js.value;
+		else if (js.type & JS_EVENT_AXIS)
+		    axis1[js.number] = scaleJoyAxis(js.value,js.number<<2);
+		}
+	    }
+	else {
+	    js1_axes = 2;
+	    js1_buttons = 2;
+	    axis1 = PM_calloc((int)js1_axes, sizeof(short));
+	    buts1 = PM_malloc((int)js1_buttons);
+	    }
+	}
 
 #ifdef  CHECKED
-    fprintf(stderr,"Using joystick driver version %d.%d.%d\n", 
-            js_version >> 16, (js_version >> 8) & 0xff, js_version & 0xff);
+    fprintf(stderr,"Using joystick driver version %d.%d.%d\n",
+	    js_version >> 16, (js_version >> 8) & 0xff, js_version & 0xff);
     if (joystick0_fd)
-        fprintf(stderr,"Joystick 1 (%s): %s\n", joystick0_dev, name0);
+	fprintf(stderr,"Joystick 1 (%s): %s\n", joystick0_dev, name0);
     if (joystick1_fd)
-        fprintf(stderr,"Joystick 2 (%s): %s\n", joystick1_dev, name1);
+	fprintf(stderr,"Joystick 2 (%s): %s\n", joystick1_dev, name1);
 #endif
     mask = _EVT_readJoyAxis(EVT_JOY_AXIS_ALL,EVT.joyCenter);
     if (mask) {
-        for (i = 0; i < JOY_NUM_AXES; i++)
-            EVT.joyMax[i] = EVT.joyCenter[i]*2;
-        }
+	for (i = 0; i < JOY_NUM_AXES; i++)
+	    EVT.joyMax[i] = EVT.joyCenter[i]*2;
+	}
     return mask;
 }
 
@@ -634,9 +634,9 @@ All information polled from the joystick will be posted to the event
 queue for later retrieval.
 
 Note:   Most analogue joysticks will provide readings that change even
-        though the joystick has not moved. Hence if you call this routine
-        you will likely get an EVT_JOYMOVE event every time through your
-        event loop.
+	though the joystick has not moved. Hence if you call this routine
+	you will likely get an EVT_JOYMOVE event every time through your
+	event loop.
 
 SEE ALSO:
 EVT_getNext, EVT_peekNext, EVT_joySetUpperLeft, EVT_joySetLowerRight,
@@ -648,68 +648,68 @@ void EVTAPI EVT_pollJoystick(void)
     int     i,axis[JOY_NUM_AXES],newButState,mask,moved,ps;
 
     if ((js_version & ~0xFFFF) == 0 && EVT.joyMask) {
-        /* Read joystick axes and post movement events if they have
-         * changed since the last time we polled. Until the events are
-         * actually flushed, we keep modifying the same joystick movement
-         * event, so you won't get multiple movement event
-         */
-        mask = _EVT_readJoyAxis(EVT.joyMask,axis);
-        newButState = _EVT_readJoyButtons();
-        moved = false;
-        for (i = 0; i < JOY_NUM_AXES; i++) {
-            if (mask & (EVT_JOY_AXIS_X1 << i))
-                axis[i] = scaleJoyAxis(axis[i],i);
-            else
-                axis[i] = EVT.joyPrev[i];
-            if (axis[i] != EVT.joyPrev[i])
-                moved = true;
-            }
-        if (moved) {
-            memcpy(EVT.joyPrev,axis,sizeof(EVT.joyPrev));
-            ps = _EVT_disableInt();
-            if (EVT.oldJoyMove != -1) {
-                /* Modify the existing joystick movement event */
-                EVT.evtq[EVT.oldJoyMove].message = newButState;
-                EVT.evtq[EVT.oldJoyMove].where_x = EVT.joyPrev[0];
-                EVT.evtq[EVT.oldJoyMove].where_y = EVT.joyPrev[1];
-                EVT.evtq[EVT.oldJoyMove].relative_x = EVT.joyPrev[2];
-                EVT.evtq[EVT.oldJoyMove].relative_y = EVT.joyPrev[3];
-                }
-            else if (EVT.count < EVENTQSIZE) {
-                /* Add a new joystick movement event */
-                EVT.oldJoyMove = EVT.freeHead;
-                memset(&evt,0,sizeof(evt));
-                evt.what = EVT_JOYMOVE;
-                evt.message = EVT.joyButState;
-                evt.where_x = EVT.joyPrev[0];
-                evt.where_y = EVT.joyPrev[1];
-                evt.relative_x = EVT.joyPrev[2];
-                evt.relative_y = EVT.joyPrev[3];
-                addEvent(&evt);
-                }
-            _EVT_restoreInt(ps);
-            }
+	/* Read joystick axes and post movement events if they have
+	 * changed since the last time we polled. Until the events are
+	 * actually flushed, we keep modifying the same joystick movement
+	 * event, so you won't get multiple movement event
+	 */
+	mask = _EVT_readJoyAxis(EVT.joyMask,axis);
+	newButState = _EVT_readJoyButtons();
+	moved = false;
+	for (i = 0; i < JOY_NUM_AXES; i++) {
+	    if (mask & (EVT_JOY_AXIS_X1 << i))
+		axis[i] = scaleJoyAxis(axis[i],i);
+	    else
+		axis[i] = EVT.joyPrev[i];
+	    if (axis[i] != EVT.joyPrev[i])
+		moved = true;
+	    }
+	if (moved) {
+	    memcpy(EVT.joyPrev,axis,sizeof(EVT.joyPrev));
+	    ps = _EVT_disableInt();
+	    if (EVT.oldJoyMove != -1) {
+		/* Modify the existing joystick movement event */
+		EVT.evtq[EVT.oldJoyMove].message = newButState;
+		EVT.evtq[EVT.oldJoyMove].where_x = EVT.joyPrev[0];
+		EVT.evtq[EVT.oldJoyMove].where_y = EVT.joyPrev[1];
+		EVT.evtq[EVT.oldJoyMove].relative_x = EVT.joyPrev[2];
+		EVT.evtq[EVT.oldJoyMove].relative_y = EVT.joyPrev[3];
+		}
+	    else if (EVT.count < EVENTQSIZE) {
+		/* Add a new joystick movement event */
+		EVT.oldJoyMove = EVT.freeHead;
+		memset(&evt,0,sizeof(evt));
+		evt.what = EVT_JOYMOVE;
+		evt.message = EVT.joyButState;
+		evt.where_x = EVT.joyPrev[0];
+		evt.where_y = EVT.joyPrev[1];
+		evt.relative_x = EVT.joyPrev[2];
+		evt.relative_y = EVT.joyPrev[3];
+		addEvent(&evt);
+		}
+	    _EVT_restoreInt(ps);
+	    }
 
-        /* Read the joystick buttons, and post events to reflect the change
-         * in state for the joystick buttons.
-         */
-        if (newButState != EVT.joyButState) {
-            if (EVT.count < EVENTQSIZE) {
-                /* Add a new joystick movement event */
-                ps = _EVT_disableInt();
-                memset(&evt,0,sizeof(evt));
-                evt.what = EVT_JOYCLICK;
-                evt.message = newButState;
-                EVT.evtq[EVT.oldJoyMove].where_x = EVT.joyPrev[0];
-                EVT.evtq[EVT.oldJoyMove].where_y = EVT.joyPrev[1];
-                EVT.evtq[EVT.oldJoyMove].relative_x = EVT.joyPrev[2];
-                EVT.evtq[EVT.oldJoyMove].relative_y = EVT.joyPrev[3];
-                addEvent(&evt);
-                _EVT_restoreInt(ps);
-                }
-            EVT.joyButState = newButState;
-            }
-        }
+	/* Read the joystick buttons, and post events to reflect the change
+	 * in state for the joystick buttons.
+	 */
+	if (newButState != EVT.joyButState) {
+	    if (EVT.count < EVENTQSIZE) {
+		/* Add a new joystick movement event */
+		ps = _EVT_disableInt();
+		memset(&evt,0,sizeof(evt));
+		evt.what = EVT_JOYCLICK;
+		evt.message = newButState;
+		EVT.evtq[EVT.oldJoyMove].where_x = EVT.joyPrev[0];
+		EVT.evtq[EVT.oldJoyMove].where_y = EVT.joyPrev[1];
+		EVT.evtq[EVT.oldJoyMove].relative_x = EVT.joyPrev[2];
+		EVT.evtq[EVT.oldJoyMove].relative_y = EVT.joyPrev[3];
+		addEvent(&evt);
+		_EVT_restoreInt(ps);
+		}
+	    EVT.joyButState = newButState;
+	    }
+	}
 }
 
 /****************************************************************************
@@ -815,287 +815,287 @@ static void _EVT_pumpMessages(void)
 
     /* Poll keyboard events */
     while (dataReady(_PM_console_fd) && (numkeys = read(_PM_console_fd, buf, KBDREADBUFFERSIZE)) > 0) {
-        for (i = 0; i < numkeys; i++) {
-            c = buf[i];
-            release = c & 0x80;
-            c &= 0x7F;
+	for (i = 0; i < numkeys; i++) {
+	    c = buf[i];
+	    release = c & 0x80;
+	    c &= 0x7F;
 
-            // TODO:    This is wrong! We need this to be the time stamp at
-            //          ** interrupt ** time!! One solution would be to
-            //          put the keyboard and mouse polling loops into
-            //          a separate thread that can block on I/O to the
-            //          necessay file descriptor.
-            evt.when = _EVT_getTicks();
+	    /* TODO:    This is wrong! We need this to be the time stamp at */
+	    /*          ** interrupt ** time!! One solution would be to */
+	    /*          put the keyboard and mouse polling loops into */
+	    /*          a separate thread that can block on I/O to the */
+	    /*          necessay file descriptor. */
+	    evt.when = _EVT_getTicks();
 
-            if (release) {
-                /* Key released */
-                evt.what = EVT_KEYUP;
-                switch (c) {
-                    case KB_leftShift:
-                        _PM_modifiers &= ~EVT_LEFTSHIFT;
-                        break;
-                    case KB_rightShift:
-                        _PM_modifiers &= ~EVT_RIGHTSHIFT;
-                        break;
-                    case 29:
-                        _PM_modifiers &= ~(EVT_LEFTCTRL|EVT_CTRLSTATE);
-                        break;
-                    case 97:            /* Control */
-                        _PM_modifiers &= ~EVT_CTRLSTATE;
-                        break;
-                    case 56:
-                        _PM_modifiers &= ~(EVT_LEFTALT|EVT_ALTSTATE);
-                        break;
-                    case 100:
-                        _PM_modifiers &= ~EVT_ALTSTATE;
-                        break;
-                    default:
-                    }
-                evt.modifiers = _PM_modifiers;
-                evt.message = keyUpMsg[c];
-                if (EVT.count < EVENTQSIZE)
-                    addEvent(&evt);
-                keyUpMsg[c] = 0;
-                repeatKey[c] = 0;
-                }
-            else {
-                /* Key pressed */
-                evt.what = EVT_KEYDOWN;
-                switch (c) {
-                    case KB_leftShift:
-                        _PM_modifiers |= EVT_LEFTSHIFT;
-                        break;
-                    case KB_rightShift:
-                        _PM_modifiers |= EVT_RIGHTSHIFT;
-                        break;
-                    case 29:
-                        _PM_modifiers |= EVT_LEFTCTRL|EVT_CTRLSTATE;
-                        break;
-                    case 97:            /* Control */
-                        _PM_modifiers |= EVT_CTRLSTATE;
-                        break;
-                    case 56:
-                        _PM_modifiers |= EVT_LEFTALT|EVT_ALTSTATE;
-                        break;
-                    case 100:
-                        _PM_modifiers |= EVT_ALTSTATE;
-                        break;
-                    case KB_capsLock:   /* Caps Lock */
-                        _PM_leds ^= LED_CAP;
-                        ioctl(_PM_console_fd, KDSETLED, _PM_leds);
-                        break;
-                    case KB_numLock:    /* Num Lock */
-                        _PM_leds ^= LED_NUM;
-                        ioctl(_PM_console_fd, KDSETLED, _PM_leds);
-                        break;
-                    case KB_scrollLock: /* Scroll Lock */
-                        _PM_leds ^= LED_SCR;
-                        ioctl(_PM_console_fd, KDSETLED, _PM_leds);
-                        break;
-                    default:
-                    }
-                evt.modifiers = _PM_modifiers;
-                if (keyUpMsg[c]) {
-                    evt.what = EVT_KEYREPEAT;
-                    evt.message = keyUpMsg[c] | (repeatKey[c]++ << 16);
-                    }
-                else {
-                    int asc;
+	    if (release) {
+		/* Key released */
+		evt.what = EVT_KEYUP;
+		switch (c) {
+		    case KB_leftShift:
+			_PM_modifiers &= ~EVT_LEFTSHIFT;
+			break;
+		    case KB_rightShift:
+			_PM_modifiers &= ~EVT_RIGHTSHIFT;
+			break;
+		    case 29:
+			_PM_modifiers &= ~(EVT_LEFTCTRL|EVT_CTRLSTATE);
+			break;
+		    case 97:            /* Control */
+			_PM_modifiers &= ~EVT_CTRLSTATE;
+			break;
+		    case 56:
+			_PM_modifiers &= ~(EVT_LEFTALT|EVT_ALTSTATE);
+			break;
+		    case 100:
+			_PM_modifiers &= ~EVT_ALTSTATE;
+			break;
+		    default:
+		    }
+		evt.modifiers = _PM_modifiers;
+		evt.message = keyUpMsg[c];
+		if (EVT.count < EVENTQSIZE)
+		    addEvent(&evt);
+		keyUpMsg[c] = 0;
+		repeatKey[c] = 0;
+		}
+	    else {
+		/* Key pressed */
+		evt.what = EVT_KEYDOWN;
+		switch (c) {
+		    case KB_leftShift:
+			_PM_modifiers |= EVT_LEFTSHIFT;
+			break;
+		    case KB_rightShift:
+			_PM_modifiers |= EVT_RIGHTSHIFT;
+			break;
+		    case 29:
+			_PM_modifiers |= EVT_LEFTCTRL|EVT_CTRLSTATE;
+			break;
+		    case 97:            /* Control */
+			_PM_modifiers |= EVT_CTRLSTATE;
+			break;
+		    case 56:
+			_PM_modifiers |= EVT_LEFTALT|EVT_ALTSTATE;
+			break;
+		    case 100:
+			_PM_modifiers |= EVT_ALTSTATE;
+			break;
+		    case KB_capsLock:   /* Caps Lock */
+			_PM_leds ^= LED_CAP;
+			ioctl(_PM_console_fd, KDSETLED, _PM_leds);
+			break;
+		    case KB_numLock:    /* Num Lock */
+			_PM_leds ^= LED_NUM;
+			ioctl(_PM_console_fd, KDSETLED, _PM_leds);
+			break;
+		    case KB_scrollLock: /* Scroll Lock */
+			_PM_leds ^= LED_SCR;
+			ioctl(_PM_console_fd, KDSETLED, _PM_leds);
+			break;
+		    default:
+		    }
+		evt.modifiers = _PM_modifiers;
+		if (keyUpMsg[c]) {
+		    evt.what = EVT_KEYREPEAT;
+		    evt.message = keyUpMsg[c] | (repeatKey[c]++ << 16);
+		    }
+		else {
+		    int asc;
 
-                    evt.message = getKeyMapping(keymaps, NB_KEYMAPS, c) << 8;
-                    ke.kb_index = c;
-                    ke.kb_table = 0;
-                    if ((_PM_modifiers & EVT_SHIFTKEY) || (_PM_leds & LED_CAP))
-                        ke.kb_table |= K_SHIFTTAB;
-                    if (_PM_modifiers & (EVT_LEFTALT | EVT_ALTSTATE))
-                        ke.kb_table |= K_ALTTAB;
-                    if (ioctl(_PM_console_fd, KDGKBENT, (unsigned long)&ke)<0)
-                        perror("ioctl(KDGKBENT)");
-                    if ((_PM_leds & LED_NUM) && (getKeyMapping(keypad, NB_KEYPAD, c)!=c)) {
-                        asc = getKeyMapping(keypad, NB_KEYPAD, c);
-                        }
-                    else {
-                        switch (c) {
-                            case 14:
-                                asc = ASCII_backspace;
-                                break;
-                            case 15:
-                                asc = ASCII_tab;
-                                break;
-                            case 28:
-                            case 96:
-                                asc = ASCII_enter;
-                                break;
-                            case 1:
-                                asc = ASCII_esc;
-                            default:
-                                asc = ke.kb_value & 0xFF;
-                                if (asc < 0x1B)
-                                    asc = 0;
-                                break;
-                            }
-                        }
-                    if ((_PM_modifiers & (EVT_CTRLSTATE|EVT_LEFTCTRL)) && isalpha(asc))
-                        evt.message |= toupper(asc) - 'A' + 1;
-                    else
-                        evt.message |= asc;
-                    keyUpMsg[c] = evt.message;
-                    repeatKey[c]++;
-                    }
-                if (EVT.count < EVENTQSIZE)
-                    addEvent(&evt);
-                }
-            }
-        }
+		    evt.message = getKeyMapping(keymaps, NB_KEYMAPS, c) << 8;
+		    ke.kb_index = c;
+		    ke.kb_table = 0;
+		    if ((_PM_modifiers & EVT_SHIFTKEY) || (_PM_leds & LED_CAP))
+			ke.kb_table |= K_SHIFTTAB;
+		    if (_PM_modifiers & (EVT_LEFTALT | EVT_ALTSTATE))
+			ke.kb_table |= K_ALTTAB;
+		    if (ioctl(_PM_console_fd, KDGKBENT, (unsigned long)&ke)<0)
+			perror("ioctl(KDGKBENT)");
+		    if ((_PM_leds & LED_NUM) && (getKeyMapping(keypad, NB_KEYPAD, c)!=c)) {
+			asc = getKeyMapping(keypad, NB_KEYPAD, c);
+			}
+		    else {
+			switch (c) {
+			    case 14:
+				asc = ASCII_backspace;
+				break;
+			    case 15:
+				asc = ASCII_tab;
+				break;
+			    case 28:
+			    case 96:
+				asc = ASCII_enter;
+				break;
+			    case 1:
+				asc = ASCII_esc;
+			    default:
+				asc = ke.kb_value & 0xFF;
+				if (asc < 0x1B)
+				    asc = 0;
+				break;
+			    }
+			}
+		    if ((_PM_modifiers & (EVT_CTRLSTATE|EVT_LEFTCTRL)) && isalpha(asc))
+			evt.message |= toupper(asc) - 'A' + 1;
+		    else
+			evt.message |= asc;
+		    keyUpMsg[c] = evt.message;
+		    repeatKey[c]++;
+		    }
+		if (EVT.count < EVENTQSIZE)
+		    addEvent(&evt);
+		}
+	    }
+	}
 
     /* Poll mouse events */
     if (_EVT_mouse_fd) {
-        int         dx, dy, buts;
-        static int  oldbuts;
+	int         dx, dy, buts;
+	static int  oldbuts;
 
-        while (dataReady(_EVT_mouse_fd)) {
-            if (readMouseData(&buts, &dx, &dy)) {
-                EVT.mx += dx;
-                EVT.my += dy;
-                if (EVT.mx < 0) EVT.mx = 0;
-                if (EVT.my < 0) EVT.my = 0;
-                if (EVT.mx > range_x) EVT.mx = range_x;
-                if (EVT.my > range_y) EVT.my = range_y;
-                evt.where_x = EVT.mx;
-                evt.where_y = EVT.my;
-                evt.relative_x = dx;
-                evt.relative_y = dy;
+	while (dataReady(_EVT_mouse_fd)) {
+	    if (readMouseData(&buts, &dx, &dy)) {
+		EVT.mx += dx;
+		EVT.my += dy;
+		if (EVT.mx < 0) EVT.mx = 0;
+		if (EVT.my < 0) EVT.my = 0;
+		if (EVT.mx > range_x) EVT.mx = range_x;
+		if (EVT.my > range_y) EVT.my = range_y;
+		evt.where_x = EVT.mx;
+		evt.where_y = EVT.my;
+		evt.relative_x = dx;
+		evt.relative_y = dy;
 
-                // TODO:    This is wrong! We need this to be the time stamp at
-                //          ** interrupt ** time!! One solution would be to
-                //          put the keyboard and mouse polling loops into
-                //          a separate thread that can block on I/O to the
-                //          necessay file descriptor.
-                evt.when = _EVT_getTicks();
-                evt.modifiers = _PM_modifiers;
-                if (buts & 4)
-                    evt.modifiers |= EVT_LEFTBUT;
-                if (buts & 1)
-                    evt.modifiers |= EVT_RIGHTBUT;
-                if (buts & 2)
-                    evt.modifiers |= EVT_MIDDLEBUT;
+		/* TODO:    This is wrong! We need this to be the time stamp at */
+		/*          ** interrupt ** time!! One solution would be to */
+		/*          put the keyboard and mouse polling loops into */
+		/*          a separate thread that can block on I/O to the */
+		/*          necessay file descriptor. */
+		evt.when = _EVT_getTicks();
+		evt.modifiers = _PM_modifiers;
+		if (buts & 4)
+		    evt.modifiers |= EVT_LEFTBUT;
+		if (buts & 1)
+		    evt.modifiers |= EVT_RIGHTBUT;
+		if (buts & 2)
+		    evt.modifiers |= EVT_MIDDLEBUT;
 
-                /* Left click events */
-                if ((buts&4) != (oldbuts&4)) {
-                    if (buts&4)
-                        evt.what = EVT_MOUSEDOWN;
-                    else
-                        evt.what = EVT_MOUSEUP;
-                    evt.message = EVT_LEFTBMASK;
-                    EVT.oldMove = -1;
-                    if (EVT.count < EVENTQSIZE)
-                        addEvent(&evt);
-                    }
+		/* Left click events */
+		if ((buts&4) != (oldbuts&4)) {
+		    if (buts&4)
+			evt.what = EVT_MOUSEDOWN;
+		    else
+			evt.what = EVT_MOUSEUP;
+		    evt.message = EVT_LEFTBMASK;
+		    EVT.oldMove = -1;
+		    if (EVT.count < EVENTQSIZE)
+			addEvent(&evt);
+		    }
 
-                /* Right click events */
-                if ((buts&1) != (oldbuts&1)) {
-                    if (buts&1)
-                        evt.what = EVT_MOUSEDOWN;
-                    else
-                        evt.what = EVT_MOUSEUP;
-                    evt.message = EVT_RIGHTBMASK;
-                    EVT.oldMove = -1;
-                    if (EVT.count < EVENTQSIZE)
-                        addEvent(&evt);
-                    }
+		/* Right click events */
+		if ((buts&1) != (oldbuts&1)) {
+		    if (buts&1)
+			evt.what = EVT_MOUSEDOWN;
+		    else
+			evt.what = EVT_MOUSEUP;
+		    evt.message = EVT_RIGHTBMASK;
+		    EVT.oldMove = -1;
+		    if (EVT.count < EVENTQSIZE)
+			addEvent(&evt);
+		    }
 
-                /* Middle click events */
-                if ((buts&2) != (oldbuts&2)) {
-                    if (buts&2)
-                        evt.what = EVT_MOUSEDOWN;
-                    else
-                        evt.what = EVT_MOUSEUP;
-                    evt.message = EVT_MIDDLEBMASK;
-                    EVT.oldMove = -1;
-                    if (EVT.count < EVENTQSIZE)
-                        addEvent(&evt);
-                    }
+		/* Middle click events */
+		if ((buts&2) != (oldbuts&2)) {
+		    if (buts&2)
+			evt.what = EVT_MOUSEDOWN;
+		    else
+			evt.what = EVT_MOUSEUP;
+		    evt.message = EVT_MIDDLEBMASK;
+		    EVT.oldMove = -1;
+		    if (EVT.count < EVENTQSIZE)
+			addEvent(&evt);
+		    }
 
-                /* Mouse movement event */
-                if (dx || dy) {
-                    evt.what = EVT_MOUSEMOVE;
-                    evt.message = 0;
-                    if (EVT.oldMove != -1) {
-                        /* Modify existing movement event */
-                        EVT.evtq[EVT.oldMove].where_x = evt.where_x;
-                        EVT.evtq[EVT.oldMove].where_y = evt.where_y;
-                        }
-                    else {
-                        /* Save id of this movement event */
-                        EVT.oldMove = EVT.freeHead;
-                        if (EVT.count < EVENTQSIZE)
-                            addEvent(&evt);
-                        }
-                    }
-                oldbuts = buts;
-                }
-            }
-        }
+		/* Mouse movement event */
+		if (dx || dy) {
+		    evt.what = EVT_MOUSEMOVE;
+		    evt.message = 0;
+		    if (EVT.oldMove != -1) {
+			/* Modify existing movement event */
+			EVT.evtq[EVT.oldMove].where_x = evt.where_x;
+			EVT.evtq[EVT.oldMove].where_y = evt.where_y;
+			}
+		    else {
+			/* Save id of this movement event */
+			EVT.oldMove = EVT.freeHead;
+			if (EVT.count < EVENTQSIZE)
+			    addEvent(&evt);
+			}
+		    }
+		oldbuts = buts;
+		}
+	    }
+	}
 
 #ifdef USE_OS_JOYSTICK
-    // Poll joystick events using the 1.x joystick driver API in the 2.2 kernels
+    /* Poll joystick events using the 1.x joystick driver API in the 2.2 kernels */
     if (js_version & ~0xffff) {
-        static struct js_event  js;
+	static struct js_event  js;
 
-        /* Read joystick axis 0 */
-        evt.when = 0;
-        evt.modifiers = _PM_modifiers;
-        if (joystick0_fd && dataReady(joystick0_fd) &&
-                read(joystick0_fd, &js, sizeof(js)) == sizeof(js)) {
-            if (js.type & JS_EVENT_BUTTON) {
-                if (js.number < 2) { /* Only 2 buttons for now :( */
-                    buts0[js.number] = js.value;
-                    evt.what = EVT_JOYCLICK;
-                    makeJoyEvent(&evt);
-                    if (EVT.count < EVENTQSIZE)
-                        addEvent(&evt);
-                    }
-                }
-            else if (js.type & JS_EVENT_AXIS) {
-                axis0[js.number] = scaleJoyAxis(js.value,js.number);
-                evt.what = EVT_JOYMOVE;
-                if (EVT.oldJoyMove != -1) {
-                    makeJoyEvent(&EVT.evtq[EVT.oldJoyMove]);
-                    }
-                else if (EVT.count < EVENTQSIZE) {
-                    EVT.oldJoyMove = EVT.freeHead;
-                    makeJoyEvent(&evt);
-                    addEvent(&evt);
-                    }
-                }
-            }
+	/* Read joystick axis 0 */
+	evt.when = 0;
+	evt.modifiers = _PM_modifiers;
+	if (joystick0_fd && dataReady(joystick0_fd) &&
+		read(joystick0_fd, &js, sizeof(js)) == sizeof(js)) {
+	    if (js.type & JS_EVENT_BUTTON) {
+		if (js.number < 2) { /* Only 2 buttons for now :( */
+		    buts0[js.number] = js.value;
+		    evt.what = EVT_JOYCLICK;
+		    makeJoyEvent(&evt);
+		    if (EVT.count < EVENTQSIZE)
+			addEvent(&evt);
+		    }
+		}
+	    else if (js.type & JS_EVENT_AXIS) {
+		axis0[js.number] = scaleJoyAxis(js.value,js.number);
+		evt.what = EVT_JOYMOVE;
+		if (EVT.oldJoyMove != -1) {
+		    makeJoyEvent(&EVT.evtq[EVT.oldJoyMove]);
+		    }
+		else if (EVT.count < EVENTQSIZE) {
+		    EVT.oldJoyMove = EVT.freeHead;
+		    makeJoyEvent(&evt);
+		    addEvent(&evt);
+		    }
+		}
+	    }
 
-        /* Read joystick axis 1 */
-        if (joystick1_fd && dataReady(joystick1_fd) &&
-                read(joystick1_fd, &js, sizeof(js))==sizeof(js)) {
-            if (js.type & JS_EVENT_BUTTON) {
-                if (js.number < 2) { /* Only 2 buttons for now :( */
-                    buts1[js.number] = js.value;
-                    evt.what = EVT_JOYCLICK;
-                    makeJoyEvent(&evt);
-                    if (EVT.count < EVENTQSIZE)
-                        addEvent(&evt);
-                    }
-                }
-            else if (js.type & JS_EVENT_AXIS) {
-                axis1[js.number] = scaleJoyAxis(js.value,js.number<<2);
-                evt.what = EVT_JOYMOVE;
-                if (EVT.oldJoyMove != -1) {
-                    makeJoyEvent(&EVT.evtq[EVT.oldJoyMove]);
-                    }
-                else if (EVT.count < EVENTQSIZE) {
-                    EVT.oldJoyMove = EVT.freeHead;
-                    makeJoyEvent(&evt);
-                    addEvent(&evt);
-                    }
-                }
-            }
-        }
+	/* Read joystick axis 1 */
+	if (joystick1_fd && dataReady(joystick1_fd) &&
+		read(joystick1_fd, &js, sizeof(js))==sizeof(js)) {
+	    if (js.type & JS_EVENT_BUTTON) {
+		if (js.number < 2) { /* Only 2 buttons for now :( */
+		    buts1[js.number] = js.value;
+		    evt.what = EVT_JOYCLICK;
+		    makeJoyEvent(&evt);
+		    if (EVT.count < EVENTQSIZE)
+			addEvent(&evt);
+		    }
+		}
+	    else if (js.type & JS_EVENT_AXIS) {
+		axis1[js.number] = scaleJoyAxis(js.value,js.number<<2);
+		evt.what = EVT_JOYMOVE;
+		if (EVT.oldJoyMove != -1) {
+		    makeJoyEvent(&EVT.evtq[EVT.oldJoyMove]);
+		    }
+		else if (EVT.count < EVENTQSIZE) {
+		    EVT.oldJoyMove = EVT.freeHead;
+		    makeJoyEvent(&evt);
+		    addEvent(&evt);
+		    }
+		}
+	    }
+	}
 #endif
 }
 
@@ -1122,7 +1122,7 @@ static int setspeed(
 {
     struct termios tty;
     char *c;
-  
+
     tcgetattr(fd, &tty);
     tty.c_iflag = IGNBRK | IGNPAR;
     tty.c_oflag = 0;
@@ -1131,20 +1131,20 @@ static int setspeed(
     tty.c_cc[VTIME] = 0;
     tty.c_cc[VMIN] = 1;
     switch (old) {
-        case 9600:  tty.c_cflag = flags | B9600; break;
-        case 4800:  tty.c_cflag = flags | B4800; break;
-        case 2400:  tty.c_cflag = flags | B2400; break;
-        case 1200:
-        default:    tty.c_cflag = flags | B1200; break;
-        }
+	case 9600:  tty.c_cflag = flags | B9600; break;
+	case 4800:  tty.c_cflag = flags | B4800; break;
+	case 2400:  tty.c_cflag = flags | B2400; break;
+	case 1200:
+	default:    tty.c_cflag = flags | B1200; break;
+	}
     tcsetattr(fd, TCSAFLUSH, &tty);
     switch (new) {
-        case 9600:  c = "*q";  tty.c_cflag = flags | B9600; break;
-        case 4800:  c = "*p";  tty.c_cflag = flags | B4800; break;
-        case 2400:  c = "*o";  tty.c_cflag = flags | B2400; break;
-        case 1200:
-        default:    c = "*n";  tty.c_cflag = flags | B1200; break;
-        }
+	case 9600:  c = "*q";  tty.c_cflag = flags | B9600; break;
+	case 4800:  c = "*p";  tty.c_cflag = flags | B4800; break;
+	case 2400:  c = "*o";  tty.c_cflag = flags | B2400; break;
+	case 1200:
+	default:    c = "*n";  tty.c_cflag = flags | B1200; break;
+	}
     write(fd, c, 2);
     usleep(100000);
     tcsetattr(fd, TCSAFLUSH, &tty);
@@ -1161,7 +1161,7 @@ static void _EVT_mouse_init(void)
 
     /* Change from any available speed to the chosen one */
     for (i = 9600; i >= 1200; i /= 2)
-        setspeed(_EVT_mouse_fd, i, opt_baud, mouse_infos[mouse_driver].flags);
+	setspeed(_EVT_mouse_fd, i, opt_baud, mouse_infos[mouse_driver].flags);
 }
 
 /****************************************************************************
@@ -1173,29 +1173,29 @@ static void _EVT_logitech_init(void)
     int         i;
     struct stat buf;
     int         busmouse;
-    
+
     /* is this a serial- or a bus- mouse? */
     if (fstat(_EVT_mouse_fd,&buf) == -1)
-        perror("fstat");
+	perror("fstat");
     i = MAJOR(buf.st_rdev);
     if (stat("/dev/ttyS0",&buf) == -1)
-        perror("stat");
+	perror("stat");
     busmouse=(i != MAJOR(buf.st_rdev));
-    
+
     /* Fix the howmany field, so that serial mice have 1, while busmice have 3 */
     mouse_infos[mouse_driver].read = busmouse ? 3 : 1;
-    
+
     /* Change from any available speed to the chosen one */
     for (i = 9600; i >= 1200; i /= 2)
-        setspeed(_EVT_mouse_fd, i, opt_baud, mouse_infos[mouse_driver].flags);
-  
+	setspeed(_EVT_mouse_fd, i, opt_baud, mouse_infos[mouse_driver].flags);
+
     /* This stuff is peculiar of logitech mice, also for the serial ones */
     write(_EVT_mouse_fd, "S", 1);
     setspeed(_EVT_mouse_fd, opt_baud, opt_baud,CS8 |PARENB |PARODD |CREAD |CLOCAL |HUPCL);
-  
+
     /* Configure the sample rate */
     for (i = 0; opt_sample <= sampletab[i].sample; i++)
-        ;
+	;
     write(_EVT_mouse_fd,sampletab[i].code,1);
 }
 
@@ -1206,7 +1206,7 @@ Microsoft Intellimouse init code
 static void _EVT_pnpmouse_init(void)
 {
     struct termios tty;
-  
+
     tcgetattr(_EVT_mouse_fd, &tty);
     tty.c_iflag = IGNBRK | IGNPAR;
     tty.c_oflag = 0;
@@ -1240,53 +1240,53 @@ void EVTAPI EVT_init(
     EVT.mouseMove = mouseMove;
     initEventQueue();
     for (i = 0; i < 256; i++)
-        keyUpMsg[i] = 0;
+	keyUpMsg[i] = 0;
 
     /* Keyboard initialization */
     if (_PM_console_fd == -1)
-        PM_fatalError("You must first call PM_openConsole to use the EVT functions!");
+	PM_fatalError("You must first call PM_openConsole to use the EVT functions!");
     _PM_keyboard_rawmode();
     fcntl(_PM_console_fd,F_SETFL,fcntl(_PM_console_fd,F_GETFL) | O_NONBLOCK);
 
     /* Mouse initialization */
     if ((tmp = getenv(ENV_MOUSEDRV)) != NULL) {
-        for (i = 0; i < NB_MICE; i++) {
-            if (!strcasecmp(tmp, mouse_infos[i].name)) {
-                mouse_driver = i;
-                break;
-                }
-            }
-        if (i == NB_MICE) {
-            fprintf(stderr,"Unknown mouse driver: %s\n", tmp);
-            mouse_driver = EVT_noMouse;
-            _EVT_mouse_fd = 0;
-            }
-        }
+	for (i = 0; i < NB_MICE; i++) {
+	    if (!strcasecmp(tmp, mouse_infos[i].name)) {
+		mouse_driver = i;
+		break;
+		}
+	    }
+	if (i == NB_MICE) {
+	    fprintf(stderr,"Unknown mouse driver: %s\n", tmp);
+	    mouse_driver = EVT_noMouse;
+	    _EVT_mouse_fd = 0;
+	    }
+	}
     if (mouse_driver != EVT_noMouse) {
-        if (mouse_driver == EVT_gpm)
-            strcpy(mouse_dev,"/dev/gpmdata");
-        if ((tmp = getenv(ENV_MOUSEDEV)) != NULL)
-            strcpy(mouse_dev,tmp);
+	if (mouse_driver == EVT_gpm)
+	    strcpy(mouse_dev,"/dev/gpmdata");
+	if ((tmp = getenv(ENV_MOUSEDEV)) != NULL)
+	    strcpy(mouse_dev,tmp);
 #ifdef  CHECKED
-        fprintf(stderr,"Using the %s MGL mouse driver on %s.\n", mouse_infos[mouse_driver].name, mouse_dev);
+	fprintf(stderr,"Using the %s MGL mouse driver on %s.\n", mouse_infos[mouse_driver].name, mouse_dev);
 #endif
-        if ((_EVT_mouse_fd = open(mouse_dev, O_RDWR)) < 0) {
-            perror("open");
-            fprintf(stderr, "Unable to open mouse device %s, dropping mouse support.\n", mouse_dev);
-            sleep(1);
-            mouse_driver = EVT_noMouse;
-            _EVT_mouse_fd = 0;
-            }
-        else {
-            char c;
+	if ((_EVT_mouse_fd = open(mouse_dev, O_RDWR)) < 0) {
+	    perror("open");
+	    fprintf(stderr, "Unable to open mouse device %s, dropping mouse support.\n", mouse_dev);
+	    sleep(1);
+	    mouse_driver = EVT_noMouse;
+	    _EVT_mouse_fd = 0;
+	    }
+	else {
+	    char c;
 
-            /* Init and flush the mouse pending input queue */
-            if (mouse_infos[mouse_driver].init)
-                mouse_infos[mouse_driver].init();
-            while(dataReady(_EVT_mouse_fd) && read(_EVT_mouse_fd, &c, 1) == 1)
-                ;
-            }
-        }
+	    /* Init and flush the mouse pending input queue */
+	    if (mouse_infos[mouse_driver].init)
+		mouse_infos[mouse_driver].init();
+	    while(dataReady(_EVT_mouse_fd) && read(_EVT_mouse_fd, &c, 1) == 1)
+		;
+	    }
+	}
 }
 
 /****************************************************************************
@@ -1318,7 +1318,7 @@ and this function can be used to resume it again later.
 ****************************************************************************/
 void EVT_resume(void)
 {
-    // Do nothing for Linux
+    /* Do nothing for Linux */
 }
 
 /****************************************************************************
@@ -1328,7 +1328,7 @@ de-install the event handling code.
 ****************************************************************************/
 void EVT_suspend(void)
 {
-    // Do nothing for Linux
+    /* Do nothing for Linux */
 }
 
 /****************************************************************************
@@ -1340,22 +1340,21 @@ void EVT_exit(void)
     /* Restore signal handlers */
     _PM_restore_kb_mode();
     if (_EVT_mouse_fd) {
-        close(_EVT_mouse_fd);
-        _EVT_mouse_fd = 0;
-        }
+	close(_EVT_mouse_fd);
+	_EVT_mouse_fd = 0;
+	}
 #ifdef USE_OS_JOYSTICK
     if (joystick0_fd) {
-        close(joystick0_fd);
-        free(axis0);
-        free(buts0);
-        joystick0_fd = 0;
-        }
+	close(joystick0_fd);
+	free(axis0);
+	free(buts0);
+	joystick0_fd = 0;
+	}
     if (joystick1_fd) {
-        close(joystick1_fd);
-        free(axis1);
-        free(buts1);
-        joystick1_fd = 0;
-        }
+	close(joystick1_fd);
+	free(axis1);
+	free(buts1);
+	joystick1_fd = 0;
+	}
 #endif
 }
-

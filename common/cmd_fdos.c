@@ -34,7 +34,7 @@
 #if (CONFIG_COMMANDS & CFG_CMD_FDOS)
 
 /*-----------------------------------------------------------------------------
- * do_fdosboot -- 
+ * do_fdosboot --
  *-----------------------------------------------------------------------------
  */
 int do_fdosboot(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
@@ -45,53 +45,53 @@ int do_fdosboot(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
     int rcode = 0;
     char buf [10];
     int drive = CFG_FDC_DRIVE_NUMBER;
-    
+
     /* pre-set load_addr */
     if ((ep = getenv("loadaddr")) != NULL) {
-        load_addr = simple_strtoul(ep, NULL, 16);
+	load_addr = simple_strtoul(ep, NULL, 16);
     }
 
     /* pre-set Boot file name */
     if ((name = getenv("bootfile")) == NULL) {
-        name = "uImage";
+	name = "uImage";
     }
 
     switch (argc) {
     case 1:
-        break;
+	break;
     case 2:
 	/* only one arg - accept two forms:
-         * just load address, or just boot file name.
-         * The latter form must be written "filename" here.
-         */        
-        if (argv[1][0] == '"') {	/* just boot filename */
-            name = argv [1];
-        } else {			/* load address	*/
-            load_addr = simple_strtoul(argv[1], NULL, 16);
-        }
-        break;
+	 * just load address, or just boot file name.
+	 * The latter form must be written "filename" here.
+	 */
+	if (argv[1][0] == '"') {	/* just boot filename */
+	    name = argv [1];
+	} else {			/* load address	*/
+	    load_addr = simple_strtoul(argv[1], NULL, 16);
+	}
+	break;
     case 3:
-        load_addr = simple_strtoul(argv[1], NULL, 16);
-        name = argv [2];
-        break;
+	load_addr = simple_strtoul(argv[1], NULL, 16);
+	name = argv [2];
+	break;
     default:
-        printf ("Usage:\n%s\n", cmdtp->usage);
-        break;
+	printf ("Usage:\n%s\n", cmdtp->usage);
+	break;
     }
 
     /* Init physical layer                                                   */
     if (!fdc_fdos_init (drive)) {
-        return (-1);
+	return (-1);
     }
-    
+
     /* Open file                                                             */
     if (dos_open (name) < 0) {
-        printf ("Unable to open %s\n", name);
-        return 1;
+	printf ("Unable to open %s\n", name);
+	return 1;
     }
     if ((size = dos_read (load_addr)) < 0) {
-        printf ("boot error\n");
-        return 1;
+	printf ("boot error\n");
+	return 1;
     }
     flush_cache (load_addr, size);
 
@@ -99,47 +99,59 @@ int do_fdosboot(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
     setenv("filesize", buf);
 
     printf("Floppy DOS load complete: %d bytes loaded to 0x%lx\n",
-           size, load_addr);
-    
+	   size, load_addr);
+
     /* Check if we should attempt an auto-start */
     if (((ep = getenv("autostart")) != NULL) && (strcmp(ep,"yes") == 0)) {
-        char *local_args[2];
-        extern int do_bootm (cmd_tbl_t *, int, int, char *[]);
-        local_args[0] = argv[0];
-        local_args[1] = NULL;
-        printf ("Automatic boot of image at addr 0x%08lX ...\n", load_addr);
-        rcode = do_bootm (cmdtp, 0, 1, local_args);
+	char *local_args[2];
+	extern int do_bootm (cmd_tbl_t *, int, int, char *[]);
+	local_args[0] = argv[0];
+	local_args[1] = NULL;
+	printf ("Automatic boot of image at addr 0x%08lX ...\n", load_addr);
+	rcode = do_bootm (cmdtp, 0, 1, local_args);
     }
     return rcode;
 }
 
 /*-----------------------------------------------------------------------------
- * do_fdosls -- 
+ * do_fdosls --
  *-----------------------------------------------------------------------------
  */
 int do_fdosls(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
     char *path = "";
     int drive = CFG_FDC_DRIVE_NUMBER;
-    
+
     switch (argc) {
     case 1:
-        break;
+	break;
     case 2:
-        path = argv [1];
-        break;
+	path = argv [1];
+	break;
     }
 
     /* Init physical layer                                                   */
     if (!fdc_fdos_init (drive)) {
-        return (-1);
+	return (-1);
     }
     /* Open directory                                                        */
     if (dos_open (path) < 0) {
-        printf ("Unable to open %s\n", path);
-        return 1;
+	printf ("Unable to open %s\n", path);
+	return 1;
     }
     return (dos_dir ());
 }
 
-#endif
+cmd_tbl_t U_BOOT_CMD(FDOS_BOOT) = MK_CMD_ENTRY(
+	"fdosboot",	3,	0,	do_fdosboot,
+	"fdosboot- boot from a dos floppy file\n",
+	"[loadAddr] [filename]\n"
+);
+
+cmd_tbl_t U_BOOT_CMD(FDOS_LS) = MK_CMD_ENTRY(
+	"fdosls",	2,	0,	do_fdosls,
+	"fdosls  - list files in a directory\n",
+	"[directory]\n"
+);
+
+#endif	/* CONFIG_COMMANDS & CFG_CMD_FDOS */

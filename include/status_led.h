@@ -258,8 +258,8 @@ void status_led_set  (int led, int state);
 
 /*****  CMI   ********************************************************/
 #elif defined(CONFIG_CMI)
-# define STATUS_LED_DIR		im_mios.mios_mpiosm32ddr 
-# define STATUS_LED_DAT		im_mios.mios_mpiosm32dr 
+# define STATUS_LED_DIR		im_mios.mios_mpiosm32ddr
+# define STATUS_LED_DAT		im_mios.mios_mpiosm32dr
 
 # define STATUS_LED_BIT		0x2000		/* Select one of the 16 possible*/
 						/* MIOS outputs */

@@ -70,11 +70,11 @@ static struct cpu_post_cr_s2 {
 } cpu_post_cr_table2[] =
 {
     {
-    	0xa0000000,
+	0xa0000000,
 	1
     },
     {
-    	0x40000000,
+	0x40000000,
 	5
     },
 };
@@ -89,13 +89,13 @@ static struct cpu_post_cr_s3 {
 } cpu_post_cr_table3[] =
 {
     {
-    	0x01234567,
+	0x01234567,
 	0,
 	4,
 	0x01230567
     },
     {
-    	0x01234567,
+	0x01234567,
 	7,
 	0,
 	0x71234567
@@ -115,131 +115,131 @@ static struct cpu_post_cr_s4 {
 {
     {
 	OP_CRAND,
-    	0x0000ffff,
+	0x0000ffff,
 	0,
 	16,
 	0,
-    	0x0000ffff
+	0x0000ffff
     },
     {
 	OP_CRAND,
-    	0x0000ffff,
+	0x0000ffff,
 	16,
 	17,
 	0,
-    	0x8000ffff
+	0x8000ffff
     },
     {
 	OP_CRANDC,
-    	0x0000ffff,
+	0x0000ffff,
 	0,
 	16,
 	0,
-    	0x0000ffff
+	0x0000ffff
     },
     {
 	OP_CRANDC,
-    	0x0000ffff,
+	0x0000ffff,
 	16,
 	0,
 	0,
-    	0x8000ffff
+	0x8000ffff
     },
     {
 	OP_CROR,
-    	0x0000ffff,
+	0x0000ffff,
 	0,
 	16,
 	0,
-    	0x8000ffff
+	0x8000ffff
     },
     {
 	OP_CROR,
-    	0x0000ffff,
+	0x0000ffff,
 	0,
 	1,
 	0,
-    	0x0000ffff
+	0x0000ffff
     },
     {
 	OP_CRORC,
-    	0x0000ffff,
+	0x0000ffff,
 	0,
 	16,
 	0,
-    	0x0000ffff
+	0x0000ffff
     },
     {
 	OP_CRORC,
-    	0x0000ffff,
+	0x0000ffff,
 	0,
 	0,
 	0,
-    	0x8000ffff
+	0x8000ffff
     },
     {
 	OP_CRXOR,
-    	0x0000ffff,
+	0x0000ffff,
 	0,
 	0,
 	0,
-    	0x0000ffff
+	0x0000ffff
     },
     {
 	OP_CRXOR,
-    	0x0000ffff,
+	0x0000ffff,
 	0,
 	16,
 	0,
-    	0x8000ffff
+	0x8000ffff
     },
     {
 	OP_CRNAND,
-    	0x0000ffff,
+	0x0000ffff,
 	0,
 	16,
 	0,
-    	0x8000ffff
+	0x8000ffff
     },
     {
 	OP_CRNAND,
-    	0x0000ffff,
+	0x0000ffff,
 	16,
 	17,
 	0,
-    	0x0000ffff
+	0x0000ffff
     },
     {
 	OP_CRNOR,
-    	0x0000ffff,
+	0x0000ffff,
 	0,
 	16,
 	0,
-    	0x0000ffff
+	0x0000ffff
     },
     {
 	OP_CRNOR,
-    	0x0000ffff,
+	0x0000ffff,
 	0,
 	1,
 	0,
-    	0x8000ffff
+	0x8000ffff
     },
     {
 	OP_CREQV,
-    	0x0000ffff,
+	0x0000ffff,
 	0,
 	0,
 	0,
-    	0x8000ffff
+	0x8000ffff
     },
     {
 	OP_CREQV,
-    	0x0000ffff,
+	0x0000ffff,
 	0,
 	16,
 	0,
-    	0x0000ffff
+	0x0000ffff
     },
 };
 static unsigned int cpu_post_cr_size4 =
@@ -258,7 +258,7 @@ int cpu_post_test_cr (void)
 	ulong cr = cpu_post_cr_table1[i];
 	ulong res;
 
-    	unsigned long code[] =
+	unsigned long code[] =
 	{
 	    ASM_MTCR(3),
 	    ASM_MFCR(3),
@@ -269,10 +269,10 @@ int cpu_post_test_cr (void)
 
 	ret = res == cr ? 0 : -1;
 
-    	if (ret != 0)
-    	{
-            post_log ("Error at cr1 test %d !\n", i);
-    	}
+	if (ret != 0)
+	{
+	    post_log ("Error at cr1 test %d !\n", i);
+	}
     }
 
     for (i = 0; i < cpu_post_cr_size2 && ret == 0; i++)
@@ -281,7 +281,7 @@ int cpu_post_test_cr (void)
 	ulong res;
 	ulong xer;
 
-    	unsigned long code[] =
+	unsigned long code[] =
 	{
 	    ASM_MTXER(3),
 	    ASM_MCRXR(test->cr),
@@ -295,10 +295,10 @@ int cpu_post_test_cr (void)
 	ret = xer == 0 && ((res << (4 * test->cr)) & 0xe0000000) == test->xer ?
 	      0 : -1;
 
-    	if (ret != 0)
-    	{
-            post_log ("Error at cr2 test %d !\n", i);
-    	}
+	if (ret != 0)
+	{
+	    post_log ("Error at cr2 test %d !\n", i);
+	}
     }
 
     for (i = 0; i < cpu_post_cr_size3 && ret == 0; i++)
@@ -306,7 +306,7 @@ int cpu_post_test_cr (void)
 	struct cpu_post_cr_s3 *test = cpu_post_cr_table3 + i;
 	ulong res;
 
-    	unsigned long code[] =
+	unsigned long code[] =
 	{
 	    ASM_MTCR(3),
 	    ASM_MCRF(test->cd, test->cs),
@@ -318,10 +318,10 @@ int cpu_post_test_cr (void)
 
 	ret = res == test->res ? 0 : -1;
 
-    	if (ret != 0)
-    	{
-            post_log ("Error at cr3 test %d !\n", i);
-    	}
+	if (ret != 0)
+	{
+	    post_log ("Error at cr3 test %d !\n", i);
+	}
     }
 
     for (i = 0; i < cpu_post_cr_size4 && ret == 0; i++)
@@ -329,7 +329,7 @@ int cpu_post_test_cr (void)
 	struct cpu_post_cr_s4 *test = cpu_post_cr_table4 + i;
 	ulong res;
 
-    	unsigned long code[] =
+	unsigned long code[] =
 	{
 	    ASM_MTCR(3),
 	    ASM_12F(test->cmd, test->op3, test->op1, test->op2),
@@ -341,10 +341,10 @@ int cpu_post_test_cr (void)
 
 	ret = res == test->res ? 0 : -1;
 
-    	if (ret != 0)
-    	{
-            post_log ("Error at cr4 test %d !\n", i);
-    	}
+	if (ret != 0)
+	{
+	    post_log ("Error at cr4 test %d !\n", i);
+	}
     }
 
     asm ( "mtcr %0" : : "r" (cr_sav));

@@ -46,28 +46,28 @@ unsigned long get_system_ticks(void)
 int timer_init(void)
 {
 	system_ticks = 0;
-	
+
 	irq_install_handler(0, timer_isr, NULL);
-	
-	/* initialize timer 0 and 2 
-	 * 
+
+	/* initialize timer 0 and 2
+	 *
 	 * Timer 0 is used to increment system_tick 1000 times/sec
 	 * Timer 1 was used for DRAM refresh in early PC's
 	 * Timer 2 is used to drive the speaker
 	 * (to stasrt a beep: write 3 to port 0x61,
 	 * to stop it again: write 0)
 	 */
-		
-        outb(PIT_CMD_CTR0|PIT_CMD_BOTH|PIT_CMD_MODE2, PIT_BASE + PIT_COMMAND);
+
+	outb(PIT_CMD_CTR0|PIT_CMD_BOTH|PIT_CMD_MODE2, PIT_BASE + PIT_COMMAND);
 	outb(TIMER0_VALUE&0xff, PIT_BASE + PIT_T0);
 	outb(TIMER0_VALUE>>8, PIT_BASE + PIT_T0);
 
-        outb(PIT_CMD_CTR2|PIT_CMD_BOTH|PIT_CMD_MODE3, PIT_BASE + PIT_COMMAND);
+	outb(PIT_CMD_CTR2|PIT_CMD_BOTH|PIT_CMD_MODE3, PIT_BASE + PIT_COMMAND);
 	outb(TIMER2_VALUE&0xff, PIT_BASE + PIT_T2);
 	outb(TIMER2_VALUE>>8, PIT_BASE + PIT_T2);
 
 	timer_init_done = 1;
-	
+
 	return 0;
 }
 
@@ -87,7 +87,7 @@ ulong get_timer (ulong base)
 	return (system_ticks - base);
 }
 
-void set_timer (ulong t)	
+void set_timer (ulong t)
 {
 	system_ticks = t;
 }
@@ -102,20 +102,20 @@ static u16 read_pit(void)
 
 /* this is not very exact */
 void udelay (unsigned long usec)
-{	
+{
 	int counter;
 	int wraps;
-	
+
 	if (!timer_init_done) {
 		return;
 	}
 	counter = read_pit();
 	wraps = usec/1000;
 	usec = usec%1000;
-	
+
 	usec*=1194;
 	usec/=1000;
-	usec+=counter; 
+	usec+=counter;
 	if (usec > 1194) {
 		usec-=1194;
 		wraps++;
@@ -123,26 +123,26 @@ void udelay (unsigned long usec)
 
 	while (1) {
 		int new_count = read_pit();
-		
+
 		if (((new_count < usec) && !wraps) || wraps < 0) {
 			break;
 		}
-		
+
 		if (new_count > counter) {
 			wraps--;
 		}
 		counter = new_count;
 	}
-	
+
 }
 
 #if 0
 /* this is a version with debug output */
 void _udelay (unsigned long usec)
-{	
+{
 	int counter;
 	int wraps;
-	
+
 	int usec1, usec2, usec3;
 	int wraps1, wraps2, wraps3, wraps4;
 	int ctr1, ctr2, ctr3, nct1, nct2;
@@ -155,13 +155,13 @@ void _udelay (unsigned long usec)
 	ctr1 = counter;
 	wraps = usec/1000;
 	usec = usec%1000;
-	
+
 	usec2 = usec;
 	wraps1 = wraps;
-	
+
 	usec*=1194;
 	usec/=1000;
-	usec+=counter; 
+	usec+=counter;
 	if (usec > 1194) {
 		usec-=1194;
 		wraps++;
@@ -169,7 +169,7 @@ void _udelay (unsigned long usec)
 
 	usec3 = usec;
 	wraps2 = wraps;
-	
+
 	ctr2 = wraps3 = nct1 = 4711;
 	ctr3 = wraps4 = nct2 = 4711;
 	i=0;
@@ -179,7 +179,7 @@ void _udelay (unsigned long usec)
 		if ((new_count < usec && !wraps) || wraps < 0) {
 			break;
 		}
-		
+
 		if (new_count > counter) {
 			wraps--;
 		}
@@ -192,10 +192,10 @@ void _udelay (unsigned long usec)
 			wraps4 = wraps;
 			nct2 = new_count;
 		}
-		
+
 		counter = new_count;
 	}
-	
+
 	printf("udelay(%d)\n", usec1);
 	printf("counter %d\n", ctr1);
 	printf("1: wraps %d, usec %d\n", wraps1, usec2);

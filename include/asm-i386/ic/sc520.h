@@ -230,7 +230,7 @@
 #define UART1_DIS		0x01		/* UART1 Disable */
 
 /* bus mapping constants (used for PCI core initialization) */																																																 /* bus mapping constants */
-#define SC520_REG_ADDR		0x00000cf8     
+#define SC520_REG_ADDR		0x00000cf8
 #define SC520_REG_DATA		0x00000cfc
 
 
@@ -242,7 +242,7 @@
 #define SC520_ISA_IO_BUS	0x00000000
 #define SC520_ISA_IO_SIZE	0x00001000
 
-/* PCI I/O space from 0x1000 to 0xdfff 
+/* PCI I/O space from 0x1000 to 0xdfff
  * (make 0xe000-0xfdff available for stuff like PCCard boot) */
 #define SC520_PCI_IO_PHYS	0x00001000
 #define SC520_PCI_IO_BUS	0x00001000
@@ -253,7 +253,7 @@
 #define	SC520_PCI_MEMORY_BUS	0x00000000
 #define SC520_PCI_MEMORY_SIZE	0x10000000
 
-/* PCI bus memory from 0x10000000 to 0x26ffffff 
+/* PCI bus memory from 0x10000000 to 0x26ffffff
  * (make 0x27000000 - 0x27ffffff available for stuff like PCCard boot) */
 #define SC520_PCI_MEM_PHYS	0x10000000
 #define SC520_PCI_MEM_BUS       0x10000000
@@ -275,7 +275,7 @@
 #define SC520_IRQ7  22
 #define SC520_IRQ8  3
 #define SC520_IRQ9  4
-#define SC520_IRQ10 5 
+#define SC520_IRQ10 5
 #define SC520_IRQ11 6
 #define SC520_IRQ12 7
 #define SC520_IRQ13 8

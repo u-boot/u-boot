@@ -62,4 +62,3 @@ Read the counter and return the counter value.
     (t)->low = lt.LowPart;                                  \
     (t)->high = lt.HighPart;                                \
 }
-

@@ -43,31 +43,31 @@
 #  define CPM_CR_ENET_PAGE      CPM_CR_SCC1_PAGE
 #  define CPM_CR_ENET_SBLOCK    CPM_CR_SCC1_SBLOCK
 #  define CMXSCR_MASK          (CMXSCR_SC1          |\
-                                CMXSCR_RS1CS_MSK    |\
-                                CMXSCR_TS1CS_MSK)
+				CMXSCR_RS1CS_MSK    |\
+				CMXSCR_TS1CS_MSK)
 
 #elif (CONFIG_ETHER_INDEX == 2)
 #  define PROFF_ENET            PROFF_SCC2
 #  define CPM_CR_ENET_PAGE      CPM_CR_SCC2_PAGE
 #  define CPM_CR_ENET_SBLOCK    CPM_CR_SCC2_SBLOCK
 #  define CMXSCR_MASK          (CMXSCR_SC2          |\
-                                CMXSCR_RS2CS_MSK    |\
-                                CMXSCR_TS2CS_MSK)
+				CMXSCR_RS2CS_MSK    |\
+				CMXSCR_TS2CS_MSK)
 
 #elif (CONFIG_ETHER_INDEX == 3)
 #  define PROFF_ENET            PROFF_SCC3
 #  define CPM_CR_ENET_PAGE      CPM_CR_SCC3_PAGE
 #  define CPM_CR_ENET_SBLOCK    CPM_CR_SCC3_SBLOCK
 #  define CMXSCR_MASK          (CMXSCR_SC3          |\
-                                CMXSCR_RS3CS_MSK    |\
-                                CMXSCR_TS3CS_MSK)
+				CMXSCR_RS3CS_MSK    |\
+				CMXSCR_TS3CS_MSK)
 #elif (CONFIG_ETHER_INDEX == 4)
 #  define PROFF_ENET            PROFF_SCC4
 #  define CPM_CR_ENET_PAGE      CPM_CR_SCC4_PAGE
 #  define CPM_CR_ENET_SBLOCK    CPM_CR_SCC4_SBLOCK
 #  define CMXSCR_MASK          (CMXSCR_SC4          |\
-                                CMXSCR_RS4CS_MSK    |\
-                                CMXSCR_TS4CS_MSK)
+				CMXSCR_RS4CS_MSK    |\
+				CMXSCR_TS4CS_MSK)
 
 #endif
 
@@ -104,27 +104,27 @@ int eth_send(volatile void *packet, int length)
     int result = 0;
 
     if (length <= 0) {
-        printf("scc: bad packet size: %d\n", length);
-        goto out;
+	printf("scc: bad packet size: %d\n", length);
+	goto out;
     }
 
     for(i=0; rtx->txbd[txIdx].cbd_sc & BD_ENET_TX_READY; i++) {
-        if (i >= TOUT_LOOP) {
-            printf("scc: tx buffer not ready\n");
-            goto out;
-        }
+	if (i >= TOUT_LOOP) {
+	    printf("scc: tx buffer not ready\n");
+	    goto out;
+	}
     }
 
     rtx->txbd[txIdx].cbd_bufaddr = (uint)packet;
     rtx->txbd[txIdx].cbd_datlen = length;
     rtx->txbd[txIdx].cbd_sc |= (BD_ENET_TX_READY | BD_ENET_TX_LAST |
-                                BD_ENET_TX_WRAP);
+				BD_ENET_TX_WRAP);
 
     for(i=0; rtx->txbd[txIdx].cbd_sc & BD_ENET_TX_READY; i++) {
-        if (i >= TOUT_LOOP) {
-            printf("scc: tx error\n");
-            goto out;
-        }
+	if (i >= TOUT_LOOP) {
+	    printf("scc: tx error\n");
+	    goto out;
+	}
     }
 
     /* return only status bits */
@@ -141,37 +141,37 @@ int eth_rx(void)
 
     for (;;)
     {
-        if (rtx->rxbd[rxIdx].cbd_sc & BD_ENET_RX_EMPTY) {
-            length = -1;
-            break;     /* nothing received - leave for() loop */
-        }
+	if (rtx->rxbd[rxIdx].cbd_sc & BD_ENET_RX_EMPTY) {
+	    length = -1;
+	    break;     /* nothing received - leave for() loop */
+	}
 
-        length = rtx->rxbd[rxIdx].cbd_datlen;
+	length = rtx->rxbd[rxIdx].cbd_datlen;
 
-        if (rtx->rxbd[rxIdx].cbd_sc & 0x003f)
-        {
-            printf("err: %x\n", rtx->rxbd[rxIdx].cbd_sc);
-        }
-        else
-        {
-            /* Pass the packet up to the protocol layers. */
-            NetReceive(NetRxPackets[rxIdx], length - 4);
-        }
+	if (rtx->rxbd[rxIdx].cbd_sc & 0x003f)
+	{
+	    printf("err: %x\n", rtx->rxbd[rxIdx].cbd_sc);
+	}
+	else
+	{
+	    /* Pass the packet up to the protocol layers. */
+	    NetReceive(NetRxPackets[rxIdx], length - 4);
+	}
 
 
-        /* Give the buffer back to the SCC. */
-        rtx->rxbd[rxIdx].cbd_datlen = 0;
+	/* Give the buffer back to the SCC. */
+	rtx->rxbd[rxIdx].cbd_datlen = 0;
 
-        /* wrap around buffer index when necessary */
-        if ((rxIdx + 1) >= PKTBUFSRX) {
-            rtx->rxbd[PKTBUFSRX - 1].cbd_sc = (BD_ENET_RX_WRAP |
-                                               BD_ENET_RX_EMPTY);
-            rxIdx = 0;
-        }
-        else {
-            rtx->rxbd[rxIdx].cbd_sc = BD_ENET_RX_EMPTY;
-            rxIdx++;
-        }
+	/* wrap around buffer index when necessary */
+	if ((rxIdx + 1) >= PKTBUFSRX) {
+	    rtx->rxbd[PKTBUFSRX - 1].cbd_sc = (BD_ENET_RX_WRAP |
+					       BD_ENET_RX_EMPTY);
+	    rxIdx = 0;
+	}
+	else {
+	    rtx->rxbd[rxIdx].cbd_sc = BD_ENET_RX_EMPTY;
+	    rxIdx++;
+	}
     }
     return length;
 }
@@ -201,7 +201,7 @@ int eth_init(bd_t *bis)
     /* 24.21 - (4,5): connect SCC's tx and rx clocks, use NMSI for SCC */
     immr->im_cpmux.cmx_uar = 0;
     immr->im_cpmux.cmx_scr = ( (immr->im_cpmux.cmx_scr & ~CMXSCR_MASK) |
-                               CFG_CMXSCR_VALUE);
+			       CFG_CMXSCR_VALUE);
 
 
     /* 24.21 (6) write RBASE and TBASE to parameter RAM */
@@ -221,9 +221,9 @@ int eth_init(bd_t *bis)
     /* 24.21 - (7): Write INIT RX AND TX PARAMETERS to CPCR */
     while(immr->im_cpm.cp_cpcr & CPM_CR_FLG);
     immr->im_cpm.cp_cpcr = mk_cr_cmd(CPM_CR_ENET_PAGE,
-                                     CPM_CR_ENET_SBLOCK,
-                                     0x0c,
-                                     CPM_CR_INIT_TRX) | CPM_CR_FLG;
+				     CPM_CR_ENET_SBLOCK,
+				     0x0c,
+				     CPM_CR_INIT_TRX) | CPM_CR_FLG;
 
     /* 24.21 - (8-18): Set up parameter RAM */
     pram_ptr->sen_crcec  = 0x0;           /* Error Counter CRC (unused) */
@@ -266,9 +266,9 @@ int eth_init(bd_t *bis)
     /* 24.21 - (19): Initialize RxBD */
     for (i = 0; i < PKTBUFSRX; i++)
     {
-        rtx->rxbd[i].cbd_sc = BD_ENET_RX_EMPTY;
-        rtx->rxbd[i].cbd_datlen = 0;                  /* Reset */
-        rtx->rxbd[i].cbd_bufaddr = (uint)NetRxPackets[i];
+	rtx->rxbd[i].cbd_sc = BD_ENET_RX_EMPTY;
+	rtx->rxbd[i].cbd_datlen = 0;                  /* Reset */
+	rtx->rxbd[i].cbd_bufaddr = (uint)NetRxPackets[i];
     }
 
     rtx->rxbd[PKTBUFSRX - 1].cbd_sc |= BD_ENET_RX_WRAP;
@@ -276,11 +276,11 @@ int eth_init(bd_t *bis)
     /* 24.21 - (20): Initialize TxBD */
     for (i = 0; i < TX_BUF_CNT; i++)
     {
-        rtx->txbd[i].cbd_sc = (BD_ENET_TX_PAD  |
-                               BD_ENET_TX_LAST |
-                               BD_ENET_TX_TC);
-        rtx->txbd[i].cbd_datlen = 0;                  /* Reset */
-        rtx->txbd[i].cbd_bufaddr = (uint)&txbuf[i][0];
+	rtx->txbd[i].cbd_sc = (BD_ENET_TX_PAD  |
+			       BD_ENET_TX_LAST |
+			       BD_ENET_TX_TC);
+	rtx->txbd[i].cbd_datlen = 0;                  /* Reset */
+	rtx->txbd[i].cbd_bufaddr = (uint)&txbuf[i][0];
     }
 
     rtx->txbd[TX_BUF_CNT - 1].cbd_sc |= BD_ENET_TX_WRAP;
@@ -290,8 +290,8 @@ int eth_init(bd_t *bis)
 
     /* 24.21 - (22): Write to SCCM to enable TXE, RXF, TXB events */
     immr->im_scc[CONFIG_ETHER_INDEX-1].scc_sccm = (SCCE_ENET_TXE |
-                                                   SCCE_ENET_RXF |
-                                                   SCCE_ENET_TXB);
+						   SCCE_ENET_RXF |
+						   SCCE_ENET_TXB);
 
     /* 24.21 - (23): we don't use ethernet interrupts */
 
@@ -300,9 +300,9 @@ int eth_init(bd_t *bis)
 
     /* 24.21 - (25): Clear GSMR_L to enable normal operations */
     immr->im_scc[CONFIG_ETHER_INDEX-1].scc_gsmrl = (SCC_GSMRL_TCI        |
-                                                    SCC_GSMRL_TPL_48     |
-                                                    SCC_GSMRL_TPP_10     |
-                                                    SCC_GSMRL_MODE_ENET);
+						    SCC_GSMRL_TPL_48     |
+						    SCC_GSMRL_TPP_10     |
+						    SCC_GSMRL_MODE_ENET);
 
     /* 24.21 - (26): Initialize DSR */
     immr->im_scc[CONFIG_ETHER_INDEX-1].scc_dsr = 0xd555;
@@ -331,18 +331,17 @@ int eth_init(bd_t *bis)
 
     /* 24.21 - (28): Write to GSMR_L to enable SCC */
     immr->im_scc[CONFIG_ETHER_INDEX-1].scc_gsmrl |= (SCC_GSMRL_ENR |
-                                                     SCC_GSMRL_ENT);
+						     SCC_GSMRL_ENT);
 
     return 0;
 }
-
 
 
 void eth_halt(void)
 {
     volatile immap_t *immr = (immap_t *)CFG_IMMR;
     immr->im_scc[CONFIG_ETHER_INDEX-1].scc_gsmrl &= ~(SCC_GSMRL_ENR |
-                                                      SCC_GSMRL_ENT);
+						      SCC_GSMRL_ENT);
 }
 
 #if 0
@@ -350,9 +349,8 @@ void restart(void)
 {
     volatile immap_t *immr = (immap_t *)CFG_IMMR;
     immr->im_cpm.cp_scc[CONFIG_ETHER_INDEX-1].scc_gsmrl |= (SCC_GSMRL_ENR |
-                                                            SCC_GSMRL_ENT);
+							    SCC_GSMRL_ENT);
 }
 #endif
 
 #endif  /* CONFIG_ETHER_ON_SCC && CFG_CMD_NET */
-

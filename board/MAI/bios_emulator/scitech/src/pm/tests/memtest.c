@@ -56,16 +56,16 @@ int main(void)
 
     printf("Program running in ");
     switch (PM_getModeType()) {
-        case PM_realMode:
-            printf("real mode.\n\n");
-            break;
-        case PM_286:
-            printf("16 bit protected mode.\n\n");
-            break;
-        case PM_386:
-            printf("32 bit protected mode.\n\n");
-            break;
-        }
+	case PM_realMode:
+	    printf("real mode.\n\n");
+	    break;
+	case PM_286:
+	    printf("16 bit protected mode.\n\n");
+	    break;
+	case PM_386:
+	    printf("32 bit protected mode.\n\n");
+	    break;
+	}
 
     printf("Memory available at start:\n");
     PM_availableMemory(&physical,&total);
@@ -73,18 +73,18 @@ int main(void)
     printf("   Total (including virtual): %ld Kb\n", total / 1024);
     printf("\n");
     for (allocs = i = 0; i < MAXALLOC; i++) {
-        if ((pa[i] = PM_malloc(10*1024)) != 0) {    /* in 10k blocks    */
-            p = pa[allocs];
-            memset(p, 0, 10*1024); /* touch every byte              */
-            *p = 'x';           /* do something, anything with      */
-            p[1023] = 'y';      /* the allocated memory             */
-            allocs++;
-            printf("Allocated %lu bytes\r", 10*(allocs << 10));
-            }
-        else break;
-        if (PM_kbhit() && (PM_getch() == 0x1B))
-            break;
-        }
+	if ((pa[i] = PM_malloc(10*1024)) != 0) {    /* in 10k blocks    */
+	    p = pa[allocs];
+	    memset(p, 0, 10*1024); /* touch every byte              */
+	    *p = 'x';           /* do something, anything with      */
+	    p[1023] = 'y';      /* the allocated memory             */
+	    allocs++;
+	    printf("Allocated %lu bytes\r", 10*(allocs << 10));
+	    }
+	else break;
+	if (PM_kbhit() && (PM_getch() == 0x1B))
+	    break;
+	}
 
     printf("\n\nAllocated total of %lu bytes\n", 10 * (allocs << 10));
 
@@ -94,7 +94,7 @@ int main(void)
     printf("   Total (including virtual): %ld Kb\n", total / 1024);
 
     for (i = allocs-1; i >= 0; i--)
-        PM_free(pa[i]);
+	PM_free(pa[i]);
 
     printf("\nMemory available after freeing all blocks (note that under protected mode\n");
     printf("this will most likely not be correct after freeing blocks):\n\n");

@@ -227,7 +227,7 @@
 			 SIUMCR_DBGC11 | SIUMCR_MLRC10)
 
 /*-----------------------------------------------------------------------
- * Clock Setting - get clock frequency from Board Revision Register 
+ * Clock Setting - get clock frequency from Board Revision Register
  *-----------------------------------------------------------------------
  */
 #ifndef __ASSEMBLY__

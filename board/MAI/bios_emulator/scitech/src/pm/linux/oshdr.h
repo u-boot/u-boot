@@ -58,4 +58,3 @@ void _PM_keyboard_rawmode(void);
 /* Linux needs the generic joystick scaling code */
 
 #define NEED_SCALE_JOY_AXIS
-

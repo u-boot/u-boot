@@ -16,7 +16,6 @@
 #include "bcm570x_mm.h"
 
 
-
 /******************************************************************************/
 /* Description:                                                               */
 /*                                                                            */
@@ -37,7 +36,6 @@ MM_AnTxConfig(
 }
 
 
-
 /******************************************************************************/
 /* Description:                                                               */
 /*                                                                            */
@@ -54,7 +52,6 @@ MM_AnTxIdle(
     pDevice->MacMode &= ~MAC_MODE_SEND_CONFIGS;
     REG_WR(pDevice, MacCtrl.Mode, pDevice->MacMode);
 }
-
 
 
 /******************************************************************************/
@@ -78,15 +75,14 @@ MM_AnRxConfig(
     Value32 = REG_RD(pDevice, MacCtrl.Status);
     if(Value32 & MAC_STATUS_RECEIVING_CFG)
     {
-        Value32 = REG_RD(pDevice, MacCtrl.RxAutoNeg);
-        *pRxConfig = (unsigned short) Value32;
+	Value32 = REG_RD(pDevice, MacCtrl.RxAutoNeg);
+	*pRxConfig = (unsigned short) Value32;
 
-        Retcode = AN_TRUE;
+	Retcode = AN_TRUE;
     }
 
     return Retcode;
 }
-
 
 
 /******************************************************************************/
@@ -102,7 +98,7 @@ AutonegInit(
 
     for(j = 0; j < sizeof(AN_STATE_INFO); j++)
     {
-        ((unsigned char *) pAnInfo)[j] = 0;
+	((unsigned char *) pAnInfo)[j] = 0;
     }
 
     /* Initialize the default advertisement register. */
@@ -111,7 +107,6 @@ AutonegInit(
     pAnInfo->mr_adv_asym_pause = 1;
     pAnInfo->mr_an_enable = 1;
 }
-
 
 
 /******************************************************************************/
@@ -130,14 +125,14 @@ Autoneg8023z(
     /* Get the current time. */
     if(pAnInfo->State == AN_STATE_UNKNOWN)
     {
-        pAnInfo->RxConfig.AsUSHORT = 0;
-        pAnInfo->CurrentTime_us = 0;
-        pAnInfo->LinkTime_us = 0;
-        pAnInfo->AbilityMatchCfg = 0;
-        pAnInfo->AbilityMatchCnt = 0;
-        pAnInfo->AbilityMatch = AN_FALSE;
-        pAnInfo->IdleMatch = AN_FALSE;
-        pAnInfo->AckMatch = AN_FALSE;
+	pAnInfo->RxConfig.AsUSHORT = 0;
+	pAnInfo->CurrentTime_us = 0;
+	pAnInfo->LinkTime_us = 0;
+	pAnInfo->AbilityMatchCfg = 0;
+	pAnInfo->AbilityMatchCnt = 0;
+	pAnInfo->AbilityMatch = AN_FALSE;
+	pAnInfo->IdleMatch = AN_FALSE;
+	pAnInfo->AckMatch = AN_FALSE;
     }
 
     /* Increment the timer tick.  This function is called every microsecon. */
@@ -147,43 +142,43 @@ Autoneg8023z(
     /* corresponding conditions are satisfied. */
     if(MM_AnRxConfig(pAnInfo, &RxConfig))
     {
-        if(RxConfig != pAnInfo->AbilityMatchCfg)
-        {
-            pAnInfo->AbilityMatchCfg = RxConfig;
-            pAnInfo->AbilityMatch = AN_FALSE;
-            pAnInfo->AbilityMatchCnt = 0;
-        }
-        else
-        {
-            pAnInfo->AbilityMatchCnt++;
-            if(pAnInfo->AbilityMatchCnt > 1)
-            {
-                pAnInfo->AbilityMatch = AN_TRUE;
-                pAnInfo->AbilityMatchCfg = RxConfig;
-            }
-        }
+	if(RxConfig != pAnInfo->AbilityMatchCfg)
+	{
+	    pAnInfo->AbilityMatchCfg = RxConfig;
+	    pAnInfo->AbilityMatch = AN_FALSE;
+	    pAnInfo->AbilityMatchCnt = 0;
+	}
+	else
+	{
+	    pAnInfo->AbilityMatchCnt++;
+	    if(pAnInfo->AbilityMatchCnt > 1)
+	    {
+		pAnInfo->AbilityMatch = AN_TRUE;
+		pAnInfo->AbilityMatchCfg = RxConfig;
+	    }
+	}
 
-        if(RxConfig & AN_CONFIG_ACK)
-        {
-            pAnInfo->AckMatch = AN_TRUE;
-        }
-        else
-        {
-            pAnInfo->AckMatch = AN_FALSE;
-        }
+	if(RxConfig & AN_CONFIG_ACK)
+	{
+	    pAnInfo->AckMatch = AN_TRUE;
+	}
+	else
+	{
+	    pAnInfo->AckMatch = AN_FALSE;
+	}
 
-        pAnInfo->IdleMatch = AN_FALSE;
+	pAnInfo->IdleMatch = AN_FALSE;
     }
     else
     {
-        pAnInfo->IdleMatch = AN_TRUE;
+	pAnInfo->IdleMatch = AN_TRUE;
 
-        pAnInfo->AbilityMatchCfg = 0;
-        pAnInfo->AbilityMatchCnt = 0;
-        pAnInfo->AbilityMatch = AN_FALSE;
-        pAnInfo->AckMatch = AN_FALSE;
+	pAnInfo->AbilityMatchCfg = 0;
+	pAnInfo->AbilityMatchCnt = 0;
+	pAnInfo->AbilityMatch = AN_FALSE;
+	pAnInfo->AckMatch = AN_FALSE;
 
-        RxConfig = 0;
+	RxConfig = 0;
     }
 
     /* Save the last Config. */
@@ -195,218 +190,218 @@ Autoneg8023z(
     /* Autoneg state machine as defined in 802.3z section 37.3.1.5. */
     switch(pAnInfo->State)
     {
-        case AN_STATE_UNKNOWN:
-            if(pAnInfo->mr_an_enable || pAnInfo->mr_restart_an)
-            {
-                pAnInfo->CurrentTime_us = 0;
-                pAnInfo->State = AN_STATE_AN_ENABLE;
-            }
+	case AN_STATE_UNKNOWN:
+	    if(pAnInfo->mr_an_enable || pAnInfo->mr_restart_an)
+	    {
+		pAnInfo->CurrentTime_us = 0;
+		pAnInfo->State = AN_STATE_AN_ENABLE;
+	    }
 
-            /* Fall through.*/
+	    /* Fall through.*/
 
-        case AN_STATE_AN_ENABLE:
-            pAnInfo->mr_an_complete = AN_FALSE;
-            pAnInfo->mr_page_rx = AN_FALSE;
+	case AN_STATE_AN_ENABLE:
+	    pAnInfo->mr_an_complete = AN_FALSE;
+	    pAnInfo->mr_page_rx = AN_FALSE;
 
-            if(pAnInfo->mr_an_enable)
-            {
-                pAnInfo->LinkTime_us = 0;
-                pAnInfo->AbilityMatchCfg = 0;
-                pAnInfo->AbilityMatchCnt = 0;
-                pAnInfo->AbilityMatch = AN_FALSE;
-                pAnInfo->IdleMatch = AN_FALSE;
-                pAnInfo->AckMatch = AN_FALSE;
+	    if(pAnInfo->mr_an_enable)
+	    {
+		pAnInfo->LinkTime_us = 0;
+		pAnInfo->AbilityMatchCfg = 0;
+		pAnInfo->AbilityMatchCnt = 0;
+		pAnInfo->AbilityMatch = AN_FALSE;
+		pAnInfo->IdleMatch = AN_FALSE;
+		pAnInfo->AckMatch = AN_FALSE;
 
-                pAnInfo->State = AN_STATE_AN_RESTART_INIT;
-            }
-            else
-            {
-                pAnInfo->State = AN_STATE_DISABLE_LINK_OK;
-            }
-            break;
+		pAnInfo->State = AN_STATE_AN_RESTART_INIT;
+	    }
+	    else
+	    {
+		pAnInfo->State = AN_STATE_DISABLE_LINK_OK;
+	    }
+	    break;
 
-        case AN_STATE_AN_RESTART_INIT:
-            pAnInfo->LinkTime_us = pAnInfo->CurrentTime_us;
-            pAnInfo->mr_np_loaded = AN_FALSE;
+	case AN_STATE_AN_RESTART_INIT:
+	    pAnInfo->LinkTime_us = pAnInfo->CurrentTime_us;
+	    pAnInfo->mr_np_loaded = AN_FALSE;
 
-            pAnInfo->TxConfig.AsUSHORT = 0;
-            MM_AnTxConfig(pAnInfo);
+	    pAnInfo->TxConfig.AsUSHORT = 0;
+	    MM_AnTxConfig(pAnInfo);
 
-            AnRet = AUTONEG_STATUS_TIMER_ENABLED;
+	    AnRet = AUTONEG_STATUS_TIMER_ENABLED;
 
-            pAnInfo->State = AN_STATE_AN_RESTART;
+	    pAnInfo->State = AN_STATE_AN_RESTART;
 
-            /* Fall through.*/
+	    /* Fall through.*/
 
-        case AN_STATE_AN_RESTART:
-            /* Get the current time and compute the delta with the saved */
-            /* link timer. */
-            Delta_us = pAnInfo->CurrentTime_us - pAnInfo->LinkTime_us;
-            if(Delta_us > AN_LINK_TIMER_INTERVAL_US)
-            {
-                pAnInfo->State = AN_STATE_ABILITY_DETECT_INIT;
-            }
-            else
-            {
-                AnRet = AUTONEG_STATUS_TIMER_ENABLED;
-            }
-            break;
+	case AN_STATE_AN_RESTART:
+	    /* Get the current time and compute the delta with the saved */
+	    /* link timer. */
+	    Delta_us = pAnInfo->CurrentTime_us - pAnInfo->LinkTime_us;
+	    if(Delta_us > AN_LINK_TIMER_INTERVAL_US)
+	    {
+		pAnInfo->State = AN_STATE_ABILITY_DETECT_INIT;
+	    }
+	    else
+	    {
+		AnRet = AUTONEG_STATUS_TIMER_ENABLED;
+	    }
+	    break;
 
-        case AN_STATE_DISABLE_LINK_OK:
-            AnRet = AUTONEG_STATUS_DONE;
-            break;
+	case AN_STATE_DISABLE_LINK_OK:
+	    AnRet = AUTONEG_STATUS_DONE;
+	    break;
 
-        case AN_STATE_ABILITY_DETECT_INIT:
-            /* Note: in the state diagram, this variable is set to */
-            /* mr_adv_ability<12>.  Is this right?. */
-            pAnInfo->mr_toggle_tx = AN_FALSE;
+	case AN_STATE_ABILITY_DETECT_INIT:
+	    /* Note: in the state diagram, this variable is set to */
+	    /* mr_adv_ability<12>.  Is this right?. */
+	    pAnInfo->mr_toggle_tx = AN_FALSE;
 
-            /* Send the config as advertised in the advertisement register. */
-            pAnInfo->TxConfig.AsUSHORT = 0;
-            pAnInfo->TxConfig.D5_FD = pAnInfo->mr_adv_full_duplex;
-            pAnInfo->TxConfig.D6_HD = pAnInfo->mr_adv_half_duplex;
-            pAnInfo->TxConfig.D7_PS1 = pAnInfo->mr_adv_sym_pause;
-            pAnInfo->TxConfig.D8_PS2 = pAnInfo->mr_adv_asym_pause;
-            pAnInfo->TxConfig.D12_RF1 = pAnInfo->mr_adv_remote_fault1;
-            pAnInfo->TxConfig.D13_RF2 = pAnInfo->mr_adv_remote_fault2;
-            pAnInfo->TxConfig.D15_NP = pAnInfo->mr_adv_next_page;
+	    /* Send the config as advertised in the advertisement register. */
+	    pAnInfo->TxConfig.AsUSHORT = 0;
+	    pAnInfo->TxConfig.D5_FD = pAnInfo->mr_adv_full_duplex;
+	    pAnInfo->TxConfig.D6_HD = pAnInfo->mr_adv_half_duplex;
+	    pAnInfo->TxConfig.D7_PS1 = pAnInfo->mr_adv_sym_pause;
+	    pAnInfo->TxConfig.D8_PS2 = pAnInfo->mr_adv_asym_pause;
+	    pAnInfo->TxConfig.D12_RF1 = pAnInfo->mr_adv_remote_fault1;
+	    pAnInfo->TxConfig.D13_RF2 = pAnInfo->mr_adv_remote_fault2;
+	    pAnInfo->TxConfig.D15_NP = pAnInfo->mr_adv_next_page;
 
-            MM_AnTxConfig(pAnInfo);
+	    MM_AnTxConfig(pAnInfo);
 
-            pAnInfo->State = AN_STATE_ABILITY_DETECT;
+	    pAnInfo->State = AN_STATE_ABILITY_DETECT;
 
-            break;
+	    break;
 
-        case AN_STATE_ABILITY_DETECT:
-            if(pAnInfo->AbilityMatch == AN_TRUE &&
-                pAnInfo->RxConfig.AsUSHORT != 0)
-            {
-                pAnInfo->State = AN_STATE_ACK_DETECT_INIT;
-            }
+	case AN_STATE_ABILITY_DETECT:
+	    if(pAnInfo->AbilityMatch == AN_TRUE &&
+		pAnInfo->RxConfig.AsUSHORT != 0)
+	    {
+		pAnInfo->State = AN_STATE_ACK_DETECT_INIT;
+	    }
 
-            break;
+	    break;
 
-        case AN_STATE_ACK_DETECT_INIT:
-            pAnInfo->TxConfig.D14_ACK = 1;
-            MM_AnTxConfig(pAnInfo);
+	case AN_STATE_ACK_DETECT_INIT:
+	    pAnInfo->TxConfig.D14_ACK = 1;
+	    MM_AnTxConfig(pAnInfo);
 
-            pAnInfo->State = AN_STATE_ACK_DETECT;
+	    pAnInfo->State = AN_STATE_ACK_DETECT;
 
-            /* Fall through. */
+	    /* Fall through. */
 
-        case AN_STATE_ACK_DETECT:
-            if(pAnInfo->AckMatch == AN_TRUE)
-            {
-                if((pAnInfo->RxConfig.AsUSHORT & ~AN_CONFIG_ACK) ==
-                    (pAnInfo->AbilityMatchCfg & ~AN_CONFIG_ACK))
-                {
-                    pAnInfo->State = AN_STATE_COMPLETE_ACK_INIT;
-                }
-                else
-                {
-                    pAnInfo->State = AN_STATE_AN_ENABLE;
-                }
-            }
-            else if(pAnInfo->AbilityMatch == AN_TRUE &&
-                pAnInfo->RxConfig.AsUSHORT == 0)
-            {
-                pAnInfo->State = AN_STATE_AN_ENABLE;
-            }
+	case AN_STATE_ACK_DETECT:
+	    if(pAnInfo->AckMatch == AN_TRUE)
+	    {
+		if((pAnInfo->RxConfig.AsUSHORT & ~AN_CONFIG_ACK) ==
+		    (pAnInfo->AbilityMatchCfg & ~AN_CONFIG_ACK))
+		{
+		    pAnInfo->State = AN_STATE_COMPLETE_ACK_INIT;
+		}
+		else
+		{
+		    pAnInfo->State = AN_STATE_AN_ENABLE;
+		}
+	    }
+	    else if(pAnInfo->AbilityMatch == AN_TRUE &&
+		pAnInfo->RxConfig.AsUSHORT == 0)
+	    {
+		pAnInfo->State = AN_STATE_AN_ENABLE;
+	    }
 
-            break;
+	    break;
 
-        case AN_STATE_COMPLETE_ACK_INIT:
-            /* Make sure invalid bits are not set. */
-            if(pAnInfo->RxConfig.bits.D0 || pAnInfo->RxConfig.bits.D1 ||
-                pAnInfo->RxConfig.bits.D2 || pAnInfo->RxConfig.bits.D3 ||
-                pAnInfo->RxConfig.bits.D4 || pAnInfo->RxConfig.bits.D9 ||
-                pAnInfo->RxConfig.bits.D10 || pAnInfo->RxConfig.bits.D11)
-            {
-                AnRet = AUTONEG_STATUS_FAILED;
-                break;
-            }
+	case AN_STATE_COMPLETE_ACK_INIT:
+	    /* Make sure invalid bits are not set. */
+	    if(pAnInfo->RxConfig.bits.D0 || pAnInfo->RxConfig.bits.D1 ||
+		pAnInfo->RxConfig.bits.D2 || pAnInfo->RxConfig.bits.D3 ||
+		pAnInfo->RxConfig.bits.D4 || pAnInfo->RxConfig.bits.D9 ||
+		pAnInfo->RxConfig.bits.D10 || pAnInfo->RxConfig.bits.D11)
+	    {
+		AnRet = AUTONEG_STATUS_FAILED;
+		break;
+	    }
 
-            /* Set up the link partner advertisement register. */
-            pAnInfo->mr_lp_adv_full_duplex = pAnInfo->RxConfig.D5_FD;
-            pAnInfo->mr_lp_adv_half_duplex = pAnInfo->RxConfig.D6_HD;
-            pAnInfo->mr_lp_adv_sym_pause = pAnInfo->RxConfig.D7_PS1;
-            pAnInfo->mr_lp_adv_asym_pause = pAnInfo->RxConfig.D8_PS2;
-            pAnInfo->mr_lp_adv_remote_fault1 = pAnInfo->RxConfig.D12_RF1;
-            pAnInfo->mr_lp_adv_remote_fault2 = pAnInfo->RxConfig.D13_RF2;
-            pAnInfo->mr_lp_adv_next_page = pAnInfo->RxConfig.D15_NP;
+	    /* Set up the link partner advertisement register. */
+	    pAnInfo->mr_lp_adv_full_duplex = pAnInfo->RxConfig.D5_FD;
+	    pAnInfo->mr_lp_adv_half_duplex = pAnInfo->RxConfig.D6_HD;
+	    pAnInfo->mr_lp_adv_sym_pause = pAnInfo->RxConfig.D7_PS1;
+	    pAnInfo->mr_lp_adv_asym_pause = pAnInfo->RxConfig.D8_PS2;
+	    pAnInfo->mr_lp_adv_remote_fault1 = pAnInfo->RxConfig.D12_RF1;
+	    pAnInfo->mr_lp_adv_remote_fault2 = pAnInfo->RxConfig.D13_RF2;
+	    pAnInfo->mr_lp_adv_next_page = pAnInfo->RxConfig.D15_NP;
 
-            pAnInfo->LinkTime_us = pAnInfo->CurrentTime_us;
+	    pAnInfo->LinkTime_us = pAnInfo->CurrentTime_us;
 
-            pAnInfo->mr_toggle_tx = !pAnInfo->mr_toggle_tx;
-            pAnInfo->mr_toggle_rx = pAnInfo->RxConfig.bits.D11;
-            pAnInfo->mr_np_rx = pAnInfo->RxConfig.D15_NP;
-            pAnInfo->mr_page_rx = AN_TRUE;
+	    pAnInfo->mr_toggle_tx = !pAnInfo->mr_toggle_tx;
+	    pAnInfo->mr_toggle_rx = pAnInfo->RxConfig.bits.D11;
+	    pAnInfo->mr_np_rx = pAnInfo->RxConfig.D15_NP;
+	    pAnInfo->mr_page_rx = AN_TRUE;
 
-            pAnInfo->State = AN_STATE_COMPLETE_ACK;
-            AnRet = AUTONEG_STATUS_TIMER_ENABLED;
+	    pAnInfo->State = AN_STATE_COMPLETE_ACK;
+	    AnRet = AUTONEG_STATUS_TIMER_ENABLED;
 
-            break;
+	    break;
 
-        case AN_STATE_COMPLETE_ACK:
-            if(pAnInfo->AbilityMatch == AN_TRUE &&
-                pAnInfo->RxConfig.AsUSHORT == 0)
-            {
-                pAnInfo->State = AN_STATE_AN_ENABLE;
-                break;
-            }
+	case AN_STATE_COMPLETE_ACK:
+	    if(pAnInfo->AbilityMatch == AN_TRUE &&
+		pAnInfo->RxConfig.AsUSHORT == 0)
+	    {
+		pAnInfo->State = AN_STATE_AN_ENABLE;
+		break;
+	    }
 
-            Delta_us = pAnInfo->CurrentTime_us - pAnInfo->LinkTime_us;
+	    Delta_us = pAnInfo->CurrentTime_us - pAnInfo->LinkTime_us;
 
-            if(Delta_us > AN_LINK_TIMER_INTERVAL_US)
-            {
-                if(pAnInfo->mr_adv_next_page == 0 ||
-                    pAnInfo->mr_lp_adv_next_page == 0)
-                {
-                    pAnInfo->State = AN_STATE_IDLE_DETECT_INIT;
-                }
-                else
-                {
-                    if(pAnInfo->TxConfig.bits.D15 == 0 &&
-                        pAnInfo->mr_np_rx == 0)
-                    {
-                        pAnInfo->State = AN_STATE_IDLE_DETECT_INIT;
-                    }
-                    else
-                    {
-                        AnRet = AUTONEG_STATUS_FAILED;
-                    }
-                }
-            }
+	    if(Delta_us > AN_LINK_TIMER_INTERVAL_US)
+	    {
+		if(pAnInfo->mr_adv_next_page == 0 ||
+		    pAnInfo->mr_lp_adv_next_page == 0)
+		{
+		    pAnInfo->State = AN_STATE_IDLE_DETECT_INIT;
+		}
+		else
+		{
+		    if(pAnInfo->TxConfig.bits.D15 == 0 &&
+			pAnInfo->mr_np_rx == 0)
+		    {
+			pAnInfo->State = AN_STATE_IDLE_DETECT_INIT;
+		    }
+		    else
+		    {
+			AnRet = AUTONEG_STATUS_FAILED;
+		    }
+		}
+	    }
 
-            break;
+	    break;
 
-        case AN_STATE_IDLE_DETECT_INIT:
-            pAnInfo->LinkTime_us = pAnInfo->CurrentTime_us;
+	case AN_STATE_IDLE_DETECT_INIT:
+	    pAnInfo->LinkTime_us = pAnInfo->CurrentTime_us;
 
-            MM_AnTxIdle(pAnInfo);
+	    MM_AnTxIdle(pAnInfo);
 
-            pAnInfo->State = AN_STATE_IDLE_DETECT;
+	    pAnInfo->State = AN_STATE_IDLE_DETECT;
 
-            AnRet = AUTONEG_STATUS_TIMER_ENABLED;
+	    AnRet = AUTONEG_STATUS_TIMER_ENABLED;
 
-            break;
+	    break;
 
-        case AN_STATE_IDLE_DETECT:
-            if(pAnInfo->AbilityMatch == AN_TRUE &&
-                pAnInfo->RxConfig.AsUSHORT == 0)
-            {
-                pAnInfo->State = AN_STATE_AN_ENABLE;
-                break;
-            }
+	case AN_STATE_IDLE_DETECT:
+	    if(pAnInfo->AbilityMatch == AN_TRUE &&
+		pAnInfo->RxConfig.AsUSHORT == 0)
+	    {
+		pAnInfo->State = AN_STATE_AN_ENABLE;
+		break;
+	    }
 
-            Delta_us = pAnInfo->CurrentTime_us - pAnInfo->LinkTime_us;
-            if(Delta_us > AN_LINK_TIMER_INTERVAL_US)
-            {
+	    Delta_us = pAnInfo->CurrentTime_us - pAnInfo->LinkTime_us;
+	    if(Delta_us > AN_LINK_TIMER_INTERVAL_US)
+	    {
 #if 0
 /*                if(pAnInfo->IdleMatch == AN_TRUE) */
 /*                { */
 #endif
-                    pAnInfo->State = AN_STATE_LINK_OK;
+		    pAnInfo->State = AN_STATE_LINK_OK;
 #if 0
 /*                } */
 /*                else */
@@ -415,26 +410,26 @@ Autoneg8023z(
 /*                    break; */
 /*                } */
 #endif
-            }
+	    }
 
-            break;
+	    break;
 
-        case AN_STATE_LINK_OK:
-            pAnInfo->mr_an_complete = AN_TRUE;
-            pAnInfo->mr_link_ok = AN_TRUE;
-            AnRet = AUTONEG_STATUS_DONE;
+	case AN_STATE_LINK_OK:
+	    pAnInfo->mr_an_complete = AN_TRUE;
+	    pAnInfo->mr_link_ok = AN_TRUE;
+	    AnRet = AUTONEG_STATUS_DONE;
 
-            break;
+	    break;
 
-        case AN_STATE_NEXT_PAGE_WAIT_INIT:
-            break;
+	case AN_STATE_NEXT_PAGE_WAIT_INIT:
+	    break;
 
-        case AN_STATE_NEXT_PAGE_WAIT:
-            break;
+	case AN_STATE_NEXT_PAGE_WAIT:
+	    break;
 
-        default:
-            AnRet = AUTONEG_STATUS_FAILED;
-            break;
+	default:
+	    AnRet = AUTONEG_STATUS_FAILED;
+	    break;
     }
 
     return AnRet;

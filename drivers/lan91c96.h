@@ -115,8 +115,8 @@ typedef unsigned long int 		dword;
 
 #define SMC_insl(r,b,l) 	({	int __i ;  \
 					dword *__b2;  \
-			    		__b2 = (dword *) b;  \
-			    		for (__i = 0; __i < l; __i++) {  \
+					__b2 = (dword *) b;  \
+					for (__i = 0; __i < l; __i++) {  \
 					  *(__b2 + __i) = SMC_inl(r);  \
 					  SMC_inl(0);  \
 					};  \
@@ -124,8 +124,8 @@ typedef unsigned long int 		dword;
 
 #define SMC_insw(r,b,l) 	({	int __i ;  \
 					word *__b2;  \
-			    		__b2 = (word *) b;  \
-			    		for (__i = 0; __i < l; __i++) {  \
+					__b2 = (word *) b;  \
+					for (__i = 0; __i < l; __i++) {  \
 					  *(__b2 + __i) = SMC_inw(r);  \
 					  SMC_inw(0);  \
 					};  \
@@ -133,8 +133,8 @@ typedef unsigned long int 		dword;
 
 #define SMC_insb(r,b,l) 	({	int __i ;  \
 					byte *__b2;  \
-			    		__b2 = (byte *) b;  \
-			    		for (__i = 0; __i < l; __i++) {  \
+					__b2 = (byte *) b;  \
+					for (__i = 0; __i < l; __i++) {  \
 					  *(__b2 + __i) = SMC_inb(r);  \
 					  SMC_inb(0);  \
 					};  \
@@ -173,8 +173,8 @@ typedef unsigned long int 		dword;
 #else
 #define SMC_insw(r,b,l) 	({	int __i ;  \
 					word *__b2;  \
-			    		__b2 = (word *) b;  \
-			    		for (__i = 0; __i < l; __i++) {  \
+					__b2 = (word *) b;  \
+					for (__i = 0; __i < l; __i++) {  \
 					  *(__b2 + __i) = SMC_inw(r);  \
 					  SMC_inw(0);  \
 					};  \
@@ -188,7 +188,7 @@ typedef unsigned long int 		dword;
  *	Bank Select Field
  ****************************************************************************
  */
-#define LAN91C96_BANK_SELECT  14       // Bank Select Register
+#define LAN91C96_BANK_SELECT  14       /* Bank Select Register */
 #define LAN91C96_BANKSELECT (0x3UC << 0)
 #define BANK0               0x00
 #define BANK1               0x01
@@ -210,12 +210,12 @@ typedef unsigned long int 		dword;
  *	Bank 0 Register Map in I/O Space
  ****************************************************************************
  */
-#define LAN91C96_TCR          0        // Transmit Control Register
-#define LAN91C96_EPH_STATUS   2        // EPH Status Register
-#define LAN91C96_RCR          4        // Receive Control Register
-#define LAN91C96_COUNTER      6        // Counter Register
-#define LAN91C96_MIR          8        // Memory Information Register
-#define LAN91C96_MCR          10       // Memory Configuration Register
+#define LAN91C96_TCR          0        /* Transmit Control Register */
+#define LAN91C96_EPH_STATUS   2        /* EPH Status Register */
+#define LAN91C96_RCR          4        /* Receive Control Register */
+#define LAN91C96_COUNTER      6        /* Counter Register */
+#define LAN91C96_MIR          8        /* Memory Information Register */
+#define LAN91C96_MCR          10       /* Memory Configuration Register */
 
 /*
  ****************************************************************************
@@ -258,15 +258,15 @@ typedef unsigned long int 		dword;
 #define LAN91C96_EPHSR_TX_UNRN    (0x1U << 15)
 
 #define LAN91C96_EPHSR_ERRORS     (LAN91C96_EPHSR_SNGL_COL  |    \
-                                   LAN91C96_EPHSR_MUL_COL   |    \
-                                   LAN91C96_EPHSR_16COL     |    \
-                                   LAN91C96_EPHSR_SQET      |    \
-                                   LAN91C96_EPHSR_TX_DEFR   |    \
-                                   LAN91C96_EPHSR_LATCOL    |    \
-                                   LAN91C96_EPHSR_LOST_CARR |    \
-                                   LAN91C96_EPHSR_EXC_DEF   |    \
-                                   LAN91C96_EPHSR_LINK_OK   |    \
-                                   LAN91C96_EPHSR_TX_UNRN)
+				   LAN91C96_EPHSR_MUL_COL   |    \
+				   LAN91C96_EPHSR_16COL     |    \
+				   LAN91C96_EPHSR_SQET      |    \
+				   LAN91C96_EPHSR_TX_DEFR   |    \
+				   LAN91C96_EPHSR_LATCOL    |    \
+				   LAN91C96_EPHSR_LOST_CARR |    \
+				   LAN91C96_EPHSR_EXC_DEF   |    \
+				   LAN91C96_EPHSR_LINK_OK   |    \
+				   LAN91C96_EPHSR_TX_UNRN)
 
 /*
  ****************************************************************************
@@ -296,7 +296,7 @@ typedef unsigned long int 		dword;
  *	Memory Information Register - Bank 0 - OFfset 8
  ****************************************************************************
  */
-#define LAN91C96_MIR_SIZE        (0x18 << 0)    // 6144 bytes
+#define LAN91C96_MIR_SIZE        (0x18 << 0)    /* 6144 bytes */
 
 /*
  ****************************************************************************
@@ -314,16 +314,16 @@ typedef unsigned long int 		dword;
  *	Bank 1 Register Map in I/O Space
  ****************************************************************************
  */
-#define LAN91C96_CONFIG       0        // Configuration Register
-#define LAN91C96_BASE         2        // Base Address Register
-#define LAN91C96_IA0          4        // Individual Address Register - 0
-#define LAN91C96_IA1          5        // Individual Address Register - 1
-#define LAN91C96_IA2          6        // Individual Address Register - 2
-#define LAN91C96_IA3          7        // Individual Address Register - 3
-#define LAN91C96_IA4          8        // Individual Address Register - 4
-#define LAN91C96_IA5          9        // Individual Address Register - 5
-#define LAN91C96_GEN_PURPOSE  10       // General Address Registers
-#define LAN91C96_CONTROL      12       // Control Register
+#define LAN91C96_CONFIG       0        /* Configuration Register */
+#define LAN91C96_BASE         2        /* Base Address Register */
+#define LAN91C96_IA0          4        /* Individual Address Register - 0 */
+#define LAN91C96_IA1          5        /* Individual Address Register - 1 */
+#define LAN91C96_IA2          6        /* Individual Address Register - 2 */
+#define LAN91C96_IA3          7        /* Individual Address Register - 3 */
+#define LAN91C96_IA4          8        /* Individual Address Register - 4 */
+#define LAN91C96_IA5          9        /* Individual Address Register - 5 */
+#define LAN91C96_GEN_PURPOSE  10       /* General Address Registers */
+#define LAN91C96_CONTROL      12       /* Control Register */
 
 /*
  ****************************************************************************
@@ -371,17 +371,17 @@ typedef unsigned long int 		dword;
  *	Bank 2 Register Map in I/O Space
  ****************************************************************************
  */
-#define LAN91C96_MMU            0      // MMU Command Register
-#define LAN91C96_AUTO_TX_START  1      // Auto Tx Start Register
-#define LAN91C96_PNR            2      // Packet Number Register
-#define LAN91C96_ARR            3      // Allocation Result Register
-#define LAN91C96_FIFO           4      // FIFO Ports Register
-#define LAN91C96_POINTER        6      // Pointer Register
-#define LAN91C96_DATA_HIGH      8      // Data High Register
-#define LAN91C96_DATA_LOW       10     // Data Low Register
-#define LAN91C96_INT_STATS      12     // Interrupt Status Register - RO
-#define LAN91C96_INT_ACK        12     // Interrupt Acknowledge Register -WO
-#define LAN91C96_INT_MASK       13     // Interrupt Mask Register
+#define LAN91C96_MMU            0      /* MMU Command Register */
+#define LAN91C96_AUTO_TX_START  1      /* Auto Tx Start Register */
+#define LAN91C96_PNR            2      /* Packet Number Register */
+#define LAN91C96_ARR            3      /* Allocation Result Register */
+#define LAN91C96_FIFO           4      /* FIFO Ports Register */
+#define LAN91C96_POINTER        6      /* Pointer Register */
+#define LAN91C96_DATA_HIGH      8      /* Data High Register */
+#define LAN91C96_DATA_LOW       10     /* Data Low Register */
+#define LAN91C96_INT_STATS      12     /* Interrupt Status Register - RO */
+#define LAN91C96_INT_ACK        12     /* Interrupt Acknowledge Register -WO */
+#define LAN91C96_INT_MASK       13     /* Interrupt Mask Register */
 
 /*
  ****************************************************************************
@@ -392,14 +392,14 @@ typedef unsigned long int 		dword;
 #define LAN91C96_MMUCR_N1         (0x1U << 1)
 #define LAN91C96_MMUCR_N2         (0x1U << 2)
 #define LAN91C96_MMUCR_COMMAND    (0xFU << 4)
-#define LAN91C96_MMUCR_ALLOC_TX   (0x2U << 4)    // WXYZ = 0010
-#define LAN91C96_MMUCR_RESET_MMU  (0x4U << 4)    // WXYZ = 0100
-#define LAN91C96_MMUCR_REMOVE_RX  (0x6U << 4)    // WXYZ = 0110
-#define LAN91C96_MMUCR_REMOVE_TX  (0x7U << 4)    // WXYZ = 0111
-#define LAN91C96_MMUCR_RELEASE_RX (0x8U << 4)    // WXYZ = 1000
-#define LAN91C96_MMUCR_RELEASE_TX (0xAU << 4)    // WXYZ = 1010
-#define LAN91C96_MMUCR_ENQUEUE    (0xCU << 4)    // WXYZ = 1100
-#define LAN91C96_MMUCR_RESET_TX   (0xEU << 4)    // WXYZ = 1110
+#define LAN91C96_MMUCR_ALLOC_TX   (0x2U << 4)    /* WXYZ = 0010 */
+#define LAN91C96_MMUCR_RESET_MMU  (0x4U << 4)    /* WXYZ = 0100 */
+#define LAN91C96_MMUCR_REMOVE_RX  (0x6U << 4)    /* WXYZ = 0110 */
+#define LAN91C96_MMUCR_REMOVE_TX  (0x7U << 4)    /* WXYZ = 0111 */
+#define LAN91C96_MMUCR_RELEASE_RX (0x8U << 4)    /* WXYZ = 1000 */
+#define LAN91C96_MMUCR_RELEASE_TX (0xAU << 4)    /* WXYZ = 1010 */
+#define LAN91C96_MMUCR_ENQUEUE    (0xCU << 4)    /* WXYZ = 1100 */
+#define LAN91C96_MMUCR_RESET_TX   (0xEU << 4)    /* WXYZ = 1110 */
 
 /*
  ****************************************************************************
@@ -447,16 +447,16 @@ typedef unsigned long int 		dword;
 #define LAN91C96_PTR_RCV          (0x1U << 15)
 
 #define LAN91C96_PTR_RX_FRAME     (LAN91C96_PTR_RCV       |    \
-                                   LAN91C96_PTR_AUTO_INCR |    \
-                                   LAN91C96_PTR_READ)
+				   LAN91C96_PTR_AUTO_INCR |    \
+				   LAN91C96_PTR_READ)
 
 /*
  ****************************************************************************
  *	Data Register - Bank 2 - Offset 8
  ****************************************************************************
  */
-#define LAN91C96_CONTROL_CRC      (0x1U << 4)    // CRC bit
-#define LAN91C96_CONTROL_ODD      (0x1U << 5)    // ODD bit
+#define LAN91C96_CONTROL_CRC      (0x1U << 4)    /* CRC bit */
+#define LAN91C96_CONTROL_ODD      (0x1U << 5)    /* ODD bit */
 
 /*
  ****************************************************************************
@@ -533,8 +533,8 @@ typedef unsigned long int 		dword;
  *	PCMCIA Configuration Registers
  ****************************************************************************
  */
-#define LAN91C96_ECOR    0x8000        // Ethernet Configuration Register
-#define LAN91C96_ECSR    0x8002        // Ethernet Configuration and Status
+#define LAN91C96_ECOR    0x8000        /* Ethernet Configuration Register */
+#define LAN91C96_ECSR    0x8002        /* Ethernet Configuration and Status */
 
 /*
  ****************************************************************************
@@ -587,9 +587,8 @@ typedef unsigned long int 		dword;
 #define LAN91C96_HIGH_SIGNATURE       (0x33U << 8)
 #define LAN91C96_SIGNATURE (LAN91C96_HIGH_SIGNATURE | LAN91C96_LOW_SIGNATURE)
 
-#define LAN91C96_MAX_PAGES     6        // Maximum number of 256 pages.
+#define LAN91C96_MAX_PAGES     6        /* Maximum number of 256 pages. */
 #define ETHERNET_MAX_LENGTH 1514
-
 
 
 /*-------------------------------------------------------------------------

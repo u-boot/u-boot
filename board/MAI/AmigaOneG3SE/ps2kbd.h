@@ -1,7 +1,7 @@
 /*
  * (C) Copyright 2002
  * John W. Linville, linville@tuxdriver.com
- * 
+ *
  * Modified from code for support of MIP405 and PIP405 boards.  Previous
  * copyright follows.
  *
@@ -30,7 +30,7 @@
 
 #ifndef _KBD_H_
 #define _KBD_H_
-   
+
 extern int kbd_testc(void);
 extern int kbd_getc(void);
 extern void kbd_interrupt(void);

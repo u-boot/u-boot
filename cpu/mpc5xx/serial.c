@@ -17,13 +17,13 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, 
+ * Foundation,
  */
 
 /*
  * File:		serial.c
- * 
- * Discription:		Serial interface driver for SCI1 and SCI2. 
+ *
+ * Discription:		Serial interface driver for SCI1 and SCI2.
  *     			Since this code will be called from ROM use
  * 			only non-static local variables.
  *
@@ -36,7 +36,7 @@
 
 
 /*
- * Local function prototypes 
+ * Local function prototypes
  */
 
 static int ready_to_send(void);
@@ -54,25 +54,25 @@ int serial_init (void)
 #if defined(CONFIG_5xx_CONS_SCI1)
 	/* 10-Bit, 1 start bit, 8 data bit, no parity, 1 stop bit */
 	immr->im_qsmcm.qsmcm_scc1r1 = SCI_M_10;
-	immr->im_qsmcm.qsmcm_scc1r1 = SCI_TE | SCI_RE; 
+	immr->im_qsmcm.qsmcm_scc1r1 = SCI_TE | SCI_RE;
 #else
-	immr->im_qsmcm.qsmcm_scc2r1 = SCI_M_10; 
+	immr->im_qsmcm.qsmcm_scc2r1 = SCI_M_10;
 	immr->im_qsmcm.qsmcm_scc2r1 = SCI_TE | SCI_RE;
 #endif
 	return 0;
 }
 
 void serial_putc(const char c)
-{        
+{
 	volatile immap_t *immr = (immap_t *)CFG_IMMR;
-	
+
 	/* Test for completition */
 	if(ready_to_send()) {
 #if defined(CONFIG_5xx_CONS_SCI1)
-		immr->im_qsmcm.qsmcm_sc1dr = (short)c; 
+		immr->im_qsmcm.qsmcm_sc1dr = (short)c;
 #else
 		immr->im_qsmcm.qsmcm_sc2dr = (short)c;
-#endif		
+#endif
 		if(c == '\n') {
 			if(ready_to_send());
 #if defined(CONFIG_5xx_CONS_SCI1)
@@ -85,27 +85,27 @@ void serial_putc(const char c)
 }
 
 int serial_getc(void)
-{	
+{
 	volatile immap_t *immr = (immap_t *)CFG_IMMR;
 	volatile short status;
 	unsigned char tmp;
-    
+
 	/* New data ? */
 	do {
 #if defined(CONFIG_5xx_CONS_SCI1)
-      		status = immr->im_qsmcm.qsmcm_sc1sr; 
+		status = immr->im_qsmcm.qsmcm_sc1sr;
 #else
 		status = immr->im_qsmcm.qsmcm_sc2sr;
 #endif
 
 #if defined(CONFIG_WATCHDOG)
-		reset_5xx_watchdog (immr);	
+		reset_5xx_watchdog (immr);
 #endif
-  	} while ((status & SCI_RDRF) == 0);
-    		
+	} while ((status & SCI_RDRF) == 0);
+
 	/* Read data */
 #if defined(CONFIG_5xx_CONS_SCI1)
-	tmp = (unsigned char)(immr->im_qsmcm.qsmcm_sc1dr & SCI_SCXDR_MK); 
+	tmp = (unsigned char)(immr->im_qsmcm.qsmcm_sc1dr & SCI_SCXDR_MK);
 #else
 	tmp = (unsigned char)( immr->im_qsmcm.qsmcm_sc2dr & SCI_SCXDR_MK);
 #endif
@@ -115,27 +115,27 @@ int serial_getc(void)
 int serial_tstc()
 {
 	volatile immap_t *immr = (immap_t *)CFG_IMMR;
-  	short status;
+	short status;
 
 	/* New data character ? */
 #if defined(CONFIG_5xx_CONS_SCI1)
-	status = immr->im_qsmcm.qsmcm_sc1sr; 
+	status = immr->im_qsmcm.qsmcm_sc1sr;
 #else
 	status = immr->im_qsmcm.qsmcm_sc2sr;
 #endif
-	return (status & SCI_RDRF); 
+	return (status & SCI_RDRF);
 }
 
 void serial_setbrg (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-        volatile immap_t *immr = (immap_t *)CFG_IMMR;
+	volatile immap_t *immr = (immap_t *)CFG_IMMR;
 	short scxbr;
 
 	/* Set baudrate */
 	scxbr = (gd->cpu_clk / (32 * gd->baudrate));
 #if defined(CONFIG_5xx_CONS_SCI1)
-	immr->im_qsmcm.qsmcm_scc1r0 = (scxbr & SCI_SCXBR_MK); 
+	immr->im_qsmcm.qsmcm_scc1r0 = (scxbr & SCI_SCXBR_MK);
 #else
 	immr->im_qsmcm.qsmcm_scc2r0 = (scxbr & SCI_SCXBR_MK);
 #endif
@@ -154,18 +154,17 @@ int ready_to_send(void)
 	volatile immap_t *immr = (immap_t *)CFG_IMMR;
 	volatile short status;
 
-  	do {
+	do {
 #if defined(CONFIG_5xx_CONS_SCI1)
-    		status = immr->im_qsmcm.qsmcm_sc1sr; 
+		status = immr->im_qsmcm.qsmcm_sc1sr;
 #else
 		status = immr->im_qsmcm.qsmcm_sc2sr;
 #endif
 
 #if defined(CONFIG_WATCHDOG)
-		reset_5xx_watchdog (immr);	
+		reset_5xx_watchdog (immr);
 #endif
-  	} while ((status & SCI_TDRE) == 0);
-	return 1; 
+	} while ((status & SCI_TDRE) == 0);
+	return 1;
 
 }
-

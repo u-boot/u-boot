@@ -61,23 +61,23 @@ void _CHK_defaultFail(
     char    buf[256];
 
     if (logFile[0] == 0) {
-        strcpy(logFile,PM_getNucleusPath());
-        PM_backslash(logFile);
-        strcat(logFile,"scitech.log");
-        }
+	strcpy(logFile,PM_getNucleusPath());
+	PM_backslash(logFile);
+	strcat(logFile,"scitech.log");
+	}
     if ((f = fopen(logFile,"a+")) != NULL) {
 #if defined(__WIN32_VXD__) || defined(__OS2_VDD__) || defined(__NT_DRIVER__)
-        sprintf(buf,msg,cond,file,line);
-        fwrite(buf,1,strlen(buf),f);
+	sprintf(buf,msg,cond,file,line);
+	fwrite(buf,1,strlen(buf),f);
 #else
-        fprintf(f,msg,cond,file,line);
+	fprintf(f,msg,cond,file,line);
 #endif
-        fclose(f);
-        }
+	fclose(f);
+	}
     if (fatal) {
-        sprintf(buf,"Check failed: check '%s' for details", logFile);
-        PM_fatalError(buf);
-        }
+	sprintf(buf,"Check failed: check '%s' for details", logFile);
+	PM_fatalError(buf);
+	}
 }
 #endif
 

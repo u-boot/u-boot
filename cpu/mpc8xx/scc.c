@@ -168,10 +168,10 @@ static int scc_recv(struct eth_device* dev)
 
 	/* wrap around buffer index when necessary */
 	if ((rxIdx + 1) >= PKTBUFSRX) {
-           rtx->rxbd[PKTBUFSRX - 1].cbd_sc = (BD_ENET_RX_WRAP | BD_ENET_RX_EMPTY);
+	   rtx->rxbd[PKTBUFSRX - 1].cbd_sc = (BD_ENET_RX_WRAP | BD_ENET_RX_EMPTY);
 	   rxIdx = 0;
 	} else {
-           rtx->rxbd[rxIdx].cbd_sc = BD_ENET_RX_EMPTY;
+	   rtx->rxbd[rxIdx].cbd_sc = BD_ENET_RX_EMPTY;
 	   rxIdx++;
 	}
    }
@@ -212,7 +212,7 @@ static int scc_init(struct eth_device* dev, bd_t *bis)
 
 #ifdef CFG_ALLOC_DPRAM
     rtx = (RTXBD *) (immr->im_cpm.cp_dpmem +
-    		     dpram_alloc_align(sizeof(RTXBD), 8));
+		     dpram_alloc_align(sizeof(RTXBD), 8));
 #else
     rtx = (RTXBD *) (immr->im_cpm.cp_dpmem + CPM_SCC_BASE);
 #endif	/* 0 */
@@ -406,7 +406,7 @@ static int scc_init(struct eth_device* dev, bd_t *bis)
      */
 
     immr->im_cpm.cp_scc[SCC_ENET].scc_gsmrl = (	SCC_GSMRL_TCI	 |	\
-    						SCC_GSMRL_TPL_48 |	\
+						SCC_GSMRL_TPL_48 |	\
 						SCC_GSMRL_TPP_10 |	\
 						SCC_GSMRL_MODE_ENET);
 
@@ -471,7 +471,7 @@ static int scc_init(struct eth_device* dev, bd_t *bis)
      * Port B is used to control the PHY,MC68160.
      */
     immr->im_cpm.cp_pbdir |=
-        (PB_ENET_ETHLOOP | PB_ENET_TPFLDL | PB_ENET_TPSQEL);
+	(PB_ENET_ETHLOOP | PB_ENET_TPFLDL | PB_ENET_TPSQEL);
 
     immr->im_cpm.cp_pbdat |= PB_ENET_TPFLDL;
     immr->im_cpm.cp_pbdat &= ~(PB_ENET_ETHLOOP | PB_ENET_TPSQEL);
@@ -530,7 +530,6 @@ static int scc_init(struct eth_device* dev, bd_t *bis)
 
     return 1;
 }
-
 
 
 static void scc_halt(struct eth_device* dev)

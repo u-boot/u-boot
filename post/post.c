@@ -50,7 +50,7 @@ int post_init_f (void)
 			res = -1;
 		}
 	}
-	
+
 	gd->post_init_f_time = post_time_ms(0);
 	if (!gd->post_init_f_time)
 	{
@@ -398,7 +398,7 @@ void post_reloc (void)
 		if (test->reloc) {
 			addr = (ulong) (test->reloc) + gd->reloc_off;
 			test->reloc = (void (*)(void)) addr;
-			
+
 			test->reloc();
 		}
 	}

@@ -43,48 +43,48 @@ void pci_init_board(void)
     hose->last_busno = 0xff;
 
     pci_set_region(hose->regions + 0,
-        CFG_PCI_MEMORY_BUS,
-        CFG_PCI_MEMORY_PHYS,
+	CFG_PCI_MEMORY_BUS,
+	CFG_PCI_MEMORY_PHYS,
     /*
     * Attention: pci_hose_phys_to_bus() failes in address compare,
     * so we need (CFG_PCI_MEMORY_SIZE-1)
     */
-        CFG_PCI_MEMORY_SIZE-1,
-        PCI_REGION_MEM | PCI_REGION_MEMORY);
+	CFG_PCI_MEMORY_SIZE-1,
+	PCI_REGION_MEM | PCI_REGION_MEMORY);
 
     /* PCI memory space */
     pci_set_region(hose->regions + 1,
-        CFG_PCI_MEM_BUS,
-        CFG_PCI_MEM_PHYS,
-        CFG_PCI_MEM_SIZE,
-        PCI_REGION_MEM);
+	CFG_PCI_MEM_BUS,
+	CFG_PCI_MEM_PHYS,
+	CFG_PCI_MEM_SIZE,
+	PCI_REGION_MEM);
 
     /* ISA/PCI memory space */
     pci_set_region(hose->regions + 2,
-        CFG_ISA_MEM_BUS,
-        CFG_ISA_MEM_PHYS,
-        CFG_ISA_MEM_SIZE,
-        PCI_REGION_MEM);
+	CFG_ISA_MEM_BUS,
+	CFG_ISA_MEM_PHYS,
+	CFG_ISA_MEM_SIZE,
+	PCI_REGION_MEM);
 
     /* PCI I/O space */
     pci_set_region(hose->regions + 3,
-        CFG_PCI_IO_BUS,
-        CFG_PCI_IO_PHYS,
-        CFG_PCI_IO_SIZE,
-        PCI_REGION_IO);
+	CFG_PCI_IO_BUS,
+	CFG_PCI_IO_PHYS,
+	CFG_PCI_IO_SIZE,
+	PCI_REGION_IO);
 
     /* ISA/PCI I/O space */
     pci_set_region(hose->regions + 4,
-        CFG_ISA_IO_BUS,
-        CFG_ISA_IO_PHYS,
-        CFG_ISA_IO_SIZE,
-        PCI_REGION_IO);
+	CFG_ISA_IO_BUS,
+	CFG_ISA_IO_PHYS,
+	CFG_ISA_IO_SIZE,
+	PCI_REGION_IO);
 
     hose->region_count = 5;
 
     pci_setup_indirect(hose,
-        MPC106_REG_ADDR,
-        MPC106_REG_DATA);
+	MPC106_REG_ADDR,
+	MPC106_REG_DATA);
 
     pci_register_hose(hose);
 
@@ -93,9 +93,9 @@ void pci_init_board(void)
     /* Initialises the MPC10x PCI Configuration regs. */
     pci_read_config_dword (PCI_BDF(0,0,0), PCI_PICR2, &reg32);
     reg32 |= PICR2_CF_SNOOP_WS(3) |
-             PICR2_CF_FLUSH_L2 |
-             PICR2_CF_L2_HIT_DELAY(3) |
-             PICR2_CF_APHASE_WS(3);
+	     PICR2_CF_FLUSH_L2 |
+	     PICR2_CF_L2_HIT_DELAY(3) |
+	     PICR2_CF_APHASE_WS(3);
     reg32 &= ~(PICR2_L2_EN | PICR2_L2_UPDATE_EN);
     pci_write_config_dword (PCI_BDF(0,0,0), PCI_PICR2, reg32);
 
@@ -108,12 +108,12 @@ void pci_init_board(void)
 
     pci_read_config_dword (PCI_BDF(0,0,0), PCI_PICR1, &reg32);
     reg32 |= PICR1_CF_CBA(63) |
-             PICR1_CF_BREAD_WS(2) |
-             PICR1_MCP_EN |
-             PICR1_CF_DPARK |
-             PICR1_PROC_TYPE_604 |
-             PICR1_CF_LOOP_SNOOP |
-             PICR1_CF_APARK;
+	     PICR1_CF_BREAD_WS(2) |
+	     PICR1_MCP_EN |
+	     PICR1_CF_DPARK |
+	     PICR1_PROC_TYPE_604 |
+	     PICR1_CF_LOOP_SNOOP |
+	     PICR1_CF_APARK;
     pci_write_config_dword (PCI_BDF(0,0,0), PCI_PICR1, reg32);
 }
 

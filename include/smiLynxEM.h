@@ -44,9 +44,9 @@
  */
 #define VIDEO_MODES             7
 #define DUAL_800_600            0   /* SMI710:VGA1:75Hz     (pitch=1600) */
-                                    /*        VGA2:60/120Hz (pitch=1600) */
-                                    /* SMI810:VGA1:75Hz     (pitch=1600) */
-                                    /*        VGA2:75Hz     (pitch=1600) */
+				    /*        VGA2:60/120Hz (pitch=1600) */
+				    /* SMI810:VGA1:75Hz     (pitch=1600) */
+				    /*        VGA2:75Hz     (pitch=1600) */
 #define DUAL_1024_768           1   /* VGA1:75Hz VGA2:73Hz (pitch=2048)  */
 #define SINGLE_800_600          2   /* VGA1:75Hz (pitch=800)             */
 #define SINGLE_1024_768         3   /* VGA1:75Hz (pitch=1024)            */

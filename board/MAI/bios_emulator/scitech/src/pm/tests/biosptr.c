@@ -64,29 +64,29 @@ int main(void)
 
     printf("Program running in ");
     switch (PM_getModeType()) {
-        case PM_realMode:
-            printf("real mode.\n\n");
-            break;
-        case PM_286:
-            printf("16 bit protected mode.\n\n");
-            break;
-        case PM_386:
-            printf("32 bit protected mode.\n\n");
-            break;
-        }
+	case PM_realMode:
+	    printf("real mode.\n\n");
+	    break;
+	case PM_286:
+	    printf("16 bit protected mode.\n\n");
+	    break;
+	case PM_386:
+	    printf("32 bit protected mode.\n\n");
+	    break;
+	}
 
     bios = PM_getBIOSPointer();
     printf("Hit any key to test, Ctrl-Shift-Esc to quit\n");
     while (!done) {
-        if (KB_HIT()) {
-            c = PM_getch();
-            if (c == 0) PM_getch();
-            printf("TIME=%-8lX ST=%02X CHAR=%02X ", TICKS(), KB_STAT, c);
-            printf("\n");
-            if ((c == ESC) && SHIFT() && CTRL())/* Ctrl-Shift-Esc */
-                break;
-            }
-        }
+	if (KB_HIT()) {
+	    c = PM_getch();
+	    if (c == 0) PM_getch();
+	    printf("TIME=%-8lX ST=%02X CHAR=%02X ", TICKS(), KB_STAT, c);
+	    printf("\n");
+	    if ((c == ESC) && SHIFT() && CTRL())/* Ctrl-Shift-Esc */
+		break;
+	    }
+	}
 
     return 0;
 }

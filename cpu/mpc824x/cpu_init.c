@@ -84,7 +84,7 @@ cpu_init_f (void)
       "                       \
       : /* no output */       \
       : "r" (CONFIG_ADDR), "r" (CONFIG_DATA),                 \
-        "r" (PCISWAP(addr & ~3)), "r" (PCISWAP(data << 16))   \
+	"r" (PCISWAP(addr & ~3)), "r" (PCISWAP(data << 16))   \
       );
 
     M_CONFIG_WRITE_HALFWORD(PCIACR, 0x8000);
@@ -145,8 +145,8 @@ cpu_init_f (void)
 
 #if defined(CFG_ASRISE) && defined(CFG_ASFALL)
     CONFIG_WRITE_WORD(MCCR2, CFG_REFINT << MCCR2_REFINT_SHIFT |
-    			     CFG_ASRISE << MCCR2_ASRISE_SHIFT |
-    			     CFG_ASFALL << MCCR2_ASFALL_SHIFT);
+			     CFG_ASRISE << MCCR2_ASRISE_SHIFT |
+			     CFG_ASFALL << MCCR2_ASFALL_SHIFT);
 #else
     CONFIG_WRITE_WORD(MCCR2, CFG_REFINT << MCCR2_REFINT_SHIFT);
 #endif
@@ -196,13 +196,13 @@ cpu_init_f (void)
     CONFIG_WRITE_WORD(MCCR4,
 	(CFG_PRETOACT << MCCR4_PRETOACT_SHIFT) |
 	(CFG_ACTTOPRE << MCCR4_ACTTOPRE_SHIFT) |
-        (CFG_EXTROM ? MCCR4_EXTROM : 0) |
-        (CFG_REGDIMM ? MCCR4_REGDIMM : 0) |
+	(CFG_EXTROM ? MCCR4_EXTROM : 0) |
+	(CFG_REGDIMM ? MCCR4_REGDIMM : 0) |
 	(CFG_REGISTERD_TYPE_BUFFER ? MCCR4_REGISTERED: 0) |
 	((CFG_BSTOPRE & 0x0003) <<MCCR4_BSTOPRE0TO1_SHIFT ) |
 	(CFG_DBUS_SIZE2 << MCCR4_DBUS_SIZE2_SHIFT) |
 	(((CFG_SDMODE_CAS_LAT <<4) | (CFG_SDMODE_WRAP <<3) |
-              (val ? 2 : 3)) << MCCR4_SDMODE_SHIFT)  |
+	      (val ? 2 : 3)) << MCCR4_SDMODE_SHIFT)  |
 	(CFG_ACTORW << MCCR4_ACTTORW_SHIFT) |
 	(((CFG_BSTOPRE & 0x03c0) >> 6) <<MCCR4_BSTOPRE6TO9_SHIFT ));
 #else

@@ -67,13 +67,13 @@
 
 typedef union {
     struct {
-        ulong signature;        /* _32_                                 */
-        ulong entry;            /* 32 bit physical address              */
-        uchar revision;         /* Revision level, 0                    */
-        uchar length;           /* Length in paragraphs should be 01    */
-        uchar checksum;         /* All bytes must add up to zero        */
-        uchar reserved[5];      /* Must be zero                         */
-        } fields;
+	ulong signature;        /* _32_                                 */
+	ulong entry;            /* 32 bit physical address              */
+	uchar revision;         /* Revision level, 0                    */
+	uchar length;           /* Length in paragraphs should be 01    */
+	uchar checksum;         /* All bytes must add up to zero        */
+	uchar reserved[5];      /* Must be zero                         */
+	} fields;
     char chars[16];
     } PCI_bios32;
 
@@ -143,54 +143,54 @@ static int PCIBIOS_detect(
 
     /* Bail if we have already detected no BIOS is present */
     if (PCIBIOSVersion == 0)
-        return 0;
+	return 0;
 
     /* First scan the memory from 0xE0000 to 0xFFFFF looking for the
      * BIOS32 service directory, so we can determine if we can call it
      * from 32-bit protected mode.
      */
     if (PCIBIOSVersion == -1) {
-        PCIBIOSVersion = 0;
-        BIOSImage = PM_mapPhysicalAddr(0xE0000,BIOS_LIMIT,false);
-        if (!BIOSImage)
-            return 0;
-        BIOSEnd = BIOSImage + 0x20000;
-        for (BIOSDir = (PCI_bios32*)BIOSImage; BIOSDir < (PCI_bios32*)BIOSEnd; BIOSDir++) {
-            uchar   sum;
-            int     i,length;
+	PCIBIOSVersion = 0;
+	BIOSImage = PM_mapPhysicalAddr(0xE0000,BIOS_LIMIT,false);
+	if (!BIOSImage)
+	    return 0;
+	BIOSEnd = BIOSImage + 0x20000;
+	for (BIOSDir = (PCI_bios32*)BIOSImage; BIOSDir < (PCI_bios32*)BIOSEnd; BIOSDir++) {
+	    uchar   sum;
+	    int     i,length;
 
-            if (BIOSDir->fields.signature != BIOS32_SIGNATURE)
-                continue;
-            length = BIOSDir->fields.length * 16;
-            if (!length)
-                continue;
-            for (sum = i = 0; i < length ; i++)
-                sum += BIOSDir->chars[i];
-            if (sum != 0)
-                continue;
-            BIOSEntry.address = (ulong)BIOSImage + (BIOSDir->fields.entry - 0xE0000);
-            BIOSEntry.segment = _PCI_getCS();
-            break;
-            }
+	    if (BIOSDir->fields.signature != BIOS32_SIGNATURE)
+		continue;
+	    length = BIOSDir->fields.length * 16;
+	    if (!length)
+		continue;
+	    for (sum = i = 0; i < length ; i++)
+		sum += BIOSDir->chars[i];
+	    if (sum != 0)
+		continue;
+	    BIOSEntry.address = (ulong)BIOSImage + (BIOSDir->fields.entry - 0xE0000);
+	    BIOSEntry.segment = _PCI_getCS();
+	    break;
+	    }
 
-        /* If we found the BIOS32 directory, call it to get the address of the
-         * PCI services.
-         */
-        if (BIOSEntry.address == 0)
-            return 0;
-        if (_BIOS32_service(PCI_SERVICE,0,&physBase,&length,&offset,BIOSEntry) != 0)
-            return 0;
-        PCIPhysEntry = physBase + offset;
-        PCIEntry.address = (ulong)BIOSImage + (PCIPhysEntry - 0xE0000);
-        PCIEntry.segment = _PCI_getCS();
-        }
+	/* If we found the BIOS32 directory, call it to get the address of the
+	 * PCI services.
+	 */
+	if (BIOSEntry.address == 0)
+	    return 0;
+	if (_BIOS32_service(PCI_SERVICE,0,&physBase,&length,&offset,BIOSEntry) != 0)
+	    return 0;
+	PCIPhysEntry = physBase + offset;
+	PCIEntry.address = (ulong)BIOSImage + (PCIPhysEntry - 0xE0000);
+	PCIEntry.segment = _PCI_getCS();
+	}
 #endif
     /* We found the BIOS entry, so now do the version check */
     version = _PCIBIOS_isPresent(PCI_BIOS_PRESENT,&signature,&stat,lastBus,PCIEntry);
     if (version > 0 && ((stat >> 8) == 0) && signature == PCI_SIGNATURE) {
-        *hwType = stat & 0xFF;
-        return PCIBIOSVersion = version;
-        }
+	*hwType = stat & 0xFF;
+	return PCIBIOSVersion = version;
+	}
     return 0;
 }
 
@@ -215,16 +215,16 @@ static ibool CheckDuplicate(
 {
     /* Ignore devices with a vendor ID of 0 */
     if (info->VendorID == 0)
-        return true;
+	return true;
 
     /* NOTE: We only check against the current device on
      *       the bus to ensure that we do not exclude
      *       multiple controllers of the same device ID.
      */
     if (info->slot.p.Bus == prev->slot.p.Bus &&
-        info->slot.p.Device == prev->slot.p.Device &&
-        info->DeviceID == prev->DeviceID)
-        return true;
+	info->slot.p.Device == prev->slot.p.Device &&
+	info->DeviceID == prev->DeviceID)
+	return true;
     return false;
 }
 
@@ -253,41 +253,41 @@ static int PCI_enumerateMech1(
     tmp = PM_inpd(0xCF8);
     PM_outpd(0xCF8,slot.i);
     if ((PM_inpd(0xCF8) == slot.i) && (PM_inpd(0xCFC) != 0xFFFFFFFFUL)) {
-        /* PCI access mechanism 1 - the preferred mechanism */
-        for (bus = 0; bus < 8; bus++) {
-            slot.p.Bus = bus;
-            for (device = 0; device < 32; device++) {
-                slot.p.Device = device;
-                for (function = 0; function < 8; function++) {
-                    slot.p.Function = function;
-                    slot.p.Register = 0;
-                    PM_outpd(0xCF8,slot.i);
-                    if (PM_inpd(0xCFC) != 0xFFFFFFFFUL) {
-                        memset(&pci,0,sizeof(pci));
-                        pci.dwSize = sizeof(pci);
-                        pci.mech1 = 1;
-                        pci.slot = slot;
-                        lp = (ulong*)&(pci.VendorID);
-                        for (i = 0; i < NUM_PCI_REG; i++, lp++) {
-                            slot.p.Register = i;
-                            PM_outpd(0xCF8,slot.i);
-                            *lp = PM_inpd(0xCFC);
-                            }
-                        if (!CheckDuplicate(&pci,&prev)) {
-                            if (info)
-                                COPY_STRUCTURE(&info[numFound],&pci);
-                            ++numFound;
-                            }
-                        prev = pci;
-                        }
-                    }
-                }
-            }
+	/* PCI access mechanism 1 - the preferred mechanism */
+	for (bus = 0; bus < 8; bus++) {
+	    slot.p.Bus = bus;
+	    for (device = 0; device < 32; device++) {
+		slot.p.Device = device;
+		for (function = 0; function < 8; function++) {
+		    slot.p.Function = function;
+		    slot.p.Register = 0;
+		    PM_outpd(0xCF8,slot.i);
+		    if (PM_inpd(0xCFC) != 0xFFFFFFFFUL) {
+			memset(&pci,0,sizeof(pci));
+			pci.dwSize = sizeof(pci);
+			pci.mech1 = 1;
+			pci.slot = slot;
+			lp = (ulong*)&(pci.VendorID);
+			for (i = 0; i < NUM_PCI_REG; i++, lp++) {
+			    slot.p.Register = i;
+			    PM_outpd(0xCF8,slot.i);
+			    *lp = PM_inpd(0xCFC);
+			    }
+			if (!CheckDuplicate(&pci,&prev)) {
+			    if (info)
+				COPY_STRUCTURE(&info[numFound],&pci);
+			    ++numFound;
+			    }
+			prev = pci;
+			}
+		    }
+		}
+	    }
 
-        /* Disable PCI config cycle on exit */
-        PM_outpd(0xCF8,0);
-        return numFound;
-        }
+	/* Disable PCI config cycle on exit */
+	PM_outpd(0xCF8,0);
+	return numFound;
+	}
     PM_outpd(0xCF8,tmp);
 
     /* No hardware access mechanism 1 found */
@@ -320,42 +320,42 @@ static int PCI_enumerateMech2(
     PM_outpb(0xCF8,0x00);
     PM_outpb(0xCFA,0x00);
     if (PM_inpb(0xCF8) == 0x00 && PM_inpb(0xCFB) == 0x00) {
-        /* PCI access mechanism 2 - the older mechanism for legacy busses */
-        for (bus = 0; bus < 2; bus++) {
-            slot.p.Bus = bus;
-            PM_outpb(0xCFA,(uchar)bus);
-            for (device = 0; device < 16; device++) {
-                slot.p.Device = device;
-                deviceIO = 0xC000 + (device << 8);
-                for (function = 0; function < 8; function++) {
-                    slot.p.Function = function;
-                    slot.p.Register = 0;
-                    PM_outpb(0xCF8,(uchar)((function << 1) | 0x10));
-                    if (PM_inpd(deviceIO) != 0xFFFFFFFFUL) {
-                        memset(&pci,0,sizeof(pci));
-                        pci.dwSize = sizeof(pci);
-                        pci.mech1 = 0;
-                        pci.slot = slot;
-                        lp = (ulong*)&(pci.VendorID);
-                        for (i = 0; i < NUM_PCI_REG; i++, lp++) {
-                            slot.p.Register = i;
-                            *lp = PM_inpd(deviceIO + (i << 2));
-                            }
-                        if (!CheckDuplicate(&pci,&prev)) {
-                            if (info)
-                                COPY_STRUCTURE(&info[numFound],&pci);
-                            ++numFound;
-                            }
-                        prev = pci;
-                        }
-                    }
-                }
-            }
+	/* PCI access mechanism 2 - the older mechanism for legacy busses */
+	for (bus = 0; bus < 2; bus++) {
+	    slot.p.Bus = bus;
+	    PM_outpb(0xCFA,(uchar)bus);
+	    for (device = 0; device < 16; device++) {
+		slot.p.Device = device;
+		deviceIO = 0xC000 + (device << 8);
+		for (function = 0; function < 8; function++) {
+		    slot.p.Function = function;
+		    slot.p.Register = 0;
+		    PM_outpb(0xCF8,(uchar)((function << 1) | 0x10));
+		    if (PM_inpd(deviceIO) != 0xFFFFFFFFUL) {
+			memset(&pci,0,sizeof(pci));
+			pci.dwSize = sizeof(pci);
+			pci.mech1 = 0;
+			pci.slot = slot;
+			lp = (ulong*)&(pci.VendorID);
+			for (i = 0; i < NUM_PCI_REG; i++, lp++) {
+			    slot.p.Register = i;
+			    *lp = PM_inpd(deviceIO + (i << 2));
+			    }
+			if (!CheckDuplicate(&pci,&prev)) {
+			    if (info)
+				COPY_STRUCTURE(&info[numFound],&pci);
+			    ++numFound;
+			    }
+			prev = pci;
+			}
+		    }
+		}
+	    }
 
-        /* Disable PCI config cycle on exit */
-        PM_outpb(0xCF8,0);
-        return numFound;
-        }
+	/* Disable PCI config cycle on exit */
+	PM_outpb(0xCF8,0);
+	return numFound;
+	}
 
     /* No hardware access mechanism 2 found */
     return 0;
@@ -394,32 +394,32 @@ static int PCI_enumerateBIOS(
     PCIDeviceInfo   pci,prev = {0};
 
     if (PCIBIOS_detect(&hwType,&lastBus)) {
-        /* PCI BIOS access - the ultimate fallback */
-        for (bus = 0; bus <= lastBus; bus++) {
-            slot.p.Bus = bus;
-            for (device = 0; device < 32; device++) {
-                slot.p.Device = device;
-                for (function = 0; function < 8; function++) {
-                    slot.p.Function = function;
-                    if (PCIBIOS_readDWORD(0,slot.i) != 0xFFFFFFFFUL) {
-                        memset(&pci,0,sizeof(pci));
-                        pci.dwSize = sizeof(pci);
-                        pci.mech1 = 2;
-                        pci.slot = slot;
-                        lp = (ulong*)&(pci.VendorID);
-                        for (i = 0; i < NUM_PCI_REG; i++, lp++)
-                            *lp = PCIBIOS_readDWORD(i << 2,slot.i);
-                        if (!CheckDuplicate(&pci,&prev)) {
-                            if (info)
-                                COPY_STRUCTURE(&info[numFound],&pci);
-                            ++numFound;
-                            }
-                        prev = pci;
-                        }
-                    }
-                }
-            }
-        }
+	/* PCI BIOS access - the ultimate fallback */
+	for (bus = 0; bus <= lastBus; bus++) {
+	    slot.p.Bus = bus;
+	    for (device = 0; device < 32; device++) {
+		slot.p.Device = device;
+		for (function = 0; function < 8; function++) {
+		    slot.p.Function = function;
+		    if (PCIBIOS_readDWORD(0,slot.i) != 0xFFFFFFFFUL) {
+			memset(&pci,0,sizeof(pci));
+			pci.dwSize = sizeof(pci);
+			pci.mech1 = 2;
+			pci.slot = slot;
+			lp = (ulong*)&(pci.VendorID);
+			for (i = 0; i < NUM_PCI_REG; i++, lp++)
+			    *lp = PCIBIOS_readDWORD(i << 2,slot.i);
+			if (!CheckDuplicate(&pci,&prev)) {
+			    if (info)
+				COPY_STRUCTURE(&info[numFound],&pci);
+			    ++numFound;
+			    }
+			prev = pci;
+			}
+		    }
+		}
+	    }
+	}
 
     /* Return number of devices found */
     return numFound;
@@ -447,11 +447,11 @@ int _ASMAPI PCI_enumerate(
      * stuff we can't do directly.
      */
     if ((numFound = PCI_enumerateMech1(info)) == 0) {
-        if ((numFound = PCI_enumerateMech2(info)) == 0) {
-            if ((numFound = PCI_enumerateBIOS(info)) == 0)
-                return 0;
-            }
-        }
+	if ((numFound = PCI_enumerateMech2(info)) == 0) {
+	    if ((numFound = PCI_enumerateBIOS(info)) == 0)
+		return 0;
+	    }
+	}
     return numFound;
 }
 
@@ -493,22 +493,22 @@ ulong _ASMAPI PCI_findBARSize(
 
     base = PCI_accessReg(bar,0,PCI_READ_DWORD,pci);
     if (base && !(base & 0x1)) {
-        /* For some strange reason some devices don't properly decode
-         * their base address registers (Intel PCI/PCI bridges!), and
-         * we read completely bogus values. We check for that here
-         * and clear out those BAR's.
-         *
-         * We check for that here because at least the low 12 bits
-         * of the address range must be zeros, since the page size
-         * on IA32 processors is always 4Kb.
-         */
-        if ((base & 0xFFF) == 0) {
-            PCI_accessReg(bar,0xFFFFFFFF,PCI_WRITE_DWORD,pci);
-            size = PCI_accessReg(bar,0,PCI_READ_DWORD,pci) & ~0xFF;
-            size = ~size+1;
-            PCI_accessReg(bar,base,PCI_WRITE_DWORD,pci);
-            }
-        }
+	/* For some strange reason some devices don't properly decode
+	 * their base address registers (Intel PCI/PCI bridges!), and
+	 * we read completely bogus values. We check for that here
+	 * and clear out those BAR's.
+	 *
+	 * We check for that here because at least the low 12 bits
+	 * of the address range must be zeros, since the page size
+	 * on IA32 processors is always 4Kb.
+	 */
+	if ((base & 0xFFF) == 0) {
+	    PCI_accessReg(bar,0xFFFFFFFF,PCI_WRITE_DWORD,pci);
+	    size = PCI_accessReg(bar,0,PCI_READ_DWORD,pci) & ~0xFF;
+	    size = ~size+1;
+	    PCI_accessReg(bar,base,PCI_WRITE_DWORD,pci);
+	    }
+	}
     pci->slot.p.Register = 0;
     return size;
 }
@@ -542,49 +542,49 @@ ulong _ASMAPI PCI_accessReg(
     int iobase;
 
     if (info->mech1 == 2) {
-        /* Use PCI BIOS access since we dont have direct hardware access */
-        switch (func) {
-            case PCI_READ_BYTE:
-                return (uchar)_PCIBIOS_service(READ_CONFIG_BYTE,info->slot.i >> 8,index,0,PCIEntry);
-            case PCI_READ_WORD:
-                return (ushort)_PCIBIOS_service(READ_CONFIG_WORD,info->slot.i >> 8,index,0,PCIEntry);
-            case PCI_READ_DWORD:
-                return (ulong)_PCIBIOS_service(READ_CONFIG_DWORD,info->slot.i >> 8,index,0,PCIEntry);
-            case PCI_WRITE_BYTE:
-                _PCIBIOS_service(WRITE_CONFIG_BYTE,info->slot.i >> 8,index,value,PCIEntry);
-                break;
-            case PCI_WRITE_WORD:
-                _PCIBIOS_service(WRITE_CONFIG_WORD,info->slot.i >> 8,index,value,PCIEntry);
-                break;
-            case PCI_WRITE_DWORD:
-                _PCIBIOS_service(WRITE_CONFIG_DWORD,info->slot.i >> 8,index,value,PCIEntry);
-                break;
-            }
-        }
+	/* Use PCI BIOS access since we dont have direct hardware access */
+	switch (func) {
+	    case PCI_READ_BYTE:
+		return (uchar)_PCIBIOS_service(READ_CONFIG_BYTE,info->slot.i >> 8,index,0,PCIEntry);
+	    case PCI_READ_WORD:
+		return (ushort)_PCIBIOS_service(READ_CONFIG_WORD,info->slot.i >> 8,index,0,PCIEntry);
+	    case PCI_READ_DWORD:
+		return (ulong)_PCIBIOS_service(READ_CONFIG_DWORD,info->slot.i >> 8,index,0,PCIEntry);
+	    case PCI_WRITE_BYTE:
+		_PCIBIOS_service(WRITE_CONFIG_BYTE,info->slot.i >> 8,index,value,PCIEntry);
+		break;
+	    case PCI_WRITE_WORD:
+		_PCIBIOS_service(WRITE_CONFIG_WORD,info->slot.i >> 8,index,value,PCIEntry);
+		break;
+	    case PCI_WRITE_DWORD:
+		_PCIBIOS_service(WRITE_CONFIG_DWORD,info->slot.i >> 8,index,value,PCIEntry);
+		break;
+	    }
+	}
     else {
-        /* Use direct hardware access mechanisms */
-        if (info->mech1) {
-            /* PCI access mechanism 1 */
-            iobase = 0xCFC + (index & 3);
-            info->slot.p.Register = index >> 2;
-            PM_outpd(0xCF8,info->slot.i);
-            }
-        else {
-            /* PCI access mechanism 2 */
-            PM_outpb(0xCF8,(uchar)((info->slot.p.Function << 1) | 0x10));
-            PM_outpb(0xCFA,(uchar)info->slot.p.Bus);
-            iobase = 0xC000 + (info->slot.p.Device << 8) + index;
-            }
-        switch (func) {
-            case PCI_READ_BYTE:
-            case PCI_READ_WORD:
-            case PCI_READ_DWORD:    value = PM_inpd(iobase);        break;
-            case PCI_WRITE_BYTE:    PM_outpb(iobase,(uchar)value);  break;
-            case PCI_WRITE_WORD:    PM_outpw(iobase,(ushort)value); break;
-            case PCI_WRITE_DWORD:   PM_outpd(iobase,(ulong)value);  break;
-            }
-        PM_outpd(0xCF8,0);
-        }
+	/* Use direct hardware access mechanisms */
+	if (info->mech1) {
+	    /* PCI access mechanism 1 */
+	    iobase = 0xCFC + (index & 3);
+	    info->slot.p.Register = index >> 2;
+	    PM_outpd(0xCF8,info->slot.i);
+	    }
+	else {
+	    /* PCI access mechanism 2 */
+	    PM_outpb(0xCF8,(uchar)((info->slot.p.Function << 1) | 0x10));
+	    PM_outpb(0xCFA,(uchar)info->slot.p.Bus);
+	    iobase = 0xC000 + (info->slot.p.Device << 8) + index;
+	    }
+	switch (func) {
+	    case PCI_READ_BYTE:
+	    case PCI_READ_WORD:
+	    case PCI_READ_DWORD:    value = PM_inpd(iobase);        break;
+	    case PCI_WRITE_BYTE:    PM_outpb(iobase,(uchar)value);  break;
+	    case PCI_WRITE_WORD:    PM_outpw(iobase,(ushort)value); break;
+	    case PCI_WRITE_DWORD:   PM_outpd(iobase,(ulong)value);  break;
+	    }
+	PM_outpd(0xCF8,0);
+	}
     return value;
 }
 
@@ -608,14 +608,14 @@ ibool _ASMAPI PCI_getIRQRoutingOptions(
     int                     ret;
 
     if (PCIPhysEntry) {
-        buf.BufferSize = numDevices * sizeof(PCIRouteInfo);
-        buf.DataBuffer = buffer;
-        if ((ret = _PCIBIOS_getRouting(&buf,PCIEntry)) == 0x89)
-            return buf.BufferSize / sizeof(PCIRouteInfo);
-        if (ret != 0)
-            return -1;
-        return 0;
-        }
+	buf.BufferSize = numDevices * sizeof(PCIRouteInfo);
+	buf.DataBuffer = buffer;
+	if ((ret = _PCIBIOS_getRouting(&buf,PCIEntry)) == 0x89)
+	    return buf.BufferSize / sizeof(PCIRouteInfo);
+	if (ret != 0)
+	    return -1;
+	return 0;
+	}
 
     /* We currently only support this via the PCI BIOS functions */
     return -1;
@@ -642,13 +642,13 @@ ibool _ASMAPI PCI_setHardwareIRQ(
     uint IRQ)
 {
     if (PCIPhysEntry) {
-        if (_PCIBIOS_setIRQ(info->slot.i >> 8,intPin,IRQ,PCIEntry)) {
-            info->u.type0.InterruptPin = intPin;
-            info->u.type0.InterruptLine = IRQ;
-            return true;
-            }
-        return false;
-        }
+	if (_PCIBIOS_setIRQ(info->slot.i >> 8,intPin,IRQ,PCIEntry)) {
+	    info->u.type0.InterruptPin = intPin;
+	    info->u.type0.InterruptLine = IRQ;
+	    return true;
+	    }
+	return false;
+	}
 
     /* We currently only support this via the PCI BIOS functions */
     return false;
@@ -668,7 +668,7 @@ void _ASMAPI PCI_generateSpecialCyle(
     ulong specialCycleData)
 {
     if (PCIPhysEntry)
-        _PCIBIOS_specialCycle(bus,specialCycleData,PCIEntry);
+	_PCIBIOS_specialCycle(bus,specialCycleData,PCIEntry);
     /* We currently only support this via the PCI BIOS functions */
 }
 
@@ -699,14 +699,14 @@ void _ASMAPI PCI_readRegBlock(
     int     endCount = count - middleCount * 4 - startCount;
 
     for (i = 0,pb = dst; i < startCount; i++, index++) {
-        *pb++ = (uchar)PCI_accessReg(index,0,PCI_READ_BYTE,info);
-        }
+	*pb++ = (uchar)PCI_accessReg(index,0,PCI_READ_BYTE,info);
+	}
     for (i = 0,pd = (ulong*)pb; i < middleCount; i++, index += 4) {
-        *pd++ = (ulong)PCI_accessReg(index,0,PCI_READ_DWORD,info);
-        }
+	*pd++ = (ulong)PCI_accessReg(index,0,PCI_READ_DWORD,info);
+	}
     for (i = 0,pb = (uchar*)pd; i < endCount; i++, index++) {
-        *pb++ = (uchar)PCI_accessReg(index,0,PCI_READ_BYTE,info);
-        }
+	*pb++ = (uchar)PCI_accessReg(index,0,PCI_READ_BYTE,info);
+	}
 }
 
 /****************************************************************************
@@ -736,12 +736,12 @@ void _ASMAPI PCI_writeRegBlock(
     int     endCount = count - middleCount * 4 - startCount;
 
     for (i = 0,pb = src; i < startCount; i++, index++) {
-        PCI_accessReg(index,*pb++,PCI_WRITE_BYTE,info);
-        }
+	PCI_accessReg(index,*pb++,PCI_WRITE_BYTE,info);
+	}
     for (i = 0,pd = (ulong*)pb; i < middleCount; i++, index += 4) {
-        PCI_accessReg(index,*pd++,PCI_WRITE_DWORD,info);
-        }
+	PCI_accessReg(index,*pd++,PCI_WRITE_DWORD,info);
+	}
     for (i = 0,pb = (uchar*)pd; i < endCount; i++, index++) {
-        PCI_accessReg(index,*pb++,PCI_WRITE_BYTE,info);
-        }
+	PCI_accessReg(index,*pb++,PCI_WRITE_BYTE,info);
+	}
 }

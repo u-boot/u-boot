@@ -162,4 +162,3 @@ void pci_init_board (void)
 
 	icache_enable();
 }
-

@@ -41,9 +41,9 @@ int menu_init (menu_t *root)
 
     s = getenv("menu_disabled");
     if (s) disabled_attr = atoi(s);
-    
+
     for (i=0; i<MAX_MENU_OPTIONS; i++) odata[i].used = 0;
-    
+
     root_menu = root;
 }
 

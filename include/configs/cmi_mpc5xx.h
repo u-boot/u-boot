@@ -17,13 +17,13 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, 
+ * Foundation,
  */
 
 /*
  * File:		cmi_mpc5xx.h
- * 
- * Discription:		Config header file for cmi 
+ *
+ * Discription:		Config header file for cmi
  * 			board  using an MPC5xx CPU
  *
  */
@@ -63,12 +63,12 @@
 
 #define CONFIG_WATCHDOG				/* turn on platform specific watchdog 	*/
 
-#define CONFIG_STATUS_LED	1		/* Enable status led */ 
+#define CONFIG_STATUS_LED	1		/* Enable status led */
 
 #define CONFIG_LOADS_ECHO	1		/* Echo on for serial download */
 
 /*
- * Miscellaneous configurable options 
+ * Miscellaneous configurable options
  */
 
 #define	CFG_LONGHELP				/* undef to save memory		*/
@@ -104,7 +104,7 @@
 /*
  * Definitions for initial stack pointer and data area
  */
-#define CFG_INIT_RAM_ADDR	(CFG_IMMR + 0x003f9800)      		/* Physical start adress of internal MPC555 writable RAM */       
+#define CFG_INIT_RAM_ADDR	(CFG_IMMR + 0x003f9800)      		/* Physical start adress of internal MPC555 writable RAM */
 #define	CFG_INIT_RAM_END	(CFG_IMMR + 0x003fffff)       		/* Physical end adress of internal MPC555 used RAM area	*/
 #define	CFG_GBL_DATA_SIZE	64					/* Size in bytes reserved for initial global data */
 #define CFG_GBL_DATA_OFFSET	((CFG_INIT_RAM_END - CFG_INIT_RAM_ADDR) - CFG_GBL_DATA_SIZE) /* Offset from the beginning of ram */
@@ -135,9 +135,9 @@
 
 
 /*-----------------------------------------------------------------------
- * FLASH organization 
+ * FLASH organization
  *-----------------------------------------------------------------------
- * 
+ *
  */
 
 #define CFG_MAX_FLASH_BANKS	1		/* Max number of memory banks		*/
@@ -154,7 +154,7 @@
 #endif
 
 /*-----------------------------------------------------------------------
- * SYPCR - System Protection Control			
+ * SYPCR - System Protection Control
  * SYPCR can only be written once after reset!
  *-----------------------------------------------------------------------
  * SW Watchdog freeze
@@ -164,7 +164,7 @@
 			 SYPCR_SWE | SYPCR_SWRI| SYPCR_SWP)
 #else
 #define CFG_SYPCR	(SYPCR_SWTC | SYPCR_BMT | SYPCR_BME | SYPCR_SWF | \
-			 SYPCR_SWP)		
+			 SYPCR_SWP)
 #endif	/* CONFIG_WATCHDOG */
 
 /*-----------------------------------------------------------------------
@@ -202,30 +202,30 @@
  * PLPRCR - PLL, Low-Power, and Reset Control Register
  *-----------------------------------------------------------------------
  * Set all bits to 40 Mhz
- * 
+ *
  */
 #define CFG_OSC_CLK   	((uint)4000000) 	/* Oscillator clock is 4MHz 	*/
 #define CFG_PLPRCR	(PLPRCR_MF_9 | PLPRCR_DIVF_0)
-	
+
 
 /*-----------------------------------------------------------------------
  * UMCR - UIMB Module Configuration Register
  *-----------------------------------------------------------------------
- * 
+ *
  */
 #define CFG_UMCR	(UMCR_FSPEED) 		/* IMB clock same as U-bus 	*/
 
 /*-----------------------------------------------------------------------
  * ICTRL - I-Bus Support Control Register
  */
-#define CFG_ICTRL	(ICTRL_ISCT_SER_7) 	/* Take out of serialized mode 	*/ 
+#define CFG_ICTRL	(ICTRL_ISCT_SER_7) 	/* Take out of serialized mode 	*/
 
 /*-----------------------------------------------------------------------
  * USIU - Memory Controller Register
- *----------------------------------------------------------------------- 
+ *-----------------------------------------------------------------------
  */
 
-#define CFG_BR0_PRELIM		(CFG_FLASH_BASE | BR_V | BR_BI | BR_PS_16)		
+#define CFG_BR0_PRELIM		(CFG_FLASH_BASE | BR_V | BR_BI | BR_PS_16)
 #define CFG_OR0_PRELIM		(OR_ADDR_MK_FF | OR_SCY_3)
 #define CFG_BR1_PRELIM		(ANYBUS_BASE)
 #define CFG_OR1_PRELIM		(OR_ADDR_MK_FFFF | OR_SCY_1 | OR_ETHR)
@@ -238,7 +238,7 @@
 #define FLASH_BASE0_PRELIM	CFG_FLASH_BASE	/* We don't realign the flash	*/
 
 /*-----------------------------------------------------------------------
- * DER - Timer Decrementer 
+ * DER - Timer Decrementer
  *-----------------------------------------------------------------------
  * Initialise to zero
  */

@@ -137,7 +137,7 @@ void Plx9030Init (void)
 	sysOutLong((membaseCsr + P9030_LAS0BA),  0x00000001);		/* enable space base */
 	sysOutLong((membaseCsr + P9030_LAS0RR),  0x0FE00000);		/* 2 MByte */
 	sysOutLong((membaseCsr + P9030_LAS0BRD), 0x51928900);		/* 4 wait states */
-	sysOutLong((membaseCsr + P9030_CS0BASE), 0x00100001);		/* enable 2 MByte */	
+	sysOutLong((membaseCsr + P9030_CS0BASE), 0x00100001);		/* enable 2 MByte */
 	/* remap CS0 (SRAM) */
 	pci_write_config_dword(devno, PCI_BASE_ADDRESS_2, SRAM_BASE);
 
@@ -145,7 +145,7 @@ void Plx9030Init (void)
 	sysOutLong((membaseCsr + P9030_LAS1BA),  0x00400001);		/* enable space base */
 	sysOutLong((membaseCsr + P9030_LAS1RR),  0x0FFFFF00);		/* 256 byte */
 	sysOutLong((membaseCsr + P9030_LAS1BRD), 0x55122900);		/* 4 wait states */
-	sysOutLong((membaseCsr + P9030_CS1BASE), 0x00400081);		/* enable 256 Byte */	
+	sysOutLong((membaseCsr + P9030_CS1BASE), 0x00400081);		/* enable 256 Byte */
 	/* remap CS1 (ST16552 / CHAN A) */
 	/* remap CS1 (ST16552 / CHAN A) */
 	pci_write_config_dword(devno, PCI_BASE_ADDRESS_3, ST16552_A_BASE);
@@ -154,7 +154,7 @@ void Plx9030Init (void)
 	sysOutLong((membaseCsr + P9030_LAS2BA),  0x00800001);		/* enable space base */
 	sysOutLong((membaseCsr + P9030_LAS2RR),  0x0FFFFF00);		/* 256 byte */
 	sysOutLong((membaseCsr + P9030_LAS2BRD), 0x55122900);		/* 4 wait states */
-	sysOutLong((membaseCsr + P9030_CS2BASE), 0x00800081);		/* enable 256 Byte */	
+	sysOutLong((membaseCsr + P9030_CS2BASE), 0x00800081);		/* enable 256 Byte */
 	/* remap CS2 (ST16552 / CHAN B) */
 	pci_write_config_dword(devno, PCI_BASE_ADDRESS_4, ST16552_B_BASE);
 
@@ -162,7 +162,7 @@ void Plx9030Init (void)
 	sysOutLong((membaseCsr + P9030_LAS3BA),  0x00C00001);		/* enable space base */
 	sysOutLong((membaseCsr + P9030_LAS3RR),  0x0FFFFF00);		/* 256 byte */
 	sysOutLong((membaseCsr + P9030_LAS3BRD), 0x55357A80);		/* 9 wait states */
-	sysOutLong((membaseCsr + P9030_CS3BASE), 0x00C00081);		/* enable 256 Byte */	
+	sysOutLong((membaseCsr + P9030_CS3BASE), 0x00C00081);		/* enable 256 Byte */
 	/* remap CS3 (DISPLAY and BCSR) */
 	pci_write_config_dword(devno, PCI_BASE_ADDRESS_5, BCSR_BASE);
 }
@@ -171,4 +171,3 @@ void sysOutLong(ulong address, ulong value)
 {
 	*(ulong*)address = cpu_to_le32(value);
 }
-

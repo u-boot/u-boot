@@ -72,7 +72,7 @@ mon_free:
 #ifdef CONFIG_I386 /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
 #define SYMBOL_NAME(X) 	X
 #define SYMBOL_NAME_LABEL(X) 	X##:
-	
+
 #define SYSCALL(name,n) \
 	.globl SYMBOL_NAME(name) ; \
 SYMBOL_NAME_LABEL(name)     		 ; \
@@ -96,8 +96,8 @@ name:				; \
 	.text
 
 	/*
-         * Make sure these functions are in the same order as they
-         * appear in the "include/syscall.h" header file !!!
+	 * Make sure these functions are in the same order as they
+	 * appear in the "include/syscall.h" header file !!!
 	 */
 
 	SYSCALL(mon_getc,SYSCALL_GETC)

@@ -56,14 +56,14 @@ typedef int spinlock_t;
 /* Embedded device control */
 typedef struct _UM_DEVICE_BLOCK {
 	LM_DEVICE_BLOCK lm_dev;
-        pci_dev_t pdev;
+	pci_dev_t pdev;
 	char *name;
 	void *mem_list[MAX_MEM];
 	dma_addr_t dma_list[MAX_MEM];
 	int mem_size_list[MAX_MEM];
 	int mem_list_num;
-        int mtu;
-        int index;
+	int mtu;
+	int index;
 	int opened;
 	int delayed_link_ind; /* Delay link status during initial load */
 	int adapter_just_inited; /* the first few seconds after init. */
@@ -72,7 +72,7 @@ typedef struct _UM_DEVICE_BLOCK {
 	int adaptive_expiry;
 	int crc_counter_expiry;         /* new -- unsupported */
 	int poll_tib_expiry;         /* new -- unsupported */
-        int tx_full;
+	int tx_full;
 	int tx_queued;
 	int line_speed;		/* in Mbps, 0 if link is down */
 	UM_RX_PACKET_Q rx_out_of_buf_q;
@@ -81,14 +81,14 @@ typedef struct _UM_DEVICE_BLOCK {
 	int rx_buf_repl_panic_thresh;
 	int rx_buf_align;            /* new -- unsupported */
 	int do_global_lock;
-        mutex_t global_lock;
-        mutex_t undi_lock;
+	mutex_t global_lock;
+	mutex_t undi_lock;
 	long undi_flags;
 	volatile int interrupt;
 	int tasklet_pending;
 	int tasklet_busy;	     /* new -- unsupported */
-        int rx_pkt;
-        int tx_pkt;
+	int rx_pkt;
+	int tx_pkt;
 #ifdef NICE_SUPPORT   /* unsupported, this is a linux ioctl */
 	void (*nice_rx)(void*, void* );
 	void* nice_ctx;
@@ -100,19 +100,19 @@ typedef struct _UM_DEVICE_BLOCK {
 	unsigned int rx_curr_coalesce_ticks;
 	unsigned int tx_curr_coalesce_frames;  /* new -- unsupported */
 #if TIGON3_DEBUG          /* new -- unsupported */
-        uint tx_zc_count;
-        uint tx_chksum_count;
-        uint tx_himem_count;
-        uint rx_good_chksum_count;
+	uint tx_zc_count;
+	uint tx_chksum_count;
+	uint tx_himem_count;
+	uint rx_good_chksum_count;
 #endif
-        unsigned int rx_bad_chksum_count;   /* new -- unsupported */
-        unsigned int rx_misc_errors;        /* new -- unsupported */
+	unsigned int rx_bad_chksum_count;   /* new -- unsupported */
+	unsigned int rx_misc_errors;        /* new -- unsupported */
 } UM_DEVICE_BLOCK, *PUM_DEVICE_BLOCK;
 
 
 /* Physical/PCI DMA address */
 typedef union {
-        dma_addr_t dma_map;
+	dma_addr_t dma_map;
 } dma_map_t;
 
 /* Packet */
@@ -130,8 +130,8 @@ _UM_PACKET {
 
 /* Macro for setting 64bit address struct */
 #define set_64bit_addr(paddr, low, high) \
-        (paddr)->Low = low;             \
-        (paddr)->High = high;
+	(paddr)->Low = low;             \
+	(paddr)->High = high;
 
 /* Assume that PCI controller's view of host memory is same as host */
 

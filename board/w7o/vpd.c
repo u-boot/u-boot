@@ -405,4 +405,3 @@ void vpd_print(VPD *vpdInfo)
 	printf(dsfmt, sp, "WE Data Width",  vpdInfo->flashCfg.weDataWidth);
     }
 } /* vpd_print() */
-

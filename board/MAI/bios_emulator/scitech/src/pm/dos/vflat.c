@@ -79,7 +79,7 @@ PRIVATE ibool CheckDPMI(void)
     PMREGS  regs;
 
     if (haveDPMI)
-        return true;
+	return true;
 
     /* Check if we are running under DPMI in which case we will not be
      * able to install our page fault handlers. We can however use the
@@ -88,7 +88,7 @@ PRIVATE ibool CheckDPMI(void)
     regs.x.ax = 0xFF00;
     PM_int386(0x31,&regs,&regs);
     if (!regs.x.cflag && (regs.e.edi & 8))
-        return (haveDPMI = true);
+	return (haveDPMI = true);
     return false;
 }
 
@@ -101,13 +101,13 @@ ibool PMAPI VF_available(void)
 ****************************************************************************/
 {
     if (!VF_zeroPtr)
-        VF_zeroPtr = PM_mapPhysicalAddr(0,0xFFFFFFFF,true);
+	VF_zeroPtr = PM_mapPhysicalAddr(0,0xFFFFFFFF,true);
     if (CheckDPMI())
-        return false;
+	return false;
 
     /* Standard DOS4GW, PMODE/W and Causeway */
     if (InitPaging() == -1)
-        return false;
+	return false;
     ClosePaging();
     return true;
 }
@@ -153,21 +153,21 @@ void * PMAPI InitDOS4GW(ulong baseAddr,int bankSize,int codeLen,void *bankFunc)
     int     i;
 
     if (InitPaging() == -1)
-        return NULL;            /* Cannot do hardware paging!       */
+	return NULL;            /* Cannot do hardware paging!       */
 
     /* Map 4MB of video memory into linear address space (read/write) */
     if (bankSize == 64) {
-        for (i = 0; i < 64; i++) {
-            MapPhysical2Linear(baseAddr,VFLAT_START_ADDR+(i<<16),16,
-                PAGE_WRITE | PAGE_NOTPRESENT);
-            }
-        }
+	for (i = 0; i < 64; i++) {
+	    MapPhysical2Linear(baseAddr,VFLAT_START_ADDR+(i<<16),16,
+		PAGE_WRITE | PAGE_NOTPRESENT);
+	    }
+	}
     else {
-        for (i = 0; i < 1024; i++) {
-            MapPhysical2Linear(baseAddr,VFLAT_START_ADDR+(i<<12),1,
-                PAGE_WRITE | PAGE_NOTPRESENT);
-            }
-        }
+	for (i = 0; i < 1024; i++) {
+	    MapPhysical2Linear(baseAddr,VFLAT_START_ADDR+(i<<12),1,
+		PAGE_WRITE | PAGE_NOTPRESENT);
+	    }
+	}
 
     /* Install our page fault handler and banks switch function */
     InstallFaultHandler(baseAddr,bankSize);
@@ -191,13 +191,13 @@ void * PMAPI VF_init(ulong baseAddr,int bankSize,int codeLen,void *bankFunc)
 ****************************************************************************/
 {
     if (installed)
-        return (void*)VFLAT_START_ADDR;
+	return (void*)VFLAT_START_ADDR;
     if (codeLen > 100)
-        return NULL;                /* Bank function is too large!      */
+	return NULL;                /* Bank function is too large!      */
     if (!VF_zeroPtr)
-        VF_zeroPtr = PM_mapPhysicalAddr(0,0xFFFFFFFF,true);
+	VF_zeroPtr = PM_mapPhysicalAddr(0,0xFFFFFFFF,true);
     if (CheckDPMI())
-        return InitDPMI(baseAddr,bankSize,codeLen,bankFunc);
+	return InitDPMI(baseAddr,bankSize,codeLen,bankFunc);
     return InitDOS4GW(baseAddr,bankSize,codeLen,bankFunc);
 }
 
@@ -212,16 +212,16 @@ void PMAPI VF_exit(void)
 ****************************************************************************/
 {
     if (installed) {
-        if (haveDPMI) {
-            /* DPMI support */
-            }
-        else {
-            /* Standard DOS4GW and PMODE/W support */
-            RemoveFaultHandler();
-            ClosePaging();
-            }
-        installed = false;
-        }
+	if (haveDPMI) {
+	    /* DPMI support */
+	    }
+	else {
+	    /* Standard DOS4GW and PMODE/W support */
+	    RemoveFaultHandler();
+	    ClosePaging();
+	    }
+	installed = false;
+	}
 }
 
 /*-------------------------------------------------------------------------*/

@@ -42,5 +42,4 @@
 UNICODE_STRING *    _PM_CStringToUnicodeString(const char *cstr);
 void                _PM_FreeUnicodeString(UNICODE_STRING *uniStr);
 
-#endif  // __NTDRV_OSHDR_H
-
+#endif  /* __NTDRV_OSHDR_H */

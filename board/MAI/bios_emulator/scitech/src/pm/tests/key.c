@@ -56,16 +56,16 @@ int main(void)
 
     printf("Program running in ");
     switch (PM_getModeType()) {
-        case PM_realMode:
-            printf("real mode.\n\n");
-            break;
-        case PM_286:
-            printf("16 bit protected mode.\n\n");
-            break;
-        case PM_386:
-            printf("32 bit protected mode.\n\n");
-            break;
-        }
+	case PM_realMode:
+	    printf("real mode.\n\n");
+	    break;
+	case PM_286:
+	    printf("16 bit protected mode.\n\n");
+	    break;
+	case PM_386:
+	    printf("32 bit protected mode.\n\n");
+	    break;
+	}
 
     /* Install our timer handler and lock handler pages in memory. It is
      * difficult to get the size of a function in C, but we know our
@@ -79,9 +79,9 @@ int main(void)
     printf("Keyboard interrupt handler installed - Type some characters and\n");
     printf("hit ESC to exit\n");
     while ((ch = PM_getch()) != 0x1B) {
-        printf("%c", ch);
-        fflush(stdout);
-        }
+	printf("%c", ch);
+	fflush(stdout);
+	}
 
     PM_restoreKeyHandler();
     PM_restoreBreakHandler();

@@ -171,7 +171,7 @@ remote_continue(void)
 	reply		OK		for success
 			ENN		for an error
 
-        write reg	Pn...=r...	Write register n... with value r...,
+	write reg	Pn...=r...	Write register n... with value r...,
 					which contains two hex digits for each
 					byte in the register (target byte
 					order).
@@ -194,12 +194,12 @@ remote_continue(void)
 					where only part of the data was
 					written).
 
-        write mem       XAA..AA,LLLL:XX..XX
-         (binary)                       AA..AA is address,
-                                        LLLL is number of bytes,
-                                        XX..XX is binary data
-        reply           OK              for success
-                        ENN             for an error
+	write mem       XAA..AA,LLLL:XX..XX
+	 (binary)                       AA..AA is address,
+					LLLL is number of bytes,
+					XX..XX is binary data
+	reply           OK              for success
+			ENN             for an error
 
 	continue	cAA..AA		AA..AA is address to resume
 					If AA..AA is omitted,
@@ -217,7 +217,7 @@ remote_continue(void)
 	signal
 
 	last signal     ?               Reply the current reason for stopping.
-                                        This is the same reply as is generated
+					This is the same reply as is generated
 					for step or cont : SAA where AA is the
 					signal number.
 
@@ -256,7 +256,7 @@ remote_continue(void)
 					the 'N' packet may arrive spontaneously
 					whereas the 'qOffsets' is a query
 					initiated by the host debugger.
-        or...           OXX..XX	XX..XX  is hex encoding of ASCII data. This
+	or...           OXX..XX	XX..XX  is hex encoding of ASCII data. This
 					can happen at any time while the
 					program is running and the debugger
 					should continue to wait for
@@ -416,7 +416,7 @@ remote_address_masked (CORE_ADDR addr)
       && remote_address_size < (sizeof (ULONGEST) * 8))
     {
       /* Only create a mask when that mask can safely be constructed
-         in a ULONGEST variable. */
+	 in a ULONGEST variable. */
       ULONGEST mask = 1;
       mask = (mask << remote_address_size) - 1;
       addr &= mask;
@@ -529,8 +529,8 @@ remote_write_bytes (memaddr, myaddr, len)
       *p = '\0';
 
       /* We send target system values byte by byte, in increasing byte
-         addresses, each byte encoded as two hex characters (or one
-         binary character).  */
+	 addresses, each byte encoded as two hex characters (or one
+	 binary character).  */
       if (remote_binary_download)
 	{
 	  int escaped = 0;
@@ -557,11 +557,11 @@ remote_write_bytes (memaddr, myaddr, len)
 	  if (i < todo)
 	    {
 	      /* Escape chars have filled up the buffer prematurely,
-	         and we have actually sent fewer bytes than planned.
-	         Fix-up the length field of the packet.  */
+		 and we have actually sent fewer bytes than planned.
+		 Fix-up the length field of the packet.  */
 
 	      /* FIXME: will fail if new len is a shorter string than
-	         old len.  */
+		 old len.  */
 
 	      plen += hexnumstr ((char *)plen, (ULONGEST) i);
 	      *plen++ = ':';
@@ -591,7 +591,7 @@ remote_write_bytes (memaddr, myaddr, len)
 	}
 
       /* Increment by i, not by todo, in case escape chars
-         caused us to send fewer bytes than we'd planned.  */
+	 caused us to send fewer bytes than we'd planned.  */
       myaddr += i;
       memaddr += i;
       len -= i;
@@ -743,10 +743,10 @@ putpkt_binary (buf, cnt)
 
 #if 0
       /* This is wrong.  If doing a long backtrace, the user should be
-         able to get out next time we call QUIT, without anything as
-         violent as interrupt_query.  If we want to provide a way out of
-         here without getting to the next QUIT, it should be based on
-         hitting ^C twice as in remote_wait.  */
+	 able to get out next time we call QUIT, without anything as
+	 violent as interrupt_query.  If we want to provide a way out of
+	 here without getting to the next QUIT, it should be based on
+	 hitting ^C twice as in remote_wait.  */
       if (quit_flag)
 	{
 	  quit_flag = 0;
@@ -875,12 +875,12 @@ getpkt (buf, forever)
   for (tries = 1; tries <= MAX_TRIES; tries++)
     {
       /* This can loop forever if the remote side sends us characters
-         continuously, but if it pauses, we'll get a zero from readchar
-         because of timeout.  Then we'll count that as a retry.  */
+	 continuously, but if it pauses, we'll get a zero from readchar
+	 because of timeout.  Then we'll count that as a retry.  */
 
       /* Note that we will only wait forever prior to the start of a packet.
-         After that, we expect characters to arrive at a brisk pace.  They
-         should show up within remote_timeout intervals.  */
+	 After that, we expect characters to arrive at a brisk pace.  They
+	 should show up within remote_timeout intervals.  */
 
       do
 	{

@@ -124,7 +124,7 @@ static void BootpCopyNetParams(Bootp_t *bp)
 	debug ("Bootfile: %s\n", BootFile);
 
 	/* Propagate to environment:
-         * don't delete exising entry when BOOTP / DHCP reply does
+	 * don't delete exising entry when BOOTP / DHCP reply does
 	 * not contain a new value
 	 */
 	if (*BootFile) {
@@ -213,16 +213,16 @@ static void BootpVendorFieldProcess(u8 *ext)
 		break;
 	case 18:	/* Extension path - Not yet supported		*/
 		/*
-                 * This can be used to send the information of the
-                 * vendor area in another file that the client can
-                 * access via TFTP.
+		 * This can be used to send the information of the
+		 * vendor area in another file that the client can
+		 * access via TFTP.
 		 */
 		break;
     /* IP host layer fields */
 	case 40:	/* NIS Domain name				*/
 		if (NetOurNISDomain[0] == 0) {
 		    size = truncate_sz ("NIS Domain Name",
-		    			sizeof(NetOurNISDomain),
+					sizeof(NetOurNISDomain),
 					size);
 		    memcpy(&NetOurNISDomain, ext+2, size);
 		    NetOurNISDomain[size] = 0 ;
@@ -231,8 +231,8 @@ static void BootpVendorFieldProcess(u8 *ext)
     /* Application layer fields */
 	case 43:	/* Vendor specific info - Not yet supported	*/
 		/*
-                 * Binary information to exchange specific
-                 * product information.
+		 * Binary information to exchange specific
+		 * product information.
 		 */
 		break;
     /* Reserved (custom) fields (128..254) */
@@ -283,7 +283,7 @@ static void BootpVendorProcess(u8 *ext, int size)
     }
 
     if (NetOurNISDomain[0]) {
-        printf("NetOurNISDomain : %s\n", NetOurNISDomain);
+	printf("NetOurNISDomain : %s\n", NetOurNISDomain);
     }
 
     if (NetBootFileSize) {
@@ -381,7 +381,7 @@ static int DhcpExtended(u8 *e, int message_type, IPaddr_t ServerID, IPaddr_t Req
     *e++ = (576-312+OPT_SIZE) & 0xff;
 
     if ( ServerID ) {
-    	    int tmp = ntohl(ServerID);
+	    int tmp = ntohl(ServerID);
 
 	    *e++ = 54;	/* ServerID */
 	    *e++ = 4;
@@ -392,7 +392,7 @@ static int DhcpExtended(u8 *e, int message_type, IPaddr_t ServerID, IPaddr_t Req
     }
 
     if ( RequestedIP ) {
-    	    int tmp = ntohl(RequestedIP);
+	    int tmp = ntohl(RequestedIP);
 
 	    *e++ = 50;	/* Requested IP */
 	    *e++ = 4;
@@ -404,7 +404,7 @@ static int DhcpExtended(u8 *e, int message_type, IPaddr_t ServerID, IPaddr_t Req
 
 #if (CONFIG_BOOTP_MASK & CONFIG_BOOTP_VENDOREX)
     if ((x = dhcp_vendorex_prep (e)))
-    	return x - start ;
+	return x - start ;
 #endif
 
     *e++ = 55;		/* Parameter Request List */
@@ -590,7 +590,7 @@ BootpRequest (void)
 		sum = seed1 + seed2;
 		if (sum < seed1 || sum < seed2)
 			sum++;
-	        seed2 = seed1;
+		seed2 = seed1;
 		seed1 = sum;
 
 		if (BootpTry<=2) {	/* Start with max 1024 * 1ms */
@@ -722,7 +722,7 @@ static void DhcpOptionsProcess(uchar *popt)
 			default:
 #if (CONFIG_BOOTP_MASK & CONFIG_BOOTP_VENDOREX)
 			    if (dhcp_vendorex_proc(popt))
-        			break;
+				break;
 #endif
 				printf("*** Unhandled DHCP Option in OFFER/ACK: %d\n",
 					*popt);

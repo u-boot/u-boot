@@ -1,3 +1,4 @@
+
 #
 # (C) Copyright 2003
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -29,7 +30,7 @@ OBJS	= $(BOARD).o flash.o sconsole.o
 SOBJS	= memsetup.o
 
 $(LIB):	.depend $(OBJS) $(SOBJS)
-	$(AR) crv $@ $^
+	$(AR) crv $@ $(OBJS)
 
 #########################################################################
 

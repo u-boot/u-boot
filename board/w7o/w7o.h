@@ -90,4 +90,3 @@ extern int temp_uart_init(void);
 extern void init_fsboot(void);
 
 #endif /* _W7O_H_ */
-

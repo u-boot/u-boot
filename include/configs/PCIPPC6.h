@@ -278,6 +278,4 @@
 #define CONFIG_MAC_PARTITION
 #define CONFIG_ISO_PARTITION
 
-
-
 #endif	/* __CONFIG_H */

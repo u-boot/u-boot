@@ -104,5 +104,3 @@ int   test_part_amiga (block_dev_desc_t *dev_desc);
 #endif
 
 #endif /* _PART_H */
-
-

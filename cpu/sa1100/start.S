@@ -26,7 +26,6 @@
  */
 
 
-
 #include <config.h>
 #include <version.h>
 
@@ -240,8 +239,6 @@ cpu_init_crit:
 	mcr	p15, 0, r0, c8, c7, 0	/* flush v4 TLB */
 
 	mov	pc, lr
-
-
 
 
 /*

@@ -71,9 +71,9 @@ typedef enum _dma_snoop_mode
  *  This function must be called before DMA unit can be used.
  */
 extern DMA_Status DMA_Initialize(
-        int (*app_print_function)(char *,...)); /* pointer to optional "printf"
-                                                 * provided by application
-                                                 */
+	int (*app_print_function)(char *,...)); /* pointer to optional "printf"
+						 * provided by application
+						 */
 
 /* Perform the DMA transfer, only direct mode is currently implemented.
  * At this point, I think it would be better to define a different
@@ -91,10 +91,10 @@ extern DMA_Status DMA_Initialize(
  * snoop is the snoop enable control
  */
 extern DMA_Status DMA_direct_transfer( DMA_INTERRUPT_STEER int_steer,
-                                       DMA_TRANSFER_TYPE type,
-                                       unsigned int source,
-                                       unsigned int dest,
-                                       unsigned int len,
-                                       DMA_CHANNEL channel,
-                                       DMA_SNOOP_MODE snoop);
+				       DMA_TRANSFER_TYPE type,
+				       unsigned int source,
+				       unsigned int dest,
+				       unsigned int len,
+				       DMA_CHANNEL channel,
+				       DMA_SNOOP_MODE snoop);
 #endif

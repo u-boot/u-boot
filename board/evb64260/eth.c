@@ -117,12 +117,12 @@ static void gt6426x_handle_SMI(struct eth_dev_s *p, unsigned int icr)
     printf("SMI interrupt: ");
 
     if(icr&0x20000000) {
-    	printf("SMI done\n");
+	printf("SMI done\n");
     }
 #endif
 
     if(icr&0x10000000) {
-        unsigned int psr;
+	unsigned int psr;
 	psr=GTREGREAD(ETHERNET0_PORT_STATUS_REGISTER + p->reg_base);
 #ifdef DEBUG
 	printf("PHY state change:\n"
@@ -134,7 +134,7 @@ static void gt6426x_handle_SMI(struct eth_dev_s *p, unsigned int icr)
 
 #ifdef CONFIG_INTEL_LXT97X /* non-standard mii reg (intel lxt972a) */
 	{
-        unsigned short mii_11;
+	unsigned short mii_11;
 	mii_11=miiphy_read_ret(ether_port_phy_addr[p->dev],0x11);
 
 	printf(" mii:%s:%s:%s:%s %s:%s %s\n",
@@ -381,7 +381,7 @@ static void
 gt6426x_dump_mii(bd_t *bis, unsigned short phy)
 {
 	printf("mii reg 0 - 3:   %04x %04x %04x %04x\n",
- 		miiphy_read_ret(phy, 0x0),
+		miiphy_read_ret(phy, 0x0),
 		miiphy_read_ret(phy, 0x1),
 		miiphy_read_ret(phy, 0x2),
 		miiphy_read_ret(phy, 0x3)

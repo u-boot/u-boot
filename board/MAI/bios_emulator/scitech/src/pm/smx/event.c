@@ -98,8 +98,8 @@ Adds a new mouse event to the event queue. This routine is called from within
 the mouse interrupt subroutine, so it must be efficient.
 
 NOTE:   Interrupts MUST be OFF while this routine is called to ensure we have
-        mutually exclusive access to our internal data structures for
-        interrupt driven systems (like under DOS).
+	mutually exclusive access to our internal data structures for
+	interrupt driven systems (like under DOS).
 ****************************************************************************/
 static void addMouseEvent(
     uint what,
@@ -113,18 +113,18 @@ static void addMouseEvent(
     event_t evt;
 
     if (EVT.count < EVENTQSIZE) {
-        /* Save information in event record. */
-        evt.when = _EVT_getTicks();
-        evt.what = what;
-        evt.message = message;
-        evt.modifiers = but_stat;
-        evt.where_x = x;                /* Save mouse event position    */
-        evt.where_y = y;
-        evt.relative_x = mickeyX;
-        evt.relative_y = mickeyY;
-        evt.modifiers |= EVT.keyModifiers;
-        addEvent(&evt);                 /* Add to tail of event queue   */
-        }
+	/* Save information in event record. */
+	evt.when = _EVT_getTicks();
+	evt.what = what;
+	evt.message = message;
+	evt.modifiers = but_stat;
+	evt.where_x = x;                /* Save mouse event position    */
+	evt.where_y = y;
+	evt.relative_x = mickeyX;
+	evt.relative_y = mickeyY;
+	evt.modifiers |= EVT.keyModifiers;
+	addEvent(&evt);                 /* Add to tail of event queue   */
+	}
 }
 
 /****************************************************************************
@@ -140,8 +140,8 @@ and we call the addMouseEvent() routine to add the appropriate mouse event
 to the event queue.
 
 Note: Interrupts are ON when this routine is called by the mouse driver code.
-//AM: NOTE: This function has not actually been ported from DOS yet and should not
-//AM: be installed until it is.
+/*AM: NOTE: This function has not actually been ported from DOS yet and should not */
+/*AM: be installed until it is. */
 ****************************************************************************/
 static void EVTAPI mouseISR(
     uint mask,
@@ -155,39 +155,39 @@ static void EVTAPI mouseISR(
     uint    ps;
 
     if (mask & 1) {
-        /* Save the current mouse coordinates */
-        EVT.mx = x; EVT.my = y;
+	/* Save the current mouse coordinates */
+	EVT.mx = x; EVT.my = y;
 
-        /* If the last event was a movement event, then modify the last
-         * event rather than post a new one, so that the queue will not
-         * become saturated. Before we modify the data structures, we
-         * MUST ensure that interrupts are off.
-         */
-        ps = _EVT_disableInt();
-        if (EVT.oldMove != -1) {
-            EVT.evtq[EVT.oldMove].where_x = x;          /* Modify existing one  */
-            EVT.evtq[EVT.oldMove].where_y = y;
-            EVT.evtq[EVT.oldMove].relative_x += mickeyX;
-            EVT.evtq[EVT.oldMove].relative_y += mickeyY;
-            }
-        else {
-            EVT.oldMove = EVT.freeHead;         /* Save id of this move event   */
-            addMouseEvent(EVT_MOUSEMOVE,0,x,y,mickeyX,mickeyY,butstate);
-            }
-        _EVT_restoreInt(ps);
-        }
+	/* If the last event was a movement event, then modify the last
+	 * event rather than post a new one, so that the queue will not
+	 * become saturated. Before we modify the data structures, we
+	 * MUST ensure that interrupts are off.
+	 */
+	ps = _EVT_disableInt();
+	if (EVT.oldMove != -1) {
+	    EVT.evtq[EVT.oldMove].where_x = x;          /* Modify existing one  */
+	    EVT.evtq[EVT.oldMove].where_y = y;
+	    EVT.evtq[EVT.oldMove].relative_x += mickeyX;
+	    EVT.evtq[EVT.oldMove].relative_y += mickeyY;
+	    }
+	else {
+	    EVT.oldMove = EVT.freeHead;         /* Save id of this move event   */
+	    addMouseEvent(EVT_MOUSEMOVE,0,x,y,mickeyX,mickeyY,butstate);
+	    }
+	_EVT_restoreInt(ps);
+	}
     if (mask & 0x2A) {
-        ps = _EVT_disableInt();
-        addMouseEvent(EVT_MOUSEDOWN,mask >> 1,x,y,0,0,butstate);
-        EVT.oldMove = -1;
-        _EVT_restoreInt(ps);
-        }
+	ps = _EVT_disableInt();
+	addMouseEvent(EVT_MOUSEDOWN,mask >> 1,x,y,0,0,butstate);
+	EVT.oldMove = -1;
+	_EVT_restoreInt(ps);
+	}
     if (mask & 0x54) {
-        ps = _EVT_disableInt();
-        addMouseEvent(EVT_MOUSEUP,mask >> 2,x,y,0,0,butstate);
-        EVT.oldMove = -1;
-        _EVT_restoreInt(ps);
-        }
+	ps = _EVT_disableInt();
+	addMouseEvent(EVT_MOUSEUP,mask >> 2,x,y,0,0,butstate);
+	EVT.oldMove = -1;
+	_EVT_restoreInt(ps);
+	}
     EVT.oldKey = -1;
 }
 
@@ -196,7 +196,7 @@ REMARKS:
 Keyboard interrupt handler function.
 
 NOTE:   Interrupts are OFF when this routine is called by the keyboard ISR,
-        and we leave them OFF the entire time. This has been modified to work
+	and we leave them OFF the entire time. This has been modified to work
       in conjunction with smx keyboard handler.
 ****************************************************************************/
 static void EVTAPI keyboardISR(void)
@@ -252,51 +252,51 @@ void EVTAPI EVT_resume(void)
     PM_lockHandle   lh;
 
     if (_EVT_useEvents) {
-        /* Initialise the event queue and enable our interrupt handlers */
-        initEventQueue();
-        PM_setKeyHandler(keyboardISR);
-        if ((haveMouse = detectMouse()) != 0)
-            PM_setMouseHandler(0xFFFF,mouseISR);
+	/* Initialise the event queue and enable our interrupt handlers */
+	initEventQueue();
+	PM_setKeyHandler(keyboardISR);
+	if ((haveMouse = detectMouse()) != 0)
+	    PM_setMouseHandler(0xFFFF,mouseISR);
 
-        /* Read the keyboard modifier flags from the BIOS to get the
-         * correct initialisation state. The only state we care about is
-         * the correct toggle state flags such as SCROLLLOCK, NUMLOCK and
-         * CAPSLOCK.
-         */
-        EVT.keyModifiers = 0;
-        mods = PM_getByte(_EVT_biosPtr+0x17);
-        if (mods & 0x10)
-            EVT.keyModifiers |= EVT_SCROLLLOCK;
-        if (mods & 0x20)
-            EVT.keyModifiers |= EVT_NUMLOCK;
-        if (mods & 0x40)
-            EVT.keyModifiers |= EVT_CAPSLOCK;
+	/* Read the keyboard modifier flags from the BIOS to get the
+	 * correct initialisation state. The only state we care about is
+	 * the correct toggle state flags such as SCROLLLOCK, NUMLOCK and
+	 * CAPSLOCK.
+	 */
+	EVT.keyModifiers = 0;
+	mods = PM_getByte(_EVT_biosPtr+0x17);
+	if (mods & 0x10)
+	    EVT.keyModifiers |= EVT_SCROLLLOCK;
+	if (mods & 0x20)
+	    EVT.keyModifiers |= EVT_NUMLOCK;
+	if (mods & 0x40)
+	    EVT.keyModifiers |= EVT_CAPSLOCK;
 
-        /* Lock all of the code and data used by our protected mode interrupt
-         * handling routines, so that it will continue to work correctly
-         * under real mode.
-         */
-        if (!locked) {
-            /* It is difficult to ensure that we lock our global data, so we
-             * do this by taking the address of a variable locking all data
-             * 2Kb on either side. This should properly cover the global data
-             * used by the module (the other alternative is to declare the
-             * variables in assembler, in which case we know it will be
-             * correct).
-             */
-            stat  = !PM_lockDataPages(&EVT,sizeof(EVT),&lh);
-            stat |= !PM_lockDataPages(&_EVT_biosPtr,sizeof(_EVT_biosPtr),&lh);
-            stat |= !PM_lockCodePages((__codePtr)_EVT_cCodeStart,(int)_EVT_cCodeEnd-(int)_EVT_cCodeStart,&lh);
-            stat |= !PM_lockCodePages((__codePtr)_EVT_codeStart,(int)_EVT_codeEnd-(int)_EVT_codeStart,&lh);
-            if (stat) {
-                PM_fatalError("Page locking services failed - interrupt handling not safe!");
-                exit(1);
-                }
-            locked = 1;
-            }
+	/* Lock all of the code and data used by our protected mode interrupt
+	 * handling routines, so that it will continue to work correctly
+	 * under real mode.
+	 */
+	if (!locked) {
+	    /* It is difficult to ensure that we lock our global data, so we
+	     * do this by taking the address of a variable locking all data
+	     * 2Kb on either side. This should properly cover the global data
+	     * used by the module (the other alternative is to declare the
+	     * variables in assembler, in which case we know it will be
+	     * correct).
+	     */
+	    stat  = !PM_lockDataPages(&EVT,sizeof(EVT),&lh);
+	    stat |= !PM_lockDataPages(&_EVT_biosPtr,sizeof(_EVT_biosPtr),&lh);
+	    stat |= !PM_lockCodePages((__codePtr)_EVT_cCodeStart,(int)_EVT_cCodeEnd-(int)_EVT_cCodeStart,&lh);
+	    stat |= !PM_lockCodePages((__codePtr)_EVT_codeStart,(int)_EVT_codeEnd-(int)_EVT_codeStart,&lh);
+	    if (stat) {
+		PM_fatalError("Page locking services failed - interrupt handling not safe!");
+		exit(1);
+		}
+	    locked = 1;
+	    }
 
-        _EVT_installed = true;
-        }
+	_EVT_installed = true;
+	}
 }
 
 /****************************************************************************
@@ -310,9 +310,9 @@ void EVTAPI EVT_setMouseRange(
     int yRes)
 {
     if (haveMouse) {
-        ps2MouseStop();
-        ps2MouseStart( 0, xRes, 0, yRes, -1, -1, -1);
-        }
+	ps2MouseStop();
+	ps2MouseStart( 0, xRes, 0, yRes, -1, -1, -1);
+	}
 }
 
 /****************************************************************************
@@ -325,7 +325,7 @@ void _EVT_setMousePos(
     int *y)
 {
     if (haveMouse)
-        ps2MouseMove(*x, *y);
+	ps2MouseMove(*x, *y);
 }
 
 /****************************************************************************
@@ -338,24 +338,24 @@ void EVTAPI EVT_suspend(void)
     uchar   mods;
 
     if (_EVT_installed) {
-        PM_restoreKeyHandler();
+	PM_restoreKeyHandler();
     if (haveMouse)
-        PM_restoreMouseHandler();
+	PM_restoreMouseHandler();
 
-        /* Set the keyboard modifier flags in the BIOS to our values */
-        EVT_allowLEDS(true);
-        mods = PM_getByte(_EVT_biosPtr+0x17) & ~0x70;
-        if (EVT.keyModifiers & EVT_SCROLLLOCK)
-            mods |= 0x10;
-        if (EVT.keyModifiers & EVT_NUMLOCK)
-            mods |= 0x20;
-        if (EVT.keyModifiers & EVT_CAPSLOCK)
-            mods |= 0x40;
-        PM_setByte(_EVT_biosPtr+0x17,mods);
+	/* Set the keyboard modifier flags in the BIOS to our values */
+	EVT_allowLEDS(true);
+	mods = PM_getByte(_EVT_biosPtr+0x17) & ~0x70;
+	if (EVT.keyModifiers & EVT_SCROLLLOCK)
+	    mods |= 0x10;
+	if (EVT.keyModifiers & EVT_NUMLOCK)
+	    mods |= 0x20;
+	if (EVT.keyModifiers & EVT_CAPSLOCK)
+	    mods |= 0x40;
+	PM_setByte(_EVT_biosPtr+0x17,mods);
 
-        /* Flag that we are no longer installed */
-        _EVT_installed = false;
-        }
+	/* Flag that we are no longer installed */
+	_EVT_installed = false;
+	}
 }
 
 /****************************************************************************

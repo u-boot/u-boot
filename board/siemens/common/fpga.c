@@ -26,8 +26,6 @@
 #include <command.h>
 #include <linux/ctype.h>
 #include <common.h>
-#include <cmd_boot.h>
-#include <cmd_bsp.h>
 
 #include "fpga.h"
 
@@ -146,7 +144,7 @@ static int fpga_load (fpga_t* fpga, ulong addr, int checkall)
 
     if (hdr.ih_magic != IH_MAGIC) {
 	strcpy (msg, "Bad Image Magic Number");
-        goto failure;
+	goto failure;
     }
 
     len  = sizeof(image_header_t);
@@ -292,6 +290,14 @@ int do_fpga (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
     printf ("Usage:\n%s\n", cmdtp->usage);
     return 1;
 }
+
+cmd_tbl_t U_BOOT_CMD(fpga) = MK_CMD_ENTRY(
+	"fpga",	4,	1,	do_fpga,
+	"fpga    - access FPGA(s)\n",
+	"fpga status [name] - print FPGA status\n"
+	"fpga reset  [name] - reset FPGA\n"
+	"fpga load [name] addr - load FPGA configuration data\n"
+);
 
 #endif	/* CONFIG_COMMANDS & CFG_CMD_BSP */
 

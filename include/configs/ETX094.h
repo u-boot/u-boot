@@ -282,7 +282,7 @@
 
 /* FLASH timing: ACS = 11, TRLX = 1, CSNT = 0, SCY = 2, EHTR = 0	*/
 #define CFG_OR_TIMING_FLASH    (OR_ACS_DIV2 | OR_BI | \
-                               OR_SCY_2_CLK | OR_TRLX )
+			       OR_SCY_2_CLK | OR_TRLX )
 
 #define CFG_OR0_REMAP	(CFG_REMAP_OR_AM  | CFG_OR_TIMING_FLASH)
 #define CFG_OR0_PRELIM	(CFG_PRELIM_OR_AM | CFG_OR_TIMING_FLASH)

@@ -33,14 +33,14 @@ COBJS	= $(BOARD).o articiaS.o flash.o serial.o smbus.o articiaS_pci.o \
 
 AOBJS	= board_asm_init.o memio.o
 
-OBJS	= $(COBJS) $(AOBJS) 
+OBJS	= $(COBJS) $(AOBJS)
 
 EMUDIR  = ../bios_emulator/scitech/src/x86emu/
 EMUOBJ  = $(EMUDIR)decode.o $(EMUDIR)ops2.o $(EMUDIR)fpu.o $(EMUDIR)prim_ops.o \
 		$(EMUDIR)ops.o $(EMUDIR)sys.o
 EMUSRC = $(EMUOBJ:.o=.c)
 
-$(LIB):	.depend $(OBJS) $(EMUSRC) 
+$(LIB):	.depend $(OBJS) $(EMUSRC)
 	make libx86emu.a -C ../bios_emulator/scitech/src/x86emu -f makefile.uboot CROSS_COMPILE=$(CROSS_COMPILE)
 	-rm $(LIB)
 	$(AR) crv $@ $(OBJS) $(EMUOBJ)

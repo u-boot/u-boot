@@ -180,7 +180,7 @@ void upmconfig (uint upm, uint * table, uint size)
 /* ------------------------------------------------------------------------- */
 
 int
-do_reset (cmd_tbl_t * cmdtp, bd_t * bd, int flag, int argc, char *argv[])
+do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	ulong msr, addr;
 

@@ -116,12 +116,12 @@
 #define CONFIG_BR0_WORKAROUND   1
 
 #define CONFIG_COMMANDS	     ( CONFIG_CMD_DFL  | \
-                               CFG_CMD_DATE    | \
-                               CFG_CMD_EEPROM  | \
-                               CFG_CMD_ELF     | \
-                               CFG_CMD_I2C     | \
-                               CFG_CMD_JFFS2   | \
-                               CFG_CMD_REGINFO )
+			       CFG_CMD_DATE    | \
+			       CFG_CMD_EEPROM  | \
+			       CFG_CMD_ELF     | \
+			       CFG_CMD_I2C     | \
+			       CFG_CMD_JFFS2   | \
+			       CFG_CMD_REGINFO )
 
 #define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | CONFIG_BOOTP_BOOTFILESIZE)
 
@@ -225,7 +225,7 @@
 			 SYPCR_SWE  | SYPCR_SWRI| SYPCR_SWP)
 #else
 #define CFG_SYPCR	(SYPCR_SWTC | SYPCR_BMT | SYPCR_BME | SYPCR_SWF | \
-                         SYPCR_SWP)
+			 SYPCR_SWP)
 #endif
 
 /*-----------------------------------------------------------------------
@@ -265,7 +265,7 @@
 #define MPC8XX_XIN   	5000000L      /* ref clk */
 #define MPC8XX_FACT	(MPC8XX_SPEED/MPC8XX_XIN)
 #define CFG_PLPRCR	(((MPC8XX_FACT-1) << PLPRCR_MF_SHIFT) | \
-                        PLPRCR_SPLSS | PLPRCR_TEXPS | PLPRCR_TMIST)
+			PLPRCR_SPLSS | PLPRCR_TEXPS | PLPRCR_TMIST)
 
 /*-----------------------------------------------------------------------
  * SCCR - System Clock and reset Control Register		15-27

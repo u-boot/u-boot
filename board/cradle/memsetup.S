@@ -170,8 +170,8 @@ memsetup:
    SET_LED 2
 
 mem_init:
-        @ get memory controller base address
-        ldr     r1,  =MEMC_BASE
+	@ get memory controller base address
+	ldr     r1,  =MEMC_BASE
 
 
 @****************************************************************************

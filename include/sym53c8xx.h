@@ -172,7 +172,7 @@
 	#define   IRQM    0x08  /* mod: irq mode (1 = totem pole !) */
 	#define   STD     0x04  /* cmd: start dma mode              */
 	#define   IRQD    0x02  /* mod: irq disable                 */
- 	#define	  NOCOM   0x01	/* cmd: protect sfbr while reselect */
+	#define	  NOCOM   0x01	/* cmd: protect sfbr while reselect */
 				/* bits 0-1 rsvd for C1010          */
 
 #define ADDER			0x3c
@@ -229,8 +229,6 @@
 #define SODL			0x54	/* Lowlevel: data out to scsi data  */
 
 #define SBDL			0x58	/* Lowlevel: data from scsi data    */
-
-
 
 
 /*-----------------------------------------------------------
@@ -356,8 +354,6 @@
 #define	SCR_ATN		0x00000008
 
 
-
-
 /*-----------------------------------------------------------
 **
 **	Memory to memory move
@@ -408,13 +404,13 @@
 #define SCR_REG_OFS(ofs) ((((ofs) & 0x7f) << 16ul)) /* + ((ofs) & 0x80)) */
 
 #define SCR_SFBR_REG(reg,op,data) \
-        (0x68000000 | (SCR_REG_OFS(REG(reg))) | (op) | (((data)&0xff)<<8ul))
+	(0x68000000 | (SCR_REG_OFS(REG(reg))) | (op) | (((data)&0xff)<<8ul))
 
 #define SCR_REG_SFBR(reg,op,data) \
-        (0x70000000 | (SCR_REG_OFS(REG(reg))) | (op) | (((data)&0xff)<<8ul))
+	(0x70000000 | (SCR_REG_OFS(REG(reg))) | (op) | (((data)&0xff)<<8ul))
 
 #define SCR_REG_REG(reg,op,data) \
-        (0x78000000 | (SCR_REG_OFS(REG(reg))) | (op) | (((data)&0xff)<<8ul))
+	(0x78000000 | (SCR_REG_OFS(REG(reg))) | (op) | (((data)&0xff)<<8ul))
 
 
 #define      SCR_LOAD   0x00000000
@@ -455,7 +451,7 @@
 	SCR_REG_REG(reg,SCR_LOAD,data)
 
 #define SCR_LOAD_SFBR(data) \
-        (SCR_REG_SFBR (gpreg, SCR_LOAD, data))
+	(SCR_REG_SFBR (gpreg, SCR_LOAD, data))
 
 /*-----------------------------------------------------------
 **
@@ -480,10 +476,10 @@
 #define SCR_DSA_REL2	0x10000000
 
 #define SCR_LOAD_R(reg, how, n) \
-        (0xe1000000 | how | (SCR_REG_OFS2(REG(reg))) | (n))
+	(0xe1000000 | how | (SCR_REG_OFS2(REG(reg))) | (n))
 
 #define SCR_STORE_R(reg, how, n) \
-        (0xe0000000 | how | (SCR_REG_OFS2(REG(reg))) | (n))
+	(0xe0000000 | how | (SCR_REG_OFS2(REG(reg))) | (n))
 
 #define SCR_LOAD_ABS(reg, n)	SCR_LOAD_R(reg, SCR_NO_FLUSH2, n)
 #define SCR_LOAD_REL(reg, n)	SCR_LOAD_R(reg, SCR_NO_FLUSH2|SCR_DSA_REL2, n)
@@ -552,7 +548,6 @@
 #define MASK(D,M)      (0x00040000 | (((M ^ 0xff) & 0xff) << 8ul)|((D) & 0xff))
 
 #define CARRYSET       (0x00200000)
-
 
 
 #define SIR_COMPLETE					 0x10000000

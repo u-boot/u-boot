@@ -57,4 +57,11 @@ int do_vpd (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	return 1;
 }
 
+cmd_tbl_t U_BOOT_CMD(vpd) = MK_CMD_ENTRY(
+	  "vpd",	2,	1,	do_vpd,
+	  "vpd     - Read Vital Product Data\n",
+	  "[dev_addr]\n"
+	  "        - Read VPD Data from default address, or device address 'dev_addr'.\n"
+);
+
 #endif /* (CONFIG_COMMANDS & CFG_CMD_BSP) */

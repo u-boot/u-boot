@@ -59,7 +59,6 @@
 #define PCI_IRQ_VECTOR(x)	((PCI_DEV(x) + 10) % 4) + 28
 
 
-
 /* PCI Device List for PIP405 */
 
 /* Mapping:
@@ -191,8 +190,3 @@ static struct pci_config_table pci_pip405_config_table[]={
 	{ }
 };
 #endif /* _PCI_PARTS_H_ */
-
-
-
-
-

@@ -48,7 +48,7 @@
 static void     print_encoded_bytes (u16 s, u16 o);
 static void     print_decoded_instruction (void);
 static int      parse_line (char *s, int *ps, int *n);
-  
+
 /* should look something like debug's output. */
 void X86EMU_trace_regs (void)
 {
@@ -94,11 +94,11 @@ static void disassemble_forward (u16 seg, u16 off, int n)
      * SINGLE_STEP(r,m); which disappear if DEBUG is not defined to
      * the preprocessor.  The TRACE_REGS macro expands to:
      *
-     * if (debug&DEBUG_DISASSEMBLE) 
+     * if (debug&DEBUG_DISASSEMBLE)
      *     {just_disassemble(); goto EndOfInstruction;}
      *     if (debug&DEBUG_TRACE) trace_regs(r,m);
      *
-     * ......  and at the last line of the routine. 
+     * ......  and at the last line of the routine.
      *
      * EndOfInstruction: end_instr();
      *
@@ -112,14 +112,14 @@ static void disassemble_forward (u16 seg, u16 off, int n)
 	tregs = M;
     tregs.x86.R_IP = off;
     tregs.x86.R_CS = seg;
-    
+
     /* reset the decoding buffers */
     tregs.x86.enc_str_pos = 0;
     tregs.x86.enc_pos = 0;
-    
+
     /* turn on the "disassemble only, no execute" flag */
     tregs.x86.debug |= DEBUG_DISASSEMBLE_F;
- 
+
     /* DUMP NEXT n instructions to screen in straight_line fashion */
     /*
      * This looks like the regular instruction fetch stream, except
@@ -210,7 +210,7 @@ void X86EMU_dump_memory (u16 seg, u16 off, u32 amt)
     u32 end  = (off+16) & 0xfffffff0;
     u32 i;
     u32 current;
-    
+
     current = start;
     while (end <= off + amt) {
 	printk("%04x:%04x ", seg, start);
@@ -235,7 +235,7 @@ void x86emu_single_step (void)
     int offset;
     static int breakpoint;
     static int noDecode = 1;
-    
+
     char *p;
 
     if (DEBUG_BREAK()) {
@@ -249,19 +249,19 @@ void x86emu_single_step (void)
 	    X86EMU_trace_regs();
 	}
     }
-    
+
     done=0;
     offset = M.x86.saved_ip;
     while (!done) {
-        printk("-");
-        //p = fgets(s, 1023, stdin);
+	printk("-");
+	/*p = fgets(s, 1023, stdin); */
 	cons_gets(s);
-        cmd = parse_line(s, ps, &ntok);
-        switch(cmd) {
+	cmd = parse_line(s, ps, &ntok);
+	switch(cmd) {
 	case 'u':
 	    disassemble_forward(M.x86.saved_cs,(u16)offset,10);
-            break;
-	case 'd':  
+	    break;
+	case 'd':
 	    if (ntok == 2) {
 		segment = M.x86.saved_cs;
 		offset = ps[1];
@@ -277,22 +277,22 @@ void x86emu_single_step (void)
 		X86EMU_dump_memory(segment,(u16)offset,16);
 		offset += 16;
 	    }
-            break;
+	    break;
 	case 'c':
 	    M.x86.debug ^= DEBUG_TRACECALL_F;
-            break;
+	    break;
 	case 's':
 	    M.x86.debug ^= DEBUG_SVC_F | DEBUG_SYS_F | DEBUG_SYSINT_F;
-            break;
+	    break;
 	case 'r':
 	    X86EMU_trace_regs();
-            break;
+	    break;
 	case 'x':
 	    X86EMU_trace_xregs();
-            break;
+	    break;
 	case 'g':
-            if (ntok == 2) {
-                breakpoint = ps[1];
+	    if (ntok == 2) {
+		breakpoint = ps[1];
 		printk("breakpoint set to 0x%X\n", breakpoint);
 		if (noDecode) {
 		    M.x86.debug |= DEBUG_DECODE_NOPRINT_F;
@@ -302,8 +302,8 @@ void x86emu_single_step (void)
 		M.x86.debug &= ~DEBUG_TRACE_F;
 		M.x86.debug |= DEBUG_BREAK_F;
 		done = 1;
-            }
-            break;
+	    }
+	    break;
 	case 'q':
 	    M.x86.debug |= DEBUG_EXIT;
 	    return;
@@ -313,9 +313,9 @@ void x86emu_single_step (void)
 	    break;
 	case 't':
 	case 0:
-            done = 1;
-            break;
-        }   
+	    done = 1;
+	    break;
+	}
     }
 }
 
@@ -338,23 +338,23 @@ static int parse_line (char *s, int *ps, int *n)
     ps[*n] = *s;
     switch (*s) {
       case '\n':
-        *n += 1;
-        return 0;
+	*n += 1;
+	return 0;
       default:
-        cmd = *s;
-        *n += 1;
+	cmd = *s;
+	*n += 1;
     }
 
 	while (1) {
 		while (*s != ' ' && *s != '\t' && *s != '\n')  s++;
-		
+
 		if (*s == '\n')
 			return cmd;
-		
+
 		while(*s == ' ' || *s == '\t') s++;
-		
+
 		ps[*n]=atoi(s);
-		//sscanf(s,"%x",&ps[*n]);
+		/*sscanf(s,"%x",&ps[*n]); */
 		*n += 1;
 	}
 }
@@ -405,7 +405,7 @@ void x86emu_dump_regs (void)
 	if (ACCESS_FLAG(F_CF))    printk("CY ");
 	else                        printk("NC ");
 	printk("\n");
-	//x86emu_dump_stack();
+	/*x86emu_dump_stack(); */
 }
 
 void x86emu_dump_xregs (void)

@@ -24,7 +24,6 @@
  */
 
 
-
 #include <config.h>
 #include <version.h>
 
@@ -245,8 +244,6 @@ cpu_init_crit:
 	mov	lr, ip
 
 	mov	pc, lr
-
-
 
 
 /*

@@ -51,7 +51,7 @@ static ibool _EVT_isKeyDown(
     uchar scancode)
 {
     return (KeyState[(scancode & 0xf8) >> 3] & (1 << (scancode & 0x7)) ?
-        true : false);
+	true : false);
 }
 
 /****************************************************************************
@@ -71,100 +71,100 @@ static void _EVT_pumpMessages(void)
     event_t         _evt;
 
     while (count < EVENTQSIZE) {
-        uint    mods = 0, keyp = 0;
+	uint    mods = 0, keyp = 0;
 
-        pid = Creceive(0, &msg, sizeof (msg));
+	pid = Creceive(0, &msg, sizeof (msg));
 
-        if (pid == -1)
-            return;
+	if (pid == -1)
+	    return;
 
-        if (PhEventRead(pid, event, sizeof (evt)) == Ph_EVENT_MSG) {
-            memset(&evt, 0, sizeof (evt));
-            if (event->type == Ph_EV_KEY) {
-                key = PhGetData(event);
+	if (PhEventRead(pid, event, sizeof (evt)) == Ph_EVENT_MSG) {
+	    memset(&evt, 0, sizeof (evt));
+	    if (event->type == Ph_EV_KEY) {
+		key = PhGetData(event);
 
-                if (key->key_flags & KEY_SCAN_VALID) {
-                    keyp = key->key_scan;
-                    if (key->key_flags & KEY_DOWN)
-                        KeyState[(keyp & 0xf800) >> 11]
-                            |= 1 << ((keyp & 0x700) >> 8);
-                    else
-                        KeyState[(keyp & 0xf800) >> 11]
-                            &= ~(1 << ((keyp & 0x700) >> 8));
-                }
-                if ((key->key_flags & KEY_SYM_VALID) || extended)
-                    keyp |= key->key_sym;
+		if (key->key_flags & KEY_SCAN_VALID) {
+		    keyp = key->key_scan;
+		    if (key->key_flags & KEY_DOWN)
+			KeyState[(keyp & 0xf800) >> 11]
+			    |= 1 << ((keyp & 0x700) >> 8);
+		    else
+			KeyState[(keyp & 0xf800) >> 11]
+			    &= ~(1 << ((keyp & 0x700) >> 8));
+		}
+		if ((key->key_flags & KEY_SYM_VALID) || extended)
+		    keyp |= key->key_sym;
 
-                /* No way to tell left from right... */
-                if (key->key_mods & KEYMOD_SHIFT)
-                    mods = (EVT_LEFTSHIFT | EVT_RIGHTSHIFT);
-                if (key->key_mods & KEYMOD_CTRL)
-                    mods |= (EVT_CTRLSTATE | EVT_LEFTCTRL);
-                if (key->key_mods & KEYMOD_ALT)
-                    mods |= (EVT_ALTSTATE | EVT_LEFTALT);
+		/* No way to tell left from right... */
+		if (key->key_mods & KEYMOD_SHIFT)
+		    mods = (EVT_LEFTSHIFT | EVT_RIGHTSHIFT);
+		if (key->key_mods & KEYMOD_CTRL)
+		    mods |= (EVT_CTRLSTATE | EVT_LEFTCTRL);
+		if (key->key_mods & KEYMOD_ALT)
+		    mods |= (EVT_ALTSTATE | EVT_LEFTALT);
 
-                _evt.when = evt->timestamp;
-                if (key->key_flags & KEY_REPEAT) {
-                    _evt.what = EVT_KEYREPEAT;
-                    _evt.message = 0x10000;
-                    }
-                else if (key->key_flags & KEY_DOWN)
-                    _evt.what = EVT_KEYDOWN;
-                else
-                    _evt.what = EVT_KEYUP;
-                _evt.modifiers = mods;
-                _evt.message |= keyp;
+		_evt.when = evt->timestamp;
+		if (key->key_flags & KEY_REPEAT) {
+		    _evt.what = EVT_KEYREPEAT;
+		    _evt.message = 0x10000;
+		    }
+		else if (key->key_flags & KEY_DOWN)
+		    _evt.what = EVT_KEYDOWN;
+		else
+		    _evt.what = EVT_KEYUP;
+		_evt.modifiers = mods;
+		_evt.message |= keyp;
 
-                addEvent(&_evt);
+		addEvent(&_evt);
 
-                switch(key->key_scan & 0xff00) {
-                    case 0xe000:
-                        extended = 1;
-                        break;
-                    case 0xe001:
-                        extended = 2;
-                        break;
-                    default:
-                        if (extended)
-                            extended--;
-                    }
-                }
-            else if (event->type & Ph_EV_PTR_ALL) {
-                but_stat = message = 0;
-                mouse = PhGetData(event);
+		switch(key->key_scan & 0xff00) {
+		    case 0xe000:
+			extended = 1;
+			break;
+		    case 0xe001:
+			extended = 2;
+			break;
+		    default:
+			if (extended)
+			    extended--;
+		    }
+		}
+	    else if (event->type & Ph_EV_PTR_ALL) {
+		but_stat = message = 0;
+		mouse = PhGetData(event);
 
-                if (mouse->button_state & Ph_BUTTON_3)
-                    but_stat = EVT_LEFTBUT;
-                if (mouse->buttons & Ph_BUTTON_3)
-                    message = EVT_LEFTBMASK;
+		if (mouse->button_state & Ph_BUTTON_3)
+		    but_stat = EVT_LEFTBUT;
+		if (mouse->buttons & Ph_BUTTON_3)
+		    message = EVT_LEFTBMASK;
 
-                if (mouse->button_state & Ph_BUTTON_1)
-                    but_stat |= EVT_RIGHTBUT;
-                if (mouse->buttons & Ph_BUTTON_1) 
-                    message |= EVT_RIGHTBMASK;
+		if (mouse->button_state & Ph_BUTTON_1)
+		    but_stat |= EVT_RIGHTBUT;
+		if (mouse->buttons & Ph_BUTTON_1)
+		    message |= EVT_RIGHTBMASK;
 
-                _evt.when = evt->timestamp;
-                if (event->type & Ph_EV_PTR_MOTION) {
-                    _evt.what = EVT_MOUSEMOVE;
-                    _evt.where_x = mouse->pos.x;
-                    _evt.where_y = mouse->pos.y;
-                    _evt.modifiers = but_stat;
-                    addEvent(&_evt);
-                    }
-                if (event->type & Ph_EV_BUT_PRESS)
-                    _evt.what = EVT_MOUSEDOWN;
-                else
-                    _evt.what = EVT_MOUSEUP;
-                _evt.where_x = mouse->pos.x;
-                _evt.where_y = mouse->pos.y;
-                _evt.modifiers = but_stat;
-                _evt.message = message;
-                addEvent(&_evt);
-                }
-            }
-        else
-            return;
-        }
+		_evt.when = evt->timestamp;
+		if (event->type & Ph_EV_PTR_MOTION) {
+		    _evt.what = EVT_MOUSEMOVE;
+		    _evt.where_x = mouse->pos.x;
+		    _evt.where_y = mouse->pos.y;
+		    _evt.modifiers = but_stat;
+		    addEvent(&_evt);
+		    }
+		if (event->type & Ph_EV_BUT_PRESS)
+		    _evt.what = EVT_MOUSEDOWN;
+		else
+		    _evt.what = EVT_MOUSEUP;
+		_evt.where_x = mouse->pos.x;
+		_evt.where_y = mouse->pos.y;
+		_evt.modifiers = but_stat;
+		_evt.message = message;
+		addEvent(&_evt);
+		}
+	    }
+	else
+	    return;
+	}
 }
 
 /****************************************************************************
@@ -230,8 +230,8 @@ void EVTAPI EVT_setMouseRange(
     int xRes,
     int yRes)
 {
-    // TODO: Need to call Input to change the coordinates that it returns
-    //       for mouse events!!
+    /* TODO: Need to call Input to change the coordinates that it returns */
+    /*       for mouse events!! */
 }
 
 /****************************************************************************
@@ -242,7 +242,7 @@ and this function can be used to resume it again later.
 ****************************************************************************/
 void EVT_resume(void)
 {
-    // Do nothing for Photon
+    /* Do nothing for Photon */
 }
 
 /****************************************************************************
@@ -252,7 +252,7 @@ de-install the event handling code.
 ****************************************************************************/
 void EVT_suspend(void)
 {
-    // Do nothing for Photon
+    /* Do nothing for Photon */
 }
 
 /****************************************************************************

@@ -135,7 +135,6 @@
 #endif	/* CONFIG_SOFT_I2C */
 
 
-
 #define CONFIG_COMMANDS	    ( ( CONFIG_CMD_DFL	| \
 				CFG_CMD_DHCP	| \
 				CFG_CMD_I2C	| \

@@ -102,24 +102,24 @@ void x86emuOp_esc_coprocess_d9(u8 X86EMU_UNUSED(op1))
     FETCH_DECODE_MODRM(mod, rh, rl);
 #ifdef DEBUG
     if (mod != 3) {
-        DECODE_PRINTINSTR32(x86emu_fpu_op_d9_tab, mod, rh, rl);
+	DECODE_PRINTINSTR32(x86emu_fpu_op_d9_tab, mod, rh, rl);
     } else {
-        DECODE_PRINTF(x86emu_fpu_op_d9_tab1[(rh << 3) + rl]);
+	DECODE_PRINTF(x86emu_fpu_op_d9_tab1[(rh << 3) + rl]);
     }
 #endif
     switch (mod) {
       case 0:
-        destoffset = decode_rm00_address(rl);
-        DECODE_PRINTF("\n");
-        break;
+	destoffset = decode_rm00_address(rl);
+	DECODE_PRINTF("\n");
+	break;
       case 1:
-        destoffset = decode_rm01_address(rl);
-        DECODE_PRINTF("\n");
-        break;
+	destoffset = decode_rm01_address(rl);
+	DECODE_PRINTF("\n");
+	break;
       case 2:
-        destoffset = decode_rm10_address(rl);
-        DECODE_PRINTF("\n");
-        break;
+	destoffset = decode_rm10_address(rl);
+	DECODE_PRINTF("\n");
+	break;
       case 3:                   /* register to register */
 		stkelem = (u8)rl;
 		if (rh < 4) {
@@ -127,167 +127,167 @@ void x86emuOp_esc_coprocess_d9(u8 X86EMU_UNUSED(op1))
 		} else {
 				DECODE_PRINTF("\n");
 		}
-        break;
+	break;
     }
 #ifdef X86EMU_FPU_PRESENT
     /* execute */
     switch (mod) {
       case 3:
-        switch (rh) {
-          case 0:
-            x86emu_fpu_R_fld(X86EMU_FPU_STKTOP, stkelem);
-            break;
-          case 1:
-            x86emu_fpu_R_fxch(X86EMU_FPU_STKTOP, stkelem);
-            break;
-          case 2:
-            switch (rl) {
-              case 0:
-                x86emu_fpu_R_nop();
-                break;
-              default:
-                x86emu_fpu_illegal();
-                break;
-            }
-          case 3:
-            x86emu_fpu_R_fstp(X86EMU_FPU_STKTOP, stkelem);
-            break;
-          case 4:
-            switch (rl) {
-            case 0:
-                x86emu_fpu_R_fchs(X86EMU_FPU_STKTOP);
-                break;
-            case 1:
-                x86emu_fpu_R_fabs(X86EMU_FPU_STKTOP);
-                break;
-            case 4:
-                x86emu_fpu_R_ftst(X86EMU_FPU_STKTOP);
-                break;
-            case 5:
-                x86emu_fpu_R_fxam(X86EMU_FPU_STKTOP);
-                break;
-            default:
-                /* 2,3,6,7 */
-                x86emu_fpu_illegal();
-                break;
-            }
-            break;
+	switch (rh) {
+	  case 0:
+	    x86emu_fpu_R_fld(X86EMU_FPU_STKTOP, stkelem);
+	    break;
+	  case 1:
+	    x86emu_fpu_R_fxch(X86EMU_FPU_STKTOP, stkelem);
+	    break;
+	  case 2:
+	    switch (rl) {
+	      case 0:
+		x86emu_fpu_R_nop();
+		break;
+	      default:
+		x86emu_fpu_illegal();
+		break;
+	    }
+	  case 3:
+	    x86emu_fpu_R_fstp(X86EMU_FPU_STKTOP, stkelem);
+	    break;
+	  case 4:
+	    switch (rl) {
+	    case 0:
+		x86emu_fpu_R_fchs(X86EMU_FPU_STKTOP);
+		break;
+	    case 1:
+		x86emu_fpu_R_fabs(X86EMU_FPU_STKTOP);
+		break;
+	    case 4:
+		x86emu_fpu_R_ftst(X86EMU_FPU_STKTOP);
+		break;
+	    case 5:
+		x86emu_fpu_R_fxam(X86EMU_FPU_STKTOP);
+		break;
+	    default:
+		/* 2,3,6,7 */
+		x86emu_fpu_illegal();
+		break;
+	    }
+	    break;
 
-          case 5:
-            switch (rl) {
-              case 0:
-                x86emu_fpu_R_fld1(X86EMU_FPU_STKTOP);
-                break;
-              case 1:
-                x86emu_fpu_R_fldl2t(X86EMU_FPU_STKTOP);
-                break;
-              case 2:
-                x86emu_fpu_R_fldl2e(X86EMU_FPU_STKTOP);
-                break;
-              case 3:
-                x86emu_fpu_R_fldpi(X86EMU_FPU_STKTOP);
-                break;
-              case 4:
-                x86emu_fpu_R_fldlg2(X86EMU_FPU_STKTOP);
-                break;
-              case 5:
-                x86emu_fpu_R_fldln2(X86EMU_FPU_STKTOP);
-                break;
-              case 6:
-                x86emu_fpu_R_fldz(X86EMU_FPU_STKTOP);
-                break;
-              default:
-                /* 7 */
-                x86emu_fpu_illegal();
-                break;
-            }
-            break;
+	  case 5:
+	    switch (rl) {
+	      case 0:
+		x86emu_fpu_R_fld1(X86EMU_FPU_STKTOP);
+		break;
+	      case 1:
+		x86emu_fpu_R_fldl2t(X86EMU_FPU_STKTOP);
+		break;
+	      case 2:
+		x86emu_fpu_R_fldl2e(X86EMU_FPU_STKTOP);
+		break;
+	      case 3:
+		x86emu_fpu_R_fldpi(X86EMU_FPU_STKTOP);
+		break;
+	      case 4:
+		x86emu_fpu_R_fldlg2(X86EMU_FPU_STKTOP);
+		break;
+	      case 5:
+		x86emu_fpu_R_fldln2(X86EMU_FPU_STKTOP);
+		break;
+	      case 6:
+		x86emu_fpu_R_fldz(X86EMU_FPU_STKTOP);
+		break;
+	      default:
+		/* 7 */
+		x86emu_fpu_illegal();
+		break;
+	    }
+	    break;
 
-          case 6:
-            switch (rl) {
-              case 0:
-                x86emu_fpu_R_f2xm1(X86EMU_FPU_STKTOP);
-                break;
-              case 1:
-                x86emu_fpu_R_fyl2x(X86EMU_FPU_STKTOP);
-                break;
-              case 2:
-                x86emu_fpu_R_fptan(X86EMU_FPU_STKTOP);
-                break;
-              case 3:
-                x86emu_fpu_R_fpatan(X86EMU_FPU_STKTOP);
-                break;
-              case 4:
-                x86emu_fpu_R_fxtract(X86EMU_FPU_STKTOP);
-                break;
-              case 5:
-                x86emu_fpu_illegal();
-                break;
-              case 6:
-                x86emu_fpu_R_decstp();
-                break;
-              case 7:
-                x86emu_fpu_R_incstp();
-                break;
-            }
-            break;
+	  case 6:
+	    switch (rl) {
+	      case 0:
+		x86emu_fpu_R_f2xm1(X86EMU_FPU_STKTOP);
+		break;
+	      case 1:
+		x86emu_fpu_R_fyl2x(X86EMU_FPU_STKTOP);
+		break;
+	      case 2:
+		x86emu_fpu_R_fptan(X86EMU_FPU_STKTOP);
+		break;
+	      case 3:
+		x86emu_fpu_R_fpatan(X86EMU_FPU_STKTOP);
+		break;
+	      case 4:
+		x86emu_fpu_R_fxtract(X86EMU_FPU_STKTOP);
+		break;
+	      case 5:
+		x86emu_fpu_illegal();
+		break;
+	      case 6:
+		x86emu_fpu_R_decstp();
+		break;
+	      case 7:
+		x86emu_fpu_R_incstp();
+		break;
+	    }
+	    break;
 
-          case 7:
-            switch (rl) {
-              case 0:
-                x86emu_fpu_R_fprem(X86EMU_FPU_STKTOP);
-                break;
-              case 1:
-                x86emu_fpu_R_fyl2xp1(X86EMU_FPU_STKTOP);
-                break;
-              case 2:
-                x86emu_fpu_R_fsqrt(X86EMU_FPU_STKTOP);
-                break;
-              case 3:
-                x86emu_fpu_illegal();
-                break;
-              case 4:
-                x86emu_fpu_R_frndint(X86EMU_FPU_STKTOP);
-                break;
-              case 5:
-                x86emu_fpu_R_fscale(X86EMU_FPU_STKTOP);
-                break;
-              case 6:
-              case 7:
-              default:
-                x86emu_fpu_illegal();
-                break;
-            }
-            break;
+	  case 7:
+	    switch (rl) {
+	      case 0:
+		x86emu_fpu_R_fprem(X86EMU_FPU_STKTOP);
+		break;
+	      case 1:
+		x86emu_fpu_R_fyl2xp1(X86EMU_FPU_STKTOP);
+		break;
+	      case 2:
+		x86emu_fpu_R_fsqrt(X86EMU_FPU_STKTOP);
+		break;
+	      case 3:
+		x86emu_fpu_illegal();
+		break;
+	      case 4:
+		x86emu_fpu_R_frndint(X86EMU_FPU_STKTOP);
+		break;
+	      case 5:
+		x86emu_fpu_R_fscale(X86EMU_FPU_STKTOP);
+		break;
+	      case 6:
+	      case 7:
+	      default:
+		x86emu_fpu_illegal();
+		break;
+	    }
+	    break;
 
-          default:
-            switch (rh) {
-              case 0:
-                x86emu_fpu_M_fld(X86EMU_FPU_FLOAT, destoffset);
-                break;
-              case 1:
-                x86emu_fpu_illegal();
-                break;
-              case 2:
-                x86emu_fpu_M_fst(X86EMU_FPU_FLOAT, destoffset);
-                break;
-              case 3:
-                x86emu_fpu_M_fstp(X86EMU_FPU_FLOAT, destoffset);
-                break;
-              case 4:
-                x86emu_fpu_M_fldenv(X86EMU_FPU_WORD, destoffset);
-                break;
-              case 5:
-                x86emu_fpu_M_fldcw(X86EMU_FPU_WORD, destoffset);
-                break;
-              case 6:
-                x86emu_fpu_M_fstenv(X86EMU_FPU_WORD, destoffset);
-                break;
-              case 7:
-                x86emu_fpu_M_fstcw(X86EMU_FPU_WORD, destoffset);
-                break;
-            }
-        }
+	  default:
+	    switch (rh) {
+	      case 0:
+		x86emu_fpu_M_fld(X86EMU_FPU_FLOAT, destoffset);
+		break;
+	      case 1:
+		x86emu_fpu_illegal();
+		break;
+	      case 2:
+		x86emu_fpu_M_fst(X86EMU_FPU_FLOAT, destoffset);
+		break;
+	      case 3:
+		x86emu_fpu_M_fstp(X86EMU_FPU_FLOAT, destoffset);
+		break;
+	      case 4:
+		x86emu_fpu_M_fldenv(X86EMU_FPU_WORD, destoffset);
+		break;
+	      case 5:
+		x86emu_fpu_M_fldcw(X86EMU_FPU_WORD, destoffset);
+		break;
+	      case 6:
+		x86emu_fpu_M_fstenv(X86EMU_FPU_WORD, destoffset);
+		break;
+	      case 7:
+		x86emu_fpu_M_fstcw(X86EMU_FPU_WORD, destoffset);
+		break;
+	    }
+	}
     }
 #endif /* X86EMU_FPU_PRESENT */
     DECODE_CLEAR_SEGOVR();
@@ -306,7 +306,7 @@ char *x86emu_fpu_op_da_tab[] = {
     "FICOMP\tDWORD PTR ",
     "FISUB\tDWORD PTR ", "FISUBR\tDWORD PTR ", "FIDIV\tDWORD PTR ",
     "FIDIVR\tDWORD PTR ",
-    
+
     "FIADD\tDWORD PTR ", "FIMUL\tDWORD PTR ", "FICOM\tDWORD PTR ",
     "FICOMP\tDWORD PTR ",
     "FISUB\tDWORD PTR ", "FISUBR\tDWORD PTR ", "FIDIV\tDWORD PTR ",
@@ -330,54 +330,54 @@ void x86emuOp_esc_coprocess_da(u8 X86EMU_UNUSED(op1))
     DECODE_PRINTINSTR32(x86emu_fpu_op_da_tab, mod, rh, rl);
     switch (mod) {
       case 0:
-        destoffset = decode_rm00_address(rl);
-        DECODE_PRINTF("\n");
-        break;
+	destoffset = decode_rm00_address(rl);
+	DECODE_PRINTF("\n");
+	break;
       case 1:
-        destoffset = decode_rm01_address(rl);
-        DECODE_PRINTF("\n");
-        break;
+	destoffset = decode_rm01_address(rl);
+	DECODE_PRINTF("\n");
+	break;
       case 2:
-        destoffset = decode_rm10_address(rl);
-        DECODE_PRINTF("\n");
-        break;
+	destoffset = decode_rm10_address(rl);
+	DECODE_PRINTF("\n");
+	break;
       case 3:           /* register to register */
 		stkelem = (u8)rl;
-        DECODE_PRINTF2("\tST(%d),ST\n", stkelem);
-        break;
+	DECODE_PRINTF2("\tST(%d),ST\n", stkelem);
+	break;
     }
 #ifdef X86EMU_FPU_PRESENT
     switch (mod) {
       case 3:
-        x86emu_fpu_illegal();
-        break;
+	x86emu_fpu_illegal();
+	break;
       default:
-        switch (rh) {
-          case 0:
-            x86emu_fpu_M_iadd(X86EMU_FPU_SHORT, destoffset);
-            break;
-          case 1:
-            x86emu_fpu_M_imul(X86EMU_FPU_SHORT, destoffset);
-            break;
-          case 2:
-            x86emu_fpu_M_icom(X86EMU_FPU_SHORT, destoffset);
-            break;
-          case 3:
-            x86emu_fpu_M_icomp(X86EMU_FPU_SHORT, destoffset);
-            break;
-          case 4:
-            x86emu_fpu_M_isub(X86EMU_FPU_SHORT, destoffset);
-            break;
-          case 5:
-            x86emu_fpu_M_isubr(X86EMU_FPU_SHORT, destoffset);
-            break;
-          case 6:
-            x86emu_fpu_M_idiv(X86EMU_FPU_SHORT, destoffset);
-            break;
-          case 7:
-            x86emu_fpu_M_idivr(X86EMU_FPU_SHORT, destoffset);
-            break;
-        }
+	switch (rh) {
+	  case 0:
+	    x86emu_fpu_M_iadd(X86EMU_FPU_SHORT, destoffset);
+	    break;
+	  case 1:
+	    x86emu_fpu_M_imul(X86EMU_FPU_SHORT, destoffset);
+	    break;
+	  case 2:
+	    x86emu_fpu_M_icom(X86EMU_FPU_SHORT, destoffset);
+	    break;
+	  case 3:
+	    x86emu_fpu_M_icomp(X86EMU_FPU_SHORT, destoffset);
+	    break;
+	  case 4:
+	    x86emu_fpu_M_isub(X86EMU_FPU_SHORT, destoffset);
+	    break;
+	  case 5:
+	    x86emu_fpu_M_isubr(X86EMU_FPU_SHORT, destoffset);
+	    break;
+	  case 6:
+	    x86emu_fpu_M_idiv(X86EMU_FPU_SHORT, destoffset);
+	    break;
+	  case 7:
+	    x86emu_fpu_M_idivr(X86EMU_FPU_SHORT, destoffset);
+	    break;
+	}
     }
 #endif
     DECODE_CLEAR_SEGOVR();
@@ -409,95 +409,95 @@ void x86emuOp_esc_coprocess_db(u8 X86EMU_UNUSED(op1))
     FETCH_DECODE_MODRM(mod, rh, rl);
 #ifdef DEBUG
     if (mod != 3) {
-        DECODE_PRINTINSTR32(x86emu_fpu_op_db_tab, mod, rh, rl);
+	DECODE_PRINTINSTR32(x86emu_fpu_op_db_tab, mod, rh, rl);
     } else if (rh == 4) {       /* === 11 10 0 nnn */
-        switch (rl) {
-          case 0:
-            DECODE_PRINTF("FENI\n");
-            break;
-          case 1:
-            DECODE_PRINTF("FDISI\n");
-            break;
-          case 2:
-            DECODE_PRINTF("FCLEX\n");
-            break;
-          case 3:
-            DECODE_PRINTF("FINIT\n");
-            break;
-        }
+	switch (rl) {
+	  case 0:
+	    DECODE_PRINTF("FENI\n");
+	    break;
+	  case 1:
+	    DECODE_PRINTF("FDISI\n");
+	    break;
+	  case 2:
+	    DECODE_PRINTF("FCLEX\n");
+	    break;
+	  case 3:
+	    DECODE_PRINTF("FINIT\n");
+	    break;
+	}
     } else {
-        DECODE_PRINTF2("ESC_DB %0x\n", (mod << 6) + (rh << 3) + (rl));
+	DECODE_PRINTF2("ESC_DB %0x\n", (mod << 6) + (rh << 3) + (rl));
     }
 #endif /* DEBUG */
     switch (mod) {
       case 0:
-        destoffset = decode_rm00_address(rl);
-        break;
+	destoffset = decode_rm00_address(rl);
+	break;
       case 1:
-        destoffset = decode_rm01_address(rl);
-        break;
+	destoffset = decode_rm01_address(rl);
+	break;
       case 2:
-        destoffset = decode_rm10_address(rl);
-        break;
+	destoffset = decode_rm10_address(rl);
+	break;
       case 3:                   /* register to register */
-        break;
+	break;
     }
 #ifdef X86EMU_FPU_PRESENT
     /* execute */
     switch (mod) {
       case 3:
-        switch (rh) {
-          case 4:
-            switch (rl) {
-              case 0:
-                x86emu_fpu_R_feni();
-                break;
-              case 1:
-                x86emu_fpu_R_fdisi();
-                break;
-              case 2:
-                x86emu_fpu_R_fclex();
-                break;
-              case 3:
-                x86emu_fpu_R_finit();
-                break;
-              default:
-                x86emu_fpu_illegal();
-                break;
-            }
-            break;
-          default:
-            x86emu_fpu_illegal();
-            break;
-        }
-        break;
+	switch (rh) {
+	  case 4:
+	    switch (rl) {
+	      case 0:
+		x86emu_fpu_R_feni();
+		break;
+	      case 1:
+		x86emu_fpu_R_fdisi();
+		break;
+	      case 2:
+		x86emu_fpu_R_fclex();
+		break;
+	      case 3:
+		x86emu_fpu_R_finit();
+		break;
+	      default:
+		x86emu_fpu_illegal();
+		break;
+	    }
+	    break;
+	  default:
+	    x86emu_fpu_illegal();
+	    break;
+	}
+	break;
       default:
-        switch (rh) {
-          case 0:
-            x86emu_fpu_M_fild(X86EMU_FPU_SHORT, destoffset);
-            break;
-          case 1:
-            x86emu_fpu_illegal();
-            break;
-          case 2:
-            x86emu_fpu_M_fist(X86EMU_FPU_SHORT, destoffset);
-            break;
-          case 3:
-            x86emu_fpu_M_fistp(X86EMU_FPU_SHORT, destoffset);
-            break;
-          case 4:
-            x86emu_fpu_illegal();
-            break;
-          case 5:
-            x86emu_fpu_M_fld(X86EMU_FPU_LDBL, destoffset);
-            break;
-                      case 6:
-            x86emu_fpu_illegal();
-            break;
-          case 7:
-            x86emu_fpu_M_fstp(X86EMU_FPU_LDBL, destoffset);
-            break;
-        }
+	switch (rh) {
+	  case 0:
+	    x86emu_fpu_M_fild(X86EMU_FPU_SHORT, destoffset);
+	    break;
+	  case 1:
+	    x86emu_fpu_illegal();
+	    break;
+	  case 2:
+	    x86emu_fpu_M_fist(X86EMU_FPU_SHORT, destoffset);
+	    break;
+	  case 3:
+	    x86emu_fpu_M_fistp(X86EMU_FPU_SHORT, destoffset);
+	    break;
+	  case 4:
+	    x86emu_fpu_illegal();
+	    break;
+	  case 5:
+	    x86emu_fpu_M_fld(X86EMU_FPU_LDBL, destoffset);
+	    break;
+		      case 6:
+	    x86emu_fpu_illegal();
+	    break;
+	  case 7:
+	    x86emu_fpu_M_fstp(X86EMU_FPU_LDBL, destoffset);
+	    break;
+	}
     }
 #endif
     DECODE_CLEAR_SEGOVR();
@@ -538,80 +538,80 @@ void x86emuOp_esc_coprocess_dc(u8 X86EMU_UNUSED(op1))
     DECODE_PRINTINSTR32(x86emu_fpu_op_dc_tab, mod, rh, rl);
     switch (mod) {
       case 0:
-        destoffset = decode_rm00_address(rl);
-        DECODE_PRINTF("\n");
-        break;
+	destoffset = decode_rm00_address(rl);
+	DECODE_PRINTF("\n");
+	break;
       case 1:
-        destoffset = decode_rm01_address(rl);
-        DECODE_PRINTF("\n");
-        break;
+	destoffset = decode_rm01_address(rl);
+	DECODE_PRINTF("\n");
+	break;
       case 2:
-        destoffset = decode_rm10_address(rl);
-        DECODE_PRINTF("\n");
-        break;
+	destoffset = decode_rm10_address(rl);
+	DECODE_PRINTF("\n");
+	break;
       case 3:                   /* register to register */
 		stkelem = (u8)rl;
-        DECODE_PRINTF2("\tST(%d),ST\n", stkelem);
-        break;
+	DECODE_PRINTF2("\tST(%d),ST\n", stkelem);
+	break;
     }
 #ifdef X86EMU_FPU_PRESENT
     /* execute */
     switch (mod) {
       case 3:
-        switch (rh) {
-          case 0:
-            x86emu_fpu_R_fadd(stkelem, X86EMU_FPU_STKTOP);
-            break;
-          case 1:
-            x86emu_fpu_R_fmul(stkelem, X86EMU_FPU_STKTOP);
-            break;
-          case 2:
-            x86emu_fpu_R_fcom(stkelem, X86EMU_FPU_STKTOP);
-            break;
-          case 3:
-            x86emu_fpu_R_fcomp(stkelem, X86EMU_FPU_STKTOP);
-            break;
-          case 4:
-            x86emu_fpu_R_fsubr(stkelem, X86EMU_FPU_STKTOP);
-            break;
-          case 5:
-            x86emu_fpu_R_fsub(stkelem, X86EMU_FPU_STKTOP);
-            break;
-          case 6:
-            x86emu_fpu_R_fdivr(stkelem, X86EMU_FPU_STKTOP);
-            break;
-          case 7:
-            x86emu_fpu_R_fdiv(stkelem, X86EMU_FPU_STKTOP);
-            break;
-        }
-        break;
+	switch (rh) {
+	  case 0:
+	    x86emu_fpu_R_fadd(stkelem, X86EMU_FPU_STKTOP);
+	    break;
+	  case 1:
+	    x86emu_fpu_R_fmul(stkelem, X86EMU_FPU_STKTOP);
+	    break;
+	  case 2:
+	    x86emu_fpu_R_fcom(stkelem, X86EMU_FPU_STKTOP);
+	    break;
+	  case 3:
+	    x86emu_fpu_R_fcomp(stkelem, X86EMU_FPU_STKTOP);
+	    break;
+	  case 4:
+	    x86emu_fpu_R_fsubr(stkelem, X86EMU_FPU_STKTOP);
+	    break;
+	  case 5:
+	    x86emu_fpu_R_fsub(stkelem, X86EMU_FPU_STKTOP);
+	    break;
+	  case 6:
+	    x86emu_fpu_R_fdivr(stkelem, X86EMU_FPU_STKTOP);
+	    break;
+	  case 7:
+	    x86emu_fpu_R_fdiv(stkelem, X86EMU_FPU_STKTOP);
+	    break;
+	}
+	break;
       default:
-        switch (rh) {
-          case 0:
-            x86emu_fpu_M_fadd(X86EMU_FPU_DOUBLE, destoffset);
-            break;
-          case 1:
-            x86emu_fpu_M_fmul(X86EMU_FPU_DOUBLE, destoffset);
-            break;
-          case 2:
-            x86emu_fpu_M_fcom(X86EMU_FPU_DOUBLE, destoffset);
-            break;
-          case 3:
-            x86emu_fpu_M_fcomp(X86EMU_FPU_DOUBLE, destoffset);
-            break;
-          case 4:
-            x86emu_fpu_M_fsub(X86EMU_FPU_DOUBLE, destoffset);
-            break;
-          case 5:
-            x86emu_fpu_M_fsubr(X86EMU_FPU_DOUBLE, destoffset);
-            break;
-          case 6:
-            x86emu_fpu_M_fdiv(X86EMU_FPU_DOUBLE, destoffset);
-            break;
-          case 7:
-            x86emu_fpu_M_fdivr(X86EMU_FPU_DOUBLE, destoffset);
-            break;
-        }
+	switch (rh) {
+	  case 0:
+	    x86emu_fpu_M_fadd(X86EMU_FPU_DOUBLE, destoffset);
+	    break;
+	  case 1:
+	    x86emu_fpu_M_fmul(X86EMU_FPU_DOUBLE, destoffset);
+	    break;
+	  case 2:
+	    x86emu_fpu_M_fcom(X86EMU_FPU_DOUBLE, destoffset);
+	    break;
+	  case 3:
+	    x86emu_fpu_M_fcomp(X86EMU_FPU_DOUBLE, destoffset);
+	    break;
+	  case 4:
+	    x86emu_fpu_M_fsub(X86EMU_FPU_DOUBLE, destoffset);
+	    break;
+	  case 5:
+	    x86emu_fpu_M_fsubr(X86EMU_FPU_DOUBLE, destoffset);
+	    break;
+	  case 6:
+	    x86emu_fpu_M_fdiv(X86EMU_FPU_DOUBLE, destoffset);
+	    break;
+	  case 7:
+	    x86emu_fpu_M_fdivr(X86EMU_FPU_DOUBLE, destoffset);
+	    break;
+	}
     }
 #endif
     DECODE_CLEAR_SEGOVR();
@@ -648,70 +648,70 @@ void x86emuOp_esc_coprocess_dd(u8 X86EMU_UNUSED(op1))
     DECODE_PRINTINSTR32(x86emu_fpu_op_dd_tab, mod, rh, rl);
     switch (mod) {
       case 0:
-        destoffset = decode_rm00_address(rl);
-        DECODE_PRINTF("\n");
-        break;
+	destoffset = decode_rm00_address(rl);
+	DECODE_PRINTF("\n");
+	break;
       case 1:
-        destoffset = decode_rm01_address(rl);
-        DECODE_PRINTF("\n");
-        break;
+	destoffset = decode_rm01_address(rl);
+	DECODE_PRINTF("\n");
+	break;
       case 2:
-        destoffset = decode_rm10_address(rl);
-        DECODE_PRINTF("\n");
-        break;
+	destoffset = decode_rm10_address(rl);
+	DECODE_PRINTF("\n");
+	break;
       case 3:                   /* register to register */
 		stkelem = (u8)rl;
-        DECODE_PRINTF2("\tST(%d),ST\n", stkelem);
-        break;
+	DECODE_PRINTF2("\tST(%d),ST\n", stkelem);
+	break;
     }
 #ifdef X86EMU_FPU_PRESENT
     switch (mod) {
       case 3:
-        switch (rh) {
-          case 0:
-            x86emu_fpu_R_ffree(stkelem);
-            break;
-          case 1:
-            x86emu_fpu_R_fxch(stkelem);
-            break;
-          case 2:
-            x86emu_fpu_R_fst(stkelem);  /* register version */
-            break;
-          case 3:
-            x86emu_fpu_R_fstp(stkelem); /* register version */
-            break;
-          default:
-            x86emu_fpu_illegal();
-            break;
-        }
-        break;
+	switch (rh) {
+	  case 0:
+	    x86emu_fpu_R_ffree(stkelem);
+	    break;
+	  case 1:
+	    x86emu_fpu_R_fxch(stkelem);
+	    break;
+	  case 2:
+	    x86emu_fpu_R_fst(stkelem);  /* register version */
+	    break;
+	  case 3:
+	    x86emu_fpu_R_fstp(stkelem); /* register version */
+	    break;
+	  default:
+	    x86emu_fpu_illegal();
+	    break;
+	}
+	break;
       default:
-        switch (rh) {
-          case 0:
-            x86emu_fpu_M_fld(X86EMU_FPU_DOUBLE, destoffset);
-            break;
-          case 1:
-            x86emu_fpu_illegal();
-            break;
-          case 2:
-            x86emu_fpu_M_fst(X86EMU_FPU_DOUBLE, destoffset);
-            break;
-          case 3:
-            x86emu_fpu_M_fstp(X86EMU_FPU_DOUBLE, destoffset);
-            break;
-          case 4:
-            x86emu_fpu_M_frstor(X86EMU_FPU_WORD, destoffset);
-            break;
-          case 5:
-            x86emu_fpu_illegal();
-            break;
-          case 6:
-            x86emu_fpu_M_fsave(X86EMU_FPU_WORD, destoffset);
-            break;
-          case 7:
-            x86emu_fpu_M_fstsw(X86EMU_FPU_WORD, destoffset);
-            break;
-        }
+	switch (rh) {
+	  case 0:
+	    x86emu_fpu_M_fld(X86EMU_FPU_DOUBLE, destoffset);
+	    break;
+	  case 1:
+	    x86emu_fpu_illegal();
+	    break;
+	  case 2:
+	    x86emu_fpu_M_fst(X86EMU_FPU_DOUBLE, destoffset);
+	    break;
+	  case 3:
+	    x86emu_fpu_M_fstp(X86EMU_FPU_DOUBLE, destoffset);
+	    break;
+	  case 4:
+	    x86emu_fpu_M_frstor(X86EMU_FPU_WORD, destoffset);
+	    break;
+	  case 5:
+	    x86emu_fpu_illegal();
+	    break;
+	  case 6:
+	    x86emu_fpu_M_fsave(X86EMU_FPU_WORD, destoffset);
+	    break;
+	  case 7:
+	    x86emu_fpu_M_fstsw(X86EMU_FPU_WORD, destoffset);
+	    break;
+	}
     }
 #endif
     DECODE_CLEAR_SEGOVR();
@@ -755,82 +755,82 @@ void x86emuOp_esc_coprocess_de(u8 X86EMU_UNUSED(op1))
     DECODE_PRINTINSTR32(x86emu_fpu_op_de_tab, mod, rh, rl);
     switch (mod) {
       case 0:
-        destoffset = decode_rm00_address(rl);
-        DECODE_PRINTF("\n");
-        break;
+	destoffset = decode_rm00_address(rl);
+	DECODE_PRINTF("\n");
+	break;
       case 1:
-        destoffset = decode_rm01_address(rl);
-        DECODE_PRINTF("\n");
-        break;
+	destoffset = decode_rm01_address(rl);
+	DECODE_PRINTF("\n");
+	break;
       case 2:
-        destoffset = decode_rm10_address(rl);
-        DECODE_PRINTF("\n");
-        break;
+	destoffset = decode_rm10_address(rl);
+	DECODE_PRINTF("\n");
+	break;
       case 3:                   /* register to register */
 		stkelem = (u8)rl;
-        DECODE_PRINTF2("\tST(%d),ST\n", stkelem);
-        break;
+	DECODE_PRINTF2("\tST(%d),ST\n", stkelem);
+	break;
     }
 #ifdef X86EMU_FPU_PRESENT
     switch (mod) {
       case 3:
-        switch (rh) {
-          case 0:
-            x86emu_fpu_R_faddp(stkelem, X86EMU_FPU_STKTOP);
-            break;
-          case 1:
-            x86emu_fpu_R_fmulp(stkelem, X86EMU_FPU_STKTOP);
-            break;
-          case 2:
-            x86emu_fpu_R_fcomp(stkelem, X86EMU_FPU_STKTOP);
-            break;
-          case 3:
-            if (stkelem == 1)
-              x86emu_fpu_R_fcompp(stkelem, X86EMU_FPU_STKTOP);
-            else
-              x86emu_fpu_illegal();
-            break;
-          case 4:
-            x86emu_fpu_R_fsubrp(stkelem, X86EMU_FPU_STKTOP);
-            break;
-          case 5:
-            x86emu_fpu_R_fsubp(stkelem, X86EMU_FPU_STKTOP);
-            break;
-          case 6:
-            x86emu_fpu_R_fdivrp(stkelem, X86EMU_FPU_STKTOP);
-            break;
-          case 7:
-            x86emu_fpu_R_fdivp(stkelem, X86EMU_FPU_STKTOP);
-            break;
-        }
-        break;
+	switch (rh) {
+	  case 0:
+	    x86emu_fpu_R_faddp(stkelem, X86EMU_FPU_STKTOP);
+	    break;
+	  case 1:
+	    x86emu_fpu_R_fmulp(stkelem, X86EMU_FPU_STKTOP);
+	    break;
+	  case 2:
+	    x86emu_fpu_R_fcomp(stkelem, X86EMU_FPU_STKTOP);
+	    break;
+	  case 3:
+	    if (stkelem == 1)
+	      x86emu_fpu_R_fcompp(stkelem, X86EMU_FPU_STKTOP);
+	    else
+	      x86emu_fpu_illegal();
+	    break;
+	  case 4:
+	    x86emu_fpu_R_fsubrp(stkelem, X86EMU_FPU_STKTOP);
+	    break;
+	  case 5:
+	    x86emu_fpu_R_fsubp(stkelem, X86EMU_FPU_STKTOP);
+	    break;
+	  case 6:
+	    x86emu_fpu_R_fdivrp(stkelem, X86EMU_FPU_STKTOP);
+	    break;
+	  case 7:
+	    x86emu_fpu_R_fdivp(stkelem, X86EMU_FPU_STKTOP);
+	    break;
+	}
+	break;
       default:
-        switch (rh) {
-          case 0:
-            x86emu_fpu_M_fiadd(X86EMU_FPU_WORD, destoffset);
-            break;
-          case 1:
-            x86emu_fpu_M_fimul(X86EMU_FPU_WORD, destoffset);
-            break;
-          case 2:
-            x86emu_fpu_M_ficom(X86EMU_FPU_WORD, destoffset);
-            break;
-          case 3:
-            x86emu_fpu_M_ficomp(X86EMU_FPU_WORD, destoffset);
-            break;
-          case 4:
-            x86emu_fpu_M_fisub(X86EMU_FPU_WORD, destoffset);
-            break;
-          case 5:
-            x86emu_fpu_M_fisubr(X86EMU_FPU_WORD, destoffset);
-            break;
-          case 6:
-            x86emu_fpu_M_fidiv(X86EMU_FPU_WORD, destoffset);
-            break;
-          case 7:
-            x86emu_fpu_M_fidivr(X86EMU_FPU_WORD, destoffset);
-            break;
-        }
+	switch (rh) {
+	  case 0:
+	    x86emu_fpu_M_fiadd(X86EMU_FPU_WORD, destoffset);
+	    break;
+	  case 1:
+	    x86emu_fpu_M_fimul(X86EMU_FPU_WORD, destoffset);
+	    break;
+	  case 2:
+	    x86emu_fpu_M_ficom(X86EMU_FPU_WORD, destoffset);
+	    break;
+	  case 3:
+	    x86emu_fpu_M_ficomp(X86EMU_FPU_WORD, destoffset);
+	    break;
+	  case 4:
+	    x86emu_fpu_M_fisub(X86EMU_FPU_WORD, destoffset);
+	    break;
+	  case 5:
+	    x86emu_fpu_M_fisubr(X86EMU_FPU_WORD, destoffset);
+	    break;
+	  case 6:
+	    x86emu_fpu_M_fidiv(X86EMU_FPU_WORD, destoffset);
+	    break;
+	  case 7:
+	    x86emu_fpu_M_fidivr(X86EMU_FPU_WORD, destoffset);
+	    break;
+	}
     }
 #endif
     DECODE_CLEAR_SEGOVR();
@@ -874,70 +874,70 @@ void x86emuOp_esc_coprocess_df(u8 X86EMU_UNUSED(op1))
     DECODE_PRINTINSTR32(x86emu_fpu_op_df_tab, mod, rh, rl);
     switch (mod) {
       case 0:
-        destoffset = decode_rm00_address(rl);
-        DECODE_PRINTF("\n");
-        break;
+	destoffset = decode_rm00_address(rl);
+	DECODE_PRINTF("\n");
+	break;
       case 1:
-        destoffset = decode_rm01_address(rl);
-        DECODE_PRINTF("\n");
-        break;
+	destoffset = decode_rm01_address(rl);
+	DECODE_PRINTF("\n");
+	break;
       case 2:
-        destoffset = decode_rm10_address(rl);
-        DECODE_PRINTF("\n");
-        break;
+	destoffset = decode_rm10_address(rl);
+	DECODE_PRINTF("\n");
+	break;
       case 3:                   /* register to register */
 		stkelem = (u8)rl;
-        DECODE_PRINTF2("\tST(%d)\n", stkelem);
-        break;
+	DECODE_PRINTF2("\tST(%d)\n", stkelem);
+	break;
     }
 #ifdef X86EMU_FPU_PRESENT
     switch (mod) {
       case 3:
-        switch (rh) {
-          case 0:
-            x86emu_fpu_R_ffree(stkelem);
-            break;
-          case 1:
-            x86emu_fpu_R_fxch(stkelem);
-            break;
-          case 2:
-            x86emu_fpu_R_fst(stkelem);  /* register version */
-            break;
-          case 3:
-            x86emu_fpu_R_fstp(stkelem); /* register version */
-            break;
-          default:
-            x86emu_fpu_illegal();
-            break;
-        }
-        break;
+	switch (rh) {
+	  case 0:
+	    x86emu_fpu_R_ffree(stkelem);
+	    break;
+	  case 1:
+	    x86emu_fpu_R_fxch(stkelem);
+	    break;
+	  case 2:
+	    x86emu_fpu_R_fst(stkelem);  /* register version */
+	    break;
+	  case 3:
+	    x86emu_fpu_R_fstp(stkelem); /* register version */
+	    break;
+	  default:
+	    x86emu_fpu_illegal();
+	    break;
+	}
+	break;
       default:
-        switch (rh) {
-          case 0:
-            x86emu_fpu_M_fild(X86EMU_FPU_WORD, destoffset);
-            break;
-          case 1:
-            x86emu_fpu_illegal();
-            break;
-          case 2:
-            x86emu_fpu_M_fist(X86EMU_FPU_WORD, destoffset);
-            break;
-          case 3:
-            x86emu_fpu_M_fistp(X86EMU_FPU_WORD, destoffset);
-            break;
-          case 4:
-            x86emu_fpu_M_fbld(X86EMU_FPU_BSD, destoffset);
-            break;
-          case 5:
-            x86emu_fpu_M_fild(X86EMU_FPU_LONG, destoffset);
-            break;
-          case 6:
-            x86emu_fpu_M_fbstp(X86EMU_FPU_BSD, destoffset);
-            break;
-          case 7:
-            x86emu_fpu_M_fistp(X86EMU_FPU_LONG, destoffset);
-            break;
-        }
+	switch (rh) {
+	  case 0:
+	    x86emu_fpu_M_fild(X86EMU_FPU_WORD, destoffset);
+	    break;
+	  case 1:
+	    x86emu_fpu_illegal();
+	    break;
+	  case 2:
+	    x86emu_fpu_M_fist(X86EMU_FPU_WORD, destoffset);
+	    break;
+	  case 3:
+	    x86emu_fpu_M_fistp(X86EMU_FPU_WORD, destoffset);
+	    break;
+	  case 4:
+	    x86emu_fpu_M_fbld(X86EMU_FPU_BSD, destoffset);
+	    break;
+	  case 5:
+	    x86emu_fpu_M_fild(X86EMU_FPU_LONG, destoffset);
+	    break;
+	  case 6:
+	    x86emu_fpu_M_fbstp(X86EMU_FPU_BSD, destoffset);
+	    break;
+	  case 7:
+	    x86emu_fpu_M_fistp(X86EMU_FPU_LONG, destoffset);
+	    break;
+	}
     }
 #endif
     DECODE_CLEAR_SEGOVR();

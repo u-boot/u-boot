@@ -23,7 +23,6 @@
 
 #include <common.h>
 #include <command.h>
-#include <cmd_boot.h>
 #include <image.h>
 #include <zlib.h>
 #include <asm/byteorder.h>
@@ -34,6 +33,9 @@
 #include <asm/setup.h>
 #define tag_size(type)  ((sizeof(struct tag_header) + sizeof(struct type)) >> 2)
 #define tag_next(t)     ((struct tag *)((u32 *)(t) + (t)->hdr.size))
+
+/*cmd_boot.c*/
+extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 #if defined (CONFIG_SETUP_MEMORY_TAGS) || \
     defined (CONFIG_CMDLINE_TAG) || \
@@ -101,7 +103,7 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	if (addr_dataflash(addr)){
 		read_dataflash(addr, sizeof(image_header_t), (char *)&header);
 	} else
-#endif	
+#endif
 	memcpy (&header, (char *)addr, sizeof(image_header_t));
 
 	if (ntohl(hdr->ih_magic) != IH_MAGIC) {
@@ -143,7 +145,7 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	    csum = crc32 (0, (char *)data, len);
 	    if (csum != ntohl(hdr->ih_dcrc)) {
 		printf ("Bad Data CRC\n");
-	        SHOW_BOOT_PROGRESS (-12);
+		SHOW_BOOT_PROGRESS (-12);
 		do_reset (cmdtp, flag, argc, argv);
 	    }
 	    printf ("OK\n");
@@ -185,7 +187,7 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	/*
 	 * no initrd image
 	 */
-        SHOW_BOOT_PROGRESS (14);
+	SHOW_BOOT_PROGRESS (14);
 
 	data = 0;
     }

@@ -78,4 +78,3 @@ void NS16550_putc(volatile struct NS16550 *com_port, unsigned char c);
 unsigned char NS16550_getc(volatile struct NS16550 *com_port);
 int NS16550_tstc(volatile struct NS16550 *com_port);
 void NS16550_reinit(volatile struct NS16550 *com_port, int baud_divisor);
-

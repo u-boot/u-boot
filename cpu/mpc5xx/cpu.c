@@ -17,15 +17,15 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, 
+ * Foundation,
  */
 
 /*
  * File:		cpu.c
- * 
- * Discription:		Some cpu specific function for watchdog, 
+ *
+ * Discription:		Some cpu specific function for watchdog,
  *                      cpu version test, clock setting ...
- * 
+ *
  */
 
 
@@ -74,7 +74,7 @@ int checkcpu (void)
 }
 
 /*
- * Called by macro WATCHDOG_RESET 
+ * Called by macro WATCHDOG_RESET
  */
 #if defined(CONFIG_WATCHDOG)
 void watchdog_reset (void)
@@ -93,7 +93,7 @@ void reset_5xx_watchdog (volatile immap_t * immr)
 {
 	/* Use the MPC5xx Internal Watchdog */
 	immr->im_siu_conf.sc_swsr = 0x556c;	/* Prevent SW time-out */
-	immr->im_siu_conf.sc_swsr = 0xaa39;    
+	immr->im_siu_conf.sc_swsr = 0xaa39;
 }
 
 #endif /* CONFIG_WATCHDOG */
@@ -124,32 +124,31 @@ unsigned long get_tbclk (void)
 
 
 /*
- * Reset board 
+ * Reset board
  */
 int do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	ulong addr;
-	
+
 	/* Interrupts off, enable reset */
-        __asm__ volatile	("  mtspr	81, %r0		\n\t"
+	__asm__ volatile	("  mtspr	81, %r0		\n\t"
 				 "  mfmsr	%r3		\n\t"
 				 "  rlwinm	%r31,%r3,0,25,23\n\t"
 				 "  mtmsr	%r31		\n\t");
-        /*
-         * Trying to execute the next instruction at a non-existing address
-         * should cause a machine check, resulting in reset
-         */
+	/*
+	 * Trying to execute the next instruction at a non-existing address
+	 * should cause a machine check, resulting in reset
+	 */
 #ifdef CFG_RESET_ADDRESS
-        addr = CFG_RESET_ADDRESS;
+	addr = CFG_RESET_ADDRESS;
 #else
-        /*
-         * note: when CFG_MONITOR_BASE points to a RAM address, CFG_MONITOR_BASE         * - sizeof (ulong) is usually a valid address. Better pick an address
-         * known to be invalid on your system and assign it to CFG_RESET_ADDRESS.
-         * "(ulong)-1" used to be a good choice for many systems...
-         */
-        addr = CFG_MONITOR_BASE - sizeof (ulong);
+	/*
+	 * note: when CFG_MONITOR_BASE points to a RAM address, CFG_MONITOR_BASE         * - sizeof (ulong) is usually a valid address. Better pick an address
+	 * known to be invalid on your system and assign it to CFG_RESET_ADDRESS.
+	 * "(ulong)-1" used to be a good choice for many systems...
+	 */
+	addr = CFG_MONITOR_BASE - sizeof (ulong);
 #endif
 	((void (*) (void)) addr) ();
 	return 1;
 }
-

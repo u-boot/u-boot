@@ -101,8 +101,8 @@ typedef unsigned long int dword;
 #define insw(args...)	mmio_insw(args)
 #define mmio_insw(r,b,l) 	({	int __i ;  \
 					word *__b2;  \
-			    		__b2 = (word *) b;  \
-			    		for (__i = 0; __i < l; __i++) {  \
+					__b2 = (word *) b;  \
+					for (__i = 0; __i < l; __i++) {  \
 					  *(__b2 + __i) = mmio_inw(r);  \
 					  mmio_inw(0);  \
 					};  \
@@ -204,38 +204,37 @@ static void el_get_mac_addr( unsigned char *mac_addr )
 #if EL_DEBUG > 1
 static void print_packet( byte * buf, int length )
 {
-        int i;
-        int remainder;
-        int lines;
+	int i;
+	int remainder;
+	int lines;
 
-        PRINTK2("Packet of length %d \n", length );
+	PRINTK2("Packet of length %d \n", length );
 
-        lines = length / 16;
-        remainder = length % 16;
+	lines = length / 16;
+	remainder = length % 16;
 
-        for ( i = 0; i < lines ; i ++ ) {
-                int cur;
+	for ( i = 0; i < lines ; i ++ ) {
+		int cur;
 
-                for ( cur = 0; cur < 8; cur ++ ) {
-                        byte a, b;
+		for ( cur = 0; cur < 8; cur ++ ) {
+			byte a, b;
 
-                        a = *(buf ++ );
-                        b = *(buf ++ );
-                        PRINTK2("%02x%02x ", a, b );
-                }
-                PRINTK2("\n");
-        }
-        for ( i = 0; i < remainder/2 ; i++ ) {
-                byte a, b;
+			a = *(buf ++ );
+			b = *(buf ++ );
+			PRINTK2("%02x%02x ", a, b );
+		}
+		PRINTK2("\n");
+	}
+	for ( i = 0; i < remainder/2 ; i++ ) {
+		byte a, b;
 
-                a = *(buf ++ );
-                b = *(buf ++ );
-                PRINTK2("%02x%02x ", a, b );
-        }
-        PRINTK2("\n");
+		a = *(buf ++ );
+		b = *(buf ++ );
+		PRINTK2("%02x%02x ", a, b );
+	}
+	PRINTK2("\n");
 }
 #endif /* EL_DEBUG > 1 */
-
 
 
 /**************************************************************************
@@ -436,7 +435,6 @@ int eth_rx()
 }
 
 
-
 /**************************************************************************
 ETH_TRANSMIT - Transmit a frame
 ***************************************************************************/
@@ -506,9 +504,9 @@ int eth_send(volatile void *packet, int length) {
 		PRINTK("\n\n");
 	}
 
-        /* wait for Tx complete */
+	/* wait for Tx complete */
 	PRINTK("Waiting for Tx to complete...\n");
-        while(((status = inw(EL_BASE_ADDR + VX_STATUS)) & S_COMMAND_IN_PROGRESS) != 0)
+	while(((status = inw(EL_BASE_ADDR + VX_STATUS)) & S_COMMAND_IN_PROGRESS) != 0)
 	{
 		udelay(10);
 	}
@@ -516,7 +514,6 @@ int eth_send(volatile void *packet, int length) {
 
 	return length;
 }
-
 
 
 #endif /* CONFIG_DRIVER_3C589 */

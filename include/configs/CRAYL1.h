@@ -46,7 +46,7 @@
 
 /* set PRAM to keep U-Boot out, mem= to keep linux out, and initrd_hi to
  * keep possible initrd ramdisk decompression out.  This is in k (1024 bytes)
- #define CONFIG_PRAM			16 
+ #define CONFIG_PRAM			16
  */
 #define	CONFIG_LOADADDR		0x100000	/* where TFTP images go */
 #undef CONFIG_BOOTARGS
@@ -56,10 +56,10 @@
 #define	CFG_AUTOLOAD		"no"
 #define CONFIG_BOOTCOMMAND	"dhcp"
 
-/* 
+/*
  * ..during experiments..
  #define CONFIG_SERVERIP         10.0.0.1
- #define CONFIG_ETHADDR          00:40:a6:80:14:5 
+ #define CONFIG_ETHADDR          00:40:a6:80:14:5
  */
 #define CONFIG_HARD_I2C         1		/* hardware support for i2c */
 #define CONFIG_SDRAM_BANK0		1
@@ -108,13 +108,13 @@
 	CONFIG_BOOTP_BOOTFILESIZE|\
 	CONFIG_BOOTP_BOOTPATH)
 
-/* 
+/*
  * how many time to fail & restart a net-TFTP before giving up & resetting
  * the board hoping that a reset of net interface might help..
  */
 #define CONFIG_NET_RESET 5
 
-/* 
+/*
  * bauds.  Just to make it compile; in our case, I read the base_baud
  * from the DCR anyway, so its kinda-tied to the above ref. clock which in turn
  * drives the system clock.
@@ -168,7 +168,7 @@
 #define CFG_FLASH_WRITE_TOUT 500	/* Timeout for Flash Write (in ms)	*/
 
 /* BEG ENVIRONNEMENT FLASH: needs to be a whole FlashSector  */
-#define CFG_ENV_OFFSET		0x3c8000 
+#define CFG_ENV_OFFSET		0x3c8000
 #define CFG_ENV_IS_IN_FLASH	1	/* use FLASH for environment vars */
 #define	CFG_ENV_SIZE		0x1000	 /* Total Size of Environment area	*/
 #define CFG_ENV_SECT_SIZE	0x10000	 /* see README - env sector total size	*/
@@ -184,15 +184,15 @@
 #define CFG_STACK_USAGE		0x10000 /* Reserve 64k for the stack usage */
 #define CFG_MALLOC_LEN		(128 << 10)	/* 128k for malloc space */
 #define CFG_MEM_END_USAGE	( CFG_MONITOR_LEN \
-                                + CFG_MALLOC_LEN \
-                                + CFG_ENV_SECT_SIZE \
-                                + CFG_STACK_USAGE )
+				+ CFG_MALLOC_LEN \
+				+ CFG_ENV_SECT_SIZE \
+				+ CFG_STACK_USAGE )
 
 #define CFG_MEMTEST_END		(CFG_SDRAM_SIZE * 1024 * 1024 - CFG_MEM_END_USAGE)
 /* END ENVIRONNEMENT FLASH */
 
 /*-----------------------------------------------------------------------
- * Cache Configuration.  Only used to ..?? clear it, I guess.. 
+ * Cache Configuration.  Only used to ..?? clear it, I guess..
  */
 #define CFG_DCACHE_SIZE		16384
 #define CFG_CACHELINE_SIZE	32

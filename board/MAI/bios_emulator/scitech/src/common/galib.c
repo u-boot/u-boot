@@ -107,7 +107,7 @@ static ibool LoadDriver(
 
     /* Check if we have already loaded the driver */
     if (loaded)
-        return true;
+	return true;
     PM_init();
 
     /* First try to see if we can find the system wide shared exports
@@ -116,33 +116,33 @@ static ibool LoadDriver(
      */
     __GA_exports.dwSize = sizeof(__GA_exports);
     if (GA_getSharedExports(&__GA_exports,shared))
-        return loaded = true;
+	return loaded = true;
 
     /* Open the BPD file */
     if (!PM_findBPD(DLL_NAME,bpdpath))
-        return false;
+	return false;
     strcpy(filename,bpdpath);
     strcat(filename,DLL_NAME);
     if ((hModBPD = PE_loadLibrary(filename,shared)) == NULL)
-        return false;
+	return false;
     if ((GA_initLibrary = (GA_initLibrary_t)PE_getProcAddress(hModBPD,"_GA_initLibrary")) == NULL)
-        return false;
+	return false;
     bpdpath[strlen(bpdpath)-1] = 0;
     if (strcmp(bpdpath,PM_getNucleusPath()) == 0)
-        strcpy(bpdpath,PM_getNucleusConfigPath());
+	strcpy(bpdpath,PM_getNucleusConfigPath());
     else {
-        PM_backslash(bpdpath);
-        strcat(bpdpath,"config");
-        }
+	PM_backslash(bpdpath);
+	strcat(bpdpath,"config");
+	}
     if ((gaExp = GA_initLibrary(shared,bpdpath,filename,GA_getSystemPMImports(),&_N_imports,&_GA_imports)) == NULL)
-        PM_fatalError("GA_initLibrary failed!\n");
+	PM_fatalError("GA_initLibrary failed!\n");
 
     /* Initialize all default imports to point to fatal error handler
      * for upwards compatibility, and copy the exported functions.
      */
     max = sizeof(__GA_exports)/sizeof(GA_initLibrary_t);
     for (i = 0,p = (ulong*)&__GA_exports; i < max; i++)
-        *p++ = (ulong)_GA_fatalErrorHandler;
+	*p++ = (ulong)_GA_fatalErrorHandler;
     memcpy(&__GA_exports,gaExp,MIN(sizeof(__GA_exports),gaExp->dwSize));
     loaded = true;
     return true;
@@ -157,7 +157,7 @@ static ibool LoadDriver(
 int NAPI GA_status(void)
 {
     if (!loaded)
-        return nDriverNotFound;
+	return nDriverNotFound;
     return __GA_exports.GA_status();
 }
 
@@ -166,7 +166,7 @@ const char * NAPI GA_errorMsg(
     N_int32 status)
 {
     if (!loaded)
-        return "Unable to load Nucleus device driver!";
+	return "Unable to load Nucleus device driver!";
     return __GA_exports.GA_errorMsg(status);
 }
 
@@ -174,7 +174,7 @@ const char * NAPI GA_errorMsg(
 int NAPI GA_getDaysLeft(N_int32 shared)
 {
     if (!LoadDriver(shared))
-        return -1;
+	return -1;
     return __GA_exports.GA_getDaysLeft(shared);
 }
 
@@ -182,7 +182,7 @@ int NAPI GA_getDaysLeft(N_int32 shared)
 int NAPI GA_registerLicense(uchar *license,N_int32 shared)
 {
     if (!LoadDriver(shared))
-        return 0;
+	return 0;
     return __GA_exports.GA_registerLicense(license,shared);
 }
 
@@ -190,7 +190,7 @@ int NAPI GA_registerLicense(uchar *license,N_int32 shared)
 ibool NAPI GA_loadInGUI(N_int32 shared)
 {
     if (!LoadDriver(shared))
-        return false;
+	return false;
     return __GA_exports.GA_loadInGUI(shared);
 }
 
@@ -198,7 +198,7 @@ ibool NAPI GA_loadInGUI(N_int32 shared)
 int NAPI GA_enumerateDevices(N_int32 shared)
 {
     if (!LoadDriver(shared))
-        return 0;
+	return 0;
     return __GA_exports.GA_enumerateDevices(shared);
 }
 
@@ -206,7 +206,7 @@ int NAPI GA_enumerateDevices(N_int32 shared)
 GA_devCtx * NAPI GA_loadDriver(N_int32 deviceIndex,N_int32 shared)
 {
     if (!LoadDriver(shared))
-        return NULL;
+	return NULL;
     return __GA_exports.GA_loadDriver(deviceIndex,shared);
 }
 
@@ -216,7 +216,7 @@ void NAPI GA_getGlobalOptions(
     ibool shared)
 {
     if (LoadDriver(shared))
-        __GA_exports.GA_getGlobalOptions(options,shared);
+	__GA_exports.GA_getGlobalOptions(options,shared);
 }
 
 /* {secret} */
@@ -226,7 +226,7 @@ PE_MODULE * NAPI GA_loadLibrary(
     ibool shared)
 {
     if (!LoadDriver(shared))
-        return NULL;
+	return NULL;
     return __GA_exports.GA_loadLibrary(szBPDName,size,shared);
 }
 
@@ -236,7 +236,7 @@ GA_devCtx * NAPI GA_getCurrentDriver(
 {
     /* Bail for older drivers that didn't export this function! */
     if (!__GA_exports.GA_getCurrentDriver)
-        return NULL;
+	return NULL;
     return __GA_exports.GA_getCurrentDriver(deviceIndex);
 }
 
@@ -246,7 +246,7 @@ REF2D_driver * NAPI GA_getCurrentRef2d(
 {
     /* Bail for older drivers that didn't export this function! */
     if (!__GA_exports.GA_getCurrentRef2d)
-        return NULL;
+	return NULL;
     return __GA_exports.GA_getCurrentRef2d(deviceIndex);
 }
 
@@ -254,7 +254,7 @@ REF2D_driver * NAPI GA_getCurrentRef2d(
 int NAPI GA_isOEMVersion(ibool shared)
 {
     if (!LoadDriver(shared))
-        return 0;
+	return 0;
     return __GA_exports.GA_isOEMVersion(shared);
 }
 
@@ -262,8 +262,7 @@ int NAPI GA_isOEMVersion(ibool shared)
 N_uint32 * NAPI GA_getLicensedDevices(ibool shared)
 {
     if (!LoadDriver(shared))
-        return 0;
+	return 0;
     return __GA_exports.GA_getLicensedDevices(shared);
 }
 #endif
-

@@ -59,7 +59,7 @@ events.
 ****************************************************************************/
 ulong _EVT_getTicks(void)
 {
-    // TODO: Implement this for your OS!
+    /* TODO: Implement this for your OS! */
 }
 
 /****************************************************************************
@@ -68,36 +68,36 @@ Pumps all messages in the application message queue into our event queue.
 ****************************************************************************/
 static void _EVT_pumpMessages(void)
 {
-    // TODO: The purpose of this function is to read all keyboard and mouse
-    //       events from the OS specific event queue, translate them and post
-    //       them into the SciTech event queue.
-    //
-    // NOTE: There are a couple of important things that this function must
-    //       take care of:
-    //
-    //  1. Support for KEYDOWN, KEYREPEAT and KEYUP is required.
-    //
-    //  2. Support for reading hardware scan code as well as ASCII
-    //     translated values is required. Games use the scan codes rather
-    //     than ASCII values. Scan codes go into the high order byte of the
-    //     keyboard message field.
-    //
-    //  3. Support for at least reading mouse motion data (mickeys) from the
-    //     mouse is required. Using the mickey values, we can then translate
-    //     to mouse cursor coordinates scaled to the range of the current
-    //     graphics display mode. Mouse values are scaled based on the
-    //     global 'rangeX' and 'rangeY'.
-    //
-    //  4. Support for a timestamp for the events is required, which is
-    //     defined as the number of milliseconds since some event (usually
-    //     system startup). This is the timestamp when the event occurred
-    //     (ie: at interrupt time) not when it was stuff into the SciTech
-    //     event queue.
-    //
-    //  5. Support for mouse double click events. If the OS has a native
-    //     mechanism to determine this, it should be used. Otherwise the
-    //     time stamp information will be used by the generic event code
-    //     to generate double click events.
+    /* TODO: The purpose of this function is to read all keyboard and mouse */
+    /*       events from the OS specific event queue, translate them and post */
+    /*       them into the SciTech event queue. */
+    /* */
+    /* NOTE: There are a couple of important things that this function must */
+    /*       take care of: */
+    /* */
+    /*  1. Support for KEYDOWN, KEYREPEAT and KEYUP is required. */
+    /* */
+    /*  2. Support for reading hardware scan code as well as ASCII */
+    /*     translated values is required. Games use the scan codes rather */
+    /*     than ASCII values. Scan codes go into the high order byte of the */
+    /*     keyboard message field. */
+    /* */
+    /*  3. Support for at least reading mouse motion data (mickeys) from the */
+    /*     mouse is required. Using the mickey values, we can then translate */
+    /*     to mouse cursor coordinates scaled to the range of the current */
+    /*     graphics display mode. Mouse values are scaled based on the */
+    /*     global 'rangeX' and 'rangeY'. */
+    /* */
+    /*  4. Support for a timestamp for the events is required, which is */
+    /*     defined as the number of milliseconds since some event (usually */
+    /*     system startup). This is the timestamp when the event occurred */
+    /*     (ie: at interrupt time) not when it was stuff into the SciTech */
+    /*     event queue. */
+    /* */
+    /*  5. Support for mouse double click events. If the OS has a native */
+    /*     mechanism to determine this, it should be used. Otherwise the */
+    /*     time stamp information will be used by the generic event code */
+    /*     to generate double click events. */
 }
 
 /****************************************************************************
@@ -141,7 +141,7 @@ void EVTAPI EVT_init(
     initEventQueue();
     memset(keyUpMsg,0,sizeof(keyUpMsg));
 
-    // TODO: Do any OS specific initialisation here
+    /* TODO: Do any OS specific initialisation here */
 
     /* Catch program termination signals so we can clean up properly */
     signal(SIGABRT, _EVT_abort);
@@ -171,7 +171,7 @@ and this function can be used to resume it again later.
 ****************************************************************************/
 void EVT_resume(void)
 {
-    // Do nothing for non DOS systems
+    /* Do nothing for non DOS systems */
 }
 
 /****************************************************************************
@@ -181,7 +181,7 @@ de-install the event handling code.
 ****************************************************************************/
 void EVT_suspend(void)
 {
-    // Do nothing for non DOS systems
+    /* Do nothing for non DOS systems */
 }
 
 /****************************************************************************
@@ -195,5 +195,5 @@ void EVT_exit(void)
     signal(SIGFPE, SIG_DFL);
     signal(SIGINT, SIG_DFL);
 
-    // TODO: Do any OS specific cleanup in here
+    /* TODO: Do any OS specific cleanup in here */
 }

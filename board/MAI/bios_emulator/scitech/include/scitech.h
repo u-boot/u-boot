@@ -80,7 +80,7 @@
 
 #ifdef  __GNUC__
 #ifdef  __cplusplus
-// G++ currently fucks this up!
+/* G++ currently fucks this up! */
 #define __cdecl
 #define __stdcall
 #else
@@ -605,18 +605,18 @@ void _ASMAPI DebugVxD(void);
 {                                   \
     static ibool firstTime = true;  \
     if (firstTime) {                \
-        firstTime = false;          \
-        DebugInt();                 \
-        }                           \
+	firstTime = false;          \
+	DebugInt();                 \
+	}                           \
 }
 
 #define DebugVxDOnce()              \
 {                                   \
     static ibool firstTime = true;  \
     if (firstTime) {                \
-        firstTime = false;          \
-        DebugVxD();                 \
-        }                           \
+	firstTime = false;          \
+	DebugVxD();                 \
+	}                           \
 }
 
 /* Macros for linux string compatibility functions */
@@ -636,10 +636,10 @@ void _ASMAPI DebugVxD(void);
 /* Get rid of some helaciously annoying Visual C++ warnings! */
 
 #if defined(_MSC_VER) && !defined(__MWERKS__) && !defined(__SC__)
-#pragma warning(disable:4761)   // integral size mismatch in argument; conversion supplied
-#pragma warning(disable:4244)   // conversion from 'unsigned short ' to 'unsigned char ', possible loss of data
-#pragma warning(disable:4018)   // '<' : signed/unsigned mismatch
-#pragma warning(disable:4305)   // 'initializing' : truncation from 'const double' to 'float'
+#pragma warning(disable:4761)   /* integral size mismatch in argument; conversion supplied */
+#pragma warning(disable:4244)   /* conversion from 'unsigned short ' to 'unsigned char ', possible loss of data */
+#pragma warning(disable:4018)   /* '<' : signed/unsigned mismatch */
+#pragma warning(disable:4305)   /* 'initializing' : truncation from 'const double' to 'float' */
 #endif
 
 /*---------------------------------------------------------------------------
@@ -674,29 +674,29 @@ void _CHK_defaultFail(int fatal,const char *msg,const char *cond,const char *fil
 #       define  CHK(x)      x
 #if     CHECKED > 1
 #       define  CHECK(p)                                            \
-        ((p) ? (void)0 : DebugInt(),                                \
-            _CHK_fail(1,"Check failed: '%s', file %s, line %d\n",   \
-            #p, __FILE__, __LINE__))
+	((p) ? (void)0 : DebugInt(),                                \
+	    _CHK_fail(1,"Check failed: '%s', file %s, line %d\n",   \
+	    #p, __FILE__, __LINE__))
 #       define  WARN(p)                                             \
-        ((p) ? (void)0 : DebugInt(),                                \
-            _CHK_fail(0,"Warning: '%s', file %s, line %d\n",        \
-            #p, __FILE__, __LINE__))
+	((p) ? (void)0 : DebugInt(),                                \
+	    _CHK_fail(0,"Warning: '%s', file %s, line %d\n",        \
+	    #p, __FILE__, __LINE__))
 #else
 #       define  CHECK(p)                                            \
-        ((p) ? (void)0 :                                            \
-            _CHK_fail(1,"Check failed: '%s', file %s, line %d\n",   \
-            #p, __FILE__, __LINE__))
+	((p) ? (void)0 :                                            \
+	    _CHK_fail(1,"Check failed: '%s', file %s, line %d\n",   \
+	    #p, __FILE__, __LINE__))
 #       define  WARN(p)                                             \
-        ((p) ? (void)0 :                                            \
-            _CHK_fail(0,"Warning: '%s', file %s, line %d\n",        \
-            #p, __FILE__, __LINE__))
+	((p) ? (void)0 :                                            \
+	    _CHK_fail(0,"Warning: '%s', file %s, line %d\n",        \
+	    #p, __FILE__, __LINE__))
 #endif
 #       define  LOGFATAL(msg)                                       \
-            _CHK_fail(1,"Fatal error: '%s', file %s, line %d\n",    \
-            msg, __FILE__, __LINE__)
+	    _CHK_fail(1,"Fatal error: '%s', file %s, line %d\n",    \
+	    msg, __FILE__, __LINE__)
 #       define  LOGWARN(msg)                                        \
-            _CHK_fail(0,"Warning: '%s', file %s, line %d\n",        \
-            msg, __FILE__, __LINE__)
+	    _CHK_fail(0,"Warning: '%s', file %s, line %d\n",        \
+	    msg, __FILE__, __LINE__)
 #else
 #       define  CHK(x)
 #       define  CHECK(p)        ((void)0)

@@ -54,13 +54,13 @@ typedef void            (*ExcpHndlr) (void) ;
 
 #define StMemBnkSp	MemBnkSp	/* Static Memory Bank Space [byte] */
 #define StMemBnk0Sp	StMemBnkSp	/* Static Memory Bank 0 Space      */
-                	        	/* [byte]                          */
+					/* [byte]                          */
 #define StMemBnk1Sp	StMemBnkSp	/* Static Memory Bank 1 Space      */
-                	        	/* [byte]                          */
+					/* [byte]                          */
 #define StMemBnk2Sp	StMemBnkSp	/* Static Memory Bank 2 Space      */
-                	        	/* [byte]                          */
+					/* [byte]                          */
 #define StMemBnk3Sp	StMemBnkSp	/* Static Memory Bank 3 Space      */
-                	        	/* [byte]                          */
+					/* [byte]                          */
 
 #define DRAMBnkSp	MemBnkSp	/* DRAM Bank Space [byte]          */
 #define DRAMBnk0Sp	DRAMBnkSp	/* DRAM Bank 0 Space [byte]        */
@@ -71,7 +71,7 @@ typedef void            (*ExcpHndlr) (void) ;
 #define ZeroMemSp	MemBnkSp	/* Zero Memory bank Space [byte]   */
 
 #define _StMemBnk(Nb)	        	/* Static Memory Bank [0..3]       */ \
-                	(0x00000000 + (Nb)*StMemBnkSp)
+			(0x00000000 + (Nb)*StMemBnkSp)
 #define _StMemBnk0	_StMemBnk (0)	/* Static Memory Bank 0            */
 #define _StMemBnk1	_StMemBnk (1)	/* Static Memory Bank 1            */
 #define _StMemBnk2	_StMemBnk (2)	/* Static Memory Bank 2            */
@@ -80,7 +80,7 @@ typedef void            (*ExcpHndlr) (void) ;
 #if LANGUAGE == C
 typedef Quad    	StMemBnkType [StMemBnkSp/sizeof (Quad)] ;
 #define StMemBnk	        	/* Static Memory Bank [0..3]       */ \
-                	((StMemBnkType *) io_p2v (_StMemBnk (0)))
+			((StMemBnkType *) io_p2v (_StMemBnk (0)))
 #define StMemBnk0	(StMemBnk [0])	/* Static Memory Bank 0            */
 #define StMemBnk1	(StMemBnk [1])	/* Static Memory Bank 1            */
 #define StMemBnk2	(StMemBnk [2])	/* Static Memory Bank 2            */
@@ -88,7 +88,7 @@ typedef Quad    	StMemBnkType [StMemBnkSp/sizeof (Quad)] ;
 #endif /* LANGUAGE == C */
 
 #define _DRAMBnk(Nb)	        	/* DRAM Bank [0..3]                */ \
-                	(0xC0000000 + (Nb)*DRAMBnkSp)
+			(0xC0000000 + (Nb)*DRAMBnkSp)
 #define _DRAMBnk0	_DRAMBnk (0)	/* DRAM Bank 0                     */
 #define _DRAMBnk1	_DRAMBnk (1)	/* DRAM Bank 1                     */
 #define _DRAMBnk2	_DRAMBnk (2)	/* DRAM Bank 2                     */
@@ -97,7 +97,7 @@ typedef Quad    	StMemBnkType [StMemBnkSp/sizeof (Quad)] ;
 #if LANGUAGE == C
 typedef Quad    	DRAMBnkType [DRAMBnkSp/sizeof (Quad)] ;
 #define DRAMBnk 	        	/* DRAM Bank [0..3]                */ \
-                	((DRAMBnkType *) io_p2v (_DRAMBnk (0)))
+			((DRAMBnkType *) io_p2v (_DRAMBnk (0)))
 #define DRAMBnk0	(DRAMBnk [0])	/* DRAM Bank 0                     */
 #define DRAMBnk1	(DRAMBnk [1])	/* DRAM Bank 1                     */
 #define DRAMBnk2	(DRAMBnk [2])	/* DRAM Bank 2                     */
@@ -109,7 +109,7 @@ typedef Quad    	DRAMBnkType [DRAMBnkSp/sizeof (Quad)] ;
 #if LANGUAGE == C
 typedef Quad    	ZeroMemType [ZeroMemSp/sizeof (Quad)] ;
 #define ZeroMem 	        	/* Zero Memory bank                */ \
-                	(*((ZeroMemType *) io_p2v (_ZeroMem)))
+			(*((ZeroMemType *) io_p2v (_ZeroMem)))
 #endif /* LANGUAGE == C */
 
 
@@ -134,12 +134,12 @@ typedef Quad    	ZeroMemType [ZeroMemSp/sizeof (Quad)] ;
 #define PCMCIA1MemSp	PCMCIAMemSp	/* PCMCIA 1 Memory Space [byte]    */
 
 #define _PCMCIA(Nb)	        	/* PCMCIA [0..1]                   */ \
-                	(0x20000000 + (Nb)*PCMCIASp)
+			(0x20000000 + (Nb)*PCMCIASp)
 #define _PCMCIAIO(Nb)	_PCMCIA (Nb)	/* PCMCIA I/O [0..1]               */
 #define _PCMCIAAttr(Nb)	        	/* PCMCIA Attribute [0..1]         */ \
-                	(_PCMCIA (Nb) + 2*PCMCIAPrtSp)
+			(_PCMCIA (Nb) + 2*PCMCIAPrtSp)
 #define _PCMCIAMem(Nb)	        	/* PCMCIA Memory [0..1]            */ \
-                	(_PCMCIA (Nb) + 3*PCMCIAPrtSp)
+			(_PCMCIA (Nb) + 3*PCMCIAPrtSp)
 
 #define _PCMCIA0	_PCMCIA (0)	/* PCMCIA 0                        */
 #define _PCMCIA0IO	_PCMCIAIO (0)	/* PCMCIA 0 I/O                    */
@@ -157,22 +157,22 @@ typedef Quad    	PCMCIAPrtType [PCMCIAPrtSp/sizeof (Quad)] ;
 typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 
 #define PCMCIA0 	        	/* PCMCIA 0                        */ \
-                	(*((PCMCIAType *) io_p2v (_PCMCIA0)))
+			(*((PCMCIAType *) io_p2v (_PCMCIA0)))
 #define PCMCIA0IO	        	/* PCMCIA 0 I/O                    */ \
-                	(*((PCMCIAPrtType *) io_p2v (_PCMCIA0IO)))
+			(*((PCMCIAPrtType *) io_p2v (_PCMCIA0IO)))
 #define PCMCIA0Attr	        	/* PCMCIA 0 Attribute              */ \
-                	(*((PCMCIAPrtType *) io_p2v (_PCMCIA0Attr)))
+			(*((PCMCIAPrtType *) io_p2v (_PCMCIA0Attr)))
 #define PCMCIA0Mem	        	/* PCMCIA 0 Memory                 */ \
-                	(*((PCMCIAPrtType *) io_p2v (_PCMCIA0Mem)))
+			(*((PCMCIAPrtType *) io_p2v (_PCMCIA0Mem)))
 
 #define PCMCIA1 	        	/* PCMCIA 1                        */ \
-                	(*((PCMCIAType *) io_p2v (_PCMCIA1)))
+			(*((PCMCIAType *) io_p2v (_PCMCIA1)))
 #define PCMCIA1IO	        	/* PCMCIA 1 I/O                    */ \
-                	(*((PCMCIAPrtType *) io_p2v (_PCMCIA1IO)))
+			(*((PCMCIAPrtType *) io_p2v (_PCMCIA1IO)))
 #define PCMCIA1Attr	        	/* PCMCIA 1 Attribute              */ \
-                	(*((PCMCIAPrtType *) io_p2v (_PCMCIA1Attr)))
+			(*((PCMCIAPrtType *) io_p2v (_PCMCIA1Attr)))
 #define PCMCIA1Mem	        	/* PCMCIA 1 Memory                 */ \
-                	(*((PCMCIAPrtType *) io_p2v (_PCMCIA1Mem)))
+			(*((PCMCIAPrtType *) io_p2v (_PCMCIA1Mem)))
 
 #endif /* LANGUAGE == C */
 
@@ -215,81 +215,81 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 #define _Ser0UDCCR	0x80000000	/* Ser. port 0 UDC Control Reg.    */
 #define _Ser0UDCAR	0x80000004	/* Ser. port 0 UDC Address Reg.    */
 #define _Ser0UDCOMP	0x80000008	/* Ser. port 0 UDC Output Maximum  */
-                	        	/* Packet size reg.                */
+					/* Packet size reg.                */
 #define _Ser0UDCIMP	0x8000000C	/* Ser. port 0 UDC Input Maximum   */
-                	        	/* Packet size reg.                */
+					/* Packet size reg.                */
 #define _Ser0UDCCS0	0x80000010	/* Ser. port 0 UDC Control/Status  */
-                	        	/* reg. end-point 0                */
+					/* reg. end-point 0                */
 #define _Ser0UDCCS1	0x80000014	/* Ser. port 0 UDC Control/Status  */
-                	        	/* reg. end-point 1 (output)       */
+					/* reg. end-point 1 (output)       */
 #define _Ser0UDCCS2	0x80000018	/* Ser. port 0 UDC Control/Status  */
-                	        	/* reg. end-point 2 (input)        */
+					/* reg. end-point 2 (input)        */
 #define _Ser0UDCD0	0x8000001C	/* Ser. port 0 UDC Data reg.       */
-                	        	/* end-point 0                     */
+					/* end-point 0                     */
 #define _Ser0UDCWC	0x80000020	/* Ser. port 0 UDC Write Count     */
-                	        	/* reg. end-point 0                */
+					/* reg. end-point 0                */
 #define _Ser0UDCDR	0x80000028	/* Ser. port 0 UDC Data Reg.       */
 #define _Ser0UDCSR	0x80000030	/* Ser. port 0 UDC Status Reg.     */
 
 #if LANGUAGE == C
 #define Ser0UDCCR	        	/* Ser. port 0 UDC Control Reg.    */ \
-                	(*((volatile Word *) io_p2v (_Ser0UDCCR)))
+			(*((volatile Word *) io_p2v (_Ser0UDCCR)))
 #define Ser0UDCAR	        	/* Ser. port 0 UDC Address Reg.    */ \
-                	(*((volatile Word *) io_p2v (_Ser0UDCAR)))
+			(*((volatile Word *) io_p2v (_Ser0UDCAR)))
 #define Ser0UDCOMP	        	/* Ser. port 0 UDC Output Maximum  */ \
-                	        	/* Packet size reg.                */ \
-                	(*((volatile Word *) io_p2v (_Ser0UDCOMP)))
+					/* Packet size reg.                */ \
+			(*((volatile Word *) io_p2v (_Ser0UDCOMP)))
 #define Ser0UDCIMP	        	/* Ser. port 0 UDC Input Maximum   */ \
-                	        	/* Packet size reg.                */ \
-                	(*((volatile Word *) io_p2v (_Ser0UDCIMP)))
+					/* Packet size reg.                */ \
+			(*((volatile Word *) io_p2v (_Ser0UDCIMP)))
 #define Ser0UDCCS0	        	/* Ser. port 0 UDC Control/Status  */ \
-                	        	/* reg. end-point 0                */ \
-                	(*((volatile Word *) io_p2v (_Ser0UDCCS0)))
+					/* reg. end-point 0                */ \
+			(*((volatile Word *) io_p2v (_Ser0UDCCS0)))
 #define Ser0UDCCS1	        	/* Ser. port 0 UDC Control/Status  */ \
-                	        	/* reg. end-point 1 (output)       */ \
-                	(*((volatile Word *) io_p2v (_Ser0UDCCS1)))
+					/* reg. end-point 1 (output)       */ \
+			(*((volatile Word *) io_p2v (_Ser0UDCCS1)))
 #define Ser0UDCCS2	        	/* Ser. port 0 UDC Control/Status  */ \
-                	        	/* reg. end-point 2 (input)        */ \
-                	(*((volatile Word *) io_p2v (_Ser0UDCCS2)))
+					/* reg. end-point 2 (input)        */ \
+			(*((volatile Word *) io_p2v (_Ser0UDCCS2)))
 #define Ser0UDCD0	        	/* Ser. port 0 UDC Data reg.       */ \
-                	        	/* end-point 0                     */ \
-                	(*((volatile Word *) io_p2v (_Ser0UDCD0)))
+					/* end-point 0                     */ \
+			(*((volatile Word *) io_p2v (_Ser0UDCD0)))
 #define Ser0UDCWC	        	/* Ser. port 0 UDC Write Count     */ \
-                	        	/* reg. end-point 0                */ \
-                	(*((volatile Word *) io_p2v (_Ser0UDCWC)))
+					/* reg. end-point 0                */ \
+			(*((volatile Word *) io_p2v (_Ser0UDCWC)))
 #define Ser0UDCDR	        	/* Ser. port 0 UDC Data Reg.       */ \
-                	(*((volatile Word *) io_p2v (_Ser0UDCDR)))
+			(*((volatile Word *) io_p2v (_Ser0UDCDR)))
 #define Ser0UDCSR	        	/* Ser. port 0 UDC Status Reg.     */ \
-                	(*((volatile Word *) io_p2v (_Ser0UDCSR)))
+			(*((volatile Word *) io_p2v (_Ser0UDCSR)))
 #endif /* LANGUAGE == C */
 
 #define UDCCR_UDD	0x00000001	/* UDC Disable                     */
 #define UDCCR_UDA	0x00000002	/* UDC Active (read)               */
 #define UDCCR_RESIM	0x00000004	/* Resume Interrupt Mask, per errata */
 #define UDCCR_EIM	0x00000008	/* End-point 0 Interrupt Mask      */
-                	        	/* (disable)                       */
+					/* (disable)                       */
 #define UDCCR_RIM	0x00000010	/* Receive Interrupt Mask          */
-                	        	/* (disable)                       */
+					/* (disable)                       */
 #define UDCCR_TIM	0x00000020	/* Transmit Interrupt Mask         */
-                	        	/* (disable)                       */
+					/* (disable)                       */
 #define UDCCR_SRM	0x00000040	/* Suspend/Resume interrupt Mask   */
-                	        	/* (disable)                       */
+					/* (disable)                       */
 #define UDCCR_SUSIM	UDCCR_SRM	/* Per errata, SRM just masks suspend */
 #define UDCCR_REM	0x00000080	/* REset interrupt Mask (disable)  */
 
 #define UDCAR_ADD	Fld (7, 0)	/* function ADDress                */
 
 #define UDCOMP_OUTMAXP	Fld (8, 0)	/* OUTput MAXimum Packet size - 1  */
-                	        	/* [byte]                          */
+					/* [byte]                          */
 #define UDCOMP_OutMaxPkt(Size)  	/* Output Maximum Packet size      */ \
-                	        	/* [1..256 byte]                   */ \
-                	(((Size) - 1) << FShft (UDCOMP_OUTMAXP))
+					/* [1..256 byte]                   */ \
+			(((Size) - 1) << FShft (UDCOMP_OUTMAXP))
 
 #define UDCIMP_INMAXP	Fld (8, 0)	/* INput MAXimum Packet size - 1   */
-                	        	/* [byte]                          */
+					/* [byte]                          */
 #define UDCIMP_InMaxPkt(Size)   	/* Input Maximum Packet size       */ \
-                	        	/* [1..256 byte]                   */ \
-                	(((Size) - 1) << FShft (UDCIMP_INMAXP))
+					/* [1..256 byte]                   */ \
+			(((Size) - 1) << FShft (UDCIMP_INMAXP))
 
 #define UDCCS0_OPR	0x00000001	/* Output Packet Ready (read)      */
 #define UDCCS0_IPR	0x00000002	/* Input Packet Ready              */
@@ -298,11 +298,11 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 #define UDCCS0_DE	0x00000010	/* Data End                        */
 #define UDCCS0_SE	0x00000020	/* Setup End (read)                */
 #define UDCCS0_SO	0x00000040	/* Serviced Output packet ready    */
-                	        	/* (write)                         */
+					/* (write)                         */
 #define UDCCS0_SSE	0x00000080	/* Serviced Setup End (write)      */
 
 #define UDCCS1_RFS	0x00000001	/* Receive FIFO 12-bytes or more   */
-                	        	/* Service request (read)          */
+					/* Service request (read)          */
 #define UDCCS1_RPC	0x00000002	/* Receive Packet Complete         */
 #define UDCCS1_RPE	0x00000004	/* Receive Packet Error (read)     */
 #define UDCCS1_SST	0x00000008	/* Sent STall                      */
@@ -310,7 +310,7 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 #define UDCCS1_RNE	0x00000020	/* Receive FIFO Not Empty (read)   */
 
 #define UDCCS2_TFS	0x00000001	/* Transmit FIFO 8-bytes or less   */
-                	        	/* Service request (read)          */
+					/* Service request (read)          */
 #define UDCCS2_TPC	0x00000002	/* Transmit Packet Complete        */
 #define UDCCS2_TPE	0x00000004	/* Transmit Packet Error (read)    */
 #define UDCCS2_TUR	0x00000008	/* Transmit FIFO Under-Run         */
@@ -408,21 +408,21 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
  */
 
 #define _UTCR0(Nb)	        	/* UART Control Reg. 0 [1..3]      */ \
-                	(0x80010000 + ((Nb) - 1)*0x00020000)
+			(0x80010000 + ((Nb) - 1)*0x00020000)
 #define _UTCR1(Nb)	        	/* UART Control Reg. 1 [1..3]      */ \
-                	(0x80010004 + ((Nb) - 1)*0x00020000)
+			(0x80010004 + ((Nb) - 1)*0x00020000)
 #define _UTCR2(Nb)	        	/* UART Control Reg. 2 [1..3]      */ \
-                	(0x80010008 + ((Nb) - 1)*0x00020000)
+			(0x80010008 + ((Nb) - 1)*0x00020000)
 #define _UTCR3(Nb)	        	/* UART Control Reg. 3 [1..3]      */ \
-                	(0x8001000C + ((Nb) - 1)*0x00020000)
+			(0x8001000C + ((Nb) - 1)*0x00020000)
 #define _UTCR4(Nb)	        	/* UART Control Reg. 4 [2]         */ \
-                	(0x80010010 + ((Nb) - 1)*0x00020000)
+			(0x80010010 + ((Nb) - 1)*0x00020000)
 #define _UTDR(Nb)	        	/* UART Data Reg. [1..3]           */ \
-                	(0x80010014 + ((Nb) - 1)*0x00020000)
+			(0x80010014 + ((Nb) - 1)*0x00020000)
 #define _UTSR0(Nb)	        	/* UART Status Reg. 0 [1..3]       */ \
-                	(0x8001001C + ((Nb) - 1)*0x00020000)
+			(0x8001001C + ((Nb) - 1)*0x00020000)
 #define _UTSR1(Nb)	        	/* UART Status Reg. 1 [1..3]       */ \
-                	(0x80010020 + ((Nb) - 1)*0x00020000)
+			(0x80010020 + ((Nb) - 1)*0x00020000)
 
 #define _Ser1UTCR0	_UTCR0 (1)	/* Ser. port 1 UART Control Reg. 0 */
 #define _Ser1UTCR1	_UTCR1 (1)	/* Ser. port 1 UART Control Reg. 1 */
@@ -452,51 +452,51 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 #if LANGUAGE == C
 
 #define Ser1UTCR0	        	/* Ser. port 1 UART Control Reg. 0 */ \
-                	(*((volatile Word *) io_p2v (_Ser1UTCR0)))
+			(*((volatile Word *) io_p2v (_Ser1UTCR0)))
 #define Ser1UTCR1	        	/* Ser. port 1 UART Control Reg. 1 */ \
-                	(*((volatile Word *) io_p2v (_Ser1UTCR1)))
+			(*((volatile Word *) io_p2v (_Ser1UTCR1)))
 #define Ser1UTCR2	        	/* Ser. port 1 UART Control Reg. 2 */ \
-                	(*((volatile Word *) io_p2v (_Ser1UTCR2)))
+			(*((volatile Word *) io_p2v (_Ser1UTCR2)))
 #define Ser1UTCR3	        	/* Ser. port 1 UART Control Reg. 3 */ \
-                	(*((volatile Word *) io_p2v (_Ser1UTCR3)))
+			(*((volatile Word *) io_p2v (_Ser1UTCR3)))
 #define Ser1UTDR	        	/* Ser. port 1 UART Data Reg.      */ \
-                	(*((volatile Word *) io_p2v (_Ser1UTDR)))
+			(*((volatile Word *) io_p2v (_Ser1UTDR)))
 #define Ser1UTSR0	        	/* Ser. port 1 UART Status Reg. 0  */ \
-                	(*((volatile Word *) io_p2v (_Ser1UTSR0)))
+			(*((volatile Word *) io_p2v (_Ser1UTSR0)))
 #define Ser1UTSR1	        	/* Ser. port 1 UART Status Reg. 1  */ \
-                	(*((volatile Word *) io_p2v (_Ser1UTSR1)))
+			(*((volatile Word *) io_p2v (_Ser1UTSR1)))
 
 #define Ser2UTCR0	        	/* Ser. port 2 UART Control Reg. 0 */ \
-                	(*((volatile Word *) io_p2v (_Ser2UTCR0)))
+			(*((volatile Word *) io_p2v (_Ser2UTCR0)))
 #define Ser2UTCR1	        	/* Ser. port 2 UART Control Reg. 1 */ \
-                	(*((volatile Word *) io_p2v (_Ser2UTCR1)))
+			(*((volatile Word *) io_p2v (_Ser2UTCR1)))
 #define Ser2UTCR2	        	/* Ser. port 2 UART Control Reg. 2 */ \
-                	(*((volatile Word *) io_p2v (_Ser2UTCR2)))
+			(*((volatile Word *) io_p2v (_Ser2UTCR2)))
 #define Ser2UTCR3	        	/* Ser. port 2 UART Control Reg. 3 */ \
-                	(*((volatile Word *) io_p2v (_Ser2UTCR3)))
+			(*((volatile Word *) io_p2v (_Ser2UTCR3)))
 #define Ser2UTCR4	        	/* Ser. port 2 UART Control Reg. 4 */ \
-                	(*((volatile Word *) io_p2v (_Ser2UTCR4)))
+			(*((volatile Word *) io_p2v (_Ser2UTCR4)))
 #define Ser2UTDR	        	/* Ser. port 2 UART Data Reg.      */ \
-                	(*((volatile Word *) io_p2v (_Ser2UTDR)))
+			(*((volatile Word *) io_p2v (_Ser2UTDR)))
 #define Ser2UTSR0	        	/* Ser. port 2 UART Status Reg. 0  */ \
-                	(*((volatile Word *) io_p2v (_Ser2UTSR0)))
+			(*((volatile Word *) io_p2v (_Ser2UTSR0)))
 #define Ser2UTSR1	        	/* Ser. port 2 UART Status Reg. 1  */ \
-                	(*((volatile Word *) io_p2v (_Ser2UTSR1)))
+			(*((volatile Word *) io_p2v (_Ser2UTSR1)))
 
 #define Ser3UTCR0	        	/* Ser. port 3 UART Control Reg. 0 */ \
-                	(*((volatile Word *) io_p2v (_Ser3UTCR0)))
+			(*((volatile Word *) io_p2v (_Ser3UTCR0)))
 #define Ser3UTCR1	        	/* Ser. port 3 UART Control Reg. 1 */ \
-                	(*((volatile Word *) io_p2v (_Ser3UTCR1)))
+			(*((volatile Word *) io_p2v (_Ser3UTCR1)))
 #define Ser3UTCR2	        	/* Ser. port 3 UART Control Reg. 2 */ \
-                	(*((volatile Word *) io_p2v (_Ser3UTCR2)))
+			(*((volatile Word *) io_p2v (_Ser3UTCR2)))
 #define Ser3UTCR3	        	/* Ser. port 3 UART Control Reg. 3 */ \
-                	(*((volatile Word *) io_p2v (_Ser3UTCR3)))
+			(*((volatile Word *) io_p2v (_Ser3UTCR3)))
 #define Ser3UTDR	        	/* Ser. port 3 UART Data Reg.      */ \
-                	(*((volatile Word *) io_p2v (_Ser3UTDR)))
+			(*((volatile Word *) io_p2v (_Ser3UTDR)))
 #define Ser3UTSR0	        	/* Ser. port 3 UART Status Reg. 0  */ \
-                	(*((volatile Word *) io_p2v (_Ser3UTSR0)))
+			(*((volatile Word *) io_p2v (_Ser3UTSR0)))
 #define Ser3UTSR1	        	/* Ser. port 3 UART Status Reg. 1  */ \
-                	(*((volatile Word *) io_p2v (_Ser3UTSR1)))
+			(*((volatile Word *) io_p2v (_Ser3UTSR1)))
 
 #elif LANGUAGE == Assembly
 #define Ser1UTCR0	( io_p2v (_Ser1UTCR0))
@@ -537,8 +537,8 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 #define UTCR0_7BitData	(UTCR0_DSS*0)	/*  7-Bit Data                     */
 #define UTCR0_8BitData	(UTCR0_DSS*1)	/*  8-Bit Data                     */
 #define UTCR0_SCE	0x00000010	/* Sample Clock Enable             */
-                	        	/* (ser. port 1: GPIO [18],        */
-                	        	/* ser. port 3: GPIO [20])         */
+					/* (ser. port 1: GPIO [18],        */
+					/* ser. port 3: GPIO [20])         */
 #define UTCR0_RCE	0x00000020	/* Receive Clock Edge select       */
 #define UTCR0_RcRsEdg	(UTCR0_RCE*0)	/*  Receive clock Rising-Edge      */
 #define UTCR0_RcFlEdg	(UTCR0_RCE*1)	/*  Receive clock Falling-Edge     */
@@ -546,43 +546,43 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 #define UTCR0_TrRsEdg	(UTCR0_TCE*0)	/*  Transmit clock Rising-Edge     */
 #define UTCR0_TrFlEdg	(UTCR0_TCE*1)	/*  Transmit clock Falling-Edge    */
 #define UTCR0_Ser2IrDA	        	/* Ser. port 2 IrDA settings       */ \
-                	(UTCR0_1StpBit + UTCR0_8BitData)
+			(UTCR0_1StpBit + UTCR0_8BitData)
 
 #define UTCR1_BRD	Fld (4, 0)	/* Baud Rate Divisor/16 - 1 [11:8] */
 #define UTCR2_BRD	Fld (8, 0)	/* Baud Rate Divisor/16 - 1  [7:0] */
-                	        	/* fua = fxtl/(16*(BRD[11:0] + 1)) */
-                	        	/* Tua = 16*(BRD [11:0] + 1)*Txtl  */
+					/* fua = fxtl/(16*(BRD[11:0] + 1)) */
+					/* Tua = 16*(BRD [11:0] + 1)*Txtl  */
 #define UTCR1_BdRtDiv(Div)      	/*  Baud Rate Divisor [16..65536]  */ \
-                	(((Div) - 16)/16 >> FSize (UTCR2_BRD) << \
-                	 FShft (UTCR1_BRD))
+			(((Div) - 16)/16 >> FSize (UTCR2_BRD) << \
+			 FShft (UTCR1_BRD))
 #define UTCR2_BdRtDiv(Div)      	/*  Baud Rate Divisor [16..65536]  */ \
-                	(((Div) - 16)/16 & FAlnMsk (UTCR2_BRD) << \
-                	 FShft (UTCR2_BRD))
-                	        	/*  fua = fxtl/(16*Floor (Div/16)) */
-                	        	/*  Tua = 16*Floor (Div/16)*Txtl   */
+			(((Div) - 16)/16 & FAlnMsk (UTCR2_BRD) << \
+			 FShft (UTCR2_BRD))
+					/*  fua = fxtl/(16*Floor (Div/16)) */
+					/*  Tua = 16*Floor (Div/16)*Txtl   */
 #define UTCR1_CeilBdRtDiv(Div)  	/*  Ceil. of BdRtDiv [16..65536]   */ \
-                	(((Div) - 1)/16 >> FSize (UTCR2_BRD) << \
-                	 FShft (UTCR1_BRD))
+			(((Div) - 1)/16 >> FSize (UTCR2_BRD) << \
+			 FShft (UTCR1_BRD))
 #define UTCR2_CeilBdRtDiv(Div)  	/*  Ceil. of BdRtDiv [16..65536]   */ \
-                	(((Div) - 1)/16 & FAlnMsk (UTCR2_BRD) << \
-                	 FShft (UTCR2_BRD))
-                	        	/*  fua = fxtl/(16*Ceil (Div/16))  */
-                	        	/*  Tua = 16*Ceil (Div/16)*Txtl    */
+			(((Div) - 1)/16 & FAlnMsk (UTCR2_BRD) << \
+			 FShft (UTCR2_BRD))
+					/*  fua = fxtl/(16*Ceil (Div/16))  */
+					/*  Tua = 16*Ceil (Div/16)*Txtl    */
 
 #define UTCR3_RXE	0x00000001	/* Receive Enable                  */
 #define UTCR3_TXE	0x00000002	/* Transmit Enable                 */
 #define UTCR3_BRK	0x00000004	/* BReaK mode                      */
 #define UTCR3_RIE	0x00000008	/* Receive FIFO 1/3-to-2/3-full or */
-                	        	/* more Interrupt Enable           */
+					/* more Interrupt Enable           */
 #define UTCR3_TIE	0x00000010	/* Transmit FIFO 1/2-full or less  */
-                	        	/* Interrupt Enable                */
+					/* Interrupt Enable                */
 #define UTCR3_LBM	0x00000020	/* Look-Back Mode                  */
 #define UTCR3_Ser2IrDA	        	/* Ser. port 2 IrDA settings (RIE, */ \
-                	        	/* TIE, LBM can be set or cleared) */ \
-                	(UTCR3_RXE + UTCR3_TXE)
+					/* TIE, LBM can be set or cleared) */ \
+			(UTCR3_RXE + UTCR3_TXE)
 
 #define UTCR4_HSE	0x00000001	/* Hewlett-Packard Serial InfraRed */
-                	        	/* (HP-SIR) modulation Enable      */
+					/* (HP-SIR) modulation Enable      */
 #define UTCR4_NRZ	(UTCR4_HSE*0)	/*  Non-Return to Zero modulation  */
 #define UTCR4_HPSIR	(UTCR4_HSE*1)	/*  HP-SIR modulation              */
 #define UTCR4_LPM	0x00000002	/* Low-Power Mode                  */
@@ -597,9 +597,9 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 #endif /* 0 */
 
 #define UTSR0_TFS	0x00000001	/* Transmit FIFO 1/2-full or less  */
-                	        	/* Service request (read)          */
+					/* Service request (read)          */
 #define UTSR0_RFS	0x00000002	/* Receive FIFO 1/3-to-2/3-full or */
-                	        	/* more Service request (read)     */
+					/* more Service request (read)     */
 #define UTSR0_RID	0x00000004	/* Receiver IDle                   */
 #define UTSR0_RBB	0x00000008	/* Receive Beginning of Break      */
 #define UTSR0_REB	0x00000010	/* Receive End of Break            */
@@ -651,21 +651,21 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 
 #if LANGUAGE == C
 #define Ser1SDCR0	        	/* Ser. port 1 SDLC Control Reg. 0 */ \
-                	(*((volatile Word *) io_p2v (_Ser1SDCR0)))
+			(*((volatile Word *) io_p2v (_Ser1SDCR0)))
 #define Ser1SDCR1	        	/* Ser. port 1 SDLC Control Reg. 1 */ \
-                	(*((volatile Word *) io_p2v (_Ser1SDCR1)))
+			(*((volatile Word *) io_p2v (_Ser1SDCR1)))
 #define Ser1SDCR2	        	/* Ser. port 1 SDLC Control Reg. 2 */ \
-                	(*((volatile Word *) io_p2v (_Ser1SDCR2)))
+			(*((volatile Word *) io_p2v (_Ser1SDCR2)))
 #define Ser1SDCR3	        	/* Ser. port 1 SDLC Control Reg. 3 */ \
-                	(*((volatile Word *) io_p2v (_Ser1SDCR3)))
+			(*((volatile Word *) io_p2v (_Ser1SDCR3)))
 #define Ser1SDCR4	        	/* Ser. port 1 SDLC Control Reg. 4 */ \
-                	(*((volatile Word *) io_p2v (_Ser1SDCR4)))
+			(*((volatile Word *) io_p2v (_Ser1SDCR4)))
 #define Ser1SDDR	        	/* Ser. port 1 SDLC Data Reg.      */ \
-                	(*((volatile Word *) io_p2v (_Ser1SDDR)))
+			(*((volatile Word *) io_p2v (_Ser1SDDR)))
 #define Ser1SDSR0	        	/* Ser. port 1 SDLC Status Reg. 0  */ \
-                	(*((volatile Word *) io_p2v (_Ser1SDSR0)))
+			(*((volatile Word *) io_p2v (_Ser1SDSR0)))
 #define Ser1SDSR1	        	/* Ser. port 1 SDLC Status Reg. 1  */ \
-                	(*((volatile Word *) io_p2v (_Ser1SDSR1)))
+			(*((volatile Word *) io_p2v (_Ser1SDSR1)))
 #endif /* LANGUAGE == C */
 
 #define SDCR0_SUS	0x00000001	/* SDLC/UART Select                */
@@ -680,7 +680,7 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 #define SDCR0_NRZ	(SDCR0_BMS*1)	/*  Non-Return to Zero modulation  */
 #define SDCR0_SCE	0x00000010	/* Sample Clock Enable (GPIO [16]) */
 #define SDCR0_SCD	0x00000020	/* Sample Clock Direction select   */
-                	        	/* (GPIO [16])                     */
+					/* (GPIO [16])                     */
 #define SDCR0_SClkIn	(SDCR0_SCD*0)	/*  Sample Clock Input             */
 #define SDCR0_SClkOut	(SDCR0_SCD*1)	/*  Sample Clock Output            */
 #define SDCR0_RCE	0x00000040	/* Receive Clock Edge select       */
@@ -691,13 +691,13 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 #define SDCR0_TrFlEdg	(SDCR0_TCE*1)	/*  Transmit clock Falling-Edge    */
 
 #define SDCR1_AAF	0x00000001	/* Abort After Frame enable        */
-                	        	/* (GPIO [17])                     */
+					/* (GPIO [17])                     */
 #define SDCR1_TXE	0x00000002	/* Transmit Enable                 */
 #define SDCR1_RXE	0x00000004	/* Receive Enable                  */
 #define SDCR1_RIE	0x00000008	/* Receive FIFO 1/3-to-2/3-full or */
-                	        	/* more Interrupt Enable           */
+					/* more Interrupt Enable           */
 #define SDCR1_TIE	0x00000010	/* Transmit FIFO 1/2-full or less  */
-                	        	/* Interrupt Enable                */
+					/* Interrupt Enable                */
 #define SDCR1_AME	0x00000020	/* Address Match Enable            */
 #define SDCR1_TUS	0x00000040	/* Transmit FIFO Under-run Select  */
 #define SDCR1_EFrmURn	(SDCR1_TUS*0)	/*  End Frame on Under-Run         */
@@ -708,24 +708,24 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 
 #define SDCR3_BRD	Fld (4, 0)	/* Baud Rate Divisor/16 - 1 [11:8] */
 #define SDCR4_BRD	Fld (8, 0)	/* Baud Rate Divisor/16 - 1  [7:0] */
-                	        	/* fsd = fxtl/(16*(BRD[11:0] + 1)) */
-                	        	/* Tsd = 16*(BRD[11:0] + 1)*Txtl   */
+					/* fsd = fxtl/(16*(BRD[11:0] + 1)) */
+					/* Tsd = 16*(BRD[11:0] + 1)*Txtl   */
 #define SDCR3_BdRtDiv(Div)      	/*  Baud Rate Divisor [16..65536]  */ \
-                	(((Div) - 16)/16 >> FSize (SDCR4_BRD) << \
-                	 FShft (SDCR3_BRD))
+			(((Div) - 16)/16 >> FSize (SDCR4_BRD) << \
+			 FShft (SDCR3_BRD))
 #define SDCR4_BdRtDiv(Div)      	/*  Baud Rate Divisor [16..65536]  */ \
-                	(((Div) - 16)/16 & FAlnMsk (SDCR4_BRD) << \
-                	 FShft (SDCR4_BRD))
-                	        	/*  fsd = fxtl/(16*Floor (Div/16)) */
-                	        	/*  Tsd = 16*Floor (Div/16)*Txtl   */
+			(((Div) - 16)/16 & FAlnMsk (SDCR4_BRD) << \
+			 FShft (SDCR4_BRD))
+					/*  fsd = fxtl/(16*Floor (Div/16)) */
+					/*  Tsd = 16*Floor (Div/16)*Txtl   */
 #define SDCR3_CeilBdRtDiv(Div)  	/*  Ceil. of BdRtDiv [16..65536]   */ \
-                	(((Div) - 1)/16 >> FSize (SDCR4_BRD) << \
-                	 FShft (SDCR3_BRD))
+			(((Div) - 1)/16 >> FSize (SDCR4_BRD) << \
+			 FShft (SDCR3_BRD))
 #define SDCR4_CeilBdRtDiv(Div)  	/*  Ceil. of BdRtDiv [16..65536]   */ \
-                	(((Div) - 1)/16 & FAlnMsk (SDCR4_BRD) << \
-                	 FShft (SDCR4_BRD))
-                	        	/*  fsd = fxtl/(16*Ceil (Div/16))  */
-                	        	/*  Tsd = 16*Ceil (Div/16)*Txtl    */
+			(((Div) - 1)/16 & FAlnMsk (SDCR4_BRD) << \
+			 FShft (SDCR4_BRD))
+					/*  fsd = fxtl/(16*Ceil (Div/16))  */
+					/*  Tsd = 16*Ceil (Div/16)*Txtl    */
 
 #define SDDR_DATA	Fld (8, 0)	/* receive/transmit DATA FIFOs     */
 #if 0           	        	/* Hidden receive FIFO bits        */
@@ -738,9 +738,9 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 #define SDSR0_TUR	0x00000002	/* Transmit FIFO Under-Run         */
 #define SDSR0_RAB	0x00000004	/* Receive ABort                   */
 #define SDSR0_TFS	0x00000008	/* Transmit FIFO 1/2-full or less  */
-                	        	/* Service request (read)          */
+					/* Service request (read)          */
 #define SDSR0_RFS	0x00000010	/* Receive FIFO 1/3-to-2/3-full or */
-                	        	/* more Service request (read)     */
+					/* more Service request (read)     */
 
 #define SDSR1_RSY	0x00000001	/* Receiver SYnchronized (read)    */
 #define SDSR1_TBY	0x00000002	/* Transmitter BusY (read)         */
@@ -782,17 +782,17 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 
 #if LANGUAGE == C
 #define Ser2HSCR0	        	/* Ser. port 2 HSSP Control Reg. 0 */ \
-                	(*((volatile Word *) io_p2v (_Ser2HSCR0)))
+			(*((volatile Word *) io_p2v (_Ser2HSCR0)))
 #define Ser2HSCR1	        	/* Ser. port 2 HSSP Control Reg. 1 */ \
-                	(*((volatile Word *) io_p2v (_Ser2HSCR1)))
+			(*((volatile Word *) io_p2v (_Ser2HSCR1)))
 #define Ser2HSDR	        	/* Ser. port 2 HSSP Data Reg.      */ \
-                	(*((volatile Word *) io_p2v (_Ser2HSDR)))
+			(*((volatile Word *) io_p2v (_Ser2HSDR)))
 #define Ser2HSSR0	        	/* Ser. port 2 HSSP Status Reg. 0  */ \
-                	(*((volatile Word *) io_p2v (_Ser2HSSR0)))
+			(*((volatile Word *) io_p2v (_Ser2HSSR0)))
 #define Ser2HSSR1	        	/* Ser. port 2 HSSP Status Reg. 1  */ \
-                	(*((volatile Word *) io_p2v (_Ser2HSSR1)))
+			(*((volatile Word *) io_p2v (_Ser2HSSR1)))
 #define Ser2HSCR2	        	/* Ser. port 2 HSSP Control Reg. 2 */ \
-                	(*((volatile Word *) io_p2v (_Ser2HSCR2)))
+			(*((volatile Word *) io_p2v (_Ser2HSCR2)))
 #endif /* LANGUAGE == C */
 
 #define HSCR0_ITR	0x00000001	/* IrDA Transmission Rate          */
@@ -805,9 +805,9 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 #define HSCR0_TXE	0x00000008	/* Transmit Enable                 */
 #define HSCR0_RXE	0x00000010	/* Receive Enable                  */
 #define HSCR0_RIE	0x00000020	/* Receive FIFO 2/5-to-3/5-full or */
-                	        	/* more Interrupt Enable           */
+					/* more Interrupt Enable           */
 #define HSCR0_TIE	0x00000040	/* Transmit FIFO 1/2-full or less  */
-                	        	/* Interrupt Enable                */
+					/* Interrupt Enable                */
 #define HSCR0_AME	0x00000080	/* Address Match Enable            */
 
 #define HSCR1_AMV	Fld (8, 0)	/* Address Match Value             */
@@ -823,9 +823,9 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 #define HSSR0_TUR	0x00000002	/* Transmit FIFO Under-Run         */
 #define HSSR0_RAB	0x00000004	/* Receive ABort                   */
 #define HSSR0_TFS	0x00000008	/* Transmit FIFO 1/2-full or less  */
-                	        	/* Service request (read)          */
+					/* Service request (read)          */
 #define HSSR0_RFS	0x00000010	/* Receive FIFO 2/5-to-3/5-full or */
-                	        	/* more Service request (read)     */
+					/* more Service request (read)     */
 #define HSSR0_FRE	0x00000020	/* receive FRaming Error           */
 
 #define HSSR1_RSY	0x00000001	/* Receiver SYnchronized (read)    */
@@ -838,14 +838,14 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 
 #define HSCR2_TXP	0x00040000	/* Transmit data Polarity (TXD_2)  */
 #define HSCR2_TrDataL	(HSCR2_TXP*0)	/*  Transmit Data active Low       */
-                	        	/*  (inverted)                     */
+					/*  (inverted)                     */
 #define HSCR2_TrDataH	(HSCR2_TXP*1)	/*  Transmit Data active High      */
-                	        	/*  (non-inverted)                 */
+					/*  (non-inverted)                 */
 #define HSCR2_RXP	0x00080000	/* Receive data Polarity (RXD_2)   */
 #define HSCR2_RcDataL	(HSCR2_RXP*0)	/*  Receive Data active Low        */
-                	        	/*  (inverted)                     */
+					/*  (inverted)                     */
 #define HSCR2_RcDataH	(HSCR2_RXP*1)	/*  Receive Data active High       */
-                	        	/*  (non-inverted)                 */
+					/*  (non-inverted)                 */
 
 
 /*
@@ -877,87 +877,87 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 
 #define _Ser4MCCR0	0x80060000	/* Ser. port 4 MCP Control Reg. 0  */
 #define _Ser4MCDR0	0x80060008	/* Ser. port 4 MCP Data Reg. 0     */
-                	        	/* (audio)                         */
+					/* (audio)                         */
 #define _Ser4MCDR1	0x8006000C	/* Ser. port 4 MCP Data Reg. 1     */
-                	        	/* (telecom)                       */
+					/* (telecom)                       */
 #define _Ser4MCDR2	0x80060010	/* Ser. port 4 MCP Data Reg. 2     */
-                	        	/* (CODEC reg.)                    */
+					/* (CODEC reg.)                    */
 #define _Ser4MCSR	0x80060018	/* Ser. port 4 MCP Status Reg.     */
 #define _Ser4MCCR1	0x90060030	/* Ser. port 4 MCP Control Reg. 1  */
 
 #if LANGUAGE == C
 #define Ser4MCCR0	        	/* Ser. port 4 MCP Control Reg. 0  */ \
-                	(*((volatile Word *) io_p2v (_Ser4MCCR0)))
+			(*((volatile Word *) io_p2v (_Ser4MCCR0)))
 #define Ser4MCDR0	        	/* Ser. port 4 MCP Data Reg. 0     */ \
-                	        	/* (audio)                         */ \
-                	(*((volatile Word *) io_p2v (_Ser4MCDR0)))
+					/* (audio)                         */ \
+			(*((volatile Word *) io_p2v (_Ser4MCDR0)))
 #define Ser4MCDR1	        	/* Ser. port 4 MCP Data Reg. 1     */ \
-                	        	/* (telecom)                       */ \
-                	(*((volatile Word *) io_p2v (_Ser4MCDR1)))
+					/* (telecom)                       */ \
+			(*((volatile Word *) io_p2v (_Ser4MCDR1)))
 #define Ser4MCDR2	        	/* Ser. port 4 MCP Data Reg. 2     */ \
-                	        	/* (CODEC reg.)                    */ \
-                	(*((volatile Word *) io_p2v (_Ser4MCDR2)))
+					/* (CODEC reg.)                    */ \
+			(*((volatile Word *) io_p2v (_Ser4MCDR2)))
 #define Ser4MCSR	        	/* Ser. port 4 MCP Status Reg.     */ \
-                	(*((volatile Word *) io_p2v (_Ser4MCSR)))
+			(*((volatile Word *) io_p2v (_Ser4MCSR)))
 #define Ser4MCCR1	        	/* Ser. port 4 MCP Control Reg. 1  */ \
-                	(*((volatile Word *) io_p2v (_Ser4MCCR1)))
+			(*((volatile Word *) io_p2v (_Ser4MCCR1)))
 #endif /* LANGUAGE == C */
 
 #define MCCR0_ASD	Fld (7, 0)	/* Audio Sampling rate Divisor/32  */
-                	        	/* [6..127]                        */
-                	        	/* faud = fmc/(32*ASD)             */
-                	        	/* Taud = 32*ASD*Tmc               */
+					/* [6..127]                        */
+					/* faud = fmc/(32*ASD)             */
+					/* Taud = 32*ASD*Tmc               */
 #define MCCR0_AudSmpDiv(Div)    	/*  Audio Sampling rate Divisor    */ \
-                	        	/*  [192..4064]                    */ \
-                	((Div)/32 << FShft (MCCR0_ASD))
-                	        	/*  faud = fmc/(32*Floor (Div/32)) */
-                	        	/*  Taud = 32*Floor (Div/32)*Tmc   */
+					/*  [192..4064]                    */ \
+			((Div)/32 << FShft (MCCR0_ASD))
+					/*  faud = fmc/(32*Floor (Div/32)) */
+					/*  Taud = 32*Floor (Div/32)*Tmc   */
 #define MCCR0_CeilAudSmpDiv(Div)	/*  Ceil. of AudSmpDiv [192..4064] */ \
-                	(((Div) + 31)/32 << FShft (MCCR0_ASD))
-                	        	/*  faud = fmc/(32*Ceil (Div/32))  */
-                	        	/*  Taud = 32*Ceil (Div/32)*Tmc    */
+			(((Div) + 31)/32 << FShft (MCCR0_ASD))
+					/*  faud = fmc/(32*Ceil (Div/32))  */
+					/*  Taud = 32*Ceil (Div/32)*Tmc    */
 #define MCCR0_TSD	Fld (7, 8)	/* Telecom Sampling rate           */
-                	        	/* Divisor/32 [16..127]            */
-                	        	/* ftcm = fmc/(32*TSD)             */
-                	        	/* Ttcm = 32*TSD*Tmc               */
+					/* Divisor/32 [16..127]            */
+					/* ftcm = fmc/(32*TSD)             */
+					/* Ttcm = 32*TSD*Tmc               */
 #define MCCR0_TcmSmpDiv(Div)    	/*  Telecom Sampling rate Divisor  */ \
-                	        	/*  [512..4064]                    */ \
-                	((Div)/32 << FShft (MCCR0_TSD))
-                	        	/*  ftcm = fmc/(32*Floor (Div/32)) */
-                	        	/*  Ttcm = 32*Floor (Div/32)*Tmc   */
+					/*  [512..4064]                    */ \
+			((Div)/32 << FShft (MCCR0_TSD))
+					/*  ftcm = fmc/(32*Floor (Div/32)) */
+					/*  Ttcm = 32*Floor (Div/32)*Tmc   */
 #define MCCR0_CeilTcmSmpDiv(Div)	/*  Ceil. of TcmSmpDiv [512..4064] */ \
-                	(((Div) + 31)/32 << FShft (MCCR0_TSD))
-                	        	/*  ftcm = fmc/(32*Ceil (Div/32))  */
-                	        	/*  Ttcm = 32*Ceil (Div/32)*Tmc    */
+			(((Div) + 31)/32 << FShft (MCCR0_TSD))
+					/*  ftcm = fmc/(32*Ceil (Div/32))  */
+					/*  Ttcm = 32*Ceil (Div/32)*Tmc    */
 #define MCCR0_MCE	0x00010000	/* MCP Enable                      */
 #define MCCR0_ECS	0x00020000	/* External Clock Select           */
 #define MCCR0_IntClk	(MCCR0_ECS*0)	/*  Internal Clock (10 or 12 MHz)  */
 #define MCCR0_ExtClk	(MCCR0_ECS*1)	/*  External Clock (GPIO [21])     */
 #define MCCR0_ADM	0x00040000	/* A/D (audio/telecom) data        */
-                	        	/* sampling/storing Mode           */
+					/* sampling/storing Mode           */
 #define MCCR0_VldBit	(MCCR0_ADM*0)	/*  Valid Bit storing mode         */
 #define MCCR0_SmpCnt	(MCCR0_ADM*1)	/*  Sampling Counter storing mode  */
 #define MCCR0_TTE	0x00080000	/* Telecom Transmit FIFO 1/2-full  */
-                	        	/* or less interrupt Enable        */
+					/* or less interrupt Enable        */
 #define MCCR0_TRE	0x00100000	/* Telecom Receive FIFO 1/2-full   */
-                	        	/* or more interrupt Enable        */
+					/* or more interrupt Enable        */
 #define MCCR0_ATE	0x00200000	/* Audio Transmit FIFO 1/2-full    */
-                	        	/* or less interrupt Enable        */
+					/* or less interrupt Enable        */
 #define MCCR0_ARE	0x00400000	/* Audio Receive FIFO 1/2-full or  */
-                	        	/* more interrupt Enable           */
+					/* more interrupt Enable           */
 #define MCCR0_LBM	0x00800000	/* Look-Back Mode                  */
 #define MCCR0_ECP	Fld (2, 24)	/* External Clock Prescaler - 1    */
 #define MCCR0_ExtClkDiv(Div)    	/*  External Clock Divisor [1..4]  */ \
-                	(((Div) - 1) << FShft (MCCR0_ECP))
+			(((Div) - 1) << FShft (MCCR0_ECP))
 
 #define MCDR0_DATA	Fld (12, 4)	/* receive/transmit audio DATA     */
-                	        	/* FIFOs                           */
+					/* FIFOs                           */
 
 #define MCDR1_DATA	Fld (14, 2)	/* receive/transmit telecom DATA   */
-                	        	/* FIFOs                           */
+					/* FIFOs                           */
 
-                	        	/* receive/transmit CODEC reg.     */
-                	        	/* FIFOs:                          */
+					/* receive/transmit CODEC reg.     */
+					/* FIFOs:                          */
 #define MCDR2_DATA	Fld (16, 0)	/*  reg. DATA                      */
 #define MCDR2_RW	0x00010000	/*  reg. Read/Write (transmit)     */
 #define MCDR2_Rd	(MCDR2_RW*0)	/*   reg. Read                     */
@@ -965,37 +965,37 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 #define MCDR2_ADD	Fld (4, 17)	/*  reg. ADDress                   */
 
 #define MCSR_ATS	0x00000001	/* Audio Transmit FIFO 1/2-full    */
-                	        	/* or less Service request (read)  */
+					/* or less Service request (read)  */
 #define MCSR_ARS	0x00000002	/* Audio Receive FIFO 1/2-full or  */
-                	        	/* more Service request (read)     */
+					/* more Service request (read)     */
 #define MCSR_TTS	0x00000004	/* Telecom Transmit FIFO 1/2-full  */
-                	        	/* or less Service request (read)  */
+					/* or less Service request (read)  */
 #define MCSR_TRS	0x00000008	/* Telecom Receive FIFO 1/2-full   */
-                	        	/* or more Service request (read)  */
+					/* or more Service request (read)  */
 #define MCSR_ATU	0x00000010	/* Audio Transmit FIFO Under-run   */
 #define MCSR_ARO	0x00000020	/* Audio Receive FIFO Over-run     */
 #define MCSR_TTU	0x00000040	/* Telecom Transmit FIFO Under-run */
 #define MCSR_TRO	0x00000080	/* Telecom Receive FIFO Over-run   */
 #define MCSR_ANF	0x00000100	/* Audio transmit FIFO Not Full    */
-                	        	/* (read)                          */
+					/* (read)                          */
 #define MCSR_ANE	0x00000200	/* Audio receive FIFO Not Empty    */
-                	        	/* (read)                          */
+					/* (read)                          */
 #define MCSR_TNF	0x00000400	/* Telecom transmit FIFO Not Full  */
-                	        	/* (read)                          */
+					/* (read)                          */
 #define MCSR_TNE	0x00000800	/* Telecom receive FIFO Not Empty  */
-                	        	/* (read)                          */
+					/* (read)                          */
 #define MCSR_CWC	0x00001000	/* CODEC register Write Completed  */
-                	        	/* (read)                          */
+					/* (read)                          */
 #define MCSR_CRC	0x00002000	/* CODEC register Read Completed   */
-                	        	/* (read)                          */
+					/* (read)                          */
 #define MCSR_ACE	0x00004000	/* Audio CODEC Enabled (read)      */
 #define MCSR_TCE	0x00008000	/* Telecom CODEC Enabled (read)    */
 
 #define MCCR1_CFS	0x00100000	/* Clock Freq. Select              */
 #define MCCR1_F12MHz	(MCCR1_CFS*0)	/*  Freq. (fmc) = ~ 12 MHz         */
-                	        	/*  (11.981 MHz)                   */
+					/*  (11.981 MHz)                   */
 #define MCCR1_F10MHz	(MCCR1_CFS*1)	/*  Freq. (fmc) = ~ 10 MHz         */
-                	        	/*  (9.585 MHz)                    */
+					/*  (9.585 MHz)                    */
 
 
 /*
@@ -1026,53 +1026,53 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 
 #if LANGUAGE == C
 #define Ser4SSCR0	        	/* Ser. port 4 SSP Control Reg. 0  */ \
-                	(*((volatile Word *) io_p2v (_Ser4SSCR0)))
+			(*((volatile Word *) io_p2v (_Ser4SSCR0)))
 #define Ser4SSCR1	        	/* Ser. port 4 SSP Control Reg. 1  */ \
-                	(*((volatile Word *) io_p2v (_Ser4SSCR1)))
+			(*((volatile Word *) io_p2v (_Ser4SSCR1)))
 #define Ser4SSDR	        	/* Ser. port 4 SSP Data Reg.       */ \
-                	(*((volatile Word *) io_p2v (_Ser4SSDR)))
+			(*((volatile Word *) io_p2v (_Ser4SSDR)))
 #define Ser4SSSR	        	/* Ser. port 4 SSP Status Reg.     */ \
-                	(*((volatile Word *) io_p2v (_Ser4SSSR)))
+			(*((volatile Word *) io_p2v (_Ser4SSSR)))
 #endif /* LANGUAGE == C */
 
 #define SSCR0_DSS	Fld (4, 0)	/* Data Size - 1 Select [3..15]    */
 #define SSCR0_DataSize(Size)    	/*  Data Size Select [4..16]       */ \
-                	(((Size) - 1) << FShft (SSCR0_DSS))
+			(((Size) - 1) << FShft (SSCR0_DSS))
 #define SSCR0_FRF	Fld (2, 4)	/* FRame Format                    */
 #define SSCR0_Motorola	        	/*  Motorola Serial Peripheral     */ \
-                	        	/*  Interface (SPI) format         */ \
-                	(0 << FShft (SSCR0_FRF))
+					/*  Interface (SPI) format         */ \
+			(0 << FShft (SSCR0_FRF))
 #define SSCR0_TI	        	/*  Texas Instruments Synchronous  */ \
-                	        	/*  Serial format                  */ \
-                	(1 << FShft (SSCR0_FRF))
+					/*  Serial format                  */ \
+			(1 << FShft (SSCR0_FRF))
 #define SSCR0_National	        	/*  National Microwire format      */ \
-                	(2 << FShft (SSCR0_FRF))
+			(2 << FShft (SSCR0_FRF))
 #define SSCR0_SSE	0x00000080	/* SSP Enable                      */
 #define SSCR0_SCR	Fld (8, 8)	/* Serial Clock Rate divisor/2 - 1 */
-                	        	/* fss = fxtl/(2*(SCR + 1))        */
-                	        	/* Tss = 2*(SCR + 1)*Txtl          */
+					/* fss = fxtl/(2*(SCR + 1))        */
+					/* Tss = 2*(SCR + 1)*Txtl          */
 #define SSCR0_SerClkDiv(Div)    	/*  Serial Clock Divisor [2..512]  */ \
-                	(((Div) - 2)/2 << FShft (SSCR0_SCR))
-                	        	/*  fss = fxtl/(2*Floor (Div/2))   */
-                	        	/*  Tss = 2*Floor (Div/2)*Txtl     */
+			(((Div) - 2)/2 << FShft (SSCR0_SCR))
+					/*  fss = fxtl/(2*Floor (Div/2))   */
+					/*  Tss = 2*Floor (Div/2)*Txtl     */
 #define SSCR0_CeilSerClkDiv(Div)	/*  Ceil. of SerClkDiv [2..512]    */ \
-                	(((Div) - 1)/2 << FShft (SSCR0_SCR))
-                	        	/*  fss = fxtl/(2*Ceil (Div/2))    */
-                	        	/*  Tss = 2*Ceil (Div/2)*Txtl      */
+			(((Div) - 1)/2 << FShft (SSCR0_SCR))
+					/*  fss = fxtl/(2*Ceil (Div/2))    */
+					/*  Tss = 2*Ceil (Div/2)*Txtl      */
 
 #define SSCR1_RIE	0x00000001	/* Receive FIFO 1/2-full or more   */
-                	        	/* Interrupt Enable                */
+					/* Interrupt Enable                */
 #define SSCR1_TIE	0x00000002	/* Transmit FIFO 1/2-full or less  */
-                	        	/* Interrupt Enable                */
+					/* Interrupt Enable                */
 #define SSCR1_LBM	0x00000004	/* Look-Back Mode                  */
 #define SSCR1_SPO	0x00000008	/* Sample clock (SCLK) POlarity    */
 #define SSCR1_SClkIactL	(SSCR1_SPO*0)	/*  Sample Clock Inactive Low      */
 #define SSCR1_SClkIactH	(SSCR1_SPO*1)	/*  Sample Clock Inactive High     */
 #define SSCR1_SP	0x00000010	/* Sample clock (SCLK) Phase       */
 #define SSCR1_SClk1P	(SSCR1_SP*0)	/*  Sample Clock active 1 Period   */
-                	        	/*  after frame (SFRM, 1st edge)   */
+					/*  after frame (SFRM, 1st edge)   */
 #define SSCR1_SClk1_2P	(SSCR1_SP*1)	/*  Sample Clock active 1/2 Period */
-                	        	/*  after frame (SFRM, 1st edge)   */
+					/*  after frame (SFRM, 1st edge)   */
 #define SSCR1_ECS	0x00000020	/* External Clock Select           */
 #define SSCR1_IntClk	(SSCR1_ECS*0)	/*  Internal Clock                 */
 #define SSCR1_ExtClk	(SSCR1_ECS*1)	/*  External Clock (GPIO [19])     */
@@ -1083,9 +1083,9 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 #define SSSR_RNE	0x00000004	/* Receive FIFO Not Empty (read)   */
 #define SSSR_BSY	0x00000008	/* SSP BuSY (read)                 */
 #define SSSR_TFS	0x00000010	/* Transmit FIFO 1/2-full or less  */
-                	        	/* Service request (read)          */
+					/* Service request (read)          */
 #define SSSR_RFS	0x00000020	/* Receive FIFO 1/2-full or more   */
-                	        	/* Service request (read)          */
+					/* Service request (read)          */
 #define SSSR_ROR	0x00000040	/* Receive FIFO Over-Run           */
 
 
@@ -1112,7 +1112,7 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
  */
 
 #define _OSMR(Nb)	        	/* OS timer Match Reg. [0..3]      */ \
-                	(0x90000000 + (Nb)*4)
+			(0x90000000 + (Nb)*4)
 #define _OSMR0  	_OSMR (0)	/* OS timer Match Reg. 0           */
 #define _OSMR1  	_OSMR (1)	/* OS timer Match Reg. 1           */
 #define _OSMR2  	_OSMR (2)	/* OS timer Match Reg. 2           */
@@ -1124,33 +1124,33 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 
 #if LANGUAGE == C
 #define OSMR    	        	/* OS timer Match Reg. [0..3]      */ \
-                	((volatile Word *) io_p2v (_OSMR (0)))
+			((volatile Word *) io_p2v (_OSMR (0)))
 #define OSMR0   	(OSMR [0])	/* OS timer Match Reg. 0           */
 #define OSMR1   	(OSMR [1])	/* OS timer Match Reg. 1           */
 #define OSMR2   	(OSMR [2])	/* OS timer Match Reg. 2           */
 #define OSMR3   	(OSMR [3])	/* OS timer Match Reg. 3           */
 #define OSCR    	        	/* OS timer Counter Reg.           */ \
-                	(*((volatile Word *) io_p2v (_OSCR)))
+			(*((volatile Word *) io_p2v (_OSCR)))
 #define OSSR    	        	/* OS timer Status Reg.            */ \
-                	(*((volatile Word *) io_p2v (_OSSR)))
+			(*((volatile Word *) io_p2v (_OSSR)))
 #define OWER    	        	/* OS timer Watch-dog Enable Reg.  */ \
-                	(*((volatile Word *) io_p2v (_OWER)))
+			(*((volatile Word *) io_p2v (_OWER)))
 #define OIER    	        	/* OS timer Interrupt Enable Reg.  */ \
-                	(*((volatile Word *) io_p2v (_OIER)))
+			(*((volatile Word *) io_p2v (_OIER)))
 #endif /* LANGUAGE == C */
 
 #define OSSR_M(Nb)	        	/* Match detected [0..3]           */ \
-                	(0x00000001 << (Nb))
+			(0x00000001 << (Nb))
 #define OSSR_M0 	OSSR_M (0)	/* Match detected 0                */
 #define OSSR_M1 	OSSR_M (1)	/* Match detected 1                */
 #define OSSR_M2 	OSSR_M (2)	/* Match detected 2                */
 #define OSSR_M3 	OSSR_M (3)	/* Match detected 3                */
 
 #define OWER_WME	0x00000001	/* Watch-dog Match Enable          */
-                	        	/* (set only)                      */
+					/* (set only)                      */
 
 #define OIER_E(Nb)	        	/* match interrupt Enable [0..3]   */ \
-                	(0x00000001 << (Nb))
+			(0x00000001 << (Nb))
 #define OIER_E0 	OIER_E (0)	/* match interrupt Enable 0        */
 #define OIER_E1 	OIER_E (1)	/* match interrupt Enable 1        */
 #define OIER_E2 	OIER_E (2)	/* match interrupt Enable 2        */
@@ -1180,21 +1180,21 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 
 #if LANGUAGE == C
 #define RTAR    	        	/* RTC Alarm Reg.                  */ \
-                	(*((volatile Word *) io_p2v (_RTAR)))
+			(*((volatile Word *) io_p2v (_RTAR)))
 #define RCNR    	        	/* RTC CouNt Reg.                  */ \
-                	(*((volatile Word *) io_p2v (_RCNR)))
+			(*((volatile Word *) io_p2v (_RCNR)))
 #define RTTR    	        	/* RTC Trim Reg.                   */ \
-                	(*((volatile Word *) io_p2v (_RTTR)))
+			(*((volatile Word *) io_p2v (_RTTR)))
 #define RTSR    	        	/* RTC Status Reg.                 */ \
-                	(*((volatile Word *) io_p2v (_RTSR)))
+			(*((volatile Word *) io_p2v (_RTSR)))
 #endif /* LANGUAGE == C */
 
 #define RTTR_C  	Fld (16, 0)	/* clock divider Count - 1         */
 #define RTTR_D  	Fld (10, 16)	/* trim Delete count               */
-                	        	/* frtc = (1023*(C + 1) - D)*frtx/ */
-                	        	/*        (1023*(C + 1)^2)         */
-                	        	/* Trtc = (1023*(C + 1)^2)*Trtx/   */
-                	        	/*        (1023*(C + 1) - D)       */
+					/* frtc = (1023*(C + 1) - D)*frtx/ */
+					/*        (1023*(C + 1)^2)         */
+					/* Trtc = (1023*(C + 1)^2)*Trtx/   */
+					/*        (1023*(C + 1) - D)       */
 
 #define RTSR_AL 	0x00000001	/* ALarm detected                  */
 #define RTSR_HZ 	0x00000002	/* 1 Hz clock detected             */
@@ -1236,21 +1236,21 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 
 #if LANGUAGE == C
 #define PMCR    	        	/* PM Control Reg.                 */ \
-                	(*((volatile Word *) io_p2v (_PMCR)))
+			(*((volatile Word *) io_p2v (_PMCR)))
 #define PSSR    	        	/* PM Sleep Status Reg.            */ \
-                	(*((volatile Word *) io_p2v (_PSSR)))
+			(*((volatile Word *) io_p2v (_PSSR)))
 #define PSPR    	        	/* PM Scratch-Pad Reg.             */ \
-                	(*((volatile Word *) io_p2v (_PSPR)))
+			(*((volatile Word *) io_p2v (_PSPR)))
 #define PWER    	        	/* PM Wake-up Enable Reg.          */ \
-                	(*((volatile Word *) io_p2v (_PWER)))
+			(*((volatile Word *) io_p2v (_PWER)))
 #define PCFR    	        	/* PM general ConFiguration Reg.   */ \
-                	(*((volatile Word *) io_p2v (_PCFR)))
+			(*((volatile Word *) io_p2v (_PCFR)))
 #define PPCR    	        	/* PM PLL Configuration Reg.       */ \
-                	(*((volatile Word *) io_p2v (_PPCR)))
+			(*((volatile Word *) io_p2v (_PPCR)))
 #define PGSR    	        	/* PM GPIO Sleep state Reg.        */ \
-                	(*((volatile Word *) io_p2v (_PGSR)))
+			(*((volatile Word *) io_p2v (_PGSR)))
 #define POSR    	        	/* PM Oscillator Status Reg.       */ \
-                	(*((volatile Word *) io_p2v (_POSR)))
+			(*((volatile Word *) io_p2v (_POSR)))
 
 #elif LANGUAGE == Assembly
 #define PMCR          	(io_p2v (_PMCR))
@@ -1268,7 +1268,7 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 
 #define PSSR_SS 	0x00000001	/* Software Sleep                  */
 #define PSSR_BFS	0x00000002	/* Battery Fault Status            */
-                	        	/* (BATT_FAULT)                    */
+					/* (BATT_FAULT)                    */
 #define PSSR_VFS	0x00000004	/* Vdd Fault Status (VDD_FAULT)    */
 #define PSSR_DH 	0x00000008	/* DRAM control Hold               */
 #define PSSR_PH 	0x00000010	/* Peripheral control Hold         */
@@ -1314,42 +1314,42 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 #define PCFR_StMemNeg	(PCFR_FS*0)	/*  Static Memory pins Negated (1) */
 #define PCFR_StMemFlt	(PCFR_FS*1)	/*  Static Memory pins Floating    */
 #define PCFR_FO 	0x00000008	/* Force RTC oscillator            */
-                	        	/* (32.768 kHz) enable On          */
+					/* (32.768 kHz) enable On          */
 
 #define PPCR_CCF	Fld (5, 0)	/* CPU core Clock (CCLK) Freq.     */
 #define PPCR_Fx16	        	/*  Freq. x 16 (fcpu = 16*fxtl)    */ \
-                	(0x00 << FShft (PPCR_CCF))
+			(0x00 << FShft (PPCR_CCF))
 #define PPCR_Fx20	        	/*  Freq. x 20 (fcpu = 20*fxtl)    */ \
-                	(0x01 << FShft (PPCR_CCF))
+			(0x01 << FShft (PPCR_CCF))
 #define PPCR_Fx24	        	/*  Freq. x 24 (fcpu = 24*fxtl)    */ \
-                	(0x02 << FShft (PPCR_CCF))
+			(0x02 << FShft (PPCR_CCF))
 #define PPCR_Fx28	        	/*  Freq. x 28 (fcpu = 28*fxtl)    */ \
-                	(0x03 << FShft (PPCR_CCF))
+			(0x03 << FShft (PPCR_CCF))
 #define PPCR_Fx32	        	/*  Freq. x 32 (fcpu = 32*fxtl)    */ \
-                	(0x04 << FShft (PPCR_CCF))
+			(0x04 << FShft (PPCR_CCF))
 #define PPCR_Fx36	        	/*  Freq. x 36 (fcpu = 36*fxtl)    */ \
-                	(0x05 << FShft (PPCR_CCF))
+			(0x05 << FShft (PPCR_CCF))
 #define PPCR_Fx40	        	/*  Freq. x 40 (fcpu = 40*fxtl)    */ \
-                	(0x06 << FShft (PPCR_CCF))
+			(0x06 << FShft (PPCR_CCF))
 #define PPCR_Fx44	        	/*  Freq. x 44 (fcpu = 44*fxtl)    */ \
-                	(0x07 << FShft (PPCR_CCF))
+			(0x07 << FShft (PPCR_CCF))
 #define PPCR_Fx48	        	/*  Freq. x 48 (fcpu = 48*fxtl)    */ \
-                	(0x08 << FShft (PPCR_CCF))
+			(0x08 << FShft (PPCR_CCF))
 #define PPCR_Fx52	        	/*  Freq. x 52 (fcpu = 52*fxtl)    */ \
-                	(0x09 << FShft (PPCR_CCF))
+			(0x09 << FShft (PPCR_CCF))
 #define PPCR_Fx56	        	/*  Freq. x 56 (fcpu = 56*fxtl)    */ \
-                	(0x0A << FShft (PPCR_CCF))
+			(0x0A << FShft (PPCR_CCF))
 #define PPCR_Fx60	        	/*  Freq. x 60 (fcpu = 60*fxtl)    */ \
-                	(0x0B << FShft (PPCR_CCF))
+			(0x0B << FShft (PPCR_CCF))
 #define PPCR_Fx64	        	/*  Freq. x 64 (fcpu = 64*fxtl)    */ \
-                	(0x0C << FShft (PPCR_CCF))
+			(0x0C << FShft (PPCR_CCF))
 #define PPCR_Fx68	        	/*  Freq. x 68 (fcpu = 68*fxtl)    */ \
-                	(0x0D << FShft (PPCR_CCF))
+			(0x0D << FShft (PPCR_CCF))
 #define PPCR_Fx72	        	/*  Freq. x 72 (fcpu = 72*fxtl)    */ \
-                	(0x0E << FShft (PPCR_CCF))
+			(0x0E << FShft (PPCR_CCF))
 #define PPCR_Fx76	        	/*  Freq. x 76 (fcpu = 76*fxtl)    */ \
-                	(0x0F << FShft (PPCR_CCF))
-                	        	/*  3.6864 MHz crystal (fxtl):     */
+			(0x0F << FShft (PPCR_CCF))
+					/*  3.6864 MHz crystal (fxtl):     */
 #define PPCR_F59_0MHz	PPCR_Fx16	/*   Freq. (fcpu) =  59.0 MHz      */
 #define PPCR_F73_7MHz	PPCR_Fx20	/*   Freq. (fcpu) =  73.7 MHz      */
 #define PPCR_F88_5MHz	PPCR_Fx24	/*   Freq. (fcpu) =  88.5 MHz      */
@@ -1366,7 +1366,7 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 #define PPCR_F250_7MHz	PPCR_Fx68	/*   Freq. (fcpu) = 250.7 MHz      */
 #define PPCR_F265_4MHz	PPCR_Fx72	/*   Freq. (fcpu) = 265.4 MHz      */
 #define PPCR_F280_2MHz	PPCR_Fx76	/*   Freq. (fcpu) = 280.2 MHz      */
-                	        	/*  3.5795 MHz crystal (fxtl):     */
+					/*  3.5795 MHz crystal (fxtl):     */
 #define PPCR_F57_3MHz	PPCR_Fx16	/*   Freq. (fcpu) =  57.3 MHz      */
 #define PPCR_F71_6MHz	PPCR_Fx20	/*   Freq. (fcpu) =  71.6 MHz      */
 #define PPCR_F85_9MHz	PPCR_Fx24	/*   Freq. (fcpu) =  85.9 MHz      */
@@ -1401,9 +1401,9 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 
 #if LANGUAGE == C
 #define RSRR    	        	/* RC Software Reset Reg.          */ \
-                	(*((volatile Word *) io_p2v (_RSRR)))
+			(*((volatile Word *) io_p2v (_RSRR)))
 #define RCSR    	        	/* RC Status Reg.                  */ \
-                	(*((volatile Word *) io_p2v (_RCSR)))
+			(*((volatile Word *) io_p2v (_RCSR)))
 #endif /* LANGUAGE == C */
 
 #define RSRR_SWR	0x00000001	/* SoftWare Reset (set only)       */
@@ -1425,18 +1425,18 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 
 #if LANGUAGE == C
 #define TUCR    	        	/* Test Unit Control Reg.          */ \
-                	(*((volatile Word *) io_p2v (_TUCR)))
+			(*((volatile Word *) io_p2v (_TUCR)))
 #endif /* LANGUAGE == C */
 
 #define TUCR_TIC	0x00000040	/* TIC mode                        */
 #define TUCR_TTST	0x00000080	/* Trim TeST mode                  */
 #define TUCR_RCRC	0x00000100	/* Richard's Cyclic Redundancy     */
-                	        	/* Check                           */
+					/* Check                           */
 #define TUCR_PMD	0x00000200	/* Power Management Disable        */
 #define TUCR_MR 	0x00000400	/* Memory Request mode             */
 #define TUCR_NoMB	(TUCR_MR*0)	/*  No Memory Bus request & grant  */
 #define TUCR_MBGPIO	(TUCR_MR*1)	/*  Memory Bus request (MBREQ) &   */
-                	        	/*  grant (MBGNT) on GPIO [22:21]  */
+					/*  grant (MBGNT) on GPIO [22:21]  */
 #define TUCR_CTB	Fld (3, 20)	/* Clock Test Bits                 */
 #define TUCR_FDC	0x00800000	/* RTC Force Delete Count          */
 #define TUCR_FMC	0x01000000	/* Force Michelle's Control mode   */
@@ -1444,23 +1444,23 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 #define TUCR_DPS	0x04000000	/* Disallow Pad Sleep              */
 #define TUCR_TSEL	Fld (3, 29)	/* clock Test SELect on GPIO [27]  */
 #define TUCR_32_768kHz	        	/*  32.768 kHz osc. on GPIO [27]   */ \
-                	(0 << FShft (TUCR_TSEL))
+			(0 << FShft (TUCR_TSEL))
 #define TUCR_3_6864MHz	        	/*  3.6864 MHz osc. on GPIO [27]   */ \
-                	(1 << FShft (TUCR_TSEL))
+			(1 << FShft (TUCR_TSEL))
 #define TUCR_VDD	        	/*  VDD ring osc./16 on GPIO [27]  */ \
-                	(2 << FShft (TUCR_TSEL))
+			(2 << FShft (TUCR_TSEL))
 #define TUCR_96MHzPLL	        	/*  96 MHz PLL/4 on GPIO [27]      */ \
-                	(3 << FShft (TUCR_TSEL))
+			(3 << FShft (TUCR_TSEL))
 #define TUCR_Clock	        	/*  internal (fcpu/2) & 32.768 kHz */ \
-                	        	/*  Clocks on GPIO [26:27]         */ \
-                	(4 << FShft (TUCR_TSEL))
+					/*  Clocks on GPIO [26:27]         */ \
+			(4 << FShft (TUCR_TSEL))
 #define TUCR_3_6864MHzA	        	/*  3.6864 MHz osc. on GPIO [27]   */ \
-                	        	/*  (Alternative)                  */ \
-                	(5 << FShft (TUCR_TSEL))
+					/*  (Alternative)                  */ \
+			(5 << FShft (TUCR_TSEL))
 #define TUCR_MainPLL	        	/*  Main PLL/16 on GPIO [27]       */ \
-                	(6 << FShft (TUCR_TSEL))
+			(6 << FShft (TUCR_TSEL))
 #define TUCR_VDDL	        	/*  VDDL ring osc./4 on GPIO [27]  */ \
-                	(7 << FShft (TUCR_TSEL))
+			(7 << FShft (TUCR_TSEL))
 
 
 /*
@@ -1499,21 +1499,21 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 
 #if LANGUAGE == C
 #define GPLR    	        	/* GPIO Pin Level Reg.             */ \
-                	(*((volatile Word *) io_p2v (_GPLR)))
+			(*((volatile Word *) io_p2v (_GPLR)))
 #define GPDR    	        	/* GPIO Pin Direction Reg.         */ \
-                	(*((volatile Word *) io_p2v (_GPDR)))
+			(*((volatile Word *) io_p2v (_GPDR)))
 #define GPSR    	        	/* GPIO Pin output Set Reg.        */ \
-                	(*((volatile Word *) io_p2v (_GPSR)))
+			(*((volatile Word *) io_p2v (_GPSR)))
 #define GPCR    	        	/* GPIO Pin output Clear Reg.      */ \
-                	(*((volatile Word *) io_p2v (_GPCR)))
+			(*((volatile Word *) io_p2v (_GPCR)))
 #define GRER    	        	/* GPIO Rising-Edge detect Reg.    */ \
-                	(*((volatile Word *) io_p2v (_GRER)))
+			(*((volatile Word *) io_p2v (_GRER)))
 #define GFER    	        	/* GPIO Falling-Edge detect Reg.   */ \
-                	(*((volatile Word *) io_p2v (_GFER)))
+			(*((volatile Word *) io_p2v (_GFER)))
 #define GEDR    	        	/* GPIO Edge Detect status Reg.    */ \
-                	(*((volatile Word *) io_p2v (_GEDR)))
+			(*((volatile Word *) io_p2v (_GEDR)))
 #define GAFR    	        	/* GPIO Alternate Function Reg.    */ \
-                	(*((volatile Word *) io_p2v (_GAFR)))
+			(*((volatile Word *) io_p2v (_GAFR)))
 #elif LANGUAGE == Assembly
 
 #define GPLR  (io_p2v (_GPLR))
@@ -1531,7 +1531,7 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 #define GPIO_MAX	(27)
 
 #define GPIO_GPIO(Nb)	        	/* GPIO [0..27]                    */ \
-                	(0x00000001 << (Nb))
+			(0x00000001 << (Nb))
 #define GPIO_GPIO0	GPIO_GPIO (0)	/* GPIO  [0]                       */
 #define GPIO_GPIO1	GPIO_GPIO (1)	/* GPIO  [1]                       */
 #define GPIO_GPIO2	GPIO_GPIO (2)	/* GPIO  [2]                       */
@@ -1562,7 +1562,7 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 #define GPIO_GPIO27	GPIO_GPIO (27)	/* GPIO [27]                       */
 
 #define GPIO_LDD(Nb)	        	/* LCD Data [8..15] (O)            */ \
-                	GPIO_GPIO ((Nb) - 6)
+			GPIO_GPIO ((Nb) - 6)
 #define GPIO_LDD8	GPIO_LDD (8)	/* LCD Data  [8] (O)               */
 #define GPIO_LDD9	GPIO_LDD (9)	/* LCD Data  [9] (O)               */
 #define GPIO_LDD10	GPIO_LDD (10)	/* LCD Data [10] (O)               */
@@ -1571,24 +1571,24 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 #define GPIO_LDD13	GPIO_LDD (13)	/* LCD Data [13] (O)               */
 #define GPIO_LDD14	GPIO_LDD (14)	/* LCD Data [14] (O)               */
 #define GPIO_LDD15	GPIO_LDD (15)	/* LCD Data [15] (O)               */
-                	        	/* ser. port 4:                    */
+					/* ser. port 4:                    */
 #define GPIO_SSP_TXD	GPIO_GPIO (10)	/*  SSP Transmit Data (O)          */
 #define GPIO_SSP_RXD	GPIO_GPIO (11)	/*  SSP Receive Data (I)           */
 #define GPIO_SSP_SCLK	GPIO_GPIO (12)	/*  SSP Sample CLocK (O)           */
 #define GPIO_SSP_SFRM	GPIO_GPIO (13)	/*  SSP Sample FRaMe (O)           */
-                	        	/* ser. port 1:                    */
+					/* ser. port 1:                    */
 #define GPIO_UART_TXD	GPIO_GPIO (14)	/*  UART Transmit Data (O)         */
 #define GPIO_UART_RXD	GPIO_GPIO (15)	/*  UART Receive Data (I)          */
 #define GPIO_SDLC_SCLK	GPIO_GPIO (16)	/*  SDLC Sample CLocK (I/O)        */
 #define GPIO_SDLC_AAF	GPIO_GPIO (17)	/*  SDLC Abort After Frame (O)     */
 #define GPIO_UART_SCLK1	GPIO_GPIO (18)	/*  UART Sample CLocK 1 (I)        */
-                	        	/* ser. port 4:                    */
+					/* ser. port 4:                    */
 #define GPIO_SSP_CLK	GPIO_GPIO (19)	/*  SSP external CLocK (I)         */
-                	        	/* ser. port 3:                    */
+					/* ser. port 3:                    */
 #define GPIO_UART_SCLK3	GPIO_GPIO (20)	/*  UART Sample CLocK 3 (I)        */
-                	        	/* ser. port 4:                    */
+					/* ser. port 4:                    */
 #define GPIO_MCP_CLK	GPIO_GPIO (21)	/*  MCP CLocK (I)                  */
-                	        	/* test controller:                */
+					/* test controller:                */
 #define GPIO_TIC_ACK	GPIO_GPIO (21)	/*  TIC ACKnowledge (O)            */
 #define GPIO_MBGNT	GPIO_GPIO (21)	/*  Memory Bus GraNT (O)           */
 #define GPIO_TREQA	GPIO_GPIO (22)	/*  TIC REQuest A (I)              */
@@ -1632,21 +1632,21 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 
 #if LANGUAGE == C
 #define ICIP    	        	/* IC IRQ Pending reg.             */ \
-                	(*((volatile Word *) io_p2v (_ICIP)))
+			(*((volatile Word *) io_p2v (_ICIP)))
 #define ICMR    	        	/* IC Mask Reg.                    */ \
-                	(*((volatile Word *) io_p2v (_ICMR)))
+			(*((volatile Word *) io_p2v (_ICMR)))
 #define ICLR    	        	/* IC Level Reg.                   */ \
-                	(*((volatile Word *) io_p2v (_ICLR)))
+			(*((volatile Word *) io_p2v (_ICLR)))
 #define ICCR    	        	/* IC Control Reg.                 */ \
-                	(*((volatile Word *) io_p2v (_ICCR)))
+			(*((volatile Word *) io_p2v (_ICCR)))
 #define ICFP    	        	/* IC FIQ Pending reg.             */ \
-                	(*((volatile Word *) io_p2v (_ICFP)))
+			(*((volatile Word *) io_p2v (_ICFP)))
 #define ICPR    	        	/* IC Pending Reg.                 */ \
-                	(*((volatile Word *) io_p2v (_ICPR)))
+			(*((volatile Word *) io_p2v (_ICPR)))
 #endif /* LANGUAGE == C */
 
 #define IC_GPIO(Nb)	        	/* GPIO [0..10]                    */ \
-                	(0x00000001 << (Nb))
+			(0x00000001 << (Nb))
 #define IC_GPIO0	IC_GPIO (0)	/* GPIO  [0]                       */
 #define IC_GPIO1	IC_GPIO (1)	/* GPIO  [1]                       */
 #define IC_GPIO2	IC_GPIO (2)	/* GPIO  [2]                       */
@@ -1668,7 +1668,7 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 #define IC_Ser4MCP	0x00040000	/* Ser. port 4 MCP                 */
 #define IC_Ser4SSP	0x00080000	/* Ser. port 4 SSP                 */
 #define IC_DMA(Nb)	        	/* DMA controller channel [0..5]   */ \
-                	(0x00100000 << (Nb))
+			(0x00100000 << (Nb))
 #define IC_DMA0 	IC_DMA (0)	/* DMA controller channel 0        */
 #define IC_DMA1 	IC_DMA (1)	/* DMA controller channel 1        */
 #define IC_DMA2 	IC_DMA (2)	/* DMA controller channel 2        */
@@ -1676,7 +1676,7 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 #define IC_DMA4 	IC_DMA (4)	/* DMA controller channel 4        */
 #define IC_DMA5 	IC_DMA (5)	/* DMA controller channel 5        */
 #define IC_OST(Nb)	        	/* OS Timer match [0..3]           */ \
-                	(0x04000000 << (Nb))
+			(0x04000000 << (Nb))
 #define IC_OST0 	IC_OST (0)	/* OS Timer match 0                */
 #define IC_OST1 	IC_OST (1)	/* OS Timer match 1                */
 #define IC_OST2 	IC_OST (2)	/* OS Timer match 2                */
@@ -1688,11 +1688,11 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 #define ICLR_FIQ	1       	/* Fast Interrupt reQuest          */
 
 #define ICCR_DIM	0x00000001	/* Disable Idle-mode interrupt     */
-                	        	/* Mask                            */
+					/* Mask                            */
 #define ICCR_IdleAllInt	(ICCR_DIM*0)	/*  Idle-mode All Interrupt enable */
-                	        	/*  (ICMR ignored)                 */
+					/*  (ICMR ignored)                 */
 #define ICCR_IdleMskInt	(ICCR_DIM*1)	/*  Idle-mode non-Masked Interrupt */
-                	        	/*  enable (ICMR used)             */
+					/*  enable (ICMR used)             */
 
 
 /*
@@ -1715,25 +1715,25 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 #define _PPSR   	0x90060004	/* PPC Pin State Reg.              */
 #define _PPAR   	0x90060008	/* PPC Pin Assignment Reg.         */
 #define _PSDR   	0x9006000C	/* PPC Sleep-mode pin Direction    */
-                	        	/* Reg.                            */
+					/* Reg.                            */
 #define _PPFR   	0x90060010	/* PPC Pin Flag Reg.               */
 
 #if LANGUAGE == C
 #define PPDR    	        	/* PPC Pin Direction Reg.          */ \
-                	(*((volatile Word *) io_p2v (_PPDR)))
+			(*((volatile Word *) io_p2v (_PPDR)))
 #define PPSR    	        	/* PPC Pin State Reg.              */ \
-                	(*((volatile Word *) io_p2v (_PPSR)))
+			(*((volatile Word *) io_p2v (_PPSR)))
 #define PPAR    	        	/* PPC Pin Assignment Reg.         */ \
-                	(*((volatile Word *) io_p2v (_PPAR)))
+			(*((volatile Word *) io_p2v (_PPAR)))
 #define PSDR    	        	/* PPC Sleep-mode pin Direction    */ \
-                	        	/* Reg.                            */ \
-                	(*((volatile Word *) io_p2v (_PSDR)))
+					/* Reg.                            */ \
+			(*((volatile Word *) io_p2v (_PSDR)))
 #define PPFR    	        	/* PPC Pin Flag Reg.               */ \
-                	(*((volatile Word *) io_p2v (_PPFR)))
+			(*((volatile Word *) io_p2v (_PPFR)))
 #endif /* LANGUAGE == C */
 
 #define PPC_LDD(Nb)	        	/* LCD Data [0..7]                 */ \
-                	(0x00000001 << (Nb))
+			(0x00000001 << (Nb))
 #define PPC_LDD0	PPC_LDD (0)	/* LCD Data [0]                    */
 #define PPC_LDD1	PPC_LDD (1)	/* LCD Data [1]                    */
 #define PPC_LDD2	PPC_LDD (2)	/* LCD Data [2]                    */
@@ -1746,16 +1746,16 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 #define PPC_L_LCLK	0x00000200	/* LCD Line CLocK                  */
 #define PPC_L_FCLK	0x00000400	/* LCD Frame CLocK                 */
 #define PPC_L_BIAS	0x00000800	/* LCD AC BIAS                     */
-                	        	/* ser. port 1:                    */
+					/* ser. port 1:                    */
 #define PPC_TXD1	0x00001000	/*  SDLC/UART Transmit Data 1      */
 #define PPC_RXD1	0x00002000	/*  SDLC/UART Receive Data 1       */
-                	        	/* ser. port 2:                    */
+					/* ser. port 2:                    */
 #define PPC_TXD2	0x00004000	/*  IPC Transmit Data 2            */
 #define PPC_RXD2	0x00008000	/*  IPC Receive Data 2             */
-                	        	/* ser. port 3:                    */
+					/* ser. port 3:                    */
 #define PPC_TXD3	0x00010000	/*  UART Transmit Data 3           */
 #define PPC_RXD3	0x00020000	/*  UART Receive Data 3            */
-                	        	/* ser. port 4:                    */
+					/* ser. port 4:                    */
 #define PPC_TXD4	0x00040000	/*  MCP/SSP Transmit Data 4        */
 #define PPC_RXD4	0x00080000	/*  MCP/SSP Receive Data 4         */
 #define PPC_SCLK	0x00100000	/*  MCP/SSP Sample CLocK           */
@@ -1764,14 +1764,14 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 #define PPDR_In 	0       	/* Input                           */
 #define PPDR_Out	1       	/* Output                          */
 
-                	        	/* ser. port 1:                    */
+					/* ser. port 1:                    */
 #define PPAR_UPR	0x00001000	/*  UART Pin Reassignment          */
 #define PPAR_UARTTR	(PPAR_UPR*0)	/*   UART on TXD_1 & RXD_1         */
 #define PPAR_UARTGPIO	(PPAR_UPR*1)	/*   UART on GPIO [14:15]          */
-                	        	/* ser. port 4:                    */
+					/* ser. port 4:                    */
 #define PPAR_SPR	0x00040000	/*  SSP Pin Reassignment           */
 #define PPAR_SSPTRSS	(PPAR_SPR*0)	/*   SSP on TXD_C, RXD_C, SCLK_C,  */
-                	        	/*   & SFRM_C                      */
+					/*   & SFRM_C                      */
 #define PPAR_SSPGPIO	(PPAR_SPR*1)	/*   SSP on GPIO [10:13]           */
 
 #define PSDR_OutL	0       	/* Output Low in sleep mode        */
@@ -1811,20 +1811,20 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
  *    fcas, Tcas	Frequency, period of the DRAM CAS shift registers.
  */
 
-                	        	/* Memory system:                  */
+					/* Memory system:                  */
 #define _MDCNFG 	0xA0000000	/*  DRAM CoNFiGuration reg.        */
 #define _MDCAS(Nb)	        	/*  DRAM CAS shift reg. [0..3]     */ \
-                	(0xA0000004 + (Nb)*4)
+			(0xA0000004 + (Nb)*4)
 #define _MDCAS0 	_MDCAS (0)	/*  DRAM CAS shift reg. 0          */
 #define _MDCAS1 	_MDCAS (1)	/*  DRAM CAS shift reg. 1          */
 #define _MDCAS2 	_MDCAS (2)	/*  DRAM CAS shift reg. 2          */
 
 #if LANGUAGE == C
-                	        	/* Memory system:                  */
+					/* Memory system:                  */
 #define MDCNFG  	        	/*  DRAM CoNFiGuration reg.        */ \
-                	(*((volatile Word *) io_p2v (_MDCNFG)))
+			(*((volatile Word *) io_p2v (_MDCNFG)))
 #define MDCAS   	        	/*  DRAM CAS shift reg. [0..3]     */ \
-                	((volatile Word *) io_p2v (_MDCAS (0)))
+			((volatile Word *) io_p2v (_MDCAS (0)))
 #define MDCAS0  	(MDCAS [0])	/*  DRAM CAS shift reg. 0          */
 #define MDCAS1  	(MDCAS [1])	/*  DRAM CAS shift reg. 1          */
 #define MDCAS2  	(MDCAS [2])	/*  DRAM CAS shift reg. 2          */
@@ -1837,34 +1837,34 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 
 /* SA1100 MDCNFG values */
 #define MDCNFG_DE(Nb)	        	/* DRAM Enable bank [0..3]         */ \
-                	(0x00000001 << (Nb))
+			(0x00000001 << (Nb))
 #define MDCNFG_DE0	MDCNFG_DE (0)	/* DRAM Enable bank 0              */
 #define MDCNFG_DE1	MDCNFG_DE (1)	/* DRAM Enable bank 1              */
 #define MDCNFG_DE2	MDCNFG_DE (2)	/* DRAM Enable bank 2              */
 #define MDCNFG_DE3	MDCNFG_DE (3)	/* DRAM Enable bank 3              */
 #define MDCNFG_DRAC	Fld (2, 4)	/* DRAM Row Address Count - 9      */
 #define MDCNFG_RowAdd(Add)      	/*  Row Address count [9..12]      */ \
-                	(((Add) - 9) << FShft (MDCNFG_DRAC))
+			(((Add) - 9) << FShft (MDCNFG_DRAC))
 #define MDCNFG_CDB2	0x00000040	/* shift reg. Clock Divide By 2    */
-                	        	/* (fcas = fcpu/2)                 */
+					/* (fcas = fcpu/2)                 */
 #define MDCNFG_TRP	Fld (4, 7)	/* Time RAS Pre-charge - 1 [Tmem]  */
 #define MDCNFG_PrChrg(Tcpu)     	/*  Pre-Charge time [2..32 Tcpu]   */ \
-                	(((Tcpu) - 2)/2 << FShft (MDCNFG_TRP))
+			(((Tcpu) - 2)/2 << FShft (MDCNFG_TRP))
 #define MDCNFG_CeilPrChrg(Tcpu) 	/*  Ceil. of PrChrg [2..32 Tcpu]   */ \
-                	(((Tcpu) - 1)/2 << FShft (MDCNFG_TRP))
+			(((Tcpu) - 1)/2 << FShft (MDCNFG_TRP))
 #define MDCNFG_TRASR	Fld (4, 11)	/* Time RAS Refresh - 1 [Tmem]     */
 #define MDCNFG_Ref(Tcpu)        	/*  Refresh time [2..32 Tcpu]      */ \
-                	(((Tcpu) - 2)/2 << FShft (MDCNFG_TRASR))
+			(((Tcpu) - 2)/2 << FShft (MDCNFG_TRASR))
 #define MDCNFG_CeilRef(Tcpu)    	/*  Ceil. of Ref [2..32 Tcpu]      */ \
-                	(((Tcpu) - 1)/2 << FShft (MDCNFG_TRASR))
+			(((Tcpu) - 1)/2 << FShft (MDCNFG_TRASR))
 #define MDCNFG_TDL	Fld (2, 15)	/* Time Data Latch [Tcpu]          */
 #define MDCNFG_DataLtch(Tcpu)   	/*  Data Latch delay [0..3 Tcpu]   */ \
-                	((Tcpu) << FShft (MDCNFG_TDL))
+			((Tcpu) << FShft (MDCNFG_TDL))
 #define MDCNFG_DRI	Fld (15, 17)	/* min. DRAM Refresh Interval/4    */
-                	        	/* [Tmem]                          */
+					/* [Tmem]                          */
 #define MDCNFG_RefInt(Tcpu)     	/*  min. Refresh Interval          */ \
-                	        	/*  [0..262136 Tcpu]               */ \
-                	((Tcpu)/8 << FShft (MDCNFG_DRI))
+					/*  [0..262136 Tcpu]               */ \
+			((Tcpu)/8 << FShft (MDCNFG_DRI))
 
 /* SA1110 MDCNFG values */
 #define MDCNFG_SA1110_DE0	0x00000001	/* DRAM Enable bank 0        */
@@ -1872,22 +1872,22 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 #define MDCNFG_SA1110_DTIM0	0x00000004	/* DRAM timing type 0/1      */
 #define MDCNFG_SA1110_DWID0	0x00000008	/* DRAM bus width 0/1        */
 #define MDCNFG_SA1110_DRAC0	Fld(3, 4)	/* DRAM row addr bit count   */
-                	        		/* bank 0/1                  */
+						/* bank 0/1                  */
 #define MDCNFG_SA1110_CDB20	0x00000080	/* Mem Clock divide by 2 0/1 */
 #define MDCNFG_SA1110_TRP0	Fld(3, 8)	/* RAS precharge 0/1         */
 #define MDCNFG_SA1110_TDL0	Fld(2, 12)	/* Data input latch after CAS*/
-                	        		/* deassertion 0/1           */
+						/* deassertion 0/1           */
 #define MDCNFG_SA1110_TWR0	Fld(2, 14)	/* SDRAM write recovery 0/1  */
 #define MDCNFG_SA1110_DE2	0x00010000	/* DRAM Enable bank 0        */
 #define MDCNFG_SA1110_DE3	0x00020000 	/* DRAM Enable bank 1        */
 #define MDCNFG_SA1110_DTIM2	0x00040000	/* DRAM timing type 0/1      */
 #define MDCNFG_SA1110_DWID2	0x00080000	/* DRAM bus width 0/1        */
 #define MDCNFG_SA1110_DRAC2	Fld(3, 20)	/* DRAM row addr bit count   */
-                	        		/* bank 0/1                  */
+						/* bank 0/1                  */
 #define MDCNFG_SA1110_CDB22	0x00800000	/* Mem Clock divide by 2 0/1 */
 #define MDCNFG_SA1110_TRP2	Fld(3, 24)	/* RAS precharge 0/1         */
 #define MDCNFG_SA1110_TDL2	Fld(2, 28)	/* Data input latch after CAS*/
-                	        		/* deassertion 0/1           */
+						/* deassertion 0/1           */
 #define MDCNFG_SA1110_TWR2	Fld(2, 30)	/* SDRAM write recovery 0/1  */
 
 
@@ -1905,19 +1905,19 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
  *    fmem, Tmem	Frequency, period of the memory clock (fmem = fcpu/2).
  */
 
-                	        	/* Memory system:                  */
+					/* Memory system:                  */
 #define _MSC(Nb)	        	/*  Static memory Control reg.     */ \
-                	        	/*  [0..1]                         */ \
-                	(0xA0000010 + (Nb)*4)
+					/*  [0..1]                         */ \
+			(0xA0000010 + (Nb)*4)
 #define _MSC0   	_MSC (0)	/*  Static memory Control reg. 0   */
 #define _MSC1   	_MSC (1)	/*  Static memory Control reg. 1   */
 #define _MSC2		0xA000002C	/*  Static memory Control reg. 2, not contiguous   */
 
 #if LANGUAGE == C
-                	        	/* Memory system:                  */
+					/* Memory system:                  */
 #define MSC     	        	/*  Static memory Control reg.     */ \
-                	        	/*  [0..1]                         */ \
-                	((volatile Word *) io_p2v (_MSC (0)))
+					/*  [0..1]                         */ \
+			((volatile Word *) io_p2v (_MSC (0)))
 #define MSC0    	(MSC [0])	/*  Static memory Control reg. 0   */
 #define MSC1    	(MSC [1])	/*  Static memory Control reg. 1   */
 #define MSC2    	(*(volatile Word *) io_p2v (_MSC2))	/*  Static memory Control reg. 2   */
@@ -1931,7 +1931,7 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 #endif /* LANGUAGE == C */
 
 #define MSC_Bnk(Nb)	        	/* static memory Bank [0..3]       */ \
-                	Fld (16, ((Nb) Modulo 2)*16)
+			Fld (16, ((Nb) Modulo 2)*16)
 #define MSC0_Bnk0	MSC_Bnk (0)	/* static memory Bank 0            */
 #define MSC0_Bnk1	MSC_Bnk (1)	/* static memory Bank 1            */
 #define MSC1_Bnk2	MSC_Bnk (2)	/* static memory Bank 2            */
@@ -1939,46 +1939,46 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 
 #define MSC_RT  	Fld (2, 0)	/* ROM/static memory Type          */
 #define MSC_NonBrst	        	/*  Non-Burst static memory        */ \
-                	(0 << FShft (MSC_RT))
+			(0 << FShft (MSC_RT))
 #define MSC_SRAM	        	/*  32-bit byte-writable SRAM      */ \
-                	(1 << FShft (MSC_RT))
+			(1 << FShft (MSC_RT))
 #define MSC_Brst4	        	/*  Burst-of-4 static memory       */ \
-                	(2 << FShft (MSC_RT))
+			(2 << FShft (MSC_RT))
 #define MSC_Brst8	        	/*  Burst-of-8 static memory       */ \
-                	(3 << FShft (MSC_RT))
+			(3 << FShft (MSC_RT))
 #define MSC_RBW 	0x0004  	/* ROM/static memory Bus Width     */
 #define MSC_32BitStMem	(MSC_RBW*0)	/*  32-Bit Static Memory           */
 #define MSC_16BitStMem	(MSC_RBW*1)	/*  16-Bit Static Memory           */
 #define MSC_RDF 	Fld (5, 3)	/* ROM/static memory read Delay    */
-                	        	/* First access - 1(.5) [Tmem]     */
+					/* First access - 1(.5) [Tmem]     */
 #define MSC_1stRdAcc(Tcpu)      	/*  1st Read Access time (burst    */ \
-                	        	/*  static memory) [3..65 Tcpu]    */ \
-                	((((Tcpu) - 3)/2) << FShft (MSC_RDF))
+					/*  static memory) [3..65 Tcpu]    */ \
+			((((Tcpu) - 3)/2) << FShft (MSC_RDF))
 #define MSC_Ceil1stRdAcc(Tcpu)  	/*  Ceil. of 1stRdAcc [3..65 Tcpu] */ \
-                	((((Tcpu) - 2)/2) << FShft (MSC_RDF))
+			((((Tcpu) - 2)/2) << FShft (MSC_RDF))
 #define MSC_RdAcc(Tcpu)	        	/*  Read Access time (non-burst    */ \
-                	        	/*  static memory) [2..64 Tcpu]    */ \
-                	((((Tcpu) - 2)/2) << FShft (MSC_RDF))
+					/*  static memory) [2..64 Tcpu]    */ \
+			((((Tcpu) - 2)/2) << FShft (MSC_RDF))
 #define MSC_CeilRdAcc(Tcpu)     	/*  Ceil. of RdAcc [2..64 Tcpu]    */ \
-                	((((Tcpu) - 1)/2) << FShft (MSC_RDF))
+			((((Tcpu) - 1)/2) << FShft (MSC_RDF))
 #define MSC_RDN 	Fld (5, 8)	/* ROM/static memory read Delay    */
-                	        	/* Next access - 1 [Tmem]          */
+					/* Next access - 1 [Tmem]          */
 #define MSC_NxtRdAcc(Tcpu)      	/*  Next Read Access time (burst   */ \
-                	        	/*  static memory) [2..64 Tcpu]    */ \
-                	((((Tcpu) - 2)/2) << FShft (MSC_RDN))
+					/*  static memory) [2..64 Tcpu]    */ \
+			((((Tcpu) - 2)/2) << FShft (MSC_RDN))
 #define MSC_CeilNxtRdAcc(Tcpu)  	/*  Ceil. of NxtRdAcc [2..64 Tcpu] */ \
-                	((((Tcpu) - 1)/2) << FShft (MSC_RDN))
+			((((Tcpu) - 1)/2) << FShft (MSC_RDN))
 #define MSC_WrAcc(Tcpu)	        	/*  Write Access time (non-burst   */ \
-                	        	/*  static memory) [2..64 Tcpu]    */ \
-                	((((Tcpu) - 2)/2) << FShft (MSC_RDN))
+					/*  static memory) [2..64 Tcpu]    */ \
+			((((Tcpu) - 2)/2) << FShft (MSC_RDN))
 #define MSC_CeilWrAcc(Tcpu)     	/*  Ceil. of WrAcc [2..64 Tcpu]    */ \
-                	((((Tcpu) - 1)/2) << FShft (MSC_RDN))
+			((((Tcpu) - 1)/2) << FShft (MSC_RDN))
 #define MSC_RRR 	Fld (3, 13)	/* ROM/static memory RecoveRy      */
-                	        	/* time/2 [Tmem]                   */
+					/* time/2 [Tmem]                   */
 #define MSC_Rec(Tcpu)	        	/*  Recovery time [0..28 Tcpu]     */ \
-                	(((Tcpu)/4) << FShft (MSC_RRR))
+			(((Tcpu)/4) << FShft (MSC_RRR))
 #define MSC_CeilRec(Tcpu)       	/*  Ceil. of Rec [0..28 Tcpu]      */ \
-                	((((Tcpu) + 3)/4) << FShft (MSC_RRR))
+			((((Tcpu) + 3)/4) << FShft (MSC_RRR))
 
 
 /*
@@ -1995,38 +1995,38 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
  *    fbclk, Tbclk	Frequency, period of the PCMCIA clock (BCLK).
  */
 
-                	        	/* Memory system:                  */
+					/* Memory system:                  */
 #define _MECR   	0xA0000018	/*  Expansion memory bus (PCMCIA)  */
-                	        	/*  Configuration Reg.             */
+					/*  Configuration Reg.             */
 
 #if LANGUAGE == C
-                	        	/* Memory system:                  */
+					/* Memory system:                  */
 #define MECR    	        	/*  Expansion memory bus (PCMCIA)  */ \
-                	        	/*  Configuration Reg.             */ \
-                	(*((volatile Word *) io_p2v (_MECR)))
+					/*  Configuration Reg.             */ \
+			(*((volatile Word *) io_p2v (_MECR)))
 #endif /* LANGUAGE == C */
 
 #define MECR_PCMCIA(Nb)	        	/* PCMCIA [0..1]                   */ \
-                	Fld (15, (Nb)*16)
+			Fld (15, (Nb)*16)
 #define MECR_PCMCIA0	MECR_PCMCIA (0)	/* PCMCIA 0                        */
 #define MECR_PCMCIA1	MECR_PCMCIA (1)	/* PCMCIA 1                        */
 
 #define MECR_BSIO	Fld (5, 0)	/* BCLK Select I/O - 1 [Tmem]      */
 #define MECR_IOClk(Tcpu)        	/*  I/O Clock [2..64 Tcpu]         */ \
-                	((((Tcpu) - 2)/2) << FShft (MECR_BSIO))
+			((((Tcpu) - 2)/2) << FShft (MECR_BSIO))
 #define MECR_CeilIOClk(Tcpu)    	/*  Ceil. of IOClk [2..64 Tcpu]    */ \
-                	((((Tcpu) - 1)/2) << FShft (MECR_BSIO))
+			((((Tcpu) - 1)/2) << FShft (MECR_BSIO))
 #define MECR_BSA	Fld (5, 5)	/* BCLK Select Attribute - 1       */
-                	        	/* [Tmem]                          */
+					/* [Tmem]                          */
 #define MECR_AttrClk(Tcpu)      	/*  Attribute Clock [2..64 Tcpu]   */ \
-                	((((Tcpu) - 2)/2) << FShft (MECR_BSA))
+			((((Tcpu) - 2)/2) << FShft (MECR_BSA))
 #define MECR_CeilAttrClk(Tcpu)  	/*  Ceil. of AttrClk [2..64 Tcpu]  */ \
-                	((((Tcpu) - 1)/2) << FShft (MECR_BSA))
+			((((Tcpu) - 1)/2) << FShft (MECR_BSA))
 #define MECR_BSM	Fld (5, 10)	/* BCLK Select Memory - 1 [Tmem]   */
 #define MECR_MemClk(Tcpu)       	/*  Memory Clock [2..64 Tcpu]      */ \
-                	((((Tcpu) - 2)/2) << FShft (MECR_BSM))
+			((((Tcpu) - 2)/2) << FShft (MECR_BSM))
 #define MECR_CeilMemClk(Tcpu)   	/*  Ceil. of MemClk [2..64 Tcpu]   */ \
-                	((((Tcpu) - 1)/2) << FShft (MECR_BSM))
+			((((Tcpu) - 1)/2) << FShft (MECR_BSM))
 
 /*
  * On SA1110 only
@@ -2035,9 +2035,9 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 #define _MDREFR		0xA000001C
 
 #if LANGUAGE == C
-                	        	/* Memory system:                  */
+					/* Memory system:                  */
 #define MDREFR \
-                	(*((volatile Word *) io_p2v (_MDREFR)))
+			(*((volatile Word *) io_p2v (_MDREFR)))
 
 #elif LANGUAGE == Assembly
 
@@ -2146,291 +2146,291 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 #define DMASp   	0x00000020	/* DMA control reg. Space [byte]   */
 
 #define _DDAR(Nb)	        	/* DMA Device Address Reg.         */ \
-                	        	/* channel [0..5]                  */ \
-                	(0xB0000000 + (Nb)*DMASp)
+					/* channel [0..5]                  */ \
+			(0xB0000000 + (Nb)*DMASp)
 #define _SetDCSR(Nb)	        	/* Set DMA Control & Status Reg.   */ \
-                	        	/* channel [0..5] (write)          */ \
-                	(0xB0000004 + (Nb)*DMASp)
+					/* channel [0..5] (write)          */ \
+			(0xB0000004 + (Nb)*DMASp)
 #define _ClrDCSR(Nb)	        	/* Clear DMA Control & Status Reg. */ \
-                	        	/* channel [0..5] (write)          */ \
-                	(0xB0000008 + (Nb)*DMASp)
+					/* channel [0..5] (write)          */ \
+			(0xB0000008 + (Nb)*DMASp)
 #define _RdDCSR(Nb)	        	/* Read DMA Control & Status Reg.  */ \
-                	        	/* channel [0..5] (read)           */ \
-                	(0xB000000C + (Nb)*DMASp)
+					/* channel [0..5] (read)           */ \
+			(0xB000000C + (Nb)*DMASp)
 #define _DBSA(Nb)	        	/* DMA Buffer Start address reg. A */ \
-                	        	/* channel [0..5]                  */ \
-                	(0xB0000010 + (Nb)*DMASp)
+					/* channel [0..5]                  */ \
+			(0xB0000010 + (Nb)*DMASp)
 #define _DBTA(Nb)	        	/* DMA Buffer Transfer count       */ \
-                	        	/* reg. A channel [0..5]           */ \
-                	(0xB0000014 + (Nb)*DMASp)
+					/* reg. A channel [0..5]           */ \
+			(0xB0000014 + (Nb)*DMASp)
 #define _DBSB(Nb)	        	/* DMA Buffer Start address reg. B */ \
-                	        	/* channel [0..5]                  */ \
-                	(0xB0000018 + (Nb)*DMASp)
+					/* channel [0..5]                  */ \
+			(0xB0000018 + (Nb)*DMASp)
 #define _DBTB(Nb)	        	/* DMA Buffer Transfer count       */ \
-                	        	/* reg. B channel [0..5]           */ \
-                	(0xB000001C + (Nb)*DMASp)
+					/* reg. B channel [0..5]           */ \
+			(0xB000001C + (Nb)*DMASp)
 
 #define _DDAR0  	_DDAR (0)	/* DMA Device Address Reg.         */
-                	        	/* channel 0                       */
+					/* channel 0                       */
 #define _SetDCSR0	_SetDCSR (0)	/* Set DMA Control & Status Reg.   */
-                	        	/* channel 0 (write)               */
+					/* channel 0 (write)               */
 #define _ClrDCSR0	_ClrDCSR (0)	/* Clear DMA Control & Status Reg. */
-                	        	/* channel 0 (write)               */
+					/* channel 0 (write)               */
 #define _RdDCSR0	_RdDCSR (0)	/* Read DMA Control & Status Reg.  */
-                	        	/* channel 0 (read)                */
+					/* channel 0 (read)                */
 #define _DBSA0  	_DBSA (0)	/* DMA Buffer Start address reg. A */
-                	        	/* channel 0                       */
+					/* channel 0                       */
 #define _DBTA0  	_DBTA (0)	/* DMA Buffer Transfer count       */
-                	        	/* reg. A channel 0                */
+					/* reg. A channel 0                */
 #define _DBSB0  	_DBSB (0)	/* DMA Buffer Start address reg. B */
-                	        	/* channel 0                       */
+					/* channel 0                       */
 #define _DBTB0  	_DBTB (0)	/* DMA Buffer Transfer count       */
-                	        	/* reg. B channel 0                */
+					/* reg. B channel 0                */
 
 #define _DDAR1  	_DDAR (1)	/* DMA Device Address Reg.         */
-                	        	/* channel 1                       */
+					/* channel 1                       */
 #define _SetDCSR1	_SetDCSR (1)	/* Set DMA Control & Status Reg.   */
-                	        	/* channel 1 (write)               */
+					/* channel 1 (write)               */
 #define _ClrDCSR1	_ClrDCSR (1)	/* Clear DMA Control & Status Reg. */
-                	        	/* channel 1 (write)               */
+					/* channel 1 (write)               */
 #define _RdDCSR1	_RdDCSR (1)	/* Read DMA Control & Status Reg.  */
-                	        	/* channel 1 (read)                */
+					/* channel 1 (read)                */
 #define _DBSA1  	_DBSA (1)	/* DMA Buffer Start address reg. A */
-                	        	/* channel 1                       */
+					/* channel 1                       */
 #define _DBTA1  	_DBTA (1)	/* DMA Buffer Transfer count       */
-                	        	/* reg. A channel 1                */
+					/* reg. A channel 1                */
 #define _DBSB1  	_DBSB (1)	/* DMA Buffer Start address reg. B */
-                	        	/* channel 1                       */
+					/* channel 1                       */
 #define _DBTB1  	_DBTB (1)	/* DMA Buffer Transfer count       */
-                	        	/* reg. B channel 1                */
+					/* reg. B channel 1                */
 
 #define _DDAR2  	_DDAR (2)	/* DMA Device Address Reg.         */
-                	        	/* channel 2                       */
+					/* channel 2                       */
 #define _SetDCSR2	_SetDCSR (2)	/* Set DMA Control & Status Reg.   */
-                	        	/* channel 2 (write)               */
+					/* channel 2 (write)               */
 #define _ClrDCSR2	_ClrDCSR (2)	/* Clear DMA Control & Status Reg. */
-                	        	/* channel 2 (write)               */
+					/* channel 2 (write)               */
 #define _RdDCSR2	_RdDCSR (2)	/* Read DMA Control & Status Reg.  */
-                	        	/* channel 2 (read)                */
+					/* channel 2 (read)                */
 #define _DBSA2  	_DBSA (2)	/* DMA Buffer Start address reg. A */
-                	        	/* channel 2                       */
+					/* channel 2                       */
 #define _DBTA2  	_DBTA (2)	/* DMA Buffer Transfer count       */
-                	        	/* reg. A channel 2                */
+					/* reg. A channel 2                */
 #define _DBSB2  	_DBSB (2)	/* DMA Buffer Start address reg. B */
-                	        	/* channel 2                       */
+					/* channel 2                       */
 #define _DBTB2  	_DBTB (2)	/* DMA Buffer Transfer count       */
-                	        	/* reg. B channel 2                */
+					/* reg. B channel 2                */
 
 #define _DDAR3  	_DDAR (3)	/* DMA Device Address Reg.         */
-                	        	/* channel 3                       */
+					/* channel 3                       */
 #define _SetDCSR3	_SetDCSR (3)	/* Set DMA Control & Status Reg.   */
-                	        	/* channel 3 (write)               */
+					/* channel 3 (write)               */
 #define _ClrDCSR3	_ClrDCSR (3)	/* Clear DMA Control & Status Reg. */
-                	        	/* channel 3 (write)               */
+					/* channel 3 (write)               */
 #define _RdDCSR3	_RdDCSR (3)	/* Read DMA Control & Status Reg.  */
-                	        	/* channel 3 (read)                */
+					/* channel 3 (read)                */
 #define _DBSA3  	_DBSA (3)	/* DMA Buffer Start address reg. A */
-                	        	/* channel 3                       */
+					/* channel 3                       */
 #define _DBTA3  	_DBTA (3)	/* DMA Buffer Transfer count       */
-                	        	/* reg. A channel 3                */
+					/* reg. A channel 3                */
 #define _DBSB3  	_DBSB (3)	/* DMA Buffer Start address reg. B */
-                	        	/* channel 3                       */
+					/* channel 3                       */
 #define _DBTB3  	_DBTB (3)	/* DMA Buffer Transfer count       */
-                	        	/* reg. B channel 3                */
+					/* reg. B channel 3                */
 
 #define _DDAR4  	_DDAR (4)	/* DMA Device Address Reg.         */
-                	        	/* channel 4                       */
+					/* channel 4                       */
 #define _SetDCSR4	_SetDCSR (4)	/* Set DMA Control & Status Reg.   */
-                	        	/* channel 4 (write)               */
+					/* channel 4 (write)               */
 #define _ClrDCSR4	_ClrDCSR (4)	/* Clear DMA Control & Status Reg. */
-                	        	/* channel 4 (write)               */
+					/* channel 4 (write)               */
 #define _RdDCSR4	_RdDCSR (4)	/* Read DMA Control & Status Reg.  */
-                	        	/* channel 4 (read)                */
+					/* channel 4 (read)                */
 #define _DBSA4  	_DBSA (4)	/* DMA Buffer Start address reg. A */
-                	        	/* channel 4                       */
+					/* channel 4                       */
 #define _DBTA4  	_DBTA (4)	/* DMA Buffer Transfer count       */
-                	        	/* reg. A channel 4                */
+					/* reg. A channel 4                */
 #define _DBSB4  	_DBSB (4)	/* DMA Buffer Start address reg. B */
-                	        	/* channel 4                       */
+					/* channel 4                       */
 #define _DBTB4  	_DBTB (4)	/* DMA Buffer Transfer count       */
-                	        	/* reg. B channel 4                */
+					/* reg. B channel 4                */
 
 #define _DDAR5  	_DDAR (5)	/* DMA Device Address Reg.         */
-                	        	/* channel 5                       */
+					/* channel 5                       */
 #define _SetDCSR5	_SetDCSR (5)	/* Set DMA Control & Status Reg.   */
-                	        	/* channel 5 (write)               */
+					/* channel 5 (write)               */
 #define _ClrDCSR5	_ClrDCSR (5)	/* Clear DMA Control & Status Reg. */
-                	        	/* channel 5 (write)               */
+					/* channel 5 (write)               */
 #define _RdDCSR5	_RdDCSR (5)	/* Read DMA Control & Status Reg.  */
-                	        	/* channel 5 (read)                */
+					/* channel 5 (read)                */
 #define _DBSA5  	_DBSA (5)	/* DMA Buffer Start address reg. A */
-                	        	/* channel 5                       */
+					/* channel 5                       */
 #define _DBTA5  	_DBTA (5)	/* DMA Buffer Transfer count       */
-                	        	/* reg. A channel 5                */
+					/* reg. A channel 5                */
 #define _DBSB5  	_DBSB (5)	/* DMA Buffer Start address reg. B */
-                	        	/* channel 5                       */
+					/* channel 5                       */
 #define _DBTB5  	_DBTB (5)	/* DMA Buffer Transfer count       */
-                	        	/* reg. B channel 5                */
+					/* reg. B channel 5                */
 
 #if LANGUAGE == C
 
 #define DDAR0   	        	/* DMA Device Address Reg.         */ \
-                	        	/* channel 0                       */ \
-                	(*((volatile Word *) io_p2v (_DDAR0)))
+					/* channel 0                       */ \
+			(*((volatile Word *) io_p2v (_DDAR0)))
 #define SetDCSR0	        	/* Set DMA Control & Status Reg.   */ \
-                	        	/* channel 0 (write)               */ \
-                	(*((volatile Word *) io_p2v (_SetDCSR0)))
+					/* channel 0 (write)               */ \
+			(*((volatile Word *) io_p2v (_SetDCSR0)))
 #define ClrDCSR0	        	/* Clear DMA Control & Status Reg. */ \
-                	        	/* channel 0 (write)               */ \
-                	(*((volatile Word *) io_p2v (_ClrDCSR0)))
+					/* channel 0 (write)               */ \
+			(*((volatile Word *) io_p2v (_ClrDCSR0)))
 #define RdDCSR0 	        	/* Read DMA Control & Status Reg.  */ \
-                	        	/* channel 0 (read)                */ \
-                	(*((volatile Word *) io_p2v (_RdDCSR0)))
+					/* channel 0 (read)                */ \
+			(*((volatile Word *) io_p2v (_RdDCSR0)))
 #define DBSA0   	        	/* DMA Buffer Start address reg. A */ \
-                	        	/* channel 0                       */ \
-                	(*((volatile Address *) io_p2v (_DBSA0)))
+					/* channel 0                       */ \
+			(*((volatile Address *) io_p2v (_DBSA0)))
 #define DBTA0   	        	/* DMA Buffer Transfer count       */ \
-                	        	/* reg. A channel 0                */ \
-                	(*((volatile Word *) io_p2v (_DBTA0)))
+					/* reg. A channel 0                */ \
+			(*((volatile Word *) io_p2v (_DBTA0)))
 #define DBSB0   	        	/* DMA Buffer Start address reg. B */ \
-                	        	/* channel 0                       */ \
-                	(*((volatile Address *) io_p2v (_DBSB0)))
+					/* channel 0                       */ \
+			(*((volatile Address *) io_p2v (_DBSB0)))
 #define DBTB0   	        	/* DMA Buffer Transfer count       */ \
-                	        	/* reg. B channel 0                */ \
-                	(*((volatile Word *) io_p2v (_DBTB0)))
+					/* reg. B channel 0                */ \
+			(*((volatile Word *) io_p2v (_DBTB0)))
 
 #define DDAR1   	        	/* DMA Device Address Reg.         */ \
-                	        	/* channel 1                       */ \
-                	(*((volatile Word *) io_p2v (_DDAR1)))
+					/* channel 1                       */ \
+			(*((volatile Word *) io_p2v (_DDAR1)))
 #define SetDCSR1	        	/* Set DMA Control & Status Reg.   */ \
-                	        	/* channel 1 (write)               */ \
-                	(*((volatile Word *) io_p2v (_SetDCSR1)))
+					/* channel 1 (write)               */ \
+			(*((volatile Word *) io_p2v (_SetDCSR1)))
 #define ClrDCSR1	        	/* Clear DMA Control & Status Reg. */ \
-                	        	/* channel 1 (write)               */ \
-                	(*((volatile Word *) io_p2v (_ClrDCSR1)))
+					/* channel 1 (write)               */ \
+			(*((volatile Word *) io_p2v (_ClrDCSR1)))
 #define RdDCSR1 	        	/* Read DMA Control & Status Reg.  */ \
-                	        	/* channel 1 (read)                */ \
-                	(*((volatile Word *) io_p2v (_RdDCSR1)))
+					/* channel 1 (read)                */ \
+			(*((volatile Word *) io_p2v (_RdDCSR1)))
 #define DBSA1   	        	/* DMA Buffer Start address reg. A */ \
-                	        	/* channel 1                       */ \
-                	(*((volatile Address *) io_p2v (_DBSA1)))
+					/* channel 1                       */ \
+			(*((volatile Address *) io_p2v (_DBSA1)))
 #define DBTA1   	        	/* DMA Buffer Transfer count       */ \
-                	        	/* reg. A channel 1                */ \
-                	(*((volatile Word *) io_p2v (_DBTA1)))
+					/* reg. A channel 1                */ \
+			(*((volatile Word *) io_p2v (_DBTA1)))
 #define DBSB1   	        	/* DMA Buffer Start address reg. B */ \
-                	        	/* channel 1                       */ \
-                	(*((volatile Address *) io_p2v (_DBSB1)))
+					/* channel 1                       */ \
+			(*((volatile Address *) io_p2v (_DBSB1)))
 #define DBTB1   	        	/* DMA Buffer Transfer count       */ \
-                	        	/* reg. B channel 1                */ \
-                	(*((volatile Word *) io_p2v (_DBTB1)))
+					/* reg. B channel 1                */ \
+			(*((volatile Word *) io_p2v (_DBTB1)))
 
 #define DDAR2   	        	/* DMA Device Address Reg.         */ \
-                	        	/* channel 2                       */ \
-                	(*((volatile Word *) io_p2v (_DDAR2)))
+					/* channel 2                       */ \
+			(*((volatile Word *) io_p2v (_DDAR2)))
 #define SetDCSR2	        	/* Set DMA Control & Status Reg.   */ \
-                	        	/* channel 2 (write)               */ \
-                	(*((volatile Word *) io_p2v (_SetDCSR2)))
+					/* channel 2 (write)               */ \
+			(*((volatile Word *) io_p2v (_SetDCSR2)))
 #define ClrDCSR2	        	/* Clear DMA Control & Status Reg. */ \
-                	        	/* channel 2 (write)               */ \
-                	(*((volatile Word *) io_p2v (_ClrDCSR2)))
+					/* channel 2 (write)               */ \
+			(*((volatile Word *) io_p2v (_ClrDCSR2)))
 #define RdDCSR2 	        	/* Read DMA Control & Status Reg.  */ \
-                	        	/* channel 2 (read)                */ \
-                	(*((volatile Word *) io_p2v (_RdDCSR2)))
+					/* channel 2 (read)                */ \
+			(*((volatile Word *) io_p2v (_RdDCSR2)))
 #define DBSA2   	        	/* DMA Buffer Start address reg. A */ \
-                	        	/* channel 2                       */ \
-                	(*((volatile Address *) io_p2v (_DBSA2)))
+					/* channel 2                       */ \
+			(*((volatile Address *) io_p2v (_DBSA2)))
 #define DBTA2   	        	/* DMA Buffer Transfer count       */ \
-                	        	/* reg. A channel 2                */ \
-                	(*((volatile Word *) io_p2v (_DBTA2)))
+					/* reg. A channel 2                */ \
+			(*((volatile Word *) io_p2v (_DBTA2)))
 #define DBSB2   	        	/* DMA Buffer Start address reg. B */ \
-                	        	/* channel 2                       */ \
-                	(*((volatile Address *) io_p2v (_DBSB2)))
+					/* channel 2                       */ \
+			(*((volatile Address *) io_p2v (_DBSB2)))
 #define DBTB2   	        	/* DMA Buffer Transfer count       */ \
-                	        	/* reg. B channel 2                */ \
-                	(*((volatile Word *) io_p2v (_DBTB2)))
+					/* reg. B channel 2                */ \
+			(*((volatile Word *) io_p2v (_DBTB2)))
 
 #define DDAR3   	        	/* DMA Device Address Reg.         */ \
-                	        	/* channel 3                       */ \
-                	(*((volatile Word *) io_p2v (_DDAR3)))
+					/* channel 3                       */ \
+			(*((volatile Word *) io_p2v (_DDAR3)))
 #define SetDCSR3	        	/* Set DMA Control & Status Reg.   */ \
-                	        	/* channel 3 (write)               */ \
-                	(*((volatile Word *) io_p2v (_SetDCSR3)))
+					/* channel 3 (write)               */ \
+			(*((volatile Word *) io_p2v (_SetDCSR3)))
 #define ClrDCSR3	        	/* Clear DMA Control & Status Reg. */ \
-                	        	/* channel 3 (write)               */ \
-                	(*((volatile Word *) io_p2v (_ClrDCSR3)))
+					/* channel 3 (write)               */ \
+			(*((volatile Word *) io_p2v (_ClrDCSR3)))
 #define RdDCSR3 	        	/* Read DMA Control & Status Reg.  */ \
-                	        	/* channel 3 (read)                */ \
-                	(*((volatile Word *) io_p2v (_RdDCSR3)))
+					/* channel 3 (read)                */ \
+			(*((volatile Word *) io_p2v (_RdDCSR3)))
 #define DBSA3   	        	/* DMA Buffer Start address reg. A */ \
-                	        	/* channel 3                       */ \
-                	(*((volatile Address *) io_p2v (_DBSA3)))
+					/* channel 3                       */ \
+			(*((volatile Address *) io_p2v (_DBSA3)))
 #define DBTA3   	        	/* DMA Buffer Transfer count       */ \
-                	        	/* reg. A channel 3                */ \
-                	(*((volatile Word *) io_p2v (_DBTA3)))
+					/* reg. A channel 3                */ \
+			(*((volatile Word *) io_p2v (_DBTA3)))
 #define DBSB3   	        	/* DMA Buffer Start address reg. B */ \
-                	        	/* channel 3                       */ \
-                	(*((volatile Address *) io_p2v (_DBSB3)))
+					/* channel 3                       */ \
+			(*((volatile Address *) io_p2v (_DBSB3)))
 #define DBTB3   	        	/* DMA Buffer Transfer count       */ \
-                	        	/* reg. B channel 3                */ \
-                	(*((volatile Word *) io_p2v (_DBTB3)))
+					/* reg. B channel 3                */ \
+			(*((volatile Word *) io_p2v (_DBTB3)))
 
 #define DDAR4   	        	/* DMA Device Address Reg.         */ \
-                	        	/* channel 4                       */ \
-                	(*((volatile Word *) io_p2v (_DDAR4)))
+					/* channel 4                       */ \
+			(*((volatile Word *) io_p2v (_DDAR4)))
 #define SetDCSR4	        	/* Set DMA Control & Status Reg.   */ \
-                	        	/* channel 4 (write)               */ \
-                	(*((volatile Word *) io_p2v (_SetDCSR4)))
+					/* channel 4 (write)               */ \
+			(*((volatile Word *) io_p2v (_SetDCSR4)))
 #define ClrDCSR4	        	/* Clear DMA Control & Status Reg. */ \
-                	        	/* channel 4 (write)               */ \
-                	(*((volatile Word *) io_p2v (_ClrDCSR4)))
+					/* channel 4 (write)               */ \
+			(*((volatile Word *) io_p2v (_ClrDCSR4)))
 #define RdDCSR4 	        	/* Read DMA Control & Status Reg.  */ \
-                	        	/* channel 4 (read)                */ \
-                	(*((volatile Word *) io_p2v (_RdDCSR4)))
+					/* channel 4 (read)                */ \
+			(*((volatile Word *) io_p2v (_RdDCSR4)))
 #define DBSA4   	        	/* DMA Buffer Start address reg. A */ \
-                	        	/* channel 4                       */ \
-                	(*((volatile Address *) io_p2v (_DBSA4)))
+					/* channel 4                       */ \
+			(*((volatile Address *) io_p2v (_DBSA4)))
 #define DBTA4   	        	/* DMA Buffer Transfer count       */ \
-                	        	/* reg. A channel 4                */ \
-                	(*((volatile Word *) io_p2v (_DBTA4)))
+					/* reg. A channel 4                */ \
+			(*((volatile Word *) io_p2v (_DBTA4)))
 #define DBSB4   	        	/* DMA Buffer Start address reg. B */ \
-                	        	/* channel 4                       */ \
-                	(*((volatile Address *) io_p2v (_DBSB4)))
+					/* channel 4                       */ \
+			(*((volatile Address *) io_p2v (_DBSB4)))
 #define DBTB4   	        	/* DMA Buffer Transfer count       */ \
-                	        	/* reg. B channel 4                */ \
-                	(*((volatile Word *) io_p2v (_DBTB4)))
+					/* reg. B channel 4                */ \
+			(*((volatile Word *) io_p2v (_DBTB4)))
 
 #define DDAR5   	        	/* DMA Device Address Reg.         */ \
-                	        	/* channel 5                       */ \
-                	(*((volatile Word *) io_p2v (_DDAR5)))
+					/* channel 5                       */ \
+			(*((volatile Word *) io_p2v (_DDAR5)))
 #define SetDCSR5	        	/* Set DMA Control & Status Reg.   */ \
-                	        	/* channel 5 (write)               */ \
-                	(*((volatile Word *) io_p2v (_SetDCSR5)))
+					/* channel 5 (write)               */ \
+			(*((volatile Word *) io_p2v (_SetDCSR5)))
 #define ClrDCSR5	        	/* Clear DMA Control & Status Reg. */ \
-                	        	/* channel 5 (write)               */ \
-                	(*((volatile Word *) io_p2v (_ClrDCSR5)))
+					/* channel 5 (write)               */ \
+			(*((volatile Word *) io_p2v (_ClrDCSR5)))
 #define RdDCSR5 	        	/* Read DMA Control & Status Reg.  */ \
-                	        	/* channel 5 (read)                */ \
-                	(*((volatile Word *) io_p2v (_RdDCSR5)))
+					/* channel 5 (read)                */ \
+			(*((volatile Word *) io_p2v (_RdDCSR5)))
 #define DBSA5   	        	/* DMA Buffer Start address reg. A */ \
-                	        	/* channel 5                       */ \
-                	(*((volatile Address *) io_p2v (_DBSA5)))
+					/* channel 5                       */ \
+			(*((volatile Address *) io_p2v (_DBSA5)))
 #define DBTA5   	        	/* DMA Buffer Transfer count       */ \
-                	        	/* reg. A channel 5                */ \
-                	(*((volatile Word *) io_p2v (_DBTA5)))
+					/* reg. A channel 5                */ \
+			(*((volatile Word *) io_p2v (_DBTA5)))
 #define DBSB5   	        	/* DMA Buffer Start address reg. B */ \
-                	        	/* channel 5                       */ \
-                	(*((volatile Address *) io_p2v (_DBSB5)))
+					/* channel 5                       */ \
+			(*((volatile Address *) io_p2v (_DBSB5)))
 #define DBTB5   	        	/* DMA Buffer Transfer count       */ \
-                	        	/* reg. B channel 5                */ \
-                	(*((volatile Word *) io_p2v (_DBTB5)))
+					/* reg. B channel 5                */ \
+			(*((volatile Word *) io_p2v (_DBTB5)))
 
 #endif /* LANGUAGE == C */
 
 #define DDAR_RW 	0x00000001	/* device data Read/Write          */
 #define DDAR_DevWr	(DDAR_RW*0)	/*  Device data Write              */
-                	        	/*  (memory -> device)             */
+					/*  (memory -> device)             */
 #define DDAR_DevRd	(DDAR_RW*1)	/*  Device data Read               */
-                	        	/*  (device -> memory)             */
+					/*  (device -> memory)             */
 #define DDAR_E  	0x00000002	/* big/little Endian device        */
 #define DDAR_LtlEnd	(DDAR_E*0)	/*  Little Endian device           */
 #define DDAR_BigEnd	(DDAR_E*1)	/*  Big Endian device              */
@@ -2442,101 +2442,101 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 #define DDAR_16BitDev	(DDAR_DW*1)	/*  16-Bit Device                  */
 #define DDAR_DS 	Fld (4, 4)	/* Device Select                   */
 #define DDAR_Ser0UDCTr	        	/*  Ser. port 0 UDC Transmit       */ \
-                	(0x0 << FShft (DDAR_DS))
+			(0x0 << FShft (DDAR_DS))
 #define DDAR_Ser0UDCRc	        	/*  Ser. port 0 UDC Receive        */ \
-                	(0x1 << FShft (DDAR_DS))
+			(0x1 << FShft (DDAR_DS))
 #define DDAR_Ser1SDLCTr	        	/*  Ser. port 1 SDLC Transmit      */ \
-                	(0x2 << FShft (DDAR_DS))
+			(0x2 << FShft (DDAR_DS))
 #define DDAR_Ser1SDLCRc	        	/*  Ser. port 1 SDLC Receive       */ \
-                	(0x3 << FShft (DDAR_DS))
+			(0x3 << FShft (DDAR_DS))
 #define DDAR_Ser1UARTTr	        	/*  Ser. port 1 UART Transmit      */ \
-                	(0x4 << FShft (DDAR_DS))
+			(0x4 << FShft (DDAR_DS))
 #define DDAR_Ser1UARTRc	        	/*  Ser. port 1 UART Receive       */ \
-                	(0x5 << FShft (DDAR_DS))
+			(0x5 << FShft (DDAR_DS))
 #define DDAR_Ser2ICPTr	        	/*  Ser. port 2 ICP Transmit       */ \
-                	(0x6 << FShft (DDAR_DS))
+			(0x6 << FShft (DDAR_DS))
 #define DDAR_Ser2ICPRc	        	/*  Ser. port 2 ICP Receive        */ \
-                	(0x7 << FShft (DDAR_DS))
+			(0x7 << FShft (DDAR_DS))
 #define DDAR_Ser3UARTTr	        	/*  Ser. port 3 UART Transmit      */ \
-                	(0x8 << FShft (DDAR_DS))
+			(0x8 << FShft (DDAR_DS))
 #define DDAR_Ser3UARTRc	        	/*  Ser. port 3 UART Receive       */ \
-                	(0x9 << FShft (DDAR_DS))
+			(0x9 << FShft (DDAR_DS))
 #define DDAR_Ser4MCP0Tr	        	/*  Ser. port 4 MCP 0 Transmit     */ \
-                	        	/*  (audio)                        */ \
-                	(0xA << FShft (DDAR_DS))
+					/*  (audio)                        */ \
+			(0xA << FShft (DDAR_DS))
 #define DDAR_Ser4MCP0Rc	        	/*  Ser. port 4 MCP 0 Receive      */ \
-                	        	/*  (audio)                        */ \
-                	(0xB << FShft (DDAR_DS))
+					/*  (audio)                        */ \
+			(0xB << FShft (DDAR_DS))
 #define DDAR_Ser4MCP1Tr	        	/*  Ser. port 4 MCP 1 Transmit     */ \
-                	        	/*  (telecom)                      */ \
-                	(0xC << FShft (DDAR_DS))
+					/*  (telecom)                      */ \
+			(0xC << FShft (DDAR_DS))
 #define DDAR_Ser4MCP1Rc	        	/*  Ser. port 4 MCP 1 Receive      */ \
-                	        	/*  (telecom)                      */ \
-                	(0xD << FShft (DDAR_DS))
+					/*  (telecom)                      */ \
+			(0xD << FShft (DDAR_DS))
 #define DDAR_Ser4SSPTr	        	/*  Ser. port 4 SSP Transmit       */ \
-                	(0xE << FShft (DDAR_DS))
+			(0xE << FShft (DDAR_DS))
 #define DDAR_Ser4SSPRc	        	/*  Ser. port 4 SSP Receive        */ \
-                	(0xF << FShft (DDAR_DS))
+			(0xF << FShft (DDAR_DS))
 #define DDAR_DA 	Fld (24, 8)	/* Device Address                  */
 #define DDAR_DevAdd(Add)        	/*  Device Address                 */ \
-                	(((Add) & 0xF0000000) | \
-                	 (((Add) & 0X003FFFFC) << (FShft (DDAR_DA) - 2)))
+			(((Add) & 0xF0000000) | \
+			 (((Add) & 0X003FFFFC) << (FShft (DDAR_DA) - 2)))
 #define DDAR_Ser0UDCWr	        	/* Ser. port 0 UDC Write           */ \
-                	(DDAR_DevWr + DDAR_Brst8 + DDAR_8BitDev + \
-                	 DDAR_Ser0UDCTr + DDAR_DevAdd (_Ser0UDCDR))
+			(DDAR_DevWr + DDAR_Brst8 + DDAR_8BitDev + \
+			 DDAR_Ser0UDCTr + DDAR_DevAdd (_Ser0UDCDR))
 #define DDAR_Ser0UDCRd	        	/* Ser. port 0 UDC Read            */ \
-                	(DDAR_DevRd + DDAR_Brst8 + DDAR_8BitDev + \
-                	 DDAR_Ser0UDCRc + DDAR_DevAdd (_Ser0UDCDR))
+			(DDAR_DevRd + DDAR_Brst8 + DDAR_8BitDev + \
+			 DDAR_Ser0UDCRc + DDAR_DevAdd (_Ser0UDCDR))
 #define DDAR_Ser1UARTWr	        	/* Ser. port 1 UART Write          */ \
-                	(DDAR_DevWr + DDAR_Brst4 + DDAR_8BitDev + \
-                	 DDAR_Ser1UARTTr + DDAR_DevAdd (_Ser1UTDR))
+			(DDAR_DevWr + DDAR_Brst4 + DDAR_8BitDev + \
+			 DDAR_Ser1UARTTr + DDAR_DevAdd (_Ser1UTDR))
 #define DDAR_Ser1UARTRd	        	/* Ser. port 1 UART Read           */ \
-                	(DDAR_DevRd + DDAR_Brst4 + DDAR_8BitDev + \
-                	 DDAR_Ser1UARTRc + DDAR_DevAdd (_Ser1UTDR))
+			(DDAR_DevRd + DDAR_Brst4 + DDAR_8BitDev + \
+			 DDAR_Ser1UARTRc + DDAR_DevAdd (_Ser1UTDR))
 #define DDAR_Ser1SDLCWr	        	/* Ser. port 1 SDLC Write          */ \
-                	(DDAR_DevWr + DDAR_Brst4 + DDAR_8BitDev + \
-                	 DDAR_Ser1SDLCTr + DDAR_DevAdd (_Ser1SDDR))
+			(DDAR_DevWr + DDAR_Brst4 + DDAR_8BitDev + \
+			 DDAR_Ser1SDLCTr + DDAR_DevAdd (_Ser1SDDR))
 #define DDAR_Ser1SDLCRd	        	/* Ser. port 1 SDLC Read           */ \
-                	(DDAR_DevRd + DDAR_Brst4 + DDAR_8BitDev + \
-                	 DDAR_Ser1SDLCRc + DDAR_DevAdd (_Ser1SDDR))
+			(DDAR_DevRd + DDAR_Brst4 + DDAR_8BitDev + \
+			 DDAR_Ser1SDLCRc + DDAR_DevAdd (_Ser1SDDR))
 #define DDAR_Ser2UARTWr	        	/* Ser. port 2 UART Write          */ \
-                	(DDAR_DevWr + DDAR_Brst4 + DDAR_8BitDev + \
-                	 DDAR_Ser2ICPTr + DDAR_DevAdd (_Ser2UTDR))
+			(DDAR_DevWr + DDAR_Brst4 + DDAR_8BitDev + \
+			 DDAR_Ser2ICPTr + DDAR_DevAdd (_Ser2UTDR))
 #define DDAR_Ser2UARTRd	        	/* Ser. port 2 UART Read           */ \
-                	(DDAR_DevRd + DDAR_Brst4 + DDAR_8BitDev + \
-                	 DDAR_Ser2ICPRc + DDAR_DevAdd (_Ser2UTDR))
+			(DDAR_DevRd + DDAR_Brst4 + DDAR_8BitDev + \
+			 DDAR_Ser2ICPRc + DDAR_DevAdd (_Ser2UTDR))
 #define DDAR_Ser2HSSPWr	        	/* Ser. port 2 HSSP Write          */ \
-                	(DDAR_DevWr + DDAR_Brst8 + DDAR_8BitDev + \
-                	 DDAR_Ser2ICPTr + DDAR_DevAdd (_Ser2HSDR))
+			(DDAR_DevWr + DDAR_Brst8 + DDAR_8BitDev + \
+			 DDAR_Ser2ICPTr + DDAR_DevAdd (_Ser2HSDR))
 #define DDAR_Ser2HSSPRd	        	/* Ser. port 2 HSSP Read           */ \
-                	(DDAR_DevRd + DDAR_Brst8 + DDAR_8BitDev + \
-                	 DDAR_Ser2ICPRc + DDAR_DevAdd (_Ser2HSDR))
+			(DDAR_DevRd + DDAR_Brst8 + DDAR_8BitDev + \
+			 DDAR_Ser2ICPRc + DDAR_DevAdd (_Ser2HSDR))
 #define DDAR_Ser3UARTWr	        	/* Ser. port 3 UART Write          */ \
-                	(DDAR_DevWr + DDAR_Brst4 + DDAR_8BitDev + \
-                	 DDAR_Ser3UARTTr + DDAR_DevAdd (_Ser3UTDR))
+			(DDAR_DevWr + DDAR_Brst4 + DDAR_8BitDev + \
+			 DDAR_Ser3UARTTr + DDAR_DevAdd (_Ser3UTDR))
 #define DDAR_Ser3UARTRd	        	/* Ser. port 3 UART Read           */ \
-                	(DDAR_DevRd + DDAR_Brst4 + DDAR_8BitDev + \
-                	 DDAR_Ser3UARTRc + DDAR_DevAdd (_Ser3UTDR))
+			(DDAR_DevRd + DDAR_Brst4 + DDAR_8BitDev + \
+			 DDAR_Ser3UARTRc + DDAR_DevAdd (_Ser3UTDR))
 #define DDAR_Ser4MCP0Wr	        	/* Ser. port 4 MCP 0 Write (audio) */ \
-                	(DDAR_DevWr + DDAR_Brst4 + DDAR_16BitDev + \
-                	 DDAR_Ser4MCP0Tr + DDAR_DevAdd (_Ser4MCDR0))
+			(DDAR_DevWr + DDAR_Brst4 + DDAR_16BitDev + \
+			 DDAR_Ser4MCP0Tr + DDAR_DevAdd (_Ser4MCDR0))
 #define DDAR_Ser4MCP0Rd	        	/* Ser. port 4 MCP 0 Read (audio)  */ \
-                	(DDAR_DevRd + DDAR_Brst4 + DDAR_16BitDev + \
-                	 DDAR_Ser4MCP0Rc + DDAR_DevAdd (_Ser4MCDR0))
+			(DDAR_DevRd + DDAR_Brst4 + DDAR_16BitDev + \
+			 DDAR_Ser4MCP0Rc + DDAR_DevAdd (_Ser4MCDR0))
 #define DDAR_Ser4MCP1Wr	        	/* Ser. port 4 MCP 1 Write         */ \
-                	        	/* (telecom)                       */ \
-                	(DDAR_DevWr + DDAR_Brst4 + DDAR_16BitDev + \
-                	 DDAR_Ser4MCP1Tr + DDAR_DevAdd (_Ser4MCDR1))
+					/* (telecom)                       */ \
+			(DDAR_DevWr + DDAR_Brst4 + DDAR_16BitDev + \
+			 DDAR_Ser4MCP1Tr + DDAR_DevAdd (_Ser4MCDR1))
 #define DDAR_Ser4MCP1Rd	        	/* Ser. port 4 MCP 1 Read          */ \
-                	        	/* (telecom)                       */ \
-                	(DDAR_DevRd + DDAR_Brst4 + DDAR_16BitDev + \
-                	 DDAR_Ser4MCP1Rc + DDAR_DevAdd (_Ser4MCDR1))
+					/* (telecom)                       */ \
+			(DDAR_DevRd + DDAR_Brst4 + DDAR_16BitDev + \
+			 DDAR_Ser4MCP1Rc + DDAR_DevAdd (_Ser4MCDR1))
 #define DDAR_Ser4SSPWr	        	/* Ser. port 4 SSP Write (16 bits) */ \
-                	(DDAR_DevWr + DDAR_Brst4 + DDAR_16BitDev + \
-                	 DDAR_Ser4SSPTr + DDAR_DevAdd (_Ser4SSDR))
+			(DDAR_DevWr + DDAR_Brst4 + DDAR_16BitDev + \
+			 DDAR_Ser4SSPTr + DDAR_DevAdd (_Ser4SSDR))
 #define DDAR_Ser4SSPRd	        	/* Ser. port 4 SSP Read (16 bits)  */ \
-                	(DDAR_DevRd + DDAR_Brst4 + DDAR_16BitDev + \
-                	 DDAR_Ser4SSPRc + DDAR_DevAdd (_Ser4SSDR))
+			(DDAR_DevRd + DDAR_Brst4 + DDAR_16BitDev + \
+			 DDAR_Ser4SSPRc + DDAR_DevAdd (_Ser4SSDR))
 
 #define DCSR_RUN	0x00000001	/* DMA RUNing                      */
 #define DCSR_IE 	0x00000002	/* DMA Interrupt Enable            */
@@ -2608,14 +2608,14 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 
 #define LCD_PEntrySp	2       	/* LCD Palette Entry Space [byte]  */
 #define LCD_4BitPSp	        	/* LCD 4-Bit pixel Palette Space   */ \
-                	        	/* [byte]                          */ \
-                	(16*LCD_PEntrySp)
+					/* [byte]                          */ \
+			(16*LCD_PEntrySp)
 #define LCD_8BitPSp	        	/* LCD 8-Bit pixel Palette Space   */ \
-                	        	/* [byte]                          */ \
-                	(256*LCD_PEntrySp)
+					/* [byte]                          */ \
+			(256*LCD_PEntrySp)
 #define LCD_12_16BitPSp	        	/* LCD 12/16-Bit pixel             */ \
-                	        	/* dummy-Palette Space [byte]      */ \
-                	(16*LCD_PEntrySp)
+					/* dummy-Palette Space [byte]      */ \
+			(16*LCD_PEntrySp)
 
 #define LCD_PGrey	Fld (4, 0)	/* LCD Palette entry Grey value    */
 #define LCD_PBlue	Fld (4, 0)	/* LCD Palette entry Blue value    */
@@ -2623,11 +2623,11 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 #define LCD_PRed	Fld (4, 8)	/* LCD Palette entry Red value     */
 #define LCD_PBS 	Fld (2, 12)	/* LCD Pixel Bit Size              */
 #define LCD_4Bit	        	/*  LCD 4-Bit pixel mode           */ \
-                	(0 << FShft (LCD_PBS))
+			(0 << FShft (LCD_PBS))
 #define LCD_8Bit	        	/*  LCD 8-Bit pixel mode           */ \
-                	(1 << FShft (LCD_PBS))
+			(1 << FShft (LCD_PBS))
 #define LCD_12_16Bit	        	/*  LCD 12/16-Bit pixel mode       */ \
-                	(2 << FShft (LCD_PBS))
+			(2 << FShft (LCD_PBS))
 
 #define LCD_Int0_0	0x0     	/* LCD Intensity =   0.0% =  0     */
 #define LCD_Int11_1	0x1     	/* LCD Intensity =  11.1% =  1/9   */
@@ -2645,45 +2645,45 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 #define LCD_Int88_9	0xD     	/* LCD Intensity =  88.9% =  8/9   */
 #define LCD_Int100_0	0xE     	/* LCD Intensity = 100.0% =  1     */
 #define LCD_Int100_0A	0xF     	/* LCD Intensity = 100.0% =  1     */
-                	        	/* (Alternative)                   */
+					/* (Alternative)                   */
 
 #define _LCCR0  	0xB0100000	/* LCD Control Reg. 0              */
 #define _LCSR   	0xB0100004	/* LCD Status Reg.                 */
 #define _DBAR1  	0xB0100010	/* LCD DMA Base Address Reg.       */
-                	        	/* channel 1                       */
+					/* channel 1                       */
 #define _DCAR1  	0xB0100014	/* LCD DMA Current Address Reg.    */
-                	        	/* channel 1                       */
+					/* channel 1                       */
 #define _DBAR2  	0xB0100018	/* LCD DMA Base Address Reg.       */
-                	        	/* channel 2                       */
+					/* channel 2                       */
 #define _DCAR2  	0xB010001C	/* LCD DMA Current Address Reg.    */
-                	        	/* channel 2                       */
+					/* channel 2                       */
 #define _LCCR1  	0xB0100020	/* LCD Control Reg. 1              */
 #define _LCCR2  	0xB0100024	/* LCD Control Reg. 2              */
 #define _LCCR3  	0xB0100028	/* LCD Control Reg. 3              */
 
 #if LANGUAGE == C
 #define LCCR0   	        	/* LCD Control Reg. 0              */ \
-                	(*((volatile Word *) io_p2v (_LCCR0)))
+			(*((volatile Word *) io_p2v (_LCCR0)))
 #define LCSR    	        	/* LCD Status Reg.                 */ \
-                	(*((volatile Word *) io_p2v (_LCSR)))
+			(*((volatile Word *) io_p2v (_LCSR)))
 #define DBAR1   	        	/* LCD DMA Base Address Reg.       */ \
-                	        	/* channel 1                       */ \
-                	(*((volatile Address *) io_p2v (_DBAR1)))
+					/* channel 1                       */ \
+			(*((volatile Address *) io_p2v (_DBAR1)))
 #define DCAR1   	        	/* LCD DMA Current Address Reg.    */ \
-                	        	/* channel 1                       */ \
-                	(*((volatile Address *) io_p2v (_DCAR1)))
+					/* channel 1                       */ \
+			(*((volatile Address *) io_p2v (_DCAR1)))
 #define DBAR2   	        	/* LCD DMA Base Address Reg.       */ \
-                	        	/* channel 2                       */ \
-                	(*((volatile Address *) io_p2v (_DBAR2)))
+					/* channel 2                       */ \
+			(*((volatile Address *) io_p2v (_DBAR2)))
 #define DCAR2   	        	/* LCD DMA Current Address Reg.    */ \
-                	        	/* channel 2                       */ \
-                	(*((volatile Address *) io_p2v (_DCAR2)))
+					/* channel 2                       */ \
+			(*((volatile Address *) io_p2v (_DCAR2)))
 #define LCCR1   	        	/* LCD Control Reg. 1              */ \
-                	(*((volatile Word *) io_p2v (_LCCR1)))
+			(*((volatile Word *) io_p2v (_LCCR1)))
 #define LCCR2   	        	/* LCD Control Reg. 2              */ \
-                	(*((volatile Word *) io_p2v (_LCCR2)))
+			(*((volatile Word *) io_p2v (_LCCR2)))
 #define LCCR3   	        	/* LCD Control Reg. 3              */ \
-                	(*((volatile Word *) io_p2v (_LCCR3)))
+			(*((volatile Word *) io_p2v (_LCCR3)))
 #endif /* LANGUAGE == C */
 
 #define LCCR0_LEN	0x00000001	/* LCD ENable                      */
@@ -2691,16 +2691,16 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 #define LCCR0_Color	(LCCR0_CMS*0)	/*  Color display                  */
 #define LCCR0_Mono	(LCCR0_CMS*1)	/*  Monochrome display             */
 #define LCCR0_SDS	0x00000004	/* Single/Dual panel display       */
-                	        	/* Select                          */
+					/* Select                          */
 #define LCCR0_Sngl	(LCCR0_SDS*0)	/*  Single panel display           */
 #define LCCR0_Dual	(LCCR0_SDS*1)	/*  Dual panel display             */
 #define LCCR0_LDM	0x00000008	/* LCD Disable done (LDD)          */
-                	        	/* interrupt Mask (disable)        */
+					/* interrupt Mask (disable)        */
 #define LCCR0_BAM	0x00000010	/* Base Address update (BAU)       */
-                	        	/* interrupt Mask (disable)        */
+					/* interrupt Mask (disable)        */
 #define LCCR0_ERM	0x00000020	/* LCD ERror (BER, IOL, IUL, IOU,  */
-                	        	/* IUU, OOL, OUL, OOU, and OUU)    */
-                	        	/* interrupt Mask (disable)        */
+					/* IUU, OOL, OUL, OOU, and OUU)    */
+					/* interrupt Mask (disable)        */
 #define LCCR0_PAS	0x00000080	/* Passive/Active display Select   */
 #define LCCR0_Pas	(LCCR0_PAS*0)	/*  Passive display (STN)          */
 #define LCCR0_Act	(LCCR0_PAS*1)	/*  Active display (TFT)           */
@@ -2708,127 +2708,126 @@ typedef PCMCIAPrtType	PCMCIAType [PCMCIASp/PCMCIAPrtSp] ;
 #define LCCR0_LtlEnd	(LCCR0_BLE*0)	/*  Little Endian frame buffer     */
 #define LCCR0_BigEnd	(LCCR0_BLE*1)	/*  Big Endian frame buffer        */
 #define LCCR0_DPD	0x00000200	/* Double Pixel Data (monochrome   */
-                	        	/* display mode)                   */
+					/* display mode)                   */
 #define LCCR0_4PixMono	(LCCR0_DPD*0)	/*  4-Pixel/clock Monochrome       */
-                	        	/*  display                        */
+					/*  display                        */
 #define LCCR0_8PixMono	(LCCR0_DPD*1)	/*  8-Pixel/clock Monochrome       */
-                	        	/*  display                        */
+					/*  display                        */
 #define LCCR0_PDD	Fld (8, 12)	/* Palette DMA request Delay       */
-                	        	/* [Tmem]                          */
+					/* [Tmem]                          */
 #define LCCR0_DMADel(Tcpu)      	/*  palette DMA request Delay      */ \
-                	        	/*  [0..510 Tcpu]                  */ \
-                	((Tcpu)/2 << FShft (LCCR0_PDD))
+					/*  [0..510 Tcpu]                  */ \
+			((Tcpu)/2 << FShft (LCCR0_PDD))
 
 #define LCSR_LDD	0x00000001	/* LCD Disable Done                */
 #define LCSR_BAU	0x00000002	/* Base Address Update (read)      */
 #define LCSR_BER	0x00000004	/* Bus ERror                       */
 #define LCSR_ABC	0x00000008	/* AC Bias clock Count             */
 #define LCSR_IOL	0x00000010	/* Input FIFO Over-run Lower       */
-                	        	/* panel                           */
+					/* panel                           */
 #define LCSR_IUL	0x00000020	/* Input FIFO Under-run Lower      */
-                	        	/* panel                           */
+					/* panel                           */
 #define LCSR_IOU	0x00000040	/* Input FIFO Over-run Upper       */
-                	        	/* panel                           */
+					/* panel                           */
 #define LCSR_IUU	0x00000080	/* Input FIFO Under-run Upper      */
-                	        	/* panel                           */
+					/* panel                           */
 #define LCSR_OOL	0x00000100	/* Output FIFO Over-run Lower      */
-                	        	/* panel                           */
+					/* panel                           */
 #define LCSR_OUL	0x00000200	/* Output FIFO Under-run Lower     */
-                	        	/* panel                           */
+					/* panel                           */
 #define LCSR_OOU	0x00000400	/* Output FIFO Over-run Upper      */
-                	        	/* panel                           */
+					/* panel                           */
 #define LCSR_OUU	0x00000800	/* Output FIFO Under-run Upper     */
-                	        	/* panel                           */
+					/* panel                           */
 
 #define LCCR1_PPL	Fld (6, 4)	/* Pixels Per Line/16 - 1          */
 #define LCCR1_DisWdth(Pixel)    	/*  Display Width [16..1024 pix.]  */ \
-                	(((Pixel) - 16)/16 << FShft (LCCR1_PPL))
+			(((Pixel) - 16)/16 << FShft (LCCR1_PPL))
 #define LCCR1_HSW	Fld (6, 10)	/* Horizontal Synchronization      */
-                	        	/* pulse Width - 2 [Tpix] (L_LCLK) */
+					/* pulse Width - 2 [Tpix] (L_LCLK) */
 #define LCCR1_HorSnchWdth(Tpix) 	/*  Horizontal Synchronization     */ \
-                	        	/*  pulse Width [2..65 Tpix]       */ \
-                	(((Tpix) - 2) << FShft (LCCR1_HSW))
+					/*  pulse Width [2..65 Tpix]       */ \
+			(((Tpix) - 2) << FShft (LCCR1_HSW))
 #define LCCR1_ELW	Fld (8, 16)	/* End-of-Line pixel clock Wait    */
-                	        	/* count - 1 [Tpix]                */
+					/* count - 1 [Tpix]                */
 #define LCCR1_EndLnDel(Tpix)    	/*  End-of-Line Delay              */ \
-                	        	/*  [1..256 Tpix]                  */ \
-                	(((Tpix) - 1) << FShft (LCCR1_ELW))
+					/*  [1..256 Tpix]                  */ \
+			(((Tpix) - 1) << FShft (LCCR1_ELW))
 #define LCCR1_BLW	Fld (8, 24)	/* Beginning-of-Line pixel clock   */
-                	        	/* Wait count - 1 [Tpix]           */
+					/* Wait count - 1 [Tpix]           */
 #define LCCR1_BegLnDel(Tpix)    	/*  Beginning-of-Line Delay        */ \
-                	        	/*  [1..256 Tpix]                  */ \
-                	(((Tpix) - 1) << FShft (LCCR1_BLW))
+					/*  [1..256 Tpix]                  */ \
+			(((Tpix) - 1) << FShft (LCCR1_BLW))
 
 #define LCCR2_LPP	Fld (10, 0)	/* Line Per Panel - 1              */
 #define LCCR2_DisHght(Line)     	/*  Display Height [1..1024 lines] */ \
-                	(((Line) - 1) << FShft (LCCR2_LPP))
+			(((Line) - 1) << FShft (LCCR2_LPP))
 #define LCCR2_VSW	Fld (6, 10)	/* Vertical Synchronization pulse  */
-                	        	/* Width - 1 [Tln] (L_FCLK)        */
+					/* Width - 1 [Tln] (L_FCLK)        */
 #define LCCR2_VrtSnchWdth(Tln)  	/*  Vertical Synchronization pulse */ \
-                	        	/*  Width [1..64 Tln]              */ \
-                	(((Tln) - 1) << FShft (LCCR2_VSW))
+					/*  Width [1..64 Tln]              */ \
+			(((Tln) - 1) << FShft (LCCR2_VSW))
 #define LCCR2_EFW	Fld (8, 16)	/* End-of-Frame line clock Wait    */
-                	        	/* count [Tln]                     */
+					/* count [Tln]                     */
 #define LCCR2_EndFrmDel(Tln)    	/*  End-of-Frame Delay             */ \
-                	        	/*  [0..255 Tln]                   */ \
-                	((Tln) << FShft (LCCR2_EFW))
+					/*  [0..255 Tln]                   */ \
+			((Tln) << FShft (LCCR2_EFW))
 #define LCCR2_BFW	Fld (8, 24)	/* Beginning-of-Frame line clock   */
-                	        	/* Wait count [Tln]                */
+					/* Wait count [Tln]                */
 #define LCCR2_BegFrmDel(Tln)    	/*  Beginning-of-Frame Delay       */ \
-                	        	/*  [0..255 Tln]                   */ \
-                	((Tln) << FShft (LCCR2_BFW))
+					/*  [0..255 Tln]                   */ \
+			((Tln) << FShft (LCCR2_BFW))
 
 #define LCCR3_PCD	Fld (8, 0)	/* Pixel Clock Divisor/2 - 2       */
-                	        	/* [1..255] (L_PCLK)               */
-                	        	/* fpix = fcpu/(2*(PCD + 2))       */
-                	        	/* Tpix = 2*(PCD + 2)*Tcpu         */
+					/* [1..255] (L_PCLK)               */
+					/* fpix = fcpu/(2*(PCD + 2))       */
+					/* Tpix = 2*(PCD + 2)*Tcpu         */
 #define LCCR3_PixClkDiv(Div)    	/*  Pixel Clock Divisor [6..514]   */ \
-                	(((Div) - 4)/2 << FShft (LCCR3_PCD))
-                	        	/*  fpix = fcpu/(2*Floor (Div/2))  */
-                	        	/*  Tpix = 2*Floor (Div/2)*Tcpu    */
+			(((Div) - 4)/2 << FShft (LCCR3_PCD))
+					/*  fpix = fcpu/(2*Floor (Div/2))  */
+					/*  Tpix = 2*Floor (Div/2)*Tcpu    */
 #define LCCR3_CeilPixClkDiv(Div)	/*  Ceil. of PixClkDiv [6..514]    */ \
-                	(((Div) - 3)/2 << FShft (LCCR3_PCD))
-                	        	/*  fpix = fcpu/(2*Ceil (Div/2))   */
-                	        	/*  Tpix = 2*Ceil (Div/2)*Tcpu     */
+			(((Div) - 3)/2 << FShft (LCCR3_PCD))
+					/*  fpix = fcpu/(2*Ceil (Div/2))   */
+					/*  Tpix = 2*Ceil (Div/2)*Tcpu     */
 #define LCCR3_ACB	Fld (8, 8)	/* AC Bias clock half period - 1   */
-                	        	/* [Tln] (L_BIAS)                  */
+					/* [Tln] (L_BIAS)                  */
 #define LCCR3_ACBsDiv(Div)      	/*  AC Bias clock Divisor [2..512] */ \
-                	(((Div) - 2)/2 << FShft (LCCR3_ACB))
-                	        	/*  fac = fln/(2*Floor (Div/2))    */
-                	        	/*  Tac = 2*Floor (Div/2)*Tln      */
+			(((Div) - 2)/2 << FShft (LCCR3_ACB))
+					/*  fac = fln/(2*Floor (Div/2))    */
+					/*  Tac = 2*Floor (Div/2)*Tln      */
 #define LCCR3_CeilACBsDiv(Div)  	/*  Ceil. of ACBsDiv [2..512]      */ \
-                	(((Div) - 1)/2 << FShft (LCCR3_ACB))
-                	        	/*  fac = fln/(2*Ceil (Div/2))     */
-                	        	/*  Tac = 2*Ceil (Div/2)*Tln       */
+			(((Div) - 1)/2 << FShft (LCCR3_ACB))
+					/*  fac = fln/(2*Ceil (Div/2))     */
+					/*  Tac = 2*Ceil (Div/2)*Tln       */
 #define LCCR3_API	Fld (4, 16)	/* AC bias Pin transitions per     */
-                	        	/* Interrupt                       */
+					/* Interrupt                       */
 #define LCCR3_ACBsCntOff        	/*  AC Bias clock transition Count */ \
-                	        	/*  Off                            */ \
-                	(0 << FShft (LCCR3_API))
+					/*  Off                            */ \
+			(0 << FShft (LCCR3_API))
 #define LCCR3_ACBsCnt(Trans)    	/*  AC Bias clock transition Count */ \
-                	        	/*  [1..15]                        */ \
-                	((Trans) << FShft (LCCR3_API))
+					/*  [1..15]                        */ \
+			((Trans) << FShft (LCCR3_API))
 #define LCCR3_VSP	0x00100000	/* Vertical Synchronization pulse  */
-                	        	/* Polarity (L_FCLK)               */
+					/* Polarity (L_FCLK)               */
 #define LCCR3_VrtSnchH	(LCCR3_VSP*0)	/*  Vertical Synchronization pulse */
-                	        	/*  active High                    */
+					/*  active High                    */
 #define LCCR3_VrtSnchL	(LCCR3_VSP*1)	/*  Vertical Synchronization pulse */
-                	        	/*  active Low                     */
+					/*  active Low                     */
 #define LCCR3_HSP	0x00200000	/* Horizontal Synchronization      */
-                	        	/* pulse Polarity (L_LCLK)         */
+					/* pulse Polarity (L_LCLK)         */
 #define LCCR3_HorSnchH	(LCCR3_HSP*0)	/*  Horizontal Synchronization     */
-                	        	/*  pulse active High              */
+					/*  pulse active High              */
 #define LCCR3_HorSnchL	(LCCR3_HSP*1)	/*  Horizontal Synchronization     */
-                	        	/*  pulse active Low               */
+					/*  pulse active Low               */
 #define LCCR3_PCP	0x00400000	/* Pixel Clock Polarity (L_PCLK)   */
 #define LCCR3_PixRsEdg	(LCCR3_PCP*0)	/*  Pixel clock Rising-Edge        */
 #define LCCR3_PixFlEdg	(LCCR3_PCP*1)	/*  Pixel clock Falling-Edge       */
 #define LCCR3_OEP	0x00800000	/* Output Enable Polarity (L_BIAS, */
-                	        	/* active display mode)            */
+					/* active display mode)            */
 #define LCCR3_OutEnH	(LCCR3_OEP*0)	/*  Output Enable active High      */
 #define LCCR3_OutEnL	(LCCR3_OEP*1)	/*  Output Enable active Low       */
 
 
 #undef C
 #undef Assembly
-

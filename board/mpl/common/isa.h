@@ -27,7 +27,6 @@
 #define SIO_CFG_PORT	0x3F0	/* Config Port Address */
 
 
-
 /* table fore SIO initialization */
 typedef struct {
 	const uchar index;
@@ -38,8 +37,6 @@ typedef struct {
 	const uchar ldev;
 	const SIO_LOGDEV_TABLE *ldev_table;
 } SIO_TABLE;
-
-
 
 
 unsigned char open_cfg_super_IO(int address);

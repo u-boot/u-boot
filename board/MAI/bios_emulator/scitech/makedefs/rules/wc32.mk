@@ -109,7 +109,7 @@ LDFLAGS		+= OP PRIV=1
 	@gcpp -DNASM_ASSEMBLER -D__WATCOMC__ -EP $(<:s,/,\) > $(*:s,/,\).asm
 	nasm @$(mktmp -f obj -o $@) $(*:s,/,\).asm
 	@$(RM) -S $(mktmp $(*:s,/,\).asm)
-.ENDIF	
+.ENDIF
 
 # Special target to build dllstart.asm using Borland TASM
 dllstart.obj: dllstart.asm
@@ -126,26 +126,26 @@ dllstart.obj: dllstart.asm
 	@trimlib $(mktmp $(LDFLAGS) OP quiet SYS os2v2 dll\nN $@\nF $(&:t",\n":s/\/\\)\nLIBR $(EXELIBS:t",")) $*.lnk
 	rclink $(LD) $(RC) $@ $*.lnk
 .IF $(LEAVE_LINKFILE)
-.ELSE	
+.ELSE
 	@$(RM) -S $(mktmp *.lnk)
-.ENDIF	
+.ENDIF
 .ELIF $(USE_WIN32)
 %$D: ;
 	@trimlib $(mktmp $(LDFLAGS) OP quiet SYS nt_dll\nN $@\nF $(&:t",\n":s/\/\\)\nLIBR $(PMLIB)$(DEFLIBS)$(EXELIBS:t",")) $*.lnk
 	rclink $(LD) $(RC) $@ $*.lnk
 .IF $(LEAVE_LINKFILE)
-.ELSE	
+.ELSE
 	@$(RM) -S $(mktmp *.lnk)
-.ENDIF	
+.ENDIF
 .ELSE
 %$D: ;
 	@trimlib $(mktmp $(LDFLAGS) OP quiet SYS win386\nN $*.rex\nF $(&:t",\n":s/\/\\)\nLIBR $(EXELIBS:t",")) $*.lnk
 	rclink $(LD) $(RC) $@ $*.lnk
 	wbind $* -d -q -n
 .IF $(LEAVE_LINKFILE)
-.ELSE	
+.ELSE
 	@$(RM) -S $(mktmp *.lnk)
-.ENDIF	
+.ENDIF
 .ENDIF
 .ENDIF
 
@@ -171,18 +171,18 @@ dllstart.obj: dllstart.asm
 	$(LD) $(LDFLAGS) @$*.lnk
 	x32fix $@
 .IF $(LEAVE_LINKFILE)
-.ELSE	
+.ELSE
 	@$(RM) -S $(mktmp *.lnk)
-.ENDIF	
+.ENDIF
 .ELIF $(USE_OS232)
 .IF $(USE_OS2GUI)
 %$E: ;
 	@trimlib $(mktmp $(LDFLAGS) OP quiet SYS os2v2_pm\nN $@\nF $(&:t",":s/\/\\)\nLIBR $(PMLIB)$(EXELIBS:t",")) $*.lnk
 	rclink $(LD) $(RC) $@ $*.lnk
 .IF $(LEAVE_LINKFILE)
-.ELSE	
+.ELSE
 	@$(RM) -S $(mktmp *.lnk)
-.ENDIF	
+.ENDIF
 .IF $(LXLITE)
  	lxlite $@
 .ENDIF
@@ -191,9 +191,9 @@ dllstart.obj: dllstart.asm
 	@trimlib $(mktmp $(LDFLAGS) OP quiet SYS os2v2\nN $@\nF $(&:t",":s/\/\\)\nLIBR $(PMLIB)$(EXELIBS:t",")) $*.lnk
 	rclink $(LD) $(RC) $@ $*.lnk
 .IF $(LEAVE_LINKFILE)
-.ELSE	
+.ELSE
 	@$(RM) -S $(mktmp *.lnk)
-.ENDIF	
+.ENDIF
 .IF $(LXLITE)
  	lxlite $@
 .ENDIF
@@ -203,43 +203,43 @@ dllstart.obj: dllstart.asm
 	@trimlib $(mktmp $(LDFLAGS) OP quiet SYS nt\nN $@\nF $(&:t",":s/\/\\)\nLIBR $(DEFLIBS)$(EXELIBS:t",")) $*.lnk
 	rclink $(LD) $(RC) $@ $*.lnk
 .IF $(LEAVE_LINKFILE)
-.ELSE	
+.ELSE
 	@$(RM) -S $(mktmp *.lnk)
-.ENDIF	
+.ENDIF
 .ELIF $(USE_WIN32)
 .IF $(WIN32_GUI)
 %$E: ;
 	@trimlib $(mktmp $(LDFLAGS) OP quiet SYS win95\nN $@\nF $(&:t",":s/\/\\)\nLIBR $(PMLIB)$(DEFLIBS)$(EXELIBS:t",")) $*.lnk
 	rclink $(LD) $(RC) $@ $*.lnk
 .IF $(LEAVE_LINKFILE)
-.ELSE	
+.ELSE
 	@$(RM) -S $(mktmp *.lnk)
-.ENDIF	
+.ENDIF
 .ELSE
 %$E: ;
 	@trimlib $(mktmp $(LDFLAGS) OP quiet SYS nt\nN $@\nF $(&:t",":s/\/\\)\nLIBR $(PMLIB)$(DEFLIBS)$(EXELIBS:t",")) $*.lnk
 	rclink $(LD) $(RC) $@ $*.lnk
 .IF $(LEAVE_LINKFILE)
-.ELSE	
+.ELSE
 	@$(RM) -S $(mktmp *.lnk)
-.ENDIF	
+.ENDIF
 .ENDIF
 .ELIF $(USE_WIN386)
 %$E: ;
 	@trimlib $(mktmp $(LDFLAGS) OP quiet SYS win386\nN $*.rex\nF $(&:t",":s/\/\\)\nLIBR $(PMLIB)$(EXELIBS:t",")) $*.lnk
 	rclink $(LD) wbind $*.rex $*.lnk
 .IF $(LEAVE_LINKFILE)
-.ELSE	
+.ELSE
 	@$(RM) -S $(mktmp *.lnk)
-.ENDIF	
+.ENDIF
 .ELIF $(USE_TNT)
 %$E: ;
 	@trimlib $(mktmp $(LDFLAGS) OP quiet\nN $@\nF $(&:t",":s/\/\\)\nLIBR dosx32.lib,tntapi.lib,$(PMLIB)$(EXELIBS:t",")) $*.lnk
 	$(LD) @$*.lnk
 .IF $(LEAVE_LINKFILE)
-.ELSE	
+.ELSE
 	@$(RM) -S $(mktmp *.lnk)
-.ENDIF	
+.ENDIF
 .IF $(DOSSTYLE)
 	@markphar $@
 .ENDIF
@@ -250,16 +250,15 @@ dllstart.obj: dllstart.asm
 	$(LD) @$*.lnk
 	@attrib +s $*.exe
 .IF $(LEAVE_LINKFILE)
-.ELSE	
+.ELSE
 	@$(RM) -S $(mktmp *.lnk)
-.ENDIF	
+.ENDIF
 .ELSE
 %$E: ;
 	@trimlib $(mktmp $(LDFLAGS) OP quiet\nN $@\nF $(&:t",":s/\/\\)\nLIBR $(PMLIB)$(EXELIBS:t",")) $*.lnk
 	$(LD) @$*.lnk
 .IF $(LEAVE_LINKFILE)
-.ELSE	
+.ELSE
 	@$(RM) -S $(mktmp *.lnk)
-.ENDIF	
 .ENDIF
-
+.ENDIF

@@ -46,9 +46,6 @@
 #include <status_led.h>
 #endif
 #include <net.h>
-#if (CONFIG_COMMANDS & CFG_CMD_BEDBUG)
-#include <cmd_bedbug.h>
-#endif
 #ifdef CFG_ALLOC_DPRAM
 #if !defined(CONFIG_8260)
 #include <commproc.h>
@@ -95,8 +92,11 @@ extern flash_info_t flash_info[];
 
 extern ulong __init_end;
 extern ulong _end;
-
 ulong monitor_flash_len;
+
+#if (CONFIG_COMMANDS & CFG_CMD_BEDBUG)
+#include <bedbug/type.h>
+#endif
 
 /*
  * Begin and End of memory area for malloc(), and current "brk"
@@ -382,7 +382,7 @@ void board_init_f (ulong bootflag)
 	 * relocate the code and continue running from DRAM.
 	 *
 	 * Reserve memory at end of RAM for (top down in that order):
-         *  - kernel log buffer
+	 *  - kernel log buffer
 	 *  - protected RAM
 	 *  - LCD framebuffer
 	 *  - monitor code
@@ -570,7 +570,6 @@ void board_init_f (ulong bootflag)
 void board_init_r (gd_t *id, ulong dest_addr)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-
 	cmd_tbl_t *cmdtp;
 	char *s, *e;
 	bd_t *bd;
@@ -596,15 +595,14 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	WATCHDOG_RESET ();
 
 	gd->reloc_off = dest_addr - CFG_MONITOR_BASE;
-	
+
 	monitor_flash_len = (ulong)&__init_end - dest_addr;
 
 	/*
 	 * We have to relocate the command table manually
 	 */
-	for (cmdtp = &cmd_tbl[0]; cmdtp->name; cmdtp++) {
+	for (cmdtp = &__u_boot_cmd_start; cmdtp !=  &__u_boot_cmd_end; cmdtp++) {
 		ulong addr;
-
 		addr = (ulong) (cmdtp->cmd) + gd->reloc_off;
 #if 0
 		printf ("Command \"%s\": 0x%08lx => 0x%08lx\n",
@@ -737,10 +735,10 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 	/*
 	 * Fill in missing fields of bd_info.
-         * We do this here, where we have "normal" access to the
-         * environment; we used to do this still running from ROM,
-         * where had to use getenv_r(), which can be pretty slow when
-         * the environment is in EEPROM.
+	 * We do this here, where we have "normal" access to the
+	 * environment; we used to do this still running from ROM,
+	 * where had to use getenv_r(), which can be pretty slow when
+	 * the environment is in EEPROM.
 	 */
 	s = getenv ("ethaddr");
 #if defined (CONFIG_MBX) || defined (CONFIG_RPXCLASSIC) || defined(CONFIG_IAD210)

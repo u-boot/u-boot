@@ -371,13 +371,13 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 	if ((l = addr - wp) != 0)
 	{
 		data = 0;
-		
+
 		/* get the current before the new data into our data word */
 		for (i=0, cp=wp; i<l; ++i, ++cp)
 		{
 			data = (data << 8) | (*(uchar *)cp);
 		}
-		
+
 		/* now merge the to be programmed values */
 		for (; i<4 && cnt>0; ++i, ++cp, --cnt)
 		{
@@ -462,7 +462,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 	{
 		return (2);
 	}
-	
+
 	/* Disable interrupts which might cause a timeout here */
 	flag = disable_interrupts ();
 
@@ -487,4 +487,3 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 
 /*-----------------------------------------------------------------------
  */
-

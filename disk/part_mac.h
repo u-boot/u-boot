@@ -90,7 +90,7 @@ typedef struct mac_partition {
 	uchar	processor[16];	/* Type of Processor			*/
 	__u16	part_pad[188];	/* reserved				*/
 #ifdef CONFIG_ISO_PARTITION
-        uchar   iso_dummy[2048];/* Reservere enough room for an ISO partition block to fit */ 
+	uchar   iso_dummy[2048];/* Reservere enough room for an ISO partition block to fit */
 #endif
 } mac_partition_t;
 

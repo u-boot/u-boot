@@ -60,34 +60,34 @@
  VIDEO_GETC_FCT              - keyboard_getc function
 
  CONFIG_CONSOLE_CURSOR       - on/off drawing cursor is done with delay
-                               loop in VIDEO_TSTC_FCT (i8042)
+			       loop in VIDEO_TSTC_FCT (i8042)
  CFG_CONSOLE_BLINK_COUNT     - value for delay loop - blink rate
  CONFIG_CONSOLE_TIME         - display time/date in upper right corner,
-                               needs CFG_CMD_DATE and CONFIG_CONSOLE_CURSOR
+			       needs CFG_CMD_DATE and CONFIG_CONSOLE_CURSOR
  CONFIG_VIDEO_LOGO           - display Linux Logo in upper left corner
  CONFIG_VIDEO_BMP_LOGO       - use bmp_logo instead of linux_logo
  CONFIG_CONSOLE_EXTRA_INFO   - display additional board information strings
-                               that normaly goes to serial port. This define
-                               requires a board specific function:
-                               video_drawstring (VIDEO_INFO_X,
-                                                 VIDEO_INFO_Y + i*VIDEO_FONT_HEIGHT,
-                                                 info);
-                               that fills a info buffer at i=row.
-                               s.a: board/eltec/bab7xx.
+			       that normaly goes to serial port. This define
+			       requires a board specific function:
+			       video_drawstring (VIDEO_INFO_X,
+						 VIDEO_INFO_Y + i*VIDEO_FONT_HEIGHT,
+						 info);
+			       that fills a info buffer at i=row.
+			       s.a: board/eltec/bab7xx.
 CONFIG_VGA_AS_SINGLE_DEVICE  - If set the framebuffer device will be initialised
-                               as an output only device. The Keyboard driver
-                               will not be set-up. This may be used, if you
-                               have none or more than one Keyboard devices
-                               (USB Keyboard, AT Keyboard).
+			       as an output only device. The Keyboard driver
+			       will not be set-up. This may be used, if you
+			       have none or more than one Keyboard devices
+			       (USB Keyboard, AT Keyboard).
 
 CONFIG_VIDEO_SW_CURSOR:      - Draws a cursor after the last character. No
-                               blinking is provided. Uses the macros CURSOR_SET
-                               and CURSOR_OFF.
+			       blinking is provided. Uses the macros CURSOR_SET
+			       and CURSOR_OFF.
 CONFIG_VIDEO_HW_CURSOR:      - Uses the hardware cursor capability of the
-                               graphic chip. Uses the macro CURSOR_SET.
-                               ATTENTION: If booting an OS, the display driver
-                               must disable the hardware register of the graphic
-                               chip. Otherwise a blinking field is displayed
+			       graphic chip. Uses the macro CURSOR_SET.
+			       ATTENTION: If booting an OS, the display driver
+			       must disable the hardware register of the graphic
+			       chip. Otherwise a blinking field is displayed
 */
 
 #include <common.h>
@@ -214,7 +214,7 @@ void    console_cursor (int state);
 #endif
 #define CURSOR_ON
 #define CURSOR_OFF video_putchar(console_col * VIDEO_FONT_WIDTH,\
-                                 console_row * VIDEO_FONT_HEIGHT, ' ');
+				 console_row * VIDEO_FONT_HEIGHT, ' ');
 #define CURSOR_SET video_set_cursor();
 #endif /* CONFIG_VIDEO_SW_CURSOR */
 
@@ -226,7 +226,7 @@ void    console_cursor (int state);
 #define CURSOR_ON
 #define CURSOR_OFF
 #define CURSOR_SET video_set_hw_cursor(console_col * VIDEO_FONT_WIDTH, \
-                  (console_row * VIDEO_FONT_HEIGHT) + VIDEO_LOGO_HEIGHT);
+		  (console_row * VIDEO_FONT_HEIGHT) + VIDEO_LOGO_HEIGHT);
 #endif  /* CONFIG_VIDEO_HW_CURSOR */
 
 #ifdef  CONFIG_VIDEO_LOGO
@@ -281,9 +281,9 @@ void    console_cursor (int state);
 #ifdef  VIDEO_FB_LITTLE_ENDIAN
 #define SWAP16(x)        ((((x) & 0x00ff) << 8) | ( (x) >> 8))
 #define SWAP32(x)        ((((x) & 0x000000ff) << 24) | (((x) & 0x0000ff00) << 8)|\
-                          (((x) & 0x00ff0000) >>  8) | (((x) & 0xff000000) >> 24) )
+			  (((x) & 0x00ff0000) >>  8) | (((x) & 0xff000000) >> 24) )
 #define SHORTSWAP32(x)   ((((x) & 0x000000ff) <<  8) | (((x) & 0x0000ff00) >> 8)|\
-                          (((x) & 0x00ff0000) <<  8) | (((x) & 0xff000000) >> 8) )
+			  (((x) & 0x00ff0000) <<  8) | (((x) & 0xff000000) >> 8) )
 #else
 #define SWAP16(x)        (x)
 #define SWAP32(x)        (x)
@@ -317,52 +317,52 @@ static int console_row = 0; /* cursor row */
 static u32 eorx, fgx, bgx;  /* color pats */
 
 static const int video_font_draw_table8[] = {
-            0x00000000, 0x000000ff, 0x0000ff00, 0x0000ffff,
-            0x00ff0000, 0x00ff00ff, 0x00ffff00, 0x00ffffff,
-            0xff000000, 0xff0000ff, 0xff00ff00, 0xff00ffff,
-            0xffff0000, 0xffff00ff, 0xffffff00, 0xffffffff };
+	    0x00000000, 0x000000ff, 0x0000ff00, 0x0000ffff,
+	    0x00ff0000, 0x00ff00ff, 0x00ffff00, 0x00ffffff,
+	    0xff000000, 0xff0000ff, 0xff00ff00, 0xff00ffff,
+	    0xffff0000, 0xffff00ff, 0xffffff00, 0xffffffff };
 
 static const int video_font_draw_table15[] = {
-            0x00000000, 0x00007fff, 0x7fff0000, 0x7fff7fff };
+	    0x00000000, 0x00007fff, 0x7fff0000, 0x7fff7fff };
 
 static const int video_font_draw_table16[] = {
-            0x00000000, 0x0000ffff, 0xffff0000, 0xffffffff };
+	    0x00000000, 0x0000ffff, 0xffff0000, 0xffffffff };
 
 static const int video_font_draw_table24[16][3] = {
-            { 0x00000000, 0x00000000, 0x00000000 },
-            { 0x00000000, 0x00000000, 0x00ffffff },
-            { 0x00000000, 0x0000ffff, 0xff000000 },
-            { 0x00000000, 0x0000ffff, 0xffffffff },
-            { 0x000000ff, 0xffff0000, 0x00000000 },
-            { 0x000000ff, 0xffff0000, 0x00ffffff },
-            { 0x000000ff, 0xffffffff, 0xff000000 },
-            { 0x000000ff, 0xffffffff, 0xffffffff },
-            { 0xffffff00, 0x00000000, 0x00000000 },
-            { 0xffffff00, 0x00000000, 0x00ffffff },
-            { 0xffffff00, 0x0000ffff, 0xff000000 },
-            { 0xffffff00, 0x0000ffff, 0xffffffff },
-            { 0xffffffff, 0xffff0000, 0x00000000 },
-            { 0xffffffff, 0xffff0000, 0x00ffffff },
-            { 0xffffffff, 0xffffffff, 0xff000000 },
-            { 0xffffffff, 0xffffffff, 0xffffffff } };
+	    { 0x00000000, 0x00000000, 0x00000000 },
+	    { 0x00000000, 0x00000000, 0x00ffffff },
+	    { 0x00000000, 0x0000ffff, 0xff000000 },
+	    { 0x00000000, 0x0000ffff, 0xffffffff },
+	    { 0x000000ff, 0xffff0000, 0x00000000 },
+	    { 0x000000ff, 0xffff0000, 0x00ffffff },
+	    { 0x000000ff, 0xffffffff, 0xff000000 },
+	    { 0x000000ff, 0xffffffff, 0xffffffff },
+	    { 0xffffff00, 0x00000000, 0x00000000 },
+	    { 0xffffff00, 0x00000000, 0x00ffffff },
+	    { 0xffffff00, 0x0000ffff, 0xff000000 },
+	    { 0xffffff00, 0x0000ffff, 0xffffffff },
+	    { 0xffffffff, 0xffff0000, 0x00000000 },
+	    { 0xffffffff, 0xffff0000, 0x00ffffff },
+	    { 0xffffffff, 0xffffffff, 0xff000000 },
+	    { 0xffffffff, 0xffffffff, 0xffffffff } };
 
 static const int video_font_draw_table32[16][4] = {
-            { 0x00000000, 0x00000000, 0x00000000, 0x00000000 },
-            { 0x00000000, 0x00000000, 0x00000000, 0x00ffffff },
-            { 0x00000000, 0x00000000, 0x00ffffff, 0x00000000 },
-            { 0x00000000, 0x00000000, 0x00ffffff, 0x00ffffff },
-            { 0x00000000, 0x00ffffff, 0x00000000, 0x00000000 },
-            { 0x00000000, 0x00ffffff, 0x00000000, 0x00ffffff },
-            { 0x00000000, 0x00ffffff, 0x00ffffff, 0x00000000 },
-            { 0x00000000, 0x00ffffff, 0x00ffffff, 0x00ffffff },
-            { 0x00ffffff, 0x00000000, 0x00000000, 0x00000000 },
-            { 0x00ffffff, 0x00000000, 0x00000000, 0x00ffffff },
-            { 0x00ffffff, 0x00000000, 0x00ffffff, 0x00000000 },
-            { 0x00ffffff, 0x00000000, 0x00ffffff, 0x00ffffff },
-            { 0x00ffffff, 0x00ffffff, 0x00000000, 0x00000000 },
-            { 0x00ffffff, 0x00ffffff, 0x00000000, 0x00ffffff },
-            { 0x00ffffff, 0x00ffffff, 0x00ffffff, 0x00000000 },
-            { 0x00ffffff, 0x00ffffff, 0x00ffffff, 0x00ffffff } };
+	    { 0x00000000, 0x00000000, 0x00000000, 0x00000000 },
+	    { 0x00000000, 0x00000000, 0x00000000, 0x00ffffff },
+	    { 0x00000000, 0x00000000, 0x00ffffff, 0x00000000 },
+	    { 0x00000000, 0x00000000, 0x00ffffff, 0x00ffffff },
+	    { 0x00000000, 0x00ffffff, 0x00000000, 0x00000000 },
+	    { 0x00000000, 0x00ffffff, 0x00000000, 0x00ffffff },
+	    { 0x00000000, 0x00ffffff, 0x00ffffff, 0x00000000 },
+	    { 0x00000000, 0x00ffffff, 0x00ffffff, 0x00ffffff },
+	    { 0x00ffffff, 0x00000000, 0x00000000, 0x00000000 },
+	    { 0x00ffffff, 0x00000000, 0x00000000, 0x00ffffff },
+	    { 0x00ffffff, 0x00000000, 0x00ffffff, 0x00000000 },
+	    { 0x00ffffff, 0x00000000, 0x00ffffff, 0x00ffffff },
+	    { 0x00ffffff, 0x00ffffff, 0x00000000, 0x00000000 },
+	    { 0x00ffffff, 0x00ffffff, 0x00000000, 0x00ffffff },
+	    { 0x00ffffff, 0x00ffffff, 0x00ffffff, 0x00000000 },
+	    { 0x00ffffff, 0x00ffffff, 0x00ffffff, 0x00ffffff } };
 
 
 /******************************************************************************/
@@ -380,98 +380,98 @@ static void video_drawchars (int xx, int yy, unsigned char *s, int count)
     {
     case GDF__8BIT_INDEX:
     case GDF__8BIT_332RGB:
-        while (count--)
-        {
-        c = *s ;
-        cdat = video_fontdata + c * VIDEO_FONT_HEIGHT;
-        for (rows = VIDEO_FONT_HEIGHT, dest = dest0; rows--; dest += VIDEO_LINE_LEN)
-        {
-            u8 bits = *cdat++;
-            ((u32 *)dest)[0] = (video_font_draw_table8[bits >> 4] & eorx) ^ bgx;
-            ((u32 *)dest)[1] = (video_font_draw_table8[bits & 15] & eorx) ^ bgx;
-        }
-        dest0 += VIDEO_FONT_WIDTH * VIDEO_PIXEL_SIZE;
-        s++;
-        }
-        break;
+	while (count--)
+	{
+	c = *s ;
+	cdat = video_fontdata + c * VIDEO_FONT_HEIGHT;
+	for (rows = VIDEO_FONT_HEIGHT, dest = dest0; rows--; dest += VIDEO_LINE_LEN)
+	{
+	    u8 bits = *cdat++;
+	    ((u32 *)dest)[0] = (video_font_draw_table8[bits >> 4] & eorx) ^ bgx;
+	    ((u32 *)dest)[1] = (video_font_draw_table8[bits & 15] & eorx) ^ bgx;
+	}
+	dest0 += VIDEO_FONT_WIDTH * VIDEO_PIXEL_SIZE;
+	s++;
+	}
+	break;
 
     case GDF_15BIT_555RGB:
-        while (count--)
-        {
-        c = *s ;
-        cdat = video_fontdata + c * VIDEO_FONT_HEIGHT;
-        for (rows = VIDEO_FONT_HEIGHT, dest = dest0; rows--; dest += VIDEO_LINE_LEN)
-        {
-            u8 bits = *cdat++;
-            ((u32 *)dest)[0] = SHORTSWAP32((video_font_draw_table15[bits >> 6] & eorx) ^ bgx);
-            ((u32 *)dest)[1] = SHORTSWAP32((video_font_draw_table15[bits >> 4 & 3] & eorx) ^ bgx);
-            ((u32 *)dest)[2] = SHORTSWAP32((video_font_draw_table15[bits >> 2 & 3] & eorx) ^ bgx);
-            ((u32 *)dest)[3] = SHORTSWAP32((video_font_draw_table15[bits & 3] & eorx) ^ bgx);
-            }
-            dest0 += VIDEO_FONT_WIDTH * VIDEO_PIXEL_SIZE;
-            s++ ;
-        }
-        break;
+	while (count--)
+	{
+	c = *s ;
+	cdat = video_fontdata + c * VIDEO_FONT_HEIGHT;
+	for (rows = VIDEO_FONT_HEIGHT, dest = dest0; rows--; dest += VIDEO_LINE_LEN)
+	{
+	    u8 bits = *cdat++;
+	    ((u32 *)dest)[0] = SHORTSWAP32((video_font_draw_table15[bits >> 6] & eorx) ^ bgx);
+	    ((u32 *)dest)[1] = SHORTSWAP32((video_font_draw_table15[bits >> 4 & 3] & eorx) ^ bgx);
+	    ((u32 *)dest)[2] = SHORTSWAP32((video_font_draw_table15[bits >> 2 & 3] & eorx) ^ bgx);
+	    ((u32 *)dest)[3] = SHORTSWAP32((video_font_draw_table15[bits & 3] & eorx) ^ bgx);
+	    }
+	    dest0 += VIDEO_FONT_WIDTH * VIDEO_PIXEL_SIZE;
+	    s++ ;
+	}
+	break;
 
     case GDF_16BIT_565RGB:
-        while (count--)
-        {
-        c = *s ;
-        cdat = video_fontdata + c * VIDEO_FONT_HEIGHT;
-        for (rows = VIDEO_FONT_HEIGHT, dest = dest0; rows--; dest += VIDEO_LINE_LEN)
-        {
-            u8 bits = *cdat++;
-            ((u32 *)dest)[0] = SHORTSWAP32((video_font_draw_table16[bits >> 6] & eorx) ^ bgx);
-            ((u32 *)dest)[1] = SHORTSWAP32((video_font_draw_table16[bits >> 4 & 3] & eorx) ^ bgx);
-            ((u32 *)dest)[2] = SHORTSWAP32((video_font_draw_table16[bits >> 2 & 3] & eorx) ^ bgx);
-            ((u32 *)dest)[3] = SHORTSWAP32((video_font_draw_table16[bits & 3] & eorx) ^ bgx);
-        }
-        dest0 += VIDEO_FONT_WIDTH * VIDEO_PIXEL_SIZE;
-        s++ ;
-        }
-        break;
+	while (count--)
+	{
+	c = *s ;
+	cdat = video_fontdata + c * VIDEO_FONT_HEIGHT;
+	for (rows = VIDEO_FONT_HEIGHT, dest = dest0; rows--; dest += VIDEO_LINE_LEN)
+	{
+	    u8 bits = *cdat++;
+	    ((u32 *)dest)[0] = SHORTSWAP32((video_font_draw_table16[bits >> 6] & eorx) ^ bgx);
+	    ((u32 *)dest)[1] = SHORTSWAP32((video_font_draw_table16[bits >> 4 & 3] & eorx) ^ bgx);
+	    ((u32 *)dest)[2] = SHORTSWAP32((video_font_draw_table16[bits >> 2 & 3] & eorx) ^ bgx);
+	    ((u32 *)dest)[3] = SHORTSWAP32((video_font_draw_table16[bits & 3] & eorx) ^ bgx);
+	}
+	dest0 += VIDEO_FONT_WIDTH * VIDEO_PIXEL_SIZE;
+	s++ ;
+	}
+	break;
 
     case GDF_32BIT_X888RGB:
-        while (count--)
-        {
-        c = *s ;
-        cdat = video_fontdata + c * VIDEO_FONT_HEIGHT;
-        for (rows = VIDEO_FONT_HEIGHT, dest = dest0; rows--; dest += VIDEO_LINE_LEN)
-        {
-            u8 bits = *cdat++;
-            ((u32 *)dest)[0] = SWAP32((video_font_draw_table32[bits >> 4][0] & eorx) ^ bgx);
-            ((u32 *)dest)[1] = SWAP32((video_font_draw_table32[bits >> 4][1] & eorx) ^ bgx);
-            ((u32 *)dest)[2] = SWAP32((video_font_draw_table32[bits >> 4][2] & eorx) ^ bgx);
-            ((u32 *)dest)[3] = SWAP32((video_font_draw_table32[bits >> 4][3] & eorx) ^ bgx);
-            ((u32 *)dest)[4] = SWAP32((video_font_draw_table32[bits & 15][0] & eorx) ^ bgx);
-            ((u32 *)dest)[5] = SWAP32((video_font_draw_table32[bits & 15][1] & eorx) ^ bgx);
-            ((u32 *)dest)[6] = SWAP32((video_font_draw_table32[bits & 15][2] & eorx) ^ bgx);
-            ((u32 *)dest)[7] = SWAP32((video_font_draw_table32[bits & 15][3] & eorx) ^ bgx);
-        }
-        dest0 += VIDEO_FONT_WIDTH * VIDEO_PIXEL_SIZE;
-        s++ ;
-        }
-        break;
+	while (count--)
+	{
+	c = *s ;
+	cdat = video_fontdata + c * VIDEO_FONT_HEIGHT;
+	for (rows = VIDEO_FONT_HEIGHT, dest = dest0; rows--; dest += VIDEO_LINE_LEN)
+	{
+	    u8 bits = *cdat++;
+	    ((u32 *)dest)[0] = SWAP32((video_font_draw_table32[bits >> 4][0] & eorx) ^ bgx);
+	    ((u32 *)dest)[1] = SWAP32((video_font_draw_table32[bits >> 4][1] & eorx) ^ bgx);
+	    ((u32 *)dest)[2] = SWAP32((video_font_draw_table32[bits >> 4][2] & eorx) ^ bgx);
+	    ((u32 *)dest)[3] = SWAP32((video_font_draw_table32[bits >> 4][3] & eorx) ^ bgx);
+	    ((u32 *)dest)[4] = SWAP32((video_font_draw_table32[bits & 15][0] & eorx) ^ bgx);
+	    ((u32 *)dest)[5] = SWAP32((video_font_draw_table32[bits & 15][1] & eorx) ^ bgx);
+	    ((u32 *)dest)[6] = SWAP32((video_font_draw_table32[bits & 15][2] & eorx) ^ bgx);
+	    ((u32 *)dest)[7] = SWAP32((video_font_draw_table32[bits & 15][3] & eorx) ^ bgx);
+	}
+	dest0 += VIDEO_FONT_WIDTH * VIDEO_PIXEL_SIZE;
+	s++ ;
+	}
+	break;
 
     case GDF_24BIT_888RGB:
-        while (count--)
-        {
-        c = *s ;
-        cdat = video_fontdata + c * VIDEO_FONT_HEIGHT;
-        for (rows = VIDEO_FONT_HEIGHT, dest = dest0; rows--; dest += VIDEO_LINE_LEN)
-        {
-            u8 bits = *cdat++;
-            ((u32 *)dest)[0] = (video_font_draw_table24[bits >> 4][0] & eorx) ^ bgx;
-            ((u32 *)dest)[1] = (video_font_draw_table24[bits >> 4][1] & eorx) ^ bgx;
-            ((u32 *)dest)[2] = (video_font_draw_table24[bits >> 4][2] & eorx) ^ bgx;
-            ((u32 *)dest)[3] = (video_font_draw_table24[bits & 15][0] & eorx) ^ bgx;
-            ((u32 *)dest)[4] = (video_font_draw_table24[bits & 15][1] & eorx) ^ bgx;
-            ((u32 *)dest)[5] = (video_font_draw_table24[bits & 15][2] & eorx) ^ bgx;
-        }
-        dest0 += VIDEO_FONT_WIDTH * VIDEO_PIXEL_SIZE;
-        s++ ;
-        }
-        break;
+	while (count--)
+	{
+	c = *s ;
+	cdat = video_fontdata + c * VIDEO_FONT_HEIGHT;
+	for (rows = VIDEO_FONT_HEIGHT, dest = dest0; rows--; dest += VIDEO_LINE_LEN)
+	{
+	    u8 bits = *cdat++;
+	    ((u32 *)dest)[0] = (video_font_draw_table24[bits >> 4][0] & eorx) ^ bgx;
+	    ((u32 *)dest)[1] = (video_font_draw_table24[bits >> 4][1] & eorx) ^ bgx;
+	    ((u32 *)dest)[2] = (video_font_draw_table24[bits >> 4][2] & eorx) ^ bgx;
+	    ((u32 *)dest)[3] = (video_font_draw_table24[bits & 15][0] & eorx) ^ bgx;
+	    ((u32 *)dest)[4] = (video_font_draw_table24[bits & 15][1] & eorx) ^ bgx;
+	    ((u32 *)dest)[5] = (video_font_draw_table24[bits & 15][2] & eorx) ^ bgx;
+	}
+	dest0 += VIDEO_FONT_WIDTH * VIDEO_PIXEL_SIZE;
+	s++ ;
+	}
+	break;
     }
 }
 
@@ -500,7 +500,7 @@ static void video_set_cursor(void)
     eorx = fgx ^ bgx;
     /* draw cursor */
     video_putchar (console_col * VIDEO_FONT_WIDTH,
-                   console_row * VIDEO_FONT_HEIGHT, ' ');
+		   console_row * VIDEO_FONT_HEIGHT, ' ');
     /* restore drawing colors */
     eorx = fgx;
     fgx  = bgx;
@@ -524,24 +524,24 @@ void console_cursor (int state)
 
     sprintf(info, " %02d:%02d:%02d ", tm.tm_hour, tm.tm_min, tm.tm_sec);
     video_drawstring(VIDEO_VISIBLE_COLS-10*VIDEO_FONT_WIDTH,
-             VIDEO_INFO_Y, info);
+	     VIDEO_INFO_Y, info);
 
     sprintf(info, "%02d.%02d.%04d", tm.tm_mday, tm.tm_mon, tm.tm_year);
     video_drawstring(VIDEO_VISIBLE_COLS-10*VIDEO_FONT_WIDTH,
-             VIDEO_INFO_Y+1*VIDEO_FONT_HEIGHT, info);
+	     VIDEO_INFO_Y+1*VIDEO_FONT_HEIGHT, info);
     }
 #endif
 
     if (state && (last_state != state))
     {
-        video_set_cursor();
+	video_set_cursor();
     }
 
     if (!state && (last_state != state))
     {
-        /* clear cursor */
-        video_putchar (console_col * VIDEO_FONT_WIDTH,
-                       console_row * VIDEO_FONT_HEIGHT, ' ');
+	/* clear cursor */
+	video_putchar (console_col * VIDEO_FONT_WIDTH,
+		       console_row * VIDEO_FONT_HEIGHT, ' ');
     }
 
     last_state = state;
@@ -554,7 +554,7 @@ void console_cursor (int state)
 static void memsetl (int *p, int c, int v)
 {
     while (c--)
-        *(p++) = v;
+	*(p++) = v;
 }
 #endif
 
@@ -564,7 +564,7 @@ static void memsetl (int *p, int c, int v)
 static void memcpyl (int *d, int *s, int c)
 {
     while (c--)
-        *(d++) = *(s++);
+	*(d++) = *(s++);
 }
 #endif
 
@@ -612,13 +612,13 @@ static void console_back (void)
 
     if (console_col < 0)
     {
-        console_col = CONSOLE_COLS - 1;
-        console_row--;
-        if (console_row < 0)
-        console_row = 0;
+	console_col = CONSOLE_COLS - 1;
+	console_row--;
+	if (console_row < 0)
+	console_row = 0;
     }
     video_putchar (console_col * VIDEO_FONT_WIDTH,
-                   console_row * VIDEO_FONT_HEIGHT, ' ');
+		   console_row * VIDEO_FONT_HEIGHT, ' ');
 }
 
 /*****************************************************************************/
@@ -647,37 +647,36 @@ void video_putc (const char c)
     switch (c)
     {
     case 13: /* ignore */
-        break;
+	break;
 
     case '\n': /* next line */
-        console_newline();
-        break;
+	console_newline();
+	break;
 
     case 9:    /* tab 8 */
-        CURSOR_OFF
-        console_col |=  0x0008;
-        console_col &= ~0x0007;
+	CURSOR_OFF
+	console_col |=  0x0008;
+	console_col &= ~0x0007;
 
-        if (console_col >= CONSOLE_COLS)
-            console_newline();
-        break;
+	if (console_col >= CONSOLE_COLS)
+	    console_newline();
+	break;
 
     case 8:    /* backspace */
-        console_back();
-        break;
+	console_back();
+	break;
 
     default: /* draw the char */
-        video_putchar (console_col * VIDEO_FONT_WIDTH,
-                       console_row * VIDEO_FONT_HEIGHT, c);
-        console_col++ ;
+	video_putchar (console_col * VIDEO_FONT_WIDTH,
+		       console_row * VIDEO_FONT_HEIGHT, c);
+	console_col++ ;
 
-        /* check for newline */
-        if (console_col >= CONSOLE_COLS)
-            console_newline();
+	/* check for newline */
+	if (console_col >= CONSOLE_COLS)
+	    console_newline();
     }
     CURSOR_SET
 }
-
 
 
 /*****************************************************************************/
@@ -687,7 +686,7 @@ void video_puts (const char *s)
     int count = strlen(s);
 
     while(count--)
-        video_putc(*s++);
+	video_putc(*s++);
 }
 
 /*****************************************************************************/
@@ -697,25 +696,25 @@ void logo_plot (void *screen, int width, int x, int y)
 {
 
     int skip = (width - VIDEO_LOGO_WIDTH) * VIDEO_PIXEL_SIZE,
-        xcount, i,
-        ycount = VIDEO_LOGO_HEIGHT;
+	xcount, i,
+	ycount = VIDEO_LOGO_HEIGHT;
     unsigned char
-        *source,
-        *dest   = (unsigned char *) screen + ((y * width * VIDEO_PIXEL_SIZE) + x),
-        r, g, b, *logo_red, *logo_blue, *logo_green;
+	*source,
+	*dest   = (unsigned char *) screen + ((y * width * VIDEO_PIXEL_SIZE) + x),
+	r, g, b, *logo_red, *logo_blue, *logo_green;
 
 #ifdef CONFIG_VIDEO_BMP_LOGO
     source = bmp_logo_bitmap;
-    
+
     /* Allocate temporary space for computing colormap                       */
     logo_red = malloc (BMP_LOGO_COLORS);
     logo_green = malloc (BMP_LOGO_COLORS);
     logo_blue = malloc (BMP_LOGO_COLORS);
     /* Compute color map                                                     */
     for (i = 0; i < VIDEO_LOGO_COLORS; i++) {
-        logo_red [i] = (bmp_logo_palette [i] & 0x0f00) >> 4;
-        logo_green [i] = (bmp_logo_palette [i] & 0x00f0);
-        logo_blue [i] = (bmp_logo_palette [i] & 0x000f) << 4;
+	logo_red [i] = (bmp_logo_palette [i] & 0x0f00) >> 4;
+	logo_green [i] = (bmp_logo_palette [i] & 0x00f0);
+	logo_blue [i] = (bmp_logo_palette [i] & 0x000f) << 4;
     }
 #else
     source = linux_logo;
@@ -723,61 +722,61 @@ void logo_plot (void *screen, int width, int x, int y)
     logo_green = linux_logo_green;
     logo_blue = linux_logo_blue;
 #endif
-    
+
     if (VIDEO_DATA_FORMAT == GDF__8BIT_INDEX)
     {
-        for (i = 0; i < VIDEO_LOGO_COLORS; i++)
-        {
-            video_set_lut (i + VIDEO_LOGO_LUT_OFFSET,
-                           logo_red [i], logo_green [i], logo_blue [i]);
-        }
+	for (i = 0; i < VIDEO_LOGO_COLORS; i++)
+	{
+	    video_set_lut (i + VIDEO_LOGO_LUT_OFFSET,
+			   logo_red [i], logo_green [i], logo_blue [i]);
+	}
     }
 
     while (ycount--)
     {
-        xcount = VIDEO_LOGO_WIDTH;
-        while (xcount--)
-        {
-            r = logo_red [*source - VIDEO_LOGO_LUT_OFFSET];
-            g = logo_green [*source - VIDEO_LOGO_LUT_OFFSET];
-            b = logo_blue [*source - VIDEO_LOGO_LUT_OFFSET];
-            
-            switch (VIDEO_DATA_FORMAT)
-            {
-            case GDF__8BIT_INDEX:
-                *dest = *source;
-                break;
-            case GDF__8BIT_332RGB:
-                *dest = ((r>>5)<<5) | ((g>>5)<<2) | (b>>6);
-                break;
-            case GDF_15BIT_555RGB:
-                *(unsigned short *)dest =
-                    SWAP16((unsigned short)(((r>>3)<<10) | ((g>>3)<<5) | (b>>3)));
-                break;
-            case GDF_16BIT_565RGB:
-                *(unsigned short *)dest =
-                    SWAP16((unsigned short)(((r>>3)<<11) | ((g>>2)<<5) | (b>>3)));
-                break;
-            case GDF_32BIT_X888RGB:
-                *(unsigned long  *)dest =
-                    SWAP32((unsigned long)((r<<16) | (g<<8) | b));
-                break;
-            case GDF_24BIT_888RGB:
+	xcount = VIDEO_LOGO_WIDTH;
+	while (xcount--)
+	{
+	    r = logo_red [*source - VIDEO_LOGO_LUT_OFFSET];
+	    g = logo_green [*source - VIDEO_LOGO_LUT_OFFSET];
+	    b = logo_blue [*source - VIDEO_LOGO_LUT_OFFSET];
+
+	    switch (VIDEO_DATA_FORMAT)
+	    {
+	    case GDF__8BIT_INDEX:
+		*dest = *source;
+		break;
+	    case GDF__8BIT_332RGB:
+		*dest = ((r>>5)<<5) | ((g>>5)<<2) | (b>>6);
+		break;
+	    case GDF_15BIT_555RGB:
+		*(unsigned short *)dest =
+		    SWAP16((unsigned short)(((r>>3)<<10) | ((g>>3)<<5) | (b>>3)));
+		break;
+	    case GDF_16BIT_565RGB:
+		*(unsigned short *)dest =
+		    SWAP16((unsigned short)(((r>>3)<<11) | ((g>>2)<<5) | (b>>3)));
+		break;
+	    case GDF_32BIT_X888RGB:
+		*(unsigned long  *)dest =
+		    SWAP32((unsigned long)((r<<16) | (g<<8) | b));
+		break;
+	    case GDF_24BIT_888RGB:
 #ifdef VIDEO_FB_LITTLE_ENDIAN
-                dest[0] = b;
-                dest[1] = g;
-                dest[2] = r;
+		dest[0] = b;
+		dest[1] = g;
+		dest[2] = r;
 #else
-                dest[0] = r;
-                dest[1] = g;
-                dest[2] = b;
+		dest[0] = r;
+		dest[1] = g;
+		dest[2] = b;
 #endif
-                break;
-            }
-            source++;
-            dest += VIDEO_PIXEL_SIZE;
-        }
-        dest += skip;
+		break;
+	    }
+	    source++;
+	    dest += VIDEO_PIXEL_SIZE;
+	}
+	dest += skip;
     }
 #ifdef CONFIG_VIDEO_BMP_LOGO
     free (logo_red);
@@ -804,10 +803,10 @@ static void *video_logo (void)
 
     for (i = 1; i < n; i++)
     {
-        video_get_info_str (i, info);
-        if (*info)
-        video_drawstring (VIDEO_INFO_X,
-                          VIDEO_INFO_Y + i*VIDEO_FONT_HEIGHT, info);
+	video_get_info_str (i, info);
+	if (*info)
+	video_drawstring (VIDEO_INFO_X,
+			  VIDEO_INFO_Y + i*VIDEO_FONT_HEIGHT, info);
     }
     }
 #endif
@@ -824,7 +823,7 @@ static int video_init(void)
     unsigned char color8;
 
     if ((pGD=video_hw_init()) == NULL)
-        return -1;
+	return -1;
 
     video_fb_address = (void*)VIDEO_FB_ADRS;
 #ifdef CONFIG_VIDEO_HW_CURSOR
@@ -835,37 +834,37 @@ static int video_init(void)
     switch (VIDEO_DATA_FORMAT)
     {
     case GDF__8BIT_INDEX:
-        video_set_lut (0x01, CONSOLE_FG_COL, CONSOLE_FG_COL, CONSOLE_FG_COL);
-        video_set_lut (0x00, CONSOLE_BG_COL, CONSOLE_BG_COL, CONSOLE_BG_COL);
-        fgx = 0x01010101;
-        bgx = 0x00000000;
-        break;
+	video_set_lut (0x01, CONSOLE_FG_COL, CONSOLE_FG_COL, CONSOLE_FG_COL);
+	video_set_lut (0x00, CONSOLE_BG_COL, CONSOLE_BG_COL, CONSOLE_BG_COL);
+	fgx = 0x01010101;
+	bgx = 0x00000000;
+	break;
     case GDF__8BIT_332RGB:
-        color8 = ((CONSOLE_FG_COL & 0xe0) | ((CONSOLE_FG_COL>>3) & 0x1c) | CONSOLE_FG_COL>>6);
-        fgx = (color8<<24) | (color8<<16) | (color8<<8) | color8;
-        color8 = ((CONSOLE_BG_COL & 0xe0) | ((CONSOLE_BG_COL>>3) & 0x1c) | CONSOLE_BG_COL>>6);
-        bgx = (color8<<24) | (color8<<16) | (color8<<8) | color8;
-        break;
+	color8 = ((CONSOLE_FG_COL & 0xe0) | ((CONSOLE_FG_COL>>3) & 0x1c) | CONSOLE_FG_COL>>6);
+	fgx = (color8<<24) | (color8<<16) | (color8<<8) | color8;
+	color8 = ((CONSOLE_BG_COL & 0xe0) | ((CONSOLE_BG_COL>>3) & 0x1c) | CONSOLE_BG_COL>>6);
+	bgx = (color8<<24) | (color8<<16) | (color8<<8) | color8;
+	break;
     case GDF_15BIT_555RGB:
-        fgx = (((CONSOLE_FG_COL>>3)<<26) | ((CONSOLE_FG_COL>>3)<<21) | ((CONSOLE_FG_COL>>3)<<16) |
-           ((CONSOLE_FG_COL>>3)<<10) | ((CONSOLE_FG_COL>>3)<<5)  |  (CONSOLE_FG_COL>>3));
-        bgx = (((CONSOLE_BG_COL>>3)<<26) | ((CONSOLE_BG_COL>>3)<<21) | ((CONSOLE_BG_COL>>3)<<16) |
-           ((CONSOLE_BG_COL>>3)<<10) | ((CONSOLE_BG_COL>>3)<<5)  |  (CONSOLE_BG_COL>>3));
-        break;
+	fgx = (((CONSOLE_FG_COL>>3)<<26) | ((CONSOLE_FG_COL>>3)<<21) | ((CONSOLE_FG_COL>>3)<<16) |
+	   ((CONSOLE_FG_COL>>3)<<10) | ((CONSOLE_FG_COL>>3)<<5)  |  (CONSOLE_FG_COL>>3));
+	bgx = (((CONSOLE_BG_COL>>3)<<26) | ((CONSOLE_BG_COL>>3)<<21) | ((CONSOLE_BG_COL>>3)<<16) |
+	   ((CONSOLE_BG_COL>>3)<<10) | ((CONSOLE_BG_COL>>3)<<5)  |  (CONSOLE_BG_COL>>3));
+	break;
     case GDF_16BIT_565RGB:
-        fgx = (((CONSOLE_FG_COL>>3)<<27) | ((CONSOLE_FG_COL>>2)<<21) | ((CONSOLE_FG_COL>>3)<<16) |
-           ((CONSOLE_FG_COL>>3)<<11) | ((CONSOLE_FG_COL>>2)<<5)  |  (CONSOLE_FG_COL>>3));
-        bgx = (((CONSOLE_BG_COL>>3)<<27) | ((CONSOLE_BG_COL>>2)<<21) | ((CONSOLE_BG_COL>>3)<<16) |
-           ((CONSOLE_BG_COL>>3)<<11) | ((CONSOLE_BG_COL>>2)<<5)  |  (CONSOLE_BG_COL>>3));
-        break;
+	fgx = (((CONSOLE_FG_COL>>3)<<27) | ((CONSOLE_FG_COL>>2)<<21) | ((CONSOLE_FG_COL>>3)<<16) |
+	   ((CONSOLE_FG_COL>>3)<<11) | ((CONSOLE_FG_COL>>2)<<5)  |  (CONSOLE_FG_COL>>3));
+	bgx = (((CONSOLE_BG_COL>>3)<<27) | ((CONSOLE_BG_COL>>2)<<21) | ((CONSOLE_BG_COL>>3)<<16) |
+	   ((CONSOLE_BG_COL>>3)<<11) | ((CONSOLE_BG_COL>>2)<<5)  |  (CONSOLE_BG_COL>>3));
+	break;
     case GDF_32BIT_X888RGB:
-        fgx = (CONSOLE_FG_COL<<16) | (CONSOLE_FG_COL<<8) | CONSOLE_FG_COL;
-        bgx = (CONSOLE_BG_COL<<16) | (CONSOLE_BG_COL<<8) | CONSOLE_BG_COL;
-        break;
+	fgx = (CONSOLE_FG_COL<<16) | (CONSOLE_FG_COL<<8) | CONSOLE_FG_COL;
+	bgx = (CONSOLE_BG_COL<<16) | (CONSOLE_BG_COL<<8) | CONSOLE_BG_COL;
+	break;
     case GDF_24BIT_888RGB:
-        fgx = (CONSOLE_FG_COL<<24) | (CONSOLE_FG_COL<<16) | (CONSOLE_FG_COL<<8) | CONSOLE_FG_COL;
-        bgx = (CONSOLE_BG_COL<<24) | (CONSOLE_BG_COL<<16) | (CONSOLE_BG_COL<<8) | CONSOLE_BG_COL;
-        break;
+	fgx = (CONSOLE_FG_COL<<24) | (CONSOLE_FG_COL<<16) | (CONSOLE_FG_COL<<8) | CONSOLE_FG_COL;
+	bgx = (CONSOLE_BG_COL<<24) | (CONSOLE_BG_COL<<16) | (CONSOLE_BG_COL<<8) | CONSOLE_BG_COL;
+	break;
     }
     eorx = fgx ^ bgx;
 
@@ -897,48 +896,48 @@ int drv_video_init (void)
 
      /* Force console i/o to serial ? */
     if ((penv = getenv ("console")) != NULL)
-        if (strcmp (penv, "serial") == 0)
-            return 0;
+	if (strcmp (penv, "serial") == 0)
+	    return 0;
 
    /* Init video chip - returns with framebuffer cleared */
     if (video_init() == -1)
-        skip_dev_init = 1;
+	skip_dev_init = 1;
 #ifdef CONFIG_VGA_AS_SINGLE_DEVICE
    /* Devices VGA and Keyboard will be assigned seperately */
     /* Init vga device */
     if (!skip_dev_init)
     {
-        memset (&console_dev, 0, sizeof(console_dev));
-        strcpy(console_dev.name, "vga");
-        console_dev.ext   = DEV_EXT_VIDEO;    /* Video extensions */
-        console_dev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_SYSTEM;
-        console_dev.putc  = video_putc;        /* 'putc' function */
-        console_dev.puts  = video_puts;        /* 'puts' function */
-        console_dev.tstc  = NULL;              /* 'tstc' function */
-        console_dev.getc  = NULL;              /* 'getc' function */
+	memset (&console_dev, 0, sizeof(console_dev));
+	strcpy(console_dev.name, "vga");
+	console_dev.ext   = DEV_EXT_VIDEO;    /* Video extensions */
+	console_dev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_SYSTEM;
+	console_dev.putc  = video_putc;        /* 'putc' function */
+	console_dev.puts  = video_puts;        /* 'puts' function */
+	console_dev.tstc  = NULL;              /* 'tstc' function */
+	console_dev.getc  = NULL;              /* 'getc' function */
 
-        if (device_register (&console_dev) == 0)
-            return 1;
+	if (device_register (&console_dev) == 0)
+	    return 1;
     }
 #else
     PRINTD("KBD: Keyboard init ...\n");
     if (VIDEO_KBD_INIT_FCT == -1)
-        skip_dev_init = 1;
+	skip_dev_init = 1;
 
     /* Init console device */
     if (!skip_dev_init)
     {
-        memset (&console_dev, 0, sizeof(console_dev));
-        strcpy(console_dev.name, "console");
-        console_dev.ext   = DEV_EXT_VIDEO;    /* Video extensions */
-        console_dev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_INPUT | DEV_FLAGS_SYSTEM;
-        console_dev.putc  = video_putc;        /* 'putc' function */
-        console_dev.puts  = video_puts;        /* 'puts' function */
-        console_dev.tstc  = VIDEO_TSTC_FCT;    /* 'tstc' function */
-        console_dev.getc  = VIDEO_GETC_FCT;    /* 'getc' function */
+	memset (&console_dev, 0, sizeof(console_dev));
+	strcpy(console_dev.name, "console");
+	console_dev.ext   = DEV_EXT_VIDEO;    /* Video extensions */
+	console_dev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_INPUT | DEV_FLAGS_SYSTEM;
+	console_dev.putc  = video_putc;        /* 'putc' function */
+	console_dev.puts  = video_puts;        /* 'puts' function */
+	console_dev.tstc  = VIDEO_TSTC_FCT;    /* 'tstc' function */
+	console_dev.getc  = VIDEO_GETC_FCT;    /* 'getc' function */
 
-        if (device_register (&console_dev) == 0)
-            return 1;
+	if (device_register (&console_dev) == 0)
+	    return 1;
     }
 #endif /* CONFIG_VGA_AS_SINGLE_DEVICE */
     /* No console dev available */
@@ -946,10 +945,3 @@ int drv_video_init (void)
 }
 
 #endif /* CONFIG_CFB_CONSOLE */
-
-
-
-
-
-
-

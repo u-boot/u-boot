@@ -5,11 +5,10 @@
 #include <common.h>
 #include <command.h>
 #include <linux/ctype.h>
-
-#include <cmd_bedbug.h>
 #include <bedbug/bedbug.h>
 #include <bedbug/regs.h>
 #include <bedbug/ppc.h>
+#include <bedbug/type.h>
 
 #if (CONFIG_COMMANDS & CFG_CMD_BEDBUG) && defined(CONFIG_8xx)
 
@@ -64,7 +63,7 @@ void bedbug860_init( void )
  * ====================================================================== */
 
 void bedbug860_do_break (cmd_tbl_t *cmdtp, int flag, int argc,
-                         char *argv[])
+			 char *argv[])
 {
   long		addr = 0;       /* Address to break at  */
   int		which_bp;       /* Breakpoint number    */
@@ -315,4 +314,3 @@ int bedbug860_clear( int which_bp )
 
 /* ====================================================================== */
 #endif
-

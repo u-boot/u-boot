@@ -41,25 +41,25 @@ typedef struct fs
 
     int                 cluster_size;
     int                 num_clus;
-    
+
     int                 fat_start;
     int                 fat_len;
     int                 nb_fat;
     int                 num_fat;
-    
+
     int                 dir_start;
     int                 dir_len;
 
     unsigned char       *fat_buf;
-    
+
 } Fs_t;
 
 /* Data structure describing one file system slot                            */
 typedef struct slot {
     int (*map) (struct fs *fs,
-                struct slot *file,
-                int where,
-                int *len);
+		struct slot *file,
+		int where,
+		int *len);
     unsigned long FileSize;
 
     unsigned short int FirstAbsCluNr;
@@ -89,24 +89,24 @@ int read_fat (BootSector_t *boot, Fs_t *fs);
 
 /* vfat.c                                                                    */
 int vfat_lookup (Slot_t *dir,
-                 Fs_t *fs,
-                 Directory_t *dirent,
-                 int *entry,
-                 int *vfat_start,
-                 char *filename, 
-                 int flags,
-                 char *outname,
-                 Slot_t *file);
+		 Fs_t *fs,
+		 Directory_t *dirent,
+		 int *entry,
+		 int *vfat_start,
+		 char *filename,
+		 int flags,
+		 char *outname,
+		 Slot_t *file);
 
 /* subdir.c                                                                  */
 char *basename (char *name);
 int open_subdir (File_t *desc);
 int open_file (Slot_t *file, Directory_t *dir);
 int read_file (Fs_t *fs,
-               Slot_t *file,
-               char *buf,
-               int where,
-               int len);
+	       Slot_t *file,
+	       char *buf,
+	       int where,
+	       int len);
 void init_subdir (void);
 
 /* fs.c                                                                      */
@@ -114,4 +114,3 @@ int fs_init (Fs_t *fs);
 
 
 #endif
-

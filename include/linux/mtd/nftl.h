@@ -31,8 +31,8 @@ struct nftl_uci1 {
 } __attribute__((packed));
 
 struct nftl_uci2 {
-        __u16 FoldMark;
-        __u16 FoldMark1;
+	__u16 FoldMark;
+	__u16 FoldMark1;
 	__u32 unused;
 } __attribute__((packed));
 
@@ -94,8 +94,8 @@ struct NFTLrecord {
 	int head,sect,cyl;
 	__u16 *EUNtable; 		/* [numvunits]: First EUN for each virtual unit  */
 	__u16 *ReplUnitTable; 		/* [numEUNs]: ReplUnitNumber for each */
-        unsigned int nb_blocks;		/* number of physical blocks */
-        unsigned int nb_boot_blocks;	/* number of blocks used by the bios */
+	unsigned int nb_blocks;		/* number of physical blocks */
+	unsigned int nb_boot_blocks;	/* number of blocks used by the bios */
 };
 
 #define MAX_NFTLS 16

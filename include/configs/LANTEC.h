@@ -297,7 +297,7 @@
 
 /* FLASH timing */
 #define CFG_OR_TIMING_FLASH     (OR_CSNT_SAM  | OR_BI | \
-                                 OR_SCY_5_CLK | OR_TRLX)
+				 OR_SCY_5_CLK | OR_TRLX)
 
 #define CFG_OR0_REMAP	(CFG_REMAP_OR_AM  | CFG_OR_TIMING_FLASH)
 #define CFG_OR0_PRELIM	(CFG_PRELIM_OR_AM | CFG_OR_TIMING_FLASH)

@@ -26,13 +26,13 @@
 
 typedef union {
     struct {
-        unsigned int    zero:2;
-        unsigned int    reg:6;
-        unsigned int    func:3;
-        unsigned int    dev:5;
-        unsigned int    bus:8;
-        unsigned int    reserved:7;
-        unsigned int    enable:1;
+	unsigned int    zero:2;
+	unsigned int    reg:6;
+	unsigned int    func:3;
+	unsigned int    dev:5;
+	unsigned int    bus:8;
+	unsigned int    reserved:7;
+	unsigned int    enable:1;
     } pci;
     CARD32 l;
 } PciSlot;

@@ -88,31 +88,31 @@ static ibool LoadDriver(void)
 
     /* Check if we have already loaded the driver */
     if (loaded)
-        return true;
+	return true;
     PM_init();
 
     /* Open the BPD file */
     if (!PM_findBPD(DLL_NAME,bpdpath))
-        return false;
+	return false;
     strcpy(filename,bpdpath);
     strcat(filename,DLL_NAME);
     if ((hModBPD = PE_loadLibrary(filename,false)) == NULL)
-        return false;
+	return false;
     if ((AGP_initLibrary = (AGP_initLibrary_t)PE_getProcAddress(hModBPD,"_AGP_initLibrary")) == NULL)
-        return false;
+	return false;
     bpdpath[strlen(bpdpath)-1] = 0;
     if (strcmp(bpdpath,PM_getNucleusPath()) == 0)
-        strcpy(bpdpath,PM_getNucleusConfigPath());
+	strcpy(bpdpath,PM_getNucleusConfigPath());
     else {
-        PM_backslash(bpdpath);
-        strcat(bpdpath,"config");
-        }
+	PM_backslash(bpdpath);
+	strcat(bpdpath,"config");
+	}
     if ((agpExp = AGP_initLibrary(bpdpath,filename,GA_getSystemPMImports(),&_N_imports,&_AGP_imports)) == NULL)
-        PM_fatalError("AGP_initLibrary failed!\n");
+	PM_fatalError("AGP_initLibrary failed!\n");
     _AGP_exports.dwSize = sizeof(_AGP_exports);
     max = sizeof(_AGP_exports)/sizeof(AGP_initLibrary_t);
     for (i = 0,p = (ulong*)&_AGP_exports; i < max; i++)
-        *p++ = (ulong)_AGP_fatalErrorHandler;
+	*p++ = (ulong)_AGP_fatalErrorHandler;
     memcpy(&_AGP_exports,agpExp,MIN(sizeof(_AGP_exports),agpExp->dwSize));
     loaded = true;
     return true;
@@ -127,7 +127,7 @@ static ibool LoadDriver(void)
 int NAPI AGP_status(void)
 {
     if (!loaded)
-        return nDriverNotFound;
+	return nDriverNotFound;
     return _AGP_exports.AGP_status();
 }
 
@@ -136,7 +136,7 @@ const char * NAPI AGP_errorMsg(
     N_int32 status)
 {
     if (!loaded)
-        return "Unable to load Nucleus device driver!";
+	return "Unable to load Nucleus device driver!";
     return _AGP_exports.AGP_errorMsg(status);
 }
 
@@ -144,7 +144,7 @@ const char * NAPI AGP_errorMsg(
 AGP_devCtx * NAPI AGP_loadDriver(N_int32 deviceIndex)
 {
     if (!LoadDriver())
-        return NULL;
+	return NULL;
     return _AGP_exports.AGP_loadDriver(deviceIndex);
 }
 
@@ -153,7 +153,7 @@ void NAPI AGP_unloadDriver(
     AGP_devCtx *dc)
 {
     if (loaded)
-        _AGP_exports.AGP_unloadDriver(dc);
+	_AGP_exports.AGP_unloadDriver(dc);
 }
 
 /* {secret} */
@@ -161,7 +161,7 @@ void NAPI AGP_getGlobalOptions(
     AGP_globalOptions *options)
 {
     if (LoadDriver())
-        _AGP_exports.AGP_getGlobalOptions(options);
+	_AGP_exports.AGP_getGlobalOptions(options);
 }
 
 /* {secret} */
@@ -169,7 +169,7 @@ void NAPI AGP_setGlobalOptions(
     AGP_globalOptions *options)
 {
     if (LoadDriver())
-        _AGP_exports.AGP_setGlobalOptions(options);
+	_AGP_exports.AGP_setGlobalOptions(options);
 }
 
 /* {secret} */
@@ -177,7 +177,7 @@ void NAPI AGP_saveGlobalOptions(
     AGP_globalOptions *options)
 {
     if (loaded)
-        _AGP_exports.AGP_saveGlobalOptions(options);
+	_AGP_exports.AGP_saveGlobalOptions(options);
 }
 #endif
 
@@ -197,24 +197,23 @@ void NAPI _OS_delay(
 
     if (!inited) {
 #ifndef __WIN32_VXD__
-        // This has been causing problems in VxD's for some reason, so for now
-        // we avoid using it.
-        if (_GA_haveCPUID() && (_GA_getCPUIDFeatures() & CPU_HaveRDTSC) != 0) {
-            ZTimerInit();
-            haveRDTSC = true;
-            }
-        else
+	/* This has been causing problems in VxD's for some reason, so for now */
+	/* we avoid using it. */
+	if (_GA_haveCPUID() && (_GA_getCPUIDFeatures() & CPU_HaveRDTSC) != 0) {
+	    ZTimerInit();
+	    haveRDTSC = true;
+	    }
+	else
 #endif
-            haveRDTSC = false;
-        inited = true;
-        }
+	    haveRDTSC = false;
+	inited = true;
+	}
     if (haveRDTSC) {
-        LZTimerOnExt(&tm);
-        while (LZTimerLapExt(&tm) < microSeconds)
-            ;
-        LZTimerOnExt(&tm);
-        }
+	LZTimerOnExt(&tm);
+	while (LZTimerLapExt(&tm) < microSeconds)
+	    ;
+	LZTimerOnExt(&tm);
+	}
     else
-        _OS_delay8253(microSeconds);
+	_OS_delay8253(microSeconds);
 }
-

@@ -16,7 +16,7 @@
 	.global	iommu_setup
 	/* Initialize IO/MMU mappings via BAT method Ch. 7,
 	 * PPC Programming Reference
-         */
+	 */
 iommu_setup:
 
 /* initialize the BAT registers (SPRs 528 - 543 */
@@ -64,7 +64,7 @@ iommu_setup:
    BAT marked valid that is in an unknown or transient state
 */
 
-        addis   r5,0,0x0000
+	addis   r5,0,0x0000
 	mtibat0u(r5)
 	mtibat0l(r5)
 	mtibat1u(r5)
@@ -81,106 +81,106 @@ iommu_setup:
 	mtdbat2l(r5)
 	mtdbat3u(r5)
 	mtdbat3l(r5)
-        isync
+	isync
 
 /*
  *  Set up I/D BAT0
  */
-        lis     r4, CFG_DBAT0L@h
-        ori     r4, r4, CFG_DBAT0L@l
-        lis     r3, CFG_DBAT0U@h
-        ori     r3, r3, CFG_DBAT0U@l
+	lis     r4, CFG_DBAT0L@h
+	ori     r4, r4, CFG_DBAT0L@l
+	lis     r3, CFG_DBAT0U@h
+	ori     r3, r3, CFG_DBAT0U@l
 
-        mtdbat0l(r4)
-        isync
-        mtdbat0u(r3)
-        isync
-        sync
+	mtdbat0l(r4)
+	isync
+	mtdbat0u(r3)
+	isync
+	sync
 
-        lis     r4, CFG_IBAT0L@h
-        ori     r4, r4, CFG_IBAT0L@l
-        lis     r3, CFG_IBAT0U@h
-        ori     r3, r3, CFG_IBAT0U@l
+	lis     r4, CFG_IBAT0L@h
+	ori     r4, r4, CFG_IBAT0L@l
+	lis     r3, CFG_IBAT0U@h
+	ori     r3, r3, CFG_IBAT0U@l
 
-        isync
-        mtibat0l(r4)
-        isync
+	isync
+	mtibat0l(r4)
+	isync
 	mtibat0u(r3)
-        isync
+	isync
 
 /*
  *  Set up I/D BAT1
  */
-        lis     r4, CFG_IBAT1L@h
-        ori     r4, r4, CFG_IBAT1L@l
-        lis     r3, CFG_IBAT1U@h
-        ori     r3, r3, CFG_IBAT1U@l
+	lis     r4, CFG_IBAT1L@h
+	ori     r4, r4, CFG_IBAT1L@l
+	lis     r3, CFG_IBAT1U@h
+	ori     r3, r3, CFG_IBAT1U@l
 
-        isync
-        mtibat1l(r4)
-        isync
-        mtibat1u(r3)
-        isync
-        mtdbat1l(r4)
-        isync
-        mtdbat1u(r3)
-        isync
-        sync
+	isync
+	mtibat1l(r4)
+	isync
+	mtibat1u(r3)
+	isync
+	mtdbat1l(r4)
+	isync
+	mtdbat1u(r3)
+	isync
+	sync
 
 /*
  *  Set up I/D BAT2
  */
-        lis     r4, CFG_IBAT2L@h
-        ori     r4, r4, CFG_IBAT2L@l
-        lis     r3, CFG_IBAT2U@h
-        ori     r3, r3, CFG_IBAT2U@l
+	lis     r4, CFG_IBAT2L@h
+	ori     r4, r4, CFG_IBAT2L@l
+	lis     r3, CFG_IBAT2U@h
+	ori     r3, r3, CFG_IBAT2U@l
 
-        isync
-        mtibat2l(r4)
-        isync
-        mtibat2u(r3)
-        isync
-        mtdbat2l(r4)
-        isync
-        mtdbat2u(r3)
-        isync
-        sync
+	isync
+	mtibat2l(r4)
+	isync
+	mtibat2u(r3)
+	isync
+	mtdbat2l(r4)
+	isync
+	mtdbat2u(r3)
+	isync
+	sync
 
 /*
  *  Setup I/D BAT3
  */
-        lis     r4, CFG_IBAT3L@h
-        ori     r4, r4, CFG_IBAT3L@l
-        lis     r3, CFG_IBAT3U@h
-        ori     r3, r3, CFG_IBAT3U@l
+	lis     r4, CFG_IBAT3L@h
+	ori     r4, r4, CFG_IBAT3L@l
+	lis     r3, CFG_IBAT3U@h
+	ori     r3, r3, CFG_IBAT3U@l
 
-        isync
-        mtibat3l(r4)
-        isync
-        mtibat3u(r3)
-        isync
-        mtdbat3l(r4)
-        isync
-        mtdbat3u(r3)
-        isync
-        sync
+	isync
+	mtibat3l(r4)
+	isync
+	mtibat3u(r3)
+	isync
+	mtdbat3l(r4)
+	isync
+	mtdbat3u(r3)
+	isync
+	sync
 
 
 /*
  *  Invalidate all 64 TLB's
  */
-        lis     r3, 0
-        mtctr   r3
-        lis     r5, 4
+	lis     r3, 0
+	mtctr   r3
+	lis     r5, 4
 
 tlblp:
-        tlbie   r3
-        sync
-        addi    r3, r3, 0x1000
-        cmplw   r3, r5
-        blt     tlblp
+	tlbie   r3
+	sync
+	addi    r3, r3, 0x1000
+	cmplw   r3, r5
+	blt     tlblp
 
-        sync
+	sync
 
 /*
  *  Enable Data Translation
@@ -193,7 +193,7 @@ tlblp:
 	isync
 	sync
 
-        blr
+	blr
 
 
 #ifdef USE_V2_INIT
@@ -213,8 +213,8 @@ early_init_f:
 /* MPC8245/BMW CPCI System Init
  * Jimmy Blair, Broadcom Corp, 2002.
  */
-        mflr    r11
- 	/* Zero-out registers */
+	mflr    r11
+	/* Zero-out registers */
 
 	addis	r0,r0,0
 	mtspr	SPRG0,r0
@@ -244,7 +244,7 @@ early_init_f:
 	/* Set MPU/MSR to a known state. Turn off FP */
 
 #if 1	/* Turn off floating point (remove to keep FP on) */
-        andi.	r3, r3, 0
+	andi.	r3, r3, 0
 	sync
 	mtmsr 	r3
 	isync
@@ -368,10 +368,10 @@ instCacheOn603:
 	rlwinm	r3, r4, 0, 21, 19	/* clear the ICFI bit */
 
 	/*
-         * The setting of the instruction cache enable (ICE) bit must be
-         * preceded by an isync instruction to prevent the cache from being
-         * enabled or disabled while an instruction access is in progress.
-         */
+	 * The setting of the instruction cache enable (ICE) bit must be
+	 * preceded by an isync instruction to prevent the cache from being
+	 * enabled or disabled while an instruction access is in progress.
+	 */
 	isync
 writeReg4:
 	mtspr	HID0, r4		/* Enable Instr Cache & Inval cache */
@@ -397,13 +397,13 @@ cacheEnableDone:
 	cmp	0,0,r3,r7
 	beq	cr0, X4_KAHLUA_START
 
-        /* It's not an 8240, is it an 8245? */
+	/* It's not an 8240, is it an 8245? */
 
 	LOADPTR (r7, KAHLUA2_ID)	/* Kahlua PCI controller ID */
 	cmp	0,0,r3,r7
 	beq	cr0, X4_KAHLUA_START
 
-        /* Save the PCI controller type in r7 */
+	/* Save the PCI controller type in r7 */
 	mr	r7, r3
 
 	LOADPTR (r5, PREP_REG_ADDR)
@@ -433,33 +433,33 @@ X4_KAHLUA_START:
 
 	LOADPTR (r3, PROC_INT2_ADR)	/* Processor I/F Config 2 reg. */
 	stwbrx	r3,0,r5
-        lis	r4, 0x2000		/* Flush PCI config writes */
+	lis	r4, 0x2000		/* Flush PCI config writes */
 	stwbrx	r4,0,r6
 
 	LOADPTR (r9, KAHLUA2_ID)
-        cmpl	0, 0, r7, r9
-        bne     L1not8245
+	cmpl	0, 0, r7, r9
+	bne     L1not8245
 
-        /* MIOCR1 -- turn on bit for DLL delay */
+	/* MIOCR1 -- turn on bit for DLL delay */
 
 	LOADPTR (r3, MIOCR1_ADR_X)
 	stwbrx	r3,0,r5
-        li      r4, 0x04
+	li      r4, 0x04
 	stb	r4, MIOCR1_SHIFT(r6)
 
-        /* For the MPC8245, set register 77 to %00100000 (see Errata #15) */
-        /* SDRAM_CLK_DEL (0x77)*/
+	/* For the MPC8245, set register 77 to %00100000 (see Errata #15) */
+	/* SDRAM_CLK_DEL (0x77)*/
 
 	LOADPTR (r3, MIOCR2_ADR_X)
 	stwbrx	r3,0,r5
-        li      r4, 0x10
+	li      r4, 0x10
 	stb	r4, MIOCR2_SHIFT(r6)
 
-        /* PMCR2 -- set PCI hold delay to <10>b for 33 MHz */
+	/* PMCR2 -- set PCI hold delay to <10>b for 33 MHz */
 
 	LOADPTR (r3, PMCR2_ADR_X)
 	stwbrx	r3,0,r5
-        li      r4, 0x20
+	li      r4, 0x20
 	stb	r4, PMCR2_SHIFT(r6)
 
 	/* Initialize EUMBBAR early since 8245 has internal UART in EUMB */
@@ -471,21 +471,21 @@ X4_KAHLUA_START:
 
 L1not8245:
 
-        /* Toggle the DLL reset bit in AMBOR */
+	/* Toggle the DLL reset bit in AMBOR */
 
 	LOADPTR (r3, AMBOR)
 	stwbrx	r3,0,r5
 	lbz	r4, 0(r6)
 
-        andi.   r4, r4, 0xdf
+	andi.   r4, r4, 0xdf
 	stb	r4, 0(r6)		/* Clear DLL_RESET */
-        sync
+	sync
 
-        ori     r4, r4, 0x20		/* Set DLL_RESET */
+	ori     r4, r4, 0x20		/* Set DLL_RESET */
 	stb	r4, 0(r6)
-        sync
+	sync
 
-        andi.   r4, r4, 0xdf
+	andi.   r4, r4, 0xdf
 	stb	r4, 0(r6)		/* Clear DLL_RESET */
 
 
@@ -533,10 +533,10 @@ L1not8245:
 		MC1_MEMGO << 19 | MC1_SREN << 18 | \
 		MC1_RAM_TYPE << 17 | MC1_PCKEN << 16 )
 	li	r3, MC1_BANKBITS
-        cmpl	0, 0, r7, r9		/* Check for Kahlua2 */
-        bne     BankBitsAdd
-        cmpli   0, 0, r3, 0x5555
-        beq     K2BankBitsHack		/* On 8245, 5555 ==> 0 */
+	cmpl	0, 0, r7, r9		/* Check for Kahlua2 */
+	bne     BankBitsAdd
+	cmpli   0, 0, r3, 0x5555
+	beq     K2BankBitsHack		/* On 8245, 5555 ==> 0 */
 BankBitsAdd:
 	ori	r4, r3, 0
 K2BankBitsHack:
@@ -569,9 +569,9 @@ K2BankBitsHack:
 		MC2_INLRD_PARECC_CHK_EN << 18 | \
 		MC2_ECC_EN << 17 | MC2_EDO << 16 | \
 		MC2_REFINT << 2 | MC2_RSV_PG << 1 | MC2_RMW_PAR)
-        cmpl	0, 0, r7, r9		/* Check for Kahlua2 */
-        bne     notK2
-        /* clear Kahlua2 reserved bits */
+	cmpl	0, 0, r7, r9		/* Check for Kahlua2 */
+	bne     notK2
+	/* clear Kahlua2 reserved bits */
 	LOADPTR (r3, 0xfffcffff)
 	and	r4, r4, r3
 notK2:
@@ -599,9 +599,9 @@ notK2:
 		MC3_RDLAT << 20 | MC3_CPX << 19 | \
 		MC3_RAS6P << 15 | MC3_CAS5 << 12 | MC3_CP4 << 9 | \
 		MC3_CAS3 << 6 | MC3_RCD2 << 3 | MC3_RP1)
-        cmpl	0, 0, r7, r9              /* Check for Kahlua2 */
-        bne     notK2b
-        /* clear Kahlua2 reserved bits */
+	cmpl	0, 0, r7, r9              /* Check for Kahlua2 */
+	bne     notK2b
+	/* clear Kahlua2 reserved bits */
 	LOADPTR (r3, 0xff000000)
 	and	r4, r4, r3
 notK2b:
@@ -633,9 +633,9 @@ notK2b:
 		MC4_REGDIMM << 15 | MC4_SDMODE_CAS << 12 | \
 		MC4_SDMODE_WRAP << 11 | MC4_SDMODE_BURST << 8 | \
 		MC4_ACTORW << 4 | MC4_BSTOPRE_L)
-        cmpl	0, 0, r7, r9                /* Check for Kahlua 2 */
-        bne     notK2c
-        /* Turn on Kahlua2 extended ROM space */
+	cmpl	0, 0, r7, r9                /* Check for Kahlua 2 */
+	bne     notK2c
+	/* Turn on Kahlua2 extended ROM space */
 	LOADPTR (r3, 0x00200000)
 	or	r4, r4, r3
 notK2c:
@@ -745,11 +745,10 @@ KahluaX4wait8ref:
 
 	sync
 	eieio
-        mtlr    r11
+	mtlr    r11
 	blr
 
 #else /* USE_V2_INIT */
-
 
 
 /* U-Boot works, but memory will not run reliably for all address ranges.
@@ -898,106 +897,106 @@ write_32_ne:
 .globl  early_init_f
 
 early_init_f:
-        mflr    r11
-        lis     r10, 0x8000
+	mflr    r11
+	lis     r10, 0x8000
 
-        /* PCI Latency Timer */
-        li      r4, 0x0d
-        ori     r3, r10, PLTR@l
-        bl      __pci_config_write_8
+	/* PCI Latency Timer */
+	li      r4, 0x0d
+	ori     r3, r10, PLTR@l
+	bl      __pci_config_write_8
 
-        /* Cache Line Size */
-        li      r4, 0x08
-        ori     r3, r10, PCLSR@l
-        bl      __pci_config_write_8
+	/* Cache Line Size */
+	li      r4, 0x08
+	ori     r3, r10, PCLSR@l
+	bl      __pci_config_write_8
 
-        /* PCI Cmd */
-        li      r4, 6
-        ori     r3, r10, PCICR@l
-        bl      __pci_config_write_16
+	/* PCI Cmd */
+	li      r4, 6
+	ori     r3, r10, PCICR@l
+	bl      __pci_config_write_16
 
 #if 1
-        /* PCI Stat */
-        ori     r3, r10, PCISR@l
-        bl      __pci_config_read_16
-        ori     r4, r4, 0xffff
-        ori     r3, r10, PCISR@l
-        bl      __pci_config_write_16
+	/* PCI Stat */
+	ori     r3, r10, PCISR@l
+	bl      __pci_config_read_16
+	ori     r4, r4, 0xffff
+	ori     r3, r10, PCISR@l
+	bl      __pci_config_write_16
 #endif
 
-        /* PICR1 */
-        lis     r4, 0xff14
-        ori     r4, r4, 0x1b98
-        ori     r3, r10, PICR1@l
-        bl      __pci_config_write_32
+	/* PICR1 */
+	lis     r4, 0xff14
+	ori     r4, r4, 0x1b98
+	ori     r3, r10, PICR1@l
+	bl      __pci_config_write_32
 
 
-        /* PICR2 */
-        lis     r4, 0x0404
-        ori     r4, r4, 0x0004
-        ori     r3, r10, PICR2@l
-        bl      __pci_config_write_32
+	/* PICR2 */
+	lis     r4, 0x0404
+	ori     r4, r4, 0x0004
+	ori     r3, r10, PICR2@l
+	bl      __pci_config_write_32
 
 	/* MIOCR1 */
-        li      r4, 0x04
-        ori     r3, r10, MIOCR1@l
-        bl      __pci_config_write_8
+	li      r4, 0x04
+	ori     r3, r10, MIOCR1@l
+	bl      __pci_config_write_8
 
 	/* For the MPC8245, set register 77 to %00100000 (see Errata #15) */
 	/* SDRAM_CLK_DEL (0x77)*/
-        li      r4, 0x10
-        ori     r3, r10, MIOCR2@l
-        bl      __pci_config_write_8
+	li      r4, 0x10
+	ori     r3, r10, MIOCR2@l
+	bl      __pci_config_write_8
 
-        /* EUMBBAR */
-        lis     r4, 0xfc00
-        ori     r3, r10, EUMBBAR@l
-        bl      __pci_config_write_32
+	/* EUMBBAR */
+	lis     r4, 0xfc00
+	ori     r3, r10, EUMBBAR@l
+	bl      __pci_config_write_32
 
 	/* AMBOR */
 
        /* Even if Address Map B is not being used (though it should),
-        * the memory DLL needs to be cleared/set/cleared before using memory.
+	* the memory DLL needs to be cleared/set/cleared before using memory.
 	*/
 
-        ori     r3, r10, AMBOR@l
-        bl      __pci_config_read_8	/* get Current bits */
+	ori     r3, r10, AMBOR@l
+	bl      __pci_config_read_8	/* get Current bits */
 
-        andi.   r4, r4, 0xffdf
-        ori     r3, r10, AMBOR@l
-        bl      __pci_config_write_16	/* Clear DLL_RESET */
+	andi.   r4, r4, 0xffdf
+	ori     r3, r10, AMBOR@l
+	bl      __pci_config_write_16	/* Clear DLL_RESET */
 
-        ori    r4, r4, 0x0020
-        ori     r3, r10, AMBOR@l
-        bl      __pci_config_write_16	/* Set DLL_RESET */
+	ori    r4, r4, 0x0020
+	ori     r3, r10, AMBOR@l
+	bl      __pci_config_write_16	/* Set DLL_RESET */
 
-        andi.   r4, r4, 0xffdf
-        ori     r3, r10, AMBOR@l
-        bl      __pci_config_write_16	/* Clear DLL_RESET */
+	andi.   r4, r4, 0xffdf
+	ori     r3, r10, AMBOR@l
+	bl      __pci_config_write_16	/* Clear DLL_RESET */
 
-        /* ERCR1 */
-        lis     r4, 0x8040		/* Enable RCS2, use supplied timings */
-        ori     r4, r4, 0x8000
-        ori     r3, r10, ERCR1@l
-        bl      __pci_config_write_32
+	/* ERCR1 */
+	lis     r4, 0x8040		/* Enable RCS2, use supplied timings */
+	ori     r4, r4, 0x8000
+	ori     r3, r10, ERCR1@l
+	bl      __pci_config_write_32
 
-        /* ERCR2 */
-        lis     r4, 0x0000		/* Disable RCS3 parms */
-        ori     r4, r4, 0x0000
-        ori     r3, r10, ERCR2@l
-        bl      __pci_config_write_32
+	/* ERCR2 */
+	lis     r4, 0x0000		/* Disable RCS3 parms */
+	ori     r4, r4, 0x0000
+	ori     r3, r10, ERCR2@l
+	bl      __pci_config_write_32
 
-        /* ERCR3 */
-        lis     r4, 0x0000		/* RCS3 at 0x70000000, 64K bytes */
-        ori     r4, r4, 0x0004
-        ori     r3, r10, ERCR2@l
-        bl      __pci_config_write_32
+	/* ERCR3 */
+	lis     r4, 0x0000		/* RCS3 at 0x70000000, 64K bytes */
+	ori     r4, r4, 0x0004
+	ori     r3, r10, ERCR2@l
+	bl      __pci_config_write_32
 
 	/* Preserve memgo bit */
-        /* MCCR1 */
+	/* MCCR1 */
 
 /*	lis     r4, 0x75a8		/  Safe Local ROM = 11+3 clocks */
-  	lis     r4, 0x75a0              /* Safe Local ROM = 11+3 clocks */
+	lis     r4, 0x75a0              /* Safe Local ROM = 11+3 clocks */
 /*      lis     r4, 0x73a0              /  Fast Local ROM = 7+3 clocks */
 /*      oris    r4, r4, 0x0010          /  Burst ROM/Flash enable */
 /*      oris    r4, r4, 0x0004          /  Self-refresh enable */
@@ -1005,17 +1004,17 @@ early_init_f:
 /*      ori     r4,r4,0xFFFF            /  16Mbit  2bank SDRAM */
 /*      ori     r4,r4,0xAAAA            /  256Mbit 4bank SDRAM (8245 only) */
 /*      ori     r4,r4,0x5555            /  64Mbit  2bank SDRAM */
-        ori     r4,r4,0x0000            /* 64Mbit  4bank SDRAM */
+	ori     r4,r4,0x0000            /* 64Mbit  4bank SDRAM */
 
-        ori     r3, r10, MCCR1@l
-        bl      __pci_config_write_32
+	ori     r3, r10, MCCR1@l
+	bl      __pci_config_write_32
 
-        /* MCCR2 */
+	/* MCCR2 */
 
-        lis     r4,0x0000
+	lis     r4,0x0000
 /*      oris    r4,r4,0x4000            /  TS_WAIT_TIMER = 3 clocks */
-        oris    r4,r4,0x1000            /* ASRISE = 8 clocks */
-        oris    r4,r4,0x0080            /* ASFALL = 8 clocks */
+	oris    r4,r4,0x1000            /* ASRISE = 8 clocks */
+	oris    r4,r4,0x0080            /* ASFALL = 8 clocks */
 /*      oris    r4,r4,0x0010            /  SDRAM Parity (else ECC) */
 /*      oris    r4,r4,0x0008            /  Write parity check */
 /*      oris    r4,r4,0x0004            /  SDRAM inline reads */
@@ -1030,143 +1029,142 @@ early_init_f:
 /*      ori     r4,r4,0x150c            /  100 MHz mem bus        = 1347 */
 /*      ori     r4,r4,0x10fc            /   83 MHz mem bus        = 1087 */
 /*      ori     r4,r4,0x0cc4            /   66 MHz mem bus        =  817 */
-        ori     r4,r4,0x04cc            /*  33 MHz mem bus (SAFE) =  307 */
+	ori     r4,r4,0x04cc            /*  33 MHz mem bus (SAFE) =  307 */
 /*      ori     r4,r4,0x0002            /  Reserve a page */
 /*      ori     r4,r4,0x0001            /  RWM parity */
 
-        ori     r3, r10, MCCR2@l
-        bl      __pci_config_write_32
+	ori     r3, r10, MCCR2@l
+	bl      __pci_config_write_32
 
 
-        /* MCCR3 */
-        lis     r4,0x0000               /* BSTOPRE_M = 7 (see A/N) */
-        oris    r4,r4,0x0500            /* REFREC    = 8 clocks */
-        ori     r3, r10, MCCR3@l
-        bl      __pci_config_write_32
+	/* MCCR3 */
+	lis     r4,0x0000               /* BSTOPRE_M = 7 (see A/N) */
+	oris    r4,r4,0x0500            /* REFREC    = 8 clocks */
+	ori     r3, r10, MCCR3@l
+	bl      __pci_config_write_32
 
-        /* MCCR4 */                     /* Turn on registered buffer mode */
-        lis     r4, 0x2000              /* PRETOACT = 3 clocks */
-        oris    r4,r4,0x0400            /* ACTOPRE  = 5 clocks */
+	/* MCCR4 */                     /* Turn on registered buffer mode */
+	lis     r4, 0x2000              /* PRETOACT = 3 clocks */
+	oris    r4,r4,0x0400            /* ACTOPRE  = 5 clocks */
 /*      oris    r4,r4,0x0080            /  Enable 8-beat burst (32-bit bus) */
 /*      oris    r4,r4,0x0040            /  Enable Inline ECC/Parity */
-        oris    r4,r4,0x0020            /* EXTROM enabled */
-        oris    r4,r4,0x0010            /* Registered buffers */
+	oris    r4,r4,0x0020            /* EXTROM enabled */
+	oris    r4,r4,0x0010            /* Registered buffers */
 /*      oris    r4,r4,0x0000            /  BSTOPRE_U = 0 (see A/N) */
-        oris    r4,r4,0x0002            /* DBUS_SIZ[2] (8 bit on RCS1) */
+	oris    r4,r4,0x0002            /* DBUS_SIZ[2] (8 bit on RCS1) */
 
 /*      ori     r4,r4,0x8000            /  Registered DIMMs */
-        ori     r4,r4,0x2000            /*CAS Latency (CL=3) (see RDLAT) */
+	ori     r4,r4,0x2000            /*CAS Latency (CL=3) (see RDLAT) */
 /*      ori     r4,r4,0x2000            /  CAS Latency (CL=2) (see RDLAT) */
 /*      ori     r4,r4,0x0300            /  Sequential wrap/8-beat burst */
-        ori     r4,r4,0x0200            /* Sequential wrap/4-beat burst */
-        ori     r4,r4,0x0030            /* ACTORW  = 3 clocks */
-        ori     r4,r4,0x0009            /* BSTOPRE_L = 9 (see A/N) */
+	ori     r4,r4,0x0200            /* Sequential wrap/4-beat burst */
+	ori     r4,r4,0x0030            /* ACTORW  = 3 clocks */
+	ori     r4,r4,0x0009            /* BSTOPRE_L = 9 (see A/N) */
 
-        ori     r3, r10, MCCR4@l
-        bl      __pci_config_write_32
+	ori     r3, r10, MCCR4@l
+	bl      __pci_config_write_32
 
 	/* MSAR1 */
-        lis     r4, 0xc0804000@h
-        ori     r4, r4, 0xc0804000@l
-        ori     r3, r10, MSAR1@l
-        bl      __pci_config_write_32
+	lis     r4, 0xc0804000@h
+	ori     r4, r4, 0xc0804000@l
+	ori     r3, r10, MSAR1@l
+	bl      __pci_config_write_32
 
 	/* MSAR2 */
-        lis     r4, 0xc0804000@h
-        ori     r4, r4, 0xc0804000@l
-        ori     r3, r10, MSAR2@l
-        bl      __pci_config_write_32
+	lis     r4, 0xc0804000@h
+	ori     r4, r4, 0xc0804000@l
+	ori     r3, r10, MSAR2@l
+	bl      __pci_config_write_32
 
 	/* MESAR1 */
-        lis     r4, 0x00000000@h
-        ori     r4, r4, 0x00000000@l
-        ori     r3, r10, EMSAR1@l
-        bl      __pci_config_write_32
+	lis     r4, 0x00000000@h
+	ori     r4, r4, 0x00000000@l
+	ori     r3, r10, EMSAR1@l
+	bl      __pci_config_write_32
 
 	/* MESAR2 */
-        lis     r4, 0x01010101@h
-        ori     r4, r4, 0x01010101@l
-        ori     r3, r10, EMSAR2@l
-        bl      __pci_config_write_32
+	lis     r4, 0x01010101@h
+	ori     r4, r4, 0x01010101@l
+	ori     r3, r10, EMSAR2@l
+	bl      __pci_config_write_32
 
 	/* MEAR1 */
-        lis     r4, 0xffbf7f3f@h
-        ori     r4, r4, 0xffbf7f3f@l
-        ori     r3, r10, MEAR1@l
-        bl      __pci_config_write_32
+	lis     r4, 0xffbf7f3f@h
+	ori     r4, r4, 0xffbf7f3f@l
+	ori     r3, r10, MEAR1@l
+	bl      __pci_config_write_32
 
 	/* MEAR2 */
-        lis     r4, 0xffbf7f3f@h
-        ori     r4, r4, 0xffbf7f3f@l
-        ori     r3, r10, MEAR2@l
-        bl      __pci_config_write_32
+	lis     r4, 0xffbf7f3f@h
+	ori     r4, r4, 0xffbf7f3f@l
+	ori     r3, r10, MEAR2@l
+	bl      __pci_config_write_32
 
 	/* MEEAR1 */
-        lis     r4, 0x00000000@h
-        ori     r4, r4, 0x00000000@l
-        ori     r3, r10, EMEAR1@l
-        bl      __pci_config_write_32
+	lis     r4, 0x00000000@h
+	ori     r4, r4, 0x00000000@l
+	ori     r3, r10, EMEAR1@l
+	bl      __pci_config_write_32
 
 	/* MEEAR2 */
-        lis     r4, 0x01010101@h
-        ori     r4, r4, 0x01010101@l
-        ori     r3, r10, EMEAR2@l
-        bl      __pci_config_write_32
+	lis     r4, 0x01010101@h
+	ori     r4, r4, 0x01010101@l
+	ori     r3, r10, EMEAR2@l
+	bl      __pci_config_write_32
 
 	/* ODCR */
-        li      r4, 0x7f
-        ori     r3, r10, ODCR@l
-        bl      __pci_config_write_8
+	li      r4, 0x7f
+	ori     r3, r10, ODCR@l
+	bl      __pci_config_write_8
 
 	/* MBER */
-        li      r4, 0x01
-        ori     r3, r10, MBER@l
-        bl      __pci_config_write_8
+	li      r4, 0x01
+	ori     r3, r10, MBER@l
+	bl      __pci_config_write_8
 
-        /* Page CTR aka PGMAX */
-        li      r4, 0x32
-        ori     r3, r10, 0x70
-        bl      __pci_config_write_8
+	/* Page CTR aka PGMAX */
+	li      r4, 0x32
+	ori     r3, r10, 0x70
+	bl      __pci_config_write_8
 
 #if 0
 	/* CLK Drive */
-        ori     r4, r10, 0xfc01 /* Top bit will be ignored */
-        ori     r3, r10, 0x74
-        bl      __pci_config_write_16
+	ori     r4, r10, 0xfc01 /* Top bit will be ignored */
+	ori     r3, r10, 0x74
+	bl      __pci_config_write_16
 #endif
 
 	/* delay */
-        lis     r7, 1
-        mtctr   r7
+	lis     r7, 1
+	mtctr   r7
 label1: 	bdnz    label1
 
-        /* Set memgo bit */
-        /* MCCR1 */
-        ori     r3, r10, MCCR1@l
-        bl      __pci_config_read_32
-        lis	r7, 0x0008
-        or	r4, r3, r7
-        ori     r3, r10, MCCR1@l
-        bl      __pci_config_write_32
+	/* Set memgo bit */
+	/* MCCR1 */
+	ori     r3, r10, MCCR1@l
+	bl      __pci_config_read_32
+	lis	r7, 0x0008
+	or	r4, r3, r7
+	ori     r3, r10, MCCR1@l
+	bl      __pci_config_write_32
 
 	/* delay again */
-        lis     r7, 1
-        mtctr   r7
+	lis     r7, 1
+	mtctr   r7
 label2: 	bdnz    label2
 #if 0
 /* DEBUG: Infinite loop, write then read */
 loop:
-        lis     r7, 0xffff
-        mtctr   r7
-        li	r3, 0x5004
-        lis	r4, 0xa0a0
-        ori	r4, r4, 0x5050
+	lis     r7, 0xffff
+	mtctr   r7
+	li	r3, 0x5004
+	lis	r4, 0xa0a0
+	ori	r4, r4, 0x5050
 	bl write_32_ne
-        li	r3, 0x5004
+	li	r3, 0x5004
 	bl read_32_ne
-      	bdnz    loop
+	bdnz    loop
 #endif
-        mtlr    r11
-        blr
+	mtlr    r11
+	blr
 #endif
-

@@ -100,7 +100,7 @@ int eth_initialize(bd_t *bis)
 	eth_current = NULL;
 
 #if defined(CONFIG_405GP) || defined(CONFIG_440) || defined(CONFIG_405EP)
-        ppc_4xx_eth_initialize(bis);
+	ppc_4xx_eth_initialize(bis);
 #endif
 #ifdef CONFIG_INCA_IP_SWITCH
 	inca_switch_initialize(bis);

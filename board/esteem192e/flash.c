@@ -111,7 +111,7 @@ unsigned long flash_init (void)
 	if (size_b1) {
 		memctl->memc_or1 = CFG_OR_TIMING_FLASH | (-size_b1 & 0xFFFF8000);
 		memctl->memc_br1 = (CFG_FLASH_BASE | 0x00000801) + (size_b0 & BR_BA_MSK);
-                              /*((CFG_FLASH_BASE + size_b0) & BR_BA_MSK) |
+			      /*((CFG_FLASH_BASE + size_b0) & BR_BA_MSK) |
 				    BR_MS_GPCM | BR_V;*/
 
 		/* Re-do sizing to get full correct info */
@@ -148,7 +148,7 @@ static void flash_get_offsets (ulong base, flash_info_t *info)
 
 	/* set up sector start adress table */
 	if (info->flash_id & FLASH_BTYPE) {
-             if ((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_INTEL) {
+	     if ((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_INTEL) {
 
 #ifndef CONFIG_FLASH_16BIT
 		/* set sector offsets for bottom boot block type	*/
@@ -162,9 +162,9 @@ static void flash_get_offsets (ulong base, flash_info_t *info)
 		info->start[7] = base + 0x0001C000;
 		for (i = 8; i < info->sector_count; i++) {
 			info->start[i] = base + (i * 0x00020000) - 0x000E0000;
-	        }
-               }
-             else {
+		}
+	       }
+	     else {
 		/* set sector offsets for bottom boot block type	*/
 		info->start[0] = base + 0x00000000;
 		info->start[1] = base + 0x00008000;
@@ -186,9 +186,9 @@ static void flash_get_offsets (ulong base, flash_info_t *info)
 		info->start[7] = base + 0x0000E000;
 		for (i = 8; i < info->sector_count; i++) {
 			info->start[i] = base + (i * 0x00010000) - 0x00070000;
-	        }
+		}
 	       }
-             else {
+	     else {
 		/* set sector offsets for bottom boot block type	*/
 		info->start[0] = base + 0x00000000;
 		info->start[1] = base + 0x00004000;
@@ -202,7 +202,7 @@ static void flash_get_offsets (ulong base, flash_info_t *info)
 	} else {
 		/* set sector offsets for top boot block type		*/
 		i = info->sector_count - 1;
-             if ((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_INTEL) {
+	     if ((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_INTEL) {
 
 #ifndef CONFIG_FLASH_16BIT
 		info->start[i--] = base + info->size - 0x00004000;
@@ -216,7 +216,7 @@ static void flash_get_offsets (ulong base, flash_info_t *info)
 			info->start[i] = base + i * 0x00020000;
 		}
 
-               } else {
+	       } else {
 
 		info->start[i--] = base + info->size - 0x00008000;
 		info->start[i--] = base + info->size - 0x0000C000;
@@ -237,7 +237,7 @@ static void flash_get_offsets (ulong base, flash_info_t *info)
 			info->start[i] = base + i * 0x00010000;
 		}
 
-               } else {
+	       } else {
 
 		info->start[i--] = base + info->size - 0x00004000;
 		info->start[i--] = base + info->size - 0x00006000;
@@ -362,8 +362,8 @@ ulong flash_get_size (volatile FLASH_WORD_SIZE *addr, flash_info_t *info)
 
 	/*
 	 * Note: if it is an AMD flash and the word at addr[0000]
-         * is 0x00890089 this routine will think it is an Intel
-         * flash device and may(most likely) cause trouble.
+	 * is 0x00890089 this routine will think it is an Intel
+	 * flash device and may(most likely) cause trouble.
 	 */
 
 	addr[0x0000] = 0x00900090;
@@ -375,8 +375,8 @@ ulong flash_get_size (volatile FLASH_WORD_SIZE *addr, flash_info_t *info)
 
 	/*
 	 * Note: if it is an AMD flash and the word at addr[0000]
-         * is 0x0089 this routine will think it is an Intel
-         * flash device and may(most likely) cause trouble.
+	 * is 0x0089 this routine will think it is an Intel
+	 * flash device and may(most likely) cause trouble.
 	 */
 
 	addr[0x0000] = 0x0090;
@@ -523,7 +523,7 @@ ulong flash_get_size (volatile FLASH_WORD_SIZE *addr, flash_info_t *info)
 
 	/* set up sector start adress table */
 	if (info->flash_id & FLASH_BTYPE) {
-             if ((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_INTEL) {
+	     if ((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_INTEL) {
 
 #ifndef CONFIG_FLASH_16BIT
 		/* set sector offsets for bottom boot block type	*/
@@ -537,9 +537,9 @@ ulong flash_get_size (volatile FLASH_WORD_SIZE *addr, flash_info_t *info)
 		info->start[7] = base + 0x0001C000;
 		for (i = 8; i < info->sector_count; i++) {
 			info->start[i] = base + (i * 0x00020000) - 0x000E0000;
-	        }
-               }
-             else {
+		}
+	       }
+	     else {
 		/* set sector offsets for bottom boot block type	*/
 		info->start[0] = base + 0x00000000;
 		info->start[1] = base + 0x00008000;
@@ -561,9 +561,9 @@ ulong flash_get_size (volatile FLASH_WORD_SIZE *addr, flash_info_t *info)
 		info->start[7] = base + 0x0000E000;
 		for (i = 8; i < info->sector_count; i++) {
 			info->start[i] = base + (i * 0x00010000) - 0x00070000;
-	        }
+		}
 	       }
-             else {
+	     else {
 		/* set sector offsets for bottom boot block type	*/
 		info->start[0] = base + 0x00000000;
 		info->start[1] = base + 0x00004000;
@@ -577,7 +577,7 @@ ulong flash_get_size (volatile FLASH_WORD_SIZE *addr, flash_info_t *info)
 	} else {
 		/* set sector offsets for top boot block type		*/
 		i = info->sector_count - 1;
-             if ((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_INTEL) {
+	     if ((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_INTEL) {
 
 #ifndef CONFIG_FLASH_16BIT
 		info->start[i--] = base + info->size - 0x00004000;
@@ -591,7 +591,7 @@ ulong flash_get_size (volatile FLASH_WORD_SIZE *addr, flash_info_t *info)
 			info->start[i] = base + i * 0x00020000;
 		}
 
-               } else {
+	       } else {
 
 		info->start[i--] = base + info->size - 0x00008000;
 		info->start[i--] = base + info->size - 0x0000C000;
@@ -612,7 +612,7 @@ ulong flash_get_size (volatile FLASH_WORD_SIZE *addr, flash_info_t *info)
 			info->start[i] = base + i * 0x00010000;
 		}
 
-               } else {
+	       } else {
 
 		info->start[i--] = base + info->size - 0x00004000;
 		info->start[i--] = base + info->size - 0x00006000;
@@ -670,7 +670,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 
 	if ((info->flash_id == FLASH_UNKNOWN) ||
 	    ((info->flash_id > FLASH_AMD_COMP) &&
-             ( (info->flash_id & FLASH_VENDMASK) != FLASH_MAN_INTEL ) ) ){
+	     ( (info->flash_id & FLASH_VENDMASK) != FLASH_MAN_INTEL ) ) ){
 		printf ("Can't erase unknown flash type - aborted\n");
 		return 1;
 	}
@@ -1001,13 +1001,13 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 		if( barf ) {
 			barf >>=16;
 		} else {
-		        barf = addr[0] & 0x0000003A;
+			barf = addr[0] & 0x0000003A;
 		}
 		printf("\nFlash write error at address %lx\n",(unsigned long)dest);
 		if(barf & 0x0002) printf("Block locked, not erased.\n");
 		if(barf & 0x0010) printf("Programming error.\n");
 		if(barf & 0x0008) printf("Vpp Low error.\n");
-	  	return(2);
+		return(2);
 	}
 
 
@@ -1040,7 +1040,7 @@ static int write_short (flash_info_t *info, ulong dest, ushort data)
 	addr[0x0555] = 0x00A0;
      } else {
 	/* intel stuff */
-        *addr = 0x00D0;
+	*addr = 0x00D0;
 	*addr = 0x0040;
      }
 	*((vu_short *)dest) = data;
@@ -1053,7 +1053,7 @@ static int write_short (flash_info_t *info, ulong dest, ushort data)
 	start = get_timer (0);
 
      if(info->flash_id < FLASH_AMD_COMP) {
-          /* AMD stuff */
+	  /* AMD stuff */
 	while ((*((vu_short *)dest) & 0x0080) != (data & 0x0080)) {
 		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
 			return (1);
@@ -1072,7 +1072,7 @@ static int write_short (flash_info_t *info, ulong dest, ushort data)
 		if(barf & 0x0002) printf("Block locked, not erased.\n");
 		if(barf & 0x0010) printf("Programming error.\n");
 		if(barf & 0x0008) printf("Vpp Low error.\n");
-	  	return(2);
+		return(2);
 	}
 	*addr = 0x00B0;
 	*addr = 0x0070;
@@ -1093,4 +1093,3 @@ static int write_short (flash_info_t *info, ulong dest, ushort data)
 
 /*-----------------------------------------------------------------------
  */
-

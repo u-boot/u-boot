@@ -20,7 +20,7 @@
 #define SS   16
 #define FRAME_SIZE 17
 
-/* this struct defines the way the registers are stored on the 
+/* this struct defines the way the registers are stored on the
    stack during a system call. */
 
 struct pt_regs {

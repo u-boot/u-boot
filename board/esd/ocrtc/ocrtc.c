@@ -26,7 +26,6 @@
 #include <asm/processor.h>
 #include <i2c.h>
 #include <command.h>
-#include <cmd_boot.h>
 
 /* ------------------------------------------------------------------------- */
 

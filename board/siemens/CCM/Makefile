@@ -29,7 +29,7 @@ OBJS	= ccm.o flash.o fpga_ccm.o ../common/fpga.o \
 	  ../../tqm8xx/load_sernum_ethaddr.o
 
 $(LIB):	.depend $(OBJS)
-	$(AR) crv $@ $^
+	$(AR) crv $@ $(OBJS)
 
 #########################################################################
 

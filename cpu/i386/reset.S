@@ -1,5 +1,5 @@
 /*
- *  U-boot - i386 Startup Code 
+ *  U-boot - i386 Startup Code
  *
  *  Copyright (c) 2002	Omicron Ceti AB, Daniel Engström <denaiel@omicron.se>
  *
@@ -28,11 +28,10 @@
 
 .section .reset, "ax"
 .code16
-reset_vector: 
-        cli
-        cld
-        jmp start16 
+reset_vector:
+	cli
+	cld
+	jmp start16
 
 	.org 0xf
 	nop
-	

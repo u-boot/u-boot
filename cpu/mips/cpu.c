@@ -42,4 +42,3 @@ void flush_cache (ulong start_addr, ulong size)
 {
 
 }
-

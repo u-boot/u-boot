@@ -2,7 +2,7 @@
  * (C) Copyright 2002
  * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
  * Marius Groeger <mgroeger@sysgo.de>
- * 
+ *
  * (C) Copyright 2002
  * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
  * Alex Zuepke <azu@sysgo.de>
@@ -47,7 +47,7 @@ typedef struct bd_info {
 	unsigned long   bi_boot_params;	/* where this board expects params */
 	struct environment_s	       *bi_env;
 	struct				/* RAM configuration */
-	{ 
+	{
 		ulong start;
 		ulong size;
 	}bi_dram[CONFIG_NR_DRAM_BANKS];

@@ -28,5 +28,5 @@
 *
 ****************************************************************************/
 
-// This is where you include OS specific headers for the event handling
-// library.
+/* This is where you include OS specific headers for the event handling */
+/* library. */

@@ -43,14 +43,14 @@ typedef struct OrgDef
 OrgDef OrgAT49BV16x4[] =
 {
 	{ 8, 8*1024 }, /* 8 * 8kBytes sectors */
-	{ 2, 32*1024 }, /* 2 * 32kBytes sectors */	
-	{ 30, 64*1024 } /* 30 * 64kBytes sectors */	
+	{ 2, 32*1024 }, /* 2 * 32kBytes sectors */
+	{ 30, 64*1024 } /* 30 * 64kBytes sectors */
 };
 
 OrgDef OrgAT49BV16x4A[] =
 {
-	{ 8, 8*1024 }, /* 8 * 8kBytes sectors */	
-	{ 31, 64*1024 } /* 31 * 64kBytes sectors */	
+	{ 8, 8*1024 }, /* 8 * 8kBytes sectors */
+	{ 31, 64*1024 } /* 31 * 64kBytes sectors */
 };
 
 

@@ -20,7 +20,6 @@ See also: http://www.vooha.com/
 U-Boot Loading...
 
 
-
 U-Boot 1.0.5 (Sep 10 2001 - 00:22:25)
 
 CPU:   MPC8240 Revision 1.1 at 198 MHz: 16 kB I-Cache 16 kB D-Cache
@@ -68,7 +67,6 @@ use the command:
 setenv <attribute> <value>
 
 type "saveenv" to write to NVRAM.
-
 
 
 II. To boot from a hard drive:
@@ -174,7 +172,6 @@ erase FFF80000 FFFFFFFF
 cp.b 100000 FFF80000 \$(filesize)\
 
 
-
 C. FLASH KERNEL REGION (960KB)
 
 FLASH support is provided for the 960KB onboard FLASH1 segment.
@@ -213,7 +210,6 @@ Erased 15 sectors
 =>cp.b 100000 FFE10000 b99a7
 Copy to Flash... FLASH[F0_SA3(KERNEL)]:............done
 =>
-
 
 
 When finished, use the command:

@@ -43,13 +43,13 @@ unsigned long size;
 
     for (; size; size--)
     {
-        byte = *ptr++;
-        for (i = 8; i; i--)
-        {
-            f =  ((byte & 1) ^ (accu & 1)) ? 0x84083001 : 0;
-            accu >>= 1; accu ^= f;
-            byte >>= 1;
-        }
+	byte = *ptr++;
+	for (i = 8; i; i--)
+	{
+	    f =  ((byte & 1) ^ (accu & 1)) ? 0x84083001 : 0;
+	    accu >>= 1; accu ^= f;
+	    byte >>= 1;
+	}
     }
     return(accu);
 }
@@ -62,13 +62,13 @@ static int mpc107_i2c_wait ( unsigned long timeout )
 
     while (((x = in32r(MPC107_I2CSR)) & 0x82) != 0x82)
     {
-        if (!timeout--)
-            return -1;
+	if (!timeout--)
+	    return -1;
     }
 
     if (x & 0x10)
     {
-        return -1;
+	return -1;
     }
     out32r(MPC107_I2CSR, 0);
 
@@ -81,8 +81,8 @@ static int mpc107_i2c_wait_idle ( unsigned long timeout )
 {
     while (in32r(MPC107_I2CSR) & 0x20)
     {
-        if (!timeout--)
-            return -1;
+	if (!timeout--)
+	    return -1;
     }
     return 0;
 }
@@ -99,7 +99,7 @@ int mpc107_i2c_read_byte (
     int data;
 
     if (!mpc107_eumb_addr)
-        return -6;
+	return -6;
 
     mpc107_i2c_wait_idle (timeout);
 
@@ -112,15 +112,15 @@ int mpc107_i2c_read_byte (
 
     if (mpc107_i2c_wait(timeout) < 0)
     {
-        printf("mpc107_i2c_read Error 1\n");
-        return -2;
+	printf("mpc107_i2c_read Error 1\n");
+	return -2;
     }
 
     if (in32r(MPC107_I2CSR)&0x1)
     {
-        /* Generate STOP condition; device busy or not existing */
-        out32r(MPC107_I2CCR, 0x80);
-        return -1;
+	/* Generate STOP condition; device busy or not existing */
+	out32r(MPC107_I2CCR, 0x80);
+	return -1;
     }
 
     /* Data address */
@@ -128,8 +128,8 @@ int mpc107_i2c_read_byte (
 
     if (mpc107_i2c_wait(timeout) < 0)
     {
-        printf("mpc107_i2c_read Error 2\n");
-        return -3;
+	printf("mpc107_i2c_read Error 2\n");
+	return -3;
     }
 
     /* Switch to read - restart */
@@ -138,8 +138,8 @@ int mpc107_i2c_read_byte (
 
     if (mpc107_i2c_wait(timeout) < 0)
     {
-        printf("mpc107_i2c_read Error 3\n");
-        return -4;
+	printf("mpc107_i2c_read Error 3\n");
+	return -4;
     }
 
     out32r(MPC107_I2CCR, 0xA8); /* no ACK */
@@ -147,8 +147,8 @@ int mpc107_i2c_read_byte (
 
     if (mpc107_i2c_wait(timeout) < 0)
     {
-        printf("mpc107_i2c_read Error 4\n");
-        return -5;
+	printf("mpc107_i2c_read Error 4\n");
+	return -5;
     }
     /* Generate STOP condition */
     out32r(MPC107_I2CCR, 0x88);
@@ -171,7 +171,7 @@ int mpc107_i2c_write_byte (
     unsigned long timeout = MPC107_I2C_TIMEOUT;
 
     if (!mpc107_eumb_addr)
-        return -6;
+	return -6;
 
     mpc107_i2c_wait_idle(timeout);
 
@@ -184,8 +184,8 @@ int mpc107_i2c_write_byte (
 
     if (mpc107_i2c_wait(timeout) < 0)
     {
-        printf("mpc107_i2c_write Error 1\n");
-        return -1;
+	printf("mpc107_i2c_write Error 1\n");
+	return -1;
     }
 
     /* Data address */
@@ -193,16 +193,16 @@ int mpc107_i2c_write_byte (
 
     if (mpc107_i2c_wait(timeout) < 0)
     {
-        printf("mpc107_i2c_write Error 2\n");
-        return -1;
+	printf("mpc107_i2c_write Error 2\n");
+	return -1;
     }
 
     /* Write */
     out32r(MPC107_I2CDR, val);
     if (mpc107_i2c_wait(timeout) < 0)
     {
-        printf("mpc107_i2c_write Error 3\n");
-        return -1;
+	printf("mpc107_i2c_write Error 3\n");
+	return -1;
     }
 
     /* Generate Stop Condition */
@@ -227,38 +227,38 @@ int mpc107_srom_load (
 
     for (i = 0; i < cnt; i++)
     {
-        timeout=100;
-        do
-        {
-            val = mpc107_i2c_read_byte (device, block, addr);
-            if (val < -1)
-            {
-            printf("i2c_read_error %d at dev %x block %x addr %x\n",
-                   val, device, block, addr);
-            return -1;
-            }
-            else if (timeout==0)
-            {
-                printf ("i2c_read_error: timeout at dev %x block %x addr %x\n",
-                        device, block, addr);
-                return -1;
-            }
-            timeout--;
-        } while (val == -1); /* if no ack: try again! */
+	timeout=100;
+	do
+	{
+	    val = mpc107_i2c_read_byte (device, block, addr);
+	    if (val < -1)
+	    {
+	    printf("i2c_read_error %d at dev %x block %x addr %x\n",
+		   val, device, block, addr);
+	    return -1;
+	    }
+	    else if (timeout==0)
+	    {
+		printf ("i2c_read_error: timeout at dev %x block %x addr %x\n",
+			device, block, addr);
+		return -1;
+	    }
+	    timeout--;
+	} while (val == -1); /* if no ack: try again! */
 
-        *pBuf++ = (unsigned char)val;
-        addr++;
+	*pBuf++ = (unsigned char)val;
+	addr++;
 
-        if ((addr == 0) && (i != cnt-1))    /* is it the same block ? */
-        {
-            if (block == FIRST_BLOCK)
-                block = SECOND_BLOCK;
-            else
-            {
-                printf ("ic2_read_error: read beyond 2. block !\n");
-                return -1;
-            }
-        }
+	if ((addr == 0) && (i != cnt-1))    /* is it the same block ? */
+	{
+	    if (block == FIRST_BLOCK)
+		block = SECOND_BLOCK;
+	    else
+	    {
+		printf ("ic2_read_error: read beyond 2. block !\n");
+		return -1;
+	    }
+	}
     }
     udelay(100000);
     return (cnt);
@@ -277,20 +277,20 @@ int mpc107_srom_store (
 
     for (i = 0; i < cnt; i++)
     {
-        while (mpc107_i2c_write_byte (device,block,addr,*pBuf) == 1);
-        addr++;
-        pBuf++;
+	while (mpc107_i2c_write_byte (device,block,addr,*pBuf) == 1);
+	addr++;
+	pBuf++;
 
-        if ((addr == 0) && (i != cnt-1))     /* is it the same block ? */
-        {
-            if (block == FIRST_BLOCK)
-                block = SECOND_BLOCK;
-            else
-            {
-                printf ("ic2_write_error: write beyond 2. block !\n");
-                return -1;
-            }
-        }
+	if ((addr == 0) && (i != cnt-1))     /* is it the same block ? */
+	{
+	    if (block == FIRST_BLOCK)
+		block = SECOND_BLOCK;
+	    else
+	    {
+		printf ("ic2_write_error: write beyond 2. block !\n");
+		return -1;
+	    }
+	}
     }
     udelay(100000);
     return(cnt);
@@ -303,9 +303,9 @@ int mpc107_i2c_init ( unsigned long eumb_addr, unsigned long divider )
     unsigned long x;
 
     if (eumb_addr)
-        mpc107_eumb_addr = eumb_addr;
+	mpc107_eumb_addr = eumb_addr;
     else
-        return -1;
+	return -1;
 
     /* Set I2C clock */
     x = in32r(MPC107_I2CFDR) & 0xffffff00;

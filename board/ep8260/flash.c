@@ -67,7 +67,7 @@ ulong flash_get_size( ulong baseaddr, flash_info_t *info )
   flashtest_l = V_ULONG(baseaddr + 4);
 
   if ((int)flashtest_h == AMD_MANUFACT) {
-  	info->flash_id = FLASH_MAN_AMD;
+	info->flash_id = FLASH_MAN_AMD;
   } else {
 	info->flash_id = FLASH_UNKNOWN;
 	info->sector_count = 0;
@@ -102,10 +102,10 @@ ulong flash_get_size( ulong baseaddr, flash_info_t *info )
   for (i = 0; i < info->sector_count; i++) {
     /* read sector protection at sector address, (A7 .. A0) = 0x02 */
     if ((V_ULONG( info->start[i] + 16 ) & 0x00010001) ||
-        (V_ULONG( info->start[i] + 20 ) & 0x00010001)) {
+	(V_ULONG( info->start[i] + 20 ) & 0x00010001)) {
 	info->protect[i] = 1;		/* D0 = 1 if protected */
     } else {
-    	info->protect[i] = 0;
+	info->protect[i] = 0;
     }
   }
 
@@ -387,7 +387,7 @@ static int write_dword (flash_info_t *info, ulong dest, unsigned char * pdata)
     /* data polling for D7 */
     start = get_timer (0);
     while (((V_ULONG( dest ) & 0x00800080) != (ch & 0x00800080)) ||
-           ((V_ULONG( dest + 4 ) & 0x00800080) != (cl & 0x00800080))) {
+	   ((V_ULONG( dest + 4 ) & 0x00800080) != (cl & 0x00800080))) {
 	if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
 	    return (1);
 	}

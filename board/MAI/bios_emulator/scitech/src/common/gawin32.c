@@ -67,16 +67,16 @@ static ibool LoadSharedDLL(void)
 
     /* Check if we have already loaded the DLL */
     if (hModDLL)
-        return true;
+	return true;
     PM_init();
 
     /* Open the DLL file */
     if (!PM_findBPD(DLL_NAME,bpdpath))
-        return false;
+	return false;
     strcpy(filename,bpdpath);
     strcat(filename,DLL_NAME);
     if ((hModDLL = LoadLibrary(filename)) == NULL)
-        return false;
+	return false;
     return true;
 }
 
@@ -103,10 +103,10 @@ void NAPI GA_setLocalPath(
 
     PM_setLocalBPDPath(path);
     if (_PM_hDevice != INVALID_HANDLE_VALUE) {
-        inBuf[0] = (DWORD)path;
-        DeviceIoControl(_PM_hDevice, PMHELP_GASETLOCALPATH32,
-            inBuf, sizeof(inBuf), outBuf, sizeof(outBuf), &outCnt, NULL);
-        }
+	inBuf[0] = (DWORD)path;
+	DeviceIoControl(_PM_hDevice, PMHELP_GASETLOCALPATH32,
+	    inBuf, sizeof(inBuf), outBuf, sizeof(outBuf), &outCnt, NULL);
+	}
 }
 
 /****************************************************************************
@@ -126,18 +126,18 @@ PM_imports * NAPI GA_getSystemPMImports(void)
     PM_imports * (NAPIP _GA_getSystemPMImports)(void);
 
     if (LoadSharedDLL()) {
-        /* Note that Visual C++ build DLL's with only a single underscore in front
-         * of the exported name while Watcom C provides two of them. We check for
-         * both to allow working with either compiled DLL.
-         */
-        if ((_GA_getSystemPMImports = (void*)GetProcAddress(hModDLL,"_GA_getSystemPMImports")) != NULL) {
-            if ((_GA_getSystemPMImports = (void*)GetProcAddress(hModDLL,"__GA_getSystemPMImports")) != NULL) {
-                pmImp = _GA_getSystemPMImports();
-                memcpy(&_PM_imports,pmImp,MIN(_PM_imports.dwSize,pmImp->dwSize));
-                return pmImp;
-                }
-            }
-        }
+	/* Note that Visual C++ build DLL's with only a single underscore in front
+	 * of the exported name while Watcom C provides two of them. We check for
+	 * both to allow working with either compiled DLL.
+	 */
+	if ((_GA_getSystemPMImports = (void*)GetProcAddress(hModDLL,"_GA_getSystemPMImports")) != NULL) {
+	    if ((_GA_getSystemPMImports = (void*)GetProcAddress(hModDLL,"__GA_getSystemPMImports")) != NULL) {
+		pmImp = _GA_getSystemPMImports();
+		memcpy(&_PM_imports,pmImp,MIN(_PM_imports.dwSize,pmImp->dwSize));
+		return pmImp;
+		}
+	    }
+	}
     return &_PM_imports;
 }
 
@@ -162,16 +162,16 @@ ibool NAPI GA_getSharedExports(
 
     useRing0Driver = false;
     if (shared) {
-        if (!LoadSharedDLL())
-            PM_fatalError("Unable to load " DLL_NAME "!");
-        if ((_GA_getSystemGAExports = (void*)GetProcAddress(hModDLL,"_GA_getSystemGAExports")) == NULL)
-            if ((_GA_getSystemGAExports = (void*)GetProcAddress(hModDLL,"__GA_getSystemGAExports")) == NULL)
-                PM_fatalError("Unable to load " DLL_NAME "!");
-        exp = _GA_getSystemGAExports();
-        memcpy(gaExp,exp,MIN(gaExp->dwSize,exp->dwSize));
-        useRing0Driver = true;
-        return true;
-        }
+	if (!LoadSharedDLL())
+	    PM_fatalError("Unable to load " DLL_NAME "!");
+	if ((_GA_getSystemGAExports = (void*)GetProcAddress(hModDLL,"_GA_getSystemGAExports")) == NULL)
+	    if ((_GA_getSystemGAExports = (void*)GetProcAddress(hModDLL,"__GA_getSystemGAExports")) == NULL)
+		PM_fatalError("Unable to load " DLL_NAME "!");
+	exp = _GA_getSystemGAExports();
+	memcpy(gaExp,exp,MIN(gaExp->dwSize,exp->dwSize));
+	useRing0Driver = true;
+	return true;
+	}
     return false;
 }
 
@@ -188,14 +188,14 @@ ibool NAPI GA_queryFunctions(
     static ibool (NAPIP _GA_queryFunctions)(GA_devCtx *dc,N_uint32 id,void _FAR_ *funcs) = NULL;
 
     if (useRing0Driver) {
-        // Call the version in nga_w32.dll if it is loaded
-        if (!_GA_queryFunctions) {
-            if ((_GA_queryFunctions = (void*)GetProcAddress(hModDLL,"_GA_queryFunctions")) == NULL)
-                if ((_GA_queryFunctions = (void*)GetProcAddress(hModDLL,"__GA_queryFunctions")) == NULL)
-                    PM_fatalError("Unable to get exports from " DLL_NAME "!");
-            }
-        return _GA_queryFunctions(dc,id,funcs);
-        }
+	/* Call the version in nga_w32.dll if it is loaded */
+	if (!_GA_queryFunctions) {
+	    if ((_GA_queryFunctions = (void*)GetProcAddress(hModDLL,"_GA_queryFunctions")) == NULL)
+		if ((_GA_queryFunctions = (void*)GetProcAddress(hModDLL,"__GA_queryFunctions")) == NULL)
+		    PM_fatalError("Unable to get exports from " DLL_NAME "!");
+	    }
+	return _GA_queryFunctions(dc,id,funcs);
+	}
     return __GA_exports.GA_queryFunctions(dc,id,funcs);
 }
 
@@ -211,14 +211,14 @@ ibool NAPI REF2D_queryFunctions(
     static ibool (NAPIP _REF2D_queryFunctions)(REF2D_driver *ref2d,N_uint32 id,void _FAR_ *funcs) = NULL;
 
     if (useRing0Driver) {
-        // Call the version in nga_w32.dll if it is loaded
-        if (!_REF2D_queryFunctions) {
-            if ((_REF2D_queryFunctions = (void*)GetProcAddress(hModDLL,"_REF2D_queryFunctions")) == NULL)
-                if ((_REF2D_queryFunctions = (void*)GetProcAddress(hModDLL,"__REF2D_queryFunctions")) == NULL)
-                    PM_fatalError("Unable to get exports from " DLL_NAME "!");
-            }
-        return _REF2D_queryFunctions(ref2d,id,funcs);
-        }
+	/* Call the version in nga_w32.dll if it is loaded */
+	if (!_REF2D_queryFunctions) {
+	    if ((_REF2D_queryFunctions = (void*)GetProcAddress(hModDLL,"_REF2D_queryFunctions")) == NULL)
+		if ((_REF2D_queryFunctions = (void*)GetProcAddress(hModDLL,"__REF2D_queryFunctions")) == NULL)
+		    PM_fatalError("Unable to get exports from " DLL_NAME "!");
+	    }
+	return _REF2D_queryFunctions(ref2d,id,funcs);
+	}
     return __GA_exports.REF2D_queryFunctions(ref2d,id,funcs);
 }
 #endif
@@ -231,13 +231,13 @@ Nucleus loader library.
 ibool NAPI GA_TimerInit(void)
 {
     if (_GA_haveCPUID() && (_GA_getCPUIDFeatures() & CPU_HaveRDTSC) != 0) {
-        haveRDTSC = true;
-        return true;
-        }
+	haveRDTSC = true;
+	return true;
+	}
     else if (QueryPerformanceFrequency((LARGE_INTEGER*)&countFreq)) {
-        haveRDTSC = false;
-        return true;
-        }
+	haveRDTSC = false;
+	return true;
+	}
     return false;
 }
 
@@ -249,8 +249,7 @@ void NAPI GA_TimerRead(
     GA_largeInteger *value)
 {
     if (haveRDTSC)
-        _GA_readTimeStamp(value);
+	_GA_readTimeStamp(value);
     else
-        QueryPerformanceCounter((LARGE_INTEGER*)value);
+	QueryPerformanceCounter((LARGE_INTEGER*)value);
 }
-

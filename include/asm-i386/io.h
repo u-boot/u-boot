@@ -84,7 +84,6 @@
 #define isa_memcpy_toio(a,b,c)		memcpy_toio((a),(b),(c))
 
 
- 
 static inline int check_signature(unsigned long io_addr,
 	const unsigned char *signature, int length)
 {
@@ -103,7 +102,7 @@ out:
 
 /**
  *	isa_check_signature		-	find BIOS signatures
- *	@io_addr: mmio address to check 
+ *	@io_addr: mmio address to check
  *	@signature:  signature block
  *	@length: length of signature
  *
@@ -113,7 +112,7 @@ out:
  *	This function is deprecated. New drivers should use ioremap and
  *	check_signature.
  */
- 
+
 
 static inline int isa_check_signature(unsigned long io_addr,
 	const unsigned char *signature, int length)
@@ -158,7 +157,7 @@ __asm__ __volatile__ ("out" #s " %" s1 "0,%" s2 "1"
 
 #define __OUT(s,s1,x) \
 __OUT1(s,x) __OUT2(s,s1,"w") : : "a" (value), "Nd" (port)); } \
-__OUT1(s##_p,x) __OUT2(s,s1,"w") __FULL_SLOW_DOWN_IO : : "a" (value), "Nd" (port));} 
+__OUT1(s##_p,x) __OUT2(s,s1,"w") __FULL_SLOW_DOWN_IO : : "a" (value), "Nd" (port));}
 
 #define __IN1(s) \
 static inline RETURN_TYPE in##s(unsigned short port) { RETURN_TYPE _v;
@@ -168,7 +167,7 @@ __asm__ __volatile__ ("in" #s " %" s2 "1,%" s1 "0"
 
 #define __IN(s,s1,i...) \
 __IN1(s) __IN2(s,s1,"w") : "=a" (_v) : "Nd" (port) ,##i ); return _v; } \
-__IN1(s##_p) __IN2(s,s1,"w") __FULL_SLOW_DOWN_IO : "=a" (_v) : "Nd" (port) ,##i ); return _v; } 
+__IN1(s##_p) __IN2(s,s1,"w") __FULL_SLOW_DOWN_IO : "=a" (_v) : "Nd" (port) ,##i ); return _v; }
 
 #define __INS(s) \
 static inline void ins##s(unsigned short port, void * addr, unsigned long count) \

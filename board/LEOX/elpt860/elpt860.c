@@ -95,7 +95,7 @@ const uint sdram_table[] =
   /*
    * Single Read. (Offset 0 in UPMA RAM)
    */
-  0x0F0FFC24, 0x0F0CFC04, 0xFF0FFC04, 0x00AF3C04, 
+  0x0F0FFC24, 0x0F0CFC04, 0xFF0FFC04, 0x00AF3C04,
   0xFF0FFC00, /* last */
   /*
    * SDRAM Initialization (offset 5 in UPMA RAM)
@@ -109,28 +109,28 @@ const uint sdram_table[] =
   /*
    * Burst Read. (Offset 8 in UPMA RAM)
    */
-  0x0F0FFC24, 0x0F0CFC04, 0xFF0FFC04, 0x00AF3C04, 
+  0x0F0FFC24, 0x0F0CFC04, 0xFF0FFC04, 0x00AF3C04,
   0xF00FFC00, 0xF00FFC00, 0xF00FFC00, 0xFF0FFC00,
-  0x0FFCCC04, 0xFFAFFC05, 0xFFAFFC04, 0xFFAFFC04, 
+  0x0FFCCC04, 0xFFAFFC05, 0xFFAFFC04, 0xFFAFFC04,
   0xFFAFFC04, 0xFFAFFC04, 0xFFAFFC04, 0xFFAFFC04, /* last */
   /*
    * Single Write. (Offset 18 in UPMA RAM)
    */
-  0x0F0FFC24, 0x0F0CFC04, 0xFF0FFC04, 0x00AF0C00, 
+  0x0F0FFC24, 0x0F0CFC04, 0xFF0FFC04, 0x00AF0C00,
   0xFF0FFC04, 0x0FFCCC04, 0xFFAFFC05, /* last */
-  _NOT_USED_, 
+  _NOT_USED_,
   /*
    * Burst Write. (Offset 20 in UPMA RAM)
    */
-  0x0F0FFC24, 0x0F0CFC04, 0xFF0FFC00, 0x00AF0C00, 
-  0xF00FFC00, 0xF00FFC00, 0xF00FFC04, 0x0FFCCC04, 
-  0xFFAFFC04, 0xFFAFFC05, 0xFFAFFC04, 0xFFAFFC04, 
+  0x0F0FFC24, 0x0F0CFC04, 0xFF0FFC00, 0x00AF0C00,
+  0xF00FFC00, 0xF00FFC00, 0xF00FFC04, 0x0FFCCC04,
+  0xFFAFFC04, 0xFFAFFC05, 0xFFAFFC04, 0xFFAFFC04,
   0xFFAFFC04, 0xFFAFFC04, 0xFFAFFC04, 0xFFAFFC04, /* last */
   /*
    * Refresh  (Offset 30 in UPMA RAM)
    */
-  0x0FFC3C04, 0xFFFFFC04, 0xFFFFFC04, 0xFFFFFC04, 
-  0xFFFFFC05, 0xFFFFFC04, 0xFFFFFC05, _NOT_USED_, 
+  0x0FFC3C04, 0xFFFFFC04, 0xFFFFFC04, 0xFFFFFC04,
+  0xFFFFFC05, 0xFFFFFC04, 0xFFFFFC05, _NOT_USED_,
   0xFFAFFC04, 0xFFAFFC04, 0xFFAFFC04, 0xFFAFFC04, /* last */
   /*
    * Exception. (Offset 3c in UPMA RAM)
@@ -152,8 +152,8 @@ board_pre_init (void)
 {
   volatile immap_t *immr = (immap_t *) CFG_IMMR;
 
-  /* 
-   * Light up the red led on ELPT860 pcb (DS1) (PCDAT) 
+  /*
+   * Light up the red led on ELPT860 pcb (DS1) (PCDAT)
    */
   immr->im_ioport.iop_pcdat &= ~CFG_DS1;   /* PCDAT (DS1 = 0)                */
   immr->im_ioport.iop_pcpar &= ~CFG_DS1;   /* PCPAR (0=general purpose I/O)  */
@@ -170,20 +170,20 @@ board_pre_init (void)
  * Return 1 if no second DRAM bank, otherwise returns 0
  */
 
-int 
+int
 checkboard (void)
 {
     unsigned char *s = getenv("serial#");
 
     if ( !s || strncmp(s, "ELPT860", 7) )
       printf ("### No HW ID - assuming ELPT860\n");
-    
+
     return ( 0 );    /* success */
 }
 
 /* ------------------------------------------------------------------------- */
 
-long int 
+long int
 initdram (int board_type)
 {
     volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
@@ -194,7 +194,7 @@ initdram (int board_type)
     /*
      * This sequence initializes SDRAM chips on ELPT860 board
      */
-    upmconfig(UPMA, (uint *)init_sdram_table, 
+    upmconfig(UPMA, (uint *)init_sdram_table,
 	      sizeof(init_sdram_table)/sizeof(uint));
 
     memctl->memc_mptpr = 0x0200;
@@ -203,7 +203,7 @@ initdram (int board_type)
     memctl->memc_mar   = 0x00000088;
     memctl->memc_mcr   = 0x80002000;	/* CS1: SDRAM bank 0 */
 
-    upmconfig(UPMA, (uint *)sdram_table, 
+    upmconfig(UPMA, (uint *)sdram_table,
 	      sizeof(sdram_table)/sizeof(uint));
 
     /*
@@ -257,8 +257,8 @@ initdram (int board_type)
      *
      * try 8 column mode
      */
-    size8 = dram_size (CFG_MAMR_8COL, 
-		       (ulong *) SDRAM_BASE1_PRELIM, 
+    size8 = dram_size (CFG_MAMR_8COL,
+		       (ulong *) SDRAM_BASE1_PRELIM,
 		       SDRAM_MAX_SIZE);
 
     udelay (1000);
@@ -266,15 +266,15 @@ initdram (int board_type)
     /*
      * try 9 column mode
      */
-    size9 = dram_size (CFG_MAMR_9COL, 
-		       (ulong *) SDRAM_BASE1_PRELIM, 
+    size9 = dram_size (CFG_MAMR_9COL,
+		       (ulong *) SDRAM_BASE1_PRELIM,
 		       SDRAM_MAX_SIZE);
 
     if ( size8 < size9 )    /* leave configuration at 9 columns	*/
       {
 	size_b0 = size9;
 	/* debug ("SDRAM Bank 0 in 9 column mode: %ld MB\n", size >> 20); */
-      } 
+      }
     else                  /* back to 8 columns			*/
       {
 	size_b0 = size8;
@@ -282,14 +282,14 @@ initdram (int board_type)
 	udelay (500);
 	/* debug ("SDRAM Bank 0 in 8 column mode: %ld MB\n", size >> 20); */
       }
-    
+
     udelay (1000);
 
     /*
      * Adjust refresh rate depending on SDRAM type, both banks
      * For types > 128 MBit leave it at the current (fast) rate
      */
-    if ( size_b0 < 0x02000000 ) 
+    if ( size_b0 < 0x02000000 )
       {
 	/* reduce to 15.6 us (62.4 us / quad) */
 	memctl->memc_mptpr = CFG_MPTPR_2BK_4K;
@@ -304,7 +304,7 @@ initdram (int board_type)
 
     {
       unsigned long reg;
-      
+
       /* adjust refresh rate depending on SDRAM type, one bank */
       reg = memctl->memc_mptpr;
       reg >>= 1;	/* reduce to CFG_MPTPR_1BK_8K / _4K */
@@ -312,7 +312,7 @@ initdram (int board_type)
     }
 
     udelay(10000);
-    
+
     return (size_b0);
 }
 
@@ -326,9 +326,9 @@ initdram (int board_type)
  * - short between data lines
  */
 
-static long int 
-dram_size (long int   mamr_value, 
-	   long int  *base, 
+static long int
+dram_size (long int   mamr_value,
+	   long int  *base,
 	   long int   maxsize)
 {
   volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
@@ -337,38 +337,38 @@ dram_size (long int   mamr_value,
   ulong                 cnt, val;
   ulong                 save[32];    /* to make test non-destructive */
   unsigned char         i = 0;
-  
+
   memctl->memc_mamr = mamr_value;
-  
-  for (cnt = maxsize/sizeof(long); cnt > 0; cnt >>= 1) 
+
+  for (cnt = maxsize/sizeof(long); cnt > 0; cnt >>= 1)
     {
       addr = base + cnt;    /* pointer arith! */
-      
+
       save[i++] = *addr;
       *addr     = ~cnt;
     }
-  
+
   /* write 0 to base address */
   addr    = base;
   save[i] = *addr;
   *addr   = 0;
-  
+
   /* check at base address */
-  if ( (val = *addr) != 0 ) 
+  if ( (val = *addr) != 0 )
     {
       *addr = save[i];
 
       return (0);
     }
-  
-  for (cnt = 1; cnt <= maxsize/sizeof(long); cnt <<= 1) 
+
+  for (cnt = 1; cnt <= maxsize/sizeof(long); cnt <<= 1)
     {
       addr = base + cnt;    /* pointer arith! */
-      
+
       val   = *addr;
       *addr = save[--i];
-      
-      if ( val != (~cnt) ) 
+
+      if ( val != (~cnt) )
 	{
 	  return (cnt * sizeof(long));
 	}
@@ -388,7 +388,7 @@ void
 reset_phy (void)
 {
   volatile immap_t *immr = (immap_t *) CFG_IMMR;
-  
+
   /*
    * Ensure LBK LXT901 ethernet 1 & 2 = 0 ... for normal loopback in effect
    *                                          and no AUI loopback

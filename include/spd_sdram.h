@@ -3,4 +3,4 @@
 
 long int spd_sdram(int(read_spd)(uint addr));
 
-#endif 
+#endif

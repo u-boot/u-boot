@@ -172,7 +172,7 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 	* Bank 2 (48 Sectors): 23-70=64kbyte
 	*/
 	info->flash_id     = (AMD_MANUFACT & FLASH_VENDMASK) |
-                             (AMD_ID_DL323B & FLASH_TYPEMASK);
+			     (AMD_ID_DL323B & FLASH_TYPEMASK);
 	info->sector_count = 71;
 	info->size         = 4 * (8 * 8 + 63 * 64) * 1024;
     }
@@ -183,24 +183,24 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 
     /* set up sector start address table */
     for (i = 0; i < 8; i++) {
-        info->start[i] = base + (i * 0x8000);
+	info->start[i] = base + (i * 0x8000);
     }
     for (i = 8; i < info->sector_count; i++) {
-        info->start[i] = base + (i * 0x40000) + 8 * 0x8000 - 8 * 0x40000;
+	info->start[i] = base + (i * 0x40000) + 8 * 0x8000 - 8 * 0x40000;
     }
 
     /* check for protected sectors */
     for (i = 0; i < info->sector_count; i++) {
-        /* read sector protection at sector address */
+	/* read sector protection at sector address */
 	addr = (volatile unsigned long *)(info->start[i]);
-        addr[2 * 0x0555] = 0xAAAAAAAA;
+	addr[2 * 0x0555] = 0xAAAAAAAA;
 	addr[2 * 0x02AA] = 0x55555555;
 	addr[2 * 0x0555] = 0x90909090;
 	addr[2 * 0x0555 + 1] = 0xAAAAAAAA;
 	addr[2 * 0x02AA + 1] = 0x55555555;
 	addr[2 * 0x0555 + 1] = 0x90909090;
 	udelay (1000);
-    	base = RD_SWP32(&addr[4]);
+	base = RD_SWP32(&addr[4]);
 	base |= RD_SWP32(&addr[5]);
 	info->protect[i] = base & 0x00010001 ? 1 : 0;
     }
@@ -404,14 +404,14 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
     flag = disable_interrupts();
 
     if ((dest & 0x00000004) == 0) {
-        addr[2 * 0x0555] = 0xAAAAAAAA;
+	addr[2 * 0x0555] = 0xAAAAAAAA;
 	addr[2 * 0x02AA] = 0x55555555;
-        addr[2 * 0x0555] = 0xA0A0A0A0;
+	addr[2 * 0x0555] = 0xA0A0A0A0;
     }
     else {
-        addr[2 * 0x0555 + 1] = 0xAAAAAAAA;
+	addr[2 * 0x0555 + 1] = 0xAAAAAAAA;
 	addr[2 * 0x02AA + 1] = 0x55555555;
-        addr[2 * 0x0555 + 1] = 0xA0A0A0A0;
+	addr[2 * 0x0555 + 1] = 0xA0A0A0A0;
     }
 
     *((vu_long *)dest) = data;

@@ -1,7 +1,7 @@
 /*
  * Ethernet:	An implementation of the Ethernet Device Driver suite for the
  *		uClinux 2.0.38 operating system. This Driver has been developed
- *		for AT75C220 board. 
+ *		for AT75C220 board.
  *
  * NOTE:	The driver is implemented for one MAC
  *
@@ -39,7 +39,7 @@ typedef struct _AT91S_PhyOps
 	unsigned int (*IsPhyConnected)(AT91S_EMAC  *pmac);
 	unsigned char (*GetLinkSpeed)(AT91S_EMAC *pmac);
 	unsigned char (*AutoNegotiate)(AT91S_EMAC *pmac, int *);
-	
+
 } AT91S_PhyOps,*AT91PS_PhyOps;
 
 
@@ -56,4 +56,3 @@ static UCHAR at91rm9200_EmacWritePhy(AT91PS_EMAC p_mac, unsigned char RegisterAd
 void at91rm92000_GetPhyInterface(void );
 
 #endif /* AT91RM9200_ETHERNET */
-

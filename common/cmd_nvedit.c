@@ -43,7 +43,6 @@
 #include <command.h>
 #include <environment.h>
 #include <watchdog.h>
-#include <cmd_nvedit.h>
 #include <linux/stddef.h>
 #include <asm/byteorder.h>
 #if (CONFIG_COMMANDS & CFG_CMD_NET)
@@ -534,6 +533,8 @@ int do_saveenv (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	return (saveenv() ? 1 : 0);
 }
+
+
 #endif
 
 
@@ -556,3 +557,60 @@ envmatch (uchar *s1, int i2)
 		return(i2);
 	return(-1);
 }
+
+
+/**************************************************/
+
+cmd_tbl_t U_BOOT_CMD(PRINTENV) = MK_CMD_ENTRY(
+	"printenv", CFG_MAXARGS, 1,	do_printenv,
+	"printenv- print environment variables\n",
+	"\n    - print values of all environment variables\n"
+	"printenv name ...\n"
+	"    - print value of environment variable 'name'\n"
+);
+
+cmd_tbl_t U_BOOT_CMD(SETENV) = MK_CMD_ENTRY(
+	"setenv", CFG_MAXARGS, 0,	do_setenv,
+	"setenv  - set environment variables\n",
+	"name value ...\n"
+	"    - set environment variable 'name' to 'value ...'\n"
+	"setenv name\n"
+	"    - delete environment variable 'name'\n"
+);
+
+#if ((CONFIG_COMMANDS & (CFG_CMD_ENV|CFG_CMD_FLASH)) == (CFG_CMD_ENV|CFG_CMD_FLASH))
+
+cmd_tbl_t U_BOOT_CMD(SAVEENV) = MK_CMD_ENTRY(
+	"saveenv", 1, 0,	do_saveenv,
+	"saveenv - save environment variables to persistent storage\n",
+	NULL
+);
+
+#endif	/* CFG_CMD_ENV */
+
+#if (CONFIG_COMMANDS & CFG_CMD_ASKENV)
+
+cmd_tbl_t U_BOOT_CMD(ASKENV) = MK_CMD_ENTRY(
+	"askenv",	CFG_MAXARGS,	1,	do_askenv,
+	"askenv  - get environment variables from stdin\n",
+	"name [message] [size]\n"
+	"    - get environment variable 'name' from stdin (max 'size' chars)\n"
+	"askenv name\n"
+	"    - get environment variable 'name' from stdin\n"
+	"askenv name size\n"
+	"    - get environment variable 'name' from stdin (max 'size' chars)\n"
+	"askenv name [message] size\n"
+	"    - display 'message' string and get environment variable 'name'"
+	"from stdin (max 'size' chars)\n"
+);
+#endif	/* CFG_CMD_ASKENV */
+
+#if (CONFIG_COMMANDS & CFG_CMD_RUN)
+int do_run (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+cmd_tbl_t U_BOOT_CMD(RUN) = MK_CMD_ENTRY(
+	"run",	CFG_MAXARGS,	1,	do_run,
+	"run     - run commands in an environment variable\n",
+	"var [...]\n"
+	"    - run the commands in the environment variable(s) 'var'\n"
+);
+#endif  /* CFG_CMD_RUN */

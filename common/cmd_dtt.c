@@ -24,7 +24,6 @@
 #include <common.h>
 #include <config.h>
 #include <command.h>
-#include <cmd_dtt.h>
 
 #if (CONFIG_COMMANDS & CFG_CMD_DTT)
 
@@ -45,5 +44,13 @@ int do_dtt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 	return 0;
 }	/* do_dtt() */
+
+/***************************************************/
+
+cmd_tbl_t U_BOOT_CMD(DTT) = MK_CMD_ENTRY(
+	  "dtt",	1,	1,	do_dtt,
+	  "dtt     - Digital Thermometer and Themostat\n",
+	  "        - Read temperature from digital thermometer and thermostat.\n"
+);
 
 #endif /* CONFIG_COMMANDS & CFG_CMD_DTT */

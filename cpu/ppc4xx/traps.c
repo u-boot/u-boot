@@ -203,7 +203,7 @@ AlignmentException(struct pt_regs *regs)
 void
 ProgramCheckException(struct pt_regs *regs)
 {
-        long esr_val;
+	long esr_val;
 
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 	if (debugger_exception_handler && (*debugger_exception_handler)(regs))
@@ -212,12 +212,12 @@ ProgramCheckException(struct pt_regs *regs)
 
 	show_regs(regs);
 
-        esr_val = get_esr();
-        if( esr_val & ESR_PIL )
+	esr_val = get_esr();
+	if( esr_val & ESR_PIL )
 		printf( "** Illegal Instruction **\n" );
-        else if( esr_val & ESR_PPR )
+	else if( esr_val & ESR_PPR )
 		printf( "** Privileged Instruction **\n" );
-        else if( esr_val & ESR_PTR )
+	else if( esr_val & ESR_PTR )
 		printf( "** Trap Instruction **\n" );
 
 	print_backtrace((unsigned long *)regs->gpr[1]);
@@ -227,15 +227,15 @@ ProgramCheckException(struct pt_regs *regs)
 void
 PITException(struct pt_regs *regs)
 {
-        /*
-         * Reset PIT interrupt
-         */
-        set_tsr(0x08000000);
+	/*
+	 * Reset PIT interrupt
+	 */
+	set_tsr(0x08000000);
 
-        /*
-         * Call timer_interrupt routine in interrupts.c
-         */
-        timer_interrupt(NULL);
+	/*
+	 * Call timer_interrupt routine in interrupts.c
+	 */
+	timer_interrupt(NULL);
 }
 
 

@@ -45,24 +45,24 @@ void setVideoMode(int mode)
 int main(void)
 {
     PM_HWND hwndConsole;
-    ulong   stateSize;      
+    ulong   stateSize;
     void    *stateBuf;
     FILE    *f;
 
     /* Write the saved console state buffer to disk */
     if ((f = fopen("/etc/pmsave.dat","rb")) == NULL) {
-        printf("Unable to open /etc/pmsave.dat for reading!\n");
-        return -1;
-        }
+	printf("Unable to open /etc/pmsave.dat for reading!\n");
+	return -1;
+	}
     fread(&stateSize,1,sizeof(stateSize),f);
     if (stateSize != PM_getConsoleStateSize()) {
-        printf("Size mismatch in /etc/pmsave.dat!\n");
-        return -1;
-        }
+	printf("Size mismatch in /etc/pmsave.dat!\n");
+	return -1;
+	}
     if ((stateBuf = PM_malloc(stateSize)) == NULL) {
-        printf("Unable to allocate console state buffer!\n");
-        return -1;
-        }
+	printf("Unable to allocate console state buffer!\n");
+	return -1;
+	}
     fread(stateBuf,1,stateSize,f);
     fclose(f);
 
@@ -71,7 +71,7 @@ int main(void)
 
     /* Forcibly set 80x25 text mode using the BIOS */
     setVideoMode(0x3);
-    
+
     /* Restore the previous console state */
     PM_restoreConsoleState(stateBuf,0);
     PM_closeConsole(hwndConsole);
@@ -79,4 +79,3 @@ int main(void)
     printf("Console state successfully restored from /etc/pmsave.dat\n");
     return 0;
 }
-

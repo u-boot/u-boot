@@ -1,5 +1,5 @@
-/* 
- * file.c 
+/*
+ * file.c
  *
  * Mini "VFS" by Marcus Sundberg
  *
@@ -143,7 +143,7 @@ file_cd(const char *path)
 	return 0;
 }
 
-	
+
 int
 file_detectfs(void)
 {

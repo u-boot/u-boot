@@ -26,14 +26,11 @@
  */
 #include <common.h>
 #include <command.h>
-#include <cmd_net.h>
+#include <cmd_autoscript.h>
 #include <net.h>
 
 #if (CONFIG_COMMANDS & CFG_CMD_NET)
 
-# if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
-# include <cmd_autoscript.h>
-# endif
 
 extern int do_bootm (cmd_tbl_t *, int, int, char *[]);
 
@@ -44,21 +41,46 @@ int do_bootp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return netboot_common (BOOTP, cmdtp, argc, argv);
 }
 
+cmd_tbl_t U_BOOT_CMD(BOOTP) = MK_CMD_ENTRY(
+	"bootp",	3,	1,	do_bootp,
+	"bootp   - boot image via network using BootP/TFTP protocol\n",
+	"[loadAddress] [bootfilename]\n"
+);
+
 int do_tftpb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	return netboot_common (TFTP, cmdtp, argc, argv);
 }
+
+cmd_tbl_t U_BOOT_CMD(TFTPB) = MK_CMD_ENTRY(
+	"tftpboot",	3,	1,	do_tftpb,
+	"tftpboot- boot image via network using TFTP protocol\n"
+	"               and env variables ipaddr and serverip\n",
+	"[loadAddress] [bootfilename]\n"
+);
 
 int do_rarpb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	return netboot_common (RARP, cmdtp, argc, argv);
 }
 
+cmd_tbl_t U_BOOT_CMD(RARPB) = MK_CMD_ENTRY(
+	"rarpboot",	3,	1,	do_rarpb,
+	"rarpboot- boot image via network using RARP/TFTP protocol\n",
+	"[loadAddress] [bootfilename]\n"
+);
+
 #if (CONFIG_COMMANDS & CFG_CMD_DHCP)
 int do_dhcp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	return netboot_common(DHCP, cmdtp, argc, argv);
 }
+
+cmd_tbl_t U_BOOT_CMD(DHCP) = MK_CMD_ENTRY(
+	"dhcp",	3,	1,	do_dhcp,
+	"dhcp    - invoke DHCP client to obtain IP/boot params\n",
+	"\n"
+);
 #endif	/* CFG_CMD_DHCP */
 
 static void netboot_update_env(void)

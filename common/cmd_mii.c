@@ -27,7 +27,6 @@
 
 #include <common.h>
 #include <command.h>
-#include <cmd_mii.h>
 #include <miiphy.h>
 
 #if (CONFIG_COMMANDS & CFG_CMD_MII)
@@ -127,5 +126,16 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 	return rcode;
 }
+
+/***************************************************/
+
+cmd_tbl_t U_BOOT_CMD(MII) = MK_CMD_ENTRY(
+	"mii",	5,	1,	do_mii,
+	"mii     - MII utility commands\n",
+	"info  <addr>              - display MII PHY info\n"
+	"mii read  <addr> <reg>        - read  MII PHY <addr> register <reg>\n"
+	"mii write <addr> <reg> <data> - write MII PHY <addr> register <reg>\n"
+);
+
 
 #endif /* CFG_CMD_MII */

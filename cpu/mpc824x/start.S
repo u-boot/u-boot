@@ -202,7 +202,6 @@ in_flash:
 	bl	board_init_f	/* run 1st part of board init code (from Flash) */
 
 
-
 	.globl	_start_of_vectors
 _start_of_vectors:
 
@@ -840,5 +839,3 @@ setup_bats:
 	blt	1b
 
 	blr
-
-

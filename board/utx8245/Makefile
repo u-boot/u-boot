@@ -35,7 +35,7 @@ OBJS	= $(BOARD).o flash.o
 SOBJS	=
 
 $(LIB):	.depend $(OBJS) $(SOBJS)
-	$(AR) crv $@ $^
+	$(AR) crv $@ $(OBJS)
 
 #########################################################################
 

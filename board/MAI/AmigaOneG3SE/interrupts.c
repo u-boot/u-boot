@@ -73,7 +73,7 @@ get_msr(void)
 static __inline__ void
 set_msr(unsigned long msr)
 {
-	asm volatile("mtmsr %0" : : "r" (msr)); 
+	asm volatile("mtmsr %0" : : "r" (msr));
 }
 
 static __inline__ unsigned long
@@ -89,7 +89,7 @@ get_dec(void)
 static __inline__ void
 set_dec(unsigned long val)
 {
-	asm volatile("mtdec %0" : : "r" (val)); 
+	asm volatile("mtdec %0" : : "r" (val));
 }
 
 
@@ -167,8 +167,8 @@ external_interrupt(struct pt_regs *regs)
 
 	int irq, unmask = 1;
 
-	irq = i8259_irq(); //i8259_get_irq(regs);
-//	printf("irq = %d, handler at %p ack=%d\n", irq, irq_handlers[irq].handler, *(volatile unsigned char *)0xFEF00000);
+	irq = i8259_irq(); /*i8259_get_irq(regs); */
+/*	printf("irq = %d, handler at %p ack=%d\n", irq, irq_handlers[irq].handler, *(volatile unsigned char *)0xFEF00000); */
 	i8259_mask_and_ack(irq);
 
 	if (irq_handlers[irq].handler != NULL)
@@ -264,5 +264,3 @@ do_irqinfo(cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
 {
 	puts("IRQ related functions are unimplemented currently.\n");
 }
-
-

@@ -22,4 +22,3 @@
 #
 
 PLATFORM_CPPFLAGS += -mcpu=4kc -EB -mabicalls
-

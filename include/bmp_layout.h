@@ -56,7 +56,7 @@ typedef	struct bmp_header {
   __u32 colors_used;
   __u32 colors_important;
   /* ColorTable */
-  
+
 }  __attribute__((packed)) bmp_header_t;
 
 typedef struct bmp_image {

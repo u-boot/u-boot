@@ -160,47 +160,47 @@ void PMAPI PM_resetMouseDriver(int hardReset)
     regs.x.ax = hardReset ? 0 : 33;
     PM_int86(0x33, &regs, &regs);
     if (oldHandler)
-        PM_setMouseHandler(_PM_mouseMask, oldHandler);
+	PM_setMouseHandler(_PM_mouseMask, oldHandler);
 }
 
 void PMAPI PM_setRealTimeClockFrequency(int frequency)
 {
     static short convert[] = {
-        8192,
-        4096,
-        2048,
-        1024,
-        512,
-        256,
-        128,
-        64,
-        32,
-        16,
-        8,
-        4,
-        2,
-        -1,
-        };
+	8192,
+	4096,
+	2048,
+	1024,
+	512,
+	256,
+	128,
+	64,
+	32,
+	16,
+	8,
+	4,
+	2,
+	-1,
+	};
     int i;
 
     /* First clear any pending RTC timeout if not cleared */
     _PM_readCMOS(0x0C);
     if (frequency == 0) {
-        /* Disable RTC timout */
-        _PM_writeCMOS(0x0A,_PM_oldCMOSRegA);
-        _PM_writeCMOS(0x0B,_PM_oldCMOSRegB & 0x0F);
-        }
+	/* Disable RTC timout */
+	_PM_writeCMOS(0x0A,_PM_oldCMOSRegA);
+	_PM_writeCMOS(0x0B,_PM_oldCMOSRegB & 0x0F);
+	}
     else {
-        /* Convert frequency value to RTC clock indexes */
-        for (i = 0; convert[i] != -1; i++) {
-            if (convert[i] == frequency)
-                break;
-            }
+	/* Convert frequency value to RTC clock indexes */
+	for (i = 0; convert[i] != -1; i++) {
+	    if (convert[i] == frequency)
+		break;
+	    }
 
-        /* Set RTC timout value and enable timeout */
-        _PM_writeCMOS(0x0A,0x20 | (i+3));
-        _PM_writeCMOS(0x0B,(_PM_oldCMOSRegB & 0x0F) | 0x40);
-        }
+	/* Set RTC timout value and enable timeout */
+	_PM_writeCMOS(0x0A,0x20 | (i+3));
+	_PM_writeCMOS(0x0B,(_PM_oldCMOSRegB & 0x0F) | 0x40);
+	}
 }
 
 #ifndef REALMODE
@@ -216,18 +216,18 @@ static void PMAPI lockPMHandlers(void)
      * under real mode.
      */
     if (!locked) {
-        PM_saveDS();
-        stat  = !PM_lockDataPages(&globalDataStart-2048,4096,&lh);
-        stat |= !PM_lockDataPages(&_PM_pmdosDataStart,(int)&_PM_pmdosDataEnd - (int)&_PM_pmdosDataStart,&lh);
-        stat |= !PM_lockCodePages((__codePtr)_PM_pmdosCodeStart,(int)_PM_pmdosCodeEnd-(int)_PM_pmdosCodeStart,&lh);
-        stat |= !PM_lockDataPages(&_PM_DMADataStart,(int)&_PM_DMADataEnd - (int)&_PM_DMADataStart,&lh);
-        stat |= !PM_lockCodePages((__codePtr)_PM_DMACodeStart,(int)_PM_DMACodeEnd-(int)_PM_DMACodeStart,&lh);
-        if (stat) {
-            printf("Page locking services failed - interrupt handling not safe!\n");
-            exit(1);
-            }
-        locked = 1;
-        }
+	PM_saveDS();
+	stat  = !PM_lockDataPages(&globalDataStart-2048,4096,&lh);
+	stat |= !PM_lockDataPages(&_PM_pmdosDataStart,(int)&_PM_pmdosDataEnd - (int)&_PM_pmdosDataStart,&lh);
+	stat |= !PM_lockCodePages((__codePtr)_PM_pmdosCodeStart,(int)_PM_pmdosCodeEnd-(int)_PM_pmdosCodeStart,&lh);
+	stat |= !PM_lockDataPages(&_PM_DMADataStart,(int)&_PM_DMADataEnd - (int)&_PM_DMADataStart,&lh);
+	stat |= !PM_lockCodePages((__codePtr)_PM_DMACodeStart,(int)_PM_DMACodeEnd-(int)_PM_DMACodeStart,&lh);
+	if (stat) {
+	    printf("Page locking services failed - interrupt handling not safe!\n");
+	    exit(1);
+	    }
+	locked = 1;
+	}
 }
 
 #endif
@@ -240,7 +240,7 @@ static void PMAPI lockPMHandlers(void)
 
 #ifndef MK_FP
 #define MK_FP(s,o)  ( (void far *)( ((ulong)(s) << 16) + \
-                    (ulong)(o) ))
+		    (ulong)(o) ))
 #endif
 
 int PMAPI PM_setMouseHandler(int mask, PM_mouseHandler mh)
@@ -256,10 +256,10 @@ void PMAPI PM_restoreMouseHandler(void)
     union REGS      regs;
 
     if (_PM_mouseHandler) {
-        regs.x.ax = 33;
-        int86(0x33, &regs, &regs);
-        _PM_mouseHandler = NULL;
-        }
+	regs.x.ax = 33;
+	int86(0x33, &regs, &regs);
+	_PM_mouseHandler = NULL;
+	}
 }
 
 void PMAPI PM_setTimerHandler(PM_intHandler th)
@@ -272,9 +272,9 @@ void PMAPI PM_setTimerHandler(PM_intHandler th)
 void PMAPI PM_restoreTimerHandler(void)
 {
     if (_PM_timerHandler) {
-        _PM_setRMvect(0x8, (long)_PM_prevTimer);
-        _PM_timerHandler = NULL;
-        }
+	_PM_setRMvect(0x8, (long)_PM_prevTimer);
+	_PM_timerHandler = NULL;
+	}
 }
 
 ibool PMAPI PM_setRealTimeClockHandler(PM_intHandler th,int frequency)
@@ -300,15 +300,15 @@ ibool PMAPI PM_setRealTimeClockHandler(PM_intHandler th,int frequency)
 void PMAPI PM_restoreRealTimeClockHandler(void)
 {
     if (_PM_rtcHandler) {
-        /* Restore CMOS registers and mask RTC clock */
-        _PM_writeCMOS(0x0A,_PM_oldCMOSRegA);
-        _PM_writeCMOS(0x0B,_PM_oldCMOSRegB);
-        PM_outpb(0xA1,(PM_inpb(0xA1) & 0xFE) | (_PM_oldRTCPIC2 & ~0xFE));
+	/* Restore CMOS registers and mask RTC clock */
+	_PM_writeCMOS(0x0A,_PM_oldCMOSRegA);
+	_PM_writeCMOS(0x0B,_PM_oldCMOSRegB);
+	PM_outpb(0xA1,(PM_inpb(0xA1) & 0xFE) | (_PM_oldRTCPIC2 & ~0xFE));
 
-        /* Restore the interrupt vector */
-        _PM_setRMvect(0x70, (long)_PM_prevRTC);
-        _PM_rtcHandler = NULL;
-        }
+	/* Restore the interrupt vector */
+	_PM_setRMvect(0x70, (long)_PM_prevRTC);
+	_PM_rtcHandler = NULL;
+	}
 }
 
 void PMAPI PM_setKeyHandler(PM_intHandler kh)
@@ -321,9 +321,9 @@ void PMAPI PM_setKeyHandler(PM_intHandler kh)
 void PMAPI PM_restoreKeyHandler(void)
 {
     if (_PM_keyHandler) {
-        _PM_setRMvect(0x9, (long)_PM_prevKey);
-        _PM_keyHandler = NULL;
-        }
+	_PM_setRMvect(0x9, (long)_PM_prevKey);
+	_PM_keyHandler = NULL;
+	}
 }
 
 void PMAPI PM_setKey15Handler(PM_key15Handler kh)
@@ -336,9 +336,9 @@ void PMAPI PM_setKey15Handler(PM_key15Handler kh)
 void PMAPI PM_restoreKey15Handler(void)
 {
     if (_PM_key15Handler) {
-        _PM_setRMvect(0x15, (long)_PM_prevKey15);
-        _PM_key15Handler = NULL;
-        }
+	_PM_setRMvect(0x15, (long)_PM_prevKey15);
+	_PM_key15Handler = NULL;
+	}
 }
 
 void PMAPI PM_installAltBreakHandler(PM_breakHandler bh)
@@ -362,11 +362,11 @@ void PMAPI PM_installBreakHandler(void)
 void PMAPI PM_restoreBreakHandler(void)
 {
     if (_PM_prevBreak) {
-        _PM_setRMvect(0x1B, (long)_PM_prevBreak);
-        _PM_setRMvect(0x23, (long)_PM_prevCtrlC);
-        _PM_prevBreak = NULL;
-        _PM_breakHandler = NULL;
-        }
+	_PM_setRMvect(0x1B, (long)_PM_prevBreak);
+	_PM_setRMvect(0x23, (long)_PM_prevCtrlC);
+	_PM_prevBreak = NULL;
+	_PM_breakHandler = NULL;
+	}
 }
 
 void PMAPI PM_installAltCriticalHandler(PM_criticalHandler ch)
@@ -387,10 +387,10 @@ void PMAPI PM_installCriticalHandler(void)
 void PMAPI PM_restoreCriticalHandler(void)
 {
     if (_PM_prevCritical) {
-        _PM_setRMvect(0x24, (long)_PM_prevCritical);
-        _PM_prevCritical = NULL;
-        _PM_critHandler = NULL;
-        }
+	_PM_setRMvect(0x24, (long)_PM_prevCritical);
+	_PM_prevCritical = NULL;
+	_PM_critHandler = NULL;
+	}
 }
 
 int PMAPI PM_lockDataPages(void *p,uint len,PM_lockHandle *lh)
@@ -499,7 +499,7 @@ uchar * installCallback(void (PMAPI *pmCB)(),uint *rseg, uint *roff)
 
     /* Copy the real mode handler to real mode memory   */
     if ((p = PM_allocRealSeg(sizeof(realHandler),rseg,roff)) == NULL)
-        return NULL;
+	return NULL;
     memcpy(p,realHandler,sizeof(realHandler));
 
     /* Skip past global variabls in real mode code segment */
@@ -516,7 +516,7 @@ int PMAPI PM_setMouseHandler(int mask, PM_mouseHandler mh)
     lockPMHandlers();           /* Ensure our handlers are locked   */
 
     if ((mousePtr = installCallback(_PM_mouseISR, &rseg, &roff)) == NULL)
-        return 0;
+	return 0;
     _PM_mouseHandler = mh;
 
     /* Install the real mode mouse handler  */
@@ -533,11 +533,11 @@ void PMAPI PM_restoreMouseHandler(void)
     RMREGS  regs;
 
     if (_PM_mouseHandler) {
-        regs.x.ax = 33;
-        PM_int86(0x33, &regs, &regs);
-        PM_freeRealSeg(mousePtr);
-        _PM_mouseHandler = NULL;
-        }
+	regs.x.ax = 33;
+	PM_int86(0x33, &regs, &regs);
+	PM_freeRealSeg(mousePtr);
+	_PM_mouseHandler = NULL;
+	}
 }
 
 void PMAPI PM_getPMvect(int intno, PMFARPTR *isr)
@@ -602,9 +602,9 @@ void PMAPI PM_setTimerHandler(PM_intHandler th)
 void PMAPI PM_restoreTimerHandler(void)
 {
     if (_PM_timerHandler) {
-        restoreISR(0x8, _PM_prevTimer, _PM_prevRealTimer);
-        _PM_timerHandler = NULL;
-        }
+	restoreISR(0x8, _PM_prevTimer, _PM_prevRealTimer);
+	_PM_timerHandler = NULL;
+	}
 }
 
 ibool PMAPI PM_setRealTimeClockHandler(PM_intHandler th,int frequency)
@@ -630,15 +630,15 @@ ibool PMAPI PM_setRealTimeClockHandler(PM_intHandler th,int frequency)
 void PMAPI PM_restoreRealTimeClockHandler(void)
 {
     if (_PM_rtcHandler) {
-        /* Restore CMOS registers and mask RTC clock */
-        _PM_writeCMOS(0x0A,_PM_oldCMOSRegA);
-        _PM_writeCMOS(0x0B,_PM_oldCMOSRegB);
-        PM_outpb(0xA1,(PM_inpb(0xA1) & 0xFE) | (_PM_oldRTCPIC2 & ~0xFE));
+	/* Restore CMOS registers and mask RTC clock */
+	_PM_writeCMOS(0x0A,_PM_oldCMOSRegA);
+	_PM_writeCMOS(0x0B,_PM_oldCMOSRegB);
+	PM_outpb(0xA1,(PM_inpb(0xA1) & 0xFE) | (_PM_oldRTCPIC2 & ~0xFE));
 
-        /* Restore the interrupt vector */
-        restoreISR(0x70, _PM_prevRTC, _PM_prevRealRTC);
-        _PM_rtcHandler = NULL;
-        }
+	/* Restore the interrupt vector */
+	restoreISR(0x70, _PM_prevRTC, _PM_prevRealRTC);
+	_PM_rtcHandler = NULL;
+	}
 }
 
 void PMAPI PM_setKeyHandler(PM_intHandler kh)
@@ -651,9 +651,9 @@ void PMAPI PM_setKeyHandler(PM_intHandler kh)
 void PMAPI PM_restoreKeyHandler(void)
 {
     if (_PM_keyHandler) {
-        restoreISR(0x9, _PM_prevKey, _PM_prevRealKey);
-        _PM_keyHandler = NULL;
-        }
+	restoreISR(0x9, _PM_prevKey, _PM_prevRealKey);
+	_PM_keyHandler = NULL;
+	}
 }
 
 void PMAPI PM_setKey15Handler(PM_key15Handler kh)
@@ -666,9 +666,9 @@ void PMAPI PM_setKey15Handler(PM_key15Handler kh)
 void PMAPI PM_restoreKey15Handler(void)
 {
     if (_PM_key15Handler) {
-        restoreISR(0x15, _PM_prevKey15, _PM_prevRealKey15);
-        _PM_key15Handler = NULL;
-        }
+	restoreISR(0x15, _PM_prevKey15, _PM_prevRealKey15);
+	_PM_key15Handler = NULL;
+	}
 }
 
 void PMAPI PM_installAltBreakHandler(PM_breakHandler bh)
@@ -692,11 +692,11 @@ void PMAPI PM_installBreakHandler(void)
 void PMAPI PM_restoreBreakHandler(void)
 {
     if (_PM_prevBreak.sel) {
-        restoreISR(0x1B, _PM_prevBreak, prevRealBreak);
-        restoreISR(0x23, _PM_prevCtrlC, prevRealCtrlC);
-        _PM_prevBreak.sel = 0;
-        _PM_breakHandler = NULL;
-        }
+	restoreISR(0x1B, _PM_prevBreak, prevRealBreak);
+	restoreISR(0x23, _PM_prevCtrlC, prevRealCtrlC);
+	_PM_prevBreak.sel = 0;
+	_PM_breakHandler = NULL;
+	}
 }
 
 void PMAPI PM_installAltCriticalHandler(PM_criticalHandler ch)
@@ -717,10 +717,10 @@ void PMAPI PM_installCriticalHandler(void)
 void PMAPI PM_restoreCriticalHandler(void)
 {
     if (_PM_prevCritical.sel) {
-        restoreISR(0x24, _PM_prevCritical, prevRealCritical);
-        _PM_prevCritical.sel = 0;
-        _PM_critHandler = NULL;
-        }
+	restoreISR(0x24, _PM_prevCritical, prevRealCritical);
+	_PM_prevCritical.sel = 0;
+	_PM_critHandler = NULL;
+	}
 }
 
 int PMAPI PM_lockDataPages(void *p,uint len,PM_lockHandle *lh)
@@ -816,9 +816,9 @@ int installCallback(void (PMAPI *pmCB)(),uint *psel, uint *poff,
      * buffer once since we cant dealloate it with X32).
      */
     if (*psel == 0) {
-        if (!PM_allocRealSeg(sizeof(realHandler),psel,poff,rseg,roff))
-            return 0;
-        }
+	if (!PM_allocRealSeg(sizeof(realHandler),psel,poff,rseg,roff))
+	    return 0;
+	}
     PM_memcpyfn(*psel,*poff,realHandler,sizeof(realHandler));
 
     /* Skip past global variables in real mode code segment */
@@ -835,7 +835,7 @@ int PMAPI PM_setMouseHandler(int mask, PM_mouseHandler mh)
     lockPMHandlers();           /* Ensure our handlers are locked   */
 
     if (!installCallback(_PM_mouseISR, &mouseSel, &mouseOff, &rseg, &roff))
-        return 0;
+	return 0;
     _PM_mouseHandler = mh;
 
     /* Install the real mode mouse handler  */
@@ -852,10 +852,10 @@ void PMAPI PM_restoreMouseHandler(void)
     RMREGS  regs;
 
     if (_PM_mouseHandler) {
-        regs.x.ax = 33;
-        PM_int86(0x33, &regs, &regs);
-        _PM_mouseHandler = NULL;
-        }
+	regs.x.ax = 33;
+	PM_int86(0x33, &regs, &regs);
+	_PM_mouseHandler = NULL;
+	}
 }
 
 void PMAPI PM_getPMvect(int intno, PMFARPTR *isr)
@@ -941,9 +941,9 @@ void PMAPI PM_setTimerHandler(PM_intHandler th)
 void PMAPI PM_restoreTimerHandler(void)
 {
     if (_PM_timerHandler) {
-        restoreISR(0x8, _PM_prevTimer, _PM_prevRealTimer);
-        _PM_timerHandler = NULL;
-        }
+	restoreISR(0x8, _PM_prevTimer, _PM_prevRealTimer);
+	_PM_timerHandler = NULL;
+	}
 }
 
 ibool PMAPI PM_setRealTimeClockHandler(PM_intHandler th,int frequency)
@@ -969,15 +969,15 @@ ibool PMAPI PM_setRealTimeClockHandler(PM_intHandler th,int frequency)
 void PMAPI PM_restoreRealTimeClockHandler(void)
 {
     if (_PM_rtcHandler) {
-        /* Restore CMOS registers and mask RTC clock */
-        _PM_writeCMOS(0x0A,_PM_oldCMOSRegA);
-        _PM_writeCMOS(0x0B,_PM_oldCMOSRegB);
-        PM_outpb(0xA1,(PM_inpb(0xA1) & 0xFE) | (_PM_oldRTCPIC2 & ~0xFE));
+	/* Restore CMOS registers and mask RTC clock */
+	_PM_writeCMOS(0x0A,_PM_oldCMOSRegA);
+	_PM_writeCMOS(0x0B,_PM_oldCMOSRegB);
+	PM_outpb(0xA1,(PM_inpb(0xA1) & 0xFE) | (_PM_oldRTCPIC2 & ~0xFE));
 
-        /* Restore the interrupt vector */
-        restoreISR(0x70, _PM_prevRTC, _PM_prevRealRTC);
-        _PM_rtcHandler = NULL;
-        }
+	/* Restore the interrupt vector */
+	restoreISR(0x70, _PM_prevRTC, _PM_prevRealRTC);
+	_PM_rtcHandler = NULL;
+	}
 }
 
 void PMAPI PM_setKeyHandler(PM_intHandler kh)
@@ -990,9 +990,9 @@ void PMAPI PM_setKeyHandler(PM_intHandler kh)
 void PMAPI PM_restoreKeyHandler(void)
 {
     if (_PM_keyHandler) {
-        restoreISR(0x9, _PM_prevKey, _PM_prevRealKey);
-        _PM_keyHandler = NULL;
-        }
+	restoreISR(0x9, _PM_prevKey, _PM_prevRealKey);
+	_PM_keyHandler = NULL;
+	}
 }
 
 void PMAPI PM_setKey15Handler(PM_key15Handler kh)
@@ -1005,9 +1005,9 @@ void PMAPI PM_setKey15Handler(PM_key15Handler kh)
 void PMAPI PM_restoreKey15Handler(void)
 {
     if (_PM_key15Handler) {
-        restoreISR(0x15, _PM_prevKey15, _PM_prevRealKey15);
-        _PM_key15Handler = NULL;
-        }
+	restoreISR(0x15, _PM_prevKey15, _PM_prevRealKey15);
+	_PM_key15Handler = NULL;
+	}
 }
 
 void PMAPI PM_installAltBreakHandler(PM_breakHandler bh)
@@ -1031,11 +1031,11 @@ void PMAPI PM_installBreakHandler(void)
 void PMAPI PM_restoreBreakHandler(void)
 {
     if (_PM_prevBreak.sel) {
-        restoreISR(0x1B, _PM_prevBreak, prevRealBreak);
-        restoreISR(0x23, _PM_prevCtrlC, prevRealCtrlC);
-        _PM_prevBreak.sel = 0;
-        _PM_breakHandler = NULL;
-        }
+	restoreISR(0x1B, _PM_prevBreak, prevRealBreak);
+	restoreISR(0x23, _PM_prevCtrlC, prevRealCtrlC);
+	_PM_prevBreak.sel = 0;
+	_PM_breakHandler = NULL;
+	}
 }
 
 void PMAPI PM_installAltCriticalHandler(PM_criticalHandler ch)
@@ -1056,10 +1056,10 @@ void PMAPI PM_installCriticalHandler(void)
 void PMAPI PM_restoreCriticalHandler(void)
 {
     if (_PM_prevCritical.sel) {
-        restoreISR(0x24, _PM_prevCritical, prevRealCritical);
-        _PM_prevCritical.sel = 0;
-        _PM_critHandler = NULL;
-        }
+	restoreISR(0x24, _PM_prevCritical, prevRealCritical);
+	_PM_prevCritical.sel = 0;
+	_PM_critHandler = NULL;
+	}
 }
 
 int PMAPI PM_lockDataPages(void *p,uint len,PM_lockHandle *lh)
@@ -1199,10 +1199,10 @@ void PMAPI PM_restoreMouseHandler(void)
     PMREGS  regs;
 
     if (_PM_mouseHandler) {
-        regs.x.ax = 33;
-        PM_int386(0x33, &regs, &regs);
-        _PM_mouseHandler = NULL;
-        }
+	regs.x.ax = 33;
+	PM_int386(0x33, &regs, &regs);
+	_PM_mouseHandler = NULL;
+	}
 }
 
 #endif
@@ -1288,10 +1288,10 @@ int PMAPI PM_setMouseHandler(int mask, PM_mouseHandler mh)
 
     /* Copy the real mode handler to real mode memory   */
     if ((mousePtr = PM_allocRealSeg(sizeof(mouseHandler),&rseg,&roff)) == NULL)
-        return 0;
+	return 0;
     memcpy(mousePtr,mouseHandler,sizeof(mouseHandler));
     if (!_DPMI_allocateCallback(_PM_mousePMCB, mouseRegs, &mouseRMCB))
-        PM_fatalError("Unable to allocate real mode callback!\n");
+	PM_fatalError("Unable to allocate real mode callback!\n");
     PM_setLong(mousePtr,mouseRMCB);
 
     /* Install the real mode mouse handler  */
@@ -1309,12 +1309,12 @@ void PMAPI PM_restoreMouseHandler(void)
     RMREGS  regs;
 
     if (_PM_mouseHandler) {
-        regs.x.ax = 33;
-        PM_int86(0x33, &regs, &regs);
-        PM_freeRealSeg(mousePtr);
-        _DPMI_freeCallback(mouseRMCB);
-        _PM_mouseHandler = NULL;
-        }
+	regs.x.ax = 33;
+	PM_int86(0x33, &regs, &regs);
+	PM_freeRealSeg(mousePtr);
+	_DPMI_freeCallback(mouseRMCB);
+	_PM_mouseHandler = NULL;
+	}
 }
 
 #endif
@@ -1347,9 +1347,9 @@ void PMAPI PM_setTimerHandler(PM_intHandler th)
 void PMAPI PM_restoreTimerHandler(void)
 {
     if (_PM_timerHandler) {
-        restoreISR(0x8, _PM_prevTimer, _PM_prevRealTimer);
-        _PM_timerHandler = NULL;
-        }
+	restoreISR(0x8, _PM_prevTimer, _PM_prevRealTimer);
+	_PM_timerHandler = NULL;
+	}
 }
 
 ibool PMAPI PM_setRealTimeClockHandler(PM_intHandler th,int frequency)
@@ -1375,15 +1375,15 @@ ibool PMAPI PM_setRealTimeClockHandler(PM_intHandler th,int frequency)
 void PMAPI PM_restoreRealTimeClockHandler(void)
 {
     if (_PM_rtcHandler) {
-        /* Restore CMOS registers and mask RTC clock */
-        _PM_writeCMOS(0x0A,_PM_oldCMOSRegA);
-        _PM_writeCMOS(0x0B,_PM_oldCMOSRegB);
-        PM_outpb(0xA1,(PM_inpb(0xA1) & 0xFE) | (_PM_oldRTCPIC2 & ~0xFE));
+	/* Restore CMOS registers and mask RTC clock */
+	_PM_writeCMOS(0x0A,_PM_oldCMOSRegA);
+	_PM_writeCMOS(0x0B,_PM_oldCMOSRegB);
+	PM_outpb(0xA1,(PM_inpb(0xA1) & 0xFE) | (_PM_oldRTCPIC2 & ~0xFE));
 
-        /* Restore the interrupt vector */
-        restoreISR(0x70, _PM_prevRTC, _PM_prevRealRTC);
-        _PM_rtcHandler = NULL;
-        }
+	/* Restore the interrupt vector */
+	restoreISR(0x70, _PM_prevRTC, _PM_prevRealRTC);
+	_PM_rtcHandler = NULL;
+	}
 }
 
 PM_IRQHandle PMAPI PM_setIRQHandler(
@@ -1396,20 +1396,20 @@ PM_IRQHandle PMAPI PM_setIRQHandler(
 
     thunkSize = (ulong)_PM_irqISRTemplateEnd - (ulong)_PM_irqISRTemplate;
     if ((handle = PM_malloc(sizeof(_PM_IRQHandle) + thunkSize)) == NULL)
-        return NULL;
+	return NULL;
     handle->IRQ = IRQ;
     handle->prevPIC = PM_inpb(0x21);
     handle->prevPIC2 = PM_inpb(0xA1);
     if (IRQ < 8) {
-        handle->IRQVect = (IRQ + 8);
-        PICmask = (1 << IRQ);
-        chainPrevious = ((handle->prevPIC & PICmask) == 0);
-        }
+	handle->IRQVect = (IRQ + 8);
+	PICmask = (1 << IRQ);
+	chainPrevious = ((handle->prevPIC & PICmask) == 0);
+	}
     else {
-        handle->IRQVect = (0x60 + IRQ + 8);
-        PICmask = ((1 << IRQ) | 0x4);
-        chainPrevious = ((handle->prevPIC2 & (PICmask >> 8)) == 0);
-        }
+	handle->IRQVect = (0x60 + IRQ + 8);
+	PICmask = ((1 << IRQ) | 0x4);
+	chainPrevious = ((handle->prevPIC2 & (PICmask >> 8)) == 0);
+	}
 
     /* Copy and setup the assembler thunk */
     offsetAdjust = (ulong)handle->thunk - (ulong)_PM_irqISRTemplate;
@@ -1417,13 +1417,13 @@ PM_IRQHandle PMAPI PM_setIRQHandler(
     *((ulong*)&handle->thunk[2]) = offsetAdjust;
     *((ulong*)&handle->thunk[11+0]) = (ulong)ih;
     if (chainPrevious) {
-        *((ulong*)&handle->thunk[11+4]) = handle->prevHandler.off;
-        *((ulong*)&handle->thunk[11+8]) = handle->prevHandler.sel;
-        }
+	*((ulong*)&handle->thunk[11+4]) = handle->prevHandler.off;
+	*((ulong*)&handle->thunk[11+8]) = handle->prevHandler.sel;
+	}
     else {
-        *((ulong*)&handle->thunk[11+4]) = 0;
-        *((ulong*)&handle->thunk[11+8]) = 0;
-        }
+	*((ulong*)&handle->thunk[11+4]) = 0;
+	*((ulong*)&handle->thunk[11+8]) = 0;
+	}
     *((ulong*)&handle->thunk[11+12]) = IRQ;
 
     /* Set the real time clock interrupt handler */
@@ -1444,9 +1444,9 @@ void PMAPI PM_restoreIRQHandler(
 
     /* Restore PIC mask for the interrupt */
     if (handle->IRQ < 8)
-        PICmask = (1 << handle->IRQ);
+	PICmask = (1 << handle->IRQ);
     else
-        PICmask = ((1 << handle->IRQ) | 0x4);
+	PICmask = ((1 << handle->IRQ) | 0x4);
     PM_outpb(0xA1,(PM_inpb(0xA1) & ~(PICmask >> 8)) | (handle->prevPIC2 & (PICmask >> 8)));
     PM_outpb(0x21,(PM_inpb(0x21) & ~PICmask) | (handle->prevPIC & PICmask));
 
@@ -1467,9 +1467,9 @@ void PMAPI PM_setKeyHandler(PM_intHandler kh)
 void PMAPI PM_restoreKeyHandler(void)
 {
     if (_PM_keyHandler) {
-        restoreISR(0x9, _PM_prevKey, _PM_prevRealKey);
-        _PM_keyHandler = NULL;
-        }
+	restoreISR(0x9, _PM_prevKey, _PM_prevRealKey);
+	_PM_keyHandler = NULL;
+	}
 }
 
 void PMAPI PM_setKey15Handler(PM_key15Handler kh)
@@ -1482,9 +1482,9 @@ void PMAPI PM_setKey15Handler(PM_key15Handler kh)
 void PMAPI PM_restoreKey15Handler(void)
 {
     if (_PM_key15Handler) {
-        restoreISR(0x15, _PM_prevKey15, _PM_prevRealKey15);
-        _PM_key15Handler = NULL;
-        }
+	restoreISR(0x15, _PM_prevKey15, _PM_prevRealKey15);
+	_PM_key15Handler = NULL;
+	}
 }
 
 /* Real mode Ctrl-C and Ctrl-Break handler. This handler simply sets a
@@ -1540,14 +1540,14 @@ void PMAPI PM_installBreakHandler(void)
 void PMAPI PM_restoreBreakHandler(void)
 {
     if (_PM_prevBreak.sel) {
-        restoreISR(0x1B, _PM_prevBreak, prevRealBreak);
-        restoreISR(0x23, _PM_prevCtrlC, prevRealCtrlC);
-        _PM_prevBreak.sel = 0;
-        _PM_breakHandler = NULL;
+	restoreISR(0x1B, _PM_prevBreak, prevRealBreak);
+	restoreISR(0x23, _PM_prevCtrlC, prevRealCtrlC);
+	_PM_prevBreak.sel = 0;
+	_PM_breakHandler = NULL;
 #ifndef DOS4GW
-        PM_freeRealSeg(_PM_ctrlBPtr);
+	PM_freeRealSeg(_PM_ctrlBPtr);
 #endif
-        }
+	}
 }
 
 /* Real mode Critical Error handler. This handler simply saves the AX and
@@ -1599,11 +1599,11 @@ void PMAPI PM_installCriticalHandler(void)
 void PMAPI PM_restoreCriticalHandler(void)
 {
     if (_PM_prevCritical.sel) {
-        restoreISR(0x24, _PM_prevCritical, prevRealCritical);
-        PM_freeRealSeg(_PM_critPtr);
-        _PM_prevCritical.sel = 0;
-        _PM_critHandler = NULL;
-        }
+	restoreISR(0x24, _PM_prevCritical, prevRealCritical);
+	PM_freeRealSeg(_PM_critPtr);
+	_PM_prevCritical.sel = 0;
+	_PM_critHandler = NULL;
+	}
 }
 
 int PMAPI PM_lockDataPages(void *p,uint len,PM_lockHandle *lh)

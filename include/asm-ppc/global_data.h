@@ -83,7 +83,7 @@ typedef	struct	global_data {
 #endif
 #ifdef CONFIG_LWMON
 	unsigned long kbd_status;
-#endif	
+#endif
 } gd_t;
 
 /*

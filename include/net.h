@@ -64,7 +64,6 @@
 typedef ulong		IPaddr_t;
 
 
-
 /*
  * The current receive packet handler.  Called with a pointer to the
  * application packet, and a protocol type (PORT_BOOTPC or PORT_TFTP).
@@ -184,9 +183,9 @@ typedef struct
 #   define RARPOP_REPLY	    4		/* Response to previous request */
 
 	/*
-         * The remaining fields are variable in size, according to
-         * the sizes above, and are defined as appropriate for
-         * specific hardware/protocol combinations.
+	 * The remaining fields are variable in size, according to
+	 * the sizes above, and are defined as appropriate for
+	 * specific hardware/protocol combinations.
 	 */
 	uchar		ar_data[0];
 #if 0
@@ -226,7 +225,6 @@ typedef struct icmphdr {
 		} frag;
 	} un;
 } ICMP_t;
-
 
 
 /*

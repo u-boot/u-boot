@@ -80,7 +80,7 @@ int do_doc (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	printf ("Usage:\n%s\n", cmdtp->usage);
 	return 1;
     case 2:
-        if (strcmp(argv[1],"info") == 0) {
+	if (strcmp(argv[1],"info") == 0) {
 		int i;
 
 		putc ('\n');
@@ -170,6 +170,17 @@ int do_doc (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return rcode;
     }
 }
+cmd_tbl_t U_BOOT_CMD(DOC) = MK_CMD_ENTRY(
+	"doc",	5,	1,	do_doc,
+	"doc     - Disk-On-Chip sub-system\n",
+	"info  - show available DOC devices\n"
+	"doc device [dev] - show or set current device\n"
+	"doc read  addr off size\n"
+	"doc write addr off size - read/write `size'"
+	" bytes starting at offset `off'\n"
+	"    to/from memory address `addr'\n"
+	"doc erase off size - erase `size' bytes of DOC from offset `off'\n"
+);
 
 int do_docboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
@@ -272,6 +283,12 @@ int do_docboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 	return rcode;
 }
+
+cmd_tbl_t U_BOOT_CMD(DOCBOOT) = MK_CMD_ENTRY(
+	"docboot",	4,	1,	do_docboot,
+	"docboot - boot from DOC device\n",
+	"loadAddr dev\n"
+);
 
 int doc_rw (struct DiskOnChip* this, int cmd,
 	    loff_t from, size_t len,
@@ -385,7 +402,7 @@ static int _DoC_WaitReady(struct DiskOnChip *doc)
 		}
 #endif
 		udelay(1);
-        }
+	}
 
 	return 0;
 }
@@ -938,7 +955,7 @@ static void DoC2k_init(struct DiskOnChip* this)
 
 	/* Get physical parameters */
 	nftl->EraseSize = this->erasesize;
-        nftl->nb_blocks = this->totlen / this->erasesize;
+	nftl->nb_blocks = this->totlen / this->erasesize;
 	nftl->mtd = this;
 
 	if (find_boot_record(nftl) != 0)
@@ -1054,18 +1071,18 @@ int doc_read_ecc(struct DiskOnChip* this, loff_t from, size_t len,
 				syndrome[i] =
 				    ReadDOC(docptr, ECCSyndrome0 + i);
 			}
-                        nb_errors = doc_decode_ecc(buf, syndrome);
+			nb_errors = doc_decode_ecc(buf, syndrome);
 
 #ifdef ECC_DEBUG
 			printf("Errors corrected: %x\n", nb_errors);
 #endif
-                        if (nb_errors < 0) {
+			if (nb_errors < 0) {
 				/* We return error, but have actually done the read. Not that
 				   this can be told to user-space, via sys_read(), but at least
 				   MTD-aware stuff can know about it by checking *retlen */
 				printf("ECC Errors at %lx\n", (long)from);
 				ret = DOC_EECC;
-                        }
+			}
 		}
 
 #ifdef PSYCHO_DEBUG
@@ -1079,7 +1096,7 @@ int doc_read_ecc(struct DiskOnChip* this, loff_t from, size_t len,
 	}
 
 	/* according to 11.4.1, we need to wait for the busy line
-         * drop if we read to the end of the page.  */
+	 * drop if we read to the end of the page.  */
 	if(0 == ((from + *retlen) & 0x1ff))
 	{
 	    DoC_WaitReady(this);
@@ -1291,8 +1308,8 @@ int doc_read_oob(struct DiskOnChip* this, loff_t ofs, size_t len,
 
 	*retlen = len;
 	/* Reading the full OOB data drops us off of the end of the page,
-         * causing the flash device to go into busy mode, so we need
-         * to wait until ready 11.4.1 and Toshiba TC58256FT docs */
+	 * causing the flash device to go into busy mode, so we need
+	 * to wait until ready 11.4.1 and Toshiba TC58256FT docs */
 
 	ret = DoC_WaitReady(this);
 

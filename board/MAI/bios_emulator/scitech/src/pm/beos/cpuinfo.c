@@ -64,8 +64,8 @@ Initialise the counter and return the frequency of the counter.
 static void GetCounterFrequency(
     CPU_largeInteger *freq)
 {
-    // TODO: Return the frequency of the counter in here. You should try to
-    //       normalise this value to be around 100,000 ticks per second.
+    /* TODO: Return the frequency of the counter in here. You should try to */
+    /*       normalise this value to be around 100,000 ticks per second. */
     freq->low = 1000000;
     freq->high = 0;
 }

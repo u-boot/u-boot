@@ -106,4 +106,3 @@ void post2(void)
     if(dtt_test(4) != 0) log_warn(ERR_Ttest1);
 #endif /* CONFIG_DTT_LM75 */
 } /* post2() */
-

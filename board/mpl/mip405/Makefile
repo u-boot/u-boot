@@ -31,7 +31,7 @@ OBJS	= $(BOARD).o ../common/flash.o cmd_mip405.o ../common/pci.o \
 SOBJS	= init.o
 
 $(LIB):	$(OBJS) $(SOBJS)
-	$(AR) crv $@ $^
+	$(AR) crv $@ $(OBJS)
 
 clean:
 	rm -f $(SOBJS) $(OBJS)

@@ -154,29 +154,29 @@ board_asm_init:
 #endif
 
 /* For use of the debug LEDs */
-        .global led_on0
+	.global led_on0
 led_on0:
-        xor     r18, r18, r18
-        lis     r18, 0x1c80
-        ori     r18, r18, 0x8000
-        stw     r18, 0x0(r18)
-        sync
-        blr
+	xor     r18, r18, r18
+	lis     r18, 0x1c80
+	ori     r18, r18, 0x8000
+	stw     r18, 0x0(r18)
+	sync
+	blr
 
-        .global led_on1
+	.global led_on1
 led_on1:
-        xor     r18, r18, r18
-        lis     r18, 0x1c80
-        ori     r18, r18, 0xc000
-        stw     r18, 0x0(r18)
-        sync
-        blr
+	xor     r18, r18, r18
+	lis     r18, 0x1c80
+	ori     r18, r18, 0xc000
+	stw     r18, 0x0(r18)
+	sync
+	blr
 
-        .global led_on2
+	.global led_on2
 led_on2:
-        xor     r18, r18, r18
-        lis     r18, 0x1c81
-        ori     r18, r18, 0x0000
-        stw     r18, 0x0(r18)
-        sync
-        blr
+	xor     r18, r18, r18
+	lis     r18, 0x1c81
+	ori     r18, r18, 0x0000
+	stw     r18, 0x0(r18)
+	sync
+	blr

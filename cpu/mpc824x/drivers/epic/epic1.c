@@ -78,12 +78,12 @@ void epicInit
     tmp = sysEUMBBARRead(EPIC_INT_CONF_REG);    /* Read interrupt conf. reg */
 
     if (IRQType == EPIC_DIRECT_IRQ)             /* direct mode */
-        sysEUMBBARWrite(EPIC_INT_CONF_REG, tmp & 0xf7ffffff);
+	sysEUMBBARWrite(EPIC_INT_CONF_REG, tmp & 0xf7ffffff);
     else                                        /* Serial mode */
-        {
-        tmp = (clkRatio << 28) | 0x08000000;    /* Set clock ratio */
-        sysEUMBBARWrite(EPIC_INT_CONF_REG, tmp);
-        }
+	{
+	tmp = (clkRatio << 28) | 0x08000000;    /* Set clock ratio */
+	sysEUMBBARWrite(EPIC_INT_CONF_REG, tmp);
+	}
 
     while (epicIntAck() != 0xff)       /* Clear all pending interrupts */
 		epicEOI();
@@ -168,7 +168,7 @@ int epicIntSourceConfig
     tmp = sysEUMBBARRead(srAddr);
     actBit = (tmp & 40000000) >> 30;    /* retrieve activity bit - bit 30 */
     if (actBit == 1)
-        return ERROR;
+	return ERROR;
 
     tmp &= 0xff30ff00;     /* Erase previously set P,S,Prio,Vector bits */
     newVal = (Polarity << 23) | (Sense << 22) | (Prio << 16) | Vect;
@@ -220,7 +220,7 @@ int epicCurTaskPrioSet
     {
 
     if ( (prioNum < 0) || (prioNum > 0xF))
-        return ERROR;
+	return ERROR;
     sysEUMBBARWrite(EPIC_PROC_CTASK_PRI_REG, prioNum);
     return OK;
     }
@@ -463,7 +463,6 @@ unsigned int epicTmCountGet( ULONG srcAddr, unsigned int *val )
     *val = *val & 0x7fffffff;
     return 0;
 }
-
 
 
 /***********************************************************

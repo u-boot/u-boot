@@ -165,20 +165,20 @@ int checkcpu (void)
 	puts("IBM PowerPC 440 Rev. ");
 	switch(pvr)
 	{
-        case PVR_440GP_RB:
+	case PVR_440GP_RB:
 		putc('B');
-        /* See errata 1.12: CHIP_4 */
-        if(   ( mfdcr(cpc0_sys0) != mfdcr(cpc0_strp0) )
-            ||( mfdcr(cpc0_sys1) != mfdcr(cpc0_strp1) ) ){
-            puts("\n\t CPC0_SYSx DCRs corrupted. Resetting chip ...\n");
-            udelay( 1000 * 1000 ); /* Give time for serial buf to clear */
-            do_chip_reset( mfdcr(cpc0_strp0), mfdcr(cpc0_strp1) );
-        }
+	/* See errata 1.12: CHIP_4 */
+	if(   ( mfdcr(cpc0_sys0) != mfdcr(cpc0_strp0) )
+	    ||( mfdcr(cpc0_sys1) != mfdcr(cpc0_strp1) ) ){
+	    puts("\n\t CPC0_SYSx DCRs corrupted. Resetting chip ...\n");
+	    udelay( 1000 * 1000 ); /* Give time for serial buf to clear */
+	    do_chip_reset( mfdcr(cpc0_strp0), mfdcr(cpc0_strp1) );
+	}
 		break;
-        case PVR_440GP_RC:
+	case PVR_440GP_RC:
 		putc('C');
 		break;
-        default:
+	default:
 		printf("UNKNOWN (PVR=%08x)", pvr);
 		break;
 	}
@@ -192,11 +192,11 @@ int checkcpu (void)
 
 /* ------------------------------------------------------------------------- */
 
-int do_reset (cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
+int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-        /*
-         * Initiate system reset in debug control register DBCR
-         */
+	/*
+	 * Initiate system reset in debug control register DBCR
+	 */
 	__asm__ __volatile__("lis   3, 0x3000" ::: "r3");
 #if defined(CONFIG_440)
 	__asm__ __volatile__("mtspr 0x134, 3");

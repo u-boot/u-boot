@@ -189,8 +189,6 @@
 #define CONFIG_ISO_PARTITION /* Experimental */
 
 
-
-
 /************************************************************
  * RTC
  ***********************************************************/
@@ -208,6 +206,5 @@
 #define	CFG_SECOND_PCI_IRQ  10
 #define	CFG_THIRD_PCI_IRQ   11
 #define	CFG_FORTH_PCI_IRQ   12
-
 
 #endif	/* __CONFIG_H */

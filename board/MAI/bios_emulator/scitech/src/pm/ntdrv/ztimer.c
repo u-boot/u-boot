@@ -121,4 +121,3 @@ passed, so if this happens we will be generating erronous results.
 ****************************************************************************/
 ulong __ULZElapsedTime(ulong start,ulong finish)
 { return finish - start; }
-

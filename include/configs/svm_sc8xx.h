@@ -92,22 +92,22 @@
 
 #undef	CONFIG_BOOTARGS
 #define CONFIG_EXTRA_ENV_SETTINGS                                       \
-        "nfsargs=setenv bootargs root=/dev/nfs rw "                     \
-         "nfsroot=$(serverip):$(rootpath)\0"                     \
-        "ramargs=setenv bootargs root=/dev/ram rw\0"                    \
-        "addip=setenv bootargs $(bootargs) "                            \
-               "ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask)"      \
-                ":$(hostname):$(netdev):off panic=1\0"                  \
-	        "flash_nfs=run nfsargs addip;"                                  \
-             "bootm $(kernel_addr)\0"                                \
-        "flash_self=run ramargs addip;"                                 \
-               "bootm $(kernel_addr) $(ramdisk_addr)\0"                \
-        "net_nfs=tftp 0x210000 $(bootfile);run nfsargs addip;bootm\0"     \
-        "rootpath=/opt/sinovee/ppc8xx-linux-2.0/target\0"                                  \
-        "bootfile=pImage-sc855t\0"                           \
-        "kernel_addr=48000000\0"                                        \
-        "ramdisk_addr=48100000\0"                                       \
-        ""
+	"nfsargs=setenv bootargs root=/dev/nfs rw "                     \
+	 "nfsroot=$(serverip):$(rootpath)\0"                     \
+	"ramargs=setenv bootargs root=/dev/ram rw\0"                    \
+	"addip=setenv bootargs $(bootargs) "                            \
+	       "ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask)"      \
+		":$(hostname):$(netdev):off panic=1\0"                  \
+		"flash_nfs=run nfsargs addip;"                                  \
+	     "bootm $(kernel_addr)\0"                                \
+	"flash_self=run ramargs addip;"                                 \
+	       "bootm $(kernel_addr) $(ramdisk_addr)\0"                \
+	"net_nfs=tftp 0x210000 $(bootfile);run nfsargs addip;bootm\0"     \
+	"rootpath=/opt/sinovee/ppc8xx-linux-2.0/target\0"                                  \
+	"bootfile=pImage-sc855t\0"                           \
+	"kernel_addr=48000000\0"                                        \
+	"ramdisk_addr=48100000\0"                                       \
+	""
 #define CONFIG_BOOTCOMMAND							\
 	"setenv bootargs root=/dev/nfs rw nfsroot=$(serverip):$(rootpath) " 	\
 	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off; " 	\
@@ -133,8 +133,8 @@
 #define	CONFIG_RTC_MPC8xx		/* use internal RTC of MPC8xx	*/
 
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
-		                CFG_CMD_ASKENV  | \
-		 		CFG_CMD_DHCP	| \
+				CFG_CMD_ASKENV  | \
+				CFG_CMD_DHCP	| \
 				CFG_CMD_DOC	| \
 /*				CFG_CMD_IDE     |*/ \
 				CFG_CMD_DATE	)
@@ -272,7 +272,7 @@
  */
 #ifndef	CONFIG_CAN_DRIVER
 /*#define CFG_SIUMCR 0x00610c00	*/
-#define CFG_SIUMCR 0x00000000	
+#define CFG_SIUMCR 0x00000000
 #else	/* we must activate GPL5 in the SIUMCR for CAN */
 #define CFG_SIUMCR	(SIUMCR_DBGC11 | SIUMCR_DBPC00 | SIUMCR_MLRC01)
 #endif	/* CONFIG_CAN_DRIVER */
@@ -309,16 +309,16 @@
 #elif defined (CONFIG_80MHz)
 #define CFG_PLPRCR 0x04f01000
 #define CONFIG_8xx_GCLK_FREQ 80000000
-#elif defined(CONFIG_75MHz)	
-#define CFG_PLPRCR 0x04a00100	
+#elif defined(CONFIG_75MHz)
+#define CFG_PLPRCR 0x04a00100
 #define CONFIG_8xx_GCLK_FREQ 75000000
-#elif defined(CONFIG_66MHz)	
-#define CFG_PLPRCR 0x04101000	
+#elif defined(CONFIG_66MHz)
+#define CFG_PLPRCR 0x04101000
 #define CONFIG_8xx_GCLK_FREQ 66000000
-#elif defined(CONFIG_50MHz)	
-#define CFG_PLPRCR 0x03101000	
+#elif defined(CONFIG_50MHz)
+#define CFG_PLPRCR 0x03101000
 #define CONFIG_8xx_GCLK_FREQ 50000000
-#endif	
+#endif
 
 /*-----------------------------------------------------------------------
  * SCCR - System Clock and reset Control Register		15-27
@@ -327,11 +327,11 @@
  * power management and some other internal clocks
  */
 #define SCCR_MASK	SCCR_EBDF11
-#ifdef	CONFIG_BUS_DIV2	
+#ifdef	CONFIG_BUS_DIV2
 #define CFG_SCCR	0x02020000 | SCCR_RTSEL
 #else			/* up to 50 MHz we use a 1:1 clock */
 #define CFG_SCCR    0x02000000 | SCCR_RTSEL
-#endif	
+#endif
 
 /*-----------------------------------------------------------------------
  * PCMCIA stuff
@@ -370,7 +370,7 @@
 					   */
 #define CFG_ATA_ALT_OFFSET      0x0210  /* Offset for alternate registers
 					   */
-#define CONFIG_ATAPI    
+#define CONFIG_ATAPI
 #define CFG_PIO_MODE 0
 
 /*-----------------------------------------------------------------------
@@ -400,35 +400,35 @@
 /*
  * FLASH timing:
  */
-#if defined(CONFIG_100MHz) 
-#define CFG_OR_TIMING_FLASH 0x000002f4	
-#define CFG_OR_TIMING_DOC   0x000002f4	
+#if defined(CONFIG_100MHz)
+#define CFG_OR_TIMING_FLASH 0x000002f4
+#define CFG_OR_TIMING_DOC   0x000002f4
 #define CFG_MxMR_PTx 0x61000000
 #define CFG_MPTPR 0x400
 
 #elif  defined(CONFIG_80MHz)
-#define CFG_OR_TIMING_FLASH 0x00000ff4	
-#define CFG_OR_TIMING_DOC   0x000001f4	
+#define CFG_OR_TIMING_FLASH 0x00000ff4
+#define CFG_OR_TIMING_DOC   0x000001f4
 #define CFG_MxMR_PTx 0x4e000000
 #define CFG_MPTPR 0x400
 
-#elif defined(CONFIG_75MHz) 
-#define CFG_OR_TIMING_FLASH 0x000008f4	
-#define CFG_OR_TIMING_DOC   0x000002f4	
+#elif defined(CONFIG_75MHz)
+#define CFG_OR_TIMING_FLASH 0x000008f4
+#define CFG_OR_TIMING_DOC   0x000002f4
 #define CFG_MxMR_PTx 0x49000000
 #define CFG_MPTPR 0x400
 
 #elif defined(CONFIG_66MHz)
 #define CFG_OR_TIMING_FLASH     (OR_ACS_DIV1  | OR_TRLX | OR_CSNT_SAM | \
-        OR_SCY_3_CLK | OR_EHTR | OR_BI)
+	OR_SCY_3_CLK | OR_EHTR | OR_BI)
 /*#define CFG_OR_TIMING_FLASH 0x000001f4 */
-#define CFG_OR_TIMING_DOC   0x000003f4	
+#define CFG_OR_TIMING_DOC   0x000003f4
 #define CFG_MxMR_PTx  0x40000000
 #define CFG_MPTPR 0x400
 
 #else		/*   50 MHz */
 #define CFG_OR_TIMING_FLASH 0x00000ff4
-#define CFG_OR_TIMING_DOC   0x000001f4	
+#define CFG_OR_TIMING_DOC   0x000001f4
 #define CFG_MxMR_PTx  0x30000000
 #define CFG_MPTPR 0x400
 #endif	/*CONFIG_??MHz */

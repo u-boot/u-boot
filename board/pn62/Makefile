@@ -28,7 +28,7 @@ LIB	= lib$(BOARD).a
 OBJS =  $(BOARD).o cmd_pn62.o misc.o
 
 $(LIB):	.depend $(OBJS)
-	$(AR) crv $@ $^
+	$(AR) crv $@ $(OBJS)
 
 #########################################################################
 

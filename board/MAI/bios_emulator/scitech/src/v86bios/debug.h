@@ -19,7 +19,7 @@
  * TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
  * PERFORMANCE OF THIS SOFTWARE.
  */
-//#define V86BIOS_DEBUG
+/*#define V86BIOS_DEBUG */
 
 /*
  * uncomment the following if needed
@@ -32,7 +32,7 @@
 #define PRINT_PCI 1
 #define PRINT_IP 0    /* print IP address with PIO information */
 #define TRACE 0       /* turn on debugger in x86emu            */
-                      /* requires x86emu compiled with -DDEBUG */
+		      /* requires x86emu compiled with -DDEBUG */
 
 /*
  * these should not be here.
@@ -48,10 +48,8 @@
 #define SHOW_ALL_DEV 0
 #define VERBOSE 0
 
-//#define V_BIOS 0xe0000
-//#define V_BIOS 0xe4000
-
-
+/*#define V_BIOS 0xe0000 */
+/*#define V_BIOS 0xe4000 */
 
 
 #if (PRINT_IO == 1) && (PRINT_PORT == 0)

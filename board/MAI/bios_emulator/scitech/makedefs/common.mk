@@ -178,4 +178,3 @@ ASFLAGS   	+= -d__SNAP__
 # Include file dependencies
 
 .INCLUDE .IGNORE: "makefile.dep"
-

@@ -347,7 +347,7 @@
  * HID1 has only read-only information - nothing to set.
  */
 #define CFG_HID0_INIT   (HID0_ICE|HID0_DCE|HID0_ICFI|HID0_DCI|\
-                                HID0_IFEM|HID0_ABE)
+				HID0_IFEM|HID0_ABE)
 #define CFG_HID0_FINAL  (HID0_ICE|HID0_IFEM|HID0_ABE)
 #define CFG_HID2        0
 
@@ -385,10 +385,10 @@
  */
 #if defined(CONFIG_WATCHDOG)
 #define CFG_SYPCR       (SYPCR_SWTC|SYPCR_BMT|SYPCR_PBME|SYPCR_LBME|\
-                         SYPCR_SWRI|SYPCR_SWP|SYPCR_SWE)
+			 SYPCR_SWRI|SYPCR_SWP|SYPCR_SWE)
 #else
 #define CFG_SYPCR       (SYPCR_SWTC|SYPCR_BMT|SYPCR_PBME|SYPCR_LBME|\
-                         SYPCR_SWRI|SYPCR_SWP)
+			 SYPCR_SWRI|SYPCR_SWP)
 #endif /* CONFIG_WATCHDOG */
 
 /*-----------------------------------------------------------------------
@@ -482,16 +482,16 @@
  * Bank 0 - Flash (64 bit wide)
  */
 #define CFG_BR0_PRELIM  ((CFG_FLASH_BASE & BRx_BA_MSK)  |\
-                         BRx_PS_64                      |\
-                         BRx_MS_GPCM_P                  |\
-                         BRx_V)
+			 BRx_PS_64                      |\
+			 BRx_MS_GPCM_P                  |\
+			 BRx_V)
 
 #define CFG_OR0_PRELIM  (P2SZ_TO_AM(CFG_FLASH_SIZE)	|\
-                         ORxG_CSNT                      |\
-                         ORxG_ACS_DIV1                  |\
-                         ORxG_SCY_3_CLK                 |\
-                         ORxG_EHTR                      |\
-                         ORxG_TRLX)
+			 ORxG_CSNT                      |\
+			 ORxG_ACS_DIV1                  |\
+			 ORxG_SCY_3_CLK                 |\
+			 ORxG_EHTR                      |\
+			 ORxG_TRLX)
 
 /*
  * Bank 1 - Disk-On-Chip
@@ -515,43 +515,43 @@
 #define CFG_PSRT        0x0F
 #ifndef CFG_RAMBOOT
 #define CFG_BR2_PRELIM  ((CFG_SDRAM_BASE & BRx_BA_MSK)  |\
-                         BRx_PS_64                      |\
-                         BRx_MS_SDRAM_P                 |\
-                         BRx_V)
+			 BRx_PS_64                      |\
+			 BRx_MS_SDRAM_P                 |\
+			 BRx_V)
 
 	/* SDRAM initialization values for 8-column chips
 	 */
 #define CFG_OR2_8COL    (CFG_MIN_AM_MASK	        |\
-                         ORxS_BPD_4                     |\
-                         ORxS_ROWST_PBI0_A9             |\
-                         ORxS_NUMR_12)
+			 ORxS_BPD_4                     |\
+			 ORxS_ROWST_PBI0_A9             |\
+			 ORxS_NUMR_12)
 
 #define CFG_PSDMR_8COL  (PSDMR_SDAM_A13_IS_A5           |\
-                         PSDMR_BSMA_A14_A16             |\
-                         PSDMR_SDA10_PBI0_A10           |\
-                         PSDMR_RFRC_7_CLK               |\
-                         PSDMR_PRETOACT_2W              |\
-                         PSDMR_ACTTORW_1W               |\
-                         PSDMR_LDOTOPRE_1C              |\
-                         PSDMR_WRC_1C                   |\
-                         PSDMR_CL_2)
+			 PSDMR_BSMA_A14_A16             |\
+			 PSDMR_SDA10_PBI0_A10           |\
+			 PSDMR_RFRC_7_CLK               |\
+			 PSDMR_PRETOACT_2W              |\
+			 PSDMR_ACTTORW_1W               |\
+			 PSDMR_LDOTOPRE_1C              |\
+			 PSDMR_WRC_1C                   |\
+			 PSDMR_CL_2)
 
 	/* SDRAM initialization values for 9-column chips
 	 */
 #define CFG_OR2_9COL    (CFG_MIN_AM_MASK                |\
-                         ORxS_BPD_4                     |\
-                         ORxS_ROWST_PBI0_A7             |\
-                         ORxS_NUMR_13)
+			 ORxS_BPD_4                     |\
+			 ORxS_ROWST_PBI0_A7             |\
+			 ORxS_NUMR_13)
 
 #define CFG_PSDMR_9COL  (PSDMR_SDAM_A14_IS_A5           |\
-                         PSDMR_BSMA_A13_A15             |\
-                         PSDMR_SDA10_PBI0_A9            |\
-                         PSDMR_RFRC_7_CLK               |\
-                         PSDMR_PRETOACT_2W              |\
-                         PSDMR_ACTTORW_1W               |\
-                         PSDMR_LDOTOPRE_1C              |\
-                         PSDMR_WRC_1C                   |\
-                         PSDMR_CL_2)
+			 PSDMR_BSMA_A13_A15             |\
+			 PSDMR_SDA10_PBI0_A9            |\
+			 PSDMR_RFRC_7_CLK               |\
+			 PSDMR_PRETOACT_2W              |\
+			 PSDMR_ACTTORW_1W               |\
+			 PSDMR_LDOTOPRE_1C              |\
+			 PSDMR_WRC_1C                   |\
+			 PSDMR_CL_2)
 
 #define CFG_OR2_PRELIM   CFG_OR2_9COL
 #define CFG_PSDMR        CFG_PSDMR_9COL

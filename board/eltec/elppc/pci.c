@@ -42,44 +42,44 @@ void pci_init_board(void)
     hose->last_busno = 0xff;
 
     pci_set_region(hose->regions + 0,
-        CFG_PCI_MEMORY_BUS,
-        CFG_PCI_MEMORY_PHYS,
-        CFG_PCI_MEMORY_SIZE,
-        PCI_REGION_MEM | PCI_REGION_MEMORY);
+	CFG_PCI_MEMORY_BUS,
+	CFG_PCI_MEMORY_PHYS,
+	CFG_PCI_MEMORY_SIZE,
+	PCI_REGION_MEM | PCI_REGION_MEMORY);
 
     /* PCI memory space */
     pci_set_region(hose->regions + 1,
-        CFG_PCI_MEM_BUS,
-        CFG_PCI_MEM_PHYS,
-        CFG_PCI_MEM_SIZE,
-        PCI_REGION_MEM);
+	CFG_PCI_MEM_BUS,
+	CFG_PCI_MEM_PHYS,
+	CFG_PCI_MEM_SIZE,
+	PCI_REGION_MEM);
 
     /* ISA/PCI memory space */
     pci_set_region(hose->regions + 2,
-        CFG_ISA_MEM_BUS,
-        CFG_ISA_MEM_PHYS,
-        CFG_ISA_MEM_SIZE,
-        PCI_REGION_MEM);
+	CFG_ISA_MEM_BUS,
+	CFG_ISA_MEM_PHYS,
+	CFG_ISA_MEM_SIZE,
+	PCI_REGION_MEM);
 
     /* PCI I/O space */
     pci_set_region(hose->regions + 3,
-        CFG_PCI_IO_BUS,
-        CFG_PCI_IO_PHYS,
-        CFG_PCI_IO_SIZE,
-        PCI_REGION_IO);
+	CFG_PCI_IO_BUS,
+	CFG_PCI_IO_PHYS,
+	CFG_PCI_IO_SIZE,
+	PCI_REGION_IO);
 
     /* ISA/PCI I/O space */
     pci_set_region(hose->regions + 4,
-        CFG_ISA_IO_BUS,
-        CFG_ISA_IO_PHYS,
-        CFG_ISA_IO_SIZE,
-        PCI_REGION_IO);
+	CFG_ISA_IO_BUS,
+	CFG_ISA_IO_PHYS,
+	CFG_ISA_IO_SIZE,
+	PCI_REGION_IO);
 
     hose->region_count = 5;
 
     pci_setup_indirect(hose,
-        MPC106_REG_ADDR,
-        MPC106_REG_DATA);
+	MPC106_REG_ADDR,
+	MPC106_REG_DATA);
 
     pci_register_hose(hose);
 

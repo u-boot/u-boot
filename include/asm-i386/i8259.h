@@ -78,7 +78,7 @@
 
 /* ICW2 is the starting vector number */
 
-/* ICW2 is bit-mask of present slaves for a master device, 
+/* ICW2 is bit-mask of present slaves for a master device,
  * or the slave ID for a slave device */
 
 /* ICW4 bits */

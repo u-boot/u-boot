@@ -232,7 +232,7 @@ void get_sys_info (sys_info_t * sysInfo)
 	sysInfo->freqProcessor = sysInfo->freqVCOMhz/sysInfo->pllFwdDivA;
 	sysInfo->freqPLB = sysInfo->freqVCOMhz/sysInfo->pllFwdDivB;
     if( get_pvr() == PVR_440GP_RB ) /* Rev B divs an extra 2 -- geez! */
-        sysInfo->freqPLB >>= 1;
+	sysInfo->freqPLB >>= 1;
 	sysInfo->freqOPB = sysInfo->freqPLB/sysInfo->pllOpbDiv;
 	sysInfo->freqEPB = sysInfo->freqOPB/sysInfo->pllExtBusDiv;
 

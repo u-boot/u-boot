@@ -219,10 +219,10 @@
 #define MDIO_READ     ((iop->pdat &  0x00400000) != 0)
 
 #define MDIO(bit)   if(bit) iop->pdat |=  0x00400000; \
-            else            iop->pdat &= ~0x00400000
+	    else            iop->pdat &= ~0x00400000
 
 #define MDC(bit)    if(bit) iop->pdat |=  0x00200000; \
-            else    iop->pdat &= ~0x00200000
+	    else    iop->pdat &= ~0x00200000
 
 #define MIIDELAY    udelay(1)
 #endif  /* CONFIG_ETHER_ON_FCC */
@@ -291,8 +291,8 @@
  *  - DNS
  */
 #define CONFIG_BOOTP_MASK   (CONFIG_BOOTP_DEFAULT | \
-                             CONFIG_BOOTP_BOOTFILESIZE | \
-                             CONFIG_BOOTP_DNS)
+			     CONFIG_BOOTP_BOOTFILESIZE | \
+			     CONFIG_BOOTP_DNS)
 
 /* undef this to save memory */
 #define CFG_LONGHELP
@@ -302,13 +302,13 @@
 
 /* What U-Boot subsytems do you want enabled? */
 #define CONFIG_COMMANDS     (((CONFIG_CMD_DFL & ~(CFG_CMD_KGDB))) | \
-                               CFG_CMD_BEDBUG  | \
-                               CFG_CMD_ELF | \
-                               CFG_CMD_ASKENV  | \
-                               CFG_CMD_ECHO    | \
-                               CFG_CMD_REGINFO | \
-                               CFG_CMD_IMMAP   | \
-                               CFG_CMD_MII)
+			       CFG_CMD_BEDBUG  | \
+			       CFG_CMD_ELF | \
+			       CFG_CMD_ASKENV  | \
+			       CFG_CMD_ECHO    | \
+			       CFG_CMD_REGINFO | \
+			       CFG_CMD_IMMAP   | \
+			       CFG_CMD_MII)
 
 /* Where do the internal registers live? */
 #define CFG_IMMR        0xf0000000
@@ -367,12 +367,12 @@
 #define CFG_STACK_USAGE     0x10000 /* Reserve 64k for the stack usage */
 
 #define CFG_MEM_END_USAGE   ( CFG_MONITOR_LEN \
-                            + CFG_MALLOC_LEN \
-                            + CFG_ENV_SECT_SIZE \
-                            + CFG_STACK_USAGE )
+			    + CFG_MALLOC_LEN \
+			    + CFG_ENV_SECT_SIZE \
+			    + CFG_STACK_USAGE )
 
 #define CFG_MEMTEST_END     ( CFG_SDRAM_SIZE * 1024 * 1024 \
-                            - CFG_MEM_END_USAGE )
+			    - CFG_MEM_END_USAGE )
 
 /* valid baudrates */
 #define CFG_BAUDRATE_TABLE  { 9600, 19200, 38400, 57600, 115200 }
@@ -399,18 +399,18 @@
 
 /* get the HRCW ISB field from CFG_IMMR */
 #define CFG_SBC_HRCW_IMMR   ( ((CFG_IMMR & 0x10000000) >> 10) | \
-                  ((CFG_IMMR & 0x01000000) >>  7) | \
-                  ((CFG_IMMR & 0x00100000) >>  4) )
+		  ((CFG_IMMR & 0x01000000) >>  7) | \
+		  ((CFG_IMMR & 0x00100000) >>  4) )
 
 #define CFG_HRCW_MASTER     ( HRCW_BPS11                | \
-                  HRCW_DPPC11               | \
-                  CFG_SBC_HRCW_IMMR         | \
-                  HRCW_MMR00                | \
-                  HRCW_LBPC11               | \
-                  HRCW_APPC10               | \
-                  HRCW_CS10PC00             | \
-                  (CFG_SBC_MODCK_H & HRCW_MODCK_H1111)  | \
-                  CFG_SBC_HRCW_BOOT_FLAGS )
+		  HRCW_DPPC11               | \
+		  CFG_SBC_HRCW_IMMR         | \
+		  HRCW_MMR00                | \
+		  HRCW_LBPC11               | \
+		  HRCW_APPC10               | \
+		  HRCW_CS10PC00             | \
+		  (CFG_SBC_MODCK_H & HRCW_MODCK_H1111)  | \
+		  CFG_SBC_HRCW_BOOT_FLAGS )
 
 /* no slaves */
 #define CFG_HRCW_SLAVE1     0
@@ -488,16 +488,16 @@
  * HID1 has only read-only information - nothing to set.
  */
 #define CFG_HID0_INIT   (HID0_ICE  |\
-                         HID0_DCE  |\
-                         HID0_ICFI |\
-                         HID0_DCI  |\
-                         HID0_IFEM |\
-                         HID0_ABE)
+			 HID0_DCE  |\
+			 HID0_ICFI |\
+			 HID0_DCI  |\
+			 HID0_IFEM |\
+			 HID0_ABE)
 
 #define CFG_HID0_FINAL  (HID0_ICE  |\
-                         HID0_IFEM |\
-                         HID0_ABE  |\
-                         HID0_EMCP)
+			 HID0_IFEM |\
+			 HID0_ABE  |\
+			 HID0_EMCP)
 #define CFG_HID2    0
 
 /*-----------------------------------------------------------------------
@@ -517,9 +517,9 @@
  *-----------------------------------------------------------------------
  */
 #define CFG_SIUMCR  (SIUMCR_DPPC11  |\
-                     SIUMCR_L2CPC00 |\
-                     SIUMCR_APPC10  |\
-                     SIUMCR_MMR00)
+		     SIUMCR_L2CPC00 |\
+		     SIUMCR_APPC10  |\
+		     SIUMCR_MMR00)
 
 
 /*-----------------------------------------------------------------------
@@ -529,11 +529,11 @@
  * Watchdog & Bus Monitor Timer max, 60x Bus Monitor enable
  */
 #define CFG_SYPCR   (SYPCR_SWTC |\
-                     SYPCR_BMT  |\
-                     SYPCR_PBME |\
-                     SYPCR_LBME |\
-                     SYPCR_SWRI |\
-                     SYPCR_SWP)
+		     SYPCR_BMT  |\
+		     SYPCR_PBME |\
+		     SYPCR_LBME |\
+		     SYPCR_SWRI |\
+		     SYPCR_SWP)
 
 /*-----------------------------------------------------------------------
  * TMCNTSC - Time Counter Status and Control             4-40
@@ -542,9 +542,9 @@
  * and enable Time Counter
  */
 #define CFG_TMCNTSC (TMCNTSC_SEC |\
-                     TMCNTSC_ALR |\
-                     TMCNTSC_TCF |\
-                     TMCNTSC_TCE)
+		     TMCNTSC_ALR |\
+		     TMCNTSC_TCF |\
+		     TMCNTSC_TCE)
 
 /*-----------------------------------------------------------------------
  * PISCR - Periodic Interrupt Status and Control         4-42
@@ -553,8 +553,8 @@
  * Periodic timer
  */
 #define CFG_PISCR   (PISCR_PS  |\
-                     PISCR_PTF |\
-                     PISCR_PTE)
+		     PISCR_PTF |\
+		     PISCR_PTE)
 
 /*-----------------------------------------------------------------------
  * SCCR - System Clock Control                           9-8
@@ -613,9 +613,9 @@
  *     - Valid
  */
 #define CFG_BR0_PRELIM  ((CFG_FLASH0_BASE & BRx_BA_MSK) |\
-                          BRx_PS_32                     |\
-                          BRx_MS_GPCM_P                 |\
-                          BRx_V)
+			  BRx_PS_32                     |\
+			  BRx_MS_GPCM_P                 |\
+			  BRx_V)
 
 /* OR0 is configured as follows:
  *
@@ -632,11 +632,11 @@
  *       current bank and the next access.
  */
 #define CFG_OR0_PRELIM  (MEG_TO_AM(CFG_FLASH0_SIZE) |\
-                         ORxG_CSNT          |\
-                         ORxG_ACS_DIV1      |\
-                         ORxG_SCY_5_CLK     |\
-                         ORxG_TRLX          |\
-                         ORxG_EHTR)
+			 ORxG_CSNT          |\
+			 ORxG_ACS_DIV1      |\
+			 ORxG_SCY_5_CLK     |\
+			 ORxG_TRLX          |\
+			 ORxG_EHTR)
 
 /*-----------------------------------------------------------------------
  * BR2 - Base Register
@@ -668,9 +668,9 @@
  *     - Valid
  */
 #define CFG_BR2_PRELIM  ((CFG_SDRAM0_BASE & BRx_BA_MSK) |\
-                          BRx_PS_64          |\
-                          BRx_MS_SDRAM_P     |\
-                          BRx_V)
+			  BRx_PS_64          |\
+			  BRx_MS_SDRAM_P     |\
+			  BRx_V)
 
 /* With a 16 MB DIMM, the OR2 is configured as follows:
  *
@@ -683,9 +683,9 @@
  */
 #if (CFG_SDRAM0_SIZE == 16)
 #define CFG_OR2_PRELIM  (MEG_TO_AM(CFG_SDRAM0_SIZE) |\
-                         ORxS_BPD_2         |\
-                         ORxS_ROWST_PBI0_A9 |\
-                         ORxS_NUMR_11)
+			 ORxS_BPD_2         |\
+			 ORxS_ROWST_PBI0_A9 |\
+			 ORxS_NUMR_11)
 
 /* With a 16 MB DIMM, the PSDMR is configured as follows:
  *
@@ -711,15 +711,15 @@
  *-----------------------------------------------------------------------
  */
 #define CFG_PSDMR   (PSDMR_RFEN       |\
-                     PSDMR_SDAM_A14_IS_A5 |\
-                     PSDMR_BSMA_A16_A18   |\
-                     PSDMR_SDA10_PBI0_A9  |\
-                     PSDMR_RFRC_7_CLK     |\
-                     PSDMR_PRETOACT_3W    |\
-                     PSDMR_ACTTORW_2W     |\
-                     PSDMR_LDOTOPRE_1C    |\
-                     PSDMR_WRC_1C         |\
-                     PSDMR_CL_2)
+		     PSDMR_SDAM_A14_IS_A5 |\
+		     PSDMR_BSMA_A16_A18   |\
+		     PSDMR_SDA10_PBI0_A9  |\
+		     PSDMR_RFRC_7_CLK     |\
+		     PSDMR_PRETOACT_3W    |\
+		     PSDMR_ACTTORW_2W     |\
+		     PSDMR_LDOTOPRE_1C    |\
+		     PSDMR_WRC_1C         |\
+		     PSDMR_CL_2)
 #endif /* (CFG_SDRAM0_SIZE == 16) */
 
 /* With a 64 MB DIMM, the OR2 is configured as follows:
@@ -733,9 +733,9 @@
  */
 #if (CFG_SDRAM0_SIZE == 64)
 #define CFG_OR2_PRELIM  (MEG_TO_AM(CFG_SDRAM0_SIZE) |\
-             ORxS_BPD_4         |\
-             ORxS_ROWST_PBI0_A8     |\
-             ORxS_NUMR_12)
+	     ORxS_BPD_4         |\
+	     ORxS_ROWST_PBI0_A8     |\
+	     ORxS_NUMR_12)
 
 /* With a 64 MB DIMM, the PSDMR is configured as follows:
  *
@@ -761,15 +761,15 @@
  *-----------------------------------------------------------------------
  */
 #define CFG_PSDMR   (PSDMR_RFEN       |\
-                     PSDMR_SDAM_A14_IS_A5 |\
-                     PSDMR_BSMA_A14_A16   |\
-                     PSDMR_SDA10_PBI0_A9  |\
-                     PSDMR_RFRC_7_CLK     |\
-                     PSDMR_PRETOACT_3W    |\
-                     PSDMR_ACTTORW_2W     |\
-                     PSDMR_LDOTOPRE_1C    |\
-                     PSDMR_WRC_1C         |\
-                     PSDMR_CL_2)
+		     PSDMR_SDAM_A14_IS_A5 |\
+		     PSDMR_BSMA_A14_A16   |\
+		     PSDMR_SDA10_PBI0_A9  |\
+		     PSDMR_RFRC_7_CLK     |\
+		     PSDMR_PRETOACT_3W    |\
+		     PSDMR_ACTTORW_2W     |\
+		     PSDMR_LDOTOPRE_1C    |\
+		     PSDMR_WRC_1C         |\
+		     PSDMR_CL_2)
 #endif  /* (CFG_SDRAM0_SIZE == 64) */
 
 #define CFG_PSRT    0x0e
@@ -800,13 +800,13 @@
 
 #ifdef CFG_IO_BASE
 #  define CFG_BR4_PRELIM  ((CFG_IO_BASE & BRx_BA_MSK)  |\
-                            BRx_PS_8                   |\
-                            BRx_MS_GPCM_L              |\
-                            BRx_V)
+			    BRx_PS_8                   |\
+			    BRx_MS_GPCM_L              |\
+			    BRx_V)
 
 #  define CFG_OR4_PRELIM   (ORxG_AM_MSK                |\
-                            ORxG_SCY_11_CLK            |\
-                            ORxG_EHTR)
+			    ORxG_SCY_11_CLK            |\
+			    ORxG_EHTR)
 #endif /* CFG_IO_BASE */
 
 /*

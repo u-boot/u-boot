@@ -32,7 +32,7 @@
 extern int
 fat_register_read(int(*block_read)(int device, ulong blknr, ulong blkcnt, uchar *buffer));
 
-/* 
+/*
  * FIXME needs to read cid and csd info to determine block size
  * and other parameters
  */
@@ -41,7 +41,7 @@ static mmc_csd_t mmc_csd;
 static int mmc_ready = 0;
 
 
-static uchar * 
+static uchar *
 /****************************************************/
 mmc_cmd(ushort cmd, ushort argh, ushort argl, ushort cmdat)
 /****************************************************/
@@ -54,7 +54,7 @@ mmc_cmd(ushort cmd, ushort argh, ushort argl, ushort cmdat)
 	MMC_STRPCL = MMC_STRPCL_STOP_CLK;
 	MMC_I_MASK = ~MMC_I_MASK_CLK_IS_OFF;
 	while (!(MMC_I_REG & MMC_I_REG_CLK_IS_OFF));
-	MMC_CMD    = cmd; 
+	MMC_CMD    = cmd;
 	MMC_ARGH   = argh;
 	MMC_ARGL   = argl;
 	MMC_CMDAT  = cmdat;
@@ -73,11 +73,11 @@ mmc_cmd(ushort cmd, ushort argh, ushort argl, ushort cmdat)
 	{
 		case MMC_CMDAT_R1:
 		case MMC_CMDAT_R3:
-			words = 3; 
+			words = 3;
 			break;
 
 		case MMC_CMDAT_R2:
-			words = 8; 
+			words = 8;
 			break;
 
 		default:
@@ -130,10 +130,10 @@ mmc_block_read(uchar *dst, ulong src, ulong len)
 	MMC_RDTO = 0xffff;
 	MMC_NOB = 1;
 	MMC_BLKLEN = len;
-	resp = mmc_cmd(MMC_CMD_READ_BLOCK, argh, argl, 
+	resp = mmc_cmd(MMC_CMD_READ_BLOCK, argh, argl,
 			MMC_CMDAT_R1|MMC_CMDAT_READ|MMC_CMDAT_BLOCK|MMC_CMDAT_DATA_EN);
 
-	
+
 	MMC_I_MASK = ~MMC_I_MASK_RXFIFO_RD_REQ;
 	while (len)
 	{
@@ -188,9 +188,9 @@ mmc_block_write(ulong dst, uchar *src, int len)
 	MMC_STRPCL = MMC_STRPCL_STOP_CLK;
 	MMC_NOB = 1;
 	MMC_BLKLEN = len;
-	resp = mmc_cmd(MMC_CMD_WRITE_BLOCK, argh, argl, 
+	resp = mmc_cmd(MMC_CMD_WRITE_BLOCK, argh, argl,
 			MMC_CMDAT_R1|MMC_CMDAT_WRITE|MMC_CMDAT_BLOCK|MMC_CMDAT_DATA_EN);
-	
+
 	MMC_I_MASK = ~MMC_I_MASK_TXFIFO_WR_REQ;
 	while (len)
 	{
@@ -379,7 +379,7 @@ mmc_write(uchar *src, ulong dst, int size)
 	return 0;
 }
 
-int 
+int
 /****************************************************/
 mmc_bread(int dev_num, ulong blknr, ulong blkcnt, uchar *dst)
 /****************************************************/
@@ -408,7 +408,7 @@ mmc_init(int verbose)
 	mmc_csd.c_size = 0;
 
 	MMC_CLKRT  = MMC_CLKRT_0_3125MHZ;
-	MMC_RESTO  = MMC_RES_TO_MAX; 
+	MMC_RESTO  = MMC_RES_TO_MAX;
 	MMC_SPI    = MMC_SPI_DISABLE;
 
 	/* reset */
@@ -431,12 +431,12 @@ mmc_init(int verbose)
 		if (verbose)
 		{
 			printf("MMC found. Card desciption is:\n");
-			printf("Manufacturer ID = %02x%02x%02x\n", 
+			printf("Manufacturer ID = %02x%02x%02x\n",
 							cid->id[0], cid->id[1], cid->id[2]);
 			printf("HW/FW Revision = %x %x\n",cid->hwrev, cid->fwrev);
 			cid->hwrev = cid->fwrev = 0;	/* null terminate string */
 			printf("Product Name = %s\n",cid->name);
-			printf("Serial Number = %02x%02x%02x\n", 
+			printf("Serial Number = %02x%02x%02x\n",
 							cid->sn[0], cid->sn[1], cid->sn[2]);
 			printf("Month = %d\n",cid->month);
 			printf("Year = %d\n",1997 + cid->year);

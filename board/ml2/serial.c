@@ -35,7 +35,7 @@
 
 #if (defined CFG_INIT_CHAN1) || (defined CFG_INIT_CHAN2)
 const NS16550_t COM_PORTS[] = { (NS16550_t) CFG_NS16550_COM1,
-		                (NS16550_t) CFG_NS16550_COM2 };
+				(NS16550_t) CFG_NS16550_COM2 };
 #endif
 
 int
@@ -59,7 +59,7 @@ void
 serial_putc(const char c)
 {
     if (c == '\n')
-        NS16550_putc(COM_PORTS[CFG_DUART_CHAN], '\r');
+	NS16550_putc(COM_PORTS[CFG_DUART_CHAN], '\r');
 
     NS16550_putc(COM_PORTS[CFG_DUART_CHAN], c);
 }

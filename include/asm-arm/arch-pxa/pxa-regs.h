@@ -63,12 +63,12 @@ typedef void            (*ExcpHndlr) (void) ;
 #define PCMCIA1MemSp	PCMCIAMemSp	/* PCMCIA 1 Memory Space [byte]    */
 
 #define _PCMCIA(Nb)	        	/* PCMCIA [0..1]                   */ \
-                	(0x20000000 + (Nb)*PCMCIASp)
+			(0x20000000 + (Nb)*PCMCIASp)
 #define _PCMCIAIO(Nb)	_PCMCIA (Nb)	/* PCMCIA I/O [0..1]               */
 #define _PCMCIAAttr(Nb)	        	/* PCMCIA Attribute [0..1]         */ \
-                	(_PCMCIA (Nb) + 2*PCMCIAPrtSp)
+			(_PCMCIA (Nb) + 2*PCMCIAPrtSp)
 #define _PCMCIAMem(Nb)	        	/* PCMCIA Memory [0..1]            */ \
-                	(_PCMCIA (Nb) + 3*PCMCIAPrtSp)
+			(_PCMCIA (Nb) + 3*PCMCIAPrtSp)
 
 #define _PCMCIA0	_PCMCIA (0)	/* PCMCIA 0                        */
 #define _PCMCIA0IO	_PCMCIAIO (0)	/* PCMCIA 0 I/O                    */
@@ -79,7 +79,6 @@ typedef void            (*ExcpHndlr) (void) ;
 #define _PCMCIA1IO	_PCMCIAIO (1)	/* PCMCIA 1 I/O                    */
 #define _PCMCIA1Attr	_PCMCIAAttr (1)	/* PCMCIA 1 Attribute              */
 #define _PCMCIA1Mem	_PCMCIAMem (1)	/* PCMCIA 1 Memory                 */
-
 
 
 /*
@@ -402,18 +401,18 @@ typedef void            (*ExcpHndlr) (void) ;
 #define IrSR_XMITIR_UART_MODE 0x0
 
 #define IrSR_IR_RECEIVE_ON (\
-                IrSR_RXPL_NEG_IS_ZERO | \
-                IrSR_TXPL_POS_IS_ZERO | \
-                IrSR_XMODE_PULSE_3_16 | \
-                IrSR_RCVEIR_IR_MODE   | \
-                IrSR_XMITIR_UART_MODE)
+		IrSR_RXPL_NEG_IS_ZERO | \
+		IrSR_TXPL_POS_IS_ZERO | \
+		IrSR_XMODE_PULSE_3_16 | \
+		IrSR_RCVEIR_IR_MODE   | \
+		IrSR_XMITIR_UART_MODE)
 
 #define IrSR_IR_TRANSMIT_ON (\
-                IrSR_RXPL_NEG_IS_ZERO | \
-                IrSR_TXPL_POS_IS_ZERO | \
-                IrSR_XMODE_PULSE_3_16 | \
-                IrSR_RCVEIR_UART_MODE | \
-                IrSR_XMITIR_IR_MODE)
+		IrSR_RXPL_NEG_IS_ZERO | \
+		IrSR_TXPL_POS_IS_ZERO | \
+		IrSR_XMODE_PULSE_3_16 | \
+		IrSR_RCVEIR_UART_MODE | \
+		IrSR_XMITIR_IR_MODE)
 
 /*
  * I2C registers
@@ -1198,47 +1197,47 @@ typedef void            (*ExcpHndlr) (void) ;
 
 #define LCCR1_PPL       Fld (10, 0)      /* Pixels Per Line - 1 */
 #define LCCR1_DisWdth(Pixel)            /* Display Width [1..800 pix.]  */ \
-                        (((Pixel) - 1) << FShft (LCCR1_PPL))
+			(((Pixel) - 1) << FShft (LCCR1_PPL))
 
 #define LCCR1_HSW       Fld (6, 10)     /* Horizontal Synchronization     */
 #define LCCR1_HorSnchWdth(Tpix)         /* Horizontal Synchronization     */ \
-                                        /* pulse Width [1..64 Tpix]       */ \
-                        (((Tpix) - 1) << FShft (LCCR1_HSW))
+					/* pulse Width [1..64 Tpix]       */ \
+			(((Tpix) - 1) << FShft (LCCR1_HSW))
 
 #define LCCR1_ELW       Fld (8, 16)     /* End-of-Line pixel clock Wait    */
-                                        /* count - 1 [Tpix]                */
+					/* count - 1 [Tpix]                */
 #define LCCR1_EndLnDel(Tpix)            /*  End-of-Line Delay              */ \
-                                        /*  [1..256 Tpix]                  */ \
-                        (((Tpix) - 1) << FShft (LCCR1_ELW))
+					/*  [1..256 Tpix]                  */ \
+			(((Tpix) - 1) << FShft (LCCR1_ELW))
 
 #define LCCR1_BLW       Fld (8, 24)     /* Beginning-of-Line pixel clock   */
-                                        /* Wait count - 1 [Tpix]           */
+					/* Wait count - 1 [Tpix]           */
 #define LCCR1_BegLnDel(Tpix)            /*  Beginning-of-Line Delay        */ \
-                                        /*  [1..256 Tpix]                  */ \
-                        (((Tpix) - 1) << FShft (LCCR1_BLW))
+					/*  [1..256 Tpix]                  */ \
+			(((Tpix) - 1) << FShft (LCCR1_BLW))
 
 
 #define LCCR2_LPP       Fld (10, 0)     /* Line Per Panel - 1              */
 #define LCCR2_DisHght(Line)             /*  Display Height [1..1024 lines] */ \
-                        (((Line) - 1) << FShft (LCCR2_LPP))
+			(((Line) - 1) << FShft (LCCR2_LPP))
 
 #define LCCR2_VSW       Fld (6, 10)     /* Vertical Synchronization pulse  */
-                                        /* Width - 1 [Tln] (L_FCLK)        */
+					/* Width - 1 [Tln] (L_FCLK)        */
 #define LCCR2_VrtSnchWdth(Tln)          /*  Vertical Synchronization pulse */ \
-                                        /*  Width [1..64 Tln]              */ \
-                        (((Tln) - 1) << FShft (LCCR2_VSW))
+					/*  Width [1..64 Tln]              */ \
+			(((Tln) - 1) << FShft (LCCR2_VSW))
 
 #define LCCR2_EFW       Fld (8, 16)     /* End-of-Frame line clock Wait    */
-                                        /* count [Tln]                     */
+					/* count [Tln]                     */
 #define LCCR2_EndFrmDel(Tln)            /*  End-of-Frame Delay             */ \
-                                        /*  [0..255 Tln]                   */ \
-                        ((Tln) << FShft (LCCR2_EFW))
+					/*  [0..255 Tln]                   */ \
+			((Tln) << FShft (LCCR2_EFW))
 
 #define LCCR2_BFW       Fld (8, 24)     /* Beginning-of-Frame line clock   */
-                                        /* Wait count [Tln]                */
+					/* Wait count [Tln]                */
 #define LCCR2_BegFrmDel(Tln)            /*  Beginning-of-Frame Delay       */ \
-                                        /*  [0..255 Tln]                   */ \
-                        ((Tln) << FShft (LCCR2_BFW))
+					/*  [0..255 Tln]                   */ \
+			((Tln) << FShft (LCCR2_BFW))
 
 #if 0
 #define LCCR3_PCD	(0xff)		/* Pixel clock divisor */
@@ -1261,25 +1260,25 @@ typedef void            (*ExcpHndlr) (void) ;
 
 #define LCCR3_PCD       Fld (8, 0)      /* Pixel Clock Divisor */
 #define LCCR3_PixClkDiv(Div)            /* Pixel Clock Divisor */ \
-                        (((Div) << FShft (LCCR3_PCD)))
+			(((Div) << FShft (LCCR3_PCD)))
 
 
 #define LCCR3_BPP       Fld (3, 24)     /* Bit Per Pixel */
 #define LCCR3_Bpp(Bpp)                  /* Bit Per Pixel */ \
-                        (((Bpp) << FShft (LCCR3_BPP)))
+			(((Bpp) << FShft (LCCR3_BPP)))
 
 #define LCCR3_ACB       Fld (8, 8)      /* AC Bias */
 #define LCCR3_Acb(Acb)                  /* BAC Bias */ \
-                        (((Acb) << FShft (LCCR3_ACB)))
+			(((Acb) << FShft (LCCR3_ACB)))
 
 #define LCCR3_HorSnchH  (LCCR3_HSP*0)   /*  Horizontal Synchronization     */
-                                        /*  pulse active High              */
+					/*  pulse active High              */
 #define LCCR3_HorSnchL  (LCCR3_HSP*1)   /*  Horizontal Synchronization     */
 
 #define LCCR3_VrtSnchH  (LCCR3_VSP*0)   /*  Vertical Synchronization pulse */
-                                        /*  active High                    */
+					/*  active High                    */
 #define LCCR3_VrtSnchL  (LCCR3_VSP*1)   /*  Vertical Synchronization pulse */
-                                        /*  active Low                     */
+					/*  active Low                     */
 
 #define LCSR_LDD	(1 << 0)	/* LCD Disable Done */
 #define LCSR_SOF	(1 << 1)	/* Start of frame */
@@ -1338,7 +1337,7 @@ typedef void            (*ExcpHndlr) (void) ;
 #define MDCNFG_DE2	0x00010000
 #define MDCNFG_DE3	0x00020000
 #define MDCNFG_DWID0	0x00000004
-	
+
 #define MDREFR		__REG(0x48000004)  /* SDRAM Refresh Control Register */
 #define MSC0		__REG(0x48000008)  /* Static Memory Control Register 0 */
 #define MSC1		__REG(0x4800000C)  /* Static Memory Control Register 1 */

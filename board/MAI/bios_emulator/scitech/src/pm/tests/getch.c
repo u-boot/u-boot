@@ -309,9 +309,9 @@ KeyEntry *FindKey(
     KeyEntry    *key;
 
     for (key = keys; key->code != 0; key++) {
-        if (key->code == code)
-            break;
-        }
+	if (key->code == code)
+	    break;
+	}
     return key;
 }
 
@@ -326,29 +326,29 @@ void DisplayModifiers(
     event_t *evt)
 {
     if (evt->modifiers & EVT_LEFTBUT)
-        printf(", LBUT");
+	printf(", LBUT");
     if (evt->modifiers & EVT_RIGHTBUT)
-        printf(", RBUT");
+	printf(", RBUT");
     if (evt->modifiers & EVT_MIDDLEBUT)
-        printf(", MBUT");
+	printf(", MBUT");
     if (evt->modifiers & EVT_SHIFTKEY) {
-        if (evt->modifiers & EVT_LEFTSHIFT)
-            printf(", LSHIFT");
-        if (evt->modifiers & EVT_RIGHTSHIFT)
-            printf(", RSHIFT");
-        }
+	if (evt->modifiers & EVT_LEFTSHIFT)
+	    printf(", LSHIFT");
+	if (evt->modifiers & EVT_RIGHTSHIFT)
+	    printf(", RSHIFT");
+	}
     if (evt->modifiers & EVT_CTRLSTATE) {
-        if (evt->modifiers & EVT_LEFTCTRL)
-            printf(", LCTRL");
-        if (evt->modifiers & EVT_RIGHTCTRL)
-            printf(", RCTRL");
-        }
+	if (evt->modifiers & EVT_LEFTCTRL)
+	    printf(", LCTRL");
+	if (evt->modifiers & EVT_RIGHTCTRL)
+	    printf(", RCTRL");
+	}
     if (evt->modifiers & EVT_ALTSTATE) {
-        if (evt->modifiers & EVT_LEFTALT)
-            printf(", LALT");
-        if (evt->modifiers & EVT_RIGHTALT)
-            printf(", RALT");
-        }
+	if (evt->modifiers & EVT_LEFTALT)
+	    printf(", LALT");
+	if (evt->modifiers & EVT_RIGHTALT)
+	    printf(", RALT");
+	}
 }
 
 /****************************************************************************
@@ -369,7 +369,7 @@ void DisplayKey(
     ascii = FindKey(ch,ASCIICodes);
     scan = FindKey(EVT_scanCode(evt->message),ScanCodes);
     printf("%s: 0x%04X -> %s, %s, '%c'",
-        msg, (int)evt->message & 0xFFFF, scan->name, ascii->name, isprint(ch) ? ch : ' ');
+	msg, (int)evt->message & 0xFFFF, scan->name, ascii->name, isprint(ch) ? ch : ' ');
     DisplayModifiers(evt);
     printf("\n");
 }
@@ -388,15 +388,15 @@ void DisplayMouse(
 {
     printf("%s: ", msg);
     if (evt->message & EVT_LEFTBMASK)
-        printf("LEFT ");
+	printf("LEFT ");
     if (evt->message & EVT_RIGHTBMASK)
-        printf("RIGHT ");
+	printf("RIGHT ");
     if (evt->message & EVT_MIDDLEBMASK)
-        printf("MIDDLE ");
+	printf("MIDDLE ");
     printf("abs(%d,%d), rel(%d,%d)", evt->where_x, evt->where_y, evt->relative_x, evt->relative_y);
     DisplayModifiers(evt);
     if (evt->message & EVT_DBLCLICK)
-        printf(", DBLCLICK");
+	printf(", DBLCLICK");
     printf("\n");
 }
 
@@ -413,12 +413,12 @@ void DisplayJoy(
     event_t *evt)
 {
     printf("%s: Joy1(%4d,%4d,%c%c), Joy2(%4d,%4d,%c%c)\n", msg,
-        evt->where_x,evt->where_y,
-        (evt->message & EVT_JOY1_BUTTONA) ? 'A' : 'a',
-        (evt->message & EVT_JOY1_BUTTONB) ? 'B' : 'b',
-        evt->relative_x,evt->relative_y,
-        (evt->message & EVT_JOY2_BUTTONA) ? 'A' : 'a',
-        (evt->message & EVT_JOY2_BUTTONB) ? 'B' : 'b');
+	evt->where_x,evt->where_y,
+	(evt->message & EVT_JOY1_BUTTONA) ? 'A' : 'a',
+	(evt->message & EVT_JOY1_BUTTONB) ? 'B' : 'b',
+	evt->relative_x,evt->relative_y,
+	(evt->message & EVT_JOY2_BUTTONA) ? 'A' : 'a',
+	(evt->message & EVT_JOY2_BUTTONB) ? 'B' : 'b');
 }
 
 /****************************************************************************
@@ -460,41 +460,41 @@ int main(void)
     EVT_setMouseRange(1024,768);
     CalibrateJoy();
     do {
-        EVT_pollJoystick();
-        if (EVT_getNext(&evt,EVT_EVERYEVT)) {
-            switch (evt.what) {
-                case EVT_KEYDOWN:
-                    DisplayKey("EVT_KEYDOWN  ", &evt);
-                    if (EVT_scanCode(evt.message) == KB_esc)
-                        done = true;
-                    break;
-                case EVT_KEYREPEAT:
-                    DisplayKey("EVT_KEYREPEAT", &evt);
-                    break;
-                case EVT_KEYUP:
-                    DisplayKey("EVT_KEYUP    ", &evt);
-                    break;
-                case EVT_MOUSEDOWN:
-                    DisplayMouse("EVT_MOUSEDOWN", &evt);
-                    break;
-                case EVT_MOUSEAUTO:
-                    DisplayMouse("EVT_MOUSEAUTO", &evt);
-                    break;
-                case EVT_MOUSEUP:
-                    DisplayMouse("EVT_MOUSEUP  ", &evt);
-                    break;
-                case EVT_MOUSEMOVE:
-                    DisplayMouse("EVT_MOUSEMOVE", &evt);
-                    break;
-                case EVT_JOYCLICK:
-                    DisplayJoy("EVT_JOYCLICK ", &evt);
-                    break;
-                case EVT_JOYMOVE:
-                    DisplayJoy("EVT_JOYMOVE  ", &evt);
-                    break;
-                }
-            }
-        } while (!done);
+	EVT_pollJoystick();
+	if (EVT_getNext(&evt,EVT_EVERYEVT)) {
+	    switch (evt.what) {
+		case EVT_KEYDOWN:
+		    DisplayKey("EVT_KEYDOWN  ", &evt);
+		    if (EVT_scanCode(evt.message) == KB_esc)
+			done = true;
+		    break;
+		case EVT_KEYREPEAT:
+		    DisplayKey("EVT_KEYREPEAT", &evt);
+		    break;
+		case EVT_KEYUP:
+		    DisplayKey("EVT_KEYUP    ", &evt);
+		    break;
+		case EVT_MOUSEDOWN:
+		    DisplayMouse("EVT_MOUSEDOWN", &evt);
+		    break;
+		case EVT_MOUSEAUTO:
+		    DisplayMouse("EVT_MOUSEAUTO", &evt);
+		    break;
+		case EVT_MOUSEUP:
+		    DisplayMouse("EVT_MOUSEUP  ", &evt);
+		    break;
+		case EVT_MOUSEMOVE:
+		    DisplayMouse("EVT_MOUSEMOVE", &evt);
+		    break;
+		case EVT_JOYCLICK:
+		    DisplayJoy("EVT_JOYCLICK ", &evt);
+		    break;
+		case EVT_JOYMOVE:
+		    DisplayJoy("EVT_JOYMOVE  ", &evt);
+		    break;
+		}
+	    }
+	} while (!done);
     EVT_exit();
     PM_closeConsole(hwndConsole);
     return 0;

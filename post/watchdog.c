@@ -66,8 +66,8 @@ int watchdog_post_test (int flags)
 		if (ints)
 			enable_interrupts ();
 
-                /*
-                 * If we have reached this point, the watchdog timer
+		/*
+		 * If we have reached this point, the watchdog timer
 		 * does not work
 		 */
 		return -1;

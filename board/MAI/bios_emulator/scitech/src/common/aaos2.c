@@ -65,25 +65,25 @@ GA_sharedInfo * NAPI GA_getSharedInfo(
 
     /* Open our helper device driver */
     if (DosOpen(PMHELP_NAME,&hSDDHelp,&result,0,0,
-            FILE_OPEN, OPEN_SHARE_DENYNONE | OPEN_ACCESS_READWRITE,
-            NULL))
-        PM_fatalError("Unable to open SDDHELP$ helper device driver!");
+	    FILE_OPEN, OPEN_SHARE_DENYNONE | OPEN_ACCESS_READWRITE,
+	    NULL))
+	PM_fatalError("Unable to open SDDHELP$ helper device driver!");
     outLen = sizeof(result);
     DosDevIOCtl(hSDDHelp,PMHELP_IOCTL,PMHELP_GETSHAREDINFO,
-        NULL, 0, NULL,
-        &result, outLen, &outLen);
+	NULL, 0, NULL,
+	&result, outLen, &outLen);
     DosClose(hSDDHelp);
     if (result) {
-        /* We have found the shared Nucleus packet. Because not all processes
-         * map to SDDPMI.DLL, we need to ensure that we connect to this
-         * DLL so that it gets mapped into our address space (that is
-         * where the shared Nucleus packet is located). Simply doing a
-         * DosLoadModule on it is enough for this.
-         */
-        HMODULE hModSDDPMI;
-        char    buf[80];
-        DosLoadModule((PSZ)buf,sizeof(buf),(PSZ)"SDDPMI.DLL",&hModSDDPMI);
-        }
+	/* We have found the shared Nucleus packet. Because not all processes
+	 * map to SDDPMI.DLL, we need to ensure that we connect to this
+	 * DLL so that it gets mapped into our address space (that is
+	 * where the shared Nucleus packet is located). Simply doing a
+	 * DosLoadModule on it is enough for this.
+	 */
+	HMODULE hModSDDPMI;
+	char    buf[80];
+	DosLoadModule((PSZ)buf,sizeof(buf),(PSZ)"SDDPMI.DLL",&hModSDDPMI);
+	}
     return (GA_sharedInfo*)result;
 }
 
@@ -106,7 +106,7 @@ Nucleus loader library.
 ibool NAPI GA_TimerInit(void)
 {
     if (_GA_haveCPUID() && (_GA_getCPUIDFeatures() & CPU_HaveRDTSC) != 0)
-        haveRDTSC = true;
+	haveRDTSC = true;
     return true;
 }
 
@@ -118,7 +118,7 @@ void NAPI GA_TimerRead(
     GA_largeInteger *value)
 {
     if (haveRDTSC)
-        _GA_readTimeStamp(value);
+	_GA_readTimeStamp(value);
     else
-        DosTmrQueryTime((QWORD*)value);
+	DosTmrQueryTime((QWORD*)value);
 }
