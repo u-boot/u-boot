@@ -2,6 +2,11 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Add comment about non-GPL character of standalone applications to
+  COPYING file
+
+* Fix FEC ethernet problem on NSCU board.
+
 * Patch by Gary Jennejohn, 09 Sep 2004:
   allow to use USART1 as console port on at91rm9200dk boards
 
