@@ -225,6 +225,10 @@ Denis Peter <d.peter@mpl.ch>
 	MIP405			PPC4xx
 	PIP405			PPC4xx
 
+Daniel Poirot <dan.poirot@windriver.com>
+        sbc8240                 MPC8240
+        sbc405                  PPC405GP
+
 Stefan Roese <stefan.roese@esd-electronics.com>
 
 	ADCIOP			IOP480 (PPC401)

@@ -333,7 +333,7 @@ D: BedBug embedded debugger code
 
 N: Daniel Poirot
 E: dan.poirot@windriver.com
-D: Support for the sbc8240 board
+D: Support for the Wind River sbc405, sbc8240 board
 W: http://www.windriver.com
 
 N: Stefan Roese

@@ -105,7 +105,7 @@ clibdir := $(shell dirname `$(CC) $(CFLAGS) -print-file-name=libc.a`)
 
 CPPFLAGS += -I..
 
-all:	.depend $(LIB) $(SREC) $(BIN)
+all:	.depend $(OBJS) $(LIB) $(SREC) $(BIN)
 
 #########################################################################
 $(LIB): .depend $(LIBOBJS)

@@ -836,6 +836,9 @@ PPChameleonEVB_HI_33_config:	unconfig
 		}
 	@./mkconfig -a $(call xtract_4xx,$@) ppc ppc4xx PPChameleonEVB dave
 
+sbc405_config:	unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx sbc405
+
 VOH405_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx voh405 esd
 
