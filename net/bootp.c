@@ -56,6 +56,7 @@ ulong		seed1, seed2;
 #if (CONFIG_COMMANDS & CFG_CMD_DHCP)
 dhcp_state_t dhcp_state = INIT;
 unsigned int dhcp_leasetime = 0;
+IPaddr_t NetDHCPServerIP = 0;
 static void DhcpHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len);
 
 /* For Debug */
@@ -716,7 +717,7 @@ static void DhcpOptionsProcess(uchar *popt)
 			case 53:		/* Ignore Message Type Option */
 				break;
 			case 54:
-				NetCopyIP(&NetServerIP, (popt+2));
+				NetCopyIP(&NetDHCPServerIP, (popt+2));
 				break;
 			case 58:		/* Ignore Renewal Time Option */
 				break;
@@ -788,7 +789,7 @@ static void DhcpSendRequestPkt(Bootp_t *bp_offer)
 	 * Copy options from OFFER packet if present
 	 */
 	NetCopyIP(&OfferedIP, &bp->bp_yiaddr);
-	extlen = DhcpExtended(bp->bp_vend, DHCP_REQUEST, NetServerIP, OfferedIP);
+	extlen = DhcpExtended(bp->bp_vend, DHCP_REQUEST, NetDHCPServerIP, OfferedIP);
 
 	pktlen = BOOTP_SIZE - sizeof(bp->bp_vend) + extlen;
 	iplen = BOOTP_HDR_SIZE - sizeof(bp->bp_vend) + extlen;
@@ -832,11 +833,10 @@ DhcpHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len)
 
 			debug ("TRANSITIONING TO REQUESTING STATE\n");
 			dhcp_state = REQUESTING;
-#if 0
+
 			if (NetReadLong((ulong*)&bp->bp_vend[0]) == htonl(BOOTP_VENDOR_MAGIC))
 				DhcpOptionsProcess(&bp->bp_vend[4]);
 
-#endif
 			BootpCopyNetParams(bp);	/* Store net params from reply */
 
 			NetSetTimeout(TIMEOUT * CFG_HZ, BootpTimeout);
