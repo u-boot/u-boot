@@ -29,6 +29,9 @@
 #include <mpc8260.h>
 #include <mpc8260_irq.h>
 #include <asm/processor.h>
+#ifdef CONFIG_STATUS_LED
+#include <status_led.h>
+#endif
 
 /****************************************************************************/
 
@@ -292,7 +295,7 @@ void timer_interrupt (struct pt_regs *regs)
 {
 #if defined(CONFIG_WATCHDOG) || defined(CFG_HYMOD_DBLEDS)
 	volatile immap_t *immr = (immap_t *) CFG_IMMR;
-#endif							/* CONFIG_WATCHDOG */
+#endif	/* CONFIG_WATCHDOG */
 
 	/* Restore Decrementer Count */
 	set_dec (decrementer_count);
@@ -306,19 +309,19 @@ void timer_interrupt (struct pt_regs *regs)
 	if ((timestamp % CFG_HZ) == 0) {
 #if defined(CFG_CMA_LCD_HEARTBEAT)
 		extern void lcd_heartbeat (void);
-#endif							/* CFG_CMA_LCD_HEARTBEAT */
+#endif	/* CFG_CMA_LCD_HEARTBEAT */
 #if defined(CFG_HYMOD_DBLEDS)
 		volatile iop8260_t *iop = &immr->im_ioport;
 		static int shift = 0;
-#endif							/* CFG_HYMOD_DBLEDS */
+#endif	/* CFG_HYMOD_DBLEDS */
 
 #if defined(CFG_CMA_LCD_HEARTBEAT)
 		lcd_heartbeat ();
-#endif							/* CFG_CMA_LCD_HEARTBEAT */
+#endif	/* CFG_CMA_LCD_HEARTBEAT */
 
 #if defined(CONFIG_WATCHDOG)
 		reset_8260_watchdog (immr);
-#endif							/* CONFIG_WATCHDOG */
+#endif	/* CONFIG_WATCHDOG */
 
 #if defined(CFG_HYMOD_DBLEDS)
 		/* hymod daughter board LEDs */
@@ -326,9 +329,13 @@ void timer_interrupt (struct pt_regs *regs)
 			shift = 0;
 		iop->iop_pdatd =
 				(iop->iop_pdatd & ~0x0f000000) | (1 << (24 + shift));
-#endif							/* CFG_HYMOD_DBLEDS */
+#endif	/* CFG_HYMOD_DBLEDS */
 	}
-#endif							/* CONFIG_WATCHDOG || CFG_CMA_LCD_HEARTBEAT */
+#endif	/* CONFIG_WATCHDOG || CFG_CMA_LCD_HEARTBEAT */
+
+#ifdef CONFIG_STATUS_LED
+	status_led_tick (timestamp);
+#endif	/* CONFIG_STATUS_LED */
 }
 
 /****************************************************************************/

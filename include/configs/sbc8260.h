@@ -294,9 +294,7 @@
  * is on the board edge side of both the LED strip and the DS0-DS7
  * switch.
  */
-#if 0
-# define CONFIG_MISC_INIT_R
-#endif
+#undef	CONFIG_MISC_INIT_R
 
 /* Set to a positive value to delay for running BOOTCOMMAND */
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds */
@@ -311,6 +309,43 @@
 # undef CONFIG_AUTOBOOT_DELAY_STR
 # define DEBUG_BOOTKEYS		0
 #endif
+
+/* Define this to contain any number of null terminated strings that
+ * will be part of the default enviroment compiled into the boot image.
+ */
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	"serverip=192.168.123.201\0" \
+	"ipaddr=192.168.123.203\0" \
+	"reprog="\
+		"tftpboot 0x140000 /bdi2000/u-boot.bin; " \
+		"protect off 1:0; " \
+		"erase 1:0; " \
+		"cp.b 140000 40000000 $(filesize); " \
+		"protect on 1:0\0" \
+	"zapenv="\
+		"protect off 1:1; " \
+		"erase 1:1; " \
+		"protect on 1:1\0" \
+	"root-on-initrd="\
+		"setenv bootcmd "\
+		"version;" \
+		"echo;" \
+		"bootp;" \
+		"setenv bootargs root=/dev/ram0 rw " \
+		"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;" \
+		"run boot-hook;" \
+		"bootm\0" \
+	"root-on-nfs="\
+		"setenv bootcmd "\
+		"version;" \
+		"echo;" \
+		"bootp;" \
+		"setenv bootargs root=/dev/nfs rw " \
+		"nfsroot=$(serverip):$(rootpath) " \
+		"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off\\;" \
+		"run boot-hook;" \
+		"bootm\0" \
+	"boot-hook=echo boot-hook\0"
 
 /* Define a command string that is automatically executed when no character
  * is read on the console interface withing "Boot Delay" after reset.
@@ -351,6 +386,16 @@
 
 /* Monitor Command Prompt */
 #define CFG_PROMPT		"=> "
+
+#undef  CFG_HUSH_PARSER
+#ifdef  CFG_HUSH_PARSER
+#define CFG_PROMPT_HUSH_PS2	"> "
+#endif
+
+/* When CONFIG_TIMESTAMP is selected, the timestamp (date and time)
+ * of an image is printed by image commands like bootm or iminfo.
+ */
+#define CONFIG_TIMESTAMP
 
 /* What U-Boot subsytems do you want enabled? */
 #ifdef CONFIG_ETHER_ON_FCC
@@ -405,9 +450,10 @@
 
 #define CFG_BARGSIZE		CFG_CBSIZE /* Boot Argument Buffer Size	   */
 
-#define CFG_LOAD_ADDR		0x140000   /* default load address */
+#define CFG_LOAD_ADDR		0x400000   /* default load address */
 #define CFG_HZ			1000	/* decrementer freq: 1 ms ticks */
 
+#define CFG_ALT_MEMTEST			/* Select full-featured memory test */
 #define CFG_MEMTEST_START	0x2000	/* memtest works from the end of */
 					/* the exception vector table */
 					/* to the end of the DRAM  */

@@ -27,7 +27,12 @@
  *
  */
 
+#ifndef	CONFIG_EEPRO100
 #define PKTBUFSRX	4
+#else
+#define PKTBUFSRX	8
+#endif
+
 #define PKTALIGN	32
 
 typedef ulong		IPaddr_t;

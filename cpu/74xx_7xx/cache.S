@@ -1,5 +1,5 @@
 #include <config.h>
-#include <mpc74xx.h>
+#include <74xx_7xx.h>
 #include <version.h>
 
 #include <ppc_asm.tmpl>

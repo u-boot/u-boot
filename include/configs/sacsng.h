@@ -252,10 +252,12 @@
 
 
 /*
- * select SPI support configuration
+ * Select SPI support configuration
  */
-#define  CONFIG_SOFT_SPI		/* enable SPI driver		*/
-
+#define CONFIG_SOFT_SPI		/* Enable SPI driver */
+#define MAX_SPI_BYTES   4	/* Maximum number of bytes we can handle */
+#undef  DEBUG_SPI               /* Disable SPI debugging */  
+ 
 /*
  * Software (bit-bang) SPI driver configuration
  */
@@ -274,7 +276,7 @@
                         else    immr->im_ioport.iop_pdatd &= ~I2C_MOSI
 #define SPI_SCL(bit)    if(bit) immr->im_ioport.iop_pdatd |=  I2C_SCLK; \
                         else    immr->im_ioport.iop_pdatd &= ~I2C_SCLK
-#define SPI_DELAY	/*udelay(1)*/	/* 1/2 SPI clock duration */
+#define SPI_DELAY                       /* No delay is needed */
 #endif /* CONFIG_SOFT_SPI */
 
 
@@ -485,6 +487,11 @@
 #define CFG_PROMPT_HUSH_PS2     "> "
 #endif
 
+/* When CONFIG_TIMESTAMP is selected, the timestamp (date and time)
+ * of an image is printed by image commands like bootm or iminfo.
+ */
+#define CONFIG_TIMESTAMP
+
 /* What U-Boot subsytems do you want enabled? */
 #ifdef CONFIG_ETHER_ON_FCC
 # define CONFIG_COMMANDS	(((CONFIG_CMD_DFL & ~(CFG_CMD_KGDB))) | \
@@ -544,6 +551,7 @@
 #define CFG_LOAD_ADDR		0x400000   /* default load address */
 #define CFG_HZ			1000	/* decrementer freq: 1 ms ticks */
 
+#define CFG_ALT_MEMTEST                 /* Select full-featured memory test */
 #define CFG_MEMTEST_START	0x2000	/* memtest works from the end of */
 					/* the exception vector table */
 					/* to the end of the DRAM  */

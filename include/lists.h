@@ -39,7 +39,7 @@ void    *ListGetPtrToItem(list_t list, int itemPosition);
 void    ListRemoveItem(list_t list, void *itemDestination, int itemPosition);
 void    ListRemoveItems(list_t list, void *itemsDestination, int firstItemPosition, int numItemsToRemove);
 
-#if 0
+#if 0	/* rarely ever used; kept here for reference just in case ... */
 void    ListDisposePtrList(list_t list);
 void    ListGetItem(list_t list, void *itemDestination, int itemPosition);
 void    ListReplaceItem(list_t list, void *ptrToItem, int itemPosition);
@@ -72,6 +72,6 @@ int     ListGetItemSize(list_t list);
 int     GetIntListFromParmInfo(va_list parmInfo, int numIntegers, list_t *integerList);
 int     ListInsertAfterItem(list_t list, void *ptrToItem, void *ptrToItemToInsertAfter, CompareFunction compareFunction);
 int     ListInsertBeforeItem(list_t list, void *ptrToItem, void *ptrToItemToInsertBefore, CompareFunction compareFunction);
-#endif 0
+#endif /* 0 */
 
 #endif	/* _LISTS_H_ */

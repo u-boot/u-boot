@@ -2,6 +2,13 @@
 Changes since for U-Boot 0.1.0:
 ======================================================================
 
+* Patch by Jim Sandoz, 07 Nov 2002:
+  Increase number of network RX buffers (PKTBUFSRX in
+  "include/net.h") for EEPRO100 based boards (especially SP8240)
+  which showed "Receiver is not ready" errors when U-Boot was
+  processing the receive buffers slower than the network controller
+  was filling them.
+
 * Patch by Andreas Oberritter, 09 Nov 2002:
   Change behaviour of NetLoop(): return -1 for errors, filesize
   otherwise; return code 0 is valid an means no file loaded - in this

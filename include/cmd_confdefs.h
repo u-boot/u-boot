@@ -76,6 +76,7 @@
 #define CFG_CMD_HWFLOW	0x0000020000000000	/* RTS/CTS hw flow control	*/
 #define CFG_CMD_SAVES	0x0000040000000000	/* save S record dump		*/
 #define CFG_CMD_VFD	0x0000080000000000	/* Display bitmap on VFD display*/
+#define CFG_CMD_SPI	0x0000100000000000	/* SPI utility			*/
 
 #define CFG_CMD_ALL	0xFFFFFFFFFFFFFFFF	/* ALL commands			*/
 
@@ -110,7 +111,8 @@
 			CFG_CMD_SCSI	| \
 			CFG_CMD_SDRAM	| \
 			CFG_CMD_USB	| \
-			CFG_CMD_VFD	)
+			CFG_CMD_VFD	| \
+			CFG_CMD_SPI	)
 
 /* Default configuration
  */

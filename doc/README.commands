@@ -90,6 +90,7 @@ setdcr		6		# IBM 4XX DCR registers
 setenv		6
 smcinfo		3
 spiinfo		3
+sspi		4
 stack		5
 step		4
 tftpboot	4

@@ -187,7 +187,7 @@ restart:
 	switch (net_check_prereq (protocol)) {
 	case 1:
 		/* network not configured */
-		return 0;
+		return (-1);
 
 #ifdef CONFIG_NET_MULTI
 	case 2:
@@ -257,7 +257,7 @@ restart:
 		if (ctrlc()) {
 		        eth_halt();
 			printf("\nAbort\n");
-			return 0;
+			return (-1);
 		}
 
 
@@ -295,7 +295,7 @@ restart:
 			return NetBootFileXferSize;
 
 		case NETLOOP_FAIL:
-			return 0;
+			return (-1);
 		}
 	}
 }

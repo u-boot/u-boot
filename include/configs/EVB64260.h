@@ -400,7 +400,7 @@
 
 /*-----------------------------------------------------------------------
  * L2CR setup -- make sure this is right for your board!
- * look in include/mpc74xx.h for the defines used here
+ * look in include/74xx_7xx.h for the defines used here
  */
 
 #define CFG_L2

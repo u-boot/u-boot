@@ -284,6 +284,7 @@
 					~CFG_CMD_PCI    & \
 					~CFG_CMD_PCMCIA & \
 					~CFG_CMD_SCSI   & \
+					~CFG_CMD_SPI	& \
 					~CFG_CMD_USB	& \
 					~CFG_CMD_VFD	& \
 					~CFG_CMD_DTT )
