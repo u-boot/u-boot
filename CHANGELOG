@@ -2,6 +2,11 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Fix minor network problem on MPC5200: need some delay between
+  resetting the PHY and sending the first packet. Implemented in a
+  "natural" way by invoking the PHY reset and initialization code
+  only once after power on vs. each time the interface is brought up.
+
 * Add some limited support for low-speed devices to SL811 USB controller
   (at least "usb reset" now passes successfully and "usb info" displays
   correct information)

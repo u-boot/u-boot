@@ -238,7 +238,6 @@ static int mpc5xxx_fec_init(struct eth_device *dev, bd_t * bis)
 	DECLARE_GLOBAL_DATA_PTR;
 	mpc5xxx_fec_priv *fec = (mpc5xxx_fec_priv *)dev->priv;
 	struct mpc5xxx_sdma *sdma = (struct mpc5xxx_sdma *)MPC5XXX_SDMA;
-	const uint8 phyAddr = CONFIG_PHY_ADDR;	/* Only one PHY */
 
 #if (DEBUG & 0x1)
 	printf ("mpc5xxx_fec_init... Begin\n");
@@ -249,17 +248,6 @@ static int mpc5xxx_fec_init(struct eth_device *dev, bd_t * bis)
 	 */
 	mpc5xxx_fec_rbd_init(fec);
 	mpc5xxx_fec_tbd_init(fec);
-
-	/*
-	 * Initialize GPIO pins
-	 */
-	if (fec->xcv_type == SEVENWIRE) {
-		/*  10MBit with 7-wire operation */
-		*(vu_long *)MPC5XXX_GPS_PORT_CONFIG |= 0x00020000;
-	} else {
-		/* 100MBit with MD operation */
-		*(vu_long *)MPC5XXX_GPS_PORT_CONFIG |= 0x00050000;
-	}
 
 	/*
 	 * Clear FEC-Lite interrupt event register(IEVENT)
@@ -370,6 +358,68 @@ static int mpc5xxx_fec_init(struct eth_device *dev, bd_t * bis)
 	*(int *)FEC_RBD_BASE = (int)fec->rbdBase;
 	*(int *)FEC_TBD_NEXT = (int)fec->tbdBase;
 	*(int *)FEC_RBD_NEXT = (int)fec->rbdBase;
+
+	/*
+	 * Enable FEC-Lite controller
+	 */
+	fec->eth->ecntrl |= 0x00000006;
+
+#if (DEBUG & 0x2)
+	if (fec->xcv_type != SEVENWIRE)
+		mpc5xxx_fec_phydump ();
+#endif
+
+	/*
+	 * Enable SmartDMA receive task
+	 */
+	SDMA_TASK_ENABLE(FEC_RECV_TASK_NO);
+
+#if (DEBUG & 0x1)
+	printf("mpc5xxx_fec_init... Done \n");
+#endif
+
+	return 1;
+}
+
+/********************************************************************/
+static int mpc5xxx_fec_init_phy(struct eth_device *dev, bd_t * bis)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+	mpc5xxx_fec_priv *fec = (mpc5xxx_fec_priv *)dev->priv;
+	const uint8 phyAddr = CONFIG_PHY_ADDR;	/* Only one PHY */
+
+#if (DEBUG & 0x1)
+	printf ("mpc5xxx_fec_init_phy... Begin\n");
+#endif
+
+	/*
+	 * Initialize GPIO pins
+	 */
+	if (fec->xcv_type == SEVENWIRE) {
+		/*  10MBit with 7-wire operation */
+		*(vu_long *)MPC5XXX_GPS_PORT_CONFIG |= 0x00020000;
+	} else {
+		/* 100MBit with MD operation */
+		*(vu_long *)MPC5XXX_GPS_PORT_CONFIG |= 0x00050000;
+	}
+
+	/*
+	 * Clear FEC-Lite interrupt event register(IEVENT)
+	 */
+	fec->eth->ievent = 0xffffffff;
+
+	/*
+	 * Set interrupt mask register
+	 */
+	fec->eth->imask = 0x00000000;
+
+	if (fec->xcv_type != SEVENWIRE) {
+		/*
+		 * Set MII_SPEED = (1/(mii_speed * 2)) * System Clock
+		 * and do not drop the Preamble.
+		 */
+		fec->eth->mii_speed = (((gd->ipb_clk >> 20) / 5) << 1);	/* No MII for 7-wire mode */
+	}
 
 	if (fec->xcv_type != SEVENWIRE) {
 		/*
@@ -486,23 +536,14 @@ static int mpc5xxx_fec_init(struct eth_device *dev, bd_t * bis)
 
 	}
 
-	/*
-	 * Enable FEC-Lite controller
-	 */
-	fec->eth->ecntrl |= 0x00000006;
-
 #if (DEBUG & 0x2)
 	if (fec->xcv_type != SEVENWIRE)
 		mpc5xxx_fec_phydump ();
 #endif
 
-	/*
-	 * Enable SmartDMA receive task
-	 */
-	SDMA_TASK_ENABLE(FEC_RECV_TASK_NO);
 
 #if (DEBUG & 0x1)
-	printf("mpc5xxx_fec_init... Done \n");
+	printf("mpc5xxx_fec_init_phy... Done \n");
 #endif
 
 	return 1;
@@ -859,6 +900,7 @@ int mpc5xxx_fec_initialize(bd_t * bis)
 		mpc5xxx_fec_set_hwaddr(fec, env_enetaddr);
 	}
 
+	mpc5xxx_fec_init_phy(dev, bis);
 	return 1;
 }
 
