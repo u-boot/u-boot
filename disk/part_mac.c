@@ -34,7 +34,11 @@
 #include <ide.h>
 #include "part_mac.h"
 
-#if ((CONFIG_COMMANDS & CFG_CMD_IDE) || (CONFIG_COMMANDS & CFG_CMD_SCSI)) && defined(CONFIG_MAC_PARTITION)
+#if ((CONFIG_COMMANDS & CFG_CMD_IDE)	|| \
+     (CONFIG_COMMANDS & CFG_CMD_SCSI)	|| \
+     (CONFIG_COMMANDS & CFG_CMD_USB)	|| \
+     defined(CONFIG_MMC) || \
+     defined(CONFIG_SYSTEMACE) ) && defined(CONFIG_MAC_PARTITION)
 
 /* stdlib.h causes some compatibility problems; should fixe these! -- wd */
 #ifndef __ldiv_t_defined

@@ -32,7 +32,9 @@
 
 #include <usb.h>
 
+#ifdef CONFIG_USB_STORAGE
 static int usb_stor_curr_dev=-1; /* current device */
+#endif
 
 /* some display routines (info command) */
 char * usb_get_class_desc(unsigned char dclass)
@@ -441,7 +443,9 @@ int do_usb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	int i;
 	struct usb_device *dev = NULL;
+#ifdef CONFIG_USB_STORAGE
 	block_dev_desc_t *stor_dev;
+#endif
 
 	if ((strncmp(argv[1],"reset",5) == 0) ||
 		 (strncmp(argv[1],"start",5) == 0)){

@@ -26,7 +26,11 @@
 #include <ide.h>
 #include "part_amiga.h"
 
-#if ((CONFIG_COMMANDS & CFG_CMD_IDE) || (CONFIG_COMMANDS & CFG_CMD_SCSI)) && defined(CONFIG_AMIGA_PARTITION)
+#if ((CONFIG_COMMANDS & CFG_CMD_IDE)	|| \
+     (CONFIG_COMMANDS & CFG_CMD_SCSI)	|| \
+     (CONFIG_COMMANDS & CFG_CMD_USB)	|| \
+     defined(CONFIG_MMC) || \
+     defined(CONFIG_SYSTEMACE) ) && defined(CONFIG_AMIGA_PARTITION)
 
 #undef AMIGA_DEBUG
 

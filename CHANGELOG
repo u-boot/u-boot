@@ -2,6 +2,8 @@
 Changes for U-Boot 1.1.3:
 ======================================================================
 
+* Cleanup USB and partition defines
+
 * Add support for ext2 filesystems and image timestamps to TQM5200 board
 
 * Add reset code for Coral-P on INKA4x0 board
