@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001
+ * (C) Copyright 2001-2003
  * Matthias Fuchs, esd gmbh germany, matthias.fuchs@esd-electronics.com
  * Stefan Roese, esd gmbh germany, stefan.roese@esd-electronics.com
  *
@@ -36,11 +36,6 @@
 
 #define MAX_ONES               226
 
-#define IBM405GP_GPIO0_OR      0xef600700  /* GPIO Output */
-#define IBM405GP_GPIO0_TCR     0xef600704  /* GPIO Three-State Control */
-#define IBM405GP_GPIO0_ODR     0xef600718  /* GPIO Open Drain */
-#define IBM405GP_GPIO0_IR      0xef60071c  /* GPIO Input */
-
 #ifdef CFG_FPGA_PRG
 # define FPGA_PRG              CFG_FPGA_PRG /* FPGA program pin (ppc output)*/
 # define FPGA_CLK              CFG_FPGA_CLK /* FPGA clk pin (ppc output)    */
@@ -59,7 +54,7 @@
 #define ERROR_FPGA_PRG_INIT_HIGH -2        /* Timeout after PRG* deasserted */
 #define ERROR_FPGA_PRG_DONE      -3        /* Timeout after programming     */
 
-#define SET_FPGA(data)         out32(IBM405GP_GPIO0_OR, data)
+#define SET_FPGA(data)         out32(GPIO0_OR, data)
 
 #define FPGA_WRITE_1 {                                                    \
         SET_FPGA(FPGA_PRG |            FPGA_DATA);  /* set clock to 0 */  \
@@ -120,12 +115,12 @@ static int fpga_boot(unsigned char *fpgadata, int size)
   /*
    * Setup port pins for fpga programming
    */
-  out32(IBM405GP_GPIO0_ODR, 0x00000000);                       /* no open drain pins      */
-  out32(IBM405GP_GPIO0_TCR, FPGA_PRG | FPGA_CLK | FPGA_DATA);  /* setup for output        */
-  out32(IBM405GP_GPIO0_OR,  FPGA_PRG | FPGA_CLK | FPGA_DATA);  /* set output pins to high */
+  out32(GPIO0_ODR, 0x00000000);                                      /* no open drain pins */
+  out32(GPIO0_TCR, in32(GPIO0_TCR) | FPGA_PRG | FPGA_CLK | FPGA_DATA); /* setup for output */
+  out32(GPIO0_OR, in32(GPIO0_OR) | FPGA_PRG | FPGA_CLK | FPGA_DATA);   /* set pins to high */
 
-  DBG("%s, ",((in32(IBM405GP_GPIO0_IR) & FPGA_DONE) == 0) ? "NOT DONE" : "DONE" );
-  DBG("%s\n",((in32(IBM405GP_GPIO0_IR) & FPGA_INIT) == 0) ? "NOT INIT" : "INIT" );
+  DBG("%s, ",((in32(GPIO0_IR) & FPGA_DONE) == 0) ? "NOT DONE" : "DONE" );
+  DBG("%s\n",((in32(GPIO0_IR) & FPGA_INIT) == 0) ? "NOT INIT" : "INIT" );
 
   /*
    * Init fpga by asserting and deasserting PROGRAM*
@@ -134,7 +129,7 @@ static int fpga_boot(unsigned char *fpgadata, int size)
 
   /* Wait for FPGA init line low */
   count = 0;
-  while (in32(IBM405GP_GPIO0_IR) & FPGA_INIT)
+  while (in32(GPIO0_IR) & FPGA_INIT)
     {
       udelay(1000); /* wait 1ms */
       /* Check for timeout - 100us max, so use 3ms */
@@ -145,15 +140,15 @@ static int fpga_boot(unsigned char *fpgadata, int size)
         }
     }
 
-  DBG("%s, ",((in32(IBM405GP_GPIO0_IR) & FPGA_DONE) == 0) ? "NOT DONE" : "DONE" );
-  DBG("%s\n",((in32(IBM405GP_GPIO0_IR) & FPGA_INIT) == 0) ? "NOT INIT" : "INIT" );
+  DBG("%s, ",((in32(GPIO0_IR) & FPGA_DONE) == 0) ? "NOT DONE" : "DONE" );
+  DBG("%s\n",((in32(GPIO0_IR) & FPGA_INIT) == 0) ? "NOT INIT" : "INIT" );
 
   /* deassert PROGRAM* */
   SET_FPGA(FPGA_PRG | FPGA_CLK | FPGA_DATA);
 
   /* Wait for FPGA end of init period .  */
   count = 0;
-  while (!(in32(IBM405GP_GPIO0_IR) & FPGA_INIT))
+  while (!(in32(GPIO0_IR) & FPGA_INIT))
     {
       udelay(1000); /* wait 1ms */
       /* Check for timeout */
@@ -164,8 +159,8 @@ static int fpga_boot(unsigned char *fpgadata, int size)
         }
     }
 
-  DBG("%s, ",((in32(IBM405GP_GPIO0_IR) & FPGA_DONE) == 0) ? "NOT DONE" : "DONE" );
-  DBG("%s\n",((in32(IBM405GP_GPIO0_IR) & FPGA_INIT) == 0) ? "NOT INIT" : "INIT" );
+  DBG("%s, ",((in32(GPIO0_IR) & FPGA_DONE) == 0) ? "NOT DONE" : "DONE" );
+  DBG("%s\n",((in32(GPIO0_IR) & FPGA_INIT) == 0) ? "NOT INIT" : "INIT" );
 
   DBG("write configuration data into fpga\n");
   /* write configuration-data into fpga... */
@@ -237,8 +232,8 @@ static int fpga_boot(unsigned char *fpgadata, int size)
     }
 #endif
 
-  DBG("%s, ",((in32(IBM405GP_GPIO0_IR) & FPGA_DONE) == 0) ? "NOT DONE" : "DONE" );
-  DBG("%s\n",((in32(IBM405GP_GPIO0_IR) & FPGA_INIT) == 0) ? "NOT INIT" : "INIT" );
+  DBG("%s, ",((in32(GPIO0_IR) & FPGA_DONE) == 0) ? "NOT DONE" : "DONE" );
+  DBG("%s\n",((in32(GPIO0_IR) & FPGA_INIT) == 0) ? "NOT INIT" : "INIT" );
 
   /*
    * Check if fpga's DONE signal - correctly booted ?
@@ -246,7 +241,7 @@ static int fpga_boot(unsigned char *fpgadata, int size)
 
   /* Wait for FPGA end of programming period .  */
   count = 0;
-  while (!(in32(IBM405GP_GPIO0_IR) & FPGA_DONE))
+  while (!(in32(GPIO0_IR) & FPGA_DONE))
     {
       udelay(1000); /* wait 1ms */
       /* Check for timeout */
