@@ -2,6 +2,15 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
+* Patch by Travis Sawyer, 26 Feb 2004:
+  Fix broken compile for XPEDITE1K target.
+
+* Patch by Stephan Linz, 26 Feb 2004:
+  Bug fix for NFS code on NIOS targets
+  
+* Patch by Stephen Williams, 26 Feb 2004:
+  Break up SystemACE reads of large block counts
+
 * Patch by Pierre Aubert, 26 Feb 2004
   add IDE support for MPC5200
 

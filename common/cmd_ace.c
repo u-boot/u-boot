@@ -121,6 +121,7 @@ static unsigned long systemace_read(int dev,
 {
       unsigned val;
       int retry;
+      unsigned blk_countdown;
       unsigned char*dp = (unsigned char*)buffer;
 
       if (get_cf_lock() < 0) {
@@ -135,6 +136,10 @@ static unsigned long systemace_read(int dev,
 	    printf("**** ACE locked away from me (STATUSREG=%04x)\n", status);
 	    return 0;
       }
+
+#ifdef DEBUG_SYSTEMACE
+      printf("... systemace read %lu sectors at %lu\n", blkcnt, start);
+#endif
 
       retry = 2000;
       for (;;) {
@@ -161,34 +166,55 @@ static unsigned long systemace_read(int dev,
 	    retry -= 1;
       }
 
-	/* Write LBA block address */
-      ace_writew(start & 0xffff, 0x10);
-      start >>= 16;
-      ace_writew(start & 0xff, 0x12);
+	/* The SystemACE can only transfer 256 sectors at a time, so
+	   limit the current chunk of sectors. The blk_countdown
+	   variable is the number of sectors left to transfer. */
 
-	/* Write sector count | ReadMemCardData. */
-      ace_writew(blkcnt | 0x0300, 0x14);
+      blk_countdown = blkcnt;
+      while (blk_countdown > 0) {
+	    unsigned trans = blk_countdown;
 
-	/* CONTROLREG = CFGRESET|LOCKREQ */
-      ace_writew(0x0082, 0x18);
+	    if (trans > 256) trans = 256;
 
-      retry = blkcnt * 16;
-      while (retry > 0) {
-	    int idx;
+#ifdef DEBUG_SYSTEMACE
+	    printf("... transfer %lu sector in a chunk\n", trans);
+#endif
+	      /* Write LBA block address */
+	    ace_writew((start>> 0) & 0xffff, 0x10);
+	    ace_writew((start>>16) & 0x00ff, 0x12);
 
-	      /* Wait for buffer to become ready. */
-	    while (! (ace_readw(0x04) & 0x0020)) {
-		  udelay(1000);
+	      /* NOTE: in the Write Sector count below, a count of 0
+		 causes a transfer of 256, so &0xff gives the right
+		 value for whatever transfer count we want. */
+
+	      /* Write sector count | ReadMemCardData. */
+	    ace_writew((trans&0xff) | 0x0300, 0x14);
+
+	      /* CONTROLREG = CFGRESET|LOCKREQ */
+	    ace_writew(0x0082, 0x18);
+
+	    retry = trans * 16;
+	    while (retry > 0) {
+		  int idx;
+
+		    /* Wait for buffer to become ready. */
+		  while (! (ace_readw(0x04) & 0x0020)) {
+			udelay(1000);
+		  }
+
+		    /* Read 16 words of 2bytes from the sector buffer. */
+		  for (idx = 0 ;  idx < 16 ;  idx += 1) {
+			unsigned short val = ace_readw(0x40);
+			*dp++ = val & 0xff;
+			*dp++ = (val>>8) & 0xff;
+		  }
+
+		  retry -= 1;
 	    }
 
-	      /* Read 16 words of 2bytes from the sector buffer. */
-	    for (idx = 0 ;  idx < 16 ;  idx += 1) {
-		  unsigned short val = ace_readw(0x40);
-		  *dp++ = val & 0xff;
-		  *dp++ = (val>>8) & 0xff;
-	    }
-
-	    retry -= 1;
+	      /* Count the blocks we transfer this time. */
+	    start += trans;
+	    blk_countdown -= trans;
       }
 
       release_cf_lock();

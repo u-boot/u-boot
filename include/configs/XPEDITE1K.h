@@ -85,6 +85,8 @@ extern void out32(unsigned int, unsigned long);
 /*-----------------------------------------------------------------------
  * Initial RAM & stack pointer (placed in internal SRAM)
  *----------------------------------------------------------------------*/
+#define CFG_TEMP_STACK_OCM  1
+#define CFG_OCM_DATA_ADDR   CFG_ISRAM_BASE
 #define CFG_INIT_RAM_ADDR   CFG_ISRAM_BASE  /* Initial RAM address	*/
 #define CFG_INIT_RAM_END    0x2000	    /* End of used area in RAM	*/
 #define CFG_GBL_DATA_SIZE   128		    /* num bytes initial data	*/
@@ -160,7 +162,7 @@ extern void out32(unsigned int, unsigned long);
 
 #define CONFIG_BOOTARGS		"root=/dev/hda1 "
 #define CONFIG_BOOTCOMMAND	"bootm ffc00000"    /* autoboot command */
-#define CONFIG_BOOTDELAY	-1		    /* disable autoboot */
+#define CONFIG_BOOTDELAY	5		    /* disable autoboot */
 #define CONFIG_BAUDRATE		9600
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
