@@ -41,6 +41,15 @@ _TEXT_BASE:
 platformsetup:
 
 
+	/*------------------------------------------------------* 
+	 *mask all IRQs by setting all bits in the INTMR default* 
+	*------------------------------------------------------*/
+	mov	r1, #0xffffffff
+	ldr	r0, =REG_IHL1_MIR
+	str	r1, [r0]
+	ldr	r0, =REG_IHL2_MIR
+	str	r1, [r0]
+	
 	/*------------------------------------------------------*
 	 * Set up ARM CLM registers (IDLECT1)                   *
 	 *------------------------------------------------------*/

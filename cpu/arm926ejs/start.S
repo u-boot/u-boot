@@ -133,27 +133,6 @@ reset:
 	orr	r0,r0,#0xd3
 	msr	cpsr,r0
 
-
-	/*
-	 * turn off the watchdog, unlock/diable sequence
-	 */
-	mov	r1, #0xF5
-	ldr	r0, =WDTIM_MODE
-	strh	r1, [r0]
-	mov	r1, #0xA0
-	strh	r1, [r0]
-
-
-	/*
-	 * mask all IRQs by setting all bits in the INTMR - default
-	 */
-
-	mov	r1, #0xffffffff
-	ldr	r0, =REG_IHL1_MIR
-	str	r1, [r0]
-	ldr	r0, =REG_IHL2_MIR
-	str	r1, [r0]
-
 	/*
 	 * we do sys-critical inits only at reboot,
 	 * not when booting from ram!

@@ -2,6 +2,15 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
+* Patch by Rahul Shanbhag, 19 Feb 2004:
+  Fixes for for OMAP1610 board:
+  - shift some IRQ specific code to platform.S file
+  - remove duplicatewatchdog reset code from start.S
+
+* Make Auto-MDIX Support configurable on INCA-IP board
+
+* Fix license for mkimage tool
+
 * Patch by Masami Komiya, 24 Feb 2004:
   Update NetBootFileXferSize in NFS code
 

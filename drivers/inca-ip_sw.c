@@ -174,7 +174,9 @@ int inca_switch_initialize(bd_t * bis)
 
 	inca_init_switch_chip();
 
+#if defined(CONFIG_INCA_IP_SWITCH_AMDIX)
 	inca_amdix();
+#endif
 
 	sprintf(dev->name, "INCA-IP Switch");
 	dev->init = inca_switch_init;
@@ -623,6 +625,7 @@ static void inca_dma_init(void)
 	DMA_WRITE_REG(INCA_IP_DMA_DMA_RXISR, 0xFFFFFFFF);
 }
 
+#if defined(CONFIG_INCA_IP_SWITCH_AMDIX)
 static int inca_amdix(void)
 {
 	u32 regValue = 0;
@@ -706,5 +709,6 @@ static int inca_amdix(void)
 
 	return 0;
 }
+#endif /* CONFIG_INCA_IP_SWITCH_AMDIX */
 
 #endif

@@ -85,7 +85,8 @@
 				 CFG_CMD_ASKENV	| \
 				 CFG_CMD_DHCP	| \
 				 CFG_CMD_ELF	| \
-				 CFG_CMD_JFFS2	)
+				 CFG_CMD_JFFS2	| \
+				 CFG_CMD_PING	)
 #include <cmd_confdefs.h>
 
 /*
@@ -143,6 +144,7 @@
 
 #define CONFIG_INCA_IP_SWITCH
 #define CONFIG_NET_MULTI
+#define CONFIG_INCA_IP_SWITCH_AMDIX
 
 #define CFG_JFFS2_FIRST_BANK	1
 #define CFG_JFFS2_NUM_BANKS	1
