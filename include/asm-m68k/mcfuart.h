@@ -87,6 +87,10 @@
 #define	MCFUART_UOP1		0x38		/* Output Port Bit Set (w) */
 #define	MCFUART_UOP0		0x3c		/* Output Port Bit Reset (w) */
 
+#ifdef	CONFIG_M5249
+/* Note: This isn't in the 5249 docs */
+#define	MCFUART_UFPD		0x30		/* Frac Prec. Divider (r/w) */
+#endif
 
 /*
  *	Define bit flags in Mode Register 1 (MR1).

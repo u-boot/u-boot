@@ -1,4 +1,8 @@
 /*
+ * MCF5249 Internal Memory Map
+ *
+ * Copyright (c) 2003 Josef Baumgartner <josef.baumgartner@telex.de>
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -18,42 +22,22 @@
  * MA 02111-1307 USA
  */
 
-#ifndef _M68K_PTRACE_H
-#define _M68K_PTRACE_H
+#ifndef __IMMAP_5249__
+#define __IMMAP_5249__
 
-/*
- * This struct defines the way the registers are stored on the
- * kernel stack during an exception.
+/* Timer module registers
  */
-#ifndef __ASSEMBLY__
+typedef struct timer_ctrl {
+	ushort	timer_tmr;
+	ushort	res1;
+	ushort	timer_trr;
+	ushort	res2;
+	ushort	timer_tcap;
+	ushort	res3;
+	ushort	timer_tcn;
+	ushort	res4;
+	ushort	timer_ter;
+	uchar	res5[14];
+} timer_t;
 
-struct pt_regs {
-	ulong     d0;
-	ulong     d1;
-	ulong     d2;
-	ulong     d3;
-	ulong     d4;
-	ulong     d5;
-	ulong     d6;
-	ulong     d7;
-	ulong     a0;
-	ulong     a1;
-	ulong     a2;
-	ulong     a3;
-	ulong     a4;
-	ulong     a5;
-	ulong     a6;
-#if defined(CONFIG_M5272) || defined(CONFIG_M5282) || defined(CONFIG_M5249)
-	unsigned format :  4; /* frame format specifier */
-	unsigned vector : 12; /* vector offset */
-	unsigned short sr;
-	unsigned long  pc;
-#else
-	unsigned short sr;
-	unsigned long  pc;
-#endif
-};
-
-#endif	/* #ifndef __ASSEMBLY__ */
-
-#endif	/* #ifndef _M68K_PTRACE_H */
+#endif /* __IMMAP_5249__ */
