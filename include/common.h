@@ -383,6 +383,7 @@ int	checkicache   (void);
 int	checkdcache   (void);
 void	upmconfig     (unsigned int, unsigned int *, unsigned int);
 ulong	get_tbclk     (void);
+void	reset_cpu     (ulong addr);
 
 /* $(CPU)/serial.c */
 int	serial_init   (void);

@@ -30,8 +30,6 @@
 #include <common.h>
 #include <asm/arch/ixp425.h>
 
-extern void reset_cpu (ulong addr);
-
 #ifdef CONFIG_USE_IRQ
 /* enable IRQ/FIQ interrupts */
 void enable_interrupts (void)

@@ -35,7 +35,6 @@
 
 #include <asm/proc-armv/ptrace.h>
 
-extern void reset_cpu(ulong addr);
 static ulong timer_load_val = 0;
 
 /* macro to read the 16 bit timer */

@@ -31,8 +31,6 @@
 #include <asm/proc-armv/ptrace.h>
 #include <asm/hardware.h>
 
-extern void reset_cpu(ulong addr);
-
 #ifndef CONFIG_NETARM
 /* we always count down the max. */
 #define TIMER_LOAD_VAL 0xffff

@@ -35,8 +35,6 @@
 #include <asm/arch/hardware.h>
 #include <asm/proc/ptrace.h>
 
-extern void reset_cpu(ulong addr);
-
 /* the number of clocks per CFG_HZ */
 #define TIMER_LOAD_VAL (CFG_HZ_CLOCK/CFG_HZ)
 

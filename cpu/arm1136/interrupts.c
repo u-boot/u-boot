@@ -35,7 +35,6 @@
 #include <asm/arch/omap2420.h>
 #include <asm/proc-armv/ptrace.h>
 
-extern void reset_cpu(ulong addr);
 #define TIMER_LOAD_VAL 0
 
 /* macro to read the 32 bit timer */
