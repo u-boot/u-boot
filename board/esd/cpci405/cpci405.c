@@ -234,6 +234,7 @@ int misc_init_r (void)
 
 	bd_t *bd = gd->bd;
 	char *	tmp;                    /* Temporary char pointer      */
+	unsigned long cntrl0Reg;
 
 #ifdef CONFIG_CPCI405_VER2
 	unsigned char *dst;
@@ -241,7 +242,6 @@ int misc_init_r (void)
 	int status;
 	int index;
 	int i;
-	unsigned long cntrl0Reg;
 
 	/*
 	 * On CPCI-405 version 2 the environment is saved in eeprom!
@@ -376,6 +376,12 @@ int misc_init_r (void)
 	}
 
 #endif /* CONFIG_CPCI405_VER2 */
+
+	/*
+	 * Select cts (and not dsr) on uart1
+	 */
+	cntrl0Reg = mfdcr(cntrl0);
+	mtdcr(cntrl0, cntrl0Reg | 0x00001000);
 
 	/*
 	 * Write ethernet addr in NVRAM for VxWorks
