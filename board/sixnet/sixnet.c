@@ -24,6 +24,7 @@
 
 #include <common.h>
 #include <config.h>
+#include <jffs2/jffs2.h>
 #include <mpc8xx.h>
 #include <net.h>	/* for eth_init() */
 #include <rtc.h>
@@ -602,3 +603,70 @@ long int initdram(int board_type)
 
 	return (size_sdram);
 }
+
+#ifdef CFG_JFFS_CUSTOM_PART
+
+static struct part_info part;
+
+#define jffs2_block(i)	\
+	((struct jffs2_unknown_node*)(CFG_JFFS2_BASE + (i) * 65536))
+
+struct part_info* jffs2_part_info(int part_num)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+	bd_t *bd = gd->bd;
+	char* s;
+	int i;
+	int bootnor = 0;	/* assume booting from NAND flash */
+
+	if (part_num != 0)
+		return 0;	/* only support one partition */
+
+	if (part.usr_priv == (void*)1)
+		return &part;	/* already have part info */
+
+	memset(&part, 0, sizeof(part));
+
+	if (nand_dev_desc[0].ChipID == NAND_ChipID_UNKNOWN)
+		bootnor = 1;
+	else if (bd->bi_flashsize < 0x800000)
+		bootnor = 0;
+	else for (i = 0; !bootnor && i < 4; ++i) {
+		/* boot from NOR if JFFS2 info in any of
+		 * first 4 erase blocks
+		 */
+
+		if (jffs2_block(i)->magic == JFFS2_MAGIC_BITMASK)
+			bootnor = 1;
+	}
+
+	if (bootnor) {
+		/* no NAND flash or boot in NOR, use NOR flash */
+		part.offset = (unsigned char *)CFG_JFFS2_BASE;
+		part.size = CFG_JFFS2_SIZE;
+	}
+	else {
+		char readcmd[60];
+
+		/* boot info in NAND flash, get and use copy in RAM */
+
+		/* override info from environment if present */
+		s = getenv("fsaddr");
+		part.offset = s ? (void *)simple_strtoul(s, NULL, 16)
+				: (void *)CFG_JFFS2_RAMBASE;
+		s = getenv("fssize");
+		part.size = s ? simple_strtoul(s, NULL, 16)
+			      : CFG_JFFS2_RAMSIZE;
+
+		/* read from nand flash */
+		sprintf(readcmd, "nand read.jffs2 %x 0 %x",
+			(uint32_t)part.offset, part.size);
+		run_command(readcmd, 0);
+	}
+
+	part.erasesize = 0;	/* unused */
+	part.usr_priv=(void*)1;	/* ready */
+
+	return &part;
+}
+#endif /* ifdef CFG_JFFS_CUSTOM_PART */

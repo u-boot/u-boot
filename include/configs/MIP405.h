@@ -67,6 +67,7 @@
 			CFG_CMD_DATE	| \
 			CFG_CMD_ELF	| \
 			CFG_CMD_MII	| \
+			CFG_CMD_FAT | \
 			CFG_CMD_PING	| \
 			CFG_CMD_SAVES	| \
 			CFG_CMD_BSP	)
@@ -246,9 +247,10 @@
 /*
  * Init Memory Controller:
  */
-
-#define FLASH_BASE0_PRELIM	0xFFC00000	/* FLASH bank #0	*/
-#define FLASH_BASE1_PRELIM	0		/* FLASH bank #1	*/
+#define FLASH_MAX_SIZE		0x00800000		/* 8MByte max */
+#define FLASH_BASE_PRELIM	0xFF800000  /* open the flash CS */
+/* Size: 0=1MB, 1=2MB, 2=4MB, 3=8MB, 4=16MB, 5=32MB, 6=64MB, 7=128MB */
+#define FLASH_SIZE_PRELIM	 3  /* maximal flash FLASH size bank #0	*/
 
 #define CONFIG_BOARD_PRE_INIT
 
@@ -325,7 +327,7 @@
 #undef	CONFIG_IDE_LED	       /* no led for ide supported     */
 #define CONFIG_IDE_RESET       /* reset for ide supported...	*/
 #define CONFIG_IDE_RESET_ROUTINE /* with a special reset function */
-
+#define CONFIG_SUPPORT_VFAT
 /************************************************************
  * ATAPI support (experimental)
  ************************************************************/

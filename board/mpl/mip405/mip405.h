@@ -137,13 +137,13 @@ void user_led0(unsigned char on);
 					(FLASH_WBF << 12) + (FLASH_TH << 9) + (FLASH_RE << 8) + (FLASH_SOR << 7) + (FLASH_BEM << 6) + (FLASH_PEN << 5))
 
 /* Size: 0=1MB, 1=2MB, 2=4MB, 3=8MB, 4=16MB, 5=32MB, 6=64MB, 7=128MB */
-#define FLASH_BS	2	/* 4 MByte */
+#define FLASH_BS	FLASH_SIZE_PRELIM	/* 4 MByte */
 /* Usage: 0=disabled, 1=Read only, 2=Write Only, 3=R/W */
 #define FLASH_BU	3	/* R/W */
 /* Bus width: 0=8Bit, 1=16Bit, 2=32Bit, 3=Reserved */
 #define FLASH_BW	1	/* 16Bit */
 /* CR register for Boot */
-#define FLASH_CR_B	((FLASH_BASE0_PRELIM & 0xfff00000) + (FLASH_BS << 17) + (FLASH_BU << 15) + (FLASH_BW << 13))
+#define FLASH_CR_B	((FLASH_BASE_PRELIM & 0xfff00000) + (FLASH_BS << 17) + (FLASH_BU << 15) + (FLASH_BW << 13))
 /* CR register for non Boot */
 #define FLASH_CR	((MULTI_PURPOSE_SOCKET_ADDR & 0xfff00000) + (FLASH_BS << 17) + (FLASH_BU << 15) + (FLASH_BW << 13))
 
@@ -172,11 +172,12 @@ void user_led0(unsigned char on);
 
 /* Size: 0=1MB, 1=2MB, 2=4MB, 3=8MB, 4=16MB, 5=32MB, 6=64MB, 7=128MB */
 #define MPS_BS		2	/* 4 MByte */
+#define MPS_BS_B		FLASH_SIZE_PRELIM	/* 1 MByte */
 /* Usage: 0=disabled, 1=Read only, 2=Write Only, 3=R/W */
 #define MPS_BU		3	/* R/W */
 /* Bus width: 0=8Bit, 1=16Bit, 2=32Bit, 3=Reserved */
 #define MPS_BW		0	/* 8Bit */
 /* CR register for Boot */
-#define MPS_CR_B	((FLASH_BASE0_PRELIM & 0xfff00000) + (MPS_BS << 17) + (MPS_BU << 15) + (MPS_BW << 13))
+#define MPS_CR_B	((FLASH_BASE_PRELIM & 0xfff00000) + (MPS_BS_B << 17) + (MPS_BU << 15) + (MPS_BW << 13))
 /* CR register for non Boot */
 #define MPS_CR		((MULTI_PURPOSE_SOCKET_ADDR & 0xfff00000) + (MPS_BS << 17) + (MPS_BU << 15) + (MPS_BW << 13))

@@ -38,7 +38,7 @@
 #ifdef CONFIG_POST
 
 #include <post.h>
-
+#if CONFIG_POST & CFG_POST_ETHER
 #if defined(CONFIG_8xx)
 #include <commproc.h>
 #elif defined(CONFIG_MPC8260)
@@ -49,8 +49,6 @@
 
 #include <command.h>
 #include <net.h>
-
-#if CONFIG_POST & CFG_POST_ETHER
 
 #define MIN_PACKET_LENGTH	64
 #define MAX_PACKET_LENGTH	256

@@ -174,7 +174,7 @@ do_jffs2_chpart(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 
 	if (jffs2_part_info(tmp_part)){
-		printf("Partiton changed to %d\n",tmp_part);
+		printf("Partition changed to %d\n",tmp_part);
 		part_num=tmp_part;
 		return 0;
 	}

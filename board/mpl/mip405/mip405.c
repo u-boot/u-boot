@@ -667,9 +667,16 @@ static int test_dram (unsigned long ramsize)
 /* used to check if the time in RTC is valid */
 static unsigned long start;
 static struct rtc_time tm;
+extern flash_info_t flash_info[];	/* info for FLASH chips */
 
 int misc_init_r (void)
 {
+	DECLARE_GLOBAL_DATA_PTR;
+	/* adjust flash start and size as well as the offset */
+	gd->bd->bi_flashstart=0-flash_info[0].size;
+	gd->bd->bi_flashsize=flash_info[0].size-CFG_MONITOR_LEN;
+	gd->bd->bi_flashoffset=0;
+
 	/* check, if RTC is running */
 	rtc_get (&tm);
 	start=get_timer(0);

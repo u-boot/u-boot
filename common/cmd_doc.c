@@ -861,8 +861,13 @@ static int find_boot_record(struct NFTLrecord *nftl)
 		memcpy(mh, buf, sizeof(struct NFTLMediaHeader));
 
 		/* Do some sanity checks on it */
-		if (mh->UnitSizeFactor != 0xff) {
-			puts ("Sorry, we don't support UnitSizeFactor "
+		if (mh->UnitSizeFactor == 0) {
+#ifdef NFTL_DEBUG
+			puts ("UnitSizeFactor 0x00 detected.\n"
+			      "This violates the spec but we think we know what it means...\n");
+#endif
+		} else if (mh->UnitSizeFactor != 0xff) {
+			printf ("Sorry, we don't support UnitSizeFactor "
 			      "of != 1 yet.\n");
 			return -1;
 		}
@@ -950,6 +955,8 @@ static void DoC2k_init(struct DiskOnChip* this)
 
 	/* Ident all the chips present. */
 	DoC_ScanChips(this);
+	if ((!this->numchips) || (!this->chips))
+		return;
 
 	nftl = &this->nftl;
 

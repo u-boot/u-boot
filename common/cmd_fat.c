@@ -36,76 +36,179 @@
 
 #include <fat.h>
 
-extern block_dev_desc_t *ide_get_dev (int dev);
+
+
+
+block_dev_desc_t *get_dev (char* ifname, int dev)
+{
+#if (CONFIG_COMMANDS & CFG_CMD_IDE)
+	if (strncmp(ifname,"ide",3)==0) {
+		extern block_dev_desc_t * ide_get_dev(int dev);
+		return(ide_get_dev(dev));
+	}
+#endif
+#if (CONFIG_COMMANDS & CFG_CMD_SCSI)
+	if (strncmp(ifname,"scsi",4)==0) {
+		extern block_dev_desc_t * scsi_get_dev(int dev);
+		return(scsi_get_dev(dev));
+	}
+#endif
+#if ((CONFIG_COMMANDS & CFG_CMD_USB) && defined(CONFIG_USB_STORAGE))
+	if (strncmp(ifname,"usb",3)==0) {
+		extern block_dev_desc_t * usb_stor_get_dev(int dev);
+		return(usb_stor_get_dev(dev));
+	}
+#endif
+#if defined(CONFIG_MMC)
+	if (strncmp(ifname,"mmc",3)==0) {
+		extern block_dev_desc_t *  mmc_get_dev(int dev);
+		return(mmc_get_dev(dev));
+	}
+#endif
+	return NULL;
+}
+
 
 int do_fat_fsload (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	long size;
 	unsigned long offset;
 	unsigned long count;
+	block_dev_desc_t *dev_desc=NULL;
+	int dev=0;
+	int part=1;
+	char *ep;
 
-	if (argc < 3) {
-		printf ("usage:fatload <filename> <addr> [bytes]\n");
+	if (argc < 5) {
+		printf ("usage: fatload <interface> <dev[:part]> <addr> <filename> [bytes]\n");
 		return (0);
 	}
-
-	offset = simple_strtoul (argv[2], NULL, 16);
-	if (argc == 4)
-		count = simple_strtoul (argv[3], NULL, 16);
+	dev = (int)simple_strtoul (argv[2], &ep, 16);
+	dev_desc=get_dev(argv[1],dev);
+	if (dev_desc==NULL) {
+		puts ("\n** Invalid boot device **\n");
+		return 1;
+	}
+	if (*ep) {
+		if (*ep != ':') {
+			puts ("\n** Invalid boot device, use `dev[:part]' **\n");
+			return 1;
+		}
+		part = (int)simple_strtoul(++ep, NULL, 16);
+	}
+	if (fat_register_device(dev_desc,part)!=0) {
+		printf ("\n** Unable to use %s %d:%d for fatload **\n",argv[1],dev,part);
+		return 1;
+	}
+	offset = simple_strtoul (argv[3], NULL, 16);
+	if (argc == 6)
+		count = simple_strtoul (argv[5], NULL, 16);
 	else
 		count = 0;
+	size = file_fat_read (argv[4], (unsigned char *) offset, count);
 
-	size = file_fat_read (argv[1], (unsigned char *) offset, count);
-
-	printf ("%ld bytes read\n", size);
+	if(size==-1)
+		printf("\n** Unable to read \"%s\" from %s %d:%d **\n",argv[4],argv[1],dev,part);
+	else
+		printf ("\n%ld bytes read\n", size);
 
 	return size;
 }
 
+
+
+
 U_BOOT_CMD(
-	fatload,	4,	0,	do_fat_fsload,
+	fatload,	6,	0,	do_fat_fsload,
 	"fatload - load binary file from a dos filesystem\n",
-	"[ off ] [ filename ]\n"
-	"    - load binary file from dos filesystem\n"
-	"      with offset 'off'\n"
+	"<interface> <dev[:part]>  <addr> <filename> [bytes]\n"
+	"    - load binary file 'filename' from 'dev' on 'interface'\n"
+	"      to address 'addr' from dos filesystem\n"
 );
 
 int do_fat_ls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	char *filename = "/";
 	int ret;
+	int dev=0;
+	int part=1;
+	char *ep;
+	block_dev_desc_t *dev_desc=NULL;
 
-	if (argc == 2)
-		ret = file_fat_ls (argv[1]);
+	if (argc < 3) {
+		printf ("usage: fatls <interface> <dev[:part]> [directory]\n");
+		return (0);
+	}
+	dev = (int)simple_strtoul (argv[2], &ep, 16);
+	dev_desc=get_dev(argv[1],dev);
+	if (dev_desc==NULL) {
+		puts ("\n** Invalid boot device **\n");
+		return 1;
+	}
+	if (*ep) {
+		if (*ep != ':') {
+			puts ("\n** Invalid boot device, use `dev[:part]' **\n");
+			return 1;
+		}
+		part = (int)simple_strtoul(++ep, NULL, 16);
+	}
+	if (fat_register_device(dev_desc,part)!=0) {
+		printf ("\n** Unable to use %s %d:%d for fatls **\n",argv[1],dev,part);
+		return 1;
+	}
+	if (argc == 4)
+		ret = file_fat_ls (argv[3]);
 	else
 		ret = file_fat_ls (filename);
 
+	if(ret!=0)
+		printf("No Fat FS detected\n");
 	return (ret);
 }
 
 U_BOOT_CMD(
-	fatls,	2,	1,	do_fat_ls,
+	fatls,	4,	1,	do_fat_ls,
 	"fatls   - list files in a directory (default /)\n",
-	"[ directory ]\n"
-	"    - list files in a directory\n"
+	"<interface> <dev[:part]> [directory]\n"
+	"    - list files from 'dev' on 'interface' in a 'directory'\n"
 );
 
 int do_fat_fsinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	int ret;
+	int dev=0;
+	int part=1;
+	char *ep;
+	block_dev_desc_t *dev_desc=NULL;
 
-	ret = 0;
-
-	printf ("FAT info: %d\n", file_fat_detectfs ());
-
-	return (ret);
+	if (argc < 2) {
+		printf ("usage: fatinfo <interface> <dev[:part]>\n");
+		return (0);
+	}
+	dev = (int)simple_strtoul (argv[2], &ep, 16);
+	dev_desc=get_dev(argv[1],dev);
+	if (dev_desc==NULL) {
+		puts ("\n** Invalid boot device **\n");
+		return 1;
+	}
+	if (*ep) {
+		if (*ep != ':') {
+			puts ("\n** Invalid boot device, use `dev[:part]' **\n");
+			return 1;
+		}
+		part = (int)simple_strtoul(++ep, NULL, 16);
+	}
+	if (fat_register_device(dev_desc,part)!=0) {
+		printf ("\n** Unable to use %s %d:%d for fatinfo **\n",argv[1],dev,part);
+		return 1;
+	}
+	return (file_fat_detectfs ());
 }
 
 U_BOOT_CMD(
-	fatinfo,	1,	1,	do_fat_fsinfo,
+	fatinfo,	3,	1,	do_fat_fsinfo,
 	"fatinfo - print information about filesystem\n",
-	"\n"
-	"    - print information about filesystem\n"
+	"<interface> <dev[:part]>\n"
+	"    - print information about filesystem from 'dev' on 'interface'\n"
 );
 
 #ifdef NOT_IMPLEMENTED_YET

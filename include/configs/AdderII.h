@@ -48,10 +48,10 @@
 #define CONFIG_CLOCKS_IN_MHZ	1
 
 /* Monitor Functions */
-#define CONFIG_COMMANDS		( CFG_CMD_FLASH | \
+#define CONFIG_COMMANDS		( CFG_CMD_ENV	| \
+				  CFG_CMD_FLASH | \
 				  CFG_CMD_MEMORY| \
 				  CFG_CMD_NET   | \
-				  CFG_CMD_ENV	| \
 				  CFG_CMD_PING  | \
 				  CFG_CMD_SDRAM )
 

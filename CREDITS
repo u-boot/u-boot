@@ -302,3 +302,9 @@ W: www.elinos.com
 N: Pantelis Antoniou
 E: panto@intracom.gr
 D: NETVIA board support, ARTOS support.
+
+N: Raghu Krishnaprasad
+E: Raghu.Krishnaprasad@fci.com
+D: Support for Adder-II MPC852T evaluation board
+W: http://www.forcecomputers.com
+

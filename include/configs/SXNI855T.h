@@ -145,11 +145,21 @@
 
 #define CONFIG_COMMANDS		(CONFIG_CMD_DFL		| \
 				 CFG_CMD_EEPROM		| \
+				 CFG_CMD_JFFS2		| \
 				 CFG_CMD_NAND		| \
 				 CFG_CMD_DATE)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
+
+#define CFG_JFFS_CUSTOM_PART
+#define CFG_JFFS2_SORT_FRAGMENTS
+/* JFFS2 location when using NOR flash */
+#define CFG_JFFS2_BASE	(CFG_FLASH_BASE + 0x80000)
+#define CFG_JFFS2_SIZE	(0x780000)
+/* JFFS2 location (in RAM) when using NAND flash */
+#define	CFG_JFFS2_RAMBASE 0x400000
+#define	CFG_JFFS2_RAMSIZE 0x200000	/* NAND boot partition is 2MiB	*/
 
 /* NAND flash support */
 #define CONFIG_MTD_NAND_ECC_JFFS2
@@ -405,13 +415,18 @@
 
 #define CONFIG_RESET_ON_PANIC		/* reset if system panic() */
 
-/* to put environment in EEROM */
-#define	CFG_ENV_IS_IN_EEPROM	1
-#define CFG_ENV_OFFSET		0	/* Start right at beginning of NVRAM */
-#define CFG_ENV_SIZE		1024	/* Use only a part of it*/
-
-#if 1
-#define CONFIG_BOOT_RETRY_TIME	60	/* boot if no command in 60 seconds */
+#define CFG_ENV_IS_IN_FLASH
+#ifdef CFG_ENV_IS_IN_FLASH
+  /* environment is in FLASH */
+  #define CFG_ENV_ADDR		0xF8040000	/* AM29LV641 or AM29LV800BT */
+  #define CFG_ENV_ADDR_REDUND	0xF8050000	/* AM29LV641 or AM29LV800BT */
+  #define CFG_ENV_SECT_SIZE	0x00010000
+  #define CFG_ENV_SIZE		0x00002000
+#else
+  /* environment is in EEPROM */
+  #define CFG_ENV_IS_IN_EEPROM		1
+  #define CFG_ENV_OFFSET		0	/* at beginning of EEPROM */
+  #define CFG_ENV_SIZE		     1024	/* Use only a part of it*/
 #endif
 
 #if 1

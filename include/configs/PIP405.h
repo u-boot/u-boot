@@ -50,11 +50,13 @@
 			CFG_CMD_PCI	| \
 			CFG_CMD_CACHE	| \
 			CFG_CMD_IRQ	| \
+			CFG_CMD_ECHO	| \
 			CFG_CMD_EEPROM	| \
 			CFG_CMD_I2C	| \
 			CFG_CMD_REGINFO | \
 			CFG_CMD_FDC	| \
 			CFG_CMD_SCSI	| \
+			CFG_CMD_FAT 	| \
 			CFG_CMD_DATE	| \
 			CFG_CMD_ELF	| \
 			CFG_CMD_USB	| \
@@ -141,7 +143,7 @@
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
-
+#define CONFIG_MISC_INIT_R
 /***********************************************************
  * Miscellaneous configurable options
  **********************************************************/
@@ -231,9 +233,12 @@
 /*
  * Init Memory Controller:
  */
+#define FLASH_MAX_SIZE		0x00800000		/* 8MByte max */
+#define FLASH_BASE_PRELIM	0xFF800000  /* open the flash CS */
+/* Size: 0=1MB, 1=2MB, 2=4MB, 3=8MB, 4=16MB, 5=32MB, 6=64MB, 7=128MB */
+#define FLASH_SIZE_PRELIM	 3  /* maximal flash FLASH size bank #0	*/
 
-#define FLASH_BASE0_PRELIM	0xFFC00000	/* FLASH bank #0	*/
-#define FLASH_BASE1_PRELIM	0		/* FLASH bank #1	*/
+#define CONFIG_BOARD_PRE_INIT
 
 /* Configuration Port location */
 #define CONFIG_PORT_ADDR	0xF4000000
@@ -299,6 +304,7 @@
 #undef	CONFIG_IDE_LED			/* no led for ide supported	*/
 #define CONFIG_IDE_RESET		/* reset for ide supported...	*/
 #define CONFIG_IDE_RESET_ROUTINE	/* with a special reset function */
+#define CONFIG_SUPPORT_VFAT
 
 /************************************************************
  * ATAPI support (experimental)

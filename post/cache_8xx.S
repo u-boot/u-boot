@@ -27,8 +27,7 @@
     defined(CONFIG_MPC850) || \
     defined(CONFIG_MPC855) || \
     defined(CONFIG_MPC860) || \
-    defined(CONFIG_MPC862) || \
-    defined(CONFIG_MPC824X)
+    defined(CONFIG_MPC862)
 
 #include <post.h>
 #include <ppc_asm.tmpl>
@@ -491,6 +490,6 @@ cache_post_test6_data:
 	mtlr	r0
 	blr
 
-#endif /* CONFIG_MPC823 || MPC850 || MPC855 || MPC860 || MPC824X */
+#endif /* CONFIG_MPC823 || MPC850 || MPC855 || MPC860 */
 #endif /* CONFIG_POST & CFG_POST_CACHE */
 #endif /* CONFIG_POST */

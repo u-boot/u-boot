@@ -375,138 +375,6 @@ void show_stdio_dev(void)
 	}
 }
 
-/* ------------------------------------------------------------------------- */
-
-	/* switches the cs0 and the cs1 to the locations.
-	   When boot is TRUE, the the mapping is switched
-	   to the boot configuration, If it is FALSE, the
-	   flash will be switched in the boot area */
-
-#undef SW_CS_DBG
-#ifdef SW_CS_DBG
-#define	SW_CS_PRINTF(fmt,args...)	printf (fmt ,##args)
-#else
-#define SW_CS_PRINTF(fmt,args...)
-#endif
-
-#if defined(CONFIG_PIP405) || defined(CONFIG_MIP405)
-int switch_cs(unsigned char boot)
-{
-	unsigned long pbcr;
-	int mode;
-
-	mode=get_boot_mode();
-	mtdcr(ebccfga, pb0cr);
-	pbcr = mfdcr (ebccfgd);
-	if (mode & BOOT_MPS) {
-		/* Boot width = 8 bit MPS Boot, set up MPS on CS0 */
-		/* we need only to switch if boot from MPS */
-		/* printf(" MPS boot mode detected. ");*/
-		/* printf("cs0 cfg: %lx\n",pbcr); */
-		if(boot) {
-			/* switch to boot configuration */
-			/* this is a 8bit boot, switch cs0 to flash location */
-			SW_CS_PRINTF("switch to boot mode (MPS on High address\n");
-			pbcr&=0x000FFFFF; /*mask base address of the cs0 */
-			pbcr|=(FLASH_BASE0_PRELIM & 0xFFF00000);
-			mtdcr(ebccfga, pb0cr);
-			mtdcr(ebccfgd, pbcr);
-			SW_CS_PRINTF("  new cs0 cfg: %lx\n",pbcr);
-			mtdcr(ebccfga, pb1cr); /* get cs1 config reg (flash) */
-			pbcr = mfdcr(ebccfgd);
-			SW_CS_PRINTF(" old cs1 cfg: %lx\n",pbcr);
-			pbcr&=0x000FFFFF; /*mask base address of the cs1 */
-			pbcr|=(MULTI_PURPOSE_SOCKET_ADDR & 0xFFF00000);
-			mtdcr(ebccfga, pb1cr);
-			mtdcr(ebccfgd, pbcr);
-			SW_CS_PRINTF("  new cs1 cfg: %lx, MPS is on High Address\n",pbcr);
-		}
-		else {
-			/* map flash to boot area, */
-			SW_CS_PRINTF("map Flash to boot area\n");
-			pbcr&=0x000FFFFF; /*mask base address of the cs0 */
-			pbcr|=(MULTI_PURPOSE_SOCKET_ADDR & 0xFFF00000);
-			mtdcr(ebccfga, pb0cr);
-			mtdcr(ebccfgd, pbcr);
-			SW_CS_PRINTF("  new cs0 cfg: %lx\n",pbcr);
-			mtdcr(ebccfga, pb1cr); /* get cs1 config reg (flash) */
-			pbcr = mfdcr(ebccfgd);
-			SW_CS_PRINTF("  cs1 cfg: %lx\n",pbcr);
-			pbcr&=0x000FFFFF; /*mask base address of the cs1 */
-			pbcr|=(FLASH_BASE0_PRELIM & 0xFFF00000);
-			mtdcr(ebccfga, pb1cr);
-			mtdcr(ebccfgd, pbcr);
-			SW_CS_PRINTF("  new cs1 cfg: %lx Flash is on High Address\n",pbcr);
-		}
-		return 1;
-	}
-	else {
-		SW_CS_PRINTF("Normal boot, no switching necessary\n");
-		return 0;
-	}
-
-}
-
-int get_boot_mode(void)
-{
-	unsigned long pbcr;
-	int res = 0;
-	pbcr = mfdcr (strap);
-	if ((pbcr & PSR_ROM_WIDTH_MASK) == 0)
-		/* boot via MPS or MPS mapping */
-		res = BOOT_MPS;
-	if(pbcr & PSR_ROM_LOC)
-		/* boot via PCI.. */
-		res |= BOOT_PCI;
-	 return res;
-}
-
-/* Setup cs0 parameter finally.
-   Map the flash high (in boot area)
-   This code can only be executed from SDRAM (after relocation).
-*/
-void setup_cs_reloc(void)
-{
-	unsigned long pbcr;
-	/* Since we are relocated, we can set-up the CS finaly
-	 * but first of all, switch off PCI mapping (in case it was a PCI boot) */
-	out32r(PMM0MA,0L);
-	icache_enable (); /* we are relocated */
-	/* for PCI Boot, we have to set-up the remaining CS correctly */
-	pbcr = mfdcr (strap);
-	if(pbcr & PSR_ROM_LOC) {
-		/* boot via PCI.. */
-		if ((pbcr & PSR_ROM_WIDTH_MASK) == 0) {
-		/* Boot width = 8 bit MPS Boot, set up MPS on CS0 */
-			#ifdef DEBUG
-			printf("Mapping MPS to CS0 @ 0x%lx\n",(MPS_CR_B & 0xfff00000));
-			#endif
-			mtdcr (ebccfga, pb0ap);
-			mtdcr (ebccfgd, MPS_AP);
-			mtdcr (ebccfga, pb0cr);
-			mtdcr (ebccfgd, MPS_CR_B);
-		}
-		else {
-			/* Flash boot, set up the Flash on CS0 */
-			#ifdef DEBUG
-			printf("Mapping Flash to CS0 @ 0x%lx\n",(FLASH_CR_B & 0xfff00000));
-			#endif
-			mtdcr (ebccfga, pb0ap);
-			mtdcr (ebccfgd, FLASH_AP);
-			mtdcr (ebccfga, pb0cr);
-			mtdcr (ebccfgd, FLASH_CR_B);
-		}
-	}
-	switch_cs(0); /* map Flash High */
-}
-
-
-#elif defined(CONFIG_VCMA9)
-int switch_cs(unsigned char boot)
-{
-    return 0;
-}
-#endif /* CONFIG_VCMA9 */
 
 int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
@@ -625,6 +493,7 @@ void doc_init (void)
 
 #ifdef CONFIG_CONSOLE_EXTRA_INFO
 extern GraphicDevice ctfb;
+extern int get_boot_mode(void);
 
 void video_get_info_str (int line_number, char *info)
 {

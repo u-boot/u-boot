@@ -41,17 +41,21 @@
 
 #define _LINUX_CONFIG_H 1	/* avoid reading Linux autoconf.h file	*/
 
-#include "configs/PIP405.h"
+#include <configs/PIP405.h>
 #include <ppc_asm.tmpl>
 #include <ppc_defs.h>
 
 #include <asm/cache.h>
 #include <asm/mmu.h>
+#include "pip405.h"
 
+  .globl ext_bus_cntlr_init
+ ext_bus_cntlr_init:
+  mflr   r4                      /* save link register */
+  mfdcr  r3,strap                /* get strapping reg */
+  andi.  r0, r3, PSR_ROM_LOC     /* mask out irrelevant bits */
+  bnelr                          /* jump back if PCI boot */
 
-	.globl	ext_bus_cntlr_init
-ext_bus_cntlr_init:
-  mflr    r4                      /* save link register */
   bl      ..getAddr
 ..getAddr:
   mflr    r3                      /* get address of ..getAddr */
@@ -82,7 +86,7 @@ ext_bus_cntlr_init:
 	mfdcr		r4,ebccfgd
 
 	andi.		r0, r4, 0x2000			/* mask out irrelevant bits */
-	beq			0f									/* jump if 8 bit bus width */
+	beq		0f				/* jump if 8 bit bus width */
 
 	/* setup 16 bit things
    *-----------------------------------------------------------------------
@@ -90,74 +94,49 @@ ext_bus_cntlr_init:
    *---------------------------------------------------------------------- */
 
 	addi    r4,0,pb0ap
-  mtdcr   ebccfga,r4
-  addis   r4,0,0x9B01
-  ori     r4,r4,0x5480
-  mtdcr   ebccfgd,r4
+	mtdcr   ebccfga,r4
+	addis   r4,0,(FLASH_AP_B)@h
+	ori     r4,r4,(FLASH_AP_B)@l
+	mtdcr   ebccfgd,r4
 
-  addi    r4,0,pb0cr
-  mtdcr   ebccfga,r4
-	/* BS=0x011(8MB),BU=0x3(R/W), */
-  addis   r4,0,((FLASH_BASE0_PRELIM & 0xFFF00000) | 0x00050000)@h
-  ori     r4,r4,0xA000          /* BW=0x01(16 bits) */
-  mtdcr   ebccfgd,r4
-
-  /*-----------------------------------------------------------------------
-   * Memory Bank 1 (Multi Purpose Socket) initialization
-   *----------------------------------------------------------------------*/
-  addi    r4,0,pb1ap
-  mtdcr   ebccfga,r4
-  addis   r4,0,0x0281
-  ori     r4,r4,0x5480
-  mtdcr   ebccfgd,r4
-
-  addi    r4,0,pb1cr
-  mtdcr   ebccfga,r4
-  /* BS=0x011(8MB),BU=0x3(R/W), */
-  addis   r4,0,((MULTI_PURPOSE_SOCKET_ADDR & 0xFFF00000) | 0x00050000)@h
-  ori     r4,r4,0x8000          /* BW=0x0( 8 bits) */
-  mtdcr   ebccfgd,r4
+	addi    r4,0,pb0cr
+	mtdcr   ebccfga,r4
+	/* BS=0x010(4MB),BU=0x3(R/W), */
+	addis   r4,0,(FLASH_CR_B)@h
+	ori     r4,r4,(FLASH_CR_B)@l
+	mtdcr   ebccfgd,r4
 	b				1f
 
 0:
-  /* 8Bit boot mode: */
+	/* 8Bit boot mode: */
 	/*-----------------------------------------------------------------------
-   * Memory Bank 0 Multi Purpose Socket initialization
-   *----------------------------------------------------------------------- */
-
+	* Memory Bank 0 Multi Purpose Socket initialization
+	*----------------------------------------------------------------------- */
+	/* 0x7F8FFE80 slowest boot */
 	addi    r4,0,pb0ap
-  mtdcr   ebccfga,r4
-  addis   r4,0,0x9B01
-  ori     r4,r4,0x5480
-  mtdcr   ebccfgd,r4
+	mtdcr   ebccfga,r4
+	addis   r4,0,(MPS_AP_B)@h
+	ori     r4,r4,(MPS_AP_B)@l
+	mtdcr   ebccfgd,r4
 
-  addi    r4,0,pb0cr
-  mtdcr   ebccfga,r4
-	/* BS=0x011(4MB),BU=0x3(R/W), */
-  addis   r4,0,((FLASH_BASE0_PRELIM & 0xFFF00000) | 0x00050000)@h
-  ori     r4,r4,0x8000          /* BW=0x0( 8 bits) */
-  mtdcr   ebccfgd,r4
+	addi    r4,0,pb0cr
+	mtdcr   ebccfga,r4
+	/* BS=0x010(4MB),BU=0x3(R/W), */
+	addis   r4,0,(MPS_CR_B)@h
+	ori     r4,r4,(MPS_CR_B)@l
+	mtdcr   ebccfgd,r4
 
-  /*-----------------------------------------------------------------------
-   * Memory Bank 1 (Flash) initialization
-   *-----------------------------------------------------------------------*/
-  addi    r4,0,pb1ap
-  mtdcr   ebccfga,r4
-  addis   r4,0,0x0281
-  ori     r4,r4,0x5480
-  mtdcr   ebccfgd,r4
-
-  addi    r4,0,pb1cr
-  mtdcr   ebccfga,r4
-  /* BS=0x011(8MB),BU=0x3(R/W), */
-  addis   r4,0,((MULTI_PURPOSE_SOCKET_ADDR & 0xFFF00000) | 0x00050000)@h
-  ori     r4,r4,0xA000          /* BW=0x0( 8 bits) */
-  mtdcr   ebccfgd,r4
 
 1:
   /*-----------------------------------------------------------------------
    * Memory Bank 2-3-4-5-6 (not used) initialization
    *-----------------------------------------------------------------------*/
+  addi    r4,0,pb1cr
+  mtdcr   ebccfga,r4
+  addis   r4,0,0x0000
+  ori     r4,r4,0x0000
+  mtdcr   ebccfgd,r4
+
   addi    r4,0,pb2cr
   mtdcr   ebccfga,r4
   addis   r4,0,0x0000
@@ -182,28 +161,18 @@ ext_bus_cntlr_init:
   ori     r4,r4,0x0000
   mtdcr   ebccfgd,r4
 
-	addi    r4,0,pb6cr
+  addi    r4,0,pb6cr
   mtdcr   ebccfga,r4
   addis   r4,0,0x0000
   ori     r4,r4,0x0000
   mtdcr   ebccfgd,r4
 
-	/*-----------------------------------------------------------------------
-   * Memory Bank 7 (Config Register) initialization
-   *----------------------------------------------------------------------- */
-  addi    r4,0,pb7ap
-  mtdcr   ebccfga,r4
-  addis   r4,0,0x0181	      /* Doc says TWT=3 and Openios TWT=3!! */
-  ori     r4,r4,0x5280          /* disable Ready, BEM=0 */
-  mtdcr   ebccfgd,r4
-
   addi    r4,0,pb7cr
   mtdcr   ebccfga,r4
-	/* BS=0x0(1MB),BU=0x3(R/W), */
-  addis   r4,0,((CONFIG_PORT_ADDR & 0xFFF00000) | 0x00010000)@h
-  ori     r4,r4,0x8000            /* BW=0x0(8 bits) */
+  addis   r4,0,0x0000
+  ori     r4,r4,0x0000
   mtdcr   ebccfgd,r4
-	nop				/* pass2 DCR errata #8 */
+  nop				/* pass2 DCR errata #8 */
   blr
 
 /*-----------------------------------------------------------------------------
@@ -217,3 +186,45 @@ sdram_init:
 
 
   blr
+
+
+#if defined(CONFIG_BOOT_PCI)
+    .section .bootpg,"ax"
+    .globl _start_pci
+/*******************************************
+ */
+
+_start_pci:
+  /* first handle errata #68 / PCI_18 */
+  iccci   r0, r0          /* invalidate I-cache */
+  lis     r31, 0
+  mticcr  r31             /* ICCR = 0 (all uncachable) */
+  isync
+
+  mfccr0  r28             /* set CCR0[24] = 1 */
+  ori     r28, r28, 0x0080
+  mtccr0  r28
+
+  /* setup PMM0MA (0xEF400004) and PMM0PCIHA (0xEF40000C) */
+  lis     r28, 0xEF40
+  addi    r28, r28, 0x0004
+  stw     r31, 0x0C(r28)  /* clear PMM0PCIHA */
+  lis     r29, 0xFFF8     /* open 512 kByte */
+  addi    r29, r29, 0x0001/* and enable this region */
+  stwbrx  r29, r0, r28    /* write PMM0MA */
+
+  lis     r28, 0xEEC0     /* address of PCIC0_CFGADDR */
+  addi    r29, r28, 4     /* add 4 to r29 -> PCIC0_CFGDATA */
+
+  lis     r31, 0x8000     /* set en bit bus 0 */
+  ori     r31, r31, 0x304C/* device 6 func 0 reg 4C (XBCS register) */
+  stwbrx  r31, r0, r28    /* write it */
+
+  lwbrx   r31, r0, r29    /* load XBCS register */
+  oris    r31, r31, 0x02C4/* clear BIOSCS WPE, set lower, extended and 1M extended BIOS enable */
+  stwbrx  r31, r0, r29    /* write back XBCS register */
+
+  nop
+  nop
+  b	_start		/* normal start */
+#endif

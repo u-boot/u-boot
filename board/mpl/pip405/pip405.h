@@ -25,6 +25,7 @@
  * Global routines used for PIP405
  *****************************************************************************/
 
+#ifndef __ASSEMBLY__
 
 extern int  mem_test(unsigned long start, unsigned long ramsize,int mode);
 
@@ -35,13 +36,13 @@ void user_led1(unsigned char on);
 
 
 #define PLD_BASE_ADDRESS		CFG_ISA_IO_BASE_ADDRESS + 0x800
-#define PLD_PART_REG				PLD_BASE_ADDRESS + 0
-#define PLD_VERS_REG				PLD_BASE_ADDRESS + 1
+#define PLD_PART_REG			PLD_BASE_ADDRESS + 0
+#define PLD_VERS_REG			PLD_BASE_ADDRESS + 1
 #define PLD_BOARD_CFG_REG		PLD_BASE_ADDRESS + 2
 #define PLD_LED_USER_REG		PLD_BASE_ADDRESS + 3
 #define PLD_SYS_MAN_REG			PLD_BASE_ADDRESS + 4
 #define PLD_FLASH_COM_REG		PLD_BASE_ADDRESS + 5
-#define PLD_CAN_REG					PLD_BASE_ADDRESS + 6
+#define PLD_CAN_REG			PLD_BASE_ADDRESS + 6
 #define PLD_SER_PWR_REG			PLD_BASE_ADDRESS + 7
 #define PLD_COM_PWR_REG			PLD_BASE_ADDRESS + 8
 #define PLD_NIC_VGA_REG			PLD_BASE_ADDRESS + 9
@@ -50,86 +51,32 @@ void user_led1(unsigned char on);
 #define PIIX4_VENDOR_ID			0x8086
 #define PIIX4_IDE_DEV_ID		0x7111
 
-
-/* timings */
-/* PLD (CS7) */
-#define PLD_BME	0 	/* Burst disable */
-#define PLD_TWE	5	/* 5 * 30ns 120ns Waitstates (access=TWT+1+TH) */
-#define PLD_CSN	1	/* Chipselect is driven inactive for 1 Cycle BTW transfers */
-#define PLD_OEN	1	/* Cycles from CS low to OE low   */
-#define PLD_WBN	1	/* Cycles from CS low to WE low   */
-#define PLD_WBF	1	/* Cycles from WE high to CS high */
-#define PLD_TH	2	/* Number of hold cycles after transfer */
-#define PLD_RE	0	/* Ready disabled */
-#define PLD_SOR	1	/* Sample on Ready disabled */
-#define PLD_BEM	0	/* Byte Write only active on Write cycles */
-#define PLD_PEN	0	/* Parity disable */
-#define PLD_AP 	((PLD_BME << 31) + (PLD_TWE << 23) + (PLD_CSN << 18) + (PLD_OEN << 16) + (PLD_WBN << 14) + \
-					(PLD_WBF << 12) + (PLD_TH << 9) + (PLD_RE << 8) + (PLD_SOR << 7) + (PLD_BEM << 6) + (PLD_PEN << 5))
-
-/* Size: 0=1MB, 1=2MB, 2=4MB, 3=8MB, 4=16MB, 5=32MB, 6=64MB, 7=128MB */
-#define PLD_BS	0	/* 1 MByte */
-/* Usage: 0=disabled, 1=Read only, 2=Write Only, 3=R/W */
-#define PLD_BU	3	/* R/W */
-/* Bus width: 0=8Bit, 1=16Bit, 2=32Bit, 3=Reserved */
-#define PLD_BW	0	/* 16Bit */
-#define PLD_CR	((PER_PLD_ADDR & 0xfff00000) + (PLD_BS << 17) + (PLD_BU << 15) + (PLD_BW << 13))
-
+#endif
 
 /* timings */
 
-#define PER_BOARD_ADDR (PER_UART1_ADDR+(1024*1024))
-/* Dummy CS to get the board revision */
-#define BOARD_BME	0 	/* Burst disable */
-#define BOARD_TWE	255	/* 255 * 30ns 120ns Waitstates (access=TWT+1+TH) */
-#define BOARD_CSN	1	/* Chipselect is driven inactive for 1 Cycle BTW transfers */
-#define BOARD_OEN	1	/* Cycles from CS low to OE low   */
-#define BOARD_WBN	1	/* Cycles from CS low to WE low   */
-#define BOARD_WBF	1	/* Cycles from WE high to CS high */
-#define BOARD_TH	2	/* Number of hold cycles after transfer */
-#define BOARD_RE	0	/* Ready disabled */
-#define BOARD_SOR	1	/* Sample on Ready disabled */
-#define BOARD_BEM	0	/* Byte Write only active on Write cycles */
-#define BOARD_PEN	0	/* Parity disable */
-#define BOARD_AP 	((BOARD_BME << 31) + (BOARD_TWE << 23) + (BOARD_CSN << 18) + (BOARD_OEN << 16) + (BOARD_WBN << 14) + \
-					(BOARD_WBF << 12) + (BOARD_TH << 9) + (BOARD_RE << 8) + (BOARD_SOR << 7) + (BOARD_BEM << 6) + (BOARD_PEN << 5))
+/* CS Config register (CS7) */
+#define CONFIG_PORT_BME	0 	/* Burst disable */
+#define CONFIG_PORT_TWE	255	/* 255 * 30ns 120ns Waitstates (access=TWT+1+TH) */
+#define CONFIG_PORT_CSN	1	/* Chipselect is driven inactive for 1 Cycle BTW transfers */
+#define CONFIG_PORT_OEN	1	/* Cycles from CS low to OE low   */
+#define CONFIG_PORT_WBN	1	/* Cycles from CS low to WE low   */
+#define CONFIG_PORT_WBF	1	/* Cycles from WE high to CS high */
+#define CONFIG_PORT_TH	2	/* Number of hold cycles after transfer */
+#define CONFIG_PORT_RE	0	/* Ready disabled */
+#define CONFIG_PORT_SOR	1	/* Sample on Ready disabled */
+#define CONFIG_PORT_BEM	0	/* Byte Write only active on Write cycles */
+#define CONFIG_PORT_PEN	0	/* Parity disable */
+#define CONFIG_PORT_AP 	((CONFIG_PORT_BME << 31) + (CONFIG_PORT_TWE << 23) + (CONFIG_PORT_CSN << 18) + (CONFIG_PORT_OEN << 16) + (CONFIG_PORT_WBN << 14) + \
+				(CONFIG_PORT_WBF << 12) + (CONFIG_PORT_TH << 9) + (CONFIG_PORT_RE << 8) + (CONFIG_PORT_SOR << 7) + (CONFIG_PORT_BEM << 6) + (CONFIG_PORT_PEN << 5))
 
 /* Size: 0=1MB, 1=2MB, 2=4MB, 3=8MB, 4=16MB, 5=32MB, 6=64MB, 7=128MB */
-#define BOARD_BS	0	/* 1 MByte */
+#define CONFIG_PORT_BS	0	/* 1 MByte */
 /* Usage: 0=disabled, 1=Read only, 2=Write Only, 3=R/W */
-#define BOARD_BU	3	/* R/W */
+#define CONFIG_PORT_BU	3	/* R/W */
 /* Bus width: 0=8Bit, 1=16Bit, 2=32Bit, 3=Reserved */
-#define BOARD_BW	0	/* 16Bit */
-#define BOARD_CR	((PER_BOARD_ADDR & 0xfff00000) + (BOARD_BS << 17) + (BOARD_BU << 15) + (BOARD_BW << 13))
-
-
-/* UART0 CS2 */
-#define UART0_BME	0 	/* Burst disable */
-#define UART0_TWE	7	/* 7 * 30ns 210ns Waitstates (access=TWT+1+TH) */
-#define UART0_CSN	1	/* Chipselect is driven inactive for 1 Cycle BTW transfers */
-#define UART0_OEN	1	/* Cycles from CS low to OE low   */
-#define UART0_WBN	1	/* Cycles from CS low to WE low   */
-#define UART0_WBF	1	/* Cycles from WE high to CS high */
-#define UART0_TH	2	/* Number of hold cycles after transfer */
-#define UART0_RE	0	/* Ready disabled */
-#define UART0_SOR	1	/* Sample on Ready disabled */
-#define UART0_BEM	0	/* Byte Write only active on Write cycles */
-#define UART0_PEN	0	/* Parity disable */
-#define UART0_AP 	((UART0_BME << 31) + (UART0_TWE << 23) + (UART0_CSN << 18) + (UART0_OEN << 16) + (UART0_WBN << 14) + \
-					(UART0_WBF << 12) + (UART0_TH << 9) + (UART0_RE << 8) + (UART0_SOR << 7) + (UART0_BEM << 6) + (UART0_PEN << 5))
-
-/* Size: 0=1MB, 1=2MB, 2=4MB, 3=8MB, 4=16MB, 5=32MB, 6=64MB, 7=128MB */
-#define UART0_BS	0	/* 1 MByte */
-/* Usage: 0=disabled, 1=Read only, 2=Write Only, 3=R/W */
-#define UART0_BU	3	/* R/W */
-/* Bus width: 0=8Bit, 1=16Bit, 2=32Bit, 3=Reserved */
-#define UART0_BW	0	/* 8Bit */
-#define UART0_CR	((PER_UART0_ADDR & 0xfff00000) + (UART0_BS << 17) + (UART0_BU << 15) + (UART0_BW << 13))
-
-/* UART1 CS3 */
-#define UART1_AP UART0_AP /* same timing as UART0 */
-#define UART1_CR	((PER_UART1_ADDR & 0xfff00000) + (UART0_BS << 17) + (UART0_BU << 15) + (UART0_BW << 13))
-
+#define CONFIG_PORT_BW	0	/* 16Bit */
+#define CONFIG_PORT_CR	((CONFIG_PORT_ADDR & 0xfff00000) + (CONFIG_PORT_BS << 17) + (CONFIG_PORT_BU << 15) + (CONFIG_PORT_BW << 13))
 
 /* Flash CS0 or CS 1 */
 /* 0x7F8FFE80 slowest timing at all... */
@@ -149,19 +96,19 @@ void user_led1(unsigned char on);
 #define FLASH_PEN	0	/* Parity disable */
 /* Access Parameter Register for non Boot */
 #define FLASH_AP 	((FLASH_BME << 31) + (FLASH_TWE << 23) + (FLASH_CSN << 18) + (FLASH_OEN << 16) + (FLASH_WBN << 14) + \
-					(FLASH_WBF << 12) + (FLASH_TH << 9) + (FLASH_RE << 8) + (FLASH_SOR << 7) + (FLASH_BEM << 6) + (FLASH_PEN << 5))
+				(FLASH_WBF << 12) + (FLASH_TH << 9) + (FLASH_RE << 8) + (FLASH_SOR << 7) + (FLASH_BEM << 6) + (FLASH_PEN << 5))
 /* Access Parameter Register for Boot */
 #define FLASH_AP_B 	((FLASH_BME_B << 31) + (FLASH_FWT_B << 26) + (FLASH_BWT_B << 23) + (FLASH_CSN << 18) + (FLASH_OEN << 16) + (FLASH_WBN << 14) + \
-					(FLASH_WBF << 12) + (FLASH_TH << 9) + (FLASH_RE << 8) + (FLASH_SOR << 7) + (FLASH_BEM << 6) + (FLASH_PEN << 5))
+				(FLASH_WBF << 12) + (FLASH_TH << 9) + (FLASH_RE << 8) + (FLASH_SOR << 7) + (FLASH_BEM << 6) + (FLASH_PEN << 5))
 
 /* Size: 0=1MB, 1=2MB, 2=4MB, 3=8MB, 4=16MB, 5=32MB, 6=64MB, 7=128MB */
-#define FLASH_BS	2	/* 4 MByte */
+#define FLASH_BS	FLASH_SIZE_PRELIM	/* 4 MByte */
 /* Usage: 0=disabled, 1=Read only, 2=Write Only, 3=R/W */
 #define FLASH_BU	3	/* R/W */
 /* Bus width: 0=8Bit, 1=16Bit, 2=32Bit, 3=Reserved */
 #define FLASH_BW	1	/* 16Bit */
 /* CR register for Boot */
-#define FLASH_CR_B	((FLASH_BASE0_PRELIM & 0xfff00000) + (FLASH_BS << 17) + (FLASH_BU << 15) + (FLASH_BW << 13))
+#define FLASH_CR_B	((FLASH_BASE_PRELIM & 0xfff00000) + (FLASH_BS << 17) + (FLASH_BU << 15) + (FLASH_BW << 13))
 /* CR register for non Boot */
 #define FLASH_CR	((MULTI_PURPOSE_SOCKET_ADDR & 0xfff00000) + (FLASH_BS << 17) + (FLASH_BU << 15) + (FLASH_BW << 13))
 
@@ -183,18 +130,19 @@ void user_led1(unsigned char on);
 #define MPS_PEN		0	/* Parity disable */
 /* Access Parameter Register for non Boot */
 #define MPS_AP 		((MPS_BME << 31) + (MPS_TWE << 23) + (MPS_CSN << 18) + (MPS_OEN << 16) + (MPS_WBN << 14) + \
-					(MPS_WBF << 12) + (MPS_TH << 9) + (MPS_RE << 8) + (MPS_SOR << 7) + (MPS_BEM << 6) + (MPS_PEN << 5))
+				(MPS_WBF << 12) + (MPS_TH << 9) + (MPS_RE << 8) + (MPS_SOR << 7) + (MPS_BEM << 6) + (MPS_PEN << 5))
 /* Access Parameter Register for Boot */
-#define MPS_AP_B 		((MPS_BME_B << 31) + (MPS_FWT_B << 26) + (MPS_BWT_B << 23) + (MPS_CSN << 18) + (MPS_OEN << 16) + (MPS_WBN << 14) + \
-					(MPS_WBF << 12) + (MPS_TH << 9) + (MPS_RE << 8) + (MPS_SOR << 7) + (MPS_BEM << 6) + (MPS_PEN << 5))
+#define MPS_AP_B 	((MPS_BME_B << 31) + (MPS_FWT_B << 26) + (MPS_BWT_B << 23) + (MPS_CSN << 18) + (MPS_OEN << 16) + (MPS_WBN << 14) + \
+				(MPS_WBF << 12) + (MPS_TH << 9) + (MPS_RE << 8) + (MPS_SOR << 7) + (MPS_BEM << 6) + (MPS_PEN << 5))
 
 /* Size: 0=1MB, 1=2MB, 2=4MB, 3=8MB, 4=16MB, 5=32MB, 6=64MB, 7=128MB */
 #define MPS_BS		2	/* 4 MByte */
+#define MPS_BS_B		FLASH_SIZE_PRELIM	/* 1 MByte */
 /* Usage: 0=disabled, 1=Read only, 2=Write Only, 3=R/W */
 #define MPS_BU		3	/* R/W */
 /* Bus width: 0=8Bit, 1=16Bit, 2=32Bit, 3=Reserved */
 #define MPS_BW		0	/* 8Bit */
 /* CR register for Boot */
-#define MPS_CR_B	((FLASH_BASE0_PRELIM & 0xfff00000) + (MPS_BS << 17) + (MPS_BU << 15) + (MPS_BW << 13))
+#define MPS_CR_B	((FLASH_BASE_PRELIM & 0xfff00000) + (MPS_BS << 17) + (MPS_BU << 15) + (MPS_BW << 13))
 /* CR register for non Boot */
 #define MPS_CR		((MULTI_PURPOSE_SOCKET_ADDR & 0xfff00000) + (MPS_BS << 17) + (MPS_BU << 15) + (MPS_BW << 13))

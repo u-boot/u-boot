@@ -29,6 +29,7 @@
 #include <config.h>
 #include <fat.h>
 #include <asm/byteorder.h>
+#include <part.h>
 
 #if (CONFIG_COMMANDS & CFG_CMD_FAT)
 
@@ -44,26 +45,70 @@ downcase(char *str)
 	}
 }
 
-int (*dev_block_read)(int device, __u32 blknr, __u32 blkcnt, __u8 *buffer) = 0;
+static  block_dev_desc_t *cur_dev = NULL;
+static unsigned long part_offset = 0;
+static int cur_part = 1;
+
+#define DOS_PART_TBL_OFFSET	0x1be
+#define DOS_PART_MAGIC_OFFSET	0x1fe
+#define DOS_FS_TYPE_OFFSET	0x36
 
 int disk_read (__u32 startblock, __u32 getsize, __u8 * bufptr)
 {
-	/* FIXME we need to determine the start block of the
-	 * partition where the DOS FS resides
-	 */
-	startblock += 32;
-
-	if (dev_block_read) {
-		return dev_block_read (0, startblock, getsize, bufptr);
+	startblock += part_offset;
+	if (cur_dev == NULL)
+		return -1;
+	if (cur_dev->block_read) {
+		return cur_dev->block_read (cur_dev->dev, startblock, getsize, (unsigned long *)bufptr);
 	}
 	return -1;
 }
 
 
 int
-fat_register_read (int (*block_read)(int, __u32, __u32, __u8 *))
+fat_register_device(block_dev_desc_t *dev_desc, int part_no)
 {
-	dev_block_read = block_read;
+	unsigned char buffer[SECTOR_SIZE];
+
+	if (!dev_desc->block_read)
+		return -1;
+	cur_dev=dev_desc;
+	/* check if we have a MBR (on floppies we have only a PBR) */
+	if (dev_desc->block_read (dev_desc->dev, 0, 1, (ulong *) buffer) != 1) {
+		printf ("** Can't read from device %d **\n", dev_desc->dev);
+		return -1;
+	}
+	if (buffer[DOS_PART_MAGIC_OFFSET] != 0x55 ||
+		buffer[DOS_PART_MAGIC_OFFSET + 1] != 0xaa) {
+		/* no signature found */
+		return -1;
+	}
+	if(!strncmp(&buffer[DOS_FS_TYPE_OFFSET],"FAT",3)) {
+		/* ok, we assume we are on a PBR only */
+		cur_part = 1;
+		part_offset=0;
+	}
+	else {
+#if (CONFIG_COMMANDS & CFG_CMD_IDE) || (CONFIG_COMMANDS & CFG_CMD_SCSI)
+		disk_partition_t info;
+		if(!get_partition_info(dev_desc, part_no, &info)) {
+			part_offset = info.start;
+			cur_part = part_no;
+		}
+		else {
+			printf ("** Partition %d not valid on device %d **\n",part_no,dev_desc->dev);
+			return -1;
+		}
+#else
+		/* FIXME we need to determine the start block of the
+		 * partition where the DOS FS resides. This can be done
+		 * by using the get_partition_info routine. For this
+		 * purpose the libpart must be included.
+		 */
+		part_offset=32;
+		cur_part = 1;
+#endif
+	}
 	return 0;
 }
 
@@ -246,25 +291,21 @@ get_cluster(fsdata *mydata, __u32 clustnum, __u8 *buffer, unsigned long size)
 	}
 
 	FAT_DPRINT("gc - clustnum: %d, startsect: %d\n", clustnum, startsect);
-	while (size > 0) {
-		if (size >= FS_BLOCK_SIZE) {
-			if (disk_read(startsect + idx, 1, buffer) < 0) {
-				FAT_DPRINT("Error reading data\n");
-				return -1;
-			}
-		} else {
-			__u8 tmpbuf[FS_BLOCK_SIZE];
-			if (disk_read(startsect + idx, 1, tmpbuf) < 0) {
-				FAT_DPRINT("Error reading data\n");
-				return -1;
-			}
-			memcpy(buffer, tmpbuf, size);
-
-			return 0;
+	if (disk_read(startsect, size/FS_BLOCK_SIZE , buffer) < 0) {
+		FAT_DPRINT("Error reading data\n");
+		return -1;
+	}
+	if(size % FS_BLOCK_SIZE) {
+		__u8 tmpbuf[FS_BLOCK_SIZE];
+		idx= size/FS_BLOCK_SIZE;
+		if (disk_read(startsect + idx, 1, tmpbuf) < 0) {
+			FAT_DPRINT("Error reading data\n");
+			return -1;
 		}
-		buffer += FS_BLOCK_SIZE;
-		size -= FS_BLOCK_SIZE;
-		idx++;
+		buffer += idx*FS_BLOCK_SIZE;
+
+		memcpy(buffer, tmpbuf, size % FS_BLOCK_SIZE);
+		return 0;
 	}
 
 	return 0;
@@ -283,6 +324,8 @@ get_contents(fsdata *mydata, dir_entry *dentptr, __u8 *buffer,
 	unsigned long filesize = FAT2CPU32(dentptr->size), gotsize = 0;
 	unsigned int bytesperclust = mydata->clust_size * SECTOR_SIZE;
 	__u32 curclust = START(dentptr);
+	__u32 endclust, newclust;
+	unsigned long actsize;
 
 	FAT_DPRINT("Filesize: %ld bytes\n", filesize);
 
@@ -290,25 +333,56 @@ get_contents(fsdata *mydata, dir_entry *dentptr, __u8 *buffer,
 
 	FAT_DPRINT("Reading: %ld bytes\n", filesize);
 
+	actsize=bytesperclust;
+	endclust=curclust;
 	do {
-		int getsize = (filesize > bytesperclust) ? bytesperclust :
-			filesize;
-
-		if (get_cluster(mydata, curclust, buffer, getsize) != 0) {
+		/* search for consecutive clusters */
+		while(actsize < filesize) {
+			newclust = get_fatent(mydata, endclust);
+			if((newclust -1)!=endclust)
+				goto getit;
+			if (newclust <= 0x0001 || newclust >= 0xfff0) {
+				FAT_DPRINT("curclust: 0x%x\n", newclust);
+				FAT_DPRINT("Invalid FAT entry\n");
+				return gotsize;
+			}
+			endclust=newclust;
+			actsize+= bytesperclust;
+		}
+		/* actsize >= file size */
+		actsize -= bytesperclust;
+		/* get remaining clusters */
+		if (get_cluster(mydata, curclust, buffer, (int)actsize) != 0) {
 			FAT_ERROR("Error reading cluster\n");
 			return -1;
 		}
-		gotsize += getsize;
-		filesize -= getsize;
-		if (filesize <= 0) return gotsize;
-		buffer += getsize;
-
-		curclust = get_fatent(mydata, curclust);
+		/* get remaining bytes */
+		gotsize += (int)actsize;
+		filesize -= actsize;
+		buffer += actsize;
+		actsize= filesize;
+		if (get_cluster(mydata, endclust, buffer, (int)actsize) != 0) {
+			FAT_ERROR("Error reading cluster\n");
+			return -1;
+		}
+		gotsize+=actsize;
+		return gotsize;
+getit:
+		if (get_cluster(mydata, curclust, buffer, (int)actsize) != 0) {
+			FAT_ERROR("Error reading cluster\n");
+			return -1;
+		}
+		gotsize += (int)actsize;
+		filesize -= actsize;
+		buffer += actsize;
+		curclust = get_fatent(mydata, endclust);
 		if (curclust <= 0x0001 || curclust >= 0xfff0) {
 			FAT_DPRINT("curclust: 0x%x\n", curclust);
 			FAT_ERROR("Invalid FAT entry\n");
 			return gotsize;
 		}
+		actsize=bytesperclust;
+		endclust=curclust;
 	} while (1);
 }
 
@@ -641,7 +715,7 @@ static long
 do_fat_read (const char *filename, void *buffer, unsigned long maxsize,
 	     int dols)
 {
-    __u8 block[FS_BLOCK_SIZE];  /* Block buffer */
+    __u8 block[MAX_CLUSTSIZE];  /* Block buffer */
     char fnamecopy[2048];
     boot_sector bs;
     volume_info volinfo;
@@ -713,7 +787,7 @@ do_fat_read (const char *filename, void *buffer, unsigned long maxsize,
     while (1) {
 	int i;
 
-	if (disk_read (cursect, 1, block) < 0) {
+	if (disk_read (cursect, mydata->clust_size, block) < 0) {
 	    FAT_DPRINT ("Error: reading rootdir block\n");
 	    return -1;
 	}
@@ -880,8 +954,35 @@ file_fat_detectfs(void)
 	boot_sector	bs;
 	volume_info	volinfo;
 	int		fatsize;
+	char	vol_label[12];
 
-	return read_bootsectandvi(&bs, &volinfo, &fatsize);
+	if(cur_dev==NULL) {
+		printf("No current device\n");
+		return 1;
+	}
+#if (CONFIG_COMMANDS & CFG_CMD_IDE) || (CONFIG_COMMANDS & CFG_CMD_SCSI)
+	printf("Interface:  ");
+	switch(cur_dev->if_type) {
+		case IF_TYPE_IDE :	printf("IDE"); break;
+		case IF_TYPE_SCSI :	printf("SCSI"); break;
+		case IF_TYPE_ATAPI :	printf("ATAPI"); break;
+		case IF_TYPE_USB :	printf("USB"); break;
+		case IF_TYPE_DOC :	printf("DOC"); break;
+		case IF_TYPE_MMC :	printf("MMC"); break;
+		default :		printf("Unknown");
+	}
+	printf("\n  Device %d: ",cur_dev->dev);
+	dev_print(cur_dev);
+#endif
+	if(read_bootsectandvi(&bs, &volinfo, &fatsize)) {
+		printf("\nNo valid FAT fs found\n");
+		return 1;
+	}
+	memcpy (vol_label, volinfo.volume_label, 11);
+	vol_label[11] = '\0';
+	volinfo.fs_type[5]='\0';
+	printf("Partition %d: Filesystem: %s \"%s\"\n",cur_part,volinfo.fs_type,vol_label);
+	return 0;
 }
 
 
@@ -895,6 +996,7 @@ file_fat_ls(const char *dir)
 long
 file_fat_read(const char *filename, void *buffer, unsigned long maxsize)
 {
+	printf("reading %s\n",filename);
 	return do_fat_read(filename, buffer, maxsize, LS_NO);
 }
 

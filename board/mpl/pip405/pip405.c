@@ -194,6 +194,11 @@ int board_pre_init (void)
 #ifdef SDRAM_DEBUG
 	DECLARE_GLOBAL_DATA_PTR;
 #endif
+	/* set up the config port */
+	mtdcr (ebccfga, pb7ap);
+	mtdcr (ebccfgd, CONFIG_PORT_AP);
+	mtdcr (ebccfga, pb7cr);
+	mtdcr (ebccfgd, CONFIG_PORT_CR);
 
 	memclk = get_bus_freq (tmemclk);
 	tmemclk = 1000000000 / (memclk / 100);	/* in 10 ps units */
@@ -657,8 +662,20 @@ static int test_dram (unsigned long ramsize)
 }
 
 
+extern flash_info_t flash_info[];	/* info for FLASH chips */
+
 int misc_init_r (void)
 {
+	DECLARE_GLOBAL_DATA_PTR;
+	/* adjust flash start and size as well as the offset */
+	gd->bd->bi_flashstart=0-flash_info[0].size;
+	gd->bd->bi_flashsize=flash_info[0].size-CFG_MONITOR_LEN;
+	gd->bd->bi_flashoffset=0;
+
+	/* if PIP405 has booted from PCI, reset CCR0[24] as described in errata PCI_18 */
+	if (mfdcr(strap) & PSR_ROM_LOC)
+	       mtspr(ccr0, (mfspr(ccr0) & ~0x80));
+
 	return (0);
 }
 

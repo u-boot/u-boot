@@ -32,7 +32,6 @@
 #include "kbd.h"
 #include "video.h"
 
-extern int drv_isa_kbd_init (void);
 
 #undef	ISA_DEBUG
 
@@ -49,6 +48,9 @@ extern int drv_isa_kbd_init (void);
 #define FALSE           0
 #endif
 
+#if defined(CONFIG_PIP405)
+
+extern int drv_isa_kbd_init (void);
 
 /* fdc (logical device 0) */
 const SIO_LOGDEV_TABLE sio_fdc[] = {
@@ -183,7 +185,7 @@ void isa_sio_setup(void)
 		close_cfg_super_IO(0x3F0);
 	}
 }
-
+#endif
 
 /******************************************************************************
  * IRQ Controller
@@ -202,7 +204,7 @@ static struct isa_irq_action isa_irqs[16];
 /*
  * This contains the irq mask for both 8259A irq controllers,
  */
-static unsigned int cached_irq_mask = 0xffff;
+static unsigned int cached_irq_mask = 0xfff9;
 
 #define cached_imr1	(unsigned char)cached_irq_mask
 #define cached_imr2	(unsigned char)(cached_irq_mask>>8)
@@ -387,19 +389,22 @@ int handle_isa_int(void)
 	isr2=in8(ISR_2);
 	isr1=in8(ISR_1);
 	irq=(unsigned char)irqack;
-	if((irq==7)&&((isr1&0x80)==0)) {
+	irq-=32;
+/*	if((irq==7)&&((isr1&0x80)==0)) {
 		PRINTF("IRQ7 detected but not in ISR\n");
 	}
 	else {
-		/* we should handle cascaded interrupts here also */
-		/* printf("ISA Irq %d\n",irq); */
-		isa_irqs[irq].count++;
-	if (isa_irqs[irq].handler != NULL)
-		(*isa_irqs[irq].handler)(isa_irqs[irq].arg);      /* call isr */
-	else
+*/		/* we should handle cascaded interrupts here also */
 	{
-	PRINTF ("bogus interrupt vector 0x%x\n", irq);
-	}
+/*		printf("ISA Irq %d\n",irq); */
+		isa_irqs[irq].count++;
+		if(irq!=2) { /* just swallow the cascade irq 2 */
+			if (isa_irqs[irq].handler != NULL)
+				(*isa_irqs[irq].handler)(isa_irqs[irq].arg);      /* call isr */
+			else {
+				PRINTF ("bogus interrupt vector 0x%x\n", irq);
+			}
+		}
 	}
 	/* issue EOI instruction to clear the IRQ */
 	mask_and_ack_8259A(irq);
@@ -413,13 +418,13 @@ int handle_isa_int(void)
 
 void isa_irq_install_handler(int vec, interrupt_handler_t *handler, void *arg)
 {
-  if (isa_irqs[vec].handler != NULL) {
-   printf ("ISA Interrupt vector %d: handler 0x%x replacing 0x%x\n",
-	   vec, (uint)handler, (uint)isa_irqs[vec].handler);
-  }
-  isa_irqs[vec].handler = handler;
-  isa_irqs[vec].arg     = arg;
-  enable_8259A_irq(vec);
+	if (isa_irqs[vec].handler != NULL) {
+		printf ("ISA Interrupt vector %d: handler 0x%x replacing 0x%x\n",
+			vec, (uint)handler, (uint)isa_irqs[vec].handler);
+	}
+	isa_irqs[vec].handler = handler;
+	isa_irqs[vec].arg     = arg;
+	enable_8259A_irq(vec);
 	PRINTF ("Install ISA IRQ %d ==> %p, @ %p mask=%04x\n", vec, handler, &isa_irqs[vec].handler,cached_irq_mask);
 
 }
@@ -427,9 +432,9 @@ void isa_irq_install_handler(int vec, interrupt_handler_t *handler, void *arg)
 void isa_irq_free_handler(int vec)
 {
 	disable_8259A_irq(vec);
-  isa_irqs[vec].handler = NULL;
-  isa_irqs[vec].arg     = NULL;
-	printf ("Free ISA IRQ %d mask=%04x\n", vec, cached_irq_mask);
+	isa_irqs[vec].handler = NULL;
+	isa_irqs[vec].arg     = NULL;
+	PRINTF ("Free ISA IRQ %d mask=%04x\n", vec, cached_irq_mask);
 
 }
 
@@ -448,16 +453,42 @@ void isa_init_irq_contr(void)
 	init_8259A();
 	out8(IMR_2,0xFF);
 }
+/*************************************************************************/
 
+void isa_show_irq(void)
+{
+	int vec;
+
+	printf ("\nISA Interrupt-Information:\n");
+	printf ("Nr  Routine   Arg       Count\n");
+
+	for (vec=0; vec<16; vec++) {
+		if (isa_irqs[vec].handler != NULL) {
+			printf ("%02d  %08lx  %08lx  %d\n",
+				vec,
+				(ulong)isa_irqs[vec].handler,
+				(ulong)isa_irqs[vec].arg,
+				isa_irqs[vec].count);
+		}
+	}
+}
+
+int isa_irq_get_count(int vec)
+{
+	return(isa_irqs[vec].count);
+}
 
 /******************************************************************
  * Init the ISA bus and devices.
  */
 
+#if defined(CONFIG_PIP405)
 
 int isa_init(void)
 {
 	isa_sio_setup();
+	isa_init_irq_contr();
 	drv_isa_kbd_init();
 	return 0;
 }
+#endif

@@ -25,14 +25,14 @@ include $(TOPDIR)/config.mk
 
 LIB	= lib$(CPU).a
 
-START	= start.S drivers/i2c/i2c2.o
+START	= start.S
 OBJS	= traps.o cpu.o cpu_init.o interrupts.o speed.o \
-	  drivers/epic/epic1.o drivers/i2c/i2c1.o pci.o bedbug_603e.o
+	  drivers/epic/epic1.o drivers/i2c/i2c.o pci.o bedbug_603e.o
 
 all:	.depend $(START) $(LIB)
 
 $(LIB):	$(OBJS)
-	$(AR) crv $@ $(OBJS) drivers/i2c/i2c2.o
+	$(AR) crv $@ $(OBJS)
 
 bedbug_603e.c:
 	ln -s ../mpc8260/bedbug_603e.c bedbug_603e.c

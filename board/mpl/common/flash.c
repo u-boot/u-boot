@@ -39,6 +39,13 @@
 #include <ppc4xx.h>
 #include <asm/processor.h>
 #include "common_util.h"
+#if defined(CONFIG_MIP405)
+#include "../mip405/mip405.h"
+#endif
+#if defined(CONFIG_PIP405)
+#include "../pip405/pip405.h"
+#endif
+#include <405gp_pci.h>
 
 flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 /*-----------------------------------------------------------------------
@@ -66,23 +73,102 @@ void unlock_intel_sectors(flash_info_t *info,ulong addr,ulong cnt);
 #define TRUE            1
 
 /*-----------------------------------------------------------------------
+ * Some CS switching routines:
+ *
+ * On PIP/MIP405 we have 3 (4) possible boot mode
+ *
+ * - Boot from Flash (Flash CS = CS0, MPS CS = CS1)
+ * - Boot from MPS   (Flash CS = CS1, MPS CS = CS0)
+ * - Boot from PCI with Flash map (Flash CS = CS0, MPS CS = CS1)
+ * - Boot from PCI with MPS map   (Flash CS = CS1, MPS CS = CS0)
+ * The flash init is the first board specific routine which is called
+ * after code relocation (running from SDRAM)
+ * The first thing we do is to map the Flash CS to the Flash area and
+ * the MPS CS to the MPS area. Since the flash size is unknown at this
+ * point, we use the max flash size and the lowest flash address as base.
+ * 
+ * After flash detection we adjust the size of the CS area accordingly.
+ * The board_init_r will fill in wrong values in the board init structure,
+ * but this will be fixed in the misc_init_r routine:
+ * bd->bi_flashstart=0-flash_info[0].size
+ * bd->bi_flashsize=flash_info[0].size-CFG_MONITOR_LEN
+ * bd->bi_flashoffset=0
+ * 
  */
+int get_boot_mode(void)
+{
+	unsigned long pbcr;
+	int res = 0;
+	pbcr = mfdcr (strap);
+	if ((pbcr & PSR_ROM_WIDTH_MASK) == 0)
+		/* boot via MPS or MPS mapping */
+		res = BOOT_MPS;
+	if(pbcr & PSR_ROM_LOC)
+		/* boot via PCI.. */
+		res |= BOOT_PCI;
+	 return res;
+}
+
+/* Map the flash high (in boot area)
+   This code can only be executed from SDRAM (after relocation).
+*/
+void setup_cs_reloc(void)
+{
+	int mode;
+	/* Since we are relocated, we can set-up the CS finaly
+	 * but first of all, switch off PCI mapping (in case it was a PCI boot) */
+	out32r(PMM0MA,0L);
+	icache_enable (); /* we are relocated */
+	/* get boot mode */
+	mode=get_boot_mode();
+	/* we map the flash high in every case */
+	/* first findout on which cs the flash is */
+	if(mode & BOOT_MPS) {
+		/* map flash high on CS1 and MPS on CS0 */
+		mtdcr (ebccfga, pb0ap);
+		mtdcr (ebccfgd, MPS_AP);
+		mtdcr (ebccfga, pb0cr);
+		mtdcr (ebccfgd, MPS_CR);
+		/* we use the default values (max values) for the flash
+		 * because its real size is not yet known */
+		mtdcr (ebccfga, pb1ap);
+		mtdcr (ebccfgd, FLASH_AP);
+		mtdcr (ebccfga, pb1cr);
+		mtdcr (ebccfgd, FLASH_CR_B);
+	}
+	else {
+		/* map flash high on CS0 and MPS on CS1 */
+		mtdcr (ebccfga, pb1ap);
+		mtdcr (ebccfgd, MPS_AP);
+		mtdcr (ebccfga, pb1cr);
+		mtdcr (ebccfgd, MPS_CR);
+		/* we use the default values (max values) for the flash
+		 * because its real size is not yet known */
+		mtdcr (ebccfga, pb0ap);
+		mtdcr (ebccfgd, FLASH_AP);
+		mtdcr (ebccfga, pb0cr);
+		mtdcr (ebccfgd, FLASH_CR_B);
+	}
+}
+
 
 
 unsigned long flash_init (void)
 {
-	unsigned long size_b0, size_b1;
-	int i;
+	unsigned long size_b0, size_b1,flashcr;
+	int mode, i;
+	extern char version_string;
+	char *p=&version_string;
 
 	/* Since we are relocated, we can set-up the CS finally */
 	setup_cs_reloc();
 	/* get and display boot mode */
-	i=get_boot_mode();
-	if(i & BOOT_PCI)
-		printf("(PCI Boot %s Map) ",(i & BOOT_MPS) ?
+	mode=get_boot_mode();
+	if(mode & BOOT_PCI)
+		printf("(PCI Boot %s Map) ",(mode & BOOT_MPS) ?
 			"MPS" : "Flash");
 	else
-		printf("(%s Boot) ",(i & BOOT_MPS) ?
+		printf("(%s Boot) ",(mode & BOOT_MPS) ?
 			"MPS" : "Flash");
 	/* Init: no FLASHes known */
 	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {
@@ -91,7 +177,7 @@ unsigned long flash_init (void)
 
 	/* Static FLASH Bank configuration here - FIXME XXX */
 
-	size_b0 = flash_get_size((vu_long *)FLASH_BASE0_PRELIM, &flash_info[0]);
+	size_b0 = flash_get_size((vu_long *)CFG_MONITOR_BASE, &flash_info[0]);
 
 	if (flash_info[0].flash_id == FLASH_UNKNOWN) {
 		printf ("## Unknown FLASH on Bank 0 - Size = 0x%08lx = %ld MB\n",
@@ -109,8 +195,31 @@ unsigned long flash_init (void)
 	flash_info[0].protect[flash_info[0].sector_count-1] = 1;
 	size_b1 = 0 ;
 	flash_info[0].size = size_b0;
+	/* set up flash cs according to the size */
+	if(mode & BOOT_MPS) {
+		/* flash is on CS1 */
+		mtdcr(ebccfga, pb1cr);
+		flashcr = mfdcr (ebccfgd);
+		/* we map the flash high in every case */
+		flashcr&=0x0001FFFF; /* mask out address bits */
+		flashcr|= ((0-flash_info[0].size) & 0xFFF00000); /* start addr */
+		flashcr|= (((flash_info[0].size >>21) & 0x07) << 17); /* size addr */
+		mtdcr(ebccfga, pb1cr);
+		mtdcr(ebccfgd, flashcr);
+	}
+	else {
+		/* flash is on CS0 */
+		mtdcr(ebccfga, pb0cr);
+		flashcr = mfdcr (ebccfgd);
+		/* we map the flash high in every case */
+		flashcr&=0x0001FFFF; /* mask out address bits */
+		flashcr|= ((0-flash_info[0].size) & 0xFFF00000); /* start addr */
+		flashcr|= (((flash_info[0].size >>21) & 0x07) << 17); /* size addr */
+		mtdcr(ebccfga, pb0cr);
+		mtdcr(ebccfgd, flashcr);
+	}
 #if 0
-	/* include this if you want to test if
+	/* enable this if you want to test if
 	   the relocation has be done ok.
 	   This will disable both Chipselects */
 	mtdcr (ebccfga, pb0cr);
@@ -119,6 +228,14 @@ unsigned long flash_init (void)
 	mtdcr (ebccfgd, 0L);
 	printf("CS0 & CS1 switched off for test\n");
 #endif
+	/* patch version_string */
+	for(i=0;i<0x100;i++) {
+		if(*p=='\n') {
+			*p=0;
+			break;
+		}
+		p++;
+	}
 	return (size_b0);
 }
 
@@ -171,6 +288,8 @@ void flash_print_info  (flash_info_t *info)
 				break;
 	case FLASH_INTEL320T:	printf ("TE28F320C3 (32 Mbit, top sector size)\n");
 				break;
+	case FLASH_AM640U:	printf ("AM29LV640U (64 Mbit, uniform sector size)\n");
+				break;
 	default:		printf ("Unknown Chip Type\n");
 				break;
 	}
@@ -211,7 +330,8 @@ void flash_print_info  (flash_info_t *info)
 
 
 /*-----------------------------------------------------------------------
- */
+ 
+*/
 
 /*
  * The following code cannot be run from FLASH!
@@ -220,7 +340,7 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 {
 	short i;
 	FLASH_WORD_SIZE value;
-	ulong base = (ulong)addr;
+	ulong base;
 	volatile FLASH_WORD_SIZE *addr2 = (FLASH_WORD_SIZE *)addr;
 
 	/* Write auto select command: read Manufacturer ID */
@@ -250,7 +370,7 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 		return (0);			/* no or unknown flash	*/
 	}
 	value = addr2[1];			/* device ID		*/
-	/*	printf("Device value %x\n",value); */
+	/*	printf("Device value %x\n",value); 		    */
 	switch (value) {
 	case (FLASH_WORD_SIZE)AMD_ID_F040B:
 		info->flash_id += FLASH_AM040;
@@ -292,12 +412,17 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 		info->sector_count = 35;
 		info->size = 0x00200000;
 		break;				/* => 2 MB		*/
-#if 0	/* enable when device IDs are available */
 	case (FLASH_WORD_SIZE)AMD_ID_LV320T:
 		info->flash_id += FLASH_AM320T;
 		info->sector_count = 67;
 		info->size = 0x00400000;
 		break;				/* => 4 MB		*/
+	case (FLASH_WORD_SIZE)AMD_ID_LV640U:
+		info->flash_id += FLASH_AM640U;
+		info->sector_count = 128;
+		info->size = 0x00800000;
+		break;				/* => 8 MB		*/
+#if 0	/* enable when device IDs are available */
 
 	case (FLASH_WORD_SIZE)AMD_ID_LV320B:
 		info->flash_id += FLASH_AM320B;
@@ -328,10 +453,12 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 		return (0);			/* => no or unknown flash */
 
 	}
-
+	/* base address calculation */
+	base=0-info->size;
 	/* set up sector start address table */
 	if (((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_SST) ||
-	     (info->flash_id  == FLASH_AM040)){
+	     (info->flash_id  == FLASH_AM040) ||
+	     (info->flash_id  == FLASH_AM640U)){
 		for (i = 0; i < info->sector_count; i++)
 			info->start[i] = base + (i * 0x00010000);
 	}

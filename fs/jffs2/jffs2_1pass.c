@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /*
 -------------------------------------------------------------------------
  * Filename:      jffs2.c
@@ -265,20 +264,56 @@ insert_node(struct b_list *list, u32 offset)
 }
 
 #ifdef CFG_JFFS2_SORT_FRAGMENTS
+/* Sort data entries with the latest version last, so that if there
+ * is overlapping data the latest version will be used.
+ */
 static int compare_inodes(struct b_node *new, struct b_node *old)
 {
 	struct jffs2_raw_inode *jNew = (struct jffs2_raw_inode *)new->offset;
 	struct jffs2_raw_inode *jOld = (struct jffs2_raw_inode *)old->offset;
 
-	return jNew->version < jOld->version;
+	return jNew->version > jOld->version;
 }
 
+/* Sort directory entries so all entries in the same directory
+ * with the same name are grouped together, with the latest version
+ * last. This makes it easy to eliminate all but the latest version
+ * by marking the previous version dead by setting the inode to 0.
+ */
 static int compare_dirents(struct b_node *new, struct b_node *old)
 {
 	struct jffs2_raw_dirent *jNew = (struct jffs2_raw_dirent *)new->offset;
 	struct jffs2_raw_dirent *jOld = (struct jffs2_raw_dirent *)old->offset;
+	int cmp;
 
-	return jNew->version > jOld->version;
+	/* ascending sort by pino */
+	if (jNew->pino != jOld->pino)
+		return jNew->pino > jOld->pino;
+
+	/* pino is the same, so use ascending sort by nsize, so
+	 * we don't do strncmp unless we really must.
+	 */
+	if (jNew->nsize != jOld->nsize)
+		return jNew->nsize > jOld->nsize;
+
+	/* length is also the same, so use ascending sort by name
+	 */
+	cmp = strncmp(jNew->name, jOld->name, jNew->nsize);
+	if (cmp != 0)
+		return cmp > 0;
+
+	/* we have duplicate names in this directory, so use ascending
+	 * sort by version
+	 */
+	if (jNew->version > jOld->version) {
+		/* since jNew is newer, we know jOld is not valid, so
+		 * mark it with inode 0 and it will not be used
+		 */
+		jOld->ino = 0;
+		return 1;
+	}
+	
+	return 0;
 }
 #endif
 
@@ -327,12 +362,31 @@ jffs2_1pass_read_inode(struct b_lists *pL, u32 inode, char *dest)
 	struct b_node *b;
 	struct jffs2_raw_inode *jNode;
 	u32 totalSize = 0;
-	u16 latestVersion = 0;
+	u32 latestVersion = 0;
 	char *lDest;
 	char *src;
 	long ret;
 	int i;
 	u32 counter = 0;
+#ifdef CFG_JFFS2_SORT_FRAGMENTS
+	/* Find file size before loading any data, so fragments that
+	 * start past the end of file can be ignored. A fragment
+	 * that is partially in the file is loaded, so extra data may
+	 * be loaded up to the next 4K boundary above the file size.
+	 * This shouldn't cause trouble when loading kernel images, so
+	 * we will live with it.
+	 */
+	for (b = pL->frag.listHead; b != NULL; b = b->next) {
+		jNode = (struct jffs2_raw_inode *) (b->offset);
+		if ((inode == jNode->ino)) {
+			/* get actual file length from the newest node */
+			if (jNode->version >= latestVersion) {
+				totalSize = jNode->isize;
+				latestVersion = jNode->version;
+			}
+		}
+	}
+#endif
 
 	for (b = pL->frag.listHead; b != NULL; b = b->next) {
 		jNode = (struct jffs2_raw_inode *) (b->offset);
@@ -349,11 +403,14 @@ jffs2_1pass_read_inode(struct b_lists *pL, u32 inode, char *dest)
 			putLabeledWord("read_inode: usercompr = ", jNode->usercompr);
 			putLabeledWord("read_inode: flags = ", jNode->flags);
 #endif
+
+#ifndef CFG_JFFS2_SORT_FRAGMENTS
 			/* get actual file length from the newest node */
 			if (jNode->version >= latestVersion) {
 				totalSize = jNode->isize;
 				latestVersion = jNode->version;
 			}
+#endif
 
 			if(dest) {
 				src = ((char *) jNode) + sizeof(struct jffs2_raw_inode);
@@ -430,15 +487,11 @@ jffs2_1pass_find_inode(struct b_lists * pL, const char *name, u32 pino)
 		if ((pino == jDir->pino) && (len == jDir->nsize) &&
 		    (jDir->ino) &&	/* 0 for unlink */
 		    (!strncmp(jDir->name, name, len))) {	/* a match */
-			if (jDir->version < version) continue;
+			if (jDir->version < version)
+				continue;
 
-		        if(jDir->version == 0) {
-			    	/* Is this legal? */
-				putstr(" ** WARNING ** ");
-				putnstr(jDir->name, jDir->nsize);
-				putstr(" is version 0 (in find, ignoring)\r\n");
-			} else if(jDir->version == version) {
-			    	/* Im pretty sure this isn't ... */
+			if (jDir->version == version && inode != 0) {
+			    	/* I'm pretty sure this isn't legal */
 				putstr(" ** ERROR ** ");
 				putnstr(jDir->name, jDir->nsize);
 				putLabeledWord(" has dup version =", version);
@@ -643,15 +696,11 @@ jffs2_1pass_resolve_inode(struct b_lists * pL, u32 ino)
 	for(b = pL->dir.listHead; b; b = b->next) {
 		jDir = (struct jffs2_raw_dirent *) (b->offset);
 		if (ino == jDir->ino) {
-		    	if(jDir->version < version) continue;
+		    	if (jDir->version < version)
+				continue;
 
-			if(jDir->version == 0) {
-			    	/* Is this legal? */
-				putstr(" ** WARNING ** ");
-				putnstr(jDir->name, jDir->nsize);
-				putstr(" is version 0 (in resolve, ignoring)\r\n");
-			} else if(jDir->version == version) {
-			    	/* Im pretty sure this isn't ... */
+			if (jDir->version == version && jDirFound) {
+			    	/* I'm pretty sure this isn't legal */
 				putstr(" ** ERROR ** ");
 				putnstr(jDir->name, jDir->nsize);
 				putLabeledWord(" has dup version (resolve) = ",
@@ -890,6 +939,11 @@ jffs2_1pass_build_lists(struct part_info * part)
 				if (node->totlen != sizeof(struct jffs2_unknown_node))
 					printf("OOPS Cleanmarker has bad size "
 						"%d != %d\n", node->totlen,
+						sizeof(struct jffs2_unknown_node));
+			} else if (node->nodetype == JFFS2_NODETYPE_PADDING) {
+				if (node->totlen < sizeof(struct jffs2_unknown_node))
+					printf("OOPS Padding has bad size "
+						"%d < %d\n", node->totlen,
 						sizeof(struct jffs2_unknown_node));
 			} else {
 				printf("Unknown node type: %x len %d "

@@ -67,6 +67,17 @@ static void print_one_part (dos_partition_t *p, int ext_part_sector, int part_nu
 		(is_extended (p->sys_ind) ? " Extd" : ""));
 }
 
+static int test_block_type(unsigned char *buffer)
+{
+	if((buffer[DOS_PART_MAGIC_OFFSET + 0] != 0x55) ||
+	    (buffer[DOS_PART_MAGIC_OFFSET + 1] != 0xaa) ) {
+		return (-1);
+	} /* no DOS Signature at all */
+	if(strncmp(&buffer[DOS_PBR_FSTYPE_OFFSET],"FAT",3)==0)
+		return DOS_PBR; /* is PBR */
+	return DOS_MBR;	    /* Is MBR */
+}
+
 
 int test_part_dos (block_dev_desc_t *dev_desc)
 {
@@ -94,14 +105,18 @@ static void print_partition_extended (block_dev_desc_t *dev_desc, int ext_part_s
 			dev_desc->dev, ext_part_sector);
 		return;
 	}
-	if (buffer[DOS_PART_MAGIC_OFFSET] != 0x55 ||
-		buffer[DOS_PART_MAGIC_OFFSET + 1] != 0xaa) {
+	i=test_block_type(buffer);
+	if(i==-1) {
 		printf ("bad MBR sector signature 0x%02x%02x\n",
 			buffer[DOS_PART_MAGIC_OFFSET],
 			buffer[DOS_PART_MAGIC_OFFSET + 1]);
 		return;
 	}
-
+	if(i==DOS_PBR) {
+		printf ("    1\t\t         0\t%10ld\t%2x\n",
+			dev_desc->lba, buffer[DOS_PBR_MEDIA_TYPE_OFFSET]);
+		return;
+	}
 	/* Print all primary/logical partitions */
 	pt = (dos_partition_t *) (buffer + DOS_PART_TBL_OFFSET);
 	for (i = 0; i < 4; i++, pt++) {

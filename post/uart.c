@@ -39,6 +39,7 @@
 #ifdef CONFIG_POST
 
 #include <post.h>
+#if CONFIG_POST & CFG_POST_UART
 #if defined(CONFIG_8xx)
 #include <commproc.h>
 #elif defined(CONFIG_MPC8260)
@@ -48,8 +49,6 @@
 #endif
 #include <command.h>
 #include <net.h>
-
-#if CONFIG_POST & CFG_POST_UART
 
 #define CTLR_SMC 0
 #define CTLR_SCC 1

@@ -87,19 +87,15 @@ ext_bus_cntlr_init:
 	mfdcr		r4,ebccfgd
 
 	andi.		r0, r4, 0x2000			/* mask out irrelevant bits */
-	beq			0f						/* jump if 8 bit bus width */
+	beq		0f				/* jump if 8 bit bus width */
 
-	/* setup 16 bit things (Flash Boot)
+	/* setup 16 bit things
    *-----------------------------------------------------------------------
    * Memory Bank 0 (16 Bit Flash) initialization
    *---------------------------------------------------------------------- */
 
 	addi    r4,0,pb0ap
 	mtdcr   ebccfga,r4
-/*	addis   r4,0,0xFF8F */
-/*	ori     r4,r4,0xFE80 */
-/*	addis   r4,0,0x9B01 */
-/*	ori     r4,r4,0x5480 */
 	addis   r4,0,(FLASH_AP_B)@h
 	ori     r4,r4,(FLASH_AP_B)@l
 	mtdcr   ebccfgd,r4
@@ -107,8 +103,6 @@ ext_bus_cntlr_init:
 	addi    r4,0,pb0cr
 	mtdcr   ebccfga,r4
 	/* BS=0x010(4MB),BU=0x3(R/W), */
-/*	addis   r4,0,((FLASH_BASE0_PRELIM & 0xFFF00000) | 0x00050000)@h */
-/*	ori     r4,r4,0xA000          / * BW=0x01(16 bits) */
 	addis   r4,0,(FLASH_CR_B)@h
 	ori     r4,r4,(FLASH_CR_B)@l
 	mtdcr   ebccfgd,r4
@@ -123,21 +117,13 @@ ext_bus_cntlr_init:
 	/* 0x7F8FFE80 slowest boot */
 	addi    r4,0,pb0ap
 	mtdcr   ebccfga,r4
-#if 0
-	addis   r4,0,0x9B01
-	ori     r4,r4,0x5480
-#else
 	addis   r4,0,(MPS_AP_B)@h
 	ori     r4,r4,(MPS_AP_B)@l
-#endif
 	mtdcr   ebccfgd,r4
 
 	addi    r4,0,pb0cr
 	mtdcr   ebccfga,r4
 	/* BS=0x010(4MB),BU=0x3(R/W), */
-/*	addis   r4,0,((FLASH_BASE0_PRELIM & 0xFFF00000) | 0x00050000)@h */
-/*	ori     r4,r4,0x8000          / * BW=0x0( 8 bits) */
-
 	addis   r4,0,(MPS_CR_B)@h
 	ori     r4,r4,(MPS_CR_B)@l
 
@@ -178,18 +164,18 @@ ext_bus_cntlr_init:
   ori     r4,r4,0x0000
   mtdcr   ebccfgd,r4
 
-	addi    r4,0,pb6cr
+  addi    r4,0,pb6cr
   mtdcr   ebccfga,r4
   addis   r4,0,0x0000
   ori     r4,r4,0x0000
   mtdcr   ebccfgd,r4
 
-	addi    r4,0,pb7cr
+  addi    r4,0,pb7cr
   mtdcr   ebccfga,r4
   addis   r4,0,0x0000
   ori     r4,r4,0x0000
   mtdcr   ebccfgd,r4
-	nop				/* pass2 DCR errata #8 */
+  nop				/* pass2 DCR errata #8 */
   blr
 
 /*-----------------------------------------------------------------------------

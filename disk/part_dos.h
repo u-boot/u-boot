@@ -34,6 +34,10 @@
 #endif
 #define DOS_PART_TBL_OFFSET	0x1be
 #define DOS_PART_MAGIC_OFFSET	0x1fe
+#define DOS_PBR_FSTYPE_OFFSET	0x36
+#define DOS_PBR_MEDIA_TYPE_OFFSET	0x15
+#define DOS_MBR	0
+#define DOS_PBR	1
 
 typedef struct dos_partition {
 	unsigned char boot_ind;		/* 0x80 - active			*/

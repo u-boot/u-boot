@@ -26,11 +26,19 @@
 #include <mmc.h>
 #include <asm/errno.h>
 #include <asm/arch/hardware.h>
+#include <part.h>
 
 #ifdef CONFIG_MMC
 
 extern int
-fat_register_read(int(*block_read)(int device, ulong blknr, ulong blkcnt, uchar *buffer));
+fat_register_device(block_dev_desc_t *dev_desc, int part_no);
+
+static block_dev_desc_t mmc_dev;
+
+block_dev_desc_t * mmc_get_dev(int dev)
+{
+	return ((block_dev_desc_t *)&mmc_dev);
+}
 
 /*
  * FIXME needs to read cid and csd info to determine block size
@@ -379,9 +387,9 @@ mmc_write(uchar *src, ulong dst, int size)
 	return 0;
 }
 
-int
+ulong
 /****************************************************/
-mmc_bread(int dev_num, ulong blknr, ulong blkcnt, uchar *dst)
+mmc_bread(int dev_num, ulong blknr, ulong blkcnt, ulong *dst)
 /****************************************************/
 {
 	int mmc_block_size = MMC_BLOCK_SIZE;
@@ -441,6 +449,21 @@ mmc_init(int verbose)
 			printf("Month = %d\n",cid->month);
 			printf("Year = %d\n",1997 + cid->year);
 		}
+		/* fill in device description */
+		mmc_dev.if_type = IF_TYPE_MMC;
+		mmc_dev.dev = 0;
+		mmc_dev.lun = 0;
+		mmc_dev.type = 0;
+		/* FIXME fill in the correct size (is set to 32MByte) */
+		mmc_dev.blksz = 512;
+		mmc_dev.lba = 0x10000;
+		sprintf(mmc_dev.vendor,"Man %02x%02x%02x Snr %02x%02x%02x",
+				cid->id[0], cid->id[1], cid->id[2],
+				cid->sn[0], cid->sn[1], cid->sn[2]);
+		sprintf(mmc_dev.product,"%s",cid->name);
+		sprintf(mmc_dev.revision,"%x %x",cid->hwrev, cid->fwrev);
+		mmc_dev.removable = 0;
+		mmc_dev.block_read = mmc_bread;
 
 		/* MMC exists, get CSD too */
 		resp = mmc_cmd(MMC_CMD_SET_RCA, MMC_DEFAULT_RCA, 0, MMC_CMDAT_R1);
@@ -458,7 +481,7 @@ mmc_init(int verbose)
 	MMC_CLKRT = 0;	/* 20 MHz */
 	resp = mmc_cmd(7, MMC_DEFAULT_RCA, 0, MMC_CMDAT_R1);
 
-	fat_register_read(mmc_bread);
+	fat_register_device(&mmc_dev,1); /* partitions start counting with 1 */ 
 
 	return rc;
 }

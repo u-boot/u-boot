@@ -2,6 +2,33 @@
 Changes for U-Boot 0.4.8:
 ======================================================================
 
+* Patches by Denis Peter, 9 Sep 2003:
+  add FAT support for IDE, SCSI and USB
+
+* Patches by Gleb Natapov, 2 Sep 2003:
+  - cleanup of POST code for unsupported architectures
+  - MPC824x locks way0 of data cache for use as initial RAM;
+    this patch unlocks it after relocation to RAM and invalidates
+    the locked entries.
+
+* Patch by Gleb Natapov, 30 Aug 2003:
+  new I2C driver for mpc107 bridge. Now works from flash.
+
+* Patch by Dave Ellis, 11 Aug 2003:
+  - JFFS2: fix typo in common/cmd_jffs2.c
+  - JFFS2: fix CFG_JFFS2_SORT_FRAGMENTS option
+  - JFFS2: remove node version 0 warning
+  - JFFS2: accept JFFS2 PADDING nodes
+  - SXNI855T: add AM29LV800 support
+  - SXNI855T: move environment from EEPROM to flash
+  - SXNI855T: boot from JFFS2 in NOR or NAND flash
+
+* Patch by Bill Hargen, 11 Aug 2003:
+  fixes for I2C on MPC8240
+  - fix i2c_write routine
+  - fix iprobe command
+  - eliminates use of global variables, plus dead code, cleanup.
+
 * Add support for USB Mass Storage Devices (BBB)
   (tested with USB memory sticks only)
 

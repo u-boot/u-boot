@@ -526,11 +526,26 @@ relocate_code:
 	stwu	r0,-4(r7)
 	bdnz	3b
 
+4:
+#if !defined(CONFIG_BMW)
+/* Unlock the data cache and invalidate locked area */
+	xor	r0, r0, r0
+	mtspr	1011, r0
+	lis	r4, CFG_INIT_RAM_ADDR@h
+	ori	r4, r4, CFG_INIT_RAM_ADDR@l
+	li	r0, 128
+	mtctr	r0
+41:
+	dcbi	r0, r4
+	addi	r4, r4, 32
+	bdnz	41b
+#endif
+
 /*
  * Now flush the cache: note that we must start from a cache aligned
  * address. Otherwise we might miss one cache line.
  */
-4:	cmpwi	r6,0
+	cmpwi	r6,0
 	add	r5,r3,r5
 	beq	7f		/* Always flush prefetch queue in any case */
 	subi	r0,r6,1

@@ -92,7 +92,7 @@ extern void pci_pip405_write_regs(struct pci_controller *,
 /* PIIX4 ISA Bridge Function 0 */
 static struct pci_pip405_config_entry piix4_isa_bridge_f0[] = {
 	{PCI_CFG_PIIX4_SERIRQ,	0xD0,		1}, /* enable Continous SERIRQ Pin */
-	{PCI_CFG_PIIX4_GENCFG,	0x00010041,	4}, /* enable SERIRQs, ISA, PNP	*/
+	{PCI_CFG_PIIX4_GENCFG,	0x00018041,	4}, /* enable SERIRQs, ISA, PNP, GPI11 */
 	{PCI_CFG_PIIX4_TOM,	0xFE,		1}, /* Top of Memory		*/
 	{PCI_CFG_PIIX4_XBCS,	0x02C4,		2}, /* disable all peri CS	*/
 	{PCI_CFG_PIIX4_RTCCFG,	0x21,		1}, /* enable RTC	   	*/
@@ -106,6 +106,7 @@ static struct pci_pip405_config_entry piix4_isa_bridge_f0[] = {
 
 /* PIIX4 IDE Controller Function 1 */
 static struct pci_pip405_config_entry piix4_ide_cntrl_f1[] = {
+	{PCI_CFG_PIIX4_BMIBA,	0x0001000,	4}, /* set BMI to a valid address */
 	{PCI_COMMAND,		0x0001,		2}, /* enable IO access 	*/
 #if !defined(CONFIG_MIP405T)
 	{PCI_CFG_PIIX4_IDETIM,	0x80008000,	4}, /* enable Both IDE channels	*/
@@ -129,10 +130,10 @@ static struct pci_pip405_config_entry piix4_usb_cntrl_f2[] = {
 
 /* PIIX4 Power Management Function 3 */
 static struct pci_pip405_config_entry piix4_pmm_cntrl_f3[] = {
-	{PCI_COMMAND,		0x0001,		2}, /* enable IO access 	*/
-	{PCI_CFG_PIIX4_PMAB,	0x00004000,	4}, /* set PMBA to "valid" value */
-	{PCI_CFG_PIIX4_PMMISC,	0x01,		1}, /* enable PMBA IO access	*/
+	{PCI_CFG_PIIX4_PMBA,	0x00004000,	4}, /* set PMBA to "valid" value */
 	{PCI_CFG_PIIX4_SMBBA,	0x00005000,	4}, /* set SMBBA to "valid" value */
+	{PCI_CFG_PIIX4_PMMISC,	0x01,		1}, /* enable PMBA IO access	*/
+	{PCI_COMMAND,		0x0001,		2}, /* enable IO access 	*/
 	{ }					    /* end of device table 	*/
 };
 /* PPC405 Dummy only used to prevent autosetup on this host bridge */
