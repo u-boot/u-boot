@@ -102,6 +102,18 @@ static __inline__ int abortboot(int bootdelay)
 	u_int presskey_max = 0;
 	u_int i;
 
+#ifdef CONFIG_SILENT_CONSOLE
+	{
+		DECLARE_GLOBAL_DATA_PTR;
+
+		if (gd->flags & GD_FLG_SILENT) {
+			/* Restore serial console */
+			console_assign (stdout, "serial");
+			console_assign (stderr, "serial");
+		}
+	}
+#endif
+
 #  ifdef CONFIG_AUTOBOOT_PROMPT
 	printf (CONFIG_AUTOBOOT_PROMPT, bootdelay);
 #  endif
@@ -179,6 +191,21 @@ static __inline__ int abortboot(int bootdelay)
 	if (!abort)
 		printf("key timeout\n");
 #  endif
+
+#ifdef CONFIG_SILENT_CONSOLE
+	{
+		DECLARE_GLOBAL_DATA_PTR;
+
+		if (abort) {
+			/* permanently enable normal console output */
+			gd->flags &= ~(GD_FLG_SILENT);
+		} else if (gd->flags & GD_FLG_SILENT) {
+			/* Restore silent console */
+			console_assign (stdout, "nulldev");
+			console_assign (stderr, "nulldev");
+		}
+	}
+#endif
 
 	return abort;
 }

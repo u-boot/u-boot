@@ -2,6 +2,10 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Correct header printing for multi-image files in do_bootm()
+
+* Make CONFIG_SILENT_CONSOLE work with CONFIG_AUTOBOOT_KEYED
+
 * Fix PCI problems on PPChameleon board
 
 * Patch by Steven Scholz, 18 Oct 2003:
