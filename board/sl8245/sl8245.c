@@ -92,4 +92,3 @@ void pci_init_board(void)
 {
 	pci_mpc824x_init(&hose);
 }
-

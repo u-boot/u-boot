@@ -112,10 +112,6 @@ Dave Ellis <DGE@sixnetio.com>
 
 	SXNI855T		MPC8xx
 
-Raghu Krishnaprasad <raghu.krishnaprasad@fci.com>
-
-	ADDERII			MPC852T
-
 Thomas Frieden <ThomasF@hyperion-entertainment.com>
 
 	AmigaOneG3SE		MPC7xx
@@ -157,6 +153,10 @@ Brad Kemp <Brad.Kemp@seranoa.com>
 Sangmoon Kim <dogoil@etinsys.com>
 
 	debris			MPC8245
+
+Raghu Krishnaprasad <raghu.krishnaprasad@fci.com>
+
+	ADDERII			MPC852T
 
 Nye Liu <nyet@zumanetworks.com>
 
@@ -239,6 +239,11 @@ Rune Torgersen <runet@innovsys.com>
 John Zhan <zhanz@sinovee.com>
 
 	svm_sc8xx		MPC8xx
+
+Xianghua Xiao <x.xiao@motorola.com>
+
+	MPC8540ADS		MPC8540
+	MPC8560ADS		MPC8560
 
 -------------------------------------------------------------------------
 

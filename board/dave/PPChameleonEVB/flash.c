@@ -46,8 +46,8 @@ unsigned long flash_init (void)
 #else
 	unsigned long size_b0;
 	int i;
-        uint pbcr;
-        unsigned long base_b0;
+	uint pbcr;
+	unsigned long base_b0;
 	int size_val = 0;
 
 	/* Init: no FLASHes known */
@@ -64,14 +64,14 @@ unsigned long flash_init (void)
 			size_b0, size_b0<<20);
 	}
 
-        /* Setup offsets */
-        flash_get_offsets (-size_b0, &flash_info[0]);
+	/* Setup offsets */
+	flash_get_offsets (-size_b0, &flash_info[0]);
 
-        /* Re-do sizing to get full correct info */
-        mtdcr(ebccfga, pb0cr);
-        pbcr = mfdcr(ebccfgd);
-        mtdcr(ebccfga, pb0cr);
-        base_b0 = -size_b0;
+	/* Re-do sizing to get full correct info */
+	mtdcr(ebccfga, pb0cr);
+	pbcr = mfdcr(ebccfgd);
+	mtdcr(ebccfga, pb0cr);
+	base_b0 = -size_b0;
 	switch (size_b0) {
 	case 1 << 20:
 		size_val = 0;
@@ -90,15 +90,15 @@ unsigned long flash_init (void)
 		break;
 	}
 	pbcr = (pbcr & 0x0001ffff) | base_b0 | (size_val << 17);
-        mtdcr(ebccfgd, pbcr);
+	mtdcr(ebccfgd, pbcr);
 
-        /* Monitor protection ON by default */
-        (void)flash_protect(FLAG_PROTECT_SET,
-                            -CFG_MONITOR_LEN,
-                            0xffffffff,
-                            &flash_info[0]);
+	/* Monitor protection ON by default */
+	(void)flash_protect(FLAG_PROTECT_SET,
+			    -CFG_MONITOR_LEN,
+			    0xffffffff,
+			    &flash_info[0]);
 
-        flash_info[0].size = size_b0;
+	flash_info[0].size = size_b0;
 
 	return (size_b0);
 #endif

@@ -28,19 +28,19 @@
  *	$Log: skdrv2nd.h,v $
  *	Revision 1.15  2003/02/25 14:16:40  mlindner
  *	Fix: Copyright statement
- *	
+ *
  *	Revision 1.14  2003/02/25 13:26:26  mlindner
  *	Add: Support for various vendors
- *	
+ *
  *	Revision 1.13  2002/10/02 12:46:02  mlindner
  *	Add: Support for Yukon
- *	
+ *
  *	Revision 1.12.2.2  2001/09/05 12:14:50  mlindner
  *	add: New hardware revision int
- *	
+ *
  *	Revision 1.12.2.1  2001/03/12 16:50:59  mlindner
  *	chg: kernel 2.4 adaption
- *	
+ *
  *	Revision 1.12  2001/03/01 12:52:15  mlindner
  *	Fixed ring size
  *
@@ -66,28 +66,28 @@
  *
  *	Revision 1.7  1999/09/28 12:38:21  cgoos
  *	Added CheckQueue to SK_AC.
- *	
+ *
  *	Revision 1.6  1999/07/27 08:04:05  cgoos
  *	Added checksumming variables to SK_AC.
- *	
+ *
  *	Revision 1.5  1999/03/29 12:33:26  cgoos
  *	Rreversed to fine lock granularity.
- *	
+ *
  *	Revision 1.4  1999/03/15 12:14:02  cgoos
  *	Added DriverLock to SK_AC.
  *	Removed other locks.
- *	
+ *
  *	Revision 1.3  1999/03/01 08:52:27  cgoos
  *	Changed pAC->PciDev declaration.
- *	
+ *
  *	Revision 1.2  1999/02/18 10:57:14  cgoos
  *	Removed SkDrvTimeStamp prototype.
  *	Fixed SkGeOsGetTime prototype.
- *	
+ *
  *	Revision 1.1  1999/02/16 07:41:01  cgoos
  *	First version.
- *	
- *	
+ *
+ *
  *
  ******************************************************************************/
 
@@ -126,40 +126,40 @@
     result = SK_FALSE; /* default */     \
     /* 3Com (0x10b7) */     \
     if (pdev->vendor == 0x10b7) {     \
-        /* Gigabit Ethernet Adapter (0x1700) */     \
-        if ((pdev->device == 0x1700)) { \
-            result = SK_TRUE;     \
-        }     \
+	/* Gigabit Ethernet Adapter (0x1700) */     \
+	if ((pdev->device == 0x1700)) { \
+	    result = SK_TRUE;     \
+	}     \
     /* SysKonnect (0x1148) */     \
     } else if (pdev->vendor == 0x1148) {     \
-        /* SK-98xx Gigabit Ethernet Server Adapter (0x4300) */     \
-        /* SK-98xx V2 Gigabit Ethernet Adapter (0x4320) */     \
-        if ((pdev->device == 0x4300) || \
-            (pdev->device == 0x4320)) { \
-            result = SK_TRUE;     \
-        }     \
+	/* SK-98xx Gigabit Ethernet Server Adapter (0x4300) */     \
+	/* SK-98xx V2 Gigabit Ethernet Adapter (0x4320) */     \
+	if ((pdev->device == 0x4300) || \
+	    (pdev->device == 0x4320)) { \
+	    result = SK_TRUE;     \
+	}     \
     /* D-Link (0x1186) */     \
     } else if (pdev->vendor == 0x1186) {     \
-        /* Gigabit Ethernet Adapter (0x4c00) */     \
-        if ((pdev->device == 0x4c00)) { \
-            result = SK_TRUE;     \
-        }     \
+	/* Gigabit Ethernet Adapter (0x4c00) */     \
+	if ((pdev->device == 0x4c00)) { \
+	    result = SK_TRUE;     \
+	}     \
     /* CNet (0x1371) */     \
     } else if (pdev->vendor == 0x1371) {     \
-        /* GigaCard Network Adapter (0x434e) */     \
-        if ((pdev->device == 0x434e)) { \
-            result = SK_TRUE;     \
-        }     \
+	/* GigaCard Network Adapter (0x434e) */     \
+	if ((pdev->device == 0x434e)) { \
+	    result = SK_TRUE;     \
+	}     \
     /* Linksys (0x1737) */     \
     } else if (pdev->vendor == 0x1737) {     \
-        /* Gigabit Network Adapter (0x1032) */     \
-        /* Gigabit Network Adapter (0x1064) */     \
-        if ((pdev->device == 0x1032) || \
-            (pdev->device == 0x1064)) { \
-            result = SK_TRUE;     \
-        }     \
+	/* Gigabit Network Adapter (0x1032) */     \
+	/* Gigabit Network Adapter (0x1064) */     \
+	if ((pdev->device == 0x1032) || \
+	    (pdev->device == 0x1064)) { \
+	    result = SK_TRUE;     \
+	}     \
     } else {     \
-        result = SK_FALSE;     \
+	result = SK_FALSE;     \
     }     \
 }
 
@@ -186,7 +186,6 @@ struct s_DrvRlmtMbuf {
 #endif  /* SK_RLMT_MBUF_PRIVATE */
 	struct sk_buff	*pOs;		/* Pointer to message block */
 };
-
 
 
 /*
@@ -307,7 +306,6 @@ struct s_TxD {
 #define TX_CTRL_CHECK_DEFAULT	UINT32_C(0x00550000)
 #define TX_CTRL_CHECK_CSUM	UINT32_C(0x00560000)
 #define	TX_CTRL_LEN_MASK	UINT32_C(0x0000FFFF)
-
 
 
 /* The offsets of registers in the TX and RX queue control io area ***********/
@@ -441,7 +439,7 @@ struct s_DevNet {
 	int             Mtu;
 	int             Up;
 	SK_AC   *pAC;
-};  
+};
 
 typedef struct s_TxPort		TX_PORT;
 
@@ -504,7 +502,7 @@ struct s_AC  {
 	SK_PNMI_STRUCT_DATA PnmiStruct;	/* structure to get all Pnmi-Data */
 	int			RlmtMode;	/* link check mode to set */
 	int			RlmtNets;	/* Number of nets */
-	
+
 	SK_IOC		IoBase;		/* register set of adapter */
 	int		BoardLevel;	/* level of active hw init (0-2) */
 	char		DeviceStr[80];	/* adapter string from vpd */
@@ -520,7 +518,7 @@ struct s_AC  {
 	struct SK_NET_DEVICE	*Next;		/* link all devices (for clearing) */
 	int		RxBufSize;	/* length of receive buffers */
 #if 0
-        struct net_device_stats stats;	/* linux 'netstat -i' statistics */
+	struct net_device_stats stats;	/* linux 'netstat -i' statistics */
 #endif
 	int		Index;		/* internal board index number */
 
@@ -560,6 +558,4 @@ struct s_AC  {
 
 };
 
-
 #endif /* __INC_SKDRV2ND_H */
-

@@ -20,7 +20,7 @@
  *	The information in this file is provided "AS IS" without warranty.
  *
  ******************************************************************************/
- 
+
  /*****************************************************************************
  *
  * History:
@@ -28,15 +28,15 @@
  *	$Log: sktypes.h,v $
  *	Revision 1.3  2003/02/25 14:16:40  mlindner
  *	Fix: Copyright statement
- *	
+ *
  *	Revision 1.2  1999/11/22 14:01:58  cgoos
  *	Changed license header to GPL.
  *	Now using Linux' fixed size types instead of standard types.
- *	
+ *
  *	Revision 1.1  1999/02/16 07:41:40  cgoos
  *	First version.
- *	
- *	
+ *
+ *
  *
  *****************************************************************************/
 
@@ -46,7 +46,7 @@
  *
  * In this file, all data types that are needed by the common modules
  * are mapped to Linux data types.
- * 
+ *
  *
  * Include File Hierarchy:
  *

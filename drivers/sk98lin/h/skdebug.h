@@ -28,42 +28,42 @@
  *	Revision 1.12  2002/07/15 15:37:13  rschmidt
  *	Power Management support
  *	Editorial changes
- *	
+ *
  *	Revision 1.11  2002/04/25 11:04:39  rschmidt
  *	Editorial changes
- *	
+ *
  *	Revision 1.10  1999/11/22 13:47:40  cgoos
  *	Changed license header to GPL.
- *	
+ *
  *	Revision 1.9  1999/09/14 14:02:43  rwahl
  *	Added SK_DBGMOD_PECP.
- *	
+ *
  *	Revision 1.8  1998/11/25 08:31:54  gklug
  *	fix: no C++ comments allowed in common sources
- *	
+ *
  *	Revision 1.7  1998/11/24 16:47:24  swolf
  *	Driver may now define its own SK_DBG_MSG() (eg. in "h/skdrv1st.h").
- *	
+ *
  *	Revision 1.6  1998/10/28 10:23:55  rassmann
  *	ADDED SK_DBGMOD_ADDR.
- *	
+ *
  *	Revision 1.5  1998/10/22 09:43:55  gklug
  *	add: CSUM module
- *	
+ *
  *	Revision 1.4  1998/10/01 07:54:44  gklug
  *	add: PNMI debug module
- *	
+ *
  *	Revision 1.3  1998/09/18 08:32:34  afischer
  *	Macros changed according ssr-spec.:
  *		SK_DBG_MODCHK -> SK_DBG_CHKMOD
  *		SK_DBG_CATCHK -> SK_DBG_CHKCAT
- *	
+ *
  *	Revision 1.2  1998/07/03 14:38:25  malthoff
  *	Add category SK_DBGCAT_FATAL.
- *	
+ *
  *	Revision 1.1  1998/06/19 13:39:01  malthoff
  *	created.
- *	
+ *
  *
  ******************************************************************************/
 

@@ -30,103 +30,103 @@
  *	Added defines for copper MDI/MDIX configuration
  *	Added defines for LED Control Register
  *	Editorial changes
- *	
+ *
  *	Revision 1.45  2002/12/10 14:35:13  rschmidt
  *	Corrected defines for Extended PHY Specific Control
  *	Added defines for Ext. PHY Specific Ctrl 2 Reg. (Fiber specific)
- *	
+ *
  *	Revision 1.44  2002/12/09 14:58:41  rschmidt
  *	Added defines for Ext. PHY Specific Ctrl Reg. (downshift feature)
  *	Added 'GMR_FS_UN_SIZE'-Bit to Rx GMAC FIFO Flush Mask
- *	
+ *
  *	Revision 1.43  2002/12/05 10:14:45  rschmidt
  *	Added define for GMAC's Half Duplex Burst Mode
  *	Added define for Rx GMAC FIFO Flush Mask (default)
- *	
+ *
  *	Revision 1.42  2002/11/12 16:48:19  rschmidt
  *	Added defines for Cable Diagnostic Register (GPHY)
  *	Editorial changes
- *	
+ *
  *	Revision 1.41  2002/10/21 11:20:22  rschmidt
  *	Added bit GMR_FS_GOOD_FC to GMR_FS_ANY_ERR
  *	Editorial changes
- *	
+ *
  *	Revision 1.40  2002/10/14 14:54:14  rschmidt
  *	Added defines for GPHY Specific Status and GPHY Interrupt Status
  *	Added bits PHY_M_IS_AN_ERROR and PHY_M_IS_FIFO_ERROR to PHY_M_DEF_MSK
  *	Editorial changes
- *	
+ *
  *	Revision 1.39  2002/10/10 15:53:44  mkarl
  *	added some bit definitions for link speed status and LED's
- *	
+ *
  *	Revision 1.38  2002/08/21 16:23:46  rschmidt
  *	Added defines for PHY Specific Ctrl Reg
  *	Editorial changes
- *	
+ *
  *	Revision 1.37  2002/08/16 14:50:33  rschmidt
  *	Added defines for Auto-Neg. Advertisement YUKON Fiber (88E1011S only)
  *	Changed define PHY_M_DEF_MSK for GPHY IRQ Mask
  *	Editorial changes
- *	
+ *
  *	Revision 1.36  2002/08/12 13:21:10  rschmidt
  *	Added defines for different Broadcom PHY Ids
- *	
+ *
  *	Revision 1.35  2002/08/08 15:58:01  rschmidt
  *	Added defines for Manual LED Override register (YUKON)
  *	Editorial changes
- *	
+ *
  *	Revision 1.34  2002/07/31 17:23:36  rwahl
  *	Added define GMR_FS_ANY_ERR (analogous to XMR_FS_ANY_ERR).
- *	
+ *
  *	Revision 1.33  2002/07/23 16:03:37  rschmidt
  *	Added defines for GPHY registers
  *	Editorial changes
- *	
+ *
  *	Revision 1.32  2002/07/15 18:14:37  rwahl
  *	Added GMAC MIB counters definitions.
  *	Editorial changes.
- *	
+ *
  *	Revision 1.31  2002/07/15 15:42:50  rschmidt
  *	Removed defines from PHY specific reg. which are
  *	common to all PHYs
  *	Added defines for GMAC MIB Counters
  *	Editorial changes
- *	
+ *
  *	Revision 1.30  2002/06/05 08:22:12  rschmidt
  *	Changed defines for GMAC Rx Control Register and Rx Status
  *	Editorial changes
- *	
+ *
  *	Revision 1.29  2002/04/25 11:43:56  rschmidt
  *	Added define PHY_B_AS_PAUSE_MSK for BCom Pause Res.
  *	Added new registers and defines for YUKON (GMAC, GPHY)
  *	Added Receive Frame Status Encoding for YUKON
  *	Editorial changes
- *	
+ *
  *	Revision 1.28  2000/11/09 12:32:49  rassmann
  *	Renamed variables.
- *	
+ *
  *	Revision 1.27  2000/05/17 11:00:46  malthoff
  *	Add bit for enable/disable power management in BCOM chip.
- *	
+ *
  *	Revision 1.26  1999/11/22 14:03:00  cgoos
  *	Changed license header to GPL.
- *	
+ *
  *	Revision 1.25  1999/08/12 19:19:38  malthoff
  *	Add PHY_B_AC_TX_TST bit according to BCOM A1 errata sheet.
- *	
+ *
  *	Revision 1.24  1999/07/30 11:27:21  cgoos
  *	Fixed a missing end-of-comment.
- *	
+ *
  *	Revision 1.23  1999/07/30 07:03:31  malthoff
  *	Cut some long comments.
  *	Correct the XMAC PHY ID definitions.
- *	
+ *
  *	Revision 1.22  1999/05/19 07:33:18  cgoos
  *	Changes for 1000Base-T.
- *	
+ *
  *	Revision 1.21  1999/03/25 07:46:11  malthoff
  *	Add XM_HW_CFG, XM_TS_READ, and XM_TS_LOAD registers.
- *	
+ *
  *	Revision 1.20  1999/03/12 13:36:09  malthoff
  *	Remove __STDC__.
  *
@@ -912,7 +912,7 @@ extern "C" {
 /*	PHY_AN_LP_NP		(see XMAC) Bit  3:	Link Partner can Next Page */
 /*	PHY_AN_LOC_NP		(see XMAC) Bit  2:	Local PHY can Next Page */
 /*	PHY_AN_RX_PG		(see XMAC) Bit  1:	Page Received */
-#define PHY_B_AN_LP_CAP	(1<<0)	/* Bit  0:	Link Partner Auto-Neg. Cap. */ 	
+#define PHY_B_AN_LP_CAP	(1<<0)	/* Bit  0:	Link Partner Auto-Neg. Cap. */
 
 /*****  PHY_LONE_AUNE_EXP	16 bit r/o	Auto-Negotiation Expansion Reg *****/
 #define PHY_L_AN_BP		(1<<5)	/* Bit  5:	Base Page Indication */
@@ -920,7 +920,7 @@ extern "C" {
 /*	PHY_AN_LP_NP		(see XMAC) Bit  3:	Link Partner can Next Page */
 /*	PHY_AN_LOC_NP		(see XMAC) Bit  2:	Local PHY can Next Page */
 /*	PHY_AN_RX_PG		(see XMAC) Bit  1:	Page Received */
-#define PHY_B_AN_LP_CAP	(1<<0)	/* Bit  0:	Link Partner Auto-Neg. Cap. */ 	
+#define PHY_B_AN_LP_CAP	(1<<0)	/* Bit  0:	Link Partner Auto-Neg. Cap. */
 
 
 /*****  PHY_XMAC_NEPG		16 bit r/w	Next Page Register *****/
@@ -1315,7 +1315,7 @@ extern "C" {
 #define PHY_M_PC_POL_R_DIS	(1<<1)	/* Bit  1:	Polarity Reversal Disabled */
 #define PHY_M_PC_DIS_JABBER	(1<<0)	/* Bit  0:	Disable Jabber */
 
-#define PHY_M_PC_MDI_XMODE(x)	SHIFT5(x)	
+#define PHY_M_PC_MDI_XMODE(x)	SHIFT5(x)
 #define PHY_M_PC_MAN_MDI	0    	/* 00 = Manual MDI configuration */
 #define PHY_M_PC_MAN_MDIX	1		/* 01 = Manual MDIX configuration */
 #define PHY_M_PC_ENA_AUTO	3		/* 11 = Enable Automatic Crossover */
@@ -1614,7 +1614,7 @@ extern "C" {
 #define GM_GPSR_FC_RX_DIS	(1<<2)	/* Bit  2:	Rx Flow Control Mode Disabled */
 #define GM_GPSR_PROM_EN		(1<<1)	/* Bit  1:	Promiscuous Mode Enabled */
 								/* Bit  0:	reserved */
-	
+
 /*	GM_GP_CTRL	16 bit r/w	General Purpose Control Register */
 								/* Bit 15:	reserved */
 #define GM_GPCR_PROM_ENA	(1<<14)	/* Bit 14:	Enable Promiscuous Mode */
@@ -1636,20 +1636,20 @@ extern "C" {
 #define GM_GPCR_SPEED_1000	(GM_GPCR_GIGS_ENA | GM_GPCR_SPEED_100)
 #define GM_GPCR_AU_ALL_DIS	(GM_GPCR_AU_DUP_DIS | GM_GPCR_AU_FCT_DIS |\
 							 GM_GPCR_AU_SPD_DIS)
-	
+
 /*	GM_TX_CTRL				16 bit r/w	Transmit Control Register */
 
 #define GM_TXCR_FORCE_JAM	(1<<15)	/* Bit 15:	Force Jam / Flow-Control */
 #define GM_TXCR_CRC_DIS		(1<<14)	/* Bit 14:	Disable insertion of CRC */
 #define GM_TXCR_PAD_DIS		(1<<13)	/* Bit 13:	Disable padding of packets */
 #define GM_TXCR_COL_THR		(4<<10)	/* Bit 12..10:	Collision Threshold */
-	
+
 /*	GM_RX_CTRL				16 bit r/w	Receive Control Register */
 #define GM_RXCR_UCF_ENA		(1<<15)	/* Bit 15:	Enable Unicast filtering */
 #define GM_RXCR_MCF_ENA		(1<<14)	/* Bit 14:	Enable Multicast filtering */
 #define GM_RXCR_CRC_DIS		(1<<13)	/* Bit 13:	Remove 4-byte CRC */
 #define GM_RXCR_PASS_FC		(1<<12)	/* Bit 12:	Pass FC packets to FIFO */
-	
+
 /*	GM_TX_PARAM				16 bit r/w	Transmit Parameter Register */
 #define GM_TXPA_JAMLEN_MSK	(0x03<<14)	/* Bit 15..14:	Jam Length */
 #define GM_TXPA_JAMIPG_MSK	(0x1f<<9)	/* Bit 13..9:	Jam IPG */
@@ -1666,7 +1666,7 @@ extern "C" {
 #define GM_SMOD_JUMBO_ENA	(1<<8)	/* Bit  8:	Enable Jumbo (Max. Frame Length) */
 								/* Bit  7..5:	reserved */
 #define GM_SMOD_IPG_MSK		0x1f	/* Bit 4..0:	Inter-Packet Gap (IPG) */
-	
+
 #define DATA_BLIND_VAL(x)	SHIFT11(x)
 #define DATA_BLIND_FAST_ETH	0x1c
 #define DATA_BLIND_GIGABIT	4
@@ -1682,13 +1682,13 @@ extern "C" {
 #define GM_SMI_CT_RD_VAL	(1<<4)	/* Bit  4:	Read Valid (Read completed) */
 #define GM_SMI_CT_BUSY		(1<<3)	/* Bit  3:	Busy (Operation in progress) */
 								/* Bit   2..0:	reserved */
-	
+
 /*	GM_PHY_ADDR				16 bit r/w	GPHY Address Register */
 								/* Bit  15..6:	reserved */
 #define GM_PAR_MIB_CLR		(1<<5)	/* Bit  5:	Set MIB Clear Counter Mode */
 #define GM_PAR_MIB_TST		(1<<4)	/* Bit  4:	MIB Load Counter (Test Mode) */
 								/* Bit   3..0:	reserved */
-	
+
 /* Receive Frame Status Encoding */
 #define GMR_FS_LEN	(0xffffUL<<16)	/* Bit 31..16:	Rx Frame Length */
 								/* Bit  15..14:	reserved */

@@ -29,46 +29,46 @@
  *	$Log: skgehwt.c,v $
  *	Revision 1.13  1999/11/22 13:31:12  cgoos
  *	Changed license header to GPL.
- *	
+ *
  *	Revision 1.12  1998/10/15 15:11:34  gklug
  *	fix: ID_sccs to SysKonnectFileId
- *	
+ *
  *	Revision 1.11  1998/10/08 15:27:51  gklug
  *	chg: correction factor is host clock dependent
- *	
+ *
  *	Revision 1.10  1998/09/15 14:18:31  cgoos
  *	Changed more BOOLEANs to SK_xxx
  *
  *	Revision 1.9  1998/09/15 14:16:06  cgoos
  *	Changed line 107: FALSE to SK_FALSE
- *	
+ *
  *	Revision 1.8  1998/08/24 13:04:44  gklug
  *	fix: typo
- *	
+ *
  *	Revision 1.7  1998/08/19 09:50:49  gklug
  *	fix: remove struct keyword from c-code (see CCC) add typedefs
- *	
+ *
  *	Revision 1.6  1998/08/17 09:59:02  gklug
  *	fix: typos
- *	
+ *
  *	Revision 1.5  1998/08/14 07:09:10  gklug
  *	fix: chg pAc -> pAC
- *	
+ *
  *	Revision 1.4  1998/08/10 14:14:52  gklug
  *	rmv: unneccessary SK_ADDR macro
- *	
+ *
  *	Revision 1.3  1998/08/07 12:53:44  gklug
  *	fix: first compiled version
- *	
+ *
  *	Revision 1.2  1998/08/07 09:19:29  gklug
  *	adapt functions to the C coding conventions
  *	rmv unneccessary functions.
- *	
+ *
  *	Revision 1.1  1998/08/05 11:28:36  gklug
  *	first version: adapted from SMT/FDDI
- *	
- *	
- *	
+ *
+ *
+ *
  *
  ******************************************************************************/
 

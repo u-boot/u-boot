@@ -77,7 +77,6 @@
 #endif
 
 
-
 /*-- General stuff. --*/
 
 #define BZ_VERSION  "1.0.2, 30-Dec-2001"
@@ -105,7 +104,7 @@ extern void BZ2_bz__AssertH__fail ( int errcode );
 #define AssertD(cond,msg) \
    { if (!(cond)) {       \
       fprintf ( stderr,   \
-        "\n\nlibbzip2(debug build): internal error\n\t%s\n", msg );\
+	"\n\nlibbzip2(debug build): internal error\n\t%s\n", msg );\
       exit(1); \
    }}
 #else
@@ -163,7 +162,6 @@ extern void bz_internal_error ( int errcode );
 #define BZ_MAX_SELECTORS (2 + (900000 / BZ_G_SIZE))
 
 
-
 /*-- Stuff for randomising repetitive blocks. --*/
 
 extern Int32 BZ2_rNums[512];
@@ -187,7 +185,6 @@ extern Int32 BZ2_rNums[512];
    s->rNToGo--;
 
 
-
 /*-- Stuff for doing CRCs. --*/
 
 extern UInt32 BZ2_crc32Table[256];
@@ -205,10 +202,9 @@ extern UInt32 BZ2_crc32Table[256];
 #define BZ_UPDATE_CRC(crcVar,cha)              \
 {                                              \
    crcVar = (crcVar << 8) ^                    \
-            BZ2_crc32Table[(crcVar >> 24) ^    \
-                           ((UChar)cha)];      \
+	    BZ2_crc32Table[(crcVar >> 24) ^    \
+			   ((UChar)cha)];      \
 }
-
 
 
 /*-- States and modes for compression. --*/
@@ -225,8 +221,6 @@ extern UInt32 BZ2_crc32Table[256];
 #define BZ_N_QSORT 12
 #define BZ_N_SHELL 18
 #define BZ_N_OVERSHOOT (BZ_N_RADIX + BZ_N_QSORT + BZ_N_SHELL + 2)
-
-
 
 
 /*-- Structure holding all the compression-side stuff. --*/
@@ -304,7 +298,6 @@ typedef
    EState;
 
 
-
 /*-- externs for compression. --*/
 
 extern void
@@ -321,7 +314,6 @@ BZ2_hbAssignCodes ( Int32*, UChar*, Int32, Int32, Int32 );
 
 extern void
 BZ2_hbMakeCodeLengths ( UChar*, Int32*, Int32, Int32 );
-
 
 
 /*-- states for decompression. --*/
@@ -372,12 +364,10 @@ BZ2_hbMakeCodeLengths ( UChar*, Int32*, Int32, Int32 );
 #define BZ_X_CCRC_4      50
 
 
-
 /*-- Constants for the fast MTF decoder. --*/
 
 #define MTFA_SIZE 4096
 #define MTFL_SIZE 16
-
 
 
 /*-- Structure holding all the decompression-side stuff. --*/
@@ -476,7 +466,6 @@ typedef
    DState;
 
 
-
 /*-- Macros for decompression. --*/
 
 #define BZ_GET_FAST(cccc)                     \
@@ -491,8 +480,8 @@ typedef
 
 #define SET_LL4(i,n)                                          \
    { if (((i) & 0x1) == 0)                                    \
-        s->ll4[(i) >> 1] = (s->ll4[(i) >> 1] & 0xf0) | (n); else    \
-        s->ll4[(i) >> 1] = (s->ll4[(i) >> 1] & 0x0f) | ((n) << 4);  \
+	s->ll4[(i) >> 1] = (s->ll4[(i) >> 1] & 0xf0) | (n); else    \
+	s->ll4[(i) >> 1] = (s->ll4[(i) >> 1] & 0x0f) | ((n) << 4);  \
    }
 
 #define GET_LL4(i)                             \
@@ -521,7 +510,7 @@ BZ2_decompress ( DState* );
 
 extern void
 BZ2_hbCreateDecodeTables ( Int32*, Int32*, Int32*, UChar*,
-                           Int32,  Int32, Int32 );
+			   Int32,  Int32, Int32 );
 
 
 #endif

@@ -172,7 +172,6 @@ BZ_EXTERN int BZ_API(BZ2_bzDecompressEnd) (
    );
 
 
-
 /*-- High(er) level library functions --*/
 
 #ifndef BZ_NO_STDIO

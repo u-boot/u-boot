@@ -28,26 +28,26 @@
  *	$Log: skgemib.c,v $
  *	Revision 1.7  2002/12/16 09:04:34  tschilli
  *	Code for VCT handling added.
- *	
+ *
  *	Revision 1.6  2002/08/09 15:40:21  rwahl
  *	Editorial change (renamed ConfSpeedCap).
- *	
+ *
  *	Revision 1.5  2002/08/09 11:05:34  rwahl
  *	Added oid handling for link speed cap.
- *	
+ *
  *	Revision 1.4  2002/08/09 09:40:27  rwahl
  *	Added support for NDIS OID_PNP_xxx.
- *	
+ *
  *	Revision 1.3  2002/07/17 19:39:54  rwahl
  *	Added handler for OID_SKGE_SPEED_MODE & OID_SKGE_SPEED_STATUS.
- *	
+ *
  *	Revision 1.2  2002/05/22 08:59:00  rwahl
  *	- static functions only for release build.
  *	- Source file must be included.
- *	
+ *
  *	Revision 1.1  2002/05/22 08:12:42  rwahl
  *	Initial version.
- *	
+ *
  ****************************************************************************/
 
 #include <config.h>
@@ -105,7 +105,6 @@ PNMI_STATIC int PowerManagement(SK_AC *pAC, SK_IOC IoC, int action, SK_U32 Id,
 	char *pBuf, unsigned int *pLen, SK_U32 Instance,
 	unsigned int TableIndex, SK_U32 NetIndex);
 #endif
-
 
 
 /* defines *******************************************************************/
@@ -321,7 +320,7 @@ PNMI_STATIC const SK_PNMI_TAB_ENTRY IdTable[] = {
 		sizeof(SK_PNMI_VPD),
 		SK_PNMI_OFF(Vpd) + SK_PNMI_VPD_OFF(VpdAction),
 		SK_PNMI_RW, Vpd, 0},
-	{OID_SKGE_PORT_NUMBER,		
+	{OID_SKGE_PORT_NUMBER,
 		1,
 		0,
 		SK_PNMI_MAI_OFF(PortNumber),

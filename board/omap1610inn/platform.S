@@ -132,8 +132,6 @@ watch2Wait:
 	bne	watch2Wait
 
 
-
-
 	/* Set memory timings corresponding to the new clock speed */
 
 	/* Check execution location to determine current execution location
@@ -275,7 +273,7 @@ REG_ARM_CKCTL:			/* 16 bits */
 REG_ARM_IDLECT3:		/* 16 bits */
 	.word 0xfffece24
 REG_ARM_IDLECT2:		/* 16 bits */
-	.word 0xfffece08        
+	.word 0xfffece08
 REG_ARM_IDLECT1:		/* 16 bits */
 	.word 0xfffece04
 
@@ -293,7 +291,7 @@ REG_WSPRDOG:
 	.word 0xfffeb048
 /* watchdog write pending */
 REG_WWPSDOG:
-	.word 0xfffeb034 
+	.word 0xfffeb034
 
 WSPRDOG_VAL1:
 	.word 0x0000aaaa
@@ -342,7 +340,7 @@ REG_WATCHDOG:
 
 /* 96 MHz Samsung Mobile DDR */
 SDRAM_CONFIG_VAL:
-	.word 0x001200f4 
+	.word 0x001200f4
 
 DLL_LRD_CONTROL_VAL:
 	.word 0x00800002

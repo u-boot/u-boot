@@ -29,45 +29,45 @@
  *	$Log: sktimer.c,v $
  *	Revision 1.12  1999/11/22 13:38:51  cgoos
  *	Changed license header to GPL.
- *	
+ *
  *	Revision 1.11  1998/12/17 13:24:13  gklug
  *	fix: restart problem: do NOT destroy timer queue if init 1 is done
- *	
+ *
  *	Revision 1.10  1998/10/15 15:11:36  gklug
  *	fix: ID_sccs to SysKonnectFileId
- *	
+ *
  *	Revision 1.9  1998/09/15 15:15:04  cgoos
  *	Changed TRUE/FALSE to SK_TRUE/SK_FALSE
- *	
+ *
  *	Revision 1.8  1998/09/08 08:47:55  gklug
  *	add: init level handling
- *	
+ *
  *	Revision 1.7  1998/08/19 09:50:53  gklug
  *	fix: remove struct keyword from c-code (see CCC) add typedefs
- *	
+ *
  *	Revision 1.6  1998/08/17 13:43:13  gklug
  *	chg: Parameter will be union of 64bit para, 2 times SK_U32 or SK_PTR
- *	
+ *
  *	Revision 1.5  1998/08/14 07:09:14  gklug
  *	fix: chg pAc -> pAC
- *	
+ *
  *	Revision 1.4  1998/08/07 12:53:46  gklug
  *	fix: first compiled version
- *	
+ *
  *	Revision 1.3  1998/08/07 09:31:53  gklug
  *	fix: delta spelling
- *	
+ *
  *	Revision 1.2  1998/08/07 09:31:02  gklug
  *	adapt functions to new c coding conventions
  *	rmv: "fast" handling
  *	chg: inserting of new timer in queue.
  *	chg: event queue generation when timer runs out
- *	
+ *
  *	Revision 1.1  1998/08/05 11:27:55  gklug
  *	first version: adapted from SMT
- *	
- *	
- *	
+ *
+ *
+ *
  *
  ******************************************************************************/
 

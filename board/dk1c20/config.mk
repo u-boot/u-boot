@@ -27,4 +27,3 @@ TEXT_BASE = 0x018c0000
 ifeq ($(debug),1)
 PLATFORM_CPPFLAGS += -DDEBUG
 endif
-

@@ -562,13 +562,13 @@ long int initdram(int board_type)
     printf(", Using Bank Based Interleave\n");
 #else
     printf(", Using Page Based Interleave\n");
-#endif    
+#endif
 	printf("\tTotal size: ");
 
-    /* this delay only needed for original 16MB DIMM... 
+    /* this delay only needed for original 16MB DIMM...
      * Not needed for any other memory configuration */
     if ((sdram_size * chipselects) == (16 *1024 *1024))
-        udelay (250000);
+	udelay (250000);
     return (sdram_size * chipselects);
 	/*return (16 * 1024 * 1024);*/
 }
@@ -584,4 +584,3 @@ void pci_init_board(void)
 	pci_mpc8250_init(&hose);
 }
 #endif
-

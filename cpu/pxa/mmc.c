@@ -481,7 +481,7 @@ mmc_init(int verbose)
 	MMC_CLKRT = 0;	/* 20 MHz */
 	resp = mmc_cmd(7, MMC_DEFAULT_RCA, 0, MMC_CMDAT_R1);
 
-	fat_register_device(&mmc_dev,1); /* partitions start counting with 1 */ 
+	fat_register_device(&mmc_dev,1); /* partitions start counting with 1 */
 
 	return rc;
 }

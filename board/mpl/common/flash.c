@@ -86,14 +86,14 @@ void unlock_intel_sectors(flash_info_t *info,ulong addr,ulong cnt);
  * The first thing we do is to map the Flash CS to the Flash area and
  * the MPS CS to the MPS area. Since the flash size is unknown at this
  * point, we use the max flash size and the lowest flash address as base.
- * 
+ *
  * After flash detection we adjust the size of the CS area accordingly.
  * The board_init_r will fill in wrong values in the board init structure,
  * but this will be fixed in the misc_init_r routine:
  * bd->bi_flashstart=0-flash_info[0].size
  * bd->bi_flashsize=flash_info[0].size-CFG_MONITOR_LEN
  * bd->bi_flashoffset=0
- * 
+ *
  */
 int get_boot_mode(void)
 {
@@ -152,7 +152,6 @@ void setup_cs_reloc(void)
 }
 
 
-
 unsigned long flash_init (void)
 {
 	unsigned long size_b0, size_b1,flashcr, size_reg;
@@ -207,7 +206,7 @@ unsigned long flash_init (void)
 		case 32: i=5; break; /* = 32MB */
 		case 64: i=6; break; /* = 64MB */
 		case 128: i=7; break; /*= 128MB */
-		default: 
+		default:
 			printf("\n #### ERROR, wrong size %ld MByte reset board #####\n",size_reg);
 			while(1);
 	}
@@ -345,7 +344,7 @@ void flash_print_info  (flash_info_t *info)
 
 
 /*-----------------------------------------------------------------------
- 
+
 */
 
 /*

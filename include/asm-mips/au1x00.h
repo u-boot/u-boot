@@ -587,8 +587,8 @@ static __inline__ int au_ffs(int x)
 #define RX_MISSED_FRAME            (1<<31)
 
 #define RX_ERROR (RX_WDOG_TIMER | RX_RUNT | RX_OVERLEN |  \
-                    RX_COLL | RX_MII_ERROR | RX_CRC_ERROR | \
-                    RX_LEN_ERROR | RX_U_CNTRL_FRAME | RX_MISSED_FRAME)
+		    RX_COLL | RX_MII_ERROR | RX_CRC_ERROR | \
+		    RX_LEN_ERROR | RX_U_CNTRL_FRAME | RX_MISSED_FRAME)
 #define MAC_RX_BUFF0_ADDR                0x4
 #define RX_DMA_ENABLE               (1<<0)
 #define RX_T_DONE                   (1<<1)
@@ -702,7 +702,6 @@ static __inline__ int au_ffs(int x)
 #define UART_MSR_DDSR	0x02	/* Delta DSR */
 #define UART_MSR_DCTS	0x01	/* Delta CTS */
 #define UART_MSR_ANY_DELTA 0x0F	/* Any of the delta bits! */
-
 
 
 /* SSIO */
@@ -825,7 +824,7 @@ static __inline__ int au_ffs(int x)
 #define IR_TX_ENABLE            (1<<12)
 #define IR_LOOPBACK             (1<<14)
 #define IR_SIR_MODE	          (IR_SIR | IR_DMA_ENABLE | \
-		                   IR_RX_ALL | IR_RX_ENABLE | IR_SF | IR_16CRC)
+				   IR_RX_ALL | IR_RX_ENABLE | IR_SF | IR_16CRC)
 #define IR_SIR_FLAGS              (IRDA_BASE+0x24)
 #define IR_ENABLE                 (IRDA_BASE+0x28)
 #define IR_RX_STATUS            (1<<9)

@@ -312,7 +312,7 @@ static int compare_dirents(struct b_node *new, struct b_node *old)
 		jOld->ino = 0;
 		return 1;
 	}
-	
+
 	return 0;
 }
 #endif

@@ -885,7 +885,6 @@ int do_thermo (char **argv)
 }
 
 
-
 int do_touch (char **argv)
 {
 	int     x, y;
@@ -1037,7 +1036,6 @@ static void touch_read_x_y (int *px, int *py)
 	adc_wait_conversion_done();
 	*py = tsc2000_read(TSC2000_REG_Y);
 }
-
 
 
 int do_rs485 (char **argv)

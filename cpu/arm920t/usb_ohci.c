@@ -157,14 +157,14 @@ static void pkt_print (struct usb_device * dev, unsigned long pipe, void * buffe
 
 	dbg("%s URB:[%4x] dev:%2d,ep:%2d-%c,type:%s,len:%d/%d stat:%#lx",
 			str,
-		 	sohci_get_current_frame_number (dev),
-		 	usb_pipedevice (pipe),
-		 	usb_pipeendpoint (pipe),
-		 	usb_pipeout (pipe)? 'O': 'I',
-		 	usb_pipetype (pipe) < 2? (usb_pipeint (pipe)? "INTR": "ISOC"):
-		 		(usb_pipecontrol (pipe)? "CTRL": "BULK"),
-		 	purb->actual_length,
-		 	transfer_len, dev->status);
+			sohci_get_current_frame_number (dev),
+			usb_pipedevice (pipe),
+			usb_pipeendpoint (pipe),
+			usb_pipeout (pipe)? 'O': 'I',
+			usb_pipetype (pipe) < 2? (usb_pipeint (pipe)? "INTR": "ISOC"):
+				(usb_pipecontrol (pipe)? "CTRL": "BULK"),
+			purb->actual_length,
+			transfer_len, dev->status);
 #ifdef	OHCI_VERBOSE_DEBUG
 	if (!small) {
 		int i, len;
@@ -585,7 +585,7 @@ static ed_t * ep_add_ed (struct usb_device *usb_dev, unsigned long pipe)
 
 	if (ed->state == ED_NEW) {
 		ed->hwINFO = m32_swap (OHCI_ED_SKIP); /* skip ed */
-  		/* dummy td; end of td list for ed */
+		/* dummy td; end of td list for ed */
 		td = td_alloc (usb_dev);
 		ed->hwTailP = m32_swap (td);
 		ed->hwHeadP = ed->hwTailP;
@@ -669,13 +669,13 @@ static void td_submit_job (struct usb_device *dev, unsigned long pipe, void *buf
 	void *data;
 	int cnt = 0;
 	__u32 info = 0;
-  	unsigned int toggle = 0;
+	unsigned int toggle = 0;
 
 	/* OHCI handles the DATA-toggles itself, we just use the USB-toggle bits for reseting */
-  	if(usb_gettoggle(dev, usb_pipeendpoint(pipe), usb_pipeout(pipe))) {
-  		toggle = TD_T_TOGGLE;
+	if(usb_gettoggle(dev, usb_pipeendpoint(pipe), usb_pipeout(pipe))) {
+		toggle = TD_T_TOGGLE;
 	} else {
-  		toggle = TD_T_DATA0;
+		toggle = TD_T_DATA0;
 		usb_settoggle(dev, usb_pipeendpoint(pipe), usb_pipeout(pipe), 1);
 	}
 	urb->td_cnt = 0;
@@ -731,11 +731,11 @@ static void td_submit_job (struct usb_device *dev, unsigned long pipe, void *buf
 static void dl_transfer_length(td_t * td)
 {
 	__u32 tdINFO, tdBE, tdCBP;
- 	urb_priv_t *lurb_priv = &urb_priv;
+	urb_priv_t *lurb_priv = &urb_priv;
 
 	tdINFO = m32_swap (td->hwINFO);
-  	tdBE   = m32_swap (td->hwBE);
-  	tdCBP  = m32_swap (td->hwCBP);
+	tdBE   = m32_swap (td->hwBE);
+	tdCBP  = m32_swap (td->hwCBP);
 
 
 	if (!(usb_pipetype (lurb_priv->pipe) == PIPE_CONTROL &&
@@ -759,7 +759,7 @@ static td_t * dl_reverse_done_list (ohci_t *ohci)
 	__u32 td_list_hc;
 	td_t *td_rev = NULL;
 	td_t *td_list = NULL;
-  	urb_priv_t *lurb_priv = NULL;
+	urb_priv_t *lurb_priv = NULL;
 
 	td_list_hc = m32_swap (ohci->hcca->done_head) & 0xfffffff0;
 	ohci->hcca->done_head = 0;
@@ -794,42 +794,42 @@ static td_t * dl_reverse_done_list (ohci_t *ohci)
 /* td done list */
 static int dl_done_list (ohci_t *ohci, td_t *td_list)
 {
-  	td_t *td_list_next = NULL;
+	td_t *td_list_next = NULL;
 	ed_t *ed;
 	int cc = 0;
 	int stat = 0;
 	/* urb_t *urb; */
 	urb_priv_t *lurb_priv;
- 	__u32 tdINFO, edHeadP, edTailP;
+	__u32 tdINFO, edHeadP, edTailP;
 
-  	while (td_list) {
-   		td_list_next = td_list->next_dl_td;
+	while (td_list) {
+		td_list_next = td_list->next_dl_td;
 
-  		lurb_priv = &urb_priv;
-  		tdINFO = m32_swap (td_list->hwINFO);
+		lurb_priv = &urb_priv;
+		tdINFO = m32_swap (td_list->hwINFO);
 
-   		ed = td_list->ed;
+		ed = td_list->ed;
 
-   		dl_transfer_length(td_list);
+		dl_transfer_length(td_list);
 
-  		/* error code of transfer */
-  		cc = TD_CC_GET (tdINFO);
+		/* error code of transfer */
+		cc = TD_CC_GET (tdINFO);
 		if (cc != 0) {
 			dbg("ConditionCode %#x", cc);
 			stat = cc_to_error[cc];
 		}
 
-  		if (ed->state != ED_NEW) {
-  			edHeadP = m32_swap (ed->hwHeadP) & 0xfffffff0;
-  			edTailP = m32_swap (ed->hwTailP);
+		if (ed->state != ED_NEW) {
+			edHeadP = m32_swap (ed->hwHeadP) & 0xfffffff0;
+			edTailP = m32_swap (ed->hwTailP);
 
 			/* unlink eds if they are not busy */
-     			if ((edHeadP == edTailP) && (ed->state == ED_OPER))
-     				ep_unlink (ohci, ed);
-     		}
+			if ((edHeadP == edTailP) && (ed->state == ED_OPER))
+				ep_unlink (ohci, ed);
+		}
 
-    		td_list = td_list_next;
-  	}
+		td_list = td_list_next;
+	}
 	return stat;
 }
 
@@ -851,9 +851,9 @@ static __u8 root_hub_dev_des[] =
 	0x00,       /*  __u16 idVendor; */
 	0x00,
 	0x00,       /*  __u16 idProduct; */
- 	0x00,
+	0x00,
 	0x00,       /*  __u16 bcdDevice; */
- 	0x00,
+	0x00,
 	0x00,       /*  __u8  iManufacturer; */
 	0x01,       /*  __u8  iProduct; */
 	0x00,       /*  __u8  iSerialNumber; */
@@ -872,7 +872,7 @@ static __u8 root_hub_config_des[] =
 	0x01,       /*  __u8  bConfigurationValue; */
 	0x00,       /*  __u8  iConfiguration; */
 	0x40,       /*  __u8  bmAttributes;
-                 Bit 7: Bus-powered, 6: Self-powered, 5 Remote-wakwup, 4..0: resvd */
+		 Bit 7: Bus-powered, 6: Self-powered, 5 Remote-wakwup, 4..0: resvd */
 	0x00,       /*  __u8  MaxPower; */
 
 	/* interface */
@@ -890,9 +890,9 @@ static __u8 root_hub_config_des[] =
 	0x07,       /*  __u8  ep_bLength; */
 	0x05,       /*  __u8  ep_bDescriptorType; Endpoint */
 	0x81,       /*  __u8  ep_bEndpointAddress; IN Endpoint 1 */
- 	0x03,       /*  __u8  ep_bmAttributes; Interrupt */
- 	0x02,       /*  __u16 ep_wMaxPacketSize; ((MAX_ROOT_PORTS + 1) / 8 */
- 	0x00,
+	0x03,       /*  __u8  ep_bmAttributes; Interrupt */
+	0x02,       /*  __u16 ep_wMaxPacketSize; ((MAX_ROOT_PORTS + 1) / 8 */
+	0x00,
 	0xff        /*  __u8  ep_bInterval; 255 ms */
 };
 
@@ -984,7 +984,7 @@ static int ohci_submit_rh_msg(struct usb_device *dev, unsigned long pipe,
 	int stat = 0;
 	__u32 datab[4];
 	__u8 *data_buf = (__u8 *)datab;
- 	__u16 bmRType_bReq;
+	__u16 bmRType_bReq;
 	__u16 wValue;
 	__u16 wIndex;
 	__u16 wLength;
@@ -1176,7 +1176,7 @@ pkt_print(dev, pipe, buffer, transfer_len, cmd, "SUB(rh)", usb_pipein(pipe));
 	len = min_t(int, len, leni);
 	if (data != data_buf)
 	    memcpy (data, data_buf, len);
-  	dev->act_len = len;
+	dev->act_len = len;
 	dev->status = stat;
 
 #ifdef DEBUG
@@ -1226,7 +1226,7 @@ int submit_common_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 
 	wait_ms(10);
 	/* ohci_dump_status(&gohci); */
-	
+
 	/* allow more time for a BULK device to react - some are slow */
 #define BULK_TO	 5000	/* timeout in milliseconds */
 	if (usb_pipetype (pipe) == PIPE_BULK)
@@ -1277,7 +1277,7 @@ int submit_common_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	}
 
 	dev->status = stat;
-  	dev->act_len = transfer_len;
+	dev->act_len = transfer_len;
 
 #ifdef DEBUG
 	pkt_print(dev, pipe, buffer, transfer_len, setup, "RET(ctlr)", usb_pipein(pipe));
@@ -1362,7 +1362,7 @@ static int hc_reset (ohci_t *ohci)
 		ohci->slot_name,
 		readl (&ohci->regs->control));
 
-  	/* Reset USB (needed by some controllers) */
+	/* Reset USB (needed by some controllers) */
 	writel (0, &ohci->regs->control);
 
 	/* HC Reset requires max 10 us delay */
@@ -1385,8 +1385,8 @@ static int hc_reset (ohci_t *ohci)
 
 static int hc_start (ohci_t * ohci)
 {
-  	__u32 mask;
-  	unsigned int fminterval;
+	__u32 mask;
+	unsigned int fminterval;
 
 	ohci->disabled = 1;
 
@@ -1398,16 +1398,16 @@ static int hc_start (ohci_t * ohci)
 
 	writel ((__u32)ohci->hcca, &ohci->regs->hcca); /* a reset clears this */
 
-  	fminterval = 0x2edf;
+	fminterval = 0x2edf;
 	writel ((fminterval * 9) / 10, &ohci->regs->periodicstart);
 	fminterval |= ((((fminterval - 210) * 6) / 7) << 16);
 	writel (fminterval, &ohci->regs->fminterval);
 	writel (0x628, &ohci->regs->lsthresh);
 
- 	/* start controller operations */
- 	ohci->hc_control = OHCI_CONTROL_INIT | OHCI_USB_OPER;
+	/* start controller operations */
+	ohci->hc_control = OHCI_CONTROL_INIT | OHCI_USB_OPER;
 	ohci->disabled = 0;
- 	writel (ohci->hc_control, &ohci->regs->control);
+	writel (ohci->hc_control, &ohci->regs->control);
 
 	/* disable all interrupts */
 	mask = (OHCI_INTR_SO | OHCI_INTR_WDH | OHCI_INTR_SF | OHCI_INTR_RD |
@@ -1447,7 +1447,7 @@ hc_interrupt (void)
 {
 	ohci_t *ohci = &gohci;
 	struct ohci_regs *regs = ohci->regs;
- 	int ints;
+	int ints;
 	int stat = -1;
 
 	if ((ohci->hcca->done_head != 0) && !(m32_swap (ohci->hcca->done_head) & 0x01)) {
@@ -1534,17 +1534,17 @@ int usb_lowlevel_init(void)
 	S3C24X0_CLOCK_POWER * const clk_power = S3C24X0_GetBase_CLOCK_POWER();
 	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
 
-        /*
-         * Set the 48 MHz UPLL clocking. Values are taken from
-         * "PLL value selection guide", 6-23, s3c2400_UM.pdf.
-         */
-        clk_power->UPLLCON = ((40 << 12) + (1 << 4) + 2);
-        gpio->MISCCR |= 0x8; /* 1 = use pads related USB for USB host */
+	/*
+	 * Set the 48 MHz UPLL clocking. Values are taken from
+	 * "PLL value selection guide", 6-23, s3c2400_UM.pdf.
+	 */
+	clk_power->UPLLCON = ((40 << 12) + (1 << 4) + 2);
+	gpio->MISCCR |= 0x8; /* 1 = use pads related USB for USB host */
 
-        /*
-         * Enable USB host clock.
-         */
-        clk_power->CLKCON |= (1 << 4);
+	/*
+	 * Enable USB host clock.
+	 */
+	clk_power->CLKCON |= (1 << 4);
 
 	memset (&gohci, 0, sizeof (ohci_t));
 	memset (&urb_priv, 0, sizeof (urb_priv_t));
@@ -1568,7 +1568,7 @@ int usb_lowlevel_init(void)
 	}
 	ptd = gtd;
 	gohci.hcca = phcca;
-        memset (phcca, 0, sizeof (struct ohci_hcca));
+	memset (phcca, 0, sizeof (struct ohci_hcca));
 
 	gohci.disabled = 1;
 	gohci.sleeping = 0;
@@ -1580,8 +1580,8 @@ int usb_lowlevel_init(void)
 
 	if (hc_reset (&gohci) < 0) {
 		hc_release_ohci (&gohci);
-                /* Initialization failed */
-                clk_power->CLKCON &= ~(1 << 4);
+		/* Initialization failed */
+		clk_power->CLKCON &= ~(1 << 4);
 		return -1;
 	}
 
@@ -1592,8 +1592,8 @@ int usb_lowlevel_init(void)
 	if (hc_start (&gohci) < 0) {
 		err ("can't start usb-%s", gohci.slot_name);
 		hc_release_ohci (&gohci);
-                /* Initialization failed */
-                clk_power->CLKCON &= ~(1 << 4);
+		/* Initialization failed */
+		clk_power->CLKCON &= ~(1 << 4);
 		return -1;
 	}
 

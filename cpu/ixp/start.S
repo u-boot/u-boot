@@ -31,37 +31,37 @@
 #include <version.h>
 #include <asm/arch/ixp425.h>
 
-#define MMU_Control_M  0x001    // Enable MMU
-#define MMU_Control_A  0x002    // Enable address alignment faults
-#define MMU_Control_C  0x004    // Enable cache
-#define MMU_Control_W  0x008    // Enable write-buffer
-#define MMU_Control_P  0x010    // Compatability: 32 bit code
-#define MMU_Control_D  0x020    // Compatability: 32 bit data
-#define MMU_Control_L  0x040    // Compatability:
-#define MMU_Control_B  0x080    // Enable Big-Endian
-#define MMU_Control_S  0x100    // Enable system protection
-#define MMU_Control_R  0x200    // Enable ROM protection
-#define MMU_Control_I  0x1000   // Enable Instruction cache
-#define MMU_Control_X  0x2000   // Set interrupt vectors at 0xFFFF0000
+#define MMU_Control_M  0x001    /* Enable MMU */
+#define MMU_Control_A  0x002    /* Enable address alignment faults */
+#define MMU_Control_C  0x004    /* Enable cache */
+#define MMU_Control_W  0x008    /* Enable write-buffer */
+#define MMU_Control_P  0x010    /* Compatability: 32 bit code */
+#define MMU_Control_D  0x020    /* Compatability: 32 bit data */
+#define MMU_Control_L  0x040    /* Compatability: */
+#define MMU_Control_B  0x080    /* Enable Big-Endian */
+#define MMU_Control_S  0x100    /* Enable system protection */
+#define MMU_Control_R  0x200    /* Enable ROM protection */
+#define MMU_Control_I  0x1000   /* Enable Instruction cache */
+#define MMU_Control_X  0x2000   /* Set interrupt vectors at 0xFFFF0000 */
 #define MMU_Control_Init (MMU_Control_P|MMU_Control_D|MMU_Control_L)
 
 
 /*
  * Macro definitions
  */
-	// Delay a bit
-        .macro DELAY_FOR cycles, reg0
-        ldr     \reg0, =\cycles
-        subs    \reg0, \reg0, #1
-        subne   pc,  pc, #0xc
-        .endm
+	/* Delay a bit */
+	.macro DELAY_FOR cycles, reg0
+	ldr     \reg0, =\cycles
+	subs    \reg0, \reg0, #1
+	subne   pc,  pc, #0xc
+	.endm
 
-        // wait for coprocessor write complete
-        .macro CPWAIT reg
-        mrc  p15,0,\reg,c2,c0,0
-        mov  \reg,\reg
-        sub  pc,pc,#4
-        .endm
+	/* wait for coprocessor write complete */
+	.macro CPWAIT reg
+	mrc  p15,0,\reg,c2,c0,0
+	mov  \reg,\reg
+	sub  pc,pc,#4
+	.endm
 
 .globl _start
 _start: b	reset
@@ -160,15 +160,15 @@ reset:
 	/* disable mmu, set big-endian */
 	mov	r0, #0xf8
 	mcr	p15, 0, r0, c1, c0, 0
-        CPWAIT  r0
+	CPWAIT  r0
 
 	/* invalidate I & D caches & BTB */
 	mcr	p15, 0, r0, c7, c7, 0
 	CPWAIT	r0
 
 	/* invalidate I & Data TLB */
-        mcr 	p15, 0, r0, c8, c7, 0
-        CPWAIT r0
+	mcr 	p15, 0, r0, c8, c7, 0
+	CPWAIT r0
 
 	/* drain write and fill buffers */
 	mcr	p15, 0, r0, c7, c10, 4
@@ -185,7 +185,7 @@ reset:
 	ldr     r2, =IXP425_EXP_CS0
 	str     r1, [r2]
 
-        /* make sure flash is visible at 0 */
+	/* make sure flash is visible at 0 */
 	ldr 	r2, =IXP425_EXP_CFG0
 	ldr     r1, [r2]
 	orr     r1, r1, #0x80000000
@@ -204,7 +204,7 @@ reset:
 	mov 	r1, #3
 	ldr	r4, =IXP425_SDR_IR
 	str	r1, [r4]
-        DELAY_FOR 0x4000, r0
+	DELAY_FOR 0x4000, r0
 
 	/* set SDRAM internal refresh val */
 	ldr	r1, =CFG_SDRAM_REFRESH_CNT
@@ -235,31 +235,31 @@ reset:
 	DELAY_FOR 0x4000, r0
 
 	/* copy */
-        mov     r0, #0
-        mov     r4, r0
-        add     r2, r0, #0x40000
+	mov     r0, #0
+	mov     r4, r0
+	add     r2, r0, #0x40000
 	mov     r1, #0x10000000
-        mov     r5, r1
+	mov     r5, r1
 
     30:
-        ldr     r3, [r0], #4
-        str     r3, [r1], #4
-        cmp     r0, r2
-        bne     30b
+	ldr     r3, [r0], #4
+	str     r3, [r1], #4
+	cmp     r0, r2
+	bne     30b
 
 	/* invalidate I & D caches & BTB */
 	mcr	p15, 0, r0, c7, c7, 0
 	CPWAIT	r0
 
 	/* invalidate I & Data TLB */
-        mcr 	p15, 0, r0, c8, c7, 0
-        CPWAIT r0
+	mcr 	p15, 0, r0, c8, c7, 0
+	CPWAIT r0
 
 	/* drain write and fill buffers */
 	mcr	p15, 0, r0, c7, c10, 4
 	CPWAIT	r0
 
- 	/* move flash to 0x50000000 */
+	/* move flash to 0x50000000 */
 	ldr 	r2, =IXP425_EXP_CFG0
 	ldr     r1, [r2]
 	bic     r1, r1, #0x80000000
@@ -273,14 +273,14 @@ reset:
 	nop
 
 	/* invalidate I & Data TLB */
-        mcr 	p15, 0, r0, c8, c7, 0
-        CPWAIT r0
+	mcr 	p15, 0, r0, c8, c7, 0
+	CPWAIT r0
 
-        /* enable I cache */
-        mrc     p15, 0, r0, c1, c0, 0
-        orr     r0, r0, #MMU_Control_I
-        mcr     p15, 0, r0, c1, c0, 0
-        CPWAIT  r0
+	/* enable I cache */
+	mrc     p15, 0, r0, c1, c0, 0
+	orr     r0, r0, #MMU_Control_I
+	mcr     p15, 0, r0, c1, c0, 0
+	CPWAIT  r0
 
 	mrs	r0,cpsr			/* set the cpu to SVC32 mode	    */
 	bic	r0,r0,#0x1f		/* (superviser mode, M=10011)	    */
@@ -329,8 +329,6 @@ clbss_l:str	r2, [r0]		/* clear loop...                    */
 	ldr	pc, _start_armboot
 
 _start_armboot: .word start_armboot
-
-
 
 
 /****************************************************************************/

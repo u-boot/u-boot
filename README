@@ -146,6 +146,7 @@ Directory Hierarchy:
 - cpu/mpc8xx	Files specific to Motorola MPC8xx  CPUs
 - cpu/mpc824x	Files specific to Motorola MPC824x CPUs
 - cpu/mpc8260	Files specific to Motorola MPC8260 CPU
+- cpu/mpc85xx	Files specific to Motorola MPC85xx CPUs
 - cpu/ppc4xx	Files specific to IBM	   4xx	   CPUs
 
 
@@ -199,6 +200,10 @@ Directory Hierarchy:
 - board/mbx8xx	Files specific to MBX	     boards
 - board/mpc8260ads
 		Files specific to MPC8260ADS and PQ2FADS-ZU boards
+- board/mpc8540ads
+		Files specific to MPC8540ADS boards
+- board/mpc8560ads
+		Files specific to MPC8560ADS boards
 - board/mpl/	Files specific to boards manufactured by MPL
 - board/mpl/common	Common files for MPL boards
 - board/mpl/pip405	Files specific to PIP405     boards
@@ -210,7 +215,7 @@ Directory Hierarchy:
 - board/oxc	Files specific to OXC        boards
 - board/omap1510inn
 		Files specific to OMAP 1510 Innovator boards
-- board/omap1610inn  
+- board/omap1610inn
 		Files specific to OMAP 1610 Innovator boards
 - board/pcippc2	Files specific to PCIPPC2/PCIPPC6 boards
 - board/pm826	Files specific to PM826      boards
@@ -306,6 +311,7 @@ The following options need to be configured:
 		CONFIG_MPC823,	CONFIG_MPC850,	CONFIG_MPC855,	CONFIG_MPC860
 	or	CONFIG_MPC5xx
 	or	CONFIG_MPC824X, CONFIG_MPC8260
+	or	CONFIG_MPC85xx
 	or	CONFIG_IOP480
 	or	CONFIG_405GP
 	or	CONFIG_405EP
@@ -356,7 +362,8 @@ The following options need to be configured:
 		CONFIG_IAD210,     CONFIG_RPXlite,    CONFIG_sbc8260,
 		CONFIG_EBONY,      CONFIG_sacsng,     CONFIG_FPS860L,
 		CONFIG_V37,        CONFIG_ELPT860,    CONFIG_CMI,
-		CONFIG_NETVIA,     CONFIG_RBC823,     CONFIG_ZPC1900
+		CONFIG_NETVIA,     CONFIG_RBC823,     CONFIG_ZPC1900,
+		CONFIG_MPC8540ADS, CONFIG_MPC8560ADS
 
 		ARM based boards:
 		-----------------
@@ -591,7 +598,7 @@ The following options need to be configured:
 		CFG_CMD_DHCP	  DHCP support
 		CFG_CMD_DIAG    * Diagnostics
 		CFG_CMD_DOC     * Disk-On-Chip Support
-		CFG_CMD_DTT       Digital Therm and Thermostat 
+		CFG_CMD_DTT       Digital Therm and Thermostat
 		CFG_CMD_ECHO	* echo arguments
 		CFG_CMD_EEPROM	* EEPROM read/write support
 		CFG_CMD_ELF	  bootelf, bootvx
@@ -893,9 +900,9 @@ The following options need to be configured:
 		images is included. If not, only uncompressed and gzip
 		compressed images are supported.
 
-                NOTE: the bzip2 algorithm requires a lot of RAM, so
-                the malloc area (as defined by CFG_MALLOC_LEN) should
-                be at least 4MB.
+		NOTE: the bzip2 algorithm requires a lot of RAM, so
+		the malloc area (as defined by CFG_MALLOC_LEN) should
+		be at least 4MB.
 
 - Ethernet address:
 		CONFIG_ETHADDR
@@ -1757,13 +1764,13 @@ the default environment is used; a new CRC is computed as soon as you
 use the "saveenv" command to store a valid environment.
 
 - CFG_FAULT_ECHO_LINK_DOWN:
-	        Echo the inverted Ethernet link state to the fault LED.
+		Echo the inverted Ethernet link state to the fault LED.
 
 		Note: If this option is active, then CFG_FAULT_MII_ADDR
 		      also needs to be defined.
 
 - CFG_FAULT_MII_ADDR:
-	        MII address of the PHY to check for the Ethernet link state.
+		MII address of the PHY to check for the Ethernet link state.
 
 Low Level (hardware related) configuration options:
 ---------------------------------------------------
@@ -1774,9 +1781,9 @@ Low Level (hardware related) configuration options:
 - CFG_DEFAULT_IMMR:
 		Default address of the IMMR after system reset.
 
-                Needed on some 8260 systems (MPC8260ADS, PQ2FADS-ZU,
-                and RPXsuper) to be able to adjust the position of
-                the IMMR register after a reset.
+		Needed on some 8260 systems (MPC8260ADS, PQ2FADS-ZU,
+		and RPXsuper) to be able to adjust the position of
+		the IMMR register after a reset.
 
 - Floppy Disk Support:
 		CFG_FDC_DRIVE_NUMBER
@@ -1950,7 +1957,8 @@ configurations; the following names are supported:
     GEN860T_config	  EBONY_config		FPS860L_config
     ELPT860_config	  cmi_mpc5xx_config	NETVIA_config
     at91rm9200dk_config	  omap1510inn_config	MPC8260ADS_config
-    omap1610inn_config	  ZPC1900_config
+    omap1610inn_config	  ZPC1900_config	MPC8540ADS_config
+    MPC8560ADS_config
 
 Note: for some board special configuration names may exist; check  if
       additional  information is available from the board vendor; for

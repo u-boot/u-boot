@@ -28,81 +28,81 @@
  *	$Log: skgepnm2.h,v $
  *	Revision 1.34  2002/12/16 09:05:18  tschilli
  *	Code for VCT handling added.
- *	
+ *
  *	Revision 1.33  2002/09/10 09:00:03  rwahl
  *	Adapted boolean definitions according sktypes.
- *	
+ *
  *	Revision 1.32  2002/08/09 09:47:01  rwahl
  *	Added write-only flag to oid access defines.
  *	Editorial changes.
- *	
+ *
  *	Revision 1.31  2002/07/17 19:23:18  rwahl
  *	- Replaced MAC counter definitions by enumeration.
  *	- Added definition SK_PNMI_MAC_TYPES.
  *	- Added chipset defnition for Yukon.
- *	
+ *
  *	Revision 1.30  2001/02/06 10:03:41  mkunz
  *	- Pnmi V4 dual net support added. Interface functions and macros extended
  *	- Vpd bug fixed
  *	- OID_SKGE_MTU added
- *	
+ *
  *	Revision 1.29  2001/01/22 13:41:37  rassmann
  *	Supporting two nets on dual-port adapters.
- *	
+ *
  *	Revision 1.28  2000/08/03 15:12:48  rwahl
  *	- Additional comment for MAC statistic data structure.
- *	
+ *
  *	Revision 1.27  2000/08/01 16:10:18  rwahl
  *	- Added mac statistic data structure for StatRxLongFrame counter.
- *	
+ *
  *	Revision 1.26  2000/03/31 13:51:34  rwahl
  *	Added SK_UPTR cast to offset calculation for PNMI struct fields;
  *	missing cast caused compiler warnings by Win64 compiler.
- *	
+ *
  *	Revision 1.25  1999/11/22 13:57:41  cgoos
  *	Changed license header to GPL.
  *	Allowing overwrite for SK_PNMI_STORE/_READ defines.
- *	
+ *
  *	Revision 1.24  1999/04/13 15:11:11  mhaveman
  *	Changed copyright.
- *	
+ *
  *	Revision 1.23  1999/01/28 15:07:12  mhaveman
  *	Changed default threshold for port switches per hour from 10
  *	to 240 which means 4 switches per minute. This fits better
  *	the granularity of 32 for the port switch estimate
  *	counter.
- *	
+ *
  *	Revision 1.22  1999/01/05 12:52:30  mhaveman
  *	Removed macro SK_PNMI_MICRO_SEC.
- *	
+ *
  *	Revision 1.21  1999/01/05 12:50:34  mhaveman
  *	Enlarged macro definition SK_PNMI_HUNDREDS_SEC() so that no 64-bit
  *	arithmetic is necessary if SK_TICKS_PER_SEC is 100.
- *	
+ *
  *	Revision 1.20  1998/12/09 14:02:53  mhaveman
  *	Defined macro SK_PNMI_DEF_RLMT_CHG_THRES for default port switch
  *	threshold.
- *	
+ *
  *	Revision 1.19  1998/12/03 11:28:41  mhaveman
  *	Removed SK_PNMI_CHECKPTR macro.
- *	
+ *
  *	Revision 1.18  1998/12/03 11:21:00  mhaveman
  *	-Added pointer check macro SK_PNMI_CHECKPTR
  *	-Added macros SK_PNMI_VPD_ARR_SIZE and SK_PNMI_VPD_STR_SIZE for
  *	 VPD key evaluation.
- *	
+ *
  *	Revision 1.17  1998/11/20 13:20:33  mhaveman
  *	Fixed bug in SK_PNMI_SET_STAT macro. ErrorStatus was not correctly set.
- *	
+ *
  *	Revision 1.16  1998/11/20 08:08:49  mhaveman
  *	Macro SK_PNMI_CHECKFLAGS has got a if clause.
- *	
+ *
  *	Revision 1.15  1998/11/03 13:53:40  mhaveman
  *	Fixed alignment problem in macor SK_PNMI_SET_STAT macro.
- *	
+ *
  *	Revision 1.14  1998/10/30 15:50:13  mhaveman
  *	Added macro SK_PNMI_MICRO_SEC()
- *	
+ *
  *	Revision 1.13  1998/10/30 12:32:20  mhaveman
  *	Added forgotten cast in SK_PNMI_READ_U32 macro.
  *
@@ -110,46 +110,46 @@
  *	-Changed SK_PNMI_TRAP_SENSOR_LEN because SensorDescr has now
  *	 variable string length.
  *	-Defined SK_PNMI_CHECKFLAGS macro
- *	
+ *
  *	Revision 1.11  1998/10/29 08:53:34  mhaveman
  *	Removed SK_PNMI_RLM_XXX table indexed because these counters need
  *	not been saved over XMAC resets.
- *	
+ *
  *	Revision 1.10  1998/10/28 08:48:20  mhaveman
  *	-Added macros for storage according to alignment
  *	-Changed type of Instance to SK_U32 because of VPD
  *	-Removed trap structures. Not needed because of alignment problem
  *	-Changed type of Action form SK_U8 to int
- *	
+ *
  *	Revision 1.9  1998/10/21 13:34:45  mhaveman
  *	Shit, mismatched calculation of SK_PNMI_HUNDREDS_SEC. Corrected.
- *	
+ *
  *	Revision 1.8  1998/10/21 13:24:58  mhaveman
  *	Changed calculation of hundreds of seconds.
- *	
+ *
  *	Revision 1.7  1998/10/20 07:31:41  mhaveman
  *	Made type changes to unsigned int where possible.
- *	
+ *
  *	Revision 1.6  1998/09/04 17:04:05  mhaveman
  *	Added Sync counters to offset storage to provided settled values on
  *	port switch.
- *	
+ *
  *	Revision 1.5  1998/09/04 12:45:35  mhaveman
  *	Removed dummies for SK_DRIVER_ macros. They should be added by driver
  *	writer in skdrv2nd.h.
- *	
+ *
  *	Revision 1.4  1998/09/04 11:59:50  mhaveman
  *	Everything compiles now. Driver Macros for counting still missing.
- *	
+ *
  *	Revision 1.3  1998/08/24 12:01:35  mhaveman
  *	Intermediate state.
- *	
+ *
  *	Revision 1.2  1998/08/17 07:51:40  mhaveman
  *	Intermediate state.
- *	
+ *
  *	Revision 1.1  1998/08/11 09:08:40  mhaveman
  *	Intermediate state.
- *	
+ *
  ****************************************************************************/
 
 #ifndef _SKGEPNM2_H_
@@ -277,7 +277,7 @@ enum SK_MACSTATS {
 	SK_PNMI_HTX_SYNC,
 	SK_PNMI_HTX_SYNC_OCTET,
 	SK_PNMI_HTX_RESERVED,
-	
+
 	SK_PNMI_HRX,
 	SK_PNMI_HRX_OCTET,
 	SK_PNMI_HRX_OCTETHIGH	= SK_PNMI_HRX_OCTET,
@@ -315,9 +315,9 @@ enum SK_MACSTATS {
 	SK_PNMI_HRX_1023,
 	SK_PNMI_HRX_MAX,
 	SK_PNMI_HRX_LONGFRAMES,
-	
+
 	SK_PNMI_HRX_RESERVED,
-	
+
 	SK_PNMI_MAX_IDX		/* NOTE: Ensure SK_PNMI_CNT_NO is set to this value */
 };
 

@@ -29,71 +29,71 @@
  *	Revision 1.75  2003/02/05 13:36:39  rschmidt
  *	Added define SK_FACT_78	for YUKON's Host Clock of 78.12 MHz
  *	Editorial changes
- *	
+ *
  *	Revision 1.74  2003/01/28 09:39:16  rschmidt
  *	Added entry GIYukonLite in s_GeInit structure
  *	Editorial changes
- *	
+ *
  *	Revision 1.73  2002/11/15 12:47:25  rschmidt
  *	Replaced error message SKERR_HWI_E024 for Cable Diagnostic with
  *	Rx queue error in SkGeStopPort().
- *	
+ *
  *	Revision 1.72  2002/11/12 17:08:35  rschmidt
  *	Added entries for Cable Diagnostic to Port structure
  *	Added entries GIPciSlot64 and GIPciClock66 in s_GeInit structure
  *	Added error message for Cable Diagnostic
  *	Added prototypes for SkGmCableDiagStatus()
  *	Editorial changes
- *	
+ *
  *	Revision 1.71  2002/10/21 11:26:10  mkarl
  *	Changed interface of SkGeInitAssignRamToQueues().
- *	
+ *
  *	Revision 1.70  2002/10/14 08:21:32  rschmidt
  *	Changed type of GICopperType, GIVauxAvail to SK_BOOL
  *	Added entry PRxOverCnt to Port structure
  *	Added entry GIYukon32Bit in s_GeInit structure
  *	Editorial changes
- *	
+ *
  *	Revision 1.69  2002/10/09 16:57:15  mkarl
  *	Added some constants and macros for SkGeInitAssignRamToQueues().
- *	
+ *
  *	Revision 1.68  2002/09/12 08:58:51  rwahl
  *	Retrieve counters needed for XMAC errata workarounds directly because
  *	PNMI returns corrected counter values (e.g. #10620).
- *	
+ *
  *	Revision 1.67  2002/08/16 14:40:30  rschmidt
  *	Added entries GIGenesis and GICopperType in s_GeInit structure
  *	Added prototypes for SkMacHashing()
  *	Editorial changes
- *	
+ *
  *	Revision 1.66  2002/08/12 13:27:21  rschmidt
  *	Added defines for Link speed capabilities
  *	Added entry PLinkSpeedCap to Port structure
  *	Added entry GIVauxAvail in s_GeInit structure
  *	Added prototypes for SkMacPromiscMode()
  *	Editorial changes
- *	
+ *
  *	Revision 1.65  2002/08/08 15:46:18  rschmidt
  *	Added define SK_PHY_ACC_TO for PHY access timeout
  *	Added define SK_XM_RX_HI_WM for XMAC Rx High Watermark
  *	Added define SK_MIN_TXQ_SIZE for Min RAM Buffer Tx Queue Size
  *	Added entry PhyId1 to Port structure
- *	
+ *
  *	Revision 1.64  2002/07/23 16:02:56  rschmidt
  *	Added entry GIWolOffs in s_GeInit struct (HW-Bug in YUKON 1st rev.)
  *	Added prototypes for: SkGePhyRead(), SkGePhyWrite()
- *	
+ *
  *	Revision 1.63  2002/07/18 08:17:38  rwahl
  *	Corrected definitions for SK_LSPEED_xxx & SK_LSPEED_STAT_xxx.
- *	
+ *
  *	Revision 1.62  2002/07/17 18:21:55  rwahl
  *	Added SK_LSPEED_INDETERMINATED define.
- *	
+ *
  *	Revision 1.61  2002/07/17 17:16:03  rwahl
  *	- MacType now member of GIni struct.
  *	- Struct alignment to 32bit.
  *	- Editorial change.
- *	
+ *
  *	Revision 1.60  2002/07/15 18:23:39  rwahl
  *	Added GeMacFunc to GE Init structure.
  *	Added prototypes for SkXmUpdateStats(), SkGmUpdateStats(),
@@ -101,19 +101,19 @@
  *	  SkGmResetCounter(), SkXmOverflowStatus(), SkGmOverflowStatus().
  *	Added defines for current link speed state.
  *	Added ERRMSG defintions for MacUpdateStat() & MacStatistics().
- *	
+ *
  *	Revision 1.59  2002/07/15 15:40:22  rschmidt
  *	Added entry PLinkSpeedUsed to Port structure
  *	Editorial changes
- *	
+ *
  *	Revision 1.58  2002/06/10 09:36:30  rschmidt
  *	Editorial changes.
- *	
+ *
  *	Revision 1.57  2002/06/05 08:18:00  rschmidt
  *	Corrected alignment in Port Structure
  *	Added new prototypes for GMAC
  *	Editorial changes
- *	
+ *
  *	Revision 1.56  2002/04/25 11:38:12  rschmidt
  *	Added defines for Link speed values
  *	Added defines for Loopback parameters for MAC and PHY
@@ -128,150 +128,150 @@
  *	SkXmPhyRead(), SkXmPhyRead(), SkGmPhyWrite(), SkGmPhyWrite();
  *	Removed prototypes for static functions in SkXmac2.c
  *	Editorial changes
- *	
+ *
  *	Revision 1.55  2002/02/26 15:24:53  rwahl
  *	Fix: no link with manual configuration (#10673). The previous fix for
  *	#10639 was removed. So for RLMT mode = CLS the RLMT may switch to
  *	misconfigured port. It should not occur for the other RLMT modes.
- *	
+ *
  *	Revision 1.54  2002/01/18 16:52:52  rwahl
  *	Editorial corrections.
- *	
+ *
  *	Revision 1.53  2001/11/20 09:19:58  rwahl
  *	Reworked bugfix #10639 (no dependency to RLMT mode).
- *	
+ *
  *	Revision 1.52  2001/10/26 07:52:23  afischer
  *	Port switching bug in `check local link` mode
- *	
+ *
  *	Revision 1.51  2001/02/09 12:26:38  cgoos
  *	Inserted #ifdef DIAG for half duplex workaround timer.
- *	
+ *
  *	Revision 1.50  2001/02/07 07:56:40  rassmann
  *	Corrected copyright.
- *	
+ *
  *	Revision 1.49  2001/01/31 15:32:18  gklug
  *	fix: problem with autosensing an SR8800 switch
  *	add: counter for autoneg timeouts
- *	
+ *
  *	Revision 1.48  2000/11/09 11:30:10  rassmann
  *	WA: Waiting after releasing reset until BCom chip is accessible.
- *	
+ *
  *	Revision 1.47  2000/10/18 12:22:40  cgoos
  *	Added workaround for half duplex hangup.
- *	
+ *
  *	Revision 1.46  2000/08/10 11:28:00  rassmann
  *	Editorial changes.
  *	Preserving 32-bit alignment in structs for the adapter context.
- *	
+ *
  *	Revision 1.45  1999/11/22 13:56:19  cgoos
  *	Changed license header to GPL.
- *	
+ *
  *	Revision 1.44  1999/10/26 07:34:15  malthoff
  *	The define SK_LNK_ON has been lost in v1.41.
- *	
+ *
  *	Revision 1.43  1999/10/06 09:30:16  cgoos
  *	Changed SK_XM_THR_JUMBO.
- *	
+ *
  *	Revision 1.42  1999/09/16 12:58:26  cgoos
  *	Changed SK_LED_STANDY macro to be independent of HW link sync.
- *	
+ *
  *	Revision 1.41  1999/07/30 06:56:14  malthoff
  *	Correct comment for SK_MS_STAT_UNSET.
- *	
+ *
  *	Revision 1.40  1999/05/27 13:38:46  cgoos
  *	Added SK_BMU_TX_WM.
  *	Made SK_BMU_TX_WM and SK_BMU_RX_WM user-definable.
  *	Changed XMAC Tx treshold to max. values.
- *	
+ *
  *	Revision 1.39  1999/05/20 14:35:26  malthoff
  *	Remove prototypes for SkGeLinkLED().
- *	
+ *
  *	Revision 1.38  1999/05/19 11:59:12  cgoos
  *	Added SK_MS_CAP_INDETERMINATED define.
- *	
+ *
  *	Revision 1.37  1999/05/19 07:32:33  cgoos
  *	Changes for 1000Base-T.
  *	LED-defines for HWAC_LINK_LED macro.
- *	
+ *
  *	Revision 1.36  1999/04/08 14:00:24  gklug
  *	add:Port struct field PLinkResCt
- *	
+ *
  *	Revision 1.35  1999/03/25 07:43:07  malthoff
  *	Add error string for SKERR_HWI_E018MSG.
- *	
+ *
  *	Revision 1.34  1999/03/12 16:25:57  malthoff
  *	Remove PPollRxD and PPollTxD.
  *	Add SKERR_HWI_E017MSG. and SK_DPOLL_MAX.
- *	
+ *
  *	Revision 1.33  1999/03/12 13:34:41  malthoff
  *	Add Autonegotiation error codes.
  *	Change defines for parameter Mode in SkXmSetRxCmd().
  *	Replace __STDC__ by SK_KR_PROTO.
- *	
+ *
  *	Revision 1.32  1999/01/25 14:40:20  mhaveman
  *	Added new return states for the virtual management port if multiple
  *	ports are active but differently configured.
- *	
+ *
  *	Revision 1.31  1998/12/11 15:17:02  gklug
  *	add: Link partnet autoneg states : Unknown Manual and Auto-negotiation
- *	
+ *
  *	Revision 1.30  1998/12/07 12:17:04  gklug
  *	add: Link Partner auto-negotiation flag
- *	
+ *
  *	Revision 1.29  1998/12/01 10:54:42  gklug
  *	add: variables for XMAC Errata
- *	
+ *
  *	Revision 1.28  1998/12/01 10:14:15  gklug
  *	add: PIsave saves the Interrupt status word
- *	
+ *
  *	Revision 1.27  1998/11/26 15:24:52  mhaveman
  *	Added link status states SK_LMODE_STAT_AUTOHALF and
  *	SK_LMODE_STAT_AUTOFULL which are used by PNMI.
- *	
+ *
  *	Revision 1.26  1998/11/26 14:53:01  gklug
  *	add:autoNeg Timeout variable
- *	
+ *
  *	Revision 1.25  1998/11/26 08:58:50  gklug
  *	add: Link Mode configuration (AUTO Sense mode)
- *	
+ *
  *	Revision 1.24  1998/11/24 13:30:27  gklug
  *	add: PCheckPar to port struct
- *	
+ *
  *	Revision 1.23  1998/11/18 13:23:26  malthoff
  *	Add SK_PKT_TO_MAX.
- *	
+ *
  *	Revision 1.22  1998/11/18 13:19:54  gklug
  *	add: PPrevShorts and PLinkBroken to port struct for WA XMAC Errata #C1
  *
  *	Revision 1.21  1998/10/26 08:02:57  malthoff
  *	Add GIRamOffs.
- *	
+ *
  *	Revision 1.20  1998/10/19 07:28:37  malthoff
  *	Add prototype for SkGeInitRamIface().
- *	
+ *
  *	Revision 1.19  1998/10/14 14:47:48  malthoff
  *	SK_TIMER should not be defined for Diagnostics.
  *	Add SKERR_HWI_E015MSG and SKERR_HWI_E016MSG.
- *	
+ *
  *	Revision 1.18  1998/10/14 14:00:03  gklug
  *	add: timer to port struct for workaround of Errata #2
- *	
+ *
  *	Revision 1.17  1998/10/14 11:23:09  malthoff
  *	Add prototype for SkXmAutoNegDone().
  *	Fix SkXmSetRxCmd() prototype statement.
  *
  *	Revision 1.16  1998/10/14 05:42:29  gklug
  *	add: HWLinkUp flag to Port struct
- *	
+ *
  *	Revision 1.15  1998/10/09 08:26:33  malthoff
  *	Rename SK_RB_ULPP_B to SK_RB_LLPP_B.
- *	
+ *
  *	Revision 1.14  1998/10/09 07:11:13  malthoff
  *	bug fix: SK_FACT_53 is 85 not 117.
  *	Rework time out init values.
  *	Add GIPortUsage and corresponding defines.
  *	Add some error log messages.
- *	
+ *
  *	Revision 1.13  1998/10/06 14:13:14  malthoff
  *	Add prototype for SkGeLoadLnkSyncCnt().
  *
@@ -338,7 +338,7 @@ extern "C" {
 
 /* modifying Link LED behaviour (used with SkGeLinkLED()) */
 #define SK_LNK_OFF		LED_OFF
-#define SK_LNK_ON		(LED_ON | LED_BLK_OFF | LED_SYNC_OFF)	
+#define SK_LNK_ON		(LED_ON | LED_BLK_OFF | LED_SYNC_OFF)
 #define SK_LNK_BLINK	(LED_ON | LED_BLK_ON  | LED_SYNC_ON)
 #define SK_LNK_PERM		(LED_ON | LED_BLK_OFF | LED_SYNC_ON)
 #define SK_LNK_TST		(LED_ON | LED_BLK_ON  | LED_SYNC_OFF)
@@ -549,7 +549,7 @@ extern "C" {
 #define SK_LENERR_OK_ON		(1<<4)	/* Don't chk fr for in range len error */
 #define SK_LENERR_OK_OFF	(1<<5)	/* Check frames for in range len error */
 #define SK_BIG_PK_OK_ON		(1<<6)	/* Don't set Rx Error bit for big frames */
-#define SK_BIG_PK_OK_OFF	(1<<7)	/* Set Rx Error bit for big frames */	
+#define SK_BIG_PK_OK_OFF	(1<<7)	/* Set Rx Error bit for big frames */
 #define SK_SELF_RX_ON		(1<<8)	/* Enable  Rx of own packets */
 #define SK_SELF_RX_OFF		(1<<9)	/* Disable Rx of own packets */
 

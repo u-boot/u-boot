@@ -30,100 +30,100 @@
  *	Corrected setting of GIHstClkFact (Host Clock Factor) and
  *	GIPollTimerVal (Descr. Poll Timer Init Value) for YUKON.
  *	Editorial changes.
- *	
+ *
  *	Revision 1.84  2003/01/28 09:57:25  rschmidt
  *	Added detection of YUKON-Lite Rev. A0 (stored in GIYukonLite).
  *	Disabled Rx GMAC FIFO Flush for YUKON-Lite Rev. A0.
  *	Added support for CLK_RUN (YUKON-Lite).
  *	Added additional check of PME from D3cold for setting GIVauxAvail.
  *	Editorial changes.
- *	
+ *
  *	Revision 1.83  2002/12/17 16:15:41  rschmidt
  *	Added default setting of PhyType (Copper) for YUKON.
  *	Added define around check for HW self test results.
  *	Editorial changes.
- *	
+ *
  *	Revision 1.82  2002/12/05 13:40:21  rschmidt
  *	Added setting of Rx GMAC FIFO Flush Mask register.
  *	Corrected PhyType with new define SK_PHY_MARV_FIBER when
  *	YUKON Fiber board was found.
  *	Editorial changes.
- *	
+ *
  *	Revision 1.81  2002/11/15 12:48:35  rschmidt
  *	Replaced message SKERR_HWI_E018 with SKERR_HWI_E024 for Rx queue error
  *	in SkGeStopPort().
  *	Added init for pAC->GIni.GIGenesis with SK_FALSE in YUKON-branch.
  *	Editorial changes.
- *	
+ *
  *	Revision 1.80  2002/11/12 17:28:30  rschmidt
  *	Initialized GIPciSlot64 and GIPciClock66 in SkGeInit1().
  *	Reduced PCI FIFO watermarks for 32bit/33MHz bus in SkGeInitBmu().
  *	Editorial changes.
- *	
+ *
  *	Revision 1.79  2002/10/21 09:31:02  mkarl
  *	Changed SkGeInitAssignRamToQueues(), removed call to
  *	SkGeInitAssignRamToQueues in SkGeInit1 and fixed compiler warning in
  *	SkGeInit1.
- *	
+ *
  *	Revision 1.78  2002/10/16 15:55:07  mkarl
  *	Fixed a bug in SkGeInitAssignRamToQueues.
- *	
+ *
  *	Revision 1.77  2002/10/14 15:07:22  rschmidt
  *	Corrected timeout handling for Rx queue in SkGeStopPort() (#10748)
  *	Editorial changes.
- *	
+ *
  *	Revision 1.76  2002/10/11 09:24:38  mkarl
  *	Added check for HW self test results.
- *	
+ *
  *	Revision 1.75  2002/10/09 16:56:44  mkarl
  *	Now call SkGeInitAssignRamToQueues() in Init Level 1 in order to assign
  *	the adapter memory to the queues. This default assignment is not suitable
  *	for dual net mode.
- *	
+ *
  *	Revision 1.74  2002/09/12 08:45:06  rwahl
  *	Set defaults for PMSCap, PLinkSpeed & PLinkSpeedCap dependent on PHY.
- *	
+ *
  *	Revision 1.73  2002/08/16 15:19:45  rschmidt
  *	Corrected check for Tx queues in SkGeCheckQSize().
  *	Added init for new entry GIGenesis and GICopperType
  *	Replaced all if(GIChipId == CHIP_ID_GENESIS) with new entry GIGenesis.
  *	Replaced wrong 1st para pAC with IoC in SK_IN/OUT macros.
- *	
+ *
  *	Revision 1.72  2002/08/12 13:38:55  rschmidt
  *	Added check if VAUX is available (stored in GIVauxAvail)
  *	Initialized PLinkSpeedCap in Port struct with SK_LSPEED_CAP_1000MBPS
  *	Editorial changes.
- *	
+ *
  *	Revision 1.71  2002/08/08 16:32:58  rschmidt
  *	Added check for Tx queues in SkGeCheckQSize().
  *	Added start of Time Stamp Timer (YUKON) in SkGeInit2().
  *	Editorial changes.
- *	
+ *
  *	Revision 1.70  2002/07/23 16:04:26  rschmidt
  *	Added init for GIWolOffs (HW-Bug in YUKON 1st rev.)
  *	Minor changes
- *	
+ *
  *	Revision 1.69  2002/07/17 17:07:08  rwahl
  *	- SkGeInit1(): fixed PHY type debug output; corrected init of GIFunc
  *	  table & GIMacType.
  *	- Editorial changes.
- *	
+ *
  *	Revision 1.68  2002/07/15 18:38:31  rwahl
  *	Added initialization for MAC type dependent function table.
- *	
+ *
  *	Revision 1.67  2002/07/15 15:45:39  rschmidt
  *	Added Tx Store & Forward for YUKON (GMAC Tx FIFO is only 1 kB)
  *	Replaced SK_PHY_MARV by SK_PHY_MARV_COPPER
  *	Editorial changes
- *	
+ *
  *	Revision 1.66  2002/06/10 09:35:08  rschmidt
  *	Replaced C++ comments (//)
  *	Editorial changes
- *	
+ *
  *	Revision 1.65  2002/06/05 08:33:37  rschmidt
  *	Changed GIRamSize and Reset sequence for YUKON.
  *	SkMacInit() replaced by SkXmInitMac() resp. SkGmInitMac()
- *	
+ *
  *	Revision 1.64  2002/04/25 13:03:20  rschmidt
  *	Changes for handling YUKON.
  *	Removed reference to xmac_ii.h (not necessary).
@@ -144,71 +144,71 @@
  *	Use of SkGeXmitLED() only for GENESIS.
  *	Changes for V-CPU support.
  *	Editorial changes.
- *	
+ *
  *	Revision 1.63  2001/04/05 11:02:09  rassmann
  *	Stop Port check of the STOP bit did not take 2/18 sec as wanted.
- *	
+ *
  *	Revision 1.62  2001/02/07 07:54:21  rassmann
  *	Corrected copyright.
- *	
+ *
  *	Revision 1.61  2001/01/31 15:31:40  gklug
  *	fix: problem with autosensing an SR8800 switch
- *	
+ *
  *	Revision 1.60  2000/10/18 12:22:21  cgoos
  *	Added workaround for half duplex hangup.
- *	
+ *
  *	Revision 1.59  2000/10/10 11:22:06  gklug
  *	add: in manual half duplex mode ignore carrier extension errors
- *	
+ *
  *	Revision 1.58  2000/10/02 14:10:27  rassmann
  *	Reading BCOM PHY after releasing reset until it returns a valid value.
- *	
+ *
  *	Revision 1.57  2000/08/03 14:55:28  rassmann
  *	Waiting for I2C to be ready before de-initializing adapter
  *	(prevents sensors from hanging up).
- *	
+ *
  *	Revision 1.56  2000/07/27 12:16:48  gklug
  *	fix: Stop Port check of the STOP bit does now take 2/18 sec as wanted
- *	
+ *
  *	Revision 1.55  1999/11/22 13:32:26  cgoos
  *	Changed license header to GPL.
- *	
+ *
  *	Revision 1.54  1999/10/26 07:32:54  malthoff
  *	Initialize PHWLinkUp with SK_FALSE. Required for Diagnostics.
- *	
+ *
  *	Revision 1.53  1999/08/12 19:13:50  malthoff
  *	Fix for 1000BT. Do not owerwrite XM_MMU_CMD when
  *	disabling receiver and transmitter. Other bits
  *	may be lost.
- *	
+ *
  *	Revision 1.52  1999/07/01 09:29:54  gklug
  *	fix: DoInitRamQueue needs pAC
- *	
+ *
  *	Revision 1.51  1999/07/01 08:42:21  gklug
  *	chg: use Store & forward for RAM buffer when Jumbos are used
- *	
+ *
  *	Revision 1.50  1999/05/27 13:19:38  cgoos
  *	Added Tx PCI watermark initialization.
  *	Removed Tx RAM queue Store & Forward setting.
- *	
+ *
  *	Revision 1.49  1999/05/20 14:32:45  malthoff
  *	SkGeLinkLED() is completly removed now.
- *	
+ *
  *	Revision 1.48  1999/05/19 07:28:24  cgoos
  *	SkGeLinkLED no more available for drivers.
  *	Changes for 1000Base-T.
- *	
+ *
  *	Revision 1.47  1999/04/08 13:57:45  gklug
  *	add: Init of new port struct fiels PLinkResCt
  *	chg: StopPort Timer check
- *	
+ *
  *	Revision 1.46  1999/03/25 07:42:15  malthoff
  *	SkGeStopPort(): Add workaround for cache incoherency.
  *			Create error log entry, disable port, and
  *			exit loop if it does not terminate.
  *	Add XM_RX_LENERR_OK to the default value for the
  *	XMAC receive command register.
- *	
+ *
  *	Revision 1.45  1999/03/12 16:24:47  malthoff
  *	Remove PPollRxD and PPollTxD.
  *	Add check for GIPollTimerVal.
@@ -474,7 +474,7 @@ SK_BOOL PollTxD)	/* SK_TRUE (enable pol.), SK_FALSE (disable pol.) */
 	if (pPrt->PXSQSize != 0) {
 		SK_OUT32(IoC, Q_ADDR(pPrt->PXsQOff, Q_CSR), DWord);
 	}
-	
+
 	if (pPrt->PXAQSize != 0) {
 		SK_OUT32(IoC, Q_ADDR(pPrt->PXaQOff, Q_CSR), DWord);
 	}
@@ -556,7 +556,7 @@ int		Mode)		/* Mode may be SK_LED_DIS, SK_LED_ENA, SK_LED_TST */
 		SK_OUT8(IoC, Led + XMIT_LED_TST, LED_T_OFF);
 		break;
 	}
-			
+
 	/*
 	 * 1000BT: The Transmit LED is driven by the PHY.
 	 * But the default LED configuration is used for
@@ -672,7 +672,7 @@ SK_BOOL	DualNet)		/* adapter context */
 		for (i = 0; i < pAC->GIni.GIMacsFound; i++) {
 
 			pGePort = &pAC->GIni.GP[i];
-			
+
 			/* take away the minimum memory for active queues */
 			ActivePortKilobytes -= (SK_MIN_RXQ_SIZE + SK_MIN_TXQ_SIZE);
 
@@ -691,7 +691,7 @@ SK_BOOL	DualNet)		/* adapter context */
 				SK_MIN_TXQ_SIZE);
 		}
 	}
-	else {	
+	else {
 		/* Rlmt Mode or single link adapter */
 
 		/* Set standby queue size defaults for all standby ports */
@@ -790,22 +790,22 @@ int		 Port)		/* port index */
 			SK_ERR_LOG(pAC, SK_ERRCL_SW, SKERR_HWI_E011, SKERR_HWI_E011MSG);
 			return(1);
 		}
-		
+
 		/*
 		 * the size of at least one Tx queue (synch. or asynch.) has to be > 0.
 		 * if Jumbo Frames are used, this size has to be >= 16 kB.
 		 */
 		if ((i == Port && pPrt->PXSQSize == 0 && pPrt->PXAQSize == 0) ||
 			(pAC->GIni.GIPortUsage == SK_JUMBO_LINK &&
-            ((pPrt->PXSQSize > 0 && pPrt->PXSQSize < SK_MIN_TXQ_SIZE) ||
+	    ((pPrt->PXSQSize > 0 && pPrt->PXSQSize < SK_MIN_TXQ_SIZE) ||
 			 (pPrt->PXAQSize > 0 && pPrt->PXAQSize < SK_MIN_TXQ_SIZE)))) {
 				SK_ERR_LOG(pAC, SK_ERRCL_SW, SKERR_HWI_E023, SKERR_HWI_E023MSG);
 				return(1);
 		}
-		
+
 		UsedMem += pPrt->PRxQSize + pPrt->PXSQSize + pPrt->PXAQSize;
 	}
-	
+
 	if (UsedMem > pAC->GIni.GIRamSize) {
 		SK_ERR_LOG(pAC, SK_ERRCL_SW, SKERR_HWI_E012, SKERR_HWI_E012MSG);
 		return(1);
@@ -948,20 +948,20 @@ int		Port)		/* Port Index (MAC_1 + n) */
 	 *	- setup defaults for the control register
 	 *	- enable the FIFO
 	 */
-	
+
 	Word = GMF_RX_CTRL_DEF;
-	
+
 	if (pAC->GIni.GIGenesis) {
 		/* Configure Rx MAC FIFO */
 		SK_OUT8(IoC, MR_ADDR(Port, RX_MFF_CTRL2), MFF_RST_CLR);
 		SK_OUT16(IoC, MR_ADDR(Port, RX_MFF_CTRL1), MFF_RX_CTRL_DEF);
 		SK_OUT8(IoC, MR_ADDR(Port, RX_MFF_CTRL2), MFF_ENA_OP_MD);
-	
+
 		/* Configure Tx MAC FIFO */
 		SK_OUT8(IoC, MR_ADDR(Port, TX_MFF_CTRL2), MFF_RST_CLR);
 		SK_OUT16(IoC, MR_ADDR(Port, TX_MFF_CTRL1), MFF_TX_CTRL_DEF);
 		SK_OUT8(IoC, MR_ADDR(Port, TX_MFF_CTRL2), MFF_ENA_OP_MD);
-	
+
 		/* Enable frame flushing if jumbo frames used */
 		if (pAC->GIni.GIPortUsage == SK_JUMBO_LINK) {
 			SK_OUT16(IoC, MR_ADDR(Port, RX_MFF_CTRL1), MFF_ENA_FLUSH);
@@ -970,28 +970,28 @@ int		Port)		/* Port Index (MAC_1 + n) */
 	else {
 		/* set Rx GMAC FIFO Flush Mask */
 		SK_OUT16(IoC, MR_ADDR(Port, RX_GMF_FL_MSK), (SK_U16)RX_FF_FL_DEF_MSK);
-		
+
 		if (pAC->GIni.GIYukonLite && pAC->GIni.GIChipId == CHIP_ID_YUKON) {
 
 			Word &= ~GMF_RX_F_FL_ON;
 		}
-		
+
 		/* Configure Rx MAC FIFO */
 		SK_OUT8(IoC, MR_ADDR(Port, RX_GMF_CTRL_T), (SK_U8)GMF_RST_CLR);
 		SK_OUT16(IoC, MR_ADDR(Port, RX_GMF_CTRL_T), Word);
-		
+
 		/* set Rx GMAC FIFO Flush Threshold (default: 0x0a -> 56 bytes) */
 		SK_OUT16(IoC, MR_ADDR(Port, RX_GMF_FL_THR), RX_GMF_FL_THR_DEF);
-		
+
 		/* Configure Tx MAC FIFO */
 		SK_OUT8(IoC, MR_ADDR(Port, TX_GMF_CTRL_T), (SK_U8)GMF_RST_CLR);
 		SK_OUT16(IoC, MR_ADDR(Port, TX_GMF_CTRL_T), (SK_U16)GMF_TX_CTRL_DEF);
-		
+
 #ifdef VCPU
 		SK_IN32(IoC, MR_ADDR(Port, RX_GMF_AF_THR), &DWord);
 		SK_IN32(IoC, MR_ADDR(Port, TX_GMF_AE_THR), &DWord);
 #endif /* VCPU */
-		
+
 		/* set Tx GMAC FIFO Almost Empty Threshold */
 /*		SK_OUT32(IoC, MR_ADDR(Port, TX_GMF_AE_THR), 0); */
 	}
@@ -1120,16 +1120,16 @@ int		SyncMode)	/* Sync Mode: TXA_ENA_ALLOC | TXA_DIS_ALLOC | 0 */
 		SK_ERR_LOG(pAC, SK_ERRCL_SW, SKERR_HWI_E010, SKERR_HWI_E010MSG);
 		return(1);
 	}
-	
+
 	if (pAC->GIni.GP[Port].PXSQSize == 0) {
 		SK_ERR_LOG(pAC, SK_ERRCL_SW, SKERR_HWI_E009, SKERR_HWI_E009MSG);
 		return(2);
 	}
-	
+
 	/* calculate register values */
 	IntTime = (IntTime / 2) * pAC->GIni.GIHstClkFact / 100;
 	LimCount = LimCount / 8;
-	
+
 	if (IntTime > TXA_MAX_VAL || LimCount > TXA_MAX_VAL) {
 		SK_ERR_LOG(pAC, SK_ERRCL_SW, SKERR_HWI_E010, SKERR_HWI_E010MSG);
 		return(1);
@@ -1147,13 +1147,13 @@ int		SyncMode)	/* Sync Mode: TXA_ENA_ALLOC | TXA_DIS_ALLOC | 0 */
 	 */
 	SK_OUT8(IoC, MR_ADDR(Port, TXA_CTRL),
 		TXA_ENA_FSYNC | TXA_DIS_ALLOC | TXA_STOP_RC);
-	
+
 	SK_OUT32(IoC, MR_ADDR(Port, TXA_ITI_INI), IntTime);
 	SK_OUT32(IoC, MR_ADDR(Port, TXA_LIM_INI), LimCount);
-	
+
 	SK_OUT8(IoC, MR_ADDR(Port, TXA_CTRL),
 		(SK_U8)(SyncMode & (TXA_ENA_ALLOC | TXA_DIS_ALLOC)));
-	
+
 	if (IntTime != 0 || LimCount != 0) {
 		SK_OUT8(IoC, MR_ADDR(Port, TXA_CTRL), TXA_DIS_FSYNC | TXA_START_RC);
 	}
@@ -1271,10 +1271,10 @@ int		Port)		/* Port Index (MAC_1 + n) */
 
 	DoInitRamQueue(pAC, IoC, pPrt->PRxQOff, pPrt->PRxQRamStart,
 		pPrt->PRxQRamEnd, RxQType);
-	
+
 	DoInitRamQueue(pAC, IoC, pPrt->PXsQOff, pPrt->PXsQRamStart,
 		pPrt->PXsQRamEnd, SK_TX_RAM_Q);
-	
+
 	DoInitRamQueue(pAC, IoC, pPrt->PXaQOff, pPrt->PXaQRamStart,
 		pPrt->PXaQRamEnd, SK_TX_RAM_Q);
 
@@ -1341,7 +1341,7 @@ int		Port)		/* Port Index (MAC_1 + n) */
 
 	RxWm = SK_BMU_RX_WM;
 	TxWm = SK_BMU_TX_WM;
-	
+
 	if (!pAC->GIni.GIPciSlot64 && !pAC->GIni.GIPciClock66) {
 		/* for better performance */
 		RxWm /= 2;
@@ -1360,7 +1360,7 @@ int		Port)		/* Port Index (MAC_1 + n) */
 		SK_OUT32(IoC, Q_ADDR(pPrt->PXsQOff, Q_CSR), CSR_CLR_RESET);
 		SK_OUT32(IoC, Q_ADDR(pPrt->PXsQOff, Q_F), TxWm);
 	}
-	
+
 	if (pPrt->PXAQSize != 0) {
 		SK_OUT32(IoC, Q_ADDR(pPrt->PXaQOff, Q_CSR), CSR_CLR_RESET);
 		SK_OUT32(IoC, Q_ADDR(pPrt->PXaQOff, Q_F), TxWm);
@@ -1393,14 +1393,14 @@ int		QuIoOffs)	/* Queue IO Address Offset */
 	SK_U32	QuCsr;	/* CSR contents */
 
 	SK_IN32(IoC, Q_ADDR(QuIoOffs, Q_CSR), &QuCsr);
-	
+
 	if ((QuCsr & (CSR_STOP | CSR_SV_IDLE)) == 0) {
 		/* Stop Descriptor overridden by start command */
 		SK_OUT32(IoC, Q_ADDR(QuIoOffs, Q_CSR), CSR_STOP);
 
 		SK_IN32(IoC, Q_ADDR(QuIoOffs, Q_CSR), &QuCsr);
 	}
-	
+
 	return(QuCsr);
 }	/* TestStopBit */
 
@@ -1506,7 +1506,7 @@ int		RstMode)/* Reset Mode (SK_SOFT_RST, SK_HARD_RST) */
 	if ((Dir & SK_STOP_TX) != 0) {
 		/* disable receiver and transmitter */
 		SkMacRxTxDisable(pAC, IoC, Port);
-		
+
 		/* stop both transmit queues */
 		/*
 		 * If the BMU is in the reset state CSR_STOP will terminate
@@ -1582,11 +1582,11 @@ int		RstMode)/* Reset Mode (SK_SOFT_RST, SK_HARD_RST) */
 		else {
 			SkMacHardRst(pAC, IoC, Port);
 		}
- 		
+
 		/* Disable Force Sync bit and Enable Alloc bit */
 		SK_OUT8(IoC, MR_ADDR(Port, TXA_CTRL),
 			TXA_DIS_FSYNC | TXA_DIS_ALLOC | TXA_STOP_RC);
-		
+
 		/* Stop Interval Timer and Limit Counter of Tx Arbiter */
 		SK_OUT32(IoC, MR_ADDR(Port, TXA_ITI_INI), 0L);
 		SK_OUT32(IoC, MR_ADDR(Port, TXA_LIM_INI), 0L);
@@ -1601,7 +1601,7 @@ int		RstMode)/* Reset Mode (SK_SOFT_RST, SK_HARD_RST) */
 		SK_OUT8(IoC, RB_ADDR(pPrt->PXaQOff, RB_CTRL), RB_RST_SET);
 		/* Reset the RAM Buffer sync Tx queue */
 		SK_OUT8(IoC, RB_ADDR(pPrt->PXsQOff, RB_CTRL), RB_RST_SET);
-		
+
 		/* Reset Tx MAC FIFO */
 		if (pAC->GIni.GIGenesis) {
 			/* Note: MFF_RST_SET does NOT reset the XMAC ! */
@@ -1626,7 +1626,7 @@ int		RstMode)/* Reset Mode (SK_SOFT_RST, SK_HARD_RST) */
 		 */
 		/* stop the port's receive queue */
 		SK_OUT32(IoC, Q_ADDR(pPrt->PRxQOff, Q_CSR), CSR_STOP);
-		
+
 		i = 100;
 		do {
 			/*
@@ -1635,7 +1635,7 @@ int		RstMode)/* Reset Mode (SK_SOFT_RST, SK_HARD_RST) */
 			 */
 			SK_OUT16(IoC, B3_PA_CTRL, (Port == MAC_1) ? PA_CLR_TO_RX1 :
 				PA_CLR_TO_RX2);
-			
+
 			DWord = TestStopBit(pAC, IoC, pPrt->PRxQOff);
 
 			/* timeout if i==0 (bug fix for #10748) */
@@ -1662,7 +1662,7 @@ int		RstMode)/* Reset Mode (SK_SOFT_RST, SK_HARD_RST) */
 
 		/* Reset Rx MAC FIFO */
 		if (pAC->GIni.GIGenesis) {
-			
+
 			SK_OUT8(IoC, MR_ADDR(Port, RX_MFF_CTRL2), MFF_RST_SET);
 
 			/* switch Rx LED off, stop the LED counter */
@@ -1773,7 +1773,7 @@ SK_IOC	IoC)		/* IO context */
 	/* We know the RAM Interface Arbiter is enabled. */
 	SkPciWriteCfgWord(pAC, PCI_PM_CTL_STS, PCI_PM_STATE_D3);
 	SkPciReadCfgWord(pAC, PCI_PM_CTL_STS, &PmCtlSts);
-	
+
 	if ((PmCtlSts & PCI_PM_STATE_MSK) != PCI_PM_STATE_D3) {
 		return(1);
 	}
@@ -1783,7 +1783,7 @@ SK_IOC	IoC)		/* IO context */
 
 	/* Check for D0 state. */
 	SkPciReadCfgWord(pAC, PCI_PM_CTL_STS, &PmCtlSts);
-	
+
 	if ((PmCtlSts & PCI_PM_STATE_MSK) != PCI_PM_STATE_D0) {
 		return(1);
 	}
@@ -1794,7 +1794,7 @@ SK_IOC	IoC)		/* IO context */
 	SkPciReadCfgDWord(pAC, PCI_BASE_1ST, &Bp1);
 	SkPciReadCfgDWord(pAC, PCI_BASE_2ND, &Bp2);
 	SkPciReadCfgByte(pAC, PCI_LAT_TIM, &Lat);
-	
+
 	if (PciCmd != 0 || Cls != 0 || (Bp1 & 0xfffffff0L) != 0 || Bp2 != 1 ||
 		Lat != 0) {
 		return(1);
@@ -1863,7 +1863,7 @@ SK_IOC	IoC)		/* IO context */
 	 *		 available on some platforms after 'boot time'.
 	 */
 	SK_IN16(IoC, PCI_C(PCI_STATUS), &Word);
-	
+
 	SK_OUT8(IoC, B2_TST_CTRL1, TST_CFG_WRITE_ON);
 	SK_OUT16(IoC, PCI_C(PCI_STATUS), Word | PCI_ERRBITS);
 	SK_OUT8(IoC, B2_TST_CTRL1, TST_CFG_WRITE_OFF);
@@ -1878,29 +1878,29 @@ SK_IOC	IoC)		/* IO context */
 	/* restore CLK_RUN bits */
 	SK_OUT16(IoC, B0_CTST, CtrlStat &
 		(CS_CLK_RUN_HOT | CS_CLK_RUN_RST | CS_CLK_RUN_ENA));
-	
+
 	/* read Chip Identification Number */
 	SK_IN8(IoC, B2_CHIP_ID, &Byte);
 	pAC->GIni.GIChipId = Byte;
-	
+
 	/* read number of MACs */
 	SK_IN8(IoC, B2_MAC_CFG, &Byte);
 	pAC->GIni.GIMacsFound = (Byte & CFG_SNG_MAC) ? 1 : 2;
-	
+
 	/* get Chip Revision Number */
 	pAC->GIni.GIChipRev = (SK_U8)((Byte & CFG_CHIP_R_MSK) >> 4);
 
 	/* get diff. PCI parameters */
 	SK_IN16(IoC, B0_CTST, &CtrlStat);
-	
+
 	/* read the adapters RAM size */
 	SK_IN8(IoC, B2_E_0, &Byte);
-	
+
 	if (pAC->GIni.GIChipId == CHIP_ID_GENESIS) {
 
 		pAC->GIni.GIGenesis = SK_TRUE;
 
-		if (Byte == 3) {						
+		if (Byte == 3) {
 			/* special case: 4 x 64k x 36, offset = 0x80000 */
 			pAC->GIni.GIRamSize = 1024;
 			pAC->GIni.GIRamOffs = (SK_U32)512 * 1024;
@@ -1911,7 +1911,7 @@ SK_IOC	IoC)		/* IO context */
 		}
 		/* all GE adapters work with 53.125 MHz host clock */
 		pAC->GIni.GIHstClkFact = SK_FACT_53;
-		
+
 		/* set Descr. Poll Timer Init Value to 250 ms */
 		pAC->GIni.GIPollTimerVal =
 			SK_DPOLL_DEF * (SK_U32)pAC->GIni.GIHstClkFact / 100;
@@ -1923,12 +1923,12 @@ SK_IOC	IoC)		/* IO context */
 		pAC->GIni.GIRamSize = (Byte == 0) ? 128 : (int)Byte * 4;
 #else
 		pAC->GIni.GIRamSize = 128;
-#endif		
+#endif
 		pAC->GIni.GIRamOffs = 0;
-		
+
 		/* WA for chip Rev. A */
 		pAC->GIni.GIWolOffs = (pAC->GIni.GIChipRev == 0) ? WOL_REG_OFFS : 0;
-		
+
 		/* get PM Capabilities of PCI config space */
 		SK_IN16(IoC, PCI_C(PCI_PM_CAP_REG), &Word);
 
@@ -1939,16 +1939,16 @@ SK_IOC	IoC)		/* IO context */
 			/* set entry in GE init struct */
 			pAC->GIni.GIVauxAvail = SK_TRUE;
 		}
-		
+
 		/* save Flash-Address Register */
 		SK_IN32(IoC, B2_FAR, &FlashAddr);
 
 		/* test Flash-Address Register */
 		SK_OUT8(IoC, B2_FAR + 3, 0xff);
 		SK_IN8(IoC, B2_FAR + 3, &Byte);
-		
+
 		pAC->GIni.GIYukonLite = (SK_BOOL)(Byte != 0);
-		
+
 		/* restore Flash-Address Register */
 		SK_OUT32(IoC, B2_FAR, FlashAddr);
 
@@ -1961,13 +1961,13 @@ SK_IOC	IoC)		/* IO context */
 		}
 		/* all YU chips work with 78.125 MHz host clock */
 		pAC->GIni.GIHstClkFact = SK_FACT_78;
-		
+
 		pAC->GIni.GIPollTimerVal = SK_DPOLL_MAX;	/* 215 ms */
 	}
 
 	/* check if 64-bit PCI Slot is present */
 	pAC->GIni.GIPciSlot64 = (SK_BOOL)((CtrlStat & CS_BUS_SLOT_SZ) != 0);
-	
+
 	/* check if 66 MHz PCI Clock is active */
 	pAC->GIni.GIPciClock66 = (SK_BOOL)((CtrlStat & CS_BUS_CLOCK) != 0);
 
@@ -1984,7 +1984,7 @@ SK_IOC	IoC)		/* IO context */
 
 	Byte &= 0x0f;	/* the PHY type is stored in the lower nibble */
 	for (i = 0; i < pAC->GIni.GIMacsFound; i++) {
-		
+
 		if (pAC->GIni.GIGenesis) {
 			switch (Byte) {
 			case SK_PHY_XMAC:
@@ -2016,7 +2016,7 @@ SK_IOC	IoC)		/* IO context */
 				pAC->GIni.GICopperType = SK_TRUE;
 			}
 			pAC->GIni.GP[i].PhyAddr = PHY_ADDR_MARV;
-			
+
 			if (pAC->GIni.GICopperType) {
 				pAC->GIni.GP[i].PLinkSpeedCap = SK_LSPEED_CAP_AUTO |
 					SK_LSPEED_CAP_10MBPS | SK_LSPEED_CAP_100MBPS |
@@ -2029,14 +2029,14 @@ SK_IOC	IoC)		/* IO context */
 				Byte = SK_PHY_MARV_FIBER;
 			}
 		}
-		
+
 		pAC->GIni.GP[i].PhyType = Byte;
-		
+
 		SK_DBG_MSG(pAC, SK_DBGMOD_HWM, SK_DBGCAT_INIT,
 			("PHY type: %d  PHY addr: %04x\n", Byte,
 			pAC->GIni.GP[i].PhyAddr));
 	}
-	
+
 	/* get Mac Type & set function pointers dependent on */
 	if (pAC->GIni.GIGenesis) {
 		pAC->GIni.GIMacType = SK_MAC_XMAC;
@@ -2053,7 +2053,7 @@ SK_IOC	IoC)		/* IO context */
 		pAC->GIni.GIFunc.pFnMacStatistic	= SkGmMacStatistic;
 		pAC->GIni.GIFunc.pFnMacResetCounter	= SkGmResetCounter;
 		pAC->GIni.GIFunc.pFnMacOverflow		= SkGmOverflowStatus;
-		
+
 #ifdef SPECIAL_HANDLING
 		if (pAC->GIni.GIChipId == CHIP_ID_YUKON) {
 			/* check HW self test result */
@@ -2183,7 +2183,7 @@ int		Level)		/* initialization level */
 		SkGeInit0(pAC, IoC);
 		pAC->GIni.GILevel = SK_INIT_DATA;
 		break;
-	
+
 	case SK_INIT_IO:
 		/* Initialization Level 1 */
 		RetVal = SkGeInit1(pAC, IoC);
@@ -2195,7 +2195,7 @@ int		Level)		/* initialization level */
 		SK_OUT32(IoC, B2_IRQM_INI, 0x11335577L);
 		SK_IN32(IoC, B2_IRQM_INI, &DWord);
 		SK_OUT32(IoC, B2_IRQM_INI, 0L);
-		
+
 		if (DWord != 0x11335577L) {
 			RetVal = 2;
 			break;
@@ -2210,7 +2210,7 @@ int		Level)		/* initialization level */
 		/* Level 1 successfully passed */
 		pAC->GIni.GILevel = SK_INIT_IO;
 		break;
-	
+
 	case SK_INIT_RUN:
 		/* Initialization Level 2 */
 		if (pAC->GIni.GILevel != SK_INIT_IO) {
@@ -2225,7 +2225,7 @@ int		Level)		/* initialization level */
 		/* Level 2 successfully passed */
 		pAC->GIni.GILevel = SK_INIT_RUN;
 		break;
-	
+
 	default:
 		SK_ERR_LOG(pAC, SK_ERRCL_SW, SKERR_HWI_E003, SKERR_HWI_E003MSG);
 		RetVal = 3;
@@ -2274,7 +2274,7 @@ SK_IOC	IoC)		/* IO context */
 	 *	 available on some platforms after 'boot time'.
 	 */
 	SK_IN16(IoC, PCI_C(PCI_STATUS), &Word);
-	
+
 	SK_OUT8(IoC, B2_TST_CTRL1, TST_CFG_WRITE_ON);
 	SK_OUT16(IoC, PCI_C(PCI_STATUS), Word | PCI_ERRBITS);
 	SK_OUT8(IoC, B2_TST_CTRL1, TST_CFG_WRITE_OFF);
@@ -2325,7 +2325,7 @@ int		Port)		/* Port to configure */
 		SK_ERR_LOG(pAC, SK_ERRCL_SW, SKERR_HWI_E004, SKERR_HWI_E004MSG);
 		return(1);
 	}
-	
+
 	if (pPrt->PState == SK_PRT_INIT || pPrt->PState == SK_PRT_RUN) {
 		SK_ERR_LOG(pAC, SK_ERRCL_SW, SKERR_HWI_E005, SKERR_HWI_E005MSG);
 		return(2);
@@ -2342,25 +2342,25 @@ int		Port)		/* Port to configure */
 		SkGeXmitLED(pAC, IoC, MR_ADDR(Port, TX_LED_INI), SK_LED_ENA);
 		SkGeXmitLED(pAC, IoC, MR_ADDR(Port, RX_LED_INI), SK_LED_ENA);
 		/* The Link LED is initialized by RLMT or Diagnostics itself */
-		
+
 		SkXmInitMac(pAC, IoC, Port);
 	}
 	else {
 
 		SkGmInitMac(pAC, IoC, Port);
 	}
-	
+
 	/* do NOT initialize the Link Sync Counter */
 
 	SkGeInitMacFifo(pAC, IoC, Port);
-	
+
 	SkGeInitRamBufs(pAC, IoC, Port);
-	
+
 	if (pPrt->PXSQSize != 0) {
 		/* enable Force Sync bit if synchronous queue available */
 		SK_OUT8(IoC, MR_ADDR(Port, TXA_CTRL), TXA_ENA_FSYNC);
 	}
-	
+
 	SkGeInitBmu(pAC, IoC, Port);
 
 	/* mark port as initialized */

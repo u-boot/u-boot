@@ -29,22 +29,22 @@
  *	$Log: skgehwt.h,v $
  *	Revision 1.5  1999/11/22 13:54:24  cgoos
  *	Changed license header to GPL.
- *	
+ *
  *	Revision 1.4  1998/08/19 09:50:58  gklug
  *	fix: remove struct keyword from c-code (see CCC) add typedefs
- *	
+ *
  *	Revision 1.3  1998/08/14 07:09:29  gklug
  *	fix: chg pAc -> pAC
- *	
+ *
  *	Revision 1.2  1998/08/07 12:54:21  gklug
  *	fix: first compiled version
- *	
+ *
  *	Revision 1.1  1998/08/07 09:32:58  gklug
  *	first version
- *	
- *	
- *	
- *	
+ *
+ *
+ *
+ *
  *
  ******************************************************************************/
 

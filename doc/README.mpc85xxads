@@ -1,0 +1,535 @@
+Motorola MPC8540ADS and MPC8560ADS board
+
+Xianghua Xiao(X.Xiao@motorola.com)
+Created 10/15/03
+-----------------------------------------
+
+1. SWITCH SETTINGS & JUMPERS
+1.1 First, make sure the board default setting is consistent with the document
+    shipped with your board. Then apply the following changes:
+    SW3[1-6]="all OFF"  (boot from 32bit flash, no boot sequence is used)
+    SW10[2-6]="all OFF" (turn on CPM SCC for serial port,works for 8540/8560)
+    SW11[2]='OFF for dracom, ON for draco' (single switch to toggle draco.dracom mode)
+    SW4[7-8]="OFF OFF" (enable serial ports,I'm using the top serial connector)
+    SW22[1-4]="OFF OFF ON OFF"
+    SW5[1-10[="ON ON OFF OFF OFF OFF OFF OFF OFF OFF"
+    J1 = "Enable Prog" (Make sure your flash is programmable for development)
+    Ethernet PHY connectors(J47,J56) should be removed if you want to use the ethernet.
+1.2 If you want to test PCI functionality with a 33Mhz PCI card, you will have to change
+    the system clock from the default 66Mhz to 33Mhz by  setting SW15[1]="OFF" and
+    SW17[8]="OFF". After that you may also need double your platform clock(SW6) because
+    the system clock is now only half of its original value.
+1.3 SW6 is a very important switch, it decides your platform clock and CPU clock based on
+    the on-board system clock(default 66MHz). Check the document along with your board
+    for details.
+
+2. MEMORY MAP TO WORK WITH LINUX KERNEL
+2.1. For the initial bringup, we adopted a consistent memory scheme between u-boot and
+    linux kernel, you can customize it based on your system requirements:
+      DDR:          0x00000000-0x1fffffff (max 512MB)
+      PCI:          0xe0000000-0xefffffff (256MB)
+      RIO:          0xf0000000-0xf7ffffff (128MB)
+      Local SDRAM:  0xf8000000-0xfbffffff (64MB)
+      Local CSx:    0xfc000000-0xfdefffff (31MB) BCSR,RTC,ATM config,etc.
+      CCSRBAR:      0xfdf00000-0xfdffffff (1MB)
+      Flash:        0xfe000000-0xffffffff (max 32MB)
+2.2  We are submitting Linux kernel patches for MPC8540 and MPC8560. Hope you will be
+     able to download them from linuxppc-2.4 public source by the time you are reading
+     this. Please make sure the kernel's ppcboot.h is consistent with U-Boot's u-boot.h,
+     then you can use two default configuration files in the kernel source as a test:
+	arch/ppc/configs/mpc8540ads_defconfig
+	arch/ppc/configs/mpc8560ads_defconfig
+
+3. DEFINITIONS AND COMPILATION
+3.1 Explanation on NEW definitions in include/configs/MPC8540ADS.h and include/
+    configs/MPC8560ADS.h
+    CONFIG_BOOKE            BOOKE(e.g. Motorola MPC85xx, IBM 440, etc)
+    CONFIG_E500             BOOKE e500 family(Motorola)
+    CONFIG_MPC85xx          MPC8540,MPC8560 and their derivatives
+    CONFIG_MPC85xx_REV1     MPC85xx Rev 1 Chip, in general you will use a Rev2
+			    chip from Nov.2003. If you still see this definition
+			    while you have a Rev2(and newer) chip,undef this.
+    CONFIG_MPC8540          MPC8540 specific
+    CONFIG_MPC8560          MPC8560 specific
+    CONFIG_MPC8540ADS       MPC8540ADS board specific
+    CONFIG_MPC8560ADS       MPC8560ADS board specific
+    CONFIG_TSEC_ENET        Use on-chip 10/100/1000 ethernet for networking
+    CONFIG_SPD_EEPROM       Use SPD EEPROM for DDR auto configuration, you can also
+			    manual config the DDR after undef this definition.
+    CONFIG_DDR_ECC          only for ECC DDR module
+    CONFIG_DDR_DLL          possible DLL fix needed for Rev1 chip for more stability.
+			    you can disable this if you're having a newer chip.
+    CONFIG_RAM_AS_FLASH     after define this, you can load U-Boot into localbus
+			    SDRAM and treat localbus SDRAM as a flash. We use this
+			    memory based U-Boot before flash is working while Metrowerks
+			    and Windriver are still working on their flash/JTAG tools.
+			    if you can program the flash directly, undef this.
+    Other than the above definitions, the rest in the config files are straightforward.
+
+
+3.2 Compilation
+   export CROSS_COMPILE=your-cross-compile-prefix(assuming you're using BASH shell)
+   cd u-boot
+   make distclean
+   make MPC8560ADS_config (or make MPC8540ADS_config)
+   make
+
+4.  Note on the 10/100/1000 Ethernet controller:
+4.1 Sometimes after U-Boot is up, the 'tftp' won't work well with TSEC ethernet. If that
+   happens, you can try the following steps to make network work:
+   MPC8560ADS>tftp 1000000 pImage
+   (if it hangs, use Ctrl-C to quit)
+   MPC8560ADS>nm fdf24524
+   >0
+   >1
+   >. (to quit this memory operation)
+   MPC8560ADS>tftp 1000000 pImage
+
+5. Screen dump:
+5.1 MPC8540ADS board
+U-Boot 1.0.0-pre (Oct 15 2003 - 13:40:33)
+
+Motorola PowerPC ProcessorID=00000000 Rev. PVR=80200010
+Board: Motorola MPC8540ADS Board
+	CPU: 792 MHz
+	CCB: 264 MHz
+	DDR: 132 MHz
+	LBC: 66 MHz
+L1 D-cache 32KB, L1 I-cache 32KB enabled.
+I2C:   ready
+DRAM:  DDR module detected, total size:128MB.
+128 MB
+FLASH: 16 MB
+L2 cache enabled: 256KB
+*** Warning - bad CRC, using default environment
+
+In:    serial
+Out:   serial
+Err:   serial
+Net:   MOTOROLA ETHERNE
+Hit any key to stop autoboot:  0
+MPC8540ADS=> fli
+
+Bank # 1: Intel 28F640J3A (64 Mbit, 64 x 128K)
+  Size: 16 MB in 64 Sectors
+  Sector Start Addresses:
+    FF000000      FF040000      FF080000      FF0C0000      FF100000
+    FF140000      FF180000      FF1C0000      FF200000      FF240000
+    FF280000      FF2C0000      FF300000      FF340000      FF380000
+    FF3C0000      FF400000      FF440000      FF480000      FF4C0000
+    FF500000      FF540000      FF580000      FF5C0000      FF600000
+    FF640000      FF680000      FF6C0000      FF700000      FF740000
+    FF780000      FF7C0000      FF800000      FF840000      FF880000
+    FF8C0000      FF900000      FF940000      FF980000      FF9C0000
+    FFA00000      FFA40000      FFA80000      FFAC0000      FFB00000
+    FFB40000      FFB80000      FFBC0000      FFC00000      FFC40000
+    FFC80000      FFCC0000      FFD00000      FFD40000      FFD80000
+    FFDC0000      FFE00000      FFE40000      FFE80000      FFEC0000
+    FFF00000      FFF40000      FFF80000 (RO) FFFC0000 (RO)
+MPC8540ADS=> imi ff000000
+
+## Checking Image at ff000000 ...
+   Image Name:   Linux-2.4.21-rc5
+   Image Type:   PowerPC Linux Kernel Image (gzip compressed)
+   Data Size:    800594 Bytes = 781.8 kB
+   Load Address: 00000000
+   Entry Point:  00000000
+   Verifying Checksum ... OK
+MPC8540ADS=> bdinfo
+memstart    = 0x00000000
+memsize     = 0x08000000
+flashstart  = 0xFF000000
+flashsize   = 0x01000000
+flashoffset = 0x00000000
+sramstart   = 0x00000000
+sramsize    = 0x00000000
+immr_base   = 0xFDF00000
+bootflags   = 0x40003F80
+intfreq     =    792 MHz
+busfreq     =    264 MHz
+ethaddr     = 00:01:AF:07:9B:8A
+eth1addr    = 00:01:AF:07:9B:8B
+eth2addr    = 00:01:AF:07:9B:8C
+IP addr     = 10.82.0.105
+baudrate    = 115200 bps
+MPC8540ADS=> printenv
+bootargs=root=/dev/nfs rw nfsroot=163.12.64.52:/localhome/r6aads/linuxppc/target ip=10.82.0.105:163.12.64.52:10.82.1.254:255.255.254.0:mpc8540ads-003:eth0:off console=ttyS0,115200
+bootcmd=bootm 0xff300000 0xff700000
+bootdelay=3
+baudrate=115200
+loads_echo=1
+ethaddr=00:01:af:07:9b:8a
+eth1addr=00:01:af:07:9b:8b
+eth2addr=00:01:af:07:9b:8c
+ipaddr=10.82.0.105
+serverip=163.12.64.52
+rootpath=/home/r6aads/mpclinux/eldk-2.0.2/ppc_82xx
+gatewayip=10.82.1.254
+netmask=255.255.254.0
+hostname=MPC8560ADS_PILOT_003
+bootfile=pImage
+stdin=serial
+stdout=serial
+stderr=serial
+
+Environment size: 560/8188 bytes
+MPC8540ADS=> bootm ff000000
+## Booting image at ff000000 ...
+   Image Name:   Linux-2.4.21-rc5
+   Image Type:   PowerPC Linux Kernel Image (gzip compressed)
+   Data Size:    800594 Bytes = 781.8 kB
+   Load Address: 00000000
+   Entry Point:  00000000
+   Verifying Checksum ... OK
+   Uncompressing Kernel Image ... OK
+mpc85xx_init(): exit
+id mach(): done
+MMU:enter
+Memory CAM mapping: CAM0=64Mb, CAM1=64Mb, CAM2=0Mb residual: 0Mb
+MMU:hw init
+MMU:mapin
+MMU:mapin_ram done
+MMU:setio
+MMU:exit
+Linux version 2.4.21-rc5 (@etest) (gcc version 2.95.3 20010315 (release)) #1 Wed Oct 15 09:05:42 CDT 2003
+setup_arch: enter
+setup_arch: bootmem
+mpc85xx_setup_arch
+Host Bridge Vendor ID = 1057
+Host Bridge Device ID = 3
+Host Bridge header = 0
+arch: exit
+On node 0 totalpages: 32768
+zone(0): 32768 pages.
+zone(1): 0 pages.
+zone(2): 0 pages.
+Kernel command line: root=/dev/nfs rw nfsroot=163.12.64.52:/localhome/r6aads/linuxppc/target ip=10.82.0.105:163.12.64.52:10.82.1.254:255.255.254.0:mpc8540ads-003:eth0:off console=ttyS0,115200
+openpic: enter
+OpenPIC Version 1.2 (1 CPUs and 44 IRQ sources) at fdf40000
+openpic: timer
+openpic: external
+openpic: spurious
+openpic: exit
+time_init: decrementer frequency = 33.000000 MHz
+Calibrating delay loop... 226.09 BogoMIPS
+Memory: 127488k available (1344k kernel code, 448k data, 248k init, 0k highmem)
+Dentry cache hash table entries: 16384 (order: 5, 131072 bytes)
+Inode cache hash table entries: 8192 (order: 4, 65536 bytes)
+Mount cache hash table entries: 512 (order: 0, 4096 bytes)
+Buffer-cache hash table entries: 8192 (order: 3, 32768 bytes)
+Page-cache hash table entries: 32768 (order: 5, 131072 bytes)
+POSIX conformance testing by UNIFIX
+PCI: Probing PCI hardware
+
+Linux NET4.0 for Linux 2.4
+Based upon Swansea University Computer Society NET3.039
+Initializing RT netlink socket
+Starting kswapd
+Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
+pty: 256 Unix98 ptys configured
+Serial driver version 5.05c (2001-07-08) with MANY_PORTS SHARE_IRQ SERIAL_PCI enabled
+ttyS00 at 0xfdf04500 (irq = 90) is a 16550A
+ttyS01 at 0xfdf04600 (irq = 0) is a 16550A
+eth0: Three Speed Ethernet Controller Version 0.2, 00:01:af:07:9b:8a:
+eth1: Three Speed Ethernet Controller Version 0.2, 00:01:af:07:9b:8b:
+RAMDISK driver initialized: 16 RAM disks of 32768K size 1024 blocksize
+loop: loaded (max 8 devices)
+Intel(R) PRO/1000 Network Driver - version 5.0.43-k1
+Copyright (c) 1999-2003 Intel Corporation.
+PPP generic driver version 2.4.2
+PPP Deflate Compression module registered
+NET4: Linux TCP/IP 1.0 for NET4.0
+IP Protocols: ICMP, UDP, TCP, IGMP
+IP: routing cache hash table of 1024 buckets, 8Kbytes
+TCP: Hash tables configured (established 8192 bind 8192)
+IP-Config: Complete:
+      device=eth0, addr=10.82.0.105, mask=255.255.254.0, gw=10.82.1.254,
+     host=mpc8540ads-003, domain=, nis-domain=(none),
+     bootserver=163.12.64.52, rootserver=163.12.64.52, rootpath=
+NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+Looking up port of RPC 100003/2 on 163.12.64.52
+Looking up port of RPC 100005/1 on 163.12.64.52
+VFS: Mounted root (nfs filesystem).
+Freeing unused kernel memory: 248k init
+INIT: version 2.78 booting
+Activating swap...
+Checking all file systems...
+Parallelizing fsck version 1.22 (22-Jun-2001)
+Mounting local filesystems...
+nothing was mounted
+Cleaning: /etc/network/ifstate.
+Setting up IP spoofing protection: rp_filter.
+Disable TCP/IP Explicit Congestion Notification: done.
+Configuring network interfaces: done.
+Starting portmap daemon: portmap.
+Cleaning: /tmp /var/lock /var/run.
+INIT: Entering runlevel: 2
+Starting system log daemon: syslogd klogd.
+Starting internet superserver: inetd.
+
+mpc8540ads-003 login: root
+Last login: Thu Jan  1 00:00:07 1970 on console
+Linux mpc8540ads-003 2.4.21-rc5 #1 Wed Oct 15 09:05:42 CDT 2003 ppc unknown
+
+root@mpc8540ads-003:~# ls
+21142.o     aa	     e100.o	 hello.o      mii.o    timer.o
+root@mpc8540ads-003:~# /sbin/ifconfig
+eth0      Link encap:Ethernet  HWaddr 00:01:AF:07:9B:8A
+	  inet addr:10.82.0.105  Bcast:10.82.1.255  Mask:255.255.254.0
+	  UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+	  RX packets:4576 errors:0 dropped:0 overruns:0 frame:0
+	  TX packets:2587 errors:0 dropped:0 overruns:0 carrier:0
+	  collisions:0 txqueuelen:100
+	  RX bytes:4457023 (4.2 Mb)  TX bytes:437770 (427.5 Kb)
+	  Base address:0x4000
+
+lo        Link encap:Local Loopback
+	  inet addr:127.0.0.1  Mask:255.0.0.0
+	  UP LOOPBACK RUNNING  MTU:16436  Metric:1
+	  RX packets:4 errors:0 dropped:0 overruns:0 frame:0
+	  TX packets:4 errors:0 dropped:0 overruns:0 carrier:0
+	  collisions:0 txqueuelen:0
+	  RX bytes:296 (296.0 b)  TX bytes:296 (296.0 b)
+
+root@mpc8540ads-003:~# ping 163.12.64.52
+PING 163.12.64.52 (163.12.64.52): 56 data bytes
+64 bytes from 163.12.64.52: icmp_seq=0 ttl=63 time=0.2 ms
+64 bytes from 163.12.64.52: icmp_seq=1 ttl=63 time=0.1 ms
+64 bytes from 163.12.64.52: icmp_seq=2 ttl=63 time=0.1 ms
+
+--- 163.12.64.52 ping statistics ---
+3 packets transmitted, 3 packets received, 0% packet loss
+round-trip min/avg/max = 0.1/0.1/0.2 ms
+root@mpc8540ads-003:~#
+
+5.2 MPC8560ADS board
+U-Boot 1.0.0-pre (Oct 15 2003 - 13:42:04)
+
+Motorola PowerPC ProcessorID=00000000 Rev. PVR=80200010
+Board: Motorola MPC8560ADS Board
+	CPU: 792 MHz
+	CCB: 264 MHz
+	DDR: 132 MHz
+	LBC: 66 MHz
+	CPM: 264 Mhz
+L1 D-cache 32KB, L1 I-cache 32KB enabled.
+I2C:   ready
+DRAM:  DDR module detected, total size:128MB.
+128 MB
+FLASH: 16 MB
+L2 cache enabled: 256KB
+*** Warning - bad CRC, using default environment
+
+In:    serial
+Out:   serial
+Err:   serial
+Net:   MOTOROLA ETHERNE
+Hit any key to stop autoboot:  3
+MPC8560ADS=> bdinfo
+memstart    = 0x00000000
+memsize     = 0x08000000
+flashstart  = 0xFF000000
+flashsize   = 0x01000000
+flashoffset = 0x00000000
+sramstart   = 0x00000000
+sramsize    = 0x00000000
+immr_base   = 0xFDF00000
+bootflags   = 0x00000000
+vco         =    528 MHz
+sccfreq     =    132 MHz
+brgfreq     =    132 MHz
+intfreq     =    792 MHz
+cpmfreq     =    264 MHz
+busfreq     =    264 MHz
+ethaddr     = 00:01:AF:07:9B:8A
+eth1addr    = 00:01:AF:07:9B:8B
+eth2addr    = 00:01:AF:07:9B:8C
+IP addr     = 10.82.0.105
+baudrate    = 115200 bps
+MPC8560ADS=> printenv
+bootargs=root=/dev/nfs rw nfsroot=163.12.64.52:/localhome/r6aads/linuxppc/target ip=10.82.0.105:163.12.64.52:10.82.1.254:255.255.254.0:mpc8560ads-003:eth0:off console=ttyS0,115200
+bootcmd=bootm 0xff400000 0xff700000
+bootdelay=3
+baudrate=115200
+loads_echo=1
+ethaddr=00:01:af:07:9b:8a
+eth1addr=00:01:af:07:9b:8b
+eth2addr=00:01:af:07:9b:8c
+ipaddr=10.82.0.105
+serverip=163.12.64.52
+rootpath=/home/r6aads/mpclinux/eldk-2.0.2/ppc_82xx
+gatewayip=10.82.1.254
+netmask=255.255.254.0
+hostname=MPC8560ADS_PILOT_003
+bootfile=pImage
+stdin=serial
+stdout=serial
+stderr=serial
+
+Environment size: 560/8188 bytes
+MPC8560ADS=> fli
+
+Bank # 1: Intel 28F640J3A (64 Mbit, 64 x 128K)
+  Size: 16 MB in 64 Sectors
+  Sector Start Addresses:
+    FF000000      FF040000      FF080000      FF0C0000      FF100000
+    FF140000      FF180000      FF1C0000      FF200000      FF240000
+    FF280000      FF2C0000      FF300000      FF340000      FF380000
+    FF3C0000      FF400000      FF440000      FF480000      FF4C0000
+    FF500000      FF540000      FF580000      FF5C0000      FF600000
+    FF640000      FF680000      FF6C0000      FF700000      FF740000
+    FF780000      FF7C0000      FF800000      FF840000      FF880000
+    FF8C0000      FF900000      FF940000      FF980000      FF9C0000
+    FFA00000      FFA40000      FFA80000      FFAC0000      FFB00000
+    FFB40000      FFB80000      FFBC0000      FFC00000      FFC40000
+    FFC80000      FFCC0000      FFD00000      FFD40000      FFD80000
+    FFDC0000      FFE00000      FFE40000      FFE80000      FFEC0000
+    FFF00000      FFF40000      FFF80000 (RO) FFFC0000 (RO)
+MPC8560ADS=> imi ff100000
+
+## Checking Image at ff100000 ...
+   Image Name:   Linux-2.4.21-rc5
+   Image Type:   PowerPC Linux Kernel Image (gzip compressed)
+   Data Size:    755361 Bytes = 737.7 kB
+   Load Address: 00000000
+   Entry Point:  00000000
+   Verifying Checksum ... OK
+MPC8560ADS=> tftp 1000000 pImage.dracom.public
+TFTP from server 163.12.64.52; our IP address is 10.82.0.105; sending through gateway 10.82.1.254
+Filename 'pImage.dracom.public'.
+Load address: 0x1000000
+Loading: *#################################################################
+	 #################################################################
+	 ##################
+done
+Bytes transferred = 755425 (b86e1 hex)
+MPC8560ADS=> bootm ff100000
+## Booting image at ff100000 ...
+   Image Name:   Linux-2.4.21-rc5
+   Image Type:   PowerPC Linux Kernel Image (gzip compressed)
+   Data Size:    755361 Bytes = 737.7 kB
+   Load Address: 00000000
+   Entry Point:  00000000
+   Verifying Checksum ... OK
+   Uncompressing Kernel Image ... OK
+mpc85xx_init(): exit
+id mach(): done
+MMU:enter
+Memory CAM mapping: CAM0=64Mb, CAM1=64Mb, CAM2=0Mb residual: 0Mb
+MMU:hw init
+MMU:mapin
+MMU:mapin_ram done
+MMU:setio
+MMU:exit
+Linux version 2.4.21-rc5 (@etest) (gcc version 2.95.3 20010315 (release)) #2 Wed Oct 15 09:13:46 CDT 2003
+setup_arch: enter
+setup_arch: bootmem
+mpc85xx_setup_arch
+Host Bridge Vendor ID = 1057
+Host Bridge Device ID = 3
+Host Bridge header = 0
+arch: exit
+On node 0 totalpages: 32768
+zone(0): 32768 pages.
+zone(1): 0 pages.
+zone(2): 0 pages.
+Kernel command line: root=/dev/nfs rw nfsroot=163.12.64.52:/localhome/r6aads/linuxppc/target ip=10.82.0.105:163.12.64.52:10.82.1.254:255.255.254.0:mpc8560ads-003:eth0:off console=ttyS0,115200
+openpic: enter
+OpenPIC Version 1.2 (1 CPUs and 44 IRQ sources) at fdf40000
+openpic: timer
+openpic: external
+openpic: spurious
+openpic: exit
+time_init: decrementer frequency = 33.000000 MHz
+Calibrating delay loop... 226.09 BogoMIPS
+Memory: 127624k available (1276k kernel code, 384k data, 236k init, 0k highmem)
+Dentry cache hash table entries: 16384 (order: 5, 131072 bytes)
+Inode cache hash table entries: 8192 (order: 4, 65536 bytes)
+Mount cache hash table entries: 512 (order: 0, 4096 bytes)
+Buffer-cache hash table entries: 8192 (order: 3, 32768 bytes)
+Page-cache hash table entries: 32768 (order: 5, 131072 bytes)
+POSIX conformance testing by UNIFIX
+PCI: Probing PCI hardware
+
+Linux NET4.0 for Linux 2.4
+Based upon Swansea University Computer Society NET3.039
+Initializing RT netlink socket
+Starting kswapd
+Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
+CPM UART driver version 0.01
+ttyS0 on SCC1 at 0x8000, BRG1
+UART interrupt installed(40)
+pty: 256 Unix98 ptys configured
+eth0: Three Speed Ethernet Controller Version 0.2, 00:01:af:07:9b:8a:
+eth1: Three Speed Ethernet Controller Version 0.2, 00:01:af:07:9b:8b:
+RAMDISK driver initialized: 16 RAM disks of 32768K size 1024 blocksize
+loop: loaded (max 8 devices)
+Intel(R) PRO/1000 Network Driver - version 5.0.43-k1
+Copyright (c) 1999-2003 Intel Corporation.
+PPP generic driver version 2.4.2
+PPP Deflate Compression module registered
+NET4: Linux TCP/IP 1.0 for NET4.0
+IP Protocols: ICMP, UDP, TCP, IGMP
+IP: routing cache hash table of 1024 buckets, 8Kbytes
+TCP: Hash tables configured (established 8192 bind 8192)
+IP-Config: Complete:
+      device=eth0, addr=10.82.0.105, mask=255.255.254.0, gw=10.82.1.254,
+     host=mpc8560ads-003, domain=, nis-domain=(none),
+     bootserver=163.12.64.52, rootserver=163.12.64.52, rootpath=
+NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+Looking up port of RPC 100003/2 on 163.12.64.52
+Looking up port of RPC 100005/1 on 163.12.64.52
+VFS: Mounted root (nfs filesystem).
+Freeing unused kernel memory: 236k init
+INIT: version 2.78 booting
+Activating swap...
+Checking all file systems...
+Parallelizing fsck version 1.22 (22-Jun-2001)
+Mounting local filesystems...
+nothing was mounted
+Cleaning: /etc/network/ifstate.
+Setting up IP spoofing protection: FAILED
+Configuring network interfaces: done.
+Starting portmap daemon: portmap.
+Cleaning: /tmp /var/lock /var/run.
+INIT: Entering runlevel: 2
+Starting system log daemon: syslogd klogd.
+Starting internet superserver: inetd.
+
+mpc8560ads-003 login: root
+Last login: Thu Jan  1 00:00:05 1970 on console
+Linux mpc8560ads-003 2.4.21-rc5 #2 Wed Oct 15 09:13:46 CDT 2003 ppc unknown
+
+root@mpc8560ads-003:~# ls
+21142.o     aa	     e100.o	 hello.o      mii.o    timer.o
+root@mpc8560ads-003:~# cd /
+root@mpc8560ads-003:/# ls
+bin  boot  dev	etc  home  lib	mnt  opt  proc	root  sbin  tmp  usr  var
+root@mpc8560ads-003:/# /sbin/ifconfig
+eth0      Link encap:Ethernet  HWaddr 00:01:AF:07:9B:8A
+	  inet addr:10.82.0.105  Bcast:10.82.1.255  Mask:255.255.254.0
+	  UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+	  RX packets:4608 errors:0 dropped:0 overruns:0 frame:0
+	  TX packets:2610 errors:0 dropped:0 overruns:0 carrier:0
+	  collisions:0 txqueuelen:100
+	  RX bytes:4465943 (4.2 Mb)  TX bytes:440944 (430.6 Kb)
+	  Base address:0x4000
+
+lo        Link encap:Local Loopback
+	  inet addr:127.0.0.1  Mask:255.0.0.0
+	  UP LOOPBACK RUNNING  MTU:16436  Metric:1
+	  RX packets:4 errors:0 dropped:0 overruns:0 frame:0
+	  TX packets:4 errors:0 dropped:0 overruns:0 carrier:0
+	  collisions:0 txqueuelen:0
+	  RX bytes:296 (296.0 b)  TX bytes:296 (296.0 b)
+
+root@mpc8560ads-003:/# ping 163.12.64.52
+PING 163.12.64.52 (163.12.64.52): 56 data bytes
+64 bytes from 163.12.64.52: icmp_seq=0 ttl=63 time=0.1 ms
+64 bytes from 163.12.64.52: icmp_seq=1 ttl=63 time=0.1 ms
+64 bytes from 163.12.64.52: icmp_seq=2 ttl=63 time=0.1 ms
+
+--- 163.12.64.52 ping statistics ---
+3 packets transmitted, 3 packets received, 0% packet loss
+round-trip min/avg/max = 0.1/0.1/0.1 ms
+root@mpc8560ads-003:/#

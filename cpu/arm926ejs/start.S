@@ -31,7 +31,6 @@
  */
 
 
-
 #include <config.h>
 #include <version.h>
 
@@ -144,7 +143,7 @@ reset:
 	msr	cpsr,r0
 
 
-	/* 
+	/*
 	 * turn off the watchdog, unlock/diable sequence
 	 */
 	mov	r1, #0xF5
@@ -152,9 +151,6 @@ reset:
 	strh	r1, [r0]
 	mov	r1, #0xA0
 	strh	r1, [r0]
-
-
-
 
 
 	/*
@@ -411,7 +407,7 @@ fiq:
 .globl reset_cpu
 reset_cpu:
 	ldr	r1, rstctl1	/* get clkm1 reset ctl */
-	mov	r3, #0x0	
+	mov	r3, #0x0
 	strh	r3, [r1]	/* clear it */
 	mov	r3, #0x8
 	strh	r3, [r1]	/* force dsp+arm reset */

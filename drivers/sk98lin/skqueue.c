@@ -29,60 +29,60 @@
  *	$Log: skqueue.c,v $
  *	Revision 1.18  2002/05/07 14:11:11  rwahl
  *	Fixed Watcom Precompiler error.
- *	
+ *
  *	Revision 1.17  2002/03/25 10:06:41  mkunz
  *	SkIgnoreEvent deleted
- *	
+ *
  *	Revision 1.16  2002/03/15 10:51:59  mkunz
  *	Added event classes for link aggregation
- *	
+ *
  *	Revision 1.15  1999/11/22 13:36:29  cgoos
  *	Changed license header to GPL.
- *	
+ *
  *	Revision 1.14  1998/10/15 15:11:35  gklug
  *	fix: ID_sccs to SysKonnectFileId
- *	
+ *
  *	Revision 1.13  1998/09/08 08:47:52  gklug
  *	add: init level handling
- *	
+ *
  *	Revision 1.12  1998/09/08 07:43:20  gklug
  *	fix: Sirq Event function name
- *	
+ *
  *	Revision 1.11  1998/09/08 05:54:34  gklug
  *	chg: define SK_CSUM is replaced by SK_USE_CSUM
- *	
+ *
  *	Revision 1.10  1998/09/03 14:14:49  gklug
  *	add: CSUM and HWAC Eventclass and function.
- *	
+ *
  *	Revision 1.9  1998/08/19 09:50:50  gklug
  *	fix: remove struct keyword from c-code (see CCC) add typedefs
- *	
+ *
  *	Revision 1.8  1998/08/17 13:43:11  gklug
  *	chg: Parameter will be union of 64bit para, 2 times SK_U32 or SK_PTR
- *	
+ *
  *	Revision 1.7  1998/08/14 07:09:11  gklug
  *	fix: chg pAc -> pAC
- *	
+ *
  *	Revision 1.6  1998/08/11 12:13:14  gklug
  *	add: return code feature of Event service routines
  *	add: correct Error log calls
- *	
+ *
  *	Revision 1.5  1998/08/07 12:53:45  gklug
  *	fix: first compiled version
- *	
+ *
  *	Revision 1.4  1998/08/07 09:20:48  gklug
  *	adapt functions to C coding conventions.
- *	
+ *
  *	Revision 1.3  1998/08/05 11:29:32  gklug
  *	rmv: Timer event entry. Timer will queue event directly
- *	
+ *
  *	Revision 1.2  1998/07/31 11:22:40  gklug
  *	Initial version
- *	
+ *
  *	Revision 1.1  1998/07/30 15:14:01  gklug
  *	Initial version. Adapted from SMT
- *	
- *	
+ *
+ *
  *
  ******************************************************************************/
 
@@ -175,7 +175,7 @@ SK_IOC	Ioc)	/* Io context */
 	while (pEv != pAC->Event.EvPut) {
 		PRINTF("dispatch Class %d Event %d\n",pEv->Class,pEv->Event) ;
 		switch(Class = pEv->Class) {
-#ifndef SK_USE_LAC_EV        
+#ifndef SK_USE_LAC_EV
 		case SKGE_RLMT :	/* RLMT Event */
 			Rtv = SkRlmtEvent(pAC,Ioc,pEv->Event,pEv->Para);
 			break ;
@@ -189,16 +189,16 @@ SK_IOC	Ioc)	/* Io context */
 		case SKGE_DRV :		/* Driver Event */
 			Rtv = SkDrvEvent(pAC,Ioc,pEv->Event,pEv->Para);
 			break ;
-#ifndef SK_USE_SW_TIMER        
+#ifndef SK_USE_SW_TIMER
 		case SKGE_HWAC :
 			Rtv = SkGeSirqEvent(pAC,Ioc,pEv->Event,pEv->Para);
 			break ;
 #else /* !SK_USE_SW_TIMER */
-        case SKGE_SWT : 
+	case SKGE_SWT :
 			Rtv = SkSwtEvent(pAC,Ioc,pEv->Event,pEv->Para);
 			break ;
 #endif /* !SK_USE_SW_TIMER */
-#ifdef SK_USE_LAC_EV        
+#ifdef SK_USE_LAC_EV
 		case SKGE_LACP :
 			Rtv = SkLacpEvent(pAC,Ioc,pEv->Event,pEv->Para);
 			break ;

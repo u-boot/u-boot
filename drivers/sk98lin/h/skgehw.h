@@ -1781,7 +1781,7 @@ extern "C" {
 	WOL_CTL_DIS_LINK_CHG_UNIT |		\
 	WOL_CTL_DIS_PATTERN_UNIT |		\
 	WOL_CTL_DIS_MAGIC_PKT_UNIT)
-	
+
 /*	WOL_MATCH_CTL		 8 bit	WOL Match Control Reg */
 #define WOL_CTL_PATT_ENA(x)				(BIT_0 << (x))
 
@@ -1825,7 +1825,7 @@ typedef	struct s_HwRxd {
 	SK_U32	RxAdrHi;		/* Physical Rx Buffer Address upper dword */
 	SK_U32	RxStat;			/* Receive Frame Status Word */
 	SK_U32	RxTiSt;			/* Receive Time Stamp (from XMAC on GENESIS) */
-#ifndef	SK_USE_REV_DESC	
+#ifndef	SK_USE_REV_DESC
 	SK_U16	RxTcpSum1;		/* TCP Checksum 1 */
 	SK_U16	RxTcpSum2;		/* TCP Checksum 2 */
 	SK_U16	RxTcpSp1;		/* TCP Checksum Calculation Start Position 1 */
@@ -1906,7 +1906,7 @@ typedef	struct s_HwRxd {
  *
  *	Use this macro to access the Receive and Transmit Queue Registers.
  *
- * para:	
+ * para:
  *	Queue	Queue to access.
  *				Values: Q_R1, Q_R2, Q_XS1, Q_XA1, Q_XS2, and Q_XA2
  *	Offs	Queue register offset.
@@ -1921,7 +1921,7 @@ typedef	struct s_HwRxd {
  *
  *	Use this macro to access the RAM Buffer Registers.
  *
- * para:	
+ * para:
  *	Queue	Queue to access.
  *				Values: Q_R1, Q_R2, Q_XS1, Q_XA1, Q_XS2, and Q_XA2
  *	Offs	Queue register offset.
@@ -1943,7 +1943,7 @@ typedef	struct s_HwRxd {
  *
  *	Use this macro to access a MAC Related Registers inside the ASIC.
  *
- * para:	
+ * para:
  *	Mac		MAC to access.
  *				Values: MAC_1, MAC_2
  *	Offs	MAC register offset.
@@ -2200,7 +2200,7 @@ typedef	struct s_HwRxd {
 #define PHY_ADDR_BCOM	(1<<8)
 #define PHY_ADDR_LONE	(3<<8)
 #define PHY_ADDR_NAT	(0<<8)
-		
+
 /* GPHY address (bits 15..11 of SMI control reg) */
 #define PHY_ADDR_MARV	0
 
@@ -2210,7 +2210,7 @@ typedef	struct s_HwRxd {
  * PHY_READ()		read a 16 bit value from the PHY
  * PHY_WRITE()		write a 16 bit value to the PHY
  *
- * para:	
+ * para:
  * 	IoC		I/O context needed for SK I/O macros
  * 	pPort	Pointer to port struct for PhyAddr
  * 	Mac		XMAC to access		values: MAC_1 or MAC_2

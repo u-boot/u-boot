@@ -67,4 +67,3 @@ void lynxkdi_boot ( image_header_t *hdr )
 #endif
 
 #endif	/* CONFIG_LYNXKDI */
-

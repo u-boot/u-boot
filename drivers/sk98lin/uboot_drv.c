@@ -106,7 +106,7 @@ static void skge_halt(struct eth_device *dev)
 
 
 static int skge_send(struct eth_device *dev, volatile void *packet,
-                                                  int length)
+						  int length)
 {
 	int ret = -1;
 	struct sk_buff * skb = alloc_skb(length, 0);

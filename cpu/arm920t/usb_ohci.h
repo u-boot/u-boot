@@ -224,7 +224,6 @@ struct ohci_regs {
 #define OHCI_INTR_MIE	(1 << 31)	/* master interrupt enable */
 
 
-
 /* Virtual Root HUB */
 struct virt_root_hub {
 	int devnum; /* Address of Root Hub endpoint */

@@ -68,7 +68,7 @@
 #define CONFIG_SERVERIP         192.168.0.250
 #define CONFIG_BOOTCOMMAND      "bootm 50040000"
 #define CONFIG_BOOTARGS         "root=/dev/mtdblock2 rootfstype=cramfs console=ttyS0,115200"
-#define CONFIG_CMDLINE_TAG      
+#define CONFIG_CMDLINE_TAG
 
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE    230400          /* speed to run kgdb serial port */
@@ -93,7 +93,7 @@
 #define CFG_LOAD_ADDR           0x00010000      /* default load address */
 
 #define CFG_HZ                  3333333         /* spec says 66.666 MHz, but it appears to be 33 */
-                                                /* valid baudrates */
+						/* valid baudrates */
 #define CFG_BAUDRATE_TABLE      { 9600, 19200, 38400, 57600, 115200 }
 
 /*

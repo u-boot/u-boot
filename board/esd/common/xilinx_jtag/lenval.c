@@ -64,7 +64,7 @@ long value( lenVal*     plvValue )
  * Returns:      void.
  *****************************************************************************/
 void initLenVal( lenVal*    plv,
-                 long       lValue )
+		 long       lValue )
 {
 	plv->len    = 1;
 	plv->val[0] = (unsigned char)lValue;
@@ -79,8 +79,8 @@ void initLenVal( lenVal*    plv,
  * Returns:      short   - 0 = mismatch; 1 = equal.
  *****************************************************************************/
 short EqualLenVal( lenVal*  plvTdoExpected,
-                   lenVal*  plvTdoCaptured,
-                   lenVal*  plvTdoMask )
+		   lenVal*  plvTdoCaptured,
+		   lenVal*  plvTdoMask )
 {
 	short           sEqual;
 	short           sIndex;
@@ -120,8 +120,8 @@ short EqualLenVal( lenVal*  plvTdoExpected,
  * Returns:      short   - the bit value.
  *****************************************************************************/
 short RetBit( lenVal*   plv,
-              int       iByte,
-              int       iBit )
+	      int       iByte,
+	      int       iBit )
 {
 	/* assert( ( iByte >= 0 ) && ( iByte < plv->len ) ); */
 	/* assert( ( iBit >= 0 ) && ( iBit < 8 ) ); */
@@ -139,9 +139,9 @@ short RetBit( lenVal*   plv,
  * Returns:      void.
  *****************************************************************************/
 void SetBit( lenVal*    plv,
-             int        iByte,
-             int        iBit,
-             short      sVal )
+	     int        iByte,
+	     int        iBit,
+	     short      sVal )
 {
 	unsigned char   ucByteVal;
 	unsigned char   ucBitMask;
@@ -166,8 +166,8 @@ void SetBit( lenVal*    plv,
  * Returns:      void.
  *****************************************************************************/
 void addVal( lenVal*    plvResVal,
-             lenVal*    plvVal1,
-             lenVal*    plvVal2 )
+	     lenVal*    plvVal1,
+	     lenVal*    plvVal2 )
 {
 	unsigned char   ucCarry;
 	unsigned short  usSum;
@@ -204,7 +204,7 @@ void addVal( lenVal*    plvResVal,
  * Returns:      void.
  *****************************************************************************/
 void readVal( lenVal*   plv,
-              short     sNumBytes )
+	      short     sNumBytes )
 {
 	unsigned char*  pucVal;
 

@@ -54,7 +54,6 @@ flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips    */
 #define mb() __asm__ __volatile__ ("" : : : "memory")
 
 
-
 /* Flash Organization Structure */
 typedef struct OrgDef {
 	unsigned int sector_number;
@@ -240,8 +239,6 @@ static ulong flash_get_size (FPW * addr, flash_info_t * info)
 }
 
 
-
-
 /* unprotects a sector for write and erase
  * on some intel parts, this unprotects the entire chip, but it
  * wont hurt to call this additional times per sector...
@@ -298,8 +295,6 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	}
 
 
-
-
 	start = get_timer (0);
 	last = start;
 
@@ -326,7 +321,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 			while (((status =
 				*addr) & (FPW) 0x00800080) !=
 				(FPW) 0x00800080) {
-					if (get_timer_masked () > 
+					if (get_timer_masked () >
 					CFG_FLASH_ERASE_TOUT) {
 					printf ("Timeout\n");
 					/* suspend erase     */

@@ -106,6 +106,9 @@ endif
 ifeq ($(CPU),ppc4xx)
 OBJS +=	cpu/$(CPU)/resetvec.o
 endif
+ifeq ($(CPU),mpc85xx)
+OBJS += cpu/$(CPU)/resetvec.o
+endif
 
 LIBS  =	board/$(BOARDDIR)/lib$(BOARD).a
 LIBS += cpu/$(CPU)/lib$(CPU).a
@@ -773,6 +776,16 @@ TQM8265_AA_config:  unconfig
 
 ZPC1900_config: unconfig
 	@./mkconfig $(@:_config=) ppc mpc8260 zpc1900
+
+#########################################################################
+## MPC85xx Systems
+#########################################################################
+
+MPC8540ADS_config:      unconfig
+	@./mkconfig $(@:_config=) ppc mpc85xx mpc8540ads
+
+MPC8560ADS_config:      unconfig
+	@./mkconfig $(@:_config=) ppc mpc85xx mpc8560ads
 
 #########################################################################
 ## 74xx/7xx Systems

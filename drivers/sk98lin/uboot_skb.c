@@ -69,7 +69,7 @@ struct sk_buff * alloc_skb(u32 size, int dummy)
 
 		sk_table[i]->data += 16 - ((u32)sk_table[i]->data & 15);
 		sk_table[i]->len = size;
-		
+
 		break;
 	}
 

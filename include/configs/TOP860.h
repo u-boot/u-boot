@@ -275,7 +275,7 @@
  *	1	CSR		0			Checkstop reset enable
  *	1	LOLRE	0			Loss-of-lock reset enable
  *	1	FIOPD	0			Force I/O pull down
- *	5	0		00000			
+ *	5	0		00000
  */
 #define CFG_PLPRCR	(PLPRCR_TEXPS | ((CFG_MF-1)<<20))
 
@@ -322,8 +322,8 @@
  *	1	SEME	0			Sync external master enable
  *	1	BSC		0			Byte strobe configuration
  *	1	GB5E	0			GPL_B5 enable
- *	1	B2DD	0			Bank 2 double drive			
- *	1	B3DD	0			Bank 3 double drive			
+ *	1	B2DD	0			Bank 2 double drive
+ *	1	B3DD	0			Bank 3 double drive
  *	4	0		0000
  */
 #define CFG_SIUMCR	(SIUMCR_MLRC11)
@@ -412,7 +412,7 @@
 #define CONFIG_BOOTP_MASK				( CONFIG_BOOTP_DEFAULT		| \
 									  	  CONFIG_BOOTP_BOOTFILESIZE   \
 										)
-										
+
 
 /*
  * Set default IP stuff just to get bootstrap entries into the

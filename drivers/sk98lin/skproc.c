@@ -7,7 +7,7 @@
  * Purpose:	Funktions to display statictic data
  *
  ******************************************************************************/
- 
+
 /******************************************************************************
  *
  *	(C)Copyright 1998-2003 SysKonnect GmbH.
@@ -30,43 +30,43 @@
  *	$Log: skproc.c,v $
  *	Revision 1.4  2003/02/25 14:16:37  mlindner
  *	Fix: Copyright statement
- *	
+ *
  *	Revision 1.3  2002/10/02 12:59:51  mlindner
  *	Add: Support for Yukon
  *	Add: Speed check and setup
  *	Add: Merge source for kernel 2.2.x and 2.4.x
  *	Add: Read sensor names directly from VPD
  *	Fix: Volt values
- *	
+ *
  *	Revision 1.2.2.7  2002/01/14 12:45:15  mlindner
  *	Fix: Editorial changes
- *	
+ *
  *	Revision 1.2.2.6  2001/12/06 15:26:07  mlindner
  *	Fix: Return value of proc_read
- *	
+ *
  *	Revision 1.2.2.5  2001/12/06 09:57:39  mlindner
  *	New ProcFs entries
- *	
+ *
  *	Revision 1.2.2.4  2001/09/05 12:16:02  mlindner
  *	Add: New ProcFs entries
  *	Fix: Counter Errors (Jumbo == to long errors)
  *	Fix: Kernel error compilation
  *	Fix: too short counters
- *	
+ *
  *	Revision 1.2.2.3  2001/06/25 07:26:26  mlindner
  *	Add: More error messages
- *	
+ *
  *	Revision 1.2.2.2  2001/03/15 12:50:13  mlindner
  *	fix: ProcFS owner protection
- *	
+ *
  *	Revision 1.2.2.1  2001/03/12 16:43:48  mlindner
  *	chg: 2.4 requirements for procfs
- *	
+ *
  *	Revision 1.1  2001/01/22 14:15:31  mlindner
  *	added ProcFs functionality
  *	Dual Net functionality integrated
  *	Rlmt networks added
- *	
+ *
  *
  ******************************************************************************/
 
@@ -100,15 +100,15 @@ extern char * SkNumber(
 
 /*****************************************************************************
  *
- * 	proc_read - print "summaries" entry 
+ * 	proc_read - print "summaries" entry
  *
  * Description:
- *  This function fills the proc entry with statistic data about 
+ *  This function fills the proc entry with statistic data about
  *  the ethernet device.
- *  
+ *
  *
  * Returns: buffer with statistic data
- *	
+ *
  */
 int proc_read(char *buffer,
 char **buffer_location,
@@ -124,7 +124,7 @@ void *data)
 	SK_AC					*pAC;
 	char 					test_buf[100];
 	char					sens_msg[50];
-	unsigned long			Flags;		
+	unsigned long			Flags;
 	unsigned int			Size;
 	struct SK_NET_DEVICE 		*next;
 	struct SK_NET_DEVICE 		*SkgeProcDev = SkGeRootDev;
@@ -146,20 +146,20 @@ void *data)
 
 			spin_lock_irqsave(&pAC->SlowPathLock, Flags);
 			Size = SK_PNMI_STRUCT_SIZE;
-			SkPnmiGetStruct(pAC, pAC->IoBase, 
+			SkPnmiGetStruct(pAC, pAC->IoBase,
 				pPnmiStruct, &Size, t-1);
 			spin_unlock_irqrestore(&pAC->SlowPathLock, Flags);
-	
+
 			if (strcmp(pAC->dev[t-1]->name, file->name) == 0) {
 				pPnmiStat = &pPnmiStruct->Stat[0];
-				len = sprintf(buffer, 
+				len = sprintf(buffer,
 					"\nDetailed statistic for device %s\n",
 					pAC->dev[t-1]->name);
 				len += sprintf(buffer + len,
 					"=======================================\n");
-	
+
 				/* Board statistics */
-				len += sprintf(buffer + len, 
+				len += sprintf(buffer + len,
 					"\nBoard statistics\n\n");
 				len += sprintf(buffer + len,
 					"Active Port                    %c\n",
@@ -226,9 +226,9 @@ void *data)
 						break;
 					}
 				}
-				
+
 				/*Receive statistics */
-				len += sprintf(buffer + len, 
+				len += sprintf(buffer + len,
 				"\nReceive statistics\n\n");
 
 				len += sprintf(buffer + len,
@@ -240,14 +240,14 @@ void *data)
 					SkNumber(test_buf, pPnmiStat->StatRxOkCts,
 					10,0,-1,0));
 #if 0
-				if (pAC->GIni.GP[0].PhyType == SK_PHY_XMAC && 
+				if (pAC->GIni.GP[0].PhyType == SK_PHY_XMAC &&
 					pAC->HWRevision < 12) {
-					pPnmiStruct->InErrorsCts = pPnmiStruct->InErrorsCts - 
+					pPnmiStruct->InErrorsCts = pPnmiStruct->InErrorsCts -
 						pPnmiStat->StatRxShortsCts;
 					pPnmiStat->StatRxShortsCts = 0;
 				}
 #endif
-				if (pNet->Mtu > 1500) 
+				if (pNet->Mtu > 1500)
 					pPnmiStruct->InErrorsCts = pPnmiStruct->InErrorsCts -
 						pPnmiStat->StatRxTooLongCts;
 
@@ -292,37 +292,37 @@ void *data)
 				len += sprintf(buffer + len,
 					"   too long                    %s\n",
 					SkNumber(test_buf, pPnmiStat->StatRxTooLongCts,
-					10, 0, -1, 0));					
+					10, 0, -1, 0));
 				len += sprintf(buffer + len,
 					"   carrier extension           %s\n",
 					SkNumber(test_buf, pPnmiStat->StatRxCextCts,
-					10, 0, -1, 0));				
+					10, 0, -1, 0));
 				len += sprintf(buffer + len,
 					"   too short                   %s\n",
 					SkNumber(test_buf, pPnmiStat->StatRxShortsCts,
-					10, 0, -1, 0));				
+					10, 0, -1, 0));
 				len += sprintf(buffer + len,
 					"   symbol                      %s\n",
 					SkNumber(test_buf, pPnmiStat->StatRxSymbolCts,
-					10, 0, -1, 0));				
+					10, 0, -1, 0));
 				len += sprintf(buffer + len,
 					"   LLC MAC size                %s\n",
 					SkNumber(test_buf, pPnmiStat->StatRxIRLengthCts,
-					10, 0, -1, 0));				
+					10, 0, -1, 0));
 				len += sprintf(buffer + len,
 					"   carrier event               %s\n",
 					SkNumber(test_buf, pPnmiStat->StatRxCarrierCts,
-					10, 0, -1, 0));				
+					10, 0, -1, 0));
 				len += sprintf(buffer + len,
 					"   jabber                      %s\n",
 					SkNumber(test_buf, pPnmiStat->StatRxJabberCts,
-					10, 0, -1, 0));				
+					10, 0, -1, 0));
 
 
 				/*Transmit statistics */
-				len += sprintf(buffer + len, 
+				len += sprintf(buffer + len,
 				"\nTransmit statistics\n\n");
-				
+
 				len += sprintf(buffer + len,
 					"Transmited bytes               %s\n",
 					SkNumber(test_buf, pPnmiStat->StatTxOctetsOkCts,
@@ -363,7 +363,7 @@ void *data)
 				len += sprintf(buffer + len,
 					"   window                      %ld\n",
 					pAC->stats.tx_window_errors);
-				
+
 			}
 		}
 		SkgeProcDev = next;
@@ -379,9 +379,6 @@ void *data)
 	}
 	return (min_t(int, buffer_length, len - offset));
 }
-
-
-
 
 
 /*****************************************************************************
@@ -509,9 +506,9 @@ char * SkNumber(char * str, long long num, int base, int size, int precision
 		*str++ = tmp[i];
 	while (size-- > 0)
 		*str++ = ' ';
-	
+
 	str[0] = '\0';
-	
+
 	return strorg;
 }
 

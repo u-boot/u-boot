@@ -169,7 +169,11 @@ static void  dc21x4x_halt(struct eth_device* dev);
 extern void  dc21x4x_select_media(struct eth_device* dev);
 #endif
 
+#if defined(CONFIG_E500)
+#define phys_to_bus(a) (a)
+#else
 #define phys_to_bus(a)	pci_phys_to_mem((pci_dev_t)dev->priv, a)
+#endif
 
 static int INL(struct eth_device* dev, u_long addr)
 {

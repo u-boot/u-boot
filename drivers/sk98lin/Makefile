@@ -29,8 +29,8 @@ include $(TOPDIR)/config.mk
 LIB := libsk98lin.a
 
 OBJS :=     skge.o skaddr.o skgehwt.o skgeinit.o skgepnmi.o skgesirq.o \
-             ski2c.o sklm80.o skqueue.o skrlmt.o sktimer.o skvpd.o \
-             skxmac2.o skcsum.o #skproc.o
+	     ski2c.o sklm80.o skqueue.o skrlmt.o sktimer.o skvpd.o \
+	     skxmac2.o skcsum.o #skproc.o
 
 OBJS +=     uboot_skb.o uboot_drv.o
 
@@ -99,5 +99,3 @@ $(LIB):	$(OBJS)
 sinclude .depend
 
 #########################################################################
-
-

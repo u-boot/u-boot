@@ -101,22 +101,22 @@ void pci_mpc5xxx_init (struct pci_controller *hose)
 
 	/* GPIO Multiplexing - enable PCI */
 	*(vu_long *)MPC5XXX_GPS_PORT_CONFIG &= ~(1 << 15);
-	
+
 	/* Set host bridge as pci master and enable memory decoding */
 	*(vu_long *)MPC5XXX_PCI_CMD |=
 		PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY;
-	
+
 	/* Set maximum latency timer */
 	*(vu_long *)MPC5XXX_PCI_CFG |= (0xf800);
 
 	/* Set cache line size */
 	*(vu_long *)MPC5XXX_PCI_CFG = (*(vu_long *)MPC5XXX_PCI_CFG & ~0xff) |
 		(CFG_CACHELINE_SIZE / 4);
-	
+
 	/* Map MBAR to PCI space */
 	*(vu_long *)MPC5XXX_PCI_BAR0 = CFG_MBAR;
 	*(vu_long *)MPC5XXX_PCI_TBATR1 = CFG_MBAR | 1;
-	
+
 	/* Map RAM to PCI space */
 	*(vu_long *)MPC5XXX_PCI_BAR1 = CONFIG_PCI_MEMORY_BUS | (1 << 3);
 	*(vu_long *)MPC5XXX_PCI_TBATR1 = CONFIG_PCI_MEMORY_PHYS | 1;
@@ -133,14 +133,14 @@ void pci_mpc5xxx_init (struct pci_controller *hose)
 	/* Enable piplining */
 	*(vu_long *)(MPC5XXX_XLBARB + 0x40) &= ~(1 << 31);
 #endif
-	
+
 	/* Disable interrupts from PCI controller */
 	*(vu_long *)MPC5XXX_PCI_GSCR &= ~(7 << 12);
 	*(vu_long *)MPC5XXX_PCI_ICR &= ~(7 << 24);
-	
+
 	/* Disable initiator windows */
 	*(vu_long *)MPC5XXX_PCI_IWCR = 0;
-	
+
 	/* Map PCI memory to physical space */
 	*(vu_long *)MPC5XXX_PCI_IW0BTAR = CONFIG_PCI_MEM_PHYS |
 		(((CONFIG_PCI_MEM_SIZE - 1) >> 8) & 0x00ff0000) |
@@ -166,7 +166,7 @@ void pci_mpc5xxx_init (struct pci_controller *hose)
 		pci_hose_write_config_byte_via_dword,
 		pci_hose_write_config_word_via_dword,
 		mpc5200_write_config_dword);
-	
+
 	udelay(1000);
 
 #ifdef CONFIG_PCI_SCAN_SHOW

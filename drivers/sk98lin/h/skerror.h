@@ -27,23 +27,23 @@
  *	$Log: skerror.h,v $
  *	Revision 1.5  2002/04/25 11:05:10  rschmidt
  *	Editorial changes
- *	
+ *
  *	Revision 1.4  1999/11/22 13:51:59  cgoos
  *	Changed license header to GPL.
- *	
+ *
  *	Revision 1.3  1999/09/14 14:04:42  rwahl
  *	Added error base SK_ERRBASE_PECP.
  *	Changed error base for driver.
- *	
+ *
  *	Revision 1.2  1998/08/11 11:15:41  gklug
  *	chg: comments
- *	
+ *
  *	Revision 1.1  1998/08/11 11:09:38  gklug
  *	add: error bases
  *	add: error Classes
  *	first version
- *	
- *	
+ *
+ *
  *
  ******************************************************************************/
 

@@ -9,17 +9,17 @@
 memsetup:
 	/* First setup pll:s to make serial work ok */
 	/* We have a 12 MHz crystal */
-        li              t0, SYS_CPUPLL
-        li              t1, 0x21 /* 396 MHz */
-        sw              t1, 0(t0)
-        sync
-        nop
+	li              t0, SYS_CPUPLL
+	li              t1, 0x21 /* 396 MHz */
+	sw              t1, 0(t0)
+	sync
+	nop
 
-        /* Setup AUX PLL */
+	/* Setup AUX PLL */
 	li              t0, SYS_AUXPLL
 	li              t1, 8 /* 96 MHz */
-        sw              t1, 0(t0) /* aux pll */
-        sync
+	sw              t1, 0(t0) /* aux pll */
+	sync
 
 /* SDCS 0,1 SDRAM */
 	li		t0, MEM_SDMODE0

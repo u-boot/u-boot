@@ -29,69 +29,69 @@
  *	Revision 1.23  2002/12/19 14:34:27  rschmidt
  *	Added cast in macros SK_I2C_SET_BIT() and SK_I2C_CLR_BIT()
  *	Editorial changes (TWSI)
- *	
+ *
  *	Revision 1.22  2002/10/14 16:45:56  rschmidt
  *	Editorial changes (TWSI)
- *	
+ *
  *	Revision 1.21  2002/08/13 08:42:24  rschmidt
  *	Changed define for SK_MIN_SENSORS back to 5
  *	Merged defines for PHY PLL 3V3 voltage (A and B)
  *	Editorial changes
- *	
+ *
  *	Revision 1.20  2002/08/06 09:43:56  jschmalz
  *	Extensions and changes for Yukon
- *	
+ *
  *	Revision 1.19  2002/08/02 12:00:08  rschmidt
  *	Added defines for YUKON sensors
  *	Editorial changes
- *	
+ *
  *	Revision 1.18  2001/08/16 12:44:33  afischer
  *	LM80 sensor init values corrected
- *	
+ *
  *	Revision 1.17  1999/11/22 13:55:25  cgoos
  *	Changed license header to GPL.
- *	
+ *
  *	Revision 1.16  1999/11/12 08:24:10  malthoff
  *	Change voltage warning and error limits
  *	(warning +-5%, error +-10%).
- *	
+ *
  *	Revision 1.15  1999/09/14 14:14:43  malthoff
  *	The 1000BT Dual Link adapter has got only one Fan.
  *	The second Fan has been removed.
- *	
+ *
  *	Revision 1.14  1999/05/27 13:40:50  malthoff
  *	Fan Divisor = 1. Assuming fan with 6500 rpm.
- *	
+ *
  *	Revision 1.13  1999/05/20 14:56:55  malthoff
  *	Bug Fix: Missing brace in SK_LM80_FAN_FAKTOR.
- *	
+ *
  *	Revision 1.12  1999/05/20 09:22:00  cgoos
  *	Changes for 1000Base-T (Fan sensors).
- *	
+ *
  *	Revision 1.11  1998/10/14 05:57:22  cgoos
  *	Fixed compilation warnings.
- *	
+ *
  *	Revision 1.10  1998/09/04 08:37:00  malthoff
  *	bugfix: correct the SK_I2C_GET_CTL() macro.
- *	
+ *
  *	Revision 1.9  1998/08/25 06:10:03  gklug
  *	add: thresholds for all sensors
  *
  *	Revision 1.8  1998/08/20 11:37:42  gklug
  *	chg: change Ioc to IoC
- *	
+ *
  *	Revision 1.7  1998/08/20 08:53:11  gklug
  *	fix: compiler errors
  *	add: Threshold values
- *	
+ *
  *	Revision 1.6  1998/08/17 11:37:09  malthoff
  *	Bugfix in SK_I2C_CTL macro. The parameter 'dev'
  *	has to be shifted 9 bits.
- *	
+ *
  *	Revision 1.5  1998/08/17 06:52:21  malthoff
  *	Remove unrequired macros.
  *	Add macros for accessing TWSI SW register.
- *	
+ *
  *	Revision 1.4  1998/08/13 08:30:18  gklug
  *	add: conversion factors for read values
  *	add: new state SEN_VALEXT to read extension value of temperature sensor

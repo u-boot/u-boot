@@ -334,7 +334,7 @@
 
 /*-----------------------------------------------------------------------
  * burn-in test stuff.
- *  
+ *
  * BURN_IN_CYCLE_DELAY defines the seconds to wait between each burn-in cycle
  * Because the burn-in test itself causes also an delay of about 4 seconds,
  * this time must be subtracted from the desired overall burn-in cycle time.

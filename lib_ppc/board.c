@@ -49,7 +49,7 @@
 #endif
 #include <net.h>
 #ifdef CFG_ALLOC_DPRAM
-#if !defined(CONFIG_8260)
+#if !(defined(CONFIG_8260)||defined(CONFIG_MPC8560))
 #include <commproc.h>
 #endif
 #endif
@@ -63,6 +63,9 @@
 #endif
 #if defined(CONFIG_LOGBUFFER)
 #include <logbuff.h>
+#endif
+#if defined(CFG_INIT_RAM_LOCK) && defined(CONFIG_E500)
+#include <asm/cache.h>
 #endif
 
 #if (CONFIG_COMMANDS & CFG_CMD_DOC)
@@ -258,7 +261,7 @@ init_fnc_t *init_sequence[] = {
 	get_clocks,		/* get CPU and bus clocks (etc.) */
 	init_timebase,
 #ifdef CFG_ALLOC_DPRAM
-#if !defined(CONFIG_8260)
+#if !(defined(CONFIG_8260) || defined(CONFIG_MPC8560))
 	dpram_init,
 #endif
 #endif
@@ -340,7 +343,7 @@ void board_init_f (ulong bootflag)
 	/* Pointer is writable since we allocated a register for it */
 	gd = (gd_t *) (CFG_INIT_RAM_ADDR + CFG_GBL_DATA_OFFSET);
 
-#ifndef CONFIG_8260
+#if !(defined(CONFIG_8260) || defined(CONFIG_MPC8560))
 	/* Clear initial global data */
 	memset ((void *) gd, 0, sizeof (gd_t));
 #endif
@@ -465,7 +468,8 @@ void board_init_f (ulong bootflag)
 	bd->bi_sramsize  = 0;		/* FIXME */ /* size  of  SRAM memory      */
 #endif
 
-#if defined(CONFIG_8xx) || defined(CONFIG_8260) || defined(CONFIG_5xx)
+#if defined(CONFIG_8xx) || defined(CONFIG_8260) || defined(CONFIG_5xx) || \
+    defined(CONFIG_E500)
 	bd->bi_immr_base = CFG_IMMR;	/* base  of IMMR register     */
 #endif
 #if defined(CONFIG_MPC5XXX)
@@ -477,7 +481,7 @@ void board_init_f (ulong bootflag)
 	WATCHDOG_RESET ();
 	bd->bi_intfreq = gd->cpu_clk;	/* Internal Freq, in Hz */
 	bd->bi_busfreq = gd->bus_clk;	/* Bus Freq,      in Hz */
-#if defined(CONFIG_8260)
+#if defined(CONFIG_8260) || defined(CONFIG_MPC8560)
 	bd->bi_cpmfreq = gd->cpm_clk;
 	bd->bi_brgfreq = gd->brg_clk;
 	bd->bi_sccfreq = gd->scc_clk;
@@ -606,6 +610,10 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	icache_enable ();	/* it's time to enable the instruction cache */
 #endif
 
+#if defined(CFG_INIT_RAM_LOCK) && defined(CONFIG_E500)
+       unlock_ram_in_cache();  /* it's time to unlock D-cache in e500 */
+#endif
+
 #if defined(CONFIG_BAB7xx) || defined(CONFIG_CPC45)
 	/*
 	 * Do PCI configuration on BAB7xx and CPC45 _before_ the flash
@@ -722,7 +730,8 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	load_sernum_ethaddr ();
 #endif
 
-#if defined(CFG_GT_6426x) || defined(CONFIG_PN62) || defined(CONFIG_PPCHAMELEONEVB)
+#if defined(CFG_GT_6426x) || defined(CONFIG_PN62) || defined(CONFIG_PPCHAMELEONEVB) || \
+     defined(CONFIG_MPC8540ADS) || defined(CONFIG_MPC8560ADS)
 	/* handle the 2nd ethernet address */
 
 	s = getenv ("eth1addr");
@@ -733,7 +742,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 			s = (*e) ? e + 1 : e;
 	}
 #endif
-#if defined(CFG_GT_6426x)
+#if defined(CFG_GT_6426x) || defined(CONFIG_MPC8540ADS) || defined(CONFIG_MPC8560ADS)
 	/* handle the 3rd ethernet address */
 
 	s = getenv ("eth2addr");
@@ -800,6 +809,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
     defined(CONFIG_LWMON)	|| \
     defined(CONFIG_MPC8260ADS)	|| \
     defined(CONFIG_MPC8266ADS)	|| \
+    defined(CONFIG_MPC8560ADS)	|| \
     defined(CONFIG_PCU_E)	|| \
     defined(CONFIG_RPXSUPER)	|| \
     defined(CONFIG_SPD823TS)	)

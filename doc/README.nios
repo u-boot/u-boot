@@ -44,7 +44,6 @@ The Nios port also does not use the long-winded peripheral
 structure definitions from the Nios SDK.
 
 
-
 2. CONFIGURATION OPTIONS/SETTINGS
 ----------------------------------
 
@@ -187,7 +186,6 @@ for those interested in contributing:
 
 -Implement (don't copy Altera code) the __mulxx routines using the
  MSTEP and MUL instructions (e.g. CFG_NIOS_MULT_HW and CFG_NIOS_MULT_MSTEP).
-
 
 
 Regards,

@@ -402,7 +402,7 @@
 #define CFG_BR5_ISP1362		((CFG_ISP1362_BASE & BR_BA_MSK) | \
 				 BR_PS_16          | BR_MS_GPCM | BR_V )
 #endif	/* CONFIG_ISP1362_USB */
-				 
+
 /*
  * Memory Periodic Timer Prescaler
  *

@@ -533,11 +533,11 @@ int misc_init_r(void)
 	setenv("Daq128xSampling", "1");
     }
 
-    /* 
-     * Display the ADC/DAC clocking information 
+    /*
+     * Display the ADC/DAC clocking information
      */
     if (!quiet) {
-        Daq_Display_Clocks();
+	Daq_Display_Clocks();
     }
 
     /*
@@ -572,9 +572,9 @@ int misc_init_r(void)
      * 3) Write the I2C address to register 6
      * 4) Enable address matching by setting the MSB in register 7
      */
-    
+
     if (!quiet) {
-        printf("Initializing the ADC...\n");
+	printf("Initializing the ADC...\n");
     }
     udelay(ADC_INITIAL_DELAY);		/* 10uSec per uF of VREF cap */
 
@@ -720,7 +720,7 @@ int misc_init_r(void)
     I2C_TRISTATE;
 
     if (!quiet) {
-        printf("\n");
+	printf("\n");
     }
 
 #ifdef CONFIG_ETHER_LOOPBACK_TEST
@@ -795,14 +795,14 @@ void show_boot_progress (int status)
     if(status > 0) {
 	last_boot_progress = status;
     } else {
-        /* 
+	/*
 	 * If a specific failure code is given, flash this code
 	 * else just use the last success code we've seen
 	 */
 	if(status < -1)
 	    last_boot_progress = -status;
-	
-	/* 
+
+	/*
 	 * Flash this code 5 times
 	 */
 	for(j=0; j<5; j++) {
@@ -813,15 +813,15 @@ void show_boot_progress (int status)
 	    status_led_set(STATUS_LED_RED, STATUS_LED_ON);
 	    flash_code(last_boot_progress, 5, 3);
 
-	    /* 
-	     * Delay 5 seconds between repetitions, 
-	     * with the fault LED blinking 
+	    /*
+	     * Delay 5 seconds between repetitions,
+	     * with the fault LED blinking
 	     */
 	    for(i=0; i<5; i++) {
-	    	status_led_set(STATUS_LED_RED, STATUS_LED_OFF);
-	    	udelay(500000);
-	    	status_led_set(STATUS_LED_RED, STATUS_LED_ON);
-	    	udelay(500000);
+		status_led_set(STATUS_LED_RED, STATUS_LED_OFF);
+		udelay(500000);
+		status_led_set(STATUS_LED_RED, STATUS_LED_ON);
+		udelay(500000);
 	    }
 	}
 

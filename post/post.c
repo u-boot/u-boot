@@ -65,7 +65,7 @@ void post_bootmode_init (void)
 	DECLARE_GLOBAL_DATA_PTR;
 	int bootmode = post_bootmode_get (0);
 	int newword;
-	
+
 	if (post_hotkeys_pressed() && !(bootmode & POST_POWERTEST)) {
 		newword = BOOTMODE_MAGIC | POST_SLOWTEST;
 	} else if (bootmode == 0) {

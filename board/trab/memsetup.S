@@ -48,8 +48,8 @@
 #define BWSCON 0x14000000
 
 /* Bank0 */
-#define B0_Tacs	0x0	/* 0 clk */
-#define B0_Tcos	0x0	/* 0 clk */
+#define B0_Tacs	0x3	/* 4 clk */
+#define B0_Tcos	0x3	/* 4 clk */
 #define B0_Tacc	0x7	/* 14 clk */
 #define B0_Tcoh	0x0	/* 0 clk */
 #define B0_Tah	0x0	/* 0 clk */

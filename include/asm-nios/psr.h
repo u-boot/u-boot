@@ -25,5 +25,4 @@
 #define _NIOS_PSR_H
 
 
-
 #endif /* _NIOS_PSR_H */

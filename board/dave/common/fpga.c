@@ -57,16 +57,16 @@
 #define SET_FPGA(data)         out32(GPIO0_OR, data)
 
 #define FPGA_WRITE_1 {                                                    \
-        SET_FPGA(FPGA_PRG |            FPGA_DATA);  /* set clock to 0 */  \
-        SET_FPGA(FPGA_PRG |            FPGA_DATA);  /* set data to 1  */  \
-        SET_FPGA(FPGA_PRG | FPGA_CLK | FPGA_DATA);  /* set clock to 1 */  \
-        SET_FPGA(FPGA_PRG | FPGA_CLK | FPGA_DATA);} /* set data to 1  */
+	SET_FPGA(FPGA_PRG |            FPGA_DATA);  /* set clock to 0 */  \
+	SET_FPGA(FPGA_PRG |            FPGA_DATA);  /* set data to 1  */  \
+	SET_FPGA(FPGA_PRG | FPGA_CLK | FPGA_DATA);  /* set clock to 1 */  \
+	SET_FPGA(FPGA_PRG | FPGA_CLK | FPGA_DATA);} /* set data to 1  */
 
 #define FPGA_WRITE_0 {                                                    \
-        SET_FPGA(FPGA_PRG |            FPGA_DATA);  /* set clock to 0 */  \
-        SET_FPGA(FPGA_PRG);                         /* set data to 0  */  \
-        SET_FPGA(FPGA_PRG | FPGA_CLK);              /* set clock to 1 */  \
-        SET_FPGA(FPGA_PRG | FPGA_CLK | FPGA_DATA);} /* set data to 1  */
+	SET_FPGA(FPGA_PRG |            FPGA_DATA);  /* set clock to 0 */  \
+	SET_FPGA(FPGA_PRG);                         /* set data to 0  */  \
+	SET_FPGA(FPGA_PRG | FPGA_CLK);              /* set clock to 1 */  \
+	SET_FPGA(FPGA_PRG | FPGA_CLK | FPGA_DATA);} /* set data to 1  */
 
 #if 0
 static int fpga_boot (unsigned char *fpgadata, int size)

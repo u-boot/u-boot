@@ -93,4 +93,3 @@ typedef volatile struct nios_timer_t {
 #define NIOS_TIMER_STOP		(1 << 3)	/* Stop timer */
 
 #endif /* __NIOSIO_H__ */
-

@@ -368,7 +368,7 @@ restart:
 #if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
 #if defined(CFG_FAULT_ECHO_LINK_DOWN) && defined(CONFIG_STATUS_LED) && defined(STATUS_LED_RED)
 	/*
-	 * Echo the inverted link state to the fault LED. 
+	 * Echo the inverted link state to the fault LED.
 	 */
 	if(miiphy_link(CFG_FAULT_MII_ADDR)) {
 		status_led_set (STATUS_LED_RED, STATUS_LED_OFF);
@@ -417,7 +417,7 @@ restart:
 #if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
 #if defined(CFG_FAULT_ECHO_LINK_DOWN) && defined(CONFIG_STATUS_LED) && defined(STATUS_LED_RED)
 			/*
-			 * Echo the inverted link state to the fault LED. 
+			 * Echo the inverted link state to the fault LED.
 			 */
 			if(miiphy_link(CFG_FAULT_MII_ADDR)) {
 				status_led_set (STATUS_LED_RED, STATUS_LED_OFF);

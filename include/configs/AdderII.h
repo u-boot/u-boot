@@ -146,7 +146,6 @@
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
 
-
 /* SIU Module Configuration Register */
 #define CFG_SIUMCR		( SIUMCR_AEME | SIUMCR_MLRC01 | SIUMCR_DBGC10 )
 
@@ -171,7 +170,7 @@
 
 /* PLPRCR - PLL, Low-Power, and Reset Control Register */
 #define CFG_PLPRCR      	((( MPC8XX_FACT - 1 ) << PLPRCR_MF_SHIFT ) | \
-                                PLPRCR_SPLSS | PLPRCR_TEXPS | PLPRCR_TMIST )
+				PLPRCR_SPLSS | PLPRCR_TEXPS | PLPRCR_TMIST )
 
 /* SCCR - System Clock and reset Control Register */
 #define SCCR_MASK       	SCCR_EBDF11
@@ -223,4 +222,3 @@
 
 #endif
 /* __CONFIG_H */
-

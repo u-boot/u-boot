@@ -51,7 +51,7 @@ int gunzip(void *, int, unsigned char *, int *);
 int board_pre_init (void)
 {
 	out32(GPIO0_OR, CFG_NAND0_CE);                 /* set initial outputs     */
-        out32(GPIO0_OR, CFG_NAND1_CE);                 /* set initial outputs     */
+	out32(GPIO0_OR, CFG_NAND1_CE);                 /* set initial outputs     */
 
 	/*
 	 * IRQ 0-15  405GP internally generated; active high; level sensitive

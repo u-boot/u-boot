@@ -29,59 +29,59 @@
  *	Revision 1.15  2003/01/13 10:39:38  rschmidt
  *	Replaced define for PCI device Id for YUKON with GENESIS
  *	Editorial changes
- *	
+ *
  *	Revision 1.14  2002/11/14 15:18:10  gheinig
  *	Added const specifier to key and buf parameters for VpdPara,VpdRead
  *	and VpdWrite. This is necessary for the Diag 7 GUI API
- *	
+ *
  *	Revision 1.13  2002/10/14 15:58:18  rschmidt
  *	Added entry in rom_size struct s_vpd
  *	Editorial changes
- *	
+ *
  *	Revision 1.12  2002/09/09 14:43:51  mkarl
  *	added PCI Id of Yukon for reading VPD in diag before the adapter has
  *	been initialized
  *	editorial changes
- *	
+ *
  *	Revision 1.11  2002/07/26 13:19:16  mkarl
  *	added support for Yukon
  *	added vpd_size to VPD struct
- *	
+ *
  *	Revision 1.10  2000/08/10 11:29:07  rassmann
  *	Editorial changes.
  *	Preserving 32-bit alignment in structs for the adapter context.
  *	Removed unused function VpdWriteDword() (#if 0).
  *	Made VpdReadKeyword() available for SKDIAG only.
- *	
+ *
  *	Revision 1.9  1999/11/22 14:02:27  cgoos
  *	Changed license header to GPL.
- *	
+ *
  *	Revision 1.8  1999/03/11 14:26:40  malthoff
  *	Replace __STDC__ with SK_KR_PROTO.
- *	
+ *
  *	Revision 1.7  1998/10/28 07:27:17  gklug
  *	rmv: SWAP macros
  *	add: VPD_IN/OUT8 macros
  *	chg: interface definition
- *	
+ *
  *	Revision 1.6  1998/10/22 10:03:44  gklug
  *	fix: use SK_OUT16 instead of SK_OUTW
- *	
+ *
  *	Revision 1.5  1998/10/14 07:05:31  cgoos
  *	Changed constants in SK_SWAP_32 to UL.
- *	
+ *
  *	Revision 1.4  1998/08/19 08:14:09  gklug
  *	fix: remove struct keyword as much as possible from the C-code (see CCC)
- *	
+ *
  *	Revision 1.3  1998/08/18 08:18:56  malthoff
  *	Modify VPD in and out macros for SK_DIAG
- *	
+ *
  *	Revision 1.2  1998/07/03 14:49:08  malthoff
  *	Add VPD_INxx() and VPD_OUTxx() macros for the Diagnostics tool.
- *	
+ *
  *	Revision 1.1  1998/06/19 14:08:03  malthoff
  *	Created.
- *	
+ *
  *
  ******************************************************************************/
 

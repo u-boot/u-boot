@@ -89,10 +89,10 @@ unsigned long measure_gclk(void)
 	ulong msr_val;
 
 #ifdef CONFIG_MPC866_et_al
-        /* dont use OSCM, only use EXTCLK/512 */
-        immr->im_clkrst.car_sccr |= SCCR_RTSEL | SCCR_RTDIV;
+	/* dont use OSCM, only use EXTCLK/512 */
+	immr->im_clkrst.car_sccr |= SCCR_RTSEL | SCCR_RTDIV;
 #else
-        immr->im_clkrst.car_sccr &= ~(SCCR_RTSEL | SCCR_RTDIV);
+	immr->im_clkrst.car_sccr &= ~(SCCR_RTSEL | SCCR_RTDIV);
 #endif
 
 	/* Reset + Stop Timer 2, no cascading
@@ -161,7 +161,7 @@ unsigned long measure_gclk(void)
 	immr->im_sit.sit_piscr &= ~PISCR_PTE;
 
 #ifdef CONFIG_MPC866_et_al
-        /* not using OSCM, using XIN, so scale appropriately */
+	/* not using OSCM, using XIN, so scale appropriately */
 	return (((timer2_val + 2) / 4) * (CFG_8XX_XIN/512))/8192 * 100000L;
 #else
 	return ((timer2_val + 2) / 4) * 100000L;	/* convert to Hz    */

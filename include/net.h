@@ -29,7 +29,7 @@
 # endif
 #endif	/* CONFIG_MPC5XXX */
 
-#if !defined(CONFIG_NET_MULTI) && defined(CONFIG_8260)
+#if !defined(CONFIG_NET_MULTI) && (defined(CONFIG_8260) || defined(CONFIG_MPC8560))
 #include <config.h>
 #if defined(CONFIG_ETHER_ON_FCC)
 #if defined(CONFIG_ETHER_ON_SCC)

@@ -32,6 +32,17 @@ indirect_##rw##_config_##size(struct pci_controller *hose, 		 \
 	cfg_##rw(val, hose->cfg_data + (offset & mask), type, op);	 \
 	return 0;    					 		 \
 }
+#elif defined(CONFIG_E500)
+#define INDIRECT_PCI_OP(rw, size, type, op, mask)                        \
+static int                                                               \
+indirect_##rw##_config_##size(struct pci_controller *hose,               \
+			      pci_dev_t dev, int offset, type val)       \
+{                                                                        \
+	*(hose->cfg_addr) = dev | (offset & 0xfc) | 0x80000000;          \
+	sync();                                                          \
+	cfg_##rw(val, hose->cfg_data + (offset & mask), type, op);       \
+	return 0;                                                        \
+}
 #else
 #define INDIRECT_PCI_OP(rw, size, type, op, mask)			 \
 static int								 \

@@ -30,80 +30,80 @@
  *	Replaced check for PCI device Id from YUKON with GENESIS
  *	to set the VPD size in VpdInit()
  *	Editorial changes
- *	
+ *
  *	Revision 1.36  2002/11/14 15:16:56  gheinig
  *	Added const specifier to key and buf parameters for VpdPara, VpdRead
  *	and VpdWrite for Diag 7 GUI
- *	
+ *
  *	Revision 1.35  2002/10/21 14:31:59  gheinig
  *	Took out CVS web garbage at head of file
- *	
+ *
  *	Revision 1.34  2002/10/21 11:47:24  gheinig
  *	Reverted to version 1.32 due to unwanted commit
- *	
+ *
  *	Revision 1.32  2002/10/14 16:04:29  rschmidt
  *	Added saving of VPD ROM Size from PCI_OUR_REG_2
  *	Avoid reading of PCI_OUR_REG_2 in VpdTransferBlock()
  *	Editorial changes
- *	
+ *
  *	Revision 1.31  2002/09/10 09:21:32  mkarl
  *	Replaced all if(GIChipId == CHIP_ID_GENESIS) with new entry GIGenesis
- *	
+ *
  *	Revision 1.30  2002/09/09 14:43:03  mkarl
  *	changes for diagnostics in order to read VPD data before the adapter
  *	has been initialized
  *	editorial changes
- *	
+ *
  *	Revision 1.29  2002/07/26 13:20:43  mkarl
  *	added Yukon support
  *	save size of VPD in pAC->vpd.vpd_size
- *	
+ *
  *	Revision 1.28  2002/04/02 15:31:47  afischer
  *	Bug fix in VpdWait()
- *	
+ *
  *	Revision 1.27  2000/08/10 11:29:06  rassmann
  *	Editorial changes.
  *	Preserving 32-bit alignment in structs for the adapter context.
  *	Removed unused function VpdWriteDword() (#if 0).
  *	Made VpdReadKeyword() available for SKDIAG only.
- *	
+ *
  *	Revision 1.26  2000/06/13 08:00:01  mkarl
  *	additional cast to avoid compile problems in 64 bit environment
- *	
+ *
  *	Revision 1.25  1999/11/22 13:39:32  cgoos
  *	Changed license header to GPL.
- *	
+ *
  *	Revision 1.24  1999/03/11 14:25:49  malthoff
  *	Replace __STDC__ with SK_KR_PROTO.
- *	
+ *
  *	Revision 1.23  1999/01/11 15:13:11  gklug
  *	fix: syntax error
- *	
+ *
  *	Revision 1.22  1998/10/30 06:41:15  gklug
  *	rmv: WARNING
- *	
+ *
  *	Revision 1.21  1998/10/29 07:15:14  gklug
  *	fix: Write Stream function needs verify.
- *	
+ *
  *	Revision 1.20  1998/10/28 18:05:08  gklug
  *	chg: no DEBUG in VpdMayWrite
- *	
+ *
  *	Revision 1.19  1998/10/28 15:56:11  gklug
  *	fix: Return len at end of ReadStream
  *	fix: Write even less than 4 bytes correctly
- *	
+ *
  *	Revision 1.18  1998/10/28 09:00:47  gklug
  *	fix: unreferenced local vars
- *	
+ *
  *	Revision 1.17  1998/10/28 08:25:45  gklug
  *	fix: WARNING
- *	
+ *
  *	Revision 1.16  1998/10/28 08:17:30  gklug
  *	fix: typo
- *	
+ *
  *	Revision 1.15  1998/10/28 07:50:32  gklug
  *	fix: typo
- *	
+ *
  *	Revision 1.14  1998/10/28 07:20:38  gklug
  *	chg: Interface functions to use IoC as parameter as well
  *	fix: VpdRead/WriteDWord now returns SK_U32
@@ -112,51 +112,51 @@
  *	add: VpdRead/Write Stream functions to r/w a stream of data
  *	fix: VpdTransferBlock swapped illegal
  *	add: VpdMayWrite
- *	
+ *
  *	Revision 1.13  1998/10/22 10:02:37  gklug
  *	fix: SysKonnectFileId typo
- *	
+ *
  *	Revision 1.12  1998/10/20 10:01:01  gklug
  *	fix: parameter to SkOsGetTime
- *	
+ *
  *	Revision 1.11  1998/10/15 12:51:48  malthoff
  *	Remove unrequired parameter p in vpd_setup_para().
- *	
+ *
  *	Revision 1.10  1998/10/08 14:52:43  malthoff
  *	Remove CvsId by SysKonnectFileId.
- *	
+ *
  *	Revision 1.9  1998/09/16 07:33:52  malthoff
  *	replace memcmp() by SK_MEMCMP and
  *	memcpy() by SK_MEMCPY() to be
  *	independent from the 'C' Standard Library.
- *	
+ *
  *	Revision 1.8  1998/08/19 12:52:35  malthoff
  *	compiler fix: use SK_VPD_KEY instead of S_VPD.
- *	
+ *
  *	Revision 1.7  1998/08/19 08:14:01  gklug
  *	fix: remove struct keyword as much as possible from the C-code (see CCC)
- *	
+ *
  *	Revision 1.6  1998/08/18 13:03:58  gklug
  *	SkOsGetTime now returns SK_U64
- *	
+ *
  *	Revision 1.5  1998/08/18 08:17:29  malthoff
  *	Ensure we issue a VPD read in vpd_read_dword().
  *	Discard all VPD keywords other than Vx or Yx, where
  *	x is '0..9' or 'A..Z'.
- *	
+ *
  *	Revision 1.4  1998/07/03 14:52:19  malthoff
  *	Add category SK_DBGCAT_FATAL to some debug macros.
  *	bug fix: correct the keyword name check in vpd_write().
- *	
+ *
  *	Revision 1.3  1998/06/26 11:16:53  malthoff
  *	Correct the modified File Identifier.
- *	
+ *
  *	Revision 1.2  1998/06/26 11:13:43  malthoff
  *	Modify the File Identifier.
- *	
+ *
  *	Revision 1.1  1998/06/19 14:11:08  malthoff
  *	Created, Tests with AIX were performed successfully
- *	
+ *
  *
  ******************************************************************************/
 
@@ -224,9 +224,9 @@ int		event)	/* event to wait for (VPD_READ / VPD_write) completion*/
 				("ERROR:VPD wait timeout\n"));
 			return(1);
 		}
-		
+
 		VPD_IN16(pAC, IoC, PCI_VPD_ADR_REG, &state);
-		
+
 		SK_DBG_MSG(pAC, SK_DBGMOD_VPD, SK_DBGCAT_CTRL,
 			("state = %x, event %x\n",state,event));
 	} while((int)(state & PCI_VPD_FLAG) == event);
@@ -267,7 +267,7 @@ int		addr)	/* VPD address */
 	Rtv = 0;
 
 	VPD_IN32(pAC, IoC, PCI_VPD_DAT_REG, &Rtv);
-	
+
 	SK_DBG_MSG(pAC, SK_DBGMOD_VPD, SK_DBGCAT_CTRL,
 		("VPD read dword data = 0x%x\n",Rtv));
 	return(Rtv);
@@ -412,9 +412,9 @@ int		Len)	/* number of bytes to read / to write */
 			}
 
 			for (j = 0; j <= (int)(i%sizeof(SK_U32)); j++, pComp++) {
-				
+
 				VPD_IN8(pAC, IoC, PCI_VPD_DAT_REG + j, &Data);
-				
+
 				if (Data != *pComp) {
 					/* Verify Error */
 					SK_DBG_MSG(pAC, SK_DBGMOD_VPD, SK_DBGCAT_ERR,
@@ -427,7 +427,7 @@ int		Len)	/* number of bytes to read / to write */
 
 	return(Len);
 }
-	
+
 
 /*
  *	Read one Stream of 'len' bytes of VPD data, starting at 'addr' from
@@ -493,14 +493,14 @@ int		dir)	/* transfer direction may be VPD_READ or VPD_WRITE */
 		return(0);
 
 	vpd_rom_size = pAC->vpd.rom_size;
-	
+
 	if (addr > vpd_rom_size - 4) {
 		SK_DBG_MSG(pAC, SK_DBGMOD_VPD, SK_DBGCAT_ERR | SK_DBGCAT_FATAL,
 			("Address error: 0x%x, exp. < 0x%x\n",
 			addr, vpd_rom_size - 4));
 		return(0);
 	}
-	
+
 	if (addr + len > vpd_rom_size) {
 		len = vpd_rom_size - addr;
 		SK_DBG_MSG(pAC, SK_DBGMOD_VPD, SK_DBGCAT_ERR,
@@ -571,13 +571,13 @@ SK_IOC	IoC)	/* IO Context */
 	SK_U32	our_reg2;
 
 	SK_DBG_MSG(pAC, SK_DBGMOD_VPD, SK_DBGCAT_INIT, ("VpdInit .. "));
-	
+
 	VPD_IN16(pAC, IoC, PCI_DEVICE_ID, &dev_id);
-	
+
 	VPD_IN32(pAC, IoC, PCI_OUR_REG_2, &our_reg2);
-	
+
 	pAC->vpd.rom_size = 256 << ((our_reg2 & PCI_VPD_ROM_SZ) >> 14);
-	
+
 	/*
 	 * this function might get used before the hardware is initialized
 	 * therefore we cannot always trust in GIChipId
@@ -608,7 +608,7 @@ SK_IOC	IoC)	/* IO Context */
 			("Block Read Error\n"));
 		return(1);
 	}
-	
+
 	pAC->vpd.vpd_size = vpd_size;
 
 	/* find the end tag of the RO area */
@@ -617,7 +617,7 @@ SK_IOC	IoC)	/* IO Context */
 			("Encoding Error: RV Tag not found\n"));
 		return(1);
 	}
-	
+
 	if (r->p_val + r->p_len > pAC->vpd.vpd_buf + vpd_size/2) {
 		SK_DBG_MSG(pAC,SK_DBGMOD_VPD,SK_DBGCAT_ERR | SK_DBGCAT_FATAL,
 			("Encoding Error: Invalid VPD struct size\n"));
@@ -629,7 +629,7 @@ SK_IOC	IoC)	/* IO Context */
 	for (i = 0, x = 0; (unsigned)i <= (unsigned)vpd_size/2 - r->p_len; i++) {
 		x += pAC->vpd.vpd_buf[i];
 	}
-	
+
 	if (x != 0) {
 		/* checksum error */
 		SK_DBG_MSG(pAC, SK_DBGMOD_VPD, SK_DBGCAT_ERR | SK_DBGCAT_FATAL,
@@ -643,7 +643,7 @@ SK_IOC	IoC)	/* IO Context */
 			("Encoding Error: RV Tag not found\n"));
 		return(1);
 	}
-	
+
 	if (r->p_val < pAC->vpd.vpd_buf + vpd_size/2) {
 		SK_DBG_MSG(pAC, SK_DBGMOD_VPD, SK_DBGCAT_ERR | SK_DBGCAT_FATAL,
 			("Encoding Error: Invalid VPD struct size\n"));
@@ -879,7 +879,7 @@ int		op)			/* operation to do: ADD_KEY or OWR_KEY */
 
 	SK_DBG_MSG(pAC, SK_DBGMOD_VPD, SK_DBGCAT_CTRL,
 		("VPD setup para key = %s, val = %s\n",key,buf));
-	
+
 	vpd_size = pAC->vpd.vpd_size;
 
 	rtv = 0;
@@ -1279,7 +1279,6 @@ SK_IOC	IoC)	/* IO Context */
 	SK_DBG_MSG(pAC, SK_DBGMOD_VPD, SK_DBGCAT_TX, ("done\n"));
 	return(0);
 }
-
 
 
 /*

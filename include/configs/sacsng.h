@@ -473,13 +473,13 @@
 /* Add support for a few extra bootp options like:
  *	- File size
  *	- DNS (up to 2 servers)
- *      - Send hostname to DHCP server 
+ *      - Send hostname to DHCP server
  */
 #define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | \
 				 CONFIG_BOOTP_BOOTFILESIZE | \
 				 CONFIG_BOOTP_DNS | \
-                                 CONFIG_BOOTP_DNS2 | \
-                                 CONFIG_BOOTP_SEND_HOSTNAME)
+				 CONFIG_BOOTP_DNS2 | \
+				 CONFIG_BOOTP_SEND_HOSTNAME)
 
 /* undef this to save memory */
 #define CFG_LONGHELP
@@ -497,7 +497,7 @@
  */
 #define CONFIG_TIMESTAMP
 
-/* If this variable is defined, an environment variable named "ver" 
+/* If this variable is defined, an environment variable named "ver"
  * is created by U-Boot showing the U-Boot version.
  */
 #define CONFIG_VERSION_VARIABLE
@@ -553,40 +553,40 @@
  * Miscellaneous configurable options
  */
 #define CFG_BOOTM_HEADER_QUIET 1        /* Suppress the image header dump    */
-                                        /* in the bootm command.             */
+					/* in the bootm command.             */
 #define CFG_BOOTM_PROGESS_QUIET 1       /* Suppress the progress displays,   */
-                                        /* "## <message>" from the bootm cmd */
+					/* "## <message>" from the bootm cmd */
 #define CFG_BOOTP_CHECK_HOSTNAME 1      /* If checkhostname environment is   */
-                                        /* defined, then the hostname param  */
-                                        /* validated against checkhostname.  */
+					/* defined, then the hostname param  */
+					/* validated against checkhostname.  */
 #define CFG_BOOTP_RETRY_COUNT 0x40000000 /* # of timeouts before giving up   */
 #define CFG_BOOTP_SHORT_RANDOM_DELAY 1  /* Use a short random delay value    */
-                                        /* (limited to maximum of 1024 msec) */
+					/* (limited to maximum of 1024 msec) */
 #define CFG_CHK_FOR_ABORT_AT_LEAST_ONCE 1
-                                        /* Check for abort key presses       */
-                                        /* at least once in dependent of the */
-                                        /* CONFIG_BOOTDELAY value.           */
+					/* Check for abort key presses       */
+					/* at least once in dependent of the */
+					/* CONFIG_BOOTDELAY value.           */
 #define CFG_CONSOLE_INFO_QUIET 1        /* Don't print console @ startup     */
 #define CFG_FAULT_ECHO_LINK_DOWN 1      /* Echo the inverted Ethernet link   */
-                                        /* state to the fault LED.           */
+					/* state to the fault LED.           */
 #define CFG_FAULT_MII_ADDR 0x02         /* MII addr of the PHY to check for  */
-                                        /* the Ethernet link state.          */
+					/* the Ethernet link state.          */
 #define CFG_STATUS_FLASH_UNTIL_TFTP_OK 1 /* Keeping the status LED flashing  */
-                                        /* until the TFTP is successful.     */
+					/* until the TFTP is successful.     */
 #define CFG_STATUS_OFF_AFTER_NETBOOT 1  /* After a successful netboot,       */
-                                        /* turn off the STATUS LEDs.         */
+					/* turn off the STATUS LEDs.         */
 #define CFG_TFTP_BLINK_STATUS_ON_DATA_IN 1 /* Blink status LED based on      */
-                                        /* incoming data.                    */
+					/* incoming data.                    */
 #define CFG_TFTP_BLOCKS_PER_HASH 100    /* For every XX blocks, output a '#' */
-                                        /* to signify that tftp is moving.   */
+					/* to signify that tftp is moving.   */
 #define CFG_TFTP_HASHES_PER_FLASH 200   /* For every '#' hashes,             */
- 				        /* flash the status LED.             */
+					/* flash the status LED.             */
 #define CFG_TFTP_HASHES_PER_LINE 65     /* Only output XX '#'s per line      */
-                                        /* during the tftp file transfer.    */
+					/* during the tftp file transfer.    */
 #define CFG_TFTP_PROGESS_QUIET 1        /* Suppress the progress displays    */
-                                        /* '#'s from the tftp command.       */
+					/* '#'s from the tftp command.       */
 #define CFG_TFTP_STATUS_QUIET 1         /* Suppress the status displays      */
-                                        /* issued during the tftp command.   */
+					/* issued during the tftp command.   */
 #define CFG_TFTP_TIMEOUT_COUNT 5        /* How many timeouts TFTP will allow */
 					/* before it gives up.               */
 
@@ -796,7 +796,7 @@
 			 SYPCR_LBME |\
 			 SYPCR_SWRI |\
 			 SYPCR_SWP  |\
-                         SYPCR_SWE)
+			 SYPCR_SWE)
 #else
 #define CFG_SYPCR	(SYPCR_SWTC |\
 			 SYPCR_BMT  |\

@@ -41,7 +41,6 @@ to install a U-Boot image into flash.
 	go 0xb0000000
 
 
-
 Ethernet autonegotiation needs some time to complete. Instead of
 delaying the boot process in all cases, we just start the
 autonegotiation process when U-Boot comes up and that is all. Most

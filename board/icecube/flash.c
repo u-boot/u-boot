@@ -123,7 +123,7 @@ static flash_info_t *flash_get_info(ulong base)
 
 	for (i = 0; i < CFG_MAX_FLASH_BANKS; i ++) {
 		info = & flash_info[i];
-		if (info->size && 
+		if (info->size &&
 			info->start[0] <= base && base <= info->start[0] + info->size - 1)
 			break;
 	}
@@ -260,7 +260,7 @@ ulong flash_get_size (FPWV *addr, flash_info_t *info)
 	addr2 = (FPW *)((ulong)addr | 0x800000);
 	if (addr2 != addr &&
 		((addr2[0] & 0xff) == (addr[0] & 0xff)) && ((FPW)addr2[1] == (FPW)addr[1])) {
-		/* Seems 2 banks are the same space (8Mb chip is installed, 
+		/* Seems 2 banks are the same space (8Mb chip is installed,
 		 * J24 in default position (CS0)). Disable this (first) bank.
 		 */
 		info->flash_id = FLASH_UNKNOWN;

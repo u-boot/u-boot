@@ -114,20 +114,20 @@ extern int filesize;
 
 #ifdef  DEBUG_MODE
 #define XSVFDBG_PRINTF(iDebugLevel,pzFormat) \
-                { if ( xsvf_iDebugLevel >= iDebugLevel ) \
-                    printf( pzFormat ); }
+		{ if ( xsvf_iDebugLevel >= iDebugLevel ) \
+		    printf( pzFormat ); }
 #define XSVFDBG_PRINTF1(iDebugLevel,pzFormat,arg1) \
-                { if ( xsvf_iDebugLevel >= iDebugLevel ) \
-                    printf( pzFormat, arg1 ); }
+		{ if ( xsvf_iDebugLevel >= iDebugLevel ) \
+		    printf( pzFormat, arg1 ); }
 #define XSVFDBG_PRINTF2(iDebugLevel,pzFormat,arg1,arg2) \
-                { if ( xsvf_iDebugLevel >= iDebugLevel ) \
-                    printf( pzFormat, arg1, arg2 ); }
+		{ if ( xsvf_iDebugLevel >= iDebugLevel ) \
+		    printf( pzFormat, arg1, arg2 ); }
 #define XSVFDBG_PRINTF3(iDebugLevel,pzFormat,arg1,arg2,arg3) \
-                { if ( xsvf_iDebugLevel >= iDebugLevel ) \
-                    printf( pzFormat, arg1, arg2, arg3 ); }
+		{ if ( xsvf_iDebugLevel >= iDebugLevel ) \
+		    printf( pzFormat, arg1, arg2, arg3 ); }
 #define XSVFDBG_PRINTLENVAL(iDebugLevel,plenVal) \
-                { if ( xsvf_iDebugLevel >= iDebugLevel ) \
-                    xsvfPrintLenVal(plenVal); }
+		{ if ( xsvf_iDebugLevel >= iDebugLevel ) \
+		    xsvfPrintLenVal(plenVal); }
 #else   /* !DEBUG_MODE */
 #define XSVFDBG_PRINTF(iDebugLevel,pzFormat)
 #define XSVFDBG_PRINTF1(iDebugLevel,pzFormat,arg1)
@@ -327,68 +327,68 @@ TXsvfDoCmdFuncPtr   xsvf_pfDoCmd[]  =
 #ifdef  DEBUG_MODE
 char* xsvf_pzCommandName[]  =
 {
-        "XCOMPLETE",
-        "XTDOMASK",
-        "XSIR",
-        "XSDR",
-        "XRUNTEST",
-        "Reserved5",
-        "Reserved6",
-        "XREPEAT",
-        "XSDRSIZE",
-        "XSDRTDO",
-        "XSETSDRMASKS",
-        "XSDRINC",
-        "XSDRB",
-        "XSDRC",
-        "XSDRE",
-        "XSDRTDOB",
-        "XSDRTDOC",
-        "XSDRTDOE",
-        "XSTATE",
-        "XENDIR",
-        "XENDDR",
-        "XSIR2",
-        "XCOMMENT",
-        "XWAIT"
+	"XCOMPLETE",
+	"XTDOMASK",
+	"XSIR",
+	"XSDR",
+	"XRUNTEST",
+	"Reserved5",
+	"Reserved6",
+	"XREPEAT",
+	"XSDRSIZE",
+	"XSDRTDO",
+	"XSETSDRMASKS",
+	"XSDRINC",
+	"XSDRB",
+	"XSDRC",
+	"XSDRE",
+	"XSDRTDOB",
+	"XSDRTDOC",
+	"XSDRTDOE",
+	"XSTATE",
+	"XENDIR",
+	"XENDDR",
+	"XSIR2",
+	"XCOMMENT",
+	"XWAIT"
 };
 
 char*   xsvf_pzErrorName[]  =
 {
-        "No error",
-        "ERROR:  Unknown",
-        "ERROR:  TDO mismatch",
-        "ERROR:  TDO mismatch and exceeded max retries",
-        "ERROR:  Unsupported XSVF command",
-        "ERROR:  Illegal state specification",
-        "ERROR:  Data overflows allocated MAX_LEN buffer size"
+	"No error",
+	"ERROR:  Unknown",
+	"ERROR:  TDO mismatch",
+	"ERROR:  TDO mismatch and exceeded max retries",
+	"ERROR:  Unsupported XSVF command",
+	"ERROR:  Illegal state specification",
+	"ERROR:  Data overflows allocated MAX_LEN buffer size"
 };
 
 char*   xsvf_pzTapState[] =
 {
-        "RESET",        /* 0x00 */
-        "RUNTEST/IDLE", /* 0x01 */
-        "DRSELECT",     /* 0x02 */
-        "DRCAPTURE",    /* 0x03 */
-        "DRSHIFT",      /* 0x04 */
-        "DREXIT1",      /* 0x05 */
-        "DRPAUSE",      /* 0x06 */
-        "DREXIT2",      /* 0x07 */
-        "DRUPDATE",     /* 0x08 */
-        "IRSELECT",     /* 0x09 */
-        "IRCAPTURE",    /* 0x0A */
-        "IRSHIFT",      /* 0x0B */
-        "IREXIT1",      /* 0x0C */
-        "IRPAUSE",      /* 0x0D */
-        "IREXIT2",      /* 0x0E */
-        "IRUPDATE"      /* 0x0F */
+	"RESET",        /* 0x00 */
+	"RUNTEST/IDLE", /* 0x01 */
+	"DRSELECT",     /* 0x02 */
+	"DRCAPTURE",    /* 0x03 */
+	"DRSHIFT",      /* 0x04 */
+	"DREXIT1",      /* 0x05 */
+	"DRPAUSE",      /* 0x06 */
+	"DREXIT2",      /* 0x07 */
+	"DRUPDATE",     /* 0x08 */
+	"IRSELECT",     /* 0x09 */
+	"IRCAPTURE",    /* 0x0A */
+	"IRSHIFT",      /* 0x0B */
+	"IREXIT1",      /* 0x0C */
+	"IRPAUSE",      /* 0x0D */
+	"IREXIT2",      /* 0x0E */
+	"IRUPDATE"      /* 0x0F */
 };
 #endif  /* DEBUG_MODE */
 
-//#ifdef DEBUG_MODE
-//    FILE* in;   /* Legacy DEBUG_MODE file pointer */
+/*#ifdef DEBUG_MODE	*/
+/*    FILE* in;   /XXX* Legacy DEBUG_MODE file pointer */
 int xsvf_iDebugLevel;
-//#endif /* DEBUG_MODE */
+/*#endif /XXX* DEBUG_MODE */
 
 /*============================================================================
  * Utility Functions
@@ -493,7 +493,7 @@ void xsvfTmsTransition( short sTms )
  * Returns:      int             - 0 = success; otherwise error.
  *****************************************************************************/
 int xsvfGotoTapState( unsigned char*   pucTapState,
-                      unsigned char    ucTargetState )
+		      unsigned char    ucTargetState )
 {
 	int i;
 	int iErrorCode;
@@ -708,9 +708,9 @@ int xsvfGotoTapState( unsigned char*   pucTapState,
  * Returns:      void.
  *****************************************************************************/
 void xsvfShiftOnly( long    lNumBits,
-                    lenVal* plvTdi,
-                    lenVal* plvTdoCaptured,
-                    int     iExitShift )
+		    lenVal* plvTdi,
+		    lenVal* plvTdoCaptured,
+		    int     iExitShift )
 {
 	unsigned char*  pucTdi;
 	unsigned char*  pucTdo;
@@ -796,15 +796,15 @@ void xsvfShiftOnly( long    lNumBits,
  *               is NOT all zeros and sMatch==1.
  *****************************************************************************/
 int xsvfShift( unsigned char*   pucTapState,
-               unsigned char    ucStartState,
-               long             lNumBits,
-               lenVal*          plvTdi,
-               lenVal*          plvTdoCaptured,
-               lenVal*          plvTdoExpected,
-               lenVal*          plvTdoMask,
-               unsigned char    ucEndState,
-               long             lRunTestTime,
-               unsigned char    ucMaxRepeat )
+	       unsigned char    ucStartState,
+	       long             lNumBits,
+	       lenVal*          plvTdi,
+	       lenVal*          plvTdoCaptured,
+	       lenVal*          plvTdoExpected,
+	       lenVal*          plvTdoMask,
+	       unsigned char    ucEndState,
+	       long             lRunTestTime,
+	       unsigned char    ucMaxRepeat )
 {
 	int             iErrorCode;
 	int             iMismatch;
@@ -935,15 +935,15 @@ int xsvfShift( unsigned char*   pucTapState,
  * Returns:      int                 - 0 = success; otherwise TDO mismatch.
  *****************************************************************************/
 int xsvfBasicXSDRTDO( unsigned char*    pucTapState,
-                      long              lShiftLengthBits,
-                      short             sShiftLengthBytes,
-                      lenVal*           plvTdi,
-                      lenVal*           plvTdoCaptured,
-                      lenVal*           plvTdoExpected,
-                      lenVal*           plvTdoMask,
-                      unsigned char     ucEndState,
-                      long              lRunTestTime,
-                      unsigned char     ucMaxRepeat )
+		      long              lShiftLengthBits,
+		      short             sShiftLengthBytes,
+		      lenVal*           plvTdi,
+		      lenVal*           plvTdoCaptured,
+		      lenVal*           plvTdoExpected,
+		      lenVal*           plvTdoMask,
+		      unsigned char     ucEndState,
+		      long              lRunTestTime,
+		      unsigned char     ucMaxRepeat )
 {
 	readVal( plvTdi, sShiftLengthBytes );
 	if ( plvTdoExpected )
@@ -968,9 +968,9 @@ int xsvfBasicXSDRTDO( unsigned char*    pucTapState,
  *****************************************************************************/
 #ifdef  XSVF_SUPPORT_COMPRESSION
 void xsvfDoSDRMasking( lenVal*  plvTdi,
-                       lenVal*  plvNextData,
-                       lenVal*  plvAddressMask,
-                       lenVal*  plvDataMask )
+		       lenVal*  plvNextData,
+		       lenVal*  plvAddressMask,
+		       lenVal*  plvDataMask )
 {
 	int             i;
 	unsigned char   ucTdi;

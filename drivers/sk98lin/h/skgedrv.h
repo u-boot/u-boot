@@ -29,22 +29,22 @@
  *	Revision 1.6  2002/07/15 15:38:01  rschmidt
  *	Power Management support
  *	Editorial changes
- *	
+ *
  *	Revision 1.5  2002/04/25 11:05:47  rschmidt
  *	Editorial changes
- *	
+ *
  *	Revision 1.4  1999/11/22 13:52:46  cgoos
  *	Changed license header to GPL.
- *	
+ *
  *	Revision 1.3  1998/12/01 13:31:39  cgoos
  *	SWITCH INTERN Event added.
- *	
+ *
  *	Revision 1.2  1998/11/25 08:28:38  gklug
  *	rmv: PORT SWITCH Event
- *	
+ *
  *	Revision 1.1  1998/09/29 06:14:07  gklug
  *	add: driver events (initial version)
- *	
+ *
  *
  ******************************************************************************/
 

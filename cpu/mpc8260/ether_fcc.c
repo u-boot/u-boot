@@ -233,7 +233,7 @@ static int fec_init(struct eth_device* dev, bd_t *bis)
     /* 28.9 - (3): connect FCC's tx and rx clocks */
     immr->im_cpmux.cmx_uar = 0;
     immr->im_cpmux.cmx_fcr = (immr->im_cpmux.cmx_fcr & ~info->cmxfcr_mask) |
-    							info->cmxfcr_value;
+							info->cmxfcr_value;
 
     /* 28.9 - (4): GFMR: disable tx/rx, CCITT CRC, Mode Ethernet */
     immr->im_fcc[info->ether_index].fcc_gfmr =
@@ -378,7 +378,7 @@ int fec_initialize(bd_t *bis)
 		memset(dev, 0, sizeof *dev);
 
 		sprintf(dev->name, "FCC%d ETHERNET",
-		        ether_fcc_info[i].ether_index + 1);
+			ether_fcc_info[i].ether_index + 1);
 		dev->priv   = &ether_fcc_info[i];
 		dev->init   = fec_init;
 		dev->halt   = fec_halt;
@@ -652,10 +652,10 @@ eth_loopback_test (void)
 #if defined(CONFIG_HYMOD)
 	/*
 	 * Attention: this is board-specific
-	 * 0, FCC1 
-	 * 1, FCC2 
-	 * 2, FCC3 
-         */
+	 * 0, FCC1
+	 * 1, FCC2
+	 * 2, FCC3
+	 */
 #       define FCC_START_LOOP 0
 #       define FCC_END_LOOP   2
 
@@ -677,8 +677,8 @@ eth_loopback_test (void)
 #elif defined(CONFIG_SBC8260) || defined(CONFIG_SACSng)
 	/*
 	 * Attention: this is board-specific
-	 * 1, FCC2 
-         */
+	 * 1, FCC2
+	 */
 #       define FCC_START_LOOP 1
 #       define FCC_END_LOOP   1
 

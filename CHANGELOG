@@ -2,6 +2,14 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Patches by Xianghua Xiao, 15 Oct 2003:
+
+  - Added Motorola CPU 8540/8560 support (cpu/85xx)
+  - Added Motorola MPC8540ADS board support (board/mpc8540ads)
+  - Added Motorola MPC8560ADS board support (board/mpc8560ads)
+
+* Fix flash timings on TRAB board
+
 * Make sure HUSH is initialized for running auto-update scripts
 
 * Make 5200 reset command _really_ reset the board, without running
@@ -38,7 +46,7 @@ Changes for U-Boot 1.0.0:
 * Patch by Martin Krause, 09 Oct 2003:
   Fixes for TRAB board
   - /board/trab/rs485.c: correct baudrate
-  - /board/trab/cmd_trab.c: bug fix for problem with timer overflow in 
+  - /board/trab/cmd_trab.c: bug fix for problem with timer overflow in
     udelay(); fix some timing problems with adc controller
   - /board/trab/trab_fkt.c: add new commands: gain, eeprom and power;
     modify commands: touch and buzzer
@@ -88,7 +96,7 @@ Changes for U-Boot 1.0.0:
     link state to the fault LED.
   - In NetLoop, make the Fault LED reflect the link status.  The link
     status gets updated on entry, and on timeouts.
-     
+
 * Patch by Anders Larsen, 18 Sep 2003:
   allow mkimage to build and run on Cygwin-hosted systems
 

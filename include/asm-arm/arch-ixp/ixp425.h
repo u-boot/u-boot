@@ -1,7 +1,7 @@
 /*
- * include/asm-arm/arch-ixp425/ixp425.h 
+ * include/asm-arm/arch-ixp425/ixp425.h
  *
- * Register definitions for IXP425 
+ * Register definitions for IXP425
  *
  * Copyright (C) 2002 Intel Corporation.
  *
@@ -24,26 +24,26 @@
 # ifndef __ASSEMBLY__
 #  define io_p2v(PhAdd)    (PhAdd)
 #  define __REG(x)	(*((volatile u32 *)io_p2v(x)))
-#  define __REG2(x,y)	(*(volatile u32 *)((u32)&__REG(x) + (y)))	
+#  define __REG2(x,y)	(*(volatile u32 *)((u32)&__REG(x) + (y)))
 # else
-#  define __REG(x) (x)	
+#  define __REG(x) (x)
 # endif
 #endif /* UBOOT_REG_FIX */
 
 /*
- * 
+ *
  * IXP425 Memory map:
  *
  * Phy		Phy Size	Map Size	Virt		Description
  * =========================================================================
  *
- * 0x00000000	0x10000000					SDRAM 1 
+ * 0x00000000	0x10000000					SDRAM 1
  *
  * 0x10000000	0x10000000					SDRAM 2
  *
  * 0x20000000	0x10000000					SDRAM 3
  *
- * 0x30000000	0x10000000					SDRAM 4 
+ * 0x30000000	0x10000000					SDRAM 4
  *
  * The above four are aliases to the same memory location  (0x00000000)
  *
@@ -53,13 +53,13 @@
  *
  * 0x6000000	0x00004000	    0x4000	0xFFFEB000	QMgr
  *
- * 0xC0000000	     0x100   	    0x1000	0xFFFDD000	PCI CFG 
+ * 0xC0000000	     0x100   	    0x1000	0xFFFDD000	PCI CFG
  *
- * 0xC4000000	     0x100          0x1000	0xFFFDE000	EXP CFG 
+ * 0xC4000000	     0x100          0x1000	0xFFFDE000	EXP CFG
  *
  * 0xC8000000	    0xC000          0xC000	0xFFFDF000	PERIPHERAL
  *
- * 0xCC000000	     0x100   	    0x1000	Not Mapped	SDRAM CFG 
+ * 0xCC000000	     0x100   	    0x1000	Not Mapped	SDRAM CFG
  */
 
 /*
@@ -95,7 +95,7 @@
  */
 #define IXP425_SDRAM_CFG_BASE_PHYS	(0xCC000000)
 
-/* 
+/*
  * Q Manager space .. not static mapped
  */
 #define IXP425_QMGR_BASE_PHYS		(0x60000000)
@@ -168,16 +168,16 @@
 
 #define IXP425_EXP_CS0      IXP425_EXP_REG(IXP425_EXP_CS0_OFFSET)
 #define IXP425_EXP_CS1      IXP425_EXP_REG(IXP425_EXP_CS1_OFFSET)
-#define IXP425_EXP_CS2      IXP425_EXP_REG(IXP425_EXP_CS2_OFFSET) 
+#define IXP425_EXP_CS2      IXP425_EXP_REG(IXP425_EXP_CS2_OFFSET)
 #define IXP425_EXP_CS3      IXP425_EXP_REG(IXP425_EXP_CS3_OFFSET)
 #define IXP425_EXP_CS4      IXP425_EXP_REG(IXP425_EXP_CS4_OFFSET)
 #define IXP425_EXP_CS5      IXP425_EXP_REG(IXP425_EXP_CS5_OFFSET)
-#define IXP425_EXP_CS6      IXP425_EXP_REG(IXP425_EXP_CS6_OFFSET)     
+#define IXP425_EXP_CS6      IXP425_EXP_REG(IXP425_EXP_CS6_OFFSET)
 #define IXP425_EXP_CS7      IXP425_EXP_REG(IXP425_EXP_CS7_OFFSET)
 
-#define IXP425_EXP_CFG0     IXP425_EXP_REG(IXP425_EXP_CFG0_OFFSET) 
-#define IXP425_EXP_CFG1     IXP425_EXP_REG(IXP425_EXP_CFG1_OFFSET) 
-#define IXP425_EXP_CFG2     IXP425_EXP_REG(IXP425_EXP_CFG2_OFFSET) 
+#define IXP425_EXP_CFG0     IXP425_EXP_REG(IXP425_EXP_CFG0_OFFSET)
+#define IXP425_EXP_CFG1     IXP425_EXP_REG(IXP425_EXP_CFG1_OFFSET)
+#define IXP425_EXP_CFG2     IXP425_EXP_REG(IXP425_EXP_CFG2_OFFSET)
 #define IXP425_EXP_CFG3     IXP425_EXP_REG(IXP425_EXP_CFG3_OFFSET)
 
 /*
@@ -273,7 +273,7 @@
 #define LSR_OE		(1 << 1)	/* Overrun Error */
 #define LSR_DR		(1 << 0)	/* Data Ready */
 
-#define MCR_LOOP	(1 << 4)	*/ 
+#define MCR_LOOP	(1 << 4)	*/
 #define MCR_OUT2	(1 << 3)	/* force MSR_DCD in loopback mode */
 #define MCR_OUT1	(1 << 2)	/* force MSR_RI in loopback mode */
 #define MCR_RTS		(1 << 1)	/* Request to Send */
@@ -291,7 +291,7 @@
 #define IXP425_CONSOLE_UART_BASE_VIRT IXP425_UART1_BASE_VIRT
 #define IXP425_CONSOLE_UART_BASE_PHYS IXP425_UART1_BASE_PHYS
 /*
- * Peripheral Space Registers 
+ * Peripheral Space Registers
  */
 #define IXP425_UART1_BASE_PHYS	(IXP425_PERIPHERAL_BASE_PHYS + 0x0000)
 #define IXP425_UART2_BASE_PHYS	(IXP425_PERIPHERAL_BASE_PHYS + 0x1000)
@@ -320,7 +320,7 @@
 #define IXP425_USB_BASE_VIRT	(IXP425_PERIPHERAL_BASE_VIRT + 0xB000)
 
 
-/* 
+/*
  * UART Register Definitions , Offsets only as there are 2 UARTS.
  *   IXP425_UART1_BASE , IXP425_UART2_BASE.
  */
@@ -356,9 +356,9 @@
 #define IXP425_ICIP     IXP425_INTC_REG(IXP425_ICIP_OFFSET)
 #define IXP425_ICFP     IXP425_INTC_REG(IXP425_ICFP_OFFSET)
 #define IXP425_ICHR     IXP425_INTC_REG(IXP425_ICHR_OFFSET)
-#define IXP425_ICIH     IXP425_INTC_REG(IXP425_ICIH_OFFSET) 
+#define IXP425_ICIH     IXP425_INTC_REG(IXP425_ICIH_OFFSET)
 #define IXP425_ICFH     IXP425_INTC_REG(IXP425_ICFH_OFFSET)
-                                                                                
+
 /*
  * Constants to make it easy to access GPIO registers
  */
@@ -371,7 +371,7 @@
 #define IXP425_GPIO_GPCLKR_OFFSET	0x18
 #define IXP425_GPIO_GPDBSELR_OFFSET	0x1C
 
-/* 
+/*
  * GPIO Register Definitions.
  * [Only perform 32bit reads/writes]
  */
@@ -420,12 +420,12 @@
 #define IXP425_OSST	IXP425_TIMER_REG(IXP425_OSST_OFFSET)
 
 /*
- * Timer register values and bit definitions 
+ * Timer register values and bit definitions
  */
 #define IXP425_OST_ENABLE              BIT(0)
 #define IXP425_OST_ONE_SHOT            BIT(1)
 /* Low order bits of reload value ignored */
-#define IXP425_OST_RELOAD_MASK         (0x3)    
+#define IXP425_OST_RELOAD_MASK         (0x3)
 #define IXP425_OST_DISABLED            (0x0)
 #define IXP425_OSST_TIMER_1_PEND       BIT(0)
 #define IXP425_OSST_TIMER_2_PEND       BIT(1)
@@ -471,7 +471,7 @@
 #define PCI_CRP_AD_CBE          IXP425_PCI_CSR(PCI_CRP_AD_CBE_OFFSET)
 #define PCI_CRP_WDATA           IXP425_PCI_CSR(PCI_CRP_WDATA_OFFSET)
 #define PCI_CRP_RDATA           IXP425_PCI_CSR(PCI_CRP_RDATA_OFFSET)
-#define PCI_CSR                 IXP425_PCI_CSR(PCI_CSR_OFFSET) 
+#define PCI_CSR                 IXP425_PCI_CSR(PCI_CSR_OFFSET)
 #define PCI_ISR                 IXP425_PCI_CSR(PCI_ISR_OFFSET)
 #define PCI_INTEN               IXP425_PCI_CSR(PCI_INTEN_OFFSET)
 #define PCI_DMACTRL             IXP425_PCI_CSR(PCI_DMACTRL_OFFSET)
@@ -488,7 +488,7 @@
 #define PCI_ATPDMA1_LENADDR     IXP425_PCI_CSR(PCI_ATPDMA1_LENADDR_OFFSET)
 
 /*
- * PCI register values and bit definitions 
+ * PCI register values and bit definitions
  */
 
 /* CSR bit definitions */
@@ -553,7 +553,7 @@ extern void ixp425_pci_init(void *);
 /*
  * Clock Speed Definitions.
  */
-#define IXP425_PERIPHERAL_BUS_CLOCK (66) /* 66Mhzi APB BUS   */ 
+#define IXP425_PERIPHERAL_BUS_CLOCK (66) /* 66Mhzi APB BUS   */
 
 
 #endif

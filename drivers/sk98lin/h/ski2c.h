@@ -28,88 +28,88 @@
  *	$Log: ski2c.h,v $
  *	Revision 1.34  2003/01/28 09:11:21  rschmidt
  *	Editorial changes
- *	
+ *
  *	Revision 1.33  2002/10/14 16:40:50  rschmidt
  *	Editorial changes (TWSI)
- *	
+ *
  *	Revision 1.32  2002/08/13 08:55:07  rschmidt
  *	Editorial changes
- *	
+ *
  *	Revision 1.31  2002/08/06 09:44:22  jschmalz
  *	Extensions and changes for Yukon
- *	
+ *
  *	Revision 1.30  2001/04/05 11:38:09  rassmann
  *	Set SenState to idle in SkI2cWaitIrq().
  *	Changed error message in SkI2cWaitIrq().
- *	
+ *
  *	Revision 1.29  2000/08/03 14:28:17  rassmann
  *	- Added function to wait for I2C being ready before resetting the board.
  *	- Replaced one duplicate "out of range" message with correct one.
- *	
+ *
  *	Revision 1.28  1999/11/22 13:55:46  cgoos
  *	Changed license header to GPL.
- *	
+ *
  *	Revision 1.27  1999/05/20 09:23:10  cgoos
  *	Changes for 1000Base-T (Fan sensors).
- *	
+ *
  *	Revision 1.26  1998/12/01 13:45:47  gklug
  *	add: InitLevel to I2c struct
- *	
+ *
  *	Revision 1.25  1998/11/03 06:55:16  gklug
  *	add: Dummy Reads to I2c struct
- *	
+ *
  *	Revision 1.24  1998/10/02 14:28:59  cgoos
  *	Added prototype for SkI2cIsr.
- *	
+ *
  *	Revision 1.23  1998/09/08 12:20:11  gklug
  *	add: prototypes for init and read functions
- *	
+ *
  *	Revision 1.22  1998/09/08 07:37:56  gklug
  *	add: log error if PCI_IO voltage sensor could not be initialized
- *	
+ *
  *	Revision 1.21  1998/09/04 08:38:05  malthoff
  *	Change the values for I2C_READ and I2C_WRITE
- *	
+ *
  *	Revision 1.20  1998/08/25 07:52:22  gklug
  *	chg: Timestamps (last) added for logging
  *
  *	Revision 1.19  1998/08/25 06:09:00  gklug
  *	rmv: warning and error levels of the individual sensors.
  *	add: timing definitions for sending traps and logging errors
- *	
+ *
  *	Revision 1.18  1998/08/20 11:41:15  gklug
  *	chg: omit STRCPY macro by using char * as Sensor Description
- *	
+ *
  *	Revision 1.17  1998/08/20 11:37:43  gklug
  *	chg: change Ioc to IoC
- *	
+ *
  *	Revision 1.16  1998/08/20 11:30:38  gklug
  *	fix: SenRead declaration
- *	
+ *
  *	Revision 1.15  1998/08/20 11:27:53  gklug
  *	fix: Compile bugs with new awrning constants
- *	
+ *
  *	Revision 1.14  1998/08/20 08:53:12  gklug
  *	fix: compiler errors
  *	add: Threshold values
- *	
+ *
  *	Revision 1.13  1998/08/19 12:21:16  gklug
  *	fix: remove struct from C files (see CCC)
  *	add: typedefs for all structs
- *	
+ *
  *	Revision 1.12  1998/08/19 10:57:41  gklug
  *	add: Warning levels
- *	
+ *
  *	Revision 1.11  1998/08/18 08:37:02  malthoff
  *	Prototypes not required for SK_DIAG.
- *	
+ *
  *	Revision 1.10  1998/08/17 13:54:00  gklug
  *	fix: declaration of event function
- *	
+ *
  *	Revision 1.9  1998/08/17 06:48:39  malthoff
  *	Remove some unrequired macros.
  *	Fix the compiler errors.
- *	
+ *
  *	Revision 1.8  1998/08/14 06:47:19  gklug
  *	fix: Values are intergers
  *
@@ -290,4 +290,3 @@ extern void SkI2cIsr(SK_AC *pAC, SK_IOC IoC);
 
 #endif
 #endif /* n_SKI2C_H */
-

@@ -39,11 +39,11 @@ SECTIONS
 	.data : { *(.data) }
 	. = ALIGN(4);
 	.got : { *(.got) }
-	
+
 	__u_boot_cmd_start = .;
 	.u_boot_cmd : { *(.u_boot_cmd) }
 	__u_boot_cmd_end = .;
-	
+
 	armboot_end_data = .;
 	. = ALIGN(4);
 	.bss : { *(.bss) }

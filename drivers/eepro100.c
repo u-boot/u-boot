@@ -248,8 +248,13 @@ static int eepro100_send (struct eth_device *dev, volatile void *packet,
 static int eepro100_recv (struct eth_device *dev);
 static void eepro100_halt (struct eth_device *dev);
 
+#if defined(CONFIG_E500)
+#define bus_to_phys(a) (a)
+#define phys_to_bus(a) (a)
+#else
 #define bus_to_phys(a)	pci_mem_to_phys((pci_dev_t)dev->priv, a)
 #define phys_to_bus(a)	pci_phys_to_mem((pci_dev_t)dev->priv, a)
+#endif
 
 static inline int INW (struct eth_device *dev, u_long addr)
 {

@@ -558,7 +558,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		/* convert all clock information to MHz */
 		kbd->bi_intfreq /= 1000000L;
 		kbd->bi_busfreq /= 1000000L;
-#if defined(CONFIG_8260)
+#if defined(CONFIG_8260) || defined(CONFIG_MPC8560)
 		kbd->bi_cpmfreq /= 1000000L;
 		kbd->bi_brgfreq /= 1000000L;
 		kbd->bi_sccfreq /= 1000000L;
@@ -758,7 +758,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 
 	SHOW_BOOT_PROGRESS (15);
 
-#ifdef CFG_INIT_RAM_LOCK
+#if defined(CFG_INIT_RAM_LOCK) && !defined(CONFIG_E500)
 	unlock_ram_in_cache();
 #endif
 	/*
@@ -1341,4 +1341,3 @@ do_bootm_lynxkdi (cmd_tbl_t *cmdtp, int flag,
 }
 
 #endif /* CONFIG_LYNXKDI */
-

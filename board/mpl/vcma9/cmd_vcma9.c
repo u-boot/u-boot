@@ -178,4 +178,3 @@ U_BOOT_CMD(
 	"vcma9   - VCMA9 specific commands\n",
 	"flash mem [SrcAddr]\n    - updates U-Boot with image in memory\n"
 );
-

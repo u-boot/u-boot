@@ -80,7 +80,7 @@ static int check_CPU (long clock, uint pvr, uint immr)
 
 	switch (k) {
 #ifdef CONFIG_MPC866_et_al
-                /* MPC866P/MPC866T/MPC859T/MPC859DSL/MPC852T */
+		/* MPC866P/MPC866T/MPC859T/MPC859DSL/MPC852T */
 	case 0x08000003: pre = 'M'; suf = ""; m = 1; break;
 #else
 	case 0x00020001: pre = 'p'; suf = ""; break;
@@ -130,9 +130,9 @@ static int check_CPU (long clock, uint pvr, uint immr)
 	putc ('\n');
 
 #ifdef DEBUG
-        if(clock != measure_gclk()) {
-            printf ("clock %ldHz != %dHz\n", clock, measure_gclk());
-        }
+	if(clock != measure_gclk()) {
+	    printf ("clock %ldHz != %dHz\n", clock, measure_gclk());
+	}
 #endif
 
 	return 0;
@@ -485,15 +485,15 @@ unsigned long get_tbclk (void)
 	}
 #define PLPRCR_val(a) (((CFG_PLPRCR) & PLPRCR_ ## a ## _MSK) >> PLPRCR_ ## a ## _SHIFT)
 #ifdef CONFIG_MPC866_et_al
-        /*                   MFN
-                     MFI + -------
-                           MFD + 1
-          factor =  -----------------
-                     (PDF + 1) * 2^S
-         */
+	/*                   MFN
+		     MFI + -------
+			   MFD + 1
+	  factor =  -----------------
+		     (PDF + 1) * 2^S
+	 */
 
 	factor = (PLPRCR_val(MFI) + PLPRCR_val(MFN)/(PLPRCR_val(MFD)+1))/
-                 (PLPRCR_val(PDF)+1) / (1<<PLPRCR_val(S));
+		 (PLPRCR_val(PDF)+1) / (1<<PLPRCR_val(S));
 #else
 	factor = PLPRCR_val(MF)+1;
 #endif

@@ -533,7 +533,6 @@ typedef struct {
 #define WDTIM_CONTROL_ST	BIT7
 
 
-
 /* ---------------------------------------------------------------------------
  *  Differentiating processor versions for those who care.
  * ---------------------------------------------------------------------------

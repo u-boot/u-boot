@@ -55,7 +55,7 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	print_num ("flashoffset",   bd->bi_flashoffset	);
 	print_num ("sramstart",	    bd->bi_sramstart	);
 	print_num ("sramsize",	    bd->bi_sramsize	);
-#if defined(CONFIG_5xx) || defined(CONFIG_8xx) || defined(CONFIG_8260)
+#if defined(CONFIG_5xx) || defined(CONFIG_8xx) || defined(CONFIG_8260) || defined(CONFIG_E500)
 	print_num ("immr_base",	    bd->bi_immr_base	);
 #endif
 	print_num ("bootflags",	    bd->bi_bootflags	);
@@ -66,13 +66,13 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	print_str ("pci_busfreq",	    strmhz(buf, bd->bi_pci_busfreq));
 #endif
 #else	/* ! CONFIG_405GP, CONFIG_405CR, CONFIG_405EP */
-#if defined(CONFIG_8260)
+#if defined(CONFIG_8260) || defined(CONFIG_MPC8560)
 	print_str ("vco",	    strmhz(buf, bd->bi_vco));
 	print_str ("sccfreq",	    strmhz(buf, bd->bi_sccfreq));
 	print_str ("brgfreq",	    strmhz(buf, bd->bi_brgfreq));
 #endif
 	print_str ("intfreq",	    strmhz(buf, bd->bi_intfreq));
-#if defined(CONFIG_8260)
+#if defined(CONFIG_8260) || defined(CONFIG_MPC8560)
 	print_str ("cpmfreq",	    strmhz(buf, bd->bi_cpmfreq));
 #endif
 	print_str ("busfreq",	    strmhz(buf, bd->bi_busfreq));
@@ -81,12 +81,19 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	for (i=0; i<6; ++i) {
 		printf ("%c%02X", i ? ':' : ' ', bd->bi_enetaddr[i]);
 	}
-#if (defined CONFIG_PN62) || (defined CONFIG_PPCHAMELEONEVB)
+#if (defined CONFIG_PN62) || (defined CONFIG_PPCHAMELEONEVB) \
+    || (defined CONFIG_MPC8540ADS) || (defined CONFIG_MPC8560ADS)
 	printf ("\neth1addr    =");
 	for (i=0; i<6; ++i) {
 		printf ("%c%02X", i ? ':' : ' ', bd->bi_enet1addr[i]);
 	}
 #endif /* CONFIG_PN62 */
+#if defined(CONFIG_MPC8540ADS) || defined(CONFIG_MPC8560ADS)
+       printf ("\neth2addr    =");
+       for (i=0; i<6; ++i) {
+		printf ("%c%02X", i ? ':' : ' ', bd->bi_enet2addr[i]);
+	}
+#endif
 #ifdef CONFIG_HERMES
 	print_str ("ethspeed",	    strmhz(buf, bd->bi_ethspeed));
 #endif

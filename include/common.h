@@ -62,6 +62,10 @@ typedef volatile unsigned char	vu_char;
 #elif defined(CONFIG_8260)
 #include <asm/immap_8260.h>
 #endif
+#ifdef CONFIG_MPC85xx
+#include <mpc85xx.h>
+#include <asm/immap_85xx.h>
+#endif
 #ifdef	CONFIG_4xx
 #include <ppc4xx.h>
 #endif
@@ -287,6 +291,7 @@ int testdram(void);
     defined(CONFIG_8xx)
 uint	get_immr      (uint);
 #endif
+uint	get_pir       (void);
 uint	get_pvr	      (void);
 uint	rd_ic_cst     (void);
 void	wr_ic_cst     (uint);
@@ -359,6 +364,11 @@ ulong	get_UCLK (void);
 #endif
 ulong	get_bus_freq  (ulong);
 
+#if defined(CONFIG_MPC85xx)
+typedef MPC85xx_SYS_INFO sys_info_t;
+void    get_sys_info  ( sys_info_t * );
+#endif
+
 #if defined(CONFIG_4xx) || defined(CONFIG_IOP480)
 #  if defined(CONFIG_440)
     typedef PPC440_SYS_INFO sys_info_t;
@@ -372,7 +382,7 @@ void    get_sys_info  ( sys_info_t * );
 #if defined(CONFIG_8xx) || defined(CONFIG_8260)
 void	cpu_init_f    (volatile immap_t *immr);
 #endif
-#ifdef	CONFIG_4xx
+#if defined(CONFIG_4xx) || defined(CONFIG_MPC85xx)
 void	cpu_init_f    (void);
 #endif
 int	cpu_init_r    (void);

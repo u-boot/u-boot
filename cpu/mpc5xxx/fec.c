@@ -847,7 +847,7 @@ int mpc5xxx_fec_initialize(bd_t * bis)
 
 	/*
 	 * Try to set the mac address now. The fec mac address is
-	 * a garbage after reset. When not using fec for booting 
+	 * a garbage after reset. When not using fec for booting
 	 * the Linux fec driver will try to work with this garbage.
 	 */
 	tmp = getenv("ethaddr");

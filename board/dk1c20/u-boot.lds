@@ -33,17 +33,17 @@ SECTIONS
 	  cpu/nios/start.o (.text)
 	  *(.text)
 	}
-        __text_end = .;
+	__text_end = .;
 
-        . = ALIGN(4);
-        .rodata :
+	. = ALIGN(4);
+	.rodata :
 	{
 		*(.rodata)
 	}
 	__rodata_end = .;
 
-        . = ALIGN(4);
-        .data :
+	. = ALIGN(4);
+	.data :
 	{
 		*(.data)
 	}
@@ -59,12 +59,11 @@ SECTIONS
 	__u_boot_cmd_end = .;
 
 	__bss_start = .;
-        . = ALIGN(4);
-        .bss :
+	. = ALIGN(4);
+	.bss :
 	{
 		*(.bss)
 	}
 	. = ALIGN(4);
 	__bss_end = .;
 }
-

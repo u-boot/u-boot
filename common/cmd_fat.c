@@ -37,8 +37,6 @@
 #include <fat.h>
 
 
-
-
 block_dev_desc_t *get_dev (char* ifname, int dev)
 {
 #if (CONFIG_COMMANDS & CFG_CMD_IDE)
@@ -119,8 +117,6 @@ int do_fat_fsload (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	return size;
 }
-
-
 
 
 U_BOOT_CMD(

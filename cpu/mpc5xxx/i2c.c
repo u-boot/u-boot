@@ -133,13 +133,13 @@ static int do_address(uchar chip, char rdwr_flag)
 	mpc_reg_out(&regs->mcr, I2C_TX, I2C_TX);
 	mpc_reg_out(&regs->mdr, chip, 0);
 
-        if (wait_for_pin(&status)) {
-                return -2;
-        }
+	if (wait_for_pin(&status)) {
+		return -2;
+	}
 
-        if (status & I2C_RXAK) {
-                return -3;
-        }
+	if (status & I2C_RXAK) {
+		return -3;
+	}
 
 	return 0;
 }
@@ -250,7 +250,7 @@ static int mpc_get_fdr(int speed)
 		ipb = gd->ipb_clk;
 		for (i = 7; i >= 0; i--) {
 			for (j = 7; j >= 0; j--) {
-				scl = 2 * (scltap[j].scl2tap + 
+				scl = 2 * (scltap[j].scl2tap +
 					(SCL_Tap[i] - 1) * scltap[j].tap2tap + 2);
 				if (ipb <= speed*scl) {
 					if ((speed*scl - ipb) < bestmatch) {
@@ -344,13 +344,13 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buf, int len)
 	xaddr[2] = (addr >>  8) & 0xFF;
 	xaddr[3] =  addr	& 0xFF;
 
-        if (wait_for_bb()) {
+	if (wait_for_bb()) {
 		printf("i2c_write: bus is busy\n");
 		goto Done;
 	}
 
-        mpc_reg_out(&regs->mcr, I2C_STA, I2C_STA);
-        if (do_address(chip, 0)) {
+	mpc_reg_out(&regs->mcr, I2C_STA, I2C_STA);
+	if (do_address(chip, 0)) {
 		printf("i2c_write: failed to address chip\n");
 		goto Done;
 	}

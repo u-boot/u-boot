@@ -18,13 +18,13 @@ N: Dr. Bruno Achauer
 E: bruno@exet-ag.de
 D: Support for NetBSD (both as host and target system)
 
-N: Swen Anderson
-E: sand@peppercon.de
-D: ERIC Support
-
 N: Guillaume Alexandre
 E: guillaume.alexandre@gespac.ch
 D: Add PCIPPC6 configuration
+
+N: Swen Anderson
+E: sand@peppercon.de
+D: ERIC Support
 
 N: Pantelis Antoniou
 E: panto@intracom.gr
@@ -190,6 +190,11 @@ N: Thomas Koeller
 E: tkoeller@gmx.net
 D: Port to Motorola Sandpoint 3 (MPC8240)
 
+N: Raghu Krishnaprasad
+E: Raghu.Krishnaprasad@fci.com
+D: Support for Adder-II MPC852T evaluation board
+W: http://www.forcecomputers.com
+
 N: Thomas Lange
 E: thomas@corelatus.se
 D: Support for GTH and dbau1x00 boards; lots of PCMCIA fixes
@@ -307,12 +312,6 @@ E: azu@sysgo.de
 D: Overall improvements on StrongARM, ARM720TDMI; Support for Tuxscreen; initial PCMCIA support for ARM
 W: www.elinos.com
 
-N: Pantelis Antoniou
-E: panto@intracom.gr
-D: NETVIA board support, ARTOS support.
-
-N: Raghu Krishnaprasad
-E: Raghu.Krishnaprasad@fci.com
-D: Support for Adder-II MPC852T evaluation board
-W: http://www.forcecomputers.com
-
+N: Xianghua Xiao
+E: x.xiao@motorola.com
+D: Support for Motorola 85xx(PowerQUICC III) chip, MPC8540ADS and MPC8560ADS boards.

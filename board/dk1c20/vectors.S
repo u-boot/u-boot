@@ -120,5 +120,3 @@ _vectors:
 	.long	_def_xhandler@h		/* Vector 61 */
 	.long	_def_xhandler@h		/* Vector 62 */
 	.long	_def_xhandler@h		/* Vector 63 */
-
-

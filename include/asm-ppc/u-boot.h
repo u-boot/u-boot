@@ -38,7 +38,8 @@ typedef struct bd_info {
 	unsigned long	bi_flashoffset; /* reserved area for startup monitor */
 	unsigned long	bi_sramstart;	/* start of SRAM memory */
 	unsigned long	bi_sramsize;	/* size	 of SRAM memory */
-#if defined(CONFIG_5xx) || defined(CONFIG_8xx) || defined(CONFIG_8260)
+#if defined(CONFIG_5xx) || defined(CONFIG_8xx) || defined(CONFIG_8260) \
+	|| defined(CONFIG_E500)
 	unsigned long	bi_immr_base;	/* base of IMMR register */
 #endif
 #if defined(CONFIG_MPC5XXX)
@@ -50,7 +51,7 @@ typedef struct bd_info {
 	unsigned short	bi_ethspeed;	/* Ethernet speed in Mbps */
 	unsigned long	bi_intfreq;	/* Internal Freq, in MHz */
 	unsigned long	bi_busfreq;	/* Bus Freq, in MHz */
-#if defined(CONFIG_8260)
+#if defined(CONFIG_8260) || defined(CONFIG_MPC8560)
 	unsigned long	bi_cpmfreq;	/* CPM_CLK Freq, in MHz */
 	unsigned long	bi_brgfreq;	/* BRG_CLK Freq, in MHz */
 	unsigned long	bi_sccfreq;	/* SCC_CLK Freq, in MHz */
@@ -80,11 +81,14 @@ typedef struct bd_info {
     defined(CONFIG_PN62)		|| \
     defined(CONFIG_PPCHAMELEONEVB)	|| \
     defined(CONFIG_SXNI855T)		|| \
-    defined(CONFIG_SVM_SC8xx)
+    defined(CONFIG_SVM_SC8xx)		|| \
+    defined(CONFIG_MPC8540ADS)          || \
+    defined(CONFIG_MPC8560ADS)
 	/* second onboard ethernet port */
 	unsigned char   bi_enet1addr[6];
 #endif
-#if defined(CFG_GT_6426x) || defined(CONFIG_SVM_SC8xx)
+#if defined(CFG_GT_6426x) || defined(CONFIG_SVM_SC8xx) || \
+    defined(CONFIG_MPC8540ADS) || defined(CONFIG_MPC8560ADS)
 	/* third onboard ethernet port */
 	unsigned char	bi_enet2addr[6];
 #endif

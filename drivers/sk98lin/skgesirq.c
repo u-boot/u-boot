@@ -30,39 +30,39 @@
  *	Fixed setting of PLinkSpeedUsed in SkHWLinkUp() when
  *	auto-negotiation is disabled.
  *	Editorial changes.
- *	
+ *
  *	Revision 1.82  2003/01/29 13:34:33  rschmidt
  *	Added some typecasts to avoid compiler warnings.
- *	
+ *
  *	Revision 1.81  2002/12/05 10:49:51  rschmidt
  *	Fixed missing Link Down Event for fiber (Bug Id #10768)
  *	Added reading of cable length when link is up
  *	Removed testing of unused error bits in PHY ISR
  *	Editorial changes.
- *	
+ *
  *	Revision 1.80  2002/11/12 17:15:21  rschmidt
  *	Replaced SkPnmiGetVar() by ...MacStatistic() in SkMacParity().
  *	Editorial changes.
- *	
+ *
  *	Revision 1.79  2002/10/14 15:14:51  rschmidt
  *	Changed clearing of IS_M1_PAR_ERR (MAC 1 Parity Error) in
  *	SkMacParity() depending on GIChipRev (HW-Bug #8).
  *	Added error messages for GPHY Auto-Negotiation Error and
  *	FIFO Overflow/Underrun in SkPhyIsrGmac().
  *	Editorial changes.
- *	
+ *
  *	Revision 1.78  2002/10/10 15:54:29  mkarl
  *	changes for PLinkSpeedUsed
- *	
+ *
  *	Revision 1.77  2002/09/12 08:58:51  rwahl
  *	Retrieve counters needed for XMAC errata workarounds directly because
  *	PNMI returns corrected counter values (e.g. #10620).
- *	
+ *
  *	Revision 1.76  2002/08/16 15:21:54  rschmidt
  *	Replaced all if(GIChipId == CHIP_ID_GENESIS) with new entry GIGenesis.
  *	Replaced wrong 1st para pAC with IoC in SK_IN/OUT macros.
  *	Editorial changes.
- *	
+ *
  *	Revision 1.75  2002/08/12 13:50:47  rschmidt
  *	Changed clearing of IS_M1_PAR_ERR (MAC 1 Parity Error) in
  *	SkMacParity() by GMF_CLI_TX_FC instead of GMF_CLI_TX_PE (HW-Bug #8).
@@ -70,26 +70,26 @@
  *	Corrected handling of Link Up and Auto-Negotiation Over for GPHY.
  *	in SkGePortCheckUpGmac().
  *	Editorial changes.
- *	
+ *
  *	Revision 1.74  2002/08/08 16:17:04  rschmidt
  *	Added PhyType check for SK_HWEV_SET_ROLE event (copper only)
  *	Changed Link Up check reading PHY Specific Status (YUKON)
  *	Editorial changes
- *	
+ *
  *	Revision 1.73  2002/07/15 18:36:53  rwahl
  *	Editorial changes.
- *	
+ *
  *	Revision 1.72  2002/07/15 15:46:26  rschmidt
  *	Added new event: SK_HWEV_SET_SPEED
  *	Editorial changes
- *	
+ *
  *	Revision 1.71  2002/06/10 09:34:19  rschmidt
  *	Editorial changes
- *	
+ *
  *	Revision 1.70  2002/06/05 08:29:18  rschmidt
  *	SkXmRxTxEnable() replaced by SkMacRxTxEnable().
  *	Editorial changes.
- *	
+ *
  *	Revision 1.69  2002/04/25 13:03:49  rschmidt
  *	Changes for handling YUKON.
  *	Use of #ifdef OTHER_PHY to eliminate code for unused Phy types.
@@ -105,119 +105,119 @@
  *	Removed status parameter from MAC IRQ handler SkMacIrq().
  *	Added SkGePortCheckUpGmac(), SkPhyIsrGmac() for GMAC.
  *	Editorial changes
- *	
+ *
  *	Revision 1.68  2002/02/26 15:24:53  rwahl
  *	Fix: no link with manual configuration (#10673). The previous fix for
  *	#10639 was removed. So for RLMT mode = CLS the RLMT may switch to
  *	misconfigured port. It should not occur for the other RLMT modes.
- *	
+ *
  *	Revision 1.67  2001/11/20 09:19:58  rwahl
  *	Reworked bugfix #10639 (no dependency to RLMT mode).
- *	
+ *
  *	Revision 1.66  2001/10/26 07:52:53  afischer
  *	Port switching bug in `check local link` mode
- *	
+ *
  *	Revision 1.65  2001/02/23 13:41:51  gklug
  *	fix: PHYS2INST should be used correctly for Dual Net operation
  *	chg: do no longer work with older PNMI
- *	
+ *
  *	Revision 1.64  2001/02/15 11:27:04  rassmann
  *	Working with RLMT v1 if SK_MAX_NETS undefined.
- *	
+ *
  *	Revision 1.63  2001/02/06 10:44:23  mkunz
  *	- NetIndex added to interface functions of pnmi V4 with dual net support
- *	
+ *
  *	Revision 1.62  2001/01/31 15:31:41  gklug
  *	fix: problem with autosensing an SR8800 switch
- *	
+ *
  *	Revision 1.61  2000/11/09 11:30:09  rassmann
  *	WA: Waiting after releasing reset until BCom chip is accessible.
  *
  *	Revision 1.60  2000/10/18 12:37:48  cgoos
  *	Reinserted the comment for version 1.56.
- *	
+ *
  *	Revision 1.59  2000/10/18 12:22:20  cgoos
  *	Added workaround for half duplex hangup.
- *	
+ *
  *	Revision 1.58  2000/09/28 13:06:04  gklug
  *	fix: BCom may NOT be touched if XMAC is in RESET state
- *	
+ *
  *	Revision 1.57  2000/09/08 12:38:39  cgoos
  *	Added forgotten variable declaration.
- *	
+ *
  *	Revision 1.56  2000/09/08 08:12:13  cgoos
  *	Changed handling of parity errors in SkGeHwErr (correct reset of error).
  *
  *	Revision 1.55  2000/06/19 08:36:25  cgoos
  *	Changed comment.
- *	
+ *
  *	Revision 1.54  2000/05/22 08:45:57  malthoff
  *	Fix: #10523 is valid for all BCom PHYs.
- *	
+ *
  *	Revision 1.53  2000/05/19 10:20:30  cgoos
  *	Removed Solaris debug output code.
- *	
+ *
  *	Revision 1.52  2000/05/19 10:19:37  cgoos
  *	Added PHY state check in HWLinkDown.
  *	Move PHY interrupt code to IS_EXT_REG case in SkGeSirqIsr.
- *	
+ *
  *	Revision 1.51  2000/05/18 05:56:20  cgoos
  *	Fixed typo.
- *	
+ *
  *	Revision 1.50  2000/05/17 12:49:49  malthoff
  *	Fixes BCom link bugs (#10523).
- *	
+ *
  *	Revision 1.49  1999/12/17 11:02:50  gklug
  *	fix: read PHY_STAT of Broadcom chip more often to assure good status
- *	
+ *
  *	Revision 1.48  1999/12/06 10:01:17  cgoos
  *	Added SET function for Role.
- *	
+ *
  *	Revision 1.47  1999/11/22 13:34:24  cgoos
  *	Changed license header to GPL.
- *	
+ *
  *	Revision 1.46  1999/09/16 10:30:07  cgoos
  *	Removed debugging output statement from Linux.
- *	
+ *
  *	Revision 1.45  1999/09/16 07:32:55  cgoos
  *	Fixed dual-port copperfield bug (PHY_READ from resetted port).
  *	Removed some unused variables.
- *	
+ *
  *	Revision 1.44  1999/08/03 15:25:04  cgoos
  *	Removed workaround for disabled interrupts in half duplex mode.
- *	
+ *
  *	Revision 1.43  1999/08/03 14:27:58  cgoos
  *	Removed SENSE mode code from SkGePortCheckUpBcom.
- *	
+ *
  *	Revision 1.42  1999/07/26 09:16:54  cgoos
  *	Added some typecasts to avoid compiler warnings.
- *	
+ *
  *	Revision 1.41  1999/05/19 07:28:59  cgoos
  *	Changes for 1000Base-T.
- *	
+ *
  *	Revision 1.40  1999/04/08 13:59:39  gklug
  *	fix: problem with 3Com switches endless RESTARTs
- *	
+ *
  *	Revision 1.39  1999/03/08 10:10:52  gklug
  *	fix: AutoSensing did switch to next mode even if LiPa indicated offline
- *	
+ *
  *	Revision 1.38  1999/03/08 09:49:03  gklug
  *	fix: Bug using pAC instead of IoC, causing AIX problems
  *	fix: change compare for Linux compiler bug workaround
- *	
+ *
  *	Revision 1.37  1999/01/28 14:51:33  gklug
  *	fix: monitor for autosensing and extra RESETS the RX on wire counters
- *	
+ *
  *	Revision 1.36  1999/01/22 09:19:55  gklug
  *	fix: Init DupMode and InitPauseMd are now called in RxTxEnable
- *	
+ *
  *	Revision 1.35  1998/12/11 15:22:59  gklug
  *	chg: autosensing: check for receive if manual mode was guessed
  *	chg: simplified workaround for XMAC errata
  *	chg: wait additional 100 ms before link goes up.
  *	chg: autoneg timeout to 600 ms
  *	chg: restart autoneg even if configured to autonegotiation
- *	
+ *
  *	Revision 1.34  1998/12/10 10:33:14  gklug
  *	add: more debug messages
  *	fix: do a new InitPhy if link went down (AutoSensing problem)
@@ -225,114 +225,114 @@
  *	chg: reset Port if link goes down
  *	chg: wait additional 100 ms when link comes up to check shorts
  *	fix: dummy read extended autoneg status to prevent link going down immediately
- *	
+ *
  *	Revision 1.33  1998/12/07 12:18:29  gklug
  *	add: refinement of autosense mode: take into account the autoneg cap of LiPa
- *	
+ *
  *	Revision 1.32  1998/12/07 07:11:21  gklug
  *	fix: compiler warning
- *	
+ *
  *	Revision 1.31  1998/12/02 09:29:05  gklug
  *	fix: WA XMAC Errata: FCSCt check was not correct.
  *	fix: WA XMAC Errata: Prec Counter were NOT updated in case of short checks.
  *	fix: Clear Stat : now clears the Prev counters of all known Ports
- *	
+ *
  *	Revision 1.30  1998/12/01 10:54:15  gklug
  *	dd: workaround for XMAC errata changed. Check RX count and CRC err Count, too.
- *	
+ *
  *	Revision 1.29  1998/12/01 10:01:53  gklug
  *	fix: if MAC IRQ occurs during port down, this will be handled correctly
- *	
+ *
  *	Revision 1.28  1998/11/26 16:22:11  gklug
  *	fix: bug in autosense if manual modes are used
- *	
+ *
  *	Revision 1.27  1998/11/26 15:50:06  gklug
  *	fix: PNMI needs to set PLinkModeConf
- *	
+ *
  *	Revision 1.26  1998/11/26 14:51:58  gklug
  *	add: AutoSensing functionalty
- *	
+ *
  *	Revision 1.25  1998/11/26 07:34:37  gklug
  *	fix: Init PrevShorts when restarting port due to Link connection
- *	
+ *
  *	Revision 1.24  1998/11/25 10:57:32  gklug
  *	fix: remove unreferenced local vars
- *	
+ *
  *	Revision 1.23  1998/11/25 08:26:40  gklug
  *	fix: don't do a RESET on a starting or stopping port
- *	
+ *
  *	Revision 1.22  1998/11/24 13:29:44  gklug
  *	add: Workaround for MAC parity errata
- *	
+ *
  *	Revision 1.21  1998/11/18 15:31:06  gklug
  *	fix: lint bugs
- *	
+ *
  *	Revision 1.20  1998/11/18 12:58:54  gklug
  *	fix: use PNMI query instead of hardware access
- *	
+ *
  *	Revision 1.19  1998/11/18 12:54:55  gklug
  *	chg: add new workaround for XMAC Errata
  *	add: short event counter monitoring on active link too
- *	
+ *
  *	Revision 1.18  1998/11/13 14:27:41  malthoff
  *	Bug Fix: Packet Arbiter Timeout was not cleared correctly
  *	for timeout on TX1 and TX2.
- *	
+ *
  *	Revision 1.17  1998/11/04 07:01:59  cgoos
  *	Moved HW link poll sequence.
  *	Added call to SkXmRxTxEnable.
- *	
+ *
  *	Revision 1.16  1998/11/03 13:46:03  gklug
  *	add: functionality of SET_LMODE and SET_FLOW_MODE
  *	fix: send RLMT LinkDown event when Port stop is given with LinkUp
- *	
+ *
  *	Revision 1.15  1998/11/03 12:56:47  gklug
  *	fix: Needs more events
- *	
+ *
  *	Revision 1.14  1998/10/30 07:36:35  gklug
  *	rmv: unnecessary code
- *	
+ *
  *	Revision 1.13  1998/10/29 15:21:57  gklug
  *	add: Poll link feature for activating HW link
  *	fix: Deactivate HWLink when Port STOP is given
- *	
+ *
  *	Revision 1.12  1998/10/28 07:38:57  cgoos
  *	Checking link status at begin of SkHWLinkUp.
- *	
+ *
  *	Revision 1.11  1998/10/22 09:46:50  gklug
  *	fix SysKonnectFileId typo
- *	
+ *
  *	Revision 1.10  1998/10/14 13:57:47  gklug
  *	add: Port start/stop event
- *	
+ *
  *	Revision 1.9  1998/10/14 05:48:29  cgoos
  *	Added definition for Para.
- *	
+ *
  *	Revision 1.8  1998/10/14 05:40:09  gklug
  *	add: Hardware Linkup signal used
- *	
+ *
  *	Revision 1.7  1998/10/09 06:50:20  malthoff
  *	Remove ID_sccs by SysKonnectFileId.
  *
  *	Revision 1.6  1998/10/08 09:11:49  gklug
  *	add: clear IRQ commands
- *	
+ *
  *	Revision 1.5  1998/10/02 14:27:35  cgoos
  *	Fixed some typos and wrong event names.
- *	
+ *
  *	Revision 1.4  1998/10/02 06:24:17  gklug
  *	add: HW error function
  *	fix: OUT macros
- *	
+ *
  *	Revision 1.3  1998/10/01 07:03:00  gklug
  *	add: ISR for the usual interrupt source register
- *	
+ *
  *	Revision 1.2  1998/09/03 13:50:33  gklug
  *	add: function prototypes
- *	
+ *
  *	Revision 1.1  1998/08/27 11:50:21  gklug
  *	initial revision
- *	
+ *
  *
  *
  ******************************************************************************/
@@ -539,7 +539,7 @@ int		Port)		/* Port Index (MAC_1 + n) */
 
 	/* Disable Receiver and Transmitter */
 	SkMacRxTxDisable(pAC, IoC, Port);
-	
+
 	/* Init default sense mode */
 	SkHWInitDefSense(pAC, IoC, Port);
 
@@ -680,13 +680,13 @@ int		Port)	/* Port Index of the port failed */
 	if (pAC->GIni.GIGenesis) {
 		/* Snap statistic counters */
 		(void)SkXmUpdateStats(pAC, IoC, Port);
-		
+
 		(void)SkXmMacStatistic(pAC, IoC, Port, XM_TXF_MAX_SZ, &TxMax);
 	}
 	else {
 		(void)SkGmMacStatistic(pAC, IoC, Port, GM_TXF_1518B, &TxMax);
 	}
-	
+
 	if (TxMax > 0) {
 		/* From now on check the parity */
 		pPrt->PCheckPar = SK_TRUE;
@@ -721,7 +721,7 @@ SK_U32	HwStatus)	/* Interrupt status word */
 
 		/* Reset all bits in the PCI STATUS register */
 		SK_IN16(IoC, PCI_C(PCI_STATUS), &Word);
-		
+
 		SK_OUT8(IoC, B2_TST_CTRL1, TST_CFG_WRITE_ON);
 		SK_OUT16(IoC, PCI_C(PCI_STATUS), Word | PCI_ERRBITS);
 		SK_OUT8(IoC, B2_TST_CTRL1, TST_CFG_WRITE_OFF);
@@ -736,19 +736,19 @@ SK_U32	HwStatus)	/* Interrupt status word */
 			/* This situation is also indicated in the descriptor */
 			SK_OUT16(IoC, MR_ADDR(MAC_1, RX_MFF_CTRL1), MFF_CLR_INSTAT);
 		}
-	
+
 		if ((HwStatus & IS_NO_STAT_M2) != 0) {
 			/* Ignore it */
 			/* This situation is also indicated in the descriptor */
 			SK_OUT16(IoC, MR_ADDR(MAC_2, RX_MFF_CTRL1), MFF_CLR_INSTAT);
 		}
-	
+
 		if ((HwStatus & IS_NO_TIST_M1) != 0) {
 			/* Ignore it */
 			/* This situation is also indicated in the descriptor */
 			SK_OUT16(IoC, MR_ADDR(MAC_1, RX_MFF_CTRL1), MFF_CLR_INTIST);
 		}
-	
+
 		if ((HwStatus & IS_NO_TIST_M2) != 0) {
 			/* Ignore it */
 			/* This situation is also indicated in the descriptor */
@@ -839,7 +839,7 @@ SK_U32	Istatus)	/* Interrupt status word */
 	if ((Istatus & IS_HW_ERR) != 0) {
 		/* read the HW Error Interrupt source */
 		SK_IN32(IoC, B0_HWE_ISRC, &RegVal32);
-		
+
 		SkGeHwErr(pAC, IoC, RegVal32);
 	}
 
@@ -876,7 +876,7 @@ SK_U32	Istatus)	/* Interrupt status word */
 	}
 
 	if ((Istatus & IS_PA_TO_TX1) != 0) {
-		
+
 		pPrt = &pAC->GIni.GP[0];
 
 		/* May be a normal situation in a server with a slow network */
@@ -901,9 +901,9 @@ SK_U32	Istatus)	/* Interrupt status word */
 			SkPnmiGetVar(pAC, IoC, OID_SKGE_STAT_TX_OCTETS, (char *)&Octets,
 				&Len, (SK_U32) SK_PNMI_PORT_PHYS2INST(pAC, 0),
 				pAC->Rlmt.Port[0].Net->NetNumber);
-			
+
 			pPrt->LastOctets = Octets;
-			
+
 			Para.Para32[0] = 0;
 			SkTimerStart(pAC, IoC, &pPrt->HalfDupChkTimer, SK_HALFDUP_CHK_TIME,
 				SKGE_HWAC, SK_HWEV_HALFDUP_CHK, Para);
@@ -911,7 +911,7 @@ SK_U32	Istatus)	/* Interrupt status word */
 	}
 
 	if ((Istatus & IS_PA_TO_TX2) != 0) {
-		
+
 		pPrt = &pAC->GIni.GP[1];
 
 		/* May be a normal situation in a server with a slow network */
@@ -927,9 +927,9 @@ SK_U32	Istatus)	/* Interrupt status word */
 			SkPnmiGetVar(pAC, IoC, OID_SKGE_STAT_TX_OCTETS, (char *)&Octets,
 				&Len, (SK_U32) SK_PNMI_PORT_PHYS2INST(pAC, 1),
 				pAC->Rlmt.Port[1].Net->NetNumber);
-			
+
 			pPrt->LastOctets = Octets;
-			
+
 			Para.Para32[0] = 1;
 			SkTimerStart(pAC, IoC, &pPrt->HalfDupChkTimer, SK_HALFDUP_CHK_TIME,
 				SKGE_HWAC, SK_HWEV_HALFDUP_CHK, Para);
@@ -1007,18 +1007,18 @@ SK_U32	Istatus)	/* Interrupt status word */
 	if ((Istatus & IS_EXT_REG) != 0) {
 		/* Test IRQs from PHY */
 		for (i = 0; i < pAC->GIni.GIMacsFound; i++) {
-			
+
 			pPrt = &pAC->GIni.GP[i];
-			
+
 			if (pPrt->PState == SK_PRT_RESET) {
 				continue;
 			}
-			
+
 			switch (pPrt->PhyType) {
-			
+
 			case SK_PHY_XMAC:
 				break;
-			
+
 			case SK_PHY_BCOM:
 				SkXmPhyRead(pAC, IoC, i, PHY_BCOM_INT_STAT, &PhyInt);
 				SkXmPhyRead(pAC, IoC, i, PHY_BCOM_INT_MASK, &PhyIMsk);
@@ -1030,7 +1030,7 @@ SK_U32	Istatus)	/* Interrupt status word */
 					SkPhyIsrBcom(pAC, IoC, i, PhyInt);
 				}
 				break;
-			
+
 			case SK_PHY_MARV_COPPER:
 			case SK_PHY_MARV_FIBER:
 				SkGmPhyRead(pAC, IoC, i, PHY_MARV_INT_STAT, &PhyInt);
@@ -1048,7 +1048,7 @@ SK_U32	Istatus)	/* Interrupt status word */
 			case SK_PHY_LONE:
 				SkXmPhyRead(pAC, IoC, i, PHY_LONE_INT_STAT, &PhyInt);
 				SkXmPhyRead(pAC, IoC, i, PHY_LONE_INT_ENAB, &PhyIMsk);
-				
+
 				if ((PhyInt & PhyIMsk) != 0) {
 					SK_DBG_MSG(pAC, SK_DBGMOD_HWM, SK_DBGCAT_IRQ,
 						("Port %d Lone Int: %x Mask: %x\n",
@@ -1162,7 +1162,7 @@ int		Port)		/* Which port should be checked */
 		CheckShorts = 2;
 
 		(void)SkXmMacStatistic(pAC, IoC, Port, XM_RXF_FCS_ERR, &FcsErrCts);
-		
+
 		if (pPrt->PLinkModeConf == SK_LMODE_AUTOSENSE &&
 		    pPrt->PLipaAutoNeg == SK_LIPA_UNKNOWN &&
 		    (pPrt->PLinkMode == SK_LMODE_HALF ||
@@ -1175,7 +1175,7 @@ int		Port)		/* Which port should be checked */
 				/* Nothing received, restart link */
 				pPrt->PPrevFcs = FcsErrCts;
 				pPrt->PPrevShorts = Shorts;
-				
+
 				return(SK_HW_PS_RESTART);
 			}
 			else {
@@ -1307,7 +1307,7 @@ int		Port)		/* Which port should be checked */
 			XM_IN16(IoC, Port, XM_ISRC, &Isrc);
 			IsrcSum |= Isrc;
 			SkXmAutoNegLipaXmac(pAC, IoC, Port, IsrcSum);
-			
+
 			if ((Isrc & XM_IS_INP_ASS) == 0) {
 				/* It has been in sync since last time */
 				/* Restart the PORT */
@@ -1333,7 +1333,7 @@ int		Port)		/* Which port should be checked */
 				 *  check whether the link is now o.k.
 				 */
 				pPrt->PLinkResCt++;
-				
+
 				pPrt->PAutoNegTimeOut = 0;
 
 				if (pPrt->PLinkResCt < SK_MAX_LRESTART) {
@@ -1341,13 +1341,13 @@ int		Port)		/* Which port should be checked */
 				}
 
 				pPrt->PLinkResCt = 0;
-				
+
 				SK_DBG_MSG(pAC, SK_DBGMOD_HWM, SK_DBGCAT_CTRL,
 					("Do NOT restart on Port %d %x %x\n", Port, Isrc, IsrcSum));
 			}
 			else {
 				pPrt->PIsave = (SK_U16)(IsrcSum & XM_IS_AND);
-				
+
 				SK_DBG_MSG(pAC, SK_DBGMOD_HWM, SK_DBGCAT_CTRL,
 					("Save Sync/nosync Port %d %x %x\n", Port, Isrc, IsrcSum));
 
@@ -1402,7 +1402,7 @@ int		Port)		/* Which port should be checked */
 	IsrcSum |= Isrc;
 
 	SkXmAutoNegLipaXmac(pAC, IoC, Port, IsrcSum);
-	
+
 	if ((GpReg & XM_GP_INP_ASS) != 0 || (IsrcSum & XM_IS_INP_ASS) != 0) {
 		if ((GpReg & XM_GP_INP_ASS) == 0) {
 			/* Save Auto-negotiation Done interrupt only if link is in sync */
@@ -1428,7 +1428,7 @@ int		Port)		/* Which port should be checked */
 				SK_DBG_MSG(pAC, SK_DBGMOD_HWM, SK_DBGCAT_CTRL,
 					("AutoNeg FAIL Port %d (LpAb %x, ResAb %x)\n",
 					 Port, LpAb, ResAb));
-					
+
 				/* Try next possible mode */
 				NextMode = SkHWSenseGetNext(pAC, IoC, Port);
 				SkHWLinkDown(pAC, IoC, Port);
@@ -1448,7 +1448,7 @@ int		Port)		/* Which port should be checked */
 				("AutoNeg done Port %d\n", Port));
 			return(SK_HW_PS_LINK);
 		}
-		
+
 		/* AutoNeg not done, but HW link is up. Check for timeouts */
 		pPrt->PAutoNegTimeOut++;
 		if (pPrt->PAutoNegTimeOut >= SK_AND_MAX_TO) {
@@ -1499,7 +1499,7 @@ int		Port)		/* Which port should be checked */
 		SK_DBG_MSG(pAC, SK_DBGMOD_HWM, SK_DBGCAT_IRQ,
 			("Link sync(GP), Port %d\n", Port));
 		SkHWLinkUp(pAC, IoC, Port);
-		
+
 		/*
 		 * Link sync (GP) and so assume a good connection. But if not received
 		 * a bunch of frames received in a time slot (maybe broken tx cable)
@@ -1722,7 +1722,7 @@ int		Port)	/* Which port should be checked */
 	SkXmPhyRead(pAC, IoC, Port, PHY_BCOM_STAT, &PhyStat);
 
 	SkMacAutoNegLipaPhy(pAC, IoC, Port, PhyStat);
-	
+
 	SK_DBG_MSG(pAC, SK_DBGMOD_HWM, SK_DBGCAT_CTRL,
 		("AutoNeg: %d, PhyStat: 0x%04x\n", AutoNeg, PhyStat));
 
@@ -1734,17 +1734,17 @@ int		Port)	/* Which port should be checked */
 			("Master/Slave Fault port %d\n", Port));
 		pPrt->PAutoNegFail = SK_TRUE;
 		pPrt->PMSStatus = SK_MS_STAT_FAULT;
-		
+
 		return(SK_HW_PS_RESTART);
 	}
 
 	if ((PhyStat & PHY_ST_LSYNC) == 0) {
 		return(SK_HW_PS_NONE);
 	}
-	
+
 	pPrt->PMSStatus = ((ResAb & PHY_B_1000S_MSR) != 0) ?
 		SK_MS_STAT_MASTER : SK_MS_STAT_SLAVE;
-	
+
 	SK_DBG_MSG(pAC, SK_DBGMOD_HWM, SK_DBGCAT_CTRL,
 		("AutoNeg: %d, PhyStat: 0x%04x\n", AutoNeg, PhyStat));
 
@@ -1777,7 +1777,7 @@ int		Port)	/* Which port should be checked */
 						(void *)NULL);
 				}
 #endif /* DEBUG */
-				
+
 				SK_DBG_MSG(pAC, SK_DBGMOD_HWM, SK_DBGCAT_CTRL,
 					("AutoNeg done Port %d\n", Port));
 				return(SK_HW_PS_LINK);
@@ -1806,7 +1806,7 @@ int		Port)	/* Which port should be checked */
 				(void *)NULL);
 		}
 #endif /* DEBUG */
-		
+
 		SK_DBG_MSG(pAC, SK_DBGMOD_HWM, SK_DBGCAT_IRQ,
 			("Link sync(GP), Port %d\n", Port));
 		SkHWLinkUp(pAC, IoC, Port);
@@ -1871,7 +1871,7 @@ int		Port)	/* Which port should be checked */
 		("AutoNeg: %d, PhyStat: 0x%04x\n", AutoNeg, PhyStat));
 
 	SkMacAutoNegLipaPhy(pAC, IoC, Port, PhyStat);
-	
+
 	SkGmPhyRead(pAC, IoC, Port, PHY_MARV_1000T_STAT, &ResAb);
 
 	if ((ResAb & PHY_B_1000S_MSF) != 0) {
@@ -1880,37 +1880,37 @@ int		Port)	/* Which port should be checked */
 			("Master/Slave Fault port %d\n", Port));
 		pPrt->PAutoNegFail = SK_TRUE;
 		pPrt->PMSStatus = SK_MS_STAT_FAULT;
-		
+
 		return(SK_HW_PS_RESTART);
 	}
 
 	/* Read PHY Specific Status */
 	SkGmPhyRead(pAC, IoC, Port, PHY_MARV_PHY_STAT, &PhySpecStat);
-	
+
 	SK_DBG_MSG(pAC, SK_DBGMOD_HWM, SK_DBGCAT_CTRL,
 		("AutoNeg: %d, PhySpecStat: 0x%04x\n", AutoNeg, PhySpecStat));
 
 	if ((PhySpecStat & PHY_M_PS_LINK_UP) == 0) {
 		return(SK_HW_PS_NONE);
 	}
-	
+
 	pPrt->PMSStatus = ((ResAb & PHY_B_1000S_MSR) != 0) ?
 		SK_MS_STAT_MASTER : SK_MS_STAT_SLAVE;
-	
+
 	pPrt->PCableLen = (SK_U8)((PhySpecStat & PHY_M_PS_CABLE_MSK) >> 7);
-	
+
 	if (AutoNeg) {
 		/* Auto-Negotiation Over ? */
 		if ((PhyStat & PHY_ST_AN_OVER) != 0) {
-			
+
 			SkHWLinkUp(pAC, IoC, Port);
-			
+
 			Done = SkMacAutoNegDone(pAC, IoC, Port);
-			
+
 			if (Done != SK_AND_OK) {
 				return(SK_HW_PS_RESTART);
 			}
-			
+
 			SK_DBG_MSG(pAC, SK_DBGMOD_HWM, SK_DBGCAT_CTRL,
 				("AutoNeg done Port %d\n", Port));
 			return(SK_HW_PS_LINK);
@@ -1928,7 +1928,7 @@ int		Port)	/* Which port should be checked */
 		SK_DBG_MSG(pAC, SK_DBGMOD_HWM, SK_DBGCAT_IRQ,
 			("Link sync, Port %d\n", Port));
 		SkHWLinkUp(pAC, IoC, Port);
-		
+
 		return(SK_HW_PS_LINK);
 	}
 
@@ -1986,7 +1986,7 @@ int		Port)		/* Which port should be checked */
 	StatSum |= PhyStat;
 
 	SkMacAutoNegLipaPhy(pAC, IoC, Port, PhyStat);
-	
+
 	if ((PhyStat & PHY_ST_LSYNC) == 0) {
 		/* Save Auto-negotiation Done bit */
 		pPrt->PIsave = (SK_U16)(StatSum & PHY_ST_AN_OVER);
@@ -2010,7 +2010,7 @@ int		Port)		/* Which port should be checked */
 				SK_DBG_MSG(pAC, SK_DBGMOD_HWM, SK_DBGCAT_CTRL,
 					("AutoNeg FAIL Port %d (LpAb %x, 1000TStat %x)\n",
 					 Port, LpAb, ExtStat));
-					
+
 				/* Try next possible mode */
 				NextMode = SkHWSenseGetNext(pAC, IoC, Port);
 				SkHWLinkDown(pAC, IoC, Port);
@@ -2033,7 +2033,7 @@ int		Port)		/* Which port should be checked */
 				return(SK_HW_PS_LINK);
 			}
 		}
-		
+
 		/* AutoNeg not done, but HW link is up. Check for timeouts */
 		pPrt->PAutoNegTimeOut++;
 		if (pPrt->PAutoNegTimeOut >= SK_AND_MAX_TO) {
@@ -2066,7 +2066,7 @@ int		Port)		/* Which port should be checked */
 		 * extra link down/ups
 		 */
 		SkXmPhyRead(pAC, IoC, Port, PHY_LONE_INT_STAT, &ExtStat);
-		
+
 		SK_DBG_MSG(pAC, SK_DBGMOD_HWM, SK_DBGCAT_IRQ,
 			("Link sync(GP), Port %d\n", Port));
 		SkHWLinkUp(pAC, IoC, Port);
@@ -2152,7 +2152,7 @@ SK_EVPARA	Para)		/* Event specific Parameter */
 			break;
 
 		}
-		
+
 		/* Start again the check Timer */
 		if (pPrt->PHWLinkUp) {
 			Time = SK_WA_ACT_TIME;
@@ -2277,19 +2277,19 @@ SK_EVPARA	Para)		/* Event specific Parameter */
 		pPrt->HalfDupTimerActive = SK_FALSE;
 		if (pPrt->PLinkModeStatus == SK_LMODE_STAT_HALF ||
 		    pPrt->PLinkModeStatus == SK_LMODE_STAT_AUTOHALF) {
-			
+
 			Len = sizeof(SK_U64);
 			SkPnmiGetVar(pAC, IoC, OID_SKGE_STAT_TX_OCTETS, (char *)&Octets,
 				&Len, (SK_U32)SK_PNMI_PORT_PHYS2INST(pAC, Port),
 				pAC->Rlmt.Port[Port].Net->NetNumber);
-			
+
 			if (pPrt->LastOctets == Octets) {
 				/* Tx hanging, a FIFO flush restarts it */
 				SkMacFlushTxFifo(pAC, IoC, Port);
 			}
 		}
 		break;
-	
+
 	default:
 		SK_ERR_LOG(pAC, SK_ERRCL_SW, SKERR_SIRQ_E001, SKERR_SIRQ_E001MSG);
 		break;
@@ -2323,7 +2323,7 @@ SK_U16		IStatus)	/* Interrupt Status */
 		SK_ERR_LOG(pAC, SK_ERRCL_SW | SK_ERRCL_INIT, SKERR_SIRQ_E022,
 			SKERR_SIRQ_E022MSG);
 	}
-	
+
 	if ((IStatus & (PHY_B_IS_AN_PR | PHY_B_IS_LST_CHANGE)) != 0) {
 		Para.Para32[0] = (SK_U32)Port;
 
@@ -2367,16 +2367,16 @@ SK_U16		IStatus)	/* Interrupt Status */
 		/* Signal to RLMT */
 		SkEventQueue(pAC, SKGE_RLMT, SK_RLMT_LINK_DOWN, Para);
 	}
-	
+
 	if ((IStatus & PHY_M_IS_AN_ERROR) != 0) {
 		/* Auto-Negotiation Error */
 		SK_ERR_LOG(pAC, SK_ERRCL_HW, SKERR_SIRQ_E023, SKERR_SIRQ_E023MSG);
 	}
-	
+
 	if ((IStatus & PHY_M_IS_LSP_CHANGE) != 0) {
 		/* TBD */
 	}
-	
+
 	if ((IStatus & PHY_M_IS_FIFO_ERROR) != 0) {
 		/* FIFO Overflow/Underrun Error */
 		SK_ERR_LOG(pAC, SK_ERRCL_HW, SKERR_SIRQ_E024, SKERR_SIRQ_E024MSG);

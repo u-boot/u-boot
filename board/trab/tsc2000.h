@@ -112,7 +112,7 @@
 #define TSC2000_NO_SENSOR	-0x10000
 
 #define ERROR_BATTERY   220     /* must be adjusted, if R68 is changed on
-                                 * TRAB */
+				 * TRAB */
 
 void tsc2000_write(unsigned short, unsigned short);
 unsigned short tsc2000_read (unsigned short);

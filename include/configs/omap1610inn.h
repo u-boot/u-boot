@@ -67,7 +67,7 @@
 #define CFG_NS16550_SERIAL
 #define CFG_NS16550_REG_SIZE	(-4)
 #define CFG_NS16550_CLK	(48000000)	/* can be 12M/32Khz or 48Mhz */
-#define CFG_NS16550_COM1	0xfffb0000	/* uart1, bluetooth uart 
+#define CFG_NS16550_COM1	0xfffb0000	/* uart1, bluetooth uart
 						on helen */
 
 /*
@@ -120,7 +120,7 @@
 
 #define CFG_LOAD_ADDR	0x10000000	/* default load address */
 
-/* The 1610 has 6 timers, they can be driven by the RefClk (12Mhz) or by 
+/* The 1610 has 6 timers, they can be driven by the RefClk (12Mhz) or by
  * DPLL1. This time is further subdivided by a local divisor.
  */
 #define CFG_TIMERBASE	0xFFFEC500	/* use timer 1 */

@@ -38,7 +38,7 @@ void spi_init(void)
 	int i;
 
 	/* Configure I/O ports. */
- 	gpio->PDCON = (gpio->PDCON & 0xF3FFFF) | 0x040000;
+	gpio->PDCON = (gpio->PDCON & 0xF3FFFF) | 0x040000;
 	gpio->PGCON = (gpio->PGCON & 0x0F3FFF) | 0x008000;
 	gpio->PGCON = (gpio->PGCON & 0x0CFFFF) | 0x020000;
 	gpio->PGCON = (gpio->PGCON & 0x03FFFF) | 0x080000;
@@ -48,7 +48,7 @@ void spi_init(void)
 	spi->ch[0].SPPRE = 0x1F; /* Baud-rate ca. 514kHz */
 	spi->ch[0].SPPIN = 0x01; /* SPI-MOSI holds Level after last bit */
 	spi->ch[0].SPCON = 0x1A; /* Polling, Prescaler, Master, CPOL=0,
-                                    CPHA=1 */
+				    CPHA=1 */
 
 	/* Dummy byte ensures clock to be low. */
 	for (i = 0; i < 10; i++) {
@@ -73,7 +73,7 @@ void tsc2000_write(unsigned short reg, unsigned short data)
 
 	SET_CS_TOUCH();
 	command = reg;
-        spi->ch[0].SPTDAT = (command & 0xFF00) >> 8;
+	spi->ch[0].SPTDAT = (command & 0xFF00) >> 8;
 	spi_wait_transmit_done();
 	spi->ch[0].SPTDAT = (command & 0x00FF);
 	spi_wait_transmit_done();
@@ -94,12 +94,12 @@ unsigned short tsc2000_read (unsigned short reg)
 	SET_CS_TOUCH();
 	command = 0x8000 | reg;
 
-        spi->ch[0].SPTDAT = (command & 0xFF00) >> 8;
+	spi->ch[0].SPTDAT = (command & 0xFF00) >> 8;
 	spi_wait_transmit_done();
 	spi->ch[0].SPTDAT = (command & 0x00FF);
 	spi_wait_transmit_done();
 
-        spi->ch[0].SPTDAT = 0xFF;
+	spi->ch[0].SPTDAT = 0xFF;
 	spi_wait_transmit_done();
 	data = spi->ch[0].SPRDAT;
 	spi->ch[0].SPTDAT = 0xFF;
@@ -112,7 +112,7 @@ unsigned short tsc2000_read (unsigned short reg)
 
 void tsc2000_set_mux (unsigned int channel)
 {
-        S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
+	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
 
 	CLR_MUX1_ENABLE; CLR_MUX2_ENABLE;
 	CLR_MUX3_ENABLE; CLR_MUX4_ENABLE;
@@ -189,7 +189,7 @@ void tsc2000_set_mux (unsigned int channel)
 
 void tsc2000_set_range (unsigned int range)
 {
-        S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
+	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
 
 	switch (range) {
 	case 1:
@@ -216,8 +216,8 @@ u16 tsc2000_read_channel (unsigned int channel)
 	udelay(3 * TSC2000_DELAY_BASE);
 
 	tsc2000_write(TSC2000_REG_ADC, 0x2036);
-        adc_wait_conversion_done ();
-        res = tsc2000_read(TSC2000_REG_AUX1);
+	adc_wait_conversion_done ();
+	res = tsc2000_read(TSC2000_REG_AUX1);
 	return res;
 }
 
@@ -225,36 +225,36 @@ u16 tsc2000_read_channel (unsigned int channel)
 s32 tsc2000_contact_temp (void)
 {
 	long adc_pt1000, offset;
-        long u_pt1000;
+	long u_pt1000;
 	long contact_temp;
 
 
-        tsc2000_reg_init ();
+	tsc2000_reg_init ();
 	tsc2000_set_range (3);
 
-        adc_pt1000 = tsc2000_read_channel (14);
-        debug ("read channel 14 (pt1000 adc value): %ld\n", adc_pt1000);
+	adc_pt1000 = tsc2000_read_channel (14);
+	debug ("read channel 14 (pt1000 adc value): %ld\n", adc_pt1000);
 
-        offset = tsc2000_read_channel (15);
-        debug ("read channel 15 (offset): %ld\n", offset);
+	offset = tsc2000_read_channel (15);
+	debug ("read channel 15 (offset): %ld\n", offset);
 
-        /*
-         * Formula for calculating voltage drop on PT1000 resistor: u_pt1000 =
-         * x_range3 * (adc_raw - offset) / 10. Formula to calculate x_range3:
-         * x_range3 = (2500 * (1000000 + err_vref + err_amp3)) / (4095*6). The
-         * error correction Values err_vref and err_amp3 are assumed as 0 in
-         * u-boot, because this could cause only a very small error (< 1%).
-         */
-        u_pt1000 = (101750 * (adc_pt1000 - offset)) / 10;
-        debug ("u_pt1000: %ld\n", u_pt1000);
+	/*
+	 * Formula for calculating voltage drop on PT1000 resistor: u_pt1000 =
+	 * x_range3 * (adc_raw - offset) / 10. Formula to calculate x_range3:
+	 * x_range3 = (2500 * (1000000 + err_vref + err_amp3)) / (4095*6). The
+	 * error correction Values err_vref and err_amp3 are assumed as 0 in
+	 * u-boot, because this could cause only a very small error (< 1%).
+	 */
+	u_pt1000 = (101750 * (adc_pt1000 - offset)) / 10;
+	debug ("u_pt1000: %ld\n", u_pt1000);
 
-        if (tsc2000_interpolate(u_pt1000, Pt1000_temp_table,
-                                &contact_temp) == -1) {
-                printf ("%s: error interpolating PT1000 vlaue\n",
-                         __FUNCTION__);
-                return (-1000);
-        }
-        debug ("contact_temp: %ld\n", contact_temp);
+	if (tsc2000_interpolate(u_pt1000, Pt1000_temp_table,
+				&contact_temp) == -1) {
+		printf ("%s: error interpolating PT1000 vlaue\n",
+			 __FUNCTION__);
+		return (-1000);
+	}
+	debug ("contact_temp: %ld\n", contact_temp);
 
 	return contact_temp;
 }
@@ -262,7 +262,7 @@ s32 tsc2000_contact_temp (void)
 
 void tsc2000_reg_init (void)
 {
-        S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
+	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
 
 	tsc2000_write(TSC2000_REG_ADC, 0x2036);
 	tsc2000_write(TSC2000_REG_REF, 0x0011);
@@ -315,5 +315,5 @@ int tsc2000_interpolate(long value, long data[][2], long *result)
 
 void adc_wait_conversion_done(void)
 {
-        while (!(tsc2000_read(TSC2000_REG_ADC) & (1 << 14)));
+	while (!(tsc2000_read(TSC2000_REG_ADC) & (1 << 14)));
 }

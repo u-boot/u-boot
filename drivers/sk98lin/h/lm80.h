@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Name:	lm80.h	
+ * Name:	lm80.h
  * Project:	GEnesis, PCI Gigabit Ethernet Adapter
  * Version:	$Revision: 1.4 $
  * Date:	$Date: 2002/04/25 11:04:10 $
@@ -28,16 +28,16 @@
  *	$Log: lm80.h,v $
  *	Revision 1.4  2002/04/25 11:04:10  rschmidt
  *	Editorial changes
- *	
+ *
  *	Revision 1.3  1999/11/22 13:41:19  cgoos
  *	Changed license header to GPL.
- *	
+ *
  *	Revision 1.2  1999/03/12 13:26:51  malthoff
  *	remove __STDC__.
- *	
+ *
  *	Revision 1.1  1998/06/19 09:28:31  malthoff
  *	created.
- *	
+ *
  *
  ******************************************************************************/
 

@@ -28,17 +28,17 @@
  *	$Log: skrlmt.c,v $
  *	Revision 1.68  2003/01/31 15:26:56  rschmidt
  *	Added init for local variables in RlmtInit().
- *	
+ *
  *	Revision 1.67  2003/01/31 14:12:41  mkunz
  *	single port adapter runs now with two identical MAC addresses
- *	
+ *
  *	Revision 1.66  2002/09/23 15:14:19  rwahl
  *	- Reset broadcast timestamp on link down.
  *	- Editorial corrections.
- *	
+ *
  *	Revision 1.65  2002/07/22 14:29:48  rwahl
  *	- Removed BRK statement from debug check.
- *	
+ *
  *	Revision 1.64  2001/11/28 19:36:14  rwahl
  *	- RLMT Packets sent to an invalid MAC address in CLP/CLPSS mode
  *	  (#10650).
@@ -46,220 +46,220 @@
  *	 (no dependency to RLMT module).
  *	- Enabled dbg output for entry/exit of event functions.
  *	- Editorial changes.
- *	
+ *
  *	Revision 1.63  2001/10/26 07:53:18  afischer
  *	Port switching bug in `check local link` mode
- *	
+ *
  *	Revision 1.62  2001/07/03 12:16:30  mkunz
  *	New Flag ChgBcPrio (Change priority of last broadcast received)
- *	
+ *
  *	Revision 1.61  2001/03/14 12:52:08  rassmann
  *	Fixed reporting of active port up/down to PNMI.
- *	
+ *
  *	Revision 1.60  2001/02/21 16:02:25  gklug
  *	fix: when RLMT starts set Active Port for PNMI
- *	
+ *
  *	Revision 1.59  2001/02/16 14:38:19  rassmann
  *	Initializing some pointers earlier in the init phase.
  *	Rx Mbufs are freed if the net which they belong to is stopped.
- *	
+ *
  *	Revision 1.58  2001/02/14 14:06:31  rassmann
  *	Editorial changes.
- *	
+ *
  *	Revision 1.57  2001/02/05 14:25:26  rassmann
  *	Prepared RLMT for transparent operation.
- *	
+ *
  *	Revision 1.56  2001/01/30 10:29:09  rassmann
  *	Not checking switching befor RlmtStart.
  *	Editorial changes.
- *	
+ *
  *	Revision 1.55  2001/01/22 13:41:38  rassmann
  *	Supporting two nets on dual-port adapters.
- *	
+ *
  *	Revision 1.54  2000/11/30 13:25:07  rassmann
  *	Setting SK_TICK_INCR to 1 by default.
- *	
+ *
  *	Revision 1.53  2000/11/30 10:48:07  cgoos
  *	Changed definition of SK_RLMT_BC_DELTA.
- *	
+ *
  *	Revision 1.52  2000/11/27 12:50:03  rassmann
  *	Checking ports after receiving broadcasts.
- *	
+ *
  *	Revision 1.51  2000/11/17 08:58:00  rassmann
  *	Moved CheckSwitch from SK_RLMT_PACKET_RECEIVED to SK_RLMT_TIM event.
- *	
+ *
  *	Revision 1.50  2000/11/09 12:24:34  rassmann
  *	Indicating that segmentation check is not running anymore after
  *	  SkRlmtCheckSeg().
  *	Restarting segmentation timer after segmentation log.
  *	Editorial changes.
- *	
+ *
  *	Revision 1.49  1999/11/22 13:38:02  cgoos
  *	Changed license header to GPL.
  *	Added initialization to some variables to avoid compiler warnings.
- *	
+ *
  *	Revision 1.48  1999/10/04 14:01:17  rassmann
  *	Corrected reaction to reception of BPDU frames (#10441).
- *	
+ *
  *	Revision 1.47  1999/07/20 12:53:36  rassmann
  *	Fixed documentation errors for lookahead macros.
- *	
+ *
  *	Revision 1.46  1999/05/28 13:29:16  rassmann
  *	Replaced C++-style comment.
- *	
+ *
  *	Revision 1.45  1999/05/28 13:28:08  rassmann
  *	Corrected syntax error (xxx).
- *	
+ *
  *	Revision 1.44  1999/05/28 11:15:54  rassmann
  *	Changed behaviour to reflect Design Spec v1.2.
  *	Controlling Link LED(s).
  *	Introduced RLMT Packet Version field in RLMT Packet.
  *	Newstyle lookahead macros (checking meta-information before looking at
  *	  the packet).
- *	
+ *
  *	Revision 1.43  1999/01/28 13:12:43  rassmann
  *	Corrected Lookahead (bug introduced in previous Rev.).
- *	
+ *
  *	Revision 1.42  1999/01/28 12:50:41  rassmann
  *	Not using broadcast time stamps in CheckLinkState mode.
- *	
+ *
  *	Revision 1.41  1999/01/27 14:13:02  rassmann
  *	Monitoring broadcast traffic.
  *	Switching more reliably and not too early if switch is
  *	 configured for spanning tree.
- *	
+ *
  *	Revision 1.40  1999/01/22 13:17:30  rassmann
  *	Informing PNMI of NET_UP.
  *	Clearing RLMT multicast addresses before setting them for the first time.
  *	Reporting segmentation earlier, setting a "quiet time"
  *	 after a report.
- *	
+ *
  *	Revision 1.39  1998/12/10 15:29:53  rassmann
  *	Corrected SuspectStatus in SkRlmtBuildCheckChain().
  *	Corrected CHECK_SEG mode.
- *	
+ *
  *	Revision 1.38  1998/12/08 13:11:23  rassmann
  *	Stopping SegTimer at RlmtStop.
- *	
+ *
  *	Revision 1.37  1998/12/07 16:51:42  rassmann
  *	Corrected comments.
- *	
+ *
  *	Revision 1.36  1998/12/04 10:58:56  rassmann
  *	Setting next pointer to NULL when receiving.
- *	
+ *
  *	Revision 1.35  1998/12/03 16:12:42  rassmann
  *	Ignoring/correcting illegal PrefPort values.
- *	
+ *
  *	Revision 1.34  1998/12/01 11:45:35  rassmann
  *	Code cleanup.
- *	
+ *
  *	Revision 1.33  1998/12/01 10:29:32  rassmann
  *	Starting standby ports before getting the net up.
  *	Checking if a port is started when the link comes up.
- *	
+ *
  *	Revision 1.32  1998/11/30 16:19:50  rassmann
  *	New default for PortNoRx.
- *	
+ *
  *	Revision 1.31  1998/11/27 19:17:13  rassmann
  *	Corrected handling of LINK_DOWN coming shortly after LINK_UP.
- *	
+ *
  *	Revision 1.30  1998/11/24 12:37:31  rassmann
  *	Implemented segmentation check.
- *	
+ *
  *	Revision 1.29  1998/11/18 13:04:32  rassmann
  *	Secured PortUpTimer event.
  *	Waiting longer before starting standby port(s).
- *	
+ *
  *	Revision 1.28  1998/11/17 13:43:04  rassmann
  *	Handling (logical) tx failure.
  *	Sending packet on logical address after PORT_SWITCH.
- *	
+ *
  *	Revision 1.27  1998/11/13 17:09:50  rassmann
  *	Secured some events against being called in wrong state.
- *	
+ *
  *	Revision 1.26  1998/11/13 16:56:54  rassmann
  *	Added macro version of SkRlmtLookaheadPacket.
- *	
+ *
  *	Revision 1.25  1998/11/06 18:06:04  rassmann
  *	Corrected timing when RLMT checks fail.
  *	Clearing tx counter earlier in periodical checks.
- *	
+ *
  *	Revision 1.24  1998/11/05 10:37:27  rassmann
  *	Checking destination address in Lookahead.
- *	
+ *
  *	Revision 1.23  1998/11/03 13:53:49  rassmann
  *	RLMT should switch now (at least in mode 3).
- *	
+ *
  *	Revision 1.22  1998/10/29 14:34:49  rassmann
  *	Clearing SK_RLMT struct at startup.
  *	Initializing PortsUp during SK_RLMT_START.
- *	
+ *
  *	Revision 1.21  1998/10/28 11:30:17  rassmann
  *	Default mode is now SK_RLMT_CHECK_LOC_LINK.
- *	
+ *
  *	Revision 1.20  1998/10/26 16:02:03  rassmann
  *	Ignoring LINK_DOWN for links that are down.
- *	
+ *
  *	Revision 1.19  1998/10/22 15:54:01  rassmann
  *	Corrected EtherLen.
  *	Starting Link Check when second port comes up.
- *	
+ *
  *	Revision 1.18  1998/10/22 11:39:50  rassmann
  *	Corrected signed/unsigned mismatches.
  *	Corrected receive list handling and address recognition.
- *	
+ *
  *	Revision 1.17  1998/10/19 17:01:20  rassmann
  *	More detailed checking of received packets.
- *	
+ *
  *	Revision 1.16  1998/10/15 15:16:34  rassmann
  *	Finished Spanning Tree checking.
  *	Checked with lint.
- *	
+ *
  *	Revision 1.15  1998/09/24 19:16:07  rassmann
  *	Code cleanup.
  *	Introduced Timer for PORT_DOWN due to no RX.
- *	
+ *
  *	Revision 1.14  1998/09/18 20:27:14  rassmann
  *	Added address override.
- *	
+ *
  *	Revision 1.13  1998/09/16 11:31:48  rassmann
  *	Including skdrv1st.h again. :(
- *	
+ *
  *	Revision 1.12  1998/09/16 11:09:50  rassmann
  *	Syntax corrections.
- *	
+ *
  *	Revision 1.11  1998/09/15 12:32:03  rassmann
  *	Syntax correction.
- *	
+ *
  *	Revision 1.10  1998/09/15 11:28:49  rassmann
  *	Syntax corrections.
- *	
+ *
  *	Revision 1.9  1998/09/14 17:07:37  rassmann
  *	Added code for port checking via LAN.
  *	Changed Mbuf definition.
- *	
+ *
  *	Revision 1.8  1998/09/07 11:14:14  rassmann
  *	Syntax corrections.
- *	
+ *
  *	Revision 1.7  1998/09/07 09:06:07  rassmann
  *	Syntax corrections.
- *	
+ *
  *	Revision 1.6  1998/09/04 19:41:33  rassmann
  *	Syntax corrections.
  *	Started entering code for checking local links.
- *	
+ *
  *	Revision 1.5  1998/09/04 12:14:27  rassmann
  *	Interface cleanup.
- *	
+ *
  *	Revision 1.4  1998/09/02 16:55:28  rassmann
  *	Updated to reflect new DRV/HWAC/RLMT interface.
- *	
+ *
  *	Revision 1.3  1998/08/27 14:29:03  rassmann
  *	Code cleanup.
- *	
+ *
  *	Revision 1.2  1998/08/27 14:26:24  rassmann
  *	Updated interface.
- *	
+ *
  *	Revision 1.1  1998/08/21 08:26:49  rassmann
  *	First public version.
  *
@@ -668,7 +668,7 @@ int		Level)	/* Initialization Level */
 			}
 
 			(void)SkAddrMcClear(pAC, IoC, i, SK_ADDR_PERMANENT | SK_MC_SW_ONLY);
-			
+
 			/* Add RLMT MC address. */
 			(void)SkAddrMcAdd(pAC, IoC, i, &SkRlmtMcAddr, SK_ADDR_PERMANENT);
 
@@ -680,34 +680,34 @@ int		Level)	/* Initialization Level */
 			(void)SkAddrMcUpdate(pAC, IoC, i);
 		}
 
-    	VirtualMacAddressSet = SK_FALSE;
+	VirtualMacAddressSet = SK_FALSE;
 		/* Read virtual MAC address from Control Register File. */
 		for (j = 0; j < SK_MAC_ADDR_LEN; j++) {
-			
-            SK_IN8(IoC, B2_MAC_1 + j, &VirtualMacAddress.a[j]);
-            VirtualMacAddressSet |= VirtualMacAddress.a[j];
+
+	    SK_IN8(IoC, B2_MAC_1 + j, &VirtualMacAddress.a[j]);
+	    VirtualMacAddressSet |= VirtualMacAddress.a[j];
 		}
-    	
-        PhysicalAMacAddressSet = SK_FALSE;
+
+	PhysicalAMacAddressSet = SK_FALSE;
 		/* Read physical MAC address for MAC A from Control Register File. */
 		for (j = 0; j < SK_MAC_ADDR_LEN; j++) {
-			
-            SK_IN8(IoC, B2_MAC_2 + j, &PhysicalAMacAddress.a[j]);
-            PhysicalAMacAddressSet |= PhysicalAMacAddress.a[j];
+
+	    SK_IN8(IoC, B2_MAC_2 + j, &PhysicalAMacAddress.a[j]);
+	    PhysicalAMacAddressSet |= PhysicalAMacAddress.a[j];
 		}
 
-        /* check if the two mac addresses contain reasonable values */
-        if (!VirtualMacAddressSet || !PhysicalAMacAddressSet) {
+	/* check if the two mac addresses contain reasonable values */
+	if (!VirtualMacAddressSet || !PhysicalAMacAddressSet) {
 
-            pAC->Rlmt.RlmtOff = SK_TRUE;
-        }
+	    pAC->Rlmt.RlmtOff = SK_TRUE;
+	}
 
-        /* if the two mac addresses are equal switch off the RLMT_PRE_LOOKAHEAD
-           and the RLMT_LOOKAHEAD macros */
-        else if (SK_ADDR_EQUAL(PhysicalAMacAddress.a, VirtualMacAddress.a)) {
+	/* if the two mac addresses are equal switch off the RLMT_PRE_LOOKAHEAD
+	   and the RLMT_LOOKAHEAD macros */
+	else if (SK_ADDR_EQUAL(PhysicalAMacAddress.a, VirtualMacAddress.a)) {
 
-            pAC->Rlmt.RlmtOff = SK_TRUE;
-        }
+	    pAC->Rlmt.RlmtOff = SK_TRUE;
+	}
 		else {
 			pAC->Rlmt.RlmtOff = SK_FALSE;
 		}
@@ -751,14 +751,14 @@ SK_U32	NetIdx)	/* Net Number */
 
 	FirstMacUp	= NULL;
 	PrevMacUp	= NULL;
-	
+
 	if (!(pAC->Rlmt.Net[NetIdx].RlmtMode & SK_RLMT_CHECK_LOC_LINK)) {
 		for (i = 0; i < pAC->Rlmt.Net[i].NumPorts; i++) {
 			pAC->Rlmt.Net[NetIdx].Port[i]->PortsChecked = 0;
 		}
 		return;	/* Done. */
 	}
-			
+
 	SK_DBG_MSG(pAC, SK_DBGMOD_RLMT, SK_DBGCAT_CTRL,
 		("SkRlmtBuildCheckChain.\n"))
 
@@ -843,7 +843,7 @@ SK_MAC_ADDR	*DestAddr)	/* Destination address */
 #ifdef DEBUG
 	SK_U8	CheckSrc  = 0;
 	SK_U8	CheckDest = 0;
-	
+
 	for (i = 0; i < SK_MAC_ADDR_LEN; ++i) {
 		CheckSrc  |= SrcAddr->a[i];
 		CheckDest |= DestAddr->a[i];
@@ -878,7 +878,7 @@ SK_MAC_ADDR	*DestAddr)	/* Destination address */
 		for (i = 0; i < 4; i++) {
 			pPacket->Random[i] = pAC->Rlmt.Port[PortNumber].Random[i];
 		}
-		
+
 		SK_U16_TO_NETWORK_ORDER(
 			SK_RLMT_PACKET_VERSION, &pPacket->RlmtPacketVersion[0]);
 
@@ -1156,7 +1156,7 @@ SK_MBUF	*pMb)	/* Received packet */
 	if ((pRPort->PacketsPerTimeSlot - pRPort->BpduPacketsPerTimeSlot) != 0) {
 		SkRlmtPortReceives(pAC, IoC, PortNumber);
 	}
-	
+
 	/* Check destination address. */
 
 	if (!SK_ADDR_EQUAL(pAPort->CurrentMacAddress.a, pRPacket->DstAddr) &&
@@ -1544,7 +1544,7 @@ SK_U32	PortNumber)	/* Port to check */
 				PortNumber,
 				pRPort->PacketsPerTimeSlot - pRPort->BpduPacketsPerTimeSlot,
 				pRPort->PacketsPerTimeSlot))
-		
+
 		SkRlmtPortReceives(pAC, IoC, PortNumber);
 		if (pAC->Rlmt.CheckSwitch) {
 			SkRlmtCheckSwitch(pAC, IoC, pRPort->Net->NetNumber);
@@ -1584,14 +1584,14 @@ SK_U32	*pSelect)	/* New active port */
 
 	BcTimeStamp = 0;	/* Not totally necessary, but feeling better. */
 	PortFound = SK_FALSE;
-	
+
 	/* Select port with the latest TimeStamp. */
 	for (i = 0; i < (SK_U32)pAC->GIni.GIMacsFound; i++) {
 
 		SK_DBG_MSG(pAC, SK_DBGMOD_RLMT, SK_DBGCAT_CTRL,
 			("TimeStamp Port %d (Down: %d, NoRx: %d): %08x %08x.\n",
 				i,
-   				pAC->Rlmt.Port[i].PortDown, pAC->Rlmt.Port[i].PortNoRx,
+				pAC->Rlmt.Port[i].PortDown, pAC->Rlmt.Port[i].PortNoRx,
 				*((SK_U32*)(&pAC->Rlmt.Port[i].BcTimeStamp) + OFFS_HI32),
 				*((SK_U32*)(&pAC->Rlmt.Port[i].BcTimeStamp) + OFFS_LO32)))
 
@@ -1619,7 +1619,7 @@ SK_U32	*pSelect)	/* New active port */
 				pAC->Rlmt.Port[i].BcTimeStamp +
 				 SK_RLMT_BC_DELTA > BcTimeStamp)) {
 				PortFound = SK_FALSE;
-				
+
 				SK_DBG_MSG(pAC, SK_DBGMOD_RLMT, SK_DBGCAT_CTRL,
 					("Port %d received a broadcast at a similar time.\n", i))
 				break;
@@ -1974,7 +1974,7 @@ SK_U32	NetIdx)	/* Net index */
 		/* check of ChgBcPrio flag added */
 		if ((pAC->Rlmt.Net[0].RlmtMode != SK_RLMT_MODE_CLS) &&
 			(!pAC->Rlmt.Net[0].ChgBcPrio)) {
-			
+
 			if (!PortFound) {
 				PortFound = SkRlmtSelectBcRx(
 					pAC, IoC, Active, PrefPort, &Para.Para32[1]);
@@ -2130,7 +2130,7 @@ SK_U32	NetIdx)	/* Net number */
 				break;
 			}
 		}
-		
+
 		if (!Equal) {
 			SK_ERR_LOG(pAC, SK_ERRCL_COMM, SKERR_RLMT_E005, SKERR_RLMT_E005_MSG);
 			Para.Para32[0] = NetIdx;
@@ -2330,7 +2330,7 @@ SK_EVPARA	Para)	/* SK_U32 PortNumber; SK_U32 Undefined */
 	Para2.Para32[1] = (SK_U32)-1;
 	SkTimerStart(pAC, IoC, &pRPort->UpTimer, SK_RLMT_PORTUP_TIM_VAL,
 		SKGE_RLMT, SK_RLMT_PORTUP_TIM, Para2);
-	
+
 	/* Later: if (pAC->Rlmt.RlmtMode & SK_RLMT_CHECK_LOC_LINK) && */
 	if ((pRPort->Net->RlmtMode & SK_RLMT_TRANSPARENT) == 0 &&
 		(pRPort->Net->RlmtMode & SK_RLMT_CHECK_LINK) != 0 &&
@@ -2457,7 +2457,7 @@ SK_EVPARA	Para)	/* SK_U32 PortNumber; SK_U32 -1 */
 			("SK_RLMT_PORTDOWN* Event (%d) EMPTY.\n", Event))
 		return;
 	}
-	
+
 	/* Stop port's timers. */
 	SkTimerStop(pAC, IoC, &pRPort->UpTimer);
 	SkTimerStop(pAC, IoC, &pRPort->DownRxTimer);
@@ -2947,7 +2947,7 @@ SK_EVPARA	Para)	/* SK_U32 NetNumber; SK_U32 -1 */
 		}
 	}
 #endif	/* xDEBUG */
-				
+
 	SkRlmtCheckSeg(pAC, IoC, Para.Para32[0]);
 
 	SK_DBG_MSG(pAC, SK_DBGMOD_RLMT, SK_DBGCAT_CTRL,
@@ -2978,7 +2978,7 @@ SK_EVPARA	Para)	/* SK_MBUF *pMb */
 	SK_MBUF	*pNextMb;
 	SK_U32	NetNumber;
 
-	
+
 	SK_DBG_MSG(pAC, SK_DBGMOD_RLMT, SK_DBGCAT_CTRL,
 		("SK_RLMT_PACKET_RECEIVED Event BEGIN.\n"))
 
@@ -3261,7 +3261,7 @@ SK_EVPARA	Para)	/* SK_U32 NumNets; SK_U32 -1 */
 		pAC->Rlmt.Net[1].NumPorts = pAC->GIni.GIMacsFound - 1;
 		pAC->Rlmt.Net[0].NumPorts =
 			pAC->GIni.GIMacsFound - pAC->Rlmt.Net[1].NumPorts;
-		
+
 		pAC->Rlmt.NumNets = Para.Para32[0];
 		for (i = 0; (SK_U32)i < pAC->Rlmt.NumNets; i++) {
 			pAC->Rlmt.Net[i].RlmtState = SK_RLMT_RS_INIT;
@@ -3432,7 +3432,7 @@ SK_U32		Event,	/* Event code */
 SK_EVPARA	Para)	/* Event-specific parameter */
 {
 	switch (Event) {
-	
+
 	/* ----- PORT events ----- */
 
 	case SK_RLMT_PORTSTART_TIM:	/* From RLMT via TIME. */

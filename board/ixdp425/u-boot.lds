@@ -26,29 +26,29 @@ OUTPUT_ARCH(arm)
 ENTRY(_start)
 SECTIONS
 {
-        . = 0x00000000;
+	. = 0x00000000;
 
-        . = ALIGN(4);
+	. = ALIGN(4);
 	.text      :
 	{
 	  cpu/ixp/start.o	(.text)
 	  *(.text)
 	}
 
-        . = ALIGN(4);
-        .rodata : { *(.rodata) }
+	. = ALIGN(4);
+	.rodata : { *(.rodata) }
 
-        . = ALIGN(4);
-        .data : { *(.data) }
+	. = ALIGN(4);
+	.data : { *(.data) }
 
-        . = ALIGN(4);
-        .got : { *(.got) }
+	. = ALIGN(4);
+	.got : { *(.got) }
 
 	armboot_end_data = .;
 
-        . = ALIGN(4);
+	. = ALIGN(4);
 	bss_start = .;
-        .bss : { *(.bss) }
+	.bss : { *(.bss) }
 	bss_end = .;
 
 	armboot_end = .;

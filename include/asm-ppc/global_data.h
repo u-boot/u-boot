@@ -39,7 +39,7 @@ typedef	struct	global_data {
 	unsigned long	baudrate;
 	unsigned long	cpu_clk;	/* CPU clock in Hz!		*/
 	unsigned long	bus_clk;
-#if defined(CONFIG_8260)
+#if defined(CONFIG_8260) || defined(CONFIG_MPC8560)
 	/* There are many clocks on the MPC8260 - see page 9-5 */
 	unsigned long	vco_out;
 	unsigned long	cpm_clk;
@@ -56,7 +56,7 @@ typedef	struct	global_data {
 	unsigned long	env_addr;	/* Address  of Environment struct	*/
 	unsigned long	env_valid;	/* Checksum of Environment valid?	*/
 	unsigned long	have_console;	/* serial_init() was called		*/
-#if defined(CFG_ALLOC_DPRAM) || defined(CONFIG_8260)
+#if defined(CFG_ALLOC_DPRAM) || defined(CONFIG_8260) || defined(CONFIG_MPC8560)
 	unsigned int	dp_alloc_base;
 	unsigned int	dp_alloc_top;
 #endif

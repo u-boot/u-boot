@@ -153,14 +153,14 @@ memsetup:
 	ldrb	r3, [r2, #SDRAM_REG-PLD_BASE]
 	mov	r4, #SDRAMDATA1_END-SDRAMDATA
 	/* calculate start and end point */
-	mla	r0, r3, r4, r0 
+	mla	r0, r3, r4, r0
 	add     r2, r0, r4
 0:
 	ldr     r3, [r0], #4
 	str     r3, [r1], #4
 	cmp     r2, r0
 	bne     0b
-	
+
 	/* everything is fine now */
 	mov	pc, lr
 
@@ -194,7 +194,7 @@ SDRAMDATA1_END:
     .word 0x32 + BURST_EN
     .word 0x30
     .word 0x30
-    
+
 /* 2Mx8x4 (not implemented yet) */
     .word ((B6_MT<<15)+(B6_Trcd<<2)+(B6_SCAN))
     .word ((B7_MT<<15)+(B7_Trcd<<2)+(B7_SCAN))
@@ -202,7 +202,7 @@ SDRAMDATA1_END:
     .word 0x32 + BURST_EN
     .word 0x30
     .word 0x30
-    
+
 /* 4Mx8x2 (not implemented yet) */
     .word ((B6_MT<<15)+(B6_Trcd<<2)+(B6_SCAN))
     .word ((B7_MT<<15)+(B7_Trcd<<2)+(B7_SCAN))

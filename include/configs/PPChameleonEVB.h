@@ -31,7 +31,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_PPCHAMELEON_MODULE_BA	0	/* Basic    Model */	
+#define CONFIG_PPCHAMELEON_MODULE_BA	0	/* Basic    Model */
 #define CONFIG_PPCHAMELEON_MODULE_ME	1	/* Medium   Model */
 #define CONFIG_PPCHAMELEON_MODULE_HI	2	/* High-End Model */
 #ifndef	CONFIG_PPCHAMELEON_MODULE_MODEL
@@ -141,8 +141,8 @@
 
 /* The following table includes the supported baudrates */
 #define CFG_BAUDRATE_TABLE      \
-        { 300, 600, 1200, 2400, 4800, 9600, 19200, 38400,     \
-         57600, 115200, 230400, 460800, 921600 }
+	{ 300, 600, 1200, 2400, 4800, 9600, 19200, 38400,     \
+	 57600, 115200, 230400, 460800, 921600 }
 
 #define CFG_LOAD_ADDR	0x100000	/* default load address */
 #define CFG_EXTBDINFO	1		/* To use extended board_into (bd_t) */
@@ -184,79 +184,78 @@
 #define NAND_DISABLE_CE(nand) do \
 { \
 	switch((unsigned long)(((struct nand_chip *)nand)->IO_ADDR)) \
-        { \
-            case CFG_NAND0_BASE: \
-                out32(GPIO0_OR, in32(GPIO0_OR) | CFG_NAND0_CE); \
-                break; \
-            case CFG_NAND1_BASE: \
-                out32(GPIO0_OR, in32(GPIO0_OR) | CFG_NAND1_CE); \
-                break; \
-        } \
+	{ \
+	    case CFG_NAND0_BASE: \
+		out32(GPIO0_OR, in32(GPIO0_OR) | CFG_NAND0_CE); \
+		break; \
+	    case CFG_NAND1_BASE: \
+		out32(GPIO0_OR, in32(GPIO0_OR) | CFG_NAND1_CE); \
+		break; \
+	} \
 } while(0)
 
 #define NAND_ENABLE_CE(nand) do \
 { \
 	switch((unsigned long)(((struct nand_chip *)nand)->IO_ADDR)) \
-        { \
-            case CFG_NAND0_BASE: \
-                out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_NAND0_CE); \
-                break; \
-            case CFG_NAND1_BASE: \
-                out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_NAND1_CE); \
-                break; \
-        } \
+	{ \
+	    case CFG_NAND0_BASE: \
+		out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_NAND0_CE); \
+		break; \
+	    case CFG_NAND1_BASE: \
+		out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_NAND1_CE); \
+		break; \
+	} \
 } while(0)
-
 
 
 #define NAND_CTL_CLRALE(nandptr) do \
 { \
 	switch((unsigned long)nandptr) \
-        { \
-            case CFG_NAND0_BASE: \
-                out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_NAND0_ALE); \
-                break; \
-            case CFG_NAND1_BASE: \
-                out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_NAND1_ALE); \
-                break; \
-        } \
+	{ \
+	    case CFG_NAND0_BASE: \
+		out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_NAND0_ALE); \
+		break; \
+	    case CFG_NAND1_BASE: \
+		out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_NAND1_ALE); \
+		break; \
+	} \
 } while(0)
 
 #define NAND_CTL_SETALE(nandptr) do \
 { \
 	switch((unsigned long)nandptr) \
-        { \
-            case CFG_NAND0_BASE: \
-                out32(GPIO0_OR, in32(GPIO0_OR) | CFG_NAND0_ALE); \
-                break; \
-            case CFG_NAND1_BASE: \
-                out32(GPIO0_OR, in32(GPIO0_OR) | CFG_NAND1_ALE); \
-                break; \
-        } \
+	{ \
+	    case CFG_NAND0_BASE: \
+		out32(GPIO0_OR, in32(GPIO0_OR) | CFG_NAND0_ALE); \
+		break; \
+	    case CFG_NAND1_BASE: \
+		out32(GPIO0_OR, in32(GPIO0_OR) | CFG_NAND1_ALE); \
+		break; \
+	} \
 } while(0)
 
 #define NAND_CTL_CLRCLE(nandptr) do \
 { \
 	switch((unsigned long)nandptr) \
-        { \
-            case CFG_NAND0_BASE: \
-                out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_NAND0_CLE); \
-                break; \
-            case CFG_NAND1_BASE: \
-                out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_NAND1_CLE); \
-                break; \
-        } \
+	{ \
+	    case CFG_NAND0_BASE: \
+		out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_NAND0_CLE); \
+		break; \
+	    case CFG_NAND1_BASE: \
+		out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_NAND1_CLE); \
+		break; \
+	} \
 } while(0)
 
 #define NAND_CTL_SETCLE(nandptr) do { \
 	switch((unsigned long)nandptr) { \
-        case CFG_NAND0_BASE: \
-                out32(GPIO0_OR, in32(GPIO0_OR) | CFG_NAND0_CLE); \
-                break; \
-        case CFG_NAND1_BASE: \
-                out32(GPIO0_OR, in32(GPIO0_OR) | CFG_NAND1_CLE); \
-                break; \
-        } \
+	case CFG_NAND0_BASE: \
+		out32(GPIO0_OR, in32(GPIO0_OR) | CFG_NAND0_CLE); \
+		break; \
+	case CFG_NAND1_BASE: \
+		out32(GPIO0_OR, in32(GPIO0_OR) | CFG_NAND1_CLE); \
+		break; \
+	} \
 } while(0)
 
 #ifdef NAND_NO_RB
@@ -285,7 +284,7 @@
 #define CONFIG_PCI			/* include pci support	        */
 #define CONFIG_PCI_HOST	PCI_HOST_HOST   /* select pci host function     */
 #undef  CONFIG_PCI_PNP			/* do pci plug-and-play         */
-                                        /* resource configuration       */
+					/* resource configuration       */
 
 #define CONFIG_PCI_SCAN_SHOW            /* print pci devices @ startup  */
 
@@ -349,7 +348,7 @@
 #define CFG_ENV_IS_IN_EEPROM    1       /* use EEPROM for environment vars */
 #define CFG_ENV_OFFSET          0x100   /* environment starts at the beginning of the EEPROM */
 #define CFG_ENV_SIZE            0x700   /* 2048 bytes may be used for env vars*/
-                                   /* total size of a CAT24WC16 is 2048 bytes */
+				   /* total size of a CAT24WC16 is 2048 bytes */
 
 #define CFG_NVRAM_BASE_ADDR	0xF0000500		/* NVRAM base address	*/
 #define CFG_NVRAM_SIZE		242		        /* NVRAM size		*/
@@ -375,7 +374,7 @@
  * Cache Configuration
  */
 #define CFG_DCACHE_SIZE		16384	/* For IBM 405 CPUs, older 405 ppc's    */
-                                        /* have only 8kB, 16kB is save here     */
+					/* have only 8kB, 16kB is save here     */
 #define CFG_CACHELINE_SIZE	32	/* ...			*/
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
@@ -659,23 +658,23 @@
 !-----------------------------------------------------------------------
 */
 #define PLLMR0_133_66_66_33  (PLL_CPUDIV_1 | PLL_PLBDIV_1 |  \
-                              PLL_OPBDIV_2 | PLL_EXTBUSDIV_4 |  \
-                              PLL_MALDIV_1 | PLL_PCIDIV_4)
+			      PLL_OPBDIV_2 | PLL_EXTBUSDIV_4 |  \
+			      PLL_MALDIV_1 | PLL_PCIDIV_4)
 #define PLLMR1_133_66_66_33  (PLL_FBKDIV_4  |  \
-                              PLL_FWDDIVA_6 | PLL_FWDDIVB_6 |  \
-                              PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
+			      PLL_FWDDIVA_6 | PLL_FWDDIVB_6 |  \
+			      PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
 #define PLLMR0_200_100_50_33 (PLL_CPUDIV_1 | PLL_PLBDIV_2 |  \
-                              PLL_OPBDIV_2 | PLL_EXTBUSDIV_3 |  \
-                              PLL_MALDIV_1 | PLL_PCIDIV_4)
+			      PLL_OPBDIV_2 | PLL_EXTBUSDIV_3 |  \
+			      PLL_MALDIV_1 | PLL_PCIDIV_4)
 #define PLLMR1_200_100_50_33 (PLL_FBKDIV_6  |  \
-                              PLL_FWDDIVA_4 | PLL_FWDDIVB_4 |  \
-                              PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
+			      PLL_FWDDIVA_4 | PLL_FWDDIVB_4 |  \
+			      PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
 #define PLLMR0_266_133_66_33 (PLL_CPUDIV_1 | PLL_PLBDIV_2 |  \
-                              PLL_OPBDIV_2 | PLL_EXTBUSDIV_4 |  \
-                              PLL_MALDIV_1 | PLL_PCIDIV_4)
+			      PLL_OPBDIV_2 | PLL_EXTBUSDIV_4 |  \
+			      PLL_MALDIV_1 | PLL_PCIDIV_4)
 #define PLLMR1_266_133_66_33 (PLL_FBKDIV_8  |  \
-                              PLL_FWDDIVA_3 | PLL_FWDDIVB_3 |  \
-                              PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
+			      PLL_FWDDIVA_3 | PLL_FWDDIVB_3 |  \
+			      PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
 #if 0 /* test-only */
 #define PLLMR0_DEFAULT   PLLMR0_266_133_66_33
 #define PLLMR1_DEFAULT   PLLMR1_266_133_66_33

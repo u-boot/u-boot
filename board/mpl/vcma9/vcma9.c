@@ -190,21 +190,21 @@ nand_init(void)
 static u8 Get_PLD_ID(void)
 {
 	VCMA9_PLD * const pld = VCMA9_GetBase_PLD();
-	
+
 	return(pld->ID);
 }
 
 static u8 Get_PLD_BOARD(void)
 {
 	VCMA9_PLD * const pld = VCMA9_GetBase_PLD();
-	
+
 	return(pld->BOARD);
 }
 
 static u8 Get_PLD_SDRAM(void)
 {
 	VCMA9_PLD * const pld = VCMA9_GetBase_PLD();
-	
+
 	return(pld->SDRAM);
 }
 
@@ -253,7 +253,7 @@ static ulong Get_SDRAM_ChipSize(void)
 		case 2: return  8 * (1024*1024);
 		case 3: return  8 * (1024*1024);
 		default: return 0;
-	}	
+	}
 }
 static const char * Get_SDRAM_ChipGeom(void)
 {
@@ -339,10 +339,10 @@ int overwrite_console(void)
 * Print VCMA9 Info
 ************************************************************************/
 void print_vcma9_info(void)
-{	
+{
 	unsigned char s[50];
 	int i;
-	
+
 	if ((i = getenv_r("serial#", s, 32)) < 0) {
 		puts ("### No HW ID - assuming VCMA9");
 		printf("i %d", i*24);
