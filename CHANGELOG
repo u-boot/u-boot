@@ -2,6 +2,8 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Fix PCI problems on PPChameleon board
+
 * Patch by Steven Scholz, 18 Oct 2003:
   Fix AT91RM9200 ethernet driver
 

@@ -4,6 +4,10 @@ Xianghua Xiao(X.Xiao@motorola.com)
 Created 10/15/03
 -----------------------------------------
 
+0. Toolchain
+The Binutils in current ELDK toolchain will not support MPC85xx chip. You need
+use the newest binutils-2.14.tar.bz2 from http://ftp.gnu.org/gnu/binutils.
+
 1. SWITCH SETTINGS & JUMPERS
 1.1 First, make sure the board default setting is consistent with the document
     shipped with your board. Then apply the following changes:

@@ -206,11 +206,14 @@ void pci_405gp_init(struct pci_controller *hose)
 	 *--------------------------------------------------------------------------*/
 	out32r(PTM1LA,    ptmla[0]);         /* insert address                     */
 	out32r(PTM1MS,    ptmms[0]);         /* insert size, enable bit is 1       */
+	pci_write_config_dword(PCIDEVID_405GP, PCI_BASE_ADDRESS_1, ptmpcila[0]);
 
 	/*--------------------------------------------------------------------------+
 	 * 405GP PCI Target configuration.  (PTM2)
 	 *--------------------------------------------------------------------------*/
 	out32r(PTM2LA, ptmla[1]);            /* insert address                     */
+	pci_write_config_dword(PCIDEVID_405GP, PCI_BASE_ADDRESS_2, ptmpcila[1]);
+
 	if (ptmms[1] == 0)
 	{
 		out32r(PTM2MS,    0x00000001);   /* set enable bit                     */
@@ -251,7 +254,7 @@ void pci_405gp_init(struct pci_controller *hose)
 	}
 
 #if (CONFIG_PCI_HOST != PCI_HOST_ADAPTER)
-#if (CONFIG_PCI_HOSE == PCI_HOST_AUTO)
+#if (CONFIG_PCI_HOST == PCI_HOST_AUTO)
 	if (mfdcr(strap) & PSR_PCI_ARBIT_EN)
 #endif
 	{

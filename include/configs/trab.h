@@ -204,7 +204,7 @@
 	"loadaddr=c400000\0" \
 	"net_load=tftpboot $loadaddr $loadfile\0" \
 	"net_nfs=run net_load nfs_args add_net add_misc;bootm\0" \
-	"kernel_addr=000C0000\0" \
+	"kernel_addr=00060000\0" \
 	"flash_nfs=run nfs_args add_net add_misc;bootm $kernel_addr\0" \
 	"mdm_init1=ATZ\0" \
 	"mdm_init2=ATS0=1\0" \

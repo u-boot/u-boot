@@ -68,7 +68,7 @@ int board_pre_init (void)
 	mtdcr(uicsr, 0xFFFFFFFF);       /* clear all ints */
 	mtdcr(uicer, 0x00000000);       /* disable all ints */
 	mtdcr(uiccr, 0x00000000);       /* set all to be non-critical*/
-	mtdcr(uicpr, 0xFFFFFF81);       /* set int polarities */
+	mtdcr(uicpr, 0xFFFFFF80);       /* set int polarities */
 	mtdcr(uictr, 0x10000000);       /* set int trigger levels */
 	mtdcr(uicvcr, 0x00000001);      /* set vect base=0,INT0 highest priority*/
 	mtdcr(uicsr, 0xFFFFFFFF);       /* clear all ints */

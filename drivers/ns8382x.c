@@ -321,7 +321,7 @@ ns8382x_initialize(bd_t * bis)
 		if ((devno = pci_find_devices(supported, idx++)) < 0)
 			break;
 
-		pci_read_config_dword(devno, PCI_BASE_ADDRESS_0, &iobase);
+		pci_read_config_dword(devno, PCI_BASE_ADDRESS_1, &iobase);
 		iobase &= ~0x3;	/* 1: unused and 0:I/O Space Indicator */
 
 #ifdef NS8382X_DEBUG
