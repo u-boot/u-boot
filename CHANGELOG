@@ -2,6 +2,9 @@
 Changes since U-Boot 0.2.1:
 ======================================================================
 
+* Patch by Stefan Roese, 17 Feb 2003:
+  Fixed bug in ext. serial clock setup on PPC405 (since PPC440 port).
+
 * Patch by Stefan Roese, 13 Feb 2003:
   Add "pcidelay" environment variable (in ms, enabled via
   CONFIG_PCI_BOOTDELAY).
