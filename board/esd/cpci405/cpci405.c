@@ -433,7 +433,14 @@ int checkboard (void)
 #endif
 
 	if (ctermm2()) {
-		printf("CTERM-M2 - Id=0x%02x)", *(unsigned char *)0xf0000400);
+		unsigned char str[4];
+
+		/*
+		 * Read board-id and save in env-variable
+		 */
+		sprintf(str, "%d", *(unsigned char *)0xf0000400);
+		setenv("boardid", str);
+		printf("CTERM-M2 - Id=%s)", str);
 	} else {
 		if (cpci405_host()) {
 			puts ("PCI Host Version)");
@@ -508,44 +515,144 @@ void ide_set_reset(int on)
 #endif /* CONFIG_IDE_RESET */
 #endif /* CONFIG_CPCI405_VER2 */
 
-#if 0 /* test-only */
-/* ------------------------------------------------------------------------- */
 
-u8 *dhcp_vendorex_prep (u8 * e)
+#ifdef CONFIG_CPCI405AB
+
+#define ONE_WIRE_CLEAR   (*(volatile unsigned short *)0xf0400000 |= 0x0100)
+#define ONE_WIRE_SET     (*(volatile unsigned short *)0xf0400000 &= ~0x0100)
+#define ONE_WIRE_GET     (*(volatile unsigned short *)0xf0400002 & 0x1000)
+
+/*
+ * Generate a 1-wire reset, return 1 if no presence detect was found,
+ * return 0 otherwise.
+ * (NOTE: Does not handle alarm presence from DS2404/DS1994)
+ */
+int OWTouchReset(void)
 {
-	char *ptr;
+	int result;
 
-/* DHCP vendor-class-identifier = 60 */
-	if ((ptr = getenv ("dhcp_vendor-class-identifier"))) {
-		*e++ = 60;
-		*e++ = strlen (ptr);
-		while (*ptr)
-			*e++ = *ptr++;
-	}
-/* my DHCP_CLIENT_IDENTIFIER = 61 */
-	if ((ptr = getenv ("dhcp_client_id"))) {
-		*e++ = 61;
-		*e++ = strlen (ptr);
-		while (*ptr)
-			*e++ = *ptr++;
-	}
+	ONE_WIRE_CLEAR;
+	udelay(480);
+	ONE_WIRE_SET;
+	udelay(70);
 
-	return e;
+	result = ONE_WIRE_GET;
+
+	udelay(410);
+	return result;
 }
 
 
-/* ------------------------------------------------------------------------- */
-
-u8 *dhcp_vendorex_proc (u8 * popt)
+/*
+ * Send 1 a 1-wire write bit.
+ * Provide 10us recovery time.
+ */
+void OWWriteBit(int bit)
 {
-	if (*popt == 61)
-		return (u8 *)-1;
-	if (*popt == 43) {
-		printf("|%s|", popt+4); /* test-only */
-		return (u8 *)-1;
+	if (bit) {
+		/*
+		 * write '1' bit
+		 */
+		ONE_WIRE_CLEAR;
+		udelay(6);
+		ONE_WIRE_SET;
+		udelay(64);
+	} else {
+		/*
+		 * write '0' bit
+		 */
+		ONE_WIRE_CLEAR;
+		udelay(60);
+		ONE_WIRE_SET;
+		udelay(10);
 	}
-	return NULL;
 }
 
-/* ------------------------------------------------------------------------- */
-#endif /* test-only */
+
+/*
+ * Read a bit from the 1-wire bus and return it.
+ * Provide 10us recovery time.
+ */
+int OWReadBit(void)
+{
+	int result;
+
+	ONE_WIRE_CLEAR;
+	udelay(6);
+	ONE_WIRE_SET;
+	udelay(9);
+
+	result = ONE_WIRE_GET;
+
+	udelay(55);
+	return result;
+}
+
+
+void OWWriteByte(int data)
+{
+	int loop;
+
+	for (loop=0; loop<8; loop++) {
+		OWWriteBit(data & 0x01);
+		data >>= 1;
+	}
+}
+
+
+int OWReadByte(void)
+{
+	int loop, result = 0;
+
+	for (loop=0; loop<8; loop++) {
+		result >>= 1;
+		if (OWReadBit()) {
+			result |= 0x80;
+		}
+	}
+
+	return result;
+}
+
+
+int do_onewire(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	volatile unsigned short val;
+	int result;
+	int i;
+	unsigned char ow_id[6];
+	unsigned char str[32];
+	unsigned char ow_crc;
+
+	/*
+	 * Clear 1-wire bit (open drain with pull-up)
+	 */
+	val = *(volatile unsigned short *)0xf0400000;
+	val &= ~0x1000; /* clear 1-wire bit */
+	*(volatile unsigned short *)0xf0400000 = val;
+
+	result = OWTouchReset();
+	if (result != 0) {
+		puts("No 1-wire device detected!\n");
+	}
+
+	OWWriteByte(0x33); /* send read rom command */
+	OWReadByte(); /* skip family code ( == 0x01) */
+	for (i=0; i<6; i++) {
+		ow_id[i] = OWReadByte();
+	}
+	ow_crc = OWReadByte(); /* read crc */
+
+	sprintf(str, "%08X%04X", *(unsigned int *)&ow_id[0], *(unsigned short *)&ow_id[4]);
+	printf("Setting environment variable 'ow_id' to %s\n", str);
+	setenv("ow_id", str);
+
+	return 0;
+}
+U_BOOT_CMD(
+	onewire,	1,	1,	do_onewire,
+	"onewire - Read 1-write ID\n",
+	NULL
+	);
+
+#endif /* CONFIG_CPCI405AB */
