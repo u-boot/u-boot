@@ -343,6 +343,10 @@ Gary Jennejohn <gj@denx.de>
 	smdk2400		ARM920T
 	trab			ARM920T
 
+Prakash Kumar <prakash@embedx.com>
+
+	cerf250			xscale
+
 Kshitij Gupta <kshitij@ti.com>
 
 	omap1510inn		ARM925T
