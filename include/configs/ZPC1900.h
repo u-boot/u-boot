@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003 Arabella Software Ltd.
+ * Copyright (C) 2003-2004 Arabella Software Ltd.
  * Yuli Barcohen <yuli@arabellasw.com>
  *
  * U-Boot configuration for Zephyr Engineering ZPC.1900 board.
@@ -33,7 +33,7 @@
 
 #undef DEBUG
 
-#undef CONFIG_BOARD_EARLY_INIT_F	/* Don't call board_early_init_f   */
+#undef CONFIG_BOARD_EARLY_INIT_F	/* Don't call board_early_init_f */
 
 /* Allow serial number (serial) and MAC address (ethaddr) to be overwritten */
 #define CONFIG_ENV_OVERWRITE
@@ -81,25 +81,25 @@
 # define CFG_CPMFCR_RAMTYPE	0
 # define CFG_FCC_PSMR		(FCC_PSMR_FDE | FCC_PSMR_LPB)
 
-#endif	/* CONFIG_ETHER_INDEX */
+#endif /* CONFIG_ETHER_INDEX */
 
 #define CONFIG_MII			/* MII PHY management        */
 #define CONFIG_BITBANGMII		/* Bit-banged MDIO interface */
 /*
  * GPIO pins used for bit-banged MII communications
  */
-#define MDIO_PORT	2		/* Port C */
-#define MDIO_ACTIVE	(iop->pdir |=  0x00400000)
-#define MDIO_TRISTATE	(iop->pdir &= ~0x00400000)
-#define MDIO_READ	((iop->pdat &  0x00400000) != 0)
+#define MDIO_PORT		2	/* Port C */
+#define MDIO_ACTIVE		(iop->pdir |=  0x00400000)
+#define MDIO_TRISTATE		(iop->pdir &= ~0x00400000)
+#define MDIO_READ		((iop->pdat &  0x00400000) != 0)
 
-#define MDIO(bit)	if(bit) iop->pdat |=  0x00400000; \
-			else	iop->pdat &= ~0x00400000
+#define MDIO(bit)		if(bit) iop->pdat |=  0x00400000; \
+				else	iop->pdat &= ~0x00400000
 
-#define MDC(bit)	if(bit) iop->pdat |=  0x00200000; \
-			else	iop->pdat &= ~0x00200000
+#define MDC(bit)		if(bit) iop->pdat |=  0x00200000; \
+				else	iop->pdat &= ~0x00200000
 
-#define MIIDELAY	udelay(1)
+#define MIIDELAY		udelay(1)
 
 #endif /* CONFIG_ETHER_ON_FCC */
 
@@ -107,35 +107,16 @@
 #define CONFIG_8260_CLKIN	66666666	/* in Hz */
 #endif
 
-#define CONFIG_BAUDRATE		9600
+#define CONFIG_BAUDRATE		38400
 
-#define CONFIG_COMMANDS		(CFG_CMD_ALL & ~( \
-				 CFG_CMD_BEDBUG | \
-				 CFG_CMD_BMP	| \
-				 CFG_CMD_BSP	| \
-				 CFG_CMD_DATE	| \
-				 CFG_CMD_DOC	| \
-				 CFG_CMD_DTT	| \
-				 CFG_CMD_EEPROM | \
-				 CFG_CMD_ELF    | \
-				 CFG_CMD_FAT    | \
-				 CFG_CMD_FDC	| \
-				 CFG_CMD_FDOS	| \
-				 CFG_CMD_HWFLOW	| \
-				 CFG_CMD_I2C	| \
-				 CFG_CMD_IDE	| \
-				 CFG_CMD_JFFS2	| \
-				 CFG_CMD_KGDB	| \
-				 CFG_CMD_MMC	| \
-				 CFG_CMD_NAND	| \
-				 CFG_CMD_PCI	| \
-				 CFG_CMD_PCMCIA | \
-				 CFG_CMD_REISER	| \
-				 CFG_CMD_SCSI	| \
-				 CFG_CMD_SPI	| \
-				 CFG_CMD_USB	| \
-				 CFG_CMD_VFD    | \
-				 CFG_CMD_XIMG	) )
+#define CONFIG_COMMANDS		(CONFIG_CMD_DFL   \
+				| CFG_CMD_ASKENV  \
+				| CFG_CMD_DHCP    \
+				| CFG_CMD_ECHO    \
+				| CFG_CMD_IMMAP   \
+				| CFG_CMD_MII     \
+				| CFG_CMD_PING    \
+				)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -153,19 +134,19 @@
 #endif
 
 #define CONFIG_BZIP2	/* include support for bzip2 compressed images */
-#undef	CONFIG_WATCHDOG	/* disable platform specific watchdog */
+#undef	CONFIG_WATCHDOG			/* disable platform specific watchdog */
 
 /*
  * Miscellaneous configurable options
  */
 #define CFG_HUSH_PARSER
-#define CFG_PROMPT_HUSH_PS2 "> "
+#define CFG_PROMPT_HUSH_PS2	"> "
 #define CFG_LONGHELP			/* undef to save memory	    */
-#define CFG_PROMPT	"=> "		/* Monitor Command Prompt   */
+#define CFG_PROMPT		"=> "	/* Monitor Command Prompt   */
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
-#define CFG_CBSIZE	1024		/* Console I/O Buffer Size  */
+#define CFG_CBSIZE		1024	/* Console I/O Buffer Size  */
 #else
-#define CFG_CBSIZE	256			/* Console I/O Buffer Size  */
+#define CFG_CBSIZE		256	/* Console I/O Buffer Size  */
 #endif
 #define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16)	/* Print Buffer Size  */
 #define CFG_MAXARGS		16		/* max number of command args */
@@ -182,6 +163,7 @@
 
 #define CFG_FLASH_BASE		0xFFE00000
 #define CFG_FLASH_CFI
+#define CFG_FLASH_CFI_DRIVER
 #define CFG_MAX_FLASH_BANKS	1	/* max num of flash banks	*/
 #define CFG_MAX_FLASH_SECT	32	/* max num of sects on one chip */
 
@@ -206,11 +188,11 @@
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
 /* Hard reset configuration word */
-#define CFG_HRCW_MASTER		(HRCW_EBM | HRCW_BPS01                    |\
+#define CFG_HRCW_MASTER		(HRCW_EBM | HRCW_BPS01| HRCW_CIP          |\
 				 HRCW_L2CPC10 | HRCW_DPPC00 | HRCW_ISB010 |\
-				 HRCW_APPC10                              |\
+				 HRCW_BMS | HRCW_LBPC01 | HRCW_APPC10     |\
 				 HRCW_MODCK_H0101                          \
-				) /* 0x14820205 */
+				) /* 0x16828605 */
 /* No slaves */
 #define CFG_HRCW_SLAVE1 	0
 #define CFG_HRCW_SLAVE2 	0
@@ -228,7 +210,7 @@
 #define CFG_RAMBOOT
 #endif
 
-#define CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
+#define CFG_MONITOR_LEN		(192 << 10)	/* Reserve 192 kB for Monitor	*/
 #define CFG_MALLOC_LEN		(4096 << 10)	/* Reserve 4 MB for malloc()	*/
 #define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
@@ -238,10 +220,10 @@
 
 #ifdef CFG_ENV_IS_IN_FLASH
 #  define CFG_ENV_SECT_SIZE	0x10000
-#  define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_ENV_SECT_SIZE)
+#  define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
 #else
 #  define CFG_ENV_ADDR		(CFG_EEPROM + 0x400)
-#  define CFG_ENV_SIZE		0x200
+#  define CFG_ENV_SIZE		0x1000
 #  define CFG_NVRAM_ACCESS_ROUTINE
 #endif
 
