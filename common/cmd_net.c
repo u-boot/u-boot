@@ -54,8 +54,7 @@ int do_tftpb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 cmd_tbl_t U_BOOT_CMD(TFTPB) = MK_CMD_ENTRY(
 	"tftpboot",	3,	1,	do_tftpb,
-	"tftpboot- boot image via network using TFTP protocol\n"
-	"               and env variables ipaddr and serverip\n",
+	"tftpboot- boot image via network using TFTP protocol\n",
 	"[loadAddress] [bootfilename]\n"
 );
 
