@@ -223,6 +223,14 @@ int do_nand (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		else if (cmdtail && !strcmp(cmdtail, ".e"))
 			cmd |= NANDRW_JFFS2;	/* skip bad blocks */
 #endif
+#ifdef CFG_NAND_SKIP_BAD_DOT_I
+		/* need ".i" same as ".jffs2s" for compatibility with older units (esd) */
+		/* ".i" for image -> read skips bad block (no 0xff) */
+		else if (cmdtail && !strcmp(cmdtail, ".i"))
+			cmd |= NANDRW_JFFS2;	/* skip bad blocks (on read too) */
+			if (cmd & NANDRW_READ)
+				cmd |= NANDRW_JFFS2_SKIP;	/* skip bad blocks (on read too) */
+#endif /* CFG_NAND_SKIP_BAD_DOT_I */
 		else if (cmdtail) {
 			printf ("Usage:\n%s\n", cmdtp->usage);
 			return 1;
