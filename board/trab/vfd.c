@@ -346,9 +346,10 @@ void transfer_pic(int display, unsigned char *adr, int height, int width)
 				}
 			}
 		}
-		display++;
-		if (display > 3)
-			display = 0;
+		if (display > 0)
+			display--;
+		else
+			display = 3;
 	}
 }
 

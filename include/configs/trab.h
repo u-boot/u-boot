@@ -118,6 +118,7 @@
 #include <cmd_confdefs.h>
 
 #define CONFIG_BOOTDELAY	5
+#define CONFIG_ZERO_BOOTDELAY_CHECK	/* allow to break in always */
 #define CONFIG_PREBOOT		"echo;echo *** booting ***;echo"
 #define CONFIG_BOOTARGS    	"console=ttyS0"
 #define CONFIG_NETMASK          255.255.0.0

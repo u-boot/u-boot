@@ -61,7 +61,7 @@ int do_vfd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	/* display bitmap at given address */
 	bitmap = simple_strtoul(argv[1], NULL, 16);
-	transfer_pic(1, (uchar *)bitmap, VFD_LOGO_HEIGHT, VFD_LOGO_WIDTH);
+	transfer_pic(3, (uchar *)bitmap, VFD_LOGO_HEIGHT, VFD_LOGO_WIDTH);
 	return 0;
 }
 #endif	/* CFG_CMD_VFD */
@@ -69,19 +69,31 @@ int do_vfd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #ifdef CONFIG_VFD
 int trab_vfd (ulong bitmap)
 {
+	uchar *addr;
+	char *s;
+
 	switch (bitmap) {
 	case VFD_TEST_LOGO_BMPNR:
-		transfer_pic(1, &vfd_test_logo_bitmap[0],
-			VFD_LOGO_HEIGHT, VFD_LOGO_WIDTH);
-		return 0;
+		if ((s = getenv ("bitmap0")) != NULL) {
+			addr = (uchar *)simple_strtoul (s, NULL, 16);
+		} else {
+			addr = &vfd_test_logo_bitmap[0];
+		}
+		break;
 	case VFD_REMOTE_LOGO_BMPNR:
-		transfer_pic(1, &vfd_remote_logo_bitmap[0],
+		transfer_pic(3, &vfd_remote_logo_bitmap[0],
 			VFD_LOGO_HEIGHT, VFD_LOGO_WIDTH);
-		return 0;
+		if ((s = getenv ("bitmap1")) != NULL) {
+			addr = (uchar *)simple_strtoul (s, NULL, 16);
+		} else {
+			addr = &vfd_remote_logo_bitmap[0];
+		}
+		break;
 	default:
 		printf("Unknown bitmap %ld\n", bitmap);
 		return 1;
 	}
-	/* NOTREACHED */
+	transfer_pic(3, addr, VFD_LOGO_HEIGHT, VFD_LOGO_WIDTH);
+	return 0;
 }
 #endif	/* CONFIG_VFD */
