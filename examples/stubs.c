@@ -110,8 +110,17 @@ static void __attribute__((unused)) dummy(void)
 #include <_exports.h>
 }
 
+extern unsigned long __bss_start, _end;
+
 void app_startup(char **argv)
 {
+	unsigned long * cp = &__bss_start;
+
+	/* Zero out BSS */
+	while (cp < &_end) {
+		*cp++ = 0;
+	}
+
 #if defined(CONFIG_I386)
 	/* x86 does not have a dedicated register for passing global_data */
 	global_data = (gd_t *)argv[-1];

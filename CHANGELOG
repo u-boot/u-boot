@@ -2,6 +2,8 @@
 Changes for U-Boot 1.1.1:
 ======================================================================
 
+* add startup code to clear the BSS of standalone applications
+
 * Fix if / elif handling bug in HUSH shell
 
 ======================================================================
