@@ -306,9 +306,7 @@ int sysmon_post_test (int flags)
 			t->exec_after(t);
 		}
 
-#ifndef DEBUG
-		if (!t->val_valid)
-#endif
+		if ((!t->val_valid) || (flags & POST_MANUAL))
 		{
 			printf("%-17s = %-10s ", t->name, sysmon_unit_value(t, val));
 			printf("allowed range");

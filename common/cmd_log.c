@@ -74,18 +74,24 @@ static unsigned long *ext_logged_chars;
 void logbuff_init_ptrs (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-	unsigned long *ext_tag;
 	char *s;
 
 	log_buf = (unsigned char *)(gd->bd->bi_memsize-LOGBUFF_LEN);
-	ext_tag = (unsigned long *)(log_buf)-4;
 	ext_log_start = (unsigned long *)(log_buf)-3;
 	ext_log_size = (unsigned long *)(log_buf)-2;
 	ext_logged_chars = (unsigned long *)(log_buf)-1;
- 	if (*ext_tag!=LOGBUFF_MAGIC) {
+#ifdef CONFIG_POST
+	/* The post routines have setup the word so we can simply test it */
+ 	if (post_word_load () & POST_POWERON) {
  		logged_chars = log_size = log_start = 0;
- 		*ext_tag = LOGBUFF_MAGIC;
  	}
+#else
+	/* No post routines, so we do our own checking                    */
+ 	if (post_word_load () != LOGBUFF_MAGIC) {
+ 		logged_chars = log_size = log_start = 0;
+		post_word_store (LOGBUFF_MAGIC);
+ 	}
+#endif
 	/* Initialize default loglevel if present */
 	if ((s = getenv ("loglevel")) != NULL)
 		console_loglevel = (int)simple_strtoul (s, NULL, 10);

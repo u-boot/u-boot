@@ -188,7 +188,7 @@ m8260_cpm_extcbrg(uint brg, uint rate, uint extclk, int pinsel)
 		*bp |= CPM_BRG_EXTC_CLK5_15;
 }
 
-#ifdef CONFIG_POST
+#if defined(CONFIG_POST) || defined(CONFIG_LOGBUFFER)
 
 void post_word_store (ulong a)
 {
@@ -206,4 +206,4 @@ ulong post_word_load (void)
 	return *save_addr;
 }
 
-#endif	/* CONFIG_POST */
+#endif	/* CONFIG_POST || CONFIG_LOGBUFFER*/

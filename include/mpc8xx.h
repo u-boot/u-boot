@@ -118,6 +118,20 @@
 #endif
 
 /*-----------------------------------------------------------------------
+ * RSR - Reset Status Register						 5-4
+ */
+#define RSR_JTRS	0x01000000	/* JTAG Reset Status		*/
+#define RSR_DBSRS	0x02000000	/* Debug Port Soft Reset Status	*/
+#define RSR_DBHRS	0x04000000	/* Debug Port Hard Reset Status	*/
+#define RSR_CSRS	0x08000000	/* Check Stop Reset Status	*/
+#define RSR_SWRS	0x10000000	/* Software Watchdog Reset Status*/
+#define RSR_LLRS	0x20000000	/* Loss-of-Lock Reset Status	*/
+#define RSR_ESRS	0x40000000	/* External Soft Reset Status	*/
+#define RSR_EHRS	0x80000000	/* External Hard Reset Status	*/
+
+#define RSR_ALLBITS	(RSR_JTRS|RSR_DBSRS|RSR_DBHRS|RSR_CSRS|RSR_SWRS|RSR_LLRS|RSR_ESRS|RSR_EHRS)
+
+/*-----------------------------------------------------------------------
  * PLPRCR - PLL, Low-Power, and Reset Control Register			15-30
  */
 #define PLPRCR_MF_MSK	0xFFF00000	/* Multiplication factor bits		*/

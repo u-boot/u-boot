@@ -513,6 +513,9 @@ static void kbd_init (void)
 
 	gd->kbd_status = 0;
 
+	/* Forced by PIC. Delays <= 175us loose */
+	udelay(1000);
+
 	/* Read initial keyboard error code */
 	val = KEYBD_CMD_READ_STATUS;
 	i2c_write (kbd_addr, 0, 0, &val, 1);

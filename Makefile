@@ -467,6 +467,9 @@ EBONY_config:unconfig
 ERIC_config:unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx eric
 
+EXBITGEN_config:unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx exbitgen
+
 MIP405_config:unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx mip405 mpl
 
@@ -542,6 +545,9 @@ Sandpoint8240_config: unconfig
 
 Sandpoint8245_config: unconfig
 	@./mkconfig $(@:_config=) ppc mpc824x sandpoint
+
+SL8245_config: unconfig
+	@./mkconfig $(@:_config=) ppc mpc824x sl8245
 
 utx8245_config: unconfig
 	@./mkconfig $(@:_config=) ppc mpc824x utx8245
