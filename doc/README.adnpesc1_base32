@@ -1,0 +1,469 @@
+
+TODO:	specify IDE i/f
+
+
+===============================================================================
+	C P U ,	  M E M O R Y ,	  I N / O U T	C O M P O N E N T S
+===============================================================================
+see also [1]-[5]
+
+CPU:	"DNP_ESC1"
+	32 bit NIOS for 50 MHz
+	512 Byte for register file (30 levels)
+	with out instruction cache
+	with out data cache
+	2 KByte On Chip ROM with GERMS boot monitor
+	with out On Chip RAM
+	MSTEP multiplier
+	no Debug Core
+	no On Chip Instrumentation (OCI)
+
+	U-Boot CFG:	CFG_NIOS_CPU_CLK	     = 50000000
+			CFG_NIOS_CPU_ICACHE	     = (not present)
+			CFG_NIOS_CPU_DCACHE	     = (not present)
+			CFG_NIOS_CPU_REG_NUMS	     = 512
+			CFG_NIOS_CPU_MUL	     = 0
+			CFG_NIOS_CPU_MSTEP	     = 1
+			CFG_NIOS_CPU_DBG_CORE	     = 0
+
+IRQ:	 Nr.  | used by
+	------+--------------------------------------------------------
+	 16   | TIMER0	  |  CFG_NIOS_CPU_TIMER0_IRQ = 16
+	 17   | UART0	  |  CFG_NIOS_CPU_UART0_IRQ  = 17
+	 18   | UART1	  |  CFG_NIOS_CPU_UART1_IRQ  = 18
+	 20   | LAN91C111 |  CFG_NIOS_CPU_LAN0_IRQ   =
+	      | PIO6	  |  CFG_NIOS_CPU_PIO6_IRQ   = 20
+	 25   | SPI0	  |  CFG_NIOS_CPU_SPI0_IRQ   = 25
+	 31   | PIO7	  |  CFG_NIOS_CPU_PIO7_IRQ   = 31
+	 32   | PIO8	  |  CFG_NIOS_CPU_PIO8_IRQ   = 32
+	 33   | PIO9	  |  CFG_NIOS_CPU_PIO9_IRQ   = 33
+	 34   | PIO10	  |  CFG_NIOS_CPU_PIO10_IRQ  = 34
+	 35   | PIO11	  |  CFG_NIOS_CPU_PIO11_IRQ  = 35
+	 36   | PIO12	  |  CFG_NIOS_CPU_PIO12_IRQ  =
+	      | IDE0	  |  CFG_NIOS_CPU_IDE0_IRQ   = 36
+	 37   | PIO13	  |  CFG_NIOS_CPU_PIO13_IRQ  =
+	      | IDE1	  |  CFG_NIOS_CPU_IDE1_IRQ   = 37
+
+MEMORY:	 8 MByte Flash
+	16 MByte SDRAM
+
+Timer:	TIMER0: high priority programmable timer (IRQ16)
+
+	U-Boot CFG:	CFG_NIOS_CPU_TICK_TIMER	     = 0
+			CFG_NIOS_CPU_USER_TIMER	     = (not present)
+
+PIO:	 Nr.  | description
+	------+--------------------------------------------------------
+	 PIO0 | PORTA:      8 in/outputs for general purpose usage
+	 PIO1 | PORTB:      8 in/outputs for general purpose usage
+	 PIO2 | PORTC:      4 in/outputs for general purpose usage
+	 PIO3 | RCM:	    1 input for RCM_EN# jumper (Req.Conf.Mon.)
+	 PIO4 | WDTENA:	    1 output to enable the on-board watchdog
+	 PIO5 | WDTTRIG:    1 output to trigger the on-board watchdog
+	 PIO6 | LAN0INT:    1 input for LAN91C111 irq input (IRQ20)
+	 PIO7 | INT1:	    1 input for general purpose irq (IRQ31)
+	 PIO8 | INT2:	    1 input for general purpose irq (IRQ32)
+	 PIO9 | INT3:	    1 input for general purpose irq (IRQ33)
+	 PIO10| INT4:	    1 input for general purpose irq (IRQ34)
+	 PIO11| INT5:	    1 input for general purpose irq (IRQ35)
+	 PIO12| INT6:	    1 input for general purpose irq (IRQ36)
+	      | IDE0INT:     (same) for IDE0 irq input
+	 PIO13| INT7:	    1 input for general purpose irq (IRQ37)
+	      | IDE1INT:     (same) for IDE1 irq input
+
+	U-Boot CFG:	CFG_NIOS_CPU_PORTA_PIO	     = 0
+			CFG_NIOS_CPU_PORTB_PIO	     = 1
+			CFG_NIOS_CPU_PORTC_PIO	     = 2
+			CFG_NIOS_CPU_RCM_PIO	     = 3
+			CFG_NIOS_CPU_WDTENA_PIO	     = 4
+			CFG_NIOS_CPU_WDTTRIG_PIO     = 5
+			CFG_NIOS_CPU_LED_PIO	     = (not present)
+
+UART:	UART0: fixed baudrate of 115200, fixed protocol 8N1, RTS/CTS (IRQ17)
+	UART1: fixed baudrate of 115200, fixed protocol 8N1,
+	       without handshake RTS/CTS (IRQ18)
+
+SPI:	SPI0: master capable, 1 slave selectable, 250kHz target clock,
+	      2 usec targets delay between slave select and clock,
+	      data is transferred MSB-first / LSB-last (IRQ25)
+
+LAN:	SMsC LAN91C111 with:
+	  - without offset
+	  - data bus width 16 bit (on-board hard wired at 32 bit bus)
+	  - !!! 32 bit bus access --> each address * 2 !!!
+
+IDE:	(TODO)
+
+
+===============================================================================
+	M E M O R Y   M A P
+===============================================================================
+
+- - - - - - - - - - -  external extension - - - - - - - - - - - - - - - - - - -
+
+  0x44000000 ---32-----------16|15------------0-
+	       |	       |	       | \
+	       :  (real size   :	       : |
+  EXT3 (CS4)   :   and content :	       :  > CFG_NIOS_CPU_CS3_SIZE
+	       :   unknown)    :	       : |   = 0x01000000
+	       |	       |	       | /
+  0x43000000 ---32-----------16|15------------0-    CFG_NIOS_CPU_CS3_BASE
+	       |	       |	       | \
+	       :  (real size   :	       : |
+  EXT2 (CS3)   :   and content :	       :  > CFG_NIOS_CPU_CS2_SIZE
+	       :   unknown)    :	       : |   = 0x01000000
+	       |	       |	       | /
+  0x42000000 ---32-----------16|15------------0-    CFG_NIOS_CPU_CS2_BASE
+	       |	       |	       | \
+	       :  (real size   :	       : |
+  EXT1 (CS2)   :   and content :	       :  > CFG_NIOS_CPU_CS1_SIZE
+	       :   unknown)    :	       : |   = 0x01000000
+	       |	       |	       | /
+  0x41000000 ---32-----------16|15------------0-    CFG_NIOS_CPU_CS1_BASE
+	       |	       |	       | \
+	       :  (real size   :	       : |
+  EXT0 (CS1)   :   and content :	       :  > CFG_NIOS_CPU_CS0_SIZE
+	       :   unknown)    :	       : |   = 0x01000000
+	       |	       |	       | /
+  0x40000000 ---32-----------16|15------------0-    CFG_NIOS_CPU_CS0_BASE
+	       |			       |
+	       :	      gap	       :
+	       :			       :
+
+- - - - - - - - - - -   external memory   - - - - - - - - - - - - - - - - - - -
+
+	       :			       :
+	       :	      gap	       :
+	       |			       |
+  0x03000000 ---32-----------16|15------------0-    CFG_NIOS_CPU_STACK
+	       |	       .	       | \
+	       |	       .	       | |  (U-Boot run-time system)
+	       |	       .	       | |
+	       |	       .	       |  > CFG_MONITOR_LEN
+	       |	       .	       | |   = 0x00040000
+	       |	       .	       | |
+	       |	       .	       | /
+  0x02fc0000 --+32-----------16|15------------0+    TEXT_BASE
+	       |	       .	       | \
+	       |	       .	       |  > CFG_MALLOC_LEN (heap)
+	       |	       .	       | /
+	     --+32-----------16|15------------0+
+	       |	       .	       | \
+	       |	       .	       |  > CFG_GBL_DATA_SIZE (global)
+	       |	       .	       | /
+	     --+32-----------16|15------------0+    CFG_INIT_SP (u-boot stack)
+	       |	       .	       | \ \
+	       |	       .	       | | |
+	       |	       .	       | |  > stack area
+	       |	       .	       | | |
+	       |	       .	       | | V
+	       |	       .	       | |
+	       |	       .	       | |
+  SDRAM	       |	       .	       |  > CFG_NIOS_CPU_SDRAM_SIZE
+	       |	       .	       | |   = 0x01000000
+	       |	       .	       | |
+  0x02000100   |- - - - - - - - - - - - - - - -+-|-
+	       |	       .	       | | \
+	       |	       .	       | | |
+	       |	       .	       | |  > CFG_NIOS_CPU_VEC_SIZE
+	       |	       .	       | | |   = 0x00000100
+	       |			       | / /
+  0x02000000   |- - - - - - - - - - - - - - - -+- - CFG_NIOS_CPU_VEC_BASE
+  0x02000000 ---32-----------16|15------------0-    CFG_NIOS_CPU_SDRAM_BASE
+	       |			       | \
+	       :	      gap	       :  > (space for 2nd Flash)
+	       |			       | /
+  0x01800000 ---32-----------16|15------------0-
+	       |  sector 127		       | \
+    + 0x7f0000 |- - - - - - - - - - - - - - - -| |
+	       |	       :	       | |
+  Flash	       |-   -	-   -  :  -   -	  -   -|  > CFG_NIOS_CPU_FLASH_SIZE
+	       |  sector 1     :	       | |   = 0x00800000
+    + 0x010000 |- - - - - - - - - - - - - - - -| |
+	       |  sector 0 (size = 0x10000)    | /
+  0x01000000 ---8-------------4|3-------------0-    CFG_NIOS_CPU_FLASH_BASE
+	       |			       |
+	       :	      gap	       :
+	       :			       :
+
+- - - - - - - - - - -	 external i/o	  - - - - - - - - - - - - - - - - - - -
+
+	       :			       :
+	       :	      gap	       :
+	       |			       |
+  0x00010020 ---32-----------16|15------------0-
+  	       |			       | \
+	       |  register bank		       | |
+	       |   size = (real_size << 1)     | |
+	       |   real_size = 0x10	       | |
+	       | +--------.---.---.---	       | |
+	       | | bank 0 \ 1 \ 2 \ 3 \	       | |
+	       | |---------------------------+ | |
+  LAN91C111    | | BANK	       | RESERVED    | |  > na_enet_size
+	       | |- - - - - - -|- - - - - - -| | |   = 0x00000020
+	       | | RPCR	       | MIR	     | | |
+	       | |- - - - - - -|- - - - - - -| | |
+	       | | COUNTER     | RCR	     | | |
+	       | |- - - - - - -|- - - - - - -| | |
+	       | | EPH STATUS  | TCR	     | | |
+	       | +---------------------------+ | /
+  0x00010000 ---32-----------16|15------------0-    CFG_NIOS_CPU_LAN0_BASE
+	       |			       |
+	       :	      gap	       :
+	       :			       :
+
+- - - - - - - - - - -	  on chip i/o	  - - - - - - - - - - - - - - - - - - -
+
+	       :			       :
+	       :	      gap	       :
+	       |			       |
+  0x00001040 ---32-----------16|15------------0-
+	       |	       |	       | \
+	       :	       :	       : |
+  IDE1 i/f     :	       :	       :  > 0x00000020
+  [5]	       :	       :	       : |
+	       |	       |	       | /
+  0x00001020 ---32-----------16|15------------0-    CFG_NIOS_CPU_IDE1
+	       |	       |	       | \
+	       :	       :	       : |
+  IDE0 i/f     :	       :	       :  > 0x00000020
+  [5]	       :	       :	       : |
+	       |	       |	       | /
+  0x00001000 ---32-----------16|15------------0-    CFG_NIOS_CPU_IDE0
+	       |			       |
+	       :	      gap	       :
+	       |			       |
+  0x00000980 ---32-----------16|15------------0-
+	       |  edgecapture (1 bit)	 (rw)  | \
+	+ 0x0c |- - - - - - - - - - - - - - - -| |
+  PIO13        |  interruptmask (1 bit)	 (rw)  | |
+  [3]	+ 0x08 |- - - - - - - - - - - - - - - -|  > 0x00000010
+	       |		     (unused)  | |
+	+ 0x04 |- - - - - - - - - - - - - - - -| |
+	       |  data (1 bit)		 (ro)  | /
+  0x00000970 ---32-----------16|15------------0-    CFG_NIOS_CPU_PIO13
+	       |  edgecapture (1 bit)	 (rw)  | \
+	+ 0x0c |- - - - - - - - - - - - - - - -| |
+  PIO12        |  interruptmask (1 bit)	 (rw)  | |
+  [3]	+ 0x08 |- - - - - - - - - - - - - - - -|  > 0x00000010
+	       |		     (unused)  | |
+	+ 0x04 |- - - - - - - - - - - - - - - -| |
+	       |  data (1 bit)		 (ro)  | /
+  0x00000960 ---32-----------16|15------------0-    CFG_NIOS_CPU_PIO12
+	       |  edgecapture (1 bit)	 (rw)  | \
+	+ 0x0c |- - - - - - - - - - - - - - - -| |
+  PIO11        |  interruptmask (1 bit)	 (rw)  | |
+  [3]	+ 0x08 |- - - - - - - - - - - - - - - -|  > 0x00000010
+	       |		     (unused)  | |
+	+ 0x04 |- - - - - - - - - - - - - - - -| |
+	       |  data (1 bit)		 (ro)  | /
+  0x00000950 ---32-----------16|15------------0-    CFG_NIOS_CPU_PIO11
+	       |  edgecapture (1 bit)	 (rw)  | \
+	+ 0x0c |- - - - - - - - - - - - - - - -| |
+  PIO10        |  interruptmask (1 bit)	 (rw)  | |
+  [3]	+ 0x08 |- - - - - - - - - - - - - - - -|  > 0x00000010
+	       |		     (unused)  | |
+	+ 0x04 |- - - - - - - - - - - - - - - -| |
+	       |  data (1 bit)		 (ro)  | /
+  0x00000940 ---32-----------16|15------------0-    CFG_NIOS_CPU_PIO10
+	       |  edgecapture (1 bit)	 (rw)  | \
+	+ 0x0c |- - - - - - - - - - - - - - - -| |
+  PIO9         |  interruptmask (1 bit)	 (rw)  | |
+  [3]	+ 0x08 |- - - - - - - - - - - - - - - -|  > 0x00000010
+	       |		     (unused)  | |
+	+ 0x04 |- - - - - - - - - - - - - - - -| |
+	       |  data (1 bit)		 (ro)  | /
+  0x00000930 ---32-----------16|15------------0-    CFG_NIOS_CPU_PIO9
+	       |  edgecapture (1 bit)	 (rw)  | \
+	+ 0x0c |- - - - - - - - - - - - - - - -| |
+  PIO8         |  interruptmask (1 bit)	 (rw)  | |
+  [3]	+ 0x08 |- - - - - - - - - - - - - - - -|  > 0x00000010
+	       |		     (unused)  | |
+	+ 0x04 |- - - - - - - - - - - - - - - -| |
+	       |  data (1 bit)		 (ro)  | /
+  0x00000920 ---32-----------16|15------------0-    CFG_NIOS_CPU_PIO8
+	       |  edgecapture (1 bit)	 (rw)  | \
+	+ 0x0c |- - - - - - - - - - - - - - - -| |
+  PIO7         |  interruptmask (1 bit)	 (rw)  | |
+  [3]	+ 0x08 |- - - - - - - - - - - - - - - -|  > 0x00000010
+	       |		     (unused)  | |
+	+ 0x04 |- - - - - - - - - - - - - - - -| |
+	       |  data (1 bit)		 (ro)  | /
+  0x00000910 ---32-----------16|15------------0-    CFG_NIOS_CPU_PIO7
+	       |  edgecapture (1 bit)	 (rw)  | \
+	+ 0x0c |- - - - - - - - - - - - - - - -| |
+  PIO6         |  interruptmask (1 bit)	 (rw)  | |
+  [3]	+ 0x08 |- - - - - - - - - - - - - - - -|  > 0x00000010
+	       |		     (unused)  | |
+	+ 0x04 |- - - - - - - - - - - - - - - -| |
+	       |  data (1 bit)		 (ro)  | /
+  0x00000900 ---32-----------16|15------------0-    CFG_NIOS_CPU_PIO6
+	       |			       |
+	       :	      gap	       :
+	       |			       |
+  0x000008e0 ---32-----------16|15------------0-
+	       |		     (unused)  | \
+	+ 0x1c |- - - - - - - - - - - - - - - -| |
+	       |  endofpacket (16 bit)	 (rw)  | |
+	+ 0x18 |- - - - - - - - - - - - - - - -| |
+	       |  slaveselect (1 bit)	 (rw)  | |
+	+ 0x14 |- - - - - - - - - - - - - - - -| |
+  SPI0	       |  		   (reserved)  | |
+  [4]	+ 0x10 |- - - - - - - - - - - - - - - -|  > 0x00000020
+	       |  control (11 bit)	 (rw)  | |
+	+ 0x0c |- - - - - - - - - - - - - - - -| |
+	       |  status (9 bit)	 (rw)  | |
+	+ 0x08 |- - - - - - - - - - - - - - - -| |
+	       |  txdata (16 bit)	 (wo)  | |
+	+ 0x04 |- - - - - - - - - - - - - - - -| |
+	       |  rxdata (16 bit)	 (ro)  | /
+  0x000008c0 ---32-----------16|15------------0-    CFG_NIOS_CPU_SPI0
+	       |		     (unused)  | \
+	+ 0x0c |- - - - - - - - - - - - - - - -| |
+  PIO5	       |		     (unused)  | |
+  [3]	+ 0x08 |- - - - - - - - - - - - - - - -|  > 0x00000010
+	       |		     (unused)  | |
+	+ 0x04 |- - - - - - - - - - - - - - - -| |
+	       |  data (1 bit)		 (wo)  | /
+  0x000008b0 ---32-----------16|15------------0-    CFG_NIOS_CPU_PIO5
+	       |		     (unused)  | \
+	+ 0x0c |- - - - - - - - - - - - - - - -| |
+  PIO4	       |		     (unused)  | |
+  [3]	+ 0x08 |- - - - - - - - - - - - - - - -|  > 0x00000010
+	       |		     (unused)  | |
+	+ 0x04 |- - - - - - - - - - - - - - - -| |
+	       |  data (1 bit)		 (wo)  | /
+  0x000008a0 ---32-----------16|15------------0-    CFG_NIOS_CPU_PIO4
+	       |		     (unused)  | \
+	+ 0x0c |- - - - - - - - - - - - - - - -| |
+  PIO3	       |		     (unused)  | |
+  [3]	+ 0x08 |- - - - - - - - - - - - - - - -|  > 0x00000010
+	       |		     (unused)  | |
+	+ 0x04 |- - - - - - - - - - - - - - - -| |
+	       |  data (1 bit)		 (ro)  | /
+  0x00000890 ---32-----------16|15------------0-    CFG_NIOS_CPU_PIO3
+	       |		     (unused)  | \
+	+ 0x0c |- - - - - - - - - - - - - - - -| |
+  PIO2	       |		     (unused)  | |
+  [3]	+ 0x08 |- - - - - - - - - - - - - - - -|  > 0x00000010
+	       |  direction (4 bit)      (rw)  | |
+	+ 0x04 |- - - - - - - - - - - - - - - -| |
+	       |  data (4 bit)		 (rw)  | /
+  0x00000880 ---32-----------16|15------------0-    CFG_NIOS_CPU_PIO2
+	       |		     (unused)  | \
+	+ 0x0c |- - - - - - - - - - - - - - - -| |
+  PIO1	       |		     (unused)  | |
+  [3]	+ 0x08 |- - - - - - - - - - - - - - - -|  > 0x00000010
+	       |  direction (8 bit)      (rw)  | |
+	+ 0x04 |- - - - - - - - - - - - - - - -| |
+	       |  data (8 bit)		 (rw)  | /
+  0x00000870 ---32-----------16|15------------0-    CFG_NIOS_CPU_PIO1
+	       |		     (unused)  | \
+	+ 0x0c |- - - - - - - - - - - - - - - -| |
+  PIO0	       |		     (unused)  | |
+  [3]	+ 0x08 |- - - - - - - - - - - - - - - -|  > 0x00000010
+	       |  direction (8 bit)      (rw)  | |
+	+ 0x04 |- - - - - - - - - - - - - - - -| |
+	       |  data (8 bit)		 (rw)  | /
+  0x00000860 ---32-----------16|15------------0-    CFG_NIOS_CPU_PIO0
+	       |		     (unused)  | \
+	+ 0x1c |- - - - - - - - - - - - - - - -| |
+	       |		     (unused)  | |
+	+ 0x18 |- - - - - - - - - - - - - - - -| |
+	       |  snaph (16 bit)	 (rw)  | |
+	+ 0x14 |- - - - - - - - - - - - - - - -| |
+  TIMER0       |  snapl (16 bit)	 (rw)  | |
+  [2]	+ 0x10 |- - - - - - - - - - - - - - - -|  > 0x00000020
+	       |  periodh (16 bit)	 (rw)  | |
+	+ 0x0c |- - - - - - - - - - - - - - - -| |
+	       |  periodl (16 bit)	 (rw)  | |
+	+ 0x08 |- - - - - - - - - - - - - - - -| |
+	       |  control (4 bit)	 (rw)  | |
+	+ 0x04 |- - - - - - - - - - - - - - - -| |
+	       |  status (2 bit)	 (rw)  | /
+  0x00000840 ---32-----------16|15------------0-    CFG_NIOS_CPU_TIMER0
+	       |		     (unused)  | \
+	+ 0x1c |- - - - - - - - - - - - - - - -| |
+	       |		     (unused)  | |
+	+ 0x18 |- - - - - - - - - - - - - - - -| |
+	       |		     (unused)  | |
+	+ 0x14 |- - - - - - - - - - - - - - - -| |
+  UART1	       |		     (unused)  |  > 0x00000020
+  [1]	+ 0x10 |- - - - - - - - - - - - - - - -| |
+	       |  control (10 bit)	 (rw)  | |
+	+ 0x0c |- - - - - - - - - - - - - - - -| |
+	       |  status (10 bit)	 (rw)  | |
+	+ 0x08 |- - - - - - - - - - - - - - - -| |
+	       |  txdata (8 bit)	 (wo)  | |
+	+ 0x04 |- - - - - - - - - - - - - - - -| |
+	       |  rxdata (8 bit)	 (ro)  | /
+  0x00000820 ---32-----------16|15------------0-    CFG_NIOS_CPU_UART1
+	       |		     (unused)  | \
+	+ 0x1c |- - - - - - - - - - - - - - - -| |
+	       |		     (unused)  | |
+	+ 0x18 |- - - - - - - - - - - - - - - -| |
+	       |		     (unused)  | |
+	+ 0x14 |- - - - - - - - - - - - - - - -| |
+  UART0	       |		     (unused)  |  > 0x00000020
+  [1]	+ 0x10 |- - - - - - - - - - - - - - - -| |
+	       |  control (10 bit)	 (rw)  | |
+	+ 0x0c |- - - - - - - - - - - - - - - -| |
+	       |  status (10 bit)	 (rw)  | |
+	+ 0x08 |- - - - - - - - - - - - - - - -| |
+	       |  txdata (8 bit)	 (wo)  | |
+	+ 0x04 |- - - - - - - - - - - - - - - -| |
+	       |  rxdata (8 bit)	 (ro)  | /
+  0x00000800 ---32-----------16|15------------0-    CFG_NIOS_CPU_UART0
+
+- - - - - - - - - - -  on chip memory 1	  - - - - - - - - - - -
+
+  0x00000800 ---32-----------16|15------------0-
+	       |	       :	       | \
+	       |	       :	       | |
+  GERMS	       |	       :	       |  > CFG_NIOS_CPU_ROM_SIZE
+	       |	       :	       | |   = 0x00000800
+	       |	       :	       | /
+  0x00000000   |- - - - - - - - - - - - - - - -+- - CFG_NIOS_CPU_RST_VECT
+  0x00000000 ---32-----------16|15------------0-    CFG_NIOS_CPU_ROM_BASE
+
+
+===============================================================================
+	F L A S H   M E M O R Y	  A L L O C A T I O N
+===============================================================================
+
+  0x01800000 ---8-------------4|3-------------0-
+	       |	       :	       | \
+	       |	       :	       | |
+	       |	       :	       |  > 6 MByte ROM FS
+	       |	       :	       | |
+	       |	       :	       | /
+  0x01200000 --+- - - - - - - -:- - - - - - - -+- - file system image(s)
+	       |	       :	       | \
+	       |	       :	       | |
+	       |	       :	       |  > 1728 kByte ucLinux
+	       |	       :	       | |
+	       |	       :	       | /
+  0x01050000 --+- - - - - - - -:- - - - - - - -+- - os image(s)
+	       |	       :	       | \
+  0x01040000 --+- - - - - - - -:- - - - - - - -+-|- u-boot environment
+	       |	       :	       | |
+	       |	       :	       |  > 320 kByte U-Boot
+	       |	       :	       | |
+	       |	       :	       | |
+	       |	       :	       | /
+  0x01000000 --+- - - - - - - -:- - - - - - - -+- - u-boot _start()
+  0x01000000 ---8-------------4|3-------------0-
+
+
+===============================================================================
+	R E F E R E N C E S
+===============================================================================
+[1]	http://www.altera.com/literature/ds/ds_nios_uart.pdf
+[2]	http://www.altera.com/literature/ds/ds_nios_timer.pdf
+[3]	http://www.altera.com/literature/ds/ds_nios_pio.pdf
+[4]	http://www.altera.com/literature/ds/ds_nios_spi.pdf
+[5]	http://www.t13.org/index.html
+
+
+===============================================================================
+Stephan Linz <linz@li-pro.net>

@@ -2,6 +2,16 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
+* Patch by Stephan Linz, 09 Mar 2004
+  - Add support for the SSV ADNP/ESC1 (Nios Softcore)
+
+* Patch by George G. Davis, 9 Mar 2004:
+  fix recent build failure for SA1100 target
+
+* Patch by Travis Sawyer, 09 Mar 2004:
+  Support native interrupt mode for the IBM440GX.
+  Previously it was running in 440GP compatibility mode.
+
 * Patch by Philippe Robin, 09 Mar 2004:
   Added ARM Integrator AP, CP and Versatile PB926EJ-S Reference
   Platform support.

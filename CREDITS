@@ -216,6 +216,7 @@ W: http://www.leox.org
 N: Stephan Linz
 E: linz@li-pro.net
 D: Support for Nios Stratix Development Kit (DK-1S10)
+D: Support for SSV ADNP/ESC1 (Nios Cyclone)
 W: http://www.li-pro.net
 
 N: Raymond Lo

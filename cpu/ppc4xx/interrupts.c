@@ -170,9 +170,21 @@ int interrupt_init_cpu (unsigned *decrementer_count)
 #endif
 
 #if defined(CONFIG_440_GX)
+	/* Take the GX out of compatibility mode
+	 * Travis Sawyer, 9 Mar 2004
+	 * NOTE: 440gx user manual inconsistency here
+	 *       Compatibility mode and Ethernet Clock select are not
+	 *       correct in the manual
+	 */
+	mfsdr(sdr_mfr, val);
+	val &= ~0x10000000;
+	mtsdr(sdr_mfr,val);
+
 	/* Enable UIC interrupts via UIC Base Enable Register */
-	mtdcr(uicb0er, UICB0_ALL);
-	mtdcr(uicb0cr, UICB0_ALL);
+	mtdcr(uicb0sr, UICB0_ALL);
+	mtdcr(uicb0er, 0x54000000);
+	/* None are critical */
+	mtdcr(uicb0cr, 0);
 #endif
 
 	return (0);
@@ -194,11 +206,16 @@ void external_interrupt(struct pt_regs *regs)
 	/* 440 GX uses base uic register */
 	uic_msr = mfdcr(uicb0msr);
 
-	uic0_interrupt(0);
-	uic1_interrupt(0);
-	uic2_interrupt(0);
+	if ( (UICB0_UIC0CI & uic_msr) || (UICB0_UIC0NCI & uic_msr) )
+		uic0_interrupt(0);
 
-	mtdcr(uicb0sr, UICB0_ALL);
+	if ( (UICB0_UIC1CI & uic_msr) || (UICB0_UIC1NCI & uic_msr) )
+		uic1_interrupt(0);
+
+	if ( (UICB0_UIC2CI & uic_msr) || (UICB0_UIC2NCI & uic_msr) )
+		uic2_interrupt(0);
+
+	mtdcr(uicb0sr, uic_msr);
 
 	return;
 

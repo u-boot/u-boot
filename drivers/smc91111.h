@@ -143,10 +143,18 @@ typedef unsigned long int 		dword;
  * We have only 16 Bit PCMCIA access on Socket 0
  */
 
+#ifdef CONFIG_ADNPESC1
+#define	SMC_inw(r) 	(*((volatile word *)(SMC_BASE_ADDRESS+((r)<<1))))
+#else
 #define	SMC_inw(r) 	(*((volatile word *)(SMC_BASE_ADDRESS+(r))))
+#endif
 #define  SMC_inb(r)	(((r)&1) ? SMC_inw((r)&~1)>>8 : SMC_inw(r)&0xFF)
 
+#ifdef CONFIG_ADNPESC1
+#define	SMC_outw(d,r)	(*((volatile word *)(SMC_BASE_ADDRESS+((r)<<1))) = d)
+#else
 #define	SMC_outw(d,r)	(*((volatile word *)(SMC_BASE_ADDRESS+(r))) = d)
+#endif
 #define	SMC_outb(d,r)	({	word __d = (byte)(d);  \
 				word __w = SMC_inw((r)&~1);  \
 				__w &= ((r)&1) ? 0x00FF : 0xFF00;  \
@@ -308,6 +316,11 @@ typedef unsigned long int 		dword;
 #define RPC_LED_RX	(0x07)	/* LED = RX packet occurred */
 #if defined(CONFIG_DK1C20) || defined(CONFIG_DK1S10)
 /* buggy schematic: LEDa -> yellow, LEDb --> green */
+#define RPC_DEFAULT	( RPC_SPEED | RPC_DPLX | RPC_ANEG	\
+			| (RPC_LED_TX_RX << RPC_LSXA_SHFT)	\
+			| (RPC_LED_100_10 << RPC_LSXB_SHFT)	)
+#elif defined(CONFIG_ADNPESC1)
+/* SSV ADNP/ESC1 has only one LED: LEDa -> Rx/Tx indicator */
 #define RPC_DEFAULT	( RPC_SPEED | RPC_DPLX | RPC_ANEG	\
 			| (RPC_LED_TX_RX << RPC_LSXA_SHFT)	\
 			| (RPC_LED_100_10 << RPC_LSXB_SHFT)	)
