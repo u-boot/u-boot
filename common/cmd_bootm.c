@@ -184,7 +184,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		} else
 #endif	/* __I386__ */
 	    {
-		printf ("Bad Magic Number\n");
+		puts ("Bad Magic Number\n");
 		SHOW_BOOT_PROGRESS (-1);
 		return 1;
 	    }
@@ -198,7 +198,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	hdr->ih_hcrc = 0;
 
 	if (crc32 (0, (char *)data, len) != checksum) {
-		printf ("Bad Header Checksum\n");
+		puts ("Bad Header Checksum\n");
 		SHOW_BOOT_PROGRESS (-2);
 		return 1;
 	}
@@ -218,13 +218,13 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #endif
 
 	if (verify) {
-		printf ("   Verifying Checksum ... ");
+		puts ("   Verifying Checksum ... ");
 		if (crc32 (0, (char *)data, len) != ntohl(hdr->ih_dcrc)) {
 			printf ("Bad Data CRC\n");
 			SHOW_BOOT_PROGRESS (-3);
 			return 1;
 		}
-		printf ("OK\n");
+		puts ("OK\n");
 	}
 	SHOW_BOOT_PROGRESS (4);
 
@@ -325,7 +325,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		printf ("   Uncompressing %s ... ", name);
 		if (gunzip ((void *)ntohl(hdr->ih_load), unc_len,
 			    (uchar *)data, (int *)&len) != 0) {
-			printf ("GUNZIP ERROR - must RESET board to recover\n");
+			puts ("GUNZIP ERROR - must RESET board to recover\n");
 			SHOW_BOOT_PROGRESS (-6);
 			do_reset (cmdtp, flag, argc, argv);
 		}
@@ -356,7 +356,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		SHOW_BOOT_PROGRESS (-7);
 		return 1;
 	}
-	printf ("OK\n");
+	puts ("OK\n");
 	SHOW_BOOT_PROGRESS (7);
 
 	switch (hdr->ih_type) {
@@ -435,7 +435,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	SHOW_BOOT_PROGRESS (-9);
 #ifdef DEBUG
-	printf ("\n## Control returned to monitor - resetting...\n");
+	puts ("\n## Control returned to monitor - resetting...\n");
 	do_reset (cmdtp, flag, argc, argv);
 #endif
 	return 1;
@@ -597,7 +597,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		memmove (&header, (char *)addr, sizeof(image_header_t));
 
 		if (hdr->ih_magic  != IH_MAGIC) {
-			printf ("Bad Magic Number\n");
+			puts ("Bad Magic Number\n");
 			SHOW_BOOT_PROGRESS (-10);
 			do_reset (cmdtp, flag, argc, argv);
 		}
@@ -609,7 +609,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		hdr->ih_hcrc = 0;
 
 		if (crc32 (0, (char *)data, len) != checksum) {
-			printf ("Bad Header Checksum\n");
+			puts ("Bad Header Checksum\n");
 			SHOW_BOOT_PROGRESS (-11);
 			do_reset (cmdtp, flag, argc, argv);
 		}
@@ -627,7 +627,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 			ulong cdata = data, edata = cdata + len;
 #endif	/* CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG */
 
-			printf ("   Verifying Checksum ... ");
+			puts ("   Verifying Checksum ... ");
 
 #if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
 
@@ -646,11 +646,11 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 #endif	/* CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG */
 
 			if (csum != hdr->ih_dcrc) {
-				printf ("Bad Data CRC\n");
+				puts ("Bad Data CRC\n");
 				SHOW_BOOT_PROGRESS (-12);
 				do_reset (cmdtp, flag, argc, argv);
 			}
-			printf ("OK\n");
+			puts ("OK\n");
 		}
 
 		SHOW_BOOT_PROGRESS (11);
@@ -658,7 +658,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		if ((hdr->ih_os   != IH_OS_LINUX)	||
 		    (hdr->ih_arch != IH_CPU_PPC)	||
 		    (hdr->ih_type != IH_TYPE_RAMDISK)	) {
-			printf ("No Linux PPC Ramdisk Image\n");
+			puts ("No Linux PPC Ramdisk Image\n");
 			SHOW_BOOT_PROGRESS (-13);
 			do_reset (cmdtp, flag, argc, argv);
 		}
@@ -756,7 +756,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 #else	/* !(CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG) */
 		memmove ((void *)initrd_start, (void *)data, len);
 #endif	/* CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG */
-		printf ("OK\n");
+		puts ("OK\n");
 	    }
 	} else {
 		initrd_start = 0;
@@ -1014,7 +1014,7 @@ static int image_info (ulong addr)
 	memmove (&header, (char *)addr, sizeof(image_header_t));
 
 	if (ntohl(hdr->ih_magic) != IH_MAGIC) {
-		printf ("   Bad Magic Number\n");
+		puts ("   Bad Magic Number\n");
 		return 1;
 	}
 
@@ -1025,7 +1025,7 @@ static int image_info (ulong addr)
 	hdr->ih_hcrc = 0;
 
 	if (crc32 (0, (char *)data, len) != checksum) {
-		printf ("   Bad Header Checksum\n");
+		puts ("   Bad Header Checksum\n");
 		return 1;
 	}
 
@@ -1035,12 +1035,12 @@ static int image_info (ulong addr)
 	data = addr + sizeof(image_header_t);
 	len  = ntohl(hdr->ih_size);
 
-	printf ("   Verifying Checksum ... ");
+	puts ("   Verifying Checksum ... ");
 	if (crc32 (0, (char *)data, len) != ntohl(hdr->ih_dcrc)) {
-		printf ("   Bad Data CRC\n");
+		puts ("   Bad Data CRC\n");
 		return 1;
 	}
-	printf ("OK\n");
+	puts ("OK\n");
 	return 0;
 }
 
@@ -1091,11 +1091,11 @@ int do_imls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			data = (ulong)hdr + sizeof(image_header_t);
 			len  = ntohl(hdr->ih_size);
 
-			printf ("   Verifying Checksum ... ");
+			puts ("   Verifying Checksum ... ");
 			if (crc32 (0, (char *)data, len) != ntohl(hdr->ih_dcrc)) {
-				printf ("   Bad Data CRC\n");
+				puts ("   Bad Data CRC\n");
 			}
-			printf ("OK\n");
+			puts ("OK\n");
 next_sector:		;
 		}
 next_bank:	;
@@ -1128,18 +1128,19 @@ print_image_hdr (image_header_t *hdr)
 		tm.tm_year, tm.tm_mon, tm.tm_mday,
 		tm.tm_hour, tm.tm_min, tm.tm_sec);
 #endif	/* CFG_CMD_DATE, CONFIG_TIMESTAMP */
-	printf ("   Image Type:   "); print_type(hdr); printf ("\n");
-	printf ("   Data Size:    %d Bytes = ", ntohl(hdr->ih_size));
+	puts ("   Image Type:   "); print_type(hdr);
+	printf ("\n   Data Size:    %d Bytes = ", ntohl(hdr->ih_size));
 	print_size (ntohl(hdr->ih_size), "\n");
-	printf ("   Load Address: %08x\n", ntohl(hdr->ih_load));
-	printf ("   Entry Point:  %08x\n", ntohl(hdr->ih_ep));
+	printf ("   Load Address: %08x\n"
+		"   Entry Point:  %08x\n",
+		 ntohl(hdr->ih_load), ntohl(hdr->ih_ep));
 
 	if (hdr->ih_type == IH_TYPE_MULTI) {
 		int i;
 		ulong len;
 		ulong *len_ptr = (ulong *)((ulong)hdr + sizeof(image_header_t));
 
-		printf ("   Contents:\n");
+		puts ("   Contents:\n");
 		for (i=0; (len = ntohl(*len_ptr)); ++i, ++len_ptr) {
 			printf ("   Image %d: %8ld Bytes = ", i, len);
 			print_size (len, "\n");
@@ -1244,7 +1245,7 @@ int gunzip(void *dst, int dstlen, unsigned char *src, int *lenp)
 	i = 10;
 	flags = src[3];
 	if (src[2] != DEFLATED || (flags & RESERVED) != 0) {
-		printf ("Error: Bad gzipped data\n");
+		puts ("Error: Bad gzipped data\n");
 		return (-1);
 	}
 	if ((flags & EXTRA_FIELD) != 0)
@@ -1258,7 +1259,7 @@ int gunzip(void *dst, int dstlen, unsigned char *src, int *lenp)
 	if ((flags & HEAD_CRC) != 0)
 		i += 2;
 	if (i >= *lenp) {
-		printf ("Error: gunzip out of data in header\n");
+		puts ("Error: gunzip out of data in header\n");
 		return (-1);
 	}
 

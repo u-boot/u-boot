@@ -51,7 +51,7 @@ int miiphy_info (unsigned char addr,
 
 	if (miiphy_read (addr, PHY_PHYIDR2, &tmp) != 0) {
 #ifdef DEBUG
-		printf ("PHY ID register 2 read failed\n");
+		puts ("PHY ID register 2 read failed\n");
 #endif
 		return (-1);
 	}
@@ -67,7 +67,7 @@ int miiphy_info (unsigned char addr,
 
 	if (miiphy_read (addr, PHY_PHYIDR1, &tmp) != 0) {
 #ifdef DEBUG
-		printf ("PHY ID register 1 read failed\n");
+		puts ("PHY ID register 1 read failed\n");
 #endif
 		return (-1);
 	}
@@ -95,7 +95,7 @@ int miiphy_reset (unsigned char addr)
 
 	if (miiphy_write (addr, PHY_BMCR, 0x8000) != 0) {
 #ifdef DEBUG
-		printf ("PHY reset failed\n");
+		puts ("PHY reset failed\n");
 #endif
 		return (-1);
 	}
@@ -112,7 +112,7 @@ int miiphy_reset (unsigned char addr)
 	while (((reg & 0x8000) != 0) && (loop_cnt++ < 1000000)) {
 		if (miiphy_read (addr, PHY_BMCR, &reg) != 0) {
 #     ifdef DEBUG
-			printf ("PHY status read failed\n");
+			puts ("PHY status read failed\n");
 #     endif
 			return (-1);
 		}
@@ -120,7 +120,7 @@ int miiphy_reset (unsigned char addr)
 	if ((reg & 0x8000) == 0) {
 		return (0);
 	} else {
-		printf ("PHY reset timed out\n");
+		puts ("PHY reset timed out\n");
 		return (-1);
 	}
 	return (0);
@@ -146,7 +146,7 @@ int miiphy_speed (unsigned char addr)
 	}
 
 	if (miiphy_read (addr, PHY_ANLPAR, &reg)) {
-		printf ("PHY speed1 read failed, assuming 10bT\n");
+		puts ("PHY speed1 read failed, assuming 10bT\n");
 		return (_10BASET);
 	}
 	if ((reg & PHY_ANLPAR_100) != 0) {
@@ -180,7 +180,7 @@ int miiphy_duplex (unsigned char addr)
 	}
 
 	if (miiphy_read (addr, PHY_ANLPAR, &reg)) {
-		printf ("PHY duplex read failed, assuming half duplex\n");
+		puts ("PHY duplex read failed, assuming half duplex\n");
 		return (HALF);
 	}
 
@@ -201,7 +201,7 @@ int miiphy_link (unsigned char addr)
 	unsigned short reg;
 
 	if (miiphy_read (addr, PHY_BMSR, &reg)) {
-		printf ("PHY_BMSR read failed, assuming no link\n");
+		puts ("PHY_BMSR read failed, assuming no link\n");
 		return (0);
 	}
 

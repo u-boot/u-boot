@@ -186,7 +186,7 @@ int do_i2c_md ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		linebytes = (nbytes > DISP_LINE_LEN) ? DISP_LINE_LEN : nbytes;
 
 		if(i2c_read(chip, addr, alen, linebuf, linebytes) != 0) {
-			printf("Error reading the chip.\n");
+			puts ("Error reading the chip.\n");
 		} else {
 			printf("%04x:", addr);
 			cp = linebuf;
@@ -194,16 +194,16 @@ int do_i2c_md ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 				printf(" %02x", *cp++);
 				addr++;
 			}
-			printf("    ");
+			puts ("    ");
 			cp = linebuf;
 			for (j=0; j<linebytes; j++) {
 				if ((*cp < 0x20) || (*cp > 0x7e))
-					printf(".");
+					puts (".");
 				else
 					printf("%c", *cp);
 				cp++;
 			}
-			printf("\n");
+			putc ('\n');
 		}
 		nbytes -= linebytes;
 	} while (nbytes > 0);
@@ -285,7 +285,7 @@ int do_i2c_mw ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	while (count-- > 0) {
 		if(i2c_write(chip, addr++, alen, &byte, 1) != 0) {
-			printf("Error writing the chip.\n");
+			puts ("Error writing the chip.\n");
 		}
 		/*
 		 * Wait for the write to complete.  The write can take
@@ -374,7 +374,7 @@ int do_i2c_crc (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 	if(err > 0)
 	{
-		printf("Error reading the chip,\n");
+		puts ("Error reading the chip,\n");
 	} else {
 		printf ("%08lx\n", crc);
 	}
@@ -456,7 +456,7 @@ mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char *argv[])
 	do {
 		printf("%08lx:", addr);
 		if(i2c_read(chip, addr, alen, (char *)&data, size) != 0) {
-			printf("\nError reading the chip,\n");
+			puts ("\nError reading the chip,\n");
 		} else {
 			data = cpu_to_be32(data);
 			if(size == 1) {
@@ -505,7 +505,7 @@ mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char *argv[])
 				reset_cmd_timeout();
 #endif
 				if(i2c_write(chip, addr, alen, (char *)&data, size) != 0) {
-					printf("Error writing the chip.\n");
+					puts ("Error writing the chip.\n");
 				}
 #ifdef CFG_EEPROM_PAGE_WRITE_DELAY_MS
 				udelay(CFG_EEPROM_PAGE_WRITE_DELAY_MS * 1000);
@@ -534,7 +534,7 @@ int do_i2c_probe (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	int k, skip;
 #endif
 
-	printf("Valid chip addresses:");
+	puts ("Valid chip addresses:");
 	for(j = 0; j < 128; j++) {
 #if defined(CFG_I2C_NOPROBES)
 		skip = 0;
@@ -551,13 +551,13 @@ int do_i2c_probe (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			printf(" %02X", j);
 		}
 	}
-	printf("\n");
+	putc ('\n');
 
 #if defined(CFG_I2C_NOPROBES)
 	puts ("Excluded chip addresses:");
 	for( k = 0; k < sizeof(i2c_no_probes); k++ )
 		printf(" %02X", i2c_no_probes[k] );
-	puts ("\n");
+	putc ('\n');
 #endif
 
 	return 0;
@@ -629,7 +629,7 @@ int do_i2c_loop(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	 */
 	while(1) {
 		if(i2c_read(chip, addr, alen, bytes, length) != 0) {
-			printf("Error reading the chip.\n");
+			puts ("Error reading the chip.\n");
 		}
 		udelay(delay);
 	}
@@ -666,7 +666,7 @@ int do_sdram  ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	chip = simple_strtoul(argv[1], NULL, 16);
 
 	if(i2c_read(chip, 0, 1, data, sizeof(data)) != 0) {
-		printf("No SDRAM Serial Presence Detect found.\n");
+		puts ("No SDRAM Serial Presence Detect found.\n");
 		return 1;
 	}
 
@@ -683,19 +683,19 @@ int do_sdram  ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		(data[62] >> 4) & 0x0F, data[62] & 0x0F);
 	printf("Bytes used                   0x%02X\n", data[0]);
 	printf("Serial memory size           0x%02X\n", 1 << data[1]);
-	printf("Memory type                  ");
+	puts ("Memory type                  ");
 	switch(data[2]) {
-		case 2:  printf("EDO\n");	break;
-		case 4:  printf("SDRAM\n");	break;
-		default: printf("unknown\n");	break;
+		case 2:  puts ("EDO\n");	break;
+		case 4:  puts ("SDRAM\n");	break;
+		default: puts ("unknown\n");	break;
 	}
-	printf("Row address bits             ");
+	puts ("Row address bits             ");
 	if((data[3] & 0x00F0) == 0) {
 		printf("%d\n", data[3] & 0x0F);
 	} else {
 		printf("%d/%d\n", data[3] & 0x0F, (data[3] >> 4) & 0x0F);
 	}
-	printf("Column address bits          ");
+	puts ("Column address bits          ");
 	if((data[4] & 0x00F0) == 0) {
 		printf("%d\n", data[4] & 0x0F);
 	} else {
@@ -703,39 +703,39 @@ int do_sdram  ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 	printf("Module rows                  %d\n", data[5]);
 	printf("Module data width            %d bits\n", (data[7] << 8) | data[6]);
-	printf("Interface signal levels      ");
+	puts ("Interface signal levels      ");
 	switch(data[8]) {
-		case 0:  printf("5.0v/TTL\n");	break;
-		case 1:  printf("LVTTL\n");	break;
-		case 2:  printf("HSTL 1.5\n");	break;
-		case 3:  printf("SSTL 3.3\n");	break;
-		case 4:  printf("SSTL 2.5\n");	break;
-		default: printf("unknown\n");	break;
+		case 0:  puts ("5.0v/TTL\n");	break;
+		case 1:  puts ("LVTTL\n");	break;
+		case 2:  puts ("HSTL 1.5\n");	break;
+		case 3:  puts ("SSTL 3.3\n");	break;
+		case 4:  puts ("SSTL 2.5\n");	break;
+		default: puts ("unknown\n");	break;
 	}
 	printf("SDRAM cycle time             %d.%d nS\n",
 		(data[9] >> 4) & 0x0F, data[9] & 0x0F);
 	printf("SDRAM access time            %d.%d nS\n",
 		(data[10] >> 4) & 0x0F, data[10] & 0x0F);
-	printf("EDC configuration            ");
+	puts ("EDC configuration            ");
 	switch(data[11]) {
-		case 0:  printf("None\n");	break;
-		case 1:  printf("Parity\n");	break;
-		case 2:  printf("ECC\n");	break;
-		default: printf("unknown\n");	break;
+		case 0:  puts ("None\n");	break;
+		case 1:  puts ("Parity\n");	break;
+		case 2:  puts ("ECC\n");	break;
+		default: puts ("unknown\n");	break;
 	}
 	if((data[12] & 0x80) == 0) {
-		printf("No self refresh, rate        ");
+		puts ("No self refresh, rate        ");
 	} else {
-		printf("Self refresh, rate           ");
+		puts ("Self refresh, rate           ");
 	}
 	switch(data[12] & 0x7F) {
-		case 0:  printf("15.625uS\n");	break;
-		case 1:  printf("3.9uS\n");	break;
-		case 2:  printf("7.8uS\n");	break;
-		case 3:  printf("31.3uS\n");	break;
-		case 4:  printf("62.5uS\n");	break;
-		case 5:  printf("125uS\n");	break;
-		default: printf("unknown\n");	break;
+		case 0:  puts ("15.625uS\n");	break;
+		case 1:  puts ("3.9uS\n");	break;
+		case 2:  puts ("7.8uS\n");	break;
+		case 3:  puts ("31.3uS\n");	break;
+		case 4:  puts ("62.5uS\n");	break;
+		case 5:  puts ("125uS\n");	break;
+		default: puts ("unknown\n");	break;
 	}
 	printf("SDRAM width (primary)        %d\n", data[13] & 0x7F);
 	if((data[13] & 0x80) != 0) {
@@ -752,65 +752,65 @@ int do_sdram  ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 	printf("Min clock delay, back-to-back random column addresses %d\n",
 		data[15]);
-	printf("Burst length(s)             ");
-	if(data[16] & 0x80) printf(" Page");
-	if(data[16] & 0x08) printf(" 8");
-	if(data[16] & 0x04) printf(" 4");
-	if(data[16] & 0x02) printf(" 2");
-	if(data[16] & 0x01) printf(" 1");
-	printf("\n");
+	puts ("Burst length(s)             ");
+	if (data[16] & 0x80) puts (" Page");
+	if (data[16] & 0x08) puts (" 8");
+	if (data[16] & 0x04) puts (" 4");
+	if (data[16] & 0x02) puts (" 2");
+	if (data[16] & 0x01) puts (" 1");
+	putc ('\n');
 	printf("Number of banks              %d\n", data[17]);
-	printf("CAS latency(s)              ");
-	if(data[18] & 0x80) printf(" TBD");
-	if(data[18] & 0x40) printf(" 7");
-	if(data[18] & 0x20) printf(" 6");
-	if(data[18] & 0x10) printf(" 5");
-	if(data[18] & 0x08) printf(" 4");
-	if(data[18] & 0x04) printf(" 3");
-	if(data[18] & 0x02) printf(" 2");
-	if(data[18] & 0x01) printf(" 1");
-	printf("\n");
-	printf("CS latency(s)               ");
-	if(data[19] & 0x80) printf(" TBD");
-	if(data[19] & 0x40) printf(" 6");
-	if(data[19] & 0x20) printf(" 5");
-	if(data[19] & 0x10) printf(" 4");
-	if(data[19] & 0x08) printf(" 3");
-	if(data[19] & 0x04) printf(" 2");
-	if(data[19] & 0x02) printf(" 1");
-	if(data[19] & 0x01) printf(" 0");
-	printf("\n");
-	printf("WE latency(s)               ");
-	if(data[20] & 0x80) printf(" TBD");
-	if(data[20] & 0x40) printf(" 6");
-	if(data[20] & 0x20) printf(" 5");
-	if(data[20] & 0x10) printf(" 4");
-	if(data[20] & 0x08) printf(" 3");
-	if(data[20] & 0x04) printf(" 2");
-	if(data[20] & 0x02) printf(" 1");
-	if(data[20] & 0x01) printf(" 0");
-	printf("\n");
-	printf("Module attributes:\n");
-	if(!data[21])       printf("  (none)\n");
-	if(data[21] & 0x80) printf("  TBD (bit 7)\n");
-	if(data[21] & 0x40) printf("  Redundant row address\n");
-	if(data[21] & 0x20) printf("  Differential clock input\n");
-	if(data[21] & 0x10) printf("  Registerd DQMB inputs\n");
-	if(data[21] & 0x08) printf("  Buffered DQMB inputs\n");
-	if(data[21] & 0x04) printf("  On-card PLL\n");
-	if(data[21] & 0x02) printf("  Registered address/control lines\n");
-	if(data[21] & 0x01) printf("  Buffered address/control lines\n");
-	printf("Device attributes:\n");
-	if(data[22] & 0x80) printf("  TBD (bit 7)\n");
-	if(data[22] & 0x40) printf("  TBD (bit 6)\n");
-	if(data[22] & 0x20) printf("  Upper Vcc tolerance 5%%\n");
-	else                printf("  Upper Vcc tolerance 10%%\n");
-	if(data[22] & 0x10) printf("  Lower Vcc tolerance 5%%\n");
-	else                printf("  Lower Vcc tolerance 10%%\n");
-	if(data[22] & 0x08) printf("  Supports write1/read burst\n");
-	if(data[22] & 0x04) printf("  Supports precharge all\n");
-	if(data[22] & 0x02) printf("  Supports auto precharge\n");
-	if(data[22] & 0x01) printf("  Supports early RAS# precharge\n");
+	puts ("CAS latency(s)              ");
+	if (data[18] & 0x80) puts (" TBD");
+	if (data[18] & 0x40) puts (" 7");
+	if (data[18] & 0x20) puts (" 6");
+	if (data[18] & 0x10) puts (" 5");
+	if (data[18] & 0x08) puts (" 4");
+	if (data[18] & 0x04) puts (" 3");
+	if (data[18] & 0x02) puts (" 2");
+	if (data[18] & 0x01) puts (" 1");
+	putc ('\n');
+	puts ("CS latency(s)               ");
+	if (data[19] & 0x80) puts (" TBD");
+	if (data[19] & 0x40) puts (" 6");
+	if (data[19] & 0x20) puts (" 5");
+	if (data[19] & 0x10) puts (" 4");
+	if (data[19] & 0x08) puts (" 3");
+	if (data[19] & 0x04) puts (" 2");
+	if (data[19] & 0x02) puts (" 1");
+	if (data[19] & 0x01) puts (" 0");
+	putc ('\n');
+	puts ("WE latency(s)               ");
+	if (data[20] & 0x80) puts (" TBD");
+	if (data[20] & 0x40) puts (" 6");
+	if (data[20] & 0x20) puts (" 5");
+	if (data[20] & 0x10) puts (" 4");
+	if (data[20] & 0x08) puts (" 3");
+	if (data[20] & 0x04) puts (" 2");
+	if (data[20] & 0x02) puts (" 1");
+	if (data[20] & 0x01) puts (" 0");
+	putc ('\n');
+	puts ("Module attributes:\n");
+	if (!data[21])       puts ("  (none)\n");
+	if (data[21] & 0x80) puts ("  TBD (bit 7)\n");
+	if (data[21] & 0x40) puts ("  Redundant row address\n");
+	if (data[21] & 0x20) puts ("  Differential clock input\n");
+	if (data[21] & 0x10) puts ("  Registerd DQMB inputs\n");
+	if (data[21] & 0x08) puts ("  Buffered DQMB inputs\n");
+	if (data[21] & 0x04) puts ("  On-card PLL\n");
+	if (data[21] & 0x02) puts ("  Registered address/control lines\n");
+	if (data[21] & 0x01) puts ("  Buffered address/control lines\n");
+	puts ("Device attributes:\n");
+	if (data[22] & 0x80) puts ("  TBD (bit 7)\n");
+	if (data[22] & 0x40) puts ("  TBD (bit 6)\n");
+	if (data[22] & 0x20) puts ("  Upper Vcc tolerance 5%\n");
+	else                 puts ("  Upper Vcc tolerance 10%\n");
+	if (data[22] & 0x10) puts ("  Lower Vcc tolerance 5%\n");
+	else                 puts ("  Lower Vcc tolerance 10%\n");
+	if (data[22] & 0x08) puts ("  Supports write1/read burst\n");
+	if (data[22] & 0x04) puts ("  Supports precharge all\n");
+	if (data[22] & 0x02) puts ("  Supports auto precharge\n");
+	if (data[22] & 0x01) puts ("  Supports early RAS# precharge\n");
 	printf("SDRAM cycle time (2nd highest CAS latency)        %d.%d nS\n",
 		(data[23] >> 4) & 0x0F, data[23] & 0x0F);
 	printf("SDRAM access from clock (2nd highest CAS latency) %d.%d nS\n",
@@ -823,16 +823,16 @@ int do_sdram  ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	printf("Row active to row active min %d nS\n", data[28]);
 	printf("RAS to CAS delay min         %d nS\n", data[29]);
 	printf("Minimum RAS pulse width      %d nS\n", data[30]);
-	printf("Density of each row         ");
-	if(data[31] & 0x80) printf(" 512MByte");
-	if(data[31] & 0x40) printf(" 256MByte");
-	if(data[31] & 0x20) printf(" 128MByte");
-	if(data[31] & 0x10) printf(" 64MByte");
-	if(data[31] & 0x08) printf(" 32MByte");
-	if(data[31] & 0x04) printf(" 16MByte");
-	if(data[31] & 0x02) printf(" 8MByte");
-	if(data[31] & 0x01) printf(" 4MByte");
-	printf("\n");
+	puts ("Density of each row         ");
+	if (data[31] & 0x80) puts (" 512");
+	if (data[31] & 0x40) puts (" 256");
+	if (data[31] & 0x20) puts (" 128");
+	if (data[31] & 0x10) puts (" 64");
+	if (data[31] & 0x08) puts (" 32");
+	if (data[31] & 0x04) puts (" 16");
+	if (data[31] & 0x02) puts (" 8");
+	if (data[31] & 0x01) puts (" 4");
+	puts ("MByte\n");
 	printf("Command and Address setup    %c%d.%d nS\n",
 		(data[32] & 0x80) ? '-' : '+',
 		(data[32] >> 4) & 0x07, data[32] & 0x0F);
@@ -845,21 +845,21 @@ int do_sdram  ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	printf("Data signal input hold       %c%d.%d nS\n",
 		(data[35] & 0x80) ? '-' : '+',
 		(data[35] >> 4) & 0x07, data[35] & 0x0F);
-	printf("Manufacturer's JEDEC ID      ");
+	puts ("Manufacturer's JEDEC ID      ");
 	for(j = 64; j <= 71; j++)
 		printf("%02X ", data[j]);
-	printf("\n");
+	putc ('\n');
 	printf("Manufacturing Location       %02X\n", data[72]);
-	printf("Manufacturer's Part Number   ");
+	puts ("Manufacturer's Part Number   ");
 	for(j = 73; j <= 90; j++)
 		printf("%02X ", data[j]);
-	printf("\n");
+	putc ('\n');
 	printf("Revision Code                %02X %02X\n", data[91], data[92]);
 	printf("Manufacturing Date           %02X %02X\n", data[93], data[94]);
-	printf("Assembly Serial Number       ");
+	puts ("Assembly Serial Number       ");
 	for(j = 95; j <= 98; j++)
 		printf("%02X ", data[j]);
-	printf("\n");
+	putc ('\n');
 	printf("Speed rating                 PC%d\n",
 		data[126] == 0x66 ? 66 : data[126]);
 

@@ -149,7 +149,7 @@ static int fec_send(struct eth_device* dev, volatile void *packet, int length)
 
     for(i=0; rtx.txbd[txIdx].cbd_sc & BD_ENET_TX_READY; i++) {
 	if (i >= TOUT_LOOP) {
-	    printf("fec: tx buffer not ready\n");
+	    puts ("fec: tx buffer not ready\n");
 	    goto out;
 	}
     }
@@ -161,7 +161,7 @@ static int fec_send(struct eth_device* dev, volatile void *packet, int length)
 
     for(i=0; rtx.txbd[txIdx].cbd_sc & BD_ENET_TX_READY; i++) {
 	if (i >= TOUT_LOOP) {
-	    printf("fec: tx error\n");
+	    puts ("fec: tx error\n");
 	    goto out;
 	}
     }
@@ -522,7 +522,7 @@ print_desc (elbt_prdesc descs[], int ndesc, uchar *bases[], int nbase)
 	for (i = 0; i < nbase; i++)
 		printf ("  Channel %d", i);
 
-	puts ("\n");
+	putc ('\n');
 
 	while (dp < edp) {
 
@@ -534,7 +534,7 @@ print_desc (elbt_prdesc descs[], int ndesc, uchar *bases[], int nbase)
 			printf (" %10u", val);
 		}
 
-		puts ("\n");
+		putc ('\n');
 
 		dp++;
 	}
@@ -1143,7 +1143,7 @@ eth_loopback_test (void)
 			printf ("\tFirst %d rx errs:", nerr);
 			for (i = 0; i < nerr; i++)
 				printf (" %04x", ecp->rxerrs[i]);
-			puts ("\n");
+			putc ('\n');
 		}
 
 		if ((nerr = ecp->ntxerr) > 0) {
@@ -1152,7 +1152,7 @@ eth_loopback_test (void)
 			printf ("\tFirst %d tx errs:", nerr);
 			for (i = 0; i < nerr; i++)
 				printf (" %04x", ecp->txerrs[i]);
-			puts ("\n");
+			putc ('\n');
 		}
 	}
 

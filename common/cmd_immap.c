@@ -107,7 +107,7 @@ do_memcinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #if defined(CONFIG_8xx)
 	printf (" MCR   = %08x\n", memctl->memc_mcr);
 #elif defined(CONFIG_8260)
-	printf ("\n");
+	putc ('\n');
 #endif
 	printf ("MAMR  = %08x MBMR  = %08x",
 		memctl->memc_mamr, memctl->memc_mbmr);
@@ -325,7 +325,7 @@ do_iopset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	iopin_t iopin;
 
 	if (argc != 5) {
-		printf ("iopset PORT PIN CMD VALUE\n");
+		puts ("iopset PORT PIN CMD VALUE\n");
 		return 1;
 	}
 	port = argv[1][0] - 'A';
@@ -529,7 +529,7 @@ do_i2cinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	printf ("I2CER = %02x I2CMR = %02x\n", i2c->i2c_i2cer, i2c->i2c_i2cmr);
 
 	if (iip == NULL)
-		printf ("i2c parameter ram not allocated\n");
+		puts ("i2c parameter ram not allocated\n");
 	else {
 		printf ("RBASE = %08x TBASE = %08x\n",
 			iip->iic_rbase, iip->iic_tbase);

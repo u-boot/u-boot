@@ -683,6 +683,7 @@ typedef struct fcc_enet {
 #define FCC_PSMR_PRO	((uint)0x00400000)	/* Promiscuous Enable */
 #define FCC_PSMR_FCE	((uint)0x00200000)	/* Flow Control Enable */
 #define FCC_PSMR_RSH	((uint)0x00100000)	/* Receive Short Frames */
+#define FCC_PSMR_RMII	((uint)0x00020000)	/* Use RMII interface */
 #define FCC_PSMR_CAM	((uint)0x00000400)	/* CAM enable */
 #define FCC_PSMR_BRO	((uint)0x00000200)	/* Broadcast pkt discard */
 #define FCC_PSMR_ENCRC	((uint)0x00000080)	/* Use 32-bit CRC */

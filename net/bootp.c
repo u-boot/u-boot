@@ -268,7 +268,7 @@ static void BootpVendorProcess (u8 * ext, int size)
 	}
 
 #ifdef DEBUG_BOOTP_EXT
-	printf ("[BOOTP] Received fields: \n");
+	puts ("[BOOTP] Received fields: \n");
 	if (NetOurSubnetMask) {
 		puts ("NetOurSubnetMask : ");
 		print_IPaddr (NetOurSubnetMask);
@@ -585,7 +585,7 @@ BootpRequest (void)
 			}
 		}
 #ifdef DEBUG
-		printf("BootpRequest => Our Mac: ");
+		puts ("BootpRequest => Our Mac: ");
 		for (reg=0; reg<6; reg++) {
 			printf ("%x%c",
 				bi_enetaddr[reg],
@@ -887,9 +887,9 @@ DhcpHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len)
 				DhcpOptionsProcess(&bp->bp_vend[4]);
 			BootpCopyNetParams(bp); /* Store net params from reply */
 			dhcp_state = BOUND;
-			printf("DHCP client bound to address ");
+			puts ("DHCP client bound to address ");
 			print_IPaddr(NetOurIP);
-			printf("\n");
+			putc ('\n');
 
 			/* Obey the 'autoload' setting */
 			if ((s = getenv("autoload")) != NULL) {
@@ -915,7 +915,7 @@ DhcpHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len)
 		}
 		break;
 	default:
-		printf("DHCP: INVALID STATE\n");
+		puts ("DHCP: INVALID STATE\n");
 		break;
 	}
 

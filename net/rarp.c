@@ -49,7 +49,7 @@ RarpHandler(uchar * dummi0, unsigned dummi1, unsigned dummi2, unsigned dummi3)
 {
 	char *s;
 #ifdef	DEBUG
-	printf("Got good RARP\n");
+	puts ("Got good RARP\n");
 #endif
 	if ((s = getenv("autoload")) != NULL) {
 		if (*s == 'n') {

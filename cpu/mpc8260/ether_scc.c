@@ -110,7 +110,7 @@ int eth_send(volatile void *packet, int length)
 
     for(i=0; rtx->txbd[txIdx].cbd_sc & BD_ENET_TX_READY; i++) {
 	if (i >= TOUT_LOOP) {
-	    printf("scc: tx buffer not ready\n");
+	    puts ("scc: tx buffer not ready\n");
 	    goto out;
 	}
     }
@@ -122,7 +122,7 @@ int eth_send(volatile void *packet, int length)
 
     for(i=0; rtx->txbd[txIdx].cbd_sc & BD_ENET_TX_READY; i++) {
 	if (i >= TOUT_LOOP) {
-	    printf("scc: tx error\n");
+	    puts ("scc: tx error\n");
 	    goto out;
 	}
     }

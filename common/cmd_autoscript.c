@@ -68,7 +68,7 @@ autoscript (ulong addr)
 	memmove (hdr, (char *)addr, sizeof(image_header_t));
 
 	if (ntohl(hdr->ih_magic) != IH_MAGIC) {
-		printf ("Bad magic number\n");
+		puts ("Bad magic number\n");
 		return 1;
 	}
 
@@ -77,7 +77,7 @@ autoscript (ulong addr)
 	len = sizeof (image_header_t);
 	data = (ulong)hdr;
 	if (crc32(0, (char *)data, len) != crc) {
-		printf ("Bad header crc\n");
+		puts ("Bad header crc\n");
 		return 1;
 	}
 
@@ -86,13 +86,13 @@ autoscript (ulong addr)
 
 	if (verify) {
 		if (crc32(0, (char *)data, len) != ntohl(hdr->ih_dcrc)) {
-			printf ("Bad data crc\n");
+			puts ("Bad data crc\n");
 			return 1;
 		}
 	}
 
 	if (hdr->ih_type != IH_TYPE_SCRIPT) {
-		printf ("Bad image type\n");
+		puts ("Bad image type\n");
 		return 1;
 	}
 
@@ -100,7 +100,7 @@ autoscript (ulong addr)
 	len_ptr = (ulong *)data;
 
 	if ((len = ntohl(*len_ptr)) == 0) {
-		printf ("Empty Script\n");
+		puts ("Empty Script\n");
 		return 1;
 	}
 

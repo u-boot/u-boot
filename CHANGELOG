@@ -2,6 +2,14 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
+* Patches by Thomas Viehweger, 16 Mar 2004:
+  - show PCI clock frequency on MPC8260 systems
+  - add FCC_PSMR_RMII flag for HiP7 processors
+  - in do_jffs2_fsload(), take load address from load_addr if not set
+    explicit, update load_addr otherwise
+  - replaced printf by putc/puts when no formatting is needed
+    (smaller code size, faster execution)
+
 * Patch by Phillippe Robin, 16 Mar 2004:
   avoid dereferencing NULL pointer in lib_arm/armlinux.c
 

@@ -349,11 +349,11 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	flash_sect_t sect;
 
 	if (info->flash_id != FLASH_MAN_CFI) {
-		printf ("Can't erase unknown flash type - aborted\n");
+		puts ("Can't erase unknown flash type - aborted\n");
 		return 1;
 	}
 	if ((s_first < 0) || (s_first > s_last)) {
-		printf ("- no sectors to erase\n");
+		puts ("- no sectors to erase\n");
 		return 1;
 	}
 
@@ -366,7 +366,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	if (prot) {
 		printf ("- Warning: %d protected sectors will not be erased!\n", prot);
 	} else {
-		printf ("\n");
+		putc ('\n');
 	}
 
 
@@ -397,10 +397,10 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 			    (info, sect, info->erase_blk_tout, "erase")) {
 				rcode = 1;
 			} else
-				printf (".");
+				putc ('.');
 		}
 	}
-	printf (" done\n");
+	puts (" done\n");
 	return rcode;
 }
 
@@ -411,7 +411,7 @@ void flash_print_info (flash_info_t * info)
 	int i;
 
 	if (info->flash_id != FLASH_MAN_CFI) {
-		printf ("missing or unknown FLASH type\n");
+		puts ("missing or unknown FLASH type\n");
 		return;
 	}
 
@@ -425,7 +425,7 @@ void flash_print_info (flash_info_t * info)
 		info->buffer_write_tout,
 		info->buffer_size);
 
-	printf ("  Sector Start Addresses:");
+	puts ("  Sector Start Addresses:");
 	for (i = 0; i < info->sector_count; ++i) {
 #ifdef CFG_FLASH_EMPTY_INFO
 		int k;
@@ -464,7 +464,7 @@ void flash_print_info (flash_info_t * info)
 			info->start[i], info->protect[i] ? " (RO)" : "	   ");
 #endif
 	}
-	printf ("\n");
+	putc ('\n');
 	return;
 }
 
@@ -682,19 +682,19 @@ static int flash_full_status_check (flash_info_t * info, flash_sect_t sector,
 			printf ("Flash %s error at address %lx\n", prompt,
 				info->start[sector]);
 			if (flash_isset (info, sector, 0, FLASH_STATUS_ECLBS | FLASH_STATUS_PSLBS)) {
-				printf ("Command Sequence Error.\n");
+				puts ("Command Sequence Error.\n");
 			} else if (flash_isset (info, sector, 0, FLASH_STATUS_ECLBS)) {
-				printf ("Block Erase Error.\n");
+				puts ("Block Erase Error.\n");
 				retcode = ERR_NOT_ERASED;
 			} else if (flash_isset (info, sector, 0, FLASH_STATUS_PSLBS)) {
-				printf ("Locking Error\n");
+				puts ("Locking Error\n");
 			}
 			if (flash_isset (info, sector, 0, FLASH_STATUS_DPS)) {
-				printf ("Block locked.\n");
+				puts ("Block locked.\n");
 				retcode = ERR_PROTECTED;
 			}
 			if (flash_isset (info, sector, 0, FLASH_STATUS_VPENS))
-				printf ("Vpp Low Error.\n");
+				puts ("Vpp Low Error.\n");
 		}
 		flash_write_cmd (info, sector, 0, FLASH_CMD_RESET);
 		break;
@@ -777,7 +777,7 @@ static void flash_make_cmd (flash_info_t * info, uchar cmd, void *cmdbuf)
 		*(uint *) cmdbuf = __swab32 (stmpi);
 		break;
 	default:
-		printf("WARNING: flash_make_cmd: unsuppported LittleEndian mode\n");
+		puts ("WARNING: flash_make_cmd: unsuppported LittleEndian mode\n");
 		break;
 	}
 #endif

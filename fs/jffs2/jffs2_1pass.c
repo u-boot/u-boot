@@ -909,7 +909,7 @@ jffs2_1pass_build_lists(struct part_info * part)
 	pL = (struct b_lists *)part->jffs2_priv;
 	pL->partOffset = part->offset;
 	offset = 0;
-	printf("Scanning JFFS2 FS:   ");
+	puts ("Scanning JFFS2 FS:   ");
 
 	/* start at the beginning of the partition */
 	while (offset < max) {
@@ -930,7 +930,7 @@ jffs2_1pass_build_lists(struct part_info * part)
 				   dirent_crc((struct jffs2_raw_dirent *) node)  &&
 				   dirent_name_crc((struct jffs2_raw_dirent *) node)) {
 				if (! (counterN%100))
-					printf("\b\b.  ");
+					puts ("\b\b.  ");
 				if (insert_node(&pL->dir, (u32) part->offset +
 								offset) == NULL)
 					return 0;
@@ -1101,10 +1101,14 @@ jffs2_1pass_info(struct part_info * part)
 
 	jffs2_1pass_fill_info(pl, &info);
 	for (i = 0; i < JFFS2_NUM_COMPR; i++) {
-		printf("Compression: %s\n", compr_names[i]);
-		printf("\tfrag count: %d\n", info.compr_info[i].num_frags);
-		printf("\tcompressed sum: %d\n", info.compr_info[i].compr_sum);
-		printf("\tuncompressed sum: %d\n", info.compr_info[i].decompr_sum);
+		printf ("Compression: %s\n"
+			"\tfrag count: %d\n"
+			"\tcompressed sum: %d\n"
+			"\tuncompressed sum: %d\n",
+			compr_names[i],
+			info.compr_info[i].num_frags,
+			info.compr_info[i].compr_sum,
+			info.compr_info[i].decompr_sum);
 	}
 	return 1;
 }

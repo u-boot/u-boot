@@ -37,11 +37,11 @@ int do_diag (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	if (argc == 1 || strcmp (argv[1], "run") != 0) {
 		/* List test info */
 		if (argc == 1) {
-			printf ("Available hardware tests:\n");
+			puts ("Available hardware tests:\n");
 			post_info (NULL);
-			printf ("Use 'diag [<test1> [<test2> ...]]'"
+			puts ("Use 'diag [<test1> [<test2> ...]]'"
 					" to get more info.\n");
-			printf ("Use 'diag run [<test1> [<test2> ...]]'"
+			puts ("Use 'diag run [<test1> [<test2> ...]]'"
 					" to run tests.\n");
 		} else {
 			for (i = 1; i < argc; i++) {

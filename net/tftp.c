@@ -224,7 +224,7 @@ TftpHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 
 #ifdef ET_DEBUG
 		if (TftpState == STATE_RRQ) {
-			printf("Server did not acknowledge timeout option!\n");
+			puts ("Server did not acknowledge timeout option!\n");
 		}
 #endif
 

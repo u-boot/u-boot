@@ -149,14 +149,14 @@ flash_fill_sect_ranges (ulong addr_first, ulong addr_last,
 				if (addr_last > b_end) {
 					s_last[bank] = s_end;
 				} else {
-					printf ("Error: end address"
+					puts ("Error: end address"
 						" not on sector boundary\n");
 					rcode = 1;
 					break;
 				}
 			}
 			if (s_last[bank] < s_first[bank]) {
-				printf ("Error: end sector"
+				puts ("Error: end sector"
 					" precedes start sector\n");
 				rcode = 1;
 				break;
@@ -165,7 +165,7 @@ flash_fill_sect_ranges (ulong addr_first, ulong addr_last,
 			addr_first = (sect == s_end) ? b_end + 1: info->start[sect + 1];
 			(*s_count) += s_last[bank] - s_first[bank] + 1;
 		} else if (s_last[bank] >= 0) {
-			printf("Error: cannot span across banks when they are"
+			puts ("Error: cannot span across banks when they are"
 			       " mapped in reverse order\n");
 			rcode = 1;
 			break;
@@ -225,7 +225,7 @@ int do_flerase (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	if ((n = abbrev_spec(argv[1], &info, &sect_first, &sect_last)) != 0) {
 		if (n < 0) {
-			printf("Bad sector specification\n");
+			puts ("Bad sector specification\n");
 			return 1;
 		}
 		printf ("Erase Flash Sectors %d-%d in Bank # %d ",
@@ -294,7 +294,7 @@ int flash_sect_erase (ulong addr_first, ulong addr_last)
 		}
 		printf ("Erased %d sectors\n", erased);
 	} else if (rcode == 0) {
-		printf ("Error: start and/or end address"
+		puts ("Error: start and/or end address"
 			" not on sector boundary\n");
 		rcode = 1;
 	}
@@ -332,7 +332,7 @@ int do_protect (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		if (addr_dataflash(addr_first) && addr_dataflash(addr_last)) {
 			status = dataflash_real_protect(p,addr_first,addr_last);
 			if (status < 0){
-				printf("Bad DataFlash sector specification\n");
+				puts ("Bad DataFlash sector specification\n");
 				return 1;
 			}
 			printf("%sProtect %d DataFlash Sectors\n",
@@ -371,7 +371,7 @@ int do_protect (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	if ((n = abbrev_spec(argv[2], &info, &sect_first, &sect_last)) != 0) {
 		if (n < 0) {
-			printf("Bad sector specification\n");
+			puts ("Bad sector specification\n");
 			return 1;
 		}
 		printf("%sProtect Flash Sectors %d-%d in Bank # %d\n",
@@ -411,7 +411,7 @@ int do_protect (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		info = &flash_info[bank-1];
 
 		if (info->flash_id == FLASH_UNKNOWN) {
-			printf ("missing or unknown FLASH type\n");
+			puts ("missing or unknown FLASH type\n");
 			return 1;
 		}
 		for (i=0; i<info->sector_count; ++i) {
@@ -485,7 +485,7 @@ int flash_sect_protect (int p, ulong addr_first, ulong addr_last)
 		printf ("%sProtected %d sectors\n",
 			p ? "" : "Un-", protected);
 	} else if (rcode == 0) {
-		printf ("Error: start and/or end address"
+		puts ("Error: start and/or end address"
 			" not on sector boundary\n");
 		rcode = 1;
 	}

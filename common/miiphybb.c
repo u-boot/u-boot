@@ -134,7 +134,7 @@ int miiphy_read(unsigned char  addr,
   /* check the turnaround bit: the PHY should be driving it to zero */
   if(MDIO_READ != 0)
   {
-    /* printf("PHY didn't drive TA low\n"); */
+    /* puts ("PHY didn't drive TA low\n"); */
     for(j = 0; j < 32; j++)
     {
       MDC(0);

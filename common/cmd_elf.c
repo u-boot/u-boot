@@ -103,7 +103,7 @@ int do_bootvx ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if ((tmp = getenv ("loadaddr")) != NULL) {
 		addr = simple_strtoul (tmp, NULL, 16);
 	} else {
-		printf ("No load address provided\n");
+		puts ("No load address provided\n");
 		return 1;
 	}
 
@@ -133,7 +133,7 @@ int do_bootvx ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	tmp = (char *) CFG_ETHERNET_MAC_ADDR;
 	memcpy ((char *) tmp, (char *) &gd->bd->bi_enetaddr[0], 6);
 #else
-	printf ("## Ethernet MAC address not copied to NV RAM\n");
+	puts ("## Ethernet MAC address not copied to NV RAM\n");
 #endif
 
 	/*
@@ -200,7 +200,7 @@ int do_bootvx ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		 * to just copy
 		 */
 
-		printf ("No bootargs defined\n");
+		puts ("No bootargs defined\n");
 		return 1;
 #endif
 	}
@@ -214,7 +214,7 @@ int do_bootvx ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (valid_elf_image (addr)) {
 		addr = load_elf_image (addr);
 	} else {
-		printf ("## Not an ELF image, assuming binary\n");
+		puts ("## Not an ELF image, assuming binary\n");
 		/* leave addr as load_addr */
 	}
 
@@ -224,7 +224,7 @@ int do_bootvx ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	((void (*)(void)) addr) ();
 
-	printf ("## vxWorks terminated\n");
+	puts ("## vxWorks terminated\n");
 	return 1;
 }
 

@@ -44,9 +44,9 @@ int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	 * other useful registers
 	 */
 
-	printf("\nSystem Configuration registers\n");
+	printf ("\nSystem Configuration registers\n"
 
-	printf("\tIMMR\t0x%08X\n", get_immr(0));
+		"\tIMMR\t0x%08X\n", get_immr(0));
 
 	printf("\tSIUMCR\t0x%08X", sysconf->sc_siumcr);
 	printf("\tSYPCR\t0x%08X\n",sysconf->sc_sypcr);
@@ -61,9 +61,9 @@ int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	printf("\tTESR\t0x%08X\tSDCR\t0x%08X\n",
 		sysconf->sc_tesr, sysconf->sc_sdcr);
 
-	printf("Memory Controller Registers\n");
+	printf ("Memory Controller Registers\n"
 
-	printf("\tBR0\t0x%08X\tOR0\t0x%08X \n", memctl->memc_br0, memctl->memc_or0);
+		"\tBR0\t0x%08X\tOR0\t0x%08X \n", memctl->memc_br0, memctl->memc_or0);
 	printf("\tBR1\t0x%08X\tOR1\t0x%08X \n", memctl->memc_br1, memctl->memc_or1);
 	printf("\tBR2\t0x%08X\tOR2\t0x%08X \n", memctl->memc_br2, memctl->memc_or2);
 	printf("\tBR3\t0x%08X\tOR3\t0x%08X \n", memctl->memc_br3, memctl->memc_or3);
@@ -71,16 +71,15 @@ int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	printf("\tBR5\t0x%08X\tOR5\t0x%08X \n", memctl->memc_br5, memctl->memc_or5);
 	printf("\tBR6\t0x%08X\tOR6\t0x%08X \n", memctl->memc_br6, memctl->memc_or6);
 	printf("\tBR7\t0x%08X\tOR7\t0x%08X \n", memctl->memc_br7, memctl->memc_or7);
-	printf("\n");
-
-	printf("\tmamr\t0x%08X\tmbmr\t0x%08X \n",
+	printf ("\n"
+		"\tmamr\t0x%08X\tmbmr\t0x%08X \n",
 		memctl->memc_mamr, memctl->memc_mbmr );
 	printf("\tmstat\t0x%08X\tmptpr\t0x%08X \n",
 		memctl->memc_mstat, memctl->memc_mptpr );
 	printf("\tmdr\t0x%08X \n", memctl->memc_mdr);
 
-	printf("\nSystem Integration Timers\n");
-	printf("\tTBSCR\t0x%08X\tRTCSC\t0x%08X \n",
+	printf ("\nSystem Integration Timers\n"
+		"\tTBSCR\t0x%08X\tRTCSC\t0x%08X \n",
 		timers->sit_tbscr, timers->sit_rtcsc);
 	printf("\tPISCR\t0x%08X \n", timers->sit_piscr);
 
@@ -105,7 +104,7 @@ int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	mfdcr(uicvr),
 	mfdcr(uicvcr));
 
-	printf ("\nMemory (SDRAM) Configuration\n"
+	puts ("\nMemory (SDRAM) Configuration\n"
 	    "besra    besrsa   besrb    besrsb   bear     mcopt1   rtr      pmit\n");
 
 	mtdcr(memcfga,mem_besra); 	printf ("%08x ", mfdcr(memcfgd));
@@ -117,7 +116,7 @@ int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	mtdcr(memcfga,mem_rtr); 	printf ("%08x ", mfdcr(memcfgd));
 	mtdcr(memcfga,mem_pmit); 	printf ("%08x ", mfdcr(memcfgd));
 
-	printf ("\n"
+	puts ("\n"
 	    "mb0cf    mb1cf    mb2cf    mb3cf    sdtr1    ecccf    eccerr\n");
 	mtdcr(memcfga,mem_mb0cf); 	printf ("%08x ", mfdcr(memcfgd));
 	mtdcr(memcfga,mem_mb1cf); 	printf ("%08x ", mfdcr(memcfgd));
@@ -145,7 +144,7 @@ int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	mfdcr(dmacr2), mfdcr(dmact2),mfdcr(dmada2), mfdcr(dmasa2), mfdcr(dmasb2),
 	mfdcr(dmacr3), mfdcr(dmact3),mfdcr(dmada3), mfdcr(dmasa3), mfdcr(dmasb3) );
 
-	printf ("\n"
+	puts ("\n"
 	    "External Bus\n"
 	    "pbear    pbesr0   pbesr1   epcr\n");
 	mtdcr(ebccfga,pbear); 	printf ("%08x ", mfdcr(ebccfgd));
@@ -153,7 +152,7 @@ int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	mtdcr(ebccfga,pbesr1); 	printf ("%08x ", mfdcr(ebccfgd));
 	mtdcr(ebccfga,epcr); 	printf ("%08x ", mfdcr(ebccfgd));
 
-	printf ("\n"
+	puts ("\n"
 	    "pb0cr    pb0ap    pb1cr    pb1ap    pb2cr    pb2ap    pb3cr    pb3ap\n");
 	mtdcr(ebccfga,pb0cr); 	printf ("%08x ", mfdcr(ebccfgd));
 	mtdcr(ebccfga,pb0ap); 	printf ("%08x ", mfdcr(ebccfgd));
@@ -164,7 +163,7 @@ int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	mtdcr(ebccfga,pb3cr); 	printf ("%08x ", mfdcr(ebccfgd));
 	mtdcr(ebccfga,pb3ap); 	printf ("%08x ", mfdcr(ebccfgd));
 
-	printf ("\n"
+	puts ("\n"
 	    "pb4cr    pb4ap    pb5cr    bp5ap    pb6cr    pb6ap    pb7cr    pb7ap\n");
 	mtdcr(ebccfga,pb4cr); 	printf ("%08x ", mfdcr(ebccfgd));
 	mtdcr(ebccfga,pb4ap); 	printf ("%08x ", mfdcr(ebccfgd));
@@ -175,7 +174,7 @@ int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	mtdcr(ebccfga,pb7cr); 	printf ("%08x ", mfdcr(ebccfgd));
 	mtdcr(ebccfga,pb7ap); 	printf ("%08x ", mfdcr(ebccfgd));
 
-	printf ("\n\n");
+	puts ("\n\n");
 /* For the BUBINGA (IBM 405EP eval) but should be generically 405ep */
 #elif defined(CONFIG_405EP)
 	printf ("\n405EP registers; MSR=%08x\n",mfmsr());
@@ -192,7 +191,7 @@ int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	mfdcr(uicvr),
 	mfdcr(uicvcr));
 
-	printf ("\nMemory (SDRAM) Configuration\n"
+	puts ("\nMemory (SDRAM) Configuration\n"
 	    "mcopt1   rtr      pmit     mb0cf    mb1cf    sdtr1\n");
 
 	mtdcr(memcfga,mem_mcopt1); 	printf ("%08x ", mfdcr(memcfgd));
@@ -217,7 +216,7 @@ int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	mfdcr(dmacr2), mfdcr(dmact2),mfdcr(dmada2), mfdcr(dmasa2), mfdcr(dmasb2),
 	mfdcr(dmacr3), mfdcr(dmact3),mfdcr(dmada3), mfdcr(dmasa3), mfdcr(dmasb3) );
 
-	printf ("\n"
+	puts ("\n"
 	    "External Bus\n"
 	    "pbear    pbesr0   pbesr1   epcr\n");
 	mtdcr(ebccfga,pbear); 	printf ("%08x ", mfdcr(ebccfgd));
@@ -225,7 +224,7 @@ int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	mtdcr(ebccfga,pbesr1); 	printf ("%08x ", mfdcr(ebccfgd));
 	mtdcr(ebccfga,epcr); 	printf ("%08x ", mfdcr(ebccfgd));
 
-	printf ("\n"
+	puts ("\n"
 	    "pb0cr    pb0ap    pb1cr    pb1ap    pb2cr    pb2ap    pb3cr    pb3ap\n");
 	mtdcr(ebccfga,pb0cr); 	printf ("%08x ", mfdcr(ebccfgd));
 	mtdcr(ebccfga,pb0ap); 	printf ("%08x ", mfdcr(ebccfgd));
@@ -236,12 +235,12 @@ int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	mtdcr(ebccfga,pb3cr); 	printf ("%08x ", mfdcr(ebccfgd));
 	mtdcr(ebccfga,pb3ap); 	printf ("%08x ", mfdcr(ebccfgd));
 
-	printf ("\n"
+	puts ("\n"
 	    "pb4cr    pb4ap\n");
 	mtdcr(ebccfga,pb4cr); 	printf ("%08x ", mfdcr(ebccfgd));
 	mtdcr(ebccfga,pb4ap); 	printf ("%08x ", mfdcr(ebccfgd));
 
-	printf ("\n\n");
+	puts ("\n\n");
 #elif defined(CONFIG_5xx)
 
 	volatile immap_t     	*immap  = (immap_t *)CFG_IMMR;
@@ -251,14 +250,14 @@ int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	volatile car5xx_t	*car = &immap->im_clkrst;
 	volatile uimb5xx_t	*uimb = &immap->im_uimb;
 
-	printf("\nSystem Configuration registers\n");
+	puts ("\nSystem Configuration registers\n");
 	printf("\tIMMR\t0x%08X\tSIUMCR\t0x%08X \n", get_immr(0), sysconf->sc_siumcr);
 	printf("\tSYPCR\t0x%08X\tSWSR\t0x%04X \n" ,sysconf->sc_sypcr, sysconf->sc_swsr);
 	printf("\tSIPEND\t0x%08X\tSIMASK\t0x%08X \n", sysconf->sc_sipend, sysconf->sc_simask);
 	printf("\tSIEL\t0x%08X\tSIVEC\t0x%08X \n", sysconf->sc_siel, sysconf->sc_sivec);
 	printf("\tTESR\t0x%08X\n", sysconf->sc_tesr);
 
-	printf("\nMemory Controller Registers\n");
+	puts ("\nMemory Controller Registers\n");
 	printf("\tBR0\t0x%08X\tOR0\t0x%08X \n", memctl->memc_br0, memctl->memc_or0);
 	printf("\tBR1\t0x%08X\tOR1\t0x%08X \n", memctl->memc_br1, memctl->memc_or1);
 	printf("\tBR2\t0x%08X\tOR2\t0x%08X \n", memctl->memc_br2, memctl->memc_or2);
@@ -266,16 +265,16 @@ int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	printf("\tDMBR\t0x%08X\tDMOR\t0x%08X \n", memctl->memc_dmbr, memctl->memc_dmor );
 	printf("\tMSTAT\t0x%08X\n", memctl->memc_mstat);
 
-	printf("\nSystem Integration Timers\n");
+	puts ("\nSystem Integration Timers\n");
 	printf("\tTBSCR\t0x%08X\tRTCSC\t0x%08X \n", timers->sit_tbscr, timers->sit_rtcsc);
 	printf("\tPISCR\t0x%08X \n", timers->sit_piscr);
 
-	printf("\nClocks and Reset\n");
+	puts ("\nClocks and Reset\n");
 	printf("\tSCCR\t0x%08X\tPLPRCR\t0x%08X \n", car->car_sccr, car->car_plprcr);
 
-	printf("\nU-Bus to IMB3 Bus Interface\n");
+	puts ("\nU-Bus to IMB3 Bus Interface\n");
 	printf("\tUMCR\t0x%08X\tUIPEND\t0x%08X \n", uimb->uimb_umcr, uimb->uimb_uipend);
-	printf ("\n\n");
+	puts ("\n\n");
 #endif /* CONFIG_5xx */
 	return 0;
 }

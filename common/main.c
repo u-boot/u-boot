@@ -189,7 +189,7 @@ static __inline__ int abortboot(int bootdelay)
 	}
 #  if DEBUG_BOOTKEYS
 	if (!abort)
-		printf("key timeout\n");
+		puts ("key timeout\n");
 #  endif
 
 #ifdef CONFIG_SILENT_CONSOLE
@@ -246,7 +246,7 @@ static __inline__ int abortboot(int bootdelay)
 	if (bootdelay >= 0) {
 		if (tstc()) {	/* we got a key press	*/
 			(void) getc();  /* consume input	*/
-			printf ("\b\b\b 0");
+			puts ("\b\b\b 0");
 			abort = 1; 	/* don't auto boot	*/
 		}
 	}
@@ -473,7 +473,7 @@ void main_loop (void)
 		else if (len == -2) {
 			/* -2 means timed out, retry autoboot
 			 */
-			printf("\nTimed out waiting for command\n");
+			puts ("\nTimed out waiting for command\n");
 # ifdef CONFIG_RESET_TO_RETRY
 			/* Reinit board to run initialization code again */
 			do_reset (NULL, 0, 0, NULL);
@@ -484,7 +484,7 @@ void main_loop (void)
 #endif
 
 		if (len == -1)
-			printf ("<INTERRUPT>\n");
+			puts ("<INTERRUPT>\n");
 		else
 			rc = run_command (lastcommand, flag);
 
@@ -925,7 +925,7 @@ int run_command (const char *cmd, int flag)
 			printf ("[%s]\n", finaltoken);
 #endif
 			if (flag & CMD_FLAG_BOOTD) {
-				printf ("'bootd' recursion detected\n");
+				puts ("'bootd' recursion detected\n");
 				rc = -1;
 				continue;
 			}

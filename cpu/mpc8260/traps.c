@@ -58,19 +58,19 @@ print_backtrace(unsigned long *sp)
 	int cnt = 0;
 	unsigned long i;
 
-	printf("Call backtrace: ");
+	puts ("Call backtrace: ");
 	while (sp) {
 		if ((uint)sp > END_OF_MEM)
 			break;
 
 		i = sp[1];
 		if (cnt++ % 7 == 0)
-			printf("\n");
+			putc ('\n');
 		printf("%08lX ", i);
 		if (cnt > 32) break;
 		sp = (unsigned long *)*sp;
 	}
-	printf("\n");
+	putc ('\n');
 }
 
 void show_regs(struct pt_regs * regs)
@@ -85,7 +85,7 @@ void show_regs(struct pt_regs * regs)
 	       regs->msr&MSR_IR ? 1 : 0,
 	       regs->msr&MSR_DR ? 1 : 0);
 
-	printf("\n");
+	putc ('\n');
 	for (i = 0;  i < 32;  i++) {
 		if ((i % 8) == 0) {
 			printf("GPR%02d: ", i);
@@ -93,7 +93,7 @@ void show_regs(struct pt_regs * regs)
 
 		printf("%08lX ", regs->gpr[i]);
 		if ((i % 8) == 7) {
-			printf("\n");
+			putc ('\n');
 		}
 	}
 }
@@ -155,25 +155,25 @@ MachineCheckException(struct pt_regs *regs)
 		return;
 #endif
 
-	printf("Machine check in kernel mode.\n");
-	printf("Caused by (from msr): ");
+	puts ("Machine check in kernel mode.\n"
+		"Caused by (from msr): ");
 	printf("regs %p ",regs);
 	switch( regs->msr & 0x000F0000) {
 	case (0x80000000>>12):
-		printf("Machine check signal - probably due to mm fault\n"
+		puts ("Machine check signal - probably due to mm fault\n"
 			"with mmu off\n");
 		break;
 	case (0x80000000>>13):
-		printf("Transfer error ack signal\n");
+		puts ("Transfer error ack signal\n");
 		break;
 	case (0x80000000>>14):
-		printf("Data parity signal\n");
+		puts ("Data parity signal\n");
 		break;
 	case (0x80000000>>15):
-		printf("Address parity signal\n");
+		puts ("Address parity signal\n");
 		break;
 	default:
-		printf("Unknown values in msr\n");
+		puts ("Unknown values in msr\n");
 	}
 	show_regs(regs);
 	print_backtrace((unsigned long *)regs->gpr[1]);

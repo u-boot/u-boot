@@ -178,16 +178,16 @@ int do_mem_md ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #ifdef CONFIG_HAS_DATAFLASH
 		}
 #endif
-		printf("    ");
+		puts ("    ");
 		cp = linebuf;
 		for (i=0; i<linebytes; i++) {
 			if ((*cp < 0x20) || (*cp > 0x7e))
-				printf(".");
+				putc ('.');
 			else
 				printf("%c", *cp);
 			cp++;
 		}
-		printf("\n");
+		putc ('\n');
 		nbytes -= linebytes;
 		if (ctrlc()) {
 			rc = 1;
@@ -279,7 +279,7 @@ int do_mem_cmp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 #ifdef CONFIG_HAS_DATAFLASH
 	if (addr_dataflash(addr1) | addr_dataflash(addr2)){
-		printf("Comparison with DataFlash space not supported.\n\r");
+		puts ("Comparison with DataFlash space not supported.\n\r");
 		return 0;
 	}
 #endif
@@ -368,7 +368,7 @@ int do_mem_cp ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	   ) {
 		int rc;
 
-		printf ("Copy to Flash... ");
+		puts ("Copy to Flash... ");
 
 		rc = flash_write ((uchar *)addr, dest, count*size);
 		if (rc != 0) {
@@ -384,13 +384,13 @@ int do_mem_cp ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (mmc2info(dest)) {
 		int rc;
 
-		printf ("Copy to MMC... ");
+		puts ("Copy to MMC... ");
 		switch (rc = mmc_write ((uchar *)addr, dest, count*size)) {
 		case 0:
-			printf ("\n");
+			putc ('\n');
 			return 1;
 		case -1:
-			printf("failed\n");
+			puts ("failed\n");
 			return 1;
 		default:
 			printf ("%s[%d] FIXME: rc=%d\n",__FILE__,__LINE__,rc);
@@ -403,13 +403,13 @@ int do_mem_cp ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (mmc2info(addr)) {
 		int rc;
 
-		printf ("Copy from MMC... ");
+		puts ("Copy from MMC... ");
 		switch (rc = mmc_read (addr, (uchar *)dest, count*size)) {
 		case 0:
-			printf ("\n");
+			putc ('\n');
 			return 1;
 		case -1:
-			printf("failed\n");
+			puts ("failed\n");
 			return 1;
 		default:
 			printf ("%s[%d] FIXME: rc=%d\n",__FILE__,__LINE__,rc);
@@ -425,7 +425,7 @@ int do_mem_cp ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (addr_dataflash(dest) && !addr_dataflash(addr)){
 		int rc;
 
-		printf ("Copy to DataFlash... ");
+		puts ("Copy to DataFlash... ");
 
 		rc = write_dataflash (dest, addr, count*size);
 
@@ -449,7 +449,7 @@ int do_mem_cp ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 
 	if (addr_dataflash(addr) && addr_dataflash(dest)){
-		printf("Unsupported combination of source/destination.\n\r");
+		puts ("Unsupported combination of source/destination.\n\r");
 		return 1;
 	}
 #endif
@@ -828,7 +828,7 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			val  += incr;
 		}
 
-		printf("Reading...");
+		puts ("Reading...");
 
 		for (addr=start,val=pattern; addr<end; addr++) {
 			readback = *addr;
@@ -902,7 +902,7 @@ mod_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char *argv[])
 
 #ifdef CONFIG_HAS_DATAFLASH
 	if (addr_dataflash(addr)){
-		printf("Can't modify DataFlash in place. Use cp instead.\n\r");
+		puts ("Can't modify DataFlash in place. Use cp instead.\n\r");
 		return 0;
 	}
 #endif

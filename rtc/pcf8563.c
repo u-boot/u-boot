@@ -64,7 +64,7 @@ void rtc_get (struct rtc_time *tmp)
 		rtc_read (0x09) );
 
 	if (sec & 0x80) {
-		printf ("### Warning: RTC Low Voltage - date/time not reliable\n");
+		puts ("### Warning: RTC Low Voltage - date/time not reliable\n");
 	}
 
 	tmp->tm_sec  = bcd2bin (sec  & 0x7F);

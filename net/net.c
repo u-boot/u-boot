@@ -422,7 +422,7 @@ restart:
 		 */
 		if (ctrlc()) {
 			eth_halt();
-			printf("\nAbort\n");
+			puts ("\nAbort\n");
 			return (-1);
 		}
 
@@ -733,7 +733,7 @@ NetReceive(volatile uchar * pkt, int len)
 		 *   the server ethernet address
 		 */
 #ifdef ET_DEBUG
-		printf("Got ARP\n");
+		puts ("Got ARP\n");
 #endif
 		arp = (ARP_t *)ip;
 		if (len < ARP_HDR_SIZE) {
@@ -764,7 +764,7 @@ NetReceive(volatile uchar * pkt, int len)
 		switch (ntohs(arp->ar_op)) {
 		case ARPOP_REQUEST:		/* reply with our IP address	*/
 #ifdef ET_DEBUG
-			printf("Got ARP REQUEST, return our IP\n");
+			puts ("Got ARP REQUEST, return our IP\n");
 #endif
 			NetSetEther((uchar *)et, et->et_src, PROT_ARP);
 			arp->ar_op = htons(ARPOP_REPLY);
@@ -791,7 +791,7 @@ NetReceive(volatile uchar * pkt, int len)
 			/* matched waiting packet's address */
 			if (tmp == NetArpWaitReplyIP) {
 #ifdef ET_DEBUG
-				printf("Got it\n");
+				puts ("Got it\n");
 #endif
 				/* save address for later use */
 				memcpy(NetArpWaitPacketMAC, &arp->ar_data[0], 6);
@@ -816,7 +816,7 @@ NetReceive(volatile uchar * pkt, int len)
 
 	case PROT_RARP:
 #ifdef ET_DEBUG
-		printf("Got RARP\n");
+		puts ("Got RARP\n");
 #endif
 		arp = (ARP_t *)ip;
 		if (len < ARP_HDR_SIZE) {
@@ -829,7 +829,7 @@ NetReceive(volatile uchar * pkt, int len)
 			(ntohs(arp->ar_pro) != PROT_IP)     ||
 			(arp->ar_hln != 6) || (arp->ar_pln != 4)) {
 
-			printf("invalid RARP header\n");
+			puts ("invalid RARP header\n");
 		} else {
 			NetCopyIP(&NetOurIP,    &arp->ar_data[16]);
 			if (NetServerIP == 0)
@@ -842,7 +842,7 @@ NetReceive(volatile uchar * pkt, int len)
 
 	case PROT_IP:
 #ifdef ET_DEBUG
-		printf("Got IP\n");
+		puts ("Got IP\n");
 #endif
 		if (len < IP_HDR_SIZE) {
 			debug ("len bad %d < %d\n", len, IP_HDR_SIZE);
@@ -863,7 +863,7 @@ NetReceive(volatile uchar * pkt, int len)
 			return;
 		}
 		if (!NetCksumOk((uchar *)ip, IP_HDR_SIZE_NO_UDP / 2)) {
-			printf("checksum bad\n");
+			puts ("checksum bad\n");
 			return;
 		}
 		tmp = NetReadIP(&ip->ip_dst);

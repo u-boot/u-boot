@@ -98,7 +98,7 @@ do_jffs2_fsload(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
     char *fsname;
 
 	char *filename = "uImage";
-	ulong offset = CFG_LOAD_ADDR;
+	ulong offset = load_addr;
 	int size;
 	struct part_info *part;
 
@@ -107,6 +107,7 @@ do_jffs2_fsload(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 	if (argc == 3) {
 		offset = simple_strtoul(argv[1], NULL, 16);
+		load_addr = offset;
 		filename = argv[2];
 	}
 
@@ -135,7 +136,7 @@ do_jffs2_fsload(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 		return !(size > 0);
 	}
-	printf("Active partition not valid\n");
+	puts ("Active partition not valid\n");
 	return 0;
 }
 
@@ -164,7 +165,7 @@ do_jffs2_ls(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 		return (ret == 1);
 	}
-	printf("Active partition not valid\n");
+	puts ("Active partition not valid\n");
 	return 0;
 }
 
@@ -192,7 +193,7 @@ do_jffs2_fsinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 		return (ret == 1);
 	}
-	printf("Active partition not valid\n");
+	puts ("Active partition not valid\n");
 	return 0;
 }
 
@@ -206,7 +207,7 @@ do_jffs2_chpart(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
    if (argc >= 2) {
 		tmp_part = simple_strtoul(argv[1], NULL, 16);
 	}else{
-		printf("Need partition number in argument list\n");
+		puts ("Need partition number in argument list\n");
 		return 0;
 
 	}

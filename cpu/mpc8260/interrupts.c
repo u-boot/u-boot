@@ -262,8 +262,8 @@ do_irqinfo (cmd_tbl_t * cmdtp, bd_t * bd, int flag, int argc, char *argv[])
 
 	re_enable = disable_interrupts ();
 
-	printf ("\nInterrupt-Information:\n");
-	printf ("Nr  Routine   Arg       Count\n");
+	puts ("\nInterrupt-Information:\n"
+		"Nr  Routine   Arg       Count\n");
 
 	for (irq = 0; irq < 32; irq++)
 		if (irq_handlers[irq].handler != NULL)

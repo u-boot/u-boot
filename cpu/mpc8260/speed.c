@@ -175,19 +175,19 @@ int prt_8260_clks (void)
 
 	cp = &corecnf_tab[corecnf];
 
-	printf (CPU_ID_STR " Clock Configuration\n - Bus-to-Core Mult ");
+	puts (CPU_ID_STR " Clock Configuration\n - Bus-to-Core Mult ");
 
 	switch (cp->b2c_mult) {
 	case _byp:
-		printf ("BYPASS");
+		puts ("BYPASS");
 		break;
 
 	case _off:
-		printf ("OFF");
+		puts ("OFF");
 		break;
 
 	case _unk:
-		printf ("UNKNOWN");
+		puts ("UNKNOWN");
 		break;
 
 	default:
@@ -207,8 +207,19 @@ int prt_8260_clks (void)
 	printf (" - vco_out %10ld, scc_clk %10ld, brg_clk %10ld\n",
 			gd->vco_out, gd->scc_clk, gd->brg_clk);
 
-	printf (" - cpu_clk %10ld, cpm_clk %10ld, bus_clk %10ld\n\n",
+	printf (" - cpu_clk %10ld, cpm_clk %10ld, bus_clk %10ld\n",
 			gd->cpu_clk, gd->cpm_clk, gd->bus_clk);
+
+	if (sccr & SCCR_PCI_MODE) {
+		uint pci_div;
+
+		pci_div = ( (sccr & SCCR_PCI_MODCK) ? 2 : 1) *
+			( ( (sccr & SCCR_PCIDF_MSK) >> SCCR_PCIDF_SHIFT) + 1);
+
+		printf (" - pci_clk %10ld\n", (gd->cpm_clk * 2) / pci_div);
+	}
+	putc ('\n');
+
 	return (0);
 }
 

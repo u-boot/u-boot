@@ -47,14 +47,14 @@ int do_date (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	switch (argc) {
 	case 2:			/* set date & time */
 		if (strcmp(argv[1],"reset") == 0) {
-			printf ("Reset RTC...\n");
+			puts ("Reset RTC...\n");
 			rtc_reset ();
 		} else {
 			/* initialize tm with current time */
 			rtc_get (&tm);
 			/* insert new date & time */
 			if (mk_date (argv[1], &tm) != 0) {
-				printf ("## Bad date format\n");
+				puts ("## Bad date format\n");
 				return 1;
 			}
 			/* and write to RTC */

@@ -75,7 +75,7 @@ int do_eeprom ( cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 			rcode = eeprom_read (dev_addr, off, (uchar *) addr, cnt);
 
-			printf ("done\n");
+			puts ("done\n");
 			return rcode;
 		} else if (strcmp (argv[1], "write") == 0) {
 			int rcode;
@@ -84,7 +84,7 @@ int do_eeprom ( cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 			rcode = eeprom_write (dev_addr, off, (uchar *) addr, cnt);
 
-			printf ("done\n");
+			puts ("done\n");
 			return rcode;
 		}
 	}
@@ -295,7 +295,7 @@ int eeprom_write (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cn
 #endif
 			}
 			if (i == MAX_ACKNOWLEDGE_POLLS) {
-				printf("EEPROM poll acknowledge failed\n");
+				puts ("EEPROM poll acknowledge failed\n");
 				rcode = 1;
 			}
 		}

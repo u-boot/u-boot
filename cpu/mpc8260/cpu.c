@@ -94,40 +94,40 @@ int checkcpu (void)
 
 	switch (m) {
 	case 0x0000:
-		printf ("0.2 2J24M");
+		puts ("0.2 2J24M");
 		break;
 	case 0x0010:
-		printf ("A.0 K22A");
+		puts ("A.0 K22A");
 		break;
 	case 0x0011:
-		printf ("A.1 1K22A-XC");
+		puts ("A.1 1K22A-XC");
 		break;
 	case 0x0001:
-		printf ("B.1 1K23A");
+		puts ("B.1 1K23A");
 		break;
 	case 0x0021:
-		printf ("B.2 2K23A-XC");
+		puts ("B.2 2K23A-XC");
 		break;
 	case 0x0023:
-		printf ("B.3 3K23A");
+		puts ("B.3 3K23A");
 		break;
 	case 0x0024:
-		printf ("C.2 6K23A");
+		puts ("C.2 6K23A");
 		break;
 	case 0x0060:
-		printf ("A.0(A) 2K25A");
+		puts ("A.0(A) 2K25A");
 		break;
 	case 0x0062:
-		printf ("B.1 4K25A");
+		puts ("B.1 4K25A");
 		break;
 	case 0x0064:
-		printf ("C.0 5K25A");
+		puts ("C.0 5K25A");
 		break;
 	case 0x0A00:
-		printf ("0.0 0K49M");
+		puts ("0.0 0K49M");
 		break;
 	case 0x0A01:
-		printf ("0.1 1K49M");
+		puts ("0.1 1K49M");
 		break;
 	default:
 		printf ("unknown [immr=0x%04x,k=0x%04x]", m, k);

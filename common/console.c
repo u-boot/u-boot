@@ -456,23 +456,23 @@ int console_init_r (void)
 
 #ifndef CFG_CONSOLE_INFO_QUIET
 	/* Print information */
-	printf ("In:    ");
+	puts ("In:    ");
 	if (stdio_devices[stdin] == NULL) {
-		printf ("No input devices available!\n");
+		puts ("No input devices available!\n");
 	} else {
 		printf ("%s\n", stdio_devices[stdin]->name);
 	}
 
-	printf ("Out:   ");
+	puts ("Out:   ");
 	if (stdio_devices[stdout] == NULL) {
-		printf ("No output devices available!\n");
+		puts ("No output devices available!\n");
 	} else {
 		printf ("%s\n", stdio_devices[stdout]->name);
 	}
 
-	printf ("Err:   ");
+	puts ("Err:   ");
 	if (stdio_devices[stderr] == NULL) {
-		printf ("No error devices available!\n");
+		puts ("No error devices available!\n");
 	} else {
 		printf ("%s\n", stdio_devices[stderr]->name);
 	}
@@ -546,23 +546,23 @@ int console_init_r (void)
 
 #ifndef CFG_CONSOLE_INFO_QUIET
 	/* Print information */
-	printf ("In:    ");
+	puts ("In:    ");
 	if (stdio_devices[stdin] == NULL) {
-		printf ("No input devices available!\n");
+		puts ("No input devices available!\n");
 	} else {
 		printf ("%s\n", stdio_devices[stdin]->name);
 	}
 
-	printf ("Out:   ");
+	puts ("Out:   ");
 	if (stdio_devices[stdout] == NULL) {
-		printf ("No output devices available!\n");
+		puts ("No output devices available!\n");
 	} else {
 		printf ("%s\n", stdio_devices[stdout]->name);
 	}
 
-	printf ("Err:   ");
+	puts ("Err:   ");
 	if (stdio_devices[stderr] == NULL) {
-		printf ("No error devices available!\n");
+		puts ("No error devices available!\n");
 	} else {
 		printf ("%s\n", stdio_devices[stderr]->name);
 	}

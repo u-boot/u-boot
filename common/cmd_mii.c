@@ -109,13 +109,13 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		}
 	} else if (op == 'r') {
 		if (miiphy_read (addr, reg, &data) != 0) {
-			printf ("Error reading from the PHY\n");
+			puts ("Error reading from the PHY\n");
 			rcode = 1;
 		}
 		printf ("%04X\n", data & 0x0000FFFF);
 	} else if (op == 'w') {
 		if (miiphy_write (addr, reg, data) != 0) {
-			printf ("Error writing to the PHY\n");
+			puts ("Error writing to the PHY\n");
 			rcode = 1;
 		}
 	} else {

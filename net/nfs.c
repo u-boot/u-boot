@@ -746,19 +746,14 @@ NfsStart (void)
 			print_IPaddr (NetOurGatewayIP) ;
 		}
 	}
-	putc ('\n');
-
-	printf ("Filename '%s/%s'.", nfs_path, nfs_filename);
+	printf ("\nFilename '%s/%s'.", nfs_path, nfs_filename);
 
 	if (NetBootFileSize) {
 		printf (" Size is 0x%x Bytes = ", NetBootFileSize<<9);
 		print_size (NetBootFileSize<<9, "");
 	}
-	putc ('\n');
-
-	printf ("Load address: 0x%lx\n", load_addr);
-
-	printf ("Loading: *\b");
+	printf ("\nLoad address: 0x%lx\n"
+		"Loading: *\b", load_addr);
 
 	NetSetTimeout (NFS_TIMEOUT * CFG_HZ, NfsTimeout);
 	NetSetHandler (NfsHandler);
