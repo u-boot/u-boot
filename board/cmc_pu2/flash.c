@@ -35,24 +35,15 @@
 
 flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
 
-/*
- * CPU to flash interface is 32-bit, so make declaration accordingly
- */
-typedef unsigned short FLASH_PORT_WIDTH;
-typedef volatile unsigned short FLASH_PORT_WIDTHV;
-
-#define FPW  FLASH_PORT_WIDTH
-#define FPWV FLASH_PORT_WIDTHV
-
 #define FLASH_CYCLE1	0x0555
 #define FLASH_CYCLE2	0x02AA
 
 /*-----------------------------------------------------------------------
  * Functions
  */
-static ulong flash_get_size(FPWV *addr, flash_info_t *info);
+static ulong flash_get_size(vu_short *addr, flash_info_t *info);
 static void flash_reset(flash_info_t *info);
-static int write_word_amd(flash_info_t *info, FPWV *dest, FPW data);
+static int write_word_amd(flash_info_t *info, vu_short *dest, ushort data);
 static flash_info_t *flash_get_info(ulong base);
 
 /*-----------------------------------------------------------------------
@@ -68,8 +59,7 @@ unsigned long flash_init (void)
 	/* Init: no FLASHes known */
 	memset(&flash_info[0], 0, sizeof(flash_info_t));
 
-	flash_info[0].size =
-		flash_get_size((FPW *)flashbase, &flash_info[0]);
+	flash_info[0].size = flash_get_size((vu_short *)flashbase, &flash_info[0]);
 
 	size = flash_info[0].size;
 
@@ -96,13 +86,13 @@ unsigned long flash_init (void)
  */
 static void flash_reset(flash_info_t *info)
 {
-	FPWV *base = (FPWV *)(info->start[0]);
+	vu_short *base = (vu_short *)(info->start[0]);
 
 	/* Put FLASH back in read mode */
 	if ((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_INTEL)
-		*base = (FPW)0x00FF;	/* Intel Read Mode */
+		*base = 0x00FF;	/* Intel Read Mode */
 	else if ((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_AMD)
-		*base = (FPW)0x00F0;	/* AMD Read Mode */
+		*base = 0x00F0;	/* AMD Read Mode */
 }
 
 /*-----------------------------------------------------------------------
@@ -180,49 +170,53 @@ void flash_print_info (flash_info_t *info)
  * The following code cannot be run from FLASH!
  */
 
-ulong flash_get_size (FPWV *addr, flash_info_t *info)
+ulong flash_get_size (vu_short *addr, flash_info_t *info)
 {
 	int i;
+	ushort value;
 	ulong base = (ulong)addr;
 
-	/* Write auto select command: read Manufacturer ID */
-	/* Write auto select command sequence and test FLASH answer */
-	addr[FLASH_CYCLE1] = (FPW)0x00AA;	/* for AMD, Intel ignores this */
-	addr[FLASH_CYCLE2] = (FPW)0x0055;	/* for AMD, Intel ignores this */
-	addr[FLASH_CYCLE1] = (FPW)0x0090;	/* selects Intel or AMD */
+	/* Write auto select command sequence */
+	addr[FLASH_CYCLE1] = 0x00AA;	/* for AMD, Intel ignores this */
+	addr[FLASH_CYCLE2] = 0x0055;	/* for AMD, Intel ignores this */
+	addr[FLASH_CYCLE1] = 0x0090;	/* selects Intel or AMD */
 
-	/* The manufacturer codes are only 1 byte, so just use 1 byte.
-	 * This works for any bus width and any FLASH device width.
-	 */
+	/* read Manufacturer ID */
 	udelay(100);
-	switch (addr[0] & 0xff) {
+	value = addr[0];
+	debug ("Manufacturer ID: %04X\n", value);
 
-	case (uchar)AMD_MANUFACT:
+	switch (value) {
+
+	case (AMD_MANUFACT & 0xFFFF):
 		debug ("Manufacturer: AMD (Spansion)\n");
 		info->flash_id = FLASH_MAN_AMD;
 		break;
 
-	case (uchar)INTEL_MANUFACT:
+	case (INTEL_MANUFACT & 0xFFFF):
 		debug ("Manufacturer: Intel (not supported yet)\n");
 		info->flash_id = FLASH_MAN_INTEL;
 		break;
 
 	default:
+		printf ("Unknown Manufacturer ID: %04X\n", value);
 		info->flash_id = FLASH_UNKNOWN;
 		info->sector_count = 0;
 		info->size = 0;
-		break;
+		goto out;
 	}
 
-	/* Check 16 bits or 32 bits of ID so work on 32 or 16 bit bus. */
-	if (info->flash_id != FLASH_UNKNOWN) switch ((FPW)addr[1]) {
+	value = addr[1];
+	debug ("Device ID: %04X\n", value);
 
-	case AMD_ID_MIRROR:
+	switch (addr[1]) {
+
+	case (AMD_ID_MIRROR & 0xFFFF):
 		debug ("Mirror Bit flash: addr[14] = %08X  addr[15] = %08X\n",
 			addr[14], addr[15]);
 
-		switch(addr[14] & 0xffff) {
-		case (AMD_ID_GL064M_2 & 0xffff):
+		switch(addr[14]) {
+		case (AMD_ID_GL064M_2 & 0xFFFF):
 			if (addr[15] != (AMD_ID_GL064M_3 & 0xffff)) {
 				printf ("Chip: S29GLxxxM -> unknown\n");
 				info->flash_id = FLASH_UNKNOWN;
@@ -249,11 +243,14 @@ ulong flash_get_size (FPWV *addr, flash_info_t *info)
 		break;
 
 	default:
+		printf ("Unknown Device ID: %04X\n", value);
 		info->flash_id = FLASH_UNKNOWN;
 		info->sector_count = 0;
 		info->size = 0;
+		break;
 	}
 
+out:
 	/* Put FLASH back in read mode */
 	flash_reset(info);
 
@@ -265,7 +262,7 @@ ulong flash_get_size (FPWV *addr, flash_info_t *info)
 
 int	flash_erase (flash_info_t *info, int s_first, int s_last)
 {
-	FPWV *addr = (FPWV *)(info->start[0]);
+	vu_short *addr = (vu_short *)(info->start[0]);
 	int flag, prot, sect, ssect, l_sect;
 	ulong start, now, last;
 
@@ -324,7 +321,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 			if ((sect + ssect) > s_last)
 				break;
 			if (info->protect[sect + ssect] == 0) {	/* not protected */
-				addr = (FPWV *)(info->start[sect + ssect]);
+				addr = (vu_short *)(info->start[sect + ssect]);
 				addr[0] = 0x0030;
 				l_sect = sect + ssect;
 			}
@@ -340,7 +337,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 
 		start = get_timer (0);
 		last  = start;
-		addr = (FPWV *)(info->start[l_sect]);
+		addr = (vu_short *)(info->start[l_sect]);
 		while ((addr[0] & 0x0080) != 0x0080) {
 			if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
 				printf ("Timeout\n");
@@ -352,7 +349,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 				last = now;
 			}
 		}
-		addr = (FPWV *)info->start[0];
+		addr = (vu_short *)info->start[0];
 		addr[0] = 0x00F0;	/* reset bank */
 		sect += ssect;
 	}
@@ -363,7 +360,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 
 DONE:
 	/* reset to read mode */
-	addr = (FPWV *)info->start[0];
+	addr = (vu_short *)info->start[0];
 	addr[0] = 0x00F0;	/* reset bank */
 
 	printf (" done\n");
@@ -395,8 +392,8 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 	wp = addr;
 
 	while (cnt >= 2) {
-		data = *((FPWV *)src);
-		if ((rc = write_word_amd(info, (FPW *)wp, data)) != 0) {
+		data = *((vu_short *)src);
+		if ((rc = write_word_amd(info, (vu_short *)wp, data)) != 0) {
 			return (rc);
 		}
 		src += 2;
@@ -411,7 +408,7 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 	if (cnt == 1) {
 		data = (*((volatile u8 *) src)) | (*((volatile u8 *) (wp + 1))
 				<< 8);
-		if ((rc = write_word_amd(info, (FPW *)wp, data)) != 0) {
+		if ((rc = write_word_amd(info, (vu_short *)wp, data)) != 0) {
 			return (rc);
 		}
 		src += 1;
@@ -432,25 +429,25 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
  * 1 - write timeout
  * 2 - Flash not erased
  */
-static int write_word_amd (flash_info_t *info, FPWV *dest, FPW data)
+static int write_word_amd (flash_info_t *info, vu_short *dest, ushort data)
 {
 	ulong start;
 	int flag;
-	FPWV *base;		/* first address in flash bank	*/
+	vu_short *base;		/* first address in flash bank	*/
 
 	/* Check if Flash is (sufficiently) erased */
 	if ((*dest & data) != data) {
 		return (2);
 	}
 
-	base = (FPWV *)(info->start[0]);
+	base = (vu_short *)(info->start[0]);
 
 	/* Disable interrupts which might cause a timeout here */
 	flag = disable_interrupts();
 
-	base[FLASH_CYCLE1] = (FPW)0x00AA;	/* unlock */
-	base[FLASH_CYCLE2] = (FPW)0x0055;	/* unlock */
-	base[FLASH_CYCLE1] = (FPW)0x00A0;	/* selects program mode */
+	base[FLASH_CYCLE1] = 0x00AA;	/* unlock */
+	base[FLASH_CYCLE2] = 0x0055;	/* unlock */
+	base[FLASH_CYCLE1] = 0x00A0;	/* selects program mode */
 
 	*dest = data;		/* start programming the data	*/
 
@@ -461,9 +458,9 @@ static int write_word_amd (flash_info_t *info, FPWV *dest, FPW data)
 	start = get_timer (0);
 
 	/* data polling for D7 */
-	while ((*dest & (FPW)0x0080) != (data & (FPW)0x0080)) {
+	while ((*dest & 0x0080) != (data & 0x0080)) {
 		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
-			*dest = (FPW)0x00F0;	/* reset bank */
+			*dest = 0x00F0;	/* reset bank */
 			return (1);
 		}
 	}

@@ -83,15 +83,8 @@
 		":$(hostname):$(netdev):off panic=1\0"			\
 	"flash_nfs=run nfsargs addip;"					\
 		"bootm $(kernel_addr)\0"				\
-	"flash_self=run ramargs addip;"					\
-		"bootm $(kernel_addr) $(ramdisk_addr)\0"		\
 	"net_nfs=tftp 200000 $(bootfile);run nfsargs addip;bootm\0"	\
-	"rootpath=/opt/eldk3.0_ppc/ppc_82xx\0"				\
-	"bootfile=uImage\0"					\
-	"serverip=192.168.1.1\0"					\
-	"ipaddr=192.168.160.2\0" \
-	"ethaddr=00:00:1A:1B:CE:AF\0" \
-	"dk=tftp 100000 inka4x0/u-boot.dk;protect off all;erase ffe00000 ffe2ffff;cp.b 100000 ffe00000 $(filesize)\0" \
+	"rootpath=/opt/eldk/ppc_82xx\0"					\
 	""
 
 #define CONFIG_BOOTCOMMAND	"run net_nfs"

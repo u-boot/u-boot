@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Fix problems with CMC_PU2 flash driver.
+
 * Cleanup:
   - avoid trigraph warning in fs/ext2/ext2fs.c
   - rename UC100 -> uc100

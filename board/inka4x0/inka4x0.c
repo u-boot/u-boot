@@ -162,7 +162,7 @@ long int initdram (int board_type)
 
 int checkboard (void)
 {
-	puts ("Board: INKA 4X0 (Indatec GmbH & Co. KG)\n");
+	puts ("Board: INKA 4X0\n");
 	return 0;
 }
 
