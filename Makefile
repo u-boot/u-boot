@@ -204,6 +204,8 @@ cmi_mpc5xx_config:	unconfig
 MPC5200LITE_config		\
 MPC5200LITE_LOWBOOT_config	\
 MPC5200LITE_LOWBOOT08_config	\
+icecube_5200_DDR_config		\
+IceCube_5200_DDR_config		\
 icecube_5200_config		\
 IceCube_5200_config		\
 IceCube_5100_config:		unconfig
@@ -219,6 +221,10 @@ IceCube_5100_config:		unconfig
 	@[ -z "$(findstring 5200,$@)" ] || \
 		{ echo "#define CONFIG_MPC5200"		>>include/config.h ; \
 		  echo "... with MPC5200 processor" ; \
+		}
+	@[ -z "$(findstring DDR,$@)" ] || \
+		{ echo "#define CONFIG_MPC5200_DDR"	>>include/config.h ; \
+		  echo "... DDR memory revision" ; \
 		}
 	@[ -z "$(findstring 5100,$@)" ] || \
 		{ echo "#define CONFIG_MGT5100"		>>include/config.h ; \
@@ -895,23 +901,27 @@ smdk2400_config	:	unconfig
 smdk2410_config	:	unconfig
 	@./mkconfig $(@:_config=) arm arm920t smdk2410
 
+# TRAB default configuration:	8 MB Flash, 32 MB RAM
 trab_config \
 trab_bigram_config \
 trab_bigflash_config \
 trab_old_config:	unconfig
 	@ >include/config.h
 	@[ -z "$(findstring _bigram,$@)" ] || \
-		{ echo "#define CONFIG_FLASH_8MB" >>include/config.h ; \
+		{ echo "#define CONFIG_FLASH_8MB"  >>include/config.h ; \
+		  echo "#define CONFIG_RAM_32MB"   >>include/config.h ; \
 		  echo "... with 8 MB Flash, 32 MB RAM" ; \
 		}
 	@[ -z "$(findstring _bigflash,$@)" ] || \
-		{ echo "#define CONFIG_RAM_16MB" >>include/config.h ; \
+		{ echo "#define CONFIG_FLASH_16MB" >>include/config.h ; \
+		  echo "#define CONFIG_RAM_16MB"   >>include/config.h ; \
 		  echo "... with 16 MB Flash, 16 MB RAM" ; \
 		  echo "TEXT_BASE = 0x0CF40000" >board/trab/config.tmp ; \
 		}
 	@[ -z "$(findstring _old,$@)" ] || \
-		{ echo "#define CONFIG_OLD_VERSION" >>include/config.h ; \
-		  echo "... with small memory configuration" ; \
+		{ echo "#define CONFIG_FLASH_8MB"  >>include/config.h ; \
+		  echo "#define CONFIG_RAM_16MB"   >>include/config.h ; \
+		  echo "... with 8 MB Flash, 16 MB RAM" ; \
 		  echo "TEXT_BASE = 0x0CF40000" >board/trab/config.tmp ; \
 		}
 	@./mkconfig -a $(call xtract_trab,$@) arm arm920t trab

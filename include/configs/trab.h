@@ -26,10 +26,15 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#ifdef CONFIG_OLD_VERSION		/* Old configuration:		*/
-#define	CONFIG_RAM_16MB			/*	16 MB SDRAM		*/
+/*
+ * Default configuration is with 8 MB Flash, 32 MB RAM
+ */
+#if (!defined(CONFIG_FLASH_8MB)) && (!defined(CONFIG_FLASH_16MB))
+# define CONFIG_FLASH_8MB	/*  8 MB Flash	*/
 #endif
-#define CONFIG_FLASH_8MB		/*	 8 MB Flash		*/
+#if (!defined(CONFIG_RAM_16MB)) && (!defined(CONFIG_RAM_32MB))
+# define CONFIG_RAM_32MB	/* 32 MB SDRAM	*/
+#endif
 
 /*
  * If we are developing, we might want to start armboot from ram

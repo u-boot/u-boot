@@ -2,6 +2,12 @@
 Changes since U-Boot 1.0.0:
 ======================================================================
 
+* Fix IceCube CLKIN configuration (it's 33.000000MHz)
+
+* Add new configuration for IceCube board with DDR memory
+
+* Update TRAB memory configurations
+
 * Add JFFS2 support for INCA-IP board
 
 * Patch by Bill Hargen, 09 Dec 2003:

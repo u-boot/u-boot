@@ -32,7 +32,7 @@
 #define CONFIG_MPC5XXX		1	/* This is an MPC5xxx CPU */
 #define CONFIG_ICECUBE		1	/* ... on IceCube board */
 
-#define CFG_MPC5XXX_CLKIN	33333333 /* ... running at 33MHz */
+#define CFG_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz */
 
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH  */
 #define BOOTFLAG_WARM		0x02	/* Software reboot	     */
@@ -219,7 +219,11 @@
 /*
  * GPIO configuration
  */
+#ifdef CONFIG_MPC5200_DDR
+#define CFG_GPS_PORT_CONFIG	0x90000004
+#else
 #define CFG_GPS_PORT_CONFIG	0x10000004
+#endif
 
 /*
  * Miscellaneous configurable options
@@ -253,11 +257,24 @@
 #define CFG_HID0_FINAL		0
 #endif
 
+#ifdef CONFIG_MPC5200_DDR
+
+#define CFG_BOOTCS_START	0xff800000
+#define CFG_BOOTCS_SIZE		0x00800000
+#define CFG_BOOTCS_CFG		0x00047801
+#define CFG_CS1_START		0xff000000
+#define CFG_CS1_SIZE		0x00800000
+#define CFG_CS1_CFG		0x00047800
+
+#else /* !CONFIG_MPC5200_DDR */
+
 #define CFG_BOOTCS_START	CFG_FLASH_BASE
 #define CFG_BOOTCS_SIZE		CFG_FLASH_SIZE
 #define CFG_BOOTCS_CFG		0x00047801
 #define CFG_CS0_START		CFG_FLASH_BASE
 #define CFG_CS0_SIZE		CFG_FLASH_SIZE
+
+#endif /* CONFIG_MPC5200_DDR */
 
 #define CFG_CS_BURST		0x00000000
 #define CFG_CS_DEADCYCLE	0x33333333
