@@ -30,8 +30,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define DEBUG 1
-
 /*
  * If we are developing, we might want to start U-Boot from ram
  * so we MUST NOT initialize critical regs like mem-timing ...
@@ -62,7 +60,7 @@
 #define CONFIG_BAUDRATE		19200
 #define CONFIG_MISC_INIT_R	1	/* we have a misc_init_r() function */
 
-#define CONFIG_COMMANDS (CFG_CMD_BDI|CFG_CMD_LOADB|CFG_CMD_IMI|CFG_CMD_FLASH|CFG_CMD_MEMORY|CFG_CMD_NET|CFG_CMD_ENV|CFG_CMD_RUN|CFG_CMD_ASKENV|CFG_CMD_ECHO|CFG_CMD_I2C|CFG_CMD_DHCP)
+#define CONFIG_COMMANDS (CFG_CMD_BDI|CFG_CMD_LOADB|CFG_CMD_IMI|CFG_CMD_FLASH|CFG_CMD_MEMORY|CFG_CMD_NET|CFG_CMD_ENV|CFG_CMD_RUN|CFG_CMD_ASKENV|CFG_CMD_ECHO|CFG_CMD_I2C|CFG_CMD_DHCP|CFG_CMD_CACHE)
 /* CONFIG_CMD_DFL|CFG_CMD_I2C|CFG_CMD_EEPROM|CFG_CMD_NET|CFG_CMD_JFFS2|CFG_CMD_DHCP) */
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any)   */
 #include <cmd_confdefs.h>

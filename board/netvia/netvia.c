@@ -29,6 +29,17 @@
 #include <common.h>
 #include "mpc8xx.h"
 
+/****************************************************************/
+
+#if defined(CONFIG_NETVIA_VERSION) && CONFIG_NETVIA_VERSION >= 2
+/* last value written to the external register; we cannot read back */
+unsigned int last_er_val;
+#endif
+
+/****************************************************************/
+
+/****************************************************************/
+
 /* some sane bit macros */
 #define _BD(_b)				(1U << (31-(_b)))
 #define _BDR(_l, _h)			(((((1U << (31-(_l))) - 1) << 1) | 1) & ~((1U << (31-(_h))) - 1))
@@ -42,13 +53,11 @@
 #define _B(_b)				_BD(_b)
 #define _BR(_l, _h)			_BDR(_l, _h)
 
-/* ------------------------------------------------------------------------- */
-
-/* ------------------------------------------------------------------------- */
+/****************************************************************/
 
 #define _NOT_USED_	0xFFFFFFFF
 
-/* ------------------------------------------------------------------------- */
+/****************************************************************/
 
 #define CS_0000		0x00000000
 #define CS_0001		0x10000000
@@ -208,7 +217,11 @@ const uint sdram_table[0x40] = {
 
 int checkboard(void)
 {
-	printf ("NETVIA\n");
+#if !defined(CONFIG_NETVIA_VERSION) || CONFIG_NETVIA_VERSION == 1
+	printf ("NETVIA v1\n");
+#else
+	printf ("NETVIA v2+\n");
+#endif
 	return (0);
 }
 
@@ -275,25 +288,6 @@ long int initdram(int board_type)
 
 	udelay(10000);
 
-	/* do the ram test */
-	{
-		register unsigned long *rp;
-		register unsigned long v;
-
-		/* first fill */
-		for (rp = (unsigned long *)0; rp < (unsigned long *)SDRAM_MAX_SIZE; )
-		    *rp++ = (unsigned long)rp;
-
-		/* now check */
-		for (rp = (unsigned long *)0; rp < (unsigned long *)SDRAM_MAX_SIZE; rp++) {
-		    if ((v = *rp) != (unsigned long)rp) {
-			printf("ERROR at 0x%lx (0x%lx)\n", (unsigned long)rp, v);
-			return -1;
-		    }
-		}
-
-	}
-
 	return (size);
 }
 
@@ -301,74 +295,141 @@ long int initdram(int board_type)
 
 int misc_init_r(void)
 {
+#if defined(CONFIG_NETVIA_VERSION) && CONFIG_NETVIA_VERSION >= 2
+	last_er_val = 0xffffffff;
+#endif
 	return(0);
 }
 
 /* ------------------------------------------------------------------------- */
 
+/* GP = general purpose, SP = special purpose (on chip peripheral) */
+
 /* bits that can have a special purpose or can be configured as inputs/outputs */
-#define PA_MASK		(_BWR(4, 9) | _BWR(12, 15))
-#define PA_ODR_MASK	(_BW(9) | _BW(12) | _BW(14))
-#define PA_ODR_VAL	0
 #define PA_GP_INMASK	0
-#define PA_GP_OUTMASK	(_BW(5) | _BW(14) | _BW(15))
-#define PA_SP_OUTMASK	0
+#define PA_GP_OUTMASK	(_BW(5) | _BWR(14, 15))
+#define PA_SP_MASK	(_BW(4) | _BWR(6, 13))
+#define PA_ODR_VAL	0
 #define PA_GP_OUTVAL	_BW(5)
-#define PA_SP_OUTVAL	0
+#define PA_SP_DIRVAL	0
 
-#define PB_MASK		(_BR(16, 19) | _BR(22, 31))
-#define PB_ODR_MASK	PB_MASK
+#define PB_GP_INMASK	_B(28)
+#define PB_GP_OUTMASK	(_BR(16, 19) | _BR(26, 27) | _BR(29, 31))
+#define PB_SP_MASK	_BR(22, 25)
 #define PB_ODR_VAL	0
-#define PB_GP_INMASK	0
-#define PB_GP_OUTMASK	(_BR(16, 19) | _BR(26, 27) | _B(31))
-#define PB_SP_OUTMASK	_BR(28, 30)
-#define PB_SP_OUTVAL	_BR(28, 30)
-#define PB_GP_OUTVAL	(_BR(16, 19) | _BR(26, 27) | _B(31))
+#define PB_GP_OUTVAL	(_BR(16, 19) | _BR(26, 27) | _BR(29, 31))
+#define PB_SP_DIRVAL	0
 
-#define PC_MASK		_BWR(4, 15)
-#define PC_SO_MASK	(_BWR(6, 11) | _BWR(14, 15))
-#define PC_SO_VAL	0
-#define PC_INT_MASK	PC_MASK
-#define PC_INT_VAL	0
+#if !defined(CONFIG_NETVIA_VERSION) || CONFIG_NETVIA_VERSION == 1
+
 #define PC_GP_INMASK	(_BWR(5, 7) | _BWR(9, 10) | _BW(13))
 #define PC_GP_OUTMASK	_BW(12)
-#define PC_SP_OUTMASK	0
-#define PC_SP_OUTVAL	_BW(12)
+#define PC_SP_MASK	(_BW(4) | _BW(8))
+#define PC_SOVAL	0
+#define PC_INTVAL	0
 #define PC_GP_OUTVAL	0
+#define PC_SP_DIRVAL	0
 
-#define PD_MASK		_BWR(0, 15)
 #define PD_GP_INMASK	0
 #define PD_GP_OUTMASK	_BWR(3, 15)
-#define PD_SP_OUTMASK	0
+#define PD_SP_MASK	0
 #define PD_GP_OUTVAL	(_BW(3) | _BW(5) | _BW(7) | _BWR(8, 15))
-#define PD_SP_OUTVAL	0
+#define PD_SP_DIRVAL	0
+
+#elif CONFIG_NETVIA_VERSION >= 2
+
+#define PC_GP_INMASK	(_BW(5) | _BW(7) | _BWR(9, 11) | _BWR(13, 15))
+#define PC_GP_OUTMASK	(_BW(6) | _BW(12))
+#define PC_SP_MASK	(_BW(4) | _BW(8))
+#define PC_SOVAL	0
+#define PC_INTVAL	_BW(7)
+#define PC_GP_OUTVAL	(_BW(6) | _BW(12))
+#define PC_SP_DIRVAL	0
+
+#define PD_GP_INMASK	0
+#define PD_GP_OUTMASK	_BWR(3, 15)
+#define PD_SP_MASK	0
+#define PD_GP_OUTVAL	(_BW(3) | _BW(5) | _BW(9) | _BW(11))
+#define PD_SP_DIRVAL	0
+
+#else
+#error Unknown NETVIA board version.
+#endif
 
 int board_pre_init(void)
 {
-	register volatile immap_t *immap = (immap_t *) CFG_IMMR;
-	register volatile iop8xx_t *ioport = &immap->im_ioport;
-	register volatile cpm8xx_t *cpm = &immap->im_cpm;
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile iop8xx_t *ioport = &immap->im_ioport;
+	volatile cpm8xx_t *cpm = &immap->im_cpm;
+	volatile memctl8xx_t *memctl = &immap->im_memctl;
 
-	ioport->iop_padat = (ioport->iop_padat & ~PA_MASK)     | PA_SP_OUTVAL | PA_GP_OUTVAL;
-	ioport->iop_paodr = (ioport->iop_paodr & ~PA_ODR_MASK) | PA_ODR_VAL;
-	ioport->iop_padir = (ioport->iop_padir & ~PA_GP_INMASK)| PA_SP_OUTMASK | PA_GP_OUTMASK;
-	ioport->iop_papar = (ioport->iop_papar & ~(PA_GP_INMASK & PA_GP_OUTMASK));
+	/* DSP0 chip select */
+	memctl->memc_or4 = ((0xFFFFFFFFLU & ~(DSP_SIZE - 1)) | OR_CSNT_SAM | OR_BI | OR_ACS_DIV2 | OR_SETA | OR_TRLX);
+	memctl->memc_br4 = ((DSP0_BASE & BR_BA_MSK) | BR_PS_16 | BR_V);
 
-	cpm->cp_pbdat = (ioport->iop_padat & ~PB_MASK)     | PB_SP_OUTVAL | PB_GP_OUTVAL;
-	cpm->cp_pbodr = (ioport->iop_paodr & ~PB_ODR_MASK) | PB_ODR_VAL;
-	cpm->cp_pbdir = (ioport->iop_padir & ~PB_GP_INMASK)| PB_SP_OUTMASK | PB_GP_OUTMASK;
-	cpm->cp_pbpar = (ioport->iop_papar & ~(PB_GP_INMASK & PB_GP_OUTMASK));
+	/* DSP1 chip select */
+	memctl->memc_or5 = ((0xFFFFFFFFLU & ~(DSP_SIZE - 1)) | OR_CSNT_SAM | OR_BI | OR_ACS_DIV2 | OR_SETA | OR_TRLX);
+	memctl->memc_br5 = ((DSP1_BASE & BR_BA_MSK) | BR_PS_16 | BR_V);
 
-	ioport->iop_pcdat = (ioport->iop_pcdat & ~PC_MASK)     | PC_SP_OUTVAL | PC_GP_OUTVAL;
-	ioport->iop_pcdir = (ioport->iop_pcdir & ~PC_GP_INMASK)| PC_SP_OUTMASK | PC_GP_OUTMASK;
-	ioport->iop_pcso  = (ioport->iop_pcso  & ~PC_SO_MASK)  | PC_SO_VAL;
-	ioport->iop_pcint = (ioport->iop_pcint & ~PC_INT_MASK) | PC_INT_VAL;
-	ioport->iop_pcpar = (ioport->iop_pcpar & ~(PC_GP_INMASK & PC_GP_OUTMASK));
+	/* FPGA chip select */
+	memctl->memc_or6 = ((0xFFFFFFFFLU & ~(FPGA_SIZE - 1)) | OR_BI | OR_SCY_1_CLK);
+	memctl->memc_br6 = ((FPGA_BASE & BR_BA_MSK) | BR_PS_8 | BR_V);
 
-	ioport->iop_pddat = (ioport->iop_pddat & ~PD_MASK)     | PD_SP_OUTVAL | PD_GP_OUTVAL;
-	ioport->iop_pddir = (ioport->iop_pddir & ~PD_GP_INMASK)| PD_SP_OUTMASK | PD_GP_OUTMASK;
-	ioport->iop_pdpar = (ioport->iop_pdpar & ~(PD_GP_INMASK & PD_GP_OUTMASK));
+#if defined(CONFIG_NETVIA_VERSION) && CONFIG_NETVIA_VERSION >= 2
+	/* NAND chip select */
+	memctl->memc_or1 = ((0xFFFFFFFFLU & ~(NAND_SIZE - 1)) | OR_CSNT_SAM | OR_BI | OR_SCY_8_CLK | OR_EHTR | OR_TRLX);
+	memctl->memc_br1 = ((NAND_BASE & BR_BA_MSK) | BR_PS_8 | BR_V);
+
+	/* kill this chip select */
+	memctl->memc_br2 &= ~BR_V;	/* invalid */
+
+	/* external reg chip select */
+	memctl->memc_or7 = ((0xFFFFFFFFLU & ~(ER_SIZE - 1)) | OR_BI | OR_SCY_4_CLK);
+	memctl->memc_br7 = ((ER_BASE & BR_BA_MSK) | BR_PS_32 | BR_V);
+#endif
+
+	ioport->iop_padat	= PA_GP_OUTVAL;
+	ioport->iop_paodr	= PA_ODR_VAL;
+	ioport->iop_padir	= PA_GP_OUTMASK | PA_SP_DIRVAL;
+	ioport->iop_papar	= PA_SP_MASK;
+
+	cpm->cp_pbdat		= PB_GP_OUTVAL;
+	cpm->cp_pbodr		= PB_ODR_VAL;
+	cpm->cp_pbdir		= PB_GP_OUTMASK | PB_SP_DIRVAL;
+	cpm->cp_pbpar		= PB_SP_MASK;
+
+	ioport->iop_pcdat	= PC_GP_OUTVAL;
+	ioport->iop_pcdir	= PC_GP_OUTMASK | PC_SP_DIRVAL;
+	ioport->iop_pcso	= PC_SOVAL;
+	ioport->iop_pcint	= PC_INTVAL;
+	ioport->iop_pcpar	= PC_SP_MASK;
+
+	ioport->iop_pddat	= PD_GP_OUTVAL;
+	ioport->iop_pddir	= PD_GP_OUTMASK | PD_SP_DIRVAL;
+	ioport->iop_pdpar	= PD_SP_MASK;
+
+#if defined(CONFIG_NETVIA_VERSION) && CONFIG_NETVIA_VERSION >= 2
+	/* external register init */
+	*(volatile uint *)ER_BASE = 0xFFFFFFFF;
+#endif
 
 	return 0;
 }
 
+#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+
+#include <linux/mtd/nand.h>
+
+extern void nand_probe(ulong physadr);
+extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];
+
+void nand_init(void)
+{
+	nand_probe(CFG_NAND_BASE);
+	if (nand_dev_desc[0].ChipID != NAND_ChipID_UNKNOWN) {
+		nand_dev_desc[0].name = "NetVia NAND flash";
+		puts("NAND:  ");
+		print_size(nand_dev_desc[0].totlen, "\n");
+	}
+}
+#endif

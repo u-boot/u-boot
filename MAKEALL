@@ -31,12 +31,12 @@ LIST_8xx="	\
 	IP860		IVML24		IVML24_128	IVML24_256	\
 	IVMS8		IVMS8_128	IVMS8_256	KUP4K           \
 	LANTEC	        lwmon   	MBX		MBX860T		\
-	MHPC		MVS1		NETVIA		NX823		\
-	pcu_e		R360MPI		RBC823		rmu		\
-	RPXClassic	RPXlite		RRvision	SM850		\
-	SPD823TS	svm_sc8xx	SXNI855T	TOP860		\
-	TQM823L		TQM823L_LCD	TQM850L		TQM855L		\
-	TQM860L		TTTech		v37				\
+	MHPC		MVS1		NETVIA		NETVIA_V2	\
+	NX823		pcu_e		R360MPI		RBC823		\
+	rmu		RPXClassic	RPXlite		RRvision	\
+	SM850		SPD823TS	svm_sc8xx	SXNI855T	\
+	TOP860		TQM823L		TQM823L_LCD	TQM850L		\
+	TQM855L		TQM860L		TTTech		v37		\
 "
 
 #########################################################################

@@ -44,11 +44,8 @@ unsigned long flash_init(void)
 	int i;
 
 	/* Init: no FLASHes known */
-	for (i = 0; i < CFG_MAX_FLASH_BANKS; ++i) {
+	for (i = 0; i < CFG_MAX_FLASH_BANKS; ++i)
 		flash_info[i].flash_id = FLASH_UNKNOWN;
-	}
-
-	/* Static FLASH Bank configuration here - FIXME XXX */
 
 	size = flash_get_size((vu_long *) FLASH_BASE0_PRELIM, &flash_info[0]);
 
@@ -66,7 +63,22 @@ unsigned long flash_init(void)
 	flash_get_offsets(CFG_FLASH_BASE, &flash_info[0]);
 
 	/* monitor protection ON by default */
-	flash_protect(FLAG_PROTECT_SET, CFG_FLASH_BASE, CFG_FLASH_BASE + monitor_flash_len - 1, &flash_info[0]);
+	flash_protect(FLAG_PROTECT_SET,
+			CFG_FLASH_BASE, CFG_FLASH_BASE + monitor_flash_len - 1,
+			&flash_info[0]);
+
+	flash_protect ( FLAG_PROTECT_SET,
+			CFG_ENV_ADDR,
+			CFG_ENV_ADDR + CFG_ENV_SIZE - 1,
+			&flash_info[0]);
+
+#ifdef CFG_ENV_ADDR_REDUND
+	flash_protect ( FLAG_PROTECT_SET,
+			CFG_ENV_ADDR_REDUND,
+			CFG_ENV_ADDR_REDUND + CFG_ENV_SIZE_REDUND - 1,
+			&flash_info[0]);
+#endif
+
 
 	flash_info[0].size = size;
 

@@ -494,14 +494,22 @@ static int scc_init(struct eth_device* dev, bd_t *bis)
 #endif
 
 #if defined(CONFIG_NETVIA)
-#if defined(PB_ENET_PDN)
+#if defined(PA_ENET_PDN)
+    immr->im_ioport.iop_papar &= ~PA_ENET_PDN;
+    immr->im_ioport.iop_padir |=  PA_ENET_PDN;
+    immr->im_ioport.iop_padat |=  PA_ENET_PDN;
+#elif defined(PB_ENET_PDN)
     immr->im_cpm.cp_pbpar &= ~PB_ENET_PDN;
     immr->im_cpm.cp_pbdir |=  PB_ENET_PDN;
     immr->im_cpm.cp_pbdat |=  PB_ENET_PDN;
 #elif defined(PC_ENET_PDN)
-    immr->im_cpm.cp_pcpar &= ~PC_ENET_PDN;
-    immr->im_cpm.cp_pcdir |=  PC_ENET_PDN;
-    immr->im_cpm.cp_pcdat |=  PC_ENET_PDN;
+    immr->im_ioport.iop_pcpar &= ~PC_ENET_PDN;
+    immr->im_ioport.iop_pcdir |=  PC_ENET_PDN;
+    immr->im_ioport.iop_pcdat |=  PC_ENET_PDN;
+#elif defined(PD_ENET_PDN)
+    immr->im_ioport.iop_pdpar &= ~PD_ENET_PDN;
+    immr->im_ioport.iop_pddir |=  PD_ENET_PDN;
+    immr->im_ioport.iop_pddat |=  PD_ENET_PDN;
 #endif
 #endif
 

@@ -302,8 +302,20 @@ MHPC_config:		unconfig
 MVS1_config :		unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx mvs1
 
+xtract_NETVIA = $(subst _V2,,$(subst _config,,$1))
+
+NETVIA_V2_config \
 NETVIA_config:		unconfig
-	@./mkconfig $(@:_config=) ppc mpc8xx netvia
+	@ >include/config.h
+	@[ -z "$(findstring NETVIA_config,$@)" ] || \
+		 { echo "#define CONFIG_NETVIA_VERSION 1" >>include/config.h ; \
+		  echo "... Version 1" ; \
+		 }
+	@[ -z "$(findstring NETVIA_V2_config,$@)" ] || \
+		 { echo "#define CONFIG_NETVIA_VERSION 2" >>include/config.h ; \
+		  echo "... Version 2" ; \
+		 }
+	@./mkconfig -a $(call xtract_NETVIA,$@) ppc mpc8xx netvia
 
 NX823_config:		unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx nx823

@@ -38,9 +38,15 @@
 #define CONFIG_NETVIA		1	/* ...on a NetVia board		*/
 #undef  CONFIG_NETVIA_PLL_CLOCK		/* PLL or fixed crystal clock	*/
 
+#if !defined(CONFIG_NETVIA_VERSION) || CONFIG_NETVIA_VERSION == 1
 #define	CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
 #undef	CONFIG_8xx_CONS_SMC2
 #undef	CONFIG_8xx_CONS_NONE
+#else
+#define CONFIG_8xx_CONS_NONE
+#define CONFIG_MAX3100_SERIAL
+#endif
+
 #define CONFIG_BAUDRATE		115200	/* console baudrate = 115kbps	*/
 
 #ifdef CONFIG_NETVIA_PLL_CLOCK
@@ -76,17 +82,28 @@
 
 #define	CONFIG_STATUS_LED	1	/* Status LED enabled		*/
 
+#if defined(CONFIG_NETVIA_VERSION) && CONFIG_NETVIA_VERSION >= 2
+#define CONFIG_BOARD_SPECIFIC_LED	/* version has board specific leds */
+#endif
+
 #undef	CONFIG_CAN_DRIVER		/* CAN Driver support disabled	*/
 
-#define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | CONFIG_BOOTP_BOOTFILESIZE)
+#define CONFIG_BOOTP_MASK		(CONFIG_BOOTP_DEFAULT | CONFIG_BOOTP_BOOTFILESIZE | CONFIG_BOOTP_NISDOMAIN)
 
 #undef CONFIG_MAC_PARTITION
 #undef CONFIG_DOS_PARTITION
 
 #define	CONFIG_RTC_MPC8xx		/* use internal RTC of MPC8xx	*/
 
-#define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
-				CFG_CMD_DHCP	)
+#define CONFIG_COMMANDS_BASE  ( CONFIG_CMD_DFL	| \
+				CFG_CMD_DHCP	| \
+				CFG_CMD_PING )
+
+#if defined(CONFIG_NETVIA_VERSION) && CONFIG_NETVIA_VERSION >= 2
+#define CONFIG_COMMANDS		(CONFIG_COMMANDS_BASE | CFG_CMD_NAND)
+#else
+#define CONFIG_COMMANDS		CONFIG_COMMANDS_BASE
+#endif
 
 #define CONFIG_BOARD_PRE_INIT
 #define CONFIG_MISC_INIT_R
@@ -168,9 +185,15 @@
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
 #define	CFG_ENV_IS_IN_FLASH	1
-#define	CFG_ENV_OFFSET		0x8000	/*   Offset   of Environment Sector	*/
-#define	CFG_ENV_SIZE		0x1000	/* Total Size of Environment Sector	*/
 #define CFG_ENV_SECT_SIZE	0x10000
+
+#define	CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x60000)
+#define CFG_ENV_OFFSET		0
+#define	CFG_ENV_SIZE		0x4000
+
+#define CFG_ENV_ADDR_REDUND	(CFG_FLASH_BASE + 0x70000)
+#define CFG_ENV_OFFSET_REDUND	0
+#define CFG_ENV_SIZE_REDUND	CFG_ENV_SIZE
 
 /*-----------------------------------------------------------------------
  * Cache Configuration
@@ -277,22 +300,6 @@
 #define CFG_BR0_PRELIM	((FLASH_BASE0_PRELIM & BR_BA_MSK) | BR_PS_8 | BR_V )
 
 /*
- * BR1/2 and OR1/2 (4MByte Flash Bank x 2)
- *
- */
-#define FLASH0_SIZE	0x00400000	/* 4MByte */
-#define FLASH0_BASE	0xF0000000
-
-#define CFG_OR1_PRELIM	((0xFFFFFFFFLU & ~(FLASH0_SIZE - 1)) | OR_CSNT_SAM | OR_BI | OR_SCY_5_CLK | OR_TRLX)
-#define CFG_BR1_PRELIM	((FLASH0_BASE & BR_BA_MSK) | BR_PS_32 | BR_V)
-
-#define FLASH1_SIZE	0x00400000
-#define FLASH1_BASE	0xF0400000
-
-#define CFG_OR2_PRELIM	((0xFFFFFFFFLU & ~(FLASH1_SIZE - 1)) | OR_CSNT_SAM | OR_BI | OR_SCY_5_CLK | OR_TRLX)
-#define CFG_BR2_PRELIM	((FLASH1_BASE & BR_BA_MSK) | BR_PS_32 | BR_V)
-
-/*
  * BR3 and OR3 (SDRAM)
  *
  */
@@ -304,16 +311,6 @@
 
 #define CFG_OR3_PRELIM	((0xFFFFFFFFLU & ~(SDRAM_MAX_SIZE - 1)) | CFG_OR_TIMING_SDRAM)
 #define CFG_BR3_PRELIM	((SDRAM_BASE3_PRELIM & BR_BA_MSK) | BR_MS_UPMA | BR_PS_32 | BR_V)
-
-/*
- * BR6 (External register)
- * 16 bit port size - leds are at high 8 bits
- */
-#define EXTREG_BASE			0x30000000	/* external register				*/
-#define EXTREG_SIZE			0x00010000	/* max 64K							*/
-
-#define CFG_OR6_PRELIM		((0xFFFFFFFFLU & ~(EXTREG_SIZE - 1)) | OR_CSNT_SAM | OR_BI | OR_SCY_15_CLK | OR_TRLX)
-#define CFG_BR6_PRELIM		((EXTREG_BASE & BR_BA_MSK) | BR_PS_32 | BR_V)
 
 /*
  * Memory Periodic Timer Prescaler
@@ -346,5 +343,184 @@
 #define CONFIG_SCC2_ENET
 
 #define CONFIG_ARTOS			/* include ARTOS support */
+
+/****************************************************************/
+
+#define DSP_SIZE	0x00010000	/* 64K */
+#define FPGA_SIZE	0x00010000	/* 64K */
+
+#define DSP0_BASE	0xF1000000
+#define DSP1_BASE	(DSP0_BASE + DSP_SIZE)
+#define FPGA_BASE	(DSP1_BASE + DSP_SIZE)
+
+#if defined(CONFIG_NETVIA_VERSION) && CONFIG_NETVIA_VERSION >= 2
+
+#define ER_SIZE		0x00010000	/* 64K */
+#define ER_BASE		(FPGA_BASE + FPGA_SIZE)
+
+#define NAND_SIZE	0x00010000	/* 64K */
+#define NAND_BASE	(ER_BASE + ER_SIZE)
+
+#endif
+
+/****************************************************************/
+
+#if defined(CONFIG_NETVIA_VERSION) && CONFIG_NETVIA_VERSION >= 2
+
+#define STATUS_LED_BIT		0x00000001		/* bit 31 */
+#define STATUS_LED_PERIOD	(CFG_HZ / 2)
+#define STATUS_LED_STATE	STATUS_LED_BLINKING
+
+#define STATUS_LED_BIT1		0x00000002		/* bit 30 */
+#define STATUS_LED_PERIOD1	(CFG_HZ / 2)
+#define STATUS_LED_STATE1	STATUS_LED_OFF
+
+#define STATUS_LED_ACTIVE	0		/* LED on for bit == 0	*/
+#define STATUS_LED_BOOT		0		/* LED 0 used for boot status */
+
+#endif
+
+/*****************************************************************************/
+
+#if defined(CONFIG_NETVIA_VERSION) && CONFIG_NETVIA_VERSION >= 2
+
+/* NAND */
+#define CFG_NAND_BASE			NAND_BASE
+
+#define CONFIG_MTD_NAND_ECC_JFFS2	1
+
+#define CFG_MAX_NAND_DEVICE		1
+
+#define SECTORSIZE		512
+#define ADDR_COLUMN		1
+#define ADDR_PAGE		2
+#define ADDR_COLUMN_PAGE	3
+#define NAND_ChipID_UNKNOWN 	0x00
+#define NAND_MAX_FLOORS		1
+#define NAND_MAX_CHIPS		1
+
+#define NAND_DISABLE_CE(nand) \
+	do { \
+		(((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pddat) |=  0x0040; \
+	} while(0)
+
+#define NAND_ENABLE_CE(nand) \
+	do { \
+		(((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pddat) &= ~0x0040; \
+	} while(0)
+
+#define NAND_CTL_CLRALE(nandptr) \
+	do { \
+		(((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pddat) &= ~0x0100; \
+	} while(0)
+
+#define NAND_CTL_SETALE(nandptr) \
+	do { \
+		(((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pddat) |=  0x0100; \
+	} while(0)
+
+#define NAND_CTL_CLRCLE(nandptr) \
+	do { \
+		(((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pddat) &= ~0x0080; \
+	} while(0)
+
+#define NAND_CTL_SETCLE(nandptr) \
+	do { \
+		(((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pddat) |=  0x0080; \
+	} while(0)
+
+#define NAND_WAIT_READY(nand) \
+	do { \
+		while ((((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pcdat & 0x100) == 0) \
+			; \
+	} while (0)
+
+#define WRITE_NAND_COMMAND(d, adr) \
+	do { \
+		*(volatile unsigned char *)((unsigned long)(adr)) = (unsigned char)(d); \
+	} while(0)
+
+#define WRITE_NAND_ADDRESS(d, adr) \
+	do { \
+		*(volatile unsigned char *)((unsigned long)(adr)) = (unsigned char)(d); \
+	} while(0)
+
+#define WRITE_NAND(d, adr) \
+	do { \
+		*(volatile unsigned char *)((unsigned long)(adr)) = (unsigned char)(d); \
+	} while(0)
+
+#define READ_NAND(adr) \
+	((unsigned char)(*(volatile unsigned char *)(unsigned long)(adr)))
+
+#endif
+
+/*****************************************************************************/
+
+#ifndef __ASSEMBLY__
+
+#if defined(CONFIG_NETVIA_VERSION) && CONFIG_NETVIA_VERSION >= 2
+
+/* LEDs */
+
+/* last value written to the external register; we cannot read back */
+extern unsigned int last_er_val;
+
+/* led_id_t is unsigned long mask */
+typedef unsigned int led_id_t;
+
+static inline void __led_init(led_id_t mask, int state)
+{
+	unsigned int new_er_val;
+
+	if (state)
+		new_er_val = last_er_val & ~mask;
+	else
+		new_er_val = last_er_val |  mask;
+
+	*(volatile unsigned int *)ER_BASE = new_er_val;
+	last_er_val = new_er_val;
+}
+
+static inline void __led_toggle(led_id_t mask)
+{
+	unsigned int new_er_val;
+
+	new_er_val = last_er_val ^ mask;
+	*(volatile unsigned int *)ER_BASE = new_er_val;
+	last_er_val = new_er_val;
+}
+
+static inline void __led_set(led_id_t mask, int state)
+{
+	unsigned int new_er_val;
+
+	if (state)
+		new_er_val = last_er_val & ~mask;
+	else
+		new_er_val = last_er_val |  mask;
+
+	*(volatile unsigned int *)ER_BASE = new_er_val;
+	last_er_val = new_er_val;
+}
+
+/* MAX3100 console */
+#define MAX3100_SPI_RXD_PORT	(((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pbdat)
+#define MAX3100_SPI_RXD_BIT	0x00000008
+
+#define MAX3100_SPI_TXD_PORT	(((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pbdat)
+#define MAX3100_SPI_TXD_BIT	0x00000004
+
+#define MAX3100_SPI_CLK_PORT	(((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pbdat)
+#define MAX3100_SPI_CLK_BIT	0x00000002
+
+#define MAX3100_CS_PORT		(((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pddat)
+#define MAX3100_CS_BIT		0x0010
+
+#endif
+
+#endif
+
+/****************************************************************/
 
 #endif	/* __CONFIG_H */

@@ -37,6 +37,7 @@ OBJS	= 3c589.o 5701rls.o ali512x.o \
 	  pci.o pci_auto.o pci_indirect.o \
 	  pcnet.o plb2800_eth.o \
 	  s3c24x0_i2c.o sed13806.o serial.o \
+	  serial_max3100.o \
 	  smc91111.o smiLynxEM.o              sym53c8xx.o \
 	  ti_pci1410a.o tigon3.o w83c553f.o \
 	  status_led.o

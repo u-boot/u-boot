@@ -1191,7 +1191,12 @@ typedef struct scc_enet {
 #define PA_ENET_RCLK	((ushort)0x0200)	/* PA  6 */
 #define PA_ENET_TCLK	((ushort)0x0800)	/* PA  4 */
 
-#define PB_ENET_PDN	((ushort)0x4000)	/* PB 17 */
+#if !defined(CONFIG_NETVIA_VERSION) || CONFIG_NETVIA_VERSION == 1
+# define PB_ENET_PDN	((ushort)0x4000)	/* PB 17 */
+#elif CONFIG_NETVIA_VERSION >= 2
+# define PC_ENET_PDN	((ushort)0x0008)	/* PC 12 */
+#endif
+
 #define PB_ENET_TENA	((ushort)0x2000)	/* PB 18 */
 
 #define PC_ENET_CLSN	((ushort)0x0040)	/* PC  9 */

@@ -63,17 +63,17 @@
 #define CONFIG_BAUDRATE		19200
 #undef  CONFIG_MISC_INIT_R		/* not used yet                     */
 
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL & ~CFG_CMD_NET)
+#define CONFIG_COMMANDS (CFG_CMD_BDI|CFG_CMD_LOADB|CFG_CMD_IMI|CFG_CMD_FLASH|CFG_CMD_MEMORY|CFG_CMD_NET|CFG_CMD_ENV|CFG_CMD_RUN|CFG_CMD_ASKENV|CFG_CMD_ECHO|CFG_CMD_DHCP|CFG_CMD_CACHE)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
 
 #define CONFIG_BOOTDELAY	3
-#define CONFIG_BOOTARGS		"console=ttyS0,19200 ip=dhcp root=/dev/nfs, ether=0,0x08000000,eth0"
+#define CONFIG_BOOTARGS		"console=ttyS0,19200 ip=192.168.1.10,192.168.1.5,,255,255,255,0,csb root=/dev/nfs, ether=0,0x08000000,eth0"
 #define CONFIG_ETHADDR		FF:FF:FF:FF:FF:FF
 #define CONFIG_NETMASK		255.255.255.0
 #define CONFIG_IPADDR		192.168.1.56
-#define CONFIG_SERVERIP		192.168.1.2
+#define CONFIG_SERVERIP		192.168.1.5
 #define CONFIG_BOOTCOMMAND	"bootm 0x40000"
 #define CONFIG_SHOW_BOOT_PROGRESS
 
@@ -126,6 +126,13 @@
 #define CFG_BAUDRATE_TABLE      { 9600, 19200, 38400, 57600, 115200 }
 
 /*
+ * Network chip
+ */
+#define CONFIG_DRIVER_CS8900	1
+#define CS8900_BUS32		1
+#define CS8900_BASE		0x08000000
+
+/*
  * Stack sizes
  *
  * The stack sizes are set up in start.S using the settings below
@@ -151,24 +158,275 @@
 
 #define CFG_FLASH_BASE          PHYS_FLASH_1
 
+# if 0
+/* FIXME: switch to _documented_ registers */
+/*
+ * GPIO settings
+ *
+ * GP15 == nCS1      is 1
+ * GP24 == SFRM      is 1
+ * GP25 == TXD       is 1
+ * GP33 == nCS5      is 1
+ * GP39 == FFTXD     is 1
+ * GP41 == RTS       is 1
+ * GP47 == TXD       is 1
+ * GP49 == nPWE      is 1
+ * GP62 == LED_B     is 1
+ * GP63 == TDM_OE    is 1
+ * GP78 == nCS2      is 1
+ * GP79 == nCS3      is 1
+ * GP80 == nCS4      is 1
+ */
+#define CFG_GPSR0_VAL       0x03008000
+#define CFG_GPSR1_VAL       0xC0028282
+#define CFG_GPSR2_VAL       0x0001C000
+
+/* GP02 == DON_RST   is 0
+ * GP23 == SCLK      is 0
+ * GP45 == USB_ACT   is 0
+ * GP60 == PLLEN     is 0
+ * GP61 == LED_A     is 0
+ * GP73 == SWUPD_LED is 0
+ */
+#define CFG_GPCR0_VAL       0x00800004
+#define CFG_GPCR1_VAL       0x30002000
+#define CFG_GPCR2_VAL       0x00000100
+
+/* GP00 == DON_READY is input
+ * GP01 == DON_OK    is input
+ * GP02 == DON_RST   is output
+ * GP03 == RESET_IND is input
+ * GP07 == RES11     is input
+ * GP09 == RES12     is input
+ * GP11 == SWUPDATE  is input
+ * GP14 == nPOWEROK  is input
+ * GP15 == nCS1      is output
+ * GP17 == RES22     is input
+ * GP18 == RDY       is input
+ * GP23 == SCLK      is output
+ * GP24 == SFRM      is output
+ * GP25 == TXD       is output
+ * GP26 == RXD       is input
+ * GP32 == RES21     is input
+ * GP33 == nCS5      is output
+ * GP34 == FFRXD     is input
+ * GP35 == CTS       is input
+ * GP39 == FFTXD     is output
+ * GP41 == RTS       is output
+ * GP42 == USB_OK    is input
+ * GP45 == USB_ACT   is output
+ * GP46 == RXD       is input
+ * GP47 == TXD       is output
+ * GP49 == nPWE      is output
+ * GP58 == nCPUBUSINT is input
+ * GP59 == LANINT    is input
+ * GP60 == PLLEN     is output
+ * GP61 == LED_A     is output
+ * GP62 == LED_B     is output
+ * GP63 == TDM_OE    is output
+ * GP64 == nDSPINT   is input
+ * GP65 == STRAP0    is input
+ * GP67 == STRAP1    is input
+ * GP69 == STRAP2    is input
+ * GP70 == STRAP3    is input
+ * GP71 == STRAP4    is input
+ * GP73 == SWUPD_LED is output
+ * GP78 == nCS2      is output
+ * GP79 == nCS3      is output
+ * GP80 == nCS4      is output
+ */
+#define CFG_GPDR0_VAL       0x03808004
+#define CFG_GPDR1_VAL       0xF002A282
+#define CFG_GPDR2_VAL       0x0001C200
+
+/* GP15 == nCS1  is AF10
+ * GP18 == RDY   is AF01
+ * GP23 == SCLK  is AF10
+ * GP24 == SFRM  is AF10
+ * GP25 == TXD   is AF10
+ * GP26 == RXD   is AF01
+ * GP33 == nCS5  is AF10
+ * GP34 == FFRXD is AF01
+ * GP35 == CTS   is AF01
+ * GP39 == FFTXD is AF10
+ * GP41 == RTS   is AF10
+ * GP46 == RXD   is AF10
+ * GP47 == TXD   is AF01
+ * GP49 == nPWE  is AF10
+ * GP78 == nCS2  is AF10
+ * GP79 == nCS3  is AF10
+ * GP80 == nCS4  is AF10
+ */
+#define CFG_GAFR0_L_VAL     0x80000000
+#define CFG_GAFR0_U_VAL     0x001A8010
+#define CFG_GAFR1_L_VAL     0x60088058
+#define CFG_GAFR1_U_VAL     0x00000008
+#define CFG_GAFR2_L_VAL     0xA0000000
+#define CFG_GAFR2_U_VAL     0x00000002
+
+
+/* FIXME: set GPIO_RER/FER */
+
+/* RDH = 1
+ * PH  = 1
+ * VFS = 1
+ * BFS = 1
+ * SSS = 1
+ */
+#define CFG_PSSR_VAL		0x37
+
+/*
+ * Memory settings
+ *
+ * This is the configuration for nCS0/1 -> flash banks
+ * configuration for nCS1:
+ * [31]    0    - Slower Device
+ * [30:28] 010  - CS deselect to CS time: 2*(2*MemClk) = 40 ns
+ * [27:24] 0101 - Address to data valid in bursts: (5+1)*MemClk = 60 ns
+ * [23:20] 1011 - " for first access: (11+2)*MemClk = 130 ns
+ * [19]    1    - 16 Bit bus width
+ * [18:16] 000  - nonburst RAM or FLASH
+ * configuration for nCS0:
+ * [15]    0    - Slower Device
+ * [14:12] 010  - CS deselect to CS time: 2*(2*MemClk) = 40 ns
+ * [11:08] 0101 - Address to data valid in bursts: (5+1)*MemClk = 60 ns
+ * [07:04] 1011 - " for first access: (11+2)*MemClk = 130 ns
+ * [03]    1    - 16 Bit bus width
+ * [02:00] 000  - nonburst RAM or FLASH
+ */
+#define CFG_MSC0_VAL		0x25b825b8 /* flash banks                   */
+
+/* This is the configuration for nCS2/3 -> TDM-Switch, DSP
+ * configuration for nCS3: DSP
+ * [31]    0    - Slower Device
+ * [30:28] 001  - RRR3: CS deselect to CS time: 1*(2*MemClk) = 20 ns
+ * [27:24] 0010 - RDN3: Address to data valid in bursts: (2+1)*MemClk = 30 ns
+ * [23:20] 0011 - RDF3: Address for first access: (3+1)*MemClk = 40 ns
+ * [19]    1    - 16 Bit bus width
+ * [18:16] 100  - variable latency I/O
+ * configuration for nCS2: TDM-Switch
+ * [15]    0    - Slower Device
+ * [14:12] 101  - RRR2: CS deselect to CS time: 5*(2*MemClk) = 100 ns
+ * [11:08] 1001 - RDN2: Address to data valid in bursts: (9+1)*MemClk = 100 ns
+ * [07:04] 0011 - RDF2: Address for first access: (3+1)*MemClk = 40 ns
+ * [03]    1    - 16 Bit bus width
+ * [02:00] 100  - variable latency I/O
+ */
+#define CFG_MSC1_VAL		0x123C593C /* TDM switch, DSP               */
+
+/* This is the configuration for nCS4/5 -> ExtBus, LAN Controller
+ *
+ * configuration for nCS5: LAN Controller
+ * [31]    0    - Slower Device
+ * [30:28] 001  - RRR5: CS deselect to CS time: 1*(2*MemClk) = 20 ns
+ * [27:24] 0010 - RDN5: Address to data valid in bursts: (2+1)*MemClk = 30 ns
+ * [23:20] 0011 - RDF5: Address for first access: (3+1)*MemClk = 40 ns
+ * [19]    1    - 16 Bit bus width
+ * [18:16] 100  - variable latency I/O
+ * configuration for nCS4: ExtBus
+ * [15]    0    - Slower Device
+ * [14:12] 110  - RRR4: CS deselect to CS time: 6*(2*MemClk) = 120 ns
+ * [11:08] 1100 - RDN4: Address to data valid in bursts: (12+1)*MemClk = 130 ns
+ * [07:04] 1101 - RDF4: Address for first access: 13->(15+1)*MemClk = 160 ns
+ * [03]    1    - 16 Bit bus width
+ * [02:00] 100  - variable latency I/O
+ */
+#define CFG_MSC2_VAL		0x123C6CDC /* extra bus, LAN controller     */
+
+/* MDCNFG: SDRAM Configuration Register
+ *
+ * [31:29]   000 - reserved
+ * [28]      0	 - no SA1111 compatiblity mode
+ * [27]      0   - latch return data with return clock
+ * [26]      0   - alternate addressing for pair 2/3
+ * [25:24]   00  - timings
+ * [23]      0   - internal banks in lower partition 2/3 (not used)
+ * [22:21]   00  - row address bits for partition 2/3 (not used)
+ * [20:19]   00  - column address bits for partition 2/3 (not used)
+ * [18]      0   - SDRAM partition 2/3 width is 32 bit
+ * [17]      0   - SDRAM partition 3 disabled
+ * [16]      0   - SDRAM partition 2 disabled
+ * [15:13]   000 - reserved
+ * [12]      1	 - SA1111 compatiblity mode
+ * [11]      1   - latch return data with return clock
+ * [10]      0   - no alternate addressing for pair 0/1
+ * [09:08]   01  - tRP=2*MemClk CL=2 tRCD=2*MemClk tRAS=5*MemClk tRC=8*MemClk
+ * [7]       1   - 4 internal banks in lower partition pair
+ * [06:05]   10  - 13 row address bits for partition 0/1
+ * [04:03]   01  - 9 column address bits for partition 0/1
+ * [02]      0   - SDRAM partition 0/1 width is 32 bit
+ * [01]      0   - disable SDRAM partition 1
+ * [00]      1   - enable  SDRAM partition 0
+ */
+/* use the configuration above but disable partition 0 */
+#define CFG_MDCNFG_VAL		0x000019c8
+
+/* MDREFR: SDRAM Refresh Control Register
+ *
+ * [32:26] 0     - reserved
+ * [25]    0     - K2FREE: not free running
+ * [24]    0     - K1FREE: not free running
+ * [23]    1     - K0FREE: not free running
+ * [22]    0     - SLFRSH: self refresh disabled
+ * [21]    0     - reserved
+ * [20]    0     - APD: no auto power down
+ * [19]    0     - K2DB2: SDCLK2 is MemClk
+ * [18]    0     - K2RUN: disable SDCLK2
+ * [17]    0     - K1DB2: SDCLK1 is MemClk
+ * [16]    1     - K1RUN: enable SDCLK1
+ * [15]    1     - E1PIN: SDRAM clock enable
+ * [14]    1     - K0DB2: SDCLK0 is MemClk
+ * [13]    0     - K0RUN: disable SDCLK0
+ * [12]    1     - E0PIN: disable SDCKE0
+ * [11:00] 000000011000 - (64ms/8192)*MemClkFreq/32 = 24
+ */
+#define CFG_MDREFR_VAL		0x0081D018
+
+/* MDMRS: Mode Register Set Configuration Register
+ *
+ * [31]      0       - reserved
+ * [30:23]   00000000- MDMRS2: SDRAM2/3 MRS Value. (not used)
+ * [22:20]   000     - MDCL2:  SDRAM2/3 Cas Latency.  (not used)
+ * [19]      0       - MDADD2: SDRAM2/3 burst Type. Fixed to sequential.  (not used)
+ * [18:16]   010     - MDBL2:  SDRAM2/3 burst Length. Fixed to 4.  (not used)
+ * [15]      0       - reserved
+ * [14:07]   00000000- MDMRS0: SDRAM0/1 MRS Value.
+ * [06:04]   010     - MDCL0:  SDRAM0/1 Cas Latency.
+ * [03]      0       - MDADD0: SDRAM0/1 burst Type. Fixed to sequential.
+ * [02:00]   010     - MDBL0:  SDRAM0/1 burst Length. Fixed to 4.
+ */
+#define CFG_MDMRS_VAL		0x00020022
+
+/*
+ * PCMCIA and CF Interfaces
+ */
+#define CFG_MECR_VAL		0x00000000
+#define CFG_MCMEM0_VAL		0x00000000
+#define CFG_MCMEM1_VAL		0x00000000
+#define CFG_MCATT0_VAL		0x00000000
+#define CFG_MCATT1_VAL		0x00000000
+#define CFG_MCIO0_VAL		0x00000000
+#define CFG_MCIO1_VAL		0x00000000
+#endif
+
 /*
  * GPIO settings
  */
-#define CFG_GPSR0_VAL       0xFFFFFFFF
-#define CFG_GPSR1_VAL       0xFFFFFFFF
-#define CFG_GPSR2_VAL       0xFFFFFFFF
-#define CFG_GPCR0_VAL       0x08022080
-#define CFG_GPCR1_VAL       0x00000000
-#define CFG_GPCR2_VAL       0x00000000
-#define CFG_GPDR0_VAL       0xCD82A878
-#define CFG_GPDR1_VAL       0xFCFFAB80
-#define CFG_GPDR2_VAL       0x0001FFFF
-#define CFG_GAFR0_L_VAL     0x80000000
-#define CFG_GAFR0_U_VAL     0xA5254010
-#define CFG_GAFR1_L_VAL     0x599A9550
-#define CFG_GAFR1_U_VAL     0xAAA5AAAA
-#define CFG_GAFR2_L_VAL     0xAAAAAAAA
-#define CFG_GAFR2_U_VAL     0x00000002
+#define CFG_GPSR0_VAL		0xFFFFFFFF
+#define CFG_GPSR1_VAL		0xFFFFFFFF
+#define CFG_GPSR2_VAL		0xFFFFFFFF
+#define CFG_GPCR0_VAL		0x08022080
+#define CFG_GPCR1_VAL		0x00000000
+#define CFG_GPCR2_VAL		0x00000000
+#define CFG_GPDR0_VAL		0xCD82A878
+#define CFG_GPDR1_VAL		0xFCFFAB80
+#define CFG_GPDR2_VAL		0x0001FFFF
+#define CFG_GAFR0_L_VAL		0x80000000
+#define CFG_GAFR0_U_VAL		0xA5254010
+#define CFG_GAFR1_L_VAL		0x599A9550
+#define CFG_GAFR1_U_VAL		0xAAA5AAAA
+#define CFG_GAFR2_L_VAL		0xAAAAAAAA
+#define CFG_GAFR2_U_VAL		0x00000002
 
 /* FIXME: set GPIO_RER/FER */
 
@@ -177,12 +435,13 @@
 /*
  * Memory settings
  */
-#define CFG_MSC0_VAL        0x2EF025D0
-#define CFG_MSC1_VAL        0x00003F64
-#define CFG_MSC2_VAL        0x00000000
-#define CFG_MDCNFG_VAL      0x09a909a9
-#define CFG_MDREFR_VAL      0x03ca0030
-#define CFG_MDMRS_VAL       0x00220022
+
+#define CFG_MSC0_VAL            0x2ef15af0
+#define CFG_MSC1_VAL            0x00003ff4
+#define CFG_MSC2_VAL            0x7ff07ff0
+#define CFG_MDCNFG_VAL          0x09a909a9
+#define CFG_MDREFR_VAL          0x038ff030
+#define CFG_MDMRS_VAL           0x00220022
 
 /*
  * PCMCIA and CF Interfaces

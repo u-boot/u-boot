@@ -236,6 +236,8 @@ void status_led_set  (int led, int state);
 /*****  NetVia   ********************************************************/
 #elif defined(CONFIG_NETVIA)
 
+#if !defined(CONFIG_NETVIA_VERSION) || CONFIG_NETVIA_VERSION == 1
+
 #define STATUS_LED_PAR		im_ioport.iop_pdpar
 #define STATUS_LED_DIR		im_ioport.iop_pddir
 #undef  STATUS_LED_ODR
@@ -252,6 +254,7 @@ void status_led_set  (int led, int state);
 # define STATUS_LED_ACTIVE	0		/* LED on for bit == 0	*/
 # define STATUS_LED_BOOT	0		/* LED 0 used for boot status */
 
+#endif
 
 /*****  CMI   ********************************************************/
 #elif defined(CONFIG_CMI)

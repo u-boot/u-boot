@@ -45,7 +45,7 @@
 #define RTC_CONTROL_C 			0x0C
 #define RTC_CONTROL_D			0x0D
 
-#define RTC_CA_UIP			0x80 
+#define RTC_CA_UIP			0x80
 #define RTC_CB_DM			0x04
 #define RTC_CB_24_12			0x02
 #define RTC_CB_SET			0x80
@@ -55,10 +55,10 @@
 static uchar rtc_read (uchar reg)
 {
 	uchar val;
-    
+
     	*(volatile unsigned char*)(RTC_PORT_ADDR) = reg;
 	__asm__ __volatile__ ("sync");
-	
+
 	val = *(volatile unsigned char*)(RTC_PORT_DATA);
 	return (val);
 }
@@ -95,7 +95,7 @@ void rtc_get (struct rtc_time *tmp)
 	/* check if rtc is available for access */
 	while( rtc_read(RTC_CONTROL_A) & RTC_CA_UIP)
 		;
-    	
+
 	sec  = rtc_read(RTC_SECONDS);
 	min  = rtc_read(RTC_MINUTES);
 	hour = rtc_read(RTC_HOURS);
@@ -183,11 +183,11 @@ void rtc_set (struct rtc_time *tmp)
 		min  = tmp->tm_min;
 		sec  = tmp->tm_sec;
 	}
-	
+
 	/* disables the RTC to update the regs */
 	save_ctrl_b = rtc_read(RTC_CONTROL_B);
 	save_ctrl_b |= RTC_CB_SET;
-	rtc_write(RTC_CONTROL_B, save_ctrl_b); 
+	rtc_write(RTC_CONTROL_B, save_ctrl_b);
 
 	rtc_write (RTC_YEAR, year);
 	rtc_write (RTC_MONTH, mon);
@@ -199,24 +199,24 @@ void rtc_set (struct rtc_time *tmp)
 
 	/* enables the RTC to update the regs */
 	save_ctrl_b &= ~RTC_CB_SET;
-	rtc_write(RTC_CONTROL_B, save_ctrl_b); 
+	rtc_write(RTC_CONTROL_B, save_ctrl_b);
 }
 
 void rtc_reset (void)
 {
 	struct rtc_time tmp;
 	uchar ctrl_rg;
-    
+
 	ctrl_rg = RTC_CB_SET;
-	rtc_write(RTC_CONTROL_B,ctrl_rg); 
-    
+	rtc_write(RTC_CONTROL_B,ctrl_rg);
+
 	tmp.tm_year = 1970 % 100;
 	tmp.tm_mon = 1;
 	tmp.tm_mday= 1;
 	tmp.tm_hour = 0;
 	tmp.tm_min = 0;
 	tmp.tm_sec = 0;
-				    
+
 #ifdef RTC_DEBUG
         printf ( "RTC:   %4d-%02d-%02d %2d:%02d:%02d UTC\n",
     		    tmp.tm_year, tmp.tm_mon, tmp.tm_mday,
@@ -224,15 +224,15 @@ void rtc_reset (void)
 #endif
 
 	ctrl_rg = RTC_CB_SET | RTC_CB_24_12 | RTC_CB_DM;
-	rtc_write(RTC_CONTROL_B,ctrl_rg); 
+	rtc_write(RTC_CONTROL_B,ctrl_rg);
     	rtc_set(&tmp);
 
 	rtc_write(RTC_HOURS_ALARM, 0),
-	rtc_write(RTC_MINUTES_ALARM, 0),	
+	rtc_write(RTC_MINUTES_ALARM, 0),
 	rtc_write(RTC_SECONDS_ALARM, 0);
-					
+
 	ctrl_rg = RTC_CB_24_12 | RTC_CB_DM;
-	rtc_write(RTC_CONTROL_B,ctrl_rg); 
+	rtc_write(RTC_CONTROL_B,ctrl_rg);
 }
 
 #endif  /* (CONFIG_RTC_DS12887) && (CONFIG_COMMANDS & CFG_CMD_DATE) */

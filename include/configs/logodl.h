@@ -58,8 +58,7 @@
 #define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_BAUDRATE		19200
-/*#define CONFIG_MISC_INIT_R	1	/ * we have a misc_init_r() function */
-#undef CONFIG_MISC_INIT_R		/* FIXME                            */
+#undef CONFIG_MISC_INIT_R		/* FIXME: misc_init_r() missing     */
 
 #define CONFIG_COMMANDS (CFG_CMD_FLASH|CFG_CMD_MEMORY|CFG_CMD_ENV|CFG_CMD_RUN|CFG_CMD_ASKENV|CFG_CMD_ECHO)
 /* CONFIG_CMD_DFL|CFG_CMD_I2C|CFG_CMD_EEPROM|CFG_CMD_NET|CFG_CMD_JFFS2|CFG_CMD_DHCP) */
@@ -120,12 +119,14 @@
 /*
  * SMSC91C111 Network Card
  */
-/*#define CONFIG_DRIVER_SMC91111		1	*/
-/*#define CONFIG_SMC91111_BASE		0x10000000 / * chip select 4         */
-/*#undef  CONFIG_SMC_USE_32_BIT		           / * 16 bit bus access     */
-/*#undef  CONFIG_SMC_91111_EXT_PHY		   / * we use internal phy   */
-/*#undef  CONFIG_SHOW_ACTIVITY	*/
-/*#define CONFIG_NET_RETRY_COUNT		10	   / * # of retries          */
+#if 0
+#define CONFIG_DRIVER_SMC91111		1
+#define CONFIG_SMC91111_BASE		0x10000000 /* chip select 4         */
+#undef  CONFIG_SMC_USE_32_BIT		           /* 16 bit bus access     */
+#undef  CONFIG_SMC_91111_EXT_PHY		   /* we use internal phy   */
+#undef  CONFIG_SHOW_ACTIVITY
+#define CONFIG_NET_RETRY_COUNT		10	   /* # of retries          */
+#endif
 
 /*
  * Stack sizes

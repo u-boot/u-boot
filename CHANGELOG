@@ -2,6 +2,14 @@
 Changes since U-Boot 0.3.1:
 ======================================================================
 
+* Patches by Robert Schwebel, 26 Jun 2003:
+  - logdl
+  - csb226
+  - innokom
+
+* Patch by Pantelis Antoniou, 25 Jun 2003:
+  update NetVia with V2 board support
+
 * Header file cleanup for ARM
 
 * Patch by Murray Jensen, 24 Jun 2003:

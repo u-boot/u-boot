@@ -1,7 +1,7 @@
 /*
  * (C) 2002 Kyle Harris <kharris@nexus-tech.net>, Nexus Technologies, Inc.
  * (C) 2002 Marius Groeger <mgroeger@sysgo.de>, Sysgo GmbH
- * (C) 2003 Robert Schwebel <r.schwebel@pengutronix.de>, Pengutronix 
+ * (C) 2003 Robert Schwebel <r.schwebel@pengutronix.de>, Pengutronix
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -66,7 +66,7 @@ int dram_init (void)
 }
 
 
-/** 
+/**
  * logodl_set_led: - switch LEDs on or off
  *
  * @param led:   LED to switch (0,1)
@@ -77,15 +77,15 @@ void logodl_set_led(int led, int state)
 {
 	switch(led) {
 
-	case 0: 
-		if (state==1) { 
+	case 0:
+		if (state==1) {
 			CFG_LED_A_CR = CFG_LED_A_BIT;
 		} else if (state==0) {
 			CFG_LED_A_SR = CFG_LED_A_BIT;
 		}
 		break;
 
-	case 1: 
+	case 1:
 		if (state==1) {
 			CFG_LED_B_CR = CFG_LED_B_BIT;
 		} else if (state==0) {
@@ -93,7 +93,7 @@ void logodl_set_led(int led, int state)
 		}
 		break;
 	}
-	
+
 	return;
 }
 
@@ -101,9 +101,9 @@ void logodl_set_led(int led, int state)
 /**
  * show_boot_progress: - indicate state of the boot process
  *
- * @param status: Status number - see README for details. 
+ * @param status: Status number - see README for details.
  *
- * The LOGOTRONIC does only have 2 LEDs, so we switch them on at the most 
+ * The LOGOTRONIC does only have 2 LEDs, so we switch them on at the most
  * important states (1, 5, 15).
  */
 
