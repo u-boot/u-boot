@@ -62,6 +62,14 @@ int board_early_init_f (void)
 	 */
 	mtebc (epcr, 0xa8400000); /* ebc always driven */
 
+	/*
+	 * Reset CPLD via GPIO13 (CS4) pin
+	 */
+	out32(GPIO0_OR, in32(GPIO0_OR) & ~(0x80000000 >> 13));
+	udelay(1000); /* wait 1ms */
+	out32(GPIO0_OR, in32(GPIO0_OR) | (0x80000000 >> 13));
+	udelay(1000); /* wait 1ms */
+
 	return 0;
 }
 
@@ -76,13 +84,11 @@ int misc_init_f (void)
 
 int misc_init_r (void)
 {
-	/*
-	 * Reset CPLD via GPIO13 (CS4) pin
-	 */
-	out32(GPIO0_OR, in32(GPIO0_OR) & ~(0x80000000 >> 13));
-	udelay(1000); /* wait 1ms */
-	out32(GPIO0_OR, in32(GPIO0_OR) | (0x80000000 >> 13));
-	udelay(1000); /* wait 1ms */
+	DECLARE_GLOBAL_DATA_PTR;
+
+	/* adjust flash start and offset */
+	gd->bd->bi_flashstart = 0 - gd->bd->bi_flashsize;
+	gd->bd->bi_flashoffset = 0;
 
 	return (0);
 }
@@ -110,7 +116,7 @@ int checkboard (void)
 
 	id1 = trans[(~(in32(GPIO0_IR) >> 5)) & 0x0000000f];
 	id2 = trans[(~(in32(GPIO0_IR) >> 9)) & 0x0000000f];
-	printf(" (ID=0x%1X%1X)\n", id1, id2);
+	printf(" (ID=0x%1X%1X, PLD=0x%02X)\n", id2, id1, in8(0xf0001000));
 
 	return 0;
 }
