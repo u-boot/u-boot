@@ -22,7 +22,6 @@
  * MA 02111-1307 USA
  */
 
-
 #include <common.h>
 #include <pci.h>
 #include <asm/processor.h>
@@ -41,65 +40,55 @@ extern long int spd_sdram(void);
 void local_bus_init(void);
 void sdram_init(void);
 
-
-
-int
-board_early_init_f(void)
+int board_early_init_f (void)
 {
-    return 0;
+	return 0;
 }
 
-
-int
-checkboard(void)
+int checkboard (void)
 {
-    volatile immap_t *immap = (immap_t *)CFG_CCSRBAR;
-    volatile ccsr_gur_t *gur = &immap->im_gur;
+	volatile immap_t *immap = (immap_t *) CFG_CCSRBAR;
+	volatile ccsr_gur_t *gur = &immap->im_gur;
 
-    /* PCI slot in USER bits CSR[6:7] by convention. */
-    uint pci_slot = get_pci_slot();
+	/* PCI slot in USER bits CSR[6:7] by convention. */
+	uint pci_slot = get_pci_slot ();
 
-    uint pci_dual = get_pci_dual();		/* PCI DUAL in CM_PCI[3] */
-    uint pci1_32 = gur->pordevsr & 0x10000;	/* PORDEVSR[15] */
-    uint pci1_clk_sel = gur->porpllsr & 0x8000; /* PORPLLSR[16] */
-    uint pci2_clk_sel = gur->porpllsr & 0x4000; /* PORPLLSR[17] */
+	uint pci_dual = get_pci_dual ();	/* PCI DUAL in CM_PCI[3] */
+	uint pci1_32 = gur->pordevsr & 0x10000;	/* PORDEVSR[15] */
+	uint pci1_clk_sel = gur->porpllsr & 0x8000;	/* PORPLLSR[16] */
+	uint pci2_clk_sel = gur->porpllsr & 0x4000;	/* PORPLLSR[17] */
 
-    uint pci1_speed = get_clock_freq();		/* PCI PSPEED in [4:5] */
+	uint pci1_speed = get_clock_freq ();	/* PCI PSPEED in [4:5] */
 
-    uint cpu_board_rev = get_cpu_board_revision();
+	uint cpu_board_rev = get_cpu_board_revision ();
 
-    printf("Board: CDS Version 0x%02x, PCI Slot %d\n",
-	   get_board_version(),
-	   pci_slot);
+	printf ("Board: CDS Version 0x%02x, PCI Slot %d\n",
+		get_board_version (), pci_slot);
 
-    printf("CPU Board Revision %d.%d (0x%04x)\n",
-	   MPC85XX_CPU_BOARD_MAJOR(cpu_board_rev),
-	   MPC85XX_CPU_BOARD_MINOR(cpu_board_rev),
-	   cpu_board_rev);
+	printf ("CPU Board Revision %d.%d (0x%04x)\n",
+		MPC85XX_CPU_BOARD_MAJOR (cpu_board_rev),
+		MPC85XX_CPU_BOARD_MINOR (cpu_board_rev), cpu_board_rev);
 
-    printf("    PCI1: %d bit, %s MHz, %s\n",
-	   (pci1_32) ? 32 : 64,
-	   (pci1_speed == 33000000) ? "33" :
-	   (pci1_speed == 66000000) ? "66" : "unknown",
-	   pci1_clk_sel ? "sync" : "async"
-	   );
+	printf ("    PCI1: %d bit, %s MHz, %s\n",
+		(pci1_32) ? 32 : 64,
+		(pci1_speed == 33000000) ? "33" :
+		(pci1_speed == 66000000) ? "66" : "unknown",
+		pci1_clk_sel ? "sync" : "async");
 
-    if (pci_dual) {
-	printf("    PCI2: 32 bit, 66 MHz, %s\n",
-	       pci2_clk_sel ? "sync" : "async"
-	       );
-    } else {
-	printf("    PCI2: disabled\n");
-    }
+	if (pci_dual) {
+		printf ("    PCI2: 32 bit, 66 MHz, %s\n",
+			pci2_clk_sel ? "sync" : "async");
+	} else {
+		printf ("    PCI2: disabled\n");
+	}
 
-    /*
-     * Initialize local bus.
-     */
-    local_bus_init();
+	/*
+	 * Initialize local bus.
+	 */
+	local_bus_init ();
 
-    return 0;
+	return 0;
 }
-
 
 long int
 initdram(int board_type)
@@ -125,9 +114,7 @@ initdram(int board_type)
 		udelay(200);
 	}
 #endif
-
 	dram_size = spd_sdram();
-
 
 #if defined(CONFIG_DDR_ECC)
 	/*
@@ -135,8 +122,6 @@ initdram(int board_type)
 	 */
 	ddr_enable_ecc(dram_size);
 #endif
-
-
 	/*
 	 * SDRAM Initialization
 	 */
@@ -146,11 +131,9 @@ initdram(int board_type)
 	return dram_size;
 }
 
-
 /*
  * Initialize Local Bus
  */
-
 void
 local_bus_init(void)
 {
@@ -196,11 +179,9 @@ local_bus_init(void)
 	}
 }
 
-
 /*
  * Initialize SDRAM memory on the Local Bus.
  */
-
 void
 sdram_init(void)
 {
@@ -292,7 +273,6 @@ sdram_init(void)
 #endif	/* enable SDRAM init */
 }
 
-
 #if defined(CFG_DRAM_TEST)
 int
 testdram(void)
@@ -332,8 +312,6 @@ testdram(void)
 }
 #endif
 
-
-
 #if defined(CONFIG_PCI)
 
 /*
@@ -352,7 +330,6 @@ static struct pci_config_table pci_mpc85xxcds_config_table[] = {
 };
 #endif
 
-
 static struct pci_controller hose = {
 #ifndef CONFIG_PCI_PNP
 	config_table: pci_mpc85xxcds_config_table,
@@ -360,7 +337,6 @@ static struct pci_controller hose = {
 };
 
 #endif	/* CONFIG_PCI */
-
 
 void
 pci_init_board(void)

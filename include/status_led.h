@@ -340,6 +340,9 @@ void status_led_set  (int led, int state);
 #elif defined(CONFIG_WRSBC8240)
 /* XXX empty just to avoid the error */
 /************************************************************************/
+#elif defined(CONFIG_NIOS2)
+/* XXX empty just to avoid the error */
+/************************************************************************/
 #else
 # error Status LED configuration missing
 #endif

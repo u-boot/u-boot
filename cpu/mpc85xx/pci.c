@@ -114,7 +114,6 @@ pci_mpc85xx_init(struct pci_controller *hose)
 					  PCI_HEADER_TYPE,
 					  &header_type);
 	}
-	
 #endif
 
 	hose->last_busno = pci_hose_scan(hose);

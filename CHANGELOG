@@ -2,6 +2,11 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patches by Scott McNutt, 24 Aug 2004:
+  - Add support for Altera Nios-II processors.
+  - Add support for Psyent PCI-5441 board.
+  - Add support for Psyent PK1C20 board.
+
 * Patches by Jon Loeliger, 24 Aug 2004:
   - Add support for the MPC8541 and MPC8555 CDS boards
   - Cleanup eth?addr handling: make dependent on CONFIG_ETH?ADDR

@@ -141,6 +141,7 @@ Directory Hierarchy:
   - mpc8260	Files specific to Motorola MPC8260 CPUs
   - mpc85xx	Files specific to Motorola MPC85xx CPUs
   - nios	Files specific to Altera NIOS CPUs
+  - nios2	Files specific to Altera Nios-II CPUs
   - ppc4xx	Files specific to IBM PowerPC 4xx CPUs
   - pxa		Files specific to Intel XScale PXA CPUs
   - s3c44b0	Files specific to Samsung S3C44B0 CPUs
@@ -246,6 +247,10 @@ The following options need to be configured:
 		----------------------
 		CONFIG_MICROBLAZE
 
+		Nios-2 based CPUs:
+		----------------------
+		CONFIG_NIOS2
+
 
 - Board Type:	Define exactly one of
 
@@ -305,6 +310,11 @@ The following options need to be configured:
 		------------------------
 
 		CONFIG_SUZAKU
+
+		Nios-2 based boards:
+		------------------------
+
+		CONFIG_PCI5441 CONFIG_PK1C20
 
 
 - CPU Module Type: (if CONFIG_COGENT is defined)

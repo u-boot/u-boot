@@ -26,7 +26,6 @@
  * Please refer to doc/README.mpc85xxcds for more info.
  *
  */
-
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
@@ -72,7 +71,6 @@ extern unsigned long get_clock_freq(void);
 #define CFG_MEMTEST_START	0x00200000	/* memtest works on */
 #define CFG_MEMTEST_END		0x00400000
 
-
 /*
  * Base addresses -- Note these are effective addresses where the
  * actual resources get mapped (not physical addresses)
@@ -80,7 +78,6 @@ extern unsigned long get_clock_freq(void);
 #define CFG_CCSRBAR_DEFAULT 	0xff700000	/* CCSRBAR Default */
 #define CFG_CCSRBAR		0xe0000000	/* relocated CCSRBAR */
 #define CFG_IMMR		CFG_CCSRBAR	/* PQII uses CFG_IMMR */
-
 
 /*
  * DDR Setup
@@ -96,8 +93,6 @@ extern unsigned long get_clock_freq(void);
 #ifndef CONFIG_SPD_EEPROM
 #error ("CONFIG_SPD_EEPROM is required by MPC85555CDS")
 #endif
-
-
 
 /*
  * SDRAM on the Local Bus
@@ -244,7 +239,6 @@ extern unsigned long get_clock_freq(void);
 #define CFG_BR3_PRELIM   0xf8000801
 #define CFG_OR3_PRELIM   0xfff00ff7
 
-
 #define CONFIG_L1_INIT_RAM
 #define CFG_INIT_RAM_LOCK 	1
 #define CFG_INIT_RAM_ADDR	0xe4010000	/* Initial RAM address */
@@ -344,8 +338,6 @@ extern unsigned long get_clock_freq(void);
 
 #endif	/* CONFIG_TSEC_ENET */
 
-
-
 /*
  * Environment
  */
@@ -369,8 +361,6 @@ extern unsigned long get_clock_freq(void);
 				| CFG_CMD_I2C \
 				| CFG_CMD_MII)
 #endif
-
-
 #include <cmd_confdefs.h>
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
@@ -417,7 +407,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif
-
 
 /*
  * Environment Configuration
@@ -469,6 +458,5 @@ extern unsigned long get_clock_freq(void);
    "bootm $loadaddr $ramdiskaddr"
 
 #define CONFIG_BOOTCOMMAND  CONFIG_NFSBOOTCOMMAND
-
 
 #endif	/* __CONFIG_H */

@@ -67,6 +67,7 @@
 #define IH_CPU_M68K		12	/* M68K		*/
 #define IH_CPU_NIOS		13	/* Nios-32	*/
 #define IH_CPU_MICROBLAZE	14	/* MicroBlaze   */
+#define IH_CPU_NIOS2		15	/* Nios-II	*/
 
 /*
  * Image Types

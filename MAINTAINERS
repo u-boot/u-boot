@@ -431,6 +431,18 @@ Scott McNutt <smcnutt@psyent.com>
 	DK1C20			Nios-32
 
 #########################################################################
+# Nios-II Systems:							#
+#									#
+# Maintainer Name, Email Address					#
+#	Board			CPU					#
+#########################################################################
+
+Scott McNutt <smcnutt@psyent.com>
+
+	PCI5441			Nios-II
+	PK1C20			Nios-II
+
+#########################################################################
 # MicroBlaze Systems:							#
 #									#
 # Maintainer Name, Email Address					#

@@ -6,7 +6,7 @@ The CDS family of boards consists of a PCI backplane called the
 and a CPU daughter card that bolts onto the daughter card.
 
 Much of the content of the README.mpc85xxads for the 85xx ADS boards
-applies to the 85xx CDS boards as well.  In particular the toolchain,
+applies to the 85xx CDS boards as well.	 In particular the toolchain,
 the switch nomenclature, and the basis for the memory map.  There are
 some differences, though.
 
@@ -33,16 +33,16 @@ map.
 
 The mapping is:
 
-   0x0000_0000     0x7fff_ffff     DDR                     2G
-   0x8000_0000     0x9fff_ffff     PCI1 MEM                512M
-   0xa000_0000     0xbfff_ffff     PCI2 MEM                512M
-   0xe000_0000     0xe00f_ffff     CCSR                    1M
-   0xe200_0000     0xe2ff_ffff     PCI1 IO                 16M
-   0xe300_0000     0xe3ff_ffff     PCI2 IO                 16M
-   0xf000_0000     0xf7ff_ffff     SDRAM                   128M
-   0xf800_0000     0xf80f_ffff     NVRAM/CADMUS (*)        1M
-   0xff00_0000     0xff7f_ffff     FLASH (2nd bank)        8M
-   0xff80_0000     0xffff_ffff     FLASH (boot bank)       8M
+   0x0000_0000	   0x7fff_ffff	   DDR			   2G
+   0x8000_0000	   0x9fff_ffff	   PCI1 MEM		   512M
+   0xa000_0000	   0xbfff_ffff	   PCI2 MEM		   512M
+   0xe000_0000	   0xe00f_ffff	   CCSR			   1M
+   0xe200_0000	   0xe2ff_ffff	   PCI1 IO		   16M
+   0xe300_0000	   0xe3ff_ffff	   PCI2 IO		   16M
+   0xf000_0000	   0xf7ff_ffff	   SDRAM		   128M
+   0xf800_0000	   0xf80f_ffff	   NVRAM/CADMUS (*)	   1M
+   0xff00_0000	   0xff7f_ffff	   FLASH (2nd bank)	   8M
+   0xff80_0000	   0xffff_ffff	   FLASH (boot bank)	   8M
 
    (*) The system control registers (CADMUS) start at offset 0xfdb0_4000
    within the NVRAM/CADMUS region of memory.
@@ -67,9 +67,9 @@ it into the secondary bank:
 
      loadb
      [Drop to kermit:
-        ^\c
-        send <u-boot-bin-image>
-        c
+	^\c
+	send <u-boot-bin-image>
+	c
      ]
 
      erase ff780000 ff7fffff
@@ -102,10 +102,10 @@ The first two bits of SW2 control how flash is used on the board:
 
       12345678
       --------
-  SW2=00XXXXXX     FLASH:  Boot bank 1, bank 2 available.
-      01XXXXXX     FLASH:  Boot bank 2, bank 1 available (swapped).
-      10XXXXXX     FLASH:  Boot promjet, bank 1 available
-      11XXXXXX     FLASH:  Boot promjet, bank 2 available
+  SW2=00XXXXXX	   FLASH:  Boot bank 1, bank 2 available.
+      01XXXXXX	   FLASH:  Boot bank 2, bank 1 available (swapped).
+      10XXXXXX	   FLASH:  Boot promjet, bank 1 available
+      11XXXXXX	   FLASH:  Boot promjet, bank 2 available
 
 The boot bank is always mapped to FF80_0000 and listed first by
 the "flinfo" command.  The secondary bank is always FF00_0000.
@@ -116,10 +116,10 @@ convey this information:
 
       12345678
       --------
-  SW2=xxxxxx00     PCI SLOT INFORM: The CDS carrier is in slot0 of the Arcadia
-      xxxxxx01     PCI SLOT INFORM: The CDS carrier is in slot1 of the Arcadia
-      xxxxxx10     PCI SLOT INFORM: The CDS carrier is in slot2 of the Arcadia
-      xxxxxx11     PCI SLOT INFORM: The CDS carrier is in slot3 of the Arcadia
+  SW2=xxxxxx00	   PCI SLOT INFORM: The CDS carrier is in slot0 of the Arcadia
+      xxxxxx01	   PCI SLOT INFORM: The CDS carrier is in slot1 of the Arcadia
+      xxxxxx10	   PCI SLOT INFORM: The CDS carrier is in slot2 of the Arcadia
+      xxxxxx11	   PCI SLOT INFORM: The CDS carrier is in slot3 of the Arcadia
 
 These are cleverly, er, clearly silkscreened as Slot 1 through 4,
 respectively, on the Arcadia near the support posts.
@@ -130,7 +130,7 @@ The default setting of all switches on the carrier board is:
       12345678
       --------
   SW1=01101100
-  SW2=0x1111yy     x=Flash bank, yy=PCI slot
+  SW2=0x1111yy	   x=Flash bank, yy=PCI slot
   SW3=11101111
   SW4=10001000
 
@@ -178,10 +178,9 @@ Commands for downloading a u-boot image to memory from edink:
    time -s 4/8/2004 4:30p
    dl -k -b -o 100000
    [Drop to kermit:
-        ^\c
-        transmit /binary <u-boot-bin-image>
-        c
+	^\c
+	transmit /binary <u-boot-bin-image>
+	c
    ]
 
    fu -l 100000 fe780000 80000
-

@@ -72,6 +72,9 @@ endif
 ifeq ($(ARCH),nios)
 CROSS_COMPILE = nios-elf-
 endif
+ifeq ($(ARCH),nios2)
+CROSS_COMPILE = nios2-elf-
+endif
 ifeq ($(ARCH),m68k)
 CROSS_COMPILE = m68k-elf-
 endif
@@ -1477,6 +1480,15 @@ ADNPESC1_config: unconfig
 		}
 	@./mkconfig -a ADNPESC1 nios nios adnpesc1 ssv
 
+#########################################################################
+## Nios-II
+#########################################################################
+
+PK1C20_config : unconfig
+	@./mkconfig  PK1C20 nios2 nios2 pk1c20 psyent
+
+PCI5441_config : unconfig
+	@./mkconfig  PCI5441 nios2 nios2 pci5441 psyent
 
 #========================================================================
 # MicroBlaze

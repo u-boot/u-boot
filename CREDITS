@@ -286,7 +286,10 @@ D: Support for Samsung ARM920T SMDK2410 eval board
 
 N: Scott McNutt
 E: smcnutt@psyent.com
-D: Support for Altera Nios-32 CPU, for Nios Cyclone Development Kit (DK-1C20)
+D: Support for Altera Nios-32 CPU
+D: Support for Altera Nios-II CPU
+D: Support for Nios Cyclone Development Kit (DK-1C20)
+W: http://www.psyent.com
 
 N: Rolf Offermanns
 E: rof@sysgo.de
