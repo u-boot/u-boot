@@ -1,0 +1,249 @@
+#########################################################################
+#									#
+# Regular Maintainers for U-Boot board support:				#
+#									#
+# For any board without permanent maintainer, please contact		#
+#    for PowerPC systems:						#
+#	Wolfgang Denk <wd@denx.de>					#
+#    for ARM systems:							#
+#	Marius Gröger <mag@sysgo.de>					#
+# and Cc: the <U-Boot-Users@lists.sourceforge.net> mailing lists.	#
+#									#
+# Note: lists sorted by Maintainer Name					#
+#########################################################################
+
+
+#########################################################################
+#									#
+# Maintainer Name, Email Address					#
+#	Board			CPU					#
+#########################################################################
+
+Greg Allen <gallen@arlut.utexas.edu>
+
+	UTX8245			MPC8245
+
+Pantelis Antoniou <panto@intracom.gr>
+
+	NETVIA			MPC8xx
+
+Jerry Van Baren <vanbaren_gerald@si.com>
+
+	sacsng			MPC8260
+
+Oliver Brown <obrown@adventnetworks.com>
+
+	sbc8260			MPC8260
+	gw8260			MPC8260
+
+Conn Clark <clark@esteem.com>
+
+	ESTEEM192E		MPC8xx
+
+Kári Davíðsson <kd@flaga.is>
+
+	FLAGADM			MPC823
+
+Wolfgang Denk <wd@denx.de>
+
+	AMX860			MPC860
+	ETX094			MPC850
+	FPS850L			MPC850
+	ICU862			MPC862
+	IP860			MPC860
+	IVML24			MPC860
+	IVML24_128		MPC860
+	IVML24_256		MPC860
+	IVMS8			MPC860
+	IVMS8_128		MPC860
+	IVMS8_256		MPC860
+	LANTEC			MPC850
+	RRvision		MPC823
+	SM850			MPC850
+	SPD823TS		MPC823
+	TQM823L			MPC823
+	TQM823L_LCD		MPC823
+	TQM850L			MPC850
+	TQM855L			MPC855
+	TQM860L			MPC860
+	TQM860L_FEC		MPC860
+	c2mon			MPC855
+	hermes			MPC860
+	lwmon			MPC823
+	pcu_e			MPC855
+
+	CU824			MPC8240
+	Sandpoint8240		MPC8240
+
+	CPU86			MPC8260
+	PM826			MPC8260
+	TQM8260			MPC8260
+
+	PCIPPC2			MPC750
+	PCIPPC6			MPC750
+
+Jon Diekema <diekema_jon@si.com>
+
+	sbc8260			MPC8260
+
+Dave Ellis <DGE@sixnetio.com>
+
+	SXNI855T		MPC8xx
+
+Frank Gottschling <fgottschling@eltec.de>
+
+	MHPC			MPC8xx
+
+	BAB7xx			MPC740/MPC750
+
+Wolfgang Grandegger <wg@denx.de>
+
+	CCM			MPC855
+
+	PN62			MPC8240
+
+	IPHASE4539		MPC8260
+	SCM			MPC8260
+
+Howard Gray <mvsensor@matrix-vision.de>
+
+	MVS1			MPC823
+
+Murray Jensen <Murray.Jensen@cmst.csiro.au>
+
+	cogent_mpc8xx		MPC8xx
+
+	cogent_mpc8260		MPC8260
+	hymod			MPC8260
+
+Brad Kemp <Brad.Kemp@seranoa.com>
+
+	ppmc8260		MPC8260
+
+Nye Liu <nyet@zumanetworks.com>
+
+	ZUMA			MPC7xx_74xx
+
+Thomas Lange <thomas@corelatus.com>
+
+	GTH			MPC860
+
+Eran Man <eran@nbase.co.il>
+
+	EVB64260_750CX		MPC750CX
+
+Scott McNutt <smcnutt@artesyncp.com>
+
+	EBONY			PPC440GP
+
+Keith Outwater <Keith_Outwater@mvis.com>
+
+	GEN860T			MPC860T
+
+Frank Panno <fpanno@delphintech.com>
+
+	ep8260			MPC8260
+
+Denis Peter <d.peter@mpl.ch>
+
+	MIP405			PPC4xx
+	PIP405			PPC4xx
+
+Stefan Roese <stefan.roese@esd-electronics.com>
+
+	ADCIOP			IOP480 (PPC401)
+	AR405			PPC405GP
+	CANBT			PPC405CR
+	CPCI405			PPC405GP
+	CPCI440			PPC440GP
+	CPCIISER4		PPC405GP
+	DASA_SIM		IOP480 (PPC401)
+	DU405			PPC405GP
+	OCRTC			PPC405GP
+	ORSG			PPC405GP
+
+Peter De Schrijver <p2@mind.be>
+
+	ML2			PPC4xx
+
+Erik Theisen <etheisen@mindspring.com>
+
+	W7OLMC			PPC4xx
+	W7OLMG			PPC4xx
+
+Jim Thompson <jim@musenki.com>
+
+	MUSENKI			MPC8245/8241
+	Sandpoint8245		MPC8245
+
+-------------------------------------------------------------------------
+
+Unknown / orphaned boards:
+
+	ADS860			MPC8xx
+	FADS823			MPC8xx
+	FADS850SAR		MPC8xx
+	FADS860T		MPC8xx
+	GENIETV			MPC8xx
+	IAD210			MPC8xx
+	MBX			MPC8xx
+	MBX860T			MPC8xx
+	NX823			MPC8xx
+	RPXClassic		MPC8xx
+	RPXlite			MPC8xx
+
+	CRAYL1			PPC4xx
+	ERIC			PPC4xx
+	WALNUT405		PPC4xx
+
+	MOUSSE			MPC824x
+
+	MPC8260ADS		MPC8260
+	RPXsuper		MPC8260
+	rsdproto		MPC8260
+
+	EVB64260		MPC7xx_74xx
+
+
+#########################################################################
+# ARM Systems:								#
+#									#
+# Maintainer Name, Email Address					#
+#	Board			CPU					#
+#########################################################################
+
+Marius Gröger <mag@sysgo.de>
+
+	impa7			ARM720T (EP7211)
+	ep7312			ARM720T (EP7312)
+
+Kyle Harris <kharris@nexus-tech.net>
+
+	lubbock			xscale
+	cradle			xscale
+
+Gary Jennejohn <gj@denx.de>
+
+	smdk2400		ARM920T
+	trab			ARM920T
+
+David Müller <d.mueller@elsoft.ch>
+
+	smdk2410		ARM920T
+
+Rolf Offermanns <rof@sysgo.de>
+
+	shannon			SA1100
+
+Robert Schwebel <r.schwebel@pengutronix.de>
+
+	csb226			xscale
+
+Alex Züpke <azu@sysgo.de>
+
+	lart			SA1100
+	dnp1110			SA1110
+
+#########################################################################
+# End of MAINTAINERS list						#
+#########################################################################

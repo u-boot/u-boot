@@ -1,0 +1,12 @@
+
+======================================================================
+Notes for U-Boot 1.0.0:
+======================================================================
+
+This is the initial version of "Das U-Boot", the Universal Boot Loader.
+
+It is based on version 2.0.0 (the "Halloween Release") of PPCBoot.
+For information about the history of the project please see the
+PPCBoot project page at http://sourceforge.net/projects/ppcboot
+
+======================================================================
