@@ -307,7 +307,7 @@ void cs8900_e2prom_write(unsigned char addr, unsigned short value)
 	put_reg(PP_EECMD, EEPROM_WRITE_DIS);
 	cs8900_e2prom_ready();
 
-	return 0;
+	return;
 }
 
 #endif	/* COMMANDS & CFG_NET */
