@@ -76,6 +76,7 @@ export	CROSS_COMPILE
 
 # The "tools" are needed early, so put this first
 SUBDIRS	= tools \
+	  examples \
 	  lib_generic \
 	  lib_$(ARCH) \
 	  cpu/$(CPU) \
@@ -89,8 +90,7 @@ SUBDIRS	= tools \
 	  drivers \
 	  drivers/sk98lin \
 	  post \
-	  post/cpu \
-	  examples
+	  post/cpu
 
 #########################################################################
 # U-Boot objects....order is important (i.e. start must be first)
@@ -921,6 +921,7 @@ clean:
 	rm -f tools/gdb/astest tools/gdb/gdbcont tools/gdb/gdbsend
 	rm -f tools/env/fw_printenv tools/env/fw_setenv
 	rm -f board/cray/L1/bootscript.c board/cray/L1/bootscript.image
+	rm -f board/trab/trab_fkt
 
 clobber:	clean
 	find . -type f \

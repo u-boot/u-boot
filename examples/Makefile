@@ -69,11 +69,6 @@ ifeq ($(BOARD),oxc)
 SREC   += eepro100_eeprom.srec
 endif
 
-##ifeq ($(BOARD),trab)
-##SREC   += trab_fkt.srec
-##BIN    += trab_fkt.bin
-##endif
-
 OBJS	= $(SREC:.srec=.o)
 
 LIB	= libstubs.a

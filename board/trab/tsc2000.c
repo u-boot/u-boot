@@ -29,6 +29,8 @@
 #include <s3c2400.h>
 #include "tsc2000.h"
 
+#include "Pt1000_temp_data.h"
+
 void spi_init(void)
 {
 	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
@@ -56,7 +58,7 @@ void spi_init(void)
 }
 
 
-static void spi_wait_transmit_done(void)
+void spi_wait_transmit_done(void)
 {
 	S3C24X0_SPI * const spi = S3C24X0_GetBase_SPI();
 
@@ -64,7 +66,7 @@ static void spi_wait_transmit_done(void)
 }
 
 
-static void tsc2000_write(unsigned short reg, unsigned short data)
+void tsc2000_write(unsigned short reg, unsigned short data)
 {
 	S3C24X0_SPI * const spi = S3C24X0_GetBase_SPI();
 	unsigned int command;
@@ -84,7 +86,7 @@ static void tsc2000_write(unsigned short reg, unsigned short data)
 }
 
 
-static unsigned short tsc2000_read (unsigned short reg)
+unsigned short tsc2000_read (unsigned short reg)
 {
 	unsigned short command, data;
 	S3C24X0_SPI * const spi = S3C24X0_GetBase_SPI();
@@ -108,7 +110,7 @@ static unsigned short tsc2000_read (unsigned short reg)
 }
 
 
-static void tsc2000_set_mux (unsigned int channel)
+void tsc2000_set_mux (unsigned int channel)
 {
         S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
 
@@ -185,7 +187,7 @@ static void tsc2000_set_mux (unsigned int channel)
 }
 
 
-static void tsc2000_set_range (unsigned int range)
+void tsc2000_set_range (unsigned int range)
 {
         S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
 
@@ -206,7 +208,7 @@ static void tsc2000_set_range (unsigned int range)
 }
 
 
-static u16 tsc2000_read_channel (unsigned int channel)
+u16 tsc2000_read_channel (unsigned int channel)
 {
 	u16 res;
 
@@ -284,7 +286,7 @@ void tsc2000_reg_init (void)
 }
 
 
-static int tsc2000_interpolate(long value, long data[][2], long *result)
+int tsc2000_interpolate(long value, long data[][2], long *result)
 {
 	int i;
 
@@ -311,7 +313,7 @@ static int tsc2000_interpolate(long value, long data[][2], long *result)
 }
 
 
-static void adc_wait_conversion_done(void)
+void adc_wait_conversion_done(void)
 {
         while (!(tsc2000_read(TSC2000_REG_ADC) & (1 << 14)));
 }

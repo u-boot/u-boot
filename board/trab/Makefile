@@ -28,8 +28,26 @@ LIB	= lib$(BOARD).a
 OBJS	:= trab.o flash.o vfd.o cmd_trab.o memory.o tsc2000.o
 SOBJS	:= memsetup.o
 
+gcclibdir := $(shell dirname `$(CC) -print-libgcc-file-name`)
+
+LOAD_ADDR = 0xc100000
+
+#########################################################################
+
+all:	$(LIB) trab_fkt.srec trab_fkt.bin
+
 $(LIB):	$(OBJS) $(SOBJS)
 	$(AR) crv $@ $(OBJS) $(SOBJS)
+
+trab_fkt.srec:	trab_fkt.o rs485.o tsc2000.o $(LIB)
+	$(LD) -g -Ttext $(LOAD_ADDR) -o $(<:.o=) -e $(<:.o=) $^ $(LIB) \
+		-L../../examples -lstubs \
+		-L../../lib_generic -lgeneric \
+		-L$(gcclibdir) -lgcc
+	$(OBJCOPY) -O srec $(<:.o=) $@
+
+trab_fkt.bin:	trab_fkt.srec
+	$(OBJCOPY) -O binary $< $@ 2>/dev/null
 
 clean:
 	rm -f $(SOBJS) $(OBJS)

@@ -28,8 +28,6 @@
 #ifndef _TSC2000_H_
 #define _TSC2000_H_
 
-#include "Pt1000_temp_data.h"
-
 /* temperature channel multiplexer definitions */
 #define CON_MUX0         	(gpio->PCCON = (gpio->PCCON & 0x0FFFFFCFF) | 0x00000100)
 #define CLR_MUX0         	(gpio->PCDAT &= 0x0FFEF)
@@ -116,17 +114,17 @@
 #define ERROR_BATTERY   220     /* must be adjusted, if R68 is changed on
                                  * TRAB */
 
-static void tsc2000_write(unsigned short, unsigned short);
-static unsigned short tsc2000_read (unsigned short);
-static u16 tsc2000_read_channel (unsigned int);
-static void tsc2000_set_mux (unsigned int);
-static void tsc2000_set_range (unsigned int);
+void tsc2000_write(unsigned short, unsigned short);
+unsigned short tsc2000_read (unsigned short);
+u16 tsc2000_read_channel (unsigned int);
+void tsc2000_set_mux (unsigned int);
+void tsc2000_set_range (unsigned int);
 void tsc2000_reg_init (void);
 s32 tsc2000_contact_temp (void);
-static void spi_wait_transmit_done (void);
+void spi_wait_transmit_done (void);
 void spi_init(void);
-static int tsc2000_interpolate(long value, long data[][2], long *result);
-static void adc_wait_conversion_done(void);
+int tsc2000_interpolate(long value, long data[][2], long *result);
+void adc_wait_conversion_done(void);
 
 
 static inline void SET_CS_TOUCH(void)
