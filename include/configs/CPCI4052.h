@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001
+ * (C) Copyright 2001-2003
  * Stefan Roese, esd gmbh germany, stefan.roese@esd-electronics.com
  *
  * See file CREDITS for list of people who contributed to this
@@ -89,6 +89,7 @@
 				CFG_CMD_JFFS2	| \
 				CFG_CMD_I2C	| \
 				CFG_CMD_MII	| \
+				CFG_CMD_PING	| \
 				CFG_CMD_EEPROM  )
 
 #define CONFIG_MAC_PARTITION
