@@ -294,6 +294,9 @@ TftpStart (void)
 		tftp_filename = BootFile;
 	}
 
+#if defined(CONFIG_NET_MULTI)
+	printf ("Using %s device\n", eth_get_name());
+#endif
 	puts ("TFTP from server ");	print_IPaddr (NetServerIP);
 	puts ("; our IP address is ");	print_IPaddr (NetOurIP);
 

@@ -63,7 +63,7 @@ $(TARGETDEBUGLIB): $(DEBUGOBJS)
 	$(AR) rv $(TARGETDEBUGLIB) $(DEBUGOBJS)
 
 INCS   = -I. -Ix86emu -I../../include
-CFLAGS = -D__DRIVER__ -DFORCE_POST -D_CEXPORT= -DNO_LONG_LONG -Dprintk=printf -fsigned-char  -fomit-frame-pointer -mrelocatable -ffixed-r14 -meabi -mrelocatable -ffixed-r14 -meabi
+CFLAGS = -D__DRIVER__ -DFORCE_POST -D_CEXPORT= -DNO_LONG_LONG -Dprintk=printf -fsigned-char  -fomit-frame-pointer -fPIC -ffixed-r14 -meabi
 CDEBUGFLAGS = -DDEBUG
 
 .c.o:

@@ -291,7 +291,7 @@ NXTARG:		;
 			exit (EXIT_FAILURE);
 		}
 
-		if (sbuf.st_size < sizeof(image_header_t)) {
+		if ((unsigned)sbuf.st_size < sizeof(image_header_t)) {
 			fprintf (stderr,
 				"%s: Bad size: \"%s\" is no valid image\n",
 				cmdname, imagefile);
@@ -530,7 +530,7 @@ copy_file (int ifd, const char *datafile, int pad)
 		 * reserved for it.
 		 */
 
-		if (sbuf.st_size < sizeof(image_header_t)) {
+		if ((unsigned)sbuf.st_size < sizeof(image_header_t)) {
 			fprintf (stderr,
 				"%s: Bad size: \"%s\" is too small for XIP\n",
 				cmdname, datafile);

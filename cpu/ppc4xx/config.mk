@@ -21,7 +21,6 @@
 # MA 02111-1307 USA
 #
 
-PLATFORM_RELFLAGS += -mrelocatable -ffixed-r14 -meabi
+PLATFORM_RELFLAGS += -fPIC -ffixed-r14 -meabi
 
 PLATFORM_CPPFLAGS += -DCONFIG_4xx -ffixed-r2 -ffixed-r29 -mstring -Wa,-m405 -mcpu=405 -msoft-float
-##PLATFORM_CPPFLAGS += -DCONFIG_4xx -ffixed-r2 -mstring -mcpu=403 -msoft-float

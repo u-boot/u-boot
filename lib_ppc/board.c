@@ -501,6 +501,14 @@ void board_init_f (ulong bootflag)
 	bd->bi_plb_busfreq = gd->bus_clk;
 #if defined(CONFIG_405GP) || defined(CONFIG_405EP)
 	bd->bi_pci_busfreq = get_PCI_freq ();
+
+#ifdef CFG_OPB_FREQ
+	bd->bi_opbfreq = CFG_OPB_FREQ;
+#else
+	bd->bi_opbfreq = 50000000;
+#endif
+	bd->bi_iic_fast[0] = 0;
+	bd->bi_iic_fast[1] = 0;
 #endif
 #endif
 

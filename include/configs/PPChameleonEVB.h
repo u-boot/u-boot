@@ -691,4 +691,6 @@
 #endif
 #endif
 
+#define CFG_OPB_FREQ	50000000
+
 #endif	/* __CONFIG_H */

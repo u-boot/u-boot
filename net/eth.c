@@ -324,4 +324,8 @@ void eth_try_another(int first_restart)
 	}
 }
 
+char *eth_get_name (void)
+{
+	return (eth_current ? eth_current->name : "unknown");
+}
 #endif

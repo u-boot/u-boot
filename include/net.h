@@ -117,6 +117,7 @@ extern int eth_init(bd_t *bis);			/* Initialize the device	*/
 extern int eth_send(volatile void *packet, int length);	   /* Send a packet	*/
 extern int eth_rx(void);			/* Check for received packets	*/
 extern void eth_halt(void);			/* stop SCC			*/
+extern char *eth_get_name(void);		/* get name of current device	*/
 
 
 /**********************************************************************/

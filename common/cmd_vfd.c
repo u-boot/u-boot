@@ -90,8 +90,6 @@ int trab_vfd (ulong bitmap)
 		}
 		break;
 	case VFD_REMOTE_LOGO_BMPNR:
-		transfer_pic(3, &vfd_remote_logo_bitmap[0],
-			VFD_LOGO_HEIGHT, VFD_LOGO_WIDTH);
 		if ((s = getenv ("bitmap1")) != NULL) {
 			addr = (uchar *)simple_strtoul (s, NULL, 16);
 		} else {

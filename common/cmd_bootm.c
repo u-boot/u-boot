@@ -1056,7 +1056,7 @@ int do_imls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	flash_info_t *info;
 	int i, j;
 	image_header_t *hdr;
-	ulong checksum;
+	ulong data, len, checksum;
 
 	for (i=0, info=&flash_info[0]; i<CFG_MAX_FLASH_BANKS; ++i, ++info) {
 		if (info->flash_id == FLASH_UNKNOWN)
@@ -1079,7 +1079,15 @@ int do_imls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 			printf ("Image at %08lX:\n", (ulong)hdr);
 			print_image_hdr( hdr );
-			putc ('\n');
+
+			data = (ulong)hdr + sizeof(image_header_t);
+			len  = ntohl(hdr->ih_size);
+
+			printf ("   Verifying Checksum ... ");
+			if (crc32 (0, (char *)data, len) != ntohl(hdr->ih_dcrc)) {
+				printf ("   Bad Data CRC\n");
+			}
+			printf ("OK\n");
 next_sector:		;
 		}
 next_bank:	;

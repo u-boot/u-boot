@@ -92,6 +92,10 @@ typedef struct bd_info {
 	/* third onboard ethernet port */
 	unsigned char	bi_enet2addr[6];
 #endif
+#if defined(CONFIG_405GP) || defined(CONFIG_405EP)
+	unsigned int	bi_opbfreq;		/* OPB clock in Hz */
+	int		bi_iic_fast[2];		/* Use fast i2c mode */
+#endif
 #if defined(CONFIG_NX823)
 	unsigned char	bi_sernum[8];
 #endif
