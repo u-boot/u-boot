@@ -73,6 +73,9 @@ void doc_init (void);
     defined(CONFIG_SOFT_I2C)
 #include <i2c.h>
 #endif
+#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+void nand_init (void);
+#endif
 
 static char *failed = "*** failed ***\n";
 
@@ -171,7 +174,7 @@ static void syscalls_init (void)
 	/* Initialize syscalls stack pointer                                 */
 	addr = (ulong *) 0xCFC;
 	*addr = (ulong)addr;
-#ifndef CONFIG_5xx	
+#ifndef CONFIG_5xx
 	flush_cache ((ulong)addr, 0x10);
 #endif
 }
@@ -532,7 +535,7 @@ void board_init_f (ulong bootflag)
 
 	bd->bi_procfreq = gd->cpu_clk;	/* Processor Speed, In Hz */
 	bd->bi_plb_busfreq = gd->bus_clk;
-#ifdef CONFIG_405GP
+#if defined(CONFIG_405GP) || defined(CONFIG_405EP)
 	bd->bi_pci_busfreq = get_PCI_freq ();
 #endif
 #endif
@@ -909,6 +912,11 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	WATCHDOG_RESET ();
 	puts ("DOC:   ");
 	doc_init ();
+#endif
+
+#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+	WATCHDOG_RESET ();
+	nand_init();		/* go init the NAND */
 #endif
 
 #if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_NET_MULTI)
