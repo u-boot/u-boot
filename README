@@ -627,6 +627,7 @@ The following options need to be configured:
 		CFG_CMD_SAVES	* save S record dump
 		CFG_CMD_SCSI	* SCSI Support
 		CFG_CMD_SDRAM	* print SDRAM configuration information
+				  (requires CFG_CMD_I2C)
 		CFG_CMD_SETGETDCR Support for DCR Register access (4xx only)
 		CFG_CMD_SPI	* SPI serial bus support
 		CFG_CMD_USB	* USB support

@@ -2,6 +2,14 @@
 Changes for U-Boot 1.1.3:
 ======================================================================
 
+* Patch by Richard Klingler, 03 Apr 2005:
+  Add call to eth_halt() in net/net.c when called functions fail
+  after eth_init() has been called.
+
+* Patch by Sam Song, 3 April 2005:
+  - Update README.Netconsole
+  - Update README
+
 * Prepare for SoC rework of ARM code:
   - rename CONFIG_BOOTBINFUNC into  CONFIG_INIT_CRITICAL
   - rename memsetup into lowlevel_init (function name and source files)

@@ -303,8 +303,10 @@ NetLoop(proto_t protocol)
 #ifdef CONFIG_NET_MULTI
 	eth_set_current();
 #endif
-	if (eth_init(bd) < 0)
+	if (eth_init(bd) < 0) {
+		eth_halt();
 		return(-1);
+	}
 
 restart:
 #ifdef CONFIG_NET_MULTI
@@ -383,6 +385,7 @@ restart:
 	switch (net_check_prereq (protocol)) {
 	case 1:
 		/* network not configured */
+		eth_halt();
 		return (-1);
 
 #ifdef CONFIG_NET_MULTI
