@@ -30,12 +30,7 @@
 # in RAM where U-Boot is loaded at for debugging.
 #
 
-ifeq ($(CONFIG_BOOT_ROM),y)
-	TEXT_BASE := 0xFF800000
-	PLATFORM_CPPFLAGS += -DCONFIG_BOOT_ROM
-else
-	TEXT_BASE := 0xFF000000
-endif
+TEXT_BASE := 0xFF000000
 
 # RAM version
 #TEXT_BASE := 0x100000

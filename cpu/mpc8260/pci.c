@@ -252,7 +252,13 @@ void pci_mpc8250_init(struct pci_controller *hose)
      * Setting required to enable IRQ1-IRQ7 (SIUMCR [DPPC]), 
      * and local bus for PCI (SIUMCR [LBPC]).
      */
-    immap->im_siu_conf.sc_siumcr = 0x00640000;
+    immap->im_siu_conf.sc_siumcr = (immap->im_siu_conf.sc_siumcr & 
+						  ~SIUMCR_LBPC11 & 
+						~SIUMCR_CS10PC11 & 
+						 ~SIUMCR_LBPC11) |
+				   SIUMCR_LBPC01 | 
+				   SIUMCR_CS10PC01 | 
+				   SIUMCR_LBPC01;
 #endif
 
     /* Make PCI lowest priority */

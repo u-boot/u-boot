@@ -28,7 +28,8 @@ include $(TOPDIR)/config.mk
 LIB	= librtc.a
 
 OBJS	= date.o   \
-	  ds1302.o ds1306.o ds1307.o ds1337.o ds1556.o ds164x.o ds174x.o \
+	  ds12887.o ds1302.o ds1306.o ds1307.o ds1337.o \
+	  ds1556.o ds164x.o ds174x.o \
 	  m41t11.o m48t35ax.o mc146818.o mk48t59.o \
 	  mpc8xx.o pcf8563.o
 

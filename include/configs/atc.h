@@ -129,7 +129,10 @@
 				 CFG_CMD_EEPROM | \
 				 CFG_CMD_PCI | \
 				 CFG_CMD_PCMCIA | \
+				 CFG_CMD_DATE | \
 				 CFG_CMD_IDE)
+
+
 #define CONFIG_DOS_PARTITION
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
@@ -168,6 +171,14 @@
 
 #define CONFIG_SPI
 
+#define CONFIG_RTC_DS12887
+
+#define RTC_BASE_ADDR 		0x02800000
+#define RTC_PORT_ADDR 		RTC_BASE_ADDR + 0x800
+#define RTC_PORT_DATA 		RTC_BASE_ADDR + 0x808
+
+#define CONFIG_MISC_INIT_R
+
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is
@@ -179,8 +190,6 @@
  * Flash configuration
  */
 
-#define CFG_BOOTROM_BASE	0xFF800000
-#define CFG_BOOTROM_SIZE	0x00080000
 #define CFG_FLASH_BASE		0xFF000000
 #define CFG_FLASH_SIZE		0x00800000
 
@@ -452,6 +461,13 @@
 #define CFG_PSDMR	 CFG_PSDMR_8COL
 #endif /* CFG_RAMBOOT */
 
+#define CFG_BR4_PRELIM  ((RTC_BASE_ADDR & BRx_BA_MSK)   |\
+                         BRx_PS_8                       |\
+                         BRx_MS_UPMA                    |\
+                         BRx_V)
+
+#define CFG_OR4_PRELIM  (ORxU_AM_MSK | ORxU_BI)
+									   
 /*-----------------------------------------------------------------------
  * PCMCIA stuff
  *-----------------------------------------------------------------------

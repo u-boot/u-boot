@@ -2,6 +2,8 @@
 Changes since U-Boot 0.3.1:
 ======================================================================
 
+* Add support for DS12887 RTC; add RTC support for ATC board
+
 * Patch by Nicolas Lacressonniere, 11 Jun 2003:
   Modifications for Atmel AT91RM9200DK ARM920T based development kit
   - Add Atmel DataFlash support for reading and writing.
@@ -419,7 +421,7 @@ Changes for U-Boot 0.3.0:
 
 * TRAB fixes / extensions:
   - Restore VFD brightness as saved in environment
-  - add support for FGujitsu flashes
+  - add support for Fujitsu flashes
   - make sure both buzzers are turned off (drive low level)
 
 * Patches by Robert Schwebel, 06 Mar 2003:

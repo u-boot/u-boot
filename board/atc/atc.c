@@ -203,6 +203,49 @@ const iop_conf_t iop_conf_tab[4][32] = {
     }
 };
 
+/*
+ * UPMB initialization table
+ */
+#define	_NOT_USED_	0xFFFFFFFF
+  
+static const uint rtc_table[] =
+{
+	/*
+	 * Single Read. (Offset 0 in UPMA RAM)
+	 */
+	0xfffec00, 0xfffac00, 0xfff2d00, 0xfef2800, 
+	0xfaf2080, 0xfaf2080, 0xfff2400, 0x1fff6c05, /* last */	    
+	/*
+	 * Burst Read. (Offset 8 in UPMA RAM)
+	 */
+	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
+	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
+	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
+	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
+	/*
+	 * Single Write. (Offset 18 in UPMA RAM)
+	 */
+	0xfffec00, 0xfffac00, 0xfff2d00, 0xfef2800, 
+	0xfaf2080, 0xfaf2080, 0xfaf2400, 0x1fbf6c05, /* last */
+	/*
+	 * Burst Write. (Offset 20 in UPMA RAM)
+	 */
+	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
+	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
+	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
+	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
+	/*
+	 * Refresh  (Offset 30 in UPMA RAM)
+	 */
+	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
+	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
+	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
+	/*
+	 * Exception. (Offset 3c in UPMA RAM)
+	 */
+	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
+};												
+																	
 /* ------------------------------------------------------------------------- */
 
 /* Check Board Identity:
@@ -319,6 +362,17 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 	return (maxsize);
 }
 
+int misc_init_r(void)
+{
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile memctl8260_t *memctl = &immap->im_memctl;
+	
+	upmconfig(UPMA, (uint *)rtc_table, sizeof(rtc_table) / sizeof(uint));
+	memctl->memc_mamr = MxMR_RLFx_6X | MxMR_WLFx_6X | MxMR_OP_NORM;	
+
+	return (0);
+}
+			
 long int initdram (int board_type)
 {
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
