@@ -230,8 +230,8 @@ static long int dram_size (long int mamr_value, long int *base,
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	volatile long int *addr;
-	ulong cnt, val;
-	ulong save[32];			/* to make test non-destructive */
+ 	ulong cnt, val, size;
+ 	ulong save[32];			/* to make test non-destructive */
 	unsigned char i = 0;
 
 	memctl->memc_mamr = mamr_value;
@@ -250,7 +250,13 @@ static long int dram_size (long int mamr_value, long int *base,
 
 	/* check at base address */
 	if ((val = *addr) != 0) {
+		/* Restore the original data before leaving the function.
+		 */
 		*addr = save[i];
+		for (cnt = 1; cnt <= maxsize / sizeof(long); cnt <<= 1) {
+			addr  = (volatile ulong *) base + cnt;
+			*addr = save[--i];
+		}
 		return (0);
 	}
 
@@ -261,7 +267,14 @@ static long int dram_size (long int mamr_value, long int *base,
 		*addr = save[--i];
 
 		if (val != (~cnt)) {
-			return (cnt * sizeof (long));
+			size = cnt * sizeof (long);
+			/* Restore the original data before returning
+			 */
+			for (cnt <<= 1; cnt <= maxsize / sizeof (long); cnt <<= 1) {
+				addr  = (volatile ulong *) base + cnt;
+				*addr = save[--i];
+			}
+			return (size);
 		}
 	}
 	return (maxsize);

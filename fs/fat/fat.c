@@ -33,11 +33,6 @@
 
 #if (CONFIG_COMMANDS & CFG_CMD_FAT)
 
-#ifdef CONFIG_AUTO_UPDATE
-/* the VFAT code has a bug which breaks auto update */
-#undef CONFIG_SUPPORT_VFAT
-#endif
-
 /*
  * Convert a string to lowercase.
  */
@@ -429,6 +424,7 @@ slot2str(dir_slot *slotptr, char *l_name, int *idx)
  * into 'retdent'
  * Return 0 on success, -1 otherwise.
  */
+__u8	 get_vfatname_block[MAX_CLUSTSIZE];
 static int
 get_vfatname(fsdata *mydata, int curclust, __u8 *cluster,
 	     dir_entry *retdent, char *l_name)
@@ -447,7 +443,6 @@ get_vfatname(fsdata *mydata, int curclust, __u8 *cluster,
 	}
 
 	if ((__u8*)slotptr >= nextclust) {
-		__u8	 block[MAX_CLUSTSIZE];
 		dir_slot *slotptr2;
 
 		slotptr--;
@@ -457,18 +452,18 @@ get_vfatname(fsdata *mydata, int curclust, __u8 *cluster,
 			FAT_ERROR("Invalid FAT entry\n");
 			return -1;
 		}
-		if (get_cluster(mydata, curclust, block,
+		if (get_cluster(mydata, curclust, get_vfatname_block,
 				mydata->clust_size * SECTOR_SIZE) != 0) {
 			FAT_DPRINT("Error: reading directory block\n");
 			return -1;
 		}
-		slotptr2 = (dir_slot*) block;
+		slotptr2 = (dir_slot*) get_vfatname_block;
 		while (slotptr2->id > 0x01) {
 			slotptr2++;
 		}
 		/* Save the real directory entry */
 		realdent = (dir_entry*)slotptr2 + 1;
-		while ((__u8*)slotptr2 >= block) {
+		while ((__u8*)slotptr2 >= get_vfatname_block) {
 			slot2str(slotptr2, l_name, &idx);
 			slotptr2--;
 		}
@@ -514,12 +509,12 @@ mkcksum(const char *str)
  * Get the directory entry associated with 'filename' from the directory
  * starting at 'startsect'
  */
+__u8 get_dentfromdir_block[MAX_CLUSTSIZE];
 static dir_entry *get_dentfromdir (fsdata * mydata, int startsect,
 				   char *filename, dir_entry * retdent,
 				   int dols)
 {
     __u16 prevcksum = 0xffff;
-    __u8 block[MAX_CLUSTSIZE];
     __u32 curclust = START (retdent);
     int files = 0, dirs = 0;
 
@@ -528,12 +523,12 @@ static dir_entry *get_dentfromdir (fsdata * mydata, int startsect,
 	dir_entry *dentptr;
 	int i;
 
-	if (get_cluster (mydata, curclust, block,
+	if (get_cluster (mydata, curclust, get_dentfromdir_block,
 		 mydata->clust_size * SECTOR_SIZE) != 0) {
 	    FAT_DPRINT ("Error: reading directory block\n");
 	    return NULL;
 	}
-	dentptr = (dir_entry *) block;
+	dentptr = (dir_entry *) get_dentfromdir_block;
 	for (i = 0; i < DIRENTSPERCLUST; i++) {
 	    char s_name[14], l_name[256];
 
@@ -544,7 +539,7 @@ static dir_entry *get_dentfromdir (fsdata * mydata, int startsect,
 		    (dentptr->name[0] & 0x40)) {
 		    prevcksum = ((dir_slot *) dentptr)
 			    ->alias_checksum;
-		    get_vfatname (mydata, curclust, block,
+		    get_vfatname (mydata, curclust, get_dentfromdir_block,
 				  dentptr, l_name);
 		    if (dols) {
 			int isdir = (dentptr->attr & ATTR_DIR);
@@ -716,11 +711,11 @@ read_bootsectandvi(boot_sector *bs, volume_info *volinfo, int *fatsize)
 }
 
 
+__u8 do_fat_read_block[MAX_CLUSTSIZE];  /* Block buffer */
 static long
 do_fat_read (const char *filename, void *buffer, unsigned long maxsize,
 	     int dols)
 {
-    __u8 block[MAX_CLUSTSIZE];  /* Block buffer */
     char fnamecopy[2048];
     boot_sector bs;
     volume_info volinfo;
@@ -792,11 +787,11 @@ do_fat_read (const char *filename, void *buffer, unsigned long maxsize,
     while (1) {
 	int i;
 
-	if (disk_read (cursect, mydata->clust_size, block) < 0) {
+	if (disk_read (cursect, mydata->clust_size, do_fat_read_block) < 0) {
 	    FAT_DPRINT ("Error: reading rootdir block\n");
 	    return -1;
 	}
-	dentptr = (dir_entry *) block;
+	dentptr = (dir_entry *) do_fat_read_block;
 	for (i = 0; i < DIRENTSPERBLOCK; i++) {
 	    char s_name[14], l_name[256];
 
@@ -806,7 +801,7 @@ do_fat_read (const char *filename, void *buffer, unsigned long maxsize,
 		if ((dentptr->attr & ATTR_VFAT) &&
 		    (dentptr->name[0] & 0x40)) {
 		    prevcksum = ((dir_slot *) dentptr)->alias_checksum;
-		    get_vfatname (mydata, 0, block, dentptr, l_name);
+		    get_vfatname (mydata, 0, do_fat_read_block, dentptr, l_name);
 		    if (dols == LS_ROOT) {
 			int isdir = (dentptr->attr & ATTR_DIR);
 			char dirc;

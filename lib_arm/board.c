@@ -111,9 +111,9 @@ static int init_baudrate (void)
 
 static int display_banner (void)
 {
+#ifdef CONFIG_SILENT_CONSOLE
 	DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_SILENT_CONSOLE
 	if (gd->flags & GD_FLG_SILENT)
 		return (0);
 #endif
@@ -161,9 +161,9 @@ static int display_dram_config (void)
 
 static void display_flash_config (ulong size)
 {
+#ifdef CONFIG_SILENT_CONSOLE
 	DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_SILENT_CONSOLE
 	if (gd->flags & GD_FLG_SILENT)
 		return;
 #endif

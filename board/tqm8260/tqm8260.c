@@ -230,7 +230,7 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 	volatile uint *orx_ptr;
 	int i;
 	ulong save[32];				/* to make test non-destructive */
-	ulong maxsize;
+	ulong maxsize, size;
 
 	/* We must be able to test a location outsize the maximum legal size
 	 * to find out THAT we are outside; but this address still has to be
@@ -299,7 +299,13 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 	*addr = 0;
 
 	if ((val = *addr) != 0) {
+		/* Restore the original data before leaving the function.
+		 */
 		*addr = save[i];
+		for (cnt = 1; cnt <= maxsize / sizeof(long); cnt <<= 1) {
+			addr  = (volatile ulong *) base + cnt;
+			*addr = save[--i];
+		}
 		return (0);
 	}
 
@@ -308,10 +314,17 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 		val = *addr;
 		*addr = save[--i];
 		if (val != ~cnt) {
+			size = cnt * sizeof (long);
+			/* Restore the original data before leaving the function.
+			 */ 
+			for (cnt <<= 1; cnt <= maxsize / sizeof (long); cnt <<= 1) {
+				addr  = (volatile ulong *) base + cnt;
+				*addr = save[--i];
+			}
 			/* Write the actual size to ORx
 			 */
-			*orx_ptr = orx | ~(cnt * sizeof (long) - 1);
-			return (cnt * sizeof (long));
+			*orx_ptr = orx | ~(size - 1);
+			return (size);
 		}
 	}
 	return (maxsize);

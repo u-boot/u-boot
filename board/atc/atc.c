@@ -269,7 +269,7 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 			  ulong orx, volatile uchar * base)
 {
 	volatile uchar c = 0xff;
-	ulong cnt, val;
+	ulong cnt, val, size;
 	volatile ulong *addr;
 	volatile uint *sdmr_ptr;
 	volatile uint *orx_ptr;
@@ -344,7 +344,13 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 	*addr = 0;
 
 	if ((val = *addr) != 0) {
+		/* Restore the original data before leaving the function.
+		 */
 		*addr = save[i];
+		for (cnt = 1; cnt <= maxsize / sizeof(long); cnt <<= 1) {
+			addr  = (volatile ulong *) base + cnt;
+			*addr = save[--i];
+		}
 		return (0);
 	}
 
@@ -353,10 +359,17 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 		val = *addr;
 		*addr = save[--i];
 		if (val != ~cnt) {
+			size = cnt * sizeof (long);
+			/* Restore the original data before returning
+			 */
+			for (cnt <<= 1; cnt <= maxsize / sizeof (long); cnt <<= 1) {
+				addr  = (volatile ulong *) base + cnt;
+				*addr = save[--i];
+			}
 			/* Write the actual size to ORx
 			 */
-			*orx_ptr = orx | ~(cnt * sizeof (long) - 1);
-			return (cnt * sizeof (long));
+			*orx_ptr = orx | ~(size - 1);
+			return (size);
 		}
 	}
 	return (maxsize);

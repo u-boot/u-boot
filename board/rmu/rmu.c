@@ -94,39 +94,41 @@ int checkboard (void)
 
 long int initdram (int board_type)
 {
-    volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
-    volatile memctl8xx_t *memctl = &immap->im_memctl;
-    long int size9 ;
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile memctl8xx_t *memctl = &immap->im_memctl;
+	long int size9;
 
-    upmconfig(UPMA, (uint *)sdram_table, sizeof(sdram_table)/sizeof(uint));
+	upmconfig (UPMA, (uint *) sdram_table,
+		   sizeof (sdram_table) / sizeof (uint));
 
 	/* Refresh clock prescalar */
-    memctl->memc_mptpr = CFG_MPTPR ;
+	memctl->memc_mptpr = CFG_MPTPR;
 
-    memctl->memc_mar  = 0x00000088;
+	memctl->memc_mar = 0x00000088;
 
 	/* Map controller banks 1 to the SDRAM bank */
-    memctl->memc_or1 = CFG_OR1_PRELIM;
-    memctl->memc_br1 = CFG_BR1_PRELIM;
+	memctl->memc_or1 = CFG_OR1_PRELIM;
+	memctl->memc_br1 = CFG_BR1_PRELIM;
 
-    memctl->memc_mamr = CFG_MAMR_9COL & (~(MAMR_PTAE)); /* no refresh yet */
+	memctl->memc_mamr = CFG_MAMR_9COL & (~(MAMR_PTAE));	/* no refresh yet */
 
-    udelay(200);
+	udelay (200);
 
-    /* perform SDRAM initializsation sequence */
+	/* perform SDRAM initializsation sequence */
 
-	memctl->memc_mcr  = 0x80002136 ; /* SDRAM bank 0 */
-    udelay(1);
+	memctl->memc_mcr = 0x80002136;	/* SDRAM bank 0 */
+	udelay (1);
 
-    memctl->memc_mamr |= MAMR_PTAE;	/* enable refresh */
+	memctl->memc_mamr |= MAMR_PTAE;	/* enable refresh */
 
-    udelay (1000);
+	udelay (1000);
 
 	/* Check Bank 0 Memory Size,
 	 * 9 column mode
 	 */
 
-	size9 = dram_size (CFG_MAMR_9COL, (ulong *)SDRAM_BASE_PRELIM, SDRAM_MAX_SIZE) ;
+	size9 = dram_size (CFG_MAMR_9COL, (ulong *) SDRAM_BASE_PRELIM,
+			   SDRAM_MAX_SIZE);
 
 	/*
 	 * Final mapping:
@@ -135,7 +137,7 @@ long int initdram (int board_type)
 	memctl->memc_or1 = ((-size9) & 0xFFFF0000) | CFG_OR_TIMING_SDRAM;
 	udelay (1000);
 
-    return (size9);
+	return (size9);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -148,44 +150,58 @@ long int initdram (int board_type)
  * - short between data lines
  */
 
-static long int dram_size (long int mamr_value, long int *base, long int maxsize)
+static long int dram_size (long int mamr_value, long int *base,
+			   long int maxsize)
 {
-    volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
-    volatile memctl8xx_t *memctl = &immap->im_memctl;
-    volatile long int	 *addr;
-    ulong		  cnt, val;
-    ulong		  save[32];	/* to make test non-destructive */
-    unsigned char	  i = 0;
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile memctl8xx_t *memctl = &immap->im_memctl;
+	volatile long int *addr;
+	ulong cnt, val, size;
+	ulong save[32];		/* to make test non-destructive */
+	unsigned char i = 0;
 
-    memctl->memc_mamr = mamr_value;
+	memctl->memc_mamr = mamr_value;
 
-    for (cnt = maxsize/sizeof(long); cnt > 0; cnt >>= 1) {
-	addr = base + cnt;	/* pointer arith! */
+	for (cnt = maxsize / sizeof (long); cnt > 0; cnt >>= 1) {
+		addr = base + cnt;	/* pointer arith! */
 
-	save[i++] = *addr;
-	*addr = ~cnt;
-    }
-
-    /* write 0 to base address */
-    addr = base;
-    save[i] = *addr;
-    *addr = 0;
-
-    /* check at base address */
-    if ((val = *addr) != 0) {
-	*addr = save[i];
-	return (0);
-    }
-
-    for (cnt = 1; cnt <= maxsize/sizeof(long); cnt <<= 1) {
-	addr = base + cnt;	/* pointer arith! */
-
-	val = *addr;
-	*addr = save[--i];
-
-	if (val != (~cnt)) {
-	    return (cnt * sizeof(long));
+		save[i++] = *addr;
+		*addr = ~cnt;
 	}
-    }
-    return (maxsize);
+
+	/* write 0 to base address */
+	addr = base;
+	save[i] = *addr;
+	*addr = 0;
+
+	/* check at base address */
+	if ((val = *addr) != 0) {
+		/* Restore the original data before leaving the function.
+		 */
+		*addr = save[i];
+		for (cnt = 1; cnt <= maxsize / sizeof(long); cnt <<= 1) {
+			addr  = (volatile ulong *) base + cnt;
+			*addr = save[--i];
+		}
+		return (0);
+	}
+
+	for (cnt = 1; cnt <= maxsize / sizeof (long); cnt <<= 1) {
+		addr = base + cnt;	/* pointer arith! */
+
+		val = *addr;
+		*addr = save[--i];
+
+		if (val != (~cnt)) {
+			size = cnt * sizeof (long);
+			/* Restore the original data before returning
+			 */
+			for (cnt <<= 1; cnt <= maxsize / sizeof (long); cnt <<= 1) {
+				addr  = (volatile ulong *) base + cnt;
+				*addr = save[--i];
+			}
+			return (size);
+		}
+	}
+	return (maxsize);
 }

@@ -97,7 +97,7 @@ flash_init (void)
 #ifndef CONFIG_P3G4
 	    printf("[");
 	    print_size (size, "");
-	    printf("@%08lX] ", size>>20, base);
+	    printf("@%08lX] ", base);
 #endif
 
 	    if (flash_info[i].flash_id == FLASH_UNKNOWN) {

@@ -2,6 +2,13 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Fix problems in memory test on some boards (which was not
+  non-destructive as intended)
+
+* Patch by Gary Jennejohn, 28 Oct 2003:
+  Change fs/fat/fat.c to put I/O buffers in BSS instead on the stack
+  to prevent stack overflow on ARM systems
+
 * Patch by Stephan Linz, 28 Oct 2003:
   fix init sequence error for NIOS port
 
