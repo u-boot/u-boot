@@ -83,6 +83,12 @@
 #define CPM_POST_WORD_ADDR	CFG_CPM_POST_WORD_ADDR
 #endif
 
+#ifndef CFG_CPM_BOOTCOUNT_ADDR
+#define CPM_BOOTCOUNT_ADDR	(CPM_POST_WORD_ADDR - 2*sizeof(ulong))
+#else
+#define CPM_BOOTCOUNT_ADDR	CFG_CPM_BOOTCOUNT_ADDR
+#endif
+
 #define BD_IIC_START	((uint) 0x0400) /* <- please use CPM_I2C_BASE !! */
 
 /* Export the base address of the communication processor registers

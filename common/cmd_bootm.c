@@ -1012,9 +1012,9 @@ int do_imls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			printf ("Image at %08lX:\n", (ulong)hdr);
 			print_image_hdr( hdr );
 			putc ('\n');
-		next_sector:
+next_sector:		;
 		}
-	next_bank:
+next_bank:	;
 	}
 
 	return (0);

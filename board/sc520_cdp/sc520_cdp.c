@@ -28,7 +28,7 @@
 #include <asm/pci.h>
 #include <asm/ic/sc520.h>
 #include <asm/ic/ali512x.h>
-#include <ssi.h>
+#include <spi.h>
 
 #undef SC520_CDP_DEBUG
 
@@ -557,6 +557,19 @@ void ssi_chip_select(int dev)
 	}
 }
 
+void spi_eeprom_probe(int x)
+{
+}
+
+int spi_eeprom_read(int x, int offset, char *buffer, int len)
+{
+       return 0;
+}
+
+int spi_eeprom_write(int x, int offset, char *buffer, int len)
+{
+       return 0;
+}
 
 void spi_init_f(void)
 {
@@ -586,6 +599,9 @@ ssize_t spi_read(uchar *addr, int alen, uchar *buffer, int len)
 #ifdef CONFIG_SC520_CDP_USE_MW
 	res = mw_eeprom_read(2, offset, buffer, len);
 #endif
+#if !defined(CONFIG_SC520_CDP_USE_SPI) && !defined(CONFIG_SC520_CDP_USE_MW)
+	res = 0;
+#endif
 	return res;
 }
 
@@ -606,6 +622,9 @@ ssize_t spi_write(uchar *addr, int alen, uchar *buffer, int len)
 #endif
 #ifdef CONFIG_SC520_CDP_USE_MW
 	res = mw_eeprom_write(2, offset, buffer, len);
+#endif
+#if !defined(CONFIG_SC520_CDP_USE_SPI) && !defined(CONFIG_SC520_CDP_USE_MW)
+	res = 0;
 #endif
 	return res;
 }

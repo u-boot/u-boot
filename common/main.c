@@ -32,6 +32,8 @@
 #include <hush.h>
 #endif
 
+#include <post.h>
+
 #if defined(CONFIG_BOOT_RETRY_TIME) && defined(CONFIG_RESET_TO_RETRY)
 extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);		/* for do_reset() prototype */
 #endif
@@ -258,6 +260,12 @@ void main_loop (void)
 #ifdef CONFIG_PREBOOT
 	char *p;
 #endif
+#ifdef CONFIG_BOOTCOUNT_LIMIT
+	unsigned long bootcount = 0;
+	unsigned long bootlimit = 0;
+	char *bcs;
+	char bcs_set[16];
+#endif /* CONFIG_BOOTCOUNT_LIMIT */
 
 #if defined(CONFIG_VFD) && defined(VFD_TEST_LOGO)
 	ulong bmp = 0;		/* default bitmap */
@@ -269,6 +277,16 @@ void main_loop (void)
 #endif
 	trab_vfd (bmp);
 #endif	/* CONFIG_VFD && VFD_TEST_LOGO */
+
+#ifdef CONFIG_BOOTCOUNT_LIMIT
+	bootcount = bootcount_load();
+	bootcount++;
+	bootcount_store (bootcount);
+	sprintf (bcs_set, "%lu", bootcount);
+	setenv ("bootcount", bcs_set);
+	bcs = getenv ("bootlimit");
+	bootlimit = bcs ? simple_strtoul (bcs, NULL, 10) : 0;
+#endif /* CONFIG_BOOTCOUNT_LIMIT */
 
 #ifdef CONFIG_MODEM_SUPPORT
 	debug ("DEBUG: main_loop:   do_mdm_init=%d\n", do_mdm_init);
@@ -322,7 +340,15 @@ void main_loop (void)
 	init_cmd_timeout ();
 # endif	/* CONFIG_BOOT_RETRY_TIME */
 
-	s = getenv ("bootcmd");
+#ifdef CONFIG_BOOTCOUNT_LIMIT
+	if (bootlimit && (bootcount > bootlimit)) {
+		printf ("Warning: Bootlimit (%u) exceeded. Using altbootcmd.\n",
+		        (unsigned)bootlimit);
+		s = getenv ("altbootcmd");
+	}
+	else
+#endif /* CONFIG_BOOTCOUNT_LIMIT */
+		s = getenv ("bootcmd");
 
 	debug ("### main_loop: bootcmd=\"%s\"\n", s ? s : "<UNDEFINED>");
 

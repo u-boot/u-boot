@@ -117,18 +117,24 @@ LIBS += common/libcommon.a
 LIBS += lib_generic/libgeneric.a
 
 #########################################################################
+#########################################################################
 
-all:		u-boot.srec u-boot.bin System.map
+ALL = u-boot.srec u-boot.bin System.map
 
-install:	all
-		-cp u-boot.bin /tftpboot/u-boot.bin
-		-cp u-boot.bin /net/denx/tftpboot/u-boot.bin
+all:		$(ALL)
 
 u-boot.srec:	u-boot
 		$(OBJCOPY) ${OBJCFLAGS} -O srec $< $@
 
 u-boot.bin:	u-boot
 		$(OBJCOPY) ${OBJCFLAGS} -O binary $< $@
+
+u-boot.img:	u-boot.bin
+		./tools/mkimage -A $(ARCH) -T firmware -C none \
+		-a $(TEXT_BASE) -e 0 \
+		-n $(shell sed -n -e 's/.*U_BOOT_VERSION//p' include/version.h | \
+			sed -e 's/"[	 ]*$$/ for $(BOARD) board"/') \
+		-d $< $@
 
 u-boot.dis:	u-boot
 		$(OBJDUMP) -d $< > $@
@@ -864,7 +870,7 @@ clobber:	clean
 		| xargs rm -f
 	rm -f $(OBJS) *.bak tags TAGS
 	rm -fr *.*~
-	rm -f u-boot u-boot.bin u-boot.srec u-boot.map System.map
+	rm -f u-boot u-boot.map $(ALL)
 	rm -f tools/crc32.c tools/environment.c tools/env/crc32.c
 	rm -f tools/inca-swap-bytes cpu/mpc824x/bedbug_603e.c
 	rm -f include/asm/proc include/asm/arch include/asm

@@ -29,7 +29,7 @@ OBJS	:= sc520_cdp.o flash.o
 SOBJS	:= sc520_cdp_asm.o sc520_cdp_asm16.o
 
 $(LIB):	$(OBJS) $(SOBJS)
-	$(AR) crv $@ $(OBJS)
+	$(AR) crv $@ $(OBJS) $(SOBJS)
 
 clean:
 	rm -f $(SOBJS) $(OBJS)

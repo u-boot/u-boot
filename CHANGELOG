@@ -2,6 +2,15 @@
 Changes for U-Boot 0.4.5:
 ======================================================================
 
+* Map ISP1362 USB OTG controller for NSCU board
+
+* Patch by Brad Parker, 02 Aug 2003:
+  fix sc520_cdp problems
+
+* Implement Boot Cycle Detection (Req. 2.3 of OSDL CGL Reqirements)
+
+* Allow erase command to cross flash bank boundaries
+
 * Patch by Scott McNutt, 21 Jul 2003:
   Add support for LynuxWorks Kernel Downloadable Images (KDIs).
   Both LynxOS and BlueCat linux KDIs are supported.

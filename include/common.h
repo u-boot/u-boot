@@ -236,7 +236,7 @@ extern void  pic_write (uchar reg, uchar val);
 # define CFG_DEF_EEPROM_ADDR CFG_I2C_EEPROM_ADDR
 #endif /* CONFIG_SPI || !defined(CFG_I2C_EEPROM_ADDR) */
 
-#if defined(CONFIG_PCU_E) || defined(CONFIG_CCM) || defined(CONFIG_ATC)
+#if defined(CONFIG_SPI)
 extern void spi_init_f (void);
 extern void spi_init_r (void);
 extern ssize_t spi_read  (uchar *, int, uchar *, int);
@@ -400,6 +400,9 @@ uint	dpram_alloc(uint size);
 uint	dpram_alloc_align(uint size,uint align);
 void	post_word_store (ulong);
 ulong	post_word_load (void);
+void	bootcount_store (ulong);
+ulong	bootcount_load (void);
+#define BOOTCOUNT_MAGIC		0xB001C041
 
 /* $(CPU)/.../<eth> */
 void mii_init (void);

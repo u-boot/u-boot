@@ -90,6 +90,8 @@
 
 #define	CONFIG_RTC_MPC8xx		/* use internal RTC of MPC8xx	*/
 
+#define	CONFIG_ISP1362_USB		/* ISP1362 USB OTG controller	*/
+
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
 				CFG_CMD_ASKENV	| \
 				CFG_CMD_DHCP	| \
@@ -392,6 +394,15 @@
 					BR_PS_8 | BR_MS_UPMB | BR_V )
 #endif	/* CONFIG_CAN_DRIVER */
 
+#ifdef	CONFIG_ISP1362_USB
+#define	CFG_ISP1362_BASE	0xD0000000	/* ISP1362 mapped at 0xD0000000 */
+#define CFG_ISP1362_OR_AM	0xFFFF8000	/* 32 kB address mask		*/
+#define CFG_OR5_ISP1362		(CFG_ISP1362_OR_AM | OR_CSNT_SAM | \
+				 OR_ACS_DIV2       | OR_BI       | OR_SCY_5_CLK)
+#define CFG_BR5_ISP1362		((CFG_ISP1362_BASE & BR_BA_MSK) | \
+				 BR_PS_16          | BR_MS_GPCM | BR_V )
+#endif	/* CONFIG_ISP1362_USB */
+				 
 /*
  * Memory Periodic Timer Prescaler
  *

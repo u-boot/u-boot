@@ -363,7 +363,13 @@ long int initdram (int board_type)
 	memctl->memc_mcr = 0x011C | UPMB;
 #endif							/* CONFIG_CAN_DRIVER */
 
-
+#ifdef	CONFIG_ISP1362_USB
+	/* Initialize OR5 / BR5 */
+	memctl->memc_or5 = CFG_OR5_ISP1362;
+	memctl->memc_br5 = CFG_BR5_ISP1362;
+#endif							/* CONFIG_ISP1362_USB */
+	    
+	    
 	return (size_b0 + size_b1);
 }
 

@@ -603,8 +603,8 @@ print_header (image_header_t *hdr)
 	printf ("Image Type:   "); print_type(hdr);
 	printf ("Data Size:    %d Bytes = %.2f kB = %.2f MB\n",
 		size, (double)size / 1.024e3, (double)size / 1.048576e6 );
-	printf ("Load Address: 0x%08x\n", ntohl(hdr->ih_load));
-	printf ("Entry Point:  0x%08x\n", ntohl(hdr->ih_ep));
+	printf ("Load Address: 0x%08X\n", ntohl(hdr->ih_load));
+	printf ("Entry Point:  0x%08X\n", ntohl(hdr->ih_ep));
 
 	if (hdr->ih_type == IH_TYPE_MULTI || hdr->ih_type == IH_TYPE_SCRIPT) {
 		int i, ptrs;
@@ -631,7 +631,7 @@ print_header (image_header_t *hdr)
 				 * if planning to do something with
 				 * multiple files
 				 */
-				printf ("    Offset = %08x\n", pos);
+				printf ("    Offset = %08X\n", pos);
 			}
 			/* copy_file() will pad the first files to even word align */
 			size += 3;
