@@ -132,10 +132,10 @@ void get_sys_info (PPC405_SYS_INFO * sysInfo)
 			m = sysInfo->pllFbkDiv * sysInfo->pllFwdDivB * sysInfo->pllPlbDiv;
 		}
 
-		sysInfo->freqVCOMhz = (1000000 * m) / sysClkPeriodPs;
-		sysInfo->freqProcessor = (sysInfo->freqVCOMhz * 1000000) / sysInfo->pllFwdDiv;
-		sysInfo->freqPLB = (sysInfo->freqVCOMhz * 1000000) /
-			(sysInfo->pllFwdDivB * sysInfo->pllPlbDiv);
+		sysInfo->freqVCOHz = (1000000000000LL * (unsigned long long)m) /
+			(unsigned long long)sysClkPeriodPs;
+		sysInfo->freqProcessor = sysInfo->freqVCOHz / sysInfo->pllFwdDiv;
+		sysInfo->freqPLB = sysInfo->freqVCOHz / (sysInfo->pllFwdDivB * sysInfo->pllPlbDiv);
 	} else {
 		/*
 		 * Check pllFwdDiv to see if running in bypass mode where the CPU speed
@@ -148,26 +148,14 @@ void get_sys_info (PPC405_SYS_INFO * sysInfo)
 			sysInfo->freqProcessor = CONFIG_SYS_CLK_FREQ;
 			sysInfo->freqPLB = CONFIG_SYS_CLK_FREQ / sysInfo->pllPlbDiv;
 		} else {
-			sysInfo->freqVCOMhz = ( 1000000 *
-						sysInfo->pllFwdDiv *
-						sysInfo->pllFbkDiv *
-						sysInfo->pllPlbDiv
-				) / sysClkPeriodPs;
-			if (sysInfo->freqVCOMhz >= VCO_MIN
-			    && sysInfo->freqVCOMhz <= VCO_MAX) {
-				sysInfo->freqPLB = (ONE_BILLION /
-						    ((sysClkPeriodPs * 10) /
-						     sysInfo->pllFbkDiv)) * 10000;
-				sysInfo->freqProcessor = sysInfo->freqPLB * sysInfo->pllPlbDiv;
-			} else {
-				printf ("\nInvalid VCO frequency calculated :  %ld MHz \a\n",
-					sysInfo->freqVCOMhz);
-				printf ("It must be between %d-%d MHz \a\n",
-					VCO_MIN, VCO_MAX);
-				printf ("PLL Mode reg           :  %8.8lx\a\n",
-					pllmr);
-				hang ();
-			}
+			sysInfo->freqVCOHz = ( 1000000000000LL *
+					       (unsigned long long)sysInfo->pllFwdDiv *
+					       (unsigned long long)sysInfo->pllFbkDiv *
+					       (unsigned long long)sysInfo->pllPlbDiv
+				) / (unsigned long long)sysClkPeriodPs;
+			sysInfo->freqPLB = (ONE_BILLION / ((sysClkPeriodPs * 10) /
+							   sysInfo->pllFbkDiv)) * 10000;
+			sysInfo->freqProcessor = sysInfo->freqPLB * sysInfo->pllPlbDiv;
 		}
 	}
 }
@@ -376,7 +364,8 @@ void get_sys_info (PPC405_SYS_INFO * sysInfo)
 	/*
 	 * Determine VCO clock frequency
 	 */
-	sysInfo->freqVCOMhz = (1000000 * m) / sysClkPeriodPs;
+	sysInfo->freqVCOHz = (1000000000000LL * (unsigned long long)m) /
+		(unsigned long long)sysClkPeriodPs;
 
 	/*
 	 * Determine CPU clock frequency
@@ -398,15 +387,6 @@ void get_sys_info (PPC405_SYS_INFO * sysInfo)
 	 * Determine PLB clock frequency
 	 */
 	sysInfo->freqPLB = sysInfo->freqProcessor / sysInfo->pllPlbDiv;
-
-	if (!((sysInfo->freqVCOMhz >= VCO_MIN) && (sysInfo->freqVCOMhz <= VCO_MAX))) {
-		printf ("\nInvalid VCO frequency calculated :  %ld MHz \a\n",
-			sysInfo->freqVCOMhz);
-		printf ("It must be between %d-%d MHz \a\n", VCO_MIN, VCO_MAX);
-		printf ("PLL Mode reg 0           :  %8.8lx\a\n", pllmr0);
-		printf ("PLL Mode reg 1           :  %8.8lx\a\n", pllmr1);
-		hang ();
-	}
 }
 
 
