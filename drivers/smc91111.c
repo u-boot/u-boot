@@ -771,7 +771,7 @@ static int smc_rcv()
 		if (packet_length & 3) {
 			int i;
 
-			byte *tail = NetRxPackets[0] + (packet_length & ~3);
+			byte *tail = (byte *)(NetRxPackets[0] + (packet_length & ~3));
 			dword leftover = SMC_inl(SMC91111_DATA_REG);
 			for (i=0; i<(packet_length & 3); i++)
 				*tail++ = (byte) (leftover >> (8*i)) & 0xff;

@@ -31,6 +31,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define DEBUG 1
+
 /*
  * If we are developing, we might want to start U-Boot from ram
  * so we MUST NOT initialize critical regs like mem-timing ...
@@ -65,13 +67,13 @@
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
 
-#define CONFIG_BOOTDELAY	10
-#define CONFIG_BOOTARGS		"root=ramfs devfs=mount console=ttySA0,115200"
+#define CONFIG_BOOTDELAY	3
+#define CONFIG_BOOTARGS		"root=/dev/nfs ip=bootp console=ttyS0,19200"
 #define CONFIG_ETHADDR		FF:FF:FF:FF:FF:FF
 #define CONFIG_NETMASK		255.255.255.0
 #define CONFIG_IPADDR		192.168.1.56
 #define CONFIG_SERVERIP		192.168.1.2
-#define CONFIG_BOOTCOMMAND	""
+#define CONFIG_BOOTCOMMAND	"bootm 0x40000"
 
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	115200		/* speed to run kgdb serial port */
@@ -90,8 +92,8 @@
 #define CFG_MALLOC_LEN		(CFG_ENV_SIZE + 128*1024)
 
 #define CFG_LONGHELP				/* undef to save memory         */
-#define CFG_PROMPT		"=> "		/* Monitor Command Prompt       */
-#define CFG_CBSIZE		256		/* Console I/O Buffer Size      */
+#define CFG_PROMPT		"uboot> "	/* Monitor Command Prompt       */
+#define CFG_CBSIZE		128		/* Console I/O Buffer Size      */
 #define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
 #define CFG_MAXARGS		16		/* max number of command args   */
 #define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size    */
@@ -176,7 +178,6 @@
 #define CFG_MSC2_VAL        0x00000000
 #define CFG_MDCNFG_VAL      0x09a909a9
 #define CFG_MDREFR_VAL      0x03ca0030
-/* #define CFG_MDREFR_VAL_100  ??? */
 #define CFG_MDMRS_VAL       0x00220022
 
 /*

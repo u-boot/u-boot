@@ -37,16 +37,20 @@
     defined (CONFIG_INITRD_TAG) || \
     defined (CONFIG_VFD)
 static void setup_start_tag(bd_t *bd);
+# ifdef CONFIG_SETUP_MEMORY_TAGS
 static void setup_memory_tags(bd_t *bd);
+# endif
 static void setup_commandline_tag(bd_t *bd, char *commandline);
 #if 0
 static void setup_ramdisk_tag(bd_t *bd);
 #endif
+# ifdef CONFIG_INITRD_TAG
 static void setup_initrd_tag(bd_t *bd, ulong initrd_start, ulong initrd_end);
+# endif
 static void setup_end_tag(bd_t *bd);
-#if defined (CONFIG_VFD)
+# if defined (CONFIG_VFD)
 static void setup_videolfb_tag(gd_t *gd);
-#endif
+# endif
 
 
 static struct tag *params;
@@ -220,6 +224,7 @@ static void setup_start_tag(bd_t *bd)
 }
 
 
+#ifdef CONFIG_SETUP_MEMORY_TAGS
 static void setup_memory_tags(bd_t *bd)
 {
     int i;
@@ -234,6 +239,7 @@ static void setup_memory_tags(bd_t *bd)
 	params = tag_next(params);
     }
 }
+#endif	/* CONFIG_SETUP_MEMORY_TAGS */
 
 
 static void setup_commandline_tag(bd_t *bd, char *commandline)
@@ -262,6 +268,8 @@ static void setup_commandline_tag(bd_t *bd, char *commandline)
 #ifndef ATAG_INITRD2
 #define ATAG_INITRD2    0x54420005
 #endif
+
+#ifdef CONFIG_INITRD_TAG
 static void setup_initrd_tag(bd_t *bd, ulong initrd_start, ulong initrd_end)
 {
     /* an ATAG_INITRD node tells the kernel where the compressed
@@ -275,6 +283,7 @@ static void setup_initrd_tag(bd_t *bd, ulong initrd_start, ulong initrd_end)
 
     params = tag_next(params);
 }
+#endif	/* CONFIG_INITRD_TAG */
 
 
 #if 0

@@ -106,7 +106,7 @@ autoscript (ulong addr)
 		return 1;
 	}
 
-	debug ("** Script length: %d\n", len);
+	debug ("** Script length: %ld\n", len);
 
 	if ((cmd = malloc (len + 1)) == NULL) {
 		return 1;

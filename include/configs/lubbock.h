@@ -48,7 +48,7 @@
 /*
  * Size of malloc() pool
  */
-#define CONFIG_MALLOC_SIZE      (CFG_ENV_SIZE + 128*1024)
+#define CFG_MALLOC_LEN      (CFG_ENV_SIZE + 128*1024)
 
 /*
  * Hardware drivers

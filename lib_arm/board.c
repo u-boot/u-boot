@@ -49,7 +49,7 @@ static ulong mem_malloc_brk = 0;
 static void mem_malloc_init (ulong dest_addr)
 {
 	mem_malloc_start = dest_addr;
-	mem_malloc_end = dest_addr + CONFIG_MALLOC_SIZE;
+	mem_malloc_end = dest_addr + CFG_MALLOC_LEN;
 	mem_malloc_brk = mem_malloc_start;
 
 	memset ((void *) mem_malloc_start, 0,
@@ -169,7 +169,7 @@ init_fnc_t *init_sequence[] = {
 	env_init,		/* initialize environment */
 	init_baudrate,		/* initialze baudrate settings */
 	serial_init,		/* serial communications setup */
-	display_banner,
+	display_banner,		/* say that we are here */
 	dram_init,		/* configure available RAM banks */
 	display_dram_config,
 

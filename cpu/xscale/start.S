@@ -96,7 +96,7 @@ _armboot_real_end:
  */
 .globl _uboot_reloc
 _uboot_reloc:
-	.word CFG_DRAM_BASE + CFG_DRAM_SIZE - CFG_MONITOR_LEN
+	.word TEXT_BASE
 
 #ifdef CONFIG_USE_IRQ
 /* IRQ stack memory (calculated at run-time) */
@@ -130,7 +130,6 @@ relocate:				/* relocate U-Boot to RAM          */
 	ldr	r2, _armboot_start
 	ldr	r3, _armboot_end
 	sub	r2, r3, r2		/* r2 <- size of armboot */
-/*	ldr	r1, _uboot_reloc	/ * r1 <- destination address        */
 	ldr	r1, _TEXT_BASE
 	add	r2, r0, r2		/* r2 <- source end address */
 
@@ -176,7 +175,7 @@ cpuspeed:	.word   CFG_CPUSPEED
 
 	/* RS: ???                                                          */
 	.macro CPWAIT
-    mrc  p15,0,r0,c2,c0,0
+	mrc  p15,0,r0,c2,c0,0
 	mov  r0,r0
 	sub  pc,pc,#4
 	.endm
@@ -207,23 +206,23 @@ cpu_init_crit:
 
 	ldr	r0, =0x2001		/* enable access to all coproc.     */
 	mcr	p15, 0, r0, c15, c1, 0
-    CPWAIT
+	CPWAIT
 
 	mcr	p15, 0, r0, c7, c10, 4	/* drain the write & fill buffers   */
-    CPWAIT
+	CPWAIT
 
 	mcr	p15, 0, r0, c7, c7, 0	/* flush Icache, Dcache and BTB     */
-    CPWAIT
+	CPWAIT
 
 	mcr	p15, 0, r0, c8, c7, 0	/* flush instuction and data TLBs   */
-    CPWAIT
+	CPWAIT
 
 	/* Enable the Icache                                                */
 /*
 	mrc	p15, 0, r0, c1, c0, 0
 	orr	r0, r0, #0x1800
 	mcr	p15, 0, r0, c1, c0, 0
-    CPWAIT
+	CPWAIT
 */
 	mov	pc, lr
 
