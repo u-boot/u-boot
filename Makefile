@@ -182,6 +182,22 @@ cmi_mpc5xx_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc5xx cmi
 
 #########################################################################
+## MPC5xxx Systems
+#########################################################################
+IceCube_5200_config	\
+IceCube_5100_config:		unconfig
+	@ >include/config.h
+	@[ -z "$(findstring _5200,$@)" ] || \
+		{ echo "#define CONFIG_MPC5200"		>>include/config.h ; \
+		  echo "... with MPC5200 processor" ; \
+		}
+	@[ -z "$(findstring _5100,$@)" ] || \
+		{ echo "#define CONFIG_MGT5100"		>>include/config.h ; \
+		  echo "... with MGT5100 processor" ; \
+		}
+	@./mkconfig -a IceCube ppc mpc5xxx icecube
+
+#########################################################################
 ## MPC8xx Systems
 #########################################################################
 

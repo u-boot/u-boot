@@ -327,6 +327,9 @@ int	get_clocks (void);
 #if defined(CONFIG_8260)
 int	prt_8260_clks (void);
 #endif
+#if defined(CONFIG_MPC5XXX)
+int	prt_mpc5xxx_clks (void);
+#endif
 #ifdef CONFIG_4xx
 ulong	get_OPB_freq (void);
 ulong	get_PCI_freq (void);

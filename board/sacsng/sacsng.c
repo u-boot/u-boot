@@ -818,7 +818,7 @@ int spi_chipsel_cnt = sizeof(spi_chipsel) / sizeof(spi_chipsel[0]);
 #endif /* CONFIG_MISC_INIT_R */
 
 #ifdef CONFIG_POST
-/* 
+/*
  * Returns 1 if keys pressed to start the power-on long-running tests
  * Called from board_init_f().
  */

@@ -65,7 +65,7 @@
 /* Explanation:
    autbooting is altogether disabled and cannot be
    enabled if CONFIG_BOOTDELAY is negative.
-   If you want shorter bootdelay, then 
+   If you want shorter bootdelay, then
    - "setenv bootdelay <delay>" to the proper value
 */
 
@@ -111,11 +111,11 @@
 
 /* Default baud rate */
 #define CONFIG_BAUDRATE		115200
-	
+
 /* The following table includes the supported baudrates */
 #define CFG_BAUDRATE_TABLE      \
-        { 300, 600, 1200, 2400, 4800, 9600, 19200, 38400,     \
-         57600, 115200, 230400, 460800, 921600 }
+	{ 300, 600, 1200, 2400, 4800, 9600, 19200, 38400,     \
+	 57600, 115200, 230400, 460800, 921600 }
 
 #define CFG_CLKS_IN_HZ		1	/* everything, incl board info, in Hz */
 
@@ -177,7 +177,7 @@
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
-#ifdef CFG_ENV_IS_IN_FLASH 
+#ifdef CFG_ENV_IS_IN_FLASH
 #define CFG_ENV_OFFSET		0x00060000 /* Offset of Environment Sector      */
 #define	CFG_ENV_SIZE		0x00010000 /* Total Size of Environment Sector	*/
 #define CFG_ENV_SECT_SIZE	0x00010000 /* see README - env sector total size */

@@ -33,6 +33,9 @@
 #ifdef CONFIG_5xx
 #include <mpc5xx.h>
 #endif
+#ifdef CONFIG_MPC5XXX
+#include <mpc5xxx.h>
+#endif
 #if (CONFIG_COMMANDS & CFG_CMD_IDE)
 #include <ide.h>
 #endif
@@ -304,6 +307,9 @@ init_fnc_t *init_sequence[] = {
 	prt_8260_clks,
 #endif /* CONFIG_8260 */
 	checkcpu,
+#if defined(CONFIG_MPC5XXX)
+	prt_mpc5xxx_clks,
+#endif /* CONFIG_MPC5XXX */
 	checkboard,
 	INIT_FUNC_WATCHDOG_INIT
 #if defined(CONFIG_BMW)		|| \
@@ -494,6 +500,9 @@ void board_init_f (ulong bootflag)
 #if defined(CONFIG_8xx) || defined(CONFIG_8260) || defined(CONFIG_5xx)
 	bd->bi_immr_base = CFG_IMMR;	/* base  of IMMR register     */
 #endif
+#if defined(CONFIG_MPC5XXX)
+	bd->bi_mbar_base = CFG_MBAR;	/* base of internal registers */
+#endif
 
 	bd->bi_bootflags = bootflag;	/* boot / reboot flag (for LynxOS)    */
 
@@ -506,7 +515,10 @@ void board_init_f (ulong bootflag)
 	bd->bi_sccfreq = gd->scc_clk;
 	bd->bi_vco     = gd->vco_out;
 #endif /* CONFIG_8260 */
-
+#if defined(CONFIG_MPC5XXX)
+	bd->bi_ipbfreq = gd->ipb_clk;
+	bd->bi_pcifreq = gd->pci_clk;
+#endif /* CONFIG_MPC5XXX */
 	bd->bi_baudrate = gd->baudrate;	/* Console Baudrate     */
 
 #ifdef CFG_EXTBDINFO

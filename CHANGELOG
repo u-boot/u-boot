@@ -1,9 +1,20 @@
 ======================================================================
+Changes for U-Boot 0.4.4:
+======================================================================
+
+* Add support for IceCube board (with MGT5100 and MPC5200 CPUs)
+
+* Add support for MGT5100 and MPC5200 processors
+
+* Patch by Lutz Dennig, 15 Jul 2003:
+  update for R360MPI board
+
+======================================================================
 Changes for U-Boot 0.4.3:
 ======================================================================
 
 * Patches by Kshitij, 04 Jul 2003
-  - added support for arm925t cpu core 
+  - added support for arm925t cpu core
   - added support for TI OMAP 1510 Innovator Board
 
 * Patches by Martin Krause, 14 Jul 2003:
@@ -24,7 +35,7 @@ Changes for U-Boot 0.4.3:
   - Fix PCI config table for A3000
   - Fix iobase for natsemi.c
     (PCI_BASE_ADDRESS_0 is the IO base register for DP83815)
-	
+
 * Allow to enable "slow" POST routines by key press on power-on
 * Fix temperature dependend switching of LCD backlight on LWMON
 * Tweak output format for LWMON

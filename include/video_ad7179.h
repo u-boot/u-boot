@@ -23,7 +23,7 @@
 #ifndef _VIDEO_AD7179_H_
 #define _VIDEO_AD7179_H_
 
-/* 
+/*
  * The video encoder data are board specific now!
  */
 

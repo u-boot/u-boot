@@ -31,7 +31,6 @@
  */
 
 
-
 #include <config.h>
 #include <version.h>
 
@@ -137,14 +136,14 @@ reset:
 	bic	r0,r0,#0x1f
 	orr	r0,r0,#0xd3
 	msr	cpsr,r0
-	
+
 	/*
 	 * Set up 925T mode
 	 */
 	mov r1, #0x81               /* Set ARM925T configuration. */
 	mcr p15, 0, r1, c15, c1, 0  /* Write ARM925T configuration register. */
 
-	/* 
+	/*
 	 * turn off the watchdog, unlock/diable sequence
 	 */
 	mov  r1, #0xF5
@@ -162,9 +161,9 @@ reset:
 	ldr r0, =REG_IHL2_MIR
 	str r1, [r0]
 
-	/* 
+	/*
 	 * wait for dpll to lock
-	 */       
+	 */
 	ldr  r0, =CK_DPLL1
 	mov  r1, #0x10
 	strh r1, [r0]
@@ -414,7 +413,7 @@ fiq:
 .globl reset_cpu
 reset_cpu:
 	ldr	r1, rstctl1     /* get clkm1 reset ctl */
-	mov     r3, #0x0        
+	mov     r3, #0x0
 	strh	r3, [r1]        /* clear it */
 	mov     r3, #0x8
 	strh    r3, [r1]        /* force dsp+arm reset */

@@ -217,7 +217,7 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 	short i;
 	FLASH_WORD_SIZE value;
 	ulong base = (ulong)addr;
-        volatile FLASH_WORD_SIZE *addr2 = (FLASH_WORD_SIZE *)addr;
+	volatile FLASH_WORD_SIZE *addr2 = (FLASH_WORD_SIZE *)addr;
 
 	/* Write auto select command: read Manufacturer ID */
 	addr2[ADDR0] = (FLASH_WORD_SIZE)0x00AA00AA;
@@ -247,7 +247,7 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 
 	switch (value) {
 	case (FLASH_WORD_SIZE)AMD_ID_F040B:
-	        info->flash_id += FLASH_AM040;
+		info->flash_id += FLASH_AM040;
 		info->sector_count = 8;
 		info->size = 0x0080000; /* => 512 ko */
 		break;
@@ -335,14 +335,14 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 	}
 
 	/* set up sector start address table */
-        if (((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_SST) ||
+	if (((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_SST) ||
 		(info->flash_id  == FLASH_AM040) ||
 		(info->flash_id == FLASH_AMDLV033C) ||
 		(info->flash_id == FLASH_AMDLV065D)) {
 		ulong sectsize = info->size / info->sector_count;
 		for (i = 0; i < info->sector_count; i++)
 			info->start[i] = base + (i * sectsize);
-        } else {
+	} else {
 	    if (info->flash_id & FLASH_BTYPE) {
 		/* set sector offsets for bottom boot block type	*/
 		info->start[0] = base + 0x00000000;
@@ -370,9 +370,9 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 		/* D0 = 1 if protected */
 
 		addr2 = (volatile FLASH_WORD_SIZE *)(info->start[i]);
-                if ((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_SST)
+		if ((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_SST)
 			info->protect[i] = 0;
-                else
+		else
 			info->protect[i] = addr2[2] & 1;
 	}
 
@@ -450,7 +450,7 @@ int flash_erase (flash_info_t *info, int s_first, int s_last)
 			while ((addr2[0] & 0x00800080) !=
 				(FLASH_WORD_SIZE) 0x00800080) {
 				if ((now=get_timer(start)) >
-				           CFG_FLASH_ERASE_TOUT) {
+					   CFG_FLASH_ERASE_TOUT) {
 					printf ("Timeout\n");
 					addr[0] = (FLASH_WORD_SIZE)0x00F000F0;
 					return 1;
@@ -551,12 +551,12 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
  */
 static int write_word (flash_info_t *info, ulong dest, ulong data)
 {
-        volatile FLASH_WORD_SIZE *addr2 = (FLASH_WORD_SIZE *)(info->start[0]);
-        volatile FLASH_WORD_SIZE *dest2 = (FLASH_WORD_SIZE *)dest;
-        volatile FLASH_WORD_SIZE *data2 = (FLASH_WORD_SIZE *)&data;
+	volatile FLASH_WORD_SIZE *addr2 = (FLASH_WORD_SIZE *)(info->start[0]);
+	volatile FLASH_WORD_SIZE *dest2 = (FLASH_WORD_SIZE *)dest;
+	volatile FLASH_WORD_SIZE *data2 = (FLASH_WORD_SIZE *)&data;
 	ulong start;
 	int flag;
-        int i;
+	int i;
 
 	/* Check if Flash is (sufficiently) erased */
 	if ((*((volatile ulong *)dest) & data) != data) {
@@ -565,7 +565,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 		return 2;
 	}
 
-        for (i=0; i < 4/sizeof(FLASH_WORD_SIZE); i++) {
+	for (i=0; i < 4/sizeof(FLASH_WORD_SIZE); i++) {
 		/* Disable interrupts which might cause a timeout here */
 		flag = disable_interrupts();
 

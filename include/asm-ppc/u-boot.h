@@ -41,6 +41,9 @@ typedef struct bd_info {
 #if defined(CONFIG_5xx) || defined(CONFIG_8xx) || defined(CONFIG_8260)
 	unsigned long	bi_immr_base;	/* base of IMMR register */
 #endif
+#if defined(CONFIG_MPC5XXX)
+	unsigned long	bi_mbar_base;	/* base of internal registers */
+#endif
 	unsigned long	bi_bootflags;	/* boot / reboot flag (for LynxOS) */
 	unsigned long	bi_ip_addr;	/* IP Address */
 	unsigned char	bi_enetaddr[6];	/* Ethernet adress */
@@ -52,6 +55,10 @@ typedef struct bd_info {
 	unsigned long	bi_brgfreq;	/* BRG_CLK Freq, in MHz */
 	unsigned long	bi_sccfreq;	/* SCC_CLK Freq, in MHz */
 	unsigned long	bi_vco;		/* VCO Out from PLL, in MHz */
+#endif
+#if defined(CONFIG_MPC5XXX)
+	unsigned long	bi_ipbfreq;	/* IPB Bus Freq, in MHz */
+	unsigned long	bi_pcifreq;	/* PCI Bus Freq, in MHz */
 #endif
 	unsigned long	bi_baudrate;	/* Console Baudrate */
 #if defined(CONFIG_405GP) || \

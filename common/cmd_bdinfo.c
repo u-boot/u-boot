@@ -178,4 +178,3 @@ U_BOOT_CMD(
 	NULL
 );
 #endif	/* CFG_CMD_BDI */
-

@@ -46,6 +46,10 @@ typedef	struct	global_data {
 	unsigned long	scc_clk;
 	unsigned long	brg_clk;
 #endif
+#if defined(CONFIG_MPC5XXX)
+	unsigned long	ipb_clk;
+	unsigned long	pci_clk;
+#endif
 	unsigned long	ram_size;	/* RAM size */
 	unsigned long	reloc_off;	/* Relocation Offset */
 	unsigned long	reset_status;	/* reset status register at boot	*/

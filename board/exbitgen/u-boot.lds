@@ -98,7 +98,7 @@ SECTIONS
   PROVIDE (erotext = .);
   .reloc   :
   {
-    *(.got) 
+    *(.got)
     _GOT2_TABLE_ = .;
     *(.got2)
     _FIXUP_TABLE_ = .;

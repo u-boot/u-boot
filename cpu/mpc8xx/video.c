@@ -684,15 +684,15 @@ static int video_mode_generate (void)
 	ADDENTRY (0, 3, 0, 3, 1, 0, VID_R , 1, 0);
 	ADDENTRY (0, 3, 0, 3, 1, 0, HPW-1, 0, 0);
 	ADDENTRY (3, 3, 0, 3, 1, 0, HBP, 0, 0);
-	ADDENTRY (3, 3, 0, 3, 0, 0, VIDEO_COLS*2, 0, 0); 
+	ADDENTRY (3, 3, 0, 3, 0, 0, VIDEO_COLS*2, 0, 0);
 	ADDENTRY (3, 3, 0, 3, 1, 0, 72, 1, 1);
 
 	ADDENTRY (0, 3, 0, 3, 1, 0, 51, 1, 0);
 	ADDENTRY (0, 3, 0, 3, 1, 0, HPW-1, 0, 0);
 	ADDENTRY (3, 3, 0, 3, 1, 0, HBP +(VIDEO_COLS * 2) + 72 , 1, 0);
-/* 
- * Odd field	
- */	
+/*
+ * Odd field
+ */
 	ADDENTRY (0, 3, 0, 3, 1, 0, 2, 0, 0);
 	ADDENTRY (0, 0, 0, 3, 1, 0, HPW, 0, 0);
 	ADDENTRY (3, 0, 0, 3, 1, 0, HBP + (VIDEO_COLS * 2) + 72, 0, 0);
@@ -710,7 +710,7 @@ static int video_mode_generate (void)
 	ADDENTRY (0, 3, 0, 3, 1, 0, VID_R , 1, 0);
 	ADDENTRY (0, 3, 0, 3, 1, 0, HPW-1, 0, 0);
 	ADDENTRY (3, 3, 0, 3, 1, 0, HBP, 0, 0);
-	ADDENTRY (3, 3, 0, 3, 0, 0, VIDEO_COLS*2, 0, 0); 
+	ADDENTRY (3, 3, 0, 3, 0, 0, VIDEO_COLS*2, 0, 0);
 	ADDENTRY (3, 3, 0, 3, 1, 0, 72, 1, 1);
 
 	ADDENTRY (0, 3, 0, 3, 1, 0, 51, 1, 0);

@@ -19,6 +19,14 @@ LIST_5xx="	\
 "
 
 #########################################################################
+## MPC5xxx Systems
+#########################################################################
+
+LIST_5xxx="	\
+	IceCube_5100	IceCube_5200					\
+"
+
+#########################################################################
 ## MPC8xx Systems
 #########################################################################
 
@@ -45,9 +53,9 @@ LIST_8xx="	\
 
 LIST_4xx="	\
 	ADCIOP		AR405		ASH405          BUBINGA405EP    \
-        CANBT		CPCI405		CPCI4052 	CPCI405AB       \
+	CANBT		CPCI405		CPCI4052 	CPCI405AB       \
 	CPCI440         CPCIISER4	CRAYL1  	DASA_SIM	\
-        DU405    	EBONY           ERIC  		EXBITGEN	\
+	DU405    	EBONY           ERIC  		EXBITGEN	\
 	MIP405  	MIP405T		ML2		OCRTC		\
 	ORSG		PCI405		PIP405		PMC405          \
 	W7OLMC		W7OLMG          WALNUT405			\
@@ -87,7 +95,8 @@ LIST_7xx="	\
 	BAB7xx		ELPPC						\
 "
 
-LIST_ppc="${LIST_5xx}  ${LIST_8xx}  \
+LIST_ppc="${LIST_5xx}  ${LIST_5xxx} \
+	  ${LIST_8xx}  \
 	  ${LIST_824x} ${LIST_8260} \
 	  ${LIST_4xx}		    \
 	  ${LIST_74xx} ${LIST_7xx}"
@@ -159,7 +168,7 @@ build_target() {
 for arg in $@
 do
 	case "$arg" in
-	5xx|8xx|824x|8260|4xx|7xx|74xx|SA|ARM7|ARM9|ppc|arm|pxa|mips|I486|x86)
+	5xx|5xxx|8xx|824x|8260|4xx|7xx|74xx|SA|ARM7|ARM9|ppc|arm|pxa|mips|I486|x86)
 			for target in `eval echo '$LIST_'${arg}`
 			do
 				build_target ${target}

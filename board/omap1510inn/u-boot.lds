@@ -27,23 +27,23 @@ OUTPUT_ARCH(arm)
 ENTRY(_start)
 SECTIONS
 {
-        . = 0x00000000;
+	. = 0x00000000;
 
-        . = ALIGN(4);
+	. = ALIGN(4);
 	.text      :
 	{
 	  cpu/arm925t/start.o	(.text)
 	  *(.text)
 	}
 
-        . = ALIGN(4);
-        .rodata : { *(.rodata) }
+	. = ALIGN(4);
+	.rodata : { *(.rodata) }
 
-        . = ALIGN(4);
-        .data : { *(.data) }
+	. = ALIGN(4);
+	.data : { *(.data) }
 
-        . = ALIGN(4);
-        .got : { *(.got) }
+	. = ALIGN(4);
+	.got : { *(.got) }
 
   __u_boot_cmd_start = .;
   .u_boot_cmd : { *(.u_boot_cmd) }
@@ -51,8 +51,8 @@ SECTIONS
 
 	armboot_end_data = .;
 
-        . = ALIGN(4);
-        .bss : { *(.bss) }
+	. = ALIGN(4);
+	.bss : { *(.bss) }
 
 	armboot_end = .;
 }

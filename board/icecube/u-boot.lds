@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001
+ * (C) Copyright 2003
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -53,23 +53,14 @@ SECTIONS
   .plt : { *(.plt) }
   .text      :
   {
-    cpu/mpc824x/start.o		(.text)
-    lib_ppc/board.o		(.text)
-    lib_ppc/ppcstring.o		(.text)
-    lib_generic/vsprintf.o	(.text)
-    lib_generic/crc32.o		(.text)
-    lib_generic/zlib.o		(.text)
-
-	. = DEFINED(env_offset) ? env_offset : .;
-    common/environment.o (.text)
-
-	*(.text)
-
+    cpu/mpc5xxx/start.o	(.text)
+    *(.text)
     *(.fixup)
     *(.got1)
     . = ALIGN(16);
     *(.rodata)
     *(.rodata1)
+    *(.rodata.str1.4)
   }
   .fini      : { *(.fini)    } =0
   .ctors     : { *(.ctors)   }
@@ -106,6 +97,7 @@ SECTIONS
   .u_boot_cmd : { *(.u_boot_cmd) }
   __u_boot_cmd_end = .;
 
+
   __start___ex_table = .;
   __ex_table : { *(__ex_table) }
   __stop___ex_table = .;
@@ -125,7 +117,6 @@ SECTIONS
    *(.bss)
    *(COMMON)
   }
-
   _end = . ;
   PROVIDE (end = .);
 }

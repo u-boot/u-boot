@@ -305,7 +305,7 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 			info->sector_count = 64;
 			info->size = 0x00800000; /* => 8 MB */
 			break;
-		} 
+		}
 		switch(addr[14]) {
 		case AMD_ID_LV128U_2:
 			if (addr[15] != AMD_ID_LV128U_3) {

@@ -43,6 +43,7 @@ extern int scc_initialize(bd_t*);
 extern int inca_switch_initialize(bd_t*);
 extern int ppc_4xx_eth_initialize(bd_t *);
 extern int plb2800_eth_initialize(bd_t*);
+extern int mpc5xxx_fec_initialize(bd_t*);
 
 static struct eth_device *eth_devices, *eth_current;
 
@@ -137,6 +138,9 @@ int eth_initialize(bd_t *bis)
 #endif
 #if defined(FEC_ENET) || defined(CONFIG_ETHER_ON_FCC)
 	fec_initialize(bis);
+#endif
+#if defined(CONFIG_MPC5XXX_FEC)
+	mpc5xxx_fec_initialize(bis);
 #endif
 
 	if (!eth_devices) {

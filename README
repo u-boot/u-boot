@@ -206,7 +206,7 @@ Directory Hierarchy:
 - board/mvs1	Files specific to MVS1       boards
 - board/nx823   Files specific to NX823      boards
 - board/oxc	Files specific to OXC        boards
-- board/omap1510inn  
+- board/omap1510inn
 		Files specific to OMAP 1510 Innovator boards
 - board/pcippc2	Files specific to PCIPPC2/PCIPPC6 boards
 - board/pm826	Files specific to PM826      boards
@@ -913,35 +913,35 @@ The following options need to be configured:
 - I2C Support:	CONFIG_HARD_I2C | CONFIG_SOFT_I2C
 
 		These enable I2C serial bus commands. Defining either of
-		(but not both of) CONFIG_HARD_I2C or CONFIG_SOFT_I2C will 
-		include the appropriate I2C driver for the selected cpu. 
+		(but not both of) CONFIG_HARD_I2C or CONFIG_SOFT_I2C will
+		include the appropriate I2C driver for the selected cpu.
 
-		This will allow you to use i2c commands at the u-boot 
-		command line (as long as you set CFG_CMD_I2C in 
+		This will allow you to use i2c commands at the u-boot
+		command line (as long as you set CFG_CMD_I2C in
 		CONFIG_COMMANDS) and communicate with i2c based realtime
 		clock chips. See common/cmd_i2c.c for a description of the
 		command line interface.
 
-		CONFIG_HARD_I2C	selects the CPM hardware driver for I2C. 
+		CONFIG_HARD_I2C	selects the CPM hardware driver for I2C.
 
-		CONFIG_SOFT_I2C configures u-boot to use a software (aka 
+		CONFIG_SOFT_I2C configures u-boot to use a software (aka
 		bit-banging) driver instead of CPM or similar hardware
 		support for I2C.
 
-		There are several other quantities that must also be 
+		There are several other quantities that must also be
 		defined when you define CONFIG_HARD_I2C or CONFIG_SOFT_I2C.
 
 		In both cases you will need to define CFG_I2C_SPEED
-		to be the frequency (in Hz) at which you wish your i2c bus 
-		to run and CFG_I2C_SLAVE to be the address of this node (ie 
-		the cpu's i2c node address). 
-		
+		to be the frequency (in Hz) at which you wish your i2c bus
+		to run and CFG_I2C_SLAVE to be the address of this node (ie
+		the cpu's i2c node address).
+
 		Now, the u-boot i2c code for the mpc8xx (cpu/mpc8xx/i2c.c)
 		sets the cpu up as a master node and so its address should
 		therefore be cleared to 0 (See, eg, MPC823e User's Manual
-		p.16-473). So, set CFG_I2C_SLAVE to 0.  
+		p.16-473). So, set CFG_I2C_SLAVE to 0.
 
-		That's all that's required for CONFIG_HARD_I2C. 
+		That's all that's required for CONFIG_HARD_I2C.
 
 		If you use the software i2c interface (CONFIG_SOFT_I2C)
 		then the following macros need to be defined (examples are
@@ -999,15 +999,15 @@ The following options need to be configured:
 
 		eg: #define I2C_SCL(bit) \
 		         if(bit) immr->im_cpm.cp_pbdat |=  PB_SCL; \
-		         else    immr->im_cpm.cp_pbdat &= ~PB_SCL 
+		         else    immr->im_cpm.cp_pbdat &= ~PB_SCL
 
 		I2C_DELAY
 
 		This delay is invoked four times per clock cycle so this
 		controls the rate of data transfer.  The data rate thus
 		is 1 / (I2C_DELAY * 4). Often defined to be something
-		like: 
-		
+		like:
+
 		#define I2C_DELAY  udelay(2)
 
 		CFG_I2C_INIT_BOARD
@@ -1862,7 +1862,7 @@ configurations; the following names are supported:
     GENIETV_config	  TQM823L_config	PIP405_config
     GEN860T_config	  EBONY_config		FPS860L_config
     ELPT860_config	  cmi_mpc5xx_config	NETVIA_config
-    at91rm9200dk_config	  omap1510inn_config	
+    at91rm9200dk_config	  omap1510inn_config
 
 Note: for some board special configuration names may exist; check  if
       additional  information is available from the board vendor; for

@@ -41,14 +41,14 @@ void gpiosetdir(ushort mask, ushort in)
 void gpiosetout(ushort mask, ushort out)
 {
 	ushort *r_ptr, r_val;
-	
+
 	r_ptr = (ushort *)GPIO_DATA_OUTPUT_REG;	/* set pointer */
 	r_val = *r_ptr & ~mask;		/* get previous val, clear bits we want to change */
 	r_val |= (out & mask);		/* set specified bits in value + plus origional ones */
-	*r_ptr = r_val;			/* write it out */	
-/* 
+	*r_ptr = r_val;			/* write it out */
+/*
  * gcc screwed this one up :(.
- * 
+ *
  * *(ushort *)GPIO_DATA_OUTPUT_REG = (*(ushort *)GPIO_DATA_OUTPUT_REG & ~mask) | (out & mask);
  */
 

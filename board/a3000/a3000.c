@@ -91,31 +91,31 @@ Done:
  */
 #ifndef CONFIG_PCI_PNP
 static struct pci_config_table pci_a3000_config_table[] = {
-        /* vendor, device, class */
-        /* bus, dev, func */
+	/* vendor, device, class */
+	/* bus, dev, func */
 	{ PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_83815, PCI_ANY_ID,
-	  PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,	   /* dp83815 eth0 divice */
+	  PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,	/* dp83815 eth0 divice */
 	  pci_cfgfunc_config_device, { PCI_ENET0_IOADDR,
 				       PCI_ENET0_MEMADDR,
 				       PCI_COMMAND_IO |
 				       PCI_COMMAND_MEMORY |
 				       PCI_COMMAND_MASTER }},
 	{ PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
-        PCI_ANY_ID, 0x14, PCI_ANY_ID,         /* PCI slot1 */
+	  PCI_ANY_ID, 0x14, PCI_ANY_ID,		/* PCI slot1 */
 	  pci_cfgfunc_config_device, { PCI_ENET1_IOADDR,
 				       PCI_ENET1_MEMADDR,
 				       PCI_COMMAND_IO |
 				       PCI_COMMAND_MEMORY |
 				       PCI_COMMAND_MASTER }},
 	{ PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
-        PCI_ANY_ID, 0x15, PCI_ANY_ID,         /* PCI slot2 */
+	  PCI_ANY_ID, 0x15, PCI_ANY_ID, 	/* PCI slot2 */
 	  pci_cfgfunc_config_device, { PCI_ENET2_IOADDR,
 				       PCI_ENET2_MEMADDR,
 				       PCI_COMMAND_IO |
 				       PCI_COMMAND_MEMORY |
 				       PCI_COMMAND_MASTER }},
 	{ PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
-        PCI_ANY_ID, 0x16, PCI_ANY_ID,         /* PCI slot3 */
+	  PCI_ANY_ID, 0x16, PCI_ANY_ID,		/* PCI slot3 */
 	  pci_cfgfunc_config_device, { PCI_ENET3_IOADDR,
 				       PCI_ENET3_MEMADDR,
 				       PCI_COMMAND_IO |

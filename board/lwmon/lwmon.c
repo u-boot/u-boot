@@ -1073,7 +1073,7 @@ static int key_pressed(void)
 #endif	/* CONFIG_MODEM_SUPPORT */
 
 #ifdef CONFIG_POST
-/* 
+/*
  * Returns 1 if keys pressed to start the power-on long-running tests
  * Called from board_init_f().
  */
