@@ -32,9 +32,9 @@ characteristics to initialize the dram on MPC8220
 #include "i2cCore.h"
 #include "dramSetup.h"
 
-#define SPD_SIZE    0x40
-#define DRAM_SPD    0xA2	/* on Board SPD eeprom */
-#define TOTAL_BANK  2
+#define SPD_SIZE	CFG_SDRAM_SPD_SIZE
+#define DRAM_SPD	(CFG_SDRAM_SPD_I2C_ADDR)<<1	/* on Board SPD eeprom */
+#define TOTAL_BANK	CFG_SDRAM_TOTAL_BANKS
 
 int spd_status (volatile i2c8220_t * pi2c, u8 sta_bit, u8 truefalse)
 {
@@ -144,7 +144,7 @@ int readSpdData (u8 * spdData)
 		break;
 	}
 
-	pi2cReg->adr = 0x90;	/* I2C device address */
+	pi2cReg->adr = CFG_I2C_SLAVE<<1;
 
 	pi2cReg->cr = I2C_CTL_EN;	/* Set Enable         */
 
@@ -569,7 +569,7 @@ u32 dramSetup (void)
 	cfg_value |= CFG1_SWT2RWP ((type == TYPE_DDR) ? 7 : 2);
 
 	/* Set the Read CAS latency.  We're going to use a CL of
-	 * 2 for DDR and SDR.
+	 * 2.5 for DDR and 2 SDR.
 	 */
 	cfg_value |= CFG1_RLATENCY ((type == TYPE_DDR) ? 7 : 2);
 
@@ -685,10 +685,14 @@ u32 dramSetup (void)
 	}
 
 
-	/* Set up mode value for CAS latency == 2 */
+	/* Set up mode value for CAS latency */
+#if (CFG_SDRAM_CAS_LATENCY==5) /* CL=2.5 */
+	mode_value = (MODE_MODE | MODE_BURSTLEN (MODE_BURSTLEN_8) |
+		MODE_BT_SEQUENTIAL | MODE_CL (MODE_CL_2p5) | MODE_CMD);
+#else
 	mode_value = (MODE_MODE | MODE_BURSTLEN (MODE_BURSTLEN_8) |
 		      MODE_BT_SEQUENTIAL | MODE_CL (MODE_CL_2) | MODE_CMD);
-
+#endif
 	asm volatile ("sync");
 
 	/* Write Extended Mode  - enable DLL */
@@ -698,7 +702,7 @@ u32 dramSetup (void)
 		memctl->mode = (temp >> 16);	/* mode */
 		asm volatile ("sync");
 
-		/* Write Mode - reset DLL, set CAS latency == 2 */
+		/* Write Mode - reset DLL, set CAS latency */
 		temp = mode_value | MODE_OPMODE (MODE_OPMODE_RESETDLL);
 		memctl->mode = (temp >> 16);	/* mode */
 		asm volatile ("sync");

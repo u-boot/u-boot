@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2003
+# (C) Copyright 2003-2004
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -21,26 +21,9 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
+#
+# sorcery board
+#
 
-LIB	= lib$(CPU).a
-
-START	= start.o
-ASOBJS	= io.o fec_dma_tasks.o
-OBJS	= cpu.o cpu_init.o dramSetup.o fec.o i2c.o \
-	  interrupts.o loadtask.o serial.o speed.o \
-	  traps.o uart.o
-
-all:	.depend $(START) $(ASOBJS) $(LIB)
-
-$(LIB):	$(OBJS)
-	$(AR) crv $@ $(ASOBJS) $(OBJS)
-
-#########################################################################
-
-.depend:	Makefile $(START:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(START:.o=.S) $(ASOBJS:.o=.S) $(OBJS:.o=.c) > $@
-
-sinclude .depend
-
-#########################################################################
+TEXT_BASE = 0xfff00000
+PLATFORM_CPPFLAGS += -DTEXT_BASE=$(TEXT_BASE) -I$(TOPDIR)/board

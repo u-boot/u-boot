@@ -864,6 +864,9 @@ XPEDITE1K_config:	unconfig
 Alaska8220_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8220 alaska
 
+sorcery_config:		unconfig
+	@./mkconfig $(@:_config=) ppc mpc8220 sorcery
+
 Yukon8220_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8220 yukon
 

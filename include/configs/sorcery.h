@@ -1,0 +1,277 @@
+/*
+ * (C) Copyright 2004
+ * TsiChung Liew, Freescale Software Engineering, Tsi-Chung.Liew@freescale.
+ *
+ * See file CREDITS for list of people who contributed to this
+ * project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+ * MA 02111-1307 USA
+ */
+
+#ifndef __CONFIG_H
+#define __CONFIG_H
+
+/*
+ * High Level Configuration Options
+ * (easy to change)
+ */
+#define CONFIG_MPC8220		1
+#define CONFIG_SORCERY		1	/* Sorcery board */
+
+/* Input clock running at 60Mhz, read Hid1 for the CPU multiplier to
+   determine the CPU speed. */
+#define CFG_MPC8220_CLKIN	60000000 /* ... running at 60MHz */
+#define CFG_MPC8220_SYSPLL_VCO_MULTIPLIER 8 /* VCO multiplier can't be read from any register */
+
+#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH */
+#define BOOTFLAG_WARM		0x02	/* Software reboot	*/
+
+#define CFG_CACHELINE_SIZE	32	/* For MPC8220 CPUs */
+
+#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#  define CFG_CACHELINE_SHIFT	5   	/* log base 2 of the above value */
+#endif
+
+/*
+ * Serial console configuration
+ */
+#define CONFIG_PSC_CONSOLE	1	/* console is on PSC */
+
+#define CONFIG_BAUDRATE		115200	    /* ... at 115200 bps */
+#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
+
+/*
+ * Supported commands
+ */
+#define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
+				CFG_CMD_BOOTD	| \
+				CFG_CMD_CACHE	| \
+				CFG_CMD_DHCP	| \
+				CFG_CMD_DIAG	| \
+				CFG_CMD_ELF	| \
+				CFG_CMD_I2C	| \
+				CFG_CMD_NET	| \
+				CFG_CMD_NFS	| \
+				CFG_CMD_PING	| \
+				CFG_CMD_REGINFO	| \
+				CFG_CMD_SDRAM	| \
+				CFG_CMD_SNTP	| \
+				0)
+
+/*			CFG_CMD_MII	| \ */
+/*			       CFG_CMD_PCI	| \ */
+/*			       CFG_CMD_USB	| \ */
+
+/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
+#include <cmd_confdefs.h>
+
+/*
+ * Default Environment
+ */
+#define CONFIG_BOOTDELAY	5    /* autoboot after 5 seconds */
+#define CONFIG_HOSTNAME		sorcery
+
+#define CONFIG_PREBOOT	"echo;"	\
+	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
+	"echo"
+
+#undef	CONFIG_BOOTARGS
+
+#define	CONFIG_EXTRA_ENV_SETTINGS					\
+	"netdev=eth0\0"							\
+	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
+		"nfsroot=$serverip:$rootpath\0"				\
+	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
+	"addip=setenv bootargs $bootargs "				\
+		"ip=$ipaddr:$serverip:$gatewayip:$netmask"		\
+		":$hostname:$netdev:off panic=1\0"			\
+	"flash_nfs=run nfsargs addip;"					\
+		"bootm $kernel_addr\0"					\
+	"flash_self=run ramargs addip;"					\
+		"bootm $kernel_addr $ramdisk_addr\0"			\
+	"net_nfs=tftp 200000 $bootfile;run nfsargs addip;bootm\0"	\
+	"rootpath=/opt/eldk/ppc_82xx\0"					\
+	"bootfile=/tftpboot/sorcery/uImage\0"				\
+	"kernel_addr=FFE00000\0"					\
+	"ramdisk_addr=FFB00000\0"					\
+	""
+#define CONFIG_BOOTCOMMAND	"run flash_self"
+
+#define CONFIG_TIMESTAMP		/* Print image info with timestamp */
+
+#define CONFIG_NET_MULTI
+
+/*
+ * I2C configuration
+ */
+#define CONFIG_HARD_I2C		1
+#define CFG_I2C_MODULE		1
+#define CFG_I2C_SPEED		100000 /* 100 kHz */
+#define CFG_I2C_SLAVE		0x7F
+
+/* Use the HUSH parser */
+#define CFG_HUSH_PARSER
+#ifdef	CFG_HUSH_PARSER
+#define CFG_PROMPT_HUSH_PS2 "> "
+#endif
+
+/*
+ * Flexbus Chipselect configuration
+ * Beware: Some CS# seem to be mandatory (if these CS# are not set, 
+ * board can hang-up in unpredictable place). 
+ * Sorcery_Memory_Map v0.3 is possibly wrong with CPLD CS#
+ */
+
+/* Flash */
+#define CFG_CS0_BASE		0xf800
+#define CFG_CS0_MASK		0x08000000 /* 128 MB (two chips) */
+
+/* Workaround of hang-up after setting ctrl register for flash
+   After reset this register has value 0x003ffd80, which differs
+   from suggested only by the number of wait states. 
+#define CFG_CS0_CTRL		0x003f1580
+*/
+
+/* NVM */
+#define CFG_CS1_BASE		0xf100
+#define CFG_CS1_MASK		0x00080000  /* 512K */
+#define CFG_CS1_CTRL		0x003ffd40  /* 8bit port size? */
+
+/* Atlas2 + Gemini */
+/* This CS# is mandatory? */
+#define CFG_CS2_BASE		0xf10A
+#define CFG_CS2_MASK		0x00020000 /* 2x64K*/
+#define CFG_CS2_CTRL		0x003ffd00 /* 32bit port size? */
+
+/* CAN Controller */
+/* This CS# is mandatory? */
+#define CFG_CS3_BASE		0xf10C
+#define CFG_CS3_MASK		0x00010000 /* 64K */
+#define CFG_CS3_CTRL		0x003ffd40 /* 8Bit port size */
+
+/* Foreign interface */
+#define CFG_CS4_BASE		0xF10D
+#define CFG_CS4_MASK		0x00010000 /* 64K */
+#define CFG_CS4_CTRL		0x003ffd80 /* 16bit port size */
+
+/* CPLD? */
+/* This CS# is mandatory? */
+#define CFG_CS5_BASE		0xF108
+#define CFG_CS5_MASK		0x00010000
+#define CFG_CS5_CTRL		0x003ffd80 /* 16bit port size */
+
+#define CFG_FLASH0_BASE		(CFG_CS0_BASE << 16)
+#define CFG_FLASH_BASE		CFG_FLASH0_BASE
+
+#define CFG_MAX_FLASH_BANKS	2	/* max num of memory banks (actually 4? (at least 2)) */
+#define CFG_MAX_FLASH_SECT	512	/* max num of sects on one chip (actually 256) */
+
+
+#define PHYS_AMD_SECT_SIZE	0x00020000 /* 128 KB sectors (x2) */
+
+#define CFG_FLASH_CFI_DRIVER
+#define CFG_FLASH_CFI
+#define CFG_FLASH_BANKS_LIST 	{ CFG_FLASH_BASE,  \
+				CFG_FLASH_BASE+0x04000000 } /* two banks */
+
+/*
+ * Environment settings
+ */
+#define CFG_ENV_IS_IN_FLASH	1
+#define CFG_ENV_ADDR		(CFG_FLASH0_BASE)
+#define CFG_ENV_SIZE		PHYS_AMD_SECT_SIZE
+#define CFG_ENV_SECT_SIZE	PHYS_AMD_SECT_SIZE
+
+#define CONFIG_ENV_OVERWRITE	1
+
+#if defined CFG_ENV_IS_IN_FLASH
+#undef CFG_ENV_IS_IN_NVRAM
+#undef CFG_ENV_IS_IN_EEPROM
+#elif defined CFG_ENV_IS_IN_NVRAM
+#undef CFG_ENV_IS_IN_FLASH
+#undef CFG_ENV_IS_IN_EEPROM
+#elif defined CFG_ENV_IS_IN_EEPROM
+#undef CFG_ENV_IS_IN_NVRAM
+#undef CFG_ENV_IS_IN_FLASH
+#endif
+
+/*
+ * Memory map
+ */
+#define CFG_MBAR		0xF0000000
+#define CFG_SDRAM_BASE		0x00000000
+#define CFG_DEFAULT_MBAR	0x80000000
+#define CFG_SRAM_BASE		(CFG_MBAR + 0x20000)
+#define CFG_SRAM_SIZE		0x8000
+
+/* Use SRAM until RAM will be available */
+#define CFG_INIT_RAM_ADDR	(CFG_MBAR + 0x20000)
+#define CFG_INIT_RAM_END	0x8000	/* End of used area in DPRAM */
+
+#define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
+#define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
+#define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
+
+#define CFG_MONITOR_BASE	TEXT_BASE
+#if (CFG_MONITOR_BASE < CFG_FLASH_BASE)
+#   define CFG_RAMBOOT		1
+#endif
+
+#define CFG_MONITOR_LEN		(256 << 10) /* Reserve 256 kB for Monitor   */
+#define CFG_MALLOC_LEN		(128 << 10) /* Reserve 128 kB for malloc()  */
+#define CFG_BOOTMAPSZ		(8 << 20)   /* Initial Memory map for Linux */
+
+/* SDRAM configuration (for SPD) */
+#define CFG_SDRAM_TOTAL_BANKS		1
+#define CFG_SDRAM_SPD_I2C_ADDR		0x50  		/* 7bit */
+#define CFG_SDRAM_SPD_SIZE		0x100
+#define CFG_SDRAM_CAS_LATENCY		5 		/* (CL=2.5)x2 */
+
+/*
+ * Ethernet configuration
+ */
+#define CONFIG_MPC8220_FEC	1
+#define CONFIG_FEC_10MBIT	1 /* Workaround for FEC 100Mbit problem */
+#define CONFIG_PHY_ADDR		0x1F
+
+/*
+ * Miscellaneous configurable options
+ */
+#define CFG_LONGHELP			    /* undef to save memory	*/
+#define CFG_PROMPT		"=> "	    /* Monitor Command Prompt	*/
+#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#define CFG_CBSIZE		1024	    /* Console I/O Buffer Size	*/
+#else
+#define CFG_CBSIZE		256	    /* Console I/O Buffer Size	*/
+#endif
+#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16)	/* Print Buffer Size */
+#define CFG_MAXARGS		16	    /* max number of command args   */
+#define CFG_BARGSIZE		CFG_CBSIZE  /* Boot Argument Buffer Size    */
+
+#define CFG_MEMTEST_START	0x00100000  /* memtest works on */
+#define CFG_MEMTEST_END		0x00f00000  /* 1 ... 15 MB in DRAM  */
+
+#define CFG_LOAD_ADDR		0x100000    /* default load address */
+
+#define CFG_HZ			1000	    /* decrementer freq: 1 ms ticks */
+
+/*
+ * Various low-level settings
+ */
+#define CFG_HID0_INIT		0 
+#define CFG_HID0_FINAL		0 
+
+#endif /* __CONFIG_H */

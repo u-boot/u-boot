@@ -258,6 +258,10 @@
 /* equates for tx FIFO last write frame pointer reg */
 #define PSC_TFLWFPTR(x)		(x&0x1ff)     /* last write frame pointer */
 
+/* PCI configuration (only for PLL determination)*/
+#define PCI_REG_PCIGSCR 	(MMAP_XCPCI + 0x60) /* Global status/control register */
+#define PCI_REG_PCIGSCR_PCI2XLB_CLK_MASK	0x07000000
+#define PCI_REG_PCIGSCR_PCI2XLB_CLK_BIT		24
 
 /* ------------------------------------------------------------------------ */
 /*
@@ -306,7 +310,7 @@
 #define CFG_CS2_PORT3_CONFIG	0x10000000
 #define CFG_CS3_PORT3_CONFIG	0x40000000
 #define CFG_CS4_PORT3_CONFIG	0x00000400
-#define CFG_CS5_PORT3_CONFIG	0x00000100
+#define CFG_CS5_PORT3_CONFIG	0x00000200
 #define CFG_I2C_PORT3_CONFIG	0x003c0000
 
 /* ------------------------------------------------------------------------ */

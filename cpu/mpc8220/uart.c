@@ -47,8 +47,7 @@ int psc_serial_init (void)
 	/* write to CSR: RX/TX baud rate from timers */
 	psc->sr_csr = 0xdd000000;
 
-	psc->mr1_2 = PSC_MR1_BITS_CHAR_8 | PSC_MR1_NO_PARITY | PSC_MR1_RX_RTS;
-	psc->mr1_2 = PSC_MR2_STOP_BITS_1 | PSC_MR2_TX_CTS;
+	psc->mr1_2 = PSC_MR1_BITS_CHAR_8 | PSC_MR1_NO_PARITY | PSC_MR2_STOP_BITS_1; 
 
 	/* Setting up BaudRate */
 	counter = ((gd->bus_clk / gd->baudrate)) >> 5;
@@ -77,7 +76,7 @@ void psc_serial_putc (const char c)
 		serial_putc ('\r');
 
 	/* Wait for last character to go. */
-	while (!(psc->sr_csr & PSC_SR_TXEMT));
+	while (!(psc->sr_csr & PSC_SR_TXRDY));
 
 	psc->xmitbuf[0] = c;
 }

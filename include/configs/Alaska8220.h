@@ -34,6 +34,7 @@
 /* Input clock running at 30Mhz, read Hid1 for the CPU multiplier to
    determine the CPU speed. */
 #define CFG_MPC8220_CLKIN	30000000/* ... running at 30MHz */
+#define CFG_MPC8220_SYSPLL_VCO_MULTIPLIER 16 /* VCO multiplier can't be read from any register */
 
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH */
 #define BOOTFLAG_WARM		0x02	/* Software reboot	*/
@@ -257,6 +258,12 @@
 #define CFG_MONITOR_LEN		(256 << 10) /* Reserve 256 kB for Monitor   */
 #define CFG_MALLOC_LEN		(128 << 10) /* Reserve 128 kB for malloc()  */
 #define CFG_BOOTMAPSZ		(8 << 20)   /* Initial Memory map for Linux */
+
+/* SDRAM configuration */
+#define CFG_SDRAM_TOTAL_BANKS           2
+#define CFG_SDRAM_SPD_I2C_ADDR          0x51            /* 7bit */
+#define CFG_SDRAM_SPD_SIZE              0x40
+#define CFG_SDRAM_CAS_LATENCY           4               /* (CL=2)x2 */
 
 /*
  * Ethernet configuration

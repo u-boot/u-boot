@@ -1,5 +1,4 @@
-#
-# (C) Copyright 2003
+# (C) Copyright 2005
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,24 +22,24 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(CPU).a
+LIB	= lib$(BOARD).a
 
-START	= start.o
-ASOBJS	= io.o fec_dma_tasks.o
-OBJS	= cpu.o cpu_init.o dramSetup.o fec.o i2c.o \
-	  interrupts.o loadtask.o serial.o speed.o \
-	  traps.o uart.o
+OBJS	:= $(BOARD).o
 
-all:	.depend $(START) $(ASOBJS) $(LIB)
+$(LIB):	$(OBJS) $(SOBJS)
+	$(AR) crv $@ $(OBJS)
 
-$(LIB):	$(OBJS)
-	$(AR) crv $@ $(ASOBJS) $(OBJS)
+clean:
+	rm -f $(SOBJS) $(OBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak .depend
 
 #########################################################################
 
-.depend:	Makefile $(START:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(START:.o=.S) $(ASOBJS:.o=.S) $(OBJS:.o=.c) > $@
+.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
+		$(CC) -M $(CPPFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
 
-sinclude .depend
+-include .depend
 
 #########################################################################

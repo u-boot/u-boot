@@ -55,7 +55,11 @@ void cpu_init_f (void)
 	 */
 #if defined (CFG_CS0_BASE)
 	flexbus->csar0 = CFG_CS0_BASE;
+
+/* Sorcery-C can hang-up after CTRL reg initialization */
+#if defined (CFG_CS0_CTRL)
 	flexbus->cscr0 = CFG_CS0_CTRL;
+#endif
 	flexbus->csmr0 = ((CFG_CS0_MASK - 1) & 0xffff0000) | 1;
 	__asm__ volatile ("sync");
 #endif
@@ -97,15 +101,15 @@ void cpu_init_f (void)
 	/* This section of the code cannot place in cpu_init_r(),
 	   it will cause the system to hang */
 	/* enable timebase */
-	xlbarb->config = 0x00002000;
-
 	xlbarb->addrTenTimeOut = 0x1000;
 	xlbarb->dataTenTimeOut = 0x1000;
 	xlbarb->busActTimeOut = 0x2000;
 
+	xlbarb->config = 0x00002000;
+
 	/* Master Priority Enable */
-	xlbarb->mastPriEn = 0x1f;
 	xlbarb->mastPriority = 0;
+	xlbarb->mastPriEn = 0x1f;
 }
 
 /*

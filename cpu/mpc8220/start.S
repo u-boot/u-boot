@@ -111,6 +111,7 @@ boot_warm:
 
 	/* MBAR is mirrored into the MBAR SPR */
 	mtspr	MBAR,r3
+	mtspr	SPRN_SPRG7W,r3	
 	lis	r4, CFG_DEFAULT_MBAR@h
 	stw	r3, 0(r4)
 #endif /* CFG_DEFAULT_MBAR */

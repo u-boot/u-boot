@@ -42,30 +42,30 @@ int get_clocks (void)
 	DECLARE_GLOBAL_DATA_PTR;
 
 	pllcfg_t bus2core[] = {
-		{0x10, 2, 8},	/* 1 */
-		{0x08, 2, 4},
-		{0x60, 3, 8},	/* 1.5 */
+		{0x02, 2, 8},	/* 1 */
+		{0x01, 2, 4},
+		{0x0C, 3, 8},	/* 1.5 */
 		{0x00, 3, 4},
-		{0xc0, 3, 2},
-		{0x28, 4, 4},	/* 2 */
-		{0x20, 4, 2},
-		{0x88, 5, 4},	/* 2.5 */
-		{0x30, 5, 2},
-		{0x80, 6, 4},	/* 3 */
-		{0x40, 6, 2},
-		{0x70, 7, 2},	/* 3.5 */
-		{0x50, 8, 2},	/* 4 */
-		{0x38, 9, 2},	/* 4.5 */
-		{0x58, 10, 2},	/* 5 */
-		{0x48, 11, 2},	/* 5.5 */
-		{0x68, 12, 2},	/* 6 */
-		{0x90, 13, 2},	/* 6.5 */
-		{0xa0, 14, 2},	/* 7 */
-		{0xb0, 15, 2},	/* 7.5 */
-		{0xe0, 16, 2}	/* 8 */
+		{0x18, 3, 2},
+		{0x05, 4, 4},	/* 2 */
+		{0x04, 4, 2},
+		{0x11, 5, 4},	/* 2.5 */
+		{0x06, 5, 2},
+		{0x10, 6, 4},	/* 3 */
+		{0x08, 6, 2},
+		{0x0E, 7, 2},	/* 3.5 */
+		{0x0A, 8, 2},	/* 4 */
+		{0x07, 9, 2},	/* 4.5 */
+		{0x0B, 10, 2},	/* 5 */
+		{0x09, 11, 2},	/* 5.5 */
+		{0x0D, 12, 2},	/* 6 */
+		{0x12, 13, 2},	/* 6.5 */
+		{0x14, 14, 2},	/* 7 */
+		{0x16, 15, 2},	/* 7.5 */
+		{0x1C, 16, 2}	/* 8 */
 	};
 	u32 hid1;
-	int i, size;
+	int i, size, pci2bus;
 
 #if !defined(CFG_MPC8220_CLKIN)
 #error clock measuring not implemented yet - define CFG_MPC8220_CLKIN
@@ -73,9 +73,12 @@ int get_clocks (void)
 
 	gd->inp_clk = CFG_MPC8220_CLKIN;
 
-	/* Bus clock is fixed at 120Mhz for now */
-	/* will do dynamic in the future */
-	gd->bus_clk = CFG_MPC8220_CLKIN * 4;
+	/* Read XLB to PCI(INP) clock multiplier */
+	pci2bus = (*((volatile u32 *)PCI_REG_PCIGSCR) & 
+		PCI_REG_PCIGSCR_PCI2XLB_CLK_MASK)>>PCI_REG_PCIGSCR_PCI2XLB_CLK_BIT;
+
+	/* XLB bus clock */
+	gd->bus_clk = CFG_MPC8220_CLKIN * pci2bus;
 
 	/* PCI clock is same as input clock */
 	gd->pci_clk = CFG_MPC8220_CLKIN;
@@ -88,14 +91,13 @@ int get_clocks (void)
 	asm volatile ("mfspr %0, 1009":"=r" (hid1):);
 
 	size = sizeof (bus2core) / sizeof (pllcfg_t);
-	hid1 >>= 24;
+
+	hid1 >>= 27;
 
 	for (i = 0; i < size; i++)
 		if (hid1 == bus2core[i].hid1) {
 			gd->cpu_clk = (bus2core[i].multi * gd->bus_clk) >> 1;
-			/* Input Multiplier is determined by MPLL,
-			   hardcoded for now at 16 */
-			gd->vco_clk = gd->pci_clk * 16;
+			gd->vco_clk = CFG_MPC8220_SYSPLL_VCO_MULTIPLIER * (gd->pci_clk * bus2core[i].vco_div)/2;
 			break;
 		}
 
