@@ -79,6 +79,8 @@ endif
 LIBCOBJS= stubs.o
 LIBOBJS	= $(LIBAOBJS) $(LIBCOBJS)
 
+gcclibdir := $(shell dirname `$(CC) -print-libgcc-file-name`)
+
 CPPFLAGS += -I..
 
 all:	.depend $(LIB) $(SREC) $(BIN)
@@ -88,7 +90,8 @@ $(LIB): .depend $(LIBOBJS)
 	$(AR) crv $@ $(LIBOBJS)
 
 %.srec:	%.o $(LIB)
-	$(LD) -g -Ttext $(LOAD_ADDR) -o $(<:.o=) -e $(<:.o=) $< $(LIB)
+	$(LD) -g -Ttext $(LOAD_ADDR) -o $(<:.o=) -e $(<:.o=) $< $(LIB) \
+		-L$(gcclibdir) -lgcc
 	$(OBJCOPY) -O srec $(<:.o=) $@
 
 %.bin:	%.srec

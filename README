@@ -859,6 +859,16 @@ The following options need to be configured:
 		allows for a "silent" boot where a splash screen is
 		loaded very quickly after power-on.
 
+- Compression support:
+		CONFIG_BZIP2
+
+		If this option is set, support for bzip2 compressed
+		images is included. If not, only uncompressed and gzip
+		compressed images are supported.
+
+                NOTE: the bzip2 algorithm requires a lot of RAM, so
+                the malloc area (as defined by CFG_MALLOC_LEN) should
+                be at least 4MB.
 
 - Ethernet address:
 		CONFIG_ETHADDR
@@ -2263,8 +2273,7 @@ defines the following image properties:
 * Target CPU Architecture (Provisions for Alpha, ARM, Intel x86,
   IA64, MIPS, MIPS, PowerPC, IBM S390, SuperH, Sparc, Sparc 64 Bit;
   Currently supported: PowerPC).
-* Compression Type (Provisions for uncompressed, gzip, bzip2;
-  Currently supported: uncompressed, gzip).
+* Compression Type (uncompressed, gzip, bzip2)
 * Load Address
 * Entry Point
 * Image Name

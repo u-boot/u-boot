@@ -2,6 +2,12 @@
 Changes for U-Boot 0.4.7:
 ======================================================================
 
+* Patch by Yuli Barcohen, 14 Aug 2003:
+  add support for bzip2 uncompression
+
+* Add GCC library to examples/Makefile so GCC utility functions will
+  be resolved, too
+
 * Add I2C and RTC support for RMU board using software I2C driver
   (because of better response to iprobe command); fix problem with
   "reset" command

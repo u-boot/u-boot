@@ -30,6 +30,7 @@
 #include <image.h>
 #include <malloc.h>
 #include <zlib.h>
+#include <bzlib.h>
 #include <environment.h>
 #include <asm/byteorder.h>
 
@@ -142,6 +143,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	ulong	addr;
 	ulong	data, len, checksum;
 	ulong  *len_ptr;
+	uint	unc_len = 0x400000;
 	int	i, verify;
 	char	*name, *s;
 	int	(*appl)(cmd_tbl_t *, int, int, char *[]);
@@ -307,13 +309,26 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		break;
 	case IH_COMP_GZIP:
 		printf ("   Uncompressing %s ... ", name);
-		if (gunzip ((void *)ntohl(hdr->ih_load), 0x400000,
+		if (gunzip ((void *)ntohl(hdr->ih_load), unc_len,
 			    (uchar *)data, (int *)&len) != 0) {
 			printf ("GUNZIP ERROR - must RESET board to recover\n");
 			SHOW_BOOT_PROGRESS (-6);
 			do_reset (cmdtp, flag, argc, argv);
 		}
 		break;
+#ifdef CONFIG_BZIP2
+	case IH_COMP_BZIP2:
+		printf ("   Uncompressing %s ... ", name);
+		i = BZ2_bzBuffToBuffDecompress ((char*)ntohl(hdr->ih_load),
+						&unc_len, (char *)data, len, 0, 0);
+		if (i != BZ_OK) {
+			printf ("BUNZIP2 ERROR %d - must RESET board to recover\n", i);
+			SHOW_BOOT_PROGRESS (-6);
+			udelay(100000);
+			do_reset (cmdtp, flag, argc, argv);
+		}
+		break;
+#endif /* CONFIG_BZIP2 */
 	default:
 		if (iflag)
 			enable_interrupts();
@@ -1205,6 +1220,13 @@ int gunzip(void *dst, int dstlen, unsigned char *src, int *lenp)
 
 	return (0);
 }
+
+#ifdef CONFIG_BZIP2
+void bz_internal_error(int errcode)
+{
+	printf ("BZIP2 internal error %d\n", errcode);
+}
+#endif /* CONFIG_BZIP2 */
 
 static void
 do_bootm_rtems (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
