@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Stefan Roese, 16 Sep 2004:
+  Update AR405 board.
+
 * Fix SysClk handling for PPChameleon and CATcenter boards
 
 * Patch by Detlev Zundel, 08 Sep 2004:
