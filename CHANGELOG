@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Fix CFG_HZ problems on AT91RM9200 systems
+  [Remember: CFG_HZ should be 1000 on ALL systems!]
+
 * Patch by Gridish Shlomi, 30 Aug 2004:
   - Add support to revA version of PQ27 and PQ27E.
   - Reverted MPC8260ADS baudrate back to original 115200

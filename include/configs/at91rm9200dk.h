@@ -182,7 +182,8 @@ struct bd_info_ext {
 };
 #endif
 
-#define CFG_HZ AT91C_MASTER_CLOCK/2	/* AT91C_TC0_CMR is implicitly set to */
+#define CFG_HZ 1000
+#define CFG_HZ_CLOCK AT91C_MASTER_CLOCK/2	/* AT91C_TC0_CMR is implicitly set to */
 					/* AT91C_TC_TIMER_DIV1_CLOCK */
 
 #define CONFIG_STACKSIZE	(32*1024)	/* regular stack */

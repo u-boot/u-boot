@@ -37,8 +37,8 @@
 
 extern void reset_cpu(ulong addr);
 
-/* we always count down the max. */
-#define TIMER_LOAD_VAL 0xffff
+/* the number of clocks per CFG_HZ */
+#define TIMER_LOAD_VAL (CFG_HZ_CLOCK/CFG_HZ)
 
 /* macro to read the 16 bit timer */
 #define READ_TIMER (tmr->TC_CV & 0x0000ffff)
@@ -165,11 +165,13 @@ int interrupt_init (void)
 	*AT91C_TCB0_BCR = 0;
 	*AT91C_TCB0_BMR = AT91C_TCB_TC0XC0S_NONE | AT91C_TCB_TC1XC1S_NONE | AT91C_TCB_TC2XC2S_NONE;
 	tmr->TC_CCR = AT91C_TC_CLKDIS;
-	tmr->TC_CMR = AT91C_TC_TIMER_DIV1_CLOCK;  /* set to MCLK/2 */
+#define AT91C_TC_CMR_CPCTRG (1 << 14)
+	/* set to MCLK/2 and restart the timer when the vlaue in TC_RC is reached */
+	tmr->TC_CMR = AT91C_TC_TIMER_DIV1_CLOCK | AT91C_TC_CMR_CPCTRG;
 
 	tmr->TC_IDR = ~0ul;
 	tmr->TC_RC = TIMER_LOAD_VAL;
-	lastinc = TIMER_LOAD_VAL;
+	lastinc = 0;
 	tmr->TC_CCR = AT91C_TC_SWTRG | AT91C_TC_CLKEN;
 	timestamp = 0;
 
@@ -207,7 +209,7 @@ void reset_timer_masked (void)
 	timestamp = 0;
 }
 
-ulong get_timer_masked (void)
+ulong get_timer_raw (void)
 {
 	ulong now = READ_TIMER;
 
@@ -223,17 +225,27 @@ ulong get_timer_masked (void)
 	return timestamp;
 }
 
+ulong get_timer_masked (void)
+{
+	return get_timer_raw()/TIMER_LOAD_VAL;
+}
+
 void udelay_masked (unsigned long usec)
 {
 	ulong tmo;
 
+#if 0 /* doesn't work for usec < 1000 */
 	tmo = usec / 1000;
-	tmo *= CFG_HZ;
+	tmo *= CFG_HZ_CLOCK;
+#else
+	tmo = CFG_HZ_CLOCK / 1000;
+	tmo *= usec;
+#endif
 	tmo /= 1000;
 
 	reset_timer_masked ();
 
-	while (get_timer_masked () < tmo)
+	while (get_timer_raw () < tmo)
 		/*NOP*/;
 }
 

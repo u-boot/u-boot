@@ -71,7 +71,7 @@
 
 #undef	CONFIG_MODEM_SUPPORT		/* disable modem initialization stuff */
 
-#define CONFIG_HARD_I2C
+#undef CONFIG_HARD_I2C
 
 #ifdef CONFIG_HARD_I2C
 #define CFG_I2C_SPEED 0 /* not used */
@@ -90,6 +90,7 @@
 #define CONFIG_COMMANDS		\
 		       ((CONFIG_CMD_DFL | \
 			CFG_CMD_I2C | \
+			CFG_CMD_DATE | \
 			CFG_CMD_EEPROM | \
 			CFG_CMD_DHCP ) & \
 		      ~(CFG_CMD_BDI | \
@@ -213,7 +214,8 @@ struct bd_info_ext {
 };
 #endif
 
-#define CFG_HZ AT91C_MASTER_CLOCK/2	/* AT91C_TC0_CMR is implicitly set to */
+#define CFG_HZ 1000
+#define CFG_HZ_CLOCK AT91C_MASTER_CLOCK/2	/* AT91C_TC0_CMR is implicitly set to */
 					/* AT91C_TC_TIMER_DIV1_CLOCK */
 
 #define CONFIG_STACKSIZE	(32*1024)	/* regular stack */
