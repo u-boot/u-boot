@@ -149,7 +149,11 @@ LIST_ARM9="	\
 ## Xscale Systems
 #########################################################################
 
-LIST_pxa="cerf250 cradle csb226 innokom lubbock wepep250 xm250 xsengine"
+LIST_pxa="	\
+	cerf250		cradle		csb226		innokom		\
+	lubbock		wepep250	xaeniax		xm250		\
+	xsengine							\
+"
 
 LIST_ixp="ixdp425"
 

@@ -1316,6 +1316,9 @@ logodl_config	:	unconfig
 wepep250_config	:	unconfig
 	@./mkconfig $(@:_config=) arm pxa wepep250
 
+xaeniax_config	:	unconfig
+	@./mkconfig $(@:_config=) arm pxa xaeniax
+
 xm250_config	:	unconfig
 	@./mkconfig $(@:_config=) arm pxa xm250
 
