@@ -195,7 +195,6 @@ const iop_conf_t iop_conf_tab[4][32] = {
     }
 };
 
-static	uint64_t	blinky_increment;
 static	uint64_t	next_led_update;
 static	uint		led_bit;
 

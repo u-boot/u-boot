@@ -53,7 +53,7 @@ static unsigned ace_readw(unsigned offset)
       return readw(CFG_SYSTEMACE_BASE+offset);
 }
 
-static unsigned ace_writew(unsigned val, unsigned offset)
+static void ace_writew(unsigned val, unsigned offset)
 {
       writew(val, CFG_SYSTEMACE_BASE+offset);
 }
@@ -119,7 +119,6 @@ static unsigned long systemace_read(int dev,
 				    unsigned long blkcnt,
 				    unsigned long *buffer)
 {
-      unsigned val;
       int retry;
       unsigned blk_countdown;
       unsigned char*dp = (unsigned char*)buffer;
@@ -218,4 +217,4 @@ static unsigned long systemace_read(int dev,
 
       return blkcnt;
 }
-#endif
+#endif	/* CONFIG_SYSTEMACE */

@@ -54,19 +54,17 @@ static void flash_get_offsets (ulong base, flash_info_t * info);
 unsigned long flash_init (void)
 {
 	unsigned long size_b0;
-	unsigned long base_b0;
 
 	/* Init: no FLASHes known */
 	flash_info[0].flash_id = FLASH_UNKNOWN;
 
 	/* Static FLASH Bank configuration here - FIXME XXX */
 
-	size_b0 =
-		flash_get_size ((vu_long *) FLASH_BASE0_PRELIM,
-				&flash_info[0]);
+	size_b0 = flash_get_size ((vu_long *) FLASH_BASE0_PRELIM, &flash_info[0]);
 
 	if (flash_info[0].flash_id == FLASH_UNKNOWN) {
-		printf ("## Unknown FLASH on Bank 0 - Size = 0x%08lx = %ld MB\n", size_b0, size_b0 << 20);
+		printf ("## Unknown FLASH on Bank 0 - Size = 0x%08lx = %ld MB\n",
+			size_b0, size_b0 << 20);
 	}
 
 	/* Only one bank */
@@ -212,15 +210,10 @@ void flash_print_info (flash_info_t * info)
 
 		if ((i % 5) == 0)
 			printf ("\n   ");
-#if 0				/* test-only */
-		printf (" %08lX%s",
-			info->start[i], info->protect[i] ? " (RO)" : "     "
-#else
 		printf (" %08lX%s%s",
 			info->start[i],
 			erased ? " E" : "  ", info->protect[i] ? "RO " : "   "
-#endif
-			);
+		);
 	}
 	printf ("\n");
 	return;
@@ -248,11 +241,7 @@ static ulong flash_get_size (vu_long * addr, flash_info_t * info)
 	addr2[ADDR1] = (FLASH_WORD_SIZE) 0x00550055;
 	addr2[ADDR0] = (FLASH_WORD_SIZE) 0x00900090;
 
-#ifdef CONFIG_ADCIOP
-	value = addr2[2];
-#else
 	value = addr2[0];
-#endif
 
 	switch (value) {
 	case (FLASH_WORD_SIZE) AMD_MANUFACT:
@@ -271,12 +260,7 @@ static ulong flash_get_size (vu_long * addr, flash_info_t * info)
 		return (0);	/* no or unknown flash  */
 	}
 
-#ifdef CONFIG_ADCIOP
-	value = addr2[0];	/* device ID            */
-	/*        printf("\ndev_code=%x\n", value); */
-#else
 	value = addr2[1];	/* device ID            */
-#endif
 
 	switch (value) {
 	case (FLASH_WORD_SIZE) AMD_ID_F040B:
@@ -387,36 +371,19 @@ static ulong flash_get_size (vu_long * addr, flash_info_t * info)
 	for (i = 0; i < info->sector_count; i++) {
 		/* read sector protection at sector address, (A7 .. A0) = 0x02 */
 		/* D0 = 1 if protected */
-#ifdef CONFIG_ADCIOP
-		addr2 = (volatile FLASH_WORD_SIZE *) (info->start[i]);
-		info->protect[i] = addr2[4] & 1;
-#else
 		addr2 = (volatile FLASH_WORD_SIZE *) (info->start[i]);
 		if ((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_SST)
 			info->protect[i] = 0;
 		else
 			info->protect[i] = addr2[2] & 1;
-#endif
 	}
 
 	/*
 	 * Prevent writes to uninitialized FLASH.
 	 */
 	if (info->flash_id != FLASH_UNKNOWN) {
-#if 0				/* test-only */
-#ifdef CONFIG_ADCIOP
-		addr2 = (volatile unsigned char *) info->start[0];
-		addr2[ADDR0] = 0xAA;
-		addr2[ADDR1] = 0x55;
-		addr2[ADDR0] = 0xF0;	/* reset bank */
-#else
 		addr2 = (FLASH_WORD_SIZE *) info->start[0];
 		*addr2 = (FLASH_WORD_SIZE) 0x00F000F0;	/* reset bank */
-#endif
-#else  /* test-only */
-		addr2 = (FLASH_WORD_SIZE *) info->start[0];
-		*addr2 = (FLASH_WORD_SIZE) 0x00F000F0;	/* reset bank */
-#endif /* test-only */
 	}
 
 	return (info->size);
