@@ -25,17 +25,88 @@
 
 #define PS2SER_BAUD	57600
 
+#ifdef CONFIG_MPC5xxx
+#if CONFIG_PS2SERIAL == 1
+#define PSC_BASE MPC5XXX_PSC1
+#elif CONFIG_PS2SERIAL == 2
+#define PSC_BASE MPC5XXX_PSC2
+#elif CONFIG_PS2SERIAL == 3
+#define PSC_BASE MPC5XXX_PSC3
+#elif defined(CONFIG_MGT5100)
+#error CONFIG_PS2SERIAL must be in 1, 2 or 3
+#elif CONFIG_PS2SERIAL == 4
+#define PSC_BASE MPC5XXX_PSC4
+#elif CONFIG_PS2SERIAL == 5
+#define PSC_BASE MPC5XXX_PSC5
+#elif CONFIG_PS2SERIAL == 6
+#define PSC_BASE MPC5XXX_PSC6
+#else
+#error CONFIG_PS2SERIAL must be in 1 ... 6
+#endif
+#endif /* CONFIG_MPC5xxx */
+
 static int	ps2ser_getc_hw(void);
 static void	ps2ser_interrupt(void *dev_id);
 
 extern struct	serial_state rs_table[]; /* in serial.c */
+#ifndef CONFIG_MPC5xxx
 static struct	serial_state *state;
+#endif
 
 static u_char	ps2buf[PS2BUF_SIZE];
 static atomic_t	ps2buf_cnt;
 static int	ps2buf_in_idx;
 static int	ps2buf_out_idx;
 
+#ifdef CONFIG_MPC5xxx
+int ps2ser_init(void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+
+	volatile struct mpc5xxx_psc *psc = (struct mpc5xxx_psc *)PSC_BASE;
+	unsigned long baseclk;
+	int div;
+
+	/* reset PSC */
+	psc->command = PSC_SEL_MODE_REG_1;
+
+	/* select clock sources */
+#if defined(CONFIG_MGT5100)
+	psc->psc_clock_select = 0xdd00;
+	baseclk = (CFG_MPC5XXX_CLKIN + 16) / 32;
+#elif defined(CONFIG_MPC5200)
+	psc->psc_clock_select = 0;
+	baseclk = (gd->ipb_clk + 16) / 32;
+#endif
+
+	/* switch to UART mode */
+	psc->sicr = 0;
+
+	/* configure parity, bit length and so on */
+#if defined(CONFIG_MGT5100)
+	psc->mode = PSC_MODE_ERR | PSC_MODE_8_BITS | PSC_MODE_PARNONE;
+#elif defined(CONFIG_MPC5200)
+	psc->mode = PSC_MODE_8_BITS | PSC_MODE_PARNONE;
+#endif
+	psc->mode = PSC_MODE_ONE_STOP;
+
+	/* set up UART divisor */
+	div = (baseclk + (PS2SER_BAUD/2)) / PS2SER_BAUD;
+	psc->ctur = (div >> 8) & 0xff;
+	psc->ctlr = div & 0xff;
+
+	/* disable all interrupts */
+	psc->psc_imr = 0;
+
+	/* reset and enable Rx/Tx */
+	psc->command = PSC_RST_RX;
+	psc->command = PSC_RST_TX;
+	psc->command = PSC_RX_ENABLE | PSC_TX_ENABLE;
+
+	return (0);
+}
+
+#else /* !CONFIG_MPC5xxx */
 
 static inline unsigned int ps2ser_in(int offset)
 {
@@ -79,25 +150,44 @@ int ps2ser_init(void)
 
 	return 0;
 }
+#endif /* CONFIG_MPC5xxx */
 
 void ps2ser_putc(int chr)
 {
+#ifdef CONFIG_MPC5xxx
+	volatile struct mpc5xxx_psc *psc = (struct mpc5xxx_psc *)PSC_BASE;
+#endif
 #ifdef DEBUG
 	printf(">>>> 0x%02x\n", chr);
 #endif
 
+#ifdef CONFIG_MPC5xxx
+	while (!(psc->psc_status & PSC_SR_TXRDY));
+	
+	psc->psc_buffer_8 = chr;
+#else
 	while (!(ps2ser_in(UART_LSR) & UART_LSR_THRE));
 
 	ps2ser_out(UART_TX, chr);
+#endif
 }
 
 static int ps2ser_getc_hw(void)
 {
+#ifdef CONFIG_MPC5xxx
+	volatile struct mpc5xxx_psc *psc = (struct mpc5xxx_psc *)PSC_BASE;
+#endif
 	int res = -1;
 
+#ifdef CONFIG_MPC5xxx
+	if (psc->psc_status & PSC_SR_RXRDY) {
+		res = (psc->psc_buffer_8);
+	}
+#else
 	if (ps2ser_in(UART_LSR) & UART_LSR_DR) {
 		res = (ps2ser_in(UART_RX));
 	}
+#endif
 
 	return res;
 }
@@ -146,12 +236,19 @@ int ps2ser_check(void)
 
 static void ps2ser_interrupt(void *dev_id)
 {
+#ifdef CONFIG_MPC5xxx
+	volatile struct mpc5xxx_psc *psc = (struct mpc5xxx_psc *)PSC_BASE;
+#endif
 	int chr;
-	int iir;
+	int status;
 
 	do {
 		chr = ps2ser_getc_hw();
-		iir = ps2ser_in(UART_IIR);
+#ifdef CONFIG_MPC5xxx
+		status = psc->psc_status;
+#else
+		status = ps2ser_in(UART_IIR);
+#endif
 		if (chr < 0) continue;
 
 		if (atomic_read(&ps2buf_cnt) < PS2BUF_SIZE) {
@@ -161,7 +258,11 @@ static void ps2ser_interrupt(void *dev_id)
 		} else {
 			printf ("ps2ser.c: buffer overflow\n");
 		}
-	} while (iir & UART_IIR_RDI);
+#ifdef CONFIG_MPC5xxx
+	} while (status & PSC_SR_RXRDY);		
+#else
+	} while (status & UART_IIR_RDI);
+#endif
 
 	if (atomic_read(&ps2buf_cnt)) {
 		ps2mult_callback(atomic_read(&ps2buf_cnt));

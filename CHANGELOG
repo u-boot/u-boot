@@ -2,6 +2,10 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Martin Krause, 27 Oct 2004:
+  - add support for "STK52xx" board (including PS/2 multiplexer)
+  - add hardware detection for TQM5200
+
 * Clean up CMC PU2 flash driver
 
 * Update MAINTAINERS file

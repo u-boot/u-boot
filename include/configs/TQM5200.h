@@ -35,6 +35,7 @@
 #define CONFIG_MPC5xxx		1	/* This is an MPC5xxx CPU */
 #define CONFIG_MPC5200		1	/* (more precisely an MPC5200 CPU) */
 #define CONFIG_TQM5200		1	/* ... on TQM5200 module */
+#define CONFIG_STK52XX		1	/* ... on a STK52XX base board */
 
 #define CFG_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz */
 
@@ -53,6 +54,13 @@
 #define CONFIG_BAUDRATE		115200	/* ... at 115200 bps */
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 
+#ifdef CONFIG_STK52XX
+#define CONFIG_PS2KBD			/* AT-PS/2 Keyboard		*/
+#define CONFIG_PS2MULT			/* .. on PS/2 Multiplexer	*/
+#define CONFIG_PS2SERIAL	6	/* .. on PSC6			*/
+#define CONFIG_PS2MULT_DELAY	(CFG_HZ/2)	/* Initial delay	*/
+#define CONFIG_BOARD_EARLY_INIT_R
+#endif /* CONFIG_STK52XX */
 
 #ifdef CONFIG_MPC5200	/* MPC5100 PCI is not supported yet. */
 /*
@@ -60,7 +68,11 @@
  * 0x40000000 - 0x4fffffff - PCI Memory
  * 0x50000000 - 0x50ffffff - PCI IO Space
  */
+#ifdef CONFIG_STK52XX
+#define CONFIG_PCI		1
+#elif
 #define CONFIG_PCI		0
+#endif
 #define CONFIG_PCI_PNP		1
 /* #define CONFIG_PCI_SCAN_SHOW	1 */
 
@@ -77,7 +89,11 @@
 #define CFG_RX_ETH_BUFFER	8  /* use 8 rx buffer on eepro100  */
 #define CONFIG_NS8382X		1
 
-#define ADD_PCI_CMD		0 /* CFG_CMD_PCI */
+#ifdef CONFIG_STK52XX
+#define ADD_PCI_CMD		CFG_CMD_PCI
+#elif
+#define ADD_PCI_CMD		0
+#endif
 
 #else	/* MPC5100 */
 
@@ -92,9 +108,10 @@
 #endif
 
 /* USB */
-#if 0
+#ifdef CONFIG_STK52XX
 #define CONFIG_USB_OHCI
 #define ADD_USB_CMD		CFG_CMD_USB | CFG_CMD_FAT
+#define CONFIG_DOS_PARTITION
 #define CONFIG_USB_STORAGE
 #else
 #define ADD_USB_CMD		0
@@ -114,7 +131,7 @@
 #endif
 
 /* IDE */
-#if defined (CONFIG_MINIFAP)
+#if defined (CONFIG_MINIFAP) || defined (CONFIG_STK52XX)
 #define ADD_IDE_CMD		CFG_CMD_IDE | CFG_CMD_FAT
 #else
 #define ADD_IDE_CMD		0
@@ -224,6 +241,29 @@
 	"update=protect off 1:0-4; erase 1:0-4; cp.b 200000 0xfc000000 $(filesize); protect on 1:0-4\0"		\
 	"serverip=172.20.5.13\0"					\
 	""
+#else
+#define CONFIG_EXTRA_ENV_SETTINGS					\
+	"netdev=eth0\0"							\
+	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
+		"nfsroot=$(serverip):$(rootpath)\0"			\
+	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
+	"addip=setenv bootargs $(bootargs) "				\
+		"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask)"	\
+		":$(hostname):$(netdev):off panic=1\0"			\
+	"flash_nfs=run nfsargs addip;"					\
+		"bootm $(kernel_addr)\0"				\
+	"flash_self=run ramargs addip;"					\
+		"bootm $(kernel_addr) $(ramdisk_addr)\0"		\
+	"net_nfs=tftp 200000 $(bootfile);run nfsargs addip;bootm\0"	\
+	"rootpath=/opt/eldk3.0_ppc/ppc_82xx\0"				\
+	"bootfile=uImage_tqm5200_mkr\0"					\
+	"load=tftp 200000 $(loadfile)\0"				\
+	"load133=tftp 200000 $(loadfile133)\0"				\
+	"loadfile=u-boot_tqm5200_mkr.bin\0"				\
+	"loadfile133=u-boot_tqm5200_133_mkr.bin\0"			\
+	"update=protect off fc000000 fc03ffff; erase fc000000 fc03ffff; cp.b 200000 0xfc000000 $(filesize); protect on fc000000 fc03ffff\0"		\
+	"serverip=172.20.5.13\0"					\
+	""
 #endif
 #endif
 #endif
@@ -306,23 +346,18 @@
  */
 #define CFG_FLASH_BASE		TEXT_BASE /* 0xFC000000 */
 
-#if defined (CONFIG_TQM5200_AA) || defined (CONFIG_TQM5200_AC)
-#define CFG_FLASH_SIZE		0x00400000 /* 4 MByte */
-#define CFG_MAX_FLASH_SECT	35	/* max num of sects on one chip */
-#else
-#ifdef CONFIG_TQM5200_AB
+/* use CFI flash driver if no module variant is spezified */
+#define CFG_FLASH_CFI		1	/* Flash is CFI conformant */
+#define CFG_FLASH_CFI_DRIVER	1	/* Use the common driver */
+#define CFG_FLASH_BANKS_LIST	{ CFG_BOOTCS_START }
+#define CFG_FLASH_EMPTY_INFO
 #define CFG_FLASH_SIZE		0x02000000 /* 32 MByte */
 #define CFG_MAX_FLASH_SECT	256	/* max num of sects on one chip */
-#endif
-#endif
 
 #if !defined(CFG_LOWBOOT)
 #define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x00740000 + 0x00800000)
 #else	/* CFG_LOWBOOT */
-#if defined(CONFIG_TQM5200_AA) ||  defined(CONFIG_TQM5200_AB) || \
-    defined (CONFIG_TQM5200_AC)
 #define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x00040000)
-#endif
 #endif	/* CFG_LOWBOOT */
 #define CFG_MAX_FLASH_BANKS	1	/* max num of flash banks
 					   (= chip selects) */
@@ -388,15 +423,23 @@
  *	01 -> CAN1 on I2C1, CAN2 on Tmr0/1 do not use on TQM5200 with onboard
  *	      EEPROM
  * use PSC1 as UART: Bits 28-31 (mask: 0x00000007): 0100
- * use PSC6_1 and PSC6_3 as GPIO: Bits 9:11 (mask: 0x07000000):
- *	011 -> PSC6 could not be used as UART or CODEC. IrDA still possible.
+ * use PSC6:
+ *   on STK52xx:
+ *      use as UART. Pins PSC6_0 to PSC6_3 are used.
+        Bits 9:11 (mask: 0x00700000):
+ *	   101 -> PSC6 : Extended POST test is not available
+ *   on MINI-FAP and TQM5200_IB:
+ *      use PSC6_1 and PSC6_3 as GPIO: Bits 9:11 (mask: 0x00700000):
+ *	   011 -> PSC6 could not be used as UART or CODEC. IrDA still possible.
  * GPIO on PSC6_3 is used in post_hotkeys_pressed() to enable extended POST
  * tests.
  */
 #if defined (CONFIG_MINIFAP)
-#define CFG_GPS_PORT_CONFIG	0x93000004
+#define CFG_GPS_PORT_CONFIG	0x91300004
+#elif defined (CONFIG_STK52XX)
+#define CFG_GPS_PORT_CONFIG	0x81500004
 #else
-#define CFG_GPS_PORT_CONFIG	0x83000004
+#define CFG_GPS_PORT_CONFIG	0x81300004
 #endif
 
 /*
@@ -455,13 +498,22 @@
 #define CFG_CS0_START		CFG_FLASH_BASE
 #define CFG_CS0_SIZE		CFG_FLASH_SIZE
 
+/* automatic configuration of chip selects */
+#ifdef CONFIG_CS_AUTOCONF
+#define CONFIG_LAST_STAGE_INIT
+#endif
+
 /*
  * SRAM - Do not map below 2 GB in address space, because this area is used
  * for SDRAM autosizing.
  */
-#ifdef CONFIG_TQM5200_AB
+#if defined CONFIG_TQM5200_AB || defined (CONFIG_CS_AUTOCONF)
 #define CFG_CS2_START		0xE5000000
+#ifdef CONFIG_TQM5200_AB
 #define CFG_CS2_SIZE		0x80000		/* 512 kByte */
+#else  /* CONFIG_CS_AUTOCONF */
+#define CFG_CS2_SIZE		0x100000	/* 1 MByte */
+#endif
 #define CFG_CS2_CFG		0x0004D930
 #endif
 
@@ -469,7 +521,8 @@
  * Grafic controller - Do not map below 2 GB in address space, because this
  * area is used for SDRAM autosizing.
  */
-#if defined (CONFIG_TQM5200_AB) || defined (CONFIG_TQM5200_AC)
+#if defined (CONFIG_TQM5200_AB) || defined (CONFIG_TQM5200_AC) || \
+    defined (CONFIG_CS_AUTOCONF)
 #define CFG_CS1_START		0xE0000000
 #define CFG_CS1_SIZE		0x4000000	/* 64 MByte */
 #define CFG_CS1_CFG		0x8F48FF70

@@ -36,6 +36,9 @@
 #else
 #include "mt48lc16m16a2-75.h"
 #endif
+#ifdef CONFIG_PS2MULT
+void ps2mult_early_init(void);
+#endif
 
 #ifndef CFG_RAMBOOT
 static void sdram_start (int hi_addr)
@@ -244,13 +247,17 @@ int checkboard (void)
 {
 #if defined (CONFIG_TQM5200_AA)
 	puts ("Board: TQM5200-AA (TQ-Systems GmbH)\n");
-#endif
-#if defined (CONFIG_TQM5200_AB)
+#elif defined (CONFIG_TQM5200_AB)
 	puts ("Board: TQM5200-AB (TQ-Systems GmbH)\n");
-#endif
-#if defined (CONFIG_TQM5200_AC)
+#elif defined (CONFIG_TQM5200_AC)
 	puts ("Board: TQM5200-AC (TQ-Systems GmbH)\n");
+#elif defined (CONFIG_TQM5200)
+	puts ("Board: TQM5200 (TQ-Systems GmbH)\n");
 #endif
+#if defined (CONFIG_STK52XX)
+	puts ("       on a STK52XX baseboard\n");
+#endif
+
 	return 0;
 }
 
@@ -383,5 +390,114 @@ ulong post_word_load (void)
 
 	return *save_addr;
 }
-
 #endif	/* CONFIG_POST || CONFIG_LOGBUFFER*/
+
+#ifdef CONFIG_PS2MULT
+#ifdef CONFIG_BOARD_EARLY_INIT_R
+int board_early_init_r (void)
+{
+	ps2mult_early_init();
+	return (0);
+}
+#endif
+#endif /* CONFIG_PS2MULT */
+
+#if defined(CONFIG_CS_AUTOCONF)
+int last_stage_init (void)
+{
+	/*
+	 * auto scan for really existing devices and re-set chip select
+	 * configuration.
+	 */
+	u16 save, tmp;
+	int restore;
+
+	/*
+	 * Check for SRAM and SRAM size
+	 */
+
+	/* save origianl SRAM content  */
+	save = *(volatile u16 *)CFG_CS2_START;
+	restore = 1;
+	
+	/* write test pattern to SRAM */
+	*(volatile u16 *)CFG_CS2_START = 0xA5A5;
+	__asm__ volatile ("sync");
+	/*
+	 * Put a different pattern on the data lines: otherwise they may float
+	 * long enough to read back what we wrote.
+	 */
+	tmp = *(volatile u16 *)CFG_FLASH_BASE;
+	if (tmp == 0xA5A5)
+		puts ("!! possible error in SRAM detection\n");
+	
+	if (*(volatile u16 *)CFG_CS2_START != 0xA5A5) {
+		/* no SRAM at all, disable cs */
+		*(vu_long *)MPC5XXX_ADDECR &= ~(1 << 18);
+		*(vu_long *)MPC5XXX_CS2_START = 0x0000FFFF;
+		*(vu_long *)MPC5XXX_CS2_STOP = 0x0000FFFF;
+		restore = 0;
+		__asm__ volatile ("sync");
+	}
+	else if (*(volatile u16 *)(CFG_CS2_START + (1<<19)) == 0xA5A5) {
+		/* make sure that we access a mirrored address */
+		*(volatile u16 *)CFG_CS2_START = 0x1111;
+		__asm__ volatile ("sync");
+		if (*(volatile u16 *)(CFG_CS2_START + (1<<19)) == 0x1111) {
+			/* SRAM size = 512 kByte */
+			*(vu_long *)MPC5XXX_CS2_STOP = STOP_REG(CFG_CS2_START, 
+								0x80000);
+			__asm__ volatile ("sync");
+			puts ("SRAM:  512 kB\n");
+		}
+		else
+			puts ("!! possible error in SRAM detection\n");	
+	}
+	else {
+		puts ("SRAM:  1 MB\n");	
+	}
+	/* restore origianl SRAM content  */
+	if (restore) {
+		*(volatile u16 *)CFG_CS2_START = save;
+		__asm__ volatile ("sync");
+	}
+	
+	/* 
+	 * Check for Grafic Controller
+	 */
+
+	/* save origianl FB content  */
+	save = *(volatile u16 *)CFG_CS1_START;
+	restore = 1;
+	
+	/* write test pattern to FB memory */
+	*(volatile u16 *)CFG_CS1_START = 0xA5A5;
+	__asm__ volatile ("sync");
+	/*
+	 * Put a different pattern on the data lines: otherwise they may float
+	 * long enough to read back what we wrote.
+	 */
+	tmp = *(volatile u16 *)CFG_FLASH_BASE;
+	if (tmp == 0xA5A5)
+		puts ("!! possible error in grafic controller detection\n");
+	
+	if (*(volatile u16 *)CFG_CS1_START != 0xA5A5) {
+		/* no grafic controller at all, disable cs */
+		*(vu_long *)MPC5XXX_ADDECR &= ~(1 << 17);
+		*(vu_long *)MPC5XXX_CS1_START = 0x0000FFFF;
+		*(vu_long *)MPC5XXX_CS1_STOP = 0x0000FFFF;
+		restore = 0;
+		__asm__ volatile ("sync");
+	}
+	else {
+		puts ("VGA:   SMI501 (Voyager) with 8 MB\n");	
+	}
+	/* restore origianl FB content  */
+	if (restore) {
+		*(volatile u16 *)CFG_CS1_START = save;
+		__asm__ volatile ("sync");
+	}
+	
+	return 0;
+}
+#endif /* CONFIG_CS_AUTOCONF */
