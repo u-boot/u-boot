@@ -38,6 +38,8 @@
 #define CONFIG_MPC8260		1	/* This is a MPC8260 CPU	*/
 #define CONFIG_PM826		1	/* ...on a PM8260 module	*/
 
+#undef CONFIG_DB_CR826_J30x_ON		/* J30x jumpers on D.B. carrier	*/
+
 #define	CONFIG_CLOCKS_IN_MHZ	1	/* clocks passsed to Linux in MHz */
 
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
@@ -93,32 +95,49 @@
 /*
  * select ethernet configuration
  *
- * if either CONFIG_ETHER_ON_SCC or CONFIG_ETHER_ON_FCC is selected, then
- * CONFIG_ETHER_INDEX must be set to the channel number (1-4 for SCC, 1-3
- * for FCC)
+ * if CONFIG_ETHER_ON_SCC is selected, then
+ *   - CONFIG_ETHER_INDEX must be set to the channel number (1-4)
+ *   - CONFIG_NET_MULTI must not be defined
+ *
+ * if CONFIG_ETHER_ON_FCC is selected, then
+ *   - one or more CONFIG_ETHER_ON_FCCx (x=1,2,3) must also be selected
+ *   - CONFIG_NET_MULTI must be defined
  *
  * if CONFIG_ETHER_NONE is defined, then either the ethernet routines must be
  * defined elsewhere (as for the console), or CFG_CMD_NET must be removed
  * from CONFIG_COMMANDS to remove support for networking.
  */
-#undef	CONFIG_ETHER_ON_SCC		/* define if ether on SCC       */
-#define	CONFIG_ETHER_ON_FCC		/* define if ether on FCC       */
+#define	CONFIG_NET_MULTI
 #undef	CONFIG_ETHER_NONE		/* define if ether on something else */
-#define	CONFIG_ETHER_INDEX    1		/* which SCC/FCC channel for ethernet */
 
-#if (CONFIG_ETHER_INDEX == 1)
+#undef	CONFIG_ETHER_ON_SCC		/* define if ether on SCC       */
+#define	CONFIG_ETHER_INDEX    1		/* which SCC channel for ethernet */
+
+#define	CONFIG_ETHER_ON_FCC		/* define if ether on FCC       */
 /*
  * - Rx-CLK is CLK11
  * - Tx-CLK is CLK10
+ */
+#define	CONFIG_ETHER_ON_FCC1
+# define CFG_CMXFCR_MASK1	(CMXFCR_FC1|CMXFCR_RF1CS_MSK|CMXFCR_TF1CS_MSK)
+#ifndef CONFIG_DB_CR826_J30x_ON
+# define CFG_CMXFCR_VALUE1	(CMXFCR_RF1CS_CLK11|CMXFCR_TF1CS_CLK10)
+#else
+# define CFG_CMXFCR_VALUE1	(CMXFCR_RF1CS_CLK11|CMXFCR_TF1CS_CLK12)
+#endif
+/*
+ * - Rx-CLK is CLK15
+ * - Tx-CLK is CLK14
+ */
+#define	CONFIG_ETHER_ON_FCC2
+# define CFG_CMXFCR_MASK2	(CMXFCR_FC2|CMXFCR_RF2CS_MSK|CMXFCR_TF2CS_MSK)
+# define CFG_CMXFCR_VALUE2	(CMXFCR_RF2CS_CLK13|CMXFCR_TF2CS_CLK14)
+/*
  * - RAM for BD/Buffers is on the 60x Bus (see 28-13)
  * - Enable Full Duplex in FSMR
  */
-# define CFG_CMXFCR_MASK	(CMXFCR_FC1|CMXFCR_RF1CS_MSK|CMXFCR_TF1CS_MSK)
-# define CFG_CMXFCR_VALUE	(CMXFCR_RF1CS_CLK11|CMXFCR_TF1CS_CLK10)
 # define CFG_CPMFCR_RAMTYPE	0
 # define CFG_FCC_PSMR		(FCC_PSMR_FDE|FCC_PSMR_LPB)
-
-#endif /* CONFIG_ETHER_INDEX */
 
 /* system clock rate (CLKIN) - equal to the 60x and local bus speed */
 #define CONFIG_8260_CLKIN	64000000	/* in Hz */

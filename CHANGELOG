@@ -1,5 +1,19 @@
 ======================================================================
-Changes since U-Boot 0.2.0:
+Changes since U-Boot 0.2.1:
+======================================================================
+
+* Add dual ethernet support on PM826
+
+* Add support for LXT971 PHY on PM826
+
+* Patch by Tord Andersson, 16 Jan 2003:
+  Fix flash sector count for TQM8xxL
+
+* Fix I2C EEPROM problem on ICU862 board (would only write the first
+  16 bytes out of each 32 byte block)
+
+======================================================================
+Changes for U-Boot 0.2.1:
 ======================================================================
 
 * Add support for V37 board

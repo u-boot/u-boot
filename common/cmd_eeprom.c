@@ -288,7 +288,7 @@ int eeprom_write (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cn
 			 */
 			contr_reg[0] = 0;
 			for (i = 0; i < MAX_ACKNOWLEDGE_POLLS; i++) {
-				if (i2c_read (addr_void[0], addr_void[1], 1, contr_reg, 1) == 1)
+				if (i2c_read (addr_void[0], addr_void[1], 1, contr_reg, 1) == 0)
 					break;	/* got ack */
 #if defined(CFG_EEPROM_PAGE_WRITE_DELAY_MS)
 				udelay(CFG_EEPROM_PAGE_WRITE_DELAY_MS * 1000);

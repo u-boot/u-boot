@@ -119,7 +119,7 @@ int eth_initialize(bd_t *bis)
 #ifdef SCC_ENET
 	scc_initialize(bis);
 #endif
-#ifdef FEC_ENET
+#if defined(FEC_ENET) || defined(CONFIG_ETHER_ON_FCC)
 	fec_initialize(bis);
 #endif
 

@@ -178,7 +178,7 @@
  * FLASH organization
  */
 #define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	67	/* max number of sectors on one chip	*/
+#define CFG_MAX_FLASH_SECT	71	/* max number of sectors on one chip	*/
 
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/

@@ -40,40 +40,61 @@
  */
 
 #include <common.h>
+#include <malloc.h>
 #include <asm/cpm_8260.h>
 #include <mpc8260.h>
-#include <net.h>
 #include <command.h>
 #include <config.h>
+#include <net.h>
 
-#if defined(CONFIG_ETHER_ON_FCC) && (CONFIG_COMMANDS & CFG_CMD_NET)
+#if defined(CONFIG_ETHER_ON_FCC) && (CONFIG_COMMANDS & CFG_CMD_NET) && \
+	defined(CONFIG_NET_MULTI)
 
-/*---------------------------------------------------------------------*/
-#if (CONFIG_ETHER_INDEX == 1)
-
-#define PROFF_ENET		PROFF_FCC1
-#define CPM_CR_ENET_SBLOCK	CPM_CR_FCC1_SBLOCK
-#define CPM_CR_ENET_SBLOCK	CPM_CR_FCC1_SBLOCK
-#define CPM_CR_ENET_PAGE	CPM_CR_FCC1_PAGE
-
-/*---------------------------------------------------------------------*/
-#elif (CONFIG_ETHER_INDEX == 2)
-
-#define PROFF_ENET		PROFF_FCC2
-#define CPM_CR_ENET_SBLOCK	CPM_CR_FCC2_SBLOCK
-#define CPM_CR_ENET_PAGE	CPM_CR_FCC2_PAGE
-
-/*---------------------------------------------------------------------*/
-#elif (CONFIG_ETHER_INDEX == 3)
-
-#define PROFF_ENET		PROFF_FCC3
-#define CPM_CR_ENET_SBLOCK	CPM_CR_FCC3_SBLOCK
-#define CPM_CR_ENET_PAGE	CPM_CR_FCC3_PAGE
-
-/*---------------------------------------------------------------------*/
-#else
-#error "FCC Ethernet not correctly defined"
+static struct ether_fcc_info_s
+{
+	int ether_index;
+	int proff_enet;
+	ulong cpm_cr_enet_sblock;
+	ulong cpm_cr_enet_page;
+	ulong cmxfcr_mask;
+	ulong cmxfcr_value;
+}
+	ether_fcc_info[] =
+{
+#ifdef CONFIG_ETHER_ON_FCC1
+{
+	0,
+	PROFF_FCC1,
+	CPM_CR_FCC1_SBLOCK,
+	CPM_CR_FCC1_PAGE,
+	CFG_CMXFCR_MASK1,
+	CFG_CMXFCR_VALUE1
+},
 #endif
+
+#ifdef CONFIG_ETHER_ON_FCC2
+{
+	1,
+	PROFF_FCC2,
+	CPM_CR_FCC2_SBLOCK,
+	CPM_CR_FCC2_PAGE,
+	CFG_CMXFCR_MASK2,
+	CFG_CMXFCR_VALUE2
+},
+#endif
+
+#ifdef CONFIG_ETHER_ON_FCC3
+{
+	2,
+	PROFF_FCC3,
+	CPM_CR_FCC3_SBLOCK,
+	CPM_CR_FCC3_PAGE,
+	CFG_CMXFCR_MASK3,
+	CFG_CMXFCR_VALUE3
+},
+#endif
+};
+
 /*---------------------------------------------------------------------*/
 
 /* Maximum input DMA size.  Must be a should(?) be a multiple of 4. */
@@ -116,7 +137,7 @@ static RTXBD rtx __attribute__ ((aligned(8)));
 #error "rtx must be 64-bit aligned"
 #endif
 
-int eth_send(volatile void *packet, int length)
+static int fec_send(struct eth_device* dev, volatile void *packet, int length)
 {
     int i;
     int result = 0;
@@ -156,7 +177,7 @@ out:
     return result;
 }
 
-int eth_rx(void)
+static int fec_recv(struct eth_device* dev)
 {
     int length;
 
@@ -194,8 +215,9 @@ int eth_rx(void)
 }
 
 
-int eth_init(bd_t *bis)
+static int fec_init(struct eth_device* dev, bd_t *bis)
 {
+    struct ether_fcc_info_s * info = dev->priv;
     int i;
     volatile immap_t *immr = (immap_t *)CFG_IMMR;
     volatile cpm8260_t *cp = &(immr->im_cpm);
@@ -210,18 +232,18 @@ int eth_init(bd_t *bis)
 
     /* 28.9 - (3): connect FCC's tx and rx clocks */
     immr->im_cpmux.cmx_uar = 0;
-    immr->im_cpmux.cmx_fcr = (immr->im_cpmux.cmx_fcr & ~CFG_CMXFCR_MASK) |
-    							CFG_CMXFCR_VALUE;
+    immr->im_cpmux.cmx_fcr = (immr->im_cpmux.cmx_fcr & ~info->cmxfcr_mask) |
+    							info->cmxfcr_value;
 
     /* 28.9 - (4): GFMR: disable tx/rx, CCITT CRC, Mode Ethernet */
-    immr->im_fcc[CONFIG_ETHER_INDEX-1].fcc_gfmr =
+    immr->im_fcc[info->ether_index].fcc_gfmr =
       FCC_GFMR_MODE_ENET | FCC_GFMR_TCRC_32;
 
     /* 28.9 - (5): FPSMR: enable full duplex, select CCITT CRC for Ethernet */
-    immr->im_fcc[CONFIG_ETHER_INDEX-1].fcc_fpsmr = CFG_FCC_PSMR | FCC_PSMR_ENCRC;
+    immr->im_fcc[info->ether_index].fcc_fpsmr = CFG_FCC_PSMR | FCC_PSMR_ENCRC;
 
     /* 28.9 - (6): FDSR: Ethernet Syn */
-    immr->im_fcc[CONFIG_ETHER_INDEX-1].fcc_fdsr = 0xD555;
+    immr->im_fcc[info->ether_index].fcc_fdsr = 0xD555;
 
     /* reset indeces to current rx/tx bd (see eth_send()/eth_rx()) */
     rxIdx = 0;
@@ -246,7 +268,7 @@ int eth_init(bd_t *bis)
     rtx.txbd[TX_BUF_CNT - 1].cbd_sc |= BD_ENET_TX_WRAP;
 
     /* 28.9 - (7): initialise parameter ram */
-    pram_ptr = (fcc_enet_t *)&(immr->im_dprambase[PROFF_ENET]);
+    pram_ptr = (fcc_enet_t *)&(immr->im_dprambase[info->proff_enet]);
 
     /* clear whole structure to make sure all reserved fields are zero */
     memset((void*)pram_ptr, 0, sizeof(fcc_enet_t));
@@ -259,7 +281,7 @@ int eth_init(bd_t *bis)
      * can do this.  Later, we will add resource management for
      * this area.
      */
-    mem_addr = CPM_FCC_SPECIAL_BASE + ((CONFIG_ETHER_INDEX-1) * 64);
+    mem_addr = CPM_FCC_SPECIAL_BASE + ((info->ether_index) * 64);
     pram_ptr->fen_genfcc.fcc_riptr = mem_addr;
     pram_ptr->fen_genfcc.fcc_tiptr = mem_addr+32;
     /*
@@ -288,7 +310,7 @@ int eth_init(bd_t *bis)
      * it unique by setting a few bits in the upper byte of the
      * non-static part of the address.
      */
-#define ea bis->bi_enetaddr
+#define ea eth_get_dev()->enetaddr
     pram_ptr->fen_paddrh = (ea[5] << 8) + ea[4];
     pram_ptr->fen_paddrm = (ea[3] << 8) + ea[2];
     pram_ptr->fen_paddrl = (ea[1] << 8) + ea[0];
@@ -308,10 +330,10 @@ int eth_init(bd_t *bis)
 #endif
 
     /* 28.9 - (8): clear out events in FCCE */
-    immr->im_fcc[CONFIG_ETHER_INDEX-1].fcc_fcce = ~0x0;
+    immr->im_fcc[info->ether_index].fcc_fcce = ~0x0;
 
     /* 28.9 - (9): FCCM: mask all events */
-    immr->im_fcc[CONFIG_ETHER_INDEX-1].fcc_fccm = 0;
+    immr->im_fcc[info->ether_index].fcc_fccm = 0;
 
     /* 28.9 - (10-12): we don't use ethernet interrupts */
 
@@ -321,8 +343,8 @@ int eth_init(bd_t *bis)
      * than the manual describes because we have just now finished
      * the BD initialization.
      */
-    cp->cp_cpcr = mk_cr_cmd(CPM_CR_ENET_PAGE,
-			    CPM_CR_ENET_SBLOCK,
+    cp->cp_cpcr = mk_cr_cmd(info->cpm_cr_enet_page,
+			    info->cpm_cr_enet_sblock,
 			    0x0c,
 			    CPM_CR_INIT_TRX) | CPM_CR_FLG;
     do {
@@ -330,18 +352,43 @@ int eth_init(bd_t *bis)
     } while (cp->cp_cpcr & CPM_CR_FLG);
 
     /* 28.9 - (14): enable tx/rx in gfmr */
-    immr->im_fcc[CONFIG_ETHER_INDEX-1].fcc_gfmr |= FCC_GFMR_ENT | FCC_GFMR_ENR;
+    immr->im_fcc[info->ether_index].fcc_gfmr |= FCC_GFMR_ENT | FCC_GFMR_ENR;
 
     return 1;
 }
 
-void eth_halt(void)
+static void fec_halt(struct eth_device* dev)
 {
+    struct ether_fcc_info_s * info = dev->priv;
     volatile immap_t *immr = (immap_t *)CFG_IMMR;
 
     /* write GFMR: disable tx/rx */
-    immr->im_fcc[CONFIG_ETHER_INDEX-1].fcc_gfmr &=
+    immr->im_fcc[info->ether_index].fcc_gfmr &=
 						~(FCC_GFMR_ENT | FCC_GFMR_ENR);
 }
 
-#endif	/* CONFIG_ETHER_ON_FCC && CFG_CMD_NET */
+int fec_initialize(bd_t *bis)
+{
+	struct eth_device* dev;
+	int i;
+
+	for (i = 0; i < sizeof(ether_fcc_info) / sizeof(ether_fcc_info[0]); i++)
+	{
+		dev = (struct eth_device*) malloc(sizeof *dev);
+		memset(dev, 0, sizeof *dev);
+
+		sprintf(dev->name, "FCC%d ETHERNET",
+		        ether_fcc_info[i].ether_index + 1);
+		dev->priv   = &ether_fcc_info[i];
+		dev->init   = fec_init;
+		dev->halt   = fec_halt;
+		dev->send   = fec_send;
+		dev->recv   = fec_recv;
+
+		eth_register(dev);
+	}
+
+	return 1;
+}
+
+#endif	/* CONFIG_ETHER_ON_FCC && CFG_CMD_NET && CONFIG_NET_MULTI */
