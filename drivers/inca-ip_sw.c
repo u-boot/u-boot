@@ -67,6 +67,16 @@
 #define INCA_DMA_RX_SOP 0x40000000
 #define INCA_DMA_RX_EOP 0x20000000
 
+/************************ Auto MDIX settings ************************/
+#define INCA_IP_AUTO_MDIX_LAN_PORTS_DIR      INCA_IP_Ports_P1_DIR
+#define INCA_IP_AUTO_MDIX_LAN_PORTS_ALTSEL   INCA_IP_Ports_P1_ALTSEL  
+#define INCA_IP_AUTO_MDIX_LAN_PORTS_OUT      INCA_IP_Ports_P1_OUT
+#define INCA_IP_AUTO_MDIX_LAN_GPIO_PIN_RXTX  16
+
+#define WAIT_SIGNAL_RETRIES                  100
+#define WAIT_LINK_RETRIES                    100
+#define LINK_RETRY_DELAY                     300  /* ms */
+/********************************************************************/
 
 typedef struct
 {
@@ -143,6 +153,7 @@ static int inca_switch_recv(struct eth_device *dev);
 static void inca_switch_halt(struct eth_device *dev);
 static void inca_init_switch_chip(void);
 static void inca_dma_init(void);
+static int inca_amdix(void);
 
 
 int inca_switch_initialize(bd_t * bis)
@@ -162,6 +173,8 @@ int inca_switch_initialize(bd_t * bis)
 	inca_dma_init();
 
 	inca_init_switch_chip();
+	
+	inca_amdix();
 
 	sprintf(dev->name, "INCA-IP Switch");
 	dev->init = inca_switch_init;
@@ -608,6 +621,90 @@ static void inca_dma_init(void)
 
 	DMA_WRITE_REG(INCA_IP_DMA_DMA_TXISR, 0xFFFFFFFF);
 	DMA_WRITE_REG(INCA_IP_DMA_DMA_RXISR, 0xFFFFFFFF);
+}
+
+static int inca_amdix(void)
+{
+	u32 regValue = 0;
+	int mdi_flag;
+	int retries;
+
+	/* Setup GPIO pins.
+	 */
+	*INCA_IP_AUTO_MDIX_LAN_PORTS_DIR    |= (1 << INCA_IP_AUTO_MDIX_LAN_GPIO_PIN_RXTX);
+	*INCA_IP_AUTO_MDIX_LAN_PORTS_ALTSEL |= (1 << INCA_IP_AUTO_MDIX_LAN_GPIO_PIN_RXTX);
+
+	/* Wait for signal.
+	 */
+	retries = WAIT_SIGNAL_RETRIES;
+	while (--retries)
+	{
+		SW_WRITE_REG(INCA_IP_Switch_MDIO_ACC,
+				(0x1 << 31) |	/* RA		*/
+				(0x0 << 30) |	/* Read		*/
+				(0x6 << 21) |	/* LAN		*/
+				(17  << 16));	/* PHY_MCSR	*/
+		do
+		{
+			SW_READ_REG(INCA_IP_Switch_MDIO_ACC, regValue);
+		}
+		while (regValue & (1 << 31));
+
+		if (regValue & (1 << 1))
+		{
+			/* Signal detected */
+			break;
+		}
+	}
+
+	if (!retries)
+		return -1;
+
+	/* Set MDI mode.
+	 */
+	*INCA_IP_AUTO_MDIX_LAN_PORTS_OUT &= ~(1 << INCA_IP_AUTO_MDIX_LAN_GPIO_PIN_RXTX);
+	mdi_flag = 1;
+
+	/* Wait for link.
+	 */
+	retries = WAIT_LINK_RETRIES;
+	while (--retries)
+	{
+		udelay(LINK_RETRY_DELAY * 1000);
+		SW_WRITE_REG(INCA_IP_Switch_MDIO_ACC,
+				(0x1 << 31) |	/* RA		*/
+				(0x0 << 30) |	/* Read		*/
+				(0x6 << 21) |	/* LAN		*/
+				(1   << 16));	/* PHY_BSR	*/
+		do
+		{
+			SW_READ_REG(INCA_IP_Switch_MDIO_ACC, regValue);
+		}
+		while (regValue & (1 << 31));
+
+		if (regValue & (1 << 2))
+		{
+			/* Link is up */
+			break;
+		}
+		else if (mdi_flag)
+		{
+			/* Set MDIX mode */
+			*INCA_IP_AUTO_MDIX_LAN_PORTS_OUT |= (1 << INCA_IP_AUTO_MDIX_LAN_GPIO_PIN_RXTX);
+			mdi_flag = 0;
+		}
+		else
+		{
+			/* Set MDI mode */
+			*INCA_IP_AUTO_MDIX_LAN_PORTS_OUT &= ~(1 << INCA_IP_AUTO_MDIX_LAN_GPIO_PIN_RXTX);
+			mdi_flag = 1;
+		}
+	}
+
+	if (!retries)
+		return -1;
+
+	return 0;
 }
 
 #endif

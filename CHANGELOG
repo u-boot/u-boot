@@ -2,6 +2,8 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
+* Add Auto-MDIX support for INCA-IP
+
 * Some code cleanup
 
 * Patch by Josef Baumgartner, 10 Feb 2004:

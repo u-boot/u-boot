@@ -358,10 +358,10 @@ CPM_CR_CH_SCC4 };
 	 */
 
 	immr->im_cpm.cp_scc[scc_index].scc_gsmrl = (SCC_GSMRL_TCI |
-												SCC_GSMRL_TPL_48 |
-												SCC_GSMRL_TPP_10 |
-												SCC_GSMRL_DIAG_LOOP |
-												SCC_GSMRL_MODE_ENET);
+						    SCC_GSMRL_TPL_48 |
+						    SCC_GSMRL_TPP_10 |
+						    SCC_GSMRL_DIAG_LOOP |
+						    SCC_GSMRL_MODE_ENET);
 
 	/*
 	 * Initialize the DSR -- see section 13.14.4 (pg. 513) v0.4

@@ -185,8 +185,10 @@ sdram_init:
 
 	li	t1, MC_MODUL_BASE
 
+#if 0
 	/* Disable memory controller before changing any of its registers */
 	sw	zero, MC_CTRLENA(t1)
+#endif
 
 	li	t2, 100000000
 	beq	a0, t2, 1f
