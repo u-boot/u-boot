@@ -4,8 +4,11 @@ Changes for U-Boot 1.0.0:
 
 * Add CompactFlash support for NSCU
 
+* Fix PCI problems on PPChameleonEVB
+
 * TRAB auto-update: Base decision if we have to strip the image
   header on image type as encoded in the header
+  (include image type patch by Martin Krause, 17 Oct 2003)
 
 * Patches by Xianghua Xiao, 15 Oct 2003:
 
