@@ -46,7 +46,9 @@
 
 #include <common.h>
 #include <asm/processor.h>
+#include <linux/byteorder/swab.h>
 #ifdef	CFG_FLASH_CFI_DRIVER
+
 /*
  * This file implements a Common Flash Interface (CFI) driver for U-Boot.
  * The width of the port and the width of the chips are determined at initialization.
@@ -164,31 +166,24 @@ typedef unsigned long flash_sect_t;
 
 static void flash_add_byte (flash_info_t * info, cfiword_t * cword, uchar c);
 static void flash_make_cmd (flash_info_t * info, uchar cmd, void *cmdbuf);
-static void flash_write_cmd (flash_info_t * info, flash_sect_t sect,
-			     uint offset, uchar cmd);
+static void flash_write_cmd (flash_info_t * info, flash_sect_t sect, uint offset, uchar cmd);
 static void flash_unlock_seq (flash_info_t * info, flash_sect_t sect);
-static int flash_isequal (flash_info_t * info, flash_sect_t sect, uint offset,
-			  uchar cmd);
-static int flash_isset (flash_info_t * info, flash_sect_t sect, uint offset,
-			uchar cmd);
-static int flash_toggle (flash_info_t * info, flash_sect_t sect, uint offset,
-			 uchar cmd);
+static int flash_isequal (flash_info_t * info, flash_sect_t sect, uint offset, uchar cmd);
+static int flash_isset (flash_info_t * info, flash_sect_t sect, uint offset, uchar cmd);
+static int flash_toggle (flash_info_t * info, flash_sect_t sect, uint offset, uchar cmd);
 static int flash_detect_cfi (flash_info_t * info);
 static ulong flash_get_size (ulong base, int banknum);
-static int flash_write_cfiword (flash_info_t * info, ulong dest,
-				cfiword_t cword);
+static int flash_write_cfiword (flash_info_t * info, ulong dest, cfiword_t cword);
 static int flash_full_status_check (flash_info_t * info, flash_sect_t sector,
 				    ulong tout, char *prompt);
 #ifdef CFG_FLASH_USE_BUFFER_WRITE
-static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
-				  int len);
+static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp, int len);
 #endif
 
 /*-----------------------------------------------------------------------
  * create an address based on the offset and the port width
  */
-inline uchar *flash_make_addr (flash_info_t * info, flash_sect_t sect,
-			       uint offset)
+inline uchar *flash_make_addr (flash_info_t * info, flash_sect_t sect, uint offset)
 {
 	return ((uchar *) (info->start[sect] + (offset * info->portwidth)));
 }
@@ -230,7 +225,6 @@ static void flash_printqry (flash_info_t * info, flash_sect_t sect)
 		debug ("\n");
 	}
 }
-
 #endif
 
 
@@ -286,7 +280,6 @@ ushort flash_read_ushort (flash_info_t * info, flash_sect_t sect, uint offset)
  */
 ulong flash_read_long (flash_info_t * info, flash_sect_t sect, uint offset)
 {
-
 	uchar *addr;
 	ulong retval;
 
@@ -304,8 +297,7 @@ ulong flash_read_long (flash_info_t * info, flash_sect_t sect, uint offset)
 #endif
 #if defined(__LITTLE_ENDIAN)
 	retval = (addr[0] << 16) | (addr[(info->portwidth)] << 24) |
-		(addr[(2 * info->portwidth)]) | (addr[(3 * info->portwidth)]
-						 << 8);
+		(addr[(2 * info->portwidth)]) | (addr[(3 * info->portwidth)] << 8);
 #else
 	retval = (addr[(2 * info->portwidth) - 1] << 24) |
 		(addr[(info->portwidth) - 1] << 16) |
@@ -327,7 +319,8 @@ unsigned long flash_init (void)
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 		size += flash_info[i].size = flash_get_size (bank_base[i], i);
 		if (flash_info[i].flash_id == FLASH_UNKNOWN) {
-			printf ("## Unknown FLASH on Bank %d - Size = 0x%08lx = %ld MB\n", i, flash_info[i].size, flash_info[i].size << 20);
+			printf ("## Unknown FLASH on Bank %d - Size = 0x%08lx = %ld MB\n",
+				i, flash_info[i].size, flash_info[i].size << 20);
 		}
 	}
 
@@ -377,21 +370,16 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 			switch (info->vendor) {
 			case CFI_CMDSET_INTEL_STANDARD:
 			case CFI_CMDSET_INTEL_EXTENDED:
-				flash_write_cmd (info, sect, 0,
-						 FLASH_CMD_CLEAR_STATUS);
-				flash_write_cmd (info, sect, 0,
-						 FLASH_CMD_BLOCK_ERASE);
-				flash_write_cmd (info, sect, 0,
-						 FLASH_CMD_ERASE_CONFIRM);
+				flash_write_cmd (info, sect, 0, FLASH_CMD_CLEAR_STATUS);
+				flash_write_cmd (info, sect, 0, FLASH_CMD_BLOCK_ERASE);
+				flash_write_cmd (info, sect, 0, FLASH_CMD_ERASE_CONFIRM);
 				break;
 			case CFI_CMDSET_AMD_STANDARD:
 			case CFI_CMDSET_AMD_EXTENDED:
 				flash_unlock_seq (info, sect);
-				flash_write_cmd (info, sect, 0x555,
-						 AMD_CMD_ERASE_START);
+				flash_write_cmd (info, sect, 0x555, AMD_CMD_ERASE_START);
 				flash_unlock_seq (info, sect);
-				flash_write_cmd (info, sect, 0,
-						 AMD_CMD_ERASE_SECTOR);
+				flash_write_cmd (info, sect, 0, AMD_CMD_ERASE_SECTOR);
 				break;
 			default:
 				debug ("Unkown flash vendor %d\n",
@@ -425,7 +413,11 @@ void flash_print_info (flash_info_t * info)
 		(info->portwidth << 3), (info->chipwidth << 3));
 	printf ("  Size: %ld MB in %d Sectors\n",
 		info->size >> 20, info->sector_count);
-	printf (" Erase timeout %ld ms, write timeout %ld ms, buffer write timeout %ld ms, buffer size %d\n", info->erase_blk_tout, info->write_tout, info->buffer_write_tout, info->buffer_size);
+	printf (" Erase timeout %ld ms, write timeout %ld ms, buffer write timeout %ld ms, buffer size %d\n",
+		info->erase_blk_tout,
+		info->write_tout,
+		info->buffer_write_tout,
+		info->buffer_size);
 
 	printf ("  Sector Start Addresses:");
 	for (i = 0; i < info->sector_count; ++i) {
@@ -605,7 +597,6 @@ int flash_real_protect (flash_info_t * info, long sector, int prot)
 			}
 		}
 	}
-
 	return retcode;
 }
 
@@ -706,16 +697,12 @@ static int flash_full_status_check (flash_info_t * info, flash_sect_t sector,
 			retcode = ERR_INVAL;
 			printf ("Flash %s error at address %lx\n", prompt,
 				info->start[sector]);
-			if (flash_isset
-			    (info, sector, 0,
-			     FLASH_STATUS_ECLBS | FLASH_STATUS_PSLBS)) {
+			if (flash_isset (info, sector, 0, FLASH_STATUS_ECLBS | FLASH_STATUS_PSLBS)) {
 				printf ("Command Sequence Error.\n");
-			} else if (flash_isset
-				   (info, sector, 0, FLASH_STATUS_ECLBS)) {
+			} else if (flash_isset (info, sector, 0, FLASH_STATUS_ECLBS)) {
 				printf ("Block Erase Error.\n");
 				retcode = ERR_NOT_ERASED;
-			} else if (flash_isset
-				   (info, sector, 0, FLASH_STATUS_PSLBS)) {
+			} else if (flash_isset (info, sector, 0, FLASH_STATUS_PSLBS)) {
 				printf ("Locking Error\n");
 			}
 			if (flash_isset (info, sector, 0, FLASH_STATUS_DPS)) {
@@ -762,16 +749,28 @@ static void flash_make_cmd (flash_info_t * info, uchar cmd, void *cmdbuf)
 	int i;
 
 #if defined(__LITTLE_ENDIAN)
-	ushort stmp;
+	ushort stmpw;
+	uint   stmpi;
 #endif
 	uchar *cp = (uchar *) cmdbuf;
 
 	for (i = 0; i < info->portwidth; i++)
 		*cp++ = ((i + 1) % info->chipwidth) ? '\0' : cmd;
 #if defined(__LITTLE_ENDIAN)
-	if (info->portwidth == 2) {
-		stmp = *(ushort *) cmdbuf;
-		*(ushort *) cmdbuf = swab16 (stmp);
+	switch (info->portwidth) {
+	case FLASH_CFI_8BIT:
+		break;
+	case FLASH_CFI_16BIT:
+		stmpw = *(ushort *) cmdbuf;
+		*(ushort *) cmdbuf = __swab16 (stmpw);
+		break;
+	case FLASH_CFI_32BIT:
+		stmpi = *(uint *) cmdbuf;
+		*(uint *) cmdbuf = __swab32 (stmpi);
+		break;
+	default:
+		printf("WARNING: flash_make_cmd: unsuppported LittleEndian mode\n");
+		break;
 	}
 #endif
 }
@@ -779,8 +778,7 @@ static void flash_make_cmd (flash_info_t * info, uchar cmd, void *cmdbuf)
 /*
  * Write a proper sized command to the correct address
  */
-static void flash_write_cmd (flash_info_t * info, flash_sect_t sect,
-			     uint offset, uchar cmd)
+static void flash_write_cmd (flash_info_t * info, flash_sect_t sect, uint offset, uchar cmd)
 {
 
 	volatile cfiptr_t addr;
@@ -831,8 +829,7 @@ static void flash_unlock_seq (flash_info_t * info, flash_sect_t sect)
 
 /*-----------------------------------------------------------------------
  */
-static int flash_isequal (flash_info_t * info, flash_sect_t sect, uint offset,
-			  uchar cmd)
+static int flash_isequal (flash_info_t * info, flash_sect_t sect, uint offset, uchar cmd)
 {
 	cfiptr_t cptr;
 	cfiword_t cword;
@@ -877,8 +874,7 @@ static int flash_isequal (flash_info_t * info, flash_sect_t sect, uint offset,
 
 /*-----------------------------------------------------------------------
  */
-static int flash_isset (flash_info_t * info, flash_sect_t sect, uint offset,
-			uchar cmd)
+static int flash_isset (flash_info_t * info, flash_sect_t sect, uint offset, uchar cmd)
 {
 	cfiptr_t cptr;
 	cfiword_t cword;
@@ -908,8 +904,7 @@ static int flash_isset (flash_info_t * info, flash_sect_t sect, uint offset,
 
 /*-----------------------------------------------------------------------
  */
-static int flash_toggle (flash_info_t * info, flash_sect_t sect, uint offset,
-			 uchar cmd)
+static int flash_toggle (flash_info_t * info, flash_sect_t sect, uint offset, uchar cmd)
 {
 	cfiptr_t cptr;
 	cfiword_t cword;
@@ -953,27 +948,18 @@ static int flash_detect_cfi (flash_info_t * info)
 		     info->chipwidth <= info->portwidth;
 		     info->chipwidth <<= 1) {
 			flash_write_cmd (info, 0, 0, FLASH_CMD_RESET);
-			flash_write_cmd (info, 0, FLASH_OFFSET_CFI,
-					 FLASH_CMD_CFI);
-			if (flash_isequal
-			    (info, 0, FLASH_OFFSET_CFI_RESP, 'Q')
-			    && flash_isequal (info, 0,
-					      FLASH_OFFSET_CFI_RESP + 1, 'R')
-			    && flash_isequal (info, 0,
-					      FLASH_OFFSET_CFI_RESP + 2,
-					      'Y')) {
-				info->interface =
-					flash_read_ushort (info, 0,
-							   FLASH_OFFSET_INTERFACE);
+			flash_write_cmd (info, 0, FLASH_OFFSET_CFI, FLASH_CMD_CFI);
+			if (flash_isequal (info, 0, FLASH_OFFSET_CFI_RESP, 'Q')
+			    && flash_isequal (info, 0, FLASH_OFFSET_CFI_RESP + 1, 'R')
+			    && flash_isequal (info, 0, FLASH_OFFSET_CFI_RESP + 2, 'Y')) {
+				info->interface = flash_read_ushort (info, 0, FLASH_OFFSET_INTERFACE);
 				debug ("device interface is %d\n",
 				       info->interface);
 				debug ("found port %d chip %d ",
 				       info->portwidth, info->chipwidth);
 				debug ("port %d bits chip %d bits\n",
-				       info->
-				       portwidth << CFI_FLASH_SHIFT_WIDTH,
-				       info->
-				       chipwidth << CFI_FLASH_SHIFT_WIDTH);
+				       info->portwidth << CFI_FLASH_SHIFT_WIDTH,
+				       info->chipwidth << CFI_FLASH_SHIFT_WIDTH);
 				return 1;
 			}
 		}
@@ -1001,9 +987,7 @@ static ulong flash_get_size (ulong base, int banknum)
 	info->start[0] = base;
 
 	if (flash_detect_cfi (info)) {
-		info->vendor =
-			flash_read_ushort (info, 0,
-					   FLASH_OFFSET_PRIMARY_VENDOR);
+		info->vendor = flash_read_ushort (info, 0, FLASH_OFFSET_PRIMARY_VENDOR);
 #ifdef DEBUG
 		flash_printqry (info, 0);
 #endif
@@ -1026,9 +1010,7 @@ static ulong flash_get_size (ulong base, int banknum)
 		    && (info->chipwidth == FLASH_CFI_BY8)) {
 			size_ratio >>= 1;
 		}
-		num_erase_regions =
-			flash_read_uchar (info,
-					  FLASH_OFFSET_NUM_ERASE_REGIONS);
+		num_erase_regions = flash_read_uchar (info, FLASH_OFFSET_NUM_ERASE_REGIONS);
 		debug ("size_ratio %d port %d bits chip %d bits\n",
 		       size_ratio, info->portwidth << CFI_FLASH_SHIFT_WIDTH,
 		       info->chipwidth << CFI_FLASH_SHIFT_WIDTH);
@@ -1037,7 +1019,8 @@ static ulong flash_get_size (ulong base, int banknum)
 		sector = base;
 		for (i = 0; i < num_erase_regions; i++) {
 			if (i > NUM_ERASE_REGIONS) {
-				printf ("%d erase regions found, only %d used\n", num_erase_regions, NUM_ERASE_REGIONS);
+				printf ("%d erase regions found, only %d used\n",
+					num_erase_regions, NUM_ERASE_REGIONS);
 				break;
 			}
 			tmp = flash_read_long (info, 0,
@@ -1047,7 +1030,8 @@ static ulong flash_get_size (ulong base, int banknum)
 				(tmp & 0xffff) ? ((tmp & 0xffff) * 256) : 128;
 			tmp >>= 16;
 			erase_region_count = (tmp & 0xffff) + 1;
-			printf ("erase_region_count = %d erase_region_size = %d\n", erase_region_count, erase_region_size);
+			printf ("erase_region_count = %d erase_region_size = %d\n",
+				erase_region_count, erase_region_size);
 			for (j = 0; j < erase_region_count; j++) {
 				info->start[sect_cnt] = sector;
 				sector += (erase_region_size * size_ratio);
@@ -1061,29 +1045,14 @@ static ulong flash_get_size (ulong base, int banknum)
 
 		info->sector_count = sect_cnt;
 		/* multiply the size by the number of chips */
-		info->size =
-			(1 << flash_read_uchar (info, FLASH_OFFSET_SIZE)) *
-			size_ratio;
-		info->buffer_size =
-			(1 <<
-			 flash_read_ushort (info, 0,
-					    FLASH_OFFSET_BUFFER_SIZE));
+		info->size = (1 << flash_read_uchar (info, FLASH_OFFSET_SIZE)) * size_ratio;
+		info->buffer_size = (1 << flash_read_ushort (info, 0, FLASH_OFFSET_BUFFER_SIZE));
 		tmp = 1 << flash_read_uchar (info, FLASH_OFFSET_ETOUT);
-		info->erase_blk_tout =
-			(tmp *
-			 (1 <<
-			  flash_read_uchar (info, FLASH_OFFSET_EMAX_TOUT)));
+		info->erase_blk_tout = (tmp * (1 << flash_read_uchar (info, FLASH_OFFSET_EMAX_TOUT)));
 		tmp = 1 << flash_read_uchar (info, FLASH_OFFSET_WBTOUT);
-		info->buffer_write_tout =
-			(tmp *
-			 (1 <<
-			  flash_read_uchar (info, FLASH_OFFSET_WBMAX_TOUT)));
+		info->buffer_write_tout = (tmp * (1 << flash_read_uchar (info, FLASH_OFFSET_WBMAX_TOUT)));
 		tmp = 1 << flash_read_uchar (info, FLASH_OFFSET_WTOUT);
-		info->write_tout =
-			(tmp *
-			 (1 <<
-			  flash_read_uchar (info,
-					    FLASH_OFFSET_WMAX_TOUT))) / 1000;
+		info->write_tout = (tmp * (1 << flash_read_uchar (info, FLASH_OFFSET_WMAX_TOUT))) / 1000;
 		info->flash_id = FLASH_MAN_CFI;
 	}
 

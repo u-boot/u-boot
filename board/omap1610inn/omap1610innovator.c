@@ -11,7 +11,7 @@
  * Kshitij Gupta <Kshitij@ti.com>
  *
  * Modified for OMAP 1610 H2 board by Nishant Kamat, Jan 2004
- * 
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -112,9 +112,9 @@ void ether__init (void)
 #ifdef CONFIG_H2_OMAP1610
 	#define LAN_RESET_REGISTER 0x0400001c
 
-	/* The debug board on which the lan chip resides may not be powered 
-	 * ON at the same time as the OMAP chip. So wait in a loop until the 
-	 * lan reset register (on the debug board) is available (powered on) 
+	/* The debug board on which the lan chip resides may not be powered
+	 * ON at the same time as the OMAP chip. So wait in a loop until the
+	 * lan reset register (on the debug board) is available (powered on)
 	 * and reset the lan chip.
 	 */
 
@@ -123,7 +123,7 @@ void ether__init (void)
 		*((volatile unsigned short *) LAN_RESET_REGISTER) = 0x0001;
 		udelay (3);
 	} while (*((volatile unsigned short *) LAN_RESET_REGISTER) != 0x0001);
-	
+
 	do {
 		*((volatile unsigned short *) LAN_RESET_REGISTER) = 0x0000;
 		udelay (3);

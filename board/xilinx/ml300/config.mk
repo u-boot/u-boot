@@ -1,7 +1,6 @@
 #
-# (C) Copyright 2003
-# Psyent Corporation <www.psyent.com>
-# Scott McNutt <smcnutt@psyent.com>
+# (C) Copyright 2000
+# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -22,4 +21,9 @@
 # MA 02111-1307 USA
 #
 
-PLATFORM_CPPFLAGS += -m32 -DCONFIG_NIOS -D__NIOS__ -ffixed-g7
+#
+# esd ADCIOP boards
+#
+
+#TEXT_BASE = 0xFFFE0000
+TEXT_BASE = 0x04000000

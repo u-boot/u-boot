@@ -73,7 +73,7 @@
 #define CFG_NS16550_REG_SIZE	(-4)
 #define CFG_NS16550_CLK	(48000000)		/* can be 12M/32Khz or 48Mhz */
 #define CFG_NS16550_COM1	0xfffb0000	/* uart1, bluetooth uart */
-						
+
 /*
  * select serial console configuration
  */

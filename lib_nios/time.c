@@ -22,6 +22,7 @@
  */
 
 #include <common.h>
+#include <watchdog.h>
 
 
 extern void dly_clks( unsigned long ticks );
@@ -33,5 +34,6 @@ void udelay(unsigned long usec)
 	 * cpu clocks.
 	 */
 	unsigned long cnt = (CONFIG_SYS_CLK_FREQ/1000000) * usec;
+	WATCHDOG_RESET ();	/* trigger watchdog if needed */
 	dly_clks (cnt);
 }

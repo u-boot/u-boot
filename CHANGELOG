@@ -2,6 +2,18 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
+* Patch by Peter Ryser, 20 Feb 2004:
+  Add support for the Xilinx ML300 platform
+
+* Patch by Stephan Linz, 17 Feb 2004:
+  Fix watchdog support for NIOS
+
+* Patch by Josh Fryman, 16 Feb 2004:
+  Fix byte-swapping for cfi_flash.c for different bus widths
+
+* Patch by Jon Diekema, 14 Jeb 2004:
+  Remove duplicate "FPGA Support" notes from the README file
+
 * Patches by Reinhard Meyer, 14 Feb 2004:
   - update board/emk tree; use common flash driver
   - Corrected tested bits in machine check exception in cpu/mpc5xxx/traps.c

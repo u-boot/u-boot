@@ -515,6 +515,8 @@ void board_init_f (ulong bootflag)
 #endif
 	bd->bi_iic_fast[0] = 0;
 	bd->bi_iic_fast[1] = 0;
+#elif defined(CONFIG_XILINX_ML300)
+	bd->bi_pci_busfreq = get_PCI_freq ();
 #endif
 #endif
 

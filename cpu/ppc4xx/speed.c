@@ -299,6 +299,10 @@ ulong get_OPB_freq (void)
 	return sys_info.freqOPB;
 }
 
+#elif defined(CONFIG_XILINX_ML300)
+extern void get_sys_info (sys_info_t * sysInfo);
+extern ulong get_PCI_freq (void);
+
 #elif defined(CONFIG_405)
 
 void get_sys_info (sys_info_t * sysInfo) {

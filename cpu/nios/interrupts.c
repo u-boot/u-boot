@@ -30,6 +30,7 @@
 #include <asm/ptrace.h>
 #include <common.h>
 #include <command.h>
+#include <watchdog.h>
 #ifdef CONFIG_STATUS_LED
 #include <status_led.h>
 #endif
@@ -54,6 +55,7 @@ void reset_timer (void)
 
 ulong get_timer (ulong base)
 {
+	WATCHDOG_RESET ();
 	return (timestamp - base);
 }
 

@@ -1159,60 +1159,6 @@ The following options need to be configured:
 
 		CONFIG_FPGA
 
-		Used to specify the types of FPGA devices. For
-		example,
-		#define CONFIG_FPGA  CFG_XILINX_VIRTEX2
-
-		CFG_FPGA_PROG_FEEDBACK
-
-		Enable printing of hash marks during FPGA
-		configuration.
-
-		CFG_FPGA_CHECK_BUSY
-
-		Enable checks on FPGA configuration interface busy
-		status by the configuration function. This option
-		will require a board or device specific function to
-		be written.
-
-		CONFIG_FPGA_DELAY
-
-		If defined, a function that provides delays in the
-		FPGA configuration driver.
-
-		CFG_FPGA_CHECK_CTRLC
-
-		Allow Control-C to interrupt FPGA configuration
-
-		CFG_FPGA_CHECK_ERROR
-
-		Check for configuration errors during FPGA bitfile
-		loading. For example, abort during Virtex II
-		configuration if the INIT_B line goes low (which
-		indicated a CRC error).
-
-		CFG_FPGA_WAIT_INIT
-
-		Maximum time to wait for the INIT_B line to deassert
-		after PROB_B has been deasserted during a Virtex II
-		FPGA configuration sequence. The default time is 500 mS.
-
-		CFG_FPGA_WAIT_BUSY
-
-		Maximum time to wait for BUSY to deassert during
-		Virtex II FPGA configuration. The default is 5 mS.
-
-		CFG_FPGA_WAIT_CONFIG
-
-		Time to wait after FPGA configuration. The default is
-		200 mS.
-
-- FPGA Support: CONFIG_FPGA_COUNT
-
-		Specify the number of FPGA devices to support.
-
-		CONFIG_FPGA
-
 		Used to specify the types of FPGA devices.  For example,
 		#define CONFIG_FPGA  CFG_XILINX_VIRTEX2
 

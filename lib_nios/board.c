@@ -139,13 +139,16 @@ void board_init (void)
 	bd->bi_baudrate	= CONFIG_BAUDRATE;
 
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
+		WATCHDOG_RESET ();
 		if ((*init_fnc_ptr) () != 0) {
 			hang ();
 		}
 	}
 
+	WATCHDOG_RESET ();
 	bd->bi_flashsize = flash_init();
 
+	WATCHDOG_RESET ();
 	mem_malloc_init();
 	malloc_bin_reloc();
 	env_relocate();
@@ -157,12 +160,14 @@ void board_init (void)
 		if (s) s = (*e) ? e + 1 : e;
 	}
 
+	WATCHDOG_RESET ();
 	devices_init();
 	jumptable_init();
 	console_init_r();
 	/*
 	 */
 
+	WATCHDOG_RESET ();
 	interrupt_init ();
 
 #ifdef CONFIG_STATUS_LED

@@ -593,6 +593,9 @@ MIP405T_config:unconfig
 ML2_config:unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx ml2
 
+ml300_config:unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx ml300 xilinx
+
 OCRTC_config		\
 ORSG_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx ocrtc esd

@@ -23,6 +23,7 @@
 
 
 #include <common.h>
+#include <watchdog.h>
 #include <nios-io.h>
 
 
@@ -62,7 +63,7 @@ void serial_putc( char c )
 	if (c == '\n')
 		serial_putc('\r');
 	while( (uart->status & NIOS_UART_TRDY) == 0 )
-		;
+		WATCHDOG_RESET ();
 	uart->txdata = (unsigned char)c;
 }
 
@@ -81,6 +82,6 @@ int serial_tstc( void )
 int serial_getc( void )
 {
 	while( serial_tstc() == 0 )
-		;
+		WATCHDOG_RESET ();
 	return( uart->rxdata & 0x00ff );
 }

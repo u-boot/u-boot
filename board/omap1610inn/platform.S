@@ -6,7 +6,7 @@
  * Kshitij Gupta <Kshitij@ti.com>
  *
  * Modified for OMAP 1610 H2 board by Nishant Kamat, Jan 2004
- * 
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -251,7 +251,7 @@ common_tc:
 	ldr	r0,	REG_TC_EMIFS_CS3_CONFIG
 	str	r1,	[r0] /* Chip Select 3 */
 
-#ifdef CONFIG_H2_OMAP1610	
+#ifdef CONFIG_H2_OMAP1610
 	/* inserting additional 2 clock cycle hold time for LAN */
 	ldr     r0,     REG_TC_EMIFS_CS1_ADVANCED
 	ldr    	r1,     VAL_TC_EMIFS_CS1_ADVANCED
