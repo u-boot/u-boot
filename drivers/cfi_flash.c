@@ -462,7 +462,7 @@ void flash_print_info (flash_info_t * info)
 		if ((i % 5) == 0)
 			printf ("\n   ");
 		printf (" %08lX%s",
-			info->start[i], info->protect[i] ? " (RO)" : "     ");
+			info->start[i], info->protect[i] ? " (RO)  " : "     ");
 #endif
 	}
 	putc ('\n');

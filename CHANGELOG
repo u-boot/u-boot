@@ -2,6 +2,12 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Sam Song, 21 August 2004:
+  - Fix a typo in README
+  - Align "(RO)" output for "flinfo" after "protect on"
+  - Add RESET support for RPXlite_DW board; adjust CPU:BUS frequency
+    ratio 1:1 when core frequency less than 50MHz
+
 * Patches by himba, 21 Aug 2004:
   - fix some "use of label at end of compound statement" warnings
   - Define type of LCD panel on lubbock board if CONFIG_LCD is used

@@ -82,8 +82,8 @@
 	"net_nfs=tftp 200000 $(bootfile);run nfsargs addip;bootm\0"	\
 	"gatewayip=172.16.115.254\0"					\
 	"netmask=255.255.255.0\0"					\
-	"kernel_addr=ff880000\0"					\
-	"ramdisk_addr=ff980000\0"					\
+	"kernel_addr=ff080000\0"					\
+	"ramdisk_addr=ff200000\0"					\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
@@ -178,6 +178,8 @@
 #define CFG_ENV_SIZE		0x8000	/* Total Size of Environment Sector	*/
 #endif
 
+#define CFG_RESET_ADDRESS	((ulong)((((immap_t *)CFG_IMMR)->im_clkrst.res)))
+
 /*-----------------------------------------------------------------------
  * Cache Configuration
  */
@@ -249,8 +251,12 @@
  * power management and some other internal clocks
  */
 #define SCCR_MASK	SCCR_EBDF00
-/* Up to 64MHz system clock, we use 1:2 SYSTEM/BUS ratio */
+/* Up to 48MHz system clock, we use 1:1 SYSTEM/BUS ratio */
+#if defined(RPXlite_64MHz)
 #define CFG_SCCR	( SCCR_TBS | SCCR_EBDF01 )  /* %%%SCCR:0x02020000 */
+#else
+#define CFG_SCCR	( SCCR_TBS | SCCR_EBDF00 )  /* %%%SCCR:0x02000000 */
+#endif
 
 /*-----------------------------------------------------------------------
  * PCMCIA stuff

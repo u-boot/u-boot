@@ -787,7 +787,7 @@ The following options need to be configured:
 		supported (PIP405, MIP405, MPC5200); define
 		CONFIG_USB_UHCI to enable it.
 		define CONFIG_USB_KEYBOARD to enable the USB Keyboard
-		end define CONFIG_USB_STORAGE to enable the USB
+		and define CONFIG_USB_STORAGE to enable the USB
 		storage devices.
 		Note:
 		Supported are USB Keyboards and USB Floppy drives
