@@ -264,6 +264,9 @@ IVMS8_config:	unconfig
 		 }
 	@./mkconfig -a IVMS8 ppc mpc8xx ivm
 
+KUP4K_config	:	unconfig
+	@./mkconfig $(@:_config=) ppc mpc8xx kup4k
+
 LANTEC_config	:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx lantec
 

@@ -155,6 +155,9 @@ extern int flash_real_protect(flash_info_t *info, long sector, int prot);
 #define AMD_ID_DL640	0x227E227E	/* 29DL640D ID (64 M, dual boot sectors)*/
 #define AMD_ID_LV640U	0x22D722D7	/* 29LV640U ID (64 M, uniform sectors)	*/
 
+#define FUJI_ID_29F800BA  0x22582258   /* MBM29F800BA ID  (8M) */
+#define FUJI_ID_29F800TA  0x22D622D6   /* MBM29F800TA ID  (8M) */
+
 #define SST_ID_xF200A	0x27892789	/* 39xF200A ID ( 2M = 128K x 16	)	*/
 #define SST_ID_xF400A	0x27802780	/* 39xF400A ID ( 4M = 256K x 16	)	*/
 #define SST_ID_xF800A	0x27812781	/* 39xF800A ID ( 8M = 512K x 16	)	*/

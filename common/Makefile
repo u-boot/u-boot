@@ -33,7 +33,7 @@ COBJS	= main.o altera.o bedbug.o \
 	  cmd_dcr.o cmd_diag.o cmd_doc.o cmd_dtt.o \
 	  cmd_eeprom.o cmd_elf.o cmd_fdc.o cmd_flash.o \
 	  cmd_fpga.o cmd_i2c.o cmd_ide.o cmd_immap.o \
-	  cmd_jffs2.o cmd_mem.o cmd_mii.o cmd_misc.o \
+	  cmd_jffs2.o cmd_log.o cmd_mem.o cmd_mii.o cmd_misc.o \
 	  cmd_net.o cmd_nvedit.o env_common.o \
 	  env_flash.o env_eeprom.o env_nvram.o env_nowhere.o \
 	  cmd_pci.o cmd_pcmcia.o \

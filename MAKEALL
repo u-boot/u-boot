@@ -21,12 +21,13 @@ LIST_8xx="	\
 	GEN860T		GENIETV		GTH		hermes		\
 	IAD210		ICU862_100MHz	IP860		IVML24		\
 	IVML24_128	IVML24_256	IVMS8		IVMS8_128	\
-	IVMS8_256	LANTEC		lwmon		MBX		\
-	MBX860T		MHPC		MVS1		NETVIA		\
-	NX823		pcu_e		R360MPI		RPXClassic	\
-	RPXlite		RRvision	SM850		SPD823TS	\
-	SXNI855T	TQM823L		TQM823L_LCD	TQM850L		\
-	TQM855L		TQM860L		TQM860L_FEC	TTTech		\
+	IVMS8_256	KUP4K           LANTEC	        lwmon   	\
+	MBX		MBX860T		MHPC		MVS1		\
+	NETVIA		NX823		pcu_e		R360MPI		\
+	RPXClassic	RPXlite		RRvision	SM850		\
+	SPD823TS	SXNI855T	TQM823L		TQM823L_LCD	\
+	TQM850L		TQM855L		TQM860L		TQM860L_FEC	\
+	TTTech
 "
 
 #########################################################################

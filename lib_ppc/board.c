@@ -57,6 +57,9 @@
 #if defined(CONFIG_POST)
 #include <post.h>
 #endif
+#if defined(CONFIG_LOGBUFFER)
+#include <logbuff.h>
+#endif
 
 #if (CONFIG_COMMANDS & CFG_CMD_DOC)
 void doc_init (void);
@@ -598,6 +601,9 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 	WATCHDOG_RESET ();
 
+#ifdef CONFIG_LOGBUFFER
+	logbuff_reset ();
+#endif
 #ifdef CONFIG_POST
 	post_reloc ();
 #endif
@@ -778,6 +784,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
     defined(CONFIG_CPCI405)	|| \
     defined(CONFIG_EVB64260)	|| \
     defined(CONFIG_HYMOD)	|| \
+    defined(CONFIG_KUP4K)	|| \
     defined(CONFIG_LWMON)	|| \
     defined(CONFIG_PCU_E)	|| \
     defined(CONFIG_W7O)		|| \

@@ -26,6 +26,10 @@
 #include <watchdog.h>
 #include <post.h>
 
+#ifdef CONFIG_LOGBUFFER
+#include <logbuff.h>
+#endif
+
 #ifdef CONFIG_POST
 
 #define POST_MAX_NUMBER		32
@@ -156,7 +160,7 @@ static int post_run_single (struct post_test *test,
 				post_bootmode_test_on (i);
 			}
 
-			post_log ("START %s\n", test->cmd);
+			post_log ("POST %s ", test->cmd);
 		}
 
 		if ((*test->test) (flags) != 0)
@@ -274,8 +278,12 @@ int post_log (char *format, ...)
 	i = vsprintf (printbuffer, format, args);
 	va_end (args);
 
+#ifdef CONFIG_LOGBUFFER
+	logbuff_log (printbuffer);
+#else
 	/* Send to the stdout file */
 	puts (printbuffer);
+#endif
 
 	return 0;
 }

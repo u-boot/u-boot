@@ -68,6 +68,7 @@
 #include <cmd_dtt.h>
 
 #include <cmd_vfd.h>		/* load a bitmap to the VFDs on TRAB */
+#include <cmd_log.h>
 
 /*
  * HELP command
@@ -280,6 +281,7 @@ cmd_tbl_t cmd_tbl[] = {
 	CMD_TBL_KGDB
 	CMD_TBL_LOADB
 	CMD_TBL_LOADS
+	CMD_TBL_LOG
 	CMD_TBL_LOOP
 	CMD_TBL_JFFS2_LS
 	CMD_TBL_MCCINFO

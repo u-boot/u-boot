@@ -325,6 +325,17 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		initrd_high = ~0;
 	}
 
+#ifdef CONFIG_LOGBUFFER
+	kbd=gd->bd;
+	if ((s = getenv ("logstart")) != NULL) {
+		kbd->bi_sramstart = simple_strtoul(s, NULL, 16);
+		/* Prevent initrd from overwriting logbuffer */
+		if (initrd_high < kbd->bi_sramstart)
+			initrd_high = kbd->bi_sramstart-1024;
+	}
+	debug ("## Logbuffer at 0x%08lX ", kbd->bi_sramstart);
+#endif
+
 	/*
 	 * Booting a (Linux) kernel image
 	 *
@@ -337,17 +348,15 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 
 	asm( "mr %0,1": "=r"(sp) : );
 
-#ifdef	DEBUG
-	printf ("## Current stack ends at 0x%08lX ", sp);
-#endif
+	debug ("## Current stack ends at 0x%08lX ", sp);
+
 	sp -= 2048;		/* just to be sure */
 	if (sp > CFG_BOOTMAPSZ)
 		sp = CFG_BOOTMAPSZ;
 	sp &= ~0xF;
 
-#ifdef	DEBUG
-	printf ("=> set upper limit to 0x%08lX\n", sp);
-#endif
+	debug ("=> set upper limit to 0x%08lX\n", sp);
+
 	cmdline = (char *)((sp - CFG_BARGSIZE) & ~0xF);
 	kbd = (bd_t *)(((ulong)cmdline - sizeof(bd_t)) & ~0xF);
 
@@ -492,11 +501,9 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		len = data = 0;
 	}
 
-#ifdef	DEBUG
 	if (!data) {
-		printf ("No initrd\n");
+		debug ("No initrd\n");
 	}
-#endif
 
 	if (data) {
 		initrd_start  = (ulong)kbd - len;
@@ -527,10 +534,10 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		}
 
 		SHOW_BOOT_PROGRESS (12);
-#ifdef	DEBUG
-		printf ("## initrd at 0x%08lX ... 0x%08lX (len=%ld=0x%lX)\n",
+
+		debug ("## initrd at 0x%08lX ... 0x%08lX (len=%ld=0x%lX)\n",
 			data, data + len - 1, len, len);
-#endif
+
 		initrd_end    = initrd_start + len;
 		printf ("   Loading Ramdisk to %08lx, end %08lx ... ",
 			initrd_start, initrd_end);
@@ -558,10 +565,10 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		initrd_end = 0;
 	}
 
-#ifdef DEBUG
-	printf ("## Transferring control to Linux (at address %08lx) ...\n",
+
+	debug ("## Transferring control to Linux (at address %08lx) ...\n",
 		(ulong)kernel);
-#endif
+
 	SHOW_BOOT_PROGRESS (15);
 
 #ifdef CFG_INIT_RAM_LOCK

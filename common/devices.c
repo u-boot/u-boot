@@ -178,6 +178,9 @@ int devices_init (void)
 #ifdef CONFIG_WL_4PPM_KEYBOARD
 	drv_wlkbd_init ();
 #endif
+#ifdef CONFIG_LOGBUFFER
+	drv_logbuff_init ();
+#endif
 	drv_system_init ();
 
 	gd-> flags |= GD_FLG_DEVINIT;	/* device initialization done */

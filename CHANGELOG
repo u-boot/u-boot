@@ -2,6 +2,12 @@
 Changes since for U-Boot 0.1.0:
 ======================================================================
 
+* Add support for log buffer which can be passed to Linux kernel's
+  syslog mechanism; used especially for POST results.
+
+* Patch by Klaus Heydeck, 31 Oct 2002:
+  Add initial support for kup4k board
+
 * Patch by Robert Schwebel, 04 Nov 2002:
   - use watchdog to reset PXA250 systems
   - added progress callbacks to (some of the) ARM code
