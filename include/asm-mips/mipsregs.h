@@ -8,6 +8,7 @@
  * Modified for further R[236]000 support by Paul M. Antoine, 1996.
  * Kevin D. Kissell, kevink@mips.com and Carsten Langgaard, carstenl@mips.com
  * Copyright (C) 2000 MIPS Technologies, Inc.  All rights reserved.
+ * Copyright (C) 2003  Maciej W. Rozycki
  */
 #ifndef _ASM_MIPSREGS_H
 #define _ASM_MIPSREGS_H
@@ -238,6 +239,12 @@
 	".set\treorder"                                         \
 	:"=r" (__res));                                         \
 	__res;})
+
+#define tlb_write_indexed()                                     \
+	__asm__ __volatile__(                                   \
+		".set noreorder\n\t"                            \
+		"tlbwi\n\t"                                     \
+".set reorder")
 
 /*
  * R4x00 interrupt enable / cause bits

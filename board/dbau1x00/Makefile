@@ -23,22 +23,18 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(CPU).a
+LIB	= lib$(BOARD).a
 
-START	= start.o
-OBJS	= asc_serial.o au1x00_serial.o au1x00_eth.o \
-	  cpu.o interrupts.o incaip_clock.o
-SOBJS	= incaip_wdt.o cache.o
+OBJS	= $(BOARD).o flash.o
+SOBJS	= memsetup.o
 
-all:	.depend $(START) $(LIB)
-
-$(LIB):	$(OBJS) $(SOBJS)
+$(LIB):	.depend $(OBJS) $(SOBJS)
 	$(AR) crv $@ $(OBJS) $(SOBJS)
 
 #########################################################################
 
-.depend:	Makefile $(START:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(START:.o=.S) $(OBJS:.o=.c) > $@
+.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
+		$(CC) -M $(CFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
 
 sinclude .depend
 

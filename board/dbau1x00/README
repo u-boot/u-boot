@@ -1,0 +1,53 @@
+By Thomas.Lange@corelatus.se 2003-10-06
+----------------------------------------
+DbAu1000 is a development board from AMD containing
+an Alchemy AU1000 with mips32 core.
+
+Limitations & comments
+----------------------
+I assume that you set board to BIG endian!
+Little endian not tested, most probably broken.
+
+I named the board dbau1x00, to allow
+support for all three development boards
+some day ( dbau1000, dbau1100 and dbau1500 ).
+
+I only have a dbau1000, so all testing is limited
+to this board!
+
+The board has two different flash banks, that can
+be selected via dip switch. This makes it possible
+to test new bootloaders without thrashing the YAMON
+boot loader deliviered with board.
+
+Ethernet only supported for mac0.
+
+Pcmcia only supported for slot 0, only 3.3V.
+
+Pcmcia IDE tested with Sandisk Compact Flash and
+IBM microdrive.
+
+###################################
+########     NOTE!!!!!!   #########
+###################################
+If you partition a disk on another system (e.g. laptop),
+all bytes will be swapped on 16bit level when using
+PCMCIA!!!!
+
+This is probably due to an error in Au1000 chip.
+
+Solution:
+
+a) Boot via network and partition disk directly from
+dbau1x00. The endian will then be correct.
+
+b) Partition disk on "laptop" and fill it with all files
+you need. Then write a simple program that endian swaps
+whole disk,
+
+Example:
+Original "laptop" byte order:
+B0 B1 B2 B3 B4 B5 B6 B7 B8 B9...
+
+Dbau1000 byte order will then be:
+B1 B0 B3 B2 B5 B4 B7 B6 B9 B8...

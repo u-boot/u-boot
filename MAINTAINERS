@@ -162,7 +162,7 @@ Nye Liu <nyet@zumanetworks.com>
 
 	ZUMA			MPC7xx_74xx
 
-Thomas Lange <thomas@corelatus.com>
+Thomas Lange <thomas@corelatus.se>
 
 	GTH			MPC860
 
@@ -340,6 +340,9 @@ Wolfgang Denk <wd@denx.de>
 
 	incaip			MIPS32 4Kc
 	purple			MIPS64 5Kc
+
+Thomas Lange <thomas@corelatus.se>
+	dbau1x00		MIPS32 Au1000
 
 #########################################################################
 # Nios-32 Systems:							#

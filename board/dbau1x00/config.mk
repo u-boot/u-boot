@@ -21,25 +21,12 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
+#
+# AMD development board AMD Alchemy DbAu1x00, MIPS32 core
+#
 
-LIB	= lib$(CPU).a
+# ROM version
+TEXT_BASE = 0xbfc00000
 
-START	= start.o
-OBJS	= asc_serial.o au1x00_serial.o au1x00_eth.o \
-	  cpu.o interrupts.o incaip_clock.o
-SOBJS	= incaip_wdt.o cache.o
-
-all:	.depend $(START) $(LIB)
-
-$(LIB):	$(OBJS) $(SOBJS)
-	$(AR) crv $@ $(OBJS) $(SOBJS)
-
-#########################################################################
-
-.depend:	Makefile $(START:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(START:.o=.S) $(OBJS:.o=.c) > $@
-
-sinclude .depend
-
-#########################################################################
+# RAM version
+#TEXT_BASE = 0x80100000

@@ -170,9 +170,6 @@ static uchar ide_wait  (int dev, ulong t);
 
 static void __inline__ ide_outb(int dev, int port, unsigned char val);
 static unsigned char __inline__ ide_inb(int dev, int port);
-#ifdef __PPC__
-static void input_swap_data(int dev, ulong *sect_buf, int words);
-#endif
 static void input_data(int dev, ulong *sect_buf, int words);
 static void output_data(int dev, ulong *sect_buf, int words);
 static void ident_cpy (unsigned char *dest, unsigned char *src, unsigned int len);
@@ -815,7 +812,13 @@ output_data_short(int dev, ulong *sect_buf, int words)
 	    *pbuf = 0;
 }
 # endif	/* CONFIG_AMIGAONEG3SE */
+#endif /* __PPC_ */
 
+/* We only need to swap data if we are running on a big endian cpu. */
+/* But Au1x00 cpu:s already swaps data in big endian mode! */
+#if defined(__LITTLE_ENDIAN) || defined(CONFIG_AU1X00)
+#define input_swap_data(x,y,z) input_data(x,y,z)
+#else
 static void
 input_swap_data(int dev, ulong *sect_buf, int words)
 {
@@ -827,9 +830,7 @@ input_swap_data(int dev, ulong *sect_buf, int words)
 		*dbuf++ = ld_le16(pbuf);
 	}
 }
-#else	/* ! __PPC__ */
-#define input_swap_data(x,y,z) input_data(x,y,z)
-#endif	/* __PPC__ */
+#endif	/* __LITTLE_ENDIAN || CONFIG_AU1X00 */
 
 
 #ifdef __PPC__

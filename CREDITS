@@ -75,7 +75,7 @@ E: clark@esteem.com
 D: ESTEEM192E support
 
 N: Magnus Damm
-E: eramdam@kieray1.p.y.ki.era.ericsson.se
+E: damm@opensource.se
 D: 8xxrom
 
 N: Arun Dharankar
@@ -191,8 +191,8 @@ E: tkoeller@gmx.net
 D: Port to Motorola Sandpoint 3 (MPC8240)
 
 N: Thomas Lange
-E: thomas@corelatus.com
-D: Support for GTH board; lots of PCMCIA fixes
+E: thomas@corelatus.se
+D: Support for GTH and dbau1x00 boards; lots of PCMCIA fixes
 
 N: The LEOX team
 E: team@leox.org

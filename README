@@ -398,15 +398,16 @@ The following options need to be configured:
 
 
 - MPC824X Family Member (if CONFIG_MPC824X is defined)
-	Define exactly one of
-	CONFIG_MPC8240, CONFIG_MPC8245
+		Define exactly one of
+		CONFIG_MPC8240, CONFIG_MPC8245
 
 - 8xx CPU Options: (if using an 8xx cpu)
 		Define one or more of
-		CONFIG_8xx_GCLK_FREQ	- if get_gclk_freq() can not work e.g.
-					  no 32KHz reference PIT/RTC clock
+		CONFIG_8xx_GCLK_FREQ	- if get_gclk_freq() cannot work
+					  e.g. if there is no 32KHz
+					  reference PIT/RTC clock
 
-- Clock Interface:
+- Linux Kernel Interface:
 		CONFIG_CLOCKS_IN_MHZ
 
 		U-Boot stores all clock information in Hz
@@ -416,10 +417,15 @@ The following options need to be configured:
 		"clocks_in_mhz" can be defined so that U-Boot
 		converts clock data to MHZ before passing it to the
 		Linux kernel.
-
 		When CONFIG_CLOCKS_IN_MHZ is defined, a definition of
 		"clocks_in_mhz=1" is  automatically  included  in  the
 		default environment.
+
+		CONFIG_MEMSIZE_IN_BYTES		[relevant for MIPS only]
+
+		When transfering memsize parameter to linux, some versions
+		expect it to be in bytes, others in MB.
+		Define CONFIG_MEMSIZE_IN_BYTES to make it in bytes.
 
 - Console Interface:
 		Depending on board, define exactly one serial port

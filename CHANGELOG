@@ -2,11 +2,18 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Patch by Steven Scholz, 10 Oct 2003
+  - Add support for Altera FPGA ACEX1K
+
 * Patches by Thomas Lange, 09 Oct 2003:
   - fix cmd_ide.c for non ppc boards (read/write functions did not
     add ATA base address)
   - fix for shannon board
   - #ifdef CONFIG_IDE_8xx_DIRECT some otherwise unused code
+  - Endian swap ATA identity for all big endian CPUs, not just PPC
+  - MIPS only: New option CONFIG_MEMSIZE_IN_BYTES for passing memsize
+    args to linux
+  - add support for dbau1x00 board (MIPS32)
 
 * Patch by Sangmoon Kim, 07 Oct 2003:
   add support for debris board

@@ -137,14 +137,16 @@ LIST_pxa="cradle csb226 innokom lubbock wepep250"
 LIST_arm="${LIST_SA} ${LIST_ARM7} ${LIST_ARM9} ${LIST_pxa}"
 
 #########################################################################
-## MIPS 4Kc Systems
+## MIPS Systems
 #########################################################################
 
 LIST_mips4kc="incaip"
 
 LIST_mips5kc="purple"
 
-LIST_mips="${LIST_mips4kc} ${LIST_mips5kc}"
+LIST_au1x00="dbau1x00"
+
+LIST_mips="${LIST_mips4kc} ${LIST_mips5kc} ${LIST_au1x00}"
 
 #########################################################################
 ## i386 Systems
