@@ -170,8 +170,8 @@
 #define CFG_MONITOR_BASE		CFG_FLASH_BASE
 #define CFG_MAX_FLASH_BANKS		1
 #define CFG_MAX_FLASH_SECT		256
-#define CFG_FLASH_ERASE_TOUT		(2*CFG_HZ) /* Timeout for Flash Erase */
-#define CFG_FLASH_WRITE_TOUT		(2*CFG_HZ) /* Timeout for Flash Write */
+#define CFG_FLASH_ERASE_TOUT		(11 * CFG_HZ)	/* Timeout for Flash Erase */
+#define CFG_FLASH_WRITE_TOUT		( 2 * CFG_HZ)	/* Timeout for Flash Write */
 
 #define CFG_ENV_IS_IN_FLASH		1
 #define CFG_ENV_OFFSET			0x20000		/* after u-boot.bin */
