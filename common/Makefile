@@ -44,7 +44,7 @@ COBJS	= main.o altera.o bedbug.o \
 	  environment.o env_common.o \
 	  env_flash.o env_eeprom.o env_nvram.o env_nowhere.o exports.o \
 	  flash.o fpga.o \
-	  hush.o kgdb.o lists.o miiphybb.o miiphyutil.o \
+	  hush.o kgdb.o lists.o lynxkdi.o miiphybb.o miiphyutil.o \
 	  s_record.o soft_i2c.o soft_spi.o spartan2.o \
 	  usb.o usb_kbd.o usb_storage.o \
 	  virtex2.o xilinx.o

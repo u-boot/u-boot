@@ -413,10 +413,9 @@ fiq:
 .globl reset_cpu
 reset_cpu:
 	ldr	r1, rstctl1     /* get clkm1 reset ctl */
-	mov     r3, #0x0
-	strh	r3, [r1]        /* clear it */
-	mov     r3, #0x8
-	strh    r3, [r1]        /* force dsp+arm reset */
+	mov     r3, #0x3	/* dsp_en + arm_rst = global reset */
+	strh	r3, [r1]        /* force reset */
+	mov	r0, r0
 _loop_forever:
 	b	_loop_forever
 rstctl1:

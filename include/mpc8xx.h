@@ -135,15 +135,15 @@
  * PLPRCR - PLL, Low-Power, and Reset Control Register			15-30
  */
 #ifdef CONFIG_MPC866_et_al
-#define PLPRCR_MF_MSK	0xffff0000	/* Multiplication factor bits		*/
+#define PLPRCR_MF_MSK	0xffff001e	/* Multiplication factor + PDF bits	*/
 #define PLPRCR_MFN_MSK	0xf8000000	/* Multiplication factor numerator bits */
 #define PLPRCR_MFN_SHIFT 0x0000001b	/* Multiplication factor numerator shift*/
 #define PLPRCR_MFD_MSK	0x03c00000	/* Multiplication factor denominator bits */
 #define PLPRCR_MFD_SHIFT 0x00000017	/* Multiplication factor denominator shift*/
-#define PLPRCR_S_MSK	0x00300000	/* Multiplication factor integer bits */
-#define PLPRCR_S_SHIFT	0x00000014	/* Multiplication factor integer shift*/
-#define PLPRCR_MFI_MSK	0x000f0000	/* Multiplication factor integer bits */
-#define PLPRCR_MFI_SHIFT 0x00000010	/* Multiplication factor integer shift*/
+#define PLPRCR_S_MSK	0x00300000	/* Multiplication factor integer bits	*/
+#define PLPRCR_S_SHIFT	0x00000014	/* Multiplication factor integer shift	*/
+#define PLPRCR_MFI_MSK	0x000f0000	/* Multiplication factor integer bits	*/
+#define PLPRCR_MFI_SHIFT 0x00000010	/* Multiplication factor integer shift	*/
 #else
 #define PLPRCR_MF_MSK	0xfff00000	/* Multiplication factor bits		*/
 #define PLPRCR_MF_SHIFT 0x00000014	/* Multiplication factor shift value	*/

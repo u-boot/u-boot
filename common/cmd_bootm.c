@@ -127,6 +127,10 @@ int do_bootelf (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[] );
 #if defined(CONFIG_ARTOS) && defined(CONFIG_PPC)
 static boot_os_Fcn do_bootm_artos;
 #endif
+#ifdef CONFIG_LYNXKDI
+static boot_os_Fcn do_bootm_lynxkdi;
+extern void lynxkdi_boot( image_header_t * );
+#endif
 
 image_header_t header;
 
@@ -356,6 +360,13 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	    do_bootm_netbsd (cmdtp, flag, argc, argv,
 			     addr, len_ptr, verify);
 	    break;
+
+#ifdef CONFIG_LYNXKDI
+	case IH_OS_LYNXOS:
+	    do_bootm_lynxkdi (cmdtp, flag, argc, argv,
+			     addr, len_ptr, verify);
+	    break;
+#endif
 
 	case IH_OS_RTEMS:
 	    do_bootm_rtems (cmdtp, flag, argc, argv,
@@ -1069,6 +1080,9 @@ print_type (image_header_t *hdr)
 #ifdef CONFIG_ARTOS
 	case IH_OS_ARTOS:	os = "ARTOS";			break;
 #endif
+#ifdef CONFIG_LYNXKDI
+	case IH_OS_LYNXOS:	os = "LynxOS";			break;
+#endif
 	default:		os = "Unknown OS";		break;
 	}
 
@@ -1242,3 +1256,17 @@ do_bootm_qnxelf (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	do_bootelf(cmdtp, 0, 2, local_args);
 }
 #endif /* CFG_CMD_ELF */
+
+#ifdef CONFIG_LYNXKDI
+static void
+do_bootm_lynxkdi (cmd_tbl_t *cmdtp, int flag,
+		 int	argc, char *argv[],
+		 ulong	addr,
+		 ulong	*len_ptr,
+		 int	verify)
+{
+	lynxkdi_boot( &header );
+}
+
+#endif /* CONFIG_LYNXKDI */
+

@@ -2,6 +2,25 @@
 Changes for U-Boot 0.4.5:
 ======================================================================
 
+* Patch by Scott McNutt, 21 Jul 2003:
+  Add support for LynuxWorks Kernel Downloadable Images (KDIs).
+  Both LynxOS and BlueCat linux KDIs are supported.
+
+* Patch by Richard Woodruff, 25 Jul 2003:
+  use more reliable reset for OMAP/925T
+
+* Patch by Nye Liu, 25 Jul 2003:
+  fix typo in mpc8xx.h
+
+* Patch by Richard Woodruff, 24 Jul 2003:
+  Fixes for cmd_nand.c:
+  - Fixed null dereferece which could result in incorrect ECC values.
+  - Added support for devices with no Ready/Busy signal hooked up.
+  - Added OMAP1510 read/write protect handling.
+  - Fixed nand.h's ECCPOS. A conflict existed with POS5 and badblock
+    for non-JFFS2.
+  - Switched default ECC to be JFFS2.
+
 * Allow crc32 to be used at address 0x000
 
 * Provide consistent interface to standalone applications to access

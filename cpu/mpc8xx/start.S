@@ -76,7 +76,7 @@
 	GOT_ENTRY(__init_end)
 	GOT_ENTRY(_end)
 	GOT_ENTRY(__bss_start)
-#if defined(CONFIG_FADS) || defined(CONFIG_ICU862)
+#if defined(CONFIG_ICU862)
 	GOT_ENTRY(environment)
 #endif
 	END_GOT
@@ -617,7 +617,7 @@ clear_bss:
 	 * Now clear BSS segment
 	 */
 	lwz	r3,GOT(__bss_start)
-#if defined(CONFIG_FADS) || defined(CONFIG_ICU862)
+#if defined(CONFIG_ICU862)
 	/*
 	 * For the FADS - the environment is the very last item in flash.
 	 * The real .bss stops just before environment starts, so only

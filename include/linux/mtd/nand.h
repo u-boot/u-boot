@@ -5,7 +5,7 @@
  *                     Steven J. Hill <sjhill@cotw.com>
  *		       Thomas Gleixner <gleixner@autronix.de>
  *
- * $Id: nand.h,v 1.13 2002/04/28 13:40:41 gleixner Exp $
+ * $Id: nand.h,v 1.7 2003/07/24 23:30:46 a0384864 Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -174,8 +174,8 @@ struct nand_flash_dev {
 #define NAND_NOOB_ECCPOS1		1
 #define NAND_NOOB_ECCPOS2		2
 #define NAND_NOOB_ECCPOS3		3
-#define NAND_NOOB_ECCPOS4		4
-#define NAND_NOOB_ECCPOS5		5
+#define NAND_NOOB_ECCPOS4		6
+#define NAND_NOOB_ECCPOS5		7
 #define NAND_NOOB_BADBPOS		-1
 #define NAND_NOOB_ECCVPOS		-1
 

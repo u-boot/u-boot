@@ -3,7 +3,6 @@
  * borrowed heavily from:
  * (c) 1999 Machine Vision Holdings, Inc.
  * (c) 1999, 2000 David Woodhouse <dwmw2@infradead.org>
- *
  */
 
 #include <common.h>
@@ -23,6 +22,12 @@
 #include <linux/mtd/nand.h>
 #include <linux/mtd/nand_ids.h>
 #include <jffs2/jffs2.h>
+
+#ifdef CONFIG_OMAP1510
+void archflashwp(void *archdata, int wp);
+#endif
+
+#define ROUND_DOWN(value,boundary)      ((value) & (~((boundary)-1)))
 
 /*
  * Definition of the out of band configuration structure
@@ -52,7 +57,7 @@ struct nand_oob_config {
 #define	 ALLOW_ERASE_BAD_DEBUG 0
 
 #define CONFIG_MTD_NAND_ECC  /* enable ECC */
-/* #define CONFIG_MTD_NAND_ECC_JFFS2 */
+#define CONFIG_MTD_NAND_ECC_JFFS2
 
 /* bits for nand_rw() `cmd'; or together as needed */
 #define NANDRW_READ	0x01
@@ -76,6 +81,7 @@ static int nand_read_oob(struct nand_chip* nand, size_t ofs, size_t len,
 		 size_t * retlen, u_char * buf);
 static int nand_write_oob(struct nand_chip* nand, size_t ofs, size_t len,
 		 size_t * retlen, const u_char * buf);
+static int NanD_WaitReady(struct nand_chip *nand, int ale_wait);
 #ifdef CONFIG_MTD_NAND_ECC
 static int nand_correct_data (u_char *dat, u_char *read_ecc, u_char *calc_ecc);
 static void nand_calculate_ecc (const u_char *dat, u_char *ecc_code);
@@ -218,7 +224,7 @@ int do_nand (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		ret = nand_rw(nand_dev_desc + curr_device, cmd, off, size,
 			     &total, (u_char*)addr);
 
-		printf ("%d bytes %s: %s\n", total,
+		printf (" %d bytes %s: %s\n", total,
 			(cmd & NANDRW_READ) ? "read" : "write",
 			ret ? "ERROR" : "OK");
 
@@ -419,7 +425,7 @@ static int nand_rw (struct nand_chip* nand, int cmd,
 	    size_t start, size_t len,
 	    size_t * retlen, u_char * buf)
 {
-	int noecc, ret = 0, n, total = 0;
+	int ret = 0, n, total = 0;
 	char eccbuf[6];
 	/* eblk (once set) is the start of the erase block containing the
 	 * data being processed.
@@ -457,17 +463,18 @@ static int nand_rw (struct nand_chip* nand, int cmd,
 		}
 		/* The ECC will not be calculated correctly if
 		   less than 512 is written or read */
-		noecc = (start != (start | 0x1ff) + 1) ||	(len < 0x200);
+		/* Is request at least 512 bytes AND it starts on a proper boundry */
+		if((start != ROUND_DOWN(start, 0x200)) || (len < 0x200))
+			printf("Warning block writes should be at least 512 bytes and start on a 512 byte boundry\n");
+
 		if (cmd & NANDRW_READ)
 			ret = nand_read_ecc(nand, start,
 					   min(len, eblk + erasesize - start),
-					   &n, (u_char*)buf,
-					   noecc ? NULL : eccbuf);
+					   &n, (u_char*)buf, eccbuf);
 		else
 			ret = nand_write_ecc(nand, start,
 					    min(len, eblk + erasesize - start),
-					    &n, (u_char*)buf,
-					    noecc ? NULL : eccbuf);
+					    &n, (u_char*)buf, eccbuf);
 
 		if (ret)
 			break;
@@ -502,19 +509,19 @@ static void nand_print(struct nand_chip *nand)
 
 /* ------------------------------------------------------------------------- */
 
-/* This function is needed to avoid calls of the __ashrdi3 function. */
-#if 0
-static int shr(int val, int shift)
-{
-	return val >> shift;
-}
-#endif
-static int NanD_WaitReady(struct nand_chip *nand)
+static int NanD_WaitReady(struct nand_chip *nand, int ale_wait)
 {
 	/* This is inline, to optimise the common case, where it's ready instantly */
 	int ret = 0;
-	NAND_WAIT_READY(nand);
 
+#ifdef NAND_NO_RB	/* in config file, shorter delays currently wrap accesses */
+	if(ale_wait)
+		NAND_WAIT_READY(nand);	/* do the worst case 25us wait */
+	else
+		udelay(10);
+#else	/* has functional r/b signal */
+    NAND_WAIT_READY(nand);
+#endif
 	return ret;
 }
 
@@ -533,7 +540,16 @@ static inline int NanD_Command(struct nand_chip *nand, unsigned char command)
 	/* Lower the CLE line */
 	NAND_CTL_CLRCLE(nandptr);
 
-	return NanD_WaitReady(nand);
+#ifdef NAND_NO_RB
+	if(command == NAND_CMD_RESET){
+		u_char ret_val;
+		NanD_Command(nand, NAND_CMD_STATUS);
+		do{
+			ret_val = READ_NAND(nandptr);/* wait till ready */
+		} while((ret_val & 0x40) != 0x40);
+	}
+#endif
+	return NanD_WaitReady(nand, 0);
 }
 
 /* NanD_Address: Set the current address for the flash chip */
@@ -573,7 +589,7 @@ static int NanD_Address(struct nand_chip *nand, int numbytes, unsigned long ofs)
 	NAND_CTL_CLRALE(nandptr);
 
 	/* Wait for the chip to respond */
-	return NanD_WaitReady(nand);
+	return NanD_WaitReady(nand, 1);
 }
 
 /* NanD_SelectChip: Select a given flash chip within the current floor */
@@ -581,7 +597,7 @@ static int NanD_Address(struct nand_chip *nand, int numbytes, unsigned long ofs)
 static inline int NanD_SelectChip(struct nand_chip *nand, int chip)
 {
 	/* Wait for it to be ready */
-	return NanD_WaitReady(nand);
+	return NanD_WaitReady(nand, 0);
 }
 
 /* NanD_IdentChip: Identify a given NAND chip given {floor,chip} */
@@ -931,8 +947,8 @@ static int nand_write_page (struct nand_chip *nand,
 {
 
 	int i;
-#ifdef CONFIG_MTD_NAND_ECC
 	unsigned long nandptr = nand->IO_ADDR;
+#ifdef CONFIG_MTD_NAND_ECC
 #ifdef CONFIG_MTD_NAND_VERIFY_WRITE
 	int ecc_bytes = (nand->oobblock == 512) ? 6 : 3;
 #endif
@@ -992,12 +1008,20 @@ static int nand_write_page (struct nand_chip *nand,
 	/* Send command to actually program the data */
 	NanD_Command(nand, NAND_CMD_PAGEPROG);
 	NanD_Command(nand, NAND_CMD_STATUS);
+#ifdef NAND_NO_RB
+	{ u_char ret_val;
 
+	  do{
+		ret_val = READ_NAND(nandptr);	/* wait till ready */
+	  } while((ret_val & 0x40) != 0x40);
+	}
+#endif
 	/* See if device thinks it succeeded */
 	if (READ_NAND(nand->IO_ADDR) & 0x01) {
 		printf ("%s: Failed write, page 0x%08x, ", __FUNCTION__, page);
 		return -1;
 	}
+
 #ifdef CONFIG_MTD_NAND_VERIFY_WRITE
 	/*
 	 * The NAND device assumes that it is always writing to
@@ -1069,7 +1093,10 @@ static int nand_write_ecc (struct nand_chip* nand, size_t to, size_t len,
 	*retlen = 0;
 
 	/* Select the NAND device */
-	NAND_ENABLE_CE(nand);  /* set pin low */
+#ifdef CONFIG_OMAP1510
+	archflashwp(0,0);
+#endif
+    	NAND_ENABLE_CE(nand);  /* set pin low */
 
 	/* Check the WP bit */
 	NanD_Command(nand, NAND_CMD_STATUS);
@@ -1113,7 +1140,9 @@ static int nand_write_ecc (struct nand_chip* nand, size_t to, size_t len,
 out:
 	/* De-select the NAND device */
 	NAND_DISABLE_CE(nand);  /* set pin high */
-
+#ifdef CONFIG_OMAP1510
+    	archflashwp(0,1);
+#endif
 	return ret;
 }
 
@@ -1160,7 +1189,7 @@ static int nand_read_oob(struct nand_chip* nand, size_t ofs, size_t len,
 	 * causing the flash device to go into busy mode, so we need
 	 * to wait until ready 11.4.1 and Toshiba TC58256FT nands */
 
-	ret = NanD_WaitReady(nand);
+	ret = NanD_WaitReady(nand, 1);
 	NAND_DISABLE_CE(nand);  /* set pin high */
 
 	return ret;
@@ -1215,8 +1244,13 @@ static int nand_write_oob(struct nand_chip* nand, size_t ofs, size_t len,
 
 		NanD_Command(nand, NAND_CMD_PAGEPROG);
 		NanD_Command(nand, NAND_CMD_STATUS);
-		/* NanD_WaitReady() is implicit in NanD_Command */
-
+#ifdef NAND_NO_RB
+   		{ u_char ret_val;
+    		  do{
+		  	ret_val = READ_NAND(nandptr); /* wait till ready */
+    		  }while((ret_val & 0x40) != 0x40);
+		}
+#endif
 		if (READ_NAND(nandptr) & 1) {
 			puts ("Error programming oob data\n");
 			/* There was an error */
@@ -1233,8 +1267,13 @@ static int nand_write_oob(struct nand_chip* nand, size_t ofs, size_t len,
 
 	NanD_Command(nand, NAND_CMD_PAGEPROG);
 	NanD_Command(nand, NAND_CMD_STATUS);
-	/* NanD_WaitReady() is implicit in NanD_Command */
-
+#ifdef NAND_NO_RB
+	{ u_char ret_val;
+	  do{
+		ret_val = READ_NAND(nandptr); /* wait till ready */
+	  } while((ret_val & 0x40) != 0x40);
+	}
+#endif
 	if (READ_NAND(nandptr) & 1) {
 		puts ("Error programming oob data\n");
 		/* There was an error */
@@ -1272,7 +1311,10 @@ static int nand_erase(struct nand_chip* nand, size_t ofs, size_t len, int clean)
 	nandptr = nand->IO_ADDR;
 
 	/* Select the NAND device */
-	NAND_ENABLE_CE(nand);  /* set pin low */
+#ifdef CONFIG_OMAP1510
+	archflashwp(0,0);
+#endif
+    NAND_ENABLE_CE(nand);  /* set pin low */
 
 	/* Check the WP bit */
 	NanD_Command(nand, NAND_CMD_STATUS);
@@ -1308,6 +1350,13 @@ static int nand_erase(struct nand_chip* nand, size_t ofs, size_t len, int clean)
 
 			NanD_Command(nand, NAND_CMD_STATUS);
 
+#ifdef NAND_NO_RB
+			{ u_char ret_val;
+			  do{
+				ret_val = READ_NAND(nandptr); /* wait till ready */
+			  } while((ret_val & 0x40) != 0x40);
+			}
+#endif
 			if (READ_NAND(nandptr) & 1) {
 				printf ("%s: Error erasing at 0x%lx\n",
 					__FUNCTION__, (long)ofs);
@@ -1346,7 +1395,9 @@ static int nand_erase(struct nand_chip* nand, size_t ofs, size_t len, int clean)
 out:
 	/* De-select the NAND device */
 	NAND_DISABLE_CE(nand);  /* set pin high */
-
+#ifdef CONFIG_OMAP1510
+    	archflashwp(0,1);
+#endif
 	return ret;
 }
 
@@ -1596,5 +1647,6 @@ static int nand_correct_data (u_char *dat, u_char *read_ecc, u_char *calc_ecc)
 	/* Should never happen */
 	return -1;
 }
+
 #endif
 #endif /* (CONFIG_COMMANDS & CFG_CMD_NAND) */
