@@ -445,12 +445,14 @@ int board_early_init_r (void)
 
 #endif /* CONFIG_PS2MULT */
 
-/* ------------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------------- */
+/* HMI10 specific stuff								*/
+/* ---------------------------------------------------------------------------- */
 #ifdef CONFIG_HMI10
 
 int misc_init_r (void)
 {
-#ifdef CONFIG_IDE_LED
+# ifdef CONFIG_IDE_LED
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 
 	/* Configure PA15 as output port */
@@ -458,11 +460,11 @@ int misc_init_r (void)
 	immap->im_ioport.iop_paodr |= 0x0001;
 	immap->im_ioport.iop_papar &= ~0x0001;
 	immap->im_ioport.iop_padat &= ~0x0001;	/* turn it off */
-#endif
+# endif
 	return (0);
 }
 
-#ifdef CONFIG_IDE_LED
+# ifdef CONFIG_IDE_LED
 void ide_led (uchar led, uchar status)
 {
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
@@ -474,7 +476,26 @@ void ide_led (uchar led, uchar status)
 		immap->im_ioport.iop_padat &= ~0x0001;
 	}
 }
-#endif
+# endif
+#endif	/* CONFIG_HMI10 */
 
-#endif /* CONFIG_HMI10 */
+/* ---------------------------------------------------------------------------- */
+/* NSCU specific stuff								*/
+/* ---------------------------------------------------------------------------- */
+#ifdef CONFIG_NSCU
+
+int misc_init_r (void)
+{
+	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+
+	/* wake up ethernet module */
+	immr->im_ioport.iop_pcpar &= ~0x0004; /* GPIO pin	*/
+	immr->im_ioport.iop_pcdir |=  0x0004; /* output		*/
+	immr->im_ioport.iop_pcso  &= ~0x0004; /* for clarity	*/
+	immr->im_ioport.iop_pcdat |=  0x0004; /* enable		*/
+
+	return (0);
+}
+#endif	/* CONFIG_NSCU */
+
 /* ------------------------------------------------------------------------- */

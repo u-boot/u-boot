@@ -37,6 +37,9 @@ At the moment the code isn't fully implemented and still needs a pre-loader!
 The preloader must initialize the processor and then start u-boot. The board
 must be configured for a pre-loader (see 4.1)
 
+For the preloader, please see
+http://mailman.uclinux.org/pipermail/uclinux-dev/2003-December/023384.html
+
 U-boot is configured to run at 0x20000 at default. This can be configured by
 change TEXT_BASE in board/m5282evb/config.mk and CFG_MONITOR_BASE in
 include/configs/M5282EVB.h.
