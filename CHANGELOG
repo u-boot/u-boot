@@ -2,6 +2,9 @@
 Changes for U-Boot 0.4.7:
 ======================================================================
 
+* Patch by Yuli Barcohen, 7 Aug 2003:
+  check BCSR to detect if the board is configured in PCI mode
+
 * Patch by Raghu Krishnaprasad, 7 Aug 2003:
   add support for Adder II MPC852T module
 

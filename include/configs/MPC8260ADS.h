@@ -206,6 +206,8 @@
 /*
  * Miscellaneous configurable options
  */
+#define CFG_HUSH_PARSER
+#define CFG_PROMPT_HUSH_PS2 "> "
 #define CFG_LONGHELP			/* undef to save memory	    */
 #define CFG_PROMPT	"=> "		/* Monitor Command Prompt   */
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
@@ -247,7 +249,7 @@
 #define CFG_IMMR		0xF0000000
 #define CFG_BCSR		0xF4500000
 #define CFG_SDRAM_BASE		0x00000000
-#define CFG_LSDRAM_BASE		0xD0000000
+#define CFG_LSDRAM_BASE		0xFD000000
 
 #define RS232EN_1		0x02000002
 #define RS232EN_2		0x01000001
@@ -255,6 +257,7 @@
 #define FETH1_RST		0x04000004
 #define FETHIEN2		0x01000000
 #define FETH2_RST		0x08000000
+#define BCSR_PCI_MODE		0x01000000
 
 #define CFG_INIT_RAM_ADDR	CFG_IMMR
 #define CFG_INIT_RAM_END	0x4000	/* End of used area in DPRAM	*/
@@ -326,6 +329,10 @@
 #define CFG_TMCNTSC		(TMCNTSC_SEC|TMCNTSC_ALR|TMCNTSC_TCF|TMCNTSC_TCE)
 #define CFG_PISCR		(PISCR_PS|PISCR_PTF|PISCR_PTE)
 #define CFG_RCCR		0
+
+#if CONFIG_ADSTYPE == CFG_8266ADS
+#undef CFG_LSDRAM_BASE		/* No local bus SDRAM on MPC8266ADS */
+#endif /* CONFIG_ADSTYPE == CFG_8266ADS */
 
 #if CONFIG_ADSTYPE == CFG_PQ2FADS
 #define CFG_PSDMR		0x824B36A3

@@ -35,6 +35,7 @@
 #include <common.h>
 #include <ioports.h>
 #include <mpc8260.h>
+#include <asm/m8260_pci.h>
 #include <i2c.h>
 #include <spd.h>
 #include <miiphy.h>
@@ -237,6 +238,7 @@ int board_pre_init (void)
 
 long int initdram (int board_type)
 {
+	vu_long *bcsr = (vu_long *)CFG_BCSR;
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile memctl8260_t *memctl = &immap->im_memctl;
 	volatile uchar *ramaddr, c = 0xff;
@@ -252,27 +254,41 @@ long int initdram (int board_type)
 	immap->im_siu_conf.sc_ppc_alrh = 0x01267893;
 	immap->im_siu_conf.sc_tescr1   = 0x00004000;
 
+#if CONFIG_ADSTYPE == CFG_PQ2FADS
+	if ((bcsr[3] & BCSR_PCI_MODE) == 0) { /* PCI mode selected by JP9 */
+		immap->im_clkrst.car_sccr |= M826X_SCCR_PCI_MODE_EN;
+		immap->im_siu_conf.sc_siumcr =
+			(immap->im_siu_conf.sc_siumcr & ~SIUMCR_LBPC11)
+			| SIUMCR_LBPC01;
+	}
+#endif /* CONFIG_ADSTYPE == CFG_PQ2FADS */
+
 	memctl->memc_mptpr = CFG_MPTPR;
 #ifdef CFG_LSDRAM_BASE
-	/* Init local bus SDRAM */
-	memctl->memc_lsrt  = CFG_LSRT;
+	/*
+	  Initialise local bus SDRAM only if the pins
+	  are configured as local bus pins and not as PCI.
+	  The configuration is determined by the HRCW.
+	*/
+	if ((immap->im_siu_conf.sc_siumcr & SIUMCR_LBPC11) == SIUMCR_LBPC00) {
+		memctl->memc_lsrt  = CFG_LSRT;
 #if CONFIG_ADSTYPE == CFG_PQ2FADS /* CS3 */
-	memctl->memc_or3   = 0xFF803280;
-	memctl->memc_br3   = CFG_LSDRAM_BASE | 0x00001861;
+		memctl->memc_or3   = 0xFF803280;
+		memctl->memc_br3   = CFG_LSDRAM_BASE | 0x00001861;
 #else  				  /* CS4 */
-	memctl->memc_or4   = 0xFFC01480;
-	memctl->memc_br4   = CFG_LSDRAM_BASE | 0x00001861;
+		memctl->memc_or4   = 0xFFC01480;
+		memctl->memc_br4   = CFG_LSDRAM_BASE | 0x00001861;
 #endif /* CONFIG_ADSTYPE == CFG_PQ2FADS */
-	memctl->memc_lsdmr = CFG_LSDMR | 0x28000000;
-	ramaddr = (uchar *) CFG_LSDRAM_BASE;
-	*ramaddr = c;
-	memctl->memc_lsdmr = CFG_LSDMR | 0x08000000;
-	for (i = 0; i < 8; i++) {
+		memctl->memc_lsdmr = CFG_LSDMR | 0x28000000;
+		ramaddr = (uchar *) CFG_LSDRAM_BASE;
 		*ramaddr = c;
+		memctl->memc_lsdmr = CFG_LSDMR | 0x08000000;
+		for (i = 0; i < 8; i++)
+			*ramaddr = c;
+		memctl->memc_lsdmr = CFG_LSDMR | 0x18000000;
+		*ramaddr = c;
+		memctl->memc_lsdmr = CFG_LSDMR | 0x40000000;
 	}
-	memctl->memc_lsdmr = CFG_LSDMR | 0x18000000;
-	*ramaddr = c;
-	memctl->memc_lsdmr = CFG_LSDMR | 0x40000000;
 #endif /* CFG_LSDRAM_BASE */
 
 	/* Init 60x bus SDRAM */
