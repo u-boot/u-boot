@@ -50,6 +50,7 @@
 
 #define CONFIG_CMDLINE_TAG	 1	/* enable passing of ATAGs	*/
 #define CONFIG_SETUP_MEMORY_TAGS 1
+#define CONFIG_INITRD_TAG	 1
 
 /*
  * Size of malloc() pool
@@ -99,12 +100,9 @@
 #include <configs/omap1510.h>
 
 #define CONFIG_BOOTDELAY	3
-#define CONFIG_BOOTARGS	   "mem=32M console=ttyS0,115200n8 noinitrd root=/dev/nfs rw nfsroot=157.87.82.48:/home/a0875451/mwd/myfs/target ip=dhcp"
-/*#define CONFIG_ETHADDR      00:0B:36:00:05:25	  */
-#define CONFIG_NETMASK	    255.255.254.0	/* talk on MY local net */
-#define CONFIG_IPADDR	    156.117.97.156	/* static IP I currently own */
-#define CONFIG_SERVERIP		156.117.97.139	    /* current IP of my dev pc */
-#define CONFIG_BOOTFILE	    "/tftpboot/uImage" /* file to load */
+#define CONFIG_BOOTARGS		"console=ttyS0,115200n8 noinitrd root=/dev/nfs ip=bootp"
+#define CONFIG_BOOTCOMMAND	"bootp;tftp;bootm"
+#define CFG_AUTOLOAD		"n"		/* No autoload */
 
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	115200		/* speed to run kgdb serial port */

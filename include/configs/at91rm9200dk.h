@@ -114,7 +114,7 @@
 #define CONFIG_NET_RETRY_COUNT 20
 
 #define CONFIG_HAS_DATAFLASH	1
-#define CFG_SPI_WRITE_TOUT	CFG_HZ
+#define CFG_SPI_WRITE_TOUT	(5*CFG_HZ)
 #define CFG_MAX_DATAFLASH_BANKS 2
 #define CFG_MAX_DATAFLASH_PAGES 16384
 #define CFG_DATAFLASH_LOGIC_ADDR_CS0	0xC0000000	/* Logical adress for CS0 */
@@ -127,9 +127,20 @@
 #define CFG_MAX_FLASH_SECT 40
 #define CFG_FLASH_ERASE_TOUT	(2*CFG_HZ) /* Timeout for Flash Erase */
 #define CFG_FLASH_WRITE_TOUT	(2*CFG_HZ) /* Timeout for Flash Write */
+
+#undef	CFG_ENV_IS_IN_DATAFLASH
+
+#ifdef CFG_ENV_IS_IN_DATAFLASH
+#define CFG_ENV_OFFSET 0x20000
+#define CFG_ENV_ADDR (CFG_DATAFLASH_LOGIC_ADDR_CS0 + CFG_ENV_OFFSET)
+#define CFG_ENV_SIZE 0x2000  /* 0x8000 */
+#else
 #define	CFG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_ADDR (PHYS_FLASH_1 + 0xe000)  /* 0x10000 */
 #define CFG_ENV_SIZE 0x2000  /* 0x8000 */
+#endif
+
+
 #define CFG_LOAD_ADDR 0x21000000  /* default load address */
 
 #define CFG_BOOT_SIZE		0x6000 /* 24 KBytes */

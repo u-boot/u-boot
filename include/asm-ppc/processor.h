@@ -732,6 +732,7 @@
 #define PVR_8260_HIP3   0x00810101
 #define PVR_8260_HIP4   0x80811014
 #define PVR_8260_HIP7   0x80822011
+#define PVR_8260_HIP7R1 0x80822013
 
 /* I am just adding a single entry for 8260 boards.  I think we may be
  * able to combine mbx, fads, rpxlite, bseip, and classic into a single

@@ -49,8 +49,12 @@
 #include <net.h>
 #endif
 
-#if !defined(CFG_ENV_IS_IN_NVRAM) && !defined(CFG_ENV_IS_IN_EEPROM) && !defined(CFG_ENV_IS_IN_FLASH) && !defined(CFG_ENV_IS_NOWHERE)
-# error Define one of CFG_ENV_IS_IN_NVRAM, CFG_ENV_IS_IN_EEPROM, CFG_ENV_IS_IN_FLASH, CFG_ENV_IS_NOWHERE
+#if !defined(CFG_ENV_IS_IN_NVRAM)	&& \
+    !defined(CFG_ENV_IS_IN_EEPROM)	&& \
+    !defined(CFG_ENV_IS_IN_FLASH)	&& \
+    !defined(CFG_ENV_IS_IN_DATAFLASH)	&& \
+    !defined(CFG_ENV_IS_NOWHERE)
+# error Define one of CFG_ENV_IS_IN_{NVRAM|EEPROM|FLASH|DATAFLASH|NOWHERE}
 #endif
 
 #define XMK_STR(x)	#x

@@ -31,12 +31,23 @@ int cs[][CFG_MAX_DATAFLASH_BANKS] = {
 	{CFG_DATAFLASH_LOGIC_ADDR_CS3, 3}
 };
 
+/*define the area offsets*/
+dataflash_protect_t area_list[NB_DATAFLASH_AREA] = {
+	{0, 0x7fff, FLAG_PROTECT_SET},			/* ROM code */
+	{0x8000, 0x1ffff, FLAG_PROTECT_SET},		/* u-boot code */
+	{0x20000, 0x27fff, FLAG_PROTECT_CLEAR},		/* u-boot environment */
+	{0x28000, 0x1fffff, FLAG_PROTECT_CLEAR},	/* data area size to tune */
+};
+
 extern void AT91F_SpiInit (void);
 extern int AT91F_DataflashProbe (int i, AT91PS_DataflashDesc pDesc);
 extern int AT91F_DataFlashRead (AT91PS_DataFlash pDataFlash,
 				unsigned long addr,
 				unsigned long size, char *buffer);
-
+extern int AT91F_DataFlashWrite( AT91PS_DataFlash pDataFlash,
+				    unsigned char *src,
+			            int dest,
+				    int size );
 
 int AT91F_DataflashInit (void)
 {
@@ -46,7 +57,7 @@ int AT91F_DataflashInit (void)
 	AT91F_SpiInit ();
 
 	for (i = 0; i < CFG_MAX_DATAFLASH_BANKS; i++) {
-
+		dataflash_info[i].Desc.state = IDLE;
 		dataflash_info[i].id = 0;
 		dataflash_info[i].Device.pages_number = 0;
 		dfcode = AT91F_DataflashProbe (cs[i][1], &dataflash_info[i].Desc);
@@ -84,14 +95,31 @@ int AT91F_DataflashInit (void)
 			dataflash_info[i].logical_address = cs[i][0];
 			dataflash_info[i].id = dfcode;
 			break;
+		case AT45DB128:
+			dataflash_info[i].Device.pages_number = 16384;
+			dataflash_info[i].Device.pages_size = 1056;
+			dataflash_info[i].Device.page_offset = 11;
+			dataflash_info[i].Device.byte_mask = 0x700;
+			dataflash_info[i].Device.cs = cs[i][1];
+			dataflash_info[i].Desc.DataFlash_state = IDLE;
+			dataflash_info[i].logical_address = cs[i][0];
+			dataflash_info[i].id = dfcode;
+			break;
 
 		default:
 			break;
 		}
+		/* set the last area end to the dataflash size*/
+		area_list[NB_DATAFLASH_AREA -1].end =
+				(dataflash_info[i].Device.pages_number *
+				dataflash_info[i].Device.pages_size)-1;
 
-		for (j = 0; j < dataflash_info[i].Device.pages_number; j++)
-			dataflash_info[i].protect[j] = FLAG_PROTECT_SET;
-
+		/* set the area addresses */
+		for(j = 0; j<NB_DATAFLASH_AREA; j++) {
+			dataflash_info[i].Device.area_list[j].start = area_list[j].start + dataflash_info[i].logical_address;
+			dataflash_info[i].Device.area_list[j].end = area_list[j].end + dataflash_info[i].logical_address;
+			dataflash_info[i].Device.area_list[j].protected = area_list[j].protected;
+		}
 	}
 	return (1);
 }
@@ -99,7 +127,7 @@ int AT91F_DataflashInit (void)
 
 void dataflash_print_info (void)
 {
-	int i;
+	int i, j;
 
 	for (i = 0; i < CFG_MAX_DATAFLASH_BANKS; i++) {
 		if (dataflash_info[i].id != 0) {
@@ -116,6 +144,9 @@ void dataflash_print_info (void)
 			case AT45DB642:
 				printf ("AT45DB642\n");
 				break;
+			case AT45DB128:
+				printf ("AT45DB128\n");
+				break;
 			}
 
 			printf ("Nb pages: %6d\n"
@@ -127,6 +158,13 @@ void dataflash_print_info (void)
 				(unsigned int) dataflash_info[i].Device.pages_number *
 				dataflash_info[i].Device.pages_size,
 				(unsigned int) dataflash_info[i].logical_address);
+			for (j=0; j< NB_DATAFLASH_AREA; j++) {
+				printf ("Area %i:\t%08X to %08X %s\n", j,
+					dataflash_info[i].Device.area_list[j].start,
+					dataflash_info[i].Device.area_list[j].end,
+					(dataflash_info[i].Device.area_list[j].protected ==
+					FLAG_PROTECT_SET) ? "(RO)" : "");
+			}
 		}
 	}
 }
@@ -176,6 +214,76 @@ int addr_dataflash (unsigned long addr)
 
 	return addr_valid;
 }
+/*-----------------------------------------------------------------------------*/
+/* Function Name       : size_dataflash 					*/
+/* Object              : Test if address is valid regarding the size		*/
+/*-----------------------------------------------------------------------------*/
+int size_dataflash (AT91PS_DataFlash pdataFlash, unsigned long addr, unsigned long size)
+{
+	/* is outside the dataflash */
+	if (((int)addr & 0x0FFFFFFF) > (pdataFlash->pDevice->pages_size *
+		pdataFlash->pDevice->pages_number)) return 0;
+	/* is too large for the dataflash */
+	if (size > ((pdataFlash->pDevice->pages_size *
+		pdataFlash->pDevice->pages_number) - ((int)addr & 0x0FFFFFFF))) return 0;
+
+	return 1;
+}
+/*-----------------------------------------------------------------------------*/
+/* Function Name       : prot_dataflash 					*/
+/* Object              : Test if destination area is protected			*/
+/*-----------------------------------------------------------------------------*/
+int prot_dataflash (AT91PS_DataFlash pdataFlash, unsigned long addr)
+{
+int area;
+	/* find area */
+	for (area=0; area < NB_DATAFLASH_AREA; area++) {
+		if ((addr >= pdataFlash->pDevice->area_list[area].start) &&
+			(addr < pdataFlash->pDevice->area_list[area].end))
+			break;
+	}
+	if (area == NB_DATAFLASH_AREA) return -1;
+	/*test protection value*/
+	if (pdataFlash->pDevice->area_list[area].protected == FLAG_PROTECT_SET) return 0;
+
+	return 1;
+}
+/*-----------------------------------------------------------------------------*/
+/* Function Name       : dataflash_real_protect				*/
+/* Object              : protect/unprotect area				*/
+/*-----------------------------------------------------------------------------*/
+int dataflash_real_protect (int flag, unsigned long start_addr, unsigned long end_addr)
+{
+int i,j, area1, area2, addr_valid = 0;
+	/* find dataflash */
+	for (i = 0; i < CFG_MAX_DATAFLASH_BANKS; i++) {
+		if ((((int) start_addr) & 0xF0000000) ==
+			dataflash_info[i].logical_address) {
+				addr_valid = 1;
+				break;
+		}
+	}
+	if (!addr_valid) {
+		return -1;
+	}
+	/* find start area */
+	for (area1=0; area1 < NB_DATAFLASH_AREA; area1++) {
+		if (start_addr == dataflash_info[i].Device.area_list[area1].start) break;
+	}
+	if (area1 == NB_DATAFLASH_AREA) return -1;
+	/* find end area */
+	for (area2=0; area2 < NB_DATAFLASH_AREA; area2++) {
+		if (end_addr == dataflash_info[i].Device.area_list[area2].end) break;
+	}
+	if (area2 == NB_DATAFLASH_AREA) return -1;
+
+	/*set protection value*/
+	for(j = area1; j < area2+1 ; j++)
+		if (flag == 0) dataflash_info[i].Device.area_list[j].protected = FLAG_PROTECT_CLEAR;
+		else dataflash_info[i].Device.area_list[j].protected = FLAG_PROTECT_SET;
+
+	return (area2-area1+1);
+}
 
 /*------------------------------------------------------------------------------*/
 /* Function Name       : read_dataflash 					*/
@@ -187,8 +295,12 @@ int read_dataflash (unsigned long addr, unsigned long size, char *result)
 	AT91PS_DataFlash pFlash = &DataFlashInst;
 
 	pFlash = AT91F_DataflashSelect (pFlash, &AddrToRead);
+
 	if (pFlash == 0)
-		return -1;
+		return ERR_UNKNOWN_FLASH_TYPE;
+
+	if (size_dataflash(pFlash,addr,size) == 0)
+		return ERR_INVAL;
 
 	return (AT91F_DataFlashRead (pFlash, AddrToRead, size, result));
 }
@@ -201,17 +313,24 @@ int read_dataflash (unsigned long addr, unsigned long size, char *result)
 int write_dataflash (unsigned long addr_dest, unsigned long addr_src,
 		     unsigned long size)
 {
-	extern AT91S_DataFlashStatus AT91F_DataFlashWrite(
-			AT91PS_DataFlash, uchar *, int, int);
 	int AddrToWrite = addr_dest;
 	AT91PS_DataFlash pFlash = &DataFlashInst;
 
 	pFlash = AT91F_DataflashSelect (pFlash, &AddrToWrite);
+
+	if (pFlash == 0)
+		return ERR_UNKNOWN_FLASH_TYPE;
+
+	if (size_dataflash(pFlash,addr_dest,size) == 0)
+		return ERR_INVAL;
+
+	if (prot_dataflash(pFlash,addr_dest) == 0)
+		return ERR_PROTECTED;
+
 	if (AddrToWrite == -1)
 		return -1;
 
-	return AT91F_DataFlashWrite (pFlash, (char *) addr_src, AddrToWrite,
-								 size);
+	return AT91F_DataFlashWrite (pFlash, (char *) addr_src, AddrToWrite, size);
 }
 
 

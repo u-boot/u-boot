@@ -37,16 +37,15 @@
 #include <asm/arch/hardware.h>
 #include "config.h"
 
+/*number of protected area*/
+#define NB_DATAFLASH_AREA	4
 
+/*define the area structure*/
 typedef struct {
-	unsigned long base;		/* logical base address for a bank */
-	unsigned long size;		/* total bank size */
-	unsigned long page_count;
-	unsigned long page_size;
-	unsigned long id;		/* device id */
-	unsigned char protect[CFG_MAX_DATAFLASH_PAGES]; /* page protection status */
-} dataflash_info_t;
-
+	unsigned long start;
+	unsigned long end;
+	unsigned char protected;
+} dataflash_protect_t;
 
 typedef unsigned int AT91S_DataFlashStatus;
 
@@ -80,6 +79,7 @@ typedef struct _AT91S_Dataflash {
 	int page_offset;			/* page offset in command */
 	int byte_mask;				/* byte mask in command */
 	int cs;
+	dataflash_protect_t area_list[NB_DATAFLASH_AREA]; /* area protection status */
 } AT91S_DataflashFeatures, *AT91PS_DataflashFeatures;
 
 /*---------------------------------------------*/
@@ -91,13 +91,13 @@ typedef struct _AT91S_DataFlash {
 } AT91S_DataFlash, *AT91PS_DataFlash;
 
 
+
 typedef struct _AT91S_DATAFLASH_INFO {
 
 	AT91S_DataflashDesc Desc;
 	AT91S_DataflashFeatures Device; /* Pointer on a dataflash features array */
 	unsigned long logical_address;
 	unsigned int id;			/* device id */
-	unsigned char protect[CFG_MAX_DATAFLASH_PAGES]; /* page protection status */
 } AT91S_DATAFLASH_INFO, *AT91PS_DATAFLASH_INFO;
 
 
@@ -106,6 +106,7 @@ typedef struct _AT91S_DATAFLASH_INFO {
 #define AT45DB161	0x2c
 #define AT45DB321	0x34
 #define AT45DB642	0x3c
+#define AT45DB128	0x10
 
 #define AT91C_DATAFLASH_TIMEOUT		10000	/* For AT91F_DataFlashWaitReady */
 
@@ -166,6 +167,9 @@ typedef struct _AT91S_DATAFLASH_INFO {
 
 /*-------------------------------------------------------------------------------------------------*/
 
+extern int size_dataflash (AT91PS_DataFlash pdataFlash, unsigned long addr, unsigned long size);
+extern int prot_dataflash (AT91PS_DataFlash pdataFlash, unsigned long addr);
+extern int dataflash_real_protect (int flag, unsigned long start_addr, unsigned long end_addr);
 extern int addr_dataflash (unsigned long addr);
 extern int read_dataflash (unsigned long addr, unsigned long size, char *result);
 extern int write_dataflash (unsigned long addr, unsigned long dest, unsigned long size);

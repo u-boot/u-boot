@@ -2,6 +2,19 @@
 Changes since U-Boot 1.0.0:
 ======================================================================
 
+* Patch by Nicolas Lacressonnière, 12 Nov 2003:
+  update for for Atmel AT91RM9200DK development kit:
+  - support for environment variables in DataFlash
+  - Atmel DataFlash AT45DB1282 support
+
+* Patch by Jeff Carr, 11 Nov 2003:
+  add support for new version of 8270 processors
+
+* Patches by George G. Davis, 05 Nov 2003:
+  - only pass the ARM linux initrd tag to the kernel when an initrd
+    is actually present
+  - update omap1510inn configuration file
+
 * Patches by Stephan Linz, 3 Nov 2003:
   - more endianess fixes for LAN91C111 driver
   - CFG_HZ configuration patch for NIOS Cyclone board

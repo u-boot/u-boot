@@ -1760,6 +1760,20 @@ to save the current settings.
 	  The size in bytes of the EEPROM device.
 
 
+- CFG_ENV_IS_IN_DATAFLASH:
+
+	Define this if you have a DataFlash memory device which you 
+	want to use for the environment.
+
+	- CFG_ENV_OFFSET:
+	- CFG_ENV_ADDR:
+	- CFG_ENV_SIZE:
+
+	  These three #defines specify the offset and size of the
+	  environment area within the total memory of your DataFlash placed
+	  at the specified address.
+
+
 - CFG_SPI_INIT_OFFSET
 
 	Defines offset to the initial SPI buffer area in DPRAM. The

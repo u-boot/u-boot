@@ -136,13 +136,19 @@ int do_mem_md ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		uint	*uip = (uint   *)linebuf;
 		ushort	*usp = (ushort *)linebuf;
 		u_char	*ucp = (u_char *)linebuf;
-
+#ifdef CONFIG_HAS_DATAFLASH
+		int rc;
+#endif
 		printf("%08lx:", addr);
 		linebytes = (nbytes>DISP_LINE_LEN)?DISP_LINE_LEN:nbytes;
 
 #ifdef CONFIG_HAS_DATAFLASH
-		if (read_dataflash(addr, (linebytes/size)*size, linebuf) != -1){
-
+		if ((rc = read_dataflash(addr, (linebytes/size)*size, linebuf)) == DATAFLASH_OK){
+			/* if outside dataflash */
+			/*if (rc != 1) {
+        	                dataflash_perror (rc);
+                	        return (1);
+	                }*/
 			for (i=0; i<linebytes; i+= size) {
 				if (size == 4) {
 					printf(" %08x", *uip++);
@@ -430,7 +436,12 @@ int do_mem_cp ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	/* Check if we are copying from DataFlash to RAM */
 	if (addr_dataflash(addr) && !addr_dataflash(dest) && (addr2info(dest)==NULL) ){
-		read_dataflash(addr, count * size, (char *) dest);
+		int rc;
+		rc = read_dataflash(addr, count * size, (char *) dest);
+		if (rc != 1) {
+                        dataflash_perror (rc);
+                        return (1);
+                }
 		return 0;
 	}
 

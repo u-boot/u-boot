@@ -67,6 +67,7 @@ int checkcpu (void)
 	case PVR_8260_HIP4:
 		k = 4;
 		break;
+	case PVR_8260_HIP7R1:
 	case PVR_8260_HIP7:
 		k = 7;
 		break;
