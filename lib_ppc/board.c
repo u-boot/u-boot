@@ -779,9 +779,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	load_sernum_ethaddr ();
 #endif
 
-#if defined(CFG_GT_6426x) || defined(CONFIG_PN62) || defined(CONFIG_PPCHAMELEONEVB) || \
-    defined(CONFIG_MPC8540ADS) || defined(CONFIG_MPC8555CDS) || \
-    defined(CONFIG_MPC8560ADS) || defined(CONFIG_440_GX)
+#if defined(CONFIG_ETH1ADDR)
 	/* handle the 2nd ethernet address */
 
 	s = getenv ("eth1addr");
@@ -792,9 +790,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 			s = (*e) ? e + 1 : e;
 	}
 #endif
-#if defined(CFG_GT_6426x) || defined(CONFIG_MPC8540ADS) || \
-    defined(CONFIG_MPC8555CDS) || defined(CONFIG_MPC8560ADS) || \
-    defined(CONFIG_440_GX)
+#if defined(CONFIG_ETH2ADDR)
 	/* handle the 3rd ethernet address */
 
 	s = getenv ("eth2addr");
@@ -810,7 +806,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	}
 #endif
 
-#if defined(CONFIG_440_GX)
+#if defined(CONFIG_ETH3ADDR)
 	/* handle 4th ethernet address */
 	s = getenv("eth3addr");
 #if defined(CONFIG_XPEDITE1K)

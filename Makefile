@@ -1087,8 +1087,11 @@ MPC8540ADS_config:	unconfig
 MPC8560ADS_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc85xx mpc8560ads
 
-stxgp3_config:		unconfig
-	@./mkconfig $(@:_config=) ppc mpc85xx stxgp3
+MPC8541CDS_config:	unconfig
+	@./mkconfig $(@:_config=) ppc mpc85xx mpc8541cds cds
+
+MPC8555CDS_config:	unconfig
+	@./mkconfig $(@:_config=) ppc mpc85xx mpc8555cds cds
 
 sbc8560_config \
 sbc8560_33_config \
@@ -1101,6 +1104,9 @@ sbc8560_66_config:      unconfig
 		echo "... 33 MHz PCI" ; \
 	fi
 	@./mkconfig -a sbc8560 ppc mpc85xx sbc8560
+
+stxgp3_config:		unconfig
+	@./mkconfig $(@:_config=) ppc mpc85xx stxgp3
 
 #########################################################################
 ## 74xx/7xx Systems

@@ -77,27 +77,19 @@ typedef struct bd_info {
 #if defined(CONFIG_HYMOD)
 	hymod_conf_t	bi_hymod_conf;	/* hymod configuration information */
 #endif
-#if defined(CFG_GT_6426x)		|| \
-    defined(CONFIG_PN62)		|| \
-    defined(CONFIG_PPCHAMELEONEVB)	|| \
-    defined(CONFIG_SXNI855T)		|| \
-    defined(CONFIG_SVM_SC8xx)		|| \
-    defined(CONFIG_MPC8540ADS)          || \
-    defined(CONFIG_MPC8555CDS)		|| \
-    defined(CONFIG_MPC8560ADS)		|| \
-    defined(CONFIG_440_GX)
+
+#if defined(CONFIG_ETH1ADDR)
 	/* second onboard ethernet port */
 	unsigned char   bi_enet1addr[6];
 #endif
-#if defined(CFG_GT_6426x) || defined(CONFIG_SVM_SC8xx) || \
-    defined(CONFIG_MPC8540ADS) || defined(CONFIG_MPC8560ADS) || \
-    defined(CONFIG_MPC8555CDS) || defined(CONFIG_440_GX)
+#if defined(CONFIG_ETH2ADDR)
 	/* third onboard ethernet port */
 	unsigned char	bi_enet2addr[6];
 #endif
-#if defined(CONFIG_440_GX)
+#if defined(CONFIG_ETH3ADDR)
 	unsigned char   bi_enet3addr[6];
 #endif
+
 #if defined(CONFIG_405GP) || defined(CONFIG_405EP) || defined (CONFIG_440_GX)
 	unsigned int	bi_opbfreq;		/* OPB clock in Hz */
 	int		bi_iic_fast[2];		/* Use fast i2c mode */

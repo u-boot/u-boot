@@ -79,24 +79,33 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #endif
 	print_str ("busfreq",	    strmhz(buf, bd->bi_busfreq));
 #endif /* CONFIG_405GP, CONFIG_405CR, CONFIG_405EP, CONFIG_XILINX_ML300 */
+
 	puts ("ethaddr     =");
 	for (i=0; i<6; ++i) {
 		printf ("%c%02X", i ? ':' : ' ', bd->bi_enetaddr[i]);
 	}
-#if (defined CONFIG_PN62) || (defined CONFIG_PPCHAMELEONEVB) || \
-    (defined CONFIG_MPC8540ADS) || (defined CONFIG_MPC8560ADS) || \
-    (defined CONFIG_MPC8555CDS)
+
+#if defined(CONFIG_ETH1ADDR)
 	puts ("\neth1addr    =");
 	for (i=0; i<6; ++i) {
 		printf ("%c%02X", i ? ':' : ' ', bd->bi_enet1addr[i]);
 	}
-#endif /* CONFIG_PN62 */
-#if defined(CONFIG_MPC8540ADS) || defined(CONFIG_MPC8560ADS) || defined(CONFIG_MPC8555CDS)
+#endif
+
+#if defined(CONFIG_ETH2ADDR)
        puts ("\neth2addr    =");
        for (i=0; i<6; ++i) {
 		printf ("%c%02X", i ? ':' : ' ', bd->bi_enet2addr[i]);
 	}
 #endif
+
+#if defined(CONFIG_ETH3ADDR)
+       puts ("\neth3addr    =");
+       for (i=0; i<6; ++i) {
+		printf ("%c%02X", i ? ':' : ' ', bd->bi_enet3addr[i]);
+	}
+#endif
+
 #ifdef CONFIG_HERMES
 	print_str ("ethspeed",	    strmhz(buf, bd->bi_ethspeed));
 #endif

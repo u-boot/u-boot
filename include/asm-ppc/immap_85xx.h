@@ -156,7 +156,9 @@ typedef struct ccsr_i2c {
 	char	res6[4075];
 } ccsr_i2c_t;
 
-#if defined (CONFIG_MPC8540) || defined (CONFIG_MPC8555)
+#if defined(CONFIG_MPC8540) \
+	|| defined(CONFIG_MPC8541) \
+	|| defined(CONFIG_MPC8555)
 /* DUART Registers(0x4000-0x5000) */
 typedef struct ccsr_duart {
 	char	res1[1280];
@@ -1021,7 +1023,9 @@ typedef struct ccsr_pic {
 } ccsr_pic_t;
 
 /* CPM Block(0x8_0000-0xc_0000) */
-#if defined (CONFIG_MPC8540) || defined (CONFIG_MPC8555)
+#if defined(CONFIG_MPC8540) \
+	|| defined(CONFIG_MPC8541) \
+	|| defined(CONFIG_MPC8555)
 typedef struct ccsr_cpm {
 	char res[262144];
 } ccsr_cpm_t;

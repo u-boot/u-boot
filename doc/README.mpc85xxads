@@ -7,7 +7,7 @@ Updated 13-July-2004 Jon Loeliger
 0. Toolchain
 
     The Binutils in current ELDK toolchain will not support MPC85xx
-    chip.  You need use the newest binutils-2.14.tar.bz2 from
+    chip.  You need to use binutils-2.14.tar.bz2 (or newer) from
     http://ftp.gnu.org/gnu/binutils.
 
     The 8540/8560 ADS code base is known to compile using:
@@ -191,10 +191,10 @@ straightforward.
 
 4.4 Reflash U-boot Image using U-boot
 
-    => tftp 0 u-boot.bin
+    => tftp 10000 u-boot.bin
     => protect off fff80000 ffffffff
     => erase fff80000 ffffffff
-    => cp.b 0 fff80000 80000
+    => cp.b 10000 fff80000 80000
 
 
 4.5 Reflash U-Boot with a BDI-2000
