@@ -2,6 +2,12 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Philippe Robin, 01 Jul 2004:
+  Add initialization for Integrator and versatile board files.
+
+* Patch by Hinko Kocevar, 01 Jun 2004:
+  Fix VFD FB allocation, add LCD FB allocation on ARM
+
 * Patch by Martin Krause, 30 Jun 2004:
   Add support for TQM5200 board
 

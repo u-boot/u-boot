@@ -73,6 +73,8 @@ int board_init (void)
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0x00000100;
 
+	gd->flags = 0;
+
 	icache_enable ();
 
 	flash__init ();

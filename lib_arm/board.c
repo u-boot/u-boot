@@ -211,7 +211,7 @@ void start_armboot (void)
 	ulong size;
 	init_fnc_t **init_fnc_ptr;
 	char *s;
-#if defined(CONFIG_VFD)
+#if defined(CONFIG_VFD) || defined(CONFIG_LCD)
 	unsigned long addr;
 #endif
 
@@ -243,11 +243,21 @@ void start_armboot (void)
 	/*
 	 * reserve memory for VFD display (always full pages)
 	 */
-	/* armboot_end is defined in the board-specific linker script */
-	addr = (_bss_start + (PAGE_SIZE - 1)) & ~(PAGE_SIZE - 1);
+	/* bss_end is defined in the board-specific linker script */
+	addr = (_bss_end + (PAGE_SIZE - 1)) & ~(PAGE_SIZE - 1);
 	size = vfd_setmem (addr);
 	gd->fb_base = addr;
 #endif /* CONFIG_VFD */
+
+#ifdef CONFIG_LCD
+	/*
+	 * reserve memory for LCD display (always full pages)
+	 */
+	/* bss_end is defined in the board-specific linker script */
+	addr = (_bss_end + (PAGE_SIZE - 1)) & ~(PAGE_SIZE - 1);
+	size = lcd_setmem (addr);
+	gd->fb_base = addr;
+#endif /* CONFIG_LCD */
 
 	/* armboot_start is defined in the board-specific linker script */
 	mem_malloc_init (_armboot_start - CFG_MALLOC_LEN);
