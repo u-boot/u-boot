@@ -1432,6 +1432,9 @@ cmc_pu2_config	:	unconfig
 ## XScale Systems
 #########################################################################
 
+adsvix_config	:	unconfig
+	@./mkconfig $(@:_config=) arm pxa adsvix
+
 cerf250_config :	unconfig
 	@./mkconfig $(@:_config=) arm pxa cerf250
 

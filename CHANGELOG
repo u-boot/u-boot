@@ -2,6 +2,17 @@
 Changes for U-Boot 1.1.3:
 ======================================================================
 
+* Patches by Robert Whaley, 29 Nov 2004:
+  - update the pxa-regs.h file for PXA27x chips
+  - add PXA27x based ADSVIX board
+  - add support for MMC on PXA27x processors
+
+* Patch by Andrew E. Mileski, 28 Nov 2004:
+  Fix PPC4xx SPD SDRAM detection bug
+
+* Patch by Hiroshi Ito, 26 Nov 2004:
+  Fix logic of "test -z" and "test -n" commands
+
 * Patch by Ladislav Michl, 05 Apr 2005:
   Add support for VoiceBlue board.
 

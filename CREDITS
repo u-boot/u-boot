@@ -402,6 +402,10 @@ N: Christian Vejlbo
 E: christian.vejlbo@tellabs.com
 D: FADS860T ethernet support
 
+N: Robert Whaley
+E: rwhaley@applieddata.net
+D: Port to ARM PXA27x adsvix SBC
+
 N: Martin Winistoerfer
 E: martinwinistoerfer@gmx.ch
 D: Port to MPC555/556 microcontrollers and support for cmi board

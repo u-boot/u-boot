@@ -136,9 +136,9 @@ do_test (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 		if (adv == 2) {
 			if (strcmp(ap[0], "-z") == 0)
-				expr = strlen(ap[1]) == 0 ? 0 : 1;
-			else if (strcmp(ap[0], "-n") == 0)
 				expr = strlen(ap[1]) == 0 ? 1 : 0;
+			else if (strcmp(ap[0], "-n") == 0)
+				expr = strlen(ap[1]) == 0 ? 0 : 1;
 			else {
 				expr = 1;
 				break;

@@ -22,18 +22,17 @@
 /* FIXME hack so that SA-1111.h will work [cb] */
 
 #ifndef __ASSEMBLY__
-typedef unsigned short  Word16 ;
-typedef unsigned int    Word32 ;
-typedef Word32          Word ;
-typedef Word            Quad [4] ;
-typedef void            *Address ;
-typedef void            (*ExcpHndlr) (void) ;
+typedef unsigned short	Word16 ;
+typedef unsigned int	Word32 ;
+typedef Word32		Word ;
+typedef Word		Quad [4] ;
+typedef void		*Address ;
+typedef void		(*ExcpHndlr) (void) ;
 #endif
 
 /*
  * PXA Chip selects
  */
-
 #define PXA_CS0_PHYS	0x00000000
 #define PXA_CS1_PHYS	0x04000000
 #define PXA_CS2_PHYS	0x08000000
@@ -41,50 +40,46 @@ typedef void            (*ExcpHndlr) (void) ;
 #define PXA_CS4_PHYS	0x10000000
 #define PXA_CS5_PHYS	0x14000000
 
-
 /*
  * Personal Computer Memory Card International Association (PCMCIA) sockets
  */
-
 #define PCMCIAPrtSp	0x04000000	/* PCMCIA Partition Space [byte]   */
-#define PCMCIASp	(4*PCMCIAPrtSp)	/* PCMCIA Space [byte]             */
-#define PCMCIAIOSp	PCMCIAPrtSp	/* PCMCIA I/O Space [byte]         */
+#define PCMCIASp	(4*PCMCIAPrtSp) /* PCMCIA Space [byte]		   */
+#define PCMCIAIOSp	PCMCIAPrtSp	/* PCMCIA I/O Space [byte]	   */
 #define PCMCIAAttrSp	PCMCIAPrtSp	/* PCMCIA Attribute Space [byte]   */
-#define PCMCIAMemSp	PCMCIAPrtSp	/* PCMCIA Memory Space [byte]      */
+#define PCMCIAMemSp	PCMCIAPrtSp	/* PCMCIA Memory Space [byte]	   */
 
-#define PCMCIA0Sp	PCMCIASp	/* PCMCIA 0 Space [byte]           */
-#define PCMCIA0IOSp	PCMCIAIOSp	/* PCMCIA 0 I/O Space [byte]       */
+#define PCMCIA0Sp	PCMCIASp	/* PCMCIA 0 Space [byte]	   */
+#define PCMCIA0IOSp	PCMCIAIOSp	/* PCMCIA 0 I/O Space [byte]	   */
 #define PCMCIA0AttrSp	PCMCIAAttrSp	/* PCMCIA 0 Attribute Space [byte] */
-#define PCMCIA0MemSp	PCMCIAMemSp	/* PCMCIA 0 Memory Space [byte]    */
+#define PCMCIA0MemSp	PCMCIAMemSp	/* PCMCIA 0 Memory Space [byte]	   */
 
-#define PCMCIA1Sp	PCMCIASp	/* PCMCIA 1 Space [byte]           */
-#define PCMCIA1IOSp	PCMCIAIOSp	/* PCMCIA 1 I/O Space [byte]       */
+#define PCMCIA1Sp	PCMCIASp	/* PCMCIA 1 Space [byte]	   */
+#define PCMCIA1IOSp	PCMCIAIOSp	/* PCMCIA 1 I/O Space [byte]	   */
 #define PCMCIA1AttrSp	PCMCIAAttrSp	/* PCMCIA 1 Attribute Space [byte] */
-#define PCMCIA1MemSp	PCMCIAMemSp	/* PCMCIA 1 Memory Space [byte]    */
+#define PCMCIA1MemSp	PCMCIAMemSp	/* PCMCIA 1 Memory Space [byte]	   */
 
-#define _PCMCIA(Nb)	        	/* PCMCIA [0..1]                   */ \
+#define _PCMCIA(Nb)			/* PCMCIA [0..1]		   */ \
 			(0x20000000 + (Nb)*PCMCIASp)
-#define _PCMCIAIO(Nb)	_PCMCIA (Nb)	/* PCMCIA I/O [0..1]               */
-#define _PCMCIAAttr(Nb)	        	/* PCMCIA Attribute [0..1]         */ \
+#define _PCMCIAIO(Nb)	_PCMCIA (Nb)	/* PCMCIA I/O [0..1]		   */
+#define _PCMCIAAttr(Nb)			/* PCMCIA Attribute [0..1]	   */ \
 			(_PCMCIA (Nb) + 2*PCMCIAPrtSp)
-#define _PCMCIAMem(Nb)	        	/* PCMCIA Memory [0..1]            */ \
+#define _PCMCIAMem(Nb)			/* PCMCIA Memory [0..1]		   */ \
 			(_PCMCIA (Nb) + 3*PCMCIAPrtSp)
 
-#define _PCMCIA0	_PCMCIA (0)	/* PCMCIA 0                        */
-#define _PCMCIA0IO	_PCMCIAIO (0)	/* PCMCIA 0 I/O                    */
-#define _PCMCIA0Attr	_PCMCIAAttr (0)	/* PCMCIA 0 Attribute              */
-#define _PCMCIA0Mem	_PCMCIAMem (0)	/* PCMCIA 0 Memory                 */
+#define _PCMCIA0	_PCMCIA (0)	/* PCMCIA 0			   */
+#define _PCMCIA0IO	_PCMCIAIO (0)	/* PCMCIA 0 I/O			   */
+#define _PCMCIA0Attr	_PCMCIAAttr (0) /* PCMCIA 0 Attribute		   */
+#define _PCMCIA0Mem	_PCMCIAMem (0)	/* PCMCIA 0 Memory		   */
 
-#define _PCMCIA1	_PCMCIA (1)	/* PCMCIA 1                        */
-#define _PCMCIA1IO	_PCMCIAIO (1)	/* PCMCIA 1 I/O                    */
-#define _PCMCIA1Attr	_PCMCIAAttr (1)	/* PCMCIA 1 Attribute              */
-#define _PCMCIA1Mem	_PCMCIAMem (1)	/* PCMCIA 1 Memory                 */
-
+#define _PCMCIA1	_PCMCIA (1)	/* PCMCIA 1			   */
+#define _PCMCIA1IO	_PCMCIAIO (1)	/* PCMCIA 1 I/O			   */
+#define _PCMCIA1Attr	_PCMCIAAttr (1) /* PCMCIA 1 Attribute		   */
+#define _PCMCIA1Mem	_PCMCIAMem (1)	/* PCMCIA 1 Memory		   */
 
 /*
  * DMA Controller
  */
-
 #define DCSR0		__REG(0x40000000)  /* DMA Control / Status Register for Channel 0 */
 #define DCSR1		__REG(0x40000004)  /* DMA Control / Status Register for Channel 1 */
 #define DCSR2		__REG(0x40000008)  /* DMA Control / Status Register for Channel 2 */
@@ -107,6 +102,17 @@ typedef void            (*ExcpHndlr) (void) ;
 #define DCSR_RUN	(1 << 31)	/* Run Bit (read / write) */
 #define DCSR_NODESC	(1 << 30)	/* No-Descriptor Fetch (read / write) */
 #define DCSR_STOPIRQEN	(1 << 29)	/* Stop Interrupt Enable (read / write) */
+
+#if defined(CONFIG_PXA27X)
+#define DCSR_EORIRQEN	(1 << 28)	/* End of Receive Interrupt Enable (R/W) */
+#define DCSR_EORJMPEN	(1 << 27)	/* Jump to next descriptor on EOR */
+#define DCSR_EORSTOPEN	(1 << 26)	/* STOP on an EOR */
+#define DCSR_SETCMPST	(1 << 25)	/* Set Descriptor Compare Status */
+#define DCSR_CLRCMPST	(1 << 24)	/* Clear Descriptor Compare Status */
+#define DCSR_CMPST	(1 << 10)	/* The Descriptor Compare Status */
+#define DCSR_ENRINTR	(1 << 9)	/* The end of Receive */
+#endif
+
 #define DCSR_REQPEND	(1 << 8)	/* Request Pending (read-only) */
 #define DCSR_STOPSTATE	(1 << 3)	/* Stop State (read-only) */
 #define DCSR_ENDINTR	(1 << 2)	/* End Interrupt (read / write) */
@@ -155,6 +161,10 @@ typedef void            (*ExcpHndlr) (void) ;
 #define DRCMR37		__REG(0x40000194)  /* Request to Channel Map Register for USB endpoint 13 Request */
 #define DRCMR38		__REG(0x40000198)  /* Request to Channel Map Register for USB endpoint 14 Request */
 #define DRCMR39		__REG(0x4000019C)  /* Reserved */
+
+#define DRCMR68		       __REG(0x40001110)  /* Request to Channel Map Register for Camera FIFO 0 Request */
+#define DRCMR69		       __REG(0x40001114)  /* Request to Channel Map Register for Camera FIFO 1 Request */
+#define DRCMR70		       __REG(0x40001118)  /* Request to Channel Map Register for Camera FIFO 2 Request */
 
 #define DRCMRRXSADR	DRCMR2
 #define DRCMRTXSADR	DRCMR3
@@ -252,11 +262,11 @@ typedef void            (*ExcpHndlr) (void) ;
 #define DDADR_DESCADDR	0xfffffff0	/* Address of next descriptor (mask) */
 #define DDADR_STOP	(1 << 0)	/* Stop (read / write) */
 
-#define DCMD_INCSRCADDR	(1 << 31)	/* Source Address Increment Setting. */
-#define DCMD_INCTRGADDR	(1 << 30)	/* Target Address Increment Setting. */
+#define DCMD_INCSRCADDR (1 << 31)	/* Source Address Increment Setting. */
+#define DCMD_INCTRGADDR (1 << 30)	/* Target Address Increment Setting. */
 #define DCMD_FLOWSRC	(1 << 29)	/* Flow Control by the source. */
 #define DCMD_FLOWTRG	(1 << 28)	/* Flow Control by the target. */
-#define DCMD_STARTIRQEN	(1 << 22)	/* Start Interrupt Enable */
+#define DCMD_STARTIRQEN (1 << 22)	/* Start Interrupt Enable */
 #define DCMD_ENDIRQEN	(1 << 21)	/* End Interrupt Enable */
 #define DCMD_ENDIAN	(1 << 18)	/* Device Endian-ness. */
 #define DCMD_BURST8	(1 << 16)	/* 8 byte burst */
@@ -272,11 +282,9 @@ typedef void            (*ExcpHndlr) (void) ;
 #define DCMD_RXMCDR	(DCMD_INCTRGADDR|DCMD_FLOWSRC|DCMD_BURST32|DCMD_WIDTH4)
 #define DCMD_TXPCDR	(DCMD_INCSRCADDR|DCMD_FLOWTRG|DCMD_BURST32|DCMD_WIDTH4)
 
-
 /*
  * UARTs
  */
-
 /* Full Function UART (FFUART) */
 #define FFUART		FFRBR
 #define FFRBR		__REG(0x40100000)  /* Receive Buffer Register (read only) */
@@ -417,19 +425,24 @@ typedef void            (*ExcpHndlr) (void) ;
 /*
  * I2C registers
  */
-
 #define IBMR		__REG(0x40301680)  /* I2C Bus Monitor Register - IBMR */
 #define IDBR		__REG(0x40301688)  /* I2C Data Buffer Register - IDBR */
 #define ICR		__REG(0x40301690)  /* I2C Control Register - ICR */
 #define ISR		__REG(0x40301698)  /* I2C Status Register - ISR */
 #define ISAR		__REG(0x403016A0)  /* I2C Slave Address Register - ISAR */
 
+#define PWRIBMR		__REG(0x40f00180)  /* Power I2C Bus Monitor Register-IBMR */
+#define PWRIDBR		__REG(0x40f00188)  /* Power I2C Data Buffer Register-IDBR */
+#define PWRICR		__REG(0x40f00190)  /* Power I2C Control Register - ICR */
+#define PWRISR		__REG(0x40f00198)  /* Power I2C Status Register - ISR */
+#define PWRISAR		__REG(0x40f001A0)  /* Power I2C Slave Address Register-ISAR */
+
 /* ----- Control register bits ---------------------------------------- */
 
 #define ICR_START	0x1		/* start bit */
 #define ICR_STOP	0x2		/* stop bit */
 #define ICR_ACKNAK	0x4		/* send ACK(0) or NAK(1) */
-#define ICR_TB		0x8 		/* transfer byte bit */
+#define ICR_TB		0x8		/* transfer byte bit */
 #define ICR_MA		0x10		/* master abort */
 #define ICR_SCLE	0x20		/* master clock enable */
 #define ICR_IUE		0x40		/* unit enable */
@@ -438,33 +451,31 @@ typedef void            (*ExcpHndlr) (void) ;
 #define ICR_IRFIE	0x200		/* enable rx interrupts */
 #define ICR_BEIE	0x400		/* enable bus error ints */
 #define ICR_SSDIE	0x800		/* slave STOP detected int enable */
-#define ICR_ALDIE	0x1000  	/* enable arbitration interrupt */
+#define ICR_ALDIE	0x1000		/* enable arbitration interrupt */
 #define ICR_SADIE	0x2000		/* slave address detected int enable */
 #define ICR_UR		0x4000		/* unit reset */
 #define ICR_FM		0x8000		/* Fast Mode */
 
 /* ----- Status register bits ----------------------------------------- */
 
-#define ISR_RWM         0x1		/* read/write mode */
-#define ISR_ACKNAK      0x2		/* ack/nak status */
-#define ISR_UB          0x4		/* unit busy */
-#define ISR_IBB         0x8		/* bus busy */
-#define ISR_SSD         0x10		/* slave stop detected */
-#define ISR_ALD         0x20		/* arbitration loss detected */
-#define ISR_ITE         0x40            /* tx buffer empty */
-#define ISR_IRF         0x80            /* rx buffer full */
-#define ISR_GCAD        0x100		/* general call address detected */
-#define ISR_SAD         0x200		/* slave address detected */
-#define ISR_BED         0x400           /* bus error no ACK/NAK */
+#define ISR_RWM		0x1		/* read/write mode */
+#define ISR_ACKNAK	0x2		/* ack/nak status */
+#define ISR_UB		0x4		/* unit busy */
+#define ISR_IBB		0x8		/* bus busy */
+#define ISR_SSD		0x10		/* slave stop detected */
+#define ISR_ALD		0x20		/* arbitration loss detected */
+#define ISR_ITE		0x40		/* tx buffer empty */
+#define ISR_IRF		0x80		/* rx buffer full */
+#define ISR_GCAD	0x100		/* general call address detected */
+#define ISR_SAD		0x200		/* slave address detected */
+#define ISR_BED		0x400		/* bus error no ACK/NAK */
 
 /*
  * Serial Audio Controller
  */
-
-
 /* FIXME the audio defines collide w/ the SA1111 defines.  I don't like these
- * short defines because there is too much chance of namespace collision */
-
+ * short defines because there is too much chance of namespace collision
+ */
 /*#define SACR0		__REG(0x40400000)  /  Global Control Register */
 /*#define SACR1		__REG(0x40400004)  /  Serial Audio I 2 S/MSB-Justified Control Register */
 /*#define SASR0		__REG(0x4040000C)  /  Serial Audio I 2 S/MSB-Justified Interface and FIFO Status Register */
@@ -477,7 +488,6 @@ typedef void            (*ExcpHndlr) (void) ;
 /*
  * AC97 Controller registers
  */
-
 #define POCR		__REG(0x40500000)  /* PCM Out Control Register */
 #define POCR_FEIE	(1 << 3)	/* FIFO Error Interrupt Enable */
 
@@ -550,7 +560,6 @@ typedef void            (*ExcpHndlr) (void) ;
 #define SAC_REG_BASE	__REG(0x40500300)  /* Secondary Audio Codec */
 #define PMC_REG_BASE	__REG(0x40500400)  /* Primary Modem Codec */
 #define SMC_REG_BASE	__REG(0x40500500)  /* Secondary Modem Codec */
-
 
 /*
  * USB Device Controller
@@ -710,11 +719,63 @@ typedef void            (*ExcpHndlr) (void) ;
 #define USIR1_IR14	(1 << 6)	/* Interrup request ep 14 */
 #define USIR1_IR15	(1 << 7)	/* Interrup request ep 15 */
 
+#if defined(CONFIG_PXA27X)
+/*
+ * USB Host Controller
+ */
+#define UHCREV		__REG(0x4C000000)
+#define UHCHCON		__REG(0x4C000004)
+#define UHCCOMS		__REG(0x4C000008)
+#define UHCINTS		__REG(0x4C00000C)
+#define UHCINTE		__REG(0x4C000010)
+#define UHCINTD		__REG(0x4C000014)
+#define UHCHCCA		__REG(0x4C000018)
+#define UHCPCED		__REG(0x4C00001C)
+#define UHCCHED		__REG(0x4C000020)
+#define UHCCCED		__REG(0x4C000024)
+#define UHCBHED		__REG(0x4C000028)
+#define UHCBCED		__REG(0x4C00002C)
+#define UHCDHEAD	__REG(0x4C000030)
+#define UHCFMI		__REG(0x4C000034)
+#define UHCFMR		__REG(0x4C000038)
+#define UHCFMN		__REG(0x4C00003C)
+#define UHCPERS		__REG(0x4C000040)
+#define UHCLST		__REG(0x4C000044)
+#define UHCRHDA		__REG(0x4C000048)
+#define UHCRHDB		__REG(0x4C00004C)
+#define UHCRHS		__REG(0x4C000050)
+#define UHCRHPS1	__REG(0x4C000054)
+#define UHCRHPS2	__REG(0x4C000058)
+#define UHCRHPS3	__REG(0x4C00005C)
+#define UHCSTAT		__REG(0x4C000060)
+#define UHCHR		__REG(0x4C000064)
+#define UHCHIE		__REG(0x4C000068)
+#define UHCHIT		__REG(0x4C00006C)
+
+#define UHCHR_FSBIR	(1<<0)
+#define UHCHR_FHR	(1<<1)
+#define UHCHR_CGR	(1<<2)
+#define UHCHR_SSDC	(1<<3)
+#define UHCHR_UIT	(1<<4)
+#define UHCHR_SSE	(1<<5)
+#define UHCHR_PSPL	(1<<6)
+#define UHCHR_PCPL	(1<<7)
+#define UHCHR_SSEP0	(1<<9)
+#define UHCHR_SSEP1	(1<<10)
+#define UHCHR_SSEP2	(1<<11)
+
+#define UHCHIE_UPRIE	(1<<13)
+#define UHCHIE_UPS2IE	(1<<12)
+#define UHCHIE_UPS1IE	(1<<11)
+#define UHCHIE_TAIE	(1<<10)
+#define UHCHIE_HBAIE	(1<<8)
+#define UHCHIE_RWIE	(1<<7)
+
+#endif
 
 /*
  * Fast Infrared Communication Port
  */
-
 #define ICCR0		__REG(0x40800000)  /* ICP Control Register 0 */
 #define ICCR1		__REG(0x40800004)  /* ICP Control Register 1 */
 #define ICCR2		__REG(0x40800008)  /* ICP Control Register 2 */
@@ -722,26 +783,36 @@ typedef void            (*ExcpHndlr) (void) ;
 #define ICSR0		__REG(0x40800014)  /* ICP Status Register 0 */
 #define ICSR1		__REG(0x40800018)  /* ICP Status Register 1 */
 
-
 /*
  * Real Time Clock
  */
-
 #define RCNR		__REG(0x40900000)  /* RTC Count Register */
 #define RTAR		__REG(0x40900004)  /* RTC Alarm Register */
 #define RTSR		__REG(0x40900008)  /* RTC Status Register */
 #define RTTR		__REG(0x4090000C)  /* RTC Timer Trim Register */
+#define RDAR1	   __REG(0x40900018)  /* Wristwatch Day Alarm Reg 1 */
+#define RDAR2	   __REG(0x40900020)  /* Wristwatch Day Alarm Reg 2 */
+#define RYAR1	   __REG(0x4090001C)  /* Wristwatch Year Alarm Reg 1 */
+#define RYAR2	   __REG(0x40900024)  /* Wristwatch Year Alarm Reg 2 */
+#define SWAR1	   __REG(0x4090002C)  /* Stopwatch Alarm Register 1 */
+#define SWAR2	   __REG(0x40900030)  /* Stopwatch Alarm Register 2 */
+#define PIAR	   __REG(0x40900038)  /* Periodic Interrupt Alarm Register */
+#define RDCR	   __REG(0x40900010)  /* RTC Day Count Register. */
+#define RYCR	   __REG(0x40900014)  /* RTC Year Count Register. */
+#define SWCR	   __REG(0x40900028)  /* Stopwatch Count Register */
+#define RTCPICR	   __REG(0x40900034)  /* Periodic Interrupt Counter Register */
 
+#define RTSR_PICE  (1 << 15)   /* Peridoc interrupt count enable */
+#define RTSR_PIALE (1 << 14)   /* Peridoc interrupt Alarm enable */
+#define RTSR_PIAL  (1 << 13)   /* Peridoc  interrupt Alarm status */
 #define RTSR_HZE	(1 << 3)	/* HZ interrupt enable */
 #define RTSR_ALE	(1 << 2)	/* RTC alarm interrupt enable */
 #define RTSR_HZ		(1 << 1)	/* HZ rising-edge detected */
 #define RTSR_AL		(1 << 0)	/* RTC alarm detected */
 
-
 /*
  * OS Timer & Match Registers
  */
-
 #define OSMR0		__REG(0x40A00000)  /* */
 #define OSMR1		__REG(0x40A00004)  /* */
 #define OSMR2		__REG(0x40A00008)  /* */
@@ -763,11 +834,9 @@ typedef void            (*ExcpHndlr) (void) ;
 #define OIER_E1		(1 << 1)	/* Interrupt enable channel 1 */
 #define OIER_E0		(1 << 0)	/* Interrupt enable channel 0 */
 
-
 /*
  * Pulse Width Modulator
  */
-
 #define PWM_CTRL0	__REG(0x40B00000)  /* PWM 0 Control Register */
 #define PWM_PWDUTY0	__REG(0x40B00004)  /* PWM 0 Duty Cycle Register */
 #define PWM_PERVAL0	__REG(0x40B00008)  /* PWM 0 Period Control Register */
@@ -776,11 +845,9 @@ typedef void            (*ExcpHndlr) (void) ;
 #define PWM_PWDUTY1	__REG(0x40C00004)  /* PWM 1 Duty Cycle Register */
 #define PWM_PERVAL1	__REG(0x40C00008)  /* PWM 1 Period Control Register */
 
-
 /*
  * Interrupt Controller
  */
-
 #define ICIP		__REG(0x40D00000)  /* Interrupt Controller IRQ Pending Register */
 #define ICMR		__REG(0x40D00004)  /* Interrupt Controller Mask Register */
 #define ICLR		__REG(0x40D00008)  /* Interrupt Controller Level Register */
@@ -788,11 +855,9 @@ typedef void            (*ExcpHndlr) (void) ;
 #define ICPR		__REG(0x40D00010)  /* Interrupt Controller Pending Register */
 #define ICCR		__REG(0x40D00014)  /* Interrupt Controller Control Register */
 
-
 /*
  * General Purpose I/O
  */
-
 #define GPLR0		__REG(0x40E00000)  /* GPIO Pin-Level Register GPIO<31:0> */
 #define GPLR1		__REG(0x40E00004)  /* GPIO Pin-Level Register GPIO<63:32> */
 #define GPLR2		__REG(0x40E00008)  /* GPIO Pin-Level Register GPIO<80:64> */
@@ -831,6 +896,37 @@ typedef void            (*ExcpHndlr) (void) ;
 /* More handy macros.  The argument is a literal GPIO number. */
 
 #define GPIO_bit(x)	(1 << ((x) & 0x1f))
+
+#ifdef CONFIG_PXA27X
+
+/* Interrupt Controller */
+
+#define ICIP2		__REG(0x40D0009C)  /* Interrupt Controller IRQ Pending Register 2 */
+#define ICMR2		__REG(0x40D000A0)  /* Interrupt Controller Mask Register 2 */
+#define ICLR2		__REG(0x40D000A4)  /* Interrupt Controller Level Register 2 */
+#define ICFP2		__REG(0x40D000A8)  /* Interrupt Controller FIQ Pending Register 2 */
+#define ICPR2		__REG(0x40D000AC)  /* Interrupt Controller Pending Register 2 */
+
+#define _GPLR(x)	__REG2(0x40E00000, ((x) & 0x60) >> 3)
+#define _GPDR(x)	__REG2(0x40E0000C, ((x) & 0x60) >> 3)
+#define _GPSR(x)	__REG2(0x40E00018, ((x) & 0x60) >> 3)
+#define _GPCR(x)	__REG2(0x40E00024, ((x) & 0x60) >> 3)
+#define _GRER(x)	__REG2(0x40E00030, ((x) & 0x60) >> 3)
+#define _GFER(x)	__REG2(0x40E0003C, ((x) & 0x60) >> 3)
+#define _GEDR(x)	__REG2(0x40E00048, ((x) & 0x60) >> 3)
+#define _GAFR(x)	__REG2(0x40E00054, ((x) & 0x70) >> 2)
+
+#define GPLR(x)		((((x) & 0x7f) < 96) ? _GPLR(x) : GPLR3)
+#define GPDR(x)		((((x) & 0x7f) < 96) ? _GPDR(x) : GPDR3)
+#define GPSR(x)		((((x) & 0x7f) < 96) ? _GPSR(x) : GPSR3)
+#define GPCR(x)		((((x) & 0x7f) < 96) ? _GPCR(x) : GPCR3)
+#define GRER(x)		((((x) & 0x7f) < 96) ? _GRER(x) : GRER3)
+#define GFER(x)		((((x) & 0x7f) < 96) ? _GFER(x) : GFER3)
+#define GEDR(x)		((((x) & 0x7f) < 96) ? _GEDR(x) : GEDR3)
+#define GAFR(x)		((((x) & 0x7f) < 96) ? _GAFR(x) : \
+			 ((((x) & 0x7f) < 112) ? GAFR3_L : GAFR3_U))
+#else
+
 #define GPLR(x)		__REG2(0x40E00000, ((x) & 0x60) >> 3)
 #define GPDR(x)		__REG2(0x40E0000C, ((x) & 0x60) >> 3)
 #define GPSR(x)		__REG2(0x40E00018, ((x) & 0x60) >> 3)
@@ -839,6 +935,8 @@ typedef void            (*ExcpHndlr) (void) ;
 #define GFER(x)		__REG2(0x40E0003C, ((x) & 0x60) >> 3)
 #define GEDR(x)		__REG2(0x40E00048, ((x) & 0x60) >> 3)
 #define GAFR(x)		__REG2(0x40E00054, ((x) & 0x70) >> 2)
+
+#endif
 
 /* GPIO alternate function assignments */
 
@@ -968,10 +1066,10 @@ typedef void            (*ExcpHndlr) (void) ;
 #define GPIO27_SEXTCLK_MD	(27 | GPIO_ALT_FN_1_IN)
 #define GPIO28_BITCLK_AC97_MD	(28 | GPIO_ALT_FN_1_IN)
 #define GPIO28_BITCLK_I2S_MD	(28 | GPIO_ALT_FN_2_IN)
-#define GPIO29_SDATA_IN_AC97_MD	(29 | GPIO_ALT_FN_1_IN)
+#define GPIO29_SDATA_IN_AC97_MD (29 | GPIO_ALT_FN_1_IN)
 #define GPIO29_SDATA_IN_I2S_MD	(29 | GPIO_ALT_FN_2_IN)
 #define GPIO30_SDATA_OUT_AC97_MD	(30 | GPIO_ALT_FN_2_OUT)
-#define GPIO30_SDATA_OUT_I2S_MD	(30 | GPIO_ALT_FN_1_OUT)
+#define GPIO30_SDATA_OUT_I2S_MD (30 | GPIO_ALT_FN_1_OUT)
 #define GPIO31_SYNC_AC97_MD	(31 | GPIO_ALT_FN_2_OUT)
 #define GPIO31_SYNC_I2S_MD	(31 | GPIO_ALT_FN_1_OUT)
 #define GPIO32_SDATA_IN1_AC97_MD	(32 | GPIO_ALT_FN_1_IN)
@@ -1038,11 +1136,12 @@ typedef void            (*ExcpHndlr) (void) ;
 #define GPIO79_nCS_3_MD		(79 | GPIO_ALT_FN_2_OUT)
 #define GPIO80_nCS_4_MD		(80 | GPIO_ALT_FN_2_OUT)
 
+#define GPIO117_SCL	     (117 | GPIO_ALT_FN_1_OUT)
+#define GPIO118_SDA	     (118 | GPIO_ALT_FN_1_OUT)
 
 /*
  * Power Manager
  */
-
 #define PMCR		__REG(0x40F00000)  /* Power Manager Control Register */
 #define PSSR		__REG(0x40F00004)  /* Power Manager Sleep Status Register */
 #define PSPR		__REG(0x40F00008)  /* Power Manager Scratch Pad Register */
@@ -1054,8 +1153,62 @@ typedef void            (*ExcpHndlr) (void) ;
 #define PGSR0		__REG(0x40F00020)  /* Power Manager GPIO Sleep State Register for GP[31-0] */
 #define PGSR1		__REG(0x40F00024)  /* Power Manager GPIO Sleep State Register for GP[63-32] */
 #define PGSR2		__REG(0x40F00028)  /* Power Manager GPIO Sleep State Register for GP[84-64] */
+#define PGSR3		__REG(0x40F0002C)  /* Power Manager GPIO Sleep State Register for GP[118-96] */
 #define RCSR		__REG(0x40F00030)  /* Reset Controller Status Register */
 
+#define	   PSLR	   __REG(0x40F00034)	/* Power Manager Sleep Config Register */
+#define	   PSTR	   __REG(0x40F00038)	/* Power Manager Standby Config Register */
+#define	   PSNR	   __REG(0x40F0003C)	/* Power Manager Sense Config Register */
+#define	   PVCR	   __REG(0x40F00040)	/* Power Manager VoltageControl Register */
+#define	   PKWR	   __REG(0x40F00050)	/* Power Manager KB Wake-up Enable Reg */
+#define	   PKSR	   __REG(0x40F00054)	/* Power Manager KB Level-Detect Register */
+#define	   PCMD(x) __REG(0x40F00080 + x*4)
+#define	   PCMD0   __REG(0x40F00080 + 0 * 4)
+#define	   PCMD1   __REG(0x40F00080 + 1 * 4)
+#define	   PCMD2   __REG(0x40F00080 + 2 * 4)
+#define	   PCMD3   __REG(0x40F00080 + 3 * 4)
+#define	   PCMD4   __REG(0x40F00080 + 4 * 4)
+#define	   PCMD5   __REG(0x40F00080 + 5 * 4)
+#define	   PCMD6   __REG(0x40F00080 + 6 * 4)
+#define	   PCMD7   __REG(0x40F00080 + 7 * 4)
+#define	   PCMD8   __REG(0x40F00080 + 8 * 4)
+#define	   PCMD9   __REG(0x40F00080 + 9 * 4)
+#define	   PCMD10  __REG(0x40F00080 + 10 * 4)
+#define	   PCMD11  __REG(0x40F00080 + 11 * 4)
+#define	   PCMD12  __REG(0x40F00080 + 12 * 4)
+#define	   PCMD13  __REG(0x40F00080 + 13 * 4)
+#define	   PCMD14  __REG(0x40F00080 + 14 * 4)
+#define	   PCMD15  __REG(0x40F00080 + 15 * 4)
+#define	   PCMD16  __REG(0x40F00080 + 16 * 4)
+#define	   PCMD17  __REG(0x40F00080 + 17 * 4)
+#define	   PCMD18  __REG(0x40F00080 + 18 * 4)
+#define	   PCMD19  __REG(0x40F00080 + 19 * 4)
+#define	   PCMD20  __REG(0x40F00080 + 20 * 4)
+#define	   PCMD21  __REG(0x40F00080 + 21 * 4)
+#define	   PCMD22  __REG(0x40F00080 + 22 * 4)
+#define	   PCMD23  __REG(0x40F00080 + 23 * 4)
+#define	   PCMD24  __REG(0x40F00080 + 24 * 4)
+#define	   PCMD25  __REG(0x40F00080 + 25 * 4)
+#define	   PCMD26  __REG(0x40F00080 + 26 * 4)
+#define	   PCMD27  __REG(0x40F00080 + 27 * 4)
+#define	   PCMD28  __REG(0x40F00080 + 28 * 4)
+#define	   PCMD29  __REG(0x40F00080 + 29 * 4)
+#define	   PCMD30  __REG(0x40F00080 + 30 * 4)
+#define	   PCMD31  __REG(0x40F00080 + 31 * 4)
+
+#define	   PCMD_MBC    (1<<12)
+#define	   PCMD_DCE    (1<<11)
+#define	   PCMD_LC     (1<<10)
+/* FIXME:  PCMD_SQC need be checked.   */
+#define	   PCMD_SQC    (3<<8)  /* currently only bit 8 is changerable, */
+				/* bit 9 should be 0 all day. */
+#define PVCR_VCSA		   (0x1<<14)
+#define PVCR_CommandDelay	   (0xf80)
+/* define MACRO for Power Manager General Configuration Register (PCFR) */
+#define PCFR_FVC		   (0x1 << 10)
+#define PCFR_PI2C_EN		   (0x1 << 6)
+
+#define PSSR_OTGPH	(1 << 6)	/* OTG Peripheral control Hold */
 #define PSSR_RDH	(1 << 5)	/* Read Disable Hold */
 #define PSSR_PH		(1 << 4)	/* Peripheral Control Hold */
 #define PSSR_VFS	(1 << 2)	/* VDD Fault Status */
@@ -1072,22 +1225,18 @@ typedef void            (*ExcpHndlr) (void) ;
 #define RCSR_WDR	(1 << 1)	/* Watchdog Reset */
 #define RCSR_HWR	(1 << 0)	/* Hardware Reset */
 
-
 /*
  * SSP Serial Port Registers
  */
-
 #define SSCR0		__REG(0x41000000)  /* SSP Control Register 0 */
 #define SSCR1		__REG(0x41000004)  /* SSP Control Register 1 */
 #define SSSR		__REG(0x41000008)  /* SSP Status Register */
 #define SSITR		__REG(0x4100000C)  /* SSP Interrupt Test Register */
 #define SSDR		__REG(0x41000010)  /* (Write / Read) SSP Data Write Register/SSP Data Read Register */
 
-
 /*
  * MultiMediaCard (MMC) controller
  */
-
 #define MMC_STRPCL	__REG(0x41100000)  /* Control to start and stop MMC clock */
 #define MMC_STAT	__REG(0x41100004)  /* MMC Status Register (read only) */
 #define MMC_CLKRT	__REG(0x41100008)  /* MMC clock rate */
@@ -1107,24 +1256,37 @@ typedef void            (*ExcpHndlr) (void) ;
 #define MMC_RXFIFO	__REG(0x41100040)  /* Receive FIFO (read only) */
 #define MMC_TXFIFO	__REG(0x41100044)  /* Transmit FIFO (write only) */
 
-
 /*
  * Core Clock
  */
-
 #define CCCR		__REG(0x41300000)  /* Core Clock Configuration Register */
 #define CKEN		__REG(0x41300004)  /* Clock Enable Register */
 #define OSCC		__REG(0x41300008)  /* Oscillator Configuration Register */
 
 #define CCCR_N_MASK	0x0380		/* Run Mode Frequency to Turbo Mode Frequency Multiplier */
+#if !defined(CONFIG_PXA27X)
 #define CCCR_M_MASK	0x0060		/* Memory Frequency to Run Mode Frequency Multiplier */
+#endif
 #define CCCR_L_MASK	0x001f		/* Crystal Frequency to Memory Frequency Multiplier */
 
+#define CKEN24_CAMERA	(1 << 24)	/* Camera Interface Clock Enable */
+#define CKEN23_SSP1	(1 << 23)	/* SSP1 Unit Clock Enable */
+#define CKEN22_MEMC	(1 << 22)	/* Memory Controller Clock Enable */
+#define CKEN21_MEMSTK	(1 << 21)	/* Memory Stick Host Controller */
+#define CKEN20_IM	(1 << 20)	/* Internal Memory Clock Enable */
+#define CKEN19_KEYPAD	(1 << 19)	/* Keypad Interface Clock Enable */
+#define CKEN18_USIM	(1 << 18)	/* USIM Unit Clock Enable */
+#define CKEN17_MSL	(1 << 17)	/* MSL Unit Clock Enable */
 #define CKEN16_LCD	(1 << 16)	/* LCD Unit Clock Enable */
+#define CKEN15_PWRI2C	(1 << 15)	/* PWR I2C Unit Clock Enable */
 #define CKEN14_I2C	(1 << 14)	/* I2C Unit Clock Enable */
 #define CKEN13_FICP	(1 << 13)	/* FICP Unit Clock Enable */
 #define CKEN12_MMC	(1 << 12)	/* MMC Unit Clock Enable */
 #define CKEN11_USB	(1 << 11)	/* USB Unit Clock Enable */
+#if defined(CONFIG_PXA27X)
+#define CKEN10_USBHOST	(1 << 10)	/* USB Host Unit Clock Enable */
+#define CKEN24_CAMERA	(1 << 24)	/* Camera Unit Clock Enable */
+#endif
 #define CKEN8_I2S	(1 << 8)	/* I2S Unit Clock Enable */
 #define CKEN7_BTUART	(1 << 7)	/* BTUART Unit Clock Enable */
 #define CKEN6_FFUART	(1 << 6)	/* FFUART Unit Clock Enable */
@@ -1137,34 +1299,36 @@ typedef void            (*ExcpHndlr) (void) ;
 #define OSCC_OON	(1 << 1)	/* 32.768kHz OON (write-once only bit) */
 #define OSCC_OOK	(1 << 0)	/* 32.768kHz OOK (read-only bit) */
 
-#define  CCCR_L09      (0x1F)
-#define  CCCR_L27      (0x1)
-#define  CCCR_L32      (0x2)
-#define  CCCR_L36      (0x3)
-#define  CCCR_L40      (0x4)
-#define  CCCR_L45      (0x5)
+#if !defined(CONFIG_PXA27X)
+#define	 CCCR_L09      (0x1F)
+#define	 CCCR_L27      (0x1)
+#define	 CCCR_L32      (0x2)
+#define	 CCCR_L36      (0x3)
+#define	 CCCR_L40      (0x4)
+#define	 CCCR_L45      (0x5)
 
-#define  CCCR_M1       (0x1 << 5)
-#define  CCCR_M2       (0x2 << 5)
-#define  CCCR_M4       (0x3 << 5)
+#define	 CCCR_M1       (0x1 << 5)
+#define	 CCCR_M2       (0x2 << 5)
+#define	 CCCR_M4       (0x3 << 5)
 
-#define  CCCR_N10      (0x2 << 7)
-#define  CCCR_N15      (0x3 << 7)
-#define  CCCR_N20      (0x4 << 7)
-#define  CCCR_N25      (0x5 << 7)
-#define  CCCR_N30      (0x6 << 7)
+#define	 CCCR_N10      (0x2 << 7)
+#define	 CCCR_N15      (0x3 << 7)
+#define	 CCCR_N20      (0x4 << 7)
+#define	 CCCR_N25      (0x5 << 7)
+#define	 CCCR_N30      (0x6 << 7)
+#endif
 
 /*
  * LCD
  */
-
 #define LCCR0		__REG(0x44000000)  /* LCD Controller Control Register 0 */
 #define LCCR1		__REG(0x44000004)  /* LCD Controller Control Register 1 */
 #define LCCR2		__REG(0x44000008)  /* LCD Controller Control Register 2 */
 #define LCCR3		__REG(0x4400000C)  /* LCD Controller Control Register 3 */
 #define DFBR0		__REG(0x44000020)  /* DMA Channel 0 Frame Branch Register */
 #define DFBR1		__REG(0x44000024)  /* DMA Channel 1 Frame Branch Register */
-#define LCSR		__REG(0x44000038)  /* LCD Controller Status Register */
+#define LCSR0		__REG(0x44000038)  /* LCD Controller Status Register */
+#define LCSR1		__REG(0x44000034)  /* LCD Controller Status Register */
 #define LIIDR		__REG(0x4400003C)  /* LCD Controller Interrupt ID Register */
 #define TMEDRGBR	__REG(0x44000040)  /* TMED RGB Seed Register */
 #define TMEDCR		__REG(0x44000044)  /* TMED Control Register */
@@ -1192,51 +1356,56 @@ typedef void            (*ExcpHndlr) (void) ;
 #define LCCR0_QDM	(1 << 11)	/* LCD Quick Disable mask */
 #define LCCR0_PDD	(0xff << 12)	/* Palette DMA request delay */
 #define LCCR0_PDD_S	12
-#define LCCR0_BM	(1 << 20) 	/* Branch mask */
+#define LCCR0_BM	(1 << 20)	/* Branch mask */
 #define LCCR0_OUM	(1 << 21)	/* Output FIFO underrun mask */
+#if defined(CONFIG_PXA27X)
+#define LCCR0_LCDT	(1 << 22)	/* LCD Panel Type */
+#define LCCR0_RDSTM	(1 << 23)	/* Read Status Interrupt Mask */
+#define LCCR0_CMDIM	(1 << 24)	/* Command Interrupt Mask */
+#endif
 
-#define LCCR1_PPL       Fld (10, 0)      /* Pixels Per Line - 1 */
-#define LCCR1_DisWdth(Pixel)            /* Display Width [1..800 pix.]  */ \
+#define LCCR1_PPL	Fld (10, 0)	 /* Pixels Per Line - 1 */
+#define LCCR1_DisWdth(Pixel)		/* Display Width [1..800 pix.]	*/ \
 			(((Pixel) - 1) << FShft (LCCR1_PPL))
 
-#define LCCR1_HSW       Fld (6, 10)     /* Horizontal Synchronization     */
-#define LCCR1_HorSnchWdth(Tpix)         /* Horizontal Synchronization     */ \
-					/* pulse Width [1..64 Tpix]       */ \
+#define LCCR1_HSW	Fld (6, 10)	/* Horizontal Synchronization	  */
+#define LCCR1_HorSnchWdth(Tpix)		/* Horizontal Synchronization	  */ \
+					/* pulse Width [1..64 Tpix]	  */ \
 			(((Tpix) - 1) << FShft (LCCR1_HSW))
 
-#define LCCR1_ELW       Fld (8, 16)     /* End-of-Line pixel clock Wait    */
-					/* count - 1 [Tpix]                */
-#define LCCR1_EndLnDel(Tpix)            /*  End-of-Line Delay              */ \
-					/*  [1..256 Tpix]                  */ \
+#define LCCR1_ELW	Fld (8, 16)	/* End-of-Line pixel clock Wait	   */
+					/* count - 1 [Tpix]		   */
+#define LCCR1_EndLnDel(Tpix)		/*  End-of-Line Delay		   */ \
+					/*  [1..256 Tpix]		   */ \
 			(((Tpix) - 1) << FShft (LCCR1_ELW))
 
-#define LCCR1_BLW       Fld (8, 24)     /* Beginning-of-Line pixel clock   */
-					/* Wait count - 1 [Tpix]           */
-#define LCCR1_BegLnDel(Tpix)            /*  Beginning-of-Line Delay        */ \
-					/*  [1..256 Tpix]                  */ \
+#define LCCR1_BLW	Fld (8, 24)	/* Beginning-of-Line pixel clock   */
+					/* Wait count - 1 [Tpix]	   */
+#define LCCR1_BegLnDel(Tpix)		/*  Beginning-of-Line Delay	   */ \
+					/*  [1..256 Tpix]		   */ \
 			(((Tpix) - 1) << FShft (LCCR1_BLW))
 
 
-#define LCCR2_LPP       Fld (10, 0)     /* Line Per Panel - 1              */
-#define LCCR2_DisHght(Line)             /*  Display Height [1..1024 lines] */ \
+#define LCCR2_LPP	Fld (10, 0)	/* Line Per Panel - 1		   */
+#define LCCR2_DisHght(Line)		/*  Display Height [1..1024 lines] */ \
 			(((Line) - 1) << FShft (LCCR2_LPP))
 
-#define LCCR2_VSW       Fld (6, 10)     /* Vertical Synchronization pulse  */
-					/* Width - 1 [Tln] (L_FCLK)        */
-#define LCCR2_VrtSnchWdth(Tln)          /*  Vertical Synchronization pulse */ \
-					/*  Width [1..64 Tln]              */ \
+#define LCCR2_VSW	Fld (6, 10)	/* Vertical Synchronization pulse  */
+					/* Width - 1 [Tln] (L_FCLK)	   */
+#define LCCR2_VrtSnchWdth(Tln)		/*  Vertical Synchronization pulse */ \
+					/*  Width [1..64 Tln]		   */ \
 			(((Tln) - 1) << FShft (LCCR2_VSW))
 
-#define LCCR2_EFW       Fld (8, 16)     /* End-of-Frame line clock Wait    */
-					/* count [Tln]                     */
-#define LCCR2_EndFrmDel(Tln)            /*  End-of-Frame Delay             */ \
-					/*  [0..255 Tln]                   */ \
+#define LCCR2_EFW	Fld (8, 16)	/* End-of-Frame line clock Wait	   */
+					/* count [Tln]			   */
+#define LCCR2_EndFrmDel(Tln)		/*  End-of-Frame Delay		   */ \
+					/*  [0..255 Tln]		   */ \
 			((Tln) << FShft (LCCR2_EFW))
 
-#define LCCR2_BFW       Fld (8, 24)     /* Beginning-of-Frame line clock   */
-					/* Wait count [Tln]                */
-#define LCCR2_BegFrmDel(Tln)            /*  Beginning-of-Frame Delay       */ \
-					/*  [0..255 Tln]                   */ \
+#define LCCR2_BFW	Fld (8, 24)	/* Beginning-of-Frame line clock   */
+					/* Wait count [Tln]		   */
+#define LCCR2_BegFrmDel(Tln)		/*  Beginning-of-Frame Delay	   */ \
+					/*  [0..255 Tln]		   */ \
 			((Tln) << FShft (LCCR2_BFW))
 
 #if 0
@@ -1257,79 +1426,100 @@ typedef void            (*ExcpHndlr) (void) ;
 #endif
 #define LCCR3_DPC	(1 << 27)	/* double pixel clock mode */
 
+#define LCCR3_PDFOR_0	 (0 << 30)
+#define LCCR3_PDFOR_1	 (1 << 30)
+#define LCCR3_PDFOR_2	 (2 << 30)
+#define LCCR3_PDFOR_3	 (3 << 30)
 
-#define LCCR3_PCD       Fld (8, 0)      /* Pixel Clock Divisor */
-#define LCCR3_PixClkDiv(Div)            /* Pixel Clock Divisor */ \
+
+#define LCCR3_PCD	Fld (8, 0)	/* Pixel Clock Divisor */
+#define LCCR3_PixClkDiv(Div)		/* Pixel Clock Divisor */ \
 			(((Div) << FShft (LCCR3_PCD)))
 
 
-#define LCCR3_BPP       Fld (3, 24)     /* Bit Per Pixel */
-#define LCCR3_Bpp(Bpp)                  /* Bit Per Pixel */ \
-			(((Bpp) << FShft (LCCR3_BPP)))
+#define LCCR3_BPP	Fld (3, 24)	/* Bit Per Pixel */
+#define LCCR3_Bpp(Bpp)			/* Bit Per Pixel */ \
+			((((Bpp&0x7) << FShft (LCCR3_BPP)))|(((Bpp&0x8)<<26)))
 
-#define LCCR3_ACB       Fld (8, 8)      /* AC Bias */
-#define LCCR3_Acb(Acb)                  /* BAC Bias */ \
+#define LCCR3_ACB	Fld (8, 8)	/* AC Bias */
+#define LCCR3_Acb(Acb)			/* BAC Bias */ \
 			(((Acb) << FShft (LCCR3_ACB)))
 
-#define LCCR3_HorSnchH  (LCCR3_HSP*0)   /*  Horizontal Synchronization     */
-					/*  pulse active High              */
-#define LCCR3_HorSnchL  (LCCR3_HSP*1)   /*  Horizontal Synchronization     */
+#define LCCR3_HorSnchH	(LCCR3_HSP*0)	/*  Horizontal Synchronization	   */
+					/*  pulse active High		   */
+#define LCCR3_HorSnchL	(LCCR3_HSP*1)	/*  Horizontal Synchronization	   */
 
-#define LCCR3_VrtSnchH  (LCCR3_VSP*0)   /*  Vertical Synchronization pulse */
-					/*  active High                    */
-#define LCCR3_VrtSnchL  (LCCR3_VSP*1)   /*  Vertical Synchronization pulse */
-					/*  active Low                     */
+#define LCCR3_VrtSnchH	(LCCR3_VSP*0)	/*  Vertical Synchronization pulse */
+					/*  active High			   */
+#define LCCR3_VrtSnchL	(LCCR3_VSP*1)	/*  Vertical Synchronization pulse */
+					/*  active Low			   */
 
-#define LCSR_LDD	(1 << 0)	/* LCD Disable Done */
-#define LCSR_SOF	(1 << 1)	/* Start of frame */
-#define LCSR_BER	(1 << 2)	/* Bus error */
-#define LCSR_ABC	(1 << 3)	/* AC Bias count */
-#define LCSR_IUL	(1 << 4)	/* input FIFO underrun Lower panel */
-#define LCSR_IUU	(1 << 5)	/* input FIFO underrun Upper panel */
-#define LCSR_OU		(1 << 6)	/* output FIFO underrun */
-#define LCSR_QD		(1 << 7)	/* quick disable */
-#define LCSR_EOF	(1 << 8)	/* end of frame */
-#define LCSR_BS		(1 << 9)	/* branch status */
-#define LCSR_SINT	(1 << 10)	/* subsequent interrupt */
+#define LCSR0_LDD	(1 << 0)	/* LCD Disable Done */
+#define LCSR0_SOF	(1 << 1)	/* Start of frame */
+#define LCSR0_BER	(1 << 2)	/* Bus error */
+#define LCSR0_ABC	(1 << 3)	/* AC Bias count */
+#define LCSR0_IUL	(1 << 4)	/* input FIFO underrun Lower panel */
+#define LCSR0_IUU	(1 << 5)	/* input FIFO underrun Upper panel */
+#define LCSR0_OU	(1 << 6)	/* output FIFO underrun */
+#define LCSR0_QD	(1 << 7)	/* quick disable */
+#define LCSR0_EOF0	(1 << 8)	/* end of frame */
+#define LCSR0_BS	(1 << 9)	/* branch status */
+#define LCSR0_SINT	(1 << 10)	/* subsequent interrupt */
+
+#define LCSR1_SOF1	(1 << 0)
+#define LCSR1_SOF2	(1 << 1)
+#define LCSR1_SOF3	(1 << 2)
+#define LCSR1_SOF4	(1 << 3)
+#define LCSR1_SOF5	(1 << 4)
+#define LCSR1_SOF6	(1 << 5)
+
+#define LCSR1_EOF1	(1 << 8)
+#define LCSR1_EOF2	(1 << 9)
+#define LCSR1_EOF3	(1 << 10)
+#define LCSR1_EOF4	(1 << 11)
+#define LCSR1_EOF5	(1 << 12)
+#define LCSR1_EOF6	(1 << 13)
+
+#define LCSR1_BS1	(1 << 16)
+#define LCSR1_BS2	(1 << 17)
+#define LCSR1_BS3	(1 << 18)
+#define LCSR1_BS4	(1 << 19)
+#define LCSR1_BS5	(1 << 20)
+#define LCSR1_BS6	(1 << 21)
+
+#define LCSR1_IU2	(1 << 25)
+#define LCSR1_IU3	(1 << 26)
+#define LCSR1_IU4	(1 << 27)
+#define LCSR1_IU5	(1 << 28)
+#define LCSR1_IU6	(1 << 29)
 
 #define LDCMD_PAL	(1 << 26)	/* instructs DMA to load palette buffer */
-
-#define LCSR_LDD	(1 << 0)	/* LCD Disable Done */
-#define LCSR_SOF	(1 << 1)	/* Start of frame */
-#define LCSR_BER	(1 << 2)	/* Bus error */
-#define LCSR_ABC	(1 << 3)	/* AC Bias count */
-#define LCSR_IUL	(1 << 4)	/* input FIFO underrun Lower panel */
-#define LCSR_IUU	(1 << 5)	/* input FIFO underrun Upper panel */
-#define LCSR_OU		(1 << 6)	/* output FIFO underrun */
-#define LCSR_QD		(1 << 7)	/* quick disable */
-#define LCSR_EOF	(1 << 8)	/* end of frame */
-#define LCSR_BS		(1 << 9)	/* branch status */
-#define LCSR_SINT	(1 << 10)	/* subsequent interrupt */
-
-#define LDCMD_PAL	(1 << 26)	/* instructs DMA to load palette buffer */
+#if defined(CONFIG_PXA27X)
+#define LDCMD_SOFINT	(1 << 22)
+#define LDCMD_EOFINT	(1 << 21)
+#endif
 
 /*
  * Memory controller
  */
-
 #define MEMC_BASE	__REG(0x48000000)  /* Base of Memory Controller */
-#define MDCNFG_OFFSET   0x0
-#define MDREFR_OFFSET   0x4
-#define MSC0_OFFSET     0x8
-#define MSC1_OFFSET     0xC
-#define MSC2_OFFSET     0x10
-#define MECR_OFFSET     0x14
-#define SXLCR_OFFSET    0x18
-#define SXCNFG_OFFSET   0x1C
-#define FLYCNFG_OFFSET  0x20
-#define SXMRS_OFFSET    0x24
-#define MCMEM0_OFFSET   0x28
-#define MCMEM1_OFFSET   0x2C
-#define MCATT0_OFFSET   0x30
-#define MCATT1_OFFSET   0x34
-#define MCIO0_OFFSET    0x38
-#define MCIO1_OFFSET    0x3C
-#define MDMRS_OFFSET    0x40
+#define MDCNFG_OFFSET	0x0
+#define MDREFR_OFFSET	0x4
+#define MSC0_OFFSET	0x8
+#define MSC1_OFFSET	0xC
+#define MSC2_OFFSET	0x10
+#define MECR_OFFSET	0x14
+#define SXLCR_OFFSET	0x18
+#define SXCNFG_OFFSET	0x1C
+#define FLYCNFG_OFFSET	0x20
+#define SXMRS_OFFSET	0x24
+#define MCMEM0_OFFSET	0x28
+#define MCMEM1_OFFSET	0x2C
+#define MCATT0_OFFSET	0x30
+#define MCATT1_OFFSET	0x34
+#define MCIO0_OFFSET	0x38
+#define MCIO1_OFFSET	0x3C
+#define MDMRS_OFFSET	0x40
 
 #define MDCNFG		__REG(0x48000000)  /* SDRAM Configuration Register 0 */
 #define MDCNFG_DE0	0x00000001
@@ -1369,5 +1559,191 @@ typedef void            (*ExcpHndlr) (void) ;
 #define MDREFR_K0RUN	(1 << 13)	/* SDCLK0 Run Control/Status */
 #define MDREFR_E0PIN	(1 << 12)	/* SDCKE0 Level Control/Status */
 
+#if defined(CONFIG_PXA27X)
 
-#endif
+#define ARB_CNTRL	__REG(0x48000048)  /* Arbiter Control Register */
+
+#define ARB_DMA_SLV_PARK	(1<<31)	   /* Be parked with DMA slave when idle */
+#define ARB_CI_PARK		(1<<30)	   /* Be parked with Camera Interface when idle */
+#define ARB_EX_MEM_PARK		(1<<29)	   /* Be parked with external MEMC when idle */
+#define ARB_INT_MEM_PARK	(1<<28)	   /* Be parked with internal MEMC when idle */
+#define ARB_USB_PARK		(1<<27)	   /* Be parked with USB when idle */
+#define ARB_LCD_PARK		(1<<26)	   /* Be parked with LCD when idle */
+#define ARB_DMA_PARK		(1<<25)	   /* Be parked with DMA when idle */
+#define ARB_CORE_PARK		(1<<24)	   /* Be parked with core when idle */
+#define ARB_LOCK_FLAG		(1<<23)	   /* Only Locking masters gain access to the bus */
+
+/* Interrupt Controller */
+
+#define ICIP2		__REG(0x40D0009C)  /* Interrupt Controller IRQ Pending Register 2 */
+#define ICMR2		__REG(0x40D000A0)  /* Interrupt Controller Mask Register 2 */
+#define ICLR2		__REG(0x40D000A4)  /* Interrupt Controller Level Register 2 */
+#define ICFP2		__REG(0x40D000A8)  /* Interrupt Controller FIQ Pending Register 2 */
+#define ICPR2		__REG(0x40D000AC)  /* Interrupt Controller Pending Register 2 */
+
+/* General Purpose I/O */
+
+#define GAFR3_L		__REG(0x40E0006C)  /* GPIO Alternate Function Select Register GPIO<111:96> */
+#define GAFR3_U		__REG(0x40E00070)  /* GPIO Alternate Function Select Register GPIO<127:112> */
+#define GPLR3		__REG(0x40E00100)  /* GPIO Pin-Level Register GPIO<127:96> */
+#define GPDR3		__REG(0x40E0010C)  /* GPIO Pin Direction Register GPIO<127:96> */
+#define GPSR3		__REG(0x40E00118)  /* GPIO Pin Output Set Register GPIO<127:96> */
+#define GPCR3		__REG(0x40E00124)  /* GPIO Pin Output Clear Register GPIO <127:96> */
+#define GRER3		__REG(0x40E00130)  /* GPIO Rising-Edge Detect Register GPIO<127:96> */
+#define GFER3		__REG(0x40E0013C)  /* GPIO Falling-Edge Detect Register GPIO<31:0> */
+#define GEDR3		__REG(0x40E00148)  /* GPIO Edge Detect Status Register GPIO<127:96> */
+
+/* Core Clock */
+
+#define CCSR		__REG(0x4130000C) /* Core Clock Status Register */
+
+#define CKEN23_SSP1	(1 << 23) /* SSP1 Unit Clock Enable */
+#define CKEN22_MEMC	(1 << 22) /* Memory Controler */
+#define CKEN21_MSHC	(1 << 21) /* Memery Stick Host Controller */
+#define CKEN20_IM	(1 << 20) /* Internal Memory Clock Enable */
+#define CKEN19_KEYPAD	(1 << 19) /* Keypad Interface Clock Enable */
+#define CKEN18_USIM	(1 << 18) /* USIM Unit Clock Enable */
+#define CKEN17_MSL	(1 << 17) /* MSL Interface Unit Clock Enable */
+#define CKEN15_PWR_I2C	(1 << 15) /* PWR_I2C Unit Clock Enable */
+#define CKEN9_OST	(1 << 9)  /* OS Timer Unit Clock Enable */
+#define CKEN4_SSP3	(1 << 4)  /* SSP3 Unit Clock Enable */
+
+/* Memory controller */
+
+#define MDREFR_K0DB4	(1 << 29)	  /* SDCLK[0] divide by 4 */
+
+/* LCD registers */
+#define LCCR4		__REG(0x44000010)  /* LCD Controller Control Register 4 */
+#define LCCR5		__REG(0x44000014)  /* LCD Controller Control Register 5 */
+#define FBR0		__REG(0x44000020)  /* DMA Channel 0 Frame Branch Register */
+#define FBR1		__REG(0x44000024)  /* DMA Channel 1 Frame Branch Register */
+#define FBR2		__REG(0x44000028)  /* DMA Channel 2 Frame Branch Register */
+#define FBR3		__REG(0x4400002C)  /* DMA Channel 3 Frame Branch Register */
+#define FBR4		__REG(0x44000030)  /* DMA Channel 4 Frame Branch Register */
+#define FDADR2		__REG(0x44000220)  /* DMA Channel 2 Frame Descriptor Address Register */
+#define FSADR2		__REG(0x44000224)  /* DMA Channel 2 Frame Source Address Register */
+#define FIDR2		__REG(0x44000228)  /* DMA Channel 2 Frame ID Register */
+#define LDCMD2		__REG(0x4400022C)  /* DMA Channel 2 Command Register */
+#define FDADR3		__REG(0x44000230)  /* DMA Channel 3 Frame Descriptor Address Register */
+#define FSADR3		__REG(0x44000234)  /* DMA Channel 3 Frame Source Address Register */
+#define FIDR3		__REG(0x44000238)  /* DMA Channel 3 Frame ID Register */
+#define LDCMD3		__REG(0x4400023C)  /* DMA Channel 3 Command Register */
+#define FDADR4		__REG(0x44000240)  /* DMA Channel 4 Frame Descriptor Address Register */
+#define FSADR4		__REG(0x44000244)  /* DMA Channel 4 Frame Source Address Register */
+#define FIDR4		__REG(0x44000248)  /* DMA Channel 4 Frame ID Register */
+#define LDCMD4		__REG(0x4400024C)  /* DMA Channel 4 Command Register */
+#define FDADR5		__REG(0x44000250)  /* DMA Channel 5 Frame Descriptor Address Register */
+#define FSADR5		__REG(0x44000254)  /* DMA Channel 5 Frame Source Address Register */
+#define FIDR5		__REG(0x44000258)  /* DMA Channel 5 Frame ID Register */
+#define LDCMD5		__REG(0x4400025C)  /* DMA Channel 5 Command Register */
+
+#define OVL1C1		__REG(0x44000050)  /* Overlay 1 Control Register 1 */
+#define OVL1C2		__REG(0x44000060)  /* Overlay 1 Control Register 2 */
+#define OVL2C1		__REG(0x44000070)  /* Overlay 2 Control Register 1 */
+#define OVL2C2		__REG(0x44000080)  /* Overlay 2 Control Register 2 */
+#define CCR		__REG(0x44000090)  /* Cursor Control Register */
+
+#define FBR5		__REG(0x44000110)  /* DMA Channel 5 Frame Branch Register */
+#define FBR6		__REG(0x44000114)  /* DMA Channel 6 Frame Branch Register */
+
+#define LCCR0_LDDALT	(1<<26)		/* LDD Alternate mapping bit when base pixel is RGBT16 */
+#define LCCR0_OUC	(1<<25)		/* Overlay Underlay Control Bit */
+
+#define LCCR5_SOFM1	(1<<0)		/* Start Of Frame Mask for Overlay 1 (channel 1) */
+#define LCCR5_SOFM2	(1<<1)		/* Start Of Frame Mask for Overlay 2 (channel 2) */
+#define LCCR5_SOFM3	(1<<2)		/* Start Of Frame Mask for Overlay 2 (channel 3) */
+#define LCCR5_SOFM4	(1<<3)		/* Start Of Frame Mask for Overlay 2 (channel 4) */
+#define LCCR5_SOFM5	(1<<4)		/* Start Of Frame Mask for cursor (channel 5) */
+#define LCCR5_SOFM6	(1<<5)		/* Start Of Frame Mask for command data (channel 6) */
+
+#define LCCR5_EOFM1	(1<<8)		/* End Of Frame Mask for Overlay 1 (channel 1) */
+#define LCCR5_EOFM2	(1<<9)		/* End Of Frame Mask for Overlay 2 (channel 2) */
+#define LCCR5_EOFM3	(1<<10)		/* End Of Frame Mask for Overlay 2 (channel 3) */
+#define LCCR5_EOFM4	(1<<11)		/* End Of Frame Mask for Overlay 2 (channel 4) */
+#define LCCR5_EOFM5	(1<<12)		/* End Of Frame Mask for cursor (channel 5) */
+#define LCCR5_EOFM6	(1<<13)		/* End Of Frame Mask for command data (channel 6) */
+
+#define LCCR5_BSM1	(1<<16)		/* Branch mask for Overlay 1 (channel 1) */
+#define LCCR5_BSM2	(1<<17)		/* Branch mask for Overlay 2 (channel 2) */
+#define LCCR5_BSM3	(1<<18)		/* Branch mask for Overlay 2 (channel 3) */
+#define LCCR5_BSM4	(1<<19)		/* Branch mask for Overlay 2 (channel 4) */
+#define LCCR5_BSM5	(1<<20)		/* Branch mask for cursor (channel 5) */
+#define LCCR5_BSM6	(1<<21)		/* Branch mask for data command	 (channel 6) */
+
+#define LCCR5_IUM1	(1<<24)		/* Input FIFO Underrun Mask for Overlay 1  */
+#define LCCR5_IUM2	(1<<25)		/* Input FIFO Underrun Mask for Overlay 2  */
+#define LCCR5_IUM3	(1<<26)		/* Input FIFO Underrun Mask for Overlay 2  */
+#define LCCR5_IUM4	(1<<27)		/* Input FIFO Underrun Mask for Overlay 2  */
+#define LCCR5_IUM5	(1<<28)		/* Input FIFO Underrun Mask for cursor */
+#define LCCR5_IUM6	(1<<29)		/* Input FIFO Underrun Mask for data command */
+
+#define OVL1C1_O1EN	(1<<31)		/* Enable bit for Overlay 1 */
+#define OVL2C1_O2EN	(1<<31)		/* Enable bit for Overlay 2 */
+#define CCR_CEN		(1<<31)		/* Enable bit for Cursor */
+
+/* Keypad controller */
+
+#define KPC		__REG(0x41500000) /* Keypad Interface Control register */
+#define KPDK		__REG(0x41500008) /* Keypad Interface Direct Key register */
+#define KPREC		__REG(0x41500010) /* Keypad Intefcace Rotary Encoder register */
+#define KPMK		__REG(0x41500018) /* Keypad Intefcace Matrix Key register */
+#define KPAS		__REG(0x41500020) /* Keypad Interface Automatic Scan register */
+#define KPASMKP0	__REG(0x41500028) /* Keypad Interface Automatic Scan Multiple Key Presser register 0 */
+#define KPASMKP1	__REG(0x41500030) /* Keypad Interface Automatic Scan Multiple Key Presser register 1 */
+#define KPASMKP2	__REG(0x41500038) /* Keypad Interface Automatic Scan Multiple Key Presser register 2 */
+#define KPASMKP3	__REG(0x41500040) /* Keypad Interface Automatic Scan Multiple Key Presser register 3 */
+#define KPKDI		__REG(0x41500048) /* Keypad Interface Key Debounce Interval register */
+
+#define KPC_AS		(0x1 << 30)  /* Automatic Scan bit */
+#define KPC_ASACT	(0x1 << 29)  /* Automatic Scan on Activity */
+#define KPC_MI		(0x1 << 22)  /* Matrix interrupt bit */
+#define KPC_IMKP	(0x1 << 21)  /* Ignore Multiple Key Press */
+#define KPC_MS7		(0x1 << 20)  /* Matrix scan line 7 */
+#define KPC_MS6		(0x1 << 19)  /* Matrix scan line 6 */
+#define KPC_MS5		(0x1 << 18)  /* Matrix scan line 5 */
+#define KPC_MS4		(0x1 << 17)  /* Matrix scan line 4 */
+#define KPC_MS3		(0x1 << 16)  /* Matrix scan line 3 */
+#define KPC_MS2		(0x1 << 15)  /* Matrix scan line 2 */
+#define KPC_MS1		(0x1 << 14)  /* Matrix scan line 1 */
+#define KPC_MS0		(0x1 << 13)  /* Matrix scan line 0 */
+#define KPC_ME		(0x1 << 12)  /* Matrix Keypad Enable */
+#define KPC_MIE		(0x1 << 11)  /* Matrix Interrupt Enable */
+#define KPC_DK_DEB_SEL	(0x1 <<	 9)  /* Direct Key Debounce select */
+#define KPC_DI		(0x1 <<	 5)  /* Direct key interrupt bit */
+#define KPC_DEE0	(0x1 <<	 2)  /* Rotary Encoder 0 Enable */
+#define KPC_DE		(0x1 <<	 1)  /* Direct Keypad Enable */
+#define KPC_DIE		(0x1 <<	 0)  /* Direct Keypad interrupt Enable */
+
+#define KPDK_DKP	(0x1 << 31)
+#define KPDK_DK7	(0x1 <<	 7)
+#define KPDK_DK6	(0x1 <<	 6)
+#define KPDK_DK5	(0x1 <<	 5)
+#define KPDK_DK4	(0x1 <<	 4)
+#define KPDK_DK3	(0x1 <<	 3)
+#define KPDK_DK2	(0x1 <<	 2)
+#define KPDK_DK1	(0x1 <<	 1)
+#define KPDK_DK0	(0x1 <<	 0)
+
+#define KPREC_OF1	(0x1 << 31)
+#define kPREC_UF1	(0x1 << 30)
+#define KPREC_OF0	(0x1 << 15)
+#define KPREC_UF0	(0x1 << 14)
+
+#define KPMK_MKP	(0x1 << 31)
+#define KPAS_SO		(0x1 << 31)
+#define KPASMKPx_SO	(0x1 << 31)
+
+#define GPIO113_BIT	   (1 << 17)/* GPIO113 in GPSR, GPCR, bit 17 */
+#define PSLR	   __REG(0x40F00034)
+#define PSTR	   __REG(0x40F00038)  /* Power Manager Standby Configuration Reg */
+#define PSNR	   __REG(0x40F0003C)  /* Power Manager Sense Configuration Reg */
+#define PVCR	   __REG(0x40F00040)  /* Power Manager Voltage Change Control Reg */
+#define PKWR	   __REG(0x40F00050)  /* Power Manager KB Wake-Up Enable Reg */
+#define PKSR	   __REG(0x40F00054)  /* Power Manager KB Level-Detect Status Reg */
+#define OSMR4	    __REG(0x40A00080)  /* */
+#define OSCR4	    __REG(0x40A00040)  /* OS Timer Counter Register */
+#define OMCR4	    __REG(0x40A000C0)  /* */
+
+#endif	/* CONFIG_PXA27X */
+
+#endif	/* _PXA_REGS_H_ */

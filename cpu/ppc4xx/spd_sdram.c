@@ -1082,7 +1082,7 @@ void program_rtr (unsigned long* dimm_populated,
 	    case 0x00:
 		refresh_rate = 15625;
 		break;
-	    case 0x011:
+	    case 0x01:
 		refresh_rate = 15625/4;
 		break;
 	    case 0x02:

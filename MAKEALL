@@ -170,9 +170,9 @@ LIST_ARM11="omap2420h4"
 #########################################################################
 
 LIST_pxa="	\
-	cerf250		cradle		csb226		innokom		\
-	lubbock		wepep250	xaeniax		xm250		\
-	xsengine							\
+	adsvix		cerf250		cradle		csb226		\
+	innokom		lubbock		wepep250	xaeniax		\
+	xm250		xsengine							\
 "
 
 LIST_ixp="ixdp425"
