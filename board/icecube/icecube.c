@@ -288,6 +288,8 @@ void init_ide_reset (void)
     	/* Configure PSC1_4 as GPIO output for ATA reset */
 	*(vu_long *) MPC5XXX_WU_GPIO_ENABLE |= GPIO_PSC1_4;
 	*(vu_long *) MPC5XXX_WU_GPIO_DIR    |= GPIO_PSC1_4;
+	/* Deassert reset */
+	*(vu_long *) MPC5XXX_WU_GPIO_DATA   |= GPIO_PSC1_4;
 }
 
 void ide_set_reset (int idereset)
@@ -296,6 +298,8 @@ void ide_set_reset (int idereset)
 
 	if (idereset) {
 		*(vu_long *) MPC5XXX_WU_GPIO_DATA &= ~GPIO_PSC1_4;
+		/* Make a delay. MPC5200 spec says 25 usec min */
+		udelay(500000);
 	} else {
 		*(vu_long *) MPC5XXX_WU_GPIO_DATA |=  GPIO_PSC1_4;
 	}

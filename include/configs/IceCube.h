@@ -84,6 +84,7 @@
 /* Partitions */
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
+#define CONFIG_ISO_PARTITION
 
 /* USB */
 #if 1
@@ -324,7 +325,7 @@
 #define CONFIG_IDE_PREINIT
 
 #define CFG_IDE_MAXBUS		1	/* max. 1 IDE bus		*/
-#define CFG_IDE_MAXDEVICE	1	/* max. 1 drive per IDE bus	*/
+#define CFG_IDE_MAXDEVICE	2	/* max. 1 drive per IDE bus	*/
 
 #define CFG_ATA_IDE0_OFFSET	0x0000
 
@@ -341,5 +342,7 @@
 
 /* Interval between registers                                                */
 #define CFG_ATA_STRIDE          4
+
+#define CONFIG_ATAPI            1
 
 #endif /* __CONFIG_H */

@@ -1009,8 +1009,10 @@ static void ide_ident (block_dev_desc_t *dev_desc)
 
 #ifdef CONFIG_AMIGAONEG3SE
 	int max_bus_scan;
-	int retries = 0;
 	char *s;
+#endif
+#ifdef CONFIG_ATAPI
+	int retries = 0;
 	int do_retry = 0;
 #endif
 
@@ -1041,14 +1043,11 @@ static void ide_ident (block_dev_desc_t *dev_desc)
 	dev_desc->if_type=IF_TYPE_IDE;
 #ifdef CONFIG_ATAPI
 
-#ifdef CONFIG_AMIGAONEG3SE
     do_retry = 0;
     retries = 0;
 
     /* Warning: This will be tricky to read */
     while (retries <= 1) {
-#endif	/* CONFIG_AMIGAONEG3SE */
-
 	/* check signature */
 	if ((ide_inb(device,ATA_SECT_CNT) == 0x01) &&
 		 (ide_inb(device,ATA_SECT_NUM) == 0x01) &&
@@ -1079,32 +1078,35 @@ static void ide_ident (block_dev_desc_t *dev_desc)
 
 	if (((c & ATA_STAT_DRQ) == 0) ||
 	    ((c & (ATA_STAT_FAULT|ATA_STAT_ERR)) != 0) ) {
+#ifdef CONFIG_ATAPI
 #ifdef CONFIG_AMIGAONEG3SE
-		if (retries == 0) {
-			do_retry = 1;
-		} else {
-			return;
-		}
+		s = getenv("ide_doreset");
+		if (s && strcmp(s, "on") == 0)
+#endif
+			{
+				/* Need to soft reset the device in case it's an ATAPI...  */
+				PRINTF("Retrying...\n");
+				ide_outb (device, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(device));
+				udelay(100000);
+				ide_outb (device, ATA_COMMAND, 0x08);
+				udelay (500000);	/* 500 ms */
+			}
+		/* Select device
+		 */
+		ide_outb (device, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(device));
+		retries++;
 #else
 		return;
-#endif	/* CONFIG_AMIGAONEG3SE */
+#endif
 	}
-
-#ifdef CONFIG_AMIGAONEG3SE
-	s = getenv("ide_doreset");
-	if (s && strcmp(s, "on") == 0 && 1 == do_retry) {
-		/* Need to soft reset the device in case it's an ATAPI...  */
-		PRINTF("Retrying...\n");
-		ide_outb (device, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(device));
-		udelay(100000);
-		ide_outb (device, ATA_COMMAND, 0x08);
-		udelay (100000);	/* 100 ms */
-		retries++;
-	} else {
-		retries = 100;
-	}
+#ifdef CONFIG_ATAPI
+	else
+		break;
     }	/* see above - ugly to read */
-#endif	/* CONFIG_AMIGAONEG3SE */
+
+	if (retries == 2) /* Not found */
+		return;
+#endif
 
 	input_swap_data (device, iobuf, ATA_SECTORWORDS);
 

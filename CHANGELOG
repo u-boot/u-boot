@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Fix problems with CDROM drive as slave device on Lite5200 IDE bus.
+
 * Patch by Stephen Williams, 15 July 2004
   Set the PCI class code for JSE board as part of PCI interface setup
 
