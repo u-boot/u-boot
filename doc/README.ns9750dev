@@ -1,0 +1,36 @@
+U-Boot Port to the NS9750 DevKit from NetSilicon
+
+1 Overview
+2 Board Configuration
+3 Installation
+
+
+1 Overview
+----------
+
+This port supports these NS9750 features.
+
+o one UART
+
+2 Board Configuration
+---------------------
+
+Switches:
+SW10: 4
+SW11: 6,7
+SW16: 6,7,8
+SW17-SW20: 1
+SW4: 3, 6
+SW 1: 1
+SW2: 4
+SW3: 3
+SW8: 3 (rotated by 180 degree!!!!)
+
+Serial Console is Port B (bottom right port)
+
+3 Installation
+--------------
+
+Have fun,
+--
+Markus Pietrek <mpietrek@fsforth.de>

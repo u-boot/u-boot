@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2003
+ * (C) Copyright 2003-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -81,11 +81,22 @@
 
 #endif
 
+/* USB */
+#if 1
+#define CONFIG_USB_OHCI
+#define ADD_USB_CMD             CFG_CMD_USB | CFG_CMD_FAT
+#define CONFIG_DOS_PARTITION
+#define CONFIG_USB_STORAGE
+#else
+#define ADD_USB_CMD             0
+#endif
+
 /*
  * Supported commands
  */
 #define CONFIG_COMMANDS		(CONFIG_CMD_DFL | ADD_PCI_CMD | \
-				 CFG_CMD_I2C | CFG_CMD_EEPROM)
+				 CFG_CMD_I2C | CFG_CMD_EEPROM | \
+				 ADD_USB_CMD)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>

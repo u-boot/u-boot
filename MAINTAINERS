@@ -49,6 +49,10 @@ Kári Davíðsson <kd@flaga.is>
 
 	FLAGADM			MPC823
 
+Torsten Demke <torsten.demke@fci.com>
+
+	eXalion			MPC824x
+
 Wolfgang Denk <wd@denx.de>
 
 	AMX860			MPC860
@@ -288,6 +292,10 @@ Unknown / orphaned boards:
 # Maintainer Name, Email Address					#
 #	Board			CPU					#
 #########################################################################
+
+Thomas Elste <info@elste.org>
+
+	modnet50		ARM720T (NET+50)
 
 Peter Figuli <peposh@etc.sk>
 

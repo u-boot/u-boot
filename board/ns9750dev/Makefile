@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2003
+# (C) Copyright 2000, 2001, 2002
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,23 +23,25 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(CPU).a
+LIB	= lib$(BOARD).a
 
-START	= start.o
-ASOBJS	= io.o firmware_sc_task_bestcomm.impl.o firmware_sc_task.impl.o
-OBJS	= i2c.o traps.o cpu.o cpu_init.o speed.o interrupts.o serial.o \
-	  loadtask.o fec.o pci_mpc5200.o usb_ohci.o
+OBJS	:= ns9750dev.o flash.o led.o
+SOBJS	:= platform.o
 
-all:	.depend $(START) $(ASOBJS) $(LIB)
+$(LIB):	$(OBJS) $(SOBJS)
+	$(AR) crv $@ $(OBJS) $(SOBJS)
 
-$(LIB):	$(OBJS)
-	$(AR) crv $@ $(ASOBJS) $(OBJS)
+clean:
+	rm -f $(SOBJS) $(OBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak .depend
 
 #########################################################################
 
-.depend:	Makefile $(START:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(START:.o=.S) $(ASOBJS:.o=.S) $(OBJS:.o=.c) > $@
+.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
+		$(CC) -M $(CPPFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
 
-sinclude .depend
+-include .depend
 
 #########################################################################

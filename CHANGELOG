@@ -2,6 +2,18 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
+* Patch by Markus Pietrek, 24 Feb 2004:
+  NS9750 DevBoard added
+
+* Patch by Pierre AUBERT, 24 Feb 2004
+  add USB support for MPC5200
+
+* Patch by Steven Scholz, 24 Feb 2004:
+  - fix MII commands to use values from last command
+
+* Patch by Torsten Demke, 24 Feb 2004:
+  Add support for the eXalion platform (SPSW-8240, F-30, F-300)
+
 * Patch by Rahul Shanbhag, 19 Feb 2004:
   Fixes for for OMAP1610 board:
   - shift some IRQ specific code to platform.S file

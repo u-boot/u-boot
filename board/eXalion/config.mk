@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2003
+# (C) Copyright 2000, 2001
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -21,25 +21,11 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
+#
+# Sandpoint boards
+#
 
-LIB	= lib$(CPU).a
+#TEXT_BASE = 0x00090000
+TEXT_BASE = 0xFFF00000
 
-START	= start.o
-ASOBJS	= io.o firmware_sc_task_bestcomm.impl.o firmware_sc_task.impl.o
-OBJS	= i2c.o traps.o cpu.o cpu_init.o speed.o interrupts.o serial.o \
-	  loadtask.o fec.o pci_mpc5200.o usb_ohci.o
-
-all:	.depend $(START) $(ASOBJS) $(LIB)
-
-$(LIB):	$(OBJS)
-	$(AR) crv $@ $(ASOBJS) $(OBJS)
-
-#########################################################################
-
-.depend:	Makefile $(START:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(START:.o=.S) $(ASOBJS:.o=.S) $(OBJS:.o=.c) > $@
-
-sinclude .depend
-
-#########################################################################
+PLATFORM_CPPFLAGS += -DTEXT_BASE=$(TEXT_BASE)

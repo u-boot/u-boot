@@ -19,7 +19,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -53,10 +53,12 @@
 
 #ifdef CONFIG_USB_STORAGE
 
-#undef	USB_STOR_DEBUG
+#undef USB_STOR_DEBUG
+#undef BBB_COMDAT_TRACE
+#undef BBB_XPORT_TRACE
 
 #ifdef	USB_STOR_DEBUG
-#define	USB_STOR_PRINTF(fmt,args...)	printf (fmt ,##args)
+#define USB_STOR_PRINTF(fmt,args...)	printf (fmt ,##args)
 #else
 #define USB_STOR_PRINTF(fmt,args...)
 #endif
@@ -102,7 +104,7 @@ typedef struct {
 #	define CBWCDBLENGTH	16
 	__u8		CBWCDB[CBWCDBLENGTH];
 } umass_bbb_cbw_t;
-#define	UMASS_BBB_CBW_SIZE	31
+#define UMASS_BBB_CBW_SIZE	31
 static __u32 CBWTag = 0;
 
 /* Command Status Wrapper */
@@ -113,10 +115,10 @@ typedef struct {
 	__u32		dCSWDataResidue;
 	__u8		bCSWStatus;
 #	define CSWSTATUS_GOOD	0x0
-#	define CSWSTATUS_FAILED	0x1
+#	define CSWSTATUS_FAILED 0x1
 #	define CSWSTATUS_PHASE	0x2
 } umass_bbb_csw_t;
-#define	UMASS_BBB_CSW_SIZE	13
+#define UMASS_BBB_CSW_SIZE	13
 
 #define USB_MAX_STOR_DEV 5
 static int usb_max_devs; /* number of highest available usb device */
@@ -128,7 +130,7 @@ typedef int (*trans_cmnd)(ccb*, struct us_data*);
 typedef int (*trans_reset)(struct us_data*);
 
 struct us_data {
-	struct usb_device	*pusb_dev;       /* this usb_device */
+	struct usb_device	*pusb_dev;	 /* this usb_device */
 	unsigned int		flags;		 /* from filter initially */
 	unsigned char		ifnum;		 /* interface number */
 	unsigned char		ep_in;		 /* in endpoint */
@@ -136,14 +138,14 @@ struct us_data {
 	unsigned char		ep_int;		 /* interrupt . */
 	unsigned char		subclass;	 /* as in overview */
 	unsigned char		protocol;	 /* .............. */
-	unsigned char		attention_done;  /* force attn on first cmd */
+	unsigned char		attention_done;	 /* force attn on first cmd */
 	unsigned short	ip_data;	 /* interrupt data */
 	int							action;		 /* what to do */
 	int							ip_wanted; /* needed */
 	int							*irq_handle;	 /* for USB int requests */
 	unsigned int		irqpipe;	 /* pipe for release_irq */
 	unsigned char		irqmaxp;	/* max packed for irq Pipe */
-	unsigned char   irqinterval; /* Intervall for IRQ Pipe */
+	unsigned char	irqinterval; /* Intervall for IRQ Pipe */
 	ccb							*srb;		 /* current srb */
 	trans_reset			transport_reset; /* reset routine */
 	trans_cmnd			transport; /* transport routine */
@@ -152,7 +154,7 @@ struct us_data {
 static struct us_data usb_stor[USB_MAX_STOR_DEV];
 
 
-#define USB_STOR_TRANSPORT_GOOD    0
+#define USB_STOR_TRANSPORT_GOOD	   0
 #define USB_STOR_TRANSPORT_FAILED -1
 #define USB_STOR_TRANSPORT_ERROR  -2
 
@@ -517,45 +519,47 @@ int usb_stor_CB_comdat(ccb *srb, struct us_data *us)
 }
 
 
-int usb_stor_CBI_get_status(ccb *srb, struct us_data *us)
+int usb_stor_CBI_get_status (ccb * srb, struct us_data *us)
 {
 	int timeout;
 
-	us->ip_wanted=1;
-	submit_int_msg(us->pusb_dev,us->irqpipe,
-			(void *)&us->ip_data,us->irqmaxp ,us->irqinterval);
-  timeout=1000;
-  while(timeout--) {
-  	if((volatile int *)us->ip_wanted==0)
+	us->ip_wanted = 1;
+	submit_int_msg (us->pusb_dev, us->irqpipe,
+			(void *) &us->ip_data, us->irqmaxp, us->irqinterval);
+	timeout = 1000;
+	while (timeout--) {
+		if ((volatile int *) us->ip_wanted == 0)
 			break;
-		wait_ms(10);
+		wait_ms (10);
 	}
 	if (us->ip_wanted) {
-		printf("       Did not get interrupt on CBI\n");
+		printf ("	Did not get interrupt on CBI\n");
 		us->ip_wanted = 0;
 		return USB_STOR_TRANSPORT_ERROR;
 	}
-	USB_STOR_PRINTF("Got interrupt data 0x%x, transfered %d status 0x%lX\n", us->ip_data,us->pusb_dev->irq_act_len,us->pusb_dev->irq_status);
+	USB_STOR_PRINTF
+		("Got interrupt data 0x%x, transfered %d status 0x%lX\n",
+		 us->ip_data, us->pusb_dev->irq_act_len,
+		 us->pusb_dev->irq_status);
 	/* UFI gives us ASC and ASCQ, like a request sense */
 	if (us->subclass == US_SC_UFI) {
 		if (srb->cmd[0] == SCSI_REQ_SENSE ||
 		    srb->cmd[0] == SCSI_INQUIRY)
 			return USB_STOR_TRANSPORT_GOOD; /* Good */
+		else if (us->ip_data)
+			return USB_STOR_TRANSPORT_FAILED;
 		else
-			if (us->ip_data)
-				return USB_STOR_TRANSPORT_FAILED;
-			else
-				return USB_STOR_TRANSPORT_GOOD;
+			return USB_STOR_TRANSPORT_GOOD;
 	}
 	/* otherwise, we interpret the data normally */
 	switch (us->ip_data) {
-		case 0x0001:
-			return USB_STOR_TRANSPORT_GOOD;
-		case 0x0002:
-			return USB_STOR_TRANSPORT_FAILED;
-		default:
-			return USB_STOR_TRANSPORT_ERROR;
-	} /* switch */
+	case 0x0001:
+		return USB_STOR_TRANSPORT_GOOD;
+	case 0x0002:
+		return USB_STOR_TRANSPORT_FAILED;
+	default:
+		return USB_STOR_TRANSPORT_ERROR;
+	}			/* switch */
 	return USB_STOR_TRANSPORT_ERROR;
 }
 
@@ -601,11 +605,11 @@ int usb_stor_BBB_transport(ccb *srb, struct us_data *us)
 	pipein = usb_rcvbulkpipe(us->pusb_dev, us->ep_in);
 	pipeout = usb_sndbulkpipe(us->pusb_dev, us->ep_out);
 	/* DATA phase + error handling */
-	USB_STOR_PRINTF("DATA phase\n");
 	data_actlen = 0;
 	/* no data, go immediately to the STATUS phase */
 	if (srb->datalen == 0)
 		goto st;
+	USB_STOR_PRINTF("DATA phase\n");
 	if (dir_in)
 		pipe = pipein;
 	else
@@ -732,7 +736,7 @@ do_retry:
 	}
 	if((us->protocol==US_PR_CBI) &&
 			((srb->cmd[0]==SCSI_REQ_SENSE) ||
-		 	(srb->cmd[0]==SCSI_INQUIRY))) { /* do not issue an autorequest after request sense */
+			(srb->cmd[0]==SCSI_INQUIRY))) { /* do not issue an autorequest after request sense */
 		USB_STOR_PRINTF("No auto request and good\n");
 		return USB_STOR_TRANSPORT_GOOD;
 	}
@@ -749,7 +753,7 @@ do_retry:
 	USB_STOR_PRINTF("auto request returned %d\n",result);
 	/* if this is an CBI Protocol, get IRQ */
 	if(us->protocol==US_PR_CBI) {
-	 	status=usb_stor_CBI_get_status(psrb,us);
+		status=usb_stor_CBI_get_status(psrb,us);
 	}
 	if((result<0)&&!(us->pusb_dev->status & USB_ST_STALLED)) {
 		USB_STOR_PRINTF(" AUTO REQUEST ERROR %d\n",us->pusb_dev->status);
@@ -765,7 +769,7 @@ do_retry:
 	switch(srb->sense_buf[2]) {
 	case 0x01: /* Recovered Error */
 		return USB_STOR_TRANSPORT_GOOD;
-	 	break;
+		break;
 	case 0x02: /* Not Ready */
 		if(notready++ > USB_TRANSPORT_NOT_READY_RETRY) {
 			printf("cmd 0x%02X returned 0x%02X 0x%02X 0x%02X 0x%02X (NOT READY)\n",
@@ -817,7 +821,7 @@ static int usb_inquiry(ccb *srb,struct us_data *ss)
 static int usb_request_sense(ccb *srb,struct us_data *ss)
 {
 	char *ptr;
-	return 0;
+
 	ptr=srb->pdata;
 	memset(&srb->cmd[0],0,12);
 	srb->cmd[0]=SCSI_REQ_SENSE;
@@ -845,6 +849,8 @@ static int usb_test_unit_ready(ccb *srb,struct us_data *ss)
 		if(ss->transport(srb,ss)==USB_STOR_TRANSPORT_GOOD) {
 			return 0;
 		}
+		usb_request_sense (srb, ss);
+		wait_ms (100);
 	} while(retries--);
 
 	return -1;
@@ -1026,7 +1032,7 @@ int usb_storage_probe(struct usb_device *dev, unsigned int ifnum,struct us_data 
 		ss->transport_reset = usb_stor_BBB_reset;
 		break;
 	default:
-		printf("USB Starage Transport unknown / not yet implemented\n");
+		printf("USB Storage Transport unknown / not yet implemented\n");
 		return 0;
 		break;
 	}
@@ -1069,8 +1075,10 @@ int usb_storage_probe(struct usb_device *dev, unsigned int ifnum,struct us_data 
 	/* set class specific stuff */
 	/* We only handle certain protocols.  Currently, these are
 	 * the only ones.
+	 * The SFF8070 accepts the requests used in u-boot
 	 */
-	if (ss->subclass != US_SC_UFI && ss->subclass != US_SC_SCSI) {
+	if (ss->subclass != US_SC_UFI && ss->subclass != US_SC_SCSI &&
+	    ss->subclass != US_SC_8070) {
 		printf("Sorry, protocol %d not yet supported.\n",ss->subclass);
 		return 0;
 	}

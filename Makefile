@@ -671,6 +671,9 @@ CPC45_ROMBOOT_config:	unconfig
 CU824_config: unconfig
 	@./mkconfig $(@:_config=) ppc mpc824x cu824
 
+eXalion_config: unconfig
+	@./mkconfig $(@:_config=) ppc mpc824x eXalion
+
 MOUSSE_config: unconfig
 	@./mkconfig $(@:_config=) ppc mpc824x mousse
 

@@ -129,6 +129,7 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	last_op = op;
 	last_addr = addr;
 	last_data = data;
+	last_reg = reg;
 
 	return rcode;
 }
