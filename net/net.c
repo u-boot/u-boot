@@ -121,6 +121,10 @@ uchar		NetBcastAddr[6] =	/* Ethernet bcast address		*/
 			{ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 uchar		NetEtherNullAddr[6] =
 			{ 0, 0, 0, 0, 0, 0 };
+#if (CONFIG_COMMANDS & CFG_CMD_CDP)
+uchar		NetCDPAddr[6] =	/* Ethernet bcast address		*/
+			{ 0x01, 0x00, 0x0c, 0xcc, 0xcc, 0xcc };
+#endif
 int		NetState;		/* Network loop state			*/
 #ifdef CONFIG_NET_MULTI
 int		NetRestartWrap = 0;	/* Tried all network devices		*/
@@ -128,12 +132,19 @@ static int	NetRestarted = 0;	/* Network loop restarted		*/
 static int	NetDevExists = 0;	/* At least one device configured	*/
 #endif
 
+ushort		NetOurVLAN = ntohs(-1);	/* default is without VLAN		*/
+ushort		NetOurNativeVLAN = htons(-1);	/* dido				*/
+
 char		BootFile[128];		/* Boot File name			*/
 
 #if (CONFIG_COMMANDS & CFG_CMD_PING)
 IPaddr_t	NetPingIP;		/* the ip address to ping 		*/
 
 static void PingStart(void);
+#endif
+
+#if (CONFIG_COMMANDS & CFG_CMD_CDP)
+static void CDPStart(void);
 #endif
 
 volatile uchar	PktBuf[(PKTBUFSRX+1) * PKTSIZE_ALIGN + PKTALIGN];
@@ -170,8 +181,7 @@ void ArpRequest(void)
 #endif
 	pkt = NetTxPacket;
 
-	NetSetEther(pkt, NetBcastAddr, PROT_ARP);
-	pkt += ETHER_HDR_SIZE;
+	pkt += NetSetEther(pkt, NetBcastAddr, PROT_ARP);
 
 	arp = (ARP_t *)pkt;
 
@@ -196,7 +206,7 @@ void ArpRequest(void)
 	    NetArpWaitReplyIP = NetArpWaitPacketIP;
 
 	NetWriteIP((uchar*)&arp->ar_data[16], NetArpWaitReplyIP);
-	(void) eth_send(NetTxPacket, ETHER_HDR_SIZE + ARP_HDR_SIZE);
+	(void) eth_send(NetTxPacket, (pkt - NetTxPacket) + ARP_HDR_SIZE);
 }
 
 void ArpTimeoutCheck(void)
@@ -269,6 +279,7 @@ NetLoop(proto_t protocol)
 	}
 
 	eth_halt();
+	eth_set_current();
 	if(eth_init(bd) < 0)
 	    return(-1);
 
@@ -298,6 +309,8 @@ restart:
 		NetCopyIP(&NetOurIP, &bd->bi_ip_addr);
 		NetOurGatewayIP = getenv_IPaddr ("gatewayip");
 		NetOurSubnetMask= getenv_IPaddr ("netmask");
+		NetOurVLAN = getenv_VLAN("vlan");
+		NetOurNativeVLAN = getenv_VLAN("nvlan");
 
 		switch (protocol) {
 #if (CONFIG_COMMANDS & CFG_CMD_NFS)
@@ -324,6 +337,11 @@ restart:
 		 */
 		NetOurIP = 0;
 		NetServerIP = getenv_IPaddr ("serverip");
+ 		NetOurVLAN = getenv_VLAN("vlan");	/* VLANs must be read */
+ 		NetOurNativeVLAN = getenv_VLAN("nvlan");
+ 	case CDP:
+ 		NetOurVLAN = getenv_VLAN("vlan");	/* VLANs must be read */
+ 		NetOurNativeVLAN = getenv_VLAN("nvlan");
 		break;
 	default:
 		break;
@@ -376,6 +394,11 @@ restart:
 #if (CONFIG_COMMANDS & CFG_CMD_NFS)
 		case NFS:
 			NfsStart();
+			break;
+#endif
+#if (CONFIG_COMMANDS & CFG_CMD_CDP)
+		case CDP:
+			CDPStart();
 			break;
 #endif
 		default:
@@ -469,6 +492,9 @@ restart:
 					NetBootFileXferSize);
 				sprintf(buf, "%lx", NetBootFileXferSize);
 				setenv("filesize", buf);
+
+				sprintf(buf, "%lX", (unsigned long)load_addr);
+				setenv("fileaddr", buf);
 			}
 			eth_halt();
 			return NetBootFileXferSize;
@@ -496,12 +522,19 @@ startAgainHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len)
 void
 NetStartAgain(void)
 {
+	DECLARE_GLOBAL_DATA_PTR;
+	char *s;
+
+	if ((s = getenv("netretry")) != NULL && *s == 'n') {
+		eth_halt();
+		NetState = NETLOOP_FAIL;
+		return;
+	}
+
 #ifndef CONFIG_NET_MULTI
 	NetSetTimeout(10 * CFG_HZ, startAgainTimeout);
 	NetSetHandler(startAgainHandler);
 #else
-	DECLARE_GLOBAL_DATA_PTR;
-
 	eth_halt();
 	eth_try_another(!NetRestarted);
 	eth_init(gd->bd);
@@ -559,6 +592,8 @@ NetSendPacket(volatile uchar * pkt, int len)
 int
 NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport, int sport, int len)
 {
+	uchar *pkt;
+
 	/* convert to new style broadcast */
 	if (dest == 0)
 		dest = 0xFFFFFFFF;
@@ -573,16 +608,17 @@ NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport, int sport, int len)
 #ifdef ET_DEBUG
 		printf("sending ARP for %08lx\n", dest);
 #endif
-
 		NetArpWaitPacketIP = dest;
 		NetArpWaitPacketMAC = ether;
-		NetSetEther (NetArpWaitTxPacket, NetArpWaitPacketMAC, PROT_IP);
-		NetSetIP (NetArpWaitTxPacket + ETHER_HDR_SIZE, dest, dport, sport, len);
-		memcpy(NetArpWaitTxPacket + ETHER_HDR_SIZE + IP_HDR_SIZE,
-			(uchar *)NetTxPacket + ETHER_HDR_SIZE + IP_HDR_SIZE, len);
+
+		pkt = NetArpWaitTxPacket;
+		pkt += NetSetEther (pkt, NetArpWaitPacketMAC, PROT_IP);
+
+		NetSetIP (pkt, dest, dport, sport, len);
+		memcpy(pkt + IP_HDR_SIZE, (uchar *)NetTxPacket + (pkt - (uchar *)NetArpWaitTxPacket) + IP_HDR_SIZE, len);
 
 		/* size of the waiting packet */
-		NetArpWaitTxPacketSize = ETHER_HDR_SIZE + IP_HDR_SIZE + len;
+		NetArpWaitTxPacketSize = (pkt - NetArpWaitTxPacket) + IP_HDR_SIZE + len;
 
 		/* and do the ARP request */
 		NetArpWaitTry = 1;
@@ -596,9 +632,10 @@ NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport, int sport, int len)
 			dest, ether[0], ether[1], ether[2], ether[3], ether[4], ether[5]);
 #endif
 
-	NetSetEther (NetTxPacket, ether, PROT_IP);
-	NetSetIP (NetTxPacket + ETHER_HDR_SIZE, dest, dport, sport, len);
-	(void) eth_send(NetTxPacket, ETHER_HDR_SIZE + IP_HDR_SIZE + len);
+	pkt = (uchar *)NetTxPacket;
+	pkt += NetSetEther (pkt, ether, PROT_IP);
+	NetSetIP (pkt, dest, dport, sport, len);
+	(void) eth_send(NetTxPacket, (pkt - NetTxPacket) + IP_HDR_SIZE + len);
 
 	return 0;	/* transmited */
 }
@@ -611,6 +648,7 @@ int PingSend(void)
 	static uchar mac[6];
 	volatile IP_t *ip;
 	volatile ushort *s;
+	uchar *pkt;
 
 	/* XXX always send arp request */
 
@@ -623,9 +661,10 @@ int PingSend(void)
 	NetArpWaitPacketIP = NetPingIP;
 	NetArpWaitPacketMAC = mac;
 
-	NetSetEther(NetArpWaitTxPacket, mac, PROT_IP);
+	pkt = NetArpWaitTxPacket;
+	pkt += NetSetEther(pkt, mac, PROT_IP);
 
-	ip = (volatile IP_t *)(NetArpWaitTxPacket + ETHER_HDR_SIZE);
+	ip = (volatile IP_t *)pkt;
 
 	/*
 	 *	Construct an IP and ICMP header.  (need to set no fragment bit - XXX)
@@ -650,7 +689,7 @@ int PingSend(void)
 	s[1] = ~NetCksum((uchar *)s, 8/2);
 
 	/* size of the waiting packet */
-	NetArpWaitTxPacketSize = ETHER_HDR_SIZE + IP_HDR_SIZE_NO_UDP + 8;
+	NetArpWaitTxPacketSize = (pkt - NetArpWaitTxPacket) + IP_HDR_SIZE_NO_UDP + 8;
 
 	/* and do the ARP request */
 	NetArpWaitTry = 1;
@@ -681,6 +720,9 @@ PingHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 
 static void PingStart(void)
 {
+#if defined(CONFIG_NET_MULTI)
+	printf ("Using %s device\n", eth_get_name());
+#endif
 	NetSetTimeout (10 * CFG_HZ, PingTimeout);
 	NetSetHandler (PingHandler);
 
@@ -689,36 +731,453 @@ static void PingStart(void)
 
 #endif
 
+#if (CONFIG_COMMANDS & CFG_CMD_CDP)
+
+#define CDP_DEVICE_ID_TLV		0x0001
+#define CDP_ADDRESS_TLV			0x0002
+#define CDP_PORT_ID_TLV			0x0003
+#define CDP_CAPABILITIES_TLV		0x0004
+#define CDP_VERSION_TLV			0x0005
+#define CDP_PLATFORM_TLV		0x0006
+#define CDP_NATIVE_VLAN_TLV		0x000a
+#define CDP_APPLIANCE_VLAN_TLV		0x000e
+#define CDP_TRIGGER_TLV			0x000f
+#define CDP_POWER_CONSUMPTION_TLV	0x0010
+#define CDP_SYSNAME_TLV			0x0014
+#define CDP_SYSOBJECT_TLV		0x0015
+#define CDP_MANAGEMENT_ADDRESS_TLV	0x0016
+
+#define CDP_TIMEOUT			(CFG_HZ/4)	/* one packet every 250ms */
+
+static int CDPSeq;
+static int CDPOK;
+
+ushort CDPNativeVLAN;
+ushort CDPApplianceVLAN;
+
+static const uchar CDP_SNAP_hdr[8] = { 0xAA, 0xAA, 0x03, 0x00, 0x00, 0x0C, 0x20, 0x00 };
+
+static ushort CDP_compute_csum(const uchar *buff, ushort len)
+{
+	ushort csum;
+	int     odd;
+	ulong   result = 0;
+	ushort  leftover;
+
+	if (len > 0) {
+		odd = 1 & (ulong)buff;
+		if (odd) {
+			result = *buff << 8;
+			len--;
+			buff++;
+		}
+		while (len > 1) {
+			result += *((const ushort *)buff)++;
+			if (result & 0x80000000)
+				result = (result & 0xFFFF) + (result >> 16);
+			len -= 2;
+		}
+		if (len) {
+			leftover = (signed short)(*(const signed char *)buff);
+			/* * XXX CISCO SUCKS big time! (and blows too) */
+			result = (result & 0xffff0000) | ((result + leftover) & 0x0000ffff);
+		}
+		while (result >> 16)
+			result = (result & 0xFFFF) + (result >> 16);
+
+		if (odd)
+			result = ((result >> 8) & 0xff) | ((result & 0xff) << 8);
+	}
+
+	/* add up 16-bit and 17-bit words for 17+c bits */
+	result = (result & 0xffff) + (result >> 16);
+	/* add up 16-bit and 2-bit for 16+c bit */
+	result = (result & 0xffff) + (result >> 16);
+	/* add up carry.. */
+	result = (result & 0xffff) + (result >> 16);
+
+	/* negate */
+	csum = ~(ushort)result;
+
+	/* run time endian detection */
+	if (csum != htons(csum))	/* little endian */
+		csum = htons(csum);
+
+	return csum;
+}
+
+int CDPSendTrigger(void)
+{
+	volatile uchar *pkt;
+	volatile ushort *s;
+	volatile ushort *cp;
+	Ethernet_t *et;
+	char buf[32];
+	int len;
+	ushort chksum;
+
+	pkt = NetTxPacket;
+	et = (Ethernet_t *)pkt;
+
+	/* NOTE: trigger sent not on any VLAN */
+
+	/* form ethernet header */
+	memcpy(et->et_dest, NetCDPAddr, 6);
+	memcpy(et->et_src, NetOurEther, 6);
+
+	pkt += ETHER_HDR_SIZE;
+
+	/* SNAP header */
+	memcpy((uchar *)pkt, CDP_SNAP_hdr, sizeof(CDP_SNAP_hdr));
+	pkt += sizeof(CDP_SNAP_hdr);
+
+	/* CDP header */
+	*pkt++ = 0x02;				/* CDP version 2 */
+	*pkt++ = 180;				/* TTL */
+	s = (volatile ushort *)pkt;
+	cp = s;
+	*s++ = htons(0);			/* checksum (0 for later calculation) */
+
+	/* CDP fields */
+#ifdef CONFIG_CDP_DEVICE_ID
+	*s++ = htons(CDP_DEVICE_ID_TLV);
+	*s++ = htons(CONFIG_CDP_DEVICE_ID);
+	memset(buf, 0, sizeof(buf));
+	sprintf(buf, CONFIG_CDP_DEVICE_ID_PREFIX "%02X%02X%02X%02X%02X%02X",
+		NetOurEther[0] & 0xff, NetOurEther[1] & 0xff,
+		NetOurEther[2] & 0xff, NetOurEther[3] & 0xff,
+		NetOurEther[4] & 0xff, NetOurEther[5] & 0xff);
+	memcpy((uchar *)s, buf, 16);
+	s += 16 / 2;
+#endif
+
+#ifdef CONFIG_CDP_PORT_ID
+	*s++ = htons(CDP_PORT_ID_TLV);
+	memset(buf, 0, sizeof(buf));
+	sprintf(buf, CONFIG_CDP_PORT_ID, eth_get_dev_index());
+	len = strlen(buf);
+	if (len & 1)	/* make it even */
+		len++;
+	*s++ = htons(len + 4);
+	memcpy((uchar *)s, buf, len);
+	s += len / 2;
+#endif
+
+#ifdef CONFIG_CDP_CAPABILITIES
+	*s++ = htons(CDP_CAPABILITIES_TLV);
+	*s++ = htons(8);
+	*(ulong *)s = htonl(CONFIG_CDP_CAPABILITIES);
+	s += 2;
+#endif
+
+#ifdef CONFIG_CDP_VERSION
+	*s++ = htons(CDP_VERSION_TLV);
+	memset(buf, 0, sizeof(buf));
+	strcpy(buf, CONFIG_CDP_VERSION);
+	len = strlen(buf);
+	if (len & 1)	/* make it even */
+		len++;
+	*s++ = htons(len + 4);
+	memcpy((uchar *)s, buf, len);
+	s += len / 2;
+#endif
+
+#ifdef CONFIG_CDP_PLATFORM
+	*s++ = htons(CDP_PLATFORM_TLV);
+	memset(buf, 0, sizeof(buf));
+	strcpy(buf, CONFIG_CDP_PLATFORM);
+	len = strlen(buf);
+	if (len & 1)	/* make it even */
+		len++;
+	*s++ = htons(len + 4);
+	memcpy((uchar *)s, buf, len);
+	s += len / 2;
+#endif
+
+#ifdef CONFIG_CDP_TRIGGER
+	*s++ = htons(CDP_TRIGGER_TLV);
+	*s++ = htons(8);
+	*(ulong *)s = htonl(CONFIG_CDP_TRIGGER);
+	s += 2;
+#endif
+
+#ifdef CONFIG_CDP_POWER_CONSUMPTION
+	*s++ = htons(CDP_POWER_CONSUMPTION_TLV);
+	*s++ = htons(6);
+	*s++ = htons(CONFIG_CDP_POWER_CONSUMPTION);
+#endif
+
+	/* length of ethernet packet */
+	len = (uchar *)s - ((uchar *)NetTxPacket + ETHER_HDR_SIZE);
+	et->et_protlen = htons(len);
+
+	len = ETHER_HDR_SIZE + sizeof(CDP_SNAP_hdr);
+	chksum = CDP_compute_csum((uchar *)NetTxPacket + len, (uchar *)s - (NetTxPacket + len));
+	if (chksum == 0)
+		chksum = 0xFFFF;
+	*cp = htons(chksum);
+
+	(void) eth_send(NetTxPacket, (uchar *)s - NetTxPacket);
+	return 0;
+}
+
+static void
+CDPTimeout (void)
+{
+	CDPSeq++;
+
+	if (CDPSeq < 3) {
+		NetSetTimeout (CDP_TIMEOUT, CDPTimeout);
+		CDPSendTrigger();
+		return;
+	}
+
+	/* if not OK try again */
+	if (!CDPOK)
+		NetStartAgain();
+	else
+		NetState = NETLOOP_SUCCESS;
+}
+
+static void
+CDPDummyHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
+{
+	/* nothing */
+}
+
+static void
+CDPHandler(const uchar * pkt, unsigned len)
+{
+	const uchar *t;
+	const ushort *ss;
+	ushort type, tlen;
+	uchar applid;
+	ushort vlan, nvlan;
+
+	/* minimum size? */
+	if (len < sizeof(CDP_SNAP_hdr) + 4)
+		goto pkt_short;
+
+	/* check for valid CDP SNAP header */
+	if (memcmp(pkt, CDP_SNAP_hdr, sizeof(CDP_SNAP_hdr)) != 0)
+		return;
+
+	pkt += sizeof(CDP_SNAP_hdr);
+	len -= sizeof(CDP_SNAP_hdr);
+
+	/* Version of CDP protocol must be >= 2 and TTL != 0 */
+	if (pkt[0] < 0x02 || pkt[1] == 0)
+		return;
+
+	/* if version is greater than 0x02 maybe we'll have a problem; output a warning */
+	if (pkt[0] != 0x02)
+		printf("** WARNING: CDP packet received with a protocol version %d > 2\n",
+				pkt[0] & 0xff);
+
+	if (CDP_compute_csum(pkt, len) != 0)
+		return;
+
+	pkt += 4;
+	len -= 4;
+
+	vlan = htons(-1);
+	nvlan = htons(-1);
+	while (len > 0) {
+		if (len < 4)
+			goto pkt_short;
+
+		ss = (const ushort *)pkt;
+		type = ntohs(ss[0]);
+		tlen = ntohs(ss[1]);
+		if (tlen > len) {
+			goto pkt_short;
+		}
+
+		pkt += tlen;
+		len -= tlen;
+
+		ss += 2;	/* point ss to the data of the TLV */
+		tlen -= 4;
+
+		switch (type) {
+			case CDP_DEVICE_ID_TLV:
+				break;
+			case CDP_ADDRESS_TLV:
+				break;
+			case CDP_PORT_ID_TLV:
+				break;
+			case CDP_CAPABILITIES_TLV:
+				break;
+			case CDP_VERSION_TLV:
+				break;
+			case CDP_PLATFORM_TLV:
+				break;
+			case CDP_NATIVE_VLAN_TLV:
+				nvlan = *ss;
+				break;
+			case CDP_APPLIANCE_VLAN_TLV:
+				t = (const uchar *)ss;
+				while (tlen > 0) {
+					if (tlen < 3)
+						goto pkt_short;
+
+					applid = t[0];
+					ss = (const ushort *)(t + 1);
+
+#ifdef CONFIG_CDP_APPLIANCE_VLAN_TYPE
+					if (applid == CONFIG_CDP_APPLIANCE_VLAN_TYPE)
+						vlan = *ss;
+#else
+					vlan = ntohs(*ss);	/* XXX will this work; dunno */
+#endif
+					t += 3; tlen -= 3;
+				}
+				break;
+			case CDP_TRIGGER_TLV:
+				break;
+			case CDP_POWER_CONSUMPTION_TLV:
+				break;
+			case CDP_SYSNAME_TLV:
+				break;
+			case CDP_SYSOBJECT_TLV:
+				break;
+			case CDP_MANAGEMENT_ADDRESS_TLV:
+				break;
+		}
+	}
+
+	CDPApplianceVLAN = vlan;
+	CDPNativeVLAN = nvlan;
+
+	CDPOK = 1;
+	return;
+
+ pkt_short:
+	printf("** CDP packet is too short\n");
+	return;
+}
+
+static void CDPStart(void)
+{
+#if defined(CONFIG_NET_MULTI)
+	printf ("Using %s device\n", eth_get_name());
+#endif
+	CDPSeq = 0;
+	CDPOK = 0;
+
+	CDPNativeVLAN = htons(-1);
+	CDPApplianceVLAN = htons(-1);
+
+	NetSetTimeout (CDP_TIMEOUT, CDPTimeout);
+	NetSetHandler (CDPDummyHandler);
+
+	CDPSendTrigger();
+}
+
+#endif
+
+
 void
-NetReceive(volatile uchar * pkt, int len)
+NetReceive(volatile uchar * inpkt, int len)
 {
 	Ethernet_t *et;
 	IP_t	*ip;
 	ARP_t	*arp;
 	IPaddr_t tmp;
 	int	x;
+	uchar *pkt;
+#if (CONFIG_COMMANDS & CFG_CMD_CDP)
+	int iscdp;
+#endif
+	ushort cti = 0, vlanid = VLAN_NONE, myvlanid, mynvlanid;
 
-	NetRxPkt = pkt;
+#ifdef ET_DEBUG
+	printf("packet received\n");
+#endif
+
+	NetRxPkt = inpkt;
 	NetRxPktLen = len;
-	et = (Ethernet_t *)pkt;
+	et = (Ethernet_t *)inpkt;
+
+	/* too small packet? */
+	if (len < ETHER_HDR_SIZE)
+		return;
+
+#if (CONFIG_COMMANDS & CFG_CMD_CDP)
+	/* keep track if packet is CDP */
+	iscdp = memcmp(et->et_dest, NetCDPAddr, 6) == 0;
+#endif
+
+	myvlanid = ntohs(NetOurVLAN);
+	if (myvlanid == (ushort)-1)
+		myvlanid = VLAN_NONE;
+	mynvlanid = ntohs(NetOurNativeVLAN);
+	if (mynvlanid == (ushort)-1)
+		mynvlanid = VLAN_NONE;
 
 	x = ntohs(et->et_protlen);
+
+#ifdef ET_DEBUG
+	printf("packet received\n");
+#endif
 
 	if (x < 1514) {
 		/*
 		 *	Got a 802 packet.  Check the other protocol field.
 		 */
 		x = ntohs(et->et_prot);
-		ip = (IP_t *)(pkt + E802_HDR_SIZE);
+
+		ip = (IP_t *)(inpkt + E802_HDR_SIZE);
 		len -= E802_HDR_SIZE;
-	} else {
-		ip = (IP_t *)(pkt + ETHER_HDR_SIZE);
+
+	} else if (x != PROT_VLAN) {	/* normal packet */
+		ip = (IP_t *)(inpkt + ETHER_HDR_SIZE);
 		len -= ETHER_HDR_SIZE;
+
+	} else {			/* VLAN packet */
+		VLAN_Ethernet_t *vet = (VLAN_Ethernet_t *)et;
+
+#ifdef ET_DEBUG
+		printf("VLAN packet received\n");
+#endif
+		/* too small packet? */
+		if (len < VLAN_ETHER_HDR_SIZE)
+			return;
+
+		/* if no VLAN active */
+		if ((ntohs(NetOurVLAN) & VLAN_IDMASK) == VLAN_NONE
+#if (CONFIG_COMMANDS & CFG_CMD_CDP)
+				&& iscdp == 0
+#endif
+				)
+			return;
+
+		cti = ntohs(vet->vet_tag);
+		vlanid = cti & VLAN_IDMASK;
+		x = ntohs(vet->vet_type);
+
+		ip = (IP_t *)(inpkt + VLAN_ETHER_HDR_SIZE);
+		len -= VLAN_ETHER_HDR_SIZE;
 	}
 
 #ifdef ET_DEBUG
 	printf("Receive from protocol 0x%x\n", x);
 #endif
+
+#if (CONFIG_COMMANDS & CFG_CMD_CDP)
+	if (iscdp) {
+		CDPHandler((uchar *)ip, len);
+		return;
+	}
+#endif
+
+	if ((myvlanid & VLAN_IDMASK) != VLAN_NONE) {
+		if (vlanid == VLAN_NONE)
+			vlanid = (mynvlanid & VLAN_IDMASK);
+		/* not matched? */
+		if (vlanid != (myvlanid & VLAN_IDMASK))
+			return;
+	}
 
 	switch (x) {
 
@@ -766,13 +1225,14 @@ NetReceive(volatile uchar * pkt, int len)
 #ifdef ET_DEBUG
 			puts ("Got ARP REQUEST, return our IP\n");
 #endif
-			NetSetEther((uchar *)et, et->et_src, PROT_ARP);
+			pkt = (uchar *)et;
+			pkt += NetSetEther(pkt, et->et_src, PROT_ARP);
 			arp->ar_op = htons(ARPOP_REPLY);
 			memcpy   (&arp->ar_data[10], &arp->ar_data[0], 6);
 			NetCopyIP(&arp->ar_data[16], &arp->ar_data[6]);
 			memcpy   (&arp->ar_data[ 0], NetOurEther, 6);
 			NetCopyIP(&arp->ar_data[ 6], &NetOurIP);
-			(void) eth_send((uchar *)et, ((uchar *)arp-pkt) + ARP_HDR_SIZE);
+			(void) eth_send((uchar *)et, (pkt - (uchar *)et) + ARP_HDR_SIZE);
 			return;
 
 		case ARPOP_REPLY:		/* arp reply */
@@ -963,6 +1423,7 @@ static int net_check_prereq (proto_t protocol)
 	case DHCP:
 	case RARP:
 	case BOOTP:
+	case CDP:
 			if (memcmp(NetOurEther, "\0\0\0\0\0\0", 6) == 0) {
 #ifdef CONFIG_NET_MULTI
 			    extern int eth_get_dev_index (void);
@@ -1016,17 +1477,42 @@ NetCksum(uchar * ptr, int len)
 	return (xsum & 0xffff);
 }
 
+int
+NetEthHdrSize(void)
+{
+	ushort myvlanid;
 
-void
+	myvlanid = ntohs(NetOurVLAN);
+	if (myvlanid == (ushort)-1)
+		myvlanid = VLAN_NONE;
+
+	return ((myvlanid & VLAN_IDMASK) == VLAN_NONE) ? ETHER_HDR_SIZE : VLAN_ETHER_HDR_SIZE;
+}
+
+int
 NetSetEther(volatile uchar * xet, uchar * addr, uint prot)
 {
 	Ethernet_t *et = (Ethernet_t *)xet;
+	ushort myvlanid;
+
+	myvlanid = ntohs(NetOurVLAN);
+	if (myvlanid == (ushort)-1)
+		myvlanid = VLAN_NONE;
 
 	memcpy (et->et_dest, addr, 6);
 	memcpy (et->et_src, NetOurEther, 6);
+	if ((myvlanid & VLAN_IDMASK) == VLAN_NONE) {
 	et->et_protlen = htons(prot);
-}
+		return ETHER_HDR_SIZE;
+	} else {
+		VLAN_Ethernet_t *vet = (VLAN_Ethernet_t *)xet;
 
+		vet->vet_vlan_type = htons(PROT_VLAN);
+		vet->vet_tag = htons((0 << 5) | (myvlanid & VLAN_IDMASK));
+		vet->vet_type = htons(prot);
+		return VLAN_ETHER_HDR_SIZE;
+	}
+}
 
 void
 NetSetIP(volatile uchar * xip, IPaddr_t dest, int dport, int sport, int len)
@@ -1079,13 +1565,12 @@ void copy_filename (uchar *dst, uchar *src, int size)
 
 void ip_to_string (IPaddr_t x, char *s)
 {
-    x = ntohl(x);
-    sprintf (s,"%d.%d.%d.%d",
-	(int)((x >> 24) & 0xff),
-	(int)((x >> 16) & 0xff),
-	(int)((x >>  8) & 0xff),
-	(int)((x >>  0) & 0xff)
-    );
+	x = ntohl (x);
+	sprintf (s, "%d.%d.%d.%d",
+		 (int) ((x >> 24) & 0xff),
+		 (int) ((x >> 16) & 0xff),
+		 (int) ((x >> 8) & 0xff), (int) ((x >> 0) & 0xff)
+		);
 }
 
 IPaddr_t string_to_ip(char *s)
@@ -1109,16 +1594,49 @@ IPaddr_t string_to_ip(char *s)
 	return (htonl(addr));
 }
 
+void VLAN_to_string(ushort x, char *s)
+{
+	x = ntohs(x);
+
+	if (x == (ushort)-1)
+		x = VLAN_NONE;
+
+	if (x == VLAN_NONE)
+		strcpy(s, "none");
+	else
+		sprintf(s, "%d", x & VLAN_IDMASK);
+}
+
+ushort string_to_VLAN(char *s)
+{
+	ushort id;
+
+	if (s == NULL)
+		return VLAN_NONE;
+
+	if (*s < '0' || *s > '9')
+		id = VLAN_NONE;
+	else
+		id = (ushort)simple_strtoul(s, NULL, 10);
+
+	return id;
+}
+
 void print_IPaddr (IPaddr_t x)
 {
-    char tmp[16];
+	char tmp[16];
 
-    ip_to_string(x, tmp);
+	ip_to_string (x, tmp);
 
-    puts(tmp);
+	puts (tmp);
 }
 
 IPaddr_t getenv_IPaddr (char *var)
 {
 	return (string_to_ip(getenv(var)));
+}
+
+ushort getenv_VLAN(char *var)
+{
+	return (string_to_VLAN(getenv(var)));
 }

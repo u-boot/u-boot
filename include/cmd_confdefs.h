@@ -88,6 +88,7 @@
 #define CFG_CMD_ITEST	0x0040000000000000U	/* Integer (and string) test	*/
 #define CFG_CMD_NFS	0x0080000000000000U	/* NFS support			*/
 #define CFG_CMD_REISER  0x0100000000000000U     /* Reiserfs support		*/
+#define CFG_CMD_CDP	0x0200000000000000U	/* Cisco Discovery Protocol 	*/
 
 #define CFG_CMD_ALL	0xFFFFFFFFFFFFFFFFU	/* ALL commands			*/
 
@@ -131,7 +132,8 @@
 			CFG_CMD_SDRAM	| \
 			CFG_CMD_SPI	| \
 			CFG_CMD_USB	| \
-			CFG_CMD_VFD	)
+			CFG_CMD_VFD	| \
+			CFG_CMD_CDP 	)
 
 /* Default configuration
  */

@@ -203,6 +203,8 @@ int miiphy_link (unsigned char addr)
 {
 	unsigned short reg;
 
+	/* dummy read; needed to latch some phys */
+	(void)miiphy_read(addr, PHY_BMSR, &reg);
 	if (miiphy_read (addr, PHY_BMSR, &reg)) {
 		puts ("PHY_BMSR read failed, assuming no link\n");
 		return (0);

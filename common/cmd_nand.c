@@ -9,6 +9,7 @@
 #include <command.h>
 #include <malloc.h>
 #include <asm/io.h>
+#include <watchdog.h>
 
 #ifdef CONFIG_SHOW_BOOT_PROGRESS
 # include <status_led.h>
@@ -63,6 +64,7 @@ struct nand_oob_config {
 #define NANDRW_READ	0x01
 #define NANDRW_WRITE	0x00
 #define NANDRW_JFFS2	0x02
+#define NANDRW_JFFS2_SKIP	0x04
 
 /*
  * Function Prototypes
@@ -207,6 +209,11 @@ int do_nand (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		}
 		else if (cmdtail && !strncmp(cmdtail, ".jffs2", 2))
 			cmd |= NANDRW_JFFS2;	/* skip bad blocks */
+		else if (cmdtail && !strncmp(cmdtail, ".jffs2s", 2)) {
+			cmd |= NANDRW_JFFS2;	/* skip bad blocks (on read too) */
+			if (cmd & NANDRW_READ)
+				cmd |= NANDRW_JFFS2_SKIP;	/* skip bad blocks (on read too) */
+		}
 #ifdef SXNI855T
 		/* need ".e" same as ".j" for compatibility with older units */
 		else if (cmdtail && !strcmp(cmdtail, ".e"))
@@ -258,7 +265,7 @@ U_BOOT_CMD(
 	"nand    - NAND sub-system\n",
 	"info  - show available NAND devices\n"
 	"nand device [dev] - show or set current device\n"
-	"nand read[.jffs2]  addr off size\n"
+	"nand read[.jffs2[s]]  addr off size\n"
 	"nand write[.jffs2] addr off size - read/write `size' bytes starting\n"
 	"    at offset `off' to/from memory address `addr'\n"
 	"nand erase [clean] [off size] - erase `size' bytes from\n"
@@ -420,6 +427,7 @@ static void nand_print_bad(struct nand_chip* nand)
  *	1: NANDRW_READ			read, fail on bad block
  *	2: NANDRW_WRITE | NANDRW_JFFS2	write, skip bad blocks
  *	3: NANDRW_READ | NANDRW_JFFS2	read, data all 0xff for bad blocks
+ *      7: NANDRW_READ | NANDRW_JFFS2 | NANDRW_JFFS2_SKIP read, skip bad blocks
  */
 static int nand_rw (struct nand_chip* nand, int cmd,
 	    size_t start, size_t len,
@@ -448,6 +456,10 @@ static int nand_rw (struct nand_chip* nand, int cmd,
 						++total;
 						--len;
 					}
+					continue;
+				}
+				else if (cmd == (NANDRW_READ | NANDRW_JFFS2 | NANDRW_JFFS2_SKIP)) {
+					start += erasesize;
 					continue;
 				}
 				else if (cmd == (NANDRW_WRITE | NANDRW_JFFS2)) {

@@ -644,8 +644,7 @@ BootpRequest (void)
 	pkt = NetTxPacket;
 	memset ((void*)pkt, 0, PKTSIZE);
 
-	NetSetEther(pkt, NetBcastAddr, PROT_IP);
-	pkt += ETHER_HDR_SIZE;
+	pkt += NetSetEther(pkt, NetBcastAddr, PROT_IP);
 
 	/*
 	 * Next line results in incorrect packet size being transmitted, resulting
@@ -791,8 +790,7 @@ static void DhcpSendRequestPkt(Bootp_t *bp_offer)
 	pkt = NetTxPacket;
 	memset ((void*)pkt, 0, PKTSIZE);
 
-	NetSetEther(pkt, NetBcastAddr, PROT_IP);
-	pkt += ETHER_HDR_SIZE;
+	pkt += NetSetEther(pkt, NetBcastAddr, PROT_IP);
 
 	iphdr = pkt;		/* We'll need this later to set proper pkt size */
 	pkt += IP_HDR_SIZE;

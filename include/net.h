@@ -110,7 +110,11 @@ struct eth_device {
 extern int eth_initialize(bd_t *bis);		/* Initialize network subsystem */
 extern int eth_register(struct eth_device* dev);/* Register network device	*/
 extern void eth_try_another(int first_restart);	/* Change the device		*/
+#ifdef CONFIG_NET_MULTI
+extern void eth_set_current(void);		/* set nterface to ethcur var.  */
+#endif
 extern struct eth_device *eth_get_dev(void);	/* get the current device MAC	*/
+extern int eth_get_dev_index (void);		/* get the device index         */
 extern void eth_set_enetaddr(int num, char* a);	/* Set new MAC address		*/
 
 extern int eth_init(bd_t *bis);			/* Initialize the device	*/
@@ -143,9 +147,24 @@ typedef struct {
 
 #define ETHER_HDR_SIZE	14		/* Ethernet header size		*/
 #define E802_HDR_SIZE	22		/* 802 ethernet header size	*/
+
+/*
+ *	Ethernet header
+ */
+typedef struct {
+	uchar		vet_dest[6];	/* Destination node		*/
+	uchar		vet_src[6];	/* Source node			*/
+	ushort		vet_vlan_type;	/* PROT_VLAN			*/
+	ushort		vet_tag;	/* TAG of VLAN			*/
+	ushort		vet_type;	/* protocol type		*/
+} VLAN_Ethernet_t;
+
+#define VLAN_ETHER_HDR_SIZE	18	/* VLAN Ethernet header size	*/
+
 #define PROT_IP		0x0800		/* IP protocol			*/
 #define PROT_ARP	0x0806		/* IP ARP protocol		*/
 #define PROT_RARP	0x8035		/* IP ARP protocol		*/
+#define PROT_VLAN	0x8100		/* IEEE 802.1q protocol		*/
 
 #define IPPROTO_ICMP	 1	/* Internet Control Message Protocol	*/
 #define IPPROTO_UDP	17	/* User Datagram Protocol		*/
@@ -296,6 +315,15 @@ extern int		NetRxPktLen;		/* Current rx packet length	*/
 extern unsigned		NetIPID;		/* IP ID (counting)		*/
 extern uchar		NetBcastAddr[6];	/* Ethernet boardcast address	*/
 
+#define VLAN_NONE	4095			/* untagged 			*/
+#define VLAN_IDMASK	0x0fff			/* mask of valid vlan id 	*/
+extern ushort		NetOurVLAN;		/* Our VLAN 			*/
+extern ushort		NetOurNativeVLAN;	/* Our Native VLAN 		*/
+
+extern uchar		NetCDPAddr[6]; 		/* Ethernet CDP address		*/
+extern ushort		CDPNativeVLAN;		/* CDP returned native VLAN	*/
+extern ushort		CDPApplianceVLAN;	/* CDP returned appliance VLAN	*/
+
 extern int		NetState;		/* Network loop state		*/
 #define NETLOOP_CONTINUE	1
 #define NETLOOP_RESTART		2
@@ -306,13 +334,19 @@ extern int		NetState;		/* Network loop state		*/
 extern int		NetRestartWrap;		/* Tried all network devices	*/
 #endif
 
-typedef enum { BOOTP, RARP, ARP, TFTP, DHCP, PING, DNS, NFS } proto_t;
+typedef enum { BOOTP, RARP, ARP, TFTP, DHCP, PING, DNS, NFS, CDP } proto_t;
 
 /* from net/net.c */
 extern char	BootFile[128];			/* Boot File name		*/
 
 #if (CONFIG_COMMANDS & CFG_CMD_PING)
 extern IPaddr_t	NetPingIP;			/* the ip address to ping 		*/
+#endif
+
+#if (CONFIG_COMMANDS & CFG_CMD_CDP)
+/* when CDP completes these hold the return values */
+extern ushort CDPNativeVLAN;
+extern ushort CDPApplianceVLAN;
 #endif
 
 /* Initialize the network adapter */
@@ -324,8 +358,11 @@ extern void	NetStop(void);
 /* Load failed.	 Start again. */
 extern void	NetStartAgain(void);
 
-/* Set ethernet header */
-extern void	NetSetEther(volatile uchar *, uchar *, uint);
+/* Get size of the ethernet header when we send */
+extern int 	NetEthHdrSize(void);
+
+/* Set ethernet header; returns the size of the header */
+extern int	NetSetEther(volatile uchar *, uchar *, uint);
 
 /* Set IP header */
 extern void	NetSetIP(volatile uchar *, IPaddr_t, int, int, int);
@@ -397,8 +434,17 @@ extern void	ip_to_string (IPaddr_t x, char *s);
 /* Convert a string to ip address */
 extern IPaddr_t string_to_ip(char *s);
 
+/* Convert a VLAN id to a string */
+extern void	VLAN_to_string (ushort x, char *s);
+
+/* Convert a string to a vlan id */
+extern ushort string_to_VLAN(char *s);
+
 /* read an IP address from a environment variable */
 extern IPaddr_t getenv_IPaddr (char *);
+
+/* read a VLAN id from an environment variable */
+extern ushort getenv_VLAN(char *);
 
 /* copy a filename (allow for "..." notation, limit length) */
 extern void	copy_filename (uchar *dst, uchar *src, int size);

@@ -20,6 +20,13 @@ Changes for U-Boot 1.1.1:
        interface.
     3. We now correctly match the MII/RMII interface
        configuration to what the PHY reports.
+  - Fix problem when readingthe MII status register. Due to the
+    internal design of many PHYs you have to read the register
+    twice. The problem is more apparent in 10Mbit mode.
+  - add new mode ".jffs2s" for reading from a NAND device: it just
+    skips over bad blocks.
+  - add networking support for VLANs (802.1q), and CDP (Cisco
+    Discovery Protocol)
 
 * Patch by Yuli Barcohen, 28 Mar 2004:
   - Add support for MPC8272 family including MPC8247/8248/8271/8272

@@ -111,7 +111,7 @@ TftpSend (void)
 	 *	We will always be sending some sort of packet, so
 	 *	cobble together the packet headers now.
 	 */
-	pkt = NetTxPacket + ETHER_HDR_SIZE + IP_HDR_SIZE;
+	pkt = NetTxPacket + NetEthHdrSize() + IP_HDR_SIZE;
 
 	switch (TftpState) {
 

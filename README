@@ -582,6 +582,7 @@ The following options need to be configured:
 		CFG_CMD_USB	* USB support
 		CFG_CMD_VFD	* VFD support (TRAB)
 		CFG_CMD_BSP	* Board SPecific functions
+		CFG_CMD_CDP	* Cisco Discover Protocol support
 		-----------------------------------------------
 		CFG_CMD_ALL	all
 
@@ -949,6 +950,48 @@ The following options need to be configured:
 		CONFIG_BOOTP_MASK, the content of the "hostname"
 		environment variable is passed as option 12 to
 		the DHCP server.
+
+ - CDP Options:
+ 		CONFIG_CDP_DEVICE_ID
+
+		The device id used in CDP trigger frames.
+
+		CONFIG_CDP_DEVICE_ID_PREFIX
+
+		A two character string which is prefixed to the MAC address
+		of the device.
+
+		CONFIG_CDP_PORT_ID
+
+		A printf format string which contains the ascii name of
+		the port. Normally is set to "eth%d" which sets
+		eth0 for the first ethernet, eth1 for the second etc.
+
+		CONFIG_CDP_CAPABILITIES
+
+		A 32bit integer which indicates the device capabilities;
+		0x00000010 for a normal host which does not forwards.
+
+		CONFIG_CDP_VERSION
+
+		An ascii string containing the version of the software.
+
+		CONFIG_CDP_PLATFORM
+
+		An ascii string containing the name of the platform.
+
+		CONFIG_CDP_TRIGGER
+
+		A 32bit integer sent on the trigger.
+
+		CONFIG_CDP_POWER_CONSUMPTION
+
+		A 16bit integer containing the power consumption of the
+		device in .1 of milliwatts.
+
+		CONFIG_CDP_APPLIANCE_VLAN_TYPE
+
+		A byte containing the id of the VLAN.
 
 - Status LED:	CONFIG_STATUS_LED
 
@@ -2187,6 +2230,26 @@ Some configuration options can be set using Environment Variables:
 
   bootstopkey	- see CONFIG_AUTOBOOT_STOP_STR
 
+  ethprime	- When CONFIG_NET_MULTI is enabled controls which
+  		  interface is used first.
+
+  ethact	- When CONFIG_NET_MULTI is enabled controls which
+  		  interface is currently active. For example you
+		  can do the following
+
+		  => setenv ethact FEC ETHERNET
+		  => ping 192.168.0.1 # traffic sent on FEC ETHERNET
+		  => setenv ethact SCC ETHERNET
+		  => ping 10.0.0.1 # traffic sent on SCC ETHERNET
+
+   netretry	- When set to "no" each network operation will
+   		  either succeed or fail without retrying.
+		  Useful on scripts which control the retry operation
+		  themselves.
+
+   vlan		- When set to a value < 4095 the traffic over
+   		  ethernet is encapsulated/received over 802.1q
+		  VLAN tagged frames.
 
 The following environment variables may be used and automatically
 updated by the network boot commands ("bootp" and "rarpboot"),

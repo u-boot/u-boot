@@ -192,7 +192,7 @@ rpc_req (int rpc_prog, int rpc_proc, uint32_t *data, int datalen)
 
 	pktlen = (char *)p + datalen*sizeof(uint32_t) - (char *)&pkt;
 
-	memcpy ((char *)NetTxPacket+ETHER_HDR_SIZE+IP_HDR_SIZE, (char *)&pkt, pktlen);
+	memcpy ((char *)NetTxPacket + NetEthHdrSize() + IP_HDR_SIZE, (char *)&pkt, pktlen);
 
 	if (rpc_prog == PROG_PORTMAP)
 		sport = SUNRPC_PORT;

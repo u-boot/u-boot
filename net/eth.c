@@ -87,6 +87,14 @@ int eth_register(struct eth_device* dev)
 
 	if (!eth_devices) {
 		eth_current = eth_devices = dev;
+#ifdef CONFIG_NET_MULTI
+		/* update current ethernet name */
+		{
+			char *act = getenv("ethact");
+			if (act == NULL || strcmp(act, eth_current->name) != 0)
+				setenv("ethact", eth_current->name);
+		}
+#endif
 	} else {
 		for (d=eth_devices; d->next!=eth_devices; d=d->next);
 		d->next = dev;
@@ -221,6 +229,16 @@ int eth_initialize(bd_t *bis)
 			dev = dev->next;
 		} while(dev != eth_devices);
 
+#ifdef CONFIG_NET_MULTI
+		/* update current ethernet name */
+		if (eth_current) {
+			char *act = getenv("ethact");
+			if (act == NULL || strcmp(act, eth_current->name) != 0)
+				setenv("ethact", eth_current->name);
+		} else
+			setenv("ethact", NULL);
+#endif
+
 		putc ('\n');
 	}
 
@@ -326,11 +344,43 @@ void eth_try_another(int first_restart)
 
 	eth_current = eth_current->next;
 
+#ifdef CONFIG_NET_MULTI
+	/* update current ethernet name */
+	{
+		char *act = getenv("ethact");
+		if (act == NULL || strcmp(act, eth_current->name) != 0)
+			setenv("ethact", eth_current->name);
+	}
+#endif
+
 	if (first_failed == eth_current)
 	{
 		NetRestartWrap = 1;
 	}
 }
+
+#ifdef CONFIG_NET_MULTI
+void eth_set_current(void)
+{
+	char *act;
+	struct eth_device* old_current;
+
+	if (!eth_current)	/* XXX no current */
+		return;
+
+	act = getenv("ethact");
+	if (act != NULL) {
+		old_current = eth_current;
+		do {
+			if (strcmp(eth_current->name, act) == 0)
+				return;
+			eth_current = eth_current->next;
+		} while (old_current != eth_current);
+	}
+
+	setenv("ethact", eth_current->name);
+}
+#endif
 
 char *eth_get_name (void)
 {

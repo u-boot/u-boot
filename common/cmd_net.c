@@ -96,7 +96,7 @@ U_BOOT_CMD(
 
 static void netboot_update_env(void)
 {
-    char tmp[16] ;
+    char tmp[22] ;
 
     if (NetOurGatewayIP) {
 	ip_to_string (NetOurGatewayIP, tmp);
@@ -138,6 +138,16 @@ static void netboot_update_env(void)
 
     if (NetOurNISDomain[0])
 	setenv("domain", NetOurNISDomain);
+
+    if (ntohs(NetOurVLAN) != (ushort)-1) {
+	    VLAN_to_string(NetOurVLAN, tmp);
+	    setenv("vlan", tmp);
+    }
+
+    if (ntohs(NetOurNativeVLAN) != (ushort)-1) {
+	    VLAN_to_string(NetOurNativeVLAN, tmp);
+	    setenv("vlan", tmp);
+    }
 
 }
 static int
@@ -237,5 +247,48 @@ U_BOOT_CMD(
 	"pingAddress\n"
 );
 #endif	/* CFG_CMD_PING */
+
+#if (CONFIG_COMMANDS & CFG_CMD_CDP)
+
+static void cdp_update_env(void)
+{
+	char tmp[16];
+
+	if (CDPApplianceVLAN != htons(-1)) {
+		printf("CDP offered appliance VLAN %d\n", ntohs(CDPApplianceVLAN));
+		VLAN_to_string(CDPApplianceVLAN, tmp);
+		setenv("vlan", tmp);
+		NetOurVLAN = CDPApplianceVLAN;
+	}
+
+	if (CDPNativeVLAN != htons(-1)) {
+		printf("CDP offered native VLAN %d\n", ntohs(CDPNativeVLAN));
+		VLAN_to_string(CDPNativeVLAN, tmp);
+		setenv("nvlan", tmp);
+		NetOurNativeVLAN = CDPNativeVLAN;
+	}
+
+}
+
+int do_cdp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	int r;
+
+	r = NetLoop(CDP);
+	if (r < 0) {
+		printf("cdp failed; perhaps not a CISCO switch?\n");
+		return 1;
+	}
+
+	cdp_update_env();
+
+	return 0;
+}
+
+U_BOOT_CMD(
+	cdp,	1,	1,	do_cdp,
+	"cdp     - Perform CDP network configuration\n",
+);
+#endif	/* CFG_CMD_CDP */
 
 #endif	/* CFG_CMD_NET */
