@@ -5,7 +5,7 @@
  * (C) Copyright 2004
  * Mark Jonas, Freescale Semiconductor, mark.jonas@motorola.com.
  *
- * (C) Copyright 2004
+ * (C) Copyright 2004-2005
  * Martin Krause, TQ-Systems GmbH, martin.krause@tqs.de
  *
  * See file CREDITS for list of people who contributed to this
@@ -31,11 +31,16 @@
 #include <mpc5xxx.h>
 #include <pci.h>
 
+#ifdef CONFIG_VIDEO_SM501
+#include <sm501.h>
+#endif
+
 #if defined(CONFIG_MPC5200_DDR)
 #include "mt46v16m16-75.h"
 #else
 #include "mt48lc16m16a2-75.h"
 #endif
+
 #ifdef CONFIG_PS2MULT
 void ps2mult_early_init(void);
 #endif
@@ -246,13 +251,13 @@ long int initdram (int board_type)
 int checkboard (void)
 {
 #if defined (CONFIG_TQM5200_AA)
-	puts ("Board: TQM5200-AA (TQ-Systems GmbH)\n");
+	puts ("Board: TQM5200-AA (TQ-Components GmbH)\n");
 #elif defined (CONFIG_TQM5200_AB)
-	puts ("Board: TQM5200-AB (TQ-Systems GmbH)\n");
+	puts ("Board: TQM5200-AB (TQ-Components GmbH)\n");
 #elif defined (CONFIG_TQM5200_AC)
-	puts ("Board: TQM5200-AC (TQ-Systems GmbH)\n");
+	puts ("Board: TQM5200-AC (TQ-Components GmbH)\n");
 #elif defined (CONFIG_TQM5200)
-	puts ("Board: TQM5200 (TQ-Systems GmbH)\n");
+	puts ("Board: TQM5200 (TQ-Components GmbH)\n");
 #endif
 #if defined (CONFIG_STK52XX)
 	puts ("       on a STK52XX baseboard\n");
@@ -501,3 +506,132 @@ int last_stage_init (void)
 	return 0;
 }
 #endif /* CONFIG_CS_AUTOCONF */
+
+#ifdef CONFIG_VIDEO_SM501
+
+#define DISPLAY_WIDTH   640
+#define DISPLAY_HEIGHT  480
+
+#ifdef CONFIG_VIDEO_SM501_8BPP
+#error CONFIG_VIDEO_SM501_8BPP not supported.
+#endif /* CONFIG_VIDEO_SM501_8BPP */
+
+#ifdef CONFIG_VIDEO_SM501_16BPP
+#error CONFIG_VIDEO_SM501_16BPP not supported.
+#endif /* CONFIG_VIDEO_SM501_16BPP */
+#ifdef CONFIG_VIDEO_SM501_32BPP
+static const SMI_REGS init_regs [] =
+{
+#if 0 /* CRT only */
+	{0x00004, 0x0},
+	{0x00048, 0x00021807},
+	{0x0004C, 0x10090a01},
+	{0x00054, 0x1},
+	{0x00040, 0x00021807},
+	{0x00044, 0x10090a01},
+	{0x00054, 0x0},
+	{0x80200, 0x00010000},
+	{0x80204, 0x0},
+	{0x80208, 0x0A000A00},
+	{0x8020C, 0x02fa027f},
+	{0x80210, 0x004a028b},
+	{0x80214, 0x020c01df},
+	{0x80218, 0x000201e9},
+	{0x80200, 0x00013306},
+#else  /* panel + CRT */
+	{0x00004, 0x0},
+	{0x00048, 0x00021807},
+	{0x0004C, 0x091a0a01},
+	{0x00054, 0x1},
+	{0x00040, 0x00021807},
+	{0x00044, 0x091a0a01},
+	{0x00054, 0x0},
+	{0x80000, 0x0f013106},
+	{0x80004, 0xc428bb17},
+	{0x8000C, 0x00000000},
+	{0x80010, 0x0a000a00},
+	{0x80014, 0x02800000},
+	{0x80018, 0x01e00000},
+	{0x8001C, 0x00000000},
+	{0x80020, 0x01e00280},
+	{0x80024, 0x02fa027f},
+	{0x80028, 0x004a028b},
+	{0x8002C, 0x020c01df},
+	{0x80030, 0x000201e9},
+	{0x80200, 0x00010000},
+#endif
+	{0, 0}
+};
+#endif /* CONFIG_VIDEO_SM501_32BPP */
+
+#ifdef CONFIG_CONSOLE_EXTRA_INFO
+/*
+ * Return text to be printed besides the logo.
+ */
+void video_get_info_str (int line_number, char *info)
+{
+	if (line_number == 1) {
+#if defined (CONFIG_TQM5200_AA)
+		strcpy (info, " Board: TQM5200-AA (TQ-Components GmbH)");
+#elif defined (CONFIG_TQM5200_AB)
+		strcpy (info, " Board: TQM5200-AB (TQ-Components GmbH)");
+#elif defined (CONFIG_TQM5200_AC)
+		strcpy (info, " Board: TQM5200-AC (TQ-Components GmbH)");
+#elif defined (CONFIG_TQM5200)
+		strcpy (info, " Board: TQM5200 (TQ-Components GmbH)");
+#else
+#error No supported board selected
+#endif
+#if defined (CONFIG_STK52XX)
+	} else if (line_number == 2) {
+		strcpy (info, "        on a STK52XX baseboard");
+#endif
+	}
+	else {
+		info [0] = '\0';
+	}
+}
+#endif
+
+/*
+ * Returns SM501 register base address. First thing called in the driver.
+ */
+unsigned int board_video_init (void)
+{
+	return SM501_MMIO_BASE;
+}
+
+/*
+ * Returns SM501 framebuffer address
+ */
+unsigned int board_video_get_fb (void)
+{
+	return SM501_FB_BASE;
+}
+
+/*
+ * Called after initializing the SM501 and before clearing the screen.
+ */
+void board_validate_screen (unsigned int base)
+{
+}
+
+/*
+ * Return a pointer to the initialization sequence.
+ */
+const SMI_REGS *board_get_regs (void)
+{
+	return init_regs;
+}
+
+int board_get_width (void)
+{
+	return DISPLAY_WIDTH;
+}
+
+int board_get_height (void)
+{
+	return DISPLAY_HEIGHT;
+}
+
+#endif /* CONFIG_VIDEO_SM501 */

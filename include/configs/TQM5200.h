@@ -1,8 +1,8 @@
 /*
- * (C) Copyright 2003-2004
+ * (C) Copyright 2003-2005
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * (C) Copyright 2004
+ * (C) Copyright 2004-2005
  * Martin Krause, TQ-Systems GmbH, martin.krause@tqs.de
  *
  * See file CREDITS for list of people who contributed to this
@@ -35,6 +35,7 @@
 #define CONFIG_MPC5xxx		1	/* This is an MPC5xxx CPU */
 #define CONFIG_MPC5200		1	/* (more precisely an MPC5200 CPU) */
 #define CONFIG_TQM5200		1	/* ... on TQM5200 module */
+#undef CONFIG_TQM5200_REV100		/*  define for revision 100 modules */
 #define CONFIG_STK52XX		1	/* ... on a STK52XX base board */
 
 #define CFG_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz */
@@ -62,7 +63,6 @@
 #define CONFIG_BOARD_EARLY_INIT_R
 #endif /* CONFIG_STK52XX */
 
-#ifdef CONFIG_MPC5200	/* MPC5100 PCI is not supported yet. */
 /*
  * PCI Mapping:
  * 0x40000000 - 0x4fffffff - PCI Memory
@@ -70,9 +70,6 @@
  */
 #ifdef CONFIG_STK52XX
 #define CONFIG_PCI		1
-#elif
-#define CONFIG_PCI		0
-#endif
 #define CONFIG_PCI_PNP		1
 /* #define CONFIG_PCI_SCAN_SHOW	1 */
 
@@ -89,21 +86,37 @@
 #define CFG_RX_ETH_BUFFER	8  /* use 8 rx buffer on eepro100  */
 #define CONFIG_NS8382X		1
 
-#ifdef CONFIG_STK52XX
+#ifdef CONFIG_PCI
 #define ADD_PCI_CMD		CFG_CMD_PCI
-#elif
+#else
 #define ADD_PCI_CMD		0
 #endif
 
-#else	/* MPC5100 */
+/*
+ * Video console
+ */
+#if 1
+#define CONFIG_VIDEO
+#define CONFIG_VIDEO_SM501
+#define CONFIG_VIDEO_SM501_32BPP
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_CONSOLE_EXTRA_INFO
+#define CONFIG_VIDEO_SW_CURSOR
+#define CONFIG_SPLASH_SCREEN
+#endif
 
-#define ADD_PCI_CMD		0  /* no CFG_CMD_PCI */
-
+#ifdef CONFIG_VIDEO
+#define ADD_BMP_CMD		CFG_CMD_BMP
+#else
+#define ADD_BMP_CMD		0
 #endif
 
 /* Partitions */
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
+#define CONFIG_ISO_PARTITION
 
 /* USB */
 #ifdef CONFIG_STK52XX
@@ -138,6 +151,7 @@
  * Supported commands
  */
 #define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
+				ADD_BMP_CMD	| \
 				ADD_IDE_CMD	| \
 				ADD_PCI_CMD	| \
 				ADD_USB_CMD	| \
@@ -173,7 +187,7 @@
 #undef	CONFIG_BOOTARGS
 
 #if defined (CONFIG_TQM5200_AA)
-# define CONFIG_U_BOOT_SUFFIX	"-AA"
+# define CONFIG_U_BOOT_SUFFIX	"-AA\0"
 #elif defined (CONFIG_TQM5200_AB)
 # define CONFIG_U_BOOT_SUFFIX	"-AB\0"
 #elif defined (CONFIG_TQM5200_AC)
@@ -227,10 +241,10 @@
  * I2C configuration
  */
 #define CONFIG_HARD_I2C		1	/* I2C with hardware support */
-#if defined (CONFIG_MINIFAP)
-#define CFG_I2C_MODULE		2	/* Select I2C module #1 or #2 */
+#ifdef CONFIG_TQM5200_REV100
+#define CFG_I2C_MODULE		1	/* Select I2C module #1 for rev. 100 board */
 #else
-#define CFG_I2C_MODULE		1	/* Select I2C module #1 or #2 */
+#define CFG_I2C_MODULE		2	/* Select I2C module #2 for all other revs */
 #endif
 
 /*
@@ -288,8 +302,9 @@
 #define CFG_FLASH_CFI_DRIVER	1	/* Use the common driver */
 #define CFG_FLASH_BANKS_LIST	{ CFG_BOOTCS_START }
 #define CFG_FLASH_EMPTY_INFO
-#define CFG_FLASH_SIZE		0x02000000 /* 32 MByte */
-#define CFG_MAX_FLASH_SECT	256	/* max num of sects on one chip */
+#define CFG_FLASH_SIZE		0x04000000 /* 64 MByte */
+#define CFG_MAX_FLASH_SECT	512	/* max num of sects on one chip */
+#undef CFG_FLASH_USE_BUFFER_WRITE	/* not supported yet for AMD */
 
 #if !defined(CFG_LOWBOOT)
 #define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x00760000 + 0x00800000)
@@ -357,27 +372,33 @@
  * use pin gpio_wkup_6 as second SDRAM chip select (mem_cs1):
  *	Bit 0 (mask: 0x80000000): 1
  * use ALT CAN position: Bits 2-3 (mask: 0x30000000):
- *	00 -> No Alternatives, I2C1 is used for onboard EEPROM
- *	01 -> CAN1 on I2C1, CAN2 on Tmr0/1 do not use on TQM5200 with onboard
- *	      EEPROM
+ *	00 -> No Alternatives, CAN1/2 on PSC2 according to PSC2 setting.
+ *	      Set for rev 100 modules with an onboard EEPROM (because,
+ *	      there I2C1 is used as I2C bus)
+ *	01 -> CAN1 on I2C1, CAN2 on Tmr0/1.
+ *	      Set for rev 200 modules
  * use PSC1 as UART: Bits 28-31 (mask: 0x00000007): 0100
  * use PSC6:
  *   on STK52xx:
- *      use as UART. Pins PSC6_0 to PSC6_3 are used.
-	Bits 9:11 (mask: 0x00700000):
+ *	use as UART. Pins PSC6_0 to PSC6_3 are used.
+ *	Bits 9:11 (mask: 0x00700000):
  *	   101 -> PSC6 : Extended POST test is not available
  *   on MINI-FAP and TQM5200_IB:
- *      use PSC6_1 and PSC6_3 as GPIO: Bits 9:11 (mask: 0x00700000):
- *	   011 -> PSC6 could not be used as UART or CODEC. IrDA still possible.
- * GPIO on PSC6_3 is used in post_hotkeys_pressed() to enable extended POST
- * tests.
+ *	use PSC6_0 to PSC6_3 as GPIO: Bits 9:11 (mask: 0x00700000):
+ *	   000 -> PSC6 could not be used as UART, CODEC or IrDA
+ *   GPIO on PSC6_3 is used in post_hotkeys_pressed() to enable extended POST
+ *   tests.
  */
 #if defined (CONFIG_MINIFAP)
-#define CFG_GPS_PORT_CONFIG	0x91300004
+# define CFG_GPS_PORT_CONFIG	0x91000004
 #elif defined (CONFIG_STK52XX)
-#define CFG_GPS_PORT_CONFIG	0x81500004
-#else
-#define CFG_GPS_PORT_CONFIG	0x81300004
+# if defined (CONFIG_TQM5200_REV100)
+#  define CFG_GPS_PORT_CONFIG	0x81500004
+# else
+#  define CFG_GPS_PORT_CONFIG	0x91500004
+# endif
+#else  /* TMQ5200_IP */
+# define CFG_GPS_PORT_CONFIG	0x81000004
 #endif
 
 /*
@@ -461,14 +482,15 @@
  */
 #if defined (CONFIG_TQM5200_AB) || defined (CONFIG_TQM5200_AC) || \
     defined (CONFIG_CS_AUTOCONF)
-#define CFG_CS1_START		0xE0000000
+#define SM501_FB_BASE		0xE0000000
+#define CFG_CS1_START		(SM501_FB_BASE)
 #define CFG_CS1_SIZE		0x4000000	/* 64 MByte */
 #define CFG_CS1_CFG		0x8F48FF70
 #define SM501_MMIO_BASE		CFG_CS1_START + 0x03E00000
 #endif
 
 #define CFG_CS_BURST		0x00000000
-#define CFG_CS_DEADCYCLE	0x33333333
+#define CFG_CS_DEADCYCLE	0x33333311	/* 1 dead cycle for flash and SM501 */
 
 #define CFG_RESET_ADDRESS	0xff000000
 
@@ -493,7 +515,7 @@
 #define CONFIG_IDE_PREINIT
 
 #define CFG_IDE_MAXBUS		1	/* max. 1 IDE bus		*/
-#define CFG_IDE_MAXDEVICE	1	/* max. 1 drive per IDE bus	*/
+#define CFG_IDE_MAXDEVICE	2	/* max. 2 drives per IDE bus	*/
 
 #define CFG_ATA_IDE0_OFFSET	0x0000
 

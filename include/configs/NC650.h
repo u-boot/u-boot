@@ -318,7 +318,7 @@
 				 OR_SCY_15_CLK | OR_EHTR | OR_TRLX)
 
 #define CFG_BR2_PRELIM  ((CFG_NAND_BASE & BR_BA_MSK) | BR_PS_8 | BR_MS_UPMB | BR_V  )
-#define CFG_OR2_PRELIM  (((-CFG_NAND_SIZE) & OR_AM_MSK) | OR_BI ) 
+#define CFG_OR2_PRELIM  (((-CFG_NAND_SIZE) & OR_AM_MSK) | OR_BI )
 
 /*
  * BR3 and OR3 (SDRAM)
