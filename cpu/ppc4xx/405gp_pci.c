@@ -266,6 +266,10 @@ void pci_405gp_init(struct pci_controller *hose)
 	}
 #endif
 
+#if defined(CONFIG_405EP) /* on ppc405ep vendor id is not set */
+	pci_write_config_word(PCIDEVID_405GP, PCI_VENDOR_ID, 0x1014); /* IBM */
+#endif
+
 	/*
 	 * Set HCE bit (Host Configuration Enabled)
 	 */
