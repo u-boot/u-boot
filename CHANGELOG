@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Stefan Roese, 15 Jul 2004:
+  cpu/ppc4xx/sdram.c rewritten now using get_ram_size()
+
 * Patch by Michael Bendzick, 12 Jul 2004:
   fix output formatting in drivers/cfi_flash.c
 
