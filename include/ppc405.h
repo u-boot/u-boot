@@ -481,6 +481,12 @@
 #define PLLMR1_266_133_66_33 (PLL_FBKDIV_8  |  \
 			      PLL_FWDDIVA_3 | PLL_FWDDIVB_3 |  \
 			      PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
+#define PLLMR0_266_66_33_33 (PLL_CPUDIV_1 | PLL_PLBDIV_4 |  \
+                              PLL_OPBDIV_2 | PLL_EXTBUSDIV_2 |  \
+                              PLL_MALDIV_1 | PLL_PCIDIV_2)
+#define PLLMR1_266_66_33_33 (PLL_FBKDIV_8  |  \
+                              PLL_FWDDIVA_3 | PLL_FWDDIVB_3 |  \
+                              PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
 
 /*
  * PLL Voltage Controlled Oscillator (VCO) definitions
@@ -557,12 +563,14 @@
 #define PSR_PCI_ARBIT_EN        0x00000400
 #define PSR_NEW_MODE_EN         0x00000020     /* PPC405GPr only */
 
+#ifndef CONFIG_IOP480
 /*
  * PLL Voltage Controlled Oscillator (VCO) definitions
  * Maximum and minimum values (in MHz) for correct PLL operation.
  */
 #define VCO_MIN     400
 #define VCO_MAX     800
+#endif /* #ifndef CONFIG_IOP480 */
 #endif /* #ifdef CONFIG_405EP */
 
 /******************************************************************************
@@ -675,6 +683,7 @@ typedef struct
   unsigned long freqPCI;
   unsigned long pciIntArbEn;            /* Internal PCI arbiter is enabled */
   unsigned long pciClkSync;             /* PCI clock is synchronous        */
+  unsigned long freqVCOHz;
 } PPC405_SYS_INFO;
 
 #endif  /* _ASMLANGUAGE */
