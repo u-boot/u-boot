@@ -2,6 +2,10 @@
 Changes since U-Boot 1.0.0:
 ======================================================================
 
+* Fix flash driver for TRAB board (must use Unlock Bypass Reset
+  command to exit Unlock Bypass Mode); adjust timings for flash, SRAM
+  and CPLD
+
 * Use "-fPIC" instead of "-mrelocatable" to prevent problems with
   recent tools
 

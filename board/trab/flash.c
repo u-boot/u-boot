@@ -39,7 +39,10 @@ flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
 #define CMD_PROGRAM		0x00A000A0
 #define CMD_UNLOCK_BYPASS	0x00200020
 #define CMD_READ_MANF_ID	0x00900090
+#define CMD_UNLOCK_BYPASS_RES1	0x00900090
+#define CMD_UNLOCK_BYPASS_RES2	0x00000000
 
+#define MEM_FLASH_ADDR		(*(volatile u32 *)CFG_FLASH_BASE)
 #define MEM_FLASH_ADDR1		(*(volatile u32 *)(CFG_FLASH_BASE + (0x00000555 << 2)))
 #define MEM_FLASH_ADDR2		(*(volatile u32 *)(CFG_FLASH_BASE + (0x000002AA << 2)))
 
@@ -331,9 +334,6 @@ volatile static int write_word (flash_info_t * info, ulong dest,
 #endif
 	iflag = disable_interrupts ();
 
-	MEM_FLASH_ADDR1 = CMD_UNLOCK1;
-	MEM_FLASH_ADDR2 = CMD_UNLOCK2;
-	MEM_FLASH_ADDR1 = CMD_UNLOCK_BYPASS;
 	*addr = CMD_PROGRAM;
 	*addr = data;
 
@@ -402,6 +402,10 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 	int l;
 	int i, rc;
 
+	MEM_FLASH_ADDR1 = CMD_UNLOCK1;
+	MEM_FLASH_ADDR2 = CMD_UNLOCK2;
+	MEM_FLASH_ADDR1 = CMD_UNLOCK_BYPASS;
+
 	wp = (addr & ~3);	/* get lower word aligned address */
 
 	/*
@@ -422,7 +426,7 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 		}
 
 		if ((rc = write_word (info, wp, data)) != 0) {
-			return (rc);
+			goto Done;
 		}
 		wp += 4;
 	}
@@ -441,7 +445,7 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 		}
 
 		if ((rc = write_word (info, wp, data)) != 0) {
-			return (rc);
+			goto Done;
 		}
 		src += 4;
 		wp += 4;
@@ -449,7 +453,8 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 	}
 
 	if (cnt == 0) {
-		return ERR_OK;
+		rc = ERR_OK;
+		goto Done;
 	}
 
 	/*
@@ -464,7 +469,14 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 		data = (data >> 8) | (*(uchar *) cp << 24);
 	}
 
-	return write_word (info, wp, data);
+	rc = write_word (info, wp, data);
+
+	Done:
+
+	MEM_FLASH_ADDR = CMD_UNLOCK_BYPASS_RES1;
+	MEM_FLASH_ADDR = CMD_UNLOCK_BYPASS_RES2;
+
+	return (rc);
 }
 
 /*-----------------------------------------------------------------------

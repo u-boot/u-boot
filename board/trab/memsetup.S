@@ -48,29 +48,29 @@
 #define BWSCON 0x14000000
 
 /* Bank0 */
-#define B0_Tacs	0x3	/* 4 clk */
-#define B0_Tcos	0x3	/* 4 clk */
-#define B0_Tacc	0x7	/* 14 clk */
-#define B0_Tcoh	0x0	/* 0 clk */
-#define B0_Tah	0x0	/* 0 clk */
+#define B0_Tacs	0x1	/* 1 clk */
+#define B0_Tcos	0x1	/* 1 clk */
+#define B0_Tacc	0x5	/* 8 clk */
+#define B0_Tcoh	0x1	/* 1 clk */
+#define B0_Tah	0x1	/* 1 clk */
 #define B0_Tacp	0x0
 #define B0_PMC	0x0	/* normal */
 
 /* Bank1 - SRAM */
-#define B1_Tacs	0x0	/* 0 clk */
-#define B1_Tcos	0x0	/* 0 clk */
-#define B1_Tacc	0x7	/* 14 clk */
-#define B1_Tcoh	0x0	/* 0 clk */
-#define B1_Tah	0x0	/* 0 clk */
+#define B1_Tacs	0x1	/* 1 clk */
+#define B1_Tcos	0x1	/* 1 clk */
+#define B1_Tacc	0x5	/* 8 clk */
+#define B1_Tcoh	0x1	/* 1 clk */
+#define B1_Tah	0x1	/* 1 clk */
 #define B1_Tacp	0x0
 #define B1_PMC	0x0	/* normal */
 
 /* Bank2 - CPLD */
-#define B2_Tacs	0x0	/* 0 clk */
-#define B2_Tcos	0x4	/* 4 clk */
-#define B2_Tacc	0x7	/* 14 clk */
-#define B2_Tcoh	0x4	/* 4 clk */
-#define B2_Tah	0x0	/* 0 clk */
+#define B2_Tacs	0x1	/* 1 clk */
+#define B2_Tcos	0x1	/* 1 clk */
+#define B2_Tacc	0x5	/* 8 clk */
+#define B2_Tcoh	0x1	/* 1 clk */
+#define B2_Tah	0x1	/* 1 clk */
 #define B2_Tacp	0x0
 #define B2_PMC	0x0	/* normal */
 
