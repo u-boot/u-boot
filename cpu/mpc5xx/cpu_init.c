@@ -64,6 +64,8 @@ void cpu_init_f (volatile immap_t * immr)
 	immr->im_sitk.sitk_piscrk = KAPWR_KEY;
 	immr->im_sit.sit_piscr = CFG_PISCR;
 
+#if !defined(CONFIG_PATI)
+	/* PATI sest PLL in start.S */
 	/* PLL (CPU clock) settings */
 	immr->im_clkrstk.cark_plprcrk = KAPWR_KEY;
 
@@ -80,6 +82,8 @@ void cpu_init_f (volatile immap_t * immr)
 	reg |= CFG_PLPRCR;			/* reset control bits   */
 #endif
 	immr->im_clkrst.car_plprcr = reg;
+
+#endif /* !defined(CONFIG_PATI) */
 
 	/* System integration timers. CFG_MASK has EBDF configuration */
 	immr->im_clkrstk.cark_sccrk = KAPWR_KEY;

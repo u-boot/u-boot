@@ -75,6 +75,10 @@
 #define SIUMCR_DBPC01	0x00080000	/* - " -				*/
 #define SIUMCR_DBPC10	0x00100000	/* - " -				*/
 #define SIUMCR_DBPC11	0x00180000	/* - " -				*/
+#define SIUMCR_GPC00	0x00000000	/* General Pins Config 			*/
+#define SIUMCR_GPC01	0x00020000	/* General Pins Config 			*/
+#define SIUMCR_GPC10	0x00040000	/* General Pins Config 			*/
+#define SIUMCR_GPC11	0x00060000	/* General Pins Config 			*/
 #define SIUMCR_DLK	0x00010000	/* Debug Register Lock			*/
 #define SIUMCR_SC00	0x00000000	/* Multi Chip 32 bit			*/
 #define SIUMCR_SC01	0x00004000	/* Muilt Chip 16 bit			*/
@@ -98,6 +102,7 @@
  * PISCR - Periodic Interrupt Status and Control Register
  */
 #define PISCR_PITF	((ushort)0x0002)	/* PIT stops when FREEZE	*/
+#define PISCR_PS	0x0080			/* Periodic Interrupt Status	*/
 
 /*-----------------------------------------------------------------------
  * PLPRCR - PLL, Low-Power, and Reset Control Register
@@ -106,11 +111,12 @@
 #define PLPRCR_DIVF_MSK	0x0000001f	/* DIVF mask				*/
 #define PLPRCR_CSRC_MSK 0x00000400	/* CSRC mask				*/
 #define PLPRCR_MF_SHIFT 0x00000014	/* Multiplication factor shift value	*/
-#define PLPRCR_DIVF_0   0x00900000	/* Division factor 0			*/
-#define PLPRCR_MF_9     0x00000000	/* Mulitipliaction factor 9		*/
+#define PLPRCR_DIVF_0   0x00000000	/* Division factor 0			*/
+#define PLPRCR_MF_9     0x00900000	/* Mulitipliaction factor 9		*/
 #define PLPRCR_TEXPS	0x00004000	/* TEXP Status				*/
 #define PLPRCR_TMIST	0x00001000	/* Timers Interrupt Status		*/
 #define PLPRCR_CSR	0x00000080	/* CheskStop Reset value		*/
+#define PLPRCR_SPLSS	0x00008000	/* SPLL Lock Status Sticky bit		*/
 
 /*-----------------------------------------------------------------------
  * SCCR - System Clock and reset Control Register
@@ -124,6 +130,7 @@
 #define SCCR_TBS	0x02000000	/* Time Base Source			*/
 #define SCCR_RTDIV	0x01000000	/* RTC Clock Divide 			*/
 #define SCCR_COM00	0x00000000	/* full strength CLKOUT output buffer	*/
+#define SCCR_COM01	0x20000000	/* half strength CLKOUT output buffer	*/
 #define SCCR_DFNL000	0x00000000	/* Division by 2 (default = minimum)	*/
 #define SCCR_DFNH000	0x00000000	/* Division by 1 (default = minimum)	*/
 
@@ -136,6 +143,7 @@
 #define BR_PS_16	0x00000800	/* 16 bit port size 			*/
 #define BR_PS_32	0x00000000	/* 32 bit port size 			*/
 #define BR_LBDIR	0x00000008	/* Late burst data in progess		*/
+#define BR_SETA		0x00000004	/* External Data Acknowledge		*/
 #define OR_SCY_3	0x00000030	/* 3 clock cycles wait states		*/
 #define OR_SCY_1	0x00000000	/* 1 clock cycle wait state		*/
 #define OR_SCY_8	0x00000080	/* 8 clock cycles wait states		*/
@@ -143,7 +151,7 @@
 #define OR_BSCY		0x00000060	/* Burst beats length in clocks		*/
 #define OR_ACS_10	0x00000600	/* Adress to chip-select setup		*/
 #define OR_CSNT		0x00000800	/* Chip-select negotation time		*/
-#define OR_ETHR		0x00000000	/* Extended hold time on read		*/
+#define OR_ETHR		0x00000100	/* Extended hold time on read		*/
 #define OR_ADDR_MK_FF	0xFF000000
 #define OR_ADDR_MK_FFFF	0xFFFF0000
 

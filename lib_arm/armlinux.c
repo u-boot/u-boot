@@ -30,16 +30,14 @@
 #include <dataflash.h>
 #endif
 
-#include <asm/setup.h>
-#define tag_size(type)  ((sizeof(struct tag_header) + sizeof(struct type)) >> 2)
-#define tag_next(t)     ((struct tag *)((u32 *)(t) + (t)->hdr.size))
-
 /*cmd_boot.c*/
 extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 #if defined (CONFIG_SETUP_MEMORY_TAGS) || \
     defined (CONFIG_CMDLINE_TAG) || \
     defined (CONFIG_INITRD_TAG) || \
+    defined (CONFIG_SERIAL_TAG) || \
+    defined (CONFIG_REVISION_TAG) || \
     defined (CONFIG_VFD)
 static void setup_start_tag (bd_t *bd);
 
@@ -221,8 +219,16 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 #if defined (CONFIG_SETUP_MEMORY_TAGS) || \
     defined (CONFIG_CMDLINE_TAG) || \
     defined (CONFIG_INITRD_TAG) || \
+    defined (CONFIG_SERIAL_TAG) || \
+    defined (CONFIG_REVISION_TAG) || \
     defined (CONFIG_VFD)
 	setup_start_tag (bd);
+#ifdef CONFIG_SERIAL_TAG
+	setup_serial_tag (&params);
+#endif
+#ifdef CONFIG_REVISION_TAG
+	setup_revision_tag (&params);
+#endif
 #ifdef CONFIG_SETUP_MEMORY_TAGS
 	setup_memory_tags (bd);
 #endif
@@ -251,6 +257,8 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 #if defined (CONFIG_SETUP_MEMORY_TAGS) || \
     defined (CONFIG_CMDLINE_TAG) || \
     defined (CONFIG_INITRD_TAG) || \
+    defined (CONFIG_SERIAL_TAG) || \
+    defined (CONFIG_REVISION_TAG) || \
     defined (CONFIG_VFD)
 static void setup_start_tag (bd_t *bd)
 {
@@ -307,10 +315,6 @@ static void setup_commandline_tag (bd_t *bd, char *commandline)
 	params = tag_next (params);
 }
 
-
-#ifndef ATAG_INITRD2
-#define ATAG_INITRD2    0x54420005
-#endif
 
 #ifdef CONFIG_INITRD_TAG
 static void setup_initrd_tag (bd_t *bd, ulong initrd_start, ulong initrd_end)

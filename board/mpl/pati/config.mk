@@ -22,31 +22,10 @@
 #
 
 #
-# File:			cpu/mpc5xx/Makefile
-#
-# Discription:		Makefile to build mpc5xx cpu configuration.
-#			Will include top config.mk which itselfs
-#			uses the definitions made in cpu/mpc5xx/config.mk
+# EPQ Board Configuration
 #
 
+# Boot from flash at location 0x00000000
+TEXT_BASE = 0xFFF00000
 
-include $(TOPDIR)/config.mk
-
-LIB	= lib$(CPU).a
-
-START	= start.S
-OBJS	= serial.o cpu.o cpu_init.o interrupts.o traps.o speed.o spi.o
-
-all:	.depend $(START) $(LIB)
-
-$(LIB):	$(OBJS)
-	$(AR) crv $@ $(OBJS)
-
-#########################################################################
-
-.depend:	Makefile $(START:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(START:.o=.S)  $(OBJS:.o=.c) > $@
-
-sinclude .depend
-
-#########################################################################
+PLATFORM_CPPFLAGS += -DTEXT_BASE=$(TEXT_BASE) -I$(TOPDIR)

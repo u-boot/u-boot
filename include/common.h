@@ -185,6 +185,7 @@ void inline setenv   (char *, char *);
 void    setenv       (char *, char *);
 #endif /* CONFIG_PPC */
 #ifdef CONFIG_ARM
+# include <asm/setup.h>
 # include <asm/u-boot-arm.h>	/* ARM version to be fixed! */
 #endif /* CONFIG_ARM */
 #ifdef CONFIG_I386		/* x86 version to be fixed! */

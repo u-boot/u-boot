@@ -1,6 +1,6 @@
 #
-# (C) Copyright 2003
-# Martin Winistoerfer, martinwinistoerfer@gmx.ch.
+# (C) Copyright 2001	Wolfgang Denk, DENX Software Engineering, wd@denx.de
+#
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -21,32 +21,28 @@
 # MA 02111-1307 USA
 #
 
-#
-# File:			cpu/mpc5xx/Makefile
-#
-# Discription:		Makefile to build mpc5xx cpu configuration.
-#			Will include top config.mk which itselfs
-#			uses the definitions made in cpu/mpc5xx/config.mk
-#
-
-
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(CPU).a
+LIB	= lib$(BOARD).a
 
-START	= start.S
-OBJS	= serial.o cpu.o cpu_init.o interrupts.o traps.o speed.o spi.o
-
-all:	.depend $(START) $(LIB)
+OBJS	:=  pati.o ../common/flash.o ../common/memtst.o cmd_pati.o ../common/common_util.o
+#### cmd_pati.o
+SOBJS	:=
 
 $(LIB):	$(OBJS)
 	$(AR) crv $@ $(OBJS)
 
+clean:
+	rm -f $(SOBJS) $(OBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak .depend
+
 #########################################################################
 
-.depend:	Makefile $(START:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(START:.o=.S)  $(OBJS:.o=.c) > $@
+.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
+		$(CC) -M $(CPPFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
 
-sinclude .depend
+-include .depend
 
 #########################################################################

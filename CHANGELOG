@@ -2,6 +2,15 @@
 Changes since U-Boot 1.0.0:
 ======================================================================
 
+* Patch by Denis Peter, 8 Dec 2003
+  - add support for the PATI board (MPC555)
+  - add SPI support for the MPC5xx
+
+* Patch by Anders Larsen, 08 Dec 2003:
+  add configuration options CONFIG_SERIAL_TAG and CONFIG_REVISION_TAG
+  to pass ATAG_SERIAL and ATAG_REVISION, resp., to the ARM target;
+  cleanup some redundand #defines
+
 * Patch by André Schwarz, 8 Dec 2003:
   fixes for Davicom DM9102A Ethernet Chip (#define CONFIG_TULIP_FIX_DAVICOM):
   - TX and RX deskriptors must be quad-word aligned

@@ -198,6 +198,9 @@ unconfig:
 cmi_mpc5xx_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc5xx cmi
 
+PATI_config:unconfig
+	@./mkconfig $(@:_config=) ppc mpc5xx pati mpl
+
 #########################################################################
 ## MPC5xxx Systems
 #########################################################################

@@ -42,6 +42,9 @@
 #include "../mip405/mip405.h"
 #include <405gp_pci.h>
 #endif
+#if defined(CONFIG_PATI)
+#define FIRM_START 0xFFF00000
+#endif
 
 extern int gunzip(void *, int, uchar *, int *);
 extern int mem_test(ulong start, ulong ramsize, int quiet);
@@ -60,14 +63,17 @@ mpl_prg(uchar *src, ulong size)
 	ulong start;
 	flash_info_t *info;
 	int i, rc;
-#if defined(CONFIG_PIP405) || defined(CONFIG_MIP405)
+#if defined(CONFIG_PATI)
+	int start_sect;
+#endif
+#if defined(CONFIG_PIP405) || defined(CONFIG_MIP405) || defined(CONFIG_PATI)
 	char *copystr = (char *)src;
 	ulong *magic = (ulong *)src;
 #endif
 
 	info = &flash_info[0];
 
-#if defined(CONFIG_PIP405) || defined(CONFIG_MIP405)
+#if defined(CONFIG_PIP405) || defined(CONFIG_MIP405) || defined(CONFIG_PATI)
 	if (ntohl(magic[0]) != IH_MAGIC) {
 		puts("Bad Magic number\n");
 		return -1;
@@ -90,6 +96,7 @@ mpl_prg(uchar *src, ulong size)
 		printf("Wrong Firmware Image: %s\n", &copystr[i]);
 		return -1;
 	}
+#if !defined(CONFIG_PATI)
 	start = 0 - size;
 	for (i = info->sector_count-1; i > 0; i--) {
 		info->protect[i] = 0; /* unprotect this sector */
@@ -105,6 +112,36 @@ mpl_prg(uchar *src, ulong size)
 		flash_perror(rc);
 		return (1);
 	}
+
+#else /* #if !defined(CONFIG_PATI */
+	start = FIRM_START;
+	start_sect = -1;
+	for (i = 0; i < info->sector_count; i++) {
+		if (start < info->start[i]) {
+			start_sect = i - 1;
+			break;
+		}
+	}
+
+	info->protect[i - 1] = 0;	/* unprotect this sector */
+	for (; i < info->sector_count; i++) {
+		if ((start + size) < info->start[i])
+			break;
+		info->protect[i] = 0;	/* unprotect this sector */
+	}
+
+	i--;
+	/* set-up flash location */
+	/* now erase flash */
+	printf ("Erasing at %lx to %lx (sector %d to %d) (%lx to %lx)\n",
+		start, start + size, start_sect, i,
+		info->start[start_sect], info->start[i]);
+	if ((rc = flash_erase (info, start_sect, i)) != 0) {
+		puts ("ERROR ");
+		flash_perror (rc);
+		return (1);
+	}
+#endif /* defined(CONFIG_PATI) */
 
 #elif defined(CONFIG_VCMA9)
 	start = 0;
@@ -227,7 +264,7 @@ mpl_prg_image(uchar *ld_addr)
 	return(rc);
 }
 
-
+#if !defined(CONFIG_PATI)
 void get_backup_values(backup_t *buf)
 {
 	i2c_read(CFG_DEF_EEPROM_ADDR, I2C_BACKUP_ADDR,2,(void *)buf,sizeof(backup_t));
@@ -417,14 +454,17 @@ void show_stdio_dev(void)
 	}
 }
 
+#endif /* #if !defined(CONFIG_PATI) */
 
 int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
  	ulong size,src,ld_addr;
 	int result;
+#if !defined(CONFIG_PATI)
 	backup_t back;
 	src = MULTI_PURPOSE_SOCKET_ADDR;
 	size = IMAGE_SIZE;
+#endif
 
 	if (strcmp(argv[1], "flash") == 0)
 	{
@@ -460,11 +500,13 @@ int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			result=mpl_prg_image((uchar *)ld_addr);
 			return result;
 		}
+#if !defined(CONFIG_PATI)
 		if (strcmp(argv[2], "mps") == 0) {
 			puts("\nupdating bootloader image from MPS\n");
 			result=mpl_prg((uchar *)src,size);
 			return result;
 		}
+#endif /* #if !defined(CONFIG_PATI)	*/
 	}
 	if (strcmp(argv[1], "mem") == 0)
 	{
@@ -490,6 +532,7 @@ int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		}while(result);
 		return 0;
 	}
+#if !defined(CONFIG_PATI)
 	if (strcmp(argv[1], "clearenvvalues") == 0)
 	{
  		if (strcmp(argv[2], "yes") == 0)
@@ -512,6 +555,7 @@ int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		set_backup_values(1);
 		return 0;
 	}
+#endif
 	printf("Usage:\n%s\n", cmdtp->usage);
 	return 1;
 }

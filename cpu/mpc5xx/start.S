@@ -117,6 +117,29 @@ boot_warm:
 	mtspr	COUNTA, r0
 	mtspr	COUNTB, r0
 
+#if defined(CONFIG_PATI)
+	/* the external flash access on PATI fails if programming the PLL to 40MHz.
+	 * Copy the PLL programming code to the internal RAM and execute it
+	 *----------------------------------------------------------------------*/
+	lis	r3, CFG_MONITOR_BASE@h
+	ori	r3, r3, CFG_MONITOR_BASE@l
+	addi	r3, r3, pll_prog_code_start - _start + EXC_OFF_SYS_RESET
+
+	lis	r4, CFG_INIT_RAM_ADDR@h
+	ori	r4, r4, CFG_INIT_RAM_ADDR@l
+	mtlr	r4
+	addis	r5,0,0x0
+	ori	r5,r5,((pll_prog_code_end - pll_prog_code_start) >>2)
+	mtctr	r5
+	addi	r3, r3, -4
+	addi	r4, r4, -4
+0:
+	lwzu	r0,4(r3)
+	stwu	r0,4(r4)
+	bdnz	0b                /* copy loop */
+	blrl
+#endif
+
 	/*
 	 * Calculate absolute address in FLASH and jump there
 	 *----------------------------------------------------------------------*/
@@ -553,3 +576,30 @@ trap_reloc:
 	isync
 
 	blr
+
+
+#if defined(CONFIG_PATI)
+/* Program the PLL */
+pll_prog_code_start:
+	lis	r4, (CFG_IMMR + 0x002fc384)@h
+	ori	r4, r4, (CFG_IMMR + 0x002fc384)@l
+	lis	r3, (0x55ccaa33)@h
+	ori	r3, r3, (0x55ccaa33)@l
+	stw	r3, 0(r4)
+	lis	r4, (CFG_IMMR + 0x002fc284)@h
+	ori	r4, r4, (CFG_IMMR + 0x002fc284)@l
+	lis	r3, CFG_PLPRCR@h
+	ori	r3, r3, CFG_PLPRCR@l
+	stw	r3, 0(r4)
+	addis	r3,0,0x0
+	ori	r3,r3,0xA000
+	mtctr	r3
+..spinlp:
+  bdnz    ..spinlp                /* spin loop */
+	blr
+pll_prog_code_end:
+	nop
+	blr
+#endif
+
+

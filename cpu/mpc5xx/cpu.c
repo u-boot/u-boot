@@ -122,12 +122,30 @@ unsigned long get_tbclk (void)
 	return (oscclk / 16);
 }
 
+void dcache_enable (void)
+{
+	return;
+}
+
+void dcache_disable (void)
+{
+	return;
+}
+
+int dcache_status (void)
+{
+	return 0;	/* always off */
+}
 
 /*
  * Reset board
  */
 int do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
+#if defined(CONFIG_PATI)
+	volatile ulong *addr = (ulong *) CFG_RESET_ADDRESS;
+	*addr = 1;
+#else
 	ulong addr;
 
 	/* Interrupts off, enable reset */
@@ -150,5 +168,6 @@ int do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	addr = CFG_MONITOR_BASE - sizeof (ulong);
 #endif
 	((void (*) (void)) addr) ();
+#endif  /* #if defined(CONFIG_PATI) */
 	return 1;
 }

@@ -28,12 +28,20 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <mpc5xx.h>
 #include <asm/processor.h>
+
+#if defined(CONFIG_PATI)
+/* PATI uses IRQs for PCI doorbell */
+#undef NR_IRQS
+#define NR_IRQS 16
+#endif
 
 struct interrupt_action {
 	interrupt_handler_t *handler;
 	void *arg;
+	int count;
 };
 
 static struct interrupt_action irq_vecs[NR_IRQS];
@@ -45,12 +53,18 @@ static struct interrupt_action irq_vecs[NR_IRQS];
 int interrupt_init_cpu (ulong *decrementer_count)
 {
 	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	int vec;
 
 	/* Decrementer used here for status led */
 	*decrementer_count = get_tbclk () / CFG_HZ;
 
 	/* Disable all interrupts */
 	immr->im_siu_conf.sc_simask = 0;
+	for (vec=0; vec<NR_IRQS; vec++) {
+		irq_vecs[vec].handler = NULL;
+		irq_vecs[vec].arg = NULL;
+		irq_vecs[vec].count = 0;
+	}
 
 	return (0);
 }
@@ -163,3 +177,31 @@ void timer_interrupt_cpu (struct pt_regs *regs)
 
 	return;
 }
+
+#if (CONFIG_COMMANDS & CFG_CMD_IRQ)
+/*******************************************************************************
+ *
+ * irqinfo - print information about IRQs
+ *
+ */
+int do_irqinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	int vec;
+
+	printf ("\nInterrupt-Information:\n");
+	printf ("Nr  Routine   Arg       Count\n");
+
+	for (vec=0; vec<NR_IRQS; vec++) {
+		if (irq_vecs[vec].handler != NULL) {
+			printf ("%02d  %08lx  %08lx  %d\n",
+				vec,
+				(ulong)irq_vecs[vec].handler,
+				(ulong)irq_vecs[vec].arg,
+				irq_vecs[vec].count);
+		}
+	}
+	return 0;
+}
+
+
+#endif  /* CONFIG_COMMANDS & CFG_CMD_IRQ */

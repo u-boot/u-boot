@@ -44,7 +44,7 @@
      which reserves the ranges 0x00000-0x10000 and 0x98000-0xA0000.  My
      interpretation of this "reserved" is that Etherboot may do whatever it
      likes, as long as its environment is kept intact (like the BIOS
-     variables).  Hopefully fixed rtl_poll() once and for all.  The symptoms
+     variables).  Hopefully fixed rtl_poll() once and for all.	The symptoms
      were that if Etherboot was left at the boot menu for several minutes, the
      first eth_poll failed.  Seems like I am the only person who does this.
      First of all I fixed the debugging code and then set out for a long bug
@@ -53,18 +53,18 @@
      driver and even the FreeBSD driver (what a piece of crap!) - and
      eventually spotted the nasty thing: the transmit routine was acknowledging
      each and every interrupt pending, including the RxOverrun and RxFIFIOver
-     interrupts.  This confused the RTL8139 thoroughly.  It destroyed the
+     interrupts.  This confused the RTL8139 thoroughly.	 It destroyed the
      Rx ring contents by dumping the 2K FIFO contents right where we wanted to
      get the next packet.  Oh well, what fun.
 
-  18 Jan 2000   mdc@thinguin.org (Marty Connor)
+  18 Jan 2000	mdc@thinguin.org (Marty Connor)
      Drastically simplified error handling.  Basically, if any error
      in transmission or reception occurs, the card is reset.
      Also, pointed all transmit descriptors to the same buffer to
-     save buffer space.  This should decrease driver size and avoid
+     save buffer space.	 This should decrease driver size and avoid
      corruption because of exceeding 32K during runtime.
 
-  28 Jul 1999   (Matthias Meixner - meixner@rbg.informatik.tu-darmstadt.de)
+  28 Jul 1999	(Matthias Meixner - meixner@rbg.informatik.tu-darmstadt.de)
      rtl_poll was quite broken: it used the RxOK interrupt flag instead
      of the RxBufferEmpty flag which often resulted in very bad
      transmission performace - below 1kBytes/s.
@@ -76,10 +76,6 @@
 #include <net.h>
 #include <asm/io.h>
 #include <pci.h>
-
-#ifdef __MIPS__
-static unsigned long mips_io_port_base = 0;
-#endif
 
 #if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_NET_MULTI) && \
 	defined(CONFIG_RTL8139)
@@ -95,11 +91,11 @@ static unsigned long mips_io_port_base = 0;
 
 /* PCI Tuning Parameters
    Threshold is bytes transferred to chip before transmission starts. */
-#define TX_FIFO_THRESH 256      /* In bytes, rounded down to 32 byte units. */
-#define RX_FIFO_THRESH  4       /* Rx buffer level before first PCI xfer.  */
-#define RX_DMA_BURST    4       /* Maximum PCI burst, '4' is 256 bytes */
-#define TX_DMA_BURST    4       /* Calculate as 16<<val. */
-#define NUM_TX_DESC     4       /* Number of Tx descriptor registers. */
+#define TX_FIFO_THRESH 256	/* In bytes, rounded down to 32 byte units. */
+#define RX_FIFO_THRESH	4	/* Rx buffer level before first PCI xfer.  */
+#define RX_DMA_BURST	4	/* Maximum PCI burst, '4' is 256 bytes */
+#define TX_DMA_BURST	4	/* Calculate as 16<<val. */
+#define NUM_TX_DESC	4	/* Number of Tx descriptor registers. */
 #define TX_BUF_SIZE	ETH_FRAME_LEN	/* FCS is added by the chip */
 #define RX_BUF_LEN_IDX 0	/* 0, 1, 2 is allowed - 8,16,32K rx buffer */
 #define RX_BUF_LEN (8192 << RX_BUF_LEN_IDX)
@@ -108,8 +104,8 @@ static unsigned long mips_io_port_base = 0;
 #undef DEBUG_RX
 
 #define currticks()	get_timer(0)
-#define bus_to_phys(a)  pci_mem_to_phys((pci_dev_t)dev->priv, a)
-#define phys_to_bus(a)  pci_phys_to_mem((pci_dev_t)dev->priv, a)
+#define bus_to_phys(a)	pci_mem_to_phys((pci_dev_t)dev->priv, a)
+#define phys_to_bus(a)	pci_phys_to_mem((pci_dev_t)dev->priv, a)
 
 /* Symbolic offsets to registers. */
 enum RTL8139_registers {
@@ -276,12 +272,12 @@ static int rtl8139_probe(struct eth_device *dev, bd_t *bis)
 /* Serial EEPROM section. */
 
 /*  EEPROM_Ctrl bits. */
-#define EE_SHIFT_CLK    0x04    /* EEPROM shift clock. */
-#define EE_CS		0x08    /* EEPROM chip select. */
-#define EE_DATA_WRITE   0x02    /* EEPROM chip data in. */
-#define EE_WRITE_0      0x00
-#define EE_WRITE_1      0x02
-#define EE_DATA_READ    0x01    /* EEPROM chip data out. */
+#define EE_SHIFT_CLK	0x04	/* EEPROM shift clock. */
+#define EE_CS		0x08	/* EEPROM chip select. */
+#define EE_DATA_WRITE	0x02	/* EEPROM chip data in. */
+#define EE_WRITE_0	0x00
+#define EE_WRITE_1	0x02
+#define EE_DATA_READ	0x01	/* EEPROM chip data out. */
 #define EE_ENB		(0x80 | EE_CS)
 
 /*
@@ -289,12 +285,12 @@ static int rtl8139_probe(struct eth_device *dev, bd_t *bis)
 	No extra delay is needed with 33Mhz PCI, but 66Mhz may change this.
 */
 
-#define eeprom_delay()  inl(ee_addr)
+#define eeprom_delay()	inl(ee_addr)
 
 /* The EEPROM commands include the alway-set leading bit. */
-#define EE_WRITE_CMD    (5)
-#define EE_READ_CMD     (6)
-#define EE_ERASE_CMD    (7)
+#define EE_WRITE_CMD	(5)
+#define EE_READ_CMD	(6)
+#define EE_ERASE_CMD	(7)
 
 static int read_eeprom(int location, int addr_len)
 {
@@ -390,7 +386,7 @@ static void rtl_reset(struct eth_device *dev)
 
 	/* If we add multicast support, the MAR0 register would have to be
 	 * initialized to 0xffffffffffffffff (two 32 bit accesses).  Etherboot
-	 * only needs broadcast (for ARP/RARP/BOOTP/DHCP) and unicast.  */
+	 * only needs broadcast (for ARP/RARP/BOOTP/DHCP) and unicast.	*/
 
 	outb(CmdRxEnb | CmdTxEnb, ioaddr + ChipCmd);
 
@@ -436,7 +432,7 @@ static int rtl_transmit(struct eth_device *dev, volatile void *packet, int lengt
 		status = inw(ioaddr + IntrStatus);
 		/* Only acknlowledge interrupt sources we can properly handle
 		 * here - the RxOverflow/RxFIFOOver MUST be handled in the
-		 * rtl_poll() function.  */
+		 * rtl_poll() function.	 */
 		outw(status & (TxOK | TxErr | PCIErr), ioaddr + IntrStatus);
 		if ((status & (TxOK | TxErr | PCIErr)) != 0) break;
 	} while (currticks() < to);
@@ -490,7 +486,7 @@ static int rtl_poll(struct eth_device *dev)
 	if ((rx_status & (RxBadSymbol|RxRunt|RxTooLong|RxCRCErr|RxBadAlign)) ||
 	    (rx_size < ETH_ZLEN) || (rx_size > ETH_FRAME_LEN + 4)) {
 		printf("rx error %hX\n", rx_status);
-		rtl_reset(dev);	/* this clears all interrupts still pending */
+		rtl_reset(dev); /* this clears all interrupts still pending */
 		return 0;
 	}
 
@@ -526,6 +522,8 @@ static int rtl_poll(struct eth_device *dev)
 static void rtl_disable(struct eth_device *dev)
 {
 	int i;
+
+	ioaddr = dev->iobase;
 
 	/* reset the chip */
 	outb(CmdReset, ioaddr + ChipCmd);

@@ -36,6 +36,8 @@
  */
 
 #include <common.h>
+
+#if !defined(CONFIG_PATI)
 #include <ppc4xx.h>
 #include <asm/processor.h>
 #include "common_util.h"
@@ -46,6 +48,9 @@
 #include "../pip405/pip405.h"
 #endif
 #include <405gp_pci.h>
+#else /* defined(CONFIG_PATI) */
+#include <mpc5xx.h>
+#endif
 
 flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 /*-----------------------------------------------------------------------
@@ -56,21 +61,14 @@ static int write_word (flash_info_t *info, ulong dest, ulong data);
 
 void unlock_intel_sectors(flash_info_t *info,ulong addr,ulong cnt);
 
-
-#ifdef CONFIG_PIP405
 #define ADDR0           0x5555
 #define ADDR1           0x2aaa
 #define FLASH_WORD_SIZE unsigned short
-#endif
-
-#ifdef CONFIG_MIP405
-#define ADDR0           0x5555
-#define ADDR1           0x2aaa
-#define FLASH_WORD_SIZE unsigned short
-#endif
 
 #define FALSE           0
 #define TRUE            1
+
+#if !defined(CONFIG_PATI)
 
 /*-----------------------------------------------------------------------
  * Some CS switching routines:
@@ -151,11 +149,16 @@ void setup_cs_reloc(void)
 	}
 }
 
+#endif /* #if !defined(CONFIG_PATI) */
 
 unsigned long flash_init (void)
 {
-	unsigned long size_b0, size_b1,flashcr, size_reg;
-	int mode, i;
+	unsigned long size_b0;
+	int i;
+
+#if !defined(CONFIG_PATI)
+	unsigned long size_b1,flashcr,size_reg;
+	int mode;
 	extern char version_string;
 	char *p=&version_string;
 
@@ -169,6 +172,7 @@ unsigned long flash_init (void)
 	else
 		printf("(%s Boot) ",(mode & BOOT_MPS) ?
 			"MPS" : "Flash");
+#endif /* #if !defined(CONFIG_PATI) */
 	/* Init: no FLASHes known */
 	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
@@ -190,6 +194,7 @@ unsigned long flash_init (void)
 			CFG_MONITOR_BASE+monitor_flash_len-1,
 			&flash_info[0]);
 #endif
+#if !defined(CONFIG_PATI)
 	/* protect reset vector */
 	flash_info[0].protect[flash_info[0].sector_count-1] = 1;
 	size_b1 = 0 ;
@@ -233,7 +238,7 @@ unsigned long flash_init (void)
 		mtdcr(ebccfgd, flashcr);
 	}
 #if 0
-	/* enable this if you want to test if
+	/* enable this (PIP405/MIP405 only) if you want to test if
 	   the relocation has be done ok.
 	   This will disable both Chipselects */
 	mtdcr (ebccfga, pb0cr);
@@ -250,6 +255,15 @@ unsigned long flash_init (void)
 		}
 		p++;
 	}
+#else /* #if !defined(CONFIG_PATI) */
+#ifdef	CFG_ENV_IS_IN_FLASH
+	/* ENV protection ON by default */
+	flash_protect(FLAG_PROTECT_SET,
+		      CFG_ENV_ADDR,
+		      CFG_ENV_ADDR+CFG_ENV_SECT_SIZE-1,
+		      &flash_info[0]);
+#endif
+#endif /* #if !defined(CONFIG_PATI) */
 	return (size_b0);
 }
 
