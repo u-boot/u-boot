@@ -350,6 +350,7 @@ int i2c_read (uchar chip, uint addr, int alen, uchar * buffer, int len)
 {
 	uchar xaddr[4];
 	int ret;
+	DECLARE_GLOBAL_DATA_PTR;
 
 	if ( alen > 4 ) {
 		printf ("I2C read: addr len %d not supported\n", alen);
@@ -380,7 +381,8 @@ int i2c_read (uchar chip, uint addr, int alen, uchar * buffer, int len)
 		chip |= ((addr >> (alen * 8)) & CFG_I2C_EEPROM_ADDR_OVERFLOW);
 #endif
 	if( (ret = i2c_transfer( 1, chip<<1, &xaddr[4-alen], alen, buffer, len )) != 0) {
-		printf( "I2c read: failed %d\n", ret);
+		if (gd->have_console)
+			printf( "I2c read: failed %d\n", ret);
 		return 1;
 	}
 	return 0;
