@@ -292,9 +292,8 @@ ulong flash_get_size (FPWV *addr, flash_info_t *info)
 	/* The manufacturer codes are only 1 byte, so just use 1 byte.
 	 * This works for any bus width and any FLASH device width.
 	 */
-	udelay(1000000);//psl
-	//psl	switch (addr[1] & 0xff) {
-	switch (addr[0] & 0xff) {//psl
+	udelay(100);
+	switch (addr[0] & 0xff) {
 
 	case (uchar)AMD_MANUFACT:
 		info->flash_id = FLASH_MAN_AMD;
@@ -312,7 +311,6 @@ ulong flash_get_size (FPWV *addr, flash_info_t *info)
 	}
 
 	/* Check 16 bits or 32 bits of ID so work on 32 or 16 bit bus. */
-	//psl	if (info->flash_id != FLASH_UNKNOWN) switch (addr[0]) {
 	if (info->flash_id != FLASH_UNKNOWN) switch (addr[1]) {
 
 	case (FPW)AMD_ID_LV640U:	/* 29LV640 and 29LV641 have same ID */
@@ -519,46 +517,46 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
  */
 int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 {
-    FPW data = 0; /* 16 or 32 bit word, matches flash bus width on MPC8XX */
-    int bytes;	  /* number of bytes to program in current word		*/
-    int left;	  /* number of bytes left to program			*/
-    int i, res;
+	FPW data = 0; /* 16 or 32 bit word, matches flash bus width on MPC8XX */
+	int bytes;	  /* number of bytes to program in current word		*/
+	int left;	  /* number of bytes left to program			*/
+	int i, res;
 
-    for (left = cnt, res = 0;
-	 left > 0 && res == 0;
-	 addr += sizeof(data), left -= sizeof(data) - bytes) {
+	for (left = cnt, res = 0;
+		 left > 0 && res == 0;
+		 addr += sizeof(data), left -= sizeof(data) - bytes) {
 
-        bytes = addr & (sizeof(data) - 1);
-        addr &= ~(sizeof(data) - 1);
+		bytes = addr & (sizeof(data) - 1);
+		addr &= ~(sizeof(data) - 1);
 
-	/* combine source and destination data so can program
-	 * an entire word of 16 or 32 bits
-	 */
-        for (i = 0; i < sizeof(data); i++) {
-            data <<= 8;
-            if (i < bytes || i - bytes >= left )
-		data += *((uchar *)addr + i);
-	    else
-		data += *src++;
+		/* combine source and destination data so can program
+		 * an entire word of 16 or 32 bits
+		 */
+		for (i = 0; i < sizeof(data); i++) {
+			data <<= 8;
+			if (i < bytes || i - bytes >= left )
+				data += *((uchar *)addr + i);
+			else
+				data += *src++;
+		}
+
+		/* write one word to the flash */
+		switch (info->flash_id & FLASH_VENDMASK) {
+		case FLASH_MAN_AMD:
+			res = write_word_amd(info, (FPWV *)addr, data);
+			break;
+		case FLASH_MAN_INTEL:
+			res = write_word_intel(info, (FPWV *)addr, data);
+			break;
+		default:
+			/* unknown flash type, error! */
+			printf ("missing or unknown FLASH type\n");
+			res = 1;	/* not really a timeout, but gives error */
+			break;
+		}
 	}
 
-	/* write one word to the flash */
-	switch (info->flash_id & FLASH_VENDMASK) {
-	case FLASH_MAN_AMD:
-		res = write_word_amd(info, (FPWV *)addr, data);
-		break;
-	case FLASH_MAN_INTEL:
-		res = write_word_intel(info, (FPWV *)addr, data);
-		break;
-	default:
-		/* unknown flash type, error! */
-		printf ("missing or unknown FLASH type\n");
-		res = 1;	/* not really a timeout, but gives error */
-		break;
-	}
-    }
-
-    return (res);
+	return (res);
 }
 
 /*-----------------------------------------------------------------------
@@ -573,43 +571,43 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
  */
 static int write_word_amd (flash_info_t *info, FPWV *dest, FPW data)
 {
-    ulong start;
-    int flag;
-    int res = 0;	/* result, assume success	*/
-    FPWV *base;		/* first address in flash bank	*/
+	ulong start;
+	int flag;
+	int res = 0;	/* result, assume success	*/
+	FPWV *base;		/* first address in flash bank	*/
 
-    /* Check if Flash is (sufficiently) erased */
-    if ((*dest & data) != data) {
-	return (2);
-    }
-
-
-    base = (FPWV *)(info->start[0]);
-
-    /* Disable interrupts which might cause a timeout here */
-    flag = disable_interrupts();
-
-    base[FLASH_CYCLE1] = (FPW)0x00AA00AA;	/* unlock */
-    base[FLASH_CYCLE2] = (FPW)0x00550055;	/* unlock */
-    base[FLASH_CYCLE1] = (FPW)0x00A000A0;	/* selects program mode */
-
-    *dest = data;		/* start programming the data	*/
-
-    /* re-enable interrupts if necessary */
-    if (flag)
-	enable_interrupts();
-
-    start = get_timer (0);
-
-    /* data polling for D7 */
-    while (res == 0 && (*dest & (FPW)0x00800080) != (data & (FPW)0x00800080)) {
-	if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
-	    *dest = (FPW)0x00F000F0;	/* reset bank */
-	    res = 1;
+	/* Check if Flash is (sufficiently) erased */
+	if ((*dest & data) != data) {
+		return (2);
 	}
-    }
 
-    return (res);
+
+	base = (FPWV *)(info->start[0]);
+
+	/* Disable interrupts which might cause a timeout here */
+	flag = disable_interrupts();
+
+	base[FLASH_CYCLE1] = (FPW)0x00AA00AA;	/* unlock */
+	base[FLASH_CYCLE2] = (FPW)0x00550055;	/* unlock */
+	base[FLASH_CYCLE1] = (FPW)0x00A000A0;	/* selects program mode */
+
+	*dest = data;		/* start programming the data	*/
+
+	/* re-enable interrupts if necessary */
+	if (flag)
+		enable_interrupts();
+
+	start = get_timer (0);
+
+	/* data polling for D7 */
+	while (res == 0 && (*dest & (FPW)0x00800080) != (data & (FPW)0x00800080)) {
+		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+			*dest = (FPW)0x00F000F0;	/* reset bank */
+			res = 1;
+		}
+	}
+
+	return (res);
 }
 
 /*-----------------------------------------------------------------------
@@ -624,42 +622,42 @@ static int write_word_amd (flash_info_t *info, FPWV *dest, FPW data)
  */
 static int write_word_intel (flash_info_t *info, FPWV *dest, FPW data)
 {
-    ulong start;
-    int flag;
-    int res = 0;	/* result, assume success	*/
+	ulong start;
+	int flag;
+	int res = 0;	/* result, assume success	*/
 
-    /* Check if Flash is (sufficiently) erased */
-    if ((*dest & data) != data) {
-	return (2);
-    }
-
-    /* Disable interrupts which might cause a timeout here */
-    flag = disable_interrupts();
-
-    *dest = (FPW)0x00500050;	/* clear status register	*/
-    *dest = (FPW)0x00FF00FF;	/* make sure in read mode	*/
-    *dest = (FPW)0x00400040;	/* program setup		*/
-
-    *dest = data;		/* start programming the data	*/
-
-    /* re-enable interrupts if necessary */
-    if (flag)
-	enable_interrupts();
-
-    start = get_timer (0);
-
-    while (res == 0 && (*dest & (FPW)0x00800080) != (FPW)0x00800080) {
-	if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
-	    *dest = (FPW)0x00B000B0;	/* Suspend program	*/
-	    res = 1;
+	/* Check if Flash is (sufficiently) erased */
+	if ((*dest & data) != data) {
+		return (2);
 	}
-    }
 
-    if (res == 0 && (*dest & (FPW)0x00100010))
-	res = 1;	/* write failed, time out error is close enough	*/
+	/* Disable interrupts which might cause a timeout here */
+	flag = disable_interrupts();
 
-    *dest = (FPW)0x00500050;	/* clear status register	*/
-    *dest = (FPW)0x00FF00FF;	/* make sure in read mode	*/
+	*dest = (FPW)0x00500050;	/* clear status register	*/
+	*dest = (FPW)0x00FF00FF;	/* make sure in read mode	*/
+	*dest = (FPW)0x00400040;	/* program setup		*/
 
-    return (res);
+	*dest = data;		/* start programming the data	*/
+
+	/* re-enable interrupts if necessary */
+	if (flag)
+		enable_interrupts();
+
+	start = get_timer (0);
+
+	while (res == 0 && (*dest & (FPW)0x00800080) != (FPW)0x00800080) {
+		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+			*dest = (FPW)0x00B000B0;	/* Suspend program	*/
+			res = 1;
+		}
+	}
+
+	if (res == 0 && (*dest & (FPW)0x00100010))
+		res = 1;	/* write failed, time out error is close enough	*/
+
+	*dest = (FPW)0x00500050;	/* clear status register	*/
+	*dest = (FPW)0x00FF00FF;	/* make sure in read mode	*/
+
+	return (res);
 }

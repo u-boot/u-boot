@@ -232,7 +232,7 @@
 #define CFG_SDRAM_BASE		0x00000000
 #define CFG_SDRAM_MAX_SIZE	0x08000000	/* max. 128 MB		*/
 #define CFG_MONITOR_BASE	TEXT_BASE
-#define CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor */
+#define CFG_MONITOR_LEN		(192 << 10)	/* Reserve 192 kB for Monitor */
 #define CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()*/
 
 #if (CFG_MONITOR_BASE < CFG_FLASH_BASE)
@@ -242,7 +242,7 @@
 #if 1
 /* environment is in Flash */
 #define CFG_ENV_IS_IN_FLASH	1
-# define CFG_ENV_ADDR		(CFG_FLASH_BASE+0x40000)
+# define CFG_ENV_ADDR		(CFG_FLASH_BASE+0x30000)
 # define CFG_ENV_SIZE		0x10000
 # define CFG_ENV_SECT_SIZE	0x10000
 #else
