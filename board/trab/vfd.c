@@ -559,4 +559,13 @@ ulong vfd_setmem (ulong addr)
 	return (size);
 }
 
+/*
+ * Calculate fb size for VIDEOLFB_ATAG. Size returned contains fb,
+ * descriptors and palette areas.
+ */
+ulong calc_fbsize (void)
+{
+	return FRAME_BUF_SIZE;
+}
+
 #endif /* CONFIG_VFD */

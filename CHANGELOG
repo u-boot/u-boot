@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Hinko Kocevar, 21 Aug 2004:
+  Add calc_fbsize() function used with VIDEOLFB_TAG on TRAB
+
 * Clean up tools/bmp_logo.c to not add trailing white space
 
 * Patch by Hinko Kocevar, 21 Aug 2004:
