@@ -149,7 +149,6 @@ static int pci_writel (socket_info_t * s, int r, u_int v)
 static u_char i365_get (socket_info_t * s, u_short reg)
 {
 	u_char val;
-
 #ifdef CONFIG_PCMCIA_SLOT_A
 	int slot = 0;
 #else
@@ -172,8 +171,9 @@ static void i365_set (socket_info_t * s, u_short reg, u_char data)
 #else
 	int slot = 1;
 #endif
+	u_char val;
 
-	u_char val = I365_REG (slot, reg);
+	val = I365_REG (slot, reg);
 
 	cb_writeb (s, val);
 	cb_writeb2 (s, data);
@@ -274,7 +274,6 @@ static u_int cirrus_set_opts (socket_info_t * s)
 {
 	cirrus_state_t *p = &s->c_state;
 	u_int mask = 0xffff;
-
 #if DEBUG
 	char buf[200];
 
@@ -585,7 +584,6 @@ static void set_bridge_opts (socket_info_t * s)
 static int i365_get_status (socket_info_t * s, u_int * value)
 {
 	u_int status;
-
 #ifdef CONFIG_CPC45
 	u_char val;
 	u_char power, vcc, vpp;
@@ -612,9 +610,7 @@ static int i365_get_status (socket_info_t * s, u_int * value)
 	if ((val & PD67_INFO_CHIP_ID) == PD67_INFO_CHIP_ID) {
 		val = i365_get (s, PD67_CHIP_INFO);
 		if ((val & PD67_INFO_CHIP_ID) == 0) {
-			s->type =
-				(val & PD67_INFO_SLOTS) ? IS_PD672X :
-				IS_PD6710;
+			s->type = (val & PD67_INFO_SLOTS) ? IS_PD672X : IS_PD6710;
 			i365_set (s, PD67_EXT_INDEX, 0xe5);
 			if (i365_get (s, PD67_EXT_INDEX) != 0xe5)
 				s->type = IS_VT83C469;
@@ -1004,8 +1000,10 @@ static void i82365_dump_regions (pci_dev_t dev)
 	pci_read_config_dword (dev, 0x00, tmp + 0);
 	pci_read_config_dword (dev, 0x80, tmp + 1);
 
-	printf ("PCI CONF: %08X ... %08X\n", tmp[0], tmp[1]);
-	printf ("PCI MEM:  ... %08X ... %08X\n", mem[0x8 / 4], mem[0x800 / 4]);
+	printf ("PCI CONF: %08X ... %08X\n",
+		tmp[0], tmp[1]);
+	printf ("PCI MEM:  ... %08X ... %08X\n",
+		mem[0x8 / 4], mem[0x800 / 4]);
 	printf ("CIS:      ...%c%c%c%c%c%c%c%c...\n",
 		cis[0x38], cis[0x3a], cis[0x3c], cis[0x3e],
 		cis[0x40], cis[0x42], cis[0x44], cis[0x48]);

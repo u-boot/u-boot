@@ -41,8 +41,10 @@ void write_one_tlb( int index, u32 pagemask, u32 hi, u32 low0, u32 low1 );
 
 int checkboard (void)
 {
+#ifdef CONFIG_IDE_PCMCIA
 	u16 status;
 	volatile u32 *pcmcia_bcsr = (u32*)(DB1XX0_BCSR_ADDR+0x10);
+#endif	/* CONFIG_IDE_PCMCIA */
 	volatile u32 *phy = (u32*)(DB1XX0_BCSR_ADDR+0xC);
 	volatile u32 *sys_counter = (volatile u32*)SYS_COUNTER_CNTRL;
 	u32 proc_id;

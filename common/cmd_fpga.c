@@ -31,6 +31,7 @@
 #include <net.h>
 #endif
 #include <fpga.h>
+#include <malloc.h>
 
 #if 0
 #define	FPGA_DEBUG
@@ -76,7 +77,7 @@ int fpga_loadbitstream(unsigned long dev, char* fpgadata, size_t size)
 
 	/* get design name (identifier, length, string) */
 	if (*dataptr++ != 0x61) {
-		PRINTF(__FUNCTION__ ": Design name identifier not recognized in bitstream.\n");
+		PRINTF("fpga_loadbitstream: Design name identifier not recognized in bitstream.\n");
 		return FPGA_FAIL;
 	}
 
@@ -86,60 +87,60 @@ int fpga_loadbitstream(unsigned long dev, char* fpgadata, size_t size)
 		buffer[i]=*dataptr++;
 
 	buffer[length-5]='\0'; /* remove filename extension */
-	PRINTF(__FUNCTION__ ": design name = \"%s\".\n",buffer);
+	PRINTF("fpga_loadbitstream: design name = \"%s\".\n",buffer);
 
 	/* get part number (identifier, length, string) */
 	if (*dataptr++ != 0x62) {
-		printf(__FUNCTION__ ": Part number identifier not recognized in bitstream.\n");
+		printf("fpga_loadbitstream: Part number identifier not recognized in bitstream.\n");
 		return FPGA_FAIL;
 	}
 
 	length = (*dataptr << 8) + *(dataptr+1); dataptr+=2;
 	for(i=0;i<length;i++)
 		buffer[i]=*dataptr++;
-	PRINTF(__FUNCTION__ ": part number = \"%s\".\n",buffer);
+	PRINTF("fpga_loadbitstream: part number = \"%s\".\n",buffer);
 
 	/* get date (identifier, length, string) */
 	if (*dataptr++ != 0x63) {
-		printf(__FUNCTION__ ": Date identifier not recognized in bitstream.\n");
+		printf("fpga_loadbitstream: Date identifier not recognized in bitstream.\n");
 		return FPGA_FAIL;
 	}
 
 	length = (*dataptr << 8) + *(dataptr+1); dataptr+=2;
 	for(i=0;i<length;i++)
 		buffer[i]=*dataptr++;
-	PRINTF(__FUNCTION__ ": date = \"%s\".\n",buffer);
+	PRINTF("fpga_loadbitstream: date = \"%s\".\n",buffer);
 
 	/* get time (identifier, length, string) */
 	if (*dataptr++ != 0x64) {
-		printf(__FUNCTION__ ": Time identifier not recognized in bitstream.\n");
+		printf("fpga_loadbitstream: Time identifier not recognized in bitstream.\n");
 		return FPGA_FAIL;
 	}
 
 	length = (*dataptr << 8) + *(dataptr+1); dataptr+=2;
 	for(i=0;i<length;i++)
 		buffer[i]=*dataptr++;
-	PRINTF(__FUNCTION__ ": time = \"%s\".\n",buffer);
+	PRINTF("fpga_loadbitstream: time = \"%s\".\n",buffer);
 
 	/* get fpga data length (identifier, length) */
 	if (*dataptr++ != 0x65) {
-		printf(__FUNCTION__ ": Data length identifier not recognized in bitstream.\n");
+		printf("fpga_loadbitstream: Data length identifier not recognized in bitstream.\n");
 		return FPGA_FAIL;
 	}
 	swapsize = ((long)*dataptr<<24) + ((long)*(dataptr+1)<<16) + ((long)*(dataptr+2)<<8) + (long)*(dataptr+3);
 	dataptr+=4;
-	PRINTF(__FUNCTION__ ": bytes in bitstream = %d.\n",swapsize);
+	PRINTF("fpga_loadbitstream: bytes in bitstream = %d.\n",swapsize);
 
 	/* check consistency of length obtained */
 	if (swapsize >= size) {
-		printf(__FUNCTION__ ": Could not find right length of data in bitstream.\n");
+		printf("fpga_loadbitstream: Could not find right length of data in bitstream.\n");
 		return FPGA_FAIL;
 	}
 
 	/* allocate memory */
 	swapdata = (char *)malloc(swapsize);
 	if (swapdata == NULL) {
-		printf(__FUNCTION__ ": Could not allocate %d bytes memory !\n",swapsize);
+		printf("fpga_loadbitstream: Could not allocate %d bytes memory !\n",swapsize);
 		return FPGA_FAIL;
 	}
 
@@ -195,17 +196,16 @@ int do_fpga (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		data_size = simple_strtoul (argv[4], NULL, 16);
 	case 4:		/* fpga <op> <dev> <data> */
 		fpga_data = (void *) simple_strtoul (argv[3], NULL, 16);
-		PRINTF (__FUNCTION__ ": fpga_data = 0x%x\n",
+		PRINTF ("do_fpga: fpga_data = 0x%x\n",
 			(uint) fpga_data);
 	case 3:		/* fpga <op> <dev | data addr> */
 		dev = (int) simple_strtoul (argv[2], NULL, 16);
-		PRINTF (__FUNCTION__ ": device = %d\n", dev);
+		PRINTF ("do_fpga: device = %d\n", dev);
 		/* FIXME - this is a really weak test */
 		if ((argc == 3) && (dev > fpga_count ())) {	/* must be buffer ptr */
-			PRINTF (__FUNCTION__
-				": Assuming buffer pointer in arg 3\n");
+			PRINTF ("do_fpga: Assuming buffer pointer in arg 3\n");
 			fpga_data = (void *) dev;
-			PRINTF (__FUNCTION__ ": fpga_data = 0x%x\n",
+			PRINTF ("do_fpga: fpga_data = 0x%x\n",
 				(uint) fpga_data);
 			dev = FPGA_INVALID_DEVICE;	/* reset device num */
 		}
@@ -213,7 +213,7 @@ int do_fpga (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		op = (int) fpga_get_op (argv[1]);
 		break;
 	default:
-		PRINTF (__FUNCTION__ ": Too many or too few args (%d)\n",
+		PRINTF ("do_fpga: Too many or too few args (%d)\n",
 			argc);
 		op = FPGA_NONE;	/* force usage display */
 		break;

@@ -73,8 +73,8 @@
 #define CONFIG_ZERO_BOOTDELAY_CHECK
 #define CONFIG_RESET_TO_RETRY           1
 #define CONFIG_BOOT_RETRY_MIN           1
-#endif
-#endif
+#endif	/* DEPLOYMENT */
+#endif	/* DEBUG */
 
 /* pre-boot commands */
 #define CONFIG_PREBOOT          "setenv stdout serial;setenv stdin serial"
@@ -95,7 +95,6 @@
 	"net_nfs=tftp 200000 $(bootfile);run nfsargs addip;bootm\0"	\
 	"gatewayip=172.16.115.254\0"					\
 	"netmask=255.255.255.0\0"					\
-<<<<<<< RPXlite_DW.h
 	"kernel_addr=ff040000\0"					\
 	"ramdisk_addr=ff200000\0"					\
 	"ku=era $(kernel_addr) ff1fffff;cp.b 100000 $(kernel_addr) "	\
@@ -109,11 +108,6 @@
 	"ser=setenv stdout serial;setenv stdin serial\0"		\
 	"verify=no"
 
-=======
-	"kernel_addr=ff080000\0"					\
-	"ramdisk_addr=ff200000\0"					\
-	""
->>>>>>> 1.3
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
@@ -137,6 +131,7 @@
 #else
 #define CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
 #endif
+
 #define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
 #define CFG_MAXARGS	16		/* max number of command args	*/
 #define CFG_BARGSIZE	CFG_CBSIZE	/* Boot Argument Buffer Size	*/
@@ -180,6 +175,7 @@
 #else
 #define CFG_MONITOR_LEN		(128 << 10)	/* Reserve 128 kB for Monitor */
 #endif
+
 #define CFG_MONITOR_BASE	0xFF000000
 #define CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
 
@@ -205,15 +201,10 @@
 #define CFG_ENV_IS_IN_FLASH
 #define CFG_ENV_OFFSET		0x30000 /* Offset of Environment Sector		*/
 #define CFG_ENV_SIZE		0x8000	/* Total Size of Environment Sector	*/
-#endif
+#endif	/* CFG_ENV_IS_IN_NVRAM */
 
-<<<<<<< RPXlite_DW.h
 #define CFG_RESET_ADDRESS	((ulong)((((immap_t *)CFG_IMMR)->im_clkrst.res)))
 
-=======
-#define CFG_RESET_ADDRESS	((ulong)((((immap_t *)CFG_IMMR)->im_clkrst.res)))
-
->>>>>>> 1.3
 /*-----------------------------------------------------------------------
  * Cache Configuration
  */
@@ -288,16 +279,10 @@
 /* Up to 48MHz system clock, we use 1:1 SYSTEM/BUS ratio */
 #if defined(RPXlite_64MHz)
 #define CFG_SCCR	( SCCR_TBS | SCCR_EBDF01 )  /* %%%SCCR:0x02020000 */
-<<<<<<< RPXlite_DW.h
 #else
 #define CFG_SCCR        ( SCCR_TBS | SCCR_EBDF00 )  /* %%%SCCR:0x02000000 */
 #endif
-=======
-#else
-#define CFG_SCCR	( SCCR_TBS | SCCR_EBDF00 )  /* %%%SCCR:0x02000000 */
-#endif
 
->>>>>>> 1.3
 /*-----------------------------------------------------------------------
  * PCMCIA stuff
  *-----------------------------------------------------------------------
