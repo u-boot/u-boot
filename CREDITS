@@ -266,6 +266,10 @@ N: David Updegraff
 E: dave@cray.com
 D: Port to Cray L1 board; DHCP vendor extensions
 
+N: Martin Winistoerfer
+E: martinwinistoerfer@gmx.ch
+D: Port to MPC555/556 microcontrollers and support for cmi board
+
 N: Christian Vejlbo
 E: christian.vejlbo@tellabs.com
 D: FADS860T ethernet support

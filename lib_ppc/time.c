@@ -80,7 +80,7 @@ unsigned long ticks2usec(unsigned long ticks)
 
 int init_timebase (void)
 {
-#ifdef	CONFIG_8xx
+#if defined(CONFIG_5xx) || defined(CONFIG_8xx)
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 
 	/* unlock */
@@ -90,7 +90,7 @@ int init_timebase (void)
 	/* reset */
 	asm ("li 3,0 ; mttbu 3 ; mttbl 3 ;");
 
-#ifdef	CONFIG_8xx
+#if defined(CONFIG_5xx) || defined(CONFIG_8xx)
 	/* enable */
 	immap->im_sit.sit_tbscr |= TBSCR_TBE;
 #endif

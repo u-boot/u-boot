@@ -23,8 +23,10 @@
 
 #include <common.h>
 
+
 void flush_cache (ulong start_addr, ulong size)
 {
+#ifndef CONFIG_5xx
 	ulong addr, end_addr = start_addr + size;
 
 	if (CFG_CACHELINE_SIZE) {
@@ -44,4 +46,5 @@ void flush_cache (ulong start_addr, ulong size)
 	}
 	asm ("sync");		/* Always flush prefetch queue in any case */
 	asm ("isync");
+#endif
 }

@@ -11,6 +11,14 @@ fi
 LIST=""
 
 #########################################################################
+## MPC5xx Systems
+#########################################################################
+
+LIST_5xx="	\
+	cmi_mpc5xx							\
+"
+
+#########################################################################
 ## MPC8xx Systems
 #########################################################################
 
@@ -77,8 +85,10 @@ LIST_7xx="	\
 	BAB7xx		ELPPC						\
 "
 
-LIST_ppc="${LIST_8xx} ${LIST_824x} ${LIST_8260} \
-	  ${LIST_4xx} ${LIST_74xx} ${LIST_7xx}"
+LIST_ppc="${LIST_5xx}  ${LIST_8xx}  \
+	  ${LIST_824x} ${LIST_8260} \
+	  ${LIST_4xx}		    \
+	  ${LIST_74xx} ${LIST_7xx}"
 
 #########################################################################
 ## StrongARM Systems
@@ -136,7 +146,7 @@ build_target() {
 for arg in $@
 do
 	case "$arg" in
-	8xx|824x|8260|4xx|7xx|74xx|SA|ARM7|ARM9|ppc|arm|xscale|mips)
+	5xx|8xx|824x|8260|4xx|7xx|74xx|SA|ARM7|ARM9|ppc|arm|xscale|mips)
 			for target in `eval echo '$LIST_'${arg}`
 			do
 				build_target ${target}

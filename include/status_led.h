@@ -253,6 +253,19 @@ void status_led_set  (int led, int state);
 # define STATUS_LED_BOOT	0		/* LED 0 used for boot status */
 
 
+/*****  CMI   ********************************************************/
+#elif defined(CONFIG_CMI)
+# define STATUS_LED_DIR		im_mios.mios_mpiosm32ddr 
+# define STATUS_LED_DAT		im_mios.mios_mpiosm32dr 
+
+# define STATUS_LED_BIT		0x2000		/* Select one of the 16 possible*/
+						/* MIOS outputs */
+# define STATUS_LED_PERIOD	(CFG_HZ / 2)	/* Blinking periode is 500 ms */
+# define STATUS_LED_STATE	STATUS_LED_BLINKING
+
+# define STATUS_LED_ACTIVE	1		/* LED on for bit == 0	*/
+# define STATUS_LED_BOOT	0		/* LED 0 used for boot status */
+
 /*****  KUP4K  ********************************************************/
 #elif defined(CONFIG_KUP4K)
 

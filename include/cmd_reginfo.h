@@ -24,7 +24,7 @@
 #ifndef	_CMD_REGINFO_H_
 #define	_CMD_REGINFO_H_
 
-#if (defined(CONFIG_8xx) || defined(CONFIG_405GP)) && \
+#if (defined(CONFIG_5xx) || defined(CONFIG_8xx) || defined(CONFIG_405GP)) && \
     (CONFIG_COMMANDS & CFG_CMD_REGINFO)
 #define	CMD_TBL_REGINFO	MK_CMD_TBL_ENTRY(					\
 	"reginfo",	3,	2,	1,	do_reginfo,			\
@@ -35,6 +35,6 @@ int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 #else
 #define CMD_TBL_REGINFO
-#endif	/* CONFIG_8xx && CFG_CMD_REGINFO */
+#endif	/* CONFIG_COMMANDS && CFG_CMD_REGINFO */
 
 #endif	/* _CMD_REGINFO_H_ */

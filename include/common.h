@@ -43,6 +43,8 @@ typedef volatile unsigned char	vu_char;
 #endif
 #ifdef	CONFIG_8xx
 #include <asm/8xx_immap.h>
+#elif defined(CONFIG_5xx)
+#include <asm/5xx_immap.h>
 #elif defined(CONFIG_8260)
 #include <asm/immap_8260.h>
 #endif
@@ -241,7 +243,8 @@ int testdram(void);
 #endif /* CFG_DRAM_TEST */
 
 /* $(CPU)/start.S */
-#ifdef	CONFIG_8xx
+#if defined(CONFIG_5xx)	|| \
+    defined(CONFIG_8xx)
 uint	get_immr      (uint);
 #endif
 uint	get_pvr	      (void);
@@ -369,6 +372,7 @@ ulong	video_setmem (ulong);
 
 /* ppc/cache.c */
 void	flush_cache   (unsigned long, unsigned long);
+
 
 /* ppc/ticks.S */
 unsigned long long get_ticks(void);

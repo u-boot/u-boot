@@ -2,6 +2,14 @@
 Changes since U-Boot 0.2.2:
 ======================================================================
 
+* Patch by Martin Winistoerfer, 23 Mar 2003
+  - Add port to MPC555/556 microcontrollers
+  - Add support for cmi customer board with
+    Intel 28F128J3A, 28F320J3A or 28F640J3A flash.
+
+* Patch by Rick Bronson, 28 Mar 2003:
+  - fix common/cmd_nand.c
+
 * Patch by Arun Dharankar, 24 Mar 2003:
   - add threads / scheduler example code
 

@@ -75,6 +75,11 @@
 	void reset_8xx_watchdog(volatile immap_t *immr);
 #endif
 
+/* MPC 5xx */
+#if defined(CONFIG_5xx) && !defined(__ASSEMBLY__)
+	void reset_5xx_watchdog(volatile immap_t *immr);
+#endif
+
 /* IBM 4xx */
 #if defined(CONFIG_4xx) && !defined(__ASSEMBLY__)
 	void reset_4xx_watchdog(void);

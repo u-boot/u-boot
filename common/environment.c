@@ -46,7 +46,8 @@
  * a seperate section.  Note that ENV_CRC is only defined when building
  * U-Boot itself.
  */
-#if (defined(CONFIG_FADS)	|| \
+#if (defined(CONFIG_CMI)	|| \
+     defined(CONFIG_FADS)	|| \
      defined(CONFIG_HYMOD)	|| \
      defined(CONFIG_ICU862)	|| \
      defined(CONFIG_R360MPI)	|| \

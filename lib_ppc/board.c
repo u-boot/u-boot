@@ -30,6 +30,9 @@
 #ifdef CONFIG_8xx
 #include <mpc8xx.h>
 #endif
+#ifdef CONFIG_5xx
+#include <mpc5xx.h>
+#endif
 #if (CONFIG_COMMANDS & CFG_CMD_IDE)
 #include <ide.h>
 #endif
@@ -160,12 +163,15 @@ static void syscalls_init (void)
 	*addr++ |= NR_SYSCALLS >> 16;
 	*addr++ |= NR_SYSCALLS & 0xFFFF;
 
+#ifndef CONFIG_5XX
 	flush_cache (0x0C00, 0x10);
-
+#endif
 	/* Initialize syscalls stack pointer                                 */
 	addr = (ulong *) 0xCFC;
 	*addr = (ulong)addr;
+#ifndef CONFIG_5xx	
 	flush_cache ((ulong)addr, 0x10);
+#endif
 }
 
 /*
@@ -199,7 +205,6 @@ static int init_baudrate (void)
 	gd->baudrate = (i > 0)
 			? (int) simple_strtoul (tmp, NULL, 10)
 			: CONFIG_BAUDRATE;
-
 	return (0);
 }
 
@@ -496,7 +501,7 @@ void board_init_f (ulong bootflag)
 	bd->bi_sramsize  = 0;		/* FIXME */ /* size  of  SRAM memory      */
 #endif
 
-#if defined(CONFIG_8xx) || defined(CONFIG_8260)
+#if defined(CONFIG_8xx) || defined(CONFIG_8260) || defined(CONFIG_5xx)
 	bd->bi_immr_base = CFG_IMMR;	/* base  of IMMR register     */
 #endif
 

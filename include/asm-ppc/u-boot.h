@@ -38,7 +38,7 @@ typedef struct bd_info {
 	unsigned long	bi_flashoffset; /* reserved area for startup monitor */
 	unsigned long	bi_sramstart;	/* start of SRAM memory */
 	unsigned long	bi_sramsize;	/* size	 of SRAM memory */
-#if defined(CONFIG_8xx) || defined(CONFIG_8260)
+#if defined(CONFIG_5xx) || defined(CONFIG_8xx) || defined(CONFIG_8260)
 	unsigned long	bi_immr_base;	/* base of IMMR register */
 #endif
 	unsigned long	bi_bootflags;	/* boot / reboot flag (for LynxOS) */
