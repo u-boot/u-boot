@@ -2,6 +2,10 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patches by himba, 21 Aug 2004:
+  - fix some "use of label at end of compound statement" warnings
+  - Define type of LCD panel on lubbock board if CONFIG_LCD is used
+
 * Patch by Steven Scholz, 16 Aug 2004:
   - Introducing the concept of SoCs "./cpu/$(CPU)/$(SOC)"
   - creating subdirs for SoCs ./cpu/arm920t/imx and ./cpu/arm920t/s3c24x0

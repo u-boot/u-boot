@@ -43,6 +43,9 @@
 #define CONFIG_PXA250		1	/* This is an PXA250 CPU    */
 #define CONFIG_LUBBOCK		1	/* on an LUBBOCK Board	    */
 #define CONFIG_LCD		1
+#ifdef CONFIG_LCD
+#define CONFIG_SHARP_LM8V31
+#endif
 #define CONFIG_MMC		1
 #define BOARD_LATE_INIT		1
 
