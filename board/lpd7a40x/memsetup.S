@@ -108,15 +108,15 @@
 /*
  * The SDRAM DEVICE MODE PROGRAMMING VALUE
  */
-#define BURST_LENGTH_4		(0x010 << 10)
-#define BURST_LENGTH_8		(0x011 << 10)
-#define WBURST_LENGTH_BL	(0x01 << 19)
-#define WBURST_LENGTH_SINGLE	(0x01 << 19)
-#define CAS_2			(0x010 << 14)
-#define CAS_3			(0x011 << 14)
+#define BURST_LENGTH_4		(2 << 10)
+#define BURST_LENGTH_8		(3 << 10)
+#define WBURST_LENGTH_BL	(0 << 19)
+#define WBURST_LENGTH_SINGLE	(1 << 19)
+#define CAS_2			(2 << 14)
+#define CAS_3			(3 << 14)
 #define BAT_SEQUENTIAL		(0 << 13)
 #define BAT_INTERLEAVED		(1 << 13)
-#define OPM_NORMAL		(0x00 << 17)
+#define OPM_NORMAL		(0 << 17)
 #define SDRAM_DEVICE_MODE	(WBURST_LENGTH_BL|OPM_NORMAL|CAS_3|BAT_SEQUENTIAL|BURST_LENGTH_4)
 
 

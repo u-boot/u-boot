@@ -2,6 +2,12 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Josef Baumgartner, 25 May 2004:
+  Add missing functions get_ticks() and get_tbclk() in lib_m68k/time.c
+
+* Patch by Paul Ruhland, 24 May 2004:
+  fix SDRAM initialization for LPD7A400 board.
+
 * Patch by Jian Zhang, 20 May 2004:
   add support for environment in NAND flash
 
