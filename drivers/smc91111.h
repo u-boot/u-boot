@@ -178,6 +178,31 @@ typedef unsigned long int 		dword;
 				})
 #endif
 
+#if defined(CONFIG_SMC_USE_32_BIT)
+
+#define	SMC_inl(r) 	(*((volatile dword *)(SMC_BASE_ADDRESS+(r))))
+
+#define SMC_insl(r,b,l) 	({	int __i ;  \
+					dword *__b2;  \
+			    		__b2 = (dword *) b;  \
+			    		for (__i = 0; __i < l; __i++) {  \
+					  *(__b2 + __i) = SMC_inl(r);  \
+					  SMC_inl(0);  \
+					};  \
+				})
+
+#define	SMC_outl(d,r)	(*((volatile dword *)(SMC_BASE_ADDRESS+(r))) = d)
+
+#define SMC_outsl(r,b,l)	({	int __i; \
+					dword *__b2; \
+					__b2 = (dword *) b; \
+					for (__i = 0; __i < l; __i++) { \
+					    SMC_outl( *(__b2 + __i), r); \
+					} \
+				})
+
+#endif /* CONFIG_SMC_USE_32_BIT */
+
 #endif
 
 /*---------------------------------------------------------------

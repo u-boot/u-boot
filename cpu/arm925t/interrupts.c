@@ -185,9 +185,14 @@ int interrupt_init (void)
 {
 	int32_t val;
 
+	/* Start the decrementer ticking down from 0xffffffff */
 	*((int32_t *) (CFG_TIMERBASE + LOAD_TIM)) = TIMER_LOAD_VAL;
 	val = MPUTIM_ST | MPUTIM_AR | MPUTIM_CLOCK_ENABLE | (CFG_PVT << MPUTIM_PTV_BIT);
 	*((int32_t *) (CFG_TIMERBASE + CNTL_TIMER)) = val;
+
+	/* init the timestamp and lastdec value */
+	reset_timer_masked();
+
 	return (0);
 }
 
@@ -210,7 +215,7 @@ void set_timer (ulong t)
 	timestamp = t;
 }
 
-/* very rough timer... */
+/* delay x useconds AND perserve advance timstamp value */
 void udelay (unsigned long usec)
 {
 #ifdef CONFIG_INNOVATOROMAP1510
@@ -220,16 +225,24 @@ void udelay (unsigned long usec)
 	for (i = time_remaining; i > 0; i--) {
 	}
 #else
+	ulong tmo, tmp;
 
-	ulong tmo;
+	if(usec >= 1000){               /* if "big" number, spread normalization to seconds */
+		tmo = usec / 1000;      /* start to normalize for usec to ticks per sec */
+		tmo *= CFG_HZ;          /* find number of "ticks" to wait to achieve target */
+		tmo /= 1000;            /* finish normalize. */
+	}else{                          /* else small number, don't kill it prior to HZ multiply */
+		tmo = usec * CFG_HZ;
+		tmo /= (1000*1000);
+	}
 
-	tmo = usec / 1000;
-	tmo *= CFG_HZ;
-	tmo /= 1000;
+	tmp = get_timer (0);		/* get current timestamp */
+	if( (tmo + tmp) < tmp ) 	/* if setting this fordward will roll time stamp */
+		reset_timer_masked ();	/* reset "advancing" timestamp to 0, set lastdec value */
+	else
+		tmo += tmp;		/* else, set advancing stamp wake up time */
 
-	tmo += get_timer (0);
-
-	while (get_timer_masked () < tmo)
+	while (get_timer_masked () < tmo)/* loop till event */
 		/*NOP*/;
 #endif
 }
@@ -237,19 +250,23 @@ void udelay (unsigned long usec)
 void reset_timer_masked (void)
 {
 	/* reset time */
-	lastdec = READ_TIMER;
-	timestamp = 0;
+	lastdec = READ_TIMER;  /* capure current decrementer value time */
+	timestamp = 0;         /* start "advancing" time stamp from 0 */
 }
 
 ulong get_timer_masked (void)
 {
-	ulong now = READ_TIMER;           /* current tick value */
+	ulong now = READ_TIMER;		/* current tick value */
 
-	if (lastdec >= now) {             /* did I roll (rem decrementer) */
+	if (lastdec >= now) {		/* normal mode (non roll) */
 		/* normal mode */
-		timestamp += lastdec - now;   /* record amount of time since last check */
-	} else {
-		/* we have an overflow ... */
+		timestamp += lastdec - now; /* move stamp fordward with absoulte diff ticks */
+	} else {			/* we have overflow of the count down timer */
+		/* nts = ts + ld + (TLV - now)
+		 * ts=old stamp, ld=time that passed before passing through -1
+		 * (TLV-now) amount of time after passing though -1
+		 * nts = new "advancing time stamp"...it could also roll and cause problems.
+		 */
 		timestamp += lastdec + TIMER_LOAD_VAL - now;
 	}
 	lastdec = now;
@@ -257,6 +274,7 @@ ulong get_timer_masked (void)
 	return timestamp;
 }
 
+/* waits specified delay value and resets timestamp */
 void udelay_masked (unsigned long usec)
 {
 #ifdef CONFIG_INNOVATOROMAP1510
@@ -265,15 +283,20 @@ void udelay_masked (unsigned long usec)
     for (i=time_remaining; i>0; i--) { }
 #else
 
-	ulong tmo;
+	ulong tmo, tmp;
 
-	tmo = usec / 1000;
-	tmo *= CFG_HZ;
-	tmo /= 1000;
+	if(usec >= 1000){               /* if "big" number, spread normalization to seconds */
+		tmo = usec / 1000;      /* start to normalize for usec to ticks per sec */
+		tmo *= CFG_HZ;          /* find number of "ticks" to wait to achieve target */
+		tmo /= 1000;            /* finish normalize. */
+	}else{                          /* else small number, don't kill it prior to HZ multiply */
+		tmo = usec * CFG_HZ;
+		tmo /= (1000*1000);
+	}
 
-	reset_timer_masked ();
+	reset_timer_masked ();	/* set "advancing" timestamp to 0, set lastdec vaule */
 
-	while (get_timer_masked () < tmo)
+	while (get_timer_masked () < tmo) /* wait for time stamp to overtake tick number.*/
 		/*NOP*/;
 #endif
 }
@@ -292,7 +315,7 @@ unsigned long long get_ticks(void)
  * On ARM it returns the number of timer ticks per second.
  */
 ulong get_tbclk (void)
-{	/* poor timer, may need to improve especiall for bootp. */
+{
 	ulong tbclk;
 
 	tbclk = CFG_HZ;

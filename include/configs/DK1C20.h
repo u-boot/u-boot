@@ -96,12 +96,10 @@
 /*------------------------------------------------------------------------
  * Ethernet -- needs work!
  *----------------------------------------------------------------------*/
-#if 0
 #define CONFIG_DRIVER_SMC91111			/* Using SMC91c111	*/
-#define CONFIG_SMC91111_BASE	0x00910000	/* Base address		*/
-#undef  CONFIG_SMC91111_EXT_PHY			/* No external PHY	*/
-#define CONFIG_SMC_USE_32_BIT	1		/* 32-bit i/f		*/
-#endif
+#define CONFIG_SMC91111_BASE	0x00910300	/* Base address		*/
+#undef  CONFIG_SMC91111_EXT_PHY			/* Internal PHY		*/
+#define CONFIG_SMC_USE_32_BIT			/* 32-bit data rd/wr	*/
 
 #define CONFIG_ETHADDR		08:00:3e:26:0a:5b
 #define CONFIG_NETMASK		255.255.255.0
@@ -131,7 +129,6 @@
 				 CFG_CMD_JFFS2	| \
 				 CFG_CMD_KGDB	| \
 				 CFG_CMD_NAND	| \
-				 CFG_CMD_NET	| \
 				 CFG_CMD_MMC	| \
 				 CFG_CMD_MII	| \
 				 CFG_CMD_PCI	| \

@@ -2,7 +2,7 @@
 			 Nios Development Kit
 			   Cyclone Editions
 
-		    Last Update: October 4, 2003
+		    Last Update: October 15, 2003
 ====================================================================
 
 This file contains information regarding U-Boot and the Altera
@@ -34,7 +34,10 @@ The hello_world example works fine.
 Programming U-Boot into FLASH with GERMS
 -----------------------------------------
 The current version of the DK-1C20 port occupies less than
-60 KByte. So everything will fit into a single Flash sector.
+60 KByte with network support disabled. So everything will fit
+into a single flash sector. With network support (e.g. bootp,
+tftpboot, ping, etc) the flash footprint is about 77K.
+
 To program U-Boot into the DK-1C20 flash using GERMS do the
 following:
 

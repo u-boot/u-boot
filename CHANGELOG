@@ -2,6 +2,26 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Patch by Steven Scholz, 18 Oct 2003:
+  Fix AT91RM9200 ethernet driver
+
+* Patch by Nye Liu, 17 Oct 2003:
+  Fix typo in include/mpc8xx.h
+
+* Patch by Richard Woodruff, 16 Oct 03:
+  Fixes for cpu/arm925/interrupt.c
+  - Initialize timestamp & lastdec vars.
+  - fix timestamp overflows.
+  - fix lastdec overflow.
+  - smarter normalization to allow udelay() below 1ms to work.
+
+* Patch by Scott McNutt, 16 Oct
+  add networking support for the Altera Nios Development Kit,
+  Cyclone Edition (DK-1C20)
+
+* Patch by Jon Diekema, 14 Oct 2003:
+  add hint about doc/README.silent to README file
+
 * Add CompactFlash support for NSCU
 
 * Fix PCI problems on PPChameleonEVB

@@ -27,6 +27,7 @@
 #include <common.h>
 #include <devices.h>
 #include <watchdog.h>
+#include <net.h>
 
 
 /*
@@ -107,6 +108,8 @@ void board_init (void)
 
 	bd_t *bd;
 	init_fnc_t **init_fnc_ptr;
+	char *s, *e;
+	int i;
 
 	/* Pointer is writable since we allocated a register for it.
 	 * Nios treats CFG_GBL_DATA_OFFSET as an address.
@@ -129,6 +132,12 @@ void board_init (void)
 	bd->bi_sramstart= CFG_SRAM_BASE;
 	bd->bi_sramsize	= CFG_SRAM_SIZE;
 	bd->bi_baudrate	= CONFIG_BAUDRATE;
+	bd->bi_ip_addr = getenv_IPaddr ("ipaddr");
+	s = getenv ("ethaddr");
+	for (i = 0; i < 6; ++i) {
+		bd->bi_enetaddr[i] = s ? simple_strtoul (s, &e, 16) : 0;
+		if (s) s = (*e) ? e + 1 : e;
+	}
 
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
 		if ((*init_fnc_ptr) () != 0) {
@@ -164,3 +173,4 @@ void hang (void)
 	puts("### ERROR ### Please reset board ###\n");
 	for (;;);
 }
+

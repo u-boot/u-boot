@@ -1,7 +1,7 @@
 
 			   U-Boot for Nios-32
 
-		    Last Update: October 4, 2003
+		    Last Update: October 15, 2003
 ====================================================================
 
 This file contains information regarding U-Boot and the Altera
@@ -172,8 +172,6 @@ BTW, thats a 'zero' ... not the letter 'O'.
 
 There are plenty of areas where help is needed. Here's are some ideas
 for those interested in contributing:
-
--SMC 91C111 support. E.g. add in tftpboot, etc.
 
 -CompactFlash. Port & test CF/FAT.
 

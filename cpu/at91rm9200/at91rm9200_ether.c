@@ -334,12 +334,12 @@ static UCHAR at91rm9200_EmacReadPhy (AT91PS_EMAC p_mac,
  *	TRUE - if data read successfully
  */
 static UCHAR at91rm9200_EmacWritePhy (AT91PS_EMAC p_mac,
-									  unsigned char RegisterAddress,
-									  unsigned short *pOutput)
+				      unsigned char RegisterAddress,
+				      unsigned short *pOutput)
 {
 	p_mac->EMAC_MAN = (AT91C_EMAC_HIGH & ~AT91C_EMAC_LOW) |
 			AT91C_EMAC_CODE_802_3 | AT91C_EMAC_RW_W |
-			(RegisterAddress << 18);
+			(RegisterAddress << 18) | *pOutput;
 
 	udelay (10000);
 
