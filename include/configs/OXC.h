@@ -94,6 +94,7 @@
 #define CONFIG_NET_MULTI			/* Multi ethernet cards support */
 
 #define CONFIG_EEPRO100				/* Ethernet Express PRO 100	*/
+#define CFG_RX_ETH_BUFFER	8               /* use 8 rx buffer on eepro100  */
 
 #define PCI_ENET0_IOADDR	0x80000000
 #define PCI_ENET0_MEMADDR	0x80000000

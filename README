@@ -690,7 +690,7 @@ The following options need to be configured:
 - NETWORK Support (PCI):
 		CONFIG_E1000
 		Support for Intel 8254x gigabit chips.
-		
+
 		CONFIG_EEPRO100
 		Support for Intel 82557/82559/82559ER chips.
 		Optional CONFIG_EEPRO100_SROM_WRITE enables eeprom
@@ -1441,6 +1441,14 @@ Configuration Settings:
 - CFG_FLASH_CFI:
 		Define if the flash driver uses extra elements in the
 		common flash structure for storing flash geometry
+
+- CFG_RX_ETH_BUFFER:
+		Defines the number of ethernet receive buffers. On some
+		ethernet controllers it is recommended to set this value
+		to 8 or even higher (EEPRO100 or 405 EMAC), since all
+		buffers can be full shortly after enabling the interface
+		on high ethernet traffic.
+		Defaults to 4 if not defined.
 
 The following definitions that deal with the placement and management
 of environment data (variable area); in general, we support the

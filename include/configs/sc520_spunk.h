@@ -36,7 +36,7 @@
 #define CONFIG_X86		1	/* This is a X86 CPU		*/
 #define CONFIG_SC520		1	/* Include support for AMD SC520 */
 
-#define CFG_SDRAM_PRECHARGE_DELAY 6     /* 6T */	
+#define CFG_SDRAM_PRECHARGE_DELAY 6     /* 6T */
 #define CFG_SDRAM_REFRESH_RATE    78    /* 7.8uS (choices are 7.8, 15.6, 31.2 or 62.5uS) */
 #define CFG_SDRAM_RAS_CAS_DELAY   3     /* 3T */
 
@@ -71,7 +71,7 @@
 
 #define CONFIG_BOOTDELAY	15
 #define CONFIG_BOOTARGS    	"root=/dev/mtdblock1 console=ttyS0,9600 mtdparts=phys:7936k(root),256k(uboot) "
-#define CONFIG_BOOTCOMMAND	"setenv bootargs root=/dev/nfs ip=autoconf console=ttyS0,9600 mtdparts=phys:7808k(root),128k(env),256k(uboot); bootp; bootm" 
+#define CONFIG_BOOTCOMMAND	"setenv bootargs root=/dev/nfs ip=autoconf console=ttyS0,9600 mtdparts=phys:7808k(root),128k(env),256k(uboot); bootp; bootm"
 
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	115200		/* speed to run kgdb serial port */
@@ -123,7 +123,7 @@
 #define CONFIG_SPI_EEPROM       /* SPI EEPROMs such as AT25010 or AT25640 */
 #define CONFIG_MW_EEPROM        /* MicroWire EEPROMS such as AT93LC46 */
 #define CONFIG_DS1722           /* Dallas DS1722 SPI Temperature probe */
-				 
+
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
@@ -131,7 +131,7 @@
 
 #if 0
 /* Environment in flash */
-#define CFG_ENV_IS_IN_FLASH     1 
+#define CFG_ENV_IS_IN_FLASH     1
 # define CFG_ENV_ADDR		(0x387a0000)	/* Addr of Environment Sector	*/
 # define CFG_ENV_SIZE		0x20000	/* Total Size of Environment Sector (or 0x10000) */
 # define CFG_ENV_OFFSET         0
@@ -143,7 +143,7 @@
 # define CONFIG_SPI
 # define CONFIG_SPI_X 1
 # define CFG_ENV_SIZE		0x2000	/* Total Size of Environment EEPROM	*/
-# define CFG_ENV_OFFSET         0x1c00      
+# define CFG_ENV_OFFSET         0x1c00
 
 #endif
 
@@ -155,6 +155,7 @@
  */
 #define CONFIG_NET_MULTI        /* Multi ethernet cards support */
 #define CONFIG_EEPRO100
+#define CFG_RX_ETH_BUFFER	8               /* use 8 rx buffer on eepro100  */
 
 /************************************************************
  * IDE/ATA stuff
@@ -204,8 +205,8 @@
 #define CONFIG_PCI_SCAN_SHOW
 
 #define	CFG_FIRST_PCI_IRQ   9
-#define	CFG_SECOND_PCI_IRQ  10 
-#define CFG_THIRD_PCI_IRQ   11 
+#define	CFG_SECOND_PCI_IRQ  10
+#define CFG_THIRD_PCI_IRQ   11
 #define	CFG_FORTH_PCI_IRQ   12
 
 

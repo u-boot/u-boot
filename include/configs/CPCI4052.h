@@ -146,6 +146,8 @@
 
 #define CONFIG_VERSION_VARIABLE	1       /* include version env variable */
 
+#define CFG_RX_ETH_BUFFER	16      /* use 16 rx buffer on 405 emac */
+
 /*-----------------------------------------------------------------------
  * PCI stuff
  *-----------------------------------------------------------------------

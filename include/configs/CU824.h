@@ -304,6 +304,7 @@
 #define CFG_ETH_IOBASE	     0x00104000
 
 #define CONFIG_EEPRO100
+#define CFG_RX_ETH_BUFFER	8               /* use 8 rx buffer on eepro100  */
 #define PCI_ENET0_IOADDR	0x00104000
 #define PCI_ENET0_MEMADDR	0x80000000
 #endif	/* __CONFIG_H */

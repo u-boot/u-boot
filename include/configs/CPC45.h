@@ -144,7 +144,7 @@
 /*
  * NS16550 Configuration
  */
-#define CFG_NS16550		
+#define CFG_NS16550
 #define CFG_NS16550_SERIAL
 
 #define CFG_NS16550_REG_SIZE	1
@@ -171,7 +171,7 @@
  * Memory configuration using SPD information stored on the SODIMMs
  * not yet supported.
  */
- 
+
 #define	CFG_SDRAM_SIZE    64		/* SDRAM size -- 64 or 128 MB supported */
 
 	/* Bit-field values for MCCR1.
@@ -186,7 +186,7 @@
 #else
 #  error "SDRAM size not supported"
 #endif
-#define CFG_BANK1_ROW	0	
+#define CFG_BANK1_ROW	0
 #define CFG_BANK2_ROW	0
 #define CFG_BANK3_ROW	0
 #define CFG_BANK4_ROW	0
@@ -361,7 +361,7 @@
 /* IRQ_ENA_2 bit definitions */
 #define	I_ENA_2_IEAB	0x80		/* ABORT IRQ enable		*/
 #define	I_ENA_2_IEK1	0x40		/* KEY1 IRQ enable		*/
-#define	I_ENA_2_IEK2	0x20		/* KEY2 IRQ enable		*/ 
+#define	I_ENA_2_IEK2	0x20		/* KEY2 IRQ enable		*/
 #define	I_ENA_2_IERT	0x10		/* RTC IRQ enable		*/
 #define	I_ENA_2_IESM	0x08		/* LM81 IRQ enable		*/
 #define	I_ENA_2_IEDG	0x04		/* DEGENERATING IRQ enable	*/
@@ -371,9 +371,9 @@
 /* IRQ_STAT_2 bit definitions */
 #define	I_STAT_2_ABO	0x80		/* ABORT IRQ status		*/
 #define	I_STAT_2_KY1	0x40		/* KEY1 IRQ status		*/
-#define	I_STAT_2_KY2	0x20		/* KEY2 IRQ status		*/ 
+#define	I_STAT_2_KY2	0x20		/* KEY2 IRQ status		*/
 #define	I_STAT_2_RTC	0x10		/* RTC IRQ status		*/
-#define	I_STAT_2_SMN	0x08		/* LM81 IRQ status		*/ 
+#define	I_STAT_2_SMN	0x08		/* LM81 IRQ status		*/
 #define	I_STAT_2_DEG	0x04		/* DEGENERATING IRQ status	*/
 #define	I_STAT_2_SIO2	0x02		/* ST16552/B IRQ status		*/
 #define	I_STAT_2_SIO1	0x01		/* ST16552/A IRQ status		*/
@@ -421,14 +421,14 @@
 #define	DISP_UDC_ADR	*((volatile uchar*)(DISPLAY_BASE + 0x00))	/* UDC Address Reg.    */
 #define	DISP_CWORD	*((volatile uchar*)(DISPLAY_BASE + 0x10))	/* Control Word Reg.   */
 
-#define	DISP_DIG0	*((volatile uchar*)(DISP_CHR_RAM + 0x00))	/* Digit 0 address     */      
-#define	DISP_DIG1	*((volatile uchar*)(DISP_CHR_RAM + 0x01))	/* Digit 0 address     */      
+#define	DISP_DIG0	*((volatile uchar*)(DISP_CHR_RAM + 0x00))	/* Digit 0 address     */
+#define	DISP_DIG1	*((volatile uchar*)(DISP_CHR_RAM + 0x01))	/* Digit 0 address     */
 #define	DISP_DIG2	*((volatile uchar*)(DISP_CHR_RAM + 0x02))	/* Digit 0 address     */
-#define	DISP_DIG3	*((volatile uchar*)(DISP_CHR_RAM + 0x03))	/* Digit 0 address     */      
-#define	DISP_DIG4	*((volatile uchar*)(DISP_CHR_RAM + 0x04))	/* Digit 0 address     */      
+#define	DISP_DIG3	*((volatile uchar*)(DISP_CHR_RAM + 0x03))	/* Digit 0 address     */
+#define	DISP_DIG4	*((volatile uchar*)(DISP_CHR_RAM + 0x04))	/* Digit 0 address     */
 #define	DISP_DIG5	*((volatile uchar*)(DISP_CHR_RAM + 0x05))	/* Digit 0 address     */
-#define	DISP_DIG6	*((volatile uchar*)(DISP_CHR_RAM + 0x06))	/* Digit 0 address     */      
-#define	DISP_DIG7	*((volatile uchar*)(DISP_CHR_RAM + 0x07))	/* Digit 0 address     */      
+#define	DISP_DIG6	*((volatile uchar*)(DISP_CHR_RAM + 0x06))	/* Digit 0 address     */
+#define	DISP_DIG7	*((volatile uchar*)(DISP_CHR_RAM + 0x07))	/* Digit 0 address     */
 
 
 /*-----------------------------------------------------------------------
@@ -441,6 +441,7 @@
 #define CONFIG_NET_MULTI		/* Multi ethernet cards support 	*/
 
 #define CONFIG_EEPRO100
+#define CFG_RX_ETH_BUFFER	8               /* use 8 rx buffer on eepro100  */
 
 #define PCI_ENET0_IOADDR	0x00104000
 #define PCI_ENET0_MEMADDR	0x82000000

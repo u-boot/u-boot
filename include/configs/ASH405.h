@@ -125,6 +125,10 @@
 
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 
+#define CONFIG_VERSION_VARIABLE	1       /* include version env variable */
+
+#define CFG_RX_ETH_BUFFER	16      /* use 16 rx buffer on 405 emac */
+
 /*-----------------------------------------------------------------------
  * NAND-FLASH stuff
  *-----------------------------------------------------------------------

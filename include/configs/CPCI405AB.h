@@ -55,15 +55,7 @@
 #endif
 
 #undef	CONFIG_BOOTARGS
-#define CONFIG_RAMBOOTCOMMAND							\
-	"setenv bootargs root=/dev/ram rw nfsroot=$(serverip):$(rootpath) "	\
-	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;"	\
-	"bootm ffc00000 ffca0000"
-#define CONFIG_NFSBOOTCOMMAND							\
-	"setenv bootargs root=/dev/nfs rw nfsroot=$(serverip):$(rootpath) "	\
-	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;"	\
-	"bootm ffc00000"
-#define CONFIG_BOOTCOMMAND CONFIG_RAMBOOTCOMMAND
+#define CONFIG_BOOTCOMMAND	"bootm 100000"	/* default boot command	*/
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
@@ -73,12 +65,7 @@
 
 #define CONFIG_RTC_M48T35A	1		/* ST Electronics M48 timekeeper */
 
-#if 0 /* test-only */
-#define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT |  \
-				 CONFIG_BOOTP_VENDOREX)
-#else
 #define CONFIG_BOOTP_MASK       (CONFIG_BOOTP_DEFAULT)
-#endif
 
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
 				CFG_CMD_DHCP	| \
@@ -147,6 +134,8 @@
 
 #define CONFIG_VERSION_VARIABLE	1       /* include version env variable */
 
+#define CFG_RX_ETH_BUFFER	16      /* use 16 rx buffer on 405 emac */
+
 /*-----------------------------------------------------------------------
  * PCI stuff
  *-----------------------------------------------------------------------
@@ -202,7 +191,7 @@
 #define CFG_FLASH_BASE		0xFFFC0000
 #define CFG_MONITOR_BASE	CFG_FLASH_BASE
 #define CFG_MONITOR_LEN		(256 * 1024)	/* Reserve 256 kB for Monitor	*/
-#define CFG_MALLOC_LEN		(128 * 1024)	/* Reserve 128 kB for malloc()	*/
+#define CFG_MALLOC_LEN		(256 * 1024)	/* Reserve 256 kB for malloc()	*/
 
 /*
  * For booting Linux, the board info and command line data
@@ -360,7 +349,7 @@
 #define CFG_FPGA_STATUS_TS_IRQ  0x1000
 
 #define CFG_FPGA_SPARTAN2       1           /* using Xilinx Spartan 2 now    */
-#define CFG_FPGA_MAX_SIZE       64*1024     /* 64kByte is enough for XC2S15  */
+#define CFG_FPGA_MAX_SIZE       128*1024    /* 128kByte is enough for XC2S30 */
 
 /* FPGA program pin configuration */
 #define CFG_FPGA_PRG            0x04000000  /* FPGA program pin (ppc output) */

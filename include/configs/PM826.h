@@ -316,6 +316,7 @@
 #ifdef	CONFIG_PCI
 #define CONFIG_PCI_PNP
 #define CONFIG_EEPRO100
+#define CFG_RX_ETH_BUFFER	8               /* use 8 rx buffer on eepro100  */
 #endif
 
 /*
