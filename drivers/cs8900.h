@@ -250,7 +250,9 @@
 #define EEPROM_WRITE_DIS	0x0000
 #define EEPROM_WRITE_CMD	0x0100
 #define EEPROM_READ_CMD		0x0200
+#define EEPROM_ERASE_CMD	0x0300
 
-
+extern int cs8900_e2prom_read(uchar, ushort *);
+extern void cs8900_e2prom_write(uchar, ushort);
 
 #endif /* CONFIG_DRIVER_CS8900 */

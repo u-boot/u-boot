@@ -1,0 +1,144 @@
+/*
+ * (C) Copyright 2002
+ * Denis Peter, MPL AG Switzerland, d.peter@mpl.ch
+ *
+ * adapted for VCMA9
+ * David Mueller, ELSOFT AG, d.mueller@elsoft.ch
+ *
+ * See file CREDITS for list of people who contributed to this
+ * project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+ * MA 02111-1307 USA
+ *
+ */
+
+#include <common.h>
+#include <command.h>
+#include "vcma9.h"
+#include "../common/common_util.h"
+
+#if defined(CONFIG_DRIVER_CS8900)
+#include <../drivers/cs8900.h>
+
+static uchar cs8900_chksum(ushort data)
+{
+	return((data >> 8) & 0x00FF) + (data & 0x00FF);
+}
+
+#endif
+
+extern void print_vcma9_info(void);
+extern int vcma9_cantest(void);
+extern int vcma9_nandtest(void);
+extern int vcma9_dactest(void);
+extern int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+
+/* ------------------------------------------------------------------------- */
+
+int do_vcma9(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	DECLARE_GLOBAL_DATA_PTR;
+
+	if (strcmp(argv[1], "info") == 0)
+	{
+		print_vcma9_info();
+	 	return 0;
+   	}
+#if defined(CONFIG_DRIVER_CS8900)
+	if (strcmp(argv[1], "cs8900_eeprom") == 0) {
+		if (strcmp(argv[2], "read") == 0) {
+			uchar addr; ushort data;
+
+			addr = simple_strtoul(argv[3], NULL, 16);
+			cs8900_e2prom_read(addr, &data);
+			printf("0x%2.2X: 0x%4.4X\n", addr, data);
+		} else if (strcmp(argv[2], "write") == 0) {
+			uchar addr; ushort data;
+
+			addr = simple_strtoul(argv[3], NULL, 16);
+			data = simple_strtoul(argv[4], NULL, 16);
+			cs8900_e2prom_write(addr, data);
+		} else if (strcmp(argv[2], "setaddr") == 0) {
+			uchar addr, i, csum; ushort data;
+
+			/* check for valid ethaddr */
+			for (i = 0; i < 6; i++)
+				if (gd->bd->bi_enetaddr[i] != 0)
+					break;
+
+			if (i < 6) {
+				addr = 1;
+				data = 0x2158;
+				cs8900_e2prom_write(addr, data);
+				csum = cs8900_chksum(data);
+				addr++;
+				for (i = 0; i < 6; i+=2) {
+					data = gd->bd->bi_enetaddr[i+1] << 8 |
+					       gd->bd->bi_enetaddr[i];
+					cs8900_e2prom_write(addr, data);
+					csum += cs8900_chksum(data);
+					addr++;
+				}
+				/* calculate header link byte */
+				data = 0xA100 | (addr * 2);
+				cs8900_e2prom_write(0, data);
+				csum += cs8900_chksum(data);
+				/* write checksum word */
+				cs8900_e2prom_write(addr, (0 - csum) << 8);
+			} else {
+				printf("\nplease defined 'ethaddr'\n");
+			}
+		} else if (strcmp(argv[2], "dump") == 0) {
+			uchar addr, endaddr, csum; ushort data;
+
+			printf("Dump of CS8900 config device: ");
+			cs8900_e2prom_read(addr, &data);
+			if ((data & 0xE000) == 0xA000) {
+				endaddr = (data & 0x00FF) / 2;
+				csum = cs8900_chksum(data);
+				for (addr = 1; addr <= endaddr; addr++) {
+					cs8900_e2prom_read(addr, &data);
+					printf("\n0x%2.2X: 0x%4.4X", addr, data);
+					csum += cs8900_chksum(data);
+				}
+				printf("\nChecksum: %s", (csum == 0) ? "ok" : "wrong");
+			} else {
+				printf("no valid config found");
+			}
+			printf("\n");
+		}
+
+		return 0;
+	}
+#endif
+#if 0
+	if (strcmp(argv[1], "cantest") == 0) {
+		vcma9_cantest();
+		return 0;
+	}
+	if (strcmp(argv[1], "nandtest") == 0) {
+		vcma9_nandtest();
+		return 0;
+	}
+	if (strcmp(argv[1], "dactest") == 0) {
+		vcma9_dactest();
+		return 0;
+	}
+#endif
+
+	return (do_mplcommon(cmdtp, flag, argc, argv));
+}
+

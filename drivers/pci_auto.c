@@ -314,6 +314,16 @@ int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 		pciauto_setup_device(hose, dev, 6, hose->pci_mem, hose->pci_io);
 		break;
 
+	case PCI_CLASS_BRIDGE_CARDBUS:
+		/* just do a minimal setup of the bridge, let the OS take care of the rest */
+		pciauto_setup_device(hose, dev, 0, hose->pci_mem, hose->pci_io);
+
+		DEBUGF("PCI Autoconfig: Found P2CardBus bridge, device %d\n",
+			PCI_DEV(dev));
+
+		hose->current_busno++;
+		break;
+
 	default:
 		pciauto_setup_device(hose, dev, 6, hose->pci_mem, hose->pci_io);
 		break;

@@ -2,6 +2,27 @@
 Changes since U-Boot 0.2.2:
 ======================================================================
 
+* Patches by David Müller, 31 Jan 2003:
+  - minimal setup for CardBus bridges
+  - add EEPROM read/write support in the CS8900 driver
+  - add support for the builtin I2C controller in the Samsung s3c24x0 chips
+  - add support for  MPL's VCMA9 (Samsung s3c2410 based) board
+
+* Patch by Steven Scholz, 04 Feb 2003:
+  add support for RTC DS1307
+
+* Patch by Reinhard Meyer, 5 Feb 2003:
+  fix PLPRCR/SCCR init sequence on 8xx to allow for
+  changes of EBDF by software
+
+* Patch by Vladimir Gurevich, 07 Feb 2003:
+  "API-compatibility patch" for 4xx I2C driver
+
+* TRAB fixes / extensions:
+  - Restore VFD brightness as saved in environment
+  - add support for FGujitsu flashes
+  - make sure both buzzers are turned off (drive low level)
+
 * Patches by Robert Schwebel, 06 Mar 2003:
   - fix bug in BOOTP code (must use NetCopyIP)
   - update of CSB226 port

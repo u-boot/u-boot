@@ -124,11 +124,10 @@ void flash_print_info (flash_info_t * info)
 
 	switch (info->flash_id & FLASH_VENDMASK) {
 	case (FLASH_MAN_AMD & FLASH_VENDMASK):
-		printf ("AMD: ");
-		break;
-	default:
-		printf ("Unknown Vendor ");
-		break;
+			printf ("AMD ");		break;
+	case (FLASH_MAN_FUJ & FLASH_VENDMASK):
+			printf ("FUJITSU ");		break;
+	default:	printf ("Unknown Vendor ");	break;
 	}
 
 	switch (info->flash_id & FLASH_TYPEMASK) {
@@ -477,7 +476,9 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 	case AMD_MANUFACT:
 		info->flash_id = FLASH_MAN_AMD;
 		break;
-
+	case FUJ_MANUFACT:
+		info->flash_id = FLASH_MAN_FUJ;
+		break;
 	default:
 		info->flash_id = FLASH_UNKNOWN;
 		info->sector_count = 0;

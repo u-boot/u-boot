@@ -68,6 +68,14 @@ void cpu_init_f (volatile immap_t * immr)
 	immr->im_sitk.sitk_piscrk = KAPWR_KEY;
 	immr->im_sit.sit_piscr = CFG_PISCR;
 
+	/* System integration timers. Don't change EBDF! (15-27) */
+
+	immr->im_clkrstk.cark_sccrk = KAPWR_KEY;
+	reg = immr->im_clkrst.car_sccr;
+	reg &= SCCR_MASK;
+	reg |= CFG_SCCR;
+	immr->im_clkrst.car_sccr = reg;
+
 	/* PLL (CPU clock) settings (15-30) */
 
 	immr->im_clkrstk.cark_plprcrk = KAPWR_KEY;
@@ -87,14 +95,6 @@ void cpu_init_f (volatile immap_t * immr)
 	reg |= CFG_PLPRCR;			/* reset control bits   */
 #endif
 	immr->im_clkrst.car_plprcr = reg;
-
-	/* System integration timers. Don't change EBDF! (15-27) */
-
-	immr->im_clkrstk.cark_sccrk = KAPWR_KEY;
-	reg = immr->im_clkrst.car_sccr;
-	reg &= SCCR_MASK;
-	reg |= CFG_SCCR;
-	immr->im_clkrst.car_sccr = reg;
 
 	/*
 	 * Memory Controller:

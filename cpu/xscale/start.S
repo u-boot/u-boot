@@ -4,8 +4,10 @@
  *  Copyright (C) 1998	Dan Malek <dmalek@jlc.net>
  *  Copyright (C) 1999	Magnus Damm <kieraypc01.p.y.kie.era.ericsson.se>
  *  Copyright (C) 2000	Wolfgang Denk <wd@denx.de>
- *  Copyright (c) 2001	Alex Züpke <azu@sysgo.de>
- *  Copyright (c) 2002	Kyle Harris <kharris@nexus-tech.net>
+ *  Copyright (C) 2001	Alex Züpke <azu@sysgo.de>
+ *  Copyright (C) 2002	Kyle Harris <kharris@nexus-tech.net>
+ *  Copyright (C) 2003  Robert Schwebel <r.schwebel@pengutronix.de>
+ *  Copyright (C) 2003  Kai-Uwe Bloehm <kai-uwe.bloem@auerswald.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -25,8 +27,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-
-
 
 #include <config.h>
 #include <version.h>
@@ -136,13 +136,16 @@ reset:
 
 	bl	cpu_init_crit		/* we do sys-critical inits	    */
 
-relocate:				/* relocate U-Boot to RAM	   */
-	adr	r0, _start		/* r0 <- current position of code */
+relocate:				/* relocate U-Boot to RAM	    */
+	adr	r0, _start		/* r0 <- current position of code   */
+	ldr	r1, _TEXT_BASE		/* test if we run from flash or RAM */	
+	cmp     r0, r1                  /* don't reloc during debug         */
+	beq     stack_setup
+
 	ldr	r2, _armboot_start
 	ldr	r3, _armboot_end
-	sub	r2, r3, r2		/* r2 <- size of armboot */
-	ldr	r1, _TEXT_BASE
-	add	r2, r0, r2		/* r2 <- source end address */
+	sub	r2, r3, r2		/* r2 <- size of armboot            */
+	add	r2, r0, r2		/* r2 <- source end address         */
 
 copy_loop:
 	ldmia	r0!, {r3-r10}		/* copy from source address [r0]    */
@@ -151,6 +154,9 @@ copy_loop:
 	ble	copy_loop
 
 	/* Set up the stack						    */
+
+stack_setup:
+
 	ldr	r0, _uboot_reloc	/* upper 128 KiB: relocated uboot   */
 	sub	r0, r0, #CFG_MALLOC_LEN /* malloc area			    */
 					/* FIXME: bdinfo should be here	    */
@@ -183,7 +189,7 @@ _start_armboot: .word start_armboot
 /*									    */
 /****************************************************************************/
 
-	/* Interrupt-Controller base address				    */
+/* Interrupt-Controller base address				            */
 IC_BASE:	   .word	   0x40d00000
 #define ICMR	0x04
 
@@ -191,19 +197,19 @@ IC_BASE:	   .word	   0x40d00000
 RST_BASE:	.word	0x40f00030
 #define RCSR	0x00
 
-	/* Operating System Timer */
+/* Operating System Timer */
 OSTIMER_BASE:	.word	0x40a00000
 #define OSMR3	0x0C
 #define OSCR	0x10
 #define OWER	0x18
 #define OIER	0x1C
 
-	/* Clock Manager Registers					    */
-#ifdef CFG_CPUSPEED
+/* Clock Manager Registers					            */
 CC_BASE:	.word	0x41300000
 #define CCCR	0x00
 cpuspeed:	.word	CFG_CPUSPEED
-#endif
+
+
 	/* RS: ???							    */
 	.macro CPWAIT
 	mrc  p15,0,r0,c2,c0,0
@@ -219,13 +225,16 @@ cpu_init_crit:
 	mov	r1, #0x00
 	str	r1, [r0, #ICMR]
 
-#ifdef CFG_CPUSPEED
+#if defined(CFG_CPUSPEED)
+
 	/* set clock speed */
 	ldr	r0, CC_BASE
 	ldr	r1, cpuspeed
 	str	r1, [r0, #CCCR]
-	mov	r0, #3
+	mov	r0, #2
 	mcr	p14, 0, r0, c6, c0, 0
+
+setspeed_done:
 #endif
 
 	/*
@@ -429,15 +438,21 @@ fiq:
 
 #endif
 
-/************************************************************************/
-/*									*/
-/* Reset function: the PXA250 has no reset function, so we have to	*/
-/* perform a watchdog timeout to cause a reset.				*/
-/*									*/
-/************************************************************************/
+/****************************************************************************/
+/*                                                                          */
+/* Reset function: the PXA250 doesn't have a reset function, so we have to  */
+/* perform a watchdog timeout for a soft reset.                             */
+/*                                                                          */
+/****************************************************************************/
+
 	.align	5
 .globl reset_cpu
+
+	/* FIXME: this code is PXA250 specific. How is this handled on      */
+	/*        other XScale processors?                                  */
+
 reset_cpu:
+
 	/* We set OWE:WME (watchdog enable) and wait until timeout happens  */
 
 	ldr	r0, OSTIMER_BASE
@@ -456,3 +471,4 @@ reset_cpu:
 reset_endless:
 
 	b	reset_endless
+

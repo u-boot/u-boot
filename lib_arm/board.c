@@ -173,7 +173,9 @@ init_fnc_t *init_sequence[] = {
 	display_banner,		/* say that we are here */
 	dram_init,		/* configure available RAM banks */
 	display_dram_config,
-
+#if defined(CONFIG_VCMA9)
+	checkboard,
+#endif
 	NULL,
 };
 
@@ -268,8 +270,6 @@ void start_armboot (void)
 #ifdef BOARD_POST_INIT
 	board_post_init ();
 #endif
-
-printf ("### FB @ %08lX vfd_type=0x%02X vfd_data_lines_inv=%d\n",gd->fb_base,gd->vfd_type,gd->vfd_inv_data);
 
 	/* main_loop() can return to retry autoboot, if so just run it again. */
 	for (;;) {

@@ -27,6 +27,7 @@
 #include <video_fb.h>
 #include "common_util.h"
 #include <asm/processor.h>
+#include <asm/byteorder.h>
 #include <i2c.h>
 #include <devices.h>
 #include <pci.h>
@@ -39,7 +40,7 @@ extern int mem_test(unsigned long start, unsigned long ramsize, int quiet);
 
 extern flash_info_t flash_info[];	/* info for FLASH chips */
 
-image_header_t header;
+static image_header_t header;
 
 
 
@@ -51,6 +52,13 @@ int mpl_prg(unsigned long src,unsigned long size)
 	unsigned long *magic = (unsigned long *)src;
 
 	info = &flash_info[0];
+
+#if defined(CONFIG_PIP405) || defined(CONFIG_MIP405)
+	if(ntohl(magic[0]) != IH_MAGIC) {
+		printf("Bad Magic number\n");
+		return -1;
+	}
+
   	start = 0 - size;
 	for(i=info->sector_count-1;i>0;i--)
 	{
@@ -60,13 +68,25 @@ int mpl_prg(unsigned long src,unsigned long size)
 	}
 	/* set-up flash location */
 	/* now erase flash */
-	if(magic[0]!=IH_MAGIC) {
-		printf("Bad Magic number\n");
-		return -1;
-	}
 	printf("Erasing at %lx (sector %d) (start %lx)\n",
 				start,i,info->start[i]);
 	flash_erase (info, i, info->sector_count-1);
+
+#elif defined(CONFIG_VCMA9)
+	start = 0;
+	for (i = 0; i <info->sector_count; i++)
+	{
+		info->protect[i] = 0; /* unprotect this sector */
+		if (size < info->start[i])
+		    break;
+	}
+	/* set-up flash location */
+	/* now erase flash */
+	printf("Erasing at %lx (sector %d) (start %lx)\n",
+				start,0,info->start[0]);
+	flash_erase (info, 0, i);
+
+#endif
 	printf("flash erased, programming from 0x%lx 0x%lx Bytes\n",src,size);
 	if ((rc = flash_write ((uchar *)src, start, size)) != 0) {
 		puts ("ERROR ");
@@ -84,7 +104,7 @@ int mpl_prg_image(unsigned long ld_addr)
 	image_header_t *hdr=&header;
 	/* Copy header so we can blank CRC field for re-calculation */
 	memcpy (&header, (char *)ld_addr, sizeof(image_header_t));
-	if (hdr->ih_magic  != IH_MAGIC) {
+	if (ntohl(hdr->ih_magic)  != IH_MAGIC) {
 		printf ("Bad Magic Number\n");
 		return 1;
 	}
@@ -99,16 +119,16 @@ int mpl_prg_image(unsigned long ld_addr)
 	}
 	data = (ulong)&header;
 	len  = sizeof(image_header_t);
-	checksum = hdr->ih_hcrc;
+	checksum = ntohl(hdr->ih_hcrc);
 	hdr->ih_hcrc = 0;
 	if (crc32 (0, (char *)data, len) != checksum) {
 		printf ("Bad Header Checksum\n");
 		return 1;
 	}
 	data = ld_addr + sizeof(image_header_t);
-	len  = hdr->ih_size;
+	len  = ntohl(hdr->ih_size);
 	printf ("Verifying Checksum ... ");
-	if (crc32 (0, (char *)data, len) != hdr->ih_dcrc) {
+	if (crc32 (0, (char *)data, len) != ntohl(hdr->ih_dcrc)) {
 		printf ("Bad Data CRC\n");
 		return 1;
 	}
@@ -152,14 +172,14 @@ void set_backup_values(int overwrite)
 		}
 	}
 	memcpy(back.signature,"MPL\0",4);
-	i=getenv_r("serial#",back.serial_name,16);
-	if(i==0) {
+	i = getenv_r("serial#",back.serial_name,16);
+	if(i < 0) {
 		printf("Not possible to write Backup\n");
 		return;
 	}
 	back.serial_name[16]=0;
-	i=getenv_r("ethaddr",back.eth_addr,20);
-	if(i==0) {
+	i = getenv_r("ethaddr",back.eth_addr,20);
+	if(i < 0) {
 		printf("Not possible to write Backup\n");
 		return;
 	}
@@ -338,7 +358,7 @@ void show_stdio_dev(void)
 #define SW_CS_PRINTF(fmt,args...)
 #endif
 
-
+#if defined(CONFIG_PIP405) || defined(CONFIG_MIP405)
 int switch_cs(unsigned char boot)
 {
   	unsigned long pbcr;
@@ -391,7 +411,12 @@ int switch_cs(unsigned char boot)
 		return 0;
 	}
 }
-
+#elif defined(CONFIG_VCMA9)
+int switch_cs(unsigned char boot)
+{
+    return 0;
+}
+#endif /* CONFIG_VCMA9 */
 
 int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {

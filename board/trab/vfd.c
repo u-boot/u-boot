@@ -55,7 +55,6 @@
 #define BLAU	0x0C
 #define VIOLETT	0X0D
 
-ulong	vfdbase;
 ulong	frame_buf_size;
 #define frame_buf_offs 4
 
@@ -86,7 +85,7 @@ void init_grid_ctrl(void)
 	else
 		val = ~0;
 
-	for (adr = vfdbase; adr <= (vfdbase+7168); adr += 4) {
+	for (adr = gd->fb_base; adr <= (gd->fb_base+7168); adr += 4) {
 		(*(volatile ulong*)(adr)) = val;
 	}
 
@@ -100,7 +99,7 @@ void init_grid_ctrl(void)
  			/* wrap arround if offset (see manual S3C2400) */
 			if (bit>=frame_buf_size*8)
 				bit = bit - (frame_buf_size * 8);
-			adr = vfdbase + (bit/32) * 4 + (3 - (bit%32) / 8);
+			adr = gd->fb_base + (bit/32) * 4 + (3 - (bit%32) / 8);
 			bit_nr = bit % 8;
 			bit_nr = (bit_nr > 3) ? bit_nr-4 : bit_nr+4;
 			temp=(*(volatile unsigned char*)(adr));
@@ -117,7 +116,7 @@ void init_grid_ctrl(void)
 			/* wrap arround if offset (see manual S3C2400) */
 			if (bit>=frame_buf_size*8)
 				bit = bit-(frame_buf_size*8);
-			adr = vfdbase+(bit/32)*4+(3-(bit%32)/8);
+			adr = gd->fb_base+(bit/32)*4+(3-(bit%32)/8);
 			bit_nr = bit%8;
 			bit_nr = (bit_nr>3)?bit_nr-4:bit_nr+4;
 			temp=(*(volatile unsigned char*)(adr));
@@ -138,7 +137,7 @@ void init_grid_ctrl(void)
 			/* wrap arround if offset (see manual S3C2400) */
 			if (bit>=frame_buf_size*8)
 				bit = bit - (frame_buf_size * 8);
-			adr = vfdbase + (bit/32) * 4 + (3 - (bit%32) / 8);
+			adr = gd->fb_base + (bit/32) * 4 + (3 - (bit%32) / 8);
 			bit_nr = bit % 8;
 			bit_nr = (bit_nr > 3) ? bit_nr-4 : bit_nr+4;
 			temp=(*(volatile unsigned char*)(adr));
@@ -154,7 +153,7 @@ void init_grid_ctrl(void)
 			/* wrap arround if offset (see manual S3C2400) */
 			if (bit>=frame_buf_size*8)
 				bit = bit-(frame_buf_size*8);
-			adr = vfdbase+(bit/32)*4+(3-(bit%32)/8);
+			adr = gd->fb_base+(bit/32)*4+(3-(bit%32)/8);
 			bit_nr = bit%8;
 			bit_nr = (bit_nr>3)?bit_nr-4:bit_nr+4;
 			temp=(*(volatile unsigned char*)(adr));
@@ -254,7 +253,7 @@ void create_vfd_table(void)
 		for(color=0;color<2;color++) {
 		    for(display=0;display<4;display++) {
 			for(entry=0;entry<2;entry++) {
-			    unsigned long adr  = vfdbase;
+			    unsigned long adr  = gd->fb_base;
 			    unsigned int bit_nr = 0;
 			    
 			    if (vfd_table[x][y][color][display][entry]) {
@@ -266,7 +265,7 @@ void create_vfd_table(void)
 				  */
 				if (pixel>=frame_buf_size*8)
 					pixel = pixel-(frame_buf_size*8);
-				adr    = vfdbase+(pixel/32)*4+(3-(pixel%32)/8);
+				adr    = gd->fb_base+(pixel/32)*4+(3-(pixel%32)/8);
 				bit_nr = pixel%8;
 				bit_nr = (bit_nr>3)?bit_nr-4:bit_nr+4;
 			    }
@@ -375,7 +374,7 @@ int vfd_init_clocks(void)
 	rPCCON =   (rPCCON & 0xFFFFFF00)| 0x000000AA;
 	/* Port-Pins als LCD-Ausgang */
 	rPDCON =   (rPDCON & 0xFFFFFF03)| 0x000000A8;
-#ifdef WITH_VFRAME
+#ifdef CFG_WITH_VFRAME
 	/* mit VFRAME zum Messen */
 	rPDCON =   (rPDCON & 0xFFFFFF00)| 0x000000AA;
 #endif
@@ -385,10 +384,18 @@ int vfd_init_clocks(void)
 	rLCDCON4 = 0x00000001;
 	rLCDCON5 = 0x00000440;
 	rLCDCON1 = 0x00000B75;
+
+	return 0;
 }
 
 /*
  * initialize LCD-Controller of the S3C2400 for using VFDs
+ *
+ * VFD detection depends on the board revision:
+ * starting from Rev. 200 a type code can be read from the data pins,
+ * driven by some pull-up resistors; all earlier systems must be
+ * manually configured. The type is set in the "vfd_type" environment
+ * variable.
  */
 int drv_vfd_init(void)
 {
@@ -406,21 +413,15 @@ int drv_vfd_init(void)
 	/* try to determine display type from the value
 	 * defined by pull-ups
 	 */
-	rPCUP  = (rPCUP | 0x000F);	/* activate  GPC0...GPC3 pullups */
+	rPCUP  = (rPCUP & 0xFFF0);	/* activate  GPC0...GPC3 pullups */
 	rPCCON = (rPCCON & 0xFFFFFF00);	/* configure GPC0...GPC3 as inputs */
+	udelay(10);			/* allow signals to settle */
 
 	vfd_id = (~rPCDAT) & 0x000F;	/* read GPC0...GPC3 port pins */
 	debug("Detecting Revison of WA4-VFD: ID=0x%X\n", vfd_id);
 
 	switch (vfd_id) {
-	case 0:				/* board revision <= Rev.100 */
-/*-----*/
-		gd->vfd_inv_data = 0;
-		if (0)
-			gd->vfd_type = VFD_TYPE_MN11236;
-		else
-			gd->vfd_type = VFD_TYPE_T119C;
-/*-----*/
+	case 0:			/* board revision < Rev.200 */
 		if ((tmp = getenv ("vfd_type")) == NULL) {
 			break;
 		}
@@ -435,7 +436,7 @@ int drv_vfd_init(void)
 		gd->vfd_inv_data = 0;
 
 		break;
-	default:			/* default to MN11236, data inverted */
+	default:		/* default to MN11236, data inverted */
 		gd->vfd_type = VFD_TYPE_MN11236;
 		gd->vfd_inv_data = 1;
 		setenv ("vfd_type", "MN11236");
@@ -446,7 +447,7 @@ int drv_vfd_init(void)
 		"unknown",
 		gd->vfd_inv_data ? ", inverted data" : "");
 
-	vfdbase = gd->fb_base;
+	gd->fb_base = gd->fb_base;
 	create_vfd_table();
 	init_grid_ctrl();
 
@@ -463,9 +464,9 @@ int drv_vfd_init(void)
 	 * see manual S3C2400
 	 */
 	/* frame buffer startadr */
-	rLCDSADDR1 = vfdbase >> 1;
+	rLCDSADDR1 = gd->fb_base >> 1;
  	/* frame buffer endadr */
-	rLCDSADDR2 = (vfdbase + frame_buf_size) >> 1;
+	rLCDSADDR2 = (gd->fb_base + frame_buf_size) >> 1;
 	rLCDSADDR3 = ((256/4));
 
 	debug ("LCDSADDR1: %lX\n", rLCDSADDR1);

@@ -30,6 +30,13 @@
 
 /* ------------------------------------------------------------------------- */
 
+#ifdef CFG_BRIGHTNESS
+static void spi_init(void);
+static void wait_transmit_done(void);
+static void tsc2000_write(unsigned int page, unsigned int reg, 
+						  unsigned int data);
+static void tsc2000_set_brightness(void);
+#endif
 #ifdef CONFIG_MODEM_SUPPORT
 static int key_pressed(void);
 extern void disable_putc(void);
@@ -104,6 +111,10 @@ int board_init ()
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0x0c000100;
 
+	/* Make sure both buzzers are turned off */
+	rPDCON |= 0x5400;
+	rPDDAT &= ~0xE0;
+
 #ifdef CONFIG_VFD
 	vfd_init_clocks();
 #endif /* CONFIG_VFD */
@@ -164,6 +175,9 @@ int misc_init_r (void)
 		free (str);
 	}
 
+#ifdef CFG_BRIGHTNESS
+	tsc2000_set_brightness();
+#endif
 	return (0);
 }
 
@@ -288,3 +302,74 @@ static int key_pressed(void)
 	return (compare_magic(KBD_DATA, CONFIG_MODEM_KEY_MAGIC) == 0);
 }
 #endif	/* CONFIG_MODEM_SUPPORT */
+
+#ifdef CFG_BRIGHTNESS
+
+#define SET_CS_TOUCH        (rPDDAT &= 0x5FF)
+#define CLR_CS_TOUCH        (rPDDAT |= 0x200)
+
+static void spi_init(void)
+{
+	int i;
+
+	/* Configure I/O ports. */
+ 	rPDCON = (rPDCON & 0xF3FFFF) | 0x040000;
+	rPGCON = (rPGCON & 0x0F3FFF) | 0x008000;
+	rPGCON = (rPGCON & 0x0CFFFF) | 0x020000;
+	rPGCON = (rPGCON & 0x03FFFF) | 0x080000;
+
+	CLR_CS_TOUCH;
+
+	rSPPRE = 0x1F; /* Baudrate ca. 514kHz */
+	rSPPIN = 0x01;  /* SPI-MOSI holds Level after last bit */
+	rSPCON = 0x1A;  /* Polling, Prescaler, Master, CPOL=0, CPHA=1 */
+
+	/* Dummy byte ensures clock to be low. */
+	for (i = 0; i < 10; i++) {
+		rSPTDAT = 0xFF;
+	}
+}
+
+static void wait_transmit_done(void)
+{
+	while (!(rSPSTA & 0x01)); /* wait until transfer is done */
+}
+
+static void tsc2000_write(unsigned int page, unsigned int reg, 
+						  unsigned int data)
+{
+	unsigned int command;
+
+	SET_CS_TOUCH;
+	command = 0x0000;
+	command |= (page << 11);
+	command |= (reg << 5);
+
+	rSPTDAT = (command & 0xFF00) >> 8;
+	wait_transmit_done();
+	rSPTDAT = (command & 0x00FF);
+	wait_transmit_done();
+	rSPTDAT = (data & 0xFF00) >> 8;
+	wait_transmit_done();
+	rSPTDAT = (data & 0x00FF);
+	wait_transmit_done();
+
+	CLR_CS_TOUCH;
+}
+
+static void tsc2000_set_brightness(void)
+{
+	uchar tmp[10];
+	int i, br;
+
+	spi_init();
+	tsc2000_write(1, 2, 0x0); /* Power up DAC */
+
+	i = getenv_r("brightness", tmp, sizeof(tmp));
+	br = (i > 0)
+		? (int) simple_strtoul (tmp, NULL, 10)
+		: CFG_BRIGHTNESS;
+
+	tsc2000_write(0, 0xb, br & 0xff);
+}
+#endif

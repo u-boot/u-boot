@@ -623,7 +623,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	 */
 	(*kernel) (kbd, initrd_start, initrd_end, cmd_start, cmd_end);
 }
-#endif /* CONFIG_ARM */
+#endif /* CONFIG_PPC */
 
 static void
 do_bootm_netbsd (cmd_tbl_t *cmdtp, int flag,

@@ -272,6 +272,44 @@ retry:
 	return 0;
 }
 
+static void cs8900_e2prom_ready(void)
+{
+	while(get_reg(PP_SelfST) & SI_BUSY);
+}
+
+/***********************************************************/
+/* read a 16-bit word out of the EEPROM                    */
+/***********************************************************/
+
+int cs8900_e2prom_read(unsigned char addr, unsigned short *value)
+{
+	cs8900_e2prom_ready();
+	put_reg(PP_EECMD, EEPROM_READ_CMD | addr);
+	cs8900_e2prom_ready();
+	*value = get_reg(PP_EEData);
+
+	return 0;
+}
+
+
+/***********************************************************/
+/* write a 16-bit word into the EEPROM                     */
+/***********************************************************/
+
+void cs8900_e2prom_write(unsigned char addr, unsigned short value)
+{
+	cs8900_e2prom_ready();
+	put_reg(PP_EECMD, EEPROM_WRITE_EN);
+	cs8900_e2prom_ready();
+	put_reg(PP_EEData, value);
+	put_reg(PP_EECMD, EEPROM_WRITE_CMD | addr);
+	cs8900_e2prom_ready();
+	put_reg(PP_EECMD, EEPROM_WRITE_DIS);
+	cs8900_e2prom_ready();
+
+	return 0;
+}
+
 #endif	/* COMMANDS & CFG_NET */
 
 #endif	/* CONFIG_DRIVER_CS8900 */

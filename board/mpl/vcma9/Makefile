@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000
+# (C) Copyright 2000, 2001, 2002
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,29 +23,27 @@
 
 include $(TOPDIR)/config.mk
 
-# CFLAGS += -DET_DEBUG -DDEBUG
+LIB	= lib$(BOARD).a
 
-LIB	= libdrivers.a
+OBJS	:= vcma9.o flash.o cmd_vcma9.o
+OBJS	+= ../common/common_util.o ../common/memtst.o
 
-OBJS	= 3c589.o 5701rls.o bcm570x.o bcm570x_autoneg.o \
-	  cfb_console.o cs8900.o ct69000.o dc2114x.o \
-	  eepro100.o i8042.o inca-ip_sw.o \
-	  natsemi.o ns16550.o ns8382x.o ns87308.o \
-	  pci.o pci_auto.o pci_indirect.o \
-	  pcnet.o s3c24x0_i2c.o sed13806.o serial.o \
-	  smc91111.o smiLynxEM.o sym53c8xx.o \
-	  tigon3.o w83c553f.o
+SOBJS	:= memsetup.o
 
-all:	$(LIB)
+$(LIB):	$(OBJS) $(SOBJS)
+	$(AR) crv $@ $^
 
-$(LIB):	$(OBJS)
-	$(AR) crv $@ $(OBJS)
+clean:
+	rm -f $(SOBJS) $(OBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak .depend
 
 #########################################################################
 
-.depend:	Makefile $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(OBJS:.o=.c) > $@
+.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
+		$(CC) -M $(CPPFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
 
-sinclude .depend
+-include .depend
 
 #########################################################################
