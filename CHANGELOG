@@ -2,6 +2,11 @@
 Changes since U-Boot 0.3.1:
 ======================================================================
 
+* Patch by Stefan Roese, 24 Jun 2003:
+  - Update esd ASH405 board files.
+  - Update esd DASA_SIM config file.
+  - Add ping command to some esd boards.
+
 * Patch by Yuli Barcohen, 23 Jun 2003:
   Update for MPC8260ADS board
 
@@ -10,7 +15,7 @@ Changes since U-Boot 0.3.1:
 
 * Patch by Rune Torgersen, 4 Jun 2003:
   add large memory support for MPC8266ADS board
-  
+
 * Patch by Richard Woodruff, 19 June 03:
   - Enabled standard u-boot device abstraction for ARM
   - Enabled console device for ARM
@@ -95,7 +100,7 @@ Changes since U-Boot 0.3.1:
 * Patch by Nicolas Lacressonniere, 11 Jun 2003:
   Modifications for Atmel AT91RM9200DK ARM920T based development kit
   - Add Atmel DataFlash support for reading and writing.
-  - Add possibility to boot a Linux from DataFlash with BOOTM command. 
+  - Add possibility to boot a Linux from DataFlash with BOOTM command.
   - Add Flash detection on Atmel AT91RM9200DK
     (between Atmel AT49BV1614 and AT49BV1614A flashes)
   - Replace old Ethernet PHY layer functions
