@@ -102,3 +102,18 @@ uint incaip_get_fpiclk(void)
 	 break;
    }
 }
+
+int incaip_set_cpuclk(void)
+{
+	uchar tmp[64];
+	ulong cpuclk;
+
+	if (getenv_r("cpuclk", tmp, sizeof(tmp)) > 0)
+	{
+		cpuclk = simple_strtoul(tmp, NULL, 10) * 1000000;
+		ebu_init(cpuclk);
+		cgu_init(cpuclk);
+	}
+
+	return 0;
+}

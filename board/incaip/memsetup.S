@@ -55,63 +55,142 @@
 #define CGU_MUXCR(value)        0x0014(value)
 #define CGU_PLL1SR(value)       0x000C(value)
 
+	.set	noreorder		
+
+
+/*
+ * void ebu_init(long)
+ *
+ * a0 has the clock value we are going to run at
+ */
+	.globl	ebu_init
+	.ent	ebu_init
+ebu_init:
+
+	li	t1, EBU_MODUL_BASE
+	li	t2, 0xA0000041
+	sw	t2, EBU_ADDSEL0(t1)
+	li	t2, 0xA0800041
+	sw	t2, EBU_ADDSEL2(t1)
+	li	t2, 0xBE0000F1
+	sw	t2, EBU_ADDSEL1(t1)
+
+	li	t3, 100000000
+	beq	a0, t3, 1f
+	nop
+	li	t3, 133000000
+	beq	a0, t3, 2f
+	nop
+	li	t3, 150000000
+	beq	a0, t3, 2f
+	nop
+	b	3f
+	nop
+
+	/* 100 MHz */
+1:
+	li	t2, 0x8841417D
+	sw	t2, EBU_BUSCON0(t1)
+	sw	t2, EBU_BUSCON2(t1)
+	li	t2, 0x684142BD
+	b	3f
+	sw	t2, EBU_BUSCON1(t1)	/* delay slot */
+
+	/* 133 or 150 MHz */
+2:
+	li	t2, 0x8841417E
+	sw	t2, EBU_BUSCON0(t1)
+	sw	t2, EBU_BUSCON2(t1)
+	li	t2, 0x684143FD
+	sw	t2, EBU_BUSCON1(t1)
+3:
+	j	ra
+	nop
+
+	.end	ebu_init
+
+
+/*
+ * void cgu_init(long)
+ *
+ * a0 has the clock value
+ */
+	.globl	cgu_init
+	.ent	cgu_init
+cgu_init:
+
+	li	t1, CGU_MODUL_BASE
+
+	li	t3, 100000000
+	beq	a0, t3, 1f
+	nop
+	li	t3, 133000000
+	beq	a0, t3, 2f
+	nop
+	li	t3, 150000000
+	beq	a0, t3, 3f
+	nop
+	b	5f
+	nop
+
+	/* 100 MHz clock */
+1:
+	li	t2, 0x80000014
+	sw	t2, CGU_DIVCR(t1)
+	li	t2, 0x80000000
+	sw	t2, CGU_MUXCR(t1)
+	li	t2, 0x800B0001
+	b	5f
+	sw	t2, CGU_PLL1CR(t1)	/* delay slot */
+
+	/* 133 MHz clock */
+2:
+	li	t2, 0x80000054
+	sw	t2, CGU_DIVCR(t1)
+	li	t2, 0x80000000
+	sw	t2, CGU_MUXCR(t1)
+	li	t2, 0x800B0001
+	b	5f
+	sw	t2, CGU_PLL1CR(t1)	/* delay slot */
+
+	/* 150 MHz clock */
+3:
+	li	t2, 0x80000017
+	sw	t2, CGU_DIVCR(t1)
+	li	t2, 0xC00B0001
+	sw	t2, CGU_PLL1CR(t1)
+	li	t3, 0x80000000
+4:
+	lw	t2, CGU_PLL1SR(t1)
+	and	t2, t2, t3
+	beq	t2, zero, 4b
+	nop
+	li	t2, 0x80000001
+	sw	t2, CGU_MUXCR(t1)
+5:
+	j	ra
+	nop
+
+	.end	cgu_init
+
+
 	.globl	memsetup
+	.ent	memsetup
 memsetup:
 
-	/* EBU Initialization for the Flash CS0 and CS2.
+	/* EBU and CGU Initialization.
 	 */
-	li	t0, EBU_MODUL_BASE
+	li	a0, CPU_CLOCK_RATE
+	move	t0, ra
 
-	li	t1, 0xA0000041
-	sw	t1, EBU_ADDSEL0(t0)
-
-#if CPU_CLOCK_RATE==100000000	/* 100 MHz clock for the MIPS core */
-	lw	t1, EBU_BUSCON0(t0)  /* value set up by magic flash word */
-	sw	t1, EBU_BUSCON2(t0)
-#else /* 150 MHz or 133 MHz */
-	li	t1, 0x8841417E
-	sw	t1, EBU_BUSCON0(t0)
-	sw	t1, EBU_BUSCON2(t0)
-#endif
-
-	li	t1, 0xA0800041
-	sw	t1, EBU_ADDSEL2(t0)
-
-	/* Need to initialize CS1 too, so as to to prevent overlapping with
-	 * Flash bank 1.
+	/* We rely on the fact that neither ebu_init() nor cgu_init()
+	 * modify t0 and a0.
 	 */
-	li	t1, 0xBE0000F1
- 	sw	t1, EBU_ADDSEL1(t0)
-
-#if CPU_CLOCK_RATE==100000000   /* 100 MHz clock for the MIPS core */
-	li	t1, 0x684142BD
-#else /* 150 MHz or 133 MHz */
-	li	t1, 0x684143FD
-#endif
- 	sw	t1, EBU_BUSCON1(t0)
-
-#if CPU_CLOCK_RATE==150000000   /* 150 MHz clock for the MIPS core */
-	li      t0, CGU_MODUL_BASE
-	li      t1, 0x80000017
-	sw      t1, CGU_DIVCR(t0)
-	li      t1, 0xC00B0001
-	sw      t1, CGU_PLL1CR(t0)
-	lui     t2, 0x8000
-b1:
-	lw      t1, CGU_PLL1SR(t0)
-	and     t1, t1, t2
-	beq     t1, zero, b1
-	li      t1, 0x80000001
-	sw      t1, CGU_MUXCR(t0)
-#elif CPU_CLOCK_RATE==133000000	/* 133 MHz clock for the MIPS core */
-	li	t0, CGU_MODUL_BASE
-	li	t1, 0x80000054
-	sw	t1, CGU_DIVCR(t0)
-	li	t1, 0x80000000
-	sw	t1, CGU_MUXCR(t0)
-	li	t1, 0x800B0001
-	sw	t1, CGU_PLL1CR(t0)
-#endif
+	bal	ebu_init
+	nop
+	bal	cgu_init
+	nop
+	move	ra, t0
 
 	/* SDRAM Initialization.
 	 */
@@ -154,3 +233,5 @@ b1:
 
 	j	ra
 	nop
+	.end	memsetup
+

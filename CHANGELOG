@@ -2,6 +2,21 @@
 Changes since U-Boot 1.0.0:
 ======================================================================
 
+* Make CPU clock on ICA-IP board controllable by a "cpuclk"
+  environment variable which can set to "100", "133", or "150". The
+  CPU clock will be configured accordingly upon next reboot. Other
+  values are ignored. In case of an invalid or undefined "cpuclk"
+  value, the compile-time default CPU clock speed will be used.
+
+* Enable Quad-UART on BMS2003 board (initialize the PCMCIA memory
+  window that is used to access the UART registers by the Linux driver)
+
+* Patch by Reinhard Meyer, 20 Dec 2003:
+  Fix clock calculation for the MPC5200 for higher clock frequencies
+  (above 2**32 / 10 = 429.5 MHz).
+
+* Fix CONFIG_PLL_PCI_TO_MEM_MULTIPLIER divider error in SP8240 configuration
+
 * Fix IceCube CLKIN configuration (it's 33.000000MHz)
 
 * Add new configuration for IceCube board with DDR memory

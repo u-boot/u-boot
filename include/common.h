@@ -362,6 +362,9 @@ ulong	get_HCLK (void);
 ulong	get_PCLK (void);
 ulong	get_UCLK (void);
 #endif
+#if defined CONFIG_INCA_IP
+uint    incaip_get_cpuclk (void);
+#endif
 ulong	get_bus_freq  (ulong);
 
 #if defined(CONFIG_MPC85xx)

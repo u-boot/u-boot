@@ -227,6 +227,18 @@ int pcmcia_on (void)
 			break;
 		    }
 #endif	/* CONFIG_IDE_8xx_PCCARD */
+#ifdef CONFIG_BMS2003
+		case 3: {	/* map I/O window for 4xUART data/ctrl */
+			win->br += 0x140000;
+			win->or = (	PCMCIA_BSIZE_256K
+				|	PCMCIA_PPS_8
+				|	PCMCIA_PRS_IO
+				|	slotbit
+				|	PCMCIA_PV
+				|	CFG_PCMCIA_TIMING );
+			break;
+		    }
+#endif /* CONFIG_BMS2003 */
 		default:	/* set to not valid */
 			win->or = 0;
 			break;

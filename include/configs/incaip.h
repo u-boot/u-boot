@@ -36,12 +36,7 @@
 #define CPU_CLOCK_RATE	133000000	/* 133 MHz clock for the MIPS core */
 #endif
 
-#if CPU_CLOCK_RATE == 100000000
-#define INFINEON_EBU_BOOTCFG	0x20C4	/* CMULT = 4 for 100 MHz */
-#else
-#define INFINEON_EBU_BOOTCFG	0x40C4	/* CMULT = 8 for 150 MHz */
-#endif
-
+#define INFINEON_EBU_BOOTCFG	0x40C4	/* CMULT = 8 */
 
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 
@@ -106,7 +101,7 @@
 
 #define CFG_BOOTPARAMS_LEN	128*1024
 
-#define CFG_HZ			(CPU_CLOCK_RATE/2)
+#define CFG_HZ			(incaip_get_cpuclk() / 2)
 
 #define CFG_SDRAM_BASE		0x80000000
 

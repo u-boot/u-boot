@@ -3110,7 +3110,7 @@ int main (int argc, char *argv[])
 
 	while (learning) {
 		Read the README file in the top level directory;
-		Read http://www.denx.de/re/DPLG.html
+		Read http://www.denx.de/twiki/bin/view/DULG/Manual ;
 		Read the source, Luke;
 	}
 

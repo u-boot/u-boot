@@ -41,6 +41,8 @@
 
 extern int timer_init(void);
 
+extern int incaip_set_cpuclk(void);
+
 extern ulong uboot_end_data;
 extern ulong uboot_end;
 
@@ -163,6 +165,9 @@ typedef int (init_fnc_t) (void);
 init_fnc_t *init_sequence[] = {
 	timer_init,
 	env_init,		/* initialize environment */
+#ifdef CONFIG_INCA_IP
+	incaip_set_cpuclk,	/* set cpu clock according to environment variable */
+#endif
 	init_baudrate,		/* initialze baudrate settings */
 	serial_init,		/* serial communications setup */
 	console_init_f,

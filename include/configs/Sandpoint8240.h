@@ -269,7 +269,7 @@
  */
 
 #define CONFIG_SYS_CLK_FREQ  33000000	/* external frequency to pll */
-#define CONFIG_PLL_PCI_TO_MEM_MULTIPLIER  2
+#define CONFIG_PLL_PCI_TO_MEM_MULTIPLIER  1
 
 #define CFG_ROMNAL		7	/*rom/flash next access time		*/
 #define CFG_ROMFAL		11	/*rom/flash access time			*/
