@@ -59,7 +59,7 @@ extern __kernel_size_t strnlen(const char *,__kernel_size_t);
 #ifndef __HAVE_ARCH_STRDUP
 extern char * strdup(const char *);
 #endif
-#ifdef __HAVE_ARCH_STRSWAB
+#ifndef __HAVE_ARCH_STRSWAB
 extern char * strswab(const char *);
 #endif
 

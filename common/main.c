@@ -574,6 +574,9 @@ int readline (const char *const prompt)
 			puts ("\r\n");
 			return (p - console_buffer);
 
+		case '\0':				/* nul			*/
+			continue;
+
 		case 0x03:				/* ^C - break		*/
 			console_buffer[0] = '\0';	/* discard input */
 			return (-1);

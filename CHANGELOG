@@ -2,6 +2,13 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
+* Patch by Carl Riechers, 17 Mar 2004:
+  Ignore '\0' characters in console input for use with telnet and
+  telco pads.
+
+* Patch by Leon Kukovec, 17 Mar 2004:
+  typo fix for strswab prototype #ifdef
+
 * Patches by Thomas Viehweger, 16 Mar 2004:
   - show PCI clock frequency on MPC8260 systems
   - add FCC_PSMR_RMII flag for HiP7 processors

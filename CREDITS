@@ -252,6 +252,10 @@ E: rof@sysgo.de
 D: Initial support for SSV-DNP1110, SMC91111 driver
 W: www.elinos.com
 
+N: Tolunay Orkun
+E: torkun@nextio.com
+D: Support for Cogent CSB272 board
+
 N: Keith Outwater
 E: keith_outwater@mvis.com
 D: Support for generic/custom MPC860T boards (GEN860T, GEN860T_SC)
