@@ -509,8 +509,26 @@ void board_init_f (ulong bootflag)
 	bd->bi_pci_busfreq = get_PCI_freq ();
 	bd->bi_opbfreq = get_OPB_freq ();
 
+#if defined(CONFIG_I2CFAST)
+	/*
+	 * set bi_iic_fast for linux taking environment variable
+	 * "i2cfast" into account
+	 */
+	{
+		char *s = getenv ("i2cfast");
+		if (s && ((*s == 'y') || (*s == 'Y'))) {
+			bd->bi_iic_fast[0] = 1;
+			bd->bi_iic_fast[1] = 1;
+		} else {
+			bd->bi_iic_fast[0] = 0;
+			bd->bi_iic_fast[1] = 0;
+		}
+	}
+#else
 	bd->bi_iic_fast[0] = 0;
 	bd->bi_iic_fast[1] = 0;
+#endif
+
 #elif defined(CONFIG_XILINX_ML300)
 	bd->bi_pci_busfreq = get_PCI_freq ();
 #endif

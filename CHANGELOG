@@ -2,6 +2,21 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
+* Patch by Pierre Aubert, 18 Mar 2004:
+  - Unify video mode handling for Chips & Technologies 69000 Video
+    chip and Silicon Motion SMI 712/710/810 Video chip
+  - Add selection of the video output (CRT or LCD) via 'videoout'
+    environment variable for the Silicon Motion
+  - README update
+
+* Patch by Pierre Aubert, 18 Mar 2004:
+  include/common.h typo fix
+
+* Patches by Tolunay Orkun, 17 Mar 2004:
+  - Add support for bd->bi_iic_fast[] initialization via environment
+    variable "i2cfast" (CONFIG_I2CFAST)
+  - Add "i2cfast" u-boot environment variable support for csb272
+
 * Patch by Carl Riechers, 17 Mar 2004:
   Ignore '\0' characters in console input for use with telnet and
   telco pads.

@@ -319,7 +319,7 @@ void	relocate_code (ulong, gd_t *, ulong);
 ulong	get_endaddr   (void);
 void	trap_init     (ulong);
 #if defined (CONFIG_4xx)	|| \
-    defined (CONFIG_5xxx)	|| \
+    defined (CONFIG_MPC5xxx)	|| \
     defined (CONFIG_74xx_7xx)	|| \
     defined (CONFIG_74x)	|| \
     defined (CONFIG_75x)	|| \

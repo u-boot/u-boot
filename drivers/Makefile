@@ -42,7 +42,8 @@ OBJS	= 3c589.o 5701rls.o ali512x.o \
 	  serial.o serial_max3100.o serial_pl011.o serial_pl010.o \
 	  smc91111.o smiLynxEM.o status_led.o sym53c8xx.o \
 	  ti_pci1410a.o tigon3.o w83c553f.o omap1510_i2c.o \
-	  usbdcore.o usbdcore_ep0.o usbdcore_omap1510.o usbtty.o
+	  usbdcore.o usbdcore_ep0.o usbdcore_omap1510.o usbtty.o \
+	  videomodes.o
 
 all:	$(LIB)
 
