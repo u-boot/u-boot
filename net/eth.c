@@ -40,6 +40,7 @@ extern int pcnet_initialize(bd_t*);
 extern int fec_initialize(bd_t*);
 extern int scc_initialize(bd_t*);
 extern int inca_switch_initialize(bd_t*);
+extern int plb2800_eth_initialize(bd_t*);
 
 static struct eth_device *eth_devices, *eth_current;
 
@@ -98,6 +99,9 @@ int eth_initialize(bd_t *bis)
 
 #ifdef CONFIG_INCA_IP_SWITCH
 	inca_switch_initialize(bis);
+#endif
+#ifdef CONFIG_PLB2800_ETHER
+	plb2800_eth_initialize(bis);
 #endif
 #ifdef CONFIG_EEPRO100
 	eepro100_initialize(bis);

@@ -2,11 +2,41 @@
 Changes since U-Boot 0.2.2:
 ======================================================================
 
+* Patch by Arun Dharankar, 4 Apr 2003:
+  Add IDMA example code (tested on 8260 only)
+
+* Add support for Purple Board (MIPS64 5Kc)
+
+* Add support for MIPS64 5Kc CPUs
+
+* Fix missing setting of "loadaddr" and "bootfile" on ARM and MIPS
+
+* Patch by Denis Peter, 04 Apr 2003:
+  - update MIP405-4 board
+
 * Patch by Stefan Roese, 4 Apr 2003:
   - U-Boot version environment variable "ver" added
     (CONFIG_VERSION_VARIABLE).
   - Changed PPC405GPr version from A to B.
   - Changed CPCI405 to use CTS instead of DSR on PPC405 UART1.
+
+* Patches by Denis Peter, 03 April 2003:
+  - fix PCI IRQs on MPL boards
+  - fix two more un-relocated pointer problems
+
+* Fix behaviour of "run" command:
+  - print error message iv variable does not exist
+  - terminate processing of arguments in case of error
+
+* Patches by Peter Figuli, 10 Mar 2003
+  - Add support for BTUART on PXA platform
+  - Add support for WEP EP250 (PXA) board
+
+* Fix flash problems on INCA-IP; add tool to allow bruning images  to
+  flash using a BDI2000
+
+* Implement fix for I2C Edge Conditions problem for all boards that
+  use the bit-banging driver (common/soft_i2c.c)
 
 * Patch by Martin Winistoerfer, 23 Mar 2003
   - Add port to MPC555/556 microcontrollers
@@ -22,6 +52,11 @@ Changes since U-Boot 0.2.2:
 * Add patches by Robert Schwebel, 31 Mar 2003:
   - add ctrl-c support for kermit download
   - align bdinfo output on ARM
+  - csb226 board: bring in sync with innokom/memsetup.S
+  - csb226 board: fix MDREFR handling
+  - misc doc fixes / extensions
+  - innokom board: cleanup, MDREFR fix in memsetup.S, config update
+  - add BOOT_PROGRESS to armlinux.c
 
 * Add CPU ID, version, and clock speed for INCA-IP
 

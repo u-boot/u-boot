@@ -177,6 +177,9 @@ void board_init_f(ulong bootflag)
 	bd_t *bd;
 	init_fnc_t **init_fnc_ptr;
 	ulong addr, addr_sp, len   = CFG_MONITOR_LEN;
+#ifdef CONFIG_PURPLE
+	void copy_code (ulong);
+#endif
 
 		/* Pointer is writable since we allocated a register for it.
 		 */
@@ -271,6 +274,14 @@ void board_init_f(ulong bootflag)
 	bd->bi_baudrate	= gd->baudrate;		/* Console Baudrate */
 
 	memcpy (id, gd, sizeof (gd_t));
+
+	/* On the purple board we copy the code in a special way
+	 * in order to solve flash problems
+	 */
+#ifdef CONFIG_PURPLE
+	copy_code(addr);
+#endif
+
 	relocate_code (addr_sp, id, addr);
 
 	/* NOTREACHED - relocate_code() does not return */
@@ -382,6 +393,21 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	/* Initialize the console (after the relocation and devices init) */
 	console_init_r ();
 /** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** **/
+
+	/* Initialize from environment */
+	if ((s = getenv ("loadaddr")) != NULL) {
+		load_addr = simple_strtoul (s, NULL, 16);
+	}
+#if (CONFIG_COMMANDS & CFG_CMD_NET)
+	if ((s = getenv ("bootfile")) != NULL) {
+		copy_filename (BootFile, s, sizeof (BootFile));
+	}
+#endif	/* CFG_CMD_NET */
+
+#if defined(CONFIG_MISC_INIT_R)
+	/* miscellaneous platform dependent initialisations */
+	misc_init_r ();
+#endif
 
 #if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_NET_MULTI)
 	puts ("Net:   ");

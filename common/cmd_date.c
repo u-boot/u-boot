@@ -34,10 +34,13 @@ const char *weekdays[] = {
 	"Sun", "Mon", "Tues", "Wednes", "Thurs", "Fri", "Satur",
 };
 
+#define RELOC(a)	((typeof(a))((unsigned long)(a) + gd->reloc_off))
+
 int mk_date (char *, struct rtc_time *);
 
 int do_date (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
+	DECLARE_GLOBAL_DATA_PTR;
 	struct rtc_time tm;
 	int rcode = 0;
 
@@ -64,7 +67,7 @@ int do_date (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		printf ("Date: %4d-%02d-%02d (%sday)    Time: %2d:%02d:%02d\n",
 			tm.tm_year, tm.tm_mon, tm.tm_mday,
 			(tm.tm_wday<0 || tm.tm_wday>6) ?
-				"unknown " : weekdays[tm.tm_wday],
+				"unknown " : RELOC(weekdays[tm.tm_wday]),
 			tm.tm_hour, tm.tm_min, tm.tm_sec);
 
 		return 0;

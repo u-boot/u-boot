@@ -629,7 +629,6 @@ BAB7xx_config: unconfig
 ELPPC_config: unconfig
 	@./mkconfig $(@:_config=) ppc 74xx_7xx elppc eltec
 
-
 #========================================================================
 # ARM
 #========================================================================
@@ -699,6 +698,9 @@ innokom_config	:	unconfig
 lubbock_config	:	unconfig
 	@./mkconfig $(@:_config=) arm xscale lubbock
 
+wepep250_config	:	unconfig
+	@./mkconfig $(@:_config=) arm xscale wepep250
+
 #========================================================================
 # i386
 #========================================================================
@@ -718,7 +720,11 @@ sc520_cdp_config	:	unconfig
 incaip_config :		unconfig
 	@./mkconfig $(@:_config=) mips mips incaip
 
+purple_config :		unconfig
+	@./mkconfig $(@:_config=) mips mips purple
 
+#########################################################################
+#########################################################################
 
 clean:
 	find . -type f \
@@ -726,7 +732,8 @@ clean:
 		-o -name '*.o'  -o -name '*.a'  \) -print \
 		| xargs rm -f
 	rm -f examples/hello_world examples/timer \
-	      examples/eepro100_eeprom examples/sched
+	      examples/eepro100_eeprom examples/sched \
+	      examples/mem_to_mem_idma2intr
 	rm -f tools/img2srec tools/mkimage tools/envcrc tools/gen_eth_addr
 	rm -f tools/easylogo/easylogo tools/bmp_logo
 	rm -f tools/gdb/astest tools/gdb/gdbcont tools/gdb/gdbsend
@@ -741,7 +748,7 @@ clobber:	clean
 	rm -fr *.*~
 	rm -f u-boot u-boot.bin u-boot.elf u-boot.srec u-boot.map System.map
 	rm -f tools/crc32.c tools/environment.c tools/env/crc32.c
-	rm -f cpu/mpc824x/bedbug_603e.c
+	rm -f tools/inca-swap-bytes cpu/mpc824x/bedbug_603e.c
 	rm -f include/asm/arch include/asm
 
 mrproper \

@@ -42,9 +42,12 @@
 _start:
 	RVECENT(reset,0)	/* U-boot entry point */
 	RVECENT(reset,1)	/* software reboot */
-#ifdef CONFIG_INCA_IP
-	.word 0x000020C4	/* EBU init code, fetched during booting */
-	.word 0x00000000        /* phase of the flash                    */
+#if defined(CONFIG_INCA_IP)
+	.word INFINEON_EBU_BOOTCFG /* EBU init code, fetched during booting */
+	.word 0x00000000           /* phase of the flash                    */
+#elif defined(CONFIG_PURPLE)
+	.word INFINEON_EBU_BOOTCFG /* EBU init code, fetched during booting */
+	.word INFINEON_EBU_BOOTCFG /* EBU init code, fetched during booting */
 #else
 	RVECENT(romReserved,2)
 #endif
@@ -178,6 +181,30 @@ _start:
 	 * 128 * 8 == 1024 == 0x400
 	 * so this is address R_VEC+0x400 == 0xbfc00400
 	 */
+#ifdef CONFIG_PURPLE
+/* 0xbfc00400 */
+	.word	0xdc870000
+	.word	0xfca70000
+	.word	0x20840008
+	.word	0x20a50008
+	.word	0x20c6ffff
+	.word	0x14c0fffa
+	.word	0x00000000
+	.word	0x03e00008
+	.word	0x00000000
+	.word   0x00000000
+/* 0xbfc00428 */
+	.word	0xdc870000
+	.word	0xfca70000
+	.word	0x20840008
+	.word	0x20a50008
+	.word	0x20c6ffff
+	.word	0x14c0fffa
+	.word	0x00000000
+	.word	0x03e00008
+	.word	0x00000000
+	.word   0x00000000
+#endif /* CONFIG_PURPLE */
 	.align 4
 reset:
 
@@ -283,12 +310,17 @@ relocate_code:
 	 * t1 = target address
 	 * t2 = source end address
 	 */
+	/* On the purple board we copy the code earlier in a special way
+	 * in order to solve flash problems
+	 */
+#ifndef CONFIG_PURPLE
 1:
 	lw	t3, 0(t0)
 	sw	t3, 0(t1)
 	addu	t0, 4
 	ble	t0, t2, 1b
 	addu	t1, 4			/* delay slot			*/
+#endif
 
 	/* If caches were enabled, we would have to flush them here.
 	 */

@@ -34,18 +34,60 @@
 /* allowed values: 100000000 and 150000000 */
 #define CPU_CLOCK_RATE	150000000   /* 150 MHz clock for the MIPS core */
 
+#if CPU_CLOCK_RATE == 100000000
+#define INFINEON_EBU_BOOTCFG	0x20C4	/* CMULT = 4 for 100 MHz */
+#else
+#define INFINEON_EBU_BOOTCFG	0x40C4	/* CMULT = 8 for 150 MHz */
+#endif
+
+
+#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
+
 #define CONFIG_BAUDRATE		115200
-
-#define CFG_SDRAM_BASE		0x80000000
-
-#define CFG_MALLOC_LEN		128*1024
-
-#define CFG_BOOTPARAMS_LEN	128*1024
 
 /* valid baudrates */
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL | CFG_CMD_ELF)
+#define	CONFIG_TIMESTAMP		/* Print image info with timestamp */
+
+#define CONFIG_PREBOOT	"echo;"	\
+	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
+	"echo"
+
+#undef	CONFIG_BOOTARGS
+
+#define	CONFIG_EXTRA_ENV_SETTINGS					\
+	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
+		"nfsroot=$(serverip):$(rootpath)\0"			\
+	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
+	"addip=setenv bootargs $(bootargs) "				\
+		"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask)"	\
+		":$(hostname):$(netdev):off\0"				\
+	"addmisc=setenv bootargs $(bootargs) "				\
+		"console=ttyS0,$(baudrate) "				\
+		"ethaddr=$(ethaddr) "					\
+		"panic=1\0"						\
+	"flash_nfs=run nfsargs addip addmisc;"				\
+		"bootm $(kernel_addr)\0"				\
+	"flash_self=run ramargs addip addmisc;"				\
+		"bootm $(kernel_addr) $(ramdisk_addr)\0"		\
+	"net_nfs=tftp 80500000 $(bootfile);"				\
+		"run nfsargs addip addmisc;bootm\0"			\
+	"rootpath=/opt/eldk/mips_4KC\0"					\
+	"bootfile=/tftpboot/INCA/uImage\0"				\
+	"kernel_addr=B0040000\0"					\
+	"ramdisk_addr=B0100000\0"					\
+	"u-boot=/tftpboot/INCA/u-boot.bin\0"				\
+	"load=tftp 80500000 $(u-boot)\0"				\
+	"update=protect off 1:0-2;era 1:0-2;"				\
+		"cp.b 80500000 B0000000 $(filesize)\0"			\
+	""
+#define CONFIG_BOOTCOMMAND	"run flash_self"
+
+#define CONFIG_COMMANDS		(CONFIG_CMD_DFL | \
+				 CFG_CMD_ASKENV	| \
+				 CFG_CMD_DHCP	| \
+				 CFG_CMD_ELF	)
 #include <cmd_confdefs.h>
 
 /*
@@ -55,12 +97,19 @@
 #define	CFG_PROMPT		"INCA-IP # "	/* Monitor Command Prompt    */
 #define	CFG_CBSIZE		256		/* Console I/O Buffer Size   */
 #define	CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16)  /* Print Buffer Size */
-#define CFG_HZ			(CPU_CLOCK_RATE/2)
 #define	CFG_MAXARGS		16		/* max number of command args*/
+
+#define CFG_MALLOC_LEN		128*1024
+
+#define CFG_BOOTPARAMS_LEN	128*1024
+
+#define CFG_HZ			(CPU_CLOCK_RATE/2)
+
+#define CFG_SDRAM_BASE		0x80000000
 
 #define	CFG_LOAD_ADDR		0x80100000	/* default load address	*/
 
-#define CFG_MEMTEST_START	0x80200000
+#define CFG_MEMTEST_START	0x80100000
 #define CFG_MEMTEST_END		0x80800000
 
 /*-----------------------------------------------------------------------

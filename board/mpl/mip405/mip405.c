@@ -128,6 +128,15 @@ const sdram_t sdram_table[] = {
   		2,	/* Address Mode = 2 */
 		4,	/* size value */
 		1},	/* ECC enabled */
+	{ 0x03,	/* Rev A, 128MByte -4 Board */
+		3,	/* Case Latenty = 3 */
+		3,	/* trp 20ns / 7.5 ns datain[27] */
+  		3, 	/* trcd 20ns /7.5 ns (datain[29]) */
+  		6,  /* tras 44ns /7.5 ns  (datain[30]) */
+		4,	/* tcpt 44 - 20ns = 24ns */
+  		3,	/* Address Mode = 3 */
+		5,	/* size value */
+		1},	/* ECC enabled */
 	{ 0xff, /* terminator */
 	  0xff,
 	  0xff,
@@ -616,7 +625,13 @@ void print_mip405_rev (void)
 
 int last_stage_init (void)
 {
+	/* write correct LED configuration */
 	if (miiphy_write (0x1, 0x14, 0x2402) != 0) {
+		printf ("Error writing to the PHY\n");
+	}
+	/* since LED/CFG2 is not connected on the -2,
+	 * write to correct capability information */
+	if (miiphy_write (0x1, 0x4, 0x01E1) != 0) {
 		printf ("Error writing to the PHY\n");
 	}
 	print_mip405_rev ();

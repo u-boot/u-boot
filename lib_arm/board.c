@@ -190,6 +190,7 @@ void start_armboot (void)
 	gd_t gd_data;
 	bd_t bd_data;
 	init_fnc_t **init_fnc_ptr;
+	char *s;
 #if defined(CONFIG_VFD)
 	unsigned long addr;
 #endif
@@ -273,6 +274,16 @@ void start_armboot (void)
 #ifdef CONFIG_DRIVER_CS8900
 	cs8900_get_enetaddr (gd->bd->bi_enetaddr);
 #endif
+
+	/* Initialize from environment */
+	if ((s = getenv ("loadaddr")) != NULL) {
+		load_addr = simple_strtoul (s, NULL, 16);
+	}
+#if (CONFIG_COMMANDS & CFG_CMD_NET)
+	if ((s = getenv ("bootfile")) != NULL) {
+		copy_filename (BootFile, s, sizeof (BootFile));
+	}
+#endif	/* CFG_CMD_NET */
 
 #ifdef BOARD_POST_INIT
 	board_post_init ();

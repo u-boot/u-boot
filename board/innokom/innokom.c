@@ -48,7 +48,7 @@ int i2c_init_board(void)
 	icr = ICR; ICR &= ~(ICR_SCLE | ICR_IUE);
 	
 	/* set gpio pin low _before_ we change direction to output          */
-		GPCR(70) = GPIO_bit(70);
+	GPCR(70) = GPIO_bit(70);
 	
 	/* now toggle between output=low and high-impedance                 */
 	for (i = 0; i < 20; i++) {
@@ -100,13 +100,8 @@ int board_init (void)
 	/* memory and cpu-speed are setup before relocation */
 	/* so we do _nothing_ here */
 
-	/* arch number of Innokom board */
 	gd->bd->bi_arch_number = MACH_TYPE_INNOKOM;
-
-	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0xa0000100;
-
-	/* baud rate */
 	gd->bd->bi_baudrate = CONFIG_BAUDRATE;
 
 	return 0;

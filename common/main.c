@@ -862,7 +862,6 @@ int run_command (const char *cmd, int flag)
 int do_run (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	int i;
-	int rcode = 1;
 
 	if (argc < 2) {
 		printf ("Usage:\n%s\n", cmdtp->usage);
@@ -870,13 +869,21 @@ int do_run (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	}
 
 	for (i=1; i<argc; ++i) {
+		char *arg;
+
+		if ((arg = getenv (argv[i])) == NULL) {
+			printf ("## Error: \"%s\" not defined\n", argv[i]);
+			return 1;
+		}
 #ifndef CFG_HUSH_PARSER
-	    if (run_command (getenv (argv[i]), flag) != -1) ++rcode;
+		if (run_command (arg, flag) == -1)
+			return 1;
 #else
-   	    if (parse_string_outer(getenv (argv[i]),
-		    FLAG_PARSE_SEMICOLON | FLAG_EXIT_FROM_LOOP) == 0) ++rcode;
+		if (parse_string_outer(arg,
+		    FLAG_PARSE_SEMICOLON | FLAG_EXIT_FROM_LOOP) == 0)
+			return 1;
 #endif
 	}
-	return ((rcode == i) ? 0 : 1);
+	return 0;
 }
-#endif
+#endif	/* CFG_CMD_RUN */

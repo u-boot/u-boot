@@ -38,6 +38,9 @@ DRAM_SIZE:  .long   CFG_DRAM_SIZE
    sub  pc,pc,#4
    .endm
 
+_TEXT_BASE:
+	.word	TEXT_BASE
+
 
 /*
  * 	Memory setup
@@ -222,23 +225,28 @@ mem_init:
         /* Step 2c: Write FLYCNFG  FIXME: what's that???                    */
         /* ---------------------------------------------------------------- */
 
+        /* test if we run from flash or RAM - RAM/BDI: don't setup RAM      */
+	adr	r3, mem_init		/* r0 <- current position of code   */
+	ldr	r2, =mem_init
+	cmp	r3, r2			/* skip init if in place            */
+	beq	initirqs
+
 
 	/* ---------------------------------------------------------------- */
         /* Step 2d: Initialize Timing for Sync Memory (SDCLK0)              */
         /* ---------------------------------------------------------------- */
 
 	/* Before accessing MDREFR we need a valid DRI field, so we set     */
-	/* this to power on defaults + DIR field.                           */
+	/* this to power on defaults + DRI field.                           */
 
-	ldr	r4,	=0x03ca4fff
+	ldr 	r3, 	=CFG_MDREFR_VAL
+	ldr	r2,	=0xFFF
+	and	r3,	r3, r2
+	ldr	r4,	=0x03ca4000
+	orr	r4,	r4,  r3
+
 	str	r4,	[r1, #MDREFR_OFFSET]	/* write back MDREFR        */
         ldr     r4,	[r1, #MDREFR_OFFSET]
-
-	ldr	r4,	=0x03ca4030
-	str	r4,	[r1, #MDREFR_OFFSET]	/* write back MDREFR        */
-	ldr	r4,	[r1, #MDREFR_OFFSET]
-
-        /* Note: preserve the mdrefr value in r4                            */
 
 
 	/* ---------------------------------------------------------------- */
@@ -258,18 +266,16 @@ mem_init:
         /* Step 4: Initialize SDRAM                                         */
         /* ---------------------------------------------------------------- */
 
-	/* Step 4a: assert MDREFR:K1RUN and MDREFR:K2RUN and configure      */
+	/* Step 4a: assert MDREFR:K?RUN and configure                       */
 	/*          MDREFR:K1DB2 and MDREFR:K2DB2 as desired.               */
 
-	orr	r4,	r4,	#(MDREFR_K1RUN|MDREFR_K0RUN)
-
-	str     r4,     [r1, #MDREFR_OFFSET]    /* write back MDREFR        */
-	ldr     r4,     [r1, #MDREFR_OFFSET]
-
+	ldr	r4,	=CFG_MDREFR_VAL
+	str	r4,	[r1, #MDREFR_OFFSET]	/* write back MDREFR        */
+	ldr	r4,	[r1, #MDREFR_OFFSET]
 
 	/* Step 4b: de-assert MDREFR:SLFRSH.                                */
 
-	bic	r4,	r4,	#(MDREFR_SLFRSH)
+	bic	r4,	r4, #(MDREFR_SLFRSH)
 
         str     r4,     [r1, #MDREFR_OFFSET]    /* write back MDREFR        */
         ldr     r4,     [r1, #MDREFR_OFFSET]

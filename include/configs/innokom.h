@@ -62,7 +62,8 @@
 #define CONFIG_BAUDRATE		19200
 #define CONFIG_MISC_INIT_R	1	/* we have a misc_init_r() function */
 
-#define CONFIG_COMMANDS (CONFIG_CMD_DFL|CFG_CMD_I2C|CFG_CMD_EEPROM|CFG_CMD_NET|CFG_CMD_JFFS2|CFG_CMD_DHCP)
+#define CONFIG_COMMANDS (CFG_CMD_BDI|CFG_CMD_LOADB|CFG_CMD_IMI|CFG_CMD_FLASH|CFG_CMD_MEMORY|CFG_CMD_NET|CFG_CMD_ENV|CFG_CMD_RUN|CFG_CMD_ASKENV|CFG_CMD_ECHO|CFG_CMD_I2C|CFG_CMD_DHCP)
+/* CONFIG_CMD_DFL|CFG_CMD_I2C|CFG_CMD_EEPROM|CFG_CMD_NET|CFG_CMD_JFFS2|CFG_CMD_DHCP) */
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any)   */
 #include <cmd_confdefs.h>
 
@@ -77,11 +78,6 @@
 #define CONFIG_SHOW_BOOT_PROGRESS
 
 #define CONFIG_CMDLINE_TAG	1
-
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
-#define CONFIG_KGDB_BAUDRATE	19200		/* speed to run kgdb serial port */
-#define CONFIG_KGDB_SER_INDEX	2		/* which serial port to use */
-#endif
 
 /*
  * Miscellaneous configurable options
@@ -186,7 +182,7 @@
 
 
 /*
- * GPIO settings; see BDI2000 config file for details
+ * GPIO settings
  *
  * GP15 == nCS1      is 1
  * GP24 == SFRM      is 1
@@ -391,7 +387,7 @@
  * [32:26] 0     - reserved
  * [25]    0     - K2FREE: not free running
  * [24]    0     - K1FREE: not free running
- * [23]    0     - K0FREE: not free running
+ * [23]    1     - K0FREE: not free running
  * [22]    0     - SLFRSH: self refresh disabled
  * [21]    0     - reserved
  * [20]    0     - APD: no auto power down
@@ -401,11 +397,11 @@
  * [16]    1     - K1RUN: enable SDCLK1
  * [15]    1     - E1PIN: SDRAM clock enable
  * [14]    1     - K0DB2: SDCLK0 is MemClk
- * [13]    1     - K0RUN: disable SDCLK0
+ * [13]    0     - K0RUN: disable SDCLK0
  * [12]    1     - E0PIN: disable SDCKE0
  * [11:00] 000000011000 - (64ms/8192)*MemClkFreq/32 = 24
  */
-#define CFG_MDREFR_VAL		0x0001F018
+#define CFG_MDREFR_VAL		0x0081D018
 
 /* MDMRS: Mode Register Set Configuration Register
  *

@@ -56,7 +56,7 @@ int do_rarpb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 #define	CMD_TBL_DHCP	MK_CMD_TBL_ENTRY(					\
 	"dhcp",		4,	3,	1,	do_dhcp,			\
 	"dhcp    - invoke DHCP client to obtain IP/boot params\n",		\
-	"\n" 						 			\
+	"[loadAddress] [bootfilename]\n" 		 			\
 ),
 
 int do_dhcp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);

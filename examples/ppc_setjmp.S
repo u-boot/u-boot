@@ -34,8 +34,8 @@ setctxsp:
 	mr  r1, r3
 	blr
 
-.globl      _setjmp;
-_setjmp:
+.globl      ppc_setjmp;
+ppc_setjmp:
 	stw  r1,(JB_GPR1*4)(3)
 	mflr r0
 	stw  r2,(JB_GPR2*4)(3)

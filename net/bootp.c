@@ -59,7 +59,8 @@ unsigned int dhcp_leasetime = 0;
 static void DhcpHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len);
 
 /* For Debug */
-char *dhcpmsg2str(int type)
+#if 0
+static char *dhcpmsg2str(int type)
 {
 	switch (type) {
 	case 1:  return "DHCPDISCOVER";	break;
@@ -72,6 +73,7 @@ char *dhcpmsg2str(int type)
 	default: return "UNKNOWN/INVALID MSG TYPE"; break;
 	}
 }
+#endif
 
 #if (CONFIG_BOOTP_MASK & CONFIG_BOOTP_VENDOREX)
 extern u8 *dhcp_vendorex_prep (u8 *e); /*rtn new e after add own opts. */
@@ -112,7 +114,7 @@ static int BootpCheckPkt(uchar *pkt, unsigned dest, unsigned src, unsigned len)
 /*
  * Copy parameters of interest from BOOTP_REPLY/DHCP_OFFER packet
  */
-void BootpCopyNetParams(Bootp_t *bp)
+static void BootpCopyNetParams(Bootp_t *bp)
 {
 	NetCopyIP(&NetOurIP, &bp->bp_yiaddr);
 	NetCopyIP(&NetServerIP, &bp->bp_siaddr);
@@ -675,9 +677,9 @@ BootpRequest (void)
 }
 
 #if (CONFIG_COMMANDS & CFG_CMD_DHCP)
-void DhcpOptionsProcess(char *popt)
+static void DhcpOptionsProcess(uchar *popt)
 {
-	char *end = popt + BOOTP_HDR_SIZE;
+	uchar *end = popt + BOOTP_HDR_SIZE;
 	int oplen, size;
 
 	while ( popt < end && *popt != 0xff ) {
@@ -747,7 +749,7 @@ static int DhcpMessageType(unsigned char *popt)
 	return -1;
 }
 
-void DhcpSendRequestPkt(Bootp_t *bp_offer)
+static void DhcpSendRequestPkt(Bootp_t *bp_offer)
 {
 	volatile uchar *pkt, *iphdr;
 	Bootp_t *bp;

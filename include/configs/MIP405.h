@@ -109,7 +109,7 @@
 #define CONFIG_BOOT_RETRY_TIME	-10	/* feature is avaiable but not enabled */
 #define CONFIG_ZERO_BOOTDELAY_CHECK  	/* check console even if bootdelay = 0 */
 
-#define CONFIG_BOOTCOMMAND	"diskboot 200000 0:1; bootm" /* autoboot command		*/
+#define CONFIG_BOOTCOMMAND	"diskboot 400000 0:1; bootm" /* autoboot command		*/
 #define CONFIG_BOOTARGS		"console=ttyS0,9600 root=/dev/hda5" /* boot arguments */
 
 #define CONFIG_IPADDR		10.0.0.100
@@ -162,7 +162,7 @@
 	{ 300, 600, 1200, 2400, 4800, 9600, 19200, 38400,     \
 	 57600, 115200, 230400, 460800, 921600 }
 
-#define CFG_LOAD_ADDR	0x200000	/* default load address */
+#define CFG_LOAD_ADDR	0x400000	/* default load address */
 #define CFG_EXTBDINFO	1		/* To use extended board_into (bd_t) */
 
 #define CFG_HZ		1000		/* decrementer freq: 1 ms ticks */

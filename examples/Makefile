@@ -33,7 +33,7 @@ SREC   += sched.srec
 BIN    += sched.bin
 endif
 
-ifeq ($(CPU),mips)
+ifeq ($(ARCH),mips)
 SREC =
 BIN =
 endif
@@ -42,6 +42,12 @@ endif
 ifeq ($(CPU),mpc8xx)
 SREC   += timer.srec
 BIN    += timer.bin
+endif
+
+# The following example is 8260 specific...
+ifeq ($(CPU),mpc8260)
+SREC   += mem_to_mem_idma2intr.srec
+BIN    += mem_to_mem_idma2intr.bin
 endif
 
 # Utility for resetting i82559 EEPROM

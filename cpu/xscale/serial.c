@@ -67,7 +67,21 @@ void serial_setbrg (void)
 
 	FFIER = IER_UUE;			/* Enable FFUART */
 
-#elif CONFIG_STUART
+#elif defined(CONFIG_BTUART)
+	CKEN |= CKEN7_BTUART;
+
+	BTIER = 0;
+	BTFCR = 0;
+
+	/* set baud rate */
+	BTLCR = LCR_DLAB;
+	BTDLL = quot & 0xff;
+	BTDLH = quot >> 8;
+	BTLCR = LCR_WLS0 | LCR_WLS1;
+
+	BTIER = IER_UUE;			/* Enable BFUART */
+
+#elif defined(CONFIG_STUART)
 #error "Bad: not implemented yet!"
 #else
 #error "Bad: you didn't configured serial ..."
@@ -98,7 +112,10 @@ void serial_putc (const char c)
 	while ((FFLSR & LSR_TEMT) == 0);
 
 	FFTHR = c;
-#elif CONFIG_STUART
+#elif defined(CONFIG_BTUART)
+	while ((BTLSR & LSR_TEMT ) == 0 );
+	BTTHR = c;
+#elif defined(CONFIG_STUART)
 #endif
 
 	/* If \n, also do \r */
@@ -115,7 +132,9 @@ int serial_tstc (void)
 {
 #ifdef CONFIG_FFUART
 	return FFLSR & LSR_DR;
-#elif CONFIG_STUART
+#elif defined(CONFIG_BTUART)
+	return BTLSR & LSR_DR;
+#elif defined(CONFIG_STUART)
 #endif
 }
 
@@ -130,7 +149,11 @@ int serial_getc (void)
 	while (!(FFLSR & LSR_DR));
 
 	return (char) FFRBR & 0xff;
-#elif CONFIG_STUART
+#elif defined(CONFIG_BTUART)
+	while (!(BTLSR & LSR_DR));
+
+	return (char) BTRBR & 0xff;
+#elif defined(CONFIG_STUART)
 #endif
 }
 

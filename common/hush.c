@@ -2357,34 +2357,35 @@ static void initialize_context(struct p_context *ctx)
  * should handle if, then, elif, else, fi, for, while, until, do, done.
  * case, function, and select are obnoxious, save those for later.
  */
+struct reserved_combo {
+	char *literal;
+	int code;
+	long flag;
+};
+/* Mostly a list of accepted follow-up reserved words.
+ * FLAG_END means we are done with the sequence, and are ready
+ * to turn the compound list into a command.
+ * FLAG_START means the word must start a new compound list.
+ */
+static struct reserved_combo reserved_list[] = {
+	{ "if",    RES_IF,    FLAG_THEN | FLAG_START },
+	{ "then",  RES_THEN,  FLAG_ELIF | FLAG_ELSE | FLAG_FI },
+	{ "elif",  RES_ELIF,  FLAG_THEN },
+	{ "else",  RES_ELSE,  FLAG_FI   },
+	{ "fi",    RES_FI,    FLAG_END  },
+	{ "for",   RES_FOR,   FLAG_IN   | FLAG_START },
+	{ "while", RES_WHILE, FLAG_DO   | FLAG_START },
+	{ "until", RES_UNTIL, FLAG_DO   | FLAG_START },
+	{ "in",    RES_IN,    FLAG_DO   },
+	{ "do",    RES_DO,    FLAG_DONE },
+	{ "done",  RES_DONE,  FLAG_END  }
+};
+#define NRES (sizeof(reserved_list)/sizeof(struct reserved_combo))
+
 int reserved_word(o_string *dest, struct p_context *ctx)
 {
-	struct reserved_combo {
-		char *literal;
-		int code;
-		long flag;
-	};
-	/* Mostly a list of accepted follow-up reserved words.
-	 * FLAG_END means we are done with the sequence, and are ready
-	 * to turn the compound list into a command.
-	 * FLAG_START means the word must start a new compound list.
-	 */
-	static struct reserved_combo reserved_list[] = {
-		{ "if",    RES_IF,    FLAG_THEN | FLAG_START },
-		{ "then",  RES_THEN,  FLAG_ELIF | FLAG_ELSE | FLAG_FI },
-		{ "elif",  RES_ELIF,  FLAG_THEN },
-		{ "else",  RES_ELSE,  FLAG_FI   },
-		{ "fi",    RES_FI,    FLAG_END  },
-		{ "for",   RES_FOR,   FLAG_IN   | FLAG_START },
-		{ "while", RES_WHILE, FLAG_DO   | FLAG_START },
-		{ "until", RES_UNTIL, FLAG_DO   | FLAG_START },
-		{ "in",    RES_IN,    FLAG_DO   },
-		{ "do",    RES_DO,    FLAG_DONE },
-		{ "done",  RES_DONE,  FLAG_END  }
-	};
 	struct reserved_combo *r;
 	for (r=reserved_list;
-#define NRES sizeof(reserved_list)/sizeof(struct reserved_combo)
 		r<reserved_list+NRES; r++) {
 		if (strcmp(dest->data, r->literal) == 0) {
 			debug_printf("found reserved word %s, code %d\n",r->literal,r->code);
@@ -3169,6 +3170,18 @@ int parse_file_outer(void)
 }
 
 #ifdef __U_BOOT__
+static void u_boot_hush_reloc(void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+	unsigned long addr;
+	struct reserved_combo *r;
+
+	for (r=reserved_list; r<reserved_list+NRES; r++) {
+		addr = (ulong) (r->literal) + gd->reloc_off;
+		r->literal = (char *)addr;
+	}
+}
+
 int u_boot_hush_start(void)
 {
 	top_vars = malloc(sizeof(struct variables));
@@ -3177,6 +3190,7 @@ int u_boot_hush_start(void)
 	top_vars->next = 0;
 	top_vars->flg_export = 0;
 	top_vars->flg_read_only = 1;
+	u_boot_hush_reloc();
 	return 0;
 }
 

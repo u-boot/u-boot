@@ -830,6 +830,7 @@ FindAndSetPllParamIntoXrRegs (unsigned int pixelclock,
 	unsigned int m, n, vld, pd, PD, fref, xr_cb;
 	unsigned int fvcomin, fvcomax, pclckmin, pclckmax, pclk;
 	unsigned int pfreq, fvco, new_pixclock;
+	unsigned int D,nback,mback;
 
 	fref = VIDEO_FREF;
 	pd = 1;
@@ -850,10 +851,19 @@ FindAndSetPllParamIntoXrRegs (unsigned int pixelclock,
 		PD++;
 	}
 	/* fvco is exactly pd * pixelclock and higher than the ninmal VCO frequency */
-	vld = (param->vld_set > param->vld_not_set) ?
-	    param->vld_not_set : param->vld_set;
-	/* start with lower VLD (higher VLD is NOT yet implemented */
-	FindBestPQFittingMN (fvco / vld, fref, param->mn_min, param->mn_max, &m, &n);	/* rds = 1 */
+	/* first try */
+	vld = param->vld_set;
+	D=FindBestPQFittingMN (fvco / vld, fref, param->mn_min, param->mn_max, &m, &n); /* rds = 1 */
+	mback=m;
+	nback=n;
+	/* second try */
+	vld = param->vld_not_set;
+	if(D<FindBestPQFittingMN (fvco / vld, fref, param->mn_min, param->mn_max, &m, &n)) {    /* rds = 1 */
+		/* first try was better */
+		m=mback;
+		n=nback;
+		vld = param->vld_set;
+	}
 	m += param->mn_diff;
 	n += param->mn_diff;
 	PRINTF ("VCO %d, pd %d, m %d n %d vld %d \n", fvco, pd, m, n, vld);

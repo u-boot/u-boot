@@ -112,7 +112,7 @@ LIST_ARM9="at91rm9200dk smdk2400 smdk2410 trab VCMA9"
 ## Xscale Systems
 #########################################################################
 
-LIST_xscale="cradle csb226 innokom lubbock"
+LIST_xscale="cradle csb226 innokom lubbock wepep250"
 
 
 LIST_arm="${LIST_SA} ${LIST_ARM7} ${LIST_ARM9} ${LIST_xscale}"
@@ -123,7 +123,9 @@ LIST_arm="${LIST_SA} ${LIST_ARM7} ${LIST_ARM9} ${LIST_xscale}"
 
 LIST_mips4kc="incaip"
 
-LIST_mips="${LIST_mips4kc}"
+LIST_mips5kc="purple"
+
+LIST_mips="${LIST_mips4kc} ${LIST_mips5kc}"
 
 
 #----- for now, just run PPC by default -----

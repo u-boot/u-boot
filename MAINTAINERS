@@ -241,6 +241,10 @@ Unknown / orphaned boards:
 #	Board			CPU					#
 #########################################################################
 
+Peter Figuli <peposh@etc.sk>
+
+	wepep250		xscale
+
 Marius Gröger <mag@sysgo.de>
 
 	impa7			ARM720T (EP7211)
@@ -296,6 +300,7 @@ Daniel Engström <daniel@omicron.se>
 Wolfgang Denk <wd@denx.de>
 
 	incaip			MIPS32 4Kc
+	purple			MIPS64 5Kc
 
 #########################################################################
 # End of MAINTAINERS list						#

@@ -104,6 +104,10 @@ E: wg@denx.de
 D: Support for Interphase 4539 T1/E1/J1 PMC, PN62, CCM, SCM boards
 W: www.denx.de
 
+N: Peter Figuli
+E: peposh@etc.sk
+D: Support for WEP EP250 (PXA) board
+
 N: Thomas Frieden
 E: ThomasF@hyperion-entertainment.com
 D: Support for AmigaOne

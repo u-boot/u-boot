@@ -1,6 +1,6 @@
 /*
- * (C) Copyright 2003
- * Wolfgang Denk, DENX Software Engineering, <wd@denx.de>
+ * (C) Copyright 2000
+ * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -21,25 +21,35 @@
  * MA 02111-1307 USA
  */
 
-#include <common.h>
-#include <command.h>
-#include <asm/inca-ip.h>
-
-int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
+OUTPUT_ARCH(arm)
+ENTRY(_start)
+SECTIONS
 {
-#if defined(CONFIG_INCA_IP)
-	*INCA_IP_WDT_RST_REQ = 0x3f;
-#elif defined(CONFIG_PURPLE)
-	void (*f)(void) = (void *) 0xbfc00000;
+        . = 0x00000000;
 
-	f();
-#endif
-	fprintf(stderr, "*** reset failed ***\n");
-	return 0;
+        . = ALIGN(4);
+	.text      :
+	{
+	  cpu/xscale/start.o	(.text)
+	  *(.text)
+	}
+
+        . = ALIGN(4);
+        .rodata : { *(.rodata) }
+
+        . = ALIGN(4);
+        .data : { *(.data) }
+
+        . = ALIGN(4);
+        .got : { *(.got) }
+
+	armboot_end_data = .;
+
+        . = ALIGN(4);
+	bss_start = .;
+        .bss : { *(.bss) }
+	bss_end = .;
+
+	armboot_end = .;
 }
-
-void flush_cache (ulong start_addr, ulong size)
-{
-
-}
-

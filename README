@@ -1462,7 +1462,7 @@ following configurations:
 
 	   These settings describe a second storage area used to hold
 	   a redundand copy of the environment data, so that there is
-	   a valid backup copy in case there is a power failur during
+	   a valid backup copy in case there is a power failure during
 	   a "saveenv" operation.
 
 BE CAREFUL! Any changes to the flash layout, and some changes to the

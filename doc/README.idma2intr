@@ -1,0 +1,10 @@
+(C) 2003 Arun Dharankar <ADharankar@ATTBI.Com>
+
+Attached is an IDMA example code for MPC8260/PPCBoot. I had tried to
+search around and could not find any for implementing IDMA, so
+implemented one. Its not coded in the best way, but works.
+
+Also, I was able to test the IDMA specific code under Linux also
+(with modifications). My requirement was to implement it for
+CompactFlash implemented in memory mode, and it works for it under
+PPCBoot and Linux.

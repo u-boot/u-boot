@@ -253,9 +253,9 @@ dcache_disable:
 	.globl	mips_cache_lock
 	.ent	mips_cache_lock
 mips_cache_lock:
-	li	a1, K0BASE - CFG_DCACHE_SIZE
+	li	a1, K0BASE - CFG_DCACHE_SIZE/2
 	addu	a0, a1
-	li	a2, CFG_DCACHE_SIZE
+	li	a2, CFG_DCACHE_SIZE/2
 	li	a3, CFG_CACHELINE_SIZE
 	move	a1, a2
 	icacheop(a0,a1,a2,a3,0x1d)

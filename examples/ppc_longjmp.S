@@ -30,9 +30,9 @@
 #define FP(x...) x
 #define FP(x...) x
 
-.globl      longjmp;
+.globl      ppc_longjmp;
 
-longjmp:
+ppc_longjmp:
 	lwz r1,(JB_GPR1*4)(r3)
 	lwz r2,(JB_GPR2*4)(r3)
 	lwz r0,(JB_LR*4)(r3)
