@@ -486,6 +486,19 @@ void ide_init (void)
 	unsigned int ata_reset_time;
 	char *s;
 #endif
+#ifdef CONFIG_IDE_8xx_PCCARD
+	extern int pcmcia_on (void);
+	extern int ide_devices_found; /* Initialized in check_ide_device() */
+#endif	/* CONFIG_IDE_8xx_PCCARD */
+
+#ifdef CONFIG_IDE_PREINIT
+	WATCHDOG_RESET();
+
+	if (ide_preinit ()) {
+		puts ("ide_preinit failed\n");
+		return;
+	}
+#endif	/* CONFIG_IDE_PREINIT */
 
 #ifdef CONFIG_IDE_8xx_PCCARD
 	extern int pcmcia_on (void);
@@ -756,12 +769,12 @@ set_pcmcia_timing (int pmode)
 static void __inline__
 ide_outb(int dev, int port, unsigned char val)
 {
+	PRINTF ("ide_outb (dev= %d, port= %d, val= 0x%02x) : @ 0x%08lx\n",
+		dev, port, val, (ATA_CURR_BASE(dev)+port));
+    
 	/* Ensure I/O operations complete */
 	__asm__ volatile("eieio");
 	*((uchar *)(ATA_CURR_BASE(dev)+port)) = val;
-#if 0
-	printf ("ide_outb: 0x%08lx <== 0x%02x\n", ATA_CURR_BASE(dev)+port, val);
-#endif
 }
 #else	/* ! __PPC__ */
 static void __inline__
@@ -780,9 +793,8 @@ ide_inb(int dev, int port)
 	/* Ensure I/O operations complete */
 	__asm__ volatile("eieio");
 	val = *((uchar *)(ATA_CURR_BASE(dev)+port));
-#if 0
-	printf ("ide_inb: 0x%08lx ==> 0x%02x\n", ATA_CURR_BASE(dev)+port, val);
-#endif
+	PRINTF ("ide_inb (dev= %d, port= %d) : @ 0x%08lx -> 0x%02x\n",
+		dev, port, (ATA_CURR_BASE(dev)+port), val);
 	return (val);
 }
 #else	/* ! __PPC__ */

@@ -89,7 +89,7 @@
 #define FAT2CPU16	le16_to_cpu
 #define FAT2CPU32	le32_to_cpu
 #else
-#if 1
+#if __LITTLE_ENDIAN
 #define FAT2CPU16(x)	(x)
 #define FAT2CPU32(x)	(x)
 #else

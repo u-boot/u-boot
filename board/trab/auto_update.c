@@ -468,7 +468,7 @@ do_auto_update(void)
 	 * check whether a storage device is attached (assume that it's
 	 * a USB memory stick, since nothing else should be attached).
 	 */
-	au_usb_stor_curr_dev = usb_stor_scan(1);
+	au_usb_stor_curr_dev = usb_stor_scan(0);
 	if (au_usb_stor_curr_dev == -1) {
 		debug ("No device found. Not initialized?\n");
 		return -1;

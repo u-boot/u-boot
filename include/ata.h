@@ -37,10 +37,13 @@
  * 8-bit (register) and 16-bit (data) accesses might use different
  * address spaces. This is implemented by the following definitions.
  */
+#ifndef CFG_ATA_STRIDE
+#define CFG_ATA_STRIDE	1
+#endif
 
-#define ATA_IO_DATA(x)	(CFG_ATA_DATA_OFFSET+(x))
-#define ATA_IO_REG(x)	(CFG_ATA_REG_OFFSET +(x))
-#define ATA_IO_ALT(x)	(CFG_ATA_ALT_OFFSET +(x))
+#define ATA_IO_DATA(x)	(CFG_ATA_DATA_OFFSET+((x) * CFG_ATA_STRIDE))
+#define ATA_IO_REG(x)	(CFG_ATA_REG_OFFSET +((x) * CFG_ATA_STRIDE))
+#define ATA_IO_ALT(x)	(CFG_ATA_ALT_OFFSET +((x) * CFG_ATA_STRIDE))
 
 /*
  * I/O Register Descriptions

@@ -80,19 +80,20 @@ export	CROSS_COMPILE
 #########################################################################
 # U-Boot objects....order is important (i.e. start must be first)
 
-OBJS  =	cpu/$(CPU)/start.o
+OBJS  = cpu/$(CPU)/start.o
 ifeq ($(CPU),i386)
-OBJS +=	cpu/$(CPU)/start16.o
-OBJS +=	cpu/$(CPU)/reset.o
+OBJS += cpu/$(CPU)/start16.o
+OBJS += cpu/$(CPU)/reset.o
 endif
 ifeq ($(CPU),ppc4xx)
-OBJS +=	cpu/$(CPU)/resetvec.o
+OBJS += cpu/$(CPU)/resetvec.o
 endif
 ifeq ($(CPU),mpc85xx)
 OBJS += cpu/$(CPU)/resetvec.o
 endif
 
-LIBS  =	board/$(BOARDDIR)/lib$(BOARD).a
+LIBS  = lib_generic/libgeneric.a
+LIBS += board/$(BOARDDIR)/lib$(BOARD).a
 LIBS += cpu/$(CPU)/lib$(CPU).a
 LIBS += lib_$(ARCH)/lib$(ARCH).a
 LIBS += fs/jffs2/libjffs2.a fs/fdos/libfdos.a fs/fat/libfat.a
@@ -104,7 +105,7 @@ LIBS += drivers/libdrivers.a
 LIBS += drivers/sk98lin/libsk98lin.a
 LIBS += post/libpost.a post/cpu/libcpu.a
 LIBS += common/libcommon.a
-LIBS += lib_generic/libgeneric.a
+.PHONY : $(LIBS)
 
 # Add GCC lib
 PLATFORM_LIBS += -L $(shell dirname `$(CC) $(CFLAGS) -print-libgcc-file-name`) -lgcc
@@ -150,7 +151,6 @@ $(LIBS):
 		$(MAKE) -C `dirname $@`
 
 $(SUBDIRS):
-		@echo "#### MAKE $@ ####"
 		$(MAKE) -C $@ all
 
 gdbtools:

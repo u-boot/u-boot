@@ -2,6 +2,12 @@
 Changes since U-Boot 1.0.0:
 ======================================================================
 
+* Patch by Pierre Aubert, 24 Nov 2003:
+  - add a return value for the fpga command
+  - add ide_preinit() function called in ide_init if CONFIG_IDE_PREINIT
+    is defined. If ide_preinit fails, ide_init is aborted.
+  - fix an endianess problem in fat.h
+
 * Patch by Wolter Kamphuis, 05 Dec 2003:
   Add support for SNMC's QS850/QS823/QS860T boards
 

@@ -70,6 +70,7 @@ do_fpga (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
     void *fpga_data = NULL;
     char *devstr = getenv("fpga");
     char *datastr = getenv("fpgadata");
+    int rc = FPGA_FAIL;
 
 	if ( devstr ) dev = (int)simple_strtoul( devstr, NULL, 16 );
 	if ( datastr ) fpga_data = (void *)simple_strtoul( datastr, NULL, 16 );
@@ -106,15 +107,15 @@ do_fpga (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		    break;
 
 	    case FPGA_INFO:
-		    fpga_info( dev );
+		    rc = fpga_info( dev );
 		    break;
 
 	    case FPGA_LOAD:
-			fpga_load( dev, fpga_data, data_size );
+                    rc = fpga_load( dev, fpga_data, data_size );
 		    break;
 
 	    case FPGA_DUMP:
-			fpga_dump( dev, fpga_data, data_size );
+                    rc = fpga_dump( dev, fpga_data, data_size );
 		    break;
 
 	    default:
@@ -122,7 +123,7 @@ do_fpga (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		    fpga_usage( cmdtp );
 		    break;
     }
-    return 0;
+    return (rc);
 }
 
 static void fpga_usage ( cmd_tbl_t *cmdtp )
