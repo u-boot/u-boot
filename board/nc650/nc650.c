@@ -205,3 +205,13 @@ static long int dram_size (long int mamr_value, long int *base,
 
 	return (get_ram_size(base, maxsize));
 }
+
+#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+void nand_init(void)
+{
+	unsigned long totlen = nand_probe(CFG_NAND_BASE);
+
+	printf ("%4lu MB\n", totlen >> 20);
+}
+#endif
+

@@ -96,8 +96,8 @@
 /*
  * Software (bit-bang) I2C driver configuration
  */
-#define SCL		0x10000000	/* PA 3 */
-#define SDA		0x40000000	/* PA 1 */
+#define SCL		0x1000		/* PA 3 */
+#define SDA		0x2000		/* PA 2 */
 
 #define PAR		immr->im_ioport.iop_papar
 #define DIR		immr->im_ioport.iop_padir
@@ -111,19 +111,16 @@
 			else DAT &= ~SDA
 #define I2C_SCL(bit)	if (bit) DAT |=  SCL; \
 			else DAT &= ~SCL
-#define I2C_DELAY	udelay(50)	/* 1/4 I2C clock duration */
+#define I2C_DELAY	udelay(5)	/* 1/4 I2C clock duration */
 
-#define CFG_I2C_EEPROM_ADDR		0x50
-#define CFG_I2C_EEPROM_ADDR_LEN		1
-#define CFG_EEPROM_PAGE_WRITE_BITS  	4	/* 16 bytes page write mode */
-
-#define	CONFIG_RTC_MPC8xx		/* use internal RTC of MPC8xx	*/
+#define CONFIG_RTC_PCF8563
+#define CFG_I2C_RTC_ADDR		0x51
 
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
 				CFG_CMD_ASKENV	| \
 				CFG_CMD_DHCP	| \
-				CFG_CMD_EEPROM	| \
 				CFG_CMD_I2C	| \
+				CFG_CMD_NAND	| \
 				CFG_CMD_DATE	)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
@@ -216,6 +213,31 @@
 #define CFG_CACHELINE_SHIFT	4	/* log base 2 of the above value	*/
 #endif
 
+/*
+ * NAND flash support
+ */
+#define CFG_MAX_NAND_DEVICE	1
+#define NAND_ChipID_UNKNOWN	0x00
+#define SECTORSIZE		512
+#define NAND_MAX_FLOORS		1
+#define NAND_MAX_CHIPS		1
+#define ADDR_PAGE		2
+#define ADDR_COLUMN_PAGE	3
+#define ADDR_COLUMN		1
+#define NAND_NO_RB
+
+#define NAND_WAIT_READY(nand)		udelay(12)
+#define WRITE_NAND_COMMAND(d, adr)	WRITE_NAND(d, adr + 2)
+#define WRITE_NAND_ADDRESS(d, adr)	WRITE_NAND(d, adr + 1)
+#define WRITE_NAND(d, adr)		(*(volatile uint8_t *)(adr) = (uint8_t)(d))
+#define READ_NAND(adr)			(*(volatile uint8_t *)(adr))
+#define NAND_DISABLE_CE(nand)		/* nop */
+#define NAND_ENABLE_CE(nand)		/* nop */
+#define NAND_CTL_CLRALE(nandptr)	/* nop */
+#define NAND_CTL_SETALE(nandptr)	/* nop */
+#define NAND_CTL_CLRCLE(nandptr)	/* nop */
+#define NAND_CTL_SETCLE(nandptr)	/* nop */
+
 /*-----------------------------------------------------------------------
  * SYPCR - System Protection Control					11-9
  * SYPCR can only be written once after reset!
@@ -285,6 +307,18 @@
 #define CFG_OR0_REMAP	(CFG_REMAP_OR_AM  | CFG_OR_TIMING_FLASH)
 #define CFG_OR0_PRELIM	(CFG_PRELIM_OR_AM | CFG_OR_TIMING_FLASH)
 #define CFG_BR0_PRELIM	((FLASH_BASE0_PRELIM & BR_BA_MSK) | BR_PS_8 | BR_V)
+
+/*
+ * BR2 and OR2 (NAND Flash)
+ */
+#define CFG_NAND_BASE		0x50000000
+#define CFG_NAND_SIZE		0x04000000
+
+#define CFG_OR_TIMING_NAND	(OR_CSNT_SAM | OR_ACS_DIV1 | OR_BI | \
+				 OR_SCY_15_CLK | OR_EHTR | OR_TRLX)
+
+#define CFG_BR2_PRELIM  ((CFG_NAND_BASE & BR_BA_MSK) | BR_PS_8 | BR_V )
+#define CFG_OR2_PRELIM  (((-CFG_NAND_SIZE) & OR_AM_MSK) | CFG_OR_TIMING_NAND)
 
 /*
  * BR3 and OR3 (SDRAM)

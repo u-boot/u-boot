@@ -2,6 +2,11 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Enable NAND flash support for NC650 board.
+
+* Patch by Thomas Lange 07 Oct 2004:
+  Updated README for DBAu1x00 boards to match current status
+
 * Patch by Philippe Robin, 28 Sept 2004:
   Fix Flash support for Versatile.
 
