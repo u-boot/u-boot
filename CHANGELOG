@@ -2,6 +2,9 @@
 Changes since U-Boot 1.0.0:
 ======================================================================
 
+* Patch by Reinhard Meyer, 28 Dec 2003:
+  Add initial support for TOP5200 board
+
 * Make CPU clock on ICA-IP board controllable by a "cpuclk"
   environment variable which can set to "100", "133", or "150". The
   CPU clock will be configured accordingly upon next reboot. Other
