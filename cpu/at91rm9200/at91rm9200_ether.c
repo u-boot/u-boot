@@ -60,204 +60,9 @@ typedef struct {
 #if (CONFIG_COMMANDS & CFG_CMD_NET)
 
 /* structure to interface the PHY */
-AT91S_PhyOps AT91S_Dm9161Ops;
-AT91PS_PhyOps pPhyOps;
+AT91S_PhyOps PhyOps;
 
 AT91PS_EMAC p_mac;
-
-/*************************** Phy layer functions ************************/
-/** functions to interface the DAVICOM 10/100Mbps ethernet phy **********/
-
-/*
- * Name:
- *	dm9161_IsPhyConnected
- * Description:
- *	Reads the 2 PHY ID registers
- * Arguments:
- *	p_mac - pointer to AT91S_EMAC struct
- * Return value:
- *	TRUE - if id read successfully
- *	FALSE- if error
- */
-static unsigned int dm9161_IsPhyConnected (AT91PS_EMAC p_mac)
-{
-	unsigned short Id1, Id2;
-
-	at91rm9200_EmacEnableMDIO (p_mac);
-	at91rm9200_EmacReadPhy (p_mac, DM9161_PHYID1, &Id1);
-	at91rm9200_EmacReadPhy (p_mac, DM9161_PHYID2, &Id2);
-	at91rm9200_EmacDisableMDIO (p_mac);
-
-	if ((Id1 == (DM9161_PHYID1_OUI >> 6)) &&
-		((Id2 >> 10) == (DM9161_PHYID1_OUI & DM9161_LSB_MASK)))
-		return TRUE;
-
-	return FALSE;
-}
-
-/*
- * Name:
- *	dm9161_GetLinkSpeed
- * Description:
- *	Link parallel detection status of MAC is checked and set in the
- *	MAC configuration registers
- * Arguments:
- *	p_mac - pointer to MAC
- * Return value:
- *	TRUE - if link status set succesfully
- *	FALSE - if link status not set
- */
-static UCHAR dm9161_GetLinkSpeed (AT91PS_EMAC p_mac)
-{
-	unsigned short stat1, stat2;
-
-	if (!at91rm9200_EmacReadPhy (p_mac, DM9161_BMSR, &stat1))
-		return FALSE;
-
-	if (!(stat1 & DM9161_LINK_STATUS))	/* link status up? */
-		return FALSE;
-
-	if (!at91rm9200_EmacReadPhy (p_mac, DM9161_DSCSR, &stat2))
-		return FALSE;
-
-	if ((stat1 & DM9161_100BASE_TX_FD) && (stat2 & DM9161_100FDX)) {
-		/*set Emac for 100BaseTX and Full Duplex  */
-		p_mac->EMAC_CFG |= AT91C_EMAC_SPD | AT91C_EMAC_FD;
-		return TRUE;
-	}
-
-	if ((stat1 & DM9161_10BASE_T_FD) && (stat2 & DM9161_10FDX)) {
-		/*set MII for 10BaseT and Full Duplex  */
-		p_mac->EMAC_CFG = (p_mac->EMAC_CFG &
-				~(AT91C_EMAC_SPD | AT91C_EMAC_FD))
-				| AT91C_EMAC_FD;
-		return TRUE;
-	}
-
-	if ((stat1 & DM9161_100BASE_T4_HD) && (stat2 & DM9161_100HDX)) {
-		/*set MII for 100BaseTX and Half Duplex  */
-		p_mac->EMAC_CFG = (p_mac->EMAC_CFG &
-				~(AT91C_EMAC_SPD | AT91C_EMAC_FD))
-				| AT91C_EMAC_SPD;
-		return TRUE;
-	}
-
-	if ((stat1 & DM9161_10BASE_T_HD) && (stat2 & DM9161_10HDX)) {
-		/*set MII for 10BaseT and Half Duplex  */
-		p_mac->EMAC_CFG &= ~(AT91C_EMAC_SPD | AT91C_EMAC_FD);
-		return TRUE;
-	}
-	return FALSE;
-}
-
-
-/*
- * Name:
- *	dm9161_InitPhy
- * Description:
- *	MAC starts checking its link by using parallel detection and
- *	Autonegotiation and the same is set in the MAC configuration registers
- * Arguments:
- *	p_mac - pointer to struct AT91S_EMAC
- * Return value:
- *	TRUE - if link status set succesfully
- *	FALSE - if link status not set
- */
-static UCHAR dm9161_InitPhy (AT91PS_EMAC p_mac)
-{
-	UCHAR ret = TRUE;
-	unsigned short IntValue;
-
-	at91rm9200_EmacEnableMDIO (p_mac);
-
-	if (!dm9161_GetLinkSpeed (p_mac)) {
-		/* Try another time */
-		ret = dm9161_GetLinkSpeed (p_mac);
-	}
-
-	/* Disable PHY Interrupts */
-	at91rm9200_EmacReadPhy (p_mac, DM9161_MDINTR, &IntValue);
-	/* clear FDX, SPD, Link, INTR masks */
-	IntValue &= ~(DM9161_FDX_MASK | DM9161_SPD_MASK |
-		      DM9161_LINK_MASK | DM9161_INTR_MASK);
-	at91rm9200_EmacWritePhy (p_mac, DM9161_MDINTR, &IntValue);
-	at91rm9200_EmacDisableMDIO (p_mac);
-
-	return (ret);
-}
-
-
-/*
- * Name:
- *	dm9161_AutoNegotiate
- * Description:
- *	MAC Autonegotiates with the partner status of same is set in the
- *	MAC configuration registers
- * Arguments:
- *	dev - pointer to struct net_device
- * Return value:
- *	TRUE - if link status set successfully
- *	FALSE - if link status not set
- */
-static UCHAR dm9161_AutoNegotiate (AT91PS_EMAC p_mac, int *status)
-{
-	unsigned short value;
-	unsigned short PhyAnar;
-	unsigned short PhyAnalpar;
-
-	/* Set dm9161 control register */
-	if (!at91rm9200_EmacReadPhy (p_mac, DM9161_BMCR, &value))
-		return FALSE;
-	value &= ~DM9161_AUTONEG;	/* remove autonegotiation enable */
-	value |= DM9161_ISOLATE;	/* Electrically isolate PHY */
-	if (!at91rm9200_EmacWritePhy (p_mac, DM9161_BMCR, &value))
-		return FALSE;
-
-	/* Set the Auto_negotiation Advertisement Register */
-	/* MII advertising for Next page, 100BaseTxFD and HD, 10BaseTFD and HD, IEEE 802.3 */
-	PhyAnar = DM9161_NP | DM9161_TX_FDX | DM9161_TX_HDX |
-		  DM9161_10_FDX | DM9161_10_HDX | DM9161_AN_IEEE_802_3;
-	if (!at91rm9200_EmacWritePhy (p_mac, DM9161_ANAR, &PhyAnar))
-		return FALSE;
-
-	/* Read the Control Register     */
-	if (!at91rm9200_EmacReadPhy (p_mac, DM9161_BMCR, &value))
-		return FALSE;
-
-	value |= DM9161_SPEED_SELECT | DM9161_AUTONEG | DM9161_DUPLEX_MODE;
-	if (!at91rm9200_EmacWritePhy (p_mac, DM9161_BMCR, &value))
-		return FALSE;
-	/* Restart Auto_negotiation  */
-	value |= DM9161_RESTART_AUTONEG;
-	if (!at91rm9200_EmacWritePhy (p_mac, DM9161_BMCR, &value))
-		return FALSE;
-
-	/*check AutoNegotiate complete */
-	udelay (10000);
-	at91rm9200_EmacReadPhy (p_mac, DM9161_BMSR, &value);
-	if (!(value & DM9161_AUTONEG_COMP))
-		return FALSE;
-
-	/* Get the AutoNeg Link partner base page */
-	if (!at91rm9200_EmacReadPhy (p_mac, DM9161_ANLPAR, &PhyAnalpar))
-		return FALSE;
-
-	if ((PhyAnar & DM9161_TX_FDX) && (PhyAnalpar & DM9161_TX_FDX)) {
-		/*set MII for 100BaseTX and Full Duplex  */
-		p_mac->EMAC_CFG |= AT91C_EMAC_SPD | AT91C_EMAC_FD;
-		return TRUE;
-	}
-
-	if ((PhyAnar & DM9161_10_FDX) && (PhyAnalpar & DM9161_10_FDX)) {
-		/*set MII for 10BaseT and Full Duplex  */
-		p_mac->EMAC_CFG = (p_mac->EMAC_CFG &
-				~(AT91C_EMAC_SPD | AT91C_EMAC_FD))
-				| AT91C_EMAC_FD;
-		return TRUE;
-	}
-	return FALSE;
-}
-
 
 /*********** EMAC Phy layer Management functions *************************/
 /*
@@ -270,7 +75,7 @@ static UCHAR dm9161_AutoNegotiate (AT91PS_EMAC p_mac, int *status)
  * Return value:
  *	none
  */
-static void at91rm9200_EmacEnableMDIO (AT91PS_EMAC p_mac)
+void at91rm9200_EmacEnableMDIO (AT91PS_EMAC p_mac)
 {
 	/* Mac CTRL reg set for MDIO enable */
 	p_mac->EMAC_CTL |= AT91C_EMAC_MPE;	/* Management port enable */
@@ -286,7 +91,7 @@ static void at91rm9200_EmacEnableMDIO (AT91PS_EMAC p_mac)
  * Return value:
  *	none
  */
-static void at91rm9200_EmacDisableMDIO (AT91PS_EMAC p_mac)
+void at91rm9200_EmacDisableMDIO (AT91PS_EMAC p_mac)
 {
 	/* Mac CTRL reg set for MDIO disable */
 	p_mac->EMAC_CTL &= ~AT91C_EMAC_MPE;	/* Management port disable */
@@ -305,7 +110,7 @@ static void at91rm9200_EmacDisableMDIO (AT91PS_EMAC p_mac)
  * Return value:
  *	TRUE - if data read successfully
  */
-static UCHAR at91rm9200_EmacReadPhy (AT91PS_EMAC p_mac,
+UCHAR at91rm9200_EmacReadPhy (AT91PS_EMAC p_mac,
 				     unsigned char RegisterAddress,
 				     unsigned short *pInput)
 {
@@ -334,7 +139,7 @@ static UCHAR at91rm9200_EmacReadPhy (AT91PS_EMAC p_mac,
  * Return value:
  *	TRUE - if data read successfully
  */
-static UCHAR at91rm9200_EmacWritePhy (AT91PS_EMAC p_mac,
+UCHAR at91rm9200_EmacWritePhy (AT91PS_EMAC p_mac,
 				      unsigned char RegisterAddress,
 				      unsigned short *pOutput)
 {
@@ -345,26 +150,6 @@ static UCHAR at91rm9200_EmacWritePhy (AT91PS_EMAC p_mac,
 	udelay (10000);
 
 	return TRUE;
-}
-
-/*
- * Name:
- *	at91rm92000_GetPhyInterface
- * Description:
- *	Initialise the interface functions to the PHY
- * Arguments:
- *	None
- * Return value:
- *	None
- */
-void at91rm92000_GetPhyInterface (void)
-{
-	AT91S_Dm9161Ops.Init = dm9161_InitPhy;
-	AT91S_Dm9161Ops.IsPhyConnected = dm9161_IsPhyConnected;
-	AT91S_Dm9161Ops.GetLinkSpeed = dm9161_GetLinkSpeed;
-	AT91S_Dm9161Ops.AutoNegotiate = dm9161_AutoNegotiate;
-
-	pPhyOps = (AT91PS_PhyOps) & AT91S_Dm9161Ops;
 }
 
 
@@ -423,14 +208,14 @@ int eth_init (bd_t * bd)
 
 	p_mac->EMAC_CTL |= AT91C_EMAC_TE | AT91C_EMAC_RE;
 
-	at91rm92000_GetPhyInterface ();
+	at91rm92000_GetPhyInterface (& PhyOps);
 
-	if (!pPhyOps->IsPhyConnected (p_mac))
+	if (!PhyOps.IsPhyConnected (p_mac))
 		printf ("PHY not connected!!\n\r");
 
 	/* MII management start from here */
 	if (!(p_mac->EMAC_SR & AT91C_EMAC_LINK)) {
-		if (!(ret = pPhyOps->Init (p_mac))) {
+		if (!(ret = PhyOps.Init (p_mac))) {
 			printf ("MAC: error during MII initialization\n");
 			return 0;
 		}

@@ -2,6 +2,12 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patches by Lars Munch, 12 Jul 2004:
+  - move at45.c to board/at91rm9200dk/ since this is at91rm9200dk
+    board specific
+  - split out the LXT971A PHY from ns_9750_eth.h
+  - split the dm9161 phy part out of at91rm9200_ether.c
+
 * Patch by Andreas Engel, 12 Jul 2004:
   Replaced hardcoded PL011 clock frequency with config variable.
   Fixed wrong CONFIG_CMD_DFL doc.
