@@ -68,7 +68,7 @@ int board_init (void)
 	DECLARE_GLOBAL_DATA_PTR;
 
 	/* arch number of Integrator Board */
-	gd->bd->bi_arch_number = 21;
+	gd->bd->bi_arch_number = MACH_TYPE_INTEGRATOR;
 
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0x00000100;

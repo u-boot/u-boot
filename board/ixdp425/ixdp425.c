@@ -54,7 +54,7 @@ board_init (void)
 	DECLARE_GLOBAL_DATA_PTR;
 
 	/* arch number of IXDP */
-	gd->bd->bi_arch_number = 245;
+	gd->bd->bi_arch_number = MACH_TYPE_IXDP425;
 
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0x00000100;

@@ -65,7 +65,7 @@ int board_init( void )
 	/* Active BBUS modules */
 	*get_bbus_reg_addr( NS9750_BBUS_MASTER_RESET ) = 0;
 
-#warning TODO check numbers
+#warning Please register your machine at http://www.arm.linux.org.uk/developer/machines/?action=new
 	/* arch number of OMAP 1510-Board */
 	/* to be changed for OMAP 1610 Board */
 	gd->bd->bi_arch_number = 234;

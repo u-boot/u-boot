@@ -60,9 +60,7 @@ int board_init (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
-	/* arch number of OMAP 1510-Board */
-	/* to be changed for OMAP 1610 Board */
-	gd->bd->bi_arch_number = 234;
+	gd->bd->bi_arch_number = MACH_TYPE_OMAP_OSK;
 
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0x10000100;

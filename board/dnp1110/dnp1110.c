@@ -39,7 +39,7 @@ int board_init (void)
 	/* so we do _nothing_ here */
 
 	/* arch number of DNP1110-Board */
-	gd->bd->bi_arch_number = 255;
+	gd->bd->bi_arch_number = MACH_TYPE_DNP1110;
 
     /* flash vpp on */
     PPDR |= 0x80;	/* assumes LCD controller is off */

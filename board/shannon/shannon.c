@@ -63,7 +63,7 @@ int board_init (void)
 #endif /* CONFIG_INFERNO */
 
 	/* arch number for shannon */
-	gd->bd->bi_arch_number = 97;
+	gd->bd->bi_arch_number = MACH_TYPE_SHANNON;
 
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0xc0000100;

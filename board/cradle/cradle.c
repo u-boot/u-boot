@@ -186,7 +186,7 @@ board_init (void)
 	led_code (0xf, YELLOW);
 
 	/* arch number of HHP Cradle */
-	gd->bd->bi_arch_number = 174;
+	gd->bd->bi_arch_number = MACH_TYPE_HHP_CRADLE;
 
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0xa0000100;

@@ -32,7 +32,6 @@
  */
 
 #include <common.h>
-#include <asm/mach-types.h>
 #if defined(CONFIG_OMAP1610)
 #include <./configs/omap1510.h>
 #endif

@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by George G. Davis, 24 Aug 2004:
+  - update ARM boards to use constants from mach-types.h
+
 * Patch by Gary Jennejohn, 04 Oct 2004:
   - fix I2C on at91rm9200
   - add support for Ricoh RS5C372A RTC

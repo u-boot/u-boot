@@ -42,7 +42,7 @@ int board_init (void)
 	/* so we do _nothing_ here */
 
 	/* arch number of cerf PXA Board */
-	gd->bd->bi_arch_number = 139;
+	gd->bd->bi_arch_number = MACH_TYPE_PXA_CERF;
 
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0xa0000100;

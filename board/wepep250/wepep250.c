@@ -26,7 +26,7 @@
 int board_init( void ){
   DECLARE_GLOBAL_DATA_PTR;
 
-  gd->bd->bi_arch_number = 288;
+  gd->bd->bi_arch_number = MACH_TYPE_WEP_EP250;
   gd->bd->bi_boot_params = 0xa0000000;
 /*
  * Setup GPIO stuff to get serial working

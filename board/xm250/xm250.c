@@ -63,7 +63,7 @@ board_init (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 	/* arch number of MicroSys XM250 */
-	gd->bd->bi_arch_number = 444;
+	gd->bd->bi_arch_number = MACH_TYPE_XM250;
 
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0xa0000100;

@@ -74,7 +74,7 @@ int board_init (void)
 	   (VERSATILE_TIMCLK << VERSATILE_TIMER3_EnSel) | (VERSATILE_TIMCLK << VERSATILE_TIMER4_EnSel));
 
 	/* arch number of Versatile Board */
-	gd->bd->bi_arch_number = 387;
+	gd->bd->bi_arch_number = MACH_TYPE_VERSATILE_PB;
 
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0x00000100;

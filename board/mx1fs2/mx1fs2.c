@@ -81,7 +81,7 @@ board_init(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
-	gd->bd->bi_arch_number = 470;
+	gd->bd->bi_arch_number = MACH_TYPE_MX1FS2;
 	gd->bd->bi_boot_params = 0x08000100;
 serial_init();
 	logo_init();

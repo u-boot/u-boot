@@ -39,7 +39,7 @@ int board_init (void)
 	/* so we do _nothing_ here */
 
 	/* arch number */
-	gd->bd->bi_arch_number = 532;
+	gd->bd->bi_arch_number = MACH_TYPE_XSENGINE;
 
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0xa0000100;

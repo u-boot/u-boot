@@ -37,7 +37,7 @@ board_init(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
-	gd->bd->bi_arch_number = 29;	/* ADS GraphicsClientPlus Board */
+	gd->bd->bi_arch_number = MACH_TYPE_GRAPHICSCLIENT;
 
 	gd->bd->bi_boot_params = 0xc000003c; /* Weird address? */
 

@@ -119,7 +119,7 @@ int board_init(void)
 	serial_init();
 
 	/* arch number of VCMA9-Board */
-	gd->bd->bi_arch_number = 227;
+	gd->bd->bi_arch_number = MACH_TYPE_MPL_VCMA9;
 
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0x30000100;

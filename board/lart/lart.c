@@ -39,7 +39,7 @@ int board_init (void)
 	/* so we do _nothing_ here */
 
 	/* arch number of LART-Board */
-	gd->bd->bi_arch_number = 27;
+	gd->bd->bi_arch_number = MACH_TYPE_LART;
 
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0xc0000100;

@@ -40,7 +40,7 @@ int board_init (void)
 	IO_LEDFLSH = 0x40;
 
 	/* arch number of EP7111 */
-	gd->bd->bi_arch_number = 50;
+	gd->bd->bi_arch_number = MACH_TYPE_EDB7211;
 
 	/* location of boot parameters for EP7111 */
 	gd->bd->bi_boot_params = 0xc0020100;

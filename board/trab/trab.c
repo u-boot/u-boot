@@ -57,7 +57,7 @@ static void udelay_no_timer (int usec)
 	int i;
 	int delay = usec * 3;
 
-	for (i = 0; i < delay; i ++) gd->bd->bi_arch_number = 145;
+	for (i = 0; i < delay; i ++) gd->bd->bi_arch_number = MACH_TYPE_TRAB;
 }
 #endif /* CONFIG_MODEM_SUPPORT */
 
@@ -109,10 +109,7 @@ int board_init ()
 	gpio->MISCCR = 0x40;
 	gpio->PFCON |= (2<<12);
 
-	/* arch number of SAMSUNG-Board */
-	/* MACH_TYPE_SMDK2400 */
-	/* XXX this isn't really correct, but keep it for now */
-	gd->bd->bi_arch_number = 145;
+	gd->bd->bi_arch_number = MACH_TYPE_TRAB;
 
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0x0c000100;

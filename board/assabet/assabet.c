@@ -101,7 +101,7 @@ board_init(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
-	gd->bd->bi_arch_number = 25;	/* Intel Assabet Board */
+	gd->bd->bi_arch_number = MACH_TYPE_ASSABET;
 	gd->bd->bi_boot_params = 0xc0000100;
 
 	neponset_init();

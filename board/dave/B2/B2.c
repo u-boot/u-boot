@@ -109,7 +109,7 @@ int board_init (void)
     PDATF = temp;
 
 	/* arch number MACH_TYPE_MBA44B0 */
-	gd->bd->bi_arch_number = 178;
+	gd->bd->bi_arch_number = MACH_TYPE_S3C44B0;
 
 	/* location of boot parameters */
 	gd->bd->bi_boot_params = 0x0c000100;

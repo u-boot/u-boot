@@ -77,7 +77,7 @@ int board_init (void)
 	gpio->OPENCR = 0x0;
 
 	/* arch number of SAMSUNG-Board to MACH_TYPE_SMDK2400 */
-	gd->bd->bi_arch_number = 145;
+	gd->bd->bi_arch_number = MACH_TYPE_SMDK2400;
 
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0x0C000100;

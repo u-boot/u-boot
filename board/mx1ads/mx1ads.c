@@ -114,7 +114,7 @@ int board_init (void) {
 
 	SetAsynchMode();
 
-	gd->bd->bi_arch_number = 160;	/* Arch number of MX1ADS Board 		*/
+	gd->bd->bi_arch_number = MACH_TYPE_MX1ADS;
 
 	gd->bd->bi_boot_params = 0x08000100;	/* adress of boot parameters	*/
 

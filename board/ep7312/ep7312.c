@@ -40,7 +40,7 @@ int board_init (void)
 	IO_LEDFLSH = 0x40;
 
 	/* arch number MACH_TYPE_EDB7312 */
-	gd->bd->bi_arch_number = 131;
+	gd->bd->bi_arch_number = MACH_TYPE_EDB7312;
 
 	/* location of boot parameters */
 	gd->bd->bi_boot_params = 0xc0020100;

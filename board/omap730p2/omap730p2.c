@@ -87,7 +87,7 @@ int board_init (void)
 	DECLARE_GLOBAL_DATA_PTR;
 
 	/* arch number of OMAP 730 P2 Board - Same as the Innovator! */
-	gd->bd->bi_arch_number = 491;
+	gd->bd->bi_arch_number = MACH_TYPE_OMAP_PERSEUS2;
 
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0x10000100;

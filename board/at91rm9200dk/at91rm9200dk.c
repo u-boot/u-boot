@@ -45,7 +45,7 @@ int board_init (void)
 	/* so we do _nothing_ here */
 
 	/* arch number of AT91RM9200DK-Board */
-	gd->bd->bi_arch_number = 251;
+	gd->bd->bi_arch_number = MACH_TYPE_AT91RM9200;
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 

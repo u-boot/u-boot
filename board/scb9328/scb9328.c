@@ -29,7 +29,7 @@
 int board_init( void ){
   DECLARE_GLOBAL_DATA_PTR;
 
-  gd->bd->bi_arch_number = 508;
+  gd->bd->bi_arch_number = MACH_TYPE_SCB9328;
   gd->bd->bi_boot_params = 0x08000100;
 
   return 0;
