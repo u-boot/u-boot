@@ -292,7 +292,7 @@
 #define	CONFIG_IDE_8xx_PCCARD	1	/* Use IDE with PC Card	Adapter	*/
 
 #undef	CONFIG_IDE_8xx_DIRECT		/* Direct IDE    not supported	*/
-#undef	CONFIG_IDE_LED			/* LED   for ide not supported	*/
+#define CONFIG_IDE_LED			1   /* LED   for ide supported	*/
 #undef	CONFIG_IDE_RESET		/* reset for ide not supported	*/
 
 #define CFG_IDE_MAXBUS		2

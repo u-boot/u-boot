@@ -2,6 +2,8 @@
 Changes since for U-Boot 0.1.0:
 ======================================================================
 
+* Add LED indication for IDE activity on KUP4K board
+
 * Fix startup problems with VFD display on TRAB
 
 * Patch by Pierre Aubert, 20 Nov 2002

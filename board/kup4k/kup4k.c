@@ -288,12 +288,22 @@ int misc_init_r (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
+#ifdef CONFIG_STATUS_LED
+	volatile immap_t	*immap = (immap_t *)CFG_IMMR;
+#endif
 #ifdef CONFIG_KUP4K_LOGO
 	bd_t *bd = gd->bd;
 
 
 	lcd_logo(bd);
 #endif /* CONFIG_KUP4K_LOGO */
+#ifdef CONFIG_IDE_LED
+	/* Configure PA8 as output port */
+	immap->im_ioport.iop_padir |= 0x80;
+	immap->im_ioport.iop_paodr |= 0x80;
+	immap->im_ioport.iop_papar &= ~0x80;
+	immap->im_ioport.iop_padat |= 0x80; /* turn it off */
+#endif
 	return(0);
 }
 
@@ -422,3 +432,15 @@ void lcd_logo(bd_t *bd){
 }
 #endif /* CONFIG_KUP4K_LOGO */
 
+#ifdef CONFIG_IDE_LED
+void ide_led (uchar led, uchar status)
+{
+	volatile immap_t	*immap = (immap_t *)CFG_IMMR;
+	/* We have one led for both pcmcia slots */
+	if (status) { /* led on */
+		immap->im_ioport.iop_padat &= ~0x80;
+	} else {
+		immap->im_ioport.iop_padat |= 0x80;
+	}
+}
+#endif

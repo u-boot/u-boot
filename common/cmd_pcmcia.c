@@ -88,7 +88,7 @@ static u_int m8xx_get_graycode(u_int size);
 static u_int m8xx_get_speed(u_int ns, u_int is_io);
 #endif
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------- */
 
 /* look up table for pgcrx registers */
 
@@ -101,7 +101,7 @@ static u_int *pcmcia_pgcrx[2] = {
 
 const char *indent = "\t   ";
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------- */
 
 #if (CONFIG_COMMANDS & CFG_CMD_PCMCIA)
 
@@ -126,7 +126,7 @@ int do_pinit (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 #endif	/* CFG_CMD_PCMCIA */
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------- */
 
 #if defined(CONFIG_LWMON)
 # define  CFG_PCMCIA_TIMING	(PCMCIA_SHT(9) | PCMCIA_SST(3) | PCMCIA_SL(12))
@@ -185,7 +185,7 @@ int pcmcia_on (void)
 			break;
 		    }
 		case 6:
-		case 2: {	/* map I/O window for command/ctrl reg block */
+		case 2: {	/* map I/O window for cmd/ctrl reg block */
 			win->or = (	PCMCIA_BSIZE_1K
 				|	PCMCIA_PPS_8
 				|	PCMCIA_PRS_IO
@@ -206,15 +206,15 @@ int pcmcia_on (void)
 		++win;
 	}
 
-	for (i = 0, rc = 0, slot = _slot_; i < PCMCIA_SOCKETS_NO; i++, slot = !slot) {
+	for (i=0, rc=0, slot=_slot_; i<PCMCIA_SOCKETS_NO; i++, slot = !slot) {
 		/* turn off voltage */
 		if ((rc = voltage_set(slot, 0, 0)))
 			continue;
-		
+
 		/* Enable external hardware */
 		if ((rc = hardware_enable(slot)))
 			continue;
-		
+
 #ifdef CONFIG_IDE_8xx_PCCARD
 		if ((rc = check_ide_device(i)))
 			continue;
@@ -223,7 +223,7 @@ int pcmcia_on (void)
 	return (rc);
 }
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------- */
 
 #if (CONFIG_COMMANDS & CFG_CMD_PCMCIA)
 
@@ -261,7 +261,7 @@ static int pcmcia_off (void)
 
 #endif	/* CFG_CMD_PCMCIA */
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------- */
 
 #ifdef CONFIG_IDE_8xx_PCCARD
 
@@ -280,8 +280,8 @@ static int check_ide_device (int slot)
 	int found = 0;
 	int i;
 
-	addr = (volatile uchar *)(CFG_PCMCIA_MEM_ADDR + 
-							  CFG_PCMCIA_MEM_SIZE * (slot * 4));
+	addr = (volatile uchar *)(CFG_PCMCIA_MEM_ADDR +
+				  CFG_PCMCIA_MEM_SIZE * (slot * 4));
 	debug ("PCMCIA MEM: %08X\n", addr);
 
 	start = p = (volatile uchar *) addr;
@@ -354,17 +354,17 @@ static int check_ide_device (int slot)
 }
 #endif	/* CONFIG_IDE_8xx_PCCARD */
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------- */
 
 
-/* ---------------------------------------------------------------------------- */
-/* board specific stuff:							*/
-/* voltage_set(), hardware_enable() and hardware_disable()			*/
-/* ---------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------- */
+/* board specific stuff:						*/
+/* voltage_set(), hardware_enable() and hardware_disable()		*/
+/* -------------------------------------------------------------------- */
 
-/* ---------------------------------------------------------------------------- */
-/* RPX Boards from Embedded Planet						*/
-/* ---------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------- */
+/* RPX Boards from Embedded Planet					*/
+/* -------------------------------------------------------------------- */
 
 #if defined(CONFIG_RPXCLASSIC) || defined(CONFIG_RPXLITE)
 
@@ -431,9 +431,9 @@ static int hardware_disable(int slot)
 #endif	/* CFG_CMD_PCMCIA */
 #endif	/* CONFIG_RPXCLASSIC */
 
-/* ---------------------------------------------------------------------------- */
-/* (F)ADS Boards from Motorola							*/
-/* ---------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------- */
+/* (F)ADS Boards from Motorola						*/
+/* -------------------------------------------------------------------- */
 
 #if defined(CONFIG_ADS) || defined(CONFIG_FADS)
 
@@ -509,9 +509,9 @@ static int hardware_disable(int slot)
 
 #endif	/* (F)ADS */
 
-/* ---------------------------------------------------------------------------- */
-/* TQM8xxL Boards by TQ Components						*/
-/* ---------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------- */
+/* TQM8xxL Boards by TQ Components					*/
+/* -------------------------------------------------------------------- */
 
 #if defined(CONFIG_TQM8xxL)
 
@@ -545,17 +545,14 @@ static int hardware_enable(int slot)
 	pcmp->pcmc_pscr =  PCMCIA_MASK(_slot_);
 	pcmp->pcmc_per &= ~PCMCIA_MASK(_slot_);
 
-	/* disable interrupts & DMA */
-	PCMCIA_PGCRX(_slot_) = 0;
-
 	/*
-	 * Disable PCMCIA buffers (isolate the interface)
-	 * and assert RESET signal
+	 * Disable interrupts, DMA, and PCMCIA buffers
+	 * (isolate the interface) and assert RESET signal
 	 */
 	debug ("Disable PCMCIA buffers and assert RESET\n");
-	reg  =  PCMCIA_PGCRX(_slot_);
-	reg |=  __MY_PCMCIA_GCRX_CXRESET;	/* active high */
-	reg |=  __MY_PCMCIA_GCRX_CXOE;		/* active low  */
+	reg  = 0;
+	reg |= __MY_PCMCIA_GCRX_CXRESET;	/* active high */
+	reg |= __MY_PCMCIA_GCRX_CXOE;		/* active low  */
 	PCMCIA_PGCRX(_slot_) = reg;
 	udelay(500);
 
@@ -597,7 +594,7 @@ static int hardware_enable(int slot)
 		immap->im_ioport.iop_pcdat |= 0x0002;
 		puts (" 3.3V card found: ");
 	}
-	immap->im_ioport.iop_pcdir |=  (0x0002 | 0x0004);
+	immap->im_ioport.iop_pcdir |= (0x0002 | 0x0004);
 #if 0
 	/*  VCC switch error flag, PCMCIA slot INPACK_ pin */
 	cp->cp_pbdir &= ~(0x0020 | 0x0010);
@@ -635,11 +632,8 @@ static int hardware_disable(int slot)
 	/* remove all power */
 	immap->im_ioport.iop_pcdat &= ~(0x0002 | 0x0004);
 
-	/* Configure PCMCIA General Control Register */
-	PCMCIA_PGCRX(_slot_) = 0;
-
 	debug ("Disable PCMCIA buffers and assert RESET\n");
-	reg  =  PCMCIA_PGCRX(_slot_);
+	reg  = 0;
 	reg |= __MY_PCMCIA_GCRX_CXRESET;	/* active high */
 	reg |= __MY_PCMCIA_GCRX_CXOE;		/* active low  */
 	PCMCIA_PGCRX(_slot_) = reg;
@@ -670,9 +664,9 @@ static int voltage_set(int slot, int vcc, int vpp)
 	 * and assert RESET signal
 	 */
 	debug ("Disable PCMCIA buffers and assert RESET\n");
-	reg  =  PCMCIA_PGCRX(_slot_);
-	reg |=  __MY_PCMCIA_GCRX_CXRESET;	/* active high */
-	reg |=  __MY_PCMCIA_GCRX_CXOE;		/* active low  */
+	reg  = PCMCIA_PGCRX(_slot_);
+	reg |= __MY_PCMCIA_GCRX_CXRESET;	/* active high */
+	reg |= __MY_PCMCIA_GCRX_CXOE;		/* active low  */
 	PCMCIA_PGCRX(_slot_) = reg;
 	udelay(500);
 
@@ -701,7 +695,7 @@ static int voltage_set(int slot, int vcc, int vpp)
 		(pcmp->pcmc_pipr & 0x00008000) ? "only 5 V" : "can do 3.3V");
 
 	immap->im_ioport.iop_pcdat |= reg;
-	immap->im_ioport.iop_pcdir |=  (0x0002 | 0x0004);
+	immap->im_ioport.iop_pcdir |= (0x0002 | 0x0004);
 	if (reg) {
 		debug ("PCMCIA powered at %sV\n",
 			(reg&0x0004) ? "5.0" : "3.3");
@@ -725,9 +719,9 @@ done:
 #endif	/* TQM8xxL */
 
 
-/* ---------------------------------------------------------------------------- */
-/* LWMON Board									*/
-/* ---------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------- */
+/* LWMON Board								*/
+/* -------------------------------------------------------------------- */
 
 #if defined(CONFIG_LWMON)
 
@@ -759,7 +753,7 @@ static int hardware_enable(int slot)
 	reg = pic_read  (0x60);
 	debug ("[%d] PIC read: reg_60 = 0x%02x\n", __LINE__, reg);
 	reg &= ~0x10;
-	/* reg |=  0x08; Vpp not needed */
+	/* reg |= 0x08; Vpp not needed */
 	pic_write (0x60, reg);
 #ifdef DEBUG
 	reg = pic_read  (0x60);
@@ -782,17 +776,14 @@ static int hardware_enable(int slot)
 	pcmp->pcmc_pscr =  PCMCIA_MASK(_slot_);
 	pcmp->pcmc_per &= ~PCMCIA_MASK(_slot_);
 
-	/* disable interrupts & DMA */
-	PCMCIA_PGCRX(_slot_) = 0;
-
 	/*
-	 * Disable PCMCIA buffers (isolate the interface)
-	 * and assert RESET signal
+	 * Disable interrupts, DMA, and PCMCIA buffers
+	 * (isolate the interface) and assert RESET signal
 	 */
 	debug ("Disable PCMCIA buffers and assert RESET\n");
-	reg  =  PCMCIA_PGCRX(_slot_);
-	reg |=  __MY_PCMCIA_GCRX_CXRESET;	/* active high */
-	reg |=  __MY_PCMCIA_GCRX_CXOE;		/* active low  */
+	reg  = 0;
+	reg |= __MY_PCMCIA_GCRX_CXRESET;	/* active high */
+	reg |= __MY_PCMCIA_GCRX_CXOE;		/* active low  */
 	PCMCIA_PGCRX(_slot_) = reg;
 	udelay(500);
 
@@ -826,7 +817,7 @@ static int hardware_enable(int slot)
 	}
 
 	/*  switch VCC on */
-	val |=  MAX1604_OP_SUS | MAX1604_VCCBON;
+	val |= MAX1604_OP_SUS | MAX1604_VCCBON;
 	i2c_init  (CFG_I2C_SPEED, CFG_I2C_SLAVE);
 	i2c_write (CFG_I2C_POWER_A_ADDR, 0, 0, &val, 1);
 
@@ -866,10 +857,8 @@ static int hardware_disable(int slot)
 	i2c_write (CFG_I2C_POWER_A_ADDR, 0, 0, &val, 1);
 
 	/* Configure PCMCIA General Control Register */
-	PCMCIA_PGCRX(_slot_) = 0;
-
 	debug ("Disable PCMCIA buffers and assert RESET\n");
-	reg  =  PCMCIA_PGCRX(_slot_);
+	reg  = 0;
 	reg |= __MY_PCMCIA_GCRX_CXRESET;	/* active high */
 	reg |= __MY_PCMCIA_GCRX_CXOE;		/* active low  */
 	PCMCIA_PGCRX(_slot_) = reg;
@@ -911,9 +900,9 @@ static int voltage_set(int slot, int vcc, int vpp)
 	 * and assert RESET signal
 	 */
 	debug ("Disable PCMCIA buffers and assert RESET\n");
-	reg  =  PCMCIA_PGCRX(_slot_);
-	reg |=  __MY_PCMCIA_GCRX_CXRESET;	/* active high */
-	reg |=  __MY_PCMCIA_GCRX_CXOE;		/* active low  */
+	reg  = PCMCIA_PGCRX(_slot_);
+	reg |= __MY_PCMCIA_GCRX_CXRESET;	/* active high */
+	reg |= __MY_PCMCIA_GCRX_CXOE;		/* active low  */
 	PCMCIA_PGCRX(_slot_) = reg;
 	udelay(500);
 
@@ -962,81 +951,79 @@ done:
 
 #endif	/* LWMON */
 
-/* ---------------------------------------------------------------------------- */
-/* GTH board by Corelatus AB                                                    */
-/* ---------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------- */
+/* GTH board by Corelatus AB						*/
+/* -------------------------------------------------------------------- */
 #if defined(CONFIG_GTH)
 
 #define PCMCIA_BOARD_MSG "GTH COMPACT FLASH"
 
-static int voltage_set(int slot, int vcc, int vpp)
-{  /* Do nothing */
-  return 0;
+static int voltage_set (int slot, int vcc, int vpp)
+{	/* Do nothing */
+	return 0;
 }
 
 static int hardware_enable (int slot)
 {
-  volatile immap_t	*immap;
-  volatile cpm8xx_t	*cp;
-  volatile pcmconf8xx_t	*pcmp;
-  volatile sysconf8xx_t	*sysp;
-  uint reg, mask;
+	volatile immap_t *immap;
+	volatile cpm8xx_t *cp;
+	volatile pcmconf8xx_t *pcmp;
+	volatile sysconf8xx_t *sysp;
+	uint reg, mask;
 
-  debug ("hardware_enable: GTH Slot %c\n", 'A'+slot);
+	debug ("hardware_enable: GTH Slot %c\n", 'A' + slot);
 
-  immap = (immap_t *)CFG_IMMR;
-  sysp  = (sysconf8xx_t *)(&(((immap_t *)CFG_IMMR)->im_siu_conf));
-  pcmp  = (pcmconf8xx_t *)(&(((immap_t *)CFG_IMMR)->im_pcmcia));
-  cp    = (cpm8xx_t *)(&(((immap_t *)CFG_IMMR)->im_cpm));
+	immap = (immap_t *) CFG_IMMR;
+	sysp = (sysconf8xx_t *) (&(((immap_t *) CFG_IMMR)->im_siu_conf));
+	pcmp = (pcmconf8xx_t *) (&(((immap_t *) CFG_IMMR)->im_pcmcia));
+	cp = (cpm8xx_t *) (&(((immap_t *) CFG_IMMR)->im_cpm));
 
-  /* clear interrupt state, and disable interrupts */
-  pcmp->pcmc_pscr =  PCMCIA_MASK(_slot_);
-  pcmp->pcmc_per &= ~PCMCIA_MASK(_slot_);
+	/* clear interrupt state, and disable interrupts */
+	pcmp->pcmc_pscr = PCMCIA_MASK (_slot_);
+	pcmp->pcmc_per &= ~PCMCIA_MASK (_slot_);
 
-  /* disable interrupts & DMA */
-  PCMCIA_PGCRX(_slot_) = 0;
+	/*
+	 * Disable interrupts, DMA, and PCMCIA buffers
+	 * (isolate the interface) and assert RESET signal
+	 */
+	debug ("Disable PCMCIA buffers and assert RESET\n");
+	reg = 0;
+	reg |= __MY_PCMCIA_GCRX_CXRESET;	/* active high */
+	reg |= __MY_PCMCIA_GCRX_CXOE;	/* active low  */
+	PCMCIA_PGCRX (_slot_) = reg;
+	udelay (500);
 
-  /*
-   * Disable PCMCIA buffers (isolate the interface)
-   * and assert RESET signal
-   */
-  debug ("Disable PCMCIA buffers and assert RESET\n");
-  reg  =  PCMCIA_PGCRX(_slot_);
-  reg |=  __MY_PCMCIA_GCRX_CXRESET;	/* active high */
-  reg |=  __MY_PCMCIA_GCRX_CXOE;		/* active low  */
-  PCMCIA_PGCRX(_slot_) = reg;
-  udelay(500);
+	/*
+	 * Make sure there is a card in the slot,
+	 * then configure the interface.
+	 */
+	udelay (10000);
+	debug ("[%d] %s: PIPR(%p)=0x%x\n",
+		__LINE__, __FUNCTION__,
+		&(pcmp->pcmc_pipr), pcmp->pcmc_pipr);
+	if (pcmp->pcmc_pipr & 0x98000000) {
+		printf ("   No Card found\n");
+		return (1);
+	}
 
-  /*
-   * Make sure there is a card in the slot, then configure the interface.
-   */
-  udelay(10000);
-  debug ("[%d] %s: PIPR(%p)=0x%x\n",
-		__LINE__,__FUNCTION__,
-		&(pcmp->pcmc_pipr),pcmp->pcmc_pipr);
-  if (pcmp->pcmc_pipr & 0x98000000) {
-    printf ("   No Card found\n");
-    return (1);
-  }
+	mask = PCMCIA_VS1 (slot) | PCMCIA_VS2 (slot);
+	reg = pcmp->pcmc_pipr;
+	debug ("PIPR: 0x%x ==> VS1=o%s, VS2=o%s\n",
+		   reg,
+		   (reg & PCMCIA_VS1 (slot)) ? "n" : "ff",
+		   (reg & PCMCIA_VS2 (slot)) ? "n" : "ff");
 
-  mask = PCMCIA_VS1(slot) | PCMCIA_VS2(slot);
-  reg  = pcmp->pcmc_pipr;
-  debug ("PIPR: 0x%x ==> VS1=o%s, VS2=o%s\n",
-		reg,
-		(reg&PCMCIA_VS1(slot))?"n":"ff",
-		(reg&PCMCIA_VS2(slot))?"n":"ff");
+	debug ("Enable PCMCIA buffers and stop RESET\n");
+	reg  =  PCMCIA_PGCRX (_slot_);
+	reg &= ~__MY_PCMCIA_GCRX_CXRESET;	/* active high */
+	reg &= ~__MY_PCMCIA_GCRX_CXOE;		/* active low  */
+	PCMCIA_PGCRX (_slot_) = reg;
 
-  debug ("Enable PCMCIA buffers and stop RESET\n");
-  reg  =  PCMCIA_PGCRX(_slot_);
-  reg &= ~__MY_PCMCIA_GCRX_CXRESET;	/* active high */
-  reg &= ~__MY_PCMCIA_GCRX_CXOE;		/* active low  */
-  PCMCIA_PGCRX(_slot_) = reg;
+	udelay (250000);	/* some cards need >150 ms to come up :-( */
 
-  udelay(250000);	/* some cards need >150 ms to come up :-( */
+	debug ("# hardware_enable done\n");
 
-  debug ("# hardware_enable done\n");
-
-  return 0;
+	return 0;
 }
 #if (CONFIG_COMMANDS & CFG_CMD_PCMCIA)
 static int hardware_disable(int slot)
@@ -1046,9 +1033,9 @@ static int hardware_disable(int slot)
 #endif	/* CFG_CMD_PCMCIA */
 #endif	/* CONFIG_GTH */
 
-/* ---------------------------------------------------------------------------- */
-/* ICU862 Boards by Cambridge Broadband Ltd.					*/
-/* ---------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------- */
+/* ICU862 Boards by Cambridge Broadband Ltd.				*/
+/* -------------------------------------------------------------------- */
 
 #if defined(CONFIG_ICU862)
 
@@ -1087,17 +1074,14 @@ static int hardware_enable(int slot)
 	pcmp->pcmc_pscr =  PCMCIA_MASK(_slot_);
 	pcmp->pcmc_per &= ~PCMCIA_MASK(_slot_);
 
-	/* disable interrupts & DMA */
-	PCMCIA_PGCRX(_slot_) = 0;
-
 	/*
-	 * Disable PCMCIA buffers (isolate the interface)
-	 * and assert RESET signal
+	 * Disable interrupts, DMA, and PCMCIA buffers
+	 * (isolate the interface) and assert RESET signal
 	 */
 	debug ("Disable PCMCIA buffers and assert RESET\n");
-	reg  =  PCMCIA_PGCRX(_slot_);
-	reg |=  __MY_PCMCIA_GCRX_CXRESET;	/* active high */
-	reg |=  __MY_PCMCIA_GCRX_CXOE;		/* active low  */
+	reg  = 0;
+	reg |= __MY_PCMCIA_GCRX_CXRESET;	/* active high */
+	reg |= __MY_PCMCIA_GCRX_CXOE;		/* active low  */
 	PCMCIA_PGCRX(_slot_) = reg;
 	udelay(500);
 
@@ -1125,13 +1109,13 @@ static int hardware_enable(int slot)
 
 	reg  = cp->cp_pbdat;
 	if ((pipr & mask) == mask) {
-		reg |=  (TPS2205_VPP_PGM | TPS2205_VPP_VCC |	/* VAVPP => Hi-Z */
-			 TPS2205_VCC3);				/* 3V off	*/
+		reg |= (TPS2205_VPP_PGM | TPS2205_VPP_VCC |	/* VAVPP => Hi-Z */
+			TPS2205_VCC3);				/* 3V off	*/
 		reg &= ~(TPS2205_VCC5);				/* 5V on	*/
 		puts (" 5.0V card found: ");
 	} else {
-		reg |=  (TPS2205_VPP_PGM | TPS2205_VPP_VCC |	/* VAVPP => Hi-Z */
-			 TPS2205_VCC5);				/* 5V off	*/
+		reg |= (TPS2205_VPP_PGM | TPS2205_VPP_VCC |	/* VAVPP => Hi-Z */
+			TPS2205_VCC5);				/* 5V off	*/
 		reg &= ~(TPS2205_VCC3);				/* 3V on	*/
 		puts (" 3.3V card found: ");
 	}
@@ -1188,10 +1172,8 @@ static int hardware_disable(int slot)
 	cp->cp_pbdat &= ~(TPS2205_SHDN);
 
 	/* Configure PCMCIA General Control Register */
-	PCMCIA_PGCRX(_slot_) = 0;
-
 	debug ("Disable PCMCIA buffers and assert RESET\n");
-	reg  =  PCMCIA_PGCRX(_slot_);
+	reg  = 0;
 	reg |= __MY_PCMCIA_GCRX_CXRESET;	/* active high */
 	reg |= __MY_PCMCIA_GCRX_CXOE;		/* active low  */
 	PCMCIA_PGCRX(_slot_) = reg;
@@ -1224,9 +1206,9 @@ static int voltage_set(int slot, int vcc, int vpp)
 	 * and assert RESET signal
 	 */
 	debug ("Disable PCMCIA buffers and assert RESET\n");
-	reg  =  PCMCIA_PGCRX(_slot_);
-	reg |=  __MY_PCMCIA_GCRX_CXRESET;	/* active high */
-	reg |=  __MY_PCMCIA_GCRX_CXOE;		/* active low  */
+	reg  = PCMCIA_PGCRX(_slot_);
+	reg |= __MY_PCMCIA_GCRX_CXRESET;	/* active high */
+	reg |= __MY_PCMCIA_GCRX_CXOE;		/* active low  */
 	PCMCIA_PGCRX(_slot_) = reg;
 	udelay(500);
 
@@ -1298,9 +1280,9 @@ static void cfg_port_B (void)
 	 * Switch off all voltages, assert shutdown
 	 */
 	reg  = cp->cp_pbdat;
-	reg |=  (TPS2205_VPP_PGM | TPS2205_VPP_VCC |	/* VAVPP => Hi-Z */
-		 TPS2205_VCC3    | TPS2205_VCC5    |	/* VAVCC => Hi-Z */
-		 TPS2205_SHDN);				/* enable switch */
+	reg |= (TPS2205_VPP_PGM | TPS2205_VPP_VCC |	/* VAVPP => Hi-Z */
+		TPS2205_VCC3    | TPS2205_VCC5    |	/* VAVCC => Hi-Z */
+		TPS2205_SHDN);				/* enable switch */
 	cp->cp_pbdat = reg;
 
 	cp->cp_pbpar &= ~(TPS2205_INPUTS | TPS2205_OUTPUTS);
@@ -1315,9 +1297,9 @@ static void cfg_port_B (void)
 #endif	/* ICU862 */
 
 
-/* ---------------------------------------------------------------------------- */
-/* C2MON Boards by TTTech Computertechnik AG					*/
-/* ---------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------- */
+/* C2MON Boards by TTTech Computertechnik AG				*/
+/* -------------------------------------------------------------------- */
 
 #if defined(CONFIG_C2MON)
 
@@ -1357,17 +1339,14 @@ static int hardware_enable(int slot)
 	pcmp->pcmc_pscr =  PCMCIA_MASK(_slot_);
 	pcmp->pcmc_per &= ~PCMCIA_MASK(_slot_);
 
-	/* disable interrupts & DMA */
-	PCMCIA_PGCRX(_slot_) = 0;
-
 	/*
-	 * Disable PCMCIA buffers (isolate the interface)
-	 * and assert RESET signal
+	 * Disable interrupts, DMA, and PCMCIA buffers
+	 * (isolate the interface) and assert RESET signal
 	 */
 	debug ("Disable PCMCIA buffers and assert RESET\n");
-	reg  =  PCMCIA_PGCRX(_slot_);
-	reg |=  __MY_PCMCIA_GCRX_CXRESET;	/* active high */
-	reg |=  __MY_PCMCIA_GCRX_CXOE;		/* active low  */
+	reg  = 0;
+	reg |= __MY_PCMCIA_GCRX_CXRESET;	/* active high */
+	reg |= __MY_PCMCIA_GCRX_CXOE;		/* active low  */
 	PCMCIA_PGCRX(_slot_) = reg;
 	udelay(500);
 
@@ -1453,10 +1432,8 @@ static int hardware_disable(int slot)
 	pcmp  = (pcmconf8xx_t *)(&(((immap_t *)CFG_IMMR)->im_pcmcia));
 
 	/* Configure PCMCIA General Control Register */
-	PCMCIA_PGCRX(_slot_) = 0;
-
 	debug ("Disable PCMCIA buffers and assert RESET\n");
-	reg  =  PCMCIA_PGCRX(_slot_);
+	reg  = 0;
 	reg |= __MY_PCMCIA_GCRX_CXRESET;	/* active high */
 	reg |= __MY_PCMCIA_GCRX_CXOE;		/* active low  */
 	PCMCIA_PGCRX(_slot_) = reg;
@@ -1494,9 +1471,9 @@ static int voltage_set(int slot, int vcc, int vpp)
 	 * and assert RESET signal
 	 */
 	debug ("Disable PCMCIA buffers and assert RESET\n");
-	reg  =  PCMCIA_PGCRX(_slot_);
-	reg |=  __MY_PCMCIA_GCRX_CXRESET;	/* active high */
-	reg |=  __MY_PCMCIA_GCRX_CXOE;		/* active low  */
+	reg  = PCMCIA_PGCRX(_slot_);
+	reg |= __MY_PCMCIA_GCRX_CXRESET;	/* active high */
+	reg |= __MY_PCMCIA_GCRX_CXOE;		/* active low  */
 	PCMCIA_PGCRX(_slot_) = reg;
 	udelay(500);
 
@@ -1599,9 +1576,9 @@ static void cfg_ports (void)
 
 #endif	/* C2MON */
 
-/* ----------------------------------------------------------------------------
-   MBX board from Morotola
-   ---------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------- */
+/* MBX board from Morotola						*/
+/* -------------------------------------------------------------------- */
 
 #if defined( CONFIG_MBX )
 #include <../board/mbx8xx/csr.h>
@@ -1687,15 +1664,12 @@ static int hardware_enable (int slot)
 	pcmp->pcmc_pscr = PCMCIA_MASK (_slot_);
 	pcmp->pcmc_per &= ~PCMCIA_MASK (_slot_);
 
-	/* disable interrupts & DMA */
-	PCMCIA_PGCRX (_slot_) = 0;
-
 	/*
-	 * Disable PCMCIA buffers (isolate the interface)
-	 * and assert RESET signal
+	 * Disable interrupts, DMA, and PCMCIA buffers
+	 * (isolate the interface) and assert RESET signal
 	 */
 	debug ("Disable PCMCIA buffers and assert RESET\n");
-	reg = PCMCIA_PGCRX (_slot_);
+	reg = 0;
 	reg |= __MY_PCMCIA_GCRX_CXRESET;	/* active high */
 	reg |= __MY_PCMCIA_GCRX_CXOE;	/* active low  */
 	PCMCIA_PGCRX (_slot_) = reg;
@@ -1752,9 +1726,9 @@ static int hardware_disable (int slot)
 }
 #endif /* CFG_CMD_PCMCIA */
 #endif /* CONFIG_MBX */
-/* ---------------------------------------------------------------------------- */
-/* R360MPI Board								*/
-/* ---------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------- */
+/* R360MPI Board							*/
+/* -------------------------------------------------------------------- */
 
 #if defined(CONFIG_R360MPI)
 
@@ -1788,17 +1762,14 @@ static int hardware_enable(int slot)
 	pcmp->pcmc_pscr =  PCMCIA_MASK(_slot_);
 	pcmp->pcmc_per &= ~PCMCIA_MASK(_slot_);
 
-	/* disable interrupts & DMA */
-	PCMCIA_PGCRX(_slot_) = 0;
-
 	/*
-	 * Disable PCMCIA buffers (isolate the interface)
-	 * and assert RESET signal
+	 * Disable interrupts, DMA, and PCMCIA buffers
+	 * (isolate the interface) and assert RESET signal
 	 */
 	debug ("Disable PCMCIA buffers and assert RESET\n");
-	reg  =  PCMCIA_PGCRX(_slot_);
-	reg |=  __MY_PCMCIA_GCRX_CXRESET;	/* active high */
-	reg |=  __MY_PCMCIA_GCRX_CXOE;		/* active low  */
+	reg  = 0;
+	reg |= __MY_PCMCIA_GCRX_CXRESET;	/* active high */
+	reg |= __MY_PCMCIA_GCRX_CXOE;		/* active low  */
 	PCMCIA_PGCRX(_slot_) = reg;
 	udelay(500);
 
@@ -1889,10 +1860,8 @@ static int hardware_disable(int slot)
 	immap->im_ioport.iop_padat |= 0x0200;
 
 	/* Configure PCMCIA General Control Register */
-	PCMCIA_PGCRX(_slot_) = 0;
-
 	debug ("Disable PCMCIA buffers and assert RESET\n");
-	reg  =  PCMCIA_PGCRX(_slot_);
+	reg  = 0;
 	reg |= __MY_PCMCIA_GCRX_CXRESET;	/* active high */
 	reg |= __MY_PCMCIA_GCRX_CXOE;		/* active low  */
 	PCMCIA_PGCRX(_slot_) = reg;
@@ -1923,9 +1892,9 @@ static int voltage_set(int slot, int vcc, int vpp)
 	 * and assert RESET signal
 	 */
 	debug ("Disable PCMCIA buffers and assert RESET\n");
-	reg  =  PCMCIA_PGCRX(_slot_);
-	reg |=  __MY_PCMCIA_GCRX_CXRESET;	/* active high */
-	reg |=  __MY_PCMCIA_GCRX_CXOE;		/* active low  */
+	reg  = PCMCIA_PGCRX(_slot_);
+	reg |= __MY_PCMCIA_GCRX_CXRESET;	/* active high */
+	reg |= __MY_PCMCIA_GCRX_CXOE;		/* active low  */
 	PCMCIA_PGCRX(_slot_) = reg;
 	udelay(500);
 
@@ -1963,8 +1932,8 @@ static int voltage_set(int slot, int vcc, int vpp)
 		immap->im_ioport.iop_pcdat &= !reg;
 	if (reg & 0x0400)
 		immap->im_ioport.iop_padat &= !reg;
-	immap->im_ioport.iop_pcdir |=  0x0200;
-	immap->im_ioport.iop_padir |=  0x0400;
+	immap->im_ioport.iop_pcdir |= 0x0200;
+	immap->im_ioport.iop_padir |= 0x0400;
 	if (reg) {
 		debug ("PCMCIA powered at %sV\n",
 			(reg&0x0400) ? "5.0" : "3.3");
@@ -1987,9 +1956,9 @@ done:
 
 #endif	/* R360MPI */
 
-/* ---------------------------------------------------------------------------- */
-/* KUP4K Board						*/
-/* ---------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------- */
+/* KUP4K Board								*/
+/* -------------------------------------------------------------------- */
 #if defined(CONFIG_KUP4K)
 
 #define PCMCIA_BOARD_MSG "KUP4K"
@@ -2023,17 +1992,14 @@ static int hardware_enable(int slot)
 	pcmp->pcmc_pscr =  PCMCIA_MASK(slot);
 	pcmp->pcmc_per &= ~PCMCIA_MASK(slot);
 
-	/* disable interrupts & DMA */
-	PCMCIA_PGCRX(slot) = 0;
-
 	/*
-	 * Disable PCMCIA buffers (isolate the interface)
-	 * and assert RESET signal
+	 * Disable interrupts, DMA, and PCMCIA buffers
+	 * (isolate the interface) and assert RESET signal
 	 */
 	debug ("Disable PCMCIA buffers and assert RESET\n");
-	reg  =  PCMCIA_PGCRX(slot);
-	reg |=  __MY_PCMCIA_GCRX_CXRESET;	/* active high */
-	reg |=  __MY_PCMCIA_GCRX_CXOE;		/* active low  */
+	reg  = 0;
+	reg |= __MY_PCMCIA_GCRX_CXRESET;	/* active high */
+	reg |= __MY_PCMCIA_GCRX_CXOE;		/* active low  */
 	PCMCIA_PGCRX(slot) = reg;
 	udelay(2500);
 
@@ -2110,16 +2076,14 @@ static int hardware_disable(int slot)
 	immap = (immap_t *)CFG_IMMR;
 	pcmp = (pcmconf8xx_t *)(&(((immap_t *)CFG_IMMR)->im_pcmcia));
 	cp    = (cpm8xx_t *)(&(((immap_t *)CFG_IMMR)->im_cpm));
-	
+
 	/* remove all power */
 	if (slot)
 		cp->cp_pbdat |= KUP4K_PCMCIA_B_3V3;
 
 	/* Configure PCMCIA General Control Register */
-	PCMCIA_PGCRX(slot) = 0;
-
 	debug ("Disable PCMCIA buffers and assert RESET\n");
-	reg  =  PCMCIA_PGCRX(slot);
+	reg  = 0;
 	reg |= __MY_PCMCIA_GCRX_CXRESET;	/* active high */
 	reg |= __MY_PCMCIA_GCRX_CXOE;		/* active low  */
 	PCMCIA_PGCRX(slot) = reg;
@@ -2156,9 +2120,9 @@ static int voltage_set(int slot, int vcc, int vpp)
 	 * and assert RESET signal
 	 */
 	debug ("Disable PCMCIA buffers and assert RESET\n");
-	reg  =  PCMCIA_PGCRX(slot);
-	reg |=  __MY_PCMCIA_GCRX_CXRESET;	/* active high */
-	reg |=  __MY_PCMCIA_GCRX_CXOE;		/* active low  */
+	reg  = PCMCIA_PGCRX(slot);
+	reg |= __MY_PCMCIA_GCRX_CXRESET;	/* active high */
+	reg |= __MY_PCMCIA_GCRX_CXOE;		/* active low  */
 	PCMCIA_PGCRX(slot) = reg;
 	udelay(500);
 
@@ -2213,14 +2177,14 @@ static int voltage_set(int slot, int vcc, int vpp)
 
 
 
-/* ---------------------------------------------------------------------------- */
-/* End of Board Specific Stuff							*/
-/* ---------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------- */
+/* End of Board Specific Stuff						*/
+/* -------------------------------------------------------------------- */
 
 
-/* ---------------------------------------------------------------------------- */
-/* MPC8xx Specific Stuff - should go to MPC8xx directory			*/
-/* ---------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------- */
+/* MPC8xx Specific Stuff - should go to MPC8xx directory		*/
+/* -------------------------------------------------------------------- */
 
 /*
  * Search this table to see if the windowsize is
@@ -2241,7 +2205,7 @@ static const u_int m8xx_size_to_gray[M8XX_SIZES_NO] =
   0x00800000, 0x00400000, 0x00100000, 0x00200000 };
 
 
-/* ---------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------- */
 
 static u_int m8xx_get_graycode(u_int size)
 {
@@ -2258,7 +2222,7 @@ static u_int m8xx_get_graycode(u_int size)
 	return k;
 }
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------- */
 
 #if 0
 static u_int m8xx_get_speed(u_int ns, u_int is_io)
@@ -2311,7 +2275,7 @@ static u_int m8xx_get_speed(u_int ns, u_int is_io)
 }
 #endif
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------- */
 
 #ifdef CONFIG_IDE_8xx_PCCARD
 static void print_funcid (int func)
@@ -2353,7 +2317,7 @@ static void print_funcid (int func)
 }
 #endif	/* CONFIG_IDE_8xx_PCCARD */
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------- */
 
 #ifdef CONFIG_IDE_8xx_PCCARD
 static void print_fixed (volatile uchar *p)
@@ -2411,7 +2375,7 @@ static void print_fixed (volatile uchar *p)
 }
 #endif	/* CONFIG_IDE_8xx_PCCARD */
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------- */
 
 #ifdef CONFIG_IDE_8xx_PCCARD
 
@@ -2475,6 +2439,6 @@ static int identify  (volatile uchar *p)
 }
 #endif	/* CONFIG_IDE_8xx_PCCARD */
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------- */
 
 #endif /* CFG_CMD_PCMCIA || (CFG_CMD_IDE && CONFIG_IDE_8xx_PCCARD) */
