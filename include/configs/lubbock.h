@@ -53,6 +53,8 @@
 /*
  * Hardware drivers
  */
+#define CONFIG_DRIVER_LAN91C96
+#define CONFIG_LAN91C96_BASE 0x0C000000
 
 /*
  * select serial console configuration
@@ -64,7 +66,7 @@
 
 #define CONFIG_BAUDRATE         115200
 
-#define CONFIG_COMMANDS         (CONFIG_CMD_DFL & ~CFG_CMD_NET)
+#define CONFIG_COMMANDS         (CONFIG_CMD_DFL)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>

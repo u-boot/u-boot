@@ -42,6 +42,9 @@ const char version_string[] =
 extern void cs8900_get_enetaddr (uchar * addr);
 #endif
 
+#ifdef CONFIG_DRIVER_LAN91C96
+#include "../drivers/lan91c96.h"
+#endif
 /*
  * Begin and End of memory area for malloc(), and current "brk"
  */
@@ -274,6 +277,13 @@ void start_armboot (void)
 #ifdef CONFIG_DRIVER_CS8900
 	cs8900_get_enetaddr (gd->bd->bi_enetaddr);
 #endif
+
+#ifdef CONFIG_DRIVER_LAN91C96
+	if (getenv ("ethaddr")) {
+		smc_set_mac_addr(gd->bd->bi_enetaddr);
+	}
+	/* eth_hw_init(); */
+#endif /* CONFIG_DRIVER_LAN91C96 */
 
 	/* Initialize from environment */
 	if ((s = getenv ("loadaddr")) != NULL) {

@@ -695,6 +695,18 @@ The following options need to be configured:
 		CONFIG_NS8382X
 		Support for National dp8382[01] gigabit chips.
 
+- NETWORK Support (other):
+
+		CONFIG_DRIVER_LAN91C96
+		Support for SMSC's LAN91C96 chips.
+
+			CONFIG_LAN91C96_BASE
+			Define this to hold the physical address
+			of the LAN91C96's I/O space
+
+			CONFIG_LAN91C96_USE_32_BIT
+			Define this to enable 32 bit addressing
+
 - USB Support:
 		At the moment only the UHCI host controller is
 		supported (PIP405, MIP405); define

@@ -50,9 +50,9 @@
 #include <watchdog.h>
 #include <i2c.h>
 
-static int sysmon_temp_invalid = 0;
-
 #if CONFIG_POST & CFG_POST_SYSMON
+
+static int sysmon_temp_invalid = 0;
 
 /* #define DEBUG */
 

@@ -67,7 +67,7 @@ LIST_824x="	\
 #########################################################################
 
 LIST_8260="	\
-	ATC		cogent_mpc8260	CPU86		ep8260		\
+	atc		cogent_mpc8260	CPU86		ep8260		\
 	gw8260		hymod		IPHASE4539	MPC8260ADS	\
 	MPC8266ADS	PM826		ppmc8260	RPXsuper	\
 	rsdproto	sacsng		sbc8260		SCM		\

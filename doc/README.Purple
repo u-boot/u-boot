@@ -7,22 +7,32 @@ Installation Instructions:
 	------
 	|x   |
 	|   x|
-	|x   |	
-	|   X|	
+	|x   |
+	|   X|
 	------
 
    Put the s3 switch into the following position:
 
-	1   0
+	 1  0
+	------
+	| x  |
+	| x  |
+	|   x|
+	|   x|
+	------
+
+   Put the s4 switch into the following position:
+
+	 1  0
 	------
 	|x   |
 	|x   |
-	|x   |	
+	|x   |
 	|x   |
 	|x   |
 	|   x|
 	|   x|
-	|x   |	
+	|x   |
 	------
 
 2. Connect to the serial console and to the BDI. Power on. On the
@@ -54,8 +64,8 @@ Installation Instructions:
 	------
 	|   x|
 	|   x|
-	|x   |	
-	|   X|	
+	|x   |
+	|   X|
 	------
 
    Power on.  U-Boot should come up.

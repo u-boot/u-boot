@@ -73,7 +73,9 @@ static struct {
 static char *ctlr_name[2] = { "SMC", "SCC" };
 
 static int used_by_uart[2] = { -1, -1 };
+#if defined(SCC_ENET)
 static int used_by_ether[2] = { -1, -1 };
+#endif
 
 static int proff_smc[] = { PROFF_SMC1, PROFF_SMC2 };
 static int proff_scc[] =
