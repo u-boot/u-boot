@@ -173,7 +173,6 @@
 	"net_nfs=tftp 200000 $(bootfile);run nfsargs addip;bootm\0"	\
 	"rootpath=/opt/eldk/ppc_82xx\0"					\
 	"bootfile=/tftpboot/MPC5200/uImage\0"				\
-	"console=serial\0"				\
 	""
 
 #define CONFIG_BOOTCOMMAND	"run flash_self"
@@ -357,7 +356,7 @@
 
 #define CFG_CS2_START		CFG_LCD_BASE
 #define CFG_CS2_SIZE		0x00400000	/* 4096 kB */
-#define CFG_CS2_CFG		0x0032FD00	/* 50WS, MX, AL, AA, CE, AS_25, DS_16 */
+#define CFG_CS2_CFG		0x0032FD0C	/* 50WS, MX, AL, AA, CE, AS_25, DS_16, endian swapping */
 
 #if CONFIG_TOTAL5200_REV==1
 #   define CFG_CS3_START	CFG_CPLD_BASE

@@ -249,6 +249,21 @@ icecube_5100_config:			unconfig
 		}
 	@./mkconfig -a IceCube ppc mpc5xxx icecube
 
+PM520_config \
+PM520_DDR_config \
+PM520_ROMBOOT_config \
+PM520_ROMBOOT_DDR_config:	unconfig
+	@ >include/config.h
+	@[ -z "$(findstring DDR,$@)" ] || \
+		{ echo "#define CONFIG_MPC5200_DDR"	>>include/config.h ; \
+		  echo "... DDR memory revision" ; \
+		}
+	@[ -z "$(findstring ROMBOOT,$@)" ] || \
+		{ echo "#define CONFIG_BOOT_ROM" >>include/config.h ; \
+		  echo "... booting from 8-bit flash" ; \
+		}
+	@./mkconfig -a PM520 ppc mpc5xxx pm520
+
 MINI5200_config	\
 EVAL5200_config	\
 TOP5200_config:	unconfig
@@ -283,30 +298,15 @@ Total5200_Rev2_lowboot_config:	unconfig
 		}
 	@./mkconfig -a Total5200 ppc mpc5xxx total5200
 
-PM520_config \
-PM520_DDR_config \
-PM520_ROMBOOT_config \
-PM520_ROMBOOT_DDR_config:	unconfig
-	@ >include/config.h
-	@[ -z "$(findstring DDR,$@)" ] || \
-		{ echo "#define CONFIG_MPC5200_DDR"	>>include/config.h ; \
-		  echo "... DDR memory revision" ; \
-		}
-	@[ -z "$(findstring ROMBOOT,$@)" ] || \
-		{ echo "#define CONFIG_BOOT_ROM" >>include/config.h ; \
-		  echo "... booting from 8-bit flash" ; \
-		}
-	@./mkconfig -a PM520 ppc mpc5xxx pm520
-
 TQM5200_AA_config	\
 TQM5200_AB_config	\
 TQM5200_AC_config	\
 MiniFAP_config:	unconfig
 	@ >include/config.h
-	@[ -z "$(findstring Mini-FAP,$@)" ] || \
+	@[ -z "$(findstring MiniFAP,$@)" ] || \
 		{ echo "#define CONFIG_MINIFAP"	>>include/config.h ; \
 		  echo "#define CONFIG_TQM5200_AC"	>>include/config.h ; \
-		  echo "... TQM5200_AC on Mini-FAP" ; \
+		  echo "... TQM5200_AC on MiniFAP" ; \
 		}
 	@[ -z "$(findstring AA,$@)" ] || \
 		{ echo "#define CONFIG_TQM5200_AA"	>>include/config.h ; \

@@ -123,7 +123,9 @@ CONFIG_VIDEO_HW_CURSOR:	     - Uses the hardware cursor capability of the
 /*****************************************************************************/
 #ifdef CONFIG_VIDEO_SED13806
 
+#ifndef CONFIG_TOTAL5200
 #define VIDEO_FB_LITTLE_ENDIAN
+#endif
 #define VIDEO_HW_RECTFILL
 #define VIDEO_HW_BITBLT
 #endif

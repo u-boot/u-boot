@@ -2,6 +2,14 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Martin Krause, 03 Aug 2004:
+  change timing for SM501 graphics controller on TQM5200 module
+
+* Patch by Mark Jonas, 13 July 2004:
+  - Total5200 LCD now run in little endian mode. Endianess conversion
+    is done in hardware.
+  - Removed last reference to "console" environment variable. 
+
 * Patches by Lars Munch, 12 Jul 2004:
   - move at45.c to board/at91rm9200dk/ since this is at91rm9200dk
     board specific
