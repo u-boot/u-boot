@@ -72,6 +72,9 @@ endif
 ifeq ($(ARCH),nios)
 CROSS_COMPILE = nios-elf-
 endif
+ifeq ($(ARCH),m68k)
+CROSS_COMPILE = m68k-elf-
+endif
 endif
 endif
 
@@ -801,6 +804,19 @@ TQM8265_AA_config:  unconfig
 
 ZPC1900_config: unconfig
 	@./mkconfig $(@:_config=) ppc mpc8260 zpc1900
+
+#========================================================================
+# M68K
+#========================================================================
+#########################################################################
+## Coldfire
+#########################################################################
+
+M5272C3_config :		unconfig
+	@./mkconfig $(@:_config=) m68k coldfire m5272c3
+
+M5282EVB_config :		unconfig
+	@./mkconfig $(@:_config=) m68k coldfire m5282evb
 
 #########################################################################
 ## MPC85xx Systems

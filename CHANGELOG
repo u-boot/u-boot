@@ -2,6 +2,10 @@
 Changes since U-Boot 1.0.0:
 ======================================================================
 
+* Patch by Bernhard Kuhn, 28 Nov 2003:
+  add support for Coldfire CPU
+  add support for Motorola M5272C3 and M5282EVB boards
+
 * Patch by Pierre Aubert, 24 Nov 2003:
   - add a return value for the fpga command
   - add ide_preinit() function called in ide_init if CONFIG_IDE_PREINIT

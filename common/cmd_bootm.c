@@ -240,6 +240,8 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (hdr->ih_arch != IH_CPU_MIPS)
 #elif defined(__nios__)
 	if (hdr->ih_arch != IH_CPU_NIOS)
+#elif defined(__M68K__)
+	if (hdr->ih_arch != IH_CPU_M68K)
 #else
 # error Unknown CPU type
 #endif

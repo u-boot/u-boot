@@ -56,6 +56,11 @@ SREC   += sched.srec
 BIN    += sched.bin
 endif
 
+ifeq ($(ARCH),m68k)
+SREC =
+BIN =
+endif
+
 # The following example is pretty 8xx specific...
 ifeq ($(CPU),mpc8xx)
 SREC   += timer.srec
