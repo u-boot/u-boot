@@ -47,7 +47,7 @@
 #define	CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
 #undef	CONFIG_8xx_CONS_SMC2
 #undef	CONFIG_8xx_CONS_NONE
-#define CONFIG_BAUDRATE		9600	/* console baudrate = 9600bps	*/
+#define CONFIG_BAUDRATE		115200	/* console baudrate in bps	*/
 #if 0
 #define CONFIG_BOOTDELAY	-1	/* autoboot disabled		*/
 #else
@@ -83,7 +83,7 @@
 #endif	/* CONFIG_LCD */
 #endif
 
-#undef	CONFIG_CAN_DRIVER		/* CAN Driver support disabled	*/
+#define	CONFIG_CAN_DRIVER		/* CAN Driver support enabled	*/
 
 #define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | CONFIG_BOOTP_BOOTFILESIZE)
 
@@ -113,9 +113,9 @@
 				else    immr->im_cpm.cp_pbdat &= ~PB_SCL
 #define I2C_DELAY		udelay(50)
 
-#define CFG_I2C_PWM_ADDR	0x58	/* Power management coprocessor */
-#define CFG_I2C_KBD_ADDR	0x50	/* Keyboard coprocessor */
-#define CFG_I2C_TERM_ADDR	0x49	/* Temperature Sensors */
+#define CFG_I2C_LCD_ADDR	0x8	/* LCD Control */
+#define CFG_I2C_KEY_ADDR	0x9	/* Keyboard coprocessor */
+#define CFG_I2C_TEM_ADDR	0x49	/* Temperature Sensors */
 
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
 				CFG_CMD_DHCP	| \
@@ -232,11 +232,7 @@
  *-----------------------------------------------------------------------
  * PCMCIA config., multi-function pin tri-state
  */
-#ifndef	CONFIG_CAN_DRIVER
 #define CFG_SIUMCR	(SIUMCR_DBGC00 | SIUMCR_DBPC00 | SIUMCR_MLRC01)
-#else	/* we must activate GPL5 in the SIUMCR for CAN */
-#define CFG_SIUMCR	(SIUMCR_DBGC11 | SIUMCR_DBPC00 | SIUMCR_MLRC01)
-#endif	/* CONFIG_CAN_DRIVER */
 
 /*-----------------------------------------------------------------------
  * TBSCR - Time Base Status and Control				11-26
@@ -362,20 +358,31 @@
 
 
 /*
- * BR1 and OR1 (SDRAM)
+ * BR2 and OR2 (SDRAM)
  *
  */
-#define SDRAM_BASE1_PRELIM	0x00000000	/* SDRAM bank #0	*/
+#define SDRAM_BASE2_PRELIM	0x00000000	/* SDRAM bank #0	*/
 #define	SDRAM_MAX_SIZE		0x04000000	/* max 64 MB per bank	*/
 
-#define CFG_PRELIM_OR1_AM	0xF8000000	/* OR addr mask */
+#define CFG_PRELIM_OR2_AM	0xF8000000	/* OR addr mask */
 
 /* SDRAM timing: Multiplexed addresses, GPL5 output to GPL5_A (don't care)	*/
 #define CFG_OR_TIMING_SDRAM	(OR_ACS_DIV1  | OR_CSNT_SAM | \
 				 OR_SCY_0_CLK | OR_G5LS)
 
-#define CFG_OR1_PRELIM	(CFG_PRELIM_OR1_AM | CFG_OR_TIMING_SDRAM )
-#define CFG_BR1_PRELIM	((SDRAM_BASE1_PRELIM & BR_BA_MSK) | BR_MS_UPMA | BR_V )
+#define CFG_OR2_PRELIM	(CFG_PRELIM_OR2_AM | CFG_OR_TIMING_SDRAM )
+#define CFG_BR2_PRELIM	((SDRAM_BASE2_PRELIM & BR_BA_MSK) | BR_MS_UPMA | BR_V )
+
+/*
+ * BR3 and OR3 (CAN Controller)
+ */
+#ifdef CONFIG_CAN_DRIVER
+#define CFG_CAN_BASE		0xC0000000	/* CAN base address   */
+#define CFG_CAN_OR_AM		0xFFFF8000	/* 32 kB address mask */
+#define CFG_OR3_CAN		(CFG_CAN_OR_AM | OR_G5LA |OR_BI)
+#define CFG_BR3_CAN		((CFG_CAN_BASE & BR_BA_MSK) | \
+				 BR_PS_8 | BR_MS_UPMB | BR_V)
+#endif	/* CONFIG_CAN_DRIVER */
 
 
 /*

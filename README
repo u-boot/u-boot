@@ -1918,6 +1918,12 @@ Some configuration options can be set using Environment Variables:
 		  be automatically started (by internally calling
 		  "bootm")
 
+		  If set to "no", a standalone image passed to the
+		  "bootm" command will be copied to the load address
+		  (and eventually uncompressed), but NOT be started.
+		  This can be used to load and uncompress arbitrary
+		  data.
+
   initrd_high	- restrict positioning of initrd images:
 		  If this variable is not set, initrd images will be
 		  copied to the highest possible address in RAM; this

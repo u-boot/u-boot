@@ -177,6 +177,8 @@ static vidinfo_t panel_info = {
 /*
  * Sharp LQ057Q3DC02 display. Active, color, single scan.
  */
+#define LCD_DF 12
+
 static vidinfo_t panel_info = {
     320, 240, 0, 0, CFG_HIGH, CFG_HIGH, CFG_LOW, CFG_LOW, CFG_HIGH,
     3, 0, 0, 1, 1, 15, 4, 0, 3
@@ -260,11 +262,11 @@ static vidinfo_t panel_info = {
  * Emerging Display Technologies 320x240. Passive, monochrome, single scan.
  */
 #define LCD_BPP		LCD_MONOCHROME
-#define LCD_DF		20
+#define LCD_DF		10
 
 static vidinfo_t panel_info = {
     320, 240, 0, 0, CFG_HIGH, CFG_HIGH, CFG_HIGH, CFG_HIGH, CFG_LOW,
-    LCD_BPP,  0, 0, 0, 0, 0, 15, 0, 0
+    LCD_BPP,  0, 0, 0, 0, 33, 0, 0, 0
 };
 #endif
 /*----------------------------------------------------------------------*/
@@ -977,15 +979,18 @@ static void lcd_enable (void)
     	c |= 0x07;	/* Power on CCFL, Enable CCFL, Chip Enable LCD */
 	pic_write (0x60, c);
     }
-#elif defined(CONFIG_R360MPI)
-    {
-	extern void r360_pwm_write (uchar reg, uchar val);
-
-	r360_pwm_write(8, 1);
-	r360_pwm_write(0, 4);
-	r360_pwm_write(1, 6);
-    }
 #endif /* CONFIG_LWMON */
+
+#if defined(CONFIG_R360MPI)
+    {
+	extern void r360_i2c_lcd_write (uchar data0, uchar data1);
+
+	r360_i2c_lcd_write(0x10, 0x01);
+	r360_i2c_lcd_write(0x20, 0x01);
+	r360_i2c_lcd_write(0x3F, 0xFF);
+	r360_i2c_lcd_write(0x47, 0xFF);
+    }
+#endif /* CONFIG_R360MPI */
 }
 
 /*----------------------------------------------------------------------*/
@@ -1003,10 +1008,12 @@ static void lcd_disable (void)
     }
 #elif defined(CONFIG_R360MPI)
     {
-	extern void r360_pwm_write (uchar reg, uchar val);
+	extern void r360_i2c_lcd_write (uchar data0, uchar data1);
 
-	r360_pwm_write(0, 0);
-	r360_pwm_write(1, 0);
+	r360_i2c_lcd_write(0x10, 0x00);
+	r360_i2c_lcd_write(0x20, 0x00);
+	r360_i2c_lcd_write(0x30, 0x00);
+	r360_i2c_lcd_write(0x40, 0x00);
     }
 #endif /* CONFIG_LWMON */
 	/* Disable the LCD panel */

@@ -2,11 +2,23 @@
 Changes since U-Boot 0.3.0:
 ======================================================================
 
+* Patch by Lutz Dennig, 10 Apr 2003:
+  Update for R360MPI board
+
+* Add new meaning to "autostart" environment variable:
+  If set to "no", a standalone image passed to the
+  "bootm" command will be copied to the load address
+  (and eventually uncompressed), but NOT be started.
+  This can be used to load and uncompress arbitrary
+  data.
+
 * Patch by Stefan Roese, 10 Apr 2003:
-  Changed DHCP client to use ip address from server option field #54
-  from the OFFER-paket in the server option field #54 in the REQUEST-
-  paket. This fixes a problem using a Windows 2000 DHCP server, where
-  the DHCP-server is not the TFTP-server.
+  Changed DHCP client to use IP address from server option field #54
+  from the OFFER packet in the server option field #54 in the REQUEST
+  packet. This fixes a problem using a Windows 2000 DHCP server,
+  where the DHCP-server is not the TFTP-server.
+
+* Set max brightness for MN11236 displays on TRAB board
 
 * Add support for TQM862L modules
 

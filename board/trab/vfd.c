@@ -486,7 +486,11 @@ int drv_vfd_init(void)
  	/* frame buffer endadr */
 	rLCDSADDR2 = (gd->fb_base + FRAME_BUF_SIZE) >> 1;
 	rLCDSADDR3 = ((256/4));
-	rLCDCON2 = 0x000DC000;
+rLCDCON2 = 0x000DC000;
+	if(gd->vfd_type == VFD_TYPE_MN11236)
+		rLCDCON2 = 37 << 14;	/* MN11236: 38 lines */
+	else
+		rLCDCON2 = 55 << 14;	/* T119C:   56 lines */
 	rLCDCON3 = 0x0051000A;
 	rLCDCON4 = 0x00000001;
 	if (gd->vfd_type && vfd_inv_data)
