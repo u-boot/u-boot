@@ -776,6 +776,9 @@ xtract_trab = $(subst _big_flash,,$(subst _config,,$1))
 omap1510inn_config :	unconfig
 	@./mkconfig $(@:_config=) arm arm925t omap1510inn
 
+omap1610inn_config :	unconfig
+	@./mkconfig $(@:_config=) arm arm926ejs omap1610inn
+
 smdk2400_config	:	unconfig
 	@./mkconfig $(@:_config=) arm arm920t smdk2400
 

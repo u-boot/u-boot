@@ -278,6 +278,7 @@ Gary Jennejohn <gj@denx.de>
 
 Kshitij Gupta <kshitij@ti.com>
 	omap1510inn		ARM925T
+	omap1610inn		ARM926EJS
 
 David Müller <d.mueller@elsoft.ch>
 

@@ -175,6 +175,18 @@
 
 #define MOD_CONF_CTRL_0		0xfffe1080
 
+#ifdef CONFIG_OMAP1610 /* 1610 Configuration Register */
+
+#define USB_OTG_CTRL			0xFFFB040C
+#define USB_TRANSCEIVER_CTRL	0xFFFE1064
+#define PULL_DWN_CTRL_4	0xFFFE10AC
+#define PU_PD_SEL_0		0xFFFE10B4
+#define PU_PD_SEL_1		0xFFFE10B8
+#define PU_PD_SEL_2		0xFFFE10BC
+#define PU_PD_SEL_3		0xFFFE10C0
+#define PU_PD_SEL_4		0xFFFE10C4
+
+#endif
 /*
  * Traffic Controller Memory Interface Registers
  */
@@ -519,6 +531,7 @@ typedef struct {
 
 /* WDTIM_CONTROL bit definitions. */
 #define WDTIM_CONTROL_ST	BIT7
+
 
 
 /* ---------------------------------------------------------------------------

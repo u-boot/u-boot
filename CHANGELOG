@@ -2,6 +2,13 @@
 Changes for U-Boot 0.4.7:
 ======================================================================
 
+* Patch by George G. Davis, 19 Aug 2003:
+  fix TI Innovator/OMAP1510 pin configs
+
+* Patches by Kshitij, 18 Aug 2003
+  - add support for arm926ejs cpu core
+  - add support for TI OMAP 1610 Innovator Board
+
 * Patch by Yuli Barcohen, 14 Aug 2003:
   add support for bzip2 uncompression
 

@@ -60,8 +60,10 @@ struct NS16550 {
 	int pad7:24;
 	unsigned char scr;		/* 7 */
 	int pad8:24;
-#ifdef CONFIG_OMAP1510
+#if defined(CONFIG_OMAP1510) || defined(CONFIG_OMAP1610)
 	unsigned char mdr1;		/* mode select reset TL16C750*/
+#endif
+#ifdef CONFIG_OMAP1510
 	int pad9:24;
 	unsigned long pad[10];
 	unsigned char osc_12m_sel;

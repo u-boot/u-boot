@@ -84,6 +84,9 @@ platformsetup:
 	ldr     r0, REG_FUNC_MUX_CTRL_C
 	ldr     r1, VAL_FUNC_MUX_CTRL_C
 	str     r1, [r0]
+	ldr     r0, REG_FUNC_MUX_CTRL_D
+	ldr     r1, VAL_FUNC_MUX_CTRL_D
+	str     r1, [r0]
 	ldr     r0, REG_VOLTAGE_CTRL_0
 	ldr     r1, VAL_VOLTAGE_CTRL_0
 	str     r1, [r0]
@@ -352,9 +355,9 @@ VAL_PULL_DWN_CTRL_0:
 VAL_PULL_DWN_CTRL_1:
 	.word 0x2e047fff
 VAL_PULL_DWN_CTRL_2:
-	.word 0xffd7d3e6
+	.word 0xffd603a6
 VAL_PULL_DWN_CTRL_3:
-	.word 0x00003f03
+	.word 0x00003e03
 VAL_VOLTAGE_CTRL_0:
 	.word 0x00000007
 VAL_TEST_DBG_CTRL_0:

@@ -53,6 +53,12 @@ static int calc_divisor (void)
 	}
 	console->osc_12m_sel = 0;			/* clear if previsouly set */
 #endif
+#ifdef CONFIG_OMAP1610
+	/* If can't cleanly clock 115200 set div to 1 */
+	if ((CFG_NS16550_CLK == 48000000) && (gd->baudrate == 115200)) {
+		return (26);		/* return 26 for base divisor */
+	}
+#endif
 	return (CFG_NS16550_CLK / 16 / gd->baudrate);
 }
 

@@ -141,6 +141,7 @@ Directory Hierarchy:
 
 - cpu/74xx_7xx	Files specific to Motorola MPC74xx and 7xx CPUs
 - cpu/arm925t	Files specific to ARM	   925	   CPUs
+- cpu/arm926ejs	Files specific to ARM	926	CPUs
 - cpu/mpc5xx	Files specific to Motorola MPC5xx  CPUs
 - cpu/mpc8xx	Files specific to Motorola MPC8xx  CPUs
 - cpu/mpc824x	Files specific to Motorola MPC824x CPUs
@@ -208,6 +209,8 @@ Directory Hierarchy:
 - board/oxc	Files specific to OXC        boards
 - board/omap1510inn
 		Files specific to OMAP 1510 Innovator boards
+- board/omap1610inn  
+		Files specific to OMAP 1610 Innovator boards
 - board/pcippc2	Files specific to PCIPPC2/PCIPPC6 boards
 - board/pm826	Files specific to PM826      boards
 - board/ppmc8260
@@ -357,7 +360,7 @@ The following options need to be configured:
 
 		CONFIG_HHP_CRADLE,  CONFIG_DNP1110,    CONFIG_EP7312,
 		CONFIG_IMPA7,       CONFIG_LART,       CONFIG_LUBBOCK,
-		CONFIG_INNOVATOROMAP1510,
+		CONFIG_INNOVATOROMAP1510,	CONFIG_INNOVATOROMAP1610
 		CONFIG_SHANNON,     CONFIG_SMDK2400,   CONFIG_SMDK2410,
 		CONFIG_TRAB,	    CONFIG_AT91RM9200DK
 
@@ -1905,7 +1908,7 @@ configurations; the following names are supported:
     GEN860T_config	  EBONY_config		FPS860L_config
     ELPT860_config	  cmi_mpc5xx_config	NETVIA_config
     at91rm9200dk_config	  omap1510inn_config	MPC8260ADS_config
-
+    omap1610inn_config
 Note: for some board special configuration names may exist; check  if
       additional  information is available from the board vendor; for
       instance, the TQM8xxL systems run normally at 50 MHz and use  a

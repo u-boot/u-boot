@@ -117,7 +117,11 @@ LIST_ARM7="ep7312 impa7"
 ## ARM9 Systems
 #########################################################################
 
-LIST_ARM9="at91rm9200dk omap1510inn smdk2400 smdk2410 trab VCMA9"
+LIST_ARM9="	\
+	at91rm9200dk	omap1510inn	omap1610inn			\
+	smdk2400	smdk2410	trab				\
+	VCMA9								\
+"
 
 #########################################################################
 ## Xscale Systems

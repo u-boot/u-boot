@@ -213,6 +213,7 @@ extern int flash_real_protect(flash_info_t *info, long sector, int prot);
 #define INTEL_ID_28F320J3A  0x00160016	/*  32M = 128K x  32	*/
 #define INTEL_ID_28F640J3A  0x00170017	/*  64M = 128K x  64	*/
 #define INTEL_ID_28F128J3A  0x00180018	/* 128M = 128K x 128	*/
+#define INTEL_ID_28F256L18T 0x880D880D	/* 256M = 128K x 255 + 32k x 4 */
 
 #define INTEL_ID_28F160S3   0x00D000D0	/*  16M = 512K x  32 (64kB x 32)	*/
 #define INTEL_ID_28F320S3   0x00D400D4	/*  32M = 512K x  64 (64kB x 64)	*/
@@ -319,6 +320,8 @@ extern int flash_real_protect(flash_info_t *info, long sector, int prot);
 #define FLASH_AMLV320U	0x00A2		/* AMD 29LV128M    ( 128M = 8M x 16 )	*/
 #define FLASH_AMLV640U	0x00A4		/* AMD 29LV640M    ( 64M = 4M x 16 )	*/
 #define FLASH_AMLV128U	0x00A6		/* AMD 29LV128M	   ( 128M = 8M x 16 )	*/
+/* Intel 28F256L18T 256M = 128K x 255 + 32k x 4	*/
+#define FLASH_28F256L18T 0x00A8
 
 #define FLASH_UNKNOWN	0xFFFF		/* unknown flash type			*/
 
