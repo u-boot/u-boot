@@ -1,0 +1,305 @@
+/*
+ * (C) Copyright 2000-2002
+ * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ *
+ * See file CREDITS for list of people who contributed to this
+ * project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+ * MA 02111-1307 USA
+ */
+
+/*
+ * This file contains all the macros and symbols which define
+ * a PowerPC assembly language environment.
+ */
+#ifndef	__PPC_ASM_TMPL__
+#define __PPC_ASM_TMPL__
+
+/***************************************************************************
+ *
+ * These definitions simplify the ugly declarations necessary for GOT
+ * definitions.
+ *
+ * Stolen from prepboot/bootldr.h, (C) 1998 Gabriel Paubert, paubert@iram.es
+ *
+ * Uses r14 to access the GOT
+ */
+
+#define START_GOT			\
+	.section	".got2","aw";	\
+.LCTOC1 = .+32768
+
+#define END_GOT				\
+	.text
+
+#define GET_GOT				\
+	bl	1f		;	\
+	.text	2		;	\
+0:	.long	.LCTOC1-1f	;	\
+	.text			;	\
+1:	mflr	r14		;	\
+	lwz	r0,0b-1b(r14)	;	\
+	add	r14,r0,r14	;
+
+#define GOT_ENTRY(NAME)		.L_ ## NAME = . - .LCTOC1 ; .long NAME
+
+#define GOT(NAME)		.L_ ## NAME (r14)
+
+
+/***************************************************************************
+ * Register names
+ */
+#define	r0	0
+#define	r1	1
+#define	r2	2
+#define	r3	3
+#define	r4	4
+#define	r5	5
+#define	r6	6
+#define	r7	7
+#define	r8	8
+#define	r9	9
+#define	r10	10
+#define	r11	11
+#define	r12	12
+#define	r13	13
+#define	r14	14
+#define	r15	15
+#define	r16	16
+#define	r17	17
+#define	r18	18
+#define	r19	19
+#define	r20	20
+#define	r21	21
+#define	r22	22
+#define	r23	23
+#define	r24	24
+#define	r25	25
+#define	r26	26
+#define	r27	27
+#define	r28	28
+#define	r29	29
+#define	r30	30
+#define	r31	31
+
+
+#if defined(CONFIG_8xx) || defined(CONFIG_MPC824X)
+
+/* Some special registers */
+
+#define ICR	148	/* Interrupt Cause Register (37-44) */
+#define DER	149
+#define COUNTA	150	/* Breakpoint Counter	    (37-44) */
+#define COUNTB	151	/* Breakpoint Counter	    (37-44) */
+#define LCTRL1	156	/* Load/Store Support	    (37-40) */
+#define LCTRL2	157	/* Load/Store Support	    (37-41) */
+#define ICTRL	158
+
+#endif	/* CONFIG_8xx, CONFIG_MPC824X */
+
+#if defined(CONFIG_8xx)
+
+/* Registers in the processor's internal memory map that we use.
+*/
+#define SYPCR	0x00000004
+#define BR0	0x00000100
+#define OR0	0x00000104
+#define BR1	0x00000108
+#define OR1	0x0000010c
+#define BR2	0x00000110
+#define OR2	0x00000114
+#define BR3	0x00000118
+#define OR3	0x0000011c
+#define BR4	0x00000120
+#define OR4	0x00000124
+
+#define MAR	0x00000164
+#define MCR	0x00000168
+#define MAMR	0x00000170
+#define MBMR	0x00000174
+#define MSTAT	0x00000178
+#define MPTPR	0x0000017a
+#define MDR	0x0000017c
+
+#define TBSCR	0x00000200
+#define TBREFF0	0x00000204
+
+#define PLPRCR	0x00000284
+
+#elif defined(CONFIG_8260)
+
+#define HID2		1011
+
+#define HID0_IFEM	(1<<7)
+
+#define HID0_ICE_BITPOS	16
+#define HID0_DCE_BITPOS	17
+
+#define IM_REGBASE	0x10000
+#define IM_SYPCR	(IM_REGBASE+0x0004)
+#define IM_SWSR		(IM_REGBASE+0x000e)
+#define IM_BR0		(IM_REGBASE+0x0100)
+#define IM_OR0		(IM_REGBASE+0x0104)
+#define IM_BR1		(IM_REGBASE+0x0108)
+#define IM_OR1		(IM_REGBASE+0x010c)
+#define IM_BR2		(IM_REGBASE+0x0110)
+#define IM_OR2		(IM_REGBASE+0x0114)
+#define IM_MPTPR	(IM_REGBASE+0x0184)
+#define IM_PSDMR	(IM_REGBASE+0x0190)
+#define IM_PSRT		(IM_REGBASE+0x019c)
+#define IM_IMMR		(IM_REGBASE+0x01a8)
+#define IM_SCCR		(IM_REGBASE+0x0c80)
+
+#endif
+
+#define curptr r2
+
+#define SYNC \
+	sync; \
+	isync
+
+/*
+ * Macros for storing registers into and loading registers from
+ * exception frames.
+ */
+#define SAVE_GPR(n, base)	stw	n,GPR0+4*(n)(base)
+#define SAVE_2GPRS(n, base)	SAVE_GPR(n, base); SAVE_GPR(n+1, base)
+#define SAVE_4GPRS(n, base)	SAVE_2GPRS(n, base); SAVE_2GPRS(n+2, base)
+#define SAVE_8GPRS(n, base)	SAVE_4GPRS(n, base); SAVE_4GPRS(n+4, base)
+#define SAVE_10GPRS(n, base)	SAVE_8GPRS(n, base); SAVE_2GPRS(n+8, base)
+#define REST_GPR(n, base)	lwz	n,GPR0+4*(n)(base)
+#define REST_2GPRS(n, base)	REST_GPR(n, base); REST_GPR(n+1, base)
+#define REST_4GPRS(n, base)	REST_2GPRS(n, base); REST_2GPRS(n+2, base)
+#define REST_8GPRS(n, base)	REST_4GPRS(n, base); REST_4GPRS(n+4, base)
+#define REST_10GPRS(n, base)	REST_8GPRS(n, base); REST_2GPRS(n+8, base)
+
+/*
+ * GCC sometimes accesses words at negative offsets from the stack
+ * pointer, although the SysV ABI says it shouldn't.  To cope with
+ * this, we leave this much untouched space on the stack on exception
+ * entry.
+ */
+#define STACK_UNDERHEAD	64
+
+/*
+ * Exception entry code.  This code runs with address translation
+ * turned off, i.e. using physical addresses.
+ * We assume sprg3 has the physical address of the current
+ * task's thread_struct.
+ */
+#define EXCEPTION_PROLOG	\
+	mtspr	SPRG0,r20;	\
+	mtspr	SPRG1,r21;	\
+	mfcr	r20;		\
+	subi	r21,r1,INT_FRAME_SIZE+STACK_UNDERHEAD;	/* alloc exc. frame */\
+	stw	r20,_CCR(r21);		/* save registers */ \
+	stw	r22,GPR22(r21);	\
+	stw	r23,GPR23(r21);	\
+	mfspr	r20,SPRG0;	\
+	stw	r20,GPR20(r21);	\
+	mfspr	r22,SPRG1;	\
+	stw	r22,GPR21(r21);	\
+	mflr	r20;		\
+	stw	r20,_LINK(r21);	\
+	mfctr	r22;		\
+	stw	r22,_CTR(r21);	\
+	mfspr	r20,XER;	\
+	stw	r20,_XER(r21);	\
+	mfspr	r22,SRR0;	\
+	mfspr	r23,SRR1;	\
+	stw	r0,GPR0(r21);	\
+	stw	r1,GPR1(r21);	\
+	stw	r2,GPR2(r21);	\
+	stw	r1,0(r21);	\
+	mr	r1,r21;			/* set new kernel sp */	\
+	SAVE_4GPRS(3, r21);
+/*
+ * Note: code which follows this uses cr0.eq (set if from kernel),
+ * r21, r22 (SRR0), and r23 (SRR1).
+ */
+
+/*
+ * Critical exception entry code.  This is just like the other exception
+ * code except that it uses SRR2 and SRR3 instead of SRR0 and SRR1.
+ */
+#define CRITICAL_EXCEPTION_PROLOG       \
+        mtspr   SPRG0,r20;      \
+        mtspr   SPRG1,r21;      \
+        mfcr    r20;            \
+        subi    r21,r1,INT_FRAME_SIZE+STACK_UNDERHEAD;  /* alloc exc. frame */\
+        stw     r20,_CCR(r21);          /* save registers */ \
+        stw     r22,GPR22(r21); \
+        stw     r23,GPR23(r21); \
+        mfspr   r20,SPRG0;      \
+        stw     r20,GPR20(r21); \
+        mfspr   r22,SPRG1;      \
+        stw     r22,GPR21(r21); \
+        mflr    r20;            \
+        stw     r20,_LINK(r21); \
+        mfctr   r22;            \
+        stw     r22,_CTR(r21);  \
+        mfspr   r20,XER;        \
+        stw     r20,_XER(r21);  \
+        mfspr   r22,990;        /* SRR2 */      \
+        mfspr   r23,991;        /* SRR3 */      \
+        stw     r0,GPR0(r21);   \
+        stw     r1,GPR1(r21);   \
+        stw     r2,GPR2(r21);   \
+        stw     r1,0(r21);      \
+        mr      r1,r21;                 /* set new kernel sp */ \
+        SAVE_4GPRS(3, r21);
+/*
+ * Note: code which follows this uses cr0.eq (set if from kernel),
+ * r21, r22 (SRR2), and r23 (SRR3).
+ */
+
+/*
+ * Exception vectors.
+ *
+ * The data words for `hdlr' and `int_return' are initialized with
+ * OFFSET values only; they must be relocated first before they can
+ * be used!
+ */
+#define STD_EXCEPTION(n, label, hdlr)			\
+	. = n;						\
+label:							\
+	EXCEPTION_PROLOG;				\
+	lwz	r3,GOT(transfer_to_handler);		\
+	mtlr	r3;					\
+	addi	r3,r1,STACK_FRAME_OVERHEAD;		\
+	li	r20,MSR_KERNEL;				\
+	rlwimi	r20,r23,0,25,25;			\
+	blrl	; 					\
+.L_ ## label :						\
+	.long	hdlr - _start + EXC_OFF_SYS_RESET;	\
+	.long	int_return - _start + EXC_OFF_SYS_RESET
+
+
+#define CRIT_EXCEPTION(n, label, hdlr)                  \
+        . = n;                                          \
+label:                                                  \
+        CRITICAL_EXCEPTION_PROLOG;                      \
+        lwz     r3,GOT(transfer_to_handler);            \
+        mtlr    r3;                                     \
+        addi    r3,r1,STACK_FRAME_OVERHEAD;             \
+        li      r20,MSR_KERNEL;                         \
+        rlwimi  r20,r23,0,25,25;                        \
+        blrl    ;                                       \
+.L_ ## label :                                          \
+        .long   hdlr - _start + EXC_OFF_SYS_RESET;      \
+        .long   crit_return - _start + EXC_OFF_SYS_RESET
+
+#endif	/* __PPC_ASM_TMPL__ */
