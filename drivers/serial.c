@@ -46,7 +46,8 @@ int serial_init (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
-	int clock_divisor = CFG_NS16550_CLK / 16 / gd->baudrate;
+	int clock_divisor = (CFG_NS16550_CLK + gd->baudrate * 8 )
+			  / (gd->baudrate * 16);
 
 #ifdef CFG_NS87308
 	initialise_ns87308();

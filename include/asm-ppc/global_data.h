@@ -59,7 +59,9 @@ typedef	struct	global_data {
 #if defined(CONFIG_EVB64260)
 	unsigned int	mirror_hack[16];
 #endif
-#if defined(CONFIG_SANDPOINT) || defined(CONFIG_MUSENKI)
+#if defined(CONFIG_SANDPOINT) ||  \
+    defined(CONFIG_MUSENKI)   ||  \
+    defined(CONFIG_A3000)
 	void *		console_addr;
 #endif
 #ifdef CONFIG_AMIGAONEG3SE

@@ -490,6 +490,9 @@ WALNUT405_config:unconfig
 #########################################################################
 xtract_82xx = $(subst _ROMBOOT,,$(subst _L2,,$(subst _266MHz,,$(subst _300MHz,,$(subst _config,,$1)))))
 
+A3000_config: unconfig
+	@./mkconfig $(@:_config=) ppc mpc824x a3000
+
 BMW_config: unconfig
 	@./mkconfig $(@:_config=) ppc mpc824x bmw
 
