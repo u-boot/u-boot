@@ -27,10 +27,11 @@
 
 #include <common.h>
 #include <command.h>
-#include <miiphy.h>
-#include <miivals.h>
 
 #if (CONFIG_COMMANDS & CFG_CMD_MII)
+#include <miiphy.h>
+
+#define	CONFIG_TERSE_MII	/* XXX necessary here because "miivals.h" is missing */
 
 #ifdef CONFIG_TERSE_MII
 /*
@@ -145,7 +146,10 @@ U_BOOT_CMD(
 	"mii read  <addr> <reg>        - read  MII PHY <addr> register <reg>\n"
 	"mii write <addr> <reg> <data> - write MII PHY <addr> register <reg>\n"
 );
-#else /* CONFIG_TERSE_MII */
+
+#else /* ! CONFIG_TERSE_MII ================================================= */
+
+#include <miivals.h>
 
 typedef struct _MII_reg_desc_t {
 	ushort regno;

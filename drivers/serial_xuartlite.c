@@ -23,6 +23,9 @@
  */
 
 #include <config.h>
+
+#ifdef	CONFIG_MICROBLZE
+
 #include <asm/serial_xuartlite.h>
 
 /* FIXME: we should convert these to in32 and out32 */
@@ -70,3 +73,5 @@ int serial_tstc(void)
 {
 	return (IO_SERIAL_STATUS & XUL_SR_RX_FIFO_VALID_DATA);
 }
+
+#endif	/* CONFIG_MICROBLZE */

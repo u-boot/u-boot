@@ -212,16 +212,16 @@ PATI_config:		unconfig
 #########################################################################
 ## MPC5xxx Systems
 #########################################################################
-MPC5200LITE_config		\
-MPC5200LITE_LOWBOOT_config	\
-MPC5200LITE_LOWBOOT08_config	\
-icecube_5200_DDR_config		\
-IceCube_5200_DDR_config		\
-icecube_5200_DDR_LOWBOOT_config \
-icecube_5200_DDR_LOWBOOT08_config \
-icecube_5200_config		\
-IceCube_5200_config		\
-IceCube_5100_config:		unconfig
+Lite5200_config				\
+Lite5200_LOWBOOT_config			\
+Lite5200_LOWBOOT08_config		\
+icecube_5200_config			\
+icecube_5200_LOWBOOT_config		\
+icecube_5200_LOWBOOT08_config		\
+icecube_5200_DDR_config 		\
+icecube_5200_DDR_LOWBOOT_config 	\
+icecube_5200_DDR_LOWBOOT08_config	\
+icecube_5100_config:			unconfig
 	@ >include/config.h
 	@[ -z "$(findstring LOWBOOT_,$@)" ] || \
 		{ if [ "$(findstring DDR,$@)" ] ; \

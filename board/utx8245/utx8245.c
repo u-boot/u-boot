@@ -67,7 +67,7 @@ long int initdram(int board_type)
 	emear1 = (emear1 & 0xFFFF0000) |
 		((new_bank0_end & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT) |
 		((new_bank1_end & MICR_EADDR_MASK) >> MICR_EADDR_SHIFT << 8);
-		
+
 	mpc824x_mpc107_setreg(MEAR1, mear1);
 	mpc824x_mpc107_setreg(EMEAR1, emear1);
 

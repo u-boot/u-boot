@@ -103,6 +103,9 @@ boot_cold:
 boot_warm:
 	mfmsr	r5			/* save msr contents		*/
 
+	/* Move CSBoot and adjust instruction pointer                   */
+	/*--------------------------------------------------------------*/
+
 #if defined(CFG_LOWBOOT)
 #if defined(CFG_RAMBOOT)
 #error CFG_LOWBOOT is incompatible with CFG_RAMBOOT
@@ -113,19 +116,15 @@ boot_warm:
 	stw	r3, 0x4(r4)		/* CS0 start */
 	lis	r3,	STOP_REG(CFG_BOOTCS_START, CFG_BOOTCS_SIZE)@h
 	ori	r3, r3, STOP_REG(CFG_BOOTCS_START, CFG_BOOTCS_SIZE)@l
-
 	stw	r3, 0x8(r4)		/* CS0 stop */
-	lis	r3,     0x00047800@h
-	ori	r3, r3, 0x00047800@l
-	stw	r3, 0x300(r4)		/* set timing, CS0/boot conf reg */
 	lis	r3,     0x02010000@h
 	ori	r3, r3, 0x02010000@l
-	stw	r3, 0x54(r4)		/* CS0 and Boot enable, IPBI ctrl reg */
+	stw	r3, 0x54(r4)		/* CS0 and Boot enable */
 
-	lis     r3,	lowboot_reentry@h
-	ori     r3, r3, lowboot_reentry@l
+	lis     r3,	lowboot_reentry@h	/* jump from bootlow address space (0x0000xxxx) */
+	ori     r3, r3, lowboot_reentry@l	/* to the address space the linker used */
 	mtlr	r3
-	blr				/* jump to flash based address */
+	blr
 
 lowboot_reentry:
 	lis	r3,	START_REG(CFG_BOOTCS_START)@h
@@ -134,12 +133,9 @@ lowboot_reentry:
 	lis	r3,	STOP_REG(CFG_BOOTCS_START, CFG_BOOTCS_SIZE)@h
 	ori	r3, r3, STOP_REG(CFG_BOOTCS_START, CFG_BOOTCS_SIZE)@l
 	stw	r3, 0x50(r4)		/* Boot stop */
-	lis	r3,     0x00047800@h
-	ori	r3, r3, 0x00047800@l
-	stw	r3, 0x300(r4)		/* set timing, CS0/boot conf reg */
 	lis	r3,     0x02000001@h
 	ori	r3, r3, 0x02000001@l
-	stw	r3, 0x54(r4)		/* Boot enable, CS0 disable, wait state enable */
+	stw	r3, 0x54(r4)		/* Boot enable, CS0 disable */
 #endif	/* CFG_LOWBOOT */
 
 #if defined(CFG_DEFAULT_MBAR) && !defined(CFG_RAMBOOT)

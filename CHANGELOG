@@ -2,6 +2,16 @@
 Changes for U-Boot 1.1.1:
 ======================================================================
 
+* Temporarily disabled John Kerl's extended MII command code because
+  "miivals.h" is missing
+
+* Patches by Mark Jonas, 13 Apr 2004:
+  - Remove CS0 chip select timing setting from cpu/mpc5xxx/start.S
+  - Add sync instructions to IceCube SDRAM init code
+  - Move SDRAM chip constants into seperate include files
+  - Unify DDR and SDR initialization code
+  - Unify all IceCube (Lite5xxx) target names
+
 * Patch by John Kerl, 16 Apr 2004:
   Enable ranges in mii command, e.g. mii read 0-1f 0 or
   mii read 4-7 18-1a.  Also add mii dump subcommand for
