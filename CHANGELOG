@@ -2,6 +2,13 @@
 Changes since U-Boot 0.2.2:
 ======================================================================
 
+* Patches by Dave Ellis, 18 Mar 2003 for SXNI855T board:
+  - fix SRAM and SDRAM memory sizing
+  - add status LED support
+  - add MAC address for second (SCC1) ethernet port
+
+* Update default environment for TQM8260 board
+
 * Patch by Rick Bronson, 16 Mar 2003:
   - Add NAND flash support for reading, writing, and erasing NAND
     flash (certain forms of which are called SmartMedia).

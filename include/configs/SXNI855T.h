@@ -81,6 +81,32 @@
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 #endif
 
+/*-----------------------------------------------------------------------
+ * Definitions for status LED
+ */
+#define	CONFIG_STATUS_LED	1	/* Status LED enabled		*/
+
+# define STATUS_LED_PAR		im_ioport.iop_papar
+# define STATUS_LED_DIR		im_ioport.iop_padir
+# define STATUS_LED_ODR		im_ioport.iop_paodr
+# define STATUS_LED_DAT		im_ioport.iop_padat
+
+# define STATUS_LED_BIT		0x8000		/* LED 0 is on PA.0 */
+# define STATUS_LED_PERIOD	((CFG_HZ / 2) / 5)	/* blink at 5 Hz */
+# define STATUS_LED_STATE	STATUS_LED_BLINKING
+
+# define STATUS_LED_ACTIVE	0		/* LED on for bit == 0	*/
+
+# define STATUS_LED_BOOT	0		/* LED 0 used for boot status */
+
+#ifdef DEV	/* development (debug) settings */
+#define CONFIG_BOOT_LED_STATE	STATUS_LED_OFF
+#else		/* production settings */
+#define CONFIG_BOOT_LED_STATE	STATUS_LED_ON
+#endif
+
+#define CONFIG_SHOW_BOOT_PROGRESS 1
+
 #define CONFIG_BOOTCOMMAND	"bootm f8040000 f8100000" /* autoboot command */
 #define CONFIG_BOOTARGS		"root=/dev/ram ip=off"
 

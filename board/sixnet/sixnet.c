@@ -28,10 +28,29 @@
 #include <net.h>	/* for eth_init() */
 #include <rtc.h>
 #include "sixnet.h"
+#ifdef CONFIG_SHOW_BOOT_PROGRESS
+# include <status_led.h>
+#endif
 
 #define ORMASK(size) ((-size) & OR_AM_MSK)
 
 static long ram_size(ulong *, long);
+
+/* ------------------------------------------------------------------------- */
+
+#ifdef CONFIG_SHOW_BOOT_PROGRESS
+void show_boot_progress (int status)
+{
+#if defined(CONFIG_STATUS_LED)
+# if defined(STATUS_LED_BOOT)
+	if (status == 15) {
+		/* ready to transfer to kernel, make sure LED is proper state */
+		status_led_set(STATUS_LED_BOOT, CONFIG_BOOT_LED_STATE);
+	}
+# endif /* STATUS_LED_BOOT */
+#endif /* CONFIG_STATUS_LED */
+}
+#endif
 
 /* ------------------------------------------------------------------------- */
 
@@ -235,6 +254,9 @@ int misc_init_r (void)
 
 	volatile immap_t     *immap = (immap_t *)CFG_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
+	char* s;
+	char* e;
+	int reg;
 	bd_t *bd = gd->bd;
 
 	memctl->memc_or2 = NVRAM_OR_PRELIM;
@@ -283,18 +305,19 @@ int misc_init_r (void)
 	    immap->im_sit.sit_rtc = tim;
 	}
 
-#if 0
-	/* The code below is no longer valid since the prototype of
-	 * eth_init() and eth_halt() have been changed to support
-	 * multi-ethernet feature in U-Boot; the eth_initialize()
-	 * routine should be called before any access to the ethernet
-	 * callbacks.
+	/* set up ethernet address for SCC ethernet. If eth1addr
+	 * is present it gets a unique address, otherwise it
+	 * shares the FEC address.
 	 */
+	s = getenv("eth1addr");
+	if (s == NULL)
+		s = getenv("ethaddr");
+	for (reg=0; reg<6; ++reg) {
+		bd->bi_enet1addr[reg] = s ? simple_strtoul(s, &e, 16) : 0;
+		if (s)
+			s = (*e) ? e+1 : e;
+	}
 
-	/* FIXME - for now init ethernet to force PHY special mode */
-	eth_init(bd);
-	eth_halt();
-#endif
 	return (0);
 }
 
@@ -307,7 +330,7 @@ int misc_init_r (void)
  *
  * The memory size MUST be a power of 2 for this to work.
  *
- * The only memory modified is 4 bytes at offset 0. This is important
+ * The only memory modified is 8 bytes at offset 0. This is important
  * since for the SRAM this location is reserved for autosizing, so if
  * it is modified and the board is reset before ram_size() completes
  * no damage is  done. Normally even the memory at 0 is preserved. The
@@ -319,28 +342,27 @@ static long ram_size(ulong *base, long maxsize)
 {
     volatile long	*test_addr;
     volatile long	*base_addr = base;
-    volatile long	*flash = (volatile long*)CFG_FLASH_BASE;
     ulong		ofs;		/* byte offset from base_addr */
     ulong		save;		/* to make test non-destructive */
-    ulong		junk;
+    ulong		save2;		/* to make test non-destructive */
     long		ramsize = -1;	/* size not determined yet */
 
     save = *base_addr;		/* save value at 0 so can restore */
+    save2 = *(base_addr+1);	/* save value at 4 so can restore */
 
     /* is any SRAM present? */
     *base_addr = 0x5555aaaa;
 
-    /* use flash read to modify data bus, since with no SRAM present
-     * the data bus may retain the value if our code is running
-     * completely in the cache.
+    /* It is important to drive the data bus with different data so
+     * it doesn't remember the value and look like RAM that isn't there.
      */
-    junk = *flash;
+    *(base_addr + 1) = 0xaaaa5555;	/* use write to modify data bus */
 
     if (*base_addr != 0x5555aaaa)
 	ramsize = 0;		/* no RAM present, or defective */
     else {
 	*base_addr = 0xaaaa5555;
-	junk = *flash;		/* use flash read to modify data bus */
+        *(base_addr + 1) = 0x5555aaaa;	/* use write to modify data bus */
 	if (*base_addr != 0xaaaa5555)
 	    ramsize = 0;	/* no RAM present, or defective */
     }
@@ -355,6 +377,7 @@ static long ram_size(ulong *base, long maxsize)
     }
 
     *base_addr = save;		/* restore value at 0 */
+    *(base_addr+1) = save2;	/* restore value at 4 */
     return (ramsize);
 }
 
@@ -426,18 +449,21 @@ const uint sdram_table[] =
 			  MCR_MLCF(2) | MCR_MAD(0x30))	/* twice at 0x30  */
 
 /* MAMR values work in either mamr or mbmr */
-/* 8 column SDRAM */
-#define SDRAM_MAMR_8COL  /* refresh at 50MHz */				  \
+#define SDRAM_MAMR_BASE  /* refresh at 50MHz */				  \
 			 ((195 << MAMR_PTA_SHIFT) | MAMR_PTAE		  \
-			 | MAMR_AMA_TYPE_0	/* Address MUX 0 */	  \
 			 | MAMR_DSA_1_CYCL	/* 1 cycle disable */	  \
-			 | MAMR_G0CLA_A11	/* GPL0 A11[MPC] */	  \
 			 | MAMR_RLFA_1X		/* Read loop 1 time */	  \
 			 | MAMR_WLFA_1X		/* Write loop 1 time */	  \
 			 | MAMR_TLFA_4X)	/* Timer loop 4 times */
+/* 8 column SDRAM */
+#define SDRAM_MAMR_8COL	(SDRAM_MAMR_BASE				  \
+			 | MAMR_AMA_TYPE_0	/* Address MUX 0 */	  \
+			 | MAMR_G0CLA_A11)	/* GPL0 A11[MPC] */
 
 /* 9 column SDRAM */
-#define SDRAM_MAMR_9COL ((SDRAM_MAMR_8COL & (~MAMR_G0CLA_A11)) | MAMR_G0CLA_A10)
+#define SDRAM_MAMR_9COL	(SDRAM_MAMR_BASE				  \
+			 | MAMR_AMA_TYPE_1	/* Address MUX 1 */	  \
+			 | MAMR_G0CLA_A10)	/* GPL0 A10[MPC] */
 
 /* base address 0, 32-bit port, SDRAM UPM, valid */
 #define SDRAM_BR_VALUE   (BR_PS_32 | BR_MS_UPMA | BR_V)
