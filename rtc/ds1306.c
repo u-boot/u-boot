@@ -74,10 +74,6 @@ static unsigned char bcd2bin (unsigned char c);
 static unsigned char rtc_read (unsigned char reg);
 static void rtc_write (unsigned char reg, unsigned char val);
 
-
-
-
-
 /* ************************************************************************* */
 #ifdef CONFIG_SXNI855T		/* !!! SHOULD BE CHANGED TO NEW CODE !!! */
 
@@ -305,10 +301,6 @@ void rtc_reset (void)
 
 #else  /* not CONFIG_SXNI855T */
 /* ************************************************************************* */
-
-
-
-
 
 /* read clock time from DS1306 and return it in *tmp */
 void rtc_get (struct rtc_time *tmp)

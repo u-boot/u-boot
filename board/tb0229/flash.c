@@ -860,7 +860,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	}
 
 	for (info = info_first; info <= info_last; ++info) {
-										ulong b_end = info->start[0] + info->size;*//* bank end addr */
+										ulong b_end = info->start[0] + info->size;*/ /* bank end addr */
 /*		short s_end = info->sector_count - 1;
 		for (i=0; i<info->sector_count; ++i) {
 			ulong e_addr = (i == s_end) ? b_end : info->start[i + 1];
@@ -872,7 +872,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 		}
 	}
 
-*//* finally write data to flash */
+*/ /* finally write data to flash */
 /*	for (info = info_first; info <= info_last && cnt>0; ++info) {
 		ulong len;
 

@@ -43,7 +43,7 @@
 
 #define FATBUFBLOCKS	6
 #define FATBUFSIZE	(FS_BLOCK_SIZE*FATBUFBLOCKS)
-#define FAT12BUFSIZE	((FATBUFSIZE*3)/2)
+#define FAT12BUFSIZE	((FATBUFSIZE*2)/3)
 #define FAT16BUFSIZE	(FATBUFSIZE/2)
 #define FAT32BUFSIZE	(FATBUFSIZE/4)
 
@@ -176,7 +176,7 @@ typedef struct {
 	__u16	fat_sect;	/* Starting sector of the FAT */
 	__u16	rootdir_sect;	/* Start sector of root directory */
 	__u16	clust_size;	/* Size of clusters in sectors */
-	__u16	data_begin;	/* The sector of the first cluster */
+	short	data_begin;	/* The sector of the first cluster, can be negative */
 	__u8	fatbuf[FATBUFSIZE]; /* Current FAT buffer */
 	int	fatbufnum;	/* Used by get_fatent, init to -1 */
 } fsdata;

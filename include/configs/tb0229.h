@@ -84,7 +84,7 @@
 		"cp.b 80400000 BFC60000 $(filesize)\0"			\
 	"initenv=erase bfc40000 bfc5ffff\0"				\
 	""
-//#define CONFIG_BOOTCOMMAND	"run flash_local"
+/*#define CONFIG_BOOTCOMMAND	"run flash_local" */
 #define CONFIG_BOOTCOMMAND	"run netboot"
 
 #define CONFIG_COMMANDS		(CONFIG_CMD_DFL | \

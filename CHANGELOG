@@ -2,6 +2,10 @@
 Changes since U-Boot 1.0.1:
 ======================================================================
 
+* Patch by Jian Zhang, 3 Feb 2004:
+  - Changed the incorrect FAT12BUFSIZE
+  - data_begin in fsdata can be negative. Changed it to be short.
+
 * Patches by Stephan Linz, 30 Jan 2004:
   1: - board/altera/common/flash.c:flash_erase():
        o allow interrupts befor get_timer() call

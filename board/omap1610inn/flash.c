@@ -19,7 +19,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -32,7 +32,7 @@
 #include <linux/byteorder/swab.h>
 
 #define PHYS_FLASH_SECT_SIZE	0x00020000	/* 256 KB sectors (x2) */
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips    */
+flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips	   */
 
 /* Board support for 1 or 2 flash devices */
 #undef FLASH_PORT_WIDTH32
@@ -120,13 +120,13 @@ unsigned long flash_init (void)
  */
 flash_unlock(flash_info_t * info)
 {
-        int j;
-        for (j=2;j<CFG_MAX_FLASH_SECT;j++){
-        FPWV *addr = (FPWV *) (info->start[j]);
-        flash_unprotect_sectors (addr);
-        *addr = (FPW) 0x00500050;/* clear status register */
-        *addr = (FPW) 0x00FF00FF;/* resest to read mode */
-        }
+	int j;
+	for (j=2;j<CFG_MAX_FLASH_SECT;j++){
+	FPWV *addr = (FPWV *) (info->start[j]);
+	flash_unprotect_sectors (addr);
+	*addr = (FPW) 0x00500050;/* clear status register */
+	*addr = (FPW) 0x00FF00FF;/* resest to read mode */
+	}
 }
 
 /*-----------------------------------------------------------------------
@@ -192,7 +192,7 @@ void flash_print_info (flash_info_t * info)
 		if ((i % 5) == 0)
 			printf ("\n   ");
 		printf (" %08lX%s",
-			info->start[i], info->protect[i] ? " (RO)" : "     ");
+			info->start[i], info->protect[i] ? " (RO)" : "	   ");
 	}
 	printf ("\n");
 	return;
@@ -224,18 +224,18 @@ static ulong flash_get_size (FPW * addr, flash_info_t * info)
 		info->sector_count = 0;
 		info->size = 0;
 		addr[0] = (FPW) 0x00FF00FF;	/* restore read mode */
-		return (0);		/* no or unknown flash  */
+		return (0);		/* no or unknown flash	*/
 	}
 
 	mb ();
-	value = addr[1];	/* device ID        */
+	value = addr[1];	/* device ID	    */
 	switch (value) {
 
 	case (FPW) (INTEL_ID_28F256L18T):
 		info->flash_id += FLASH_28F256L18T;
 		info->sector_count = 259;
 		info->size = 0x02000000;
-		break;			/* => 32 MB     */
+		break;			/* => 32 MB	*/
 
 	default:
 		info->flash_id = FLASH_UNKNOWN;
@@ -318,7 +318,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 
 	/* Start erase on unprotected sectors */
 	for (sect = s_first; sect <= s_last; sect++) {
-		if (info->protect[sect] == 0) {	/* not protected */
+		if (info->protect[sect] == 0) { /* not protected */
 			FPWV *addr = (FPWV *) (info->start[sect]);
 			FPW status;
 
@@ -348,7 +348,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 				}
 			}
 
-			/* clear status register cmd.   */
+			/* clear status register cmd.	*/
 			*addr = (FPW) 0x00500050;
 			*addr = (FPW) 0x00FF00FF;/* resest to read mode */
 			printf (" done\n");

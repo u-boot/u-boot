@@ -113,7 +113,7 @@ long int initdram (int board_type)
 
 	memctl->memc_mptpr = 0x0200;	/* divide by 32 */
 
-	memctl->memc_mamr = 0x18003112;	/*CFG_MAMR_8COL; *//* 0x18005112 TODO: explain here */
+	memctl->memc_mamr = 0x18003112;	/*CFG_MAMR_8COL; */ /* 0x18005112 TODO: explain here */
 
 	upmconfig (UPMA, (uint *) sdram_table,
 		   sizeof (sdram_table) / sizeof (uint));

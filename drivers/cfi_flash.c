@@ -30,11 +30,11 @@
  * Tested Architectures
  * Port Width  Chip Width    # of banks    Flash Chip  Board
  * 32          16            1             23F128J3    seranoa/eagle
- * 
+ *
  */
 
 /* The DEBUG define must be before common to enable debugging */
-#undef  DEBUG 
+#undef  DEBUG
 #include <common.h>
 #include <asm/processor.h>
 #ifdef  CFG_FLASH_CFI_DRIVER
@@ -170,8 +170,8 @@ void print_longlong(char * str, unsigned long long data)
 	int i;
 	char *cp;
 	cp = (unsigned char *)&data;
-	for(i=0;i<8; i++) 
-		sprintf(&str[i*2], "%2.2x", *cp++);  
+	for(i=0;i<8; i++)
+		sprintf(&str[i*2], "%2.2x", *cp++);
 }
 #endif
 
@@ -501,7 +501,7 @@ void flash_read_user_serial(flash_info_t * info, void * buffer, int offset, int 
 void flash_read_factory_serial(flash_info_t * info, void * buffer, int offset, int len)
 {
 	uchar * src;
-	
+
 	src = flash_make_addr(info, 0, FLASH_OFFSET_INTEL_PROTECTION);
 	flash_write_cmd(info,0, 0, FLASH_CMD_READ_ID);
 	memcpy(buffer,src + offset,len);
@@ -510,7 +510,7 @@ void flash_read_factory_serial(flash_info_t * info, void * buffer, int offset, i
 
 #endif /* CFG_FLASH_PROTECTION */
 
-static int flash_poll_status(flash_info_t * info, flash_sect_t sect) 
+static int flash_poll_status(flash_info_t * info, flash_sect_t sect)
 {
 	int retval;
 	switch(info->vendor) {
@@ -626,27 +626,27 @@ static void flash_write_cmd(flash_info_t * info, flash_sect_t sect, uint offset,
 	flash_make_cmd(info, cmd, &cword);
 	switch(info->portwidth) {
 	case FLASH_CFI_8BIT:
-		debug("fwc addr %p cmd %x %x 8bit x %d bit\n",addr.cp, cmd, cword.c, 
+		debug("fwc addr %p cmd %x %x 8bit x %d bit\n",addr.cp, cmd, cword.c,
 		       info->chipwidth << CFI_FLASH_SHIFT_WIDTH);
 		*addr.cp = cword.c;
 		break;
 	case FLASH_CFI_16BIT:
-		debug("fwc addr %p cmd %x %4.4x 16bit x %d bit\n",addr.wp, cmd, cword.w, 
+		debug("fwc addr %p cmd %x %4.4x 16bit x %d bit\n",addr.wp, cmd, cword.w,
 		       info->chipwidth << CFI_FLASH_SHIFT_WIDTH);
 		*addr.wp = cword.w;
 		break;
 	case FLASH_CFI_32BIT:
-		debug("fwc addr %p cmd %x %8.8lx 32bit x %d bit\n",addr.lp, cmd, cword.l, 
+		debug("fwc addr %p cmd %x %8.8lx 32bit x %d bit\n",addr.lp, cmd, cword.l,
 		       info->chipwidth << CFI_FLASH_SHIFT_WIDTH);
 		*addr.lp = cword.l;
 		break;
 	case FLASH_CFI_64BIT:
 #ifdef DEBUG
-	        { 
+	        {
 			char str[20];
 			print_longlong(str, cword.ll);
-	
-			printf("fwc addr %p cmd %x %s 64 bit x %d bit\n",addr.llp, cmd, str, 
+
+			printf("fwc addr %p cmd %x %s 64 bit x %d bit\n",addr.llp, cmd, str,
 			       info->chipwidth << CFI_FLASH_SHIFT_WIDTH);
 		}
 #endif
@@ -685,7 +685,7 @@ static int flash_isequal(flash_info_t * info, flash_sect_t sect, uint offset, uc
 		retval = (cptr.lp[0] == cword.l);
 		break;
 	case FLASH_CFI_64BIT:
-#ifdef DEBUG		
+#ifdef DEBUG
 	        {
 			char str1[20];
 			char str2[20];
@@ -776,14 +776,14 @@ static int flash_detect_cfi(flash_info_t * info)
 			info->chipwidth >>= 1) { */
 		for(info->chipwidth =FLASH_CFI_BY8;
 		    info->chipwidth <= info->portwidth;
-		    info->chipwidth <<= 1) { 
+		    info->chipwidth <<= 1) {
 			flash_write_cmd(info, 0, 0, FLASH_CMD_RESET);
 			flash_write_cmd(info, 0, FLASH_OFFSET_CFI, FLASH_CMD_CFI);
 			if(flash_isequal(info, 0, FLASH_OFFSET_CFI_RESP,'Q') &&
 			   flash_isequal(info, 0, FLASH_OFFSET_CFI_RESP + 1, 'R') &&
 			   flash_isequal(info, 0, FLASH_OFFSET_CFI_RESP + 2, 'Y')) {
 				debug("found port %d chip %d ", info->portwidth, info->chipwidth);
-				debug("port %d bits chip %d bits\n", info->portwidth << CFI_FLASH_SHIFT_WIDTH, 
+				debug("port %d bits chip %d bits\n", info->portwidth << CFI_FLASH_SHIFT_WIDTH,
 				       info->chipwidth << CFI_FLASH_SHIFT_WIDTH);
 				return 1;
 			}
@@ -823,11 +823,11 @@ static ulong flash_get_size (ulong base, int banknum)
 			info->cmd_reset = AMD_CMD_RESET;
 			break;
 		}
-			
+
 		debug("manufacturer is %d\n", info->vendor);
 		size_ratio = info->portwidth / info->chipwidth;
 		num_erase_regions = flash_read_uchar(info, FLASH_OFFSET_NUM_ERASE_REGIONS);
-		debug("size_ration %d port %d bits chip %d bits\n", size_ratio, info->portwidth << CFI_FLASH_SHIFT_WIDTH, 
+		debug("size_ration %d port %d bits chip %d bits\n", size_ratio, info->portwidth << CFI_FLASH_SHIFT_WIDTH,
 			       info->chipwidth << CFI_FLASH_SHIFT_WIDTH);
 		debug("found %d erase regions\n", num_erase_regions);
 		sect_cnt = 0;

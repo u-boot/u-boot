@@ -296,11 +296,11 @@ int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 		pciauto_setup_device(hose, dev, 2, hose->pci_mem, hose->pci_io);
 
 		DEBUGF("PCI Autoconfig: Found P2P bridge, device %d\n", PCI_DEV(dev));
-		
+
 		/* TBS: Passing in current_busno allows for sibling P2P bridges */
 		pciauto_prescan_setup_bridge(hose, dev, hose->current_busno);
-		/* 
-		 * TBS: need to figure out if this is a subordinate bridge on the bus 
+		/*
+		 * TBS: need to figure out if this is a subordinate bridge on the bus
 		 * to be able to properly set the pri/sec/sub bridge registers.
 		 */
 		n = pci_hose_scan_bus(hose, hose->current_busno);
