@@ -127,21 +127,20 @@ reset:
 	 * is why it's called lowlevelinit
 	 */
 	bl	lowlevelinit /* in lowlevel.S */
-	bl	icache_enable;
-	/*------------------------------------
-	  Read/modify/write CP15 control register
-	 -------------------------------------
-	  read cp15 control register (cp15 r1) in r0
-	  ------------------------------------*/
-	mrc     p15, 0, r0, c1, c0, 0
-	/* Reset bit :Little Endian end fast bus mode */
-	ldr     r3, =0xC0000080
-	/* Set bit :Asynchronous clock mode, Not Fast Bus */
-	ldr     r4, =0xC0000000
-	bic     r0, r0, r3
-	orr     r0, r0, r4
-	/* write r0 in cp15 control register (cp15 r1) */
-	mcr     p15, 0, r0, c1, c0, 0
+
+	/*
+	 * Read/modify/write CP15 control register
+	 * disable MMU, enable I-Cache, select Asychronous Clocking Mode
+	 */
+
+	mrc     p15, 0, r0, c1, c0, 0	@ read cp15 control register (cp15 r1) in r0
+	bic	r0, r0, #0x00002300	@ clear bits 13, 9:8 (--V- --RS)
+	bic	r0, r0, #0x0000008f	@ clear bits 7, 3:0 (B--- WCAM)
+	orr	r0, r0, #0x00000002	@ set bit 2 (A) Align
+	orr	r0, r0, #0x00000004	@ set bit 3 (C) D-Cache
+	orr	r0, r0, #0x00001000	@ set bit 12 (I) I-Cache
+	orr	r0, r0, #0xC0000000	@ set bits 31:30 (iA, nF)
+	mcr     p15, 0, r0, c1, c0, 0	@ write r0 in cp15 control register (cp15 r1)
 #endif /* CONFIG_BOOTBINFUNC */
 	/*
 	 * relocate exeception table
