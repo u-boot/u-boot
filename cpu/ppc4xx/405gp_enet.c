@@ -414,6 +414,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 
 	out32 (EMAC_IAL + hw_p->hw_addr, reg);
 	switch (devnum) {
+#if defined(CONFIG_NET_MULTI)
 	case 1:
 		/* setup MAL tx & rx channel pointers */
 		/* For 405EP, the EMAC1 tx channel 0 is MAL tx channel 2 */
@@ -422,6 +423,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 		/* set RX buffer size */
 		mtdcr (malrcbs1, ENET_MAX_MTU_ALIGNED / 16);
 		break;
+#endif
 	case 0:
 	default:
 		/* setup MAL tx & rx channel pointers */

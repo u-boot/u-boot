@@ -2,6 +2,10 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Fix flash parameters passed to Linux for PPChameleon board
+
+* Remove eth_init() from lib_arm/board.c; it's done in net.net.c.
+
 * Patch by Paul Ruhland, 10 Jun 2004:
   fix support for Logic SDK-LH7A404 board and clean up the 
   LH7A404 register macros.

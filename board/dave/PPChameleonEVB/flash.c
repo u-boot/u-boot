@@ -44,10 +44,10 @@ unsigned long flash_init (void)
 #ifdef __DEBUG_START_FROM_SRAM__
 	return CFG_DUMMY_FLASH_SIZE;
 #else
-	unsigned long size_b0;
+	unsigned long size;
 	int i;
 	uint pbcr;
-	unsigned long base_b0;
+	unsigned long base;
 	int size_val = 0;
 
 	/* Init: no FLASHes known */
@@ -57,22 +57,22 @@ unsigned long flash_init (void)
 
 	/* Static FLASH Bank configuration here - FIXME XXX */
 
-	size_b0 = flash_get_size((vu_long *)FLASH_BASE0_PRELIM, &flash_info[0]);
+	size = flash_get_size((vu_long *)FLASH_BASE0_PRELIM, &flash_info[0]);
 
 	if (flash_info[0].flash_id == FLASH_UNKNOWN) {
 		printf ("## Unknown FLASH on Bank 0 - Size = 0x%08lx = %ld MB\n",
-			size_b0, size_b0<<20);
+			size, size<<20);
 	}
 
 	/* Setup offsets */
-	flash_get_offsets (-size_b0, &flash_info[0]);
+	flash_get_offsets (-size, &flash_info[0]);
 
 	/* Re-do sizing to get full correct info */
 	mtdcr(ebccfga, pb0cr);
 	pbcr = mfdcr(ebccfgd);
 	mtdcr(ebccfga, pb0cr);
-	base_b0 = -size_b0;
-	switch (size_b0) {
+	base = -size;
+	switch (size) {
 	case 1 << 20:
 		size_val = 0;
 		break;
@@ -89,7 +89,7 @@ unsigned long flash_init (void)
 		size_val = 4;
 		break;
 	}
-	pbcr = (pbcr & 0x0001ffff) | base_b0 | (size_val << 17);
+	pbcr = (pbcr & 0x0001ffff) | base | (size_val << 17);
 	mtdcr(ebccfgd, pbcr);
 
 	/* Monitor protection ON by default */
@@ -98,8 +98,8 @@ unsigned long flash_init (void)
 			    0xffffffff,
 			    &flash_info[0]);
 
-	flash_info[0].size = size_b0;
+	flash_info[0].size  = size;
 
-	return (size_b0);
+	return (size);
 #endif
 }

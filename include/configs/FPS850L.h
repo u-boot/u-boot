@@ -121,11 +121,7 @@
  */
 #define	CFG_SDRAM_BASE		0x00000000
 #define CFG_FLASH_BASE		0x40000000
-#ifdef	DEBUG
 #define	CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
-#else
-#define	CFG_MONITOR_LEN		(128 << 10)	/* Reserve 128 kB for Monitor	*/
-#endif
 #define CFG_MONITOR_BASE	CFG_FLASH_BASE
 #define	CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
 
@@ -135,11 +131,12 @@
  * the maximum mapped by the Linux kernel during initialization.
  */
 #define	CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux	*/
+
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
 #define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	67	/* max number of sectors on one chip	*/
+#define CFG_MAX_FLASH_SECT	71	/* max number of sectors on one chip	*/
 
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
@@ -147,6 +144,10 @@
 #define	CFG_ENV_IS_IN_FLASH	1
 #define	CFG_ENV_OFFSET		0x8000	/*   Offset   of Environment Sector	*/
 #define	CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
+
+/* Address and size of Redundant Environment Sector	*/
+#define CFG_ENV_OFFSET_REDUND	(CFG_ENV_OFFSET+CFG_ENV_SIZE)
+#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
 
 /*-----------------------------------------------------------------------
  * Hardware Information Block
@@ -260,9 +261,11 @@
 #define CFG_REMAP_OR_AM		0x80000000	/* OR addr mask */
 #define CFG_PRELIM_OR_AM	0xE0000000	/* OR addr mask */
 
-/* FLASH timing: ACS = 11, TRLX = 0, CSNT = 1, SCY = 5, EHTR = 1	*/
-#define CFG_OR_TIMING_FLASH	(OR_CSNT_SAM  | OR_ACS_DIV2 | OR_BI | \
-				 OR_SCY_5_CLK | OR_EHTR)
+/*
+ * FLASH timing:
+ */
+#define CFG_OR_TIMING_FLASH	(OR_ACS_DIV1  | OR_TRLX | OR_CSNT_SAM | \
+				 OR_SCY_3_CLK | OR_EHTR | OR_BI)
 
 #define CFG_OR0_REMAP	(CFG_REMAP_OR_AM  | CFG_OR_TIMING_FLASH)
 #define CFG_OR0_PRELIM	(CFG_PRELIM_OR_AM | CFG_OR_TIMING_FLASH)
@@ -291,12 +294,42 @@
 
 /*
  * Memory Periodic Timer Prescaler
+ *
+ * The Divider for PTA (refresh timer) configuration is based on an
+ * example SDRAM configuration (64 MBit, one bank). The adjustment to
+ * the number of chip selects (NCS) and the actually needed refresh
+ * rate is done by setting MPTPR.
+ *
+ * PTA is calculated from
+ *	PTA = (gclk * Trefresh) / ((2 ^ (2 * DFBRG)) * PTP * NCS)
+ *
+ *	gclk	  CPU clock (not bus clock!)
+ *	Trefresh  Refresh cycle * 4 (four word bursts used)
+ *
+ * 4096  Rows from SDRAM example configuration
+ * 1000  factor s -> ms
+ *   32  PTP (pre-divider from MPTPR) from SDRAM example configuration
+ *    4  Number of refresh cycles per period
+ *   64  Refresh cycle in ms per number of rows
+ * --------------------------------------------
+ * Divider = 4096 * 32 * 1000 / (4 * 64) = 512000
+ *
+ * 50 MHz => 50.000.000 / Divider =  98
+ * 66 Mhz => 66.000.000 / Divider = 129
+ * 80 Mhz => 80.000.000 / Divider = 156
  */
 
-/* periodic timer for refresh */
-#define CFG_MAMR_PTA	97		/* start with divider for 100 MHz	*/
+#define CFG_PTA_PER_CLK	((4096 * 32 * 1000) / (4 * 64))
+#define CFG_MAMR_PTA	98
 
-/* refresh rate 15.6 us (= 64 ms / 4K = 62.4 / quad bursts) for <= 128 MBit	*/
+/*
+ * For 16 MBit, refresh rates could be 31.3 us
+ * (= 64 ms / 2K = 125 / quad bursts).
+ * For a simpler initialization, 15.6 us is used instead.
+ *
+ * #define CFG_MPTPR_2BK_2K	MPTPR_PTP_DIV32		for 2 banks
+ * #define CFG_MPTPR_1BK_2K	MPTPR_PTP_DIV64		for 1 bank
+ */
 #define CFG_MPTPR_2BK_4K	MPTPR_PTP_DIV16		/* setting for 2 banks	*/
 #define CFG_MPTPR_1BK_4K	MPTPR_PTP_DIV32		/* setting for 1 bank	*/
 

@@ -96,11 +96,15 @@ int misc_init_f (void)
 	return 0;  /* dummy implementation */
 }
 
+extern flash_info_t flash_info[];	/* info for FLASH chips */
 
 int misc_init_r (void)
 {
-#if 0 /* test-only */
 	DECLARE_GLOBAL_DATA_PTR;
+
+	/* adjust flash start and size as well as the offset */
+	gd->bd->bi_flashstart = 0 - flash_info[0].size;
+	gd->bd->bi_flashoffset= flash_info[0].size - CFG_MONITOR_LEN;
 #if 0
 	volatile unsigned short *fpga_mode =
 		(unsigned short *)((ulong)CFG_FPGA_BASE_ADDR + CFG_FPGA_CTRL);
@@ -192,8 +196,6 @@ int misc_init_r (void)
 	*duart0_mcr = 0x08;
 	*duart1_mcr = 0x08;
 #endif
-#endif
-
 	return (0);
 }
 
