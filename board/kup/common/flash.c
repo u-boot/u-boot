@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2002
+ * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -197,13 +197,13 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 	case AMD_ID_LV800T:
 		info->flash_id += FLASH_AM800T;
 		info->sector_count = 19;
-		info->size = 0x00200000;
-		break;				/* => 2 MB		*/
+		info->size = 0x00100000;
+		break;				/* => 1 MB		*/
 	case AMD_ID_LV800B:
 		info->flash_id += FLASH_AM800B;
 		info->sector_count = 19;
-		info->size = 0x00200000;
-		break;				/* => 2 MB		*/
+		info->size = 0x00100000;
+		break;				/* => 1 MB		*/
 	default:
 		info->flash_id = FLASH_UNKNOWN;
 		return (0);			/* => no or unknown flash */

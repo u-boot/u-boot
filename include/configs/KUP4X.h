@@ -35,22 +35,32 @@
  * (easy to change)
  */
 
-#define CONFIG_MPC855		1	/* This is a MPC855 CPU		*/
-#define CONFIG_KUP4K		1	/* ...on a KUP4K module */
+#define CONFIG_MPC859T		1	/* This is a MPC859T CPU		*/
+#define CONFIG_KUP4X		1	/* ...on a KUP4X module			*/
 
-#define CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
+#define CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1			*/
 #undef	CONFIG_8xx_CONS_SMC2
 #undef	CONFIG_8xx_CONS_NONE
-#define CONFIG_BAUDRATE		115200	/* console baudrate		*/
+#define CONFIG_BAUDRATE		115200	/* console baudrate			*/
 #if 0
-#define CONFIG_BOOTDELAY	-1	/* autoboot disabled		*/
+#define CONFIG_BOOTDELAY	-1	/* autoboot disabled			*/
 #else
-#define CONFIG_BOOTDELAY	1	/* autoboot after 1 second	*/
+#define CONFIG_BOOTDELAY	1	/* autoboot after 1 second		*/
 #endif
 
-#define CONFIG_CLOCKS_IN_MHZ	1	/* clocks passsed to Linux in MHz */
+#define CONFIG_CLOCKS_IN_MHZ	1	/* clocks passsed to Linux in MHz	*/
 
-#define CONFIG_BOARD_TYPES	1	/* support board types		*/
+#define CONFIG_BOARD_TYPES	1	/* support board types			*/
+
+#define CFG_8XX_FACT		8	/* Multiply by 8			*/
+#define CFG_8XX_XIN		16000000	/* 16 MHz in			*/
+
+
+#define MPC8XX_HZ ((CFG_8XX_XIN) * (CFG_8XX_FACT))
+
+/* should ALWAYS define this, measure_gclk in speed.c is unreliable */
+/* in general, we always know this for FADS+new ADS anyway */
+#define CONFIG_8xx_GCLK_FREQ	 MPC8XX_HZ
 
 
 #undef	CONFIG_BOOTARGS
@@ -58,10 +68,10 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS						\
 "slot_a_boot=setenv bootargs root=/dev/hda2 ip=off;"				\
- "run addhw; diskboot 200000 0:1; bootm 200000\0"				\
+  "run addhw;diskboot 200000 0:1;bootm 200000\0"				\
 "slot_b_boot=setenv bootargs root=/dev/hda2 ip=off;"				\
- "run addhw; diskboot 200000 2:1; bootm 200000\0"				\
-"nfs_boot=dhcp; run nfsargs addip addhw; bootm 200000\0"			\
+ "run addhw;diskboot 200000 2:1;bootm 200000\0"					\
+"nfs_boot=dhcp;run nfsargs addip addhw;bootm 200000\0"				\
 "panic_boot=echo No Bootdevice !!! reset\0"					\
 "nfsargs=setenv bootargs root=/dev/nfs rw nfsroot=$(serverip):$(rootpath)\0"	\
 "ramargs=setenv bootargs root=/dev/ram rw\0"					\
@@ -69,14 +79,13 @@
  ":$(netmask):$(hostname):$(netdev):off\0"					\
 "addhw=setenv bootargs $(bootargs) hw=$(hw) key1=$(key1) panic=1\0"		\
 "netdev=eth0\0"									\
-"contrast=55\0"									\
 "silent=1\0"									\
-"load=tftp 200000 bootloader-4k.bitmap;tftp 100000 bootloader-4k.bin\0"		\
+"load=tftp 200000 bootloader-4x.bitmap;tftp 100000 bootloader-4x.bin\0"		\
 "update=protect off 1:0-5;era 1:0-5;cp.b 100000 40000000 $(filesize);"		\
  "cp.b 200000 40040000 14000\0"
 
 #define CONFIG_BOOTCOMMAND  \
-    "run slot_a_boot;run slot_b_boot;run nfs_boot;run panic_boot"
+    "run slot_a_boot;run nfs_boot;run panic_boot"
 
 
 #define CONFIG_MISC_INIT_R	1
@@ -96,23 +105,20 @@
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
 
-#define CONFIG_RTC_MPC8xx		/* use internal RTC of MPC8xx	*/
-
 #define CONFIG_HARD_I2C
-#define CFG_I2C_SPEED	40000
-#define CFG_I2C_SLAVE	0x7F
+#define CFG_I2C_SPEED 40000
+#define CFG_I2C_SLAVE 0x7F
 
-#define CONFIG_ETHADDR			00:0B:64:00:00:00 /* our OUI from IEEE */
-#define CONFIG_KUP4K_LOGO		0x40040000  /* Address of logo bitmap */
+#define CONFIG_ETHADDR			00:0B:64:80:00:00 /* our OUI from IEEE */
+#undef CONFIG_KUP4K_LOGO
 
 /* Define to allow the user to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
 				CFG_CMD_DHCP	| \
-				CFG_CMD_IDE	| \
 				CFG_CMD_I2C	| \
-				CFG_CMD_DATE	)
+				CFG_CMD_IDE	)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -132,8 +138,7 @@
 #define CFG_BARGSIZE	CFG_CBSIZE	/* Boot Argument Buffer Size	*/
 
 #define CFG_MEMTEST_START	0x000400000	/* memtest works on	*/
-#define CFG_MEMTEST_END		0x002C00000	/* 4 ... 44 MB in DRAM	*/
-
+#define CFG_MEMTEST_END		0x003C00000	/* 4 ... 60 MB in DRAM	*/
 #define CFG_LOAD_ADDR		0x200000	/* default load address */
 
 #define CFG_HZ		1000		/* decrementer freq: 1 ms ticks */
@@ -157,7 +162,7 @@
  */
 #define CFG_INIT_RAM_ADDR	CFG_IMMR
 #define CFG_INIT_RAM_END	0x2F00	/* End of used area in DPRAM	*/
-#define CFG_GBL_DATA_SIZE	64  /* size in bytes reserved for initial data */
+#define CFG_GBL_DATA_SIZE	64	/* size in bytes reserved for initial data */
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
@@ -168,7 +173,7 @@
  */
 #define CFG_SDRAM_BASE		0x00000000
 #define CFG_FLASH_BASE		0x40000000
-#define CFG_MONITOR_LEN		(192 << 10)	/* Reserve 192 kB for Monitor	*/
+#define CFG_MONITOR_LEN		(192 << 10)	/* Reserve 256 kB for Monitor	*/
 #define CFG_MONITOR_BASE	CFG_FLASH_BASE
 #define CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
 
@@ -241,11 +246,6 @@
  */
 #define CFG_TBSCR	(TBSCR_REFA | TBSCR_REFB | TBSCR_TBF)
 
-/*-----------------------------------------------------------------------
- * RTCSC - Real-Time Clock Status and Control Register		11-27
- *-----------------------------------------------------------------------
- */
-#define CFG_RTCSC	(RTCSC_SEC | RTCSC_ALR | RTCSC_RTF| RTCSC_RTE)
 
 /*-----------------------------------------------------------------------
  * PISCR - Periodic Interrupt Status and Control		11-31
@@ -254,15 +254,15 @@
  */
 #define CFG_PISCR	(PISCR_PS | PISCR_PITF)
 
+
 /*-----------------------------------------------------------------------
- * PLPRCR - PLL, Low-Power, and Reset Control Register		15-30
+ * PLPRCR - PLL, Low-Power, and Reset Control Register	15-30
  *-----------------------------------------------------------------------
- * Reset PLL lock status sticky bit, timer expired status bit and timer
- * interrupt status bit
- *
- * If this is a 80 MHz CPU, set PLL multiplication factor to 5 (5*16=80)!
+ * set the PLL, the low-power modes and the reset control (15-29)
  */
-#define CFG_PLPRCR ( (5-1)<<PLPRCR_MF_SHIFT | PLPRCR_TEXPS | PLPRCR_TMIST )
+#define CFG_PLPRCR	((CFG_8XX_FACT << PLPRCR_MFI_SHIFT) |	\
+				PLPRCR_SPLSS | PLPRCR_TEXPS)
+
 
 /*-----------------------------------------------------------------------
  * SCCR - System Clock and reset Control Register		15-27
@@ -294,7 +294,7 @@
 #define CFG_PCMCIA_IO_ADDR	(0xEC000000)
 #define CFG_PCMCIA_IO_SIZE	( 64 << 20 )
 
-#define PCMCIA_SOCKETS_NO 2
+#define PCMCIA_SOCKETS_NO 1
 #define PCMCIA_MEM_WIN_NO 8
 /*-----------------------------------------------------------------------
  * IDE/ATA stuff (Supports IDE harddisk on PCMCIA Adapter)
@@ -304,11 +304,11 @@
 #define CONFIG_IDE_8xx_PCCARD	1	/* Use IDE with PC Card Adapter */
 
 #undef	CONFIG_IDE_8xx_DIRECT		/* Direct IDE	 not supported	*/
-#define CONFIG_IDE_LED		1	/* LED	 for ide supported	*/
+#define CONFIG_IDE_LED			1   /* LED   for ide supported	*/
 #undef	CONFIG_IDE_RESET		/* reset for ide not supported	*/
 
-#define CFG_IDE_MAXBUS		2
-#define CFG_IDE_MAXDEVICE	4
+#define CFG_IDE_MAXBUS		1
+#define CFG_IDE_MAXDEVICE	2
 
 #define CFG_ATA_IDE0_OFFSET	0x0000
 
@@ -362,54 +362,13 @@
 #define CFG_OR_TIMING_SDRAM	0x00000A00
 
 
-/*
- * Memory Periodic Timer Prescaler
- *
- * The Divider for PTA (refresh timer) configuration is based on an
- * example SDRAM configuration (64 MBit, one bank). The adjustment to
- * the number of chip selects (NCS) and the actually needed refresh
- * rate is done by setting MPTPR.
- *
- * PTA is calculated from
- *	PTA = (gclk * Trefresh) / ((2 ^ (2 * DFBRG)) * PTP * NCS)
- *
- *	gclk	  CPU clock (not bus clock!)
- *	Trefresh  Refresh cycle * 4 (four word bursts used)
- *
- * 4096	 Rows from SDRAM example configuration
- * 1000	 factor s -> ms
- *   32	 PTP (pre-divider from MPTPR) from SDRAM example configuration
- *    4	 Number of refresh cycles per period
- *   64	 Refresh cycle in ms per number of rows
- * --------------------------------------------
- * Divider = 4096 * 32 * 1000 / (4 * 64) = 512000
- *
- * 50 MHz => 50.000.000 / Divider =  98
- * 66 Mhz => 66.000.000 / Divider = 129
- * 80 Mhz => 80.000.000 / Divider = 156
- */
-#if   defined(CONFIG_80MHz)
-#define CFG_MAMR_PTA		156
-#elif defined(CONFIG_66MHz)
-#define CFG_MAMR_PTA		129
-#else		/*   50 MHz */
-#define CFG_MAMR_PTA		 98
-#endif	/*CONFIG_??MHz */
-
-/*
- * For 16 MBit, refresh rates could be 31.3 us
- * (= 64 ms / 2K = 125 / quad bursts).
- * For a simpler initialization, 15.6 us is used instead.
- *
- * #define CFG_MPTPR_2BK_2K	MPTPR_PTP_DIV32		for 2 banks
- * #define CFG_MPTPR_1BK_2K	MPTPR_PTP_DIV64		for 1 bank
- */
 #define CFG_MPTPR 0x400
 
 /*
  * MAMR settings for SDRAM
  */
 #define CFG_MAMR 0x80802114
+
 
 /*
  * Internal Definitions
@@ -420,11 +379,11 @@
 #define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
 
-#define CONFIG_AUTOBOOT_KEYED		/* use key strings to stop autoboot */
+#define CONFIG_AUTOBOOT_KEYED		/* use key strings to stop autoboot	*/
 #if 0
 #define CONFIG_AUTOBOOT_PROMPT		"Boote in %d Sekunden - stop mit \"2\"\n"
 #endif
-#define CONFIG_AUTOBOOT_STOP_STR	"." /* easy to stop for now */
+#define CONFIG_AUTOBOOT_STOP_STR	"."	/* easy to stop for now		*/
 #define CONFIG_SILENT_CONSOLE	1
 
 #endif	/* __CONFIG_H */

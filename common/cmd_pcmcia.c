@@ -2125,11 +2125,11 @@ done:
 #endif	/* R360MPI */
 
 /* -------------------------------------------------------------------- */
-/* KUP4K Board								*/
+/* KUP4K and KUP4X Boards								*/
 /* -------------------------------------------------------------------- */
-#if defined(CONFIG_KUP4K)
+#if defined(CONFIG_KUP4K) || defined(CONFIG_KUP4X)
 
-#define PCMCIA_BOARD_MSG "KUP4K"
+#define PCMCIA_BOARD_MSG "KUP"
 
 #define KUP4K_PCMCIA_B_3V3 (0x00020000)
 
@@ -2337,7 +2337,7 @@ static int voltage_set(int slot, int vcc, int vpp)
 	return (0);
 }
 
-#endif	/* KUP4K */
+#endif	/* KUP4K || KUP4X */
 
 
 /* -------------------------------------------------------------------- */

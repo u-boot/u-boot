@@ -269,8 +269,8 @@ void status_led_set  (int led, int state);
 # define STATUS_LED_ACTIVE	1		/* LED on for bit == 0	*/
 # define STATUS_LED_BOOT	0		/* LED 0 used for boot status */
 
-/*****  KUP4K  ********************************************************/
-#elif defined(CONFIG_KUP4K)
+/*****  KUP4K, KUP4X  ****************************************************/
+#elif defined(CONFIG_KUP4K) || defined(CONFIG_KUP4X) || defined(CONFIG_CCM)
 
 # define STATUS_LED_PAR		im_ioport.iop_papar
 # define STATUS_LED_DIR		im_ioport.iop_padir

@@ -139,7 +139,7 @@ static  block_dev_desc_t ide_dev_desc[CFG_IDE_MAXDEVICE];
 /* ------------------------------------------------------------------------- */
 
 #ifdef CONFIG_IDE_LED
-#if !defined(CONFIG_KUP4K) && !defined(CONFIG_HMI10)
+#if !defined(CONFIG_KUP4K) &&  !defined(CONFIG_KUP4X) &&!defined(CONFIG_BMS2003)
 static void  ide_led   (uchar led, uchar status);
 #else
 extern void  ide_led   (uchar led, uchar status);
@@ -1537,7 +1537,11 @@ static void ide_reset (void)
 
 /* ------------------------------------------------------------------------- */
 
-#if defined(CONFIG_IDE_LED) && !defined(CONFIG_AMIGAONEG3SE) && !defined(CONFIG_KUP4K) && !defined(CONFIG_HMI10)
+#if defined(CONFIG_IDE_LED) && \
+   !defined(CONFIG_AMIGAONEG3SE) && \
+   !defined(CONFIG_KUP4K) && \
+   !defined(CONFIG_KUP4X) && \
+   !defined(CONFIG_HMI10)
 
 static	uchar	led_buffer = 0;		/* Buffer for current LED status	*/
 

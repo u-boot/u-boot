@@ -980,10 +980,10 @@ typedef struct scc_enet {
 
 #endif	/* CONFIG_IVMS8, CONFIG_IVML24 */
 
-/***  KUP4K  *********************************************************/
-/* The KUP4K uses the FEC on a MPC855T for Ethernet */
+/***  KUP4K, KUP4X ****************************************************/
+/* The KUP4 boards uses the FEC on a MPC8xx for Ethernet */
 
-#if defined(CONFIG_KUP4K)
+#if defined(CONFIG_KUP4K) || defined(CONFIG_KUP4X)
 
 #define	FEC_ENET	/* use FEC for EThernet */
 #undef	SCC_ENET

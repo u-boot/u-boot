@@ -2,6 +2,9 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
+* Patch by Klaus Heydeck, 13 Mar 2003:
+  Add support for KUP4X Board
+
 * Patch by Pavel Bartusek, 21 Mar 2004
   Add Reiserfs support
 

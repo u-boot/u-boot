@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2002
+ * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -33,36 +33,41 @@ SECTIONS
   .hash          : { *(.hash)		}
   .dynsym        : { *(.dynsym)		}
   .dynstr        : { *(.dynstr)		}
-  .rel.text      : { *(.rel.text)		}
+  .rel.text      : { *(.rel.text)	}
   .rela.text     : { *(.rela.text) 	}
-  .rel.data      : { *(.rel.data)		}
+  .rel.data      : { *(.rel.data)	}
   .rela.data     : { *(.rela.data) 	}
   .rel.rodata    : { *(.rel.rodata) 	}
   .rela.rodata   : { *(.rela.rodata) 	}
-  .rel.got       : { *(.rel.got)		}
-  .rela.got      : { *(.rela.got)		}
+  .rel.got       : { *(.rel.got)	}
+  .rela.got      : { *(.rela.got)	}
   .rel.ctors     : { *(.rel.ctors)	}
   .rela.ctors    : { *(.rela.ctors)	}
   .rel.dtors     : { *(.rel.dtors)	}
   .rela.dtors    : { *(.rela.dtors)	}
-  .rel.bss       : { *(.rel.bss)		}
-  .rela.bss      : { *(.rela.bss)		}
-  .rel.plt       : { *(.rel.plt)		}
-  .rela.plt      : { *(.rela.plt)		}
-  .init          : { *(.init)	}
+  .rel.bss       : { *(.rel.bss)	}
+  .rela.bss      : { *(.rela.bss)	}
+  .rel.plt       : { *(.rel.plt)	}
+  .rela.plt      : { *(.rela.plt)	}
+  .init          : { *(.init)		}
   .plt : { *(.plt) }
   .text      :
   {
     /* WARNING - the following is hand-optimized to fit within	*/
     /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
+    cpu/mpc8xx/start.o		(.text)
+/*
     cpu/mpc8xx/start.o	(.text)
     common/dlmalloc.o	(.text)
+    lib_ppc/ppcstring.o	(.text)
     lib_generic/vsprintf.o	(.text)
     lib_generic/crc32.o		(.text)
+    lib_generic/zlib.o		(.text)
 
     . = env_offset;
     common/environment.o(.text)
+*/
 
     *(.text)
     *(.fixup)
@@ -74,13 +79,14 @@ SECTIONS
   {
     *(.rodata)
     *(.rodata1)
+    *(.rodata.str1.4)
   }
   .fini      : { *(.fini)    } =0
   .ctors     : { *(.ctors)   }
   .dtors     : { *(.dtors)   }
 
   /* Read-write section, merged into data segment: */
-  . = (. + 0x0FFF) & 0xFFFFF000;
+  . = (. + 0x00FF) & 0xFFFFFF00;
   _erotext = .;
   PROVIDE (erotext = .);
   .reloc   :
@@ -115,11 +121,11 @@ SECTIONS
   __ex_table : { *(__ex_table) }
   __stop___ex_table = .;
 
-  . = ALIGN(4096);
+  . = ALIGN(256);
   __init_begin = .;
   .text.init : { *(.text.init) }
   .data.init : { *(.data.init) }
-  . = ALIGN(4096);
+  . = ALIGN(256);
   __init_end = .;
 
   __bss_start = .;

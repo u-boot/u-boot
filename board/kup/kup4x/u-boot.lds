@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2002
+ * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -57,17 +57,17 @@ SECTIONS
     /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
     cpu/mpc8xx/start.o		(.text)
-    cpu/mpc8xx/traps.o		(.text)
-    common/dlmalloc.o		(.text)
-    lib_ppc/ppcstring.o		(.text)
+/*
+    cpu/mpc8xx/start.o	(.text)
+    common/dlmalloc.o	(.text)
+    lib_ppc/ppcstring.o	(.text)
     lib_generic/vsprintf.o	(.text)
     lib_generic/crc32.o		(.text)
     lib_generic/zlib.o		(.text)
-    lib_ppc/cache.o		(.text)
-    lib_ppc/time.o		(.text)
 
     . = env_offset;
-    common/environment.o	(.ppcenv)
+    common/environment.o(.text)
+*/
 
     *(.text)
     *(.fixup)

@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000-2002
+# (C) Copyright 2000-2004
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -21,8 +21,20 @@
 # MA 02111-1307 USA
 #
 
-#
-# KUP4K board
-#
+include $(TOPDIR)/config.mk
 
-TEXT_BASE = 0x40000000
+LIB	= lib$(BOARD).a
+
+OBJS	= $(BOARD).o flash.o kup.o
+
+$(LIB):	.depend $(OBJS)
+	$(AR) crv $@ $(OBJS)
+
+#########################################################################
+
+.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
+		$(CC) -M $(CFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
+
+sinclude .depend
+
+#########################################################################
