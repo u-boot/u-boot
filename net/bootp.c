@@ -174,6 +174,11 @@ static void BootpVendorFieldProcess(u8 *ext)
 		if (NetOurDNSIP == 0) {
 			NetCopyIP(&NetOurDNSIP, (IPaddr_t*)(ext+2));
 		}
+#if (CONFIG_BOOTP_MASK & CONFIG_BOOTP_DNS2)
+		if ((NetOurDNS2IP == 0) && (size > 4)) {
+			NetCopyIP(&NetOurDNS2IP, (IPaddr_t*)(ext+2+4));
+		}
+#endif
 		break;
 	case 7:		/* Log server - Not yet supported		*/
 		break;
@@ -365,6 +370,9 @@ static int DhcpExtended(u8 *e, int message_type, IPaddr_t ServerID, IPaddr_t Req
 #if (CONFIG_BOOTP_MASK & CONFIG_BOOTP_VENDOREX)
     u8 *x;
 #endif
+#if (CONFIG_BOOTP_MASK & CONFIG_BOOTP_SEND_HOSTNAME)
+    uchar *hostname;
+#endif
 
     *e++ =  99;		/* RFC1048 Magic Cookie */
     *e++ = 130;
@@ -401,6 +409,16 @@ static int DhcpExtended(u8 *e, int message_type, IPaddr_t ServerID, IPaddr_t Req
 	    *e++ = tmp >> 8;
 	    *e++ = tmp & 0xff;
     }
+
+#if (CONFIG_BOOTP_MASK & CONFIG_BOOTP_SEND_HOSTNAME)
+    if ( (hostname = getenv("hostname")) ) {
+	    int hostnamelen = strlen(hostname);
+	    *e++ = 12;        /* Hostname */
+	    *e++ = hostnamelen;
+	    memcpy(e,hostname,hostnamelen);
+	    e += hostnamelen;
+    }
+#endif
 
 #if (CONFIG_BOOTP_MASK & CONFIG_BOOTP_VENDOREX)
     if ((x = dhcp_vendorex_prep (e)))
@@ -690,6 +708,11 @@ static void DhcpOptionsProcess(uchar *popt)
 				break;
 			case  6:
 				NetCopyIP(&NetOurDNSIP, (popt+2));
+#if (CONFIG_BOOTP_MASK & CONFIG_BOOTP_DNS2)
+				if ( *(popt+1) > 4 ) {
+					NetCopyIP(&NetOurDNS2IP, (popt+2+4));
+				}
+#endif
 				break;
 			case 12:
 				size = truncate_sz ("Host Name",

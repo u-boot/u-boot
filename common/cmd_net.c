@@ -116,6 +116,13 @@ static void netboot_update_env(void)
 	setenv("dnsip", tmp);
     }
 
+#if (CONFIG_BOOTP_MASK & CONFIG_BOOTP_DNS2)
+    if (NetOurDNS2IP) {
+	    ip_to_string (NetOurDNS2IP, tmp);
+	    setenv("dnsip2", tmp);
+    }
+#endif
+
     if (NetOurNISDomain[0])
 	setenv("domain", NetOurNISDomain);
 
