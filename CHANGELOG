@@ -5,6 +5,9 @@ Changes for U-Boot 1.1.3:
 * Prepare for SoC rework of ARM code:
   - rename CONFIG_BOOTBINFUNC into  CONFIG_INIT_CRITICAL
   - rename memsetup into lowlevel_init (function name and source files)
+  Patch by Steven Scholz, 03 Apr 2005:
+  - create SoC specific directories include/asm-arm/arch-imx and
+    include/asm-arm/arch-s3c24x0
 
 * Fix problems with SNTP support;
   enable SNTP support in some boards.

@@ -25,7 +25,7 @@
 
 #include <common.h>
 /*#include <mc9328.h>*/
-#include <asm/arch-arm920t/imx-regs.h>
+#include <asm/arch/imx-regs.h>
 
 /* ------------------------------------------------------------------------- */
 
