@@ -161,6 +161,11 @@ static void syscalls_init (void)
 	*addr++ |= NR_SYSCALLS & 0xFFFF;
 
 	flush_cache (0x0C00, 0x10);
+
+	/* Initialize syscalls stack pointer                                 */
+	addr = (ulong *) 0xCFC;
+	*addr = (ulong)addr;
+	flush_cache ((ulong)addr, 0x10);
 }
 
 /*

@@ -2,6 +2,24 @@
 Changes since for U-Boot 0.1.0:
 ======================================================================
 
+* Patch by Hans-Joerg Frieden, 06 Dec 2002
+  Fix misc problems with AmigaOne support
+
+* Patch by Chris Hallinan, 3 Dec 2002:
+  minor cleanup to the MPC8245 EPIC driver
+
+* Patch by Pierre Aubert , 28 Nov 2002
+  Add support for external (SIU) interrupts on MPC8xx
+
+* Patch by Pierre Aubert , 28 Nov 2002
+  Fix nested syscalls bug in standalone applications
+
+* Patch by David Müller, 27 Nov 2002:
+  fix output of "pciinfo" command for CardBus bridge devices.
+
+* Fix bug in TQM8260 board detection - boards got stuck when board ID
+  was not readable
+
 * Add LED indication for IDE activity on KUP4K board
 
 * Fix startup problems with VFD display on TRAB

@@ -205,9 +205,27 @@ void pci_header_show(pci_dev_t dev)
 	PRINT ("  header type =                 0x%.2x\n", byte, PCI_HEADER_TYPE);
 	PRINT ("  BIST =                        0x%.2x\n", byte, PCI_BIST);
 	PRINT ("  base address 0 =              0x%.8x\n", dword, PCI_BASE_ADDRESS_0);
-	PRINT ("  base address 1 =              0x%.8x\n", dword, PCI_BASE_ADDRESS_1);
 
-	if (header_type & 0x01) {		/* PCI-to-PCI bridge */
+	switch (header_type & 0x03) {
+	case PCI_HEADER_TYPE_NORMAL:	/* "normal" PCI device */
+		PRINT ("  base address 1 =              0x%.8x\n", dword, PCI_BASE_ADDRESS_1);
+		PRINT ("  base address 2 =              0x%.8x\n", dword, PCI_BASE_ADDRESS_2);
+		PRINT ("  base address 3 =              0x%.8x\n", dword, PCI_BASE_ADDRESS_3);
+		PRINT ("  base address 4 =              0x%.8x\n", dword, PCI_BASE_ADDRESS_4);
+		PRINT ("  base address 5 =              0x%.8x\n", dword, PCI_BASE_ADDRESS_5);
+		PRINT ("  cardBus CIS pointer =         0x%.8x\n", dword, PCI_CARDBUS_CIS);
+		PRINT ("  sub system vendor ID =        0x%.4x\n", word, PCI_SUBSYSTEM_VENDOR_ID);
+		PRINT ("  sub system ID =               0x%.4x\n", word, PCI_SUBSYSTEM_ID);
+		PRINT ("  expansion ROM base address =  0x%.8x\n", dword, PCI_ROM_ADDRESS);
+		PRINT ("  interrupt line =              0x%.2x\n", byte, PCI_INTERRUPT_LINE);
+		PRINT ("  interrupt pin =               0x%.2x\n", byte, PCI_INTERRUPT_PIN);
+		PRINT ("  min Grant =                   0x%.2x\n", byte, PCI_MIN_GNT);
+		PRINT ("  max Latency =                 0x%.2x\n", byte, PCI_MAX_LAT);
+		break;
+		
+	case PCI_HEADER_TYPE_BRIDGE:	/* PCI-to-PCI bridge */
+
+		PRINT ("  base address 1 =              0x%.8x\n", dword, PCI_BASE_ADDRESS_1);
 		PRINT ("  primary bus number =          0x%.2x\n", byte, PCI_PRIMARY_BUS);
 		PRINT ("  secondary bus number =        0x%.2x\n", byte, PCI_SECONDARY_BUS);
 		PRINT ("  subordinate bus number =      0x%.2x\n", byte, PCI_SUBORDINATE_BUS);
@@ -227,19 +245,39 @@ void pci_header_show(pci_dev_t dev)
 		PRINT ("  interrupt line =              0x%.2x\n", byte, PCI_INTERRUPT_LINE);
 		PRINT ("  interrupt pin =               0x%.2x\n", byte, PCI_INTERRUPT_PIN);
 		PRINT ("  bridge control =              0x%.4x\n", word, PCI_BRIDGE_CONTROL);
-    } else {					/* PCI device */
-		PRINT("  base address 2 =              0x%.8x\n", dword, PCI_BASE_ADDRESS_2);
-		PRINT("  base address 3 =              0x%.8x\n", dword, PCI_BASE_ADDRESS_3);
-		PRINT("  base address 4 =              0x%.8x\n", dword, PCI_BASE_ADDRESS_4);
-		PRINT("  base address 5 =              0x%.8x\n", dword, PCI_BASE_ADDRESS_5);
-		PRINT("  cardBus CIS pointer =         0x%.8x\n", dword, PCI_CARDBUS_CIS);
-		PRINT("  sub system vendor ID =        0x%.4x\n", word, PCI_SUBSYSTEM_VENDOR_ID);
-		PRINT("  sub system ID =               0x%.4x\n", word, PCI_SUBSYSTEM_ID);
-		PRINT("  expansion ROM base address =  0x%.8x\n", dword, PCI_ROM_ADDRESS);
-		PRINT("  interrupt line =              0x%.2x\n", byte, PCI_INTERRUPT_LINE);
-		PRINT("  interrupt pin =               0x%.2x\n", byte, PCI_INTERRUPT_PIN);
-		PRINT("  min Grant =                   0x%.2x\n", byte, PCI_MIN_GNT);
-		PRINT("  max Latency =                 0x%.2x\n", byte, PCI_MAX_LAT);
+		break;
+
+	case PCI_HEADER_TYPE_CARDBUS:	/* PCI-to-CardBus bridge */
+
+		PRINT ("  capabilities =                0x%.2x\n", byte, PCI_CB_CAPABILITY_LIST);
+		PRINT ("  secondary status =            0x%.4x\n", word, PCI_CB_SEC_STATUS);
+		PRINT ("  primary bus number =          0x%.2x\n", byte, PCI_CB_PRIMARY_BUS);
+		PRINT ("  CardBus number =              0x%.2x\n", byte, PCI_CB_CARD_BUS);
+		PRINT ("  subordinate bus number =      0x%.2x\n", byte, PCI_CB_SUBORDINATE_BUS);
+		PRINT ("  CardBus latency timer =       0x%.2x\n", byte, PCI_CB_LATENCY_TIMER);		
+		PRINT ("  CardBus memory base 0 =       0x%.8x\n", dword, PCI_CB_MEMORY_BASE_0);
+		PRINT ("  CardBus memory limit 0 =      0x%.8x\n", dword, PCI_CB_MEMORY_LIMIT_0);
+		PRINT ("  CardBus memory base 1 =       0x%.8x\n", dword, PCI_CB_MEMORY_BASE_1);
+		PRINT ("  CardBus memory limit 1 =      0x%.8x\n", dword, PCI_CB_MEMORY_LIMIT_1);
+		PRINT ("  CardBus IO base 0 =           0x%.4x\n", word, PCI_CB_IO_BASE_0);
+		PRINT ("  CardBus IO base high 0 =      0x%.4x\n", word, PCI_CB_IO_BASE_0_HI);
+		PRINT ("  CardBus IO limit 0 =          0x%.4x\n", word, PCI_CB_IO_LIMIT_0);
+		PRINT ("  CardBus IO limit high 0 =     0x%.4x\n", word, PCI_CB_IO_LIMIT_0_HI);
+		PRINT ("  CardBus IO base 1 =           0x%.4x\n", word, PCI_CB_IO_BASE_1);
+		PRINT ("  CardBus IO base high 1 =      0x%.4x\n", word, PCI_CB_IO_BASE_1_HI);
+		PRINT ("  CardBus IO limit 1 =          0x%.4x\n", word, PCI_CB_IO_LIMIT_1);
+		PRINT ("  CardBus IO limit high 1 =     0x%.4x\n", word, PCI_CB_IO_LIMIT_1_HI);
+		PRINT ("  interrupt line =              0x%.2x\n", byte, PCI_INTERRUPT_LINE);
+		PRINT ("  interrupt pin =               0x%.2x\n", byte, PCI_INTERRUPT_PIN);
+		PRINT ("  bridge control =              0x%.4x\n", word, PCI_CB_BRIDGE_CONTROL);
+		PRINT ("  subvendor ID =                0x%.4x\n", word, PCI_CB_SUBSYSTEM_VENDOR_ID);
+		PRINT ("  subdevice ID =                0x%.4x\n", word, PCI_CB_SUBSYSTEM_ID);
+		PRINT ("  PC Card 16bit base address =  0x%.8x\n", dword, PCI_CB_LEGACY_MODE_BASE);
+		break;
+		
+	default:
+		printf("unknown header\n");
+		break;	
     }
 
 #undef PRINT

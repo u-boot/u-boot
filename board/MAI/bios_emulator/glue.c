@@ -271,9 +271,9 @@ int attempt_map_rom(pci_dev_t dev, void *copy_address)
     pci_write_config_dword(dev, PCI_ROM_ADDRESS, 0);
     pci_write_config_dword(dev, i, bar_backup);
 
-    /*  FIXME: */
-    bat_map(2, 0x80000000, 256*1024*1024);
-    show_bat_mapping();
+    /*  FIXME: Shouldn't be needed anymore*/
+    /* bat_map(2, 0x80000000, 256*1024*1024);
+       show_bat_mapping(); */
 
     /*
      * Since most cards can probably only do 16 bit IO addressing, we
@@ -436,7 +436,6 @@ int find_image(u32 rom_address, u32 rom_size, void **image, u32 *image_size)
 
 void show_bat_mapping(void)
 {
-#ifdef DEBUG
     u32 dbat0u, dbat0l, ibat0u, ibat0l;
     u32 dbat1u, dbat1l, ibat1u, ibat1l;
     u32 dbat2u, dbat2l, ibat2u, ibat2l;
@@ -477,7 +476,6 @@ void show_bat_mapping(void)
 	   dbat3u, dbat3l, ibat3u, ibat3l);
 
     printf("\nMSR: %08x   HID0: %08x   L2CR: %08x \n", msr,hid0, l2cr_reg);
-#endif
 }
 
 
@@ -485,44 +483,34 @@ void show_bat_mapping(void)
 void remove_init_data(void)
 {
     char *s;
-    u32 batl = ((CFG_SDRAM_BASE+0x100000) | BATL_PP_RW);
-    u32 batu =((CFG_SDRAM_BASE+0x100000) | BATU_BL_256M | BATU_VS | BATU_VP);
-#if 0	/* already done in board_init_r() */
-    void *data = (void *)(CFG_INIT_RAM_ADDR+CFG_INIT_DATA_OFFSET);
-    unsigned char data2[CFG_INIT_DATA_SIZE];
-
-    /*  Make a copy of the data */
-    memcpy(data2, data, CFG_INIT_DATA_SIZE);
-#endif /* 0 */
 
     /*  Invalidate and disable data cache */
     invalidate_l1_data_cache();
     dcache_disable();
 
-#if 0
-    /*  Copy to the real RAM address */
-    memcpy(data, data2, CFG_INIT_DATA_SIZE);
-#endif
-
-    /*printf("Before ICache enable\n");
-      show_bat_mapping();*/
-
-    __asm volatile ("isync        \n"
-		    "mtdbatu 2,%2 \n"
-		    "mtdbatl 2,%2 \n"
-	            "mtdbatu 1,%0 \n"
-		    "mtdbatl 1,%1 \n"
-		    "sync         \n"
-		    "isync        \n"
-		    : : "r" (batu), "r" (batl), "r" (0));
-
-    /* show_bat_mapping(); */
     s = getenv("x86_cache");
 
-    if (!s || (s && strcmp(s, "on")==0))
+    if (!s)
     {
 	icache_enable();
 	dcache_enable();
     }
+    else if (s)
+    {
+        if (strcmp(s, "dcache")==0)
+        {
+            dcache_enable();
+        }
+        else if (strcmp(s, "icache") == 0)
+        {
+            icache_enable();
+        }
+        else if (strcmp(s, "on")== 0 || strcmp(s, "both") == 0)
+        {
+            dcache_enable();
+            icache_enable();
+        }
+    }
 
+    /*   show_bat_mapping();*/
 }

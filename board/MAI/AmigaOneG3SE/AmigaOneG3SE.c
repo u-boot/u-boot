@@ -76,9 +76,8 @@ __asm(" .globl send_kb                                      \n
 
 int checkboard (void)
 {
-	printf ("AmigaOneG3SE\n");
-
-	return 1;
+	printf ("Board: AmigaOneG3SE\n");
+	return 0;
 }
 
 long initdram (int board_type)
@@ -88,9 +87,9 @@ long initdram (int board_type)
 
 
 
-void after_reloc (ulong dest_addr)
+void after_reloc (ulong dest_addr, gd_t *gd)
 {
-	DECLARE_GLOBAL_DATA_PTR;
+/* HJF:	DECLARE_GLOBAL_DATA_PTR; */
 
 	board_init_r (gd, dest_addr);
 }

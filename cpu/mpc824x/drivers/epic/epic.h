@@ -108,6 +108,9 @@
 #define EPIC_PROC_INT_ACK_REG (EPIC_EUMBBAR + 0x200a0)/* Int. acknowledge */
 #define EPIC_PROC_EOI_REG (EPIC_EUMBBAR + 0x200b0)/* End of interrupt */
 
+#define EPIC_VEC_PRI_MASK      0x80000000 /* Mask Interrupt bit in IVPR */
+#define EPIC_VEC_PRI_DFLT_PRI  8          /* Interrupt Priority in IVPR */
+
 /* Error code */
 
 #define OK       0

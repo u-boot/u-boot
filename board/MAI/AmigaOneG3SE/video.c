@@ -474,13 +474,13 @@ void video_easteregg(void)
 }
 #endif
 
-extern bd_t *bd_global;
 extern block_dev_desc_t * ide_get_dev(int dev);
 extern char version_string[];
 
 void video_banner(void)
 {
     block_dev_desc_t *ide;
+    DECLARE_GLOBAL_DATA_PTR;
     int i;
     char *s;
     int maxdev;
@@ -513,8 +513,8 @@ void video_banner(void)
 	video_clear();
 	printf("%s\n\nCPU: ", version_string);
 	checkcpu();
-	printf("DRAM: %ld MB\n", bd_global->bi_memsize/(1024*1024));
-	printf("FSB: %ld MHz\n", bd_global->bi_busfreq/1000000);
+	printf("DRAM: %ld MB\n", gd->bd->bi_memsize/(1024*1024));
+	printf("FSB: %ld MHz\n", gd->bd->bi_busfreq/1000000);
 
 	printf("\n---- Disk summary ----\n");
 	for (i = 0; i < maxdev; i++)

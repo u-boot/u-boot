@@ -66,7 +66,25 @@ extern int default_environment_size;
 extern uchar (*env_get_char)(int);
 extern uchar env_get_char_memory (int index);
 
+#ifdef CONFIG_AMIGAONEG3SE
+uchar env_get_char_spec (int index)
+{
+#ifdef CFG_NVRAM_ACCESS_ROUTINE
+	uchar c;
 
+	nvram_read(&c, CFG_ENV_ADDR+index, 1);
+
+	return c;
+#else
+	DECLARE_GLOBAL_DATA_PTR;
+	uchar retval;
+	enable_nvram();
+	retval = *((uchar *)(gd->env_addr + index));
+	disable_nvram();
+	return retval;
+#endif
+}
+#else
 uchar env_get_char_spec (int index)
 {
 #ifdef CFG_NVRAM_ACCESS_ROUTINE
@@ -81,6 +99,7 @@ uchar env_get_char_spec (int index)
 	return *((uchar *)(gd->env_addr + index));
 #endif
 }
+#endif
 
 void env_relocate_spec (void)
 {
@@ -94,12 +113,18 @@ void env_relocate_spec (void)
 int saveenv (void)
 {
 	int rcode = 0;
-
+#ifdef CONFIG_AMIGAONEG3SE
+	enable_nvram();
+#endif
 #ifdef CFG_NVRAM_ACCESS_ROUTINE
 	nvram_write(CFG_ENV_ADDR, env_ptr, CFG_ENV_SIZE);
 #else
 	if (memcpy ((char *)CFG_ENV_ADDR, env_ptr, CFG_ENV_SIZE) == NULL)
 		    rcode = 1 ;
+#endif
+#ifdef CONFIG_AMIGAONEG3SE
+	udelay(10000);
+	disable_nvram();
 #endif
 	return rcode;
 }
@@ -113,7 +138,9 @@ int saveenv (void)
 int env_init (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-
+#ifdef CONFIG_AMIGAONEG3SE
+	enable_nvram();
+#endif
 #if defined(CFG_NVRAM_ACCESS_ROUTINE)
 	ulong crc;
 	uchar data[ENV_SIZE];
@@ -131,7 +158,9 @@ int env_init (void)
 		gd->env_addr  = (ulong)&default_environment[0];
 		gd->env_valid = 0;
 	}
-
+#ifdef CONFIG_AMIGAONEG3SE
+	disable_nvram();
+#endif
 	return (0);
 }
 

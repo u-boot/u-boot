@@ -398,9 +398,7 @@ int execute_bios(pci_dev_t gr_dev, void *reloc_addr)
     u8 cfg;
     int i;
     char c;
-#ifdef DEBUG
     char *s;
-#endif
 #ifdef EASTEREGG
     int easteregg_active = 0;
 #endif
@@ -409,6 +407,7 @@ int execute_bios(pci_dev_t gr_dev, void *reloc_addr)
     unsigned char *msg;
     unsigned char current_attr;
 
+    PRINTF("Trying to remove init data\n");
     remove_init_data();
     PRINTF("Removed init data from cache, now in RAM\n");
 
@@ -438,7 +437,7 @@ int execute_bios(pci_dev_t gr_dev, void *reloc_addr)
 	return 0;
     }
 
-#ifdef DEBUG
+#if 1 /*def DEBUG*/
     s = getenv("x86_ask_start");
     if (s)
     {
@@ -646,7 +645,7 @@ int execute_bios(pci_dev_t gr_dev, void *reloc_addr)
     if (getenv("x86_do_inout")) do_inout();
 #endif
 
-    dcache_disable();
+//FIXME:    dcache_disable();
     return 1;
 }
 

@@ -70,6 +70,10 @@ void epicInit
     tmp = sysEUMBBARRead(EPIC_GLOBAL_REG);
     tmp |= 0xa0000000;                  /* Set the Global Conf. register */
     sysEUMBBARWrite(EPIC_GLOBAL_REG, tmp);
+	/*
+	 * Wait for EPIC to reset - CLH
+	 */
+    while( (sysEUMBBARRead(EPIC_GLOBAL_REG) & 0x80000000) == 1);
     sysEUMBBARWrite(EPIC_GLOBAL_REG, 0x20000000);
     tmp = sysEUMBBARRead(EPIC_INT_CONF_REG);    /* Read interrupt conf. reg */
 
@@ -81,7 +85,8 @@ void epicInit
         sysEUMBBARWrite(EPIC_INT_CONF_REG, tmp);
         }
 
-    while (epicIntAck() != 0xff);       /* Clear all pending interrupts */
+    while (epicIntAck() != 0xff)       /* Clear all pending interrupts */
+		epicEOI();
 }
 
 /****************************************************************************
@@ -92,18 +97,18 @@ void epicInit
  *
  *  RETURNS:  None
  */
-void epicIntEnable
-    (
-    int intVec        /* Interrupt Vector Number */
-    )
-    {
+void epicIntEnable(int intVec)
+{
     ULONG tmp;
     ULONG srAddr;
 
     srAddr = SrcVecTable[intVec].srcAddr;  /* Retrieve src Vec/Prio register */
     tmp = sysEUMBBARRead(srAddr);
-    tmp &= 0x7fffffff;             /* Clear the mask bit */
+    tmp &= ~EPIC_VEC_PRI_MASK;             /* Clear the mask bit */
+    tmp |= (EPIC_VEC_PRI_DFLT_PRI << 16);   /* Set priority to Default - CLH */
+    tmp |= intVec;				           /* Set Vector number */
     sysEUMBBARWrite(srAddr, tmp);
+
     return;
     }
 

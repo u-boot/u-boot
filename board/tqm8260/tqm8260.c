@@ -202,7 +202,7 @@ int checkboard (void)
 
 	if (!i || strncmp (str, "TQM8260", 7)) {
 		puts ("### No HW ID - assuming TQM8260\n");
-		return (1);
+		return (0);
 	}
 
 	puts (str);

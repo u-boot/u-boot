@@ -122,6 +122,7 @@ int timer (int argc, char *argv[])
 	tid_8xx_cpmtimer_t hw;
 	tid_8xx_cpmtimer_t *hwp = &hw;
 	int c;
+	int running;
 
 	/* Pointer to CPM Timer structure */
 	cpmtimerp = &((immap_t *) gd->bd->bi_immr_base)->im_cpmtimer;
@@ -185,6 +186,7 @@ int timer (int argc, char *argv[])
 	*hwp->terp = (CPMT_EVENT_CAP | CPMT_EVENT_REF);
 
 	mon_printf (usage);
+	running = 0;
 	while ((c = mon_getc()) != 'q') {
 	    if (c == 'b') {
 
@@ -197,6 +199,7 @@ int timer (int argc, char *argv[])
 
 		/* enable timer */
 		*hwp->tgcrp |= (CPMT_GCR_RST << TID_TIMER_ID);
+		running = 1;
 
 #ifdef	DEBUG
 		mon_printf ("tgcr=0x%x, tmr=0x%x, trr=0x%x,"
@@ -210,6 +213,7 @@ int timer (int argc, char *argv[])
 		mon_printf ("Stopping timer\n");
 
 		*hwp->tgcrp &= ~(CPMT_GCR_MASK << TID_TIMER_ID);
+		running = 0;
 
 #ifdef	DEBUG
 		mon_printf ("tgcr=0x%x, tmr=0x%x, trr=0x%x,"
@@ -252,6 +256,12 @@ int timer (int argc, char *argv[])
 	    }
 	    mon_printf (usage);
 	}
+	if (running) {
+		mon_printf ("Stopping timer\n");
+		*hwp->tgcrp &= ~(CPMT_GCR_MASK << TID_TIMER_ID);
+		mon_free_hdlr (hwp->cpm_vec);
+	}
+
 	return (0);
 }
 

@@ -93,7 +93,7 @@
  * Miscellaneous configurable options
  */
 #define CFG_LONGHELP			/* undef to save memory		*/
-#define CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
+#define CFG_PROMPT	"] "		/* Monitor Command Prompt	*/
 
 #define CFG_HUSH_PARSER		1	/* use "hush" command parser	*/
 /* #undef CFG_HUSH_PARSER */
@@ -145,7 +145,8 @@
 
 /* Size in bytes reserved for initial data
  */
-#define CFG_INIT_RAM_ADDR	0x400000
+/* HJF: used to be 0x400000 */
+#define CFG_INIT_RAM_ADDR	0x40000000 
 #define CFG_INIT_RAM_END	0x8000
 #define CFG_GBL_DATA_SIZE	128
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
@@ -163,24 +164,37 @@
 /* SDRAM 0 - 256MB
  */
 
-#define CFG_IBAT0L (CFG_SDRAM_BASE | BATL_PP_RW | BATL_CACHEINHIBIT)
+/*HJF: #define CFG_IBAT0L (CFG_SDRAM_BASE | BATL_PP_RW | BATL_CACHEINHIBIT)
 #define CFG_IBAT0U (CFG_SDRAM_BASE | BATU_BL_4M | BATU_VS | BATU_VP)
 #define CFG_DBAT0L (CFG_SDRAM_BASE | BATL_PP_RW | BATL_CACHEINHIBIT)
-#define CFG_DBAT0U CFG_IBAT0U
+#define CFG_DBAT0U CFG_IBAT0U*/
 
-/* SDRAM 1 - 256MB
+#define CFG_DBAT0L	      (CFG_SDRAM_BASE | BATL_PP_10 | BATL_MEMCOHERENCE)
+#define CFG_DBAT0U	      (CFG_SDRAM_BASE | BATU_BL_256M | BATU_VS | BATU_VP)
+#define CFG_IBAT0L      (CFG_SDRAM_BASE | BATL_PP_10 | BATL_MEMCOHERENCE)
+#define CFG_IBAT0U      (CFG_SDRAM_BASE | BATU_BL_256M | BATU_VS | BATU_VP)
+/* PCI Range
  */
-#define CFG_IBAT1L ((CFG_SDRAM_BASE+CFG_INIT_RAM_ADDR) | BATL_PP_RW) /* | BATL_CACHEINHIBIT) */
+#define CFG_DBAT1L	 (0x80000000 | BATL_PP_RW | BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
+#define CFG_DBAT1U	 (0x80000000 | BATU_BL_256M | BATU_VS | BATU_VP)
+#define CFG_IBAT1L	 (0x80000000 | BATL_PP_RW | BATL_CACHEINHIBIT)
+#define CFG_IBAT1U	 (0x80000000 | BATU_BL_256M | BATU_VS | BATU_VP)
+/* HJF:
+#define CFG_IBAT1L ((CFG_SDRAM_BASE+CFG_INIT_RAM_ADDR) | BATL_PP_RW) 
 #define CFG_IBAT1U ((CFG_SDRAM_BASE+CFG_INIT_RAM_ADDR) | BATU_BL_256M | BATU_VS | BATU_VP)
-#define CFG_DBAT1L ((CFG_SDRAM_BASE+CFG_INIT_RAM_ADDR + 0x20000) | BATL_PP_RW ) /* | BATL_CACHEINHIBIT) */
+#define CFG_DBAT1L ((CFG_SDRAM_BASE+CFG_INIT_RAM_ADDR + 0x20000) | BATL_PP_RW ) 
 #define CFG_DBAT1U ((CFG_SDRAM_BASE+CFG_INIT_RAM_ADDR + 0x20000) | BATU_BL_256M | BATU_VS | BATU_VP)
+*/
 
 /* Init RAM in the CPU DCache (no backing memory)
  */
 #define CFG_DBAT2L	(CFG_INIT_RAM_ADDR | BATL_PP_RW | BATL_MEMCOHERENCE)
 #define CFG_DBAT2U	(CFG_INIT_RAM_ADDR | BATU_BL_128K | BATU_VS | BATU_VP)
-#define CFG_IBAT2L	0 /* CFG_DBAT2L */
-#define CFG_IBAT2U	0 /* CFG_DBAT2U */
+/* This used to be commented out */
+#define CFG_IBAT2L	  CFG_DBAT2L 
+/* This here too */
+#define CFG_IBAT2U	  CFG_DBAT2U 
+
 
 /* I/O and PCI memory at 0xf0000000
  */
@@ -372,7 +386,7 @@
 	"pci_irqb_select=edge\0"		\
 	"pci_irqc=11\0"				\
 	"pci_irqc_select=edge\0"		\
-	"pci_irqd=12\0"				\
+	"pci_irqd=7\0"				\
 	"pci_irqd_select=edge\0"
 
 

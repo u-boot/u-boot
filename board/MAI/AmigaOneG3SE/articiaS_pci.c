@@ -26,7 +26,7 @@
 #include "memio.h"
 #include "articiaS.h"
 
-//#define ARTICIA_PCI_DEBUG
+#undef ARTICIA_PCI_DEBUG
 
 #ifdef  ARTICIA_PCI_DEBUG
 #define PRINTF(fmt,args...)     printf (fmt ,##args)
@@ -512,7 +512,11 @@ int articiaS_init_vga (void)
 	PRINTF("Searching for class 0x%x on bus %d\n", classes[classnr], busnr);
 	/* Find the first of this class on this bus */
 	dev = pci_hose_find_class(&articiaS_hose, busnr, classes[classnr], 0);
-	if (dev != ~0) break;
+	if (dev != ~0) 
+	{
+	    PRINTF("Found VGA Card at %02x:%02x:%02x\n", PCI_BUS(dev), PCI_DEV(dev), PCI_FUNC(dev));
+	    break;
+	}
 	busnr++;
 	if (busnr > articiaS_hose.last_busno)
 	{
@@ -552,7 +556,7 @@ int articiaS_init_vga (void)
     /*
      * Now try to run the bios
      */
-
+    PRINTF("Trying to run bios now\n");
     if (execute_bios(dev, gd->relocaddr))
     {
 	printf("OK\n");

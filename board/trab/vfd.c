@@ -344,7 +344,7 @@ int drv_vfd_init(void)
 	DECLARE_GLOBAL_DATA_PTR;
 
 	if (vfd_init_done != 0)
-		return;
+		return (0);
 	vfd_init_done = 1;
 
 	vfdbase = gd->fb_base;

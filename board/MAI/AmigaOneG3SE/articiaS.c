@@ -82,8 +82,9 @@ static inline unsigned short NSto10PS (unsigned char spd_byte)
 
 long detect_sdram (uint8 * rom, int dimmNum, struct dimm_bank *banks)
 {
+    DECLARE_GLOBAL_DATA_PTR;
 	int dimm_address = (dimmNum == 0) ? SM_DIMM0_ADDR : SM_DIMM1_ADDR;
-	uint32 busclock = get_bus_freq (0);
+	uint32 busclock = gd->bus_clk;
 	uint32 memclock = busclock;
 	uint32 tmemclock = 1000000000 / (memclock / 100);
 	uint32 datawidth;
@@ -404,7 +405,7 @@ long articiaS_ram_init (void)
 	uint32 total_ram = 0;
 
 	struct dimm_bank banks[4];	/* FIXME: Move to initram */
-	uint32 busclock = get_bus_freq (0);
+	uint32 busclock = gd->bus_clk;
 	uint32 memclock = busclock;
 	uint32 reg32;
 	uint32 refresh_clocks;

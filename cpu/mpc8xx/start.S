@@ -285,7 +285,14 @@ SystemCall:
 	add	r11,r11,r0
 	lwz	r11,0(r11)
 
-	li	r12,0xd00-4*3		/* save LR & SRRx */
+	li	r20,0xd00-4		/* Get stack pointer */
+	lwz	r12,0(r20)
+	subi	r12,r12,12		/* Adjust stack pointer */
+	li	r0,0xc00+_end_back-SystemCall
+	cmplw	0, r0, r12		/* Check stack overflow */
+	bgt	1f
+	stw	r12,0(r20)
+
 	mflr	r0
 	stw	r0,0(r12)
 	mfspr	r0,SRR0
@@ -310,7 +317,9 @@ _back:
 	mtmsr	r11
 	SYNC
 
-	li	r12,0xd00-4*3		/* restore regs */
+	li	r12,0xd00-4		/* restore regs */
+	lwz	r12,0(r12)
+
 	lwz	r11,0(r12)
 	mtlr	r11
 	lwz	r11,4(r12)
@@ -318,8 +327,13 @@ _back:
 	lwz	r11,8(r12)
 	mtspr	SRR1,r11
 
+	addi	r12,r12,12		/* Adjust stack pointer */
+	li	r20,0xd00-4
+	stw	r12,0(r20)
+
 	SYNC
 	rfi
+_end_back:
 
 	STD_EXCEPTION(0xd00, SingleStep, UnknownException)
 

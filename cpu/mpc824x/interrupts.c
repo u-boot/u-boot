@@ -92,6 +92,8 @@ int interrupt_init (void)
 	 */
 
 	epicInit (EPIC_DIRECT_IRQ, 0);
+	/* EPIC won't generate INT unless Current Task Pri < 15 */
+	epicCurTaskPrioSet(0);
 
 	set_dec (decrementer_count);
 

@@ -156,6 +156,21 @@ static uchar env_get_char_init (int index)
 	return (c);
 }
 
+#ifdef CONFIG_AMIGAONEG3SE
+uchar env_get_char_memory (int index)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+	uchar retval;
+	enable_nvram();
+	if (gd->env_valid) {
+		retval = ( *((uchar *)(gd->env_addr + index)) );
+	} else {
+		retval = ( default_environment[index] );
+	}
+	disable_nvram();
+	return retval;
+}
+#else
 uchar env_get_char_memory (int index)
 {
 	DECLARE_GLOBAL_DATA_PTR;
@@ -166,6 +181,7 @@ uchar env_get_char_memory (int index)
 		return ( default_environment[index] );
 	}
 }
+#endif
 
 uchar *env_get_addr (int index)
 {

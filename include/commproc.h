@@ -22,10 +22,10 @@
 
 /* CPM Command register.
 */
-#define CPM_CR_RST	((ushort)0x8000)
-#define CPM_CR_OPCODE	((ushort)0x0f00)
-#define CPM_CR_CHAN	((ushort)0x00f0)
-#define CPM_CR_FLG	((ushort)0x0001)
+#define CPM_CR_RST		((ushort)0x8000)
+#define CPM_CR_OPCODE		((ushort)0x0f00)
+#define CPM_CR_CHAN		((ushort)0x00f0)
+#define CPM_CR_FLG		((ushort)0x0001)
 
 /* Some commands (there are more...later)
 */
@@ -39,14 +39,14 @@
 
 /* Channel numbers.
 */
-#define CPM_CR_CH_SCC1	((ushort)0x0000)
-#define CPM_CR_CH_I2C	((ushort)0x0001)	/* I2C and IDMA1 */
-#define CPM_CR_CH_SCC2	((ushort)0x0004)
-#define CPM_CR_CH_SPI	((ushort)0x0005)	/* SPI / IDMA2 / Timers */
-#define CPM_CR_CH_SCC3	((ushort)0x0008)
-#define CPM_CR_CH_SMC1	((ushort)0x0009)	/* SMC1 / DSP1 */
-#define CPM_CR_CH_SCC4	((ushort)0x000c)
-#define CPM_CR_CH_SMC2	((ushort)0x000d)	/* SMC2 / DSP2 */
+#define CPM_CR_CH_SCC1		((ushort)0x0000)
+#define CPM_CR_CH_I2C		((ushort)0x0001)    /* I2C and IDMA1 */
+#define CPM_CR_CH_SCC2		((ushort)0x0004)
+#define CPM_CR_CH_SPI		((ushort)0x0005)    /* SPI/IDMA2/Timers */
+#define CPM_CR_CH_SCC3		((ushort)0x0008)
+#define CPM_CR_CH_SMC1		((ushort)0x0009)    /* SMC1 / DSP1 */
+#define CPM_CR_CH_SCC4		((ushort)0x000c)
+#define CPM_CR_CH_SMC2		((ushort)0x000d)    /* SMC2 / DSP2 */
 
 #define mk_cr_cmd(CH, CMD)	((CMD << 8) | (CH << 4))
 
@@ -523,8 +523,8 @@ typedef struct scc_enet {
 #define	PROFF_ENET	PROFF_SCC2
 #define	CPM_CR_ENET	CPM_CR_CH_SCC2
 #define	SCC_ENET	1
-#define PA_ENET_RXD		((ushort)0x0004)
-#define PA_ENET_TXD		((ushort)0x0008)
+#define PA_ENET_RXD	((ushort)0x0004)
+#define PA_ENET_TXD	((ushort)0x0008)
 #define PA_ENET_TCLK	((ushort)0x0100)
 #define PA_ENET_RCLK	((ushort)0x0400)
 #define PB_ENET_TENA	((uint)0x00002000)
@@ -1034,21 +1034,21 @@ typedef struct scc_enet {
 #define PROFF_ENET	PROFF_SCC2
 #define CPM_CR_ENET	CPM_CR_CH_SCC2
 #define SCC_ENET	1
-#define PA_ENET_RXD  ((ushort)0x0004)  /* PA 13 */
-#define PA_ENET_TXD  ((ushort)0x0008)  /* PA 12 */
-#define PA_ENET_RCLK ((ushort)0x0200)  /* PA  6 */
-#define PA_ENET_TCLK ((ushort)0x0800)  /* PA  4 */
+#define PA_ENET_RXD	((ushort)0x0004)  /* PA 13 */
+#define PA_ENET_TXD	((ushort)0x0008)  /* PA 12 */
+#define PA_ENET_RCLK	((ushort)0x0200)  /* PA  6 */
+#define PA_ENET_TCLK	((ushort)0x0800)  /* PA  4 */
 
-#define PB_ENET_TENA ((uint)0x00002000)   /* PB 18 */
+#define PB_ENET_TENA	((uint)0x00002000)   /* PB 18 */
 
-#define PC_ENET_CLSN ((ushort)0x0040)  /* PC  9 */
-#define PC_ENET_RENA ((ushort)0x0080)  /* PC  8 */
+#define PC_ENET_CLSN	((ushort)0x0040)  /* PC  9 */
+#define PC_ENET_RENA	((ushort)0x0080)  /* PC  8 */
 
 /* Control bits in the SICR to route TCLK (CLK3) and RCLK (CLK1) to
  * SCC2.  Also, make sure GR2 (bit 16) and SC2 (bit 17) are zero.
  */
-#define SICR_ENET_MASK  ((uint)0x0000ff00)
-#define SICR_ENET_CLKRT ((uint)0x00002f00)
+#define SICR_ENET_MASK	((uint)0x0000ff00)
+#define SICR_ENET_CLKRT	((uint)0x00002f00)
 
 #endif   /* CONFIG_NX823 */
 
@@ -1583,35 +1583,36 @@ typedef struct hdlc_pram_s {
  * priority and SCC1 == SCCa, etc...).
  */
 #define CPMVEC_NR		32
-#define	CPMVEC_PIO_PC15		((ushort)0x1f)
-#define	CPMVEC_SCC1		((ushort)0x1e)
-#define	CPMVEC_SCC2		((ushort)0x1d)
-#define	CPMVEC_SCC3		((ushort)0x1c)
-#define	CPMVEC_SCC4		((ushort)0x1b)
-#define	CPMVEC_PIO_PC14		((ushort)0x1a)
-#define	CPMVEC_TIMER1		((ushort)0x19)
-#define	CPMVEC_PIO_PC13		((ushort)0x18)
-#define	CPMVEC_PIO_PC12		((ushort)0x17)
-#define	CPMVEC_SDMA_CB_ERR	((ushort)0x16)
-#define CPMVEC_IDMA1		((ushort)0x15)
-#define CPMVEC_IDMA2		((ushort)0x14)
-#define CPMVEC_TIMER2		((ushort)0x12)
-#define CPMVEC_RISCTIMER	((ushort)0x11)
-#define CPMVEC_I2C		((ushort)0x10)
-#define	CPMVEC_PIO_PC11		((ushort)0x0f)
-#define	CPMVEC_PIO_PC10		((ushort)0x0e)
-#define CPMVEC_TIMER3		((ushort)0x0c)
-#define	CPMVEC_PIO_PC9		((ushort)0x0b)
-#define	CPMVEC_PIO_PC8		((ushort)0x0a)
-#define	CPMVEC_PIO_PC7		((ushort)0x09)
-#define CPMVEC_TIMER4		((ushort)0x07)
-#define	CPMVEC_PIO_PC6		((ushort)0x06)
-#define	CPMVEC_SPI		((ushort)0x05)
-#define	CPMVEC_SMC1		((ushort)0x04)
-#define	CPMVEC_SMC2		((ushort)0x03)
-#define	CPMVEC_PIO_PC5		((ushort)0x02)
-#define	CPMVEC_PIO_PC4		((ushort)0x01)
-#define	CPMVEC_ERROR		((ushort)0x00)
+#define CPMVEC_OFFSET           0x00010000
+#define CPMVEC_PIO_PC15		((ushort)0x1f | CPMVEC_OFFSET)
+#define CPMVEC_SCC1		((ushort)0x1e | CPMVEC_OFFSET)
+#define CPMVEC_SCC2		((ushort)0x1d | CPMVEC_OFFSET)
+#define CPMVEC_SCC3		((ushort)0x1c | CPMVEC_OFFSET)
+#define CPMVEC_SCC4		((ushort)0x1b | CPMVEC_OFFSET)
+#define CPMVEC_PIO_PC14		((ushort)0x1a | CPMVEC_OFFSET)
+#define CPMVEC_TIMER1		((ushort)0x19 | CPMVEC_OFFSET)
+#define CPMVEC_PIO_PC13		((ushort)0x18 | CPMVEC_OFFSET)
+#define CPMVEC_PIO_PC12		((ushort)0x17 | CPMVEC_OFFSET)
+#define CPMVEC_SDMA_CB_ERR	((ushort)0x16 | CPMVEC_OFFSET)
+#define CPMVEC_IDMA1		((ushort)0x15 | CPMVEC_OFFSET)
+#define CPMVEC_IDMA2		((ushort)0x14 | CPMVEC_OFFSET)
+#define CPMVEC_TIMER2		((ushort)0x12 | CPMVEC_OFFSET)
+#define CPMVEC_RISCTIMER	((ushort)0x11 | CPMVEC_OFFSET)
+#define CPMVEC_I2C		((ushort)0x10 | CPMVEC_OFFSET)
+#define CPMVEC_PIO_PC11		((ushort)0x0f | CPMVEC_OFFSET)
+#define CPMVEC_PIO_PC10		((ushort)0x0e | CPMVEC_OFFSET)
+#define CPMVEC_TIMER3		((ushort)0x0c | CPMVEC_OFFSET)
+#define CPMVEC_PIO_PC9		((ushort)0x0b | CPMVEC_OFFSET)
+#define CPMVEC_PIO_PC8		((ushort)0x0a | CPMVEC_OFFSET)
+#define CPMVEC_PIO_PC7		((ushort)0x09 | CPMVEC_OFFSET)
+#define CPMVEC_TIMER4		((ushort)0x07 | CPMVEC_OFFSET)
+#define CPMVEC_PIO_PC6		((ushort)0x06 | CPMVEC_OFFSET)
+#define CPMVEC_SPI		((ushort)0x05 | CPMVEC_OFFSET)
+#define CPMVEC_SMC1		((ushort)0x04 | CPMVEC_OFFSET)
+#define CPMVEC_SMC2		((ushort)0x03 | CPMVEC_OFFSET)
+#define CPMVEC_PIO_PC5		((ushort)0x02 | CPMVEC_OFFSET)
+#define CPMVEC_PIO_PC4		((ushort)0x01 | CPMVEC_OFFSET)
+#define CPMVEC_ERROR		((ushort)0x00 | CPMVEC_OFFSET)
 
 extern void irq_install_handler(int vec, void (*handler)(void *), void *dev_id);
 
