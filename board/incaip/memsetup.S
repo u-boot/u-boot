@@ -49,13 +49,11 @@
 #define MC_LATENCY(value)       0x1038(value)
 #define MC_TREFRESH(value)      0x1040(value)
 
-#if CPU_CLOCK_RATE==150000000   /* 150 MHz clock for the MIPS core */
 #define CGU_MODUL_BASE          0xBF107000
 #define CGU_PLL1CR(value)       0x0008(value)
 #define CGU_DIVCR(value)        0x0010(value)
 #define CGU_MUXCR(value)        0x0014(value)
 #define CGU_PLL1SR(value)       0x000C(value)
-#endif
 
 	.globl	memsetup
 memsetup:
@@ -67,12 +65,12 @@ memsetup:
 	li	t1, 0xA0000041
 	sw	t1, EBU_ADDSEL0(t0)
 
-#if CPU_CLOCK_RATE==150000000   /* 150 MHz clock for the MIPS core */
-	li	t1, 0xA841417E
-	sw	t1, EBU_BUSCON0(t0)   /* value set up by magic flash word */
+#if CPU_CLOCK_RATE==100000000	/* 100 MHz clock for the MIPS core */
+	lw	t1, EBU_BUSCON0(t0)  /* value set up by magic flash word */
 	sw	t1, EBU_BUSCON2(t0)
-#else /* 100 MHz */
-	lw	t1, EBU_BUSCON0(t0)   /* value set up by magic flash word */
+#else /* 150 MHz or 133 MHz */
+	li	t1, 0x8841417E
+	sw	t1, EBU_BUSCON0(t0)
 	sw	t1, EBU_BUSCON2(t0)
 #endif
 
@@ -85,10 +83,10 @@ memsetup:
 	li	t1, 0xBE0000F1
  	sw	t1, EBU_ADDSEL1(t0)
 
-#if CPU_CLOCK_RATE==150000000   /* 150 MHz clock for the MIPS core */
-	li	t1, 0x684143FD
-#else /* 100 MHz */
+#if CPU_CLOCK_RATE==100000000   /* 100 MHz clock for the MIPS core */
 	li	t1, 0x684142BD
+#else /* 150 MHz or 133 MHz */
+	li	t1, 0x684143FD
 #endif
  	sw	t1, EBU_BUSCON1(t0)
 
@@ -105,6 +103,14 @@ b1:
 	beq     t1, zero, b1
 	li      t1, 0x80000001
 	sw      t1, CGU_MUXCR(t0)
+#elif CPU_CLOCK_RATE==133000000	/* 133 MHz clock for the MIPS core */
+	li	t0, CGU_MODUL_BASE
+	li	t1, 0x80000054
+	sw	t1, CGU_DIVCR(t0)
+	li	t1, 0x80000000
+	sw	t1, CGU_MUXCR(t0)
+	li	t1, 0x800B0001
+	sw	t1, CGU_PLL1CR(t0)
 #endif
 
 	/* SDRAM Initialization.

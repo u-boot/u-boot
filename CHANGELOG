@@ -2,6 +2,20 @@
 Changes since U-Boot 0.3.0:
 ======================================================================
 
+* Make sure Block Lock Bits get cleared in R360MPI flash driver
+
+* MPC823 LCD driver: Fill color map backwards, to allow for steady
+  display when Linux takes over
+
+* Patch by Erwin Rol, 27 Feb 2003:
+  Add support for RTEMS (this time for real).
+
+* Add support for "bmp info" and "bmp display" commands to load
+  bitmap images; this can be used (for example in a "preboot"
+  command) to display a splash screen very quickly after poweron.
+
+* Add support for 133 MHz clock on INCA-IP board
+
 * Patch by Lutz Dennig, 10 Apr 2003:
   Update for R360MPI board
 

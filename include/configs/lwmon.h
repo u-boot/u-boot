@@ -153,6 +153,7 @@
 				CFG_CMD_EEPROM	| \
 				CFG_CMD_IDE	| \
 				CFG_CMD_BSP	| \
+				CFG_CMD_BMP	| \
 				CFG_CMD_POST_DIAG )
 #else
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
@@ -162,6 +163,7 @@
 				CFG_CMD_EEPROM	| \
 				CFG_CMD_IDE	| \
 				CFG_CMD_BSP	| \
+				CFG_CMD_BMP	| \
 				CFG_CMD_POST_DIAG )
 #endif
 #define CONFIG_MAC_PARTITION

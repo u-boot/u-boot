@@ -789,6 +789,18 @@ The following options need to be configured:
 		Normally display is black on white background; define
 		CFG_WHITE_ON_BLACK to get it inverted.
 
+- Spash Screen Support: CONFIG_SPLASH_SCREEN
+
+                If this option is set, the environment is checked for
+                a variable "splashimage". If found, the usual display
+                of logo, copyright and system information on the LCD
+                is supressed and the BMP image at the address
+                specified in "splashimage" is loaded instead. The
+                console is redirected to the "nulldev", too. This
+                allows for a "silent" boot where a splash screen is
+                loaded very quickly after power-on.
+
+
 - Ethernet address:
 		CONFIG_ETHADDR
 		CONFIG_ETH2ADDR

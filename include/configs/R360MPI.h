@@ -40,6 +40,8 @@
 #undef  CONFIG_EDT32F10
 #define CONFIG_SHARP_LQ057Q3DC02
 
+#define	CONFIG_SPLASH_SCREEN
+
 #define MPC8XX_FACT             1		/* Multiply by 1	*/
 #define MPC8XX_XIN              50000000	/* 50 MHz in		*/
 #define CONFIG_8xx_GCLK_FREQ    50000000 /* define if can't use get_gclk_freq */
@@ -118,6 +120,7 @@
 #define CFG_I2C_TEM_ADDR	0x49	/* Temperature Sensors */
 
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
+				CFG_CMD_BMP	| \
 				CFG_CMD_DHCP	| \
 				CFG_CMD_DATE	| \
 				CFG_CMD_I2C	| \

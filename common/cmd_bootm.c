@@ -98,6 +98,7 @@ static boot_os_Fcn do_bootm_linux;
 extern boot_os_Fcn do_bootm_linux;
 #endif
 static boot_os_Fcn do_bootm_netbsd;
+static boot_os_Fcn do_bootm_rtems;
 #if (CONFIG_COMMANDS & CFG_CMD_ELF)
 static boot_os_Fcn do_bootm_vxworks;
 static boot_os_Fcn do_bootm_qnxelf;
@@ -321,6 +322,12 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	    do_bootm_netbsd (cmdtp, flag, argc, argv,
 			     addr, len_ptr, verify);
 	    break;
+	    
+	case IH_OS_RTEMS:
+	    do_bootm_rtems (cmdtp, flag, argc, argv,
+			     addr, len_ptr, verify);
+	    break;
+	     
 #if (CONFIG_COMMANDS & CFG_CMD_ELF)
 	case IH_OS_VXWORKS:
 	    do_bootm_vxworks (cmdtp, flag, argc, argv,
@@ -831,6 +838,7 @@ print_type (image_header_t *hdr)
 	case IH_OS_VXWORKS:	os = "VxWorks";			break;
 	case IH_OS_QNX:		os = "QNX";			break;
 	case IH_OS_U_BOOT:	os = "U-Boot";			break;
+	case IH_OS_RTEMS:	os = "RTEMS";			break;
 	default:		os = "Unknown OS";		break;
 	}
 
@@ -951,6 +959,29 @@ int gunzip(void *dst, int dstlen, unsigned char *src, int *lenp)
 	inflateEnd(&s);
 
 	return (0);
+}
+
+static void
+do_bootm_rtems (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
+		ulong addr, ulong *len_ptr, int verify)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+	image_header_t *hdr = &header;
+	void	(*entry_point)(bd_t *);
+
+	entry_point = (void (*)(bd_t *)) hdr->ih_ep;
+
+	printf ("## Transferring control to RTEMS (at address %08lx) ...\n",
+		(ulong)entry_point);
+
+	SHOW_BOOT_PROGRESS (15);
+
+	/*
+	 * RTEMS Parameters:
+	 *   r3: ptr to board info data
+	 */
+
+	(*entry_point ) ( gd->bd );
 }
 
 #if (CONFIG_COMMANDS & CFG_CMD_ELF)

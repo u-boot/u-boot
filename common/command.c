@@ -72,6 +72,7 @@
 #include <cmd_vfd.h>		/* load a bitmap to the VFDs on TRAB */
 #include <cmd_log.h>
 #include <cmd_fdos.h>
+#include <cmd_bmp.h>
 
 #ifdef CONFIG_AMIGAONEG3SE
 #include <cmd_menu.h>
@@ -231,6 +232,7 @@ cmd_tbl_t cmd_tbl[] = {
 	CMD_TBL_AUTOSCRIPT
 	CMD_TBL_BASE
 	CMD_TBL_BDINFO
+	CMD_TBL_BMP
 #ifdef CONFIG_AMIGAONEG3SE
 	CMD_TBL_BOOTA
 #endif

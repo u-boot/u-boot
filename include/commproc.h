@@ -1365,7 +1365,7 @@ typedef struct scc_enet {
 /***  TQM855L, TQM860L, TQM862L  **************************************/
 
 #if defined(CONFIG_TQM855L) || \
-    defined(CONFIG_TQM860L)
+    defined(CONFIG_TQM860L) || \
     defined(CONFIG_TQM862L)
 
 # ifdef CONFIG_SCC1_ENET	/* use SCC for 10Mbps Ethernet	*/

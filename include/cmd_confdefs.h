@@ -79,6 +79,7 @@
 #define CFG_CMD_FDOS	0x0000200000000000	/* Floppy DOS support		*/
 #define CFG_CMD_VFD	0x0000400000000000	/* VFD support (TRAB)		*/
 #define CFG_CMD_NAND	0x0000800000000000	/* NAND support        		*/
+#define CFG_CMD_BMP	0x0001000000000000	/* BMP support			*/
 
 #define CFG_CMD_ALL	0xFFFFFFFFFFFFFFFF	/* ALL commands			*/
 
@@ -87,6 +88,7 @@
  */
 #define CFG_CMD_NONSTD (CFG_CMD_ASKENV	| \
 			CFG_CMD_BEDBUG	| \
+			CFG_CMD_BMP	| \
 			CFG_CMD_BSP	| \
 			CFG_CMD_CACHE	| \
 			CFG_CMD_DATE	| \

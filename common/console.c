@@ -355,7 +355,7 @@ int console_init_f (void)
 	return (0);
 }
 
-#ifdef CFG_CONSOLE_IS_IN_ENV
+#if defined(CFG_CONSOLE_IS_IN_ENV) || defined(CONFIG_SPLASH_SCREEN)
 /* search a device */
 device_t *search_device (int flags, char *name)
 {
@@ -374,7 +374,7 @@ device_t *search_device (int flags, char *name)
 	}
 	return dev;
 }
-#endif /* CFG_CONSOLE_IS_IN_ENV */
+#endif /* CFG_CONSOLE_IS_IN_ENV || CONFIG_SPLASH_SCREEN */
 
 #ifdef CFG_CONSOLE_IS_IN_ENV
 /* Called after the relocation - use desired console functions */
@@ -468,6 +468,11 @@ int console_init_r (void)
 {
 	device_t *inputdev = NULL, *outputdev = NULL;
 	int i, items = ListNumItems (devlist);
+
+#ifdef CONFIG_SPLASH_SCREEN
+	/* suppress all output if splash screen is enabled */
+	outputdev = search_device (DEV_FLAGS_OUTPUT, "nulldev");
+#endif
 
 	/* Scan devices looking for input and output devices */
 	for (i = 1;

@@ -39,12 +39,10 @@
 /************************************************************************/
 /* ** CONFIG STUFF -- should be moved to board config file		*/
 /************************************************************************/
-#ifndef CONFIG_EDT32F10
 #define CONFIG_LCD_LOGO
 #define LCD_INFO		/* Display Logo, (C) and system info	*/
-#endif
 
-#ifdef CONFIG_V37
+#if defined(CONFIG_V37) || defined(CONFIG_EDT32F10)
 #undef CONFIG_LCD_LOGO
 #undef LCD_INFO
 #endif
@@ -52,6 +50,14 @@
 /* #define LCD_TEST_PATTERN */	/* color backgnd for frame/color adjust */
 /* #define CFG_INVERT_COLORS */	/* Not needed - adjust vl_dp instead 	*/
 /************************************************************************/
+
+/************************************************************************/
+/* ** BITMAP DISPLAY SUPPORT  -- should probably be moved elsewhere	*/
+/************************************************************************/
+
+#if (CONFIG_COMMANDS & CFG_CMD_BMP)
+#include <bmp_layout.h>
+#endif /* (CONFIG_COMMANDS & CFG_CMD_BMP) */
 
 /************************************************************************/
 /* ** FONT AND LOGO DATA						*/
@@ -995,6 +1001,102 @@ static void lcd_enable (void)
 
 /*----------------------------------------------------------------------*/
 
+#if (CONFIG_COMMANDS & CFG_CMD_BMP)
+/*
+  Display the BMP file located at address bmp_image.
+  Only uncompressed
+*/
+int lcd_display_bitmap(ulong bmp_image)
+{
+	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile cpm8xx_t *cp = &(immr->im_cpm);
+	ushort *cmap;
+	ushort i, j;
+	uchar *fb;
+	bmp_image_t *bmp=(bmp_image_t *)bmp_image;
+	uchar *bmap;
+	ushort padded_line;
+	unsigned long width, height;
+	unsigned colors,bpix;
+	unsigned long compression;
+
+	if (!((bmp->header.signature[0]=='B') &&
+	      (bmp->header.signature[1]=='M'))) {
+		printf ("Error: no valid bmp image at %lx\n", bmp_image);
+		return 1;
+	}
+
+	width = le32_to_cpu (bmp->header.width);
+	height = le32_to_cpu (bmp->header.height);
+	colors = 1<<le16_to_cpu (bmp->header.bit_count);
+	compression = le32_to_cpu (bmp->header.compression);
+
+	bpix = NBITS(panel_info.vl_bpix);
+
+	if ((bpix != 1) && (bpix != 8)) {
+		printf ("Error: %d bit/pixel mode not supported by U-Boot\n",
+			bpix);
+		return 1;
+	}
+
+	if (bpix != le16_to_cpu(bmp->header.bit_count)) {
+		printf ("Error: %d bit/pixel mode, but BMP has %d bit/pixel\n",
+			bpix,
+			le16_to_cpu(bmp->header.bit_count));
+		return 1;
+	}
+
+	if (compression!=BMP_BI_RGB) {
+		printf ("Error: compression type %ld not supported\n",
+			compression);
+		return 1;
+	}
+
+	debug ("Display-bmp: %d x %d  with %d colors\n",
+	       width, height, colors);
+
+	if (bpix==8) {
+		/* Fill the entire color map */
+		cmap = (ushort *)&(cp->lcd_cmap[255*sizeof(ushort)]);
+
+		/* Set color map */
+		for (i = 0; i < colors; ++i) {
+			bmp_color_table_entry_t cte = bmp->color_table[i];
+			ushort colreg =
+				((cte.red>>4)   << 8) |
+				((cte.green>>4) << 4) |
+				(cte.blue>>4) ;
+#ifdef	CFG_INVERT_COLORS
+			colreg ^= 0xFFF;
+#endif
+			*cmap-- = colreg;
+		}
+	}
+
+	padded_line = (width&0x3) ? ((width&~0x3)+4) : (width);
+	if (width>panel_info.vl_col)
+		width = panel_info.vl_col;
+	if (height>panel_info.vl_row)
+		height = panel_info.vl_row;
+
+	bmap = (uchar *)bmp + le32_to_cpu (bmp->header.data_offset);
+	fb   = (uchar *)
+		(lcd_base +
+		 (((height>=panel_info.vl_row) ? panel_info.vl_row : height)-1)
+		 * lcd_line_length);
+	for (i = 0; i < height; ++i) {
+		for (j = 0; j < width ; j++)
+			*(fb++)=255-*(bmap++);
+		bmap += (width - padded_line);
+		fb   -= (width + lcd_line_length);
+	}
+
+	return (0);
+}
+#endif /* (CONFIG_COMMANDS & CFG_CMD_BMP) */
+
+/*----------------------------------------------------------------------*/
+
 #ifdef	NOT_USED_SO_FAR
 static void lcd_disable (void)
 {
@@ -1066,6 +1168,100 @@ static void bitmap_plot (int x, int y)
 }
 #endif /* CONFIG_LCD_LOGO */
 
+#if (CONFIG_COMMANDS & CFG_CMD_BMP)
+/*
+  Display the BMP file located at address bmp_image.
+  Only uncompressed
+*/
+int lcd_display_bitmap(ulong bmp_image)
+{
+	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile cpm8xx_t *cp = &(immr->im_cpm);
+	ushort *cmap;
+	ushort i, j;
+	uchar *fb;
+	bmp_image_t *bmp=(bmp_image_t *)bmp_image;
+	uchar *bmap;
+	ushort padded_line;
+	unsigned long width, height;
+	unsigned colors,bpix;
+	unsigned long compression;
+
+	if (!((bmp->header.signature[0]=='B') &&
+	      (bmp->header.signature[1]=='M'))) {
+		printf ("Error: no valid bmp image at %lx\n", bmp_image);
+		return 1;
+	}
+
+	width = le32_to_cpu (bmp->header.width);
+	height = le32_to_cpu (bmp->header.height);
+	colors = 1<<le16_to_cpu (bmp->header.bit_count);
+	compression = le32_to_cpu (bmp->header.compression);
+
+	bpix = NBITS(panel_info.vl_bpix);
+
+	if ((bpix != 1) && (bpix != 8)) {
+		printf ("Error: %d bit/pixel mode not supported by U-Boot\n",
+			bpix);
+		return 1;
+	}
+
+	if (bpix != le16_to_cpu(bmp->header.bit_count)) {
+		printf ("Error: %d bit/pixel mode, but BMP has %d bit/pixel\n",
+			bpix,
+			le16_to_cpu(bmp->header.bit_count));
+		return 1;
+	}
+
+	if (compression!=BMP_BI_RGB) {
+		printf ("Error: compression type %ld not supported\n",
+			compression);
+		return 1;
+	}
+
+	debug ("Display-bmp: %d x %d  with %d colors\n",
+	       width, height, colors);
+
+	if (bpix==8) {
+		/* Fill the entire color map */
+		cmap = (ushort *)&(cp->lcd_cmap[255*sizeof(ushort)]);
+
+		/* Set color map */
+		for (i = 0; i < colors; ++i) {
+			bmp_color_table_entry_t cte = bmp->color_table[i];
+			ushort colreg =
+				((cte.red>>4)   << 8) |
+				((cte.green>>4) << 4) |
+				(cte.blue>>4) ;
+#ifdef	CFG_INVERT_COLORS
+			colreg ^= 0xFFF;
+#endif
+			*cmap-- = colreg;
+		}
+	}
+
+	padded_line = (width&0x3) ? ((width&~0x3)+4) : (width);
+	if (width>panel_info.vl_col)
+		width = panel_info.vl_col;
+	if (height>panel_info.vl_row)
+		height = panel_info.vl_row;
+
+	bmap = (uchar *)bmp + le32_to_cpu (bmp->header.data_offset);
+	fb   = (uchar *)
+		(lcd_base +
+		 (((height>=panel_info.vl_row) ? panel_info.vl_row : height)-1)
+		 * lcd_line_length);
+	for (i = 0; i < height; ++i) {
+		for (j = 0; j < width ; j++)
+			*(fb++)=255-*(bmap++);
+		bmap += (width - padded_line);
+		fb   -= (width + lcd_line_length);
+	}
+
+	return (0);
+}
+#endif /* (CONFIG_COMMANDS & CFG_CMD_BMP) */
+
 /*----------------------------------------------------------------------*/
 
 static void *lcd_logo (void)
@@ -1077,6 +1273,19 @@ static void *lcd_logo (void)
 	char temp[32];
 #endif /* LCD_INFO */
 
+#ifdef CONFIG_SPLASH_SCREEN
+	char *s;
+	ulong addr;
+
+	if ((s = getenv("splashimage")) != NULL) {
+		addr = simple_strtoul(s, NULL, 16);
+
+		if (lcd_display_bitmap (addr) == 0) {
+			return ((void *)lcd_base);
+		}
+	}
+#endif	/* CONFIG_SPLASH_SCREEN */
+
 #ifdef CONFIG_LCD_LOGO
 	bitmap_plot (0, 0);
 #endif /* CONFIG_LCD_LOGO */
@@ -1086,7 +1295,7 @@ static void *lcd_logo (void)
 	sprintf (info, "%s (%s - %s) ", U_BOOT_VERSION, __DATE__, __TIME__);
 	lcd_drawchars (LCD_INFO_X, LCD_INFO_Y, info, strlen(info));
 
-	sprintf (info, "(C) 2002 DENX Software Engineering");
+	sprintf (info, "(C) 2003 DENX Software Engineering");
 	lcd_drawchars (LCD_INFO_X, LCD_INFO_Y + VIDEO_FONT_HEIGHT,
 					info, strlen(info));
 

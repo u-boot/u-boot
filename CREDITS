@@ -238,6 +238,10 @@ N: Stefan Roese
 E: stefan.roese@esd-electronics.com
 D: IBM PPC401/403/405GP Support; Windows environment support
 
+N: Erwin Rol
+E: erwin@muffin.org
+D: boot support for RTEMS
+
 N: Neil Russell
 E: caret@c-side.com
 D: Author of LiMon-1.4.2, which contributed some ideas

@@ -206,6 +206,12 @@ static ulong flash_get_size (FPW * addr, flash_info_t * info)
 {
 	FPW value;
 
+	/* Make sure Block Lock Bits get cleared */
+	addr[0] = (FPW) 0x00FF00FF;
+	addr[0] = (FPW) 0x00600060;
+	addr[0] = (FPW) 0x00D000D0;
+	addr[0] = (FPW) 0x00FF00FF;
+
 	/* Write auto select command: read Manufacturer ID */
 	addr[0x5555] = (FPW) 0x00AA00AA;
 	addr[0x2AAA] = (FPW) 0x00550055;

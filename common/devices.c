@@ -37,6 +37,11 @@ list_t devlist = 0;
 device_t *stdio_devices[] = { NULL, NULL, NULL };
 char *stdio_names[MAX_FILES] = { "stdin", "stdout", "stderr" };
 
+#if defined(CONFIG_SPLASH_SCREEN) && !defined(CFG_DEVICE_NULLDEV)
+#define	CFG_DEVICE_NULLDEV	1
+#endif
+
+
 #ifdef CFG_DEVICE_NULLDEV
 void nulldev_putc(const char c)
 {

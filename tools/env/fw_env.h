@@ -27,7 +27,7 @@
  * See included "fw_env.config" sample file (TRAB board)
  * for notes on configuration.
  */
-/*#define CONFIG_FILE     "/etc/fw_env.config" */
+#define CONFIG_FILE     "/etc/fw_env.config"
 
 #define HAVE_REDUND /* For systems with 2 env sectors */
 #define DEVICE1_NAME      "/dev/mtd1"

@@ -45,6 +45,7 @@
 #define IH_OS_PSOS		15	/* pSOS		*/
 #define IH_OS_QNX		16	/* QNX		*/
 #define IH_OS_U_BOOT		17	/* Firmware	*/
+#define IH_OS_RTEMS		18	/* RTEMS	*/
 
 /*
  * CPU Architecture Codes (supported by Linux)

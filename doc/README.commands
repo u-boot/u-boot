@@ -15,6 +15,7 @@ as		2
 autoscr		5
 base		2
 bdinfo		2
+bmp		3
 bootelf		7
 bootm		5
 bootp		5
