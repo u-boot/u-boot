@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2003
+ * (C) Copyright 2000-2005
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -96,6 +96,7 @@
 				CFG_CMD_DHCP	| \
 				CFG_CMD_ELF	| \
 				CFG_CMD_IDE	| \
+				CFG_CMD_NFS	| \
 				CFG_CMD_SNTP	)
 
 #define CONFIG_NETCONSOLE

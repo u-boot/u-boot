@@ -1,5 +1,3 @@
-indent: Standard input:49: Warning:old style assignment ambiguity in "=*".  Assuming "= *"
-
 /*
  * (C) Copyright 2001
  *

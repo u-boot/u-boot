@@ -165,9 +165,11 @@
 				CFG_CMD_EEPROM	| \
 				CFG_CMD_I2C	| \
 				CFG_CMD_MII	| \
+				CFG_CMD_NFS	| \
 				CFG_CMD_PING	| \
 				CFG_CMD_POST_DIAG | \
-				CFG_CMD_REGINFO )
+				CFG_CMD_REGINFO | \
+				CFG_CMD_SNTP	)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>

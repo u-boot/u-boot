@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2003
+ * (C) Copyright 2001-2005
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -216,11 +216,16 @@
 
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 
+#define	CONFIG_TIMESTAMP		/* Print image info with timestamp */
+
 #define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT|CONFIG_BOOTP_BOOTFILESIZE)
 
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL | \
-				 CFG_CMD_I2C	| \
-				 CFG_CMD_EEPROM)
+#define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
+				CFG_CMD_DHCP	| \
+				CFG_CMD_I2C	| \
+				CFG_CMD_EEPROM	| \
+				CFG_CMD_NFS	| \
+				CFG_CMD_SNTP	)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001
+ * (C) Copyright 2001-2005
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -47,8 +47,6 @@
 #define MPC8XX_XIN		5000000			/* 5 MHz in	*/
 #define MPC8XX_HZ ((MPC8XX_XIN) * (MPC8XX_FACT))
 
-#define	CONFIG_CLOCKS_IN_MHZ	1	/* clocks passsed to Linux in MHz */
-
 #if 0
 #define CONFIG_BOOTDELAY	-1	/* autoboot disabled		*/
 #else
@@ -80,7 +78,9 @@
 
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
 				CFG_CMD_DHCP	| \
-				CFG_CMD_DATE	)
+				CFG_CMD_DATE	| \
+				CFG_CMD_NFS	| \
+				CFG_CMD_SNTP	)
 
 #define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | CONFIG_BOOTP_BOOTFILESIZE)
 

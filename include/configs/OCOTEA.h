@@ -164,18 +164,20 @@
 #define CONFIG_SERVERIP		10.1.2.2
 
 #define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
-				CFG_CMD_PCI	| \
-				CFG_CMD_IRQ	| \
-				CFG_CMD_I2C	| \
-				CFG_CMD_KGDB	| \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_DATE	| \
 				CFG_CMD_BEDBUG	| \
-				CFG_CMD_PING	| \
+				CFG_CMD_DATE	| \
+				CFG_CMD_DHCP	| \
 				CFG_CMD_DIAG	| \
+				CFG_CMD_ELF	| \
+				CFG_CMD_I2C	| \
+				CFG_CMD_IRQ	| \
+				CFG_CMD_KGDB	| \
 				CFG_CMD_MII	| \
 				CFG_CMD_NET	| \
-				CFG_CMD_ELF	)
+				CFG_CMD_NFS	| \
+				CFG_CMD_PCI	| \
+				CFG_CMD_PING	| \
+				CFG_CMD_SNTP	)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>

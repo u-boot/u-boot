@@ -177,32 +177,33 @@
 
 #define CONFIG_BAUDRATE		115200
 
-#define CFG_EXCLUDE		 CFG_CMD_BEDBUG | \
-				 CFG_CMD_BMP	| \
-				 CFG_CMD_BSP	| \
-				 CFG_CMD_DATE	| \
-				 CFG_CMD_DOC	| \
-				 CFG_CMD_DTT	| \
-				 CFG_CMD_EEPROM | \
-				 CFG_CMD_ELF    | \
-				 CFG_CMD_EXT2	| \
-				 CFG_CMD_FAT    | \
-				 CFG_CMD_FDC	| \
-				 CFG_CMD_FDOS	| \
-				 CFG_CMD_HWFLOW	| \
-				 CFG_CMD_IDE	| \
-				 CFG_CMD_KGDB	| \
-				 CFG_CMD_MMC	| \
-				 CFG_CMD_NAND	| \
-				 CFG_CMD_PCI	| \
-				 CFG_CMD_PCMCIA | \
-				 CFG_CMD_REISER	| \
-				 CFG_CMD_SCSI	| \
-				 CFG_CMD_SPI	| \
-				 CFG_CMD_UNIVERSE | \
-				 CFG_CMD_USB	| \
-				 CFG_CMD_VFD	| \
-				 CFG_CMD_XIMG
+#define CFG_EXCLUDE		CFG_CMD_BEDBUG | \
+				CFG_CMD_BMP	| \
+				CFG_CMD_BSP	| \
+				CFG_CMD_DATE	| \
+				CFG_CMD_DOC	| \
+				CFG_CMD_DTT	| \
+				CFG_CMD_EEPROM | \
+				CFG_CMD_ELF    | \
+				CFG_CMD_EXT2	| \
+				CFG_CMD_FAT    | \
+				CFG_CMD_FDC	| \
+				CFG_CMD_FDOS	| \
+				CFG_CMD_HWFLOW	| \
+				CFG_CMD_IDE	| \
+				CFG_CMD_KGDB	| \
+				CFG_CMD_MMC	| \
+				CFG_CMD_NAND	| \
+				CFG_CMD_PCI	| \
+				CFG_CMD_PCMCIA | \
+				CFG_CMD_REISER	| \
+				CFG_CMD_SCSI	| \
+				CFG_CMD_SPI	| \
+				CFG_CMD_SNTP	| \
+				CFG_CMD_UNIVERSE | \
+				CFG_CMD_USB	| \
+				CFG_CMD_VFD	| \
+				CFG_CMD_XIMG
 
 #if CONFIG_ADSTYPE >= CFG_PQ2FADS
 #define CONFIG_COMMANDS		(CFG_CMD_ALL & ~( \

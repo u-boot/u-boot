@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2003-2004
+ * (C) Copyright 2003-2005
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -105,16 +105,19 @@
 /*
  * Supported commands
  */
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL	| \
-				 CFG_CMD_EEPROM	| \
-				 CFG_CMD_FAT	| \
-				 CFG_CMD_I2C	| \
-				 CFG_CMD_IDE	| \
-				 ADD_DOC_CMD	| \
-				 ADD_PCI_CMD	| \
-				 CFG_CMD_DATE   | \
-				 CFG_CMD_BEDBUG	| \
-				 ADD_USB_CMD)
+#define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
+				ADD_DOC_CMD	| \
+				ADD_PCI_CMD	| \
+				ADD_USB_CMD	| \
+				CFG_CMD_BEDBUG	| \
+				CFG_CMD_DATE	| \
+				CFG_CMD_DHCP	| \
+				CFG_CMD_EEPROM	| \
+				CFG_CMD_FAT	| \
+				CFG_CMD_I2C	| \
+				CFG_CMD_IDE	| \
+				CFG_CMD_NFS	| \
+				CFG_CMD_SNTP	)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>

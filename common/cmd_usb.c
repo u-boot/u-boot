@@ -27,6 +27,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <asm/byteorder.h>
 
 #if (CONFIG_COMMANDS & CFG_CMD_USB)
 

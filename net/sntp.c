@@ -52,28 +52,27 @@ SntpTimeout (void)
 static void
 SntpHandler (uchar *pkt, unsigned dest, unsigned src, unsigned len)
 {
-	struct sntp_pkt_t rpkt;
+	struct sntp_pkt_t *rpktp = (struct sntp_pkt_t *)pkt;
 	struct rtc_time tm;
+	ulong seconds;
 
 	debug ("%s\n", __FUNCTION__);
 
 	if (dest != SntpOurPort) return;
 
-	memcpy ((unsigned char *)&rpkt, pkt, len);
+	/*
+	 * As the RTC's used in U-Boot sepport second resolution only
+	 * we simply ignore the sub-second field.
+	 */
+	memcpy (&seconds, &rpktp->transmit_timestamp, sizeof(ulong));
 
-#if (CONFIG_COMMANDS & CFG_CMD_DATE) || defined(CONFIG_TIMESTAMP)
-to_tm(ntohl(rpkt.transmit_timestamp), &tm);
-printf ("Date: %4d-%02d-%02d Time: %2d:%02d:%02d\n",
-tm.tm_year, tm.tm_mon, tm.tm_mday,
-tm.tm_hour, tm.tm_min, tm.tm_sec);
-	to_tm(ntohl(rpkt.transmit_timestamp) - 2208988800u + NetTimeOffset, &tm);
+	to_tm(ntohl(seconds) - 2208988800UL + NetTimeOffset, &tm);
 #if (CONFIG_COMMANDS & CFG_CMD_DATE)
 	rtc_set (&tm);
 #endif
 	printf ("Date: %4d-%02d-%02d Time: %2d:%02d:%02d\n",
 		tm.tm_year, tm.tm_mon, tm.tm_mday,
 		tm.tm_hour, tm.tm_min, tm.tm_sec);
-#endif
 
 	NetState = NETLOOP_SUCCESS;
 }

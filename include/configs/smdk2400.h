@@ -1,4 +1,6 @@
 /*
+ * (C) Copyright 2002-2005
+ * Wolfgang Denk, DENX Software Engineering, <wd@denx.de>
  * (C) Copyright 2002
  * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
  * Marius Groeger <mgroeger@sysgo.de>
@@ -91,10 +93,13 @@
 #define CONFIG_RTC_S3C24X0	1
 
 #ifndef USE_920T_MMU
-#define CONFIG_COMMANDS_tmp	((CONFIG_CMD_DFL & ~CFG_CMD_CACHE) | \
-				 CFG_CMD_DATE)
+#define CONFIG_COMMANDS_tmp    ((CONFIG_CMD_DFL & ~CFG_CMD_CACHE) | \
+				CFG_CMD_DATE	| \
+				CFG_CMD_SNTP	)
 #else
-#define CONFIG_COMMANDS_tmp	(CONFIG_CMD_DFL | CFG_CMD_DATE)
+#define CONFIG_COMMANDS_tmp    (CONFIG_CMD_DFL	| \
+				CFG_CMD_DATE	| \
+				CFG_CMD_SNTP	)
 #endif
 
 #ifdef CONFIG_HWFLOW

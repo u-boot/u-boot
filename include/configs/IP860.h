@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2004
+ * (C) Copyright 2000-2005
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -40,8 +40,6 @@
 #define	CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
 #define CONFIG_BAUDRATE		9600
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
-
-#define	CONFIG_CLOCKS_IN_MHZ	1	/* clocks passsed to Linux in MHz */
 
 #define CONFIG_PREBOOT	"echo;echo Type \"run flash_nfs\" to mount root filesystem over NFS;echo" \
 "\0load=tftp \"/tftpboot/u-boot.bin\"\0update=protect off 1:0;era 1:0;cp.b 100000 10000000 $(filesize)\0"
@@ -88,10 +86,14 @@
 #define CFG_EEPROM_PAGE_WRITE_BITS	4
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS	10	/* takes up to 10 msec */
 
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL | \
-				 CFG_CMD_BEDBUG	| \
-				 CFG_CMD_I2C	| \
-				 CFG_CMD_EEPROM)
+#define	CONFIG_TIMESTAMP		/* Print image info with timestamp */
+
+#define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
+				CFG_CMD_BEDBUG	| \
+				CFG_CMD_I2C	| \
+				CFG_CMD_EEPROM	| \
+				CFG_CMD_NFS	| \
+				CFG_CMD_SNTP	)
 
 #define CONFIG_BOOTP_MASK	CONFIG_BOOTP_DEFAULT
 

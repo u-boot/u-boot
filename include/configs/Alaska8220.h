@@ -58,44 +58,30 @@
 
 #define CONFIG_BAUDRATE		115200	    /* ... at 115200 bps */
 
-
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
+
+#define	CONFIG_TIMESTAMP			/* Print image info with timestamp */
 
 /*
  * Supported commands
  */
-/* CONFIG_CMD_DFL includes CFG_CMD_BDI (bdinfo), CFG_CMD_LOADS (loads),
-   CFG_CMD_LOADB (loadb), CFG_CMD_IMI (iminfo), CFG_CMD_FLASH
-   (flinfo, erase, protect), CFG_CMD_MEMORY (md, mm, nm, mw, cp, cmp,
-   crc, base, loop, mtest), CFG_CMD_ENV (printenv, setenv, saveenv),
-   CFG_CMD_BOOTD (bootd), CFG_CMD_CONSOLE (coninfo), CFG_CMD_NET (bootp,
-   tftpboot, rarpboot), CFG_CMD_RUN, CFG_CMD_MISC (sleep, etc),
-   CFG_CMD_BSP, CFG_CMD_IMLS, CFG_CMD_FPGA */
+#define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL  | \
+				CFG_CMD_BOOTD   | \
+				CFG_CMD_CACHE   | \
+				CFG_CMD_DHCP	| \
+				CFG_CMD_DIAG    | \
+				CFG_CMD_EEPROM  | \
+				CFG_CMD_ELF     | \
+				CFG_CMD_I2C     | \
+				CFG_CMD_NET     | \
+				CFG_CMD_NFS	| \
+				CFG_CMD_PING    | \
+				CFG_CMD_PCI	| \
+				CFG_CMD_REGINFO | \
+				CFG_CMD_SDRAM   | \
+				CFG_CMD_SNTP	)
 
-#define CONFIG_COMMANDS	    (CONFIG_CMD_DFL  | \
-			     CFG_CMD_BOOTD   | \
-			     CFG_CMD_CACHE   | \
-			     CFG_CMD_DIAG    | \
-			     CFG_CMD_EEPROM  | \
-			     CFG_CMD_ELF     | \
-			     CFG_CMD_I2C     | \
-			     CFG_CMD_NET     | \
-			     CFG_CMD_PING    | \
-			     CFG_CMD_REGINFO | \
-			     CFG_CMD_SDRAM     \
-			     )
-/*			       CFG_CMD_DHCP    | \ */
-/*			       CFG_CMD_MII     | \ */
-/*			       CFG_CMD_PCI     | \ */
-/*			       CFG_CMD_USB */
-
-#   define CONFIG_NET_MULTI
-/*#if (CONFIG_COMMANDS & CFG_CMD_NET)
-#   define CONFIG_NET_MULTI
-#else
-#   undef CONFIG_NET_MULTI
-#endif*/
-
+#define CONFIG_NET_MULTI
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>

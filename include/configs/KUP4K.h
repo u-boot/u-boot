@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2004
+ * (C) Copyright 2000-2005
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  * Klaus Heydeck, Kieback & Peter GmbH & Co KG, heydeck@kieback-peter.de
  *
@@ -47,8 +47,6 @@
 #else
 #define CONFIG_BOOTDELAY	1	/* autoboot after 1 second	*/
 #endif
-
-#define CONFIG_CLOCKS_IN_MHZ	1	/* clocks passsed to Linux in MHz */
 
 #define CONFIG_BOARD_TYPES	1	/* support board types		*/
 
@@ -166,11 +164,13 @@
 #endif
 
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
+				CFG_CMD_DATE	| \
 				CFG_CMD_DHCP	| \
 				CFG_CMD_I2C	| \
-				CFG_CMD_DATE	| \
+				CFG_CMD_IDE	| \
+				CFG_CMD_NFS	| \
 				CFG_CMD_POST_DIAG	| \
-				CFG_CMD_IDE	)
+				CFG_CMD_SNTP	)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>

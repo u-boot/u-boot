@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2002
+ * (C) Copyright 2001-2005
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -61,8 +61,6 @@
 #define CONFIG_8xx_GCLK_FREQ    80000000 /* define if cant use get_gclk_freq */
 #endif
 #endif
-
-#define CONFIG_CLOCKS_IN_MHZ	1	/* clocks passsed to Linux in MHz */
 
 #if 0
 #define CONFIG_BOOTDELAY	-1	/* autoboot disabled		*/
@@ -126,11 +124,13 @@
 
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
 				CFG_CMD_ASKENV	| \
+				CFG_CMD_DATE	| \
 				CFG_CMD_DHCP	| \
 				CFG_CMD_EEPROM	| \
 				CFG_CMD_I2C	| \
 				CFG_CMD_IDE	| \
-				CFG_CMD_DATE	)
+				CFG_CMD_NFS	| \
+				CFG_CMD_SNTP	)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>

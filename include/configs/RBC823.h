@@ -113,6 +113,7 @@
 				~CFG_CMD_REISER	& \
 				~CFG_CMD_SCSI	& \
 				~CFG_CMD_SETGETDCR & \
+				~CFG_CMD_SNTP	& \
 				~CFG_CMD_SPI	& \
 				~CFG_CMD_UNIVERSE & \
 				~CFG_CMD_USB	& \

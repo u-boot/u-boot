@@ -145,33 +145,34 @@
 #define CONFIG_BAUDRATE		115200
 
 
-#define CONFIG_COMMANDS		(CFG_CMD_ALL & ~( \
-				 CFG_CMD_BEDBUG | \
-				 CFG_CMD_BMP	| \
-				 CFG_CMD_BSP	| \
-				 CFG_CMD_DATE	| \
-				 CFG_CMD_DHCP   | \
-				 CFG_CMD_DOC	| \
-				 CFG_CMD_DTT	| \
-				 CFG_CMD_EEPROM | \
-				 CFG_CMD_ELF    | \
-				 CFG_CMD_EXT2	| \
-				 CFG_CMD_FDC	| \
-				 CFG_CMD_FDOS	| \
-				 CFG_CMD_HWFLOW	| \
-				 CFG_CMD_IDE	| \
-				 CFG_CMD_JFFS2	| \
-				 CFG_CMD_KGDB	| \
-				 CFG_CMD_MMC	| \
-				 CFG_CMD_NAND	| \
-				 CFG_CMD_PCMCIA | \
-				 CFG_CMD_REISER	| \
-				 CFG_CMD_SCSI	| \
-				 CFG_CMD_SPI	| \
-				 CFG_CMD_VFD	| \
-				 CFG_CMD_UNIVERSE | \
-				 CFG_CMD_USB	| \
-				 CFG_CMD_XIMG	) )
+#define CONFIG_COMMANDS       ( CFG_CMD_ALL & ~( \
+				CFG_CMD_BEDBUG | \
+				CFG_CMD_BMP	| \
+				CFG_CMD_BSP	| \
+				CFG_CMD_DATE	| \
+				CFG_CMD_DHCP   | \
+				CFG_CMD_DOC	| \
+				CFG_CMD_DTT	| \
+				CFG_CMD_EEPROM | \
+				CFG_CMD_ELF    | \
+				CFG_CMD_EXT2	| \
+				CFG_CMD_FDC	| \
+				CFG_CMD_FDOS	| \
+				CFG_CMD_HWFLOW	| \
+				CFG_CMD_IDE	| \
+				CFG_CMD_JFFS2	| \
+				CFG_CMD_KGDB	| \
+				CFG_CMD_MMC	| \
+				CFG_CMD_NAND	| \
+				CFG_CMD_PCMCIA | \
+				CFG_CMD_REISER	| \
+				CFG_CMD_SCSI	| \
+				CFG_CMD_SPI	| \
+				CFG_CMD_SNTP	| \
+				CFG_CMD_VFD	| \
+				CFG_CMD_UNIVERSE | \
+				CFG_CMD_USB	| \
+				CFG_CMD_XIMG	) )
 
 /* Define a command string that is automatically executed when no character
  * is read on the console interface withing "Boot Delay" after reset.

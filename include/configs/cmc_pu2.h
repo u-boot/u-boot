@@ -1,5 +1,5 @@
 /*
- * Gary Jennejohn <garyj@denx.de>
+ * 2004-2005 Gary Jennejohn <garyj@denx.de>
  *
  * Configuration settings for the CMC PU2 board.
  *
@@ -126,15 +126,19 @@
 #ifdef CONFIG_HARD_I2C
 #define CONFIG_COMMANDS		\
 		       ((CONFIG_CMD_DFL	| \
-			CFG_CMD_I2C	| \
 			CFG_CMD_DATE	| \
+			CFG_CMD_DHCP 	| \
 			CFG_CMD_EEPROM	| \
-			CFG_CMD_DHCP )	& \
+			CFG_CMD_I2C	| \
+			CFG_CMD_NFS	| \
+			CFG_CMD_SNTP  ) & \
 		      ~(CFG_CMD_FPGA | CFG_CMD_MISC) )
 #else
 #define CONFIG_COMMANDS		\
 		       ((CONFIG_CMD_DFL	| \
-			CFG_CMD_DHCP )	& \
+			CFG_CMD_DHCP 	| \
+			CFG_CMD_NFS	| \
+			CFG_CMD_SNTP  ) & \
 		      ~(CFG_CMD_FPGA | CFG_CMD_MISC) )
 #define CONFIG_TIMESTAMP
 #endif

@@ -1,5 +1,6 @@
 /*
  * Copyright 2005 DENX Software Engineering
+ * Wolfgang Denk <wd@denx.de>
  * Copyright 2004 Freescale Semiconductor.
  * (C) Copyright 2002,2003 Motorola,Inc.
  * Xianghua Xiao <X.Xiao@motorola.com>
@@ -143,9 +144,6 @@
 #define CFG_FLASH_CFI_DRIVER
 #define CFG_FLASH_CFI
 #define CFG_FLASH_EMPTY_INFO
-
-#undef CONFIG_CLOCKS_IN_MHZ
-
 
 #define CFG_LBC_LCRR		0x00030008    /* LB clock ratio reg */
 #define CFG_LBC_LBCR		0x00000000    /* LB config reg */
@@ -322,36 +320,27 @@
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
+#define	CONFIG_TIMESTAMP		/* Print image info with timestamp */
+
 #if defined(CFG_RAMBOOT)
-  #if defined(CONFIG_PCI)
-    #define  CONFIG_COMMANDS	((CONFIG_CMD_DFL	\
-				 | CFG_CMD_PING		\
-				 | CFG_CMD_PCI		\
-				 | CFG_CMD_I2C)		\
-				&			\
-				 ~(CFG_CMD_ENV		\
-				  | CFG_CMD_LOADS))
-  #else
-    #define  CONFIG_COMMANDS	((CONFIG_CMD_DFL	\
-				 | CFG_CMD_PING		\
-				 | CFG_CMD_I2C)		\
-				&			\
-				 ~(CFG_CMD_ENV		\
-				  | CFG_CMD_LOADS))
-  #endif
+# define CONFIG_CMD_PRIV	(CONFIG_CMD_DFL & ~(CFG_CMD_ENV  | CFG_CMD_LOADS))
 #else
-  #if defined(CONFIG_PCI)
-    #define  CONFIG_COMMANDS	(CONFIG_CMD_DFL		\
-				| CFG_CMD_PCI		\
-				| CFG_CMD_PING		\
-				| CFG_CMD_I2C)
-  #else
-    #define  CONFIG_COMMANDS	(CONFIG_CMD_DFL		\
-				| CFG_CMD_PING		\
-				| CFG_CMD_I2C)
-  #endif
+# define CONFIG_CMD_PRIV       (CONFIG_CMD_DFL	| \
+				CFG_CMD_DHCP	| \
+				CFG_CMD_NFS	| \
+				CFG_CMD_SNTP	)
 #endif
 
+#if defined(CONFIG_PCI)
+# define ADD_PCI_CMD		(CFG_CMD_PCI)
+#else
+# define ADD_PCI_CMD		0
+#endif
+
+#define CONFIG_COMMANDS        (CONFIG_CMD_PRIV	| \
+				ADD_PCI_CMD	| \
+				CFG_CMD_PING	| \
+				CFG_CMD_I2C	)
 #include <cmd_confdefs.h>
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled */

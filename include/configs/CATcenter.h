@@ -1,7 +1,7 @@
 /*
  * ueberarbeitet durch Christoph Seyfert
  *
- * (C) Copyright 2004 DENX Software Engineering,
+ * (C) Copyright 2004-2005 DENX Software Engineering,
  *     Wolfgang Grandegger <wg@denx.de>
  * (C) Copyright 2003
  *     DAVE Srl
@@ -117,14 +117,19 @@
 #endif
 #define CONFIG_PHY_CLK_FREQ	EMAC_STACR_CLK_66MHZ
 
+#define	CONFIG_TIMESTAMP		/* Print image info with timestamp */
+
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
+				CFG_CMD_DHCP	| \
 				CFG_CMD_ELF	| \
 				CFG_CMD_EEPROM	| \
 				CFG_CMD_I2C	| \
 				CFG_CMD_IRQ	| \
 				CFG_CMD_JFFS2	| \
 				CFG_CMD_MII	| \
-				CFG_CMD_NAND	)
+				CFG_CMD_NAND	| \
+				CFG_CMD_NFS	| \
+				CFG_CMD_SNTP	)
 
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION

@@ -726,7 +726,7 @@ static void DhcpOptionsProcess (uchar * popt)
 		case 1:
 			NetCopyIP (&NetOurSubnetMask, (popt + 2));
 			break;
-#if (CONFIG_BOOTP_MASK & CONFIG_BOOTP_TIMEOFFSET)
+#if (CONFIG_COMMANDS & CFG_CMD_SNTP) && (CONFIG_BOOTP_MASK & CONFIG_BOOTP_TIMEOFFSET)
 		case 2:		/* Time offset	*/
 			NetCopyLong (&NetTimeOffset, (ulong *) (popt + 2));
 			NetTimeOffset = ntohl (NetTimeOffset);
@@ -755,7 +755,7 @@ static void DhcpOptionsProcess (uchar * popt)
 			memcpy (&NetOurRootPath, popt + 2, size);
 			NetOurRootPath[size] = 0;
 			break;
-#if (CONFIG_BOOTP_MASK & CONFIG_BOOTP_NTPSERVER)
+#if (CONFIG_COMMANDS & CFG_CMD_SNTP) && (CONFIG_BOOTP_MASK & CONFIG_BOOTP_NTPSERVER)
 		case 42:	/* NTP server IP */
 			NetCopyIP (&NetNtpServerIP, (popt + 2));
 			break;

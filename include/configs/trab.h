@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2002-2003
+ * (C) Copyright 2002-2005
  * Gary Jennejohn <gj@denx.de>
  *
  * Configuation settings for the TRAB board.
@@ -157,25 +157,31 @@
 #endif
 
 #ifndef USE_920T_MMU
-#define CONFIG_COMMANDS		((CONFIG_CMD_DFL & ~CFG_CMD_CACHE) | \
-				 CFG_CMD_BSP			| \
-				 CFG_CMD_DATE			| \
-				 CONFIG_COMMANDS_ADD_HWFLOW	| \
-				 CONFIG_COMMANDS_ADD_VFD	| \
-				 CONFIG_COMMANDS_ADD_EEPROM	| \
-				 CFG_CMD_USB			| \
-				 CFG_CMD_FAT			| \
-				 CONFIG_COMMANDS_I2C		)
+#define CONFIG_COMMANDS	       ((CONFIG_CMD_DFL & ~CFG_CMD_CACHE) | \
+				CONFIG_COMMANDS_ADD_HWFLOW	| \
+				CONFIG_COMMANDS_ADD_VFD		| \
+				CONFIG_COMMANDS_ADD_EEPROM	| \
+				CONFIG_COMMANDS_I2C		| \
+				CFG_CMD_BSP			| \
+				CFG_CMD_DATE			| \
+				CFG_CMD_DHCP			| \
+				CFG_CMD_USB			| \
+				CFG_CMD_FAT			| \
+				CFG_CMD_NFS			| \
+				CFG_CMD_SNTP	)
 #else
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL			| \
-				 CFG_CMD_BSP			| \
-				 CFG_CMD_DATE			| \
-				 CONFIG_COMMANDS_ADD_HWFLOW	| \
-				 CONFIG_COMMANDS_ADD_VFD	| \
-				 CONFIG_COMMANDS_ADD_EEPROM	| \
-				 CFG_CMD_USB			| \
-				 CFG_CMD_FAT			| \
-				 CONFIG_COMMANDS_I2C		)
+#define CONFIG_COMMANDS	       (CONFIG_CMD_DFL			| \
+				CONFIG_COMMANDS_ADD_HWFLOW	| \
+				CONFIG_COMMANDS_ADD_VFD		| \
+				CONFIG_COMMANDS_ADD_EEPROM	| \
+				CONFIG_COMMANDS_I2C		| \
+				CFG_CMD_BSP			| \
+				CFG_CMD_DATE			| \
+				CFG_CMD_DHCP			| \
+				CFG_CMD_USB			| \
+				CFG_CMD_FAT			| \
+				CFG_CMD_NFS			| \
+				CFG_CMD_SNTP	)
 #endif
 
 /* moved up */

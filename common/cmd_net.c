@@ -137,13 +137,13 @@ static void netboot_update_env (void)
 	if (NetOurNISDomain[0])
 		setenv ("domain", NetOurNISDomain);
 
-#if (CONFIG_BOOTP_MASK & CONFIG_BOOTP_TIMEOFFSET)
+#if (CONFIG_COMMANDS & CFG_CMD_SNTP) && (CONFIG_BOOTP_MASK & CONFIG_BOOTP_TIMEOFFSET)
 	if (NetTimeOffset) {
 		sprintf (tmp, "%d", NetTimeOffset);
 		setenv ("timeoffset", tmp);
 	}
 #endif
-#if (CONFIG_BOOTP_MASK & CONFIG_BOOTP_NTPSERVER)
+#if (CONFIG_COMMANDS & CFG_CMD_SNTP) && (CONFIG_BOOTP_MASK & CONFIG_BOOTP_NTPSERVER)
 	if (NetNtpServerIP) {
 		ip_to_string (NetNtpServerIP, tmp);
 		setenv ("ntpserverip", tmp);

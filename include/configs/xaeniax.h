@@ -1,4 +1,7 @@
 /*
+ * (C) Copyright 2004-2005
+ * Wolfgang Denk, DENX Software Engineering, <wd@denx.de>
+ *
  * (C) Copyright 2004
  * Vincent Dubey, Xa SA, vincent.dubey@xa-ch.com
  *
@@ -65,11 +68,18 @@
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 
+#define	CONFIG_TIMESTAMP		/* Print image info with timestamp */
+
 #define CONFIG_BAUDRATE		115200
 
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 } /* valid baudrates */
 
-#define CONFIG_COMMANDS		((CONFIG_CMD_DFL | CFG_CMD_DIAG | CFG_CMD_SDRAM) & ~CFG_CMD_DTT)
+#define CONFIG_COMMANDS	       ((CONFIG_CMD_DFL & ~CFG_CMD_DTT) | \
+				CFG_CMD_DHCP	| \
+				CFG_CMD_DIAG	| \
+				CFG_CMD_NFS	| \
+				CFG_CMD_SDRAM	| \
+				CFG_CMD_SNTP	)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2002
+ * (C) Copyright 2002-2005
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -50,8 +50,6 @@
 #define CONFIG_BAUDRATE		9600
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
-#define CONFIG_CLOCKS_IN_MHZ	1	/* clocks passed to Linux in MHz */
-
 #define CONFIG_PREBOOT		""
 #define CONFIG_BOOTDELAY	5
 
@@ -61,15 +59,17 @@
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
 
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL | \
-				 CFG_CMD_ASKENV	| \
-				 CFG_CMD_BSP	| \
-				 CFG_CMD_DATE	| \
-				 CFG_CMD_DHCP	| \
-				 CFG_CMD_DOC	| \
-				 CFG_CMD_ELF	| \
-				 CFG_CMD_PCI	| \
-				 CFG_CMD_SCSI	)
+#define CONFIG_COMMANDS        (CONFIG_CMD_DFL	| \
+				CFG_CMD_ASKENV	| \
+				CFG_CMD_BSP	| \
+				CFG_CMD_DATE	| \
+				CFG_CMD_DHCP	| \
+				CFG_CMD_DOC	| \
+				CFG_CMD_ELF	| \
+				CFG_CMD_NFS	| \
+				CFG_CMD_PCI	| \
+				CFG_CMD_SCSI	| \
+				CFG_CMD_SNTP	)
 
 
 #define CONFIG_PCI		1

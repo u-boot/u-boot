@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001
+ * (C) Copyright 2001-2005
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -90,9 +90,12 @@
 #define CFG_SPI_INIT_OFFSET		0xB00
 
 #define CONFIG_COMMANDS		(	CONFIG_CMD_DFL	| \
+					CFG_CMD_BSP	| \
 					CFG_CMD_DATE	| \
+					CFG_CMD_DHCP	| \
 					CFG_CMD_EEPROM	| \
-					CFG_CMD_BSP	)
+					CFG_CMD_NFS	| \
+					CFG_CMD_SNTP	)
 
 #define CONFIG_BOOTP_MASK \
     ((CONFIG_BOOTP_DEFAULT | CONFIG_BOOTP_BOOTFILESIZE) & ~CONFIG_BOOTP_GATEWAY)

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000
+ * (C) Copyright 2000-2005
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -47,8 +47,6 @@
 #endif
 #define CONFIG_BOOTCOMMAND	"bootm 40040000" /* autoboot command	*/
 
-#define	CONFIG_CLOCKS_IN_MHZ	1	/* clocks passsed to Linux in MHz */
-
 #define CONFIG_BOARD_TYPES	1	/* support board types		*/
 
 #define CONFIG_BOOTARGS		"root=/dev/nfs rw "			\
@@ -66,8 +64,10 @@
 
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
 				CFG_CMD_ASKENV	| \
+				CFG_CMD_DATE	| \
 				CFG_CMD_DHCP	| \
-				CFG_CMD_DATE	)
+				CFG_CMD_NFS	| \
+				CFG_CMD_SNTP	)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>

@@ -1,4 +1,7 @@
 /*
+ * (C) Copyright 2003-2005
+ * Wolfgang Denk, DENX Software Engineering, <wd@denx.de>
+ *
  * (C) Copyright 2003
  * DAVE Srl
  *
@@ -112,6 +115,7 @@
 
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
 				CFG_CMD_DATE	| \
+				CFG_CMD_DHCP	| \
 				CFG_CMD_ELF	| \
 				CFG_CMD_EEPROM	| \
 				CFG_CMD_I2C	| \
@@ -119,7 +123,9 @@
 				CFG_CMD_JFFS2	| \
 				CFG_CMD_MII	| \
 				CFG_CMD_NAND	| \
-				CFG_CMD_PCI	)
+				CFG_CMD_NFS	| \
+				CFG_CMD_PCI	| \
+				CFG_CMD_SNTP	)
 
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2003
+ * (C) Copyright 2001-2005
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -69,7 +69,8 @@
 				CFG_CMD_NFS	| \
 				CFG_CMD_PCI	| \
 				CFG_CMD_PING	| \
-				CFG_CMD_SDRAM	)
+				CFG_CMD_SDRAM	| \
+				CFG_CMD_SNTP	)
 
 /* This must be included AFTER the definition of CONFIG_COMMANDS (if any)
  */

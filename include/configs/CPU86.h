@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001
+ * (C) Copyright 2001-2005
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -109,8 +109,6 @@
 
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 
-#define	CONFIG_CLOCKS_IN_MHZ	1	/* clocks passsed to Linux in MHz */
-
 #define CONFIG_PREBOOT								\
 	"echo; "								\
 	"echo Type \"run flash_nfs\" to mount root filesystem over NFS; "	\
@@ -166,12 +164,15 @@
 
 #define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT|CONFIG_BOOTP_BOOTFILESIZE)
 
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL | \
-				 CFG_CMD_BEDBUG	| \
-				 CFG_CMD_EEPROM | \
-				 CFG_CMD_DATE	| \
-				 CFG_CMD_I2C	| \
-				 CFG_CMD_DOC	)
+#define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
+				CFG_CMD_BEDBUG	| \
+				CFG_CMD_DATE	| \
+				CFG_CMD_DHCP	| \
+				CFG_CMD_DOC	| \
+				CFG_CMD_EEPROM	| \
+				CFG_CMD_I2C	| \
+				CFG_CMD_NFS	| \
+				CFG_CMD_SNTP	)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>

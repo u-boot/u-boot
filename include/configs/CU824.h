@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001
+ * (C) Copyright 2001-2005
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -50,8 +50,6 @@
 #define CONFIG_BAUDRATE		9600
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
-#define CONFIG_CLOCKS_IN_MHZ	1	/* clocks passsed to Linux in MHz	*/
-
 #define CONFIG_PREBOOT	"echo;echo Type \"run flash_nfs\" to mount root filesystem over NFS;echo"
 
 #define CONFIG_BOOTCOMMAND	"bootm FE020000"	/* autoboot command	*/
@@ -59,11 +57,15 @@
 
 #define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | CONFIG_BOOTP_BOOTFILESIZE)
 
+#define	CONFIG_TIMESTAMP		/* Print image info with timestamp */
+
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
 				CFG_CMD_BEDBUG  | \
+				0 /* CFG_CMD_DATE */	| \
 				CFG_CMD_DHCP	| \
 				CFG_CMD_PCI	| \
-				0 /* CFG_CMD_DATE */	)
+				CFG_CMD_NFS	| \
+				CFG_CMD_SNTP	)
 
 /* This must be included AFTER the definition of CONFIG_COMMANDS (if any)
  */
