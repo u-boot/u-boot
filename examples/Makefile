@@ -30,6 +30,7 @@ BIN	= hello_world.bin
 
 ifeq ($(CPU),mips)
 SREC =
+BIN =
 endif
 
 # The following example is pretty 8xx specific...
