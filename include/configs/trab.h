@@ -121,9 +121,8 @@
 #define CONFIG_BOOTDELAY	5
 #define CONFIG_PREBOOT		"echo;echo *** booting ***;echo"
 #define CONFIG_BOOTARGS    	"console=ttyS0"
-#define CONFIG_ETHADDR		00:D0:93:00:61:11
-#define CONFIG_NETMASK          255.255.255.0
-#define CONFIG_IPADDR		192.168.3.27
+#define CONFIG_NETMASK          255.255.0.0
+#define CONFIG_IPADDR		192.168.3.68
 #define CONFIG_SERVERIP		192.168.3.1
 #define CONFIG_BOOTCOMMAND	"run flash_nfs"
 #define	CONFIG_EXTRA_ENV_SETTINGS	\
@@ -211,20 +210,17 @@
 #define PHYS_SDRAM_1		0x0c000000 /* SDRAM Bank #1 */
 #define PHYS_SDRAM_1_SIZE	0x01000000 /* 16 MB */
 
-#define PHYS_FLASH_1		0x00000000 /* Flash Bank #1 */
-#define PHYS_FLASH_SIZE		0x00800000 /* 8 MB */
+#define CFG_FLASH_BASE		0x00000000 /* Flash Bank #1 */
 
 /* The following #defines are needed to get flash environment right */
-#define	CFG_MONITOR_BASE	PHYS_FLASH_1
+#define	CFG_MONITOR_BASE	CFG_FLASH_BASE
 #define	CFG_MONITOR_LEN		(256 << 10)
-
-#define CFG_FLASH_BASE		PHYS_FLASH_1
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
 #define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks */
-#define CFG_MAX_FLASH_SECT	(71)	/* max number of sectors on one chip */
+#define CFG_MAX_FLASH_SECT	128	/* max number of sectors on one chip */
 
 /* timeout values are in ticks */
 #define CFG_FLASH_ERASE_TOUT	(2*CFG_HZ) /* Timeout for Flash Erase */
@@ -233,7 +229,7 @@
 #define	CFG_ENV_IS_IN_FLASH	1
 
 /* Address and size of Primary Environment Sector	*/
-#define CFG_ENV_ADDR		(PHYS_FLASH_1 + 0x4000)
+#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x4000)
 #define CFG_ENV_SIZE		0x4000
 
 /* Address and size of Redundant Environment Sector	*/

@@ -39,6 +39,7 @@ extern int eth_3com_initialize(bd_t*);
 extern int pcnet_initialize(bd_t*);
 extern int fec_initialize(bd_t*);
 extern int scc_initialize(bd_t*);
+extern int inca_switch_initialize(bd_t*);
 
 static struct eth_device *eth_devices, *eth_current;
 
@@ -95,6 +96,9 @@ int eth_initialize(bd_t *bis)
 	eth_devices = NULL;
 	eth_current = NULL;
 
+#ifdef CONFIG_INCA_IP_SWITCH
+	inca_switch_initialize(bis);
+#endif
 #ifdef CONFIG_EEPRO100
 	eepro100_initialize(bis);
 #endif
@@ -153,7 +157,7 @@ int eth_initialize(bd_t *bis)
 				if (memcmp(dev->enetaddr, "\0\0\0\0\0\0", 6) &&
 				    memcmp(dev->enetaddr, env_enetaddr, 6))
 				{
-					printf("\nWarning: %s HW address don't match:\n", dev->name);
+					printf("\nWarning: %s MAC addresses don't match:\n", dev->name);
 					printf("Address in SROM is         "
 					       "%02X:%02X:%02X:%02X:%02X:%02X\n",
 					       dev->enetaddr[0], dev->enetaddr[1],

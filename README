@@ -2354,6 +2354,46 @@ format!) to the "bootm" command:
 
 	bash#
 
+More About U-Boot Image Types:
+------------------------------
+
+U-Boot supports the following image types:
+
+   "Standalone Programs" are directly runnable in the environment
+  	provided by U-Boot; it is expected that (if they behave
+  	well) you can continue to work in U-Boot after return from
+  	the Standalone Program.
+   "OS Kernel Images" are usually images of some Embedded OS which
+  	will take over control completely. Usually these programs
+  	will install their own set of exception handlers, device
+  	drivers, set up the MMU, etc. - this means, that you cannot
+  	expect to re-enter U-Boot except by resetting the CPU.
+   "RAMDisk Images" are more or less just data blocks, and their
+  	parameters (address, size) are passed to an OS kernel that is
+  	being started.
+   "Multi-File Images" contain several images, typically an OS
+  	(Linux) kernel image and one or more data images like
+  	RAMDisks. This construct is useful for instance when you want
+  	to boot over the network using BOOTP etc., where the boot
+  	server provides just a single image file, but you want to get
+  	for instance an OS kernel and a RAMDisk image.
+  
+  	"Multi-File Images" start with a list of image sizes, each
+  	image size (in bytes) specified by an "uint32_t" in network
+  	byte order. This list is terminated by an "(uint32_t)0".
+  	Immediately after the terminating 0 follow the images, one by
+  	one, all aligned on "uint32_t" boundaries (size rounded up to
+  	a multiple of 4 bytes).
+  
+   "Firmware Images" are binary images containing firmware (like
+  	U-Boot or FPGA images) which usually will be programmed to
+  	flash memory.
+  
+   "Script files" are command sequences that will be executed by
+  	U-Boot's command interpreter; this feature is especially
+  	useful when you configure U-Boot to use a real shell (hush)
+  	as command interpreter.
+
 
 Standalone HOWTO:
 =================

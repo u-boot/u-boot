@@ -252,11 +252,13 @@ int valid_elf_image (unsigned long addr)
 		return 0;
 	}
 
+#if 0
 	if (ehdr->e_machine != EM_PPC) {
 		printf ("## Not a PowerPC elf image at address 0x%08lx\n",
 			addr);
 		return 0;
 	}
+#endif
 
 	return 1;
 }

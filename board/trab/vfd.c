@@ -55,12 +55,16 @@
 #define BLAU	0x0C
 #define VIOLETT	0X0D
 
-ulong vfdbase;
-ulong frame_buf_size;
+ulong	vfdbase;
+ulong	frame_buf_size;
 #define frame_buf_offs 4
 
+/* Supported VFD Types */
+#define	VFD_TYPE_T119C		1	/* Noritake T119C VFD */
+#define	VFD_TYPE_MN11236	2
+
 /* taken from armboot/common/vfd.c */
-ulong         adr_vfd_table[112][18][2][4][2];
+unsigned long adr_vfd_table[112][18][2][4][2];
 unsigned char bit_vfd_table[112][18][2][4][2];
 
 /*
@@ -68,26 +72,42 @@ unsigned char bit_vfd_table[112][18][2][4][2];
  */
 void init_grid_ctrl(void)
 {
+	DECLARE_GLOBAL_DATA_PTR;
 	ulong adr, grid_cycle;
 	unsigned int bit, display;
 	unsigned char temp, bit_nr;
+	ulong val;
 
-	for (adr=vfdbase; adr<=(vfdbase+7168); adr+=4) /*clear frame buffer */
-		(*(volatile ulong*)(adr))=0;
+	/*
+	 * clear frame buffer (logical clear => set to "black")
+	 */
+	if (gd->vfd_inv_data == 0)
+		val = 0;
+	else
+		val = ~0;
 
-	for(display=0;display<=3;display++)
-	{
-		for(grid_cycle=0;grid_cycle<=55;grid_cycle++)
-		{
-			bit = grid_cycle*256*4+(grid_cycle+200)*4+frame_buf_offs+display;
+	for (adr = vfdbase; adr <= (vfdbase+7168); adr += 4) {
+		(*(volatile ulong*)(adr)) = val;
+	}
+
+	switch (gd->vfd_type) {
+	case VFD_TYPE_T119C:
+	    for (display=0; display<4; display++) {
+		for(grid_cycle=0; grid_cycle<56; grid_cycle++) {
+			bit = grid_cycle * 256  * 4 +
+			     (grid_cycle + 200) * 4 +
+			     frame_buf_offs + display;
  			/* wrap arround if offset (see manual S3C2400) */
 			if (bit>=frame_buf_size*8)
-				bit = bit-(frame_buf_size*8);
-			adr = vfdbase+(bit/32)*4+(3-(bit%32)/8);
-			bit_nr = bit%8;
-			bit_nr = (bit_nr>3)?bit_nr-4:bit_nr+4;
+				bit = bit - (frame_buf_size * 8);
+			adr = vfdbase + (bit/32) * 4 + (3 - (bit%32) / 8);
+			bit_nr = bit % 8;
+			bit_nr = (bit_nr > 3) ? bit_nr-4 : bit_nr+4;
 			temp=(*(volatile unsigned char*)(adr));
-			temp|=(1<<bit_nr);
+			if (gd->vfd_inv_data)
+				temp &= ~(1<<bit_nr);
+			else
+				temp |=  (1<<bit_nr);
 			(*(volatile unsigned char*)(adr))=temp;
 
 			if(grid_cycle<55)
@@ -101,9 +121,54 @@ void init_grid_ctrl(void)
 			bit_nr = bit%8;
 			bit_nr = (bit_nr>3)?bit_nr-4:bit_nr+4;
 			temp=(*(volatile unsigned char*)(adr));
-			temp|=(1<<bit_nr);
+			if (gd->vfd_inv_data)
+				temp &= ~(1<<bit_nr);
+			else
+				temp |=  (1<<bit_nr);
 			(*(volatile unsigned char*)(adr))=temp;
 		}
+	    }
+	    break;
+	case VFD_TYPE_MN11236:
+	    for (display=0; display<4; display++) {
+		for (grid_cycle=0; grid_cycle<38; grid_cycle++) {
+			bit = grid_cycle * 256  * 4 +
+			     (253 - grid_cycle) * 4 +
+			     frame_buf_offs + display;
+			/* wrap arround if offset (see manual S3C2400) */
+			if (bit>=frame_buf_size*8)
+				bit = bit - (frame_buf_size * 8);
+			adr = vfdbase + (bit/32) * 4 + (3 - (bit%32) / 8);
+			bit_nr = bit % 8;
+			bit_nr = (bit_nr > 3) ? bit_nr-4 : bit_nr+4;
+			temp=(*(volatile unsigned char*)(adr));
+			if (gd->vfd_inv_data)
+				temp &= ~(1<<bit_nr);
+			else
+				temp |=  (1<<bit_nr);
+			(*(volatile unsigned char*)(adr))=temp;
+
+			if(grid_cycle<37)
+				bit = grid_cycle*256*4+(252-grid_cycle)*4+frame_buf_offs+display;
+
+			/* wrap arround if offset (see manual S3C2400) */
+			if (bit>=frame_buf_size*8)
+				bit = bit-(frame_buf_size*8);
+			adr = vfdbase+(bit/32)*4+(3-(bit%32)/8);
+			bit_nr = bit%8;
+			bit_nr = (bit_nr>3)?bit_nr-4:bit_nr+4;
+			temp=(*(volatile unsigned char*)(adr));
+			if (gd->vfd_inv_data)
+				temp &= ~(1<<bit_nr);
+			else
+				temp |=  (1<<bit_nr);
+			(*(volatile unsigned char*)(adr))=temp;
+		}
+	    }
+	    break;
+	default:
+	    printf ("Warning: unknown display type\n");
+	    break;
 	}
 }
 
@@ -113,175 +178,142 @@ void init_grid_ctrl(void)
  */
 void create_vfd_table(void)
 {
-	unsigned int vfd_table[112][18][2][4][2];
-	ulong adr;
-	unsigned int x, y, color, display, entry, pixel, bit_nr;
+	DECLARE_GLOBAL_DATA_PTR;
+	unsigned long vfd_table[112][18][2][4][2];
+	unsigned int x, y, color, display, entry, pixel;
+	unsigned int x_abcdef = 0;
 
-	/*
-	 * Create translation table for Noritake-T119C-VFD-specific
-	 * organized frame-buffer.
-	 * Created is the number of the bit in the framebuffer (the
-	 * first transferred pixel of each frame is bit 0).
-	 */
-	for(y=0;y<=17;y++)   /* Zeile */
-	{
-		for(x=0;x<=111;x++)  /* Spalten */
-		{
-			/*Display 0 blaue Pixel Eintrag 1 */
-			vfd_table[x][y][0][0][0]=((x%4)*4+y*16+(x/4)*2048);
-			/*Display 0 rote Pixel Eintrag 1 */
-			vfd_table[x][y][1][0][0]=((x%4)*4+y*16+(x/4)*2048+512);
-			if(x<=1)
-			{
-				/*Display 0 blaue Pixel Eintrag 2 */
-				vfd_table[x][y][0][0][1]=(((x+112)%4)*4+y*16+((x+110)/4)*2048+1024);
-				/*Display 0 rote Pixel Eintrag 2 */
-				vfd_table[x][y][1][0][1]=(((x+112)%4)*4+y*16+((x+110)/4)*2048+512+1024);
-			}
-			else
-			{
-				/*Display 0 blaue Pixel Eintrag 2 */
-				vfd_table[x][y][0][0][1]=((x%4)*4+y*16+((x-2)/4)*2048+1024);
-				/*Display 0 rote Pixel Eintrag 2 */
-				vfd_table[x][y][1][0][1]=((x%4)*4+y*16+((x-2)/4)*2048+512+1024);
-			}
-			/*Display 1 blaue Pixel Eintrag 1 */
-			vfd_table[x][y][0][1][0]=((x%4)*4+y*16+(x/4)*2048+1);
-			/*Display 1 rote Pixel Eintrag 1 */
-			vfd_table[x][y][1][1][0]=((x%4)*4+y*16+(x/4)*2048+512+1);
-			if(x<=1)
-			{
-				/*Display 1 blaue Pixel Eintrag 2 */
-				vfd_table[x][y][0][1][1]=(((x+112)%4)*4+y*16+((x+110)/4)*2048+1+1024);
-				/*Display 1 rote Pixel Eintrag 2 */
-				vfd_table[x][y][1][1][1]=(((x+112)%4)*4+y*16+((x+110)/4)*2048+512+1+1024);
-			}
-			else
-			{
-				/*Display 1 blaue Pixel Eintrag 2 */
-				vfd_table[x][y][0][1][1]=((x%4)*4+y*16+((x-2)/4)*2048+1+1024);
-				/*Display 1 rote Pixel Eintrag 2 */
-				vfd_table[x][y][1][1][1]=((x%4)*4+y*16+((x-2)/4)*2048+512+1+1024);
-			}
-			/*Display 2 blaue Pixel Eintrag 1 */
-			vfd_table[x][y][0][2][0]=((x%4)*4+y*16+(x/4)*2048+2);
-			/*Display 2 rote Pixel Eintrag 1 */
-			vfd_table[x][y][1][2][0]=((x%4)*4+y*16+(x/4)*2048+512+2);
-			if(x<=1)
-			{
-				/*Display 2 blaue Pixel Eintrag 2 */
-				vfd_table[x][y][0][2][1]=(((x+112)%4)*4+y*16+((x+110)/4)*2048+2+1024);
-				/*Display 2 rote Pixel Eintrag 2 */
-				vfd_table[x][y][1][2][1]=(((x+112)%4)*4+y*16+((x+110)/4)*2048+512+2+1024);
-			}
-			else
-			{
-				/*Display 2 blaue Pixel Eintrag 2 */
-				vfd_table[x][y][0][2][1]=((x%4)*4+y*16+((x-2)/4)*2048+2+1024);
-				/*Display 2 rote Pixel Eintrag 2 */
-				vfd_table[x][y][1][2][1]=((x%4)*4+y*16+((x-2)/4)*2048+512+2+1024);
-			}
-			/*Display 3 blaue Pixel Eintrag 1 */
-			vfd_table[x][y][0][3][0]=((x%4)*4+y*16+(x/4)*2048+3);
-			/*Display 3 rote Pixel Eintrag 1 */
-			vfd_table[x][y][1][3][0]=((x%4)*4+y*16+(x/4)*2048+512+3);
-			if(x<=1)
-			{
-				/*Display 3 blaue Pixel Eintrag 2 */
-				vfd_table[x][y][0][3][1]=(((x+112)%4)*4+y*16+((x+110)/4)*2048+3+1024);
-				/*Display 3 rote Pixel Eintrag 2 */
-				vfd_table[x][y][1][3][1]=(((x+112)%4)*4+y*16+((x+110)/4)*2048+512+3+1024);
-			}
-			else
-			{
-				/*Display 3 blaue Pixel Eintrag 2 */
-				vfd_table[x][y][0][3][1]=((x%4)*4+y*16+((x-2)/4)*2048+3+1024);
-				/*Display 3 rote Pixel Eintrag 2 */
-				vfd_table[x][y][1][3][1]=((x%4)*4+y*16+((x-2)/4)*2048+512+3+1024);
-			}
+	switch (gd->vfd_type) {
+	case VFD_TYPE_T119C:
+	    for(y=0; y<=17; y++) {	/* Line */
+		for(x=0; x<=111; x++) {	/* Column */
+		    for(display=0; display <=3; display++) {
+
+			    /* Display 0 blue pixels */
+			    vfd_table[x][y][0][display][0] =
+				(x==0) ? y*16+display
+				       : (x%4)*4+y*16+((x-1)/2)*1024+display;
+			    /* Display 0 red pixels */
+			    vfd_table[x][y][1][display][0] =
+				(x==0) ? y*16+512+display
+			    	       : (x%4)*4+y*16+((x-1)/2)*1024+512+display;
+		    }
 		}
+	    }
+	    break;
+	case VFD_TYPE_MN11236:
+	    for(y=0; y<=17; y++) {	/* Line */
+		for(x=0; x<=111; x++) {	/* Column */
+		    for(display=0; display <=3; display++) {
+
+			    vfd_table[x][y][0][display][0]=0;
+			    vfd_table[x][y][0][display][1]=0;
+			    vfd_table[x][y][1][display][0]=0;
+			    vfd_table[x][y][1][display][1]=0;
+
+			    switch (x%6) {
+			    case 0: x_abcdef=0; break; /* a -> a */
+			    case 1: x_abcdef=2; break; /* b -> c */
+			    case 2: x_abcdef=4; break; /* c -> e */
+			    case 3: x_abcdef=5; break; /* d -> f */
+			    case 4: x_abcdef=3; break; /* e -> d */
+			    case 5: x_abcdef=1; break; /* f -> b */
+			    }
+
+			    /* blue pixels */
+			    vfd_table[x][y][0][display][0] =
+				(x>1) ? x_abcdef*4+((x-1)/3)*1024+y*48+display
+				      : x_abcdef*4+             0+y*48+display;
+			    /* blue pixels */
+			    if (x>1 && (x-1)%3)
+				    vfd_table[x][y][0][display][1] = x_abcdef*4+((x-1)/3+1)*1024+y*48+display;
+
+			    /* red pixels */
+			    vfd_table[x][y][1][display][0] =
+				(x>1) ? x_abcdef*4+24+((x-1)/3)*1024+y*48+display
+				      : x_abcdef*4+24+             0+y*48+display;
+			    /* red pixels */
+			    if (x>1 && (x-1)%3)
+				    vfd_table[x][y][1][display][1] = x_abcdef*4+24+((x-1)/3+1)*1024+y*48+display;
+		    }
+		}
+	    }
+	    break;
+	default:
+	    /* do nothing */
+	    return;
 	}
 
 	/*
-	 * Create translation table for Noritake-T119C-VFD-specific
-	 * organized frame-buffer
 	 * Create table with entries for physical byte adresses and
 	 * bit-number within the byte
 	 * from table with bit-numbers within the total framebuffer
 	 */
-	for(y=0;y<=17;y++)
-	{
-		for(x=0;x<=111;x++)
-		{
-			for(color=0;color<=1;color++)
-			{
-				for(display=0;display<=3;display++)
-				{
-					for(entry=0;entry<=1;entry++)
-					{
-						pixel  = vfd_table[x][y][color][display][entry] + frame_buf_offs;
-						 /*
-						  * wrap arround if offset
-						  * (see manual S3C2400)
-						  */
-						if (pixel>=frame_buf_size*8)
-							pixel = pixel-(frame_buf_size*8);
-						adr    = vfdbase+(pixel/32)*4+(3-(pixel%32)/8);
-						bit_nr = pixel%8;
-						bit_nr = (bit_nr>3)?bit_nr-4:bit_nr+4;
-						adr_vfd_table[x][y][color][display][entry] = adr;
-						bit_vfd_table[x][y][color][display][entry] = bit_nr;
-					}
-				}
+	for(y=0;y<18;y++) {
+	    for(x=0;x<112;x++) {
+		for(color=0;color<2;color++) {
+		    for(display=0;display<4;display++) {
+			for(entry=0;entry<2;entry++) {
+			    unsigned long adr  = vfdbase;
+			    unsigned int bit_nr = 0;
+			    
+			    if (vfd_table[x][y][color][display][entry]) {
+
+				pixel  = vfd_table[x][y][color][display][entry] + frame_buf_offs;
+				 /*
+				  * wrap arround if offset
+				  * (see manual S3C2400)
+				  */
+				if (pixel>=frame_buf_size*8)
+					pixel = pixel-(frame_buf_size*8);
+				adr    = vfdbase+(pixel/32)*4+(3-(pixel%32)/8);
+				bit_nr = pixel%8;
+				bit_nr = (bit_nr>3)?bit_nr-4:bit_nr+4;
+			    }
+			    adr_vfd_table[x][y][color][display][entry] = adr;
+			    bit_vfd_table[x][y][color][display][entry] = bit_nr;
 			}
+		    }
 		}
+	    }
 	}
 }
 
 /*
  * Set/clear pixel of the VFDs
  */
-void set_vfd_pixel(unsigned char x, unsigned char y, unsigned char color, unsigned char display, unsigned char value)
+void set_vfd_pixel(unsigned char x, unsigned char y,
+		   unsigned char color, unsigned char display,
+		   unsigned char value)
 {
+	DECLARE_GLOBAL_DATA_PTR;
 	ulong adr;
 	unsigned char bit_nr, temp;
 
-	if (value!=0)
-	{
-		/* Pixel-Eintrag Nr. 1 */
-		adr = adr_vfd_table[x][y][color][display][0];
-		/* Pixel-Eintrag Nr. 1 */
-		bit_nr = bit_vfd_table[x][y][color][display][0];
-		temp=(*(volatile unsigned char*)(adr));
-		temp|=1<<bit_nr;
-		(*(volatile unsigned char*)(adr))=temp;
-
-		/* Pixel-Eintrag Nr. 2 */
-		adr = adr_vfd_table[x][y][color][display][1];
-		/* Pixel-Eintrag Nr. 2 */
-		bit_nr = bit_vfd_table[x][y][color][display][1];
-		temp=(*(volatile unsigned char*)(adr));
-		temp|=1<<bit_nr;
-		(*(volatile unsigned char*)(adr))=temp;
+	if (! gd->vfd_type) {
+		/* Unknown type. */
+		return;
 	}
-	else
-	{
-		/* Pixel-Eintrag Nr. 1 */
-		adr = adr_vfd_table[x][y][color][display][0];
-		/* Pixel-Eintrag Nr. 1 */
-		bit_nr = bit_vfd_table[x][y][color][display][0];
-		temp=(*(volatile unsigned char*)(adr));
-		temp&=~(1<<bit_nr);
-		(*(volatile unsigned char*)(adr))=temp;
 
-		/* Pixel-Eintrag Nr. 2 */
-		adr = adr_vfd_table[x][y][color][display][1];
-		/* Pixel-Eintrag Nr. 2 */
-		bit_nr = bit_vfd_table[x][y][color][display][1];
-		temp=(*(volatile unsigned char*)(adr));
-		temp&=~(1<<bit_nr);
-		(*(volatile unsigned char*)(adr))=temp;
+	/* Pixel-Eintrag Nr. 1 */
+	adr = adr_vfd_table[x][y][color][display][0];
+	/* Pixel-Eintrag Nr. 1 */
+	bit_nr = bit_vfd_table[x][y][color][display][0];
+	temp=(*(volatile unsigned char*)(adr));
+
+	if (gd->vfd_inv_data) {
+		if (value)
+			temp &= ~(1<<bit_nr);
+		else
+			temp |=  (1<<bit_nr);
+	} else {
+		if (value)
+			temp |=  (1<<bit_nr);
+		else
+			temp &= ~(1<<bit_nr);
 	}
+	
+	(*(volatile unsigned char*)(adr))=temp;
 }
 
 /*
@@ -334,36 +366,11 @@ void transfer_pic(int display, unsigned char *adr, int height, int width)
 }
 
 /*
- * initialize LCD-Controller of the S3C2400 for using VFDs
+ * This function initializes VFD clock that is needed for the CPLD that
+ * manages the keyboard.
  */
-int drv_vfd_init(void)
+int vfd_init_clocks(void)
 {
-	ulong palette;
-	static int vfd_init_done = 0;
-
-	DECLARE_GLOBAL_DATA_PTR;
-
-	if (vfd_init_done != 0)
-		return (0);
-	vfd_init_done = 1;
-
-	vfdbase = gd->fb_base;
-	create_vfd_table();
-	init_grid_ctrl();
-
-	/*
-	 * Hinweis: Der Framebuffer ist um genau ein Nibble verschoben
-	 * Das erste angezeigte Pixel wird aus dem zweiten Nibble geholt
-	 * das letzte angezeigte Pixel wird aus dem ersten Nibble geholt
-	 * (wrap around)
-	 * see manual S3C2400
-	 */
-	/* frame buffer startadr */
-	rLCDSADDR1 = vfdbase >> 1;
- 	/* frame buffer endadr */
-	rLCDSADDR2 = (vfdbase + frame_buf_size) >> 1;
-	rLCDSADDR3 = ((256/4));
-
 	/* Port-Pins als LCD-Ausgang */
 	rPCCON =   (rPCCON & 0xFFFFFF00)| 0x000000AA;
 	/* Port-Pins als LCD-Ausgang */
@@ -378,15 +385,92 @@ int drv_vfd_init(void)
 	rLCDCON4 = 0x00000001;
 	rLCDCON5 = 0x00000440;
 	rLCDCON1 = 0x00000B75;
+}
+
+/*
+ * initialize LCD-Controller of the S3C2400 for using VFDs
+ */
+int drv_vfd_init(void)
+{
+	char *tmp;
+	ulong palette;
+	static int vfd_init_done = 0;
+	int vfd_id;
+
+	DECLARE_GLOBAL_DATA_PTR;
+
+	if (vfd_init_done != 0)
+		return (0);
+	vfd_init_done = 1;
+
+	/* try to determine display type from the value
+	 * defined by pull-ups
+	 */
+	rPCUP  = (rPCUP | 0x000F);	/* activate  GPC0...GPC3 pullups */
+	rPCCON = (rPCCON & 0xFFFFFF00);	/* configure GPC0...GPC3 as inputs */
+
+	vfd_id = (~rPCDAT) & 0x000F;	/* read GPC0...GPC3 port pins */
+	debug("Detecting Revison of WA4-VFD: ID=0x%X\n", vfd_id);
+
+	switch (vfd_id) {
+	case 0:				/* board revision <= Rev.100 */
+/*-----*/
+		gd->vfd_inv_data = 0;
+		if (0)
+			gd->vfd_type = VFD_TYPE_MN11236;
+		else
+			gd->vfd_type = VFD_TYPE_T119C;
+/*-----*/
+		if ((tmp = getenv ("vfd_type")) == NULL) {
+			break;
+		}
+		if (strcmp(tmp, "T119C") == 0) {
+			gd->vfd_type = VFD_TYPE_T119C;
+		} else if (strcmp(tmp, "MN11236") == 0) {
+			gd->vfd_type = VFD_TYPE_MN11236;
+		} else {
+			/* cannot use printf for a warning here */
+			gd->vfd_type = 0;	/* unknown */
+		}
+		gd->vfd_inv_data = 0;
+
+		break;
+	default:			/* default to MN11236, data inverted */
+		gd->vfd_type = VFD_TYPE_MN11236;
+		gd->vfd_inv_data = 1;
+		setenv ("vfd_type", "MN11236");
+	}
+	debug ("VFD type: %s%s\n",
+		(gd->vfd_type == VFD_TYPE_T119C)   ? "T119C" :
+		(gd->vfd_type == VFD_TYPE_MN11236) ? "MN11236" :
+		"unknown",
+		gd->vfd_inv_data ? ", inverted data" : "");
+
+	vfdbase = gd->fb_base;
+	create_vfd_table();
+	init_grid_ctrl();
+
+	for (palette=0; palette < 16; palette++)
+		(*(volatile unsigned int*)(PALETTE+(palette*4)))=palette;
+	for (palette=16; palette < 256; palette++)
+		(*(volatile unsigned int*)(PALETTE+(palette*4)))=0x00;
+
+	/*
+	 * Hinweis: Der Framebuffer ist um genau ein Nibble verschoben
+	 * Das erste angezeigte Pixel wird aus dem zweiten Nibble geholt
+	 * das letzte angezeigte Pixel wird aus dem ersten Nibble geholt
+	 * (wrap around)
+	 * see manual S3C2400
+	 */
+	/* frame buffer startadr */
+	rLCDSADDR1 = vfdbase >> 1;
+ 	/* frame buffer endadr */
+	rLCDSADDR2 = (vfdbase + frame_buf_size) >> 1;
+	rLCDSADDR3 = ((256/4));
 
 	debug ("LCDSADDR1: %lX\n", rLCDSADDR1);
 	debug ("LCDSADDR2: %lX\n", rLCDSADDR2);
 	debug ("LCDSADDR3: %lX\n", rLCDSADDR3);
-
-	for(palette=0;palette<=15;palette++)
-		(*(volatile unsigned int*)(PALETTE+(palette*4)))=palette;
-	for(palette=16;palette<=255;palette++)
-		(*(volatile unsigned int*)(PALETTE+(palette*4)))=0x00;
 
 	return 0;
 }

@@ -11,7 +11,6 @@
 /* History:                                                                   */
 /******************************************************************************/
 #include <common.h>
-#include "bcm570x_mm.h"
 #include <asm/types.h>
 #if (CONFIG_COMMANDS & CFG_CMD_NET) && !defined(CONFIG_NET_MULTI) && \
 	defined(CONFIG_TIGON3)
@@ -20,6 +19,7 @@
 #endif
 #include <malloc.h>
 #include <linux/byteorder/big_endian.h>
+#include "bcm570x_mm.h"
 
 #define EMBEDDED 1
 /******************************************************************************/

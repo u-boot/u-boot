@@ -268,6 +268,7 @@ static int pcmcia_off (void)
 #define	MAX_TUPEL_SZ	512
 #define MAX_FEATURES	4
 
+int ide_devices_found;
 static int check_ide_device (int slot)
 {
 	volatile uchar *ident = NULL;
@@ -346,6 +347,8 @@ static int check_ide_device (int slot)
 		printf ("unknown card type\n");
 		return (1);
 	}
+
+	ide_devices_found |= (1 << slot);
 
 	/* set I/O area in config reg -> only valid for ARGOSY D5!!! */
 	*((uchar *)(addr + config_base)) = 1;

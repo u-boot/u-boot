@@ -26,12 +26,7 @@
 #include <common.h>
 #include <environment.h>
 
-ulong myflush (void);
-
-
-#define FLASH_BANK_SIZE	0x800000	/* 8 MB */
-/* this varies depending on the sector */
-#define MAIN_SECT_SIZE  0x20000		/* 2 x 64 kB */
+static ulong flash_get_size (vu_long *addr, flash_info_t *info);
 
 flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
 
@@ -43,6 +38,7 @@ flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
 #define CMD_ERASE_CONFIRM	0x00300030
 #define CMD_PROGRAM		0x00A000A0
 #define CMD_UNLOCK_BYPASS	0x00200020
+#define CMD_READ_MANF_ID	0x00900090
 
 #define MEM_FLASH_ADDR1		(*(volatile u32 *)(CFG_FLASH_BASE + (0x00000555 << 2)))
 #define MEM_FLASH_ADDR2		(*(volatile u32 *)(CFG_FLASH_BASE + (0x000002AA << 2)))
@@ -64,27 +60,38 @@ ulong flash_init (void)
 	int i, j;
 	ulong size = 0;
 
-	for (i = 0; i < CFG_MAX_FLASH_BANKS; i++) {
+	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {
 		ulong flashbase = 0;
+		flash_info_t *info = &flash_info[i];
 
-		flash_info[i].flash_id =
-			(AMD_MANUFACT  & FLASH_VENDMASK) |
-			(AMD_ID_LV320B & FLASH_TYPEMASK);
-		flash_info[i].size = FLASH_BANK_SIZE;
-		flash_info[i].sector_count = CFG_MAX_FLASH_SECT;
-		memset (flash_info[i].protect, 0, CFG_MAX_FLASH_SECT);
+		/* Init: no FLASHes known */
+		info->flash_id = FLASH_UNKNOWN;
+
+		size += flash_get_size (CFG_FLASH_BASE, info);
+
 		if (i == 0)
-			flashbase = PHYS_FLASH_1;
+			flashbase = CFG_FLASH_BASE;
 		else
 			panic ("configured too many flash banks!\n");
-		for (j = 0; j < flash_info[i].sector_count; j++) {
+		for (j = 0; j < info->sector_count; j++) {
 
-			flash_info[i].start[j] = flashbase;
+			info->protect[j] = 0;
+			info->start[j] = flashbase;
 
-			/* the first 8 sectors are 8 kB */
-			flashbase += (j < 8) ? 0x4000 : MAIN_SECT_SIZE;
+			switch (info->flash_id & FLASH_TYPEMASK) {
+			case (FLASH_AM320B & FLASH_TYPEMASK):
+				/* Boot sector type: 8 x 8 + N x 128 kB */
+				flashbase += (j < 8) ? 0x4000 : 0x20000;
+				break;
+			case (FLASH_AM640U & FLASH_TYPEMASK):
+				/* Uniform sector type: 128 kB */
+				flashbase += 0x20000;
+				break;
+			default:
+				printf ("## Bad flash chip type 0x%04lX\n",
+					info->flash_id & FLASH_TYPEMASK);
+			}
 		}
-		size += flash_info[i].size;
 	}
 
 	/*
@@ -116,7 +123,7 @@ void flash_print_info (flash_info_t * info)
 	int i;
 
 	switch (info->flash_id & FLASH_VENDMASK) {
-	case (AMD_MANUFACT & FLASH_VENDMASK):
+	case (FLASH_MAN_AMD & FLASH_VENDMASK):
 		printf ("AMD: ");
 		break;
 	default:
@@ -125,8 +132,11 @@ void flash_print_info (flash_info_t * info)
 	}
 
 	switch (info->flash_id & FLASH_TYPEMASK) {
-	case (AMD_ID_LV320B & FLASH_TYPEMASK):
+	case (FLASH_AM320B & FLASH_TYPEMASK):
 		printf ("2x Am29LV320DB (32Mbit)\n");
+		break;
+	case (FLASH_AM640U & FLASH_TYPEMASK):
+		printf ("2x Am29LV640D (64Mbit)\n");
 		break;
 	default:
 		printf ("Unknown Chip Type\n");
@@ -177,7 +187,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	}
 
 	if ((info->flash_id & FLASH_VENDMASK) !=
-		(AMD_MANUFACT & FLASH_VENDMASK)) {
+		(FLASH_MAN_AMD & FLASH_VENDMASK)) {
 		return ERR_UNKNOWN_FLASH_VENDOR;
 	}
 
@@ -265,13 +275,6 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 				rc = ERR_TIMOUT;
 				goto outahere;
 			}
-
-#if 0
-			printf ("ok.\n");
-		} else {		/* it was protected */
-
-			printf ("protected!\n");
-#endif
 		}
 	}
 
@@ -452,4 +455,72 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 	}
 
 	return write_word (info, wp, data);
+}
+
+/*-----------------------------------------------------------------------
+ */
+
+static ulong flash_get_size (vu_long *addr, flash_info_t *info)
+{
+	ulong value;
+
+	/* Write auto select command sequence and read Manufacturer ID */
+	addr[0x0555] = CMD_UNLOCK1;
+	addr[0x02AA] = CMD_UNLOCK2;
+	addr[0x0555] = CMD_READ_MANF_ID;
+
+	value = addr[0];
+
+	debug ("Manuf. ID @ 0x%08lx: 0x%08lx\n", (ulong)addr, value);
+
+	switch (value) {
+	case AMD_MANUFACT:
+		info->flash_id = FLASH_MAN_AMD;
+		break;
+
+	default:
+		info->flash_id = FLASH_UNKNOWN;
+		info->sector_count = 0;
+		info->size = 0;
+		addr[0] = 0x00FF00FF;		/* restore read mode */
+		debug ("## flash_init: unknown manufacturer\n");
+		return (0);			/* no or unknown flash	*/
+	}
+
+	value = addr[1];			/* device ID		*/
+
+	debug ("Device ID @ 0x%08lx: 0x%08lx\n", (ulong)(&addr[1]), value);
+
+	switch (value) {
+	case AMD_ID_LV320B:
+		info->flash_id += FLASH_AM320B;
+		info->sector_count = 71;
+		info->size = 0x00800000;
+
+		addr[0] = 0x00FF00FF;		/* restore read mode */
+		break;				/* =>  8 MB		*/
+
+	case AMD_ID_LV640U:
+		info->flash_id += FLASH_AM640U;
+		info->sector_count = 128;
+		info->size = 0x01000000;
+
+		addr[0] = 0x00F000F0;		/* restore read mode */
+		break;				/* => 16 MB		*/
+
+	default:
+		debug ("## flash_init: unknown flash chip\n");
+		info->flash_id = FLASH_UNKNOWN;
+		addr[0] = 0x00FF00FF;		/* restore read mode */
+		return (0);			/* => no or unknown flash */
+
+	}
+
+	if (info->sector_count > CFG_MAX_FLASH_SECT) {
+		printf ("** ERROR: sector count %d > max (%d) **\n",
+			info->sector_count, CFG_MAX_FLASH_SECT);
+		info->sector_count = CFG_MAX_FLASH_SECT;
+	}
+
+	return (info->size);
 }

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2002
+ * (C) Copyright 2002-2003
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -23,6 +23,9 @@
 
 #ifndef	__ASM_GBL_DATA_H
 #define __ASM_GBL_DATA_H
+
+#include <asm/regdef.h>
+
 /*
  * The following data structure is placed in some memory wich is
  * available very early after boot (like DPRAM on MPC8xx/MPC82xx, or
@@ -38,28 +41,18 @@ typedef	struct	global_data {
 	unsigned long	flags;
 	unsigned long	baudrate;
 	unsigned long	have_console;	/* serial_init() was called */
+	unsigned long	ram_size;	/* RAM size */
 	unsigned long	reloc_off;	/* Relocation Offset */
 	unsigned long	env_addr;	/* Address  of Environment struct */
 	unsigned long	env_valid;	/* Checksum of Environment valid? */
-#ifdef CONFIG_VFD
-	unsigned long	fb_base;	/* base address of frame buffer */
-	unsigned char	vfd_type;	/* display type */
-	unsigned char	vfd_inv_data;	/* inverted data lines ? */
-#endif
-#if 0
-	unsigned long	cpu_clk;	/* CPU clock in Hz!		*/
-	unsigned long	bus_clk;
-	unsigned long	ram_size;	/* RAM size */
-	unsigned long	reset_status;	/* reset status register at boot */
-#endif
 } gd_t;
 
 /*
  * Global Data Flags
  */
-#define	GD_FLG_RELOC	0x00001		/* Code was relocated to RAM		*/
-#define	GD_FLG_DEVINIT	0x00002		/* Devices have been initialized	*/
+#define	GD_FLG_RELOC	0x00001		/* Code was relocated to RAM     */
+#define	GD_FLG_DEVINIT	0x00002		/* Devices have been initialized */
 
-#define DECLARE_GLOBAL_DATA_PTR     register gd_t *gd asm ("r8")
+#define DECLARE_GLOBAL_DATA_PTR     register gd_t *gd asm ("k0")
 
 #endif /* __ASM_GBL_DATA_H */

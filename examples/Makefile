@@ -27,6 +27,10 @@ include $(TOPDIR)/config.mk
 
 SREC	= hello_world.srec
 
+ifeq ($(CPU),mips)
+SREC =
+endif
+
 # The following example is pretty 8xx specific...
 ifeq ($(CPU),mpc8xx)
 SREC   += timer.srec

@@ -37,7 +37,37 @@ mon_free:
 	stmfd   sp!, {fp, ip, lr, pc}
 	sub     fp, ip, #4
 	ldmea   fp, {fp, sp, pc}
-#else /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
+#elif defined(CONFIG_MIPS)/* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
+#warning MIPS version not implemented yet
+	.global	mon_getc
+	.type	mon_getc,function
+mon_getc:
+	.global	mon_tstc
+	.type	mon_tstc,function
+mon_tstc:
+	.global	mon_putc
+	.type	mon_putc,function
+mon_putc:
+	.global	mon_puts
+	.type	mon_puts,function
+mon_puts:
+	.global	mon_printf
+	.type	mon_printf,function
+mon_printf:
+	.global	mon_install_hdlr
+	.type	mon_install_hdlr,function
+mon_install_hdlr:
+	.global	mon_free_hdlr
+	.type	mon_free_hdlr,function
+mon_free_hdlr:
+	.global	mon_malloc
+	.type	mon_malloc,function
+mon_malloc:
+	.global	mon_free
+	.type	mon_free,function
+mon_free:
+
+#else
 
 #ifdef CONFIG_I386 /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
 #define SYMBOL_NAME(X) 	X

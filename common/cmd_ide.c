@@ -489,11 +489,14 @@ void ide_init (void)
 
 #ifdef CONFIG_IDE_8xx_PCCARD
 	extern int pcmcia_on (void);
+	extern int ide_devices_found; /* Initialized in check_ide_device() */
 
 	WATCHDOG_RESET();
 
+	ide_devices_found = 0;
 	/* initialize the PCMCIA IDE adapter card */
-	if (pcmcia_on())
+	pcmcia_on();
+	if (!ide_devices_found)
 		return;
 	udelay (1000000);	/* 1 s */
 #endif	/* CONFIG_IDE_8xx_PCCARD */
@@ -550,6 +553,13 @@ void ide_init (void)
 		int dev = bus * (CFG_IDE_MAXDEVICE / max_bus_scan);
 #endif
 
+#ifdef CONFIG_IDE_8xx_PCCARD
+		/* Skip non-ide devices from probing */
+		if ((ide_devices_found & (1 << bus)) == 0) {
+			ide_led ((LED_IDE1 | LED_IDE2), 0); /* LED's off */
+			continue;
+		}
+#endif
 		printf ("Bus %d: ", bus);
 
 		ide_bus_ok[bus] = 0;

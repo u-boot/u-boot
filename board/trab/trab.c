@@ -60,11 +60,8 @@ static void udelay_no_timer (int usec)
 
 int board_init ()
 {
-#if defined(CONFIG_MODEM_SUPPORT) && defined(CONFIG_VFD)
-	ulong size;
-	unsigned long addr;
-	extern void mem_malloc_init (ulong);
-	extern int drv_vfd_init(void);
+#if defined(CONFIG_VFD)
+	extern int vfd_init_clocks(void);
 #endif
 	DECLARE_GLOBAL_DATA_PTR;
 
@@ -107,26 +104,11 @@ int board_init ()
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0x0c000100;
 
-#ifdef CONFIG_MODEM_SUPPORT
 #ifdef CONFIG_VFD
-#ifndef PAGE_SIZE
-#define PAGE_SIZE 4096
-#endif
-	/*
-	 * reserve memory for VFD display (always full pages)
-	 */
-	/* armboot_real_end is defined in the board-specific linker script */
-	addr = (_armboot_real_end + (PAGE_SIZE - 1)) & ~(PAGE_SIZE - 1);
-	size = vfd_setmem (addr);
-	gd->fb_base = addr;
-	/* round to the next page boundary */
-	addr += size;
-	addr = (addr + (PAGE_SIZE - 1)) & ~(PAGE_SIZE - 1);
-	mem_malloc_init (addr);
-	/* must do this after the framebuffer is allocated */
-	drv_vfd_init();
+	vfd_init_clocks();
 #endif /* CONFIG_VFD */
 
+#ifdef CONFIG_MODEM_SUPPORT
 	udelay_no_timer (KBD_MDELAY);
 
 	if (key_pressed()) {

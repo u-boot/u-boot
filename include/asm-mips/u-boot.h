@@ -1,6 +1,6 @@
 /*
- * (C) Copyright 2000-2003
- * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ * (C) Copyright 2003
+ * Wolfgang Denk, DENX Software Engineering, <wd@denx.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -21,9 +21,24 @@
  * MA 02111-1307 USA
  */
 
-#ifndef	__VERSION_H__
-#define	__VERSION_H__
+#ifndef _U_BOOT_H_
+#define _U_BOOT_H_	1
 
-#define	U_BOOT_VERSION	"U-Boot 0.2.3"
+typedef struct bd_info {
+    int			bi_baudrate;	/* serial console baudrate */
+    unsigned long	bi_ip_addr;	/* IP Address */
+    unsigned char	bi_enetaddr[6]; /* Ethernet adress */
+    struct environment_s	       *bi_env;
+    ulong	        bi_arch_number;	/* unique id for this board */
+    ulong	        bi_boot_params;	/* where this board expects params */
+    struct				/* RAM configuration */
+    {
+	ulong start;
+	ulong size;
+    } 			bi_dram[CONFIG_NR_DRAM_BANKS];
+} bd_t;
 
-#endif	/* __VERSION_H__ */
+#define bi_env_data bi_env->data
+#define bi_env_crc  bi_env->crc
+
+#endif	/* _U_BOOT_H_ */
