@@ -1,0 +1,68 @@
+
+In U-Boot, we implemented the networked console via the standard
+"devices" mechanism, which means that you can switch between the
+serial and network input/output devices by adjusting the 'stdin' and
+'stdout' environment variables. To switch to the networked console,
+set either of these variables to "nc". Input and output can be
+switched independently.
+
+On the host side, please use this script to access the console:
+
++++++++++++++++++++++++++++++++++++++++++++
+#! /bin/bash
+
+TARGET_IP=$1
+
+stty -icanon -echo intr ^T
+nc -u -l -p 6666 < /dev/null &
+nc -u ${TARGET_IP} 6666
+stty icanon echo intr ^C
++++++++++++++++++++++++++++++++++++++++++++
+
+For Linux, the network-based console needs special configuration.
+Minimally, the host IP address needs to be specified. This can be
+done either via the kernel command line, or by passing parameters
+while loading the netconsole.o module (when used in a loadable module
+configuration). Please refer to Documentation/networking/logging.txt
+file for the original Ingo Molnar's documentation on how to pass
+parameters to the loadable module.
+
+The format of the kernel command line parameter (for the static
+configuration) is as follows:
+
+  netconsole=[src-port]@[src-ip]/[<dev>],[tgt-port]@<tgt-ip>/[tgt-macaddr]
+
+where
+
+  src-port	source for UDP packets
+		(defaults to 6665)
+  src-ip	source IP to use
+		(defaults to the interface's address)
+  dev		network interface
+		(defaults to eth0)
+  tgt-port	port for logging agent
+		(defaults to 6666)
+  tgt-ip	IP address for logging agent
+		(this is the required parameter)
+  tgt-macaddr	ethernet MAC address for logging agent
+		(defaults to broadcast)
+
+Examples:
+
+  netconsole=4444@10.0.0.1/eth1,9353@10.0.0.2/12:34:56:78:9a:bc
+
+or
+
+  netconsole=@/,@192.168.3.1/
+
+Please note that for the Linux networked console to work, the
+ethernet interface has to be up by the time the netconsole driver is
+initialized. This means that in case of static kernel configuration,
+the respective Ethernet interface has to be brought up using the "IP
+Autoconfiguration" kernel feature, which is usually done by defaults
+in the ELDK-NFS-based environment.
+
+To browse the Linux network console output, use the 'netcat' tool invoked
+as follows:
+
+	nc -u -l -p 6666

@@ -148,6 +148,11 @@ static void PingStart(void);
 static void CDPStart(void);
 #endif
 
+#ifdef CONFIG_NETCONSOLE
+void NcStart(void);
+int nc_input_packet(uchar *pkt, unsigned dest, unsigned src, unsigned len);
+#endif
+
 volatile uchar	PktBuf[(PKTBUFSRX+1) * PKTSIZE_ALIGN + PKTALIGN];
 
 volatile uchar *NetRxPackets[PKTBUFSRX]; /* Receive packets			*/
@@ -308,6 +313,7 @@ restart:
 #if (CONFIG_COMMANDS & CFG_CMD_PING)
 	case PING:
 #endif
+	case NETCONS:
 	case TFTP:
 		NetCopyIP(&NetOurIP, &bd->bi_ip_addr);
 		NetOurGatewayIP = getenv_IPaddr ("gatewayip");
@@ -319,6 +325,7 @@ restart:
 #if (CONFIG_COMMANDS & CFG_CMD_NFS)
 		case NFS:
 #endif
+		case NETCONS:
 		case TFTP:
 			NetServerIP = getenv_IPaddr ("serverip");
 			break;
@@ -402,6 +409,11 @@ restart:
 #if (CONFIG_COMMANDS & CFG_CMD_CDP)
 		case CDP:
 			CDPStart();
+			break;
+#endif
+#ifdef CONFIG_NETCONSOLE
+		case NETCONS:
+			NcStart();
 			break;
 #endif
 		default:
@@ -1259,6 +1271,9 @@ NetReceive(volatile uchar * inpkt, int len)
 				/* save address for later use */
 				memcpy(NetArpWaitPacketMAC, &arp->ar_data[0], 6);
 
+#ifdef CONFIG_NETCONSOLE
+				(*packetHandler)(0,0,0,0);
+#endif
 				/* modify header, and transmit it */
 				memcpy(((Ethernet_t *)NetArpWaitTxPacket)->et_dest, NetArpWaitPacketMAC, 6);
 				(void) eth_send(NetArpWaitTxPacket, NetArpWaitTxPacketSize);
@@ -1377,6 +1392,12 @@ NetReceive(volatile uchar * inpkt, int len)
 			return;
 		}
 
+#ifdef CONFIG_NETCONSOLE
+		nc_input_packet((uchar *)ip +IP_HDR_SIZE,
+						ntohs(ip->udp_dst),
+						ntohs(ip->udp_src),
+						ntohs(ip->udp_len) - 8);
+#endif
 		/*
 		 *	IP header OK.  Pass the packet to the current handler.
 		 */
@@ -1406,6 +1427,7 @@ static int net_check_prereq (proto_t protocol)
 #if (CONFIG_COMMANDS & CFG_CMD_NFS)
 	case NFS:
 #endif
+	case NETCONS:
 	case TFTP:
 		if (NetServerIP == 0) {
 			puts ("*** ERROR: `serverip' not set\n");

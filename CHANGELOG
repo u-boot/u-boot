@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Add support for console over UDP (compatible to Ingo Molnar's
+  netconsole patch under Linux)
+
 * Patch by Jon Loeliger, 16 Jul 2004:
   - support larger DDR memories up to 2G on the PC8540/8560ADS and
     STXGP3 boards

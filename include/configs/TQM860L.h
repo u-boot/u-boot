@@ -97,6 +97,8 @@
 				CFG_CMD_IDE	| \
 				CFG_CMD_DATE	)
 
+#define CONFIG_NETCONSOLE
+
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
 

@@ -314,6 +314,7 @@ extern volatile uchar * NetRxPkt;		/* Current receive packet	*/
 extern int		NetRxPktLen;		/* Current rx packet length	*/
 extern unsigned		NetIPID;		/* IP ID (counting)		*/
 extern uchar		NetBcastAddr[6];	/* Ethernet boardcast address	*/
+extern uchar		NetEtherNullAddr[6];
 
 #define VLAN_NONE	4095			/* untagged 			*/
 #define VLAN_IDMASK	0x0fff			/* mask of valid vlan id 	*/
@@ -334,7 +335,7 @@ extern int		NetState;		/* Network loop state		*/
 extern int		NetRestartWrap;		/* Tried all network devices	*/
 #endif
 
-typedef enum { BOOTP, RARP, ARP, TFTP, DHCP, PING, DNS, NFS, CDP } proto_t;
+typedef enum { BOOTP, RARP, ARP, TFTP, DHCP, PING, DNS, NFS, CDP, NETCONS } proto_t;
 
 /* from net/net.c */
 extern char	BootFile[128];			/* Boot File name		*/
