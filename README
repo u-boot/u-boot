@@ -122,134 +122,44 @@ Directory Hierarchy:
 - board		Board dependent files
 - common	Misc architecture independent functions
 - cpu		CPU specific files
+  - 74xx_7xx	Files specific to Motorola MPC74xx and 7xx CPUs
+  - arm720t	Files specific to ARM 720 CPUs
+  - arm920t	Files specific to ARM 920 CPUs
+  - arm925t	Files specific to ARM 925 CPUs
+  - arm926ejs	Files specific to ARM 926 CPUs
+  - at91rm9200	Files specific to Atmel AT91RM9200 CPUs
+  - i386	Files specific to i386 CPUs
+  - ixp		Files specific to Intel XScale IXP CPUs
+  - mcf52x2	Files specific to Motorola ColdFire MCF52x2 CPUs
+  - mips	Files specific to MIPS CPUs
+  - mpc5xx	Files specific to Motorola MPC5xx  CPUs
+  - mpc5xxx	Files specific to Motorola MPC5xxx CPUs
+  - mpc8xx	Files specific to Motorola MPC8xx  CPUs
+  - mpc824x	Files specific to Motorola MPC824x CPUs
+  - mpc8260	Files specific to Motorola MPC8260 CPUs
+  - mpc85xx	Files specific to Motorola MPC85xx CPUs
+  - nios	Files specific to Altera NIOS CPUs
+  - ppc4xx	Files specific to IBM PowerPC 4xx CPUs
+  - pxa		Files specific to Intel XScale PXA CPUs
+  - s3c44b0	Files specific to Samsung S3C44B0 CPUs
+  - sa1100	Files specific to Intel StrongARM SA1100 CPUs
 - disk		Code for disk drive partition handling
 - doc		Documentation (don't expect too much)
 - drivers	Commonly used device drivers
 - dtt		Digital Thermometer and Thermostat drivers
 - examples	Example code for standalone applications, etc.
 - include	Header Files
-- disk		Harddisk interface code
+- lib_arm	Files generic to ARM	 architecture
+- lib_generic	Files generic to all	 architectures
+- lib_i386	Files generic to i386	 architecture
+- lib_m68k	Files generic to m68k	 architecture
+- lib_mips	Files generic to MIPS	 architecture
+- lib_nios	Files generic to NIOS	 architecture
+- lib_ppc	Files generic to PowerPC architecture
 - net		Networking code
-- ppc		Files generic to PowerPC architecture
 - post		Power On Self Test
-- post/arch		Symlink to architecture specific Power On Self Test
-- post/arch-ppc		PowerPC architecture specific Power On Self Test
-- post/cpu/mpc8260	MPC8260 CPU specific Power On Self Test
-- post/cpu/mpc8xx	MPC8xx CPU specific Power On Self Test
 - rtc		Real Time Clock drivers
 - tools		Tools to build S-Record or U-Boot images, etc.
-
-- cpu/74xx_7xx	Files specific to Motorola MPC74xx and 7xx CPUs
-- cpu/arm925t	Files specific to ARM	   925	   CPUs
-- cpu/arm926ejs Files specific to ARM	926	CPUs
-- cpu/mpc5xx	Files specific to Motorola MPC5xx  CPUs
-- cpu/mpc8xx	Files specific to Motorola MPC8xx  CPUs
-- cpu/mpc824x	Files specific to Motorola MPC824x CPUs
-- cpu/mpc8260	Files specific to Motorola MPC8260 CPU
-- cpu/mpc85xx	Files specific to Motorola MPC85xx CPUs
-- cpu/ppc4xx	Files specific to IBM	   4xx	   CPUs
-
-
-- board/LEOX/	Files specific to boards manufactured by The LEOX team
-- board/LEOX/elpt860	Files specific to ELPT860 boards
-- board/RPXClassic
-		Files specific to RPXClassic boards
-- board/RPXlite Files specific to RPXlite    boards
-- board/at91rm9200dk Files specific to AT91RM9200DK boards
-- board/c2mon	Files specific to c2mon	     boards
-- board/cmi	Files specific to cmi	     boards
-- board/cogent	Files specific to Cogent     boards
-		(need further configuration)
-		Files specific to CPCIISER4  boards
-- board/cpu86	Files specific to CPU86	     boards
-- board/cray/	Files specific to boards manufactured by Cray
-- board/cray/L1		Files specific to L1	     boards
-- board/cu824	Files specific to CU824	     boards
-- board/ebony	Files specific to IBM Ebony board
-- board/eric	Files specific to ERIC	     boards
-- board/esd/	Files specific to boards manufactured by ESD
-- board/esd/adciop	Files specific to ADCIOP     boards
-- board/esd/ar405	Files specific to AR405	     boards
-- board/esd/canbt	Files specific to CANBT	     boards
-- board/esd/cpci405	Files specific to CPCI405    boards
-- board/esd/cpciiser4	Files specific to CPCIISER4  boards
-- board/esd/common	Common files for ESD boards
-- board/esd/dasa_sim	Files specific to DASA_SIM   boards
-- board/esd/du405	Files specific to DU405	     boards
-- board/esd/ocrtc	Files specific to OCRTC	     boards
-- board/esd/pci405	Files specific to PCI405     boards
-- board/esteem192e
-		Files specific to ESTEEM192E boards
-- board/etx094	Files specific to ETX_094    boards
-- board/evb64260
-		Files specific to EVB64260   boards
-- board/fads	Files specific to FADS	     boards
-- board/flagadm Files specific to FLAGADM    boards
-- board/gen860t Files specific to GEN860T and GEN860T_SC    boards
-- board/genietv Files specific to GENIETV    boards
-- board/gth	Files specific to GTH	     boards
-- board/hermes	Files specific to HERMES     boards
-- board/hymod	Files specific to HYMOD	     boards
-- board/icu862	Files specific to ICU862     boards
-- board/ip860	Files specific to IP860	     boards
-- board/iphase4539
-		Files specific to Interphase4539 boards
-- board/ivm	Files specific to IVMS8/IVML24 boards
-- board/lantec	Files specific to LANTEC     boards
-- board/lwmon	Files specific to LWMON	     boards
-- board/Marvell Files specific to Marvell development boards
-- board/Marvell/db64360 Files specific to db64360 board
-- board/Marvell/db64460 Files specific to db64460 board
-- board/mbx8xx	Files specific to MBX	     boards
-- board/mpc8260ads
-		Files specific to MPC826xADS and PQ2FADS-ZU/VR boards
-- board/mpc8540ads
-		Files specific to MPC8540ADS boards
-- board/mpc8560ads
-		Files specific to MPC8560ADS boards
-- board/mpl/	Files specific to boards manufactured by MPL
-- board/mpl/common	Common files for MPL boards
-- board/mpl/pip405	Files specific to PIP405     boards
-- board/mpl/mip405	Files specific to MIP405     boards
-- board/mpl/vcma9	Files specific to VCMA9	     boards
-- board/musenki Files specific to MUSEKNI    boards
-- board/mvs1	Files specific to MVS1	     boards
-- board/nx823	Files specific to NX823	     boards
-- board/oxc	Files specific to OXC	     boards
-- board/omap1510inn
-		Files specific to OMAP 1510 Innovator boards
-- board/omap1610inn
-		Files specific to OMAP 1610 Innovator and H2 boards
-- board/pcippc2 Files specific to PCIPPC2/PCIPPC6 boards
-- board/pm826	Files specific to PM826	     boards
-- board/ppmc8260
-		Files specific to PPMC8260   boards
-- board/snmc/qs850	Files specific to QS850/823  boards
-- board/snmc/qs860t	Files specific to QS860T     boards
-- board/rpxsuper
-		Files specific to RPXsuper   boards
-- board/rsdproto
-		Files specific to RSDproto   boards
-- board/sandpoint
-		Files specific to Sandpoint  boards
-- board/sbc8260 Files specific to SBC8260    boards
-- board/sacsng	Files specific to SACSng     boards
-- board/siemens Files specific to boards manufactured by Siemens AG
-- board/siemens/CCM	Files specific to CCM	     boards
-- board/siemens/IAD210	Files specific to IAD210     boards
-- board/siemens/SCM	Files specific to SCM	     boards
-- board/siemens/pcu_e	Files specific to PCU_E	     boards
-- board/sixnet	Files specific to SIXNET     boards
-- board/spd8xx	Files specific to SPD8xxTS   boards
-- board/tqm8260 Files specific to TQM8260    boards
-- board/tqm8xx	Files specific to TQM8xxL    boards
-- board/w7o	Files specific to W7O	     boards
-- board/walnut405
-		Files specific to Walnut405  boards
-- board/westel/ Files specific to boards manufactured by Westel Wireless
-- board/westel/amx860	Files specific to AMX860     boards
-- board/utx8245 Files specific to UTX8245   boards
-- board/zpc1900 Files specific to Zephyr Engineering ZPC.1900 board
 
 Software Configuration:
 =======================
@@ -1412,9 +1322,9 @@ The following options need to be configured:
    14	common/cmd_bootm.c	No initial ramdisk, no multifile, continue.
    15	common/cmd_bootm.c	All preparation done, transferring control to OS
 
-  -30   lib_ppc/board.c	        Fatal error, hang the system
-  -31   post/post.c	        POST test failed, detected by post_output_backlog()
-  -32   post/post.c	        POST test failed, detected by post_run_single()
+  -30	lib_ppc/board.c		Fatal error, hang the system
+  -31	post/post.c		POST test failed, detected by post_output_backlog()
+  -32	post/post.c		POST test failed, detected by post_run_single()
 
    -1	common/cmd_doc.c	Bad usage of "doc" command
    -1	common/cmd_doc.c	No boot device

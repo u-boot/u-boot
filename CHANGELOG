@@ -2,6 +2,16 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
+* Patch by Steven Scholz, 25 Feb 2004:
+  - Timeouts in FPGA code should be based on CFG_HZ
+  - Minor cleanup in code for Altera FPGA ACEX1K
+
+* Patch by Steven Scholz, 25 Feb 2004:
+  Changed "Directory Hierarchy" section in README
+
+* Patch by Masami Komiya, 25 Feb 2004:
+  Reduce copy count in nfs_read_reply() of NFS code
+
 * Patch by Markus Pietrek, 24 Feb 2004:
   NS9750 DevBoard added
 

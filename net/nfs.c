@@ -542,7 +542,7 @@ nfs_read_reply (uchar *pkt, unsigned len)
 	printf ("%s\n", __FUNCTION__);
 #endif
 
-	memcpy ((uchar *)&rpc_pkt, pkt, len);
+	memcpy ((uchar *)&rpc_pkt, pkt, sizeof(rpc_pkt.u.reply));
 
 	if (rpc_pkt.u.reply.rstatus  ||
 	    rpc_pkt.u.reply.verifier ||
@@ -565,7 +565,7 @@ nfs_read_reply (uchar *pkt, unsigned len)
 	}
 
 	rlen = ntohl(rpc_pkt.u.reply.data[18]);
-	store_block ((uchar *)&(rpc_pkt.u.reply.data[19]), nfs_offset, rlen);
+	store_block ((uchar *)pkt+sizeof(rpc_pkt.u.reply), nfs_offset, rlen);
 
 	return rlen;
 }

@@ -47,7 +47,7 @@
 #endif
 
 #ifndef CFG_FPGA_WAIT
-#define CFG_FPGA_WAIT 10
+#define CFG_FPGA_WAIT CFG_HZ/100	/* 10 ms */
 #endif
 
 static int Spartan2_sp_load( Xilinx_desc *desc, void *buf, size_t bsize );

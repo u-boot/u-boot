@@ -31,16 +31,11 @@
 #if (CONFIG_FPGA & (CFG_ALTERA | CFG_ACEX1K))
 
 /* Define FPGA_DEBUG to get debug printf's */
-/* #define FPGA_DEBUG */
-
 #ifdef	FPGA_DEBUG
 #define PRINTF(fmt,args...)	printf (fmt ,##args)
 #else
 #define PRINTF(fmt,args...)
 #endif
-
-#undef CFG_FPGA_CHECK_BUSY
-#define CFG_FPGA_PROG_FEEDBACK
 
 /* Note: The assumption is that we cannot possibly run fast enough to
  * overrun the device (the Slave Parallel mode can free run at 50MHz).
@@ -52,7 +47,7 @@
 #endif
 
 #ifndef CFG_FPGA_WAIT
-#define CFG_FPGA_WAIT 100
+#define CFG_FPGA_WAIT CFG_HZ/10		/* 100 ms */
 #endif
 
 static int ACEX1K_ps_load( Altera_desc *desc, void *buf, size_t bsize );
@@ -162,7 +157,7 @@ static int ACEX1K_ps_load (Altera_desc * desc, void *buf, size_t bsize)
 				__FUNCTION__, &fn, fn, fn->config, fn->status,
 				fn->clk, fn->data, fn->done);
 #ifdef CFG_FPGA_PROG_FEEDBACK
-		printf ("Loading FPGA Device %d (@ %ld)...\n", cookie, ts);
+		printf ("Loading FPGA Device %d...", cookie);
 #endif
 
 		/*
@@ -246,7 +241,7 @@ static int ACEX1K_ps_load (Altera_desc * desc, void *buf, size_t bsize)
 		CONFIG_FPGA_DELAY ();
 
 #ifdef CFG_FPGA_PROG_FEEDBACK
-		putc ('\n');			/* terminate the dotted line */
+		putc (' ');			/* terminate the dotted line */
 #endif
 
 	/*

@@ -62,7 +62,7 @@ struct rpc_t {
 			uint32_t verifier;
 			uint32_t v2;
 			uint32_t astatus;
-			uint32_t data[1];
+			uint32_t data[19];
 		} reply;
 	} u;
 };

@@ -80,7 +80,7 @@
  * an XC2V1000, if anyone can ever get ahold of one.
  */
 #ifndef CFG_FPGA_WAIT_INIT
-#define CFG_FPGA_WAIT_INIT 	500	/* time in milliseconds */
+#define CFG_FPGA_WAIT_INIT 	CFG_HZ/2	/* 500 ms */
 #endif
 
 /*
@@ -89,14 +89,14 @@
  * clock frequencies (i.e. 66 MHz or less), BUSY monitoring is unnecessary.
  */
 #ifndef CFG_FPGA_WAIT_BUSY
-#define CFG_FPGA_WAIT_BUSY	5	/* time in milliseconds */
+#define CFG_FPGA_WAIT_BUSY	CFG_HZ/200	/* 5 ms*/
 #endif
 
 /* Default timeout for waiting for FPGA to enter operational mode after
  * configuration data has been written.
  */
 #ifndef	CFG_FPGA_WAIT_CONFIG
-#define CFG_FPGA_WAIT_CONFIG	200	/* time in milliseconds */
+#define CFG_FPGA_WAIT_CONFIG	CFG_HZ/5	/* 200 ms */
 #endif
 
 static int Virtex2_ssm_load (Xilinx_desc * desc, void *buf, size_t bsize);
