@@ -424,7 +424,9 @@ static int mpc5xxx_fec_init(struct eth_device *dev, bd_t * bis)
 #endif
 			} while (!(phyStatus & 0x0004));	/* !link up */
 
+#if (DEBUG & 0x2)
 			printf ("done.\n");
+#endif
 		} else {	/* MII100 */
 			/*
 			 * Set the auto-negotiation advertisement register bits

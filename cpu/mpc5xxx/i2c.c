@@ -28,14 +28,21 @@
 #include <mpc5xxx.h>
 #include <i2c.h>
 
-#ifdef CFG_I2C_MODULE
+#if (CFG_I2C_MODULE == 2)
 #define I2C_BASE	MPC5XXX_I2C2
-#else
+#elif (CFG_I2C_MODULE == 1)
 #define I2C_BASE	MPC5XXX_I2C1
+#else
+#error CFG_I2C_MODULE is not properly configured
 #endif
 
 #define I2C_TIMEOUT	100
 #define I2C_RETRIES	3
+
+struct mpc5xxx_i2c_tap {
+	int scl2tap;
+	int tap2tap;
+};
 
 static int  mpc_reg_in    (volatile u32 *reg);
 static void mpc_reg_out   (volatile u32 *reg, int val, int mask);
@@ -44,6 +51,7 @@ static int  wait_for_pin  (int *status);
 static int  do_address    (uchar chip, char rdwr_flag);
 static int  send_bytes    (uchar chip, char *buf, int len);
 static int  receive_bytes (uchar chip, char *buf, int len);
+static int  mpc_get_fdr   (int);
 
 static int mpc_reg_in(volatile u32 *reg)
 {
@@ -207,7 +215,7 @@ void i2c_init(int speed, int saddr)
 
 	/* Set clock
 	 */
-	mpc_reg_out(&regs->mfdr, speed, 0);
+	mpc_reg_out(&regs->mfdr, mpc_get_fdr(speed), 0);
 
 	/* Enable module
 	 */
@@ -215,6 +223,50 @@ void i2c_init(int speed, int saddr)
 	mpc_reg_out(&regs->msr, 0, I2C_IF);
 
 	return;
+}
+
+static int mpc_get_fdr(int speed)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+	static int fdr = -1;
+	static int best_speed = 0;
+
+	if (fdr == -1) {
+		ulong ipb, scl;
+		ulong bestmatch = 0xffffffffUL;
+		int best_i = 0, best_j = 0, i, j;
+		int SCL_Tap[] = { 9, 10, 12, 15, 5, 6, 7, 8};
+		struct mpc5xxx_i2c_tap scltap[] = {
+			{4, 1},
+			{4, 2},
+			{6, 4},
+			{6, 8},
+			{14, 16},
+			{30, 32},
+			{62, 64},
+			{126, 128}
+		};
+
+		ipb = gd->ipb_clk;
+		for (i = 7; i >= 0; i--) {
+			for (j = 7; j >= 0; j--) {
+				scl = 2 * (scltap[j].scl2tap + 
+					(SCL_Tap[i] - 1) * scltap[j].tap2tap + 2);
+				if (ipb <= speed*scl) {
+					if ((speed*scl - ipb) < bestmatch) {
+						bestmatch = speed*scl - ipb;
+						best_i = i;
+						best_j = j;
+						best_speed = ipb/scl;
+					}
+				}
+			}
+		}
+		fdr = (best_i & 3) | ((best_i & 4) << 3) | (best_j << 2);
+		printf("%d kHz, ", best_speed / 1000);
+	}
+
+	return fdr;
 }
 
 int i2c_probe(uchar chip)
