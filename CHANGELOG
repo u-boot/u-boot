@@ -1,6 +1,8 @@
 ======================================================================
-Changes since U-Boot 1.0.0:
+Changes for U-Boot 1.0.1:
 ======================================================================
+
+* Set default clock for INCA-IP to 150 MHz
 
 * Make BMS2003 use a separate config file to avoid #ifdef mess;
   add I2C support; add support for DS1337 RTC
