@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2003, Psyent Corporation <www.psyent.com>
+ * (C) Copyright 2004, Psyent Corporation <www.psyent.com>
  * Scott McNutt <smcnutt@psyent.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -22,19 +22,36 @@
  */
 
 #include <common.h>
+
+#if defined (CFG_NIOS_SYSID_BASE)
+
 #include <command.h>
-#include <asm/byteorder.h>
+#include <nios2.h>
+#include <nios2-io.h>
+#include <linux/time.h>
 
-extern image_header_t header;	/* common/cmd_bootm.c */
-
-void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
-		ulong addr, ulong *len_ptr, int   verify)
+void display_sysid (void)
 {
-	image_header_t *hdr = &header;
-	void (*kernel)(void) = (void (*)(void))ntohl (hdr->ih_ep);
+	struct nios_sysid_t *sysid =
+		(struct nios_sysid_t *)CACHE_BYPASS(CFG_NIOS_SYSID_BASE);
+	struct tm t;
+	char asc[32];
 
-	/* For now we assume the Microtronix linux ... which only
-	 * needs to be called ;-)
-	 */
-	kernel ();
+	localtime_r ((time_t *)&sysid->timestamp, &t);
+	asctime_r (&t, asc);
+	printf ("SYSID : %08x, %s", sysid->id, asc);
+
 }
+
+int do_sysid (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	display_sysid ();
+	return (0);
+}
+
+U_BOOT_CMD(
+	sysid,	1,	1,	do_sysid,
+	"sysid   - display Nios-II system id\n\n",
+	"\n    - display Nios-II system id\n"
+);
+#endif /* CFG_NIOS_SYSID_BASE */

@@ -2,6 +2,16 @@
 Changes for U-Boot 1.1.3:
 ======================================================================
 
+* Patch by Scott McNutt, 21 Oct 2004:
+  Add support for Nios-II EPCS Controller core.
+
+* Patch by Scott McNutt, 20 Oct 2004:
+  Nios-II cleanups:
+  - Add sysid command (Nios-II only).
+  - Locate default exception trampoline at proper offset.
+  - Implement I/O routines (readb, writeb, etc)
+  - Implement do_bootm_linux
+
 * Patches by Martin Krause, 22 Mar 2005:
   - use TQM5200_auto as MAKEALL target for TQM5200 systems
   - add support for SM501 graphics controller

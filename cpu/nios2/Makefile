@@ -27,7 +27,7 @@ LIB	= lib$(CPU).a
 
 START	= start.o
 AOBJS	= exceptions.o
-OBJS	= cpu.o interrupts.o serial.o traps.o
+OBJS	= cpu.o interrupts.o serial.o sysid.o traps.o epcs.o
 
 all:	.depend $(START) $(LIB)
 

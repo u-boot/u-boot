@@ -39,14 +39,24 @@ _start:
 	 * just be invalidating the cache a second time. If cache
 	 * is not implemented initi behaves as nop.
 	 */
-	movhi	r4, %hi(CFG_ICACHELINE_SIZE)
-	ori	r4, r4, %lo(CFG_ICACHELINE_SIZE)
+	ori	r4, r0, %lo(CFG_ICACHELINE_SIZE)
 	movhi	r5, %hi(CFG_ICACHE_SIZE)
 	ori	r5, r5, %lo(CFG_ICACHE_SIZE)
 	mov	r6, r0
 0:	initi	r6
 	add	r6, r6, r4
 	bltu	r6, r5, 0b
+	br	_except_end	/* Skip the tramp */
+
+	/* EXCEPTION TRAMPOLINE -- the following gets copied
+	 * to the exception address (below), but is otherwise at the
+	 * default exception vector offset (0x0020).
+	 */
+_except_start:
+	movhi	et, %hi(_exception)
+	ori	et, et, %lo(_exception)
+	jmp	et
+_except_end:
 
 	/* INTERRUPTS -- for now, all interrupts masked and globally
 	 * disabled.
@@ -117,7 +127,9 @@ _cur:	movhi	r5, %hi(_cur - _start)
 _reloc:
 
 	/* COPY EXCEPTION TRAMPOLINE -- copy the tramp to the
-	 * exception address.
+	 * exception address. Define CONFIG_ROM_STUBS to prevent
+	 * the copy (e.g. exception in flash or in other
+	 * softare/firmware component).
 	 */
 #if !defined(CONFIG_ROM_STUBS)
 	movhi	r4, %hi(_except_start)
@@ -126,12 +138,14 @@ _reloc:
 	ori	r5, r5, %lo(_except_end)
 	movhi	r6, %hi(CFG_EXCEPTION_ADDR)
 	ori	r6, r6, %lo(CFG_EXCEPTION_ADDR)
+	beq	r4, r6, 7f	/* Skip if at proper addr */
 
 6:	ldwio	r7, 0(r4)
 	stwio	r7, 0(r6)
 	addi	r4, r4, 4
 	addi	r6, r6, 4
 	bne	r4, r5, 6b
+7:
 #endif
 
 	/* STACK INIT -- zero top two words for call back chain.
@@ -154,15 +168,6 @@ _reloc:
 	 * in case ;-)
 	 */
 	br	_start
-
-	/* EXCEPTION TRAMPOLINE -- the following gets copied
-	 * to the exception address.
-	 */
-_except_start:
-	movhi	et, %hi(_exception)
-	ori	et, et, %lo(_exception)
-	jmp	et
-_except_end:
 
 
 /*

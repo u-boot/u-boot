@@ -26,19 +26,7 @@
 #include <nios2-io.h>
 
 #if defined (CFG_NIOS_SYSID_BASE)
-#include <linux/time.h>
-static void check_sysid (void)
-{
-	struct nios_sysid_t *sysid =
-		(struct nios_sysid_t *)CACHE_BYPASS(CFG_NIOS_SYSID_BASE);
-	struct tm t;
-	char asc[32];
-
-	localtime_r ((time_t *)&sysid->timestamp, &t);
-	asctime_r (&t, asc);
-	printf ("SYSID : %08x, %s", sysid->id, asc);
-
-}
+extern void display_sysid (void);
 #endif /* CFG_NIOS_SYSID_BASE */
 
 int checkcpu (void)
@@ -47,7 +35,7 @@ int checkcpu (void)
 #if !defined(CFG_NIOS_SYSID_BASE)
 	printf ("SYSID : <unknown>\n");
 #else
-	check_sysid ();
+	display_sysid ();
 #endif
 	return (0);
 }
