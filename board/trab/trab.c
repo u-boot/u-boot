@@ -42,7 +42,7 @@ extern int do_mdm_init; /* defined in common/main.c */
  * is that timers are not available yet, so we use a manually timed
  * loop.
  */
-#define KBD_MDELAY	100000	/* 1000 */
+#define KBD_MDELAY	1000
 static void mdelay_no_timer (int msec)
 {
 	DECLARE_GLOBAL_DATA_PTR;

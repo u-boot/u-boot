@@ -24,13 +24,14 @@
 Summary:
 ========
 
-This directory contains the source code for U-Boot, a monitor for
-Embedded PowerPC boards, which can be installed in a boot ROM and
-used to test the hardware or download and run application code.
+This directory contains the source code for U-Boot, a boot loader for
+Embedded boards based on PowerPC and ARM processors, which can be
+installed in a boot ROM and used to initialize and test the hardware
+or to download and run application code.
 
 The development of U-Boot is closely related to Linux: some parts of
-the source code originate in the Linux source tree, we still have
-some header files in common, and special provision has been made to
+the source code originate in the Linux source tree, we have some
+header files in common, and special provision has been made to
 support booting of Linux images.
 
 Some attention has been paid to make this software easily
@@ -45,23 +46,20 @@ Status:
 =======
 
 In general, all boards for which a configuration option exists in the
-Makefile have been tested  to  some  extent  and  can  be  considered
+Makefile have been tested to some extent and can be considered
 "working". In fact, many of them are used in production systems.
 
-In case of problems see the CHANGELOG and CREDITS files to  find  out
+In case of problems see the CHANGELOG and CREDITS files to find out
 who contributed the specific port.
-
-Exception from this rule: the port to the Sandpoint 8240 has not been
-completed yet.
 
 
 Where to get help:
 ==================
 
-In case you have questions about, problems with or contributions  for
-U-Boot	 you  should  send  a  message to the U-Boot mailing list at
-<u-boot-users@lists.sourceforge.net>. There is also  an  archive  of
-previous  traffic  on  the  mailing  list - please search the archive
+In case you have questions about, problems with or contributions for
+U-Boot you should send a message to the U-Boot mailing list at
+<u-boot-users@lists.sourceforge.net>. There is also an archive of
+previous traffic on the mailing list - please search the archive
 before asking FAQ's. Please see
 http://lists.sourceforge.net/lists/listinfo/u-boot-users/
 
@@ -70,6 +68,7 @@ Where we come from:
 ===================
 
 - start from 8xxrom sources
+- create PPCBoot project (http://sourceforge.net/projects/ppcboot)
 - clean up code
 - make it easier to add custom boards
 - make it possible to add other [PowerPC] CPUs
@@ -78,7 +77,31 @@ Where we come from:
   * S-Record download
   * network boot
   * PCMCIA / CompactFLash / ATA disk / SCSI ... boot
+- create ARMBoot project (http://sourceforge.net/projects/armboot)
 - add other CPU families (starting with ARM)
+- create U-Boot project (http://sourceforge.net/projects/u-boot)
+
+
+Names and Spelling:
+===================
+
+The "official" name of this project is "Das U-Boot". The spelling
+"U-Boot" shall be used in all written text (documentation, comments
+in source files etc.). Example:
+
+	This is the README file for the U-Boot project.
+
+File names etc. shall be based on the string "u-boot". Examples:
+
+	include/asm-ppc/u-boot.h
+
+	#include <asm/u-boot.h>
+
+Variable names, preprocessor constants etc. shall be either based on
+the string "u_boot" or on "U_BOOT". Example:
+
+	U_BOOT_VERSION		u_boot_logo
+	IH_OS_U_BOOT		u_boot_hush_start
 
 
 Directory Hierarchy:
@@ -1675,7 +1698,7 @@ Note: for some board special configuration names may exist; check  if
 
 
 
-Finally, type "make all", and you should  get  some  working  U-Boot
+Finally, type "make all", and you should get some working U-Boot
 images ready for downlod to / installation on your system:
 
 - "u-boot.bin" is a raw binary image
@@ -2013,28 +2036,55 @@ device (initial ramdisk, NFS) for your target system.
 Building a Linux Image:
 -----------------------
 
-No specific requirements for U-Boot. There is no need to add a
-"ramdisk.image.gz" file when building the kernel, even when you
-intend to run it with initial ramdisk.
+With U-Boot, "normal" build targets like "zImage" or "bzImage" are
+not used. If you use recent kernel source, a new build target
+"uImage" will exist which automatically builds an image usable by
+U-Boot. Most older kernels also have support for a "pImage" target,
+which was introduced for our predecessor project PPCBoot and uses a
+100% compatible format.
 
 Example:
 
 	make TQM850L_config
 	make oldconfig
 	make dep
-	make zImage
+	make uImage
 
-However, we don't use the 'zImage' (= 'arch/ppc/mbxboot/zvmlinux') we
-build this way. The 'zImage' includes the old boot loader code which
-we don't ned any more. Instead, we use the raw (compressed) Linux
-kernel image in 'arch/ppc/coffboot/vmlinux.gz'.
+The "uImage" build target uses a special tool (in 'tools/mkimage') to
+encapsulate a compressed Linux kernel image with header  information,
+CRC32 checksum etc. for use with U-Boot. This is what we are doing:
 
-There is a special tool (in 'tools/mkimage') to encapsulate this
-image with header information, CRC32 checksum etc. for use with
-U-Boot:
+* build a standard "vmlinux" kernel image (in ELF binary format):
 
-In the first form (with "-l" option) mkimage  lists  the  information
-contained  in  the header of an existing U-Boot image; this includes
+* convert the kernel into a raw binary image:
+
+	${CROSS_COMPILE}-objcopy -O binary \
+				 -R .note -R .comment \
+				 -S vmlinux linux.bin
+
+* compress the binary image:
+
+	gzip -9 linux.bin
+
+* package compressed binary image for U-Boot:
+
+	mkimage -A ppc -O linux -T kernel -C gzip \
+		-a 0 -e 0 -n "Linux Kernel Image" \
+		-d linux.bin.gz uImage
+
+
+The "mkimage" tool can also be used to create ramdisk images for use
+with U-Boot, either separated from the Linux kernel image, or
+combined into one file. "mkimage" encapsulates the images with a 64
+byte header containing information about target architecture,
+operating system, image type, compression method, entry points, time
+stamp, CRC32 checksums, etc.
+
+"mkimage" can be called in two ways: to verify existing images and
+print the header information, or to build new images.
+
+In the first form (with "-l" option) mkimage lists the information
+contained in the header of an existing U-Boot image; this includes
 checksum verification:
 
 	tools/mkimage -l image
@@ -2058,47 +2108,47 @@ Right now, all Linux kernels use the same load address	(0x00000000),
 but the entry point address depends on the kernel version:
 
 - 2.2.x kernels have the entry point at 0x0000000C,
-- 2.3.x and 2.4.x kernels have the entry point at 0x00000000.
+- 2.3.x and later kernels have the entry point at 0x00000000.
 
 So a typical call to build a U-Boot image would read:
 
-	-> tools/mkimage -n '2.2.13 for initrd on TQM850L' \
-	> -A ppc -O linux -T kernel -C gzip -a 00000000 -e 0000000C \
-	> -d /opt/mpc8xx/src/linux-2.2.13/arch/ppc/coffboot/vmlinux.gz \
-	> examples/image-2.2.13-initrd
-	Image Name:   2.2.13 for initrd on TQM850L
+	-> tools/mkimage -n '2.4.4 kernel for TQM850L' \
+	> -A ppc -O linux -T kernel -C gzip -a 0 -e 0 \
+	> -d /opt/elsk/ppc_8xx/usr/src/linux-2.4.4/arch/ppc/coffboot/vmlinux.gz \
+	> examples/uImage.TQM850L
+	Image Name:   2.4.4 kernel for TQM850L
 	Created:      Wed Jul 19 02:34:59 2000
 	Image Type:   PowerPC Linux Kernel Image (gzip compressed)
 	Data Size:    335725 Bytes = 327.86 kB = 0.32 MB
 	Load Address: 0x00000000
-	Entry Point:  0x0000000c
+	Entry Point:  0x00000000
 
 To verify the contents of the image (or check for corruption):
 
-	-> tools/mkimage -l examples/image-2.2.13-initrd
-	Image Name:   2.2.13 for initrd on TQM850L
+	-> tools/mkimage -l examples/uImage.TQM850L
+	Image Name:   2.4.4 kernel for TQM850L
 	Created:      Wed Jul 19 02:34:59 2000
 	Image Type:   PowerPC Linux Kernel Image (gzip compressed)
 	Data Size:    335725 Bytes = 327.86 kB = 0.32 MB
 	Load Address: 0x00000000
-	Entry Point:  0x0000000c
+	Entry Point:  0x00000000
 
 NOTE: for embedded systems where boot time is critical you can trade
 speed for memory and install an UNCOMPRESSED image instead: this
 needs more space in Flash, but boots much faster since it does not
 need to be uncompressed:
 
-	-> gunzip /opt/mpc8xx/src/linux-2.2.13/arch/ppc/coffboot/vmlinux.gz
-	-> tools/mkimage -n '2.2.13 for initrd on TQM850L' \
-	> -A ppc -O linux -T kernel -C none -a 00000000 -e 0000000C \
-	> -d /opt/mpc8xx/src/linux-2.2.13/arch/ppc/coffboot/vmlinux \
-	> examples/image-2.2.13-initrd-uncompressed
-	Image Name:   2.2.13 for initrd on TQM850L
+	-> gunzip /opt/elsk/ppc_8xx/usr/src/linux-2.4.4/arch/ppc/coffboot/vmlinux.gz
+	-> tools/mkimage -n '2.4.4 kernel for TQM850L' \
+	> -A ppc -O linux -T kernel -C none -a 0 -e 0 \
+	> -d /opt/elsk/ppc_8xx/usr/src/linux-2.4.4/arch/ppc/coffboot/vmlinux \
+	> examples/uImage.TQM850L-uncompressed
+	Image Name:   2.4.4 kernel for TQM850L
 	Created:      Wed Jul 19 02:34:59 2000
 	Image Type:   PowerPC Linux Kernel Image (uncompressed)
 	Data Size:    792160 Bytes = 773.59 kB = 0.76 MB
 	Load Address: 0x00000000
-	Entry Point:  0x0000000c
+	Entry Point:  0x00000000
 
 
 Similar you can build U-Boot images from a 'ramdisk.image.gz' file

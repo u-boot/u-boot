@@ -232,7 +232,7 @@ mem_init:
 
 	ldr	r4,	=0x03ca4fff
 	str	r4,	[r1, #MDREFR_OFFSET]	/* write back MDREFR        */
-        ldr     r4,  [r1, #MDREFR_OFFSET]
+        ldr     r4,	[r1, #MDREFR_OFFSET]
 
 	ldr	r4,	=0x03ca4030
 	str	r4,	[r1, #MDREFR_OFFSET]	/* write back MDREFR        */
@@ -261,7 +261,7 @@ mem_init:
 	/* Step 4a: assert MDREFR:K1RUN and MDREFR:K2RUN and configure      */
 	/*          MDREFR:K1DB2 and MDREFR:K2DB2 as desired.               */
 
-	orr	r4,	r4,	#(MDREFR_K1RUN|MDREFR_K2RUN|MDREFR_K0RUN)
+	orr	r4,	r4,	#(MDREFR_K1RUN|MDREFR_K0RUN)
 
 	str     r4,     [r1, #MDREFR_OFFSET]    /* write back MDREFR        */
 	ldr     r4,     [r1, #MDREFR_OFFSET]
@@ -286,7 +286,7 @@ mem_init:
 	/* Step 4d: write MDCNFG with MDCNFG:DEx deasserted (set to 0), to  */
 	/*          configure but not enable each SDRAM partition pair.     */
 
-	ldr	r4,	[r1, #MDCNFG_OFFSET]
+	ldr	r4,	=CFG_MDCNFG_VAL
 	bic	r4,	r4,	#(MDCNFG_DE0|MDCNFG_DE1)
 
         str     r4,     [r1, #MDCNFG_OFFSET]	/* write back MDCNFG        */
