@@ -2,6 +2,24 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
+* Patch by Travis Sawye, 01 Mar 2004:
+  Ocotea:
+  - Add IBM PPC440GX Ref Platform support (Ocotea)
+    Original code by Paul Reynolds <PaulReynolds@lhsolutions.com>
+    Adapted to U-Boot and 440GX port
+  440gx_enet.c:
+  - Add gracious handling of all Ethernet Pin Selections for 440GX
+  - Add RGMII selection for Cicada CIS8201 Gigabit PHY
+  ppc440.h:
+  - Add needed bit definitions
+  - Fix formatting
+
+* Patch by Carl Riechers, 1 Mar 2004:
+  Add PPC440GX prbdv0 divider to fix memory clock calculation.
+
+* Patch by Stephan Linz, 27 Feb 2004
+  - avoid problems for targets without NFS download support
+
 * Patch by Rune Torgersen, 27 Feb 2004:
   - Added LBA48 support (CONFIG_LBA48 & CFG_64BIT_LBA)
   - Added support for 64bit printing in vsprintf (CFG_64BIT_VSPRINTF)

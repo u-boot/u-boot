@@ -339,12 +339,14 @@ BootpHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len)
 			 */
 			NetState = NETLOOP_SUCCESS;
 			return;
+#if (CONFIG_COMMANDS & CFG_CMD_NFS)
 		} else if (strcmp(s, "NFS") == 0) {
 			/*
 			 * Use NFS to load the bootfile.
 			 */
 			NfsStart();
 			return;
+#endif
 		}
 	}
 
@@ -893,12 +895,14 @@ DhcpHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len)
 					 */
 					NetState = NETLOOP_SUCCESS;
 					return;
+#if (CONFIG_COMMANDS & CFG_CMD_NFS)
 				} else if (strcmp(s, "NFS") == 0) {
 					/*
 					 * Use NFS to load the bootfile.
 					 */
 					NfsStart();
 					return;
+#endif
 				}
 			}
 			TftpStart();

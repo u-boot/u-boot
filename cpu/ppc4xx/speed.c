@@ -247,7 +247,7 @@ void get_sys_info (sys_info_t * sysInfo)
 	unsigned long temp1;
 	unsigned long lfdiv;
 	unsigned long m;
-
+	unsigned long prbdv0;    
 
 	/* Extract configured divisors */
 	mfsdr( sdr_sdstp0,strp0 );
@@ -263,6 +263,7 @@ void get_sys_info (sys_info_t * sysInfo)
 	sysInfo->pllOpbDiv = temp ? temp : 4;
 	temp = (strp1 & PLLSYS1_PERCLK_DIV_MASK) >> 24;
 	sysInfo->pllExtBusDiv = temp ? temp : 4;
+	prbdv0 = (strp0 >> 2) & 0x7;
 
 	/* Calculate 'M' based on feedback source */
 	temp = (strp0 & PLLSYS0_SEL_MASK) >> 27;
@@ -284,7 +285,7 @@ void get_sys_info (sys_info_t * sysInfo)
 	/* Now calculate the individual clocks */
 	sysInfo->freqVCOMhz = (m * CONFIG_SYS_CLK_FREQ) + (m>>1);
 	sysInfo->freqProcessor = sysInfo->freqVCOMhz/sysInfo->pllFwdDivA;
-	sysInfo->freqPLB = sysInfo->freqVCOMhz/sysInfo->pllFwdDivB;
+	sysInfo->freqPLB = sysInfo->freqVCOMhz/sysInfo->pllFwdDivB/prbdv0;
 	sysInfo->freqOPB = sysInfo->freqPLB/sysInfo->pllOpbDiv;
 	sysInfo->freqEPB = sysInfo->freqOPB/sysInfo->pllExtBusDiv;
 

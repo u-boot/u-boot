@@ -187,6 +187,11 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 	unsigned short devnum;
 	unsigned short reg_short;
 	sys_info_t sysinfo;
+#if defined (CONFIG_440_GX)
+	unsigned long pfc1;
+	unsigned long zmiifer;
+	unsigned long rmiifer;
+#endif
 
 	EMAC_440GX_HW_PST hw_p = dev->priv;
 
@@ -262,17 +267,84 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 	reg = 0;
 	out32 (ZMII_FER, 0);
 	udelay (100);
-	out32 (ZMII_FER, ZMII_FER_MDI << ZMII_FER_V (devnum));
-	out32 (ZMII_SSR, 0x11110000);
-	/* reset emac so we have access to the phy */
-	__asm__ volatile ("eieio");
 
-	out32 (EMAC_M0 + hw_p->hw_addr, EMAC_M0_SRST);
-	__asm__ volatile ("eieio");
+#if defined(CONFIG_440_GX)
+	mfsdr(sdr_pfc1, pfc1);
+	pfc1 = SDR0_PFC1_EPS_DECODE(pfc1);
 
-	if ((devnum == 2) || (devnum == 3))
+	switch (pfc1) {
+	case 1:
+		zmiifer = (ZMII_FER_MDI | ZMII_FER_RMII) << ZMII_FER_V(devnum);
+		rmiifer = 0x0;
+		break;
+	case 2:
+		zmiifer = (ZMII_FER_MDI | ZMII_FER_SMII) << ZMII_FER_V(devnum);
+		rmiifer = 0x0;
+		break;
+	case 3:
+		if (devnum == 0) {
+			zmiifer = (ZMII_FER_MDI | ZMII_FER_RMII) << ZMII_FER_V(devnum);
+			rmiifer = 0x0;
+		} else if (devnum == 2) {
+			zmiifer = (ZMII_FER_MDI | ZMII_FER_RMII) << ZMII_FER_V(devnum);
+			rmiifer = RGMII_FER_RGMII << RGMII_FER_V(devnum);
+		} else { /* invalid case */
+			zmiifer = 0x0;
+			rmiifer = 0x0;
+		}
+		break;
+	case 4:
+		if ((devnum == 0) || (devnum == 1)) {
+			zmiifer = (ZMII_FER_MDI | ZMII_FER_SMII) << ZMII_FER_V (devnum);
+			rmiifer = 0x0;
+		} else { /* ((devnum == 2) || (devnum == 3)) */
+			zmiifer = (ZMII_FER_MDI/* | ZMII_FER_RMII */) << ZMII_FER_V (devnum);
+			rmiifer = RGMII_FER_RGMII << RGMII_FER_V (devnum);
+		}
+		break;
+	case 5:
+		if ((devnum == 0) || (devnum == 1) || (devnum == 2)) {
+			zmiifer = (ZMII_FER_MDI | ZMII_FER_SMII) << ZMII_FER_V (devnum);
+			rmiifer = 0x0;
+		} else {
+			zmiifer = (ZMII_FER_MDI | ZMII_FER_RMII) << ZMII_FER_V(devnum);
+			rmiifer = RGMII_FER_RGMII << RGMII_FER_V(devnum);
+		}
+		break;
+	case 6:
+		if ((devnum == 0) || (devnum == 1)) {
+			zmiifer = (ZMII_FER_MDI | ZMII_FER_SMII) << ZMII_FER_V (devnum);
+			rmiifer = 0x0;
+		} else {
+			zmiifer = (ZMII_FER_MDI | ZMII_FER_RMII) << ZMII_FER_V(devnum);
+			rmiifer = RGMII_FER_RGMII << RGMII_FER_V(devnum);
+		}
+		break;
+	case 0:
+	default:
+		zmiifer = (ZMII_FER_MDI | ZMII_FER_MII) << ZMII_FER_V(devnum);
+		rmiifer = 0x0;
+		break;
+	}
+
+	out32 (ZMII_FER, zmiifer);
+	out32 (RGMII_FER, rmiifer);
+#else
+	if ((devnum == 0) || (devnum == 1)) {
+		out32 (ZMII_FER, (ZMII_FER_SMII | ZMII_FER_MDI) << ZMII_FER_V (devnum));
+	}
+	else { /* ((devnum == 2) || (devnum == 3)) */
+		out32 (ZMII_FER, ZMII_FER_MDI << ZMII_FER_V (devnum));
 		out32 (RGMII_FER, ((RGMII_FER_RGMII << RGMII_FER_V (2)) |
 				   (RGMII_FER_RGMII << RGMII_FER_V (3))));
+	}
+#endif
+	out32 (ZMII_SSR, ZMII_SSR_SP << ZMII_SSR_V(devnum));
+	__asm__ volatile ("eieio");
+
+	/* reset emac so we have access to the phy */
+
+	out32 (EMAC_M0 + hw_p->hw_addr, EMAC_M0_SRST);
 	__asm__ volatile ("eieio");
 
 	failsafe = 1000;
@@ -325,6 +397,16 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 	/* Reset the phy */
 	miiphy_reset (reg);
 
+#if defined(CONFIG_CIS8201_PHY)
+	/*
+	 * Cicada 8201 PHY needs to have an extended register whacked
+	 * for RGMII mode.
+	 */
+	if ( ((devnum == 2) || (devnum ==3)) && (4 == pfc1) ) {
+		miiphy_write (reg, 23, 0x1200);
+	}
+#endif
+
 	/* Start/Restart autonegotiation */
 	phy_setup_aneg (reg);
 	udelay (1000);
@@ -332,7 +414,7 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 	miiphy_read (reg, PHY_BMSR, &reg_short);
 
 	/*
-	 * Wait if PHY is able of autonegotiation and autonegotiation is not complete
+	 * Wait if PHY is capable of autonegotiation and autonegotiation is not complete
 	 */
 	if ((reg_short & PHY_BMSR_AUTN_ABLE)
 	    && !(reg_short & PHY_BMSR_AUTN_COMP)) {

@@ -597,6 +597,9 @@ ML2_config:unconfig
 ml300_config:unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx ml300 xilinx
 
+OCOTEA_config:unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx ocotea
+
 OCRTC_config		\
 ORSG_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx ocrtc esd
