@@ -114,7 +114,6 @@
 #include <common.h>
 #include <config.h>
 #include <malloc.h>
-#include <watchdog.h>
 #include <linux/stat.h>
 #include <linux/time.h>
 
@@ -127,7 +126,7 @@
 
 
 #define	NODE_CHUNK  	1024	/* size of memory allocation chunk in b_nodes */
-#define	SPIN_BLKSIZE	20  	/* spin after having scanned 1<<BLKSIZE bytes */
+#define	SPIN_BLKSIZE	18  	/* spin after having scanned 1<<BLKSIZE bytes */
 
 /* Debugging switches */
 #undef	DEBUG_DIRENTS		/* print directory entry list after scan */
@@ -277,10 +276,8 @@ static char *compr_names[] = {
 	"ZLIB"
 };
 
-#if 0  /* Use spinning wheel */
 /* Spinning wheel */
 static char spinner[] = { '|', '/', '-', '\\' };
-#endif
 
 /* Memory management */
 struct mem_block {
@@ -457,24 +454,15 @@ jffs2_scan_empty(u32 start_offset, struct part_info *part)
 {
 	char *max = part->offset + part->size - sizeof(struct jffs2_raw_inode);
 	char *offset = part->offset + start_offset;
-	int cntr = 0;
 	u32 off;
 
 	while (offset < max &&
 	       *(u32*)get_fl_mem((u32)offset, sizeof(u32), &off) == 0xFFFFFFFF) {
 		offset += sizeof(u32);
-		cntr++;
-#if 0  /* Use spinning wheel */
 		/* return if spinning is due */
 		if (((u32)offset & ((1 << SPIN_BLKSIZE)-1)) == 0) break;
-#endif
-		if (cntr > 1024 && part->erasesize > 0) { /* 4k */
-			/* round up to next erase block border */
-			(u32)offset |= part->erasesize-1;
-			offset++;
-			cntr = 0;
-		}
 	}
+
 	return offset - part->offset;
 }
 
@@ -933,9 +921,6 @@ jffs2_1pass_search_list_inodes(struct b_lists * pL, const char *fname, u32 pino)
 		for (i = 0; i < strlen(c) - 1; i++)
 			tmp[i] = c[i + 1];
 		tmp[i] = '\0';
-
-		WATCHDOG_RESET();
-
 		/* only a failure if we arent looking at top level */
 		if (!(pino = jffs2_1pass_find_inode(pL, working_tmp, pino)) &&
 		    (working_tmp[0])) {
@@ -1076,15 +1061,12 @@ jffs2_1pass_build_lists(struct part_info * part)
 {
 	struct b_lists *pL;
 	struct jffs2_unknown_node *node;
-	struct jffs2_unknown_node crcnode;
 	u32 offset, oldoffset = 0;
 	u32 max = part->size - sizeof(struct jffs2_raw_inode);
 	u32 counter = 0;
 	u32 counter4 = 0;
 	u32 counterF = 0;
 	u32 counterN = 0;
-	u32 counterCRC = 0;
-	u32 counterUNK = 0;
 
 #if defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND)
 	nanddev = (int)part->usr_priv - 1;
@@ -1105,26 +1087,14 @@ jffs2_1pass_build_lists(struct part_info * part)
 	/* start at the beginning of the partition */
 	while (offset < max) {
 	    	if ((oldoffset >> SPIN_BLKSIZE) != (offset >> SPIN_BLKSIZE)) {
-			WATCHDOG_RESET();
-#if 0  /* Use spinning wheel */
 			printf("\b\b%c ", spinner[counter++ % sizeof(spinner)]);
-#endif
 			oldoffset = offset;
 		}
-		node = (struct jffs2_unknown_node *) get_node_mem((u32)part->offset + offset);
-		if (node->magic == JFFS2_MAGIC_BITMASK) {
-			/* if its a fragment add it */
-			/* check crc by readding a JFFS2_NODE_ACCURATE */
-			crcnode.magic = node->magic;
-			crcnode.nodetype = node->nodetype | JFFS2_NODE_ACCURATE;
-			crcnode.totlen = node->totlen;
-			crcnode.hdr_crc = node->hdr_crc;
 
-			if (!hdr_crc(&crcnode)) {
-				offset += 4;
-				counterCRC++;
-				continue;
-			} else if (node->nodetype == JFFS2_NODETYPE_INODE &&
+		node = (struct jffs2_unknown_node *) get_node_mem((u32)part->offset + offset);
+		if (node->magic == JFFS2_MAGIC_BITMASK && hdr_crc(node)) {
+			/* if its a fragment add it */
+			if (node->nodetype == JFFS2_NODETYPE_INODE &&
 				    inode_crc((struct jffs2_raw_inode *) node)) {
 				if (insert_node(&pL->frag, (u32) part->offset +
 						offset) == NULL) {
@@ -1134,12 +1104,8 @@ jffs2_1pass_build_lists(struct part_info * part)
 			} else if (node->nodetype == JFFS2_NODETYPE_DIRENT &&
 				   dirent_crc((struct jffs2_raw_dirent *) node)  &&
 				   dirent_name_crc((struct jffs2_raw_dirent *) node)) {
-				if (! (counterN%128))
-#if 0  /* Use spinning wheel */
+				if (! (counterN%100))
 					puts ("\b\b.  ");
-#else
-					puts (".");
-#endif
 				if (insert_node(&pL->dir, (u32) part->offset +
 						offset) == NULL) {
 					put_fl_mem(node);
@@ -1157,14 +1123,16 @@ jffs2_1pass_build_lists(struct part_info * part)
 						"%d < %d\n", node->totlen,
 						sizeof(struct jffs2_unknown_node));
 			} else {
-				counterUNK++;
+				printf("Unknown node type: %x len %d "
+					"offset 0x%x\n", node->nodetype,
+					node->totlen, offset);
 			}
 			offset += ((node->totlen + 3) & ~3);
 			counterF++;
 		} else if (node->magic == JFFS2_EMPTY_BITMASK &&
 			   node->nodetype == JFFS2_EMPTY_BITMASK) {
 			offset = jffs2_scan_empty(offset, part);
-		} else { /* if we know nothing, we just step and look. */
+		} else {	/* if we know nothing, we just step and look. */
 			offset += 4;
 			counter4++;
 		}
@@ -1181,8 +1149,6 @@ jffs2_1pass_build_lists(struct part_info * part)
 	putLabeledWord("frag entries = ", pL->frag.listCount);
 	putLabeledWord("+4 increments = ", counter4);
 	putLabeledWord("+file_offset increments = ", counterF);
-	putLabeledWord("Unknown node types = ", counterUNK);
-	putLabeledWord("Bad hdr_crc = ", counterCRC);
 
 #endif
 
@@ -1238,7 +1204,6 @@ jffs2_get_list(struct part_info * part, const char *who)
 			return NULL;
 		}
 	}
-	WATCHDOG_RESET();
 	return (struct b_lists *)part->jffs2_priv;
 }
 
@@ -1248,21 +1213,24 @@ u32
 jffs2_1pass_ls(struct part_info * part, const char *fname)
 {
 	struct b_lists *pl;
+	long ret = 0;
 	u32 inode;
 
 	if (! (pl = jffs2_get_list(part, "ls")))
 		return 0;
 
-
 	if (! (inode = jffs2_1pass_search_list_inodes(pl, fname, 1))) {
 		putstr("ls: Failed to scan jffs2 file structure\r\n");
 		return 0;
 	}
+
+
 #if 0
 	putLabeledWord("found file at inode = ", inode);
 	putLabeledWord("read_inode returns = ", ret);
 #endif
-	return inode;
+
+	return ret;
 }
 
 

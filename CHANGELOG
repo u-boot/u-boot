@@ -2,14 +2,9 @@
 Changes for U-Boot 1.1.1:
 ======================================================================
 
-* Patch by Christian Hohnstaedt, 23 Apr 2004:
-  JFFS2 speed enhancements:
-  - repair header CRC calculation in jffs2_1pass.c
-  - add eraseblock size to the partition information to skip empty
-    eraseblocks if we find more then 4k of free space.
-  - The JFFS2 scanner is now fast enough to remove the spinning wheel
-    so #ifdef-ed out.
-  - add watchdog calls in long running loops
+* Patch by Travis Sawyer, 23 Apr 2004:
+  Fix VSC/CIS 8201 phy descrambler interoperability timing due to
+  errata from Vitesse Semiconductor.
 
 * Patch by Philippe Robin, 22 Apr 2004:
   Fix ethernet configuration for "versatile" board 

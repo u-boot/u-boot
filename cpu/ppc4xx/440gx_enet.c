@@ -437,6 +437,22 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 	 */
 	if ( ((devnum == 2) || (devnum ==3)) && (4 == ethgroup) ) {
 		miiphy_write (reg, 23, 0x1200);
+		/*
+		 * Vitesse VSC8201/Cicada CIS8201 errata:
+		 * Interoperability problem with Intel 82547EI phys
+		 * This work around (provided by Vitesse) changes
+		 * the default timer convergence from 8ms to 12ms
+		 */
+		miiphy_write (reg, 0x1f, 0x2a30);
+		miiphy_write (reg, 0x08, 0x0200);
+		miiphy_write (reg, 0x1f, 0x52b5);
+		miiphy_write (reg, 0x02, 0x0004);
+		miiphy_write (reg, 0x01, 0x0671);
+		miiphy_write (reg, 0x00, 0x8fae);
+		miiphy_write (reg, 0x1f, 0x2a30);
+		miiphy_write (reg, 0x08, 0x0000);
+		miiphy_write (reg, 0x1f, 0x0000);
+		/* end Vitesse/Cicada errata */
 	}
 #endif
 #endif
@@ -917,7 +933,7 @@ int enetInt (struct eth_device *dev)
 			mtdcr (uic0sr, UIC_MTE);
 		}
 		/* handle MAL RX EOB  interupt from a receive */
-		/* check for EOB on valid channels            */
+		/* check for EOB on valid channels	      */
 		if (my_uic0msr & UIC_MRE) {
 			mal_rx_eob = mfdcr (malrxeobisr);
 			if ((mal_rx_eob & (0x80000000 >> hw_p->devnum)) != 0) {	/* call emac routine for channel x */
@@ -1033,9 +1049,9 @@ static void enet_rcv (struct eth_device *dev, unsigned long malisr)
 						    MAX_ERR_LOG)
 							hw_p->rx_err_index =
 								0;
-					}	/* emac_erros         */
+					}	/* emac_erros */
 				}	/* data_len < max mtu */
-			}	/* if data_len        */
+			}	/* if data_len */
 			if (!data_len) {	/* no data */
 				hw_p->rx[i].ctrl |= MAL_RX_CTRL_EMPTY;	/* Free Recv Buffer */
 
