@@ -2,6 +2,15 @@
 Changes since U-Boot 1.0.0:
 ======================================================================
 
+* Patch by Andre Schwarz, 24 Nov 2003:
+  add support for mvblue (mvBlueLYNX and mvBlueBOX) boards
+
+* Patch by Pavel Bartusek, 21 Nov 2003:
+  set ZMII bridge speed on 440
+
+* Patch by Anders Larsen, 17 Nov 2003:
+  Fix mismatched #ifdef / #endif in include/asm-arm/arch-pxa/hardware.h
+
 * Patches by David Müller, 14 Nov 2003:
   - board/mpl/common/common_util.c
     * implement support for BZIP2 compressed images

@@ -638,6 +638,9 @@ MOUSSE_config: unconfig
 MUSENKI_config: unconfig
 	@./mkconfig $(@:_config=) ppc mpc824x musenki
 
+MVBLUE_config:	unconfig
+	@./mkconfig $(@:_config=) ppc mpc824x mvblue
+
 OXC_config: unconfig
 	@./mkconfig $(@:_config=) ppc mpc824x oxc
 

@@ -71,9 +71,9 @@ LIST_4xx="	\
 
 LIST_824x="	\
 	A3000           BMW		CPC45		CU824		\
-	debris		MOUSSE          MUSENKI    	OXC		\
-	PN62		Sandpoint8240   Sandpoint8245	SL8245		\
-	utx8245								\
+	debris		MOUSSE          MUSENKI    	MVBLUE		\
+	OXC		PN62		Sandpoint8240   Sandpoint8245	\
+	SL8245		utx8245						\
 "
 
 #########################################################################

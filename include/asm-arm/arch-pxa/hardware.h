@@ -84,10 +84,6 @@ typedef struct { volatile u32 offset[4096]; } __regbase;
 # define __REG(x)	io_p2v(x)
 # define __PREG(x)	io_v2p(x)
 
-#endif
-#endif /* UBOOT_REG_FIX */
-
-#ifdef UBOOT_REG_FIX
 # undef	io_p2v
 # undef __REG
 # ifndef __ASSEMBLY__
@@ -96,6 +92,7 @@ typedef struct { volatile u32 offset[4096]; } __regbase;
 #  define __REG2(x,y)	(*(volatile u32 *)((u32)&__REG(x) + (y)))
 # else
 #  define __REG(x) (x)
+# endif
 #endif /* UBOOT_REG_FIX */
 
 #include "pxa-regs.h"

@@ -67,6 +67,9 @@
  *  17-Jun-02   stefan.roese@esd-electronics.com
  *              - MAL error debug printf 'M' removed (rx de interrupt may
  *                occur upon many incoming packets with only 4 rx buffers).
+ *  21-Nov-03   pavel.bartusek@sysgo.com
+ *              - set ZMII bridge speed on 440
+ *
  *-----------------------------------------------------------------------------*/
 
 #include <common.h>
@@ -413,6 +416,14 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 		mode_reg = mode_reg | 0x80000000 | EMAC_M1_IST;
 
 	out32 (EMAC_M1, mode_reg);
+
+#if defined(CONFIG_440)
+	/* set speed in the ZMII bridge */
+	if (speed == _100BASET)
+		out32(ZMII_SSR, in32(ZMII_SSR) | 0x10000000);
+	else
+		out32(ZMII_SSR, in32(ZMII_SSR) & ~0x10000000);
+#endif
 
 	/* Enable broadcast and indvidual address */
 	out32 (EMAC_RXM, EMAC_RMR_BAE | EMAC_RMR_IAE
