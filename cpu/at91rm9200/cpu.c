@@ -134,11 +134,25 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
    /*shutdown the console to avoid strange chars during reset */
    us->US_CR = (AT91C_US_RSTRX | AT91C_US_RSTTX);
 
+#ifdef CONFIG_AT91RM9200DK 
    /* Clear PA19 to trigger the hard reset */
    pio->PIO_CODR = 0x00080000;
    pio->PIO_OER  = 0x00080000;
    pio->PIO_PER  = 0x00080000;
+#endif
+#ifdef CONFIG_CMC_PU2
+/* this is the way Linux does it */
+#define AT91C_ST_RSTEN (0x1 << 16)
+#define AT91C_ST_EXTEN (0x1 << 17)
+#define AT91C_ST_WDRST (0x1 <<  0)
+/* watchdog mode register */
+#define ST_WDMR *((unsigned long *)0xfffffd08)
+/* system clock control register */
+#define ST_CR *((unsigned long *)0xfffffd00)
+	ST_WDMR = AT91C_ST_RSTEN | AT91C_ST_EXTEN | 1 ;
+	ST_CR = AT91C_ST_WDRST;
    /* Never reached */
+#endif
 #endif
    return 0;
 }

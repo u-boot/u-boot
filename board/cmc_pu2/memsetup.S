@@ -57,11 +57,11 @@
 
 /* clocks */
 #define PLLAR 0xFFFFFC28
-#define PLLAR_VAL 0x20263E04 /* 179.712000 MHz for PCK */
+#define PLLAR_VAL 0x202CBE04 /* 207.360 MHz for PCK */
 #define PLLBR 0xFFFFFC2C
 #define PLLBR_VAL 0x10483E0E /* 48.054857 MHz (divider by 2 for USB) */
 #define MCKR 0xFFFFFC30
-#define MCKR_VAL 0x00000202 /* PCK/3 = MCK Master Clock = 59.904000MHz from PLLA */
+#define MCKR_VAL 0x00000202 /* PCK/3 = MCK Master Clock = 69.120MHz from PLLA */
 
 /* sdram */
 #define PIOC_ASR 0xFFFFF870

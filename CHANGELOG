@@ -2,6 +2,12 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Fix udelay() on AT91RM9200 for delays < 1 ms.
+
+* Enable long help on CMC PU2 board;
+  fix reset issue;
+  increase CPU speed from 179 to 207 MHz.
+
 * Fix smc91111 ethernet driver for Xaeniax board (need to handle
   unaligned tail part specially).
 

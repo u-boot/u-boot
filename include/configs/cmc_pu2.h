@@ -32,8 +32,8 @@
 #define CONFIG_INIT_CRITICAL		/* undef for developing */
 
 /* ARM asynchronous clock */
-#define AT91C_MAIN_CLOCK	179712000	/* from 18.432 MHz crystal (18432000 / 4 * 39) */
-#define AT91C_MASTER_CLOCK	59904000	/* peripheral clock (AT91C_MASTER_CLOCK / 3) */
+#define AT91C_MAIN_CLOCK	207360000	/* from 18.432 MHz crystal (18432000 / 4 * 45) */
+#define AT91C_MASTER_CLOCK	69120000	/* peripheral clock (AT91C_MASTER_CLOCK / 3) */
 
 #define AT91_SLOW_CLOCK		32768	/* slow clock */
 
@@ -60,7 +60,7 @@
 
 #define CONFIG_BAUDRATE 9600
 
-#define CFG_AT91C_BRGR_DIVISOR	390	/* hardcode so no __divsi3 : AT91C_MASTER_CLOCK /(baudrate * 16) */
+#define CFG_AT91C_BRGR_DIVISOR	450	/* hardcode so no __divsi3 : AT91C_MASTER_CLOCK /(baudrate * 16) */
 
 /*
  * Hardware drivers
@@ -86,6 +86,8 @@
 #define CFG_I2C_EEPROM_ADDR_LEN 1
 #define CFG_I2C_EEPROM_ADDR_OVERFLOW
 #endif
+/* still about 20 kB free with this defined */
+#define CFG_LONGHELP
 
 #define CONFIG_BOOTDELAY      3
 /* #define CONFIG_ENV_OVERWRITE	1 */
@@ -114,6 +116,8 @@
 			CFG_CMD_MISC | \
 			CFG_CMD_LOADS ))
 #endif
+/* still about 20 kB free with this defined */
+#define CFG_LONGHELP
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>

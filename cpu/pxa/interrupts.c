@@ -193,9 +193,14 @@ void udelay_masked (unsigned long usec)
 {
 	ulong tmo;
 
-	tmo = usec / 1000;
-	tmo *= CFG_HZ;
-	tmo /= 1000;
+	if (usec >= 1000) {
+		tmo = usec / 1000;
+		tmo *= CFG_HZ;
+		tmo /= 1000;
+	} else {
+		tmo = usec * CFG_HZ;
+		tmo /= (1000*1000);
+	}
 
 	reset_timer_masked ();
 
