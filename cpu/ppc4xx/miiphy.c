@@ -48,8 +48,8 @@
 #include <405_mal.h>
 #include <miiphy.h>
 
-#if (defined(CONFIG_405GP) || defined(CONFIG_405EP) || defined(CONFIG_440)) \
-   && !defined (CONFIG_NET_MULTI)
+#if defined(CONFIG_405GP) || defined(CONFIG_405EP) || \
+  (defined(CONFIG_440) && !defined(CONFIG_NET_MULTI))
 
 /***********************************************************/
 /* Dump out to the screen PHY regs                         */
@@ -78,6 +78,12 @@ void miiphy_dump (unsigned char addr)
 
 /***********************************************************/
 /* read a phy reg and return the value with a rc           */
+/* Note: We are referencing to EMAC_STACR register         */
+/* @(EMAC_BASE + 92) because  of:                          */
+/* - 405EP has only STACR for EMAC0 pinned out             */
+/* - 405GP has onle one EMAC0                              */
+/* - For 440 this module gets compiled only for            */
+/*   !CONFIG_NET_MULTI, i.e. only EMAC0 is supported.      */
 /***********************************************************/
 
 int miiphy_read (unsigned char addr, unsigned char reg,

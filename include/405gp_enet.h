@@ -35,7 +35,8 @@
 +----------------------------------------------------------------------------*/
 #ifndef _enetemac_h_
 #define _enetemac_h_
-
+#include <net.h>
+#include <405_mal.h>
 
 /*-----------------------------------------------------------------------------+
 | General enternet defines.  802 frames are not supported.
@@ -235,6 +236,60 @@ struct arp_entry {
 /* all the errors we care about */
 #define EMAC_RX_ERRORS		0x03FF
 
+#define NUM_RX_BUFF PKTBUFSRX
+#define NUM_TX_BUFF 1
+
+#define MAX_ERR_LOG 10
+typedef struct emac_stats_st{	/* Statistic Block */
+	int data_len_err;
+	int rx_frames;
+	int rx;
+	int rx_prot_err;
+	int int_err;
+	int pkts_tx;
+	int pkts_rx;
+	int pkts_handled;
+	short tx_err_log[MAX_ERR_LOG];
+	short rx_err_log[MAX_ERR_LOG];
+} EMAC_STATS_ST, *EMAC_STATS_PST;
+
+/* Structure containing variables used by the shared code (440gx_enet.c) */
+typedef struct emac_440gx_hw_st {
+	uint32_t		hw_addr;		/* EMAC offset */
+	uint32_t		tah_addr;		/* TAH offset */
+	uint32_t		phy_id;
+	uint32_t		phy_addr;
+	uint32_t		original_fc;
+	uint32_t		txcw;
+	uint32_t		autoneg_failed;
+	uint32_t		emac_ier;
+	volatile mal_desc_t *tx;
+	volatile mal_desc_t *rx;
+	bd_t		*bis;	/* for eth_init upon mal error */
+	mal_desc_t		*alloc_tx_buf;
+	mal_desc_t		*alloc_rx_buf;
+	char		*txbuf_ptr;
+	uint16_t		devnum;
+	int			get_link_status;
+	int			tbi_compatibility_en;
+	int			tbi_compatibility_on;
+	int			fc_send_xon;
+	int			report_tx_early;
+	int			first_init;
+	int			tx_err_index;
+	int			rx_err_index;
+	int			rx_slot;			/* MAL Receive Slot */
+	int			rx_i_index;		/* Receive Interrupt Queue Index */
+	int			rx_u_index;		/* Receive User Queue Index */
+	int			tx_slot;			/* MAL Transmit Slot */
+	int			tx_i_index;		/* Transmit Interrupt Queue Index */
+	int			tx_u_index;		/* Transmit User Queue Index */
+	int			rx_ready[NUM_RX_BUFF];	/* Receive Ready Queue */
+	int			tx_run[NUM_TX_BUFF];	/* Transmit Running Queue */
+	int			is_receiving;	/* sync with eth interrupt */
+	int			print_speed;	/* print speed message upon start */
+	EMAC_STATS_ST	stats;
+} EMAC_405_HW_ST, *EMAC_405_HW_PST;
 
 /*-----------------------------------------------------------------------------+
 | Function prototypes for device table.

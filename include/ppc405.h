@@ -132,9 +132,10 @@
 #define UIC_MAL_RXEOB 0x00080000      /* MAL RXEOB                          */
 #define UIC_MAL_TXDE  0x00040000      /* MAL TXDE                           */
 #define UIC_MAL_RXDE  0x00020000      /* MAL RXDE                           */
-#define UIC_ENET      0x00010000      /* Ethernet                           */
+#define UIC_ENET      0x00010000      /* Ethernet0                          */
+#define UIC_ENET1     0x00004000      /* Ethernet1 on 405EP                 */
+#define UIC_ECC_CE    0x00004000      /* ECC Correctable Error on 405GP     */
 #define UIC_EXT_PCI_SERR 0x00008000   /* External PCI SERR#                 */
-#define UIC_ECC_CE    0x00004000      /* ECC Correctable Error              */
 #define UIC_PCI_PM    0x00002000      /* PCI Power Management               */
 #define UIC_EXT0      0x00000040      /* External  interrupt 0              */
 #define UIC_EXT1      0x00000020      /* External  interrupt 1              */
@@ -582,8 +583,11 @@
 #define malrxdeir  (MAL_DCR_BASE+0x13)  /* RX Descr. Error Int reg           */
 #define maltxctp0r (MAL_DCR_BASE+0x20)  /* TX 0 Channel table pointer reg    */
 #define maltxctp1r (MAL_DCR_BASE+0x21)  /* TX 1 Channel table pointer reg    */
+#define maltxctp2r (MAL_DCR_BASE+0x22)  /* TX 2 Channel table pointer reg    */
 #define malrxctp0r (MAL_DCR_BASE+0x40)  /* RX 0 Channel table pointer reg    */
+#define malrxctp1r (MAL_DCR_BASE+0x41)  /* RX 1 Channel table pointer reg    */
 #define malrcbs0   (MAL_DCR_BASE+0x60)  /* RX 0 Channel buffer size reg      */
+#define malrcbs1   (MAL_DCR_BASE+0x61)  /* RX 1 Channel buffer size reg      */
 
 /*-----------------------------------------------------------------------------
 | IIC Register Offsets
