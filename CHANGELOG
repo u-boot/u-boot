@@ -2,6 +2,9 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Make IPB clock on MGT5100/MPC5200 configurable in board config file;
+  go back to 66 MHz for stability
+
 * Patches by Jon Diekema, 15 Sep 2003:
   - add description for missing CFG_CMD_* entries in the README file
   - sacsng tweaks

@@ -96,6 +96,12 @@
 #define CONFIG_BOOTCOMMAND	"bootm 100000"	/* autoboot command */
 #define CONFIG_BOOTARGS		"root=/dev/ram rw"
 
+#if defined(CONFIG_MPC5200)
+/*
+ * IPB Bus clocking configuration.
+ */
+#undef CFG_IPBSPEED_133   		/* define for 133MHz speed */
+#endif
 /*
  * I2C configuration
  */

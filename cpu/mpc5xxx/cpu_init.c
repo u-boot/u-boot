@@ -152,6 +152,7 @@ void cpu_init_f (void)
 	/* enable timebase */
 	*(vu_long *)(MPC5XXX_XLBARB + 0x40) |= (1 << 13);
 
+#if defined(CFG_IPBSPEED_133)
 	/* Motorola reports IPB should better run at 133 MHz. */
 	*(vu_long *)MPC5XXX_ADDECR |= 1;
 	/* pci_clk_sel = 0x02, ipb_clk_sel = 0x00; */
@@ -159,6 +160,7 @@ void cpu_init_f (void)
 	addecr &= ~0x103;
 	addecr |= 0x02;
 	*(vu_long *)MPC5XXX_CDM_CFG = addecr;
+#endif
 #endif
 }
 

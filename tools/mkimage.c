@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2002
+ * (C) Copyright 2000-2003
  * DENX Software Engineering
  * Wolfgang Denk, wd@denx.de
  * All rights reserved.
@@ -38,6 +38,10 @@ typedef		unsigned int	uint32_t;
 #define     ntohl(a)	SWAP_LONG(a)
 #define     htonl(a)	SWAP_LONG(a)
 #endif	/* __WIN32__ */
+
+#ifndef	O_BINARY		/* should be define'd on __WIN32__ */
+#define O_BINARY	0
+#endif
 
 #include <image.h>
 
@@ -265,11 +269,7 @@ NXTARG:		;
 	if (lflag) {
 		ifd = open(imagefile, O_RDONLY);
 	} else {
-#ifdef __WIN32__
 		ifd = open(imagefile, O_RDWR|O_CREAT|O_TRUNC|O_BINARY, 0666);
-#else
-		ifd = open(imagefile, O_RDWR|O_CREAT|O_TRUNC, 0666);
-#endif
 	}
 
 	if (ifd < 0) {
