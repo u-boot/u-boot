@@ -102,6 +102,10 @@ void nand_init (void)
 	*AT91C_PIOB_PER = AT91C_PIO_PB1;	/* enable direct output enable */
 	*AT91C_PIOB_ODR = AT91C_PIO_PB1;	/* disable output */
 
+	/* PIOB and PIOC clock enabling */
+	*AT91C_PMC_PCER = 1 << AT91C_ID_PIOB;
+	*AT91C_PMC_PCER = 1 << AT91C_ID_PIOC;
+
 	if (*AT91C_PIOB_PDSR & AT91C_PIO_PB1)
 		printf ("  No SmartMedia card inserted\n");
 #ifdef DEBUG

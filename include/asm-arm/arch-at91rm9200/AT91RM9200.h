@@ -459,6 +459,8 @@ typedef struct _AT91S_PDC {
 #define AT91C_ID_TC0    ((unsigned int) 17) /* Timer Counter 0 */
 #define AT91C_ID_EMAC   ((unsigned int) 24) /* Ethernet MAC */
 #define AT91C_ID_SPI    ((unsigned int) 13) /* Serial Peripheral Interface */
+#define AT91C_ID_PIOB	((unsigned int) 3)
+#define AT91C_ID_PIOC	((unsigned int) 4)
 
 #define AT91C_PIO_PC1        ((unsigned int) 1 <<  1) /* Pin Controlled by PC1 */
 #define AT91C_PC1_BFRDY_SMOE ((unsigned int) AT91C_PIO_PC1) /*  Burst Flash Ready */

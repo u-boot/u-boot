@@ -1010,6 +1010,17 @@ MPC8560ADS_config:	unconfig
 stxgp3_config:		unconfig
 	@./mkconfig $(@:_config=) ppc mpc85xx stxgp3
 
+SBC8560_33_config \
+SBC8560_66_config:      unconfig
+	@if [ "$(findstring _66_,$@)" ] ; then \
+		echo "#define CONFIG_PCI_66"  >>include/config.h ; \
+		echo "... 66 MHz PCI" ; \
+	else \
+		>include/config.h ; \
+		echo "... 33 MHz PCI" ; \
+	fi
+	@./mkconfig -a SBC8560 ppc mpc85xx sbc8560
+
 #########################################################################
 ## 74xx/7xx Systems
 #########################################################################

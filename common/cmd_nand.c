@@ -20,6 +20,10 @@
 
 #if (CONFIG_COMMANDS & CFG_CMD_NAND)
 
+#ifdef CONFIG_AT91RM9200DK
+#include <asm/arch/hardware.h>
+#endif
+
 #include <linux/mtd/nand.h>
 #include <linux/mtd/nand_ids.h>
 #include <jffs2/jffs2.h>

@@ -25,7 +25,14 @@
 #ifdef CONFIG_HAS_DATAFLASH
 #include <dataflash.h>
 
-#define SPI_CLK 5000000
+#define AT91C_SPI_CLK	10000000	/* Max Value = 10MHz to be compliant to
+the Continuous Array Read function */
+
+/* AC Characteristics */
+/* DLYBS = tCSS = 250ns min and DLYBCT = tCSH = 250ns */
+#define DATAFLASH_TCSS	(0xC << 16)
+#define DATAFLASH_TCHS	(0x1 << 24)
+
 #define AT91C_TIMEOUT_WRDY			200000
 #define AT91C_SPI_PCS0_SERIAL_DATAFLASH		0xE     /* Chip Select 0 : NPCS0 %1110 */
 #define AT91C_SPI_PCS3_DATAFLASH_CARD		0x7     /* Chip Select 3 : NPCS3 %0111 */
@@ -50,9 +57,11 @@ void AT91F_SpiInit(void) {
 	AT91C_BASE_SPI->SPI_MR = AT91C_SPI_MSTR | AT91C_SPI_MODFDIS | AT91C_SPI_PCS;
 
 	/* Configure CS0 and CS3 */
-	*(AT91C_SPI_CSR + 0) = AT91C_SPI_CPOL | (AT91C_SPI_DLYBS & 0x100000) | ((AT91C_MASTER_CLOCK / (2*SPI_CLK)) << 8);
+	*(AT91C_SPI_CSR + 0) = AT91C_SPI_CPOL | (AT91C_SPI_DLYBS & DATAFLASH_TCSS) | (AT91C_SPI_DLYBCT &
+	DATAFLASH_TCHS) | ((AT91C_MASTER_CLOCK / (2*AT91C_SPI_CLK)) << 8);
 
-	*(AT91C_SPI_CSR + 3) = AT91C_SPI_CPOL | (AT91C_SPI_DLYBS & 0x100000) | ((AT91C_MASTER_CLOCK / (2*SPI_CLK)) << 8);
+	*(AT91C_SPI_CSR + 3) = AT91C_SPI_CPOL | (AT91C_SPI_DLYBS & DATAFLASH_TCSS) | (AT91C_SPI_DLYBCT &
+	DATAFLASH_TCHS) | ((AT91C_MASTER_CLOCK / (2*AT91C_SPI_CLK)) << 8);
 
 }
 

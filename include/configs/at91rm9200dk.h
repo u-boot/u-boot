@@ -29,20 +29,20 @@
  * If we are developing, we might want to start armboot from ram
  * so we MUST NOT initialize critical regs like mem-timing ...
  */
-#define CONFIG_INIT_CRITICAL            /* undef for developing */
+#define CONFIG_INIT_CRITICAL		/* undef for developing */
 
 /* ARM asynchronous clock */
-#define AT91C_MAIN_CLOCK  179712000  /* from 18.432 MHz crystal (18432000 / 4 * 39) */
-#define AT91C_MASTER_CLOCK  59904000  /* peripheral clock (AT91C_MASTER_CLOCK / 3) */
-/* #define AT91C_MASTER_CLOCK  44928000 */  /* peripheral clock (AT91C_MASTER_CLOCK / 4) */
+#define AT91C_MAIN_CLOCK	179712000	/* from 18.432 MHz crystal (18432000 / 4 * 39) */
+#define AT91C_MASTER_CLOCK	59904000	/* peripheral clock (AT91C_MASTER_CLOCK / 3) */
+/* #define AT91C_MASTER_CLOCK	44928000 */	/* peripheral clock (AT91C_MASTER_CLOCK / 4) */
 
 #define AT91_SLOW_CLOCK		32768	/* slow clock */
 
-#define CONFIG_AT91RM9200DK	 1	/* on an AT91RM9200DK Board      */
+#define CONFIG_AT91RM9200DK	1	/* on an AT91RM9200DK Board	 */
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff */
-#define CONFIG_CMDLINE_TAG	 1	/* enable passing of ATAGs	*/
+#define CONFIG_CMDLINE_TAG	1	/* enable passing of ATAGs	*/
 #define CONFIG_SETUP_MEMORY_TAGS 1
-#define CONFIG_INITRD_TAG	 1
+#define CONFIG_INITRD_TAG	1
 
 /*
  * Size of malloc() pool
@@ -63,10 +63,10 @@
 #undef	CONFIG_MODEM_SUPPORT		/* disable modem initialization stuff */
 
 #define CONFIG_BOOTDELAY      3
-/* #define CONFIG_ENV_OVERWRITE  1 */
+/* #define CONFIG_ENV_OVERWRITE	1 */
 
 #define CONFIG_COMMANDS		\
-		       ((CONFIG_CMD_DFL	| \
+		       ((CONFIG_CMD_DFL | \
 			CFG_CMD_DHCP ) & \
 		      ~(CFG_CMD_BDI | \
 			CFG_CMD_IMI | \
@@ -85,12 +85,12 @@
 #define ADDR_PAGE 2
 #define ADDR_COLUMN_PAGE 3
 
-#define NAND_ChipID_UNKNOWN 	0x00
+#define NAND_ChipID_UNKNOWN	0x00
 #define NAND_MAX_FLOORS 1
 #define NAND_MAX_CHIPS 1
 
-#define AT91_SMART_MEDIA_ALE (1 << 22)  /* our ALE is AD22 */
-#define AT91_SMART_MEDIA_CLE (1 << 21)  /* our CLE is AD21 */
+#define AT91_SMART_MEDIA_ALE (1 << 22)	/* our ALE is AD22 */
+#define AT91_SMART_MEDIA_CLE (1 << 21)	/* our CLE is AD21 */
 
 #define NAND_DISABLE_CE(nand) do { *AT91C_PIOC_SODR = AT91C_PIO_PC0;} while(0)
 #define NAND_ENABLE_CE(nand) do { *AT91C_PIOC_CODR = AT91C_PIO_PC0;} while(0)
@@ -111,53 +111,53 @@
 #define PHYS_SDRAM 0x20000000
 #define PHYS_SDRAM_SIZE 0x2000000  /* 32 megs */
 
-#define CFG_MEMTEST_START PHYS_SDRAM
-#define CFG_MEMTEST_END   CFG_MEMTEST_START + PHYS_SDRAM_SIZE - 262144
+#define CFG_MEMTEST_START		PHYS_SDRAM
+#define CFG_MEMTEST_END			CFG_MEMTEST_START + PHYS_SDRAM_SIZE - 262144
 
 #define CONFIG_DRIVER_ETHER
-#define CONFIG_NET_RETRY_COUNT 20
+#define CONFIG_NET_RETRY_COUNT		20
 #define CONFIG_AT91C_USE_RMII
 
-#define CONFIG_HAS_DATAFLASH	1
-#define CFG_SPI_WRITE_TOUT	(5*CFG_HZ)
-#define CFG_MAX_DATAFLASH_BANKS 2
-#define CFG_MAX_DATAFLASH_PAGES 16384
+#define CONFIG_HAS_DATAFLASH		1
+#define CFG_SPI_WRITE_TOUT		(5*CFG_HZ)
+#define CFG_MAX_DATAFLASH_BANKS 	2
+#define CFG_MAX_DATAFLASH_PAGES 	16384
 #define CFG_DATAFLASH_LOGIC_ADDR_CS0	0xC0000000	/* Logical adress for CS0 */
 #define CFG_DATAFLASH_LOGIC_ADDR_CS3	0xD0000000	/* Logical adress for CS3 */
 
-#define PHYS_FLASH_1 0x10000000
-#define PHYS_FLASH_SIZE 0x200000  /* 2 megs main flash */
-#define CFG_FLASH_BASE		PHYS_FLASH_1
-#define CFG_MAX_FLASH_BANKS 1
-#define CFG_MAX_FLASH_SECT 40
-#define CFG_FLASH_ERASE_TOUT	(2*CFG_HZ) /* Timeout for Flash Erase */
-#define CFG_FLASH_WRITE_TOUT	(2*CFG_HZ) /* Timeout for Flash Write */
+#define PHYS_FLASH_1			0x10000000
+#define PHYS_FLASH_SIZE			0x200000  /* 2 megs main flash */
+#define CFG_FLASH_BASE			PHYS_FLASH_1
+#define CFG_MAX_FLASH_BANKS		1
+#define CFG_MAX_FLASH_SECT		256
+#define CFG_FLASH_ERASE_TOUT		(2*CFG_HZ) /* Timeout for Flash Erase */
+#define CFG_FLASH_WRITE_TOUT		(2*CFG_HZ) /* Timeout for Flash Write */
 
 #undef	CFG_ENV_IS_IN_DATAFLASH
 
 #ifdef CFG_ENV_IS_IN_DATAFLASH
-#define CFG_ENV_OFFSET 0x20000
-#define CFG_ENV_ADDR (CFG_DATAFLASH_LOGIC_ADDR_CS0 + CFG_ENV_OFFSET)
-#define CFG_ENV_SIZE 0x2000  /* 0x8000 */
+#define CFG_ENV_OFFSET			0x20000
+#define CFG_ENV_ADDR			(CFG_DATAFLASH_LOGIC_ADDR_CS0 + CFG_ENV_OFFSET)
+#define CFG_ENV_SIZE			0x2000  /* 0x8000 */
 #else
-#define	CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_ADDR (PHYS_FLASH_1 + 0xe000)  /* 0x10000 */
-#define CFG_ENV_SIZE 0x2000  /* 0x8000 */
+#define CFG_ENV_IS_IN_FLASH		1
+#define CFG_ENV_ADDR			(PHYS_FLASH_1 + 0xe000)  /* 0x10000 */
+#define CFG_ENV_SIZE			0x2000  /* 0x8000 */
 #endif
 
 
-#define CFG_LOAD_ADDR 0x21000000  /* default load address */
+#define CFG_LOAD_ADDR		0x21000000  /* default load address */
 
 #define CFG_BOOT_SIZE		0x6000 /* 24 KBytes */
-#define CFG_U_BOOT_BASE 	(PHYS_FLASH_1 + 0x10000)
-#define CFG_U_BOOT_SIZE		0x10000	/* 64 KBytes */
+#define CFG_U_BOOT_BASE		(PHYS_FLASH_1 + 0x10000)
+#define CFG_U_BOOT_SIZE		0x10000 /* 64 KBytes */
 
-#define CFG_BAUDRATE_TABLE {115200 , 19200, 38400, 57600, 9600 }
+#define CFG_BAUDRATE_TABLE	{115200 , 19200, 38400, 57600, 9600 }
 
-#define CFG_PROMPT "Uboot> " /* Monitor Command Prompt */
-#define	CFG_CBSIZE 256 /* Console I/O Buffer Size */
-#define CFG_MAXARGS 16 /* max number of command args */
-#define	CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
+#define CFG_PROMPT		"U-Boot> "	/* Monitor Command Prompt */
+#define CFG_CBSIZE		256		/* Console I/O Buffer Size */
+#define CFG_MAXARGS		16		/* max number of command args */
+#define CFG_PBSIZE		(CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
 
 #ifndef __ASSEMBLY__
 /*-----------------------------------------------------------------------
@@ -167,20 +167,19 @@
  * and can be used by the board specific code (eg board/...)
  */
 
-struct bd_info_ext
-{
-    /* helper variable for board environment handling
-     *
-     * env_crc_valid == 0    =>   uninitialised
-     * env_crc_valid  > 0    =>   environment crc in flash is valid
-     * env_crc_valid  < 0    =>   environment crc in flash is invalid
-     */
-     int	env_crc_valid;
+struct bd_info_ext {
+	/* helper variable for board environment handling
+	 *
+	 * env_crc_valid == 0    =>   uninitialised
+	 * env_crc_valid  > 0    =>   environment crc in flash is valid
+	 * env_crc_valid  < 0    =>   environment crc in flash is invalid
+	 */
+	int env_crc_valid;
 };
 #endif
 
-#define	CFG_HZ AT91C_MASTER_CLOCK/2  /* AT91C_TC0_CMR is implicitly set to
-					AT91C_TC_TIMER_DIV1_CLOCK */
+#define CFG_HZ AT91C_MASTER_CLOCK/2	/* AT91C_TC0_CMR is implicitly set to */
+					/* AT91C_TC_TIMER_DIV1_CLOCK */
 
 #define CONFIG_STACKSIZE	(32*1024)	/* regular stack */
 

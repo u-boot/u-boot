@@ -25,13 +25,6 @@
 
 #define TX_BUF_CNT 2
 
-#undef TSEC_DEBUG
-#ifdef TSEC_DEBUG
-#define DBGPRINT(x,y) printf(x,y)
-#else
-#define DBGPRINT(x,y)
-#endif
-
 static uint rxIdx;	/* index of the current RX buffer */
 static uint txIdx;	/* index of the current TX buffer */
 
@@ -564,7 +557,7 @@ static int tsec_send(struct eth_device* dev, volatile void *packet, int length)
 	/* Find an empty buffer descriptor */
 	for(i=0; rtx.txbd[txIdx].status & TXBD_READY; i++) {
 		if (i >= TOUT_LOOP) {
-			DBGPRINT("%s: tsec: tx buffers full\n", dev->name);
+			debug ("%s: tsec: tx buffers full\n", dev->name);
 			return result;
 		}
 	}
@@ -579,7 +572,7 @@ static int tsec_send(struct eth_device* dev, volatile void *packet, int length)
 	/* Wait for buffer to be transmitted */
 	for(i=0; rtx.txbd[txIdx].status & TXBD_READY; i++) {
 		if (i >= TOUT_LOOP) {
-			DBGPRINT("%s: tsec: tx error\n", dev->name);
+			debug ("%s: tsec: tx error\n", dev->name);
 			return result;
 		}
 	}

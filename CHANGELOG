@@ -2,6 +2,17 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Fred Klatt, 25 Jun 2004:
+  Add support for WindRiver's SBC8560 board
+
+* Patch by Nicolas Lacressonniere, 24 Jun 2004
+  Small Bugs fixes for "at91rm9200dk" board:
+  - Timing modifications for SPI DataFlash access
+  - Fix NAND flash detection bug
+
+* Patch by Nicolas Lacressonniere, 24 Jun 2004:
+  Add Support for Flash AT49BV6416 for AT91RM9200DK board
+
 * Patch by Jon Loeliger, 17 June 2004:
   Completion of the 8540ADS/8560ADS updates:
   Fix some PCI and Rapid I/O memory maps,

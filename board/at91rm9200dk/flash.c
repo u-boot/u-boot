@@ -42,20 +42,22 @@ typedef struct OrgDef
 /* Flash Organizations */
 OrgDef OrgAT49BV16x4[] =
 {
-	{ 8, 8*1024 }, /* 8 * 8kBytes sectors */
-	{ 2, 32*1024 }, /* 2 * 32kBytes sectors */
-	{ 30, 64*1024 } /* 30 * 64kBytes sectors */
+	{  8,  8*1024 },	/*   8 *  8 kBytes sectors */
+	{  2, 32*1024 },	/*   2 * 32 kBytes sectors */
+	{ 30, 64*1024 },	/*  30 * 64 kBytes sectors */
 };
 
 OrgDef OrgAT49BV16x4A[] =
 {
-	{ 8, 8*1024 }, /* 8 * 8kBytes sectors */
-	{ 31, 64*1024 } /* 31 * 64kBytes sectors */
+	{  8,  8*1024 },	/*   8 *  8 kBytes sectors */
+	{ 31, 64*1024 },	/*  31 * 64 kBytes sectors */
 };
 
-
-#define FLASH_BANK_SIZE 0x200000	/* 2 MB */
-#define MAIN_SECT_SIZE  0x10000		/* 64 KB */
+OrgDef OrgAT49BV6416[] =
+{
+	{   8,  8*1024 },	/*   8 *  8 kBytes sectors */
+	{ 127, 64*1024 },	/* 127 * 64 kBytes sectors */
+};
 
 flash_info_t    flash_info[CFG_MAX_FLASH_BANKS];
 
@@ -73,12 +75,10 @@ flash_info_t    flash_info[CFG_MAX_FLASH_BANKS];
 #define CMD_ERASE_CONFIRM	0x0030
 #define CMD_PROGRAM		0x00A0
 #define CMD_UNLOCK_BYPASS	0x0020
+#define CMD_SECTOR_UNLOCK	0x0070
 
 #define MEM_FLASH_ADDR1		(*(volatile u16 *)(CFG_FLASH_BASE + (0x00005555<<1)))
 #define MEM_FLASH_ADDR2		(*(volatile u16 *)(CFG_FLASH_BASE + (0x00002AAA<<1)))
-
-#define IDENT_FLASH_ADDR1	(*(volatile u16 *)(CFG_FLASH_BASE + (0x0000555<<1)))
-#define IDENT_FLASH_ADDR2	(*(volatile u16 *)(CFG_FLASH_BASE + (0x0000AAA<<1)))
 
 #define BIT_ERASE_DONE		0x0080
 #define BIT_RDY_MASK		0x0080
@@ -95,17 +95,17 @@ void flash_identification (flash_info_t * info)
 {
 	volatile u16 manuf_code, device_code, add_device_code;
 
-	IDENT_FLASH_ADDR1 = FLASH_CODE1;
-	IDENT_FLASH_ADDR2 = FLASH_CODE2;
-	IDENT_FLASH_ADDR1 = ID_IN_CODE;
+	MEM_FLASH_ADDR1 = FLASH_CODE1;
+	MEM_FLASH_ADDR2 = FLASH_CODE2;
+	MEM_FLASH_ADDR1 = ID_IN_CODE;
 
 	manuf_code = *(volatile u16 *) CFG_FLASH_BASE;
 	device_code = *(volatile u16 *) (CFG_FLASH_BASE + 2);
 	add_device_code = *(volatile u16 *) (CFG_FLASH_BASE + (3 << 1));
 
-	IDENT_FLASH_ADDR1 = FLASH_CODE1;
-	IDENT_FLASH_ADDR2 = FLASH_CODE2;
-	IDENT_FLASH_ADDR1 = ID_OUT_CODE;
+	MEM_FLASH_ADDR1 = FLASH_CODE1;
+	MEM_FLASH_ADDR2 = FLASH_CODE2;
+	MEM_FLASH_ADDR1 = ID_OUT_CODE;
 
 	/* Vendor type */
 	info->flash_id = ATM_MANUFACT & FLASH_VENDMASK;
@@ -117,12 +117,34 @@ void flash_identification (flash_info_t * info)
 			(ATM_ID_BV1614A & FLASH_TYPEMASK)) {
 			info->flash_id |= ATM_ID_BV1614A & FLASH_TYPEMASK;
 			printf ("AT49BV1614A (16Mbit)\n");
+		} else {				/* AT49BV1614 Flash */
+			info->flash_id |= ATM_ID_BV1614 & FLASH_TYPEMASK;
+			printf ("AT49BV1614 (16Mbit)\n");
 		}
 
-	} else {				/* AT49BV1614 Flash */
-		info->flash_id |= ATM_ID_BV1614 & FLASH_TYPEMASK;
-		printf ("AT49BV1614 (16Mbit)\n");
+	} else if ((device_code & FLASH_TYPEMASK) == (ATM_ID_BV6416 & FLASH_TYPEMASK)) {
+		info->flash_id |= ATM_ID_BV6416 & FLASH_TYPEMASK;
+		printf ("AT49BV6416 (64Mbit)\n");
 	}
+}
+
+ushort flash_number_sector(OrgDef *pOrgDef, unsigned int nb_blocks)
+{
+	int i, nb_sectors = 0;
+
+	for (i=0; i<nb_blocks; i++){
+		nb_sectors += pOrgDef[i].sector_number;
+	}
+
+	return nb_sectors;
+}
+
+void flash_unlock_sector(flash_info_t * info, unsigned int sector)
+{
+	volatile u16 *addr = (volatile u16 *) (info->start[sector]);
+
+	MEM_FLASH_ADDR1 = CMD_UNLOCK1;
+	*addr = CMD_SECTOR_UNLOCK;
 }
 
 
@@ -140,22 +162,28 @@ ulong flash_init (void)
 
 		flash_identification (&flash_info[i]);
 
-		flash_info[i].size = FLASH_BANK_SIZE;
-
 		if ((flash_info[i].flash_id & FLASH_TYPEMASK) ==
 			(ATM_ID_BV1614 & FLASH_TYPEMASK)) {
-			flash_info[i].sector_count = CFG_MAX_FLASH_SECT;
-			memset (flash_info[i].protect, 0, CFG_MAX_FLASH_SECT);
 
 			pOrgDef = OrgAT49BV16x4;
 			flash_nb_blocks = sizeof (OrgAT49BV16x4) / sizeof (OrgDef);
-		} else {			/* AT49BV1614A Flash */
-			flash_info[i].sector_count = CFG_MAX_FLASH_SECT - 1;
-			memset (flash_info[i].protect, 0, CFG_MAX_FLASH_SECT - 1);
+		} else if ((flash_info[i].flash_id & FLASH_TYPEMASK) ==
+			(ATM_ID_BV1614A & FLASH_TYPEMASK)){	/* AT49BV1614A Flash */
 
 			pOrgDef = OrgAT49BV16x4A;
 			flash_nb_blocks = sizeof (OrgAT49BV16x4A) / sizeof (OrgDef);
+		} else if ((flash_info[i].flash_id & FLASH_TYPEMASK) ==
+			(ATM_ID_BV6416 & FLASH_TYPEMASK)){	/* AT49BV6416 Flash */
+
+			pOrgDef = OrgAT49BV6416;
+			flash_nb_blocks = sizeof (OrgAT49BV6416) / sizeof (OrgDef);
+		} else {
+			flash_nb_blocks = 0;
+			pOrgDef = OrgAT49BV16x4;
 		}
+
+		flash_info[i].sector_count = flash_number_sector(pOrgDef, flash_nb_blocks);
+		memset (flash_info[i].protect, 0, flash_info[i].sector_count);
 
 		if (i == 0)
 			flashbase = PHYS_FLASH_1;
@@ -164,15 +192,26 @@ ulong flash_init (void)
 
 		sector = 0;
 		start_address = flashbase;
+		flash_info[i].size = 0;
 
 		for (j = 0; j < flash_nb_blocks; j++) {
 			for (k = 0; k < pOrgDef[j].sector_number; k++) {
 				flash_info[i].start[sector++] = start_address;
 				start_address += pOrgDef[j].sector_size;
+				flash_info[i].size += pOrgDef[j].sector_size;
 			}
 		}
 
 		size += flash_info[i].size;
+
+		if ((flash_info[i].flash_id & FLASH_TYPEMASK) ==
+			(ATM_ID_BV6416 & FLASH_TYPEMASK)){	/* AT49BV6416 Flash */
+
+			/* Unlock all sectors at reset */
+			for (j=0; j<flash_info[i].sector_count; j++){
+				flash_unlock_sector(&flash_info[i], j);
+			}
+		}
 	}
 
 	/* Protect binary boot image */
@@ -215,6 +254,9 @@ void flash_print_info (flash_info_t * info)
 	case (ATM_ID_BV1614A & FLASH_TYPEMASK):
 		printf ("AT49BV1614A (16Mbit)\n");
 		break;
+	case (ATM_ID_BV6416 & FLASH_TYPEMASK):
+		printf ("AT49BV6416 (64Mbit)\n");
+		break;
 	default:
 		printf ("Unknown Chip Type\n");
 		goto Done;
@@ -234,7 +276,7 @@ void flash_print_info (flash_info_t * info)
 	}
 	printf ("\n");
 
-  Done:
+Done:	;
 }
 
 /*-----------------------------------------------------------------------
