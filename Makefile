@@ -187,7 +187,7 @@ endif
 #########################################################################
 
 unconfig:
-	rm -f include/config.h include/config.mk board/*/config.tmp
+	@rm -f include/config.h include/config.mk board/*/config.tmp
 
 #========================================================================
 # PowerPC
@@ -217,13 +217,17 @@ icecube_5200_config		\
 IceCube_5200_config		\
 IceCube_5100_config:		unconfig
 	@ >include/config.h
-	@[ -z "$(findstring LOWBOOT,$@)" ] || \
-		{ echo "TEXT_BASE = 0xFF000000" >board/icecube/config.tmp ; \
+	@[ -z "$(findstring LOWBOOT_,$@)" ] || \
+		{ if [ "$(findstring DDR,$@)" ] ; \
+			then echo "TEXT_BASE = 0xFF800000" >board/icecube/config.tmp ; \
+			else echo "TEXT_BASE = 0xFF000000" >board/icecube/config.tmp ; \
+		  fi ; \
 		  echo "... with LOWBOOT configuration" ; \
 		}
 	@[ -z "$(findstring LOWBOOT08,$@)" ] || \
 		{ echo "TEXT_BASE = 0xFF800000" >board/icecube/config.tmp ; \
 		  echo "... with 8 MB flash only" ; \
+		  echo "... with LOWBOOT configuration" ; \
 		}
 	@[ -z "$(findstring DDR,$@)" ] || \
 		{ echo "#define CONFIG_MPC5200_DDR"	>>include/config.h ; \

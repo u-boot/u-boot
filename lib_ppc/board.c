@@ -84,7 +84,9 @@ void nand_init (void);
 
 static char *failed = "*** failed ***\n";
 
+#if defined(CONFIG_OXC) || defined(CONFIG_PCU_E) || defined(CONFIG_RMU)
 extern flash_info_t flash_info[];
+#endif
 
 #include <environment.h>
 
