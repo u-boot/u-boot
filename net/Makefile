@@ -27,7 +27,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= libnet.a
 
-OBJS	= net.o tftp.o bootp.o rarp.o eth.o nfs.o
+OBJS	= net.o tftp.o bootp.o rarp.o eth.o nfs.o sntp.o
 all:	$(LIB)
 
 $(LIB):	$(START) $(OBJS)

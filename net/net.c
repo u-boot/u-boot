@@ -64,6 +64,13 @@
  *			  derived from our own IP address)
  *	We want:	- load the boot file
  *	Next step:	none
+ *
+ * SNTP:
+ *
+ *	Prerequisites:  - own ethernet address
+ *			- own IP address
+ *	We want:	- network time
+ *	Next step:	none
  */
 
 
@@ -78,6 +85,9 @@
 #ifdef CONFIG_STATUS_LED
 #include <status_led.h>
 #include <miiphy.h>
+#endif
+#if (CONFIG_COMMANDS & CFG_CMD_SNTP)
+#include "sntp.h"
 #endif
 
 #if (CONFIG_COMMANDS & CFG_CMD_NET)
@@ -146,6 +156,11 @@ static void PingStart(void);
 
 #if (CONFIG_COMMANDS & CFG_CMD_CDP)
 static void CDPStart(void);
+#endif
+
+#if (CONFIG_COMMANDS & CFG_CMD_SNTP)
+IPaddr_t	NetNtpServerIP;		/* NTP server IP address		*/
+int		NetTimeOffset=0;	/* offset time from UTC			*/
 #endif
 
 #ifdef CONFIG_NETCONSOLE
@@ -313,6 +328,9 @@ restart:
 #if (CONFIG_COMMANDS & CFG_CMD_PING)
 	case PING:
 #endif
+#if (CONFIG_COMMANDS & CFG_CMD_SNTP)
+	case SNTP:
+#endif
 	case NETCONS:
 	case TFTP:
 		NetCopyIP(&NetOurIP, &bd->bi_ip_addr);
@@ -331,6 +349,11 @@ restart:
 			break;
 #if (CONFIG_COMMANDS & CFG_CMD_PING)
 		case PING:
+			/* nothing */
+			break;
+#endif
+#if (CONFIG_COMMANDS & CFG_CMD_SNTP)
+		case SNTP:
 			/* nothing */
 			break;
 #endif
@@ -415,6 +438,11 @@ restart:
 #ifdef CONFIG_NETCONSOLE
 		case NETCONS:
 			NcStart();
+			break;
+#endif
+#if (CONFIG_COMMANDS & CFG_CMD_SNTP)
+		case SNTP:
+			SntpStart();
 			break;
 #endif
 		default:
@@ -1426,6 +1454,14 @@ static int net_check_prereq (proto_t protocol)
 		}
 		goto common;
 #endif
+#if (CONFIG_COMMANDS & CFG_CMD_SNTP)
+	case SNTP:
+		if (NetNtpServerIP == 0) {
+			puts ("*** ERROR: NTP server address not given\n");
+			return (1);
+		}
+		goto common;
+#endif
 #if (CONFIG_COMMANDS & CFG_CMD_NFS)
 	case NFS:
 #endif
@@ -1435,7 +1471,7 @@ static int net_check_prereq (proto_t protocol)
 			puts ("*** ERROR: `serverip' not set\n");
 			return (1);
 		}
-#if (CONFIG_COMMANDS & CFG_CMD_PING)
+#if (CONFIG_COMMANDS & (CFG_CMD_PING | CFG_CMD_SNTP))
 	      common:
 #endif
 

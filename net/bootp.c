@@ -448,6 +448,10 @@ static int DhcpExtended (u8 * e, int message_type, IPaddr_t ServerID, IPaddr_t R
 	*e++  = 1;		/* Subnet Mask */
 	*cnt += 1;
 #endif
+#if (CONFIG_BOOTP_MASK & CONFIG_BOOTP_TIMEOFFSET)
+	*e++  = 2;
+	*cnt += 1;
+#endif
 #if (CONFIG_BOOTP_MASK & CONFIG_BOOTP_GATEWAY)
 	*e++  = 3;		/* Router Option */
 	*cnt += 1;
@@ -470,6 +474,10 @@ static int DhcpExtended (u8 * e, int message_type, IPaddr_t ServerID, IPaddr_t R
 #endif
 #if (CONFIG_BOOTP_MASK & CONFIG_BOOTP_NISDOMAIN)
 	*e++  = 40;		/* NIS Domain name request */
+	*cnt += 1;
+#endif
+#if (CONFIG_BOOTP_MASK & CONFIG_BOOTP_NTPSERVER)
+	*e++  = 42;
 	*cnt += 1;
 #endif
 	*e++  = 255;		/* End of the list */
@@ -718,6 +726,12 @@ static void DhcpOptionsProcess (uchar * popt)
 		case 1:
 			NetCopyIP (&NetOurSubnetMask, (popt + 2));
 			break;
+#if (CONFIG_BOOTP_MASK & CONFIG_BOOTP_TIMEOFFSET)
+		case 2:		/* Time offset	*/
+			NetCopyLong (&NetTimeOffset, (ulong *) (popt + 2));
+			NetTimeOffset = ntohl (NetTimeOffset);
+			break;
+#endif
 		case 3:
 			NetCopyIP (&NetOurGatewayIP, (popt + 2));
 			break;
@@ -741,6 +755,11 @@ static void DhcpOptionsProcess (uchar * popt)
 			memcpy (&NetOurRootPath, popt + 2, size);
 			NetOurRootPath[size] = 0;
 			break;
+#if (CONFIG_BOOTP_MASK & CONFIG_BOOTP_NTPSERVER)
+		case 42:	/* NTP server IP */
+			NetCopyIP (&NetNtpServerIP, (popt + 2));
+			break;
+#endif
 		case 51:
 			NetCopyLong (&dhcp_leasetime, (ulong *) (popt + 2));
 			break;

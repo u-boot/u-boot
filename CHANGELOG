@@ -2,6 +2,13 @@
 Changes for U-Boot 1.1.3:
 ======================================================================
 
+* Patch by Masami Komiya, 30 Mar 2005:
+  add SNTP support and expand time server and time offset fields of
+  DHCP support. See doc/README.SNTP
+
+* Patch by Steven Scholz, 13 Dec 2004:
+  Fix bug in at91rm920 ethernet driver
+
 * Patch by Steven Scholz, 13 Dec 2004:
   Remove duplicated code by merging memsetup.S files for
   at91rm9200 boards into one cpu/at91rm9200/lowlevel.S
