@@ -238,10 +238,15 @@ int testdram (void)
 /* ------------------------------------------------------------------------- */
 
 #if (CONFIG_COMMANDS & CFG_CMD_NAND)
-extern void nand_probe(ulong physadr);
+#include <linux/mtd/nand.h>
+extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];
+
 void nand_init(void)
 {
-	printf("Probing at 0x%.8x\n", CFG_NAND_BASE);
 	nand_probe(CFG_NAND_BASE);
+	if (nand_dev_desc[0].ChipID != NAND_ChipID_UNKNOWN) {
+		puts("NAND:  ");
+		print_size(nand_dev_desc[0].totlen, "\n");
+	}
 }
 #endif
