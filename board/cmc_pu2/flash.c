@@ -37,11 +37,11 @@ flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
 typedef unsigned short FLASH_PORT_WIDTH;
 typedef volatile unsigned short FLASH_PORT_WIDTHV;
 
-#define FPW	FLASH_PORT_WIDTH
-#define FPWV	FLASH_PORT_WIDTHV
+#define FPW  FLASH_PORT_WIDTH
+#define FPWV FLASH_PORT_WIDTHV
 
 #define FLASH_CYCLE1	0x0555
-#define FLASH_CYCLE2	0x02aa
+#define FLASH_CYCLE2	0x02AA
 
 /*-----------------------------------------------------------------------
  * Functions
@@ -96,9 +96,9 @@ static void flash_reset(flash_info_t *info)
 
 	/* Put FLASH back in read mode */
 	if ((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_INTEL)
-		*base = (FPW)0x00FF00FF;	/* Intel Read Mode */
+		*base = (FPW)0x00FF;	/* Intel Read Mode */
 	else if ((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_AMD)
-		*base = (FPW)0x00F000F0;	/* AMD Read Mode */
+		*base = (FPW)0x00F0;	/* AMD Read Mode */
 }
 
 /*-----------------------------------------------------------------------
@@ -183,9 +183,9 @@ ulong flash_get_size (FPWV *addr, flash_info_t *info)
 
 	/* Write auto select command: read Manufacturer ID */
 	/* Write auto select command sequence and test FLASH answer */
-	addr[FLASH_CYCLE1] = (FPW)0x00AA00AA;	/* for AMD, Intel ignores this */
-	addr[FLASH_CYCLE2] = (FPW)0x00550055;	/* for AMD, Intel ignores this */
-	addr[FLASH_CYCLE1] = (FPW)0x00900090;	/* selects Intel or AMD */
+	addr[FLASH_CYCLE1] = (FPW)0x00AA;	/* for AMD, Intel ignores this */
+	addr[FLASH_CYCLE2] = (FPW)0x0055;	/* for AMD, Intel ignores this */
+	addr[FLASH_CYCLE1] = (FPW)0x0090;	/* selects Intel or AMD */
 
 	/* The manufacturer codes are only 1 byte, so just use 1 byte.
 	 * This works for any bus width and any FLASH device width.
@@ -262,7 +262,7 @@ ulong flash_get_size (FPWV *addr, flash_info_t *info)
 int	flash_erase (flash_info_t *info, int s_first, int s_last)
 {
 	FPWV *addr = (FPWV *)(info->start[0]);
-	int flag, prot, sect, l_sect;
+	int flag, prot, sect, ssect, l_sect;
 	ulong start, now, last;
 
 	printf ("flash_erase: first: %d last: %d\n", s_first, s_last);
@@ -297,58 +297,70 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 		printf ("\n");
 	}
 
-	l_sect = -1;
-
 	/* Disable interrupts which might cause a timeout here */
 	flag = disable_interrupts();
 
-	addr[0x0555] = 0x00AA;
-	addr[0x02AA] = 0x0055;
-	addr[0x0555] = 0x0080;
-	addr[0x0555] = 0x00AA;
-	addr[0x02AA] = 0x0055;
+	/*
+	 * Start erase on unprotected sectors.
+	 * Since the flash can erase multiple sectors with one command
+	 * we take advantage of that by doing the erase in chunks of
+	 * 3 sectors.
+	 */
+	for (sect = s_first; sect <= s_last; ) {
+		l_sect = -1;
 
-	/* Start erase on unprotected sectors */
-	for (sect = s_first; sect<=s_last; sect++) {
-		if (info->protect[sect] == 0) {	/* not protected */
-			addr = (FPWV *)(info->start[sect]);
-			addr[0] = 0x0030;
-			l_sect = sect;
+		addr[FLASH_CYCLE1] = 0x00AA;
+		addr[FLASH_CYCLE2] = 0x0055;
+		addr[FLASH_CYCLE1] = 0x0080;
+		addr[FLASH_CYCLE1] = 0x00AA;
+		addr[FLASH_CYCLE2] = 0x0055;
+
+		/* do the erase in chunks of at most 3 sectors */
+		for (ssect = 0; ssect < 3; ssect++) {
+			if ((sect + ssect) > s_last)
+				break;
+			if (info->protect[sect + ssect] == 0) {	/* not protected */
+				addr = (FPWV *)(info->start[sect + ssect]);
+				addr[0] = 0x0030;
+				l_sect = sect + ssect;
+			}
 		}
+		/* wait at least 80us - let's wait 1 ms */
+		udelay (1000);
+
+		/*
+		 * We wait for the last triggered sector
+		 */
+		if (l_sect < 0)
+			goto DONE;
+
+		start = get_timer (0);
+		last  = start;
+		addr = (FPWV *)(info->start[l_sect]);
+		while ((addr[0] & 0x0080) != 0x0080) {
+			if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+				printf ("Timeout\n");
+				return 1;
+			}
+			/* show that we're waiting */
+			if ((now - last) > 1000) {	/* every second */
+				putc ('.');
+				last = now;
+			}
+		}
+		addr = (FPWV *)info->start[0];
+		addr[0] = 0x00F0;	/* reset bank */
+		sect += ssect;
 	}
 
 	/* re-enable interrupts if necessary */
 	if (flag)
 		enable_interrupts();
 
-	/* wait at least 80us - let's wait 1 ms */
-	udelay (1000);
-
-	/*
-	 * We wait for the last triggered sector
-	 */
-	if (l_sect < 0)
-		goto DONE;
-
-	start = get_timer (0);
-	last  = start;
-	addr = (FPWV *)(info->start[l_sect]);
-	while ((addr[0] & 0x00000080) != 0x00000080) {
-		if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
-			printf ("Timeout\n");
-			return 1;
-		}
-		/* show that we're waiting */
-		if ((now - last) > 1000) {	/* every second */
-			putc ('.');
-			last = now;
-		}
-		}
-
 DONE:
 	/* reset to read mode */
 	addr = (FPWV *)info->start[0];
-	addr[0] = 0x000000F0;	/* reset bank */
+	addr[0] = 0x00F0;	/* reset bank */
 
 	printf (" done\n");
 	return 0;
@@ -432,9 +444,9 @@ static int write_word_amd (flash_info_t *info, FPWV *dest, FPW data)
 	/* Disable interrupts which might cause a timeout here */
 	flag = disable_interrupts();
 
-	base[FLASH_CYCLE1] = (FPW)0x00AA00AA;	/* unlock */
-	base[FLASH_CYCLE2] = (FPW)0x00550055;	/* unlock */
-	base[FLASH_CYCLE1] = (FPW)0x00A000A0;	/* selects program mode */
+	base[FLASH_CYCLE1] = (FPW)0x00AA;	/* unlock */
+	base[FLASH_CYCLE2] = (FPW)0x0055;	/* unlock */
+	base[FLASH_CYCLE1] = (FPW)0x00A0;	/* selects program mode */
 
 	*dest = data;		/* start programming the data	*/
 
@@ -445,9 +457,9 @@ static int write_word_amd (flash_info_t *info, FPWV *dest, FPW data)
 	start = get_timer (0);
 
 	/* data polling for D7 */
-	while ((*dest & (FPW)0x00000080) != (data & (FPW)0x00000080)) {
+	while ((*dest & (FPW)0x0080) != (data & (FPW)0x0080)) {
 		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
-			*dest = (FPW)0x000000F0;	/* reset bank */
+			*dest = (FPW)0x00F0;	/* reset bank */
 			return (1);
 		}
 	}

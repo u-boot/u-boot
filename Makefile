@@ -1197,11 +1197,11 @@ xtract_omap1610xxx = $(subst _cs0boot,,$(subst _cs3boot,,$(subst _cs_autoboot,,$
 
 xtract_omap730p2 = $(subst _cs0boot,,$(subst _cs3boot,, $(subst _config,,$1)))
 
-integratorcp_config :	unconfig
-	@./mkconfig $(@:_config=) arm arm926ejs integratorcp
-
 integratorap_config :	unconfig
 	@./mkconfig $(@:_config=) arm arm926ejs integratorap
+
+integratorcp_config :	unconfig
+	@./mkconfig $(@:_config=) arm arm926ejs integratorcp
 
 lpd7a400_config \
 lpd7a404_config:	unconfig

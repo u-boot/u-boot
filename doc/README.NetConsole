@@ -25,7 +25,7 @@ nc -u ${TARGET_IP} 6666
 stty icanon echo intr ^C
 +++++++++++++++++++++++++++++++++++++++++++
 
-It turned out that 'netcat' couldn't be used to listen to broadcast
+It turns out that 'netcat' cannot be used to listen to broadcast
 packets. We developed our own tool 'ncb' (see tools directory) that
 listens to broadcast packets on a given port and dumps them to the
 standard output. use it as follows:
@@ -87,3 +87,6 @@ To browse the Linux network console output, use the 'netcat' tool invoked
 as follows:
 
 	nc -u -l -p 6666
+
+Note that unlike the U-Boot implementation the Linux netconsole is
+unidirectional, i. e. you have console output only in Linux.

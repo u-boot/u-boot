@@ -1977,9 +1977,9 @@ Low Level (hardware related) configuration options:
 		source code. It is used to make hardware dependant
 		initializations.
 
-- CFG_IMMR:	Physical address of the Internal Memory Mapped
-		Register; DO NOT CHANGE! (11-4)
-		[MPC8xx systems only]
+- CFG_IMMR:	Physical address of the Internal Memory.
+                DO NOT CHANGE unless you know exactly what you're
+		doing! (11-4) [MPC8xx/82xx systems only]
 
 - CFG_INIT_RAM_ADDR:
 

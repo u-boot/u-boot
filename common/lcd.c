@@ -620,6 +620,8 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 		cmap = (ushort *)fbi->palette;
 #elif defined(CONFIG_MPC823)
 		cmap = (ushort *)&(cp->lcd_cmap[255*sizeof(ushort)]);
+#else
+# error "Don't know location of color map"
 #endif
 
 		/* Set color map */
@@ -631,9 +633,14 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 				( (cte.blue) & 0x001f) ;
 
 #ifdef CFG_INVERT_COLORS
-			*cmap++ = 0xffff - colreg;
+			*cmap = 0xffff - colreg;
 #else
-			*cmap++ = colreg;
+			*cmap = colreg;
+#endif
+#if defined(CONFIG_PXA250)
+			cmap++;
+#elif defined(CONFIG_MPC823)
+			cmap--;
 #endif
 		}
 	}
