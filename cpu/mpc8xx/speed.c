@@ -25,6 +25,8 @@
 #include <mpc8xx.h>
 #include <asm/processor.h>
 
+#ifndef CONFIG_TQM866M
+
 #define PITC_SHIFT 16
 #define PITR_SHIFT 16
 /* pitc values to time for 58/8192 seconds (about 70.8 milliseconds) */
@@ -202,5 +204,118 @@ int get_clocks (void)
 
 	return (0);
 }
+
+#else /* CONFIG_MPC866_et_al */
+
+static long init_pll_866 (long clk);
+
+/* This function sets up PLL (init_pll_866() is called) and
+ * fills gd->cpu_clk and gd->bus_clk according to the environment
+ * variable 'cpuclk' or to CFG_866_CPUCLK_DEFAULT (if 'cpuclk'
+ * contains invalid value).
+ * This functions requires an MPC866 series CPU.
+ */
+int get_clocks_866 (void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+
+	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	char              tmp[64];
+	long              cpuclk = 0;
+
+	if (getenv_r ("cpuclk", tmp, sizeof (tmp)) > 0)
+		cpuclk = simple_strtoul (tmp, NULL, 10) * 1000000;
+
+	if ((CFG_866_CPUCLK_MIN > cpuclk) || (CFG_866_CPUCLK_MAX < cpuclk))
+		cpuclk = CFG_866_CPUCLK_DEFAULT;
+
+	gd->cpu_clk = init_pll_866 (cpuclk);
+
+	if ((immr->im_clkrst.car_sccr & SCCR_EBDF11) == 0)
+		gd->bus_clk = gd->cpu_clk;
+	else
+		gd->bus_clk = gd->cpu_clk / 2;
+
+	return (0);
+}
+
+/* Adjust sdram refresh rate to actual CPU clock.
+ */
+int sdram_adjust_866 (void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+
+	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	long              mamr;
+
+	mamr = immr->im_memctl.memc_mamr;
+	mamr &= ~MAMR_PTA_MSK;
+	mamr |= ((gd->cpu_clk / CFG_866_PTA_PER_CLK) << MAMR_PTA_SHIFT);
+	immr->im_memctl.memc_mamr = mamr;
+
+	return (0);
+}
+
+/* Configure PLL for MPC866/859 CPU series
+ * PLL multiplication factor is set to the value nearest to the desired clk,
+ * assuming a oscclk of 10 MHz.
+ */
+static long init_pll_866 (long clk)
+{
+	extern void plprcr_write_866 (long);
+
+	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	long              n, plprcr;
+	char              mfi, mfn, mfd, s, pdf;
+	long              step_mfi, step_mfn;
+
+	pdf = 0;
+	if (clk < 80000000) {
+		s = 1;
+		step_mfi = CFG_866_OSCCLK / 2;
+		mfd = 14;
+		step_mfn = CFG_866_OSCCLK / 30;
+	} else {
+		s = 0;
+		step_mfi = CFG_866_OSCCLK;
+		mfd = 29;
+		step_mfn = CFG_866_OSCCLK / 30;
+	}
+
+	/* Calculate integer part of multiplication factor
+	 */
+	n = clk / step_mfi;
+	mfi = (char)n;
+
+	/* Calculate numerator of fractional part of multiplication factor
+	 */
+	n = clk - (n * step_mfi);
+	mfn = (char)(n / step_mfn);
+
+	/* Calculate effective clk
+	 */
+	n = (mfi * step_mfi) + (mfn * step_mfn);
+
+	immr->im_clkrstk.cark_plprcrk = KAPWR_KEY;
+
+	plprcr = (immr->im_clkrst.car_plprcr & ~(PLPRCR_MFN_MSK
+			| PLPRCR_MFD_MSK | PLPRCR_S_MSK
+			| PLPRCR_MFI_MSK | PLPRCR_DBRMO))
+			| (mfn << PLPRCR_MFN_SHIFT)
+			| (mfd << PLPRCR_MFD_SHIFT)
+			| (s << PLPRCR_S_SHIFT)
+			| (mfi << PLPRCR_MFI_SHIFT)
+			| (pdf << PLPRCR_PDF_SHIFT);
+
+	if( (mfn > 0) && ((mfd / mfn) > 10) )
+		plprcr |= PLPRCR_DBRMO;
+
+	plprcr_write_866 (plprcr);		/* set value using SIU4/9 workaround */
+	immr->im_clkrstk.cark_plprcrk = 0x00000000;
+
+	return (n);
+}
+
+#endif /* CONFIG_MPC866_et_al */
 
 /* ------------------------------------------------------------------------- */

@@ -2,6 +2,13 @@
 Changes since U-Boot 1.0.1:
 ======================================================================
 
+* Add variable CPU clock for MPC859/866 systems (so far only TQM866M):
+  see doc/README.MPC866 for details;
+  implement workaround for "SIU4" and "SIU9" silicon bugs on MPC866;
+  calculate CPU clock frequency from PLL register values.
+
+* Add support for 128 MB RAM on TQM8xxL/M modules
+
 * Fix PS/2 keyboard problem caused by statically initialized variable
   pointing to a location in flash
 

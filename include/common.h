@@ -355,6 +355,8 @@ int	serial_tstc   (void);
 
 /* $(CPU)/speed.c */
 int	get_clocks (void);
+int	get_clocks_866 (void);
+int	sdram_adjust_866 (void);
 #if defined(CONFIG_8260)
 int	prt_8260_clks (void);
 #endif

@@ -483,11 +483,7 @@ TQM862M_config		\
 TQM862M_66MHz_config	\
 TQM862M_80MHz_config	\
 TQM862M_100MHz_config	\
-TQM866M_config		\
-TQM866M_66MHz_config	\
-TQM866M_80MHz_config	\
-TQM866M_100MHz_config	\
-TQM866M_133MHz_config:	unconfig
+TQM866M_config:		unconfig
 	@ >include/config.h
 	@[ -z "$(findstring _66MHz,$@)" ] || \
 		{ echo "#define CONFIG_66MHz"		>>include/config.h ; \

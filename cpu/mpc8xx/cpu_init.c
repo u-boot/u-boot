@@ -42,7 +42,9 @@ void cpu_init_f (volatile immap_t * immr)
 {
 #ifndef CONFIG_MBX
 	volatile memctl8xx_t *memctl = &immr->im_memctl;
+# ifdef CFG_PLPRCR
 	ulong mfmask;
+# endif
 #endif
 	ulong reg;
 
@@ -92,6 +94,7 @@ void cpu_init_f (volatile immap_t * immr)
 	 *
 	 * For newer (starting MPC866) chips PLPRCR layout is different.
 	 */
+#ifdef CFG_PLPRCR
 	if (get_immr(0xFFFF) >= MPC8xx_NEW_CLK)
 	   mfmask = PLPRCR_MFACT_MSK;
 	else
@@ -105,6 +108,7 @@ void cpu_init_f (volatile immap_t * immr)
 	   reg |= CFG_PLPRCR;			/* reset control bits   */
 	}
 	immr->im_clkrst.car_plprcr = reg;
+#endif
 
 	/*
 	 * Memory Controller:

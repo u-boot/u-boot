@@ -260,8 +260,11 @@ init_fnc_t *init_sequence[] = {
 #if defined(CONFIG_BOARD_EARLY_INIT_F)
 	board_early_init_f,
 #endif
+
+#if !defined(CONFIG_TQM866M)
 	get_clocks,		/* get CPU and bus clocks (etc.) */
 	init_timebase,
+#endif
 #ifdef CFG_ALLOC_DPRAM
 #if !(defined(CONFIG_8260) || defined(CONFIG_MPC8560))
 	dpram_init,
@@ -271,6 +274,11 @@ init_fnc_t *init_sequence[] = {
 	board_postclk_init,
 #endif
 	env_init,
+#if defined(CONFIG_TQM866M)
+	get_clocks_866,		/* get CPU and bus clocks according to the environment variable */
+	sdram_adjust_866,	/* adjust sdram refresh rate according to the new clock */
+	init_timebase,
+#endif
 	init_baudrate,
 	serial_init,
 	console_init_f,
@@ -741,7 +749,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #endif
 
 #if defined(CFG_GT_6426x) || defined(CONFIG_PN62) || defined(CONFIG_PPCHAMELEONEVB) || \
-     defined(CONFIG_MPC8540ADS) || defined(CONFIG_MPC8560ADS)
+    defined(CONFIG_MPC8540ADS) || defined(CONFIG_MPC8560ADS)
 	/* handle the 2nd ethernet address */
 
 	s = getenv ("eth1addr");

@@ -128,6 +128,14 @@ int checkboard (void)
 			break;
 		putc (*s);
 	}
+#if defined(CFG_866_CPUCLK_MIN) && defined(CFG_866_CPUCLK_MAX)
+	printf ("  [%d.%d...%d.%d MHz]",
+		CFG_866_CPUCLK_MIN / 1000000,
+		((CFG_866_CPUCLK_MIN % 1000000) + 50000) / 100000,
+		CFG_866_CPUCLK_MAX / 1000000,
+		((CFG_866_CPUCLK_MAX % 1000000) + 50000) / 100000
+	);
+#endif
 	putc ('\n');
 
 	return (0);
@@ -139,7 +147,7 @@ long int initdram (int board_type)
 {
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
-	long int size8, size9;
+	long int size8, size9, size10;
 	long int size_b0 = 0;
 	long int size_b1 = 0;
 
@@ -228,9 +236,26 @@ long int initdram (int board_type)
 					   SDRAM_MAX_SIZE);
 	debug ("SDRAM Bank 0 in 9 column mode: %ld MB\n", size9 >> 20);
 
-	if (size8 < size9) {		/* leave configuration at 9 columns */
+	udelay(1000);
+
+#if defined(CFG_MAMR_10COL)
+	/*
+	 * try 10 column mode
+	 */
+	size10 = dram_size (CFG_MAMR_10COL, (ulong *) SDRAM_BASE2_PRELIM,
+					     SDRAM_MAX_SIZE);
+	debug ("SDRAM Bank 0 in 10 column mode: %ld MB\n", size10 >> 20);
+#else
+	size10 = 0;
+#endif /* CFG_MAMR_10COL */
+
+	if ((size8 < size10) && (size9 < size10)) {
+		size_b0 = size10;
+	} else if ((size8 < size9) && (size10 < size9)) {
 		size_b0 = size9;
-	} else {					/* back to 8 columns            */
+		memctl->memc_mamr = CFG_MAMR_9COL;
+		udelay (500);
+	} else {
 		size_b0 = size8;
 		memctl->memc_mamr = CFG_MAMR_8COL;
 		udelay (500);
@@ -272,18 +297,15 @@ long int initdram (int board_type)
 	if (size_b1 > size_b0) {	/* SDRAM Bank 1 is bigger - map first   */
 
 		memctl->memc_or3 = ((-size_b1) & 0xFFFF0000) | CFG_OR_TIMING_SDRAM;
-		memctl->memc_br3 =
-				(CFG_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V;
+		memctl->memc_br3 = (CFG_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V;
 
 		if (size_b0 > 0) {
 			/*
 			 * Position Bank 0 immediately above Bank 1
 			 */
-			memctl->memc_or2 =
-					((-size_b0) & 0xFFFF0000) | CFG_OR_TIMING_SDRAM;
-			memctl->memc_br2 =
-					((CFG_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V)
-					+ size_b1;
+			memctl->memc_or2 = ((-size_b0) & 0xFFFF0000) | CFG_OR_TIMING_SDRAM;
+			memctl->memc_br2 = ((CFG_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V)
+					   + size_b1;
 		} else {
 			unsigned long reg;
 

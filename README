@@ -3158,7 +3158,7 @@ Please note that U-Boot is implemented in C (and to some small parts
 in Assembler); no C++ is used, so please do not use C++ style
 comments (//) in your code.
 
-Please also stick to the following formatiing rules:
+Please also stick to the following formatting rules:
 - remove any trailing white space
 - use TAB characters for indentation, not spaces
 - make sure NOT to use DOS '\r\n' line feeds

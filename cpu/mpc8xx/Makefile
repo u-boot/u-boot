@@ -32,16 +32,17 @@ OBJS	= bedbug_860.o commproc.o cpu.o cpu_init.o	\
 	  fec.o i2c.o interrupts.o lcd.o scc.o		\
 	  serial.o speed.o spi.o \
 	  traps.o upatch.o video.o
+SOBJS	= plprcr_write.o
 
 all:	.depend $(START) $(LIB)
 
-$(LIB):	$(OBJS)
-	$(AR) crv $@ $(OBJS) kgdb.o
+$(LIB):	$(OBJS) $(SOBJS)
+	$(AR) crv $@ $(OBJS) $(SOBJS) kgdb.o
 
 #########################################################################
 
-.depend:	Makefile $(START:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(START:.o=.S) $(OBJS:.o=.c) > $@
+.depend:	Makefile $(START:.o=.S) $(OBJS:.o=.c) $(SOBJS:.o=.S)
+		$(CC) -M $(CFLAGS) $(START:.o=.S) $(OBJS:.o=.c) $(SOBJS:.o=.S) > $@
 
 sinclude .depend
 
