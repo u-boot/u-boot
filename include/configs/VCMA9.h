@@ -42,6 +42,7 @@
 #define CONFIG_ARM920T		1	/* This is an ARM920T Core	*/
 #define	CONFIG_S3C2410		1	/* in a SAMSUNG S3C2410 SoC     */
 #define CONFIG_VCMA9		1	/* on a MPL VCMA9 Board  */
+#define LITTLEENDIAN		1	/* used by usb_ohci.c		*/
 
 /* input clock of PLL */
 #define CONFIG_SYS_CLK_FREQ	12000000/* VCMA9 has 12MHz input clock	*/
@@ -63,10 +64,13 @@
 			/*CFG_CMD_NAND	 |*/ \
 			CFG_CMD_EEPROM	 | \
 			CFG_CMD_I2C	 | \
-			/*CFG_CMD_USB	 |*/ \
+			CFG_CMD_USB	 | \
 			CFG_CMD_REGINFO  | \
+			CFG_CMD_FAT	 | \
 			CFG_CMD_DATE	 | \
 			CFG_CMD_ELF	 | \
+			CFG_CMD_DHCP	 | \
+			CFG_CMD_PING	 | \
 			CFG_CMD_BSP)
 
 /* this must be included after the definiton of CONFIG_COMMANDS */
@@ -96,11 +100,11 @@
 /*
  * Size of malloc() pool
  */
-#define CONFIG_MALLOC_SIZE	(CFG_ENV_SIZE + 128*1024)
-#define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
+/*#define CONFIG_MALLOC_SIZE	(CFG_ENV_SIZE + 128*1024)*/
+#define CFG_GBL_DATA_SIZE	128		/* size in bytes reserved for initial data */
 
 #define CFG_MONITOR_LEN		(256 * 1024)
-#define CFG_MALLOC_LEN		(128 * 1024)
+#define CFG_MALLOC_LEN		(1024 * 1024)	/* BUNZIP2 needs a lot of RAM */
 
 /*
  * Hardware drivers
@@ -119,14 +123,13 @@
 /************************************************************
  * USB support
  ************************************************************/
-#if 0
-#define CONFIG_USB_OHCI
-#define CONFIG_USB_KEYBOARD
-#define CONFIG_USB_STORAGE
+#define CONFIG_USB_OHCI		1
+#define CONFIG_USB_KEYBOARD	1
+#define CONFIG_USB_STORAGE	1
+#define CONFIG_DOS_PARTITION	1
 
 /* Enable needed helper functions */
 #define CFG_DEVICE_DEREGISTER		/* needs device_deregister */
-#endif
 
 /************************************************************
  * RTC
@@ -139,7 +142,11 @@
 
 #define CONFIG_BAUDRATE		9600
 
-#define CONFIG_BOOTDELAY	3
+#define CONFIG_BOOTDELAY	5
+/* autoboot (do NOT change this set environment variable "bootdelay" to -1 instead) */
+#define CONFIG_BOOT_RETRY_TIME	-10	/* feature is avaiable but not enabled */
+#define CONFIG_ZERO_BOOTDELAY_CHECK  	/* check console even if bootdelay = 0 */
+
 #define CONFIG_NETMASK          255.255.255.0
 #define CONFIG_IPADDR		10.0.0.110
 #define CONFIG_SERVERIP		10.0.0.1
@@ -175,6 +182,9 @@
 
 /* valid baudrates */
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+
+/* support BZIP2 compression */
+#define CONFIG_BZIP2		1
 
 /************************************************************
  * Ident

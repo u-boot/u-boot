@@ -204,7 +204,7 @@
 #define CFG_FLASH_BASE		0xFFF80000
 #define CFG_MONITOR_BASE	CFG_FLASH_BASE
 #define CFG_MONITOR_LEN		(512 * 1024)	/* Reserve 512 kB for Monitor	*/
-#define CFG_MALLOC_LEN		(128 * 1024)	/* Reserve 128 kB for malloc()	*/
+#define CFG_MALLOC_LEN		(1024 * 1024)	/* Reserve 1024 kB for malloc()	*/
 
 /*
  * For booting Linux, the board info and command line data
@@ -369,6 +369,11 @@
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif
+
+/************************************************************
+ * support BZIP2 compression
+ ************************************************************/
+#define CONFIG_BZIP2		1
 
 /************************************************************
  * Ident

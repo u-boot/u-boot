@@ -543,7 +543,7 @@ int wait_for_DQ7(flash_info_t *info, int sect)
 	while ((addr[0] & (FLASH_WORD_SIZE)0x00800080) != (FLASH_WORD_SIZE)0x00800080) {
 		if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
 			printf ("Timeout\n");
-			return -1;
+			return ERR_TIMOUT;
 		}
 		/* show that we're waiting */
 		if ((now - last) > 1000) {  /* every second */
@@ -551,12 +551,12 @@ int wait_for_DQ7(flash_info_t *info, int sect)
 			last = now;
 		}
 	}
-	return 0;
+	return ERR_OK;
 }
 
 int intel_wait_for_DQ7(flash_info_t *info, int sect)
 {
-	ulong start, now, last;
+	ulong start, now, last, status;
 	volatile FLASH_WORD_SIZE *addr = (FLASH_WORD_SIZE *)(info->start[sect]);
 
 	start = get_timer (0);
@@ -564,7 +564,7 @@ int intel_wait_for_DQ7(flash_info_t *info, int sect)
 	while ((addr[0] & (FLASH_WORD_SIZE)0x00800080) != (FLASH_WORD_SIZE)0x00800080) {
 		if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
 			printf ("Timeout\n");
-			return -1;
+			return ERR_TIMOUT;
 		}
 		/* show that we're waiting */
 		if ((now - last) > 1000) {  /* every second */
@@ -572,8 +572,11 @@ int intel_wait_for_DQ7(flash_info_t *info, int sect)
 			last = now;
 		}
 	}
-	addr[0]=(FLASH_WORD_SIZE)0x00500050;
-	return 0;
+	status = addr[0] & (FLASH_WORD_SIZE)0x00280028;
+	/* clear status register */
+	addr[0] = (FLASH_WORD_SIZE)0x00500050;
+	/* check status for block erase fail and VPP low */
+	return (status == 0 ? ERR_OK : ERR_NOT_ERASED);
 }
 
 /*-----------------------------------------------------------------------
@@ -584,7 +587,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 	volatile FLASH_WORD_SIZE *addr = (FLASH_WORD_SIZE *)(info->start[0]);
 	volatile FLASH_WORD_SIZE *addr2;
 	int flag, prot, sect, l_sect;
-	int i;
+	int i, rcode = 0;
 
 
 	if ((s_first < 0) || (s_first > s_last)) {
@@ -634,7 +637,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 				addr2[0] = (FLASH_WORD_SIZE)0x00500050;  /* block erase */
 				for (i=0; i<50; i++)
 					udelay(1000);  /* wait 1 ms */
-				wait_for_DQ7(info, sect);
+				rcode |= wait_for_DQ7(info, sect);
 			}
 			else {
 				if((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_INTEL){
@@ -643,7 +646,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 					intel_wait_for_DQ7(info, sect);
 					addr2[0] = (FLASH_WORD_SIZE)0x00200020;  /* sector erase */
 					addr2[0] = (FLASH_WORD_SIZE)0x00D000D0;  /* sector erase */
-					intel_wait_for_DQ7(info, sect);
+					rcode |= intel_wait_for_DQ7(info, sect);
 				}
 				else {
 					addr[ADDR0] = (FLASH_WORD_SIZE)0x00AA00AA;
@@ -652,7 +655,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 					addr[ADDR0] = (FLASH_WORD_SIZE)0x00AA00AA;
 					addr[ADDR1] = (FLASH_WORD_SIZE)0x00550055;
 					addr2[0] = (FLASH_WORD_SIZE)0x00300030;  /* sector erase */
-					wait_for_DQ7(info, sect);
+					rcode |= wait_for_DQ7(info, sect);
 				}
 			}
 			l_sect = sect;
@@ -688,8 +691,10 @@ DONE:
 	addr = (FLASH_WORD_SIZE *)info->start[0];
 	addr[0] = (FLASH_WORD_SIZE)0x00F000F0;	/* reset bank */
 
-	printf (" done\n");
-	return 0;
+	if (!rcode)
+	    printf (" done\n");
+
+	return rcode;
 }
 
 

@@ -2,6 +2,46 @@
 Changes since U-Boot 1.0.0:
 ======================================================================
 
+* Patches by David Müller, 14 Nov 2003:
+  - board/mpl/common/common_util.c
+    * implement support for BZIP2 compressed images
+    * various cleanups (printf -> puts, ...)
+  - board/mpl/common/flash.c
+    * report correct errors to upper layers
+    * check the erase fail and VPP low bits in status reg
+  - board/mpl/vcma9/cmd_vcma9.c
+  - board/mpl/vcma9/flash.c
+    * various cleanups (printf -> puts, ...)
+  - common/cmd_usb.c
+    * fix typo in comment
+  - cpu/arm920t/usb_ohci.c
+    * support for S3C2410 is missing in #if line
+  - drivers/cs8900.c
+    * reinit some registers in case of error (cable missing, ...)
+  - fs/fat/fat.c
+    * support for USB/MMC devices is missing in #if line
+  - include/configs/MIP405.h
+  - include/configs/PIP405.h
+    * enable BZIP2 support
+    * enlarge malloc space to 1MiB because of BZIP2 support
+  - include/configs/VCMA9.h
+    * enable BZIP2 support
+    * enlarge malloc space to 1MiB because of BZIP2 support
+    * enable USB support
+  - lib_arm/armlinux.c
+    * change calling convention of ARM Linux kernel as
+      described on http://www.arm.linux.org.uk/developer/booting.php
+
+* Patch by Thomas Lange, 14 Nov 2003:
+  Split dbau1x00 into dbau1000, dbau1100 and dbau1500 configs to
+  support all these AMD boards.
+
+* Patch by Thomas Lange, 14 Nov 2003:
+  Workaround for mips au1x00 physical memory accesses (the au1x00
+  uses a 36 bit bus internally and cannot access physical memory
+  directly. Use the uncached SDRAM address instead of the physical
+  one.)
+
 * Patch by Xue Ligong (Joe), 13 Nov 2003:
   add Realtek 8019 ethernet driver
 

@@ -34,11 +34,16 @@
  */
 
 #include <common.h>
-/* #include <pci.h> no PCI on the S3C2400 */
+/* #include <pci.h> no PCI on the S3C24X0 */
 
 #ifdef CONFIG_USB_OHCI
 
+#if defined(CONFIG_S3C2400)
 #include <s3c2400.h>
+#elif defined(CONFIG_S3C2410)
+#include <s3c2410.h>
+#endif
+
 #include <malloc.h>
 #include <usb.h>
 #include "usb_ohci.h"

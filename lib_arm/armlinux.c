@@ -83,7 +83,7 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	ulong len = 0, checksum;
 	ulong initrd_start, initrd_end;
 	ulong data;
-	void (*theKernel) (int zero, int arch);
+	void (*theKernel)(int zero, int arch, uint params);
 	image_header_t *hdr = &header;
 	bd_t *bd = gd->bd;
 
@@ -91,7 +91,7 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	char *commandline = getenv ("bootargs");
 #endif
 
-	theKernel = (void (*)(int, int)) ntohl (hdr->ih_ep);
+	theKernel = (void (*)(int, int, uint))ntohl(hdr->ih_ep);
 
 	/*
 	 * Check if there is an initrd image
@@ -244,7 +244,7 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 	cleanup_before_linux ();
 
-	theKernel (0, bd->bi_arch_number);
+	theKernel (0, bd->bi_arch_number, bd->bi_boot_params);
 }
 
 

@@ -327,13 +327,13 @@ int last_stage_init(void)
 /***************************************************************************
  * some helping routines
  */
-
+#if !CONFIG_USB_KEYBOARD
 int overwrite_console(void)
 {
 	/* return TRUE if console should be overwritten */
 	return 0;
 }
-
+#endif
 
 /************************************************************************
 * Print VCMA9 Info

@@ -61,7 +61,7 @@ int do_vcma9(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	 	return 0;
    	}
 #if defined(CONFIG_DRIVER_CS8900)
-	if (strcmp(argv[1], "cs8900_eeprom") == 0) {
+	if (strcmp(argv[1], "cs8900") == 0) {
 		if (strcmp(argv[2], "read") == 0) {
 			uchar addr; ushort data;
 
@@ -102,12 +102,12 @@ int do_vcma9(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 				/* write checksum word */
 				cs8900_e2prom_write(addr, (0 - csum) << 8);
 			} else {
-				printf("\nplease defined 'ethaddr'\n");
+				puts("\nplease defined 'ethaddr'\n");
 			}
 		} else if (strcmp(argv[2], "dump") == 0) {
 			uchar addr = 0, endaddr, csum; ushort data;
 
-			printf("Dump of CS8900 config device: ");
+			puts("Dump of CS8900 config device: ");
 			cs8900_e2prom_read(addr, &data);
 			if ((data & 0xE000) == 0xA000) {
 				endaddr = (data & 0x00FF) / 2;
@@ -119,9 +119,9 @@ int do_vcma9(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 				}
 				printf("\nChecksum: %s", (csum == 0) ? "ok" : "wrong");
 			} else {
-				printf("no valid config found");
+				puts("no valid config found");
 			}
-			printf("\n");
+			puts("\n");
 		}
 
 		return 0;

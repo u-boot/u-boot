@@ -182,7 +182,7 @@ void do_bootm_linux (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 		(ulong) theKernel);
 #endif
 
-	linux_params_init (PHYSADDR (gd->bd->bi_boot_params), commandline);
+	linux_params_init (UNCACHED_SDRAM (gd->bd->bi_boot_params), commandline);
 
 #ifdef CONFIG_MEMSIZE_IN_BYTES
 	sprintf (env_buf, "%lu", gd->ram_size);
@@ -198,7 +198,7 @@ void do_bootm_linux (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 
 	linux_env_set ("memsize", env_buf);
 
-	sprintf (env_buf, "0x%08X", (uint) PHYSADDR (initrd_start));
+	sprintf (env_buf, "0x%08X", (uint) UNCACHED_SDRAM (initrd_start));
 	linux_env_set ("initrd_start", env_buf);
 
 	sprintf (env_buf, "0x%X", (uint) (initrd_end - initrd_start));

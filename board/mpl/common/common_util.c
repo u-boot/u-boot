@@ -31,6 +31,8 @@
 #include <i2c.h>
 #include <devices.h>
 #include <pci.h>
+#include <malloc.h>
+#include <bzlib.h>
 
 #ifdef CONFIG_PIP405
 #include "../pip405/pip405.h"
@@ -41,73 +43,73 @@
 #include <405gp_pci.h>
 #endif
 
-extern int  gunzip (void *, int, unsigned char *, int *);
-extern int mem_test(unsigned long start, unsigned long ramsize, int quiet);
+extern int gunzip(void *, int, uchar *, int *);
+extern int mem_test(ulong start, ulong ramsize, int quiet);
 
-#define I2C_BACKUP_ADDR 0x7C00 /* 0x200 bytes for backup */
-#if defined(CONFIG_PIP405) || defined(CONFIG_MIP405)
-#define IMAGE_SIZE 0x80000
-#elif defined(CONFIG_VCMA9)
-#define IMAGE_SIZE 0x40000		/* ugly, but it works for now */
-#endif
+#define I2C_BACKUP_ADDR 0x7C00		/* 0x200 bytes for backup */
+#define IMAGE_SIZE CFG_MONITOR_LEN	/* ugly, but it works for now */
 
 extern flash_info_t flash_info[];	/* info for FLASH chips */
 
 static image_header_t header;
 
 
-int mpl_prg(unsigned long src,unsigned long size)
+static int 
+mpl_prg(uchar *src, ulong size)
 {
-	unsigned long start;
+	ulong start;
 	flash_info_t *info;
-	int i,rc;
+	int i, rc;
 #if defined(CONFIG_PIP405) || defined(CONFIG_MIP405)
 	char *copystr = (char *)src;
-	unsigned long *magic = (unsigned long *)src;
+	ulong *magic = (ulong *)src;
 #endif
 
 	info = &flash_info[0];
 
 #if defined(CONFIG_PIP405) || defined(CONFIG_MIP405)
-	if(ntohl(magic[0]) != IH_MAGIC) {
-		printf("Bad Magic number\n");
+	if (ntohl(magic[0]) != IH_MAGIC) {
+		puts("Bad Magic number\n");
 		return -1;
 	}
 	/* some more checks before we delete the Flash... */
 	/* Checking the ISO_STRING prevents to program a
 	 * wrong Firmware Image into the flash.
 	 */
-	i=4; /* skip Magic number */
-	while(1) {
-		if(strncmp(&copystr[i],"MEV-",4)==0)
+	i = 4; /* skip Magic number */
+	while (1) {
+		if (strncmp(&copystr[i], "MEV-", 4) == 0)
 			break;
-		if(i++>=0x100) {
-			printf("Firmware Image for unknown Target\n");
+		if (i++ >= 0x100) {
+			puts("Firmware Image for unknown Target\n");
 			return -1;
 		}
 	}
 	/* we have the ISO STRING, check */
-	if(strncmp(&copystr[i],CONFIG_ISO_STRING,sizeof(CONFIG_ISO_STRING)-1)!=0) {
-		printf("Wrong Firmware Image: %s\n",&copystr[i]);
+	if (strncmp(&copystr[i], CONFIG_ISO_STRING, sizeof(CONFIG_ISO_STRING)-1) != 0) {
+		printf("Wrong Firmware Image: %s\n", &copystr[i]);
 		return -1;
 	}
 	start = 0 - size;
-	for(i=info->sector_count-1;i>0;i--)
-	{
+	for (i = info->sector_count-1; i > 0; i--) {
 		info->protect[i] = 0; /* unprotect this sector */
-		if(start>=info->start[i])
-		break;
+		if (start >= info->start[i])
+			break;
 	}
 	/* set-up flash location */
 	/* now erase flash */
 	printf("Erasing at %lx (sector %d) (start %lx)\n",
 				start,i,info->start[i]);
-	flash_erase (info, i, info->sector_count-1);
+	if ((rc = flash_erase (info, i, info->sector_count-1)) != 0) {
+		puts("ERROR ");
+		flash_perror(rc);
+		return (1);
+	}
+	
 
 #elif defined(CONFIG_VCMA9)
 	start = 0;
-	for (i = 0; i <info->sector_count; i++)
-	{
+	for (i = 0; i <info->sector_count; i++) {
 		info->protect[i] = 0; /* unprotect this sector */
 		if (size < info->start[i])
 		    break;
@@ -116,73 +118,113 @@ int mpl_prg(unsigned long src,unsigned long size)
 	/* now erase flash */
 	printf("Erasing at %lx (sector %d) (start %lx)\n",
 				start,0,info->start[0]);
-	flash_erase (info, 0, i);
+	if ((rc = flash_erase (info, 0, i)) != 0) {
+		puts("ERROR ");
+		flash_perror(rc);
+		return (1);
+	}
 
 #endif
 	printf("flash erased, programming from 0x%lx 0x%lx Bytes\n",src,size);
-	if ((rc = flash_write ((uchar *)src, start, size)) != 0) {
-		puts ("ERROR ");
-		flash_perror (rc);
+	if ((rc = flash_write (src, start, size)) != 0) {
+		puts("ERROR ");
+		flash_perror(rc);
 		return (1);
 	}
-	puts ("OK programming done\n");
+	puts("OK programming done\n");
 	return 0;
 }
 
 
-int mpl_prg_image(unsigned long ld_addr)
+static int 
+mpl_prg_image(uchar *ld_addr)
 {
-	unsigned long data,len,checksum;
-	image_header_t *hdr=&header;
+	unsigned long len, checksum;
+	uchar *data;
+	image_header_t *hdr = &header;
+	int rc;
+	
 	/* Copy header so we can blank CRC field for re-calculation */
 	memcpy (&header, (char *)ld_addr, sizeof(image_header_t));
 	if (ntohl(hdr->ih_magic)  != IH_MAGIC) {
-		printf ("Bad Magic Number\n");
+		puts("Bad Magic Number\n");
 		return 1;
 	}
 	print_image_hdr(hdr);
 	if (hdr->ih_os  != IH_OS_U_BOOT) {
-		printf ("No U-Boot Image\n");
+		puts("No U-Boot Image\n");
 		return 1;
 	}
 	if (hdr->ih_type  != IH_TYPE_FIRMWARE) {
-		printf ("No Firmware Image\n");
+		puts("No Firmware Image\n");
 		return 1;
 	}
-	data = (ulong)&header;
+	data = (uchar *)&header;
 	len  = sizeof(image_header_t);
 	checksum = ntohl(hdr->ih_hcrc);
 	hdr->ih_hcrc = 0;
 	if (crc32 (0, (char *)data, len) != checksum) {
-		printf ("Bad Header Checksum\n");
+		puts("Bad Header Checksum\n");
 		return 1;
 	}
 	data = ld_addr + sizeof(image_header_t);
 	len  = ntohl(hdr->ih_size);
-	printf ("Verifying Checksum ... ");
+	puts("Verifying Checksum ... ");
 	if (crc32 (0, (char *)data, len) != ntohl(hdr->ih_dcrc)) {
-		printf ("Bad Data CRC\n");
+		puts("Bad Data CRC\n");
 		return 1;
 	}
-	switch (hdr->ih_comp) {
-	case IH_COMP_NONE:
-		break;
-	case IH_COMP_GZIP:
-		printf ("  Uncompressing  ... ");
-		if (gunzip ((void *)(data+0x100000), 0x400000,
-			    (uchar *)data, (int *)&len) != 0) {
-			printf ("GUNZIP ERROR\n");
+	puts("OK\n");
+
+	if (hdr->ih_comp != IH_COMP_NONE) {
+		uchar *buf;
+		/* reserve space for uncompressed image */
+		if ((buf = malloc(IMAGE_SIZE)) == NULL) {
+		    	puts("Insufficient space for decompression\n");
 			return 1;
 		}
-		data+=0x100000;
-		break;
-	default:
-		printf ("   Unimplemented compression type %d\n", hdr->ih_comp);
-		return 1;
+				 
+		switch (hdr->ih_comp) {
+		case IH_COMP_GZIP:
+			puts("Uncompressing (GZIP) ... ");
+			rc = gunzip ((void *)(buf), IMAGE_SIZE, data, (int *)&len);
+			if (rc != 0) {
+				puts("GUNZIP ERROR\n");
+				free(buf);
+				return 1;
+			}
+			puts("OK\n");
+			break;
+#if CONFIG_BZIP2
+		case IH_COMP_BZIP2:
+			puts("Uncompressing (BZIP2) ... ");
+			{
+			uint retlen = IMAGE_SIZE;
+			rc = BZ2_bzBuffToBuffDecompress ((char *)(buf), &retlen,
+				(char *)data, len, 0, 0);
+			len = retlen;
+			}
+			if (rc != BZ_OK) {
+				printf ("BUNZIP2 ERROR: %d\n", rc);
+				free(buf);
+				return 1;
+			}
+			puts("OK\n");
+			break;
+#endif
+		default:
+			printf ("Unimplemented compression type %d\n", hdr->ih_comp);
+			free(buf);
+			return 1;
+		}
+		
+		rc = mpl_prg(buf, len);
+		free(buf);
+	} else {
+		rc = mpl_prg(data, len);
 	}
-
-	printf ("  OK\n");
-	return(mpl_prg(data,len));
+	
+	return(rc);
 }
 
 
@@ -199,20 +241,20 @@ void set_backup_values(int overwrite)
 	get_backup_values(&back);
 	if(!overwrite) {
 		if(strncmp(back.signature,"MPL\0",4)==0) {
-			printf("Not possible to write Backup\n");
+			puts("Not possible to write Backup\n");
 			return;
 		}
 	}
 	memcpy(back.signature,"MPL\0",4);
 	i = getenv_r("serial#",back.serial_name,16);
 	if(i < 0) {
-		printf("Not possible to write Backup\n");
+		puts("Not possible to write Backup\n");
 		return;
 	}
 	back.serial_name[16]=0;
 	i = getenv_r("ethaddr",back.eth_addr,20);
 	if(i < 0) {
-		printf("Not possible to write Backup\n");
+		puts("Not possible to write Backup\n");
 		return;
 	}
 	back.eth_addr[20]=0;
@@ -334,7 +376,7 @@ void check_env(void)
 		}
 		else {
 			copy_old_env(oldsizes[i]);
-			printf ("INFO:  old environment ajusted, use saveenv\n");
+			puts("INFO:  old environment ajusted, use saveenv\n");
 		}
 	}
 	else {
@@ -353,23 +395,23 @@ extern char *stdio_names[];
 void show_stdio_dev(void)
 {
 	/* Print information */
-	printf ("In:    ");
+	puts("In:    ");
 	if (stdio_devices[stdin] == NULL) {
-		printf ("No input devices available!\n");
+		puts("No input devices available!\n");
 	} else {
 		printf ("%s\n", stdio_devices[stdin]->name);
 	}
 
-	printf ("Out:   ");
+	puts("Out:   ");
 	if (stdio_devices[stdout] == NULL) {
-		printf ("No output devices available!\n");
+		puts("No output devices available!\n");
 	} else {
 		printf ("%s\n", stdio_devices[stdout]->name);
 	}
 
-	printf ("Err:   ");
+	puts("Err:   ");
 	if (stdio_devices[stderr] == NULL) {
-		printf ("No error devices available!\n");
+		puts("No error devices available!\n");
 	} else {
 		printf ("%s\n", stdio_devices[stderr]->name);
 	}
@@ -390,7 +432,7 @@ int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		if (strcmp(argv[2], "floppy") == 0) {
  			char *local_args[3];
 			extern int do_fdcboot (cmd_tbl_t *, int, int, char *[]);
-			printf ("\nupdating bootloader image from floppy\n");
+			puts("\nupdating bootloader image from floppy\n");
 			local_args[0] = argv[0];
 	    		if(argc==4) {
 				local_args[1] = argv[3];
@@ -415,12 +457,12 @@ int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 				ld_addr=load_addr;
 			}
 			printf ("\nupdating bootloader image from memory at %lX\n",ld_addr);
-			result=mpl_prg_image(ld_addr);
+			result=mpl_prg_image((uchar *)ld_addr);
 			return result;
 		}
 		if (strcmp(argv[2], "mps") == 0) {
-			printf ("\nupdating bootloader image from MPS\n");
-			result=mpl_prg(src,size);
+			puts("\nupdating bootloader image from MPS\n");
+			result=mpl_prg((uchar *)src,size);
 			return result;
 		}
 	}

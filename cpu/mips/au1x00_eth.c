@@ -31,12 +31,24 @@
 /* We all use switches, right? ;-) */
 #endif
 
+/* I assume ethernet behaves like au1000 */
+
 #ifdef CONFIG_AU1000
 /* Base address differ between cpu:s */
 #define ETH0_BASE AU1000_ETH0_BASE
 #define MAC0_ENABLE AU1000_MAC0_ENABLE
 #else
-#error "Au1100 and Au1500 not supported"
+#ifdef CONFIG_AU1100
+#define ETH0_BASE AU1100_ETH0_BASE
+#define MAC0_ENABLE AU1100_MAC0_ENABLE
+#else
+#ifdef CONFIG_AU1500
+#define ETH0_BASE AU1500_ETH0_BASE
+#define MAC0_ENABLE AU1500_MAC0_ENABLE
+#else
+#error "No valid cpu set"
+#endif
+#endif
 #endif
 
 #include <common.h>
@@ -175,6 +187,7 @@ static int au1x00_init(struct eth_device* dev, bd_t * bd){
 	}
 
 	/* Put mac addr in little endian */
+	/* FIXME Check this for little endian mode */
 #define ea eth_get_dev()->enetaddr
 	*mac_addr_high  =	(ea[5] <<  8) | (ea[4]	    ) ;
 	*mac_addr_low   =	(ea[3] << 24) | (ea[2] << 16) |

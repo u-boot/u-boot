@@ -133,23 +133,23 @@ void flash_print_info  (flash_info_t *info)
     switch (info->flash_id & FLASH_VENDMASK)
     {
     case (AMD_MANUFACT & FLASH_VENDMASK):
-	printf("AMD: ");
+	puts("AMD: ");
 	break;
     default:
-	printf("Unknown Vendor ");
+	puts("Unknown Vendor ");
 	break;
     }
 
     switch (info->flash_id & FLASH_TYPEMASK)
     {
     case (AMD_ID_LV400B & FLASH_TYPEMASK):
-	printf("1x Amd29LV400BB (4Mbit)\n");
+	puts("1x Amd29LV400BB (4Mbit)\n");
 	break;
     case (AMD_ID_LV800B & FLASH_TYPEMASK):
-	printf("1x Amd29LV800BB (8Mbit)\n");
+	puts("1x Amd29LV800BB (8Mbit)\n");
 	break;
     default:
-	printf("Unknown Chip Type\n");
+	puts("Unknown Chip Type\n");
 	goto Done;
 	break;
     }
@@ -157,17 +157,17 @@ void flash_print_info  (flash_info_t *info)
     printf("  Size: %ld MB in %d Sectors\n",
 	   info->size >> 20, info->sector_count);
 
-    printf("  Sector Start Addresses:");
+    puts("  Sector Start Addresses:");
     for (i = 0; i < info->sector_count; i++)
     {
 	if ((i % 5) == 0)
 	{
-	    printf ("\n   ");
+	    puts("\n   ");
 	}
 	printf (" %08lX%s", info->start[i],
 		info->protect[i] ? " (RO)" : "     ");
     }
-    printf ("\n");
+    puts("\n");
 
 Done:
 }
@@ -272,16 +272,16 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 		goto outahere;
 	    }
 
-	    printf("ok.\n");
+	    puts("ok.\n");
 	}
 	else /* it was protected */
 	{
-	    printf("protected!\n");
+	    puts("protected!\n");
 	}
     }
 
     if (ctrlc())
-      printf("User Interrupt!\n");
+      puts("User Interrupt!\n");
 
 outahere:
     /* allow flash to settle - wait 10 ms */

@@ -45,6 +45,7 @@
 
 #if (CONFIG_COMMANDS & CFG_CMD_NET)
 
+#undef DEBUG
 
 /* packet page register access functions */
 
@@ -97,6 +98,20 @@ static void eth_reset (void)
 	while ((((us = get_reg_init_bus (PP_SelfSTAT)) & PP_SelfSTAT_InitD) == 0)
 		   && tmo < get_timer (0))
 		/*NOP*/;
+}
+
+static void eth_reginit (void)
+{
+	/* receive only error free packets addressed to this card */
+	put_reg (PP_RxCTL, PP_RxCTL_IA | PP_RxCTL_Broadcast | PP_RxCTL_RxOK);
+	/* do not generate any interrupts on receive operations */
+	put_reg (PP_RxCFG, 0);
+	/* do not generate any interrupts on transmit operations */
+	put_reg (PP_TxCFG, 0);
+	/* do not generate any interrupts on buffer operations */
+	put_reg (PP_BufCFG, 0);
+	/* enable transmitter/receiver mode */
+	put_reg (PP_LineCTL, PP_LineCTL_Rx | PP_LineCTL_Tx);
 }
 
 void cs8900_get_enetaddr (uchar * addr)
@@ -181,21 +196,7 @@ int eth_init (bd_t * bd)
 	put_reg (PP_IA + 2, bd->bi_enetaddr[2] | (bd->bi_enetaddr[3] << 8));
 	put_reg (PP_IA + 4, bd->bi_enetaddr[4] | (bd->bi_enetaddr[5] << 8));
 
-	/* receive only error free packets addressed to this card */
-	put_reg (PP_RxCTL, PP_RxCTL_IA | PP_RxCTL_Broadcast | PP_RxCTL_RxOK);
-
-	/* do not generate any interrupts on receive operations */
-	put_reg (PP_RxCFG, 0);
-
-	/* do not generate any interrupts on transmit operations */
-	put_reg (PP_TxCFG, 0);
-
-	/* do not generate any interrupts on buffer operations */
-	put_reg (PP_BufCFG, 0);
-
-	/* enable transmitter/receiver mode */
-	put_reg (PP_LineCTL, PP_LineCTL_Rx | PP_LineCTL_Tx);
-
+	eth_reginit ();
 	return 0;
 }
 
@@ -215,9 +216,10 @@ extern int eth_rx (void)
 	status = CS8900_RTDATA;		/* stat */
 	rxlen = CS8900_RTDATA;		/* len */
 
+#ifdef DEBUG
 	if (rxlen > PKTSIZE_ALIGN + PKTALIGN)
 		printf ("packet too big!\n");
-
+#endif
 	for (addr = (unsigned short *) NetRxPackets[0], i = rxlen >> 1; i > 0;
 		 i--)
 		*addr++ = CS8900_RTDATA;
@@ -245,10 +247,13 @@ retry:
 	/* Test to see if the chip has allocated memory for the packet */
 	if ((get_reg (PP_BusSTAT) & PP_BusSTAT_TxRDY) == 0) {
 		/* Oops... this should not happen! */
+#ifdef DEBUG
 		printf ("cs: unable to send packet; retrying...\n");
+#endif
 		for (tmo = get_timer (0) + 5 * CFG_HZ; get_timer (0) < tmo;)
 			/*NOP*/;
 		eth_reset ();
+		eth_reginit ();
 		goto retry;
 	}
 
@@ -266,7 +271,9 @@ retry:
 
 	/* nothing */ ;
 	if ((s & (PP_TER_CRS | PP_TER_TxOK)) != PP_TER_TxOK) {
+#ifdef DEBUG
 		printf ("\ntransmission error %#x\n", s);
+#endif
 	}
 
 	return 0;

@@ -40,6 +40,18 @@
 #define PHYSADDR(a)		((a) & 0x1fffffff)
 #endif
 
+/* 
+ * Returns the uncached address of a sdram address 
+ */
+#ifndef __ASSEMBLY__
+#ifdef CONFIG_AU1X00
+/* We use a 36 bit physical address map here and
+   cannot access physical memory directly from core */
+#define UNCACHED_SDRAM(a) (((unsigned long)(a)) | 0x20000000)
+#else	/* !CONFIG_AU1X00 */
+#define UNCACHED_SDRAM(a) PHYSADDR(a) 
+#endif	/* CONFIG_AU1X00 */
+#endif	/* __ASSEMBLY__ */
 /*
  * Map an address to a certain kernel segment
  */

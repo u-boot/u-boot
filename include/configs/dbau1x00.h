@@ -32,9 +32,20 @@
 #define CONFIG_DBAU1X00		1
 #define CONFIG_AU1X00           1  /* alchemy series cpu */
 
+#ifdef CONFIG_DBAU1000
 /* Also known as Merlot */
-#define CONFIG_DBAU1000         1  /* board, Hardcoded for now */
-#define CONFIG_AU1000           1  /* cpu, Hardcoded for now */
+#define CONFIG_AU1000           1
+#else
+#ifdef CONFIG_DBAU1100
+#define CONFIG_AU1100           1
+#else
+#ifdef CONFIG_DBAU1500
+#define CONFIG_AU1500           1
+#else  
+#error "No valid board set"
+#endif
+#endif
+#endif
 
 #define CONFIG_ETHADDR          DE:AD:BE:EF:01:01    /* Ethernet address */
 

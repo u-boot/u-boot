@@ -987,10 +987,22 @@ DK1C20_config:	unconfig
 
 
 #########################################################################
-## MIPS32 AU1000
+## MIPS32 AU1X00
 #########################################################################
-dbau1x00_config		: 	unconfig
-	@./mkconfig $(@:_config=) mips mips dbau1x00
+dbau1000_config		: 	unconfig
+	@ >include/config.h
+	@echo "#define CONFIG_DBAU1000 1" >>include/config.h
+	@./mkconfig -a dbau1x00 mips mips dbau1x00
+
+dbau1100_config		: 	unconfig
+	@ >include/config.h
+	@echo "#define CONFIG_DBAU1100 1" >>include/config.h
+	@./mkconfig -a dbau1x00 mips mips dbau1x00
+
+dbau1500_config		: 	unconfig
+	@ >include/config.h
+	@echo "#define CONFIG_DBAU1500 1" >>include/config.h
+	@./mkconfig -a dbau1x00 mips mips dbau1x00
 
 #########################################################################
 #########################################################################

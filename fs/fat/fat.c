@@ -962,7 +962,8 @@ file_fat_detectfs(void)
 		printf("No current device\n");
 		return 1;
 	}
-#if (CONFIG_COMMANDS & CFG_CMD_IDE) || (CONFIG_COMMANDS & CFG_CMD_SCSI)
+#if (CONFIG_COMMANDS & CFG_CMD_IDE) || (CONFIG_COMMANDS & CFG_CMD_SCSI) || \
+    (CONFIG_COMMANDS & CFG_CMD_USB) || (CONFIG_MMC)
 	printf("Interface:  ");
 	switch(cur_dev->if_type) {
 		case IF_TYPE_IDE :	printf("IDE"); break;

@@ -41,7 +41,7 @@
 #endif
 static int usb_stor_curr_dev=-1; /* current device */
 
-/* somme display routines (info command) */
+/* some display routines (info command) */
 char * usb_get_class_desc(unsigned char dclass)
 {
 	switch(dclass) {

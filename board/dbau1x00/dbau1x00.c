@@ -39,6 +39,13 @@ long int initdram(int board_type)
 /* In cpu/mips/cpu.c */
 void write_one_tlb( int index, u32 pagemask, u32 hi, u32 low0, u32 low1 );
 
+#ifdef CONFIG_DBAU1100
+#warning "FIXME Check that bcsr is the same as dbau1000 board!"
+#endif
+#ifdef CONFIG_DBAU1500
+#warning "FIXME Check that bcsr is the same as dbau1000 board!"
+#endif
+
 int checkboard (void)
 {
 	u16 status;
@@ -51,14 +58,24 @@ int checkboard (void)
 
 	proc_id = read_32bit_cp0_register(CP0_PRID);
 
-	switch(proc_id>>24){
+	switch (proc_id >> 24) {
 	case 0:
-	  puts("Board: Merlot (DbAu1000)\n");
-	  printf("CPU: Au1000 396 MHz, id: 0x%02x, rev: 0x%02x\n",
-		 (proc_id>>8)&0xFF,proc_id&0xFF);
-	  break;
+		puts ("Board: Merlot (DbAu1000)\n");
+		printf ("CPU: Au1000 396 MHz, id: 0x%02x, rev: 0x%02x\n",
+			(proc_id >> 8) & 0xFF, proc_id & 0xFF);
+		break;
+	case 1:
+		puts ("Board: DbAu1500\n");
+		printf ("CPU: Au1500, id: 0x%02x, rev: 0x%02x\n",
+			(proc_id >> 8) & 0xFF, proc_id & 0xFF);
+		break;
+	case 2:
+		puts ("Board: DbAu1100\n");
+		printf ("CPU: Au1100, id: 0x%02x, rev: 0x%02x\n",
+			(proc_id >> 8) & 0xFF, proc_id & 0xFF);
+		break;
 	default:
-	  printf("Unsupported cpu %d, proc_id=0x%x\n",proc_id>>24,proc_id);
+		printf ("Unsupported cpu %d, proc_id=0x%x\n", proc_id >> 24, proc_id);
 	}
 #ifdef CONFIG_IDE_PCMCIA
 	/* Enable 3.3 V on slot 0 ( VCC )
