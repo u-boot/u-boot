@@ -163,14 +163,17 @@
   #define mem_pmit    0x34    /* power management idle timer	     */
   #define mem_mb0cf   0x40    /* memory bank 0 configuration	     */
   #define mem_mb1cf   0x44    /* memory bank 1 configuration	     */
+#ifndef CONFIG_405EP
   #define mem_mb2cf   0x48    /* memory bank 2 configuration	     */
   #define mem_mb3cf   0x4c    /* memory bank 3 configuration	     */
+#endif
   #define mem_sdtr1   0x80    /* timing reg 1			     */
 #ifndef CONFIG_405EP
   #define mem_ecccf   0x94    /* ECC configuration		     */
   #define mem_eccerr  0x98    /* ECC error status		     */
 #endif
 
+#ifndef CONFIG_405EP
 /******************************************************************************
  * Decompression Controller
  ******************************************************************************/
@@ -194,6 +197,7 @@
   /* There are 0x400 of the following registers, from krom0 to krom3ff*/
   /* Only the first one is given here.                                */
   #define krom0      0x400    /* SRAM/ROM read/write                  */
+#endif
 
 /******************************************************************************
  * Power Management
@@ -215,17 +219,21 @@
   #define pb2cr       0x02    /* periph bank 2 config reg            */
   #define pb3cr       0x03    /* periph bank 3 config reg            */
   #define pb4cr       0x04    /* periph bank 4 config reg            */
+#ifndef CONFIG_405EP
   #define pb5cr       0x05    /* periph bank 5 config reg            */
   #define pb6cr       0x06    /* periph bank 6 config reg            */
   #define pb7cr       0x07    /* periph bank 7 config reg            */
+#endif
   #define pb0ap       0x10    /* periph bank 0 access parameters     */
   #define pb1ap       0x11    /* periph bank 1 access parameters     */
   #define pb2ap       0x12    /* periph bank 2 access parameters     */
   #define pb3ap       0x13    /* periph bank 3 access parameters     */
   #define pb4ap       0x14    /* periph bank 4 access parameters     */
+#ifndef CONFIG_405EP
   #define pb5ap       0x15    /* periph bank 5 access parameters     */
   #define pb6ap       0x16    /* periph bank 6 access parameters     */
   #define pb7ap       0x17    /* periph bank 7 access parameters     */
+#endif
   #define pbear       0x20    /* periph bus error addr reg           */
   #define pbesr0      0x21    /* periph bus error status reg 0       */
   #define pbesr1      0x22    /* periph bus error status reg 1       */
