@@ -31,6 +31,16 @@
 
 #include "Pt1000_temp_data.h"
 
+/* helper function */
+#define abs(value) (((value) < 0) ? ((value)*-1) : (value))
+
+/*
+ * Maximal allowed deviation between two immediate meassurments of an analog
+ * thermo channel. 1 DIGIT = 0.0276 °C. This is used to filter sporadic
+ * "jumps" in measurment.
+ */
+#define MAX_DEVIATION	18	/* unit: DIGITs of adc; 18 DIGIT = 0.5 °C */
+
 void spi_init(void)
 {
 	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
@@ -227,15 +237,48 @@ s32 tsc2000_contact_temp (void)
 	long adc_pt1000, offset;
 	long u_pt1000;
 	long contact_temp;
-
+	long temp1, temp2;
 
 	tsc2000_reg_init ();
 	tsc2000_set_range (3);
 
-	adc_pt1000 = tsc2000_read_channel (14);
+	/*
+	 * Because of sporadic "jumps" in the measured adc values every
+	 * channel is read two times. If there is a significant difference
+	 * between the two measurements, then print an error and do a third
+	 * measurement, because it is very unlikely that a successive third
+	 * measurement goes also wrong.
+	 */
+	temp1 = tsc2000_read_channel (14);
+	temp2 = tsc2000_read_channel (14);
+	if (abs(temp2 - temp1) < MAX_DEVIATION)
+		adc_pt1000 = temp2;
+	else {
+		printf ("%s: read adc value (channel 14) exceeded max allowed "
+			"deviation: %d * 0.0276 °C\n",
+			__FUNCTION__, MAX_DEVIATION);
+		printf ("adc value 1: %ld DIGITs\nadc value 2: %ld DIGITs\n",
+			temp1, temp2);
+		adc_pt1000 = tsc2000_read_channel (14);
+		printf ("use (third read) adc value: adc_pt1000 = "
+			"%ld DIGITs\n",	adc_pt1000);
+	}
 	debug ("read channel 14 (pt1000 adc value): %ld\n", adc_pt1000);
 
-	offset = tsc2000_read_channel (15);
+	temp1 = tsc2000_read_channel (15);
+	temp2 = tsc2000_read_channel (15);
+	if (abs(temp2 - temp1) < MAX_DEVIATION)
+		offset = temp2;
+	else {
+		printf ("%s: read adc value (channel 15) exceeded max allowed "
+			"deviation: %d * 0.0276 °C\n",
+			__FUNCTION__, MAX_DEVIATION);
+		printf ("adc value 1: %ld DIGITs\nadc value 2: %ld DIGITs\n",
+			temp1, temp2);
+		offset = tsc2000_read_channel (15);
+		printf ("use (third read) adc value: offset = %ld DIGITs\n",
+			offset);
+	}
 	debug ("read channel 15 (offset): %ld\n", offset);
 
 	/*

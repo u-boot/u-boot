@@ -29,25 +29,27 @@
  * (easy to change)
  */
 
-#define CONFIG_MPC5xxx		1	/* This is an MPC5xxx CPU */
-#define CONFIG_MPC5200		1	/* (more precisely an MPC5200 CPU) */
-#define CONFIG_INKA4X0		1	/* INKA4x0 board */
+#define CONFIG_MPC5xxx		1	/* This is an MPC5xxx CPU		*/
+#define CONFIG_MPC5200		1	/* (more precisely an MPC5200 CPU)	*/
+#define CONFIG_INKA4X0		1	/* INKA4x0 board			*/
 
-#define CFG_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz */
+#define CFG_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz		*/
 
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH  */
-#define BOOTFLAG_WARM		0x02	/* Software reboot	     */
+#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH	*/
+#define BOOTFLAG_WARM		0x02	/* Software reboot			*/
 
-#define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs */
+#define CONFIG_MISC_INIT_F	1	/* Use misc_init_f()			*/
+
+#define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs			*/
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
-#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
+#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
 #endif
 
 /*
  * Serial console configuration
  */
-#define CONFIG_PSC_CONSOLE	1	/* console is on PSC1 */
-#define CONFIG_BAUDRATE		115200	/* ... at 115200 bps */
+#define CONFIG_PSC_CONSOLE	1	/* console is on PSC1	*/
+#define CONFIG_BAUDRATE		115200	/* ... at 115200 bps	*/
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 
 /*
@@ -265,7 +267,7 @@
  *-----------------------------------------------------------------------
  */
 #define CONFIG_USB_OHCI
-#define CONFIG_USB_CLOCK        0x00015555
-#define CONFIG_USB_CONFIG       0x00001000
+#define CONFIG_USB_CLOCK	0x00015555
+#define CONFIG_USB_CONFIG	0x00001000
 
 #endif /* __CONFIG_H */

@@ -115,7 +115,7 @@ static void mpc5xxx_fec_tbd_init(mpc5xxx_fec_priv *fec)
 }
 
 /********************************************************************/
-static void mpc5xxx_fec_rbd_clean(mpc5xxx_fec_priv *fec, FEC_RBD * pRbd)
+static void mpc5xxx_fec_rbd_clean(mpc5xxx_fec_priv *fec, volatile FEC_RBD * pRbd)
 {
 	/*
 	 * Reset buffer descriptor as empty
@@ -141,7 +141,7 @@ static void mpc5xxx_fec_rbd_clean(mpc5xxx_fec_priv *fec, FEC_RBD * pRbd)
 /********************************************************************/
 static void mpc5xxx_fec_tbd_scrub(mpc5xxx_fec_priv *fec)
 {
-	FEC_TBD *pUsedTbd;
+	volatile FEC_TBD *pUsedTbd;
 
 #if (DEBUG & 0x1)
 	printf ("tbd_scrub: fec->cleanTbdNum = %d, fec->usedTbdIndex = %d\n",
@@ -354,10 +354,10 @@ static int mpc5xxx_fec_init(struct eth_device *dev, bd_t * bis)
 	/*
 	 * Initialize SmartDMA parameters stored in SRAM
 	 */
-	*(int *)FEC_TBD_BASE = (int)fec->tbdBase;
-	*(int *)FEC_RBD_BASE = (int)fec->rbdBase;
-	*(int *)FEC_TBD_NEXT = (int)fec->tbdBase;
-	*(int *)FEC_RBD_NEXT = (int)fec->rbdBase;
+	*(volatile int *)FEC_TBD_BASE = (int)fec->tbdBase;
+	*(volatile int *)FEC_RBD_BASE = (int)fec->rbdBase;
+	*(volatile int *)FEC_TBD_NEXT = (int)fec->tbdBase;
+	*(volatile int *)FEC_RBD_NEXT = (int)fec->rbdBase;
 
 	/*
 	 * Enable FEC-Lite controller
@@ -688,7 +688,7 @@ static int mpc5xxx_fec_send(struct eth_device *dev, volatile void *eth_data,
 	 * 6-byte Ethernet addresses.
 	 */
 	mpc5xxx_fec_priv *fec = (mpc5xxx_fec_priv *)dev->priv;
-	FEC_TBD *pTbd;
+	volatile FEC_TBD *pTbd;
 
 #if (DEBUG & 0x20)
 	printf("tbd status: 0x%04x\n", fec->tbdBase[0].status);
@@ -779,7 +779,7 @@ static int mpc5xxx_fec_recv(struct eth_device *dev)
 	 * This command pulls one frame from the card
 	 */
 	mpc5xxx_fec_priv *fec = (mpc5xxx_fec_priv *)dev->priv;
-	FEC_RBD *pRbd = &fec->rbdBase[fec->rbdIndex];
+	volatile FEC_RBD *pRbd = &fec->rbdBase[fec->rbdIndex];
 	unsigned long ievent;
 	int frame_length, len = 0;
 	NBUF *frame;

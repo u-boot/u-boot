@@ -177,6 +177,19 @@ void flash_preinit(void)
 	*(vu_long *)MPC5XXX_BOOTCS_CFG &= ~0x1; /* clear RO */
 }
 
+#define GPIO_PSC3_9     0x04000000UL
+
+int misc_init_f (void)
+{
+	/*
+	 * Reset Coral-P graphics controller
+	 */
+        *(vu_long *) MPC5XXX_WU_GPIO_ENABLE |= GPIO_PSC3_9;
+        *(vu_long *) MPC5XXX_WU_GPIO_DIR    |= GPIO_PSC3_9;
+        *(vu_long *) MPC5XXX_WU_GPIO_DATA   |= GPIO_PSC3_9;
+        return 0;
+}
+
 #ifdef  CONFIG_PCI
 static struct pci_controller hose;
 
@@ -187,5 +200,3 @@ void pci_init_board(void)
         pci_mpc5xxx_init(&hose);
 }
 #endif
-
-

@@ -290,10 +290,10 @@
 #endif /* CFG_HUSH_PARSER */
 #endif	/* CONFIG_FLASH_8MB */
 
-#if 0	/* disabled for development */
+#if 1	/* feel free to disable for development */
 #define	CONFIG_AUTOBOOT_KEYED		/* Enable password protection	*/
 #define CONFIG_AUTOBOOT_PROMPT	"\nEnter password - autoboot in %d sec...\n"
-#define CONFIG_AUTOBOOT_DELAY_STR	"system"	/* 1st password	*/
+#define CONFIG_AUTOBOOT_DELAY_STR	"R"	/* 1st "password"	*/
 #endif
 
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)

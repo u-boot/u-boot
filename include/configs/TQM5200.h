@@ -132,7 +132,7 @@
 
 /* IDE */
 #if defined (CONFIG_MINIFAP) || defined (CONFIG_STK52XX)
-#define ADD_IDE_CMD		CFG_CMD_IDE | CFG_CMD_FAT
+#define ADD_IDE_CMD		(CFG_CMD_IDE | CFG_CMD_FAT | CFG_CMD_EXT2)
 #else
 #define ADD_IDE_CMD		0
 #endif
@@ -141,19 +141,24 @@
  * Supported commands
  */
 #define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
-				CFG_CMD_EEPROM	| \
-				CFG_CMD_I2C	| \
+				ADD_IDE_CMD	| \
 				ADD_PCI_CMD	| \
 				ADD_USB_CMD	| \
-				CFG_CMD_POST_DIAG | \
+				CFG_CMD_ASKENV	| \
 				CFG_CMD_DATE	| \
-				CFG_CMD_REGINFO | \
+				CFG_CMD_DHCP	| \
+				CFG_CMD_ECHO	| \
+				CFG_CMD_EEPROM	| \
+				CFG_CMD_I2C	| \
 				CFG_CMD_MII	| \
 				CFG_CMD_PING	| \
-				ADD_IDE_CMD)
+				CFG_CMD_POST_DIAG | \
+				CFG_CMD_REGINFO )
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
+
+#define	CONFIG_TIMESTAMP		/* display image timestamps */
 
 #if (TEXT_BASE == 0xFC000000)		/* Boot low */
 #   define CFG_LOWBOOT		1

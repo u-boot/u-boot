@@ -26,6 +26,7 @@
 #include <common.h>
 #include <command.h>
 #include <s3c2400.h>
+#include <rtc.h>
 
 /*
  * TRAB board specific commands. Especially commands for burn-in and function
@@ -117,6 +118,7 @@ int i2c_write_multiple (uchar chip, uint addr, int alen,
 			uchar *buffer, int len);
 int i2c_read_multiple (uchar chip, uint addr, int alen,
 			uchar *buffer, int len);
+int do_temp_log (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 /* helper functions */
 static void adc_init (void);
@@ -173,6 +175,7 @@ int do_burn_in (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	led_init ();
 	global_vars_init ();
 	test_function_table_init ();
+	spi_init ();
 
 	if (global_vars_write_to_eeprom () != 0) {
 		printf ("%s: error writing global_vars to eeprom\n",
@@ -334,7 +337,6 @@ int do_contact_temp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 
 	spi_init ();
-	tsc2000_reg_init ();
 
 	contact_temp = tsc2000_contact_temp();
 	printf ("%d degree C * 100\n", contact_temp) ;
@@ -577,7 +579,6 @@ static int test_contact_temp (void)
 {
 	int contact_temp;
 
-	spi_init ();
 	contact_temp = tsc2000_contact_temp ();
 
 	if ((contact_temp < MIN_CONTACT_TEMP)
@@ -839,5 +840,56 @@ static int dummy(void)
 {
 	return (0);
 }
+
+int do_temp_log (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	int contact_temp;
+	int delay = 0;
+#if (CONFIG_COMMANDS & CFG_CMD_DATE)
+	struct rtc_time tm;
+#endif
+
+	if (argc > 2) {
+		printf ("Usage:\n%s\n", cmdtp->usage);
+		return 1;
+	}
+
+	if (argc > 1) {
+		delay = simple_strtoul(argv[1], NULL, 10);
+	}
+
+	spi_init ();
+	while (1) {
+
+#if (CONFIG_COMMANDS & CFG_CMD_DATE)
+		rtc_get (&tm);
+		printf ("%4d-%02d-%02d %2d:%02d:%02d - ",
+			tm.tm_year, tm.tm_mon, tm.tm_mday,
+			tm.tm_hour, tm.tm_min, tm.tm_sec);
+#endif
+
+		contact_temp = tsc2000_contact_temp();
+		printf ("%d\n", contact_temp) ;
+
+		if (delay != 0)
+			/*
+			 * reset timer to avoid timestamp overflow problem
+			 * after about 68 minutes of udelay() time.
+			 */
+			reset_timer_masked ();
+			sdelay (delay);
+	}
+
+	return 0;
+}
+
+U_BOOT_CMD(
+	tlog,	2,	1,	do_temp_log,
+	"tlog    - log contact temperature [1/100 C] to console (endlessly)\n",
+	"delay\n"
+	"    - contact temperature [1/100 C] is printed endlessly to console\n"
+	"      <delay> specifies the seconds to wait between two measurements\n"
+	"      For each measurment a timestamp is printeted\n"
+);
 
 #endif	/* CFG_CMD_BSP */

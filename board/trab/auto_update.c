@@ -416,6 +416,13 @@ au_update_eeprom(int idx)
 	int off;
 	uint32_t val;
 
+	/* special case for prepare.img */
+	if (idx == IDX_PREPARE) {
+		/* enable the power switch */
+		*CPLD_VFD_BK &= ~POWER_OFF;
+		return 0;
+	}
+
 	hdr = (image_header_t *)LOAD_ADDR;
 	/* write the time field into EEPROM */
 	off = auee_off[idx].time;

@@ -2,6 +2,15 @@
 Changes for U-Boot 1.1.3:
 ======================================================================
 
+* Add support for ext2 filesystems and image timestamps to TQM5200 board
+
+* Add reset code for Coral-P on INKA4x0 board
+
+* Patch by Martin Krause, 28 Jun 2004:
+  Update for TRAB board.
+
+* Fix some missing "volatile"s in MPC5xxx FEC driver
+
 * Fix cirrus voltage detection (for CPC45)
 
 * Fix byteorder problem in usbboot and scsiboot commands.
