@@ -192,7 +192,7 @@ load_serial (ulong offset)
 			    "## Total Size      = 0x%08lX = %ld Bytes\n",
 			    start_addr, end_addr, size, size
 		    );
-		    flush_cache (addr, size);
+		    flush_cache (start_addr, size);
 		    sprintf(buf, "%lX", size);
 		    setenv("filesize", buf);
 		    return (addr);

@@ -63,6 +63,12 @@ block_dev_desc_t *get_dev (char* ifname, int dev)
 		return(mmc_get_dev(dev));
 	}
 #endif
+#if defined(CONFIG_SYSTEMACE)
+	if (strcmp(ifname,"ace")==0) {
+		extern block_dev_desc_t *  systemace_get_dev(int dev);
+		return(systemace_get_dev(dev));
+	}
+#endif
 	return NULL;
 }
 

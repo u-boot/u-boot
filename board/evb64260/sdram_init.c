@@ -341,11 +341,7 @@ static int setup_sdram_common (sdram_info_t info[2])
 			tras_clocks = info[0].tras_clocks;
 		if (!info[0].registered)
 			registered = 0;
-		if (info[0].ecc != 2indent: Standard input:491: Warning:old style assignment ambiguity in "=*".  Assuming "= *"
-
-indent: Standard input:492: Warning:old style assignment ambiguity in "=*".  Assuming "= *"
-
-)
+		if (info[0].ecc != 2)
 			ecc = 0;
 	}
 

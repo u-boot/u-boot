@@ -97,7 +97,7 @@ typedef struct bd_info {
 #if defined(CONFIG_440_GX)
 	unsigned char   bi_enet3addr[6];
 #endif
-#if defined(CONFIG_405GP) || defined(CONFIG_405EP)
+#if defined(CONFIG_405GP) || defined(CONFIG_405EP) || defined (CONFIG_440_GX)
 	unsigned int	bi_opbfreq;		/* OPB clock in Hz */
 	int		bi_iic_fast[2];		/* Use fast i2c mode */
 #endif

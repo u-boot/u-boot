@@ -28,7 +28,7 @@ LIB	= libcommon.a
 AOBJS	=
 
 COBJS	= main.o ACEX1K.o altera.o bedbug.o \
-	  cmd_autoscript.o \
+	  cmd_ace.o cmd_autoscript.o \
 	  cmd_bdinfo.o cmd_bedbug.o cmd_bmp.o cmd_boot.o cmd_bootm.o \
 	  cmd_cache.o cmd_console.o \
 	  cmd_date.o cmd_dcr.o cmd_diag.o cmd_doc.o cmd_dtt.o \

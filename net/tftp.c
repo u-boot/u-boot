@@ -38,14 +38,20 @@
 static int	TftpServerPort;		/* The UDP port at their end		*/
 static int	TftpOurPort;		/* The UDP port at our end		*/
 static int	TftpTimeoutCount;
-static unsigned	TftpBlock;
-static unsigned	TftpLastBlock;
+static ulong	TftpBlock;		/* packet sequence number		*/
+static ulong	TftpLastBlock;		/* last packet sequence number received */
+static ulong	TftpBlockWrap;		/* count of sequence number wraparounds */
+static ulong	TftpBlockWrapOffset;	/* memory offset due to wrapping	*/
 static int	TftpState;
+
 #define STATE_RRQ	1
 #define STATE_DATA	2
 #define STATE_TOO_LARGE	3
 #define STATE_BAD_MAGIC	4
 #define STATE_OACK	5
+
+#define TFTP_BLOCK_SIZE		512		    /* default TFTP block size	*/
+#define TFTP_SEQUENCE_SIZE	((ulong)(1<<16))    /* sequence number is 16 bit */
 
 #define DEFAULT_NAME_LEN	(8 + 4 + 1)
 static char default_filename[DEFAULT_NAME_LEN];
@@ -58,7 +64,8 @@ extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
 static __inline__ void
 store_block (unsigned block, uchar * src, unsigned len)
 {
-	ulong offset = block * 512, newsize = offset + len;
+	ulong offset = block * TFTP_BLOCK_SIZE + TftpBlockWrapOffset;
+	ulong newsize = offset + len;
 #ifdef CFG_DIRECT_FLASH_TFTP
 	int i, rc = 0;
 
@@ -196,10 +203,23 @@ TftpHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 			return;
 		len -= 2;
 		TftpBlock = ntohs(*(ushort *)pkt);
-		if (((TftpBlock - 1) % 10) == 0) {
-			putc ('#');
-		} else if ((TftpBlock % (10 * HASHES_PER_LINE)) == 0) {
-			puts ("\n\t ");
+
+		/*
+                 * RFC1350 specifies that the first data packet will
+                 * have sequence number 1. If we receive a sequence
+                 * number of 0 this means that there was a wrap
+                 * around of the (16 bit) counter.
+		 */
+		if (TftpBlock == 0) {
+			TftpBlockWrap++;
+			TftpBlockWrapOffset += TFTP_BLOCK_SIZE * TFTP_SEQUENCE_SIZE;
+			printf ("\n\t %lu MB reveived\n\t ", TftpBlockWrapOffset>>20);
+		} else {
+			if (((TftpBlock - 1) % 10) == 0) {
+				putc ('#');
+			} else if ((TftpBlock % (10 * HASHES_PER_LINE)) == 0) {
+				puts ("\n\t ");
+			}
 		}
 
 #ifdef ET_DEBUG
@@ -209,13 +229,16 @@ TftpHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 #endif
 
 		if (TftpState == STATE_RRQ || TftpState == STATE_OACK) {
+			/* first block received */
 			TftpState = STATE_DATA;
 			TftpServerPort = src;
 			TftpLastBlock = 0;
+			TftpBlockWrap = 0;
+			TftpBlockWrapOffset = 0;
 
 			if (TftpBlock != 1) {	/* Assertion */
 				printf ("\nTFTP error: "
-					"First block is not block 1 (%d)\n"
+					"First block is not block 1 (%ld)\n"
 					"Starting again\n\n",
 					TftpBlock);
 				NetStartAgain ();
@@ -241,7 +264,7 @@ TftpHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 		 */
 		TftpSend ();
 
-		if (len < 512) {
+		if (len < TFTP_BLOCK_SIZE) {
 			/*
 			 *	We received the whole thing.  Try to
 			 *	run it.

@@ -37,7 +37,8 @@
 
 #if ((CONFIG_COMMANDS & CFG_CMD_IDE)	|| \
      (CONFIG_COMMANDS & CFG_CMD_SCSI)	|| \
-     (CONFIG_COMMANDS & CFG_CMD_USB)	) && defined(CONFIG_DOS_PARTITION)
+     (CONFIG_COMMANDS & CFG_CMD_USB)	|| \
+     (CONFIG_SYSTEMACE)) && defined(CONFIG_DOS_PARTITION)
 
 /* Convert char[4] in little endian format to the host format integer
  */

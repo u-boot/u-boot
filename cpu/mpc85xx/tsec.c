@@ -49,9 +49,9 @@ static int tsec_send(struct eth_device* dev, volatile void *packet, int length);
 static int tsec_recv(struct eth_device* dev);
 static int tsec_init(struct eth_device* dev, bd_t * bd);
 static void tsec_halt(struct eth_device* dev);
-static void init_registers(tsec_t *regs);
-static void startup_tsec(tsec_t *regs);
-static void init_phy(tsec_t *regs);
+static void init_registers(volatile tsec_t *regs);
+static void startup_tsec(volatile tsec_t *regs);
+static void init_phy(volatile tsec_t *regs);
 
 /* Initialize device structure.  returns 0 on failure, 1 on
  * success */
@@ -89,12 +89,12 @@ int tsec_initialize(bd_t *bis)
  * and brings the interface up */
 int tsec_init(struct eth_device* dev, bd_t * bd)
 {
-	tsec_t *regs;
+	volatile tsec_t *regs;
 	uint tempval;
 	char tmpbuf[MAC_ADDR_LEN];
 	int i;
 
-	regs = (tsec_t *)(TSEC_BASE_ADDR);
+	regs = (volatile tsec_t *)(TSEC_BASE_ADDR);
 
 	/* Make sure the controller is stopped */
 	tsec_halt(dev);
@@ -146,7 +146,7 @@ int tsec_init(struct eth_device* dev, bd_t * bd)
 /* and then passes those bits on to the variable specified in */
 /* value */
 /* Before it does the read, it needs to clear the command field */
-uint read_phy_reg(tsec_t *regbase, uint phyid, uint offset)
+uint read_phy_reg(volatile tsec_t *regbase, uint phyid, uint offset)
 {
 	uint value;
 
@@ -173,7 +173,7 @@ uint read_phy_reg(tsec_t *regbase, uint phyid, uint offset)
 }
 
 /* Setup the PHY */
-static void init_phy(tsec_t *regs)
+static void init_phy(volatile tsec_t *regs)
 {
 	uint testval;
 	unsigned int timeout = TSEC_TIMEOUT;
@@ -280,7 +280,7 @@ static void init_phy(tsec_t *regs)
 }
 
 
-static void init_registers(tsec_t *regs)
+static void init_registers(volatile tsec_t *regs)
 {
 	/* Clear IEVENT */
 	regs->ievent = IEVENT_INIT_CLEAR;
@@ -322,7 +322,7 @@ static void init_registers(tsec_t *regs)
 
 }
 
-static void startup_tsec(tsec_t *regs)
+static void startup_tsec(volatile tsec_t *regs)
 {
 	int i;
 
@@ -363,7 +363,7 @@ static int tsec_send(struct eth_device* dev, volatile void *packet, int length)
 {
 	int i;
 	int result = 0;
-	tsec_t * regs = (tsec_t *)(TSEC_BASE_ADDR);
+	volatile tsec_t * regs = (volatile tsec_t *)(TSEC_BASE_ADDR);
 
 	/* Find an empty buffer descriptor */
 	for(i=0; rtx.txbd[txIdx].status & TXBD_READY; i++) {
@@ -397,7 +397,7 @@ static int tsec_send(struct eth_device* dev, volatile void *packet, int length)
 static int tsec_recv(struct eth_device* dev)
 {
 	int length;
-	tsec_t *regs = (tsec_t *)(TSEC_BASE_ADDR);
+	volatile tsec_t *regs = (volatile tsec_t *)(TSEC_BASE_ADDR);
 
 	while(!(rtx.rxbd[rxIdx].status & RXBD_EMPTY)) {
 
@@ -428,7 +428,7 @@ static int tsec_recv(struct eth_device* dev)
 
 static void tsec_halt(struct eth_device* dev)
 {
-	tsec_t *regs = (tsec_t *)(TSEC_BASE_ADDR);
+	volatile tsec_t *regs = (volatile tsec_t *)(TSEC_BASE_ADDR);
 
 	regs->dmactrl &= ~(DMACTRL_GRS | DMACTRL_GTS);
 	regs->dmactrl |= (DMACTRL_GRS | DMACTRL_GTS);

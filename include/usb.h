@@ -234,15 +234,18 @@ int usb_set_interface(struct usb_device *dev, int interface, int alternate);
 #define swap_32(x) ((unsigned long)(x))
 #else
 #define swap_16(x) \
-	((unsigned short)( \
-		(((unsigned short)(x) & (unsigned short)0x00ffU) << 8) | \
-		(((unsigned short)(x) & (unsigned short)0xff00U) >> 8) ))
+	({ unsigned short x_ = (unsigned short)x; \
+	 (unsigned short)( \
+		((x_ & 0x00FFU) << 8) | ((x_ & 0xFF00U) >> 8) ); \
+	})
 #define swap_32(x) \
-	((unsigned long)( \
-		(((unsigned long)(x) & (unsigned long)0x000000ffUL) << 24) | \
-		(((unsigned long)(x) & (unsigned long)0x0000ff00UL) <<  8) | \
-		(((unsigned long)(x) & (unsigned long)0x00ff0000UL) >>  8) | \
-		(((unsigned long)(x) & (unsigned long)0xff000000UL) >> 24) ))
+	({ unsigned long x_ = (unsigned long)x; \
+	 (unsigned long)( \
+		((x_ & 0x000000FFUL) << 24) | \
+		((x_ & 0x0000FF00UL) <<  8) | \
+		((x_ & 0x00FF0000UL) >>  8) | \
+		((x_ & 0xFF000000UL) >> 24) ); \
+	})
 #endif /* LITTLEENDIAN */
 
 /*

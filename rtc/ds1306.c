@@ -75,8 +75,6 @@ static unsigned char bcd2bin (unsigned char c);
 /* ************************************************************************* */
 #ifdef CONFIG_SXNI855T		/* !!! SHOULD BE CHANGED TO NEW CODE !!! */
 
-static unsigned char rtc_read (unsigned char reg);
-static void rtc_write (unsigned char reg, unsigned char val);
 static void soft_spi_send (unsigned char n);
 static unsigned char soft_spi_read (void);
 static void init_spi (void);
@@ -301,6 +299,9 @@ void rtc_reset (void)
 
 #else  /* not CONFIG_SXNI855T */
 /* ************************************************************************* */
+
+static unsigned char rtc_read (unsigned char reg);
+static void rtc_write (unsigned char reg, unsigned char val);
 
 /* read clock time from DS1306 and return it in *tmp */
 void rtc_get (struct rtc_time *tmp)

@@ -2,6 +2,25 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
+* Fix problem with side effects in macros in include/usb.h
+
+* Patch by David Benson, 13 Nov 2003:
+  bug 841358 - fix TFTP download size limit
+
+* Fixing bug 850768:
+  improper flush_cache() in load_serial()
+
+* Fixing bug 834943:
+  MPC8540 - missing volatile declarations
+
+* Patch by Stephen Williams, 09 Feb 2004:
+  Add support for Xilinx SystemACE chip:
+  - New files common/cmd_ace.c and include/systemace.h
+  - Hook systemace support into cmd_fat and the partition manager
+
+* Patch by Travis Sawyer, 09 Feb 2004:
+  Add bi_opbfreq & bi_iic_fast to 440GX bd_info as needed for Linux
+
 * Patch by Travis Sawyer, 09 Feb 2004:
   o 440GX:
     - Fix PCI Indirect access for type 1 config cycles with ppc440.

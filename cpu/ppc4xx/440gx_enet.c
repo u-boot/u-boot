@@ -1074,16 +1074,16 @@ int ppc_440x_eth_initialize (bd_t * bis)
 		/* Allocate device structure */
 		dev = (struct eth_device *) malloc (sizeof (*dev));
 		if (dev == NULL) {
-			printf (__FUNCTION__
-				": Cannot allocate eth_device %d\n", eth_num);
+			printf ("ppc_440x_eth_initialize: "
+				"Cannot allocate eth_device %d\n", eth_num);
 			return (-1);
 		}
 
 		/* Allocate our private use data */
 		hw = (EMAC_440GX_HW_PST) malloc (sizeof (*hw));
 		if (hw == NULL) {
-			printf (__FUNCTION__
-				": Cannot allocate private hw data for eth_device %d",
+			printf ("ppc_440x_eth_initialize: "
+				"Cannot allocate private hw data for eth_device %d",
 				eth_num);
 			free (dev);
 			return (-1);

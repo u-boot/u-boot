@@ -1410,6 +1410,20 @@ The following options need to be configured:
 		allows to read/write in Dataflash via the standard
 		commands cp, md...
 
+- SystemACE Support:
+		CONFIG_SYSTEMACE
+
+		Adding this option adds support for Xilinx SystemACE
+		chips attached via some sort of local bus. The address
+		of the chip must alsh be defined in the
+		CFG_SYSTEMACE_BASE macro. For example:
+
+		#define CONFIG_SYSTEMACE
+		#define CFG_SYSTEMACE_BASE 0xf0000000
+
+		When SystemACE support is added, the "ace" device type
+		becomes available to the fat commands, i.e. fatls.
+
 - Show boot progress:
 		CONFIG_SHOW_BOOT_PROGRESS
 

@@ -36,7 +36,7 @@
 #if ((CONFIG_COMMANDS & CFG_CMD_IDE)	|| \
      (CONFIG_COMMANDS & CFG_CMD_SCSI)	|| \
      (CONFIG_COMMANDS & CFG_CMD_USB)	|| \
-     (CONFIG_MMC)			)
+     (CONFIG_MMC) || (CONFIG_SYSTEMACE) )
 
 /* ------------------------------------------------------------------------- */
 /*
@@ -107,7 +107,8 @@ void dev_print (block_dev_desc_t *dev_desc)
 
 #if ((CONFIG_COMMANDS & CFG_CMD_IDE)	|| \
      (CONFIG_COMMANDS & CFG_CMD_SCSI)	|| \
-     (CONFIG_COMMANDS & CFG_CMD_USB)	)
+     (CONFIG_COMMANDS & CFG_CMD_USB)	|| \
+     defined(CONFIG_SYSTEMACE)          )
 
 #if defined(CONFIG_MAC_PARTITION) || \
     defined(CONFIG_DOS_PARTITION) || \
