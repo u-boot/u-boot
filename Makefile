@@ -667,7 +667,7 @@ TTTech_config:	unconfig
 	@echo "#define CONFIG_SHARP_LQ104V7DS01" >>include/config.h
 	@./mkconfig -a TQM823L ppc mpc8xx tqm8xx
 
-UC100_config	:	unconfig
+uc100_config	:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx uc100
 
 v37_config:	unconfig

@@ -561,7 +561,7 @@ static int ext2fs_iterate_dir (ext2fs_node_t dir, char *name, ext2fs_node_t * fn
 					printf ("      ");
 					break;
 				default:
-					printf ("<???> ");
+					printf ("< ? > ");
 					break;
 				}
 				printf ("%10d %s\n",

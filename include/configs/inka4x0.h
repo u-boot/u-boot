@@ -53,7 +53,7 @@
 /*
  * Supported commands
  */
-#define CONFIG_COMMANDS	       (CONFIG_CMD_DFL)
+#define CONFIG_COMMANDS	       (CONFIG_CMD_DFL | CFG_CMD_DHCP)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>

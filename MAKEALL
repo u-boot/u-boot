@@ -51,7 +51,8 @@ LIST_8xx="	\
 	FPS850L		LANTEC		QS850		TQM850L		\
 	GEN860T		lwmon		QS860T		TQM855L		\
 	GEN860T_SC	MBX		quantum		TQM860L		\
-	UC100						v37		\
+							uc100		\
+							v37		\
 "
 
 #########################################################################

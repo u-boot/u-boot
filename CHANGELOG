@@ -2,6 +2,10 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Cleanup:
+  - avoid trigraph warning in fs/ext2/ext2fs.c
+  - rename UC100 -> uc100
+
 * Add support for UC100 board
 
 * Patch by Stefan Roese, 16 Dez 2004:
