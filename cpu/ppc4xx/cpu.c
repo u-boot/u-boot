@@ -67,7 +67,7 @@ int checkcpu (void)
 
 #if CONFIG_405GP
 	puts("IBM PowerPC 405GP");
-	if (pvr == PVR_405GPR_RA) {
+	if (pvr == PVR_405GPR_RB) {
 		putc('r');
 	}
 	puts(" Rev. ");
@@ -77,6 +77,7 @@ int checkcpu (void)
 #endif
 	switch (pvr) {
 	case PVR_405GP_RB:
+	case PVR_405GPR_RB:
 		putc('B');
 		break;
 	case PVR_405GP_RC:
@@ -94,7 +95,6 @@ int checkcpu (void)
 		break;
 #endif
 	case PVR_405CR_RA:
-	case PVR_405GPR_RA:
 		putc('A');
 		break;
 	case PVR_405CR_RB:
@@ -122,7 +122,7 @@ int checkcpu (void)
 		printf("external PCI arbiter enabled\n");
 #endif
 
-	if ((pvr | 0x00000001) == PVR_405GPR_RA) {
+	if ((pvr | 0x00000001) == PVR_405GPR_RB) {
 		printf("           16 kB I-Cache 16 kB D-Cache");
 	} else {
 		printf("           16 kB I-Cache 8 kB D-Cache");

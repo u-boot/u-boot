@@ -87,7 +87,7 @@ void get_sys_info (PPC405_SYS_INFO * sysInfo)
 	/*
 	 * Check if PPC405GPr used (mask minor revision field)
 	 */
-	if ((pvr & 0xfffffff0) == (PVR_405GPR_RA & 0xfffffff0)) {
+	if ((pvr & 0xfffffff0) == (PVR_405GPR_RB & 0xfffffff0)) {
 		/*
 		 * Determine FWD_DIV B (only PPC405GPr with new mode strapping).
 		 */

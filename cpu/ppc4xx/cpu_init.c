@@ -149,7 +149,7 @@ int cpu_init_r (void)
 	 * Set edge conditioning circuitry on PPC405GPr
 	 * for compatibility to existing PPC405GP designs.
 	 */
-	if ((pvr & 0xfffffff0) == (PVR_405GPR_RA & 0xfffffff0)) {
+	if ((pvr & 0xfffffff0) == (PVR_405GPR_RB & 0xfffffff0)) {
 		mtdcr(ecr, 0x60606000);
 	}
 
