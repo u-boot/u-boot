@@ -119,6 +119,7 @@ unsigned long flash_init (void)
 		size += flash_info[i].size;
 	}
 
+#ifdef CFG_ENV_IS_IN_FLASH
 	/* Protect monitor and environment sectors
 	 */
 	flash_protect (FLAG_PROTECT_SET,
@@ -128,7 +129,7 @@ unsigned long flash_init (void)
 	flash_protect (FLAG_PROTECT_SET,
 				   CFG_ENV_ADDR,
 				   CFG_ENV_ADDR + CFG_ENV_SIZE - 1, &flash_info[0]);
-
+#endif
 	return size;
 }
 

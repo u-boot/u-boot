@@ -377,6 +377,23 @@ static void setup_videolfb_tag (gd_t *gd)
 }
 #endif /* CONFIG_VFD || CONFIG_LCD */
 
+#ifdef CONFIG_REVISION_TAG
+void setup_revision_tag(struct tag **in_params)
+{
+	u32 rev = 0;
+#ifdef CONFIG_OMAP2420H4
+	u32 get_board_rev(void);
+
+	rev = get_board_rev();
+#endif
+	params->hdr.tag = ATAG_REVISION;
+	params->hdr.size = tag_size (tag_revision);
+	params->u.revision.rev = rev;
+	params = tag_next (params);
+}
+#endif  /* CONFIG_REVISION_TAG */
+
+
 static void setup_end_tag (bd_t *bd)
 {
 	params->hdr.tag = ATAG_NONE;

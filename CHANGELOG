@@ -2,7 +2,19 @@
 Changes for U-Boot 1.1.3:
 ======================================================================
 
-* Patch by Daniel Poirot, 10 Oct 2004:
+* Patch by Richard Woodruff, 10 Jan 2005:
+  Update support for OMAP2420 (ARM11) and H4 board:
+  o clean up and add new types to H4 memory probe code.
+  o fix to work with internal boot.
+  o added PRCM config III operation.
+  o fix marginal flash timings.
+  o add revison ATAG usage.
+  o enable voltage scaling at power chip.
+  o fix compile error for i2c.
+
+* Fix network problem (error when receiving multiple ARP packets)
+
+* Patch by Daniel Poirot, 12 Oct 2004:
   Add support for Wind River sbc405 board
 
 * Patch by Rainer Brestan, 12 Oct 2004:

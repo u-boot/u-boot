@@ -68,27 +68,30 @@ PciBar *memBars[IXP425_PCI_MAX_BAR];
 PciBar *ioBars[IXP425_PCI_MAX_BAR];
 PciDevice devices[IXP425_PCI_MAX_FUNC_ON_BUS];
 
-extern void out_8 (volatile unsigned *addr, char val)
+void out_8 (volatile unsigned *addr, char val)
 {
 	*addr = val;
 }
-extern void out_le16 (volatile unsigned *addr, unsigned short val)
+
+void out_le16 (volatile unsigned *addr, unsigned short val)
 {
 	*addr = cpu_to_le16 (val);
 }
-extern void out_le32 (volatile unsigned *addr, unsigned int val)
+
+void out_le32 (volatile unsigned *addr, unsigned int val)
 {
 	*addr = cpu_to_le32 (val);
 }
 
-extern unsigned char in_8 (volatile unsigned *addr)
+unsigned char in_8 (volatile unsigned *addr)
 {
 	unsigned char val;
 
 	val = *addr;
 	return val;
 }
-extern unsigned short in_le16 (volatile unsigned *addr)
+
+unsigned short in_le16 (volatile unsigned *addr)
 {
 	unsigned short val;
 
@@ -96,7 +99,8 @@ extern unsigned short in_le16 (volatile unsigned *addr)
 	val = le16_to_cpu (val);
 	return val;
 }
-extern unsigned in_le32 (volatile unsigned *addr)
+
+unsigned in_le32 (volatile unsigned *addr)
 {
 	unsigned int val;
 
@@ -552,10 +556,9 @@ void sys_pci_device_bars_write (void)
 		pci_write_config_dword (devices[i].device,
 					PCI_CFG_BASE_ADDRESS_0,
 					devices[i].bar[0].address);
-		addr = BIT (31 -
-			    devices[i].
-			    device) | (0 << PCI_NP_AD_FUNCSL) |
-			(PCI_CFG_BASE_ADDRESS_0) & ~3;
+		addr = (BIT (31 - devices[i].device) |
+			(0 << PCI_NP_AD_FUNCSL) |
+			(PCI_CFG_BASE_ADDRESS_0) ) & ~3;
 		pci_write_config_dword (devices[i].device,
 					PCI_CFG_DEV_INT_LINE, devices[i].irq);
 

@@ -70,13 +70,21 @@ u32 get_cpu_rev(void)
  *************************************************************/
 u32 get_mem_type(void)
 {
+	volatile u32 *burst = (volatile u32 *)(SDRC_MR_0+SDRC_CS0_OSET);
+
 	if (get_cpu_type() == CPU_2422)
 		return(DDR_STACKED);
 
 	if (get_board_type() == BOARD_H4_MENELAUS)
-		return(DDR_COMBO);
+		if(*burst == H4_2420_SDRC_MR_0_SDR)
+			return(SDR_DISCRETE);
+		else
+			return(DDR_COMBO);
 	else
-		return(DDR_DISCRETE);
+		if(*burst == H4_2420_SDRC_MR_0_SDR) /* SDP + SDR kit */
+			return(SDR_DISCRETE);
+		else
+			return(DDR_DISCRETE); /* origional SDP */
 }
 
 /***********************************************************************
@@ -129,6 +137,8 @@ u32 is_gpmc_muxed(void)
 {
 	u32 mux;
 	mux = get_sysboot_value();
+	if ((mux & (BIT0 | BIT1 | BIT2 | BIT3)) == (BIT0 | BIT2 | BIT3))
+		return(GPMC_MUXED); /* NAND Boot mode */
 	if (mux & BIT1)	   /* if mux'ed */
 		return(GPMC_MUXED);
 	else
@@ -200,3 +210,96 @@ void display_board_info(u32 btype)
 		db_s = db_ip;
 	printf("TI H4 SDP Base Board with OMAP%s %s Daughter Board\n",cpu_s, db_s);
 }
+
+/*************************************************************************
+ * get_board_rev() - setup to pass kernel board revision information
+ *          0 = 242x IP platform (first 2xx boards)
+ *          1 = 242x Menelaus platfrom.
+ *************************************************************************/
+u32 get_board_rev(void)
+{
+	u32 rev = 0;
+	u32 btype = get_board_type();
+
+	if (btype == BOARD_H4_MENELAUS){
+		rev = 1;
+	}
+	return(rev);
+}
+
+/********************************************************
+ *  get_base(); get upper addr of current execution
+ *******************************************************/
+static u32 get_base(void)
+{
+	u32  val;
+	__asm__ __volatile__("mov %0, pc \n" : "=r" (val) : : "memory");
+	val &= 0xF0000000;
+	val >>= 28;
+	return(val);
+}
+
+/********************************************************
+ *  get_base2(); get 2upper addr of current execution
+ *******************************************************/
+static u32 get_base2(void)
+{
+	u32  val;
+	__asm__ __volatile__("mov %0, pc \n" : "=r" (val) : : "memory");
+	val &= 0xFF000000;
+	val >>= 24;
+	return(val);
+}
+
+
+
+/********************************************************
+ *  running_in_flash() - tell if currently running in
+ *   flash.
+ *******************************************************/
+u32 running_in_flash(void)
+{
+	if (get_base() < 4)
+		return(1);  /* in flash */
+	return(0); /* running in SRAM or SDRAM */
+}
+
+/********************************************************
+ *  running_in_sram() - tell if currently running in
+ *   sram.
+ *******************************************************/
+u32 running_in_sram(void)
+{
+	if (get_base() == 4)
+		return(1);  /* in SRAM */
+	return(0); /* running in FLASH or SDRAM */
+}
+/********************************************************
+ *  running_in_sdram() - tell if currently running in
+ *   flash.
+ *******************************************************/
+u32 running_in_sdram(void)
+{
+	if (get_base() > 4)
+		return(1);  /* in sdram */
+	return(0); /* running in SRAM or FLASH */
+}
+
+/*************************************************************
+ *  running_from_internal_boot() - am I a signed NOR image.
+ *************************************************************/
+u32 running_from_internal_boot(void)
+{
+	u32 v, base;
+
+	v = get_sysboot_value() & BIT3;
+	base = get_base2();
+	/* if running at mask rom flash address and
+	 * sysboot3 says this was an internal boot
+	 */
+	if ((base == 0x08) && v)
+		return(1);
+	else
+		return(0);
+}
+

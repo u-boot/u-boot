@@ -38,18 +38,16 @@
  * Miscelaneous platform dependent initialisations
  */
 
-int
 /**********************************************************/
-board_post_init (void)
-/**********************************************************/
+
+int board_post_init (void)
 {
 	return (0);
 }
 
-int
 /**********************************************************/
-board_init (void)
-/**********************************************************/
+
+int board_init (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
@@ -62,10 +60,9 @@ board_init (void)
 	return 0;
 }
 
-int
 /**********************************************************/
-dram_init (void)
-/**********************************************************/
+
+int dram_init (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
@@ -74,9 +71,14 @@ dram_init (void)
 
 	return (0);
 }
+
+/**********************************************************/
+
 extern struct pci_controller hose;
+
 void pci_init_board(void)
 {
+	extern void pci_ixp_init (struct pci_controller *hose);
+
 	pci_ixp_init(&hose);
-	return ;
 }

@@ -14,12 +14,10 @@
 # (mem base + reserved)
 
 # For use with external or internal boots.
-# CONFIG_PARTIAL_SRAM must be defined to use this.
 TEXT_BASE = 0x80e80000
 
 # Used with full SRAM boot.
 # This is either with a GP system or a signed boot image.
 # easiest, and safest way to go if you can.
-# Comment out CONFIG_PARTIAL_SRAM for this one.
-#
 #TEXT_BASE = 0x40280000
+

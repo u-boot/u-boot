@@ -38,10 +38,19 @@
 /*#define CONFIG_APTIX           1    #* define if on APTIX test chip */
 /*#define CONFIG_VIRTIO          1    #* Using Virtio simulator */
 
-#define PRCM_CONFIG_II           1
-#define CONFIG_PARTIAL_SRAM      1
+/* Clock config to target*/
+#define PRCM_CONFIG_II		1
+//#define PRCM_CONFIG_III	1
+
+/* Memory configuration on board */
+//#define CONFIG_OPTIMIZE_DDR	1
 
 #include <asm/arch/omap2420.h>        /* get chip and board defs */
+
+/* On H4, NOR and NAND flash are mutual exclusive.
+   Define this if you want to use NAND
+ */
+//#define CFG_NAND_BOOT
 
 #ifdef CONFIG_APTIX
 #define V_SCLK                   1500000
@@ -59,6 +68,7 @@
 #define CONFIG_CMDLINE_TAG       1    /* enable passing of ATAGs */
 #define CONFIG_SETUP_MEMORY_TAGS 1
 #define CONFIG_INITRD_TAG        1
+#define CONFIG_REVISION_TAG      1
 
 /*
  * Size of malloc() pool
@@ -112,8 +122,11 @@
 #define CONFIG_BAUDRATE          115200
 #define CFG_BAUDRATE_TABLE       {9600, 19200, 38400, 57600, 115200}
 
-#define CONFIG_COMMANDS          (CONFIG_CMD_DFL | CFG_CMD_DHCP | CFG_CMD_I2C)
-
+#ifdef CFG_NAND_BOOT
+#define CONFIG_COMMANDS          (CONFIG_CMD_DFL | CFG_CMD_DHCP | CFG_CMD_I2C | CFG_CMD_NAND | CFG_CMD_JFFS2)
+#else
+#define CONFIG_COMMANDS          (CONFIG_CMD_DFL | CFG_CMD_DHCP | CFG_CMD_I2C | CFG_CMD_JFFS2)
+#endif
 /* I'd like to get to these. Snap kernel loads if we make MMC go */
   /* #define CONFIG_COMMANDS       (CONFIG_CMD_DFL | CFG_CMD_NAND | CFG_CMD_JFFS2 | CFG_CMD_DHCP | CFG_CMD_MMC | CFG_CMD_FAT | CFG_CMD_I2C) */
 
@@ -121,6 +134,43 @@
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
+
+/*
+ *  Board NAND Info.
+ */
+#define CFG_NAND_ADDR 0x04000000  /* physical address to access nand at CS0*/
+
+#define CFG_MAX_NAND_DEVICE 1	/* Max number of NAND devices */
+#define SECTORSIZE          512
+
+#define ADDR_COLUMN         1
+#define ADDR_PAGE           2
+#define ADDR_COLUMN_PAGE    3
+
+#define NAND_ChipID_UNKNOWN 0x00
+#define NAND_MAX_FLOORS     1
+#define NAND_MAX_CHIPS      1
+
+#define WRITE_NAND_COMMAND(d, adr) do {*(volatile u16 *)0x6800A07C = d;} while(0)
+#define WRITE_NAND_ADDRESS(d, adr) do {*(volatile u16 *)0x6800A080 = d;} while(0)
+#define WRITE_NAND(d, adr) do {*(volatile u16 *)0x6800A084 = d;} while(0)
+#define READ_NAND(adr) (*(volatile u16 *)0x6800A084)
+#define NAND_WAIT_READY(nand)  udelay(10)
+
+#define NAND_NO_RB          1
+
+#define CFG_NAND_WP
+#define NAND_WP_OFF()  do {*(volatile u32 *)(0x6800A050) |= 0x00000010;} while(0)
+#define NAND_WP_ON()  do {*(volatile u32 *)(0x6800A050) &= ~0x00000010;} while(0)
+
+
+#define NAND_CTL_CLRALE(nandptr)
+#define NAND_CTL_SETALE(nandptr)
+#define NAND_CTL_CLRCLE(nandptr)
+#define NAND_CTL_SETCLE(nandptr)
+#define NAND_DISABLE_CE(nand)
+#define NAND_ENABLE_CE(nand)
+
 
 #define CONFIG_BOOTDELAY         3
 
@@ -203,11 +253,22 @@
 #define CFG_MAX_FLASH_BANKS      2           /* max number of memory banks */
 #define CFG_MAX_FLASH_SECT       (259)	     /* max number of sectors on one chip */
 
+#ifdef CFG_NAND_BOOT
+#define CFG_ENV_IS_IN_NAND	1
+#define CFG_ENV_OFFSET	0x80000	/* environment starts here  */
+#else
 #define CFG_ENV_ADDR             (CFG_FLASH_BASE + SZ_128K)
 #define	CFG_ENV_IS_IN_FLASH      1
+#endif
 
 /* timeout values are in ticks */
-#define CFG_FLASH_ERASE_TOUT     (10*75*CFG_HZ) /* Timeout for Flash Erase */
-#define CFG_FLASH_WRITE_TOUT     (10*75*CFG_HZ) /* Timeout for Flash Write */
+#define CFG_FLASH_ERASE_TOUT     (30*75*CFG_HZ) /* Timeout for Flash Erase */
+#define CFG_FLASH_WRITE_TOUT     (30*75*CFG_HZ) /* Timeout for Flash Write */
+
+/* Flash banks JFFS2 should use */
+#define CFG_MAX_MTD_BANKS	(CFG_MAX_FLASH_BANKS+CFG_MAX_NAND_DEVICE)
+#define CFG_JFFS2_MEM_NAND
+#define CFG_JFFS2_FIRST_BANK	1		/* use flash_info[1] */
+#define CFG_JFFS2_NUM_BANKS     1
 
 #endif							/* __CONFIG_H */

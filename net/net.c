@@ -1292,6 +1292,7 @@ NetReceive(volatile uchar * inpkt, int len)
 #endif
 			return;
 		}
+		break;
 
 	case PROT_RARP:
 #ifdef ET_DEBUG

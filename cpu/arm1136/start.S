@@ -113,6 +113,7 @@ reset:
 #ifdef CONFIG_OMAP2420H4
        /* Copy vectors to mask ROM indirect addr */
 	adr	r0, _start		/* r0 <- current position of code   */
+ 		add     r0, r0, #4				/* skip reset vector			*/
 	mov	r2, #64			/* r2 <- size to copy  */
 	add	r2, r0, r2		/* r2 <- source end address	    */
 	mov	r1, #SRAM_OFFSET0	  /* build vect addr */
@@ -125,9 +126,7 @@ next:
 	stmia	r1!, {r3-r10}		/* copy to   target address [r1]    */
 	cmp	r0, r2			/* until source end address [r2]    */
 	bne	next			/* loop until equal */
-#ifdef CONFIG_PARTIAL_SRAM
 	bl	cpy_clk_code		/* put dpll adjust code behind vectors */
-#endif
 #endif
 	/* the mask ROM code should have PLL and others stable */
 	bl  cpu_init_crit
@@ -199,20 +198,13 @@ cpu_init_crit:
 	bic	r0, r0, #0x00002300	@ clear bits 13, 9:8 (--V- --RS)
 	bic	r0, r0, #0x00000087	@ clear bits 7, 2:0 (B--- -CAM)
 	orr	r0, r0, #0x00000002	@ set bit 2 (A) Align
-#ifndef CONFIG_ICACHE_OFF
 	orr	r0, r0, #0x00001000	@ set bit 12 (I) I-Cache
-#endif
 	mcr	p15, 0, r0, c1, c0, 0
 
 	/*
 	 * Jump to board specific initialization... The Mask ROM will have already initialized
 	 * basic memory.  Go here to bump up clock rate and handle wake up conditions.
 	 */
-	adr	r0, _start		/* r0 <- current position of code   */
-	ldr	r1, _TEXT_BASE		/* test if we run from flash or RAM */
-	cmp	r0, r1			/* pass on info about skipping some init portions */
-	moveq	r0,#0x1			/* flag to skip prcm and sdrc setup */
-	movne	r0,#0x0
 	mov	ip, lr		/* persevere link reg across call */
 	bl	platformsetup	/* go setup pll,mux,memory */
 	mov	lr, ip		/* restore link */
@@ -405,7 +397,7 @@ arm1136_cache_flush:
 .globl reset_cpu
 reset_cpu:
 	ldr	r1, rstctl	/* get addr for global reset reg */
-	mov	r3, #0x3	/* full reset pll+mpu */
+	mov	r3, #0x2	/* full reset pll+mpu */
 	str	r3, [r1]	/* force reset */
 	mov	r0, r0
 _loop_forever:

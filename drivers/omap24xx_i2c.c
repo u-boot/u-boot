@@ -21,13 +21,14 @@
  */
 
 #include <common.h>
+
+#ifdef CONFIG_DRIVER_OMAP24XX_I2C
+
 #include <asm/arch/i2c.h>
 #include <asm/io.h>
 
 #define inw(a) __raw_readw(a)
 #define outw(a,v) __raw_writew(a,v)
-
-#ifdef CONFIG_DRIVER_OMAP24XX_I2C
 
 static void wait_for_bb (void);
 static u16 wait_for_pin (void);

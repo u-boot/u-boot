@@ -39,6 +39,7 @@ typedef struct  h4_system_data {
 	u32 cpu_rev;		/* rev of given cpu; ES1, ES2,...*/
 } h4_sys_data;
 
+#define SDR_DISCRETE      4
 #define DDR_STACKED       3      /* stacked part on 2422 */
 #define DDR_COMBO         2      /* combo part on cpu daughter card (menalaeus) */
 #define DDR_DISCRETE      1      /* 2x16 parts on daughter card */

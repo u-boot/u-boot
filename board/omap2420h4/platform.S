@@ -33,8 +33,6 @@
 _TEXT_BASE:
 	.word	TEXT_BASE	/* sdram load addr from config.mk */
 
-#ifdef CONFIG_PARTIAL_SRAM
-
 /**************************************************************************
  * cpy_clk_code: relocates clock code into SRAM where its safer to execute
  * R1 = SRAM destination address.
@@ -159,41 +157,16 @@ pll_div_add:
     .word CM_CLKSEL1_PLL
 pll_div_val:
     .word DPLL_VAL	/* DPLL setting (300MHz default) */
-#endif
 
 .globl platformsetup
 platformsetup:
-	mov r3, r0     /* save skip information */
-#ifdef CONFIG_APTIX
-	ldr	r0,	REG_SDRC_MCFG_0
-	ldr	r1,	VAL_SDRC_MCFG_0
-	str	r1,	[r0]
-	ldr	r0,	REG_SDRC_MR_0
-	ldr	r1,	VAL_SDRC_MR_0
-	str	r1,	[r0]
-	/* a ddr needs emr1 set here */
-	ldr	r0,	REG_SDRC_SHARING
-	ldr	r1,	VAL_SDRC_SHARING
-	str	r1,	[r0]
-	ldr	r0,	REG_SDRC_RFR_CTRL_0
-	ldr	r1,	VAL_SDRC_RFR_CTRL_0
-	str	r1,	[r0]
-
-       /* little delay after init */
-       mov r2, #0x1800
-1:
-	subs r2, r2, #0x1
-	bne 1b
-#endif
-#ifdef CONFIG_PARTIAL_SRAM
 	ldr	sp,	SRAM_STACK
 	str	ip,	[sp]	/* stash old link register */
 	mov	ip,	lr	/* save link reg across call */
-	mov	r0,	r3	/* pass skip info to s_init */
 	bl	s_init		/* go setup pll,mux,memory */
 	ldr	ip,	[sp]	/* restore save ip */
 	mov	lr,	ip	/* restore link reg */
-#endif
+
 	/* map interrupt controller */
 	ldr	r0,	VAL_INTH_SETUP
 	mcr	p15, 0, r0, c15, c2, 4
@@ -211,21 +184,3 @@ VAL_INTH_SETUP:
 SRAM_STACK:
 	.word LOW_LEVEL_SRAM_STACK
 
-#ifdef CONFIG_APTIX
-REG_SDRC_SHARING:
-	.word SDRC_SHARING
-REG_SDRC_MCFG_0:
-	.word SDRC_MCFG_0
-REG_SDRC_MR_0:
-	.word SDRC_MR_0
-REG_SDRC_RFR_CTRL_0:
-	.word SDRC_RFR_CTRL
-VAL_SDRC_SHARING:
-	.word VAL_H4_SDRC_SHARING
-VAL_SDRC_MCFG_0:
-	.word VAL_H4_SDRC_MCFG_0
-VAL_SDRC_MR_0:
-	.word VAL_H4_SDRC_MR_0
-VAL_SDRC_RFR_CTRL_0:
-	.word VAL_H4_SDRC_RFR_CTRL_0
-#endif

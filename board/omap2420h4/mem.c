@@ -38,9 +38,8 @@
  *************************************************************/
 void sdelay (unsigned long loops)
 {
-	__asm__ volatile ("1:\n"
-					  "subs %0, %1, #1\n"
-					  "bne 1b":"=r" (loops):"0" (loops));
+	__asm__ volatile ("1:\n" "subs %0, %1, #1\n"
+		"bne 1b":"=r" (loops):"0" (loops));
 }
 
 /*********************************************************************************
@@ -50,12 +49,10 @@ void sdelay (unsigned long loops)
 void prcm_init(void)
 {
 	u32 rev,div;
-#ifdef CONFIG_PARTIAL_SRAM
 	void (*f_lock_pll) (u32, u32, u32, u32);
 	extern void *_end_vect, *_start;
 
 	f_lock_pll = (void *)((u32)&_end_vect - (u32)&_start + SRAM_VECT_CODE);
-#endif
 
 	__raw_writel(0, CM_FCLKEN1_CORE);	   /* stop all clocks to reduce ringing */
 	__raw_writel(0, CM_FCLKEN2_CORE);	   /* may not be necessary */
@@ -75,45 +72,33 @@ void prcm_init(void)
 	__raw_writel(div, CM_CLKSEL1_CORE);/* set L3/L4/USB/Display/Vlnc/SSi dividers */
 	sdelay(1000);
 
-#ifndef CONFIG_PARTIAL_SRAM
-	/* If running fully from SRAM this is OK.  The Flash bus drops out for just a little.
-	 * but then comes back.  If running from Flash this sequence kills you, thus you need
-	 * to run it using CONFIG_PARTIAL_SRAM.
-	 */
-	__raw_writel(MODE_BYPASS_FAST, CM_CLKEN_PLL); /* go to bypass, fast relock */
-	wait_on_value(BIT0|BIT1, BIT1, CM_IDLEST_CKGEN, LDELAY); /* wait till in bypass */
-
-	/* set clock selection and dpll dividers. */
-	__raw_writel(DPLL_VAL, CM_CLKSEL1_PLL);	 /* set pll for target rate */
-	__raw_writel(COMMIT_DIVIDERS, PRCM_CLKCFG_CTRL); /* commit dividers */
-	sdelay(10000);
-	__raw_writel(DPLL_LOCK, CM_CLKEN_PLL); /* enable dpll */
-	sdelay(10000);
-	wait_on_value(BIT0|BIT1, BIT2, CM_IDLEST_CKGEN, LDELAY);  /*wait for dpll lock */
-#else
-/* if running from flash, need to jump to small relocated code area in SRAM.
- * This is the only safe spot to do configurations from.
- */
-	(*f_lock_pll)(PRCM_CLKCFG_CTRL, CM_CLKEN_PLL, DPLL_LOCK, CM_IDLEST_CKGEN);
-#endif
+	if(running_in_sram()){
+		/* If running fully from SRAM this is OK.  The Flash bus drops out for just a little.
+	 	* but then comes back.  If running from Flash this sequence kills you, thus you need
+	 	* to run it using CONFIG_PARTIAL_SRAM.
+	 	*/
+		__raw_writel(MODE_BYPASS_FAST, CM_CLKEN_PLL); /* go to bypass, fast relock */
+		wait_on_value(BIT0|BIT1, BIT0, CM_IDLEST_CKGEN, LDELAY); /* wait till in bypass */
+		sdelay(1000);
+		/* set clock selection and dpll dividers. */
+		__raw_writel(DPLL_VAL, CM_CLKSEL1_PLL);	 /* set pll for target rate */
+		__raw_writel(COMMIT_DIVIDERS, PRCM_CLKCFG_CTRL); /* commit dividers */
+		sdelay(10000);
+		__raw_writel(DPLL_LOCK, CM_CLKEN_PLL); /* enable dpll */
+		sdelay(10000);
+		wait_on_value(BIT0|BIT1, BIT1, CM_IDLEST_CKGEN, LDELAY);  /*wait for dpll lock */
+	}else if(running_in_flash()){
+		/* if running from flash, need to jump to small relocated code area in SRAM.
+		 * This is the only safe spot to do configurations from.
+		 */
+		(*f_lock_pll)(PRCM_CLKCFG_CTRL, CM_CLKEN_PLL, DPLL_LOCK, CM_IDLEST_CKGEN);
+	}
 
 	__raw_writel(DPLL_LOCK|APLL_LOCK, CM_CLKEN_PLL);   /* enable apll */
 	wait_on_value(BIT8, BIT8, CM_IDLEST_CKGEN, LDELAY);	/* wait for apll lock */
 	sdelay(1000);
 }
 
-/***********************************************
- * memif_init() - init the gpmc and sdrc
- *  - early init routines, called from flash or
- *  SRAM.
- ***********************************************/
-void memif_init(void)
-{
-	sdrc_init();
-#ifndef CONFIG_PARTIAL_SRAM  /* don't init if calling from flash */
-	gpmc_init();
-#endif
-}
 
 /********************************************************
  *  mem_ok() - test used to see if timings are correct
@@ -121,11 +106,17 @@ void memif_init(void)
  *             we are currently using.
  *******************************************************/
 u32 mem_ok(void)
-{  u32 val;
-	__raw_writel(0x0,OMAP2420_SDRC_CS0+0x400);  /* clear pos A */
-	__raw_writel(0x12345678, OMAP2420_SDRC_CS0);/* pattern to pos B */
-	val = __raw_readl(OMAP2420_SDRC_CS0+0x400); /* get pos A value */
-	if (val != 0)                               /* see if pos A value changed*/
+{
+	u32 val1, val2;
+	u32 pattern = 0x12345678;
+
+	__raw_writel(0x0,OMAP2420_SDRC_CS0+0x400);   /* clear pos A */
+	__raw_writel(pattern, OMAP2420_SDRC_CS0);    /* pattern to pos B */
+	__raw_writel(0x0,OMAP2420_SDRC_CS0+4);       /* remove pattern off the bus */
+	val1 = __raw_readl(OMAP2420_SDRC_CS0+0x400); /* get pos A value */
+	val2 = __raw_readl(OMAP2420_SDRC_CS0);       /* get val2 */
+
+	if ((val1 != 0) || (val2 != pattern))        /* see if pos A value changed*/
 		return(0);
 	else
 		return(1);
@@ -142,122 +133,157 @@ void sdrc_init(void)
 	do_sdrc_init(SDRC_CS0_OSET, EARLY_INIT);  /* only init up first bank here */
 }
 
-/**********************************************************
+/*************************************************************************
  * do_sdrc_init(): initialize the SDRAM for use.
  *  -called from low level code with stack only.
  *  -code sets up SDRAM timing and muxing for 2422 or 2420.
  *  -optimal settings can be placed here, or redone after i2c
  *      inspection of board info
  *
- * !!! When ES1 comes out need to conditionalize RFR value!!!
- **********************************************************/
+ *  This is a bit ugly, but should handle all memory moduels
+ *   used with the H4. The first time though this code from s_init()
+ *   we configure the first chip select.  Later on we come back and
+ *   will configure the 2nd chip select if it exists.
+ *
+ **************************************************************************/
 void do_sdrc_init(u32 offset, u32 early)
 {
-	u32 cpu, bug=0, rev, shared=0, cs0=0, pmask=0,first=1;
+	u32 cpu, bug=0, rev, common=0, cs0=0, pmask=0, pass_type;
 	sdrc_data_t *sdata;	 /* do not change type */
+	u32 a, b, r;
 
 	static const sdrc_data_t sdrc_2422 =
 	{
-		H4_2422_SDRC_SHARING, H4_2422_SDRC_MDCFG_0, H4_2422_SDRC_ACTIM_CTRLA_0,
-		H4_2422_SDRC_ACTIM_CTRLB_0, H4_2422_SDRC_RFR_CTRL_ES1, H4_2422_SDRC_MR_0,
-		H4_2422_SDRC_DLLA_CTRL, H4_2422_SDRC_DLLB_CTRL
+		H4_2422_SDRC_SHARING, H4_2422_SDRC_MDCFG_0_DDR, 0 , H4_2422_SDRC_ACTIM_CTRLA_0,
+		H4_2422_SDRC_ACTIM_CTRLB_0, H4_2422_SDRC_RFR_CTRL_ES1, H4_2422_SDRC_MR_0_DDR,
+		0, H4_2422_SDRC_DLLA_CTRL, H4_2422_SDRC_DLLB_CTRL
 	};
 	static const sdrc_data_t sdrc_2420 =
 	{
-		H4_2420_SDRC_SHARING, H4_2420_SDRC_MDCFG_0, H4_2420_SDRC_ACTIM_CTRLA_0,
-		H4_2420_SDRC_ACTIM_CTRLB_0, H4_2420_SDRC_RFR_CTRL_ES1, H4_2420_SDRC_MR_0,
+		H4_2420_SDRC_SHARING, H4_2420_SDRC_MDCFG_0_DDR, H4_2420_SDRC_MDCFG_0_SDR,
+		H4_2420_SDRC_ACTIM_CTRLA_0, H4_2420_SDRC_ACTIM_CTRLB_0,
+		H4_2420_SDRC_RFR_CTRL_ES1, H4_2420_SDRC_MR_0_DDR, H4_2420_SDRC_MR_0_SDR,
 		H4_2420_SDRC_DLLA_CTRL, H4_2420_SDRC_DLLB_CTRL
 	};
 
 	if (offset == SDRC_CS0_OSET)
-		cs0 = shared = 1;  /* int regs shared between both chip select */
+		cs0 = common = 1;  /* int regs shared between both chip select */
 
 	cpu = get_cpu_type();
 
-	/* warning generated, though code generation is correct. this may bite later, but is ok for now.
-	 *  there is only so much C code you can do on stack only operation.
+	/* warning generated, though code generation is correct. this may bite later,
+         * but is ok for now. there is only so much C code you can do on stack only
+         * operation.
 	 */
-	if (cpu == CPU_2422)
-		sdata = &sdrc_2422;
-	else
-		sdata = &sdrc_2420;
-	__asm__ __volatile__("": : :"memory");
-#ifdef CONFIG_PARTIAL_SRAM
-	/* u-boot is compiled to run in DDR at 8xxxxxxx.  If we use data here which is not pc relative
-	 * we need to get the address correct.  We need to find the current flash mapping to dress up
-	 * the initial pointer load.  As long as this is const data we should be ok.
+	if (cpu == CPU_2422){
+		sdata = (sdrc_data_t *)&sdrc_2422;
+		pass_type = STACKED;
+	}
+	else{
+		sdata = (sdrc_data_t *)&sdrc_2420;
+		pass_type = IP_DDR;
+	}
+
+	__asm__ __volatile__("": : :"memory");  /* limit compiler scope */
+
+	/* u-boot is compiled to run in DDR or SRAM at 8xxxxxxx or 4xxxxxxx.
+         * If we are running in flash prior to relocation and we use data
+         * here which is not pc relative we need to get the address correct.
+         * We need to find the current flash mapping to dress up the initial
+         * pointer load.  As long as this is const data we should be ok.
 	 */
-	if(early)
+	if((early) && running_in_flash()){
 		sdata = (sdrc_data_t *)(((u32)sdata & 0x0003FFFF) | get_gpmc0_base());
-#endif
-
-	men_combo:
-
-	if (!early && get_mem_type() == DDR_COMBO) { /* combo part has a shared CKE signal, can't use feature */
+		/* NOR internal boot offset is 0x4000 from xloader signature */
+		if(running_from_internal_boot())
+			sdata = (sdrc_data_t *)((u32)sdata + 0x4000);
+	}
+	if (!early && (get_mem_type() == DDR_COMBO)) {/* combo part has a shared CKE signal, can't use feature */
 		pmask = BIT2;
-		first = 0;	/* trigger ddr_combo init */
+		pass_type = COMBO_DDR; /* CS1 config */
 	}
 
-	if (shared) {
-		__raw_writel(__raw_readl(SMS_SYSCONFIG)|SMART_IDLE, SMS_SYSCONFIG);
-		__raw_writel(SMART_IDLE|SOFTRESET, SDRC_SYSCONFIG);	/* reset sdrc */
-		wait_on_value(BIT0, BIT0, SDRC_STATUS, 12000000);	/* wait till reset done set */
-		__raw_writel(SMART_IDLE, SDRC_SYSCONFIG);		/* clear soft reset */
+next_mem_type:
+	if (common) {	/* do a SDRC reset between types to clear regs*/
+		__raw_writel(SOFTRESET, SDRC_SYSCONFIG);	/* reset sdrc */
+		wait_on_value(BIT0, BIT0, SDRC_STATUS, 12000000);/* wait till reset done set */
+		__raw_writel(0, SDRC_SYSCONFIG);		/* clear soft reset */
 		__raw_writel(sdata->sdrc_sharing, SDRC_SHARING);
-		__raw_writel((__raw_readl(SDRC_POWER)|SMART_IDLE) & ~pmask, SDRC_POWER);
+		__raw_writel((__raw_readl(SDRC_POWER)) & ~pmask, SDRC_POWER);
+#ifdef POWER_SAVE
+		__raw_writel(__raw_readl(SMS_SYSCONFIG)|SMART_IDLE, SMS_SYSCONFIG);
+		__raw_writel(sdata->sdrc_sharing|SMART_IDLE, SDRC_SHARING);
+		__raw_writel((__raw_readl(SDRC_POWER)|BIT6) & ~pmask, SDRC_POWER);
+#endif
 	}
-	if (first)
-		__raw_writel(sdata->sdrc_mdcfg_0, SDRC_MCFG_0+offset);
-	else {
-		__raw_writel((__raw_readl(SDRC_POWER)|SMART_IDLE) & ~pmask, SDRC_POWER);
-		__raw_writel(H4_2420_COMBO_MDCFG_0,SDRC_MCFG_0+offset);
+
+	if ((pass_type == IP_DDR) || (pass_type == STACKED)) /* (IP ddr-CS0),(2422-CS0/CS1) */
+		__raw_writel(sdata->sdrc_mdcfg_0_ddr, SDRC_MCFG_0+offset);
+	else if (pass_type == COMBO_DDR){ /* (combo-CS0/CS1) */
+		__raw_writel(H4_2420_COMBO_MDCFG_0_DDR,SDRC_MCFG_0+offset);
+	} else if (pass_type == IP_SDR){ /* ip sdr-CS0 */
+		__raw_writel(sdata->sdrc_mdcfg_0_sdr, SDRC_MCFG_0+offset);
+	}
+
+	if(pass_type == IP_SDR){  /* SDRAM can run full speed only rated for 105MHz*/
+		a = H4_242X_SDRC_ACTIM_CTRLA_0_100MHz;
+		b = H4_242X_SDRC_ACTIM_CTRLB_0_100MHz;
+		r = H4_2420_SDRC_RFR_CTRL;
+	} else {
+		a = sdata->sdrc_actim_ctrla_0;
+		b = sdata->sdrc_actim_ctrlb_0;
+		r = sdata->sdrc_rfr_ctrl;
 	}
 
 	if (cs0) {
-		__raw_writel(sdata->sdrc_actim_ctrla_0, SDRC_ACTIM_CTRLA_0);
-		__raw_writel(sdata->sdrc_actim_ctrlb_0, SDRC_ACTIM_CTRLB_0);
+		__raw_writel(a, SDRC_ACTIM_CTRLA_0);
+		__raw_writel(b, SDRC_ACTIM_CTRLB_0);
 	} else {
-		__raw_writel(sdata->sdrc_actim_ctrla_0, SDRC_ACTIM_CTRLA_1);
-		__raw_writel(sdata->sdrc_actim_ctrlb_0, SDRC_ACTIM_CTRLB_1);
+		__raw_writel(a, SDRC_ACTIM_CTRLA_1);
+		__raw_writel(b, SDRC_ACTIM_CTRLB_1);
 	}
 
-	__raw_writel(sdata->sdrc_rfr_ctrl, SDRC_RFR_CTRL+offset);
+	__raw_writel(r, SDRC_RFR_CTRL+offset);
 
-	/* init sequence for _mDDR_ using manual commands (DDR is a bit different) */
+	/* init sequence for mDDR/mSDR using manual commands (DDR is a bit different) */
 	__raw_writel(CMD_NOP, SDRC_MANUAL_0+offset);
-	sdelay(5000);  /* susposed to be 100us per design spec for mddr*/
+	sdelay(5000);  /* susposed to be 100us per design spec for mddr/msdr */
 	__raw_writel(CMD_PRECHARGE, SDRC_MANUAL_0+offset);
 	__raw_writel(CMD_AUTOREFRESH, SDRC_MANUAL_0+offset);
 	__raw_writel(CMD_AUTOREFRESH, SDRC_MANUAL_0+offset);
 
 	/*
 	 * CSx SDRC Mode Register
-	 * Burst length = 4 - DDR memory
+	 * Burst length = (4 - DDR) (2-SDR)
 	 * Serial mode
 	 * CAS latency = x
 	 */
-	__raw_writel(sdata->sdrc_mr_0, SDRC_MR_0+offset);
+	if(pass_type == IP_SDR)
+		__raw_writel(sdata->sdrc_mr_0_sdr, SDRC_MR_0+offset);
+	else
+		__raw_writel(sdata->sdrc_mr_0_ddr, SDRC_MR_0+offset);
 
-	/* NOTE: ES1 242x _BUG_ DLL */
+	/* NOTE: ES1 242x _BUG_ DLL + External Bandwidth fix*/
 	rev  = get_cpu_rev();
-	if (rev == CPU_2420_ES1 || rev ==  CPU_2422_ES1)
+	if (rev == CPU_2420_ES1 || rev ==  CPU_2422_ES1){
 		bug = BIT0;
+		__raw_writel((__raw_readl(SMS_CLASS_ARB0)|BURSTCOMPLETE_GROUP7)
+			,SMS_CLASS_ARB0);/* enable bust complete for lcd */
+	}
 	/* enable & load up DLL with good value for 75MHz, and set phase to 90% */
-	if (shared) {
+	if (common && (pass_type != IP_SDR)) {
 		__raw_writel(sdata->sdrc_dlla_ctrl, SDRC_DLLA_CTRL);
 		__raw_writel(sdata->sdrc_dlla_ctrl & ~(BIT2|bug), SDRC_DLLA_CTRL);
 		__raw_writel(sdata->sdrc_dllb_ctrl, SDRC_DLLB_CTRL);
 		__raw_writel(sdata->sdrc_dllb_ctrl & ~(BIT2|bug) , SDRC_DLLB_CTRL);
 	}
-	sdelay(9000);
-	if (!first || mem_ok())	/* passed test or 2nd bank init */
-		return;
-	else {
-		first = 0;
-		goto men_combo;
-	}
-}
+	sdelay(90000);
 
+	if(mem_ok())
+		return; /* STACKED, other configued type */
+	++pass_type; /* IPDDR->COMBODDR->IPSDR for CS0 */
+	goto next_mem_type;
+}
 
 /*****************************************************
  * gpmc_init(): init gpmc bus
@@ -272,7 +298,11 @@ void gpmc_init(void)
 	__raw_writel(0x10, GPMC_SYSCONFIG);	/* smart idle */
 	__raw_writel(0x0, GPMC_IRQENABLE);	/* isr's sources masked */
 	__raw_writel(0x1, GPMC_TIMEOUT_CONTROL);/* timeout disable */
+#ifdef CFG_NAND_BOOT
+	__raw_writel(0x001, GPMC_CONFIG);	/* set nWP, disable limited addr */
+#else
 	__raw_writel(0x111, GPMC_CONFIG);	/* set nWP, disable limited addr */
+#endif
 
 	/* discover bus connection from sysboot */
 	if (is_gpmc_muxed() == GPMC_MUXED)
@@ -283,11 +313,22 @@ void gpmc_init(void)
 	/* setup cs0 */
 	__raw_writel(0x0, GPMC_CONFIG7_0);	/* disable current map */
 	sdelay(1000);
+
+#ifdef CFG_NAND_BOOT
+	__raw_writel(H4_24XX_GPMC_CONFIG1_0|mtype|mwidth, GPMC_CONFIG1_0);
+#else
 	__raw_writel(H4_24XX_GPMC_CONFIG1_0|mux|mtype|mwidth, GPMC_CONFIG1_0);
-	/* __raw_writel(H4_24XX_GPMC_CONFIG2_0, GPMC_CONFIG2_0); */
+#endif
+
+#ifdef PRCM_CONFIG_III
+	__raw_writel(H4_24XX_GPMC_CONFIG2_0, GPMC_CONFIG2_0);
+#endif
 	__raw_writel(H4_24XX_GPMC_CONFIG3_0, GPMC_CONFIG3_0);
 	__raw_writel(H4_24XX_GPMC_CONFIG4_0, GPMC_CONFIG4_0);
-	/* __raw_writel(H4_24XX_GPMC_CONFIG5_0, GPMC_CONFIG5_0); */
+#ifdef PRCM_CONFIG_III
+	__raw_writel(H4_24XX_GPMC_CONFIG5_0, GPMC_CONFIG5_0);
+	__raw_writel(H4_24XX_GPMC_CONFIG6_0, GPMC_CONFIG6_0);
+#endif
 	__raw_writel(H4_24XX_GPMC_CONFIG7_0, GPMC_CONFIG7_0);/* enable new mapping */
 	sdelay(2000);
 
@@ -303,3 +344,4 @@ void gpmc_init(void)
 	__raw_writel(H4_24XX_GPMC_CONFIG7_1, GPMC_CONFIG7_1); /* enable mapping */
 	sdelay(2000);
 }
+

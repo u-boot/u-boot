@@ -31,6 +31,11 @@
 #include <asm/arch/mem.h>
 #include <i2c.h>
 #include <asm/mach-types.h>
+#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#include <linux/mtd/nand.h>
+extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];
+#endif
+
 
 static void wait_for_command_complete(unsigned int wd_base);
 
@@ -40,9 +45,8 @@ static void wait_for_command_complete(unsigned int wd_base);
  ******************************************************/
 static inline void delay (unsigned long loops)
 {
-	__asm__ volatile ("1:\n"
-					  "subs %0, %1, #1\n"
-					  "bne 1b":"=r" (loops):"0" (loops));
+	__asm__ volatile ("1:\n" "subs %0, %1, #1\n"
+		"bne 1b":"=r" (loops):"0" (loops));
 }
 
 /*****************************************
@@ -52,11 +56,9 @@ static inline void delay (unsigned long loops)
 int board_init (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-#ifndef CONFIG_PARTIAL_SRAM
-	s_init(0x0);  /* full sram build, never skip clock and sdrc, no point */
-#else
-	gpmc_init();
-#endif
+
+	gpmc_init(); /* in SRAM or SDRM, finish GPMC */
+
 	gd->bd->bi_arch_number = MACH_TYPE_OMAP_H4;		/* board id for linux */
 	gd->bd->bi_boot_params = (OMAP2420_SDRC_CS0+0x100);	/* adress of boot parameters */
 
@@ -66,23 +68,23 @@ int board_init (void)
 /**********************************************************
  * Routine: s_init
  * Description: Does early system init of muxing and clocks.
- * - Called at time when only stack is available.
+ * - Called path is with sram stack.
  **********************************************************/
-void s_init(int skip)
+void s_init(void)
 {
+	int in_sdram = running_in_sdram();
+
 	watchdog_init();
 	set_muxconf_regs();
 	delay(100);
 
-	if (!skip)
+	if(!in_sdram)
 		prcm_init();
 
 	peripheral_enable();
 	icache_enable();
-#ifndef CONFIG_APTIX
-	if (!skip)
-		memif_init();
-#endif
+	if (!in_sdram)
+		sdrc_init();
 }
 
 /*******************************************************
@@ -102,7 +104,7 @@ int misc_init_r (void)
 void watchdog_init(void)
 {
 	int mode;
-#define GP (BIT8|BIT9)
+	#define GP (BIT8|BIT9)
 
 	/* There are 4 watch dogs.  1 secure, and 3 general purpose.
 	 * I would expect that the ROM takes care of the secure one,
@@ -152,6 +154,8 @@ void ether_init (void)
 #ifdef CONFIG_DRIVER_LAN91C96
 	int cnt = 20;
 
+	__raw_writeb(0x3,OMAP2420_CTRL_BASE+0x10a); /*protect->gpio95 */
+
 	__raw_writew(0x0, LAN_RESET_REGISTER);
 	do {
 		__raw_writew(0x1, LAN_RESET_REGISTER);
@@ -189,7 +193,9 @@ int dram_init (void)
 	DECLARE_GLOBAL_DATA_PTR;
 	unsigned int size0=0,size1=0;
 	u32 mtype, btype;
-#define NOT_EARLY 0
+	u8 chg_on = 0x5; /* enable charge of back up battery */
+	u8 vmode_on = 0x8C;
+	#define NOT_EARLY 0
 
 	i2c_init (CFG_I2C_SPEED, CFG_I2C_SLAVE); /* need this a bit early */
 
@@ -197,13 +203,18 @@ int dram_init (void)
 	mtype = get_mem_type();
 
 	display_board_info(btype);
-	if (btype == BOARD_H4_MENELAUS)
-		update_mux(btype,mtype);
+	if (btype == BOARD_H4_MENELAUS){
+		update_mux(btype,mtype); /* combo part on menelaus */
+		i2c_write(I2C_MENELAUS, 0x20, 1, &chg_on, 1); /*fix POR reset bug */
+		i2c_write(I2C_MENELAUS, 0x2, 1, &vmode_on, 1); /* VCORE change on VMODE */
+	}
 
 	if ((mtype == DDR_COMBO) || (mtype == DDR_STACKED)) {
 		do_sdrc_init(SDRC_CS1_OSET, NOT_EARLY);	/* init other chip select */
 		size0 = size1 = SZ_32M;
-	} else
+	} else if (mtype == SDR_DISCRETE)
+		size0 = SZ_128M;
+	else
 		size0 = SZ_64M;
 
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
@@ -477,7 +488,7 @@ void muxSetupCamera(void)
 	/* CAMERA_RSTZ  pin configuration, PIN = Y16 */
 	/* CAM_RST is connected through the I2C IO expander.*/
 	/* MuxConfigReg = (volatile unsigned char *), CONTROL_PADCONF_SYS_NRESWARM*/
-	/* *MuxConfigReg = 0x00 ; /* Mode = 0, PUPD=Disabled   */
+	/* *MuxConfigReg = 0x00 ; / * Mode = 0, PUPD=Disabled   */
 
 	/* CAMERA_XCLK  pin configuration, PIN = U3 */
 	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_CAM_XCLK;
@@ -661,7 +672,7 @@ void muxSetupHDQ(void)
 void muxSetupGPMC(void)
 {
 	volatile uint8 *MuxConfigReg;
-	volatile unsigned int *MCR = 0x4800008C;
+	volatile unsigned int *MCR = (volatile unsigned int *)0x4800008C;
 
 	/* gpmc_io_dir */
 	*MCR = 0x19000000;
@@ -830,3 +841,25 @@ void update_mux(u32 btype,u32 mtype)
 		}
 	}
 }
+
+#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+void nand_init(void)
+{
+    extern flash_info_t flash_info[];
+
+    nand_probe(CFG_NAND_ADDR);
+    if (nand_dev_desc[0].ChipID != NAND_ChipID_UNKNOWN) {
+		print_size(nand_dev_desc[0].totlen, "\n");
+    }
+
+#ifdef CFG_JFFS2_MEM_NAND
+    flash_info[CFG_JFFS2_FIRST_BANK].flash_id = nand_dev_desc[0].id;
+    flash_info[CFG_JFFS2_FIRST_BANK].size = 1024*1024*2;      /* only read kernel single meg partition */
+	flash_info[CFG_JFFS2_FIRST_BANK].sector_count = 1024;   /* 1024 blocks in 16meg chip (use less for raw/copied partition) */
+    flash_info[CFG_JFFS2_FIRST_BANK].start[0] = 0x80200000; /* ?, ram for now, open question, copy to RAM or adapt for NAND */
+#endif
+}
+#endif
+
+
+

@@ -22,4 +22,5 @@
 #
 PLATFORM_RELFLAGS += -fno-strict-aliasing  -fno-common -ffixed-r8 \
 
-PLATFORM_CPPFLAGS += -mapcs-32 -march=armv6
+# Make ARMv5 to allow more compilers to work, even though its v6.
+PLATFORM_CPPFLAGS += -mapcs-32 -march=armv5

@@ -61,15 +61,53 @@
 #define II_BUS_DIV_ES1   0x04601026
 #define II_DPLL_300      0x01832100
 
+/****************************************************************************;
+; PRCM Scheme III
+;
+; Enable clocks and DPLL for:
+;  DPLL=266, 	DPLLout=532   	M=5+1,N=133 CM_CLKSEL1_PLL[21:8]  12/6*133=266
+;  Core=532  	(core domain)   DPLLx2      CM_CLKSEL2_PLL[1:0]
+;  MPUF=266   	(mpu domain)    /2          CM_CLKSEL_MPU[4:0]
+;  DSPF=177.3     (dsp domain)  /3          CM_CLKSEL_DSP[4:0]
+;  DSPI=88.67                   /6          CM_CLKSEL_DSP[6:5]
+;  DSP_S         ACTIVATED	            CM_CLKSEL_DSP[7]
+;  IVAF=88.67    (dsp domain)   /3          CM_CLKSEL_DSP[12:8]
+;  IVAF=88.67        auto
+;  IVAI            auto
+;  IVA_MPU         auto
+;  IVA_S         ACTIVATED                  CM_CLKSEL_DSP[13]
+;  GFXF=66.5      (gfx domain)	/8          CM_CLKSEL_FGX[2:0]:
+;  SSI_SSRF=177.3               /3          CM_CLKSEL1_CORE[24:20]
+;  SSI_SSTF=88.67     auto
+;  L3=133Mhz (sdram)            /4          CM_CLKSEL1_CORE[4:0]
+;  L4=66.5Mhz                   /8
+;  C_L4_USB=33.25               /16         CM_CLKSEL1_CORE[6:5]
+***************************************************************************/
+#define III_DPLL_OUT_X2   0x2    /* x2 core out */
+#define III_MPU_DIV       0x2    /* mpu = core/2 */
+#define III_DSP_DIV       0x23C3 /* dsp & iva divider sych enabled*/
+#define III_GFX_DIV       0x2
+#define III_BUS_DIV       0x08300c44
+#define III_BUS_DIV_ES1   0x08301044
+#define III_DPLL_266      0x01885500
+
 /* set defaults for boot up */
 #ifdef PRCM_CONFIG_II
-#define DPLL_OUT         II_DPLL_OUT_X2
-#define MPU_DIV          II_MPU_DIV
-#define DSP_DIV          II_DSP_DIV
-#define GFX_DIV          II_GFX_DIV
-#define BUS_DIV          II_BUS_DIV
-#define BUS_DIV_ES1      II_BUS_DIV_ES1
-#define DPLL_VAL         II_DPLL_300
+# define DPLL_OUT         II_DPLL_OUT_X2
+# define MPU_DIV          II_MPU_DIV
+# define DSP_DIV          II_DSP_DIV
+# define GFX_DIV          II_GFX_DIV
+# define BUS_DIV          II_BUS_DIV
+# define BUS_DIV_ES1      II_BUS_DIV_ES1
+# define DPLL_VAL         II_DPLL_300
+#elif PRCM_CONFIG_III
+# define DPLL_OUT         III_DPLL_OUT_X2
+# define MPU_DIV          III_MPU_DIV
+# define DSP_DIV          III_DSP_DIV
+# define GFX_DIV          III_GFX_DIV
+# define BUS_DIV          III_BUS_DIV
+# define BUS_DIV_ES1      III_BUS_DIV_ES1
+# define DPLL_VAL         III_DPLL_266
 #endif
 
 /* lock delay time out */
