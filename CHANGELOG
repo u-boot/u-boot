@@ -2,6 +2,10 @@
 Changes for U-Boot 0.4.7:
 ======================================================================
 
+* Patch by Matthias Fuchs, 28 Aug 2003:
+  Added CONFIG_BOOTP_DNS2 and CONFIG_BOOTP_SEND_HOSTNAME to
+  CONFIG_BOOTP_MAKS (see README).
+
 * Fix ICU862 environment problem
 
 * Fix RAM size detection for RMU board
@@ -106,7 +110,7 @@ Changes for U-Boot 0.4.5:
   add delay to get I2C working with "imm" command and s3c24x0_i2c.c
 
 * Patch by Richard Woodruff, 17 July 03:
-  - Fixed bug in OMAP1510 baud rate divisor settings. 
+  - Fixed bug in OMAP1510 baud rate divisor settings.
 
 * Patch by Nye Liu, 16 July 2003:
   MPC860FADS fixes:
