@@ -432,7 +432,7 @@ void main_loop (void)
 	    s = getenv("menucmd");
 	    if (s) {
 # ifndef CFG_HUSH_PARSER
-		run_command (s, bd, 0);
+		run_command (s, 0);
 # else
 		parse_string_outer(s, FLAG_PARSE_SEMICOLON |
 				    FLAG_EXIT_FROM_LOOP);

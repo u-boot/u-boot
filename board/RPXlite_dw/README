@@ -2,11 +2,11 @@
 After following the step of Yoo. Jonghoon and Wolfgang Denk,
 I ported u-boot on RPXlite DW version board: RPXlite_DW or LITE_DW.
 
-There are three differences between the Yoo-ported RPXlite and the RPXlite_DW.
+There are at least three differences between the Yoo-ported RPXlite and the RPXlite_DW.
 
-Board(in U-BOOT)	version(in EmbeddedPlanet)	CPU	SDRAM	FLASH
+Board(in U-Boot)	version(in EmbeddedPlanet)	CPU	SDRAM	FLASH
 RPXlite				RPXlite CW		850	16MB	4MB
-RPXlite_DW			RPXlite DW		823e	64MB	16MB
+RPXlite_DW		RPXlite DW(EP 823 H1 DW)	823e	64MB	16MB
 
 This fireware is specially coded for EmbeddedPlanet Co. Software Development
 Platform(RPXlite DW),which has a NEC NL6448BC20-08 LCD panel.
@@ -17,6 +17,7 @@ It has the following three features:
 The default setting is 48MHz.To get a 64MHz u-boot,just add
 '64' in make command,like
 
+make distclean
 make RPXlite_DW_64_config
 make all
 
@@ -28,19 +29,21 @@ didn't use EEPROM for ENV is that PlanetCore V2.0 use EEPROM as environment para
 home.Because of the possibility of using two firewares on this board,I didn't
 'disturb' EEPROM.To get NVRAM support,you may use the following build command:
 
+make distclean
 make RPXlite_DW_NVRAM_config
 make all
 
 3. LCD panel support
 
-To support the Platform better,I added LCD panel(NL6448BC20-08) function.But bewear of
-the fact that once you build this support and program it to FLASH,you should make sure
-you put workable kernel and ramdisk at the right place in FLASH or through NFS.
-Otherwise, you must erase this fireware manually via BDI2000 or ICE tools.So this
-function is used for deployment and demo only.Pls look before you leap.
+To support the Platform better,I added LCD panel(NL6448BC20-08) function.
+For the convenience of debug, CONFIG_PERBOOT was supported. So you just
+perss ENTER if you want to get a serial console in boot downcounting.
+Then you can switch to LCD and serial console freely just typing 
+'run lcd' or 'run ser'. They are only vaild when CONFIG_LCD was enabled.
 
 To get a LCD support u-boot,you can do the following:
 
+make distclean
 make RPXlite_DW_LCD_config
 make all
 
@@ -68,7 +71,7 @@ make RPXlite_DW_64_LCD_config
 
 The boot process by "make RPXlite_DW_config" could be:
 
-U-Boot 1.1.1 (Jun  8 2004 - 11:16:30)
+U-Boot 1.1.2 (Aug 29 2004 - 15:11:27)
 
 CPU:   PPC823EZTnnB2 at 48 MHz: 16 kB I-Cache 8 kB D-Cache
 Board: RPXlite_DW
@@ -84,6 +87,68 @@ u-boot>
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+A word on the U-Boot enviroment variable setting and usage :
+
+In the beginning, you could just need very simple defult environment variable setting,
+like[include/configs/RPXlite.h] :
+
+#define CONFIG_BOOTCOMMAND                                                      \
+        "bootp; "                                                               \
+        "setenv bootargs root=/dev/nfs rw nfsroot=$(serverip):$(rootpath) "     \
+        "ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off; "   \
+        "bootm"
+
+This is enough for kernel NFS test. But as debug process goes on, you would expect 
+to save some time on environment variable setting and u-boot/kernel updating.
+So the default environment variable setting would become more complicated. Just like
+the one I did in include/configs/RPXlite_DW.h.
+
+Two u-boot commands, ku and uu, should be careful to use. They were designed to update
+kernel and u-boot image file respectively. You must tftp your image to default address 
+'100000' and then use them correctly. Yeah, you can create your own command to do this
+job. :-) The example u-boot image updating process could be :
+
+u-boot>t 100000 RPXlite_DW_LCD.bin
+Using SCC ETHERNET device
+TFTP from server 172.16.115.6; our IP address is 172.16.115.7
+Filename 'RPXlite_DW_LCD.bin'.
+Load address: 0x100000
+Loading: #############################
+done
+Bytes transferred = 144700 (2353c hex)
+u-boot>run uu
+Un-Protect Flash Sectors 0-4 in Bank # 1
+Erase Flash Sectors 0-4 in Bank # 1
+.... done
+Copy to Flash... done
+ff000000: 27051956 552d426f 6f742031 2e312e32    '..VU-Boot 1.1.2
+ff000010: 20284175 67203239 20323030 34202d20     (Aug 29 2004 -
+ff000020: 31353a32 303a3238 29000000 00000000    15:20:28).......
+ff000030: 00000000 00000000 00000000 00000000    ................
+ff000040: 00000000 00000000 00000000 00000000    ................
+ff000050: 00000000 00000000 00000000 00000000    ................
+ff000060: 00000000 00000000 00000000 00000000    ................
+ff000070: 00000000 00000000 00000000 00000000    ................
+ff000080: 00000000 00000000 00000000 00000000    ................
+ff000090: 00000000 00000000 00000000 00000000    ................
+ff0000a0: 00000000 00000000 00000000 00000000    ................
+ff0000b0: 00000000 00000000 00000000 00000000    ................
+ff0000c0: 00000000 00000000 00000000 00000000    ................
+ff0000d0: 00000000 00000000 00000000 00000000    ................
+ff0000e0: 00000000 00000000 00000000 00000000    ................
+ff0000f0: 00000000 00000000 00000000 00000000    ................
+u-boot updating finished
+u-boot>
+
+Also for environment updating, 'run eu' could let you erase OLD default environment variable
+and then use the working u-boot environment setting.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Finally, if you want to keep the serial port to possible debug on spot for deployment, you
+just need to enable 'DEPLOYMENT' in RPXlite_DW.h as 'DEBUG' does. Only the special string
+defined by CONFIG_AUTOBOOT_STOP_STR like 'st' can stop the autoboot.
+
 I'd like to extend my heartfelt gratitute to kind people for helping me work it out.
 I would particually thank Wolfgang Denk for his nice help.
 
@@ -93,4 +158,4 @@ Sam Song, samsongshu@yahoo.com.cn
 Institute of Electrical Machinery and Controls
 Shanghai University
 
-June 8,2004
+Oct. 11, 2004

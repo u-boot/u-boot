@@ -2,7 +2,15 @@
 Changes for U-Boot 1.1.3:
 ======================================================================
 
-* Patches by Richard Woodruff, 01 Oct 2004:
+* Patch by Sam Song, 11 October 2004:
+  - Add RESET/PREBOOT/AUTOBOOT support for RPXlite_DW board
+  - Adjust CPU:BUS frequency ratio 1:1 when core frequency
+    less than 50MHz
+
+* Patch by Sam Song, 10 Oct 2004:
+  Fix a parameter error in run_command() in main.c
+
+* Patch by Richard Woodruff, 01 Oct 2004:
   add support for the TI OMAP2420 processor and its H4 reference
   board
 
