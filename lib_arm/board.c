@@ -54,7 +54,7 @@ const char version_string[] =
 extern void cs8900_get_enetaddr (uchar * addr);
 #endif
 
-#ifdef CONFIG_DRIVER_CS8900
+#ifdef CONFIG_DRIVER_RTL8019
 extern void rtl8019_get_enetaddr (uchar * addr);
 #endif
 
@@ -306,7 +306,6 @@ void start_armboot (void)
 	if (getenv ("ethaddr")) {
 		smc_set_mac_addr(gd->bd->bi_enetaddr);
 	}
-	/* eth_hw_init(); */
 #endif /* CONFIG_DRIVER_LAN91C96 */
 
 	/* Initialize from environment */

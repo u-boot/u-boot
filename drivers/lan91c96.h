@@ -52,7 +52,6 @@
  */
 
 void smc_set_mac_addr(const char *addr);
-int eth_hw_init(void);
 
 
 /* I want some simple types */

@@ -2,6 +2,12 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Dave Peverley, 29 Apr 2004:
+  add MAC address detection to smc91111 driver
+
+* Patch by David Müller, 28 Apr 2004:
+  fix typo in lib_arm/board.c
+
 * Patch by Tolunay Orkun, 20 Apr 2004:
   - README update: add CONFIG_CSB272 and csb272_config
   - add descriptions for some MII/PHY options, CONFIG_I2CFAST, and
