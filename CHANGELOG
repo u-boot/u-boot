@@ -1,5 +1,5 @@
 ======================================================================
-Changes since U-Boot 0.3.0:
+Changes for U-Boot 0.3.1:
 ======================================================================
 
 * Make sure Block Lock Bits get cleared in R360MPI flash driver
