@@ -169,6 +169,12 @@ int misc_init_r (void)
 	uchar *str;
 	int i;
 
+#ifdef CONFIG_AUTO_UPDATE
+	extern int do_auto_update(void);
+	/* this has priority over all else */
+	do_auto_update();
+#endif
+
 	for (i = 0; i < KEYBD_KEY_NUM; ++i) {
 		keybd_env[i] = '0' + ((kbd_data >> i) & 1);
 	}

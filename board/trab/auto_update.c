@@ -1,0 +1,414 @@
+/*
+ * (C) Copyright 2003
+ * Gary Jennejohn, DENX Software Engineering, gj@denx.de.
+ *
+ * See file CREDITS for list of people who contributed to this
+ * project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+ * MA 02111-1307 USA
+ */
+
+#include <common.h>
+#include <command.h>
+#include <malloc.h>
+#include <image.h>
+#include <asm/byteorder.h>
+#include <usb.h>
+
+#ifdef CFG_HUSH_PARSER
+#include <hush.h>
+#endif
+
+#ifdef CONFIG_AUTO_UPDATE
+
+#ifndef CONFIG_USB_OHCI
+#error "must define CONFIG_USB_OHCI"
+#endif
+
+#ifndef CONFIG_USB_STORAGE
+#error "must define CONFIG_USB_STORAGE"
+#endif
+
+#ifndef CFG_HUSH_PARSER
+#error "must define CFG_HUSH_PARSER"
+#endif
+
+#if !(CONFIG_COMMANDS & CFG_CMD_FAT)
+#error "must define CFG_CMD_FAT"
+#endif
+
+/*
+ * Check whether a USB memory stick is plugged in.
+ * If one is found:
+ *	1) try to do an MSDOS ls
+ *	2) if preinst.img is found and is not 0 length, load it into
+ *		memory and run it (how to check beforehand if it's a
+ *		valid HUSH command file?)
+ *	3)
+ *	4)
+ *	5)
+ *	6)
+ *	7)
+ *	8)
+ *	9)
+ *	10)
+ *	11)
+ *	12)
+ */
+
+#undef AU_DEBUG
+
+#undef debug
+#ifdef	AU_DEBUG
+#define debug(fmt,args...)	printf (fmt ,##args)
+#else
+#define debug(fmt,args...)
+#endif	/* AU_DEBUG */
+
+/* possible names of files on the USB stick. */
+#define AU_PREPARE	"prepare.img"
+#define AU_PREINST	"preinst.img"
+#define AU_FIRMWARE	"firmware.img"
+#define AU_KERNEL	"kernel.img"
+#define AU_APP		"app.img"
+#define AU_DISK		"disk.img"
+#define AU_POSTINST	"postinst.img"
+
+/* layout of the FLASH. ST = start address, ND = end address. */
+#ifndef CONFIG_OLD_VERSION			/* 16 MB Flash, 32 MB RAM */
+#define AU_FL_FIRMWARE_ST	0x00000000
+#define AU_FL_FIRMWARE_ND	0x0009FFFF
+#define AU_FL_VFD_ST		0x000A0000
+#define AU_FL_VFD_ND		0x000BFFFF
+#define AU_FL_KERNEL_ST		0x000C0000
+#define AU_FL_KERNEL_ND		0x001BFFFF
+#define AU_FL_APP_ST		0x001C0000
+#define AU_FL_APP_ND		0x005BFFFF
+#define AU_FL_DISK_ST		0x005C0000
+#define AU_FL_DISK_ND		0x00FFFFFF
+#else						/*  8 MB Flash, 16 MB RAM */
+#define AU_FL_FIRMWARE_ST	0x00000000
+#define AU_FL_FIRMWARE_ND	0x0003FFFF
+#define AU_FL_KERNEL_ST		0x00040000
+#define AU_FL_KERNEL_ND		0x0011FFFF
+#define AU_FL_APP_ST		0x00120000
+#define AU_FL_APP_ND		0x003FFFFF
+#define AU_FL_DISK_ST		0x00400000
+#define AU_FL_DISK_ND		0x007DFFFF
+#define AU_FL_VFD_ST		0x007E0000
+#define AU_FL_VFD_ND		0x007FFFFF
+#endif	/* CONFIG_OLD_VERSION */
+
+/* a structure with the offsets to values in the EEPROM */
+struct eeprom_layout
+{
+	unsigned int time;
+	unsigned int size;
+	unsigned int dcrc;
+};
+
+/* layout of the EEPROM - offset from the start. All entries are 32 bit. */
+#define AU_EEPROM_TIME_PREINST	64
+#define AU_EEPROM_SIZE_PREINST	68
+#define AU_EEPROM_DCRC_PREINST	72
+#define AU_EEPROM_TIME_FIRMWARE	76
+#define AU_EEPROM_SIZE_FIRMWARE	80
+#define AU_EEPROM_DCRC_FIRMWARE	84
+#define AU_EEPROM_TIME_KERNEL	88
+#define AU_EEPROM_SIZE_KERNEL	92
+#define AU_EEPROM_DCRC_KERNEL	96
+#define AU_EEPROM_TIME_APP	100
+#define AU_EEPROM_SIZE_APP	104
+#define AU_EEPROM_DCRC_APP	108
+#define AU_EEPROM_TIME_DISK	112
+#define AU_EEPROM_SIZE_DISK	116
+#define AU_EEPROM_DCRC_DISK	120
+#define AU_EEPROM_TIME_POSTINST 124
+#define AU_EEPROM_SIZE_POSTINST 128
+#define AU_EEPROM_DCRC_POSTINST 132
+
+static int au_usb_stor_curr_dev; /* current device */
+/* max. number of files which could interest us */
+#define AU_MAXFILES 7
+/* pointers to file names */
+char *aufile[AU_MAXFILES];
+/* sizes of flash areas for each file */
+long ausize[AU_MAXFILES];
+/* offsets into the EEEPROM */
+struct eeprom_layout auee_off[AU_MAXFILES] = { \
+	{0}, \
+	{AU_EEPROM_TIME_PREINST, AU_EEPROM_SIZE_PREINST, AU_EEPROM_DCRC_PREINST,}, \
+	{AU_EEPROM_TIME_FIRMWARE, AU_EEPROM_SIZE_FIRMWARE, AU_EEPROM_DCRC_FIRMWARE,}, \
+	{AU_EEPROM_TIME_KERNEL, AU_EEPROM_SIZE_KERNEL, AU_EEPROM_DCRC_KERNEL,}, \
+	{AU_EEPROM_TIME_APP, AU_EEPROM_SIZE_APP, AU_EEPROM_DCRC_APP,}, \
+	{AU_EEPROM_TIME_DISK, AU_EEPROM_SIZE_DISK, AU_EEPROM_DCRC_DISK,}, \
+	{AU_EEPROM_TIME_POSTINST, AU_EEPROM_SIZE_POSTINST, AU_EEPROM_DCRC_POSTINST,} \
+	};
+/* index of each file in the above array */
+#define IDX_PREPARE	0
+#define IDX_PREINST	1
+#define IDX_FIRMWARE	2
+#define IDX_KERNEL	3
+#define IDX_APP		4
+#define IDX_DISK	5
+#define IDX_POSTINST	6
+/* where to load files into memory */
+#define LOAD_ADDR ((unsigned char *)0x0c100000)
+/* the disk is the largest image */
+#define MAX_LOADSZ ausize[IDX_DISK]
+
+/* externals */
+extern int fat_register_device(block_dev_desc_t *, int);
+extern int file_fat_detectfs(void);
+extern long file_fat_read(const char *, void *, unsigned long);
+extern int i2c_read (unsigned char, unsigned int, int , unsigned char* , int);
+extern int i2c_write (uchar, uint, int , uchar* , int);
+#ifdef CONFIG_VFD
+extern int trab_vfd (ulong);
+extern int transfer_pic(unsigned char, unsigned char *, int, int);
+#endif
+extern int i2c_write_multiple (uchar, uint, int, uchar *, int);
+extern int i2c_read_multiple (uchar, uint, int, uchar *, int);
+
+
+int
+au_check_valid(int idx, long nbytes)
+{
+	image_header_t *hdr;
+	unsigned long checksum;
+	unsigned char buf[4];
+
+	hdr = (image_header_t *)LOAD_ADDR;
+	/* check the easy ones first */
+#ifdef CHECK_VALID_DEBUG
+	printf("magic %#x %#x ", ntohl(hdr->ih_magic), IH_MAGIC);
+	printf("arch %#x %#x ", hdr->ih_arch, IH_CPU_ARM);
+	printf("size %#x %#lx ", ntohl(hdr->ih_size), nbytes);
+	printf("type %#x %#x ", hdr->ih_type, IH_TYPE_KERNEL);
+#endif
+	if (ntohl(hdr->ih_magic) != IH_MAGIC ||
+		hdr->ih_arch != IH_CPU_ARM ||
+		nbytes < ntohl(hdr->ih_size)) {
+	    printf ("Image %s Bad MAGIC or ARCH or SIZE\n", aufile[idx]);
+	    return -1;
+	}
+	/* check the hdr CRC */
+	checksum = ntohl(hdr->ih_hcrc);
+	hdr->ih_hcrc = 0;
+
+	if (crc32 (0, (char *)hdr, sizeof(*hdr)) != checksum) {
+	    printf ("Image %s Bad Header Checksum\n", aufile[idx]);
+	    return -1;
+	}
+	/* check the data CRC */
+	checksum = ntohl(hdr->ih_dcrc);
+
+	if (crc32 (0, (char *)(LOAD_ADDR + sizeof(*hdr)), ntohl(hdr->ih_size))
+		!= checksum)
+	{
+	    printf ("Image %s Bad Data Checksum\n", aufile[idx]);
+	    return -1;
+	}
+	/* check the type - could do this all in one gigantic if() */
+	if ((idx == IDX_FIRMWARE) && (hdr->ih_type != IH_TYPE_FIRMWARE)) {
+	    printf ("Image %s Wrong Type\n", aufile[idx]);
+	    return -1;
+	}
+	if ((idx == IDX_KERNEL) && (hdr->ih_type != IH_TYPE_KERNEL)) {
+	    printf ("Image %s Wrong Type\n", aufile[idx]);
+	    return -1;
+	}
+	if ((idx == IDX_DISK || idx == IDX_APP)
+		&& (hdr->ih_type != IH_TYPE_RAMDISK))
+	{
+	    printf ("Image %s Wrong Type\n", aufile[idx]);
+	    return -1;
+	}
+	if ((idx == IDX_PREPARE || idx == IDX_PREINST || idx == IDX_POSTINST)
+		&& (hdr->ih_type != IH_TYPE_SCRIPT))
+	{
+	    printf ("Image %s Wrong Type\n", aufile[idx]);
+	    return -1;
+	}
+	/* special case for prepare.img */
+	if (idx == IDX_PREPARE)
+		return 0;
+	/* check the size does not exceed space in flash */
+	if ((ausize[idx] != 0) && (ausize[idx] < ntohl(hdr->ih_size))) {
+	    printf ("Image %s is bigger than FLASH\n", aufile[idx]);
+	    return -1;
+	}
+	/* check the time stamp from the EEPROM */
+	/* read it in */
+	i2c_read_multiple(0x54, auee_off[idx].time, 1, buf, sizeof(buf));
+#ifdef CHECK_VALID_DEBUG
+printf("buf[0] %#x buf[1] %#x buf[2] %#x buf[3] %#x as int %#x time %#x\n",
+buf[0], buf[1], buf[2], buf[3], *((unsigned int *)buf), ntohl(hdr->ih_time));
+#endif
+	/* check it */
+	if (*((unsigned int *)buf) >= ntohl(hdr->ih_time)) {
+	    printf ("Image %s is too old\n", aufile[idx]);
+	    return -1;
+	}
+
+	return 0;
+}
+
+/* power control defines */
+#define CPLD_VFD_BK ((volatile char *)0x04038002)
+#define POWER_OFF (1 << 1)
+
+int
+au_do_update(int idx)
+{
+	image_header_t *hdr;
+	char *addr;
+
+	hdr = (image_header_t *)LOAD_ADDR;
+	/* disable the power switch */
+	*CPLD_VFD_BK |= POWER_OFF;
+	/* execute a script */
+	if (hdr->ih_type == IH_TYPE_SCRIPT) {
+		addr = (char *)((char *)hdr + sizeof(*hdr) + 8);
+		parse_string_outer(addr,
+			FLAG_PARSE_SEMICOLON | FLAG_EXIT_FROM_LOOP);
+		return 0;
+	}
+	return 0;
+}
+
+int
+au_update_eeprom(int idx)
+{
+	image_header_t *hdr;
+
+	hdr = (image_header_t *)LOAD_ADDR;
+	/* enable the power switch */
+	*CPLD_VFD_BK &= ~POWER_OFF;
+	return 0;
+}
+
+/*
+ * this is called from board_init() after the hardware has been set up
+ * and is usable. That seems like a good time to do this.
+ * Right now the return value is ignored.
+ */
+int
+do_auto_update(void)
+{
+	block_dev_desc_t *stor_dev;
+	long sz;
+	int i, res, bitmap_first;
+	char *env;
+
+#ifdef ERASE_EEPROM
+	int arr[18];
+	memset(arr, 0, sizeof(arr));
+	i2c_write_multiple(0x54, 64, 1, arr, sizeof(arr));
+#endif
+	au_usb_stor_curr_dev = -1;
+	/* start USB */
+	if (usb_stop() < 0) {
+		debug ("usb_stop failed\n");
+		return -1;
+	}
+	if (usb_init() < 0) {
+		debug ("usb_init failed\n");
+		return -1;
+	}
+	/*
+	 * check whether a storage device is attached (assume that it's
+	 * a USB memory stick, since nothing else should be attached).
+	 */
+	au_usb_stor_curr_dev = usb_stor_scan(1);
+	if (au_usb_stor_curr_dev == -1) {
+		debug ("No device found. Not initialized?\n");
+		return -1;
+	}
+	/* check whether it has a partition table */
+	stor_dev = usb_stor_get_dev(au_usb_stor_curr_dev);
+	if (stor_dev->type == DEV_TYPE_UNKNOWN) {
+		debug ("uknown device type\n");
+		return -1;
+	}
+	if (fat_register_device(stor_dev, 1) != 0) {
+		debug ("Unable to use USB %d:%d for fatls\n",
+			au_usb_stor_curr_dev, 1);
+		return -1;
+	}
+	if (file_fat_detectfs() != 0) {
+		debug ("file_fat_detectfs failed\n");
+	}
+	/* initialize the array of file names */
+	memset(aufile, 0, sizeof(aufile));
+	aufile[IDX_PREPARE] = AU_PREPARE;
+	aufile[IDX_PREINST] = AU_PREINST;
+	aufile[IDX_FIRMWARE] = AU_FIRMWARE;
+	aufile[IDX_KERNEL] = AU_KERNEL;
+	aufile[IDX_APP] = AU_APP;
+	aufile[IDX_DISK] = AU_DISK;
+	aufile[IDX_POSTINST] = AU_POSTINST;
+	/* initialize the array of flash sizes */
+	memset(ausize, 0, sizeof(ausize));
+	ausize[IDX_FIRMWARE] = (AU_FL_FIRMWARE_ND + 1) - AU_FL_FIRMWARE_ST;
+	ausize[IDX_KERNEL] = (AU_FL_KERNEL_ND + 1) - AU_FL_KERNEL_ST;
+	ausize[IDX_APP] = (AU_FL_APP_ND + 1) - AU_FL_APP_ST;
+	ausize[IDX_DISK] = (AU_FL_DISK_ND + 1) - AU_FL_DISK_ST;
+	bitmap_first = 0;
+	/* just loop thru all the possible files */
+	for (i = 0; i < AU_MAXFILES; i++) {
+		sz = file_fat_read(aufile[i], LOAD_ADDR, MAX_LOADSZ);
+		debug ("read %s sz %ld hdr %d\n",
+			aufile[i], sz, sizeof(image_header_t));
+		if (sz <= 0 || sz <= sizeof(image_header_t)) {
+			debug ("%s not found\n", aufile[i]);
+			continue;
+		}
+		if (au_check_valid(i, sz) < 0) {
+			debug ("%s not valid\n", aufile[i]);
+			continue;
+		}
+#ifdef CONFIG_VFD
+		/* now that we have a valid file we can display the */
+		/* bitmap. */
+		if (bitmap_first == 0) {
+			env = getenv("bitmap2");
+			if (env == NULL) {
+				trab_vfd(0);
+			} else {
+				/* not so simple - bitmap2 is supposed to */
+				/* contain the address of the bitmap */
+				env = (char *)simple_strtoul(env, NULL, 16);
+/* NOTE: these are taken from vfd_logo.h. If that file changes then */
+/* these defines MUST also be updated! These may be wrong for bitmap2. */
+#define VFD_LOGO_WIDTH 112
+#define VFD_LOGO_HEIGHT 72
+				/* must call transfer_pic directly */
+				transfer_pic(3, env, VFD_LOGO_HEIGHT, VFD_LOGO_WIDTH);
+			}
+			bitmap_first = 1;
+		}
+#endif
+		/* this is really not a good idea, but it's what the */
+		/* customer wants. */
+		do {
+			res = au_do_update(i);
+		} while (res < 0);
+		au_update_eeprom(i);
+	}
+	return 0;
+}
+#endif /* CONFIG_AUTO_UPDATE */

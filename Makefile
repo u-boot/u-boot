@@ -796,7 +796,7 @@ shannon_config	:	unconfig
 ## ARM92xT Systems
 #########################################################################
 
-xtract_trab = $(subst _big_flash,,$(subst _config,,$1))
+xtract_trab = $(subst _old,,$(subst _config,,$1))
 
 omap1510inn_config :	unconfig
 	@./mkconfig $(@:_config=) arm arm925t omap1510inn
@@ -811,11 +811,11 @@ smdk2410_config	:	unconfig
 	@./mkconfig $(@:_config=) arm arm920t smdk2410
 
 trab_config \
-trab_big_flash_config:	unconfig
+trab_old_config:	unconfig
 	@ >include/config.h
-	@[ -z "$(findstring _big_flash,$@)" ] || \
-		{ echo "#define CONFIG_BIG_FLASH" >>include/config.h ; \
-		  echo "... with big flash support" ; \
+	@[ -z "$(findstring _old,$@)" ] || \
+		{ echo "#define CONFIG_OLD_VERSION" >>include/config.h ; \
+		  echo "... with small memory configuration" ; \
 		}
 	@./mkconfig -a $(call xtract_trab,$@) arm arm920t trab
 

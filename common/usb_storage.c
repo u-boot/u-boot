@@ -188,7 +188,7 @@ int usb_stor_scan(int mode)
 	memset(usb_stor_buf, 0, sizeof(usb_stor_buf));
 
 	if(mode==1) {
-		printf("scanning bus for storage devices...\n");
+		printf("       scanning bus for storage devices...\n");
 	}
 	usb_disable_asynch(1); /* asynch transfer not allowed */
 

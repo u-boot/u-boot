@@ -42,6 +42,9 @@
 #undef CONFIG_TRAB_50MHZ		/* run the CPU at 50 MHz	*/
 #define LITTLEENDIAN		1	/* used by usb_ohci.c		*/
 
+/* automatic software updates (see board/trab/auto_update.c) */
+#define CONFIG_AUTO_UPDATE	1
+
 /* input clock of PLL */
 #define CONFIG_SYS_CLK_FREQ	12000000 /* TRAB has 12 MHz input clock */
 
@@ -176,7 +179,7 @@
 #define CONFIG_SERVERIP		192.168.3.1
 #define CONFIG_BOOTCOMMAND	"run flash_nfs"
 
-#ifndef CONFIG_BIG_FLASH
+#ifndef CONFIG_OLD_VERSION	/* current config: 16 MB flash, 32 MB RAM */
 #ifdef CFG_HUSH_PARSER
 #define	CONFIG_EXTRA_ENV_SETTINGS	\
 	"nfs_args=setenv bootargs root=/dev/nfs rw " \
@@ -186,14 +189,15 @@
 	"add_net=setenv bootargs $bootargs ethaddr=$ethaddr " \
 		"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname::off\0" \
 	"add_misc=setenv bootargs $bootargs console=ttyS0 panic=1\0" \
-	"load=tftp 0xC100000 /tftpboot/TRAB/u-boot.bin\0" \
-	"update=protect off 1:0-8;era 1:0-8;cp.b 0xc100000 0 $filesize;" \
-		"setenv filesize;saveenv\0" \
+	"u-boot=/tftpboot/TRAB/u-boot.bin\0" \
+	"load=tftp C100000 ${u-boot}\0" \
+	"update=protect off 0 5FFFF;era 0 5FFFF;" \
+		"cp.b C100000 0 $filesize\0" \
 	"loadfile=/tftpboot/TRAB/uImage\0" \
 	"loadaddr=c400000\0" \
 	"net_load=tftpboot $loadaddr $loadfile\0" \
 	"net_nfs=run net_load nfs_args add_net add_misc;bootm\0" \
-	"kernel_addr=00040000\0" \
+	"kernel_addr=000C0000\0" \
 	"flash_nfs=run nfs_args add_net add_misc;bootm $kernel_addr\0" \
 	"mdm_init1=ATZ\0" \
 	"mdm_init2=ATS0=1\0" \
@@ -207,20 +211,21 @@
 	"add_net=setenv bootargs $(bootargs) ethaddr=$(ethaddr) " \
 		"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off\0" \
 	"add_misc=setenv bootargs $(bootargs) console=ttyS0 panic=1\0" \
-	"load=tftp 0xC100000 /tftpboot/TRAB/u-boot.bin\0" \
-	"update=protect off 1:0-8;era 1:0-8;cp.b 0xc100000 0 $(filesize);" \
-		"setenv filesize;saveenv\0" \
+	"u-boot=/tftpboot/TRAB/u-boot.bin\0" \
+	"load=tftp C100000 $(u-boot)\0" \
+	"update=protect off 0 5FFFF;era 0 5FFFF;" \
+		"cp.b C100000 0 $(filesize)\0" \
 	"loadfile=/tftpboot/TRAB/uImage\0" \
 	"loadaddr=c400000\0" \
 	"net_load=tftpboot $(loadaddr) $(loadfile)\0" \
 	"net_nfs=run net_load nfs_args add_net add_misc;bootm\0" \
-	"kernel_addr=00040000\0" \
+	"kernel_addr=000C0000\0" \
 	"flash_nfs=run nfs_args add_net add_misc;bootm $(kernel_addr)\0" \
 	"mdm_init1=ATZ\0" \
 	"mdm_init2=ATS0=1\0" \
 	"mdm_flow_control=rts/cts\0"
-#endif /* CFG_HUSH_PARSER */
-#else	/* CONFIG_BIG_FLASH */
+#endif	/* CFG_HUSH_PARSER */
+#else		/* CONFIG_OLD_VERSION  => 8 MB flash, 16 MB RAM */
 #ifdef CFG_HUSH_PARSER
 #define	CONFIG_EXTRA_ENV_SETTINGS	\
 	"nfs_args=setenv bootargs root=/dev/nfs rw " \
@@ -230,13 +235,16 @@
 	"add_net=setenv bootargs $bootargs ethaddr=$ethaddr " \
 		"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname::off\0" \
 	"add_misc=setenv bootargs $bootargs console=ttyS0 panic=1\0" \
-	"load=tftp 0xC100000 /tftpboot/TRAB/u-boot.bin\0" \
-	"update=protect off 1:0;era 1:0;cp.b 0xc100000 0 $filesize\0" \
+	"u-boot=/tftpboot/TRAB/u-boot.bin-old\0" \
+	"load=tftp C100000 ${u-boot}\0" \
+	"update=protect off 0 3FFFF;era 0 3FFFF;" \
+		"cp.b C100000 0 $filesize;" \
+		"setenv filesize;saveenv\0" \
 	"loadfile=/tftpboot/TRAB/uImage\0" \
-	"loadaddr=c400000\0" \
+	"loadaddr=C400000\0" \
 	"net_load=tftpboot $loadaddr $loadfile\0" \
 	"net_nfs=run net_load nfs_args add_net add_misc;bootm\0" \
-	"kernel_addr=00040000\0" \
+	"kernel_addr=000C0000\0" \
 	"flash_nfs=run nfs_args add_net add_misc;bootm $kernel_addr\0" \
 	"mdm_init1=ATZ\0" \
 	"mdm_init2=ATS0=1\0" \
@@ -250,19 +258,22 @@
 	"add_net=setenv bootargs $(bootargs) ethaddr=$(ethaddr) " \
 		"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off\0" \
 	"add_misc=setenv bootargs $(bootargs) console=ttyS0 panic=1\0" \
-	"load=tftp 0xC100000 /tftpboot/TRAB/u-boot.bin\0" \
-	"update=protect off 1:0;era 1:0;cp.b 0xc100000 0 $(filesize)\0" \
+	"u-boot=/tftpboot/TRAB/u-boot.bin-old\0" \
+	"load=tftp C100000 $(u-boot)\0" \
+	"update=protect off 0 3FFFF;era 0 3FFFF;" \
+		"cp.b C100000 0 $(filesize);" \
+		"setenv filesize;saveenv\0" \
 	"loadfile=/tftpboot/TRAB/uImage\0" \
-	"loadaddr=c400000\0" \
+	"loadaddr=C400000\0" \
 	"net_load=tftpboot $(loadaddr) $(loadfile)\0" \
 	"net_nfs=run net_load nfs_args add_net add_misc;bootm\0" \
-	"kernel_addr=00040000\0" \
+	"kernel_addr=000C0000\0" \
 	"flash_nfs=run nfs_args add_net add_misc;bootm $(kernel_addr)\0" \
 	"mdm_init1=ATZ\0" \
 	"mdm_init2=ATS0=1\0" \
 	"mdm_flow_control=rts/cts\0"
 #endif /* CFG_HUSH_PARSER */
-#endif	/* CONFIG_BIG_FLASH */
+#endif	/* CONFIG_OLD_VERSION */
 
 #if 0	/* disabled for development */
 #define	CONFIG_AUTOBOOT_KEYED		/* Enable password protection	*/
@@ -290,12 +301,12 @@
 #define	CFG_MAXARGS		16		/* max number of command args	*/
 #define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
 
-#define CFG_MEMTEST_START	0x0c000000	/* memtest works on	*/
-#define CFG_MEMTEST_END		0x0d000000	/* 16 MB in DRAM	*/
+#define CFG_MEMTEST_START	0x0C000000	/* memtest works on	*/
+#define CFG_MEMTEST_END		0x0D000000	/* 16 MB in DRAM	*/
 
 #undef CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
 
-#define	CFG_LOAD_ADDR		0x0cf00000	/* default load address	*/
+#define	CFG_LOAD_ADDR		0x0CF00000	/* default load address	*/
 
 #ifdef CONFIG_TRAB_50MHZ
 /* the PWM TImer 4 uses a counter of 15625 for 10 ms, so we need */
@@ -334,27 +345,27 @@
  * Physical Memory Map
  */
 #define CONFIG_NR_DRAM_BANKS	1		/* we have 1 bank of DRAM */
-#define PHYS_SDRAM_1		0x0c000000	/* SDRAM Bank #1 */
+#define PHYS_SDRAM_1		0x0C000000	/* SDRAM Bank #1 */
+#ifndef CONFIG_OLD_VERSION
+#define PHYS_SDRAM_1_SIZE	0x02000000	/* 32 MB */
+#else
 #define PHYS_SDRAM_1_SIZE	0x01000000	/* 16 MB */
+#endif
 
 #define CFG_FLASH_BASE		0x00000000	/* Flash Bank #1 */
 
 /* The following #defines are needed to get flash environment right */
 #define	CFG_MONITOR_BASE	CFG_FLASH_BASE
-#ifndef CONFIG_BIG_FLASH
 #define	CFG_MONITOR_LEN		(256 << 10)
-#else
-#define	CFG_MONITOR_LEN		(128 << 10)
-#endif
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
 #define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks */
-#ifndef CONFIG_BIG_FLASH
-#define CFG_MAX_FLASH_SECT	71	/* max number of sectors on one chip */
-#else
+#ifndef CONFIG_OLD_VERSION
 #define CFG_MAX_FLASH_SECT	128	/* max number of sectors on one chip */
+#else
+#define CFG_MAX_FLASH_SECT	71	/* max number of sectors on one chip */
 #endif
 
 /* timeout values are in ticks */
@@ -364,14 +375,14 @@
 #define	CFG_ENV_IS_IN_FLASH	1
 
 /* Address and size of Primary Environment Sector	*/
-#ifndef CONFIG_BIG_FLASH
+#ifndef CONFIG_OLD_VERSION
+#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x60000)
+#define CFG_ENV_SIZE		0x4000
+#define CFG_ENV_SECT_SIZE	0x20000
+#else
 #define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x4000)
 #define CFG_ENV_SIZE		0x4000
 #define CFG_ENV_SECT_SIZE	0x4000
-#else
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x20000)
-#define CFG_ENV_SIZE		0x4000
-#define CFG_ENV_SECT_SIZE	0x20000
 #endif
 
 /* Address and size of Redundant Environment Sector	*/

@@ -111,6 +111,10 @@ int do_vcc5v (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 int do_burn_in (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 int do_contact_temp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 int do_burn_in_status (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+int i2c_write_multiple (uchar chip, uint addr, int alen,
+			uchar *buffer, int len);
+int i2c_read_multiple (uchar chip, uint addr, int alen,
+			uchar *buffer, int len);
 
 /* helper functions */
 static void adc_init (void);
@@ -123,10 +127,6 @@ static int test_rotary_switch (void);
 static int test_sram (void);
 static int test_eeprom (void);
 static int test_contact_temp (void);
-static int i2c_write_multiple (uchar chip, uint addr, int alen,
-                               uchar *buffer, int len);
-static int i2c_read_multiple (uchar chip, uint addr, int alen,
-                              uchar *buffer, int len);
 static void led_set (unsigned int);
 static void led_blink (void);
 static void led_init (void);
@@ -579,8 +579,8 @@ static int test_contact_temp (void)
 }
 
 
-static int i2c_write_multiple (uchar chip, uint addr, int alen,
-                               uchar *buffer, int len)
+int i2c_write_multiple (uchar chip, uint addr, int alen,
+			uchar *buffer, int len)
 {
         int i;
 
@@ -608,8 +608,8 @@ static int i2c_write_multiple (uchar chip, uint addr, int alen,
 }
 
 
-static int i2c_read_multiple (uchar chip, uint addr, int alen,
-                               uchar *buffer, int len)
+int i2c_read_multiple ( uchar chip, uint addr, int alen,
+			uchar *buffer, int len)
 {
         int i;
 

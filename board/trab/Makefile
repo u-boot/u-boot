@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= lib$(BOARD).a
 
-OBJS	:= trab.o flash.o vfd.o cmd_trab.o memory.o tsc2000.o
+OBJS	:= trab.o flash.o vfd.o cmd_trab.o memory.o tsc2000.o auto_update.o
 SOBJS	:= memsetup.o
 
 gcclibdir := $(shell dirname `$(CC) -print-libgcc-file-name`)

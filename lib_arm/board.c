@@ -285,7 +285,7 @@ void start_armboot (void)
 		}
 	}
 
-	devices_init ();      /* get the devices list going. */
+	devices_init ();	/* get the devices list going. */
 
 	jumptable_init ();
 

@@ -30,7 +30,7 @@
 
 #elif CONFIG_SERIAL2
 # if defined(CONFIG_TRAB)
-#  #error "TRAB supports only CONFIG_SERIAL1"
+#  error "TRAB supports only CONFIG_SERIAL1"
 # endif
 #define UART_NR	S3C24X0_UART1
 
