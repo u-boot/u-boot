@@ -2,6 +2,12 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Philippe Robin, 28 Sept 2004:
+  Fix Flash support for Versatile.
+
+* Patch by Roger Blofeld, 16 Sep 2004:
+  Fix timeout for DHCP command retry
+
 * Patch by Pantelis Antoniou, 14 Sep 2004:
   Fix early serial hang when CONFIG_SERIAL_MULTI is defined.
 

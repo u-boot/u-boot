@@ -96,7 +96,7 @@
 #define CFG_SERIAL0		0x101F1000
 #define CFG_SERIAL1		0x101F2000
 
-#define CONFIG_COMMANDS	(CFG_CMD_DHCP | CFG_CMD_IMI | CFG_CMD_NET | CFG_CMD_PING | CFG_CMD_BDI | CFG_CMD_MEMORY)
+#define CONFIG_COMMANDS	(CFG_CMD_DHCP | CFG_CMD_IMI | CFG_CMD_NET | CFG_CMD_PING | CFG_CMD_BDI | CFG_CMD_MEMORY | CFG_CMD_FLASH | CFG_CMD_ENV)
 
 /*#define CONFIG_COMMANDS	(CFG_CMD_IMI | CFG_CMD_BDI | CFG_CMD_MEMORY) */
 
@@ -155,15 +155,25 @@
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
-#define CFG_ENV_IS_NOWHERE
+
+#define VERSATILE_SYS_BASE                    0x10000000
+#define VERSATILE_SYS_FLASH_OFFSET            0x4C
+#define VERSATILE_FLASHCTRL		      (VERSATILE_SYS_BASE + VERSATILE_SYS_FLASH_OFFSET)
+#define VERSATILE_FLASHPROG_FLVPPEN	      (1 << 0)	/* Enable writing to flash */
+
 #define CFG_MAX_FLASH_BANKS	1		/* max number of memory banks */
 #define PHYS_FLASH_SIZE         0x34000000	/* 64MB */
 /* timeout values are in ticks */
 #define CFG_FLASH_ERASE_TOUT	(20*CFG_HZ)	/* Timeout for Flash Erase */
 #define CFG_FLASH_WRITE_TOUT	(20*CFG_HZ)	/* Timeout for Flash Write */
-#define CFG_MAX_FLASH_SECT 128
-#define CFG_ENV_SIZE 32768
+#define CFG_MAX_FLASH_SECT	(256)
 
 #define PHYS_FLASH_1		(CFG_FLASH_BASE)
+
+#define CFG_ENV_IS_IN_FLASH     1               /* env in flash instead of CFG_ENV_IS_NOWHERE */
+#define CFG_ENV_SECT_SIZE       0x00020000      /* 256 KB sectors (x2) */
+#define CFG_ENV_SIZE            0x10000         /* Total Size of Environment Sector */
+#define CFG_ENV_OFFSET          0x01f00000      /* environment starts here  */
+#define CFG_ENV_ADDR            (CFG_FLASH_BASE + CFG_ENV_OFFSET)
 
 #endif							/* __CONFIG_H */

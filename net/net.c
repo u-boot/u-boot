@@ -381,6 +381,7 @@ restart:
 #if (CONFIG_COMMANDS & CFG_CMD_DHCP)
 		case DHCP:
 			/* Start with a clean slate... */
+			BootpTry = 0;
 			NetOurIP = 0;
 			NetServerIP = getenv_IPaddr ("serverip");
 			DhcpRequest();		/* Basically same as BOOTP */

@@ -35,8 +35,8 @@
 flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips    */
 
 /* Board support for 1 or 2 flash devices */
-#undef FLASH_PORT_WIDTH32
-#define FLASH_PORT_WIDTH16
+#define FLASH_PORT_WIDTH32
+#undef FLASH_PORT_WIDTH16
 
 #ifdef FLASH_PORT_WIDTH16
 #define FLASH_PORT_WIDTH		ushort
@@ -62,9 +62,8 @@ typedef struct OrgDef {
 
 
 /* Flash Organizations */
-OrgDef OrgIntel_28F256L18T[] = {
-	{4, 32 * 1024},				/* 4 * 32kBytes sectors */
-	{255, 128 * 1024},			/* 255 * 128kBytes sectors */
+OrgDef OrgIntel_28F256K3[] = {
+	{256, 128 * 1024},		/* 256 * 128kBytes sectors */
 };
 
 
@@ -84,6 +83,20 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt);
 /*-----------------------------------------------------------------------
  */
 
+static void flash_vpp(int on)
+{
+	unsigned int tmp;
+
+	tmp = *(unsigned int *)(VERSATILE_FLASHCTRL);
+
+	if (on)
+	    tmp |= VERSATILE_FLASHPROG_FLVPPEN;
+	else
+    	    tmp &= ~VERSATILE_FLASHPROG_FLVPPEN;
+
+	*(unsigned int *)(VERSATILE_FLASHCTRL) = tmp;
+}
+
 unsigned long flash_init (void)
 {
 	int i;
@@ -91,8 +104,10 @@ unsigned long flash_init (void)
 	for (i = 0; i < CFG_MAX_FLASH_BANKS; i++) {
 		switch (i) {
 		case 0:
+		        flash_vpp(1);
 			flash_get_size ((FPW *) PHYS_FLASH_1, &flash_info[i]);
 			flash_get_offsets (PHYS_FLASH_1, &flash_info[i]);
+			flash_vpp(0);
 			break;
 		default:
 			panic ("configured too many flash banks!\n");
@@ -117,7 +132,7 @@ static void flash_get_offsets (ulong base, flash_info_t * info)
 	int i;
 	OrgDef *pOrgDef;
 
-	pOrgDef = OrgIntel_28F256L18T;
+	pOrgDef = OrgIntel_28F256K3;
 	if (info->flash_id == FLASH_UNKNOWN) {
 		return;
 	}
@@ -160,6 +175,9 @@ void flash_print_info (flash_info_t * info)
 	case FLASH_28F256L18T:
 		printf ("FLASH 28F256L18T\n");
 		break;
+	case FLASH_28F256K3:
+		printf ("FLASH 28F256K3\n");
+		break;
 	default:
 		printf ("Unknown Chip Type\n");
 		break;
@@ -193,7 +211,6 @@ static ulong flash_get_size (FPW * addr, flash_info_t * info)
 
 	mb ();
 	value = addr[0];
-
 	switch (value) {
 
 	case (FPW) INTEL_MANUFACT:
@@ -217,6 +234,13 @@ static ulong flash_get_size (FPW * addr, flash_info_t * info)
 		info->sector_count = 259;
 		info->size = 0x02000000;
 		break;			/* => 32 MB     */
+
+	case (FPW)(INTEL_ID_28F256K3):
+		info->flash_id += FLASH_28F256K3;
+		info->sector_count = 256;
+		info->size = 0x02000000;
+		printf ("\Intel StrataFlash 28F256K3C device initialized\n");
+		break;
 
 	default:
 		info->flash_id = FLASH_UNKNOWN;
@@ -290,6 +314,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 		printf ("\n");
 	}
 
+	flash_vpp(1);
 
 	start = get_timer (0);
 	last = start;
@@ -335,6 +360,9 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 			printf (" done\n");
 		}
 	}
+
+	flash_vpp(0);
+
 	return rcode;
 }
 
@@ -364,6 +392,8 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 	port_width = 4;
 #endif
 
+	flash_vpp(1);
+
 	/*
 	 * handle unaligned start bytes
 	 */
@@ -382,6 +412,7 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 		}
 
 		if ((rc = write_data (info, wp, SWAP (data))) != 0) {
+			flash_vpp(0);
 			return (rc);
 		}
 		wp += port_width;
@@ -397,6 +428,7 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 			data = (data << 8) | *src++;
 		}
 		if ((rc = write_data (info, wp, SWAP (data))) != 0) {
+			flash_vpp(0);
 			return (rc);
 		}
 		wp += port_width;
@@ -408,6 +440,7 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 	}
 
 	if (cnt == 0) {
+		flash_vpp(0);
 		return (0);
 	}
 
@@ -423,7 +456,11 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 		data = (data << 8) | (*(uchar *) cp);
 	}
 
-	return (write_data (info, wp, SWAP (data)));
+	rc = write_data (info, wp, SWAP (data));
+
+	flash_vpp(0);
+
+	return rc;
 }
 
 /*-----------------------------------------------------------------------
@@ -443,6 +480,9 @@ static int write_data (flash_info_t * info, ulong dest, FPW data)
 		printf ("not erased at %08lx (%x)\n", (ulong) addr, *addr);
 		return (2);
 	}
+
+	flash_vpp(1);
+
 	flash_unprotect_sectors (addr);
 	/* Disable interrupts which might cause a timeout here */
 	flag = disable_interrupts ();
@@ -456,10 +496,12 @@ static int write_data (flash_info_t * info, ulong dest, FPW data)
 	while (((status = *addr) & (FPW) 0x00800080) != (FPW) 0x00800080) {
 		if (get_timer_masked () > CFG_FLASH_WRITE_TOUT) {
 			*addr = (FPW) 0x00FF00FF;	/* restore read mode */
+			flash_vpp(0);
 			return (1);
 		}
 	}
 	*addr = (FPW) 0x00FF00FF;	/* restore read mode */
+	flash_vpp(0);
 	return (0);
 }
 
