@@ -102,7 +102,7 @@ unsigned long flash_init (void)
 #if CFG_MONITOR_BASE >= CFG_FLASH_BASE
 	flash_protect(FLAG_PROTECT_SET,
 			CFG_MONITOR_BASE,
-			CFG_MONITOR_BASE+CFG_MONITOR_LEN-1,
+			CFG_MONITOR_BASE+monitor_flash_len-1,
 			&flash_info[0]);
 #endif
 	size_b1 = 0 ;

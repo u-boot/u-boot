@@ -232,6 +232,7 @@ static void programLoad(void)
 */
 void copy_code (ulong dest_addr)
 {
+	extern long uboot_end_data;
 	unsigned long start;
 	unsigned long end;
 
@@ -243,7 +244,7 @@ void copy_code (ulong dest_addr)
 	 */
 	copyLongs((ulong *)CFG_MONITOR_BASE,
 		  (ulong *)dest_addr,
-		  (CFG_MONITOR_LEN + 3) / 4);
+		  ((ulong)&uboot_end_data - CFG_MONITOR_BASE + 3) / 4);
 
 
 	/* flush caches

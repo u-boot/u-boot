@@ -73,6 +73,7 @@
 	GOT_ENTRY(_end_of_vectors)
 	GOT_ENTRY(transfer_to_handler)
 
+	GOT_ENTRY(__init_end)
 	GOT_ENTRY(_end)
 	GOT_ENTRY(__bss_start)
 #if defined(CONFIG_FADS) || defined(CONFIG_ICU862)
@@ -568,8 +569,8 @@ relocate_code:
 	mr	r3,  r5				/* Destination Address	*/
 	lis	r4, CFG_MONITOR_BASE@h		/* Source      Address	*/
 	ori	r4, r4, CFG_MONITOR_BASE@l
-	lis	r5, CFG_MONITOR_LEN@h		/* Length in Bytes	*/
-	ori	r5, r5, CFG_MONITOR_LEN@l
+	lwz	r5, GOT(__init_end)
+	sub	r5, r5, r4
 	li	r6, CFG_CACHELINE_SIZE		/* Cache Line Size	*/
 
 	/*
@@ -710,12 +711,6 @@ clear_bss:
 	mr	r3, r9		/* Global Data pointer		*/
 	mr	r4, r10		/* Destination Address		*/
 	bl	board_init_r
-
-	/* Problems accessing "end" in C, so do it here */
-	.globl	get_endaddr
-get_endaddr:
-	lwz	r3,GOT(_end)
-	blr
 
 	/*
 	 * Copy exception vector code to low memory

@@ -66,7 +66,7 @@ unsigned long flash_init(void)
 	flash_get_offsets(CFG_FLASH_BASE, &flash_info[0]);
 
 	/* monitor protection ON by default */
-	flash_protect(FLAG_PROTECT_SET, CFG_FLASH_BASE, CFG_FLASH_BASE + CFG_MONITOR_LEN - 1, &flash_info[0]);
+	flash_protect(FLAG_PROTECT_SET, CFG_FLASH_BASE, CFG_FLASH_BASE + monitor_flash_len - 1, &flash_info[0]);
 
 	flash_info[0].size = size;
 

@@ -93,6 +93,11 @@ extern flash_info_t flash_info[];
 #define	TOTAL_MALLOC_LEN	CFG_MALLOC_LEN
 #endif
 
+extern ulong __init_end;
+extern ulong _end;
+
+ulong monitor_flash_len;
+
 /*
  * Begin and End of memory area for malloc(), and current "brk"
  */
@@ -383,16 +388,7 @@ void board_init_f (ulong bootflag)
 	 *  - monitor code
 	 *  - board info struct
 	 */
-	len = get_endaddr () - CFG_MONITOR_BASE;
-
-	if (len > CFG_MONITOR_LEN) {
-		printf ("*** U-Boot size %ld > reserved memory (%d)\n",
-				len, CFG_MONITOR_LEN);
-		hang ();
-	}
-
-	if (CFG_MONITOR_LEN > len)
-		len = CFG_MONITOR_LEN;
+	len = (ulong)&_end - CFG_MONITOR_BASE;
 
 #ifndef	CONFIG_VERY_BIG_RAM
 	addr = CFG_SDRAM_BASE + gd->ram_size;
@@ -442,10 +438,10 @@ void board_init_f (ulong bootflag)
 
 	/*
 	 * reserve memory for U-Boot code, data & bss
-	 * round down to next 4 kB limit
+	 * round down to next 16 kB limit
 	 */
 	addr -= len;
-	addr &= ~(4096 - 1);
+	addr &= ~(16 * 1024 - 1);
 
 #ifdef DEBUG
 	printf ("Reserving %ldk for U-Boot at: %08lx\n", len >> 10, addr);
@@ -600,6 +596,8 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	WATCHDOG_RESET ();
 
 	gd->reloc_off = dest_addr - CFG_MONITOR_BASE;
+	
+	monitor_flash_len = (ulong)&__init_end - dest_addr;
 
 	/*
 	 * We have to relocate the command table manually
@@ -705,7 +703,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #if defined(CONFIG_PCU_E) || defined(CONFIG_OXC)
 	bd->bi_flashoffset = 0;
 #elif CFG_MONITOR_BASE == CFG_FLASH_BASE
-	bd->bi_flashoffset = CFG_MONITOR_LEN;	/* reserved area for startup monitor  */
+	bd->bi_flashoffset = monitor_flash_len;	/* reserved area for startup monitor  */
 #else
 	bd->bi_flashoffset = 0;
 #endif

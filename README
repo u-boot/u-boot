@@ -1183,13 +1183,13 @@ The following options need to be configured:
 
 	Note:
 
-		In the current implementation, the local variables
-		space and global environment variables space are
-		separated. Local variables are those you define by
-		simply typing like `name=value'. To access a local
-		variable later on, you have write `$name' or
-		`${name}'; variable directly by typing say `$name' at
-		the command prompt.
+                In the current implementation, the local variables
+                space and global environment variables space are
+                separated. Local variables are those you define by
+                simply typing `name=value'. To access a local
+                variable later on, you have write `$name' or
+                `${name}'; to execute the contents of a variable
+                directly type `$name' at the command prompt.
 
 		Global environment variables are those you use
 		setenv/printenv to work with. To run a command stored
@@ -1389,7 +1389,10 @@ Configuration Settings:
 		CFG_FLASH_BASE when booting from flash.
 
 - CFG_MONITOR_LEN:
-		Size of memory reserved for monitor code
+                Size of memory reserved for monitor code, used to
+                determine _at_compile_time_ (!) if the environment is
+                embedded within the U-Boot image, or in a separate
+                flash sector.
 
 - CFG_MALLOC_LEN:
 		Size of DRAM reserved for malloc() use.

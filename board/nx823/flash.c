@@ -93,7 +93,7 @@ unsigned long flash_init (void)
 	/* monitor protection ON by default */
 	(void)flash_protect(FLAG_PROTECT_SET,
 			    CFG_FLASH_BASE,
-			    CFG_FLASH_BASE+CFG_MONITOR_LEN-1,
+			    CFG_FLASH_BASE+monitor_flash_len-1,
 			    &flash_info[0]);
 
 	flash_info[0].size = size_b0;

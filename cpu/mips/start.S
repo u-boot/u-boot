@@ -302,7 +302,8 @@ relocate_code:
 	sub	t6, gp, t6		/* t6 <-- relocation offset	*/
 	
 	li	t0, CFG_MONITOR_BASE
-	add	t2, t0, CFG_MONITOR_LEN
+	la	t3, in_ram
+	lw	t2, -12(t3)	/* t2 <-- uboot_end_data	*/
 	move	t1, a2
 
 	/*

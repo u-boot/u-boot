@@ -92,7 +92,7 @@ unsigned long flash_init (void)
 	    /* Monitor protection ON by default */
 	    (void)flash_protect(FLAG_PROTECT_SET,
 				FLASH_BASE0_PRELIM,
-				FLASH_BASE0_PRELIM+CFG_MONITOR_LEN-1,
+				FLASH_BASE0_PRELIM+monitor_flash_len-1,
 				&flash_info[0]);
 	    size_b1 = 0 ;
 	    flash_info[0].size = size_b0;
@@ -133,7 +133,7 @@ unsigned long flash_init (void)
 
 	    /* monitor protection ON by default */
 	    (void)flash_protect(FLAG_PROTECT_SET,
-				base_b0+size_b0-CFG_MONITOR_LEN,
+				base_b0+size_b0-monitor_flash_len,
 				base_b0+size_b0-1,
 				&flash_info[0]);
 
@@ -145,12 +145,12 @@ unsigned long flash_init (void)
 
 	      /* monitor protection ON by default */
 	      (void)flash_protect(FLAG_PROTECT_SET,
-				  base_b1+size_b1-CFG_MONITOR_LEN,
+				  base_b1+size_b1-monitor_flash_len,
 				  base_b1+size_b1-1,
 				  &flash_info[1]);
 	      /* monitor protection OFF by default (one is enough) */
 	      (void)flash_protect(FLAG_PROTECT_CLEAR,
-				  base_b0+size_b0-CFG_MONITOR_LEN,
+				  base_b0+size_b0-monitor_flash_len,
 				  base_b0+size_b0-1,
 				  &flash_info[0]);
 	    } else {

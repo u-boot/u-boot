@@ -2,6 +2,13 @@
 Changes since U-Boot 0.3.1:
 ======================================================================
 
+* Get (mostly) rid of CFG_MONITOR_LEN definition; compute real length
+  instead CFG_MONITOR_LEN is now only used to determine  _at_compile_
+  _time_  (!) if the environment is embedded within the U-Boot image,
+  or in a separate flash sector.
+
+* Cleanup CFG_DER #defines in config files (wd maintained only)
+
 * Fix data abort exception handling for arm920t CPU
 
 * Fix alignment problems with flash driver for TRAB board

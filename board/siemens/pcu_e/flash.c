@@ -148,7 +148,7 @@ unsigned long flash_init (void)
 	/* monitor protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
 		      PCU_MONITOR_BASE,
-		      PCU_MONITOR_BASE+CFG_MONITOR_LEN-1,
+		      PCU_MONITOR_BASE+monitor_flash_len-1,
 		      &flash_info[0]);
 
 #ifdef	CFG_ENV_IS_IN_FLASH

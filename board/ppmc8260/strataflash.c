@@ -201,7 +201,7 @@ unsigned long flash_init (void)
 
 	/* Monitor protection ON by default */
 #if (CFG_MONITOR_BASE >= CFG_FLASH_BASE)
-	for(i=0; flash_info[0].start[i] < CFG_MONITOR_BASE+CFG_MONITOR_LEN-1; i++)
+	for(i=0; flash_info[0].start[i] < CFG_MONITOR_BASE+monitor_flash_len-1; i++)
 		(void)flash_real_protect(&flash_info[0], i, 1);
 #endif
 

@@ -83,21 +83,21 @@ unsigned long flash_init (void)
     {
         (void)flash_protect(FLAG_PROTECT_SET,
                 FLASH_BASE0_PRELIM,
-                FLASH_BASE0_PRELIM+CFG_MONITOR_LEN-1,
+                FLASH_BASE0_PRELIM+monitor_flash_len-1,
                 &flash_info[0]);
     }
     if (size2 == 512*1024)
     {
         (void)flash_protect(FLAG_PROTECT_SET,
                 FLASH_BASE1_PRELIM,
-                FLASH_BASE1_PRELIM+CFG_MONITOR_LEN-1,
+                FLASH_BASE1_PRELIM+monitor_flash_len-1,
                 &flash_info[1]);
     }
     if (size2 == 4*1024*1024)
     {
         (void)flash_protect(FLAG_PROTECT_SET,
                 CFG_FLASH_BASE,
-                CFG_FLASH_BASE+CFG_MONITOR_LEN-1,
+                CFG_FLASH_BASE+monitor_flash_len-1,
                 &flash_info[1]);
     }
 

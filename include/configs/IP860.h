@@ -304,7 +304,6 @@ extern  unsigned long           ip860_get_clk_freq (void);
  *-----------------------------------------------------------------------
  *
  */
-/*#define	CFG_DER	0x2002000F*/
 #define CFG_DER	0
 
 /*

@@ -42,6 +42,11 @@
 
 extern int timer_init(void);
 
+extern ulong uboot_end_data;
+extern ulong uboot_end;
+
+ulong monitor_flash_len;
+
 const char version_string[] =
 	U_BOOT_VERSION" (" __DATE__ " - " __TIME__ ")";
 
@@ -176,7 +181,7 @@ void board_init_f(ulong bootflag)
 	gd_t gd_data, *id;
 	bd_t *bd;
 	init_fnc_t **init_fnc_ptr;
-	ulong addr, addr_sp, len   = CFG_MONITOR_LEN;
+	ulong addr, addr_sp, len = (ulong)&uboot_end - CFG_MONITOR_BASE;
 #ifdef CONFIG_PURPLE
 	void copy_code (ulong);
 #endif
@@ -209,10 +214,10 @@ void board_init_f(ulong bootflag)
 #endif
 	 
 		/* Reserve memory for U-Boot code, data & bss
-		 * round down to next 4 kB limit
+		 * round down to next 16 kB limit
 		 */
 	addr -= len;
-	addr &= ~(4096 - 1);
+	addr &= ~(16 * 1024 - 1);
 
 #ifdef DEBUG
 	printf ("Reserving %ldk for U-Boot at: %08lx\n", len >> 10, addr);
@@ -319,6 +324,8 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 	gd->reloc_off = dest_addr - CFG_MONITOR_BASE;
 
+	monitor_flash_len = (ulong)&uboot_end_data - dest_addr;
+
 	/*
 	 * We have to relocate the command table manually
 	 */
@@ -360,7 +367,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	bd->bi_flashstart = CFG_FLASH_BASE;
 	bd->bi_flashsize = size;
 #if CFG_MONITOR_BASE == CFG_FLASH_BASE
-	bd->bi_flashoffset = CFG_MONITOR_LEN;	/* reserved area for U-Boot */
+	bd->bi_flashoffset = monitor_flash_len;	/* reserved area for U-Boot */
 #else
 	bd->bi_flashoffset = 0;
 #endif

@@ -115,7 +115,7 @@ unsigned long flash_init (void)
 	/* monitor protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
 		      CFG_FLASH_BASE,
-		      CFG_FLASH_BASE+CFG_MONITOR_LEN-1,
+		      CFG_FLASH_BASE+monitor_flash_len-1,
 		      &flash_info[0]);
 
 	if (size_b1) {
@@ -136,7 +136,7 @@ unsigned long flash_init (void)
 		/* monitor protection ON by default */
 		flash_protect(FLAG_PROTECT_SET,
 			      CFG_FLASH_BASE,
-			      CFG_FLASH_BASE+CFG_MONITOR_LEN-1,
+			      CFG_FLASH_BASE+monitor_flash_len-1,
 			      &flash_info[1]);
 	} else {
 		memctl->memc_br1 = 0;		/* invalidate bank */

@@ -128,6 +128,7 @@ int	checkflash    (void);
 int	checkdram     (void);
 char *	strmhz(char *buf, long hz);
 int	last_stage_init(void);
+extern ulong monitor_flash_len;
 
 /* common/flash.c */
 void flash_perror (int);

@@ -35,6 +35,8 @@
 void nand_init (void);
 #endif
 
+ulong monitor_flash_len;
+
 const char version_string[] =
 	U_BOOT_VERSION" (" __DATE__ " - " __TIME__ ")";
 
@@ -203,6 +205,8 @@ void start_armboot (void)
 	memset (gd, 0, sizeof (gd_t));
 	gd->bd = &bd_data;
 	memset (gd->bd, 0, sizeof (bd_t));
+
+	monitor_flash_len = _armboot_end_data - _armboot_start;
 
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
 		if ((*init_fnc_ptr)() != 0) {

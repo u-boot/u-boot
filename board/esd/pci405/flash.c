@@ -91,7 +91,7 @@ unsigned long flash_init (void)
 
         /* Monitor protection ON by default */
         (void)flash_protect(FLAG_PROTECT_SET,
-                            -CFG_MONITOR_LEN,
+                            -monitor_flash_len,
                             0xffffffff,
                             &flash_info[0]);
 
