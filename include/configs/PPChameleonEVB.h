@@ -55,46 +55,16 @@
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 
-#if 0
-#define CONFIG_PREBOOT                                                          \
-        "crc32 f0207004 ffc 0;"                                                 \
-        "if cmp 0 f0207000 1;"                                                  \
-        "then;echo Old CRC is correct;crc32 f0207004 ff4 f0207000;"             \
-        "else;echo Old CRC is bad;fi"
-#endif
-
 #undef	CONFIG_BOOTARGS
-#define CONFIG_RAMBOOTCOMMAND							\
-	"setenv bootargs root=/dev/ram rw "	\
-	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname):$(netdev):off;"	\
-	"bootm ffc00000 ffca0000"
-#define CONFIG_NFSBOOTCOMMAND							\
-	"setenv bootargs root=/dev/nfs rw nfsroot=$(serverip):$(rootpath) "	\
-	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname):$(netdev):off;"	\
-	"bootm ffc00000"
 
-#define CONFIG_PELK_NOR_KERNEL_NOR_RAMDISK_BOOTCOMMAND				\
-	"setenv ipaddr 192.168.10.203;"						\
-    "setenv serverip 192.168.10.6;"						\
-	"setenv netmask 255.255.255.0;"						\
-	"setenv bootargs root=/dev/ram rw console=ttyS0,9600;"			\
-	"setenv autostart yes;"							\
-	"bootm ffc00000 ffd00000"
-/*
-	"setenv ethaddr 00:50:c2:1e:af:fe;"						\
-	"setenv eth1addr 00:50:c2:1e:af:fd;"						\
-*/
-
-#define CONFIG_BOOTCOMMAND CONFIG_PELK_NOR_KERNEL_NOR_RAMDISK_BOOTCOMMAND
+/* Ethernet stuff */
+#define CONFIG_ENV_OVERWRITE /* Let the user to change the Ethernet MAC addresses */
+#define CONFIG_ETHADDR	00:50:c2:1e:af:fe
+#define CONFIG_ETH1ADDR	00:50:c2:1e:af:fd
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
-
-/* EThernet stuff */
-#define CONFIG_ENV_OVERWRITE /* Let the user to change the Ethernet MAC addresses */
-#define CONFIG_ETHADDR	00:50:c2:1e:af:fe
-#define CONFIG_ETH1ADDR	00:50:c2:1e:af:fd
 
 #undef CONFIG_EXT_PHY
 
@@ -548,18 +518,16 @@
 #if 1 /* test-only */
 #define CONFIG_NO_SERIAL_EEPROM
 /*#undef CONFIG_NO_SERIAL_EEPROM*/
-/*----------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------*/
+/*--------------------------------------------------------------------*/
 #ifdef CONFIG_NO_SERIAL_EEPROM
 
 
 /*
-!-------------------------------------------------------------------------------
+!-----------------------------------------------------------------------
 ! Defines for entry options.
 ! Note: Because the 405EP SDRAM controller does not support ECC, ECC DIMMs that
 !       are plugged in the board will be utilized as non-ECC DIMMs.
-!-------------------------------------------------------------------------------
+!-----------------------------------------------------------------------
 */
 #undef        AUTO_MEMORY_CONFIG
 #define        DIMM_READ_ADDR 0xAB
@@ -678,10 +646,10 @@
 #define PLL_PCIDIV_4               0x00000003
 
 /*
-!-------------------------------------------------------------------------------
+!-----------------------------------------------------------------------
 ! PLL settings for 266MHz CPU, 133MHz PLB/SDRAM, 66MHz EBC, 33MHz PCI,
 ! assuming a 33.3MHz input clock to the 405EP.
-!-------------------------------------------------------------------------------
+!-----------------------------------------------------------------------
 */
 #define PLLMR0_133_66_66_33  (PLL_CPUDIV_1 | PLL_PLBDIV_1 |  \
                               PLL_OPBDIV_2 | PLL_EXTBUSDIV_4 |  \

@@ -2,6 +2,9 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Patch by llandre, 11 Sep 2003:
+  update configuration for PPChameleonEVB board
+
 * Patch by David Müller, 13 Sep 2003:
   various changes to VCMA9 board specific files
 
