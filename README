@@ -1643,7 +1643,11 @@ Configuration Settings:
 
 - CFG_FLASH_CFI:
 		Define if the flash driver uses extra elements in the
-		common flash structure for storing flash geometry
+		common flash structure for storing flash geometry.
+
+- CFG_FLASH_CFI_DRIVER
+		This option also enables the building of the cfi_flash driver
+		in the drivers directory
 
 - CFG_RX_ETH_BUFFER:
 		Defines the number of ethernet receive buffers. On some

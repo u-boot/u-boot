@@ -42,7 +42,8 @@ typedef struct {
 	ulong	erase_blk_tout;		/* maximum block erase timeout		*/
 	ulong	write_tout;		/* maximum write timeout		*/
 	ulong	buffer_write_tout;	/* maximum buffer write timeout		*/
-
+	ushort  vendor;                 /* the primary vendor id                */
+	ushort  cmd_reset;              /* Vendor specific reset command        */
 #endif
 } flash_info_t;
 
@@ -61,6 +62,8 @@ typedef struct {
 #define FLASH_CFI_BY32		0x04
 #define FLASH_CFI_BY64		0x08
 
+/* convert between bit value and numeric value */
+#define CFI_FLASH_SHIFT_WIDTH      3
 /* Prototypes */
 
 extern unsigned long flash_init (void);
@@ -78,6 +81,8 @@ extern int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt);
 /* board/?/flash.c */
 #if defined(CFG_FLASH_PROTECTION)
 extern int flash_real_protect(flash_info_t *info, long sector, int prot);
+extern void flash_read_user_serial(flash_info_t * info, void * buffer, int offset, int len);
+extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int offset, int len);
 #endif	/* CFG_FLASH_PROTECTION */
 
 /*-----------------------------------------------------------------------

@@ -647,8 +647,8 @@
  * ASMI is for Cyclone devices only and only works when the configuration
  * is loaded via JTAG or ASMI. Please see doc/README.dk1c20 for details.
  *----------------------------------------------------------------------*/
-#define CONFIG_NIOS_ASMI			/* Enable ASMI		*/
-#define CFG_NIOS_ASMIBASE	0x00920b00	/* ASMI base address	*/
+#define CONFIG_NIOS_ASMI			   /* Enable ASMI	*/
+#define CFG_NIOS_ASMIBASE	CFG_NIOS_CPU_ASMI0 /* ASMI base address	*/
 
 /*------------------------------------------------------------------------
  * COMMANDS

@@ -163,7 +163,8 @@ static void pciauto_prescan_setup_bridge(struct pci_controller *hose,
 
 	/* Configure bus number registers */
 	pci_hose_write_config_byte(hose, dev, PCI_PRIMARY_BUS, PCI_BUS(dev));
-	pci_hose_write_config_byte(hose, dev, PCI_SECONDARY_BUS, sub_bus + 1);
+	/* TBS: passed in sub_bus is correct, removed the +1 */
+	pci_hose_write_config_byte(hose, dev, PCI_SECONDARY_BUS, sub_bus);
 	pci_hose_write_config_byte(hose, dev, PCI_SUBORDINATE_BUS, 0xff);
 
 	if (pci_mem)
@@ -284,6 +285,7 @@ int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 	unsigned int sub_bus = PCI_BUS(dev);
 	unsigned short class;
 	unsigned char prg_iface;
+	int n;
 
 	pci_hose_read_config_word(hose, dev, PCI_CLASS_DEVICE, &class);
 
@@ -294,11 +296,19 @@ int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 		pciauto_setup_device(hose, dev, 2, hose->pci_mem, hose->pci_io);
 
 		DEBUGF("PCI Autoconfig: Found P2P bridge, device %d\n", PCI_DEV(dev));
-		pciauto_prescan_setup_bridge(hose, dev, sub_bus);
+		
+		/* TBS: Passing in current_busno allows for sibling P2P bridges */
+		pciauto_prescan_setup_bridge(hose, dev, hose->current_busno);
+		/* 
+		 * TBS: need to figure out if this is a subordinate bridge on the bus 
+		 * to be able to properly set the pri/sec/sub bridge registers.
+		 */
+		n = pci_hose_scan_bus(hose, hose->current_busno);
 
-		pci_hose_scan_bus(hose, hose->current_busno);
-
+		/* TBS: figure out the deepest we've gone for this leg */
+		sub_bus = max(n, sub_bus);
 		pciauto_postscan_setup_bridge(hose, dev, sub_bus);
+
 		sub_bus = hose->current_busno;
 		break;
 

@@ -99,7 +99,9 @@ int miiphy_reset (unsigned char addr)
 #endif
 		return (-1);
 	}
-
+#ifdef CONFIG_PHY_RESET_DELAY
+	udelay (CONFIG_PHY_RESET_DELAY);	/* Intel LXT971A needs this */
+#endif
 	/*
 	 * Poll the control register for the reset bit to go to 0 (it is
 	 * auto-clearing).  This should happen within 0.5 seconds per the

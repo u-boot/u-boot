@@ -113,6 +113,9 @@ int miiphy_read (unsigned char addr, unsigned char reg,
 	printf ("a2: write: EMAC_STACR=0x%0x\n", sta_reg);	/* test-only */
 #endif
 
+#ifdef CONFIG_PHY_CMD_DELAY
+	udelay (CONFIG_PHY_CMD_DELAY);		/* Intel LXT971A needs this */
+#endif
 	sta_reg = in32 (EMAC_STACR);
 	i = 0;
 	while ((sta_reg & EMAC_STACR_OC) == 0) {
@@ -173,6 +176,9 @@ int miiphy_write (unsigned char addr, unsigned char reg,
 
 	out32 (EMAC_STACR, sta_reg);
 
+#ifdef CONFIG_PHY_CMD_DELAY
+	udelay (CONFIG_PHY_CMD_DELAY);		/* Intel LXT971A needs this */
+#endif
 	/* wait for completion */
 	i = 0;
 	sta_reg = in32 (EMAC_STACR);

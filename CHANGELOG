@@ -2,6 +2,24 @@
 Changes since U-Boot 1.0.1:
 ======================================================================
 
+* Patch by Yuli Barcohen, 26 Jan 2004:
+  Allow bzip2 compression for small memory footprint boards
+
+* Patch by Brad Kemp, 21 Jan 2004:
+  Add support for CFI flash driver for both the Intel and the AMD
+  command sets.
+
+* Patch by Travis Sawyer, 20 Jan 2004:
+  Fix pci bridge auto enumeration of sibling p2p bridges.
+
+* Patch by Tolunay Orkun, 12 Jan 2004:
+  Add some delays as needed for Intel LXT971A PHY support
+
+* Patches by Stephan Linz, 09 Jan 2004:
+  - avoid warning: unused variable `piop' in board/altera/common/sevenseg.c
+  - make DK1C20 board configuration related to ASMI conform to
+    documentation
+
 * Patch by Anders Larsen, 09 Jan 2004:
 
   ARM memory layout fixes: the abort-stack is now set up in the

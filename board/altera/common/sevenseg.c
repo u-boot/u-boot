@@ -44,7 +44,7 @@ static int sevenseg_init_done = 0;
 
 static inline void __sevenseg_set_masked (unsigned int mask, int value)
 {
-	nios_pio_t *piop = (nios_pio_t*)SEVENSEG_BASE;
+	nios_pio_t *piop __attribute__((unused)) = (nios_pio_t*)SEVENSEG_BASE;
 
 #ifdef	SEVENSEG_WRONLY	/* emulate read access */
 
@@ -97,7 +97,7 @@ static inline void __sevenseg_toggle_masked (unsigned int mask)
 
 static inline void __sevenseg_set (unsigned int value)
 {
-	nios_pio_t *piop = (nios_pio_t*)SEVENSEG_BASE;
+	nios_pio_t *piop __attribute__((unused)) = (nios_pio_t*)SEVENSEG_BASE;
 
 #ifdef	SEVENSEG_WRONLY	/* emulate read access */
 
@@ -126,7 +126,7 @@ static inline void __sevenseg_set (unsigned int value)
 
 static inline void __sevenseg_init (void)
 {
-	nios_pio_t *piop = (nios_pio_t*)SEVENSEG_BASE;
+	nios_pio_t *piop __attribute__((unused)) = (nios_pio_t*)SEVENSEG_BASE;
 
 	__sevenseg_set(0);
 
