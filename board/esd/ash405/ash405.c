@@ -239,11 +239,14 @@ int testdram (void)
 /* ------------------------------------------------------------------------- */
 
 #if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#include <linux/mtd/nand.h>
+extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];
 
 void nand_init(void)
 {
-	unsigned long totlen = nand_probe(CFG_NAND_BASE);
-
-	printf ("%4lu MB\n", totlen >> 20);
+	nand_probe(CFG_NAND_BASE);
+	if (nand_dev_desc[0].ChipID != NAND_ChipID_UNKNOWN) {
+		print_size(nand_dev_desc[0].totlen, "\n");
+	}
 }
 #endif
