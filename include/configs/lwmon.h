@@ -77,12 +77,12 @@
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
 #define	CONFIG_EXTRA_ENV_SETTINGS						\
-	"kernel_addr=40040000\0"						\
-	"ramdisk_addr=40100000\0"						\
+	"kernel_addr=40080000\0"						\
+	"ramdisk_addr=40280000\0"						\
 	"magic_keys=#3\0"							\
 	"key_magic#=28\0"							\
 	"key_cmd#=setenv addfb setenv bootargs \\$(bootargs) console=tty0\0"	\
-	"key_magic3=24\0"							\
+	"key_magic3=3C+3F\0"							\
 	"key_cmd3=echo *** Entering Test Mode ***;" \
 		"setenv add_misc setenv bootargs \\$(bootargs) testmode\0"	\
 	"nfsargs=setenv bootargs root=/dev/nfs rw nfsroot=$(serverip):$(rootpath)\0" \
@@ -92,9 +92,10 @@
 		"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off " \
 		"panic=1\0"							\
 	"add_wdt=setenv bootargs $(bootargs) $(wdt_args)\0"			\
-	"flash_nfs=run nfsargs addip add_wdt addfb;"		\
+	"add_misc=setenv bootargs $(bootargs) runmode\0"			\
+	"flash_nfs=run nfsargs addip add_wdt addfb add_misc;"	\
 		"bootm $(kernel_addr)\0"					\
-	"flash_self=run ramargs addip add_wdt addfb;"		\
+	"flash_self=run ramargs addip add_wdt addfb add_misc;"	\
 		"bootm $(kernel_addr) $(ramdisk_addr)\0"			\
 	"net_nfs=tftp 100000 /tftpboot/pImage.lwmon;"		\
 		"run nfsargs addip add_wdt addfb;bootm\0"	\
