@@ -1,5 +1,4 @@
-/*
- * include/asm-armnommu/arch-netarm/netarm_dma_module.h
+/* * include/asm-armnommu/arch-netarm/netarm_dma_module.h
  *
  * Copyright (C) 2000 NETsilicon, Inc.
  * Copyright (C) 2000 WireSpeed Communications Corporation
@@ -181,4 +180,3 @@ typedef	struct __NETARM_DMA_Buff_Desc_M_to_M
 #endif
 
 #endif
-

@@ -12,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -159,13 +159,13 @@ int binary_test (char *op, char *arg1, char *arg2, int w)
 /* command line interface to the shell test */
 int do_itest ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[] )
 {
-        int	value, w;
+	int	value, w;
 
-        /* Validate arguments */
-        if ((argc != 4)){
+	/* Validate arguments */
+	if ((argc != 4)){
 		printf("Usage:\n%s\n", cmdtp->usage);
-        	return 1;
-        }
+		return 1;
+	}
 
 	/* Check for a data width specification.
 	 * Defaults to long (4) if no specification.
@@ -192,6 +192,6 @@ int do_itest ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[] )
 
 U_BOOT_CMD(
 	itest, 4, 0, do_itest,
-	"itest   - return true/false on integer compare\n",
+	"itest	 - return true/false on integer compare\n",
 	"[.b, .w, .l, .s] [*]value1 <op> [*]value2\n"
 );

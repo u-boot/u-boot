@@ -1,12 +1,12 @@
-A slow day today so here is a revised itest command with provisional 
+A slow day today so here is a revised itest command with provisional
 support for comparing strings as well :-))
 
 Now table driven to allow the operators
 -eq, -ne, -lt, -gt, -le, -ge, ==, !=, <>, <, >, <=, >=
 
-Uses the expected command modifier for integer compares of width 1, 2 or 
-4 bytes of .b, .w, .l and the new modifer of .s for a string compare. 
-String comparison is over the length of the shorter, this hopefully 
+Uses the expected command modifier for integer compares of width 1, 2 or
+4 bytes of .b, .w, .l and the new modifer of .s for a string compare.
+String comparison is over the length of the shorter, this hopefully
 avoids missing terminators when using an indirect pointer.
 
 eg.

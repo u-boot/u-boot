@@ -2,6 +2,12 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
+* Patch by Laurent Mohin, 10 Feb 2004:
+  Fix buffer overflow in common/usb.c
+
+* Patch by Tolunay Orkun, 10 Feb 2004:
+  Add support for Cogent CSB272 board
+
 * Patch by Thomas Elste, 10 Feb 2004:
   Add support for NET+50 CPU and ModNET50 board
 

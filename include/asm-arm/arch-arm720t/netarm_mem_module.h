@@ -155,4 +155,3 @@
 #define NETARM_MEM_OPT_WRITE_SYNC	(0x00000001)
 
 #endif
-

@@ -77,4 +77,3 @@
 #include <asm/arch/netarm_eth_module.h>
 
 #endif
-

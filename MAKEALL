@@ -40,7 +40,7 @@ LIST_8xx="	\
 	GEN860T_SC	GENIETV		GTH		hermes		\
 	IAD210		ICU862_100MHz	IP860		IVML24		\
 	IVML24_128	IVML24_256	IVMS8		IVMS8_128	\
-	IVMS8_256	KUP4K           LANTEC	        lwmon   	\
+	IVMS8_256	KUP4K		LANTEC		lwmon		\
 	MBX		MBX860T		MHPC		MPC86xADS	\
 	MVS1		NETVIA		NETVIA_V2	NX823		\
 	pcu_e		QS823		QS850		QS860T		\
@@ -56,15 +56,15 @@ LIST_8xx="	\
 #########################################################################
 
 LIST_4xx="	\
-	ADCIOP		AR405		ASH405          BUBINGA405EP    \
-	CANBT		CPCI405		CPCI4052 	CPCI405AB       \
-	CPCI440         CPCIISER4	CRAYL1  	DASA_SIM	\
-	DP405           DU405    	EBONY           ERIC  		\
-	EXBITGEN	HUB405          MIP405  	MIP405T		\
-	ML2		OCRTC		ORSG		PCI405		\
-	PIP405		PLU405          PMC405          PPChameleonEVB	\
-	VOH405          W7OLMC		W7OLMG          WALNUT405	\
-	XPEDITE1K							\
+	ADCIOP		AR405		ASH405		BUBINGA405EP	\
+	CANBT		CPCI405		CPCI4052	CPCI405AB	\
+	CPCI440		CPCIISER4	CRAYL1		csb272		\
+	DASA_SIM	DP405		DU405		EBONY		\
+	ERIC		EXBITGEN	HUB405		MIP405		\
+	MIP405T		ML2		OCRTC		ORSG		\
+	PCI405		PIP405		PLU405		PMC405		\
+	PPChameleonEVB	VOH405		W7OLMC		W7OLMG		\
+	WALNUT405	XPEDITE1K					\
 "
 
 #########################################################################
@@ -72,9 +72,9 @@ LIST_4xx="	\
 #########################################################################
 
 LIST_824x="	\
-	A3000           BMW		CPC45		CU824		\
-	debris		MOUSSE          MUSENKI    	MVBLUE		\
-	OXC		PN62		Sandpoint8240   Sandpoint8245	\
+	A3000		BMW		CPC45		CU824		\
+	debris		MOUSSE		MUSENKI		MVBLUE		\
+	OXC		PN62		Sandpoint8240	Sandpoint8245	\
 	SL8245		utx8245						\
 "
 

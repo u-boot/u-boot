@@ -195,11 +195,4 @@ static unsigned long systemace_read(int dev,
 
       return blkcnt;
 }
-
-
 #endif
-
-/*
- * $Log: $
- */
-

@@ -205,10 +205,10 @@ TftpHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 		TftpBlock = ntohs(*(ushort *)pkt);
 
 		/*
-                 * RFC1350 specifies that the first data packet will
-                 * have sequence number 1. If we receive a sequence
-                 * number of 0 this means that there was a wrap
-                 * around of the (16 bit) counter.
+		 * RFC1350 specifies that the first data packet will
+		 * have sequence number 1. If we receive a sequence
+		 * number of 0 this means that there was a wrap
+		 * around of the (16 bit) counter.
 		 */
 		if (TftpBlock == 0) {
 			TftpBlockWrap++;

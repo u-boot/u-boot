@@ -22,12 +22,13 @@
 
 
 #include <common.h>
+
+#ifdef CONFIG_DRIVER_NETARMETH
 #include <command.h>
 #include <net.h>
 #include "netarm_eth.h"
 #include <asm/arch/netarm_registers.h>
 
-#ifdef CONFIG_DRIVER_NETARMETH
 
 #if (CONFIG_COMMANDS & CFG_CMD_NET)
 

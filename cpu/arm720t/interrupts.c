@@ -17,7 +17,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -43,8 +43,8 @@ extern void reset_cpu(ulong addr);
 #define READ_TIMER (IO_TC1D & 0xffff)
 #else
 #define IRQEN	(*(volatile unsigned int *)(NETARM_GEN_MODULE_BASE + NETARM_GEN_INTR_ENABLE))
-#define TM2CTRL	(*(volatile unsigned int *)(NETARM_GEN_MODULE_BASE + NETARM_GEN_TIMER2_CONTROL))
-#define TM2STAT	(*(volatile unsigned int *)(NETARM_GEN_MODULE_BASE + NETARM_GEN_TIMER2_STATUS))
+#define TM2CTRL (*(volatile unsigned int *)(NETARM_GEN_MODULE_BASE + NETARM_GEN_TIMER2_CONTROL))
+#define TM2STAT (*(volatile unsigned int *)(NETARM_GEN_MODULE_BASE + NETARM_GEN_TIMER2_STATUS))
 #define TIMER_LOAD_VAL NETARM_GEN_TSTAT_CTC_MASK
 #define READ_TIMER (TM2STAT & NETARM_GEN_TSTAT_CTC_MASK)
 #endif
@@ -112,15 +112,15 @@ void show_regs (struct pt_regs *regs)
 
 	flags = condition_codes (regs);
 
-	printf ("pc : [<%08lx>]    lr : [<%08lx>]\n"
-			"sp : %08lx  ip : %08lx  fp : %08lx\n",
+	printf ("pc : [<%08lx>]	   lr : [<%08lx>]\n"
+			"sp : %08lx  ip : %08lx	 fp : %08lx\n",
 			instruction_pointer (regs),
 			regs->ARM_lr, regs->ARM_sp, regs->ARM_ip, regs->ARM_fp);
-	printf ("r10: %08lx  r9 : %08lx  r8 : %08lx\n",
+	printf ("r10: %08lx  r9 : %08lx	 r8 : %08lx\n",
 			regs->ARM_r10, regs->ARM_r9, regs->ARM_r8);
-	printf ("r7 : %08lx  r6 : %08lx  r5 : %08lx  r4 : %08lx\n",
+	printf ("r7 : %08lx  r6 : %08lx	 r5 : %08lx  r4 : %08lx\n",
 			regs->ARM_r7, regs->ARM_r6, regs->ARM_r5, regs->ARM_r4);
-	printf ("r3 : %08lx  r2 : %08lx  r1 : %08lx  r0 : %08lx\n",
+	printf ("r3 : %08lx  r2 : %08lx	 r1 : %08lx  r0 : %08lx\n",
 			regs->ARM_r3, regs->ARM_r2, regs->ARM_r1, regs->ARM_r0);
 	printf ("Flags: %c%c%c%c",
 			flags & CC_N_BIT ? 'N' : 'n',
@@ -188,7 +188,7 @@ static ulong lastdec;
 int interrupt_init (void)
 {
 #ifdef CONFIG_NETARM
-        /* disable all interrupts */
+	/* disable all interrupts */
 	IRQEN = 0;
 
 	/* operate timer 2 in non-prescale mode */

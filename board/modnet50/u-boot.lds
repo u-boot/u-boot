@@ -12,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -29,7 +29,7 @@ SECTIONS
 	. = 0x00000000;
 
 	. = ALIGN(4);
-	.text      :
+	.text	   :
 	{
 	  cpu/arm720t/start.o	(.text)
 	  *(.text)
@@ -52,17 +52,17 @@ SECTIONS
 	__bss_start = .;
 	.bss : { *(.bss) }
 	_end = .;
-                                  /* Stabs debugging sections.    */
-        .stab 0 : { *(.stab) }
-        .stabstr 0 : { *(.stabstr) }
-        .stab.excl 0 : { *(.stab.excl) }
-        .stab.exclstr 0 : { *(.stab.exclstr) }
-        .stab.index 0 : { *(.stab.index) }
-        .stab.indexstr 0 : { *(.stab.indexstr) }
-        .comment 0 : { *(.comment) }
-        .debug_abbrev 0 : { *(.debug_abbrev) }
-        .debug_info 0 : { *(.debug_info) }
-        .debug_line 0 : { *(.debug_line) }
-        .debug_pubnames 0 : { *(.debug_pubnames) }
-        .debug_aranges 0 : { *(.debug_aranges) }
+				  /* Stabs debugging sections.	  */
+	.stab 0 : { *(.stab) }
+	.stabstr 0 : { *(.stabstr) }
+	.stab.excl 0 : { *(.stab.excl) }
+	.stab.exclstr 0 : { *(.stab.exclstr) }
+	.stab.index 0 : { *(.stab.index) }
+	.stab.indexstr 0 : { *(.stab.indexstr) }
+	.comment 0 : { *(.comment) }
+	.debug_abbrev 0 : { *(.debug_abbrev) }
+	.debug_info 0 : { *(.debug_info) }
+	.debug_line 0 : { *(.debug_line) }
+	.debug_pubnames 0 : { *(.debug_pubnames) }
+	.debug_aranges 0 : { *(.debug_aranges) }
 }

@@ -312,7 +312,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 		case (FLASH_AM160LV | FLASH_AM160B):
 			setup_offset = UNLOCK_ADDR1;	/* just the adress for setup_cmd differs */
 		case FLASH_AMDL323B:
-			/* 
+			/*
 			 * Disable interrupts which might cause a timeout
 			 * here. Remember that our exception vectors are
 			 * at address 0 in the flash, and we don't want a
@@ -416,7 +416,7 @@ static int write_word (flash_info_t * info, ulong dest, ushort data)
 	if ((*(__u16 *) (dest) & data) != data)
 		return ERR_NOT_ERASED;
 
-	/* 
+	/*
 	 * Disable interrupts which might cause a timeout
 	 * here. Remember that our exception vectors are
 	 * at address 0 in the flash, and we don't want a

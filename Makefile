@@ -558,6 +558,9 @@ CPCIISER4_config:	unconfig
 CRAYL1_config:unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx L1 cray
 
+csb272_config:	unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx csb272
+
 DASA_SIM_config: unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx dasa_sim esd
 

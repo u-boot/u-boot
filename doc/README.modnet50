@@ -2,7 +2,7 @@ U-BOOT Port for FSForth ModNET50 Board
 --------------------------------------
 
 author: Thomas Elste <info@elste.org>
-        IMMS gGmbH <www.imms.de>
+	IMMS gGmbH <www.imms.de>
 
 The port based upon an early (partial complete)
 armboot-port from Stephan Linz for the ModNET50 Board.
@@ -19,7 +19,7 @@ Overview:
 Current Configuration (include/configs/modnet50.h):
 
 Memory Map: 0x00000000 - 0x00FFFFFF 16M SDRAM
-            0x10000000 - 0x101FFFFF  2M Flash
+	    0x10000000 - 0x101FFFFF  2M Flash
 
 The Flash uses a BB-Architectur with 35 sectors
 (0:16K; 1,2:8K; 3:32K; 4-34:64K). U-Boot is located in
@@ -48,15 +48,15 @@ Files:
 cpu/arm720t/serial_netarm.c .. serial I/O for the cpu
 
 board/modnet50/memsetup.S   .. memory setup for ModNET50
-board/modnet50/flash.c      .. flash routines
+board/modnet50/flash.c	    .. flash routines
 board/modnet50/modnet50.c   .. some board init stuff
 
-drivers/netarm_eth.c        .. ethernet driver for the NET+50 CPU
-drivers/netarm_eth.h        .. header for ethernet driver
+drivers/netarm_eth.c	    .. ethernet driver for the NET+50 CPU
+drivers/netarm_eth.h	    .. header for ethernet driver
 
 include/configs/modnet50.h  .. configuration file for ModNET50
 
-include/netarm_*.h          .. register and macro definitions for
-                               the NETARM CPU family
+include/netarm_*.h	    .. register and macro definitions for
+			       the NETARM CPU family
 
-doc/README.modnet50         .. this readme
+doc/README.modnet50	    .. this readme

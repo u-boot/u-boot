@@ -25,7 +25,6 @@
  *
  */
 
-
 /*
  * How it works:
  *
@@ -47,13 +46,15 @@
 #endif
 
 
-#undef USB_DEBUG
+/* #define USB_DEBUG */
 
 #ifdef	USB_DEBUG
 #define	USB_PRINTF(fmt,args...)	printf (fmt ,##args)
 #else
 #define USB_PRINTF(fmt,args...)
 #endif
+
+#define USB_BUFSIZ	512
 
 static struct usb_device usb_dev[USB_MAX_DEVICE];
 static int dev_index;
@@ -387,6 +388,12 @@ int usb_get_configuration_no(struct usb_device *dev,unsigned char *buffer,int cf
 	}
 	tmp=swap_16(config->wTotalLength);
 
+	if (tmp > USB_BUFSIZ) {
+		USB_PRINTF("usb_get_configuration_no: failed to get descriptor - too long: %d\n",
+			tmp);
+		return -1;
+	}
+
 	result = usb_get_descriptor(dev, USB_DT_CONFIG, cfgno, buffer, tmp);
 	USB_PRINTF("get_conf_no %d Result %d, wLength %d\n",cfgno,result,tmp);
 	return result;
@@ -516,8 +523,7 @@ int usb_get_string(struct usb_device *dev, unsigned short langid, unsigned char 
  */
 int usb_string(struct usb_device *dev, int index, char *buf, size_t size)
 {
-
-	unsigned char mybuf[256];
+	unsigned char mybuf[USB_BUFSIZ];
 	unsigned char *tbuf;
 	int err;
 	unsigned int u, idx;
@@ -551,6 +557,12 @@ int usb_string(struct usb_device *dev, int index, char *buf, size_t size)
 		return err;
 	u=tbuf[0];
 	USB_PRINTF("Strn Len %d, index %d\n",u,index);
+
+	if (u > USB_BUFSIZ) {
+		USB_PRINTF("usb_string: failed to get string - too long: %d\n", u);
+		return -1;
+	}
+
 	err = usb_get_string(dev, dev->string_langid, index, tbuf, u);
 	if (err < 0)
 		return err;
@@ -619,7 +631,7 @@ int usb_new_device(struct usb_device *dev)
 {
 	int addr, err;
 	int tmp;
-	unsigned char tmpbuf[256];
+	unsigned char tmpbuf[USB_BUFSIZ];
 
 	dev->descriptor.bMaxPacketSize0 = 8;  /* Start off at 8 bytes  */
 	dev->maxpacketsize = 0;		/* Default to 8 byte max packet size */
@@ -895,7 +907,7 @@ void usb_hub_port_connect_change(struct usb_device *dev, int port)
 
 int usb_hub_configure(struct usb_device *dev)
 {
-	unsigned char buffer[256], *bitmap;
+	unsigned char buffer[USB_BUFSIZ], *bitmap;
 	struct usb_hub_descriptor *descriptor;
 	struct usb_hub_status *hubsts;
 	int i;
@@ -912,6 +924,13 @@ int usb_hub_configure(struct usb_device *dev)
 		return -1;
 	}
 	descriptor = (struct usb_hub_descriptor *)buffer;
+
+	if (descriptor->bLength > USB_BUFSIZ) {
+		USB_HUB_PRINTF("usb_hub_configure: failed to get hub descriptor - too long: %d\N",
+			descriptor->bLength);
+		return -1;
+	}
+
 	if (usb_get_hub_descriptor(dev, buffer, descriptor->bLength) < 0) {
 		USB_HUB_PRINTF("usb_hub_configure: failed to get hub descriptor 2nd giving up %lX\n",dev->status);
 		return -1;
@@ -968,6 +987,12 @@ int usb_hub_configure(struct usb_device *dev)
 	for (i = 0; i < dev->maxchild; i++)
 		USB_HUB_PRINTF("port %d is%s removable\n", i + 1,
 			hub->desc.DeviceRemovable[(i + 1)/8] & (1 << ((i + 1)%8)) ? " not" : "");
+	if (sizeof(struct usb_hub_status) > USB_BUFSIZ) {
+		USB_HUB_PRINTF("usb_hub_configure: failed to get Status - too long: %d\n",
+			descriptor->bLength);
+		return -1;
+	}
+
 	if (usb_get_hub_status(dev, buffer) < 0) {
 		USB_HUB_PRINTF("usb_hub_configure: failed to get Status %lX\n",dev->status);
 		return -1;
