@@ -977,6 +977,9 @@ ZUMA_config:	unconfig
 ## StrongARM Systems
 #########################################################################
 
+assabet_config	:	unconfig
+	@./mkconfig $(@:_config=) arm sa1100 assabet
+
 dnp1110_config	:	unconfig
 	@./mkconfig $(@:_config=) arm sa1100 dnp1110
 

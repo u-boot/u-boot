@@ -89,6 +89,10 @@ N: Magnus Damm
 E: damm@opensource.se
 D: 8xxrom
 
+N: George G. Davis
+E: gdavis@mvista.com
+D: Board ports for ADS GraphicsClient+ and Intel Assabet
+
 N: Arun Dharankar
 E: ADharankar@ATTBI.Com
 D: threads / scheduler example code

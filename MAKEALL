@@ -124,7 +124,7 @@ LIST_ppc="${LIST_5xx}  ${LIST_5xxx} \
 ## StrongARM Systems
 #########################################################################
 
-LIST_SA="dnp1110 gcplus lart shannon"
+LIST_SA="assabet dnp1110 gcplus lart shannon"
 
 #########################################################################
 ## ARM7 Systems

@@ -299,6 +299,11 @@ Unknown / orphaned boards:
 #	Board			CPU					#
 #########################################################################
 
+George G. Davis <gdavis@mvista.com>
+
+	assabet			SA1100
+	gcplus			SA1100
+
 Thomas Elste <info@elste.org>
 
 	modnet50		ARM720T (NET+50)
