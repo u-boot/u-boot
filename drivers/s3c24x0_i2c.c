@@ -56,7 +56,7 @@
 #define I2C_START_STOP	0x20		/* START / STOP */
 #define I2C_TXRX_ENA	0x10		/* I2C Tx/Rx enable */
 
-#define I2C_TIMEOUT 1			/* 1 seconde */
+#define I2C_TIMEOUT 1			/* 1 second */
 
 
 static int GetI2CSDA(void)
