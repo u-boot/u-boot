@@ -6,10 +6,10 @@ dividend	.req	r0
 divisor		.req	r1
 overdone	.req	r2
 curbit		.req	r3
-ip		.req	r12
-sp		.req	r13
-lr		.req	r14
-pc		.req	r15
+/* ip		.req	r12	*/
+/* sp		.req	r13	*/
+/* lr		.req	r14	*/
+/* pc		.req	r15	*/
 	.text
 	.globl	 __umodsi3
 	.type  __umodsi3       ,function

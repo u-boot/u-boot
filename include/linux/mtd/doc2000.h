@@ -81,13 +81,6 @@ struct DiskOnChip;
 #define DOC_ECC_EN (DOC_ECC__EN | DOC_ECC_RESV)
 #define DOC_ECC_DIS (DOC_ECC_RESV)
 
-struct Nand {
-	char floor, chip;
-	unsigned long curadr;
-	unsigned char curmode;
-	/* Also some erase/write/pipeline info when we get that far */
-};
-
 #define MAX_FLOORS 4
 #define MAX_CHIPS 4
 

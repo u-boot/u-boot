@@ -351,6 +351,7 @@ void doc_init (void)
 }
 #endif
 
+#ifdef	CONFIG_PCI
 struct pci_controller hose;
 
 extern void pci_mpc8250_init(struct pci_controller *);
@@ -359,3 +360,4 @@ void pci_init_board(void)
 {
 	pci_mpc8250_init(&hose);
 }
+#endif

@@ -62,7 +62,7 @@ $(LIB): .depend $(LIBOBJS)
 	$(OBJCOPY) -O srec $(<:.o=) $@
 
 %.bin:	%.srec
-	$(OBJCOPY) -O binary $< $@
+	$(OBJCOPY) -O binary $< $@ 2>/dev/null
 
 #########################################################################
 

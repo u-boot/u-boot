@@ -198,7 +198,7 @@
 
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
-#define	CFG_RESET_ADDRESS 0xFFFFFFFC	/* "bad" address		*/
+#define	CFG_RESET_ADDRESS 0xFDFFFFFC	/* "bad" address		*/
 
 /*
  * For booting Linux, the board info and command line data

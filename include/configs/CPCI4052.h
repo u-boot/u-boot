@@ -303,7 +303,7 @@
 #define CFG_EBC_PB3CR           0xF011A000  /* BAS=0xF01,BS=1MB,BU=R/W,BW=16bit */
 
 /* Memory Bank 4 (NVRAM/RTC) initialization                                     */
-//#define CFG_EBC_PB4AP           0x01805280  /* TWT=3,WBN=1,WBF=1,TH=1,SOR=1     */
+/*#define CFG_EBC_PB4AP           0x01805280  / * TWT=3,WBN=1,WBF=1,TH=1,SOR=1     */
 #define CFG_EBC_PB4AP           0x01805680  /* TWT=3,WBN=1,WBF=1,TH=3,SOR=1     */
 #define CFG_EBC_PB4CR           0xF0218000  /* BAS=0xF02,BS=1MB,BU=R/W,BW=8bit  */
 

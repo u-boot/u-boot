@@ -145,6 +145,7 @@
 					CFG_CMD_HWFLOW	| \
 					CFG_CMD_IDE	| \
 					CFG_CMD_JFFS2	| \
+					CFG_CMD_NAND	| \
 					CFG_CMD_MII	| \
 					CFG_CMD_PCMCIA	| \
 					CFG_CMD_PCI	| \

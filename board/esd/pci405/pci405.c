@@ -103,7 +103,6 @@ int misc_init_r (void)
 	int status;
 	int index;
 	int i;
-	struct pci_config_regs *pci_regs;
 	unsigned int *ptr;
 	unsigned int *magic;
 

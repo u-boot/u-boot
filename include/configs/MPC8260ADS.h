@@ -126,6 +126,7 @@
 				 CFG_CMD_IDE	| \
 				 CFG_CMD_JFFS2	| \
 				 CFG_CMD_KGDB	| \
+				 CFG_CMD_NAND	| \
 				 CFG_CMD_MII	| \
 				 CFG_CMD_PCI	| \
 				 CFG_CMD_PCMCIA | \

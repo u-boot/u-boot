@@ -21,6 +21,7 @@
 
 #if (CONFIG_COMMANDS & CFG_CMD_DOC)
 
+#include <linux/mtd/nftl.h>
 #include <linux/mtd/nand.h>
 #include <linux/mtd/nand_ids.h>
 #include <linux/mtd/doc2000.h>

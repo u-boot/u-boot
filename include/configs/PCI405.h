@@ -276,7 +276,7 @@
 
 /* Memory Bank 2 (CAN0, 1) initialization                                       */
 #define CFG_EBC_PB2AP           0x010053C0  /* BWT=2,WBN=1,WBF=1,TH=1,RE=1,SOR=1,BEM=1 */
-//#define CFG_EBC_PB2AP           0x038056C0  /* BWT=2,WBN=1,WBF=1,TH=1,RE=1,SOR=1,BEM=1 */
+/*#define CFG_EBC_PB2AP           0x038056C0  / * BWT=2,WBN=1,WBF=1,TH=1,RE=1,SOR=1,BEM=1 */
 #define CFG_EBC_PB2CR           0xF0018000  /* BAS=0xF00,BS=1MB,BU=R/W,BW=8bit  */
 
 /* Memory Bank 3 (FPGA internal) initialization                                 */
