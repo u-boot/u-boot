@@ -2,6 +2,8 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
+* Fix LOWBOOT configuration for MPC5200 with DDR memory
+
 * Fix SDRAM timings for LITE5200 / IceCube board
 
 * Handle Auti-MDIX / connection status for INCA-IP

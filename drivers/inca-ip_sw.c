@@ -14,7 +14,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -45,27 +45,27 @@
 #define DMA_WRITE_REG(reg, value) *((volatile u32 *)reg) = (u32)value;
 #define DMA_READ_REG(reg, value)    value = (u32)*((volatile u32*)reg)
 #define SW_WRITE_REG(reg, value)   \
-	 *((volatile u32*)reg) = (u32)value;\
-	 DELAY;\
-	 *((volatile u32*)reg) = (u32)value;
+	*((volatile u32*)reg) = (u32)value;\
+	DELAY;\
+	*((volatile u32*)reg) = (u32)value;
 
-#define SW_READ_REG(reg, value)    \
-	 value = (u32)*((volatile u32*)reg);\
-	 DELAY;\
-	 value = (u32)*((volatile u32*)reg);
+#define SW_READ_REG(reg, value)	   \
+	value = (u32)*((volatile u32*)reg);\
+	DELAY;\
+	value = (u32)*((volatile u32*)reg);
 
-#define INCA_DMA_TX_POLLING_TIME       0x07
-#define INCA_DMA_RX_POLLING_TIME       0x07
+#define INCA_DMA_TX_POLLING_TIME	0x07
+#define INCA_DMA_RX_POLLING_TIME	0x07
 
-#define INCA_DMA_TX_HOLD   0x80000000
-#define INCA_DMA_TX_EOP    0x40000000
-#define INCA_DMA_TX_SOP    0x20000000
-#define INCA_DMA_TX_ICPT   0x10000000
-#define INCA_DMA_TX_IEOP   0x08000000
+#define INCA_DMA_TX_HOLD		0x80000000
+#define INCA_DMA_TX_EOP			0x40000000
+#define INCA_DMA_TX_SOP			0x20000000
+#define INCA_DMA_TX_ICPT		0x10000000
+#define INCA_DMA_TX_IEOP		0x08000000
 
-#define INCA_DMA_RX_C   0x80000000
-#define INCA_DMA_RX_SOP 0x40000000
-#define INCA_DMA_RX_EOP 0x20000000
+#define INCA_DMA_RX_C			0x80000000
+#define INCA_DMA_RX_SOP			0x40000000
+#define INCA_DMA_RX_EOP			0x20000000
 
 #define INCA_SWITCH_PHY_SPEED_10H	0x1
 #define INCA_SWITCH_PHY_SPEED_10F	0x5
@@ -73,26 +73,26 @@
 #define INCA_SWITCH_PHY_SPEED_100F	0x6
 
 /************************ Auto MDIX settings ************************/
-#define INCA_IP_AUTO_MDIX_LAN_PORTS_DIR      INCA_IP_Ports_P1_DIR
-#define INCA_IP_AUTO_MDIX_LAN_PORTS_ALTSEL   INCA_IP_Ports_P1_ALTSEL
-#define INCA_IP_AUTO_MDIX_LAN_PORTS_OUT      INCA_IP_Ports_P1_OUT
-#define INCA_IP_AUTO_MDIX_LAN_GPIO_PIN_RXTX  16
+#define INCA_IP_AUTO_MDIX_LAN_PORTS_DIR		INCA_IP_Ports_P1_DIR
+#define INCA_IP_AUTO_MDIX_LAN_PORTS_ALTSEL	INCA_IP_Ports_P1_ALTSEL
+#define INCA_IP_AUTO_MDIX_LAN_PORTS_OUT		INCA_IP_Ports_P1_OUT
+#define INCA_IP_AUTO_MDIX_LAN_GPIO_PIN_RXTX	16
 
-#define WAIT_SIGNAL_RETRIES                  100
-#define WAIT_LINK_RETRIES                    100
-#define LINK_RETRY_DELAY                     300  /* ms */
+#define WAIT_SIGNAL_RETRIES			100
+#define WAIT_LINK_RETRIES			100
+#define LINK_RETRY_DELAY			2000  /* ms */
 /********************************************************************/
 
 typedef struct
 {
 	union {
 		struct {
-			volatile u32 HOLD                :1;
-			volatile u32 ICpt                :1;
-			volatile u32 IEop                :1;
-			volatile u32 offset              :3;
-			volatile u32 reserved0           :4;
-			volatile u32 NFB                 :22;
+			volatile u32 HOLD		:1;
+			volatile u32 ICpt		:1;
+			volatile u32 IEop		:1;
+			volatile u32 offset		:3;
+			volatile u32 reserved0		:4;
+			volatile u32 NFB		:22;
 		}field;
 
 		volatile u32 word;
@@ -104,11 +104,11 @@ typedef struct
 
 	union {
 		struct {
-			volatile u32 C                   :1;
-			volatile u32 Sop                 :1;
-			volatile u32 Eop                 :1;
-			volatile u32 reserved3           :12;
-			volatile u32 NBT                 :17;
+			volatile u32 C			:1;
+			volatile u32 Sop		:1;
+			volatile u32 Eop		:1;
+			volatile u32 reserved3		:12;
+			volatile u32 NBT		:17;
 		}field;
 
 		volatile u32 word;
@@ -121,13 +121,13 @@ typedef struct
 {
 	union {
 		struct {
-			volatile u32 HOLD                :1;
-			volatile u32 Eop                 :1;
-			volatile u32 Sop                 :1;
-			volatile u32 ICpt                :1;
-			volatile u32 IEop                :1;
-			volatile u32 reserved0           :5;
-			volatile u32 NBA                 :22;
+			volatile u32 HOLD		:1;
+			volatile u32 Eop		:1;
+			volatile u32 Sop		:1;
+			volatile u32 ICpt		:1;
+			volatile u32 IEop		:1;
+			volatile u32 reserved0		:5;
+			volatile u32 NBA		:22;
 		}field;
 
 		volatile u32 word;
@@ -137,8 +137,8 @@ typedef struct
 
 	volatile u32 TxDataPtr;
 
-	volatile u32 C                   :1;
-	volatile u32 reserved3           :31;
+	volatile u32 C			:1;
+	volatile u32 reserved3		:31;
 
 } inca_tx_descriptor_t;
 
@@ -148,12 +148,11 @@ static inca_tx_descriptor_t tx_ring[NUM_TX_DESC] __attribute__ ((aligned(16)));
 
 static int tx_new, rx_new, tx_hold, rx_hold;
 static int tx_old_hold = -1;
-static int initialized  = 0;
+static int initialized	= 0;
 
 
 static int inca_switch_init(struct eth_device *dev, bd_t * bis);
-static int inca_switch_send(struct eth_device *dev, volatile void *packet,
-						  int length);
+static int inca_switch_send(struct eth_device *dev, volatile void *packet, int length);
 static int inca_switch_recv(struct eth_device *dev);
 static void inca_switch_halt(struct eth_device *dev);
 static void inca_init_switch_chip(void);
@@ -265,9 +264,9 @@ static int inca_switch_init(struct eth_device *dev, bd_t * bis)
 
 		memset(tx_desc, 0, sizeof(tx_ring[i]));
 
-		tx_desc->params.word       = 0;
+		tx_desc->params.word	   = 0;
 		tx_desc->params.field.HOLD = 1;
-		tx_desc->C                 = 1;
+		tx_desc->C		   = 1;
 
 			/* Check if it is the last descriptor.
 			 */
@@ -296,8 +295,7 @@ static int inca_switch_init(struct eth_device *dev, bd_t * bis)
 
 	/* Writing to the COMMAND REG.
 	 */
-	DMA_WRITE_REG(INCA_IP_DMA_DMA_RXCCR0,
-		      INCA_IP_DMA_DMA_RXCCR0_INIT);
+	DMA_WRITE_REG(INCA_IP_DMA_DMA_RXCCR0, INCA_IP_DMA_DMA_RXCCR0_INIT);
 
 	/* Initialize TxDMA.
 	 */
@@ -320,9 +318,9 @@ static int inca_switch_init(struct eth_device *dev, bd_t * bis)
 #endif
 	/* enable spanning tree forwarding, enable the CPU port */
 	/* ST_PT:
-	 *	CPS (CPU port status)   0x3 (forwarding)
-	 *	LPS (LAN port status)   0x3 (forwarding)
-	 *	PPS (PC port status)    0x3 (forwarding)
+	 *	CPS (CPU port status)	0x3 (forwarding)
+	 *	LPS (LAN port status)	0x3 (forwarding)
+	 *	PPS (PC port status)	0x3 (forwarding)
 	 */
 	SW_WRITE_REG(INCA_IP_Switch_ST_PT,0x3f);
 
@@ -336,11 +334,11 @@ static int inca_switch_init(struct eth_device *dev, bd_t * bis)
 
 static int inca_switch_send(struct eth_device *dev, volatile void *packet, int length)
 {
-	int                    i;
-	int                    res         = -1;
-	u32                    command;
-	u32                    regValue;
-	inca_tx_descriptor_t * tx_desc     = KSEG1ADDR(&tx_ring[tx_new]);
+	int		       i;
+	int		       res	= -1;
+	u32		       command;
+	u32		       regValue;
+	inca_tx_descriptor_t * tx_desc	= KSEG1ADDR(&tx_ring[tx_new]);
 
 #if 0
 	printf("Entered inca_switch_send()\n");
@@ -373,7 +371,7 @@ static int inca_switch_send(struct eth_device *dev, volatile void *packet, int l
 	KSEG1ADDR(&tx_ring[tx_hold])->params.field.HOLD = 0;
 
 	tx_hold = tx_new;
-	tx_new  = (tx_new + 1) % NUM_TX_DESC;
+	tx_new	= (tx_new + 1) % NUM_TX_DESC;
 
 
 	if (! initialized) {
@@ -409,7 +407,7 @@ Done:
 
 static int inca_switch_recv(struct eth_device *dev)
 {
-	int                    length  = 0;
+	int		       length  = 0;
 	inca_rx_descriptor_t * rx_desc;
 
 #if 0
@@ -450,8 +448,7 @@ static int inca_switch_recv(struct eth_device *dev)
 #if 0
 			printf("Received %d bytes\n", length);
 #endif
-			NetReceive((void*)KSEG1ADDR(NetRxPackets[rx_new]),
-				    length - 4);
+			NetReceive((void*)KSEG1ADDR(NetRxPackets[rx_new]), length - 4);
 		} else {
 #if 1
 			printf("Zero length!!!\n");
@@ -516,13 +513,13 @@ static void inca_init_switch_chip(void)
 
 #if 1
 	/* init MDIO configuration:
-	 *	MDS (Poll speed):       0x01 (4ms)
-	 *	PHY_LAN_ADDR:           0x06
-	 *	PHY_PC_ADDR:            0x05
+	 *	MDS (Poll speed):	0x01 (4ms)
+	 *	PHY_LAN_ADDR:		0x06
+	 *	PHY_PC_ADDR:		0x05
 	 *	UEP (Use External PHY): 0x00 (Internal PHY is used)
-	 *	PS (Port Select):       0x00 (PT/UMM for LAN)
-	 *	PT (PHY Test):          0x00 (no test mode)
-	 *	UMM (Use MDIO Mode):    0x00 (state machine is disabled)
+	 *	PS (Port Select):	0x00 (PT/UMM for LAN)
+	 *	PT (PHY Test):		0x00 (no test mode)
+	 *	UMM (Use MDIO Mode):	0x00 (state machine is disabled)
 	 */
 	SW_WRITE_REG(INCA_IP_Switch_MDIO_CFG, 0x4c50);
 
@@ -540,39 +537,39 @@ static void inca_init_switch_chip(void)
 
 	/* MDIO_ACC:
 	 *	RA (Request/Ack)  0x01 (Request)
-	 *	RW (Read/Write)   0x01 (Write)
-	 *	PHY_ADDR          0x05 (PC)
-	 *	REG_ADDR          0x00 (PHY_BCR: basic control register)
-	 *	PHY_DATA          0x8000
-	 *		      Reset                   - software reset
-	 *		      LB (loop back)          - normal
-	 *		      SS (speed select)       - 10 Mbit/s
+	 *	RW (Read/Write)	  0x01 (Write)
+	 *	PHY_ADDR	  0x05 (PC)
+	 *	REG_ADDR	  0x00 (PHY_BCR: basic control register)
+	 *	PHY_DATA	  0x8000
+	 *		      Reset		      - software reset
+	 *		      LB (loop back)	      - normal
+	 *		      SS (speed select)	      - 10 Mbit/s
 	 *		      ANE (auto neg. enable)  - enable
-	 *		      PD (power down)         - normal
-	 *		      ISO (isolate)           - normal
+	 *		      PD (power down)	      - normal
+	 *		      ISO (isolate)	      - normal
 	 *		      RAN (restart auto neg.) - normal
-	 *		      DM (duplex mode)        - half duplex
+	 *		      DM (duplex mode)	      - half duplex
 	 *		      CT (collision test)     - enable
 	 */
 	SW_WRITE_REG(INCA_IP_Switch_MDIO_ACC, 0xc0a09000);
 
 	/* MDIO_ACC:
 	 *	RA (Request/Ack)  0x01 (Request)
-	 *	RW (Read/Write)   0x01 (Write)
-	 *	PHY_ADDR          0x06 (LAN)
-	 *	REG_ADDR          0x00 (PHY_BCR: basic control register)
-	 *	PHY_DATA          0x8000
-	 *		      Reset                   - software reset
-	 *		      LB (loop back)          - normal
-	 *		      SS (speed select)       - 10 Mbit/s
+	 *	RW (Read/Write)	  0x01 (Write)
+	 *	PHY_ADDR	  0x06 (LAN)
+	 *	REG_ADDR	  0x00 (PHY_BCR: basic control register)
+	 *	PHY_DATA	  0x8000
+	 *		      Reset		      - software reset
+	 *		      LB (loop back)	      - normal
+	 *		      SS (speed select)	      - 10 Mbit/s
 	 *		      ANE (auto neg. enable)  - enable
-	 *		      PD (power down)         - normal
-	 *		      ISO (isolate)           - normal
+	 *		      PD (power down)	      - normal
+	 *		      ISO (isolate)	      - normal
 	 *		      RAN (restart auto neg.) - normal
-	 *		      DM (duplex mode)        - half duplex
+	 *		      DM (duplex mode)	      - half duplex
 	 *		      CT (collision test)     - enable
 	 */
-   	SW_WRITE_REG(INCA_IP_Switch_MDIO_ACC, 0xc0c09000);
+	SW_WRITE_REG(INCA_IP_Switch_MDIO_ACC, 0xc0c09000);
 
 #endif
 
@@ -723,7 +720,7 @@ static int inca_amdix(void)
 				(0x6 << 21) |	/* LAN		*/
 				(31  << 16));	/* PHY_SCSR	*/
 			do {
-        	                SW_READ_REG(INCA_IP_Switch_MDIO_ACC, phyReg31);
+				SW_READ_REG(INCA_IP_Switch_MDIO_ACC, phyReg31);
 			} while (phyReg31 & (1 << 31));
 
 			switch ((phyReg31 >> 2) & 0x7) {
@@ -755,7 +752,7 @@ static int inca_amdix(void)
 					(0x6 << 21) |	/* LAN		*/
 					(6   << 16));	/* PHY_ANER	*/
 				do {
-        		                SW_READ_REG(INCA_IP_Switch_MDIO_ACC, phyReg6);
+					SW_READ_REG(INCA_IP_Switch_MDIO_ACC, phyReg6);
 				} while (phyReg6 & (1 << 31));
 
 				/* We are Autoneg-able.
@@ -768,7 +765,7 @@ static int inca_amdix(void)
 						(0x6 << 21) |	/* LAN		*/
 						(4   << 16));	/* PHY_ANAR	*/
 					do {
-        			                SW_READ_REG(INCA_IP_Switch_MDIO_ACC, phyReg4);
+						SW_READ_REG(INCA_IP_Switch_MDIO_ACC, phyReg4);
 					} while (phyReg4 & (1 << 31));
 
 					/* We advertise PAUSE capab.
@@ -781,7 +778,7 @@ static int inca_amdix(void)
 							(0x6 << 21) |	/* LAN		*/
 							(5   << 16));	/* PHY_ANLPAR	*/
 						do {
-			        	                SW_READ_REG(INCA_IP_Switch_MDIO_ACC, phyReg5);
+							SW_READ_REG(INCA_IP_Switch_MDIO_ACC, phyReg5);
 						} while (phyReg5 & (1 << 31));
 
 						/* Link partner is PAUSE capab.

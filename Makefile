@@ -207,9 +207,10 @@ PATI_config:unconfig
 MPC5200LITE_config		\
 MPC5200LITE_LOWBOOT_config	\
 MPC5200LITE_LOWBOOT08_config	\
-icecube_5200_DDR_LOWBOOT_config	\
 icecube_5200_DDR_config		\
 IceCube_5200_DDR_config		\
+icecube_5200_DDR_LOWBOOT_config \
+icecube_5200_DDR_LOWBOOT08_config \
 icecube_5200_config		\
 IceCube_5200_config		\
 IceCube_5100_config:		unconfig

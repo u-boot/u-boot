@@ -488,7 +488,7 @@ static int ep_link (ohci_t *ohci, ed_t *edi)
 		if (ohci->ed_controltail == NULL) {
 			writel (ed, &ohci->regs->ed_controlhead);
 		} else {
-			ohci->ed_controltail->hwNextED = ohci_cpu_to_le32 (ed);
+			ohci->ed_controltail->hwNextED = ohci_cpu_to_le32 ((unsigned long)ed);
 		}
 		ed->ed_prev = ohci->ed_controltail;
 		if (!ohci->ed_controltail && !ohci->ed_rm_list[0] &&
@@ -504,7 +504,7 @@ static int ep_link (ohci_t *ohci, ed_t *edi)
 		if (ohci->ed_bulktail == NULL) {
 			writel (ed, &ohci->regs->ed_bulkhead);
 		} else {
-			ohci->ed_bulktail->hwNextED = ohci_cpu_to_le32 (ed);
+			ohci->ed_bulktail->hwNextED = ohci_cpu_to_le32 ((unsigned long)ed);
 		}
 		ed->ed_prev = ohci->ed_bulktail;
 		if (!ohci->ed_bulktail && !ohci->ed_rm_list[0] &&
@@ -598,7 +598,7 @@ static ed_t * ep_add_ed (struct usb_device *usb_dev, unsigned long pipe)
 		ed->hwINFO = ohci_cpu_to_le32 (OHCI_ED_SKIP); /* skip ed */
 		/* dummy td; end of td list for ed */
 		td = td_alloc (usb_dev);
-		ed->hwTailP = ohci_cpu_to_le32 (td);
+		ed->hwTailP = ohci_cpu_to_le32 ((unsigned long)td);
 		ed->hwHeadP = ed->hwTailP;
 		ed->state = ED_UNLINK;
 		ed->type = usb_pipetype (pipe);
@@ -656,12 +656,12 @@ static void td_fill (ohci_t *ohci, unsigned int info,
 		data = 0;
 
 	td->hwINFO = ohci_cpu_to_le32 (info);
-	td->hwCBP = ohci_cpu_to_le32 (data);
+	td->hwCBP = ohci_cpu_to_le32 ((unsigned long)data);
 	if (data)
-		td->hwBE = ohci_cpu_to_le32 (data + len - 1);
+		td->hwBE = ohci_cpu_to_le32 ((unsigned long)(data + len - 1));
 	else
 		td->hwBE = 0;
-	td->hwNextTD = ohci_cpu_to_le32 (td_pt);
+	td->hwNextTD = ohci_cpu_to_le32 ((unsigned long)td_pt);
 	td->hwPSW [0] = ohci_cpu_to_le16 (((__u32)data & 0x0FFF) | 0xE000);
 
 	/* append to queue */

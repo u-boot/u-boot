@@ -108,18 +108,19 @@ boot_warm:
 #error CFG_LOWBOOT is incompatible with CFG_RAMBOOT
 #endif /* CFG_RAMBOOT */
 	lis	r4, CFG_DEFAULT_MBAR@h
-	lis	r3,     0x0000FF00@h
-	ori	r3, r3, 0x0000FF00@l
-	stw	r3, 0x4(r4)
-	lis	r3,     0x0000FFFF@h
-	ori	r3, r3, 0x0000FFFF@l
-	stw	r3, 0x8(r4)
+	lis	r3,	START_REG(CFG_BOOTCS_START)@h
+	ori	r3, r3, START_REG(CFG_BOOTCS_START)@l
+	stw	r3, 0x4(r4)		/* CS0 start */
+	lis	r3,	STOP_REG(CFG_BOOTCS_START, CFG_BOOTCS_SIZE)@h
+	ori	r3, r3, STOP_REG(CFG_BOOTCS_START, CFG_BOOTCS_SIZE)@l
+
+	stw	r3, 0x8(r4)		/* CS0 stop */
 	lis	r3,     0x00047800@h
 	ori	r3, r3, 0x00047800@l
-	stw	r3, 0x300(r4)
+	stw	r3, 0x300(r4)		/* set timing, CS0/boot conf reg */
 	lis	r3,     0x02010000@h
 	ori	r3, r3, 0x02010000@l
-	stw	r3, 0x54(r4)
+	stw	r3, 0x54(r4)		/* CS0 and Boot enable, IPBI ctrl reg */
 
 	lis     r3,	lowboot_reentry@h
 	ori     r3, r3, lowboot_reentry@l
@@ -127,18 +128,18 @@ boot_warm:
 	blr				/* jump to flash based address */
 
 lowboot_reentry:
-	lis	r3,     0x0000FF00@h
-	ori	r3, r3, 0x0000FF00@l
-	stw	r3, 0x4c(r4)
-	lis	r3,     0x0000FFFF@h
-	ori	r3, r3, 0x0000FFFF@l
-	stw	r3, 0x50(r4)
+	lis	r3,	START_REG(CFG_BOOTCS_START)@h
+	ori	r3, r3, START_REG(CFG_BOOTCS_START)@l
+	stw	r3, 0x4c(r4)		/* Boot start */
+	lis	r3,	STOP_REG(CFG_BOOTCS_START, CFG_BOOTCS_SIZE)@h
+	ori	r3, r3, STOP_REG(CFG_BOOTCS_START, CFG_BOOTCS_SIZE)@l
+	stw	r3, 0x50(r4)		/* Boot stop */
 	lis	r3,     0x00047800@h
 	ori	r3, r3, 0x00047800@l
-	stw	r3, 0x300(r4)
+	stw	r3, 0x300(r4)		/* set timing, CS0/boot conf reg */
 	lis	r3,     0x02000001@h
 	ori	r3, r3, 0x02000001@l
-	stw	r3, 0x54(r4)
+	stw	r3, 0x54(r4)		/* Boot enable, CS0 disable, wait state enable */
 #endif	/* CFG_LOWBOOT */
 
 #if defined(CFG_DEFAULT_MBAR) && !defined(CFG_RAMBOOT)
