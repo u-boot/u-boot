@@ -513,7 +513,7 @@ unsigned long get_tbclk (void)
 	 *
 	 * For older chips, it's just MF field of PLPRCR plus one.
 	 */
-	if ((immr & 0xFFFF) >= MPC8xx_NEW_CLK) { /* MPC866/87x/88x series */
+	if ((immr & 0x0FFF) >= MPC8xx_NEW_CLK) { /* MPC866/87x/88x series */
 		factor = (PLPRCR_val(MFI) + PLPRCR_val(MFN)/(PLPRCR_val(MFD)+1))/
 			(PLPRCR_val(PDF)+1) / (1<<PLPRCR_val(S));
 	} else {

@@ -2,6 +2,9 @@
 Changes since U-Boot 1.0.1:
 ======================================================================
 
+* Fix typo in Makefile;
+  fix problem with PARTNUM detection
+
 * Patch by Reinhard Meyer, 09 Jan 2004:
   - add RTC support for MPC5200 based boards (requires RTC_XTAL)
 
