@@ -31,8 +31,8 @@
 /*cmd_boot.c*/
 
 extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+extern void lxt971_no_sleep(void);
 
-/* ------------------------------------------------------------------------- */
 
 #if 0
 #define FPGA_DEBUG
@@ -141,12 +141,9 @@ int board_early_init_f (void)
 }
 
 
-/* ------------------------------------------------------------------------- */
-
 /*
  * Check Board Identity:
  */
-
 int checkboard (void)
 {
 	int index;
@@ -180,17 +177,20 @@ int checkboard (void)
 	*(volatile unsigned char *) FPGA_MODE_REG = 0xff;	/* reset high active */
 	*(volatile unsigned char *) FPGA_MODE_REG = 0x00;	/* low again */
 
+	/*
+	 * Disable sleep mode in LXT971
+	 */
+	lxt971_no_sleep();
+
 	return 0;
 }
 
-/* ------------------------------------------------------------------------- */
 
 long int initdram (int board_type)
 {
 	return (16 * 1024 * 1024);
 }
 
-/* ------------------------------------------------------------------------- */
 
 int testdram (void)
 {
@@ -199,5 +199,3 @@ int testdram (void)
 
 	return (0);
 }
-
-/* ------------------------------------------------------------------------- */
