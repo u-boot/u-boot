@@ -2,6 +2,8 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Use IH_TYPE_FILESYSTEM for TRAB "disk" images.
+
 * Fix build problems under FreeBSD
 
 * Add generic filesystem image type

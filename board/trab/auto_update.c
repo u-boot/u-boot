@@ -254,9 +254,11 @@ au_check_valid(int idx, long nbytes)
 		printf ("Image %s wrong type\n", aufile[idx]);
 		return -1;
 	}
-	if ((idx == IDX_DISK || idx == IDX_APP)
-		&& (hdr->ih_type != IH_TYPE_RAMDISK))
-	{
+	if ((idx == IDX_DISK) && (hdr->ih_type != IH_TYPE_FILESYSTEM)) {
+		printf ("Image %s wrong type\n", aufile[idx]);
+		return -1;
+	}
+	if ((idx == IDX_APP) && (hdr->ih_type != IH_TYPE_RAMDISK)) {
 		printf ("Image %s wrong type\n", aufile[idx]);
 		return -1;
 	}
@@ -269,8 +271,14 @@ au_check_valid(int idx, long nbytes)
 	/* special case for prepare.img */
 	if (idx == IDX_PREPARE)
 		return 0;
-	/* check the size does not exceed space in flash */
-	if ((ausize[idx] != 0) && (ausize[idx] < ntohl(hdr->ih_size))) {
+	/* recycle checksum */
+	checksum = ntohl(hdr->ih_size);
+	/* for kernel and app the image header must also fit into flash */
+	if (idx != IDX_DISK)
+		checksum += sizeof(*hdr);
+	/* check the size does not exceed space in flash. HUSH scripts */
+	/* all have ausize[] set to 0 */
+	if ((ausize[idx] != 0) && (ausize[idx] < checksum)) {
 		printf ("Image %s is bigger than FLASH\n", aufile[idx]);
 		return -1;
 	}
