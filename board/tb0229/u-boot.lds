@@ -1,6 +1,8 @@
 /*
+ * (C) Masami Komiya <mkomiya@sonare.it> 2004
+ *
  * (C) Copyright 2003
- * Wolfgang Denk, DENX Software Engineering, <wd@denx.de>
+ * Wolfgang Denk Engineering, <wd@denx.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -21,34 +23,46 @@
  * MA 02111-1307 USA
  */
 
-#include <common.h>
-#include <command.h>
-#include <asm/inca-ip.h>
-#include <asm/mipsregs.h>
+OUTPUT_FORMAT("elf32-tradlittlemips", "elf32-tradlittlemips", "elf32-tradlittlemips")
 
-int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+OUTPUT_ARCH(mips)
+ENTRY(_start)
+SECTIONS
 {
-#if defined(CONFIG_INCA_IP)
-	*INCA_IP_WDT_RST_REQ = 0x3f;
-#elif defined(CONFIG_PURPLE) || defined(CONFIG_TB0229)
-	void (*f)(void) = (void *) 0xbfc00000;
+	. = 0x00000000;
 
-	f();
-#endif
-	fprintf(stderr, "*** reset failed ***\n");
-	return 0;
-}
+	. = ALIGN(4);
+	.text       :
+	{
+	  *(.text)
+	}
 
-void flush_cache (ulong start_addr, ulong size)
-{
+	. = ALIGN(4);
+	.rodata  : { *(.rodata) }
 
-}
+	. = ALIGN(4);
+	.data  : { *(.data) }
 
-void write_one_tlb( int index, u32 pagemask, u32 hi, u32 low0, u32 low1 ){
-	write_32bit_cp0_register(CP0_ENTRYLO0, low0);
-	write_32bit_cp0_register(CP0_PAGEMASK, pagemask);
-	write_32bit_cp0_register(CP0_ENTRYLO1, low1);
-	write_32bit_cp0_register(CP0_ENTRYHI, hi);
-	write_32bit_cp0_register(CP0_INDEX, index);
-	tlb_write_indexed();
+	. = ALIGN(4);
+	.sdata  : { *(.sdata) }
+
+	_gp = ALIGN(16);
+
+	__got_start = .;
+	.got  : { *(.got) }
+	__got_end = .;
+
+	.sdata  : { *(.sdata) }
+
+	__u_boot_cmd_start = .;
+	.u_boot_cmd : { *(.u_boot_cmd) }
+	__u_boot_cmd_end = .;
+
+	uboot_end_data = .;
+	num_got_entries = (__got_end - __got_start) >> 2;
+
+	. = ALIGN(4);
+	.sbss  : { *(.sbss) }
+	.bss  : { *(.bss) }
+	uboot_end = .;
 }

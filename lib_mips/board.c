@@ -393,6 +393,13 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	/* IP Address */
 	bd->bi_ip_addr = getenv_IPaddr("ipaddr");
 
+#if defined(CONFIG_PCI)
+	/*
+	 * Do pci configuration
+	 */
+	pci_init();
+#endif
+
 /** leave this here (after malloc(), environment and PCI are working) **/
 	/* Initialize devices */
 	devices_init ();

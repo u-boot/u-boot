@@ -214,7 +214,11 @@ reset:
 	mtc0	zero, CP0_WATCHHI
 
 	/* STATUS register */
+#ifdef  CONFIG_TB0229
+	li	k0, ST0_CU0
+#else
 	mfc0	k0, CP0_STATUS
+#endif
 	li	k1, ~ST0_IE
 	and	k0, k1
 	mtc0	k0, CP0_STATUS

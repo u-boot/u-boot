@@ -1027,6 +1027,9 @@ incaip_config: unconfig
 		}
 	@./mkconfig -a $(call xtract_incaip,$@) mips mips incaip
 
+tb0229_config: unconfig
+	@./mkconfig $(@:_config=) mips mips tb0229
+
 #########################################################################
 ## MIPS64 5Kc
 #########################################################################

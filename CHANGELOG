@@ -2,6 +2,16 @@
 Changes since U-Boot 1.0.1:
 ======================================================================
 
+* Patch by liang a lei, 9 Jan 2004:
+  Fix Intel 28F128J3 ID in include/flash.h
+
+* Patch by Masami Komiya, 09 Jan 2004:
+  add support for TB0229 board (NEC VR4131 MIPS processor)
+
+* Patch by Leon Kukovec, 12 Dec 2003:
+  changed extern __inline__ into static __inline__ in
+  include/linux/byteorder/swab.h
+
 * Patch by Travis Sawyer, 30 Dec 2003:
   Add support for IBM PPC440GX. Multiple EMAC Ethernet devices,
   select MDI port based on enabled EMAC device.

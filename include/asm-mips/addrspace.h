@@ -44,7 +44,7 @@
  * Returns the uncached address of a sdram address
  */
 #ifndef __ASSEMBLY__
-#ifdef CONFIG_AU1X00
+#if defined(CONFIG_AU1X00) || defined(CONFIG_TB0229)
 /* We use a 36 bit physical address map here and
    cannot access physical memory directly from core */
 #define UNCACHED_SDRAM(a) (((unsigned long)(a)) | 0x20000000)
