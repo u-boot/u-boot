@@ -1,6 +1,5 @@
 /*
- * (C) Copyright 2003, Psyent Corporation <www.psyent.com>
- * Scott McNutt <smcnutt@psyent.com>
+ * (C) Copyright 2003, Li-Pro.Net <www.li-pro.net>
  * Stephan Linz <linz@li-pro.net>
  *
  * See file CREDITS for list of people who contributed to this
@@ -61,8 +60,8 @@
 						/*		yes(1)	*/
 
 /* on-chip extensions */
-#define	CFG_NIOS_CPU_RAM_BASE	0		/* on chip RAM	addr	*/
-#define	CFG_NIOS_CPU_RAM_SIZE	0		/*		size	*/
+#define	CFG_NIOS_CPU_RAM_BASE	0x00900000	/* on chip RAM	addr	*/
+#define	CFG_NIOS_CPU_RAM_SIZE	(64 * 1024)	/* 64 KB	size	*/
 
 #define	CFG_NIOS_CPU_ROM_BASE	0x00920000	/* on chip ROM	addr	*/
 #define	CFG_NIOS_CPU_ROM_SIZE	(2 * 1024)	/*  2 KB	size	*/
@@ -291,7 +290,7 @@
  * BOARD/CPU -- TOP-LEVEL
  *----------------------------------------------------------------------*/
 #define CONFIG_NIOS		1		/* NIOS-32 core		*/
-#define	CONFIG_DK1C20		1		/* Cyclone DK-1C20 board*/
+#define	CONFIG_DK1S10		1		/* Stratix DK-1S10 board*/
 #define CONFIG_SYS_CLK_FREQ	CFG_NIOS_CPU_CLK/* 50 MHz core clock	*/
 #define	CFG_HZ			1000		/* 1 msec time tick	*/
 #undef  CFG_CLKS_IN_HZ
@@ -687,7 +686,7 @@
  * MISC
  *----------------------------------------------------------------------*/
 #define	CFG_LONGHELP			    /* undef to save memory	*/
-#define	CFG_PROMPT		"DK1C20 > " /* Monitor Command Prompt	*/
+#define	CFG_PROMPT		"DK1S10 > " /* Monitor Command Prompt	*/
 #define	CFG_CBSIZE		256	    /* Console I/O Buffer Size	*/
 #define	CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
 #define	CFG_MAXARGS		16	    /* max number of command args*/

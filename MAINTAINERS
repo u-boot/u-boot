@@ -362,6 +362,10 @@ Thomas Lange <thomas@corelatus.se>
 #	Board			CPU					#
 #########################################################################
 
+Stephan Linz <linz@li-pro.net>
+
+	DK1S10			Nios-32
+
 Scott McNutt <smcnutt@psyent.com>
 
 	DK1C20			Nios-32

@@ -29,7 +29,7 @@
 #define __NIOSIO_H__
 
 /*------------------------------------------------------------------------
- * UART
+ * UART (http://www.altera.com/literature/ds/ds_nios_uart.pdf)
  *----------------------------------------------------------------------*/
 typedef volatile struct nios_uart_t {
 	unsigned	rxdata;		/* Rx data reg */
@@ -71,7 +71,7 @@ typedef volatile struct nios_uart_t {
 
 
 /*------------------------------------------------------------------------
- * TIMER
+ * TIMER (http://www.altera.com/literature/ds/ds_nios_timer.pdf)
  *----------------------------------------------------------------------*/
 typedef volatile struct nios_timer_t {
 	unsigned	status;			/* Timer status reg */
@@ -91,5 +91,49 @@ typedef volatile struct nios_timer_t {
 #define NIOS_TIMER_CONT		(1 << 1)	/* Continuous mode */
 #define NIOS_TIMER_START	(1 << 2)	/* Start timer */
 #define NIOS_TIMER_STOP		(1 << 3)	/* Stop timer */
+
+
+/*------------------------------------------------------------------------
+ * PIO (http://www.altera.com/literature/ds/ds_nios_pio.pdf)
+ *----------------------------------------------------------------------*/
+typedef volatile struct nios_pio_t {
+	unsigned int	data;		/* Data value at each PIO in/out */
+	unsigned int	direction;	/* Data direct. for each PIO bit */
+	unsigned int	interruptmask;	/* Per-bit IRQ enable/disable */
+	unsigned int	edgecapture;	/* Per-bit sync. edge detect & hold */
+}nios_pio_t;
+
+/* direction register */
+#define NIOS_PIO_OUT		(1)		/* PIO bit is output */
+#define NIOS_PIO_IN		(0)		/* PIO bit is input */
+
+
+/*------------------------------------------------------------------------
+ * SPI (http://www.altera.com/literature/ds/ds_nios_spi.pdf)
+ *----------------------------------------------------------------------*/
+typedef volatile struct nios_spi_t {
+	unsigned	rxdata;		/* Rx data reg */
+	unsigned	txdata;		/* Tx data reg */
+	unsigned	status;		/* Status reg */
+	unsigned	control;	/* Control reg */
+	unsigned	reserved;	/* (master only) */
+	unsigned	slaveselect;	/* SPI slave selct mask (master only) */
+}nios_spi_t;
+
+/* status register */
+#define NIOS_SPI_ROE		(1 << 3)	/* rx overrun */
+#define NIOS_SPI_TOE		(1 << 4)	/* tx overrun */
+#define NIOS_SPI_TMT		(1 << 5)	/* tx empty */
+#define NIOS_SPI_TRDY		(1 << 6)	/* tx ready */
+#define NIOS_SPI_RRDY		(1 << 7)	/* rx ready */
+#define NIOS_SPI_E		(1 << 8)	/* exception */
+
+/* control register */
+#define NIOS_SPI_IROE		(1 << 3)	/* rx overrun int ena */
+#define NIOS_SPI_ITOE		(1 << 4)	/* tx overrun int ena */
+#define NIOS_SPI_ITRDY		(1 << 6)	/* tx ready int ena */
+#define NIOS_SPI_IRRDY		(1 << 7)	/* rx ready int ena */
+#define NIOS_SPI_IE		(1 << 8)	/* exception int ena */
+#define NIOS_SPI_SSO		(1 << 10)	/* override SS_n output */
 
 #endif /* __NIOSIO_H__ */

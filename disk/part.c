@@ -35,7 +35,8 @@
 
 #if ((CONFIG_COMMANDS & CFG_CMD_IDE)	|| \
      (CONFIG_COMMANDS & CFG_CMD_SCSI)	|| \
-     (CONFIG_COMMANDS & CFG_CMD_USB)	)
+     (CONFIG_COMMANDS & CFG_CMD_USB)	|| \
+     (CONFIG_MMC)			)
 
 /* ------------------------------------------------------------------------- */
 /*
@@ -102,7 +103,11 @@ void dev_print (block_dev_desc_t *dev_desc)
 		puts ("            Capacity: not available\n");
 	}
 }
+#endif	/* CFG_CMD_IDE || CFG_CMD_SCSI || CFG_CMD_USB || CONFIG_MMC */
 
+#if ((CONFIG_COMMANDS & CFG_CMD_IDE)	|| \
+     (CONFIG_COMMANDS & CFG_CMD_SCSI)	|| \
+     (CONFIG_COMMANDS & CFG_CMD_USB)	)
 
 #if defined(CONFIG_MAC_PARTITION) || \
     defined(CONFIG_DOS_PARTITION) || \

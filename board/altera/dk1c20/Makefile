@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2001
+# (C) Copyright 2001-2004
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= lib$(BOARD).a
 
-OBJS	:= $(BOARD).o flash.o
+OBJS	:= $(BOARD).o flash.o misc.o
 
 SOBJS  = vectors.o
 

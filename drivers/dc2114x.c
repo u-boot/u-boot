@@ -27,7 +27,6 @@
 #include <net.h>
 #include <pci.h>
 
-#undef DEBUG
 #undef DEBUG_SROM
 #undef DEBUG_SROM2
 
@@ -86,10 +85,10 @@
 
 #define SROM_HWADD	    0x0014	/* Hardware Address offset in SROM */
 #define SROM_RD		0x00004000	/* Read from Boot ROM */
-#define EE_DATA_WRITE	0x04	/* EEPROM chip data in. */
-#define EE_WRITE_0		0x4801
-#define EE_WRITE_1		0x4805
-#define EE_DATA_READ	0x08	/* EEPROM chip data out. */
+#define EE_DATA_WRITE	      0x04	/* EEPROM chip data in. */
+#define EE_WRITE_0	    0x4801
+#define EE_WRITE_1	    0x4805
+#define EE_DATA_READ	      0x08	/* EEPROM chip data out. */
 #define SROM_SR		0x00000800	/* Select Serial ROM when set */
 
 #define DT_IN		0x00000004	/* Serial Data In */
@@ -162,16 +161,20 @@ static int tx_new;                             /* TX descriptor ring pointer */
 static char rxRingSize;
 static char txRingSize;
 
+#if defined(UPDATE_SROM) || !defined(CONFIG_TULIP_FIX_DAVICOM)
 static void  sendto_srom(struct eth_device* dev, u_int command, u_long addr);
 static int   getfrom_srom(struct eth_device* dev, u_long addr);
-static int   do_eeprom_cmd(struct eth_device *dev, u_long ioaddr, int cmd, int cmd_len);
-static int   do_read_eeprom(struct eth_device *dev, u_long ioaddr, int location, int addr_len);
-static int   read_srom(struct eth_device *dev, u_long ioaddr, int index);
+static int   do_eeprom_cmd(struct eth_device *dev, u_long ioaddr,int cmd,int cmd_len);
+static int   do_read_eeprom(struct eth_device *dev,u_long ioaddr,int location,int addr_len);
+#endif	/* UPDATE_SROM || !CONFIG_TULIP_FIX_DAVICOM */
 #ifdef UPDATE_SROM
 static int   write_srom(struct eth_device *dev, u_long ioaddr, int index, int new_value);
 static void  update_srom(struct eth_device *dev, bd_t *bis);
 #endif
+#ifndef CONFIG_TULIP_FIX_DAVICOM
+static int   read_srom(struct eth_device *dev, u_long ioaddr, int index);
 static void  read_hw_addr(struct eth_device* dev, bd_t * bis);
+#endif	/* CONFIG_TULIP_FIX_DAVICOM */
 static void  send_setup_frame(struct eth_device* dev, bd_t * bis);
 
 static int   dc21x4x_init(struct eth_device* dev, bd_t* bis);
@@ -276,17 +279,14 @@ int dc21x4x_initialize(bd_t *bis)
 		pci_read_config_dword(devbusfn, PCI_BASE_ADDRESS_1, &iobase);
 		iobase &= PCI_BASE_ADDRESS_MEM_MASK;
 #endif
-
-#ifdef DEBUG
-		printf("dc21x4x: DEC 21142 PCI Device @0x%x\n", iobase);
-#endif
+		debug ("dc21x4x: DEC 21142 PCI Device @0x%x\n", iobase);
 
 		dev = (struct eth_device*) malloc(sizeof *dev);
 
 #ifdef CONFIG_TULIP_FIX_DAVICOM
-	    sprintf(dev->name, "Davicom#%d", card_number);
+		sprintf(dev->name, "Davicom#%d", card_number);
 #else
-	    sprintf(dev->name, "dc21x4x#%d", card_number);
+		sprintf(dev->name, "dc21x4x#%d", card_number);
 #endif
 
 #ifdef CONFIG_TULIP_USE_IO
@@ -306,7 +306,7 @@ int dc21x4x_initialize(bd_t *bis)
 		udelay(10 * 1000);
 
 #ifndef CONFIG_TULIP_FIX_DAVICOM
-	read_hw_addr(dev, bis);
+		read_hw_addr(dev, bis);
 #endif
 		eth_register(dev);
 
@@ -418,7 +418,7 @@ static int dc21x4x_send(struct eth_device* dev, volatile void *packet, int lengt
 	if (le32_to_cpu(tx_ring[tx_new].status) & TD_ES) {
 #if 0 /* test-only */
 		printf("TX error status = 0x%08X\n",
-		       le32_to_cpu(tx_ring[tx_new].status));
+			le32_to_cpu(tx_ring[tx_new].status));
 #endif
 		tx_ring[tx_new].status = 0x0;
 		goto Done;
@@ -530,9 +530,9 @@ Done:
 	return;
 }
 
+#if defined(UPDATE_SROM) || !defined(CONFIG_TULIP_FIX_DAVICOM)
 /* SROM Read and write routines.
  */
-
 static void
 sendto_srom(struct eth_device* dev, u_int command, u_long addr)
 {
@@ -604,10 +604,13 @@ static int do_read_eeprom(struct eth_device *dev, u_long ioaddr, int location, i
 
 	return retval;
 }
+#endif	/* UPDATE_SROM || !CONFIG_TULIP_FIX_DAVICOM */
 
-/* This executes a generic EEPROM command, typically a write or write enable.
-   It returns the data output from the EEPROM, and thus may also be used for
-   reads. */
+/* This executes a generic EEPROM command, typically a write or write
+ * enable. It returns the data output from the EEPROM, and thus may
+ * also be used for reads.
+ */
+#if defined(UPDATE_SROM) || !defined(CONFIG_TULIP_FIX_DAVICOM)
 static int do_eeprom_cmd(struct eth_device *dev, u_long ioaddr, int cmd, int cmd_len)
 {
 	unsigned retval = 0;
@@ -643,7 +646,9 @@ static int do_eeprom_cmd(struct eth_device *dev, u_long ioaddr, int cmd, int cmd
 
 	return retval;
 }
+#endif	/* UPDATE_SROM || !CONFIG_TULIP_FIX_DAVICOM */
 
+#ifndef CONFIG_TULIP_FIX_DAVICOM
 static int read_srom(struct eth_device *dev, u_long ioaddr, int index)
 {
 	int ee_addr_size = do_read_eeprom(dev, ioaddr, 0xff, 8) & 0x40000 ? 8 : 6;
@@ -652,6 +657,7 @@ static int read_srom(struct eth_device *dev, u_long ioaddr, int index)
 			     (((SROM_READ_CMD << ee_addr_size) | index) << 16)
 			     | 0xffff, 3 + ee_addr_size + 16);
 }
+#endif	/* CONFIG_TULIP_FIX_DAVICOM */
 
 #ifdef UPDATE_SROM
 static int write_srom(struct eth_device *dev, u_long ioaddr, int index, int new_value)
@@ -699,6 +705,7 @@ static int write_srom(struct eth_device *dev, u_long ioaddr, int index, int new_
 }
 #endif
 
+#ifndef CONFIG_TULIP_FIX_DAVICOM
 static void read_hw_addr(struct eth_device *dev, bd_t *bis)
 {
 	u_short tmp, *p = (short *)(&dev->enetaddr[0]);
@@ -712,9 +719,7 @@ static void read_hw_addr(struct eth_device *dev, bd_t *bis)
 
 	if ((j == 0) || (j == 0x2fffd)) {
 		memset (dev->enetaddr, 0, ETH_ALEN);
-#ifdef DEBUG
-		printf("Warning: can't read HW address from SROM.\n");
-#endif
+		debug ("Warning: can't read HW address from SROM.\n");
 		goto Done;
 	}
 
@@ -726,6 +731,7 @@ Done:
 #endif
 	return;
 }
+#endif	/* CONFIG_TULIP_FIX_DAVICOM */
 
 #ifdef UPDATE_SROM
 static void update_srom(struct eth_device *dev, bd_t *bis)
@@ -760,6 +766,6 @@ static void update_srom(struct eth_device *dev, bd_t *bis)
 		write_srom(dev, DE4X5_APROM, i, eeprom[i]);
 	}
 }
-#endif
+#endif	/* UPDATE_SROM */
 
-#endif
+#endif	/* CFG_CMD_NET && CONFIG_NET_MULTI && CONFIG_TULIP */

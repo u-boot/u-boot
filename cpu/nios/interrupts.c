@@ -30,6 +30,9 @@
 #include <asm/ptrace.h>
 #include <common.h>
 #include <command.h>
+#ifdef CONFIG_STATUS_LED
+#include <status_led.h>
+#endif
 
 /****************************************************************************/
 
@@ -72,6 +75,9 @@ void timer_interrupt (struct pt_regs *regs)
 	nios_timer_t *tmr = (nios_timer_t *)CFG_NIOS_TMRBASE;
 	tmr->status = 0;
 	timestamp += CFG_NIOS_TMRMS;
+#ifdef CONFIG_STATUS_LED
+	status_led_tick(timestamp);
+#endif
 }
 #endif
 

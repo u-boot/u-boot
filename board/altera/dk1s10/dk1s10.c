@@ -22,6 +22,9 @@
  */
 
 #include <common.h>
+#if	defined(CONFIG_SEVENSEG)
+#include "../common/sevenseg.h"
+#endif
 
 void _default_hdlr (void)
 {
@@ -30,12 +33,14 @@ void _default_hdlr (void)
 
 int board_pre_init (void)
 {
+	/* init seven segment led display and switch off */
+	sevenseg_set(SEVENSEG_OFF);
 	return 0;
 }
 
 int checkboard (void)
 {
-	puts ("Board: Altera Nios 1C20 Development Kit\n");
+	puts ("Board: Altera Nios 1S10 Development Kit\n");
 	return 0;
 }
 

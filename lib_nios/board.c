@@ -28,6 +28,9 @@
 #include <devices.h>
 #include <watchdog.h>
 #include <net.h>
+#ifdef CONFIG_STATUS_LED
+#include <status_led.h>
+#endif
 
 
 /*
@@ -159,6 +162,11 @@ void board_init (void)
 	 */
 
 	interrupt_init ();
+
+#ifdef CONFIG_STATUS_LED
+	status_led_set(STATUS_LED_BOOT, STATUS_LED_BLINKING);
+#endif
+
 	/* main_loop */
 	for (;;) {
 		WATCHDOG_RESET ();
@@ -171,6 +179,10 @@ void board_init (void)
 
 void hang (void)
 {
+#ifdef CONFIG_STATUS_LED
+	status_led_set(STATUS_LED_BOOT, STATUS_LED_OFF);
+	status_led_set(STATUS_LED_RED, STATUS_LED_BLINKING);
+#endif
 	puts("### ERROR ### Please reset board ###\n");
 	for (;;);
 }

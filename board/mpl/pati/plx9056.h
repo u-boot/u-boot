@@ -61,7 +61,6 @@
 #endif
 
 
-
 #define PCI_DEVICE_ID_PLX9056		0x9056
 
 /* Local Configuration Registers Accessible via the PCI Base address + Variable */
@@ -109,6 +108,4 @@
 #define PCI9056_PERM_VENDOR_ID		(0x070 + LOCAL_OFFSET)
 #define PCI9056_REVISION_ID			(0x074 + LOCAL_OFFSET)
 
-
 #endif /* #ifndef __PLX9056_H_ */
-

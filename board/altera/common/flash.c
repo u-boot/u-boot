@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000
+ * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -25,41 +25,7 @@
 #include <common.h>
 #include <nios.h>
 
-/*---------------------------------------------------------------------*/
-#define BANKSZ	(8 * 1024 * 1024)
-#define SECTSZ	(64 * 1024)
-#define USERFLASH (2 * 1024 * 1024)	/* bottom 2 MB for user */
-
 flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
-
-#define FLASH_WORD_SIZE unsigned char
-
-/*---------------------------------------------------------------------*/
-
-unsigned long flash_init (void)
-{
-	int i;
-	unsigned long addr;
-	flash_info_t *fli = &flash_info[0];
-
-	fli->size = BANKSZ;
-	fli->sector_count = CFG_MAX_FLASH_SECT;
-	fli->flash_id = FLASH_MAN_AMD;
-
-	addr = CFG_FLASH_BASE;
-	for (i = 0; i < fli->sector_count; ++i) {
-		fli->start[i] = addr;
-		addr += SECTSZ;
-
-		/* Protect all but 2 MByte user area */
-		if (addr < (CFG_FLASH_BASE + USERFLASH))
-			fli->protect[i] = 0;
-		else
-			fli->protect[i] = 1;
-	}
-
-	return (BANKSZ);
-}
 
 /*--------------------------------------------------------------------*/
 void flash_print_info (flash_info_t * info)
@@ -102,8 +68,8 @@ void flash_print_info (flash_info_t * info)
 
 int flash_erase (flash_info_t * info, int s_first, int s_last)
 {
-	volatile FLASH_WORD_SIZE *addr = (FLASH_WORD_SIZE *) (info->start[0]);
-	volatile FLASH_WORD_SIZE *addr2;
+	volatile CFG_FLASH_WORD_SIZE *addr = (CFG_FLASH_WORD_SIZE *) (info->start[0]);
+	volatile CFG_FLASH_WORD_SIZE *addr2;
 	int prot, sect;
 	int any = 0;
 	unsigned oldpri;
@@ -141,7 +107,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	 */
 	for (sect = s_first; sect <= s_last; sect++) {
 		if (info->protect[sect] == 0) {	/* not protected */
-			addr2 = (FLASH_WORD_SIZE *) (info->start[sect]);
+			addr2 = (CFG_FLASH_WORD_SIZE *) (info->start[sect]);
 			*addr = 0xaa;
 			*addr = 0x55;
 			*addr = 0x80;
@@ -156,7 +122,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	 * we wait.
 	 */
 	if (any) {
-		addr2 = (FLASH_WORD_SIZE *) (info->start[sect]);
+		addr2 = (CFG_FLASH_WORD_SIZE *) (info->start[sect]);
 		start = get_timer (0);
 		while (*addr2 != 0xff) {
 			udelay (1000 * 1000);

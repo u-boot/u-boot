@@ -159,7 +159,7 @@ void dataflash_print_info (void)
 				dataflash_info[i].Device.pages_size,
 				(unsigned int) dataflash_info[i].logical_address);
 			for (j=0; j< NB_DATAFLASH_AREA; j++) {
-				printf ("Area %i:\t%08X to %08X %s\n", j,
+				printf ("Area %i:\t%08lX to %08lX %s\n", j,
 					dataflash_info[i].Device.area_list[j].start,
 					dataflash_info[i].Device.area_list[j].end,
 					(dataflash_info[i].Device.area_list[j].protected ==

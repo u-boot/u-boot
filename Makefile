@@ -1046,8 +1046,41 @@ purple_config :		unconfig
 ## Nios32
 #########################################################################
 
+DK1C20_safe_32_config		\
+DK1C20_standard_32_config	\
 DK1C20_config:	unconfig
-	@./mkconfig $(@:_config=) nios nios dk1c20
+	@ >include/config.h
+	@[ -z "$(findstring _safe_32,$@)" ] || \
+		{ echo "#define CONFIG_NIOS_SAFE_32 1" >>include/config.h ; \
+		  echo "... NIOS 'safe_32' configuration" ; \
+		}
+	@[ -z "$(findstring _standard_32,$@)" ] || \
+		{ echo "#define CONFIG_NIOS_STANDARD_32 1" >>include/config.h ; \
+		  echo "... NIOS 'standard_32' configuration" ; \
+		}
+	@[ -z "$(findstring DK1C20_config,$@)" ] || \
+		{ echo "#define CONFIG_NIOS_STANDARD_32 1" >>include/config.h ; \
+		  echo "... NIOS 'standard_32' configuration (DEFAULT)" ; \
+		}
+	@./mkconfig -a DK1C20 nios nios dk1c20 altera
+
+DK1S10_safe_32_config		\
+DK1S10_standard_32_config	\
+DK1S10_config:	unconfig
+	@ >include/config.h
+	@[ -z "$(findstring _safe_32,$@)" ] || \
+		{ echo "#define CONFIG_NIOS_SAFE_32 1" >>include/config.h ; \
+		  echo "... NIOS 'safe_32' configuration" ; \
+		}
+	@[ -z "$(findstring _standard_32,$@)" ] || \
+		{ echo "#define CONFIG_NIOS_STANDARD_32 1" >>include/config.h ; \
+		  echo "... NIOS 'standard_32' configuration" ; \
+		}
+	@[ -z "$(findstring DK1S10_config,$@)" ] || \
+		{ echo "#define CONFIG_NIOS_STANDARD_32 1" >>include/config.h ; \
+		  echo "... NIOS 'standard_32' configuration (DEFAULT)" ; \
+		}
+	@./mkconfig -a DK1S10 nios nios dk1s10 altera
 
 
 #########################################################################

@@ -1,12 +1,27 @@
 
 			   U-Boot for Nios-32
 
-		    Last Update: October 15, 2003
+		    Last Update: November 30, 2003
 ====================================================================
 
 This file contains information regarding U-Boot and the Altera
 Nios CPU. For information regarding U-Boot and the Nios Development
-Kit, Cyclone Edition (DK-1C20), see doc/README.dk1c20.
+Kits see:
+
+  * Cyclone Edition (DK-1C20), see doc/README.dk1c20
+  * Stratix Edition (DK-1S10), see doc/README.dk1s10 (TODO)
+  * Stratix Edition (DK-1S40), see doc/README.dk1s40 (TODO)
+  * Stratix Edition (DK-20K200), see doc/README.dk20k200 (TODO)
+
+For informations regarding Nios Development Kit hardware overview
+and the NIOS CPU standard configuration of all known boards made by
+Altera see:
+
+  * Development Kit (DK) hardware overview, see doc/README.nios_DK
+  * NIOS CPU standard_32 at DK-1C20, see doc/README.dk1c20_std32
+  * NIOS CPU standard_32 at DK-1S10, see doc/README.dk1s10_std32
+  * NIOS CPU standard_32 at DK-1S40, see doc/README.dk1s40_std32
+  * NIOS CPU standard_32 at DK-20K200, see doc/README.dk20k200_std32
 
 For those interested in contributing ... see HELP WANTED below.
 
@@ -50,16 +65,25 @@ structure definitions from the Nios SDK.
 2.1 Nios-specific Options/Settings
 -----------------------------------
 All configuration options/settings that are specific to Nios begin
-with "CONFIG_NIOS_" or "CFG_NIOS_". The following is a list of
-currently defined Nios-specific options/parameters. If any options
-are related to Standard-32 Nios SDK excalibur.h definitions, the
-related definition follows the description).
+with "CONFIG_NIOS_", "CFG_NIOS_", or "CFG_NIOS_CPU_".
 
+The configuration follows a two-stage process. In the first stage
+the NIOS CPU core will defined like defined in Alteras SOPC Builder.
+At this point we use the "CFG_NIOS_CPU_" defines exclusively. For
+more informations about all the definitions you have to setup see
+into current board configurations and doc/README.nios_CFG_NIOS_CPU.
+
+In second stage we bring the NIOS CPU configuration in relation to
+U-Boot configuration options/settings. The following is a list of
+currently defined Nios-specific options/parameters used inside of
+U-Boot. If any options are related to Standard-32 Nios SDK
+excalibur.h definitions, the related definition follows the
+description).
 
 CONFIG_NIOS -- defined for all Nios-32 boards.
 
 CFG_NIOS_CONSOLE -- the base address of the console UART.
-	(standard-32: na_uart1_base).
+	(standard-32: nasys_uart_0 resp. na_uart1_base).
 
 CFG_NIOS_FIXEDBAUD -- defined if the console UART PTF fixed_baud
 	parameter is set to '1'.
@@ -71,10 +95,11 @@ CFG_NIOS_MULT_MSTEP -- use hardware assisted multiply using the
 
 CFG_NIOS_TMRBASE -- the base address of the timer used to support
 	xxx_timer routines (e.g. set_timer(), get_timer(), etc.).
-	(standard-32: na_lo_priority_timer2_base).
+	(standard-32: nasys_timer_1 resp. na_lo_priority_timer2_base).
 
 CFG_NIOS_TMRIRQ -- the interrupt request (vector number) assigned to
-	the timer. (standard-32: na_low_priority_timer2_irq).
+	the timer. (standard-32: nasys_timer_1_irq resp.
+	na_low_priority_timer2_irq).
 
 CFG_NIOS_TMRMS -- the period of the timer in milliseconds.
 
@@ -105,20 +130,56 @@ is an alias for 'subi %rB,1' that is supported by the assembler
 but does not appear in the programmer's manual.
 
 
-4. BRAIN DAMAGE
+4. BOOT PROCESS
+---------------
+
+4.1 Boot process over GERMS
+---------------------------
+When the NIOS CPU catch a reset signal it will begin to be running
+code from CFG_NIOS_CPU_RST_VECT. Normally at this place it will
+find the GERMS monitor. That's the case for the generic NIOS CPU
+configuration "standard_32". When the GERMS monitor starts running,
+it performs important system initializations and then looks for
+executable code in flash, using the following steps:
+
+    1. Examining the two bytes at CFG_NIOS_CPU_FLASH_BASE + 0x04000C.
+    2. Examining the button 0 on the PIO CFG_NIOS_CPU_BUTTON_PIO.
+    3. If the button is not pressed and the two bytes contain 'N'
+       and 'i', the monitor executes a CALL to location
+       CFG_NIOS_CPU_FLASH_BASE + 0x040000.
+    4. If the code is not executed in step 3 or the code returns,
+       then prints an 8-digit version number to STDOUT and waits for
+       user commands from STDIN.
+
+In normal case, for "standard_32", STDIN and STDOUT are the first
+serial port.
+
+4.2 Return to GERMS command line
+--------------------------------
+During the boot process, the GERMS monitor checks for the existence
+of application software in flash memory. If found, the processor
+immediately executes the code. To return program execution to the
+GERMS monitor (that is, avoid running code stored in flash memory):
+
+    1. Hold down CFG_NIOS_CPU_BUTTON_PIO, button number 0.
+    2. Press then release the CPU reset button.
+    3. Release CFG_NIOS_CPU_BUTTON_PIO, button number 0.
+
+
+5. BRAIN DAMAGE
 ----------------
 
 This section describes some of the unfortunate and avoidable aspects
 of working with the Nios CPU ... and some things you can do to
 reduce your pain.
 
-4.1 GERMS doesn't work with Hyperterminal
+5.1 GERMS doesn't work with Hyperterminal
 ------------------------------------------
 GERMS doesn't do CR/LF mapping that is compatible with Hyperterminal
 (or minicom) -- geez. Regardless of you opion of Hyperterminal, this
 sad design decision is remedied by using U-Boot.
 
-4.2 cygwin Incompatibility
+5.2 cygwin Incompatibility
 ---------------------------
 The version of cygwin distributed with the nios GNUPro toolchain is
 out-of-date and incompatible with the latest cygwin distributions.
@@ -131,7 +192,7 @@ topic).
 The solution ... well, you can wait for Altera ... or build as
 set of tools for linux.
 
-4.3 No native gcc
+5.3 No native gcc
 ------------------
 I'm not sure how this one slipped through the cracks ... but it is
 a real pain. Basically, if you want to build anything for the native
@@ -140,9 +201,11 @@ and the old version of cygwin makes locating one challenging.
 
 The solution ... same as above. Just download the gcc source from
 Altera and build up a set of cross tools for your favorite linux
-distro.
+distro. Anybody who wants to use an already precompiled NIOS cross
+toolchain can it found in the CDK4NIOS project hosted by Source
+Forge at http://cdk4nios.sourceforge.net.
 
-4.4 Can't build default U-Boot
+5.4 Can't build default U-Boot
 -------------------------------
 By default, when you build U-Boot you will be building some native
 tools along with the target elf, bin, and srec files. Without a
@@ -167,7 +230,7 @@ environment.o: environment.c ../tools/envcrc
 BTW, thats a 'zero' ... not the letter 'O'.
 
 
-5. HELP WANTED
+6. HELP WANTED
 ---------------
 
 There are plenty of areas where help is needed. Here's are some ideas
@@ -190,3 +253,6 @@ Regards,
 
 --Scott
 <smcnutt@psyent.com>
+
+--Stephan
+<linz@li-pro.net>

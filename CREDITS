@@ -208,6 +208,11 @@ E: team@leox.org
 D: Support for LEOX boards, DS164x RTC
 W: http://www.leox.org
 
+N: Stephan Linz
+E: linz@li-pro.net
+D: Support for Nios Stratix Development Kit (DK-1S10)
+W: http://www.li-pro.net
+
 N: Raymond Lo
 E: lo@routefree.com
 D: Support for DOS partitions

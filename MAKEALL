@@ -169,6 +169,15 @@ LIST_I486="sc520_cdp sc520_spunk sc520_spunk_rel"
 
 LIST_x86="${LIST_I486}"
 
+#########################################################################
+## NIOS Systems
+#########################################################################
+
+LIST_nios="	\
+	DK1C20 DK1C20_standard_32					\
+	DK1S10 DK1S10_standard_32					\
+"
+
 #-----------------------------------------------------------------------
 
 #----- for now, just run PPC by default -----
@@ -194,6 +203,7 @@ do
 	ppc|5xx|5xxx|8xx|824x|8260|85xx|4xx|7xx|74xx| \
 	arm|SA|ARM7|ARM9|pxa|ixp| \
 	mips| \
+	nios| \
 	x86|I486)
 			for target in `eval echo '$LIST_'${arg}`
 			do

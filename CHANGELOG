@@ -2,6 +2,19 @@
 Changes since U-Boot 1.0.0:
 ======================================================================
 
+* Patches by Stephan Linz, 11 Dec 2003:
+  - more documentation for NIOS port
+  - new struct nios_pio_t, struct nios_spi_t
+  - Reconfiguration for NIOS Development Kit DK1C20:
+    o move board related code from board/dk1c20
+      to board/altera/dk1c20
+    o create a new common source path board/altera/common
+      and move generic flash access stuff into it
+    o change/expand configuration file DK1C20.h
+  - Add support for NIOS Development Kit DK1S10
+  - Add status LED support for NIOS systems
+  - Add dual 7-segment LED support for Altera NIOS DevKits
+
 * Patch by Ronen Shitrit, 10 Dec 2003:
   Add support for the Marvell DB64360 / DB64460 development boards
 
