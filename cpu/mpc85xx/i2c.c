@@ -30,78 +30,57 @@
 
 #include <common.h>
 #include <command.h>
-
-#define DEBUG
-
-#if defined(DEBUG)
-#define DEB(x)      x
-#else
-#define DEB(x)
-#endif
+#include <asm/io.h>
 
 #ifdef CONFIG_HARD_I2C
 #include <i2c.h>
 
 #define TIMEOUT (CFG_HZ/4)
 
-#define I2C_Addr ((unsigned *)(CFG_CCSRBAR + 0x3000))
+#define I2C_Addr ((u8 *)(CFG_CCSRBAR + 0x3000))
 
 #define I2CADR  &I2C_Addr[0]
-#define I2CFDR  &I2C_Addr[1]
-#define I2CCCR  &I2C_Addr[2]
-#define I2CCSR  &I2C_Addr[3]
-#define I2CCDR  &I2C_Addr[4]
-#define I2CDFSRR &I2C_Addr[5]
+#define I2CFDR  &I2C_Addr[4]
+#define I2CCCR  &I2C_Addr[8]
+#define I2CCSR  &I2C_Addr[12]
+#define I2CCDR  &I2C_Addr[16]
+#define I2CDFSRR &I2C_Addr[20]
 
 #define I2C_READ  1
 #define I2C_WRITE 0
 
-/* taken from linux include/asm-ppc/io.h */
-inline unsigned in_le32(volatile unsigned *addr)
-{
-  unsigned ret;
-
-  __asm__ __volatile__("lwbrx %0,0,%1;\n"
-		       "twi 0,%0,0;\n"
-		       "isync" : "=r" (ret) :
-		       "r" (addr), "m" (*addr));
-  return ret;
-}
-
-inline void out_le32(volatile unsigned *addr, int val)
-{
-  __asm__ __volatile__("stwbrx %1,0,%2; eieio" : "=m" (*addr) :
-		       "r" (val), "r" (addr));
-}
-
-#define writel(val, addr) out_le32(addr, val)
-#define readl(addr) in_le32(addr)
-
 void
 i2c_init(int speed, int slaveadd)
 {
-  /* stop I2C controller */
-  writel (0x0, I2CCCR);
-  /* set clock */
-  writel (0x3f, I2CFDR);
-  /* set default filter */
-  writel (0x10,I2CDFSRR);
-  /* write slave address */
-  writel (slaveadd, I2CADR);
-  /* clear status register */
-  writel (0x0, I2CCSR);
-  /* start I2C controller */
-  writel (MPC85xx_I2CCR_MEN, I2CCCR);
+	/* stop I2C controller */
+	writeb(0x0, I2CCCR);
+
+	/* set clock */
+	writeb(0x3f, I2CFDR);
+
+	/* set default filter */
+	writeb(0x10,I2CDFSRR);
+
+	/* write slave address */
+	writeb(slaveadd, I2CADR);
+
+	/* clear status register */
+	writeb(0x0, I2CCSR);
+
+	/* start I2C controller */
+	writeb(MPC85xx_I2CCR_MEN, I2CCCR);
 }
 
 static __inline__ int
 i2c_wait4bus (void)
 {
-  ulong timeval = get_timer (0);
+	ulong timeval = get_timer (0);
 
-  while (readl (I2CCSR) & MPC85xx_I2CSR_MBB)
-    if (get_timer (timeval) > TIMEOUT)
-      return -1;
+	while (readb(I2CCSR) & MPC85xx_I2CSR_MBB) {
+		if (get_timer (timeval) > TIMEOUT) {
+			return -1;
+		}
+	}
 
   return 0;
 }
@@ -109,153 +88,151 @@ i2c_wait4bus (void)
 static __inline__ int
 i2c_wait (int write)
 {
-  u32 csr;
-  ulong timeval = get_timer (0);
+	u32 csr;
+	ulong timeval = get_timer (0);
 
-  do
-    {
-      csr  = readl (I2CCSR);
+	do {
+		csr = readb(I2CCSR);
 
-      if (!(csr & MPC85xx_I2CSR_MIF))
-	continue;
+		if (!(csr & MPC85xx_I2CSR_MIF))
+			continue;
 
-      writel (0x0, I2CCSR);
+		writeb(0x0, I2CCSR);
 
-      if (csr & MPC85xx_I2CSR_MAL)
-	{
-	  DEB(printf ("i2c_wait: MAL\n"));
-	  return -1;
-	}
+		if (csr & MPC85xx_I2CSR_MAL) {
+			debug("i2c_wait: MAL\n");
+			return -1;
+		}
 
-      if (!(csr & MPC85xx_I2CSR_MCF))
-	{
-	  DEB(printf ("i2c_wait: unfinished\n"));
-	  return -1;
-	}
+		if (!(csr & MPC85xx_I2CSR_MCF))	{
+			debug("i2c_wait: unfinished\n");
+			return -1;
+		}
 
-      if (write == I2C_WRITE && (csr & MPC85xx_I2CSR_RXAK))
-	{
-	  DEB(printf ("i2c_wait: No RXACK\n"));
-	  return -1;
-	}
+		if (write == I2C_WRITE && (csr & MPC85xx_I2CSR_RXAK)) {
+			debug("i2c_wait: No RXACK\n");
+			return -1;
+		}
 
-      return 0;
-    } while (get_timer (timeval) < TIMEOUT);
+		return 0;
+	} while (get_timer (timeval) < TIMEOUT);
 
-  DEB(printf ("i2c_wait: timed out\n"));
-  return -1;
+	debug("i2c_wait: timed out\n");
+	return -1;
 }
 
 static __inline__ int
 i2c_write_addr (u8 dev, u8 dir, int rsta)
 {
-  writel (MPC85xx_I2CCR_MEN | MPC85xx_I2CCR_MSTA | MPC85xx_I2CCR_MTX |
-	  (rsta?MPC85xx_I2CCR_RSTA:0), I2CCCR);
+	writeb(MPC85xx_I2CCR_MEN | MPC85xx_I2CCR_MSTA | MPC85xx_I2CCR_MTX |
+	       (rsta?MPC85xx_I2CCR_RSTA:0),
+	       I2CCCR);
 
-  writel ((dev << 1) | dir, I2CCDR);
+	writeb((dev << 1) | dir, I2CCDR);
 
-  if (i2c_wait (I2C_WRITE) < 0)
-    return 0;
+	if (i2c_wait (I2C_WRITE) < 0)
+		return 0;
 
-  return 1;
+	return 1;
 }
 
 static __inline__ int
 __i2c_write (u8 *data, int length)
 {
-  int i;
+	int i;
 
-  writel (MPC85xx_I2CCR_MEN | MPC85xx_I2CCR_MSTA | MPC85xx_I2CCR_MTX, I2CCCR);
+	writeb(MPC85xx_I2CCR_MEN | MPC85xx_I2CCR_MSTA | MPC85xx_I2CCR_MTX,
+	       I2CCCR);
 
-  for (i=0; i < length; i++)
-    {
-      writel (data[i], I2CCDR);
+	for (i=0; i < length; i++) {
+		writeb(data[i], I2CCDR);
 
-      if (i2c_wait (I2C_WRITE) < 0)
-	break;
-    }
+		if (i2c_wait (I2C_WRITE) < 0)
+			break;
+	}
 
-  return i;
+	return i;
 }
 
 static __inline__ int
 __i2c_read (u8 *data, int length)
 {
-  int i;
+	int i;
 
-  writel (MPC85xx_I2CCR_MEN | MPC85xx_I2CCR_MSTA |
-	  ((length == 1) ? MPC85xx_I2CCR_TXAK : 0), I2CCCR);
+	writeb(MPC85xx_I2CCR_MEN | MPC85xx_I2CCR_MSTA |
+	       ((length == 1) ? MPC85xx_I2CCR_TXAK : 0),
+	       I2CCCR);
 
-  /* dummy read */
-  readl (I2CCDR);
+	/* dummy read */
+	readb(I2CCDR);
 
-  for (i=0; i < length; i++)
-    {
-      if (i2c_wait (I2C_READ) < 0)
-	break;
+	for (i=0; i < length; i++) {
+		if (i2c_wait (I2C_READ) < 0)
+			break;
 
-      /* Generate ack on last next to last byte */
-      if (i == length - 2)
-	writel (MPC85xx_I2CCR_MEN | MPC85xx_I2CCR_MSTA |
-		MPC85xx_I2CCR_TXAK, I2CCCR);
+		/* Generate ack on last next to last byte */
+		if (i == length - 2)
+			writeb(MPC85xx_I2CCR_MEN | MPC85xx_I2CCR_MSTA |
+			       MPC85xx_I2CCR_TXAK,
+			       I2CCCR);
 
-      /* Generate stop on last byte */
-      if (i == length - 1)
-	writel (MPC85xx_I2CCR_MEN | MPC85xx_I2CCR_TXAK, I2CCCR);
+		/* Generate stop on last byte */
+		if (i == length - 1)
+			writeb(MPC85xx_I2CCR_MEN | MPC85xx_I2CCR_TXAK, I2CCCR);
 
-      data[i] = readl (I2CCDR);
-    }
+		data[i] = readb(I2CCDR);
+	}
 
-  return i;
+	return i;
 }
 
 int
 i2c_read (u8 dev, uint addr, int alen, u8 *data, int length)
 {
-  int i = 0;
-  u8 *a = (u8*)&addr;
+	int i = 0;
+	u8 *a = (u8*)&addr;
 
-  if (i2c_wait4bus () < 0)
-    goto exit;
+	if (i2c_wait4bus () < 0)
+		goto exit;
 
-  if (i2c_write_addr (dev, I2C_WRITE, 0) == 0)
-    goto exit;
+	if (i2c_write_addr (dev, I2C_WRITE, 0) == 0)
+		goto exit;
 
-  if (__i2c_write (&a[4 - alen], alen) != alen)
-    goto exit;
+	if (__i2c_write (&a[4 - alen], alen) != alen)
+		goto exit;
 
-  if (i2c_write_addr (dev, I2C_READ, 1) == 0)
-    goto exit;
+	if (i2c_write_addr (dev, I2C_READ, 1) == 0)
+		goto exit;
 
-  i = __i2c_read (data, length);
+	i = __i2c_read (data, length);
 
  exit:
-  writel (MPC85xx_I2CCR_MEN, I2CCCR);
+	writeb(MPC85xx_I2CCR_MEN, I2CCCR);
 
-  return !(i == length);
+	return !(i == length);
 }
 
 int
 i2c_write (u8 dev, uint addr, int alen, u8 *data, int length)
 {
-  int i = 0;
-  u8 *a = (u8*)&addr;
+	int i = 0;
+	u8 *a = (u8*)&addr;
 
-  if (i2c_wait4bus () < 0)
-    goto exit;
+	if (i2c_wait4bus () < 0)
+		goto exit;
 
-  if (i2c_write_addr (dev, I2C_WRITE, 0) == 0)
-    goto exit;
+	if (i2c_write_addr (dev, I2C_WRITE, 0) == 0)
+		goto exit;
 
-  if (__i2c_write (&a[4 - alen], alen) != alen)
-    goto exit;
+	if (__i2c_write (&a[4 - alen], alen) != alen)
+		goto exit;
 
-  i = __i2c_write (data, length);
+	i = __i2c_write (data, length);
 
  exit:
-  writel (MPC85xx_I2CCR_MEN, I2CCCR);
+	writeb(MPC85xx_I2CCR_MEN, I2CCCR);
 
-  return !(i == length);
+	return !(i == length);
 }
 
 int i2c_probe (uchar chip)

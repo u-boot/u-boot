@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Jon Loeliger, 15 Jul 2004:
+  Fix MPC85xx I2C driver
+
 * Fix problems with CDROM drive as slave device on Lite5200 IDE bus.
 
 * Patch by Stephen Williams, 15 July 2004
