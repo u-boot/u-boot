@@ -5,6 +5,10 @@ Changes for U-Boot 1.1.1:
 * Patches by Pantelis Antoniou, 30 Mar 2004:
   - add auto-complete support to the U-Boot CLI
   - add support for NETTA and NETPHONE boards; fix NETVIA board
+  - add support for the Epson 156x series of graphical displays
+    (These displays are serial and not suitable for using a normal
+    framebuffer console on them)
+  - add infrastructure needed in order to POST any DSPs in a board
 
 * Patch by Yuli Barcohen, 28 Mar 2004:
   - Add support for MPC8272 family including MPC8247/8248/8271/8272

@@ -43,6 +43,7 @@ extern int spi_post_test (int flags);
 extern int usb_post_test (int flags);
 extern int spr_post_test (int flags);
 extern int sysmon_post_test (int flags);
+extern int dsp_post_test (int flags);
 
 extern int sysmon_init_f (void);
 
@@ -194,6 +195,18 @@ struct post_test post_list[] =
 	&sysmon_init_f,
 	&sysmon_reloc,
 	CFG_POST_SYSMON
+    },
+#endif
+#if CONFIG_POST & CFG_POST_DSP
+    {
+	"DSP test",
+	"dsp",
+	"This test checks any connected DSP(s).",
+	POST_RAM | POST_MANUAL,
+	&dsp_post_test,
+	NULL,
+	NULL,
+	CFG_POST_DSP
     },
 #endif
 };

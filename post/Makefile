@@ -27,7 +27,9 @@ SUBDIRS = cpu
 LIB	= libpost.a
 
 AOBJS	= cache_8xx.o
-COBJS	= post.o tests.o cpu.o rtc.o watchdog.o memory.o i2c.o cache.o sysmon.o
-COBJS	+= uart.o ether.o usb.o spr.o
+COBJS	= cache.o cpu.o dsp.o ether.o
+COBJS  += i2c.o memory.o post.o rtc.o
+COBJS  += spr.o sysmon.o tests.o uart.o
+COBJS  += usb.o watchdog.o
 
 include $(TOPDIR)/post/rules.mk

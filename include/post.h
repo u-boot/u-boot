@@ -89,6 +89,7 @@ extern int post_hotkeys_pressed(void);
 #define CFG_POST_USB		0x00000200
 #define CFG_POST_SPR		0x00000400
 #define CFG_POST_SYSMON		0x00000800
+#define CFG_POST_DSP		0x00001000
 
 #endif /* CONFIG_POST */
 

@@ -38,7 +38,7 @@ OBJS	= 3c589.o 5701rls.o ali512x.o \
 	  pcnet.o plb2800_eth.o \
 	  ps2ser.o ps2mult.o pc_keyb.o keyboard.o \
 	  rtl8019.o rtl8139.o \
-	  s3c24x0_i2c.o sed13806.o \
+	  s3c24x0_i2c.o sed13806.o sed156x.o \
 	  serial.o serial_max3100.o serial_pl011.o serial_pl010.o \
 	  smc91111.o smiLynxEM.o status_led.o sym53c8xx.o \
 	  ti_pci1410a.o tigon3.o w83c553f.o omap1510_i2c.o \
