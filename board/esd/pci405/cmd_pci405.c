@@ -107,5 +107,10 @@ int do_loadpci(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	return 0;
 }
+U_BOOT_CMD(
+	loadpci,	1,	1,	do_loadpci,
+	"loadpci - Wait for pci-image and boot it\n",
+	NULL
+);
 
 #endif
