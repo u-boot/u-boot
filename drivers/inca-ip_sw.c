@@ -41,13 +41,21 @@
 
 
 #define DELAY	udelay(10000)
+  /* Sometimes the store word instruction hangs while writing to one
+   * of the Switch registers. Moving the instruction into a separate
+   * function somehow makes the problem go away.
+   */
+static void SWORD(volatile u32 * reg, u32 value)
+{
+	*reg = value;
+}
 
 #define DMA_WRITE_REG(reg, value) *((volatile u32 *)reg) = (u32)value;
 #define DMA_READ_REG(reg, value)    value = (u32)*((volatile u32*)reg)
 #define SW_WRITE_REG(reg, value)   \
-	*((volatile u32*)reg) = (u32)value;\
+	SWORD(reg, value);\
 	DELAY;\
-	*((volatile u32*)reg) = (u32)value;
+	SWORD(reg, value);
 
 #define SW_READ_REG(reg, value)	   \
 	value = (u32)*((volatile u32*)reg);\

@@ -2,6 +2,16 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Markus Pietrek, 04 May 2004:
+  Fix clear_bss code for ARM systems (all except s3c44b0 which
+  doesn't clear BSS at all?)
+
+* Fix "ping" problem on INC-IP board. Strange problem:
+  Sometimes the store word instruction hangs while writing to one of
+  the Switch registers, but only if the next instruction is 16-byte
+  aligned. Moving the instruction into a separate function somehow
+  makes the problem go away.
+
 * Patch by Rishi Bhattacharya, 08 May 2004:
   Add support for TI OMAP5912 OSK Board
 

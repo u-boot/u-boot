@@ -147,7 +147,6 @@ stack_setup:
 
 clear_bss:
 	ldr	r0, _bss_start		/* find start of bss segment        */
-	add	r0, r0, #4		/* start at first byte of bss       */
 	ldr	r1, _bss_end		/* stop here                        */
 	mov 	r2, #0x00000000		/* clear                            */
 
