@@ -105,6 +105,8 @@ unsigned long flash_init (void)
 			CFG_MONITOR_BASE+monitor_flash_len-1,
 			&flash_info[0]);
 #endif
+	/* protect reset vector */
+	flash_info[0].protect[flash_info[0].sector_count-1] = 1;
 	size_b1 = 0 ;
 	flash_info[0].size = size_b0;
 #if 0

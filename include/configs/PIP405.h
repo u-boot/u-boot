@@ -61,6 +61,7 @@
 			CFG_CMD_MII	| \
 			CFG_CMD_SDRAM	| \
 			CFG_CMD_DOC	| \
+			CFG_CMD_PING	| \
 			CFG_CMD_SAVES   | \
 			CFG_CMD_BSP	)
 /* this must be included AFTER the definition of CONFIG_COMMANDS  (if any) */

@@ -1,0 +1,156 @@
+Design Notes on Exporting U-Boot Functions to Standalone Applications:
+======================================================================
+
+1. Add a field to the global_data structure, the pointer to a jump
+   table.
+
+2. Jump table itself is allocated and filled in the same way as the
+   syscall table is (allocated with malloc() after the code has been
+   relocated to RAM); a special function, fixed to the table element
+   number 0, will be added which returns the ABI version so
+   applications can check for compatibility issues.
+
+3. It is application's responsibility to check the ABI version and
+   act accordingly.
+
+4. Pointer to the global_data is passed to the application in the
+   dedicated register that is used in the U-Boot to hold this
+   pointer. This assumes that the application is built with the same
+   register- allocation flags as the U-Boot itself. (Actually, this
+   is a requirement even now, as the 'go' command does not perform
+   any actions to protect this register against being clobbered by
+   the application).
+
+   This approach won't work on the x86 architecture. See below.
+
+5. Application now calls standard library functions like printf()
+   instead of specially prefixed names like mon_printf() as it did
+   before. Present implementation of these functions (using the
+   system calls mechanism) will be replaced with jump stubs.
+
+6. To export additional functions, the following steps will have to be 
+   taken:
+
+   - Add the xxx() U-Boot function to the EXPORT_FUNC list
+   - Add initialization of the appropriate slot in the jump table
+
+7. To port to a new architecture, the appropriate stub code should be
+   provided. No other machine-dependent code is used. Once the stub
+   template is available, no additional coding is needed when
+   exporting new U-Boot functions. A pre-processor macro will be used
+   to automatically instantiate the stub definition for each exported
+   function.
+
+Note the following:
+
+- This approach uses a jump table with fixed slot allocation. That
+  said, to retain the ABI compatibility, no table reordering,
+  inserting new functions in the middle of the list or deleting
+  functions from the list is allowed. Any such action will break the
+  ABI compatibility.
+
+- The x86 architecture does not use a dedicated register to store the
+  pointer to the global_data structure. There are the following
+  approaches available:
+
+  * Pass the global_data pointer to the application in a register or
+    as an additional argument. This requires special machine-
+    dependent startup code to be compiled into the application.
+
+  * Make the x86 consistent with the rest of architectures and use a
+    dedicated register. This renders one register unusable in the
+    rest of the U-Boot code and thus increases the size of the U-Boot
+    binary and decreases it performance.
+
+The following changes will be made:
+
+- The syscall handling code will be removed.
+
+- The include/_exports.h file will be introduced, containing the list
+  of the exported functions in the following form:
+
+  EXPORT_FUNC(getc)
+  EXPORT_FUNC(tstc)
+  ...
+
+  This list will be used to assign the slot numbers in the jump
+  table, to determine the size of the jump table and to generate the
+  code for the stub functions.
+
+- The include/exports.h file will be introduced, containing the
+  prototypes of the exported functions and the assigned slot numbers.
+
+- The examples/stubs.c file will be introduced, containing the code
+  for the jump stubs for each of the exported functions.
+
+Implementation Notes on Exporting U-Boot Functions:
+===================================================
+
+1. The patch was applied against TOT as of 7/24 12:50 MEST; the
+   resulting images were tested on the following boards:
+
+   * lwmon (PowerPC)
+   * trab  (ARM)
+   * inca  (MIPS)
+
+   The hello_world application was loaded and executed then:
+
+   [lwmon]
+   => tftp 0x40000 /tftpboot/LWMON/hello_world.bin-avn
+   => go 0x40004
+
+   [trab]
+   TRAB # tftp 0xc100000 /tftpboot/TRAB/hello_world.bin-avn
+   TRAB # go 0xc100000
+
+   [inca]
+   INCA-IP # tftp 0x80200000 /tftpboot/INCA/hello_world.bin-avn
+   INCA-IP # go 0x80200000
+
+2. As neither of supported x86 boards can be built from the TOT
+   sources currently, the patch build was verified by manually
+   running the following command in the U-Boot top directory:
+
+   > make -C examples TOPDIR=`pwd` ARCH=i386 CROSS_COMPILE=
+
+   The rest of the code is mostly machine-independent and was not
+   verified.
+
+3. To test the x86 assembly code, a small standalone application was
+   written. It was built and run on the RedHat Linux 8.0 (x86). The
+   application performs a jump using a pointer to jump table and a
+   function's index in it.
+
+4. For the MIPS architecture, the linker script is also provided for
+   linking applications. The default linker script places the .text
+   and .data sections too far from each other so that the resulting
+   .bin files span about 256Mb in size.
+
+5. Several example applications required updating for the new API.
+   These applications relied upon the bd_t pointer being passed as
+   the 1st argument to the main function; this had changed when the
+   system calls were introduced, but apparently, these applications
+   weren't fixed at that moment. This is fixed now.
+
+6. GCC issues warnings for the 'sched' application. Since now the
+   mon_printf() function is renamed to printf(), GCC applies its
+   knowledge of the format specifiers to check the arguments,
+   complaining about ints passed as longs and vice versa. This is not
+   fixed yet.
+
+7. Only the hello_world example application was modified to make use
+   of the newly supplied get_version() function. The application now
+   prints two ABI versions, the one that the application was compiled
+   for and the other, actual ABI version.
+
+8. The following new files were added:
+   common/exports.c
+   examples/mips.lds
+   examples/stubs.c
+   include/_exports.h
+   include/exports.h
+   doc/README.standalone
+
+   The following files are no longer used and will be removed:
+   examples/syscall.S
+   include/syscall.h

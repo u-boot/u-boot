@@ -22,7 +22,6 @@
  */
 
 #include <common.h>
-#include <syscall.h>
 #include <malloc.h>
 #include <asm/io.h>
 #include <asm/i8259.h>
@@ -57,31 +56,6 @@ typedef struct {
 } irq_desc_t;
 
 static irq_desc_t irq_table[MAX_IRQ];
-
-
-asm(".globl syscall_entry\n" \
-	"syscall_entry:\n" \
-	"popl   %ebx\n"        /* throw away the return address, flags  */ \
-	"popl   %ebx\n"        /* and segment that the INT instruction pushed */ \
-	"popl   %ebx\n"        /* on to the stack */ \
-	"movl   %eax, %ecx\n"  /* load the syscall nr argument*/ \
-	"movl   syscall_tbl, %eax\n" /* load start of syscall table */ \
-	"cmpl   $(11-1), %ecx\n"  /* FixMe: find a way to use NR_SYSCALLS macro here */ \
-	"ja     bad_syscall\n" \
-	"movl   (%eax, %ecx, 4), %eax\n" /* load the handler of the syscall*/ \
-	"test   %eax, %eax\n" /* test for null */ \
-	"je     bad_syscall\n" \
-	"popl   %ecx\n" \
-	"popl   %ebx\n" \
-	"sti    \n" \
-	"jmp    *%eax\n" \
-"bad_syscall: movl $0xffffffff, %eax\n" \
-	"popl   %ecx\n" \
-	"popl   %ebx\n" \
-	"ret");
-
-void __attribute__ ((regparm(0))) syscall_entry(void);
-
 
 asm ("irq_return:\n"
      "     addl  $4, %esp\n"
@@ -483,7 +457,6 @@ int interrupt_init(void)
 	set_vector(0x2e, irq_14);
 	set_vector(0x2f, irq_15);
 	/* vectors 0x30-0x3f are reserved for irq 16-31 */
-	set_vector(0x40, syscall_entry);
 
 
 	/* Mask all interrupts */

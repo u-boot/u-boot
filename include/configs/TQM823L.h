@@ -37,7 +37,7 @@
 #define CONFIG_TQM823L		1	/* ...on a TQM8xxL module	*/
 
 #ifdef	CONFIG_LCD			/* with LCD controller ?	*/
-/* #define CONFIG_NEC_NL6648BC20 1 / * use NEC NL6648BC20 display	*/
+#define	CONFIG_SPLASH_SCREEN		/* ... with splashscreen support*/
 #endif
 
 #define	CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
@@ -97,11 +97,20 @@
 
 #define	CONFIG_RTC_MPC8xx		/* use internal RTC of MPC8xx	*/
 
-#define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
+#ifdef	CONFIG_SPLASH_SCREEN
+# define CONFIG_COMMANDS      ( CONFIG_CMD_DFL	| \
 				CFG_CMD_ASKENV	| \
+				CFG_CMD_BMP	| \
+				CFG_CMD_DATE	| \
 				CFG_CMD_DHCP	| \
-				CFG_CMD_IDE	| \
-				CFG_CMD_DATE	)
+				CFG_CMD_IDE	)
+#else
+# define CONFIG_COMMANDS      ( CONFIG_CMD_DFL	| \
+				CFG_CMD_ASKENV	| \
+				CFG_CMD_DATE	| \
+				CFG_CMD_DHCP	| \
+				CFG_CMD_IDE	)
+#endif
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>

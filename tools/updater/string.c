@@ -164,7 +164,7 @@ char * strdup(const char *s)
 	char *new;
 
 	if ((s == NULL)	||
-	    ((new = mon_malloc (strlen(s) + 1)) == NULL) ) {
+	    ((new = malloc (strlen(s) + 1)) == NULL) ) {
 		return NULL;
 	}
 

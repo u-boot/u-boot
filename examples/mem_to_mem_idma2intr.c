@@ -28,7 +28,7 @@
 
 
 #include <common.h>
-#include <syscall.h>
+#include <exports.h>
 
 #define STANDALONE
 
@@ -36,13 +36,6 @@
 #include <command.h>
 #include <watchdog.h>
 #else					/* Standalone app of PPCBoot */
-#include <syscall.h>
-#define printf	mon_printf
-#define tstc	mon_tstc
-#define getc	mon_getc
-#define putc	mon_putc
-#define udelay	mon_udelay
-#define malloc	mon_malloc
 #define WATCHDOG_RESET() {						\
 			*(ushort *)(CFG_IMMR + 0x1000E) = 0x556c;	\
 			*(ushort *)(CFG_IMMR + 0x1000E) = 0xaa39;	\
@@ -180,8 +173,8 @@ uint dpinit_done = 0;
 #ifdef STANDALONE
 int ctrlc (void)
 {
-	if (mon_tstc()) {
-		switch (mon_getc ()) {
+	if (tstc()) {
+		switch (getc ()) {
 		case 0x03:		/* ^C - Control C */
 			return 1;
 		default:
@@ -209,19 +202,20 @@ int memcmp(const void * cs,const void * ct,size_t count)
 #endif	/* STANDALONE */
 
 #ifdef STANDALONE
-int mem_to_mem_idma2intr (bd_t * bd, int argc, char *argv[])
+int mem_to_mem_idma2intr (int argc, char *argv[])
 #else
 int do_idma (bd_t * bd, int argc, char *argv[])
 #endif	/* STANDALONE */
 {
 	int i;
 
+	app_startup(argv);
 	dpinit_done = 0;
 
 	idma_init ();
 
 	DEBUG ("Installing dma handler\n");
-	mon_install_hdlr (7, dmadone_handler, (void *) bdf);
+	install_hdlr (7, dmadone_handler, (void *) bdf);
 
 	memset ((void *) 0x100000, 'a', 512);
 	memset ((void *) 0x200000, 'b', 512);
@@ -232,7 +226,7 @@ int do_idma (bd_t * bd, int argc, char *argv[])
 	}
 
 	DEBUG ("Uninstalling dma handler\n");
-	mon_free_hdlr (7);
+	free_hdlr (7);
 
 	return 0;
 }

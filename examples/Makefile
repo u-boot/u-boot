@@ -21,7 +21,21 @@
 # MA 02111-1307 USA
 #
 
+ifeq ($(ARCH),ppc)
 LOAD_ADDR = 0x40000
+endif
+
+ifeq ($(ARCH),i386)
+LOAD_ADDR = 0x40000
+endif
+
+ifeq ($(ARCH),arm)
+LOAD_ADDR = 0xc100000
+endif
+
+ifeq ($(ARCH),mips)
+LOAD_ADDR = 0x80200000 -T mips.lds
+endif
 
 include $(TOPDIR)/config.mk
 
@@ -36,11 +50,6 @@ endif
 ifeq ($(ARCH),ppc)
 SREC   += sched.srec
 BIN    += sched.bin
-endif
-
-ifeq ($(ARCH),mips)
-SREC =
-BIN =
 endif
 
 # The following example is pretty 8xx specific...
@@ -62,12 +71,12 @@ endif
 
 OBJS	= $(SREC:.srec=.o)
 
-LIB	= libsyscall.a
-LIBAOBJS= syscall.o
+LIB	= libstubs.a
+LIBAOBJS=
 ifeq ($(ARCH),ppc)
 LIBAOBJS+= $(ARCH)_longjmp.o $(ARCH)_setjmp.o
 endif
-LIBCOBJS=
+LIBCOBJS= stubs.o
 LIBOBJS	= $(LIBAOBJS) $(LIBCOBJS)
 
 CPPFLAGS += -I..

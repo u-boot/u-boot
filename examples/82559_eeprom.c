@@ -22,7 +22,7 @@
 #define _LINUX_STRING_H_	/* avoid unnecessary str/mem functions */
 
 #include <common.h>
-#include <syscall.h>
+#include <exports.h>
 #include <asm/io.h>
 
 
@@ -96,7 +96,7 @@ static int do_eeprom_cmd(long ioaddr, int cmd, int cmd_len)
 	long ee_addr = ioaddr + EE_OFFSET;
 
 	if (debug > 1)
-		mon_printf(" EEPROM op 0x%x: ", cmd);
+		printf(" EEPROM op 0x%x: ", cmd);
 
 	outw(EE_ENB | EE_SHIFT_CLK, ee_addr);
 
@@ -106,7 +106,7 @@ static int do_eeprom_cmd(long ioaddr, int cmd, int cmd_len)
 		outw(dataval, ee_addr);
 		eeprom_delay(ee_addr);
 		if (debug > 2)
-			mon_printf("%X", inw(ee_addr) & 15);
+			printf("%X", inw(ee_addr) & 15);
 		outw(dataval | EE_SHIFT_CLK, ee_addr);
 		eeprom_delay(ee_addr);
 		retval = (retval << 1) | ((inw(ee_addr) & EE_DATA_READ) ? 1 : 0);
@@ -117,7 +117,7 @@ static int do_eeprom_cmd(long ioaddr, int cmd, int cmd_len)
 	/* Terminate the EEPROM access. */
 	outw(EE_ENB & ~EE_CS, ee_addr);
 	if (debug > 1)
-		mon_printf(" EEPROM result is 0x%5.5x.\n", retval);
+		printf(" EEPROM result is 0x%5.5x.\n", retval);
 	return retval;
 }
 
@@ -143,7 +143,7 @@ static void write_eeprom(long ioaddr, int index, int value, int addr_len)
 	/* Poll for write finished. */
 	i = eeprom_busy_poll(ee_ioaddr);			/* Typical 2000 ticks */
 	if (debug)
-		mon_printf(" Write finished after %d ticks.\n", i);
+		printf(" Write finished after %d ticks.\n", i);
 	/* Disable programming. This command is not instantaneous, so we check
 	   for busy before the next op. */
 	do_eeprom_cmd(ioaddr, (0x40 << (addr_len-4)), 3 + addr_len);
@@ -156,7 +156,7 @@ static int reset_eeprom(unsigned long ioaddr, unsigned char *hwaddr)
 	int size_test;
 	int i;
 
-	mon_printf("Resetting i82559 EEPROM @ 0x%08x ... ", ioaddr);
+	printf("Resetting i82559 EEPROM @ 0x%08x ... ", ioaddr);
 
 	size_test = do_eeprom_cmd(ioaddr, (EE_READ_CMD << 8) << 16, 27);
 	eeprom_addr_size = (size_test & 0xffe0000) == 0xffe0000 ? 8 : 6;
@@ -177,11 +177,11 @@ static int reset_eeprom(unsigned long ioaddr, unsigned char *hwaddr)
 
 	for (i = 0; i < eeprom_size; i++)
 		if (read_eeprom(ioaddr, i, eeprom_addr_size) != eeprom[i]) {
-			mon_printf("failed\n");
+			printf("failed\n");
 			return 1;
 		}
 
-	mon_printf("done\n");
+	printf("done\n");
 	return 0;
 }
 
@@ -308,19 +308,20 @@ int main (int argc, char *argv[])
 	char buf[6];
 	int instance;
 
+	app_startup(argv);
 	if (argc != 2) {
-		mon_printf ("call with base Ethernet address\n");
+		printf ("call with base Ethernet address\n");
 		return 1;
 	}
 
 
 	eth_addr = gethwaddr(argv[1], buf);
 	if (NULL == eth_addr) {
-		mon_printf ("Can not parse ethernet address\n");
+		printf ("Can not parse ethernet address\n");
 		return 1;
 	}
 	if (eth_addr[5] & 0x01) {
-		mon_printf("Base Ethernet address must be even\n");
+		printf("Base Ethernet address must be even\n");
 	}
 
 
@@ -329,22 +330,22 @@ int main (int argc, char *argv[])
 		unsigned char mac[6];
 		int bar1 = read_config_dword(0, 6+instance, 0, 0x14);
 		if (! (bar1 & 1)) {
-			mon_printf("ETH%d is disabled %x\n", instance, bar1);
+			printf("ETH%d is disabled %x\n", instance, bar1);
 		} else {
-			mon_printf("ETH%d IO=0x%04x\n", instance, bar1 & ~3);
+			printf("ETH%d IO=0x%04x\n", instance, bar1 & ~3);
 		}
 		io_addr = (bar1 & (~3L));
 
 
 		write_config_word(0, 6+instance, 0, 4,
 				  read_config_word(0, 6+instance, 0, 4) | 1);
-		mon_printf("ETH%d CMD %04x\n", instance,
+		printf("ETH%d CMD %04x\n", instance,
 			   read_config_word(0, 6+instance, 0, 4));
 
 		memcpy(mac, eth_addr, 6);
 		mac[5] += instance;
 
-		mon_printf("got io=%04x, ha=%02x:%02x:%02x:%02x:%02x:%02x\n",
+		printf("got io=%04x, ha=%02x:%02x:%02x:%02x:%02x:%02x\n",
 			   io_addr, mac[0], mac[1], mac[2],
 			   mac[3], mac[4], mac[5]);
 		reset_eeprom(io_addr, mac);

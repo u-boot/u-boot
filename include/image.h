@@ -47,6 +47,7 @@
 #define IH_OS_U_BOOT		17	/* Firmware	*/
 #define IH_OS_RTEMS		18	/* RTEMS	*/
 #define IH_OS_ARTOS		19	/* ARTOS	*/
+#define IH_OS_UNITY		20	/* Unity OS	*/
 
 /*
  * CPU Architecture Codes (supported by Linux)
@@ -101,7 +102,7 @@
  * "Script files" are command sequences that will be executed by
  *	U-Boot's command interpreter; this feature is especially
  *	useful when you configure U-Boot to use a real shell (hush)
- *	as command interpreter.
+ *	as command interpreter (=> Shell Scripts).
  */
 
 #define IH_TYPE_INVALID		0	/* Invalid Image		*/

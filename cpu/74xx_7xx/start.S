@@ -159,75 +159,7 @@ ProgramCheck:
 	STD_EXCEPTION(0x900, Decrementer, timer_interrupt)
 	STD_EXCEPTION(0xa00, Trap_0a, UnknownException)
 	STD_EXCEPTION(0xb00, Trap_0b, UnknownException)
-
-	. = 0xc00
-/*
- * r0 - SYSCALL number
- * r3-... arguments
- */
-SystemCall:
-	addis	r11,r0,0		/* get functions table addr */
-	ori	r11,r11,0		/* Note: this code is patched in trap_init */
-	addis	r12,r0,0		/* get number of functions */
-	ori	r12,r12,0
-
-	cmplw	0, r0, r12
-	bge	1f
-
-	rlwinm	r0,r0,2,0,31		/* fn_addr = fn_tbl[r0] */
-	add	r11,r11,r0
-	lwz	r11,0(r11)
-
-	li	r20,0xd00-4		/* Get stack pointer */
-	lwz	r12,0(r20)
-	subi	r12,r12,12		/* Adjust stack pointer */
-	li	r0,0xc00+_end_back-SystemCall
-	cmplw	0, r0, r12		/* Check stack overflow */
-	bgt	1f
-	stw	r12,0(r20)
-
-	mflr	r0
-	stw	r0,0(r12)
-	mfspr	r0,SRR0
-	stw	r0,4(r12)
-	mfspr	r0,SRR1
-	stw	r0,8(r12)
-
-	li	r12,0xc00+_back-SystemCall
-	mtlr	r12
-	mtspr	SRR0,r11
-
-1:	SYNC
-	rfi
-
-_back:
-
-	mfmsr	r11			/* Disable interrupts */
-	li	r12,0
-	ori	r12,r12,MSR_EE
-	andc	r11,r11,r12
-	SYNC				/* Some chip revs need this... */
-	mtmsr	r11
-	SYNC
-
-	li	r12,0xd00-4		/* restore regs */
-	lwz	r12,0(r12)
-
-	lwz	r11,0(r12)
-	mtlr	r11
-	lwz	r11,4(r12)
-	mtspr	SRR0,r11
-	lwz	r11,8(r12)
-	mtspr	SRR1,r11
-
-	addi	r12,r12,12		/* Adjust stack pointer */
-	li	r20,0xd00-4
-	stw	r12,0(r20)
-
-	SYNC
-	rfi
-_end_back:
-
+	STD_EXCEPTION(0xc00, SystemCall, UnknownException)
 	STD_EXCEPTION(0xd00, SingleStep, UnknownException)
 
 	STD_EXCEPTION(0xe00, Trap_0e, UnknownException)

@@ -34,6 +34,8 @@
 #define POST_SLOWTEST		0x04	/* test is slow, enabled by key press */
 #define POST_POWERTEST		0x08	/* test runs after watchdog reset */
 
+#define POST_COLDBOOT		0x80	/* first boot after power-on */
+
 #define POST_ROM		0x0100	/* test runs in ROM */
 #define POST_RAM		0x0200	/* test runs in RAM */
 #define POST_MANUAL		0x0400	/* test runs on diag command */
@@ -71,7 +73,7 @@ unsigned long post_time_ms (unsigned long base);
 
 extern struct post_test post_list[];
 extern unsigned int post_list_size;
-extern int post_hotkeys_pressed(gd_t *);
+extern int post_hotkeys_pressed(void);
 
 #endif /* __ASSEMBLY__ */
 

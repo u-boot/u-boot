@@ -207,6 +207,9 @@ void    pciinfo       (int, int);
 int	misc_init_f   (void);
 int	misc_init_r   (void);
 
+/* common/exports.c */
+void	jumptable_init(void);
+
 /* $(BOARD)/$(BOARD).c */
 void	reset_phy     (void);
 void    fdc_hw_init   (void);
@@ -436,8 +439,6 @@ ulong crc32 (ulong, const unsigned char *, uint);
 ulong crc32_no_comp (ulong, const unsigned char *, uint);
 
 /* common/console.c */
-extern void **syscall_tbl;
-
 int	console_init_f(void);	/* Before relocation; uses the serial  stuff	*/
 int	console_init_r(void);	/* After  relocation; uses the console stuff	*/
 int	console_assign (int file, char *devname);	/* Assign the console	*/

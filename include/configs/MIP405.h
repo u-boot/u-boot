@@ -67,6 +67,7 @@
 			CFG_CMD_DATE	| \
 			CFG_CMD_ELF	| \
 			CFG_CMD_MII	| \
+			CFG_CMD_PING	| \
 			CFG_CMD_SAVES	| \
 			CFG_CMD_BSP	)
 

@@ -33,7 +33,7 @@
 #undef DEBUG_FLASH
 
 #ifdef DEBUG_FLASH
-#define DEBUGF(fmt,args...) mon_printf(fmt ,##args)
+#define DEBUGF(fmt,args...) printf(fmt ,##args)
 #else
 #define DEBUGF(fmt,args...)
 #endif
@@ -132,7 +132,7 @@ unsigned long flash_init (void)
 #endif
 
 	} else {
-		mon_printf ("Warning: the BOOT Flash is not initialised !");
+		printf ("Warning: the BOOT Flash is not initialised !");
 	}
 
 	flash_to_mem();
@@ -287,7 +287,7 @@ static ulong flash_get_size (ulong addr, flash_info_t *info)
 	}
 
 	if (info->sector_count > CFG_MAX_FLASH_SECT) {
-		mon_printf ("** ERROR: sector count %d > max (%d) **\n",
+		printf ("** ERROR: sector count %d > max (%d) **\n",
 			info->sector_count, CFG_MAX_FLASH_SECT);
 		info->sector_count = CFG_MAX_FLASH_SECT;
 	}
@@ -346,16 +346,16 @@ int flash_erase (flash_info_t *info, int s_first, int s_last)
 
 	if (s_first < 0 || s_first > s_last) {
 		if (info->flash_id == FLASH_UNKNOWN) {
-			mon_printf ("- missing\n");
+			printf ("- missing\n");
 		} else {
-			mon_printf ("- no sectors to erase\n");
+			printf ("- no sectors to erase\n");
 		}
 		flash_to_mem();
 		return 1;
 	}
 
 	if (info->flash_id == FLASH_UNKNOWN) {
-		mon_printf ("Can't erase unknown flash type %08lx - aborted\n",
+		printf ("Can't erase unknown flash type %08lx - aborted\n",
 			info->flash_id);
 		flash_to_mem();
 		return 1;
@@ -369,10 +369,10 @@ int flash_erase (flash_info_t *info, int s_first, int s_last)
 	}
 
 	if (prot) {
-		mon_printf ("- Warning: %d protected sectors will not be erased!\n",
+		printf ("- Warning: %d protected sectors will not be erased!\n",
 			prot);
 	} else {
-		mon_printf ("");
+		printf ("");
 	}
 
 	l_sect = -1;
@@ -406,7 +406,7 @@ int flash_erase (flash_info_t *info, int s_first, int s_last)
 		enable_interrupts();
 
 	/* wait at least 80us - let's wait 1 ms */
-	mon_udelay (1000);
+	udelay (1000);
 
 	/*
 	 * We wait for the last triggered sector
@@ -414,22 +414,22 @@ int flash_erase (flash_info_t *info, int s_first, int s_last)
 	if (l_sect < 0)
 		goto DONE;
 
-	start = mon_get_timer (0);
+	start = get_timer (0);
 	last  = start;
 	addr = info->start[l_sect];
 
 	DEBUGF ("Start erase timeout: %d\n", CFG_FLASH_ERASE_TOUT);
 
 	while ((in8(addr) & 0x80) != 0x80) {
-		if ((now = mon_get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
-			mon_printf ("Timeout\n");
+		if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+			printf ("Timeout\n");
 			flash_reset (info->start[0]);
 			flash_to_mem();
 			return 1;
 		}
 		/* show that we're waiting */
 		if ((now - last) > 1000) {	/* every second */
-			mon_putc ('.');
+			putc ('.');
 			last = now;
 		}
 		iobarrier_rw();
@@ -440,7 +440,7 @@ DONE:
 	flash_reset (info->start[0]);
 	flash_to_mem();
 
-	mon_printf (" done\n");
+	printf (" done\n");
 	return 0;
 }
 
@@ -484,7 +484,7 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 		wp += 4;
 	}
 
-	mon_putc(219);
+	putc(219);
 
 	/*
 	 * handle word aligned part
@@ -492,7 +492,7 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 	while (cnt >= 4) {
 	    if (out_cnt>26214)
 	    {
-		mon_putc(219);
+		putc(219);
 		out_cnt = 0;
 	    }
 	    data = 0;
@@ -568,9 +568,9 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 			enable_interrupts();
 
 		/* data polling for D7 */
-		start = mon_get_timer (0);
+		start = get_timer (0);
 		while ((in8(dest+i) & 0x80) != (data_ch[i] & 0x80)) {
-			if (mon_get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+			if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
 				flash_reset (addr);
 				flash_to_mem();
 				return (1);
@@ -600,60 +600,60 @@ void flash_print_info (flash_info_t *info)
 	int i;
 
 	if (info->flash_id == FLASH_UNKNOWN) {
-		mon_printf ("missing or unknown FLASH type\n");
+		printf ("missing or unknown FLASH type\n");
 		return;
 	}
 
 	switch (info->flash_id & FLASH_VENDMASK) {
-	case FLASH_MAN_AMD:	mon_printf ("AMD ");		break;
-	case FLASH_MAN_FUJ:	mon_printf ("FUJITSU ");		break;
-	case FLASH_MAN_BM:	mon_printf ("BRIGHT MICRO ");	break;
-	case FLASH_MAN_STM:	mon_printf ("SGS THOMSON ");	break;
-	default:		mon_printf ("Unknown Vendor ");	break;
+	case FLASH_MAN_AMD:	printf ("AMD ");		break;
+	case FLASH_MAN_FUJ:	printf ("FUJITSU ");		break;
+	case FLASH_MAN_BM:	printf ("BRIGHT MICRO ");	break;
+	case FLASH_MAN_STM:	printf ("SGS THOMSON ");	break;
+	default:		printf ("Unknown Vendor ");	break;
 	}
 
 	switch (info->flash_id & FLASH_TYPEMASK) {
-	case FLASH_AM040:	mon_printf ("29F040 or 29LV040 (4 Mbit, uniform sectors)\n");
+	case FLASH_AM040:	printf ("29F040 or 29LV040 (4 Mbit, uniform sectors)\n");
 				break;
-	case FLASH_AM400B:	mon_printf ("AM29LV400B (4 Mbit, bottom boot sect)\n");
+	case FLASH_AM400B:	printf ("AM29LV400B (4 Mbit, bottom boot sect)\n");
 				break;
-	case FLASH_AM400T:	mon_printf ("AM29LV400T (4 Mbit, top boot sector)\n");
+	case FLASH_AM400T:	printf ("AM29LV400T (4 Mbit, top boot sector)\n");
 				break;
-	case FLASH_AM800B:	mon_printf ("AM29LV800B (8 Mbit, bottom boot sect)\n");
+	case FLASH_AM800B:	printf ("AM29LV800B (8 Mbit, bottom boot sect)\n");
 				break;
-	case FLASH_AM800T:	mon_printf ("AM29LV800T (8 Mbit, top boot sector)\n");
+	case FLASH_AM800T:	printf ("AM29LV800T (8 Mbit, top boot sector)\n");
 				break;
-	case FLASH_AM160B:	mon_printf ("AM29LV160B (16 Mbit, bottom boot sect)\n");
+	case FLASH_AM160B:	printf ("AM29LV160B (16 Mbit, bottom boot sect)\n");
 				break;
-	case FLASH_AM160T:	mon_printf ("AM29LV160T (16 Mbit, top boot sector)\n");
+	case FLASH_AM160T:	printf ("AM29LV160T (16 Mbit, top boot sector)\n");
 				break;
-	case FLASH_AM320B:	mon_printf ("AM29LV320B (32 Mbit, bottom boot sect)\n");
+	case FLASH_AM320B:	printf ("AM29LV320B (32 Mbit, bottom boot sect)\n");
 				break;
-	case FLASH_AM320T:	mon_printf ("AM29LV320T (32 Mbit, top boot sector)\n");
+	case FLASH_AM320T:	printf ("AM29LV320T (32 Mbit, top boot sector)\n");
 				break;
-	default:		mon_printf ("Unknown Chip Type\n");
+	default:		printf ("Unknown Chip Type\n");
 				break;
 	}
 
 	if (info->size % 0x100000 == 0) {
-		mon_printf ("  Size: %ld MB in %d Sectors\n",
+		printf ("  Size: %ld MB in %d Sectors\n",
 			info->size / 0x100000, info->sector_count);
 	} else if (info->size % 0x400 == 0) {
-		mon_printf ("  Size: %ld KB in %d Sectors\n",
+		printf ("  Size: %ld KB in %d Sectors\n",
 			info->size / 0x400, info->sector_count);
 	} else {
-		mon_printf ("  Size: %ld B in %d Sectors\n",
+		printf ("  Size: %ld B in %d Sectors\n",
 			info->size, info->sector_count);
 	}
 
-	mon_printf ("  Sector Start Addresses:");
+	printf ("  Sector Start Addresses:");
 	for (i=0; i<info->sector_count; ++i) {
 		if ((i % 5) == 0)
-			mon_printf ("\n   ");
-		mon_printf (" %08lX%s",
+			printf ("\n   ");
+		printf (" %08lX%s",
 			info->start[i],
 			info->protect[i] ? " (RO)" : "     "
 		);
 	}
-	mon_printf ("\n");
+	printf ("\n");
 }

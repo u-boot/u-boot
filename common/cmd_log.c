@@ -86,8 +86,7 @@ void logbuff_init_ptrs (void)
 	post_word = post_word_load();
 #ifdef CONFIG_POST
 	/* The post routines have setup the word so we can simply test it */
- 	if (((post_word & 0xffff) == POST_POWERON) ||
-	    ((post_word & 0xffff) == POST_SLOWTEST)) {
+ 	if (post_word_load () & POST_COLDBOOT) {
  		logged_chars = log_size = log_start = 0;
 		*ext_tag = LOGBUFF_MAGIC;
  	}

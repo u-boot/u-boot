@@ -329,7 +329,7 @@ after_reloc(ulong dest_addr)
 	}
 
 	/* now, jump to the main U-Boot board init code */
-	board_init_r (gd, dest_addr);
+	board_init_r ((gd_t *)gd, dest_addr);
 
 	/* NOTREACHED */
 }

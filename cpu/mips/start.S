@@ -291,6 +291,11 @@ reset:
 relocate_code:
 	move	sp, a0		/* Set new stack pointer		*/
 
+	li	t0, CFG_MONITOR_BASE
+	la	t3, in_ram
+	lw	t2, -12(t3)	/* t2 <-- uboot_end_data	*/
+	move	t1, a2
+
 	/*
 	 * Fix GOT pointer:
 	 *
@@ -300,11 +305,6 @@ relocate_code:
 	sub	gp, CFG_MONITOR_BASE
 	add	gp, a2			/* gp now adjusted		*/
 	sub	t6, gp, t6		/* t6 <-- relocation offset	*/
-
-	li	t0, CFG_MONITOR_BASE
-	la	t3, in_ram
-	lw	t2, -12(t3)	/* t2 <-- uboot_end_data	*/
-	move	t1, a2
 
 	/*
 	 * t0 = source address

@@ -1077,7 +1077,7 @@ static int key_pressed(void)
  * Returns 1 if keys pressed to start the power-on long-running tests
  * Called from board_init_f().
  */
-int post_hotkeys_pressed(gd_t *gd)
+int post_hotkeys_pressed(void)
 {
 	uchar kbd_data[KEYBD_DATALEN];
 	uchar val;

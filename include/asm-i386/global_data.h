@@ -45,6 +45,7 @@ typedef	struct {
 	unsigned long	bus_clk;
 	unsigned long	ram_size;	/* RAM size */
 	unsigned long	reset_status;	/* reset status register at boot */
+	void		**jt;		/* jump table */
 } gd_t;
 
 /*

@@ -84,6 +84,7 @@
 #define CFG_CMD_PING	0x0004000000000000U	/* ping support			*/
 #define CFG_CMD_MMC	0x0008000000000000U	/* MMC support			*/
 #define CFG_CMD_FAT	0x0010000000000000U	/* FAT support			*/
+#define CFG_CMD_IMLS	0x0020000000000000U	/* List all found images        */
 
 #define CFG_CMD_ALL	0xFFFFFFFFFFFFFFFFU	/* ALL commands			*/
 

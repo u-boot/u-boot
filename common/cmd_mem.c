@@ -53,6 +53,8 @@ int cmd_get_data_size(char* arg, int default_size)
 			return 2;
 		case 'l':
 			return 4;
+		default:
+			return -1;
 		}
 	}
 	return default_size;
@@ -86,9 +88,10 @@ static	ulong	base_address = 0;
 #define DISP_LINE_LEN	16
 int do_mem_md ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	ulong	addr, size, length;
+	ulong	addr, length;
 	ulong	i, nbytes, linebytes;
 	u_char	*cp;
+	int	size;
 	int rc = 0;
 
 	/* We use the last specified parameters, unless new ones are
@@ -107,7 +110,8 @@ int do_mem_md ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		/* New command specified.  Check for a size specification.
 		 * Defaults to long if no or incorrect specification.
 		 */
-		size = cmd_get_data_size(argv[0], 4);
+		if ((size = cmd_get_data_size(argv[0], 4)) < 0)
+			return 1;
 
 		/* Address is specified since argc > 1
 		*/
@@ -199,7 +203,8 @@ int do_mem_nm ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 int do_mem_mw ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	ulong	addr, size, writeval, count;
+	ulong	addr, writeval, count;
+	int	size;
 
 	if ((argc < 3) || (argc > 4)) {
 		printf ("Usage:\n%s\n", cmdtp->usage);
@@ -208,7 +213,8 @@ int do_mem_mw ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	/* Check for size specification.
 	*/
-	size = cmd_get_data_size(argv[0], 4);
+	if ((size = cmd_get_data_size(argv[0], 4)) < 1)
+		return 1;
 
 	/* Address is specified since argc > 1
 	*/
@@ -240,7 +246,8 @@ int do_mem_mw ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 int do_mem_cmp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	ulong	size, addr1, addr2, count, ngood;
+	ulong	addr1, addr2, count, ngood;
+	int	size;
 	int     rcode = 0;
 
 	if (argc != 4) {
@@ -250,7 +257,8 @@ int do_mem_cmp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	/* Check for size specification.
 	*/
-	size = cmd_get_data_size(argv[0], 4);
+	if ((size = cmd_get_data_size(argv[0], 4)) < 0)
+		return 1;
 
 	addr1 = simple_strtoul(argv[1], NULL, 16);
 	addr1 += base_address;
@@ -316,7 +324,8 @@ int do_mem_cmp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 int do_mem_cp ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	ulong	addr, size, dest, count;
+	ulong	addr, dest, count;
+	int	size;
 
 	if (argc != 4) {
 		printf ("Usage:\n%s\n", cmdtp->usage);
@@ -325,7 +334,8 @@ int do_mem_cp ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	/* Check for size specification.
 	*/
-	size = cmd_get_data_size(argv[0], 4);
+	if ((size = cmd_get_data_size(argv[0], 4)) < 0)
+		return 1;
 
 	addr = simple_strtoul(argv[1], NULL, 16);
 	addr += base_address;
@@ -458,7 +468,8 @@ int do_mem_base (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 int do_mem_loop (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	ulong	addr, size, length, i, junk;
+	ulong	addr, length, i, junk;
+	int	size;
 	volatile uint	*longp;
 	volatile ushort *shortp;
 	volatile u_char	*cp;
@@ -471,7 +482,8 @@ int do_mem_loop (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	/* Check for a size spefication.
 	 * Defaults to long if no or incorrect specification.
 	 */
-	size = cmd_get_data_size(argv[0], 4);
+	if ((size = cmd_get_data_size(argv[0], 4)) < 0)
+		return 1;
 
 	/* Address is always specified.
 	*/
@@ -839,8 +851,8 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 static int
 mod_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char *argv[])
 {
-	ulong	addr, size, i;
-	int	nbytes;
+	ulong	addr, i;
+	int	nbytes, size;
 	extern char console_buffer[];
 
 	if (argc != 2) {
@@ -861,7 +873,8 @@ mod_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char *argv[])
 		/* New command specified.  Check for a size specification.
 		 * Defaults to long if no or incorrect specification.
 		 */
-		size = cmd_get_data_size(argv[0], 4);
+		if ((size = cmd_get_data_size(argv[0], 4)) < 0)
+			return 1;
 
 		/* Address is specified since argc > 1
 		*/

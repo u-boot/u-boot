@@ -24,7 +24,7 @@
 #include <common.h>
 #include <commproc.h>
 #include <mpc8xx_irq.h>
-#include <syscall.h>
+#include <exports.h>
 
 #undef	DEBUG
 
@@ -123,10 +123,12 @@ int timer (int argc, char *argv[])
 	int c;
 	int running;
 
+	app_startup(argv);
+
 	/* Pointer to CPM Timer structure */
 	cpmtimerp = &((immap_t *) gd->bd->bi_immr_base)->im_cpmtimer;
 
-	mon_printf ("TIMERS=0x%x\n", (unsigned) cpmtimerp);
+	printf ("TIMERS=0x%x\n", (unsigned) cpmtimerp);
 
 	/* Initialize pointers depending on which timer we use */
 	switch (TID_TIMER_ID) {
@@ -166,7 +168,7 @@ int timer (int argc, char *argv[])
 
 	hwp->tgcrp = &cpmtimerp->cpmt_tgcr;
 
-	mon_printf ("Using timer %d\n"
+	printf ("Using timer %d\n"
 			"tgcr @ 0x%x, tmr @ 0x%x, trr @ 0x%x,"
 			" tcr @ 0x%x, tcn @ 0x%x, ter @ 0x%x\n",
 			TID_TIMER_ID + 1,
@@ -184,24 +186,24 @@ int timer (int argc, char *argv[])
 	/* clear all events */
 	*hwp->terp = (CPMT_EVENT_CAP | CPMT_EVENT_REF);
 
-	mon_printf (usage);
+	printf (usage);
 	running = 0;
-	while ((c = mon_getc()) != 'q') {
+	while ((c = getc()) != 'q') {
 	    if (c == 'b') {
 
 		setPeriod (hwp, TIMER_PERIOD);	/* Set period and start ticking */
 
 		/* Install interrupt handler (enable timer in CIMR) */
-		mon_install_hdlr (hwp->cpm_vec, timer_handler, hwp);
+		install_hdlr (hwp->cpm_vec, timer_handler, hwp);
 
-		mon_printf ("Enabling timer\n");
+		printf ("Enabling timer\n");
 
 		/* enable timer */
 		*hwp->tgcrp |= (CPMT_GCR_RST << TID_TIMER_ID);
 		running = 1;
 
 #ifdef	DEBUG
-		mon_printf ("tgcr=0x%x, tmr=0x%x, trr=0x%x,"
+		printf ("tgcr=0x%x, tmr=0x%x, trr=0x%x,"
 			" tcr=0x%x, tcn=0x%x, ter=0x%x\n",
 				*hwp->tgcrp, *hwp->tmrp, *hwp->trrp,
 				*hwp->tcrp,  *hwp->tcnp, *hwp->terp
@@ -209,20 +211,20 @@ int timer (int argc, char *argv[])
 #endif
 	    } else if (c == 'e') {
 
-		mon_printf ("Stopping timer\n");
+		printf ("Stopping timer\n");
 
 		*hwp->tgcrp &= ~(CPMT_GCR_MASK << TID_TIMER_ID);
 		running = 0;
 
 #ifdef	DEBUG
-		mon_printf ("tgcr=0x%x, tmr=0x%x, trr=0x%x,"
+		printf ("tgcr=0x%x, tmr=0x%x, trr=0x%x,"
 			" tcr=0x%x, tcn=0x%x, ter=0x%x\n",
 				*hwp->tgcrp, *hwp->tmrp, *hwp->trrp,
 				*hwp->tcrp,  *hwp->tcnp, *hwp->terp
 			);
 #endif
 		/* Uninstall interrupt handler */
-		mon_free_hdlr (hwp->cpm_vec);
+		free_hdlr (hwp->cpm_vec);
 
 	    } else if (c == '?') {
 #ifdef	DEBUG
@@ -230,13 +232,13 @@ int timer (int argc, char *argv[])
 		sysconf8xx_t *siup = &((immap_t *) gd->bd->bi_immr_base)->im_siu_conf;
 #endif
 
-		mon_printf ("\ntgcr=0x%x, tmr=0x%x, trr=0x%x,"
+		printf ("\ntgcr=0x%x, tmr=0x%x, trr=0x%x,"
 			" tcr=0x%x, tcn=0x%x, ter=0x%x\n",
 				*hwp->tgcrp, *hwp->tmrp, *hwp->trrp,
 				*hwp->tcrp,  *hwp->tcnp, *hwp->terp
 			);
 #ifdef	DEBUG
-		mon_printf ("SIUMCR=0x%08lx, SYPCR=0x%08lx,"
+		printf ("SIUMCR=0x%08lx, SYPCR=0x%08lx,"
 			" SIMASK=0x%08lx, SIPEND=0x%08lx\n",
 				siup->sc_siumcr,
 				siup->sc_sypcr,
@@ -244,21 +246,21 @@ int timer (int argc, char *argv[])
 				siup->sc_sipend
 			);
 
-		mon_printf ("CIMR=0x%08lx, CICR=0x%08lx, CIPR=0x%08lx\n",
+		printf ("CIMR=0x%08lx, CICR=0x%08lx, CIPR=0x%08lx\n",
 			cpm_icp->cpic_cimr,
 			cpm_icp->cpic_cicr,
 			cpm_icp->cpic_cipr
 			);
 #endif
 	    } else {
-	    	mon_printf ("\nEnter: q - quit, b - start timer, e - stop timer, ? - get status\n");
+	    	printf ("\nEnter: q - quit, b - start timer, e - stop timer, ? - get status\n");
 	    }
-	    mon_printf (usage);
+	    printf (usage);
 	}
 	if (running) {
-		mon_printf ("Stopping timer\n");
+		printf ("Stopping timer\n");
 		*hwp->tgcrp &= ~(CPMT_GCR_MASK << TID_TIMER_ID);
-		mon_free_hdlr (hwp->cpm_vec);
+		free_hdlr (hwp->cpm_vec);
 	}
 
 	return (0);
@@ -274,11 +276,11 @@ void setPeriod (tid_8xx_cpmtimer_t *hwp, ulong interval)
 	unsigned short prescaler;
 	unsigned long ticks;
 
-	mon_printf ("Set interval %ld us\n", interval);
+	printf ("Set interval %ld us\n", interval);
 
 	/* Warn if requesting longer period than possible */
 	if (interval > CPMT_MAX_INTERVAL) {
-		mon_printf ("Truncate interval %ld to maximum (%d)\n",
+		printf ("Truncate interval %ld to maximum (%d)\n",
 				interval, CPMT_MAX_INTERVAL);
 		interval = CPMT_MAX_INTERVAL;
 	}
@@ -303,7 +305,7 @@ void setPeriod (tid_8xx_cpmtimer_t *hwp, ulong interval)
 	}
 
 #ifdef	DEBUG
-	mon_printf ("clock/%d, prescale factor %d, reference %ld, ticks %ld\n",
+	printf ("clock/%d, prescale factor %d, reference %ld, ticks %ld\n",
 			(ticks > CPMT_MAX_TICKS) ? CPMT_CLOCK_DIV : 1,
 			CPMT_PRESCALER,
 			(ticks / CPMT_PRESCALER),
@@ -321,7 +323,7 @@ void setPeriod (tid_8xx_cpmtimer_t *hwp, ulong interval)
 	*hwp->trrp = (unsigned short) (ticks / CPMT_PRESCALER);
 
 #ifdef	DEBUG
-	mon_printf ("tgcr=0x%x, tmr=0x%x, trr=0x%x,"
+	printf ("tgcr=0x%x, tmr=0x%x, trr=0x%x,"
 		" tcr=0x%x, tcn=0x%x, ter=0x%x\n",
 			*hwp->tgcrp, *hwp->tmrp, *hwp->trrp,
 			*hwp->tcrp,  *hwp->tcnp, *hwp->terp
@@ -340,7 +342,7 @@ void timer_handler (void *arg)
 	/* printf ("** TER1=%04x ** ", *hwp->terp); */
 
 	/* just for demonstration */
-	mon_printf (".");
+	printf (".");
 
 	/* clear all possible events: Ref. and Cap. */
 	*hwp->terp = (CPMT_EVENT_CAP | CPMT_EVENT_REF);

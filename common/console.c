@@ -25,9 +25,7 @@
 #include <stdarg.h>
 #include <malloc.h>
 #include <console.h>
-#include <syscall.h>
-
-void **syscall_tbl;
+#include <exports.h>
 
 #ifdef CONFIG_AMIGAONEG3SE
 int console_changed = 0;
@@ -52,6 +50,7 @@ int overwrite_console (void)
 
 static int console_setfile (int file, device_t * dev)
 {
+	DECLARE_GLOBAL_DATA_PTR;
 	int error = 0;
 
 	if (dev == NULL)
@@ -78,13 +77,13 @@ static int console_setfile (int file, device_t * dev)
 		 */
 		switch (file) {
 		case stdin:
-			syscall_tbl[SYSCALL_GETC] = dev->getc;
-			syscall_tbl[SYSCALL_TSTC] = dev->tstc;
+			gd->jt[XF_getc] = dev->getc;
+			gd->jt[XF_tstc] = dev->tstc;
 			break;
 		case stdout:
-			syscall_tbl[SYSCALL_PUTC] = dev->putc;
-			syscall_tbl[SYSCALL_PUTS] = dev->puts;
-			syscall_tbl[SYSCALL_PRINTF] = printf;
+			gd->jt[XF_putc] = dev->putc;
+			gd->jt[XF_puts] = dev->puts;
+			gd->jt[XF_printf] = printf;
 			break;
 		}
 		break;
@@ -394,15 +393,16 @@ device_t *search_device (int flags, char *name)
 /* Called after the relocation - use desired console functions */
 int console_init_r (void)
 {
+	DECLARE_GLOBAL_DATA_PTR;
 	char *stdinname, *stdoutname, *stderrname;
 	device_t *inputdev = NULL, *outputdev = NULL, *errdev = NULL;
 
 	/* set default handlers at first */
-	syscall_tbl[SYSCALL_GETC] = serial_getc;
-	syscall_tbl[SYSCALL_TSTC] = serial_tstc;
-	syscall_tbl[SYSCALL_PUTC] = serial_putc;
-	syscall_tbl[SYSCALL_PUTS] = serial_puts;
-	syscall_tbl[SYSCALL_PRINTF] = serial_printf;
+	gd->jt[XF_getc] = serial_getc;
+	gd->jt[XF_tstc] = serial_tstc;
+	gd->jt[XF_putc] = serial_putc;
+	gd->jt[XF_puts] = serial_puts;
+	gd->jt[XF_printf] = serial_printf;
 
 	/* stdin stdout and stderr are in environment */
 	/* scan for it */

@@ -29,7 +29,6 @@
 #include <command.h>
 #include <malloc.h>
 #include <devices.h>
-#include <syscall.h>
 #include <version.h>
 #include <net.h>
 
@@ -212,7 +211,7 @@ void start_armboot (void)
 
 	/* Pointer is writable since we allocated a register for it */
 	gd = &gd_data;
-	memset (gd, 0, sizeof (gd_t));
+	memset ((void *)gd, 0, sizeof (gd_t));
 	gd->bd = &bd_data;
 	memset (gd->bd, 0, sizeof (bd_t));
 
@@ -287,10 +286,7 @@ void start_armboot (void)
 
 	devices_init ();      /* get the devices list going. */
 
-	/* Syscalls are not implemented for ARM. But allocating
-	 * this allows the console_init routines to work without #ifdefs
-	 */
-	syscall_tbl = (void **) malloc (NR_SYSCALLS * sizeof (void *));
+	jumptable_init ();
 
 	console_init_r ();	/* fully init console as a device */
 

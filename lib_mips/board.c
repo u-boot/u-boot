@@ -25,7 +25,6 @@
 #include <command.h>
 #include <malloc.h>
 #include <devices.h>
-#include <syscall.h>
 #include <version.h>
 #include <net.h>
 #include <environment.h>
@@ -189,7 +188,7 @@ void board_init_f(ulong bootflag)
 		/* Pointer is writable since we allocated a register for it.
 		 */
 	gd = &gd_data;
-	memset (gd, 0, sizeof (gd_t));
+	memset ((void *)gd, 0, sizeof (gd_t));
 
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
 		if ((*init_fnc_ptr)() != 0) {
@@ -278,7 +277,7 @@ void board_init_f(ulong bootflag)
 	bd->bi_memsize	= gd->ram_size;		/* size  of  DRAM memory in bytes */
 	bd->bi_baudrate	= gd->baudrate;		/* Console Baudrate */
 
-	memcpy (id, gd, sizeof (gd_t));
+	memcpy (id, (void *)gd, sizeof (gd_t));
 
 	/* On the purple board we copy the code in a special way
 	 * in order to solve flash problems
@@ -393,8 +392,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	/* Initialize devices */
 	devices_init ();
 
-	/* allocate syscalls table (console_init_r will fill it in */
-	syscall_tbl = (void **) malloc (NR_SYSCALLS * sizeof (void *));
+	jumptable_init ();
 
 	/* Initialize the console (after the relocation and devices init) */
 	console_init_r ();

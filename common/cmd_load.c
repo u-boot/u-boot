@@ -28,7 +28,7 @@
 #include <command.h>
 #include <s_record.h>
 #include <net.h>
-#include <syscall.h>
+#include <exports.h>
 
 
 #if (CONFIG_COMMANDS & CFG_CMD_LOADS)
@@ -213,6 +213,7 @@ load_serial (ulong offset)
 static int
 read_record (char *buf, ulong len)
 {
+	DECLARE_GLOBAL_DATA_PTR;
 	char *p;
 	char c;
 
@@ -236,13 +237,11 @@ read_record (char *buf, ulong len)
 		}
 
 	    /* Check for the console hangup (if any different from serial) */
-#ifdef CONFIG_PPC	/* we don't have syscall_tbl anywhere else */
-	    if (syscall_tbl[SYSCALL_GETC] != serial_getc) {
+	    if (gd->jt[XF_getc] != serial_getc) {
 		if (ctrlc()) {
 		    return (-1);
 		}
 	    }
-#endif
 	}
 
 	/* line too long - truncate */
@@ -479,7 +478,7 @@ int do_load_serial_bin (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	printf ("## Ready for binary (kermit) download "
 		"to 0x%08lX at %d bps...\n",
 		offset,
-		current_baudrate);
+		load_baudrate);
 	addr = load_serial_bin (offset);
 
 	if (addr == ~0) {

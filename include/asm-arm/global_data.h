@@ -51,6 +51,7 @@ typedef	struct	global_data {
 	unsigned long	ram_size;	/* RAM size */
 	unsigned long	reset_status;	/* reset status register at boot */
 #endif
+	void		**jt;		/* jump table */
 } gd_t;
 
 /*
@@ -59,6 +60,6 @@ typedef	struct	global_data {
 #define	GD_FLG_RELOC	0x00001		/* Code was relocated to RAM		*/
 #define	GD_FLG_DEVINIT	0x00002		/* Devices have been initialized	*/
 
-#define DECLARE_GLOBAL_DATA_PTR     register gd_t *gd asm ("r8")
+#define DECLARE_GLOBAL_DATA_PTR     register volatile gd_t *gd asm ("r8")
 
 #endif /* __ASM_GBL_DATA_H */

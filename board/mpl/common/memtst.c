@@ -494,7 +494,7 @@ void mem_test_reloc(void)
 }
 
 
-int mem_test (unsigned long start, unsigned long ramsize, int quiet, int reloc)
+int mem_test (unsigned long start, unsigned long ramsize, int quiet)
 {
 	unsigned long errors, stage;
 	unsigned long startaddr, size, i;

@@ -61,9 +61,9 @@
 /* ** BITMAP DISPLAY SUPPORT  -- should probably be moved elsewhere	*/
 /************************************************************************/
 
-#if (CONFIG_COMMANDS & CFG_CMD_BMP)
+#if (CONFIG_COMMANDS & CFG_CMD_BMP) || defined(CONFIG_SPLASH_SCREEN)
 #include <bmp_layout.h>
-#endif /* (CONFIG_COMMANDS & CFG_CMD_BMP) */
+#endif /* (CONFIG_COMMANDS & CFG_CMD_BMP) || CONFIG_SPLASH_SCREEN */
 
 /************************************************************************/
 /* ** FONT AND LOGO DATA						*/
@@ -1176,7 +1176,7 @@ static void bitmap_plot (int x, int y)
 }
 #endif /* CONFIG_LCD_LOGO */
 
-#if (CONFIG_COMMANDS & CFG_CMD_BMP)
+#if (CONFIG_COMMANDS & CFG_CMD_BMP) || defined(CONFIG_SPLASH_SCREEN)
 /*
  * Display the BMP file located at address bmp_image.
  * Only uncompressed
@@ -1273,7 +1273,7 @@ int lcd_display_bitmap(ulong bmp_image)
 
 	return (0);
 }
-#endif /* (CONFIG_COMMANDS & CFG_CMD_BMP) */
+#endif /* (CONFIG_COMMANDS & CFG_CMD_BMP) || CONFIG_SPLASH_SCREEN */
 
 /*----------------------------------------------------------------------*/
 

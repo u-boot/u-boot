@@ -31,9 +31,9 @@ SRC     = update.c flash.c flash_hw.c utils.c cmd_flash.c string.c ctype.c dummy
 ASRC    = ppcstring.S
 OBJS	= $(SRC:.c=.o) $(ASRC:.S=.o)
 
-LIB	= $(TOPDIR)/examples/libsyscall.a
-LIBAOBJS= $(TOPDIR)/examples/syscall.o
-LIBCOBJS=
+LIB	= $(TOPDIR)/examples/libstubs.a
+LIBAOBJS=
+LIBCOBJS= $(TOPDIR)/examples/stubs.o
 LIBOBJS	= $(LIBAOBJS) $(LIBCOBJS)
 
 CPPFLAGS += -I$(TOPDIR) -I$(TOPDIR)/board/MAI/AmigaOneG3SE

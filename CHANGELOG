@@ -2,6 +2,35 @@
 Changes for U-Boot 0.4.5:
 ======================================================================
 
+* Implement new mechanism to export U-Boot's functions to standalone
+  applications: instead of using (PPC-specific) system calls we now
+  use a jump table; please see doc/README.standalone for details
+
+* Patch by Dave Westwood, 24 Jul 2003:
+  added support for Unity OS (a proprietary OS)
+
+* Patch by Detlev Zundel, 23 Jul 2003:
+  add "imls" command to print flash table of contents
+
+* Fix cold boot detection for log buffer reset
+
+* Return error for invalid length specifiers with "cp.X" etc.
+
+* Fix startup problem on MIPS
+
+* Allow for CONFIG_SPLASH_SCREEN even when no explicit
+  bitmap support is configured
+
+* Patch by Bill Hargen, 18 Jul 2003:
+  - fix endinaness problem in cpu/mpc824x/drivers/i2c/i2c1.c
+
+* Patch by Denis Peter, 18 Jul 2003:
+  - fix memory configuration for MIP405T
+  - fix printout of baudrate for "loadb <loadaddr> <baudrate>"
+
+* Cleanup of TQM82xx configurations; use "official" board types
+  to make selection easier.
+
 * Patch by Martin Krause, 17 Jul 2003:
   add delay to get I2C working with "imm" command and s3c24x0_i2c.c
 

@@ -1197,13 +1197,16 @@ int i2c_write (uchar chip, uint addr, int alen, uchar * buffer, int len)
 	uchar *p;
 	int i;
 
-	p = dummy_buffer;
 	/* fill in address in big endian order */
-	for (i=0; i<alen; ++i)
-		*p++ = (addr >> (i * 8)) & 0xFF;
+	for (i=alen-1; i>=0; --i) {
+		buffer[i] = addr & 0xFF;
+		addr >>= 8;
+	}
 	/* fill in data */
+	p = dummy_buffer + alen;
+
 	for (i=0; i<len; ++i)
-		*p++ = *buffer;
+		*p++ = *buffer++;
 
 	status = I2C_do_buffer (0, I2C_MASTER_XMIT, chip, alen + len,
 				dummy_buffer, I2C_STOP, 1, I2C_NO_RESTART);

@@ -662,32 +662,48 @@ sbc8260_config:	unconfig
 SCM_config:		unconfig
 	@./mkconfig $(@:_config=) ppc mpc8260 SCM siemens
 
-TQM8255_config	\
-TQM8260_config	\
-TQM8260_L2_config	\
-TQM8255_266MHz_config	\
-TQM8260_266MHz_config	\
-TQM8260_L2_266MHz_config \
-TQM8255_300MHz_config	\
-TQM8260_300MHz_config:	unconfig
-	@ >include/config.h
-	@if [ "$(findstring _L2_,$@)" ] ; then \
+TQM8255_AA_config \
+TQM8260_AA_config \
+TQM8260_AB_config \
+TQM8260_AC_config \
+TQM8260_AD_config \
+TQM8260_AE_config \
+TQM8260_AF_config \
+TQM8260_AG_config \
+TQM8260_AH_config \
+TQM8265_AA_config:  unconfig
+	@case "$@" in \
+	TQM8255_AA_config) CTYPE=MPC8255; CFREQ=300; CACHE=no;  BMODE=8260;;  \
+	TQM8260_AA_config) CTYPE=MPC8260; CFREQ=200; CACHE=no;  BMODE=8260;; \
+	TQM8260_AB_config) CTYPE=MPC8260; CFREQ=200; CACHE=yes; BMODE=60x;;  \
+	TQM8260_AC_config) CTYPE=MPC8260; CFREQ=200; CACHE=yes; BMODE=60x;;  \
+	TQM8260_AD_config) CTYPE=MPC8260; CFREQ=300; CACHE=no;  BMODE=60x;;  \
+	TQM8260_AE_config) CTYPE=MPC8260; CFREQ=266; CACHE=no;  BMODE=8260;; \
+	TQM8260_AF_config) CTYPE=MPC8260; CFREQ=300; CACHE=no;  BMODE=60x;;  \
+	TQM8260_AG_config) CTYPE=MPC8260; CFREQ=300; CACHE=no;  BMODE=8260;; \
+	TQM8260_AH_config) CTYPE=MPC8260; CFREQ=300; CACHE=yes; BMODE=60x;;  \
+	TQM8265_AA_config) CTYPE=MPC8265; CFREQ=300; CACHE=no;  BMODE=60x;;  \
+	esac; \
+	>include/config.h ; \
+	if [ "$${CTYPE}" != "MPC8260" ] ; then \
+		echo "#define CONFIG_$${CTYPE}"	>>include/config.h ; \
+	fi; \
+	echo "#define CONFIG_$${CFREQ}MHz"	>>include/config.h ; \
+	echo "... with $${CFREQ}MHz system clock" ; \
+	if [ "$${CACHE}" == "yes" ] ; then \
 		echo "#define CONFIG_L2_CACHE"	>>include/config.h ; \
-		echo "... with L2 Cache support (60x Bus Mode)" ; \
+		echo "... with L2 Cache support" ; \
 	else \
 		echo "#undef CONFIG_L2_CACHE"	>>include/config.h ; \
 		echo "... without L2 Cache support" ; \
+	fi; \
+	if [ "$${BMODE}" == "60x" ] ; then \
+		echo "#define CONFIG_BUSMODE_60x" >>include/config.h ; \
+		echo "... with 60x Bus Mode" ; \
+	else \
+		echo "#undef CONFIG_BUSMODE_60x"  >>include/config.h ; \
+		echo "... without 60x Bus Mode" ; \
 	fi
-	@[ -z "$(findstring _266MHz,$@)" ] || \
-		{ echo "#define CONFIG_266MHz"	>>include/config.h ; \
-		  echo "... with 266MHz system clock" ; \
-		}
-	@[ -z "$(findstring _300MHz,$@)" ] || \
-		{ echo "#define CONFIG_300MHz"	>>include/config.h ; \
-		  echo "... with 300MHz system clock" ; \
-		}
-	@[ -z "$(findstring TQM8255_,$@)" ] || \
-		{ echo "#define CONFIG_MPC8255"	>>include/config.h ; }
 	@./mkconfig -a TQM8260 ppc mpc8260 tqm8260
 
 atc_config:	unconfig

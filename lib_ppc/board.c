@@ -26,7 +26,6 @@
 #include <command.h>
 #include <malloc.h>
 #include <devices.h>
-#include <syscall.h>
 #ifdef CONFIG_8xx
 #include <mpc8xx.h>
 #endif
@@ -154,37 +153,6 @@ char *strmhz (char *buf, long hz)
 	if (m != 0)
 		sprintf (buf + l, ".%03ld", m);
 	return (buf);
-}
-
-static void syscalls_init (void)
-{
-	ulong *addr;
-
-	syscall_tbl[SYSCALL_MALLOC] = (void *) malloc;
-	syscall_tbl[SYSCALL_FREE] = (void *) free;
-
-	syscall_tbl[SYSCALL_INSTALL_HDLR] = (void *) irq_install_handler;
-	syscall_tbl[SYSCALL_FREE_HDLR] = (void *) irq_free_handler;
-	syscall_tbl[SYSCALL_GET_TIMER] = (void *)get_timer;
-	syscall_tbl[SYSCALL_UDELAY] = (void *)udelay;
-
-	addr = (ulong *) 0xc00;		/* syscall ISR addr */
-
-	/* patch ISR code */
-	*addr++ |= (ulong) syscall_tbl >> 16;
-	*addr++ |= (ulong) syscall_tbl & 0xFFFF;
-	*addr++ |= NR_SYSCALLS >> 16;
-	*addr++ |= NR_SYSCALLS & 0xFFFF;
-
-#ifndef CONFIG_5XX
-	flush_cache (0x0C00, 0x10);
-#endif
-	/* Initialize syscalls stack pointer                                 */
-	addr = (ulong *) 0xCFC;
-	*addr = (ulong)addr;
-#ifndef CONFIG_5xx
-	flush_cache ((ulong)addr, 0x10);
-#endif
 }
 
 /*
@@ -543,7 +511,7 @@ void board_init_f (ulong bootflag)
 
 	WATCHDOG_RESET();
 
-	memcpy (id, gd, sizeof (gd_t));
+	memcpy (id, (void *)gd, sizeof (gd_t));
 
 	relocate_code (addr_sp, id, addr);
 
@@ -798,13 +766,11 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	/* Initialize devices */
 	devices_init ();
 
-	/* allocate syscalls table (console_init_r will fill it in */
-	syscall_tbl = (void **) malloc (NR_SYSCALLS * sizeof (void *));
+	/* Initialize the jump table for applications */
+	jumptable_init ();
 
 	/* Initialize the console (after the relocation and devices init) */
 	console_init_r ();
-/** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** **/
-	syscalls_init ();
 
 #if defined(CONFIG_CCM)		|| \
     defined(CONFIG_COGENT)	|| \

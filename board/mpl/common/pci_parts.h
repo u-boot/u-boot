@@ -110,7 +110,7 @@ static struct pci_pip405_config_entry piix4_ide_cntrl_f1[] = {
 #if !defined(CONFIG_MIP405T)
 	{PCI_CFG_PIIX4_IDETIM,	0x80008000,	4}, /* enable Both IDE channels	*/
 #else
-	{PCI_CFG_PIIX4_IDETIM,	0x80000000,	4}, /* enable IDE channel0	*/
+	{PCI_CFG_PIIX4_IDETIM,	0x00008000,	4}, /* enable IDE channel0	*/
 #endif
 	{ }					    /* end of device table 	*/
 };

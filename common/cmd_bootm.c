@@ -80,6 +80,13 @@ static void zfree(void *, void *, unsigned);
 #if (CONFIG_COMMANDS & CFG_CMD_IMI)
 static int image_info (unsigned long addr);
 #endif
+
+#if (CONFIG_COMMANDS & CFG_CMD_IMLS)
+#include <flash.h>
+extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
+static int do_imls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+#endif
+
 static void print_type (image_header_t *hdr);
 
 #ifdef __I386__
@@ -960,6 +967,56 @@ U_BOOT_CMD(
 );
 
 #endif	/* CFG_CMD_IMI */
+
+#if (CONFIG_COMMANDS & CFG_CMD_IMLS)
+/*-----------------------------------------------------------------------
+ * List all images found in flash.
+ */
+int do_imls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	flash_info_t *info;
+	int i, j;
+	image_header_t *hdr;
+	ulong checksum;
+
+	for (i=0, info=&flash_info[0]; i<CFG_MAX_FLASH_BANKS; ++i, ++info) {
+		if (info->flash_id == FLASH_UNKNOWN)
+			goto next_bank;
+		for (j=0; j<CFG_MAX_FLASH_SECT; ++j) {
+
+			if (!(hdr=(image_header_t *)info->start[j]) ||
+			    (ntohl(hdr->ih_magic) != IH_MAGIC))
+				goto next_sector;
+
+			/* Copy header so we can blank CRC field for re-calculation */
+			memmove (&header, (char *)hdr, sizeof(image_header_t));
+
+			checksum = ntohl(header.ih_hcrc);
+			header.ih_hcrc = 0;
+
+			if (crc32 (0, (char *)&header, sizeof(image_header_t))
+			    != checksum)
+				goto next_sector;
+
+			printf ("Image at %08lX:\n", (ulong)hdr);
+			print_image_hdr( hdr );
+			putc ('\n');
+		next_sector:
+		}
+	next_bank:
+	}
+
+	return (0);
+}
+
+U_BOOT_CMD(
+	imls,	1,		1,	do_imls,
+	"imls    - list all images found in flash\n",
+	"\n"
+	"    - Prints information about all images found at sector\n"
+	"      boundaries in flash.\n"
+);
+#endif	/* CFG_CMD_IMLS */
 
 void
 print_image_hdr (image_header_t *hdr)

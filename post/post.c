@@ -64,18 +64,27 @@ void post_bootmode_init (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 	int bootmode = post_bootmode_get (0);
-
-	if (post_hotkeys_pressed(gd) && !(bootmode & POST_POWERTEST)) {
-		bootmode = POST_SLOWTEST;
+	int newword;
+	
+	if (post_hotkeys_pressed() && !(bootmode & POST_POWERTEST)) {
+		newword = BOOTMODE_MAGIC | POST_SLOWTEST;
 	} else if (bootmode == 0) {
-		bootmode = POST_POWERON;
+		newword = BOOTMODE_MAGIC | POST_POWERON;
 	} else if (bootmode == POST_POWERON || bootmode == POST_SLOWTEST) {
-		bootmode = POST_NORMAL;
+		newword = BOOTMODE_MAGIC | POST_NORMAL;
 	} else {
-		return;
+		/* Use old value */
+		newword = post_word_load () & ~POST_COLDBOOT;
 	}
 
-	post_word_store (BOOTMODE_MAGIC | bootmode);
+	if (bootmode == 0)
+	{
+		/* We are booting after power-on */
+		newword |= POST_COLDBOOT;
+	}
+
+	post_word_store (newword);
+
 	/* Reset activity record */
 	gd->post_log_word = 0;
 }
@@ -89,7 +98,7 @@ int post_bootmode_get (unsigned int *last_test)
 		return 0;
 	}
 
-	bootmode = word & 0xFF;
+	bootmode = word & 0x7F;
 
 	if (last_test && (bootmode & POST_POWERTEST)) {
 		*last_test = (word >> 8) & 0xFF;

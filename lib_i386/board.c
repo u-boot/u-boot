@@ -34,7 +34,6 @@
 #include <devices.h>
 #include <version.h>
 #include <malloc.h>
-#include <syscall.h>
 #include <net.h>
 #include <ide.h>
 #include <asm/u-boot-i386.h>
@@ -129,16 +128,6 @@ char *strmhz (char *buf, long hz)
  * or dropped completely,
  * but let's get it working (again) first...
  */
-static void syscalls_init (void)
-{
-	syscall_tbl[SYSCALL_MALLOC] = (void *) malloc;
-	syscall_tbl[SYSCALL_FREE] = (void *) free;
-
-	syscall_tbl[SYSCALL_INSTALL_HDLR] = (void *) irq_install_handler;
-	syscall_tbl[SYSCALL_FREE_HDLR] = (void *) irq_free_handler;
-
-}
-
 static int init_baudrate (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
@@ -316,13 +305,10 @@ void start_i386boot (void)
 
 	devices_init ();
 
-	/* allocate syscalls table (console_init_r will fill it in */
-	syscall_tbl = (void **) malloc (NR_SYSCALLS * sizeof (void *));
-	memset(syscall_tbl, 0, NR_SYSCALLS * sizeof (void *));
+	jumptable_init ();
 
 	/* Initialize the console (after the relocation and devices init) */
 	console_init_r();
-	syscalls_init();
 
 #ifdef CONFIG_MISC_INIT_R
 	/* miscellaneous platform dependent initialisations */

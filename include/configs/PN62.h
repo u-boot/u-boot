@@ -42,10 +42,11 @@
 #define CONFIG_CONS_INDEX	1
 
 
-#define REMOVE_COMMANDS         ( CFG_CMD_AUTOSCRIPT | \
- 				  CFG_CMD_LOADS | \
- 				  CFG_CMD_ENV | \
- 				  CFG_CMD_FLASH )
+#define REMOVE_COMMANDS         ( CFG_CMD_AUTOSCRIPT	| \
+ 				  CFG_CMD_LOADS		| \
+ 				  CFG_CMD_ENV		| \
+ 				  CFG_CMD_FLASH		| \
+				  CFG_CMD_IMLS		)
 
 #define CONFIG_COMMANDS		( (CONFIG_CMD_DFL & ~REMOVE_COMMANDS) |\
 				  CFG_CMD_PCI |\

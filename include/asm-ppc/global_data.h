@@ -88,6 +88,7 @@ typedef	struct	global_data {
 #ifdef CONFIG_LWMON
 	unsigned long kbd_status;
 #endif
+	void		**jt;		/* jump table */
 } gd_t;
 
 /*
@@ -97,7 +98,7 @@ typedef	struct	global_data {
 #define	GD_FLG_DEVINIT	0x00002		/* Devices have been initialized	*/
 
 #if 1
-#define DECLARE_GLOBAL_DATA_PTR     register gd_t *gd asm ("r29")
+#define DECLARE_GLOBAL_DATA_PTR     register volatile gd_t *gd asm ("r29")
 #else /* We could use plain global data, but the resulting code is bigger */
 #define XTRN_DECLARE_GLOBAL_DATA_PTR	extern
 #define DECLARE_GLOBAL_DATA_PTR     XTRN_DECLARE_GLOBAL_DATA_PTR \

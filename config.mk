@@ -112,8 +112,8 @@ gccincdir := $(shell $(CC) -print-file-name=include)
 CPPFLAGS := $(DBGFLAGS) $(OPTFLAGS) $(RELFLAGS)		\
 	-D__KERNEL__ -DTEXT_BASE=$(TEXT_BASE)		\
 	-I$(TOPDIR)/include				\
-	-fno-builtin -nostdinc -isystem $(gccincdir)	\
-	-pipe $(PLATFORM_CPPFLAGS)
+	-fno-builtin -ffreestanding -nostdinc -isystem	\
+	$(gccincdir) -pipe $(PLATFORM_CPPFLAGS)
 
 ifdef BUILD_TAG
 CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes \

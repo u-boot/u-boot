@@ -16,7 +16,7 @@
  */
 
 #include <common.h>
-#include <syscall.h>
+#include <exports.h>
 
 /*
  * Author: Arun Dharankar <ADharankar@ATTBI.Com>
@@ -76,9 +76,9 @@ static uchar dbg = 0;
 
 #define PDEBUG(fmt, args...)	 {					\
 	if(dbg != 0) {							\
-		mon_printf("[%s %d %s]: ",__FILE__,__LINE__,__FUNCTION__);\
-		mon_printf(fmt, ##args);				\
-		mon_printf("\n");					\
+		printf("[%s %d %s]: ",__FILE__,__LINE__,__FUNCTION__);\
+		printf(fmt, ##args);				\
+		printf("\n");					\
 	}								\
 }
 
@@ -97,11 +97,13 @@ static int thread_stop (int id);
 /* An example of schedular test */
 
 #define NUMTHREADS 7
-int sched (bd_t * bd, int ac, char *av[])
+int sched (int ac, char *av[])
 {
 	int i, j;
 	int tid[NUMTHREADS];
 	int names[NUMTHREADS];
+
+	app_startup(av);
 
 	sched_init ();
 
@@ -109,29 +111,29 @@ int sched (bd_t * bd, int ac, char *av[])
 		names[i] = i;
 		j = thread_create (testthread, (void *) &names[i]);
 		if (j == RC_FAILURE)
-			mon_printf ("schedtest: Failed to create thread %d\n", i);
+			printf ("schedtest: Failed to create thread %d\n", i);
 		if (j > 0) {
-			mon_printf ("schedtest: Created thread with id %d, name %d\n",
+			printf ("schedtest: Created thread with id %d, name %d\n",
 						j, i);
 			tid[i] = j;
 		}
 	}
-	mon_printf ("schedtest: Threads created\n");
+	printf ("schedtest: Threads created\n");
 
-	mon_printf ("sched_test: function=0x%08x\n", testthread);
+	printf ("sched_test: function=0x%08x\n", (unsigned)testthread);
 	for (i = 0; i < NUMTHREADS; i++) {
-		mon_printf ("schedtest: Setting thread %d runnable\n", tid[i]);
+		printf ("schedtest: Setting thread %d runnable\n", tid[i]);
 		thread_start (tid[i]);
 		thread_yield ();
 	}
-	mon_printf ("schedtest: Started %d threads\n", NUMTHREADS);
+	printf ("schedtest: Started %d threads\n", NUMTHREADS);
 
 	while (1) {
-		mon_printf ("schedtest: Waiting for threads to complete\n");
-		if (mon_tstc () && mon_getc () == 0x3) {
-			mon_printf ("schedtest: Aborting threads...\n");
+		printf ("schedtest: Waiting for threads to complete\n");
+		if (tstc () && getc () == 0x3) {
+			printf ("schedtest: Aborting threads...\n");
 			for (i = 0; i < NUMTHREADS; i++) {
-				mon_printf ("schedtest: Deleting thread %d\n", tid[i]);
+				printf ("schedtest: Deleting thread %d\n", tid[i]);
 				thread_delete (tid[i]);
 			}
 			return RC_SUCCESS;
@@ -139,11 +141,11 @@ int sched (bd_t * bd, int ac, char *av[])
 		j = -1;
 		i = thread_join (&j);
 		if (i == RC_FAILURE) {
-			mon_printf ("schedtest: No threads pending, "
+			printf ("schedtest: No threads pending, "
 						"exiting schedular test\n");
 			return RC_SUCCESS;
 		}
-		mon_printf ("schedtest: thread is %d returned %d\n", i, j);
+		printf ("schedtest: thread is %d returned %d\n", i, j);
 		thread_yield ();
 	}
 
@@ -154,14 +156,14 @@ static int testthread (void *name)
 {
 	int i;
 
-	mon_printf ("testthread: Begin executing thread, myname %d, &i=0x%08x\n",
-			 *(int *) name, &i);
+	printf ("testthread: Begin executing thread, myname %d, &i=0x%08x\n",
+		*(int *) name, (unsigned)&i);
 
-	mon_printf ("Thread %02d, i=%d\n", *(int *) name);
+	printf ("Thread %02d, i=%d\n", *(int *) name, i);
 
 	for (i = 0; i < 0xffff * (*(int *) name + 1); i++) {
-		if (mon_tstc () && mon_getc () == 0x3) {
-			mon_printf ("testthread: myname %d terminating.\n",
+		if (tstc () && getc () == 0x3) {
+			printf ("testthread: myname %d terminating.\n",
 						*(int *) name);
 			return *(int *) name + 1;
 		}
@@ -170,7 +172,7 @@ static int testthread (void *name)
 			thread_yield ();
 	}
 
-	mon_printf ("testthread: returning %d, i=0x%x\n",
+	printf ("testthread: returning %d, i=0x%x\n",
 				*(int *) name + 1, i);
 
 	return *(int *) name + 1;
@@ -187,7 +189,7 @@ static void sched_init (void)
 	current_tid = MASTER_THREAD;
 	lthreads[current_tid].state = STATE_RUNNABLE;
 	PDEBUG ("sched_init: master context = 0x%08x",
-		   lthreads[current_tid].context);
+		(unsigned)lthreads[current_tid].context);
 	return;
 }
 
@@ -200,7 +202,8 @@ static void thread_yield (void)
 #define SWITCH(new) 							\
 	if(lthreads[new].state == STATE_RUNNABLE) {			\
 		PDEBUG("thread_yield: %d match, ctx=0x%08x",		\
-			new, lthreads[current_tid].context); 		\
+			new,						\
+			(unsigned)lthreads[current_tid].context);	\
 		if(setjmp(lthreads[current_tid].context) == 0) {	\
 			current_tid = new;				\
 			PDEBUG("thread_yield: tid %d returns 0",	\
@@ -260,7 +263,7 @@ static int thread_delete (int id)
 static void thread_launcher (void)
 {
 	PDEBUG ("thread_launcher: invoking func=0x%08x",
-		   lthreads[current_tid].func);
+		   (unsigned)lthreads[current_tid].func);
 
 	lthreads[current_tid].retval =
 			lthreads[current_tid].func (lthreads[current_tid].arg);
@@ -269,7 +272,7 @@ static void thread_launcher (void)
 
 	lthreads[current_tid].state = STATE_TERMINATED;
 	thread_yield ();
-	mon_printf ("thread_launcher: should NEVER get here!\n");
+	printf ("thread_launcher: should NEVER get here!\n");
 
 	return;
 }
@@ -287,7 +290,8 @@ static int thread_start (int id)
 	if (setjmp (lthreads[current_tid].context) == 0) {
 		lthreads[id].state = STATE_RUNNABLE;
 		current_tid = id;
-		PDEBUG ("thread_start: to be stack=0%08x", lthreads[id].stack);
+		PDEBUG ("thread_start: to be stack=0%08x",
+			(unsigned)lthreads[id].stack);
 		setctxsp (&lthreads[id].stack[STK_SIZE]);
 		thread_launcher ();
 	}
@@ -297,7 +301,7 @@ static int thread_start (int id)
 	return RC_SUCCESS;
 }
 
-#if 0							/* not used so far */
+#if 0	/* not used so far */
 static int thread_stop (int id)
 {
 	if (id <= MASTER_THREAD || id >= MAX_THREADS)
@@ -309,7 +313,7 @@ static int thread_stop (int id)
 	lthreads[id].state = STATE_STOPPED;
 	return RC_SUCCESS;
 }
-#endif							/* not used so far */
+#endif	/* not used so far */
 
 static int thread_join (int *ret)
 {

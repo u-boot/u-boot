@@ -27,13 +27,15 @@
 #include <common.h>
 #include <command.h>
 #include <net.h>
-#include <syscall.h>
 
 
 /* -------------------------------------------------------------------- */
 
 int do_go (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
+#if defined(CONFIG_I386)
+	DECLARE_GLOBAL_DATA_PTR;
+#endif
 	ulong	addr, rc;
 	int     rcode = 0;
 
@@ -50,6 +52,13 @@ int do_go (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	 * pass address parameter as argv[0] (aka command name),
 	 * and all remaining args
 	 */
+#if defined(CONFIG_I386)
+	/*
+	 * x86 does not use a dedicated register to pass the pointer
+	 * to the global_data
+	 */
+	argv[0] = (char *)gd;
+#endif
 	rc = ((ulong (*)(int, char *[]))addr) (--argc, &argv[1]);
 	if (rc != 0) rcode = 1;
 

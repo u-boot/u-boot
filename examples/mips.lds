@@ -1,6 +1,6 @@
 /*
- * (C) Copyright 2000
- * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ * (C) Copyright 2003
+ * Wolfgang Denk Engineering, <wd@denx.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -21,34 +21,36 @@
  * MA 02111-1307 USA
  */
 
-#include <common.h>
-#include <exports.h>
-
-int hello_world (int argc, char *argv[])
+/*
+OUTPUT_FORMAT("elf32-bigmips", "elf32-bigmips", "elf32-bigmips")
+*/
+OUTPUT_FORMAT("elf32-tradbigmips", "elf32-tradbigmips", "elf32-tradbigmips")
+OUTPUT_ARCH(mips)
+SECTIONS
 {
-	int i;
-
-	/* Print the ABI version */
-	app_startup(argv);
-	printf ("Example expects ABI version %d\n", XF_VERSION);
-	printf ("Actual U-Boot ABI version %d\n", (int)get_version());
-
-	printf ("Hello World\n");
-
-	printf ("argc = %d\n", argc);
-
-	for (i=0; i<=argc; ++i) {
-		printf ("argv[%d] = \"%s\"\n",
-			i,
-			argv[i] ? argv[i] : "<NULL>");
+	.text       :
+	{
+	  *(.text)
 	}
 
-	printf ("Hit any key to exit ... ");
-	while (!tstc())
-		;
-	/* consume input */
-	(void) getc();
+	. = ALIGN(4);
+	.rodata  : { *(.rodata) }
 
-	printf ("\n\n");
-	return (0);
+	. = ALIGN(4);
+	.data  : { *(.data) }
+
+	. = ALIGN(4);
+	.sdata  : { *(.sdata) }
+
+	_gp = ALIGN(16);
+
+	__got_start = .;
+	.got  : { *(.got) }
+	__got_end = .;
+
+	.sdata  : { *(.sdata) }
+
+	. = ALIGN(4);
+	.sbss  : { *(.sbss) }
+	.bss  : { *(.bss) }
 }
