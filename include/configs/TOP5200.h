@@ -41,7 +41,7 @@
  * (easy to change)
  */
 
-#define CONFIG_MPC5XXX		1	/* This is an MPC5xxx CPU */
+#define CONFIG_MPC5xxx		1	/* This is an MPC5xxx CPU */
 #define CONFIG_MPC5200		1	/* More exactly a MPC5200 */
 #define CONFIG_TOP5200		1	/* ... on TOP5200 board - we need this for FEC.C */
 
@@ -281,7 +281,7 @@
 /*
  * Ethernet configuration
  */
-#define CONFIG_MPC5XXX_FEC	1
+#define CONFIG_MPC5xxx_FEC	1
 #define CONFIG_FEC_10MBIT	1		/* Workaround for FEC 100Mbit problem */
 #define	CONFIG_PHY_ADDR		0x1f
 #define	CONFIG_PHY_TYPE		0x79c874

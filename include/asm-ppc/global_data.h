@@ -46,7 +46,7 @@ typedef	struct	global_data {
 	unsigned long	scc_clk;
 	unsigned long	brg_clk;
 #endif
-#if defined(CONFIG_MPC5XXX)
+#if defined(CONFIG_MPC5xxx)
 	unsigned long	ipb_clk;
 	unsigned long	pci_clk;
 #endif

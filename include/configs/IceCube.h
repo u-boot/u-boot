@@ -29,7 +29,7 @@
  * (easy to change)
  */
 
-#define CONFIG_MPC5XXX		1	/* This is an MPC5xxx CPU */
+#define CONFIG_MPC5xxx		1	/* This is an MPC5xxx CPU */
 #define CONFIG_ICECUBE		1	/* ... on IceCube board */
 
 #define CFG_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz */
@@ -213,7 +213,7 @@
 /*
  * Ethernet configuration
  */
-#define CONFIG_MPC5XXX_FEC	1
+#define CONFIG_MPC5xxx_FEC	1
 #define CONFIG_FEC_10MBIT 1 /* Workaround for FEC 100Mbit problem */
 #define CONFIG_PHY_ADDR		0x00
 

@@ -2,6 +2,9 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
+* Patch by Masami Komiy, 22 Feb 2004:
+  Add support for NFS for file download
+
 * Patch by Andrea Scian, 17 Feb 2004:
   Add support for S3C44B0 processor and DAVE B2 board
 

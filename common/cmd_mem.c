@@ -38,6 +38,7 @@
 
 #if (CONFIG_COMMANDS & (CFG_CMD_MEMORY	| \
 			CFG_CMD_I2C	| \
+			CFG_CMD_ITEST	| \
 			CFG_CMD_PCI	| \
 			CMD_CMD_PORTIO	) )
 int cmd_get_data_size(char* arg, int default_size)

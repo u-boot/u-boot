@@ -55,6 +55,15 @@
  *			  derived from our own IP address)
  *	We want:	- load the boot file
  *	Next step:	none
+ *
+ * NFS:
+ *
+ *	Prerequisites:	- own ethernet address
+ *			- own IP address
+ *			- name of bootfile (if unknown, we use a default name
+ *			  derived from our own IP address)
+ *	We want:	- load the boot file
+ *	Next step:	none
  */
 
 
@@ -65,6 +74,7 @@
 #include "bootp.h"
 #include "tftp.h"
 #include "rarp.h"
+#include "nfs.h"
 #ifdef CONFIG_STATUS_LED
 #include <status_led.h>
 #include <miiphy.h>
@@ -278,6 +288,9 @@ restart:
 	 */
 
 	switch (protocol) {
+#if (CONFIG_COMMANDS & CFG_CMD_NFS)
+	case NFS:
+#endif
 #if (CONFIG_COMMANDS & CFG_CMD_PING)
 	case PING:
 #endif
@@ -287,6 +300,9 @@ restart:
 		NetOurSubnetMask= getenv_IPaddr ("netmask");
 
 		switch (protocol) {
+#if (CONFIG_COMMANDS & CFG_CMD_NFS)
+		case NFS:
+#endif
 		case TFTP:
 			NetServerIP = getenv_IPaddr ("serverip");
 			break;
@@ -355,6 +371,11 @@ restart:
 #if (CONFIG_COMMANDS & CFG_CMD_PING)
 		case PING:
 			PingStart();
+			break;
+#endif
+#if (CONFIG_COMMANDS & CFG_CMD_NFS)
+		case NFS:
+			NfsStart();
 			break;
 #endif
 		default:
@@ -918,6 +939,9 @@ static int net_check_prereq (proto_t protocol)
 				return (1);
 			}
 			goto common;
+#endif
+#if (CONFIG_COMMANDS & CFG_CMD_NFS)
+	case NFS:
 #endif
 	case TFTP:
 			if (NetServerIP == 0) {

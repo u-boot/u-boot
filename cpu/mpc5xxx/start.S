@@ -29,7 +29,7 @@
 #include <mpc5xxx.h>
 #include <version.h>
 
-#define CONFIG_MPC5XXX 1	/* needed for Linux kernel header files */
+#define CONFIG_MPC5xxx 1	/* needed for Linux kernel header files */
 #define _LINUX_CONFIG_H 1	/* avoid reading Linux autoconf.h file	*/
 
 #include <ppc_asm.tmpl>

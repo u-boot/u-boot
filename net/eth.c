@@ -155,7 +155,7 @@ int eth_initialize(bd_t *bis)
 #if defined(FEC_ENET) || defined(CONFIG_ETHER_ON_FCC)
 	fec_initialize(bis);
 #endif
-#if defined(CONFIG_MPC5XXX_FEC)
+#if defined(CONFIG_MPC5xxx_FEC)
 	mpc5xxx_fec_initialize(bis);
 #endif
 #if defined(CONFIG_SK98)

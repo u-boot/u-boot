@@ -86,6 +86,7 @@
 #define CFG_CMD_FAT	0x0010000000000000U	/* FAT support			*/
 #define CFG_CMD_IMLS	0x0020000000000000U	/* List all found images        */
 #define CFG_CMD_ITEST	0x0040000000000000U	/* Integer (and string) test	*/
+#define CFG_CMD_NFS	0x0080000000000000U	/* NFS support			*/
 
 #define CFG_CMD_ALL	0xFFFFFFFFFFFFFFFFU	/* ALL commands			*/
 

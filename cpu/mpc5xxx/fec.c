@@ -17,7 +17,7 @@
 /* #define DEBUG	0x28 */
 
 #if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_NET_MULTI) && \
-	defined(CONFIG_MPC5XXX_FEC)
+	defined(CONFIG_MPC5xxx_FEC)
 
 #if (DEBUG & 0x60)
 static void tfifo_print(mpc5xxx_fec_priv *fec);
@@ -980,4 +980,4 @@ static uint32 local_crc32(char *string, unsigned int crc_value, int len)
 }
 #endif	/* DEBUG */
 
-#endif /* CONFIG_MPC5XXX_FEC */
+#endif /* CONFIG_MPC5xxx_FEC */

@@ -21,13 +21,13 @@
 # endif
 #endif	/* CONFIG_8xx */
 
-#if defined(CONFIG_MPC5XXX)
+#if defined(CONFIG_MPC5xxx)
 # if !defined(CONFIG_NET_MULTI)
-#  if defined(CONFIG_MPC5XXX_FEC)
+#  if defined(CONFIG_MPC5xxx_FEC)
 #   define CONFIG_NET_MULTI
 #  endif
 # endif
-#endif	/* CONFIG_MPC5XXX */
+#endif	/* CONFIG_MPC5xxx */
 
 #if !defined(CONFIG_NET_MULTI) && (defined(CONFIG_8260) || defined(CONFIG_MPC8560))
 #include <config.h>
@@ -306,7 +306,7 @@ extern int		NetState;		/* Network loop state		*/
 extern int		NetRestartWrap;		/* Tried all network devices	*/
 #endif
 
-typedef enum { BOOTP, RARP, ARP, TFTP, DHCP, PING, DNS } proto_t;
+typedef enum { BOOTP, RARP, ARP, TFTP, DHCP, PING, DNS, NFS } proto_t;
 
 /* from net/net.c */
 extern char	BootFile[128];			/* Boot File name		*/

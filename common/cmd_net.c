@@ -81,6 +81,19 @@ U_BOOT_CMD(
 );
 #endif	/* CFG_CMD_DHCP */
 
+#if (CONFIG_COMMANDS & CFG_CMD_NFS)
+int do_nfs (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	return netboot_common(NFS, cmdtp, argc, argv);
+}
+
+U_BOOT_CMD(
+	nfs,	3,	1,	do_nfs,
+	"nfs    - boot image via network using NFS protocol\n",
+	"[loadAddress] [host ip addr:bootfilename]\n"
+);
+#endif	/* CFG_CMD_NFS */
+
 static void netboot_update_env(void)
 {
     char tmp[16] ;

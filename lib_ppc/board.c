@@ -32,7 +32,7 @@
 #ifdef CONFIG_5xx
 #include <mpc5xx.h>
 #endif
-#ifdef CONFIG_MPC5XXX
+#ifdef CONFIG_MPC5xxx
 #include <mpc5xxx.h>
 #endif
 #if (CONFIG_COMMANDS & CFG_CMD_IDE)
@@ -288,9 +288,9 @@ init_fnc_t *init_sequence[] = {
 	prt_8260_clks,
 #endif /* CONFIG_8260 */
 	checkcpu,
-#if defined(CONFIG_MPC5XXX)
+#if defined(CONFIG_MPC5xxx)
 	prt_mpc5xxx_clks,
-#endif /* CONFIG_MPC5XXX */
+#endif /* CONFIG_MPC5xxx */
 	checkboard,
 	INIT_FUNC_WATCHDOG_INIT
 #if defined(CONFIG_MISC_INIT_F)
@@ -478,7 +478,7 @@ void board_init_f (ulong bootflag)
     defined(CONFIG_E500)
 	bd->bi_immr_base = CFG_IMMR;	/* base  of IMMR register     */
 #endif
-#if defined(CONFIG_MPC5XXX)
+#if defined(CONFIG_MPC5xxx)
 	bd->bi_mbar_base = CFG_MBAR;	/* base of internal registers */
 #endif
 
@@ -493,10 +493,10 @@ void board_init_f (ulong bootflag)
 	bd->bi_sccfreq = gd->scc_clk;
 	bd->bi_vco     = gd->vco_out;
 #endif /* CONFIG_8260 */
-#if defined(CONFIG_MPC5XXX)
+#if defined(CONFIG_MPC5xxx)
 	bd->bi_ipbfreq = gd->ipb_clk;
 	bd->bi_pcifreq = gd->pci_clk;
-#endif /* CONFIG_MPC5XXX */
+#endif /* CONFIG_MPC5xxx */
 	bd->bi_baudrate = gd->baudrate;	/* Console Baudrate     */
 
 #ifdef CFG_EXTBDINFO

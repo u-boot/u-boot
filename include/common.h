@@ -319,6 +319,7 @@ void	relocate_code (ulong, gd_t *, ulong);
 ulong	get_endaddr   (void);
 void	trap_init     (ulong);
 #if defined (CONFIG_4xx)	|| \
+    defined (CONFIG_5xxx)	|| \
     defined (CONFIG_74xx_7xx)	|| \
     defined (CONFIG_74x)	|| \
     defined (CONFIG_75x)	|| \
@@ -361,7 +362,7 @@ int	sdram_adjust_866 (void);
 #if defined(CONFIG_8260)
 int	prt_8260_clks (void);
 #endif
-#if defined(CONFIG_MPC5XXX)
+#if defined(CONFIG_MPC5xxx)
 int	prt_mpc5xxx_clks (void);
 #endif
 #ifdef CONFIG_4xx

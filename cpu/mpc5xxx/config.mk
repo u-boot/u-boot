@@ -23,5 +23,5 @@
 
 PLATFORM_RELFLAGS += -fPIC -ffixed-r14 -meabi
 
-PLATFORM_CPPFLAGS += -DCONFIG_MPC5XXX -ffixed-r2 -ffixed-r29 \
+PLATFORM_CPPFLAGS += -DCONFIG_MPC5xxx -ffixed-r2 -ffixed-r29 \
 		     -mstring -mcpu=603e -mmultiple
