@@ -123,6 +123,7 @@
 #define CONFIG_BOOTARGS    	"console=ttyS0"
 #define CONFIG_NETMASK          255.255.0.0
 #define CONFIG_IPADDR		192.168.3.68
+#define CONFIG_HOSTNAME		trab
 #define CONFIG_SERVERIP		192.168.3.1
 #define CONFIG_BOOTCOMMAND	"run flash_nfs"
 #define	CONFIG_EXTRA_ENV_SETTINGS	\
@@ -220,7 +221,11 @@
  * FLASH and environment organization
  */
 #define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks */
+#ifndef CONFIG_BIG_FLASH
+#define CFG_MAX_FLASH_SECT	71	/* max number of sectors on one chip */
+#else
 #define CFG_MAX_FLASH_SECT	128	/* max number of sectors on one chip */
+#endif
 
 /* timeout values are in ticks */
 #define CFG_FLASH_ERASE_TOUT	(2*CFG_HZ) /* Timeout for Flash Erase */
@@ -229,11 +234,18 @@
 #define	CFG_ENV_IS_IN_FLASH	1
 
 /* Address and size of Primary Environment Sector	*/
+#ifndef CONFIG_BIG_FLASH
 #define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x4000)
 #define CFG_ENV_SIZE		0x4000
+#define CFG_ENV_SECT_SIZE	0x4000
+#else
+#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x40000)
+#define CFG_ENV_SIZE		0x4000
+#define CFG_ENV_SECT_SIZE	0x20000
+#endif
 
 /* Address and size of Redundant Environment Sector	*/
-#define CFG_ENV_OFFSET_REDUND	(CFG_ENV_ADDR+CFG_ENV_SIZE)
+#define CFG_ENV_OFFSET_REDUND	(CFG_ENV_ADDR+CFG_ENV_SECT_SIZE)
 #define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
 
 #endif	/* __CONFIG_H */

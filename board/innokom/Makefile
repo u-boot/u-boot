@@ -23,25 +23,25 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(CPU).a
+LIB	= lib$(BOARD).a
 
-START	= start.S drivers/i2c/i2c2.o
-OBJS	= traps.o cpu.o cpu_init.o interrupts.o speed.o \
-          drivers/epic/epic1.o drivers/i2c/i2c1.o pci.o bedbug_603e.o
+OBJS	:= innokom.o flash.o
+SOBJS	:= memsetup.o
 
-all:	.depend $(START) $(LIB)
+$(LIB):	$(OBJS) $(SOBJS)
+	$(AR) crv $@ $^
 
-$(LIB):	$(OBJS)
-	$(AR) crv $@ $(OBJS) drivers/i2c/i2c2.o
+clean:
+	rm -f $(SOBJS) $(OBJS)
 
-bedbug_603e.c:
-	ln -s ../mpc8260/bedbug_603e.c bedbug_603e.c
+distclean:	clean
+	rm -f $(LIB) core *.bak .depend
 
 #########################################################################
 
-.depend:	Makefile $(START:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(START:.o=.S)  $(OBJS:.o=.c) > $@
+.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
+		$(CC) -M $(CPPFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
 
-sinclude .depend
+-include .depend
 
 #########################################################################

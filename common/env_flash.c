@@ -374,4 +374,4 @@ void env_relocate_spec (void)
 #endif /* ! ENV_IS_EMBEDDED || CFG_ENV_ADDR_REDUND */
 }
 
-#endif /* CFG_ENV_IS_IN_FLASH) */
+#endif /* CFG_ENV_IS_IN_FLASH */

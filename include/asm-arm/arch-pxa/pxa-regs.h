@@ -10,6 +10,8 @@
  * published by the Free Software Foundation.
  */
 
+#ifndef PXA_REGS_H
+#define PXA_REGS_H 1
 
 /* FIXME hack so that SA-1111.h will work [cb] */
 
@@ -424,6 +426,38 @@ typedef void            (*ExcpHndlr) (void) ;
 #define ICR		__REG(0x40301690)  /* I2C Control Register - ICR */
 #define ISR		__REG(0x40301698)  /* I2C Status Register - ISR */
 #define ISAR		__REG(0x403016A0)  /* I2C Slave Address Register - ISAR */
+
+/* ----- Control register bits ---------------------------------------- */
+
+#define ICR_START	0x1		/* start bit */
+#define ICR_STOP	0x2		/* stop bit */
+#define ICR_ACKNAK	0x4		/* send ACK(0) or NAK(1) */
+#define ICR_TB		0x8 		/* transfer byte bit */
+#define ICR_MA		0x10		/* master abort */
+#define ICR_SCLE	0x20		/* master clock enable */
+#define ICR_IUE		0x40		/* unit enable */
+#define ICR_GCD		0x80		/* general call disable */
+#define ICR_ITEIE	0x100		/* enable tx interrupts */
+#define ICR_IRFIE	0x200		/* enable rx interrupts */
+#define ICR_BEIE	0x400		/* enable bus error ints */
+#define ICR_SSDIE	0x800		/* slave STOP detected int enable */
+#define ICR_ALDIE	0x1000  	/* enable arbitration interrupt */
+#define ICR_SADIE	0x2000		/* slave address detected int enable */
+#define ICR_UR		0x4000		/* unit reset */
+
+/* ----- Status register bits ----------------------------------------- */
+
+#define ISR_RWM         0x1		/* read/write mode */
+#define ISR_ACKNAK      0x2		/* ack/nak status */
+#define ISR_UB          0x4		/* unit busy */
+#define ISR_IBB         0x8		/* bus busy */
+#define ISR_SSD         0x10		/* slave stop detected */
+#define ISR_ALD         0x20		/* arbitration loss detected */
+#define ISR_ITE         0x40            /* tx buffer empty */
+#define ISR_IRF         0x80            /* rx buffer full */
+#define ISR_GCAD        0x100		/* general call address detected */
+#define ISR_SAD         0x200		/* slave address detected */
+#define ISR_BED         0x400           /* bus error no ACK/NAK */
 
 
 /*
@@ -1128,6 +1162,6 @@ typedef void            (*ExcpHndlr) (void) ;
 #define MCIO1_OFFSET    0x3C
 #define MDMRS_OFFSET    0x40
 
-
+#endif /* PXA_REGS_H */
 
 

@@ -246,6 +246,7 @@ Rolf Offermanns <rof@sysgo.de>
 Robert Schwebel <r.schwebel@pengutronix.de>
 
 	csb226			xscale
+	innokom			xscale
 
 Alex Züpke <azu@sysgo.de>
 
@@ -262,6 +263,17 @@ Alex Züpke <azu@sysgo.de>
 Daniel Engström <daniel@omicron.se>
 
 	sc520_cdp		x86
+
+#########################################################################
+# MIPS Systems:								#
+#									#
+# Maintainer Name, Email Address					#
+#	Board			CPU					#
+#########################################################################
+
+Wolfgang Denk <wd@denx.de>
+
+	incaip			MIPS32 4Kc
 
 #########################################################################
 # End of MAINTAINERS list						#

@@ -101,7 +101,7 @@ LIST_ARM9="smdk2400 smdk2410 trab"
 ## Xscale Systems
 #########################################################################
 
-LIST_xscale="lubbock cradle csb226"
+LIST_xscale="lubbock cradle csb226 innokom"
 
 
 LIST_arm="${LIST_SA} ${LIST_ARM7} ${LIST_ARM9} ${LIST_xscale}"

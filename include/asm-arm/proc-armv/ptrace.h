@@ -61,6 +61,8 @@ struct pt_regs {
 #define ARM_r0		uregs[0]
 #define ARM_ORIG_r0	uregs[17]
 
+#define instruction_pointer(regs)	((regs)->ARM_ip)
+
 #ifdef __KERNEL__
 
 #define user_mode(regs)	\

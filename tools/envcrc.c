@@ -36,14 +36,32 @@
 # ifndef  CFG_ENV_OFFSET
 #  define CFG_ENV_OFFSET (CFG_ENV_ADDR - CFG_FLASH_BASE)
 # endif
+# if !defined(CFG_ENV_ADDR_REDUND) && defined(CFG_ENV_OFFSET_REDUND)
+#  define CFG_ENV_ADDR_REDUND	(CFG_FLASH_BASE + CFG_ENV_OFFSET_REDUND)
+# endif
 # ifndef  CFG_ENV_SIZE
 #  define CFG_ENV_SIZE	CFG_ENV_SECT_SIZE
 # endif
-# if ((CFG_ENV_ADDR >= CFG_MONITOR_BASE) && \
-     ((CFG_ENV_ADDR+CFG_ENV_SIZE) <= (CFG_MONITOR_BASE + CFG_MONITOR_LEN)))
-#  define ENV_IS_EMBEDDED
+# if defined(CFG_ENV_ADDR_REDUND) && !defined(CFG_ENV_SIZE_REDUND)
+#  define CFG_ENV_SIZE_REDUND	CFG_ENV_SIZE
+# endif
+# if (CFG_ENV_ADDR >= CFG_MONITOR_BASE) && \
+     ((CFG_ENV_ADDR + CFG_ENV_SIZE) <= (CFG_MONITOR_BASE + CFG_MONITOR_LEN))
+#  define ENV_IS_EMBEDDED	1
+# endif
+# if defined(CFG_ENV_ADDR_REDUND) || defined(CFG_ENV_OFFSET_REDUND)
+#  define CFG_REDUNDAND_ENVIRONMENT	1
 # endif
 #endif	/* CFG_ENV_IS_IN_FLASH */
+
+#ifdef CFG_REDUNDAND_ENVIRONMENT
+# define ENV_HEADER_SIZE	(sizeof(unsigned long) + 1)
+#else
+# define ENV_HEADER_SIZE	(sizeof(unsigned long))
+#endif
+
+#define ENV_SIZE (CFG_ENV_SIZE - ENV_HEADER_SIZE)
+
 
 extern unsigned long crc32 (unsigned long, const unsigned char *, unsigned int);
 
@@ -57,9 +75,8 @@ int main (int argc, char **argv)
 #ifdef	ENV_IS_EMBEDDED
     int crc ;
     unsigned char 	*envptr 	= &environment,
-			*dataptr 	= envptr + sizeof(unsigned int) + 1;
-    unsigned int	datasize 	= env_size - (dataptr - envptr) ;
-
+			*dataptr 	= envptr + ENV_HEADER_SIZE;
+    unsigned int	datasize 	= ENV_SIZE;
 
     crc = crc32(0, dataptr, datasize) ;
 

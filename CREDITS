@@ -227,7 +227,8 @@ D: FADS823 configuration, MPC823 video support, I2C, wireless keyboard, lots mor
 
 N: Robert Schwebel
 E: r.schwebel@pengutronix.de
-D: Support for csb226 board (xscale)
+D: Support for csb226 and innokom boards (xscale)
+
 N: Rob Taylor
 E: robt@flyingpig.com
 D: Port to MBX860T and Sandpoint8240

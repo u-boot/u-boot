@@ -77,6 +77,9 @@ endif
 ifeq ($(ARCH),i386)
 #CROSS_COMPILE = i386-elf-
 endif
+ifeq ($(ARCH),mips)
+CROSS_COMPILE = mips_4KC-
+endif
 endif
 endif
 
@@ -129,8 +132,8 @@ LIBS += lib_generic/libgeneric.a
 all:		u-boot.srec u-boot.bin System.map
 
 install:	all
-		cp u-boot.bin /tftpboot/u-boot.bin
-		cp u-boot.bin /net/sam/tftpboot/u-boot.bin
+		-cp u-boot.bin /tftpboot/u-boot.bin
+		-cp u-boot.bin /net/denx/tftpboot/u-boot.bin
 
 u-boot.srec:	u-boot
 		$(OBJCOPY) ${OBJCFLAGS} -O srec $< $@
@@ -611,14 +614,22 @@ shannon_config	:	unconfig
 ## ARM920T Systems
 #########################################################################
 
+xtract_trab = $(subst _big_flash,,$(subst _config,,$1))
+
 smdk2400_config	:	unconfig
 	@./mkconfig $(@:_config=) arm arm920t smdk2400
 
 smdk2410_config	:	unconfig
 	@./mkconfig $(@:_config=) arm arm920t smdk2410
 
-trab_config :		unconfig
-	@./mkconfig $(@:_config=) arm arm920t trab
+trab_config \
+trab_big_flash_config:	unconfig
+	@ >include/config.h
+	@[ -z "$(findstring _big_flash,$@)" ] || \
+		{ echo "#define CONFIG_BIG_FLASH" >>include/config.h ; \
+		  echo "... with big flash support" ; \
+		}
+	@./mkconfig -a $(call xtract_trab,$@) arm arm920t trab
 
 #########################################################################
 ## ARM720T Systems
@@ -631,17 +642,20 @@ ep7312_config	:	unconfig
 	@./mkconfig $(@:_config=) arm arm720t ep7312
 
 #########################################################################
-## Xscale Systems
+## XScale Systems
 #########################################################################
-
-lubbock_config	:	unconfig
-	@./mkconfig $(@:_config=) arm xscale lubbock
 
 cradle_config	:	unconfig
 	@./mkconfig $(@:_config=) arm xscale cradle
 
 csb226_config	:	unconfig
 	@./mkconfig $(@:_config=) arm xscale csb226
+
+innokom_config	:	unconfig
+	@./mkconfig $(@:_config=) arm xscale innokom
+
+lubbock_config	:	unconfig
+	@./mkconfig $(@:_config=) arm xscale lubbock
 
 #========================================================================
 # i386
@@ -652,7 +666,17 @@ csb226_config	:	unconfig
 sc520_cdp_config	:	unconfig
 	@./mkconfig $(@:_config=) i386 i386 sc520_cdp
 
+#========================================================================
+# MIPS
+#========================================================================
 #########################################################################
+## MIPS32 4Kc
+#########################################################################
+
+incaip_config :		unconfig
+	@./mkconfig $(@:_config=) mips mips incaip
+
+
 
 clean:
 	find . -type f \
@@ -674,6 +698,7 @@ clobber:	clean
 	rm -fr *.*~
 	rm -f u-boot u-boot.bin u-boot.elf u-boot.srec u-boot.map System.map
 	rm -f tools/crc32.c tools/environment.c tools/env/crc32.c
+	rm -f cpu/mpc824x/bedbug_603e.c
 	rm -f include/asm/arch include/asm
 
 mrproper \

@@ -336,7 +336,7 @@ _end_back:
 	STD_EXCEPTION(EXC_OFF_ITME, InstructionTransMiss, UnknownException)
 	STD_EXCEPTION(EXC_OFF_DLTME, DataLoadTransMiss, UnknownException)
 	STD_EXCEPTION(EXC_OFF_DSTME, DataStoreTransMiss, UnknownException)
-	STD_EXCEPTION(EXC_OFF_IABE, InstructionBreakpoint, UnknownException)
+	STD_EXCEPTION(EXC_OFF_IABE, InstructionBreakpoint, DebugException)
 	STD_EXCEPTION(EXC_OFF_SMIE, SysManageInt, UnknownException)
 	STD_EXCEPTION(0x1500, Reserved5, UnknownException)
 	STD_EXCEPTION(0x1600, Reserved6, UnknownException)

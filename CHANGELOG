@@ -1,6 +1,27 @@
 ======================================================================
-Changes since U-Boot 0.2.1:
+Changes since U-Boot 0.2.2:
 ======================================================================
+
+* Patch by Robert Schwebel, 21 Jan 2003:
+  - Add support for Innokom board
+  - Don't complain if "install" fails
+  - README cleanup (remove duplicated lines)
+  - Update PXA header files
+
+* Add documentation for existing POST code (doc/README.POST)
+
+* Patch by Laudney Ren, 15 Jan 2003:
+  Fix handling of redundand environment in "tools/envcrc.c"
+
+* Patch by Detlev Zundel, 28 Feb 2003:
+  Add bedbug support for 824x systems
+
+* Add support for 16 MB flash configuration of TRAB board
+
+* Patch by Erwin Rol, 27 Feb 2003:
+  Add support for RTEMS
+
+* Add image information to README
 
 * Patch by Stefan Roese, 18 Feb 2003:
   CPCIISER4 configuration updated.
@@ -14,8 +35,20 @@ Changes since U-Boot 0.2.1:
   PCI spec 2.2 defines, that a pci target has 2^25 pci clocks after
   RST# to respond to configuration cycles (33MHz -> 1s).
 
+* Fix dual PCMCIA slot support (when running with just one
+  slot populated)
+
+* Add VFD type detection to trab board
+
+* extend drivers/cs8900.c driver to synchronize  ethaddr  environment
+  variable with value in the EEPROM
+
 * Patch by Stefan Roese, 10 Feb 2003:
   Add support for 4MB and 128MB onboard SDRAM (cpu/ppc4xx/sdram.c)
+
+======================================================================
+Changes for U-Boot 0.2.2:
+======================================================================
 
 * Add dual ethernet support on PM826
 

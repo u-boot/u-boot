@@ -1,15 +1,23 @@
 /*
  *  linux/include/asm-arm/arch-pxa/pxa-regs.h
- *
+ *  
  *  Author:	Nicolas Pitre
  *  Created:	Jun 15, 2001
  *  Copyright:	MontaVista Software Inc.
- *
+ *  
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+ *
+ * - 2003/01/20: Robert Schwebel <r.schwebel@pengutronix.de
+ *   Original file taken from linux-2.4.19-rmk4-pxa1. Added some definitions.
+ *   Added include for hardware.h (for __REG definition)
  */
+#ifndef _PXA_REGS_H_
+#define _PXA_REGS_H_
 
+#include "bitfield.h"
+#include "hardware.h"
 
 /* FIXME hack so that SA-1111.h will work [cb] */
 
@@ -20,13 +28,6 @@ typedef Word32          Word ;
 typedef Word            Quad [4] ;
 typedef void            *Address ;
 typedef void            (*ExcpHndlr) (void) ;
-#endif
-
-#ifndef __ASSEMBLY__
-#define io_p2v(PhAdd)    (PhAdd)
-#define __REG(x) (*((volatile u32 *)io_p2v(x)))
-#else
-#define __REG(x) (x)
 #endif
 
 /*
@@ -369,7 +370,7 @@ typedef void            (*ExcpHndlr) (void) ;
 #define LSR_OE		(1 << 1)	/* Overrun Error */
 #define LSR_DR		(1 << 0)	/* Data Ready */
 
-#define MCR_LOOP	(1 << 4)	*/
+#define MCR_LOOP	(1 << 4)	*/ 
 #define MCR_OUT2	(1 << 3)	/* force MSR_DCD in loopback mode */
 #define MCR_OUT1	(1 << 2)	/* force MSR_RI in loopback mode */
 #define MCR_RTS		(1 << 1)	/* Request to Send */
@@ -414,7 +415,6 @@ typedef void            (*ExcpHndlr) (void) ;
                 IrSR_RCVEIR_UART_MODE | \
                 IrSR_XMITIR_IR_MODE)
 
-
 /*
  * I2C registers
  */
@@ -425,6 +425,38 @@ typedef void            (*ExcpHndlr) (void) ;
 #define ISR		__REG(0x40301698)  /* I2C Status Register - ISR */
 #define ISAR		__REG(0x403016A0)  /* I2C Slave Address Register - ISAR */
 
+/* ----- Control register bits ---------------------------------------- */
+
+#define ICR_START	0x1		/* start bit */
+#define ICR_STOP	0x2		/* stop bit */
+#define ICR_ACKNAK	0x4		/* send ACK(0) or NAK(1) */
+#define ICR_TB		0x8 		/* transfer byte bit */
+#define ICR_MA		0x10		/* master abort */
+#define ICR_SCLE	0x20		/* master clock enable */
+#define ICR_IUE		0x40		/* unit enable */
+#define ICR_GCD		0x80		/* general call disable */
+#define ICR_ITEIE	0x100		/* enable tx interrupts */
+#define ICR_IRFIE	0x200		/* enable rx interrupts */
+#define ICR_BEIE	0x400		/* enable bus error ints */
+#define ICR_SSDIE	0x800		/* slave STOP detected int enable */
+#define ICR_ALDIE	0x1000  	/* enable arbitration interrupt */
+#define ICR_SADIE	0x2000		/* slave address detected int enable */
+#define ICR_UR		0x4000		/* unit reset */
+#define ICR_FM		0x8000		/* Fast Mode */
+
+/* ----- Status register bits ----------------------------------------- */
+
+#define ISR_RWM         0x1		/* read/write mode */
+#define ISR_ACKNAK      0x2		/* ack/nak status */
+#define ISR_UB          0x4		/* unit busy */
+#define ISR_IBB         0x8		/* bus busy */	
+#define ISR_SSD         0x10		/* slave stop detected */
+#define ISR_ALD         0x20		/* arbitration loss detected */
+#define ISR_ITE         0x40            /* tx buffer empty */
+#define ISR_IRF         0x80            /* rx buffer full */
+#define ISR_GCAD        0x100		/* general call address detected */
+#define ISR_SAD         0x200		/* slave address detected */
+#define ISR_BED         0x400           /* bus error no ACK/NAK */
 
 /*
  * Serial Audio Controller
@@ -524,24 +556,92 @@ typedef void            (*ExcpHndlr) (void) ;
 /*
  * USB Device Controller
  */
+#define UDC_RES1	__REG(0x40600004)  /* UDC Undocumented - Reserved1 */
+#define UDC_RES2	__REG(0x40600008)  /* UDC Undocumented - Reserved2 */
+#define UDC_RES3	__REG(0x4060000C)  /* UDC Undocumented - Reserved3 */
 
 #define UDCCR		__REG(0x40600000)  /* UDC Control Register */
+#define UDCCR_UDE	(1 << 0)	/* UDC enable */
+#define UDCCR_UDA	(1 << 1)	/* UDC active */
+#define UDCCR_RSM	(1 << 2)	/* Device resume */
+#define UDCCR_RESIR	(1 << 3)	/* Resume interrupt request */
+#define UDCCR_SUSIR	(1 << 4)	/* Suspend interrupt request */
+#define UDCCR_SRM	(1 << 5)	/* Suspend/resume interrupt mask */
+#define UDCCR_RSTIR	(1 << 6)	/* Reset interrupt request */
+#define UDCCR_REM	(1 << 7)	/* Reset interrupt mask */
+
 #define UDCCS0		__REG(0x40600010)  /* UDC Endpoint 0 Control/Status Register */
+#define UDCCS0_OPR	(1 << 0)	/* OUT packet ready */
+#define UDCCS0_IPR	(1 << 1)	/* IN packet ready */
+#define UDCCS0_FTF	(1 << 2)	/* Flush Tx FIFO */
+#define UDCCS0_DRWF	(1 << 3)	/* Device remote wakeup feature */
+#define UDCCS0_SST	(1 << 4)	/* Sent stall */
+#define UDCCS0_FST	(1 << 5)	/* Force stall */
+#define UDCCS0_RNE	(1 << 6)	/* Receive FIFO no empty */
+#define UDCCS0_SA	(1 << 7)	/* Setup active */
+
+/* Bulk IN - Endpoint 1,6,11 */
 #define UDCCS1		__REG(0x40600014)  /* UDC Endpoint 1 (IN) Control/Status Register */
-#define UDCCS2		__REG(0x40600018)  /* UDC Endpoint 2 (OUT) Control/Status Register */
-#define UDCCS3		__REG(0x4060001C)  /* UDC Endpoint 3 (IN) Control/Status Register */
-#define UDCCS4		__REG(0x40600020)  /* UDC Endpoint 4 (OUT) Control/Status Register */
-#define UDCCS5		__REG(0x40600024)  /* UDC Endpoint 5 (Interrupt) Control/Status Register */
 #define UDCCS6		__REG(0x40600028)  /* UDC Endpoint 6 (IN) Control/Status Register */
-#define UDCCS7		__REG(0x4060002C)  /* UDC Endpoint 7 (OUT) Control/Status Register */
-#define UDCCS8		__REG(0x40600030)  /* UDC Endpoint 8 (IN) Control/Status Register */
-#define UDCCS9		__REG(0x40600034)  /* UDC Endpoint 9 (OUT) Control/Status Register */
-#define UDCCS10		__REG(0x40600038)  /* UDC Endpoint 10 (Interrupt) Control/Status Register */
 #define UDCCS11		__REG(0x4060003C)  /* UDC Endpoint 11 (IN) Control/Status Register */
+
+#define UDCCS_BI_TFS	(1 << 0)	/* Transmit FIFO service */
+#define UDCCS_BI_TPC	(1 << 1)	/* Transmit packet complete */
+#define UDCCS_BI_FTF	(1 << 2)	/* Flush Tx FIFO */
+#define UDCCS_BI_TUR	(1 << 3)	/* Transmit FIFO underrun */
+#define UDCCS_BI_SST	(1 << 4)	/* Sent stall */
+#define UDCCS_BI_FST	(1 << 5)	/* Force stall */
+#define UDCCS_BI_TSP	(1 << 7)	/* Transmit short packet */
+
+/* Bulk OUT - Endpoint 2,7,12 */
+#define UDCCS2		__REG(0x40600018)  /* UDC Endpoint 2 (OUT) Control/Status Register */
+#define UDCCS7		__REG(0x4060002C)  /* UDC Endpoint 7 (OUT) Control/Status Register */
 #define UDCCS12		__REG(0x40600040)  /* UDC Endpoint 12 (OUT) Control/Status Register */
+
+#define UDCCS_BO_RFS	(1 << 0)	/* Receive FIFO service */
+#define UDCCS_BO_RPC	(1 << 1)	/* Receive packet complete */
+#define UDCCS_BO_DME	(1 << 3)	/* DMA enable */
+#define UDCCS_BO_SST	(1 << 4)	/* Sent stall */
+#define UDCCS_BO_FST	(1 << 5)	/* Force stall */
+#define UDCCS_BO_RNE	(1 << 6)	/* Receive FIFO not empty */
+#define UDCCS_BO_RSP	(1 << 7)	/* Receive short packet */
+
+/* Isochronous IN - Endpoint 3,8,13 */
+#define UDCCS3		__REG(0x4060001C)  /* UDC Endpoint 3 (IN) Control/Status Register */
+#define UDCCS8		__REG(0x40600030)  /* UDC Endpoint 8 (IN) Control/Status Register */
 #define UDCCS13		__REG(0x40600044)  /* UDC Endpoint 13 (IN) Control/Status Register */
+
+#define UDCCS_II_TFS	(1 << 0)	/* Transmit FIFO service */
+#define UDCCS_II_TPC	(1 << 1)	/* Transmit packet complete */
+#define UDCCS_II_FTF	(1 << 2)	/* Flush Tx FIFO */
+#define UDCCS_II_TUR	(1 << 3)	/* Transmit FIFO underrun */
+#define UDCCS_II_TSP	(1 << 7)	/* Transmit short packet */
+
+/* Isochronous OUT - Endpoint 4,9,14 */
+#define UDCCS4		__REG(0x40600020)  /* UDC Endpoint 4 (OUT) Control/Status Register */
+#define UDCCS9		__REG(0x40600034)  /* UDC Endpoint 9 (OUT) Control/Status Register */
 #define UDCCS14		__REG(0x40600048)  /* UDC Endpoint 14 (OUT) Control/Status Register */
+
+#define UDCCS_IO_RFS	(1 << 0)	/* Receive FIFO service */
+#define UDCCS_IO_RPC	(1 << 1)	/* Receive packet complete */
+#define UDCCS_IO_ROF	(1 << 3)	/* Receive overflow */
+#define UDCCS_IO_DME	(1 << 3)	/* DMA enable */
+#define UDCCS_IO_RNE	(1 << 6)	/* Receive FIFO not empty */
+#define UDCCS_IO_RSP	(1 << 7)	/* Receive short packet */
+
+/* Interrupt IN - Endpoint 5,10,15 */
+#define UDCCS5		__REG(0x40600024)  /* UDC Endpoint 5 (Interrupt) Control/Status Register */
+#define UDCCS10		__REG(0x40600038)  /* UDC Endpoint 10 (Interrupt) Control/Status Register */
 #define UDCCS15		__REG(0x4060004C)  /* UDC Endpoint 15 (Interrupt) Control/Status Register */
+
+#define UDCCS_INT_TFS	(1 << 0)	/* Transmit FIFO service */
+#define UDCCS_INT_TPC	(1 << 1)	/* Transmit packet complete */
+#define UDCCS_INT_FTF	(1 << 2)	/* Flush Tx FIFO */
+#define UDCCS_INT_TUR	(1 << 3)	/* Transmit FIFO underrun */
+#define UDCCS_INT_SST	(1 << 4)	/* Sent stall */
+#define UDCCS_INT_FST	(1 << 5)	/* Force stall */
+#define UDCCS_INT_TSP	(1 << 7)	/* Transmit short packet */
+
 #define UFNRH		__REG(0x40600060)  /* UDC Frame Number Register High */
 #define UFNRL		__REG(0x40600064)  /* UDC Frame Number Register Low */
 #define UBCR2		__REG(0x40600068)  /* UDC Byte Count Reg 2 */
@@ -566,10 +666,50 @@ typedef void            (*ExcpHndlr) (void) ;
 #define UDDR13		__REG(0x40600C00)  /* UDC Endpoint 13 Data Register */
 #define UDDR14		__REG(0x40600E00)  /* UDC Endpoint 14 Data Register */
 #define UDDR15		__REG(0x406000E0)  /* UDC Endpoint 15 Data Register */
+
 #define UICR0		__REG(0x40600050)  /* UDC Interrupt Control Register 0 */
+
+#define UICR0_IM0	(1 << 0)	/* Interrupt mask ep 0 */
+#define UICR0_IM1	(1 << 1)	/* Interrupt mask ep 1 */
+#define UICR0_IM2	(1 << 2)	/* Interrupt mask ep 2 */
+#define UICR0_IM3	(1 << 3)	/* Interrupt mask ep 3 */
+#define UICR0_IM4	(1 << 4)	/* Interrupt mask ep 4 */
+#define UICR0_IM5	(1 << 5)	/* Interrupt mask ep 5 */
+#define UICR0_IM6	(1 << 6)	/* Interrupt mask ep 6 */
+#define UICR0_IM7	(1 << 7)	/* Interrupt mask ep 7 */
+
 #define UICR1		__REG(0x40600054)  /* UDC Interrupt Control Register 1 */
+
+#define UICR1_IM8	(1 << 0)	/* Interrupt mask ep 8 */
+#define UICR1_IM9	(1 << 1)	/* Interrupt mask ep 9 */
+#define UICR1_IM10	(1 << 2)	/* Interrupt mask ep 10 */
+#define UICR1_IM11	(1 << 3)	/* Interrupt mask ep 11 */
+#define UICR1_IM12	(1 << 4)	/* Interrupt mask ep 12 */
+#define UICR1_IM13	(1 << 5)	/* Interrupt mask ep 13 */
+#define UICR1_IM14	(1 << 6)	/* Interrupt mask ep 14 */
+#define UICR1_IM15	(1 << 7)	/* Interrupt mask ep 15 */
+
 #define USIR0		__REG(0x40600058)  /* UDC Status Interrupt Register 0 */
+
+#define USIR0_IR0	(1 << 0)	/* Interrup request ep 0 */
+#define USIR0_IR1	(1 << 1)	/* Interrup request ep 1 */
+#define USIR0_IR2	(1 << 2)	/* Interrup request ep 2 */
+#define USIR0_IR3	(1 << 3)	/* Interrup request ep 3 */
+#define USIR0_IR4	(1 << 4)	/* Interrup request ep 4 */
+#define USIR0_IR5	(1 << 5)	/* Interrup request ep 5 */
+#define USIR0_IR6	(1 << 6)	/* Interrup request ep 6 */
+#define USIR0_IR7	(1 << 7)	/* Interrup request ep 7 */
+
 #define USIR1		__REG(0x4060005C)  /* UDC Status Interrupt Register 1 */
+
+#define USIR1_IR8	(1 << 0)	/* Interrup request ep 8 */
+#define USIR1_IR9	(1 << 1)	/* Interrup request ep 9 */
+#define USIR1_IR10	(1 << 2)	/* Interrup request ep 10 */
+#define USIR1_IR11	(1 << 3)	/* Interrup request ep 11 */
+#define USIR1_IR12	(1 << 4)	/* Interrup request ep 12 */
+#define USIR1_IR13	(1 << 5)	/* Interrup request ep 13 */
+#define USIR1_IR14	(1 << 6)	/* Interrup request ep 14 */
+#define USIR1_IR15	(1 << 7)	/* Interrup request ep 15 */
 
 
 /*
@@ -917,6 +1057,22 @@ typedef void            (*ExcpHndlr) (void) ;
 #define PGSR2		__REG(0x40F00028)  /* Power Manager GPIO Sleep State Register for GP[84-64] */
 #define RCSR		__REG(0x40F00030)  /* Reset Controller Status Register */
 
+#define PSSR_RDH	(1 << 5)	/* Read Disable Hold */
+#define PSSR_PH		(1 << 4)	/* Peripheral Control Hold */
+#define PSSR_VFS	(1 << 2)	/* VDD Fault Status */
+#define PSSR_BFS	(1 << 1)	/* Battery Fault Status */
+#define PSSR_SSS	(1 << 0)	/* Software Sleep Status */
+
+#define PCFR_DS		(1 << 3)	/* Deep Sleep Mode */
+#define PCFR_FS		(1 << 2)	/* Float Static Chip Selects */
+#define PCFR_FP		(1 << 1)	/* Float PCMCIA controls */
+#define PCFR_OPDE	(1 << 0)	/* 3.6864 MHz oscillator power-down enable */
+
+#define RCSR_GPR	(1 << 3)	/* GPIO Reset */
+#define RCSR_SMR	(1 << 2)	/* Sleep Mode */
+#define RCSR_WDR	(1 << 1)	/* Watchdog Reset */
+#define RCSR_HWR	(1 << 0)	/* Hardware Reset */
+
 
 /*
  * SSP Serial Port Registers
@@ -1040,18 +1196,104 @@ typedef void            (*ExcpHndlr) (void) ;
 #define LCCR0_BM	(1 << 20) 	/* Branch mask */
 #define LCCR0_OUM	(1 << 21)	/* Output FIFO underrun mask */
 
+#define LCCR1_PPL       Fld (10, 0)      /* Pixels Per Line - 1 */
+#define LCCR1_DisWdth(Pixel)            /* Display Width [1..800 pix.]  */ \
+                        (((Pixel) - 1) << FShft (LCCR1_PPL))
+
+#define LCCR1_HSW       Fld (6, 10)     /* Horizontal Synchronization     */
+#define LCCR1_HorSnchWdth(Tpix)         /* Horizontal Synchronization     */ \
+                                        /* pulse Width [1..64 Tpix]       */ \
+                        (((Tpix) - 1) << FShft (LCCR1_HSW))
+
+#define LCCR1_ELW       Fld (8, 16)     /* End-of-Line pixel clock Wait    */
+                                        /* count - 1 [Tpix]                */
+#define LCCR1_EndLnDel(Tpix)            /*  End-of-Line Delay              */ \
+                                        /*  [1..256 Tpix]                  */ \
+                        (((Tpix) - 1) << FShft (LCCR1_ELW))
+
+#define LCCR1_BLW       Fld (8, 24)     /* Beginning-of-Line pixel clock   */
+                                        /* Wait count - 1 [Tpix]           */
+#define LCCR1_BegLnDel(Tpix)            /*  Beginning-of-Line Delay        */ \
+                                        /*  [1..256 Tpix]                  */ \
+                        (((Tpix) - 1) << FShft (LCCR1_BLW))
+
+
+#define LCCR2_LPP       Fld (10, 0)     /* Line Per Panel - 1              */
+#define LCCR2_DisHght(Line)             /*  Display Height [1..1024 lines] */ \
+                        (((Line) - 1) << FShft (LCCR2_LPP))
+
+#define LCCR2_VSW       Fld (6, 10)     /* Vertical Synchronization pulse  */
+                                        /* Width - 1 [Tln] (L_FCLK)        */
+#define LCCR2_VrtSnchWdth(Tln)          /*  Vertical Synchronization pulse */ \
+                                        /*  Width [1..64 Tln]              */ \
+                        (((Tln) - 1) << FShft (LCCR2_VSW))
+
+#define LCCR2_EFW       Fld (8, 16)     /* End-of-Frame line clock Wait    */
+                                        /* count [Tln]                     */
+#define LCCR2_EndFrmDel(Tln)            /*  End-of-Frame Delay             */ \
+                                        /*  [0..255 Tln]                   */ \
+                        ((Tln) << FShft (LCCR2_EFW))
+
+#define LCCR2_BFW       Fld (8, 24)     /* Beginning-of-Frame line clock   */
+                                        /* Wait count [Tln]                */
+#define LCCR2_BegFrmDel(Tln)            /*  Beginning-of-Frame Delay       */ \
+                                        /*  [0..255 Tln]                   */ \
+                        ((Tln) << FShft (LCCR2_BFW))
+
+#if 0
 #define LCCR3_PCD	(0xff)		/* Pixel clock divisor */
 #define LCCR3_ACB	(0xff << 8)	/* AC Bias pin frequency */
 #define LCCR3_ACB_S	8
+#endif
+
 #define LCCR3_API	(0xf << 16)	/* AC Bias pin trasitions per interrupt */
 #define LCCR3_API_S	16
 #define LCCR3_VSP	(1 << 20)	/* vertical sync polarity */
 #define LCCR3_HSP	(1 << 21)	/* horizontal sync polarity */
 #define LCCR3_PCP	(1 << 22)	/* pixel clock polarity */
 #define LCCR3_OEP	(1 << 23)	/* output enable polarity */
+#if 0
 #define LCCR3_BPP	(7 << 24)	/* bits per pixel */
 #define LCCR3_BPP_S	24
+#endif
 #define LCCR3_DPC	(1 << 27)	/* double pixel clock mode */
+
+
+#define LCCR3_PCD       Fld (8, 0)      /* Pixel Clock Divisor */
+#define LCCR3_PixClkDiv(Div)            /* Pixel Clock Divisor */ \
+                        (((Div) << FShft (LCCR3_PCD)))
+
+
+#define LCCR3_BPP       Fld (3, 24)     /* Bit Per Pixel */
+#define LCCR3_Bpp(Bpp)                  /* Bit Per Pixel */ \
+                        (((Bpp) << FShft (LCCR3_BPP)))
+
+#define LCCR3_ACB       Fld (8, 8)      /* AC Bias */
+#define LCCR3_Acb(Acb)                  /* BAC Bias */ \
+                        (((Acb) << FShft (LCCR3_ACB)))
+
+#define LCCR3_HorSnchH  (LCCR3_HSP*0)   /*  Horizontal Synchronization     */
+                                        /*  pulse active High              */
+#define LCCR3_HorSnchL  (LCCR3_HSP*1)   /*  Horizontal Synchronization     */
+
+#define LCCR3_VrtSnchH  (LCCR3_VSP*0)   /*  Vertical Synchronization pulse */
+                                        /*  active High                    */
+#define LCCR3_VrtSnchL  (LCCR3_VSP*1)   /*  Vertical Synchronization pulse */
+                                        /*  active Low                     */
+
+#define LCSR_LDD	(1 << 0)	/* LCD Disable Done */
+#define LCSR_SOF	(1 << 1)	/* Start of frame */
+#define LCSR_BER	(1 << 2)	/* Bus error */
+#define LCSR_ABC	(1 << 3)	/* AC Bias count */
+#define LCSR_IUL	(1 << 4)	/* input FIFO underrun Lower panel */
+#define LCSR_IUU	(1 << 5)	/* input FIFO underrun Upper panel */
+#define LCSR_OU		(1 << 6)	/* output FIFO underrun */
+#define LCSR_QD		(1 << 7)	/* quick disable */
+#define LCSR_EOF	(1 << 8)	/* end of frame */
+#define LCSR_BS		(1 << 9)	/* branch status */
+#define LCSR_SINT	(1 << 10)	/* subsequent interrupt */
+
+#define LDCMD_PAL	(1 << 26)	/* instructs DMA to load palette buffer */
 
 #define LCSR_LDD	(1 << 0)	/* LCD Disable Done */
 #define LCSR_SOF	(1 << 1)	/* Start of frame */
@@ -1071,45 +1313,7 @@ typedef void            (*ExcpHndlr) (void) ;
  * Memory controller
  */
 
-#define MEMC_BASE __REG(0x48000000)  /* Base of Memoriy Controller */
-#define MDCNFG		__REG(0x48000000)  /* SDRAM Configuration Register 0 */
-#define MDREFR		__REG(0x48000004)  /* SDRAM Refresh Control Register */
-#define MSC0		__REG(0x48000008)  /* Static Memory Control Register 0 */
-#define MSC1		__REG(0x4800000C)  /* Static Memory Control Register 1 */
-#define MSC2		__REG(0x48000010)  /* Static Memory Control Register 2 */
-#define MECR		__REG(0x48000014)  /* Expansion Memory (PCMCIA/Compact Flash) Bus Configuration */
-#define SXLCR		__REG(0x48000018)  /* LCR value to be written to SDRAM-Timing Synchronous Flash */
-#define SXCNFG		__REG(0x4800001C)  /* Synchronous Static Memory Control Register */
-#define SXMRS		__REG(0x48000024)  /* MRS value to be written to Synchronous Flash or SMROM */
-#define MCMEM0		__REG(0x48000028)  /* Card interface Common Memory Space Socket 0 Timing */
-#define MCMEM1		__REG(0x4800002C)  /* Card interface Common Memory Space Socket 1 Timing */
-#define MCATT0		__REG(0x48000030)  /* Card interface Attribute Space Socket 0 Timing Configuration */
-#define MCATT1		__REG(0x48000034)  /* Card interface Attribute Space Socket 1 Timing Configuration */
-#define MCIO0		__REG(0x48000038)  /* Card interface I/O Space Socket 0 Timing Configuration */
-#define MCIO1		__REG(0x4800003C)  /* Card interface I/O Space Socket 1 Timing Configuration */
-#define MDMRS		__REG(0x48000040)  /* MRS value to be written to SDRAM */
-#define BOOT_DEF	__REG(0x48000044)  /* Read-Only Boot-Time Register. Contains BOOT_SEL and PKG_SEL */
-
-#define MDCNFG_DE0      0x00000001
-#define MDCNFG_DE1      0x00000002
-#define MDCNFG_DE2      0x00010000
-#define MDCNFG_DE3      0x00020000
-#define MDCNFG_DWID0    0x00000004
-
-#define MDREFR_E0PIN    0x00001000
-#define MDREFR_K0RUN	0x00002000
-#define MDREFR_K0DB2	0x00004000
-#define MDREFR_E1PIN    0x00008000
-#define MDREFR_K1RUN	0x00010000
-#define MDREFR_K1DB2	0x00020000
-#define MDREFR_K2RUN	0x00040000
-#define MDREFR_K2DB2	0x00080000
-#define MDREFR_APD	0x00100000
-#define MDREFR_SLFRSH	0x00400000
-#define MDREFR_K0FREE	0x00800000
-#define MDREFR_K1FREE	0x01000000
-#define MDREFR_K2FREE	0x02000000
-
+#define MEMC_BASE	__REG(0x48000000)  /* Base of Memory Controller */
 #define MDCNFG_OFFSET   0x0
 #define MDREFR_OFFSET   0x4
 #define MSC0_OFFSET     0x8
@@ -1127,7 +1331,44 @@ typedef void            (*ExcpHndlr) (void) ;
 #define MCIO0_OFFSET    0x38
 #define MCIO1_OFFSET    0x3C
 #define MDMRS_OFFSET    0x40
+	
+#define MDCNFG		__REG(0x48000000)  /* SDRAM Configuration Register 0 */
+#define MDCNFG_DE0	0x00000001
+#define MDCNFG_DE1	0x00000002
+#define MDCNFG_DE2	0x00010000
+#define MDCNFG_DE3	0x00020000
+#define MDCNFG_DWID0	0x00000004
+	
+#define MDREFR		__REG(0x48000004)  /* SDRAM Refresh Control Register */
+#define MSC0		__REG(0x48000008)  /* Static Memory Control Register 0 */
+#define MSC1		__REG(0x4800000C)  /* Static Memory Control Register 1 */
+#define MSC2		__REG(0x48000010)  /* Static Memory Control Register 2 */
+#define MECR		__REG(0x48000014)  /* Expansion Memory (PCMCIA/Compact Flash) Bus Configuration */
+#define SXLCR		__REG(0x48000018)  /* LCR value to be written to SDRAM-Timing Synchronous Flash */
+#define SXCNFG		__REG(0x4800001C)  /* Synchronous Static Memory Control Register */
+#define SXMRS		__REG(0x48000024)  /* MRS value to be written to Synchronous Flash or SMROM */
+#define MCMEM0		__REG(0x48000028)  /* Card interface Common Memory Space Socket 0 Timing */
+#define MCMEM1		__REG(0x4800002C)  /* Card interface Common Memory Space Socket 1 Timing */
+#define MCATT0		__REG(0x48000030)  /* Card interface Attribute Space Socket 0 Timing Configuration */
+#define MCATT1		__REG(0x48000034)  /* Card interface Attribute Space Socket 1 Timing Configuration */
+#define MCIO0		__REG(0x48000038)  /* Card interface I/O Space Socket 0 Timing Configuration */
+#define MCIO1		__REG(0x4800003C)  /* Card interface I/O Space Socket 1 Timing Configuration */
+#define MDMRS		__REG(0x48000040)  /* MRS value to be written to SDRAM */
+#define BOOT_DEF	__REG(0x48000044)  /* Read-Only Boot-Time Register. Contains BOOT_SEL and PKG_SEL */
+
+#define MDREFR_K2FREE	(1 << 25)	/* SDRAM Free-Running Control */
+#define MDREFR_K1FREE	(1 << 24)	/* SDRAM Free-Running Control */
+#define MDREFR_K0FREE	(1 << 23)	/* SDRAM Free-Running Control */
+#define MDREFR_SLFRSH	(1 << 22)	/* SDRAM Self-Refresh Control/Status */
+#define MDREFR_APD	(1 << 20)	/* SDRAM/SSRAM Auto-Power-Down Enable */
+#define MDREFR_K2DB2	(1 << 19)	/* SDCLK2 Divide by 2 Control/Status */
+#define MDREFR_K2RUN	(1 << 18)	/* SDCLK2 Run Control/Status */
+#define MDREFR_K1DB2	(1 << 17)	/* SDCLK1 Divide by 2 Control/Status */
+#define MDREFR_K1RUN	(1 << 16)	/* SDCLK1 Run Control/Status */
+#define MDREFR_E1PIN	(1 << 15)	/* SDCKE1 Level Control/Status */
+#define MDREFR_K0DB2	(1 << 14)	/* SDCLK0 Divide by 2 Control/Status */
+#define MDREFR_K0RUN	(1 << 13)	/* SDCLK0 Run Control/Status */
+#define MDREFR_E0PIN	(1 << 12)	/* SDCKE0 Level Control/Status */
 
 
-
-
+#endif
