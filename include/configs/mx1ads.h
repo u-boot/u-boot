@@ -1,6 +1,6 @@
 /*
  * include/configs/mx1ads.h
- * 
+ *
  * (c) Copyright 2004
  * Techware Information Technology, Inc.
  * http://www.techware.com.tw/
@@ -43,17 +43,17 @@
 #define	CONFIG_MC9328		1	/* It's a Motorola MC9328 SoC 		*/
 #define CONFIG_MX1ADS		1	/* on a Motorola MX1ADS Board  		*/
 
-#define BOARD_LATE_INIT		1 
+#define BOARD_LATE_INIT		1
 
 
 #define USE_920T_MMU		1
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff 		*/
 
-#if 0 
+#if 0
 #define CFG_MX1_GPCR		0x000003AB	/* for MX1ADS 0L44N		*/
 #define CFG_MX1_GPCR		0x000003AB	/* for MX1ADS 0L44N		*/
 #define CFG_MX1_GPCR		0x000003AB	/* for MX1ADS 0L44N		*/
-#endif 
+#endif
 
 /*
  * Size of malloc() pool
@@ -73,7 +73,7 @@
  * select serial console configuration
  */
 
-#define CONFIG_UART1 		1 
+#define CONFIG_UART1 		1
 /* #define CONFIG_UART2		1	*/
 
 #define CONFIG_BAUDRATE		115200
@@ -90,13 +90,13 @@
 			/*CFG_CMD_I2C	 |*/ \
 			/*CFG_CMD_USB	 |*/ \
 			CFG_CMD_REGINFO  | \
-			CFG_CMD_ELF)  
+			CFG_CMD_ELF)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
 
 #define CONFIG_BOOTDELAY	3
-#define CONFIG_BOOTARGS    	"root=/dev/docbp mem=48M" 
+#define CONFIG_BOOTARGS    	"root=/dev/docbp mem=48M"
 #define CONFIG_ETHADDR		08:00:3e:26:0a:5c
 #define CONFIG_NETMASK          255.255.255.0
 #define CONFIG_IPADDR		192.168.0.22
@@ -113,10 +113,10 @@
 /*
  * Miscellaneous configurable options
  */
- 
+
 #define CFG_HUSH_PARSER         1
 #define CFG_PROMPT_HUSH_PS2	"> "
- 
+
 #define	CFG_LONGHELP				/* undef to save memory		*/
 
 #ifdef CFG_HUSH_PARSER
@@ -126,7 +126,7 @@
 #endif
 
 #define	CFG_CBSIZE		256		/* Console I/O Buffer Size	*/
-#define	CFG_PBSIZE 		(CFG_CBSIZE+sizeof(CFG_PROMPT)+16) 
+#define	CFG_PBSIZE 		(CFG_CBSIZE+sizeof(CFG_PROMPT)+16)
 						/* Print Buffer Size */
 #define	CFG_MAXARGS		16		/* max number of command args	*/
 #define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
@@ -158,7 +158,7 @@
 /*-----------------------------------------------------------------------
  * Physical Memory Map
  */
- 
+
 
 #define CONFIG_NR_DRAM_BANKS	1	   	/* we have 1 bank of SDRAM 	*/
 #define PHYS_SDRAM_1		0x08000000 	/* SDRAM  on CSD0 		*/
@@ -178,7 +178,7 @@
 #define PHYS_FLASH_SIZE		0x01000000
 #define CFG_MAX_FLASH_SECT	(16)
 #define CFG_ENV_ADDR		(CFG_FLASH_BASE+0x00ff0000)
- 
+
 #define	CFG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_SIZE		0x0f000	/* Total Size of Environment Sector */
 #define CFG_ENV_SECT_SIZE	0x100000

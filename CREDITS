@@ -362,7 +362,7 @@ D: Port to MPC555/556 microcontrollers and support for cmi board
 
 N: Ming-Len Wu
 E: minglen_wu@techware.com.tw
-D: Motorola MX1ADS board support 
+D: Motorola MX1ADS board support
 W: http://www.techware.com.tw/
 
 N: Xianghua Xiao

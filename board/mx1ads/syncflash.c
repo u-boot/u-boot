@@ -1,6 +1,6 @@
 /*
  * board/mx1ads/syncflash.c
- * 
+ *
  * (c) Copyright 2004
  * Techware Information Technology, Inc.
  * http://www.techware.com.tw/
@@ -61,7 +61,7 @@ u32 SF_SR(void) {
 
 	reg_SFCTL	= CMD_PROGRAM;
 	tmp 		= __REG(CFG_FLASH_BASE);
-	
+
 	reg_SFCTL	= CMD_NORMAL;
 
 	reg_SFCTL	= CMD_LCR;			/* Activate LCR Mode 		*/
@@ -97,7 +97,7 @@ void SF_PrechargeAll(void) {
 	u32 tmp;
 
 	reg_SFCTL	= CMD_PREC;			/* Set Precharge Command 	*/
-	tmp 		= __REG(CFG_FLASH_BASE + SYNCFLASH_A10); /* Issue Precharge All Command */ 
+	tmp 		= __REG(CFG_FLASH_BASE + SYNCFLASH_A10); /* Issue Precharge All Command */
 
 }
 
@@ -105,7 +105,7 @@ void SF_PrechargeAll(void) {
 void SF_Normal(void) {
 
 	SF_PrechargeAll();
-	
+
 	reg_SFCTL	= CMD_NORMAL;
 }
 
@@ -118,10 +118,10 @@ void SF_Erase(u32 RowAddress) {
 
 	reg_SFCTL	= CMD_PREC;
 	tmp 		= __REG(RowAddress);
-	
+
 	reg_SFCTL 	= CMD_LCR;			/* Set LCR mode 		*/
 	__REG(RowAddress + LCR_ERASE_CONFIRM)	= 0;	/* Issue Erase Setup Command 	*/
-		
+
 	reg_SFCTL	= CMD_NORMAL;			/* return to Normal mode 	*/
 	__REG(RowAddress)	= 0xD0D0D0D0; 		/* Confirm			*/
 
@@ -134,7 +134,7 @@ void SF_NvmodeErase(void) {
 
 	reg_SFCTL	= CMD_LCR;			/* Set to LCR mode		*/
 	__REG(CFG_FLASH_BASE + LCR_ERASE_NVMODE)  = 0;	/* Issue Erase Nvmode Reg Command */
-	
+
 	reg_SFCTL	= CMD_NORMAL;			/* Return to Normal mode 	*/
 	__REG(CFG_FLASH_BASE + LCR_ERASE_NVMODE) = 0xC0C0C0C0;	/* Confirm 		*/
 
@@ -146,7 +146,7 @@ void SF_NvmodeWrite(void) {
 
 	reg_SFCTL 	= CMD_LCR;			/* Set to LCR mode 		*/
 	__REG(CFG_FLASH_BASE+LCR_PROG_NVMODE) = 0;	/* Issue Program Nvmode reg command */
-	
+
 	reg_SFCTL	= CMD_NORMAL;			/* Return to Normal mode 	*/
 	__REG(CFG_FLASH_BASE+LCR_PROG_NVMODE) = 0xC0C0C0C0; 	/* Confirm not needed 	*/
 
@@ -168,11 +168,11 @@ ulong flash_init(void) {
 	tmp 		= __REG(MODE_REG_VAL);	/* Issue Load Mode Register Command 	*/
 
 	SF_Normal();
- 
+
 	i = 0;
 
 	flash_info[i].flash_id 	=  FLASH_MAN_MT | FLASH_MT28S4M16LC;
-		
+
 	flash_info[i].size 	= FLASH_BANK_SIZE;
 	flash_info[i].sector_count = CFG_MAX_FLASH_SECT;
 
@@ -181,7 +181,7 @@ ulong flash_init(void) {
 	for (j = 0; j < flash_info[i].sector_count; j++) {
 		flash_info[i].start[j] = CFG_FLASH_BASE + j * 0x00100000;
 	}
-	
+
 	flash_protect(FLAG_PROTECT_SET,
 		CFG_FLASH_BASE,
 		CFG_FLASH_BASE + monitor_flash_len - 1,
@@ -208,8 +208,8 @@ void flash_print_info (flash_info_t *info) {
 			printf("Unknown Vendor ");
 			break;
 	}
-	
-	
+
+
 	switch (info->flash_id & FLASH_TYPEMASK) {
 		case (FLASH_MT28S4M16LC & FLASH_TYPEMASK):
 			printf("2x FLASH_MT28S4M16LC (16MB Total)\n");
@@ -226,13 +226,13 @@ void flash_print_info (flash_info_t *info) {
 	printf("  Sector Start Addresses: ");
 
 	for (i = 0; i < info->sector_count; i++) {
-		if ((i % 5) == 0) 
+		if ((i % 5) == 0)
 			printf ("\n   ");
 
 		printf (" %08lX%s", info->start[i],
 			info->protect[i] ? " (RO)" : "     ");
 	}
-	
+
 	printf ("\n");
 }
 
@@ -248,19 +248,19 @@ int flash_erase (flash_info_t *info, int s_first, int s_last) {
 	if (info->flash_id == FLASH_UNKNOWN)
 		return ERR_UNKNOWN_FLASH_TYPE;
 
-	if ((s_first < 0) || (s_first > s_last)) 
+	if ((s_first < 0) || (s_first > s_last))
 		return ERR_INVAL;
 
-	if ((info->flash_id & FLASH_VENDMASK) != (FLASH_MAN_MT & FLASH_VENDMASK)) 
+	if ((info->flash_id & FLASH_VENDMASK) != (FLASH_MAN_MT & FLASH_VENDMASK))
 		return ERR_UNKNOWN_FLASH_VENDOR;
 
 	prot = 0;
 
 	for (sect = s_first; sect <= s_last; ++sect) {
-		if (info->protect[sect]) 
+		if (info->protect[sect])
 			prot++;
 	}
-	
+
 	if (prot) {
 		printf("protected!\n");
 		return ERR_PROTECTED;
@@ -279,7 +279,7 @@ int flash_erase (flash_info_t *info, int s_first, int s_last) {
 
 /* Start erase on unprotected sectors */
 	for (sect = s_first; sect <= s_last && !ctrlc(); sect++) {
-	
+
 		printf("Erasing sector %2d ... ", sect);
 
 /* arm simple, non interrupt dependent timer */
@@ -307,8 +307,6 @@ int flash_erase (flash_info_t *info, int s_first, int s_last) {
 	return rc;
 }
 
-
-
 /*-----------------------------------------------------------------------
  * Copy memory to flash.
  */
@@ -316,7 +314,7 @@ int flash_erase (flash_info_t *info, int s_first, int s_last) {
 int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt) {
 	int i;
 
-	for(i = 0; i < cnt; i += 4) { 
+	for(i = 0; i < cnt; i += 4) {
 
 		SF_PrechargeAll();
 
@@ -327,6 +325,6 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt) {
 	}
 
 	SF_Normal();
-	
+
 	return ERR_OK;
 }

@@ -41,12 +41,12 @@
 #define MAIN_SECT_SIZE  0x40000
 #define PARAM_SECT_SIZE 0x8000
 
-flash_info_t    flash_info[CFG_MAX_FLASH_BANKS];
+flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
 
-static int write_data (flash_info_t *info, ulong dest, ulong *data);
-static void write_via_fpu(vu_long *addr, ulong *data);
-static __inline__ unsigned long get_msr(void);
-static __inline__ void set_msr(unsigned long msr);
+static int write_data (flash_info_t * info, ulong dest, ulong * data);
+static void write_via_fpu (vu_long * addr, ulong * data);
+static __inline__ unsigned long get_msr (void);
+static __inline__ void set_msr (unsigned long msr);
 
 /*---------------------------------------------------------------------*/
 #undef	DEBUG_FLASH
@@ -62,102 +62,132 @@ static __inline__ void set_msr(unsigned long msr);
 /*-----------------------------------------------------------------------
  */
 
-unsigned long flash_init(void)
+unsigned long flash_init (void)
 {
-    int i, j;
-    ulong size = 0;
-    uchar tempChar;
+	int i, j;
+	ulong size = 0;
+	uchar tempChar;
+	vu_long *tmpaddr;
 
-   /* Enable flash writes on CPC45 */
+	/* Enable flash writes on CPC45 */
 
-    tempChar = BOARD_CTRL;
+	tempChar = BOARD_CTRL;
 
-    tempChar |= (B_CTRL_FWPT_1 | B_CTRL_FWRE_1);
+	tempChar |= (B_CTRL_FWPT_1 | B_CTRL_FWRE_1);
 
-    tempChar &= ~(B_CTRL_FWPT_0 | B_CTRL_FWRE_0);
+	tempChar &= ~(B_CTRL_FWPT_0 | B_CTRL_FWRE_0);
 
-    BOARD_CTRL = tempChar;
+	BOARD_CTRL = tempChar;
+
+	__asm__ volatile ("sync\n eieio");
+
+	for (i = 0; i < CFG_MAX_FLASH_BANKS; i++) {
+		vu_long *addr = (vu_long *) (CFG_FLASH_BASE + i * FLASH_BANK_SIZE);
+
+		addr[0] = 0x00900090;
+
+		__asm__ volatile ("sync\n eieio");
+
+		udelay (100);
+
+		DEBUGF ("Flash bank # %d:\n"
+			"\tManuf. ID @ 0x%08lX: 0x%08lX\n"
+			"\tDevice ID @ 0x%08lX: 0x%08lX\n",
+			i,
+			(ulong) (&addr[0]), addr[0],
+			(ulong) (&addr[2]), addr[2]);
 
 
-    for (i = 0; i < CFG_MAX_FLASH_BANKS; i++) {
-	vu_long *addr = (vu_long *)(CFG_FLASH_BASE + i * FLASH_BANK_SIZE);
+		if ((addr[0] == addr[1]) && (addr[0] == INTEL_MANUFACT) &&
+		    (addr[2] == addr[3]) && (addr[2] == INTEL_ID_28F160F3T)) {
 
-	addr[0] = 0x00900090;
+			flash_info[i].flash_id =
+				(FLASH_MAN_INTEL & FLASH_VENDMASK) |
+				(INTEL_ID_28F160F3T & FLASH_TYPEMASK);
 
-	DEBUGF ("Flash bank # %d:\n"
-		"\tManuf. ID @ 0x%08lX: 0x%08lX\n"
-		"\tDevice ID @ 0x%08lX: 0x%08lX\n",
-		i,
-		(ulong)(&addr[0]), addr[0],
-		(ulong)(&addr[2]), addr[2]);
+		} else if ((addr[0] == addr[1]) && (addr[0] == INTEL_MANUFACT)
+			 && (addr[2] == addr[3])
+			 && (addr[2] == INTEL_ID_28F160C3T)) {
 
+			flash_info[i].flash_id =
+				(FLASH_MAN_INTEL & FLASH_VENDMASK) |
+				(INTEL_ID_28F160C3T & FLASH_TYPEMASK);
 
-	if ((addr[0] == addr[1]) && (addr[0] == INTEL_MANUFACT) &&
-	    (addr[2] == addr[3]) && (addr[2] == INTEL_ID_28F160F3T))
-	{
-
-	    flash_info[i].flash_id = (FLASH_MAN_INTEL & FLASH_VENDMASK) |
-				     (INTEL_ID_28F160F3T & FLASH_TYPEMASK);
-
-	} else {
-	    flash_info[i].flash_id = FLASH_UNKNOWN;
-	    addr[0] = 0xFFFFFFFF;
-	    goto Done;
-	}
-
-	DEBUGF ("flash_id = 0x%08lX\n", flash_info[i].flash_id);
-
-	addr[0] = 0xFFFFFFFF;
-
-	flash_info[i].size = FLASH_BANK_SIZE;
-	flash_info[i].sector_count = CFG_MAX_FLASH_SECT;
-	memset(flash_info[i].protect, 0, CFG_MAX_FLASH_SECT);
-	for (j = 0; j < flash_info[i].sector_count; j++) {
-		if (j > 30) {
-			flash_info[i].start[j] = CFG_FLASH_BASE +
-						 i * FLASH_BANK_SIZE +
-						 (MAIN_SECT_SIZE * 31) + (j - 31) * PARAM_SECT_SIZE;
 		} else {
-			flash_info[i].start[j] = CFG_FLASH_BASE +
-						 i * FLASH_BANK_SIZE +
-						 j * MAIN_SECT_SIZE;
+			flash_info[i].flash_id = FLASH_UNKNOWN;
+			addr[0] = 0xFFFFFFFF;
+			goto Done;
 		}
-	}
-	size += flash_info[i].size;
-    }
 
-    /* Protect monitor and environment sectors
-     */
-#if CFG_MONITOR_BASE >= CFG_FLASH_BASE
+		DEBUGF ("flash_id = 0x%08lX\n", flash_info[i].flash_id);
+
+		addr[0] = 0xFFFFFFFF;
+
+		flash_info[i].size = FLASH_BANK_SIZE;
+		flash_info[i].sector_count = CFG_MAX_FLASH_SECT;
+		memset (flash_info[i].protect, 0, CFG_MAX_FLASH_SECT);
+		for (j = 0; j < flash_info[i].sector_count; j++) {
+			if (j > 30) {
+				flash_info[i].start[j] = CFG_FLASH_BASE +
+					i * FLASH_BANK_SIZE +
+					(MAIN_SECT_SIZE * 31) + (j -
+								 31) *
+					PARAM_SECT_SIZE;
+			} else {
+				flash_info[i].start[j] = CFG_FLASH_BASE +
+					i * FLASH_BANK_SIZE +
+					j * MAIN_SECT_SIZE;
+			}
+		}
+
+		/* unlock sectors, if 160C3T */
+
+		for (j = 0; j < flash_info[i].sector_count; j++) {
+			tmpaddr = (vu_long *) flash_info[i].start[j];
+
+			if ((flash_info[i].flash_id & FLASH_TYPEMASK) ==
+			    (INTEL_ID_28F160C3T & FLASH_TYPEMASK)) {
+				tmpaddr[0] = 0x00600060;
+				tmpaddr[0] = 0x00D000D0;
+				tmpaddr[1] = 0x00600060;
+				tmpaddr[1] = 0x00D000D0;
+			}
+		}
+
+		size += flash_info[i].size;
+
+		addr[0] = 0x00FF00FF;
+		addr[1] = 0x00FF00FF;
+	}
+
+	/* Protect monitor and environment sectors
+	 */
 #if CFG_MONITOR_BASE >= CFG_FLASH_BASE + FLASH_BANK_SIZE
-    flash_protect(FLAG_PROTECT_SET,
-	      CFG_MONITOR_BASE,
-	      CFG_MONITOR_BASE + monitor_flash_len - 1,
-	      &flash_info[1]);
+	flash_protect (FLAG_PROTECT_SET,
+		       CFG_MONITOR_BASE,
+		       CFG_MONITOR_BASE + monitor_flash_len - 1,
+		       &flash_info[1]);
 #else
-    flash_protect(FLAG_PROTECT_SET,
-	      CFG_MONITOR_BASE,
-	      CFG_MONITOR_BASE + monitor_flash_len - 1,
-	      &flash_info[0]);
-#endif
+	flash_protect (FLAG_PROTECT_SET,
+		       CFG_MONITOR_BASE,
+		       CFG_MONITOR_BASE + monitor_flash_len - 1,
+		       &flash_info[0]);
 #endif
 
 #if (CFG_ENV_IS_IN_FLASH == 1) && defined(CFG_ENV_ADDR)
 #if CFG_ENV_ADDR >= CFG_FLASH_BASE + FLASH_BANK_SIZE
-    flash_protect(FLAG_PROTECT_SET,
-	      CFG_ENV_ADDR,
-	      CFG_ENV_ADDR + CFG_ENV_SIZE - 1,
-	      &flash_info[1]);
+	flash_protect (FLAG_PROTECT_SET,
+		       CFG_ENV_ADDR,
+		       CFG_ENV_ADDR + CFG_ENV_SIZE - 1, &flash_info[1]);
 #else
-    flash_protect(FLAG_PROTECT_SET,
-	      CFG_ENV_ADDR,
-	      CFG_ENV_ADDR + CFG_ENV_SIZE - 1,
-	      &flash_info[0]);
+	flash_protect (FLAG_PROTECT_SET,
+		       CFG_ENV_ADDR,
+		       CFG_ENV_ADDR + CFG_ENV_SIZE - 1, &flash_info[0]);
 #endif
 #endif
 
 Done:
-    return size;
+	return size;
 }
 
 /*-----------------------------------------------------------------------
@@ -179,6 +209,11 @@ void flash_print_info (flash_info_t * info)
 	case (INTEL_ID_28F160F3T & FLASH_TYPEMASK):
 		printf ("28F160F3T (16Mbit)\n");
 		break;
+
+	case (INTEL_ID_28F160C3T & FLASH_TYPEMASK):
+		printf ("28F160C3T (16Mbit)\n");
+		break;
+
 	default:
 		printf ("Unknown Chip Type 0x%04x\n", i);
 		goto Done;
@@ -186,7 +221,7 @@ void flash_print_info (flash_info_t * info)
 	}
 
 	printf ("  Size: %ld MB in %d Sectors\n",
-			info->size >> 20, info->sector_count);
+		info->size >> 20, info->sector_count);
 
 	printf ("  Sector Start Addresses:");
 	for (i = 0; i < info->sector_count; i++) {
@@ -194,7 +229,7 @@ void flash_print_info (flash_info_t * info)
 			printf ("\n   ");
 		}
 		printf (" %08lX%s", info->start[i],
-				info->protect[i] ? " (RO)" : "     ");
+			info->protect[i] ? " (RO)" : "     ");
 	}
 	printf ("\n");
 
@@ -205,7 +240,7 @@ Done:
 /*-----------------------------------------------------------------------
  */
 
-int	flash_erase (flash_info_t *info, int s_first, int s_last)
+int flash_erase (flash_info_t * info, int s_first, int s_last)
 {
 	int flag, prot, sect;
 	ulong start, now, last;
@@ -229,33 +264,32 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 	}
 
 	prot = 0;
-	for (sect=s_first; sect<=s_last; ++sect) {
+	for (sect = s_first; sect <= s_last; ++sect) {
 		if (info->protect[sect]) {
 			prot++;
 		}
 	}
 
 	if (prot) {
-		printf ("- Warning: %d protected sectors will not be erased!\n",
-			prot);
+		printf ("- Warning: %d protected sectors will not be erased!\n", prot);
 	} else {
 		printf ("\n");
 	}
 
 	start = get_timer (0);
-	last  = start;
+	last = start;
 	/* Start erase on unprotected sectors */
-	for (sect = s_first; sect<=s_last; sect++) {
+	for (sect = s_first; sect <= s_last; sect++) {
 		if (info->protect[sect] == 0) {	/* not protected */
-			vu_long *addr = (vu_long *)(info->start[sect]);
+			vu_long *addr = (vu_long *) (info->start[sect]);
 
 			DEBUGF ("Erase sect %d @ 0x%08lX\n",
-				sect, (ulong)addr);
+				sect, (ulong) addr);
 
 			/* Disable interrupts which might cause a timeout
 			 * here.
 			 */
-			flag = disable_interrupts();
+			flag = disable_interrupts ();
 
 			addr[0] = 0x00500050;	/* clear status register */
 			addr[0] = 0x00200020;	/* erase setup */
@@ -267,23 +301,23 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 
 			/* re-enable interrupts if necessary */
 			if (flag)
-				enable_interrupts();
+				enable_interrupts ();
 
 			/* wait at least 80us - let's wait 1 ms */
 			udelay (1000);
 
 			while (((addr[0] & 0x00800080) != 0x00800080) ||
-			       ((addr[1] & 0x00800080) != 0x00800080) ) {
-				if ((now=get_timer(start)) >
-					   CFG_FLASH_ERASE_TOUT) {
+			       ((addr[1] & 0x00800080) != 0x00800080)) {
+				if ((now = get_timer (start)) >
+				    CFG_FLASH_ERASE_TOUT) {
 					printf ("Timeout\n");
-					addr[0] = 0x00B000B0; /* suspend erase */
-					addr[0] = 0x00FF00FF; /* to read mode  */
+					addr[0] = 0x00B000B0;	/* suspend erase */
+					addr[0] = 0x00FF00FF;	/* to read mode  */
 					return 1;
 				}
 
 				/* show that we're waiting */
-				if ((now - last) > 1000) {  /* every second  */
+				if ((now - last) > 1000) {	/* every second  */
 					putc ('.');
 					last = now;
 				}
@@ -306,7 +340,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 
 #define	FLASH_WIDTH	8	/* flash bus width in bytes */
 
-int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
+int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 {
 	ulong wp, cp, msr;
 	int l, rc, i;
@@ -315,16 +349,16 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 	ulong *datal = &data[1];
 
 	DEBUGF ("Flash write_buff: @ 0x%08lx, src 0x%08lx len %ld\n",
-		addr, (ulong)src, cnt);
+		addr, (ulong) src, cnt);
 
 	if (info->flash_id == FLASH_UNKNOWN) {
 		return 4;
 	}
 
-	msr = get_msr();
-	set_msr(msr | MSR_FP);
+	msr = get_msr ();
+	set_msr (msr | MSR_FP);
 
-	wp = (addr & ~(FLASH_WIDTH-1));	/* get lower aligned address */
+	wp = (addr & ~(FLASH_WIDTH - 1));	/* get lower aligned address */
 
 	/*
 	 * handle unaligned start bytes
@@ -335,39 +369,35 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 		for (i = 0, cp = wp; i < l; i++, cp++) {
 			if (i >= 4) {
 				*datah = (*datah << 8) |
-						((*datal & 0xFF000000) >> 24);
+					((*datal & 0xFF000000) >> 24);
 			}
 
-			*datal = (*datal << 8) | (*(uchar *)cp);
+			*datal = (*datal << 8) | (*(uchar *) cp);
 		}
 		for (; i < FLASH_WIDTH && cnt > 0; ++i) {
-			char tmp;
-
-			tmp = *src;
-
-			src++;
+			char tmp = *src++;
 
 			if (i >= 4) {
 				*datah = (*datah << 8) |
-						((*datal & 0xFF000000) >> 24);
+					((*datal & 0xFF000000) >> 24);
 			}
 
 			*datal = (*datal << 8) | tmp;
-
-			--cnt; ++cp;
+			--cnt;
+			++cp;
 		}
 
 		for (; cnt == 0 && i < FLASH_WIDTH; ++i, ++cp) {
 			if (i >= 4) {
 				*datah = (*datah << 8) |
-						((*datal & 0xFF000000) >> 24);
+					((*datal & 0xFF000000) >> 24);
 			}
 
-			*datal = (*datah << 8) | (*(uchar *)cp);
+			*datal = (*datah << 8) | (*(uchar *) cp);
 		}
 
-		if ((rc = write_data(info, wp, data)) != 0) {
-			set_msr(msr);
+		if ((rc = write_data (info, wp, data)) != 0) {
+			set_msr (msr);
 			return (rc);
 		}
 
@@ -378,19 +408,19 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 	 * handle FLASH_WIDTH aligned part
 	 */
 	while (cnt >= FLASH_WIDTH) {
-		*datah = *(ulong *)src;
-		*datal = *(ulong *)(src + 4);
-		if ((rc = write_data(info, wp, data)) != 0) {
-			set_msr(msr);
+		*datah = *(ulong *) src;
+		*datal = *(ulong *) (src + 4);
+		if ((rc = write_data (info, wp, data)) != 0) {
+			set_msr (msr);
 			return (rc);
 		}
-		wp  += FLASH_WIDTH;
+		wp += FLASH_WIDTH;
 		cnt -= FLASH_WIDTH;
 		src += FLASH_WIDTH;
 	}
 
 	if (cnt == 0) {
-		set_msr(msr);
+		set_msr (msr);
 		return (0);
 	}
 
@@ -399,31 +429,28 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 	 */
 	*datah = *datal = 0;
 	for (i = 0, cp = wp; i < FLASH_WIDTH && cnt > 0; ++i, ++cp) {
-		char tmp;
-
-		tmp = *src;
-
-		src++;
+		char tmp = *src++;
 
 		if (i >= 4) {
-			*datah = (*datah << 8) | ((*datal & 0xFF000000) >> 24);
+			*datah = (*datah << 8) | ((*datal & 0xFF000000) >>
+						  24);
 		}
 
 		*datal = (*datal << 8) | tmp;
-
 		--cnt;
 	}
 
 	for (; i < FLASH_WIDTH; ++i, ++cp) {
 		if (i >= 4) {
-			*datah = (*datah << 8) | ((*datal & 0xFF000000) >> 24);
+			*datah = (*datah << 8) | ((*datal & 0xFF000000) >>
+						  24);
 		}
 
-		*datal = (*datal << 8) | (*(uchar *)cp);
+		*datal = (*datal << 8) | (*(uchar *) cp);
 	}
 
-	rc = write_data(info, wp, data);
-	set_msr(msr);
+	rc = write_data (info, wp, data);
+	set_msr (msr);
 
 	return (rc);
 }
@@ -434,32 +461,32 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
  * 1 - write timeout
  * 2 - Flash not erased
  */
-static int write_data (flash_info_t *info, ulong dest, ulong *data)
+static int write_data (flash_info_t * info, ulong dest, ulong * data)
 {
-	vu_long *addr = (vu_long *)dest;
+	vu_long *addr = (vu_long *) dest;
 	ulong start;
 	int flag;
 
 	/* Check if Flash is (sufficiently) erased */
 	if (((addr[0] & data[0]) != data[0]) ||
-	    ((addr[1] & data[1]) != data[1]) ) {
+	    ((addr[1] & data[1]) != data[1])) {
 		return (2);
 	}
 	/* Disable interrupts which might cause a timeout here */
-	flag = disable_interrupts();
+	flag = disable_interrupts ();
 
-	addr[0] = 0x00400040;		/* write setup */
-	write_via_fpu(addr, data);
+	addr[0] = 0x00400040;	/* write setup */
+	write_via_fpu (addr, data);
 
 	/* re-enable interrupts if necessary */
 	if (flag)
-		enable_interrupts();
+		enable_interrupts ();
 
 	start = get_timer (0);
 
 	while (((addr[0] & 0x00800080) != 0x00800080) ||
-	       ((addr[1] & 0x00800080) != 0x00800080) ) {
-		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+	       ((addr[1] & 0x00800080) != 0x00800080)) {
+		if (get_timer (start) > CFG_FLASH_WRITE_TOUT) {
 			addr[0] = 0x00FF00FF;	/* restore read mode */
 			return (1);
 		}
@@ -472,22 +499,24 @@ static int write_data (flash_info_t *info, ulong dest, ulong *data)
 
 /*-----------------------------------------------------------------------
  */
-static void write_via_fpu(vu_long *addr, ulong *data)
+static void write_via_fpu (vu_long * addr, ulong * data)
 {
-	__asm__ __volatile__ ("lfd  1, 0(%0)" : : "r" (data));
-	__asm__ __volatile__ ("stfd 1, 0(%0)" : : "r" (addr));
+	__asm__ __volatile__ ("lfd  1, 0(%0)"::"r" (data));
+	__asm__ __volatile__ ("stfd 1, 0(%0)"::"r" (addr));
 }
+
 /*-----------------------------------------------------------------------
  */
-static __inline__ unsigned long get_msr(void)
+static __inline__ unsigned long get_msr (void)
 {
-    unsigned long msr;
+	unsigned long msr;
 
-    __asm__ __volatile__ ("mfmsr %0" : "=r" (msr) :);
-    return msr;
+	__asm__ __volatile__ ("mfmsr %0":"=r" (msr):);
+
+	return msr;
 }
 
-static __inline__ void set_msr(unsigned long msr)
+static __inline__ void set_msr (unsigned long msr)
 {
-    __asm__ __volatile__ ("mtmsr %0" : : "r" (msr));
+	__asm__ __volatile__ ("mtmsr %0"::"r" (msr));
 }

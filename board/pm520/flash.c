@@ -83,12 +83,18 @@ unsigned long flash_init (void)
 {
 	int i;
 	ulong size = 0;
+	extern void flash_preinit(void);
+	extern void flash_afterinit(ulong, ulong);
+	ulong flashbase = CFG_FLASH_BASE;
+
+	flash_preinit();
 
 	for (i = 0; i < CFG_MAX_FLASH_BANKS; i++) {
 		switch (i) {
 		case 0:
-			flash_get_size ((FPW *) CFG_FLASH_BASE, &flash_info[i]);
-			flash_get_offsets (CFG_FLASH_BASE, &flash_info[i]);
+			memset(&flash_info[i], 0, sizeof(flash_info_t));
+			flash_get_size ((FPW *) flashbase, &flash_info[i]);
+			flash_get_offsets (flash_info[i].start[0], &flash_info[i]);
 			break;
 		default:
 			panic ("configured to many flash banks!\n");
@@ -99,14 +105,22 @@ unsigned long flash_init (void)
 
 	/* Protect monitor and environment sectors
 	 */
+#if CFG_MONITOR_BASE >= CFG_FLASH_BASE
+#ifndef CONFIG_BOOT_ROM
 	flash_protect ( FLAG_PROTECT_SET,
 			CFG_MONITOR_BASE,
 			CFG_MONITOR_BASE + monitor_flash_len - 1,
 			&flash_info[0] );
+#endif
+#endif
 
+#ifdef	CFG_ENV_IS_IN_FLASH
 	flash_protect ( FLAG_PROTECT_SET,
 			CFG_ENV_ADDR,
 			CFG_ENV_ADDR + CFG_ENV_SIZE - 1, &flash_info[0] );
+#endif
+
+	flash_afterinit(flash_info[0].start[0], flash_info[0].size);
 
 	return size;
 }
@@ -195,6 +209,8 @@ static ulong flash_get_size (FPW *addr, flash_info_t *info)
 	addr[0x5555] = (FPW) 0x00900090;
 
 	mb ();
+	udelay(100);
+
 	value = addr[0];
 
 	switch (value) {
@@ -220,18 +236,21 @@ static ulong flash_get_size (FPW *addr, flash_info_t *info)
 		info->flash_id += FLASH_28F128J3A;
 		info->sector_count = 128;
 		info->size = 0x02000000;
+		info->start[0] = CFG_FLASH_BASE;
 		break;				/* => 32 MB     */
 
 	case (FPW) INTEL_ID_28F640J3A:
 		info->flash_id += FLASH_28F640J3A;
 		info->sector_count = 64;
 		info->size = 0x01000000;
+		info->start[0] = CFG_FLASH_BASE + 0x01000000;
 		break;				/* => 16 MB     */
 
 	case (FPW) INTEL_ID_28F320J3A:
 		info->flash_id += FLASH_28F320J3A;
 		info->sector_count = 32;
-		info->size = 0x00800000;
+		info->size = 0x800000;
+		info->start[0] = CFG_FLASH_BASE + 0x01800000;
 		break;				/* => 8 MB     */
 
 	default:

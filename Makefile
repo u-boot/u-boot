@@ -255,8 +255,20 @@ TOP5200_config:	unconfig
 	@ echo "#define CONFIG_$(@:_config=) 1"	>include/config.h
 	@./mkconfig -a TOP5200 ppc mpc5xxx top5200 emk
 
-PM520_config:	unconfig
-	@./mkconfig $(@:_config=) ppc mpc5xxx pm520
+PM520_config \
+PM520_DDR_config \
+PM520_ROMBOOT_config \
+PM520_ROMBOOT_DDR_config:	unconfig
+	@ >include/config.h
+	@[ -z "$(findstring DDR,$@)" ] || \
+		{ echo "#define CONFIG_MPC5200_DDR"	>>include/config.h ; \
+		  echo "... DDR memory revision" ; \
+		}
+	@[ -z "$(findstring ROMBOOT,$@)" ] || \
+		{ echo "#define CONFIG_BOOT_ROM" >>include/config.h ; \
+		  echo "... booting from 8-bit flash" ; \
+		}
+	@./mkconfig -a PM520 ppc mpc5xxx pm520
 
 #########################################################################
 ## MPC8xx Systems

@@ -2,6 +2,9 @@
  * (C) Copyright 2003-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
+ * (C) Copyright 2004
+ * Mark Jonas, Freescale Semiconductor, mark.jonas@motorola.com.
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -25,69 +28,159 @@
 #include <mpc5xxx.h>
 #include <pci.h>
 
+#if defined(CONFIG_MPC5200_DDR)
+#include "mt46v16m16-75.h"
+#else
+#include "mt48lc16m16a2-75.h"
+#endif
+
 #ifndef CFG_RAMBOOT
-static long int dram_size(long int *base, long int maxsize)
-{
-	volatile long int *addr;
-	ulong cnt, val;
-	ulong save[32];			/* to make test non-destructive */
-	unsigned char i = 0;
-
-	for (cnt = (maxsize / sizeof (long)) >> 1; cnt > 0; cnt >>= 1) {
-		addr = base + cnt;		/* pointer arith! */
-
-		save[i++] = *addr;
-		*addr = ~cnt;
-	}
-
-	/* write 0 to base address */
-	addr = base;
-	save[i] = *addr;
-	*addr = 0;
-
-	/* check at base address */
-	if ((val = *addr) != 0) {
-		*addr = save[i];
-		return (0);
-	}
-
-	for (cnt = 1; cnt < maxsize / sizeof (long); cnt <<= 1) {
-		addr = base + cnt;		/* pointer arith! */
-
-		val = *addr;
-		*addr = save[--i];
-
-		if (val != (~cnt)) {
-			return (cnt * sizeof (long));
-		}
-	}
-	return (maxsize);
-}
-
 static void sdram_start (int hi_addr)
 {
 	long hi_addr_bit = hi_addr ? 0x01000000 : 0;
 
 	/* unlock mode register */
-	*(vu_long *)MPC5XXX_SDRAM_CTRL = 0xd04f0000 | hi_addr_bit;
+	*(vu_long *)MPC5XXX_SDRAM_CTRL = SDRAM_CONTROL | 0x80000000 | hi_addr_bit;
+	__asm__ volatile ("sync");
+
 	/* precharge all banks */
-	*(vu_long *)MPC5XXX_SDRAM_CTRL = 0xd04f0002 | hi_addr_bit;
-	/* set mode register */
-#if defined(CONFIG_MPC5200)
-	*(vu_long *)MPC5XXX_SDRAM_MODE = 0x408d0000;
-#elif defined(CONFIG_MGT5100)
-	*(vu_long *)MPC5XXX_SDRAM_MODE = 0x008d0000;
+	*(vu_long *)MPC5XXX_SDRAM_CTRL = SDRAM_CONTROL | 0x80000002 | hi_addr_bit;
+	__asm__ volatile ("sync");
+
+#if SDRAM_DDR
+	/* set mode register: extended mode */
+	*(vu_long *)MPC5XXX_SDRAM_MODE = SDRAM_EMODE;
+	__asm__ volatile ("sync");
+
+	/* set mode register: reset DLL */
+	*(vu_long *)MPC5XXX_SDRAM_MODE = SDRAM_MODE | 0x04000000;
+	__asm__ volatile ("sync");
 #endif
+
 	/* precharge all banks */
-	*(vu_long *)MPC5XXX_SDRAM_CTRL = 0xd04f0002 | hi_addr_bit;
+	*(vu_long *)MPC5XXX_SDRAM_CTRL = SDRAM_CONTROL | 0x80000002 | hi_addr_bit;
+	__asm__ volatile ("sync");
+
 	/* auto refresh */
-	*(vu_long *)MPC5XXX_SDRAM_CTRL = 0xd04f0004 | hi_addr_bit;
+	*(vu_long *)MPC5XXX_SDRAM_CTRL = SDRAM_CONTROL | 0x80000004 | hi_addr_bit;
+	__asm__ volatile ("sync");
+
 	/* set mode register */
-	*(vu_long *)MPC5XXX_SDRAM_MODE = 0x008d0000;
+	*(vu_long *)MPC5XXX_SDRAM_MODE = SDRAM_MODE;
+	__asm__ volatile ("sync");
+
 	/* normal operation */
-	*(vu_long *)MPC5XXX_SDRAM_CTRL = 0x504f0000 | hi_addr_bit;
+	*(vu_long *)MPC5XXX_SDRAM_CTRL = SDRAM_CONTROL | hi_addr_bit;
+	__asm__ volatile ("sync");
 }
 #endif
+
+/*
+ * ATTENTION: Although partially referenced initdram does NOT make real use
+ *            use of CFG_SDRAM_BASE. The code does not work if CFG_SDRAM_BASE
+ *            is something else than 0x00000000.
+ */
+
+#if defined(CONFIG_MPC5200)
+long int initdram (int board_type)
+{
+	ulong dramsize = 0;
+	ulong dramsize2 = 0;
+#ifndef CFG_RAMBOOT
+	ulong test1, test2;
+
+	/* setup SDRAM chip selects */
+	*(vu_long *)MPC5XXX_SDRAM_CS0CFG = 0x0000001e;/* 2G at 0x0 */
+	*(vu_long *)MPC5XXX_SDRAM_CS1CFG = 0x80000000;/* disabled */
+	__asm__ volatile ("sync");
+
+	/* setup config registers */
+	*(vu_long *)MPC5XXX_SDRAM_CONFIG1 = SDRAM_CONFIG1;
+	*(vu_long *)MPC5XXX_SDRAM_CONFIG2 = SDRAM_CONFIG2;
+	__asm__ volatile ("sync");
+
+#if SDRAM_DDR
+	/* set tap delay */
+	*(vu_long *)MPC5XXX_CDM_PORCFG = SDRAM_TAPDELAY;
+	__asm__ volatile ("sync");
+#endif
+
+	/* find RAM size using SDRAM CS0 only */
+	sdram_start(0);
+	test1 = get_ram_size((ulong *)CFG_SDRAM_BASE, 0x80000000);
+	sdram_start(1);
+	test2 = get_ram_size((ulong *)CFG_SDRAM_BASE, 0x80000000);
+	if (test1 > test2) {
+		sdram_start(0);
+		dramsize = test1;
+	} else {
+		dramsize = test2;
+	}
+
+	/* memory smaller than 1MB is impossible */
+	if (dramsize < (1 << 20)) {
+		dramsize = 0;
+	}
+
+	/* set SDRAM CS0 size according to the amount of RAM found */
+	if (dramsize > 0) {
+		*(vu_long *)MPC5XXX_SDRAM_CS0CFG = 0x13 + __builtin_ffs(dramsize >> 20) - 1;
+	} else {
+		*(vu_long *)MPC5XXX_SDRAM_CS0CFG = 0; /* disabled */
+	}
+
+	/* let SDRAM CS1 start right after CS0 */
+	*(vu_long *)MPC5XXX_SDRAM_CS1CFG = dramsize + 0x0000001e;/* 2G */
+
+	/* find RAM size using SDRAM CS1 only */
+	sdram_start(0);
+	test1 = get_ram_size((ulong *)(CFG_SDRAM_BASE + dramsize), 0x80000000);
+	sdram_start(1);
+	test2 = get_ram_size((ulong *)(CFG_SDRAM_BASE + dramsize), 0x80000000);
+	if (test1 > test2) {
+		sdram_start(0);
+		dramsize2 = test1;
+	} else {
+		dramsize2 = test2;
+	}
+
+	/* memory smaller than 1MB is impossible */
+	if (dramsize2 < (1 << 20)) {
+		dramsize2 = 0;
+	}
+
+	/* set SDRAM CS1 size according to the amount of RAM found */
+	if (dramsize2 > 0) {
+		*(vu_long *)MPC5XXX_SDRAM_CS1CFG = dramsize
+			| (0x13 + __builtin_ffs(dramsize2 >> 20) - 1);
+	} else {
+		*(vu_long *)MPC5XXX_SDRAM_CS1CFG = dramsize; /* disabled */
+	}
+
+#else /* CFG_RAMBOOT */
+
+	/* retrieve size of memory connected to SDRAM CS0 */
+	dramsize = *(vu_long *)MPC5XXX_SDRAM_CS0CFG & 0xFF;
+	if (dramsize >= 0x13) {
+		dramsize = (1 << (dramsize - 0x13)) << 20;
+	} else {
+		dramsize = 0;
+	}
+
+	/* retrieve size of memory connected to SDRAM CS1 */
+	dramsize2 = *(vu_long *)MPC5XXX_SDRAM_CS1CFG & 0xFF;
+	if (dramsize2 >= 0x13) {
+		dramsize2 = (1 << (dramsize2 - 0x13)) << 20;
+	} else {
+		dramsize2 = 0;
+	}
+
+#endif /* CFG_RAMBOOT */
+
+	return dramsize + dramsize2;
+}
+
+#elif defined(CONFIG_MGT5100)
 
 long int initdram (int board_type)
 {
@@ -95,56 +188,48 @@ long int initdram (int board_type)
 #ifndef CFG_RAMBOOT
 	ulong test1, test2;
 
-	/* configure SDRAM start/end */
-#if defined(CONFIG_MPC5200)
-	*(vu_long *)MPC5XXX_SDRAM_CS0CFG = 0x0000001e;/* 2G at 0x0 */
-	*(vu_long *)MPC5XXX_SDRAM_CS1CFG = 0x80000000;/* disabled */
-
-	/* setup config registers */
-	*(vu_long *)MPC5XXX_SDRAM_CONFIG1 = 0xc2233a00;
-	*(vu_long *)MPC5XXX_SDRAM_CONFIG2 = 0x88b70004;
-
-#elif defined(CONFIG_MGT5100)
+	/* setup and enable SDRAM chip selects */
 	*(vu_long *)MPC5XXX_SDRAM_START = 0x00000000;
 	*(vu_long *)MPC5XXX_SDRAM_STOP = 0x0000ffff;/* 2G */
 	*(vu_long *)MPC5XXX_ADDECR |= (1 << 22); /* Enable SDRAM */
+	__asm__ volatile ("sync");
 
 	/* setup config registers */
-	*(vu_long *)MPC5XXX_SDRAM_CONFIG1 = 0xc2222600;
-	*(vu_long *)MPC5XXX_SDRAM_CONFIG2 = 0x88b70004;
+	*(vu_long *)MPC5XXX_SDRAM_CONFIG1 = SDRAM_CONFIG1;
+	*(vu_long *)MPC5XXX_SDRAM_CONFIG2 = SDRAM_CONFIG2;
 
 	/* address select register */
-	*(vu_long *)MPC5XXX_SDRAM_XLBSEL = 0x03000000;
-#endif
+	*(vu_long *)MPC5XXX_SDRAM_XLBSEL = SDRAM_ADDRSEL;
+	__asm__ volatile ("sync");
+
+	/* find RAM size */
 	sdram_start(0);
-	test1 = dram_size((ulong *)CFG_SDRAM_BASE, 0x80000000);
+	test1 = get_ram_size((ulong *)CFG_SDRAM_BASE, 0x80000000);
 	sdram_start(1);
-	test2 = dram_size((ulong *)CFG_SDRAM_BASE, 0x80000000);
+	test2 = get_ram_size((ulong *)CFG_SDRAM_BASE, 0x80000000);
 	if (test1 > test2) {
 		sdram_start(0);
 		dramsize = test1;
 	} else {
 		dramsize = test2;
 	}
-#if defined(CONFIG_MPC5200)
-	*(vu_long *)MPC5XXX_SDRAM_CS0CFG =
-		(0x13 + __builtin_ffs(dramsize >> 20) - 1);
-	*(vu_long *)MPC5XXX_SDRAM_CS1CFG = dramsize; /* disabled */
-#elif defined(CONFIG_MGT5100)
-	*(vu_long *)MPC5XXX_SDRAM_STOP = ((dramsize - 1) >> 15);
-#endif
 
-#else
-#ifdef CONFIG_MGT5100
-	*(vu_long *)MPC5XXX_ADDECR |= (1 << 22); /* Enable SDRAM */
+	/* set SDRAM end address according to size */
+	*(vu_long *)MPC5XXX_SDRAM_STOP = ((dramsize - 1) >> 15);
+
+#else /* CFG_RAMBOOT */
+
+	/* Retrieve amount of SDRAM available */
 	dramsize = ((*(vu_long *)MPC5XXX_SDRAM_STOP + 1) << 15);
-#else
-	dramsize = ((1 << (*(vu_long *)MPC5XXX_SDRAM_CS0CFG - 0x13)) << 20);
-#endif
+
 #endif /* CFG_RAMBOOT */
-	/* return total ram size */
+
 	return dramsize;
 }
+
+#else
+#error Neither CONFIG_MPC5200 or CONFIG_MGT5100 defined
+#endif
 
 int checkboard (void)
 {
@@ -171,14 +256,32 @@ void flash_preinit(void)
 	*(vu_long *)MPC5XXX_BOOTCS_CFG &= ~0x1; /* clear RO */
 }
 
-void flash_afterinit(ulong size)
+void flash_afterinit(ulong start, ulong size)
 {
-	if (size == 0x800000) { /* adjust mapping */
-		*(vu_long *)MPC5XXX_BOOTCS_START = *(vu_long *)MPC5XXX_CS0_START =
-			START_REG(CFG_BOOTCS_START | size);
-		*(vu_long *)MPC5XXX_BOOTCS_STOP = *(vu_long *)MPC5XXX_CS0_STOP =
-			STOP_REG(CFG_BOOTCS_START | size, size);
-	}
+#if defined(CONFIG_BOOT_ROM)
+	/* adjust mapping */
+	*(vu_long *)MPC5XXX_CS1_START =
+			START_REG(start);
+	*(vu_long *)MPC5XXX_CS1_STOP =
+			STOP_REG(start, size);
+#else
+	/* adjust mapping */
+	*(vu_long *)MPC5XXX_BOOTCS_START = *(vu_long *)MPC5XXX_CS0_START =
+			START_REG(start);
+	*(vu_long *)MPC5XXX_BOOTCS_STOP = *(vu_long *)MPC5XXX_CS0_STOP =
+			STOP_REG(start, size);
+#endif
+}
+
+
+extern flash_info_t flash_info[];	/* info for FLASH chips */
+
+int misc_init_r (void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+	/* adjust flash start */
+	gd->bd->bi_flashstart = flash_info[0].start[0];
+	return (0);
 }
 
 #ifdef	CONFIG_PCI
@@ -189,5 +292,28 @@ extern void pci_mpc5xxx_init(struct pci_controller *);
 void pci_init_board(void)
 {
 	pci_mpc5xxx_init(&hose);
+}
+#endif
+
+#if defined (CFG_CMD_IDE) && defined (CONFIG_IDE_RESET)
+
+void init_ide_reset (void)
+{
+	debug ("init_ide_reset\n");
+
+}
+
+void ide_set_reset (int idereset)
+{
+	debug ("ide_reset(%d)\n", idereset);
+
+}
+#endif /* defined (CFG_CMD_IDE) && defined (CONFIG_IDE_RESET) */
+
+#if (CONFIG_COMMANDS & CFG_CMD_DOC)
+extern void doc_probe (ulong physadr);
+void doc_init (void)
+{
+	doc_probe (CFG_DOC_BASE);
 }
 #endif

@@ -178,8 +178,6 @@
 #define CFG_ENV_SIZE		0x8000	/* Total Size of Environment Sector	*/
 #endif
 
-
-
 /*-----------------------------------------------------------------------
  * Cache Configuration
  */

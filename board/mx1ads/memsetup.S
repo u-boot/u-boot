@@ -1,6 +1,6 @@
 /*
  * board/mx1ads/memsetup.S
- * 
+ *
  * (c) Copyright 2004
  * Techware Information Technology, Inc.
  * http://www.techware.com.tw/
@@ -49,7 +49,7 @@ memsetup:
 /* Issue Precharge All Commad		*/
 	ldr  r3, =0x8200000
 	ldr  r2, [r3]
-                                                                                                                                     
+
 /* Set AutoRefresh Command 		*/
 	ldr  r3, =0xA2120200
 	str  r3, [r1]
@@ -64,11 +64,11 @@ memsetup:
 	ldr  r2, [r3]
 	ldr  r2, [r3]
 	ldr  r2, [r3]
-                                                                                                                                     
+
 /* Set Mode Register 			*/
 	ldr  r3, =0xB2120200
 	str  r3, [r1]
-                                                                                                                                     
+
 /* Issue Mode Register Command		*/
 	ldr  r3, =0x08111800 	/* Mode Register Value 		*/
 	ldr  r2, [r3]
@@ -79,4 +79,3 @@ memsetup:
 
 /* everything is fine now 		*/
 	mov	pc, lr
-

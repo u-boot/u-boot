@@ -1,6 +1,6 @@
 /*
- * cpu/mc9328/serial.c 
- * 
+ * cpu/mc9328/serial.c
+ *
  * (c) Copyright 2004
  * Techware Information Technology, Inc.
  * http://www.techware.com.tw/
@@ -23,18 +23,16 @@
  * MA 02111-1307 USA
  */
 
-
 #include <common.h>
 #include <mc9328.h>
 
-#if defined(CONFIG_UART1) 
+#if defined(CONFIG_UART1)
 /* GPIO PORT B 		*/
 
 #define reg_GIUS	MX1_GIUS_C
 #define reg_GPR		MX1_GPR_B
 #define GPIO_MASK	0xFFFFE1FF
 #define UART_BASE	0x00206000
-
 
 #elif defined (CONFIG_UART2)
 /* GPIO PORT C  	*/
@@ -44,7 +42,7 @@
 #define GPIO_MASK 	0x0FFFFFFF
 #define UART_BASE	0x207000
 
-#endif 
+#endif
 
 #define reg_URXD	(*((volatile u32 *)(UART_BASE+0x00)))
 #define reg_UTXD	(*((volatile u32 *)(UART_BASE+0x40)))
@@ -64,16 +62,13 @@
 #define TXFE_MASK	0x4000  	/* Tx buffer empty	*/
 #define RDR_MASK	0x0001		/* receive data ready	*/
 
-
 void serial_setbrg (void) {
 
-/* config I/O pins for UART 	*/
-
+	/* config I/O pins for UART 	*/
 	reg_GIUS 	&= GPIO_MASK;
 	reg_GPR		&= GPIO_MASK;
 
-/* config UART			*/
-
+	/* config UART			*/
 	reg_UCR1 	= 5;
 	reg_UCR2 	= 0x4027;
 	reg_UCR4 	= 1;
@@ -84,21 +79,17 @@ void serial_setbrg (void) {
 	reg_UBRC 	= 8;
 }
 
-
-
 /*
  * Initialise the serial port with the given baudrate. The settings
  * are always 8 data bits, no parity, 1 stop bit, no start bits.
  *
  */
- 
+
 int serial_init (void) {
 	serial_setbrg ();
 
 	return (0);
 }
-
-
 
 /*
  * Read a single byte from the serial port. Returns 1 on success, 0
@@ -111,7 +102,6 @@ int serial_getc (void) {
 
 	return (u8)reg_URXD;
 }
-
 
 /*
  * Output a single byte to the serial port.
@@ -129,7 +119,6 @@ void serial_putc (const char c) {
 
 }
 
-
 /*
  * Test whether a character is in the RX buffer
  */
@@ -137,10 +126,8 @@ int serial_tstc (void) {
 	return reg_USR2 & RDR_MASK;
 }
 
-
 void serial_puts (const char *s) {
 	while (*s) {
 		serial_putc (*s++);
 	}
 }
-

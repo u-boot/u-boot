@@ -78,7 +78,7 @@ char * env_name_spec = "NAND";
 extern uchar environment[];
 env_t *env_ptr = (env_t *)(&environment[0]);
 #else /* ! ENV_IS_EMBEDDED */
-env_t *env_ptr = 0;   //(env_t *)CFG_ENV_ADDR;
+env_t *env_ptr = 0;
 #endif /* ENV_IS_EMBEDDED */
 
 

@@ -35,6 +35,8 @@
 
 #define CFG_MPC5XXX_CLKIN	33000000 /* ... running at 33MHz */
 
+#define CONFIG_MISC_INIT_R
+
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH  */
 #define BOOTFLAG_WARM		0x02	/* Software reboot	     */
 
@@ -82,11 +84,37 @@
 
 #endif
 
+/* Partitions */
+#define CONFIG_DOS_PARTITION
+
+/* USB */
+#if 1
+#define CONFIG_USB_OHCI
+#define ADD_USB_CMD             CFG_CMD_USB | CFG_CMD_FAT
+#define CONFIG_USB_STORAGE
+#else
+#define ADD_USB_CMD             0
+#endif
+
+#if defined(CONFIG_BOOT_ROM)
+#define ADD_DOC_CMD             0
+#else
+#define ADD_DOC_CMD             CFG_CMD_DOC
+#endif
+
 /*
  * Supported commands
  */
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL | ADD_PCI_CMD | \
-				 CFG_CMD_I2C | CFG_CMD_EEPROM | CFG_CMD_DATE)
+#define CONFIG_COMMANDS		(CONFIG_CMD_DFL	| \
+				 CFG_CMD_EEPROM	| \
+				 CFG_CMD_FAT	| \
+				 CFG_CMD_I2C	| \
+				 CFG_CMD_IDE	| \
+				 ADD_DOC_CMD	| \
+				 ADD_PCI_CMD	| \
+				 CFG_CMD_DATE   | \
+				 CFG_CMD_BEDBUG	| \
+				 ADD_USB_CMD)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -95,8 +123,32 @@
  * Autobooting
  */
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds */
-#define CONFIG_BOOTCOMMAND	"bootm 100000"	/* autoboot command */
-#define CONFIG_BOOTARGS		"root=/dev/ram rw"
+
+#define CONFIG_PREBOOT	"echo;"	\
+	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
+	"echo"
+
+#undef	CONFIG_BOOTARGS
+
+#define	CONFIG_EXTRA_ENV_SETTINGS					\
+	"netdev=eth0\0"							\
+	"hostname=pm520\0"							\
+	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
+		"nfsroot=$(serverip):$(rootpath)\0"			\
+	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
+	"addip=setenv bootargs $(bootargs) "				\
+		"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask)"	\
+		":$(hostname):$(netdev):off panic=1\0"			\
+	"flash_nfs=run nfsargs addip;"					\
+		"bootm $(kernel_addr)\0"				\
+	"flash_self=run ramargs addip;"					\
+		"bootm $(kernel_addr) $(ramdisk_addr)\0"		\
+	"net_nfs=tftp 200000 $(bootfile);run nfsargs addip;bootm\0"	\
+	"rootpath=/opt/eldk30/ppc_82xx\0"					\
+	"bootfile=/tftpboot/PM520/uImage\0"				\
+	""
+
+#define CONFIG_BOOTCOMMAND	"run flash_self"
 
 #if defined(CONFIG_MPC5200)
 /*
@@ -128,11 +180,44 @@
 #define CFG_I2C_RTC_ADDR		0x51
 
 /*
- * Flash configuration
+ * Disk-On-Chip configuration
  */
-#define CFG_FLASH_BASE		0xff800000
-#define CFG_FLASH_SIZE		0x00800000
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x740000)
+
+#define CFG_DOC_SHORT_TIMEOUT
+#define CFG_MAX_DOC_DEVICE	1	/* Max number of DOC devices	*/
+
+#define CFG_DOC_SUPPORT_2000
+#define CFG_DOC_SUPPORT_MILLENNIUM
+#define CFG_DOC_BASE		0xE0000000
+#define CFG_DOC_SIZE		0x00100000
+
+#if defined(CONFIG_BOOT_ROM)
+/*
+ * Flash configuration (8,16 or 32 MB)
+ * TEXT base always at 0xFFF00000
+ * ENV_ADDR always at  0xFFF40000
+ * FLASH_BASE at 0xFC000000 for 32 MB
+ *               0xFD000000 for 16 MB
+ *               0xFD800000 for  8 MB
+ */
+#define CFG_FLASH_BASE		0xfc000000
+#define CFG_FLASH_SIZE		0x02000000
+#define CFG_BOOTROM_BASE	0xFFF00000
+#define CFG_BOOTROM_SIZE	0x00080000
+#define CFG_ENV_ADDR		(0xFDF00000 + 0x40000)
+#else
+/*
+ * Flash configuration (8,16 or 32 MB)
+ * TEXT base always at 0xFFF00000
+ * ENV_ADDR always at  0xFFF40000
+ * FLASH_BASE at 0xFE000000 for 32 MB
+ *               0xFF000000 for 16 MB
+ *               0xFF800000 for  8 MB
+ */
+#define CFG_FLASH_BASE		0xfe000000
+#define CFG_FLASH_SIZE		0x02000000
+#define CFG_ENV_ADDR		(0xFFF00000 + 0x40000)
+#endif
 #define CFG_MAX_FLASH_BANKS	1	/* max num of memory banks      */
 
 #define CFG_MAX_FLASH_SECT	128	/* max num of sects on one chip */
@@ -228,15 +313,68 @@
 #define CFG_HID0_FINAL		0
 #endif
 
+#if defined(CONFIG_BOOT_ROM)
+#define CFG_BOOTCS_START	CFG_BOOTROM_BASE
+#define CFG_BOOTCS_SIZE		CFG_BOOTROM_SIZE
+#define CFG_BOOTCS_CFG		0x00047800
+#define CFG_CS0_START		CFG_BOOTROM_BASE
+#define CFG_CS0_SIZE		CFG_BOOTROM_SIZE
+#define CFG_CS1_START		CFG_FLASH_BASE
+#define CFG_CS1_SIZE		CFG_FLASH_SIZE
+#define CFG_CS1_CFG		0x0004fb00
+#else
 #define CFG_BOOTCS_START	CFG_FLASH_BASE
 #define CFG_BOOTCS_SIZE		CFG_FLASH_SIZE
 #define CFG_BOOTCS_CFG		0x0004fb00
 #define CFG_CS0_START		CFG_FLASH_BASE
 #define CFG_CS0_SIZE		CFG_FLASH_SIZE
+#define CFG_CS1_START		CFG_DOC_BASE
+#define CFG_CS1_SIZE		CFG_DOC_SIZE
+#define CFG_CS1_CFG		0x00047800
+#endif
 
 #define CFG_CS_BURST		0x00000000
 #define CFG_CS_DEADCYCLE	0x33333333
 
 #define CFG_RESET_ADDRESS	0xff000000
+
+/*-----------------------------------------------------------------------
+ * USB stuff
+ *-----------------------------------------------------------------------
+ */
+#define CONFIG_USB_CLOCK	0x0001BBBB
+#define CONFIG_USB_CONFIG	0x00005000
+
+/*-----------------------------------------------------------------------
+ * IDE/ATA stuff Supports IDE harddisk
+ *-----------------------------------------------------------------------
+ */
+
+#undef  CONFIG_IDE_8xx_PCCARD		/* Use IDE with PC Card	Adapter	*/
+
+#undef	CONFIG_IDE_8xx_DIRECT		/* Direct IDE    not supported	*/
+#undef	CONFIG_IDE_LED			/* LED   for ide not supported	*/
+
+#undef	CONFIG_IDE_RESET		/* reset for ide supported	*/
+#define CONFIG_IDE_PREINIT
+
+#define CFG_IDE_MAXBUS		1	/* max. 1 IDE bus		*/
+#define CFG_IDE_MAXDEVICE	2	/* max. 2 drive per IDE bus	*/
+
+#define CFG_ATA_IDE0_OFFSET	0x0000
+
+#define CFG_ATA_BASE_ADDR	MPC5XXX_ATA
+
+/* Offset for data I/O			*/
+#define CFG_ATA_DATA_OFFSET	(0x0060)
+
+/* Offset for normal register accesses	*/
+#define CFG_ATA_REG_OFFSET	(CFG_ATA_DATA_OFFSET)
+
+/* Offset for alternate registers	*/
+#define CFG_ATA_ALT_OFFSET	(0x005C)
+
+/* Interval between registers                                                */
+#define CFG_ATA_STRIDE          4
 
 #endif /* __CONFIG_H */

@@ -1,6 +1,6 @@
 /*
  * board/mx1ads/mx1ads.c
- * 
+ *
  * (c) Copyright 2004
  * Techware Information Technology, Inc.
  * http://www.techware.com.tw/
@@ -61,7 +61,7 @@ static inline void delay (unsigned long loops) {
 	  "bne 1b":"=r" (loops):"0" (loops));
 }
 
-#endif 
+#endif
 
 /*
  * Miscellaneous platform dependent initialisations
@@ -76,7 +76,7 @@ void SetAsynchMode(void) {
 		"mcr p15,0,r0,c1,c0,0 \n"
 	);
 }
-                                                
+
 static u32 mc9328sid;
 
 int board_init (void) {
@@ -88,16 +88,13 @@ int board_init (void) {
 	mc9328sid	= MX1_SIDR;
 
 	MX1_GPCR 	= 0x000003AB;		/* I/O pad driving strength 	*/
-	
+
 /*	MX1_CS1U 	= 0x00000A00;	*/	/* SRAM initialization 		*/
 /*	MX1_CS1L 	= 0x11110601; 	*/
-                        
 
 	MX1_MPCTL0 	= 0x04632410;	/* setting for 150 MHz MCU PLL CLK	*/
 
-/*	MX1_MPCTL0 	= 0x003f1437;	*//* setting for 192 MHz MCU PLL CLK	*/
-
-
+/*	MX1_MPCTL0 	= 0x003f1437;	*/ /* setting for 192 MHz MCU PLL CLK	*/
 
 /* set FCLK divider 1 (i.e. FCLK to MCU PLL CLK) and
  * BCLK divider to 2 (i.e. BCLK to 48 MHz)
@@ -108,13 +105,13 @@ int board_init (void) {
 	MX1_CSCR 	&= 0xFFFF7FFF;		/* Program PRESC bit(bit 15) to 0 to divide-by-1 */
 
 /* setup cs4 for cs8900 ethernet */
-	
+
 	MX1_CS4U	= 0x00000F00;	/* Initialize CS4 for CS8900 ethernet 	*/
 	MX1_CS4L	= 0x00001501;
-    
+
 	MX1_GIUS_A	&= 0xFF3FFFFF;
 	MX1_GPR_A	&= 0xFF3FFFFF;
-        
+
 	tmp = *(unsigned int *)(0x1500000C);
 	tmp = *(unsigned int *)(0x1500000C);
 
@@ -135,9 +132,9 @@ int board_init (void) {
 
 /* set PERCLKs				*/
 	MX1_PCDR = 0x00000055;     	/* set PERCLKS				*/
-	
-/* PERCLK3 is only used by SSI so the SSI driver can set it any value it likes 
- * PERCLK1 and PERCLK2 are shared so DO NOT change it in any other place       
+
+/* PERCLK3 is only used by SSI so the SSI driver can set it any value it likes
+ * PERCLK1 and PERCLK2 are shared so DO NOT change it in any other place
  * all sources selected as normal interrupt
  */
 	MX1_INTTYPEH = 0;
@@ -154,24 +151,24 @@ int board_late_init(void) {
 
 	switch	(mc9328sid) {
 		case 0x0005901d :
-			printf ("MX1ADS board with MC9328 MX1 (0L44N), Silicon ID 0x%08x \n\n",mc9328sid); 
+			printf ("MX1ADS board with MC9328 MX1 (0L44N), Silicon ID 0x%08x \n\n",mc9328sid);
 			break;
 		case 0x04d4c01d :
-			printf ("MX1ADS board with MC9328 MXL (1L45N), Silicon ID 0x%08x \n\n",mc9328sid); 
+			printf ("MX1ADS board with MC9328 MXL (1L45N), Silicon ID 0x%08x \n\n",mc9328sid);
 			break;
 		case 0x00d4c01d :
-			printf ("MX1ADS board with MC9328 MXL (2L45N), Silicon ID 0x%08x \n\n",mc9328sid); 
+			printf ("MX1ADS board with MC9328 MXL (2L45N), Silicon ID 0x%08x \n\n",mc9328sid);
 			break;
 
 		default :
-			printf ("MX1ADS board with UNKNOWN MC9328 cpu, Silicon ID 0x%08x \n",mc9328sid); 
+			printf ("MX1ADS board with UNKNOWN MC9328 cpu, Silicon ID 0x%08x \n",mc9328sid);
 			break;
-		
+
 	}
-	
+
 	return 0;
-} 
-                        
+}
+
 
 int dram_init (void) {
 	DECLARE_GLOBAL_DATA_PTR;

@@ -1,11 +1,9 @@
 /*
- * board/mx1ads/u-boot.lds
+ * (C) Copyright 2004
+ * Mark Jonas, Freescale Semiconductor, mark.jonas@motorola.com.
  *
- * (c) Copyright 2004
- * Techware Information Technology, Inc.
- * http://www.techware.com.tw/
- *
- * Ming-Len Wu <minglen_wu@techware.com.tw>
+ * See file CREDITS for list of people who contributed to this
+ * project.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,36 +21,23 @@
  * MA 02111-1307 USA
  */
 
+#define SDRAM_DDR	0		/* is SDR */
 
-OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
-OUTPUT_ARCH(arm)
-ENTRY(_start)
-SECTIONS
-{
-	. = 0x00000000;
+#if defined(CONFIG_MPC5200)
+/* Settings for XLB = 132 MHz */
+#define SDRAM_MODE	0x00CD0000
+#define SDRAM_CONTROL	0x504F0000
+#define SDRAM_CONFIG1	0xD2322800
+#define SDRAM_CONFIG2	0x8AD70000
 
-	. = ALIGN(4);
-	.text      :
-	{
-	  cpu/mc9328/start.o	(.text)
-	  *(.text)
-	}
+#elif defined(CONFIG_MGT5100)
+/* Settings for XLB = 66 MHz */
+#define SDRAM_MODE	0x008D0000
+#define SDRAM_CONTROL	0x504F0000
+#define SDRAM_CONFIG1	0xC2222600
+#define SDRAM_CONFIG2	0x88B70004
+#define SDRAM_ADDRSEL	0x02000000
 
-	. = ALIGN(4);
-	.rodata : { *(.rodata) }
-
-	. = ALIGN(4);
-	.data : { *(.data) }
-
-	. = ALIGN(4);
-	.got : { *(.got) }
-
-	__u_boot_cmd_start = .;
-	.u_boot_cmd : { *(.u_boot_cmd) }
-	__u_boot_cmd_end = .;
-
-	. = ALIGN(4);
-	__bss_start = .;
-	.bss : { *(.bss) }
-	_end = .;
-}
+#else
+#error Neither CONFIG_MPC5200 or CONFIG_MGT5100 defined
+#endif

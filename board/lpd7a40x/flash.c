@@ -300,7 +300,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 			do {
 				ulong now;
 				/* check timeout */
-				//if (get_timer_masked () > CFG_FLASH_ERASE_TOUT) {
+				/*if (get_timer_masked () > CFG_FLASH_ERASE_TOUT) { */
 				if ((now = get_timer(tstart)) > CFG_FLASH_ERASE_TOUT) {
 					printf("tstart = 0x%08lx, now = 0x%08lx\n", tstart, now);
 					*addr = CMD_STATUS_RESET;

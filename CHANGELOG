@@ -2,12 +2,21 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Josef Wagner, 04 Jun 2004:
+  - DDR Ram support for PM520 (MPC5200)
+  - support for different flash types (PM520)
+  - USB / IDE / CF-Card / DiskOnChip support for PM520
+  - 8 bit boot rom support for PM520/CE520
+  - Add auto SDRAM module detection for MicroSys CPC45 board (MPC8245)
+  - I2C and RTC support for CPC45
+  - support of new flash type (28F160C3T) for CPC45
+
 * Fix flash parameters passed to Linux for PPChameleon board
 
 * Remove eth_init() from lib_arm/board.c; it's done in net.net.c.
 
 * Patch by Paul Ruhland, 10 Jun 2004:
-  fix support for Logic SDK-LH7A404 board and clean up the 
+  fix support for Logic SDK-LH7A404 board and clean up the
   LH7A404 register macros.
 
 * Patch by Matthew McClintock, 10 Jun 2004:
