@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.3:
 ======================================================================
 
+* Patch by David Adair, 27 Oct 2004:
+  Add missing 440GX SDRAM Controller reset
+
 * Patch by Steven Scholz, 25 Oct 2004:
   Declare reset_cpu() in include/common.h instead locally
 

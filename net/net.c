@@ -506,8 +506,8 @@ restart:
 			thand_f *x;
 
 #if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
-#  if defined(CFG_FAULT_ECHO_LINK_DOWN) &&
-      defined(CONFIG_STATUS_LED) &&
+#  if defined(CFG_FAULT_ECHO_LINK_DOWN) && \
+      defined(CONFIG_STATUS_LED) &&	   \
       defined(STATUS_LED_RED)
 			/*
 			 * Echo the inverted link state to the fault LED.
