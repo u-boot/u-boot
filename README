@@ -306,6 +306,7 @@ The following options need to be configured:
 	or	CONFIG_MPC824X, CONFIG_MPC8260
 	or	CONFIG_IOP480
 	or	CONFIG_405GP
+	or	CONFIG_405EP
 	or	CONFIG_440
 	or	CONFIG_MPC74xx
 	or	CONFIG_750FX

@@ -539,6 +539,9 @@ PIP405_config:unconfig
 PMC405_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx pmc405 esd
 
+PPChameleonEVB_config:	unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx PPChameleonEVB dave
+
 W7OLMC_config	\
 W7OLMG_config: unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx w7o
@@ -750,6 +753,9 @@ BAB7xx_config: unconfig
 
 ELPPC_config: unconfig
 	@./mkconfig $(@:_config=) ppc 74xx_7xx elppc eltec
+
+P3G4_config: unconfig
+	@./mkconfig $(@:_config=) ppc 74xx_7xx evb64260
 
 #========================================================================
 # ARM

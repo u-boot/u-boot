@@ -702,7 +702,8 @@ _start:
 	/* NEVER RETURNS! */
 	bl	board_init_f	/* run first part of init code (from Flash)	*/
 
-#endif	/* CONFIG_405GP || CONFIG_405CR */
+#endif	/* CONFIG_405GP || CONFIG_405CR || CONFIG_405 || CONFIG_405EP */
+	/*----------------------------------------------------------------------- */
 
 
 /*****************************************************************************/

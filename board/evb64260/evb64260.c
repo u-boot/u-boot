@@ -237,7 +237,7 @@ int board_pre_init (void)
 	 * on-board sram on the eval board, and updates the correct
 	 * registers to boot from the sram. (device0)
 	 */
-#ifdef CONFIG_ZUMA_V2
+#if defined(CONFIG_ZUMA_V2) || defined(CONFIG_P3G4)
 	/* Zuma has no SRAM */
 	sram_boot = 0;
 #else
@@ -265,6 +265,7 @@ int board_pre_init (void)
 	GT_REG_WRITE(DEVICE_BANK2PARAMETERS, CFG_DEV2_PAR);
 #endif
 
+#ifdef CONFIG_EVB64260
 #ifdef CFG_32BIT_BOOT_PAR
 	/* detect if we are booting from the 32 bit flash */
 	if (GTREGREAD(DEVICE_BOOT_BANK_PARAMETERS) & (0x3 << 20)) {
@@ -279,6 +280,11 @@ int board_pre_init (void)
 #else
 	/* 8 bit boot flash only */
 	GT_REG_WRITE(DEVICE_BOOT_BANK_PARAMETERS, CFG_8BIT_BOOT_PAR);
+#endif
+#else /* CONFIG_EVB64260 not defined */
+		/* We are booting from 16-bit flash.
+		 */
+	GT_REG_WRITE(DEVICE_BOOT_BANK_PARAMETERS, CFG_16BIT_BOOT_PAR);
 #endif
 
 	gt_cpu_config();
@@ -351,7 +357,7 @@ checkboard (void)
 void
 debug_led(int led, int mode)
 {
-#ifndef CONFIG_ZUMA_V2
+#if !defined(CONFIG_ZUMA_V2) && !defined(CONFIG_P3G4)
 	volatile int *addr = NULL;
 	int dummy;
 

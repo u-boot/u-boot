@@ -722,7 +722,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	load_sernum_ethaddr ();
 #endif
 
-#if defined(CFG_GT_6426x) || defined(CONFIG_PN62)
+#if defined(CFG_GT_6426x) || defined(CONFIG_PN62) || defined(CONFIG_PPCHAMELEONEVB)
 	/* handle the 2nd ethernet address */
 
 	s = getenv ("eth1addr");

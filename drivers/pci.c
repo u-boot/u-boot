@@ -428,7 +428,7 @@ int pci_hose_scan_bus(struct pci_controller *hose, int bus)
 	     dev <  PCI_BDF(bus,PCI_MAX_PCI_DEVICES-1,PCI_MAX_PCI_FUNCTIONS-1);
 	     dev += PCI_BDF(0,0,1))
 	{
-#ifndef CONFIG_405GP /* don't skip host bridge on ppc405gp */
+#if ((!defined(CONFIG_405GP)) && (!defined(CONFIG_405EP)))	/* don't skip host bridge on ppc405gp and 405ep */
 		/* Skip our host bridge */
 		if ( dev == PCI_BDF(hose->first_busno,0,0) )
 			continue;

@@ -92,6 +92,8 @@ Wolfgang Denk <wd@denx.de>
 	PM826			MPC8260
 	TQM8260			MPC8260
 
+	P3G4			MPC7410
+
 	PCIPPC2			MPC750
 	PCIPPC6			MPC750
 

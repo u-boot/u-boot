@@ -61,11 +61,11 @@ typedef struct bd_info {
 	unsigned long	bi_pcifreq;	/* PCI Bus Freq, in MHz */
 #endif
 	unsigned long	bi_baudrate;	/* Console Baudrate */
-#if defined(CONFIG_405GP) || \
+#if defined(CONFIG_405)   || \
+    defined(CONFIG_405GP) || \
     defined(CONFIG_405CR) || \
-    defined(CONFIG_440)   || \
-    defined(CONFIG_405)   || \
-    defined(CONFIG_405EP)
+    defined(CONFIG_405EP) || \
+    defined(CONFIG_440)
 	unsigned char	bi_s_version[4];	/* Version of this structure */
 	unsigned char	bi_r_version[32];	/* Version of the ROM (IBM) */
 	unsigned int	bi_procfreq;	/* CPU (Internal) Freq, in Hz */
@@ -76,14 +76,15 @@ typedef struct bd_info {
 #if defined(CONFIG_HYMOD)
 	hymod_conf_t	bi_hymod_conf;	/* hymod configuration information */
 #endif
-#if defined(CONFIG_EVB64260)	|| \
-    defined(CONFIG_PN62)	|| \
-    defined(CONFIG_SXNI855T)	|| \
+#if defined(CFG_GT_6426x)		|| \
+    defined(CONFIG_PN62)		|| \
+    defined(CONFIG_PPCHAMELEONEVB)	|| \
+    defined(CONFIG_SXNI855T)		|| \
     defined(CONFIG_SVM_SC8xx)
 	/* second onboard ethernet port */
 	unsigned char   bi_enet1addr[6];
 #endif
-#if defined(CONFIG_EVB64260) || defined(CONFIG_SVM_SC8xx)
+#if defined(CFG_GT_6426x) || defined(CONFIG_SVM_SC8xx)
 	/* third onboard ethernet port */
 	unsigned char	bi_enet2addr[6];
 #endif

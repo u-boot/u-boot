@@ -59,7 +59,7 @@ LIST_4xx="	\
 	DU405    	EBONY           ERIC  		EXBITGEN	\
 	MIP405  	MIP405T		ML2		OCRTC		\
 	ORSG		PCI405		PIP405		PMC405          \
-	W7OLMC		W7OLMG          WALNUT405			\
+	PPChameleonEVB	W7OLMC		W7OLMG          WALNUT405	\
 "
 
 #########################################################################
@@ -89,7 +89,8 @@ LIST_8260="	\
 #########################################################################
 
 LIST_74xx="	\
-	EVB64260	PCIPPC2		PCIPPC6		ZUMA		\
+	EVB64260	P3G4		PCIPPC2		PCIPPC6		\
+	ZUMA								\
 "
 
 LIST_7xx="	\

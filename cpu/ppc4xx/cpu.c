@@ -50,15 +50,15 @@ int checkcpu (void)
 {
 #if defined(CONFIG_405GP) || \
     defined(CONFIG_405CR) || \
-    defined(CONFIG_IOP480) || \
-    defined(CONFIG_440) || \
-    defined(CONFIG_405EP)
+    defined(CONFIG_405EP) || \
+    defined(CONFIG_440)   || \
+    defined(CONFIG_IOP480)
 	uint pvr = get_pvr();
 #endif
 #if defined(CONFIG_405GP) || \
     defined(CONFIG_405CR) || \
-    defined(CONFIG_IOP480) || \
-    defined(CONFIG_405EP)
+    defined(CONFIG_405EP) || \
+    defined(CONFIG_IOP480)
 	DECLARE_GLOBAL_DATA_PTR;
 
 	ulong clock = gd->cpu_clk;

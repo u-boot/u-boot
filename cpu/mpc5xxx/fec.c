@@ -809,9 +809,13 @@ int mpc5xxx_fec_initialize(bd_t * bis)
 {
 	mpc5xxx_fec_priv *fec;
 	struct eth_device *dev;
+	char *tmp, *end;
+	char env_enetaddr[6];
+	int i;
 
 	fec = (mpc5xxx_fec_priv *)malloc(sizeof(*fec));
 	dev = (struct eth_device *)malloc(sizeof(*dev));
+   	memset(dev, 0, sizeof *dev);
 
 	fec->eth = (ethernet_regs *)MPC5XXX_FEC;
 	fec->tbdBase = (FEC_TBD *)FEC_BD_BASE;
@@ -829,6 +833,21 @@ int mpc5xxx_fec_initialize(bd_t * bis)
 
 	sprintf(dev->name, "FEC ETHERNET");
 	eth_register(dev);
+
+	/*
+	 * Try to set the mac address now. The fec mac address is
+	 * a garbage after reset. When not using fec for booting 
+	 * the Linux fec driver will try to work with this garbage.
+	 */
+	tmp = getenv("ethaddr");
+	if (tmp) {
+		for (i=0; i<6; i++) {
+			env_enetaddr[i] = tmp ? simple_strtoul(tmp, &end, 16) : 0;
+			if (tmp)
+				tmp = (*end) ? end+1 : end;
+		}
+		mpc5xxx_fec_set_hwaddr(fec, env_enetaddr);
+	}
 
 	return 1;
 }

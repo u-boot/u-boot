@@ -2,6 +2,13 @@
 Changes for U-Boot 0.4.7:
 ======================================================================
 
+* Add support for PPChameleon Eval Board
+
+* Add support for P3G4 board
+
+* Fix problem with MGT5100 FEC driver: add "early" MAC address
+  initialization
+
 * Patch by Yuli Barcohen, 7 Aug 2003:
   check BCSR to detect if the board is configured in PCI mode
 

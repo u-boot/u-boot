@@ -520,7 +520,7 @@ static int NanD_WaitReady(struct nand_chip *nand, int ale_wait)
 	else
 		udelay(10);
 #else	/* has functional r/b signal */
-    NAND_WAIT_READY(nand);
+	NAND_WAIT_READY(nand);
 #endif
 	return ret;
 }

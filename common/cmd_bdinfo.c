@@ -81,7 +81,7 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	for (i=0; i<6; ++i) {
 		printf ("%c%02X", i ? ':' : ' ', bd->bi_enetaddr[i]);
 	}
-#ifdef CONFIG_PN62
+#if (defined CONFIG_PN62) || (defined CONFIG_PPCHAMELEONEVB)
 	printf ("\neth1addr    =");
 	for (i=0; i<6; ++i) {
 		printf ("%c%02X", i ? ':' : ' ', bd->bi_enet1addr[i]);

@@ -60,7 +60,7 @@ typedef	struct	global_data {
 	unsigned int	dp_alloc_base;
 	unsigned int	dp_alloc_top;
 #endif
-#if defined(CONFIG_EVB64260)
+#if defined(CFG_GT_6426x)
 	unsigned int	mirror_hack[16];
 #endif
 #if defined(CONFIG_SANDPOINT) ||  \

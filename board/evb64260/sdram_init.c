@@ -175,7 +175,30 @@ check_dimm(uchar slot, sdram_info_t *info)
 	return 0;
 }
 
-#else /* ! CONFIG_ZUMA_V2 */
+#elif defined(CONFIG_P3G4)
+
+static int
+check_dimm(uchar slot, sdram_info_t *info)
+{
+	memset(info, 0, sizeof(*info));
+
+	if (slot)
+		return 0;
+
+	info->slot = slot;
+	info->banks = 1;
+	info->registered = 0;
+	info->drb_size = 4;
+	info->tpar = 3;
+	info->tras_clocks = 6;
+	info->burst_len = 4;
+#ifdef CONFIG_ECC
+	info->ecc = 2;
+#endif
+	return 0;
+}
+
+#else /* ! CONFIG_ZUMA_V2 && ! CONFIG_P3G4*/
 
 /* This code reads the SPD chip on the sdram and populates
  * the array which is passed in with the relevant information */

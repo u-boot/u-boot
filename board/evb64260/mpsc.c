@@ -273,7 +273,7 @@ mpsc_init(int baud)
 
 	/* BRG CONFIG */
 	galbrg_set_baudrate(CHANNEL, baud);
-#ifdef CONFIG_ZUMA_V2
+#if defined(CONFIG_ZUMA_V2) || defined(CONFIG_P3G4)
 	galbrg_set_clksrc(CHANNEL,0x8);	/* connect TCLK -> BRG */
 #else
 	galbrg_set_clksrc(CHANNEL,0);
@@ -387,7 +387,7 @@ galbrg_set_baudrate(int channel, int rate)
 
 	galbrg_disable(channel);
 
-#ifdef CONFIG_ZUMA_V2
+#if defined(CONFIG_ZUMA_V2) || defined(CONFIG_P3G4)
 	/* from tclk */
 	clock = (CFG_BUS_HZ/(16*rate)) - 1;
 #else
@@ -803,6 +803,7 @@ static int
 galmpsc_shutdown(int mpsc)
 {
 	DECLARE_GLOBAL_DATA_PTR;
+#if 0
 	unsigned int temp;
 
 	/* cause RX abort (clears RX) */
@@ -810,9 +811,11 @@ galmpsc_shutdown(int mpsc)
 	temp |= MPSC_RX_ABORT | MPSC_TX_ABORT;
 	temp &= ~MPSC_ENTER_HUNT;
 	GT_REG_WRITE_MIRROR(GALMPSC_CHANNELREG_2,mpsc,GALMPSC_REG_GAP,temp);
+#endif
 
-	GT_REG_WRITE(GALSDMA_0_COM_REG, 0);
-	GT_REG_WRITE(GALSDMA_0_COM_REG, SDMA_TX_ABORT | SDMA_RX_ABORT);
+	GT_REG_WRITE(GALSDMA_0_COM_REG + CHANNEL * GALSDMA_REG_DIFF, 0);
+	GT_REG_WRITE(GALSDMA_0_COM_REG + CHANNEL * GALSDMA_REG_DIFF,
+	             SDMA_TX_ABORT | SDMA_RX_ABORT);
 
 	/* shut down the MPSC */
 	GT_REG_WRITE(GALMPSC_MCONF_LOW, 0);
@@ -823,14 +826,15 @@ galmpsc_shutdown(int mpsc)
 
 	/* shut down the sdma engines. */
 	/* reset config to default */
-	GT_REG_WRITE(GALSDMA_0_CONF_REG, 0x000000fc);
+	GT_REG_WRITE(GALSDMA_0_CONF_REG + CHANNEL * GALSDMA_REG_DIFF,
+	             0x000000fc);
 
 	udelay(100);
 
 	/* clear the SDMA current and first TX and RX pointers */
-	GT_REG_WRITE(GALSDMA_0_CUR_RX_PTR, 0);
-	GT_REG_WRITE(GALSDMA_0_CUR_TX_PTR, 0);
-	GT_REG_WRITE(GALSDMA_0_FIR_TX_PTR, 0);
+	GT_REG_WRITE(GALSDMA_0_CUR_RX_PTR + CHANNEL * GALSDMA_REG_DIFF, 0);
+	GT_REG_WRITE(GALSDMA_0_CUR_TX_PTR + CHANNEL * GALSDMA_REG_DIFF, 0);
+	GT_REG_WRITE(GALSDMA_0_FIR_TX_PTR + CHANNEL * GALSDMA_REG_DIFF, 0);
 
 	udelay(100);
 

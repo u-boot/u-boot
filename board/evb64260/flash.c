@@ -54,6 +54,7 @@ flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
 static ulong flash_get_size (int portwidth, vu_long *addr, flash_info_t *info);
 static int write_word (flash_info_t *info, ulong dest, ulong data);
 static void flash_get_offsets (ulong base, flash_info_t *info);
+static flash_info_t *flash_get_info(ulong base);
 
 /*-----------------------------------------------------------------------
  */
@@ -72,7 +73,11 @@ flash_init (void)
 
 	/* the boot flash */
 	base = CFG_FLASH_BASE;
-	size_b0 = flash_get_size(1, (vu_long *)base, &flash_info[0]);
+#ifndef CFG_BOOT_FLASH_WIDTH
+#define CFG_BOOT_FLASH_WIDTH	1
+#endif
+	size_b0 = flash_get_size(CFG_BOOT_FLASH_WIDTH, (vu_long *)base,
+	                         &flash_info[0]);
 
 	printf("[%ldkB@%lx] ", size_b0/1024, base);
 
@@ -97,6 +102,22 @@ flash_init (void)
 	    size_b1+=size;
 	    base+=size;
 	}
+
+#if CFG_MONITOR_BASE >= CFG_FLASH_BASE
+	/* monitor protection ON by default */
+	flash_protect(FLAG_PROTECT_SET,
+	              CFG_MONITOR_BASE,
+	              CFG_MONITOR_BASE + monitor_flash_len - 1,
+	              flash_get_info(CFG_MONITOR_BASE));
+#endif
+
+#ifdef  CFG_ENV_IS_IN_FLASH
+	/* ENV protection ON by default */
+	flash_protect(FLAG_PROTECT_SET,
+	              CFG_ENV_ADDR,
+	              CFG_ENV_ADDR + CFG_ENV_SIZE - 1,
+	              flash_get_info(CFG_ENV_ADDR));
+#endif
 
 	flash_size = size_b0 + size_b1;
 	return flash_size;
@@ -144,6 +165,23 @@ flash_get_offsets (ulong base, flash_info_t *info)
 		    }
 		}
 	}
+}
+
+/*-----------------------------------------------------------------------
+ */
+
+static flash_info_t *flash_get_info(ulong base)
+{
+	int i;
+	flash_info_t * info;
+
+	for (i = 0; i < CFG_MAX_FLASH_BANKS; i ++) {
+		info = & flash_info[i];
+		if (info->start[0] <= base && base <= info->start[0] + info->size - 1)
+			break;
+	}
+
+	return i == CFG_MAX_FLASH_BANKS ? 0 : info;
 }
 
 /*-----------------------------------------------------------------------
@@ -247,8 +285,11 @@ static inline void flash_cmd(int width, volatile unsigned char *addr, int offset
 	    /* 2x16 */
 	    unsigned long cmd32=(cmd<<16)|cmd;
 	    *(volatile unsigned long *)(addr+offset*2)=cmd32;
+	} else if (width == 2) {
+	    /* 1x16 */
+	    *(volatile unsigned short *)((unsigned short*)addr+offset)=cmd;
 	} else {
-	    /* 1x16 or 1x8 */
+	    /* 1x8 */
 	    *(volatile unsigned char *)(addr+offset)=cmd;
 	}
 }
