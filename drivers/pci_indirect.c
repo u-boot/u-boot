@@ -21,6 +21,18 @@
 #define cfg_read(val, addr, type, op)	*val = op((type)(addr))
 #define cfg_write(val, addr, type, op)	op((type *)(addr), (val))
 
+#ifdef CONFIG_PM826
+#define INDIRECT_PCI_OP(rw, size, type, op, mask)			 \
+static int								 \
+indirect_##rw##_config_##size(struct pci_controller *hose, 		 \
+			      pci_dev_t dev, int offset, type val)	 \
+{									 \
+	out_le32(hose->cfg_addr, dev | (offset & 0xfc) | 0x80000000); 	 \
+	sync();								 \
+	cfg_##rw(val, hose->cfg_data + (offset & mask), type, op);	 \
+	return 0;    					 		 \
+}
+#else
 #define INDIRECT_PCI_OP(rw, size, type, op, mask)			 \
 static int								 \
 indirect_##rw##_config_##size(struct pci_controller *hose, 		 \
@@ -30,6 +42,7 @@ indirect_##rw##_config_##size(struct pci_controller *hose, 		 \
 	cfg_##rw(val, hose->cfg_data + (offset & mask), type, op);	 \
 	return 0;    					 		 \
 }
+#endif
 
 #define INDIRECT_PCI_OP_ERRATA6(rw, size, type, op, mask)		 \
 static int								 \

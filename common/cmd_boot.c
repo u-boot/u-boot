@@ -50,6 +50,7 @@ static void print_num(const char *, ulong);
 
 #ifndef CONFIG_ARM	/* PowerPC and other */
 
+#ifdef CONFIG_PPC
 static void print_str(const char *, const char *);
 
 int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
@@ -110,6 +111,34 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
+#else /* MIPS */
+
+int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	DECLARE_GLOBAL_DATA_PTR;
+
+	int i;
+	bd_t *bd = gd->bd;
+
+	print_num ("boot_params",	(ulong)bd->bi_boot_params);
+	print_num ("memstart",		(ulong)bd->bi_memstart);
+	print_num ("memsize",		(ulong)bd->bi_memsize);
+	print_num ("flashstart",	(ulong)bd->bi_flashstart);
+	print_num ("flashsize",		(ulong)bd->bi_flashsize);
+	print_num ("flashoffset",	(ulong)bd->bi_flashoffset);
+
+	printf ("ethaddr     =");
+	for (i=0; i<6; ++i) {
+		printf ("%c%02X", i ? ':' : ' ', bd->bi_enetaddr[i]);
+	}
+	printf ("\nip_addr     = ");
+	print_IPaddr (bd->bi_ip_addr);
+	printf ("\nbaudrate    = %d bps\n", bd->bi_baudrate);
+
+	return 0;
+}
+#endif  /* MIPS */
+
 #else	/* ARM */
 
 int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
@@ -150,12 +179,12 @@ static void print_num(const char *name, ulong value)
 	printf ("%-12s= 0x%08lX\n", name, value);
 }
 
-#ifndef	CONFIG_ARM
+#ifdef CONFIG_PPC
 static void print_str(const char *name, const char *str)
 {
 	printf ("%-12s= %6s MHz\n", name, str);
 }
-#endif	/* CONFIG_ARM */
+#endif	/* CONFIG_PPC */
 
 #endif	/* CFG_CMD_BDI */
 

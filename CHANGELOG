@@ -2,6 +2,8 @@
 Changes since U-Boot 0.2.2:
 ======================================================================
 
+* Add PCI support for MPC8250 Boards (PM825 module)
+
 * Patch by Stefan Roese, 25 Mar 2003:
   - PCI405 update.
 

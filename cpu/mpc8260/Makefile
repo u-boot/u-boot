@@ -28,7 +28,7 @@ LIB	= lib$(CPU).a
 START	= start.o kgdb.o
 OBJS	= traps.o serial_smc.o serial_scc.o cpu.o cpu_init.o speed.o \
 	  interrupts.o ether_scc.o ether_fcc.o i2c.o commproc.o \
-	  bedbug_603e.o status_led.o
+	  bedbug_603e.o status_led.o pci.o
 
 all:	.depend $(START) $(LIB)
 
