@@ -2,6 +2,10 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Stephen Williams, 11 May 2004:
+  Add flash support for ST M29W040B
+  Reduce JSE specific flash.c to remove dead code.
+
 * Patch by Markus Pietrek, 04 May 2004:
   Fix clear_bss code for ARM systems (all except s3c44b0 which
   doesn't clear BSS at all?)

@@ -35,7 +35,7 @@
 #if CFG_MAX_FLASH_BANKS != 1
 #error "CFG_MAX_FLASH_BANKS must be 1"
 #endif
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips        */
+flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips	*/
 
 /*-----------------------------------------------------------------------
  * Functions
@@ -44,8 +44,8 @@ static ulong flash_get_size (vu_long * addr, flash_info_t * info);
 static int write_word (flash_info_t * info, ulong dest, ulong data);
 static void flash_get_offsets (ulong base, flash_info_t * info);
 
-#define ADDR0           0x5555
-#define ADDR1           0x2aaa
+#define ADDR0		0x5555
+#define ADDR1		0x2aaa
 #define FLASH_WORD_SIZE unsigned char
 
 /*-----------------------------------------------------------------------
@@ -84,36 +84,17 @@ unsigned long flash_init (void)
 
 /*-----------------------------------------------------------------------
  */
+/*
+ * This implementation assumes that the flash chips are uniform sector
+ * devices. This is true for all likely JSE devices.
+ */
 static void flash_get_offsets (ulong base, flash_info_t * info)
 {
-	int i;
+	unsigned idx;
+	unsigned long sector_size = info->size / info->sector_count;
 
-	/* set up sector start address table */
-	if (((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_SST) ||
-	    (info->flash_id == FLASH_AM040)) {
-		for (i = 0; i < info->sector_count; i++)
-			info->start[i] = base + (i * 0x00010000);
-	} else {
-		if (info->flash_id & FLASH_BTYPE) {
-			/* set sector offsets for bottom boot block type        */
-			info->start[0] = base + 0x00000000;
-			info->start[1] = base + 0x00004000;
-			info->start[2] = base + 0x00006000;
-			info->start[3] = base + 0x00008000;
-			for (i = 4; i < info->sector_count; i++) {
-				info->start[i] =
-					base + (i * 0x00010000) - 0x00030000;
-			}
-		} else {
-			/* set sector offsets for top boot block type           */
-			i = info->sector_count - 1;
-			info->start[i--] = base + info->size - 0x00004000;
-			info->start[i--] = base + info->size - 0x00006000;
-			info->start[i--] = base + info->size - 0x00008000;
-			for (; i >= 0; i--) {
-				info->start[i] = base + i * 0x00010000;
-			}
-		}
+	for (idx = 0; idx < info->sector_count; idx += 1) {
+		info->start[idx] = base + (idx * sector_size);
 	}
 }
 
@@ -142,44 +123,21 @@ void flash_print_info (flash_info_t * info)
 	case FLASH_MAN_SST:
 		printf ("SST ");
 		break;
+	case FLASH_MAN_STM:
+		printf ("ST Micro ");
+		break;
 	default:
 		printf ("Unknown Vendor ");
 		break;
 	}
 
-	switch (info->flash_id & FLASH_TYPEMASK) {
-	case FLASH_AM040:
+	  /* (Reduced table of only parts expected in JSE boards.) */
+	switch (info->flash_id) {
+	case FLASH_MAN_AMD | FLASH_AM040:
 		printf ("AM29F040 (512 Kbit, uniform sector size)\n");
 		break;
-	case FLASH_AM400B:
-		printf ("AM29LV400B (4 Mbit, bottom boot sect)\n");
-		break;
-	case FLASH_AM400T:
-		printf ("AM29LV400T (4 Mbit, top boot sector)\n");
-		break;
-	case FLASH_AM800B:
-		printf ("AM29LV800B (8 Mbit, bottom boot sect)\n");
-		break;
-	case FLASH_AM800T:
-		printf ("AM29LV800T (8 Mbit, top boot sector)\n");
-		break;
-	case FLASH_AM160B:
-		printf ("AM29LV160B (16 Mbit, bottom boot sect)\n");
-		break;
-	case FLASH_AM160T:
-		printf ("AM29LV160T (16 Mbit, top boot sector)\n");
-		break;
-	case FLASH_AM320B:
-		printf ("AM29LV320B (32 Mbit, bottom boot sect)\n");
-		break;
-	case FLASH_AM320T:
-		printf ("AM29LV320T (32 Mbit, top boot sector)\n");
-		break;
-	case FLASH_SST800A:
-		printf ("SST39LF/VF800 (8 Mbit, uniform sector size)\n");
-		break;
-	case FLASH_SST160A:
-		printf ("SST39LF/VF160 (16 Mbit, uniform sector size)\n");
+	case FLASH_MAN_STM | FLASH_AM040:
+		printf ("MM29W040W (512 Kbit, uniform sector size)\n");
 		break;
 	default:
 		printf ("Unknown Chip Type\n");
@@ -253,14 +211,18 @@ static ulong flash_get_size (vu_long * addr, flash_info_t * info)
 	case (FLASH_WORD_SIZE) SST_MANUFACT:
 		info->flash_id = FLASH_MAN_SST;
 		break;
+	case (FLASH_WORD_SIZE)STM_MANUFACT:
+		info->flash_id = FLASH_MAN_STM;
+		break;
 	default:
 		info->flash_id = FLASH_UNKNOWN;
 		info->sector_count = 0;
 		info->size = 0;
+		printf("Unknown flash manufacturer code: 0x%x\n", value);
 		return (0);	/* no or unknown flash  */
 	}
 
-	value = addr2[1];	/* device ID            */
+	value = addr2[1];	/* device ID		*/
 
 	switch (value) {
 	case (FLASH_WORD_SIZE) AMD_ID_F040B:
@@ -273,99 +235,19 @@ static ulong flash_get_size (vu_long * addr, flash_info_t * info)
 		info->sector_count = 8;
 		info->size = 0x0080000;	/* => 512 ko */
 		break;
-	case (FLASH_WORD_SIZE) AMD_ID_LV400T:
-		info->flash_id += FLASH_AM400T;
-		info->sector_count = 11;
-		info->size = 0x00080000;
-		break;		/* => 0.5 MB            */
-
-	case (FLASH_WORD_SIZE) AMD_ID_LV400B:
-		info->flash_id += FLASH_AM400B;
-		info->sector_count = 11;
-		info->size = 0x00080000;
-		break;		/* => 0.5 MB            */
-
-	case (FLASH_WORD_SIZE) AMD_ID_LV800T:
-		info->flash_id += FLASH_AM800T;
-		info->sector_count = 19;
-		info->size = 0x00100000;
-		break;		/* => 1 MB              */
-
-	case (FLASH_WORD_SIZE) AMD_ID_LV800B:
-		info->flash_id += FLASH_AM800B;
-		info->sector_count = 19;
-		info->size = 0x00100000;
-		break;		/* => 1 MB              */
-
-	case (FLASH_WORD_SIZE) AMD_ID_LV160T:
-		info->flash_id += FLASH_AM160T;
-		info->sector_count = 35;
-		info->size = 0x00200000;
-		break;		/* => 2 MB              */
-
-	case (FLASH_WORD_SIZE) AMD_ID_LV160B:
-		info->flash_id += FLASH_AM160B;
-		info->sector_count = 35;
-		info->size = 0x00200000;
-		break;		/* => 2 MB              */
-#if 0				/* enable when device IDs are available */
-	case (FLASH_WORD_SIZE) AMD_ID_LV320T:
-		info->flash_id += FLASH_AM320T;
-		info->sector_count = 67;
-		info->size = 0x00400000;
-		break;		/* => 4 MB              */
-
-	case (FLASH_WORD_SIZE) AMD_ID_LV320B:
-		info->flash_id += FLASH_AM320B;
-		info->sector_count = 67;
-		info->size = 0x00400000;
-		break;		/* => 4 MB              */
-#endif
-	case (FLASH_WORD_SIZE) SST_ID_xF800A:
-		info->flash_id += FLASH_SST800A;
-		info->sector_count = 16;
-		info->size = 0x00100000;
-		break;		/* => 1 MB              */
-
-	case (FLASH_WORD_SIZE) SST_ID_xF160A:
-		info->flash_id += FLASH_SST160A;
-		info->sector_count = 32;
-		info->size = 0x00200000;
-		break;		/* => 2 MB              */
-
+	case (FLASH_WORD_SIZE)STM_ID_M29W040B: /* most likele JSE chip */
+		info->flash_id += FLASH_AM040;
+		info->sector_count = 8;
+		info->size = 0x0080000; /* => 512 ko */
+		break;
 	default:
 		info->flash_id = FLASH_UNKNOWN;
 		return (0);	/* => no or unknown flash */
 
 	}
 
-	/* set up sector start address table */
-	if (((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_SST) ||
-	    (info->flash_id == FLASH_AM040)) {
-		for (i = 0; i < info->sector_count; i++)
-			info->start[i] = base + (i * 0x00010000);
-	} else {
-		if (info->flash_id & FLASH_BTYPE) {
-			/* set sector offsets for bottom boot block type        */
-			info->start[0] = base + 0x00000000;
-			info->start[1] = base + 0x00004000;
-			info->start[2] = base + 0x00006000;
-			info->start[3] = base + 0x00008000;
-			for (i = 4; i < info->sector_count; i++) {
-				info->start[i] =
-					base + (i * 0x00010000) - 0x00030000;
-			}
-		} else {
-			/* set sector offsets for top boot block type           */
-			i = info->sector_count - 1;
-			info->start[i--] = base + info->size - 0x00004000;
-			info->start[i--] = base + info->size - 0x00006000;
-			info->start[i--] = base + info->size - 0x00008000;
-			for (; i >= 0; i--) {
-				info->start[i] = base + i * 0x00010000;
-			}
-		}
-	}
+	  /* Calculate the sector offsets (Use JSE Optimized code). */
+	flash_get_offsets(base, info);
 
 	/* check for protected sectors */
 	for (i = 0; i < info->sector_count; i++) {
@@ -505,7 +387,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 		goto DONE;
 	wait_for_DQ7 (info, l_sect);
 
-      DONE:
+DONE:
 #endif
 	/* reset to read mode */
 	addr = (FLASH_WORD_SIZE *) info->start[0];
@@ -603,7 +485,7 @@ static int write_word (flash_info_t * info, ulong dest, ulong data)
 
 	/* Check if Flash is (sufficiently) erased */
 	if ((*((volatile FLASH_WORD_SIZE *) dest) &
-	     (FLASH_WORD_SIZE) data) != (FLASH_WORD_SIZE) data) {
+	    (FLASH_WORD_SIZE) data) != (FLASH_WORD_SIZE) data) {
 		return (2);
 	}
 
