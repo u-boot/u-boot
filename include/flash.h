@@ -12,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -33,15 +33,15 @@ typedef struct {
 	ulong	size;			/* total bank size in bytes		*/
 	ushort	sector_count;		/* number of erase units		*/
 	ulong	flash_id;		/* combined device & manufacturer code	*/
-	ulong	start[CFG_MAX_FLASH_SECT];   /* physical sector start addresses	*/
+	ulong	start[CFG_MAX_FLASH_SECT];   /* physical sector start addresses */
 	uchar	protect[CFG_MAX_FLASH_SECT]; /* sector protection status	*/
 #ifdef CFG_FLASH_CFI
 	uchar	portwidth;		/* the width of the port		*/
 	uchar	chipwidth;		/* the width of the chip		*/
-	ushort  buffer_size;		/* # of bytes in write buffer		*/
+	ushort	buffer_size;		/* # of bytes in write buffer		*/
 	ulong	erase_blk_tout;		/* maximum block erase timeout		*/
 	ulong	write_tout;		/* maximum write timeout		*/
-	ulong   buffer_write_tout;	/* maximum buffer write timeout		*/
+	ulong	buffer_write_tout;	/* maximum buffer write timeout		*/
 
 #endif
 } flash_info_t;
@@ -103,20 +103,20 @@ extern int flash_real_protect(flash_info_t *info, long sector, int prot);
  * Device IDs
  */
 
-#define AMD_MANUFACT	0x00010001	/* AMD     manuf. ID in D23..D16, D7..D0 */
+#define AMD_MANUFACT	0x00010001	/* AMD	   manuf. ID in D23..D16, D7..D0 */
 #define FUJ_MANUFACT	0x00040004	/* FUJITSU manuf. ID in D23..D16, D7..D0 */
-#define ATM_MANUFACT    0x001F001F      /* ATMEL */
-#define STM_MANUFACT	0x00200020	/* STM (Thomson) manuf. ID in D23.. -"-	*/
-#define SST_MANUFACT	0x00BF00BF	/* SST     manuf. ID in D23..D16, D7..D0 */
-#define MT_MANUFACT	0x00890089	/* MT      manuf. ID in D23..D16, D7..D0 */
+#define ATM_MANUFACT	0x001F001F	/* ATMEL */
+#define STM_MANUFACT	0x00200020	/* STM (Thomson) manuf. ID in D23.. -"- */
+#define SST_MANUFACT	0x00BF00BF	/* SST	   manuf. ID in D23..D16, D7..D0 */
+#define MT_MANUFACT	0x00890089	/* MT	   manuf. ID in D23..D16, D7..D0 */
 #define INTEL_MANUFACT	0x00890089	/* INTEL   manuf. ID in D23..D16, D7..D0 */
-#define	INTEL_ALT_MANU	0x00B000B0	/* alternate INTEL namufacturer ID	*/
+#define INTEL_ALT_MANU	0x00B000B0	/* alternate INTEL namufacturer ID	*/
 #define MX_MANUFACT	0x00C200C2	/* MXIC	   manuf. ID in D23..D16, D7..D0 */
 #define TOSH_MANUFACT	0x00980098	/* TOSHIBA manuf. ID in D23..D16, D7..D0 */
 
 					/* Micron Technologies (INTEL compat.)	*/
 #define MT_ID_28F400_T	0x44704470	/* 28F400B3 ID ( 4 M, top boot sector)	*/
-#define MT_ID_28F400_B	0x44714471	/* 28F400B3 ID ( 4 M, bottom boot sect)	*/
+#define MT_ID_28F400_B	0x44714471	/* 28F400B3 ID ( 4 M, bottom boot sect) */
 
 #define AMD_ID_LV040B	0x4F		/* 29LV040B ID				*/
 					/* 4 Mbit, 512K x 8,			*/
@@ -125,7 +125,7 @@ extern int flash_real_protect(flash_info_t *info, long sector, int prot);
 #define AMD_ID_F040B	0xA4		/* 29F040B ID				*/
 					/* 4 Mbit, 512K x 8,			*/
 					/* 8 64K x 8 uniform sectors		*/
-#define STM_ID_M29W040B	0xE3		/* M29W040B ID 				*/
+#define STM_ID_M29W040B 0xE3		/* M29W040B ID				*/
 					/* 4 Mbit, 512K x 8,			*/
 					/* 8 64K x 8 uniform sectors		*/
 #define AMD_ID_F080B	0xD5		/* 29F080  ID  ( 1 M)			*/
@@ -137,49 +137,50 @@ extern int flash_real_protect(flash_info_t *info, long sector, int prot);
 #define AMD_ID_LV016B	0xc8		/* 29LV016 ID  ( 2 M x 8)		*/
 
 #define AMD_ID_LV400T	0x22B922B9	/* 29LV400T ID ( 4 M, top boot sector)	*/
-#define AMD_ID_LV400B	0x22BA22BA	/* 29LV400B ID ( 4 M, bottom boot sect)	*/
+#define AMD_ID_LV400B	0x22BA22BA	/* 29LV400B ID ( 4 M, bottom boot sect) */
 
 #define AMD_ID_LV033C	0xA3		/* 29LV033C ID ( 4M x 8 )		*/
 
 #define AMD_ID_LV800T	0x22DA22DA	/* 29LV800T ID ( 8 M, top boot sector)	*/
-#define AMD_ID_LV800B	0x225B225B	/* 29LV800B ID ( 8 M, bottom boot sect)	*/
+#define AMD_ID_LV800B	0x225B225B	/* 29LV800B ID ( 8 M, bottom boot sect) */
 
 #define AMD_ID_LV160T	0x22C422C4	/* 29LV160T ID (16 M, top boot sector)	*/
-#define AMD_ID_LV160B	0x22492249	/* 29LV160B ID (16 M, bottom boot sect)	*/
+#define AMD_ID_LV160B	0x22492249	/* 29LV160B ID (16 M, bottom boot sect) */
 
 #define AMD_ID_LV320T	0x22F622F6	/* 29LV320T ID (32 M, top boot sector)	*/
-#define AMD_ID_LV320B	0x22F922F9	/* 29LV320B ID (32 M, bottom boot sect)	*/
+#define AMD_ID_LV320B	0x22F922F9	/* 29LV320B ID (32 M, bottom boot sect) */
 
 #define AMD_ID_DL322T	0x22552255	/* 29DL322T ID (32 M, top boot sector)	*/
-#define AMD_ID_DL322B	0x22562256	/* 29DL322B ID (32 M, bottom boot sect)	*/
+#define AMD_ID_DL322B	0x22562256	/* 29DL322B ID (32 M, bottom boot sect) */
 #define AMD_ID_DL323T	0x22502250	/* 29DL323T ID (32 M, top boot sector)	*/
-#define AMD_ID_DL323B	0x22532253	/* 29DL323B ID (32 M, bottom boot sect)	*/
+#define AMD_ID_DL323B	0x22532253	/* 29DL323B ID (32 M, bottom boot sect) */
 #define AMD_ID_DL324T	0x225C225C	/* 29DL324T ID (32 M, top boot sector)	*/
 #define AMD_ID_DL324B	0x225F225F	/* 29DL324B ID (32 M, bottom boot sect) */
 
 #define AMD_ID_DL640	0x227E227E	/* 29DL640D ID (64 M, dual boot sectors)*/
-#define AMD_ID_MIRROR	0x227E227E	/* 1st ID word for MirrorBit family */ 
-#define AMD_ID_LV128U_2	0x22122212	/* 2d ID word for AM29LV128M at 0x38 */
-#define AMD_ID_LV128U_3	0x22002200	/* 3d ID word for AM29LV128M at 0x3c */
+#define AMD_ID_MIRROR	0x227E227E	/* 1st ID word for MirrorBit family */
+#define AMD_ID_LV128U_2 0x22122212	/* 2d ID word for AM29LV128M at 0x38 */
+#define AMD_ID_LV128U_3 0x22002200	/* 3d ID word for AM29LV128M at 0x3c */
 
 #define AMD_ID_LV640U	0x22D722D7	/* 29LV640U ID (64 M, uniform sectors)	*/
 
-#define ATM_ID_BV1614   0x000000C0      /* 49BV1614 ID */
+#define ATM_ID_BV1614	0x000000C0	/* 49BV1614 ID */
+#define ATM_ID_BV1614A	0x000000C8	/* 49BV1614A ID */
 
-#define FUJI_ID_29F800BA  0x22582258   /* MBM29F800BA ID  (8M) */
-#define FUJI_ID_29F800TA  0x22D622D6   /* MBM29F800TA ID  (8M) */
+#define FUJI_ID_29F800BA  0x22582258	/* MBM29F800BA ID  (8M) */
+#define FUJI_ID_29F800TA  0x22D622D6	/* MBM29F800TA ID  (8M) */
 
-#define SST_ID_xF200A	0x27892789	/* 39xF200A ID ( 2M = 128K x 16	)	*/
-#define SST_ID_xF400A	0x27802780	/* 39xF400A ID ( 4M = 256K x 16	)	*/
-#define SST_ID_xF800A	0x27812781	/* 39xF800A ID ( 8M = 512K x 16	)	*/
-#define SST_ID_xF160A	0x27822782	/* 39xF800A ID (16M =   1M x 16 )	*/
+#define SST_ID_xF200A	0x27892789	/* 39xF200A ID ( 2M = 128K x 16 )	*/
+#define SST_ID_xF400A	0x27802780	/* 39xF400A ID ( 4M = 256K x 16 )	*/
+#define SST_ID_xF800A	0x27812781	/* 39xF800A ID ( 8M = 512K x 16 )	*/
+#define SST_ID_xF160A	0x27822782	/* 39xF800A ID (16M =	1M x 16 )	*/
 
-#define STM_ID_F040B	0xE2		/* M29F040B ID ( 4M = 512K x 8  )	*/
+#define STM_ID_F040B	0xE2		/* M29F040B ID ( 4M = 512K x 8	)	*/
 					/* 8 64K x 8 uniform sectors		*/
 
-#define STM_ID_x800AB	0x005B005B	/* M29W800AB ID (8M = 512K x 16	)	*/
-#define STM_ID_29W320DT	0x22CA22CA	/* M29W320DT ID (32 M, top boot sector)	*/
-#define STM_ID_29W320DB	0x22CB22CB	/* M29W320DB ID (32 M, bottom boot sect)	*/
+#define STM_ID_x800AB	0x005B005B	/* M29W800AB ID (8M = 512K x 16 )	*/
+#define STM_ID_29W320DT 0x22CA22CA	/* M29W320DT ID (32 M, top boot sector) */
+#define STM_ID_29W320DB 0x22CB22CB	/* M29W320DB ID (32 M, bottom boot sect)	*/
 #define STM_ID_29W040B	0x00E300E3	/* M29W040B ID (4M = 512K x 8)	*/
 
 #define INTEL_ID_28F016S    0x66a066a0	/* 28F016S[VS] ID (16M = 512k x 16)	*/
@@ -202,7 +203,7 @@ extern int flash_real_protect(flash_info_t *info, long sector, int prot);
 #define INTEL_ID_28F640C3T  0x88CC88CC	/*  64M = 4M x 16 top boot sector	*/
 #define INTEL_ID_28F640C3B  0x88CD88CD	/*  64M = 4M x 16 bottom boot sector	*/
 
-#define INTEL_ID_28F128J3   0x89189818  /*  16M = 8M x 16 x 128	*/
+#define INTEL_ID_28F128J3   0x89189818	/*  16M = 8M x 16 x 128 */
 #define INTEL_ID_28F640J5   0x00150015	/*  64M = 128K x  64			*/
 #define INTEL_ID_28F320J3A  0x00160016	/*  32M = 128K x  32			*/
 #define INTEL_ID_28F640J3A  0x00170017	/*  64M = 128K x  64			*/
@@ -217,8 +218,8 @@ extern int flash_real_protect(flash_info_t *info, long sector, int prot);
 #define SHARP_ID_28F008SC   0xA6A6A6A6	/* LH28F008SCT-L12 1Mx8, 16 64k blocks	*/
 					/* LH28F008SCR-L85 1Mx8, 16 64k blocks	*/
 
-#define TOSH_ID_FVT160	0xC2		/* TC58FVT160 ID (16 M, top )           */
-#define TOSH_ID_FVB160	0x43		/* TC58FVT160 ID (16 M, bottom )        */
+#define TOSH_ID_FVT160	0xC2		/* TC58FVT160 ID (16 M, top )		*/
+#define TOSH_ID_FVB160	0x43		/* TC58FVT160 ID (16 M, bottom )	*/
 
 /*-----------------------------------------------------------------------
  * Internal FLASH identification codes
@@ -226,25 +227,25 @@ extern int flash_real_protect(flash_info_t *info, long sector, int prot);
  * Be careful when adding new type! Odd numbers are "bottom boot sector" types!
  */
 
-#define FLASH_AM040	0x0001		/* AMD Am29F040B, Am29LV040B            */
-					/* Bright Micro BM29F040                */
-					/* Fujitsu MBM29F040A                   */
-					/* STM M29W040B                         */
-					/* SGS Thomson M29F040B                 */
-					/* 8 64K x 8 uniform sectors            */
+#define FLASH_AM040	0x0001		/* AMD Am29F040B, Am29LV040B		*/
+					/* Bright Micro BM29F040		*/
+					/* Fujitsu MBM29F040A			*/
+					/* STM M29W040B				*/
+					/* SGS Thomson M29F040B			*/
+					/* 8 64K x 8 uniform sectors		*/
 #define FLASH_AM400T	0x0002		/* AMD AM29LV400			*/
 #define FLASH_AM400B	0x0003
 #define FLASH_AM800T	0x0004		/* AMD AM29LV800			*/
 #define FLASH_AM800B	0x0005
 #define FLASH_AM116DT	0x0026		/* AMD AM29LV116DT (2Mx8bit) */
 #define FLASH_AM160T	0x0006		/* AMD AM29LV160			*/
-#define FLASH_AM160LV	0x0046		/* AMD29LV160DB (2M = 2Mx8bit )	*/
+#define FLASH_AM160LV	0x0046		/* AMD29LV160DB (2M = 2Mx8bit ) */
 #define FLASH_AM160B	0x0007
 #define FLASH_AM320T	0x0008		/* AMD AM29LV320			*/
 #define FLASH_AM320B	0x0009
 
-#define FLASH_AM080	0x000A		/* AMD Am29F080B                        */
-					/* 16 64K x 8 uniform sectors           */
+#define FLASH_AM080	0x000A		/* AMD Am29F080B			*/
+					/* 16 64K x 8 uniform sectors		*/
 
 #define FLASH_AMDL322T	0x0010		/* AMD AM29DL322			*/
 #define FLASH_AMDL322B	0x0011
@@ -262,8 +263,8 @@ extern int flash_real_protect(flash_info_t *info, long sector, int prot);
 #define FLASH_SST160A	0x0046		/* SST 39xF160A ID ( 16M =   1M x 16 )	*/
 
 #define FLASH_STM800AB	0x0051		/* STM M29WF800AB  (  8M = 512K x 16 )	*/
-#define FLASH_STMW320DT	0x0052		/* STM M29W320DT   (32 M, top boot sector)	*/
-#define FLASH_STMW320DB	0x0053		/* STM M29W320DB   (32 M, bottom boot sect)*/
+#define FLASH_STMW320DT 0x0052		/* STM M29W320DT   (32 M, top boot sector)	*/
+#define FLASH_STMW320DB 0x0053		/* STM M29W320DB   (32 M, bottom boot sect)*/
 #define FLASH_STM320DB	0x00CB		/* STM M29W320DB (4M = 64K x 64, bottom)*/
 #define FLASH_STM800DT	0x00D7		/* STM M29W800DT (1M = 64K x 16, top)	*/
 #define FLASH_STM800DB	0x005B		/* STM M29W800DB (1M = 64K x 16, bottom)*/
@@ -287,26 +288,26 @@ extern int flash_real_protect(flash_info_t *info, long sector, int prot);
 #define FLASH_28F008S5	0x0080		/* Intel 28F008S5  (  1M =  64K x 16 )	*/
 #define FLASH_28F016SV	0x0081		/* Intel 28F016SV  ( 16M = 512k x 32 )	*/
 #define FLASH_28F800_B	0x0083		/* Intel E28F800B  (  1M = ? )		*/
-#define FLASH_AM29F800B	0x0084		/* AMD Am29F800BB  (  1M = ? )		*/
+#define FLASH_AM29F800B 0x0084		/* AMD Am29F800BB  (  1M = ? )		*/
 #define FLASH_28F320J5	0x0085		/* Intel 28F320J5  (  4M = 128K x 32 )	*/
 #define FLASH_28F160S3	0x0086		/* Intel 28F160S3  ( 16M = 512K x 32 )	*/
 #define FLASH_28F320S3	0x0088		/* Intel 28F320S3  ( 32M = 512K x 64 )	*/
 #define FLASH_AM640U	0x0090		/* AMD Am29LV640U  ( 64M = 4M x 16 )	*/
 #define FLASH_AM033C	0x0091		/* AMD AM29LV033   ( 32M = 4M x 8 )	*/
-#define FLASH_LH28F016SCT 0x0092	/* Sharp 28F016SCT ( 8 Meg Flash SIMM )	*/
-#define FLASH_28F160F3B	0x0093		/* Intel 28F160F3B ( 16M = 1M x 16 )	*/
+#define FLASH_LH28F016SCT 0x0092	/* Sharp 28F016SCT ( 8 Meg Flash SIMM ) */
+#define FLASH_28F160F3B 0x0093		/* Intel 28F160F3B ( 16M = 1M x 16 )	*/
 
-#define FLASH_28F640J5  0x0099		/* INTEL 28F640J5  ( 64M = 128K x  64)	*/
+#define FLASH_28F640J5	0x0099		/* INTEL 28F640J5  ( 64M = 128K x  64)	*/
 
-#define FLASH_28F800C3T	0x009A		/* Intel 28F800C3T (  8M = 512K x 16 )	*/
-#define FLASH_28F800C3B	0x009B		/* Intel 28F800C3B (  8M = 512K x 16 )	*/
-#define FLASH_28F160C3T	0x009C		/* Intel 28F160C3T ( 16M = 1M x 16 )	*/
-#define FLASH_28F160C3B	0x009D		/* Intel 28F160C3B ( 16M = 1M x 16 )	*/
-#define FLASH_28F320C3T	0x009E		/* Intel 28F320C3T ( 32M = 2M x 16 )	*/
-#define FLASH_28F320C3B	0x009F		/* Intel 28F320C3B ( 32M = 2M x 16 )	*/
-#define FLASH_28F640C3T	0x00A0		/* Intel 28F640C3T ( 64M = 4M x 16 )	*/
-#define FLASH_28F640C3B	0x00A1		/* Intel 28F640C3B ( 64M = 4M x 16 )	*/
-#define FLASH_AMLV128U		0x00A2		/* AMD 29LV128M    ( 128M = 8M x 16 )	*/
+#define FLASH_28F800C3T 0x009A		/* Intel 28F800C3T (  8M = 512K x 16 )	*/
+#define FLASH_28F800C3B 0x009B		/* Intel 28F800C3B (  8M = 512K x 16 )	*/
+#define FLASH_28F160C3T 0x009C		/* Intel 28F160C3T ( 16M = 1M x 16 )	*/
+#define FLASH_28F160C3B 0x009D		/* Intel 28F160C3B ( 16M = 1M x 16 )	*/
+#define FLASH_28F320C3T 0x009E		/* Intel 28F320C3T ( 32M = 2M x 16 )	*/
+#define FLASH_28F320C3B 0x009F		/* Intel 28F320C3B ( 32M = 2M x 16 )	*/
+#define FLASH_28F640C3T 0x00A0		/* Intel 28F640C3T ( 64M = 4M x 16 )	*/
+#define FLASH_28F640C3B 0x00A1		/* Intel 28F640C3B ( 64M = 4M x 16 )	*/
+#define FLASH_AMLV128U		0x00A2		/* AMD 29LV128M	   ( 128M = 8M x 16 )	*/
 
 #define FLASH_UNKNOWN	0xFFFF		/* unknown flash type			*/
 
@@ -318,14 +319,14 @@ extern int flash_real_protect(flash_info_t *info, long sector, int prot);
 #define FLASH_MAN_BM	0x00020000	/* Bright Microelectronics		*/
 #define FLASH_MAN_MX	0x00030000	/* MXIC					*/
 #define FLASH_MAN_STM	0x00040000
-#define FLASH_MAN_TOSH	0x00050000	/* Toshiba                		*/
+#define FLASH_MAN_TOSH	0x00050000	/* Toshiba				*/
 #define FLASH_MAN_SST	0x00100000
-#define FLASH_MAN_INTEL	0x00300000
+#define FLASH_MAN_INTEL 0x00300000
 #define FLASH_MAN_MT	0x00400000
-#define FLASH_MAN_SHARP	0x00500000
+#define FLASH_MAN_SHARP 0x00500000
 
 
-#define FLASH_TYPEMASK	0x0000FFFF	/* extract FLASH type   information	*/
+#define FLASH_TYPEMASK	0x0000FFFF	/* extract FLASH type	information	*/
 #define FLASH_VENDMASK	0xFFFF0000	/* extract FLASH vendor information	*/
 
 #define FLASH_AMD_COMP	0x000FFFFF	/* Up to this ID, FLASH is compatible	*/

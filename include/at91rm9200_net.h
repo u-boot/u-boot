@@ -1,0 +1,59 @@
+/*
+ * Ethernet:	An implementation of the Ethernet Device Driver suite for the
+ *		uClinux 2.0.38 operating system. This Driver has been developed
+ *		for AT75C220 board. 
+ *
+ * NOTE:	The driver is implemented for one MAC
+ *
+ * Version:	@(#)at91rm9200_net.h	1.0.0	01/10/2001
+ *
+ * Authors:	Lineo Inc <www.lineo.com>
+ *
+ *
+ *		This program is free software; you can redistribute it and/or
+ *		modify it under the terms of the GNU General Public License
+ *		as published by the Free Software Foundation; either version
+ *		2 of the License, or (at your option) any later version.
+ */
+
+#ifndef AT91RM9200_ETHERNET
+#define AT91RM9200_ETHERNET
+
+#include <common.h>
+#include <asm/io.h>
+#include <asm/arch/hardware.h>
+#include "dm9161.h"
+
+#define FALSE 0
+#define TRUE 1
+
+
+#define ETHERNET_ADDRESS_SIZE           6
+
+typedef unsigned char UCHAR;
+
+/* Interface to drive the physical layer */
+typedef struct _AT91S_PhyOps
+{
+	unsigned char (*Init)(AT91S_EMAC *pmac);
+	unsigned int (*IsPhyConnected)(AT91S_EMAC  *pmac);
+	unsigned char (*GetLinkSpeed)(AT91S_EMAC *pmac);
+	unsigned char (*AutoNegotiate)(AT91S_EMAC *pmac, int *);
+	
+} AT91S_PhyOps,*AT91PS_PhyOps;
+
+
+#define EMAC_DESC_DONE 0x00000001  /* ownership bit */
+#define EMAC_DESC_WRAP 0x00000002  /* bit for wrap */
+
+/******************  function prototypes **********************/
+
+/* MII functions */
+static void at91rm9200_EmacEnableMDIO(AT91PS_EMAC p_mac);
+static void at91rm9200_EmacDisableMDIO(AT91PS_EMAC p_mac);
+static UCHAR at91rm9200_EmacReadPhy(AT91PS_EMAC p_mac, unsigned char RegisterAddress, unsigned short *pInput);
+static UCHAR at91rm9200_EmacWritePhy(AT91PS_EMAC p_mac, unsigned char RegisterAddress, unsigned short *pOutput);
+void at91rm92000_GetPhyInterface(void );
+
+#endif /* AT91RM9200_ETHERNET */
+

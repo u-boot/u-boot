@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000
+ * (C) Copyright 2000-2003
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -150,7 +150,24 @@ do_icinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 int
 do_carinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	unimplemented (cmdtp, flag, argc, argv);
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+
+#if defined(CONFIG_8xx)
+	volatile car8xx_t *car = &immap->im_clkrst;
+#elif defined(CONFIG_8260)
+	volatile car8260_t *car = &immap->im_clkrst;
+#endif
+
+#if defined(CONFIG_8xx)
+	printf ("SCCR  = %08x\n", car->car_sccr);
+	printf ("PLPRCR= %08x\n", car->car_plprcr);
+	printf ("RSR   = %08x\n", car->car_rsr);
+#elif defined(CONFIG_8260)
+	printf ("SCCR  = %08x\n", car->car_sccr);
+	printf ("SCMR  = %08x\n", car->car_scmr);
+	printf ("RSR   = %08x\n", car->car_rsr);
+	printf ("RMR   = %08x\n", car->car_rmr);
+#endif
 	return 0;
 }
 
@@ -168,7 +185,7 @@ header(void)
 	int i;
 
 	if (counter % 2)
-	putc('\n');
+		putc('\n');
 	counter = 0;
 
 	for (i = 0; i < 4; i++, data += 79)

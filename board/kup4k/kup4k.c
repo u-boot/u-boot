@@ -299,12 +299,6 @@ int misc_init_r (void)
 
 void lcd_logo (bd_t * bd)
 {
-
-
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
-
-
-
 	FB_INFO_S1D13xxx fb_info;
 	S1D_INDEX s1dReg;
 	S1D_VALUE s1dValue;
@@ -328,8 +322,8 @@ void lcd_logo (bd_t * bd)
 			 /**/
 /*----------------------------------------------------------------------------- */
 			memctl = &immr->im_memctl;
-/*    memctl->memc_or5 = 0xFFC007F0;    / * 4 MB  17 WS or externel TA */
-/*    memctl->memc_br5 = 0x80000801;    / * Start at 0x80000000 */
+/*	memctl->memc_or5 = 0xFFC007F0;    / * 4 MB  17 WS or externel TA */
+/*	memctl->memc_br5 = 0x80000801;    / * Start at 0x80000000 */
 
 	memctl->memc_or5 = 0xFFC00708;	/* 4 MB  17 WS or externel TA */
 	memctl->memc_br5 = 0x80080801;	/* Start at 0x80080000 */

@@ -28,12 +28,14 @@
 /* ARM asynchronous clock */
 #define AT91C_MAIN_CLOCK  179712000  /* from 18.432 MHz crystal (18432000 / 4 * 39) */
 #define AT91C_MASTER_CLOCK  59904000  /* peripheral clock (AT91C_MASTER_CLOCK / 3) */
+/* #define AT91C_MASTER_CLOCK  44928000 */  /* peripheral clock (AT91C_MASTER_CLOCK / 4) */
 
-#define CONFIG_AT91RM9200DK	1	/* on an AT91RM9200DK Board      */
+#define CONFIG_AT91RM9200DK	 1	/* on an AT91RM9200DK Board      */
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff */
 #define CONFIG_CMDLINE_TAG	 1	/* enable passing of ATAGs	*/
 #define CONFIG_SETUP_MEMORY_TAGS 1
 #define CONFIG_INITRD_TAG	 1
+
 /*
  * Size of malloc() pool
  */
@@ -43,24 +45,23 @@
  * Hardware drivers
  */
 
-/*
- * select serial console configuration
- */
-#define CONFIG_SERIAL3          1	/* we use SERIAL 3 */
-
 #undef	CONFIG_HWFLOW			/* don't include RTS/CTS flow control support	*/
 
 #undef	CONFIG_MODEM_SUPPORT		/* disable modem initialization stuff */
 
+#define CONFIG_BOOTDELAY      3  
+/* #define CONFIG_ENV_OVERWRITE  1 */
+
 #define CONFIG_COMMANDS		\
-		       (CONFIG_CMD_DFL	| \
-			CFG_CMD_DHCP	| \
-			CFG_CMD_NAND	)
-/* 			CFG_CMD_EEPROM	| \ might consider these
-			CFG_CMD_I2C	| \
-			CFG_CMD_USB	| \
-			CFG_CMD_MII	| \
-			CFG_CMD_SDRAM	| \ */
+		       ((CONFIG_CMD_DFL	| \
+			CFG_CMD_DHCP ) & \
+                      ~(CFG_CMD_BDI | \
+                        CFG_CMD_IMI | \
+                        CFG_CMD_AUTOSCRIPT | \
+                        CFG_CMD_FPGA | \
+                        CFG_CMD_MISC | \
+                        CFG_CMD_LOADS ))
+                     
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
 
@@ -101,6 +102,14 @@
 #define CFG_MEMTEST_END   CFG_MEMTEST_START + PHYS_SDRAM_SIZE - 262144
 
 #define CONFIG_DRIVER_ETHER
+#define CONFIG_NET_RETRY_COUNT 20
+
+#define CONFIG_HAS_DATAFLASH	1
+#define CFG_SPI_WRITE_TOUT	CFG_HZ
+#define CFG_MAX_DATAFLASH_BANKS 2
+#define CFG_MAX_DATAFLASH_PAGES 16384
+#define CFG_DATAFLASH_LOGIC_ADDR_CS0	0xC0000000	/* Logical adress for CS0 */
+#define CFG_DATAFLASH_LOGIC_ADDR_CS3	0xD0000000	/* Logical adress for CS3 */
 
 #define PHYS_FLASH_1 0x10000000
 #define PHYS_FLASH_SIZE 0x200000  /* 2 megs main flash */
@@ -110,9 +119,13 @@
 #define CFG_FLASH_ERASE_TOUT	(2*CFG_HZ) /* Timeout for Flash Erase */
 #define CFG_FLASH_WRITE_TOUT	(2*CFG_HZ) /* Timeout for Flash Write */
 #define	CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_ADDR (PHYS_FLASH_1 + 0xe000)
-#define CFG_ENV_SIZE 0x2000
+#define CFG_ENV_ADDR (PHYS_FLASH_1 + 0xe000)  /* 0x10000 */
+#define CFG_ENV_SIZE 0x2000  /* 0x8000 */
 #define CFG_LOAD_ADDR 0x21000000  /* default load address */
+
+#define CFG_BOOT_SIZE		0x6000 /* 24 KBytes */
+#define CFG_U_BOOT_BASE 	(PHYS_FLASH_1 + 0x10000)
+#define CFG_U_BOOT_SIZE		0x10000	/* 64 KBytes */
 
 #define CFG_BAUDRATE_TABLE {115200 , 19200, 38400, 57600, 9600 }
 

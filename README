@@ -151,6 +151,7 @@ Directory Hierarchy:
 - board/RPXClassic
 		Files specific to RPXClassic boards
 - board/RPXlite	Files specific to RPXlite    boards
+- board/at91rm9200dk Files specific to AT91RM9200DK boards
 - board/c2mon	Files specific to c2mon	     boards
 - board/cmi	Files specific to cmi        boards
 - board/cogent	Files specific to Cogent     boards
@@ -352,7 +353,7 @@ The following options need to be configured:
 		CONFIG_HHP_CRADLE,  CONFIG_DNP1110,    CONFIG_EP7312,
 		CONFIG_IMPA7,       CONFIG_LART,       CONFIG_LUBBOCK,
 		CONFIG_SHANNON,     CONFIG_SMDK2400,   CONFIG_SMDK2410,
-		CONFIG_TRAB
+		CONFIG_TRAB,	    CONFIG_AT91RM9200DK
 
 
 - CPU Module Type: (if CONFIG_COGENT is defined)
@@ -1248,6 +1249,13 @@ The following options need to be configured:
 		the environment like the autoscript function or the
 		boot command first.
 
+- DataFlash Support
+		CONFIG_HAS_DATAFLASH
+
+                Defining this option enables DataFlash features and
+                allows to read/write in Dataflash via the standard
+                commands cp, md...
+
 - Show boot progress
 		CONFIG_SHOW_BOOT_PROGRESS
 
@@ -1801,6 +1809,7 @@ configurations; the following names are supported:
     GENIETV_config	  TQM823L_config	PIP405_config
     GEN860T_config	  EBONY_config		FPS860L_config
     ELPT860_config	  cmi_mpc5xx_config	NETVIA_config
+    at91rm9200dk_config
 
 Note: for some board special configuration names may exist; check  if
       additional  information is available from the board vendor; for

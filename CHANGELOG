@@ -2,6 +2,21 @@
 Changes since U-Boot 0.3.1:
 ======================================================================
 
+* Patch by Nicolas Lacressonniere, 11 Jun 2003:
+  Modifications for Atmel AT91RM9200DK ARM920T based development kit
+  - Add Atmel DataFlash support for reading and writing.
+  - Add possibility to boot a Linux from DataFlash with BOOTM command. 
+  - Add Flash detection on Atmel AT91RM9200DK
+    (between Atmel AT49BV1614 and AT49BV1614A flashes)
+  - Replace old Ethernet PHY layer functions
+  - Change link address
+
+* Patch by Frank Smith, 9 Jun 2003:
+  use CRIT_EXCEPTION for machine check on 4xx
+
+* Patch by Detlev Zundel, 13 Jun 2003:
+  added implementation of the "carinfo" command in cmd_immap.c
+
 * Fix CONFIG_NET_MULTI support in include/net.h
 
 * Patches by Kyle Harris, 13 Mar 2003:

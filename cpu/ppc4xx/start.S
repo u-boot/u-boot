@@ -716,7 +716,7 @@ _start_of_vectors:
 #endif
 
 /* Machine check */
-	STD_EXCEPTION(0x200, MachineCheck, MachineCheckException)
+	CRIT_EXCEPTION(0x200, MachineCheck, MachineCheckException)
 
 /* Data Storage exception. */
 	STD_EXCEPTION(0x300, DataStorage, UnknownException)
