@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001
+ * (C) Copyright 2001-2004
  * Stefan Roese, esd gmbh germany, stefan.roese@esd-electronics.com
  *
  * See file CREDITS for list of people who contributed to this
@@ -41,6 +41,8 @@
 
 #define CONFIG_SYS_CLK_FREQ	33000000 /* external frequency to pll	*/
 
+#define CONFIG_BOARD_TYPES	1	/* support board types		*/
+
 #define CONFIG_BAUDRATE		9600
 #define CONFIG_BOOTDELAY	3	/* autoboot after 3 seconds	*/
 
@@ -60,16 +62,23 @@
 
 #endif
 
+#define CONFIG_PREBOOT                  /* enable preboot variable      */
+
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_PHY_ADDR		0	/* PHY address			*/
+#define CONFIG_LXT971_NO_SLEEP  1       /* disable sleep mode in LXT971 */
 
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
+				CFG_CMD_DHCP	| \
 				CFG_CMD_PCI	| \
 				CFG_CMD_IRQ	| \
-				CFG_CMD_ELF	)
+				CFG_CMD_ELF	| \
+				CFG_CMD_MII	| \
+				CFG_CMD_PING	| \
+				CFG_CMD_BSP	)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -92,7 +101,11 @@
 #define CFG_MAXARGS	16		/* max number of command args	*/
 #define CFG_BARGSIZE	CFG_CBSIZE	/* Boot Argument Buffer Size	*/
 
+#define CFG_DEVICE_NULLDEV	1	/* include nulldev device	*/
+
 #define CFG_CONSOLE_INFO_QUIET	1	/* don't print console @ startup*/
+
+#define CONFIG_AUTO_COMPLETE	1       /* add autocompletion support   */
 
 #define CFG_MEMTEST_START	0x0400000	/* memtest works on	*/
 #define CFG_MEMTEST_END		0x0C00000	/* 4 ... 12 MB in DRAM	*/
@@ -143,9 +156,9 @@
  * Please note that CFG_SDRAM_BASE _must_ start at 0
  */
 #define CFG_SDRAM_BASE		0x00000000
-#define CFG_FLASH_BASE		0xFFFD0000
+#define CFG_FLASH_BASE		0xFFFC0000
 #define CFG_MONITOR_BASE	CFG_FLASH_BASE
-#define CFG_MONITOR_LEN		(192 * 1024)	/* Reserve 196 kB for Monitor	*/
+#define CFG_MONITOR_LEN		(256 * 1024)	/* Reserve 256 kB for Monitor	*/
 #define CFG_MALLOC_LEN		(128 * 1024)	/* Reserve 128 kB for malloc()	*/
 
 /*
@@ -157,7 +170,7 @@
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
-#define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks		*/
+#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
 #define CFG_MAX_FLASH_SECT	256	/* max number of sectors on one chip	*/
 
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
@@ -185,7 +198,8 @@
 /*-----------------------------------------------------------------------
  * Cache Configuration
  */
-#define CFG_DCACHE_SIZE		8192	/* For IBM 405 CPUs			*/
+#define CFG_DCACHE_SIZE		16384	/* For IBM 405 CPUs, older 405 ppc's	*/
+					/* have only 8kB, 16kB is save here	*/
 #define CFG_CACHELINE_SIZE	32	/* ...			*/
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
@@ -197,8 +211,7 @@
  * BR0/1 and OR0/1 (FLASH)
  */
 
-#define FLASH_BASE0_PRELIM	0xFF800000	/* FLASH bank #0	*/
-#define FLASH_BASE1_PRELIM	0xFFC00000	/* FLASH bank #1	*/
+#define FLASH_BASE0_PRELIM	0xFFC00000	/* FLASH bank #0	*/
 
 /*-----------------------------------------------------------------------
  * External Bus Controller (EBC) Setup
