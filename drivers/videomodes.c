@@ -206,5 +206,3 @@ int video_get_params (struct ctfb_res_modes *pPar, char *penv)
 	}
 	return bpp;
 }
-
-

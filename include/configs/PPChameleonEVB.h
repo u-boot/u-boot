@@ -694,6 +694,4 @@
 
 #endif /* CONFIG_NO_SERIAL_EEPROM */
 
-#define CFG_OPB_FREQ	50000000
-
 #endif	/* __CONFIG_H */

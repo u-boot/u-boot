@@ -62,7 +62,7 @@ int reiserfs_devread (int sector, int byte_offset, int byte_len, char *buf)
 	if (sector < 0
 	    || ((sector + ((byte_offset + byte_len - 1) >> SECTOR_BITS))
 	    >= part_info.size)) {
-//		errnum = ERR_OUTSIDE_PART;
+/*		errnum = ERR_OUTSIDE_PART; */
 		printf (" ** reiserfs_devread() read outside partition\n");
 		return 0;
 	}

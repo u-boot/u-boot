@@ -80,4 +80,3 @@ extern int reiserfs_ls (char *dirname);
 extern int reiserfs_open (char *filename);
 extern int reiserfs_read (char *buf, unsigned len);
 extern int reiserfs_mount (unsigned part_length);
-

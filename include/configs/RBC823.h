@@ -89,35 +89,32 @@
 #define CONFIG_HARD_I2C
 #define CFG_I2C_SPEED 40000
 #define CFG_I2C_SLAVE 0xfe
-#define CFG_I2C_EEPROM_ADDR       0x50
-#define CFG_I2C_EEPROM_ADDR_LEN   1
-#define CFG_EEPROM_WRITE_BITS        4
-#define CFG_EEPROM_WRITE_DELAY_MS   10
+#define CFG_I2C_EEPROM_ADDR		0x50
+#define CFG_I2C_EEPROM_ADDR_LEN		1
+#define CFG_EEPROM_WRITE_BITS		4
+#define CFG_EEPROM_WRITE_DELAY_MS	10
 
 #define CONFIG_COMMANDS	      ( CFG_CMD_ALL	& \
-				~CFG_CMD_PCMCIA	& \
-				~CFG_CMD_IDE	& \
-				~CFG_CMD_PCI	& \
-				~CFG_CMD_FDC	& \
-				~CFG_CMD_HWFLOW	& \
-				~CFG_CMD_FDOS	& \
-				~CFG_CMD_SCSI	& \
-				~CFG_CMD_SETGETDCR	& \
 				~CFG_CMD_BSP	& \
-				~CFG_CMD_USB	& \
-				~CFG_CMD_VFD	& \
-				~CFG_CMD_SPI	& \
-				/* ~CFG_CMD_I2C	& */ \
-				~CFG_CMD_IRQ	& \
-				~CFG_CMD_NAND	& \
-				~CFG_CMD_JFFS2	& \
+				~CFG_CMD_DATE	& \
 				~CFG_CMD_DTT	& \
+				~CFG_CMD_FDC	& \
+				~CFG_CMD_FDOS	& \
+				~CFG_CMD_HWFLOW	& \
+				~CFG_CMD_IDE	& \
+				~CFG_CMD_IRQ	& \
+				~CFG_CMD_JFFS2	& \
 				~CFG_CMD_MII	& \
 				~CFG_CMD_MMC	& \
-				/*~CFG_CMD_NET	&*/ \
-				/*~CFG_CMD_ELF	&*/ \
-				/* ~CFG_CMD_EEPROM	& */ \
-				~CFG_CMD_DATE	)
+				~CFG_CMD_NAND	& \
+				~CFG_CMD_PCI	& \
+				~CFG_CMD_PCMCIA	& \
+				~CFG_CMD_REISER	& \
+				~CFG_CMD_SCSI	& \
+				~CFG_CMD_SETGETDCR	& \
+				~CFG_CMD_SPI	& \
+				~CFG_CMD_USB	& \
+				~CFG_CMD_VFD	)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>

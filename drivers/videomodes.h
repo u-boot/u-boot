@@ -86,4 +86,3 @@ extern const struct ctfb_vesa_modes vesa_modes[];
 extern const struct ctfb_res_modes res_mode_init[];
 
 int video_get_params (struct ctfb_res_modes *pPar, char *penv);
-

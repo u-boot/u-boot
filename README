@@ -778,13 +778,13 @@ The following options need to be configured:
 		Enable Chips & Technologies 69000 Video chip
 
 		CONFIG_VIDEO_SMI_LYNXEM
-		Enable Silicon Motion SMI 712/710/810 Video chip. The 
+		Enable Silicon Motion SMI 712/710/810 Video chip. The
 		video output is selected via environment 'videoout'
 		(1 = LCD and 2 = CRT). If videoout is undefined, CRT is
 		assumed.
 
-		For the CT69000 and SMI_LYNXEM drivers, videomode is 
-		selected via environment 'videomode'. Two diferent ways 
+		For the CT69000 and SMI_LYNXEM drivers, videomode is
+		selected via environment 'videomode'. Two diferent ways
 		are possible:
 		- "videomode=num"   'num' is a standard LiLo mode numbers.
 		Following standard modes are supported  (* is default):
@@ -798,7 +798,7 @@ The following options need to be configured:
 		-------------+---------------------------------------------
 		(i.e. setenv videomode 317; saveenv; reset;)
 
-		- "videomode=bootargs" all the video parameters are parsed 
+		- "videomode=bootargs" all the video parameters are parsed
 		from the bootargs. (See drivers/videomodes.c)
 
 

@@ -285,10 +285,10 @@ struct disk_child {
 #define dc_block_number(dc_p)	(__le32_to_cpu((dc_p)->dc_block_number))
 
 
-//
-// old stat data is 32 bytes long. We are going to distinguish new one by
-// different size
-//
+/*
+ * old stat data is 32 bytes long. We are going to distinguish new one by
+ * different size
+ */
 struct stat_data_v1
 {
     __u16 sd_mode;	/* file type, permissions */
@@ -315,7 +315,6 @@ struct stat_data_v1
 } __attribute__ ((__packed__));
 
 #define stat_data_v1(ih)        (ih_version(ih) == ITEM_VERSION_1)
-//#define sd_v1_mode(sdp)         (__le16_to_cpu((sdp)->sd_mode))
 #define sd_v1_mode(sdp)         ((sdp)->sd_mode)
 #define sd_v1_nlink(sdp)        (__le16_to_cpu((sdp)->sd_nlink))
 #define sd_v1_uid(sdp)          (__le16_to_cpu((sdp)->sd_uid))
@@ -339,7 +338,7 @@ struct stat_data {
     union {
 	__u32 sd_rdev;
 	__u32 sd_generation;
-      //__u32 sd_first_direct_byte;
+      /*__u32 sd_first_direct_byte; */
       /* first byte of file which is stored in a
 				       direct item: except that if it equals 1
 				       it is a symlink and if it equals

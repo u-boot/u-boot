@@ -443,8 +443,8 @@
 /* Define a command string that is automatically executed when no character
  * is read on the console interface withing "Boot Delay" after reset.
  */
-#define CONFIG_BOOT_ROOT_INITRD 0	/* Use ram disk for the root file system */
-#define CONFIG_BOOT_ROOT_NFS	1	/* Use a NFS mounted root file system */
+#undef	CONFIG_BOOT_ROOT_INITRD 	/* Use ram disk for the root file system */
+#define	CONFIG_BOOT_ROOT_NFS		/* Use a NFS mounted root file system */
 
 #ifdef CONFIG_BOOT_ROOT_INITRD
 #define CONFIG_BOOTCOMMAND \

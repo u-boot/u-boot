@@ -164,6 +164,7 @@
 				 CFG_CMD_MMC	| \
 				 CFG_CMD_NAND	| \
 				 CFG_CMD_PCMCIA | \
+				CFG_CMD_REISER	| \
 				 CFG_CMD_SCSI	| \
 				 CFG_CMD_SPI	| \
 				 CFG_CMD_VFD	| \
@@ -172,8 +173,8 @@
 /* Define a command string that is automatically executed when no character
  * is read on the console interface withing "Boot Delay" after reset.
  */
-#define CONFIG_BOOT_ROOT_INITRD 0	/* Use ram disk for the root file system */
-#define CONFIG_BOOT_ROOT_NFS	1	/* Use a NFS mounted root file system */
+#undef	CONFIG_BOOT_ROOT_INITRD 	/* Use ram disk for the root file system */
+#define	CONFIG_BOOT_ROOT_NFS		/* Use a NFS mounted root file system */
 
 #ifdef CONFIG_BOOT_ROOT_INITRD
 #define CONFIG_BOOTCOMMAND \

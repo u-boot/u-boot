@@ -183,7 +183,7 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	puts  ( "\n"
 		"ip_addr     = ");
 	print_IPaddr (bd->bi_ip_addr);
-	puts  ( "\n"
+	printf ("\n"
 		"baudrate    = %d bps\n", bd->bi_baudrate);
 
 	return 0;

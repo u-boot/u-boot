@@ -99,7 +99,6 @@ const char *bb_mode_string(int mode)
 
 /* The previous version used "0pcCd?bB-?l?s???".  However, the '0', 'C',
  * and 'B' types don't appear to be available on linux.  So I removed them. */
-//static const char type_chars[16] = "?pc?d?b?-?l?s???";
 static const char type_chars[16] = "?pc?d?b?-?l?s???";
 /*                                  0123456789abcdef */
 static const char mode_chars[7] = "rwxSTst";

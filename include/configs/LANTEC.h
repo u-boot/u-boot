@@ -81,7 +81,7 @@
 				 CFG_CMD_MEMORY | \
 				 CFG_CMD_LOADS  | \
 				 CFG_CMD_LOADB)
-#define CONFIG_CMD_NORMAL	(CONFIG_CMD_DFL & ~CFG_CMD_BOOTD)
+#define CONFIG_CMD_NORMAL	(CONFIG_CMD_DFL & ~CFG_CMD_BOOTD & ~CFG_CMD_REISER)
 #define CONFIG_CMD_GDB		(CONFIG_CMD_NORMAL | CFG_CMD_KGDB)
 #define CONFIG_CMD_FULL		(CFG_CMD_ALL & ~CFG_CMD_BEDBUG	\
 					     & ~CFG_CMD_BMP	\
@@ -103,6 +103,7 @@
 					     & ~CFG_CMD_NAND	\
 					     & ~CFG_CMD_PCI	\
 					     & ~CFG_CMD_PCMCIA	\
+					     & ~CFG_CMD_REISER	\
 					     & ~CFG_CMD_SCSI	\
 					     & ~CFG_CMD_SPI	\
 					     & ~CFG_CMD_USB	\

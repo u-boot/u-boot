@@ -485,7 +485,7 @@ static int smc_send_packet (volatile void *packet, int packet_length)
 	word saved_ptr;
 
 	/* save PTR and PNR registers before manipulation */
-	SMC_SELECT_BANK (2);	
+	SMC_SELECT_BANK (2);
 	saved_pnr = SMC_inb( PN_REG );
 	saved_ptr = SMC_inw( PTR_REG );
 
@@ -565,8 +565,8 @@ again:
 	/* we have a packet address, so tell the card to use it */
 	SMC_outb (packet_no, PN_REG);
 
-	/* do not write new ptr value if Write data fifo not empty */	
-	while ( saved_ptr & PTR_NOTEMPTY ) 
+	/* do not write new ptr value if Write data fifo not empty */
+	while ( saved_ptr & PTR_NOTEMPTY )
 		printf ("Write data fifo not empty!\n");
 
 	/* point to the beginning of the packet */

@@ -123,7 +123,7 @@
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
 				ADD_PCI_CMD	| \
 				ADD_USB_CMD	| \
-				ADD_IDE_CMD | \
+				ADD_IDE_CMD	| \
 				CFG_CMD_ASKENV	| \
 				CFG_CMD_DATE	| \
 				CFG_CMD_DHCP	| \

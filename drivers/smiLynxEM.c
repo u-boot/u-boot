@@ -148,7 +148,7 @@ static char SMI_PCR [] = {
 	0x20, 0x04, 0x21, 0x30, 0x22, 0x00, 0x23, 0x00, 0x24, 0x00
 };
 static char SMI_MCR[] = {
-	0x60, 0x01, 0x61, 0x00, 
+	0x60, 0x01, 0x61, 0x00,
 };
 
 static char SMI_HCR[] = {
@@ -400,7 +400,7 @@ static void smiLoadCrt (struct ctfb_res_modes *var, int bits_per_pixel)
 	he = (var->xres + var->right_margin + var->hsync_len) / 8;	/* HsEnd   */
 	ht = (var->left_margin + var->xres + var->right_margin + var->hsync_len) / 8;	/* HTotal  */
 	/* Blank */
-	hbs = hd; 
+	hbs = hd;
 	hbe = 0; /* Blank end at 0 */
 
 	/* Vertical */
@@ -410,7 +410,7 @@ static void smiLoadCrt (struct ctfb_res_modes *var, int bits_per_pixel)
 	vt = var->upper_margin + var->yres + var->lower_margin + var->vsync_len;	/* VTotal  */
 	vbs = vd;
 	vbe = 0;
-    
+
 	bpp = bits_per_pixel;
 	dblscan = (var->vmode & FB_VMODE_DOUBLE) ? 1 : 0;
 	interlaced = var->vmode & FB_VMODE_INTERLACED;
@@ -433,7 +433,7 @@ static void smiLoadCrt (struct ctfb_res_modes *var, int bits_per_pixel)
 	cr[0x03] = (hbe & 0x1F);
 	cr[0x04] = hs;
 	cr[0x05] = ((hbe & 0x20) << 2) | (he & 0x1f);
-    
+
 	cr[0x06] = (vt - 2) & 0xFF;
 	cr[0x07] = (((vt - 2) & 0x100) >> 8)
 		| (((vd - 1) & 0x100) >> 7)
@@ -449,7 +449,7 @@ static void smiLoadCrt (struct ctfb_res_modes *var, int bits_per_pixel)
 		| (((vbs - 1) & 0x400) >> 9)
 		| ((vs & 0x400) >> 10)
 		| (interlaced) ? 0x80 : 0;
-    
+
 
 	cr[0x08] = 0x00;
 	cr[0x09] = (dblscan << 7)
@@ -458,7 +458,7 @@ static void smiLoadCrt (struct ctfb_res_modes *var, int bits_per_pixel)
 		| (TextScanLines - 1);
 
 	cr[0x10] = vs & 0xff;	/* VSyncPulseStart */
-	cr[0x11] = (ve & 0x0f);	
+	cr[0x11] = (ve & 0x0f);
 	cr[0x12] = (vd - 1) & 0xff;	/* LineCount  */
 	cr[0x13] = wd & 0xff;
 	cr[0x14] = 0x40;
@@ -494,7 +494,7 @@ static unsigned int FindPQ (unsigned int freq, unsigned int *pp, unsigned int *p
 
 	for (n = QMIN; n <= QMAX; n++) {
 		m = PMIN;	/* p/q ~ freq/ref -> p*ref-freq*q ~ 0 */
-		L = P * n - m * Q;	
+		L = P * n - m * Q;
 		while (L > 0 && m < PMAX) {
 			L -= REF_FREQ;	/* difference is greater as 0 subtract fref */
 			m++;	/* and increment m */
@@ -548,12 +548,12 @@ static void smiLoadCcr (struct ctfb_res_modes *var, unsigned short device_id)
 		break;
 	}
 	smiWrite (SMI_INDX_C4, 0x6b, 0x15);
-    
+
 	/* VCLK */
 	freq = 1000000000000L / var -> pixclock;
-    
+
 	FindPQ ((unsigned int)freq, &p, &q);
-    
+
 	smiWrite (SMI_INDX_C4, 0x6c, p);
 	smiWrite (SMI_INDX_C4, 0x6d, q);
 
@@ -576,7 +576,7 @@ void *video_hw_init (void)
 	struct ctfb_res_modes *res_mode;
 	struct ctfb_res_modes var_mode;
 	unsigned char videoout;
-    
+
 	/* Search for video chip */
 	printf("Video: ");
 
@@ -593,7 +593,7 @@ void *video_hw_init (void)
 	pci_mem_base = pci_mem_to_phys (devbusfn, pci_mem_base);
 
 	tmp = 0;
-    
+
 	videomode = CFG_DEFAULT_VIDEO_MODE;
 	/* get video mode via environment */
 	if ((penv = getenv ("videomode")) != NULL) {
@@ -621,7 +621,7 @@ void *video_hw_init (void)
 								 resindex];
 		bits_per_pixel = vesa_modes[i].bits_per_pixel;
 	} else {
-	
+
 		res_mode = (struct ctfb_res_modes *) &var_mode;
 		bits_per_pixel = video_get_params (res_mode, penv);
 	}
@@ -638,7 +638,7 @@ void *video_hw_init (void)
 		 res_mode->lower_margin + res_mode->vsync_len);
 	t1 /= 1000;
 	vsynch = 1000000000L / t1;
-    
+
 	/* fill in Graphic device struct */
 	sprintf (pGD->modeIdent, "%dx%dx%d %ldkHz %ldHz", res_mode->xres,
 		 res_mode->yres, bits_per_pixel, (hsynch / 1000),
@@ -696,7 +696,7 @@ void *video_hw_init (void)
 
 	/* Attributes controller registers */
 	smiLoadRegs (SMI_INDX_ATTR, SMI_INDX_ATTR, SMI_ATTR, sizeof(SMI_ATTR));
-    
+
 	/* Graphics Controller Register */
 	smiLoadRegs (SMI_INDX_CE, SMI_DATA_CF, SMI_GCR, sizeof(SMI_GCR));
 
@@ -713,10 +713,10 @@ void *video_hw_init (void)
 
 	/* Set misc output register */
 	smiLoadMsr (res_mode);
-    
+
 	/* Set CRT and Clock control registers */
 	smiLoadCrt (res_mode, bits_per_pixel);
-    
+
 	smiLoadCcr (res_mode, device_id);
 
 	/* Hardware Cusor Register */

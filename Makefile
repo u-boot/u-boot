@@ -100,7 +100,7 @@ LIBS += board/$(BOARDDIR)/lib$(BOARD).a
 LIBS += cpu/$(CPU)/lib$(CPU).a
 LIBS += lib_$(ARCH)/lib$(ARCH).a
 LIBS += fs/cramfs/libcramfs.a fs/fat/libfat.a fs/fdos/libfdos.a fs/jffs2/libjffs2.a \
-        fs/reiserfs/libreiserfs.a
+	fs/reiserfs/libreiserfs.a
 LIBS += net/libnet.a
 LIBS += disk/libdisk.a
 LIBS += rtc/librtc.a
@@ -976,10 +976,10 @@ omap1610h2_cs0boot_config \
 omap1610h2_cs3boot_config :	unconfig
 	@if [ "$(findstring _cs0boot_, $@)" ] ; then \
 		echo "#define CONFIG_CS0_BOOT" >> ./include/config.h ; \
-		echo "Configured for CS0 boot"; \
+		echo "... configured for CS0 boot"; \
 	else \
 		echo "#define CONFIG_CS3_BOOT" >> ./include/config.h ; \
-		echo "Configured for CS3 boot"; \
+		echo "... configured for CS3 boot"; \
 	fi;
 	@./mkconfig -a $(call xtract_omap1610xxx,$@) arm arm926ejs omap1610inn
 
