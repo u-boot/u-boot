@@ -2,6 +2,10 @@
 Changes since U-Boot 0.3.1:
 ======================================================================
 
+* Add support for CompactFlash on ATC board
+  (includes support for Intel 82365 and compatible PC Card controllers,
+  and Yenta-compatible PCI-to-CardBus controllers)
+
 * Patch by Mathijs Haarman, 08 May 2003:
   Add lan91c96 driver (tested on Lubbock and custom PXA250 board only)
 

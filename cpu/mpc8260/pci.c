@@ -95,7 +95,11 @@
  */
 
 #define PCI_MSTR_IO_LOCAL       0xA0000000          /* Local base */
+#ifdef CONFIG_ATC
+#define PCI_MSTR_IO_BUS         0x00000000          /* PCI base   */
+#else
 #define PCI_MSTR_IO_BUS         0xA0000000          /* PCI base   */
+#endif
 #define CPU_PCI_IO_START        PCI_MSTR_IO_LOCAL
 #define PCI_MSTR_IO_SIZE        0x10000000          /* 256MB */
 #define POCMR2_MASK_ATTRIB      (POCMR_MASK_256MB | POCMR_ENABLE | POCMR_PCI_IO)

@@ -21,7 +21,7 @@
 #define cfg_read(val, addr, type, op)	*val = op((type)(addr))
 #define cfg_write(val, addr, type, op)	op((type *)(addr), (val))
 
-#ifdef CONFIG_PM826
+#if defined(CONFIG_PM826) || defined(CONFIG_ATC)
 #define INDIRECT_PCI_OP(rw, size, type, op, mask)			 \
 static int								 \
 indirect_##rw##_config_##size(struct pci_controller *hose, 		 \

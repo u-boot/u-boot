@@ -92,6 +92,7 @@
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
 				CFG_CMD_ASKENV	| \
 				CFG_CMD_DHCP	| \
+				CFG_CMD_ELF	| \
 				CFG_CMD_IDE	| \
 				CFG_CMD_DATE	)
 

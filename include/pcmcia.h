@@ -62,6 +62,8 @@
 # define CONFIG_PCMCIA_SLOT_B
 #elif defined(CONFIG_R360MPI)		/* The R360MPI use SLOT_B	*/
 # define CONFIG_PCMCIA_SLOT_B
+#elif defined(CONFIG_ATC)		/* The ATC use SLOT_A	*/
+# define CONFIG_PCMCIA_SLOT_A
 #else
 # error "PCMCIA Slot not configured"
 #endif

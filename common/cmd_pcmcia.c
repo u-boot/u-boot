@@ -72,16 +72,20 @@ int pcmcia_on (void);
 
 #if (CONFIG_COMMANDS & CFG_CMD_PCMCIA)
 static int  pcmcia_off (void);
+#endif
+
+#ifdef CONFIG_I82365
+
+extern int i82365_init (void);
+extern void i82365_exit (void);
+
+#else /* ! CONFIG_I82365 */
+
+#if (CONFIG_COMMANDS & CFG_CMD_PCMCIA)
 static int  hardware_disable(int slot);
 #endif
 static int  hardware_enable (int slot);
 static int  voltage_set(int slot, int vcc, int vpp);
-#ifdef CONFIG_IDE_8xx_PCCARD
-static void print_funcid (int func);
-static void print_fixed  (volatile uchar *p);
-static int  identify     (volatile uchar *p);
-static int  check_ide_device (int slot);
-#endif	/* CONFIG_IDE_8xx_PCCARD */
 
 static u_int m8xx_get_graycode(u_int size);
 #if 0
@@ -98,6 +102,15 @@ static u_int *pcmcia_pgcrx[2] = {
 };
 
 #define PCMCIA_PGCRX(slot)	(*pcmcia_pgcrx[slot])
+
+#endif /* CONFIG_I82365 */
+
+#ifdef CONFIG_IDE_8xx_PCCARD
+static void print_funcid (int func);
+static void print_fixed  (volatile uchar *p);
+static int  identify     (volatile uchar *p);
+static int  check_ide_device (int slot);
+#endif	/* CONFIG_IDE_8xx_PCCARD */
 
 const char *indent = "\t   ";
 
@@ -127,6 +140,24 @@ int do_pinit (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #endif	/* CFG_CMD_PCMCIA */
 
 /* -------------------------------------------------------------------- */
+
+#ifdef CONFIG_I82365
+int pcmcia_on (void)
+{
+	u_int rc;
+
+	debug ("Enable PCMCIA " PCMCIA_SLOT_MSG "\n");
+
+	rc = i82365_init();
+
+	if (rc == 0)
+	{
+		rc = check_ide_device(0);
+	}
+
+	return (rc);
+}
+#else
 
 #if defined(CONFIG_LWMON)
 # define  CFG_PCMCIA_TIMING	(PCMCIA_SHT(9) | PCMCIA_SST(3) | PCMCIA_SL(12))
@@ -222,11 +253,22 @@ int pcmcia_on (void)
 	}
 	return (rc);
 }
+#endif /* CONFIG_I82365 */
 
 /* -------------------------------------------------------------------- */
 
 #if (CONFIG_COMMANDS & CFG_CMD_PCMCIA)
 
+#ifdef CONFIG_I82365
+static int pcmcia_off (void)
+{
+	printf ("Disable PCMCIA " PCMCIA_SLOT_MSG "\n");
+
+	i82365_exit();
+
+	return 0;
+}
+#else
 static int pcmcia_off (void)
 {
 	int i;
@@ -258,6 +300,7 @@ static int pcmcia_off (void)
 	hardware_disable(_slot_);
 	return 0;
 }
+#endif /* CONFIG_I82365 */
 
 #endif	/* CFG_CMD_PCMCIA */
 

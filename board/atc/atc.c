@@ -24,6 +24,7 @@
 #include <common.h>
 #include <ioports.h>
 #include <mpc8260.h>
+#include <pci.h>
 
 /*
  * I/O Port configuration table
@@ -362,5 +363,16 @@ extern void doc_probe (ulong physadr);
 void doc_init (void)
 {
 	doc_probe (CFG_DOC_BASE);
+}
+#endif
+
+#ifdef	CONFIG_PCI
+struct pci_controller hose;
+
+extern void pci_mpc8250_init(struct pci_controller *);
+
+void pci_init_board(void)
+{
+	pci_mpc8250_init(&hose);
 }
 #endif

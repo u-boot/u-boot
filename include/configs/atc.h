@@ -125,7 +125,12 @@
 
 #define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT|CONFIG_BOOTP_BOOTFILESIZE)
 
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL | CFG_CMD_EEPROM)
+#define CONFIG_COMMANDS		(CONFIG_CMD_DFL | \
+				 CFG_CMD_EEPROM | \
+				 CFG_CMD_PCI | \
+				 CFG_CMD_PCMCIA | \
+				 CFG_CMD_IDE)
+#define CONFIG_DOS_PARTITION
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -148,6 +153,8 @@
 #define CFG_MEMTEST_END	0x0C00000	/* 4 ... 12 MB in DRAM	*/
 
 #define	CFG_LOAD_ADDR	0x100000	/* default load address	*/
+
+#define CFG_PIO_MODE		0	/* IDE interface in PIO Mode 0	*/
 
 #define	CFG_HZ		1000		/* decrementer freq: 1 ms ticks	*/
 
@@ -238,6 +245,9 @@
 #if (CFG_MONITOR_BASE < CFG_FLASH_BASE)
 # define CFG_RAMBOOT
 #endif
+
+#define	CONFIG_PCI
+#define	CONFIG_PCI_PNP
 
 #if 1
 /* environment is in Flash */
@@ -440,5 +450,42 @@
 
 #define CFG_PSDMR	 CFG_PSDMR_8COL
 #endif /* CFG_RAMBOOT */
+
+/*-----------------------------------------------------------------------
+ * PCMCIA stuff
+ *-----------------------------------------------------------------------
+ *
+ */
+#define CONFIG_I82365
+
+#define CFG_PCMCIA_MEM_ADDR	0x81000000
+#define CFG_PCMCIA_MEM_SIZE	0x1000
+
+/*-----------------------------------------------------------------------
+ * IDE/ATA stuff (Supports IDE harddisk on PCMCIA Adapter)
+ *-----------------------------------------------------------------------
+ */
+
+#define CONFIG_IDE_8xx_PCCARD	1	/* Use IDE with PC Card Adapter */
+
+#undef	CONFIG_IDE_8xx_DIRECT		/* Direct IDE	 not supported	*/
+#undef	CONFIG_IDE_LED			/* LED	 for ide not supported	*/
+#undef	CONFIG_IDE_RESET		/* reset for ide not supported	*/
+
+#define CFG_IDE_MAXBUS		1	/* max. 1 IDE bus		*/
+#define CFG_IDE_MAXDEVICE	1	/* max. 1 drive per IDE bus	*/
+
+#define CFG_ATA_IDE0_OFFSET	0x0000
+
+#define CFG_ATA_BASE_ADDR	0xa0000000
+
+/* Offset for data I/O			*/
+#define CFG_ATA_DATA_OFFSET	0x100
+
+/* Offset for normal register accesses	*/
+#define CFG_ATA_REG_OFFSET	0x100
+
+/* Offset for alternate registers	*/
+#define CFG_ATA_ALT_OFFSET	0x108
 
 #endif	/* __CONFIG_H */
