@@ -29,12 +29,70 @@
 
 #undef	ET_DEBUG
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(FEC_ENET)
+#if (CONFIG_COMMANDS & CFG_CMD_NET) && \
+	(defined(FEC_ENET) || defined(CONFIG_ETHER_ON_FEC1) || defined(CONFIG_ETHER_ON_FEC2))
+
+/* compatibility test, if only FEC_ENET defined assume ETHER on FEC1 */
+#if defined(FEC_ENET) && !defined(CONFIG_ETHER_ON_FEC1) && !defined(CONFIG_ETHER_ON_FEC2)
+#define CONFIG_ETHER_ON_FEC1 1
+#endif
+
+/* define WANT_MII when MII support is required */
+#if defined(CFG_DISCOVER_PHY) || defined(CONFIG_FEC1_PHY) || defined(CONFIG_FEC2_PHY)
+#define WANT_MII
+#else
+#undef WANT_MII
+#endif
+
+#if defined(WANT_MII)
+#include <miiphy.h>
+#endif
+
+#if defined(CONFIG_RMII) && !defined(WANT_MII)
+#error RMII support is unusable without a working PHY.
+#endif
 
 #ifdef CFG_DISCOVER_PHY
-#include <miiphy.h>
-static void mii_discover_phy(void);
+static int mii_discover_phy(struct eth_device *dev);
 #endif
+
+static struct ether_fcc_info_s
+{
+	int ether_index;
+	int fecp_offset;
+	int bd_offset;
+	int phy_addr;
+	int actual_phy_addr;
+}
+	ether_fcc_info[] = {
+#if defined(CONFIG_ETHER_ON_FEC1)
+	{
+		0,
+		offsetof(immap_t, im_cpm.cp_fec1),
+		CPM_FEC_BASE,
+#if defined(CONFIG_FEC1_PHY)
+		CONFIG_FEC1_PHY,
+#else
+		-1,	/* discover */
+#endif
+		-1,
+
+	},
+#endif
+#if defined(CONFIG_ETHER_ON_FEC2)
+	{
+		1,
+		offsetof(immap_t, im_cpm.cp_fec2),
+		CPM_FEC_BASE + 0x50,
+#if defined(CONFIG_FEC2_PHY)
+		CONFIG_FEC2_PHY,
+#else
+		-1,
+#endif
+		-1,
+	},
+#endif
+};
 
 /* Ethernet Transmit and Receive Buffers */
 #define DBUF_LENGTH  1520
@@ -47,8 +105,11 @@ static void mii_discover_phy(void);
 #define PKT_MINBUF_SIZE		64
 #define PKT_MAXBLR_SIZE		1520
 
-
-static char txbuf[DBUF_LENGTH];
+#ifdef __GNUC__
+static char txbuf[DBUF_LENGTH] __attribute__ ((aligned(8)));
+#else
+#error txbuf must be aligned.
+#endif
 
 static uint rxIdx;	/* index of the current RX buffer */
 static uint txIdx;	/* index of the current TX buffer */
@@ -74,28 +135,49 @@ static void fec_halt(struct eth_device* dev);
 int fec_initialize(bd_t *bis)
 {
 	struct eth_device* dev;
+	struct ether_fcc_info_s *efis;
+	int             i;
 
-	dev = (struct eth_device*) malloc(sizeof *dev);
-	memset(dev, 0, sizeof *dev);
+	for (i = 0; i < sizeof(ether_fcc_info) / sizeof(ether_fcc_info[0]); i++) {
 
-	sprintf(dev->name, "FEC ETHERNET");
-	dev->iobase = 0;
-	dev->priv   = 0;
-	dev->init   = fec_init;
-	dev->halt   = fec_halt;
-	dev->send   = fec_send;
-	dev->recv   = fec_recv;
+		dev = malloc(sizeof(*dev));
+		if (dev == NULL)
+			hang();
 
-	eth_register(dev);
+		memset(dev, 0, sizeof(*dev));
 
+		/* for FEC1 make sure that the name of the interface is the same
+		   as the old one for compatibility reasons */
+		if (i == 0) {
+			sprintf (dev->name, "FEC ETHERNET");
+		} else {
+			sprintf (dev->name, "FEC%d ETHERNET",
+				ether_fcc_info[i].ether_index + 1);
+		}
+
+		efis = &ether_fcc_info[i];
+
+		/*
+		 * reset actual phy addr
+		 */
+		efis->actual_phy_addr = -1;
+
+		dev->priv = efis;
+		dev->init = fec_init;
+		dev->halt = fec_halt;
+		dev->send = fec_send;
+		dev->recv = fec_recv;
+
+		eth_register(dev);
+	}
 	return 1;
 }
 
 static int fec_send(struct eth_device* dev, volatile void *packet, int length)
 {
 	int j, rc;
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
-	volatile fec_t *fecp = &(immr->im_cpm.cp_fec);
+	struct ether_fcc_info_s *efis = dev->priv;
+	volatile fec_t *fecp = (volatile fec_t *)(CFG_IMMR + efis->fecp_offset);
 
 	/* section 16.9.23.3
 	 * Wait for ready
@@ -142,50 +224,66 @@ static int fec_send(struct eth_device* dev, volatile void *packet, int length)
 	return rc;
 }
 
-static int fec_recv(struct eth_device* dev)
+static int fec_recv (struct eth_device *dev)
 {
+	struct ether_fcc_info_s *efis = dev->priv;
+	volatile fec_t *fecp =
+		(volatile fec_t *) (CFG_IMMR + efis->fecp_offset);
 	int length;
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
-	volatile fec_t *fecp = &(immr->im_cpm.cp_fec);
 
-   for (;;) {
-	/* section 16.9.23.2 */
-	if (rtx->rxbd[rxIdx].cbd_sc & BD_ENET_RX_EMPTY) {
-		length = -1;
-		break;     /* nothing received - leave for() loop */
-	}
+	for (;;) {
+		/* section 16.9.23.2 */
+		if (rtx->rxbd[rxIdx].cbd_sc & BD_ENET_RX_EMPTY) {
+			length = -1;
+			break;	/* nothing received - leave for() loop */
+		}
 
-	length = rtx->rxbd[rxIdx].cbd_datlen;
+		length = rtx->rxbd[rxIdx].cbd_datlen;
 
-	if (rtx->rxbd[rxIdx].cbd_sc & 0x003f) {
+		if (rtx->rxbd[rxIdx].cbd_sc & 0x003f) {
 #ifdef ET_DEBUG
-		printf("%s[%d] err: %x\n",
-		__FUNCTION__,__LINE__,rtx->rxbd[rxIdx].cbd_sc);
+			printf ("%s[%d] err: %x\n",
+				__FUNCTION__, __LINE__,
+				rtx->rxbd[rxIdx].cbd_sc);
 #endif
-	} else {
-		/* Pass the packet up to the protocol layers. */
-		NetReceive(NetRxPackets[rxIdx], length - 4);
+		} else {
+			volatile uchar *rx = NetRxPackets[rxIdx];
+
+			length -= 4;
+
+#if (CONFIG_COMMANDS & CFG_CMD_CDP)
+			if ((rx[0] & 1) != 0
+			    && memcmp ((uchar *) rx, NetBcastAddr, 6) != 0
+			    && memcmp ((uchar *) rx, NetCDPAddr, 6) != 0)
+				rx = NULL;
+#endif
+			/*
+			 * Pass the packet up to the protocol layers.
+			 */
+			if (rx != NULL)
+				NetReceive (rx, length);
+		}
+
+		/* Give the buffer back to the FEC. */
+		rtx->rxbd[rxIdx].cbd_datlen = 0;
+
+		/* wrap around buffer index when necessary */
+		if ((rxIdx + 1) >= PKTBUFSRX) {
+			rtx->rxbd[PKTBUFSRX - 1].cbd_sc =
+				(BD_ENET_RX_WRAP | BD_ENET_RX_EMPTY);
+			rxIdx = 0;
+		} else {
+			rtx->rxbd[rxIdx].cbd_sc = BD_ENET_RX_EMPTY;
+			rxIdx++;
+		}
+
+		__asm__ ("eieio");
+
+		/* Try to fill Buffer Descriptors */
+		fecp->fec_r_des_active = 0x01000000;	/* Descriptor polling active    */
 	}
 
-	/* Give the buffer back to the FEC. */
-	rtx->rxbd[rxIdx].cbd_datlen = 0;
-
-	/* wrap around buffer index when necessary */
-	if ((rxIdx + 1) >= PKTBUFSRX) {
-		rtx->rxbd[PKTBUFSRX - 1].cbd_sc = (BD_ENET_RX_WRAP | BD_ENET_RX_EMPTY);
-		rxIdx = 0;
-	} else {
-		rtx->rxbd[rxIdx].cbd_sc = BD_ENET_RX_EMPTY;
-		rxIdx++;
-	}
-
-	__asm__ ("eieio");
-
-	/* Try to fill Buffer Descriptors */
-	fecp->fec_r_des_active = 0x01000000;	/* Descriptor polling active	*/
-   }
-
-   return length;
+	return length;
 }
 
 /**************************************************************
@@ -210,34 +308,250 @@ static int fec_recv(struct eth_device* dev)
 
 #define	FEC_RESET_DELAY		50
 
-static int fec_init(struct eth_device* dev, bd_t * bd)
+#if defined(CONFIG_RMII)
+
+static inline void fec_10Mbps(struct eth_device *dev)
 {
+	struct ether_fcc_info_s *efis = dev->priv;
+	int fecidx = efis->ether_index;
+	uint mask = (fecidx == 0) ? 0x0000010 : 0x0000008;
 
-	int i;
+	if ((unsigned int)fecidx >= 2)
+		hang();
+
+	((volatile immap_t *)CFG_IMMR)->im_cpm.cp_cptr |=  mask;
+}
+
+static inline void fec_100Mbps(struct eth_device *dev)
+{
+	struct ether_fcc_info_s *efis = dev->priv;
+	int fecidx = efis->ether_index;
+	uint mask = (fecidx == 0) ? 0x0000010 : 0x0000008;
+
+	if ((unsigned int)fecidx >= 2)
+		hang();
+
+	((volatile immap_t *)CFG_IMMR)->im_cpm.cp_cptr &= ~mask;
+}
+
+#endif
+
+static inline void fec_full_duplex(struct eth_device *dev)
+{
+	struct ether_fcc_info_s *efis = dev->priv;
+	volatile fec_t *fecp = (volatile fec_t *)(CFG_IMMR + efis->fecp_offset);
+
+	fecp->fec_r_cntrl &= ~FEC_RCNTRL_DRT;
+	fecp->fec_x_cntrl |=  FEC_TCNTRL_FDEN;	/* FD enable */
+}
+
+static inline void fec_half_duplex(struct eth_device *dev)
+{
+	struct ether_fcc_info_s *efis = dev->priv;
+	volatile fec_t *fecp = (volatile fec_t *)(CFG_IMMR + efis->fecp_offset);
+
+	fecp->fec_r_cntrl |=  FEC_RCNTRL_DRT;
+	fecp->fec_x_cntrl &= ~FEC_TCNTRL_FDEN;	/* FD disable */
+}
+
+static void fec_pin_init(int fecidx)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+	bd_t           *bd = gd->bd;
 	volatile immap_t *immr = (immap_t *) CFG_IMMR;
-	volatile fec_t *fecp = &(immr->im_cpm.cp_fec);
+	volatile fec_t *fecp;
 
-#if defined(CONFIG_FADS) /* FADS family uses FPGA (BCSR) to control PHYs */
-#if defined(CONFIG_DUET_ADS)
-	*(vu_char *)BCSR5 &= ~(BCSR5_MII1_EN | BCSR5_MII1_RST);
-#else
-	/* configure FADS for fast (FEC) ethernet, half-duplex */
-	/* The LXT970 needs about 50ms to recover from reset, so
-	 * wait for it by discovering the PHY before leaving eth_init().
+	/*
+	 * only two FECs please
 	 */
-	{
-		volatile uint *bcsr4 = (volatile uint *) BCSR4;
-		*bcsr4 = (*bcsr4 & ~(BCSR4_FETH_EN | BCSR4_FETHCFG1))
-			| (BCSR4_FETHCFG0 | BCSR4_FETHFDE | BCSR4_FETHRST);
+	if ((unsigned int)fecidx >= 2)
+		hang();
 
-		/* reset the LXT970 PHY */
-		*bcsr4 &= ~BCSR4_FETHRST;
-		udelay (10);
-		*bcsr4 |= BCSR4_FETHRST;
-		udelay (10);
+	if (fecidx == 0)
+		fecp = &immr->im_cpm.cp_fec1;
+	else
+		fecp = &immr->im_cpm.cp_fec2;
+
+	/*
+	 * Set MII speed to 2.5 MHz or slightly below.
+	 * * According to the MPC860T (Rev. D) Fast ethernet controller user
+	 * * manual (6.2.14),
+	 * * the MII management interface clock must be less than or equal
+	 * * to 2.5 MHz.
+	 * * This MDC frequency is equal to system clock / (2 * MII_SPEED).
+	 * * Then MII_SPEED = system_clock / 2 * 2,5 Mhz.
+	 */
+	fecp->fec_mii_speed = ((bd->bi_intfreq + 4999999) / 5000000) << 1;
+
+#if defined(CONFIG_DUET) && defined(WANT_MII)
+	/* use MDC for MII */
+	immr->im_ioport.iop_pdpar |=  0x0080;
+	immr->im_ioport.iop_pddir &= ~0x0080;
+#endif
+
+	if (fecidx == 0) {
+#if defined(CONFIG_ETHER_ON_FEC1)
+
+#if defined(CONFIG_DUET)	/* MPC87x/88x have got 2 FECs and different pinout */
+
+#if !defined(CONFIG_RMII)
+
+		immr->im_ioport.iop_papar |=  0xf830;
+		immr->im_ioport.iop_padir |=  0x0830;
+		immr->im_ioport.iop_padir &= ~0xf000;
+
+		immr->im_cpm.cp_pbpar     |=  0x00001001;
+		immr->im_cpm.cp_pbdir     &= ~0x00001001;
+
+		immr->im_ioport.iop_pcpar |=  0x000c;
+		immr->im_ioport.iop_pcdir &= ~0x000c;
+
+		immr->im_cpm.cp_pepar     |=  0x00000003;
+		immr->im_cpm.cp_pedir     |=  0x00000003;
+		immr->im_cpm.cp_peso      &= ~0x00000003;
+
+		immr->im_cpm.cp_cptr      &= ~0x00000100;
+
+#else
+
+#if !defined(CONFIG_FEC1_PHY_NORXERR)
+		immr->im_ioport.iop_papar |=  0x1000;
+		immr->im_ioport.iop_padir &= ~0x1000;
+#endif
+		immr->im_ioport.iop_papar |=  0xe810;
+		immr->im_ioport.iop_padir |=  0x0810;
+		immr->im_ioport.iop_padir &= ~0xe000;
+
+		immr->im_cpm.cp_pbpar     |=  0x00000001;
+		immr->im_cpm.cp_pbdir     &= ~0x00000001;
+
+		immr->im_cpm.cp_cptr      |=  0x00000100;
+		immr->im_cpm.cp_cptr      &= ~0x00000050;
+
+#endif /* !CONFIG_RMII */
+
+#elif !defined(CONFIG_ICU862) && !defined(CONFIG_IAD210)
+		/*
+		 * Configure all of port D for MII.
+		 */
+		immr->im_ioport.iop_pdpar = 0x1fff;
+
+		/*
+		 * Bits moved from Rev. D onward
+		 */
+		if ((get_immr(0) & 0xffff) < 0x0501)
+			immr->im_ioport.iop_pddir = 0x1c58;	/* Pre rev. D */
+		else
+			immr->im_ioport.iop_pddir = 0x1fff;	/* Rev. D and later */
+#else
+		/*
+		 * Configure port A for MII.
+		 */
+
+#if defined(CONFIG_ICU862) && defined(CFG_DISCOVER_PHY)
+
+		/*
+		 * On the ICU862 board the MII-MDC pin is routed to PD8 pin
+		 * * of CPU, so for this board we need to configure Utopia and
+		 * * enable PD8 to MII-MDC function
+		 */
+		immr->im_ioport.iop_pdpar |= 0x4080;
+#endif
+
+		/*
+		 * Has Utopia been configured?
+		 */
+		if (immr->im_ioport.iop_pdpar & (0x8000 >> 1)) {
+			/*
+			 * YES - Use MUXED mode for UTOPIA bus.
+			 * This frees Port A for use by MII (see 862UM table 41-6).
+			 */
+			immr->im_ioport.utmode &= ~0x80;
+		} else {
+			/*
+			 * NO - set SPLIT mode for UTOPIA bus.
+			 *
+			 * This doesn't really effect UTOPIA (which isn't
+			 * enabled anyway) but just tells the 862
+			 * to use port A for MII (see 862UM table 41-6).
+			 */
+			immr->im_ioport.utmode |= 0x80;
+		}
+#endif				/* !defined(CONFIG_ICU862) */
+
+#endif	/* CONFIG_ETHER_ON_FEC1 */
+	} else if (fecidx == 1) {
+
+#if defined(CONFIG_ETHER_ON_FEC2)
+
+#if defined(CONFIG_DUET)	/* MPC87x/88x have got 2 FECs and different pinout */
+
+#if !defined(CONFIG_RMII)
+
+#warning this configuration is not tested; please report if it works
+		immr->im_cpm.cp_pepar     |=  0x0003fffc;
+		immr->im_cpm.cp_pedir     |=  0x0003fffc;
+		immr->im_cpm.cp_peso      &= ~0x000087fc;
+		immr->im_cpm.cp_peso      |=  0x00037800;
+
+		immr->im_cpm.cp_cptr      &= ~0x00000080;
+#else
+
+#if !defined(CONFIG_FEC2_PHY_NORXERR)
+		immr->im_cpm.cp_pepar     |=  0x00000010;
+		immr->im_cpm.cp_pedir     |=  0x00000010;
+		immr->im_cpm.cp_peso      &= ~0x00000010;
+#endif
+		immr->im_cpm.cp_pepar     |=  0x00039620;
+		immr->im_cpm.cp_pedir     |=  0x00039620;
+		immr->im_cpm.cp_peso      |=  0x00031000;
+		immr->im_cpm.cp_peso      &= ~0x00008620;
+
+		immr->im_cpm.cp_cptr      |=  0x00000080;
+		immr->im_cpm.cp_cptr      &= ~0x00000028;
+#endif /* CONFIG_RMII */
+
+#endif /* CONFIG_DUET */
+
+#endif /* CONFIG_ETHER_ON_FEC2 */
+
 	}
+}
+
+static int fec_init (struct eth_device *dev, bd_t * bd)
+{
+	struct ether_fcc_info_s *efis = dev->priv;
+	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile fec_t *fecp =
+		(volatile fec_t *) (CFG_IMMR + efis->fecp_offset);
+	int i;
+
+	if (efis->ether_index == 0) {
+#if defined(CONFIG_FADS)	/* FADS family uses FPGA (BCSR) to control PHYs */
+#if defined(CONFIG_DUET_ADS)
+		*(vu_char *) BCSR5 &= ~(BCSR5_MII1_EN | BCSR5_MII1_RST);
+#else
+		/* configure FADS for fast (FEC) ethernet, half-duplex */
+		/* The LXT970 needs about 50ms to recover from reset, so
+		 * wait for it by discovering the PHY before leaving eth_init().
+		 */
+		{
+			volatile uint *bcsr4 = (volatile uint *) BCSR4;
+
+			*bcsr4 = (*bcsr4 & ~(BCSR4_FETH_EN | BCSR4_FETHCFG1))
+				| (BCSR4_FETHCFG0 | BCSR4_FETHFDE |
+				   BCSR4_FETHRST);
+
+			/* reset the LXT970 PHY */
+			*bcsr4 &= ~BCSR4_FETHRST;
+			udelay (10);
+			*bcsr4 |= BCSR4_FETHRST;
+			udelay (10);
+		}
 #endif /* CONFIG_DUET_ADS */
 #endif /* CONFIG_FADS */
+	}
+
 	/* Whack a reset.
 	 * A delay is required between a reset of the FEC block and
 	 * initialization of other FEC registers because the reset takes
@@ -269,15 +583,22 @@ static int fec_init(struct eth_device* dev, bd_t * bd)
 	/* Set station address
 	 */
 #define ea eth_get_dev()->enetaddr
-	fecp->fec_addr_low   =	(ea[0] << 24) | (ea[1] << 16) |
-				(ea[2] <<  8) | (ea[3]      ) ;
-	fecp->fec_addr_high  =	(ea[4] <<  8) | (ea[5]	    ) ;
+	fecp->fec_addr_low = (ea[0] << 24) | (ea[1] << 16) | (ea[2] << 8) | (ea[3]);
+	fecp->fec_addr_high = (ea[4] << 8) | (ea[5]);
 #undef ea
 
+#if (CONFIG_COMMANDS & CFG_CMD_CDP)
+	/*
+	 * Turn on multicast address hash table
+	 */
+	fecp->fec_hash_table_high = 0xffffffff;
+	fecp->fec_hash_table_low = 0xffffffff;
+#else
 	/* Clear multicast address hash table
 	 */
 	fecp->fec_hash_table_high = 0;
-	fecp->fec_hash_table_low  = 0;
+	fecp->fec_hash_table_low = 0;
+#endif
 
 	/* Set maximum receive buffer size.
 	 */
@@ -295,9 +616,10 @@ static int fec_init(struct eth_device* dev, bd_t * bd)
 
 	if (!rtx) {
 #ifdef CFG_ALLOC_DPRAM
-	    rtx = (RTXBD *) (immr->im_cpm.cp_dpmem + dpram_alloc_align(sizeof(RTXBD),8));
+		rtx = (RTXBD *) (immr->im_cpm.cp_dpmem +
+				 dpram_alloc_align (sizeof (RTXBD), 8));
 #else
-	    rtx = (RTXBD *) (immr->im_cpm.cp_dpmem + CPM_FEC_BASE);
+		rtx = (RTXBD *) (immr->im_cpm.cp_dpmem + CPM_FEC_BASE);
 #endif
 	}
 	/*
@@ -306,8 +628,8 @@ static int fec_init(struct eth_device* dev, bd_t * bd)
 	 *     Empty, Wrap
 	 */
 	for (i = 0; i < PKTBUFSRX; i++) {
-		rtx->rxbd[i].cbd_sc      = BD_ENET_RX_EMPTY;
-		rtx->rxbd[i].cbd_datlen  = 0;	/* Reset */
+		rtx->rxbd[i].cbd_sc = BD_ENET_RX_EMPTY;
+		rtx->rxbd[i].cbd_datlen = 0;	/* Reset */
 		rtx->rxbd[i].cbd_bufaddr = (uint) NetRxPackets[i];
 	}
 	rtx->rxbd[PKTBUFSRX - 1].cbd_sc |= BD_ENET_RX_WRAP;
@@ -318,8 +640,8 @@ static int fec_init(struct eth_device* dev, bd_t * bd)
 	 *    Last, Tx CRC
 	 */
 	for (i = 0; i < TX_BUF_CNT; i++) {
-		rtx->txbd[i].cbd_sc      = BD_ENET_TX_LAST | BD_ENET_TX_TC;
-		rtx->txbd[i].cbd_datlen  = 0;	/* Reset */
+		rtx->txbd[i].cbd_sc = BD_ENET_TX_LAST | BD_ENET_TX_TC;
+		rtx->txbd[i].cbd_datlen = 0;	/* Reset */
 		rtx->txbd[i].cbd_bufaddr = (uint) (&txbuf[0]);
 	}
 	rtx->txbd[TX_BUF_CNT - 1].cbd_sc |= BD_ENET_TX_WRAP;
@@ -331,10 +653,10 @@ static int fec_init(struct eth_device* dev, bd_t * bd)
 
 	/* Enable MII mode
 	 */
-#if 0	/* Full duplex mode */
+#if 0				/* Full duplex mode */
 	fecp->fec_r_cntrl = FEC_RCNTRL_MII_MODE;
 	fecp->fec_x_cntrl = FEC_TCNTRL_FDEN;
-#else	/* Half duplex mode */
+#else  /* Half duplex mode */
 	fecp->fec_r_cntrl = FEC_RCNTRL_MII_MODE | FEC_RCNTRL_DRT;
 	fecp->fec_x_cntrl = 0;
 #endif
@@ -343,86 +665,59 @@ static int fec_init(struct eth_device* dev, bd_t * bd)
 	 */
 	fecp->fec_fun_code = 0x78000000;
 
-	/* Set MII speed to 2.5 MHz or slightly below.
-	 * According to the MPC860T (Rev. D) Fast ethernet controller user
-	 * manual (6.2.14),
-	 * the MII management interface clock must be less than or equal
-	 * to 2.5 MHz.
-	 * This MDC frequency is equal to system clock / (2 * MII_SPEED).
-	 * Then MII_SPEED = system_clock / 2 * 2,5 Mhz.
+	/*
+	 * Setup the pin configuration of the FEC
 	 */
-	fecp->fec_mii_speed = ((bd->bi_intfreq + 4999999) / 5000000) << 1;
-
-#if defined(CONFIG_DUET) /* MPC87x/88x have got 2 FECs and different pinout */
-	immr->im_ioport.iop_papar |=  0xf830;
-	immr->im_ioport.iop_padir |=  0x0830;
-	immr->im_ioport.iop_padir &= ~0xf000;
-	immr->im_cpm.cp_pbpar     |=  0x00001001;
-	immr->im_cpm.cp_pbdir     &= ~0x00001001;
-	immr->im_ioport.iop_pcpar |=  0x000c;
-	immr->im_ioport.iop_pcdir &= ~0x000c;
-	immr->im_ioport.iop_pdpar |=  0x0080;
-	immr->im_ioport.iop_pddir &= ~0x0080;
-	immr->im_cpm.cp_pepar     |=  0x00000003;
-	immr->im_cpm.cp_pedir     |=  0x00000003;
-	immr->im_cpm.cp_peso      &= ~0x00000003;
-#elif !defined(CONFIG_ICU862) && !defined(CONFIG_IAD210)
-	/* Configure all of port D for MII.
-	 */
-	immr->im_ioport.iop_pdpar = 0x1fff;
-
-	/* Bits moved from Rev. D onward */
-	if ((get_immr (0) & 0xffff) < 0x0501) {
-		immr->im_ioport.iop_pddir = 0x1c58;	/* Pre rev. D */
-	} else {
-		immr->im_ioport.iop_pddir = 0x1fff;	/* Rev. D and later */
-	}
-#else
-	/* Configure port A for MII.
-	*/
-
-#if defined(CONFIG_ICU862) && defined(CFG_DISCOVER_PHY)
-
-	/* On the ICU862 board the MII-MDC pin is routed to PD8 pin
-	 * of CPU, so for this board we need to configure Utopia and
-	 * enable PD8 to MII-MDC function */
-	immr->im_ioport.iop_pdpar |= 0x4080;
-#endif
-
-	/* Has Utopia been configured? */
-	if (immr->im_ioport.iop_pdpar & (0x8000 >> 1)) {
-		/*
-		 * YES - Use MUXED mode for UTOPIA bus.
-		 * This frees Port A for use by MII (see 862UM table 41-6).
-		 */
-		immr->im_ioport.utmode &= ~0x80;
-	} else {
-		/*
-		 * NO - set SPLIT mode for UTOPIA bus.
-		 *
-		 * This doesn't really effect UTOPIA (which isn't
-		 * enabled anyway) but just tells the 862
-		 * to use port A for MII (see 862UM table 41-6).
-		 */
-		immr->im_ioport.utmode |= 0x80;
-	}
-#endif	/* !defined(CONFIG_ICU862) */
+	fec_pin_init (efis->ether_index);
 
 	rxIdx = 0;
 	txIdx = 0;
 
-	/* Now enable the transmit and receive processing
+	/*
+	 * Now enable the transmit and receive processing
 	 */
 	fecp->fec_ecntrl = FEC_ECNTRL_PINMUX | FEC_ECNTRL_ETHER_EN;
 
+	if (efis->phy_addr == -1) {
 #ifdef CFG_DISCOVER_PHY
-	/* wait for the PHY to wake up after reset
+		/*
+		 * wait for the PHY to wake up after reset
+		 */
+		efis->actual_phy_addr = mii_discover_phy (dev);
+#else
+		efis->actual_phy_addr = -1;
+#endif
+		if (efis->actual_phy_addr == -1) {
+			printf ("Unable to discover phy!\n");
+			return 0;
+		}
+	} else {
+		efis->actual_phy_addr = efis->phy_addr;
+	}
+#if defined(CONFIG_MII) && defined(CONFIG_RMII)
+	/*
+	 * adapt the RMII speed to the speed of the phy
 	 */
-	mii_discover_phy();
+	if (miiphy_speed (efis->actual_phy_addr) == _100BASET) {
+		fec_100Mbps (dev);
+	} else {
+		fec_10Mbps (dev);
+	}
+#endif
+
+#if defined(CONFIG_MII)
+	/*
+	 * adapt to the half/full speed settings
+	 */
+	if (miiphy_duplex (efis->actual_phy_addr) == FULL) {
+		fec_full_duplex (dev);
+	} else {
+		fec_half_duplex (dev);
+	}
 #endif
 
 	/* And last, try to fill Rx Buffer Descriptors */
-	fecp->fec_r_des_active = 0x01000000;	/* Descriptor polling active	*/
+	fecp->fec_r_des_active = 0x01000000;	/* Descriptor polling active    */
 
 	return 1;
 }
@@ -431,23 +726,20 @@ static int fec_init(struct eth_device* dev, bd_t * bd)
 static void fec_halt(struct eth_device* dev)
 {
 #if 0
-    volatile immap_t *immr = (immap_t *)CFG_IMMR;
-    immr->im_cpm.cp_scc[SCC_ENET].scc_gsmrl &= ~(SCC_GSMRL_ENR | SCC_GSMRL_ENT);
+	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+	immr->im_cpm.cp_scc[SCC_ENET].scc_gsmrl &= ~(SCC_GSMRL_ENR | SCC_GSMRL_ENT);
 #endif
 }
 
 #if 0
 void restart(void)
 {
-   volatile immap_t *immr = (immap_t *)CFG_IMMR;
-   immr->im_cpm.cp_scc[SCC_ENET].scc_gsmrl |= (SCC_GSMRL_ENR | SCC_GSMRL_ENT);
+	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+	immr->im_cpm.cp_scc[SCC_ENET].scc_gsmrl |= (SCC_GSMRL_ENR | SCC_GSMRL_ENT);
 }
 #endif
 
-#if defined(CFG_DISCOVER_PHY) || (CONFIG_COMMANDS & CFG_CMD_MII)
-
-static	int	phyaddr = -1;	/* didn't find a PHY yet */
-static	uint	phytype;
+#if defined(CFG_DISCOVER_PHY) || defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
 
 /* Make MII read/write commands for the FEC.
 */
@@ -508,12 +800,13 @@ mii_send(uint mii_cmd)
 #endif /* CFG_DISCOVER_PHY || (CONFIG_COMMANDS & CFG_CMD_MII) */
 
 #if defined(CFG_DISCOVER_PHY)
-static void
-mii_discover_phy(void)
+static int mii_discover_phy(struct eth_device *dev)
 {
 #define MAX_PHY_PASSES 11
 	uint phyno;
 	int  pass;
+	uint phytype;
+	int phyaddr;
 
 	phyaddr = -1;	/* didn't find a PHY yet */
 	for (pass = 1; pass <= MAX_PHY_PASSES && phyaddr < 0; ++pass) {
@@ -571,10 +864,11 @@ mii_discover_phy(void)
 	if (phyaddr < 0) {
 		printf("No PHY device found.\n");
 	}
+	return phyaddr;
 }
 #endif	/* CFG_DISCOVER_PHY */
 
-#if (CONFIG_COMMANDS & CFG_CMD_MII) && !defined(CONFIG_BITBANGMII)
+#if (defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)) && !defined(CONFIG_BITBANGMII)
 
 static int mii_init_done = 0;
 
@@ -585,16 +879,15 @@ static int mii_init_done = 0;
  */
 void mii_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-	bd_t *bd = gd->bd;
-
 	volatile immap_t *immr = (immap_t *) CFG_IMMR;
 	volatile fec_t *fecp = &(immr->im_cpm.cp_fec);
-	int i;
+	int i, j;
 
 	if (mii_init_done != 0) {
 		return;
 	}
+
+	for (j = 0; j < sizeof(ether_fcc_info) / sizeof(ether_fcc_info[0]); j++) {
 
 	/* Whack a reset.
 	 * A delay is required between a reset of the FEC block and
@@ -623,76 +916,18 @@ void mii_init (void)
 	 */
 	fecp->fec_ievent = 0xffc0;
 
-	/* Set MII speed to 2.5 MHz or slightly below.
-	 * According to the MPC860T (Rev. D) Fast ethernet controller user
-	 * manual (6.2.14),
-	 * the MII management interface clock must be less than or equal
-	 * to 2.5 MHz.
-	 * This MDC frequency is equal to system clock / (2 * MII_SPEED).
-	 * Then MII_SPEED = system_clock / 2 * 2,5 Mhz.
-	 */
-	fecp->fec_mii_speed = ((bd->bi_intfreq + 4999999) / 5000000) << 1;
-
-#if defined(CONFIG_DUET) /* MPC87x/88x have got 2 FECs and different pinout */
-	immr->im_ioport.iop_papar |=  0xf830;
-	immr->im_ioport.iop_padir |=  0x0830;
-	immr->im_ioport.iop_padir &= ~0xf000;
-	immr->im_cpm.cp_pbpar     |=  0x00001001;
-	immr->im_cpm.cp_pbdir     &= ~0x00001001;
-	immr->im_ioport.iop_pcpar |=  0x000c;
-	immr->im_ioport.iop_pcdir &= ~0x000c;
-	immr->im_ioport.iop_pdpar |=  0x0080;
-	immr->im_ioport.iop_pddir &= ~0x0080;
-	immr->im_cpm.cp_pepar     |=  0x00000003;
-	immr->im_cpm.cp_pedir     |=  0x00000003;
-	immr->im_cpm.cp_peso      &= ~0x00000003;
-#elif !defined(CONFIG_ICU862) && !defined(CONFIG_IAD210)
-	/* Configure all of port D for MII.
-	 */
-	immr->im_ioport.iop_pdpar = 0x1fff;
-
-	/* Bits moved from Rev. D onward */
-	if ((get_immr (0) & 0xffff) < 0x0501) {
-		immr->im_ioport.iop_pddir = 0x1c58;	/* Pre rev. D */
-	} else {
-		immr->im_ioport.iop_pddir = 0x1fff;	/* Rev. D and later */
-	}
-#else
-	/* Configure port A for MII.
+		/* Setup the pin configuration of the FEC(s)
 	*/
+		fec_pin_init(ether_fcc_info[i].ether_index);
 
-#if defined(CONFIG_ICU862)
-
-	/* On the ICU862 board the MII-MDC pin is routed to PD8 pin
-	 * of CPU, so for this board we need to configure Utopia and
-	 * enable PD8 to MII-MDC function */
-	immr->im_ioport.iop_pdpar |= 0x4080;
-#endif
-
-	/* Has Utopia been configured? */
-	if (immr->im_ioport.iop_pdpar & (0x8000 >> 1)) {
-		/*
-		 * YES - Use MUXED mode for UTOPIA bus.
-		 * This frees Port A for use by MII (see 862UM table 41-6).
-		 */
-		immr->im_ioport.utmode &= ~0x80;
-	} else {
-		/*
-		 * NO - set SPLIT mode for UTOPIA bus.
-		 *
-		 * This doesn't really effect UTOPIA (which isn't
-		 * enabled anyway) but just tells the 862
-		 * to use port A for MII (see 862UM table 41-6).
-		 */
-		immr->im_ioport.utmode |= 0x80;
-	}
-#endif	/* !defined(CONFIG_ICU862) */
 	/* Now enable the transmit and receive processing
 	 */
 	fecp->fec_ecntrl = FEC_ECNTRL_PINMUX | FEC_ECNTRL_ETHER_EN;
+	}
 
 	mii_init_done = 1;
 }
+
 /*****************************************************************************
  * Read and write a MII PHY register, routines used by MII Utilities
  *
@@ -714,28 +949,23 @@ int miiphy_read(unsigned char addr, unsigned char  reg, unsigned short *value)
 	rdreg = mii_send(mk_mii_read(addr, reg));
 
 	*value = rdreg;
-
 #ifdef MII_DEBUG
 	printf ("0x%04x\n", *value);
 #endif
-
 	return 0;
 }
 
 int miiphy_write(unsigned char  addr, unsigned char  reg, unsigned short value)
 {
 	short rdreg;    /* register working value */
-
 #ifdef MII_DEBUG
 	printf ("miiphy_write(0x%x) @ 0x%x = ", reg, addr);
 #endif
-
 	rdreg = mii_send(mk_mii_write(addr, reg, value));
 
 #ifdef MII_DEBUG
 	printf ("0x%04x\n", value);
 #endif
-
 	return 0;
 }
 #endif /* (CONFIG_COMMANDS & CFG_CMD_MII) && !defined(CONFIG_BITBANGMII)*/

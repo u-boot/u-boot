@@ -473,7 +473,11 @@ typedef struct comm_proc {
 	union	fec_lcd	fl_un;
 #define cp_fec		fl_un.fl_un_fec
 #define lcd_cmap	fl_un.fl_un_cmap
-	char	res18[0x1000];
+	char	res18[0xE00];
+
+	/* The DUET family has a second FEC here */
+	fec_t	cp_fec2;
+#define cp_fec1	cp_fec	/* consistency macro */
 
 	/* Dual Ported RAM follows.
 	 * There are many different formats for this memory area

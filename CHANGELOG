@@ -9,6 +9,17 @@ Changes for U-Boot 1.1.1:
     (These displays are serial and not suitable for using a normal
     framebuffer console on them)
   - add infrastructure needed in order to POST any DSPs in a board
+  - improve and fix various things in the MPC8xx FEC driver:
+    1. The new 87x and 88x series of processors have two FECs,
+       and the new driver supports them both.
+    2. Another change in the 87x/88x series is support for
+       the RMII (Reduced MII) interface. However numerous
+       changes are needed to make it work since the PHYs
+       are connected to the same lines. That means that
+       you have to address them correctly over the MII
+       interface.
+    3. We now correctly match the MII/RMII interface
+       configuration to what the PHY reports.
 
 * Patch by Yuli Barcohen, 28 Mar 2004:
   - Add support for MPC8272 family including MPC8247/8248/8271/8272
