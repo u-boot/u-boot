@@ -90,6 +90,8 @@
 #define CFG_CMD_REISER	0x0100000000000000ULL	/* Reiserfs support		*/
 #define CFG_CMD_CDP	0x0200000000000000ULL	/* Cisco Discovery Protocol 	*/
 #define CFG_CMD_XIMG	0x0400000000000000ULL	/* Load part of Multi Image	*/
+#define CFG_CMD_UNIVERSE 0x0800000000000000ULL	/* Tundra Universe Support      */
+#define CFG_CMD_EXT2    0x1000000000000000ULL	/* EXT2 Support                 */
 
 #define CFG_CMD_ALL	0xFFFFFFFFFFFFFFFFULL	/* ALL commands			*/
 
@@ -110,6 +112,7 @@
 			CFG_CMD_ECHO	| \
 			CFG_CMD_EEPROM	| \
 			CFG_CMD_ELF	| \
+			CFG_CMD_EXT2	| \
 			CFG_CMD_FDC	| \
 			CFG_CMD_FAT	| \
 			CFG_CMD_FDOS	| \
@@ -133,6 +136,7 @@
 			CFG_CMD_SCSI	| \
 			CFG_CMD_SDRAM	| \
 			CFG_CMD_SPI	| \
+			CFG_CMD_UNIVERSE | \
 			CFG_CMD_USB	| \
 			CFG_CMD_VFD	)
 
