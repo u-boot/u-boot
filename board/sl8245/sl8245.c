@@ -23,6 +23,7 @@
 
 #include <common.h>
 #include <mpc824x.h>
+#include <pci.h>
 
 int checkboard (void)
 {
@@ -84,3 +85,11 @@ Done:
 	return CFG_MAX_RAM_SIZE;
 #endif
 }
+
+static struct pci_controller hose;
+
+void pci_init_board(void)
+{
+	pci_mpc824x_init(&hose);
+}
+

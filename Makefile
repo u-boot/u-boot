@@ -87,6 +87,7 @@ SUBDIRS	= tools \
 	  rtc \
 	  dtt \
 	  drivers \
+	  drivers/sk98lin \
 	  post \
 	  post/cpu \
 	  examples
@@ -112,6 +113,7 @@ LIBS += disk/libdisk.a
 LIBS += rtc/librtc.a
 LIBS += dtt/libdtt.a
 LIBS += drivers/libdrivers.a
+LIBS += drivers/sk98lin/libsk98lin.a
 LIBS += post/libpost.a post/cpu/libcpu.a
 LIBS += common/libcommon.a
 LIBS += lib_generic/libgeneric.a
@@ -142,7 +144,7 @@ u-boot.dis:	u-boot
 u-boot:		depend subdirs $(OBJS) $(LIBS) $(LDSCRIPT)
 		UNDEF_SYM=`$(OBJDUMP) -x $(LIBS) |sed  -n -e 's/.*\(__u_boot_cmd_.*\)/-u\1/p'|sort|uniq`;\
 		$(LD) $(LDFLAGS) $$UNDEF_SYM $(OBJS) \
-			--start-group $(LIBS) --end-group \
+			--start-group $(LIBS) $(PLATFORM_LIBS) --end-group \
 			-Map u-boot.map -o u-boot
 
 subdirs:

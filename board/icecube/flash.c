@@ -64,24 +64,20 @@ unsigned long flash_init (void)
 	unsigned long size = 0;
 	int i;
 	extern void flash_preinit(void);
+	extern void flash_afterinit(ulong);
+	ulong flashbase = CFG_FLASH_BASE;
 
 	flash_preinit();
 
 	/* Init: no FLASHes known */
 	for (i=0; i < CFG_MAX_FLASH_BANKS; ++i) {
-		ulong flashbase = CFG_FLASH_BASE;
-
 		memset(&flash_info[i], 0, sizeof(flash_info_t));
 
 		flash_info[i].size =
 			flash_get_size((FPW *)flashbase, &flash_info[i]);
 
-		if (flash_info[i].flash_id == FLASH_UNKNOWN) {
-			printf ("## Unknown FLASH on Bank %d - Size = 0x%08lx\n",
-			i, flash_info[i].size);
-		}
-
 		size += flash_info[i].size;
+		flashbase += 0x800000;
 	}
 #if CFG_MONITOR_BASE >= CFG_FLASH_BASE
 	/* monitor protection ON by default */
@@ -100,6 +96,7 @@ unsigned long flash_init (void)
 #endif
 
 
+	flash_afterinit(size);
 	return size ? size : 1;
 }
 
@@ -126,7 +123,8 @@ static flash_info_t *flash_get_info(ulong base)
 
 	for (i = 0; i < CFG_MAX_FLASH_BANKS; i ++) {
 		info = & flash_info[i];
-		if (info->start[0] <= base && base <= info->start[0] + info->size - 1)
+		if (info->size && 
+			info->start[0] <= base && base <= info->start[0] + info->size - 1)
 			break;
 	}
 
@@ -211,6 +209,8 @@ void flash_print_info (flash_info_t *info)
 ulong flash_get_size (FPWV *addr, flash_info_t *info)
 {
 	int i;
+	FPWV* addr2;
+
 	/* Write auto select command: read Manufacturer ID */
 	/* Write auto select command sequence and test FLASH answer */
 	addr[FLASH_CYCLE1] = (FPW)0x00AA00AA;	/* for AMD, Intel ignores this */
@@ -256,6 +256,17 @@ ulong flash_get_size (FPWV *addr, flash_info_t *info)
 		return (0);			/* => no or unknown flash */
 	}
 
+	/* test for real flash at bank 1 */
+	addr2 = (FPW *)((ulong)addr | 0x800000);
+	if (addr2 != addr &&
+		((addr2[0] & 0xff) == (addr[0] & 0xff)) && ((FPW)addr2[1] == (FPW)addr[1])) {
+		/* Seems 2 banks are the same space (8Mb chip is installed, 
+		 * J24 in default position (CS0)). Disable this (first) bank.
+		 */
+		info->flash_id = FLASH_UNKNOWN;
+		info->sector_count = 0;
+		info->size = 0;
+	}
 	/* Put FLASH back in read mode */
 	flash_reset(info);
 

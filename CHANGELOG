@@ -2,6 +2,21 @@
 Changes for U-Boot 0.4.7:
 ======================================================================
 
+* Add support for SK98xx driver
+
+* Add PCI support for SL8245 board
+
+* Support IceCube board configurations with 1 x AMD AM29LV065 (8 MB)
+  or 1 x AM29LV652 (two LV065 in one chip = 16 MB);
+  Run IPB at 133 Mhz; adjust the MII clock frequency accordingly
+
+* Set BRG_CLK on PM825/826 to 64MHz (VCO_OUT / 4, instead of 16  MHz)
+  to allow for more accurate baudrate settings
+  (error now 0.7% at 115 kbps, instead of 3.5% before)
+
+* Patch by Andreas Mohr, 4 Sep 2003:
+  Fix a lot of spelling errors
+
 * Add support for PPChameleon Eval Board
 
 * Add support for P3G4 board

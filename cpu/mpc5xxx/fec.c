@@ -208,6 +208,7 @@ static void mpc5xxx_fec_set_hwaddr(mpc5xxx_fec_priv *fec, char *mac)
 /********************************************************************/
 static int mpc5xxx_fec_init(struct eth_device *dev, bd_t * bis)
 {
+	DECLARE_GLOBAL_DATA_PTR;
 	mpc5xxx_fec_priv *fec = (mpc5xxx_fec_priv *)dev->priv;
 	struct mpc5xxx_sdma *sdma = (struct mpc5xxx_sdma *)MPC5XXX_SDMA;
 	const uint8 phyAddr = 0;	/* Only one PHY */
@@ -269,10 +270,10 @@ static int mpc5xxx_fec_init(struct eth_device *dev, bd_t * bis)
 		fec->eth->x_cntrl = 0x00000004;	/* full-duplex, heartbeat disabled */
 
 		/*
-		 * Set MII_SPEED = (1/(mii_speed * 2)) * System Clock(25Mhz)
+		 * Set MII_SPEED = (1/(mii_speed * 2)) * System Clock
 		 * and do not drop the Preamble.
 		 */
-		fec->eth->mii_speed = (0x5 << 1);	/* No MII for 7-wire mode */
+		fec->eth->mii_speed = (((gd->ipb_clk >> 20) / 5) << 1);	/* No MII for 7-wire mode */
 	}
 
 	/*

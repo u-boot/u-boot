@@ -102,13 +102,20 @@
 /*
  * Flash configuration
  */
+#define CFG_FLASH_16M		1
+
+#if !defined(CFG_FLASH_16M) /* 8Mb chips support only */
 #define CFG_FLASH_BASE		0xff800000
 #define CFG_FLASH_SIZE		0x00800000
-
-/*
- * Flash organization
- */
 #define CFG_MAX_FLASH_BANKS	1	/* max num of memory banks      */
+#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x740000)
+#else
+#define CFG_FLASH_BASE		0xff000000
+#define CFG_FLASH_SIZE		0x01000000
+#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x740000 + 0x800000)
+#define CFG_MAX_FLASH_BANKS	2	/* max num of memory banks      */
+#endif
+
 #define CFG_MAX_FLASH_SECT	128	/* max num of sects on one chip */
 
 #define CFG_FLASH_ERASE_TOUT	240000	/* Flash Erase Timeout (in ms)  */
@@ -122,7 +129,6 @@
  */
 #define CFG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_SIZE		0x10000
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x740000)
 #define CFG_ENV_SECT_SIZE	0x10000
 #define CONFIG_ENV_OVERWRITE	1
 

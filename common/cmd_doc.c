@@ -525,7 +525,7 @@ static int DoC_Address(struct DiskOnChip *doc, int numbytes, unsigned long ofs,
 	return DoC_WaitReady(doc);
 }
 
-/* Read a buffer from DoC, taking care of Millennium odditys */
+/* Read a buffer from DoC, taking care of Millennium oddities */
 static void DoC_ReadBuf(struct DiskOnChip *doc, u_char * buf, int len)
 {
 	volatile int dummy;
@@ -558,7 +558,7 @@ static void DoC_ReadBuf(struct DiskOnChip *doc, u_char * buf, int len)
 	}
 }
 
-/* Write a buffer to DoC, taking care of Millennium odditys */
+/* Write a buffer to DoC, taking care of Millennium oddities */
 static void DoC_WriteBuf(struct DiskOnChip *doc, const u_char * buf, int len)
 {
 	unsigned long docptr;
@@ -992,7 +992,7 @@ int doc_read_ecc(struct DiskOnChip* this, loff_t from, size_t len,
 		printf("ECC needs a full sector read (adr: %lx size %lx)\n",
 		       (long) from, (long) len);
 
-#ifdef PHYCH_DEBUG
+#ifdef PSYCHO_DEBUG
 	printf("DoC_Read (adr: %lx size %lx)\n", (long) from, (long) len);
 #endif
 

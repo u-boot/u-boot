@@ -40,6 +40,15 @@
 /* Exception offsets (PowerPC standard) */
 #define EXC_OFF_SYS_RESET	0x0100
 
+/* useful macros for manipulating CSx_START/STOP */
+#if defined(CONFIG_MGT5100)
+#define START_REG(start)	((start) >> 15)
+#define STOP_REG(start, size)	(((start) + (size) - 1) >> 15)
+#elif defined(CONFIG_MPC5200)
+#define START_REG(start)	((start) >> 16)
+#define STOP_REG(start, size)	(((start) + (size) - 1) >> 16)
+#endif
+
 /* Internal memory map */
 
 #define MPC5XXX_CS0_START	(CFG_MBAR + 0x0004)

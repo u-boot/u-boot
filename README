@@ -119,12 +119,12 @@ U-Boot will always have a patchlevel of "0".
 Directory Hierarchy:
 ====================
 
-- board		Board dependend files
-- common	Misc architecture independend functions
+- board		Board dependent files
+- common	Misc architecture independent functions
 - cpu		CPU specific files
 - disk		Code for disk drive partition handling
 - doc		Documentation (don't expect too much)
-- drivers	Common used device drivers
+- drivers	Commonly used device drivers
 - dtt		Digital Thermometer and Thermostat drivers
 - examples	Example code for standalone applications, etc.
 - include	Header Files
@@ -644,7 +644,7 @@ The following options need to be configured:
 - Watchdog:
 		CONFIG_WATCHDOG
 		If this variable is defined, it enables watchdog
-		support. There must support in the platform specific
+		support. There must be support in the platform specific
 		code for a watchdog. For the 8xx and 8260 CPUs, the
 		SIU Watchdog feature is enabled in the SYPCR
 		register.
@@ -852,7 +852,7 @@ The following options need to be configured:
 		Normally display is black on white background; define
 		CFG_WHITE_ON_BLACK to get it inverted.
 
-- Spash Screen Support: CONFIG_SPLASH_SCREEN
+- Splash Screen Support: CONFIG_SPLASH_SCREEN
 
 		If this option is set, the environment is checked for
 		a variable "splashimage". If found, the usual display
@@ -1203,7 +1203,7 @@ The following options need to be configured:
 
 		U-Boot considers the values of the environment
 		variables "serial#" (Board Serial Number) and
-		"ethaddr" (Ethernet Address) to bb parameters that
+		"ethaddr" (Ethernet Address) to be parameters that
 		are set once by the board vendor / manufacturer, and
 		protects these variables from casual modification by
 		the user. Once set, these variables are read-only,
@@ -1318,7 +1318,7 @@ The following options need to be configured:
 
 		Define this to contain any number of null terminated
 		strings (variable = value pairs) that will be part of
-		the default enviroment compiled into the boot image.
+		the default environment compiled into the boot image.
 
 		For example, place something like this in your
 		board's config file:
@@ -1331,7 +1331,7 @@ The following options need to be configured:
 		internal format how the environment is stored by the
 		U-Boot code. This is NOT an official, exported
 		interface! Although it is unlikely that this format
-		will change soon, but there is no guarantee either.
+		will change soon, there is no guarantee either.
 		You better know what you are doing here.
 
 		Note: overly (ab)use of the default environment is
@@ -1769,7 +1769,7 @@ Low Level (hardware related) configuration options:
 
 - CFG_INIT_RAM_ADDR:
 
-		Start address of memory area tha can be used for
+		Start address of memory area that can be used for
 		initial data and stack; please note that this must be
 		writable memory that is working WITHOUT special
 		initialization, i. e. you CANNOT use normal RAM which
@@ -1941,7 +1941,7 @@ Note: for some board special configuration names may exist; check  if
 
 
 Finally, type "make all", and you should get some working U-Boot
-images ready for downlod to / installation on your system:
+images ready for download to / installation on your system:
 
 - "u-boot.bin" is a raw binary image
 - "u-boot" is an image in ELF binary format
@@ -1960,7 +1960,7 @@ steps:
 1.  Add a new configuration option for your board to the toplevel
     "Makefile" and to the "MAKEALL" script, using the existing
     entries as examples. Note that here and at many other places
-    boards and other names are listed alphabetically sorted. Please
+    boards and other names are listed in alphabetical sort order. Please
     keep this order.
 2.  Create a new directory to hold your board specific code. Add any
     files you need. In your board directory, you will need at least
@@ -1990,7 +1990,7 @@ cation	did not break existing code. At least make sure that *ALL* of
 the supported boards compile WITHOUT ANY compiler warnings. To do so,
 just run the "MAKEALL" script, which will configure and build U-Boot
 for ALL supported system. Be warned, this will take a while. You  can
-select	which  (cross)	compiler  to use py passing a `CROSS_COMPILE'
+select	which  (cross)	compiler  to use by passing a `CROSS_COMPILE'
 environment variable to the script, i. e. to use the cross tools from
 MontaVista's Hard Hat Linux you can type
 
@@ -2117,10 +2117,10 @@ Some configuration options can be set using Environment Variables:
 		  does not overwrite the U-Boot stack and data).
 
 		  For instance, when you have a system with 16 MB
-		  RAM, and want to reseve 4 MB from use by Linux,
+		  RAM, and want to reserve 4 MB from use by Linux,
 		  you can do this by adding "mem=12M" to the value of
 		  the "bootargs" variable. However, now you must make
-		  sure, that the initrd image is placed in the first
+		  sure that the initrd image is placed in the first
 		  12 MB as well - this can be done with
 
 		  setenv initrd_high 00c00000
@@ -2189,8 +2189,8 @@ only effect after the next boot (yes, that's just like Windoze :-).
 Command Line Parsing:
 =====================
 
-There are two different command line parsers available  with  U-Boot:
-the old "simple" one, and the much more pwerful "hush" shell:
+There are two different command line parsers available with U-Boot:
+the old "simple" one, and the much more powerful "hush" shell:
 
 Old, simple command line parser:
 --------------------------------
@@ -2231,9 +2231,9 @@ General rules:
 Note for Redundant Ethernet Interfaces:
 =======================================
 
-Some boards come with redundand ethernet interfaces; U-Boot supports
+Some boards come with redundant ethernet interfaces; U-Boot supports
 such configurations and is capable of automatic selection of a
-"working" interface when needed. MAC assignemnt works as follows:
+"working" interface when needed. MAC assignment works as follows:
 
 Network interfaces are numbered eth0, eth1, eth2, ... Corresponding
 MAC addresses can be stored in the environment as "ethaddr" (=>eth0),
@@ -2292,21 +2292,21 @@ Linux Support:
 ==============
 
 Although U-Boot should support any OS or standalone application
-easily, Linux has always been in the focus during the design of
+easily, the main focus has always been on Linux during the design of
 U-Boot.
 
 U-Boot includes many features that so far have been part of some
 special "boot loader" code within the Linux kernel. Also, any
 "initrd" images to be used are no longer part of one big Linux image;
 instead, kernel and "initrd" are separate images. This implementation
-serves serveral purposes:
+serves several purposes:
 
 - the same features can be used for other OS or standalone
   applications (for instance: using compressed images to reduce the
   Flash memory footprint)
 
 - it becomes much easier to port new Linux kernel versions because
-  lots of low-level, hardware dependend stuff are done by U-Boot
+  lots of low-level, hardware dependent stuff are done by U-Boot
 
 - the same Linux kernel image can now be used with different "initrd"
   images; of course this also means that different kernel images can
@@ -2558,7 +2558,7 @@ parameters. You can check and modify this variable using the
 	...
 
 If you want to boot a Linux kernel with initial ram disk, you pass
-the memory addreses of both the kernel and the initrd image (PPBCOOT
+the memory addresses of both the kernel and the initrd image (PPBCOOT
 format!) to the "bootm" command:
 
 	=> imi 40100000 40200000
@@ -2738,7 +2738,7 @@ Hit 'q':
 Minicom warning:
 ================
 
-Over time, many people have reported problems when trying to used the
+Over time, many people have reported problems when trying to use the
 "minicom" terminal emulation program for serial download. I (wd)
 consider minicom to be broken, and recommend not to use it. Under
 Unix, I recommend to use C-Kermit for general purpose use (and
@@ -2806,7 +2806,7 @@ models provide on-chip memory (like the IMMR area on MPC8xx and
 MPC826x processors), on others (parts of) the data cache can be
 locked as (mis-) used as memory, etc.
 
-	Chris Hallinan posted a good summy of  these  issues  to  the
+	Chris Hallinan posted a good summary of  these  issues  to  the
 	u-boot-users mailing list:
 
 	Subject: RE: [U-Boot-Users] RE: More On Memory Bank x (nothingness)?
@@ -2852,9 +2852,9 @@ code for the initialization procedures:
 
 * Do not use any unitialized global data (or implicitely initialized
   as zero data - BSS segment) at all - this is undefined, initiali-
-  zation is performed later (when relocationg to RAM).
+  zation is performed later (when relocating to RAM).
 
-* Stack space is very limited. Avoid big data buffers or things  like
+* Stack space is very limited. Avoid big data buffers or things like
   that.
 
 Having only the stack as writable memory limits means we cannot use
@@ -2867,7 +2867,7 @@ the GCC compiler (Global Register Variables) to share the data: we
 place a pointer (gd) to the global data into a register which we
 reserve for this purpose.
 
-When chosing a register for such a purpose we are restricted  by  the
+When choosing a register for such a purpose we are restricted by the
 relevant  (E)ABI  specifications for the current architecture, and by
 GCC's implementation.
 
@@ -2957,7 +2957,7 @@ System Initialization:
 In the reset configuration, U-Boot starts at the reset entry point
 (on most PowerPC systens at address 0x00000100). Because of the reset
 configuration for CS0# this is a mirror of the onboard Flash memory.
-To be able to re-map memory U-Boot then jumps to it's link address.
+To be able to re-map memory U-Boot then jumps to its link address.
 To be able to implement the initialization code in C, a (small!)
 initial stack is set up in the internal Dual Ported RAM (in case CPUs
 which provide such a feature like MPC8xx or MPC8260), or in a locked
@@ -2973,7 +2973,7 @@ simple memory test is run that determines the size of the SDRAM
 banks.
 
 When there is more than one SDRAM bank, and the banks are of
-different size, the larger is mapped first. For equal size, the first
+different size, the largest is mapped first. For equal size, the first
 bank (CS2#) is mapped first. The first mapping is always for address
 0x00000000, with any additional banks following immediately to create
 contiguous memory starting from 0.

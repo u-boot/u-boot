@@ -5,7 +5,7 @@ This project is to support Power-On-Self-Test (POST) in U-Boot.
 
 1. High-level requirements
 
-The key rquirements for this project are as follows:
+The key requirements for this project are as follows:
 
 1) The project shall develop a flexible framework for implementing
    and running Power-On-Self-Test in U-Boot. This framework shall
@@ -72,7 +72,7 @@ tests. All POST tests will be divided into the following groups:
      This group will contain those tests that do not take much
      time and can be run on the regular basis (e.g. CPU test)
 
-  3) Tests running on in special "slow test more" only
+  3) Tests running in special "slow test mode" only
 
      This group will contain POST tests that consume much time
      and cannot be run regularly (e.g. strong memory test, I2C test)
@@ -92,7 +92,7 @@ Specifically, the following groups will be singled out:
 
   1) Tests running before relocating to RAM
 
-     These tests will run immediatelly after initializing RAM
+     These tests will run immediately after initializing RAM
      as to enable modifying it without taking care of its
      contents. Basically, this group will contain memory tests
      only.

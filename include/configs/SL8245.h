@@ -51,7 +51,7 @@
 
 #define CONFIG_BOOTDELAY	5
 
-#define CONFIG_COMMANDS		( CONFIG_CMD_DFL & ~CFG_CMD_NET )
+#define CONFIG_COMMANDS		(CONFIG_CMD_DFL | CFG_CMD_PCI)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) 	*/
 
@@ -264,5 +264,18 @@
  */
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH	*/
 #define BOOTFLAG_WARM		0x02	/* Software reboot			*/
+
+/*-----------------------------------------------------------------------
+ * PCI stuff
+ *-----------------------------------------------------------------------
+ */
+#define CONFIG_PCI
+#define CONFIG_PCI_PNP
+#undef  CONFIG_PCI_SCAN_SHOW
+
+
+#define CONFIG_SK98
+#define CONFIG_NET_MULTI
+
 
 #endif	/* __CONFIG_H */

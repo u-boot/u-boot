@@ -84,10 +84,10 @@
 
 #undef	CONFIG_BOOTARGS
 #define CONFIG_BOOTCOMMAND						     \
-	"bootp && " 						     \
+	"bootp;" 						     \
 	"setenv bootargs root=/dev/nfs rw nfsroot=$serverip:$rootpath " \
 	"ip=$ipaddr:$serverip:$gatewayip:" \
-	"$netmask:$hostname:eth0:none; && " \
+	"$netmask:$hostname:eth0:none;" \
 	"bootm"
 
 #define CONFIG_LOADS_ECHO	0	/* echo off for serial download	*/

@@ -171,6 +171,16 @@ void flash_preinit(void)
 	*(vu_long *)MPC5XXX_BOOTCS_CFG &= ~0x1; /* clear RO */
 }
 
+void flash_afterinit(ulong size)
+{
+	if (size == 0x800000) { /* adjust mapping */
+		*(vu_long *)MPC5XXX_BOOTCS_START = *(vu_long *)MPC5XXX_CS0_START = 
+			START_REG(CFG_BOOTCS_START | size);
+		*(vu_long *)MPC5XXX_BOOTCS_STOP = *(vu_long *)MPC5XXX_CS0_STOP = 
+			STOP_REG(CFG_BOOTCS_START | size, size);
+	}
+}
+
 #ifdef	CONFIG_PCI
 static struct pci_controller hose;
 

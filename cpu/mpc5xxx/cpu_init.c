@@ -24,14 +24,6 @@
 #include <common.h>
 #include <mpc5xxx.h>
 
-#if defined(CONFIG_MGT5100)
-#define START_REG(start)	((start) >> 15)
-#define STOP_REG(start, size)	(((start) + (size) - 1) >> 15)
-#elif defined(CONFIG_MPC5200)
-#define START_REG(start)	((start) >> 16)
-#define STOP_REG(start, size)	(((start) + (size) - 1) >> 16)
-#endif
-
 /*
  * Breath some life into the CPU...
  *
@@ -159,6 +151,14 @@ void cpu_init_f (void)
 #if defined(CONFIG_MPC5200)
 	/* enable timebase */
 	*(vu_long *)(MPC5XXX_XLBARB + 0x40) |= (1 << 13);
+
+	/* Motorola reports IPB should better run at 133 MHz. */
+	*(vu_long *)MPC5XXX_ADDECR |= 1;
+	/* pci_clk_sel = 0x02, ipb_clk_sel = 0x00; */
+	addecr = *(vu_long *)MPC5XXX_CDM_CFG;
+	addecr &= ~0x103;
+	addecr |= 0x02;
+	*(vu_long *)MPC5XXX_CDM_CFG = addecr;
 #endif
 }
 

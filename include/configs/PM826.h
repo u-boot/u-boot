@@ -411,7 +411,7 @@
  * SCCR - System Clock Control                                   9-8
  *-----------------------------------------------------------------------
  */
-#define CFG_SCCR        (SCCR_DFBRG01)
+#define CFG_SCCR        (SCCR_DFBRG00)
 
 /*-----------------------------------------------------------------------
  * RCCR - RISC Controller Configuration                         13-7
