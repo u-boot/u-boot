@@ -17,12 +17,19 @@
 void NS16550_init (NS16550_t com_port, int baud_divisor)
 {
 	com_port->ier = 0x00;
+#ifdef CONFIG_OMAP1510	
+	com_port->mdr1 = 0x7;   /* mode select reset TL16C750*/
+#endif    
 	com_port->lcr = LCR_BKSE | LCRVAL;
 	com_port->dll = baud_divisor & 0xff;
 	com_port->dlm = (baud_divisor >> 8) & 0xff;
 	com_port->lcr = LCRVAL;
 	com_port->mcr = MCRVAL;
 	com_port->fcr = FCRVAL;
+#ifdef CONFIG_OMAP1510
+	com_port->mdr1 = 0; /* select uart mode */
+#endif
+
 }
 
 void NS16550_reinit (NS16550_t com_port, int baud_divisor)

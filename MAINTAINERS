@@ -274,6 +274,9 @@ Gary Jennejohn <gj@denx.de>
 	smdk2400		ARM920T
 	trab			ARM920T
 
+Kshitij Gupta <kshitij@ti.com>
+	omap1510inn		ARM925T
+
 David Müller <d.mueller@elsoft.ch>
 
 	smdk2410		ARM920T

@@ -720,10 +720,13 @@ shannon_config	:	unconfig
 	@./mkconfig $(@:_config=) arm sa1100 shannon
 
 #########################################################################
-## ARM920T Systems
+## ARM92xT Systems
 #########################################################################
 
 xtract_trab = $(subst _big_flash,,$(subst _config,,$1))
+
+omap1510inn_config :	unconfig
+	@./mkconfig $(@:_config=) arm arm925t omap1510inn
 
 smdk2400_config	:	unconfig
 	@./mkconfig $(@:_config=) arm arm920t smdk2400

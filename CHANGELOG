@@ -2,6 +2,10 @@
 Changes for U-Boot 0.4.3:
 ======================================================================
 
+* Patches by Kshitij, 04 Jul 2003
+  - added support for arm925t cpu core 
+  - added support for TI OMAP 1510 Innovator Board
+
 * Patches by Martin Krause, 14 Jul 2003:
   - add I2C support for s3c2400 systems (trab board)
   - (re-) add "ping" to command table

@@ -60,6 +60,13 @@ struct NS16550 {
 	int pad7:24;
 	unsigned char scr;		/* 7 */
 	int pad8:24;
+#ifdef CONFIG_OMAP1510
+	unsigned char mdr1;		/* mode select reset TL16C750*/
+	int pad9:24;
+	unsigned long pad[10];
+	unsigned char osc_12m_sel;
+	int pad10:24;
+#endif
 } __attribute__ ((packed));
 #else
 #error "Please define NS16550 registers size."
@@ -101,6 +108,10 @@ typedef volatile struct NS16550 *NS16550_t;
 #define LSR_THRE	0x20		/* Xmit holding register empty */
 #define LSR_TEMT	0x40		/* Xmitter empty */
 #define LSR_ERR		0x80		/* Error */
+
+#ifdef CONFIG_OMAP1510
+#define OSC_12M_SEL	0x01		/* selects 6.5 * current clk div */
+#endif
 
 /* useful defaults for LCR */
 #define LCR_8N1		0x03

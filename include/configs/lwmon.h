@@ -220,6 +220,19 @@
 #define CFG_BAUDRATE_TABLE	{  9600, 19200, 38400, 57600, 115200 }
 #endif
 
+/*----------------------------------------------------------------------*/
+#define CONFIG_MODEM_SUPPORT	1	/* enable modem initialization stuff */
+#undef CONFIG_MODEM_SUPPORT_DEBUG
+
+#define	CONFIG_MODEM_KEY_MAGIC	"3C+3F"	/* press F3 + F6 keys to enable modem */
+#define	CONFIG_POST_KEY_MAGIC	"3C+3E"	/* press F3 + F5 keys to force POST */
+#if 0
+#define	CONFIG_AUTOBOOT_KEYED		/* Enable "password" protection	*/
+#define CONFIG_AUTOBOOT_PROMPT	"\nEnter password - autoboot in %d sec...\n"
+#define CONFIG_AUTOBOOT_DELAY_STR	"  "	/* "password"	*/
+#endif
+/*----------------------------------------------------------------------*/
+
 /*
  * Low Level Configuration Settings
  * (address mappings, register initial values, etc.)
@@ -576,9 +589,4 @@
 #define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
 #define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
-#define CONFIG_MODEM_SUPPORT	1	/* enable modem initialization stuff */
-#undef CONFIG_MODEM_SUPPORT_DEBUG
-
-#define	CONFIG_MODEM_KEY_MAGIC	"3C+3F"	/* press F3 + F6 keys to enable modem */
-#define	CONFIG_POST_KEY_MAGIC	"3C+3E"	/* press F3 + F5 keys to force POST */
 #endif	/* __CONFIG_H */

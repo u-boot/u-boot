@@ -42,12 +42,22 @@ static NS16550_t console = (NS16550_t) CFG_NS16550_COM4;
 #error no valid console defined
 #endif
 
-int serial_init (void)
+static int calc_divisor (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
+#ifdef CONFIG_OMAP1510
+	/* If can't cleanly clock 115200 set div to 1 */
+	if ((CFG_NS16550_CLK == 12000000) && (gd->baudrate == 115200)) {
+		console->osc_12m_sel = OSC_12M_SEL;	/* enable 6.5 * divisor */
+		return (1);				/* return 1 for base divisor */
+	}
+#endif
+	return (CFG_NS16550_CLK / 16 / gd->baudrate);
+}
 
-	int clock_divisor = (CFG_NS16550_CLK + gd->baudrate * 8 )
-			  / (gd->baudrate * 16);
+int serial_init (void)
+{
+	int clock_divisor = calc_divisor();
 
 #ifdef CFG_NS87308
 	initialise_ns87308();
@@ -91,10 +101,9 @@ serial_tstc(void)
 void
 serial_setbrg (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
+	int clock_divisor;
 
-	int clock_divisor = CFG_NS16550_CLK / 16 / gd->baudrate;
-
+    clock_divisor = calc_divisor();
 	NS16550_reinit(console, clock_divisor);
 }
 
