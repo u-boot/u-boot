@@ -335,11 +335,11 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 		if (l_sect < 0)
 			goto DONE;
 
-		start = get_timer (0);
+		reset_timer_masked ();
 		last  = start;
 		addr = (vu_short *)(info->start[l_sect]);
 		while ((addr[0] & 0x0080) != 0x0080) {
-			if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+			if ((now = get_timer_masked ()) > CFG_FLASH_ERASE_TOUT) {
 				printf ("Timeout\n");
 				return 1;
 			}
@@ -394,6 +394,7 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 	while (cnt >= 2) {
 		data = *((vu_short *)src);
 		if ((rc = write_word_amd(info, (vu_short *)wp, data)) != 0) {
+printf ("write_buff 1: write_word_amd() rc=%d\n", rc);
 			return (rc);
 		}
 		src += 2;
@@ -402,13 +403,13 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 	}
 
 	if (cnt == 0) {
-		return (0);
+		return (ERR_OK);
 	}
 
 	if (cnt == 1) {
-		data = (*((volatile u8 *) src)) | (*((volatile u8 *) (wp + 1))
-				<< 8);
+		data = (*((volatile u8 *) src)) | (*((volatile u8 *) (wp + 1)) << 8);
 		if ((rc = write_word_amd(info, (vu_short *)wp, data)) != 0) {
+printf ("write_buff 1: write_word_amd() rc=%d\n", rc);
 			return (rc);
 		}
 		src += 1;
@@ -455,11 +456,11 @@ static int write_word_amd (flash_info_t *info, vu_short *dest, ushort data)
 	if (flag)
 		enable_interrupts();
 
-	start = get_timer (0);
+	reset_timer_masked ();
 
 	/* data polling for D7 */
 	while ((*dest & 0x0080) != (data & 0x0080)) {
-		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer_masked () > CFG_FLASH_WRITE_TOUT) {
 			*dest = 0x00F0;	/* reset bank */
 			return (1);
 		}
