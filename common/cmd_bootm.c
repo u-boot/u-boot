@@ -205,7 +205,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	SHOW_BOOT_PROGRESS (3);
 
 	/* for multi-file images we need the data part, too */
-	print_image_hdr (addr);
+	print_image_hdr ((image_header_t *)addr);
 
 	data = addr + sizeof(image_header_t);
 	len  = ntohl(hdr->ih_size);

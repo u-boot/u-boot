@@ -362,10 +362,12 @@ _start:
 	isync
 
 #if defined(CONFIG_ADDR_STREAMING)
-	li	r0,0x2000
+	li	r0,0x3000
+#else
+	li	r0,0x1000
+#endif
 	mtspr	HID1,r0
 	isync
-#endif
 
 	/* Enable Branch Prediction */
 #if defined(CONFIG_BTB)

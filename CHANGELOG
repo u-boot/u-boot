@@ -2,6 +2,13 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Patch by Xiao Xianghua, 23 Oct 2003:
+  small patch for mpc85xx
+
+* Fix small problem in MPC5200 I2C driver
+
+* Fix FCC3 support on ATC board
+
 * Correct header printing for multi-image files in do_bootm()
 
 * Make CONFIG_SILENT_CONSOLE work with CONFIG_AUTOBOOT_KEYED
