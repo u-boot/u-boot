@@ -548,6 +548,11 @@ BUBINGA405EP_config:	unconfig
 CANBT_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx canbt esd
 
+CATcenter_config:	unconfig
+	@ echo "/* CATcenter uses PPChameleon Model ME */"  > include/config.h
+	@ echo "#define CONFIG_PPCHAMELEON_MODULE_MODEL 1" >> include/config.h
+	@./mkconfig -a $(call xtract_4xx,$@) ppc ppc4xx PPChameleonEVB dave
+
 CPCI405_config	\
 CPCI4052_config	\
 CPCI405AB_config:	unconfig

@@ -1,6 +1,8 @@
 /*
+ * (C) Copyright 2004 DENX Software Engineering,
+ *     Wolfgang Grandegger <wg@denx.de>
  * (C) Copyright 2003
- * DAVE Srl
+ *     DAVE Srl
  *
  * http://www.dave-tech.it
  * http://www.wawnet.biz
@@ -62,6 +64,7 @@
 
 #define CONFIG_SYS_CLK_FREQ	33333333 /* external frequency to pll	*/
 
+#define CONFIG_UART1_CONSOLE	1	/* Use second UART	*/
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 
@@ -69,8 +72,8 @@
 
 /* Ethernet stuff */
 #define CONFIG_ENV_OVERWRITE /* Let the user to change the Ethernet MAC addresses */
-#define CONFIG_ETHADDR	00:50:c2:1e:af:fe
-#define CONFIG_ETH1ADDR 00:50:c2:1e:af:fd
+#define CONFIG_ETHADDR	00:50:C2:1E:AF:FC
+#define CONFIG_ETH1ADDR 00:50:C2:1E:AF:FB
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
@@ -92,10 +95,9 @@
 				CFG_CMD_EEPROM	| \
 				CFG_CMD_I2C	| \
 				CFG_CMD_IRQ	| \
-				CFG_CMD_JFFS2	| \
 				CFG_CMD_MII	| \
 				CFG_CMD_NAND	| \
-				CFG_CMD_PCI	)
+				CFG_CMD_JFFS2)
 
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
@@ -160,7 +162,8 @@
 #define CFG_NAND0_BASE 0xFF400000
 #define CFG_NAND1_BASE 0xFF000000
 
-#define CFG_MAX_NAND_DEVICE	2	/* Max number of NAND devices		*/
+/* For CATcenter there is only NAND on the module */
+#define CFG_MAX_NAND_DEVICE	1	/* Max number of NAND devices		*/
 #define SECTORSIZE 512
 #define NAND_NO_RB
 
@@ -279,6 +282,7 @@
  * PCI stuff
  *-----------------------------------------------------------------------
  */
+#if 0	/* No PCI on CATcenter */
 #define PCI_HOST_ADAPTER 0		/* configure as pci adapter	*/
 #define PCI_HOST_FORCE	1		/* configure as pci host	*/
 #define PCI_HOST_AUTO	2		/* detected via arbiter enable	*/
@@ -299,6 +303,7 @@
 #define CFG_PCI_PTM2LA	0xffc00000	/* point to flash		*/
 #define CFG_PCI_PTM2MS	0xffc00001	/* 4MB, enable			*/
 #define CFG_PCI_PTM2PCI 0x04000000	/* Host: use this pci address	*/
+#endif	/* No PCI */
 
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration
@@ -340,8 +345,8 @@
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 
 #if 0 /* test-only */
-#define CFG_JFFS2_FIRST_BANK	0	 /* use for JFFS2 */
-#define CFG_JFFS2_NUM_BANKS	1	 /* ! second bank contains U-Boot */
+#define CFG_JFFS2_FIRST_BANK	0	/* use for JFFS2			*/
+#define CFG_JFFS2_NUM_BANKS	1	/* ! second bank contains U-Boot	*/
 #endif
 
 /*-----------------------------------------------------------------------
@@ -461,21 +466,21 @@
 #define CFG_FPGA_STATUS_FLASH	0x0008
 #define CFG_FPGA_STATUS_TS_IRQ	0x1000
 
-#define CFG_FPGA_SPARTAN2	1		/* using Xilinx Spartan 2 now	 */
+#define CFG_FPGA_SPARTAN2	1		/* using Xilinx Spartan 2 now	*/
 #define CFG_FPGA_MAX_SIZE	128*1024	/* 128kByte is enough for XC2S50E*/
 
 /* FPGA program pin configuration */
 #define CFG_FPGA_PRG		0x04000000	/* FPGA program pin (ppc output) */
-#define CFG_FPGA_CLK		0x02000000	/* FPGA clk pin (ppc output)	 */
-#define CFG_FPGA_DATA		0x01000000	/* FPGA data pin (ppc output)	 */
-#define CFG_FPGA_INIT		0x00010000	/* FPGA init pin (ppc input)	 */
-#define CFG_FPGA_DONE		0x00008000	/* FPGA done pin (ppc input)	 */
+#define CFG_FPGA_CLK		0x02000000	/* FPGA clk pin (ppc output)	*/
+#define CFG_FPGA_DATA		0x01000000	/* FPGA data pin (ppc output)	*/
+#define CFG_FPGA_INIT		0x00010000	/* FPGA init pin (ppc input)	*/
+#define CFG_FPGA_DONE		0x00008000	/* FPGA done pin (ppc input)	*/
 
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in data cache)
  */
 /* use on chip memory ( OCM ) for temperary stack until sdram is tested */
-#define CFG_TEMP_STACK_OCM	1
+#define CFG_TEMP_STACK_OCM	  1
 
 /* On Chip Memory location */
 #define CFG_OCM_DATA_ADDR	0xF8000000
@@ -503,7 +508,7 @@
 #define CFG_GPIO0_OSRH		0x40000550
 #define CFG_GPIO0_OSRL		0x00000110
 #define CFG_GPIO0_ISR1H		0x00000000
-/*#define CFG_GPIO0_ISR1L	  0x15555445*/
+/*#define CFG_GPIO0_ISR1L	0x15555445*/
 #define CFG_GPIO0_ISR1L		0x15555444
 #define CFG_GPIO0_TSRH		0x00000000
 #define CFG_GPIO0_TSRL		0x00000000
@@ -519,10 +524,10 @@
 
 
 #define CONFIG_NO_SERIAL_EEPROM
-/*#undef CONFIG_NO_SERIAL_EEPROM*/
-/*--------------------------------------------------------------------*/
-#ifdef CONFIG_NO_SERIAL_EEPROM
 
+/*--------------------------------------------------------------------*/
+
+#ifdef CONFIG_NO_SERIAL_EEPROM
 
 /*
 !-----------------------------------------------------------------------
@@ -648,44 +653,43 @@
 #define PLL_PCIDIV_4		0x00000003
 
 /* CPU - PLB/SDRAM - EBC - OPB - PCI (assuming a 33.3MHz input clock to the 405EP) */
-#define PLLMR0_133_133_33_66_33	 (PLL_CPUDIV_1 | PLL_PLBDIV_1 |	 \
-				  PLL_OPBDIV_2 | PLL_EXTBUSDIV_4 |	\
+#define PLLMR0_133_133_33_66_33	 (PLL_CPUDIV_1 | PLL_PLBDIV_1 | \
+				  PLL_OPBDIV_2 | PLL_EXTBUSDIV_4 | \
 				  PLL_MALDIV_1 | PLL_PCIDIV_4)
 #define PLLMR1_133_133_33_66_33	 (PLL_FBKDIV_4	|  \
-				  PLL_FWDDIVA_6 | PLL_FWDDIVB_6 |  \
+				  PLL_FWDDIVA_6 | PLL_FWDDIVB_6 | \
 				  PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
-#define PLLMR0_200_100_50_33	 (PLL_CPUDIV_1 | PLL_PLBDIV_2 |	 \
-				  PLL_OPBDIV_2 | PLL_EXTBUSDIV_3 |	\
+#define PLLMR0_200_100_50_33	 (PLL_CPUDIV_1 | PLL_PLBDIV_2 | \
+				  PLL_OPBDIV_2 | PLL_EXTBUSDIV_3 | \
 				  PLL_MALDIV_1 | PLL_PCIDIV_4)
-#define PLLMR1_200_100_50_33	 (PLL_FBKDIV_6	|  \
-				  PLL_FWDDIVA_4 | PLL_FWDDIVB_4 |  \
+#define PLLMR1_200_100_50_33	 (PLL_FBKDIV_6	| \
+				  PLL_FWDDIVA_4 | PLL_FWDDIVB_4 | \
 				  PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
 #define PLLMR0_266_133_33_66_33	 (PLL_CPUDIV_1 | PLL_PLBDIV_2 | \
-				  PLL_OPBDIV_2 | PLL_EXTBUSDIV_4 |	\
+				  PLL_OPBDIV_2 | PLL_EXTBUSDIV_4 | \
 				  PLL_MALDIV_1 | PLL_PCIDIV_4)
-#define PLLMR1_266_133_33_66_33	 (PLL_FBKDIV_8	|  \
-				  PLL_FWDDIVA_3 | PLL_FWDDIVB_3 |  \
+#define PLLMR1_266_133_33_66_33	 (PLL_FBKDIV_8	| \
+				  PLL_FWDDIVA_3 | PLL_FWDDIVB_3 | \
 				  PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
 #define PLLMR0_333_111_37_55_55	 (PLL_CPUDIV_1 | PLL_PLBDIV_3 | \
-				  PLL_OPBDIV_2 | PLL_EXTBUSDIV_3 |	\
+				  PLL_OPBDIV_2 | PLL_EXTBUSDIV_3 | \
 				  PLL_MALDIV_1 | PLL_PCIDIV_2)
-#define PLLMR1_333_111_37_55_55	 (PLL_FBKDIV_10 |  \
-				  PLL_FWDDIVA_3 | PLL_FWDDIVB_3 |  \
+#define PLLMR1_333_111_37_55_55	 (PLL_FBKDIV_10 | \
+				  PLL_FWDDIVA_3 | PLL_FWDDIVB_3 | \
 				  PLL_TUNE_15_M_40 | PLL_TUNE_VCO_HI)
 
 #if   (CONFIG_PPCHAMELEON_MODULE_MODEL == CONFIG_PPCHAMELEON_MODULE_HI)
 /* Model HI */
-#define PLLMR0_DEFAULT	 PLLMR0_333_111_37_55_55
-#define PLLMR1_DEFAULT	 PLLMR1_333_111_37_55_55
+#define PLLMR0_DEFAULT		PLLMR0_333_111_37_55_55
+#define PLLMR1_DEFAULT		PLLMR1_333_111_37_55_55
 /* Model ME */
 #elif (CONFIG_PPCHAMELEON_MODULE_MODEL == CONFIG_PPCHAMELEON_MODULE_ME)
-#define PLLMR0_DEFAULT	 PLLMR0_266_133_33_66_33
-#define PLLMR1_DEFAULT	 PLLMR1_266_133_33_66_33
+#define PLLMR0_DEFAULT		PLLMR0_266_133_33_66_33
+#define PLLMR1_DEFAULT		PLLMR1_266_133_33_66_33
 #else
 /* Model BA (default) */
-#define PLLMR0_DEFAULT	 PLLMR0_133_133_33_66_33
-#define PLLMR1_DEFAULT	 PLLMR1_133_133_33_66_33
-
+#define PLLMR0_DEFAULT		PLLMR0_133_133_33_66_33
+#define PLLMR1_DEFAULT		PLLMR1_133_133_33_66_33
 #endif
 
 #endif /* CONFIG_NO_SERIAL_EEPROM */
