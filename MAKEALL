@@ -37,7 +37,7 @@ LIST_8xx="	\
 	SM850		SPD823TS	svm_sc8xx	SXNI855T	\
 	TOP860		TQM823L		TQM823L_LCD	TQM850L		\
 	TQM855L		TQM860L		TTTech		v37		\
-"
+
 
 #########################################################################
 ## PPC4xx Systems
@@ -47,10 +47,10 @@ LIST_4xx="	\
 	ADCIOP		AR405		ASH405          BUBINGA405EP    \
         CANBT		CPCI405		CPCI4052 	CPCI405AB       \
         CPCI440         CPCIISER4	CRAYL1  	DASA_SIM	\
-        DU405    	EBONY           ERIC  		MIP405  	\
-        MIP405T		ML2		OCRTC		ORSG		\
-	PCI405		PIP405		PMC405          W7OLMC		\
-	W7OLMG          WALNUT405	\
+        DU405    	EBONY           ERIC  		EXBITGEN	\
+	MIP405  	MIP405T		ML2		OCRTC		\
+	ORSG		PCI405		PIP405		PMC405          \
+	W7OLMC		W7OLMG          WALNUT405			\
 "
 
 #########################################################################

@@ -466,6 +466,9 @@ EBONY_config:unconfig
 ERIC_config:unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx eric
 
+EXBITGEN_config:unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx exbitgen
+
 MIP405_config:unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx mip405 mpl
 

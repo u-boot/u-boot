@@ -139,7 +139,8 @@ extern int flash_real_protect(flash_info_t *info, long sector, int prot);
 #define AMD_ID_LV400T	0x22B922B9	/* 29LV400T ID ( 4 M, top boot sector)	*/
 #define AMD_ID_LV400B	0x22BA22BA	/* 29LV400B ID ( 4 M, bottom boot sect) */
 
-#define AMD_ID_LV033C	0xA3		/* 29LV033C ID ( 4M x 8 )		*/
+#define AMD_ID_LV033C	0xA3		/* 29LV033C ID ( 4 M x 8)		*/
+#define AMD_ID_LV065D	0x93		/* 29LV065D ID ( 8 M x 8)		*/
 
 #define AMD_ID_LV800T	0x22DA22DA	/* 29LV800T ID ( 8 M, top boot sector)	*/
 #define AMD_ID_LV800B	0x225B225B	/* 29LV800B ID ( 8 M, bottom boot sect) */
@@ -174,6 +175,7 @@ extern int flash_real_protect(flash_info_t *info, long sector, int prot);
 #define SST_ID_xF400A	0x27802780	/* 39xF400A ID ( 4M = 256K x 16 )	*/
 #define SST_ID_xF800A	0x27812781	/* 39xF800A ID ( 8M = 512K x 16 )	*/
 #define SST_ID_xF160A	0x27822782	/* 39xF800A ID (16M =	1M x 16 )	*/
+#define SST_ID_xF040	0xBFD7BFD7	/* 39xF040 ID (512KB = 4Mbit x 8)	*/
 
 #define STM_ID_F040B	0xE2		/* M29F040B ID ( 4M = 512K x 8	)	*/
 					/* 8 64K x 8 uniform sectors		*/
@@ -255,6 +257,9 @@ extern int flash_real_protect(flash_info_t *info, long sector, int prot);
 #define FLASH_AMDL324T	0x0014		/* AMD AM29DL324			*/
 #define FLASH_AMDL324B	0x0015
 
+#define FLASH_AMDLV033C	0x0018
+#define FLASH_AMDLV065D	0x001A
+
 #define FLASH_AMDL640	0x0016		/* AMD AM29DL640D			*/
 #define FLASH_AMD016	0x0018		/* AMD AM29F016D			*/
 
@@ -262,6 +267,7 @@ extern int flash_real_protect(flash_info_t *info, long sector, int prot);
 #define FLASH_SST400A	0x0042		/* SST 39xF400A ID (  4M = 256K x 16 )	*/
 #define FLASH_SST800A	0x0044		/* SST 39xF800A ID (  8M = 512K x 16 )	*/
 #define FLASH_SST160A	0x0046		/* SST 39xF160A ID ( 16M =   1M x 16 )	*/
+#define FLASH_SST040	0x000E		/* SST 39xF040 ID (512KB = 4Mbit x 8 )	*/
 
 #define FLASH_STM800AB	0x0051		/* STM M29WF800AB  (  8M = 512K x 16 )	*/
 #define FLASH_STMW320DT 0x0052		/* STM M29W320DT   (32 M, top boot sector)	*/
