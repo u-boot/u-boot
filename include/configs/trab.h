@@ -28,8 +28,8 @@
 
 #ifdef CONFIG_OLD_VERSION		/* Old configuration:		*/
 #define	CONFIG_RAM_16MB			/*	16 MB SDRAM		*/
-#define CONFIG_FLASH_8MB		/*	 8 MB Flash		*/
 #endif
+#define CONFIG_FLASH_8MB		/*	 8 MB Flash		*/
 
 /*
  * If we are developing, we might want to start armboot from ram

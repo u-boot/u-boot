@@ -51,8 +51,6 @@
 #define	OHCI_CONTROL_INIT \
 	(OHCI_CTRL_CBSR & 0x3) | OHCI_CTRL_IE | OHCI_CTRL_PLE
 
-#define OHCI_UNLINK_TIMEOUT	(CFG_HZ / 10)
-
 #define readl(a) (*((vu_long *)(a)))
 #define writel(a, b) (*((vu_long *)(b)) = ((vu_long)a))
 
@@ -85,6 +83,10 @@ struct ohci_hcca *phcca;
 struct ohci_device ohci_dev;
 /* urb_priv */
 urb_priv_t urb_priv;
+/* RHSC flag */
+int got_rhsc;
+/* device which was disconnected */
+struct usb_device *devgone;
 
 /*-------------------------------------------------------------------------*/
 
@@ -952,8 +954,29 @@ static unsigned char root_hub_str_index1[] =
 
 /* request to virtual root hub */
 
-static int ohci_submit_rh_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
-		int transfer_len, struct devrequest *cmd)
+int rh_check_port_status(ohci_t *controller)
+{
+	__u32 temp, ndp, i;
+	int res;
+
+	res = -1;
+	temp = roothub_a (controller);
+	ndp = (temp & RH_A_NDP);
+	for (i = 0; i < ndp; i++) {
+		temp = roothub_portstatus (controller, i);
+		/* check for a device disconnect */
+		if (((temp & (RH_PS_PESC | RH_PS_CSC)) ==
+			(RH_PS_PESC | RH_PS_CSC)) &&
+			((temp & RH_PS_CCS) == 0)) {
+			res = i;
+			break;
+		}
+	}
+	return res;
+}
+
+static int ohci_submit_rh_msg(struct usb_device *dev, unsigned long pipe,
+		void *buffer, int transfer_len, struct devrequest *cmd)
 {
 	void * data = buffer;
 	int leni = transfer_len;
@@ -1178,6 +1201,12 @@ int submit_common_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	int maxsize = usb_maxpacket(dev, pipe);
 	int timeout;
 
+	/* device pulled? Shortcut the action. */
+	if (devgone == dev) {
+		dev->status = USB_ST_CRC_ERR;
+		return 0;
+	}
+
 #ifdef DEBUG
 	urb_priv.actual_length = 0;
 	pkt_print(dev, pipe, buffer, transfer_len, setup, "SUB", usb_pipein(pipe));
@@ -1210,7 +1239,7 @@ int submit_common_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 		/* check whether the controller is done */
 		stat = hc_interrupt();
 		if (stat < 0) {
-			stat = 1;
+			stat = USB_ST_CRC_ERR;
 			break;
 		}
 		if (stat >= 0 && stat != 0xff) {
@@ -1220,11 +1249,33 @@ int submit_common_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 		if (--timeout) {
 			wait_ms(1);
 		} else {
-			err("CTL:TIMEOUT");
-			stat = 1;
+			err("CTL:TIMEOUT ");
+			stat = USB_ST_CRC_ERR;
 			break;
 		}
 	}
+	/* we got an Root Hub Status Change interrupt */
+	if (got_rhsc) {
+#ifdef DEBUG
+		ohci_dump_roothub (&gohci, 1);
+#endif
+		got_rhsc = 0;
+		/* abuse timeout */
+		timeout = rh_check_port_status(&gohci);
+		if (timeout >= 0) {
+#if 0 /* this does nothing useful, but leave it here in case that changes */
+			/* the called routine adds 1 to the passed value */
+			usb_hub_port_connect_change(gohci.rh.dev, timeout - 1);
+#endif
+			/*
+			 * XXX
+			 * This is potentially dangerous because it assumes
+			 * that only one device is ever plugged in!
+			 */
+			devgone = dev;
+		}
+	}
+
 	dev->status = stat;
   	dev->act_len = transfer_len;
 
@@ -1264,10 +1315,12 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 			pipe);
 		return -1;
 	}
-	if (((pipe >> 8) & 0x7f) == gohci.rh.devnum)
+	if (((pipe >> 8) & 0x7f) == gohci.rh.devnum) {
+		gohci.rh.dev = dev;
 		/* root hub - redirect */
 		return ohci_submit_rh_msg(dev, pipe, buffer, transfer_len,
 			setup);
+	}
 
 	return submit_common_msg(dev, pipe, buffer, transfer_len, setup, 0);
 }
@@ -1356,9 +1409,17 @@ static int hc_start (ohci_t * ohci)
 	ohci->disabled = 0;
  	writel (ohci->hc_control, &ohci->regs->control);
 
-	/* Choose the interrupts we care about now, others later on demand */
-	mask = OHCI_INTR_MIE | OHCI_INTR_UE | OHCI_INTR_WDH | OHCI_INTR_SO;
+	/* disable all interrupts */
+	mask = (OHCI_INTR_SO | OHCI_INTR_WDH | OHCI_INTR_SF | OHCI_INTR_RD |
+			OHCI_INTR_UE | OHCI_INTR_FNO | OHCI_INTR_RHSC |
+			OHCI_INTR_OC | OHCI_INTR_MIE);
+	writel (mask, &ohci->regs->intrdisable);
+	/* clear all interrupts */
+	mask &= ~OHCI_INTR_MIE;
 	writel (mask, &ohci->regs->intrstatus);
+	/* Choose the interrupts we care about now  - but w/o MIE */
+	mask = OHCI_INTR_RHSC | OHCI_INTR_UE | OHCI_INTR_WDH | OHCI_INTR_SO;
+	writel (mask, &ohci->regs->intrenable);
 
 #ifdef	OHCI_USE_NPS
 	/* required for AMD-756 and some Mac platforms */
@@ -1396,6 +1457,10 @@ hc_interrupt (void)
 	}
 
 	/* dbg("Interrupt: %x frame: %x", ints, le16_to_cpu (ohci->hcca->frame_no)); */
+
+	if (ints & OHCI_INTR_RHSC) {
+		got_rhsc = 1;
+	}
 
 	if (ints & OHCI_INTR_UE) {
 		ohci->disabled++;

@@ -105,14 +105,14 @@ struct flash_layout
 #define AU_FL_APP_ND		0x005BFFFF
 #define AU_FL_DISK_ST		0x005C0000
 #define AU_FL_DISK_ND		0x00FFFFFF
-#else						/*  8 MB Flash, 16 MB RAM */
+#else						/*  8 MB Flash, 32 MB RAM */
 #define AU_FL_FIRMWARE_ST	0x00000000
-#define AU_FL_FIRMWARE_ND	0x0003FFFF
-#define AU_FL_KERNEL_ST		0x00040000
-#define AU_FL_KERNEL_ND		0x0011FFFF
-#define AU_FL_APP_ST		0x00120000
-#define AU_FL_APP_ND		0x003FFFFF
-#define AU_FL_DISK_ST		0x00400000
+#define AU_FL_FIRMWARE_ND	0x0005FFFF
+#define AU_FL_KERNEL_ST		0x00060000
+#define AU_FL_KERNEL_ND		0x0013FFFF
+#define AU_FL_APP_ST		0x00140000
+#define AU_FL_APP_ND		0x0067FFFF
+#define AU_FL_DISK_ST		0x00680000
 #define AU_FL_DISK_ND		0x007DFFFF
 #define AU_FL_VFD_ST		0x007E0000
 #define AU_FL_VFD_ND		0x007FFFFF
@@ -186,8 +186,8 @@ struct flash_layout aufl_layout[AU_MAXFILES - 3] = { \
 #define LOAD_ADDR ((unsigned char *)0x0C100100)
 /* where to build strings in memory - 256 bytes should be enough */
 #define STRING_ADDR ((char *)0x0C100000)
-/* the disk is the largest image */
-#define MAX_LOADSZ ausize[IDX_DISK]
+/* the app is the largest image */
+#define MAX_LOADSZ ausize[IDX_APP]
 
 /* externals */
 extern int fat_register_device(block_dev_desc_t *, int);
@@ -222,7 +222,7 @@ au_check_valid(int idx, long nbytes)
 #endif
 	if (ntohl(hdr->ih_magic) != IH_MAGIC ||
 	    hdr->ih_arch != IH_CPU_ARM ||
-	    nbytes < ntohl(hdr->ih_size))
+	    nbytes != (sizeof(*hdr) + ntohl(hdr->ih_size)))
 	{
 		printf ("Image %s bad MAGIC or ARCH or SIZE\n", aufile[idx]);
 		return -1;
@@ -589,6 +589,9 @@ do_auto_update(void)
 		 */
 		if (got_ctrlc == 0)
 			au_update_eeprom(i);
+		else
+			/* enable the power switch */
+			*CPLD_VFD_BK &= ~POWER_OFF;
 	}
 	usb_stop();
 	/* restore the old state */
