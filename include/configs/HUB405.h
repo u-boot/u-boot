@@ -42,6 +42,8 @@
 
 #define CONFIG_SYS_CLK_FREQ	33330000 /* external frequency to pll	*/
 
+#define CONFIG_BOARD_TYPES	1	/* support board types		*/
+
 #define CONFIG_BAUDRATE		9600
 #define CONFIG_BOOTDELAY	3	/* autoboot after 3 seconds	*/
 

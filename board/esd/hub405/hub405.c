@@ -30,6 +30,47 @@
 extern void lxt971_no_sleep(void);
 
 
+int board_revision(void)
+{
+	unsigned long osrl_reg;
+	unsigned long isr1l_reg;
+	unsigned long tcr_reg;
+	unsigned long value;
+
+	/*
+	 * Get version of HUB405 board from GPIO's
+	 */
+
+	/*
+	 * Setup GPIO pin(s) (IRQ6/GPIO23)
+	 */
+	osrl_reg = in32(GPIO0_OSRH);
+	isr1l_reg = in32(GPIO0_ISR1H);
+	tcr_reg = in32(GPIO0_TCR);
+	out32(GPIO0_OSRH, osrl_reg & ~0x00030000);     /* output select */
+	out32(GPIO0_ISR1H, isr1l_reg | 0x00030000);    /* input select  */
+	out32(GPIO0_TCR, tcr_reg & ~0x00000100);       /* select input  */
+
+	udelay(1000);            /* wait some time before reading input */
+	value = in32(GPIO0_IR) & 0x00000100;         /* get config bits */
+
+	/*
+	 * Restore GPIO settings
+	 */
+	out32(GPIO0_OSRH, osrl_reg);                   /* output select */
+	out32(GPIO0_ISR1H, isr1l_reg);                 /* input select  */
+	out32(GPIO0_TCR, tcr_reg);  /* enable output driver for outputs */
+
+	if (value & 0x00000100) {
+		/* Revision 1.1 or 1.2 detected */
+		return 1;
+	}
+
+	/* Revision 1.0 */
+	return 0;
+}
+
+
 int board_early_init_f (void)
 {
 	/*
@@ -69,6 +110,8 @@ int misc_init_f (void)
 
 int misc_init_r (void)
 {
+	DECLARE_GLOBAL_DATA_PTR;
+
 	volatile unsigned char *duart0_mcr = (unsigned char *)((ulong)DUART0_BA + 4);
 	volatile unsigned char *duart1_mcr = (unsigned char *)((ulong)DUART1_BA + 4);
 	volatile unsigned char *duart2_mcr = (unsigned char *)((ulong)DUART2_BA + 4);
@@ -77,6 +120,7 @@ int misc_init_r (void)
 	unsigned long val;
 	int delay, flashcnt;
 	char *str;
+	char hw_rev[4];
 
 	/*
 	 * Enable interrupts in exar duart mcr[3]
@@ -121,14 +165,14 @@ int misc_init_r (void)
 	 */
 	str = getenv("bd_type"); /* this is only set on non prototype hardware */
 	if (str != NULL) {
-		if ((strcmp(str, "swch405") == 0) || (strcmp(str, "hub405") == 0)) {
+		if ((strcmp(str, "swch405") == 0) || ((!strcmp(str, "hub405") && (gd->board_type >= 1)))) {
 			unsigned char led_reg_default = 0;
 			str = getenv("ap_pwr");
 			if (!str || (str && (str[0] == '1')))
 				led_reg_default = 0x04 | 0x02 ; /* U2_LED | AP_PWR */
 
 			/*
-			 * Flash LEDs on SWCH405
+			 * Flash LEDs
 			 */
 			for (flashcnt = 0; flashcnt < 3; flashcnt++) {
 				*led_reg = led_reg_default;        /* LED_A..D off */
@@ -150,6 +194,11 @@ int misc_init_r (void)
 	out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_DUART_RST); /* set reset to low */
 	udelay(1000); /* wait 1ms */
 
+	/*
+	 * Store hardware revision in environment for further processing
+	 */
+	sprintf(hw_rev, "1.%ld", gd->board_type);
+	setenv("hw_rev", hw_rev);
 	return (0);
 }
 
@@ -159,6 +208,8 @@ int misc_init_r (void)
  */
 int checkboard (void)
 {
+	DECLARE_GLOBAL_DATA_PTR;
+
 	unsigned char str[64];
 	int i = getenv_r ("serial#", str, sizeof(str));
 
@@ -170,7 +221,14 @@ int checkboard (void)
 		puts(str);
 	}
 
-	putc ('\n');
+	if (getenv_r("bd_type", str, sizeof(str)) != -1) {
+		printf(" (%s", str);
+	} else {
+		puts(" (Missing bd_type!");
+	}
+
+	gd->board_type = board_revision();
+	printf(", Rev 1.%ld)\n", gd->board_type);
 
 	/*
 	 * Disable sleep mode in LXT971
