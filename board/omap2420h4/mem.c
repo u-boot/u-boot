@@ -74,9 +74,9 @@ void prcm_init(void)
 
 	if(running_in_sram()){
 		/* If running fully from SRAM this is OK.  The Flash bus drops out for just a little.
-	 	* but then comes back.  If running from Flash this sequence kills you, thus you need
-	 	* to run it using CONFIG_PARTIAL_SRAM.
-	 	*/
+		* but then comes back.  If running from Flash this sequence kills you, thus you need
+		* to run it using CONFIG_PARTIAL_SRAM.
+		*/
 		__raw_writel(MODE_BYPASS_FAST, CM_CLKEN_PLL); /* go to bypass, fast relock */
 		wait_on_value(BIT0|BIT1, BIT0, CM_IDLEST_CKGEN, LDELAY); /* wait till in bypass */
 		sdelay(1000);
@@ -172,14 +172,13 @@ void do_sdrc_init(u32 offset, u32 early)
 	cpu = get_cpu_type();
 
 	/* warning generated, though code generation is correct. this may bite later,
-         * but is ok for now. there is only so much C code you can do on stack only
-         * operation.
+	 * but is ok for now. there is only so much C code you can do on stack only
+	 * operation.
 	 */
 	if (cpu == CPU_2422){
 		sdata = (sdrc_data_t *)&sdrc_2422;
 		pass_type = STACKED;
-	}
-	else{
+	} else{
 		sdata = (sdrc_data_t *)&sdrc_2420;
 		pass_type = IP_DDR;
 	}
@@ -187,10 +186,10 @@ void do_sdrc_init(u32 offset, u32 early)
 	__asm__ __volatile__("": : :"memory");  /* limit compiler scope */
 
 	/* u-boot is compiled to run in DDR or SRAM at 8xxxxxxx or 4xxxxxxx.
-         * If we are running in flash prior to relocation and we use data
-         * here which is not pc relative we need to get the address correct.
-         * We need to find the current flash mapping to dress up the initial
-         * pointer load.  As long as this is const data we should be ok.
+	 * If we are running in flash prior to relocation and we use data
+	 * here which is not pc relative we need to get the address correct.
+	 * We need to find the current flash mapping to dress up the initial
+	 * pointer load.  As long as this is const data we should be ok.
 	 */
 	if((early) && running_in_flash()){
 		sdata = (sdrc_data_t *)(((u32)sdata & 0x0003FFFF) | get_gpmc0_base());
@@ -344,4 +343,3 @@ void gpmc_init(void)
 	__raw_writel(H4_24XX_GPMC_CONFIG7_1, GPMC_CONFIG7_1); /* enable mapping */
 	sdelay(2000);
 }
-

@@ -40,17 +40,17 @@
 
 /* Clock config to target*/
 #define PRCM_CONFIG_II		1
-//#define PRCM_CONFIG_III	1
+/*#define PRCM_CONFIG_III	1 */
 
 /* Memory configuration on board */
-//#define CONFIG_OPTIMIZE_DDR	1
+/*#define CONFIG_OPTIMIZE_DDR	1 */
 
 #include <asm/arch/omap2420.h>        /* get chip and board defs */
 
 /* On H4, NOR and NAND flash are mutual exclusive.
    Define this if you want to use NAND
  */
-//#define CFG_NAND_BOOT
+/*#define CFG_NAND_BOOT */
 
 #ifdef CONFIG_APTIX
 #define V_SCLK                   1500000

@@ -36,7 +36,6 @@
 extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];
 #endif
 
-
 static void wait_for_command_complete(unsigned int wd_base);
 
 /*******************************************************
@@ -694,8 +693,6 @@ void muxSetupGPMC(void)
 	/* signal - Gpmc_ncs2; pin - E2; offset - 0x008C; mode - 0; Byte-2	Pull/up - N/A */
 	MuxConfigReg = (volatile uint8 *)CONTROL_PADCONF_GPMC_NCS0_BYTE2,
 				   *MuxConfigReg = 0x00 ;
-
-
 }
 
 /****************************************************************
@@ -860,6 +857,3 @@ void nand_init(void)
 #endif
 }
 #endif
-
-
-

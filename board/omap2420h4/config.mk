@@ -20,4 +20,3 @@ TEXT_BASE = 0x80e80000
 # This is either with a GP system or a signed boot image.
 # easiest, and safest way to go if you can.
 #TEXT_BASE = 0x40280000
-

@@ -251,8 +251,6 @@ static u32 get_base2(void)
 	return(val);
 }
 
-
-
 /********************************************************
  *  running_in_flash() - tell if currently running in
  *   flash.
@@ -302,4 +300,3 @@ u32 running_from_internal_boot(void)
 	else
 		return(0);
 }
-
