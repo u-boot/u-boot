@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Robert Schwebel, 13 May 2004:
+  Add 'imgextract' command: extract one part of a multi file image.
+
 * Patches by Jon Loeliger, 11 May 2004:
   Dynamically handle REV1 and REV2 MPC85xx parts.
     (Jon Loeliger, 10-May-2004).

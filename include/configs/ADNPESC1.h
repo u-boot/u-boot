@@ -599,6 +599,7 @@
 				 CFG_CMD_SCSI	| \
 				 CFG_CMD_VFD	| \
 				 CFG_CMD_USB	| \
+				 CFG_CMD_XIMG	| \
 				 __SPI_CMD_OFF	) )
 
 

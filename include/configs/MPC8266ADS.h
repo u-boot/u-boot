@@ -164,11 +164,12 @@
 				 CFG_CMD_MMC	| \
 				 CFG_CMD_NAND	| \
 				 CFG_CMD_PCMCIA | \
-				CFG_CMD_REISER	| \
+				 CFG_CMD_REISER	| \
 				 CFG_CMD_SCSI	| \
 				 CFG_CMD_SPI	| \
 				 CFG_CMD_VFD	| \
-				 CFG_CMD_USB	) )
+				 CFG_CMD_USB	| \
+				 CFG_CMD_XIMG	) )
 
 /* Define a command string that is automatically executed when no character
  * is read on the console interface withing "Boot Delay" after reset.

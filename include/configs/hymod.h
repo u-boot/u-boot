@@ -191,7 +191,8 @@
 					CFG_CMD_REISER	| \
 					CFG_CMD_SCSI	| \
 					CFG_CMD_SPI	| \
-					CFG_CMD_VFD	) )
+					CFG_CMD_VFD	| \
+					CFG_CMD_XIMG	) )
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>

@@ -195,11 +195,12 @@
 				 CFG_CMD_NAND	| \
 				 CFG_CMD_PCI	| \
 				 CFG_CMD_PCMCIA | \
-				CFG_CMD_REISER	| \
+				 CFG_CMD_REISER	| \
 				 CFG_CMD_SCSI	| \
 				 CFG_CMD_SPI	| \
 				 CFG_CMD_USB	| \
-				 CFG_CMD_VFD
+				 CFG_CMD_VFD	| \
+				 CFG_CMD_XIMG
 
 #if CONFIG_ADSTYPE >= CFG_PQ2FADS
 #define CONFIG_COMMANDS		(CFG_CMD_ALL & ~( \

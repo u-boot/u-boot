@@ -107,7 +107,8 @@
 					     & ~CFG_CMD_SCSI	\
 					     & ~CFG_CMD_SPI	\
 					     & ~CFG_CMD_USB	\
-					     & ~CFG_CMD_VFD	)
+					     & ~CFG_CMD_VFD	\
+					     & ~CFG_CMD_XIMG	)
 
 #if CONFIG_LANTEC >= 2
 #define	CONFIG_RTC_MPC8xx		/* use internal RTC of MPC8xx	*/

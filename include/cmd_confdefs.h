@@ -22,7 +22,7 @@
  */
 
 /*
- *  Definitions for Configuring the monitor commands
+ * Definitions for Configuring the monitor commands
  */
 #ifndef _CMD_CONFIG_H
 #define _CMD_CONFIG_H
@@ -78,17 +78,18 @@
 #define CFG_CMD_SPI	0x0000100000000000U	/* SPI utility			*/
 #define CFG_CMD_FDOS	0x0000200000000000U	/* Floppy DOS support		*/
 #define CFG_CMD_VFD	0x0000400000000000U	/* VFD support (TRAB)		*/
-#define CFG_CMD_NAND	0x0000800000000000U	/* NAND support        		*/
+#define CFG_CMD_NAND	0x0000800000000000U	/* NAND support			*/
 #define CFG_CMD_BMP	0x0001000000000000U	/* BMP support			*/
-#define CFG_CMD_PORTIO	0x0002000000000000U	/* Port I/O		        */
+#define CFG_CMD_PORTIO	0x0002000000000000U	/* Port I/O			*/
 #define CFG_CMD_PING	0x0004000000000000U	/* ping support			*/
 #define CFG_CMD_MMC	0x0008000000000000U	/* MMC support			*/
 #define CFG_CMD_FAT	0x0010000000000000U	/* FAT support			*/
-#define CFG_CMD_IMLS	0x0020000000000000U	/* List all found images        */
+#define CFG_CMD_IMLS	0x0020000000000000U	/* List all found images	*/
 #define CFG_CMD_ITEST	0x0040000000000000U	/* Integer (and string) test	*/
 #define CFG_CMD_NFS	0x0080000000000000U	/* NFS support			*/
-#define CFG_CMD_REISER  0x0100000000000000U     /* Reiserfs support		*/
+#define CFG_CMD_REISER	0x0100000000000000U	/* Reiserfs support		*/
 #define CFG_CMD_CDP	0x0200000000000000U	/* Cisco Discovery Protocol 	*/
+#define CFG_CMD_XIMG	0x0400000000000000U	/* Load part of Multi Image	*/
 
 #define CFG_CMD_ALL	0xFFFFFFFFFFFFFFFFU	/* ALL commands			*/
 
@@ -156,7 +157,7 @@
 #define CONFIG_BOOTP_BOOTFILESIZE	0x00000020
 #define CONFIG_BOOTP_DNS		0x00000040
 #define CONFIG_BOOTP_DNS2		0x00000080
-#define CONFIG_BOOTP_SEND_HOSTNAME      0x00000100
+#define CONFIG_BOOTP_SEND_HOSTNAME	0x00000100
 
 #define CONFIG_BOOTP_VENDOREX		0x80000000
 

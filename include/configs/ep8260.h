@@ -275,6 +275,7 @@
 					~CFG_CMD_DCR    & \
 					~CFG_CMD_DHCP   & \
 					~CFG_CMD_DOC    & \
+					~CFG_CMD_DTT	& \
 					~CFG_CMD_EEPROM & \
 					~CFG_CMD_FDC    & \
 					~CFG_CMD_FDOS	& \
@@ -287,12 +288,12 @@
 					~CFG_CMD_NAND	& \
 					~CFG_CMD_PCI    & \
 					~CFG_CMD_PCMCIA & \
-					~CFG_CMD_SCSI   & \
 					~CFG_CMD_REISER	& \
+					~CFG_CMD_SCSI   & \
 					~CFG_CMD_SPI	& \
 					~CFG_CMD_USB	& \
 					~CFG_CMD_VFD	& \
-					~CFG_CMD_DTT )
+					~CFG_CMD_XIMG	)
 
 /* Where do the internal registers live? */
 #define CFG_IMMR               0xF0000000

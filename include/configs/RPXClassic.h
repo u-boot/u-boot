@@ -93,7 +93,7 @@
 #define	CONFIG_CLOCKS_IN_MHZ	1	/* clocks passsed to Linux in MHz */
 
 
-#define CONFIG_COMMANDS	(CFG_CMD_ALL & ~CFG_CMD_NONSTD | CFG_CMD_ELF)
+#define CONFIG_COMMANDS	((CFG_CMD_ALL & ~CFG_CMD_NONSTD) | CFG_CMD_ELF)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
