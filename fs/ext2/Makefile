@@ -1,6 +1,7 @@
 #
-# (C) Copyright 2000, 2001
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+# (C) Copyright 2003
+# Pavel Bartusek, Sysgo Real-Time Solutions AG, pba@sysgo.de
+#
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -20,10 +21,28 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
 #
-#
 
-SUBDIRS	:= jffs2 cramfs fdos fat reiserfs ext2
+include $(TOPDIR)/config.mk
 
-.depend all:
-	@for dir in $(SUBDIRS) ; do \
-		$(MAKE) -C $$dir $@ ; done
+LIB	= libext2fs.a
+
+AOBJS	=
+COBJS	= ext2fs.o dev.o
+OBJS	= $(AOBJS) $(COBJS)
+
+#CPPFLAGS +=
+
+all:	$(LIB) $(AOBJS)
+
+$(LIB):	.depend $(OBJS)
+	$(AR) crv $@ $(OBJS)
+
+
+#########################################################################
+
+.depend:	Makefile $(AOBJS:.o=.S) $(COBJS:.o=.c)
+		$(CC) -M $(CFLAGS) $(AOBJS:.o=.S) $(COBJS:.o=.c) > $@
+
+sinclude .depend
+
+#########################################################################
