@@ -31,7 +31,7 @@ static struct serial_device *serial_devices = NULL;
 static struct serial_device *serial_current = NULL;
 
 #ifndef CONFIG_LWMON
-struct serial_device * default_serial_console (void)
+struct serial_device *default_serial_console (void)
 {
 #if defined(CONFIG_8xx_CONS_SMC1) || defined(CONFIG_8xx_CONS_SMC2)
 	return &serial_smc_device;
@@ -44,7 +44,7 @@ struct serial_device * default_serial_console (void)
 }
 #endif
 
-static int serial_register(struct serial_device* dev)
+static int serial_register (struct serial_device *dev)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
@@ -61,26 +61,25 @@ static int serial_register(struct serial_device* dev)
 	return 0;
 }
 
-void serial_initialize(void)
+void serial_initialize (void)
 {
 #if defined(CONFIG_8xx_CONS_SMC1) || defined(CONFIG_8xx_CONS_SMC2)
-	serial_register(&serial_smc_device);
+	serial_register (&serial_smc_device);
 #endif
 #if defined(CONFIG_8xx_CONS_SCC1) || defined(CONFIG_8xx_CONS_SCC2) \
  || defined(CONFIG_8xx_CONS_SCC3) || defined(CONFIG_8xx_CONS_SCC4)
-	serial_register(&serial_scc_device);
+	serial_register (&serial_scc_device);
 #endif
 
-	serial_assign(default_serial_console()->name);
+	serial_assign (default_serial_console ()->name);
 }
 
-void serial_devices_init(void)
+void serial_devices_init (void)
 {
 	device_t dev;
 	struct serial_device *s = serial_devices;
 
-	while (s)
-	{
+	while (s) {
 		memset (&dev, 0, sizeof (dev));
 
 		strcpy (dev.name, s->name);
@@ -98,14 +97,12 @@ void serial_devices_init(void)
 	}
 }
 
-int serial_assign(char * name)
+int serial_assign (char *name)
 {
 	struct serial_device *s;
 
-	for (s = serial_devices; s; s = s->next)
-	{
-		if (strcmp(s->name, name) == 0)
-		{
+	for (s = serial_devices; s; s = s->next) {
+		if (strcmp (s->name, name) == 0) {
 			serial_current = s;
 			return 0;
 		}
@@ -114,83 +111,94 @@ int serial_assign(char * name)
 	return 1;
 }
 
-void serial_reinit_all(void)
+void serial_reinit_all (void)
 {
 	struct serial_device *s;
 
-	for (s = serial_devices; s; s = s->next)
-	{
-		s->init();
+	for (s = serial_devices; s; s = s->next) {
+		s->init ();
 	}
 }
 
-int serial_init(void)
+int serial_init (void)
 {
-	if (!serial_current)
-	{
-		struct serial_device *dev = default_serial_console();
-		return dev->init();
+	DECLARE_GLOBAL_DATA_PTR;
+	
+	if (!(gd->flags & GD_FLG_RELOC) || !serial_current) {
+		struct serial_device *dev = default_serial_console ();
+
+		return dev->init ();
 	}
 
-	return serial_current->init();
+	return serial_current->init ();
 }
 
-void serial_setbrg(void)
+void serial_setbrg (void)
 {
-	if (!serial_current)
-	{
-		struct serial_device *dev = default_serial_console();
-		dev->setbrg();
+	DECLARE_GLOBAL_DATA_PTR;
+	
+	if (!(gd->flags & GD_FLG_RELOC) || !serial_current) {
+		struct serial_device *dev = default_serial_console ();
+
+		dev->setbrg ();
 		return;
 	}
 
-	serial_current->setbrg();
+	serial_current->setbrg ();
 }
 
-int serial_getc(void)
+int serial_getc (void)
 {
-	if (!serial_current)
-	{
-		struct serial_device *dev = default_serial_console();
-		return dev->getc();
+	DECLARE_GLOBAL_DATA_PTR;
+	
+	if (!(gd->flags & GD_FLG_RELOC) || !serial_current) {
+		struct serial_device *dev = default_serial_console ();
+
+		return dev->getc ();
 	}
 
-	return serial_current->getc();
+	return serial_current->getc ();
 }
 
-int serial_tstc(void)
+int serial_tstc (void)
 {
-	if (!serial_current)
-	{
-		struct serial_device *dev = default_serial_console();
-		return dev->tstc();
+	DECLARE_GLOBAL_DATA_PTR;
+	
+	if (!(gd->flags & GD_FLG_RELOC) || !serial_current) {
+		struct serial_device *dev = default_serial_console ();
+
+		return dev->tstc ();
 	}
 
-	return serial_current->tstc();
+	return serial_current->tstc ();
 }
 
-void serial_putc(const char c)
+void serial_putc (const char c)
 {
-	if (!serial_current)
-	{
-		struct serial_device *dev = default_serial_console();
-		dev->putc(c);
+	DECLARE_GLOBAL_DATA_PTR;
+	
+	if (!(gd->flags & GD_FLG_RELOC) || !serial_current) {
+		struct serial_device *dev = default_serial_console ();
+
+		dev->putc (c);
 		return;
 	}
 
-	serial_current->putc(c);
+	serial_current->putc (c);
 }
 
-void serial_puts(const char *s)
+void serial_puts (const char *s)
 {
-	if (!serial_current)
-	{
-		struct serial_device *dev = default_serial_console();
-		dev->puts(s);
+	DECLARE_GLOBAL_DATA_PTR;
+	
+	if (!(gd->flags & GD_FLG_RELOC) || !serial_current) {
+		struct serial_device *dev = default_serial_console ();
+
+		dev->puts (s);
 		return;
 	}
 
-	serial_current->puts(s);
+	serial_current->puts (s);
 }
 
 #endif /* CONFIG_SERIAL_MULTI */

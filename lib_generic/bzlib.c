@@ -1,4 +1,6 @@
 #include <config.h>
+#include <common.h>
+#include <watchdog.h>
 #ifdef CONFIG_BZIP2
 
 /*
@@ -841,6 +843,9 @@ int BZ_API(BZ2_bzDecompress) ( bz_stream *strm )
    if (s->strm != strm) return BZ_PARAM_ERROR;
 
    while (True) {
+#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
+	WATCHDOG_RESET();
+#endif
       if (s->state == BZ_X_IDLE) return BZ_SEQUENCE_ERROR;
       if (s->state == BZ_X_OUTPUT) {
 	 if (s->smallDecompress)

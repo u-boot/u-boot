@@ -2,6 +2,12 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Pantelis Antoniou, 14 Sep 2004:
+  Fix early serial hang when CONFIG_SERIAL_MULTI is defined.
+
+* Patch by Pantelis Antoniou, 14 Sep 2004:
+  Kick watchdog when bz-decompressing
+
 * Fix CFG_HZ problems on AT91RM9200 systems
   [Remember: CFG_HZ should be 1000 on ALL systems!]
 
