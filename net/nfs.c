@@ -66,6 +66,7 @@ static char nfs_path_buff[2048];
 static __inline__ void
 store_block (uchar * src, unsigned offset, unsigned len)
 {
+	ulong newsize = offset + len;
 #ifdef CFG_DIRECT_FLASH_NFS
 	int i, rc = 0;
 
@@ -86,10 +87,12 @@ store_block (uchar * src, unsigned offset, unsigned len)
 		}
 	} else
 #endif /* CFG_DIRECT_FLASH_NFS */
-
 	{
 		(void)memcpy ((void *)(load_addr + offset), src, len);
 	}
+
+	if (NetBootFileXferSize < (offset+len))
+		NetBootFileXferSize = newsize;
 }
 
 static char*
@@ -539,8 +542,7 @@ nfs_read_reply (uchar *pkt, unsigned len)
 	printf ("%s\n", __FUNCTION__);
 #endif
 
-	rlen = (uchar *)&(rpc_pkt.u.reply.data[19]) - (uchar *)&(rpc_pkt.u.reply.id);
-	memcpy ((uchar *)&rpc_pkt, pkt, rlen);
+	memcpy ((uchar *)&rpc_pkt, pkt, len);
 
 	if (rpc_pkt.u.reply.rstatus  ||
 	    rpc_pkt.u.reply.verifier ||
@@ -613,6 +615,7 @@ NfsHandler (uchar *pkt, unsigned dest, unsigned src, unsigned len)
 			puts ("*** ERROR: Cannot umount\n");
 			NetState = NETLOOP_FAIL;
 		} else {
+			puts ("\ndone\n");
 			NetState = NETLOOP_SUCCESS;
 		}
 		break;
@@ -658,9 +661,6 @@ NfsHandler (uchar *pkt, unsigned dest, unsigned src, unsigned len)
 			NfsState = STATE_READLINK_REQ;
 			NfsSend ();
 		} else {
-			puts ("\ndone\n");
-			printf ("Bytes transferred = %d (%x hex)\n",
-				nfs_offset, nfs_offset);
 			NfsState = STATE_UMOUNT_REQ;
 			NfsSend ();
 		}

@@ -2,6 +2,12 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
+* Patch by Masami Komiya, 24 Feb 2004:
+  Update NetBootFileXferSize in NFS code
+
+* Patch by Scott McNutt, 24 Feb 2004:
+  fix packet length in NFS code
+
 * Patch by Masami Komiy, 22 Feb 2004:
   Add support for NFS for file download
 
