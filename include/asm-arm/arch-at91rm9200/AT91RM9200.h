@@ -665,6 +665,10 @@ typedef struct _AT91S_PDC {
 #define AT91C_PIO_PA7        ((unsigned int) 1 <<  7) /* Pin Controlled by PA7 */
 #define AT91C_PA7_ETXCK_EREFCK ((unsigned int) AT91C_PIO_PA7) /*  Ethernet MAC Transmit Clock/Reference Clock */
 
+#define AT91C_PIO_PB3        ((unsigned int) 1 <<  3) /* Pin Controlled by PB7 */
+#define AT91C_PIO_PB4        ((unsigned int) 1 <<  4) /* Pin Controlled by PB7 */
+#define AT91C_PIO_PB5        ((unsigned int) 1 <<  5) /* Pin Controlled by PB7 */
+#define AT91C_PIO_PB6        ((unsigned int) 1 <<  6) /* Pin Controlled by PB7 */
 #define AT91C_PIO_PB7        ((unsigned int) 1 <<  7) /* Pin Controlled by PB7 */
 #define AT91C_PIO_PB25       ((unsigned int) 1 << 25) /* Pin Controlled by PB25 */
 #define AT91C_PB25_DSR1     ((unsigned int) AT91C_PIO_PB25) /*  USART 1 Data Set ready */

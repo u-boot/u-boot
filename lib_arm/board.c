@@ -198,7 +198,7 @@ init_fnc_t *init_sequence[] = {
 	display_banner,		/* say that we are here */
 	dram_init,		/* configure available RAM banks */
 	display_dram_config,
-#if defined(CONFIG_VCMA9)
+#if defined(CONFIG_VCMA9) || defined (CONFIG_CMC_PU2)
 	checkboard,
 #endif
 	NULL,

@@ -6,6 +6,8 @@
  * Modified for CMC_PU2 (removed Smart Media support) by Gary Jennejohn
  * (2004) garyj@denx.de
  *
+ * Modified for CMC_BASIC by Martin Krause (2005), TQ-Systems GmbH
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -33,22 +35,67 @@
 /*
  * Miscelaneous platform dependent initialisations
  */
+#define CMC_BASIC	1
+#define CMC_PU2		2
+
+int hw_detect (void);
 
 int board_init (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
+	AT91PS_PIO piob = AT91C_BASE_PIOB;
+	AT91PS_PIO pioc = AT91C_BASE_PIOC;
 
 	/* Enable Ctrlc */
 	console_init_f ();
 
 	/* Correct IRDA resistor problem */
 	/* Set PA23_TXD in Output */
-	(AT91PS_PIO) AT91C_BASE_PIOA->PIO_OER = AT91C_PA23_TXD2;
+	/* (AT91PS_PIO) AT91C_BASE_PIOA->PIO_OER = AT91C_PA23_TXD2; */
 
 	/* memory and cpu-speed are setup before relocation */
 	/* so we do _nothing_ here */
 
-	/* arch number of CMC_PU2-Board */
+	/* PIOB and PIOC clock enabling */
+	*AT91C_PMC_PCER = 1 << AT91C_ID_PIOB;
+	*AT91C_PMC_PCER = 1 << AT91C_ID_PIOC;
+
+	/*
+	 * configure PC0-PC3 as input without pull ups, so RS485 driver enable
+	 * (CMC-PU2) and digital outputs (CMC-BASIC) are deactivated.
+	 */
+	pioc->PIO_ODR = AT91C_PIO_PC0 | AT91C_PIO_PC1 |
+			AT91C_PIO_PC2 | AT91C_PIO_PC3;
+	pioc->PIO_PPUDR = AT91C_PIO_PC0 | AT91C_PIO_PC1 |
+			AT91C_PIO_PC2 | AT91C_PIO_PC3;
+	pioc->PIO_PER = AT91C_PIO_PC0 | AT91C_PIO_PC1 |
+	        	AT91C_PIO_PC2 | AT91C_PIO_PC3;
+
+	/*
+	 * On CMC-PU2 board configure PB3-PB6 to input without pull ups to
+	 * clear the duo LEDs (the external pull downs assure a proper
+	 * signal). On CMC-BASIC set PB3-PB6 to output and drive it
+	 * high, to configure current meassurement on AINx.
+	 */
+	if (hw_detect() & CMC_PU2) {
+		piob->PIO_ODR = AT91C_PIO_PB3 | AT91C_PIO_PB4 |
+				AT91C_PIO_PB5 | AT91C_PIO_PB6;
+	}
+	else if (hw_detect() & CMC_BASIC) {
+		piob->PIO_SODR = AT91C_PIO_PB3 | AT91C_PIO_PB4 |
+				AT91C_PIO_PB5 | AT91C_PIO_PB6;
+		piob->PIO_OER = AT91C_PIO_PB3 | AT91C_PIO_PB4 |
+				AT91C_PIO_PB5 | AT91C_PIO_PB6;
+	}
+	piob->PIO_PPUDR = AT91C_PIO_PB3 | AT91C_PIO_PB4 |
+			AT91C_PIO_PB5 | AT91C_PIO_PB6;
+	piob->PIO_PER = AT91C_PIO_PB3 | AT91C_PIO_PB4 |
+			AT91C_PIO_PB5 | AT91C_PIO_PB6;
+
+	/*
+	 * arch number of CMC_PU2-Board. MACH_TYPE_CMC_PU2 is not supported in
+	 * the linuxarm kernel, yet.
+	 */
 	/* gd->bd->bi_arch_number = MACH_TYPE_CMC_PU2; */
 	gd->bd->bi_arch_number = 251;
 	/* adress of boot parameters */
@@ -64,4 +111,31 @@ int dram_init (void)
 	gd->bd->bi_dram[0].start = PHYS_SDRAM;
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_SIZE;
 	return 0;
+}
+
+int checkboard (void)
+{
+	if (hw_detect() & CMC_PU2)
+		puts ("Board: CMC-PU2 (Rittal GmbH)\n");
+	else if (hw_detect() & CMC_BASIC)
+		puts ("Board: CMC-BASIC (Rittal GmbH)\n");
+	else
+		puts ("Board: unknown\n");
+	return 0;
+}
+
+int hw_detect (void)
+{
+	AT91PS_PIO pio = AT91C_BASE_PIOB;
+
+	/* PIOB clock enabling */
+	*AT91C_PMC_PCER = 1 << AT91C_ID_PIOB;
+
+	/* configure PB12 as input without pull up */
+	pio->PIO_ODR = AT91C_PIO_PB12;
+	pio->PIO_PPUDR = AT91C_PIO_PB12;
+	pio->PIO_PER = AT91C_PIO_PB12;
+
+	/* read board identification pin */
+	return ((pio->PIO_PDSR & AT91C_PIO_PB12) ? CMC_PU2 : CMC_BASIC);
 }
