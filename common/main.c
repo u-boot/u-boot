@@ -319,13 +319,7 @@ void main_loop (void)
 	debug ("### main_loop entered: bootdelay=%d\n\n", bootdelay);
 
 # ifdef CONFIG_BOOT_RETRY_TIME
-	s = getenv ("bootretry");
-	if (s != NULL)
-		retry_time = (int)simple_strtoul(s, NULL, 10);
-	else
-		retry_time =  CONFIG_BOOT_RETRY_TIME;
-	if (retry_time >= 0 && retry_time < CONFIG_BOOT_RETRY_MIN)
-		retry_time = CONFIG_BOOT_RETRY_MIN;
+	init_cmd_timeout ();
 # endif	/* CONFIG_BOOT_RETRY_TIME */
 
 	s = getenv ("bootcmd");
@@ -422,10 +416,26 @@ void main_loop (void)
 #endif /*CFG_HUSH_PARSER*/
 }
 
+#ifdef CONFIG_BOOT_RETRY_TIME
+/***************************************************************************
+ * initialise command line timeout
+ */
+void init_cmd_timeout(void)
+{
+	char *s = getenv ("bootretry");
+
+	if (s != NULL)
+		retry_time = (int)simple_strtoul(s, NULL, 10);
+	else
+		retry_time =  CONFIG_BOOT_RETRY_TIME;
+
+	if (retry_time >= 0 && retry_time < CONFIG_BOOT_RETRY_MIN)
+		retry_time = CONFIG_BOOT_RETRY_MIN;
+}
+
 /***************************************************************************
  * reset command line timeout to retry_time seconds
  */
-#ifdef CONFIG_BOOT_RETRY_TIME
 void reset_cmd_timeout(void)
 {
 	endtime = endtick(retry_time);

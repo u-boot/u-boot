@@ -41,6 +41,9 @@
 	// date date
 	print_field("date", $row);
 
+	// who char(20)
+	print_field("who", $row);
+
 	// details text
 	print_field_multiline("details", $row, 60, 10, 'text_filter');
 

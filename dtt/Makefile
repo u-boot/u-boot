@@ -27,7 +27,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= libdtt.a
 
-OBJS	= lm75.o ds1621.o
+OBJS	= lm75.o ds1621.o adm1021.o
 
 all:	$(LIB)
 

@@ -80,9 +80,9 @@ static void config_8260_ioports (volatile immap_t * immr)
 			 */
 			iop->ppar &= tpmsk;
 			iop->psor = (iop->psor & tpmsk) | psor;
+			iop->podr = (iop->podr & tpmsk) | podr;
 			iop->pdat = (iop->pdat & tpmsk) | pdat;
 			iop->pdir = (iop->pdir & tpmsk) | pdir;
-			iop->podr = (iop->podr & tpmsk) | podr;
 			iop->ppar |= ppar;
 		}
 	}

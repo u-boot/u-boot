@@ -327,6 +327,26 @@ int eeprom_write (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cn
 	return rcode;
 }
 
+#ifndef CONFIG_SPI
+int
+eeprom_probe (unsigned dev_addr, unsigned offset)
+{
+	unsigned char chip;
+
+	/* Probe the chip address
+	 */
+#if CFG_I2C_EEPROM_ADDR_LEN == 1 && !defined(CONFIG_SPI_X)
+	chip = offset >> 8;		/* block number */
+#else
+	chip = offset >> 16;		/* block number */
+#endif	/* CFG_I2C_EEPROM_ADDR_LEN, CONFIG_SPI_X */
+
+	chip |= dev_addr;		/* insert device address */
+
+	return (i2c_probe (chip));
+}
+#endif
+
 /*-----------------------------------------------------------------------
  * Set default values
  */

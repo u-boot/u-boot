@@ -204,10 +204,11 @@ extern int flash_real_protect(flash_info_t *info, long sector, int prot);
 #define INTEL_ID_28F640C3B  0x88CD88CD	/*  64M = 4M x 16 bottom boot sector	*/
 
 #define INTEL_ID_28F128J3   0x89189818	/*  16M = 8M x 16 x 128 */
-#define INTEL_ID_28F640J5   0x00150015	/*  64M = 128K x  64			*/
-#define INTEL_ID_28F320J3A  0x00160016	/*  32M = 128K x  32			*/
-#define INTEL_ID_28F640J3A  0x00170017	/*  64M = 128K x  64			*/
-#define INTEL_ID_28F128J3A  0x00180018	/* 128M = 128K x 128			*/
+#define INTEL_ID_28F320J5   0x00140014	/*  32M = 128K x  32	*/
+#define INTEL_ID_28F640J5   0x00150015	/*  64M = 128K x  64	*/
+#define INTEL_ID_28F320J3A  0x00160016	/*  32M = 128K x  32	*/
+#define INTEL_ID_28F640J3A  0x00170017	/*  64M = 128K x  64	*/
+#define INTEL_ID_28F128J3A  0x00180018	/* 128M = 128K x 128	*/
 
 #define INTEL_ID_28F160S3   0x00D000D0	/*  16M = 512K x  32 (64kB x 32)	*/
 #define INTEL_ID_28F320S3   0x00D400D4	/*  32M = 512K x  64 (64kB x 64)	*/

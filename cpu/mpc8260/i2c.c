@@ -58,7 +58,7 @@
 /*-----------------------------------------------------------------------
  */
 
-typedef void (*i2c_ecb_t)(int, int);    /* error callback function */
+typedef void (*i2c_ecb_t)(int, int, void *);    /* error callback function */
 
 /* This structure keeps track of the bd and buffer space usage. */
 typedef struct i2c_state {
@@ -69,6 +69,7 @@ typedef struct i2c_state {
 	int		tx_space;	/* number  of Tx bytes left   */
 	unsigned char	*tx_buf;	/* pointer to free Tx area    */
 	i2c_ecb_t	err_cb;		/* error callback function    */
+	void		*cb_data;	/* private data to be passed  */
 } i2c_state_t;
 
 /* flags for i2c_send() and i2c_receive() */
@@ -77,14 +78,15 @@ typedef struct i2c_state {
 #define I2CF_STOP_COND		0x04	/* tx: generate stop  condition	*/
 
 /* return codes */
-#define I2CERR_NO_BUFFERS	0x01	/* no more BDs or buffer space	*/
-#define I2CERR_MSG_TOO_LONG	0x02	/* tried to send/receive to much data   */
-#define I2CERR_TIMEOUT		0x03	/* timeout in i2c_doio()	*/
-#define I2CERR_QUEUE_EMPTY	0x04	/* i2c_doio called without send/receive */
+#define I2CERR_NO_BUFFERS	1	/* no more BDs or buffer space	*/
+#define I2CERR_MSG_TOO_LONG	2	/* tried to send/receive to much data   */
+#define I2CERR_TIMEOUT		3	/* timeout in i2c_doio()	*/
+#define I2CERR_QUEUE_EMPTY	4	/* i2c_doio called without send/receive */
+#define I2CERR_IO_ERROR		5	/* had an error during comms	*/
 
 /* error callback flags */
 #define I2CECB_RX_ERR		0x10	/* this is a receive error	*/
-#define     I2CECB_RX_ERR_OV	0x02	/* receive overrun error	*/
+#define     I2CECB_RX_OV	0x02	/* receive overrun error	*/
 #define     I2CECB_RX_MASK	0x0f	/* mask for error bits		*/
 #define I2CECB_TX_ERR		0x20	/* this is a transmit error	*/
 #define     I2CECB_TX_CL	0x01	/* transmit collision error	*/
@@ -318,6 +320,7 @@ void i2c_newio(i2c_state_t *state)
 	state->tx_space = MAX_TX_SPACE;
 	state->tx_buf = (uchar*)state->txbd + NUM_TX_BDS * sizeof(I2C_BD);
 	state->err_cb = NULL;
+	state->cb_data = NULL;
 
 	PRINTD(("[I2C] rxbd = %08x\n", (int)state->rxbd));
 	PRINTD(("[I2C] txbd = %08x\n", (int)state->txbd));
@@ -491,13 +494,10 @@ int i2c_doio(i2c_state_t *state)
 	volatile iic_t *iip;
 	volatile i2c8260_t *i2c	= (i2c8260_t *)&immap->im_i2c;
 	volatile I2C_BD *txbd, *rxbd;
-	int  j;
-        int  timeout;
+        int  n, i, b, rxcnt = 0, rxtimeo = 0, txcnt = 0, txtimeo = 0, rc = 0;
 	uint dpaddr;
 
 	PRINTD(("[I2C] i2c_doio\n"));
-
-        timeout = TOUT_LOOP * 256;	/* arbitrarily long */
 
 	if (state->tx_idx <= 0 && state->rx_idx <= 0) {
 		PRINTD(("[I2C] No I/O is queued\n"));
@@ -518,14 +518,20 @@ int i2c_doio(i2c_state_t *state)
 
 	/* Loop until transmit & receive completed */
 
-	txbd = ((I2C_BD*)state->txbd) - 1;
-	j = 0;
-	if (state->tx_idx > 0) {
-        	timeout = TOUT_LOOP * txbd->length;
+	if ((n = state->tx_idx) > 0) {
+
+		txbd = ((I2C_BD*)state->txbd) - n;
+		for (i = 0; i < n; i++) {
+			txtimeo += TOUT_LOOP * txbd->length;
+			txbd++;
+		}
+
+		txbd--; /* wait until last in list is done */
 
 		PRINTD(("[I2C] Transmitting...(txbd=0x%08lx)\n", (ulong)txbd));
+
 		udelay(START_DELAY_US);	/* give it time to start */
-		while((txbd->status & BD_SC_READY) && (j++ < timeout)) {
+		while((txbd->status & BD_SC_READY) && (++txcnt < txtimeo)) {
 			udelay(DELAY_US);
 			if (ctrlc())
 				return (-1);
@@ -533,13 +539,20 @@ int i2c_doio(i2c_state_t *state)
 		}
 	}
 
-	rxbd = ((I2C_BD*)state->rxbd) - 1;
-	j = 0;
-	if ((state->rx_idx > 0) && (j < timeout)) {
-        	timeout = TOUT_LOOP * rxbd->length;
+	if (txcnt < txtimeo && (n = state->rx_idx) > 0) {
+
+		rxbd = ((I2C_BD*)state->rxbd) - n;
+		for (i = 0; i < n; i++) {
+        		rxtimeo += TOUT_LOOP * rxbd->length;
+			rxbd++;
+		}
+
+		rxbd--; /* wait until last in list is done */
+
 		PRINTD(("[I2C] Receiving...(rxbd=0x%08lx)\n", (ulong)rxbd));
+
 		udelay(START_DELAY_US);	/* give it time to start */
-		while((rxbd->status & BD_SC_EMPTY) && (j++ < timeout)) {
+		while((rxbd->status & BD_SC_EMPTY) && (++rxcnt < rxtimeo)) {
 			udelay(DELAY_US);
 			if (ctrlc())
 				return (-1);
@@ -550,76 +563,91 @@ int i2c_doio(i2c_state_t *state)
 	/* Turn off I2C */
 	i2c->i2c_i2mod &= ~0x01;
 
-	if (state->err_cb != NULL) {
-		int n, i, b;
-
-		/*
-		 * if we have an error callback function, look at the
-		 * error bits in the bd status and pass them back
-		 */
-
-		if ((n = state->tx_idx) > 0) {
-			for (i = 0; i < n; i++) {
-				txbd = ((I2C_BD*)state->txbd) - (n - i);
-				if ((b = txbd->status & BD_I2C_TX_ERR) != 0)
-					(*state->err_cb)(I2CECB_TX_ERR|b, i);
+	if ((n = state->tx_idx) > 0) {
+		for (i = 0; i < n; i++) {
+			txbd = ((I2C_BD*)state->txbd) - (n - i);
+			if ((b = txbd->status & BD_I2C_TX_ERR) != 0) {
+				if (state->err_cb != NULL)
+					(*state->err_cb)(I2CECB_TX_ERR|b, i,
+						state->cb_data);
+				if (rc == 0)
+					rc = I2CERR_IO_ERROR;
 			}
 		}
-
-		if ((n = state->rx_idx) > 0) {
-			for (i = 0; i < n; i++) {
-				rxbd = ((I2C_BD*)state->rxbd) - (n - i);
-				if ((b = rxbd->status & BD_I2C_RX_ERR) != 0)
-					(*state->err_cb)(I2CECB_RX_ERR|b, i);
-			}
-		}
-
-		if (j >= timeout)
-			(*state->err_cb)(I2CECB_TIMEOUT, 0);
 	}
 
-	/* sort out errors and return appropriate good/error status */
-	if(j >= timeout)
-		return(I2CERR_TIMEOUT);
-	if((txbd->status & BD_I2C_TX_ERR) != 0)
-		return(I2CECB_TX_ERR | (txbd->status & I2CECB_TX_MASK));
-	if((rxbd->status & BD_I2C_RX_ERR) != 0)
-		return(I2CECB_RX_ERR | (rxbd->status & I2CECB_RX_MASK));
+	if ((n = state->rx_idx) > 0) {
+		for (i = 0; i < n; i++) {
+			rxbd = ((I2C_BD*)state->rxbd) - (n - i);
+			if ((b = rxbd->status & BD_I2C_RX_ERR) != 0) {
+				if (state->err_cb != NULL)
+					(*state->err_cb)(I2CECB_RX_ERR|b, i,
+						state->cb_data);
+				if (rc == 0)
+					rc = I2CERR_IO_ERROR;
+			}
+		}
+	}
 
-	return(0);
+	if ((txtimeo > 0 && txcnt >= txtimeo) || \
+	    (rxtimeo > 0 && rxcnt >= rxtimeo)) {
+		if (state->err_cb != NULL)
+			(*state->err_cb)(I2CECB_TIMEOUT, -1, state->cb_data);
+		if (rc == 0)
+			rc = I2CERR_TIMEOUT;
+	}
+
+	return (rc);
 }
-
-static int had_tx_nak;
 
 static void
-i2c_test_callback(int flags, int xnum)
+i2c_probe_callback(int flags, int xnum, void *data)
 {
-	if ((flags & I2CECB_TX_ERR) && (flags & I2CECB_TX_NAK))
-		had_tx_nak = 1;
+	/*
+	 * the only acceptable errors are a transmit NAK or a receive
+	 * overrun - tx NAK means the device does not exist, rx OV
+	 * means the device must have responded to the slave address
+	 * even though the transfer failed
+	 */
+	if (flags == (I2CECB_TX_ERR|I2CECB_TX_NAK))
+		*(int *)data |= 1;
+	if (flags == (I2CECB_RX_ERR|I2CECB_RX_OV))
+		*(int *)data |= 2;
 }
 
-int i2c_probe(uchar chip)
+int
+i2c_probe(uchar chip)
 {
 	i2c_state_t state;
-	int rc;
+	int rc, err_flag;
 	uchar buf[1];
 
 	i2c_newio(&state);
 
-	state.err_cb = i2c_test_callback;
-	had_tx_nak = 0;
+	state.err_cb = i2c_probe_callback;
+	state.cb_data = (void *) &err_flag;
+	err_flag = 0;
 
 	rc = i2c_receive(&state, chip, 0, I2CF_START_COND|I2CF_STOP_COND, 1, buf);
 
 	if (rc != 0)
-		return (rc);
+		return (rc);	/* probe failed */
 
 	rc = i2c_doio(&state);
 
-	if ((rc != 0) && (rc != I2CERR_TIMEOUT))
-		return (rc);
+	if (rc == 0)
+		return (0);	/* device exists - read succeeded */
 
-	return (had_tx_nak);
+	if (rc == I2CERR_TIMEOUT)
+		return (-1);	/* device does not exist - timeout */
+
+	if (rc != I2CERR_IO_ERROR || err_flag == 0)
+		return (rc);	/* probe failed */
+
+	if (err_flag & 1)
+		return (-1);	/* device does not exist - had transmit NAK */
+
+	return (0);	/* device exists - had receive overrun */
 }
 
 

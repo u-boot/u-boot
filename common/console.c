@@ -232,6 +232,20 @@ void printf (const char *fmt, ...)
 	puts (printbuffer);
 }
 
+void vprintf (const char *fmt, va_list args)
+{
+	uint i;
+	char printbuffer[CFG_PBSIZE];
+
+	/* For this to work, printbuffer must be larger than
+	 * anything we ever want to print.
+	 */
+	i = vsprintf (printbuffer, fmt, args);
+
+	/* Print the string */
+	puts (printbuffer);
+}
+
 /* test if ctrl-c was pressed */
 static int ctrlc_disabled = 0;	/* see disable_ctrl() */
 static int ctrlc_was_pressed = 0;

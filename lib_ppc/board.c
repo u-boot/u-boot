@@ -820,7 +820,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
     defined(CONFIG_COGENT)	|| \
     defined(CONFIG_CPCI405)	|| \
     defined(CONFIG_EVB64260)	|| \
-    defined(CONFIG_HYMOD)	|| \
     defined(CONFIG_KUP4K)	|| \
     defined(CONFIG_LWMON)	|| \
     defined(CONFIG_PCU_E)	|| \

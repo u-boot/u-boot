@@ -26,6 +26,9 @@
 		$query.=" date='$date'";
 	}
 
+	if (isset($who))
+		$query.=", who='" . $who . "'";
+
 	if (isset($details))
 		$query.=", details='" . rawurlencode($details) . "'";
 

@@ -20,13 +20,12 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  *
- * hacked for Hymod FPGA support by Murray.Jensen@cmst.csiro.au, 29-Jan-01
+ * hacked for Hymod FPGA support by Murray.Jensen@csiro.au, 29-Jan-01
  */
 
 #include <common.h>
 #include <command.h>
 #include <net.h>
-#include <i2c.h>
 #include <asm/iopin_8260.h>
 #include <cmd_bsp.h>
 
@@ -74,28 +73,29 @@
  *     has not worked (wait several ms?)
  */
 
-int fpga_load (int mezz, uchar * addr, ulong size)
+int
+fpga_load (int mezz, uchar *addr, ulong size)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
 	hymod_conf_t *cp = &gd->bd->bi_hymod_conf;
+	xlx_info_t *fp;
 	xlx_iopins_t *fpgaio;
 	volatile uchar *fpgabase;
 	volatile uint cnt;
 	uchar *eaddr = addr + size;
 	int result;
 
-	if (mezz) {
-		if (!cp->mezz.mmap[0].prog.exists)
-			return (LOAD_FAIL_NOCONF);
-		fpgabase = (uchar *) cp->mezz.mmap[0].prog.base;
-		fpgaio = &cp->mezz.iopins[0];
-	} else {
-		if (!cp->main.mmap[0].prog.exists)
-			return (LOAD_FAIL_NOCONF);
-		fpgabase = (uchar *) cp->main.mmap[0].prog.base;
-		fpgaio = &cp->main.iopins[0];
-	}
+	if (mezz)
+		fp = &cp->mezz.xlx[0];
+	else
+		fp = &cp->main.xlx[0];
+
+	if (!fp->mmap.prog.exists)
+		return (LOAD_FAIL_NOCONF);
+
+	fpgabase = (uchar *)fp->mmap.prog.base;
+	fpgaio = &fp->iopins;
 
 	/* set enable HIGH if required */
 	if (fpgaio->enable_pin.flag)
@@ -106,7 +106,7 @@ int fpga_load (int mezz, uchar * addr, ulong size)
 
 	/* toggle PROG Low then High (will already be Low after Power-On) */
 	iopin_set_low (&fpgaio->prog_pin);
-	udelay (1);					/* minimum 300ns - 1usec should do it */
+	udelay (1);	/* minimum 300ns - 1usec should do it */
 	iopin_set_high (&fpgaio->prog_pin);
 
 	/* wait for INIT High */
@@ -157,15 +157,15 @@ do_fpga (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	case 2:
 		if (strcmp (argv[1], "info") == 0) {
 			printf ("\nHymod FPGA Info...\n");
-			printf ("				Address		Size\n");
-			printf ("	Main Configuration:	0x%08x	%d\n",
-					FPGA_MAIN_CFG_BASE, FPGA_MAIN_CFG_SIZE);
-			printf ("	Main Register:		0x%08x	%d\n",
-					FPGA_MAIN_REG_BASE, FPGA_MAIN_REG_SIZE);
-			printf ("	Main Port:		0x%08x	%d\n",
-					FPGA_MAIN_PORT_BASE, FPGA_MAIN_PORT_SIZE);
-			printf ("	Mezz Configuration:	0x%08x	%d\n",
-					FPGA_MEZZ_CFG_BASE, FPGA_MEZZ_CFG_SIZE);
+			printf ("\t\t\t\tAddress\t\tSize\n");
+			printf ("\tMain Configuration:\t0x%08x\t%d\n",
+				FPGA_MAIN_CFG_BASE, FPGA_MAIN_CFG_SIZE);
+			printf ("\tMain Register:\t\t0x%08x\t%d\n",
+				FPGA_MAIN_REG_BASE, FPGA_MAIN_REG_SIZE);
+			printf ("\tMain Port:\t\t0x%08x\t%d\n",
+				FPGA_MAIN_PORT_BASE, FPGA_MAIN_PORT_SIZE);
+			printf ("\tMezz Configuration:\t0x%08x\t%d\n",
+				FPGA_MEZZ_CFG_BASE, FPGA_MEZZ_CFG_SIZE);
 			return 0;
 		}
 		break;
@@ -176,18 +176,21 @@ do_fpga (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 			save_addr = addr;
 #if 0
-			/* reading config data unimplemented */
-			while VM
-			  :more config data * addr++ = *fpga;
-		  result = VM:? ? ?
+			/* fpga readback unimplemented */
+			while (more readback data)
+				*addr++ = *fpga;
+			result = error ? STORE_FAIL_XXX : STORE_SUCCESS;
 #else
-			result = 0;
+			result = STORE_SUCCESS;
 #endif
+
 			if (result == STORE_SUCCESS) {
-				printf ("SUCCEEDED (%d bytes)\n", addr - save_addr);
+				printf ("SUCCEEDED (%d bytes)\n",
+					addr - save_addr);
 				return 0;
 			} else
-				printf ("FAILED (%d bytes)\n", addr - save_addr);
+				printf ("FAILED (%d bytes)\n",
+					addr - save_addr);
 			return 1;
 		}
 		break;
@@ -196,25 +199,32 @@ do_fpga (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		if (strcmp (argv[1], "tftp") == 0) {
 			copy_filename (BootFile, argv[2], sizeof (BootFile));
 			load_addr = simple_strtoul (argv[3], NULL, 16);
+			NetBootFileXferSize = 0;
 
 			if (NetLoop (TFTP) <= 0) {
-				printf ("tftp transfer failed - aborting fgpa load\n");
+				printf ("tftp transfer failed - aborting "
+					"fgpa load\n");
 				return 1;
 			}
 
 			if (NetBootFileXferSize == 0) {
-				printf ("can't determine file size - aborting fpga load\n");
+				printf ("can't determine file size - "
+					"aborting fpga load\n");
 				return 1;
 			}
 
-			printf ("File transfer succeeded - beginning fpga load...");
+			printf ("File transfer succeeded - "
+				"beginning fpga load...");
 
 			result = fpga_load (0, (uchar *) load_addr,
-								NetBootFileXferSize);
+				NetBootFileXferSize);
+
 			if (result == LOAD_SUCCESS) {
 				printf ("SUCCEEDED\n");
 				return 0;
-			} else if (result == LOAD_FAIL_NOINIT)
+			} else if (result == LOAD_FAIL_NOCONF)
+				printf ("FAILED (no CONF)\n");
+			else if (result == LOAD_FAIL_NOINIT)
 				printf ("FAILED (no INIT)\n");
 			else
 				printf ("FAILED (no DONE)\n");
@@ -231,7 +241,8 @@ do_fpga (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 				else if (strcmp (argv[2], "mezz") == 0)
 					mezz = 1;
 				else {
-					printf ("FPGA type must be either `main' or `mezz'\n");
+					printf ("FPGA type must be either "
+						"`main' or `mezz'\n");
 					return 1;
 				}
 				arg = 3;
@@ -239,14 +250,18 @@ do_fpga (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 				mezz = 0;
 				arg = 2;
 			}
+
 			addr = (uchar *) simple_strtoul (argv[arg++], NULL, 16);
 			size = (ulong) simple_strtoul (argv[arg], NULL, 16);
 
 			result = fpga_load (mezz, addr, size);
+
 			if (result == LOAD_SUCCESS) {
 				printf ("SUCCEEDED\n");
 				return 0;
-			} else if (result == LOAD_FAIL_NOINIT)
+			} else if (result == LOAD_FAIL_NOCONF)
+				printf ("FAILED (no CONF)\n");
+			else if (result == LOAD_FAIL_NOINIT)
 				printf ("FAILED (no INIT)\n");
 			else
 				printf ("FAILED (no DONE)\n");
@@ -267,22 +282,21 @@ int
 do_eecl (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	uchar data[HYMOD_EEPROM_SIZE];
-	uint offset;
-	int rcode = 0;
+	uint addr = CFG_I2C_EEPROM_ADDR;
 
 	switch (argc) {
 
 	case 1:
-		offset = HYMOD_EEOFF_MAIN;
+		addr |= HYMOD_EEOFF_MAIN;
 		break;
 
 	case 2:
 		if (strcmp (argv[1], "main") == 0) {
-			offset = HYMOD_EEOFF_MAIN;
+			addr |= HYMOD_EEOFF_MAIN;
 			break;
 		}
 		if (strcmp (argv[1], "mezz") == 0) {
-			offset = HYMOD_EEOFF_MEZZ;
+			addr |= HYMOD_EEOFF_MEZZ;
 			break;
 		}
 		/* fall through ... */
@@ -293,15 +307,77 @@ do_eecl (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	}
 
 	memset (data, 0, HYMOD_EEPROM_SIZE);
-	if (i2c_write
-		(CFG_I2C_EEPROM_ADDR | offset, 0, CFG_I2C_EEPROM_ADDR_LEN, data,
-		 HYMOD_EEPROM_SIZE)) {
-		rcode = 1;
-	}
 
-	return rcode;
+	eeprom_write (addr, 0, data, HYMOD_EEPROM_SIZE);
+
+	return 0;
 }
 
-#endif							/* CFG_CMD_BSP */
+/* ------------------------------------------------------------------------- */
+
+#if 0
+static uchar test_bitfile[] = {
+	/* one day ... */
+};
+#endif
+
+int
+do_htest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+#if 0
+	int rc;
+#endif
+#ifdef CONFIG_ETHER_LOOPBACK_TEST
+	extern void eth_loopback_test (void);
+#endif /* CONFIG_ETHER_LOOPBACK_TEST */
+
+	printf ("HYMOD tests - ensure loopbacks etc. are connected\n\n");
+
+#if 0
+	/* Load FPGA with test program */
+
+	printf ("Loading test FPGA program ...");
+
+	rc = fpga_load (0, test_bitfile, sizeof (test_bitfile));
+
+	switch (rc) {
+
+	case LOAD_SUCCESS:
+		printf (" SUCCEEDED\n");
+		break;
+
+	case LOAD_FAIL_NOCONF:
+		printf (" FAILED (no configuration space defined)\n");
+		return 1;
+
+	case LOAD_FAIL_NOINIT:
+		printf (" FAILED (timeout - no INIT signal seen)\n");
+		return 1;
+
+	case LOAD_FAIL_NODONE:
+		printf (" FAILED (timeout - no DONE signal seen)\n");
+		return 1;
+
+	default:
+		printf (" FAILED (unknown return code from fpga_load\n");
+		return 1;
+	}
+
+	/* run Local Bus <=> Xilinx tests */
+
+	/* tell Xilinx to run ZBT Ram, High Speed serial and Mezzanine tests */
+
+	/* run SDRAM test */
+#endif
+
+#ifdef CONFIG_ETHER_LOOPBACK_TEST
+	/* run Ethernet test */
+	eth_loopback_test ();
+#endif /* CONFIG_ETHER_LOOPBACK_TEST */
+
+	return 0;
+}
+
+#endif	/* CFG_CMD_BSP */
 
 /* ------------------------------------------------------------------------- */

@@ -28,6 +28,13 @@
 */
 #define	SIU_INT_SMC1		((uint)0x04)
 #define	SIU_INT_SMC2		((uint)0x05)
+#define	SIU_INT_IRQ1		((uint)0x13)
+#define	SIU_INT_IRQ2		((uint)0x14)
+#define	SIU_INT_IRQ3		((uint)0x15)
+#define	SIU_INT_IRQ4		((uint)0x16)
+#define	SIU_INT_IRQ5		((uint)0x17)
+#define	SIU_INT_IRQ6		((uint)0x18)
+#define	SIU_INT_IRQ7		((uint)0x19)
 #define	SIU_INT_FCC1		((uint)0x20)
 #define	SIU_INT_FCC2		((uint)0x21)
 #define	SIU_INT_FCC3		((uint)0x22)

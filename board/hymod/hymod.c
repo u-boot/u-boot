@@ -20,11 +20,12 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  *
- * Hacked for the Hymod board by Murray.Jensen@cmst.csiro.au, 20-Oct-00
+ * Hacked for the Hymod board by Murray.Jensen@csiro.au, 20-Oct-00
  */
 
 #include <common.h>
 #include <mpc8260.h>
+#include <mpc8260_irq.h>
 #include <ioports.h>
 #include <i2c.h>
 #include <asm/iopin_8260.h>
@@ -32,15 +33,11 @@
 /* ------------------------------------------------------------------------- */
 
 /* imports from eeprom.c */
-extern int eeprom_load (unsigned, hymod_eeprom_t *);
-extern int eeprom_fetch (unsigned, char *, ulong);
-extern void eeprom_print (hymod_eeprom_t *);
+extern int hymod_eeprom_read (int, hymod_eeprom_t *);
+extern void hymod_eeprom_print (hymod_eeprom_t *);
 
-/* imports from fetch.c */
-extern int fetch_and_parse (char *, ulong, int (*)(uchar *, uchar *));
-
-/* imports from common/main.c */
-extern char console_buffer[CFG_CBSIZE];
+/* imports from env.c */
+extern void hymod_check_env (void);
 
 /* ------------------------------------------------------------------------- */
 
@@ -54,274 +51,152 @@ extern char console_buffer[CFG_CBSIZE];
 const iop_conf_t iop_conf_tab[4][32] = {
 
 	/* Port A configuration */
-	{							/*        conf ppar psor pdir podr pdat */
-									/* PA31 */ {1, 1, 1, 0, 0, 0},
-									/* FCC1 MII COL */
-									/* PA30 */ {1, 1, 1, 0, 0, 0},
-									/* FCC1 MII CRS */
-									/* PA29 */ {1, 1, 1, 1, 0, 0},
-									/* FCC1 MII TX_ER */
-									/* PA28 */ {1, 1, 1, 1, 0, 0},
-									/* FCC1 MII TX_EN */
-									/* PA27 */ {1, 1, 1, 0, 0, 0},
-									/* FCC1 MII RX_DV */
-									/* PA26 */ {1, 1, 1, 0, 0, 0},
-									/* FCC1 MII RX_ER */
-									/* PA25 */ {1, 0, 0, 1, 0, 0},
-									/* FCC2 MII MDIO */
-									/* PA24 */ {1, 0, 0, 1, 0, 0},
-									/* FCC2 MII MDC */
-									/* PA23 */ {1, 0, 0, 1, 0, 0},
-									/* FCC3 MII MDIO */
-									/* PA22 */ {1, 0, 0, 1, 0, 0},
-									/* FCC3 MII MDC */
-									/* PA21 */ {1, 1, 0, 1, 0, 0},
-									/* FCC1 MII TxD[3] */
-									/* PA20 */ {1, 1, 0, 1, 0, 0},
-									/* FCC1 MII TxD[2] */
-									/* PA19 */ {1, 1, 0, 1, 0, 0},
-									/* FCC1 MII TxD[1] */
-									/* PA18 */ {1, 1, 0, 1, 0, 0},
-									/* FCC1 MII TxD[0] */
-									/* PA17 */ {1, 1, 0, 0, 0, 0},
-									/* FCC1 MII RxD[3] */
-									/* PA16 */ {1, 1, 0, 0, 0, 0},
-									/* FCC1 MII RxD[2] */
-									/* PA15 */ {1, 1, 0, 0, 0, 0},
-									/* FCC1 MII RxD[1] */
-									/* PA14 */ {1, 1, 0, 0, 0, 0},
-									/* FCC1 MII RxD[0] */
-									/* PA13 */ {1, 0, 0, 1, 0, 0},
-									/* FCC1 MII MDIO */
-									/* PA12 */ {1, 0, 0, 1, 0, 0},
-									/* FCC1 MII MDC */
-									/* PA11 */ {1, 0, 0, 1, 0, 0},
-									/* SEL_CD */
-									/* PA10 */ {1, 0, 0, 0, 0, 0},
-									/* FLASH STS1 */
-									/* PA9  */ {1, 0, 0, 0, 0, 0},
-									/* FLASH STS0 */
-									/* PA8  */ {1, 0, 0, 0, 0, 0},
-									/* FLASH ~PE */
-									/* PA7  */ {1, 0, 0, 0, 0, 0},
-									/* WATCH ~HRESET */
-									/* PA6  */ {1, 0, 0, 0, 1, 0},
-									/* VC DONE */
-									/* PA5  */ {1, 0, 0, 1, 1, 0},
-									/* VC INIT */
-									/* PA4  */ {1, 0, 0, 1, 0, 0},
-									/* VC ~PROG */
-									/* PA3  */ {1, 0, 0, 1, 0, 0},
-									/* VM ENABLE */
-									/* PA2  */ {1, 0, 0, 0, 1, 0},
-									/* VM DONE */
-									/* PA1  */ {1, 0, 0, 1, 1, 0},
-									/* VM INIT */
-									/* PA0  */ {1, 0, 0, 1, 0, 0}
-									/* VM ~PROG */
-	 },
+	{
+		/* cnf par sor dir odr dat */
+		{   1,  1,  1,  0,  0,  0   },	/* PA31: FCC1 MII COL */
+		{   1,  1,  1,  0,  0,  0   },	/* PA30: FCC1 MII CRS */
+		{   1,  1,  1,  1,  0,  0   },	/* PA29: FCC1 MII TX_ER */
+		{   1,  1,  1,  1,  0,  0   },	/* PA28: FCC1 MII TX_EN */
+		{   1,  1,  1,  0,  0,  0   },	/* PA27: FCC1 MII RX_DV */
+		{   1,  1,  1,  0,  0,  0   },	/* PA26: FCC1 MII RX_ER */
+		{   1,  0,  0,  1,  0,  0   },	/* PA25: FCC2 MII MDIO */
+		{   1,  0,  0,  1,  0,  0   },	/* PA24: FCC2 MII MDC */
+		{   1,  0,  0,  1,  0,  0   },	/* PA23: FCC3 MII MDIO */
+		{   1,  0,  0,  1,  0,  0   },	/* PA22: FCC3 MII MDC */
+		{   1,  1,  0,  1,  0,  0   },	/* PA21: FCC1 MII TxD[3] */
+		{   1,  1,  0,  1,  0,  0   },	/* PA20: FCC1 MII TxD[2] */
+		{   1,  1,  0,  1,  0,  0   },	/* PA19: FCC1 MII TxD[1] */
+		{   1,  1,  0,  1,  0,  0   },	/* PA18: FCC1 MII TxD[0] */
+		{   1,  1,  0,  0,  0,  0   },	/* PA17: FCC1 MII RxD[3] */
+		{   1,  1,  0,  0,  0,  0   },	/* PA16: FCC1 MII RxD[2] */
+		{   1,  1,  0,  0,  0,  0   },	/* PA15: FCC1 MII RxD[1] */
+		{   1,  1,  0,  0,  0,  0   },	/* PA14: FCC1 MII RxD[0] */
+		{   1,  0,  0,  1,  0,  0   },	/* PA13: FCC1 MII MDIO */
+		{   1,  0,  0,  1,  0,  0   },	/* PA12: FCC1 MII MDC */
+		{   1,  0,  0,  1,  0,  0   },	/* PA11: SEL_CD */
+		{   1,  0,  0,  0,  0,  0   },	/* PA10: FLASH STS1 */
+		{   1,  0,  0,  0,  0,  0   },	/* PA09: FLASH STS0 */
+		{   1,  0,  0,  0,  0,  0   },	/* PA08: FLASH ~PE */
+		{   1,  0,  0,  0,  0,  0   },	/* PA07: WATCH ~HRESET */
+		{   1,  0,  0,  0,  1,  0   },	/* PA06: VC DONE */
+		{   1,  0,  0,  1,  1,  0   },	/* PA05: VC INIT */
+		{   1,  0,  0,  1,  0,  0   },	/* PA04: VC ~PROG */
+		{   1,  0,  0,  1,  0,  0   },	/* PA03: VM ENABLE */
+		{   1,  0,  0,  0,  1,  0   },	/* PA02: VM DONE */
+		{   1,  0,  0,  1,  1,  0   },	/* PA01: VM INIT */
+		{   1,  0,  0,  1,  0,  0   } 	/* PA00: VM ~PROG */
+	},
 
 	/* Port B configuration */
-	{							/*        conf ppar psor pdir podr pdat */
-									/* PB31 */ {1, 1, 0, 1, 0, 0},
-									/* FCC2 MII TX_ER */
-									/* PB30 */ {1, 1, 0, 0, 0, 0},
-									/* FCC2 MII RX_DV */
-									/* PB29 */ {1, 1, 1, 1, 0, 0},
-									/* FCC2 MII TX_EN */
-									/* PB28 */ {1, 1, 0, 0, 0, 0},
-									/* FCC2 MII RX_ER */
-									/* PB27 */ {1, 1, 0, 0, 0, 0},
-									/* FCC2 MII COL */
-									/* PB26 */ {1, 1, 0, 0, 0, 0},
-									/* FCC2 MII CRS */
-									/* PB25 */ {1, 1, 0, 1, 0, 0},
-									/* FCC2 MII TxD[3] */
-									/* PB24 */ {1, 1, 0, 1, 0, 0},
-									/* FCC2 MII TxD[2] */
-									/* PB23 */ {1, 1, 0, 1, 0, 0},
-									/* FCC2 MII TxD[1] */
-									/* PB22 */ {1, 1, 0, 1, 0, 0},
-									/* FCC2 MII TxD[0] */
-									/* PB21 */ {1, 1, 0, 0, 0, 0},
-									/* FCC2 MII RxD[0] */
-									/* PB20 */ {1, 1, 0, 0, 0, 0},
-									/* FCC2 MII RxD[1] */
-									/* PB19 */ {1, 1, 0, 0, 0, 0},
-									/* FCC2 MII RxD[2] */
-									/* PB18 */ {1, 1, 0, 0, 0, 0},
-									/* FCC2 MII RxD[3] */
-									/* PB17 */ {1, 1, 0, 0, 0, 0},
-									/* FCC3 MII RX_DV */
-									/* PB16 */ {1, 1, 0, 0, 0, 0},
-									/* FCC3 MII RX_ER */
-									/* PB15 */ {1, 1, 0, 1, 0, 0},
-									/* FCC3 MII TX_ER */
-									/* PB14 */ {1, 1, 0, 1, 0, 0},
-									/* FCC3 MII TX_EN */
-									/* PB13 */ {1, 1, 0, 0, 0, 0},
-									/* FCC3 MII COL */
-									/* PB12 */ {1, 1, 0, 0, 0, 0},
-									/* FCC3 MII CRS */
-									/* PB11 */ {1, 1, 0, 0, 0, 0},
-									/* FCC3 MII RxD[3] */
-									/* PB10 */ {1, 1, 0, 0, 0, 0},
-									/* FCC3 MII RxD[2] */
-									/* PB9  */ {1, 1, 0, 0, 0, 0},
-									/* FCC3 MII RxD[1] */
-									/* PB8  */ {1, 1, 0, 0, 0, 0},
-									/* FCC3 MII RxD[0] */
-									/* PB7  */ {1, 1, 0, 1, 0, 0},
-									/* FCC3 MII TxD[3] */
-									/* PB6  */ {1, 1, 0, 1, 0, 0},
-									/* FCC3 MII TxD[2] */
-									/* PB5  */ {1, 1, 0, 1, 0, 0},
-									/* FCC3 MII TxD[1] */
-									/* PB4  */ {1, 1, 0, 1, 0, 0},
-									/* FCC3 MII TxD[0] */
-									/* PB3  */ {0, 0, 0, 0, 0, 0},
-									/* pin doesn't exist */
-									/* PB2  */ {0, 0, 0, 0, 0, 0},
-									/* pin doesn't exist */
-									/* PB1  */ {0, 0, 0, 0, 0, 0},
-									/* pin doesn't exist */
-									/* PB0  */ {0, 0, 0, 0, 0, 0}
-									/* pin doesn't exist */
-	 },
+	{
+		/* cnf par sor dir odr dat */
+		{   1,  1,  0,  1,  0,  0   },	/* PB31: FCC2 MII TX_ER */
+		{   1,  1,  0,  0,  0,  0   },	/* PB30: FCC2 MII RX_DV */
+		{   1,  1,  1,  1,  0,  0   },	/* PB29: FCC2 MII TX_EN */
+		{   1,  1,  0,  0,  0,  0   },	/* PB28: FCC2 MII RX_ER */
+		{   1,  1,  0,  0,  0,  0   },	/* PB27: FCC2 MII COL */
+		{   1,  1,  0,  0,  0,  0   },	/* PB26: FCC2 MII CRS */
+		{   1,  1,  0,  1,  0,  0   },	/* PB25: FCC2 MII TxD[3] */
+		{   1,  1,  0,  1,  0,  0   },	/* PB24: FCC2 MII TxD[2] */
+		{   1,  1,  0,  1,  0,  0   },	/* PB23: FCC2 MII TxD[1] */
+		{   1,  1,  0,  1,  0,  0   },	/* PB22: FCC2 MII TxD[0] */
+		{   1,  1,  0,  0,  0,  0   },	/* PB21: FCC2 MII RxD[0] */
+		{   1,  1,  0,  0,  0,  0   },	/* PB20: FCC2 MII RxD[1] */
+		{   1,  1,  0,  0,  0,  0   },	/* PB19: FCC2 MII RxD[2] */
+		{   1,  1,  0,  0,  0,  0   },	/* PB18: FCC2 MII RxD[3] */
+		{   1,  1,  0,  0,  0,  0   },	/* PB17: FCC3 MII RX_DV */
+		{   1,  1,  0,  0,  0,  0   },	/* PB16: FCC3 MII RX_ER */
+		{   1,  1,  0,  1,  0,  0   },	/* PB15: FCC3 MII TX_ER */
+		{   1,  1,  0,  1,  0,  0   },	/* PB14: FCC3 MII TX_EN */
+		{   1,  1,  0,  0,  0,  0   },	/* PB13: FCC3 MII COL */
+		{   1,  1,  0,  0,  0,  0   },	/* PB12: FCC3 MII CRS */
+		{   1,  1,  0,  0,  0,  0   },	/* PB11: FCC3 MII RxD[3] */
+		{   1,  1,  0,  0,  0,  0   },	/* PB10: FCC3 MII RxD[2] */
+		{   1,  1,  0,  0,  0,  0   },	/* PB09: FCC3 MII RxD[1] */
+		{   1,  1,  0,  0,  0,  0   },	/* PB08: FCC3 MII RxD[0] */
+		{   1,  1,  0,  1,  0,  0   },	/* PB07: FCC3 MII TxD[3] */
+		{   1,  1,  0,  1,  0,  0   },	/* PB06: FCC3 MII TxD[2] */
+		{   1,  1,  0,  1,  0,  0   },	/* PB05: FCC3 MII TxD[1] */
+		{   1,  1,  0,  1,  0,  0   },	/* PB04: FCC3 MII TxD[0] */
+		{   0,  0,  0,  0,  0,  0   },	/* PB03: pin doesn't exist */
+		{   0,  0,  0,  0,  0,  0   },	/* PB02: pin doesn't exist */
+		{   0,  0,  0,  0,  0,  0   },	/* PB01: pin doesn't exist */
+		{   0,  0,  0,  0,  0,  0   }	/* PB00: pin doesn't exist */
+	},
 
-	/* Port C */
-	{							/*        conf ppar psor pdir podr pdat */
-									/* PC31 */ {1, 0, 0, 0, 0, 0},
-									/* MEZ ~IACK */
-	 /* PC30 */ {0, 0, 0, 0, 0, 0},
-									/* PC29 */ {1, 1, 0, 0, 0, 0},
-									/* CLK SCCx */
-									/* PC28 */ {1, 1, 0, 0, 0, 0},
-									/* CLK4 */
-									/* PC27 */ {1, 1, 0, 0, 0, 0},
-									/* CLK SCCF */
-									/* PC26 */ {1, 1, 0, 0, 0, 0},
-									/* CLK 32K */
-									/* PC25 */ {1, 1, 0, 0, 0, 0},
-									/* BRG4/CLK7 */
-	 /* PC24 */ {0, 0, 0, 0, 0, 0},
-									/* PC23 */ {1, 1, 0, 0, 0, 0},
-									/* CLK SCCx */
-									/* PC22 */ {1, 1, 0, 0, 0, 0},
-									/* FCC1 MII RX_CLK */
-									/* PC21 */ {1, 1, 0, 0, 0, 0},
-									/* FCC1 MII TX_CLK */
-									/* PC20 */ {1, 1, 0, 0, 0, 0},
-									/* CLK SCCF */
-									/* PC19 */ {1, 1, 0, 0, 0, 0},
-									/* FCC2 MII RX_CLK */
-									/* PC18 */ {1, 1, 0, 0, 0, 0},
-									/* FCC2 MII TX_CLK */
-									/* PC17 */ {1, 1, 0, 0, 0, 0},
-									/* FCC3 MII RX_CLK */
-									/* PC16 */ {1, 1, 0, 0, 0, 0},
-									/* FCC3 MII TX_CLK */
-									/* PC15 */ {1, 0, 0, 0, 0, 0},
-									/* SCC1 UART ~CTS */
-									/* PC14 */ {1, 0, 0, 0, 0, 0},
-									/* SCC1 UART ~CD */
-									/* PC13 */ {1, 0, 0, 0, 0, 0},
-									/* SCC2 UART ~CTS */
-									/* PC12 */ {1, 0, 0, 0, 0, 0},
-									/* SCC2 UART ~CD */
-									/* PC11 */ {1, 0, 0, 1, 0, 0},
-									/* SCC1 UART ~DTR */
-									/* PC10 */ {1, 0, 0, 1, 0, 0},
-									/* SCC1 UART ~DSR */
-									/* PC9  */ {1, 0, 0, 1, 0, 0},
-									/* SCC2 UART ~DTR */
-									/* PC8  */ {1, 0, 0, 1, 0, 0},
-									/* SCC2 UART ~DSR */
-									/* PC7  */ {1, 0, 0, 0, 0, 0},
-									/* TEMP ~ALERT */
-									/* PC6  */ {1, 0, 0, 0, 0, 0},
-									/* FCC3 INT */
-									/* PC5  */ {1, 0, 0, 0, 0, 0},
-									/* FCC2 INT */
-									/* PC4  */ {1, 0, 0, 0, 0, 0},
-									/* FCC1 INT */
-									/* PC3  */ {1, 1, 1, 1, 0, 0},
-									/* SDMA IDMA2 ~DACK */
-									/* PC2  */ {1, 1, 1, 0, 0, 0},
-									/* SDMA IDMA2 ~DONE */
-									/* PC1  */ {1, 1, 0, 0, 0, 0},
-									/* SDMA IDMA2 ~DREQ */
-									/* PC0  */ {1, 1, 0, 1, 0, 0}
-									/* BRG7 */
-	 },
+	/* Port C configuration */
+	{
+		/* cnf par sor dir odr dat */
+		{   1,  0,  0,  0,  0,  0   },	/* PC31: MEZ ~IACK */
+		{   0,  0,  0,  0,  0,  0   },	/* PC30: ? */
+		{   1,  1,  0,  0,  0,  0   },	/* PC29: CLK SCCx */
+		{   1,  1,  0,  0,  0,  0   },	/* PC28: CLK4 */
+		{   1,  1,  0,  0,  0,  0   },	/* PC27: CLK SCCF */
+		{   1,  1,  0,  0,  0,  0   },	/* PC26: CLK 32K */
+		{   1,  1,  0,  0,  0,  0   },	/* PC25: BRG4/CLK7 */
+		{   0,  0,  0,  0,  0,  0   },	/* PC24: ? */
+		{   1,  1,  0,  0,  0,  0   },	/* PC23: CLK SCCx */
+		{   1,  1,  0,  0,  0,  0   },	/* PC22: FCC1 MII RX_CLK */
+		{   1,  1,  0,  0,  0,  0   },	/* PC21: FCC1 MII TX_CLK */
+		{   1,  1,  0,  0,  0,  0   },	/* PC20: CLK SCCF */
+		{   1,  1,  0,  0,  0,  0   },	/* PC19: FCC2 MII RX_CLK */
+		{   1,  1,  0,  0,  0,  0   },	/* PC18: FCC2 MII TX_CLK */
+		{   1,  1,  0,  0,  0,  0   },	/* PC17: FCC3 MII RX_CLK */
+		{   1,  1,  0,  0,  0,  0   },	/* PC16: FCC3 MII TX_CLK */
+		{   1,  0,  0,  0,  0,  0   },	/* PC15: SCC1 UART ~CTS */
+		{   1,  0,  0,  0,  0,  0   },	/* PC14: SCC1 UART ~CD */
+		{   1,  0,  0,  0,  0,  0   },	/* PC13: SCC2 UART ~CTS */
+		{   1,  0,  0,  0,  0,  0   },	/* PC12: SCC2 UART ~CD */
+		{   1,  0,  0,  1,  0,  0   },	/* PC11: SCC1 UART ~DTR */
+		{   1,  0,  0,  1,  0,  0   },	/* PC10: SCC1 UART ~DSR */
+		{   1,  0,  0,  1,  0,  0   },	/* PC09: SCC2 UART ~DTR */
+		{   1,  0,  0,  1,  0,  0   },	/* PC08: SCC2 UART ~DSR */
+		{   1,  0,  0,  0,  0,  0   },	/* PC07: TEMP ~ALERT */
+		{   1,  0,  0,  0,  0,  0   },	/* PC06: FCC3 INT */
+		{   1,  0,  0,  0,  0,  0   },	/* PC05: FCC2 INT */
+		{   1,  0,  0,  0,  0,  0   },	/* PC04: FCC1 INT */
+		{   0,  1,  1,  1,  0,  0   },	/* PC03: SDMA IDMA2 ~DACK */
+		{   0,  1,  1,  0,  0,  0   },	/* PC02: SDMA IDMA2 ~DONE */
+		{   0,  1,  0,  0,  0,  0   },	/* PC01: SDMA IDMA2 ~DREQ */
+		{   1,  1,  0,  1,  0,  0   }	/* PC00: BRG7 */
+	},
 
-	/* Port D */
-	{							/*        conf ppar psor pdir podr pdat */
-									/* PD31 */ {1, 1, 0, 0, 0, 0},
-									/* SCC1 UART RxD */
-									/* PD30 */ {1, 1, 1, 1, 0, 0},
-									/* SCC1 UART TxD */
-									/* PD29 */ {1, 0, 0, 1, 0, 0},
-									/* SCC1 UART ~RTS */
-									/* PD28 */ {1, 1, 0, 0, 0, 0},
-									/* SCC2 UART RxD */
-									/* PD27 */ {1, 1, 0, 1, 0, 0},
-									/* SCC2 UART TxD */
-									/* PD26 */ {1, 0, 0, 1, 0, 0},
-									/* SCC2 UART ~RTS */
-									/* PD25 */ {1, 0, 0, 0, 0, 0},
-									/* SCC1 UART ~RI */
-									/* PD24 */ {1, 0, 0, 0, 0, 0},
-									/* SCC2 UART ~RI */
-									/* PD23 */ {1, 0, 0, 1, 0, 0},
-									/* CLKGEN PD */
-									/* PD22 */ {1, 0, 0, 0, 0, 0},
-									/* USER3 */
-									/* PD21 */ {1, 0, 0, 0, 0, 0},
-									/* USER2 */
-									/* PD20 */ {1, 0, 0, 0, 0, 0},
-									/* USER1 */
-									/* PD19 */ {1, 1, 1, 0, 0, 0},
-									/* SPI ~SEL */
-									/* PD18 */ {1, 1, 1, 0, 0, 0},
-									/* SPI CLK */
-									/* PD17 */ {1, 1, 1, 0, 0, 0},
-									/* SPI MOSI */
-									/* PD16 */ {1, 1, 1, 0, 0, 0},
-									/* SPI MISO */
-									/* PD15 */ {1, 1, 1, 0, 1, 0},
-									/* I2C SDA */
-									/* PD14 */ {1, 1, 1, 0, 1, 0},
-									/* I2C SCL */
-									/* PD13 */ {1, 0, 0, 1, 0, 1},
-									/* TEMP ~STDBY */
-									/* PD12 */ {1, 0, 0, 1, 0, 1},
-									/* FCC3 ~RESET */
-									/* PD11 */ {1, 0, 0, 1, 0, 1},
-									/* FCC2 ~RESET */
-									/* PD10 */ {1, 0, 0, 1, 0, 1},
-									/* FCC1 ~RESET */
-									/* PD9  */ {1, 0, 0, 0, 0, 0},
-									/* PD9 */
-									/* PD8  */ {1, 0, 0, 0, 0, 0},
-									/* PD8 */
-									/* PD7  */ {1, 0, 0, 1, 0, 1},
-									/* PD7 */
-									/* PD6  */ {1, 0, 0, 1, 0, 1},
-									/* PD6 */
-									/* PD5  */ {1, 0, 0, 1, 0, 1},
-									/* PD5 */
-									/* PD4  */ {1, 0, 0, 1, 0, 1},
-									/* PD4 */
-									/* PD3  */ {0, 0, 0, 0, 0, 0},
-									/* pin doesn't exist */
-									/* PD2  */ {0, 0, 0, 0, 0, 0},
-									/* pin doesn't exist */
-									/* PD1  */ {0, 0, 0, 0, 0, 0},
-									/* pin doesn't exist */
-									/* PD0  */ {0, 0, 0, 0, 0, 0}
-									/* pin doesn't exist */
-	 }
+	/* Port D configuration */
+	{
+		/* cnf par sor dir odr dat */
+		{   1,  1,  0,  0,  0,  0   },	/* PD31: SCC1 UART RxD */
+		{   1,  1,  1,  1,  0,  0   },	/* PD30: SCC1 UART TxD */
+		{   1,  0,  0,  1,  0,  0   },	/* PD29: SCC1 UART ~RTS */
+		{   1,  1,  0,  0,  0,  0   },	/* PD28: SCC2 UART RxD */
+		{   1,  1,  0,  1,  0,  0   },	/* PD27: SCC2 UART TxD */
+		{   1,  0,  0,  1,  0,  0   },	/* PD26: SCC2 UART ~RTS */
+		{   1,  0,  0,  0,  0,  0   },	/* PD25: SCC1 UART ~RI */
+		{   1,  0,  0,  0,  0,  0   },	/* PD24: SCC2 UART ~RI */
+		{   1,  0,  0,  1,  0,  0   },	/* PD23: CLKGEN PD */
+		{   1,  0,  0,  0,  0,  0   },	/* PD22: USER3 */
+		{   1,  0,  0,  0,  0,  0   },	/* PD21: USER2 */
+		{   1,  0,  0,  0,  0,  0   },	/* PD20: USER1 */
+		{   1,  1,  1,  0,  0,  0   },	/* PD19: SPI ~SEL */
+		{   1,  1,  1,  0,  0,  0   },	/* PD18: SPI CLK */
+		{   1,  1,  1,  0,  0,  0   },	/* PD17: SPI MOSI */
+		{   1,  1,  1,  0,  0,  0   },	/* PD16: SPI MISO */
+		{   1,  1,  1,  0,  1,  0   },	/* PD15: I2C SDA */
+		{   1,  1,  1,  0,  1,  0   },	/* PD14: I2C SCL */
+		{   1,  0,  0,  1,  0,  1   },	/* PD13: TEMP ~STDBY */
+		{   1,  0,  0,  1,  0,  1   },	/* PD12: FCC3 ~RESET */
+		{   1,  0,  0,  1,  0,  1   },	/* PD11: FCC2 ~RESET */
+		{   1,  0,  0,  1,  0,  1   },	/* PD10: FCC1 ~RESET */
+		{   1,  0,  0,  0,  0,  0   },	/* PD09: PD9 */
+		{   1,  0,  0,  0,  0,  0   },	/* PD08: PD8 */
+		{   1,  0,  0,  1,  0,  1   },	/* PD07: PD7 */
+		{   1,  0,  0,  1,  0,  1   },	/* PD06: PD6 */
+		{   1,  0,  0,  1,  0,  1   },	/* PD05: PD5 */
+		{   1,  0,  0,  1,  0,  1   },	/* PD04: PD4 */
+		{   0,  0,  0,  0,  0,  0   },	/* PD03: pin doesn't exist */
+		{   0,  0,  0,  0,  0,  0   },	/* PD02: pin doesn't exist */
+		{   0,  0,  0,  0,  0,  0   },	/* PD01: pin doesn't exist */
+		{   0,  0,  0,  0,  0,  0   }	/* PD00: pin doesn't exist */
+	}
 };
 
 /* ------------------------------------------------------------------------- */
@@ -334,16 +209,35 @@ const iop_conf_t iop_conf_tab[4][32] = {
  *
  * the data is written to the FS6377 via the i2c bus using address in
  * "fs6377_addr" (address is 7 bits - R/W bit not included).
+ *
+ * The fs6377 has four clock outputs: A, B, C and D.
+ *
+ * Outputs C and D can each provide two different clock outputs C1/D1 or
+ * C2/D2 depending on the state of the SEL_CD input which is connected to
+ * the MPC8260 I/O port pin PA11. PA11 output (SEL_CD input) low (or 0)
+ * selects C1/D1 and PA11 output (SEL_CD input) high (or 1) selects C2/D2.
+ *
+ * PA11 defaults to output low (or 0) in the i/o port config table above.
+ *
+ * Output A provides a 100MHz for the High Speed Serial chips. Output B
+ * provides a 3.6864MHz clock for more accurate asynchronous serial bit
+ * rates. Output C is routed to the mezzanine connector but is currently
+ * unused - both C1 and C2 are set to 16MHz. Output D is used by both the
+ * alt-input and display mezzanine boards for their video chips. The
+ * alt-input board requires a clock of 24.576MHz and this is available on
+ * D1 (PA11=SEL_CD=0). The display board requires a clock of 27MHz and this
+ * is available on D2 (PA11=SEL_CD=1).
+ *
+ * So the default is a clock suitable for the alt-input board. PA11 is toggled
+ * later in misc_init_r(), if a display board is detected.
  */
 
 uchar fs6377_addr = 0x5c;
 
 uchar fs6377_regs[16] = {
-	12, 75, 64, 25, 144, 128, 25, 192,
-	0, 16, 135, 192, 224, 64, 64, 192
+	 12,  75,  64,  25, 144, 128,  25, 192,
+	  0,  16, 135, 192, 224,  64,  64, 192
 };
-
-iopin_t pa11 = { IOPIN_PORTA, 11, 0 };
 
 /* ------------------------------------------------------------------------- */
 
@@ -356,7 +250,8 @@ iopin_t pa11 = { IOPIN_PORTA, 11, 0 };
  * the timebase, for udelay())
  */
 
-int board_postclk_init (void)
+int
+board_postclk_init (void)
 {
 	i2c_init (CFG_I2C_SPEED, CFG_I2C_SLAVE);
 
@@ -371,7 +266,7 @@ int board_postclk_init (void)
 	 * if this doesn't work
 	 */
 	(void) i2c_write (fs6377_addr, 0, 1, fs6377_regs,
-					  sizeof (fs6377_regs));
+					sizeof (fs6377_regs));
 
 	return (0);
 }
@@ -382,7 +277,8 @@ int board_postclk_init (void)
  * Check Board Identity: Hardwired to HYMOD
  */
 
-int checkboard (void)
+int
+checkboard (void)
 {
 	puts ("Board: HYMOD\n");
 	return (0);
@@ -446,7 +342,8 @@ uint upmc_table[] = {
 	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_
 };
 
-int misc_init_f (void)
+int
+misc_init_f (void)
 {
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile memctl8260_t *memctl = &immap->im_memctl;
@@ -465,7 +362,8 @@ int misc_init_f (void)
 
 /* ------------------------------------------------------------------------- */
 
-long initdram (int board_type)
+long
+initdram (int board_type)
 {
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile memctl8260_t *memctl = &immap->im_memctl;
@@ -523,280 +421,95 @@ long initdram (int board_type)
 /* containing information to be stored in the eeprom from the tftp server    */
 /* (the file name is based on the serial number and a built-in path)	     */
 
-/* these are relative to the root of the server's tftp directory */
-static char *bddb_cfgdir = "/hymod/bddb";
-static char *global_env_path = "/hymod/global_env";
-
-static ulong get_serno (const char *prompt)
-{
-	for (;;) {
-		int n;
-		char *p;
-		ulong serno;
-
-		n = readline (prompt);
-
-		if (n < 0)
-			return (0);
-
-		if (n == 0)
-			continue;
-
-		serno = simple_strtol (console_buffer, &p, 10);
-
-		if (p > console_buffer && *p == '\0')
-			return (serno);
-
-		printf ("Invalid number (%s) - please re-enter\n", console_buffer);
-	}
-}
-
-static int read_eeprom (char *label, unsigned offset, hymod_eeprom_t * ep)
-{
-	char filename[50], prompt[50];
-	ulong serno;
-	int count = 0;
-
-	sprintf (prompt, "Enter %s board serial number: ", label);
-
-	for (;;) {
-
-		if (eeprom_load (offset, ep))
-			return (1);
-
-		printf ("*** %s board EEPROM contents are %sinvalid\n",
-				label, count == 0 ? "" : "STILL ");
-
-		puts ("*** will attempt to fetch from server (Ctrl-C to abort)\n");
-
-		if ((serno = get_serno (prompt)) == 0) {
-			puts ("\n*** interrupted! - ignoring eeprom contents\n");
-			return (0);
-		}
-
-		sprintf (filename, "%s/%010lu.cfg", bddb_cfgdir, serno);
-
-		printf ("*** fetching %s board EEPROM contents from server\n",
-				label);
-
-		if (eeprom_fetch (offset, filename, 0x100000) == 0) {
-			puts ("*** fetch failed - ignoring eeprom contents\n");
-			return (0);
-		}
-
-		count++;
-	}
-}
-
-static ulong main_serno;
-
-static int env_fetch_callback (uchar * name, uchar * value)
-{
-	char *ov, nv[CFG_CBSIZE], *p, *q, *nn;
-	int override = 1, append = 0, nl;
-
-	nn = name;
-	if (*nn == '-') {
-		override = 0;
-		nn++;
-	}
-
-	if ((nl = strlen (nn)) > 0 && nn[nl - 1] == '+') {
-		append = 1;
-		nn[--nl] = '\0';
-	}
-
-	p = value;
-	q = nv;
-
-	while ((*q = *p++) != '\0')
-		if (*q == '%') {
-			switch (*p++) {
-
-			case '\0':			/* whoops - back up */
-				p--;
-				break;
-
-			case '%':			/* a single percent character */
-				q++;
-				break;
-
-			case 's':			/* main board serial number as string */
-				q += sprintf (q, "%010lu", main_serno);
-				break;
-
-			case 'S':			/* main board serial number as number */
-				q += sprintf (q, "%lu", main_serno);
-				break;
-
-			default:			/* ignore any others */
-				break;
-			}
-		} else
-			q++;
-
-	if ((ov = getenv (nn)) != NULL) {
-
-		if (append) {
-
-			if (strstr (ov, nv) == NULL) {
-				int ovl, nvl;
-
-				printf ("Appending '%s' to env cmd '%s'\n", nv, nn);
-
-				ovl = strlen (ov);
-				nvl = strlen (nv);
-
-				while (nvl >= 0) {
-					nv[ovl + 1 + nvl] = nv[nvl];
-					nvl--;
-				}
-
-				nv[ovl] = ' ';
-
-				while (--ovl >= 0)
-					nv[ovl] = ov[ovl];
-
-				setenv (nn, nv);
-			}
-
-			return (1);
-		}
-
-		if (!override || strcmp (ov, nv) == 0)
-			return (1);
-
-		printf ("Re-setting env cmd '%s' from '%s' to '%s'\n", nn, ov, nv);
-	} else
-		printf ("Setting env cmd '%s' to '%s'\n", nn, nv);
-
-	setenv (nn, nv);
-	return (1);
-}
-
-int misc_init_r (void)
+int
+last_stage_init (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
 	hymod_conf_t *cp = &gd->bd->bi_hymod_conf;
 	int rc;
 
+#ifdef CONFIG_BOOT_RETRY_TIME
+	/*
+	 * we use the readline () function, but we also want
+	 * command timeout enabled
+	 */
+	init_cmd_timeout ();
+#endif
+
 	memset ((void *) cp, 0, sizeof (*cp));
 
 	/* set up main board config info */
 
-	if (i2c_probe (CFG_I2C_EEPROM_ADDR | HYMOD_EEOFF_MAIN)) {
+	rc = hymod_eeprom_read (0, &cp->main.eeprom);
 
-		if (read_eeprom
-			("main", HYMOD_EEOFF_MAIN << 8, &cp->main.eeprom))
-			cp->main.eeprom_valid = 1;
+	puts ("EEPROM:main...");
+	if (rc < 0)
+		puts ("NOT PRESENT\n");
+	else if (rc == 0)
+		puts ("INVALID\n");
+	else {
+		cp->main.eeprom.valid = 1;
 
-		puts ("EEPROM:main...");
+		printf ("OK (ver %u)\n", cp->main.eeprom.ver);
+		hymod_eeprom_print (&cp->main.eeprom);
 
-		if (cp->main.eeprom_valid) {
-			printf ("OK (ver %u)\n", cp->main.eeprom.ver);
-			eeprom_print (&cp->main.eeprom);
-			main_serno = cp->main.eeprom.serno;
-		} else
-			puts ("BAD\n");
+		/*
+		 * hard-wired assumption here: all hymod main boards will have
+		 * one xilinx fpga, with the interrupt line connected to IRQ2
+		 *
+		 * One day, this might be based on the board type
+		 */
 
-		cp->main.mmap[0].prog.exists = 1;
-		cp->main.mmap[0].prog.size = FPGA_MAIN_CFG_SIZE;
-		cp->main.mmap[0].prog.base = FPGA_MAIN_CFG_BASE;
+		cp->main.xlx[0].mmap.prog.exists = 1;
+		cp->main.xlx[0].mmap.prog.size = FPGA_MAIN_CFG_SIZE;
+		cp->main.xlx[0].mmap.prog.base = FPGA_MAIN_CFG_BASE;
 
-		cp->main.mmap[0].reg.exists = 1;
-		cp->main.mmap[0].reg.size = FPGA_MAIN_REG_SIZE;
-		cp->main.mmap[0].reg.base = FPGA_MAIN_REG_BASE;
+		cp->main.xlx[0].mmap.reg.exists = 1;
+		cp->main.xlx[0].mmap.reg.size = FPGA_MAIN_REG_SIZE;
+		cp->main.xlx[0].mmap.reg.base = FPGA_MAIN_REG_BASE;
 
-		cp->main.mmap[0].port.exists = 1;
-		cp->main.mmap[0].port.size = FPGA_MAIN_PORT_SIZE;
-		cp->main.mmap[0].port.base = FPGA_MAIN_PORT_BASE;
+		cp->main.xlx[0].mmap.port.exists = 1;
+		cp->main.xlx[0].mmap.port.size = FPGA_MAIN_PORT_SIZE;
+		cp->main.xlx[0].mmap.port.base = FPGA_MAIN_PORT_BASE;
 
-		cp->main.iopins[0].prog_pin.port = FPGA_MAIN_PROG_PORT;
-		cp->main.iopins[0].prog_pin.pin = FPGA_MAIN_PROG_PIN;
-		cp->main.iopins[0].prog_pin.flag = 1;
-		cp->main.iopins[0].init_pin.port = FPGA_MAIN_INIT_PORT;
-		cp->main.iopins[0].init_pin.pin = FPGA_MAIN_INIT_PIN;
-		cp->main.iopins[0].init_pin.flag = 1;
-		cp->main.iopins[0].done_pin.port = FPGA_MAIN_DONE_PORT;
-		cp->main.iopins[0].done_pin.pin = FPGA_MAIN_DONE_PIN;
-		cp->main.iopins[0].done_pin.flag = 1;
+		cp->main.xlx[0].iopins.prog_pin.port = FPGA_MAIN_PROG_PORT;
+		cp->main.xlx[0].iopins.prog_pin.pin = FPGA_MAIN_PROG_PIN;
+		cp->main.xlx[0].iopins.prog_pin.flag = 1;
+		cp->main.xlx[0].iopins.init_pin.port = FPGA_MAIN_INIT_PORT;
+		cp->main.xlx[0].iopins.init_pin.pin = FPGA_MAIN_INIT_PIN;
+		cp->main.xlx[0].iopins.init_pin.flag = 1;
+		cp->main.xlx[0].iopins.done_pin.port = FPGA_MAIN_DONE_PORT;
+		cp->main.xlx[0].iopins.done_pin.pin = FPGA_MAIN_DONE_PIN;
+		cp->main.xlx[0].iopins.done_pin.flag = 1;
 #ifdef FPGA_MAIN_ENABLE_PORT
-		cp->main.iopins[0].enable_pin.port = FPGA_MAIN_ENABLE_PORT;
-		cp->main.iopins[0].enable_pin.pin = FPGA_MAIN_ENABLE_PIN;
-		cp->main.iopins[0].enable_pin.flag = 1;
+		cp->main.xlx[0].iopins.enable_pin.port = FPGA_MAIN_ENABLE_PORT;
+		cp->main.xlx[0].iopins.enable_pin.pin = FPGA_MAIN_ENABLE_PIN;
+		cp->main.xlx[0].iopins.enable_pin.flag = 1;
 #endif
-	} else
-		puts ("EEPROM:main...NOT PRESENT\n");
+
+		cp->main.xlx[0].irq = FPGA_MAIN_IRQ;
+	}
 
 	/* set up mezzanine board config info */
 
-	if (i2c_probe (CFG_I2C_EEPROM_ADDR | HYMOD_EEOFF_MEZZ)) {
+	rc = hymod_eeprom_read (1, &cp->mezz.eeprom);
 
-		if (read_eeprom
-			("mezz", HYMOD_EEOFF_MEZZ << 8, &cp->mezz.eeprom))
-			cp->mezz.eeprom_valid = 1;
+	puts ("EEPROM:mezz...");
+	if (rc < 0)
+		puts ("NOT PRESENT\n");
+	else if (rc == 0)
+		puts ("INVALID\n");
+	else {
+		cp->main.eeprom.valid = 1;
 
-		puts ("EEPROM:mezz...");
-
-		if (cp->mezz.eeprom_valid) {
-			printf ("OK (ver %u)\n", cp->mezz.eeprom.ver);
-			eeprom_print (&cp->mezz.eeprom);
-		} else
-			puts ("BAD\n");
-
-		cp->mezz.mmap[0].prog.exists = 1;
-		cp->mezz.mmap[0].prog.size = FPGA_MEZZ_CFG_SIZE;
-		cp->mezz.mmap[0].prog.base = FPGA_MEZZ_CFG_BASE;
-
-		cp->mezz.mmap[0].reg.exists = 0;
-
-		cp->mezz.mmap[0].port.exists = 0;
-
-		cp->mezz.iopins[0].prog_pin.port = FPGA_MEZZ_PROG_PORT;
-		cp->mezz.iopins[0].prog_pin.pin = FPGA_MEZZ_PROG_PIN;
-		cp->mezz.iopins[0].prog_pin.flag = 1;
-		cp->mezz.iopins[0].init_pin.port = FPGA_MEZZ_INIT_PORT;
-		cp->mezz.iopins[0].init_pin.pin = FPGA_MEZZ_INIT_PIN;
-		cp->mezz.iopins[0].init_pin.flag = 1;
-		cp->mezz.iopins[0].done_pin.port = FPGA_MEZZ_DONE_PORT;
-		cp->mezz.iopins[0].done_pin.pin = FPGA_MEZZ_DONE_PIN;
-		cp->mezz.iopins[0].done_pin.flag = 1;
-#ifdef FPGA_MEZZ_ENABLE_PORT
-		cp->mezz.iopins[0].enable_pin.port = FPGA_MEZZ_ENABLE_PORT;
-		cp->mezz.iopins[0].enable_pin.pin = FPGA_MEZZ_ENABLE_PIN;
-		cp->mezz.iopins[0].enable_pin.flag = 1;
-#endif
-
-		if (cp->mezz.eeprom_valid &&
-			cp->mezz.eeprom.bdtype == HYMOD_BDTYPE_DISPLAY) {
-			/*
-			 * mezzanine board is a display board - switch the SEL_CD
-			 * input of the FS6377 clock generator (via I/O Port Pin PA11) to
-			 * high (or 1) to select the 27MHz required by the display board
-			 */
-			iopin_set_high (&pa11);
-
-			puts ("SEL_CD:toggled for display board\n");
-		}
-	} else
-		puts ("EEPROM:mezz...NOT PRESENT\n");
-
-	cp->crc =
-			crc32 (0, (unsigned char *) cp, offsetof (hymod_conf_t, crc));
-
-	if (getenv ("global_env_loaded") == NULL) {
-
-		puts ("*** global environment has not been loaded\n");
-		puts ("*** fetching from server (Control-C to Abort)\n");
-
-		rc = fetch_and_parse (global_env_path, 0x100000,
-							  env_fetch_callback);
-
-		if (rc == 0)
-			puts ("*** Fetch of environment failed!\n");
-		else
-			setenv ("global_env_loaded", "yes");
+		printf ("OK (ver %u)\n", cp->mezz.eeprom.ver);
+		hymod_eeprom_print (&cp->mezz.eeprom);
 	}
+
+	cp->crc = crc32 (0, (unsigned char *)cp, offsetof (hymod_conf_t, crc));
+
+	hymod_check_env ();
+
 	return (0);
 }

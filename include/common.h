@@ -52,7 +52,7 @@ typedef volatile unsigned char	vu_char;
 #include <ppc4xx.h>
 #endif
 #ifdef CONFIG_HYMOD
-#include <asm/hymod.h>
+#include <board/hymod/hymod.h>
 #endif
 #ifdef CONFIG_ARM
 #define asmlinkage	/* nothing */
@@ -131,6 +131,7 @@ void	print_size (ulong, const char *);
 void	main_loop	(void);
 int	run_command	(const char *cmd, int flag);
 int	readline	(const char *const prompt);
+void	init_cmd_timeout(void);
 void	reset_cmd_timeout(void);
 
 /* common/board.c */
@@ -195,6 +196,9 @@ void    fdc_hw_init   (void);
 
 /* $(BOARD)/eeprom.c */
 void eeprom_init  (void);
+#ifndef CONFIG_SPI
+int  eeprom_probe (unsigned dev_addr, unsigned offset);
+#endif
 int  eeprom_read  (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt);
 int  eeprom_write (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt);
 #ifdef CONFIG_LWMON
@@ -437,6 +441,7 @@ int	tstc(void);
 void	putc(const char c);
 void	puts(const char *s);
 void	printf(const char *fmt, ...);
+void	vprintf(const char *fmt, va_list args);
 
 /* stderr */
 #define eputc(c)		fputc(stderr, c)

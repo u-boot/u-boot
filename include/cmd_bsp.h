@@ -168,14 +168,20 @@ int do_pci9054 (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 	"    address spaces appear in the physical address space\n"	\
 ), MK_CMD_TBL_ENTRY(							\
 	"eeclear", 4,	1,	0,	do_eecl,			\
-	"eeclear - Clear the eeprom on a Hymod board \n",		\
+	"eeclear - Clear the eeprom on a Hymod board\n",		\
 	"[type]\n"							\
 	"  - write zeroes into the EEPROM on the board of type `type'\n"\
 	"    (`type' is either `main' or `mezz' - default `main')\n"	\
 	"    Note: the EEPROM write enable jumper must be installed\n"	\
+), MK_CMD_TBL_ENTRY(							\
+	"htest", 5,	1,	0,	do_htest,			\
+	"htest   - run HYMOD tests\n",					\
+	NULL								\
 ),
+
 int do_fpga (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 int do_eecl (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+int do_htest(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 #endif	/* CONFIG_HYMOD */
 /* --------------------------------------------------------------------	*/

@@ -2,6 +2,41 @@
 Changes since U-Boot 0.3.1:
 ======================================================================
 
+* Patches by Murray Jensen, 17 Jun 2003:
+  - Hymod board database mods: add "who" field and new xilinx chip types
+  - provide new "init_cmd_timeout()" function so code external to
+    "common/main.c" can use the "reset_cmd_timeout()" function before
+    entering the main loop
+  - add DTT support for adm1021 (new file dtt/adm1021.c; config
+    slightly different. see include/configs/hymod.h for an example
+    (requires CONFIG_DTT_ADM1021, CONFIG_DTT_SENSORS, and
+    CFG_DTT_ADM1021 defined)
+  - add new "eeprom_probe()" function which has similar args and
+    behaves in a similar way to "eeprom_read()" etc.
+  - add 8260 FCC ethernet loopback code (new "eth_loopback_test()"
+    function which is enabled by defining CONFIG_ETHER_LOOPBACK_TEST)
+  - gdbtools copyright update
+  - ensure that set_msr() executes the "sync" and "isync" instructions
+    after the "mtmsr" instruction in cpu/mpc8260/interrupts.c
+  - 8260 I/O ports fix: Open Drain should be set last when configuring
+  - add SIU IRQ defines for 8260
+  - allow LDSCRIPT override and OBJCFLAGS initialization: change to
+    config.mk to allow board configurations to override the GNU
+    linker script, selected via the LDSCRIPT, make variable, and to
+    give an initial value to the OBJCFLAGS make variable
+  - 8260 i2c enhancement:
+    o correctly extends the timeout depending on the size of all
+      queued messages for both transmit and receive
+    o will not continue with receive if transmit times out
+    o ensures that the error callback is done for all queued tx
+      and rx messages
+    o correctly detects both tx and rx timeouts, only delivers one to
+      the callback, and does not overwrite an earlier error
+    o logic in i2c_probe now correct
+  - add "vprintf()" function so that "panic()" function can be
+    technically correct
+  - many Hymod board changes
+
 * Patches by Robert Schwebel, 14 Jun 2003:
   - add support for Logotronic DL datalogger board
   - cleanup serial line after kermit binary download

@@ -155,7 +155,7 @@ static __inline__ unsigned long get_msr (void)
 
 static __inline__ void set_msr (unsigned long msr)
 {
-	__asm__ __volatile__ ("mtmsr %0"::"r" (msr));
+	__asm__ __volatile__ ("mtmsr %0;sync;isync"::"r" (msr));
 }
 
 static __inline__ unsigned long get_dec (void)
@@ -207,6 +207,14 @@ int interrupt_init (void)
 	immr->im_intctl.ic_simrl = ppc_cached_irq_mask[1] = 0;
 	immr->im_intctl.ic_sipnrh = 0xffffffff;
 	immr->im_intctl.ic_sipnrl = 0xffffffff;
+
+#ifdef CONFIG_HYMOD
+	/*
+	 * ensure all external interrupt sources default to trigger on
+	 * high-to-low transition (i.e. edge triggered active low)
+	 */
+	immr->im_intctl.ic_siexr = -1;
+#endif
 
 	set_dec (decrementer_count);
 

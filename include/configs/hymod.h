@@ -73,6 +73,9 @@
 #define	CONFIG_ETHER_ON_FCC		/* define if ether on FCC	*/
 #undef	CONFIG_ETHER_NONE		/* define if ether on something else */
 #define CONFIG_ETHER_INDEX	1	/* which channel for ether	*/
+#define CONFIG_ETHER_LOOPBACK_TEST	/* add ether external loopback test */
+
+#ifdef CONFIG_ETHER_ON_FCC
 
 #if (CONFIG_ETHER_INDEX == 1)
 
@@ -87,6 +90,10 @@
 # define CFG_CPMFCR_RAMTYPE	0
 # define CFG_FCC_PSMR		(FCC_PSMR_FDE|FCC_PSMR_LPB)
 
+# define MDIO_PORT		0		/* Port A */
+# define MDIO_DATA_PINMASK	0x00040000	/* Pin 13 */
+# define MDIO_CLCK_PINMASK	0x00080000	/* Pin 12 */
+
 #elif (CONFIG_ETHER_INDEX == 2)
 
 /*
@@ -99,6 +106,10 @@
 # define CFG_CMXFCR_VALUE	(CMXFCR_RF2CS_CLK13|CMXFCR_TF2CS_CLK14)
 # define CFG_CPMFCR_RAMTYPE	0
 # define CFG_FCC_PSMR		(FCC_PSMR_FDE|FCC_PSMR_LPB)
+
+# define MDIO_PORT		0		/* Port A */
+# define MDIO_DATA_PINMASK	0x00000040	/* Pin 25 */
+# define MDIO_CLCK_PINMASK	0x00000080	/* Pin 24 */
 
 #elif (CONFIG_ETHER_INDEX == 3)
 
@@ -113,11 +124,33 @@
 # define CFG_CPMFCR_RAMTYPE	0
 # define CFG_FCC_PSMR		(FCC_PSMR_FDE|FCC_PSMR_LPB)
 
+# define MDIO_PORT		0		/* Port A */
+# define MDIO_DATA_PINMASK	0x00000100	/* Pin 23 */
+# define MDIO_CLCK_PINMASK	0x00000200	/* Pin 22 */
+
 #endif	/* CONFIG_ETHER_INDEX */
+
+#define CONFIG_MII			/* MII PHY management	*/
+#define CONFIG_BITBANGMII		/* bit-bang MII PHY management	*/
+
+#define MDIO_ACTIVE	(iop->pdir |=  MDIO_DATA_PINMASK)
+#define MDIO_TRISTATE	(iop->pdir &= ~MDIO_DATA_PINMASK)
+#define MDIO_READ	((iop->pdat &  MDIO_DATA_PINMASK) != 0)
+
+#define MDIO(bit)	if(bit) iop->pdat |=  MDIO_DATA_PINMASK; \
+			else	iop->pdat &= ~MDIO_DATA_PINMASK
+
+#define MDC(bit)	if(bit) iop->pdat |=  MDIO_CLCK_PINMASK; \
+			else	iop->pdat &= ~MDIO_CLCK_PINMASK
+
+#define MIIDELAY	udelay(1)
+
+#endif	/* CONFIG_ETHER_ON_FCC */
 
 
 /* other options */
 #define CONFIG_HARD_I2C		1	/* To enable I2C hardware support	*/
+#define CONFIG_DTT_ADM1021	1	/* ADM1021 temp sensor support */
 
 /* system clock rate (CLKIN) - equal to the 60x and local bus speed */
 #ifdef DEBUG
@@ -129,39 +162,52 @@
 #if defined(CONFIG_CONS_USE_EXTC)
 #define CONFIG_BAUDRATE		115200
 #else
-#define CONFIG_BAUDRATE		38400
+#define CONFIG_BAUDRATE		9600
 #endif
 
 /* default ip addresses - these will be overridden */
 #define CONFIG_IPADDR		192.168.1.1	/* hymod "boot" address */
 #define CONFIG_SERVERIP		192.168.1.254	/* hymod "server" address */
 
+#define CONFIG_LAST_STAGE_INIT
+
 #define CONFIG_COMMANDS		(CFG_CMD_ALL & ~( \
 					CFG_CMD_BEDBUG	| \
 					CFG_CMD_BMP	| \
 					CFG_CMD_DOC	| \
-					CFG_CMD_ELF	| \
 					CFG_CMD_FDC	| \
 					CFG_CMD_FDOS	| \
+					CFG_CMD_FPGA    | \
 					CFG_CMD_HWFLOW	| \
 					CFG_CMD_IDE	| \
 					CFG_CMD_JFFS2	| \
 					CFG_CMD_NAND	| \
-					CFG_CMD_MII	| \
 					CFG_CMD_MMC	| \
 					CFG_CMD_PCMCIA	| \
 					CFG_CMD_PCI	| \
 					CFG_CMD_USB	| \
 					CFG_CMD_SCSI	| \
 					CFG_CMD_SPI	| \
-					CFG_CMD_VFD	| \
-					CFG_CMD_DTT	) )
+					CFG_CMD_VFD	) )
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
 
 #ifdef DEBUG
 #define CONFIG_BOOTDELAY	-1	/* autoboot disabled		*/
+#else
+#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
+#define CONFIG_BOOT_RETRY_TIME 30	/* retry autoboot after 30 secs	*/
+#define CONFIG_BOOT_RETRY_MIN	1	/* can go down to 1 second timeout */
+/* Be selective on what keys can delay or stop the autoboot process
+ *	To stop use: " "
+ */
+#define CONFIG_AUTOBOOT_KEYED
+#define CONFIG_AUTOBOOT_PROMPT		"Autobooting in %d seconds, " \
+					"press <SPACE> to stop\n"
+#define CONFIG_AUTOBOOT_STOP_STR	" "
+#undef CONFIG_AUTOBOOT_DELAY_STR
+#define DEBUG_BOOTKEYS		0
 #endif
 
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
@@ -173,9 +219,9 @@
 #define	CONFIG_KGDB_EXTC_RATE	3686400	/* serial ext clk rate in Hz */
 #define	CONFIG_KGDB_EXTC_PINSEL	0	/* pin select 0=CLK3/CLK9,1=CLK5/CLK15*/
 # if defined(CONFIG_KGDB_USE_EXTC)
-#define CONFIG_KGDB_BAUDRATE	115200	/* speed to run kgdb serial port at */
+#define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port at */
 # else
-#define CONFIG_KGDB_BAUDRATE	38400	/* speed to run kgdb serial port at */
+#define CONFIG_KGDB_BAUDRATE	9600	/* speed to run kgdb serial port at */
 # endif
 #endif
 
@@ -205,6 +251,8 @@
 #define CFG_MEMTEST_START	0x00400000	/* memtest works on	*/
 #define CFG_MEMTEST_END		0x03c00000	/* 4 ... 60 MB in DRAM	*/
 
+#define CFG_CLKS_IN_HZ		1	/* everything, incl board info, in Hz */
+
 #define	CFG_LOAD_ADDR		0x100000	/* default load address	*/
 
 #define	CFG_HZ		1000		/* decrementer freq: 1 ms ticks	*/
@@ -217,7 +265,46 @@
 /* these are for the ST M24C02 2kbit serial i2c eeprom */
 #define CFG_I2C_EEPROM_ADDR	0x50		/* base address */
 #define CFG_I2C_EEPROM_ADDR_LEN	1		/* bytes of address */
+/* mask of address bits that overflow into the "EEPROM chip address"    */
+#define CFG_I2C_EEPROM_ADDR_OVERFLOW	0x07
+
+#define CFG_EEPROM_PAGE_WRITE_ENABLE	1	/* write eeprom in pages */
+#define CFG_EEPROM_PAGE_WRITE_BITS	4	/* 16 byte write page size */
+#define CFG_EEPROM_PAGE_WRITE_DELAY_MS	10	/* and takes up to 10 msec */
+
+#define CFG_I2C_MULTI_EEPROMS	1		/* hymod has two eeproms */
+
 #define CFG_I2C_RTC_ADDR	0x51	/* philips PCF8563 RTC address */
+
+/*
+ * standard dtt sensor configuration - bottom bit will determine local or
+ * remote sensor of the ADM1021, the rest determines index into
+ * CFG_DTT_ADM1021 array below.
+ *
+ * On HYMOD board, the remote sensor should be connected to the MPC8260
+ * temperature diode thingy, but an errata said this didn't work and
+ * should be disabled - so it isn't connected.
+ */
+#if 0
+#define CONFIG_DTT_SENSORS		{ 0, 1 }
+#else
+#define CONFIG_DTT_SENSORS		{ 0 }
+#endif
+
+/*
+ * ADM1021 temp sensor configuration (see dtt/adm1021.c for details).
+ * there will be one entry in this array for each two (dummy) sensors in
+ * CONFIG_DTT_SENSORS.
+ *
+ * For HYMOD board:
+ * - only one ADM1021
+ * - i2c addr 0x2a (both ADD0 and ADD1 are N/C)
+ * - conversion rate 0x02 = 0.25 conversions/second
+ * - ALERT ouput disabled
+ * - local temp sensor enabled, min set to 0 deg, max set to 85 deg
+ * - remote temp sensor disabled (see comment for CONFIG_DTT_SENSORS above)
+ */
+#define CFG_DTT_ADM1021		{ { 0x2a, 0x02, 0, 1, 0, 85, 0, } }
 
 /*
  * Low Level Configuration Settings
@@ -295,10 +382,6 @@
 
 #define CFG_FLASH_ERASE_TOUT	120000	/* Flash Erase Timeout (in ms)	*/
 #define CFG_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (in ms)	*/
-
-#define CFG_FLASH_TYPE		FLASH_28F640J3A
-#define CFG_FLASH_ID		(INTEL_ID_28F640J3A & 0xff)
-#define CFG_FLASH_NBLOCKS	64
 
 #define	CFG_ENV_IS_IN_FLASH	1
 #define	CFG_ENV_SIZE		0x1000	/* Total Size of Environment Sector */
@@ -608,6 +691,11 @@
 #define FPGA_MEZZ_DONE_PIN	2	/* PA2 */
 #define FPGA_MEZZ_ENABLE_PORT	IOPIN_PORTA
 #define FPGA_MEZZ_ENABLE_PIN	3	/* PA3 */
+
+/*
+ * FPGA Interrupt configuration
+ */
+#define FPGA_MAIN_IRQ		SIU_INT_IRQ2
 
 /*
  * Internal Definitions

@@ -27,9 +27,13 @@
 #ifndef _DTT_H_
 #define _DTT_H_
 
-#if defined(CONFIG_DTT_LM75) || defined(CONFIG_DTT_DS1621)
+#if defined(CONFIG_DTT_LM75) || \
+    defined(CONFIG_DTT_DS1621) || \
+    defined(CONFIG_DTT_ADM1021)
+
 #define CONFIG_DTT				/* We have a DTT */
 
+#ifndef CONFIG_DTT_ADM1021
 #define DTT_COMMERCIAL_MAX_TEMP	70		/* 0 - +70 C */
 #define DTT_INDUSTRIAL_MAX_TEMP	85		/* -40 - +85 C */
 #define DTT_AUTOMOTIVE_MAX_TEMP	105		/* -40 - +105 C */
@@ -39,6 +43,7 @@
 #ifndef CFG_DTT_HYSTERESIS
 #define CFG_DTT_HYSTERESIS	5		/* 5 C */
 #endif
+#endif /* CONFIG_DTT_ADM1021 */
 
 extern int dtt_init (void);
 extern int dtt_read(int sensor, int reg);
@@ -62,6 +67,39 @@ extern int dtt_get_temp(int sensor);
 #define DTT_TEMP_HIGH		0xA1
 #define DTT_TEMP_LOW		0xA2
 #define DTT_CONFIG		0xAC
+#endif
+
+#if defined(CONFIG_DTT_ADM1021)
+#define DTT_READ_LOC_VALUE	0x00
+#define DTT_READ_REM_VALUE	0x01
+#define DTT_READ_STATUS		0x02
+#define DTT_READ_CONFIG		0x03
+#define DTT_READ_CONVRATE	0x04
+#define DTT_READ_LOC_HIGHLIM	0x05
+#define DTT_READ_LOC_LOWLIM	0x06
+#define DTT_READ_REM_HIGHLIM	0x07
+#define DTT_READ_REM_LOWLIM	0x08
+#define DTT_READ_DEVID		0xfe
+
+#define DTT_WRITE_CONFIG	0x09
+#define DTT_WRITE_CONVRATE	0x0a
+#define DTT_WRITE_LOC_HIGHLIM	0x0b
+#define DTT_WRITE_LOC_LOWLIM	0x0c
+#define DTT_WRITE_REM_HIGHLIM	0x0d
+#define DTT_WRITE_REM_LOWLIM	0x0e
+#define DTT_WRITE_ONESHOT	0x0f
+
+#define DTT_STATUS_BUSY		0x80	/* 1=ADC Converting */
+#define DTT_STATUS_LHIGH	0x40	/* 1=Local High Temp Limit Tripped */
+#define DTT_STATUS_LLOW		0x20	/* 1=Local Low Temp Limit Tripped */
+#define DTT_STATUS_RHIGH	0x10	/* 1=Remote High Temp Limit Tripped */
+#define DTT_STATUS_RLOW		0x08	/* 1=Remote Low Temp Limit Tripped */
+#define DTT_STATUS_OPEN		0x04	/* 1=Remote Sensor Open-Circuit */
+
+#define DTT_CONFIG_ALERT_MASKED	0x80	/* 0=ALERT Enabled, 1=ALERT Masked */
+#define DTT_CONFIG_STANDBY	0x40	/* 0=Run, 1=Standby */
+
+#define DTT_ADM1021_DEVID	0x41
 #endif
 
 #endif /* _DTT_H_ */

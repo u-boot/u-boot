@@ -29,4 +29,4 @@ TEXT_BASE = 0x40000000
 
 PLATFORM_CPPFLAGS += -DTEXT_BASE=$(TEXT_BASE) -I$(TOPDIR)
 
-OBJCFLAGS = --set-section-flags=.ppcenv=contents,alloc,load,data
+OBJCFLAGS = --remove-section=.ppcenv

@@ -73,6 +73,7 @@
 <tr valign=top>
 <th>logno / edit</th>
 <th>date</th>
+<th>who</th>
 <th width="70%">details</th>
 </tr>
 <?php
@@ -82,6 +83,7 @@
 		echo "<tr>\n";
 		print_cell("<a href=\"edlog.php?serno=$row[serno]&logno=$row[logno]\">$row[logno]</a>");
 		print_cell($row['date']);
+		print_cell($row['who']);
 		print_cell("<pre>" . urldecode($row['details']) . "</pre>");
 		echo "</tr>\n";
 	}

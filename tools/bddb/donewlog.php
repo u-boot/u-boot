@@ -23,6 +23,9 @@
 		die("date is invalid (input '$date', yyyy-mm-dd '$y-$m-$d')");
 	$query.=", date='$date'";
 
+	if (isset($who))
+		$query.=", who='" . $who . "'";
+
 	if (isset($details))
 		$query.=", details='" . rawurlencode($details) . "'";
 

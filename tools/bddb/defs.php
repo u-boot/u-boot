@@ -58,8 +58,8 @@
 	$zbt_nbits = array(0,19,20,21,22);
 
 	// Xilinx attributes
-	$xlxtyp_vals = array('','XCV300E','XCV400E','XCV600E');
-	$xlxspd_vals = array('','6','7','8');
+	$xlxtyp_vals = array('','XCV300E','XCV400E','XCV600E','XC2V2000','XC2V3000','XC2V4000','XC2V6000');
+	$xlxspd_vals = array('','6','7','8','4','5');
 	$xlxtmp_vals = array('','COM','IND');
 	$xlxgrd_vals = array('','NORMAL','ENGSAMP');
 
@@ -449,7 +449,13 @@
 	// generate a (possibly not unique) random vendor ethernet address
 	// (setting bit 6 in the ethernet address - motorola wise i.e. bit 0
 	// is the most significant bit - means it is not an assigned ethernet
-	// address). Also, make sure it is NOT a multicast ethernet address.
+	// address - it is a "locally administered" address). Also, make sure
+	// it is NOT a multicast ethernet address (by setting bit 7 to 0).
+	// e.g. the first byte of all ethernet addresses generated here will
+	// have 2 in the bottom two bits (incidentally, these are the first
+	// two bits transmitted on the wire, since the octets in ethernet
+	// addresses are transmitted LSB first).
+
 	function gen_eth_addr($serno) {
 
 		$ethaddr_high = (mt_rand(0, 65535) & 0xfeff) | 0x0200;

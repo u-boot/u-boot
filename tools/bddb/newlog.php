@@ -26,6 +26,9 @@
 	// date date
 	print_field("date", array('date' => date("Y-m-d")));
 
+	// who char(20)
+	print_field("who", "");
+
 	// details text
 	print_field_multiline("details", array(), 60, 10, 'text_filter');
 

@@ -96,9 +96,11 @@ RANLIB	= $(CROSS_COMPILE)RANLIB
 RELFLAGS= $(PLATFORM_RELFLAGS)
 DBGFLAGS= -g #-DDEBUG
 OPTFLAGS= -Os #-fomit-frame-pointer
+ifndef LDSCRIPT
 #LDSCRIPT := board/$(BOARDDIR)/u-boot.lds.debug
 LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot.lds
-OBJCFLAGS := --gap-fill=0xff
+endif
+OBJCFLAGS += --gap-fill=0xff
 
 CPPFLAGS := $(DBGFLAGS) $(OPTFLAGS) $(RELFLAGS)		\
 	-D__KERNEL__ -DTEXT_BASE=$(TEXT_BASE)		\
