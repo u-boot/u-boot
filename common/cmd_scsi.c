@@ -269,7 +269,7 @@ int do_scsiboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	hdr = (image_header_t *)addr;
 
-	if (hdr->ih_magic == IH_MAGIC) {
+	if (ntohl(hdr->ih_magic) == IH_MAGIC) {
 		printf("\n** Bad Magic Number **\n");
 		return 1;
 	}
@@ -283,7 +283,7 @@ int do_scsiboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 
 	print_image_hdr (hdr);
-	cnt = (hdr->ih_size + sizeof(image_header_t));
+	cnt = (ntohl(hdr->ih_size) + sizeof(image_header_t));
 	cnt += info.blksz - 1;
 	cnt /= info.blksz;
 	cnt -= 1;
