@@ -2,6 +2,16 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Patch by Anders Larsen, 18 Sep 2003:
+  allow mkimage to build and run on Cygwin-hosted systems
+
+* Patch by Frank Müller, 18 Sep 2003:
+  use bi_intfreq instead of bi_busfreq to compute fec_mii_speed in
+  cpu/mpc8xx/fec.c
+
+* Patch by Pantelis Antoniou, 16 Sep 2003:
+  add tool to compute fileds in the PLPRCR register for MPC86x
+
 * Use IH_TYPE_FILESYSTEM for TRAB "disk" images.
 
 * Fix build problems under FreeBSD

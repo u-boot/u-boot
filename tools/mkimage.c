@@ -268,7 +268,7 @@ NXTARG:		;
 	imagefile = *argv;
 
 	if (lflag) {
-		ifd = open(imagefile, O_RDONLY);
+		ifd = open(imagefile, O_RDONLY|O_BINARY);
 	} else {
 		ifd = open(imagefile, O_RDWR|O_CREAT|O_TRUNC|O_BINARY, 0666);
 	}
@@ -502,7 +502,7 @@ copy_file (int ifd, const char *datafile, int pad)
 		fprintf (stderr, "Adding Image %s\n", datafile);
 	}
 
-	if ((dfd = open(datafile, O_RDONLY)) < 0) {
+	if ((dfd = open(datafile, O_RDONLY|O_BINARY)) < 0) {
 		fprintf (stderr, "%s: Can't open %s: %s\n",
 			cmdname, datafile, strerror(errno));
 		exit (EXIT_FAILURE);

@@ -348,7 +348,7 @@ static int fec_init(struct eth_device* dev, bd_t * bd)
 	 * This MDC frequency is equal to system clock / (2 * MII_SPEED).
 	 * Then MII_SPEED = system_clock / 2 * 2,5 Mhz.
 	 */
-	fecp->fec_mii_speed = ((bd->bi_busfreq + 4999999) / 5000000) << 1;
+	fecp->fec_mii_speed = ((bd->bi_intfreq + 4999999) / 5000000) << 1;
 
 #if !defined(CONFIG_ICU862) && !defined(CONFIG_IAD210)
 	/* Configure all of port D for MII.
@@ -612,7 +612,7 @@ void mii_init (void)
 	 * This MDC frequency is equal to system clock / (2 * MII_SPEED).
 	 * Then MII_SPEED = system_clock / 2 * 2,5 Mhz.
 	 */
-	fecp->fec_mii_speed = ((bd->bi_busfreq + 4999999) / 5000000) << 1;
+	fecp->fec_mii_speed = ((bd->bi_intfreq + 4999999) / 5000000) << 1;
 
 #if !defined(CONFIG_ICU862) && !defined(CONFIG_IAD210)
 	/* Configure all of port D for MII.

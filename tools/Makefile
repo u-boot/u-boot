@@ -30,6 +30,12 @@ BINS   += inca-swap-bytes$(SFX)
 OBJS   += inca-swap-bytes.o
 endif
 
+# Don't build by default
+#ifeq ($(ARCH),ppc)
+#BINS   += mpc86x_clk$(SFX)
+#OBJS   += mpc86x_clk.o
+#endif
+
 LOGO_H	= $(TOPDIR)/include/bmp_logo.h
 
 ifeq ($(LOGO_BMP),)
@@ -136,6 +142,10 @@ inca-swap-bytes$(SFX):	inca-swap-bytes.o
 		$(CC) $(CFLAGS) $(HOST_LDFLAGS) -o $@ $^
 		$(STRIP) $@
 
+mpc86x_clk$(SFX):	mpc86x_clk.o
+		$(CC) $(CFLAGS) $(HOST_LDFLAGS) -o $@ $^
+		$(STRIP) $@
+
 envcrc.o:	envcrc.c
 		$(CC) -g $(CFLAGS) -c $<
 
@@ -149,6 +159,9 @@ gen_eth_addr.o:	gen_eth_addr.c
 		$(CC) -g $(CFLAGS) -c $<
 
 inca-swap-bytes.o:	inca-swap-bytes.c
+		$(CC) -g $(CFLAGS) -c $<
+
+mpc86x_clk.o:	mpc86x_clk.c
 		$(CC) -g $(CFLAGS) -c $<
 
 subdirs:

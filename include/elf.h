@@ -43,13 +43,6 @@
 #include <stdint.h>
 #endif
 
-#ifdef __CYGWIN__
-#include <sys/types.h>
-typedef unsigned long int uint32_t;
-typedef unsigned short    uint16_t;
-typedef unsigned char     uint8_t;
-#endif /* __CYGWIN__ */
-
 /*
  *  This version doesn't work for 64-bit ABIs - Erik.
  */

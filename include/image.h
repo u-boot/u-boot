@@ -124,11 +124,6 @@
 #define IH_MAGIC	0x27051956	/* Image Magic Number		*/
 #define IH_NMLEN		32	/* Image Name Length		*/
 
-#ifdef __CYGWIN__
-typedef unsigned long uint32_t;
-typedef unsigned char uint8_t;
-#endif /* __CYGWIN__ */
-
 /*
  * all data in network byte order (aka natural aka bigendian)
  */
