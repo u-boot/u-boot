@@ -63,6 +63,9 @@ Wolfgang Denk <wd@denx.de>
 	IVMS8_128		MPC860
 	IVMS8_256		MPC860
 	LANTEC			MPC850
+	LWMON			MPC823
+	R360MPI			MPC823
+	RMU			MPC850
 	RRvision		MPC823
 	SM850			MPC850
 	SPD823TS		MPC823
@@ -72,6 +75,7 @@ Wolfgang Denk <wd@denx.de>
 	TQM855L			MPC855
 	TQM860L			MPC860
 	TQM860L_FEC		MPC860
+	TTTech			MPC823
 	c2mon			MPC855
 	hermes			MPC860
 	lwmon			MPC823

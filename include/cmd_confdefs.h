@@ -81,6 +81,7 @@
 #define CFG_CMD_NAND	0x0000800000000000	/* NAND support        		*/
 #define CFG_CMD_BMP	0x0001000000000000	/* BMP support			*/
 #define CFG_CMD_PORTIO	0x0002000000000000	/* Port I/O		        */
+#define CFG_CMD_PING	0x0004000000000000	/* ping support			*/
 
 #define CFG_CMD_ALL	0xFFFFFFFFFFFFFFFF	/* ALL commands			*/
 
@@ -113,6 +114,7 @@
 			CFG_CMD_NAND	| \
 			CFG_CMD_PCI	| \
 			CFG_CMD_PCMCIA	| \
+			CFG_CMD_PING	| \
 			CFG_CMD_REGINFO | \
 			CFG_CMD_SAVES	| \
 			CFG_CMD_SCSI	| \

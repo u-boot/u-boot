@@ -95,6 +95,10 @@ static void netboot_update_env(void)
 	ip_to_string (NetOurDNSIP, tmp);
 	setenv("dnsip", tmp);
     }
+
+    if (NetOurNISDomain[0])
+	setenv("domain", NetOurNISDomain);
+
 }
 static int
 netboot_common (int proto, cmd_tbl_t *cmdtp, int argc, char *argv[])
@@ -164,5 +168,28 @@ netboot_common (int proto, cmd_tbl_t *cmdtp, int argc, char *argv[])
 #endif
 	return rcode;
 }
+
+#if (CONFIG_COMMANDS & CFG_CMD_PING)
+int do_ping (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	if (argc < 2)
+		return -1;
+
+	NetPingIP = string_to_ip(argv[1]);
+	if (NetPingIP == 0) {
+		printf ("Usage:\n%s\n", cmdtp->usage);
+		return -1;
+	}
+
+	if (NetLoop(PING) < 0) {
+		printf("ping failed; host %s is not alive\n", argv[1]);
+		return 1;
+	}
+
+	printf("host %s is alive\n", argv[1]);
+
+	return 0;
+}
+#endif	/* CFG_CMD_PING */
 
 #endif	/* CFG_CMD_NET */

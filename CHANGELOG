@@ -11,6 +11,14 @@ Changes since U-Boot 0.3.1:
   - Changed config files of CONFIG_EEPRO100 boards to use the
     CFG_RX_ETH_BUFFER define.
 
+* Add support for RMU board
+
+* Add support for TQM862L at 100/50 MHz
+
+* Patch by Pantelis Antoniou, 02 Jun 2003:
+  major reconstruction of networking code;
+  add "ping" support (outgoing only!)
+
 * Patch by Denis Peter, 04 June 2003:
   add support for the MIP405T board
 

@@ -323,6 +323,9 @@ RPXClassic_config:	unconfig
 RPXlite_config:		unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx RPXlite
 
+rmu_config:	unconfig
+	@./mkconfig $(@:_config=) ppc mpc8xx rmu
+
 RRvision_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx RRvision
 
@@ -349,10 +352,10 @@ TOP860_config:		unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx top860 emk
 
 # Play some tricks for configuration selection
-# All boards can come with 50 MHz (default), 66MHz or 80MHz clock,
+# All boards can come with 50 MHz (default), 66MHz, 80MHz or 100 MHz clock,
 # but only 855 and 860 boards may come with FEC
 # and 823 boards may have LCD support
-xtract_8xx = $(subst _66MHz,,$(subst _80MHz,,$(subst _LCD,,$(subst _config,,$1))))
+xtract_8xx = $(subst _66MHz,,$(subst _80MHz,,$(subst _100MHz,,$(subst _LCD,,$(subst _config,,$1)))))
 
 FPS850L_config		\
 FPS860L_config		\
@@ -373,7 +376,8 @@ TQM860L_66MHz_config	\
 TQM860L_80MHz_config	\
 TQM862L_config		\
 TQM862L_66MHz_config	\
-TQM862L_80MHz_config:	unconfig
+TQM862L_80MHz_config	\
+TQM862L_100MHz_config:	unconfig
 	@ >include/config.h
 	@[ -z "$(findstring _66MHz,$@)" ] || \
 		{ echo "#define CONFIG_66MHz"		>>include/config.h ; \
@@ -382,6 +386,10 @@ TQM862L_80MHz_config:	unconfig
 	@[ -z "$(findstring _80MHz,$@)" ] || \
 		{ echo "#define CONFIG_80MHz"		>>include/config.h ; \
 		  echo "... with 80MHz system clock" ; \
+		}
+	@[ -z "$(findstring _100MHz,$@)" ] || \
+		{ echo "#define CONFIG_100MHz"		>>include/config.h ; \
+		  echo "... with 100MHz system clock" ; \
 		}
 	@[ -z "$(findstring _LCD,$@)" ] || \
 		{ echo "#define CONFIG_LCD"		>>include/config.h ; \

@@ -23,20 +23,17 @@
 
 include $(TOPDIR)/config.mk
 
-# CFLAGS += -DET_DEBUG -DDEBUG
+LIB	= lib$(BOARD).a
 
-LIB	= libnet.a
+OBJS	= $(BOARD).o flash.o
 
-OBJS	= net.o tftp.o bootp.o rarp.o eth.o
-all:	$(LIB)
-
-$(LIB):	$(START) $(OBJS)
-	$(AR) crv $@ $(OBJS)
+$(LIB):	.depend $(OBJS)
+	$(AR) crv $@ $^
 
 #########################################################################
 
-.depend:	Makefile $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(OBJS:.o=.c) > $@
+.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
+		$(CC) -M $(CFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
 
 sinclude .depend
 

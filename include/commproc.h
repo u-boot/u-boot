@@ -1254,7 +1254,11 @@ typedef struct scc_enet {
 #define PA_ENET_TXD	((ushort)0x0008)
 #define PA_ENET_TCLK	((ushort)0x0200)
 #define PA_ENET_RCLK	((ushort)0x0800)
+#if defined(CONFIG_RMU)
+#define PC_ENET_TENA	((uint)0x00000002)	/* PC14 */
+#else
 #define PB_ENET_TENA	((uint)0x00002000)
+#endif
 #define PC_ENET_CLSN	((ushort)0x0040)
 #define PC_ENET_RENA	((ushort)0x0080)
 

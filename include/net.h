@@ -200,7 +200,9 @@ typedef struct
 /*
  * ICMP stuff (just enough to handle (host) redirect messages)
  */
+#define ICMP_ECHO_REPLY		0	/* Echo reply 			*/
 #define ICMP_REDIRECT		5	/* Redirect (change route)	*/
+#define ICMP_ECHO_REQUEST	8	/* Echo request			*/
 
 /* Codes for REDIRECT. */
 #define ICMP_REDIR_NET		0	/* Redirect Net			*/
@@ -292,10 +294,14 @@ extern int		NetState;		/* Network loop state		*/
 extern int		NetRestartWrap;		/* Tried all network devices	*/
 #endif
 
-typedef enum { BOOTP, RARP, ARP, TFTP, DHCP } proto_t;
+typedef enum { BOOTP, RARP, ARP, TFTP, DHCP, PING, DNS } proto_t;
 
 /* from net/net.c */
 extern char	BootFile[128];			/* Boot File name		*/
+
+#if (CONFIG_COMMANDS & CFG_CMD_PING)
+extern IPaddr_t	NetPingIP;			/* the ip address to ping 		*/
+#endif
 
 /* Initialize the network adapter */
 extern int	NetLoop(proto_t);
@@ -322,6 +328,9 @@ extern void	NetSetTimeout(int, thand_f *);	/* Set timeout handler		*/
 
 /* Transmit "NetTxPacket" */
 extern void	NetSendPacket(volatile uchar *, int);
+
+/* Transmit UDP packet, performing ARP request if needed */
+extern int	NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport, int sport, int len);
 
 /* Processes a received packet */
 extern void	NetReceive(volatile uchar *, int);
@@ -372,6 +381,9 @@ static inline void NetCopyLong(ulong *to, ulong *from)
 
 /* Convert an IP address to a string */
 extern void	ip_to_string (IPaddr_t x, char *s);
+
+/* Convert a string to ip address */
+extern IPaddr_t string_to_ip(char *s);
 
 /* read an IP address from a environment variable */
 extern IPaddr_t getenv_IPaddr (char *);

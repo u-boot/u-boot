@@ -21,23 +21,8 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
+#
+# RMU boards
+#
 
-# CFLAGS += -DET_DEBUG -DDEBUG
-
-LIB	= libnet.a
-
-OBJS	= net.o tftp.o bootp.o rarp.o eth.o
-all:	$(LIB)
-
-$(LIB):	$(START) $(OBJS)
-	$(AR) crv $@ $(OBJS)
-
-#########################################################################
-
-.depend:	Makefile $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(OBJS:.o=.c) > $@
-
-sinclude .depend
-
-#########################################################################
+TEXT_BASE = 0xfff00000

@@ -64,11 +64,24 @@ int do_dhcp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 #define CMD_TBL_DHCP
 #endif	/* CFG_CMD_DHCP */
 
+#if (CONFIG_COMMANDS & CFG_CMD_PING)
+#define	CMD_TBL_PING	MK_CMD_TBL_ENTRY(					\
+	"ping",		4,	2,	1,	do_ping,			\
+	"ping    - check if host is reachable\n",				\
+	"host\n" 					 			\
+),
+
+int do_ping (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+#else
+#define CMD_TBL_PING
+#endif	/* CFG_CMD_PING */
+
 #else
 #define CMD_TBL_BOOTP
 #define CMD_TBL_TFTPB
 #define CMD_TBL_RARPB
 #define CMD_TBL_DHCP
+#define CMD_TBL_PING
 #endif	/* CFG_CMD_NET */
 
 #endif

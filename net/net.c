@@ -65,9 +65,15 @@
 #include "bootp.h"
 #include "tftp.h"
 #include "rarp.h"
-#include "arp.h"
 
 #if (CONFIG_COMMANDS & CFG_CMD_NET)
+
+#define ARP_TIMEOUT		5		/* Seconds before trying ARP again */
+#ifndef	CONFIG_NET_RETRY_COUNT
+# define ARP_TIMEOUT_COUNT	5		/* # of timeouts before giving up  */
+#else
+# define ARP_TIMEOUT_COUNT  (CONFIG_NET_RETRY_COUNT)
+#endif
 
 #if 0
 #define ET_DEBUG
@@ -88,7 +94,7 @@ ushort		NetBootFileSize=0;		/* Our bootfile size in blocks	*/
 ulong		NetBootFileXferSize;	/* The actual transferred size of the bootfile (in bytes) */
 uchar		NetOurEther[6];		/* Our ethernet address			*/
 uchar		NetServerEther[6] =	/* Boot server enet address		*/
-			{ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
+			{ 0, 0, 0, 0, 0, 0 };
 IPaddr_t	NetOurIP;		/* Our IP addr (0 = unknown)		*/
 IPaddr_t	NetServerIP;		/* Our IP addr (0 = unknown)		*/
 volatile uchar *NetRxPkt;		/* Current receive packet		*/
@@ -96,6 +102,8 @@ int		NetRxPktLen;		/* Current rx packet length		*/
 unsigned	NetIPID;		/* IP packet ID				*/
 uchar		NetBcastAddr[6] =	/* Ethernet bcast address		*/
 			{ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
+uchar		NetEtherNullAddr[6] =
+			{ 0, 0, 0, 0, 0, 0 };
 int		NetState;		/* Network loop state			*/
 #ifdef CONFIG_NET_MULTI
 int		NetRestartWrap = 0;	/* Tried all network devices		*/
@@ -104,6 +112,12 @@ static int	NetDevExists = 0;	/* At least one device configured	*/
 #endif
 
 char		BootFile[128];		/* Boot File name			*/
+
+#if (CONFIG_COMMANDS & CFG_CMD_PING)
+IPaddr_t	NetPingIP;		/* the ip address to ping 		*/
+
+static void PingStart(void);
+#endif
 
 volatile uchar	PktBuf[(PKTBUFSRX+1) * PKTSIZE_ALIGN + PKTALIGN];
 
@@ -115,6 +129,81 @@ static ulong	timeValue;		/* Current timeout value		*/
 volatile uchar *NetTxPacket = 0;	/* THE transmit packet			*/
 
 static int net_check_prereq (proto_t protocol);
+
+/**********************************************************************/
+
+IPaddr_t	NetArpWaitPacketIP;
+IPaddr_t	NetArpWaitReplyIP;
+uchar	       *NetArpWaitPacketMAC;	/* MAC address of waiting packet's destination	*/
+uchar          *NetArpWaitTxPacket;	/* THE transmit packet			*/
+int		NetArpWaitTxPacketSize;
+uchar 		NetArpWaitPacketBuf[PKTSIZE_ALIGN + PKTALIGN];
+ulong		NetArpWaitTimerStart;
+int		NetArpWaitTry;
+
+void ArpRequest(void)
+{
+	int i;
+	volatile uchar *pkt;
+	ARP_t *	arp;
+
+#ifdef ET_DEBUG
+	printf("ARP broadcast %d\n", NetArpWaitTry);
+#endif
+	pkt = NetTxPacket;
+
+	NetSetEther(pkt, NetBcastAddr, PROT_ARP);
+	pkt += ETHER_HDR_SIZE;
+
+	arp = (ARP_t *)pkt;
+
+	arp->ar_hrd = htons(ARP_ETHER);
+	arp->ar_pro = htons(PROT_IP);
+	arp->ar_hln = 6;
+	arp->ar_pln = 4;
+	arp->ar_op  = htons(ARPOP_REQUEST);
+
+	memcpy (&arp->ar_data[0], NetOurEther, 6);	/* source ET addr	*/
+	NetWriteIP((uchar*)&arp->ar_data[6], NetOurIP);	/* source IP addr	*/
+	for (i=10; i<16; ++i) {
+		arp->ar_data[i] = 0;			/* dest ET addr = 0	*/
+	}
+
+	if((NetArpWaitPacketIP & NetOurSubnetMask) != (NetOurIP & NetOurSubnetMask)) {
+	    if (NetOurGatewayIP == 0) {
+		puts ("## Warning: gatewayip needed but not set\n");
+	    }
+	    NetArpWaitReplyIP = NetOurGatewayIP;
+	} else
+            NetArpWaitReplyIP = NetArpWaitPacketIP;
+
+        NetWriteIP((uchar*)&arp->ar_data[16], NetArpWaitReplyIP);
+	(void) eth_send(NetTxPacket, ETHER_HDR_SIZE + ARP_HDR_SIZE);
+}
+
+void ArpTimeoutCheck(void)
+{
+	ulong t;
+
+	if (!NetArpWaitPacketIP)
+		return;
+
+	t = get_timer(0);
+
+	/* check for arp timeout */
+	if ((t - NetArpWaitTimerStart) > ARP_TIMEOUT * CFG_HZ) {
+		NetArpWaitTry++;
+
+		if (NetArpWaitTry >= ARP_TIMEOUT_COUNT) {
+			puts ("\nARP Retry count exceeded; starting again\n");
+			NetArpWaitTry = 0;
+			NetStartAgain();
+		} else {
+			NetArpWaitTimerStart = t;
+			ArpRequest();
+		}
+	}
+}
 
 /**********************************************************************/
 /*
@@ -133,6 +222,14 @@ NetLoop(proto_t protocol)
 	NetDevExists = 0;
 #endif
 
+	/* XXX problem with bss workaround */
+	NetArpWaitPacketMAC = NULL;
+	NetArpWaitTxPacket = NULL;
+	NetArpWaitPacketIP = 0;
+	NetArpWaitReplyIP = 0;
+	NetArpWaitTxPacket = NULL;
+	NetTxPacket = NULL;
+
 	if (!NetTxPacket) {
 		int	i;
 
@@ -144,6 +241,13 @@ NetLoop(proto_t protocol)
 		for (i = 0; i < PKTBUFSRX; i++) {
 			NetRxPackets[i] = NetTxPacket + (i+1)*PKTSIZE_ALIGN;
 		}
+
+	}
+
+	if (!NetArpWaitTxPacket) {
+		NetArpWaitTxPacket = &NetArpWaitPacketBuf[0] + (PKTALIGN - 1);
+		NetArpWaitTxPacket -= (ulong)NetArpWaitTxPacket % PKTALIGN;
+		NetArpWaitTxPacketSize = 0;
 	}
 
 	eth_halt();
@@ -165,11 +269,27 @@ restart:
 	 */
 
 	switch (protocol) {
+#if (CONFIG_COMMANDS & CFG_CMD_PING)
+	case PING:
+#endif
 	case TFTP:
 		NetCopyIP(&NetOurIP, &bd->bi_ip_addr);
-		NetServerIP	= getenv_IPaddr ("serverip");
 		NetOurGatewayIP = getenv_IPaddr ("gatewayip");
 		NetOurSubnetMask= getenv_IPaddr ("netmask");
+
+		switch (protocol) {
+		case TFTP:
+			NetServerIP = getenv_IPaddr ("serverip");
+			break;
+#if (CONFIG_COMMANDS & CFG_CMD_PING)
+		case PING:
+			/* nothing */
+			break;
+#endif
+		default:
+			break;
+		}
+
 		break;
 	case BOOTP:
 	case RARP:
@@ -202,8 +322,7 @@ restart:
 		switch (protocol) {
 		case TFTP:
 			/* always use ARP to get server ethernet address */
-			ArpTry = 0;
-			ArpRequest ();
+			TftpStart();
 			break;
 
 #if (CONFIG_COMMANDS & CFG_CMD_DHCP)
@@ -224,6 +343,11 @@ restart:
 			RarpTry = 0;
 			RarpRequest ();
 			break;
+#if (CONFIG_COMMANDS & CFG_CMD_PING)
+		case PING:
+			PingStart();
+			break;
+#endif
 		default:
 			break;
 		}
@@ -260,6 +384,7 @@ restart:
 			return (-1);
 		}
 
+		ArpTimeoutCheck();
 
 		/*
 		 *	Check for a timeout, and run the timeout handler
@@ -376,7 +501,138 @@ NetSendPacket(volatile uchar * pkt, int len)
 	(void) eth_send(pkt, len);
 }
 
+int
+NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport, int sport, int len)
+{
+	/* convert to new style broadcast */
+	if (dest == 0)
+		dest = 0xFFFFFFFF;
 
+	/* if broadcast, make the ether address a broadcast and don't do ARP */
+	if (dest == 0xFFFFFFFF)
+		ether = NetBcastAddr;
+
+	/* if MAC address was not discovered yet, save the packet and do an ARP request */
+	if (memcmp(ether, NetEtherNullAddr, 6) == 0) {
+
+#ifdef ET_DEBUG
+		printf("sending ARP for %08lx\n", dest);
+#endif
+
+		NetArpWaitPacketIP = dest;
+		NetArpWaitPacketMAC = ether;
+		NetSetEther (NetArpWaitTxPacket, NetArpWaitPacketMAC, PROT_IP);
+		NetSetIP (NetArpWaitTxPacket + ETHER_HDR_SIZE, dest, dport, sport, len);
+		memcpy(NetArpWaitTxPacket + ETHER_HDR_SIZE + IP_HDR_SIZE,
+			(uchar *)NetTxPacket + ETHER_HDR_SIZE + IP_HDR_SIZE, len);
+
+		/* size of the waiting packet */
+		NetArpWaitTxPacketSize = ETHER_HDR_SIZE + IP_HDR_SIZE + len;
+
+		/* and do the ARP request */
+		NetArpWaitTry = 1;
+		NetArpWaitTimerStart = get_timer(0);
+		ArpRequest();
+		return 1;	/* waiting */
+	}
+
+#ifdef ET_DEBUG
+	printf("sending UDP to %08lx/%02x:%02x:%02x:%02x:%02x:%02x\n",
+			dest, ether[0], ether[1], ether[2], ether[3], ether[4], ether[5]);
+#endif
+
+	NetSetEther (NetTxPacket, ether, PROT_IP);
+	NetSetIP (NetTxPacket + ETHER_HDR_SIZE, dest, dport, sport, len);
+	(void) eth_send(NetTxPacket, ETHER_HDR_SIZE + IP_HDR_SIZE + len);
+
+	return 0;	/* transmited */
+}
+
+#if (CONFIG_COMMANDS & CFG_CMD_PING)
+static ushort PingSeqNo;
+
+int PingSend(void)
+{
+	static uchar mac[6];
+	volatile IP_t *ip;
+	volatile ushort *s;
+
+	/* XXX always send arp request */
+
+	memcpy(mac, NetEtherNullAddr, 6);
+
+#ifdef ET_DEBUG
+	printf("sending ARP for %08lx\n", NetPingIP);
+#endif
+
+	NetArpWaitPacketIP = NetPingIP;
+	NetArpWaitPacketMAC = mac;
+
+	NetSetEther(NetArpWaitTxPacket, mac, PROT_IP);
+
+	ip = (volatile IP_t *)(NetArpWaitTxPacket + ETHER_HDR_SIZE);
+
+	/*
+	 *	Construct an IP and ICMP header.  (need to set no fragment bit - XXX)
+	 */
+	ip->ip_hl_v  = 0x45;		/* IP_HDR_SIZE / 4 (not including UDP) */
+	ip->ip_tos   = 0;
+	ip->ip_len   = htons(IP_HDR_SIZE_NO_UDP + 8);
+	ip->ip_id    = htons(NetIPID++);
+	ip->ip_off   = htons(0x4000);	/* No fragmentation */
+	ip->ip_ttl   = 255;
+	ip->ip_p     = 0x01;		/* ICMP */
+	ip->ip_sum   = 0;
+	NetCopyIP((void*)&ip->ip_src, &NetOurIP); /* already in network byte order */
+	NetCopyIP((void*)&ip->ip_dst, &NetPingIP);	   /* - "" - */
+	ip->ip_sum   = ~NetCksum((uchar *)ip, IP_HDR_SIZE_NO_UDP / 2);
+
+	s = &ip->udp_src;		/* XXX ICMP starts here */
+	s[0] = htons(0x0800);		/* echo-request, code */
+	s[1] = 0;			/* checksum */
+	s[2] = 0; 			/* identifier */
+	s[3] = htons(PingSeqNo++);	/* sequence number */
+	s[1] = ~NetCksum((uchar *)s, 8/2);
+
+	/* size of the waiting packet */
+	NetArpWaitTxPacketSize = ETHER_HDR_SIZE + IP_HDR_SIZE_NO_UDP + 8;
+
+	/* and do the ARP request */
+	NetArpWaitTry = 1;
+	NetArpWaitTimerStart = get_timer(0);
+	ArpRequest();
+	return 1;	/* waiting */
+}
+
+static void
+PingTimeout (void)
+{
+	eth_halt();
+	NetState = NETLOOP_FAIL;	/* we did not get the reply */
+}
+
+static void
+PingHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
+{
+	IPaddr_t tmp;
+	volatile IP_t *ip = (volatile IP_t *)pkt;
+
+	tmp = NetReadIP((void *)&ip->ip_src);
+	if (tmp != NetPingIP)
+		return;
+
+	NetState = NETLOOP_SUCCESS;
+}
+
+static void PingStart(void)
+{
+	NetSetTimeout (10 * CFG_HZ, PingTimeout);
+	NetSetHandler (PingHandler);
+
+	PingSend();
+}
+
+#endif
 
 void
 NetReceive(volatile uchar * pkt, int len)
@@ -386,7 +642,6 @@ NetReceive(volatile uchar * pkt, int len)
 	ARP_t	*arp;
 	IPaddr_t tmp;
 	int	x;
-
 
 	NetRxPkt = pkt;
 	NetRxPktLen = len;
@@ -462,14 +717,40 @@ NetReceive(volatile uchar * pkt, int len)
 			NetCopyIP(&arp->ar_data[16], &arp->ar_data[6]);
 			memcpy   (&arp->ar_data[ 0], NetOurEther, 6);
 			NetCopyIP(&arp->ar_data[ 6], &NetOurIP);
-			NetSendPacket((uchar *)et,((uchar *)arp-pkt)+ARP_HDR_SIZE);
+			(void) eth_send((uchar *)et, ((uchar *)arp-pkt) + ARP_HDR_SIZE);
 			return;
-		case ARPOP_REPLY:		/* set TFTP server eth addr	*/
+
+		case ARPOP_REPLY:		/* arp reply */
+			/* are we waiting for a reply */
+			if (!NetArpWaitPacketIP || !NetArpWaitPacketMAC)
+				break;
 #ifdef ET_DEBUG
-			printf("Got ARP REPLY, set server/gtwy eth addr\n");
+			printf("Got ARP REPLY, set server/gtwy eth addr (%02x:%02x:%02x:%02x:%02x:%02x)\n",
+				arp->ar_data[0], arp->ar_data[1],
+				arp->ar_data[2], arp->ar_data[3],
+				arp->ar_data[4], arp->ar_data[5]);
 #endif
-			memcpy (NetServerEther, &arp->ar_data[0], 6);
-			(*packetHandler)(0,0,0,0);	/* start TFTP */
+
+			tmp = NetReadIP(&arp->ar_data[6]);
+
+			/* matched waiting packet's address */
+			if (tmp == NetArpWaitReplyIP) {
+#ifdef ET_DEBUG
+				printf("Got it\n");
+#endif
+				/* save address for later use */
+				memcpy(NetArpWaitPacketMAC, &arp->ar_data[0], 6);
+
+				/* modify header, and transmit it */
+				memcpy(((Ethernet_t *)NetArpWaitTxPacket)->et_dest, NetArpWaitPacketMAC, 6);
+				(void) eth_send(NetArpWaitTxPacket, NetArpWaitTxPacketSize);
+
+				/* no arp request pending now */
+				NetArpWaitPacketIP = 0;
+				NetArpWaitTxPacketSize = 0;
+				NetArpWaitPacketMAC = NULL;
+
+			}
 			return;
 		default:
 #ifdef ET_DEBUG
@@ -553,13 +834,26 @@ NetReceive(volatile uchar * pkt, int len)
 		if (ip->ip_p == IPPROTO_ICMP) {
 			ICMP_t *icmph = (ICMP_t *)&(ip->udp_src);
 
-			if (icmph->type != ICMP_REDIRECT)
-				return;
+			switch (icmph->type) {
+			case ICMP_REDIRECT:
 			if (icmph->code != ICMP_REDIR_HOST)
 				return;
 			puts (" ICMP Host Redirect to ");
 			print_IPaddr(icmph->un.gateway);
 			putc(' ');
+				break;
+#if (CONFIG_COMMANDS & CFG_CMD_PING)
+			case ICMP_ECHO_REPLY:
+				/*
+				 *	IP header OK.  Pass the packet to the current handler.
+				 */
+				/* XXX point to ip packet */
+				(*packetHandler)((uchar *)ip, 0, 0, 0);
+				break;
+#endif
+			default:
+				return;
+			}
 		} else if (ip->ip_p != IPPROTO_UDP) {	/* Only UDP packets */
 			return;
 		}
@@ -582,14 +876,24 @@ NetReceive(volatile uchar * pkt, int len)
 static int net_check_prereq (proto_t protocol)
 {
 	switch (protocol) {
-	case ARP:	/* nothing to do */
-			break;
-
+			/* Fall through */
+#if (CONFIG_COMMANDS & CFG_CMD_PING)
+	case PING:
+			if (NetPingIP == 0) {
+				puts ("*** ERROR: ping address not given\n");
+				return (1);
+			}
+			goto common;
+#endif
 	case TFTP:
 			if (NetServerIP == 0) {
 				puts ("*** ERROR: `serverip' not set\n");
 				return (1);
 			}
+
+#if (CONFIG_COMMANDS & CFG_CMD_PING)
+		common:
+#endif
 
 			if (NetOurIP == 0) {
 				puts ("*** ERROR: `ipaddr' not set\n");
@@ -626,6 +930,8 @@ static int net_check_prereq (proto_t protocol)
 #endif
 			}
 			/* Fall through */
+		default:
+			return(0);
 	}
 	return (0);	/* OK */
 }
@@ -723,22 +1029,14 @@ void ip_to_string (IPaddr_t x, char *s)
     );
 }
 
-void print_IPaddr (IPaddr_t x)
-{
-    char tmp[16];
-
-    ip_to_string(x, tmp);
-
-    puts(tmp);
-}
-
-IPaddr_t getenv_IPaddr (char *var)
+IPaddr_t string_to_ip(char *s)
 {
 	IPaddr_t addr;
-	char *s, *e;
+	char *e;
 	int i;
 
-	s = getenv (var);
+	if (s == NULL)
+		return(0);
 
 	for (addr=0, i=0; i<4; ++i) {
 		ulong val = s ? simple_strtoul(s, &e, 10) : 0;
@@ -750,4 +1048,18 @@ IPaddr_t getenv_IPaddr (char *var)
 	}
 
 	return (htonl(addr));
+}
+
+void print_IPaddr (IPaddr_t x)
+{
+    char tmp[16];
+
+    ip_to_string(x, tmp);
+
+    puts(tmp);
+}
+
+IPaddr_t getenv_IPaddr (char *var)
+{
+	return (string_to_ip(getenv(var)));
 }

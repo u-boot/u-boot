@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2002
+ * (C) Copyright 2000
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -21,14 +21,8 @@
  * MA 02111-1307 USA
  */
 
-/* #define DEBUG */
-
 #include <common.h>
 #include <mpc8xx.h>
-
-#ifndef	CFG_ENV_ADDR
-#define CFG_ENV_ADDR	(CFG_FLASH_BASE + CFG_ENV_OFFSET)
-#endif
 
 flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
@@ -37,6 +31,7 @@ flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
  */
 static ulong flash_get_size (vu_long *addr, flash_info_t *info);
 static int write_word (flash_info_t *info, ulong dest, ulong data);
+static void flash_get_offsets (ulong base, flash_info_t *info);
 
 /*-----------------------------------------------------------------------
  */
@@ -45,7 +40,7 @@ unsigned long flash_init (void)
 {
 	volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
-	unsigned long size_b0, size_b1;
+	unsigned long size_b0 ;
 	int i;
 
 	/* Init: no FLASHes known */
@@ -54,52 +49,20 @@ unsigned long flash_init (void)
 	}
 
 	/* Static FLASH Bank configuration here - FIXME XXX */
-
-	debug ("\n## Get flash bank 1 size @ 0x%08x\n",FLASH_BASE0_PRELIM);
-
-	size_b0 = flash_get_size((vu_long *)FLASH_BASE0_PRELIM, &flash_info[0]);
-
-	debug ("## Get flash bank 2 size @ 0x%08x\n",FLASH_BASE1_PRELIM);
-
+	size_b0 = flash_get_size((vu_long *)FLASH_BASE_PRELIM, &flash_info[0]);
 	if (flash_info[0].flash_id == FLASH_UNKNOWN) {
 		printf ("## Unknown FLASH on Bank 0 - Size = 0x%08lx = %ld MB\n",
 			size_b0, size_b0<<20);
 	}
 
-	size_b1 = flash_get_size((vu_long *)FLASH_BASE1_PRELIM, &flash_info[1]);
-
-	debug ("## Prelim. Flash bank sizes: %08lx + 0x%08lx\n",size_b0,size_b1);
-
-	if (size_b1 > size_b0) {
-		printf ("## ERROR: "
-			"Bank 1 (0x%08lx = %ld MB) > Bank 0 (0x%08lx = %ld MB)\n",
-			size_b1, size_b1<<20,
-			size_b0, size_b0<<20
-		);
-		flash_info[0].flash_id	= FLASH_UNKNOWN;
-		flash_info[1].flash_id	= FLASH_UNKNOWN;
-		flash_info[0].sector_count	= -1;
-		flash_info[1].sector_count	= -1;
-		flash_info[0].size		= 0;
-		flash_info[1].size		= 0;
-		return (0);
-	}
-
-	debug  ("## Before remap: "
-		"BR0: 0x%08x    OR0: 0x%08x    "
-		"BR1: 0x%08x    OR1: 0x%08x\n",
-		memctl->memc_br0, memctl->memc_or0,
-		memctl->memc_br1, memctl->memc_or1);
-
 	/* Remap FLASH according to real size */
-	memctl->memc_or0 = CFG_OR_TIMING_FLASH | (-size_b0 & OR_AM_MSK);
+	memctl->memc_or0 = CFG_OR_TIMING_FLASH | (-size_b0 & 0xFFFF8000);
 	memctl->memc_br0 = (CFG_FLASH_BASE & BR_BA_MSK) | BR_MS_GPCM | BR_V;
 
-	debug ("## BR0: 0x%08x    OR0: 0x%08x\n",
-		memctl->memc_br0, memctl->memc_or0);
-
 	/* Re-do sizing to get full correct info */
+
 	size_b0 = flash_get_size((vu_long *)CFG_FLASH_BASE, &flash_info[0]);
+	flash_get_offsets (CFG_FLASH_BASE, &flash_info[0]);
 
 #if CFG_MONITOR_BASE >= CFG_FLASH_BASE
 	/* monitor protection ON by default */
@@ -117,50 +80,38 @@ unsigned long flash_init (void)
 		      &flash_info[0]);
 #endif
 
-	if (size_b1) {
-		memctl->memc_or1 = CFG_OR_TIMING_FLASH | (-size_b1 & 0xFFFF8000);
-		memctl->memc_br1 = ((CFG_FLASH_BASE + size_b0) & BR_BA_MSK) |
-				    BR_MS_GPCM | BR_V;
+	flash_info[0].size = size_b0;
 
-		debug ("## BR1: 0x%08x    OR1: 0x%08x\n",
-			memctl->memc_br1, memctl->memc_or1);
+	return (size_b0);
+}
 
-		/* Re-do sizing to get full correct info */
-		size_b1 = flash_get_size((vu_long *)(CFG_FLASH_BASE + size_b0),
-					  &flash_info[1]);
+/*-----------------------------------------------------------------------
+ */
+static void flash_get_offsets (ulong base, flash_info_t *info)
+{
+	int i;
 
-#if CFG_MONITOR_BASE >= CFG_FLASH_BASE
-		/* monitor protection ON by default */
-		flash_protect(FLAG_PROTECT_SET,
-			      CFG_MONITOR_BASE,
-			      CFG_MONITOR_BASE+monitor_flash_len-1,
-			      &flash_info[1]);
-#endif
-
-#ifdef	CFG_ENV_IS_IN_FLASH
-		/* ENV protection ON by default */
-		flash_protect(FLAG_PROTECT_SET,
-			      CFG_ENV_ADDR,
-			      CFG_ENV_ADDR+CFG_ENV_SIZE-1,
-			      &flash_info[1]);
-#endif
+	/* set up sector start address table */
+	if (info->flash_id & FLASH_BTYPE) {
+		/* set sector offsets for bottom boot block type	*/
+		info->start[0] = base + 0x00000000;
+		info->start[1] = base + 0x00010000;
+		info->start[2] = base + 0x00018000;
+		info->start[3] = base + 0x00020000;
+		for (i = 4; i < info->sector_count; i++) {
+			info->start[i] = base + ((i-3) * 0x00040000) ;
+		}
 	} else {
-		memctl->memc_br1 = 0;		/* invalidate bank */
-
-		flash_info[1].flash_id = FLASH_UNKNOWN;
-		flash_info[1].sector_count = -1;
-		flash_info[1].size = 0;
-
-		debug ("## DISABLE BR1: 0x%08x    OR1: 0x%08x\n",
-			memctl->memc_br1, memctl->memc_or1);
+		/* set sector offsets for top boot block type		*/
+		i = info->sector_count - 1;
+		info->start[i--] = base + info->size - 0x00010000;
+		info->start[i--] = base + info->size - 0x00018000;
+		info->start[i--] = base + info->size - 0x00020000;
+		for (; i >= 0; i--) {
+			info->start[i] = base + i * 0x00040000;
+		}
 	}
 
-	debug ("## Final Flash bank sizes: %08lx + 0x%08lx\n",size_b0,size_b1);
-
-	flash_info[0].size = size_b0;
-	flash_info[1].size = size_b1;
-
-	return (size_b0 + size_b1);
 }
 
 /*-----------------------------------------------------------------------
@@ -235,15 +186,13 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 	ulong base = (ulong)addr;
 
 	/* Write auto select command: read Manufacturer ID */
-	addr[0x0555] = 0x00AA00AA;
-	addr[0x02AA] = 0x00550055;
-	addr[0x0555] = 0x00900090;
+	addr[0xAAA] = 0xAAAAAAAA ;
+	addr[0x555] = 0x55555555 ;
+	addr[0xAAA] = 0x90909090 ;
 
-	value = addr[0];
+	value = addr[0] ;
 
-	debug ("Manuf. ID @ 0x%08lx: 0x%08lx\n", (ulong)addr, value);
-
-	switch (value) {
+	switch (value & 0x00FF00FF) {
 	case AMD_MANUFACT:
 		info->flash_id = FLASH_MAN_AMD;
 		break;
@@ -257,121 +206,82 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 		return (0);			/* no or unknown flash	*/
 	}
 
-	value = addr[1];			/* device ID		*/
+	value = addr[2] ;		/* device ID		*/
 
-	debug ("Device ID @ 0x%08lx: 0x%08lx\n", (ulong)(&addr[1]), value);
-
-	switch (value) {
-	case AMD_ID_LV400T:
+	switch (value & 0x00FF00FF) {
+	case (AMD_ID_LV400T & 0x00FF00FF):
 		info->flash_id += FLASH_AM400T;
 		info->sector_count = 11;
 		info->size = 0x00100000;
 		break;				/* => 1 MB		*/
 
-	case AMD_ID_LV400B:
+	case (AMD_ID_LV400B & 0x00FF00FF):
 		info->flash_id += FLASH_AM400B;
 		info->sector_count = 11;
 		info->size = 0x00100000;
 		break;				/* => 1 MB		*/
 
-	case AMD_ID_LV800T:
+	case (AMD_ID_LV800T & 0x00FF00FF):
 		info->flash_id += FLASH_AM800T;
 		info->sector_count = 19;
 		info->size = 0x00200000;
 		break;				/* => 2 MB		*/
 
-	case AMD_ID_LV800B:
+	case (AMD_ID_LV800B & 0x00FF00FF):
 		info->flash_id += FLASH_AM800B;
 		info->sector_count = 19;
-		info->size = 0x00200000;
-		break;				/* => 2 MB		*/
+		info->size = 0x00400000;	/*%%% Size doubled by yooth */
+		break;				/* => 4 MB		*/
 
-	case AMD_ID_LV160T:
+	case (AMD_ID_LV160T & 0x00FF00FF):
 		info->flash_id += FLASH_AM160T;
 		info->sector_count = 35;
 		info->size = 0x00400000;
 		break;				/* => 4 MB		*/
 
-	case AMD_ID_LV160B:
+	case (AMD_ID_LV160B & 0x00FF00FF):
 		info->flash_id += FLASH_AM160B;
 		info->sector_count = 35;
-		info->size = 0x00400000;
-		break;				/* => 4 MB		*/
+		info->size = 0x00800000;
+		break;				/* => 8 MB		*/
+#if 0	/* enable when device IDs are available */
 	case AMD_ID_LV320T:
 		info->flash_id += FLASH_AM320T;
-		info->sector_count = 71;
+		info->sector_count = 67;
 		info->size = 0x00800000;
 		break;				/* => 8 MB		*/
 
 	case AMD_ID_LV320B:
 		info->flash_id += FLASH_AM320B;
-		info->sector_count = 71;
-		info->size = 0x00800000;
-		break;				/* => 8 MB		*/
-	case AMD_ID_DL640:
-debug ("## oops - same ID used for AM29LV128ML/H mirror bit flash ???\n");
-		info->flash_id += FLASH_AMDL640;
-		info->sector_count = 142;
-		info->size = 0x00800000;
-		break;
+		info->sector_count = 67;
+		info->size = 0x01000000;
+		break;				/* => 16 MB		*/
+#endif
 	default:
 		info->flash_id = FLASH_UNKNOWN;
 		return (0);			/* => no or unknown flash */
-	}
 
+	}
+	/*%%% sector start address modified */
 	/* set up sector start address table */
-	switch (value) {
-	case AMD_ID_LV400B:
-	case AMD_ID_LV800B:
-	case AMD_ID_LV160B:
+	if (info->flash_id & FLASH_BTYPE) {
 		/* set sector offsets for bottom boot block type	*/
 		info->start[0] = base + 0x00000000;
-		info->start[1] = base + 0x00008000;
-		info->start[2] = base + 0x0000C000;
-		info->start[3] = base + 0x00010000;
+		info->start[1] = base + 0x00010000;
+		info->start[2] = base + 0x00018000;
+		info->start[3] = base + 0x00020000;
 		for (i = 4; i < info->sector_count; i++) {
-			info->start[i] = base + (i * 0x00020000) - 0x00060000;
+			info->start[i] = base + ((i-3) * 0x00040000) ;
 		}
-		break;
-	case AMD_ID_LV400T:
-	case AMD_ID_LV800T:
-	case AMD_ID_LV160T:
+	} else {
 		/* set sector offsets for top boot block type		*/
 		i = info->sector_count - 1;
-		info->start[i--] = base + info->size - 0x00008000;
-		info->start[i--] = base + info->size - 0x0000C000;
 		info->start[i--] = base + info->size - 0x00010000;
+		info->start[i--] = base + info->size - 0x00018000;
+		info->start[i--] = base + info->size - 0x00020000;
 		for (; i >= 0; i--) {
-			info->start[i] = base + i * 0x00020000;
+			info->start[i] = base + i * 0x00040000;
 		}
-		break;
-	case AMD_ID_LV320B:
-		for (i = 0; i < info->sector_count; i++) {
-			info->start[i] = base;
-			/*
-			 * The first 8 sectors are 8 kB,
-			 * all the other ones  are 64 kB
-			 */
-			base += (i < 8)
-				?  2 * ( 8 << 10)
-				:  2 * (64 << 10);
-		}
-		break;
-	case AMD_ID_LV320T:
-		for (i = 0; i < info->sector_count; i++) {
-			info->start[i] = base;
-			/*
-			 * The last 8 sectors are 8 kB,
-			 * all the other ones  are 64 kB
-			 */
-			base += (i < (info->sector_count - 8))
-				?  2 * (64 << 10)
-				:  2 * ( 8 << 10);
-		}
-		break;
-	default:
-		return (0);
-		break;
 	}
 
 	/* check for protected sectors */
@@ -379,7 +289,7 @@ debug ("## oops - same ID used for AM29LV128ML/H mirror bit flash ???\n");
 		/* read sector protection at sector address, (A7 .. A0) = 0x02 */
 		/* D0 = 1 if protected */
 		addr = (volatile unsigned long *)(info->start[i]);
-		info->protect[i] = addr[2] & 1;
+		info->protect[i] = addr[4] & 1 ;
 	}
 
 	/*
@@ -388,7 +298,7 @@ debug ("## oops - same ID used for AM29LV128ML/H mirror bit flash ???\n");
 	if (info->flash_id != FLASH_UNKNOWN) {
 		addr = (volatile unsigned long *)info->start[0];
 
-		*addr = 0x00F000F0;	/* reset bank */
+		*addr = 0xF0F0F0F0;	/* reset bank */
 	}
 
 	return (info->size);
@@ -403,8 +313,6 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 	vu_long *addr = (vu_long*)(info->start[0]);
 	int flag, prot, sect, l_sect;
 	ulong start, now, last;
-
-	debug ("flash_erase: first: %d last: %d\n", s_first, s_last);
 
 	if ((s_first < 0) || (s_first > s_last)) {
 		if (info->flash_id == FLASH_UNKNOWN) {
@@ -441,17 +349,17 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 	/* Disable interrupts which might cause a timeout here */
 	flag = disable_interrupts();
 
-	addr[0x0555] = 0x00AA00AA;
-	addr[0x02AA] = 0x00550055;
-	addr[0x0555] = 0x00800080;
-	addr[0x0555] = 0x00AA00AA;
-	addr[0x02AA] = 0x00550055;
+	addr[0xAAA] = 0xAAAAAAAA;
+	addr[0x555] = 0x55555555;
+	addr[0xAAA] = 0x80808080;
+	addr[0xAAA] = 0xAAAAAAAA;
+	addr[0x555] = 0x55555555;
 
 	/* Start erase on unprotected sectors */
 	for (sect = s_first; sect<=s_last; sect++) {
 		if (info->protect[sect] == 0) {	/* not protected */
-			addr = (vu_long*)(info->start[sect]);
-			addr[0] = 0x00300030;
+			addr = (vu_long *)(info->start[sect]) ;
+			addr[0] = 0x30303030 ;
 			l_sect = sect;
 		}
 	}
@@ -471,8 +379,8 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 
 	start = get_timer (0);
 	last  = start;
-	addr = (vu_long*)(info->start[l_sect]);
-	while ((addr[0] & 0x00800080) != 0x00800080) {
+	addr = (vu_long *)(info->start[l_sect]);
+	while ((addr[0] & 0x80808080) != 0x80808080) {
 		if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
 			printf ("Timeout\n");
 			return 1;
@@ -486,8 +394,8 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 
 DONE:
 	/* reset to read mode */
-	addr = (volatile unsigned long *)info->start[0];
-	addr[0] = 0x00F000F0;	/* reset bank */
+	addr = (vu_long *)info->start[0];
+	addr[0] = 0xF0F0F0F0;	/* reset bank */
 
 	printf (" done\n");
 	return 0;
@@ -572,7 +480,7 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
  */
 static int write_word (flash_info_t *info, ulong dest, ulong data)
 {
-	vu_long *addr = (vu_long*)(info->start[0]);
+	vu_long *addr = (vu_long *)(info->start[0]);
 	ulong start;
 	int flag;
 
@@ -583,9 +491,9 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 	/* Disable interrupts which might cause a timeout here */
 	flag = disable_interrupts();
 
-	addr[0x0555] = 0x00AA00AA;
-	addr[0x02AA] = 0x00550055;
-	addr[0x0555] = 0x00A000A0;
+	addr[0xAAA] = 0xAAAAAAAA;
+	addr[0x555] = 0x55555555;
+	addr[0xAAA] = 0xA0A0A0A0;
 
 	*((vu_long *)dest) = data;
 
@@ -595,7 +503,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 
 	/* data polling for D7 */
 	start = get_timer (0);
-	while ((*((vu_long *)dest) & 0x00800080) != (data & 0x00800080)) {
+	while ((*((vu_long *)dest) & 0x80808080) != (data & 0x80808080)) {
 		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
 			return (1);
 		}

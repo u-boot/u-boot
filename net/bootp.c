@@ -24,7 +24,6 @@
 #include <net.h>
 #include "bootp.h"
 #include "tftp.h"
-#include "arp.h"
 #ifdef CONFIG_STATUS_LED
 #include <status_led.h>
 #endif
@@ -336,10 +335,7 @@ BootpHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len)
 		return;
 	}
 
-	/* Send ARP request to get TFTP server ethernet address.
-	 * This automagically starts TFTP, too.
-	 */
-	ArpRequest();
+	TftpStart();
 }
 #endif	/* !CFG_CMD_DHCP */
 
@@ -866,10 +862,7 @@ DhcpHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len)
 				NetState = NETLOOP_SUCCESS;
 				return;
 			}
-			/* Send ARP request to get TFTP server ethernet address.
-			 * This automagically starts TFTP, too.
-			 */
-			ArpRequest();
+			TftpStart();
 			return;
 		}
 		break;
