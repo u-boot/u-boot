@@ -33,8 +33,9 @@
 #define LOG_BU_MASK ~(LOG_BUF_LEN-1)
 
 #define	CMD_TBL_LOG	MK_CMD_TBL_ENTRY(			\
-	"log",	3,	3,	1,	do_log,			\
+	"log",	3,     255,	1,	do_log,			\
 	"log     - manipulate logbuffer\n",                     \
+	"log info   - show pointer details\n"			\
 	"log reset  - clear contents\n"				\
 	"log show   - show contents\n"				\
 	"log append <msg> - append <msg> to the logbuffer\n"	\

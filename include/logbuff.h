@@ -25,9 +25,15 @@
 
 #ifdef CONFIG_LOGBUFFER
 
-#define LOGBUFF_TEST0	0x01
+#define LOGBUFF_LEN	(16384)	/* Must be 16k right now */
+#define LOGBUFF_MASK	(LOGBUFF_LEN-1)
+#define LOGBUFF_OVERHEAD (4096) /* Logbuffer overhead for extra info */
+#define LOGBUFF_RESERVE (LOGBUFF_LEN+LOGBUFF_OVERHEAD)
+
+#define LOGBUFF_INITIALIZED	(1<<31)
 
 int drv_logbuff_init (void);
+void logbuff_init_ptrs (void);
 void logbuff_log(char *msg);
 void logbuff_reset (void);
 

@@ -658,6 +658,7 @@ clean:
 	rm -f tools/img2srec tools/mkimage tools/envcrc tools/gen_eth_addr
 	rm -f tools/easylogo/easylogo tools/bmp_logo
 	rm -f tools/gdb/astest tools/gdb/gdbcont tools/gdb/gdbsend
+	rm -f tools/env/fw_printenv tools/env/fw_setenv
 
 clobber:	clean
 	find . -type f \
@@ -667,7 +668,7 @@ clobber:	clean
 	rm -f $(OBJS) *.bak tags TAGS
 	rm -fr *.*~
 	rm -f u-boot u-boot.bin u-boot.elf u-boot.srec u-boot.map System.map
-	rm -f tools/crc32.c tools/environment.c
+	rm -f tools/crc32.c tools/environment.c tools/env/crc32.c
 	rm -f include/asm/arch include/asm
 
 mrproper \

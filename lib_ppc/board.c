@@ -362,6 +362,7 @@ void board_init_f (ulong bootflag)
 	 * relocate the code and continue running from DRAM.
 	 *
 	 * Reserve memory at end of RAM for (top down in that order):
+         *  - kernel log buffer
 	 *  - protected RAM
 	 *  - LCD framebuffer
 	 *  - monitor code
@@ -384,6 +385,14 @@ void board_init_f (ulong bootflag)
 	/* only allow stack below 256M */
 	addr = CFG_SDRAM_BASE +
 	       (gd->ram_size > 256 << 20) ? 256 << 20 : gd->ram_size;
+#endif
+
+#ifdef CONFIG_LOGBUFFER
+	/* reserve kernel log buffer */
+	addr -= (LOGBUFF_RESERVE);
+# ifdef DEBUG
+	printf ("Reserving %ldk for kernel logbuffer at %08lx\n", LOGBUFF_LEN, addr);
+# endif
 #endif
 
 #ifdef CONFIG_PRAM
@@ -613,9 +622,10 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	WATCHDOG_RESET ();
 
 #ifdef CONFIG_LOGBUFFER
-	logbuff_reset ();
+	logbuff_init_ptrs ();
 #endif
 #ifdef CONFIG_POST
+	post_output_backlog ();
 	post_reloc ();
 #endif
 
@@ -929,21 +939,29 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	bedbug_init ();
 #endif
 
-#ifdef CONFIG_PRAM
+#if defined(CONFIG_PRAM) || defined(CONFIG_LOGBUFFER)
 	/*
 	 * Export available size of memory for Linux,
 	 * taking into account the protected RAM at top of memory
 	 */
 	{
 		ulong pram;
-		char *s;
 		uchar memsz[32];
+#ifdef CONFIG_PRAM
+		char *s;
 
 		if ((s = getenv ("pram")) != NULL) {
 			pram = simple_strtoul (s, NULL, 10);
 		} else {
 			pram = CONFIG_PRAM;
 		}
+#else
+		pram=0;
+#endif
+#ifdef CONFIG_LOGBUFFER
+		/* Also take the logbuffer into account (pram is in kB) */
+		pram += (LOGBUFF_LEN+LOGBUFF_OVERHEAD)/1024;
+#endif
 		sprintf (memsz, "%ldk", (bd->bi_memsize / 1024) - pram);
 		setenv ("mem", memsz);
 	}

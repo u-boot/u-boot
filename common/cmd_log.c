@@ -2,6 +2,9 @@
  * (C) Copyright 2002
  * Detlev Zundel, DENX Software Engineering, dzu@denx.de.
  *
+ * Code used from linux/kernel/printk.c
+ * Copyright (C) 1991, 1992  Linus Torvalds
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -19,6 +22,18 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
+ *
+ * Comments:
+ *
+ * After relocating the code, the environment variable "loglevel" is
+ * copied to console_loglevel.  The functionality is similar to the
+ * handling in the Linux kernel, i.e. messages logged with a priority
+ * less than console_loglevel are also output to stdout.
+ *
+ * If you want messages with the default level (e.g. POST messages) to
+ * appear on stdout also, make sure the environment variable
+ * "loglevel" is set at boot time to a number higher than
+ * default_message_loglevel below.
  */
 
 /*
@@ -28,12 +43,10 @@
 #include <common.h>
 #include <command.h>
 #include <devices.h>
+#include <post.h>
 #include <logbuff.h>
 
 #if defined(CONFIG_LOGBUFFER)
-
-#define LOG_BUF_LEN	(16384)
-#define LOG_BUF_MASK	(LOG_BUF_LEN-1)
 
 /* Local prototypes */
 static void logbuff_putc (const char c);
@@ -42,16 +55,43 @@ static int logbuff_printk(const char *line);
 
 static char buf[1024];
 
+/* This combination will not print messages with the default loglevel */
 static unsigned console_loglevel = 3;
 static unsigned default_message_loglevel = 4;
-static unsigned long log_size;
-static unsigned char *log_buf=NULL;
-static unsigned long *ext_log_start, *ext_logged_chars;
+static unsigned char *log_buf = NULL;
+static unsigned long *ext_log_size;
+static unsigned long *ext_log_start;
+static unsigned long *ext_logged_chars;
+#define log_size (*ext_log_size)
 #define log_start (*ext_log_start)
 #define logged_chars (*ext_logged_chars)
 
 /* Forced by code, eh! */
 #define LOGBUFF_MAGIC 0xc0de4ced
+
+/* The mapping used here has to be the same as in setup_ext_logbuff ()
+   in linux/kernel/printk */
+void logbuff_init_ptrs (void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+	unsigned long *ext_tag;
+	char *s;
+
+	log_buf = (unsigned char *)(gd->bd->bi_memsize-LOGBUFF_LEN);
+	ext_tag = (unsigned long *)(log_buf)-4;
+	ext_log_start = (unsigned long *)(log_buf)-3;
+	ext_log_size = (unsigned long *)(log_buf)-2;
+	ext_logged_chars = (unsigned long *)(log_buf)-1;
+ 	if (*ext_tag!=LOGBUFF_MAGIC) {
+ 		logged_chars = log_size = log_start = 0;
+ 		*ext_tag = LOGBUFF_MAGIC;
+ 	}
+	/* Initialize default loglevel if present */
+	if ((s = getenv ("loglevel")) != NULL)
+		console_loglevel = (int)simple_strtoul (s, NULL, 10);
+
+	gd->post_log_word |= LOGBUFF_INITIALIZED;
+}
 
 int drv_logbuff_init (void)
 {
@@ -75,45 +115,26 @@ int drv_logbuff_init (void)
 static void logbuff_putc (const char c)
 {
 	char buf[2];
-	buf[0]=c;
-	buf[1]='\0';
-	logbuff_printk(buf);
+	buf[0] = c;
+	buf[1] = '\0';
+	logbuff_printk (buf);
 }
 
 static void logbuff_puts (const char *s)
 {
-	char buf[512];
-
-	sprintf(buf, "%s\n", s);
-	logbuff_printk(buf);
+	logbuff_printk (s);
 }
 
 void logbuff_log(char *msg)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
-	if ((gd->flags & GD_FLG_RELOC)&&(getenv ("logstart") != NULL)) {
-		logbuff_printk(msg);
+	if ((gd->post_log_word & LOGBUFF_INITIALIZED)) {
+		logbuff_printk (msg);
 	} else {
-		puts(msg);
-	}
-}
-
-void logbuff_reset (void)
-{
-	char *s;
-	unsigned long *ext_tag;
-
-	if ((s = getenv ("logstart")) != NULL) {
-		log_buf = (unsigned char *)simple_strtoul(s, NULL, 16);
-		ext_tag=(unsigned long *)(log_buf)-3;
-		ext_log_start=(unsigned long *)(log_buf)-2;
-		ext_logged_chars=(unsigned long *)(log_buf)-1;
-/*		if (*ext_tag!=LOGBUFF_MAGIC) {	*/
-			logged_chars=log_start=0;
-			*ext_tag=LOGBUFF_MAGIC;
-/*		}	*/
-		log_size=logged_chars;
+		/* Can happen only for pre-relocated errors as logging */
+		/* at that stage should be disabled                    */
+		puts (msg);
 	}
 }
 
@@ -132,34 +153,39 @@ int do_log (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	char *s;
 	unsigned long i;
 
-	if (log_buf==NULL) {
-		printf ("No logbuffer defined!  Set 'logstart' to use this feature.\n");
-		return 1;
+	if (strcmp(argv[1],"append") == 0) {
+		/* Log concatenation of all arguments separated by spaces */
+		for (i=2; i<argc; i++) {
+			if (i<argc-1) {
+				logbuff_printk (argv[i]);
+				logbuff_putc (' ');
+			} else {
+				logbuff_puts (argv[i]);
+			}
+		}
+		return 0;
 	}
 
 	switch (argc) {
 
 	case 2:
 		if (strcmp(argv[1],"show") == 0) {
-			for (i=0; i<logged_chars; i++) {
-				s=log_buf+((log_start+i)&LOG_BUF_MASK);
-				putc(*s);
+			for (i=0; i < (log_size&LOGBUFF_MASK); i++) {
+				s = log_buf+((log_start+i)&LOGBUFF_MASK);
+				putc (*s);
 			}
 			return 0;
 		} else if (strcmp(argv[1],"reset") == 0) {
-			log_start=0;
-			logged_chars=0;
-			log_size=0;
+			log_start    = 0;
+			log_size     = 0;
+			logged_chars = 0;
 			return 0;
-		}
-		printf ("Usage:\n%s\n", cmdtp->usage);
-		return 1;
-
-	case 3:
-		if (strcmp(argv[1],"append") == 0) {
-			logbuff_puts(argv[2]);
+		} else if (strcmp(argv[1],"info") == 0) {
+			printf ("Logbuffer   at  %08lx\n", (unsigned long)log_buf);
+			printf ("log_start    =  %08lx\n", log_start);
+			printf ("log_size     =  %08lx\n", log_size);
+			printf ("logged_chars =  %08lx\n", logged_chars);
 			return 0;
-
 		}
 		printf ("Usage:\n%s\n", cmdtp->usage);
 		return 1;
@@ -177,8 +203,8 @@ static int logbuff_printk(const char *line)
 	int line_feed;
 	static signed char msg_level = -1;
 
-	strcpy(buf + 3, line);
-	i = strlen(line);
+	strcpy (buf + 3, line);
+	i = strlen (line);
 	buf_end = buf + 3 + i;
 	for (p = buf + 3; p < buf_end; p++) {
 		msg = p;
@@ -199,8 +225,8 @@ static int logbuff_printk(const char *line)
 		}
 		line_feed = 0;
 		for (; p < buf_end; p++) {
-			log_buf[(log_start+log_size) & LOG_BUF_MASK] = *p;
-			if (log_size < LOG_BUF_LEN)
+			log_buf[(log_start+log_size) & LOGBUFF_MASK] = *p;
+			if (log_size < LOGBUFF_LEN)
 				log_size++;
 			else
 				log_start++;

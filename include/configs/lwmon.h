@@ -31,11 +31,6 @@
 /* External logbuffer support */
 #define CONFIG_LOGBUFFER
 
-/* Reserve space for the logbuffer */
-#ifdef CONFIG_LOGBUFFER
-#define CONFIG_PRAM 20
-#endif
-
 /*
  * High Level Configuration Options
  * (easy to change)

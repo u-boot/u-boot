@@ -19,6 +19,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
+ *
+ * Be sure to mark tests to be run before relocation as such with the
+ * CFG_POST_PREREL flag so that logging is done correctly if the
+ * logbuffer support is enabled.
  */
 
 #include <common.h>
@@ -47,7 +51,8 @@ struct post_test post_list[] =
         "cache",
         "This test verifies the CPU cache operation.",
         POST_RAM | POST_ALWAYS,
-        &cache_post_test
+        &cache_post_test,
+	CFG_POST_CACHE
     },
 #endif
 #if CONFIG_POST & CFG_POST_WATCHDOG
@@ -56,7 +61,8 @@ struct post_test post_list[] =
         "watchdog",
         "This test checks the watchdog timer.",
         POST_RAM | POST_POWERON | POST_POWERFAIL | POST_MANUAL | POST_REBOOT,
-        &watchdog_post_test
+        &watchdog_post_test,
+	CFG_POST_WATCHDOG
     },
 #endif
 #if CONFIG_POST & CFG_POST_I2C
@@ -65,7 +71,8 @@ struct post_test post_list[] =
         "i2c",
         "This test verifies the I2C operation.",
         POST_RAM | POST_ALWAYS,
-        &i2c_post_test
+        &i2c_post_test,
+	CFG_POST_I2C
     },
 #endif
 #if CONFIG_POST & CFG_POST_RTC
@@ -74,7 +81,8 @@ struct post_test post_list[] =
         "rtc",
         "This test verifies the RTC operation.",
         POST_RAM | POST_POWERFAIL | POST_MANUAL,
-        &rtc_post_test
+        &rtc_post_test,
+	CFG_POST_RTC
     },
 #endif
 #if CONFIG_POST & CFG_POST_MEMORY
@@ -82,8 +90,9 @@ struct post_test post_list[] =
         "Memory test",
         "memory",
         "This test checks RAM.",
-        POST_ROM | POST_POWERON | POST_POWERFAIL,
-        &memory_post_test
+        POST_ROM | POST_POWERON | POST_POWERFAIL | POST_PREREL,
+        &memory_post_test,
+	CFG_POST_MEMORY
     },
 #endif
 #if CONFIG_POST & CFG_POST_CPU
@@ -93,7 +102,8 @@ struct post_test post_list[] =
         "This test verifies the arithmetic logic unit of"
         " CPU.",
         POST_RAM | POST_ALWAYS,
-        &cpu_post_test
+        &cpu_post_test,
+	CFG_POST_CPU
     },
 #endif
 #if CONFIG_POST & CFG_POST_UART
@@ -102,7 +112,8 @@ struct post_test post_list[] =
         "uart",
         "This test verifies the UART operation.",
         POST_RAM | POST_POWERFAIL | POST_MANUAL,
-        &uart_post_test
+        &uart_post_test,
+	CFG_POST_UART
     },
 #endif
 #if CONFIG_POST & CFG_POST_ETHER
@@ -111,7 +122,8 @@ struct post_test post_list[] =
         "ethernet",
         "This test verifies the ETHERNET operation.",
         POST_RAM | POST_ALWAYS | POST_MANUAL,
-        &ether_post_test
+        &ether_post_test,
+	CFG_POST_ETHER
     },
 #endif
 #if CONFIG_POST & CFG_POST_SPI
@@ -120,7 +132,8 @@ struct post_test post_list[] =
         "spi",
         "This test verifies the SPI operation.",
         POST_RAM | POST_ALWAYS | POST_MANUAL,
-        &spi_post_test
+        &spi_post_test,
+	CFG_POST_SPI
     },
 #endif
 #if CONFIG_POST & CFG_POST_USB
@@ -129,7 +142,8 @@ struct post_test post_list[] =
         "usb",
         "This test verifies the USB operation.",
         POST_RAM | POST_ALWAYS | POST_MANUAL,
-        &usb_post_test
+        &usb_post_test,
+	CFG_POST_USB
     },
 #endif
 #if CONFIG_POST & CFG_POST_SPR
@@ -137,8 +151,9 @@ struct post_test post_list[] =
         "SPR test",
         "spr",
         "This test checks SPR contents.",
-        POST_ROM | POST_ALWAYS,
-        &spr_post_test
+        POST_ROM | POST_ALWAYS | POST_PREREL,
+        &spr_post_test,
+	CFG_POST_SPR
     },
 #endif
 };

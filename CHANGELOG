@@ -2,6 +2,12 @@
 Changes since for U-Boot 0.1.0:
 ======================================================================
 
+* Improve log buffer code; use "loglevel" to decide which messages
+  to log on the console, too (like in Linux); get rid of "logstart"
+
+* Add command line tool to access the U-Boot's environment
+  (board-specific for TRAB now, to be fixed later)
+
 * Patch by Hans-Joerg Frieden, 06 Dec 2002
   Fix misc problems with AmigaOne support
 

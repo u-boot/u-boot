@@ -51,6 +51,10 @@
 #include <asm/cache.h>
 #endif
 
+#ifdef CONFIG_LOGBUFFER
+#include <logbuff.h>
+#endif
+
 /*
  * Some systems (for example LWMON) have very short watchdog periods;
  * we must make sure to split long operations like memmove() or
@@ -357,19 +361,15 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		 * turning the "load high" feature off. This is intentional.
 		 */
 		initrd_high = simple_strtoul(s, NULL, 16);
-	} else {			/* not set, no restrictions to load high */
+	} else {	/* not set, no restrictions to load high */
 		initrd_high = ~0;
 	}
 
 #ifdef CONFIG_LOGBUFFER
-	kbd=gd->bd;
-	if ((s = getenv ("logstart")) != NULL) {
-		kbd->bi_sramstart = simple_strtoul(s, NULL, 16);
-		/* Prevent initrd from overwriting logbuffer */
-		if (initrd_high < kbd->bi_sramstart)
-			initrd_high = kbd->bi_sramstart-1024;
-	}
-	debug ("## Logbuffer at 0x%08lX ", kbd->bi_sramstart);
+	/* Prevent initrd from overwriting logbuffer */
+	if (initrd_high < (kbd->bi_memsize-LOGBUFF_LEN-LOGBUFF_OVERHEAD))
+		initrd_high = kbd->bi_memsize-LOGBUFF_LEN-LOGBUFF_OVERHEAD;
+	debug ("## Logbuffer at 0x%08lX ", kbd->bi_memsize-LOGBUFF_LEN);
 #endif
 
 	/*

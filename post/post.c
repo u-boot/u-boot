@@ -38,6 +38,7 @@
 
 void post_bootmode_init (void)
 {
+	DECLARE_GLOBAL_DATA_PTR;
 	int bootmode = post_bootmode_get (0);
 
 	if (bootmode == 0) {
@@ -49,6 +50,8 @@ void post_bootmode_init (void)
 	}
 
 	post_word_store (BOOTMODE_MAGIC | bootmode);
+	/* Reset activity record */
+	gd->post_log_word = 0;
 }
 
 int post_bootmode_get (unsigned int *last_test)
@@ -72,6 +75,36 @@ int post_bootmode_get (unsigned int *last_test)
 void post_bootmode_clear (void)
 {
 	post_word_store (0);
+}
+
+/* POST tests run before relocation only mark status bits .... */
+static void post_log_mark_start ( unsigned long testid )
+{
+	DECLARE_GLOBAL_DATA_PTR;
+	gd->post_log_word |= (testid)<<16;
+}
+
+static void post_log_mark_succ ( unsigned long testid )
+{
+	DECLARE_GLOBAL_DATA_PTR;
+	gd->post_log_word |= testid;
+}
+
+/* ... and the messages are output once we are relocated */
+void post_output_backlog ( void )
+{
+	DECLARE_GLOBAL_DATA_PTR;
+	int j;
+
+	for (j = 0; j < post_list_size; j++) {
+		if (gd->post_log_word & (post_list[j].testid<<16)) {
+			post_log ("POST %s ", post_list[j].cmd);
+			if (gd->post_log_word & post_list[j].testid)
+				post_log ("PASSED\n");
+			else
+				post_log ("FAILED\n");
+		}
+	}
 }
 
 static void post_bootmode_test_on (unsigned int last_test)
@@ -160,13 +193,21 @@ static int post_run_single (struct post_test *test,
 				post_bootmode_test_on (i);
 			}
 
+			if (test_flags & POST_PREREL)
+				post_log_mark_start ( test->testid );
+			else
 			post_log ("POST %s ", test->cmd);
 		}
 
+		if (test_flags & POST_PREREL) {
+			if ((*test->test) (flags) == 0)
+				post_log_mark_succ ( test->testid );
+		} else {
 		if ((*test->test) (flags) != 0)
 			post_log ("FAILED\n");
 		else
 			post_log ("PASSED\n");
+		}
 
 		if ((test_flags & POST_REBOOT) && !(flags & POST_MANUAL)) {
 			post_bootmode_test_off ();
@@ -282,6 +323,7 @@ int post_log (char *format, ...)
 	va_end (args);
 
 #ifdef CONFIG_LOGBUFFER
+	/* Send to the logbuffer */
 	logbuff_log (printbuffer);
 #else
 	/* Send to the stdout file */
