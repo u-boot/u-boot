@@ -32,6 +32,13 @@
 #include <version.h>
 #include <net.h>
 
+#ifdef CONFIG_DRIVER_SMC91111
+#include "../drivers/smc91111.h"
+#endif
+#ifdef CONFIG_DRIVER_LAN91C96
+#include "../drivers/lan91c96.h"
+#endif
+
 #if (CONFIG_COMMANDS & CFG_CMD_NAND)
 void nand_init (void);
 #endif
@@ -58,9 +65,6 @@ extern void cs8900_get_enetaddr (uchar * addr);
 extern void rtl8019_get_enetaddr (uchar * addr);
 #endif
 
-#ifdef CONFIG_DRIVER_LAN91C96
-#include "../drivers/lan91c96.h"
-#endif
 /*
  * Begin and End of memory area for malloc(), and current "brk"
  */
@@ -302,11 +306,12 @@ void start_armboot (void)
 	cs8900_get_enetaddr (gd->bd->bi_enetaddr);
 #endif
 
-#ifdef CONFIG_DRIVER_LAN91C96
+#if defined(CONFIG_DRIVER_SMC91111) || defined (CONFIG_DRIVER_LAN91C96)
 	if (getenv ("ethaddr")) {
 		smc_set_mac_addr(gd->bd->bi_enetaddr);
 	}
-#endif /* CONFIG_DRIVER_LAN91C96 */
+	eth_init(gd->bd);
+#endif /* CONFIG_DRIVER_SMC91111 || CONFIG_DRIVER_LAN91C96 */
 
 	/* Initialize from environment */
 	if ((s = getenv ("loadaddr")) != NULL) {

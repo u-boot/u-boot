@@ -8,6 +8,7 @@ The module adds three new commands.
 fsload  - load binary file from a file system image
 fsinfo  - print information about file systems
 ls      - list files in a directory
+chpart  - change active partition
 
 If you boot from a partition which is mounted writable, and you
 update your boot environment by replacing single files on that
@@ -67,9 +68,6 @@ jffs2_part_info(int part_num)
 ---
 
 TODO.
-
-	Add a new command so it's actually possible to change
-	partition.
 
 	Remove the assumption that JFFS can dereference a pointer
 	into the disk. The current code do not work with memory holes

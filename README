@@ -294,9 +294,9 @@ The following options need to be configured:
 		CONFIG_AT91RM9200DK,		CONFIG_DNP1110,		CONFIG_EP7312,
 		CONFIG_H2_OMAP1610,		CONFIG_HHP_CRADLE,	CONFIG_IMPA7,
 		CONFIG_INNOVATOROMAP1510,   CONFIG_INNOVATOROMAP1610,	CONFIG_LART,
-		CONFIG_LUBBOCK,			CONFIG_OSK_OMAP5912,	CONFIG_SHANNON,
-		CONFIG_P2_OMAP730,		CONFIG_SMDK2400,	CONFIG_SMDK2410,
-		CONFIG_TRAB,			CONFIG_VCMA9
+		CONFIG_LPD7A400			CONFIG_LUBBOCK,		CONFIG_OSK_OMAP5912,
+		CONFIG_SHANNON,			CONFIG_P2_OMAP730,	CONFIG_SMDK2400,
+		CONFIG_SMDK2410,		CONFIG_TRAB,		CONFIG_VCMA9
 
 		MicroBlaze based boards:
 		------------------------
@@ -740,6 +740,20 @@ The following options need to be configured:
 
 			CONFIG_LAN91C96_USE_32_BIT
 			Define this to enable 32 bit addressing
+
+		CONFIG_DRIVER_SMC91111
+		Support for SMSC's LAN91C111 chip
+
+			CONFIG_SMC91111_BASE
+			Define this to hold the physical address
+			of the device (I/O space)
+
+			CONFIG_SMC_USE_32_BIT
+			Define this if data bus is 32 bits
+
+			CONFIG_SMC_USE_IOFUNCS
+			Define this to use i/o functions instead of macros
+			(some hardware wont work with macros)
 
 - USB Support:
 		At the moment only the UHCI host controller is

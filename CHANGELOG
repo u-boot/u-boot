@@ -2,6 +2,17 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Paul Ruhland, 17 May 2004:
+  - Add support for the Logic Zoom LH7A40x based SDK board(s),
+    specifically the LPD7A400.
+
+* Patches by Robert Schwebel, 15 May 2004:
+  - call MAC address reading code also for SMSC91C111;
+  - make SMSC91C111 timeout configurable, remove duplicate code
+  - fix get_timer() for PXA
+  - update doc/README.JFFS2
+  - use "bootfile" env variable also for jffs2
+
 * Patch by Tolunay Orkun, 14 May 2004:
   Add support for Cogent CSB472 board (8MB Flash Rev)
 

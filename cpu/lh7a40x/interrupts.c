@@ -7,6 +7,9 @@
  * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
  * Alex Zuepke <azu@sysgo.de>
  *
+ * (C) Copyright 2002
+ * Gary Jennejohn, DENX Software Engineering, <gj@denx.de>
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -27,15 +30,34 @@
  */
 
 #include <common.h>
-#include <asm/arch/pxa-regs.h>
+#include <arm920t.h>
+#include <lh7a40x.h>
 
-extern void reset_cpu (ulong addr);
+#include <asm/proc-armv/ptrace.h>
+
+extern void reset_cpu(ulong addr);
+static ulong timer_load_val = 0;
+
+/* macro to read the 16 bit timer */
+static inline ulong READ_TIMER(void)
+{
+	LH7A40X_TIMERS_PTR(timers);
+	lh7a40x_timer_t* timer = &timers->timer1;
+
+	return (timer->value & 0x0000ffff);
+}
 
 #ifdef CONFIG_USE_IRQ
-/* enable IRQ/FIQ interrupts */
+/* enable IRQ interrupts */
 void enable_interrupts (void)
 {
-#error: interrupts not implemented yet
+	unsigned long temp;
+	__asm__ __volatile__("mrs %0, cpsr\n"
+			     "bic %0, %0, #0x80\n"
+			     "msr cpsr_c, %0"
+			     : "=r" (temp)
+			     :
+			     : "memory");
 }
 
 
@@ -45,7 +67,14 @@ void enable_interrupts (void)
  */
 int disable_interrupts (void)
 {
-#error: interrupts not implemented yet
+	unsigned long old,temp;
+	__asm__ __volatile__("mrs %0, cpsr\n"
+			     "orr %1, %0, #0xc0\n"
+			     "msr cpsr_c, %1"
+			     : "=r" (old), "=r" (temp)
+			     :
+			     : "memory");
+	return (old & 0x80) == 0;
 }
 #else
 void enable_interrupts (void)
@@ -76,7 +105,7 @@ void show_regs (struct pt_regs *regs)
 	"USER_32",	"FIQ_32",	"IRQ_32",	"SVC_32",
 	"UK4_32",	"UK5_32",	"UK6_32",	"ABT_32",
 	"UK8_32",	"UK9_32",	"UK10_32",	"UND_32",
-	"UK12_32",	"UK13_32",	"UK14_32",	"SYS_32"
+	"UK12_32",	"UK13_32",	"UK14_32",	"SYS_32",
 	};
 
 	flags = condition_codes (regs);
@@ -151,12 +180,37 @@ void do_irq (struct pt_regs *pt_regs)
 	bad_mode ();
 }
 
+static ulong timestamp;
+static ulong lastdec;
 
 int interrupt_init (void)
 {
-	/* nothing happens here - we don't setup any IRQs */
+	LH7A40X_TIMERS_PTR(timers);
+	lh7a40x_timer_t* timer = &timers->timer1;
+
+	/* a periodic timer using the 508kHz source */
+	timer->control = (TIMER_PER | TIMER_CLK508K);
+
+	if (timer_load_val == 0) {
+		/*
+		 * 10ms period with 508.469kHz clock = 5084
+		 */
+		timer_load_val = CFG_HZ/100;
+	}
+
+	/* load value for 10 ms timeout */
+	lastdec = timer->load = timer_load_val;
+
+	/* auto load, start timer */
+	timer->control = timer->control | TIMER_EN;
+	timestamp = 0;
+
 	return (0);
 }
+
+/*
+ * timer without interrupts
+ */
 
 void reset_timer (void)
 {
@@ -165,42 +219,88 @@ void reset_timer (void)
 
 ulong get_timer (ulong base)
 {
-	return get_timer_masked () - base;
+	return (get_timer_masked() - base);
 }
 
 void set_timer (ulong t)
 {
-	/* nop */
+	timestamp = t;
 }
 
 void udelay (unsigned long usec)
 {
-	udelay_masked (usec);
-}
+	ulong tmo,tmp;
 
+	/* normalize */
+	if (usec >= 1000) {
+		tmo = usec / 1000;
+		tmo *= CFG_HZ;
+		tmo /= 1000;
+	}
+	else {
+		if (usec > 1) {
+			tmo = usec * CFG_HZ;
+			tmo /= (1000*1000);
+		}
+		else
+			tmo = 1;
+	}
+
+	/* check for rollover during this delay */
+	tmp = get_timer (0);
+	if ((tmp + tmo) < tmp )
+		reset_timer_masked();  /* timer would roll over */
+	else
+		tmo += tmp;
+
+	while (get_timer_masked () < tmo);
+}
 
 void reset_timer_masked (void)
 {
-	OSCR = 0;
+	/* reset time */
+	lastdec = READ_TIMER();
+	timestamp = 0;
 }
 
 ulong get_timer_masked (void)
 {
-	return OSCR;
+	ulong now = READ_TIMER();
+
+	if (lastdec >= now) {
+		/* normal mode */
+		timestamp += (lastdec - now);
+	} else {
+		/* we have an overflow ... */
+		timestamp += ((lastdec + timer_load_val) - now);
+	}
+	lastdec = now;
+
+	return timestamp;
 }
 
 void udelay_masked (unsigned long usec)
 {
 	ulong tmo;
 
-	tmo = usec / 1000;
-	tmo *= CFG_HZ;
-	tmo /= 1000;
+	/* normalize */
+	if (usec >= 1000) {
+		tmo = usec / 1000;
+		tmo *= CFG_HZ;
+		tmo /= 1000;
+	}
+	else {
+		if (usec > 1) {
+			tmo = usec * CFG_HZ;
+			tmo /= (1000*1000);
+		}
+		else
+			tmo = 1;
+	}
 
 	reset_timer_masked ();
 
-	while (tmo >= get_timer_masked ())
-		/*NOP*/;
+	while (get_timer_masked () < tmo);
 }
 
 /*
@@ -219,6 +319,8 @@ unsigned long long get_ticks(void)
 ulong get_tbclk (void)
 {
 	ulong tbclk;
-	tbclk = CFG_HZ;
+
+	tbclk = timer_load_val * 100;
+
 	return tbclk;
 }

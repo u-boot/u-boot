@@ -61,6 +61,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <config.h>
 #include "smc91111.h"
 #include <net.h>
 
@@ -76,6 +77,11 @@
 #if SMC_DEBUG > 1
 static const char version[] =
 	"smc91111.c:v1.0 04/25/01 by Daris A Nevil (dnevil@snmc.com)\n";
+#endif
+
+/* Autonegotiation timeout in seconds */
+#ifndef CONFIG_SMC_AUTONEG_TIMEOUT
+#define CONFIG_SMC_AUTONEG_TIMEOUT 10
 #endif
 
 /*------------------------------------------------------------------------
@@ -353,7 +359,7 @@ static inline void smc_wait_mmu_release_complete (void)
 */
 static void smc_reset (void)
 {
-	PRINTK2 ("%s:smc_reset\n", SMC_DEV_NAME);
+	PRINTK2 ("%s: smc_reset\n", SMC_DEV_NAME);
 
 	/* This resets the registers mostly to defaults, but doesn't
 	   affect EEPROM.  That seems unnecessary */
@@ -414,7 +420,7 @@ static void smc_reset (void)
 */
 static void smc_enable()
 {
-	PRINTK2("%s:smc_enable\n", SMC_DEV_NAME);
+	PRINTK2("%s: smc_enable\n", SMC_DEV_NAME);
 	SMC_SELECT_BANK( 0 );
 	/* see the header file for options in TCR/RCR DEFAULT*/
 	SMC_outw( TCR_DEFAULT, TCR_REG );
@@ -440,7 +446,7 @@ static void smc_enable()
 */
 static void smc_shutdown()
 {
-	PRINTK2(CARDNAME ":smc_shutdown\n");
+	PRINTK2(CARDNAME ": smc_shutdown\n");
 
 	/* no more interrupts for me */
 	SMC_SELECT_BANK( 2 );
@@ -489,7 +495,7 @@ static int smc_send_packet (volatile void *packet, int packet_length)
 	saved_pnr = SMC_inb( PN_REG );
 	saved_ptr = SMC_inw( PTR_REG );
 
-	PRINTK3 ("%s:smc_hardware_send_packet\n", SMC_DEV_NAME);
+	PRINTK3 ("%s: smc_hardware_send_packet\n", SMC_DEV_NAME);
 
 	length = ETH_ZLEN < packet_length ? packet_length : ETH_ZLEN;
 
@@ -677,7 +683,7 @@ again:
 */
 void smc_destructor()
 {
-	PRINTK2(CARDNAME ":smc_destructor\n");
+	PRINTK2(CARDNAME ": smc_destructor\n");
 }
 
 
@@ -691,7 +697,7 @@ static int smc_open (bd_t * bd)
 {
 	int i, err;
 
-	PRINTK2 ("%s:smc_open\n", SMC_DEV_NAME);
+	PRINTK2 ("%s: smc_open\n", SMC_DEV_NAME);
 
 	/* reset the hardware */
 	smc_reset ();
@@ -764,7 +770,7 @@ static int smc_rcv()
 		return 0;
 	}
 
-	PRINTK3("%s:smc_rcv\n", SMC_DEV_NAME);
+	PRINTK3("%s: smc_rcv\n", SMC_DEV_NAME);
 	/*  start reading from the start of the packet */
 	SMC_outw( PTR_READ | PTR_RCV | PTR_AUTOINC, PTR_REG );
 
@@ -860,7 +866,7 @@ static int smc_rcv()
  -----------------------------------------------------*/
 static int smc_close()
 {
-	PRINTK2("%s:smc_close\n", SMC_DEV_NAME);
+	PRINTK2("%s: smc_close\n", SMC_DEV_NAME);
 
 	/* clear everything */
 	smc_shutdown();
@@ -1222,7 +1228,7 @@ static void smc_phy_configure ()
 	word status = 0;	/*;my status = 0 */
 	int failed = 0;
 
-	PRINTK3 ("%s:smc_program_phy()\n", SMC_DEV_NAME);
+	PRINTK3 ("%s: smc_program_phy()\n", SMC_DEV_NAME);
 
 
 	/* Get the detected phy address */
@@ -1286,8 +1292,8 @@ static void smc_phy_configure ()
 	/* the link does not come up. */
 	smc_read_phy_register(PHY_AD_REG);
 
-	PRINTK2 ("%s:phy caps=%x\n", SMC_DEV_NAME, my_phy_caps);
-	PRINTK2 ("%s:phy advertised caps=%x\n", SMC_DEV_NAME, my_ad_caps);
+	PRINTK2 ("%s: phy caps=%x\n", SMC_DEV_NAME, my_phy_caps);
+	PRINTK2 ("%s: phy advertised caps=%x\n", SMC_DEV_NAME, my_ad_caps);
 
 	/* Restart auto-negotiation process in order to advertise my caps */
 	smc_write_phy_register (PHY_CNTL_REG,
@@ -1296,8 +1302,9 @@ static void smc_phy_configure ()
 	/* Wait for the auto-negotiation to complete.  This may take from */
 	/* 2 to 3 seconds. */
 	/* Wait for the reset to complete, or time out */
-	timeout = 20;		/* Wait up to 10 seconds */
+	timeout = CONFIG_SMC_AUTONEG_TIMEOUT * 2;
 	while (timeout--) {
+
 		status = smc_read_phy_register (PHY_STAT_REG);
 		if (status & PHY_STAT_ANEG_ACK) {
 			/* auto-negotiate complete */
@@ -1308,11 +1315,11 @@ static void smc_phy_configure ()
 
 		/* Restart auto-negotiation if remote fault */
 		if (status & PHY_STAT_REM_FLT) {
-			printf ("%s:PHY remote fault detected\n",
+			printf ("%s: PHY remote fault detected\n",
 				SMC_DEV_NAME);
 
 			/* Restart auto-negotiation */
-			printf ("%s:PHY restarting auto-negotiation\n",
+			printf ("%s: PHY restarting auto-negotiation\n",
 				SMC_DEV_NAME);
 			smc_write_phy_register (PHY_CNTL_REG,
 						PHY_CNTL_ANEG_EN |
@@ -1323,15 +1330,13 @@ static void smc_phy_configure ()
 	}
 
 	if (timeout < 1) {
-		printf ("%s:PHY auto-negotiate timed out\n", SMC_DEV_NAME);
-		printf ("%s:PHY auto-negotiate timed out\n", SMC_DEV_NAME);
+		printf ("%s: PHY auto-negotiate timed out\n", SMC_DEV_NAME);
 		failed = 1;
 	}
 
 	/* Fail if we detected an auto-negotiate remote fault */
 	if (status & PHY_STAT_REM_FLT) {
-		printf ("%s:PHY remote fault detected\n", SMC_DEV_NAME);
-		printf ("%s:PHY remote fault detected\n", SMC_DEV_NAME);
+		printf ("%s: PHY remote fault detected\n", SMC_DEV_NAME);
 		failed = 1;
 	}
 
@@ -1469,12 +1474,16 @@ int get_rom_mac (char *v_rom_mac)
 	return (1);
 #else
 	int i;
+	int valid_mac = 0;
+
 	SMC_SELECT_BANK (1);
 	for (i=0; i<6; i++)
 	{
 		v_rom_mac[i] = SMC_inb (ADDR0_REG + i);
+		valid_mac |= v_rom_mac[i];
 	}
-	return (1);
+
+	return (valid_mac ? 1 : 0);
 #endif
 }
 #endif /* CONFIG_DRIVER_SMC91111 */

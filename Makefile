@@ -1096,6 +1096,8 @@ trab_old_config:	unconfig
 VCMA9_config	:	unconfig
 	@./mkconfig $(@:_config=) arm arm920t vcma9 mpl
 
+lpd7a400_config:	unconfig
+	@./mkconfig $(@:_config=) arm lh7a40x lpd7a40x
 
 #########################################################################
 ## S3C44B0 Systems

@@ -139,9 +139,10 @@ LIST_ARM7="B2 ep7312 impa7"
 
 LIST_ARM9="	\
 	at91rm9200dk	integratorcp	integratorap			\
-	omap1510inn	omap1610h2	omap1610inn			\
-	omap730p2	smdk2400	smdk2410			\
-	trab		VCMA9		versatile			\
+	lpd7a400	omap1510inn	omap1610h2			\
+	omap1610inn	omap730p2	smdk2400			\
+	smdk2410	trab		VCMA9				\
+	versatile							\
 "
 
 #########################################################################

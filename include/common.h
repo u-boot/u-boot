@@ -384,11 +384,14 @@ int	prt_mpc5xxx_clks (void);
 ulong	get_OPB_freq (void);
 ulong	get_PCI_freq (void);
 #endif
-#if defined(CONFIG_S3C2400) || defined(CONFIG_S3C2410)
+#if defined(CONFIG_S3C2400) || defined(CONFIG_S3C2410) || defined(CONFIG_LH7A40X)
 ulong	get_FCLK (void);
 ulong	get_HCLK (void);
 ulong	get_PCLK (void);
 ulong	get_UCLK (void);
+#endif
+#if defined(CONFIG_LH7A40X)
+ulong	get_PLLCLK (void);
 #endif
 #if defined CONFIG_INCA_IP
 uint	incaip_get_cpuclk (void);

@@ -140,6 +140,7 @@
 #define CONFIG_SMC91111_BASE		0x14000000 /* chip select 5         */
 #undef  CONFIG_SMC_USE_32_BIT		           /* 16 bit bus access     */
 #undef  CONFIG_SMC_91111_EXT_PHY		   /* we use internal phy   */
+#define CONFIG_SMC_AUTONEG_TIMEOUT	10	   /* timeout 10 seconds    */
 #undef  CONFIG_SHOW_ACTIVITY
 #define CONFIG_NET_RETRY_COUNT		10	   /* # of retries          */
 

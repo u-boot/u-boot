@@ -358,3 +358,7 @@ W: www.elinos.com
 N: Xianghua Xiao
 E: x.xiao@motorola.com
 D: Support for Motorola 85xx(PowerQUICC III) chip, MPC8540ADS and MPC8560ADS boards.
+
+N: Paul Ruhland
+E: pruhland@rochester.rr.com
+D: Port to Logic Zoom LH7A40x SDK board(s)

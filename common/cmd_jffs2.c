@@ -126,7 +126,13 @@ do_jffs2_fsload(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
     int jffs2_1pass_load(char *, struct part_info *,const char *);
     char *fsname;
 
-	char *filename = "uImage";
+	char *filename;
+
+	/* pre-set Boot file name */
+	if ((filename = getenv("bootfile")) == NULL) {
+		filename = "uImage";
+	}
+
 	ulong offset = load_addr;
 	int size;
 	struct part_info *part;
