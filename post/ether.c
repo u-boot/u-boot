@@ -49,6 +49,7 @@
 
 #include <command.h>
 #include <net.h>
+#include <serial.h>
 
 #define MIN_PACKET_LENGTH	64
 #define MAX_PACKET_LENGTH	256
@@ -76,8 +77,6 @@ static struct {
 } ctlr_proc[1];
 
 static char *ctlr_name[1] = { "SCC" };
-
-static int used_by_uart[1] = { -1 };
 
 /* Ethernet Transmit and Receive Buffers */
 #define DBUF_LENGTH  1520
@@ -458,6 +457,7 @@ static void scc_halt (int scc_index)
 
 	immr->im_cpm.cp_scc[scc_index].scc_gsmrl &=
 			~(SCC_GSMRL_ENR | SCC_GSMRL_ENT);
+	immr->im_ioport.iop_pcso  &=  ~(PC_ENET_CLSN | PC_ENET_RENA);
 }
 
 static int scc_send (int index, volatile void *packet, int length)
@@ -513,7 +513,7 @@ static int scc_recv (int index, void *packet, int max_length)
 		rxIdx++;
 	}
 
-  Done:
+Done:
 	return length;
 }
 
@@ -579,15 +579,9 @@ static int test_ctlr (int ctlr, int index)
 
 	res = 0;
 
-  Done:
+Done:
 
 	ctlr_proc[ctlr].halt (index);
-
-#if !defined(CONFIG_8xx_CONS_NONE)
-	if (used_by_uart[ctlr] == index) {
-		serial_init ();
-	}
-#endif
 
 	/*
 	 * SCC2 Ethernet parameter RAM space overlaps
@@ -614,16 +608,6 @@ int ether_post_test (int flags)
 	int res = 0;
 	int i;
 
-#if defined(CONFIG_8xx_CONS_SCC1)
-	used_by_uart[CTLR_SCC] = 0;
-#elif defined(CONFIG_8xx_CONS_SCC2)
-	used_by_uart[CTLR_SCC] = 1;
-#elif defined(CONFIG_8xx_CONS_SCC3)
-	used_by_uart[CTLR_SCC] = 2;
-#elif defined(CONFIG_8xx_CONS_SCC4)
-	used_by_uart[CTLR_SCC] = 3;
-#endif
-
 	ctlr_proc[CTLR_SCC].init = scc_init;
 	ctlr_proc[CTLR_SCC].halt = scc_halt;
 	ctlr_proc[CTLR_SCC].send = scc_send;
@@ -635,6 +619,9 @@ int ether_post_test (int flags)
 		}
 	}
 
+#if !defined(CONFIG_8xx_CONS_NONE)
+	serial_reinit_all ();
+#endif
 	return res;
 }
 

@@ -30,25 +30,11 @@
  */
 
 #include <common.h>
-#include <arm920t.h>
-#if defined(CONFIG_S3C2400)
-#include <s3c2400.h>
-#elif defined(CONFIG_S3C2410)
-#include <s3c2410.h>
-#endif
 
+#include <arm920t.h>
 #include <asm/proc-armv/ptrace.h>
 
 extern void reset_cpu(ulong addr);
-int timer_load_val = 0;
-
-/* macro to read the 16 bit timer */
-static inline ulong READ_TIMER(void)
-{
-	S3C24X0_TIMERS * const timers = S3C24X0_GetBase_TIMERS();
-
-	return (timers->TCNTO4 & 0xffff);
-}
 
 #ifdef CONFIG_USE_IRQ
 /* enable IRQ interrupts */
@@ -181,131 +167,4 @@ void do_irq (struct pt_regs *pt_regs)
 	printf ("interrupt request\n");
 	show_regs (pt_regs);
 	bad_mode ();
-}
-
-static ulong timestamp;
-static ulong lastdec;
-
-int interrupt_init (void)
-{
-	S3C24X0_TIMERS * const timers = S3C24X0_GetBase_TIMERS();
-
-	/* use PWM Timer 4 because it has no output */
-	/* prescaler for Timer 4 is 16 */
-	timers->TCFG0 = 0x0f00;
-	if (timer_load_val == 0)
-	{
-		/*
-		 * for 10 ms clock period @ PCLK with 4 bit divider = 1/2
-		 * (default) and prescaler = 16. Should be 10390
-		 * @33.25MHz and 15625 @ 50 MHz
-		 */
-		timer_load_val = get_PCLK()/(2 * 16 * 100);
-	}
-	/* load value for 10 ms timeout */
-	lastdec = timers->TCNTB4 = timer_load_val;
-	/* auto load, manual update of Timer 4 */
-	timers->TCON = (timers->TCON & ~0x0700000) | 0x600000;
-	/* auto load, start Timer 4 */
-	timers->TCON = (timers->TCON & ~0x0700000) | 0x500000;
-	timestamp = 0;
-
-	return (0);
-}
-
-/*
- * timer without interrupts
- */
-
-void reset_timer (void)
-{
-	reset_timer_masked ();
-}
-
-ulong get_timer (ulong base)
-{
-	return get_timer_masked () - base;
-}
-
-void set_timer (ulong t)
-{
-	timestamp = t;
-}
-
-void udelay (unsigned long usec)
-{
-	ulong tmo;
-	ulong start = get_timer(0);
-
-	tmo = usec / 1000;
-	tmo *= (timer_load_val * 100);
-	tmo /= 1000;
-
-	while ((ulong)(get_timer_masked () - start) < tmo)
-		/*NOP*/;
-}
-
-void reset_timer_masked (void)
-{
-	/* reset time */
-	lastdec = READ_TIMER();
-	timestamp = 0;
-}
-
-ulong get_timer_masked (void)
-{
-	ulong now = READ_TIMER();
-
-	if (lastdec >= now) {
-		/* normal mode */
-		timestamp += lastdec - now;
-	} else {
-		/* we have an overflow ... */
-		timestamp += lastdec + timer_load_val - now;
-	}
-	lastdec = now;
-
-	return timestamp;
-}
-
-void udelay_masked (unsigned long usec)
-{
-	ulong tmo;
-
-	tmo = usec / 1000;
-	tmo *= (timer_load_val * 100);
-	tmo /= 1000;
-
-	reset_timer_masked ();
-
-	while (get_timer_masked () < tmo)
-		/*NOP*/;
-}
-
-/*
- * This function is derived from PowerPC code (read timebase as long long).
- * On ARM it just returns the timer value.
- */
-unsigned long long get_ticks(void)
-{
-	return get_timer(0);
-}
-
-/*
- * This function is derived from PowerPC code (timebase clock frequency).
- * On ARM it returns the number of timer ticks per second.
- */
-ulong get_tbclk (void)
-{
-	ulong tbclk;
-
-#if defined(CONFIG_SMDK2400) || defined(CONFIG_TRAB)
-	tbclk = timer_load_val * 100;
-#elif defined(CONFIG_SMDK2410) || defined(CONFIG_VCMA9)
-	tbclk = CFG_HZ;
-#else
-#	error "tbclk not configured"
-#endif
-
-	return tbclk;
 }

@@ -33,7 +33,6 @@
 
 void get_sys_info (sys_info_t * sysInfo)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	volatile immap_t    *immap = (immap_t *)CFG_IMMR;
 	volatile ccsr_gur_t *gur = &immap->im_gur;
 	uint plat_ratio,e500_ratio;

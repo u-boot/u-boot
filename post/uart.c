@@ -48,7 +48,7 @@
 #error "Apparently a bad configuration, please fix."
 #endif
 #include <command.h>
-#include <net.h>
+#include <serial.h>
 
 #define CTLR_SMC 0
 #define CTLR_SCC 1
@@ -65,13 +65,12 @@ static int ctlr_list[][2] = { };
 
 static struct {
 	void (*init) (int index);
+	void (*halt) (int index);
 	void (*putc) (int index, const char c);
 	int (*getc) (int index);
 } ctlr_proc[2];
 
 static char *ctlr_name[2] = { "SMC", "SCC" };
-
-static int used_by_uart[2] = { -1, -1 };
 
 static int proff_smc[] = { PROFF_SMC1, PROFF_SMC2 };
 static int proff_scc[] =
@@ -210,6 +209,10 @@ static void smc_init (int smc_index)
 	/* Enable transmitter/receiver.
 	 */
 	sp->smc_smcmr |= SMCMR_REN | SMCMR_TEN;
+}
+
+static void smc_halt(int smc_index)
+{
 }
 
 static void smc_putc (int smc_index, const char c)
@@ -419,6 +422,15 @@ static void scc_init (int scc_index)
 	sp->scc_gsmrl |= (SCC_GSMRL_ENR | SCC_GSMRL_ENT);
 }
 
+static void scc_halt(int scc_index)
+{
+	volatile immap_t *im = (immap_t *) CFG_IMMR;
+	volatile cpm8xx_t *cp = &(im->im_cpm);
+	volatile scc_t *sp = (scc_t *) & (cp->cp_scc[scc_index]);
+
+	sp->scc_gsmrl &= ~(SCC_GSMRL_ENR | SCC_GSMRL_ENT | SCC_GSMRL_DIAG_LE);
+}
+
 static void scc_putc (int scc_index, const char c)
 {
 	volatile cbd_t *tbdf;
@@ -496,12 +508,6 @@ static int test_ctlr (int ctlr, int index)
 	char test_str[] = "*** UART Test String ***\r\n";
 	int i;
 
-#if !defined(CONFIG_8xx_CONS_NONE)
-	if (used_by_uart[ctlr] == index) {
-		while (ctlr_proc[ctlr].getc (index) != -1);
-	}
-#endif
-
 	ctlr_proc[ctlr].init (index);
 
 	for (i = 0; i < sizeof (test_str) - 1; i++) {
@@ -512,13 +518,8 @@ static int test_ctlr (int ctlr, int index)
 
 	res = 0;
 
-  Done:
-
-#if !defined(CONFIG_8xx_CONS_NONE)
-	if (used_by_uart[ctlr] == index) {
-		serial_init ();
-	}
-#endif
+Done:
+	ctlr_proc[ctlr].halt (index);
 
 	if (res != 0) {
 		post_log ("uart %s%d test failed\n",
@@ -533,25 +534,13 @@ int uart_post_test (int flags)
 	int res = 0;
 	int i;
 
-#if defined(CONFIG_8xx_CONS_SMC1)
-	used_by_uart[CTLR_SMC] = 0;
-#elif defined(CONFIG_8xx_CONS_SMC2)
-	used_by_uart[CTLR_SMC] = 1;
-#elif defined(CONFIG_8xx_CONS_SCC1)
-	used_by_uart[CTLR_SCC] = 0;
-#elif defined(CONFIG_8xx_CONS_SCC2)
-	used_by_uart[CTLR_SCC] = 1;
-#elif defined(CONFIG_8xx_CONS_SCC3)
-	used_by_uart[CTLR_SCC] = 2;
-#elif defined(CONFIG_8xx_CONS_SCC4)
-	used_by_uart[CTLR_SCC] = 3;
-#endif
-
 	ctlr_proc[CTLR_SMC].init = smc_init;
+	ctlr_proc[CTLR_SMC].halt = smc_halt;
 	ctlr_proc[CTLR_SMC].putc = smc_putc;
 	ctlr_proc[CTLR_SMC].getc = smc_getc;
 
 	ctlr_proc[CTLR_SCC].init = scc_init;
+	ctlr_proc[CTLR_SCC].halt = scc_halt;
 	ctlr_proc[CTLR_SCC].putc = scc_putc;
 	ctlr_proc[CTLR_SCC].getc = scc_getc;
 
@@ -560,6 +549,10 @@ int uart_post_test (int flags)
 			res = -1;
 		}
 	}
+
+#if !defined(CONFIG_8xx_CONS_NONE)
+	serial_reinit_all ();
+#endif
 
 	return res;
 }

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2002
+ * (C) Copyright 2001-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * (C) Copyright 2002
@@ -30,6 +30,8 @@
  */
 
 #include <common.h>
+#if defined(CONFIG_S3C2400) || defined (CONFIG_S3C2410) || defined (CONFIG_TRAB)
+
 #if defined(CONFIG_S3C2400)
 #include <s3c2400.h>
 #elif defined(CONFIG_S3C2410)
@@ -95,3 +97,5 @@ ulong get_UCLK(void)
 {
     return(get_PLLCLK(UPLL));
 }
+
+#endif /* defined(CONFIG_S3C2400) || defined (CONFIG_S3C2410) || defined (CONFIG_TRAB) */

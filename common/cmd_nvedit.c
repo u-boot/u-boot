@@ -43,6 +43,7 @@
 #include <command.h>
 #include <environment.h>
 #include <watchdog.h>
+#include <serial.h>
 #include <linux/stddef.h>
 #include <asm/byteorder.h>
 #if (CONFIG_COMMANDS & CFG_CMD_NET)
@@ -216,6 +217,11 @@ int _do_setenv (int flag, int argc, char *argv[])
 			/* Try assigning specified device */
 			if (console_assign (console, argv[2]) < 0)
 				return 1;
+
+#ifdef CONFIG_SERIAL_MULTI
+			if (serial_assign (argv[2]) < 0)
+				return 1;
+#endif
 		}
 
 		/*

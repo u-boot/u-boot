@@ -26,6 +26,7 @@
 #include <stdarg.h>
 #include <malloc.h>
 #include <devices.h>
+#include <serial.h>
 #ifdef CONFIG_LOGBUFFER
 #include <logbuff.h>
 #endif
@@ -194,6 +195,9 @@ int devices_init (void)
 	drv_logbuff_init ();
 #endif
 	drv_system_init ();
+#ifdef CONFIG_SERIAL_MULTI
+	serial_devices_init ();
+#endif
 #ifdef CONFIG_USB_TTY
 	drv_usbtty_init ();
 #endif

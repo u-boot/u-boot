@@ -23,9 +23,9 @@
  * MA 02111-1307 USA
  */
 
-
 #include <common.h>
-#include <mc9328.h>
+/*#include <mc9328.h>*/
+#include <asm/arch-arm920t/imx-regs.h>
 
 /* ------------------------------------------------------------------------- */
 
@@ -67,7 +67,6 @@ static inline void delay (unsigned long loops) {
  * Miscellaneous platform dependent initialisations
  */
 
-
 void SetAsynchMode(void) {
 	__asm__ (
 		"mrc p15,0,r0,c1,c0,0 \n"
@@ -85,41 +84,33 @@ int board_init (void) {
 
 	volatile unsigned int  tmp;
 
-	mc9328sid	= MX1_SIDR;
+	mc9328sid	= SIDR;
 
-	MX1_GPCR 	= 0x000003AB;		/* I/O pad driving strength 	*/
+	GPCR 		= 0x000003AB;		/* I/O pad driving strength 	*/
 
 /*	MX1_CS1U 	= 0x00000A00;	*/	/* SRAM initialization 		*/
 /*	MX1_CS1L 	= 0x11110601; 	*/
 
-	MX1_MPCTL0 	= 0x04632410;	/* setting for 150 MHz MCU PLL CLK	*/
-
-/*	MX1_MPCTL0 	= 0x003f1437;	*/ /* setting for 192 MHz MCU PLL CLK	*/
+	MPCTL0 		= 0x04632410;	/* setting for 150 MHz MCU PLL CLK	*/
 
 /* set FCLK divider 1 (i.e. FCLK to MCU PLL CLK) and
  * BCLK divider to 2 (i.e. BCLK to 48 MHz)
  */
-	MX1_CSCR 	= 0xAF000403;
+	CSCR 	= 0xAF000403;
 
-	MX1_CSCR 	|= 0x00200000;   	/* Trigger the restart bit(bit 21)	*/
-	MX1_CSCR 	&= 0xFFFF7FFF;		/* Program PRESC bit(bit 15) to 0 to divide-by-1 */
+	CSCR 	|= 0x00200000;   	/* Trigger the restart bit(bit 21)	*/
+	CSCR 	&= 0xFFFF7FFF;		/* Program PRESC bit(bit 15) to 0 to divide-by-1 */
 
 /* setup cs4 for cs8900 ethernet */
 
-	MX1_CS4U	= 0x00000F00;	/* Initialize CS4 for CS8900 ethernet 	*/
-	MX1_CS4L	= 0x00001501;
+	CS4U	= 0x00000F00;	/* Initialize CS4 for CS8900 ethernet 	*/
+	CS4L	= 0x00001501;
 
-	MX1_GIUS_A	&= 0xFF3FFFFF;
-	MX1_GPR_A	&= 0xFF3FFFFF;
+	GIUS(0)	&= 0xFF3FFFFF;
+	GPR(0)	&= 0xFF3FFFFF;
 
 	tmp = *(unsigned int *)(0x1500000C);
 	tmp = *(unsigned int *)(0x1500000C);
-
-/* setup timer 1 as system timer  	*/
-
-	MX1_TPRER1	= 0x1f;		/* divide by 32 		*/
-	MX1_TCTL1	= 0x19;		/* clock in from 32k Osc.	*/
-
 
 	SetAsynchMode();
 
@@ -131,18 +122,18 @@ int board_init (void) {
 	dcache_enable();
 
 /* set PERCLKs				*/
-	MX1_PCDR = 0x00000055;     	/* set PERCLKS				*/
+	PCDR = 0x00000055;     	/* set PERCLKS				*/
 
 /* PERCLK3 is only used by SSI so the SSI driver can set it any value it likes
  * PERCLK1 and PERCLK2 are shared so DO NOT change it in any other place
  * all sources selected as normal interrupt
  */
-	MX1_INTTYPEH = 0;
-	MX1_INTTYPEL = 0;
 
+/*	MX1_INTTYPEH = 0;
+	MX1_INTTYPEL = 0;
+*/
 	return 0;
 }
-
 
 int board_late_init(void) {
 
@@ -163,12 +154,9 @@ int board_late_init(void) {
 		default :
 			printf ("MX1ADS board with UNKNOWN MC9328 cpu, Silicon ID 0x%08x \n",mc9328sid);
 			break;
-
 	}
-
 	return 0;
 }
-
 
 int dram_init (void) {
 	DECLARE_GLOBAL_DATA_PTR;

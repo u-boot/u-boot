@@ -64,6 +64,7 @@
  * Video console
  */
 #if 1
+#define CONFIG_VIDEO
 #define CONFIG_VIDEO_SED13806
 #define CONFIG_VIDEO_SED13806_16BPP
 

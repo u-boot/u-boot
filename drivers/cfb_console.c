@@ -1169,7 +1169,6 @@ int drv_video_init (void)
 {
 	int skip_dev_init;
 	device_t console_dev;
-	char *penv;
 
 	skip_dev_init = 0;
 

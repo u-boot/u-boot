@@ -297,6 +297,7 @@
 #define PBESR		0x800000c7  /* PCI Bus Error Status Register */
 #define PBEAR		0x800000c8  /* Processor/PCI Bus Error Status Register */
 #define AMBOR		0x800000e0  /* Address Map B Options Register */
+#define PCMBCR		0x800000e1  /* PCI/Memory Buffer Configuration */
 #define MCCR1		0x800000f0  /* Memory Control Configuration Register 1 */
 #define MCCR2		0x800000f4  /* Memory Control Configuration Register 2 */
 #define MCCR3		0x800000f8  /* Memory Control Configuration Register 3 */

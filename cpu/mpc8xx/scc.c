@@ -193,6 +193,10 @@ static int scc_init (struct eth_device *dev, bd_t * bis)
 
 	volatile immap_t *immr = (immap_t *) CFG_IMMR;
 
+#if defined(CONFIG_LWMON)
+	reset_phy();
+#endif
+
 #ifdef CONFIG_FADS
 #if defined(CONFIG_MPC86xADS) || defined(CONFIG_MPC860T)
 	/* The MPC86xADS/FADS860T don't use the MODEM_EN or DATA_VOICE signals. */
@@ -550,6 +554,8 @@ static void scc_halt (struct eth_device *dev)
 
 	immr->im_cpm.cp_scc[SCC_ENET].scc_gsmrl &=
 		~(SCC_GSMRL_ENR | SCC_GSMRL_ENT);
+
+	immr->im_ioport.iop_pcso  &=  ~(PC_ENET_CLSN | PC_ENET_RENA);
 }
 
 #if 0

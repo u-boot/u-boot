@@ -256,11 +256,13 @@ long int initdram (int board_type)
 	long dram_size = 0;
 	extern long spd_sdram (void);
 	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+#if 0
 #if !defined(CONFIG_RAM_AS_FLASH)
 	volatile ccsr_lbc_t *lbc= &immap->im_lbc;
 	sys_info_t sysinfo;
 	uint temp_lbcdll = 0;
 #endif
+#endif /* 0 */
 #if !defined(CONFIG_RAM_AS_FLASH) || defined(CONFIG_DDR_DLL)
 	volatile ccsr_gur_t *gur= &immap->im_gur;
 #endif
@@ -279,7 +281,7 @@ long int initdram (int board_type)
 	dram_size = fixed_sdram ();
 #endif
 
-#if XXX
+#if 0
 #if !defined(CONFIG_RAM_AS_FLASH) /* LocalBus SDRAM is not emulating flash */
 	get_sys_info(&sysinfo);
 	/* if localbus freq is less than 66Mhz,we use bypass mode,otherwise use DLL */

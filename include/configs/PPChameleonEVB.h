@@ -43,6 +43,9 @@
  * CONFIG_PPCHAMELEON_CLK_25
  * CONFIG_PPCHAMELEON_CLK_33
  */
+#if (!defined(CONFIG_PPCHAMELEON_CLK_25) && !defined(CONFIG_PPCHAMELEON_CLK_33))
+#define CONFIG_PPCHAMELEON_CLK_33
+#endif
 
 #if (defined(CONFIG_PPCHAMELEON_CLK_25) && defined(CONFIG_PPCHAMELEON_CLK_33))
 #error "* Two external frequencies (SysClk) are defined! *"
@@ -74,11 +77,11 @@
 
 
 #ifdef CONFIG_PPCHAMELEON_CLK_25
-	#define CONFIG_SYS_CLK_FREQ	25000000 /* external frequency to pll	*/
+# define CONFIG_SYS_CLK_FREQ	25000000 /* external frequency to pll	*/
 #elif (defined (CONFIG_PPCHAMELEON_CLK_33))
-#define CONFIG_SYS_CLK_FREQ	33333333 /* external frequency to pll	*/
+# define CONFIG_SYS_CLK_FREQ	33333333 /* external frequency to pll	*/
 #else
-#error "* External frequency (SysClk) not defined! *"
+# error "* External frequency (SysClk) not defined! *"
 #endif
 
 #define CONFIG_BAUDRATE		115200

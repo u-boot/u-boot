@@ -39,7 +39,7 @@
 typedef struct {
 	int	flags;			/* Device flags: input/output/system	*/
 	int	ext;			/* Supported extensions			*/
-	char	name[8];		/* Device name				*/
+	char	name[16];		/* Device name				*/
 
 /* GENERAL functions */
 

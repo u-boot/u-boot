@@ -48,6 +48,7 @@
 #include <status_led.h>
 #endif
 #include <net.h>
+#include <serial.h>
 #ifdef CFG_ALLOC_DPRAM
 #if !(defined(CONFIG_8260)||defined(CONFIG_MPC8560))
 #include <commproc.h>
@@ -582,6 +583,10 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 	monitor_flash_len = (ulong)&__init_end - dest_addr;
 
+#ifdef CONFIG_SERIAL_MULTI
+	serial_initialize();
+#endif
+
 	/*
 	 * We have to relocate the command table manually
 	 */
@@ -872,7 +877,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
     defined(CONFIG_IP860)	|| \
     defined(CONFIG_IVML24)	|| \
     defined(CONFIG_IVMS8)	|| \
-    defined(CONFIG_LWMON)	|| \
     defined(CONFIG_MPC8260ADS)	|| \
     defined(CONFIG_MPC8266ADS)	|| \
     defined(CONFIG_MPC8560ADS)	|| \

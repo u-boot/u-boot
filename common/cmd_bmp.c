@@ -123,14 +123,15 @@ static int bmp_info(ulong addr)
  */
 static int bmp_display(ulong addr, int x, int y)
 {
-#ifdef CONFIG_LCD
-    extern int lcd_display_bitmap (ulong, int, int);
+#if defined(CONFIG_LCD)
+	extern int lcd_display_bitmap (ulong, int, int);
 
 	return (lcd_display_bitmap (addr, x, y));
-#endif
-#ifdef CONFIG_VIDEO
+#elif defined(CONFIG_VIDEO)
 	extern int video_display_bitmap (ulong, int, int);
 	return (video_display_bitmap (addr, x, y));
+#else
+# error bmp_display() requires CONFIG_LCD or CONFIG_VIDEO
 #endif
 }
 

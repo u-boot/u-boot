@@ -326,7 +326,6 @@ int phone_getc(void)
 int drv_phone_init(void)
 {
 	device_t console_dev;
-	char *penv;
 
 	console_init();
 

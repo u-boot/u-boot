@@ -39,7 +39,7 @@
 #include <linux/ctype.h>
 #include <malloc.h>
 #include <post.h>
-#include <net.h>
+#include <serial.h>
 
 #if (defined(CONFIG_SPI)) || (CONFIG_POST & CFG_POST_SPI)
 
@@ -542,13 +542,13 @@ int spi_post_test (int flags)
 	cp->cp_spmode &= ~SPMODE_LOOP;
 
 	/*
-	 * SCC2 Ethernet parameter RAM space overlaps
+	 * SCC2 parameter RAM space overlaps
 	 * the SPI parameter RAM space. So we need to restore
-	 * the SCC2 configuration if it is used by UART or Ethernet.
+	 * the SCC2 configuration if it is used by UART.
 	 */
 
-#if defined(CONFIG_8xx_CONS_SCC2)
-	serial_init ();
+#if !defined(CONFIG_8xx_CONS_NONE)
+	serial_reinit_all ();
 #endif
 
 	if (res != 0) {

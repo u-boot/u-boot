@@ -1,6 +1,6 @@
 #
-# (C) Copyright 2002
-# Gary Jennejohn, DENX Software Engineering, <gj@denx.de>
+# (C) Copyright 2000-2004
+# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -21,7 +21,27 @@
 # MA 02111-1307 USA
 #
 
-PLATFORM_RELFLAGS += -fno-strict-aliasing  -fno-common -ffixed-r8 \
-	-mshort-load-bytes -msoft-float
+include $(TOPDIR)/config.mk
 
-PLATFORM_CPPFLAGS += -mapcs-32 -march=armv4
+LIB	= lib$(BOARD).a
+
+OBJS	:= scb9328.o flash.o
+SOBJS	:= memsetup.o
+
+$(LIB):	$(OBJS) $(SOBJS)
+	$(AR) crv $@ $^
+
+clean:
+	rm -f $(SOBJS) $(OBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak .depend
+
+#########################################################################
+
+.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
+		$(CC) -M $(CPPFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
+
+-include .depend
+
+#########################################################################

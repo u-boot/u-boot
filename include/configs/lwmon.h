@@ -47,11 +47,9 @@
 
 #define	CONFIG_SPLASH_SCREEN		/* ... with splashscreen support*/
 
-#if 1
+#define CONFIG_SERIAL_MULTI	1
 #define CONFIG_8xx_CONS_SMC2	1	/* Console is on SMC2		*/
-#else
-#define CONFIG_8xx_CONS_SCC2
-#endif
+#define CONFIG_8xx_CONS_SCC2	1	/* Console is on SCC2		*/
 
 #define CONFIG_BAUDRATE		115200	/* with watchdog >= 38400 needed */
 
@@ -151,17 +149,6 @@
 #define CFG_CMD_POST_DIAG 0
 #endif
 
-#ifdef CONFIG_8xx_CONS_SCC2	/* Can't use ethernet, then */
-#define CONFIG_COMMANDS	     ( (CONFIG_CMD_DFL & ~CFG_CMD_NET) | \
-				CFG_CMD_ASKENV	| \
-				CFG_CMD_DATE	| \
-				CFG_CMD_I2C	| \
-				CFG_CMD_EEPROM	| \
-				CFG_CMD_IDE	| \
-				CFG_CMD_BSP	| \
-				CFG_CMD_BMP	| \
-				CFG_CMD_POST_DIAG )
-#else
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
 				CFG_CMD_ASKENV	| \
 				CFG_CMD_DHCP	| \
@@ -172,7 +159,6 @@
 				CFG_CMD_BSP	| \
 				CFG_CMD_BMP	| \
 				CFG_CMD_POST_DIAG )
-#endif
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
 

@@ -250,6 +250,9 @@ void start_armboot (void)
 #endif /* CONFIG_VFD */
 
 #ifdef CONFIG_LCD
+#	ifndef PAGE_SIZE
+#	  define PAGE_SIZE 4096
+#	endif
 	/*
 	 * reserve memory for LCD display (always full pages)
 	 */

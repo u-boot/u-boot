@@ -40,6 +40,7 @@ V* Verification:  dzu@denx.de
 #include <command.h>
 #include <malloc.h>
 #include <post.h>
+#include <serial.h>
 
 #include <linux/types.h>
 #include <linux/string.h>	/* for strdup */
@@ -466,6 +467,13 @@ int board_postclk_init (void)
 #endif
 
 	return (0);
+}
+
+struct serial_device * default_serial_console (void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+
+	return gd->do_mdm_init ? &serial_scc_device : &serial_smc_device;
 }
 
 static void kbd_init (void)

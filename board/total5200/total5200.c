@@ -265,7 +265,7 @@ static const S1D_REGS init_regs [] =
 void video_get_info_str (int line_number, char *info)
 {
 	if (line_number == 1) {
-#if CONFIG_MGT5100
+#ifdef CONFIG_MGT5100
 		strcpy (info, " Total5100");
 #elif CONFIG_TOTAL5200_REV==1
 		strcpy (info, " Total5200");

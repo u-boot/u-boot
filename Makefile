@@ -757,6 +757,7 @@ PLU405_config:	unconfig
 PMC405_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx pmc405 esd
 
+PPChameleonEVB_config		\
 PPChameleonEVB_BA_25_config	\
 PPChameleonEVB_ME_25_config	\
 PPChameleonEVB_HI_25_config	\
@@ -1154,6 +1155,12 @@ lpd7a400_config \
 lpd7a404_config:	unconfig
 	@./mkconfig $(@:_config=) arm lh7a40x lpd7a40x
 
+mx1ads_config	:	unconfig
+	@./mkconfig $(@:_config=) arm arm920t mx1ads
+
+mx1fs2_config	:	unconfig
+	@./mkconfig $(@:_config=) arm arm920t mx1fs2
+
 omap1510inn_config :	unconfig
 	@./mkconfig $(@:_config=) arm arm925t omap1510inn
 
@@ -1191,6 +1198,9 @@ omap730p2_cs3boot_config :	unconfig
 		echo "... configured for CS3 boot"; \
 	fi;
 	@./mkconfig -a $(call xtract_omap730p2,$@) arm arm926ejs omap730p2
+
+scb9328_config	:	unconfig
+	@./mkconfig $(@:_config=) arm arm920t scb9328
 
 smdk2400_config	:	unconfig
 	@./mkconfig $(@:_config=) arm arm920t smdk2400
@@ -1238,13 +1248,6 @@ versatile_config :	unconfig
 
 B2_config	:	unconfig
 	@./mkconfig $(@:_config=) arm s3c44b0 B2 dave
-
-#########################################################################
-## MC9328 (Dragonball) Systems
-#########################################################################
-
-mx1ads_config	:	unconfig
-	@./mkconfig $(@:_config=) arm mc9328 mx1ads
 
 #########################################################################
 ## ARM720T Systems

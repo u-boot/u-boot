@@ -24,49 +24,44 @@
 #include <common.h>
 #include <commproc.h>
 #include <command.h>
+#include <serial.h>
 #include <watchdog.h>
 
 #if !defined(CONFIG_8xx_CONS_NONE)	/* No Console at all */
 
 #if defined(CONFIG_8xx_CONS_SMC1)	/* Console on SMC1 */
 #define	SMC_INDEX	0
-#undef 	SCC_INDEX
 #define PROFF_SMC	PROFF_SMC1
 #define CPM_CR_CH_SMC	CPM_CR_CH_SMC1
 
 #elif defined(CONFIG_8xx_CONS_SMC2)	/* Console on SMC2 */
 #define SMC_INDEX	1
-#undef 	SCC_INDEX
 #define PROFF_SMC	PROFF_SMC2
 #define CPM_CR_CH_SMC	CPM_CR_CH_SMC2
 
-#elif defined(CONFIG_8xx_CONS_SCC1)	/* Console on SCC1 */
-#undef  SMC_INDEX
+#endif /* CONFIG_8xx_CONS_SMCx */
+
+#if defined(CONFIG_8xx_CONS_SCC1)	/* Console on SCC1 */
 #define SCC_INDEX	0
 #define PROFF_SCC	PROFF_SCC1
 #define CPM_CR_CH_SCC	CPM_CR_CH_SCC1
 
 #elif defined(CONFIG_8xx_CONS_SCC2)	/* Console on SCC2 */
-#undef  SMC_INDEX
 #define SCC_INDEX	1
 #define PROFF_SCC	PROFF_SCC2
 #define CPM_CR_CH_SCC	CPM_CR_CH_SCC2
 
 #elif defined(CONFIG_8xx_CONS_SCC3)	/* Console on SCC3 */
-#undef  SMC_INDEX
 #define SCC_INDEX	2
 #define PROFF_SCC	PROFF_SCC3
 #define CPM_CR_CH_SCC	CPM_CR_CH_SCC3
 
 #elif defined(CONFIG_8xx_CONS_SCC4)	/* Console on SCC4 */
-#undef  SMC_INDEX
 #define SCC_INDEX	3
 #define PROFF_SCC	PROFF_SCC4
 #define CPM_CR_CH_SCC	CPM_CR_CH_SCC4
 
-#else /* CONFIG_8xx_CONS_? */
-#error "console not correctly defined"
-#endif
+#endif /* CONFIG_8xx_CONS_SCCx */
 
 static void serial_setdivisor(volatile cpm8xx_t *cp)
 {
@@ -96,7 +91,23 @@ static void serial_setdivisor(volatile cpm8xx_t *cp)
  * as serial console interface.
  */
 
-int serial_init (void)
+static void smc_setbrg (void)
+{
+	volatile immap_t *im = (immap_t *)CFG_IMMR;
+	volatile cpm8xx_t *cp = &(im->im_cpm);
+
+	/* Set up the baud rate generator.
+	 * See 8xx_io/commproc.c for details.
+	 *
+	 * Wire BRG1 to SMCx
+	 */
+
+	cp->cp_simode = 0x00000000;
+
+	serial_setdivisor(cp);
+}
+
+static int smc_init (void)
 {
 	volatile immap_t *im = (immap_t *)CFG_IMMR;
 	volatile smc_t *sp;
@@ -217,7 +228,7 @@ int serial_init (void)
 
 	/* Set up the baud rate generator.
 	*/
-	serial_setbrg ();
+	smc_setbrg ();
 
 	/* Make the first buffer the only buffer.
 	*/
@@ -247,39 +258,8 @@ int serial_init (void)
 	return (0);
 }
 
-void
-serial_setbrg (void)
-{
-	volatile immap_t *im = (immap_t *)CFG_IMMR;
-	volatile cpm8xx_t *cp = &(im->im_cpm);
-
-	/* Set up the baud rate generator.
-	 * See 8xx_io/commproc.c for details.
-	 *
-	 * Wire BRG1 to SMCx
-	 */
-
-	cp->cp_simode = 0x00000000;
-
-	serial_setdivisor(cp);
-}
-
-#ifdef CONFIG_MODEM_SUPPORT
-void disable_putc(void)
-{
-	DECLARE_GLOBAL_DATA_PTR;
-	gd->be_quiet = 1;
-}
-
-void enable_putc(void)
-{
-	DECLARE_GLOBAL_DATA_PTR;
-	gd->be_quiet = 0;
-}
-#endif
-
-void
-serial_putc(const char c)
+static void
+smc_putc(const char c)
 {
 	volatile cbd_t		*tbdf;
 	volatile char		*buf;
@@ -295,7 +275,7 @@ serial_putc(const char c)
 #endif
 
 	if (c == '\n')
-		serial_putc ('\r');
+		smc_putc ('\r');
 
 	up = (smc_uart_t *)&cpmp->cp_dparam[PROFF_SMC];
 
@@ -317,8 +297,16 @@ serial_putc(const char c)
 	}
 }
 
-int
-serial_getc(void)
+static void
+smc_puts (const char *s)
+{
+	while (*s) {
+		smc_putc (*s++);
+	}
+}
+
+static int
+smc_getc(void)
 {
 	volatile cbd_t		*rbdf;
 	volatile unsigned char	*buf;
@@ -344,8 +332,8 @@ serial_getc(void)
 	return(c);
 }
 
-int
-serial_tstc()
+static int
+smc_tstc(void)
 {
 	volatile cbd_t		*rbdf;
 	volatile smc_uart_t	*up;
@@ -359,9 +347,41 @@ serial_tstc()
 	return(!(rbdf->cbd_sc & BD_SC_EMPTY));
 }
 
-#else	/* ! CONFIG_8xx_CONS_SMC1, CONFIG_8xx_CONS_SMC2 */
+struct serial_device serial_smc_device =
+{
+	"serial_smc",
+	"SMC",
+	smc_init,
+	smc_setbrg,
+	smc_getc,
+	smc_tstc,
+	smc_putc,
+	smc_puts,
+};
 
-int serial_init (void)
+#endif /* CONFIG_8xx_CONS_SMC1 || CONFIG_8xx_CONS_SMC2 */
+
+#if defined(CONFIG_8xx_CONS_SCC1) || defined(CONFIG_8xx_CONS_SCC2) || \
+    defined(CONFIG_8xx_CONS_SCC3) || defined(CONFIG_8xx_CONS_SCC4)
+
+static void
+scc_setbrg (void)
+{
+	volatile immap_t *im = (immap_t *)CFG_IMMR;
+	volatile cpm8xx_t *cp = &(im->im_cpm);
+
+	/* Set up the baud rate generator.
+	 * See 8xx_io/commproc.c for details.
+	 *
+	 * Wire BRG1 to SCCx
+	 */
+
+	cp->cp_sicr &= ~(0x000000FF << (8 * SCC_INDEX));
+
+	serial_setdivisor(cp);
+}
+
+static int scc_init (void)
 {
 	volatile immap_t *im = (immap_t *)CFG_IMMR;
 	volatile scc_t *sp;
@@ -426,7 +446,7 @@ int serial_init (void)
 #ifdef CFG_ALLOC_DPRAM
 	dpaddr = dpram_alloc_align (sizeof(cbd_t)*2 + 2, 8) ;
 #else
-	dpaddr = CPM_SERIAL_BASE ;
+	dpaddr = CPM_SERIAL2_BASE ;
 #endif
 
 	/* Enable SDMA.
@@ -446,7 +466,7 @@ int serial_init (void)
 
 	/* Set up the baud rate generator.
 	*/
-	serial_setbrg ();
+	scc_setbrg ();
 
 	/* Set up the uart parameters in the parameter ram.
 	*/
@@ -497,9 +517,11 @@ int serial_init (void)
 
 	/* Set UART mode, clock divider 16 on Tx and Rx
 	 */
+	sp->scc_gsmrl &= ~0xF;
 	sp->scc_gsmrl |=
 		(SCC_GSMRL_MODE_UART | SCC_GSMRL_TDCR_16 | SCC_GSMRL_RDCR_16);
 
+	sp->scc_psmr  = 0;
 	sp->scc_psmr  |= SCU_PSMR_CL;
 
 	/* Mask all interrupts and remove anything pending.
@@ -521,25 +543,8 @@ int serial_init (void)
 	return (0);
 }
 
-void
-serial_setbrg (void)
-{
-	volatile immap_t *im = (immap_t *)CFG_IMMR;
-	volatile cpm8xx_t *cp = &(im->im_cpm);
-
-	/* Set up the baud rate generator.
-	 * See 8xx_io/commproc.c for details.
-	 *
-	 * Wire BRG1 to SCCx
-	 */
-
-	cp->cp_sicr &= ~(0x000000FF << (8 * SCC_INDEX));
-
-	serial_setdivisor(cp);
-}
-
-void
-serial_putc(const char c)
+static void
+scc_putc(const char c)
 {
 	volatile cbd_t		*tbdf;
 	volatile char		*buf;
@@ -547,8 +552,15 @@ serial_putc(const char c)
 	volatile immap_t	*im = (immap_t *)CFG_IMMR;
 	volatile cpm8xx_t	*cpmp = &(im->im_cpm);
 
+#ifdef CONFIG_MODEM_SUPPORT
+	DECLARE_GLOBAL_DATA_PTR;
+
+	if (gd->be_quiet)
+		return;
+#endif
+
 	if (c == '\n')
-		serial_putc ('\r');
+		scc_putc ('\r');
 
 	up = (scc_uart_t *)&cpmp->cp_dparam[PROFF_SCC];
 
@@ -570,8 +582,16 @@ serial_putc(const char c)
 	}
 }
 
-int
-serial_getc(void)
+static void
+scc_puts (const char *s)
+{
+	while (*s) {
+		scc_putc (*s++);
+	}
+}
+
+static int
+scc_getc(void)
 {
 	volatile cbd_t		*rbdf;
 	volatile unsigned char	*buf;
@@ -597,8 +617,8 @@ serial_getc(void)
 	return(c);
 }
 
-int
-serial_tstc()
+static int
+scc_tstc(void)
 {
 	volatile cbd_t		*rbdf;
 	volatile scc_uart_t	*up;
@@ -612,36 +632,66 @@ serial_tstc()
 	return(!(rbdf->cbd_sc & BD_SC_EMPTY));
 }
 
-#endif	/* CONFIG_8xx_CONS_SMC1, CONFIG_8xx_CONS_SMC2 */
-
-
-void
-serial_puts (const char *s)
+struct serial_device serial_scc_device =
 {
-	while (*s) {
-		serial_putc (*s++);
-	}
+	"serial_scc",
+	"SCC",
+	scc_init,
+	scc_setbrg,
+	scc_getc,
+	scc_tstc,
+	scc_putc,
+	scc_puts,
+};
+
+#endif	/* CONFIG_8xx_CONS_SCCx */
+
+#ifdef CONFIG_MODEM_SUPPORT
+void disable_putc(void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+	gd->be_quiet = 1;
 }
 
+void enable_putc(void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+	gd->be_quiet = 0;
+}
+#endif
 
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 
 void
 kgdb_serial_init(void)
 {
+	int i = -1;
+
+	if (strcmp(default_serial_console()->ctlr, "SMC") == 0)
+	{
 #if defined(CONFIG_8xx_CONS_SMC1)
-	serial_printf("[on SMC1] ");
+		i = 1;
 #elif defined(CONFIG_8xx_CONS_SMC2)
-	serial_printf("[on SMC2] ");
-#elif defined(CONFIG_8xx_CONS_SCC1)
-	serial_printf("[on SCC1] ");
-#elif defined(CONFIG_8xx_CONS_SCC2)
-	serial_printf("[on SCC2] ");
-#elif defined(CONFIG_8xx_CONS_SCC3)
-	serial_printf("[on SCC3] ");
-#elif defined(CONFIG_8xx_CONS_SCC4)
-	serial_printf("[on SCC4] ");
+		i = 2;
 #endif
+	}
+	else if (strcmp(default_serial_console()->ctlr, "SMC") == 0)
+	{
+#if defined(CONFIG_8xx_CONS_SCC1)
+		i = 1;
+#elif defined(CONFIG_8xx_CONS_SCC2)
+		i = 2;
+#elif defined(CONFIG_8xx_CONS_SCC3)
+		i = 3;
+#elif defined(CONFIG_8xx_CONS_SCC4)
+		i = 4;
+#endif
+	}
+
+	if (i >= 0)
+	{
+		serial_printf("[on %s%d] ", default_serial_console()->ctlr, i);
+	}
 }
 
 void

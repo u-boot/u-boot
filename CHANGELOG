@@ -2,12 +2,23 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Sascha Hauer, 28 Jun:
+  - add generic support for Motorola i.MX architecture
+  - add support for mx1ads, mx1fs2 and scb9328 boards
+
+* Patches by Marc Leeman, 23 Jul 2004:
+  - Add define for the PCI/Memory Buffer Configuration Register
+  - corrected comments in cpu/mpc824x/cpu_init.c
+
+* Add support for multiple serial interfaces
+  (for example to allow modem dial-in / dial-out)
+
 * Patch by Stefan Roese, 15 Jul 2004:
   cpu/ppc4xx/sdram.c rewritten now using get_ram_size()
 
 * Fix NSCU config; add ethernet wakeup code.
 
-* Add link for preloader for Motorola Coldfire to RAEDME.m68k
+* Add link for preloader for Motorola Coldfire to README.m68k
 
 * Patch by Michael Bendzick, 12 Jul 2004:
   fix output formatting in drivers/cfi_flash.c

@@ -108,7 +108,7 @@ cpu_init_f (void)
 
 	CONFIG_READ_BYTE(PCMBCR,val);
 	/* in order not to corrupt data which is being read over the PCI bus
-	* with the PPC as master, we need to reduce the number of PCMRBs to 1,
+	* with the PPC as slave, we need to reduce the number of PCMRBs to 1,
 	* 4.11 in the  processor user manual
 	* */
 
@@ -117,6 +117,10 @@ cpu_init_f (void)
 #else
 	CONFIG_WRITE_BYTE(PCMBCR,(val|0x80)); /* 2 PCMRBs */
 	CONFIG_WRITE_BYTE(PCMBCR,(val|0x40)); /* 3 PCMRBs */
+	/* default, 4 PCMRBs are used, so don't change the
+	 * register is this is _really_ what you want: data
+	 * corruption with no performance gain
+	 */
 #endif
 #endif
 

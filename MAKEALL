@@ -139,11 +139,10 @@ LIST_ARM7="B2 ep7312 evb4510 impa7 modnet50"
 #########################################################################
 
 LIST_ARM9="	\
-	at91rm9200dk	integratorcp	integratorap			\
-	lpd7a400	mx1ads		omap1510inn			\
-	omap1610h2	omap1610inn	omap730p2			\
-	smdk2400	smdk2410	trab				\
-	VCMA9		versatile					\
+	at91rm9200dk	integratorcp	integratorap 	lpd7a400	\
+	mx1ads		mx1fs2		omap1510inn	omap1610h2	\
+	omap1610inn	omap730p2	scb9328		smdk2400	\
+	smdk2410	trab		VCMA9		versatile	\
 "
 
 #########################################################################

@@ -126,6 +126,17 @@ typedef void (interrupt_handler_t)(void *);
 # endif
 #endif
 
+#ifndef CONFIG_SERIAL_MULTI
+
+#if defined(CONFIG_8xx_CONS_SMC1) || defined(CONFIG_8xx_CONS_SMC2) \
+ || defined(CONFIG_8xx_CONS_SCC1) || defined(CONFIG_8xx_CONS_SCC2) \
+ || defined(CONFIG_8xx_CONS_SCC3) || defined(CONFIG_8xx_CONS_SCC4)
+
+#define CONFIG_SERIAL_MULTI	1
+
+#endif
+
+#endif /* CONFIG_SERIAL_MULTI */
 
 /*
  * General Purpose Utilities
@@ -402,6 +413,15 @@ ulong	get_PLLCLK (void);
 #endif
 #if defined CONFIG_INCA_IP
 uint	incaip_get_cpuclk (void);
+#endif
+#if defined(CONFIG_IMX)
+ulong get_systemPLLCLK(void);
+ulong get_FCLK(void);
+ulong get_HCLK(void);
+ulong get_BCLK(void);
+ulong get_PERCLK1(void);
+ulong get_PERCLK2(void);
+ulong get_PERCLK3(void);
 #endif
 ulong	get_bus_freq  (ulong);
 

@@ -74,9 +74,10 @@
 #define CPM_I2C_BASE		0x0820
 #define CPM_SPI_BASE		0x0840
 #define CPM_FEC_BASE		0x0860
-#define CPM_WLKBD_BASE		0x0880
+#define CPM_SERIAL2_BASE	0x0880
 #define CPM_SCC_BASE		0x0900
 #define CPM_POST_BASE		0x0980
+#define CPM_WLKBD_BASE		0x0a00
 
 #endif
 
@@ -1041,7 +1042,7 @@ typedef struct scc_enet {
 
 /***  LWMON  **********************************************************/
 
-#if defined(CONFIG_LWMON) && !defined(CONFIG_8xx_CONS_SCC2)
+#if defined(CONFIG_LWMON)
 /* Bits in parallel I/O port registers that have to be set/cleared
  * to configure the pins for SCC2 use.
  */

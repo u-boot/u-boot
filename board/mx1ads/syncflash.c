@@ -24,7 +24,8 @@
  */
 
 #include <common.h>
-#include <mc9328.h>
+/*#include <mc9328.h>*/
+#include <asm/arch/imx-regs.h>
 
 typedef unsigned long * p_u32;
 
@@ -33,27 +34,26 @@ typedef unsigned long * p_u32;
 flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips    */
 
 /*  Following Setting is for CSD1	*/
-#define SFCTL		0x00221004
-#define reg_SFCTL	__REG(SFCTL)
+#define SFCTL			0x00221004
+#define reg_SFCTL		__REG(SFCTL)
 
-#define SYNCFLASH_A10	(0x00100000)
+#define SYNCFLASH_A10		(0x00100000)
 
-#define CMD_NORMAL	(0x81020300)			/* Normal Mode			*/
-#define CMD_PREC	(CMD_NORMAL + 0x10000000) 	/* Precharge Command		*/
-#define CMD_AUTO	(CMD_NORMAL + 0x20000000) 	/* Auto Refresh Command		*/
-#define CMD_LMR		(CMD_NORMAL + 0x30000000) 	/* Load Mode Register Command 	*/
-#define CMD_LCR		(CMD_NORMAL + 0x60000000) 	/* LCR Command			*/
-#define CMD_PROGRAM	(CMD_NORMAL + 0x70000000)
+#define CMD_NORMAL		(0x81020300)			/* Normal Mode			*/
+#define CMD_PREC		(CMD_NORMAL + 0x10000000) 	/* Precharge Command		*/
+#define CMD_AUTO		(CMD_NORMAL + 0x20000000) 	/* Auto Refresh Command		*/
+#define CMD_LMR			(CMD_NORMAL + 0x30000000) 	/* Load Mode Register Command 	*/
+#define CMD_LCR			(CMD_NORMAL + 0x60000000) 	/* LCR Command			*/
+#define CMD_PROGRAM		(CMD_NORMAL + 0x70000000)
 
-#define MODE_REG_VAL	(CFG_FLASH_BASE+0x0008CC00) 	/* Cas Latency 3		*/
+#define MODE_REG_VAL		(CFG_FLASH_BASE+0x0008CC00) 	/* Cas Latency 3		*/
 
 /* LCR Command */
-#define LCR_READSTATUS		(0x0001C000)		/* 0x70				*/
-#define LCR_ERASE_CONFIRM	(0x00008000)		/* 0x20				*/
-#define LCR_ERASE_NVMODE	(0x0000C000)		/* 0x30				*/
-#define LCR_PROG_NVMODE		(0x00028000)		/* 0xA0				*/
-#define LCR_SR_CLEAR		(0x00014000)		/* 0x50				*/
-
+#define LCR_READSTATUS		(0x0001C000)			/* 0x70				*/
+#define LCR_ERASE_CONFIRM	(0x00008000)			/* 0x20				*/
+#define LCR_ERASE_NVMODE	(0x0000C000)			/* 0x30				*/
+#define LCR_PROG_NVMODE		(0x00028000)			/* 0xA0				*/
+#define LCR_SR_CLEAR		(0x00014000)			/* 0x50				*/
 
 /* Get Status register 			*/
 u32 SF_SR(void) {
@@ -82,7 +82,6 @@ u8 SF_Ready(void) {
 
 	if ((tmp & 0x00000080) && (tmp & 0x0000001C)) {
 		printf ("SyncFlash Error code %08x\n",tmp);
-
 	};
 
 	if (tmp == 0x00800080) 		/* Test Bit 7 of SR	*/
@@ -98,7 +97,6 @@ void SF_PrechargeAll(void) {
 
 	reg_SFCTL	= CMD_PREC;			/* Set Precharge Command 	*/
 	tmp 		= __REG(CFG_FLASH_BASE + SYNCFLASH_A10); /* Issue Precharge All Command */
-
 }
 
 /* set SyncFlash to normal mode			*/
@@ -128,7 +126,6 @@ void SF_Erase(u32 RowAddress) {
 	while(!SF_Ready());
 }
 
-
 void SF_NvmodeErase(void) {
 	SF_PrechargeAll();
 
@@ -149,9 +146,7 @@ void SF_NvmodeWrite(void) {
 
 	reg_SFCTL	= CMD_NORMAL;			/* Return to Normal mode 	*/
 	__REG(CFG_FLASH_BASE+LCR_PROG_NVMODE) = 0xC0C0C0C0; 	/* Confirm not needed 	*/
-
 }
-
 
 /****************************************************************************************/
 
@@ -195,7 +190,6 @@ ulong flash_init(void) {
 	return FLASH_BANK_SIZE;
 }
 
-
 void flash_print_info (flash_info_t *info) {
 
 	int i;
@@ -208,7 +202,6 @@ void flash_print_info (flash_info_t *info) {
 			printf("Unknown Vendor ");
 			break;
 	}
-
 
 	switch (info->flash_id & FLASH_TYPEMASK) {
 		case (FLASH_MT28S4M16LC & FLASH_TYPEMASK):
@@ -235,7 +228,6 @@ void flash_print_info (flash_info_t *info) {
 
 	printf ("\n");
 }
-
 
 /*-----------------------------------------------------------------------*/
 

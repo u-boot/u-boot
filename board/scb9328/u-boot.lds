@@ -1,11 +1,9 @@
 /*
- * board/mx1ads/u-boot.lds
+ * (C) Copyright 2000-2004
+ * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * (c) Copyright 2004
- * Techware Information Technology, Inc.
- * http://www.techware.com.tw/
- *
- * Ming-Len Wu <minglen_wu@techware.com.tw>
+ * See file CREDITS for list of people who contributed to this
+ * project.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,6 +19,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
+ *
  */
 
 OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
@@ -33,8 +32,8 @@ SECTIONS
 	. = ALIGN(4);
 	.text      :
 	{
-	  cpu/arm920t/start.o	(.text)
-	  *(.text)
+		cpu/arm920t/start.o	(.text)
+		*(.text)
 	}
 
 	. = ALIGN(4);
