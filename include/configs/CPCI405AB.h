@@ -57,7 +57,7 @@
 #undef	CONFIG_BOOTARGS
 #define CONFIG_BOOTCOMMAND	"bootm 100000"	/* default boot command	*/
 
-#define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
+#undef  CONFIG_LOADS_ECHO		/* echo on for serial download	*/
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
 #define CONFIG_MII		1	/* MII PHY management		*/
@@ -228,43 +228,33 @@
 #define CFG_JFFS2_FIRST_BANK    0           /* use for JFFS2 */
 #define CFG_JFFS2_NUM_BANKS     1           /* ! second bank contains U-Boot */
 
-#if 0 /* Use NVRAM for environment variables */
 /*-----------------------------------------------------------------------
- * NVRAM organization
- */
-#define CFG_ENV_IS_IN_NVRAM	1	/* use NVRAM for environment vars	*/
-#define CFG_ENV_SIZE		0x0ff8		/* Size of Environment vars	*/
-#define CFG_ENV_ADDR		\
-	(CFG_NVRAM_BASE_ADDR+CFG_NVRAM_SIZE-(CFG_ENV_SIZE+8))	/* Env	*/
-
-#else /* Use EEPROM for environment variables */
-
-#define CFG_ENV_IS_IN_EEPROM    1       /* use EEPROM for environment vars */
-#define CFG_ENV_OFFSET          0x000   /* environment starts at the beginning of the EEPROM */
-#define CFG_ENV_SIZE            0x400   /* 1024 bytes may be used for env vars*/
-				   /* total size of a CAT24WC08 is 1024 bytes */
-#endif
-
-#define CFG_NVRAM_BASE_ADDR	0xf0200000		/* NVRAM base address	*/
-#define CFG_NVRAM_SIZE		(32*1024)		/* NVRAM size		*/
-#define CFG_NVRAM_VXWORKS_OFFS	0x6900		/* Offset for VxWorks eth-addr	*/
-
-/*-----------------------------------------------------------------------
- * I2C EEPROM (CAT24WC08) for environment
+ * I2C EEPROM (CAT24WC32) for environment
  */
 #define CONFIG_HARD_I2C			/* I2c with hardware support */
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address */
 #define CFG_I2C_SLAVE		0x7F
 
-#define CFG_I2C_EEPROM_ADDR	0x50	/* EEPROM CAT28WC08		*/
-#define CFG_I2C_EEPROM_ADDR_LEN	1	/* Bytes of address		*/
+#define CFG_I2C_EEPROM_ADDR	0x50	/* EEPROM CAT28WC32		*/
+#define CFG_I2C_EEPROM_ADDR_LEN	2	/* Bytes of address		*/
 /* mask of address bits that overflow into the "EEPROM chip address"    */
-#define CFG_I2C_EEPROM_ADDR_OVERFLOW	0x07
-#define CFG_EEPROM_PAGE_WRITE_BITS 4	/* The Catalyst CAT24WC08 has	*/
-					/* 16 byte page write mode using*/
-					/* last	4 bits of the address	*/
+#define CFG_I2C_EEPROM_ADDR_OVERFLOW	0x01
+#define CFG_EEPROM_PAGE_WRITE_BITS 5	/* The Catalyst CAT24WC32 has	*/
+					/* 32 byte page write mode using*/
+					/* last	5 bits of the address	*/
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS	10   /* and takes up to 10 msec */
 #define CFG_EEPROM_PAGE_WRITE_ENABLE
+
+/* Use EEPROM for environment variables */
+
+#define CFG_ENV_IS_IN_EEPROM    1       /* use EEPROM for environment vars */
+#define CFG_ENV_OFFSET          0x000   /* environment starts at the beginning of the EEPROM */
+#define CFG_ENV_SIZE            0x800   /* 2048 bytes may be used for env vars*/
+				   /* total size of a CAT24WC32 is 4096 bytes */
+
+#define CFG_NVRAM_BASE_ADDR	0xf0200000		/* NVRAM base address	*/
+#define CFG_NVRAM_SIZE		(32*1024)		/* NVRAM size		*/
+#define CFG_NVRAM_VXWORKS_OFFS	0x6900		/* Offset for VxWorks eth-addr	*/
 
 /*-----------------------------------------------------------------------
  * Cache Configuration

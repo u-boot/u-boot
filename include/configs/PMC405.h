@@ -63,6 +63,7 @@
 #define	CONFIG_PHY_ADDR		0	/* PHY address			*/
 
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
+				CFG_CMD_BSP	| \
 				CFG_CMD_PCI	| \
 				CFG_CMD_IRQ	| \
 				CFG_CMD_ELF	| \
@@ -253,6 +254,19 @@
 /* Memory Bank 3 (CompactFlash IDE, FPGA internal) initialization               */
 #define CFG_EBC_PB3AP   0x010059C0   /* BWT=2,WBN=1,WBF=1,TH=1,RE=1,SOR=1,BEM=1 */
 #define CFG_EBC_PB3CR   CF_BA | 0x1A000     /* BAS=0xF01,BS=1MB,BU=R/W,BW=16bit */
+
+/*-----------------------------------------------------------------------
+ * FPGA stuff
+ */
+#define CFG_FPGA_XC95XL         1           /* using Xilinx XC95XL CPLD      */
+#define CFG_FPGA_MAX_SIZE       32*1024     /* 32kByte is enough for CPLD    */
+
+/* FPGA program pin configuration */
+#define CFG_FPGA_PRG            0x04000000  /* JTAG TMS pin (ppc output)     */
+#define CFG_FPGA_CLK            0x02000000  /* JTAG TCK pin (ppc output)     */
+#define CFG_FPGA_DATA           0x01000000  /* JTAG TDO->TDI data pin (ppc output) */
+#define CFG_FPGA_INIT           0x00010000  /* unused (ppc input)            */
+#define CFG_FPGA_DONE           0x00008000  /* JTAG TDI->TDO pin (ppc input) */
 
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in data cache)
