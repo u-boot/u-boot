@@ -49,7 +49,7 @@ int checkboard(void)
 	ulong busfreq  = get_bus_freq(0);
 	char  buf[32];
 
-	printf("CPC45 ");
+	puts ("CPC45  ");
 /*
 	printf("Revision %d ", revision);
 */
