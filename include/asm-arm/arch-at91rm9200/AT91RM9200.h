@@ -446,7 +446,35 @@ typedef struct _AT91S_PDC {
 /* ========== Register definition ==================================== */
 #define AT91C_SPI_CSR   ((AT91_REG *) 	0xFFFE0030) /* (SPI) Chip Select Register */
 #define AT91C_PMC_PCER  ((AT91_REG *) 	0xFFFFFC10) /* (PMC) Peripheral Clock Enable Register */
+#define AT91C_PIOA_PER  ((AT91_REG *) 	0xFFFFF400) /* (PIOA) PIO Enable Register */
 #define AT91C_PIOA_PDR  ((AT91_REG *) 	0xFFFFF404) /* (PIOA) PIO Disable Register */
+#define AT91C_PIOA_PSR  ((AT91_REG *) 	0xFFFFF408) /* (PIOA) PIO Status Register */
+#define AT91C_PIOA_OER  ((AT91_REG *) 	0xFFFFF410) /* (PIOA) PIO Output Enable Register */
+#define AT91C_PIOA_ODR  ((AT91_REG *) 	0xFFFFF414) /* (PIOA) PIO Output Disable Register */
+#define AT91C_PIOA_OSR  ((AT91_REG *) 	0xFFFFF418) /* (PIOA) PIO Output Status Register */
+#define AT91C_PIOA_IFER  ((AT91_REG *) 	0xFFFFF420) /* (PIOA) PIO Glitch Input Filter Enable Register */
+#define AT91C_PIOA_IFDR  ((AT91_REG *) 	0xFFFFF424) /* (PIOA) PIO Glitch Input Filter Disable Register */
+#define AT91C_PIOA_IFSR  ((AT91_REG *) 	0xFFFFF428) /* (PIOA) PIO Glitch Input Filter Status Register */
+#define AT91C_PIOA_SODR  ((AT91_REG *) 	0xFFFFF430) /* (PIOA) PIO Set Output Data Register */
+#define AT91C_PIOA_CODR  ((AT91_REG *) 	0xFFFFF434) /* (PIOA) PIO Clear Output Data Register */
+#define AT91C_PIOA_ODSR  ((AT91_REG *) 	0xFFFFF438) /* (PIOA) PIO Output Data Status Register */
+#define AT91C_PIOA_PDSR  ((AT91_REG *) 	0xFFFFF43C) /* (PIOA) PIO Pin Data Status Register */
+#define AT91C_PIOA_IER  ((AT91_REG *) 	0xFFFFF440) /* (PIOA) PIO Interrupt Enable Register */
+#define AT91C_PIOA_IDR  ((AT91_REG *) 	0xFFFFF444) /* (PIOA) PIO Interrupt Disable Register */
+#define AT91C_PIOA_IMR  ((AT91_REG *) 	0xFFFFF448) /* (PIOA) PIO Interrupt Mask Register */
+#define AT91C_PIOA_ISR  ((AT91_REG *) 	0xFFFFF44C) /* (PIOA) PIO Interrupt Status Register */
+#define AT91C_PIOA_MDER  ((AT91_REG *) 	0xFFFFF450) /* (PIOA) PIO Multi-drive Enable Register */
+#define AT91C_PIOA_MDDR  ((AT91_REG *) 	0xFFFFF454) /* (PIOA) PIO Multi-drive Disable Register */
+#define AT91C_PIOA_MDSR  ((AT91_REG *) 	0xFFFFF458) /* (PIOA) PIO Multi-drive Status Register */
+#define AT91C_PIOA_PUDR  ((AT91_REG *) 	0xFFFFF460) /* (PIOA) PIO Pull-up Disable Register */
+#define AT91C_PIOA_PUER  ((AT91_REG *) 	0xFFFFF464) /* (PIOA) PIO Pull-up Enable Register */
+#define AT91C_PIOA_PUSR  ((AT91_REG *) 	0xFFFFF468) /* (PIOA) PIO Pull-up Status Register */
+#define AT91C_PIOA_ASR  ((AT91_REG *) 	0xFFFFF470) /* (PIOA) PIO Peripheral A Select Register */
+#define AT91C_PIOA_BSR  ((AT91_REG *) 	0xFFFFF474) /* (PIOA) PIO Peripheral B Select Register */
+#define AT91C_PIOA_ABSR  ((AT91_REG *) 	0xFFFFF478) /* (PIOA) PIO Peripheral AB Select Register */
+#define AT91C_PIOA_OWER  ((AT91_REG *) 	0xFFFFF4A0) /* (PIOA) PIO Output Write Enable Register */
+#define AT91C_PIOA_OWDR  ((AT91_REG *) 	0xFFFFF4A4) /* (PIOA) PIO Output Write Disable Register */
+#define AT91C_PIOA_OWSR  ((AT91_REG *) 	0xFFFFF4A8) /* (PIOA) PIO Output Write Status Register */
 #define AT91C_PIOB_PDR  ((AT91_REG *) 	0xFFFFF604) /* (PIOB) PIO Disable Register */
 
 #define AT91C_PIO_PA30       ((unsigned int) 1 << 30) /* Pin Controlled by PA30 */
@@ -454,19 +482,28 @@ typedef struct _AT91S_PDC {
 #define AT91C_PC0_BFCK     ((unsigned int) AT91C_PIO_PC0) /*  Burst Flash Clock */
 #define AT91C_PA30_DRXD     ((unsigned int) AT91C_PIO_PA30) /*  DBGU Debug Receive Data */
 #define AT91C_PIO_PA31       ((unsigned int) 1 << 31) /* Pin Controlled by PA31 */
+#define AT91C_PA25_TWD		((unsigned int) 1 << 25)
+#define AT91C_PA26_TWCK		((unsigned int) 1 << 26)
 #define AT91C_PA31_DTXD     ((unsigned int) AT91C_PIO_PA31) /*  DBGU Debug Transmit Data */
+#define AT91C_PIO_PA17       ((unsigned int) 1 << 17) /* Pin Controlled by PA17 */
+#define AT91C_PA17_TXD0     AT91C_PIO_PA17 /*  USART0 Transmit Data */
+#define AT91C_PIO_PA18       ((unsigned int) 1 << 18) /* Pin Controlled by PA18 */
+#define AT91C_PA18_RXD0     AT91C_PIO_PA18 /*  USART0 Receive Data */
 #define AT91C_PIO_PB20       ((unsigned int) 1 << 20) /* Pin Controlled by PB20 */
-#define AT91C_PB20_RXD1     ((unsigned int) AT91C_PIO_PB20) /*  USART1 Receive Data */
+#define AT91C_PB20_RXD1     AT91C_PIO_PB20 /*  USART1 Receive Data */
 #define AT91C_PIO_PB21       ((unsigned int) 1 << 21) /* Pin Controlled by PB21 */
-#define AT91C_PB21_TXD1     ((unsigned int) AT91C_PIO_PB21) /*  USART1 Transmit Data */
+#define AT91C_PB21_TXD1     AT91C_PIO_PB21 /*  USART1 Transmit Data */
 
-#define AT91C_ID_SYS    ((unsigned int)  1) /* System Peripheral */
+#define AT91C_ID_SYS    ((unsigned int) 1) /* System Peripheral */
+#define AT91C_ID_PIOA	((unsigned int) 2)	/* PIO port A */
+#define AT91C_ID_PIOB	((unsigned int) 3)	/* PIO port B */
+#define AT91C_ID_PIOC	((unsigned int) 4)	/* PIO port C */
+#define AT91C_ID_USART0	((unsigned int) 6)	/* USART 0 */
+#define AT91C_ID_USART1	((unsigned int) 7)	/* USART 1 */
+#define AT91C_ID_TWI    ((unsigned int) 12) /* Two Wire Interface */
+#define AT91C_ID_SPI    ((unsigned int) 13) /* Serial Peripheral Interface */
 #define AT91C_ID_TC0    ((unsigned int) 17) /* Timer Counter 0 */
 #define AT91C_ID_EMAC   ((unsigned int) 24) /* Ethernet MAC */
-#define AT91C_ID_SPI    ((unsigned int) 13) /* Serial Peripheral Interface */
-#define AT91C_ID_PIOB	((unsigned int) 3)
-#define AT91C_ID_PIOC	((unsigned int) 4)
-#define AT91C_ID_USART1	((unsigned int) 7)
 
 #define AT91C_PIO_PC1        ((unsigned int) 1 <<  1) /* Pin Controlled by PC1 */
 #define AT91C_PC1_BFRDY_SMOE ((unsigned int) AT91C_PIO_PC1) /*  Burst Flash Ready */
@@ -561,11 +598,14 @@ typedef struct _AT91S_PDC {
 #define AT91C_BASE_EMAC      ((AT91PS_EMAC) 	0xFFFBC000) /* (EMAC) Base Address */
 #define AT91C_BASE_PMC       ((AT91PS_PMC) 	0xFFFFFC00) /* (PMC) Base Address */
 #define AT91C_BASE_TC0       ((AT91PS_TC) 	0xFFFA0000) /* (TC0) Base Address */
-#define AT91C_BASE_DBGU      ((AT91PS_DBGU) 	0xFFFFF200) /* (DBGU) Base Address */
+#define AT91C_BASE_DBGU      ((AT91PS_DBGU)	0xFFFFF200) /* (DBGU) Base Address */
+#define AT91C_BASE_CKGR      ((AT91PS_CKGR) 0xFFFFFC20) /* (CKGR) Base Address */
+#define AT91C_BASE_PIOC      ((AT91PS_PIO) 	0xFFFFF800) /* (PIOC) Base Address */
 #define AT91C_BASE_PIOB      ((AT91PS_PIO) 	0xFFFFF600) /* (PIOB) Base Address */
 #define AT91C_BASE_PIOA      ((AT91PS_PIO) 	0xFFFFF400) /* (PIOA) Base Address */
 #define AT91C_EBI_CSA   ((AT91_REG *) 	0xFFFFFF60) /* (EBI) Chip Select Assignment Register */
 #define AT91C_BASE_SMC2      ((AT91PS_SMC2) 	0xFFFFFF70) /* (SMC2) Base Address */
+#define AT91C_BASE_US0       ((AT91PS_USART) 	0xFFFC0000) /* (US0) Base Address */
 #define AT91C_BASE_US1       ((AT91PS_USART) 	0xFFFC4000) /* (US1) Base Address */
 #define AT91C_TCB0_BMR  ((AT91_REG *) 	0xFFFA00C4) /* (TCB0) TC Block Mode Register */
 #define AT91C_TCB0_BCR  ((AT91_REG *) 	0xFFFA00C0) /* (TCB0) TC Block Control Register */

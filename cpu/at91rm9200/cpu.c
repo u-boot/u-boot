@@ -35,8 +35,8 @@
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 
-#if !defined(CONFIG_DBGU) && !defined(CONFIG_USART1)
-#error must define one of CONFIG_DBGU or CONFIG_USART1
+#if !defined(CONFIG_DBGU) && !defined(CONFIG_USART0) && !defined(CONFIG_USART1)
+#error must define one of CONFIG_DBGU or CONFIG_USART0 or CONFIG_USART1
 #endif
 
 /* read co-processor 15, register #1 (control register) */
@@ -122,6 +122,9 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #else
 #ifdef CONFIG_DBGU
    AT91PS_USART us = AT91C_BASE_DBGU;
+#endif
+#ifdef CONFIG_USART0
+   AT91PS_USART us = AT91C_BASE_US0;
 #endif
 #ifdef CONFIG_USART1
    AT91PS_USART us = AT91C_BASE_US1;

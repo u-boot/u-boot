@@ -33,13 +33,16 @@
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 
-#if !defined(CONFIG_DBGU) && !defined(CONFIG_USART1)
-#error must define one of CONFIG_DBGU or CONFIG_USART1
+#if !defined(CONFIG_DBGU) && !defined(CONFIG_USART0) && !defined(CONFIG_USART1)
+#error must define one of CONFIG_DBGU or CONFIG_USART0 or CONFIG_USART1
 #endif
 
 /* ggi thunder */
 #ifdef CONFIG_DBGU
 AT91PS_USART us = (AT91PS_USART) AT91C_BASE_DBGU;
+#endif
+#ifdef CONFIG_USART0
+AT91PS_USART us = (AT91PS_USART) AT91C_BASE_US0;
 #endif
 #ifdef CONFIG_USART1
 AT91PS_USART us = (AT91PS_USART) AT91C_BASE_US1;
@@ -50,9 +53,19 @@ void serial_setbrg (void)
 	DECLARE_GLOBAL_DATA_PTR;
 	int baudrate;
 
-	if ((baudrate = gd->bd->bi_baudrate) <= 0)
+	if ((baudrate = gd->baudrate) <= 0)
 		baudrate = CONFIG_BAUDRATE;
-	us->US_BRGR = CFG_AT91C_BRGR_DIVISOR;	/* hardcode so no __divsi3 */
+	if (baudrate == CONFIG_BAUDRATE) {
+		us->US_BRGR = CFG_AT91C_BRGR_DIVISOR;	/* hardcode so no __divsi3 */
+	} else {
+#if 0
+		/* 33 -> 115200 */
+		us->US_BRGR = 33 * (115200/baudrate);
+#else
+		/* MASTER_CLOCK/(16 * baudrate) */
+		us->US_BRGR = (AT91C_MASTER_CLOCK >> 4)/baudrate;
+#endif
+	}
 }
 
 int serial_init (void)
@@ -61,6 +74,10 @@ int serial_init (void)
 #ifdef CONFIG_DBGU
 	*AT91C_PIOA_PDR = AT91C_PA31_DTXD | AT91C_PA30_DRXD;	/* PA 31 & 30 */
 	*AT91C_PMC_PCER = 1 << AT91C_ID_SYS;	/* enable clock */
+#endif
+#ifdef CONFIG_USART0
+	*AT91C_PIOA_PDR = AT91C_PA17_TXD0 | AT91C_PA18_RXD0;
+	*AT91C_PMC_PCER |= 1 << AT91C_ID_USART0;	/* enable clock */
 #endif
 #ifdef CONFIG_USART1
 	*AT91C_PIOB_PDR = AT91C_PB21_TXD1 | AT91C_PB20_RXD1;

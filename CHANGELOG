@@ -2,6 +2,13 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Gary Jennejohn, 01 Oct 2004:
+  - add support for CMC PU2 board
+  - add support for I2C on at91rm9200
+
+* Patch by Gary Jennejohn, 28 Sep 2004:
+  fix baudrate handling on at91rm9200
+
 * Patch by Yuli Barcohen, 22 Aug 2004:
   - remove ZPC.1900 board-specific flash driver;
     switch the port to generic CFI driver;

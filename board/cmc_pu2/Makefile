@@ -23,22 +23,25 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(CPU).a
+LIB	= lib$(BOARD).a
 
-START	= start.o
-OBJS	= serial.o interrupts.o cpu.o \
-	  at91rm9200_ether.o i2c.o
+OBJS	:= at91rm9200dk.o at45.o dm9161.o flash.o
+SOBJS	:= memsetup.o
 
-all:	.depend $(START) $(LIB)
+$(LIB):	$(OBJS) $(SOBJS)
+	$(AR) crv $@ $(OBJS) $(SOBJS)
 
-$(LIB):	$(OBJS)
-	$(AR) crv $@ $(OBJS)
+clean:
+	rm -f $(SOBJS) $(OBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak .depend
 
 #########################################################################
 
-.depend:	Makefile $(START:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(START:.o=.S) $(OBJS:.o=.c) > $@
+.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
+		$(CC) -M $(CPPFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
 
-sinclude .depend
+-include .depend
 
 #########################################################################

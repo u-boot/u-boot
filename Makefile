@@ -1294,6 +1294,9 @@ evb4510_config :	unconfig
 at91rm9200dk_config	:	unconfig
 	@./mkconfig $(@:_config=) arm at91rm9200 at91rm9200dk
 
+cmc_pu2_config	:	unconfig
+	@./mkconfig $(@:_config=) arm at91rm9200 cmc_pu2
+
 #########################################################################
 ## XScale Systems
 #########################################################################
