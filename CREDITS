@@ -66,6 +66,10 @@ N: Jonathan De Bruyne
 E: jonathan.debruyne@siemens.atea.be
 D: Port to Siemens IAD210 board
 
+N: Ken Chou
+E: kchou@ieee.org	
+D: Support for A3000 SBC board
+
 N: Conn Clark
 E: clark@esteem.com
 D: ESTEEM192E support

@@ -251,7 +251,8 @@ NetLoop(proto_t protocol)
 	}
 
 	eth_halt();
-	eth_init(bd);
+	if(eth_init(bd) < 0)
+	    return(-1);
 
 restart:
 #ifdef CONFIG_NET_MULTI

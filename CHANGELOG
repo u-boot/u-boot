@@ -2,6 +2,13 @@
 Changes since U-Boot 0.3.1:
 ======================================================================
 
+* * Patch by Richard Woodruff, 19 June 03:
+  - Fixed smc91c111 driver to sync with the u-boot environment (driver/smc91c111.c).
+  - Added eth_init error return check in NetLoop (net/net.c).
+
+* Patch by Ken Chou, 17 June 2003:
+  Added support for A3000 SBC board (Artis Microsystems Inc.)
+
 * Patches by Murray Jensen, 17 Jun 2003:
   - Hymod board database mods: add "who" field and new xilinx chip types
   - provide new "init_cmd_timeout()" function so code external to
