@@ -401,8 +401,18 @@ NETVIA_config:		unconfig
 		 }
 	@./mkconfig -a $(call xtract_NETVIA,$@) ppc mpc8xx netvia
 
+xtract_NETPHONE = $(subst _V2,,$(subst _config,,$1))
+
+NETPHONE_V2_config \
 NETPHONE_config:	unconfig
-	@./mkconfig $(@:_config=) ppc mpc8xx netphone
+	@ >include/config.h
+	@[ -z "$(findstring NETPHONE_config,$@)" ] || \
+		 { echo "#define CONFIG_NETPHONE_VERSION 1" >>include/config.h ; \
+		 }
+	@[ -z "$(findstring NETPHONE_V2_config,$@)" ] || \
+		 { echo "#define CONFIG_NETPHONE_VERSION 2" >>include/config.h ; \
+		 }
+	@./mkconfig -a $(call xtract_NETPHONE,$@) ppc mpc8xx netphone
 
 xtract_NETTA = $(subst _ISDN,,$(subst _config,,$1))
 

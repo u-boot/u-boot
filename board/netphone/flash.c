@@ -41,6 +41,9 @@ unsigned long flash_init(void)
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	unsigned long size;
+#if CONFIG_NETPHONE_VERSION == 2
+	unsigned long size1;
+#endif
 	int i;
 
 	/* Init: no FLASHes known */
@@ -81,6 +84,25 @@ unsigned long flash_init(void)
 #endif
 
 	flash_info[0].size = size;
+
+#if CONFIG_NETPHONE_VERSION == 2
+	size1 = flash_get_size((vu_long *) FLASH_BASE4_PRELIM, &flash_info[1]);
+
+	if (flash_info[1].flash_id == FLASH_UNKNOWN && size1 > 0) {
+		printf("## Unknown FLASH on Bank 1 - Size = 0x%08lx = %ld MB\n", size1, size1 << 20);
+	}
+
+	/* Remap FLASH according to real size */
+	memctl->memc_or4 = CFG_OR_TIMING_FLASH | (-size1 & 0xFFFF8000);
+	memctl->memc_br4 = (CFG_FLASH_BASE4 & BR_BA_MSK) | (memctl->memc_br4 & ~(BR_BA_MSK));
+
+	/* Re-do sizing to get full correct info */
+	size1 = flash_get_size((vu_long *) CFG_FLASH_BASE4, &flash_info[1]);
+
+	flash_get_offsets(CFG_FLASH_BASE4, &flash_info[1]);
+
+	size += size1;
+#endif
 
 	return (size);
 }

@@ -1943,6 +1943,28 @@ Low Level (hardware related) configuration options:
   CFG_POCMR2_MASK_ATTRIB: (MPC826x only)
 		Overrides the default PCI memory map in cpu/mpc8260/pci.c if set.
 
+- CONFIG_ETHER_ON_FEC[12]
+		Define to enable FEC[12] on a 8xx series processor.
+
+- CONFIG_FEC[12]_PHY
+		Define to the hardcoded PHY address which corresponds
+		to the given FEC.
+
+		i.e. 
+                  #define CONFIG_FEC1_PHY 4 
+		means that the PHY with address 4 is connected to FEC1
+
+		When set to -1, means to probe for first available.
+
+- CONFIG_FEC[12]_PHY_NORXERR
+		The PHY does not have a RXERR line (RMII only).
+		(so program the FEC to ignore it).
+
+- CONFIG_RMII
+		Enable RMII mode for all FECs.
+		Note that this is a global option, we can't
+		have one FEC in standard MII mode and another in RMII mode.
+
 Building the Software:
 ======================
 

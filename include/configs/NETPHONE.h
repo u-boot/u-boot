@@ -29,6 +29,10 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#if !defined(CONFIG_NETPHONE_VERSION) || CONFIG_NETPHONE_VERSION > 2
+#error Unsupported CONFIG_NETPHONE version
+#endif
+
 /*
  * High Level Configuration Options
  * (easy to change)
@@ -46,6 +50,7 @@
 /* #define CONFIG_XIN		 10000000 */
 #define CONFIG_XIN		 50000000
 #define MPC8XX_HZ		120000000
+/* #define MPC8XX_HZ		 66666666 */
 
 #define CONFIG_8xx_GCLK_FREQ	MPC8XX_HZ
 
@@ -174,6 +179,11 @@
 #endif
 #define CFG_MONITOR_BASE	CFG_FLASH_BASE
 #define	CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
+#if CONFIG_NETPHONE_VERSION == 2
+#define CFG_FLASH_BASE4		0x40080000
+#endif
+
+#define CFG_RESET_ADDRESS   0x80000000
 
 /*
  * For booting Linux, the board info and command line data
@@ -185,7 +195,11 @@
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
+#if CONFIG_NETPHONE_VERSION == 1
 #define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
+#elif CONFIG_NETPHONE_VERSION == 2
+#define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks		*/
+#endif
 #define CFG_MAX_FLASH_SECT	8	/* max number of sectors on one chip	*/
 
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
@@ -302,6 +316,10 @@
 #define CFG_PLPRCR	((0 << PLPRCR_MFN_SHIFT) | (0 << PLPRCR_MFD_SHIFT) | \
 			 (0 << PLPRCR_S_SHIFT) | (6 << PLPRCR_MFI_SHIFT) | (2 << PLPRCR_PDF_SHIFT) | \
 		 	 PLPRCR_TEXPS)
+#elif MPC8XX_HZ ==  66666666
+#define CFG_PLPRCR	((0 << PLPRCR_MFN_SHIFT) | (0 << PLPRCR_MFD_SHIFT) | \
+			 (1 << PLPRCR_S_SHIFT) | (8 << PLPRCR_MFI_SHIFT) | (2 << PLPRCR_PDF_SHIFT) | \
+		 	 PLPRCR_TEXPS)
 #else
 #error unsupported CPU freq for XIN = 50MHz
 #endif
@@ -362,6 +380,16 @@
 #define CFG_OR0_REMAP	(CFG_REMAP_OR_AM  | CFG_OR_TIMING_FLASH)
 #define CFG_OR0_PRELIM	(CFG_PRELIM_OR_AM | CFG_OR_TIMING_FLASH)
 #define CFG_BR0_PRELIM	((FLASH_BASE0_PRELIM & BR_BA_MSK) | BR_PS_8 | BR_V )
+
+#if CONFIG_NETPHONE_VERSION == 2
+
+#define FLASH_BASE4_PRELIM	0x40080000	/* FLASH bank #1	*/
+
+#define CFG_OR4_REMAP	(CFG_REMAP_OR_AM  | CFG_OR_TIMING_FLASH)
+#define CFG_OR4_PRELIM	(CFG_PRELIM_OR_AM | CFG_OR_TIMING_FLASH)
+#define CFG_BR4_PRELIM	((FLASH_BASE4_PRELIM & BR_BA_MSK) | BR_PS_8 | BR_V )
+
+#endif
 
 /*
  * BR3 and OR3 (SDRAM)
@@ -454,11 +482,9 @@
 
 #define DSP_SIZE	0x00010000	/* 64K */
 #define NAND_SIZE	0x00010000	/* 64K */
-#define ER_SIZE		0x00010000	/* 64K */
 
 #define DSP_BASE	0xF1000000
 #define NAND_BASE	0xF1010000
-#define ER_BASE		0xF1020000
 
 /****************************************************************/
 
@@ -507,11 +533,23 @@
 		(((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pedat) |=  (1 << (31 - 18)); \
 	} while(0)
 
+#if CONFIG_NETPHONE_VERSION == 1
 #define NAND_WAIT_READY(nand) \
 	do { \
+		int _tries = 0; \
 		while ((((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pedat & (1 << (31 - 31))) == 0) \
-			; \
+			if (++_tries > 100000) \
+				break; \
 	} while (0)
+#elif CONFIG_NETPHONE_VERSION == 2
+#define NAND_WAIT_READY(nand) \
+	do { \
+		int _tries = 0; \
+		while ((((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pcdat & (1 << (15 - 15))) == 0) \
+			if (++_tries > 100000) \
+				break; \
+	} while (0)
+#endif
 
 #define WRITE_NAND_COMMAND(d, adr) \
 	do { \
@@ -533,7 +571,12 @@
 
 /*****************************************************************************/
 
+#if CONFIG_NETPHONE_VERSION == 1
 #define STATUS_LED_BIT		0x00000008		/* bit 28 */
+#elif CONFIG_NETPHONE_VERSION == 2
+#define STATUS_LED_BIT		0x00000080		/* bit 24 */
+#endif
+
 #define STATUS_LED_PERIOD	(CFG_HZ / 2)
 #define STATUS_LED_STATE	STATUS_LED_BLINKING
 
@@ -566,6 +609,13 @@ typedef unsigned int led_id_t;
 
 /***********************************************************************************************************
 
+ ----------------------------------------------------------------------------------------------
+
+   (V1) version 1 of the board
+   (V2) version 2 of the board
+
+ ----------------------------------------------------------------------------------------------
+
    Pin definitions:
 
  +------+----------------+--------+------------------------------------------------------------
@@ -585,19 +635,63 @@ typedef unsigned int led_id_t;
  | PB30 | SPI_CLK        | Output | SPI Clock
  | PC10 | DISPA0         | Output | Display A0
  | PC11 | BACKLIGHT      | Output | Display backlit
- | PC12 | SPI2RXD        | Input  | 2nd SPI RXD
- | PC13 | SPI2TXD        | Output | 2nd SPI TXD
- | PC15 | SPI2CLK        | Output | 2nd SPI CLK
+ | PC12 | SPI2RXD        | Input  | (V1) 2nd SPI RXD
+ |      | IO_RESET       | Output | (V2) General I/O reset
+ | PC13 | SPI2TXD        | Output | (V1) 2nd SPI TXD (V1)
+ |      | HOOK           | Input  | (V2) Hook input interrupt
+ | PC15 | SPI2CLK        | Output | (V1) 2nd SPI CLK
+ |      | F_RY_BY        | Input  | (V2) NAND F_RY_BY
  | PE17 | F_ALE          | Output | NAND F_ALE
  | PE18 | F_CLE          | Output | NAND F_CLE
  | PE20 | F_CE           | Output | NAND F_CE
- | PE24 | SPICS_SCOUT    | Output | Codec chip select
+ | PE24 | SPICS_SCOUT    | Output | (V1) Codec chip select
+ |      | LED            | Output | (V2) LED
  | PE27 | SPICS_ER       | Output | External serial register CS
- | PE28 | LEDIO1         | Output | LED
- | PE29 | LEDIO2         | Output | LED hook for A (TA2)
- | PE30 | LEDIO3         | Output | LED hook for A (TA2)
- | PE31 | F_RY_BY        | Input  | NAND F_RY_BY
+ | PE28 | LEDIO1         | Output | (V1) LED
+ |      | BKBR1          | Input  | (V2) Keyboard input scan
+ | PE29 | LEDIO2         | Output | (V1) LED hook for A (TA2)
+ |      | BKBR2          | Input  | (V2) Keyboard input scan
+ | PE30 | LEDIO3         | Output | (V1) LED hook for A (TA2)
+ |      | BKBR3          | Input  | (V2) Keyboard input scan
+ | PE31 | F_RY_BY        | Input  | (V1) NAND F_RY_BY
+ |      | BKBR4          | Input  | (V2) Keyboard input scan
  +------+----------------+--------+---------------------------------------------------
+
+ ----------------------------------------------------------------------------------------------
+
+   Serial register input:
+
+ +------+----------------+------------------------------------------------------------
+ |  #   | Name           | Comment
+ +------+----------------+------------------------------------------------------------
+ |    0 | BKBR1          | (V1) Keyboard input scan 
+ |    1 | BKBR3          | (V1) Keyboard input scan 
+ |    2 | BKBR4          | (V1) Keyboard input scan 
+ |    3 | BKBR2          | (V1) Keyboard input scan 
+ |    4 | HOOK           | (V1) Hook switch 
+ |    5 | BT_LINK        | (V1) Bluetooth link status
+ |    6 | HOST_WAKE      | (V1) Bluetooth host wake up
+ |    7 | OK_ETH         | (V1) Cisco inline power OK status
+ +------+----------------+------------------------------------------------------------
+
+ ----------------------------------------------------------------------------------------------
+
+   Serial register output:
+
+ +------+----------------+------------------------------------------------------------
+ |  #   | Name           | Comment
+ +------+----------------+------------------------------------------------------------
+ |    0 | KEY1           | Keyboard output scan 
+ |    1 | KEY2           | Keyboard output scan 
+ |    2 | KEY3           | Keyboard output scan 
+ |    3 | KEY4           | Keyboard output scan 
+ |    4 | KEY5           | Keyboard output scan 
+ |    5 | KEY6           | Keyboard output scan 
+ |    6 | KEY7           | Keyboard output scan 
+ |    7 | BT_WAKE        | Bluetooth wake up
+ +------+----------------+------------------------------------------------------------
+
+ ----------------------------------------------------------------------------------------------
 
  Chip selects:
 
@@ -608,7 +702,10 @@ typedef unsigned int led_id_t;
  | CS1  | CS_FLASH       | NAND flash
  | CS2  | CS_DSP         | DSP
  | CS3  | DCS_DRAM       | DRAM
+ | CS4  | CS_FLASH2      | (V2) 2nd flash
  +------+----------------+------------------------------------------------------------
+
+ ----------------------------------------------------------------------------------------------
 
  Interrupts:
 
@@ -621,6 +718,8 @@ typedef unsigned int led_id_t;
  | IRQ7 | IRQ_MAX        | MAX 3100 interrupt
  +------+----------------+------------------------------------------------------------
 
+ ----------------------------------------------------------------------------------------------
+
  Interrupts on PCMCIA pins:
 
  +------+----------------+------------------------------------------------------------
@@ -630,6 +729,8 @@ typedef unsigned int led_id_t;
  | IP_A1| PHY2_LINK      | Link status changed for #2 Ethernet interface
  | IP_A2| RMII1_MDINT    | PHY interrupt for #1
  | IP_A3| RMII2_MDINT    | PHY interrupt for #2
+ | IP_A5| HOST_WAKE      | (V2) Bluetooth host wake
+ | IP_A6| OK_ETH         | (V2) Cisco inline power OK
  +------+----------------+------------------------------------------------------------
 
 *************************************************************************************************/
@@ -691,4 +792,11 @@ typedef unsigned int led_id_t;
 
 /*************************************************************************************************/
 
+#define CONFIG_CRC32_VERIFY	1
+
+/*************************************************************************************************/
+
+#define CONFIG_HUSH_OLD_PARSER_COMPATIBLE	1
+
+/*************************************************************************************************/
 #endif	/* __CONFIG_H */

@@ -289,7 +289,7 @@ int pcmcia_on (void)
 	return (rc);
 }
 
-#endif / CONFIG_PXA_PCMCIA */
+#endif /* CONFIG_PXA_PCMCIA */
 
 #endif /* CONFIG_I82365 */
 

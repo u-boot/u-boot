@@ -290,6 +290,7 @@ char **global_argv;
 unsigned int global_argc;
 #endif
 unsigned int last_return_code;
+int nesting_level;
 #ifndef __U_BOOT__
 extern char **environ; /* This is in <unistd.h>, but protected with __USE_GNU */
 #endif
@@ -416,7 +417,9 @@ static int b_check_space(o_string *o, int len);
 static int b_addchr(o_string *o, int ch);
 static void b_reset(o_string *o);
 static int b_addqchr(o_string *o, int ch, int quote);
+#ifndef __U_BOOT__
 static int b_adduint(o_string *o, unsigned int i);
+#endif
 /*  in_str manipulations: */
 static int static_get(struct in_str *i);
 static int static_peek(struct in_str *i);
@@ -936,6 +939,7 @@ char *simple_itoa(unsigned int i)
 	return p + 1;
 }
 
+#ifndef __U_BOOT__
 static int b_adduint(o_string *o, unsigned int i)
 {
 	int r;
@@ -944,6 +948,7 @@ static int b_adduint(o_string *o, unsigned int i)
 	do r=b_addchr(o, *p++); while (r==0 && *p);
 	return r;
 }
+#endif
 
 static int static_get(struct in_str *i)
 {
@@ -1921,6 +1926,10 @@ static int run_list_real(struct pipe *pi)
 		}
 		last_return_code=rcode;
 #else
+		if (rcode < -1) {
+			last_return_code = -rcode - 2;
+			return -2;	/* exit */
+		}
 		last_return_code=(rcode == 0) ? 0 : 1;
 #endif
 #ifndef __U_BOOT__
@@ -2145,6 +2154,10 @@ static int xglob(o_string *dest, int flags, glob_t *pglob)
 }
 #endif
 
+#ifdef __U_BOOT__
+static char *get_dollar_var(char ch);
+#endif
+
 /* This is used to get/check local shell variables */
 static char *get_local_var(const char *s)
 {
@@ -2152,6 +2165,12 @@ static char *get_local_var(const char *s)
 
 	if (!s)
 		return NULL;
+
+#ifdef __U_BOOT__
+	if (*s == '$')
+		return get_dollar_var(s[1]);
+#endif
+
 	for (cur = top_vars; cur; cur=cur->next)
 		if(strcmp(cur->name, s)==0)
 			return cur->value;
@@ -2168,12 +2187,19 @@ static int set_local_var(const char *s, int flg_export)
 	int result=0;
 	struct variables *cur;
 
+#ifdef __U_BOOT__
+	/* might be possible! */
+	if (!isalpha(*s))
+		return -1;
+#endif
+
 	name=strdup(s);
 
 #ifdef __U_BOOT__
 	if (getenv(name) != NULL) {
 		printf ("ERROR: "
 				"There is a global environment variable with the same name.\n");
+		free(name);
 		return -1;
 	}
 #endif
@@ -2278,7 +2304,10 @@ static void unset_local_var(const char *name)
 
 static int is_assignment(const char *s)
 {
-	if (s==NULL || !isalpha(*s)) return 0;
+	if (s == NULL)
+		return 0;
+
+	if (!isalpha(*s)) return 0;
 	++s;
 	while(isalnum(*s) || *s=='_') ++s;
 	return *s=='=';
@@ -2749,14 +2778,34 @@ static int parse_group(o_string *dest, struct p_context *ctx,
  * see the bash man page under "Parameter Expansion" */
 static char *lookup_param(char *src)
 {
-	char *p=NULL;
-	if (src) {
+	char *p;
+
+	if (!src)
+		return NULL;
+
 		p = getenv(src);
 		if (!p)
 			p = get_local_var(src);
-	}
+
 	return p;
 }
+
+#ifdef __U_BOOT__
+static char *get_dollar_var(char ch)
+{
+	static char buf[40];
+
+	buf[0] = '\0';
+	switch (ch) {
+		case '?':
+			sprintf(buf, "%u", (unsigned int)last_return_code);
+			break;
+		default:
+			return NULL;
+	}
+	return buf;
+}
+#endif
 
 /* return code: 0 for OK, 1 for syntax error */
 static int handle_dollar(o_string *dest, struct p_context *ctx, struct in_str *input)
@@ -2799,7 +2848,15 @@ static int handle_dollar(o_string *dest, struct p_context *ctx, struct in_str *i
 			break;
 #endif
 		case '?':
+#ifndef __U_BOOT__
 			b_adduint(dest,last_return_code);
+#else
+			ctx->child->sp++;
+			b_addchr(dest, SPECIAL_VAR_SYMBOL);
+			b_addchr(dest, '$');
+			b_addchr(dest, '?');
+			b_addchr(dest, SPECIAL_VAR_SYMBOL);
+#endif
 			advance = 1;
 			break;
 #ifndef __U_BOOT__
@@ -2885,8 +2942,11 @@ int parse_stream(o_string *dest, struct p_context *ctx,
 		if (input->__promptme == 0) return 1;
 #endif
 		next = (ch == '\n') ? 0 : b_peek(input);
-		debug_printf("parse_stream: ch=%c (%d) m=%d quote=%d\n",
-			ch,ch,m,dest->quote);
+
+		debug_printf("parse_stream: ch=%c (%d) m=%d quote=%d - %c\n",
+			ch >= ' ' ? ch : '.', ch, m,
+			dest->quote, ctx->stack == NULL ? '*' : '.');
+
 		if (m==0 || ((m==1 || m==2) && dest->quote)) {
 			b_addqchr(dest, ch, dest->quote);
 		} else {
@@ -3107,7 +3167,18 @@ int parse_stream_outer(struct in_str *inp, int flag)
 #ifndef __U_BOOT__
 			run_list(ctx.list_head);
 #else
-			if (((code = run_list(ctx.list_head)) == -1))
+			code = run_list(ctx.list_head);
+			if (code == -2) {	/* exit */
+				b_free(&temp);
+				code = 0;
+				/* XXX hackish way to not allow exit from main loop */
+				if (inp->peek == file_peek) {
+					printf("exit not allowed from main input shell.\n");
+					continue;
+				}
+				break;
+			}
+			if (code == -1)
 			    flag_repeat = 0;
 #endif
 		} else {

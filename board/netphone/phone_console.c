@@ -62,6 +62,7 @@
 #define KP_FORCE_DELAY_HZ	(CFG_HZ/2)	/* key was force pressed */
 #define KP_IDLE_DELAY_HZ	(CFG_HZ/2)	/* key was released and idle */
 
+#if CONFIG_NETPHONE_VERSION == 1
 #define KP_SPI_RXD_PORT	(((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pcdat)
 #define KP_SPI_RXD_MASK	0x0008
 
@@ -70,6 +71,16 @@
 
 #define KP_SPI_CLK_PORT	(((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pcdat)
 #define KP_SPI_CLK_MASK	0x0001
+#elif CONFIG_NETPHONE_VERSION == 2
+#define KP_SPI_RXD_PORT	(((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pbdat)
+#define KP_SPI_RXD_MASK	0x00000008
+
+#define KP_SPI_TXD_PORT	(((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pbdat)
+#define KP_SPI_TXD_MASK	0x00000004
+
+#define KP_SPI_CLK_PORT	(((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pbdat)
+#define KP_SPI_CLK_MASK	0x00000002
+#endif
 
 #define KP_CS_PORT	(((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pedat)
 #define KP_CS_MASK	0x00000010
@@ -975,9 +986,19 @@ unsigned int kp_get_col_mask(unsigned int row_mask)
 
 	val = 0x80 | (row_mask & 0x7F);
 	(void)kp_data_transfer(val);
+#if CONFIG_NETPHONE_VERSION == 1
 	col_mask = kp_data_transfer(val) & 0x0F;
+#elif CONFIG_NETPHONE_VERSION == 2
+	col_mask = ((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pedat & 0x0f;
+	/* XXX FUCK FUCK FUCK FUCK FUCK!!!! */
+	col_mask = ((col_mask & 0x08) >> 3) |	/* BKBR1 */
+		   ((col_mask & 0x04) << 1) |	/* BKBR2 */
+		    (col_mask & 0x02) |		/* BKBR3 */
+		   ((col_mask & 0x01) << 2);	/* BKBR4 */
 
+#endif
 	/* printf("col_mask(row_mask = 0x%x) -> col_mask = 0x%x\n", row_mask, col_mask); */
+
 	return col_mask;
 }
 

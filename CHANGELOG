@@ -2,6 +2,22 @@
 Changes for U-Boot 1.1.1:
 ======================================================================
 
+* Patches by Pantelis Antoniou, 16 Apr 2004:
+  - add support for a new version of an Intracom board and fix
+    various other things on others.
+  - add verify support to the crc32 command (define
+    CONFIG_CRC32_VERIFY to enable it)
+  - fix FEC driver for MPC8xx systems:
+    1. fix compilation problems for boards that use dynamic
+       allocation of DPRAM
+    2. shut down FEC after network transfers
+  - HUSH parser fixes:
+    1. A new test command was added. This is a simplified version of
+       the one in the bourne shell.
+    2. A new exit command was added which terminates the current
+       executing script.
+    3. Fixed handing of $? (exit code of last executed command)
+
 * Patch by George G. Davis, 02 Apr 2004:
   add support for Intel Assabet board
 

@@ -60,22 +60,22 @@ static struct ether_fcc_info_s
 {
 	int ether_index;
 	int fecp_offset;
-	int bd_offset;
 	int phy_addr;
 	int actual_phy_addr;
+	int initialized;
 }
 	ether_fcc_info[] = {
 #if defined(CONFIG_ETHER_ON_FEC1)
 	{
 		0,
 		offsetof(immap_t, im_cpm.cp_fec1),
-		CPM_FEC_BASE,
 #if defined(CONFIG_FEC1_PHY)
 		CONFIG_FEC1_PHY,
 #else
 		-1,	/* discover */
 #endif
 		-1,
+		0,
 
 	},
 #endif
@@ -83,13 +83,13 @@ static struct ether_fcc_info_s
 	{
 		1,
 		offsetof(immap_t, im_cpm.cp_fec2),
-		CPM_FEC_BASE + 0x50,
 #if defined(CONFIG_FEC2_PHY)
 		CONFIG_FEC2_PHY,
 #else
 		-1,
 #endif
 		-1,
+		0,
 	},
 #endif
 };
@@ -382,6 +382,11 @@ static void fec_pin_init(int fecidx)
 	 * * Then MII_SPEED = system_clock / 2 * 2,5 Mhz.
 	 */
 	fecp->fec_mii_speed = ((bd->bi_intfreq + 4999999) / 5000000) << 1;
+
+#if defined(CONFIG_NETTA) || defined(CONFIG_NETPHONE)
+	/* our PHYs are the limit at 2.5 MHz */
+	fecp->fec_mii_speed <<= 1;
+#endif
 
 #if defined(CONFIG_DUET) && defined(WANT_MII)
 	/* use MDC for MII */
@@ -695,6 +700,14 @@ static int fec_init (struct eth_device *dev, bd_t * bd)
 		efis->actual_phy_addr = efis->phy_addr;
 	}
 #if defined(CONFIG_MII) && defined(CONFIG_RMII)
+
+	/* the MII interface is connected to FEC1
+	   so for the miiphy_xxx function to work we must 
+	   call mii_init since fec_halt messes the thing up */
+
+	if (efis->ether_index != 0)
+		mii_init();
+
 	/*
 	 * adapt the RMII speed to the speed of the phy
 	 */
@@ -719,25 +732,43 @@ static int fec_init (struct eth_device *dev, bd_t * bd)
 	/* And last, try to fill Rx Buffer Descriptors */
 	fecp->fec_r_des_active = 0x01000000;	/* Descriptor polling active    */
 
+	efis->initialized = 1;
+
 	return 1;
 }
 
 
 static void fec_halt(struct eth_device* dev)
 {
-#if 0
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
-	immr->im_cpm.cp_scc[SCC_ENET].scc_gsmrl &= ~(SCC_GSMRL_ENR | SCC_GSMRL_ENT);
-#endif
-}
+	struct ether_fcc_info_s *efis = dev->priv;
+	volatile fec_t *fecp = (volatile fec_t *)(CFG_IMMR + efis->fecp_offset);
+	int i;
 
-#if 0
-void restart(void)
-{
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
-	immr->im_cpm.cp_scc[SCC_ENET].scc_gsmrl |= (SCC_GSMRL_ENR | SCC_GSMRL_ENT);
+	/* avoid halt if initialized; mii gets stuck otherwise */
+	if (!efis->initialized)
+		return;
+
+	/* Whack a reset.
+	 * A delay is required between a reset of the FEC block and
+	 * initialization of other FEC registers because the reset takes
+	 * some time to complete. If you don't delay, subsequent writes
+	 * to FEC registers might get killed by the reset routine which is
+	 * still in progress.
+	 */
+
+	fecp->fec_ecntrl = FEC_ECNTRL_PINMUX | FEC_ECNTRL_RESET;
+	for (i = 0;
+	     (fecp->fec_ecntrl & FEC_ECNTRL_RESET) && (i < FEC_RESET_DELAY);
+	     ++i) {
+		udelay (1);
+	}
+	if (i == FEC_RESET_DELAY) {
+		printf ("FEC_RESET_DELAY timeout\n");
+		return;
+	}
+
+	efis->initialized = 0;
 }
-#endif
 
 #if defined(CFG_DISCOVER_PHY) || defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
 
@@ -781,14 +812,20 @@ mii_send(uint mii_cmd)
 {
 	uint mii_reply;
 	volatile fec_t	*ep;
+	int cnt;
 
 	ep = &(((immap_t *)CFG_IMMR)->im_cpm.cp_fec);
 
 	ep->fec_mii_data = mii_cmd;	/* command to phy */
 
 	/* wait for mii complete */
-	while (!(ep->fec_ievent & FEC_ENET_MII))
-		;	/* spin until done */
+	cnt = 0;
+	while (!(ep->fec_ievent & FEC_ENET_MII)) {
+		if (++cnt > 1000) {
+			printf("mii_send STUCK!\n");
+			break;
+		}
+	}
 	mii_reply = ep->fec_mii_data;		/* result from phy */
 	ep->fec_ievent = FEC_ENET_MII;		/* clear MII complete */
 #if 0
@@ -870,8 +907,6 @@ static int mii_discover_phy(struct eth_device *dev)
 
 #if (defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)) && !defined(CONFIG_BITBANGMII)
 
-static int mii_init_done = 0;
-
 /****************************************************************************
  * mii_init -- Initialize the MII for MII command without ethernet
  * This function is a subset of eth_init
@@ -882,10 +917,6 @@ void mii_init (void)
 	volatile immap_t *immr = (immap_t *) CFG_IMMR;
 	volatile fec_t *fecp = &(immr->im_cpm.cp_fec);
 	int i, j;
-
-	if (mii_init_done != 0) {
-		return;
-	}
 
 	for (j = 0; j < sizeof(ether_fcc_info) / sizeof(ether_fcc_info[0]); j++) {
 
@@ -924,8 +955,6 @@ void mii_init (void)
 	 */
 	fecp->fec_ecntrl = FEC_ECNTRL_PINMUX | FEC_ECNTRL_ETHER_EN;
 	}
-
-	mii_init_done = 1;
 }
 
 /*****************************************************************************
