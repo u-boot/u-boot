@@ -118,8 +118,8 @@ i2c_probe(unsigned char chip)
 }
 
 int
-i2c_read(unsigned char chip, unsigned int addr, int alen,
-							unsigned char *buffer, int len)
+i2c_read (unsigned char chip, unsigned int addr, int alen,
+	  unsigned char *buffer, int len)
 {
 #ifdef CFG_I2C_EEPROM_ADDR_OVERFLOW
 	/* we only allow one address byte */

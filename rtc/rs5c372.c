@@ -95,7 +95,6 @@ rs5c372_enable(void)
 	unsigned char buf[RS5C372_RAM_SIZE + 1];
 	int ret;
 
-
 	/* note that this returns reg. 15 in buf[1] */
 	ret = rs5c372_readram(&buf[1], RS5C372_RAM_SIZE);
 	if (ret != 0) {
