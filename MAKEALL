@@ -68,7 +68,7 @@ LIST_4xx="	\
 	ml300		OCOTEA		OCRTC		ORSG		\
 	PCI405		PIP405		PLU405		PMC405		\
 	PPChameleonEVB	VOH405		W7OLMC		W7OLMG		\
-	WALNUT405	XPEDITE1K					\
+	WALNUT405	WUH405          XPEDITE1K			\
 "
 
 #########################################################################
@@ -122,7 +122,7 @@ LIST_74xx="	\
 "
 
 LIST_7xx="	\
-	BAB7xx		ELPPC						\
+	BAB7xx		CPCI750		ELPPC				\
 "
 
 LIST_ppc="${LIST_5xx}  ${LIST_5xxx} \

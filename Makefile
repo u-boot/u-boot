@@ -109,7 +109,7 @@ LIBS += cpu/$(CPU)/$(SOC)/lib$(SOC).a
 endif
 LIBS += lib_$(ARCH)/lib$(ARCH).a
 LIBS += fs/cramfs/libcramfs.a fs/fat/libfat.a fs/fdos/libfdos.a fs/jffs2/libjffs2.a \
-	fs/reiserfs/libreiserfs.a
+	fs/reiserfs/libreiserfs.a fs/ext2/libext2fs.a
 LIBS += net/libnet.a
 LIBS += disk/libdisk.a
 LIBS += rtc/librtc.a
@@ -685,6 +685,9 @@ xtract_4xx = $(subst _25,,$(subst _33,,$(subst _BA,,$(subst _ME,,$(subst _HI,,$(
 ADCIOP_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx adciop esd
 
+APC405_config:	unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx apc405 esd
+
 AR405_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx ar405 esd
 
@@ -714,6 +717,7 @@ CATcenter_33_config:	unconfig
 
 CPCI405_config	\
 CPCI4052_config	\
+CPCI405DT_config	\
 CPCI405AB_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx cpci405 esd
 	@echo "BOARD_REVISION = $(@:_config=)"	>>include/config.mk
@@ -750,6 +754,12 @@ ERIC_config:	unconfig
 
 EXBITGEN_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx exbitgen
+
+G2000_config:	unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx g2000
+
+HH405_config:	unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx hh405 esd
 
 HUB405_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx hub405 esd
@@ -823,12 +833,18 @@ PPChameleonEVB_HI_33_config:	unconfig
 VOH405_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx voh405 esd
 
+VOM405_config:	unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx vom405 esd
+
 W7OLMC_config	\
 W7OLMG_config: unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx w7o
 
 WALNUT405_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx walnut405
+
+WUH405_config:	unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx wuh405 esd
 
 XPEDITE1K_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx xpedite1k
@@ -1097,6 +1113,9 @@ M5272C3_config :		unconfig
 M5282EVB_config :		unconfig
 	@./mkconfig $(@:_config=) m68k mcf52x2 m5282evb
 
+TASREG_config :		unconfig
+	@./mkconfig $(@:_config=) m68k mcf52x2 tasreg esd
+
 #########################################################################
 ## MPC85xx Systems
 #########################################################################
@@ -1149,6 +1168,9 @@ AmigaOneG3SE_config:	unconfig
 
 BAB7xx_config: unconfig
 	@./mkconfig $(@:_config=) ppc 74xx_7xx bab7xx eltec
+
+CPCI750_config:        unconfig
+	@./mkconfig CPCI750 ppc 74xx_7xx cpci750 esd
 
 DB64360_config:  unconfig
 	@./mkconfig DB64360 ppc 74xx_7xx db64360 Marvell
