@@ -61,7 +61,38 @@
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #undef	CFG_LOADS_BAUD_CHANGE		/* don't allow baudrate change	*/
 
+/* enable I2C and select the hardware/software driver */
+#undef	CONFIG_HARD_I2C			/* I2C with hardware support	*/
+#define CONFIG_SOFT_I2C		1	/* I2C bit-banged		*/
+
+#define CFG_I2C_SPEED		40000	/* 40 kHz is supposed to work	*/
+#define CFG_I2C_SLAVE		0xFE
+
+/* Software (bit-bang) I2C driver configuration */
+#define PB_SCL		0x00000020	/* PB 26 */
+#define PB_SDA		0x00000010	/* PB 27 */
+
+#define I2C_INIT	(immr->im_cpm.cp_pbdir |=  PB_SCL)
+#define I2C_ACTIVE	(immr->im_cpm.cp_pbdir |=  PB_SDA)
+#define I2C_TRISTATE	(immr->im_cpm.cp_pbdir &= ~PB_SDA)
+#define I2C_READ	((immr->im_cpm.cp_pbdat & PB_SDA) != 0)
+#define I2C_SDA(bit)	if(bit) immr->im_cpm.cp_pbdat |=  PB_SDA; \
+			else    immr->im_cpm.cp_pbdat &= ~PB_SDA
+#define I2C_SCL(bit)	if(bit) immr->im_cpm.cp_pbdat |=  PB_SCL; \
+			else    immr->im_cpm.cp_pbdat &= ~PB_SCL
+#define I2C_DELAY	udelay(5)	/* 1/4 I2C clock duration */
+
+/* M41T11 Serial Access Timekeeper(R) SRAM */
+#define CONFIG_RTC_M41T11 1
+#define CFG_I2C_RTC_ADDR 0x68
+#define CFG_M41T11_BASE_YEAR 1900	/* play along with the linux driver */
+
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
+
+#define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
+				CFG_CMD_DATE	| \
+				CFG_CMD_DHCP	| \
+				CFG_CMD_I2C	)
 
 #define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | CONFIG_BOOTP_BOOTFILESIZE)
 
@@ -151,6 +182,11 @@
 /* Address and size of Redundant Environment Sector	*/
 #define CFG_ENV_OFFSET_REDUND	(CFG_ENV_OFFSET+CFG_ENV_SIZE)
 #define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
+
+/*-----------------------------------------------------------------------
+ * Reset address
+ */
+#define	CFG_RESET_ADDRESS	((ulong)((((immap_t *)CFG_IMMR)->im_clkrst.res)))
 
 /*-----------------------------------------------------------------------
  * Cache Configuration

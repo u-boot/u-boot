@@ -2,6 +2,10 @@
 Changes for U-Boot 0.4.7:
 ======================================================================
 
+* Add I2C and RTC support for RMU board using software I2C driver
+  (because of better response to iprobe command); fix problem with
+  "reset" command
+
 * Patch by Matthias Fuchs, 28 Aug 2003:
   Added CONFIG_BOOTP_DNS2 and CONFIG_BOOTP_SEND_HOSTNAME to
   CONFIG_BOOTP_MAKS (see README).
