@@ -236,6 +236,7 @@
 #define cntrl1  (CNTRL_DCR_BASE+0x2)  /* Control 1 register		     */
 #define reset   (CNTRL_DCR_BASE+0x3)  /* reset register			     */
 #define strap   (CNTRL_DCR_BASE+0x4)  /* strap register		   	     */
+#define ecr     (0xAA)                /* edge conditioning register (405GPr) */
 
 /* Bit definitions */
 #define PLLMR_FWD_DIV_MASK      0xE0000000     /* Forward Divisor */
