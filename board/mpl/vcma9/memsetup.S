@@ -34,7 +34,9 @@
 
 /* some parameters for the board */
 
-#define BWSCON	0x48000000
+#define BWSCON		0x48000000
+#define PLD_BASE	0x2C000000
+#define SDRAM_REG	0x2C000106
 
 /* BWSCON */
 #define DW8		 	(0x0)
@@ -42,6 +44,9 @@
 #define DW32		 	(0x2)
 #define WAIT		 	(0x1<<2)
 #define UBLB		 	(0x1<<3)
+
+/* BANKSIZE */
+#define BURST_EN		(0x1<<7)
 
 #define B1_BWSCON	  	(DW16)
 #define B2_BWSCON	  	(DW32)
@@ -130,24 +135,39 @@ memsetup:
 	/* memory control configuration */
 	/* make r0 relative the current location so that it */
 	/* reads SMRDATA out of FLASH rather than memory ! */
-	ldr     r0, =SMRDATA
+	ldr     r0, =CSDATA
 	ldr	r1, _TEXT_BASE
 	sub	r0, r0, r1
 	ldr	r1, =BWSCON	/* Bus Width Status Controller */
-	add     r2, r0, #13*4
+	add     r2, r0, #CSDATA_END-CSDATA
 0:
 	ldr     r3, [r0], #4
 	str     r3, [r1], #4
 	cmp     r2, r0
 	bne     0b
 
+	/* PLD access is now possible */
+	/* r0 == SDRAMDATA */
+	/* r1 == SDRAM controller regs */
+	ldr	r2, =PLD_BASE
+	ldrb	r3, [r2, #SDRAM_REG-PLD_BASE]
+	mov	r4, #SDRAMDATA1_END-SDRAMDATA
+	/* calculate start and end point */
+	mla	r0, r3, r4, r0 
+	add     r2, r0, r4
+0:
+	ldr     r3, [r0], #4
+	str     r3, [r1], #4
+	cmp     r2, r0
+	bne     0b
+	
 	/* everything is fine now */
 	mov	pc, lr
 
 	.ltorg
 /* the literal pools origin */
 
-SMRDATA:
+CSDATA:
     .word (0+(B1_BWSCON<<4)+(B2_BWSCON<<8)+(B3_BWSCON<<12)+(B4_BWSCON<<16)+(B5_BWSCON<<20)+(B6_BWSCON<<24)+(B7_BWSCON<<28))
     .word ((B0_Tacs<<13)+(B0_Tcos<<11)+(B0_Tacc<<8)+(B0_Tcoh<<6)+(B0_Tah<<4)+(B0_Tacp<<2)+(B0_PMC))
     .word ((B1_Tacs<<13)+(B1_Tcos<<11)+(B1_Tacc<<8)+(B1_Tcoh<<6)+(B1_Tah<<4)+(B1_Tacp<<2)+(B1_PMC))
@@ -155,9 +175,38 @@ SMRDATA:
     .word ((B3_Tacs<<13)+(B3_Tcos<<11)+(B3_Tacc<<8)+(B3_Tcoh<<6)+(B3_Tah<<4)+(B3_Tacp<<2)+(B3_PMC))
     .word ((B4_Tacs<<13)+(B4_Tcos<<11)+(B4_Tacc<<8)+(B4_Tcoh<<6)+(B4_Tah<<4)+(B4_Tacp<<2)+(B4_PMC))
     .word ((B5_Tacs<<13)+(B5_Tcos<<11)+(B5_Tacc<<8)+(B5_Tcoh<<6)+(B5_Tah<<4)+(B5_Tacp<<2)+(B5_PMC))
+CSDATA_END:
+
+SDRAMDATA:
+/* 4Mx8x4 */
     .word ((B6_MT<<15)+(B6_Trcd<<2)+(B6_SCAN))
     .word ((B7_MT<<15)+(B7_Trcd<<2)+(B7_SCAN))
     .word ((REFEN<<23)+(TREFMD<<22)+(Trp<<20)+(Trc<<18)+(Tchr<<16)+REFCNT)
-    .word 0x32
+    .word 0x32 + BURST_EN
+    .word 0x30
+    .word 0x30
+SDRAMDATA1_END:
+
+/* 8Mx8x4 (not implemented yet) */
+    .word ((B6_MT<<15)+(B6_Trcd<<2)+(B6_SCAN))
+    .word ((B7_MT<<15)+(B7_Trcd<<2)+(B7_SCAN))
+    .word ((REFEN<<23)+(TREFMD<<22)+(Trp<<20)+(Trc<<18)+(Tchr<<16)+REFCNT)
+    .word 0x32 + BURST_EN
+    .word 0x30
+    .word 0x30
+    
+/* 2Mx8x4 (not implemented yet) */
+    .word ((B6_MT<<15)+(B6_Trcd<<2)+(B6_SCAN))
+    .word ((B7_MT<<15)+(B7_Trcd<<2)+(B7_SCAN))
+    .word ((REFEN<<23)+(TREFMD<<22)+(Trp<<20)+(Trc<<18)+(Tchr<<16)+REFCNT)
+    .word 0x32 + BURST_EN
+    .word 0x30
+    .word 0x30
+    
+/* 4Mx8x2 (not implemented yet) */
+    .word ((B6_MT<<15)+(B6_Trcd<<2)+(B6_SCAN))
+    .word ((B7_MT<<15)+(B7_Trcd<<2)+(B7_SCAN))
+    .word ((REFEN<<23)+(TREFMD<<22)+(Trp<<20)+(Trc<<18)+(Tchr<<16)+REFCNT)
+    .word 0x32 + BURST_EN
     .word 0x30
     .word 0x30

@@ -2,6 +2,11 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Patch by David Müller, 13 Sep 2003:
+  various changes to VCMA9 board specific files
+
+* Add I2C support for MGT5100 / MPC5200
+
 * Patch by Rune Torgersen, 11 Sep 2003:
   Changed default memory option on MPC8266ADS to NOT be Page Based
   Interleave, since this doesn't work very well with the standard

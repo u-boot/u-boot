@@ -80,13 +80,15 @@ void rtc_get (struct rtc_time *tmp)
 	SetRTC_Access(RTC_ENABLE);
 
 	/* read RTC registers */
-	sec	= rtc->BCDSEC;
-	min	= rtc->BCDMIN;
-	hour	= rtc->BCDHOUR;
-	mday	= rtc->BCDDATE;
-	wday	= rtc->BCDDAY;
-	mon	= rtc->BCDMON;
-	year	= rtc->BCDYEAR;
+	do {
+		sec	= rtc->BCDSEC;
+		min	= rtc->BCDMIN;
+		hour	= rtc->BCDHOUR;
+		mday	= rtc->BCDDATE;
+		wday	= rtc->BCDDAY;
+		mon	= rtc->BCDMON;
+		year	= rtc->BCDYEAR;
+	} while (sec != rtc->BCDSEC);
 
 	/* read ALARM registers */
 	a_sec	= rtc->ALMSEC;
@@ -170,7 +172,7 @@ void rtc_reset (void)
 	S3C24X0_RTC * const rtc = S3C24X0_GetBase_RTC();
 
 	rtc->RTCCON = (rtc->RTCCON & ~0x06) | 0x08;
-	rtc->RTCCON &= ~0x08;
+	rtc->RTCCON &= ~(0x08|0x01);
 }
 
 /* ------------------------------------------------------------------------- */

@@ -108,6 +108,9 @@
 
 #define	MPC5XXX_FEC		(CFG_MBAR + 0x3000)
 
+#define MPC5XXX_I2C1		(CFG_MBAR + 0x3D00)
+#define MPC5XXX_I2C2		(CFG_MBAR + 0x3D40)
+
 #if defined(CONFIG_MGT5100)
 #define MPC5XXX_SRAM		(CFG_MBAR + 0x4000)
 #define MPC5XXX_SRAM_SIZE	(8*1024)
@@ -196,6 +199,24 @@
 /* General Purpose Timers registers */
 #define MPC5XXX_GPT0_ENABLE		(MPC5XXX_GPT + 0x0)
 #define MPC5XXX_GPT0_COUNTER		(MPC5XXX_GPT + 0x4)
+
+/* I2Cn control register bits */
+#define I2C_EN		0x80
+#define I2C_IEN		0x40
+#define I2C_STA		0x20
+#define I2C_TX		0x10
+#define I2C_TXAK	0x08
+#define I2C_RSTA	0x04
+#define I2C_INIT_MASK	(I2C_EN | I2C_STA | I2C_TX | I2C_RSTA)
+
+/* I2Cn status register bits */
+#define I2C_CF		0x80
+#define I2C_AAS		0x40
+#define I2C_BB		0x20
+#define I2C_AL		0x10
+#define I2C_SRW		0x04
+#define I2C_IF		0x02
+#define I2C_RXAK	0x01
 
 /* Programmable Serial Controller (PSC) status register bits */
 #define PSC_SR_CDE		0x0080
@@ -503,6 +524,14 @@ struct mpc5xxx_sdma {
 	volatile u32 EU35;		/* SDMA + 0xf4 */
 	volatile u32 EU36;		/* SDMA + 0xf8 */
 	volatile u32 EU37;		/* SDMA + 0xfc */
+};
+
+struct mpc5xxx_i2c {
+	volatile u32 madr;		/* I2Cn + 0x00 */
+	volatile u32 mfdr;		/* I2Cn + 0x04 */
+	volatile u32 mcr;		/* I2Cn + 0x08 */
+	volatile u32 msr;		/* I2Cn + 0x0C */
+	volatile u32 mdr;		/* I2Cn + 0x10 */
 };
 
 /* function prototypes */

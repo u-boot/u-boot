@@ -130,16 +130,6 @@ int board_init(void)
 	return 0;
 }
 
-int dram_init(void)
-{
-	DECLARE_GLOBAL_DATA_PTR;
-
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
-
-	return 0;
-}
-
 /*
  * NAND flash initialization.
  */
@@ -162,9 +152,16 @@ static inline void NF_Reset(void)
 
 static inline void NF_Init(void)
 {
+#if 0 /* a little bit too optimistic */
 #define TACLS   0
 #define TWRPH0  3
 #define TWRPH1  0
+#else
+#define TACLS   0
+#define TWRPH0  4
+#define TWRPH1  2
+#endif
+
     NF_Conf((1<<15)|(0<<14)|(0<<13)|(1<<12)|(1<<11)|(TACLS<<8)|(TWRPH0<<4)|(TWRPH1<<0));
     /*nand->NFCONF = (1<<15)|(1<<14)|(1<<13)|(1<<12)|(1<<11)|(TACLS<<8)|(TWRPH0<<4)|(TWRPH1<<0); */
     /* 1  1    1     1,   1      xxx,  r xxx,   r xxx */
@@ -177,15 +174,12 @@ void
 nand_init(void)
 {
 	S3C2410_NAND * const nand = S3C2410_GetBase_NAND();
-	unsigned totlen;
 
 	NF_Init();
 #ifdef DEBUG
 	printf("NAND flash probing at 0x%.8lX\n", (ulong)nand);
 #endif
-	totlen = nand_probe((ulong)nand) >> 20;
-
-	printf ("%4lu MB\n", totlen >> 20);
+	printf ("%4lu MB\n", nand_probe((ulong)nand) >> 20);
 }
 #endif
 
@@ -193,29 +187,40 @@ nand_init(void)
  * Get some Board/PLD Info
  */
 
-static uchar Get_PLD_ID(void)
+static u8 Get_PLD_ID(void)
 {
-	return(*(volatile uchar *)PLD_ID_REG);
+	VCMA9_PLD * const pld = VCMA9_GetBase_PLD();
+	
+	return(pld->ID);
 }
 
-static uchar Get_PLD_BOARD(void)
+static u8 Get_PLD_BOARD(void)
 {
-	return(*(volatile uchar *)PLD_BOARD_REG);
+	VCMA9_PLD * const pld = VCMA9_GetBase_PLD();
+	
+	return(pld->BOARD);
 }
 
-static uchar Get_PLD_Version(void)
+static u8 Get_PLD_SDRAM(void)
+{
+	VCMA9_PLD * const pld = VCMA9_GetBase_PLD();
+	
+	return(pld->SDRAM);
+}
+
+static u8 Get_PLD_Version(void)
 {
 	return((Get_PLD_ID() >> 4) & 0x0F);
 }
 
-static uchar Get_PLD_Revision(void)
+static u8 Get_PLD_Revision(void)
 {
 	return(Get_PLD_ID() & 0x0F);
 }
 
 static int Get_Board_Config(void)
 {
-	uchar config = Get_PLD_BOARD() & 0x03;
+	u8 config = Get_PLD_BOARD() & 0x03;
 
 	if (config == 3)
 	    return 1;
@@ -226,6 +231,54 @@ static int Get_Board_Config(void)
 static uchar Get_Board_PCB(void)
 {
 	return(((Get_PLD_BOARD() >> 4) & 0x03) + 'A');
+}
+
+static u8 Get_SDRAM_ChipNr(void)
+{
+	switch ((Get_PLD_SDRAM() >> 4) & 0x0F) {
+		case 0: return 4;
+		case 1: return 1;
+		case 2: return 2;
+		default: return 0;
+	}
+}
+
+static ulong Get_SDRAM_ChipSize(void)
+{
+	switch (Get_PLD_SDRAM() & 0x0F) {
+		case 0: return 16 * (1024*1024);
+		case 1: return 32 * (1024*1024);
+		case 2: return  8 * (1024*1024);
+		case 3: return  8 * (1024*1024);
+		default: return 0;
+	}	
+}
+static const char * Get_SDRAM_ChipGeom(void)
+{
+	switch (Get_PLD_SDRAM() & 0x0F) {
+		case 0: return "4Mx8x4";
+		case 1: return "8Mx8x4";
+		case 2: return "2Mx8x4";
+		case 3: return "4Mx8x2";
+		default: return "unknown";
+	}
+}
+
+static void Show_VCMA9_Info(char *board_name, char *serial)
+{
+	printf("Board: %s SN: %s  PCB Rev: %c PLD(%d,%d)\n",
+		board_name, serial, Get_Board_PCB(), Get_PLD_Version(), Get_PLD_Revision());
+	printf("SDRAM: %d chips %s\n", Get_SDRAM_ChipNr(), Get_SDRAM_ChipGeom());
+}
+
+int dram_init(void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+
+	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
+	gd->bd->bi_dram[0].size = Get_SDRAM_ChipSize() * Get_SDRAM_ChipNr();
+
+	return 0;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -240,8 +293,6 @@ int checkboard(void)
 	int i;
 	backup_t *b = (backup_t *) s;
 
-	puts("Board: ");
-
 	i = getenv_r("serial#", s, 32);
 	if ((i < 0) || strncmp (s, "VCMA9", 5)) {
 		get_backup_values (b);
@@ -249,32 +300,23 @@ int checkboard(void)
 			puts ("### No HW ID - assuming VCMA9");
 		} else {
 			b->serial_name[5] = 0;
-			printf ("%s-%d PCB Rev %c SN: %s", b->serial_name, Get_Board_Config(),
-					Get_Board_PCB(), &b->serial_name[6]);
+			Show_VCMA9_Info(b->serial_name, &b->serial_name[6]);
 		}
 	} else {
 		s[5] = 0;
-		printf ("%s-%d PCB Rev %c SN: %s", s, Get_Board_Config(), Get_Board_PCB(),
-				&s[6]);
+		Show_VCMA9_Info(s, &s[6]);
 	}
-	printf("\n");
+	/*printf("\n");*/
 	return(0);
 }
 
-
-void print_vcma9_rev(void)
-{
-	printf("Board: VCMA9-%d PCB Rev: %c (PLD Ver: %d, Rev: %d)\n",
-		Get_Board_Config(), Get_Board_PCB(),
-		Get_PLD_Version(), Get_PLD_Revision());
-}
 
 extern void mem_test_reloc(void);
 
 int last_stage_init(void)
 {
 	mem_test_reloc();
-	print_vcma9_rev();
+	checkboard();
 	show_stdio_dev();
 	check_env();
 	return 0;
@@ -295,6 +337,15 @@ int overwrite_console(void)
 * Print VCMA9 Info
 ************************************************************************/
 void print_vcma9_info(void)
-{
-    print_vcma9_rev();
+{	
+	unsigned char s[50];
+	int i;
+	
+	if ((i = getenv_r("serial#", s, 32)) < 0) {
+		puts ("### No HW ID - assuming VCMA9");
+		printf("i %d", i*24);
+	} else {
+		s[5] = 0;
+		Show_VCMA9_Info(s, &s[6]);
+	}
 }

@@ -83,7 +83,8 @@
 /*
  * Supported commands
  */
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL | ADD_PCI_CMD)
+#define CONFIG_COMMANDS		(CONFIG_CMD_DFL | ADD_PCI_CMD | \
+				 CFG_CMD_I2C | CFG_CMD_EEPROM)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -98,6 +99,23 @@
 /*
  * I2C configuration
  */
+#define CONFIG_HARD_I2C		1	/* I2C with hardware support */
+#define CFG_I2C_MODULE		1	/* If defined then I2C module #2 is used
+					 * otherwise I2C module #1 is used */
+#ifdef CONFIG_MPC5200
+#define CFG_I2C_SPEED		0x3D	/* 86KHz given 133MHz IPBI */
+#else
+#define CFG_I2C_SPEED		0x35	/* 86KHz given 33MHz IPBI */
+#endif
+#define CFG_I2C_SLAVE		0x7F
+
+/*
+ * EEPROM configuration
+ */
+#define CFG_I2C_EEPROM_ADDR		0x50	/* 1010000x */
+#define CFG_I2C_EEPROM_ADDR_LEN		1
+#define CFG_EEPROM_PAGE_WRITE_BITS	3
+#define CFG_EEPROM_PAGE_WRITE_DELAY_MS	35
 
 /*
  * Flash configuration

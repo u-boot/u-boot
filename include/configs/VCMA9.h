@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2002
+ * (C) Copyright 2002, 2003
  * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
  * Marius Groeger <mgroeger@sysgo.de>
  * Gary Jennejohn <gj@denx.de>
@@ -160,9 +160,10 @@
 #define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
 
 #define CFG_MEMTEST_START	0x30000000	/* memtest works on	*/
-#define CFG_MEMTEST_END		0x33F80000	/* 63.5 MB in DRAM	*/
+#define CFG_MEMTEST_END		0x30F80000	/* 15.5 MB in DRAM	*/
+
 #define CFG_ALT_MEMTEST
-#define	CFG_LOAD_ADDR		0x33000000	/* default load address	*/
+#define	CFG_LOAD_ADDR		0x30800000	/* default load address	*/
 
 
 #undef  CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
@@ -197,8 +198,6 @@
  */
 #define CONFIG_NR_DRAM_BANKS	1	   /* we have 1 bank of DRAM */
 #define PHYS_SDRAM_1		0x30000000 /* SDRAM Bank #1 */
-#define PHYS_SDRAM_1_SIZE	0x04000000 /* 64 MB */
-
 #define PHYS_FLASH_1		0x00000000 /* Flash Bank #1 */
 
 #define CFG_FLASH_BASE		PHYS_FLASH_1

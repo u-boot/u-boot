@@ -203,6 +203,7 @@ Directory Hierarchy:
 - board/mpl/common	Common files for MPL boards
 - board/mpl/pip405	Files specific to PIP405     boards
 - board/mpl/mip405	Files specific to MIP405     boards
+- board/mpl/vcma9	Files specific to VCMA9      boards
 - board/musenki	Files specific to MUSEKNI    boards
 - board/mvs1	Files specific to MVS1       boards
 - board/nx823   Files specific to NX823      boards
@@ -363,7 +364,7 @@ The following options need to be configured:
 		CONFIG_IMPA7,       CONFIG_LART,       CONFIG_LUBBOCK,
 		CONFIG_INNOVATOROMAP1510,	CONFIG_INNOVATOROMAP1610
 		CONFIG_SHANNON,     CONFIG_SMDK2400,   CONFIG_SMDK2410,
-		CONFIG_TRAB,	    CONFIG_AT91RM9200DK
+		CONFIG_TRAB,	    CONFIG_VCMA9,      CONFIG_AT91RM9200DK
 
 
 - CPU Module Type: (if CONFIG_COGENT is defined)

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2002
+ * (C) Copyright 2002, 2003
  * David Mueller, ELSOFT AG, d.mueller@elsoft.ch
  *
  * See file CREDITS for list of people who contributed to this
@@ -116,11 +116,19 @@ static inline u32 NF_Read_ECC(void)
 
 #endif
 
+/* VCMA9 PLD regsiters */
+typedef struct {
+	S3C24X0_REG8	ID;
+	S3C24X0_REG8	NIC;
+	S3C24X0_REG8	CAN;
+	S3C24X0_REG8	MISC;
+	S3C24X0_REG8	GPCD;
+	S3C24X0_REG8	BOARD;
+	S3C24X0_REG8	SDRAM;
+} /*__attribute__((__packed__))*/ VCMA9_PLD;
 
-#define PLD_BASE_ADDRESS		0x2C000100
-#define PLD_ID_REG			(PLD_BASE_ADDRESS + 0)
-#define PLD_NIC_REG			(PLD_BASE_ADDRESS + 1)
-#define PLD_CAN_REG			(PLD_BASE_ADDRESS + 2)
-#define PLD_MISC_REG			(PLD_BASE_ADDRESS + 3)
-#define PLD_GPCD_REG			(PLD_BASE_ADDRESS + 4)
-#define PLD_BOARD_REG			(PLD_BASE_ADDRESS + 5)
+#define VCMA9_PLD_BASE	0x2C000100
+static inline VCMA9_PLD * const VCMA9_GetBase_PLD(void)
+{
+	return (VCMA9_PLD * const)VCMA9_PLD_BASE;
+}
