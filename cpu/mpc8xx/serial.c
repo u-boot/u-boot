@@ -71,11 +71,11 @@
 static void serial_setdivisor(volatile cpm8xx_t *cp)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-	int divisor=gd->cpu_clk/16/gd->baudrate;
+	int divisor=(gd->cpu_clk + 8*gd->baudrate)/16/gd->baudrate;
 
 	if(divisor/16>0x1000) {
 		/* bad divisor, assume 50Mhz clock and 9600 baud */
-		divisor=(50*1000*1000)/16/9600;
+		divisor=(50*1000*1000 + 8*9600)/16/9600;
 	}
 
 #ifdef CFG_BRGCLK_PRESCALE

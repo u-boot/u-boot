@@ -37,11 +37,18 @@
 #define CONFIG_TQM866M		1	/* ...on a TQM8xxM module	*/
 
 #define CFG_866_OSCCLK		 10000000	/*  10 MHz - PLL input clock		*/
-#define CFG_866_CPUCLK_MIN	 10000000	/*  10 MHz - CPU minimum clock		*/
+#define CFG_866_CPUCLK_MIN	 15000000	/*  15 MHz - CPU minimum clock		*/
 #define CFG_866_CPUCLK_MAX	133000000	/* 133 MHz - CPU maximum clock		*/
 #define CFG_866_CPUCLK_DEFAULT	 50000000	/*  50 MHz - CPU default clock		*/
 						/* (it will be used if there is no	*/
 						/* 'cpuclk' variable with valid value)	*/
+
+#undef CFG_MEASURE_CPUCLK			/* Measure real cpu clock	*/
+						/* (function measure_gclk()	*/
+						/* will be called)		*/
+#ifdef CFG_MEASURE_CPUCLK
+#define CFG_8XX_XIN		10000000	/* measure_gclk() needs this	*/
+#endif
 
 #define CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
 

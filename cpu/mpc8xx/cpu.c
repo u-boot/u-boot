@@ -123,10 +123,22 @@ static int check_CPU (long clock, uint pvr, uint immr)
 	else
 		printf ("unknown M%s (0x%08x)", id_str, k);
 
-	printf (" at %s MHz:", strmhz (buf, clock));
 
-	printf (" %u kB I-Cache", checkicache () >> 10);
-	printf (" %u kB D-Cache", checkdcache () >> 10);
+#if defined(CFG_866_CPUCLK_MIN) && defined(CFG_866_CPUCLK_MAX)
+	printf (" at %s MHz [%d.%d...%d.%d MHz]\n       ",
+		strmhz (buf, clock),
+		CFG_866_CPUCLK_MIN / 1000000,
+		((CFG_866_CPUCLK_MIN % 1000000) + 50000) / 100000,
+		CFG_866_CPUCLK_MAX / 1000000,
+		((CFG_866_CPUCLK_MAX % 1000000) + 50000) / 100000
+	);
+#else
+	printf (" at %s MHz: ", strmhz (buf, clock));
+#endif
+	printf ("%u kB I-Cache %u kB D-Cache",
+		checkicache () >> 10,
+		checkdcache () >> 10
+	);
 
 	/* do we have a FEC (860T/P or 852/859/866)? */
 

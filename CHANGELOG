@@ -2,6 +2,8 @@
 Changes since U-Boot 1.0.1:
 ======================================================================
 
+* Fix variable CPU clock for MPC859/866 systems for low CPU clocks
+
 * Implement adaptive SDRAM timing configuration based on actual CPU
   clock frequency for INCA-IP; fix problem with board hanging when
   switching from 150MHz to 100MHz

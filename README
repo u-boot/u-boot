@@ -415,11 +415,27 @@ The following options need to be configured:
 		Define exactly one of
 		CONFIG_MPC8240, CONFIG_MPC8245
 
-- 8xx CPU Options: (if using an 8xx cpu)
+- 8xx CPU Options: (if using an MPC8xx cpu)
 		Define one or more of
 		CONFIG_8xx_GCLK_FREQ	- if get_gclk_freq() cannot work
 					  e.g. if there is no 32KHz
 					  reference PIT/RTC clock
+
+- 859/866 CPU options: (if using a MPC859 or MPC866 CPU):
+		CFG_866_OSCCLK
+		CFG_866_CPUCLK_MIN
+		CFG_866_CPUCLK_MAX
+		CFG_866_CPUCLK_DEFAULT
+			See doc/README.MPC866
+
+		CFG_MEASURE_CPUCLK
+
+                Define this to measure the actual CPU clock instead
+                of relying on the correctness of the configured
+                values. Mostly useful for board bringup to make sure
+                the PLL is locked at the intended frequency. Note
+                that this requires a (stable) reference clock (32 kHz
+                RTC clock),
 
 - Linux Kernel Interface:
 		CONFIG_CLOCKS_IN_MHZ

@@ -12,6 +12,10 @@ If the "cpuclk" environment variable value is within the CPUCLK_MIN /
 CPUCLK_MAX limits, the specified value is used. Otherwise, the
 default CPU clock value is set.
 
+Please make sure you understand what you are doing, and understand
+the restrictions of your hardware (board, processor). For example,
+ethernet will stop working for CPU clock frequencies below 25 MHz.
+
 Please note that for now the new clock-handling code has been enabled
 for the TQM866M board only, even though it should be pretty much
 common for other MPC859 / MPC866 based boards also. Our intention

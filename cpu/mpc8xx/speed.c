@@ -25,7 +25,7 @@
 #include <mpc8xx.h>
 #include <asm/processor.h>
 
-#ifndef CONFIG_TQM866M
+#if !defined(CONFIG_TQM866M) || defined(CFG_MEASURE_CPUCLK)
 
 #define PITC_SHIFT 16
 #define PITR_SHIFT 16
@@ -170,6 +170,10 @@ unsigned long measure_gclk(void)
 #endif
 }
 
+#endif
+
+#if !defined(CONFIG_TQM866M)
+
 /*
  * get_clocks() fills in gd->cpu_clock depending on CONFIG_8xx_GCLK_FREQ
  * or (if it is not defined) measure_gclk() (which uses the ref clock)
@@ -230,6 +234,9 @@ int get_clocks_866 (void)
 		cpuclk = CFG_866_CPUCLK_DEFAULT;
 
 	gd->cpu_clk = init_pll_866 (cpuclk);
+#if defined(CFG_MEASURE_CPUCLK)
+	gd->cpu_clk = measure_gclk ();
+#endif
 
 	if ((immr->im_clkrst.car_sccr & SCCR_EBDF11) == 0)
 		gd->bus_clk = gd->cpu_clk;
@@ -269,8 +276,19 @@ static long init_pll_866 (long clk)
 	char              mfi, mfn, mfd, s, pdf;
 	long              step_mfi, step_mfn;
 
-	pdf = 0;
-	if (clk < 80000000) {
+	if (clk < 20000000) {
+		clk *= 2;
+		pdf = 1;
+	} else {
+		pdf = 0;
+	}
+
+	if (clk < 40000000) {
+		s = 2;
+		step_mfi = CFG_866_OSCCLK / 4;
+		mfd = 7;
+		step_mfn = CFG_866_OSCCLK / 30;
+	} else if (clk < 80000000) {
 		s = 1;
 		step_mfi = CFG_866_OSCCLK / 2;
 		mfd = 14;
@@ -294,13 +312,14 @@ static long init_pll_866 (long clk)
 
 	/* Calculate effective clk
 	 */
-	n = (mfi * step_mfi) + (mfn * step_mfn);
+	n = ((mfi * step_mfi) + (mfn * step_mfn)) / (pdf + 1);
 
 	immr->im_clkrstk.cark_plprcrk = KAPWR_KEY;
 
 	plprcr = (immr->im_clkrst.car_plprcr & ~(PLPRCR_MFN_MSK
 			| PLPRCR_MFD_MSK | PLPRCR_S_MSK
-			| PLPRCR_MFI_MSK | PLPRCR_DBRMO))
+			| PLPRCR_MFI_MSK | PLPRCR_DBRMO
+			| PLPRCR_PDF_MSK))
 			| (mfn << PLPRCR_MFN_SHIFT)
 			| (mfd << PLPRCR_MFD_SHIFT)
 			| (s << PLPRCR_S_SHIFT)

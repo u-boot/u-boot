@@ -128,14 +128,6 @@ int checkboard (void)
 			break;
 		putc (*s);
 	}
-#if defined(CFG_866_CPUCLK_MIN) && defined(CFG_866_CPUCLK_MAX)
-	printf ("  [%d.%d...%d.%d MHz]",
-		CFG_866_CPUCLK_MIN / 1000000,
-		((CFG_866_CPUCLK_MIN % 1000000) + 50000) / 100000,
-		CFG_866_CPUCLK_MAX / 1000000,
-		((CFG_866_CPUCLK_MAX % 1000000) + 50000) / 100000
-	);
-#endif
 	putc ('\n');
 
 	return (0);
