@@ -43,7 +43,8 @@
 #include <asm/mmu.h>
 
 #if !defined(CONFIG_DB64360) && \
-    !defined(CONFIG_DB64460)
+    !defined(CONFIG_DB64460) && \
+    !defined(CONFIG_CPCI750)
 #include <galileo/gt64260R.h>
 #endif
 
@@ -754,7 +755,8 @@ in_ram:
 	mr	r3, r10		/* Destination Address		*/
 #if defined(CONFIG_AMIGAONEG3SE) || \
     defined(CONFIG_DB64360)	 || \
-    defined(CONFIG_DB64460)
+    defined(CONFIG_DB64460)      || \
+    defined(CONFIG_CPCI750)
 	mr	r4, r9		/* Use RAM copy of the global data */
 #endif
 	bl	after_reloc
