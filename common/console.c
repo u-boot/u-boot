@@ -39,11 +39,9 @@ int console_changed = 0;
  */
 #ifdef CFG_CONSOLE_OVERWRITE_ROUTINE
 extern int overwrite_console (void);
+#define OVERWRITE_CONSOLE overwrite_console ()
 #else
-int overwrite_console (void)
-{
-	return (0);
-}
+#define OVERWRITE_CONSOLE 0
 #endif /* CFG_CONSOLE_OVERWRITE_ROUTINE */
 
 #endif /* CFG_CONSOLE_IS_IN_ENV */
@@ -429,7 +427,7 @@ int console_init_r (void)
 	stdoutname = getenv ("stdout");
 	stderrname = getenv ("stderr");
 
-	if (overwrite_console () == 0) { /* if not overwritten by config switch */
+	if (OVERWRITE_CONSOLE == 0) { 	/* if not overwritten by config switch */
 		inputdev  = search_device (DEV_FLAGS_INPUT,  stdinname);
 		outputdev = search_device (DEV_FLAGS_OUTPUT, stdoutname);
 		errdev    = search_device (DEV_FLAGS_OUTPUT, stderrname);

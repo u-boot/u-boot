@@ -262,12 +262,10 @@ void handle_scancode(unsigned char scancode)
 
 #ifdef CFG_CONSOLE_OVERWRITE_ROUTINE
 extern int overwrite_console (void);
+#define OVERWRITE_CONSOLE overwrite_console ()
 #else
-int overwrite_console (void)
-{
-	return (0);
-}
-#endif
+#define OVERWRITE_CONSOLE 0
+#endif /* CFG_CONSOLE_OVERWRITE_ROUTINE */
 
 int kbd_init (void)
 {
@@ -290,7 +288,7 @@ int kbd_init (void)
 		/* check if this is the standard input device */
 		if(strcmp(stdinname,DEVNAME)==0) {
 			/* reassign the console */
-			if(overwrite_console()) {
+			if(OVERWRITE_CONSOLE) {
 				return 1;
 			}
 			error=console_assign(stdin,DEVNAME);

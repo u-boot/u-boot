@@ -37,6 +37,7 @@
 #define CONFIG_TQM5200		1	/* ... on TQM5200 module */
 #undef CONFIG_TQM5200_REV100		/*  define for revision 100 modules */
 #define CONFIG_STK52XX		1	/* ... on a STK52XX base board */
+#define CONFIG_STK52XX_REV100	1	/*  define for revision 100 baseboards */
 
 #define CFG_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz */
 
@@ -85,6 +86,7 @@
 #define CONFIG_EEPRO100		1
 #define CFG_RX_ETH_BUFFER	8  /* use 8 rx buffer on eepro100  */
 #define CONFIG_NS8382X		1
+#endif	/* CONFIG_STK52XX */
 
 #ifdef CONFIG_PCI
 #define ADD_PCI_CMD		CFG_CMD_PCI
@@ -105,6 +107,7 @@
 #define CONFIG_CONSOLE_EXTRA_INFO
 #define CONFIG_VIDEO_SW_CURSOR
 #define CONFIG_SPLASH_SCREEN
+#define CFG_CONSOLE_IS_IN_ENV
 #endif
 
 #ifdef CONFIG_VIDEO
@@ -373,11 +376,14 @@
  *	Bit 0 (mask: 0x80000000): 1
  * use ALT CAN position: Bits 2-3 (mask: 0x30000000):
  *	00 -> No Alternatives, CAN1/2 on PSC2 according to PSC2 setting.
- *	      Set for rev 100 modules with an onboard EEPROM (because,
- *	      there I2C1 is used as I2C bus)
  *	01 -> CAN1 on I2C1, CAN2 on Tmr0/1.
- *	      Set for rev 200 modules
+ *	      Use for REV200 STK52XX boards. Do not use with REV100 modules
+ *	      (because, there I2C1 is used as I2C bus)
  * use PSC1 as UART: Bits 28-31 (mask: 0x00000007): 0100
+ * use PSC2 as CAN: Bits 25:27 (mask: 0x00000030)
+ *	000 -> All PSC2 pins are GIOPs
+ *	001 -> CAN1/2 on PSC2 pins
+ *	       Use for REV100 STK52xx boards
  * use PSC6:
  *   on STK52xx:
  *	use as UART. Pins PSC6_0 to PSC6_3 are used.
@@ -392,12 +398,16 @@
 #if defined (CONFIG_MINIFAP)
 # define CFG_GPS_PORT_CONFIG	0x91000004
 #elif defined (CONFIG_STK52XX)
-# if defined (CONFIG_TQM5200_REV100)
-#  define CFG_GPS_PORT_CONFIG	0x81500004
-# else
-#  define CFG_GPS_PORT_CONFIG	0x91500004
+# if defined (CONFIG_STK52XX_REV100)
+#  define CFG_GPS_PORT_CONFIG	0x81500014
+# else /* STK52xx REV200 and above */
+#  if defined (CONFIG_TQM5200_REV100)
+#   error TQM5200 REV100 not supported on STK52XX REV200 or above
+#  else/* TQM5200 REV200 and above */
+#   define CFG_GPS_PORT_CONFIG	0x91500004
+#  endif
 # endif
-#else  /* TMQ5200_IP */
+#else  /* TMQ5200 Inbetriebnahme-Board */
 # define CFG_GPS_PORT_CONFIG	0x81000004
 #endif
 
