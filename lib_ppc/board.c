@@ -966,7 +966,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 #if (CONFIG_COMMANDS & CFG_CMD_NAND)
 	WATCHDOG_RESET ();
-	puts ("NAND:");
+	puts ("NAND:  ");
 	nand_init();		/* go init the NAND */
 #endif
 
