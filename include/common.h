@@ -468,7 +468,7 @@ ulong	vfd_setmem (ulong);
 /* $(CPU)/.../video.c */
 ulong	video_setmem (ulong);
 
-/* ppc/cache.c */
+/* lib_$(ARCH)/cache.c */
 void	flush_cache   (unsigned long, unsigned long);
 
 

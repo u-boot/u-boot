@@ -2,6 +2,12 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Prakash Kumar, 27 Jun 2004:
+  Add support for the PXA250 based Intrinsyc Cerf board.
+
+* Patch by Yasushi Shoji, 27 Jun 2004:
+  fix comment in include/common.h
+
 * Rename SBC8560 into sbc8560 for consistency
 
 * Patch by Daniel Poirot, 24 Jun 2004:

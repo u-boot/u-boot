@@ -1219,6 +1219,9 @@ at91rm9200dk_config	:	unconfig
 ## XScale Systems
 #########################################################################
 
+cerf250_config :	unconfig
+	@./mkconfig $(@:_config=) arm pxa cerf250
+
 cradle_config	:	unconfig
 	@./mkconfig $(@:_config=) arm pxa cradle
 

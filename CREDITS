@@ -231,6 +231,10 @@ N: Bernhard Kuhn
 E: bkuhn@metrowerks.com
 D Support for Coldfire CPU; Support for Motorola M5272C3 and M5282EVB boards
 
+N: Prakash Kumar
+E: prakash@embedx.com
+D  Support for Intrinsyc CERF PXA250 board.
+
 N: Thomas Lange
 E: thomas@corelatus.se
 D: Support for GTH and dbau1x00 boards; lots of PCMCIA fixes
