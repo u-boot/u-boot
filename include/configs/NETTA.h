@@ -65,8 +65,8 @@
 #undef	CONFIG_BOOTARGS
 #define CONFIG_BOOTCOMMAND							\
 	"tftpboot; " 								\
-	"setenv bootargs root=/dev/nfs rw nfsroot=$(serverip):$(rootpath) " 	\
-	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off; " 	\
+	"setenv bootargs root=/dev/nfs rw nfsroot=${serverip}:${rootpath} " 	\
+	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off; " 	\
 	"bootm"
 
 #define CONFIG_LOADS_ECHO	0	/* echo off for serial download	*/

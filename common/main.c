@@ -726,8 +726,8 @@ static void process_macros (const char *input, char *output)
 	int inputcnt  = strlen (input);
 	int outputcnt = CFG_CBSIZE;
 	int state = 0;	/* 0 = waiting for '$'	*/
-			/* 1 = waiting for '('	*/
-			/* 2 = waiting for ')'	*/
+			/* 1 = waiting for '(' or '{' */
+			/* 2 = waiting for ')' or '}' */
 			/* 3 = waiting for '''  */
 #ifdef DEBUG_PARSER
 	char *output_start = output;
@@ -765,7 +765,7 @@ static void process_macros (const char *input, char *output)
 		}
 		break;
 	    case 1:			/* Waiting for (	*/
-		if (c == '(') {
+		if (c == '(' || c == '{') {
 			state++;
 			varname_start = input;
 		} else {
@@ -780,7 +780,7 @@ static void process_macros (const char *input, char *output)
 		}
 		break;
 	    case 2:			/* Waiting for )	*/
-		if (c == ')') {
+		if (c == ')' || c == '}') {
 			int i;
 			char envname[CFG_CBSIZE], *envval;
 			int envcnt = input-varname_start-1; /* Varname # of chars */

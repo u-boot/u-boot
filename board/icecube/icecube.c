@@ -42,7 +42,7 @@ static void sdram_start (int hi_addr)
 	/* unlock mode register */
 	*(vu_long *)MPC5XXX_SDRAM_CTRL = SDRAM_CONTROL | 0x80000000 | hi_addr_bit;
 	__asm__ volatile ("sync");
-	
+
 	/* precharge all banks */
 	*(vu_long *)MPC5XXX_SDRAM_CTRL = SDRAM_CONTROL | 0x80000002 | hi_addr_bit;
 	__asm__ volatile ("sync");
@@ -68,7 +68,7 @@ static void sdram_start (int hi_addr)
 	/* set mode register */
 	*(vu_long *)MPC5XXX_SDRAM_MODE = SDRAM_MODE;
 	__asm__ volatile ("sync");
-	
+
 	/* normal operation */
 	*(vu_long *)MPC5XXX_SDRAM_CTRL = SDRAM_CONTROL | hi_addr_bit;
 	__asm__ volatile ("sync");
@@ -88,7 +88,7 @@ long int initdram (int board_type)
 	ulong dramsize2 = 0;
 #ifndef CFG_RAMBOOT
 	ulong test1, test2;
-	
+
 	/* setup SDRAM chip selects */
 	*(vu_long *)MPC5XXX_SDRAM_CS0CFG = 0x0000001e;/* 2G at 0x0 */
 	*(vu_long *)MPC5XXX_SDRAM_CS1CFG = 0x80000000;/* disabled */
@@ -121,7 +121,7 @@ long int initdram (int board_type)
 	if (dramsize < (1 << 20)) {
 		dramsize = 0;
 	}
-	
+
 	/* set SDRAM CS0 size according to the amount of RAM found */
 	if (dramsize > 0) {
 		*(vu_long *)MPC5XXX_SDRAM_CS0CFG = 0x13 + __builtin_ffs(dramsize >> 20) - 1;
@@ -129,7 +129,6 @@ long int initdram (int board_type)
 		*(vu_long *)MPC5XXX_SDRAM_CS0CFG = 0; /* disabled */
 	}
 
-	
 	/* let SDRAM CS1 start right after CS0 */
 	*(vu_long *)MPC5XXX_SDRAM_CS1CFG = dramsize + 0x0000001e;/* 2G */
 
@@ -144,12 +143,12 @@ long int initdram (int board_type)
 	} else {
 		dramsize2 = test2;
 	}
-	
+
 	/* memory smaller than 1MB is impossible */
 	if (dramsize2 < (1 << 20)) {
 		dramsize2 = 0;
 	}
-	
+
 	/* set SDRAM CS1 size according to the amount of RAM found */
 	if (dramsize2 > 0) {
 		*(vu_long *)MPC5XXX_SDRAM_CS1CFG = dramsize
@@ -188,7 +187,7 @@ long int initdram (int board_type)
 	ulong dramsize = 0;
 #ifndef CFG_RAMBOOT
 	ulong test1, test2;
-	
+
 	/* setup and enable SDRAM chip selects */
 	*(vu_long *)MPC5XXX_SDRAM_START = 0x00000000;
 	*(vu_long *)MPC5XXX_SDRAM_STOP = 0x0000ffff;/* 2G */
@@ -217,7 +216,7 @@ long int initdram (int board_type)
 
 	/* set SDRAM end address according to size */
 	*(vu_long *)MPC5XXX_SDRAM_STOP = ((dramsize - 1) >> 15);
-	
+
 #else /* CFG_RAMBOOT */
 
 	/* Retrieve amount of SDRAM available */

@@ -598,14 +598,14 @@ U_BOOT_CMD(
 	usb,	5,	1,	do_usb,
 	"usb     - USB sub-system\n",
 	"reset - reset (rescan) USB controller\n"
-	"usb  stop [f]  - stop USB [f]=force stop\n"
-	"usb  tree  - show USB device tree\n"
-	"usb  info [dev] - show available USB devices\n"
-	"usb  scan  - (re-)scan USB bus for storage devices\n"
-	"usb  device [dev] - show or set current USB storage device\n"
-	"usb  part [dev] - print partition table of one or all USB storage devices\n"
-	"usb  read addr blk# cnt - read `cnt' blocks starting at block `blk#'\n"
-	"     to memory address `addr'\n"
+	"usb stop [f]  - stop USB [f]=force stop\n"
+	"usb tree  - show USB device tree\n"
+	"usb info [dev] - show available USB devices\n"
+	"usb scan  - (re-)scan USB bus for storage devices\n"
+	"usb device [dev] - show or set current USB storage device\n"
+	"usb part [dev] - print partition table of one or all USB storage devices\n"
+	"usb read addr blk# cnt - read `cnt' blocks starting at block `blk#'\n"
+	"    to memory address `addr'\n"
 );
 
 

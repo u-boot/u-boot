@@ -118,7 +118,9 @@
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
 				CFG_CMD_DHCP	| \
 				CFG_CMD_I2C	| \
-				CFG_CMD_IDE	)
+				CFG_CMD_IDE	| \
+				CFG_CMD_USB	| \
+				CFG_CMD_FAT)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -385,5 +387,8 @@
 #endif
 #define CONFIG_AUTOBOOT_STOP_STR	"."	/* easy to stop for now		*/
 #define CONFIG_SILENT_CONSOLE	1
+
+#define CONFIG_USB_STORAGE	1
+#define CONFIG_USB_SL811HS	1
 
 #endif	/* __CONFIG_H */

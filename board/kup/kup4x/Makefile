@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= lib$(BOARD).a
 
-OBJS	= $(BOARD).o ../common/flash.o ../common/kup.o usb.o
+OBJS	= $(BOARD).o ../common/flash.o ../common/kup.o
 
 $(LIB):	.depend $(OBJS)
 	$(AR) crv $@ $(OBJS)

@@ -60,6 +60,11 @@ static unsigned long mips_io_port_base = 0;
 # define SHOW_BOOT_PROGRESS(arg)
 #endif
 
+#ifdef __PPC__
+# define EIEIO		__asm__ volatile ("eieio")
+#else
+# define EIEIO		/* nothing */
+#endif
 
 #undef	IDE_DEBUG
 
@@ -790,9 +795,7 @@ ide_outb(int dev, int port, unsigned char val)
 		dev, port, val, (ATA_CURR_BASE(dev)+port));
 
 	/* Ensure I/O operations complete */
-#ifdef __PPC__
-	__asm__ volatile("eieio");
-#endif
+	EIEIO;
 	*((uchar *)(ATA_CURR_BASE(dev)+port)) = val;
 }
 #else	/* ! __PPC__ */
@@ -810,9 +813,7 @@ ide_inb(int dev, int port)
 {
 	uchar val;
 	/* Ensure I/O operations complete */
-#ifdef __PPC__
-	__asm__ volatile("eieio");
-#endif
+	EIEIO;
 	val = *((uchar *)(ATA_CURR_BASE(dev)+port));
 	PRINTF ("ide_inb (dev= %d, port= 0x%x) : @ 0x%08lx -> 0x%02x\n",
 		dev, port, (ATA_CURR_BASE(dev)+port), val);
@@ -837,9 +838,9 @@ output_data_short(int dev, ulong *sect_buf, int words)
 	pbuf = (ushort *)(ATA_CURR_BASE(dev)+ATA_DATA_REG);
 	dbuf = (ushort *)sect_buf;
 	while (words--) {
-		__asm__ volatile ("eieio");
+		EIEIO;
 		*pbuf = *dbuf++;
-		__asm__ volatile ("eieio");
+		EIEIO;
 	}
 
 	if (words&1)
@@ -895,13 +896,9 @@ output_data(int dev, ulong *sect_buf, int words)
 	pbuf = (ushort *)(ATA_CURR_BASE(dev)+ATA_DATA_REG);
 	dbuf = (ushort *)sect_buf;
 	while (words--) {
-#ifdef __PPC__
-		__asm__ volatile ("eieio");
-#endif
+		EIEIO;
 		*pbuf = *dbuf++;
-#ifdef __PPC__
-		__asm__ volatile ("eieio");
-#endif
+		EIEIO;
 		*pbuf = *dbuf++;
 	}
 #else	/* CONFIG_HMI10 */
@@ -913,13 +910,13 @@ output_data(int dev, ulong *sect_buf, int words)
 	pbuf_odd  = (uchar *)(ATA_CURR_BASE(dev)+ATA_DATA_ODD);
 	dbuf = (uchar *)sect_buf;
 	while (words--) {
-		__asm__ volatile ("eieio");
+		EIEIO;
 		*pbuf_even = *dbuf++;
-		__asm__ volatile ("eieio");
+		EIEIO;
 		*pbuf_odd = *dbuf++;
-		__asm__ volatile ("eieio");
+		EIEIO;
 		*pbuf_even = *dbuf++;
-		__asm__ volatile ("eieio");
+		EIEIO;
 		*pbuf_odd = *dbuf++;
 	}
 #endif	/* CONFIG_HMI10 */
@@ -946,13 +943,9 @@ input_data(int dev, ulong *sect_buf, int words)
 	PRINTF("in input data base for read is %lx\n", (unsigned long) pbuf);
 
 	while (words--) {
-#ifdef __PPC__
-		__asm__ volatile ("eieio");
-#endif
+		EIEIO;
 		*dbuf++ = *pbuf;
-#ifdef __PPC__
-		__asm__ volatile ("eieio");
-#endif
+		EIEIO;
 		*dbuf++ = *pbuf;
 	}
 #else	/* CONFIG_HMI10 */
@@ -964,13 +957,13 @@ input_data(int dev, ulong *sect_buf, int words)
 	pbuf_odd  = (uchar *)(ATA_CURR_BASE(dev)+ATA_DATA_ODD);
 	dbuf = (uchar *)sect_buf;
 	while (words--) {
-		__asm__ volatile ("eieio");
+		EIEIO;
 		*dbuf++ = *pbuf_even;
-		__asm__ volatile ("eieio");
+		EIEIO;
 		*dbuf++ = *pbuf_odd;
-		__asm__ volatile ("eieio");
+		EIEIO;
 		*dbuf++ = *pbuf_even;
-		__asm__ volatile ("eieio");
+		EIEIO;
 		*dbuf++ = *pbuf_odd;
 	}
 #endif	/* CONFIG_HMI10 */
@@ -994,9 +987,9 @@ input_data_short(int dev, ulong *sect_buf, int words)
 	pbuf = (ushort *)(ATA_CURR_BASE(dev)+ATA_DATA_REG);
 	dbuf = (ushort *)sect_buf;
 	while (words--) {
-		__asm__ volatile ("eieio");
+		EIEIO;
 		*dbuf++ = *pbuf;
-		__asm__ volatile ("eieio");
+		EIEIO;
 	}
 
 	if (words&1) {
@@ -1608,9 +1601,7 @@ output_data_shorts(int dev, ushort *sect_buf, int shorts)
 	PRINTF("in output data shorts base for read is %lx\n", (unsigned long) pbuf);
 
 	while (shorts--) {
-#ifdef __PPC__
-		__asm__ volatile ("eieio");
-#endif
+		EIEIO;
 		*pbuf = *dbuf++;
 	}
 #else	/* CONFIG_HMI10 */
@@ -1621,9 +1612,9 @@ output_data_shorts(int dev, ushort *sect_buf, int shorts)
 	pbuf_even = (uchar *)(ATA_CURR_BASE(dev)+ATA_DATA_EVEN);
 	pbuf_odd  = (uchar *)(ATA_CURR_BASE(dev)+ATA_DATA_ODD);
 	while (shorts--) {
-		__asm__ volatile ("eieio");
+		EIEIO;
 		*pbuf_even = *dbuf++;
-		__asm__ volatile ("eieio");
+		EIEIO;
 		*pbuf_odd = *dbuf++;
 	}
 #endif	/* CONFIG_HMI10 */
@@ -1642,9 +1633,7 @@ input_data_shorts(int dev, ushort *sect_buf, int shorts)
 	PRINTF("in input data shorts base for read is %lx\n", (unsigned long) pbuf);
 
 	while (shorts--) {
-#ifdef __PPC__
-		__asm__ volatile ("eieio");
-#endif
+		EIEIO;
 		*dbuf++ = *pbuf;
 	}
 #else	/* CONFIG_HMI10 */
@@ -1655,9 +1644,9 @@ input_data_shorts(int dev, ushort *sect_buf, int shorts)
 	pbuf_even = (uchar *)(ATA_CURR_BASE(dev)+ATA_DATA_EVEN);
 	pbuf_odd  = (uchar *)(ATA_CURR_BASE(dev)+ATA_DATA_ODD);
 	while (shorts--) {
-		__asm__ volatile ("eieio");
+		EIEIO;
 		*dbuf++ = *pbuf_even;
-		__asm__ volatile ("eieio");
+		EIEIO;
 		*dbuf++ = *pbuf_odd;
 	}
 #endif	/* CONFIG_HMI10 */

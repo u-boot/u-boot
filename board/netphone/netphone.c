@@ -30,6 +30,7 @@
 #include <common.h>
 #include <miiphy.h>
 #include <sed156x.h>
+#include <status_led.h>
 
 #include "mpc8xx.h"
 
@@ -659,6 +660,7 @@ int overwrite_console(void)
 
 extern int drv_phone_init(void);
 extern int drv_phone_use_me(void);
+extern int drv_phone_is_idle(void);
 
 int misc_init_r(void)
 {
@@ -691,6 +693,12 @@ int last_stage_init(void)
 		do_poll();
 
 		if (drv_phone_use_me()) {
+			status_led_set(0, STATUS_LED_ON);
+			while (!drv_phone_is_idle()) {
+				do_poll();
+				udelay(1000000 / CFG_HZ);
+			}
+
 			console_assign(stdin, "phone");
 			console_assign(stdout, "phone");
 			console_assign(stderr, "phone");

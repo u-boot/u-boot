@@ -1751,6 +1751,17 @@ to save the current settings.
 	  The length in bytes of the EEPROM memory array address.  Note
 	  that this is NOT the chip address length!
 
+	- CFG_I2C_EEPROM_ADDR_OVERFLOW:
+	  EEPROM chips that implement "address overflow" are ones
+	  like Catalyst 24WC04/08/16 which has 9/10/11 bits of
+	  address and the extra bits end up in the "chip address" bit
+	  slots. This makes a 24WC08 (1Kbyte) chip look like four 256
+	  byte chips.
+
+	  Note that we consider the length of the address field to
+	  still be one byte because the extra address bits are hidden
+	  in the chip address.
+
 	- CFG_EEPROM_SIZE:
 	  The size in bytes of the EEPROM device.
 
@@ -1971,6 +1982,16 @@ Low Level (hardware related) configuration options:
 		Enable RMII mode for all FECs.
 		Note that this is a global option, we can't
 		have one FEC in standard MII mode and another in RMII mode.
+
+- CONFIG_CRC32_VERIFY
+		Add a verify option to the crc32 command.
+		The syntax is:
+
+		=> crc32 -v <address> <count> <crc32>
+
+		Where address/count indicate a memory area
+		and crc32 is the correct crc32 which the
+		area should have.
 
 Building the Software:
 ======================

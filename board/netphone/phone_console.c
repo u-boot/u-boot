@@ -179,7 +179,6 @@ static int last_input_mode;
 static int refresh_time;
 static int blink_time;
 static char last_fast_punct;
-static int last_tab_indicator = -1;
 
 /*************************************************************************************************/
 
@@ -239,8 +238,6 @@ static void console_init(void)
 	refresh_time = REFRESH_HZ;
 	blink_time = BLINK_HZ;
 
-	tab_indicator = 1;
-
 	memset(vty_buf, ' ', sizeof(vty_buf));
 
 	memset(last_visible_buf, ' ', sizeof(last_visible_buf));
@@ -253,6 +250,8 @@ static void console_init(void)
 	sed156x_init();
 	width = sed156x_text_width;
 	height = sed156x_text_height - 1;
+
+	tab_indicator = 0;
 }
 
 /*****************************************************************************/
@@ -718,8 +717,10 @@ static void update(void)
 	if (input_mode != last_input_mode)
 		sed156x_output_at(sed156x_text_width - 3, sed156x_text_height - 1, input_mode_txt[input_mode], 3);
 
-	if (tab_indicator != last_tab_indicator)
+	if (tab_indicator == 0) {
 		sed156x_output_at(0, sed156x_text_height - 1, "\\t", 2);
+		tab_indicator = 1;
+	}
 
 	if (fast_punct != last_fast_punct)
 		sed156x_output_at(4, sed156x_text_height - 1, &fast_punct, 1);
@@ -779,7 +780,6 @@ static void update(void)
 
 	last_input_mode = input_mode;
 	last_fast_punct = fast_punct;
-	last_tab_indicator = tab_indicator;
 }
 
 /* ensure visibility; the trick is to minimize the screen movement */
@@ -891,7 +891,8 @@ void phone_putc(const char c)
 	blink_time = BLINK_HZ;
 
 	switch (c) {
-		case 13:		/* ignore */
+		case '\a':		/* ignore bell            */
+		case '\r':		/* ignore carriage return */
 			break;
 
 		case '\n':		/* next line */
@@ -1140,4 +1141,11 @@ static void kp_do_poll(void)
 
 			break;
 	}
+}
+
+/**************************************************************************************/
+
+int drv_phone_is_idle(void)
+{
+	return kp_state == SCAN;
 }

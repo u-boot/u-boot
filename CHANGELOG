@@ -2,6 +2,20 @@
 Changes for U-Boot 1.1.1:
 ======================================================================
 
+* Modify KUP4X board configuration to use SL811 driver for USB memory
+  sticks (including FAT / VFAT filesystem support)
+
+* Add SL811 Host Controller Interface driver for USB
+
+* Add CFG_I2C_EEPROM_ADDR_OVERFLOW desription to README
+
+* Patch by Pantelis Antoniou, 19 Apr 2004:
+  Allow to use shell style syntax (i. e. ${var} ) with standard parser.
+  Minor patches for Intracom boards.
+
+* Patch by Christian Pell, 19 Apr 2004:
+  cleanup support for CF/IDE on PCMCIA for PXA25X
+
 * Temporarily disabled John Kerl's extended MII command code because
   "miivals.h" is missing
 
