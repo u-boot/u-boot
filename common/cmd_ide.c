@@ -958,11 +958,15 @@ input_data(int dev, ulong *sect_buf, int words)
 	dbuf = (uchar *)sect_buf;
 	while (words--) {
 		EIEIO;
+		EIEIO;
 		*dbuf++ = *pbuf_even;
+		EIEIO;
 		EIEIO;
 		*dbuf++ = *pbuf_odd;
 		EIEIO;
+		EIEIO;
 		*dbuf++ = *pbuf_even;
+		EIEIO;
 		EIEIO;
 		*dbuf++ = *pbuf_odd;
 	}

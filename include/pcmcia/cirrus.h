@@ -166,9 +166,15 @@ static int has_led = -1;
 static int has_ring = -1;
 static int dynamic_mode = 0;
 static int freq_bypass = -1;
+#ifdef CONFIG_CPC45
+static int setup_time = 2;
+static int cmd_time = 6;
+static int recov_time = 1;
+#else
 static int setup_time = -1;
 static int cmd_time = -1;
 static int recov_time = -1;
+#endif
 
 
 #endif /* _LINUX_CIRRUS_H */
