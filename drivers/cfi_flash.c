@@ -46,6 +46,7 @@
 
 #include <common.h>
 #include <asm/processor.h>
+#include <asm/byteorder.h>
 #include <linux/byteorder/swab.h>
 #ifdef	CFG_FLASH_CFI_DRIVER
 
@@ -1038,7 +1039,7 @@ static ulong flash_get_size (ulong base, int banknum)
 				(tmp & 0xffff) ? ((tmp & 0xffff) * 256) : 128;
 			tmp >>= 16;
 			erase_region_count = (tmp & 0xffff) + 1;
-			printf ("erase_region_count = %d erase_region_size = %d\n",
+			debug ("erase_region_count = %d erase_region_size = %d\n",
 				erase_region_count, erase_region_size);
 			for (j = 0; j < erase_region_count; j++) {
 				info->start[sect_cnt] = sector;

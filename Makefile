@@ -1338,10 +1338,10 @@ clean:
 	rm -f board/trab/trab_fkt
 
 clobber:	clean
-	find . -type f \
-		\( -name .depend -o -name '*.srec' -o -name '*.bin' \) \
-		-print \
-		| xargs rm -f
+	find . -type f \( -name .depend \
+		-o -name '*.srec' -o -name '*.bin' -o -name u-boot.img \) \
+		-print0 \
+		| xargs -0 rm -f
 	rm -f $(OBJS) *.bak tags TAGS
 	rm -fr *.*~
 	rm -f u-boot u-boot.map $(ALL)
