@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2002
+ * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -91,7 +91,7 @@ static int  voltage_set(int slot, int vcc, int vpp);
 
 #if (! defined(CONFIG_I82365)) && (! defined(CONFIG_PXA_PCMCIA))
 static u_int m8xx_get_graycode(u_int size);
-#endif	/* CONFIG_I82365 */
+#endif	/* !CONFIG_I82365, !CONFIG_PXA_PCMCIA */
 #if 0
 static u_int m8xx_get_speed(u_int ns, u_int is_io);
 #endif
@@ -106,8 +106,9 @@ static u_int *pcmcia_pgcrx[2] = {
 	&((immap_t *)CFG_IMMR)->im_pcmcia.pcmc_pgcra,
 	&((immap_t *)CFG_IMMR)->im_pcmcia.pcmc_pgcrb,
 };
-
 #define PCMCIA_PGCRX(slot)	(*pcmcia_pgcrx[slot])
+
+#endif	/* CONFIG_PXA_PCMCIA */
 
 #endif /* CONFIG_I82365 */
 
@@ -116,9 +117,7 @@ static void print_funcid (int func);
 static void print_fixed  (volatile uchar *p);
 static int  identify     (volatile uchar *p);
 static int  check_ide_device (int slot);
-#endif	/* CONFIG_IDE_8xx_PCCARD */
-
-#endif
+#endif	/* CONFIG_IDE_8xx_PCCARD, CONFIG_PXA_PCMCIA */
 
 const char *indent = "\t   ";
 

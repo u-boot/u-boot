@@ -89,12 +89,12 @@ do_test (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #if 0
 	{
 		printf("test:");
-		left = 1; 
+		left = 1;
 		while (argv[left])
 			printf(" %s", argv[left++]);
 	}
 #endif
-	
+
 	last_expr = 0;
 	left = argc - 1; ap = argv + 1;
 	if (left > 0 && strcmp(ap[0], "!") == 0) {

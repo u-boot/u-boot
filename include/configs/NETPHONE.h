@@ -664,11 +664,11 @@ typedef unsigned int led_id_t;
  +------+----------------+------------------------------------------------------------
  |  #   | Name           | Comment
  +------+----------------+------------------------------------------------------------
- |    0 | BKBR1          | (V1) Keyboard input scan 
- |    1 | BKBR3          | (V1) Keyboard input scan 
- |    2 | BKBR4          | (V1) Keyboard input scan 
- |    3 | BKBR2          | (V1) Keyboard input scan 
- |    4 | HOOK           | (V1) Hook switch 
+ |    0 | BKBR1          | (V1) Keyboard input scan
+ |    1 | BKBR3          | (V1) Keyboard input scan
+ |    2 | BKBR4          | (V1) Keyboard input scan
+ |    3 | BKBR2          | (V1) Keyboard input scan
+ |    4 | HOOK           | (V1) Hook switch
  |    5 | BT_LINK        | (V1) Bluetooth link status
  |    6 | HOST_WAKE      | (V1) Bluetooth host wake up
  |    7 | OK_ETH         | (V1) Cisco inline power OK status
@@ -681,13 +681,13 @@ typedef unsigned int led_id_t;
  +------+----------------+------------------------------------------------------------
  |  #   | Name           | Comment
  +------+----------------+------------------------------------------------------------
- |    0 | KEY1           | Keyboard output scan 
- |    1 | KEY2           | Keyboard output scan 
- |    2 | KEY3           | Keyboard output scan 
- |    3 | KEY4           | Keyboard output scan 
- |    4 | KEY5           | Keyboard output scan 
- |    5 | KEY6           | Keyboard output scan 
- |    6 | KEY7           | Keyboard output scan 
+ |    0 | KEY1           | Keyboard output scan
+ |    1 | KEY2           | Keyboard output scan
+ |    2 | KEY3           | Keyboard output scan
+ |    3 | KEY4           | Keyboard output scan
+ |    4 | KEY5           | Keyboard output scan
+ |    5 | KEY6           | Keyboard output scan
+ |    6 | KEY7           | Keyboard output scan
  |    7 | BT_WAKE        | Bluetooth wake up
  +------+----------------+------------------------------------------------------------
 

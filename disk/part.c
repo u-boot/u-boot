@@ -87,12 +87,8 @@ void dev_print (block_dev_desc_t *dev_desc)
 	if ((dev_desc->lba * dev_desc->blksz)>0L) {
 		ulong mb, mb_quot, mb_rem, gb, gb_quot, gb_rem;
 		lbaint_t lba;
-#ifdef CONFIG_LBA48
-		if (dev_desc->lba48support)
-			lba = dev_desc->lba48;
-		else
-#endif
-			lba = dev_desc->lba;
+
+		lba = dev_desc->lba;
 
 		lba512 = (lba * (dev_desc->blksz/512));
 		mb = (10 * lba512) / 2048;	/* 2048 = (1024 * 1024) / 512 MB */
@@ -104,7 +100,7 @@ void dev_print (block_dev_desc_t *dev_desc)
 		gb_quot	= gb / 10;
 		gb_rem	= gb - (10 * gb_quot);
 #ifdef CONFIG_LBA48
-		if (dev_desc->lba48support)
+		if (dev_desc->lba48)
 			printf ("            Supports 48-bit addressing\n");
 #endif
 #if defined(CFG_64BIT_LBA) && defined(CFG_64BIT_VSPRINTF)

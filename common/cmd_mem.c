@@ -1001,7 +1001,7 @@ int do_mem_crc (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	ulong addr, length;
 	ulong crc;
 	ulong *ptr;
-	ulong vcrc; 
+	ulong vcrc;
 	int verify;
 	int ac;
 	char **av;

@@ -702,9 +702,9 @@ static int fec_init (struct eth_device *dev, bd_t * bd)
 #if defined(CONFIG_MII) && defined(CONFIG_RMII)
 
 	/* the MII interface is connected to FEC1
-	   so for the miiphy_xxx function to work we must 
-	   call mii_init since fec_halt messes the thing up */
-
+	 * so for the miiphy_xxx function to work we must
+	 * call mii_init since fec_halt messes the thing up
+	 */
 	if (efis->ether_index != 0)
 		mii_init();
 

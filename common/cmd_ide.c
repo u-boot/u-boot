@@ -1186,13 +1186,12 @@ static void ide_ident (block_dev_desc_t *dev_desc)
 
 #ifdef CONFIG_LBA48
 	if (iop->command_set_2 & 0x0400) { /* LBA 48 support */
-		dev_desc->lba48support = 1;
-		dev_desc->lba48 = (unsigned long long)iop->lba48_capacity[0] |
+		dev_desc->lba48 = 1;
+		dev_desc->lba = (unsigned long long)iop->lba48_capacity[0] |
 						  ((unsigned long long)iop->lba48_capacity[1] << 16) |
 						  ((unsigned long long)iop->lba48_capacity[2] << 32) |
 						  ((unsigned long long)iop->lba48_capacity[3] << 48);
 	} else {
-		dev_desc->lba48support = 0;
 		dev_desc->lba48 = 0;
 	}
 #endif /* CONFIG_LBA48 */

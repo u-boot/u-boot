@@ -1,6 +1,9 @@
 ======================================================================
 Changes for U-Boot 1.1.1:
 ======================================================================
+ 
+* Patch by Rune Torgersen, 16 Apr 2004:
+  LBA48 fixes
 
 * Patches by Pantelis Antoniou, 16 Apr 2004:
   - add support for a new version of an Intracom board and fix
@@ -17,6 +20,8 @@ Changes for U-Boot 1.1.1:
     2. A new exit command was added which terminates the current
        executing script.
     3. Fixed handing of $? (exit code of last executed command)
+  - Fix some compile problems;
+    add "once" functionality for the netretry variable
 
 * Patch by George G. Davis, 02 Apr 2004:
   add support for Intel Assabet board

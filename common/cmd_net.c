@@ -94,62 +94,50 @@ U_BOOT_CMD(
 );
 #endif	/* CFG_CMD_NFS */
 
-static void netboot_update_env(void)
+static void netboot_update_env (void)
 {
-    char tmp[22] ;
+	char tmp[22];
 
-    if (NetOurGatewayIP) {
-	ip_to_string (NetOurGatewayIP, tmp);
-	setenv("gatewayip", tmp);
-    }
+	if (NetOurGatewayIP) {
+		ip_to_string (NetOurGatewayIP, tmp);
+		setenv ("gatewayip", tmp);
+	}
 
-    if (NetOurSubnetMask) {
-	ip_to_string (NetOurSubnetMask, tmp);
-	setenv("netmask", tmp);
-    }
+	if (NetOurSubnetMask) {
+		ip_to_string (NetOurSubnetMask, tmp);
+		setenv ("netmask", tmp);
+	}
 
-    if (NetOurHostName[0])
-	setenv("hostname", NetOurHostName);
+	if (NetOurHostName[0])
+		setenv ("hostname", NetOurHostName);
 
-    if (NetOurRootPath[0])
-	setenv("rootpath", NetOurRootPath);
+	if (NetOurRootPath[0])
+		setenv ("rootpath", NetOurRootPath);
 
-    if (NetOurIP) {
-	ip_to_string (NetOurIP, tmp);
-	setenv("ipaddr", tmp);
-    }
+	if (NetOurIP) {
+		ip_to_string (NetOurIP, tmp);
+		setenv ("ipaddr", tmp);
+	}
 
-    if (NetServerIP) {
-	ip_to_string (NetServerIP, tmp);
-	setenv("serverip", tmp);
-    }
+	if (NetServerIP) {
+		ip_to_string (NetServerIP, tmp);
+		setenv ("serverip", tmp);
+	}
 
-    if (NetOurDNSIP) {
-	ip_to_string (NetOurDNSIP, tmp);
-	setenv("dnsip", tmp);
-    }
-
+	if (NetOurDNSIP) {
+		ip_to_string (NetOurDNSIP, tmp);
+		setenv ("dnsip", tmp);
+	}
 #if (CONFIG_BOOTP_MASK & CONFIG_BOOTP_DNS2)
-    if (NetOurDNS2IP) {
-	    ip_to_string (NetOurDNS2IP, tmp);
-	    setenv("dnsip2", tmp);
-    }
+	if (NetOurDNS2IP) {
+		ip_to_string (NetOurDNS2IP, tmp);
+		setenv ("dnsip2", tmp);
+	}
 #endif
-
-    if (NetOurNISDomain[0])
-	setenv("domain", NetOurNISDomain);
-
-    if (ntohs(NetOurVLAN) != (ushort)-1) {
-	    VLAN_to_string(NetOurVLAN, tmp);
-	    setenv("vlan", tmp);
-    }
-
-    if (ntohs(NetOurNativeVLAN) != (ushort)-1) {
-	    VLAN_to_string(NetOurNativeVLAN, tmp);
-	    setenv("vlan", tmp);
-    }
-
+	if (NetOurNISDomain[0])
+		setenv ("domain", NetOurNISDomain);
 }
+
 static int
 netboot_common (int proto, cmd_tbl_t *cmdtp, int argc, char *argv[])
 {

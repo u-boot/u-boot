@@ -788,7 +788,7 @@ The following options need to be configured:
 		selected via environment 'videomode'. Two diferent ways
 		are possible:
 		- "videomode=num"   'num' is a standard LiLo mode numbers.
-		Following standard modes are supported  (* is default):
+		Following standard modes are supported	(* is default):
 
 		      Colors	640x480 800x600 1024x768 1152x864 1280x1024
 		-------------+---------------------------------------------
@@ -951,7 +951,7 @@ The following options need to be configured:
 		the DHCP server.
 
  - CDP Options:
- 		CONFIG_CDP_DEVICE_ID
+		CONFIG_CDP_DEVICE_ID
 
 		The device id used in CDP trigger frames.
 
@@ -1948,10 +1948,8 @@ Low Level (hardware related) configuration options:
 
 - CONFIG_FEC[12]_PHY
 		Define to the hardcoded PHY address which corresponds
-		to the given FEC.
-
-		i.e. 
-                  #define CONFIG_FEC1_PHY 4 
+		to the given FEC; i. e.
+			#define CONFIG_FEC1_PHY 4
 		means that the PHY with address 4 is connected to FEC1
 
 		When set to -1, means to probe for first available.
@@ -2266,6 +2264,9 @@ configurations; the following names are supported:
 
 	   netretry	- When set to "no" each network operation will
 			  either succeed or fail without retrying.
+			  When set to "once" the network operation will
+			  fail when all the available network interfaces
+			  are tried once without success.
 			  Useful on scripts which control the retry operation
 			  themselves.
 

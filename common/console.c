@@ -412,6 +412,9 @@ int console_init_r (void)
 	DECLARE_GLOBAL_DATA_PTR;
 	char *stdinname, *stdoutname, *stderrname;
 	device_t *inputdev = NULL, *outputdev = NULL, *errdev = NULL;
+#ifdef CFG_CONSOLE_ENV_OVERWRITE
+	int i;
+#endif /* CFG_CONSOLE_ENV_OVERWRITE */
 
 	/* set default handlers at first */
 	gd->jt[XF_getc] = serial_getc;
@@ -483,7 +486,7 @@ int console_init_r (void)
 	for (i = 0; i < 3; i++) {
 		setenv (stdio_names[i], stdio_devices[i]->name);
 	}
-#endif /*  CFG_CONSOLE_ENV_OVERWRITE */
+#endif /* CFG_CONSOLE_ENV_OVERWRITE */
 
 #if 0
 	/* If nothing usable installed, use only the initial console */

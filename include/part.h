@@ -22,7 +22,7 @@
  */
 #ifndef _PART_H
 #define _PART_H
-
+#include <ide.h>
 
 typedef struct block_dev_desc {
 	int		if_type;	/* type of the interface */
@@ -35,14 +35,14 @@ typedef struct block_dev_desc {
 #ifdef CONFIG_LBA48
 	unsigned char	lba48;		/* device can use 48bit addr (ATA/ATAPI v7) */
 #endif
-	unsigned long	lba;	  	/* number of blocks */
+	lbaint_t		lba;	  	/* number of blocks */
 	unsigned long	blksz;		/* block size */
 	unsigned char	vendor [40+1]; 	/* IDE model, SCSI Vendor */
 	unsigned char	product[20+1];	/* IDE Serial no, SCSI product */
 	unsigned char	revision[8+1];	/* firmware revision */
 	unsigned long	(*block_read)(int dev,
 				      unsigned long start,
-				      unsigned long blkcnt,
+				      lbaint_t blkcnt,
 				      unsigned long *buffer);
 }block_dev_desc_t;
 
