@@ -134,7 +134,7 @@ long int initdram (int board_type)
 	*(vu_long *)MPC5XXX_SDRAM_STOP = ((dramsize - 1) >> 15);
 #endif
 
-#else
+#else	/* CFG_RAMBOOT */
 #ifdef CONFIG_MGT5100
 	*(vu_long *)MPC5XXX_ADDECR |= (1 << 22); /* Enable SDRAM */
 	dramsize = ((*(vu_long *)MPC5XXX_SDRAM_STOP + 1) << 15);

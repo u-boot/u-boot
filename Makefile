@@ -203,11 +203,21 @@ cmi_mpc5xx_config:	unconfig
 #########################################################################
 ## MPC5xxx Systems
 #########################################################################
-MPC5200LITE		\
-icecube_5200_config	\
-IceCube_5200_config	\
+MPC5200LITE_config		\
+MPC5200LITE_LOWBOOT_config	\
+MPC5200LITE_LOWBOOT08_config	\
+icecube_5200_config		\
+IceCube_5200_config		\
 IceCube_5100_config:		unconfig
 	@ >include/config.h
+	@[ -z "$(findstring LOWBOOT,$@)" ] || \
+		{ echo "TEXT_BASE = 0xFF000000" >board/icecube/config.tmp ; \
+		  echo "... with LOWBOOT configuration" ; \
+		}
+	@[ -z "$(findstring LOWBOOT08,$@)" ] || \
+		{ echo "TEXT_BASE = 0xFF800000" >board/icecube/config.tmp ; \
+		  echo "... with 8 MB flash only" ; \
+		}
 	@[ -z "$(findstring 5200,$@)" ] || \
 		{ echo "#define CONFIG_MPC5200"		>>include/config.h ; \
 		  echo "... with MPC5200 processor" ; \
@@ -999,7 +1009,7 @@ clean:
 	rm -f tools/gdb/astest tools/gdb/gdbcont tools/gdb/gdbsend
 	rm -f tools/env/fw_printenv tools/env/fw_setenv
 	rm -f board/cray/L1/bootscript.c board/cray/L1/bootscript.image
-	rm -f board/trab/trab_fkt board/trab/config.tmp
+	rm -f board/trab/trab_fkt board/*/config.tmp
 
 clobber:	clean
 	find . -type f \

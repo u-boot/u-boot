@@ -90,12 +90,44 @@
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
 
+#if (TEXT_BASE == 0xFF000000)		/* Boot low with 16 MB Flash */
+#   define CFG_LOWBOOT	        1
+#   define CFG_LOWBOOT16	1
+#endif
+#if (TEXT_BASE == 0xFF800000)		/* Boot low with  8 MB Flash */
+#   define CFG_LOWBOOT	        1
+#   define CFG_LOWBOOT08	1
+#endif
+
 /*
  * Autobooting
  */
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds */
-#define CONFIG_BOOTCOMMAND	"bootm 100000"	/* autoboot command */
-#define CONFIG_BOOTARGS		"root=/dev/ram rw"
+
+#define CONFIG_PREBOOT	"echo;"	\
+	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
+	"echo"
+
+#undef	CONFIG_BOOTARGS
+
+#define	CONFIG_EXTRA_ENV_SETTINGS					\
+	"netdev=eth0\0"							\
+	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
+		"nfsroot=$(serverip):$(rootpath)\0"			\
+	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
+	"addip=setenv bootargs $(bootargs) "				\
+		"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask)"	\
+		":$(hostname):$(netdev):off panic=1\0"			\
+	"flash_nfs=run nfsargs addip;"					\
+		"bootm $(kernel_addr)\0"				\
+	"flash_self=run ramargs addip;"					\
+		"bootm $(kernel_addr) $(ramdisk_addr)\0"		\
+	"net_nfs=tftp 200000 $(bootfile);run nfsargs addip;bootm\0"	\
+	"rootpath=/opt/eldk/ppc_82xx\0"					\
+	"bootfile=/tftpboot/MPC5200/uImage\0"				\
+	""
+
+#define CONFIG_BOOTCOMMAND	"run flash_self"
 
 #if defined(CONFIG_MPC5200)
 /*
@@ -123,19 +155,19 @@
 /*
  * Flash configuration
  */
-#define CFG_FLASH_16M		1
-
-#if !defined(CFG_FLASH_16M) /* 8Mb chips support only */
-#define CFG_FLASH_BASE		0xff800000
-#define CFG_FLASH_SIZE		0x00800000
-#define CFG_MAX_FLASH_BANKS	1	/* max num of memory banks      */
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x740000)
-#else
 #define CFG_FLASH_BASE		0xff000000
 #define CFG_FLASH_SIZE		0x01000000
+#if !defined(CFG_LOWBOOT)
 #define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x740000 + 0x800000)
-#define CFG_MAX_FLASH_BANKS	2	/* max num of memory banks      */
+#else	/* CFG_LOWBOOT */
+#if defined(CFG_LOWBOOT08)
+#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x30000 + 0x800000)
 #endif
+#if defined(CFG_LOWBOOT16)
+#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x30000)
+#endif
+#endif	/* CFG_LOWBOOT */
+#define CFG_MAX_FLASH_BANKS	2	/* max num of memory banks      */
 
 #define CFG_MAX_FLASH_SECT	128	/* max num of sects on one chip */
 

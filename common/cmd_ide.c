@@ -631,6 +631,7 @@ void ide_init (void)
 #ifdef CONFIG_IDE_LED
 		int led = (IDE_BUS(i) == 0) ? LED_IDE1 : LED_IDE2;
 #endif
+		ide_dev_desc[i].type=DEV_TYPE_UNKNOWN;
 		ide_dev_desc[i].if_type=IF_TYPE_IDE;
 		ide_dev_desc[i].dev=i;
 		ide_dev_desc[i].part_type=PART_TYPE_UNKNOWN;
@@ -991,11 +992,9 @@ static void ide_ident (block_dev_desc_t *dev_desc)
 		if (retries == 0) {
 			do_retry = 1;
 		} else {
-			dev_desc->type=DEV_TYPE_UNKNOWN;
 			return;
 		}
 #else
-		dev_desc->type=DEV_TYPE_UNKNOWN;
 		return;
 #endif	/* CONFIG_AMIGAONEG3SE */
 	}

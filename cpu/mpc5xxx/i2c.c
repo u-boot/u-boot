@@ -229,9 +229,10 @@ static int mpc_get_fdr(int speed)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 	static int fdr = -1;
-	static int best_speed = 0;
 
 	if (fdr == -1) {
+		ulong best_speed = 0;
+		ulong divider;
 		ulong ipb, scl;
 		ulong bestmatch = 0xffffffffUL;
 		int best_i = 0, best_j = 0, i, j;
@@ -262,8 +263,13 @@ static int mpc_get_fdr(int speed)
 				}
 			}
 		}
-		fdr = (best_i & 3) | ((best_i & 4) << 3) | (best_j << 2);
-		printf("%d kHz, ", best_speed / 1000);
+		divider = (best_i & 3) | ((best_i & 4) << 3) | (best_j << 2);
+		if (gd->flags & GD_FLG_RELOC) {
+			fdr = divider;
+		} else {
+			printf("%ld kHz, ", best_speed / 1000);
+			return divider;
+		}
 	}
 
 	return fdr;
