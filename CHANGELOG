@@ -2,6 +2,13 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
+* Patch by Andrea Scian, 17 Feb 2004:
+  Add support for S3C44B0 processor and DAVE B2 board
+
+* Patch by Steven Scholz, 20 Feb 2004:
+  - Add support for MII commands on AT91RM9200 boards
+  - some cleanup in AT91RM9200 ethernet code
+
 * Patch by Peter Ryser, 20 Feb 2004:
   Add support for the Xilinx ML300 platform
 

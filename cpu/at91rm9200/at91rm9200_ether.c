@@ -310,8 +310,9 @@ static UCHAR at91rm9200_EmacReadPhy (AT91PS_EMAC p_mac,
 				     unsigned short *pInput)
 {
 	p_mac->EMAC_MAN = (AT91C_EMAC_HIGH & ~AT91C_EMAC_LOW) |
-			  (AT91C_EMAC_CODE_802_3) | (AT91C_EMAC_RW_R) |
-			  (RegisterAddress << 18);
+			  (AT91C_EMAC_RW_R) |
+			  (RegisterAddress << 18) |
+			  (AT91C_EMAC_CODE_802_3);
 
 	udelay (10000);
 
@@ -421,8 +422,14 @@ int eth_init (bd_t * bd)
 
 	p_mac->EMAC_RBQP = (long) (&rbfdt[0]);
 	p_mac->EMAC_RSR &= ~(AT91C_EMAC_RSR_OVR | AT91C_EMAC_REC | AT91C_EMAC_BNA);
-	p_mac->EMAC_CFG = (p_mac->EMAC_CFG | AT91C_EMAC_CAF | AT91C_EMAC_NBC | AT91C_EMAC_RMII)
+
+	p_mac->EMAC_CFG = (p_mac->EMAC_CFG | AT91C_EMAC_CAF | AT91C_EMAC_NBC)
 			& ~AT91C_EMAC_CLK;
+
+#ifdef CONFIG_AT91C_USE_RMII
+	p_mac->EMAC_CFG |= AT91C_EMAC_RMII;
+#endif
+
 	p_mac->EMAC_CTL |= AT91C_EMAC_TE | AT91C_EMAC_RE;
 
 	return 0;
@@ -462,5 +469,25 @@ int eth_rx (void)
 void eth_halt (void)
 {
 };
+
+#if (CONFIG_COMMANDS & CFG_CMD_MII)
+int  miiphy_read(unsigned char addr, unsigned char reg, unsigned short * value)
+{
+	at91rm9200_EmacEnableMDIO (p_mac);
+	at91rm9200_EmacReadPhy (p_mac, reg, value);
+	at91rm9200_EmacDisableMDIO (p_mac);
+	return 0;
+}
+
+int  miiphy_write(unsigned char addr, unsigned char reg, unsigned short value)
+{
+	at91rm9200_EmacEnableMDIO (p_mac);
+	at91rm9200_EmacWritePhy (p_mac, reg, &value);
+	at91rm9200_EmacDisableMDIO (p_mac);
+	return 0;
+}
+#endif	/* CONFIG_COMMANDS & CFG_CMD_MII */
+
 #endif	/* CONFIG_COMMANDS & CFG_CMD_NET */
+
 #endif	/* CONFIG_DRIVER_ETHER */

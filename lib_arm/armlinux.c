@@ -166,6 +166,14 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 			do_reset (cmdtp, flag, argc, argv);
 		}
 
+#ifdef CONFIG_B2
+		/*
+		 *we need to copy the ramdisk to SRAM to let Linux boot
+		 */
+		memmove ((void *) ntohl(hdr->ih_load), (uchar *)data, len);
+		data = ntohl(hdr->ih_load);
+#endif /* CONFIG_B2 */
+
 		/*
 		 * Now check if we have a multifile image
 		 */
@@ -322,7 +330,7 @@ static void setup_initrd_tag (bd_t *bd, ulong initrd_start, ulong initrd_end)
 	/* an ATAG_INITRD node tells the kernel where the compressed
 	 * ramdisk can be found. ATAG_RDIMG is a better name, actually.
 	 */
-	params->hdr.tag = ATAG_INITRD2;
+	params->hdr.tag = ATAG_INITRD;
 	params->hdr.size = tag_size (tag_initrd);
 
 	params->u.initrd.start = initrd_start;
