@@ -670,6 +670,18 @@ The following options need to be configured:
 
 		Set this to enable ATAPI support.
 
+- LBA48 Support
+		CONFIG_LBA48
+
+		Set this to enable support for disks larger than 137GB
+		Also look at CFG_64BIT_LBA ,CFG_64BIT_VSPRINTF and CFG_64BIT_STRTOUL
+		Whithout these , LBA48 support uses 32bit variables and will 'only'
+		support disks up to 2.1TB.
+
+		CFG_64BIT_LBA:
+			When enabled, makes the IDE subsystem use 64bit sector addresses.
+			Default is 32bit.
+
 - SCSI Support:
 		At the moment only there is only support for the
 		SYM53C8XX SCSI controller; define
@@ -1712,6 +1724,13 @@ use the "saveenv" command to store a valid environment.
 
 - CFG_FAULT_MII_ADDR:
 		MII address of the PHY to check for the Ethernet link state.
+
+- CFG_64BIT_VSPRINTF:
+		Makes vsprintf (and all *printf functions) support printing
+		of 64bit values by using the L quantifier
+
+- CFG_64BIT_STRTOUL:
+		Adds simple_strtoull that returns a 64bit value
 
 Low Level (hardware related) configuration options:
 ---------------------------------------------------

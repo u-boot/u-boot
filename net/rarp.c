@@ -24,6 +24,7 @@
 #include <common.h>
 #include <command.h>
 #include <net.h>
+#include "nfs.h"
 #include "bootp.h"
 #include "rarp.h"
 #include "tftp.h"
@@ -46,9 +47,18 @@ int		RarpTry;
 static void
 RarpHandler(uchar * dummi0, unsigned dummi1, unsigned dummi2, unsigned dummi3)
 {
+	char *s;
 #ifdef	DEBUG
 	printf("Got good RARP\n");
 #endif
+	if (((s = getenv("autoload")) != NULL) && (*s == 'n')) {
+		NetState = NETLOOP_SUCCESS;
+		return;
+	}
+	else if ((s != NULL) && !strcmp(s, "NFS")) {
+		NfsStart();
+		return;
+	}
 	TftpStart ();
 }
 

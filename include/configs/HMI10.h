@@ -33,7 +33,7 @@
  * (easy to change)
  */
 
-#define CONFIG_BMS2003
+#define CONFIG_HMI10
 #define CONFIG_MPC823		1	/* This is a MPC823 CPU		*/
 #define CONFIG_TQM823L		1	/* ...on a TQM8xxL module	*/
 
@@ -78,7 +78,7 @@
 		"bootm $(kernel_addr) $(ramdisk_addr)\0"		\
 	"net_nfs=tftp 200000 $(bootfile);run nfsargs addip;bootm\0"	\
 	"rootpath=/opt/eldk/ppc_8xx\0"					\
-	"bootfile=/tftpboot/BMS/uImage\0"				\
+	"bootfile=/tftpboot/HMI10/uImage\0"				\
 	"kernel_addr=40040000\0"					\
 	"ramdisk_addr=40100000\0"					\
 	""
@@ -328,7 +328,7 @@
  *-----------------------------------------------------------------------
  *
  */
-#ifndef CONFIG_BMS2003
+#ifndef CONFIG_HMI10
 #define CFG_PCMCIA_MEM_ADDR	(0xE0000000)
 #define CFG_PCMCIA_MEM_SIZE	( 64 << 20 )
 #define CFG_PCMCIA_DMA_ADDR	(0xE4000000)
@@ -337,7 +337,7 @@
 #define CFG_PCMCIA_ATTRB_SIZE	( 64 << 20 )
 #define CFG_PCMCIA_IO_ADDR	(0xEC000000)
 #define CFG_PCMCIA_IO_SIZE	( 64 << 20 )
-#else	/* CONFIG_BMS2003 */
+#else	/* CONFIG_HMI10 */
 #define CFG_PCMCIA_MEM_ADDR	(0xE0100000)
 #define CFG_PCMCIA_MEM_SIZE	( 64 << 20 )
 #define CFG_PCMCIA_DMA_ADDR	(0xE4100000)

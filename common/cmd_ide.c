@@ -139,7 +139,7 @@ static  block_dev_desc_t ide_dev_desc[CFG_IDE_MAXDEVICE];
 /* ------------------------------------------------------------------------- */
 
 #ifdef CONFIG_IDE_LED
-#if !defined(CONFIG_KUP4K) && !defined(CONFIG_BMS2003)
+#if !defined(CONFIG_KUP4K) && !defined(CONFIG_HMI10)
 static void  ide_led   (uchar led, uchar status);
 #else
 extern void  ide_led   (uchar led, uchar status);
@@ -180,7 +180,7 @@ static void ident_cpy (unsigned char *dest, unsigned char *src, unsigned int len
 
 #ifdef CONFIG_ATAPI
 static void	atapi_inquiry(block_dev_desc_t *dev_desc);
-ulong atapi_read (int device, ulong blknr, ulong blkcnt, ulong *buffer);
+ulong atapi_read (int device, lbaint_t blknr, ulong blkcnt, ulong *buffer);
 #endif
 
 
@@ -303,11 +303,15 @@ int do_ide (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	if (strcmp(argv[1],"read") == 0) {
 		ulong addr = simple_strtoul(argv[2], NULL, 16);
-		ulong blk  = simple_strtoul(argv[3], NULL, 16);
+#if CFG_64BIT_STRTOUL
+		lbaint_t blk  = simple_strtoull(argv[3], NULL, 16);
+#else
+		lbaint_t blk  = simple_strtoul(argv[3], NULL, 16);
+#endif
 		ulong cnt  = simple_strtoul(argv[4], NULL, 16);
 		ulong n;
 
-		printf ("\nIDE read: device %d block # %ld, count %ld ... ",
+		printf ("\nIDE read: device %d block # %qd, count %ld ... ",
 			curr_device, blk, cnt);
 
 		n = ide_dev_desc[curr_device].block_read (curr_device,
@@ -325,11 +329,15 @@ int do_ide (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		}
 	} else if (strcmp(argv[1],"write") == 0) {
 		ulong addr = simple_strtoul(argv[2], NULL, 16);
-		ulong blk  = simple_strtoul(argv[3], NULL, 16);
+#if CFG_64BIT_STRTOUL
+		lbaint_t blk  = simple_strtoull(argv[3], NULL, 16);
+#else
+		lbaint_t blk  = simple_strtoul(argv[3], NULL, 16);
+#endif
 		ulong cnt  = simple_strtoul(argv[4], NULL, 16);
 		ulong n;
 
-		printf ("\nIDE write: device %d block # %ld, count %ld ... ",
+		printf ("\nIDE write: device %d block # %qd, count %ld ... ",
 			curr_device, blk, cnt);
 
 		n = ide_write (curr_device, blk, cnt, (ulong *)addr);
@@ -607,8 +615,7 @@ void ide_init (void)
 				ide_led ((LED_IDE1 | LED_IDE2), 0); /* LED's off */
 #ifdef CONFIG_AMIGAONEG3SE
 				/* If this is the second bus, the first one was OK */
-				if (bus != 0)
-				{
+				if (bus != 0) {
 				    ide_bus_ok[bus] = 0;
 				    goto skip_bus;
 				}
@@ -838,7 +845,7 @@ output_data_short(int dev, ulong *sect_buf, int words)
 static void
 input_swap_data(int dev, ulong *sect_buf, int words)
 {
-#ifndef CONFIG_BMS2003
+#ifndef CONFIG_HMI10
 	volatile ushort	*pbuf = (ushort *)(ATA_CURR_BASE(dev)+ATA_DATA_REG);
 	ushort	*dbuf = (ushort *)sect_buf;
 
@@ -846,7 +853,7 @@ input_swap_data(int dev, ulong *sect_buf, int words)
 		*dbuf++ = ld_le16(pbuf);
 		*dbuf++ = ld_le16(pbuf);
 	}
-#else	/* CONFIG_BMS2003 */
+#else	/* CONFIG_HMI10 */
 	uchar i;
 	volatile uchar *pbuf_even = (uchar *)(ATA_CURR_BASE(dev)+ATA_DATA_EVEN);
 	volatile uchar *pbuf_odd  = (uchar *)(ATA_CURR_BASE(dev)+ATA_DATA_ODD);
@@ -859,7 +866,7 @@ input_swap_data(int dev, ulong *sect_buf, int words)
 			dbuf+=1;
 		}
 	}
-#endif	/* CONFIG_BMS2003 */
+#endif	/* CONFIG_HMI10 */
 }
 #endif	/* __LITTLE_ENDIAN || CONFIG_AU1X00 */
 
@@ -868,7 +875,7 @@ input_swap_data(int dev, ulong *sect_buf, int words)
 static void
 output_data(int dev, ulong *sect_buf, int words)
 {
-#ifndef CONFIG_BMS2003
+#ifndef CONFIG_HMI10
 	ushort	*dbuf;
 	volatile ushort	*pbuf;
 
@@ -880,7 +887,7 @@ output_data(int dev, ulong *sect_buf, int words)
 		__asm__ volatile ("eieio");
 		*pbuf = *dbuf++;
 	}
-#else	/* CONFIG_BMS2003 */
+#else	/* CONFIG_HMI10 */
 	uchar	*dbuf;
 	volatile uchar	*pbuf_even;
 	volatile uchar	*pbuf_odd;
@@ -898,7 +905,7 @@ output_data(int dev, ulong *sect_buf, int words)
 		__asm__ volatile ("eieio");
 		*pbuf_odd = *dbuf++;
 	}
-#endif	/* CONFIG_BMS2003 */
+#endif	/* CONFIG_HMI10 */
 }
 #else	/* ! __PPC__ */
 static void
@@ -912,7 +919,7 @@ output_data(int dev, ulong *sect_buf, int words)
 static void
 input_data(int dev, ulong *sect_buf, int words)
 {
-#ifndef CONFIG_BMS2003
+#ifndef CONFIG_HMI10
 	ushort	*dbuf;
 	volatile ushort	*pbuf;
 
@@ -924,7 +931,7 @@ input_data(int dev, ulong *sect_buf, int words)
 		__asm__ volatile ("eieio");
 		*dbuf++ = *pbuf;
 	}
-#else	/* CONFIG_BMS2003 */
+#else	/* CONFIG_HMI10 */
 	uchar	*dbuf;
 	volatile uchar	*pbuf_even;
 	volatile uchar	*pbuf_odd;
@@ -942,7 +949,7 @@ input_data(int dev, ulong *sect_buf, int words)
 		__asm__ volatile ("eieio");
 		*dbuf++ = *pbuf_odd;
 	}
-#endif	/* CONFIG_BMS2003 */
+#endif	/* CONFIG_HMI10 */
 }
 #else	/* ! __PPC__ */
 static void
@@ -968,8 +975,7 @@ input_data_short(int dev, ulong *sect_buf, int words)
 		__asm__ volatile ("eieio");
 	}
 
-	if (words&1)
-	{
+	if (words&1) {
 	    ushort dummy;
 	    dummy = *pbuf;
 	}
@@ -1023,8 +1029,7 @@ static void ide_ident (block_dev_desc_t *dev_desc)
     retries = 0;
 
     /* Warning: This will be tricky to read */
-    while (retries <= 1)
-    {
+    while (retries <= 1) {
 #endif	/* CONFIG_AMIGAONEG3SE */
 
 	/* check signature */
@@ -1042,8 +1047,7 @@ static void ide_ident (block_dev_desc_t *dev_desc)
 		 * to become ready
 		 */
 		c = ide_wait (device, ATAPI_TIME_OUT);
-	}
-	else
+	} else
 #endif
 	{
 		/* Start Ident Command
@@ -1133,6 +1137,19 @@ static void ide_ident (block_dev_desc_t *dev_desc)
 
 	/* swap shorts */
 	dev_desc->lba = (iop->lba_capacity << 16) | (iop->lba_capacity >> 16);
+
+#if CONFIG_LBA48
+	if (iop->command_set_2 & 0x0400) { /* LBA 48 support */
+		dev_desc->lba48support = 1;
+		dev_desc->lba48 = (unsigned long long)iop->lba48_capacity[0] |
+						  ((unsigned long long)iop->lba48_capacity[1] << 16) |
+						  ((unsigned long long)iop->lba48_capacity[2] << 32) |
+						  ((unsigned long long)iop->lba48_capacity[3] << 48);
+	} else {
+		dev_desc->lba48support = 0;
+		dev_desc->lba48 = 0;
+	}
+#endif /* CONFIG_LBA48 */
 	/* assuming HD */
 	dev_desc->type=DEV_TYPE_HARDDISK;
 	dev_desc->blksz=ATA_BLOCKSIZE;
@@ -1158,13 +1175,20 @@ static void ide_ident (block_dev_desc_t *dev_desc)
 
 /* ------------------------------------------------------------------------- */
 
-ulong ide_read (int device, ulong blknr, ulong blkcnt, ulong *buffer)
+ulong ide_read (int device, lbaint_t blknr, ulong blkcnt, ulong *buffer)
 {
 	ulong n = 0;
 	unsigned char c;
 	unsigned char pwrsave=0; /* power save */
+#if CONFIG_LBA48
+	unsigned char lba48 = 0;
 
-	PRINTF ("ide_read dev %d start %lX, blocks %lX buffer at %lX\n",
+	if (blknr & 0x0000fffff0000000) {
+		/* more than 28 bits used, use 48bit mode */
+		lba48 = 1;
+	}
+#endif
+	PRINTF ("ide_read dev %d start %qX, blocks %lX buffer at %lX\n",
 		device, blknr, blkcnt, (ulong)buffer);
 
 	ide_led (DEVICE_LED(device), 1);	/* LED on	*/
@@ -1208,15 +1232,33 @@ ulong ide_read (int device, ulong blknr, ulong blkcnt, ulong *buffer)
 			printf ("IDE read: device %d not ready\n", device);
 			break;
 		}
-
+#if CONFIG_LBA48
+		if (lba48) {
+			/* write high bits */
+			ide_outb (device, ATA_SECT_CNT, 0);
+			ide_outb (device, ATA_LBA_LOW,	(blknr >> 24) & 0xFF);
+			ide_outb (device, ATA_LBA_MID,	(blknr >> 32) & 0xFF);
+			ide_outb (device, ATA_LBA_HIGH, (blknr >> 40) & 0xFF);
+		}
+#endif
 		ide_outb (device, ATA_SECT_CNT, 1);
 		ide_outb (device, ATA_LBA_LOW,  (blknr >>  0) & 0xFF);
 		ide_outb (device, ATA_LBA_MID,  (blknr >>  8) & 0xFF);
 		ide_outb (device, ATA_LBA_HIGH, (blknr >> 16) & 0xFF);
-		ide_outb (device, ATA_DEV_HD,   ATA_LBA		|
-					    ATA_DEVICE(device)	|
-					    ((blknr >> 24) & 0xF) );
-		ide_outb (device, ATA_COMMAND,  ATA_CMD_READ);
+
+#if CONFIG_LBA48
+		if (lba48) {
+			ide_outb (device, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(device) );
+			ide_outb (device, ATA_COMMAND, ATA_CMD_READ_EXT);
+
+		} else
+#endif
+		{
+			ide_outb (device, ATA_DEV_HD,   ATA_LBA		|
+						    ATA_DEVICE(device)	|
+						    ((blknr >> 24) & 0xF) );
+			ide_outb (device, ATA_COMMAND,  ATA_CMD_READ);
+		}
 
 		udelay (50);
 
@@ -1228,8 +1270,13 @@ ulong ide_read (int device, ulong blknr, ulong blkcnt, ulong *buffer)
 		}
 
 		if ((c&(ATA_STAT_DRQ|ATA_STAT_BUSY|ATA_STAT_ERR)) != ATA_STAT_DRQ) {
-			printf ("Error (no IRQ) dev %d blk %ld: status 0x%02x\n",
+#if CFG_64BIT_LBA && CFG_64BIT_VSPRINTF
+			printf ("Error (no IRQ) dev %d blk %qd: status 0x%02x\n",
 				device, blknr, c);
+#else
+			printf ("Error (no IRQ) dev %d blk %ld: status 0x%02x\n",
+				device, (ulong)blknr, c);
+#endif
 			break;
 		}
 
@@ -1248,10 +1295,18 @@ IDE_READ_E:
 /* ------------------------------------------------------------------------- */
 
 
-ulong ide_write (int device, ulong blknr, ulong blkcnt, ulong *buffer)
+ulong ide_write (int device, lbaint_t blknr, ulong blkcnt, ulong *buffer)
 {
 	ulong n = 0;
 	unsigned char c;
+#if CONFIG_LBA48
+	unsigned char lba48 = 0;
+
+	if (blknr & 0x0000fffff0000000) {
+		/* more than 28 bits used, use 48bit mode */
+		lba48 = 1;
+	}
+#endif
 
 	ide_led (DEVICE_LED(device), 1);	/* LED on	*/
 
@@ -1267,23 +1322,46 @@ ulong ide_write (int device, ulong blknr, ulong blkcnt, ulong *buffer)
 			printf ("IDE read: device %d not ready\n", device);
 			goto WR_OUT;
 		}
-
+#if CONFIG_LBA48
+		if (lba48) {
+			/* write high bits */
+			ide_outb (device, ATA_SECT_CNT, 0);
+			ide_outb (device, ATA_LBA_LOW,	(blknr >> 24) & 0xFF);
+			ide_outb (device, ATA_LBA_MID,	(blknr >> 32) & 0xFF);
+			ide_outb (device, ATA_LBA_HIGH, (blknr >> 40) & 0xFF);
+		}
+#endif
 		ide_outb (device, ATA_SECT_CNT, 1);
 		ide_outb (device, ATA_LBA_LOW,  (blknr >>  0) & 0xFF);
 		ide_outb (device, ATA_LBA_MID,  (blknr >>  8) & 0xFF);
 		ide_outb (device, ATA_LBA_HIGH, (blknr >> 16) & 0xFF);
-		ide_outb (device, ATA_DEV_HD,   ATA_LBA		|
-					    ATA_DEVICE(device)	|
-					    ((blknr >> 24) & 0xF) );
-		ide_outb (device, ATA_COMMAND,  ATA_CMD_WRITE);
+
+#if CONFIG_LBA48
+		if (lba48) {
+			ide_outb (device, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(device) );
+			ide_outb (device, ATA_COMMAND,	ATA_CMD_WRITE_EXT);
+
+		} else
+#endif
+		{
+			ide_outb (device, ATA_DEV_HD,   ATA_LBA		|
+						    ATA_DEVICE(device)	|
+						    ((blknr >> 24) & 0xF) );
+			ide_outb (device, ATA_COMMAND,  ATA_CMD_WRITE);
+		}
 
 		udelay (50);
 
 		c = ide_wait (device, IDE_TIME_OUT);	/* can't take over 500 ms */
 
 		if ((c&(ATA_STAT_DRQ|ATA_STAT_BUSY|ATA_STAT_ERR)) != ATA_STAT_DRQ) {
-			printf ("Error (no IRQ) dev %d blk %ld: status 0x%02x\n",
+#if CFG_64BIT_LBA && CFG_64BIT_VSPRINTF
+			printf ("Error (no IRQ) dev %d blk %qd: status 0x%02x\n",
 				device, blknr, c);
+#else
+			printf ("Error (no IRQ) dev %d blk %ld: status 0x%02x\n",
+				device, (ulong)blknr, c);
+#endif
 			goto WR_OUT;
 		}
 
@@ -1426,7 +1504,7 @@ static void ide_reset (void)
 
 /* ------------------------------------------------------------------------- */
 
-#if defined(CONFIG_IDE_LED) && !defined(CONFIG_AMIGAONEG3SE) && !defined(CONFIG_KUP4K) && !defined(CONFIG_BMS2003)
+#if defined(CONFIG_IDE_LED) && !defined(CONFIG_AMIGAONEG3SE) && !defined(CONFIG_KUP4K) && !defined(CONFIG_HMI10)
 
 static	uchar	led_buffer = 0;		/* Buffer for current LED status	*/
 
@@ -1467,7 +1545,7 @@ static void ide_led (uchar led, uchar status)
 static void
 output_data_shorts(int dev, ushort *sect_buf, int shorts)
 {
-#ifndef CONFIG_BMS2003
+#ifndef CONFIG_HMI10
 	ushort	*dbuf;
 	volatile ushort	*pbuf;
 
@@ -1477,7 +1555,7 @@ output_data_shorts(int dev, ushort *sect_buf, int shorts)
 		__asm__ volatile ("eieio");
 		*pbuf = *dbuf++;
 	}
-#else	/* CONFIG_BMS2003 */
+#else	/* CONFIG_HMI10 */
 	uchar	*dbuf;
 	volatile uchar	*pbuf_even;
 	volatile uchar	*pbuf_odd;
@@ -1490,13 +1568,13 @@ output_data_shorts(int dev, ushort *sect_buf, int shorts)
 		__asm__ volatile ("eieio");
 		*pbuf_odd = *dbuf++;
 	}
-#endif	/* CONFIG_BMS2003 */
+#endif	/* CONFIG_HMI10 */
 }
 
 static void
 input_data_shorts(int dev, ushort *sect_buf, int shorts)
 {
-#ifndef CONFIG_BMS2003
+#ifndef CONFIG_HMI10
 	ushort	*dbuf;
 	volatile ushort	*pbuf;
 
@@ -1506,7 +1584,7 @@ input_data_shorts(int dev, ushort *sect_buf, int shorts)
 		__asm__ volatile ("eieio");
 		*dbuf++ = *pbuf;
 	}
-#else	/* CONFIG_BMS2003 */
+#else	/* CONFIG_HMI10 */
 	uchar	*dbuf;
 	volatile uchar	*pbuf_even;
 	volatile uchar	*pbuf_odd;
@@ -1519,7 +1597,7 @@ input_data_shorts(int dev, ushort *sect_buf, int shorts)
 		__asm__ volatile ("eieio");
 		*dbuf++ = *pbuf_odd;
 	}
-#endif	/* CONFIG_BMS2003 */
+#endif	/* CONFIG_HMI10 */
 }
 
 #else	/* ! __PPC__ */
@@ -1858,6 +1936,7 @@ static void	atapi_inquiry(block_dev_desc_t * dev_desc)
 			((unsigned long)iobuf[5]<<16) +
 			((unsigned long)iobuf[6]<< 8) +
 			((unsigned long)iobuf[7]);
+	dev_desc->lba48 = 0; /* ATAPI devices cannot use 48bit addressing (ATA/ATAPI v7) */
 	return;
 }
 
@@ -1871,7 +1950,7 @@ static void	atapi_inquiry(block_dev_desc_t * dev_desc)
 #define ATAPI_READ_BLOCK_SIZE	2048	/* assuming CD part */
 #define ATAPI_READ_MAX_BLOCK ATAPI_READ_MAX_BYTES/ATAPI_READ_BLOCK_SIZE	/* max blocks */
 
-ulong atapi_read (int device, ulong blknr, ulong blkcnt, ulong *buffer)
+ulong atapi_read (int device, lbaint_t blknr, ulong blkcnt, ulong *buffer)
 {
 	ulong n = 0;
 	unsigned char ccb[12]; /* Command descriptor block */

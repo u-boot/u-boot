@@ -425,7 +425,7 @@ static long int dram_size (long int mamr_value, long int *base, long int maxsize
 
 #ifdef CONFIG_PS2MULT
 
-#ifdef CONFIG_BMS2003
+#ifdef CONFIG_HMI10
 #define BASE_BAUD ( 1843200 / 16 )
 struct serial_state rs_table[] = {
 	{ BASE_BAUD, 4,  (void*)0xec140000 },
@@ -441,12 +441,12 @@ int board_early_init_r (void)
 	return (0);
 }
 #endif
-#endif /* CONFIG_BMS2003 */
+#endif /* CONFIG_HMI10 */
 
 #endif /* CONFIG_PS2MULT */
 
 /* ------------------------------------------------------------------------- */
-#ifdef CONFIG_BMS2003
+#ifdef CONFIG_HMI10
 
 int misc_init_r (void)
 {
@@ -476,5 +476,5 @@ void ide_led (uchar led, uchar status)
 }
 #endif
 
-#endif /* CONFIG_BMS2003 */
+#endif /* CONFIG_HMI10 */
 /* ------------------------------------------------------------------------- */

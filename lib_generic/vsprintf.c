@@ -55,6 +55,36 @@ long simple_strtol(const char *cp,char **endp,unsigned int base)
 	return simple_strtoul(cp,endp,base);
 }
 
+#if CFG_64BIT_STRTOUL
+unsigned long long simple_strtoull (const char *cp, char **endp, unsigned int base)
+{
+	unsigned long long result = 0, value;
+
+	if (*cp == '0') {
+		cp++;
+		if ((*cp == 'x') && isxdigit (cp[1])) {
+			base = 16;
+			cp++;
+		}
+		if (!base) {
+			base = 8;
+		}
+	}
+	if (!base) {
+		base = 10;
+	}
+	while (isxdigit (*cp) && (value = isdigit (*cp)
+				? *cp - '0'
+				: (islower (*cp) ? toupper (*cp) : *cp) - 'A' + 10) < base) {
+		result = result * base + value;
+		cp++;
+	}
+	if (endp)
+		*endp = (char *) cp;
+	return result;
+}
+#endif /* CFG_64BIT_STRTOUL */
+
 /* we use this so that we can do without the ctype library */
 #define is_digit(c)	((c) >= '0' && (c) <= '9')
 
@@ -76,13 +106,17 @@ static int skip_atoi(const char **s)
 #define LARGE	64		/* use 'ABCDEF' instead of 'abcdef' */
 
 #define do_div(n,base) ({ \
-int __res; \
-__res = ((unsigned long) n) % (unsigned) base; \
-n = ((unsigned long) n) / (unsigned) base; \
-__res; })
+	int __res; \
+	__res = ((unsigned long) n) % (unsigned) base; \
+	n = ((unsigned long) n) / (unsigned) base; \
+	__res; \
+})
 
-static char * number(char * str, long num, int base, int size, int precision
-	,int type)
+#if CFG_64BIT_VSPRINTF
+static char * number(char * str, long long num, int base, int size, int precision ,int type)
+#else
+static char * number(char * str, long num, int base, int size, int precision ,int type)
+#endif
 {
 	char c,sign,tmp[66];
 	const char *digits="0123456789abcdefghijklmnopqrstuvwxyz";
@@ -154,7 +188,11 @@ int sprintf(char * buf, const char *fmt, ...);
 int vsprintf(char *buf, const char *fmt, va_list args)
 {
 	int len;
+#if CFG_64BIT_VSPRINTF
+	unsigned long long num;
+#else
 	unsigned long num;
+#endif
 	int i, base;
 	char * str;
 	const char *s;
@@ -164,7 +202,7 @@ int vsprintf(char *buf, const char *fmt, va_list args)
 	int field_width;	/* width of output field */
 	int precision;		/* min. # of digits for integers; max
 				   number of chars for from string */
-	int qualifier;		/* 'h', 'l', or 'L' for integer fields */
+	int qualifier;		/* 'h', 'l', or 'q' for integer fields */
 
 	for (str=buf ; *fmt ; ++fmt) {
 		if (*fmt != '%') {
@@ -215,7 +253,7 @@ int vsprintf(char *buf, const char *fmt, va_list args)
 
 		/* get the conversion qualifier */
 		qualifier = -1;
-		if (*fmt == 'h' || *fmt == 'l' || *fmt == 'L') {
+		if (*fmt == 'h' || *fmt == 'l' || *fmt == 'q') {
 			qualifier = *fmt;
 			++fmt;
 		}
@@ -299,6 +337,11 @@ int vsprintf(char *buf, const char *fmt, va_list args)
 				--fmt;
 			continue;
 		}
+#if CFG_64BIT_VSPRINTF
+		if (qualifier == 'q')  /* "quad" for 64 bit variables */
+			num = va_arg(args, unsigned long long);
+		else
+#endif
 		if (qualifier == 'l')
 			num = va_arg(args, unsigned long);
 		else if (qualifier == 'h') {

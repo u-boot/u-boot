@@ -43,7 +43,7 @@ void status_led_tick (unsigned long timestamp);
 void status_led_set  (int led, int state);
 
 /*****  TQM8xxL  ********************************************************/
-#if defined(CONFIG_TQM8xxL) && !defined(CONFIG_BMS2003)
+#if defined(CONFIG_TQM8xxL) && !defined(CONFIG_HMI10)
 # define STATUS_LED_PAR		im_cpm.cp_pbpar
 # define STATUS_LED_DIR		im_cpm.cp_pbdir
 # define STATUS_LED_ODR		im_cpm.cp_pbodr
@@ -318,8 +318,8 @@ void status_led_set  (int led, int state);
 
 # define STATUS_LED_BOOT        0               /* LED 0 used for boot status */
 
-/*****  BMS2003  ********************************************************/
-#elif defined(CONFIG_BMS2003)
+/*****  HMI10  **********************************************************/
+#elif defined(CONFIG_HMI10)
 # define STATUS_LED_PAR		im_ioport.iop_papar
 # define STATUS_LED_DIR		im_ioport.iop_padir
 # define STATUS_LED_ODR		im_ioport.iop_paodr

@@ -459,6 +459,9 @@ int	init_timebase (void);
 
 /* lib_generic/vsprintf.c */
 ulong	simple_strtoul(const char *cp,char **endp,unsigned int base);
+#if CFG_64BIT_VSPRINTF
+unsigned long long	simple_strtoull(const char *cp,char **endp,unsigned int base);
+#endif
 long	simple_strtol(const char *cp,char **endp,unsigned int base);
 void	panic(const char *fmt, ...);
 int	sprintf(char * buf, const char *fmt, ...);

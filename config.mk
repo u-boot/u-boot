@@ -122,6 +122,14 @@ else
 CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes
 endif
 
+# avoid trigraph warnings while parsing pci.h (produced by NIOS gcc-2.9)
+# this option have to be placed behind -Wall -- that's why it is here
+ifeq ($(ARCH),nios)
+ifeq ($(findstring 2.9,$(shell $(CC) --version)),2.9)
+CFLAGS := $(CPPFLAGS) -Wno-trigraphs
+endif
+endif
+
 AFLAGS_DEBUG := -Wa,-gstabs
 AFLAGS := $(AFLAGS_DEBUG) -D__ASSEMBLY__ $(CPPFLAGS)
 

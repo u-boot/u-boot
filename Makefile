@@ -261,9 +261,6 @@ FADS860T_config:	unconfig
 AMX860_config	:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx amx860 westel
 
-bms2003_config	:	unconfig
-	@./mkconfig $(@:_config=) ppc mpc8xx tqm8xx
-
 c2mon_config:		unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx c2mon
 
@@ -304,6 +301,9 @@ GTH_config:	unconfig
 
 hermes_config	:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx hermes
+
+HMI10_config	:	unconfig
+	@./mkconfig $(@:_config=) ppc mpc8xx tqm8xx
 
 IAD210_config: unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx IAD210 siemens

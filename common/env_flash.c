@@ -207,21 +207,21 @@ int saveenv(void)
 	debug (" %08lX ... %08lX ...",
 		(ulong)&(flash_addr_new->data),
 		sizeof(env_ptr->data)+(ulong)&(flash_addr_new->data));
-	if (flash_write(env_ptr->data,
+	if ((rc = flash_write(env_ptr->data,
 			(ulong)&(flash_addr_new->data),
-			sizeof(env_ptr->data)) ||
+			sizeof(env_ptr->data))) ||
 
-	    flash_write((char *)&(env_ptr->crc),
+	    (rc = flash_write((char *)&(env_ptr->crc),
 			(ulong)&(flash_addr_new->crc),
-			sizeof(env_ptr->crc)) ||
+			sizeof(env_ptr->crc))) ||
 
-	    flash_write((char *)&obsolete_flag,
+	    (rc = flash_write((char *)&obsolete_flag,
 			(ulong)&(flash_addr->flags),
-			sizeof(flash_addr->flags)) ||
+			sizeof(flash_addr->flags))) ||
 
-	    flash_write((char *)&active_flag,
+	    (rc = flash_write((char *)&active_flag,
 			(ulong)&(flash_addr_new->flags),
-			sizeof(flash_addr_new->flags)))
+			sizeof(flash_addr_new->flags))))
 	{
 		flash_perror (rc);
 		goto Done;

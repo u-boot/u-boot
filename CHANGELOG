@@ -2,6 +2,22 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
+* Patch by Rune Torgersen, 27 Feb 2004:
+  - Added LBA48 support (CONFIG_LBA48 & CFG_64BIT_LBA)
+  - Added support for 64bit printing in vsprintf (CFG_64BIT_VSPRINTF)
+  - Added support for 64bit strtoul (CFG_64BIT_STRTOUL)
+
+* Patch by Masami Komiya, 27 Feb 2004:
+  Fix rarpboot: add autoload by NFS
+
+* Patch by Dan Eisenhut, 26 Feb 2004:
+  fix flash_write return value in saveenv
+
+* Patch by Stephan Linz, 11 Dec 2003
+  expand config.mk to avoid trigraph warnings on NIOS
+
+* Rename "BMS2003" board into "HMI10"
+
 * SX1 patches: use "serial#" for USB serial #; use redundand environment
   storage; auto-set console on USB port (using preboot command)
 
