@@ -32,157 +32,155 @@
 
 #if defined(CONFIG_DRAM_50MHZ)
 /* 50MHz tables */
-const uint dram_60ns[] =
+static const uint dram_60ns[] =
 { 0x8fffec24, 0x0fffec04, 0x0cffec04, 0x00ffec04,
-  0x00ffec00, 0x37ffec47, 0xffffffff, 0xffffffff,
+  0x00ffec00, 0x37ffec47, _NOT_USED_, _NOT_USED_,
   0x8fffec24, 0x0fffec04, 0x08ffec04, 0x00ffec0c,
   0x03ffec00, 0x00ffec44, 0x00ffcc08, 0x0cffcc44,
   0x00ffec0c, 0x03ffec00, 0x00ffec44, 0x00ffcc00,
-  0x3fffc847, 0xffffffff, 0xffffffff, 0xffffffff,
+  0x3fffc847, _NOT_USED_, _NOT_USED_, _NOT_USED_,
   0x8fafcc24, 0x0fafcc04, 0x0cafcc00, 0x11bfcc47,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
   0x8fafcc24, 0x0fafcc04, 0x0cafcc00, 0x03afcc4c,
   0x0cafcc00, 0x03afcc4c, 0x0cafcc00, 0x03afcc4c,
-  0x0cafcc00, 0x33bfcc4f, 0xffffffff, 0xffffffff,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
+  0x0cafcc00, 0x33bfcc4f, _NOT_USED_, _NOT_USED_,
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
   0xc0ffcc84, 0x00ffcc04, 0x07ffcc04, 0x3fffcc06,
-  0xffffcc85, 0xffffcc05, 0xffffffff, 0xffffffff,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
-  0x33ffcc07, 0xffffffff, 0xffffffff, 0xffffffff };
+  0xffffcc85, 0xffffcc05, _NOT_USED_, _NOT_USED_,
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
+  0x33ffcc07, _NOT_USED_, _NOT_USED_, _NOT_USED_ };
 
-const uint dram_70ns[] =
+static const uint dram_70ns[] =
 { 0x8fffcc24, 0x0fffcc04, 0x0cffcc04, 0x00ffcc04,
-  0x00ffcc00, 0x37ffcc47, 0xffffffff, 0xffffffff,
+  0x00ffcc00, 0x37ffcc47, _NOT_USED_, _NOT_USED_,
   0x8fffcc24, 0x0fffcc04, 0x0cffcc04, 0x00ffcc04,
   0x00ffcc08, 0x0cffcc44, 0x00ffec0c, 0x03ffec00,
   0x00ffec44, 0x00ffcc08, 0x0cffcc44, 0x00ffec04,
-  0x00ffec00, 0x3fffec47, 0xffffffff, 0xffffffff,
+  0x00ffec00, 0x3fffec47, _NOT_USED_, _NOT_USED_,
   0x8fafcc24, 0x0fafcc04, 0x0cafcc00, 0x11bfcc47,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
   0x8fafcc24, 0x0fafcc04, 0x0cafcc00, 0x03afcc4c,
   0x0cafcc00, 0x03afcc4c, 0x0cafcc00, 0x03afcc4c,
-  0x0cafcc00, 0x33bfcc4f, 0xffffffff, 0xffffffff,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
+  0x0cafcc00, 0x33bfcc4f, _NOT_USED_, _NOT_USED_,
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
   0xe0ffcc84, 0x00ffcc04, 0x00ffcc04, 0x0fffcc04,
-  0x7fffcc06, 0xffffcc85, 0xffffcc05, 0xffffffff,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
-  0x33ffcc07, 0xffffffff, 0xffffffff, 0xffffffff };
+  0x7fffcc06, 0xffffcc85, 0xffffcc05, _NOT_USED_,
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
+  0x33ffcc07, _NOT_USED_, _NOT_USED_, _NOT_USED_ };
 
-const uint edo_60ns[] =
+static const uint edo_60ns[] =
 { 0x8ffbec24, 0x0ff3ec04, 0x0cf3ec04, 0x00f3ec04,
-  0x00f3ec00, 0x37f7ec47, 0xffffffff, 0xffffffff,
+  0x00f3ec00, 0x37f7ec47, _NOT_USED_, _NOT_USED_,
   0x8fffec24, 0x0ffbec04, 0x0cf3ec04, 0x00f3ec0c,
   0x0cf3ec00, 0x00f3ec4c, 0x0cf3ec00, 0x00f3ec4c,
   0x0cf3ec00, 0x00f3ec44, 0x03f3ec00, 0x3ff7ec47,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
   0x8fffcc24, 0x0fefcc04, 0x0cafcc00, 0x11bfcc47,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
   0x8fffcc24, 0x0fefcc04, 0x0cafcc00, 0x03afcc4c,
   0x0cafcc00, 0x03afcc4c, 0x0cafcc00, 0x03afcc4c,
-  0x0cafcc00, 0x33bfcc4f, 0xffffffff, 0xffffffff,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
+  0x0cafcc00, 0x33bfcc4f, _NOT_USED_, _NOT_USED_,
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
   0xc0ffcc84, 0x00ffcc04, 0x07ffcc04, 0x3fffcc06,
-  0xffffcc85, 0xffffcc05, 0xffffffff, 0xffffffff,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
-  0x33ffcc07, 0xffffffff, 0xffffffff, 0xffffffff };
+  0xffffcc85, 0xffffcc05, _NOT_USED_, _NOT_USED_,
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
+  0x33ffcc07, _NOT_USED_, _NOT_USED_, _NOT_USED_ };
 
-const uint edo_70ns[] =
+static const uint edo_70ns[] =
 { 0x8ffbcc24, 0x0ff3cc04, 0x0cf3cc04, 0x00f3cc04,
-  0x00f3cc00, 0x37f7cc47, 0xffffffff, 0xffffffff,
+  0x00f3cc00, 0x37f7cc47, _NOT_USED_, _NOT_USED_,
   0x8fffcc24, 0x0ffbcc04, 0x0cf3cc04, 0x00f3cc0c,
   0x03f3cc00, 0x00f3cc44, 0x00f3ec0c, 0x0cf3ec00,
   0x00f3ec4c, 0x03f3ec00, 0x00f3ec44, 0x00f3cc00,
-  0x33f7cc47, 0xffffffff, 0xffffffff, 0xffffffff,
+  0x33f7cc47, _NOT_USED_, _NOT_USED_, _NOT_USED_,
   0x8fffcc24, 0x0fefcc04, 0x0cafcc00, 0x11bfcc47,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
   0x8fffcc24, 0x0fefcc04, 0x0cafcc00, 0x03afcc4c,
   0x0cafcc00, 0x03afcc4c, 0x0cafcc00, 0x03afcc4c,
-  0x0cafcc00, 0x33bfcc47, 0xffffffff, 0xffffffff,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
+  0x0cafcc00, 0x33bfcc47, _NOT_USED_, _NOT_USED_,
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
   0xe0ffcc84, 0x00ffcc04, 0x00ffcc04, 0x0fffcc04,
-  0x7fffcc04, 0xffffcc86, 0xffffcc05, 0xffffffff,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
-  0x33ffcc07, 0xffffffff, 0xffffffff, 0xffffffff };
+  0x7fffcc04, 0xffffcc86, 0xffffcc05, _NOT_USED_,
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
+  0x33ffcc07, _NOT_USED_, _NOT_USED_, _NOT_USED_ };
 
 #elif defined(CONFIG_DRAM_25MHZ)
 
 /* 25MHz tables */
 
-const uint dram_60ns[] =
-{ 0x0fffcc04, 0x08ffcc00, 0x33ffcc47, 0xffffffff,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
+static const uint dram_60ns[] =
+{ 0x0fffcc04, 0x08ffcc00, 0x33ffcc47, _NOT_USED_,
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
   0x0fffcc24, 0x0fffcc04, 0x08ffcc00, 0x03ffcc4c,
   0x08ffcc00, 0x03ffcc4c, 0x08ffcc00, 0x03ffcc4c,
-  0x08ffcc00, 0x33ffcc47, 0xffffffff, 0xffffffff,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
-  0x0fafcc04, 0x08afcc00, 0x3fbfcc47, 0xffffffff,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
+  0x08ffcc00, 0x33ffcc47, _NOT_USED_, _NOT_USED_,
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
+  0x0fafcc04, 0x08afcc00, 0x3fbfcc47, _NOT_USED_,
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
   0x0fafcc04, 0x0cafcc00, 0x01afcc4c, 0x0cafcc00,
   0x01afcc4c, 0x0cafcc00, 0x01afcc4c, 0x0cafcc00,
-  0x31bfcc43, 0xffffffff, 0xffffffff, 0xffffffff,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
+  0x31bfcc43, _NOT_USED_, _NOT_USED_, _NOT_USED_,
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
   0x80ffcc84, 0x13ffcc04, 0xffffcc87, 0xffffcc05,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
-  0x33ffcc07, 0xffffffff, 0xffffffff, 0xffffffff };
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
+  0x33ffcc07, _NOT_USED_, _NOT_USED_, _NOT_USED_ };
 
-const uint dram_70ns[] =
+static const uint dram_70ns[] =
 { 0x0fffec04, 0x08ffec04, 0x00ffec00, 0x3fffcc47,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
   0x0fffcc24, 0x0fffcc04, 0x08ffcc00, 0x03ffcc4c,
   0x08ffcc00, 0x03ffcc4c, 0x08ffcc00, 0x03ffcc4c,
-  0x08ffcc00, 0x33ffcc47, 0xffffffff, 0xffffffff,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
-  0x0fafcc04, 0x08afcc00, 0x3fbfcc47, 0xffffffff,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
+  0x08ffcc00, 0x33ffcc47, _NOT_USED_, _NOT_USED_,
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
+  0x0fafcc04, 0x08afcc00, 0x3fbfcc47, _NOT_USED_,
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
   0x0fafcc04, 0x0cafcc00, 0x01afcc4c, 0x0cafcc00,
   0x01afcc4c, 0x0cafcc00, 0x01afcc4c, 0x0cafcc00,
-  0x31bfcc43, 0xffffffff, 0xffffffff, 0xffffffff,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
+  0x31bfcc43, _NOT_USED_, _NOT_USED_, _NOT_USED_,
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
   0xc0ffcc84, 0x01ffcc04, 0x7fffcc86, 0xffffcc05,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
-  0x33ffcc07, 0xffffffff, 0xffffffff, 0xffffffff };
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
+  0x33ffcc07, _NOT_USED_, _NOT_USED_, _NOT_USED_ };
 
-const uint edo_60ns[] =
+static const uint edo_60ns[] =
 { 0x0ffbcc04, 0x0cf3cc04, 0x00f3cc00, 0x33f7cc47,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
   0x0ffbcc04, 0x09f3cc0c, 0x09f3cc0c, 0x09f3cc0c,
-  0x08f3cc00, 0x3ff7cc47, 0xffffffff, 0xffffffff,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
+  0x08f3cc00, 0x3ff7cc47, _NOT_USED_, _NOT_USED_,
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
   0x0fefcc04, 0x08afcc04, 0x00afcc00, 0x3fbfcc47,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
   0x0fefcc04, 0x08afcc00, 0x07afcc48, 0x08afcc48,
-  0x08afcc48, 0x39bfcc47, 0xffffffff, 0xffffffff,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
+  0x08afcc48, 0x39bfcc47, _NOT_USED_, _NOT_USED_,
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
   0x80ffcc84, 0x13ffcc04, 0xffffcc87, 0xffffcc05,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
-  0x33ffcc07, 0xffffffff, 0xffffffff, 0xffffffff };
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
+  0x33ffcc07, _NOT_USED_, _NOT_USED_, _NOT_USED_ };
 
-const uint edo_70ns[] =
+static const uint edo_70ns[] =
 { 0x0ffbcc04, 0x0cf3cc04, 0x00f3cc00, 0x33f7cc47,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
   0x0ffbec04, 0x08f3ec04, 0x03f3ec48, 0x08f3cc00,
   0x0ff3cc4c, 0x08f3cc00, 0x0ff3cc4c, 0x08f3cc00,
-  0x3ff7cc47, 0xffffffff, 0xffffffff, 0xffffffff,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
+  0x3ff7cc47, _NOT_USED_, _NOT_USED_, _NOT_USED_,
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
   0x0fefcc04, 0x08afcc04, 0x00afcc00, 0x3fbfcc47,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
   0x0fefcc04, 0x08afcc00, 0x07afcc4c, 0x08afcc00,
   0x07afcc4c, 0x08afcc00, 0x07afcc4c, 0x08afcc00,
-  0x37bfcc47, 0xffffffff, 0xffffffff, 0xffffffff,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
+  0x37bfcc47, _NOT_USED_, _NOT_USED_, _NOT_USED_,
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
   0xc0ffcc84, 0x01ffcc04, 0x7fffcc86, 0xffffcc05,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
-  0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
-  0x33ffcc07, 0xffffffff, 0xffffffff, 0xffffffff };
-
-
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
+  _NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
+  0x33ffcc07, _NOT_USED_, _NOT_USED_, _NOT_USED_ };
 #else
-#error dram not correct defined - use CONFIG_DRAM_25MHZ or CONFIG_DRAM_50MHZ
+#error dram not correctly defined - use CONFIG_DRAM_25MHZ or CONFIG_DRAM_50MHZ
 #endif
 
 /* ------------------------------------------------------------------------- */
@@ -192,31 +190,11 @@ const uint edo_70ns[] =
  * Check Board Identity:
  */
 
-int checkboard (void)
+#if defined(CONFIG_FADS) && !defined(CONFIG_MPC86xADS)
+static void checkdboard(void)
 {
-	uint k;
-
-	puts ("Board: ");
-
-#ifdef CONFIG_FADS
-	k = (*((uint *)BCSR3) >> 24) & 0x3f;
-
-	switch(k) {
-	case 0x03 :
-	case 0x20 :
-	case 0x21 :
-	case 0x22 :
-	case 0x23 :
-	case 0x24 :
-	case 0x2a :
-	case 0x3f :
-		puts ("FADS");
-		break;
-
-	default :
-		printf("unknown board (0x%02x)\n", k);
-		return -1;
-	}
+	/* get db type from BCSR 3 */
+	uint k = (*((uint *)BCSR3) >> 24) & 0x3f;
 
 	printf(" with db ");
 
@@ -237,147 +215,202 @@ int checkboard (void)
 		puts ("MPC860SAR");
 		break;
 	case 0x24 :
+	case 0x2A :
 		puts ("MPC860T");
 		break;
-	case 0x3f :
+	case 0x3F :
 		puts ("MPC850SAR");
 		break;
+	default : printf("0x%x", k);
 	}
+}
+#endif	/* defined(CONFIG_FADS) && !defined(CONFIG_MPC86xADS) */
 
-	printf(" rev ");
+int checkboard (void)
+{
+	/* get revision from BCSR 3 */
+	uint r =  (((*((uint *) BCSR3) >> 23) & 1) << 3)
+		| (((*((uint *) BCSR3) >> 19) & 1) << 2)
+		| (((*((uint *) BCSR3) >> 16) & 3));
 
-	k = (((*((uint *)BCSR3) >> 23) & 1) << 3)
-	  | (((*((uint *)BCSR3) >> 19) & 1) << 2)
-	  | (((*((uint *)BCSR3) >> 16) & 3));
+	puts ("Board: ");
 
-	switch(k) {
-	case 0x01 :
-		puts ("ENG or PILOT\n");
+#ifdef CONFIG_FADS
+# ifdef CONFIG_MPC86xADS
+	puts ("MPC86xADS");
+# else
+	puts ("FADS");
+	checkdboard ();
+# endif	/* !CONFIG_MPC86xADS */
+	printf (" rev ");
+
+	switch (r) {
+	case 0x00:
+		puts ("ENG\n");
 		break;
-
+	case 0x01:
+		puts ("PILOT\n");
+		break;
 	default:
-		printf("unknown (0x%x)\n", k);
-		return -1;
+		printf ("unknown (0x%x)\n", r);
+		return (-1);
 	}
-
-	return 0;
 #endif	/* CONFIG_FADS */
 
 #ifdef CONFIG_ADS
-  printf("ADS rev ");
+	printf ("ADS rev ");
 
-  k = (((*((uint *)BCSR3) >> 23) & 1) << 3)
-    | (((*((uint *)BCSR3) >> 19) & 1) << 2)
-    | (((*((uint *)BCSR3) >> 16) & 3));
-
-  switch(k) {
-  case 0x00 : puts ("ENG - this board sucks, check the errata, not supported\n");
-	      return -1;
-  case 0x01 : puts ("PILOT - warning, read errata \n"); break;
-  case 0x02 : puts ("A - warning, read errata \n"); break;
-  case 0x03 : puts ("B \n"); break;
-  default   : printf ("unknown revision (0x%x)\n", k); return -1;
-  }
-
-  return 0;
+	switch (r) {
+	case 0x00:
+		puts ("ENG - this board sucks, check the errata, not supported\n");
+		return -1;
+	case 0x01:
+		puts ("PILOT - warning, read errata \n");
+		break;
+	case 0x02:
+		puts ("A - warning, read errata \n");
+		break;
+	case 0x03:
+		puts ("B \n");
+		break;
+	default:
+		printf ("unknown revision (0x%x)\n", r);
+		return (-1);
+	}
 #endif	/* CONFIG_ADS */
 
+	return 0;
 }
 
 /* ------------------------------------------------------------------------- */
-int _draminit(uint base, uint noMbytes, uint edo, uint delay)
+static long int dram_size (long int *base, long int maxsize)
 {
-	volatile immap_t     *immap = (immap_t *)CFG_IMMR;
+	volatile long int *addr=base;
+	ulong cnt, val;
+	ulong save[32];				/* to make test non-destructive */
+	unsigned char i = 0;
+
+	for (cnt = maxsize / sizeof (long); cnt > 0; cnt >>= 1) {
+		addr = base + cnt;		/* pointer arith! */
+
+		save[i++] = *addr;
+		*addr = ~cnt;
+	}
+
+	/* write 0 to base address */
+	addr = base;
+	save[i] = *addr;
+	*addr = 0;
+
+	/* check at base address */
+	if ((val = *addr) != 0) {
+		*addr = save[i];
+		return (0);
+	}
+
+	for (cnt = 1; cnt <= maxsize / sizeof (long); cnt <<= 1) {
+		addr = base + cnt;		/* pointer arith! */
+
+		val = *addr;
+		*addr = save[--i];
+
+		if (val != (~cnt)) {
+			return (cnt * sizeof (long));
+		}
+	}
+	return (maxsize);
+}
+
+/* ------------------------------------------------------------------------- */
+static int _draminit (uint base, uint noMbytes, uint edo, uint delay)
+{
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 
 	/* init upm */
 
-	switch(delay)
-	{
-		case 70:
-		{
-			if(edo)
-			{
-				upmconfig(UPMA, (uint *) edo_70ns, sizeof(edo_70ns)/sizeof(uint));
-			}
-			else
-			{
-				upmconfig(UPMA, (uint *) dram_70ns, sizeof(dram_70ns)/sizeof(uint));
-			}
-
-			break;
+	switch (delay) {
+	case 70:
+		if (edo) {
+			upmconfig (UPMA, (uint *) edo_70ns,
+				   sizeof (edo_70ns) / sizeof (uint));
+		} else {
+			upmconfig (UPMA, (uint *) dram_70ns,
+				   sizeof (dram_70ns) / sizeof (uint));
 		}
 
-		case 60:
-		{
-			if(edo)
-			{
-				upmconfig(UPMA, (uint *) edo_60ns, sizeof(edo_60ns)/sizeof(uint));
-			}
-			else
-			{
-				upmconfig(UPMA, (uint *) dram_60ns, sizeof(dram_60ns)/sizeof(uint));
-			}
+		break;
 
-			break;
+	case 60:
+		if (edo) {
+			upmconfig (UPMA, (uint *) edo_60ns,
+				   sizeof (edo_60ns) / sizeof (uint));
+		} else {
+			upmconfig (UPMA, (uint *) dram_60ns,
+				   sizeof (dram_60ns) / sizeof (uint));
 		}
 
-		default :
-			return -1;
+		break;
+
+	default:
+		return -1;
 	}
 
-	memctl->memc_mptpr = 0x0400; /* divide by 16 */
+	memctl->memc_mptpr = 0x0400;	/* divide by 16 */
 
-	switch(noMbytes)
-	{
+	switch (noMbytes) {
+	case 4:				/* 4 Mbyte uses only CS2 */
+		memctl->memc_mamr = 0x13a01114;	/* PTA 0x13 AMA 010 */
+		memctl->memc_or2 = 0xffc00800;	/* 4M */
+		break;
 
-		case 8:  /* 8 Mbyte uses both CS3 and CS2 */
-		{
-			memctl->memc_mamr = 0x13a01114;
-			memctl->memc_or3 = 0xffc00800;
-			memctl->memc_br3 = 0x00400081 + base;
-			memctl->memc_or2 = 0xffc00800;
-			break;
-		}
+	case 8:				/* 8 Mbyte uses both CS3 and CS2 */
+		memctl->memc_mamr = 0x13a01114;	/* PTA 0x13 AMA 010 */
+		memctl->memc_or3 = 0xffc00800;	/* 4M */
+		memctl->memc_br3 = 0x00400081 + base;
+		memctl->memc_or2 = 0xffc00800;	/* 4M */
+		break;
 
-		case 4: /* 4 Mbyte uses only CS2 */
-		{
-			memctl->memc_mamr = 0x13a01114;
-			memctl->memc_or2 = 0xffc00800;
-			break;
-		}
-
-		case 32: /* 32 Mbyte uses both CS3 and CS2 */
-		{
-			memctl->memc_mamr = 0x13b01114;
-			memctl->memc_or3 = 0xff000800;
-			memctl->memc_br3 = 0x01000081 + base;
-			memctl->memc_or2 = 0xff000800;
-			break;
-		}
-
-		case 16: /* 16 Mbyte uses only CS2 */
-		{
-#ifdef CONFIG_ADS
-			memctl->memc_mamr = 0x60b21114;
+	case 16:			/* 16 Mbyte uses only CS2 */
+#ifdef CONFIG_ADS	/* XXX: why PTA=0x60 only in 16M case? - NTL */
+		memctl->memc_mamr = 0x60b21114;	/* PTA 0x60 AMA 011 */
 #else
-			memctl->memc_mamr = 0x13b01114;
+		memctl->memc_mamr = 0x13b01114;	/* PTA 0x13 AMA 011 */
 #endif
-			memctl->memc_or2 = 0xff000800;
-			break;
-		}
+		memctl->memc_or2 = 0xff000800;	/* 16M */
+		break;
 
-		default:
-		    return -1;
+	case 32:			/* 32 Mbyte uses both CS3 and CS2 */
+		memctl->memc_mamr = 0x13b01114;	/* PTA 0x13 AMA 011 */
+		memctl->memc_or3 = 0xff000800;	/* 16M */
+		memctl->memc_br3 = 0x01000081 + base;
+		memctl->memc_or2 = 0xff000800;	/* 16M */
+		break;
+
+	default:
+		return -1;
 	}
 
-	memctl->memc_br2 = 0x81 + base;     /* use upma */
+	memctl->memc_br2 = 0x81 + base;	/* use upma */
+
+	/* if no dimm is inserted, noMbytes is still detected as 8m, so
+	 * sanity check top and bottom of memory */
+
+	*((uint *) BCSR1) &= ~BCSR1_DRAM_EN;	/* enable dram */
+
+	/* check bytes / 2 because dram_size tests at base+bytes, which
+	 * is not mapped */
+	if (dram_size ((long *) base, noMbytes << 19) != noMbytes << 19) {
+		*((uint *) BCSR1) |= BCSR1_DRAM_EN;	/* disable dram */
+		return -1;
+	}
+
 	return 0;
 }
 
 /* ------------------------------------------------------------------------- */
 
-void _dramdisable(void)
+static void _dramdisable(void)
 {
 	volatile immap_t     *immap = (immap_t *)CFG_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
@@ -387,6 +420,9 @@ void _dramdisable(void)
 
 	/* maybe we should turn off upma here or something */
 }
+
+#ifdef CONFIG_FADS
+/* SDRAM SUPPORT (FADS ONLY) */
 
 #if defined(CONFIG_SDRAM_100MHZ)
 
@@ -398,49 +434,49 @@ void _dramdisable(void)
  * work at all processor speeds.
  */
 
-#define SDRAM_MPTPRVALUE 0x0400
-
-#define SDRAM_MBMRVALUE0 0xc3802114  /* (16-14) 50 MHz */
+#ifdef SDRAM_ALT_INIT_SEQENCE
+# define SDRAM_MBMRVALUE0 0xc3802114 /* PTx=195,PTxE,AMx=0,DSx=1,A11,RLFx=1,WLFx=1,TLFx=4 */
 #define SDRAM_MBMRVALUE1 SDRAM_MBMRVALUE0
+# define SDRAM_MCRVALUE0  0x80808111   /* run upmb cs4 loop 1 addr 0x11 MRS */
+# define SDRAM_MCRVALUE1  SDRAM_MCRVALUE0  /* ??? why not 0x80808130? */
+#else
+# define SDRAM_MxMR_PTx         195
+# define UPM_MRS_ADDR           0x11
+# define UPM_REFRESH_ADDR       0x30    /* or 0x11 if we want to be like above? */
+#endif /* !SDRAM_ALT_INIT_SEQUENCE */
 
-#define SDRAM_OR4VALUE   0xffc00a00
-#define SDRAM_BR4VALUE   0x000000c1   /* base address will be or:ed on */
-
-#define SDRAM_MARVALUE   0x88
-
-#define SDRAM_MCRVALUE0  0x80808111   /* run pattern 0x11 */
-#define SDRAM_MCRVALUE1  SDRAM_MCRVALUE0
-
-
-const uint sdram_table[] =
+static const uint sdram_table[] =
 {
 	/* single read. (offset 0 in upm RAM) */
 	0xefebfc24, 0x1f07fc24, 0xeeaefc04, 0x11adfc04,
-	0xefbbbc00, 0x1ff77c45, 0xffffffff, 0xffffffff,
+	0xefbbbc00, 0x1ff77c45, _NOT_USED_, _NOT_USED_,
 
 	/* burst read. (offset 8 in upm RAM) */
 	0xefebfc24, 0x1f07fc24, 0xeeaefc04, 0x10adfc04,
 	0xf0affc00, 0xf0affc00, 0xf1affc00, 0xefbbbc00,
-	0x1ff77c45, 0xeffbbc04, 0x1ff77c34, 0xefeabc34,
-	0x1fb57c35, 0xffffffff, 0xffffffff, 0xffffffff,
+	0x1ff77c45,
+
+	/* precharge + MRS. (offset 11 in upm RAM) */
+	0xeffbbc04, 0x1ff77c34, 0xefeabc34,
+	0x1fb57c35, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 
 	/* single write. (offset 18 in upm RAM) */
 	0xefebfc24, 0x1f07fc24, 0xeeaebc00, 0x01b93c04,
-	0x1ff77c45, 0xffffffff, 0xffffffff, 0xffffffff,
+	0x1ff77c45, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 
 	/* burst write. (offset 20 in upm RAM) */
 	0xefebfc24, 0x1f07fc24, 0xeeaebc00, 0x10ad7c00,
 	0xf0affc00, 0xf0affc00, 0xe1bbbc04, 0x1ff77c45,
-	0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
-	0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
+	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
+	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 
 	/* refresh. (offset 30 in upm RAM) */
 	0xeffafc84, 0x1ff5fc04, 0xfffffc04, 0xfffffc04,
-	0xfffffc84, 0xfffffc07, 0xffffffff, 0xffffffff,
-	0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
+	0xfffffc84, 0xfffffc07, _NOT_USED_, _NOT_USED_,
+	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 
 	/* exception. (offset 3c in upm RAM) */
-	0xeffffc06, 0x1ffffc07, 0xffffffff, 0xffffffff };
+	0xeffffc06, 0x1ffffc07, _NOT_USED_, _NOT_USED_ };
 
 #elif defined(CONFIG_SDRAM_50MHZ)
 
@@ -449,70 +485,73 @@ const uint sdram_table[] =
 /* for chip MB811171622A-100                                                 */
 
 /* this table is for 32-50MHz operation */
-
-#define _not_used_ 0xffffffff
-
-#define SDRAM_MPTPRVALUE 0x0400
-
-#define SDRAM_MBMRVALUE0 0x80802114   /* refresh at 32MHz */
-#define SDRAM_MBMRVALUE1 0x80802118
-
-#define SDRAM_OR4VALUE   0xffc00a00
-#define SDRAM_BR4VALUE   0x000000c1   /* base address will be or:ed on */
-
+#ifdef SDRAM_ALT_INIT_SEQENCE
+# define SDRAM_MBMRVALUE0 0x80802114   /* PTx=128,PTxE,AMx=0,DSx=1,A11,RLFx=1,WLFx=1,TLFx=4 */
+# define SDRAM_MBMRVALUE1 0x80802118   /* PTx=128,PTxE,AMx=0,DSx=1,A11,RLFx=1,WLFx=1,TLFx=8 */
+# define SDRAM_MCRVALUE0  0x80808105   /* run upmb cs4 loop 1 addr 0x5 MRS */
+# define SDRAM_MCRVALUE1  0x80808130   /* run upmb cs4 loop 1 addr 0x30 REFRESH */
+# define SDRAM_MPTRVALUE  0x400
 #define SDRAM_MARVALUE   0x88
+#else
+# define SDRAM_MxMR_PTx         128
+# define UPM_MRS_ADDR           0x5
+# define UPM_REFRESH_ADDR       0x30
+#endif  /* !SDRAM_ALT_INIT_SEQUENCE */
 
-#define SDRAM_MCRVALUE0  0x80808105
-#define SDRAM_MCRVALUE1  0x80808130
-
-const uint sdram_table[] =
+static const uint sdram_table[] =
 {
 	/* single read. (offset 0 in upm RAM) */
 	0x1f07fc04, 0xeeaefc04, 0x11adfc04, 0xefbbbc00,
 	0x1ff77c47,
 
-	/* MRS initialization (offset 5) */
-
+	/* precharge + MRS. (offset 5 in upm RAM) */
 	0x1ff77c34, 0xefeabc34, 0x1fb57c35,
 
 	/* burst read. (offset 8 in upm RAM) */
 	0x1f07fc04, 0xeeaefc04, 0x10adfc04, 0xf0affc00,
 	0xf0affc00, 0xf1affc00, 0xefbbbc00, 0x1ff77c47,
-	_not_used_, _not_used_, _not_used_, _not_used_,
-	_not_used_, _not_used_, _not_used_, _not_used_,
+	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
+	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 
 	/* single write. (offset 18 in upm RAM) */
 	0x1f27fc04, 0xeeaebc00, 0x01b93c04, 0x1ff77c47,
-	_not_used_, _not_used_, _not_used_, _not_used_,
+	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 
 	/* burst write. (offset 20 in upm RAM) */
 	0x1f07fc04, 0xeeaebc00, 0x10ad7c00, 0xf0affc00,
-	0xf0affc00, 0xe1bbbc04, 0x1ff77c47, _not_used_,
-	_not_used_, _not_used_, _not_used_, _not_used_,
-	_not_used_, _not_used_, _not_used_, _not_used_,
+	0xf0affc00, 0xe1bbbc04, 0x1ff77c47, _NOT_USED_,
+	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
+	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 
 	/* refresh. (offset 30 in upm RAM) */
 	0x1ff5fc84, 0xfffffc04, 0xfffffc04, 0xfffffc04,
-	0xfffffc84, 0xfffffc07, _not_used_, _not_used_,
-	_not_used_, _not_used_, _not_used_, _not_used_,
+	0xfffffc84, 0xfffffc07, _NOT_USED_, _NOT_USED_,
+	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 
 	/* exception. (offset 3c in upm RAM) */
-	0x7ffffc07, _not_used_, _not_used_, _not_used_ };
+	0x7ffffc07, _NOT_USED_, _NOT_USED_, _NOT_USED_ };
 
 /* ------------------------------------------------------------------------- */
 #else
 #error SDRAM not correctly configured
 #endif
+/* ------------------------------------------------------------------------- */
 
-int _initsdram(uint base, uint noMbytes)
+/*
+ * Memory Periodic Timer Prescaler
+ */
+
+#define SDRAM_OR4VALUE   0x00000a00 /* SAM,GL5A/S=01,addr mask or'ed on later */
+#define SDRAM_BR4VALUE   0x000000c1 /* UPMB,base addr or'ed on later */
+
+/* ------------------------------------------------------------------------- */
+#ifdef SDRAM_ALT_INIT_SEQENCE
+/* ------------------------------------------------------------------------- */
+
+static int _initsdram(uint base, uint noMbytes)
 {
 	volatile immap_t     *immap = (immap_t *)CFG_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
-
-	if(noMbytes != 4)
-	{
-		return -1;
-	}
 
 	upmconfig(UPMB, (uint *)sdram_table,sizeof(sdram_table)/sizeof(uint));
 
@@ -529,7 +568,7 @@ int _initsdram(uint base, uint noMbytes)
 	* UPM registers after we ask it to run these commands.
 	*/
 
-	memctl->memc_mbmr = SDRAM_MBMRVALUE0;
+	memctl->memc_mbmr = SDRAM_MBMRVALUE0;   /* TLF 4 */
 	memctl->memc_mar = SDRAM_MARVALUE;  /* MRS code */
 
 	udelay(200);
@@ -537,32 +576,120 @@ int _initsdram(uint base, uint noMbytes)
 	/* Now run the precharge/nop/mrs commands.
 	*/
 
-	memctl->memc_mcr = 0x80808111;   /* run pattern 0x11 */
-
+	memctl->memc_mcr = 0x80808111;   /* run umpb cs4 1 count 1, addr 0x11 ??? (50Mhz) */
+	                                 /* run umpb cs4 1 count 1, addr 0x11 precharge+MRS (100Mhz) */
 	udelay(200);
 
 	/* Run 8 refresh cycles */
 
-	memctl->memc_mcr = SDRAM_MCRVALUE0;
+	memctl->memc_mcr = SDRAM_MCRVALUE0; /* run upmb cs4 loop 1 addr 0x5 precharge+MRS (50 Mhz)*/
+					    /* run upmb cs4 loop 1 addr 0x11 precharge+MRS (100MHz) */
 
 	udelay(200);
 
-	memctl->memc_mbmr = SDRAM_MBMRVALUE1;
-	memctl->memc_mcr = SDRAM_MCRVALUE1;
+	memctl->memc_mbmr = SDRAM_MBMRVALUE1; /* TLF 4 (100 Mhz) or TLF 8 (50MHz) */
+	memctl->memc_mcr = SDRAM_MCRVALUE1; /* run upmb cs4 loop 1 addr 0x30 refr (50 Mhz) */
+					    /* run upmb cs4 loop 1 addr 0x11 precharge+MRS ??? (100MHz) */
 
 	udelay(200);
 
-	memctl->memc_mbmr = SDRAM_MBMRVALUE0;
+	memctl->memc_mbmr = SDRAM_MBMRVALUE0;   /* TLF 4 */
 
-	memctl->memc_or4 = SDRAM_OR4VALUE;
+	memctl->memc_or4 = SDRAM_OR4VALUE | ~((noMbytes<<20)-1);
 	memctl->memc_br4 = SDRAM_BR4VALUE | base;
 
 	return 0;
 }
 
 /* ------------------------------------------------------------------------- */
+#else  /* !SDRAM_ALT_INIT_SEQUENCE */
+/* ------------------------------------------------------------------------- */
 
-void _sdramdisable(void)
+/* refresh rate 15.6 us (= 64 ms / 4K = 62.4 / quad bursts) for <= 128 MBit     */
+# define MPTPR_2BK_4K        MPTPR_PTP_DIV16         /* setting for 2 banks  */
+# define MPTPR_1BK_4K        MPTPR_PTP_DIV32         /* setting for 1 bank   */
+
+/* refresh rate 7.8 us (= 64 ms / 8K = 31.2 / quad bursts) for 256 MBit         */
+# define MPTPR_2BK_8K        MPTPR_PTP_DIV8          /* setting for 2 banks  */
+# define MPTPR_1BK_8K        MPTPR_PTP_DIV16         /* setting for 1 bank   */
+
+/*
+ * MxMR settings for SDRAM
+ */
+
+/* 8 column SDRAM */
+# define SDRAM_MxMR_8COL ((SDRAM_MxMR_PTx << MBMR_PTB_SHIFT)  | MBMR_PTBE  |   \
+			MBMR_AMB_TYPE_0 | MBMR_DSB_1_CYCL | MBMR_G0CLB_A11 |   \
+			MBMR_RLFB_1X    | MBMR_WLFB_1X    | MBMR_TLFB_4X)
+/* 9 column SDRAM */
+# define SDRAM_MxMR_9COL ((SDRAM_MxMR_PTx << MBMR_PTB_SHIFT)  | MBMR_PTAE  |   \
+			MBMR_AMB_TYPE_1 | MBMR_DSB_1_CYCL | MBMR_G0CLB_A10 |   \
+			MBMR_RLFB_1X    | MBMR_WLFB_1X    | MBMR_TLFB_4X)
+
+static int _initsdram(uint base, uint noMbytes)
+{
+	volatile immap_t     *immap = (immap_t *)CFG_IMMR;
+	volatile memctl8xx_t *memctl = &immap->im_memctl;
+
+	upmconfig(UPMB, (uint *)sdram_table,sizeof(sdram_table)/sizeof(uint));
+
+	memctl->memc_mptpr = MPTPR_2BK_4K;
+	memctl->memc_mbmr  = SDRAM_MxMR_8COL & (~(MBMR_PTBE)); /* no refresh yet */
+
+	/* map CS 4 */
+	memctl->memc_or4 = SDRAM_OR4VALUE | ~((noMbytes<<20)-1);
+	memctl->memc_br4 = SDRAM_BR4VALUE | base;
+
+	/* Perform SDRAM initilization */
+# ifdef UPM_NOP_ADDR    /* not currently in UPM table */
+	/* step 1: nop */
+	memctl->memc_mar = 0x00000000;
+	memctl->memc_mcr = MCR_UPM_B | MCR_OP_RUN | MCR_MB_CS4 |
+			   MCR_MLCF(0) | UPM_NOP_ADDR;
+# endif
+
+	/* step 2: delay */
+	udelay(200);
+
+# ifdef UPM_PRECHARGE_ADDR /* merged with MRS in UPM table */
+	/* step 3: precharge */
+	memctl->memc_mar = 0x00000000;
+	memctl->memc_mcr = MCR_UPM_B | MCR_OP_RUN | MCR_MB_CS4 |
+			   MCR_MLCF(4) | UPM_PRECHARGE_ADDR;
+# endif
+
+	/* step 4: refresh */
+	memctl->memc_mar = 0x00000000;
+	memctl->memc_mcr = MCR_UPM_B | MCR_OP_RUN | MCR_MB_CS4 |
+			   MCR_MLCF(2) | UPM_REFRESH_ADDR;
+
+	/*
+	 * note: for some reason, the UPM values we are using include
+	 * precharge with MRS
+	 */
+
+	/* step 5: mrs */
+	memctl->memc_mar = 0x00000088;
+	memctl->memc_mcr = MCR_UPM_B | MCR_OP_RUN | MCR_MB_CS4 |
+			   MCR_MLCF(1) | UPM_MRS_ADDR;
+
+# ifdef UPM_NOP_ADDR
+	memctl->memc_mar = 0x00000000;
+	memctl->memc_mcr = MCR_UPM_B | MCR_OP_RUN | MCR_MB_CS4 |
+			   MCR_MLCF(0) | UPM_NOP_ADDR;
+# endif
+	/*
+	 * Enable refresh
+	 */
+
+	memctl->memc_mbmr |= MBMR_PTBE;
+	return 0;
+}
+#endif  /* !SDRAM_ALT_INIT_SEQUENCE */
+
+/* ------------------------------------------------------------------------- */
+
+static void _sdramdisable(void)
 {
 	volatile immap_t     *immap = (immap_t *)CFG_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
@@ -574,17 +701,16 @@ void _sdramdisable(void)
 
 /* ------------------------------------------------------------------------- */
 
-int initsdram(uint base, uint *noMbytes)
+static int initsdram(uint base, uint *noMbytes)
 {
-	uint m = 4;
+	uint m = CFG_SDRAM_SIZE>>20;
 
+	/* _initsdram needs access to sdram */
 	*((uint *)BCSR1) |= BCSR1_SDRAM_EN; /* enable sdram */
-								  /* _fads_sdraminit needs access to sdram */
-	*noMbytes = m;
 
 	if(!_initsdram(base, m))
 	{
-
+	        *noMbytes += m;
 		return 0;
 	}
 	else
@@ -597,101 +723,85 @@ int initsdram(uint base, uint *noMbytes)
 	}
 }
 
+/* SDRAM SUPPORT (FADS ONLY) */
+#endif /* CONFIG_FADS */
+
 long int initdram (int board_type)
 {
-#ifdef CONFIG_ADS
-	/* ADS: has no SDRAM, so start DRAM at 0 */
-	uint base = (unsigned long)0x0;
-#else
-	/* FADS: has 4MB SDRAM, put DRAM above it */
-	uint base = (unsigned long)0x00400000;
+	uint sdramsz = 0;	/* size of sdram in Mbytes */
+	uint base = 0;		/* base of dram in bytes */
+	uint m = 0;		/* size of dram in Mbytes */
+	uint k, s;
+
+#ifdef CONFIG_FADS
+	if (!initsdram (0x00000000, &sdramsz)) {
+		base = sdramsz << 20;
+		printf ("(%u MB SDRAM) ", sdramsz);
+	}
 #endif
-	uint k, m, s;
 
-	k = (*((uint *)BCSR2) >> 23) & 0x0f;
+	k = (*((uint *) BCSR2) >> 23) & 0x0f;
 
-	m = 0;
-
-	switch(k & 0x3)
-	{
+	switch (k & 0x3) {
 		/* "MCM36100 / MT8D132X" */
-		case 0x00 :
-			m = 4;
-			break;
+	case 0x00:
+		m = 4;
+		break;
 
 		/* "MCM36800 / MT16D832X" */
-		case 0x01 :
-			m = 32;
-			break;
+	case 0x01:
+		m = 32;
+		break;
 		/* "MCM36400 / MT8D432X" */
-		case 0x02 :
-			m = 16;
-			break;
+	case 0x02:
+		m = 16;
+		break;
 		/* "MCM36200 / MT16D832X ?" */
-		case 0x03 :
-			m = 8;
-			break;
+	case 0x03:
+		m = 8;
+		break;
 
 	}
 
-	switch(k >> 2)
-	{
-		case 0x02 :
-			k = 70;
-			break;
+	switch (k >> 2) {
+	case 0x02:
+		k = 70;
+		break;
 
-		case 0x03 :
-			k = 60;
-			break;
+	case 0x03:
+		k = 60;
+		break;
 
-		default :
-			printf("unknown dramdelay (0x%x) - defaulting to 70 ns", k);
-			k = 70;
+	default:
+		printf ("unknown dramdelay (0x%x) - defaulting to 70 ns", k);
+		k = 70;
 	}
 
 #ifdef CONFIG_FADS
 	/* the FADS is missing this bit, all rams treated as non-edo */
 	s = 0;
 #else
-	s = (*((uint *)BCSR2) >> 27) & 0x01;
+	s = (*((uint *) BCSR2) >> 27) & 0x01;
 #endif
 
-	if(!_draminit(base, m, s, k))
-	{
-#ifdef CONFIG_FADS
-		uint	sdramsz;
-#endif
-		*((uint *)BCSR1) &= ~BCSR1_DRAM_EN;  /* enable dram */
-
-#ifdef CONFIG_FADS
-		if (!initsdram(0x00000000, &sdramsz)) {
-				m += sdramsz;
-				printf("(%u MB SDRAM) ", sdramsz);
-		} else {
-				_dramdisable();
-
-				/********************************
-				*DRAM ERROR, HALT PROCESSOR
-				*********************************/
-				while(1);
-
-				return -1;
-		}
-#endif
-
-		return (m << 20);
+	if (!_draminit (base, m, s, k)) {
+		printf ("%dM %dns %sDRAM: ", m, k, s ? "EDO " : "");
+	} else {
+		_dramdisable ();
+		m = 0;
 	}
-	else
-	{
-		_dramdisable();
 
+	m += sdramsz;				/* add sdram size to total */
+
+	if (!m) {
 		/********************************
 		*DRAM ERROR, HALT PROCESSOR
 		*********************************/
-		while(1);
-
+		while (1);
 		return -1;
 	}
+
+	return (m << 20);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -744,8 +854,7 @@ int pcmcia_init(void)
 	slota = (pcmp->pcmc_pipr & 0x18000000) == 0 ;
 	slotb = (pcmp->pcmc_pipr & 0x00001800) == 0 ;
 
-	if (!(slota || slotb))
-	{
+	if (!(slota || slotb)) {
 		printf("No card present\n");
 #ifdef PCMCIA_SLOT_A
 		pcmp->pcmc_pgcra = 0;
@@ -766,61 +875,61 @@ int pcmcia_init(void)
 	**	   my FADS... :-)
 	*/
 
-#if defined(CONFIG_MPC860)
-	switch( (pcmp->pcmc_pipr >> 30) & 3 )
+#if defined(CONFIG_MPC86x)
+	switch ((pcmp->pcmc_pipr >> 30) & 3)
 #elif defined(CONFIG_MPC823) || defined(CONFIG_MPC850)
-	switch( (pcmp->pcmc_pipr >> 14) & 3 )
+	switch ((pcmp->pcmc_pipr >> 14) & 3)
 #endif
 	{
-		case 0x00 :
-			printf("5V");
-			v = 5;
-			break;
-		case 0x01 :
-			printf("5V and 3V");
+	case 0x00 :
+		printf("5V");
+		v = 5;
+		break;
+	case 0x01 :
+		printf("5V and 3V");
 #ifdef CONFIG_FADS
-			v = 3; /* User lower voltage if supported! */
+		v = 3; /* User lower voltage if supported! */
 #else
-			v = 5;
+		v = 5;
 #endif
-			break;
-		case 0x03 :
-			printf("5V, 3V and x.xV");
+		break;
+	case 0x03 :
+		printf("5V, 3V and x.xV");
 #ifdef CONFIG_FADS
-			v = 3; /* User lower voltage if supported! */
+		v = 3; /* User lower voltage if supported! */
 #else
-			v = 5;
+		v = 5;
 #endif
-			break;
+		break;
 	}
 
-	switch(v){
+	switch (v) {
 #ifdef CONFIG_FADS
 	case 3:
-	    printf("; using 3V");
-	    /*
-	    ** Enable 3 volt Vcc.
-	    */
-	    *((uint *)BCSR1) &= ~BCSR1_PCCVCC1;
-	    *((uint *)BCSR1) |= BCSR1_PCCVCC0;
-	    break;
+		printf("; using 3V");
+		/*
+		** Enable 3 volt Vcc.
+		*/
+		*((uint *)BCSR1) &= ~BCSR1_PCCVCC1;
+		*((uint *)BCSR1) |= BCSR1_PCCVCC0;
+		break;
 #endif
 	case 5:
-	    printf("; using 5V");
+		printf("; using 5V");
 #ifdef CONFIG_ADS
-	    /*
-	    ** Enable 5 volt Vcc.
-	    */
-	    *((uint *)BCSR1) &= ~BCSR1_PCCVCCON;
+		/*
+		** Enable 5 volt Vcc.
+		*/
+		*((uint *)BCSR1) &= ~BCSR1_PCCVCCON;
 #endif
 #ifdef CONFIG_FADS
-	    /*
-	    ** Enable 5 volt Vcc.
-	    */
-	    *((uint *)BCSR1) &= ~BCSR1_PCCVCC0;
-	    *((uint *)BCSR1) |= BCSR1_PCCVCC1;
+		/*
+		** Enable 5 volt Vcc.
+		*/
+		*((uint *)BCSR1) &= ~BCSR1_PCCVCC0;
+		*((uint *)BCSR1) |= BCSR1_PCCVCC1;
 #endif
-	    break;
+		break;
 
 	default:
 		*((uint *)BCSR1) |= BCSR1_PCCEN;  /* disable pcmcia */
@@ -833,9 +942,9 @@ int pcmcia_init(void)
 
 	udelay(20);
 
-#ifdef MPC860
+#ifdef PCMCIA_SLOT_A
 	pcmp->pcmc_pgcra = 0;
-#elif MPC823
+#elif PCMCIA_SLOT_B
 	pcmp->pcmc_pgcrb = 0;
 #endif
 

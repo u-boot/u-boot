@@ -130,8 +130,8 @@ CPM_CR_CH_SCC4 };
 			~(SCC_GSMRL_ENR | SCC_GSMRL_ENT);
 
 #if defined(CONFIG_FADS)
-#if defined(CONFIG_MPC860T)
-	/* The FADS860T doesn't use the MODEM_EN or DATA_VOICE signals. */
+#if defined(CONFIG_MPC860T) || defined(CONFIG_MPC86xADS)
+	/* The FADS860T and MPC86xADS don't use the MODEM_EN or DATA_VOICE signals. */
 	*((uint *) BCSR4) &= ~BCSR4_ETHLOOP;
 	*((uint *) BCSR4) |= BCSR4_TFPLDL | BCSR4_TPSQEL;
 	*((uint *) BCSR1) &= ~BCSR1_ETHEN;

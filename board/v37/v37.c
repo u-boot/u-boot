@@ -140,7 +140,7 @@ long int initdram (int board_type)
     memctl->memc_br3 = CFG_BR3_CAN;
 
     /* Initialize MBMR */
-    memctl->memc_mamr = MAMR_GPL_B4DIS;	/* GPL_B4 ouput line Disable */
+    memctl->memc_mamr = MAMR_GPL_A4DIS;	/* GPL_A4 ouput line Disable */
 
     /* Initialize UPMB for CAN: single read */
     memctl->memc_mdr = 0xFFFFC004;

@@ -57,7 +57,6 @@ SECTIONS
     /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
     cpu/mpc8xx/start.o		(.text)
-    cpu/mpc8xx/speed.o		(.text)
     common/dlmalloc.o		(.text)
     lib_ppc/ppcstring.o		(.text)
     lib_generic/vsprintf.o	(.text)
@@ -67,7 +66,6 @@ SECTIONS
     lib_generic/string.o	(.text)
     lib_ppc/extable.o		(.text)
     lib_ppc/kgdb.o		(.text)
-/*  lib_ppc/ticks.o		(.text) */
 
   . = env_offset;
     common/environment.o(.text)

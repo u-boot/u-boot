@@ -507,6 +507,9 @@ mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char *argv[])
 				if(i2c_write(chip, addr, alen, (char *)&data, size) != 0) {
 					printf("Error writing the chip.\n");
 				}
+#ifdef CFG_EEPROM_PAGE_WRITE_DELAY_MS
+				udelay(CFG_EEPROM_PAGE_WRITE_DELAY_MS * 1000);
+#endif
 				if (incrflag)
 					addr += size;
 			}

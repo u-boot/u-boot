@@ -334,7 +334,11 @@ void timer_interrupt (struct pt_regs *regs)
 	/* Reset Timer Expired and Timers Interrupt Status */
 	immr->im_clkrstk.cark_plprcrk = KAPWR_KEY;
 	__asm__ ("nop");
+#ifdef CONFIG_MPC866_et_al
+	immr->im_clkrst.car_plprcr |= PLPRCR_TEXPS;
+#else
 	immr->im_clkrst.car_plprcr |= PLPRCR_TEXPS | PLPRCR_TMIST;
+#endif
 	/* Restore Decrementer Count */
 	set_dec (decrementer_count);
 

@@ -42,12 +42,23 @@
 static char *cpu_warning = "\n         " \
 	"*** Warning: CPU Core has Silicon Bugs -- Check the Errata ***";
 
-#if ((defined(CONFIG_MPC860) || defined(CONFIG_MPC855)) && \
+#if ((defined(CONFIG_MPC86x) || defined(CONFIG_MPC855)) && \
      !defined(CONFIG_MPC862))
-# ifdef CONFIG_MPC855
+
+# if defined(CONFIG_MPC855)
 #  define	ID_STR	"PC855"
+# elif defined(CONFIG_MPC852T)
+#  define	ID_STR	"PC852T"
+# elif defined(CONFIG_MPC859T)
+#  define	ID_STR	"PC859T"
+# elif defined(CONFIG_MPC859DSL)
+#  define	ID_STR	"PC859DSL"
+# elif defined(CONFIG_MPC860P)
+#  define	ID_STR	"PC860P"
+# elif defined(CONFIG_MPC866T)
+#  define	ID_STR	"PC866T"
 # else
-#  define	ID_STR	"PC860"
+#  define	ID_STR	"PC86x"	/* unknown 86x chip */
 # endif
 
 static int check_CPU (long clock, uint pvr, uint immr)
@@ -68,6 +79,10 @@ static int check_CPU (long clock, uint pvr, uint immr)
 	m = 0;
 
 	switch (k) {
+#ifdef CONFIG_MPC866_et_al
+                /* MPC866P/MPC866T/MPC859T/MPC859DSL/MPC852T */
+	case 0x08000003: pre = 'M'; suf = ""; m = 1; break;
+#else
 	case 0x00020001: pre = 'p'; suf = ""; break;
 	case 0x00030001: suf = ""; break;
 	case 0x00120003: suf = "A"; break;
@@ -76,17 +91,16 @@ static int check_CPU (long clock, uint pvr, uint immr)
 	case 0x00200004: suf = "B"; break;
 
 	case 0x00300004: suf = "C"; break;
-	case 0x00310004: suf = "C1"; m = 1;
-		break;
+	case 0x00310004: suf = "C1"; m = 1; break;
 
 	case 0x00200064: mid = "SR"; suf = "B"; break;
 	case 0x00300065: mid = "SR"; suf = "C"; break;
 	case 0x00310065: mid = "SR"; suf = "C1"; m = 1; break;
 	case 0x05010000: suf = "D3"; m = 1; break;
 	case 0x05020000: suf = "D4"; m = 1; break;
-
 		/* this value is not documented anywhere */
 	case 0x40000000: pre = 'P'; suf = "D"; m = 1; break;
+#endif
 
 	default: suf = NULL; break;
 	}
@@ -101,7 +115,7 @@ static int check_CPU (long clock, uint pvr, uint immr)
 	printf (" %u kB I-Cache", checkicache () >> 10);
 	printf (" %u kB D-Cache", checkdcache () >> 10);
 
-	/* lets check and see if we're running on a 860T (or P?) */
+	/* do we have a FEC (860T/P or 852/859/866)? */
 
 	immap->im_cpm.cp_fec.fec_addr_low = 0x12345678;
 	if (immap->im_cpm.cp_fec.fec_addr_low == 0x12345678) {
@@ -113,6 +127,12 @@ static int check_CPU (long clock, uint pvr, uint immr)
 	}
 
 	putc ('\n');
+
+#ifdef DEBUG
+        if(clock != measure_gclk()) {
+            printf ("clock %ldHz != %dHz\n", clock, measure_gclk());
+        }
+#endif
 
 	return 0;
 }
@@ -316,7 +336,7 @@ int checkicache (void)
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	u32 cacheon = rd_ic_cst () & IDC_ENABLED;
 
-#ifdef CONFIG_IP860
+#ifdef CONFIG_IP86x
 	u32 k = memctl->memc_br1 & ~0x00007fff;	/* probe in flash memoryarea */
 #else
 	u32 k = memctl->memc_br0 & ~0x00007fff;	/* probe in flash memoryarea */
@@ -363,7 +383,7 @@ int checkdcache (void)
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	u32 cacheon = rd_dc_cst () & IDC_ENABLED;
 
-#ifdef CONFIG_IP860
+#ifdef CONFIG_IP86x
 	u32 k = memctl->memc_br1 & ~0x00007fff;	/* probe in flash memoryarea */
 #else
 	u32 k = memctl->memc_br0 & ~0x00007fff;	/* probe in flash memoryarea */
@@ -462,8 +482,20 @@ unsigned long get_tbclk (void)
 	if (immr->im_clkrst.car_sccr & SCCR_TBS) {
 		return (gd->cpu_clk / 16);
 	}
+#define PLPRCR_val(a) (((CFG_PLPRCR) & PLPRCR_ ## a ## _MSK) >> PLPRCR_ ## a ## _SHIFT)
+#ifdef CONFIG_MPC866_et_al
+        /*                   MFN
+                     MFI + -------
+                           MFD + 1
+          factor =  -----------------
+                     (PDF + 1) * 2^S
+         */
 
-	factor = (((CFG_PLPRCR) & PLPRCR_MF_MSK) >> PLPRCR_MF_SHIFT) + 1;
+	factor = (PLPRCR_val(MFI) + PLPRCR_val(MFN)/(PLPRCR_val(MFD)+1))/
+                 (PLPRCR_val(PDF)+1) / (1<<PLPRCR_val(S));
+#else
+	factor = PLPRCR_val(MF)+1;
+#endif
 
 	oscclk = gd->cpu_clk / factor;
 

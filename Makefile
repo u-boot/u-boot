@@ -227,6 +227,7 @@ ETX094_config	:	unconfig
 
 FADS823_config	\
 FADS850SAR_config \
+MPC86xADS_config \
 FADS860T_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx fads
 

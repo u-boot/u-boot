@@ -32,7 +32,6 @@
 #define SPEED_PITC	 ((SPEED_PIT_COUNTS - 1) << PITC_SHIFT)
 #define SPEED_PITC_INIT	 ((SPEED_PIT_COUNTS + 1) << PITC_SHIFT)
 
-#if !defined(CONFIG_8xx_GCLK_FREQ)
 /* Access functions for the Machine State Register */
 static __inline__ unsigned long get_msr(void)
 {
@@ -46,7 +45,6 @@ static __inline__ void set_msr(unsigned long msr)
 {
 	asm volatile("mtmsr %0" : : "r" (msr));
 }
-#endif
 
 /* ------------------------------------------------------------------------- */
 
@@ -83,15 +81,19 @@ static __inline__ void set_msr(unsigned long msr)
  * CPU clock that is an even multiple of 0.1 MHz.
  */
 
-int get_clocks (void)
+unsigned long measure_gclk(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile immap_t *immr = (immap_t *) CFG_IMMR;
-#ifndef	CONFIG_8xx_GCLK_FREQ
 	volatile cpmtimer8xx_t *timerp = &immr->im_cpmtimer;
 	ulong timer2_val;
 	ulong msr_val;
+
+#ifdef CONFIG_MPC866_et_al
+        /* dont use OSCM, only use EXTCLK/512 */
+        immr->im_clkrst.car_sccr |= SCCR_RTSEL | SCCR_RTDIV;
+#else
+        immr->im_clkrst.car_sccr &= ~(SCCR_RTSEL | SCCR_RTDIV);
+#endif
 
 	/* Reset + Stop Timer 2, no cascading
 	 */
@@ -158,10 +160,27 @@ int get_clocks (void)
 	timerp->cpmt_tgcr &= ~(TGCR_RST2 | TGCR_FRZ2 | TGCR_STP2);
 	immr->im_sit.sit_piscr &= ~PISCR_PTE;
 
-	gd->cpu_clk = ((timer2_val + 2) / 4) * 100000L;	/* convert to Hz    */
+#ifdef CONFIG_MPC866_et_al
+        /* not using OSCM, using XIN, so scale appropriately */
+	return (((timer2_val + 2) / 4) * (CFG_8XX_XIN/512))/8192 * 100000L;
+#else
+	return ((timer2_val + 2) / 4) * 100000L;	/* convert to Hz    */
+#endif
+}
 
+/*
+ * get_clocks() fills in gd->cpu_clock depending on CONFIG_8xx_GCLK_FREQ
+ * or (if it is not defined) measure_gclk() (which uses the ref clock)
+ * from above.
+ */
+int get_clocks (void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+
+	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+#ifndef	CONFIG_8xx_GCLK_FREQ
+	gd->cpu_clk = measure_gclk();
 #else /* CONFIG_8xx_GCLK_FREQ */
-
 	/*
 	 * If for some reason measuring the gclk frequency won't
 	 * work, we return the hardwired value.

@@ -32,25 +32,33 @@
  */
 #include <mpc8xx_irq.h>
 
-#define CONFIG_MPC860		1
-#define CONFIG_MPC860T		1
-#define CONFIG_FADS		1
+/* board type */
+#define CONFIG_FADS		1       /* old/new FADS + new ADS */
+
+/* processor type */
+#define CONFIG_MPC860T		1       /* 860T */
 
 #define	CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
 #undef	CONFIG_8xx_CONS_SMC2
 #undef	CONFIG_8xx_CONS_NONE
-#define CONFIG_BAUDRATE		9600
+#define CONFIG_BAUDRATE		38400
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 
-#if 0
-#define MPC8XX_FACT		10		/* Multiply by 10	*/
-#define MPC8XX_XIN		5000000			/* 5 MHz in	*/
-#else
-#define MPC8XX_FACT		12		/* Multiply by 12	*/
-#define MPC8XX_XIN		4000000			/* 4 MHz in	*/
-#define MPC8XX_HZ ((MPC8XX_XIN) * (MPC8XX_FACT))
+#if 0 /* old FADS */
+# define CFG_8XX_FACT		12		/* Multiply by 12 */
+# define CFG_8XX_XIN		4000000		/* 4 MHz in	*/
+#else /* new FADS */
+# define CFG_8XX_FACT		10		/* Multiply by 10 */
+# define CFG_8XX_XIN		5000000		/* 5 MHz in	*/
 #endif
 
+#define MPC8XX_HZ ((CFG_8XX_XIN) * (CFG_8XX_FACT))
+
+/* should ALWAYS define this, measure_gclk in speed.c is unreliable */
+/* in general, we always know this for FADS+new ADS anyway */
+#define CONFIG_8xx_GCLK_FREQ     MPC8XX_HZ
+
+/* most vanilla kernels do not like this, set to 0 if in doubt */
 #define	CONFIG_CLOCKS_IN_MHZ	1	/* clocks passsed to Linux in MHz */
 
 #if 1
@@ -59,8 +67,12 @@
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 #endif
 
-#define CONFIG_BOOTCOMMAND	"bootm 2800100"	/* autoboot command */
-#define CONFIG_BOOTARGS		""
+#undef	CONFIG_BOOTARGS
+#define CONFIG_BOOTCOMMAND			    \
+    "bootp; "				    \
+    "setenv bootargs root=/dev/nfs rw nfsroot=$(serverip):$(rootpath) "	    \
+    "ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off; "   \
+    "bootm"
 
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 
@@ -77,10 +89,10 @@
 /* choose SCC1 ethernet (10BASET on motherboard)
  * or FEC ethernet (10/100 on daughterboard)
  */
-#if 1
+#if 0
 #define	CONFIG_SCC1_ENET	1	/* use SCC1 ethernet */
 #undef	CONFIG_FEC_ENET			/* disable FEC ethernet  */
-#else
+#else   /* all 86x cores have FECs, if in doubt, use it */
 #undef	CONFIG_SCC1_ENET		/* disable SCC1 ethernet */
 #define	CONFIG_FEC_ENET		1	/* use FEC ethernet  */
 #define CFG_DISCOVER_PHY
@@ -107,7 +119,11 @@
 #define CFG_BARGSIZE	CFG_CBSIZE	/* Boot Argument Buffer Size	*/
 
 #define CFG_MEMTEST_START	0x0100000	/* memtest works on	*/
+#if (CFG_SDRAM_SIZE)
+#define CFG_MEMTEST_END		CFG_SDRAM_SIZE	/* 1 ... SDRAM_SIZE	*/
+#else
 #define CFG_MEMTEST_END		0x0400000	/* 1 ... 4 MB in DRAM	*/
+#endif
 
 #define CFG_LOAD_ADDR	 	0x00100000
 
@@ -120,7 +136,7 @@
  * (address mappings, register initial values, etc.)
  * You should know what you are doing if you make changes here.
  */
-/*-----------------------------------------------------------------------
+/*----------------------------------------------------------------------
  * Internal Memory Mapped Register
  */
 #define CFG_IMMR			0xFF000000
@@ -141,6 +157,11 @@
  * Please note that CFG_SDRAM_BASE _must_ start at 0
  */
 #define	CFG_SDRAM_BASE		0x00000000
+#ifdef CONFIG_FADS
+# define	CFG_SDRAM_SIZE	0x00400000      /* 4 meg */
+#else   /* !CONFIG_FADS */ /* old ADS */
+# define	CFG_SDRAM_SIZE	0x00000000      /* NO SDRAM */
+#endif
 
 #define CFG_FLASH_BASE		0x02800000
 
@@ -218,7 +239,7 @@
  *-----------------------------------------------------------------------
  * set the PLL, the low-power modes and the reset control (15-29)
  */
-#define CFG_PLPRCR	(((MPC8XX_FACT-1) << PLPRCR_MF_SHIFT) |	\
+#define CFG_PLPRCR	(((CFG_8XX_FACT-1) << PLPRCR_MF_SHIFT) |	\
 				PLPRCR_SPLSS | PLPRCR_TEXPS | PLPRCR_TMIST)
 
 /*-----------------------------------------------------------------------
@@ -235,7 +256,7 @@
  *-----------------------------------------------------------------------
  *
  */
-#define CFG_DER		0
+#define CFG_DER		 0
 
 /* Because of the way the 860 starts up and assigns CS0 the
 * entire address space, we have to set the memory controller
@@ -280,36 +301,6 @@
 #define CFG_OR1_PRELIM	0xffff8110		/* 64Kbyte address space */
 #define CFG_BR1_PRELIM	((BCSR_ADDR) | BR_V )
 
-
-/*
- * Memory Periodic Timer Prescaler
- */
-
-/* periodic timer for refresh */
-#define CFG_MAMR_PTA		97	/* start with divider for 100 MHz	*/
-
-/* refresh rate 15.6 us (= 64 ms / 4K = 62.4 / quad bursts) for <= 128 MBit	*/
-#define CFG_MPTPR_2BK_4K	MPTPR_PTP_DIV16		/* setting for 2 banks	*/
-#define CFG_MPTPR_1BK_4K	MPTPR_PTP_DIV32		/* setting for 1 bank	*/
-
-/* refresh rate 7.8 us (= 64 ms / 8K = 31.2 / quad bursts) for 256 MBit		*/
-#define CFG_MPTPR_2BK_8K	MPTPR_PTP_DIV8		/* setting for 2 banks	*/
-#define CFG_MPTPR_1BK_8K	MPTPR_PTP_DIV16		/* setting for 1 bank	*/
-
-/*
- * MAMR settings for SDRAM
- */
-
-/* 8 column SDRAM */
-#define CFG_MAMR_8COL	((CFG_MAMR_PTA << MAMR_PTA_SHIFT)  | MAMR_PTAE	    |	\
-			 MAMR_AMA_TYPE_0 | MAMR_DSA_1_CYCL | MAMR_G0CLA_A11 |	\
-			 MAMR_RLFA_1X	 | MAMR_WLFA_1X	   | MAMR_TLFA_4X)
-/* 9 column SDRAM */
-#define CFG_MAMR_9COL	((CFG_MAMR_PTA << MAMR_PTA_SHIFT)  | MAMR_PTAE	    |	\
-			 MAMR_AMA_TYPE_1 | MAMR_DSA_1_CYCL | MAMR_G0CLA_A10 |	\
-			 MAMR_RLFA_1X	 | MAMR_WLFA_1X	   | MAMR_TLFA_4X)
-
-#define CFG_MAMR		0x13a01114
 /*
  * Internal Definitions
  *
@@ -425,7 +416,7 @@
 #endif /* CONFIG_MPC850 */
 
 #define CONFIG_DRAM_50MHZ		1
-#define CONFIG_SDRAM_50MHZ
+#define CONFIG_SDRAM_50MHZ              1
 
 #ifdef CONFIG_MPC860T
 

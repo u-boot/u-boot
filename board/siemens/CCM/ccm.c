@@ -267,7 +267,7 @@ void can_driver_enable (void)
     volatile memctl8xx_t *memctl = &immap->im_memctl;
 
     /* Initialize MBMR */
-    memctl->memc_mbmr = MAMR_GPL_B4DIS;	/* GPL_B4 ouput line Disable */
+    memctl->memc_mbmr = MBMR_GPL_B4DIS;	/* GPL_B4 ouput line Disable */
 
     /* Initialize UPMB for CAN: single read */
     memctl->memc_mdr = 0xFFFFC004;

@@ -9,7 +9,8 @@
  *
  * (C) Copyright 2003 Arabella Software Ltd.
  * Yuli Barcohen <yuli@arabellasw.com>
- * Added support for SDRAM DIMMs SPD EEPROM, MII.
+ * Added support for SDRAM DIMMs SPD EEPROM, MII, JFFS2.
+ * Ported to PQ2FADS-ZU board.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -40,6 +41,15 @@
 
 #define CONFIG_MPC8260		1	/* This is an MPC8260 CPU   */
 #define CONFIG_MPC8260ADS	1	/* ...on motorola ads board */
+
+/* ADS flavours */
+#define CFG_8260ADS		1	/* MPC8260ADS */
+#define CFG_8266ADS		2	/* MPC8266ADS */
+#define CFG_PQ2FADS		3	/* PQ2FADS-ZU */
+
+#ifndef CONFIG_ADSTYPE
+#define CONFIG_ADSTYPE		CFG_8260ADS
+#endif /* CONFIG_ADSTYPE */
 
 #define CONFIG_BOARD_PRE_INIT	1	/* Call board_pre_init	*/
 
@@ -116,7 +126,9 @@
 
 #endif /* CONFIG_ETHER_ON_FCC */
 
-/* other options */
+#if CONFIG_ADSTYPE == CFG_PQ2FADS
+#undef CONFIG_SPD_EEPROM	/* On PQ2FADS-ZU, SDRAM is soldered  */
+#else
 #define CONFIG_HARD_I2C		1	/* To enable I2C support	*/
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address	*/
 #define CFG_I2C_SLAVE		0x7F
@@ -124,18 +136,23 @@
 #if defined(CONFIG_SPD_EEPROM) && !defined(CONFIG_SPD_ADDR)
 #define CONFIG_SPD_ADDR         0x50
 #endif
+#endif /* CONFIG_ADSTYPE == CFG_PQ2FADS */
 
 #ifndef CONFIG_SDRAM_PBI
 #define CONFIG_SDRAM_PBI        1 /* By default, use page-based interleaving */
 #endif
 
 #ifndef CONFIG_8260_CLKIN
+#if CONFIG_ADSTYPE == CFG_PQ2FADS
+#define CONFIG_8260_CLKIN	100000000	/* in Hz */
+#else
 #define CONFIG_8260_CLKIN	66666666	/* in Hz */
 #endif
+#endif
+
 #define CONFIG_BAUDRATE		115200
 
-#define CONFIG_COMMANDS		(CFG_CMD_ALL & ~( \
-				 CFG_CMD_BEDBUG | \
+#define CFG_EXCLUDE		 CFG_CMD_BEDBUG | \
 				 CFG_CMD_BMP	| \
 				 CFG_CMD_BSP	| \
 				 CFG_CMD_DATE	| \
@@ -143,11 +160,11 @@
 				 CFG_CMD_DTT	| \
 				 CFG_CMD_EEPROM | \
 				 CFG_CMD_ELF    | \
+				 CFG_CMD_FAT    | \
 				 CFG_CMD_FDC	| \
 				 CFG_CMD_FDOS	| \
 				 CFG_CMD_HWFLOW	| \
 				 CFG_CMD_IDE	| \
-				 CFG_CMD_JFFS2	| \
 				 CFG_CMD_KGDB	| \
 				 CFG_CMD_MMC	| \
 				 CFG_CMD_NAND	| \
@@ -155,8 +172,18 @@
 				 CFG_CMD_PCMCIA | \
 				 CFG_CMD_SCSI	| \
 				 CFG_CMD_SPI	| \
-				 CFG_CMD_VFD	| \
-				 CFG_CMD_USB	) )
+				 CFG_CMD_USB	| \
+				 CFG_CMD_VFD
+
+#if CONFIG_ADSTYPE == CFG_PQ2FADS
+#define CONFIG_COMMANDS		(CFG_CMD_ALL & ~( \
+				 CFG_CMD_SDRAM	| \
+				 CFG_CMD_I2C	| \
+				 CFG_EXCLUDE	) )
+#else
+#define CONFIG_COMMANDS		(CFG_CMD_ALL & ~( \
+				 CFG_EXCLUDE	) )
+#endif /* CONFIG_ADSTYPE == CFG_PQ2FADS */
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -200,7 +227,6 @@
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 
 #define CFG_FLASH_BASE		0xff800000
-#define FLASH_BASE		0xff800000
 #define CFG_MAX_FLASH_BANKS	1	/* max num of memory banks	*/
 #define CFG_MAX_FLASH_SECT	32	/* max num of sects on one chip */
 #define CFG_FLASH_SIZE		8
@@ -219,14 +245,16 @@
 #define CFG_DEFAULT_IMMR	0x0F010000
 
 #define CFG_IMMR		0xF0000000
-#define CFG_BCSR		0x04500000
+#define CFG_BCSR		0xF4500000
 #define CFG_SDRAM_BASE		0x00000000
-#define CFG_LSDRAM_BASE		0x04000000
+#define CFG_LSDRAM_BASE		0xD0000000
 
 #define RS232EN_1		0x02000002
 #define RS232EN_2		0x01000001
-#define FETHIEN			0x08000008
-#define FETH_RST		0x04000004
+#define FETHIEN1		0x08000008
+#define FETH1_RST		0x04000004
+#define FETHIEN2		0x01000000
+#define FETH2_RST		0x08000000
 
 #define CFG_INIT_RAM_ADDR	CFG_IMMR
 #define CFG_INIT_RAM_END	0x4000	/* End of used area in DPRAM	*/
@@ -288,19 +316,30 @@
 #define CFG_SYPCR		0xFFFFFFC3
 #define CFG_BCR			0x100C0000
 #define CFG_SIUMCR		0x0A200000
-#define CFG_SCCR		0x00000000
-#define CFG_BR0_PRELIM		0xFF801801
-#define CFG_OR0_PRELIM		0xFF800836
-#define CFG_BR1_PRELIM		0x04501801
+#define CFG_SCCR		SCCR_DFBRG01
+#define CFG_BR0_PRELIM		CFG_FLASH_BASE | 0x00001801
+#define CFG_OR0_PRELIM		0xFF800876
+#define CFG_BR1_PRELIM		CFG_BCSR | 0x00001801
 #define CFG_OR1_PRELIM		0xFFFF8010
 
-#define CFG_RMR			0
+#define CFG_RMR			RMR_CSRE
 #define CFG_TMCNTSC		(TMCNTSC_SEC|TMCNTSC_ALR|TMCNTSC_TCF|TMCNTSC_TCE)
 #define CFG_PISCR		(PISCR_PS|PISCR_PTF|PISCR_PTE)
 #define CFG_RCCR		0
+
+#if CONFIG_ADSTYPE == CFG_PQ2FADS
+#define CFG_PSDMR		0x824B36A3
+#define CFG_PSRT		0x13
+#define CFG_LSDMR		0x828737A3
+#define CFG_LSRT		0x13
+#define CFG_MPTPR		0x2800
+#else
 #define CFG_PSDMR		0x016EB452
-#define CFG_MPTPR		0x00001900
-#define CFG_PSRT		0x00000021
+#define CFG_PSRT		0x21
+#define CFG_LSDMR		0x0086A522
+#define CFG_LSRT		0x21
+#define CFG_MPTPR		0x1900
+#endif /* CONFIG_ADSTYPE == CFG_PQ2FADS */
 
 #define CFG_RESET_ADDRESS	0x04400000
 

@@ -19,6 +19,7 @@
 #include <mpc8xx_irq.h>
 
 #define CONFIG_MPC860		1
+#define CONFIG_MPC860T		1
 #define CONFIG_ADS		1
 
 #define CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1	    */
@@ -31,9 +32,11 @@
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address defaults */
 #define CFG_I2C_SLAVE		0x7F
 
-#define MPC8XX_XIN		32768	/* 32.768 kHz input frequency	*/
-#define MPC8XX_FACT		0x5F6	/* Multiply by 1526 */
+#define CFG_8XX_XIN		32768	/* 32.768 kHz input frequency	*/
+#define CFG_8XX_FACT		0x5F6	/* Multiply by 1526 */
 					/* MPC8XX_FACT * MPC8XX_XIN = 50 MHz */
+
+#define CONFIG_8xx_GCLK_FREQ   ((CFG_8XX_XIN) * (CFG_8XX_FACT))
 
 #define	CONFIG_CLOCKS_IN_MHZ	1	/* clocks passsed to Linux in MHz */
 
@@ -136,7 +139,7 @@
  * FLASH organization
  */
 #define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks	    */
-#define CFG_MAX_FLASH_SECT	8	/* max number of sectors on one chip	*/
+#define CFG_MAX_FLASH_SECT	16	/* max number of sectors on one chip	*/
 
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)  */
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)  */
@@ -198,7 +201,7 @@
  *-----------------------------------------------------------------------
  * set the PLL, the low-power modes and the reset control (15-29)
  */
-#define CFG_PLPRCR  (((MPC8XX_FACT-1) << 20) |	\
+#define CFG_PLPRCR  (((CFG_8XX_FACT-1) << PLPRCR_MF_SHIFT) |	\
 		PLPRCR_SPLSS | PLPRCR_TEXPS | PLPRCR_TMIST)
 
 /*-----------------------------------------------------------------------

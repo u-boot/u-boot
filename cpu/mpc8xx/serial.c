@@ -68,6 +68,23 @@
 #error "console not correctly defined"
 #endif
 
+static void serial_setdivisor(volatile cpm8xx_t *cp)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+	int divisor=gd->cpu_clk/16/gd->baudrate;
+
+	if(divisor/16>0x1000) {
+		/* bad divisor, assume 50Mhz clock and 9600 baud */
+		divisor=(50*1000*1000)/16/9600;
+	}
+
+	if(divisor<=0x1000) {
+		cp->cp_brgc1=((divisor-1)<<1) | CPM_BRG_EN;
+	} else {
+		cp->cp_brgc1=((divisor/16-1)<<1) | CPM_BRG_EN | CPM_BRG_DIV16;
+	}
+}
+
 #if (defined (CONFIG_8xx_CONS_SMC1) || defined (CONFIG_8xx_CONS_SMC2))
 
 /*
@@ -229,8 +246,6 @@ int serial_init (void)
 void
 serial_setbrg (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile immap_t *im = (immap_t *)CFG_IMMR;
 	volatile cpm8xx_t *cp = &(im->im_cpm);
 
@@ -242,8 +257,7 @@ serial_setbrg (void)
 
 	cp->cp_simode = 0x00000000;
 
-	cp->cp_brgc1 =
-		(((gd->cpu_clk / 16 / gd->baudrate)-1) << 1) | CPM_BRG_EN;
+	serial_setdivisor(cp);
 }
 
 #ifdef CONFIG_MODEM_SUPPORT
@@ -506,8 +520,6 @@ int serial_init (void)
 void
 serial_setbrg (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile immap_t *im = (immap_t *)CFG_IMMR;
 	volatile cpm8xx_t *cp = &(im->im_cpm);
 
@@ -518,10 +530,8 @@ serial_setbrg (void)
 	 */
 
 	cp->cp_sicr &= ~(0x000000FF << (8 * SCC_INDEX));
-	/* no |= needed, since BRG1 is 000 */
 
-	cp->cp_brgc1 =
-		(((gd->cpu_clk / 16 / gd->baudrate)-1) << 1) | CPM_BRG_EN;
+	serial_setdivisor(cp);
 }
 
 void

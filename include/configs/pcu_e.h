@@ -518,11 +518,11 @@
 #define CFG_MAMR_PTA	0x30	/* = 48 */
 
 #define CFG_MAMR	( (CFG_MAMR_PTA << MAMR_PTA_SHIFT) | \
-			  MAMR_AMB_TYPE_1	| \
-			  MAMR_G0CLB_A10	| \
-			  MAMR_RLFB_1X		| \
-			  MAMR_WLFB_1X		| \
-			  MAMR_TLFB_8X		)
+			  MAMR_AMA_TYPE_1	| \
+			  MAMR_G0CLA_A10	| \
+			  MAMR_RLFA_1X		| \
+			  MAMR_WLFA_1X		| \
+			  MAMR_TLFA_8X		)
 
 /*
  * Internal Definitions

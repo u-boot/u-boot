@@ -296,8 +296,7 @@
  *-----------------------------------------------------------------------
  *
  */
-#define	CFG_DER	0x0082000F
-/*#define CFG_DER	0*/
+#define CFG_DER	0
 
 /*
  * Init Memory Controller:

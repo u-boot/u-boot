@@ -116,6 +116,7 @@
  * Also NOTE that it doesn't mean SDRAM - it means MEMORY.
  */
 #define	CFG_SDRAM_BASE		0x00000000
+#define	CFG_SDRAM_SIZE		(4<<20) /* standard FADS has 4M */
 #define CFG_FLASH_BASE		0x02800000
 #define CFG_FLASH_SIZE		((uint)(8 * 1024 * 1024))	/* max 8Mbyte */
 #if 0

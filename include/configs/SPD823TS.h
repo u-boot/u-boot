@@ -381,7 +381,7 @@
  */
 
 /* periodic timer for refresh */
-#define CFG_MAMR_PTB	204
+#define CFG_MBMR_PTB	204
 
 /* refresh rate 15.6 us (= 64 ms / 4K = 62.4 / quad bursts) for <= 128 MBit	*/
 #define CFG_MPTPR_2BK_4K	MPTPR_PTP_DIV16		/* setting for 2 banks	*/
@@ -396,9 +396,9 @@
  */
 
 /* 8 column SDRAM */
-#define CFG_MBMR_8COL	((CFG_MAMR_PTB << MAMR_PTB_SHIFT)  | \
-			 MAMR_AMB_TYPE_0 | MAMR_DSB_1_CYCL | MAMR_G0CLB_A11 |	\
-			 MAMR_RLFB_1X	 | MAMR_WLFB_1X	   | MAMR_TLFB_4X)
+#define CFG_MBMR_8COL	((CFG_MBMR_PTB << MBMR_PTB_SHIFT)  | \
+			 MBMR_AMB_TYPE_0 | MBMR_DSB_1_CYCL | MBMR_G0CLB_A11 |	\
+			 MBMR_RLFB_1X	 | MBMR_WLFB_1X	   | MBMR_TLFB_4X)
 
 /*
  * Internal Definitions

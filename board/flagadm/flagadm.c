@@ -128,7 +128,7 @@ long int initdram (int board_type)
 
 	/* That should do it, just enable the periodic refresh in burst of 4*/
 	memctl->memc_mamr = CFG_MAMR_48_SDR | MAMR_TLFA_4X;
-	memctl->memc_mamr |= (MAMR_PTAE | MAMR_GPL_B4DIS);
+	memctl->memc_mamr |= (MAMR_PTAE | MAMR_GPL_A4DIS);
 
 	size_b0 = 16*1024*1024;
 
@@ -141,7 +141,7 @@ long int initdram (int board_type)
 
 	upmconfig(UPMB, (uint *)dsp_disp_table, sizeof(dsp_disp_table)/sizeof(uint));
 
-	memctl->memc_mbmr = MAMR_GPL_B4DIS;
+	memctl->memc_mbmr = MBMR_GPL_B4DIS;
 
 	memctl->memc_or4 = CFG_OR4;
 	memctl->memc_br4 = CFG_BR4;

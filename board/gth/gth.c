@@ -218,7 +218,7 @@ int _initsdram (uint base, uint * noMbytes)
 			   sizeof (fpga_table) / sizeof (uint));
 
 	/* Enable UPWAITB */
-	mc->memc_mbmr = MAMR_GPL_B4DIS;	/* (16-13) */
+	mc->memc_mbmr = MBMR_GPL_B4DIS;	/* (16-13) */
 
 	/* CS2, base FPGA_2_BASE - 4 MByte, use UPM B 32 Bit */
 	mc->memc_or2 = 0xffc00000 | OR_BI;

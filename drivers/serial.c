@@ -51,6 +51,7 @@ static int calc_divisor (void)
 		console->osc_12m_sel = OSC_12M_SEL;	/* enable 6.5 * divisor */
 		return (1);				/* return 1 for base divisor */
 	}
+	console->osc_12m_sel = 0;			/* clear if previsouly set */
 #endif
 	return (CFG_NS16550_CLK / 16 / gd->baudrate);
 }

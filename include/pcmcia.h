@@ -43,7 +43,7 @@
 #elif defined(CONFIG_ADS)		/* The ADS  board use SLOT_A	*/
 # define CONFIG_PCMCIA_SLOT_A
 #elif defined(CONFIG_FADS)		/* The FADS series are a mess	*/
-# if defined(CONFIG_MPC860T) || defined(CONFIG_MPC860) || defined(CONFIG_MPC821)
+# if defined(CONFIG_MPC86x || defined(CONFIG_MPC821)
 #  define CONFIG_PCMCIA_SLOT_A
 # else
 #  define CONFIG_PCMCIA_SLOT_B

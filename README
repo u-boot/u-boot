@@ -197,7 +197,7 @@ Directory Hierarchy:
 - board/lwmon	Files specific to LWMON	     boards
 - board/mbx8xx	Files specific to MBX	     boards
 - board/mpc8260ads
-		Files specific to MMPC8260ADS boards
+		Files specific to MPC8260ADS and PQ2FADS-ZU boards
 - board/mpl/	Files specific to boards manufactured by MPL
 - board/mpl/common	Common files for MPL boards
 - board/mpl/pip405	Files specific to PIP405     boards
@@ -382,6 +382,14 @@ The following options need to be configured:
 		CONFIG_LCD_HEARTBEAT	- update a character position on
 					  the lcd display every second with
 					  a "rotator" |\-/|\-/
+
+- Board flavour: (if CONFIG_MPC8260ADS is defined)
+		CONFIG_ADSTYPE
+		Possible values are:
+			CFG_8260ADS	- original MPC8260ADS
+			CFG_8266ADS	- MPC8266ADS (untested)
+			CFG_PQ2FADS	- PQ2FADS-ZU
+
 
 - MPC824X Family Member (if CONFIG_MPC824X is defined)
 	Define exactly one of
@@ -989,8 +997,8 @@ The following options need to be configured:
 		is FALSE, it clears it (low).
 
 		eg: #define I2C_SDA(bit) \
-		         if(bit) immr->im_cpm.cp_pbdat |=  PB_SDA; \
-		         else    immr->im_cpm.cp_pbdat &= ~PB_SDA
+			if(bit) immr->im_cpm.cp_pbdat |=  PB_SDA; \
+			else    immr->im_cpm.cp_pbdat &= ~PB_SDA
 
 		I2C_SCL(bit)
 
@@ -998,8 +1006,8 @@ The following options need to be configured:
 		is FALSE, it clears it (low).
 
 		eg: #define I2C_SCL(bit) \
-		         if(bit) immr->im_cpm.cp_pbdat |=  PB_SCL; \
-		         else    immr->im_cpm.cp_pbdat &= ~PB_SCL
+			if(bit) immr->im_cpm.cp_pbdat |=  PB_SCL; \
+			else    immr->im_cpm.cp_pbdat &= ~PB_SCL
 
 		I2C_DELAY
 
@@ -1687,9 +1695,10 @@ Low Level (hardware related) configuration options:
 
 - CFG_DEFAULT_IMMR:
 		Default address of the IMMR after system reset.
-		Needed on some 8260 systems (MPC8260ADS and RPXsuper)
-		to be able to adjust the position of the IMMR
-		register after a reset.
+
+                Needed on some 8260 systems (MPC8260ADS, PQ2FADS-ZU,
+                and RPXsuper) to be able to adjust the position of
+                the IMMR register after a reset.
 
 - Floppy Disk Support:
 		CFG_FDC_DRIVE_NUMBER
@@ -1862,7 +1871,7 @@ configurations; the following names are supported:
     GENIETV_config	  TQM823L_config	PIP405_config
     GEN860T_config	  EBONY_config		FPS860L_config
     ELPT860_config	  cmi_mpc5xx_config	NETVIA_config
-    at91rm9200dk_config	  omap1510inn_config
+    at91rm9200dk_config	  omap1510inn_config	MPC8260ADS_config
 
 Note: for some board special configuration names may exist; check  if
       additional  information is available from the board vendor; for

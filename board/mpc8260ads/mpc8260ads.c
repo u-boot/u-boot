@@ -198,11 +198,19 @@ void reset_phy (void)
 	vu_long *bcsr = (vu_long *)CFG_BCSR;
 
 	/* reset the FEC port */
-	bcsr[1] &= ~FETH_RST;
+	bcsr[1] &= ~FETH1_RST;
 	udelay(2);
-	bcsr[1] |=  FETH_RST;
+	bcsr[1] |=  FETH1_RST;
 	udelay(1000);
 #ifdef CONFIG_MII
+#if CONFIG_ADSTYPE == CFG_PQ2FADS
+	/*
+	 * Do not bypass Rx/Tx (de)scrambler (fix configuration error)
+	 * Enable autonegotiation.
+	 */
+	miiphy_write(0, 16, 0x610);
+	miiphy_write(0, PHY_BMCR, PHY_BMCR_AUTON | PHY_BMCR_RST_NEG);
+#else
 	/*
 	 * Ethernet PHY is configured (by means of configuration pins)
 	 * to work at 10Mb/s only. We reconfigure it using MII
@@ -212,6 +220,7 @@ void reset_phy (void)
 	miiphy_write(0, PHY_ANAR, 0x01E1); /* Advertise all capabilities */
 	miiphy_write(0, PHY_DCR,  0x0000); /* Do not bypass Rx/Tx (de)scrambler */
 	miiphy_write(0, PHY_BMCR, PHY_BMCR_AUTON | PHY_BMCR_RST_NEG);
+#endif /* CONFIG_ADSTYPE == CFG_PQ2FADS */
 #endif /* CONFIG_MII */
 }
 
@@ -219,7 +228,7 @@ int board_pre_init (void)
 {
 	vu_long *bcsr = (vu_long *)CFG_BCSR;
 
-	bcsr[1] = ~FETHIEN & ~RS232EN_1;
+	bcsr[1] = ~FETHIEN1 & ~RS232EN_1;
 
 	return 0;
 }
@@ -231,12 +240,10 @@ long int initdram (int board_type)
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile memctl8260_t *memctl = &immap->im_memctl;
 	volatile uchar *ramaddr, c = 0xff;
-
-	/* Initialisation is for 16MB DIMM the board is shipped with */
-	long int msize = 16;
-	uint or    = 0xFF000CA0;
-	uint psdmr = CFG_PSDMR;
-	uint psrt  = CFG_PSRT;
+	long int msize;
+	uint or;
+	uint psdmr;
+	uint psrt;
 
 	int i;
 
@@ -246,22 +253,29 @@ long int initdram (int board_type)
 	immap->im_siu_conf.sc_tescr1   = 0x00004000;
 
 	memctl->memc_mptpr = CFG_MPTPR;
-	/* init local sdram, bank 4 */
-	memctl->memc_lsrt  = 0x00000010;
+#ifdef CFG_LSDRAM_BASE
+	/* Init local bus SDRAM */
+	memctl->memc_lsrt  = CFG_LSRT;
+#if CONFIG_ADSTYPE == CFG_PQ2FADS /* CS3 */
+	memctl->memc_or3   = 0xFF803280;
+	memctl->memc_br3   = CFG_LSDRAM_BASE | 0x00001861;
+#else  				  /* CS4 */
 	memctl->memc_or4   = 0xFFC01480;
-	memctl->memc_br4   = 0x04001861;
-	memctl->memc_lsdmr = 0x2886A522;
+	memctl->memc_br4   = CFG_LSDRAM_BASE | 0x00001861;
+#endif /* CONFIG_ADSTYPE == CFG_PQ2FADS */
+	memctl->memc_lsdmr = CFG_LSDMR | 0x28000000;
 	ramaddr = (uchar *) CFG_LSDRAM_BASE;
 	*ramaddr = c;
-	memctl->memc_lsdmr = 0x0886A522;
+	memctl->memc_lsdmr = CFG_LSDMR | 0x08000000;
 	for (i = 0; i < 8; i++) {
 		*ramaddr = c;
 	}
-	memctl->memc_lsdmr = 0x1886A522;
+	memctl->memc_lsdmr = CFG_LSDMR | 0x18000000;
 	*ramaddr = c;
-	memctl->memc_lsdmr = 0x4086A522;
+	memctl->memc_lsdmr = CFG_LSDMR | 0x40000000;
+#endif /* CFG_LSDRAM_BASE */
 
-	/* init sdram dimm */
+	/* Init 60x bus SDRAM */
 #ifdef CONFIG_SPD_EEPROM
 	{
 		spd_eeprom_t spd;
@@ -398,6 +412,16 @@ long int initdram (int board_type)
 		printf ("OR=%X, PSDMR=%08X, PSRT=%0X\n", or, psdmr, psrt);
 #endif /* SPD_DEBUG */
 	}
+#else  /* !CONFIG_SPD_EEPROM */
+#if CONFIG_ADSTYPE == CFG_PQ2FADS
+	msize = 32;
+	or = 0xFE002EC0;
+#else
+	msize = 16;
+	or = 0xFF000CA0;
+#endif /* CONFIG_ADSTYPE == CFG_PQ2FADS */
+	psdmr = CFG_PSDMR;
+	psrt  = CFG_PSRT;
 #endif /* CONFIG_SPD_EEPROM */
 	memctl->memc_psrt = psrt;
 	memctl->memc_or2 = or;
@@ -415,12 +439,20 @@ long int initdram (int board_type)
 	*ramaddr = c;
 #endif
 
-	/* return total ram size of DIMM */
+	/* return total 60x bus SDRAM size */
 	return (msize * 1024 * 1024);
 }
 
 int checkboard (void)
 {
+#if   CONFIG_ADSTYPE == CFG_8260ADS
 	puts ("Board: Motorola MPC8260ADS\n");
+#elif CONFIG_ADSTYPE == CFG_8266ADS
+	puts ("Board: Motorola MPC8266ADS\n");
+#elif CONFIG_ADSTYPE == CFG_PQ2FADS
+	puts ("Board: Motorola PQ2FADS-ZU\n");
+#else
+	puts ("Board: unknown\n");
+#endif
 	return 0;
 }

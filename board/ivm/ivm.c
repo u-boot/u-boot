@@ -246,14 +246,14 @@ initdram (int board_type)
     udelay(1);
     memctl->memc_mcr = 0x80806130;	/* autorefresh */
 
-    memctl->memc_mbmr |= MAMR_PTBE;	/* refresh enabled */
+    memctl->memc_mbmr |= MBMR_PTBE;	/* refresh enabled */
 
     /*
      * Check Bank 0 Memory Size for re-configuration
      */
     size_b0 = dram_size (CFG_MBMR_8COL, (ulong *)SDRAM_BASE3_PRELIM, SDRAM_MAX_SIZE);
 
-    memctl->memc_mbmr = CFG_MBMR_8COL | MAMR_PTBE;
+    memctl->memc_mbmr = CFG_MBMR_8COL | MBMR_PTBE;
 
     return (size_b0);
 }

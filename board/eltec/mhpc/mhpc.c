@@ -254,7 +254,7 @@ long int initdram (int board_type)
     upmconfig(UPMA, (uint *)sdram_table, sizeof(sdram_table)/sizeof(uint));
 
     memctl->memc_mamr  = CFG_MAMR & (~(MAMR_PTAE)); /* no refresh yet */
-    memctl->memc_mbmr  = MAMR_GPL_B4DIS;
+    memctl->memc_mbmr  = MBMR_GPL_B4DIS;	/* should this be mamr? - NTL */
     memctl->memc_mptpr = MPTPR_PTP_DIV64;
     memctl->memc_mar   = 0x00008800;
 

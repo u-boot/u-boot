@@ -1,4 +1,34 @@
 ======================================================================
+Changes for U-Boot 0.4.5:
+======================================================================
+
+* Patch by Martin Krause, 17 Jul 2003:
+  add delay to get I2C working with "imm" command and s3c24x0_i2c.c
+
+* Patch by Richard Woodruff, 17 July 03:
+  - Fixed bug in OMAP1510 baud rate divisor settings. 
+
+* Patch by Nye Liu, 16 July 2003:
+  MPC860FADS fixes:
+  - add MPC86xADS support (uses MPC86xADS.h)
+  - add 866P/T core support (also MPC859T/MPC859DSL/MPC852T)
+    o PLPRCR changes
+    o BRG changes (EXTAL/XTAL restricted to 10MHz)
+    o don't trust gclk() software measurement by default, depend on
+      CONFIG_8xx_GCLK_FREQ
+  - add DRAM SIMM not installed detection
+  - use more "correct" SDRAM initialization sequence
+  - allow different SDRAM sizes (8xxADS has 8M)
+  - default DER is 0
+  - remove unused MAMR defines from FADS860T.h (all done in fads.c)
+  - rename MAMR/MBMR defines to be more consistent. Should eventually
+    be merged into MxMR to better reflect the PowerQUICC datasheet.
+
+* Patch by Yuli Barcohen, 16 Jul 2003:
+  support new Motorola PQ2FADS-ZU evaluation board which replaced
+  MPC8260ADS and MPC8266ADS
+
+======================================================================
 Changes for U-Boot 0.4.4:
 ======================================================================
 

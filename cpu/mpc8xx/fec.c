@@ -217,7 +217,8 @@ static int fec_init(struct eth_device* dev, bd_t * bd)
 	volatile immap_t *immr = (immap_t *) CFG_IMMR;
 	volatile fec_t *fecp = &(immr->im_cpm.cp_fec);
 
-#if defined(CONFIG_FADS) && defined(CONFIG_MPC860T)
+#if defined(CONFIG_FADS) && \
+	( defined(CONFIG_MPC860T) || defined(CONFIG_MPC866_et_al) )
 	/* configure FADS for fast (FEC) ethernet, half-duplex */
 	/* The LXT970 needs about 50ms to recover from reset, so
 	 * wait for it by discovering the PHY before leaving eth_init().

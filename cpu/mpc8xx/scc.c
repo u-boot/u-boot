@@ -192,9 +192,9 @@ static int scc_init(struct eth_device* dev, bd_t *bis)
 
     volatile immap_t *immr = (immap_t *)CFG_IMMR;
 
-#if defined(CONFIG_FADS)
-#if defined(CONFIG_MPC860T)
-    /* The FADS860T doesn't use the MODEM_EN or DATA_VOICE signals.	*/
+#ifdef CONFIG_FADS
+#if defined(CONFIG_MPC86xADS) || defined(CONFIG_MPC860T)
+    /* The MPC86xADS/FADS860T don't use the MODEM_EN or DATA_VOICE signals. */
     *((uint *) BCSR4) &= ~BCSR4_ETHLOOP;
     *((uint *) BCSR4) |= BCSR4_TFPLDL|BCSR4_TPSQEL;
     *((uint *) BCSR1) &= ~BCSR1_ETHEN;

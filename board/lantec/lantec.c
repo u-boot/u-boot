@@ -149,7 +149,7 @@ long int initdram (int board_type)
 	udelay(1);		/* 0x80006106 */
 	memctl->memc_mcr = MCR_OP_RUN | MCR_MB_CS3 | MCR_MLCF(1) | MCR_MAD(0x06);
 
-	memctl->memc_mamr |= MAMR_PTBE;	/* refresh enabled */
+	memctl->memc_mamr |= MAMR_PTAE;	/* refresh enabled */
 
 	udelay(200);
 
@@ -170,7 +170,7 @@ long int initdram (int board_type)
 			     (ulong *)SDRAM_BASE3_PRELIM,
 			     SDRAM_MAX_SIZE);
 
-	memctl->memc_mamr = CFG_MAMR_8COL | MAMR_PTBE;
+	memctl->memc_mamr = CFG_MAMR_8COL | MAMR_PTAE;
 
 	/*
 	 * Final mapping:

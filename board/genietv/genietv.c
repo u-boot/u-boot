@@ -163,7 +163,7 @@ long int initdram (int board_type)
     memctl->memc_mcr  = 0x80804105;	/* SDRAM bank 1 */
 
     /* Execute refresh 8 times */
-    memctl->memc_mbmr = (CFG_MBMR_8COL & ~MAMR_TLFB_MSK) | MAMR_TLFB_8X ;
+    memctl->memc_mbmr = (CFG_MBMR_8COL & ~MBMR_TLFB_MSK) | MBMR_TLFB_8X ;
 
     memctl->memc_mcr  = 0x80802130;	/* SDRAM bank 0 - execute twice */
 

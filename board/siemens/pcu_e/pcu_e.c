@@ -217,9 +217,9 @@ initdram (int board_type)
 #endif	/* XXX */
 
     reg  =  memctl->memc_mamr;
-    reg &= ~MAMR_TLFB_MSK;		/* switch timer loop ... */
-    reg |=  MAMR_TLFB_4X;		/* ... to 4x */
-    reg |=  MAMR_PTBE;			/* enable refresh */
+    reg &= ~MAMR_TLFA_MSK;		/* switch timer loop ... */
+    reg |=  MAMR_TLFA_4X;		/* ... to 4x */
+    reg |=  MAMR_PTAE;			/* enable refresh */
     memctl->memc_mamr = reg;
 
     udelay(200);
@@ -246,7 +246,7 @@ initdram (int board_type)
     size_b0 = dram_size (CFG_MAMR, (ulong *)SDRAM_BASE2_PRELIM, SDRAM_MAX_SIZE);
 #endif	/* XXX */
 
-    memctl->memc_mamr = CFG_MAMR | MAMR_PTBE;
+    memctl->memc_mamr = CFG_MAMR | MAMR_PTAE;
 
     /*
      * Final mapping:

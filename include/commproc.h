@@ -707,10 +707,10 @@ typedef struct scc_enet {
 
 /***  FADS860T********************************************************/
 
-#if defined(CONFIG_MPC860T) && defined(CONFIG_FADS)
-/* This ENET stuff is for the MPC860TFADS with ethernet on SCC1.
+#if (defined(CONFIG_MPC860T) || defined(CONFIG_MPC866_et_al)) \
+    && defined(CONFIG_FADS)
+/* This ENET stuff is for the MPC860TFADS/MPC8xxADS with ethernet on SCC1.
  */
-
 #ifdef CONFIG_SCC1_ENET
 #define	SCC_ENET	0
 #endif	/* CONFIG_SCC1_ETHERNET */

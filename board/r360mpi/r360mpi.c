@@ -205,7 +205,7 @@ long int initdram (int board_type)
 	memctl->memc_br3 = CFG_BR3_CAN;
 
 	/* Initialize MBMR */
-	memctl->memc_mbmr = MAMR_GPL_B4DIS;	/* GPL_B4 works as UPWAITB */
+	memctl->memc_mbmr = MBMR_GPL_B4DIS;	/* GPL_B4 works as UPWAITB */
 
 	/* Initialize UPMB for CAN: single read */
 	memctl->memc_mdr = 0xFFFFC004;
