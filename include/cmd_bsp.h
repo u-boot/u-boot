@@ -318,6 +318,18 @@ int do_kbd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 #define CMD_TBL_BSP	/* dummy */
 
 #endif  /* AmigaOneG3SE */
+/* ----- PCI405 ------------------------------------------------------- */
+#if defined(CONFIG_PCI405)
+
+#define	CMD_TBL_BSP	MK_CMD_TBL_ENTRY(			\
+	"loadpci",	7,	1,	1,	do_loadpci,	\
+	"loadpci - wait for sync and boot image\n",		\
+	NULL							\
+),
+
+int do_loadpci (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+
+#endif	/* CONFIG_PCI405 */
 /* -------------------------------------------------------------------- */
 
 #else
