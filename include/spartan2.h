@@ -70,6 +70,13 @@ typedef struct {
 #define XILINX_XC2S100_SIZE 	781248/8
 #define XILINX_XC2S150_SIZE 	1040128/8
 
+/* Spartan-IIE (1.8V) */
+#define XILINX_XC2S50E_SIZE     630048/8
+#define XILINX_XC2S100E_SIZE    863840/8
+#define XILINX_XC2S150E_SIZE    1134496/8
+#define XILINX_XC2S200E_SIZE    1442016/8
+#define XILINX_XC2S300E_SIZE    1875648/8
+
 /* Descriptor Macros
  *********************************************************************/
 /* Spartan-II devices */
@@ -87,5 +94,20 @@ typedef struct {
 
 #define XILINX_XC2S150_DESC(iface, fn_table, cookie) \
 { Xilinx_Spartan2, iface, XILINX_XC2S150_SIZE, fn_table, cookie }
+
+#define XILINX_XC2S50E_DESC(iface, fn_table, cookie) \
+{ Xilinx_Spartan2, iface, XILINX_XC2S50E_SIZE, fn_table, cookie }
+
+#define XILINX_XC2S100E_DESC(iface, fn_table, cookie) \
+{ Xilinx_Spartan2, iface, XILINX_XC2S100E_SIZE, fn_table, cookie }
+
+#define XILINX_XC2S150E_DESC(iface, fn_table, cookie) \
+{ Xilinx_Spartan2, iface, XILINX_XC2S150E_SIZE, fn_table, cookie }
+
+#define XILINX_XC2S200E_DESC(iface, fn_table, cookie) \
+{ Xilinx_Spartan2, iface, XILINX_XC2S200E_SIZE, fn_table, cookie }
+
+#define XILINX_XC2S300E_DESC(iface, fn_table, cookie) \
+{ Xilinx_Spartan2, iface, XILINX_XC2S300E_SIZE, fn_table, cookie }
 
 #endif /* _SPARTAN2_H_ */

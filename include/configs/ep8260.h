@@ -26,16 +26,27 @@
 
 /*
  * board/config.h - configuration options, board specific
- *
- * Note: my board is a "SBC 8260 H, V.1.1"
+ * 
+ * "EP8260 H, V.1.1"
  * 	- 64M 60x Bus SDRAM
  * 	- 32M Local Bus SDRAM
  * 	- 16M Flash (4 x AM29DL323DB90WDI)
+ * 	- 128k NVRAM with RTC
+ *
+ * "EP8260 H2, V.1.3" (CFG_EP8260_H2)
+ * 	- 300MHz/133MHz/66MHz
+ * 	- 64M 60x Bus SDRAM
+ * 	- 32M Local Bus SDRAM
+ * 	- 32M Flash 
  * 	- 128k NVRAM with RTC
  */
 
 #ifndef __CONFIG_H
 #define __CONFIG_H
+
+/* Define this to enable support the EP8260 H2 version */
+#define CFG_EP8260_H2	1
+/* #undef CFG_EP8260_H2  */
 
 /* What is the oscillator's (UX2) frequency in Hz? */
 #define CONFIG_8260_CLKIN  (66 * 1000 * 1000)
@@ -62,7 +73,11 @@
  * 0x6	     0x1	 66	133    266
  * 0x6	     0x2	 66	133    300
  */
-#define CFG_SBC_MODCK_H 0x05
+#ifdef CFG_EP8260_H2
+#define CFG_SBC_MODCK_H  (HRCW_MODCK_H0110)
+#else
+#define CFG_SBC_MODCK_H  (HRCW_MODCK_H0110)
+#endif
 
 /* Define this if you want to boot from 0x00000100. If you don't define
  * this, you will need to program the bootloader to 0xfff00000, and
@@ -84,8 +99,13 @@
  * The main FLASH is whichever is connected to *CS0. U-Boot expects
  * this to be the SIMM.
  */
+#ifdef CFG_EP8260_H2
+#define CFG_FLASH0_BASE 0xFE000000
+#define CFG_FLASH0_SIZE 32
+#else
 #define CFG_FLASH0_BASE 0xFF000000
-#define CFG_FLASH0_SIZE 16
+#define CFG_FLASH0_SIZE 16 
+#endif
 
 /* What should the base address of the secondary FLASH be and how big
  * is it (in Mbytes)? The secondary FLASH is whichever is connected
@@ -107,7 +127,7 @@
  * local bus (8260 local bus is NOT cacheable!)
 */
 /* #define CFG_LSDRAM */
-#undef CFG_LSDRAM
+#undef CFG_LSDRAM 
 
 #ifdef CFG_LSDRAM
 /* What should be the base address of SDRAM DIMM (local bus) and how big is
@@ -125,7 +145,7 @@
 /* What should be the base address of NVRAM and how big is
  * it (in Bytes)
  */
-#define CFG_NVRAM_BASE_ADDR  0xFa080000
+#define CFG_NVRAM_BASE_ADDR  0xFA080000
 #define CFG_NVRAM_SIZE       (128*1024)-16
 
 /* The RTC is a Dallas DS1556
@@ -237,8 +257,11 @@
 #define CONFIG_ENV_OVERWRITE
 
 /* What should the console's baud rate be? */
-/* #define CONFIG_BAUDRATE         57600 */
-#define CONFIG_BAUDRATE         115200
+#ifdef CFG_EP8260_H2
+#define CONFIG_BAUDRATE         9600
+#else
+#define CONFIG_BAUDRATE         115200 
+#endif
 
 /* Ethernet MAC address */
 #define CONFIG_ETHADDR          00:10:EC:00:30:8C
@@ -296,6 +319,7 @@
 					CFG_CMD_USB	| \
 					CFG_CMD_VFD	| \
 					CFG_CMD_XIMG	) )
+
 
 /* Where do the internal registers live? */
 #define CFG_IMMR               0xF0000000
@@ -371,21 +395,22 @@
 #  define  CFG_SBC_HRCW_BOOT_FLAGS  (0x00000000)
 #endif /* defined(CFG_SBC_BOOT_LOW) */
 
-/* get the HRCW ISB field from CFG_IMMR */
-/*
-#define CFG_SBC_HRCW_IMMR ( ((CFG_IMMR & 0x10000000) >> 10) |\
-			    ((CFG_IMMR & 0x01000000) >> 7)  |\
-			    ((CFG_IMMR & 0x00100000) >> 4) )
+#ifdef CFG_EP8260_H2
+/* get the HRCW ISB field from CFG_DEFAULT_IMMR */
+#define CFG_SBC_HRCW_IMMR ( ((CFG_DEFAULT_IMMR & 0x10000000) >> 10) |\
+			    ((CFG_DEFAULT_IMMR & 0x01000000) >> 7)  |\
+			    ((CFG_DEFAULT_IMMR & 0x00100000) >> 4) )
 
 #define CFG_HRCW_MASTER (HRCW_EBM                |\
 			 HRCW_L2CPC01            |\
 			 CFG_SBC_HRCW_IMMR       |\
 			 HRCW_APPC10             |\
 			 HRCW_CS10PC01           |\
-			 HRCW_MODCK_H0101        |\
+			 CFG_SBC_MODCK_H 	 |\
 			 CFG_SBC_HRCW_BOOT_FLAGS)
-*/
+#else
 #define CFG_HRCW_MASTER 0x10400245
+#endif
 
 /* no slaves */
 #define CFG_HRCW_SLAVE1 0
@@ -432,7 +457,11 @@
  * FLASH and environment organization
  */
 #define CFG_MAX_FLASH_BANKS   1       /* max number of memory banks         */
+#ifdef CFG_EP8260_H2
+#define CFG_MAX_FLASH_SECT    128      /* max number of sectors on one chip  */
+#else
 #define CFG_MAX_FLASH_SECT    71      /* max number of sectors on one chip  */
+#endif
 
 #define CFG_FLASH_ERASE_TOUT  8000    /* Timeout for Flash Erase (in ms)    */
 #define CFG_FLASH_WRITE_TOUT  1       /* Timeout for Flash Write (in ms)    */
@@ -504,21 +533,18 @@
  * BCR - Bus Configuration                                       4-25
  *-----------------------------------------------------------------------
  */
-/*#define CFG_BCR         (BCR_EBM   |\
+#define CFG_BCR         (BCR_EBM   |\
 			 BCR_PLDP  |\
 			 BCR_EAV   |\
-			 BCR_NPQM1)
-*/
-#define CFG_BCR  0x80C08000
+			 BCR_NPQM0)
+
 /*-----------------------------------------------------------------------
  * SIUMCR - SIU Module Configuration                             4-31
  *-----------------------------------------------------------------------
  */
-
 #define CFG_SIUMCR      (SIUMCR_L2CPC01 |\
 			 SIUMCR_APPC10  |\
 			 SIUMCR_CS10PC01)
-
 
 /*-----------------------------------------------------------------------
  * SYPCR - System Protection Control                            11-9
@@ -526,18 +552,29 @@
  *-----------------------------------------------------------------------
  * Watchdog & Bus Monitor Timer max, 60x Bus Monitor enable
  */
+#ifdef CFG_EP8260_H2
+/* TBD: Find out why setting the BMT to 0xff causes the FCC to 
+ * generate TX buffer underrun errors for large packets under 
+ * Linux 
+ */
+#define CFG_SYPCR_BMT	0x00000600
+#else
+#define CFG_SYPCR_BMT	SYPCR_BMT
+#endif
+
 #ifdef CFG_LSDRAM
 #define CFG_SYPCR       (SYPCR_SWTC |\
-			 SYPCR_BMT  |\
+			 CFG_SYPCR_BMT  |\
 			 SYPCR_PBME |\
 			 SYPCR_LBME |\
 			 SYPCR_SWP)
 #else
 #define CFG_SYPCR       (SYPCR_SWTC |\
-			 SYPCR_BMT  |\
+			 CFG_SYPCR_BMT  |\
 			 SYPCR_PBME |\
 			 SYPCR_SWP)
 #endif
+
 /*-----------------------------------------------------------------------
  * TMCNTSC - Time Counter Status and Control                     4-40
  *-----------------------------------------------------------------------
@@ -555,10 +592,14 @@
  * Clear Periodic Interrupt Status, Set 32KHz timersclk, and enable
  * Periodic timer
  */
-/*#define CFG_PISCR       (PISCR_PS  |\
+#ifdef CFG_EP8260_H2
+#define CFG_PISCR       (PISCR_PS  |\
 			 PISCR_PTF |\
-			 PISCR_PTE)*/
+			 PISCR_PTE)
+#else
 #define CFG_PISCR	0
+#endif
+
 /*-----------------------------------------------------------------------
  * SCCR - System Clock Control                                   9-8
  *-----------------------------------------------------------------------
@@ -616,7 +657,7 @@
 #define CFG_OR0_PRELIM  (MEG_TO_AM(CFG_FLASH0_SIZE)     |\
 			 ORxG_CSNT                      |\
 			 ORxG_ACS_DIV1                  |\
-			 ORxG_SCY_6_CLK                 |\
+			 ORxG_SCY_8_CLK                 |\
 			 ORxG_EHTR)
 
 /* Bank 1 - SDRAM
@@ -632,9 +673,13 @@
 			 ORxS_ROWST_PBI1_A6             |\
 			 ORxS_NUMR_12)
 
+#ifdef CFG_EP8260_H2
+#define CFG_PSDMR       0xC34E246E
+#else
 #define CFG_PSDMR       0xC34E2462
-#define CFG_PSRT	0x64
+#endif
 
+#define CFG_PSRT	0x64
 
 #ifdef CFG_LSDRAM
 /* Bank 2 - SDRAM
@@ -651,7 +696,7 @@
 			   ORxS_ROWST_PBI0_A9             |\
 			   ORxS_NUMR_12)
 
-  #define CFG_LSDMR       0x416A2562
+  #define CFG_LSDMR      0x416A2562
   #define CFG_LSRT	0x64
 #else
   #define CFG_LSRT	0x0
@@ -673,6 +718,7 @@
 */
 #define CFG_OR4_PRELIM 0xfff00854
 
+#ifdef _NOT_USED_SINCE_NOT_WORKING_
 /* Bank 8 - On board registers
  * PCMCIA (currently not working!)
  */
@@ -686,6 +732,7 @@
 			   ORxG_ACS_DIV1               |\
 			   ORxG_SETA                   |\
 			   ORxG_SCY_10_CLK)
+#endif
 
 /*
  * Internal Definitions

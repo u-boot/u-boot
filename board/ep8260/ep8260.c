@@ -227,6 +227,10 @@ int checkboard (void)
 		major = 1;
 		minor = 1;
 		break;
+	case 0x06:
+		major = 1;
+		minor = 3;
+		break;
 	default:
 		break;
 	}
