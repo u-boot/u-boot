@@ -72,7 +72,20 @@ init_fnc_t *init_sequence[] = {
 
 void board_init(void)
 {
+	DECLARE_GLOBAL_DATA_PTR;
+
+	bd_t *bd;
 	init_fnc_t **init_fnc_ptr;
+
+	/* Pointer is writable since we allocated a register for it. */
+	gd = (gd_t *)CFG_GBL_DATA_OFFSET;
+	memset((void *)gd, 0, CFG_GBL_DATA_SIZE);
+
+	gd->bd = (bd_t *)(gd+1);	/* At end of global data */
+	gd->baudrate = CONFIG_BAUDRATE;
+
+	bd = gd->bd;
+	bd->bi_baudrate = CONFIG_BAUDRATE;
 
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
 		WATCHDOG_RESET ();

@@ -242,7 +242,7 @@ The following options need to be configured:
 
 		MicroBlaze based CPUs:
 		----------------------
-		CONFIG_MICROBLZE
+		CONFIG_MICROBLAZE
 
 
 - Board Type:	Define exactly one of

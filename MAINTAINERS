@@ -425,5 +425,16 @@ Scott McNutt <smcnutt@psyent.com>
 	DK1C20			Nios-32
 
 #########################################################################
+# MicroBlaze Systems:							#
+#									#
+# Maintainer Name, Email Address					#
+#	Board			CPU					#
+#########################################################################
+
+Yasushi Shoji <yashi@atmark-techno.com>
+
+	SUZAKU			MicroBlaze
+
+#########################################################################
 # End of MAINTAINERS list						#
 #########################################################################

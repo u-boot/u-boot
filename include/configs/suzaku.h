@@ -36,7 +36,7 @@
  * (easy to change)
  */
 
-#define CONFIG_MICROBLZE	1	/* This is an MicroBlaze CPU	*/
+#define CONFIG_MICROBLAZE	1	/* This is an MicroBlaze CPU	*/
 #define CONFIG_SUZAKU		1	/* on an SUZAKU Board		*/
 
 /*-----------------------------------------------------------------------
@@ -47,6 +47,7 @@
 #define CFG_SDRAM_BASE		0x80000000
 #define CFG_SDRAM_SIZE		0x01000000
 #define CFG_FLASH_BASE		0xfff00000
+#define CFG_FLASH_SIZE		0x00400000
 #define CFG_RESET_ADDRESS	0xfff00100
 #define CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor */
 #define CFG_MONITOR_BASE        (CFG_SDRAM_BASE + CFG_SDRAM_SIZE - (1024 * 1024))
@@ -86,5 +87,15 @@
 #define CFG_ENV_IS_NOWHERE	1
 #define	CFG_ENV_SIZE		0x10000	/* Total Size of Environment Sector	*/
 #define CFG_ENV_SECT_SIZE	0x10000	/* see README - env sector total size	*/
+
+/*-----------------------------------------------------------------------
+ * Definitions for initial stack pointer and data area (in DPRAM)
+ */
+
+#define CFG_INIT_RAM_ADDR	0x80000000	/* inside of SDRAM */
+#define CFG_INIT_RAM_END	0x2000		/* End of used area in RAM */
+#define CFG_GBL_DATA_SIZE	128		/* size in bytes reserved for initial data */
+#define CFG_GBL_DATA_OFFSET    (CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
+#define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
 #endif	/* __CONFIG_H */

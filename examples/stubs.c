@@ -98,7 +98,7 @@ gd_t *global_data;
 "	move.l	(%%a0), %%a0\n"		\
 "	jmp	(%%a0)\n"			\
 	: : "i"(offsetof(gd_t, jt)), "i"(XF_ ## x * sizeof(void *)) : "a0");
-#elif defined(CONFIG_MICROBLZE)
+#elif defined(CONFIG_MICROBLAZE)
 /*
  * r31 holds the pointer to the global_data. r5 is a call-clobbered.
  */

@@ -2,6 +2,16 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patches by Yasushi Shoji, 29 Jun 2004:
+  - add empty include/asm-microblaze/processor.h
+  - add to CREDITS and MAINTAINERS
+  - add gd initialization
+  - add MicroBlaze and SUZAKU board to MAKEALL script
+  - add reset support for SUZAKU
+  - add flush_cache() for MicroBlaze
+  - add CFG_FLASH_SIZE to include/configs/suzaku.h since we have fixed
+    size flash memory on SUZAKU
+
 * Patch by Prakash Kumar, 27 Jun 2004:
   Add support for the PXA250 based Intrinsyc Cerf board.
 

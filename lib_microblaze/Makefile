@@ -27,7 +27,7 @@ LIB	= lib$(ARCH).a
 
 AOBJS	=
 
-COBJS	= board.o microblaze_linux.o time.o
+COBJS	= board.o microblaze_linux.o time.o cache.o
 
 OBJS	= $(AOBJS) $(COBJS)
 

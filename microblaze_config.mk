@@ -22,6 +22,8 @@
 # MA 02111-1307 USA
 #
 
+PLATFORM_CPPFLAGS += -ffixed-r31
+
 ifdef CONFIG_MICROBLAZE_HARD_MULT
 PLATFORM_CPPFLAGS += -mno-xl-soft-mul
 endif

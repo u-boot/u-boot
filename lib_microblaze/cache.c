@@ -13,7 +13,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -22,11 +22,10 @@
  * MA 02111-1307 USA
  */
 
-/* This is a board specific file.  It's OK to include board specific
- * header files */
-#include <asm/suzaku.h>
+#include <common.h>
 
-void do_reset(void)
+void flush_cache (ulong addr, ulong size)
 {
-	*((unsigned long *)(MICROBLAZE_SYSREG_BASE_ADDR)) = MICROBLAZE_SYSREG_RECONFIGURE;
+	/* MicroBlaze have write thruough cache. nothing to do. */
+	return;
 }
