@@ -47,7 +47,7 @@ image_header_t *fake_header(image_header_t *hdr, void *ptr, int size)
 void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		ulong addr, ulong *len_ptr, int   verify)
 {
-	ulong base_ptr;
+	void *base_ptr;
 	
 	ulong len = 0, checksum;
 	ulong initrd_start, initrd_end;
@@ -150,7 +150,7 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		initrd_end = 0;
 	}
 	
-	base_ptr = load_zimage(addr + sizeof(image_header_t), ntohl(hdr->ih_size), 
+	base_ptr = load_zimage((void*)addr + sizeof(image_header_t), ntohl(hdr->ih_size), 
 			       initrd_start, initrd_end-initrd_start, 0);
 
 	if (NULL == base_ptr) {

@@ -67,15 +67,16 @@
 #undef	CONFIG_BOOTARGS
 
 /* POST support */
-#define CONFIG_POST		(CFG_POST_CACHE | \
+#define CONFIG_POST		(CFG_POST_CACHE	   | \
 				 CFG_POST_WATCHDOG | \
-				 CFG_POST_RTC | \
-				 CFG_POST_MEMORY | \
-				 CFG_POST_CPU | \
-				 CFG_POST_UART | \
-				 CFG_POST_ETHER | \
-				 CFG_POST_SPI | \
-				 CFG_POST_USB | \
+				 CFG_POST_RTC	   | \
+				 CFG_POST_MEMORY   | \
+				 CFG_POST_CPU	   | \
+				 CFG_POST_UART	   | \
+				 CFG_POST_ETHER    | \
+				 CFG_POST_I2C	   | \
+				 CFG_POST_SPI	   | \
+				 CFG_POST_USB	   | \
 				 CFG_POST_SPR)
 
 #define CONFIG_BOOTCOMMAND	"run flash_self"
@@ -116,16 +117,11 @@
 #undef	CONFIG_STATUS_LED		/* Status LED disabled		*/
 
 /* enable I2C and select the hardware/software driver */
-#define CONFIG_HARD_I2C		1	/* I2C with hardware support	*/
-#undef	CONFIG_SOFT_I2C         	/* I2C bit-banged		*/
+#undef	CONFIG_HARD_I2C			/* I2C with hardware support	*/
+#define	CONFIG_SOFT_I2C         1	/* I2C bit-banged		*/
 
-#ifdef CONFIG_HARD_I2C
-/*
- * Hardware (CPM) I2C driver configuration
- */
-# define CFG_I2C_SPEED		93000	/* 93 kHz is supposed to work	*/
-# define CFG_I2C_SLAVE		0xFE
-#endif	/* CONFIG_HARD_I2C */
+#define CFG_I2C_SPEED		93000	/* 93 kHz is supposed to work	*/
+#define CFG_I2C_SLAVE		0xFE
 
 #ifdef CONFIG_SOFT_I2C
 /*

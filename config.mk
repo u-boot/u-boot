@@ -131,10 +131,14 @@ LDFLAGS += -Bstatic -T $(LDSCRIPT) -Ttext $(TEXT_BASE) $(PLATFORM_LDFLAGS)
 ifeq ($(HOSTOS)-$(HOSTARCH),darwin-ppc)
 BFD_ROOT_DIR =		/usr/local/tools
 else
+ifeq ($(HOSTARCH),$(ARCH))
+# native
+BFD_ROOT_DIR =		/usr
+else
 #BFD_ROOT_DIR =		/LinuxPPC/CDK		# Linux/i386
 #BFD_ROOT_DIR =		/usr/pkg/cross		# NetBSD/i386
-#BFD_ROOT_DIR =		/usr			# native
 BFD_ROOT_DIR =		/opt/powerpc
+endif
 endif
 
 #########################################################################

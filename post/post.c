@@ -193,18 +193,21 @@ int post_run (char *name, int flags)
 				(flags & test_flags[last] & POST_ALWAYS) &&
 				(flags & test_flags[last] & POST_MEM)) {
 
-				post_run_single (post_list + last, test_flags[last],
-								 flags | POST_REBOOT, last);
+				post_run_single (post_list + last,
+						 test_flags[last],
+						 flags | POST_REBOOT, last);
 
 				for (i = last + 1; i < post_list_size; i++) {
-					post_run_single (post_list + i, test_flags[i],
-									 flags, i);
+					post_run_single (post_list + i,
+							 test_flags[i],
+							 flags, i);
 				}
 			}
 		} else {
 			for (i = 0; i < post_list_size; i++) {
-				post_run_single (post_list + i, test_flags[i], flags,
-								 i);
+				post_run_single (post_list + i,
+						 test_flags[i],
+						 flags, i);
 			}
 		}
 

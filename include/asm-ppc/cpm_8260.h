@@ -136,7 +136,11 @@ typedef struct cpm_buf_desc {
 
 /* Parameter RAM offsets from the base.
 */
+#ifndef CFG_CPM_POST_WORD_ADDR
 #define CPM_POST_WORD_ADDR      0x80FC	/* steal a long at the end of SCC1 */
+#else
+#define CPM_POST_WORD_ADDR	CFG_CPM_POST_WORD_ADDR
+#endif
 #define PROFF_SCC1		((uint)0x8000)
 #define PROFF_SCC2		((uint)0x8100)
 #define PROFF_SCC3		((uint)0x8200)

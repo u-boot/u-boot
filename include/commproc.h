@@ -77,7 +77,11 @@
 
 #endif
 
+#ifndef CFG_CPM_POST_WORD_ADDR
 #define CPM_POST_WORD_ADDR	0x07FC
+#else
+#define CPM_POST_WORD_ADDR	CFG_CPM_POST_WORD_ADDR
+#endif
 
 #define BD_IIC_START	((uint) 0x0400) /* <- please use CPM_I2C_BASE !! */
 

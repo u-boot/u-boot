@@ -270,7 +270,8 @@
  *
  */
 
-#define	CONFIG_PCMCIA_SLOT_B 1	/* KUP4K use SLOT_B	*/
+/* KUP4K use both slots, SLOT_A as "primary". */
+#define	CONFIG_PCMCIA_SLOT_A 1	
 
 #define CFG_PCMCIA_MEM_ADDR	(0xE0000000)
 #define CFG_PCMCIA_MEM_SIZE	( 64 << 20 )
@@ -281,6 +282,8 @@
 #define CFG_PCMCIA_IO_ADDR	(0xEC000000)
 #define CFG_PCMCIA_IO_SIZE	( 64 << 20 )
 
+#define PCMCIA_SOCKETS_NO 2
+#define PCMCIA_MEM_WIN_NO 8
 /*-----------------------------------------------------------------------
  * IDE/ATA stuff (Supports IDE harddisk on PCMCIA Adapter)
  *-----------------------------------------------------------------------
@@ -292,10 +295,12 @@
 #undef	CONFIG_IDE_LED			/* LED   for ide not supported	*/
 #undef	CONFIG_IDE_RESET		/* reset for ide not supported	*/
 
-#define CFG_IDE_MAXBUS		1	/* max. 1 IDE bus		*/
-#define CFG_IDE_MAXDEVICE	1	/* max. 1 drive per IDE bus	*/
+#define CFG_IDE_MAXBUS		2
+#define CFG_IDE_MAXDEVICE	4
 
 #define CFG_ATA_IDE0_OFFSET	0x0000
+
+#define CFG_ATA_IDE1_OFFSET	(4 * CFG_PCMCIA_MEM_SIZE)
 
 #define CFG_ATA_BASE_ADDR	CFG_PCMCIA_MEM_ADDR
 

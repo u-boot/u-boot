@@ -80,7 +80,7 @@ static int  voltage_set(int slot, int vcc, int vpp);
 static void print_funcid (int func);
 static void print_fixed  (volatile uchar *p);
 static int  identify     (volatile uchar *p);
-static int  check_ide_device (void);
+static int  check_ide_device (int slot);
 #endif	/* CONFIG_IDE_8xx_PCCARD */
 
 static u_int m8xx_get_graycode(u_int size);
@@ -139,6 +139,8 @@ int pcmcia_on (void)
 	int i;
 	u_long reg, base;
 	pcmcia_win_t *win;
+	u_int slotbit;
+	u_int rc, slot;
 
 	debug ("Enable PCMCIA " PCMCIA_SLOT_MSG "\n");
 
@@ -152,36 +154,42 @@ int pcmcia_on (void)
 		return (1);
 	}
 
+	slotbit = PCMCIA_SLOT_x;
 	for (i=0; i<PCMCIA_MEM_WIN_NO; ++i) {
 		win->br = base;
 
+#if (PCMCIA_SOCKETS_NO == 2)
+		if (i == 4) /* Another slot starting from win 4 */
+			slotbit = (slotbit ? PCMCIA_PSLOT_A : PCMCIA_PSLOT_B);
+#endif
 		switch (i) {
 #ifdef CONFIG_IDE_8xx_PCCARD
+		case 4:
 		case 0:	{	/* map attribute memory */
 			win->or = (	PCMCIA_BSIZE_64M
 				|	PCMCIA_PPS_8
 				|	PCMCIA_PRS_ATTR
-				|	PCMCIA_SLOT_x
+				|	slotbit
 				|	PCMCIA_PV
 				|	CFG_PCMCIA_TIMING );
 			break;
 		    }
-
+		case 5:
 		case 1: {	/* map I/O window for data reg */
 			win->or = (	PCMCIA_BSIZE_1K
 				|	PCMCIA_PPS_16
 				|	PCMCIA_PRS_IO
-				|	PCMCIA_SLOT_x
+				|	slotbit
 				|	PCMCIA_PV
 				|	CFG_PCMCIA_TIMING );
 			break;
 		    }
-
+		case 6:
 		case 2: {	/* map I/O window for command/ctrl reg block */
 			win->or = (	PCMCIA_BSIZE_1K
 				|	PCMCIA_PPS_8
 				|	PCMCIA_PRS_IO
-				|	PCMCIA_SLOT_x
+				|	slotbit
 				|	PCMCIA_PV
 				|	CFG_PCMCIA_TIMING );
 			break;
@@ -198,19 +206,21 @@ int pcmcia_on (void)
 		++win;
 	}
 
-	/* turn off voltage */
-	if (voltage_set(_slot_, 0, 0))
-		return (1);
-
-	/* Enable external hardware */
-	if (hardware_enable(_slot_))
-		return (1);
-
+	for (i = 0, rc = 0, slot = _slot_; i < PCMCIA_SOCKETS_NO; i++, slot = !slot) {
+		/* turn off voltage */
+		if ((rc = voltage_set(slot, 0, 0)))
+			continue;
+		
+		/* Enable external hardware */
+		if ((rc = hardware_enable(slot)))
+			continue;
+		
 #ifdef CONFIG_IDE_8xx_PCCARD
-	if (check_ide_device())
-		return (1);
+		if ((rc = check_ide_device(i)))
+			continue;
 #endif
-	return (0);
+	}
+	return (rc);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -258,11 +268,11 @@ static int pcmcia_off (void)
 #define	MAX_TUPEL_SZ	512
 #define MAX_FEATURES	4
 
-static int check_ide_device (void)
+static int check_ide_device (int slot)
 {
 	volatile uchar *ident = NULL;
 	volatile uchar *feature_p[MAX_FEATURES];
-	volatile uchar *p, *start;
+	volatile uchar *p, *start, *addr;
 	int n_features = 0;
 	uchar func_id = ~0;
 	uchar code, len;
@@ -270,9 +280,11 @@ static int check_ide_device (void)
 	int found = 0;
 	int i;
 
-	debug ("PCMCIA MEM: %08X\n", CFG_PCMCIA_MEM_ADDR);
+	addr = (volatile uchar *)(CFG_PCMCIA_MEM_ADDR + 
+							  CFG_PCMCIA_MEM_SIZE * (slot * 4));
+	debug ("PCMCIA MEM: %08X\n", addr);
 
-	start = p = (volatile uchar *) CFG_PCMCIA_MEM_ADDR;
+	start = p = (volatile uchar *) addr;
 
 	while ((p - start) < MAX_TUPEL_SZ) {
 
@@ -336,7 +348,7 @@ static int check_ide_device (void)
 	}
 
 	/* set I/O area in config reg -> only valid for ARGOSY D5!!! */
-	*((uchar *)(CFG_PCMCIA_MEM_ADDR + config_base)) = 1;
+	*((uchar *)(addr + config_base)) = 1;
 
 	return (0);
 }
@@ -564,7 +576,7 @@ static int hardware_enable(int slot)
 	debug ("[%d] %s: PIPR(%p)=0x%x\n",
 		__LINE__,__FUNCTION__,
 		&(pcmp->pcmc_pipr),pcmp->pcmc_pipr);
-	if (pcmp->pcmc_pipr & 0x00001800) {
+	if (pcmp->pcmc_pipr & (0x18000000 >> (slot << 4))) {
 		printf ("   No Card found\n");
 		return (1);
 	}
@@ -791,7 +803,7 @@ static int hardware_enable(int slot)
 	debug ("[%d] %s: PIPR(%p)=0x%x\n",
 		__LINE__,__FUNCTION__,
 		&(pcmp->pcmc_pipr),pcmp->pcmc_pipr);
-	if (pcmp->pcmc_pipr & 0x00001800) {
+	if (pcmp->pcmc_pipr & (0x18000000 >> (slot << 4))) {
 		printf ("   No Card found\n");
 		return (1);
 	}
@@ -1096,7 +1108,7 @@ static int hardware_enable(int slot)
 	debug ("[%d] %s: PIPR(%p)=0x%x\n",
 		__LINE__,__FUNCTION__,
 		&(pcmp->pcmc_pipr),pcmp->pcmc_pipr);
-	if (pcmp->pcmc_pipr & 0x00001800) {
+	if (pcmp->pcmc_pipr & (0x18000000 >> (slot << 4))) {
 		printf ("   No Card found\n");
 		return (1);
 	}
@@ -1366,7 +1378,7 @@ static int hardware_enable(int slot)
 	debug ("[%d] %s: PIPR(%p)=0x%x\n",
 		__LINE__,__FUNCTION__,
 		&(pcmp->pcmc_pipr),pcmp->pcmc_pipr);
-	if (pcmp->pcmc_pipr & 0x00001800) {
+	if (pcmp->pcmc_pipr & (0x18000000 >> (slot << 4))) {
 		printf ("   No Card found\n");
 		return (1);
 	}
@@ -1694,11 +1706,11 @@ static int hardware_enable (int slot)
 	/*
 	 * Make sure there is a card in the slot, then configure the interface.
 	 */
-	udelay (10000);
-	debug ("[%d] %s: PIPR(%p)=0x%x\n", __LINE__, __FUNCTION__,
-		  &(pcmp->pcmc_pipr), pcmp->pcmc_pipr);
-
-	if (pcmp->pcmc_pipr & 0x00001800) {
+	udelay(10000);
+	debug ("[%d] %s: PIPR(%p)=0x%x\n",
+		__LINE__,__FUNCTION__,
+		&(pcmp->pcmc_pipr),pcmp->pcmc_pipr);
+	if (pcmp->pcmc_pipr & (0x18000000 >> (slot << 4))) {
 		printf ("   No Card found\n");
 		return (1);
 	}
@@ -1816,7 +1828,7 @@ static int hardware_enable(int slot)
 	debug ("[%d] %s: PIPR(%p)=0x%x\n",
 		__LINE__,__FUNCTION__,
 		&(pcmp->pcmc_pipr),pcmp->pcmc_pipr);
-	if (pcmp->pcmc_pipr & 0x00001800) {
+	if (pcmp->pcmc_pipr & (0x18000000 >> (slot << 4))) {
 		printf ("   No Card found\n");
 		return (1);
 	}
@@ -2008,32 +2020,33 @@ static int hardware_enable(int slot)
 	sysp->sc_siumcr &= ~SIUMCR_DBGC11;	/* set DBGC to 00 */
 
 	/* clear interrupt state, and disable interrupts */
-	pcmp->pcmc_pscr =  PCMCIA_MASK(_slot_);
-	pcmp->pcmc_per &= ~PCMCIA_MASK(_slot_);
+	pcmp->pcmc_pscr =  PCMCIA_MASK(slot);
+	pcmp->pcmc_per &= ~PCMCIA_MASK(slot);
 
 	/* disable interrupts & DMA */
-	PCMCIA_PGCRX(_slot_) = 0;
+	PCMCIA_PGCRX(slot) = 0;
 
 	/*
 	 * Disable PCMCIA buffers (isolate the interface)
 	 * and assert RESET signal
 	 */
 	debug ("Disable PCMCIA buffers and assert RESET\n");
-	reg  =  PCMCIA_PGCRX(_slot_);
+	reg  =  PCMCIA_PGCRX(slot);
 	reg |=  __MY_PCMCIA_GCRX_CXRESET;	/* active high */
 	reg |=  __MY_PCMCIA_GCRX_CXOE;		/* active low  */
-	PCMCIA_PGCRX(_slot_) = reg;
-	udelay(500);
+	PCMCIA_PGCRX(slot) = reg;
+	udelay(2500);
 
 	/*
 	 * Configure Port B pins for
 	 * 3 Volts enable
 	 */
-	cp->cp_pbdir |=  KUP4K_PCMCIA_B_3V3;
-	cp->cp_pbpar &= ~KUP4K_PCMCIA_B_3V3;
-	/* remove all power */
-	cp->cp_pbdat |=  KUP4K_PCMCIA_B_3V3; /* active low */
-
+	if (slot) { /* Slot A is built-in */
+		cp->cp_pbdir |=  KUP4K_PCMCIA_B_3V3;
+		cp->cp_pbpar &= ~KUP4K_PCMCIA_B_3V3;
+		/* remove all power */
+		cp->cp_pbdat |=  KUP4K_PCMCIA_B_3V3; /* active low */
+	}
 	/*
 	 * Make sure there is a card in the slot, then configure the interface.
 	 */
@@ -2041,7 +2054,7 @@ static int hardware_enable(int slot)
 	debug ("[%d] %s: PIPR(%p)=0x%x\n",
 		__LINE__,__FUNCTION__,
 		&(pcmp->pcmc_pipr),pcmp->pcmc_pipr);
-	if (pcmp->pcmc_pipr & 0x00001800) {
+	if (pcmp->pcmc_pipr & (0x18000000 >> (slot << 4))) {
 		printf ("   No Card found\n");
 		return (1);
 	}
@@ -2049,6 +2062,7 @@ static int hardware_enable(int slot)
 	/*
 	 * Power On.
 	 */
+	printf("\n Slot %c:", 'A' + slot);
 	mask = PCMCIA_VS1(slot) | PCMCIA_VS2(slot);
 	reg  = pcmp->pcmc_pipr;
 	debug ("PIPR: 0x%x ==> VS1=o%s, VS2=o%s\n",
@@ -2058,7 +2072,8 @@ static int hardware_enable(int slot)
 	if ((reg & mask) == mask) {
 		puts (" 5.0V card found: NOT SUPPORTED !!!\n");
 	} else {
-		cp->cp_pbdat &= ~KUP4K_PCMCIA_B_3V3;
+		if(slot)
+			cp->cp_pbdat &= ~KUP4K_PCMCIA_B_3V3;
 		puts (" 3.3V card found: ");
 	}
 #if 0
@@ -2068,10 +2083,10 @@ static int hardware_enable(int slot)
 	udelay(500000);
 #endif
 	debug ("Enable PCMCIA buffers and stop RESET\n");
-	reg  =  PCMCIA_PGCRX(_slot_);
+	reg  =  PCMCIA_PGCRX(slot);
 	reg &= ~__MY_PCMCIA_GCRX_CXRESET;	/* active high */
 	reg &= ~__MY_PCMCIA_GCRX_CXOE;		/* active low  */
-	PCMCIA_PGCRX(_slot_) = reg;
+	PCMCIA_PGCRX(slot) = reg;
 
 	udelay(250000);	/* some cards need >150 ms to come up :-( */
 
@@ -2097,16 +2112,17 @@ static int hardware_disable(int slot)
 	cp    = (cpm8xx_t *)(&(((immap_t *)CFG_IMMR)->im_cpm));
 	
 	/* remove all power */
-	cp->cp_pbdat |= DDC4000_PCMCIA_B_3V3;
+	if (slot)
+		cp->cp_pbdat |= KUP4K_PCMCIA_B_3V3;
 
 	/* Configure PCMCIA General Control Register */
-	PCMCIA_PGCRX(_slot_) = 0;
+	PCMCIA_PGCRX(slot) = 0;
 
 	debug ("Disable PCMCIA buffers and assert RESET\n");
-	reg  =  PCMCIA_PGCRX(_slot_);
+	reg  =  PCMCIA_PGCRX(slot);
 	reg |= __MY_PCMCIA_GCRX_CXRESET;	/* active high */
 	reg |= __MY_PCMCIA_GCRX_CXOE;		/* active low  */
-	PCMCIA_PGCRX(_slot_) = reg;
+	PCMCIA_PGCRX(slot) = reg;
 
 	udelay(10000);
 
@@ -2128,6 +2144,9 @@ static int voltage_set(int slot, int vcc, int vpp)
 		" Slot %c, Vcc=%d.%d, Vpp=%d.%d\n",
 		'A'+slot, vcc/10, vcc%10, vpp/10, vcc%10);
 
+	if (!slot) /* Slot A is not configurable */
+		return 0;
+
 	immap = (immap_t *)CFG_IMMR;
 	pcmp = (pcmconf8xx_t *)(&(((immap_t *)CFG_IMMR)->im_pcmcia));
 	cp    = (cpm8xx_t *)(&(((immap_t *)CFG_IMMR)->im_cpm));
@@ -2137,10 +2156,10 @@ static int voltage_set(int slot, int vcc, int vpp)
 	 * and assert RESET signal
 	 */
 	debug ("Disable PCMCIA buffers and assert RESET\n");
-	reg  =  PCMCIA_PGCRX(_slot_);
+	reg  =  PCMCIA_PGCRX(slot);
 	reg |=  __MY_PCMCIA_GCRX_CXRESET;	/* active high */
 	reg |=  __MY_PCMCIA_GCRX_CXOE;		/* active low  */
-	PCMCIA_PGCRX(_slot_) = reg;
+	PCMCIA_PGCRX(slot) = reg;
 	udelay(500);
 
 	debug ("PCMCIA power OFF\n");
@@ -2166,21 +2185,21 @@ static int voltage_set(int slot, int vcc, int vpp)
 		puts("PCMCIA: vcc not supported");
 		break;
 	}
-
+	udelay(10000);
 	/* Checking supported voltages */
 
 	debug ("PIPR: 0x%x --> %s\n",
 		pcmp->pcmc_pipr,
-		(pcmp->pcmc_pipr & 0x00008000) 
+		   (pcmp->pcmc_pipr & (0x80000000 >> (slot << 4)))
 			? "only 5 V --> NOT SUPPORTED"
 			: "can do 3.3V");
 
 
 	debug ("Enable PCMCIA buffers and stop RESET\n");
-	reg  =  PCMCIA_PGCRX(_slot_);
+	reg  =  PCMCIA_PGCRX(slot);
 	reg &= ~__MY_PCMCIA_GCRX_CXRESET;	/* active high */
 	reg &= ~__MY_PCMCIA_GCRX_CXOE;		/* active low  */
-	PCMCIA_PGCRX(_slot_) = reg;
+	PCMCIA_PGCRX(slot) = reg;
 	udelay(500);
 
 	debug ("voltage_set: " PCMCIA_BOARD_MSG " Slot %c, DONE\n",

@@ -171,7 +171,7 @@ Done:
 int	flash_erase (flash_info_t *info, int s_first, int s_last)
 {
     ulong result;
-    int iflag, cflag, prot, sect;
+    int iflag, prot, sect;
     int rc = ERR_OK;
     int chip1, chip2;
 

@@ -17,16 +17,16 @@
 #include <asm/io.h>
 #include <pci.h>
 
-#define cfg_read(val, addr, type, op)	*val = op((type)(addr))
-#define cfg_write(val, addr, type, op)	op((val), (type *)(addr))
+#define cfg_read(val, addr, op)	*val = op((int)(addr))
+#define cfg_write(val, addr, op)	op((val), (int)(addr))
 
 #define TYPE1_PCI_OP(rw, size, type, op, mask)			 \
 static int								 \
 type1_##rw##_config_##size(struct pci_controller *hose, 		 \
 			      pci_dev_t dev, int offset, type val)	 \
 {									 \
-	outl(dev | (offset & 0xfc) | 0x80000000, hose->cfg_addr); 	 \
-	cfg_##rw(val, hose->cfg_data + (offset & mask), type, op);	 \
+	outl(dev | (offset & 0xfc) | 0x80000000, (int)hose->cfg_addr); 	 \
+	cfg_##rw(val, hose->cfg_data + (offset & mask), op);	 \
 	return 0;    					 		 \
 }
 

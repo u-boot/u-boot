@@ -2,6 +2,15 @@
 Changes since for U-Boot 0.1.0:
 ======================================================================
 
+* Added support for both PCMCIA slots (at the same time!) on MPC8xx
+
+* Patch by Rod Boyce, 21 Nov 2002:
+  fix PCMCIA on MBX8xx board
+
+* Patch by Pierre Aubert , 21 Nov 2002
+  Add CFG_CPM_POST_WORD_ADDR to make the offset of the
+  bootmode word in DPRAM configurable
+
 * Patch by Daniel Engström, 18 Nov 2002:
   Fixes for x86 port (mostly strings issues)
 

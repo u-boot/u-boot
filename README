@@ -1653,6 +1653,12 @@ Low Level (hardware related) configuration options:
 		wrong setting might damage your board. Read
 		doc/README.MBX before setting this variable!
 
+- CFG_CPM_POST_WORD_ADDR: (MPC8xx, MPC8260 only)
+                Offset of the bootmode word in DPRAM used by post
+                (Power On Self Tests). This definition overrides
+                #define'd default value in commproc.h resp.
+                cpm_8260.h.
+
 Building the Software:
 ======================
 

@@ -285,4 +285,6 @@ int last_stage_init(void)
 	minor |= ali512x_cio_in(20)?1:0;
 	
 	printf("AMD SC520 CDP revision %d.%d\n", major, minor);
+	
+	return 0;
 }

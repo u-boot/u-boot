@@ -76,8 +76,12 @@
 #error Both CONFIG_PCMCIA_SLOT_A and CONFIG_PCMCIA_SLOT_B configured
 #endif
 
+#ifndef PCMCIA_SOCKETS_NO
 #define PCMCIA_SOCKETS_NO	1
+#endif
+#ifndef PCMCIA_MEM_WIN_NO
 #define PCMCIA_MEM_WIN_NO	4
+#endif
 #define PCMCIA_IO_WIN_NO	2
 
 /* define _slot_ to be able to optimize macros */

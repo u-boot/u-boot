@@ -24,6 +24,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/ptrace.h>
+#include <asm/realmode.h>
 
 
 #define REALMODE_BASE    ((char*)0x7c0)
@@ -44,16 +45,16 @@ int enter_realmode(u16 seg, u16 off, struct pt_regs *in, struct pt_regs *out)
 	/* copy the realmode switch code */
 	if (i386boot_realmode_size > (REALMODE_MAILBOX-REALMODE_BASE)) {
 		printf("realmode switch too large (%ld bytes, max is %d)\n", 
-		       i386boot_realmode_size, (REALMODE_MAILBOX-REALMODE_BASE));
+		       i386boot_realmode_size, (int)(REALMODE_MAILBOX-REALMODE_BASE));
 		return -1;
 	}
 	
-	memcpy(REALMODE_BASE, i386boot_realmode, i386boot_realmode_size);
+	memcpy(REALMODE_BASE, (void*)i386boot_realmode, i386boot_realmode_size);
 		
 	
 	in->eip = off;
 	in->xcs = seg;
-	if (3>in->esp & 0xffff) {
+	if (3>(in->esp & 0xffff)) {
 		printf("Warning: entering realmode with sp < 4 will fail\n");
 	}
 	
