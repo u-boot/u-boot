@@ -83,6 +83,10 @@ N: Dave Ellis
 E: DGE@sixnetio.com
 D: EEPROM Speedup, SXNI855T port
 
+N: Daniel Engström
+E: daniel@omicron.se
+D: x86 port, Support for sc520_cdp board
+
 N: Dr. Wolfgang Grandegger
 E: wg@denx.de
 D: Support for Interphase 4539 T1/E1/J1 PMC, PN62, CCM, SCM boards

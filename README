@@ -536,6 +536,7 @@ The following options need to be configured:
 		CFG_CMD_ELF	  bootelf, bootvx
 		CFG_CMD_ENV	  saveenv
 		CFG_CMD_FDC	* Floppy Disk Support
+		CFG_CMD_FDOS	* Dos diskette Support
 		CFG_CMD_FLASH	  flinfo, erase, protect
 		CFG_CMD_FPGA	  FPGA device initialization support
 		CFG_CMD_I2C	* I2C serial bus support
@@ -1127,6 +1128,7 @@ The following options need to be configured:
                 Define this to contain any number of null terminated
                 strings (variable = value pairs) that will be part of
                 the default enviroment compiled into the boot image.
+
                 For example, place something like this in your
                 board's config file:
 
@@ -1136,9 +1138,9 @@ The following options need to be configured:
 
                 Warning: This method is based on knowledge about the
                 internal format how the environment is stored by the
-                U-Boot code. This is NOT an official, expoerted
+                U-Boot code. This is NOT an official, exported
                 interface! Although it is unlikely that this format
-                will change soon, there is no guarantee either.
+                will change soon, but there is no guarantee either.
 		You better know what you are doing here.
 
                 Note: overly (ab)use of the default environment is

@@ -288,8 +288,8 @@ static int pcnet_probe(struct eth_device* dev, bd_t *bis, int dev_nr)
 	unsigned int val;
 	val = pcnet_read_csr(dev, i+12) & 0x0ffff;
 	/* There may be endianness issues here. */
-	dev->dev_addr[2*i] = val & 0x0ff;
-	dev->dev_addr[2*i+1] = (val >> 8) & 0x0ff;
+	dev->enetaddr[2*i  ] =  val       & 0x0ff;
+	dev->enetaddr[2*i+1] = (val >> 8) & 0x0ff;
     }
 #endif /* PCNET_HAS_PROM */
 
@@ -349,7 +349,7 @@ static int pcnet_init(struct eth_device* dev, bd_t *bis)
 	lp->rx_ring[i].base = PCI_TO_MEM_LE(dev, lp->rx_buf[i]);
 	lp->rx_ring[i].buf_length = cpu_to_le16(-PKT_BUF_SZ);
 	lp->rx_ring[i].status = cpu_to_le16(0x8000);
-	DEBUG1("Rx%d: base=0x%x buf_length=0x%x status=0x%x\n",
+	DEBUG1("Rx%d: base=0x%x buf_length=0x%hx status=0x%hx\n",
 	       i, lp->rx_ring[i].base, lp->rx_ring[i].buf_length,
 	       lp->rx_ring[i].status);
     }

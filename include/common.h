@@ -130,10 +130,15 @@ int	getenv_r     (uchar *name, uchar *buf, unsigned len);
 int	saveenv      (void);
 #ifdef CONFIG_PPC		/* ARM version to be fixed! */
 void inline setenv   (char *, char *);
+#else
+void    setenv       (char *, char *);
 #endif /* CONFIG_PPC */
 #ifdef CONFIG_ARM
 # include <asm/u-boot-arm.h>	/* ARM version to be fixed! */
 #endif /* CONFIG_ARM */
+#ifdef CONFIG_I386		/* x86 version to be fixed! */
+# include <asm/ppcboot-i386.h>  
+#endif /* CONFIG_I386 */
 
 void    pci_init      (void);
 void    pciinfo       (int, int);

@@ -2,6 +2,12 @@
 Changes since for U-Boot 0.1.0:
 ======================================================================
 
+* Patch by Daniel Engström, 13 Nov 2002:
+  Add support for i386 architecture and AMD SC520 board
+
+* Patch by Pierre Aubert, 12 Nov 2002:
+  Add support for DOS filesystem and booting from DOS floppy disk
+
 * Patch by Jim Sandoz, 07 Nov 2002:
   Increase number of network RX buffers (PKTBUFSRX in
   "include/net.h") for EEPRO100 based boards (especially SP8240)

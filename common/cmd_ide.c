@@ -44,6 +44,9 @@
 #ifdef CONFIG_STATUS_LED
 # include <status_led.h>
 #endif
+#ifdef __I386__
+#include <asm/io.h>
+#endif
 
 #ifdef CONFIG_SHOW_BOOT_PROGRESS
 # include <status_led.h>
@@ -114,7 +117,9 @@ ulong ide_bus_offset[CFG_IDE_MAXBUS] = {
 #endif
 };
 
+#ifdef __PPC__
 #define	ATA_CURR_BASE(dev)	(CFG_ATA_BASE_ADDR+ide_bus_offset[IDE_BUS(dev)])
+#endif
 
 static int	    ide_bus_ok[CFG_IDE_MAXBUS];
 
@@ -142,9 +147,11 @@ static uchar ide_wait  (int dev, ulong t);
 
 #define IDE_SPIN_UP_TIME_OUT 5000 /* 5 sec spin-up timeout */
 
-static void __inline__ outb(int dev, int port, unsigned char val);
-static unsigned char __inline__ inb(int dev, int port);
+static void __inline__ ide_outb(int dev, int port, unsigned char val);
+static unsigned char __inline__ ide_inb(int dev, int port);
+#ifdef __PPC__
 static void input_swap_data(int dev, ulong *sect_buf, int words);
+#endif
 static void input_data(int dev, ulong *sect_buf, int words);
 static void output_data(int dev, ulong *sect_buf, int words);
 static void ident_cpy (unsigned char *dest, unsigned char *src, unsigned int len);
@@ -517,14 +524,14 @@ void ide_init (void)
 		/* Select device
 		 */
 		udelay (100000);		/* 100 ms */
-		outb (dev, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(dev));
+		ide_outb (dev, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(dev));
 		udelay (100000);		/* 100 ms */
 
 		i = 0;
 		do {
 			udelay (10000);		/* 10 ms */
 
-			c = inb (dev, ATA_STATUS);
+			c = ide_inb (dev, ATA_STATUS);
 			i++;
 			if (i > (ATA_RESET_TIME * 100)) {
 				puts ("** Timeout **\n");
@@ -679,30 +686,48 @@ set_pcmcia_timing (int pmode)
 
 /* ------------------------------------------------------------------------- */
 
+#ifdef __PPC__
 static void __inline__
-outb(int dev, int port, unsigned char val)
+ide_outb(int dev, int port, unsigned char val)
 {
 	/* Ensure I/O operations complete */
 	__asm__ volatile("eieio");
 	*((uchar *)(ATA_CURR_BASE(dev)+port)) = val;
 #if 0
-	printf ("OUTB: 0x%08lx <== 0x%02x\n", ATA_CURR_BASE(dev)+port, val);
+	printf ("ide_outb: 0x%08lx <== 0x%02x\n", ATA_CURR_BASE(dev)+port, val);
 #endif
 }
+#else	/* ! __PPC__ */
+static void __inline__
+ide_outb(int dev, int port, unsigned char val)
+{
+	outb(val, port);
+}
+#endif	/* __PPC__ */
 
+
+#ifdef __PPC__
 static unsigned char __inline__
-inb(int dev, int port)
+ide_inb(int dev, int port)
 {
 	uchar val;
 	/* Ensure I/O operations complete */
 	__asm__ volatile("eieio");
 	val = *((uchar *)(ATA_CURR_BASE(dev)+port));
 #if 0
-	printf ("INB: 0x%08lx ==> 0x%02x\n", ATA_CURR_BASE(dev)+port, val);
+	printf ("ide_inb: 0x%08lx ==> 0x%02x\n", ATA_CURR_BASE(dev)+port, val);
 #endif
 	return (val);
 }
+#else	/* ! __PPC__ */
+static unsigned char __inline__
+ide_inb(int dev, int port)
+{
+	return inb(port);
+}
+#endif	/* __PPC__ */
 
+#ifdef __PPC__
 __inline__ unsigned ld_le16(const volatile unsigned short *addr)
 {
 	unsigned val;
@@ -722,7 +747,14 @@ input_swap_data(int dev, ulong *sect_buf, int words)
 		*dbuf++ = ld_le16(pbuf);
 	}
 }
+#else	/* ! __PPC__ */
+#define input_swap_data(x,y,z) input_data(x,y,z)
+#endif	/* __PPC__ */
 
+
+
+
+#ifdef __PPC__
 static void
 output_data(int dev, ulong *sect_buf, int words)
 {
@@ -738,7 +770,15 @@ output_data(int dev, ulong *sect_buf, int words)
 		*pbuf = *dbuf++;
 	}
 }
+#else	/* ! __PPC__ */
+static void
+output_data(int dev, ulong *sect_buf, int words)
+{
+	outsw(ATA_DATA_REG, sect_buf, words<<1);
+}
+#endif	/* __PPC__ */
 
+#ifdef __PPC__
 static void
 input_data(int dev, ulong *sect_buf, int words)
 {
@@ -754,6 +794,14 @@ input_data(int dev, ulong *sect_buf, int words)
 		*dbuf++ = *pbuf;
 	}
 }
+#else	/* ! __PPC__ */
+static void
+input_data(int dev, ulong *sect_buf, int words)
+{
+	insw(ATA_DATA_REG, sect_buf, words << 1);
+}
+
+#endif	/* __PPC__ */
 
 /* -------------------------------------------------------------------------
  */
@@ -773,19 +821,19 @@ static void ide_ident (block_dev_desc_t *dev_desc)
 	ide_led (DEVICE_LED(device), 1);	/* LED on	*/
 	/* Select device
 	 */
-	outb (device, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(device));
+	ide_outb (device, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(device));
 	dev_desc->if_type=IF_TYPE_IDE;
 #ifdef CONFIG_ATAPI
 	/* check signature */
-	if ((inb(device,ATA_SECT_CNT)==0x01) &&
-		 (inb(device,ATA_SECT_NUM)==0x01) &&
-		 (inb(device,ATA_CYL_LOW)==0x14) &&
-		 (inb(device,ATA_CYL_HIGH)==0xEB)) {
+	if ((ide_inb(device,ATA_SECT_CNT) == 0x01) &&
+		 (ide_inb(device,ATA_SECT_NUM) == 0x01) &&
+		 (ide_inb(device,ATA_CYL_LOW)  == 0x14) &&
+		 (ide_inb(device,ATA_CYL_HIGH) == 0xEB)) {
 		/* ATAPI Signature found */
 		dev_desc->if_type=IF_TYPE_ATAPI;
 		/* Start Ident Command
 		 */
-		outb (device, ATA_COMMAND, ATAPI_CMD_IDENT);
+		ide_outb (device, ATA_COMMAND, ATAPI_CMD_IDENT);
 		/*
 		 * Wait for completion - ATAPI devices need more time
 		 * to become ready
@@ -797,7 +845,7 @@ static void ide_ident (block_dev_desc_t *dev_desc)
 	{
 		/* Start Ident Command
 		 */
-		outb (device, ATA_COMMAND, ATA_CMD_IDENT);
+		ide_outb (device, ATA_COMMAND, ATA_CMD_IDENT);
 
 		/* Wait for completion
 		 */
@@ -867,15 +915,15 @@ static void ide_ident (block_dev_desc_t *dev_desc)
 #if 0 	/* only used to test the powersaving mode,
 	 * if enabled, the drive goes after 5 sec
 	 * in standby mode */
-	outb (device, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(device));
+	ide_outb (device, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(device));
 	c = ide_wait (device, IDE_TIME_OUT);
-	outb (device, ATA_SECT_CNT, 1);
-	outb (device, ATA_LBA_LOW,  0);
-	outb (device, ATA_LBA_MID,  0);
-	outb (device, ATA_LBA_HIGH, 0);
-	outb (device, ATA_DEV_HD,   ATA_LBA		|
+	ide_outb (device, ATA_SECT_CNT, 1);
+	ide_outb (device, ATA_LBA_LOW,  0);
+	ide_outb (device, ATA_LBA_MID,  0);
+	ide_outb (device, ATA_LBA_HIGH, 0);
+	ide_outb (device, ATA_DEV_HD,   ATA_LBA		|
 				    ATA_DEVICE(device));
-	outb (device, ATA_COMMAND,  0xe3);
+	ide_outb (device, ATA_COMMAND,  0xe3);
 	udelay (50);
 	c = ide_wait (device, IDE_TIME_OUT);	/* can't take over 500 ms */
 #endif
@@ -897,7 +945,7 @@ ulong ide_read (int device, ulong blknr, ulong blkcnt, ulong *buffer)
 
 	/* Select device
 	 */
-	outb (device, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(device));
+	ide_outb (device, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(device));
 	c = ide_wait (device, IDE_TIME_OUT);
 
 	if (c & ATA_STAT_BUSY) {
@@ -907,7 +955,7 @@ ulong ide_read (int device, ulong blknr, ulong blkcnt, ulong *buffer)
 
 	/* first check if the drive is in Powersaving mode, if yes,
 	 * increase the timeout value */
-	outb (device, ATA_COMMAND,  ATA_CMD_CHK_PWR);
+	ide_outb (device, ATA_COMMAND,  ATA_CMD_CHK_PWR);
 	udelay (50);
 
 	c = ide_wait (device, IDE_TIME_OUT);	/* can't take over 500 ms */
@@ -919,7 +967,7 @@ ulong ide_read (int device, ulong blknr, ulong blkcnt, ulong *buffer)
 	if ((c & ATA_STAT_ERR) == ATA_STAT_ERR) {
 		printf ("No Powersaving mode %X\n", c);
 	} else {
-		c = inb(device,ATA_SECT_CNT);
+		c = ide_inb(device,ATA_SECT_CNT);
 		PRINTF("Powersaving %02X\n",c);
 		if(c==0)
 			pwrsave=1;
@@ -935,14 +983,14 @@ ulong ide_read (int device, ulong blknr, ulong blkcnt, ulong *buffer)
 			break;
 		}
 
-		outb (device, ATA_SECT_CNT, 1);
-		outb (device, ATA_LBA_LOW,  (blknr >>  0) & 0xFF);
-		outb (device, ATA_LBA_MID,  (blknr >>  8) & 0xFF);
-		outb (device, ATA_LBA_HIGH, (blknr >> 16) & 0xFF);
-		outb (device, ATA_DEV_HD,   ATA_LBA		|
+		ide_outb (device, ATA_SECT_CNT, 1);
+		ide_outb (device, ATA_LBA_LOW,  (blknr >>  0) & 0xFF);
+		ide_outb (device, ATA_LBA_MID,  (blknr >>  8) & 0xFF);
+		ide_outb (device, ATA_LBA_HIGH, (blknr >> 16) & 0xFF);
+		ide_outb (device, ATA_DEV_HD,   ATA_LBA		|
 					    ATA_DEVICE(device)	|
 					    ((blknr >> 24) & 0xF) );
-		outb (device, ATA_COMMAND,  ATA_CMD_READ);
+		ide_outb (device, ATA_COMMAND,  ATA_CMD_READ);
 
 		udelay (50);
 
@@ -960,7 +1008,7 @@ ulong ide_read (int device, ulong blknr, ulong blkcnt, ulong *buffer)
 		}
 
 		input_data (device, buffer, ATA_SECTORWORDS);
-		(void) inb (device, ATA_STATUS);	/* clear IRQ */
+		(void) ide_inb (device, ATA_STATUS);	/* clear IRQ */
 
 		++n;
 		++blknr;
@@ -983,7 +1031,7 @@ ulong ide_write (int device, ulong blknr, ulong blkcnt, ulong *buffer)
 
 	/* Select device
 	 */
-	outb (device, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(device));
+	ide_outb (device, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(device));
 
 	while (blkcnt-- > 0) {
 
@@ -994,14 +1042,14 @@ ulong ide_write (int device, ulong blknr, ulong blkcnt, ulong *buffer)
 			goto WR_OUT;
 		}
 
-		outb (device, ATA_SECT_CNT, 1);
-		outb (device, ATA_LBA_LOW,  (blknr >>  0) & 0xFF);
-		outb (device, ATA_LBA_MID,  (blknr >>  8) & 0xFF);
-		outb (device, ATA_LBA_HIGH, (blknr >> 16) & 0xFF);
-		outb (device, ATA_DEV_HD,   ATA_LBA		|
+		ide_outb (device, ATA_SECT_CNT, 1);
+		ide_outb (device, ATA_LBA_LOW,  (blknr >>  0) & 0xFF);
+		ide_outb (device, ATA_LBA_MID,  (blknr >>  8) & 0xFF);
+		ide_outb (device, ATA_LBA_HIGH, (blknr >> 16) & 0xFF);
+		ide_outb (device, ATA_DEV_HD,   ATA_LBA		|
 					    ATA_DEVICE(device)	|
 					    ((blknr >> 24) & 0xF) );
-		outb (device, ATA_COMMAND,  ATA_CMD_WRITE);
+		ide_outb (device, ATA_COMMAND,  ATA_CMD_WRITE);
 
 		udelay (50);
 
@@ -1014,7 +1062,7 @@ ulong ide_write (int device, ulong blknr, ulong blkcnt, ulong *buffer)
 		}
 
 		output_data (device, buffer, ATA_SECTORWORDS);
-		c = inb (device, ATA_STATUS);	/* clear IRQ */
+		c = ide_inb (device, ATA_STATUS);	/* clear IRQ */
 		++n;
 		++blknr;
 		buffer += ATA_SECTORWORDS;
@@ -1063,7 +1111,7 @@ static uchar ide_wait (int dev, ulong t)
 	ulong delay = 10 * t;		/* poll every 100 us */
 	uchar c;
 
-	while ((c = inb(dev, ATA_STATUS)) & ATA_STAT_BUSY) {
+	while ((c = ide_inb(dev, ATA_STATUS)) & ATA_STAT_BUSY) {
 		udelay (100);
 		if (delay-- == 0) {
 			break;
@@ -1188,6 +1236,7 @@ static void ide_led (uchar led, uchar status)
 #define AT_PRINTF(fmt,args...)
 #endif
 
+#ifdef __PPC__
 /* since ATAPI may use commands with not 4 bytes alligned length
  * we have our own transfer functions, 2 bytes alligned */
 static void
@@ -1218,6 +1267,22 @@ input_data_shorts(int dev, ushort *sect_buf, int shorts)
 	}
 }
 
+#else	/* ! __PPC__ */
+static void
+output_data_shorts(int dev, ushort *sect_buf, int shorts)
+{
+	outsw(ATA_DATA_REG, sect_buf, shorts);
+}
+
+
+static void
+input_data_shorts(int dev, ushort *sect_buf, int shorts)
+{
+	insw(ATA_DATA_REG, sect_buf, shorts);
+}
+
+#endif	/* __PPC__ */
+
 /*
  * Wait until (Status & mask) == res, or timeout (in ms)
  * Return last status
@@ -1229,9 +1294,8 @@ static uchar atapi_wait_mask (int dev, ulong t,uchar mask, uchar res)
 	ulong delay = 10 * t;		/* poll every 100 us */
 	uchar c;
 
-	c = inb(dev,ATA_DEV_CTL); /* prevents to read the status before valid */
-	while (((c = inb(dev, ATA_STATUS)) & mask)
-			!= res) {
+	c = ide_inb(dev,ATA_DEV_CTL); /* prevents to read the status before valid */
+	while (((c = ide_inb(dev, ATA_STATUS)) & mask) != res) {
 		/* break if error occurs (doesn't make sense to wait more) */
 		if((c & ATA_STAT_ERR)==ATA_STAT_ERR)
 			break;
@@ -1256,7 +1320,7 @@ unsigned char atapi_issue(int device,unsigned char* ccb,int ccblen, unsigned cha
 	 */
 	mask = ATA_STAT_BUSY|ATA_STAT_DRQ;
 	res = 0;
-	outb (device, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(device));
+	ide_outb (device, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(device));
 	c = atapi_wait_mask(device,ATAPI_TIME_OUT,mask,res);
 	if ((c & mask) != res) {
 		printf ("ATAPI_ISSUE: device %d not ready status %X\n", device,c);
@@ -1264,12 +1328,12 @@ unsigned char atapi_issue(int device,unsigned char* ccb,int ccblen, unsigned cha
 		goto AI_OUT;
 	}
 	/* write taskfile */
-	outb (device, ATA_ERROR_REG, 0); /* no DMA, no overlaped */
-	outb (device, ATA_CYL_LOW,  (unsigned char)(buflen & 0xFF));
-	outb (device, ATA_CYL_HIGH, (unsigned char)((buflen<<8) & 0xFF));
-	outb (device, ATA_DEV_HD,   ATA_LBA | ATA_DEVICE(device));
+	ide_outb (device, ATA_ERROR_REG, 0); /* no DMA, no overlaped */
+	ide_outb (device, ATA_CYL_LOW,  (unsigned char)(buflen & 0xFF));
+	ide_outb (device, ATA_CYL_HIGH, (unsigned char)((buflen<<8) & 0xFF));
+	ide_outb (device, ATA_DEV_HD,   ATA_LBA | ATA_DEVICE(device));
 
-	outb (device, ATA_COMMAND,  ATAPI_CMD_PACKET);
+	ide_outb (device, ATA_COMMAND,  ATAPI_CMD_PACKET);
 	udelay (50);
 
 	mask = ATA_STAT_DRQ|ATA_STAT_BUSY|ATA_STAT_ERR;
@@ -1295,7 +1359,7 @@ unsigned char atapi_issue(int device,unsigned char* ccb,int ccblen, unsigned cha
 	c = atapi_wait_mask(device,ATAPI_TIME_OUT,mask,res);
 	if ((c & mask) != res ) {
 		if (c & ATA_STAT_ERR) {
-			err=(inb(device,ATA_ERROR_REG))>>4;
+			err=(ide_inb(device,ATA_ERROR_REG))>>4;
 			AT_PRINTF("atapi_issue 1 returned sense key %X status %02X\n",err,c);
 		} else {
 			printf ("ATTAPI_ISSUE: (no DRQ) after sending ccb (%x)  status 0x%02x\n", ccb[0],c);
@@ -1303,9 +1367,9 @@ unsigned char atapi_issue(int device,unsigned char* ccb,int ccblen, unsigned cha
 		}
 		goto AI_OUT;
 	}
-	n=inb(device, ATA_CYL_HIGH);
+	n=ide_inb(device, ATA_CYL_HIGH);
 	n<<=8;
-	n+=inb(device, ATA_CYL_LOW);
+	n+=ide_inb(device, ATA_CYL_LOW);
 	if(n>buflen) {
 		printf("ERROR, transfer bytes %d requested only %d\n",n,buflen);
 		err=0xff;
@@ -1324,7 +1388,7 @@ unsigned char atapi_issue(int device,unsigned char* ccb,int ccblen, unsigned cha
 		 /* we transfer shorts */
 		n>>=1;
 		/* ok now decide if it is an in or output */
-		if ((inb(device, ATA_SECT_CNT)&0x02)==0) {
+		if ((ide_inb(device, ATA_SECT_CNT)&0x02)==0) {
 			AT_PRINTF("Write to device\n");
 			output_data_shorts(device,(unsigned short *)buffer,n);
 		} else {
@@ -1337,7 +1401,7 @@ unsigned char atapi_issue(int device,unsigned char* ccb,int ccblen, unsigned cha
 	res=0;
 	c = atapi_wait_mask(device,ATAPI_TIME_OUT,mask,res);
 	if ((c & ATA_STAT_ERR) == ATA_STAT_ERR) {
-		err=(inb(device,ATA_ERROR_REG) >> 4);
+		err=(ide_inb(device,ATA_ERROR_REG) >> 4);
 		AT_PRINTF("atapi_issue 2 returned sense key %X status %X\n",err,c);
 	} else {
 		err = 0;

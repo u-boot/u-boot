@@ -74,6 +74,9 @@ endif
 ifeq ($(ARCH),arm)
 CROSS_COMPILE = arm_920TDI-
 endif
+ifeq ($(ARCH),i386)
+#CROSS_COMPILE = i386-elf-
+endif
 endif
 endif
 
@@ -100,7 +103,10 @@ SUBDIRS	= tools \
 # U-Boot objects....order is important (i.e. start must be first)
 
 OBJS  =	cpu/$(CPU)/start.o
-
+ifeq ($(CPU),i386)
+OBJS +=	cpu/$(CPU)/start16.o
+OBJS +=	cpu/$(CPU)/reset.o
+endif
 ifeq ($(CPU),ppc4xx)
 OBJS +=	cpu/$(CPU)/resetvec.o
 endif
@@ -108,7 +114,7 @@ endif
 LIBS  =	board/$(BOARDDIR)/lib$(BOARD).a
 LIBS += cpu/$(CPU)/lib$(CPU).a
 LIBS += lib_$(ARCH)/lib$(ARCH).a
-LIBS += fs/jffs2/libjffs2.a
+LIBS += fs/jffs2/libjffs2.a fs/fdos/libfdos.a
 LIBS += net/libnet.a
 LIBS += disk/libdisk.a
 LIBS += rtc/librtc.a
@@ -626,6 +632,15 @@ cradle_config	:	unconfig
 
 csb226_config	:	unconfig
 	@./mkconfig $(@:_config=) arm xscale csb226
+
+#========================================================================
+# i386
+#========================================================================
+#########################################################################
+## AMD SC520 CDP 
+#########################################################################
+sc520_cdp_config	:	unconfig
+	@./mkconfig $(@:_config=) i386 i386 sc520_cdp
 
 #########################################################################
 

@@ -70,6 +70,7 @@
 
 #include <cmd_vfd.h>		/* load a bitmap to the VFDs on TRAB */
 #include <cmd_log.h>
+#include <cmd_fdos.h>
 
 /*
  * HELP command
@@ -253,6 +254,8 @@ cmd_tbl_t cmd_tbl[] = {
 	CMD_TBL_FCCINFO
 	CMD_TBL_FLERASE
 	CMD_TBL_FDC
+        CMD_TBL_FDOS_BOOT
+        CMD_TBL_FDOS_LS
 	CMD_TBL_FLINFO
 	CMD_TBL_FPGA
 	CMD_TBL_JFFS2_FSINFO

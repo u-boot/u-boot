@@ -75,8 +75,8 @@
 #define CFG_CMD_FPGA	0x0000010000000000	/* FPGA configuration Support   */
 #define CFG_CMD_HWFLOW	0x0000020000000000	/* RTS/CTS hw flow control	*/
 #define CFG_CMD_SAVES	0x0000040000000000	/* save S record dump		*/
-#define CFG_CMD_VFD	0x0000080000000000	/* Display bitmap on VFD display*/
 #define CFG_CMD_SPI	0x0000100000000000	/* SPI utility			*/
+#define CFG_CMD_FDOS    0x0000200000000000      /* Floppy DOS support           */
 
 #define CFG_CMD_ALL	0xFFFFFFFFFFFFFFFF	/* ALL commands			*/
 
@@ -96,6 +96,7 @@
 			CFG_CMD_EEPROM	| \
 			CFG_CMD_ELF	| \
 			CFG_CMD_FDC	| \
+                        CFG_CMD_FDOS    | \
 			CFG_CMD_HWFLOW	| \
 			CFG_CMD_I2C	| \
 			CFG_CMD_IDE	| \
@@ -110,9 +111,9 @@
 			CFG_CMD_SAVES	| \
 			CFG_CMD_SCSI	| \
 			CFG_CMD_SDRAM	| \
+			CFG_CMD_SPI	| \
 			CFG_CMD_USB	| \
-			CFG_CMD_VFD	| \
-			CFG_CMD_SPI	)
+			CFG_CMD_VFD	)
 
 /* Default configuration
  */

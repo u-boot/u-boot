@@ -51,7 +51,7 @@
 #include <rtc.h>
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_FDC)
+#if ((CONFIG_COMMANDS & CFG_CMD_FDC) || (CONFIG_COMMANDS & CFG_CMD_FDOS))
 
 
 typedef struct {
@@ -192,7 +192,10 @@ static FDC_COMMAND_STRUCT cmd; /* global command struct */
 /* reads a Register of the FDC */
 unsigned char read_fdc_reg(unsigned int addr)
 {
-	volatile unsigned char *val = (volatile unsigned char *)(CFG_ISA_IO_BASE_ADDRESS + (addr * CFG_ISA_IO_STRIDE) + CFG_ISA_IO_OFFSET);
+	volatile unsigned char *val =
+		(volatile unsigned char *)(CFG_ISA_IO_BASE_ADDRESS +
+					   (addr * CFG_ISA_IO_STRIDE) +
+					   CFG_ISA_IO_OFFSET);
         
 	return val [0];
 }
@@ -200,7 +203,10 @@ unsigned char read_fdc_reg(unsigned int addr)
 /* writes a Register of the FDC */
 void write_fdc_reg(unsigned int addr, unsigned char val)
 {
-        volatile unsigned char *tmp = (volatile unsigned char *)(CFG_ISA_IO_BASE_ADDRESS + (addr * CFG_ISA_IO_STRIDE) + CFG_ISA_IO_OFFSET);
+        volatile unsigned char *tmp =
+		(volatile unsigned char *)(CFG_ISA_IO_BASE_ADDRESS +
+					   (addr * CFG_ISA_IO_STRIDE) +
+					   CFG_ISA_IO_OFFSET);
 	tmp[0]=val;
 }
 
@@ -279,7 +285,8 @@ int fdc_issue_cmd(FDC_COMMAND_STRUCT *pCMD,FD_GEO_STRUCT *pFG)
 	head = sect / pFG->sect; /* head nr */
 	sect =  sect % pFG->sect; /* remaining blocks */
 	sect++; /* sectors are 1 based */
-	PRINTF("Cmd 0x%02x Track %ld, Head %ld, Sector %ld, Drive %d (blnr %ld)\n",pCMD->cmd[0],track,head,sect,pCMD->drive,pCMD->blnr);
+	PRINTF("Cmd 0x%02x Track %ld, Head %ld, Sector %ld, Drive %d (blnr %ld)\n",
+		pCMD->cmd[0],track,head,sect,pCMD->drive,pCMD->blnr);
 
 	if(head|=0) { /* max heads = 2 */
 		pCMD->cmd[DRIVE]=pCMD->drive | 0x04; /* head 1 */
@@ -588,7 +595,7 @@ int fdc_check_drive(FDC_COMMAND_STRUCT *pCMD, FD_GEO_STRUCT *pFG)
 * setup the fdc according the datasheet
 * assuming in PS2 Mode
 */
-int fdc_setup(FDC_COMMAND_STRUCT *pCMD,	FD_GEO_STRUCT *pFG)
+int fdc_setup(int drive, FDC_COMMAND_STRUCT *pCMD, FD_GEO_STRUCT *pFG)
 {
 
 	int i;
@@ -601,7 +608,7 @@ int fdc_setup(FDC_COMMAND_STRUCT *pCMD,	FD_GEO_STRUCT *pFG)
 	for(i=0; i<255; i++) /* then we wait some time */
 		udelay(500);
 	/* then, we clear the reset in the DOR */
-	pCMD->drive=CFG_FDC_DRIVE_NUMBER;
+	pCMD->drive=drive;
 	select_fdc_drive(pCMD);
 	/* initialize the CCR */
 	write_fdc_reg(FDC_CCR,pFG->rate);
@@ -621,9 +628,8 @@ int fdc_setup(FDC_COMMAND_STRUCT *pCMD,	FD_GEO_STRUCT *pFG)
 			PRINTF("Sense Interrupt for drive %d failed\n",i);
 		}
 	}
-	/* assuming drive 0 for rest of configuration
-	 * issue the configure command */
-	pCMD->drive=CFG_FDC_DRIVE_NUMBER;
+	/* issue the configure command */
+	pCMD->drive=drive;
 	select_fdc_drive(pCMD);
 	pCMD->cmd[COMMAND]=FDC_CMD_CONFIGURE;
 	if(fdc_issue_cmd(pCMD,pFG)==FALSE) {
@@ -644,7 +650,74 @@ int fdc_setup(FDC_COMMAND_STRUCT *pCMD,	FD_GEO_STRUCT *pFG)
 	/*	write_fdc_reg(FDC_DOR,0x04); */
 	return TRUE;
 }
+#endif /* ((CONFIG_COMMANDS & CFG_CMD_FDC)||(CONFIG_COMMANDS & CFG_CMD_FDOS))*/
 
+#if (CONFIG_COMMANDS & CFG_CMD_FDOS)
+
+/* Low level functions for the Floppy-DOS layer                              */
+
+/**************************************************************************
+* int fdc_fdos_init
+* initialize the FDC layer 
+* 
+*/
+int fdc_fdos_init (int drive)
+{
+	FD_GEO_STRUCT *pFG = (FD_GEO_STRUCT *)floppy_type;
+	FDC_COMMAND_STRUCT *pCMD = &cmd;
+    
+	/* setup FDC and scan for drives  */
+	if(fdc_setup(drive,pCMD,pFG)==FALSE) {
+		printf("\n** Error in setup FDC **\n");
+		return FALSE;
+	}
+	if(fdc_check_drive(pCMD,pFG)==FALSE) {
+		printf("\n** Error in check_drives **\n");
+		return FALSE;
+	}
+	if((pCMD->flags&(1<<drive))==0) {
+		/* drive not available */
+		printf("\n** Drive %d not available **\n",drive);
+		return FALSE;
+	}
+	if((pCMD->flags&(0x10<<drive))==0) {
+		/* no disk inserted */
+		printf("\n** No disk inserted in drive %d **\n",drive);
+		return FALSE;
+	}
+	/* ok, we have a valid source */
+	pCMD->drive=drive;
+
+	/* read first block */
+	pCMD->blnr=0;
+        return TRUE;
+}
+/**************************************************************************
+* int fdc_fdos_seek
+* parameter is a block number 
+*/
+int fdc_fdos_seek (int where)
+{
+	FD_GEO_STRUCT *pFG = (FD_GEO_STRUCT *)floppy_type;
+	FDC_COMMAND_STRUCT *pCMD = &cmd;
+
+        pCMD -> blnr = where ;
+        return (fdc_seek (pCMD, pFG));
+}
+/**************************************************************************
+* int fdc_fdos_read
+*  the length is in block number
+*/
+int fdc_fdos_read (void *buffer, int len)
+{
+	FD_GEO_STRUCT *pFG = (FD_GEO_STRUCT *)floppy_type;
+	FDC_COMMAND_STRUCT *pCMD = &cmd;
+
+        return (fdc_read_data (buffer, len, pCMD, pFG));
+}
+#endif  /* (CONFIG_COMMANDS & CFG_CMD_FDOS)                                  */
+
+#if (CONFIG_COMMANDS & CFG_CMD_FDC)
 /****************************************************************************
  * main routine do_fdcboot
  */
@@ -677,7 +750,7 @@ int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return 1;
 	}
 	/* setup FDC and scan for drives  */
-	if(fdc_setup(pCMD,pFG)==FALSE) {
+	if(fdc_setup(boot_drive,pCMD,pFG)==FALSE) {
 		printf("\n** Error in setup FDC **\n");
 		return 1;
 	}

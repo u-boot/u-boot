@@ -70,6 +70,10 @@ static int image_info (unsigned long addr);
 #endif
 static void print_type (image_header_t *hdr);
 
+#ifdef __I386__
+image_header_t *fake_header(image_header_t *hdr, void *ptr, int size);
+#endif
+
 /*
  *  Continue booting an OS image; caller already has:
  *  - copied image header to global variable `header'
@@ -84,7 +88,7 @@ typedef void boot_os_Fcn (cmd_tbl_t *cmdtp, int flag,
 			  ulong	*len_ptr,	/* multi-file image length table */
 			  int	verify);	/* getenv("verify")[0] != 'n' */
 
-#ifndef CONFIG_ARM
+#ifdef CONFIG_PPC
 static boot_os_Fcn do_bootm_linux;
 #else
 extern boot_os_Fcn do_bootm_linux;
@@ -128,9 +132,21 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	memmove (&header, (char *)addr, sizeof(image_header_t));
 
 	if (ntohl(hdr->ih_magic) != IH_MAGIC) {
+#ifdef __I386__	/* correct image format not implemented yet - fake it */
+		if (fake_header(hdr, (void*)addr, -1) != NULL) {
+			/* to compensate for the addition below */
+			addr -= sizeof(image_header_t);
+			/* turnof verify,
+			 * fake_header() does not fake the data crc
+			 */
+			verify = 0;
+		} else
+#endif	/* __I386__ */
+	    {
 		printf ("Bad Magic Number\n");
 		SHOW_BOOT_PROGRESS (-1);
 		return 1;
+	    }
 	}
 	SHOW_BOOT_PROGRESS (2);
 
@@ -148,7 +164,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	SHOW_BOOT_PROGRESS (3);
 
 	/* for multi-file images we need the data part, too */
-	print_image_hdr ((image_header_t *)addr);
+	print_image_hdr (hdr);
 
 	data = addr + sizeof(image_header_t);
 	len  = ntohl(hdr->ih_size);
@@ -166,8 +182,17 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	len_ptr = (ulong *)data;
 
-	if (hdr->ih_arch != IH_CPU_PPC && hdr->ih_arch != IH_CPU_ARM) {
-		printf ("Unsupported Architecture\n");
+#if defined(__PPC__)
+	if (hdr->ih_arch != IH_CPU_PPC)
+#elif defined(__ARM__)
+	if (hdr->ih_arch != IH_CPU_ARM)
+#elif defined(__I386__)
+	if (hdr->ih_arch != IH_CPU_I386)
+#else
+# error Unknown CPU type
+#endif
+	{
+		printf ("Unsupported Architecture 0x%x\n", hdr->ih_arch);
 		SHOW_BOOT_PROGRESS (-4);
 		return 1;
 	}
@@ -201,7 +226,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	switch (hdr->ih_comp) {
 	case IH_COMP_NONE:
-		if(hdr->ih_load == addr) {
+		if(ntohl(hdr->ih_load) == addr) {
 			printf ("   XIP %s ... ", name);
 		} else {
 #if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
@@ -294,7 +319,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 1;
 }
 
-#ifndef CONFIG_ARM
+#ifdef CONFIG_PPC
 static void
 do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		int	argc, char *argv[],

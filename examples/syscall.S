@@ -38,12 +38,26 @@ mon_free:
 	sub     fp, ip, #4
 	ldmea   fp, {fp, sp, pc}
 #else /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
+
+#ifdef CONFIG_I386 /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
+#define SYMBOL_NAME(X) 	X
+#define SYMBOL_NAME_LABEL(X) 	X##:
+	
+#define SYSCALL(name,n) \
+	.globl SYMBOL_NAME(name) ; \
+SYMBOL_NAME_LABEL(name)     		 ; \
+	ret
+
+#endif	/* CONFIG_I386 */
+
+#ifdef CONFIG_PPC
 #define SYSCALL(name,n) \
 	.globl name		; \
 name:				; \
 	li r0,n			; \
 	sc			; \
 	blr
+#endif	/* CONFIG_PPC */
 
 	.text
 

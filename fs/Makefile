@@ -22,7 +22,7 @@
 #
 #
 
-SUBDIRS	:= jffs2
+SUBDIRS	:= jffs2 fdos
 
 .depend all:
 	@for dir in $(SUBDIRS) ; do \

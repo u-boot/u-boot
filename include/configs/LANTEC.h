@@ -90,6 +90,7 @@
 					     & ~CFG_CMD_EEPROM	\
 					     & ~CFG_CMD_ELF	\
 					     & ~CFG_CMD_FDC	\
+					     & ~CFG_CMD_FDOS	\
 					     & ~CFG_CMD_HWFLOW	\
 					     & ~CFG_CMD_I2C	\
 					     & ~CFG_CMD_IDE	\
