@@ -485,41 +485,45 @@ do_auto_update(void)
 	 * now check whether start and end are defined using environment
 	 * variables.
 	 */
-	start = end = 0;
+	start = -1;
+	end = 0;
 	env = getenv("firmware_st");
 	if (env != NULL)
 		start = simple_strtoul(env, NULL, 16);
 	env = getenv("firmware_nd");
 	if (env != NULL)
 		end = simple_strtoul(env, NULL, 16);
-	if (start && end && end > start)
+	if (start >= 0 && end && end > start)
 		ausize[IDX_FIRMWARE] = (end + 1) - start;
-	start = end = 0;
+	start = -1;
+	end = 0;
 	env = getenv("kernel_st");
 	if (env != NULL)
 		start = simple_strtoul(env, NULL, 16);
 	env = getenv("kernel_nd");
 	if (env != NULL)
 		end = simple_strtoul(env, NULL, 16);
-	if (start && end && end > start)
+	if (start >= 0 && end && end > start)
 		ausize[IDX_KERNEL] = (end + 1) - start;
-	start = end = 0;
+	start = -1;
+	end = 0;
 	env = getenv("app_st");
 	if (env != NULL)
 		start = simple_strtoul(env, NULL, 16);
 	env = getenv("app_nd");
 	if (env != NULL)
 		end = simple_strtoul(env, NULL, 16);
-	if (start && end && end > start)
+	if (start >= 0 && end && end > start)
 		ausize[IDX_APP] = (end + 1) - start;
-	start = end = 0;
+	start = -1;
+	end = 0;
 	env = getenv("disk_st");
 	if (env != NULL)
 		start = simple_strtoul(env, NULL, 16);
 	env = getenv("disk_nd");
 	if (env != NULL)
 		end = simple_strtoul(env, NULL, 16);
-	if (start && end && end > start)
+	if (start >= 0 && end && end > start)
 		ausize[IDX_DISK] = (end + 1) - start;
 	/* make sure that we see CTRL-C and save the old state */
 	old_ctrlc = disable_ctrlc(0);
