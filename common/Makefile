@@ -42,7 +42,7 @@ COBJS	= main.o ACEX1K.o altera.o bedbug.o \
 	  cmd_reginfo.o cmd_reiser.o cmd_scsi.o cmd_spi.o cmd_usb.o cmd_vfd.o \
 	  command.o console.o devices.o dlmalloc.o docecc.o \
 	  environment.o env_common.o \
-	  env_dataflash.o env_flash.o env_eeprom.o env_nvram.o env_nowhere.o exports.o \
+	  env_nand.o env_dataflash.o env_flash.o env_eeprom.o env_nvram.o env_nowhere.o exports.o \
 	  flash.o fpga.o \
 	  hush.o kgdb.o lists.o lynxkdi.o memsize.o miiphybb.o miiphyutil.o \
 	  s_record.o soft_i2c.o soft_spi.o spartan2.o \

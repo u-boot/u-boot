@@ -139,6 +139,9 @@ uchar default_environment[] = {
 	"\0"
 };
 
+#if defined(CFG_ENV_IS_IN_NAND)		/* Environment is in Nand Flash */
+int default_environment_size = sizeof(default_environment);
+#endif
 
 void env_crc_update (void)
 {

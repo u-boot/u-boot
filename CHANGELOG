@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Jian Zhang, 20 May 2004:
+  add support for environment in NAND flash
+
 * Patch by Yuli Barcohen, 20 May 2004:
   Add support for Interphase iSPAN boards.
 

@@ -53,6 +53,7 @@
     !defined(CFG_ENV_IS_IN_EEPROM)	&& \
     !defined(CFG_ENV_IS_IN_FLASH)	&& \
     !defined(CFG_ENV_IS_IN_DATAFLASH)	&& \
+    !defined(CFG_ENV_IS_IN_NAND)	&& \
     !defined(CFG_ENV_IS_NOWHERE)
 # error Define one of CFG_ENV_IS_IN_{NVRAM|EEPROM|FLASH|DATAFLASH|NOWHERE}
 #endif

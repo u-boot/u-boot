@@ -1827,6 +1827,16 @@ to save the current settings.
 	  environment area within the total memory of your DataFlash placed
 	  at the specified address.
 
+- CFG_ENV_IS_IN_NAND:
+
+	Define this if you have a NAND device which you want to use
+	for the environment.
+
+	- CFG_ENV_OFFSET:
+	- CFG_ENV_SIZE:
+
+	  These two #defines specify the offset and size of the environment
+	  area within the first NAND device.
 
 - CFG_SPI_INIT_OFFSET
 

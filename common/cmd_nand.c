@@ -70,10 +70,10 @@ struct nand_oob_config {
  * Function Prototypes
  */
 static void nand_print(struct nand_chip *nand);
-static int nand_rw (struct nand_chip* nand, int cmd,
+int nand_rw (struct nand_chip* nand, int cmd,
 	    size_t start, size_t len,
 	    size_t * retlen, u_char * buf);
-static int nand_erase(struct nand_chip* nand, size_t ofs, size_t len, int clean);
+int nand_erase(struct nand_chip* nand, size_t ofs, size_t len, int clean);
 static int nand_read_ecc(struct nand_chip *nand, size_t start, size_t len,
 		 size_t * retlen, u_char *buf, u_char *ecc_code);
 static int nand_write_ecc (struct nand_chip* nand, size_t to, size_t len,
@@ -429,7 +429,7 @@ static void nand_print_bad(struct nand_chip* nand)
  *	3: NANDRW_READ | NANDRW_JFFS2	read, data all 0xff for bad blocks
  *      7: NANDRW_READ | NANDRW_JFFS2 | NANDRW_JFFS2_SKIP read, skip bad blocks
  */
-static int nand_rw (struct nand_chip* nand, int cmd,
+int nand_rw (struct nand_chip* nand, int cmd,
 	    size_t start, size_t len,
 	    size_t * retlen, u_char * buf)
 {
@@ -1304,7 +1304,7 @@ static int nand_write_oob(struct nand_chip* nand, size_t ofs, size_t len,
 
 }
 
-static int nand_erase(struct nand_chip* nand, size_t ofs, size_t len, int clean)
+int nand_erase(struct nand_chip* nand, size_t ofs, size_t len, int clean)
 {
 	/* This is defined as a structure so it will work on any system
 	 * using native endian jffs2 (the default).
