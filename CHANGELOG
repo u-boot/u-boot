@@ -2,6 +2,13 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Jon Loeliger, 17 June 2004:
+  Completion of the 8540ADS/8560ADS updates:
+  Fix some PCI and Rapid I/O memory maps,
+  Initialize both TSEC 1 and 2,
+  Initialize SDRAM
+  Update MAINTAINER for 85xx boards and README.mpc85xxads
+
 * Patch by Yuli Barcohen, 16 Jun 2004:
   Remove obsolete AdderII port which was superseded by unified
   AdderII/Adder87x port

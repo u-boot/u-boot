@@ -29,14 +29,10 @@
 #include <command.h>
 #include <malloc.h>
 
-
 /* ------------------------------------------------------------------------- */
-
-
 
 /* Prototypes */
 int gunzip(void *, int, unsigned char *, int *);
-
 
 int board_early_init_f (void)
 {
@@ -71,10 +67,8 @@ int board_early_init_f (void)
 #else
 	mtebc (epcr, 0x28400000); /* ebc in high-z */
 #endif
-
 	return 0;
 }
-
 
 /* ------------------------------------------------------------------------- */
 
@@ -168,7 +162,6 @@ int misc_init_r (void)
 	udelay(1000); /* wait 1ms */
 	SET_FPGA(FPGA_PRG | FPGA_CLK | FPGA_DATA);
 	udelay(1000); /* wait 1ms */
-
 #endif
 
 #if 0
@@ -185,7 +178,6 @@ int misc_init_r (void)
 #endif
 	return (0);
 }
-
 
 /*
  * Check Board Identity:

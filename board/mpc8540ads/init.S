@@ -45,7 +45,8 @@
 tlb1_entry:
 	entry_start
 
-	.long 0x0a	/* the following data table uses a few of 16 TLB entries */
+	/* Number of entries in the following table */
+	.long 0x0c
 
 	.long TLB1_MAS0(1,1,0)
 	.long TLB1_MAS1(1,1,0,0,BOOKE_PAGESZ_1M)
@@ -116,40 +117,57 @@ tlb1_entry:
 
 	.long TLB1_MAS0(1,8,0)
 	.long TLB1_MAS1(1,1,0,0,BOOKE_PAGESZ_256M)
-	.long TLB1_MAS2(((CFG_PCI_MEM_BASE>>12) & 0xfffff),0,0,0,0,1,0,1,0)
-	.long TLB1_MAS3(((CFG_PCI_MEM_BASE>>12) & 0xfffff),0,0,0,0,0,1,0,1,0,1)
+	.long TLB1_MAS2(((CFG_PCI1_MEM_BASE>>12) & 0xfffff),0,0,0,0,1,0,1,0)
+	.long TLB1_MAS3(((CFG_PCI1_MEM_BASE>>12) & 0xfffff),0,0,0,0,0,1,0,1,0,1)
 
 	.long TLB1_MAS0(1,9,0)
 	.long TLB1_MAS1(1,1,0,0,BOOKE_PAGESZ_16K)
 	.long TLB1_MAS2(((CFG_BCSR>>12) & 0xfffff),0,0,0,0,1,0,1,0)
 	.long TLB1_MAS3(((CFG_BCSR>>12) & 0xfffff),0,0,0,0,0,1,0,1,0,1)
 
-  #if (CFG_CCSRBAR_DEFAULT != CFG_CCSRBAR)
+	/*
+	 * RapidIO MMU for 512M
+	 * Two entries, 10 and 11
+	 */
+	.long TLB1_MAS0(1,10,0)
+	.long TLB1_MAS1(1,1,0,0,BOOKE_PAGESZ_256M)
+	.long TLB1_MAS2(((CFG_RIO_MEM_BASE>>12) & 0xfffff),0,0,0,0,1,0,1,0)
+	.long TLB1_MAS3(((CFG_RIO_MEM_BASE>>12) & 0xfffff),0,0,0,0,0,1,0,1,0,1)
+
+	.long TLB1_MAS0(1,11,0)
+	.long TLB1_MAS1(1,1,0,0,BOOKE_PAGESZ_256M)
+	.long TLB1_MAS2(((CFG_RIO_MEM_BASE+0x10000000>>12) & 0xfffff),0,0,0,0,1,0,1,0)
+	.long TLB1_MAS3(((CFG_RIO_MEM_BASE+0x10000000>>12) & 0xfffff),0,0,0,0,0,1,0,1,0,1)
+
+
+#if (CFG_CCSRBAR_DEFAULT != CFG_CCSRBAR)
 	.long TLB1_MAS0(1,15,0)
 	.long TLB1_MAS1(1,1,0,0,BOOKE_PAGESZ_1M)
 	.long TLB1_MAS2(((CFG_CCSRBAR_DEFAULT>>12) & 0xfffff),0,0,0,0,1,0,1,0)
 	.long TLB1_MAS3(((CFG_CCSRBAR_DEFAULT>>12) & 0xfffff),0,0,0,0,0,1,0,1,0,1)
-  #else
+#else
 	.long TLB1_MAS0(1,15,0)
 	.long TLB1_MAS1(0,0,0,0,BOOKE_PAGESZ_1M)
 	.long TLB1_MAS2(0,0,0,0,0,0,0,0,0)
 	.long TLB1_MAS3(0,0,0,0,0,0,1,0,1,0,1)
-  #endif
+#endif
 	entry_end
 
 /*
  * LAW(Local Access Window) configuration:
  *
  * 0x0000_0000     0x7fff_ffff     DDR                     2G
- * 0x8000_0000     0x9fff_ffff     PCI MEM                 512M
+ * 0x8000_0000     0x9fff_ffff     PCI1 MEM                512M
+ * 0xc000_0000     0xdfff_ffff     RapidIO                 512M
  * 0xe000_0000     0xe000_ffff     CCSR                    1M
- * 0xe200_0000     0xe2ff_ffff     PCI IO                  16M
+ * 0xe200_0000     0xe2ff_ffff     PCI1 IO                 16M
  * 0xf000_0000     0xf7ff_ffff     SDRAM                   128M
  * 0xf800_0000     0xf80f_ffff     BCSR                    1M
  * 0xff00_0000     0xffff_ffff     FLASH (boot bank)       16M
  *
- * Note: CCSRBAR and L2-as-SRAM don't need a configured Local Access Window.
- * Note: If flash is 8M at default position(last 8M),no LAW needed.
+ * Notes:
+ *    CCSRBAR and L2-as-SRAM don't need a configured Local Access Window.
+ *    If flash is 8M at default position (last 8M), no LAW needed.
  */
 
 #if !defined(CONFIG_SPD_EEPROM)
@@ -160,7 +178,7 @@ tlb1_entry:
 #define LAWAR0  ((LAWAR_TRGT_IF_DDR | (LAWAR_SIZE & LAWAR_SIZE_128M)) & ~LAWAR_EN)
 #endif
 
-#define LAWBAR1 ((CFG_PCI_MEM_BASE>>12) & 0xfffff)
+#define LAWBAR1 ((CFG_PCI1_MEM_BASE>>12) & 0xfffff)
 #define LAWAR1	(LAWAR_EN | LAWAR_TRGT_IF_PCIX | (LAWAR_SIZE & LAWAR_SIZE_512M))
 
 /*
@@ -174,14 +192,14 @@ tlb1_entry:
 #define LAWAR2 ((LAWAR_TRGT_IF_LBC | (LAWAR_SIZE & LAWAR_SIZE_128M)) & ~LAWAR_EN)
 #endif
 
-#define LAWBAR3 ((CFG_PCI_IO_BASE>>12) & 0xfffff)
+#define LAWBAR3 ((CFG_PCI1_IO_BASE>>12) & 0xfffff)
 #define LAWAR3	(LAWAR_EN | LAWAR_TRGT_IF_PCIX | (LAWAR_SIZE & LAWAR_SIZE_16M))
 
 /*
  * Rapid IO at 0xc000_0000 for 512 M
  */
-#define LAWBAR4 ((CFG_RAPID_IO_BASE>>12) & 0xfffff)
-#define LAWAR4	(LAWAR_EN | LAWAR_TRGT_IF_PCIX | (LAWAR_SIZE & LAWAR_SIZE_512M))
+#define LAWBAR4 ((CFG_RIO_MEM_BASE>>12) & 0xfffff)
+#define LAWAR4	(LAWAR_EN | LAWAR_TRGT_IF_RIO | (LAWAR_SIZE & LAWAR_SIZE_512M))
 
 
 	.section .bootpg, "ax"

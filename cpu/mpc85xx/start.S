@@ -130,7 +130,6 @@ _start_e500:
 	/* disable d-cache */
 	li	r0,0x0
 	mtspr	L1CSR0,r0
-	isync
 
 	/* invalidate i-cache */
 	mfspr	r0,L1CSR1
@@ -144,7 +143,6 @@ _start_e500:
 	isync
 
 	/* clear registers */
-	sync
 	li	r0,0
 	mtspr	SRR0,r0
 	mtspr	SRR1,r0
@@ -158,11 +156,8 @@ _start_e500:
 	mtspr	DEAR,r0
 
 	mtspr	DBCR0,r0
-	isync
 	mtspr	DBCR1,r0
-	isync
 	mtspr	DBCR2,r0
-	isync
 	mtspr	IAC1,r0
 	mtspr	IAC2,r0
 	mtspr	DAC1,r0
@@ -171,26 +166,13 @@ _start_e500:
 	mfspr	r1,DBSR
 	mtspr	DBSR,r1		/* Clear all valid bits */
 
-	isync
 	mtspr	PID0,r0
-	isync
 	mtspr	PID1,r0
-	isync
 	mtspr	PID2,r0
-	isync
-
 	mtspr	TCR,r0
 
 	mtspr	BUCSR,r0	/* disable branch prediction */
-	isync
-
-	mtspr	HID0,r0
-	isync
-	mtspr	HID1,r0
-	isync
-
 	mtspr   MAS4,r0
-	isync
 	mtspr   MAS6,r0
 	isync
 
@@ -376,9 +358,9 @@ _start:
 	isync
 
 	/* Enable Time Base and Select Time Base Clock */
-	li	r0,0x4000		/* time base is processor clock */
+	lis	r0,HID0_EMCP@h		/* Enable machine check */
+	ori	r0,r0,0x4000		/* time base is processor clock */
 	mtspr	HID0,r0
-	isync
 
 #if defined(CONFIG_ADDR_STREAMING)
 	li	r0,0x3000
@@ -386,31 +368,26 @@ _start:
 	li	r0,0x1000
 #endif
 	mtspr	HID1,r0
-	isync
 
 	/* Enable Branch Prediction */
 #if defined(CONFIG_BTB)
 	li	r0,0x201		/* BBFI = 1, BPEN = 1 */
 	mtspr	BUCSR,r0
-	isync
 #endif
 
 #if defined(CFG_INIT_DBCR)
 	lis	r1,0xffff
 	ori	r1,r1,0xffff
-	mtspr	dbsr,r1			/* Clear all status bits */
+	mtspr	DBSR,r1			/* Clear all status bits */
 	lis	r0,CFG_INIT_DBCR@h	/* DBCR0[IDM] must be set */
 	ori	r0,r0,CFG_INIT_DBCR@l
-	mtspr	dbcr0,r0
-	isync
+	mtspr	DBCR0,r0
 #endif
 
 /* L1 DCache is used for initial RAM */
 	mfspr	r2, L1CSR0
 	ori    	r2, r2, 0x0003
 	oris   	r2, r2, 0x0001
-	msync
-	isync
 	mtspr  	L1CSR0, r2	/* enable/invalidate L1 Dcache */
 	isync
 
@@ -457,8 +434,7 @@ in_flash:
 	bl	cpu_init_f
 	bl	icache_enable
 	bl	board_init_f
-	sync
-
+	isync
 
 /* --FIXME-- machine check with MCSRRn and rfmci */
 
@@ -920,6 +896,18 @@ ppcDcbf:
 	.globl	ppcDcbi
 ppcDcbi:
 	dcbi	r0,r3
+	blr
+
+/*--------------------------------------------------------------------------
+ * Function:	 ppcDcbz
+ * Description:	 Data Cache block zero.
+ * Input:	 r3 = effective address
+ * Output:	 none.
+ *-------------------------------------------------------------------------- */
+
+	.globl	ppcDcbz
+ppcDcbz:
+	dcbz	r0,r3
 	blr
 
 /*------------------------------------------------------------------------------- */

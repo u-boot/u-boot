@@ -1001,13 +1001,13 @@ M5282EVB_config :		unconfig
 ## MPC85xx Systems
 #########################################################################
 
-MPC8540ADS_config:      unconfig
+MPC8540ADS_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc85xx mpc8540ads
 
-MPC8560ADS_config:      unconfig
+MPC8560ADS_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc85xx mpc8560ads
 
-stxgp3_config:      unconfig
+stxgp3_config:		unconfig
 	@./mkconfig $(@:_config=) ppc mpc85xx stxgp3
 
 #########################################################################

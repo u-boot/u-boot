@@ -280,7 +280,6 @@
 #define SPRN_PMC2	0x3BA	/* Performance Counter Register 2 */
 #define SPRN_PMC3	0x3BD	/* Performance Counter Register 3 */
 #define SPRN_PMC4	0x3BE	/* Performance Counter Register 4 */
-#define SPRN_SVR	0x11E	/* System-On-Chip Version Register */
 #define SPRN_PVR	0x11F	/* Processor Version Register */
 #define SPRN_RPA	0x3D6	/* Required Physical Address Register */
 #define SPRN_SDA	0x3BF	/* Sampled Data Address Register */
@@ -297,6 +296,11 @@
 #define SPRN_SRR1	0x01B	/* Save/Restore Register 1 */
 #define SPRN_SRR2	0x3DE	/* Save/Restore Register 2 */
 #define SPRN_SRR3 	0x3DF	/* Save/Restore Register 3 */
+#ifdef CONFIG_BOOKE
+#define SPRN_SVR	0x3FF	/* System Version Register */
+#else
+#define SPRN_SVR	0x11E	/* System Version Register */
+#endif
 #define SPRN_TBHI	0x3DC	/* Time Base High */
 #define SPRN_TBHU	0x3CC	/* Time Base High User-mode */
 #define SPRN_TBLO	0x3DD	/* Time Base Low */
@@ -511,6 +515,7 @@
 #define SPRG3   SPRN_SPRG3
 #define SRR0	SPRN_SRR0	/* Save and Restore Register 0 */
 #define SRR1	SPRN_SRR1	/* Save and Restore Register 1 */
+#define SVR	SPRN_SVR	/* System Version Register */
 #define TBRL	SPRN_TBRL	/* Time Base Read Lower Register */
 #define TBRU	SPRN_TBRU	/* Time Base Read Upper Register */
 #define TBWL	SPRN_TBWL	/* Time Base Write Lower Register */
@@ -731,8 +736,11 @@
 #define PVR_7400        0x000C0000
 #define PVR_7410        0x800C0000
 #define PVR_7450        0x80000000
-#define PVR_8540        0x80200010
-#define PVR_8560        0x80200010
+
+#define PVR_85xx	0x80200000
+#define PVR_85xx_REV1	(PVR_85xx | 0x0010)
+#define PVR_85xx_REV2	(PVR_85xx | 0x0020)
+
 
 /*
  * For the 8xx processors, all of them report the same PVR family for
@@ -756,6 +764,33 @@
 #define PVR_8260_HIP4   0x80811014
 #define PVR_8260_HIP7   0x80822011
 #define PVR_8260_HIP7R1 0x80822013
+
+
+/*
+ * System Version Register
+ */
+
+/* System Version Register (SVR) field extraction */
+
+#define SVR_VER(svr)	(((svr) >>  16) & 0xFFFF)	/* Version field */
+#define SVR_REV(svr)	(((svr) >>   0) & 0xFFFF)	/* Revison field */
+
+#define SVR_FAM(svr)	(((svr) >> 20) & 0xFFF)	/* Family field */
+#define SVR_MEM(svr)	(((svr) >> 16) & 0xF)	/* Member field */
+
+#define SVR_MAJ(svr)	(((svr) >>  4) & 0xF)	/* Major revision field*/
+#define SVR_MIN(svr)	(((svr) >>  0) & 0xF)	/* Minor revision field*/
+
+
+/*
+ * SVR_VER() Version Values
+ */
+
+#define SVR_8540	0x8030
+#define SVR_8560	0x8070
+#define SVR_8555	0x8079
+#define SVR_8541	0x807A
+
 
 /* I am just adding a single entry for 8260 boards.  I think we may be
  * able to combine mbx, fads, rpxlite, bseip, and classic into a single

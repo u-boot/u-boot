@@ -1,4 +1,5 @@
  /*
+ * Copyright 2004 Freescale Semiconductor.
  * (C) Copyright 2002,2003, Motorola Inc.
  * Xianghua Xiao, (X.Xiao@motorola.com)
  *
@@ -24,75 +25,69 @@
  */
 
 
-extern long int spd_sdram (void);
-
 #include <common.h>
 #include <asm/processor.h>
 #include <asm/immap_85xx.h>
 #include <spd.h>
 
-long int fixed_sdram (void);
-
 #if defined(CONFIG_DDR_ECC)
-void dma_init(void);
-uint dma_check(void);
-int dma_xfer(void *dest, uint count, void *src);
+extern void ddr_enable_ecc(unsigned int dram_size);
 #endif
 
+extern long int spd_sdram(void);
 
-/* MPC8540ADS Board Status & Control Registers */
-#if 0
-typedef struct bscr_ {
-	unsigned long bcsr0;
-	unsigned long bcsr1;
-	unsigned long bcsr2;
-	unsigned long bcsr3;
-	unsigned long bcsr4;
-	unsigned long bcsr5;
-	unsigned long bcsr6;
-	unsigned long bcsr7;
-} bcsr_t;
-#endif
+void sdram_init(void);
+long int fixed_sdram(void);
+
 
 int board_early_init_f (void)
 {
 #if defined(CONFIG_PCI)
-    volatile immap_t *immr = (immap_t *)CFG_IMMR;
-    volatile ccsr_pcix_t *pci = &immr->im_pcix;
+	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile ccsr_pcix_t *pci = &immr->im_pcix;
 
-    pci->peer &= 0xffffffdf; /* disable master abort */
+	pci->peer &= 0xffffffdf;	/* disable master abort */
 #endif
+
 	return 0;
 }
 
 int checkboard (void)
 {
 	puts("Board: ADS\n");
+
+#ifdef CONFIG_PCI
+	printf("    PCI1: 32 bit, %d MHz (compiled)\n",
+	       CONFIG_SYS_CLK_FREQ / 1000000);
+#else
+	printf("    PCI1: disabled\n");
+#endif
+
 	return 0;
 }
 
 
-long int initdram (int board_type)
+long int
+initdram(int board_type)
 {
 	long dram_size = 0;
 	extern long spd_sdram (void);
 	volatile immap_t *immap = (immap_t *)CFG_IMMR;
-#if !defined(CONFIG_RAM_AS_FLASH)
-	volatile ccsr_lbc_t *lbc= &immap->im_lbc;
-	sys_info_t sysinfo;
-	uint temp_lbcdll = 0;
-#endif
-#if !defined(CONFIG_RAM_AS_FLASH) || defined(CONFIG_DDR_DLL)
-	volatile ccsr_gur_t *gur= &immap->im_gur;
-#endif
+
+	puts("Initializing\n");
 
 #if defined(CONFIG_DDR_DLL)
-       uint temp_ddrdll = 0;
+	{
+		volatile ccsr_gur_t *gur= &immap->im_gur;
+		uint temp_ddrdll = 0;
 
-	/* Work around to stabilize DDR DLL */
-	temp_ddrdll = gur->ddrdllcr;
-	gur->ddrdllcr = ((temp_ddrdll & 0xff) << 16) | 0x80000000;
-	asm("sync;isync;msync");
+		/*
+		* Work around to stabilize DDR DLL
+		*/
+		temp_ddrdll = gur->ddrdllcr;
+		gur->ddrdllcr = ((temp_ddrdll & 0xff) << 16) | 0x80000000;
+		asm("sync;isync;msync");
+	}
 #endif
 
 #if defined(CONFIG_SPD_EEPROM)
@@ -101,98 +96,120 @@ long int initdram (int board_type)
 	dram_size = fixed_sdram ();
 #endif
 
-#if !defined(CONFIG_RAM_AS_FLASH) /* LocalBus is not emulating flash */
-	get_sys_info(&sysinfo);
-	/* if localbus freq is less than 66Mhz,we use bypass mode,otherwise use DLL */
-	if(sysinfo.freqSystemBus/(CFG_LBC_LCRR & 0x0f) < 66000000) {
-		lbc->lcrr = (CFG_LBC_LCRR & 0x0fffffff)| 0x80000000;
+#if defined(CONFIG_DDR_ECC)
+	/*
+	 * Initialize and enable DDR ECC.
+	 */
+	ddr_enable_ecc(dram_size);
+#endif
+
+	/*
+	 * Initialize SDRAM.
+	 */
+	sdram_init();
+
+	puts("    DDR: ");
+	return dram_size;
+}
+
+
+/*
+ * Initialize SDRAM memory on the Local Bus.
+ */
+
+void sdram_init (void)
+{
+#if !defined(CONFIG_RAM_AS_FLASH)
+	sys_info_t sysinfo;
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile ccsr_lbc_t *lbc = &immap->im_lbc;
+	uint *sdram_addr = (uint *) CFG_LBC_SDRAM_BASE;
+
+	puts ("    SDRAM: ");
+	print_size (CFG_LBC_SDRAM_SIZE * 1024 * 1024, "\n");
+
+	/*
+	 * LocalBus SDRAM is not emulating flash.
+	 */
+
+	/*
+	 * Fix Local Bus clock glitch.  Errata LBC11.
+	 *
+	 * If localbus freq is less than 66Mhz, use bypass mode,
+	 * otherwise use DLL.
+	 * lcrr is the local-bus clock ratio register.
+	 */
+	get_sys_info (&sysinfo);
+	if (sysinfo.freqSystemBus / (CFG_LBC_LCRR & 0x0f) < 66000000) {
+		lbc->lcrr = (CFG_LBC_LCRR & 0x0fffffff) | 0x80000000;
+
 	} else {
-		uint pvr = get_pvr();
+		/*
+		 * On REV1 boards, need to change CLKDIV before enable DLL.
+		 * Default CLKDIV is 8, change it to 4 temporarily.
+		 */
+		volatile ccsr_gur_t *gur = &immap->im_gur;
+		uint pvr = get_pvr ();
+		uint temp_lbcdll = 0;
 
 		if (pvr == PVR_85xx_REV1) {
-			/*
-			 * Need change CLKDIV before enable DLL.
-			 * Default CLKDIV is 8, change it to 4
-			 * temporarily.
-			 */
-		    lbc->lcrr = 0x10000004;
+			lbc->lcrr = 0x10000004;
 		}
+
+		/* FIXME: jdl  Should lcrr have 0x8000000 OR'ed in here too? */
 		lbc->lcrr = CFG_LBC_LCRR & 0x7fffffff;
-		udelay(200);
+		udelay (200);
 		temp_lbcdll = gur->lbcdllcr;
-		gur->lbcdllcr = ((temp_lbcdll & 0xff) << 16 ) | 0x80000000;
-		asm("sync;isync;msync");
+		gur->lbcdllcr = ((temp_lbcdll & 0xff) << 16) | 0x80000000;
+		asm ("sync;isync;msync");
 	}
-	lbc->or2 = CFG_OR2_PRELIM; /* 64MB SDRAM */
+
+	/*
+	 * Setup SDRAM Base and Option Registers
+	 */
+	lbc->or2 = CFG_OR2_PRELIM;
 	lbc->br2 = CFG_BR2_PRELIM;
 	lbc->lbcr = CFG_LBC_LBCR;
-	lbc->lsdmr = CFG_LBC_LSDMR_1;
-	asm("sync");
-	(unsigned int) * (ulong *)0 = 0x000000ff;
-	lbc->lsdmr = CFG_LBC_LSDMR_2;
-	asm("sync");
-	(unsigned int) * (ulong *)0 = 0x000000ff;
-	lbc->lsdmr = CFG_LBC_LSDMR_3;
-	asm("sync");
-	(unsigned int) * (ulong *)0 = 0x000000ff;
-	lbc->lsdmr = CFG_LBC_LSDMR_4;
-	asm("sync");
-	(unsigned int) * (ulong *)0 = 0x000000ff;
-	lbc->lsdmr = CFG_LBC_LSDMR_5;
-	asm("sync");
+	asm ("msync");
+
 	lbc->lsrt = CFG_LBC_LSRT;
-	asm("sync");
 	lbc->mrtpr = CFG_LBC_MRTPR;
-	asm("sync");
+	asm ("sync");
+
+	/*
+	 * Configure the SDRAM controller.
+	 */
+	lbc->lsdmr = CFG_LBC_LSDMR_1;
+	asm ("sync");
+	*sdram_addr = 0xff;
+	ppcDcbf ((unsigned long) sdram_addr);
+	udelay (100);
+
+	lbc->lsdmr = CFG_LBC_LSDMR_2;
+	asm ("sync");
+	*sdram_addr = 0xff;
+	ppcDcbf ((unsigned long) sdram_addr);
+	udelay (100);
+
+	lbc->lsdmr = CFG_LBC_LSDMR_3;
+	asm ("sync");
+	*sdram_addr = 0xff;
+	ppcDcbf ((unsigned long) sdram_addr);
+	udelay (100);
+
+	lbc->lsdmr = CFG_LBC_LSDMR_4;
+	asm ("sync");
+	*sdram_addr = 0xff;
+	ppcDcbf ((unsigned long) sdram_addr);
+	udelay (100);
+
+	lbc->lsdmr = CFG_LBC_LSDMR_5;
+	asm ("sync");
+	*sdram_addr = 0xff;
+	ppcDcbf ((unsigned long) sdram_addr);
+	udelay (100);
+
 #endif
-
-#if defined(CONFIG_DDR_ECC)
-	{
-		/* Initialize all of memory for ECC, then
-		 * enable errors */
-		uint *p = 0;
-		uint i = 0;
-		volatile immap_t *immap = (immap_t *)CFG_IMMR;
-		volatile ccsr_ddr_t *ddr= &immap->im_ddr;
-		dma_init();
-		for (*p = 0; p < (uint *)(8 * 1024); p++) {
-			if (((unsigned int)p & 0x1f) == 0) { dcbz(p); }
-			*p = (unsigned int)0xdeadbeef;
-			if (((unsigned int)p & 0x1c) == 0x1c) { dcbf(p); }
-		}
-
-		/* 8K */
-		dma_xfer((uint *)0x2000,0x2000,(uint *)0);
-		/* 16K */
-		dma_xfer((uint *)0x4000,0x4000,(uint *)0);
-		/* 32K */
-		dma_xfer((uint *)0x8000,0x8000,(uint *)0);
-		/* 64K */
-		dma_xfer((uint *)0x10000,0x10000,(uint *)0);
-		/* 128k */
-		dma_xfer((uint *)0x20000,0x20000,(uint *)0);
-		/* 256k */
-		dma_xfer((uint *)0x40000,0x40000,(uint *)0);
-		/* 512k */
-		dma_xfer((uint *)0x80000,0x80000,(uint *)0);
-		/* 1M */
-		dma_xfer((uint *)0x100000,0x100000,(uint *)0);
-		/* 2M */
-		dma_xfer((uint *)0x200000,0x200000,(uint *)0);
-		/* 4M */
-		dma_xfer((uint *)0x400000,0x400000,(uint *)0);
-
-		for (i = 1; i < dram_size / 0x800000; i++) {
-			dma_xfer((uint *)(0x800000*i),0x800000,(uint *)0);
-		}
-
-		/* Enable errors for ECC */
-		ddr->err_disable = 0x00000000;
-		asm("sync;isync;msync");
-	}
-#endif
-
-	return dram_size;
 }
 
 
@@ -262,6 +279,6 @@ long int fixed_sdram (void)
 	asm("sync; isync; msync");
 	udelay(500);
   #endif
-	return (CFG_SDRAM_SIZE * 1024 * 1024);
+	return CFG_SDRAM_SIZE * 1024 * 1024;
 }
 #endif	/* !defined(CONFIG_SPD_EEPROM) */

@@ -1,4 +1,5 @@
 /*
+ * Copyright 2004 Freescale Semiconductor.
  * Copyright (C) 2003 Motorola Inc.
  * Xianghua Xiao (x.xiao@motorola.com)
  *
@@ -28,17 +29,23 @@
 #include <asm/cpm_85xx.h>
 #include <pci.h>
 
+
 #if defined(CONFIG_PCI)
+
+
 /*
  * Initialize PCI Devices, report devices found.
  */
+
 #ifndef CONFIG_PCI_PNP
 static struct pci_config_table pci_mpc85xxads_config_table[] = {
-	{ PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_IDSEL_NUMBER, PCI_ANY_ID,
-	  pci_cfgfunc_config_device, { PCI_ENET0_IOADDR,
-				       PCI_ENET0_MEMADDR,
-				       PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER }},
-	{ }
+	{PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
+	 PCI_IDSEL_NUMBER, PCI_ANY_ID,
+	 pci_cfgfunc_config_device, {PCI_ENET0_IOADDR,
+				     PCI_ENET0_MEMADDR,
+				     PCI_COMMAND_MEMORY |
+				     PCI_COMMAND_MASTER}},
+	{}
 };
 #endif
 
@@ -48,60 +55,61 @@ struct pci_controller local_hose = {
 #endif
 };
 
-void pci_init_board(void)
+
+void pci_init_board (void)
 {
-    struct pci_controller* hose = (struct pci_controller *)&local_hose;
-    volatile immap_t    *immap = (immap_t *)CFG_CCSRBAR;
-    volatile ccsr_pcix_t *pcix = &immap->im_pcix;
+	struct pci_controller *hose = (struct pci_controller *) &local_hose;
+	volatile immap_t *immap = (immap_t *) CFG_CCSRBAR;
+	volatile ccsr_pcix_t *pcix = &immap->im_pcix;
 
-    u16 reg16;
+	u16 reg16;
 
-    hose->first_busno = 0;
-    hose->last_busno = 0xff;
+	hose->first_busno = 0;
+	hose->last_busno = 0xff;
 
-    pci_set_region(hose->regions + 0,
-	CFG_PCI_MEM_BASE,
-	CFG_PCI_MEM_PHYS,
-	(CFG_PCI_MEM_SIZE/2),
-	PCI_REGION_MEM);
+	pci_set_region (hose->regions + 0,
+			CFG_PCI1_MEM_BASE,
+			CFG_PCI1_MEM_PHYS, CFG_PCI1_MEM_SIZE, PCI_REGION_MEM);
 
-    pci_set_region(hose->regions + 1,
-	(CFG_PCI_MEM_BASE+0x08000000),
-	(CFG_PCI_MEM_PHYS+0x08000000),
-	0x1000000, /* 16M */
-	PCI_REGION_IO);
+	pci_set_region (hose->regions + 1,
+			CFG_PCI1_IO_BASE,
+			CFG_PCI1_IO_PHYS, CFG_PCI1_IO_SIZE, PCI_REGION_IO);
 
-    hose->region_count = 2;
+	hose->region_count = 2;
 
-    pci_setup_indirect(hose,
-	(CFG_IMMR+0x8000),
-	(CFG_IMMR+0x8004));
+	pci_setup_indirect (hose, (CFG_IMMR + 0x8000), (CFG_IMMR + 0x8004));
 
-    pci_register_hose(hose);
+	pci_read_config_word (PCI_BDF (0, 0, 0), PCI_COMMAND, &reg16);
+	reg16 |= PCI_COMMAND_SERR | PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY;
+	pci_write_config_word (PCI_BDF (0, 0, 0), PCI_COMMAND, reg16);
 
-    hose->last_busno = pci_hose_scan(hose);
+	/*
+	 * Clear non-reserved bits in status register.
+	 */
+	pci_write_config_word (PCI_BDF (0, 0, 0), PCI_STATUS, 0xffff);
+	pci_write_config_byte (PCI_BDF (0, 0, 0), PCI_LATENCY_TIMER, 0x80);
 
-    pci_read_config_word (PCI_BDF(0,0,0), PCI_COMMAND, &reg16);
-    reg16 |= PCI_COMMAND_SERR | PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY;
-    pci_write_config_word(PCI_BDF(0,0,0), PCI_COMMAND, reg16);
+	pcix->potar1 = (CFG_PCI1_MEM_BASE >> 12) & 0x000fffff;
+	pcix->potear1 = 0x00000000;
+	pcix->powbar1 = (CFG_PCI1_MEM_BASE >> 12) & 0x000fffff;
+	pcix->powbear1 = 0x00000000;
+	pcix->powar1 = 0x8004401c;	/* 512M MEM space */
 
-    /* Clear non-reserved bits in status register */
-    pci_write_config_word(PCI_BDF(0,0,0), PCI_STATUS, 0xffff);
-    pci_write_config_byte(PCI_BDF(0,0,0), PCI_LATENCY_TIMER,0x80);
+	pcix->potar2 = (CFG_PCI1_IO_BASE >> 12) & 0x000fffff;
+	pcix->potear2 = 0x00000000;
+	pcix->powbar2 = (CFG_PCI1_IO_BASE >> 12) & 0x000fffff;
+	pcix->powbear2 = 0x00000000;
+	pcix->powar2 = 0x80088017;	/* 16M IO space */
 
-    pcix->potar1   = (CFG_PCI_MEM_BASE >> 12) & 0x000fffff;
-    pcix->potear1  = 0x00000000;
-    pcix->powbar1  = (CFG_PCI_MEM_BASE >> 12) & 0x000fffff;
-    pcix->powbear1 = 0x00000000;
-    pcix->powar1   = 0x8004401a; /* 128M MEM space */
-    pcix->potar2   = ((CFG_PCI_MEM_BASE + 0x08000000) >> 12)  & 0x000fffff;
-    pcix->potear2  = 0x00000000;
-    pcix->powbar2  = ((CFG_PCI_MEM_BASE + 0x08000000) >> 12) && 0x000fffff;
-    pcix->powbear2 = 0x00000000;
-    pcix->powar2   = 0x80088017; /* 16M IO  space */
-    pcix->pitar1 = 0x00000000;
-    pcix->piwbar1 = 0x00000000;
-    pcix->piwar1 = 0xa0F5501f;
+	pcix->pitar1 = 0x00000000;
+	pcix->piwbar1 = 0x00000000;
+	pcix->piwar1 = 0xa0F5501f;
 
+	/*
+	 * Hose scan.
+	 */
+	pci_register_hose (hose);
+	hose->last_busno = pci_hose_scan (hose);
 }
+
 #endif /* CONFIG_PCI */

@@ -342,7 +342,8 @@ void	trap_init     (ulong);
     defined (CONFIG_74xx_7xx)	|| \
     defined (CONFIG_74x)	|| \
     defined (CONFIG_75x)	|| \
-    defined (CONFIG_74xx)
+    defined (CONFIG_74xx)	|| \
+    defined(CONFIG_MPC85xx)
 unsigned char	in8(unsigned int);
 void		out8(unsigned int, unsigned char);
 unsigned short	in16(unsigned int);
@@ -356,6 +357,7 @@ void		out32r(unsigned int, unsigned long value);
 void		ppcDcbf(unsigned long value);
 void		ppcDcbi(unsigned long value);
 void		ppcSync(void);
+void		ppcDcbz(unsigned long value);
 #endif
 
 /* $(CPU)/cpu.c */

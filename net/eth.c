@@ -51,7 +51,7 @@ extern int rtl8139_initialize(bd_t*);
 extern int rtl8169_initialize(bd_t*);
 extern int scc_initialize(bd_t*);
 extern int skge_initialize(bd_t*);
-extern int tsec_initialize(bd_t*);
+extern int tsec_initialize(bd_t*, int);
 
 static struct eth_device *eth_devices, *eth_current;
 
@@ -147,8 +147,14 @@ int eth_initialize(bd_t *bis)
 #if defined(CONFIG_SK98)
 	skge_initialize(bis);
 #endif
-#ifdef CONFIG_TSEC_ENET
-	tsec_initialize(bis);
+#if defined(CONFIG_MPC85XX_TSEC1)
+	tsec_initialize(bis, 0);
+#endif
+#if defined(CONFIG_MPC85XX_TSEC2)
+	tsec_initialize(bis, 1);
+#endif
+#if defined(CONFIG_MPC85XX_FEC)
+	tsec_initialize(bis, 2);
 #endif
 #if defined(CONFIG_AU1X00)
 	au1x00_enet_initialize(bis);

@@ -184,7 +184,7 @@ Eran Man <eran@nbase.co.il>
 Andrea "llandre" Marson <andrea.marson@dave-tech.it>
 
 	PPChameleonEVB	PPC405EP
- 
+
 Reinhard Meyer <r.meyer@emk-elektronik.de>
 
 	TOP860			MPC860T
@@ -270,7 +270,7 @@ John Zhan <zhanz@sinovee.com>
 
 	svm_sc8xx		MPC8xx
 
-Xianghua Xiao <x.xiao@motorola.com>
+Jon Loeliger <jdl@freescale.com>
 
 	MPC8540ADS		MPC8540
 	MPC8560ADS		MPC8560
@@ -376,7 +376,7 @@ Robert Schwebel <r.schwebel@pengutronix.de>
 Andrea Scian <andrea.scian@dave-tech.it>
 
 	B2				ARM7TDMI (S3C44B0X)
- 
+
 Alex Züpke <azu@sysgo.de>
 
 	lart			SA1100

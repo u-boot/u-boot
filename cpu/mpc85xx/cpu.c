@@ -174,16 +174,6 @@ reset_85xx_watchdog(void)
 #endif	/* CONFIG_WATCHDOG */
 
 #if defined(CONFIG_DDR_ECC)
-__inline__ void dcbz(const void* addr)
-{
-	__asm__ __volatile__ ("dcbz 0,%0" :: "r" (addr));
-}
-
-__inline__ void dcbf(const void* addr)
-{
-	__asm__ __volatile__ ("dcbf 0,%0" :: "r" (addr));
-}
-
 void dma_init(void) {
 	volatile immap_t *immap = (immap_t *)CFG_IMMR;
 	volatile ccsr_dma_t *dma = &immap->im_dma;

@@ -440,7 +440,9 @@ extern int write_bat(ppc_bat_t bat, unsigned long upper, unsigned long lower);
 #define LAWAR_SIZE		0x0000003F
 
 #define LAWAR_TRGT_IF_PCI	0x00000000
+#define LAWAR_TRGT_IF_PCI1	0x00000000
 #define LAWAR_TRGT_IF_PCIX	0x00000000
+#define LAWAR_TRGT_IF_PCI2	0x00100000
 #define LAWAR_TRGT_IF_LBC	0x00400000
 #define LAWAR_TRGT_IF_CCSR	0x00800000
 #define LAWAR_TRGT_IF_RIO	0x00c00000
