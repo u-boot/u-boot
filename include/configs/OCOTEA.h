@@ -150,6 +150,7 @@
 #define CONFIG_PHY2_ADDR	0x10
 #define CONFIG_PHY3_ADDR	0x18
 #define CONFIG_CIS8201_PHY	1	/* Enable 'special' RGMII mode for Cicada phy */
+#define CONFIG_PHY_GIGE		1	/* Include GbE speed/duplex detection */
 #define CONFIG_NETMASK		255.255.255.0
 #define CONFIG_IPADDR		10.1.2.3
 #define CONFIG_ETHADDR		00:04:AC:E3:28:8A

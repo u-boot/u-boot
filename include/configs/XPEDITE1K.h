@@ -174,6 +174,7 @@ extern void out32(unsigned int, unsigned long);
 #define CONFIG_PHY2_ADDR	4	/* PHY address phy2 */
 #define CONFIG_PHY3_ADDR	8	/* PHY address phy3 */
 #define CONFIG_NET_MULTI	1
+#define CONFIG_PHY_GIGE		1	/* Include GbE speed/duplex detection */
 #define CFG_RX_ETH_BUFFER   32	/* Number of ethernet rx buffers & descriptors */
 
 #define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \

@@ -140,7 +140,7 @@ MachineCheckException(struct pt_regs *regs)
 	dump_pci();
 #endif
 	/* clear the error in the error status register */
-	if(immap->im_pci.pci_esr && cpu_to_le32(PCI_ERROR_PCI_NO_RSP)) {
+	if(immap->im_pci.pci_esr & cpu_to_le32(PCI_ERROR_PCI_NO_RSP)) {
 		immap->im_pci.pci_esr = cpu_to_le32(PCI_ERROR_PCI_NO_RSP);
 		return;
 	}

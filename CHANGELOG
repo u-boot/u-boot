@@ -2,6 +2,20 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
+* Patch by Stephen Williams, 19 March 2004
+  Increase speed of sector reads from SystemACE,
+  shorten poll timeout and remove a useless reset
+
+* Patch by Tolunay Orkun, 19 Mar 2004:
+  Make GigE PHY 1000Mbps Speed/Duplex detection conditional
+  (CONFIG_PHY_GIGE)
+
+* Patch by Brad Kemp, 18 Mar 2004:
+  prevent machine checks during a PCI scan
+
+* Patch by Pierre Aubert, 18 Mar 2004:
+  Fix string cleaning in IDE identification
+
 * Patch by Pierre Aubert, 18 Mar 2004:
   - Unify video mode handling for Chips & Technologies 69000 Video
     chip and Silicon Motion SMI 712/710/810 Video chip

@@ -190,16 +190,13 @@ static unsigned long systemace_read(int dev,
 	      /* Write sector count | ReadMemCardData. */
 	    ace_writew((trans&0xff) | 0x0300, 0x14);
 
-	      /* CONTROLREG = CFGRESET|LOCKREQ */
-	    ace_writew(0x0082, 0x18);
-
 	    retry = trans * 16;
 	    while (retry > 0) {
 		  int idx;
 
 		    /* Wait for buffer to become ready. */
 		  while (! (ace_readw(0x04) & 0x0020)) {
-			udelay(1000);
+			udelay(100);
 		  }
 
 		    /* Read 16 words of 2bytes from the sector buffer. */
