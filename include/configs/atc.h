@@ -173,7 +173,7 @@
 
 #define CONFIG_RTC_DS12887
 
-#define RTC_BASE_ADDR 		0x02800000
+#define RTC_BASE_ADDR 		0xF5000000
 #define RTC_PORT_ADDR 		RTC_BASE_ADDR + 0x800
 #define RTC_PORT_DATA 		RTC_BASE_ADDR + 0x808
 
@@ -212,7 +212,7 @@
  * HRCW_DPPCxx requires you to also change CFG_SIUMCR.
  */
 #define CFG_HRCW_MASTER		(HRCW_CIP | HRCW_ISB100 | HRCW_BMS | \
-				 HRCW_BPS10 | HRCW_DPPC10 |\
+				 HRCW_BPS10 |\
 				 HRCW_APPC10)
 
 /* no slaves so just fill with zeros */
@@ -321,7 +321,7 @@
  * SIUMCR - SIU Module Configuration                             4-31
  *-----------------------------------------------------------------------
  */
-#define CFG_SIUMCR      (SIUMCR_BBD|SIUMCR_DPPC10|SIUMCR_APPC10|\
+#define CFG_SIUMCR      (SIUMCR_BBD|SIUMCR_APPC10|\
 			 SIUMCR_CS10PC00|SIUMCR_BCTLC10)
 
 /*-----------------------------------------------------------------------
