@@ -2633,7 +2633,7 @@ U-Boot Porting Guide:
 ----------------------
 
 [Based on messages by Jerry Van Baren in the U-Boot-Users mailing
-list, Octover 2002]
+list, October 2002]
 
 
 int main (int argc, char *argv[])
@@ -2649,6 +2649,8 @@ int main (int argc, char *argv[])
 	}
 
 	Download latest U-Boot source;
+
+	Subscribe to u-boot-users mailing list;
 
 	if (clueless) {
 		email ("Hi, I am new to U-Boot, how do I get started?");
@@ -2667,6 +2669,8 @@ int main (int argc, char *argv[])
 	}
 
 	Create your own board support subdirectory;
+
+	Create your own board config file;
 
 	while (!running) {
 		do {

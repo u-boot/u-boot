@@ -140,6 +140,7 @@
 				 CFG_CMD_BEDBUG	| \
 				 CFG_CMD_DATE	| \
 				 CFG_CMD_EEPROM | \
+				 CFG_CMD_I2C	| \
 				 CFG_CMD_DOC)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */

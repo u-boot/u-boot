@@ -57,11 +57,25 @@
 #define CONFIG_PREBOOT	"echo;echo Type \"run flash_nfs\" to mount root filesystem over NFS;echo"
 
 #undef	CONFIG_BOOTARGS
-#define CONFIG_BOOTCOMMAND							\
-	"bootp; " 								\
-	"setenv bootargs root=/dev/nfs rw nfsroot=$(serverip):$(rootpath) " 	\
-	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off; " 	\
-	"bootm"
+
+#define	CONFIG_EXTRA_ENV_SETTINGS					\
+	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
+		"nfsroot=$(serverip):$(rootpath)\0"			\
+	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
+	"addip=setenv bootargs $(bootargs) "				\
+		"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask)"	\
+		":$(hostname):$(netdev):off panic=1\0"			\
+	"flash_nfs=run nfsargs addip;"					\
+		"bootm $(kernel_addr)\0"				\
+	"flash_self=run ramargs addip;"					\
+		"bootm $(kernel_addr) $(ramdisk_addr)\0"		\
+	"net_nfs=tftp 200000 $(bootfile);run nfsargs addip;bootm\0"	\
+	"rootpath=/opt/eldk/ppc_8xx\0"					\
+	"bootfile=/tftpboot/TQM860L/pImage\0"				\
+	"kernel_addr=40040000\0"					\
+	"ramdisk_addr=40100000\0"					\
+	""
+#define CONFIG_BOOTCOMMAND	"run flash_self"
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #undef	CFG_LOADS_BAUD_CHANGE		/* don't allow baudrate change	*/
@@ -84,6 +98,7 @@
 #define	CONFIG_RTC_MPC8xx		/* use internal RTC of MPC8xx	*/
 
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
+				CFG_CMD_ASKENV	| \
 				CFG_CMD_DHCP	| \
 				CFG_CMD_IDE	| \
 				CFG_CMD_DATE	)
@@ -95,14 +110,22 @@
  * Miscellaneous configurable options
  */
 #define	CFG_LONGHELP			/* undef to save memory		*/
-#define	CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
+#define	CFG_PROMPT		"=> "	/* Monitor Command Prompt	*/
+
+#if 0
+#define	CFG_HUSH_PARSER		1	/* use "hush" command parser	*/
+#endif
+#ifdef	CFG_HUSH_PARSER
+#define	CFG_PROMPT_HUSH_PS2	"> "
+#endif
+
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
-#define	CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
+#define	CFG_CBSIZE		1024	/* Console I/O Buffer Size	*/
 #else
-#define	CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
+#define	CFG_CBSIZE		256	/* Console I/O Buffer Size	*/
 #endif
 #define	CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define	CFG_MAXARGS	16		/* max number of command args	*/
+#define	CFG_MAXARGS		16	/* max number of command args	*/
 #define CFG_BARGSIZE	CFG_CBSIZE	/* Boot Argument Buffer Size	*/
 
 #define CFG_MEMTEST_START	0x0400000	/* memtest works on	*/
@@ -110,7 +133,7 @@
 
 #define	CFG_LOAD_ADDR		0x100000	/* default load address	*/
 
-#define	CFG_HZ		1000		/* decrementer freq: 1 ms ticks	*/
+#define	CFG_HZ			1000	/* decrementer freq: 1 ms ticks	*/
 
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 

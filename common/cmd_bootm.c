@@ -366,6 +366,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	}
 
 #ifdef CONFIG_LOGBUFFER
+	kbd=gd->bd;
 	/* Prevent initrd from overwriting logbuffer */
 	if (initrd_high < (kbd->bi_memsize-LOGBUFF_LEN-LOGBUFF_OVERHEAD))
 		initrd_high = kbd->bi_memsize-LOGBUFF_LEN-LOGBUFF_OVERHEAD;

@@ -2,6 +2,11 @@
 Changes since for U-Boot 0.1.0:
 ======================================================================
 
+* Use 1-byte-read instead of -write for iprobe() function
+  Add i2c commands to PM826 config
+
+* extend I2C POST code: check for list on known addresses
+
 * Improve log buffer code; use "loglevel" to decide which messages
   to log on the console, too (like in Linux); get rid of "logstart"
 

@@ -212,6 +212,10 @@
 #define	CFG_ENV_IS_IN_FLASH	1
 #define	CFG_ENV_OFFSET		0x8000	/*   Offset   of Environment Sector	*/
 #define	CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
+
+/* Address and size of Redundant Environment Sector	*/
+#define CFG_ENV_OFFSET_REDUND	(CFG_ENV_OFFSET+CFG_ENV_SIZE)
+#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
 #else
 /* Final version: environment in EEPROM */
 #define CFG_ENV_IS_IN_EEPROM	1
@@ -242,7 +246,8 @@
 #define CFG_SYPCR	(SYPCR_SWTC | SYPCR_BMT | SYPCR_BME | SYPCR_SWF | \
 			 SYPCR_SWE  | SYPCR_SWRI| SYPCR_SWP)
 #else
-#define CFG_SYPCR	(SYPCR_SWTC | SYPCR_BMT | SYPCR_BME | SYPCR_SWF | SYPCR_SWP)
+#define CFG_SYPCR	(SYPCR_SWTC | SYPCR_BMT | SYPCR_BME | SYPCR_SWF | \
+						  SYPCR_SWP)
 #endif
 
 /*-----------------------------------------------------------------------

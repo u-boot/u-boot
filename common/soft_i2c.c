@@ -287,8 +287,9 @@ int i2c_probe(uchar addr)
 {
 	int rc;
 
+	/* perform 1 byte read transaction */
 	send_start();
-	rc = write_byte ((addr << 1) | 1);
+	rc = write_byte ((addr << 1) | 0);
 	send_stop();
 
 	return (rc ? 1 : 0);

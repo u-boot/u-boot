@@ -288,6 +288,17 @@
 #endif	/* CONFIG_USE_FRAM */
 #define CFG_EEPROM_PAGE_WRITE_BITS	4
 
+/* List of I2C addresses to be verified by POST */
+#define I2C_ADDR_LIST	{  /*	CFG_I2C_AUDIO_ADDR, */	\
+				CFG_I2C_SYSMON_ADDR,	\
+				CFG_I2C_RTC_ADDR,	\
+				CFG_I2C_POWER_A_ADDR,	\
+				CFG_I2C_POWER_B_ADDR,	\
+				CFG_I2C_KEYBD_ADDR,	\
+				CFG_I2C_PICIO_ADDR,	\
+				CFG_I2C_EEPROM_ADDR,	\
+			}
+
 /*-----------------------------------------------------------------------
  * Cache Configuration
  */
