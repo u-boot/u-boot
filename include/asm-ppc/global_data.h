@@ -70,7 +70,7 @@ typedef	struct	global_data {
 #if defined(CONFIG_LCD) || defined(CONFIG_VIDEO)
 	unsigned long	fb_base;	/* Base address of framebuffer memory	*/
 #endif
-#ifdef CONFIG_POST
+#if defined(CONFIG_POST) || defined(CONFIG_LOGBUFFER)
 	unsigned long	post_log_word;  /* Record POST activities */
 	unsigned long	post_init_f_time;  /* When post_init_f started */
 #endif

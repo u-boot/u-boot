@@ -93,7 +93,7 @@ void logbuff_init_ptrs (void)
  	}
 #else
 	/* No post routines, so we do our own checking                    */
- 	if (post_word_load () != LOGBUFF_MAGIC) {
+ 	if (post_word != LOGBUFF_MAGIC) {
  		logged_chars = log_size = log_start = 0;
 		post_word_store (LOGBUFF_MAGIC);
 		*ext_tag = LOGBUFF_MAGIC;
