@@ -2,6 +2,8 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* disable MPC5200 bus pipelining as workaround for bus contention
+
 * Modify XLB arbiter priorities on MPC5200 so all devices use same
   priority; configure critical interrupts to be handled like external
   interrupts
