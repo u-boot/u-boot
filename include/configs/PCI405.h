@@ -40,11 +40,7 @@
 #define CONFIG_BOARD_PRE_INIT   1       /* call board_pre_init()        */
 #define CONFIG_MISC_INIT_R	1	/* call misc_init_r() on init	*/
 
-#if 1 /* test-only */
 #define CONFIG_SYS_CLK_FREQ     25000000 /* external frequency to pll   */
-#else
-#define CONFIG_SYS_CLK_FREQ     16000000 /* external frequency to pll   */
-#endif
 
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_BOOTDELAY	3	/* autoboot after 3 seconds	*/
@@ -92,7 +88,7 @@
 
 #define	CONFIG_SDRAM_BANK0	1	/* init onboard SDRAM bank 0	*/
 
-#define	CONFIG_PRAM		2048	/* reserve 2 MB "protected RAM"	*/ 
+#define	CONFIG_PRAM		2048	/* reserve 2 MB "protected RAM"	*/
 
 /*
  * Miscellaneous configurable options

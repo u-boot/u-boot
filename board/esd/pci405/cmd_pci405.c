@@ -36,66 +36,7 @@
 
 extern int do_bootm (cmd_tbl_t *, int, int, char *[]);
 
-#if 0 /* test-only */
-#include "../common/fpga.c"
-void error_print(void)
-{
-	int i;
-	volatile unsigned char *ptr;
-	volatile unsigned long *ptr2;
-	
-	printf("\n 2nd SJA1000:\n");
-	ptr = 0xf0000100;
-	for (i=0; i<0x20; i++) {
-		printf("%02x ", *ptr++);
-	}
 
-	ptr2 = 0xf0400008;
-	printf("\nTimestamp = %x\n", *ptr2);
-	udelay(1000);
-	printf("Timestamp = %x\n", *ptr2);
-	udelay(1000);
-	printf("Timestamp = %x\n", *ptr2);
-
-#if 0 /* test-only */
-	/*
-	 * Reset FPGA via FPGA_DATA pin
-	 */
-	printf("Resetting FPGA...\n");
-	SET_FPGA(FPGA_PRG | FPGA_CLK);
-	udelay(1000); /* wait 1ms */
-	SET_FPGA(FPGA_PRG | FPGA_CLK | FPGA_DATA);
-	udelay(1000); /* wait 1ms */
-
-	do_loadpci(NULL, 0,0, NULL);
-#endif
-}
-
-void read_loop(void)
-{
-	int i;
-	volatile unsigned char *ptr;
-	volatile unsigned char val;
-	volatile unsigned long *ptr2;
-
-	printf("\nread loop on 1st sja1000...");
-	while (1) {
-		ptr = 0xf0000000;
-/*		printf("\n1st SJA1000:\n");*/
-		for (i=0; i<0x20; i++) {
-			i = i;
-			val = *ptr++;
-/*			printf("%02x ", val);*/
-		}
-
-		/* Abort if ctrl-c was pressed */
-		if (ctrlc()) {
-			puts("\nAbort\n");
-			return 0;
-		}
-	}
-}
-#endif
 /*
  * Command loadpci: wait for signal from host and boot image.
  */
@@ -110,66 +51,6 @@ int do_loadpci(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	char str[] = "\\|/-";
 	char *local_args[2];
 
-#if 0 /* test-only */
-	puts("\nStarting sja1000 test...");
-	{
-		int count;
-		volatile unsigned char *ptr;
-		volatile unsigned char val;
-		volatile unsigned char val2;
-
-#if 1 /* write test */
-		ptr = 0xf0000014;
-		for (i=1; i<11; i++)
-			*ptr++ = i;
-#endif
-		
-		count = 0;
-		while (1) {
-			count++;
-#if 0 /* write test */
-			ptr = 0xf0000014;
-			for (i=1; i<11; i++)
-				*ptr++ = i;
-#endif
-#if 1 /* read test */
-			ptr = 0xf0000014;
-			for (i=1; i<11; i++) {
-				val = *ptr++;
-#if 1
-				if (val != i) {
-					ptr = 0xf0000100;
-					val = *ptr; /* trigger las */
-
-					ptr = 0xf0000014;
-					val2 = *ptr;
-
-					printf("\nERROR: count=%d: soll=%x ist=%x -> staring read loop on 1st sja1000...\n",	count, i, val);
-
-					printf("soll=%x ist=%x -> staring read loop on 1st sja1000...\n", 1, val2);
-
-					return 0; /* test-only */
-					udelay(1000);
-					error_print();
-					read_loop();
-					return 0;
-				}
-#endif
-			}
-#endif
-
-			/* Abort if ctrl-c was pressed */
-			if (ctrlc()) {
-				puts("\nAbort\n");
-				return 0;
-			}
-
-			if (!(count % 100000)) {
-				printf(".");
-			}
-		}
-	}
-#endif
 	/*
 	 * Mark sync address
 	 */
@@ -212,13 +93,13 @@ int do_loadpci(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		printf("\nStoring PCI Configuration Regs...\n");
 	} else {
 		sprintf(addr, "%08x", *ptr);
-		
+
 		/*
 		 * Boot image
 		 */
 		printf("\nBooting image at addr 0x%s ...\n", addr);
 		setenv("loadaddr", addr);
-		
+
 		local_args[0] = argv[0];
 		local_args[1] = NULL;
 		status = do_bootm (cmdtp, 0, 1, local_args);
