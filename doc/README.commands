@@ -69,6 +69,8 @@ mm		2
 mtest		5
 muxinfo		3
 mw		2
+nand		3
+nboot		4
 next		4
 nm		2
 pciinfo		3

@@ -37,6 +37,7 @@
 #include <syscall.h>
 #include <net.h>
 #include <ide.h>
+#include <asm/u-boot-i386.h>
 
 extern long _i386boot_start;	    
 extern long _i386boot_end;	    
@@ -82,21 +83,14 @@ static int mem_malloc_init(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
         
-#if 1	
 	/* start malloc area right after the stack */
 	mem_malloc_start = i386boot_bss_start + 
 		i386boot_bss_size + CFG_STACK_SIZE;
 	mem_malloc_start = (mem_malloc_start+3)&~3;
-#else
-	mem_malloc_start = 0x400000;
-#endif	
-#if 1
+	
 	/* Use all available RAM for malloc() */
 	mem_malloc_end = gd->ram_size;
-#else	
-	/* Use only  CONFIG_MALLOC_SIZE bytes of RAM for malloc() */
-	mem_malloc_end = mem_malloc_start + CONFIG_MALLOC_SIZE;
-#endif	
+	
 	mem_malloc_brk = mem_malloc_start;
 
 	return 0;
@@ -149,10 +143,10 @@ static int init_baudrate (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
-	uchar tmp[64];	/* long enough for environment variables */
-	int i = getenv_r ("baudrate", tmp, sizeof (tmp));
+	char tmp[64];	/* long enough for environment variables */
+	int i = getenv_r("baudrate", tmp, 64);
 
-	gd->baudrate = (i > 0)
+	gd->baudrate = (i != 0)
 			? (int) simple_strtoul (tmp, NULL, 10)
 			: CONFIG_BAUDRATE;
 
@@ -237,6 +231,7 @@ init_fnc_t *init_sequence[] = {
 	mem_malloc_init,        /* dependant on dram_init */
 	interrupt_init,		/* set up exceptions */
 	timer_init,	
+	serial_init,
 	env_init,		/* initialize environment */
 	init_baudrate,		/* initialze baudrate settings */
 	serial_init,		/* serial communications setup */
@@ -267,6 +262,7 @@ void start_i386boot (void)
 	memset (gd->bd, 0, sizeof (bd_t));
 	show_boot_progress(0x22);
 
+	gd->baudrate =  CONFIG_BAUDRATE;
 	
 	for (init_fnc_ptr = init_sequence, i=0; *init_fnc_ptr; ++init_fnc_ptr, i++) {
 		show_boot_progress(0xa130|i);
@@ -323,7 +319,8 @@ void start_i386boot (void)
 
 	/* allocate syscalls table (console_init_r will fill it in */
 	syscall_tbl = (void **) malloc (NR_SYSCALLS * sizeof (void *));
-
+	memset(syscall_tbl, 0, NR_SYSCALLS * sizeof (void *));
+	
 	/* Initialize the console (after the relocation and devices init) */
 	console_init_r();
 	syscalls_init();
@@ -355,7 +352,7 @@ void start_i386boot (void)
 #endif
 
 	/* enable exceptions */
-	enable_interrupts ();
+	enable_interrupts();
 	show_boot_progress(0x28);
 
 	/* Must happen after interrupts are initialized since
@@ -369,7 +366,7 @@ void start_i386boot (void)
 	status_led_set (STATUS_LED_BOOT, STATUS_LED_BLINKING);
 #endif
 
-	udelay (20);
+	udelay(20);
 
 	set_timer (0);
 
@@ -399,7 +396,7 @@ void start_i386boot (void)
 
 #if (CONFIG_COMMANDS & CFG_CMD_DOC)
 	WATCHDOG_RESET();
-	puts ("DOC:   ");
+	puts("DOC:   ");
 	doc_init();
 #endif
 
@@ -428,12 +425,13 @@ void start_i386boot (void)
 		board_poweroff();
 	}
 #endif
-
+	
+	
 	show_boot_progress(0x29);
 	
 	/* main_loop() can return to retry autoboot, if so just run it again. */
 	for (;;) {
-		main_loop ();
+		main_loop();
 	}
 
 	/* NOTREACHED - no way out of command loop except booting */

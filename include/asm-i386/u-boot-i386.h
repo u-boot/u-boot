@@ -46,8 +46,15 @@ int cpu_init(void);
 int timer_init(void);
 
 /* board/.../... */
-int	board_init(void);
-int	dram_init (void);
+int board_init(void);
+int dram_init(void);
+
+void isa_unmap_rom(u32 addr);
+u32 isa_map_rom(u32 bus_addr, int size);
+
+/* lib_i386/... */
+int video_bios_init(void);
+int video_init(void);
 
 
 #endif	/* _U_BOOT_I386_H_ */

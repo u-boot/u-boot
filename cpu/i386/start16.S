@@ -1,7 +1,7 @@
 /*
  *  U-boot - i386 Startup Code 
  *
- *  Copyright (c) 2002	Omicron Ceti AB, Daniel Engström <denaiel@omicron.se>
+ *  Copyright (c) 2002, 2003 Omicron Ceti AB, Daniel Engström <denaiel@omicron.se>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -40,7 +40,7 @@ board_init16_ret:
 	
 	/* Turn of cache (this might require a 486-class CPU) */
         movl    %cr0, %eax
-        orl     $060000000,%eax
+        orl     $0x60000000,%eax
         movl    %eax, %cr0
         wbinvd  		     
 	

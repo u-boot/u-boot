@@ -29,22 +29,6 @@
 #include <asm/ibmpc.h>
 
 
-#if 0
-/* done */
-int	interrupt_init     (void);
-void	irq_install_handler(int, interrupt_handler_t *, void *);
-void	irq_free_handler   (int);
-void	enable_interrupts  (void);
-int	disable_interrupts (void);
-
-/* todo */
-void	timer_interrupt    (struct pt_regs *);
-void	external_interrupt (struct pt_regs *);
-void	reset_timer	   (void);
-ulong	get_timer	   (ulong base);
-void	set_timer	   (ulong t);
-
-#endif
 
 struct idt_entry {
 	u16	base_low;
@@ -76,43 +60,30 @@ typedef struct {
 static irq_desc_t irq_table[MAX_IRQ];
 
 
-/* syscall stuff, very untested 
- * the current approach which includes copying
- * part of the stack will work badly for 
- * varargs functions.
- * if we were to store the top three words on the
- * stack (eip, ss, eflags) somwhere and add 14 to
- * %esp ....
- */
+
 asm(".globl syscall_entry\n" \
         "syscall_entry:\n" \
-        "movl   12(%esp), %eax\n" \
-	"movl   %esp, %ebx\n" \
-        "addl   $16, %ebx\n" \
-        "pushl  %ebx\n" \
-        "pushl  %eax\n" \
-        "call   do_syscall\n" \
-        "addl   $8, %esp\n" \
-        "iret\n");
+        "popl   %ebx\n"        /* throw away the return address, flags  */ \
+        "popl   %ebx\n"        /* and segment that the INT instruction pushed */ \
+        "popl   %ebx\n"        /* on to the stack */ \
+        "movl   %eax, %ecx\n"  /* load the syscall nr argument*/ \
+        "movl   syscall_tbl, %eax\n" /* load start of syscall table */ \
+        "cmpl   $(11-1), %ecx\n"  /* FixMe: find a way to use NR_SYSCALLS macro here */ \
+        "ja     bad_syscall\n" \
+        "movl   (%eax, %ecx, 4), %eax\n" /* load the handler of the syscall*/ \
+        "test   %eax, %eax\n" /* test for null */ \
+        "je     bad_syscall\n" \
+        "popl   %ecx\n" \
+        "popl   %ebx\n" \
+        "sti    \n" \
+        "jmp    *%eax\n" \
+"bad_syscall: movl $0xffffffff, %eax\n" \
+        "popl   %ecx\n" \
+        "popl   %ebx\n" \
+        "ret");
 
 void __attribute__ ((regparm(0))) syscall_entry(void);
 
-int __attribute__ ((regparm(0))) do_syscall(u32 nr, u32 *stack)
-{
-	if (nr<NR_SYSCALLS) {
-		/* We copy 8 args of the syscall,
-		 * this will be a problem with the 
-		 * printf syscall .... */
-		int (*fp)(u32, u32, u32, u32,
-			  u32, u32, u32, u32);
-		fp = syscall_tbl[nr];
-		return fp(stack[0], stack[1], stack[2], stack[3],
-					     stack[4], stack[5], stack[6], stack[7]);
-	}
-	
-	return -1;
-}
-	
 
 asm ("irq_return:\n"
      "     addl  $4, %esp\n"

@@ -114,8 +114,6 @@ struct nand_chip {
 	unsigned long mfr; /* Flash IDs - only one type of flash per device */
 	unsigned long id;
 	char* name;
-	struct NFTLrecord nftl;
-	int nftl_found;
 	int numchips;
 	char page256;
 	char pageadrlen;
@@ -194,5 +192,7 @@ struct nand_flash_dev {
 #define NAND_JFFS2_OOB16_FSDAPOS	8
 #define NAND_JFFS2_OOB8_FSDALEN		2
 #define NAND_JFFS2_OOB16_FSDALEN	8
+
+void nand_probe(unsigned long physadr);
 
 #endif /* __LINUX_MTD_NAND_H */

@@ -220,8 +220,8 @@ void boot_zimage(void *setup_base)
 	
 	memset(&regs, 0, sizeof(struct pt_regs));
 	regs.xds = (u32)setup_base >> 4;
-	regs.xss = 0x8e00;
-	regs.esp = 0x200;
+	regs.xss = 0x9000;
+	regs.esp = 0x9000;
 	regs.eflags = 0;
 	enter_realmode(((u32)setup_base+SETUP_START_OFFSET)>>4, 0, &regs, &regs);
 }

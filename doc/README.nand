@@ -1,0 +1,176 @@
+NAND FLASH commands and notes
+
+# (C) Copyright 2003
+# Dave Ellis, SIXNET, dge@sixnetio.com
+#
+# See file CREDITS for list of people who contributed to this
+# project.
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of
+# the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+# MA 02111-1307 USA
+
+Commands:
+
+   nand bad
+      Print a list of all of the bad blocks in the current device.
+
+   nand device
+      Print information about the current NAND device.
+
+   nand device num
+      Make device `num' the current device and print information about it.
+
+   nand erase off size
+   nand erase clean [off size]
+      Erase `size' bytes starting at offset `off'.  Only complete erase
+      blocks can be erased.
+
+      If `clean' is specified, a JFFS2-style clean marker is written to
+      each block after it is erased. If `clean' is specified without an
+      offset or size, the entire flash is erased.
+
+      This command will not erase blocks that are marked bad. There is
+      a debug option in cmd_nand.c to allow bad blocks to be erased.
+      Please read the warning there before using it, as blocks marked
+      bad by the manufacturer must _NEVER_ be erased.
+
+   nand info
+      Print information about all of the NAND devices found.
+
+   nand read addr ofs size
+      Read `size' bytes from `ofs' in NAND flash to `addr'. If a page
+      cannot be read because it is marked bad or an uncorrectable data
+      error is found the command stops with an error. 
+
+   nand read.jffs2 addr ofs size
+      Like `read', but the data for blocks that are marked bad is read as
+      0xff. This gives a readable JFFS2 image that can be processed by
+      the JFFS2 commands such as ls and fsload.
+
+   nand read.oob addr ofs size
+      Read `size' bytes from the out-of-band data area corresponding to
+      `ofs' in NAND flash to `addr'. This is limited to the 16 bytes of
+      data for one 512-byte page or 2 256-byte pages. There is no check
+      for bad blocks or ECC errors.
+
+   nand write addr ofs size
+      Write `size' bytes from `addr' to `ofs' in NAND flash. If a page
+      cannot be written because it is marked bad or the write fails the
+      command stops with an error. 
+
+   nand write.jffs2 addr ofs size
+      Like `write', but blocks that are marked bad are skipped and the
+      is written to the next block instead. This allows writing writing
+      a JFFS2 image, as long as the image is short enough to fit even
+      after skipping the bad blocks. Compact images, such as those
+      produced by mkfs.jffs2 should work well, but loading an image copied
+      from another flash is going to be trouble if there are any bad blocks.
+
+   nand write.oob addr ofs size
+      Write `size' bytes from `addr' to the out-of-band data area
+      corresponding to `ofs' in NAND flash. This is limited to the 16 bytes
+      of data for one 512-byte page or 2 256-byte pages. There is no check
+      for bad blocks.
+
+Configuration Options:
+
+   CFG_CMD_NAND
+      A good one to add to CONFIG_COMMANDS since it enables NAND support.
+
+   CONFIG_MTD_NAND_ECC_JFFS2
+      Define this if you want the Error Correction Code information in
+      the out-of-band data to be formatted to match the JFFS2 file system.
+      CONFIG_MTD_NAND_ECC_YAFFS would be another useful choice for
+      someone to implement.
+
+   CFG_MAX_NAND_DEVICE
+      The maximum number of NAND devices you want to support.
+
+NAND Interface:
+
+   #define NAND_WAIT_READY(nand)
+      Wait until the NAND flash is ready. Typically this would be a
+      loop waiting for the READY/BUSY line from the flash to indicate it
+      it is ready.
+
+   #define WRITE_NAND_COMMAND(d, adr)
+      Write the command byte `d' to the flash at `adr' with the
+      CLE (command latch enable) line true. If your board uses writes to
+      different addresses to control CLE and ALE, you can modify `adr'
+      to be the appropriate address here. If your board uses I/O registers
+      to control them, it is probably better to let NAND_CTL_SETCLE()
+      and company do it.
+
+   #define WRITE_NAND_ADDRESS(d, adr)
+      Write the address byte `d' to the flash at `adr' with the
+      ALE (address latch enable) line true. If your board uses writes to
+      different addresses to control CLE and ALE, you can modify `adr'
+      to be the appropriate address here. If your board uses I/O registers
+      to control them, it is probably better to let NAND_CTL_SETALE()
+      and company do it.
+
+   #define WRITE_NAND(d, adr)
+      Write the data byte `d' to the flash at `adr' with the
+      ALE and CLE lines false. If your board uses writes to
+      different addresses to control CLE and ALE, you can modify `adr'
+      to be the appropriate address here. If your board uses I/O registers
+      to control them, it is probably better to let NAND_CTL_CLRALE()
+      and company do it.
+
+   #define READ_NAND(adr)
+      Read a data byte from the flash at `adr' with the
+      ALE and CLE lines false. If your board uses reads from
+      different addresses to control CLE and ALE, you can modify `adr'
+      to be the appropriate address here. If your board uses I/O registers
+      to control them, it is probably better to let NAND_CTL_CLRALE()
+      and company do it.
+
+   #define NAND_DISABLE_CE(nand)
+      Set CE (Chip Enable) low to enable the NAND flash.
+
+   #define NAND_ENABLE_CE(nand)
+      Set CE (Chip Enable) high to disable the NAND flash.
+
+   #define NAND_CTL_CLRALE(nandptr)
+      Set ALE (address latch enable) low. If ALE control is handled by
+      WRITE_NAND_ADDRESS() this can be empty.
+
+   #define NAND_CTL_SETALE(nandptr)
+      Set ALE (address latch enable) high. If ALE control is handled by
+      WRITE_NAND_ADDRESS() this can be empty.
+
+   #define NAND_CTL_CLRCLE(nandptr)
+      Set CLE (command latch enable) low. If CLE control is handled by
+      WRITE_NAND_ADDRESS() this can be empty.
+
+   #define NAND_CTL_SETCLE(nandptr)
+      Set CLE (command latch enable) high. If CLE control is handled by
+      WRITE_NAND_ADDRESS() this can be empty.
+	
+More Definitions:
+
+   These definitions are needed in the board configuration for now, but
+   may really belong in a header file.
+   TODO: Figure which ones are truly configuration settings and rename
+         them to CFG_NAND_... and move the rest somewhere appropriate.
+
+   #define SECTORSIZE 512
+   #define ADDR_COLUMN 1
+   #define ADDR_PAGE 2
+   #define ADDR_COLUMN_PAGE 3
+   #define NAND_ChipID_UNKNOWN 0x00
+   #define NAND_MAX_FLOORS 1
+   #define NAND_MAX_CHIPS 1
+

@@ -4,8 +4,6 @@ i386 port missing features:
 * setup the BIOS data area and BIOS equipment word to reflect machine config. 
 * Make reset work (from Linux and from the boot prompt)
 * DMA, FDC, RTC, KBC initialization
-* video card support (call BIOS to initialize, use helper routrine in BSP to shadow 
-  video rom if on pci) and PC keyboard
 * split of part of cpu/i386/interrupt.c to cpu/i385/entry.c?
 * re-entry of protected mode from real mode, should be added to realmode_switch.S 
   (and used by INT 10h and INT 16h handlers for console I/O during early
@@ -13,8 +11,6 @@ i386 port missing features:
 * missing functions in lib_i386 and cpu/i386
 * speaker beep interface
 
-i386 port bugs:
-* IDE does not work 
 
 SC520 missing features:
 * Watchdog
@@ -24,16 +20,10 @@ SC520 missing features:
 * SC520 MMCR reset 
 
 SC520 CDP board support missing features:
-* Synchronius serial port and seriel EEPROM
-* environment in SEEP
-* environment in flash
 * environment in sram
-* status LED ?
-* flash driver
 
 SC520 CDP board support bugs:
+* SPI EEPROM support does not work
 * 0x680 LEDS dos not work for me
 * is it possible to make both the internal serial ports and the 
   ports on the sio work at the same time?
-* ali sio cio lines?
-* On-borad ethernet does not work from Linux

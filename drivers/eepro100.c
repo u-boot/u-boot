@@ -331,8 +331,8 @@ int eepro100_initialize (bd_t * bis)
 		dev = (struct eth_device *) malloc (sizeof *dev);
 
 		sprintf (dev->name, "i82559#%d", card_number);
+		dev->priv = (void *) devno; /* this have to come before bus_to_phys() */
 		dev->iobase = bus_to_phys (iobase);
-		dev->priv = (void *) devno;
 		dev->init = eepro100_init;
 		dev->halt = eepro100_halt;
 		dev->send = eepro100_send;

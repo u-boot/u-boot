@@ -5,10 +5,6 @@
 
 #ifdef __GNUC__
 
-/* For avoiding bswap on i386 */
-#ifdef __KERNEL__
-#include <linux/config.h>
-#endif
 
 static __inline__ __const__ __u32 ___arch__swab32(__u32 x)
 {

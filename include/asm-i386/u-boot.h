@@ -43,7 +43,8 @@ typedef struct bd_info {
 	unsigned short	bi_ethspeed;	/* Ethernet speed in Mbps */
 	unsigned long	bi_intfreq;	/* Internal Freq, in MHz */
 	unsigned long	bi_busfreq;	/* Bus Freq, in MHz */
-	unsigned long	bi_baudrate;	/* Console Baudrate */
+	unsigned int	bi_baudrate;	/* Console Baudrate */
+	unsigned long   bi_boot_params;	/* where this board expects params */
 	struct environment_s	       *bi_env;
 	struct				/* RAM configuration */
 	{ 

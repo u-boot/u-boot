@@ -543,7 +543,7 @@ relocate_code:
 	mr	r10, r5		/* Save copy of Destination Address	*/
 
 	mr	r3,  r5				/* Destination Address	*/
-#ifdef DEBUG
+#ifdef CFG_RAMBOOT
 	lis	r4, CFG_SDRAM_BASE@h		/* Source      Address	*/
 	ori	r4, r4, CFG_SDRAM_BASE@l
 #else

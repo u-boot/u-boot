@@ -27,18 +27,21 @@
 
 #if (CONFIG_COMMANDS & CFG_CMD_NAND)
 #define	CMD_TBL_NAND	MK_CMD_TBL_ENTRY(					\
-	"nand",	3,	5,	1,	do_nand,					\
-	"nand    - NAND sub-system\n",					\
+	"nand",	3,	5,	1,	do_nand,				\
+	"nand    - NAND sub-system\n",						\
 	"info  - show available NAND devices\n"					\
 	"nand device [dev] - show or set current device\n"			\
-	"nand read  addr off size\n"						\
-	"nand write addr off size - read/write `size'"				\
-	" bytes starting at offset `off'\n"					\
-	"    to/from memory address `addr'\n"					\
-	"nand erase off size - erase `size' bytes of NAND from offset `off'\n"	\
+	"nand read[.jffs2]  addr off size\n"					\
+	"nand write[.jffs2] addr off size - read/write `size' bytes starting\n"	\
+	"    at offset `off' to/from memory address `addr'\n"			\
+	"nand erase [clean] [off size] - erase `size' bytes from\n"		\
+	"    offset `off' (entire device if not specified)\n"			\
+	"nand bad - show bad blocks\n"						\
+	"nand read.oob addr off size - read out-of-band data\n"			\
+	"nand write.oob addr off size - read out-of-band data\n"		\
 ),
 
-#define CMD_TBL_NANDBOOT	MK_CMD_TBL_ENTRY(					\
+#define CMD_TBL_NANDBOOT	MK_CMD_TBL_ENTRY(				\
 	"nboot", 4,	4,	1,	do_nandboot,				\
 	"nboot   - boot from NAND device\n",					\
 	"loadAddr dev\n"							\

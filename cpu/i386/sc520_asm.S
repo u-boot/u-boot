@@ -104,6 +104,9 @@
  *******************************************************************************
  */
 
+#include <config.h>
+#ifdef CONFIG_SC520
+
 .section .text
 .equ            DRCCTL,     0x0fffef010   /* DRAM control register */
 .equ            DRCTMCTL,   0x0fffef012   /* DRAM timing control register */
@@ -140,34 +143,34 @@
 mem_init: 
         xorw    %ax,%ax
         movl    $DBCTL, %edi             
-fs	movb     %al, (%edi)             /* disable write buffer */
+	movb     %al, (%edi)             /* disable write buffer */
 
         movl    $ECCCTL, %edi            
-fs	movb     %al, (%edi)             /* disable ECC */
+	movb     %al, (%edi)             /* disable ECC */
 
         movl    $DRCTMCTL, %edi           
         movb    $0x1E,%al                /* Set SDRAM timing for slowest */
-fs	movb     %al, (%edi)
+	movb     %al, (%edi)
 
  /*
   * setup loop to do 4 external banks starting with bank 3
   */
         movl    $0xff000000,%eax         /* enable last bank and setup */
         movl    $DRCBENDADR, %edi        /* ending address register */
-fs	movl     %eax, (%edi)
+	movl     %eax, (%edi)
 
         movl    $DRCCFG, %edi            /* setup */
         movw    $0xbbbb,%ax              /* dram config register for  */
-fs	movw    %ax, (%edi)
+	movw    %ax, (%edi)
 
  /*
   * issue a NOP to all DRAMs
   */
         movl    $DRCCTL, %edi            /* setup DRAM control register with */
         movb    $0x1,%al                 /* Disable refresh,disable write buffer */ 
-fs	movb     %al, (%edi)
+	movb     %al, (%edi)
         movl    $CACHELINESZ, %esi       /* just a dummy address to write for */ 
-fs	movw     %ax, (%esi)
+	movw     %ax, (%esi)
  /*
   * delay for 100 usec? 200?
   * ******this is a cludge for now *************
@@ -181,41 +184,41 @@ sizdelay:
   * issue all banks precharge
   */
         movb    $0x2,%al                 /* All banks precharge */
-fs	movb     %al, (%edi)
-fs	movw     %ax, (%esi)
+	movb     %al, (%edi)
+	movw     %ax, (%esi)
 
  /*
   * issue 2 auto refreshes to all banks 
   */
         movb    $0x4,%al                 /* Auto refresh cmd */
-fs	movb     %al, (%edi)
+	movb     %al, (%edi)
         movw    $2,%cx
 refresh1: 
-fs	movw     %ax, (%esi)
+	movw     %ax, (%esi)
         loop    refresh1
 
  /*
   * issue LOAD MODE REGISTER command
   */
         movb    $0x3,%al                 /* Load mode register cmd */
-fs	movb     %al, (%edi)
-fs	movw     %ax, (%esi)
+	movb     %al, (%edi)
+	movw     %ax, (%esi)
 
  /*
   * issue 8 more auto refreshes to all banks 
   */ 
         movb    $0x4,%al                 /* Auto refresh cmd */
-fs	movb     %al, (%edi)
+	movb     %al, (%edi)
         movw    $8,%cx
 refresh2: 
-fs	movw     %ax, (%esi)
+	movw     %ax, (%esi)
         loop    refresh2
 
  /*
   * set control register to NORMAL mode 
   */
         movb    $0x0,%al                 /* Normal mode value */
-fs	movb     %al, (%edi)
+	movb     %al, (%edi)
 
  /*
   * size dram starting with external bank 3 moving to external bank 0
@@ -229,8 +232,8 @@ nextbank:
   */
         movl    $COL11_ADR, %esi         /* set address to max col (11) wrap addr */
         movl    $COL11_DATA, %eax        /* pattern for max supported columns(11) */
-fs      movl    %eax, (%esi)             /* write max col pattern at max col adr */
-fs      movl    (%esi), %ebx             /* optional read */
+	movl    %eax, (%esi)             /* write max col pattern at max col adr */
+	movl    (%esi), %ebx             /* optional read */
         cmpl    %ebx,%eax                /* to verify write */
         jnz     bad_ram                  /* this ram is bad */
  /*
@@ -239,8 +242,8 @@ fs      movl    (%esi), %ebx             /* optional read */
 
         movl    $COL10_ADR, %esi         /* set address to 10 col wrap address */
         movl    $COL10_DATA, %eax        /* pattern for 10 col wrap */
-fs      movl    %eax, (%esi)             /* write 10 col pattern @ 10 col wrap adr */
-fs      movl    (%esi), %ebx             /* optional read */
+	movl    %eax, (%esi)             /* write 10 col pattern @ 10 col wrap adr */
+	movl    (%esi), %ebx             /* optional read */
         cmpl    %ebx,%eax                /* to verify write */
         jnz     bad_ram                  /* this ram is bad */
  /*
@@ -248,8 +251,8 @@ fs      movl    (%esi), %ebx             /* optional read */
   */
         movl    $COL09_ADR, %esi         /* set address to 9 col wrap address */
         movl    $COL09_DATA, %eax        /* pattern for 9 col wrap */
-fs      movl    %eax, (%esi)             /* write 9 col pattern @ 9 col wrap adr */
-fs      movl    (%esi), %ebx             /* optional read */
+	movl    %eax, (%esi)             /* write 9 col pattern @ 9 col wrap adr */
+	movl    (%esi), %ebx             /* optional read */
         cmpl    %ebx,%eax                /* to verify write */
         jnz     bad_ram                  /* this ram is bad */
  /*
@@ -257,8 +260,8 @@ fs      movl    (%esi), %ebx             /* optional read */
   */
         movl    $COL08_ADR, %esi         /* set address to min(8) col wrap address */
         movl    $COL08_DATA, %eax        /* pattern for min (8) col wrap */
-fs      movl    %eax, (%esi)             /* write min col pattern @ min col adr */
-fs      movl    (%esi), %ebx             /* optional read */
+	movl    %eax, (%esi)             /* write min col pattern @ min col adr */
+	movl    (%esi), %ebx             /* optional read */
         cmpl    %ebx,%eax                /* to verify write */
         jnz     bad_ram                  /* this ram is bad */
  /*
@@ -266,8 +269,8 @@ fs      movl    (%esi), %ebx             /* optional read */
   */
         movl    $ROW14_ADR, %esi         /* set address to max row (14) wrap addr */
         movl    $ROW14_DATA, %eax        /* pattern for max supported rows(14) */
-fs      movl    %eax, (%esi)             /* write max row pattern at max row adr */
-fs      movl    (%esi), %ebx             /* optional read */
+	movl    %eax, (%esi)             /* write max row pattern at max row adr */
+	movl    (%esi), %ebx             /* optional read */
         cmpl    %ebx,%eax                /* to verify write */
         jnz     bad_ram                  /* this ram is bad */
  /*
@@ -275,8 +278,8 @@ fs      movl    (%esi), %ebx             /* optional read */
   */
         movl    $ROW13_ADR, %esi         /* set address to 13 row wrap address */
         movl    $ROW13_DATA, %eax        /* pattern for 13 row wrap */
-fs      movl    %eax, (%esi)             /* write 13 row pattern @ 13 row wrap adr */
-fs      movl    (%esi), %ebx             /* optional read */
+	movl    %eax, (%esi)             /* write 13 row pattern @ 13 row wrap adr */
+	movl    (%esi), %ebx             /* optional read */
         cmpl    %ebx,%eax                /* to verify write */
         jnz     bad_ram                  /* this ram is bad */
  /*
@@ -284,8 +287,8 @@ fs      movl    (%esi), %ebx             /* optional read */
   */
         movl    $ROW12_ADR, %esi         /* set address to 12 row wrap address */
         movl    $ROW12_DATA, %eax        /* pattern for 12 row wrap */
-fs      movl    %eax, (%esi)             /* write 12 row pattern @ 12 row wrap adr */
-fs      movl    (%esi), %ebx             /* optional read */
+	movl    %eax, (%esi)             /* write 12 row pattern @ 12 row wrap adr */
+	movl    (%esi), %ebx             /* optional read */
         cmpl    %ebx,%eax                /* to verify write */
         jnz     bad_ram                  /* this ram is bad */
  /*
@@ -293,8 +296,8 @@ fs      movl    (%esi), %ebx             /* optional read */
   */
         movl    $ROW11_ADR, %edi         /* set address to 11 row wrap address */
         movl    $ROW11_DATA, %eax        /* pattern for 11 row wrap */
-fs      movl    %eax, (%edi)             /* write 11 row pattern @ 11 row wrap adr */
-fs      movl    (%edi), %ebx             /* optional read */
+	movl    %eax, (%edi)             /* write 11 row pattern @ 11 row wrap adr */
+	movl    (%edi), %ebx             /* optional read */
         cmpl    %ebx,%eax                /* to verify write */
         jnz     bad_ram                  /* this ram is bad */
  /*
@@ -302,8 +305,8 @@ fs      movl    (%edi), %ebx             /* optional read */
   */
         movl    $ROW10_ADR, %edi         /* set address to 10 row wrap address */
         movl    $ROW10_DATA, %eax        /* pattern for 10 row wrap (AA) */
-fs      movl    %eax, (%edi)             /* write 10 row pattern @ 10 row wrap adr */
-fs      movl    (%edi), %ebx             /* optional read */
+	movl    %eax, (%edi)             /* write 10 row pattern @ 10 row wrap adr */
+	movl    (%edi), %ebx             /* optional read */
         cmpl    %ebx,%eax                /* to verify write */
         jnz     bad_ram                  /* this ram is bad */
  /*
@@ -314,7 +317,7 @@ fs      movl    (%edi), %ebx             /* optional read */
   * if data @ row 12 wrap == 11 or 12, we have 4 banks,
   */
         xorw    %di,%di                  /* value for 2 banks in DI */
-fs      movl    (%esi), %ebx             /* read from 12 row wrap to check banks 
+	movl    (%esi), %ebx             /* read from 12 row wrap to check banks 
                                           * (esi is setup from the write to row 12 wrap) */
         cmpl    %ebx,%eax                /* check for AA pattern  (eax holds the aa pattern) */
         jz      only2                    /* if pattern == AA, we only have 2 banks */
@@ -333,7 +336,7 @@ only2:
   * validate row mask
   */
         movl    $ROW14_ADR, %esi         /* set address back to max row wrap addr */
-fs      movl    (%esi), %eax             /* read actual number of rows @ row14 adr */
+	movl    (%esi), %eax             /* read actual number of rows @ row14 adr */
 
         cmpl    $ROW11_DATA, %eax        /* row must be greater than 11 pattern */
         jb      bad_ram
@@ -351,7 +354,7 @@ fs      movl    (%esi), %eax             /* read actual number of rows @ row14 a
   * read col 11 wrap adr for real column data value
   */
         movl    $COL11_ADR, %esi         /* set address to max col (11) wrap addr */
-fs      movl    (%esi), %eax             /* read real col number at max col adr */
+	movl    (%esi), %eax             /* read real col number at max col adr */
  /*
   * validate column data
   */
@@ -389,9 +392,9 @@ fs      movl    (%esi), %eax             /* read real col number at max col adr 
 bad_reint: 
         movl    $DRCCTL, %esi            /* setup DRAM control register with */
         movb    $0x2,%al                 /* All banks precharge */
-fs	movb     %al, (%esi)
+	movb     %al, (%esi)
         movl    $CACHELINESZ, %esi       /* address to init read buffer */
-fs	movw     %ax, (%esi)
+	movw     %ax, (%esi)
 
  /*
   * update ENDING ADDRESS REGISTER
@@ -399,7 +402,7 @@ fs	movw     %ax, (%esi)
         movl    $DRCBENDADR, %edi        /* DRAM ending address register */
         movl    %ecx,%ebx
 	addl	%ebx, %edi
-fs	movb    %dh, (%edi)
+	movb    %dh, (%edi)
  /*
   * update CONFIG REGISTER
   */
@@ -413,10 +416,10 @@ fs	movb    %dh, (%edi)
         notw    %bx
         xchgw   %cx,%ax
         movl    $DRCCFG, %edi
-fs	mov     (%edi), %ax
+	mov     (%edi), %ax
         andw    %bx,%ax
         orw     %dx,%ax
-fs      movw    %ax, (%edi)
+	movw    %ax, (%edi)
         jcxz    cleanup
 
         decw    %cx
@@ -424,15 +427,15 @@ fs      movw    %ax, (%edi)
         movl    $DRCBENDADR, %edi        /* DRAM ending address register */
         movb    $0xff,%al
 	addl	%ebx, %edi
-fs	movb    %al, (%edi)
+	movb    %al, (%edi)
  /*
   * set control register to NORMAL mode 
   */
         movl    $DRCCTL, %esi            /* setup DRAM control register with */
         movb    $0x0,%al                 /* Normal mode value */
-fs	movb    %al, (%esi)
+	movb    %al, (%esi)
         movl    $CACHELINESZ, %esi       /* address to init read buffer */
-fs	movw    %ax, (%esi)
+	movw    %ax, (%esi)
         jmp     nextbank
 
 cleanup: 
@@ -440,7 +443,7 @@ cleanup:
         movw    $4,%cx
         xorw    %ax,%ax
 cleanuplp: 
-fs	movb   (%edi), %al
+	movb   (%edi), %al
         orb     %al,%al
         jz      emptybank
 
@@ -451,7 +454,7 @@ fs	movb   (%edi), %al
 nottoomuch: 
         movb    %al,%ah
         orb     $0x80,%al
-fs	movb    %al, (%edi)
+	movb    %al, (%edi)
 emptybank: 
         incl    %edi
         loop    cleanuplp
@@ -471,13 +474,13 @@ emptybank:
 #endif
         movl    $DRCCTL, %edi            /* DRAM Control register */
         movb    $0x3,%al                 /* Load mode register cmd */
-fs	movb     %al, (%edi)
-fs	movw     %ax, (%esi)
+	movb     %al, (%edi)
+	movw     %ax, (%esi)
 
 
         movl    $DRCCTL, %edi            /* DRAM Control register */
         movb    $0x18,%al                /*  Enable refresh and NORMAL mode */
-fs	movb    %al, (%edi)
+	movb    %al, (%edi)
 
         jmp     dram_done
 
@@ -528,3 +531,6 @@ bank0: 	movl	(%edi), %eax
 done:	movl	%ebx, %eax
 
 	jmp	*%ebp
+
+
+#endif /* CONFIG_SC520 */

@@ -21,6 +21,6 @@
 # MA 02111-1307 USA
 #
 
-PLATFORM_RELFLAGS += # -pipe -mpreferred-stack-boundary=2 -fno-builtin -nostdinc -nostdlib
+PLATFORM_RELFLAGS += 
 
-PLATFORM_CPPFLAGS += -march=i386
+PLATFORM_CPPFLAGS += -march=i386 -Werror

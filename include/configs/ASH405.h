@@ -279,7 +279,7 @@
 
 /* Memory Bank 0 (Flash Bank 0, NOR-FLASH) initialization                       */
 #define CFG_EBC_PB0AP           0x92015480
-//#define CFG_EBC_PB0AP           0x08055880  /* TWT=16,CSN=1,OEN=1,WBN=1,WBF=1,TH=4,SOR=1 */
+/*#define CFG_EBC_PB0AP           0x08055880  /XXX* TWT=16,CSN=1,OEN=1,WBN=1,WBF=1,TH=4,SOR=1 */
 #define CFG_EBC_PB0CR           0xFFC5A000  /* BAS=0xFFC,BS=4MB,BU=R/W,BW=16bit */
 
 /* Memory Bank 1 (Flash Bank 1, NAND-FLASH) initialization                      */

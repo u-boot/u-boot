@@ -34,6 +34,8 @@
  */
 
 #define CONFIG_X86		1	/* This is a X86 CPU		*/
+#define CONFIG_SC520		1	/* Include support for AMD SC520 */
+#define CONFIG_ALI152X		1	/* Include support for Ali 152x SIO */
 
 #define CFG_SDRAM_PRECHARGE_DELAY 6     /* 6T */	
 #define CFG_SDRAM_REFRESH_RATE    78    /* 7.8uS (choices are 7.8, 15.6, 31.2 or 62.5uS) */
@@ -63,16 +65,9 @@
 #define CONFIG_MALLOC_SIZE	(CFG_ENV_SIZE + 128*1024)
 
 
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-#define CFG_ENV_IS_NOWHERE 1
-#undef CFG_ENV_IS_IN_FLASH 
-#undef CFG_ENV_IS_IN_NVRAM 
-#undef CFG_ENV_IS_INEEPROM
-
 #define CONFIG_BAUDRATE		9600
 
-#define CONFIG_COMMANDS         (CONFIG_CMD_DFL | CFG_CMD_PCI | CFG_CMD_JFFS2 | CFG_CMD_IDE | CFG_CMD_NET)
+#define CONFIG_COMMANDS         (CONFIG_CMD_DFL | CFG_CMD_PCI | CFG_CMD_JFFS2 | CFG_CMD_IDE | CFG_CMD_NET | CFG_CMD_EEPROM)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -86,8 +81,6 @@
 #define CONFIG_KGDB_SER_INDEX	2		/* which serial port to use */
 #endif
 
-#define CFG_JFFS2_FIRST_BANK    0           /* use for JFFS2 */
-#define CFG_JFFS2_NUM_BANKS     1           /*  */
 
 /*
  * Miscellaneous configurable options
@@ -104,7 +97,7 @@
 
 #undef  CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
 
-#define	CFG_LOAD_ADDR		0x38000000	/* default load address	*/
+#define	CFG_LOAD_ADDR		0x100000	/* default load address	*/
 
 #define	CFG_HZ			1024		/* incrementer freq: 1kHz */
 
@@ -117,26 +110,36 @@
  */
 #define CONFIG_NR_DRAM_BANKS	4	   /* we have 4 banks of DRAM */
 
-
-#define PHYS_FLASH_1		0x38000000 /* Flash Bank #1 */
-#define PHYS_FLASH_SIZE		0x00800000 /* 8 MB */
-
-#define CFG_FLASH_BASE		PHYS_FLASH_1
-
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
+
+
+#define CFG_MAX_FLASH_BANKS	3	/* max number of memory banks		*/
 #define CFG_MAX_FLASH_SECT	64	/* max number of sectors on one chip	*/
 
 /* timeout values are in ticks */
 #define CFG_FLASH_ERASE_TOUT	(2*CFG_HZ) /* Timeout for Flash Erase */
 #define CFG_FLASH_WRITE_TOUT	(2*CFG_HZ) /* Timeout for Flash Write */
 
-#define	CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_ADDR		(PHYS_FLASH_1 + 0x7a0000)	/* Addr of Environment Sector	*/
-#define CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
+#define CONFIG_SPI_EEPROM      /* Support for SPI EEPROMs (AT25128) */
+#define CONFIG_MW_EEPROM       /* Support for MicroWire EEPROMs (AT93LC46) */ 
 
+
+/* allow to overwrite serial and ethaddr */
+#define CONFIG_ENV_OVERWRITE
+
+
+/* Environment in EEPROM */
+#define CFG_ENV_IS_IN_EEPROM   1
+#define CONFIG_SPI
+#define CFG_ENV_SIZE	       0x4000	/* Total Size of Environment EEPROM 16k is SPI is used or 128 bytes if MW is used*/
+#define CFG_ENV_OFFSET         0      
+#define CONFIG_SC520_CDP_USE_SPI  /* Store configuration in the SPI part */
+#undef CONFIG_SC520_CDP_USE_MW    /* Store configuration in the MicroWire part */
+#define CONFIG_SPI_X 1
+#define CFG_JFFS2_FIRST_BANK    0           /* use for JFFS2 */
+#define CFG_JFFS2_NUM_BANKS     1           /*  */
 
 /*-----------------------------------------------------------------------
  * Device drivers
@@ -146,19 +149,20 @@
 #define CONFIG_PCNET_79C973
 #define CONFIG_PCNET_79C975
 #define PCNET_HAS_PROM         1
+
 /************************************************************
  * IDE/ATA stuff
  ************************************************************/
-#define CFG_IDE_MAXBUS		2   /* max. 2 IDE busses	*/
+#define CFG_IDE_MAXBUS		1   /* max. 2 IDE busses	*/
 #define CFG_IDE_MAXDEVICE	(CFG_IDE_MAXBUS*2) /* max. 2 drives per IDE bus */
 
 #define CFG_ATA_IDE0_OFFSET	0x01F0	/* ide0 offste */
-#define CFG_ATA_IDE1_OFFSET	0x0170	/* ide1 offset */
+//#define CFG_ATA_IDE1_OFFSET	0x0170	/* ide1 offset */
 #define CFG_ATA_DATA_OFFSET	0	/* data reg offset	*/
 #define CFG_ATA_REG_OFFSET	0	/* reg offset */
 #define CFG_ATA_ALT_OFFSET	0x200	/* alternate register offset */
+#define CFG_ATA_BASE_ADDR       0
 
-#undef	CONFIG_IDE_8xx_DIRECT		/* no pcmcia interface required */
 #undef	CONFIG_IDE_LED			/* no led for ide supported	*/
 #undef  CONFIG_IDE_RESET		/* reset for ide unsupported...	*/
 #undef  CONFIG_IDE_RESET_ROUTINE	/* no special reset function */
@@ -176,23 +180,13 @@
 #define CONFIG_ISO_PARTITION /* Experimental */
 
 /************************************************************
- * Keyboard support
+ * Video/Keyboard support
  ************************************************************/
-#define CONFIG_ISA_KEYBOARD
+#define CONFIG_VIDEO			/* To enable video controller support */
+#define CONFIG_I8042_KBD
+#define CFG_ISA_IO 0
 
-#if 0
-/************************************************************
- * Video support
- ************************************************************/
-#define CONFIG_VIDEO			/*To enable video controller support */
-#define CONFIG_VIDEO_CT69000
-#define CONFIG_CFB_CONSOLE
-#define CONFIG_VIDEO_LOGO
-#define CONFIG_CONSOLE_EXTRA_INFO
-#define CONFIG_VGA_AS_SINGLE_DEVICE
-#define CONFIG_VIDEO_SW_CURSOR
-#define CONFIG_VIDEO_ONBOARD		/* Video controller is on-board */
-#endif
+
 
 /************************************************************
  * RTC
@@ -206,5 +200,11 @@
 #define CONFIG_PCI                                /* include pci support */
 #define CONFIG_PCI_PNP                            /* pci plug-and-play */
 #define CONFIG_PCI_SCAN_SHOW
+
+#define	CFG_FIRST_PCI_IRQ   10
+#define	CFG_SECOND_PCI_IRQ  9 
+#define CFG_THIRD_PCI_IRQ   11 
+#define	CFG_FORTH_PCI_IRQ   15
+
 
 #endif	/* __CONFIG_H */

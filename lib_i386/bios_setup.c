@@ -32,6 +32,7 @@
  */
 
 #include <common.h>
+#include <pci.h>
 #include <asm/realmode.h>
 #include <asm/io.h>
 
@@ -42,8 +43,13 @@
 #define BIOS_BASE        ((char*)0xf0000)
 #define BIOS_CS          0xf000
 
+/* these are defined in a 16bit segment and needs
+ * to be accessed with the RELOC_16_xxxx() macros below
+ */
 extern u16 ram_in_64kb_chunks;
 extern u16 bios_equipment;
+extern u8  pci_last_bus;
+
 extern void *rm_int00;
 extern void *rm_int01;
 extern void *rm_int02;
@@ -78,6 +84,34 @@ extern void *rm_int1e;
 extern void *rm_int1f;
 extern void *rm_def_int;
 
+extern void *realmode_reset;
+extern void *realmode_pci_bios_call_entry;
+
+static int set_jmp_vector(int entry_point, void *target) 
+{
+	if (entry_point & ~0xffff) {
+		return -1;
+	}
+	
+	if (((u32)target-0xf0000) & ~0xffff) {
+		return -1;
+	}
+	printf("set_jmp_vector: 0xf000:%04x -> %p\n",
+	       entry_point, target);
+	
+	/* jmp opcode */
+	writeb(0xea, 0xf0000 + entry_point);
+	
+	/* offset */
+	writew(((u32)target-0xf0000), 0xf0000 + entry_point + 1);
+	
+	/* segment */
+	writew(0xf000, 0xf0000 + entry_point + 3);
+	
+	return 0;
+}
+
+
 /*
  ************************************************************
  * Install an interrupt vector
@@ -96,11 +130,16 @@ static void setvector(int vector, u16 segment, void *handler)
 #endif	
 }
 
+#define RELOC_16_LONG(seg, off) *(u32*)(seg << 4 | (u32)&off) 
+#define RELOC_16_WORD(seg, off) *(u16*)(seg << 4 | (u32)&off) 
+#define RELOC_16_BYTE(seg, off) *(u8*)(seg << 4 | (u32)&off) 
+
 int bios_setup(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 	static int done=0;	
 	int vector;
+	struct pci_controller *pri_hose;
 	
 	if (done) {
 		return 0;
@@ -169,9 +208,26 @@ int bios_setup(void)
 	setvector(0x1e, BIOS_CS, &rm_int1e);
 	setvector(0x1f, BIOS_CS, &rm_int1f);
 
+	set_jmp_vector(0xfff0, &realmode_reset);
+	set_jmp_vector(0xfe6e, &realmode_pci_bios_call_entry);
+	
 	/* fill in data area */
-	ram_in_64kb_chunks = gd->ram_size >> 16;
-	bios_equipment = 0; /* FixMe */
+	RELOC_16_WORD(0xf000, ram_in_64kb_chunks) = gd->ram_size >> 16;
+	RELOC_16_WORD(0xf000, bios_equipment) = 0; /* FixMe */
+	
+	/* If we assume only one PCI hose, this PCI hose
+	 * will own PCI bus #0, and the last PCI bus of 
+	 * that PCI hose will be the last PCI bus in the 
+	 * system. 
+	 * (This, ofcause break on multi hose systems,
+	 *  but our PCI BIOS only support one hose anyway) 
+	 */
+	pri_hose = pci_bus_to_hose(0);
+	if (NULL != pri_hose) {
+		/* fill in last pci bus number for use by the realmode 
+		 * PCI BIOS */
+		RELOC_16_BYTE(0xf000, pci_last_bus) = pri_hose->last_busno;
+	}
 	
 	return 0;
 }

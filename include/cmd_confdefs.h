@@ -80,6 +80,7 @@
 #define CFG_CMD_VFD	0x0000400000000000	/* VFD support (TRAB)		*/
 #define CFG_CMD_NAND	0x0000800000000000	/* NAND support        		*/
 #define CFG_CMD_BMP	0x0001000000000000	/* BMP support			*/
+#define CFG_CMD_PORTIO	0x0002000000000000	/* Port I/O		        */
 
 #define CFG_CMD_ALL	0xFFFFFFFFFFFFFFFF	/* ALL commands			*/
 

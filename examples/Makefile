@@ -28,6 +28,11 @@ include $(TOPDIR)/config.mk
 SREC	= hello_world.srec
 BIN	= hello_world.bin
 
+ifeq ($(ARCH),i386)
+SREC   += 82559_eeprom.srec
+BIN    += 82559_eeprom.bin
+endif
+
 ifeq ($(ARCH),ppc)
 SREC   += sched.srec
 BIN    += sched.bin

@@ -143,10 +143,51 @@
 
 #define CFG_DISCOVER_PHY
 
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL | CFG_CMD_EEPROM | CFG_CMD_DATE)
+#define CONFIG_COMMANDS		(CONFIG_CMD_DFL		| \
+				 CFG_CMD_EEPROM		| \
+				 CFG_CMD_NAND		| \
+				 CFG_CMD_DATE)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
+
+/* NAND flash support */
+#define CONFIG_MTD_NAND_ECC_JFFS2
+#define CFG_MAX_NAND_DEVICE	1	/* Max number of NAND devices	*/
+#define SECTORSIZE 512
+
+#define ADDR_COLUMN 1
+#define ADDR_PAGE 2
+#define ADDR_COLUMN_PAGE 3
+
+#define NAND_ChipID_UNKNOWN 	0x00
+#define NAND_MAX_FLOORS 1
+#define NAND_MAX_CHIPS 1
+
+/* DFBUSY is available on Port C, bit 12; 0 if busy */
+#define NAND_WAIT_READY(nand)	\
+	while (!(((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pcdat & 0x0008));
+#define WRITE_NAND_COMMAND(d, adr) WRITE_NAND((d), (adr))
+#define WRITE_NAND_ADDRESS(d, adr) WRITE_NAND((d), (adr))
+#define WRITE_NAND(d, adr)	\
+	 do { (*(volatile uint8_t *)(adr) = (uint8_t)(d)); } while (0)
+#define READ_NAND(adr) (*(volatile uint8_t *)(adr))
+#define	CLE_LO	0x01	/* 0 selects CLE mode (CLE high) */
+#define	ALE_LO	0x02	/* 0 selects ALE mode (ALE high) */
+#define	CE_LO	0x04	/* 1 selects chip (CE low) */
+#define	nand_setcr(cr, val) do {*(volatile uint8_t*)(cr) = (val);} while (0)
+#define NAND_DISABLE_CE(nand) \
+	nand_setcr((nand)->IO_ADDR + 1, ALE_LO | CLE_LO)
+#define NAND_ENABLE_CE(nand) \
+	nand_setcr((nand)->IO_ADDR + 1, CE_LO | ALE_LO | CLE_LO)
+#define NAND_CTL_CLRALE(nandptr) \
+	nand_setcr((nandptr) + 1, CE_LO | ALE_LO | CLE_LO)
+#define NAND_CTL_SETALE(nandptr) \
+	nand_setcr((nandptr) + 1, CE_LO | CLE_LO)
+#define NAND_CTL_CLRCLE(nandptr) \
+	nand_setcr((nandptr) + 1, CE_LO | ALE_LO | CLE_LO)
+#define NAND_CTL_SETCLE(nandptr) \
+	nand_setcr((nandptr) + 1, CE_LO | ALE_LO)
 
 /*
  * Miscellaneous configurable options
@@ -329,7 +370,7 @@
  * These preliminary values are also the final values.
  */
 #define CFG_OR_TIMING_FPGA \
-	(OR_CSNT_SAM | OR_ACS_DIV2 | OR_BI | OR_SCY_5_CLK | OR_EHTR)
+	(OR_CSNT_SAM | OR_ACS_DIV2 | OR_BI | OR_SCY_4_CLK | OR_EHTR | OR_TRLX)
 #define CFG_BR1_PRELIM	((CFG_FPGA_BASE & BR_BA_MSK) | BR_PS_8 | BR_V )
 #define CFG_OR1_PRELIM	(((-CFG_FPGA_SIZE) & OR_AM_MSK) | CFG_OR_TIMING_FPGA)
 
@@ -338,7 +379,7 @@
  * These preliminary values are also the final values.
  */
 #define CFG_OR_TIMING_DFLASH \
-	(OR_CSNT_SAM | OR_ACS_DIV4 | OR_BI | OR_SCY_5_CLK | OR_EHTR)
+	(OR_CSNT_SAM | OR_ACS_DIV4 | OR_BI | OR_SCY_2_CLK | OR_EHTR | OR_TRLX)
 #define CFG_BR4_PRELIM	((CFG_DFLASH_BASE & BR_BA_MSK) | BR_PS_8 | BR_V )
 #define CFG_OR4_PRELIM	(((-CFG_DFLASH_SIZE) & OR_AM_MSK) | CFG_OR_TIMING_DFLASH)
 

@@ -38,6 +38,13 @@
 
 int cpu_init(void)
 {
+	/* initialize FPU, reset EM, set MP and NE */
+	asm ("fninit\n" \
+             "movl %cr0, %eax\n" \
+             "andl $~0x4, %eax\n" \
+             "orl  $0x22, %eax\n" \
+             "movl %eax, %cr0\n" );
+	
 	return 0;
 }
 

@@ -24,6 +24,7 @@
  * MA 02111-1307 USA
  */
 /*------------------------------------------------------------------------------+ */
+
 /*
  * This source code has been made available to you by IBM on an AS-IS
  * basis.  Anyone receiving this source is licensed under IBM
@@ -89,13 +90,15 @@ typedef struct {
 	char *rx_buffer;
 	ulong rx_put;
 	ulong rx_get;
+	int cts;
 } serial_buffer_t;
 
-volatile static serial_buffer_t buf_info;
+volatile serial_buffer_t buf_info;
+static int serial_buffer_active=0;
 #endif
 
 
-static int serial_div (int baudrate )
+static int serial_div(int baudrate)
 {
 	
 	switch (baudrate) {
@@ -112,7 +115,8 @@ static int serial_div (int baudrate )
 	case 115200:
 		return 1;		
 	}
-	hang ();
+	
+	return 12;
 }
 
 
@@ -121,7 +125,7 @@ static int serial_div (int baudrate )
  * as serial console interface.
  */
 
-int serial_init (void)
+int serial_init(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
@@ -134,24 +138,24 @@ int serial_init (void)
 	outb(bdiv, UART0_BASE + UART_DLL);	/* set baudrate divisor */
 	outb(bdiv >> 8, UART0_BASE + UART_DLM);/* set baudrate divisor */
 	outb(0x03, UART0_BASE + UART_LCR);	/* clear DLAB; set 8 bits, no parity */
-	outb(0x00, UART0_BASE + UART_FCR);	/* disable FIFO */
-	outb(0x00, UART0_BASE + UART_MCR);	/* no modem control DTR RTS */
+	outb(0x01, UART0_BASE + UART_FCR);	/* enable FIFO */
+	outb(0x0b, UART0_BASE + UART_MCR);	/* Set DTR and RTS active */
 	val = inb(UART0_BASE + UART_LSR);	/* clear line status */
 	val = inb(UART0_BASE + UART_RBR);	/* read receive buffer */
 	outb(0x00, UART0_BASE + UART_SCR);	/* set scratchpad */
 	outb(0x00, UART0_BASE + UART_IER);	/* set interrupt enable reg */
 
-	return (0);
+	return 0;
 }
 
 
-void serial_setbrg (void)
+void serial_setbrg(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
 	unsigned short bdiv;
 	
-	bdiv = serial_div (gd->baudrate);
+	bdiv = serial_div(gd->baudrate);
 
 	outb(0x80, UART0_BASE + UART_LCR);	/* set DLAB bit */
 	outb(bdiv&0xff, UART0_BASE + UART_DLL);	/* set baudrate divisor */
@@ -160,7 +164,7 @@ void serial_setbrg (void)
 }
 
 
-void serial_putc (const char c)
+void serial_putc(const char c)
 {
 	int i;
 
@@ -169,31 +173,38 @@ void serial_putc (const char c)
 
 	/* check THRE bit, wait for transmiter available */
 	for (i = 1; i < 3500; i++) {
-		if ((inb (UART0_BASE + UART_LSR) & 0x20) == 0x20)
+		if ((inb (UART0_BASE + UART_LSR) & 0x20) == 0x20) {
 			break;
-		udelay (100);
+		}
+		udelay(100);
 	}
 	outb(c, UART0_BASE + UART_THR);	/* put character out */
 }
 
 
-void serial_puts (const char *s)
+void serial_puts(const char *s)
 {
 	while (*s) {
-		serial_putc (*s++);
+		serial_putc(*s++);
 	}
 }
 
 
-int serial_getc ()
+int serial_getc(void)
 {
 	unsigned char status = 0;
 
+#if CONFIG_SERIAL_SOFTWARE_FIFO
+	if (serial_buffer_active) {
+		return serial_buffered_getc();
+	}
+#endif
+	
 	while (1) {
 #if defined(CONFIG_HW_WATCHDOG)
-		WATCHDOG_RESET ();	/* Reset HW Watchdog, if needed */
+		WATCHDOG_RESET();	/* Reset HW Watchdog, if needed */
 #endif	/* CONFIG_HW_WATCHDOG */
-		status = inb (UART0_BASE + UART_LSR);
+		status = inb(UART0_BASE + UART_LSR);
 		if ((status & asyncLSRDataReady1) != 0x0) {
 			break;
 		}
@@ -211,11 +222,17 @@ int serial_getc ()
 }
 
 
-int serial_tstc ()
+int serial_tstc(void)
 {
 	unsigned char status;
 
-	status = inb (UART0_BASE + UART_LSR);
+#if CONFIG_SERIAL_SOFTWARE_FIFO
+	if (serial_buffer_active) {
+		return serial_buffered_tstc();
+	}
+#endif
+
+	status = inb(UART0_BASE + UART_LSR);
 	if ((status & asyncLSRDataReady1) != 0x0) {
 		return (1);
 	}
@@ -234,36 +251,50 @@ int serial_tstc ()
 
 #if CONFIG_SERIAL_SOFTWARE_FIFO
 
-void serial_isr (void *arg)
+void serial_isr(void *arg)
 {
 	int space;
 	int c;
-	const int rx_get = buf_info.rx_get;
 	int rx_put = buf_info.rx_put;
 
-	if (rx_get <= rx_put) {
-		space = CONFIG_SERIAL_SOFTWARE_FIFO - (rx_put - rx_get);
+	if (buf_info.rx_get <= rx_put) {
+		space = CONFIG_SERIAL_SOFTWARE_FIFO - (rx_put - buf_info.rx_get);
 	} else {
-		space = rx_get - rx_put;
+		space = buf_info.rx_get - rx_put;
 	}
-	while (serial_tstc ()) {
-		c = serial_getc ();
+	
+	while (inb(UART0_BASE + UART_LSR) & 1) {
+		c = inb(UART0_BASE);
 		if (space) {
 			buf_info.rx_buffer[rx_put++] = c;
 			space--;
+			
+			if (rx_put == buf_info.rx_get) {
+				buf_info.rx_get++;
+				if (rx_put == CONFIG_SERIAL_SOFTWARE_FIFO) {
+					buf_info.rx_get = 0;
+				}
+			}
+			
+			if (rx_put == CONFIG_SERIAL_SOFTWARE_FIFO) {
+				rx_put = 0;
+				if (0 == buf_info.rx_get) {
+					buf_info.rx_get = 1;
+				}
+			
+			}
+			
 		}
-		if (rx_put == CONFIG_SERIAL_SOFTWARE_FIFO)
-			rx_put = 0;
 		if (space < CONFIG_SERIAL_SOFTWARE_FIFO / 4) {
 			/* Stop flow by setting RTS inactive */
-			outb(inb (UART0_BASE + UART_MCR) & (0xFF ^ 0x02),
+			outb(inb(UART0_BASE + UART_MCR) & (0xFF ^ 0x02),
 			      UART0_BASE + UART_MCR);
 		}
 	}
 	buf_info.rx_put = rx_put;
 }
 
-void serial_buffered_init (void)
+void serial_buffered_init(void)
 {
 	serial_puts ("Switching to interrupt driven serial input mode.\n");
 	buf_info.rx_buffer = malloc (CONFIG_SERIAL_SOFTWARE_FIFO);
@@ -272,8 +303,10 @@ void serial_buffered_init (void)
 
 	if (inb (UART0_BASE + UART_MSR) & 0x10) {
 		serial_puts ("Check CTS signal present on serial port: OK.\n");
+		buf_info.cts = 1;
 	} else {
 		serial_puts ("WARNING: CTS signal not present on serial port.\n");
+		buf_info.cts = 0;
 	}
 
 	irq_install_handler ( VECNUM_U0 /*UART0 *//*int vec */ ,
@@ -283,32 +316,49 @@ void serial_buffered_init (void)
 	/* Enable "RX Data Available" Interrupt on UART */
 	/* outb(inb(UART0_BASE + UART_IER) |0x01, UART0_BASE + UART_IER); */
 	outb(0x01, UART0_BASE + UART_IER);
-	/* Set DTR active */
-	outb(inb (UART0_BASE + UART_MCR) | 0x01, UART0_BASE + UART_MCR);
-	/* Start flow by setting RTS active */
-	outb(inb (UART0_BASE + UART_MCR) | 0x02, UART0_BASE + UART_MCR);
-	/* Setup UART FIFO: RX trigger level: 4 byte, Enable FIFO */
-	outb((1 << 6) | 1, UART0_BASE + UART_FCR);
+	
+	/* Set DTR and RTS active, enable interrupts  */
+	outb(inb (UART0_BASE + UART_MCR) | 0x0b, UART0_BASE + UART_MCR);
+	
+	/* Setup UART FIFO: RX trigger level: 1 byte, Enable FIFO */
+	outb( /*(1 << 6) |*/  1, UART0_BASE + UART_FCR);
+	
+	serial_buffer_active = 1;
 }
 
 void serial_buffered_putc (const char c)
 {
+	int i;
 	/* Wait for CTS */
 #if defined(CONFIG_HW_WATCHDOG)
 	while (!(inb (UART0_BASE + UART_MSR) & 0x10))
 		WATCHDOG_RESET ();
 #else
-	while (!(inb (UART0_BASE + UART_MSR) & 0x10));
+	if (buf_info.cts)  {
+		for (i=0;i<1000;i++) {
+			if ((inb (UART0_BASE + UART_MSR) & 0x10)) {
+				break;
+			}
+		}
+		if (i!=1000) {
+			buf_info.cts = 0;
+		}
+	} else {
+		if ((inb (UART0_BASE + UART_MSR) & 0x10)) {
+			buf_info.cts = 1;
+		}
+	}
+		
 #endif
 	serial_putc (c);
 }
 
-void serial_buffered_puts (const char *s)
+void serial_buffered_puts(const char *s)
 {
 	serial_puts (s);
 }
 
-int serial_buffered_getc (void)
+int serial_buffered_getc(void)
 {
 	int space;
 	int c;
@@ -322,8 +372,9 @@ int serial_buffered_getc (void)
 	while (rx_get == buf_info.rx_put);
 #endif
 	c = buf_info.rx_buffer[rx_get++];
-	if (rx_get == CONFIG_SERIAL_SOFTWARE_FIFO)
+	if (rx_get == CONFIG_SERIAL_SOFTWARE_FIFO) {
 		rx_get = 0;
+	}
 	buf_info.rx_get = rx_get;
 
 	rx_put = buf_info.rx_put;
@@ -340,7 +391,7 @@ int serial_buffered_getc (void)
 	return c;
 }
 
-int serial_buffered_tstc (void)
+int serial_buffered_tstc(void)
 {
 	return (buf_info.rx_get != buf_info.rx_put) ? 1 : 0;
 }
@@ -358,7 +409,7 @@ int serial_buffered_tstc (void)
   configure port 1 for serial I/O with rate = CONFIG_KGDB_BAUDRATE
 */
 #if (CONFIG_KGDB_SER_INDEX & 2)
-void kgdb_serial_init (void)
+void kgdb_serial_init(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
@@ -381,7 +432,7 @@ void kgdb_serial_init (void)
 }
 
 
-void putDebugChar (const char c)
+void putDebugChar(const char c)
 {
 	if (c == '\n')
 		serial_putc ('\r');
@@ -393,7 +444,7 @@ void putDebugChar (const char c)
 }
 
 
-void putDebugStr (const char *s)
+void putDebugStr(const char *s)
 {
 	while (*s) {
 		serial_putc(*s++);
@@ -401,7 +452,7 @@ void putDebugStr (const char *s)
 }
 
 
-int getDebugChar (void)
+int getDebugChar(void)
 {
 	unsigned char status = 0;
 
@@ -424,34 +475,34 @@ int getDebugChar (void)
 }
 
 
-void kgdb_interruptible (int yes)
+void kgdb_interruptible(int yes)
 {
 	return;
 }
 
 #else	/* ! (CONFIG_KGDB_SER_INDEX & 2) */
 
-void kgdb_serial_init (void)
+void kgdb_serial_init(void)
 {
 	serial_printf ("[on serial] ");
 }
 
-void putDebugChar (int c)
+void putDebugChar(int c)
 {
 	serial_putc (c);
 }
 
-void putDebugStr (const char *str)
+void putDebugStr(const char *str)
 {
 	serial_puts (str);
 }
 
-int getDebugChar (void)
+int getDebugChar(void)
 {
 	return serial_getc ();
 }
 
-void kgdb_interruptible (int yes)
+void kgdb_interruptible(int yes)
 {
 	return;
 }

@@ -60,3 +60,25 @@ board_init16:
 	/* the return address is tored in bp */
 	jmp	*%bp
 	
+
+.section .bios, "ax"
+.code16
+.globl realmode_reset
+realmode_reset:
+	/* Alias MMCR to 0xdf000 */
+	movw	$0xfffc, %dx
+	movl	$0x800df0cb, %eax	
+	outl	%eax, %dx		
+	
+	/* Set ds to point to MMCR alias */
+	movw	$0xdf00, %ax		
+	movw	%ax, %ds		 
+		
+	/* issue software reset thorugh MMCR */
+	movl    $0xd72, %edi
+        movb	$0x01, %al
+        movb	%al, (%di)		
+
+1:	hlt
+	jmp	1
+	

@@ -116,6 +116,11 @@
 #define SC520_UART2CTL		0x0cc4	        /* UART 2 General Control Register */
 #define SC520_UART2STA		0x0cc5	        /* UART 2 General Status Register */
 #define SC520_UART2FCRSHAD	0x0cc6	        /* UART 2 FIFO Control Shadow Register */
+#define SC520_SSICTL            0x0cd0          /* SSI Control */
+#define SC520_SSIXMIT           0x0cd1          /* SSI Transmit */
+#define SC520_SSICMD            0x0cd2          /* SSI Command */
+#define SC520_SSISTA            0x0cd3          /* SSI Status */
+#define SC520_SSIRCV            0x0cd4          /* SSI Receive */
 #define SC520_PICICR		0x0d00		/* Interrupt Control Register */
 #define SC520_MPICMODE		0x0d02		/* Master PIC Interrupt Mode Register */
 #define SC520_SL1PICMODE	0x0d03		/* Slave 1 PIC Interrupt Mode Register */
@@ -195,9 +200,31 @@
 
 /* MMCR Register bits (not all of them :) ) */
 
+/* SSI Stuff */
+#define CTL_CLK_SEL_4           0x00           /* Nominal Bit Rate = 8 MHz    */
+#define CTL_CLK_SEL_8           0x10           /* Nominal Bit Rate = 4 MHz    */
+#define CTL_CLK_SEL_16          0x20           /* Nominal Bit Rate = 2 MHz    */
+#define CTL_CLK_SEL_32          0x30           /* Nominal Bit Rate = 1 MHz    */
+#define CTL_CLK_SEL_64          0x40           /* Nominal Bit Rate = 512 KHz  */
+#define CTL_CLK_SEL_128         0x50           /* Nominal Bit Rate = 256 KHz  */
+#define CTL_CLK_SEL_256         0x60           /* Nominal Bit Rate = 128 KHz  */
+#define CTL_CLK_SEL_512         0x70           /* Nominal Bit Rate = 64 KHz   */
+
+#define TC_INT_ENB              0x08           /* Transaction Complete Interrupt Enable */
+#define PHS_INV_ENB             0x04           /* SSI Inverted Phase Mode Enable */
+#define CLK_INV_ENB    	        0x02           /* SSI Inverted Clock Mode Enable */
+#define MSBF_ENB      	        0x01           /* SSI Most Significant Bit First Mode Enable */
+
+#define SSICMD_CMD_SEL_XMITRCV  0x03           /* Simultaneous Transmit / Receive Transaction */
+#define SSICMD_CMD_SEL_RCV      0x02           /* Receive Transaction */
+#define SSICMD_CMD_SEL_XMIT     0x01           /* Transmit Transaction */
+#define SSISTA_BSY              0x02           /* SSI Busy */
+#define SSISTA_TC_INT           0x01           /* SSI Transaction Complete Interrupt */
+
+
 /* BITS for SC520_ADDDECCTL: */
 #define WPV_INT_ENB		0x80		/* Write-Protect Violation Interrupt Enable */
-#define IO_HOLE_DEST		0x10		/* I/O Hole Access Destination */
+#define IO_HOLE_DEST_PCI	0x10		/* I/O Hole Access Destination */
 #define RTC_DIS			0x04		/* RTC Disable */
 #define UART2_DIS		0x02		/* UART2 Disable */
 #define UART1_DIS		0x01		/* UART1 Disable */
@@ -215,24 +242,63 @@
 #define SC520_ISA_IO_BUS	0x00000000
 #define SC520_ISA_IO_SIZE	0x00001000
 
-/* PCI I/O space from 0x1000 to 0xfdff */
+/* PCI I/O space from 0x1000 to 0xdfff 
+ * (make 0xe000-0xfdff available for stuff like PCCard boot) */
 #define SC520_PCI_IO_PHYS	0x00001000
 #define SC520_PCI_IO_BUS	0x00001000
-#define SC520_PCI_IO_SIZE	0x0000ee00
+#define SC520_PCI_IO_SIZE	0x0000d000
 
 /* system memory from 0x00000000 to 0x0fffffff */
 #define	SC520_PCI_MEMORY_PHYS	0x00000000
 #define	SC520_PCI_MEMORY_BUS	0x00000000
 #define SC520_PCI_MEMORY_SIZE	0x10000000
 
-/* PCI bus memory from 0x10000000 to 0x27ffffff */
+/* PCI bus memory from 0x10000000 to 0x26ffffff 
+ * (make 0x27000000 - 0x27ffffff available for stuff like PCCard boot) */
 #define SC520_PCI_MEM_PHYS	0x10000000
 #define SC520_PCI_MEM_BUS       0x10000000
-#define SC520_PCI_MEM_SIZE	0x18000000
+#define SC520_PCI_MEM_SIZE	0x17000000
 
 /* 0x28000000 - 0x3fffffff is used by the flash banks */
 
 /* 0x40000000 - 0xffffffff is not adressable by the SC520 */
+
+/* priority numbers used for interrupt channel mappings */
+#define SC520_IRQ_DISABLED 0
+#define SC520_IRQ0  1
+#define SC520_IRQ1  2
+#define SC520_IRQ2  4  /* same as IRQ9 */
+#define SC520_IRQ3  11
+#define SC520_IRQ4  12
+#define SC520_IRQ5  13
+#define SC520_IRQ6  21
+#define SC520_IRQ7  22
+#define SC520_IRQ8  3
+#define SC520_IRQ9  4
+#define SC520_IRQ10 5 
+#define SC520_IRQ11 6
+#define SC520_IRQ12 7
+#define SC520_IRQ13 8
+#define SC520_IRQ14 9
+#define SC520_IRQ15 10
+
+
+/* pin number used for PCI interrupt mappings */
+#define SC520_PCI_INTA 0
+#define SC520_PCI_INTB 1
+#define SC520_PCI_INTC 2
+#define SC520_PCI_INTD 3
+#define SC520_PCI_GPIRQ0 4
+#define SC520_PCI_GPIRQ1 5
+#define SC520_PCI_GPIRQ2 6
+#define SC520_PCI_GPIRQ3 7
+#define SC520_PCI_GPIRQ4 8
+#define SC520_PCI_GPIRQ5 9
+#define SC520_PCI_GPIRQ6 10
+#define SC520_PCI_GPIRQ7 11
+#define SC520_PCI_GPIRQ8 12
+#define SC520_PCI_GPIRQ9 13
+#define SC520_PCI_GPIRQ10 14
 
 /* utility functions */
 void write_mmcr_byte(u16 mmcr, u8 data);
@@ -242,8 +308,11 @@ u8 read_mmcr_byte(u16 mmcr);
 u16 read_mmcr_word(u16 mmcr);
 u32 read_mmcr_long(u16 mmcr);
 
+extern int sc520_pci_ints[];
+
 void init_sc520(void);
 unsigned long init_sc520_dram(void);
 void pci_sc520_init(struct pci_controller *hose);
+int pci_sc520_set_irq(int pci_pin, int irq);
 
 #endif

@@ -36,6 +36,3 @@ getline(char *buf,int *num,int max_num)
     line_pointer = line_pointer + *num;
     len = len - *num;
 }
-
-
-

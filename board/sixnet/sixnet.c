@@ -32,6 +32,11 @@
 # include <status_led.h>
 #endif
 
+#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#include <linux/mtd/nand.h>
+extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];
+#endif
+
 #define ORMASK(size) ((-size) & OR_AM_MSK)
 
 static long ram_size(ulong *, long);
@@ -320,6 +325,17 @@ int misc_init_r (void)
 
 	return (0);
 }
+
+#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+void nand_init(void)
+{
+	nand_probe(CFG_DFLASH_BASE);	/* see if any NAND flash present */
+	if (nand_dev_desc[0].ChipID != NAND_ChipID_UNKNOWN) {
+		puts("NAND:  ");
+		print_size(nand_dev_desc[0].totlen, "\n");
+	}
+}
+#endif
 
 /* ------------------------------------------------------------------------- */
 

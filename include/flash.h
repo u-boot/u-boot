@@ -134,6 +134,7 @@ extern int flash_real_protect(flash_info_t *info, long sector, int prot);
 #define AMD_ID_F016D	0xAD		/* 29F016  ID  ( 2 M x 8)		*/
 #define AMD_ID_F032B	0x41		/* 29F032  ID  ( 4 M x 8)		*/
 #define AMD_ID_LV116DT	0xC7		/* 29LV116DT   ( 2 M x 8, top boot sect) */
+#define AMD_ID_LV016B	0xc8		/* 29LV016 ID  ( 2 M x 8)		*/
 
 #define AMD_ID_LV400T	0x22B922B9	/* 29LV400T ID ( 4 M, top boot sector)	*/
 #define AMD_ID_LV400B	0x22BA22BA	/* 29LV400B ID ( 4 M, bottom boot sect)	*/

@@ -353,6 +353,12 @@ void pci_mpc8250_init(struct pci_controller *hose)
     pci_hose_write_config_word(hose, host_devno, PCI_COMMAND,
 		         tempShort | PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY);
 
+#ifdef CONFIG_MPC8266ADS
+	/* do some bridge init, should be done on all 8260 based bridges */
+	pci_hose_write_config_byte(hose, host_devno, PCI_CACHE_LINE_SIZE, 0x08);
+	pci_hose_write_config_byte(hose, host_devno, PCI_LATENCY_TIMER, 0xF8);
+#endif 
+
     hose->first_busno = 0;
     hose->last_busno = 0xff;
 
@@ -373,11 +379,11 @@ void pci_mpc8250_init(struct pci_controller *hose)
 
     /* PCI memory space */
 #ifdef CONFIG_MPC8266ADS
-    pci_set_region(hose->regions + 0,
-		       PCI_SLV_MEM_BUS,
-		       PCI_SLV_MEM_LOCAL,
-		       gd->ram_size,
-		       PCI_REGION_MEM | PCI_REGION_MEMORY);
+    pci_set_region(hose->regions + 1,
+		       PCI_MSTR_MEMIO_BUS,
+		       PCI_MSTR_MEMIO_LOCAL,
+		       PCI_MSTR_MEMIO_SIZE,
+		       PCI_REGION_MEM);
 #else
     pci_set_region(hose->regions + 1,
 		       PCI_MSTR_MEM_BUS,

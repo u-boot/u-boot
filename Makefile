@@ -60,7 +60,11 @@ ifeq ($(ARCH),arm)
 CROSS_COMPILE = arm-linux-
 endif
 ifeq ($(ARCH),i386)
-#CROSS_COMPILE = i386-elf-
+ifeq ($(HOSTARCH),i386)
+CROSS_COMPILE =
+else
+CROSS_COMPILE = i386-linux-
+endif
 endif
 ifeq ($(ARCH),mips)
 CROSS_COMPILE = mips_4KC-
@@ -729,6 +733,12 @@ wepep250_config	:	unconfig
 sc520_cdp_config	:	unconfig
 	@./mkconfig $(@:_config=) i386 i386 sc520_cdp
 
+sc520_spunk_config	:	unconfig
+	@./mkconfig $(@:_config=) i386 i386 sc520_spunk
+
+sc520_spunk_rel_config	:	unconfig
+	@./mkconfig $(@:_config=) i386 i386 sc520_spunk
+
 #========================================================================
 # MIPS
 #========================================================================
@@ -752,7 +762,8 @@ clean:
 		| xargs rm -f
 	rm -f examples/hello_world examples/timer \
 	      examples/eepro100_eeprom examples/sched \
-	      examples/mem_to_mem_idma2intr
+	      examples/mem_to_mem_idma2intr examples/82559_eeprom
+
 	rm -f tools/img2srec tools/mkimage tools/envcrc tools/gen_eth_addr
 	rm -f tools/easylogo/easylogo tools/bmp_logo
 	rm -f tools/gdb/astest tools/gdb/gdbcont tools/gdb/gdbsend

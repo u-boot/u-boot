@@ -26,17 +26,18 @@ include $(TOPDIR)/config.mk
 LIB	= lib$(CPU).a
 
 START	= start.o start16.o reset.o 
-OBJS	= serial.o interrupts.o cpu.o timer.o
-	  
+COBJS	= serial.o interrupts.o cpu.o timer.o sc520.o 
+AOBJS	= sc520_asm.o
+	
 all:	.depend $(START) $(LIB)
 
-$(LIB):	$(OBJS)
-	$(AR) crv $@ $(OBJS)
+$(LIB):	$(COBJS) $(AOBJS)
+	$(AR) crv $@ $(COBJS) $(AOBJS)
 
 #########################################################################
 
-.depend:	Makefile $(START:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(START:.o=.S) $(OBJS:.o=.c) > $@
+.depend:	Makefile $(START:.o=.S) $(COBJS:.o=.c) $(AOBJS:.o=.S)
+		$(CC) -M $(CFLAGS) $(START:.o=.S) $(COBJS:.o=.c) $(AOBJS:.o=.S) > $@
 
 sinclude .depend
 

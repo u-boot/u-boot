@@ -27,7 +27,18 @@
  */
 
 /*
- * Config header file for a MPC8260ADS Pilot 16M Ram Simm, 8Mbytes Flash Simm
+ * Config header file for a MPC8266ADS Pilot 16M Ram Simm, 8Mbytes Flash Simm
+ */
+
+/* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   !!                                                                 !!
+   !!  This configuration requires JP3 to be in position 1-2 to work  !!
+   !!  To make it work for the default, the TEXT_BASE define in       !!
+   !!  board/mpc8266ads/config.mk must be changed from 0xfe000000 to  !!
+   !!  0xfff00000						      !!
+   !!  The CFG_HRCW_MASTER define below must also be changed to match !!
+   !!                                                                 !!
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
  */
 
 #ifndef __CONFIG_H
@@ -375,6 +386,7 @@
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
 
+/* Use this HRCW for booting from address 0xfe00000 (JP3 in setting 1-2)  */
 /* 0x0EB2B645 */
 #define CFG_HRCW_MASTER (( HRCW_BPS11 | HRCW_CIP )				|\
 			 ( HRCW_L2CPC10 | HRCW_DPPC11 | HRCW_ISB010 )		|\
@@ -382,8 +394,10 @@
 			 ( HRCW_CS10PC01 | HRCW_MODCK_H0101 )			\
 			)
 
+/* Use this HRCW for booting from address 0xfff0000 (JP3 in setting 2-3)  */
+/* #define CFG_HRCW_MASTER 0x0cb23645 */
 
-/* This value should actually be situated in the first 256 bytes of the FLASH
+/* This value should actually be situated in the first 256 bytes of the FLASH  
 	which on the standard MPC8266ADS board is at address 0xFF800000
 	The linker script places it at 0xFFF00000 instead.
 
@@ -395,8 +409,7 @@
 
 	- Rune
 
-	*/
-/* #define CFG_HRCW_MASTER 0x0cb23645 */
+*/
 
 /* no slaves */
 #define CFG_HRCW_SLAVE1 0
@@ -436,7 +449,24 @@
 #endif
 
 
-#define CFG_HID0_INIT		0
+/*-----------------------------------------------------------------------
+ * HIDx - Hardware Implementation-dependent Registers                    2-11
+ *-----------------------------------------------------------------------
+ * HID0 also contains cache control - initially enable both caches and
+ * invalidate contents, then the final state leaves only the instruction
+ * cache enabled. Note that Power-On and Hard reset invalidate the caches,
+ * but Soft reset does not.
+ *
+ * HID1 has only read-only information - nothing to set.
+ */
+/*#define CFG_HID0_INIT		0 */
+#define CFG_HID0_INIT	(HID0_ICE  |\
+			 HID0_DCE  |\
+			 HID0_ICFI |\
+			 HID0_DCI  |\
+			 HID0_IFEM |\
+			 HID0_ABE)
+
 #define CFG_HID0_FINAL		(HID0_ICE | HID0_IFEM | HID0_ABE )
 
 #define CFG_HID2		0
@@ -519,7 +549,7 @@
 
 #define CFG_PCI_MSTR_MEMIO_LOCAL    0xA0000000          /* Local base */
 #define CFG_PCI_MSTR_MEMIO_BUS      0xA0000000          /* PCI base   */
-#define CPU_PCI_MEMIO_START     PCI_MSTR_MEMIO_LOCAL
+#define CFG_CPU_PCI_MEMIO_START     PCI_MSTR_MEMIO_LOCAL
 #define CFG_PCI_MSTR_MEMIO_SIZE     0x20000000          /* 512MB */
 #define CFG_POCMR1_MASK_ATTRIB      (POCMR_MASK_512MB | POCMR_ENABLE)
 
@@ -530,7 +560,7 @@
  */
 
 #define CFG_PCI_MSTR_IO_LOCAL       0xF4000000          /* Local base */
-#define CFG_PCI_MSTR_IO_BUS         0x00000000          /* PCI base   */
+#define CFG_PCI_MSTR_IO_BUS         0xF4000000          /* PCI base   */
 #define CFG_CPU_PCI_IO_START        PCI_MSTR_IO_LOCAL
 #define CFG_PCI_MSTR_IO_SIZE        0x04000000          /* 64MB */
 #define CFG_POCMR2_MASK_ATTRIB      (POCMR_MASK_64MB | POCMR_ENABLE | POCMR_PCI_IO)

@@ -73,6 +73,7 @@
 #include <cmd_log.h>
 #include <cmd_fdos.h>
 #include <cmd_bmp.h>
+#include <cmd_portio.h>
 
 #ifdef CONFIG_AMIGAONEG3SE
 #include <cmd_menu.h>
@@ -284,6 +285,7 @@ cmd_tbl_t cmd_tbl[] = {
 	CMD_TBL_IMM
 	CMD_TBL_INM
 	CMD_TBL_IMW
+	CMD_TBL_PORTIO_IN
 	CMD_TBL_ICRC
 	CMD_TBL_IPROBE
 	CMD_TBL_ILOOP
@@ -314,6 +316,7 @@ cmd_tbl_t cmd_tbl[] = {
 	CMD_TBL_NANDBOOT
 	CMD_TBL_NEXT
 	CMD_TBL_NM
+	CMD_TBL_PORTIO_OUT
 	CMD_TBL_PCI
 	CMD_TBL_PRINTENV
 	CMD_TBL_PROTECT

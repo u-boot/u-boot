@@ -25,11 +25,11 @@ include $(TOPDIR)/config.mk
 
 LIB	= lib$(ARCH).a
 
-AOBJS	= bios.o realmode_switch.o ic/sc520_asm.o
+AOBJS	= bios.o bios_pci.o realmode_switch.o 
 
 COBJS	= board.o bios_setup.o i386_linux.o zimage.o realmode.o \
-	  pci_type1.o ic/sc520.o ic/ali512x.o
-
+	  pci_type1.o pci.o video_bios.o video.o  
+	  
 OBJS	= $(AOBJS) $(COBJS)
 
 $(LIB):	.depend $(OBJS)

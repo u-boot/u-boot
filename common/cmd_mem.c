@@ -31,7 +31,8 @@
 #include <command.h>
 #include <cmd_mem.h>
 
-#if (CONFIG_COMMANDS & (CFG_CMD_MEMORY | CFG_CMD_PCI | CFG_CMD_I2C))
+#if (CONFIG_COMMANDS & (CFG_CMD_MEMORY | CFG_CMD_PCI | CFG_CMD_I2C\
+			| CMD_CMD_PORTIO))
 int cmd_get_data_size(char* arg, int default_size)
 {
 	/* Check for a size specification .b, .w or .l.

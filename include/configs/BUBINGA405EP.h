@@ -29,7 +29,7 @@
 #define __CONFIG_H
 
 /* Debug options */
-//#define __DEBUG_START_FROM_SRAM__
+/*#define __DEBUG_START_FROM_SRAM__ */
 
 
 
@@ -259,7 +259,7 @@
 #endif
 
 
-//#define CFG_MONITOR_LEN		(200 * 1024)	/* Reserve 200 kB for Monitor	*/
+/*#define CFG_MONITOR_LEN		(200 * 1024)	/XXX* Reserve 200 kB for Monitor	*/
 #define CFG_MONITOR_LEN		(192 * 1024)	/* Reserve 200 kB for Monitor	*/
 #define CFG_MALLOC_LEN		(128 * 1024)	/* Reserve 128 kB for malloc()	*/
 

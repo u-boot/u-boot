@@ -76,7 +76,11 @@ mon_free:
 #define SYSCALL(name,n) \
 	.globl SYMBOL_NAME(name) ; \
 SYMBOL_NAME_LABEL(name)     		 ; \
-	ret
+	movl    $n, %eax ;\
+	pushl   %ebx; \
+	pushl   %ecx; \
+	int     $0x40 ;\
+
 
 #endif	/* CONFIG_I386 */
 

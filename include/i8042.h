@@ -26,6 +26,13 @@
 #ifndef _I8042_H_
 #define _I8042_H_
 
+#ifdef __I386__
+#include <common.h>
+#include <asm/io.h>
+#define in8(p) inb(p)
+#define out8(p,v) outb(v,p)
+#endif
+
 /* defines */
 
 #define I8042_DATA_REG      (CFG_ISA_IO + 0x0060)    /* keyboard i/o buffer */

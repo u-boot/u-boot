@@ -50,7 +50,6 @@
 
 .section .realmode, "ax"
 .code16
-
 						/* 16bit protected mode code here */
 .globl realmode_enter
 realmode_enter:

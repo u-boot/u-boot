@@ -30,6 +30,8 @@
  *----------------------------------------------------------------------
  */
 
+#include "bios.h"
+
 /*
  * During it's initialization phase, before switching to protected
  * mode, the Linux Kernel makes a few BIOS calls. This won't work
@@ -40,29 +42,13 @@
  * a general purpose replacement for a real BIOS !!
  */
 
-#define OFFS_ES      0
-#define OFFS_GS      2
-#define OFFS_DS      4
-#define OFFS_DI      6
-#define OFFS_SI      8
-#define OFFS_BP      10
-#define OFFS_SP      12
-#define OFFS_BX      14
-#define OFFS_DX      16
-#define OFFS_CX      18
-#define OFFS_AX      20
-#define OFFS_VECTOR  22
-#define OFFS_IP      24
-#define OFFS_CS      26
-#define OFFS_FLAGS   28
-
-#define SEGMENT      0x40
-#define STACK	     0x800  			/* stack at 0x40:0x800 -> 0x800 */
 
 .section .bios, "ax"
 .code16
 .org 0
-
+      	/* a call to f000:0 should warmboot */
+	jmp	realmode_reset
+	
 .globl rm_int00
 rm_int00:
 	pushw	$0
@@ -202,30 +188,23 @@ rm_def_int:
 	 * stack.
 	 */
 any_interrupt16:
-	pusha					/* save general registers */
-	pushw	%ds				/* save some segments     */
-	pushw	%gs
-	pushw	%es
-	pushw	%ss				/* save callers stack segment .. */
-	popw	%gs				/* ... in gs */
-	movw	$SEGMENT,%ax			/* setup my segments */
-	movw	%ax,%ds
-	movw	%ax,%es
-	movw	%ax,%ss
-	movw	%sp,%bp
-	movw	$STACK,%sp			/* setup BIOS stackpointer */
+        MAKE_BIOS_STACK
 
 gs	movw	OFFS_VECTOR(%bp), %ax
 	cmpw	$0x10, %ax
 	je	Lint_10h         
 	cmpw	$0x11, %ax
 	je	Lint_11h
+	cmpw	$0x12, %ax
+	je	Lint_12h
 	cmpw	$0x13, %ax
 	je	Lint_13h
 	cmpw	$0x15, %ax
 	je	Lint_15h
 	cmpw	$0x16, %ax
 	je	Lint_16h
+	cmpw	$0x1a, %ax
+	je	Lint_1ah
 	movw	$0xffff, %ax
 	jmp	Lout
 Lint_10h:					/* VGA BIOS services */
@@ -233,6 +212,9 @@ Lint_10h:					/* VGA BIOS services */
 	jmp	Lout
 Lint_11h:	
 	call	bios_11h
+	jmp	Lout
+Lint_12h:	
+	call	bios_12h
 	jmp	Lout
 Lint_13h:					/* BIOS disk services */
 	call	bios_13h
@@ -242,6 +224,9 @@ Lint_15h:					/* Misc. BIOS services */
 	jmp	Lout
 Lint_16h:					/* keyboard services */
 	call	bios_16h
+	jmp	Lout
+Lint_1ah:					/* PCI bios */
+	call	bios_1ah
 	jmp	Lout
 Lout:	
 	cmpw	$0, %ax
@@ -256,16 +241,7 @@ Lout:
 	 * we shuls make int 0x10 and int 0x16 work as well))
 	 */
 Lhandeled:
-
-	pushw	%gs				/* restore callers stack segment */
-	popw	%ss
-	movw	%bp,%sp				/* restore stackpointer */
-
-	popw	%es				/* restore segment selectors */
-	popw	%gs
-	popw	%ds
-	
-	popa					/* restore GP registers */
+	RESTORE_CALLERS_STACK
 	addw	$2,%sp				/* dump vector number */
 	iret					/* return from interrupt */
 
@@ -309,8 +285,32 @@ gs	movw	$0x10, OFFS_BX(%bp)		/* indicate CGA/MDA/HGA */
  */
 
 bios_11h:
-	movw	bios_equipment, %ax
+cs	movw	bios_equipment, %ax
 gs	movw	%ax, OFFS_AX(%bp)  
+	xorw	%ax, %ax
+	ret
+
+
+/*
+ ************************************************************
+ * BIOS 	interrupt 12h -- Get Memory Size
+ ************************************************************
+ */
+bios_12h:
+cs	movw	ram_in_64kb_chunks, %ax
+	cmpw	$0xa, %ax
+	ja	b12_more_than_640k
+	shlw	$6, %ax
+	jmp	b12_return
+b12_more_than_640k:
+	movw	$0x280, %ax
+b12_return:
+gs	movw	%ax, OFFS_AX(%bp)		/* return number of kilobytes in ax */
+
+gs	movw	OFFS_FLAGS(%bp), %ax
+	andw	$0xfffe, %ax			/* clear carry -- function succeeded */
+gs	movw	%ax, OFFS_FLAGS(%bp)
+
 	xorw	%ax, %ax
 	ret
 
@@ -372,27 +372,28 @@ gs	movw	%ax, OFFS_FLAGS(%bp)
 	ret
 	
 Lfunc_e801h:					/* Get memory size for >64M Configurations */
-	movw	$ram_in_64kb_chunks, %ax
-	cmpw	$256, %ax
-	ja	Lmore_than_16mb
-	shlw	$6, %ax				/* multiply by 64 */	
-gs	movw	%ax, OFFS_AX(%bp)   		/* return memory size in 1kb chunks in AX and CX */
+cs	movw	ram_in_64kb_chunks, %ax
+	cmpw	$0x100, %ax
+	ja	e801_more_than_16mb
+	shlw	$6, %ax				/* multiply by 64 */
+	subw	$0x400, %ax			/* 1st meg does not count */
+ 	
+gs	movw	%ax, OFFS_AX(%bp)   		/* return memory size between 1M and 16M in 1kb chunks in AX and CX */
 gs	movw	%ax, OFFS_CX(%bp)
-	xorw	%ax, %ax
-gs	movw	%ax, OFFS_BX(%bp)		/* set BX and DX to 0*/
-gs	movw	%ax, OFFS_DX(%bp)	
+gs	movw	$0, OFFS_BX(%bp)		/* set BX and DX to 0*/
+gs	movw	$0, OFFS_DX(%bp)	
 gs	movw	OFFS_FLAGS(%bp), %ax
 	andw	$0xfffe, %ax			/* clear carry -- function succeeded */
 gs	movw	%ax, OFFS_FLAGS(%bp)
 	xorw	%ax, %ax
 	ret
 	
-Lmore_than_16mb:
+e801_more_than_16mb:
 	subw	$0x100, %ax			/* subtract 16MB */	
 	
-gs	movw	$0x3c00, OFFS_AX(%bp)		/* return 0x3c00 (16MB-384k) in AX and CX */
+gs	movw	$0x3c00, OFFS_AX(%bp)		/* return 0x3c00 (16MB-1MB) in AX and CX */
 gs	movw	$0x3c00, OFFS_CX(%bp)
-gs	movw	%ax, OFFS_BX(%bp)		/* set BX and DX to number of 64kb chunks - 256 */
+gs	movw	%ax, OFFS_BX(%bp)		/* set BX and DX to number of 64kb chunks above 16MB */
 gs	movw	%ax, OFFS_DX(%bp)	
 
 gs	movw	OFFS_FLAGS(%bp), %ax
@@ -402,11 +403,15 @@ gs	movw	%ax, OFFS_FLAGS(%bp)
 	ret
 
 Lfunc_88h:
-	movw	ram_in_64kb_chunks, %ax
-	subw	$16, %ax
+cs	movw	ram_in_64kb_chunks, %ax
+	cmpw	$0x100, %ax
+	jna	b88_not_more_than16
+	movw	$0x100, %ax
+b88_not_more_than16:
 	shlw	$6, %ax
-	
-gs	movw	%ax, OFFS_AX(%bp)		/* return number of kilobytes in ax */
+	subw	$0x400, %ax			/* 1st meg does not count */
+		
+gs	movw	%ax, OFFS_AX(%bp)		/* return number of kilobytes between 16MB and 16MB in ax */
 
 gs	movw	OFFS_FLAGS(%bp), %ax
 	andw	$0xfffe, %ax			/* clear carry -- function succeeded */
@@ -429,6 +434,22 @@ gs	movw	OFFS_AX(%bp), %ax
 	movw	$0xffff, %ax
 	ret
 Lfunc_03h:
+	xorw	%ax, %ax			/* do nothing -- function not supported */
+	ret
+
+/*
+ ************************************************************
+ * BIOS interrupt 1ah -- PCI bios
+ ************************************************************
+ */
+bios_1ah:
+gs	movw	OFFS_AX(%bp), %ax
+	cmpb	$0xb1, %ah
+	je	Lfunc_b1h
+	movw	$0xffff, %ax
+	ret
+Lfunc_b1h:
+	call	realmode_pci_bios
 	xorw	%ax, %ax			/* do nothing -- function not supported */
 	ret
 

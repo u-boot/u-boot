@@ -2,6 +2,34 @@
 Changes since U-Boot 0.3.1:
 ======================================================================
 
+* Patch by Marc Singer, 29 May 2003:
+  Fixed rarp boot method for IA32 and other little-endian CPUs.
+
+* Patch by Marc Singer, 28 May 2003:
+  Added port I/O commands.
+
+* Patch by Matthew McClintock, 28 May 2003
+  - cpu/mpc824x/start.S: fix relocation code when booting from RAM
+  - minor patches for utx8245
+
+* Patch by Daniel Engström, 28 May 2003:
+  x86 update
+
+* Patch by Dave Ellis, 9 May 2003 + 27 May 2003:
+  add nand flash support to SXNI855T configuration
+  fix/extend nand flash support:
+  - fix 'nand erase' command so does not erase bad blocks
+  - fix 'nand write' command so does not write to bad blocks
+  - fix nand_probe() so handles no flash detected properly
+  - add doc/README.nand
+  - add .jffs2 and .oob options to nand read/write
+  - add 'nand bad' command to list bad blocks
+  - add 'clean' option to 'nand erase' to write JFFS2 clean markers
+  - make NAND read/write faster
+
+* Patch by Rune Torgersen, 23 May 2003:
+  Update for MPC8266ADS board
+
 * Get (mostly) rid of CFG_MONITOR_LEN definition; compute real length
   instead CFG_MONITOR_LEN is now only used to determine  _at_compile_
   _time_  (!) if the environment is embedded within the U-Boot image,

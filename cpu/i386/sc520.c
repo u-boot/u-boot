@@ -24,10 +24,14 @@
 /* stuff specific for the sc520,
  * but idependent of implementation */
 
+#include <config.h>
+
+#ifdef CONFIG_SC520
 
 #include <common.h>
 #include <config.h>
 #include <pci.h>
+#include <ssi.h>
 #include <asm/io.h>
 #include <asm/pci.h>
 #include <asm/ic/sc520.h>
@@ -235,6 +239,91 @@ unsigned long init_sc520_dram(void)
 #ifdef CONFIG_PCI
 
 
+static struct {
+	u8 priority;
+	u16 level_reg;
+	u8 level_bit;
+} sc520_irq[] = {
+	{ SC520_IRQ0,  SC520_MPICMODE,  0x01 },
+	{ SC520_IRQ1,  SC520_MPICMODE,  0x02 },
+	{ SC520_IRQ2,  SC520_SL1PICMODE, 0x02 },
+	{ SC520_IRQ3,  SC520_MPICMODE,  0x08 },
+	{ SC520_IRQ4,  SC520_MPICMODE,  0x10 },
+	{ SC520_IRQ5,  SC520_MPICMODE,  0x20 },
+	{ SC520_IRQ6,  SC520_MPICMODE,  0x40 },
+	{ SC520_IRQ7,  SC520_MPICMODE,  0x80 },
+
+	{ SC520_IRQ8,  SC520_SL1PICMODE, 0x01 },
+	{ SC520_IRQ9,  SC520_SL1PICMODE, 0x02 },
+	{ SC520_IRQ10, SC520_SL1PICMODE, 0x04 },
+	{ SC520_IRQ11, SC520_SL1PICMODE, 0x08 },
+	{ SC520_IRQ12, SC520_SL1PICMODE, 0x10 },
+	{ SC520_IRQ13, SC520_SL1PICMODE, 0x20 },
+	{ SC520_IRQ14, SC520_SL1PICMODE, 0x40 },
+	{ SC520_IRQ15, SC520_SL1PICMODE, 0x80 }
+};
+
+
+/* The interrupt used for PCI INTA-INTD  */
+int sc520_pci_ints[15] = { 
+	-1, -1, -1, -1, -1, -1, -1, -1,
+		-1, -1, -1, -1, -1, -1, -1
+};
+
+/* utility function to configure a pci interrupt */
+int pci_sc520_set_irq(int pci_pin, int irq) 
+{
+	int i;
+	
+# if 0
+	printf("set_irq(): map INT%c to IRQ%d\n", pci_pin + 'A', irq);
+#endif	
+	if (irq < 0 || irq > 15) {
+		return -1; /* illegal irq */
+	}
+
+	if (pci_pin < 0 || pci_pin > 15) {
+		return -1; /* illegal pci int pin */
+	}
+
+	/* first disable any non-pci interrupt source that use 
+	 * this level */
+	for (i=SC520_GPTMR0MAP;i<=SC520_GP10IMAP;i++) {
+		if (i>=SC520_PCIINTAMAP&&i<=SC520_PCIINTDMAP) {
+			continue;
+		}
+		if (read_mmcr_byte(i) == sc520_irq[irq].priority) {
+			write_mmcr_byte(i, SC520_IRQ_DISABLED);
+		}
+	}
+	
+	/* Set the trigger to level */
+	write_mmcr_byte(sc520_irq[irq].level_reg, 
+			read_mmcr_byte(sc520_irq[irq].level_reg) | sc520_irq[irq].level_bit);
+	
+	
+	if (pci_pin < 4) {
+		/* PCI INTA-INTD */
+		/* route the interrupt */
+		write_mmcr_byte(SC520_PCIINTAMAP + pci_pin, sc520_irq[irq].priority);
+		
+		
+	} else {
+		/* GPIRQ0-GPIRQ10 used for additional PCI INTS */
+		write_mmcr_byte(SC520_GP0IMAP + pci_pin - 4, sc520_irq[irq].priority);
+		
+		/* also set the polarity in this case */
+		write_mmcr_word(SC520_INTPINPOL, 
+				read_mmcr_word(SC520_INTPINPOL) | (1 << (pci_pin-4)));
+		
+	}
+	
+	/* register the pin */		
+	sc520_pci_ints[pci_pin] = irq;
+	
+
+	return 0; /* OK */
+}
 
 void pci_sc520_init(struct pci_controller *hose)
 {
@@ -293,6 +382,7 @@ void pci_sc520_init(struct pci_controller *hose)
 }
 
 
+
 #endif
 
 #ifdef CFG_TIMER_SC520
@@ -345,4 +435,68 @@ void udelay(unsigned long usec)
 
 #endif
 
+int ssi_set_interface(int freq, int lsb_first, int inv_clock, int inv_phase)
+{
+	u8 temp=0;
 
+	if (freq >= 8192) {
+		temp |= CTL_CLK_SEL_4; 
+	} else if (freq >= 4096) {
+		temp |= CTL_CLK_SEL_8;        
+	} else if (freq >= 2048) {
+		temp |= CTL_CLK_SEL_16;  
+	} else if (freq >= 1024) {
+		temp |= CTL_CLK_SEL_32;  
+	} else if (freq >= 512) {
+		temp |= CTL_CLK_SEL_64;
+	} else if (freq >= 256) {
+		temp |= CTL_CLK_SEL_128;
+	} else if (freq >= 128) {
+		temp |= CTL_CLK_SEL_256;
+	} else {
+		temp |= CTL_CLK_SEL_512;
+	}
+	
+	if (!lsb_first) {
+		temp |= MSBF_ENB;
+	}
+		
+	if (inv_clock) {
+		temp |= CLK_INV_ENB;
+	}
+	
+	if (inv_phase) {
+		temp |= PHS_INV_ENB;
+	}
+		
+	write_mmcr_byte(SC520_SSICTL, temp);
+	
+	return 0;
+}
+
+u8 ssi_txrx_byte(u8 data) 
+{
+	write_mmcr_byte(SC520_SSIXMIT, data);
+	while ((read_mmcr_byte(SC520_SSISTA)) & SSISTA_BSY);
+	write_mmcr_byte(SC520_SSICMD, SSICMD_CMD_SEL_XMITRCV);
+	while ((read_mmcr_byte(SC520_SSISTA)) & SSISTA_BSY);
+	return read_mmcr_byte(SC520_SSIRCV);	
+}      
+
+
+void ssi_tx_byte(u8 data) 
+{
+	write_mmcr_byte(SC520_SSIXMIT, data);
+	while ((read_mmcr_byte(SC520_SSISTA)) & SSISTA_BSY); 
+	write_mmcr_byte(SC520_SSICMD, SSICMD_CMD_SEL_XMIT);
+}
+
+u8 ssi_rx_byte(void) 
+{
+	while ((read_mmcr_byte(SC520_SSISTA)) & SSISTA_BSY);
+	write_mmcr_byte(SC520_SSICMD, SSICMD_CMD_SEL_RCV);
+	while ((read_mmcr_byte(SC520_SSISTA)) & SSISTA_BSY);
+	return read_mmcr_byte(SC520_SSIRCV);
+} 
+
+#endif /* CONFIG_SC520 */

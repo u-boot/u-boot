@@ -489,10 +489,13 @@ long int initdram(int board_type)
      * The appropriate BRx/ORx registers have already been set when we
      * get here. The SDRAM can be accessed at the address CFG_SDRAM_BASE.
      */
-#if 1
+
     memctl->memc_mptpr = CFG_MPTPR;
     memctl->memc_psrt  = psrt;
 
+    memctl->memc_br2 = CFG_BR2_PRELIM;
+    memctl->memc_or2 = or;
+    
     memctl->memc_psdmr = psdmr | PSDMR_OP_PREA;
     *ramaddr = c;
 
@@ -530,41 +533,7 @@ long int initdram(int board_type)
 		memctl->memc_psdmr = psdmr | PSDMR_OP_NORM | PSDMR_RFEN;
 		*ramaddr = c;
     }
-#endif
-	/*
-    printf("memctl->memc_mptpr = 0x%08x\n", CFG_MPTPR);
-    printf("memctl->memc_psrt  = 0x%08x\n", psrt);
 
-    printf("memctl->memc_psdmr = 0x%08x\n", psdmr | PSDMR_OP_PREA);
-    printf("ramaddr = 0x%08x\n", ramaddr);
-
-    printf("memctl->memc_psdmr = 0x%08x\n", psdmr | PSDMR_OP_CBRR);
-
-    printf("memctl->memc_psdmr = 0x%08x\n", psdmr | PSDMR_OP_MRW);
-
-    printf("memctl->memc_psdmr = 0x%08x\n", psdmr | PSDMR_OP_NORM | PSDMR_RFEN);
-
-    immap->im_siu_conf.sc_ppc_acr   = 0x00000002;
-    immap->im_siu_conf.sc_ppc_alrh  = 0x01267893;
-    immap->im_siu_conf.sc_tescr1    = 0x00004000;
-	*/
-#if 0
-    /* init sdram dimm */
-    ramaddr                         = (uchar *)CFG_SDRAM_BASE;
-    memctl->memc_psrt               = 0x00000010;
-    immap->im_memctl.memc_or2       = 0xFF000CA0;
-    immap->im_memctl.memc_br2       = 0x00000041;
-    memctl->memc_psdmr              = 0x296EB452;
-    *ramaddr                        = c;
-    memctl->memc_psdmr              = 0x096EB452;
-    for (i = 0; i < 8; i++)
-        *ramaddr                    = c;
-
-    memctl->memc_psdmr              = 0x196EB452;
-    *ramaddr                        = c;
-    memctl->memc_psdmr              = 0x416EB452;
-    *ramaddr                        = c;
-#endif	
 	/* print info */
 	printf("SDRAM configuration read from SPD\n");
 	printf("\tSize per side = %dMB\n", sdram_size >> 20);
@@ -575,6 +544,7 @@ long int initdram(int board_type)
     return (sdram_size * chipselects);
 	/*return (16 * 1024 * 1024);*/
 }
+
 
 #ifdef	CONFIG_PCI
 struct pci_controller hose;

@@ -30,6 +30,10 @@
  *----------------------------------------------------------------------
  */
 
+#include <config.h>
+
+#ifdef CONFIG_ALI152X
+
 #include <common.h>
 #include <asm/io.h>
 #include <asm/ic/ali512x.h>
@@ -60,19 +64,21 @@ static void ali_write(u8 index, u8 value)
 	outb(value, ALI_DATA);
 }
 
+#if 0
 static int ali_read(u8 index)
 {
 	outb(index, ALI_INDEX);
 	return inb(ALI_DATA);
 }
+#endif
 
 #define ALI_OPEN() \
-	outb(0x51, ALI_DATA); \
-	outb(0x23, ALI_DATA)	
+	outb(0x51, ALI_INDEX); \
+	outb(0x23, ALI_INDEX)	
 
 
 #define ALI_CLOSE() \
-	outb(0xbb, ALI_DATA)
+	outb(0xbb, ALI_INDEX)
 
 /* Select a logical device */
 #define ALI_SELDEV(dev)	\
@@ -246,22 +252,22 @@ void ali512x_set_kbc(int enabled, u8 kbc_irq, u8 mouse_irq)
  * CIO36     ALT_MDAT    Alternative Mouse Data
  * CIO37     ALT_KBC     Alternative KBC select
  *
- * The CIO use a double indirect address scheme. 
+ * The CIO use an indirect address scheme. 
  * 
- * Reigster 3 in the SIO is used to selectg where the CIO 
- * I/O registers show up under function 8. Note that these
- * registers clash with the CIO function select regsters,
- * below.
+ * Reigster 3 in the SIO is used to select the index and data
+ * port addresses where the CIO I/O registers show up.
+ * The function selection registers are accessible under 
+ * function SIO 8. 
  * 
  * SIO reigster 3 (CIO Address Selection) bit definitions:
- * bit 7   CIO data register enabled
- * bit 1-0 CIO indirect registers select
+ * bit 7   CIO index and data registers enabled
+ * bit 1-0 CIO indirect registers port address select
  *     	 0  index = 0xE0 data = 0xE1
  *       1  index = 0xE2 data = 0xE3
  *       2  index = 0xE4 data = 0xE5
  *       3  index = 0xEA data = 0xEB
  * 
- * There are three CIO I/O register accessed via CIO index and CIO data
+ * There are three CIO I/O register accessed via CIO index port and CIO data port
  * 0x01     CIO 10-17 data
  * 0x02     CIO 20-25 data (bits 7-6 unused)
  * 0x03     CIO 30-37 data
@@ -305,50 +311,61 @@ void ali512x_set_kbc(int enabled, u8 kbc_irq, u8 mouse_irq)
  * 
  */
 
+#define ALI_CIO_PORT_SEL 0x83
+#define ALI_CIO_INDEX    0xea
+#define ALI_CIO_DATA     0xeb
+
 void ali512x_set_cio(int enabled)
 {
 	int i;
 	
 	ALI_OPEN();
-	ali_write(0x3, 3);    /* Disable CIO data register */
+	
+	if (enabled) {
+		ali_write(0x3, ALI_CIO_PORT_SEL);    /* Enable CIO data register */
+	} else {
+		ali_write(0x3, ALI_CIO_PORT_SEL & ~0x80);
+	}
 	
 	ALI_SELDEV(8);
+	
 	ali_write(0x30, enabled?1:0);
 	
 	/* set all pins to input to start with */
 	for (i=0xe0;i<0xee;i++) {
 		ali_write(i, 1);
 	}
+	
 	for (i=0xf5;i<0xfe;i++) {
 		ali_write(i, 1);
 	}
-			
+	
 	ALI_CLOSE();
 }
+
 
 void ali512x_cio_function(int pin, int special, int inv, int input)
 {
 	u8 data;
 	u8 addr;
 	
-	
 	/* valid pins are 10-17, 20-25 and 30-37 */
 	if (pin >= 10 && pin <= 17) { 
-		addr = 0xe0+(pin-10);
+		addr = 0xe0+(pin&7);
 	} else if (pin >= 20 && pin <= 25) {
-		addr = 0xe8+(pin-20);
+		addr = 0xe8+(pin&7);
 	} else if (pin >= 30 && pin <= 37) { 
-		addr = 0xf5+(pin-30);
+		addr = 0xf5+(pin&7);
 	} else {
 		return;
 	}
 	
 	ALI_OPEN();
+
 	ALI_SELDEV(8);
 	
-	ali_write(0x03, 0x03);    /* Disable CIO data register */
 	
-	data=0;
+	data=0xf4;
 	if (special) {
 		data |= 0x08;
 	} else {
@@ -371,37 +388,18 @@ void ali512x_cio_out(int pin, int value)
 	u8 data;
 	u8 bit;
 	
-	/* valid pins are 10-17, 20-25 and 30-37 */
-	if (pin >= 10 && pin <= 17) { 
-		reg = 1;
-		pin -= 10;
-	} else if (pin >= 20 && pin <= 25) {
-		reg = 2;
-		pin -= 20;
-	} else if (pin >= 30 && pin <= 37) { 
-		reg = 3;
-		pin -= 30;
-	} else {
-		return;
-	}
-	bit = 1 << pin;
+	reg = pin/10;
+	bit = 1 << (pin%10);
 	
-	ALI_OPEN();
-	ALI_SELDEV(8);
-	
-	ali_write(0x03, 0x83);    /* Enable CIO data register, use data port at 0xea */
-	
-	ali_write(0xea, reg);     /* select I/O register */
-	data = ali_read(0xeb);
+		
+	outb(reg, ALI_CIO_INDEX);     /* select I/O register */
+	data = inb(ALI_CIO_DATA);
 	if (value) {
 		data |= bit;
 	} else {
 		data &= ~bit;
 	}
-	ali_write(0xeb, data);
-	ali_write(0xea, 0);       /* select register 0 */
-	ali_write(0x03, 0x03);    /* Disable CIO data register */
-	ALI_CLOSE();
+	outb(data, ALI_CIO_DATA);
 }
 
 int ali512x_cio_in(int pin)
@@ -409,34 +407,17 @@ int ali512x_cio_in(int pin)
 	u8 reg;
 	u8 data;
 	u8 bit;
-	
+			
 	/* valid pins are 10-17, 20-25 and 30-37 */
-	if (pin >= 10 && pin <= 17) { 
-		reg = 1;
-		pin -= 10;
-	} else if (pin >= 20 && pin <= 25) {
-		reg = 2;
-		pin -= 20;
-	} else if (pin >= 30 && pin <= 37) { 
-		reg = 3;
-		pin -= 30;
-	} else {
-		return -1; 
-	}
-	bit = 1 << pin;
+	reg = pin/10;
+	bit = 1 << (pin%10);
 	
-	ALI_OPEN();
-	ALI_SELDEV(8);
 	
-	ali_write(0x03, 0x83);    /* Enable CIO data register, use data port at 0xea */
-	
-	ali_write(0xea, reg);     /* select I/O register */
-	data = ali_read(0xeb);
-	ali_write(0xea, 0);       /* select register 0 */
-	ali_write(0x03, 0x03);    /* Disable CIO data register */
-	ALI_CLOSE();
+	outb(reg, ALI_CIO_INDEX);     /* select I/O register */
+	data = inb(ALI_CIO_DATA);
 	
 	return data & bit; 
 }
 
  
+#endif

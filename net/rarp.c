@@ -84,11 +84,11 @@ RarpRequest (void)
 
 	rarp = (ARP_t *)pkt;
 
-	rarp->ar_hrd = ARP_ETHER;
-	rarp->ar_pro = PROT_IP;
+	rarp->ar_hrd = htons (ARP_ETHER);
+	rarp->ar_pro = htons (PROT_IP);
 	rarp->ar_hln = 6;
 	rarp->ar_pln = 4;
-	rarp->ar_op  = RARPOP_REQUEST;
+	rarp->ar_op  = htons (RARPOP_REQUEST);
 	memcpy (&rarp->ar_data[0],  NetOurEther, 6);	/* source ET addr */
 	memcpy (&rarp->ar_data[6],  &NetOurIP,   4);	/* source IP addr */
 	memcpy (&rarp->ar_data[10], NetOurEther, 6);	/* dest ET addr = source ET addr ??*/
