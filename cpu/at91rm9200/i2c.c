@@ -60,7 +60,6 @@ at91_xfer(unsigned char chip, unsigned int addr, int alen,
 	AT91PS_TWI twi = (AT91PS_TWI) AT91_TWI_BASE;
 	int length;
 	unsigned char *buf;
-
 	/* Set the TWI Master Mode Register */
 	twi->TWI_MMR = (chip << 16) | (alen << 8)
 		| ((rw == 1) ? AT91C_TWI_MREAD : 0);
@@ -126,13 +125,15 @@ int
 i2c_read(unsigned char chip, unsigned int addr, int alen,
 							unsigned char *buffer, int len)
 {
+#ifdef CFG_I2C_EEPROM_ADDR_OVERFLOW
 	/* we only allow one address byte */
 	if (alen > 1)
 		return 1;
-#ifdef CFG_I2C_EEPROM_ADDR_OVERFLOW
 	/* XXX assume an ATMEL AT24C16 */
 	if (alen == 1) {
+#if 0 /* EEPROM code already sets this correctly */
 		chip |= (addr >> 8) & 0xff;
+#endif
 		addr = addr & 0xff;
 	}
 #endif
@@ -146,22 +147,25 @@ i2c_write(unsigned char chip, unsigned int addr, int alen,
 	int i;
 	unsigned char *buf;
 
+#ifdef CFG_I2C_EEPROM_ADDR_OVERFLOW
 	/* we only allow one address byte */
 	if (alen > 1)
 		return 1;
-#ifdef CFG_I2C_EEPROM_ADDR_OVERFLOW
 	/* XXX assume an ATMEL AT24C16 */
 	if (alen == 1) {
 		buf = buffer;
 		/* do single byte writes */
 		for (i = 0; i < len; i++) {
+#if 0 /* EEPROM code already sets this correctly */
 			chip |= (addr >> 8) & 0xff;
+#endif
 			addr = addr & 0xff;
 			if (at91_xfer(chip, addr, alen, buf++, 1, 0))
 				return 1;
+			addr++;
 		}
+		return 0;
 	}
-	return 0;
 #endif
 	return at91_xfer(chip, addr, alen, buffer, len, 0);
 }

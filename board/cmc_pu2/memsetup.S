@@ -2,7 +2,7 @@
  * Memory Setup stuff - taken from blob memsetup.S
  *
  * Copyright (C) 1999 2000 2001 Erik Mouw (J.A.K.Mouw@its.tudelft.nl) and
- *                     Jan-Derk Bakker (J.D.Bakker@its.tudelft.nl)
+ *		       Jan-Derk Bakker (J.D.Bakker@its.tudelft.nl)
  *
  * Modified for the at91rm9200dk board by
  * (C) Copyright 2004
@@ -18,7 +18,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -92,36 +92,36 @@ _TEXT_BASE:
 .globl memsetup
 memsetup:
 	/* memory control configuration */
-	/* this isn't very elegant, but  what the heck */
-	ldr     r0, =SMRDATA
+	/* this isn't very elegant, but	 what the heck */
+	ldr	r0, =SMRDATA
 	ldr	r1, _TEXT_BASE
 	sub	r0, r0, r1
-	add     r2, r0, #80
+	add	r2, r0, #80
 0:
 	/* the address */
-	ldr     r1, [r0], #4
+	ldr	r1, [r0], #4
 	/* the value */
-	ldr     r3, [r0], #4
-	str     r3, [r1]
-	cmp     r2, r0
-	bne     0b
+	ldr	r3, [r0], #4
+	str	r3, [r1]
+	cmp	r2, r0
+	bne	0b
 	/* delay - this is all done by guess */
-	ldr 	r0, =0x00001000
+	ldr	r0, =0x00001000
 1:
-	subs    r0, r0, #1              
-	bhi     1b
-	ldr     r0, =SMRDATA1
+	subs	r0, r0, #1
+	bhi	1b
+	ldr	r0, =SMRDATA1
 	ldr	r1, _TEXT_BASE
 	sub	r0, r0, r1
-	add     r2, r0, #176
+	add	r2, r0, #176
 2:
 	/* the address */
-	ldr     r1, [r0], #4
+	ldr	r1, [r0], #4
 	/* the value */
-	ldr     r3, [r0], #4
-	str     r3, [r1]
-	cmp     r2, r0
-	bne     2b
+	ldr	r3, [r0], #4
+	str	r3, [r1]
+	cmp	r2, r0
+	bne	2b
 
 	/* everything is fine now */
 	mov	pc, lr
