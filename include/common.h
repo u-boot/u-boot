@@ -316,6 +316,7 @@ uint	get_immr      (uint);
 #endif
 uint	get_pir	      (void);
 uint	get_pvr	      (void);
+uint	get_svr	      (void);
 uint	rd_ic_cst     (void);
 void	wr_ic_cst     (uint);
 void	wr_ic_adr     (uint);

@@ -89,7 +89,13 @@ typedef struct ccsr_ddr {
 	uint	sdram_mode;		/* 0x2118 - DDR SDRAM Mode Configuration */
 	char	res7[8];
 	uint	sdram_interval;		/* 0x2124 - DDR SDRAM Interval Configuration */
+#ifdef MPC85xx_DDR_SDRAM_CLK_CNTL
+	char	res7_5[8];
+	uint	sdram_clk_cntl;		/* 0x2130 - DDR SDRAM Clock Control */
+	char	res8[3276];
+#else
 	char	res8[3288];
+#endif
 	uint	data_err_inject_hi;	/* 0x2e00 - DDR Memory Data Path Error Injection Mask High */
 	uint	data_err_inject_lo;	/* 0x2e04 - DDR Memory Data Path Error Injection Mask Low */
 	uint	ecc_err_inject;		/* 0x2e08 - DDR Memory Data Path Error Injection Mask ECC */
@@ -150,7 +156,7 @@ typedef struct ccsr_i2c {
 	char	res6[4075];
 } ccsr_i2c_t;
 
-#ifdef CONFIG_MPC8540
+#if defined (CONFIG_MPC8540) || defined (CONFIG_MPC8555)
 /* DUART Registers(0x4000-0x5000) */
 typedef struct ccsr_duart {
 	char	res1[1280];
@@ -1015,7 +1021,7 @@ typedef struct ccsr_pic {
 } ccsr_pic_t;
 
 /* CPM Block(0x8_0000-0xc_0000) */
-#ifdef CONFIG_MPC8540
+#if defined (CONFIG_MPC8540) || defined (CONFIG_MPC8555)
 typedef struct ccsr_cpm {
 	char res[262144];
 } ccsr_cpm_t;
