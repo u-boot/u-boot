@@ -81,6 +81,11 @@ void sdram_init(void)
 	}
 
 	/*
+	 * Disable memory controller.
+	 */
+	mtsdram0(mem_mcopt1, 0x00000000);
+
+	/*
 	 * Set MB0CF for bank 0. (0-128MB) Address Mode 3 since 13x10(4)
 	 */
 	mtsdram0(mem_mb0cf, 0x000A4001);
