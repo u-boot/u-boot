@@ -25,6 +25,7 @@
 #include <asm/processor.h>
 #include <command.h>
 #include <malloc.h>
+#include <net.h>
 
 /* ------------------------------------------------------------------------- */
 extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);       /*cmd_boot.c*/
@@ -52,9 +53,43 @@ const unsigned char fpgadata[] =
 #include "../common/fpga.c"
 
 
+#include "../common/auto_update.h"
+
+#ifdef CONFIG_CPCI405AB
+au_image_t au_image[] = {
+	{"cpci405ab/preinst.img", 0, -1, AU_SCRIPT},
+	{"cpci405ab/pImage", 0xffc00000, 0x000c0000, AU_NOR},
+	{"cpci405ab/pImage.initrd", 0xffcc0000, 0x00300000, AU_NOR},
+	{"cpci405ab/u-boot.img", 0xfffc0000, 0x00040000, AU_FIRMWARE},
+	{"cpci405ab/postinst.img", 0, 0, AU_SCRIPT},
+};
+#else
+#ifdef CONFIG_CPCI405_VER2
+au_image_t au_image[] = {
+	{"cpci4052/preinst.img", 0, -1, AU_SCRIPT},
+	{"cpci4052/pImage", 0xffc00000, 0x000c0000, AU_NOR},
+	{"cpci4052/pImage.initrd", 0xffcc0000, 0x00300000, AU_NOR},
+	{"cpci4052/u-boot.img", 0xfffc0000, 0x00040000, AU_FIRMWARE},
+	{"cpci4052/postinst.img", 0, 0, AU_SCRIPT},
+};
+#else
+au_image_t au_image[] = {
+	{"cpci405/preinst.img", 0, -1, AU_SCRIPT},
+	{"cpci405/pImage", 0xffc00000, 0x000c0000, AU_NOR},
+	{"cpci405/pImage.initrd", 0xffcc0000, 0x00310000, AU_NOR},
+	{"cpci405/u-boot.img", 0xfffd0000, 0x00030000, AU_FIRMWARE},
+	{"cpci405/postinst.img", 0, 0, AU_SCRIPT},
+};
+#endif
+#endif
+
+int N_AU_IMAGES = (sizeof(au_image) / sizeof(au_image[0]));
+
+
 /* Prototypes */
 int cpci405_version(void);
 int gunzip(void *, int, unsigned char *, unsigned long *);
+void lxt971_no_sleep(void);
 
 
 int board_early_init_f (void)
@@ -234,12 +269,14 @@ int misc_init_f (void)
 int misc_init_r (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-
-	bd_t *bd = gd->bd;
-	char *	tmp;                    /* Temporary char pointer      */
 	unsigned long cntrl0Reg;
 
+	/* adjust flash start and offset */
+	gd->bd->bi_flashstart = 0 - gd->bd->bi_flashsize;
+	gd->bd->bi_flashoffset = 0;
+
 #ifdef CONFIG_CPCI405_VER2
+	{
 	unsigned char *dst;
 	ulong len = sizeof(fpgadata);
 	int status;
@@ -348,9 +385,11 @@ int misc_init_r (void)
 		puts("*** CPCI-405 Version 1.x detected!\n");
 		puts("*** Please use correct U-Boot version (CPCI405 instead of CPCI4052)!\n\n");
 	}
+	}
 
 #else /* CONFIG_CPCI405_VER2 */
 
+#if 0 /* test-only: code-plug now not relavant for ip-address any more */
 	/*
 	 * Generate last byte of ip-addr from code-plug @ 0xf0000400
 	 */
@@ -371,6 +410,7 @@ int misc_init_r (void)
 			setenv("ipaddr", str);
 		}
 	}
+#endif
 
 	if (cpci405_version() >= 2) {
 		puts("\n*** U-Boot Version does not match Board Version!\n");
@@ -386,11 +426,6 @@ int misc_init_r (void)
 	cntrl0Reg = mfdcr(cntrl0);
 	mtdcr(cntrl0, cntrl0Reg | 0x00001000);
 
-	/*
-	 * Write ethernet addr in NVRAM for VxWorks
-	 */
-	tmp = (char *)CFG_NVRAM_BASE_ADDR + CFG_NVRAM_VXWORKS_OFFS;
-	memcpy( (char *)tmp, (char *)&bd->bi_enetaddr[0], 6 );
 	return (0);
 }
 
@@ -463,6 +498,11 @@ int checkboard (void)
 
 	putc ('\n');
 
+	/*
+	 * Disable sleep mode in LXT971
+	 */
+	lxt971_no_sleep();
+
 	return 0;
 }
 
@@ -518,9 +558,12 @@ void ide_set_reset(int on)
 
 #ifdef CONFIG_CPCI405AB
 
-#define ONE_WIRE_CLEAR   (*(volatile unsigned short *)0xf0400000 |= 0x0100)
-#define ONE_WIRE_SET     (*(volatile unsigned short *)0xf0400000 &= ~0x0100)
-#define ONE_WIRE_GET     (*(volatile unsigned short *)0xf0400002 & 0x1000)
+#define ONE_WIRE_CLEAR   (*(volatile unsigned short *)(CFG_FPGA_BASE_ADDR + CFG_FPGA_MODE) \
+                          |= CFG_FPGA_MODE_1WIRE_DIR)
+#define ONE_WIRE_SET     (*(volatile unsigned short *)(CFG_FPGA_BASE_ADDR + CFG_FPGA_MODE) \
+                          &= ~CFG_FPGA_MODE_1WIRE_DIR)
+#define ONE_WIRE_GET     (*(volatile unsigned short *)(CFG_FPGA_BASE_ADDR + CFG_FPGA_STATUS) \
+                          & CFG_FPGA_MODE_1WIRE)
 
 /*
  * Generate a 1-wire reset, return 1 if no presence detect was found,
@@ -652,6 +695,104 @@ int do_onewire(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	onewire,	1,	1,	do_onewire,
 	"onewire - Read 1-write ID\n",
+	NULL
+	);
+
+
+#define CFG_I2C_EEPROM_ADDR_2	0x51	/* EEPROM CAT28WC32		*/
+#define CFG_ENV_SIZE_2	0x800	/* 2048 bytes may be used for env vars*/
+
+/*
+ * Write backplane ip-address...
+ */
+int do_get_bpip(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	DECLARE_GLOBAL_DATA_PTR;
+
+	bd_t *bd = gd->bd;
+	char *buf;
+	ulong crc;
+	char str[32];
+	char *ptr;
+	IPaddr_t ipaddr;
+
+	buf = malloc(CFG_ENV_SIZE_2);
+	if (eeprom_read(CFG_I2C_EEPROM_ADDR_2, 0, buf, CFG_ENV_SIZE_2)) {
+		puts("\nError reading backplane EEPROM!\n");
+	} else {
+		crc = crc32(0, buf+4, CFG_ENV_SIZE_2-4);
+		if (crc != *(ulong *)buf) {
+			printf("ERROR: crc mismatch %08lx %08lx\n", crc, *(ulong *)buf);
+			return -1;
+		}
+
+		/*
+		 * Find bp_ip
+		 */
+		ptr = strstr(buf+4, "bp_ip=");
+		if (ptr == NULL) {
+			printf("ERROR: bp_ip not found!\n");
+			return -1;
+		}
+		ptr += 6;
+		ipaddr = string_to_ip(ptr);
+
+		/*
+		 * Update whole ip-addr
+		 */
+		bd->bi_ip_addr = ipaddr;
+		sprintf(str, "%ld.%ld.%ld.%ld",
+			(bd->bi_ip_addr & 0xff000000) >> 24,
+			(bd->bi_ip_addr & 0x00ff0000) >> 16,
+			(bd->bi_ip_addr & 0x0000ff00) >> 8,
+			(bd->bi_ip_addr & 0x000000ff));
+		setenv("ipaddr", str);
+		printf("Updated ip_addr from bp_eeprom to %s!\n", str);
+	}
+
+	free(buf);
+
+	return 0;
+}
+U_BOOT_CMD(
+	getbpip,	1,	1,	do_get_bpip,
+	"getbpip - Update IP-Address with Backplane IP-Address\n",
+	NULL
+	);
+
+/*
+ * Set and print backplane ip...
+ */
+int do_set_bpip(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	char *buf;
+	unsigned char str[32];
+	ulong crc;
+
+	if (argc < 2) {
+		puts("ERROR!\n");
+		return -1;
+	}
+
+	printf("Setting bp_ip to %s\n", argv[1]);
+	buf = malloc(CFG_ENV_SIZE_2);
+	memset(buf, 0, CFG_ENV_SIZE_2);
+	sprintf(str, "bp_ip=%s", argv[1]);
+	strcpy(buf+4, str);
+	crc = crc32(0, buf+4, CFG_ENV_SIZE_2-4);
+	*(ulong *)buf = crc;
+
+	if (eeprom_write(CFG_I2C_EEPROM_ADDR_2, 0, buf, CFG_ENV_SIZE_2)) {
+		puts("\nError writing backplane EEPROM!\n");
+	}
+
+	free(buf);
+
+	return 0;
+}
+U_BOOT_CMD(
+	setbpip,	2,	1,	do_set_bpip,
+	"setbpip - Write Backplane IP-Address\n",
 	NULL
 	);
 
