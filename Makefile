@@ -959,6 +959,20 @@ CPU86_ROMBOOT_config: unconfig
 	fi; \
 	echo "export CONFIG_BOOT_ROM" >> config.mk;
 
+CPU87_config	\
+CPU87_ROMBOOT_config: unconfig
+	@./mkconfig $(call xtract_82xx,$@) ppc mpc8260 cpu87
+	@cd ./include ;				\
+	if [ "$(findstring _ROMBOOT_,$@)" ] ; then \
+		echo "CONFIG_BOOT_ROM = y" >> config.mk ; \
+		echo "... booting from 8-bit flash" ; \
+	else \
+		echo "CONFIG_BOOT_ROM = n" >> config.mk ; \
+		echo "... booting from 64-bit flash" ; \
+	fi; \
+	echo "export CONFIG_BOOT_ROM" >> config.mk;
+
+	
 ep8260_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8260 ep8260
 
@@ -1146,6 +1160,9 @@ MPC8541CDS_config:	unconfig
 
 MPC8555CDS_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc85xx mpc8555cds cds
+
+PM854_config:	unconfig
+	@./mkconfig $(@:_config=) ppc mpc85xx pm854
 
 sbc8540_config \
 sbc8540_33_config \

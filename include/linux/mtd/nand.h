@@ -122,6 +122,7 @@ struct nand_chip {
 	uint oobblock;  /* Size of OOB blocks (e.g. 512) */
 	uint oobsize;   /* Amount of OOB data per block (e.g. 16) */
 	uint eccsize;
+	int bus16;
 };
 
 /*
@@ -165,6 +166,7 @@ struct nand_flash_dev {
 	char page256;
 	char pageadrlen;
 	unsigned long erasesize;
+	int bus16;
 };
 
 /*

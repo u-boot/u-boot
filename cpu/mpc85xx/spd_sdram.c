@@ -28,20 +28,17 @@
 #include <spd.h>
 #include <asm/mmu.h>
 
-#ifdef CONFIG_SPD_EEPROM
-
-
 #if defined(CONFIG_DDR_ECC)
-extern void dma_init(void);
+extern void dma_init (void);
 extern uint dma_check(void);
-extern int dma_xfer(void *dest, uint count, void *src);
+extern int  dma_xfer (void *dest, uint count, void *src);
 #endif
 
+#ifdef CONFIG_SPD_EEPROM
 
 #ifndef	CFG_READ_SPD
 #define CFG_READ_SPD	i2c_read
 #endif
-
 
 /*
  * Convert picoseconds into clock cycles (rounding up if needed).
@@ -60,13 +57,11 @@ picos_to_clk(int picos)
 	return clks;
 }
 
-
 unsigned int
 banksize(unsigned char row_dens)
 {
 	return ((row_dens >> 2) | ((row_dens & 3) << 6)) << 24;
 }
-
 
 long int
 spd_sdram(void)
@@ -404,7 +399,6 @@ spd_sdram(void)
 
 	return memsize * 1024 * 1024;
 }
-
 #endif /* CONFIG_SPD_EEPROM */
 
 
@@ -412,7 +406,6 @@ spd_sdram(void)
 /*
  * Initialize all of memory for ECC, then enable errors.
  */
-
 void
 ddr_enable_ecc(unsigned int dram_size)
 {
@@ -464,5 +457,4 @@ ddr_enable_ecc(unsigned int dram_size)
 	ddr->err_disable = 0x00000000;
 	asm("sync;isync;msync");
 }
-
 #endif	/* CONFIG_DDR_ECC */

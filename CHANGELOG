@@ -2,6 +2,13 @@
 Changes for U-Boot 1.1.3:
 ======================================================================
 
+* Patches by Josef Wagner, 29 Oct 2004:
+  - Add support for MicroSys CPU87 board
+  - Add support for MicroSys PM854 board
+
+* Patch by Jian Zhang, 02 Nov 2004:
+  Add 16-bit NAND support
+
 * Patch by Scott McNutt, 01 Nov 2004:
   Add missing NIOS/NIOS2 support for "iminfo" command
 

@@ -2130,13 +2130,13 @@ Low Level (hardware related) configuration options:
 		globally (CFG_CMD_MEM).
 
 - CONFIG_INIT_CRITICAL
-                [ARM only] If this variable is NOT defined, then
-                certain critical initializations (like setting up the
-                memory controller) are omitted. Normally this
-                variable MUST be defined for all boards. The only
-                exception is when U-Boot is loaded (to RAM) by some
-                other boot loader or by a debugger which performs
-                these intializations itself.
+		[ARM only] If this variable is NOT defined, then
+		certain critical initializations (like setting up the
+		memory controller) are omitted. Normally this
+		variable MUST be defined for all boards. The only
+		exception is when U-Boot is loaded (to RAM) by some
+		other boot loader or by a debugger which performs
+		these intializations itself.
 
 Building the Software:
 ======================
