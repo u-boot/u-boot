@@ -303,9 +303,10 @@
 # define CFG_RAMBOOT
 #endif
 
-#define CONFIG_PCI
+#ifdef	CONFIG_PCI
 #define CONFIG_PCI_PNP
 #define CONFIG_EEPRO100
+#endif
 
 /*
  * Internal Definitions

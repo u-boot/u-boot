@@ -525,6 +525,20 @@ MPC8260ADS_config:	unconfig
 MPC8266ADS_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8260 mpc8266ads
 
+PM825_config	\
+PM825_ROMBOOT_config: unconfig
+	@echo "#define CONFIG_PCI"	>include/config.h
+	@./mkconfig -a PM826 ppc mpc8260 pm826
+	@cd ./include ;				\
+	if [ "$(findstring _ROMBOOT_,$@)" ] ; then \
+		echo "CONFIG_BOOT_ROM = y" >> config.mk ; \
+		echo "... booting from 8-bit flash" ; \
+	else \
+		echo "CONFIG_BOOT_ROM = n" >> config.mk ; \
+		echo "... booting from 64-bit flash" ; \
+	fi; \
+	echo "export CONFIG_BOOT_ROM" >> config.mk; \
+
 PM826_config	\
 PM826_ROMBOOT_config: unconfig
 	@./mkconfig $(call xtract_82xx,$@) ppc mpc8260 pm826
