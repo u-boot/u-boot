@@ -14,7 +14,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -38,7 +38,7 @@
 
 
 .globl _start
-_start:	b       reset
+_start: b	reset
 	ldr	pc, _undefined_instruction
 	ldr	pc, _software_interrupt
 	ldr	pc, _prefetch_abort
@@ -47,7 +47,7 @@ _start:	b       reset
 	ldr	pc, _irq
 	ldr	pc, _fiq
 
-_undefined_instruction:	.word undefined_instruction
+_undefined_instruction: .word undefined_instruction
 _software_interrupt:	.word software_interrupt
 _prefetch_abort:	.word prefetch_abort
 _data_abort:		.word data_abort
@@ -126,13 +126,23 @@ reset:
 relocate:				/* relocate U-Boot to RAM	    */
 	adr	r0, _start		/* r0 <- current position of code   */
 	ldr	r1, _TEXT_BASE		/* test if we run from flash or RAM */
-	cmp     r0, r1                  /* don't reloc during debug         */
-	beq     stack_setup
+	cmp	r0, r1			/* don't reloc during debug	    */
+	beq	stack_setup
+
+#if TEXT_BASE
+	ldr	r2, =0x0		/* Relocate the exception vectors   */
+	cmp	r1, r2			/* and associated data to address   */
+	ldmneia r0!, {r3-r10}		/* 0x0. Do nothing if TEXT_BASE is  */
+	stmneia r2!, {r3-r10}		/* 0x0. Copy the first 15 words.    */
+	ldmneia r0, {r3-r9}
+	stmneia r2, {r3-r9}
+	adrne	r0, _start		/* restore r0			    */
+#endif
 
 	ldr	r2, _armboot_start
 	ldr	r3, _bss_start
-	sub	r2, r3, r2		/* r2 <- size of armboot            */
-	add	r2, r0, r2		/* r2 <- source end address         */
+	sub	r2, r3, r2		/* r2 <- size of armboot	    */
+	add	r2, r0, r2		/* r2 <- source end address	    */
 
 copy_loop:
 	ldmia	r0!, {r3-r10}		/* copy from source address [r0]    */
@@ -143,26 +153,26 @@ copy_loop:
 	/* Set up the stack						    */
 stack_setup:
 	ldr	r0, _TEXT_BASE		/* upper 128 KiB: relocated uboot   */
-	sub	r0, r0, #CFG_MALLOC_LEN	/* malloc area                      */
-	sub	r0, r0, #CFG_GBL_DATA_SIZE /* bdinfo                        */
+	sub	r0, r0, #CFG_MALLOC_LEN /* malloc area			    */
+	sub	r0, r0, #CFG_GBL_DATA_SIZE /* bdinfo			    */
 #ifdef CONFIG_USE_IRQ
 	sub	r0, r0, #(CONFIG_STACKSIZE_IRQ+CONFIG_STACKSIZE_FIQ)
 #endif
 	sub	sp, r0, #12		/* leave 3 words for abort-stack    */
 
 clear_bss:
-	ldr	r0, _bss_start		/* find start of bss segment        */
-	ldr	r1, _bss_end		/* stop here                        */
-	mov 	r2, #0x00000000		/* clear                            */
+	ldr	r0, _bss_start		/* find start of bss segment	    */
+	ldr	r1, _bss_end		/* stop here			    */
+	mov	r2, #0x00000000		/* clear			    */
 
-clbss_l:str	r2, [r0]		/* clear loop...                    */
+clbss_l:str	r2, [r0]		/* clear loop...		    */
 	add	r0, r0, #4
 	cmp	r0, r1
 	bne	clbss_l
 
 	ldr	pc, _start_armboot
 
-_start_armboot:	.word start_armboot
+_start_armboot: .word start_armboot
 
 /*
  *************************************************************************
@@ -234,7 +244,7 @@ cpu_init_crit:
 	str	r1, [r0, #+NETARM_GEN_PORTC]
 	/*
 	 * software reset : see HW Ref. Guide 8.2.4 : Software Service register
-	 *                  for an explanation of this process
+	 *		    for an explanation of this process
 	 */
 	ldr	r0, =NETARM_GEN_MODULE_BASE
 	ldr	r1, =NETARM_GEN_SW_SVC_RESETA
@@ -285,7 +295,7 @@ cpu_init_crit:
 	 * Disable Cache
 	 */
 	ldr r0, =REG_SYSCFG
-	ldr r1, =0x83ffffa0     /* cache-disabled  */
+	ldr r1, =0x83ffffa0	/* cache-disabled  */
 	str r1, [r0]
 
 #else
@@ -359,29 +369,29 @@ cpu_init_crit:
 	.macro	bad_save_user_regs
 	sub	sp, sp, #S_FRAME_SIZE
 	stmia	sp, {r0 - r12}			@ Calling r0-r12
-	add     r8, sp, #S_PC
+	add	r8, sp, #S_PC
 
 	ldr	r2, _armboot_start
 	sub	r2, r2, #(CONFIG_STACKSIZE+CFG_MALLOC_LEN)
-	sub	r2, r2, #(CFG_GBL_DATA_SIZE+8)  @ set base 2 words into abort stack
-	ldmia	r2, {r2 - r4}                   @ get pc, cpsr, old_r0
+	sub	r2, r2, #(CFG_GBL_DATA_SIZE+8)	@ set base 2 words into abort stack
+	ldmia	r2, {r2 - r4}			@ get pc, cpsr, old_r0
 	add	r0, sp, #S_FRAME_SIZE		@ restore sp_SVC
 
 	add	r5, sp, #S_SP
 	mov	r1, lr
-	stmia	r5, {r0 - r4}                   @ save sp_SVC, lr_SVC, pc, cpsr, old_r
+	stmia	r5, {r0 - r4}			@ save sp_SVC, lr_SVC, pc, cpsr, old_r
 	mov	r0, sp
 	.endm
 
 	.macro	irq_save_user_regs
 	sub	sp, sp, #S_FRAME_SIZE
 	stmia	sp, {r0 - r12}			@ Calling r0-r12
-	add     r8, sp, #S_PC
-	stmdb   r8, {sp, lr}^                   @ Calling SP, LR
-	str     lr, [r8, #0]                    @ Save calling PC
-	mrs     r6, spsr
-	str     r6, [r8, #4]                    @ Save CPSR
-	str     r0, [r8, #8]                    @ Save OLD_R0
+	add	r8, sp, #S_PC
+	stmdb	r8, {sp, lr}^			@ Calling SP, LR
+	str	lr, [r8, #0]			@ Save calling PC
+	mrs	r6, spsr
+	str	r6, [r8, #4]			@ Save CPSR
+	str	r0, [r8, #8]			@ Save OLD_R0
 	mov	r0, sp
 	.endm
 
@@ -400,7 +410,7 @@ cpu_init_crit:
 
 	str	lr, [r13]			@ save caller lr / spsr
 	mrs	lr, spsr
-	str     lr, [r13, #4]
+	str	lr, [r13, #4]
 
 	mov	r13, #MODE_SVC			@ prepare SVC-Mode
 	msr	spsr_c, r13
@@ -419,35 +429,35 @@ cpu_init_crit:
 /*
  * exception handlers
  */
-	.align  5
+	.align	5
 undefined_instruction:
 	get_bad_stack
 	bad_save_user_regs
-	bl 	do_undefined_instruction
+	bl	do_undefined_instruction
 
 	.align	5
 software_interrupt:
 	get_bad_stack
 	bad_save_user_regs
-	bl 	do_software_interrupt
+	bl	do_software_interrupt
 
 	.align	5
 prefetch_abort:
 	get_bad_stack
 	bad_save_user_regs
-	bl 	do_prefetch_abort
+	bl	do_prefetch_abort
 
 	.align	5
 data_abort:
 	get_bad_stack
 	bad_save_user_regs
-	bl 	do_data_abort
+	bl	do_data_abort
 
 	.align	5
 not_used:
 	get_bad_stack
 	bad_save_user_regs
-	bl 	do_not_used
+	bl	do_not_used
 
 #ifdef CONFIG_USE_IRQ
 
@@ -455,7 +465,7 @@ not_used:
 irq:
 	get_irq_stack
 	irq_save_user_regs
-	bl 	do_irq
+	bl	do_irq
 	irq_restore_user_regs
 
 	.align	5
@@ -463,7 +473,7 @@ fiq:
 	get_fiq_stack
 	/* someone ought to write a more effiction fiq_save_user_regs */
 	irq_save_user_regs
-	bl 	do_fiq
+	bl	do_fiq
 	irq_restore_user_regs
 
 #else
@@ -472,13 +482,13 @@ fiq:
 irq:
 	get_bad_stack
 	bad_save_user_regs
-	bl 	do_irq
+	bl	do_irq
 
 	.align	5
 fiq:
 	get_bad_stack
 	bad_save_user_regs
-	bl 	do_fiq
+	bl	do_fiq
 
 #endif
 
@@ -486,14 +496,14 @@ fiq:
 	.align	5
 .globl reset_cpu
 reset_cpu:
-	mov     ip, #0
-	mcr     p15, 0, ip, c7, c7, 0           @ invalidate cache
-	mcr     p15, 0, ip, c8, c7, 0           @ flush TLB (v4)
-	mrc     p15, 0, ip, c1, c0, 0           @ get ctrl register
-	bic     ip, ip, #0x000f                 @ ............wcam
-	bic     ip, ip, #0x2100                 @ ..v....s........
-	mcr     p15, 0, ip, c1, c0, 0           @ ctrl register
-	mov     pc, r0
+	mov	ip, #0
+	mcr	p15, 0, ip, c7, c7, 0		@ invalidate cache
+	mcr	p15, 0, ip, c8, c7, 0		@ flush TLB (v4)
+	mrc	p15, 0, ip, c1, c0, 0		@ get ctrl register
+	bic	ip, ip, #0x000f			@ ............wcam
+	bic	ip, ip, #0x2100			@ ..v....s........
+	mcr	p15, 0, ip, c1, c0, 0		@ ctrl register
+	mov	pc, r0
 #elif defined(CONFIG_NETARM)
 	.align	5
 .globl reset_cpu

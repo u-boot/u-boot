@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Curt Brune, 07 Jul 2004:
+  relocate exception vectors on arm720t if needed
+
 * Patch by George G. Davis, 06 Jul 2004:
   - update mach-types.h to latest arm.linux.org.uk master list
   - Set correct OMAP1610 bi_arch_number for build target
