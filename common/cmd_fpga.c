@@ -80,11 +80,11 @@ int fpga_loadbitstream(unsigned long dev, char* fpgadata, size_t size)
 		return FPGA_FAIL;
 	}
 
-	length = (*dataptr << 8) + *(dataptr+1); 
+	length = (*dataptr << 8) + *(dataptr+1);
 	dataptr+=2;
 	for(i=0;i<length;i++)
 		buffer[i]=*dataptr++;
-	
+
 	buffer[length-5]='\0'; /* remove filename extension */
 	PRINTF(__FUNCTION__ ": design name = \"%s\".\n",buffer);
 
@@ -93,18 +93,18 @@ int fpga_loadbitstream(unsigned long dev, char* fpgadata, size_t size)
 		printf(__FUNCTION__ ": Part number identifier not recognized in bitstream.\n");
 		return FPGA_FAIL;
 	}
-	
+
 	length = (*dataptr << 8) + *(dataptr+1); dataptr+=2;
-	for(i=0;i<length;i++) 
+	for(i=0;i<length;i++)
 		buffer[i]=*dataptr++;
 	PRINTF(__FUNCTION__ ": part number = \"%s\".\n",buffer);
-	
+
 	/* get date (identifier, length, string) */
 	if (*dataptr++ != 0x63) {
 		printf(__FUNCTION__ ": Date identifier not recognized in bitstream.\n");
 		return FPGA_FAIL;
 	}
-	
+
 	length = (*dataptr << 8) + *(dataptr+1); dataptr+=2;
 	for(i=0;i<length;i++)
 		buffer[i]=*dataptr++;
@@ -115,12 +115,12 @@ int fpga_loadbitstream(unsigned long dev, char* fpgadata, size_t size)
 		printf(__FUNCTION__ ": Time identifier not recognized in bitstream.\n");
 		return FPGA_FAIL;
 	}
-	
+
 	length = (*dataptr << 8) + *(dataptr+1); dataptr+=2;
 	for(i=0;i<length;i++)
 		buffer[i]=*dataptr++;
 	PRINTF(__FUNCTION__ ": time = \"%s\".\n",buffer);
-	
+
 	/* get fpga data length (identifier, length) */
 	if (*dataptr++ != 0x65) {
 		printf(__FUNCTION__ ": Data length identifier not recognized in bitstream.\n");
@@ -129,20 +129,20 @@ int fpga_loadbitstream(unsigned long dev, char* fpgadata, size_t size)
 	swapsize = ((long)*dataptr<<24) + ((long)*(dataptr+1)<<16) + ((long)*(dataptr+2)<<8) + (long)*(dataptr+3);
 	dataptr+=4;
 	PRINTF(__FUNCTION__ ": bytes in bitstream = %d.\n",swapsize);
-	
+
 	/* check consistency of length obtained */
 	if (swapsize >= size) {
 		printf(__FUNCTION__ ": Could not find right length of data in bitstream.\n");
 		return FPGA_FAIL;
 	}
-	
+
 	/* allocate memory */
 	swapdata = (char *)malloc(swapsize);
 	if (swapdata == NULL) {
 		printf(__FUNCTION__ ": Could not allocate %d bytes memory !\n",swapsize);
 		return FPGA_FAIL;
 	}
-	
+
 	/* read data into memory and swap bits */
 	ptr = swapdata;
 	for (i = 0; i < swapsize; i++) {

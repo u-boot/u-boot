@@ -26,7 +26,7 @@
 
 /*
  * board/config.h - configuration options, board specific
- * 
+ *
  * "EP8260 H, V.1.1"
  * 	- 64M 60x Bus SDRAM
  * 	- 32M Local Bus SDRAM
@@ -37,7 +37,7 @@
  * 	- 300MHz/133MHz/66MHz
  * 	- 64M 60x Bus SDRAM
  * 	- 32M Local Bus SDRAM
- * 	- 32M Flash 
+ * 	- 32M Flash
  * 	- 128k NVRAM with RTC
  */
 
@@ -104,7 +104,7 @@
 #define CFG_FLASH0_SIZE 32
 #else
 #define CFG_FLASH0_BASE 0xFF000000
-#define CFG_FLASH0_SIZE 16 
+#define CFG_FLASH0_SIZE 16
 #endif
 
 /* What should the base address of the secondary FLASH be and how big
@@ -127,7 +127,7 @@
  * local bus (8260 local bus is NOT cacheable!)
 */
 /* #define CFG_LSDRAM */
-#undef CFG_LSDRAM 
+#undef CFG_LSDRAM
 
 #ifdef CFG_LSDRAM
 /* What should be the base address of SDRAM DIMM (local bus) and how big is
@@ -260,7 +260,7 @@
 #ifdef CFG_EP8260_H2
 #define CONFIG_BAUDRATE         9600
 #else
-#define CONFIG_BAUDRATE         115200 
+#define CONFIG_BAUDRATE         115200
 #endif
 
 /* Ethernet MAC address */
@@ -553,9 +553,9 @@
  * Watchdog & Bus Monitor Timer max, 60x Bus Monitor enable
  */
 #ifdef CFG_EP8260_H2
-/* TBD: Find out why setting the BMT to 0xff causes the FCC to 
- * generate TX buffer underrun errors for large packets under 
- * Linux 
+/* TBD: Find out why setting the BMT to 0xff causes the FCC to
+ * generate TX buffer underrun errors for large packets under
+ * Linux
  */
 #define CFG_SYPCR_BMT	0x00000600
 #else
