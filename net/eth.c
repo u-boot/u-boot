@@ -122,7 +122,8 @@ int eth_initialize(bd_t *bis)
 #ifdef CONFIG_DB64460
 	mv6446x_eth_initialize(bis);
 #endif
-#if defined(CONFIG_405GP) || defined(CONFIG_405EP) || ( defined(CONFIG_440) && !defined(CONFIG_NET_MULTI) )
+#if defined(CONFIG_405GP) || defined(CONFIG_405EP) || \
+  ( defined(CONFIG_440) && !defined(CONFIG_NET_MULTI) )
 	ppc_4xx_eth_initialize(bis);
 #endif
 #if defined(CONFIG_440) && defined(CONFIG_NET_MULTI)
@@ -133,6 +134,24 @@ int eth_initialize(bd_t *bis)
 #endif
 #ifdef CONFIG_PLB2800_ETHER
 	plb2800_eth_initialize(bis);
+#endif
+#ifdef SCC_ENET
+	scc_initialize(bis);
+#endif
+#if defined(FEC_ENET) || defined(CONFIG_ETHER_ON_FCC)
+	fec_initialize(bis);
+#endif
+#if defined(CONFIG_MPC5xxx_FEC)
+	mpc5xxx_fec_initialize(bis);
+#endif
+#if defined(CONFIG_SK98)
+	skge_initialize(bis);
+#endif
+#ifdef CONFIG_TSEC_ENET
+	tsec_initialize(bis);
+#endif
+#if defined(CONFIG_AU1X00)
+	au1x00_enet_initialize(bis);
 #endif
 #ifdef CONFIG_E1000
 	e1000_initialize(bis);
@@ -157,24 +176,6 @@ int eth_initialize(bd_t *bis)
 #endif
 #ifdef CONFIG_NS8382X
 	ns8382x_initialize(bis);
-#endif
-#ifdef SCC_ENET
-	scc_initialize(bis);
-#endif
-#if defined(FEC_ENET) || defined(CONFIG_ETHER_ON_FCC)
-	fec_initialize(bis);
-#endif
-#if defined(CONFIG_MPC5xxx_FEC)
-	mpc5xxx_fec_initialize(bis);
-#endif
-#if defined(CONFIG_SK98)
-	skge_initialize(bis);
-#endif
-#ifdef CONFIG_TSEC_ENET
-       tsec_initialize(bis);
-#endif
-#if defined(CONFIG_AU1X00)
-	au1x00_enet_initialize(bis);
 #endif
 #if defined(CONFIG_RTL8139)
 	rtl8139_initialize(bis);
@@ -213,13 +214,14 @@ int eth_initialize(bd_t *bis)
 				if (memcmp(dev->enetaddr, "\0\0\0\0\0\0", 6) &&
 				    memcmp(dev->enetaddr, env_enetaddr, 6))
 				{
-					printf("\nWarning: %s MAC addresses don't match:\n", dev->name);
-					printf("Address in SROM is         "
+					printf ("\nWarning: %s MAC addresses don't match:\n",
+						dev->name);
+					printf ("Address in SROM is         "
 					       "%02X:%02X:%02X:%02X:%02X:%02X\n",
 					       dev->enetaddr[0], dev->enetaddr[1],
 					       dev->enetaddr[2], dev->enetaddr[3],
 					       dev->enetaddr[4], dev->enetaddr[5]);
-					printf("Address in environment is  "
+					printf ("Address in environment is  "
 					       "%02X:%02X:%02X:%02X:%02X:%02X\n",
 					       env_enetaddr[0], env_enetaddr[1],
 					       env_enetaddr[2], env_enetaddr[3],
@@ -341,8 +343,7 @@ void eth_try_another(int first_restart)
 	if (!eth_current)
 		return;
 
-	if (first_restart)
-	{
+	if (first_restart) {
 		first_failed = eth_current;
 	}
 
@@ -357,8 +358,7 @@ void eth_try_another(int first_restart)
 	}
 #endif
 
-	if (first_failed == eth_current)
-	{
+	if (first_failed == eth_current) {
 		NetRestartWrap = 1;
 	}
 }
