@@ -255,6 +255,34 @@ TOP5200_config:	unconfig
 	@ echo "#define CONFIG_$(@:_config=) 1"	>include/config.h
 	@./mkconfig -a TOP5200 ppc mpc5xxx top5200 emk
 
+Total5100_config		\
+Total5200_config		\
+Total5200_lowboot_config	\
+Total5200_Rev2_config		\
+Total5200_Rev2_lowboot_config:	unconfig
+	@ >include/config.h
+	@[ -z "$(findstring 5100,$@)" ] || \
+		{ echo "#define CONFIG_MGT5100"		>>include/config.h ; \
+		  echo "... with MGT5100 processor" ; \
+		}
+	@[ -z "$(findstring 5200,$@)" ] || \
+		{ echo "#define CONFIG_MPC5200"		>>include/config.h ; \
+		  echo "... with MPC5200 processor" ; \
+		}
+	@[ -n "$(findstring Rev,$@)" ] || \
+		{ echo "#define CONFIG_TOTAL5200_REV 1"	>>include/config.h ; \
+		  echo "... revision 1 board" ; \
+		}
+	@[ -z "$(findstring Rev2_,$@)" ] || \
+		{ echo "#define CONFIG_TOTAL5200_REV 2"	>>include/config.h ; \
+		  echo "... revision 2 board" ; \
+		}
+	@[ -z "$(findstring lowboot_,$@)" ] || \
+		{ echo "TEXT_BASE = 0xFE000000" >board/total5200/config.tmp ; \
+		  echo "... with lowboot configuration" ; \
+		}
+	@./mkconfig -a Total5200 ppc mpc5xxx total5200
+
 PM520_config \
 PM520_DDR_config \
 PM520_ROMBOOT_config \

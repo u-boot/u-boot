@@ -110,6 +110,9 @@ boot_warm:
 #if defined(CFG_RAMBOOT)
 #error CFG_LOWBOOT is incompatible with CFG_RAMBOOT
 #endif /* CFG_RAMBOOT */
+#if defined(CFG_LOWBOOT)
+#error CFG_LOWBOOT is incompatible with MGT5100
+#endif /* CFG_LOWBOOT */
 	lis	r4, CFG_DEFAULT_MBAR@h
 	lis	r3,	START_REG(CFG_BOOTCS_START)@h
 	ori	r3, r3, START_REG(CFG_BOOTCS_START)@l

@@ -206,6 +206,11 @@ N: Yoo. Jonghoon
 E: yooth@ipone.co.kr
 D: Added port to the RPXlite board
 
+N: Mark Jonas
+E: mark.jonas@freescale.com
+D: Support for Freescale Total5200 platform
+W: http://www.mobilegt.com/
+
 N: Sam Song
 E: samsongshu@yahoo.com.cn
 D: Port to the RPXlite_DW board

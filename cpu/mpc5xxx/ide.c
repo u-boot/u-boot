@@ -41,7 +41,13 @@ int ide_preinit (void)
 	struct mpc5xxx_sdma *psdma = (struct mpc5xxx_sdma *) MPC5XXX_SDMA;
 
 	reg = *(vu_long *) MPC5XXX_GPS_PORT_CONFIG;
+#if defined(CONFIG_TOTAL5200)
+	/* ATA cs0/1 on i2c2 clk/io */
+	reg = (reg & ~0x03000000ul) | 0x02000000ul;
+#else
+	/* ATA cs0/1 on Local Plus cs4/5 */
 	reg = (reg & ~0x03000000ul) | 0x01000000ul;
+#endif	/* CONFIG_TOTAL5200 */
 	*(vu_long *) MPC5XXX_GPS_PORT_CONFIG = reg;
 
 	/* All sample codes do that... */
