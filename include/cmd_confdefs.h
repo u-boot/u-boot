@@ -87,6 +87,7 @@
 #define CFG_CMD_IMLS	0x0020000000000000U	/* List all found images        */
 #define CFG_CMD_ITEST	0x0040000000000000U	/* Integer (and string) test	*/
 #define CFG_CMD_NFS	0x0080000000000000U	/* NFS support			*/
+#define CFG_CMD_REISER  0x0100000000000000U     /* Reiserfs support		*/
 
 #define CFG_CMD_ALL	0xFFFFFFFFFFFFFFFFU	/* ALL commands			*/
 
@@ -124,6 +125,7 @@
 			CFG_CMD_PING	| \
 			CFG_CMD_PORTIO	| \
 			CFG_CMD_REGINFO | \
+			CFG_CMD_REISER	| \
 			CFG_CMD_SAVES	| \
 			CFG_CMD_SCSI	| \
 			CFG_CMD_SDRAM	| \

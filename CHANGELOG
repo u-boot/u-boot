@@ -2,6 +2,13 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
+* Patch by Pavel Bartusek, 21 Mar 2004
+  Add Reiserfs support
+
+* Patch by Hinko Kocevar, 20 Mar 2004
+  - Add auto-release for SMSC LAN91c111 driver
+  - Add save/restore of PTR and PNR regs as suggested in datasheet
+
 * Patch by Stephen Williams, 19 March 2004
   Increase speed of sector reads from SystemACE,
   shorten poll timeout and remove a useless reset

@@ -481,7 +481,13 @@ static int smc_send_packet (volatile void *packet, int packet_length)
 	int try = 0;
 	int time_out;
 	byte status;
+	byte saved_pnr;
+	word saved_ptr;
 
+	/* save PTR and PNR registers before manipulation */
+	SMC_SELECT_BANK (2);	
+	saved_pnr = SMC_inb( PN_REG );
+	saved_ptr = SMC_inw( PTR_REG );
 
 	PRINTK3 ("%s:smc_hardware_send_packet\n", SMC_DEV_NAME);
 
@@ -559,6 +565,10 @@ again:
 	/* we have a packet address, so tell the card to use it */
 	SMC_outb (packet_no, PN_REG);
 
+	/* do not write new ptr value if Write data fifo not empty */	
+	while ( saved_ptr & PTR_NOTEMPTY ) 
+		printf ("Write data fifo not empty!\n");
+
 	/* point to the beginning of the packet */
 	SMC_outw (PTR_AUTOINC, PTR_REG);
 
@@ -607,12 +617,15 @@ again:
 	SMC_outw (MC_ENQUEUE, MMU_CMD_REG);
 
 	/* poll for TX INT */
-	if (poll4int (IM_TX_INT, SMC_TX_TIMEOUT)) {
+	/* if (poll4int (IM_TX_INT, SMC_TX_TIMEOUT)) { */
+	/* poll for TX_EMPTY INT - autorelease enabled */
+	if (poll4int(IM_TX_EMPTY_INT, SMC_TX_TIMEOUT)) {
 		/* sending failed */
 		PRINTK2 ("%s: TX timeout, sending failed...\n", SMC_DEV_NAME);
 
 		/* release packet */
-		SMC_outw (MC_FREEPKT, MMU_CMD_REG);
+		/* no need to release, MMU does that now */
+		/* SMC_outw (MC_FREEPKT, MMU_CMD_REG); */
 
 		/* wait for MMU getting ready (low) */
 		while (SMC_inw (MMU_CMD_REG) & MC_BUSY) {
@@ -625,12 +638,14 @@ again:
 		return 0;
 	} else {
 		/* ack. int */
-		SMC_outb (IM_TX_INT, SMC91111_INT_REG);
+		SMC_outb (IM_TX_EMPTY_INT, SMC91111_INT_REG);
+		/* SMC_outb (IM_TX_INT, SMC91111_INT_REG); */
 		PRINTK2 ("%s: Sent packet of length %d \n", SMC_DEV_NAME,
 			 length);
 
 		/* release packet */
-		SMC_outw (MC_FREEPKT, MMU_CMD_REG);
+		/* no need to release, MMU does that now */
+		/* SMC_outw (MC_FREEPKT, MMU_CMD_REG); */
 
 		/* wait for MMU getting ready (low) */
 		while (SMC_inw (MMU_CMD_REG) & MC_BUSY) {
@@ -641,6 +656,10 @@ again:
 
 
 	}
+
+	/* restore previously saved registers */
+	SMC_outb( saved_pnr, PN_REG );
+	SMC_outw( saved_ptr, PTR_REG );
 
 	return length;
 }
@@ -730,8 +749,14 @@ static int smc_rcv()
 #ifdef USE_32_BIT
 	dword stat_len;
 #endif
+	byte saved_pnr;
+	word saved_ptr;
 
 	SMC_SELECT_BANK(2);
+	/* save PTR and PTR registers */
+	saved_pnr = SMC_inb( PN_REG );
+	saved_ptr = SMC_inw( PTR_REG );
+
 	packet_number = SMC_inw( RXFIFO_REG );
 
 	if ( packet_number & RXFIFO_REMPTY ) {
@@ -809,6 +834,10 @@ static int smc_rcv()
 
 	while ( SMC_inw( MMU_CMD_REG ) & MC_BUSY )
 		udelay(1); /* Wait until not busy */
+
+	/* restore saved registers */
+	SMC_outb( saved_pnr, PN_REG );
+	SMC_outw( saved_ptr, PTR_REG );
 
 	if (!is_error) {
 		/* Pass the packet up to the protocol layers. */
@@ -1251,6 +1280,11 @@ static void smc_phy_configure ()
 
 	/* Update our Auto-Neg Advertisement Register */
 	smc_write_phy_register (PHY_AD_REG, my_ad_caps);
+
+	/* Read the register back.  Without this, it appears that when */
+	/* auto-negotiation is restarted, sometimes it isn't ready and */
+	/* the link does not come up. */
+	smc_read_phy_register(PHY_AD_REG);
 
 	PRINTK2 ("%s:phy caps=%x\n", SMC_DEV_NAME, my_phy_caps);
 	PRINTK2 ("%s:phy advertised caps=%x\n", SMC_DEV_NAME, my_ad_caps);

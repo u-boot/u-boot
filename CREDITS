@@ -38,6 +38,11 @@ N: Jerry van Baren
 E: <vanbaren@cideas.com>
 D: BedBug port to 603e core (MPC82xx). Code for enhanced memory test.
 
+N: Pavel Bartusek
+E: <pba@sysgo.com>
+D: Reiserfs support
+W: http://www.elinos.com
+
 N: Andre Beaudin
 E: <andre.beaudin@colubris.com>
 D: PCMCIA, Ethernet, TFTP

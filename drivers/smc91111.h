@@ -378,7 +378,7 @@ typedef unsigned long int 		dword;
 #define	CTL_EEPROM_SELECT 0x0004 /* Controls EEPROM reload & store */
 #define	CTL_RELOAD	0x0002 /* When set reads EEPROM into registers */
 #define	CTL_STORE	0x0001 /* When set stores registers into EEPROM */
-#define CTL_DEFAULT     (0x1210)
+#define CTL_DEFAULT     (0x1A10) /* Autorelease enabled*/
 
 /* MMU Command Register */
 /* BANK 2 */
@@ -423,6 +423,7 @@ typedef unsigned long int 		dword;
 #define	PTR_RCV		0x8000 /* 1=Receive area, 0=Transmit area */
 #define	PTR_AUTOINC 	0x4000 /* Auto increment the pointer on each access */
 #define PTR_READ	0x2000 /* When 1 the operation is a read */
+#define PTR_NOTEMPTY	0x0800 /* When 1 _do not_ write fifo DATA REG */
 
 
 /* Data Register */
