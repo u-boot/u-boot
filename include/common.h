@@ -315,6 +315,9 @@ int testdram(void);
 uint	get_immr      (uint);
 #endif
 uint	get_pir	      (void);
+#if defined(CONFIG_MPC5xxx)
+uint	get_svr       (void);
+#endif
 uint	get_pvr	      (void);
 uint	get_svr	      (void);
 uint	rd_ic_cst     (void);

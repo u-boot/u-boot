@@ -549,6 +549,11 @@ dcache_status:
 	rlwinm	r3, r3, HID0_DCE_BITPOS + 1, 31, 31
 	blr
 
+	.globl get_svr
+get_svr:
+	mfspr	r3, SVR
+	blr
+
 	.globl get_pvr
 get_pvr:
 	mfspr	r3, PVR

@@ -2,6 +2,13 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Mark Jonas, 08 June 2004:
+  - Make MPC5200 boards evaluate the SVR to print processor name and
+    version in checkcpu() (cpu/mpc5xxx/cpu.c).
+
+* Patch by Kai-Uwe Bloem, 06 May 2004:
+  Fix endianess problem in cramfs code
+
 * Patch by Tom Armistead, 04 Jun 2004:
   Add support for MAX6900 RTC
 

@@ -280,6 +280,7 @@
 #define SPRN_PMC2	0x3BA	/* Performance Counter Register 2 */
 #define SPRN_PMC3	0x3BD	/* Performance Counter Register 3 */
 #define SPRN_PMC4	0x3BE	/* Performance Counter Register 4 */
+#define SPRN_SVR	0x11E	/* System-On-Chip Version Register */
 #define SPRN_PVR	0x11F	/* Processor Version Register */
 #define SPRN_RPA	0x3D6	/* Required Physical Address Register */
 #define SPRN_SDA	0x3BF	/* Sampled Data Address Register */
@@ -496,6 +497,7 @@
 #if defined(CONFIG_E500)
 #define PIR	SPRN_PIR
 #endif
+#define SVR	SPRN_SVR	/* System-On-Chip Version Register */
 #define PVR	SPRN_PVR	/* Processor Version */
 #define RPA	SPRN_RPA	/* Required Physical Address Register */
 #define SDR1	SPRN_SDR1      	/* MMU hash base register */
@@ -654,6 +656,23 @@
 #define   IOCR_SCS	0x00000002
 #define   IOCR_SPC	0x00000001
 
+/* System-On-Chip Version Register */
+
+/* System-On-Chip Version Register (SVR) field extraction */
+
+#define SVR_VER(svr)	(((svr) >> 16) & 0xFFFF) /* Version field */
+#define SVR_REV(svr)	(((svr) >>  0) & 0xFFFF) /* Revision field */
+
+#define SVR_CID(svr)	(((svr) >> 28) & 0x0F)   /* Company or manufacturer ID */
+#define SVR_SOCOP(svr)	(((svr) >> 22) & 0x3F)   /* SOC integration options */
+#define SVR_SID(svr)	(((svr) >> 16) & 0x3F)   /* SOC ID */
+#define SVR_PROC(svr)	(((svr) >> 12) & 0x0F)   /* Process revision field */
+#define SVR_MFG(svr)	(((svr) >>  8) & 0x0F)   /* Manufacturing revision */
+#define SVR_MJREV(svr)	(((svr) >>  4) & 0x0F)   /* Major SOC design revision indicator */
+#define SVR_MNREV(svr)	(((svr) >>  0) & 0x0F)   /* Minor SOC design revision indicator */
+
+/* System-On-Chip Version Numbers (version field only) */
+#define SVR_MPC5200	0x8011
 
 /* Processor Version Register */
 
