@@ -74,6 +74,7 @@ int do_fat_fsload (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	long size;
 	unsigned long offset;
 	unsigned long count;
+	char buf [12];
 	block_dev_desc_t *dev_desc=NULL;
 	int dev=0;
 	int part=1;
@@ -107,10 +108,14 @@ int do_fat_fsload (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		count = 0;
 	size = file_fat_read (argv[4], (unsigned char *) offset, count);
 
-	if(size==-1)
+	if(size==-1) {
 		printf("\n** Unable to read \"%s\" from %s %d:%d **\n",argv[4],argv[1],dev,part);
-	else
+	} else {
 		printf ("\n%ld bytes read\n", size);
+
+		sprintf(buf, "%lX", size);
+		setenv("filesize", buf);
+	}
 
 	return size;
 }

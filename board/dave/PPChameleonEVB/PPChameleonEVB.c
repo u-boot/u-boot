@@ -261,10 +261,13 @@ nand_probe(ulong physadr);
 void
 nand_init(void)
 {
-	ulong totlen;
+	ulong totlen = 0;
 
+#if (CONFIG_PPCHAMELEON_MODULE_MODEL == CONFIG_PPCHAMELEON_MODULE_ME) || \
+    (CONFIG_PPCHAMELEON_MODULE_MODEL == CONFIG_PPCHAMELEON_MODULE_HI)
 	debug ("Probing at 0x%.8x\n", CFG_NAND0_BASE);
-	totlen = nand_probe (CFG_NAND0_BASE);
+	totlen += nand_probe (CFG_NAND0_BASE);
+#endif	/* CONFIG_PPCHAMELEON_MODULE_ME, CONFIG_PPCHAMELEON_MODULE_HI */
 
 	debug ("Probing at 0x%.8x\n", CFG_NAND1_BASE);
 	totlen += nand_probe (CFG_NAND1_BASE);

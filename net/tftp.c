@@ -15,7 +15,7 @@
 #if (CONFIG_COMMANDS & CFG_CMD_NET)
 
 #define WELL_KNOWN_PORT	69		/* Well known TFTP port #		*/
-#define TIMEOUT		2		/* Seconds to timeout for a lost pkt	*/
+#define TIMEOUT		5		/* Seconds to timeout for a lost pkt	*/
 #ifndef	CONFIG_NET_RETRY_COUNT
 # define TIMEOUT_COUNT	10		/* # of timeouts before giving up  */
 #else
@@ -32,6 +32,7 @@
 #define TFTP_DATA	3
 #define TFTP_ACK	4
 #define TFTP_ERROR	5
+#define TFTP_OACK	6
 
 
 static int	TftpServerPort;		/* The UDP port at their end		*/
@@ -44,6 +45,7 @@ static int	TftpState;
 #define STATE_DATA	2
 #define STATE_TOO_LARGE	3
 #define STATE_BAD_MAGIC	4
+#define STATE_OACK	5
 
 #define DEFAULT_NAME_LEN	(8 + 4 + 1)
 static char default_filename[DEFAULT_NAME_LEN];
@@ -113,10 +115,18 @@ TftpSend (void)
 		pkt += strlen(tftp_filename) + 1;
 		strcpy ((char *)pkt, "octet");
 		pkt += 5 /*strlen("octet")*/ + 1;
+		strcpy ((char *)pkt, "timeout");
+		pkt += 7 /*strlen("timeout")*/ + 1;
+		sprintf((char *)pkt, "%d", TIMEOUT);
+#ifdef ET_DEBUG
+		printf("send option \"timeout %s\"\n", (char *)pkt);
+#endif
+		pkt += strlen((char *)pkt) + 1;
 		len = pkt - xp;
 		break;
 
 	case STATE_DATA:
+	case STATE_OACK:
 		xp = pkt;
 		*((ushort *)pkt)++ = htons(TFTP_ACK);
 		*((ushort *)pkt)++ = htons(TftpBlock);
@@ -173,6 +183,14 @@ TftpHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 	default:
 		break;
 
+	case TFTP_OACK:
+#ifdef ET_DEBUG
+		printf("Got OACK: %s %s\n", pkt, pkt+strlen(pkt)+1);
+#endif
+		TftpState = STATE_OACK;
+		TftpServerPort = src;
+		TftpSend (); /* Send ACK */
+		break;
 	case TFTP_DATA:
 		if (len < 2)
 			return;
@@ -184,7 +202,13 @@ TftpHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 			puts ("\n\t ");
 		}
 
+#ifdef ET_DEBUG
 		if (TftpState == STATE_RRQ) {
+			printf("Server did not acknowledge timeout option!\n");
+		}
+#endif
+
+		if (TftpState == STATE_RRQ || TftpState == STATE_OACK) {
 			TftpState = STATE_DATA;
 			TftpServerPort = src;
 			TftpLastBlock = 0;
@@ -305,6 +329,7 @@ TftpStart (void)
 	TftpTimeoutCount = 0;
 	TftpState = STATE_RRQ;
 	TftpOurPort = 1024 + (get_timer(0) % 3072);
+	TftpBlock = 0;
 
 	/* zero out server ether in case the server ip has changed */
 	memset(NetServerEther, 0, 6);

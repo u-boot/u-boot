@@ -313,9 +313,12 @@ au_do_update(int idx, long sz, int repeat)
 
 	/* execute a script */
 	if (hdr->ih_type == IH_TYPE_SCRIPT) {
-		addr = (char *)((char *)hdr + sizeof(*hdr) + 8);
-		parse_string_outer(addr,
-			FLAG_PARSE_SEMICOLON | FLAG_EXIT_FROM_LOOP);
+		addr = (char *)((char *)hdr + sizeof(*hdr));
+		/* stick a NULL at the end of the script, otherwise */
+		/* parse_string_outer() runs off the end. */
+		addr[ntohl(hdr->ih_size)] = 0;
+		addr += 8;
+		parse_string_outer(addr, FLAG_PARSE_SEMICOLON);
 		return 0;
 	}
 
@@ -333,8 +336,7 @@ au_do_update(int idx, long sz, int repeat)
 #endif
 		debug ("protect off %lx %lx\n", start, end);
 		sprintf(strbuf, "protect off %lx %lx\n", start, end);
-		parse_string_outer(strbuf,
-			FLAG_PARSE_SEMICOLON | FLAG_EXIT_FROM_LOOP);
+		parse_string_outer(strbuf, FLAG_PARSE_SEMICOLON);
 	}
 
 	/*
@@ -344,12 +346,11 @@ au_do_update(int idx, long sz, int repeat)
 	if (repeat == 0) {
 		debug ("erase %lx %lx\n", start, end);
 		sprintf(strbuf, "erase %lx %lx\n", start, end);
-		parse_string_outer(strbuf,
-			FLAG_PARSE_SEMICOLON | FLAG_EXIT_FROM_LOOP);
+		parse_string_outer(strbuf, FLAG_PARSE_SEMICOLON);
 	}
 	wait_ms(100);
-	/* strip the header - except for the kernel */
-	if (idx == IDX_FIRMWARE || idx == IDX_DISK || idx == IDX_APP) {
+	/* strip the header - except for the kernel and app */
+	if (idx == IDX_FIRMWARE || idx == IDX_DISK) {
 		addr = (char *)((char *)hdr + sizeof(*hdr));
 #ifdef AU_UPDATE_TEST
 		/* copy it to where Linux goes */
@@ -367,8 +368,7 @@ au_do_update(int idx, long sz, int repeat)
 	/* copy the data from RAM to FLASH */
 	debug ("cp.b %p %lx %x\n", addr, start, nbytes);
 	sprintf(strbuf, "cp.b %p %lx %x\n", addr, start, nbytes);
-	parse_string_outer(strbuf,
-		FLAG_PARSE_SEMICOLON | FLAG_EXIT_FROM_LOOP);
+	parse_string_outer(strbuf, FLAG_PARSE_SEMICOLON);
 
 	/* check the dcrc of the copy */
 	if (crc32 (0, (char *)(start + off), ntohl(hdr->ih_size)) != ntohl(hdr->ih_dcrc)) {
@@ -381,8 +381,7 @@ au_do_update(int idx, long sz, int repeat)
 	if (idx == IDX_FIRMWARE) {
 		debug ("protect on %lx %lx\n", start, end);
 		sprintf(strbuf, "protect on %lx %lx\n", start, end);
-		parse_string_outer(strbuf,
-			FLAG_PARSE_SEMICOLON | FLAG_EXIT_FROM_LOOP);
+		parse_string_outer(strbuf, FLAG_PARSE_SEMICOLON);
 	}
 	return 0;
 }
@@ -493,8 +492,11 @@ do_auto_update(void)
 	env = getenv("firmware_nd");
 	if (env != NULL)
 		end = simple_strtoul(env, NULL, 16);
-	if (start >= 0 && end && end > start)
+	if (start >= 0 && end && end > start) {
 		ausize[IDX_FIRMWARE] = (end + 1) - start;
+		aufl_layout[0].start = start;
+		aufl_layout[0].end = end;
+	}
 	start = -1;
 	end = 0;
 	env = getenv("kernel_st");
@@ -503,8 +505,11 @@ do_auto_update(void)
 	env = getenv("kernel_nd");
 	if (env != NULL)
 		end = simple_strtoul(env, NULL, 16);
-	if (start >= 0 && end && end > start)
+	if (start >= 0 && end && end > start) {
 		ausize[IDX_KERNEL] = (end + 1) - start;
+		aufl_layout[1].start = start;
+		aufl_layout[1].end = end;
+	}
 	start = -1;
 	end = 0;
 	env = getenv("app_st");
@@ -513,8 +518,11 @@ do_auto_update(void)
 	env = getenv("app_nd");
 	if (env != NULL)
 		end = simple_strtoul(env, NULL, 16);
-	if (start >= 0 && end && end > start)
+	if (start >= 0 && end && end > start) {
 		ausize[IDX_APP] = (end + 1) - start;
+		aufl_layout[2].start = start;
+		aufl_layout[2].end = end;
+	}
 	start = -1;
 	end = 0;
 	env = getenv("disk_st");
@@ -523,8 +531,11 @@ do_auto_update(void)
 	env = getenv("disk_nd");
 	if (env != NULL)
 		end = simple_strtoul(env, NULL, 16);
-	if (start >= 0 && end && end > start)
+	if (start >= 0 && end && end > start) {
 		ausize[IDX_DISK] = (end + 1) - start;
+		aufl_layout[3].start = start;
+		aufl_layout[3].end = end;
+	}
 	/* make sure that we see CTRL-C and save the old state */
 	old_ctrlc = disable_ctrlc(0);
 

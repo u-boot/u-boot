@@ -2,6 +2,14 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Make fatload set filesize environment variable
+
+* enable basic / medium / high-end configurations for PPChameleonEVB
+  board; fix NAND code
+
+* enable TFTP client code to specify to the server the desired
+  timeout value (see RFC-2349)
+
 * Improve SDRAM setup for TRAB board
 
 * Suppress all output with splashscreen configured only if "splashimage"

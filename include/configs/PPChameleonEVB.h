@@ -1,9 +1,12 @@
 /*
- * (C) Copyright 2001-2003
- * Stefan Roese, esd gmbh germany, stefan.roese@esd-electronics.com
+ * (C) Copyright 2003
+ * DAVE Srl
  *
- * See file CREDITS for list of people who contributed to this
- * project.
+ * http://www.dave-tech.it
+ * http://www.wawnet.biz
+ * mailto:info@wawnet.biz
+ *
+ * Credits: Stefan Roese, Wolfgang Denk
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,6 +30,13 @@
 
 #ifndef __CONFIG_H
 #define __CONFIG_H
+
+#define CONFIG_PPCHAMELEON_MODULE_BA	0	/* Basic    Model */	
+#define CONFIG_PPCHAMELEON_MODULE_ME	1	/* Medium   Model */
+#define CONFIG_PPCHAMELEON_MODULE_HI	2	/* High-End Model */
+#ifndef	CONFIG_PPCHAMELEON_MODULE_MODEL
+#define	CONFIG_PPCHAMELEON_MODULE_MODEL	CONFIG_PPCHAMELEON_MODULE_BA
+#endif
 
 /*
  * Debug stuff
@@ -150,6 +160,7 @@
 
 #define CFG_MAX_NAND_DEVICE	2	/* Max number of NAND devices		*/
 #define SECTORSIZE 512
+#define NAND_NO_RB
 
 #define ADDR_COLUMN 1
 #define ADDR_PAGE 2
@@ -248,19 +259,15 @@
         } \
 } while(0)
 
+#ifdef NAND_NO_RB
+/* constant delay (see also tR in the datasheet) */
 #define NAND_WAIT_READY(nand) do { \
-	ulong mask = 0; \
-	switch ((ulong)(((struct nand_chip *)nand)->IO_ADDR)) { \
-	case CFG_NAND0_BASE: \
-		mask = CFG_NAND0_RDY; \
-		break; \
-	case CFG_NAND1_BASE: \
-		mask = CFG_NAND1_RDY; \
-		break; \
-	} \
-	while (!(in32(GPIO0_IR) & mask)) \
-		; \
+	udelay(12); \
 } while (0)
+#else
+/* use the R/B pin */
+/* TBD */
+#endif
 
 #define WRITE_NAND_COMMAND(d, adr) do{ *(volatile __u8 *)((unsigned long)adr) = (__u8)(d); } while(0)
 #define WRITE_NAND_ADDRESS(d, adr) do{ *(volatile __u8 *)((unsigned long)adr) = (__u8)(d); } while(0)
