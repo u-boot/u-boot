@@ -2325,8 +2325,8 @@ defines the following image properties:
   LynxOS, pSOS, QNX, RTEMS, ARTOS;
   Currently supported: Linux, NetBSD, VxWorks, QNX, RTEMS, ARTOS, LynxOS).
 * Target CPU Architecture (Provisions for Alpha, ARM, Intel x86,
-  IA64, MIPS, MIPS, PowerPC, IBM S390, SuperH, Sparc, Sparc 64 Bit;
-  Currently supported: PowerPC).
+  IA64, MIPS, NIOS, PowerPC, IBM S390, SuperH, Sparc, Sparc 64 Bit;
+  Currently supported: ARM, Intel x86, MIPS, NIOS, PowerPC).
 * Compression Type (uncompressed, gzip, bzip2)
 * Load Address
 * Entry Point

@@ -352,8 +352,12 @@ au_do_update(int idx, long sz)
 	debug ("flash_sect_erase(%lx, %lx);\n", start, end);
 	flash_sect_erase(start, end);
 	wait_ms(100);
-	/* strip the header - except for the kernel and app */
-	if (idx == IDX_FIRMWARE || idx == IDX_DISK) {
+	/* strip the header - except for the kernel and ramdisk */
+	if (hdr->ih_type == IH_TYPE_KERNEL || hdr->ih_type == IH_TYPE_RAMDISK) {
+		addr = (char *)hdr;
+		off = sizeof(*hdr);
+		nbytes = sizeof(*hdr) + ntohl(hdr->ih_size);
+	} else {
 		addr = (char *)((char *)hdr + sizeof(*hdr));
 #ifdef AU_UPDATE_TEST
 		/* copy it to where Linux goes */
@@ -362,10 +366,6 @@ au_do_update(int idx, long sz)
 #endif
 		off = 0;
 		nbytes = ntohl(hdr->ih_size);
-	} else {
-		addr = (char *)hdr;
-		off = sizeof(*hdr);
-		nbytes = sizeof(*hdr) + ntohl(hdr->ih_size);
 	}
 
 	/* copy the data from RAM to FLASH */

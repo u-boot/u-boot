@@ -2,6 +2,9 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* TRAB auto-update: Base decision if we have to strip the image
+  header on image type as encoded in the header
+
 * Patches by Xianghua Xiao, 15 Oct 2003:
 
   - Added Motorola CPU 8540/8560 support (cpu/85xx)
