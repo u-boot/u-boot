@@ -2,6 +2,19 @@
 Changes since U-Boot 1.0.0:
 ======================================================================
 
+* Patch by André Schwarz, 8 Dec 2003:
+  fixes for Davicom DM9102A Ethernet Chip (#define CONFIG_TULIP_FIX_DAVICOM):
+  - TX and RX deskriptors must be quad-word aligned
+  - does not work with only one TX deskriptor
+  - standard reset method does not work
+
+* Patch by Masami Komiya, 08 Dec 2003:
+  add RTL8139 ethernet driver
+
+* Patches by Ed Okerson, 07 Dec 2003:
+  - fix ethernet for the AU1x00 processors in little-endian mode.
+  - extend memsetup.S for the AU1x00 processors in BE and LE modes
+
 * Minor code cleanup (coding style)
 
 * Patch by Reinhard Meyer, 30 Dec 2003:

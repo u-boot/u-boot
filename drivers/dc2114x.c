@@ -98,6 +98,15 @@
 
 #define POLL_DEMAND	1
 
+#ifdef CONFIG_TULIP_FIX_DAVICOM
+#define RESET_DM9102(dev) {\
+    unsigned long i;\
+    i=INL(dev, 0x0);\
+    udelay(1000);\
+    OUTL(dev, i | BMR_SWR, DE4X5_BMR);\
+    udelay(1000);\
+}
+#else
 #define RESET_DE4X5(dev) {\
     int i;\
     i=INL(dev, DE4X5_BMR);\
@@ -109,6 +118,7 @@
     for (i=0;i<5;i++) {INL(dev, DE4X5_BMR); udelay(10000);}\
     udelay(1000);\
 }
+#endif
 
 #define START_DE4X5(dev) {\
     s32 omr; \
@@ -125,14 +135,17 @@
 }
 
 #define NUM_RX_DESC PKTBUFSRX
-#define NUM_TX_DESC 1			/* Number of TX descriptors   */
+#ifndef CONFIG_TULIP_FIX_DAVICOM
+	#define NUM_TX_DESC 1			/* Number of TX descriptors   */
+#else
+	#define NUM_TX_DESC 4
+#endif
 #define RX_BUFF_SZ  PKTSIZE_ALIGN
 
 #define TOUT_LOOP   1000000
 
 #define SETUP_FRAME_LEN 192
 #define ETH_ALEN	6
-
 
 struct de4x5_desc {
 	volatile s32 status;
@@ -141,8 +154,8 @@ struct de4x5_desc {
 	u32 next;
 };
 
-static struct de4x5_desc rx_ring[NUM_RX_DESC]; /* RX descriptor ring         */
-static struct de4x5_desc tx_ring[NUM_TX_DESC]; /* TX descriptor ring         */
+static struct de4x5_desc rx_ring[NUM_RX_DESC] __attribute__ ((aligned(32))); /* RX descriptor ring         */
+static struct de4x5_desc tx_ring[NUM_TX_DESC] __attribute__ ((aligned(32))); /* TX descriptor ring         */
 static int rx_new;                             /* RX descriptor ring pointer */
 static int tx_new;                             /* TX descriptor ring pointer */
 
@@ -188,6 +201,9 @@ static void OUTL(struct eth_device* dev, int command, u_long addr)
 static struct pci_device_id supported[] = {
 	{ PCI_VENDOR_ID_DEC, PCI_DEVICE_ID_DEC_TULIP_FAST },
 	{ PCI_VENDOR_ID_DEC, PCI_DEVICE_ID_DEC_21142 },
+#ifdef CONFIG_TULIP_FIX_DAVICOM
+	{ PCI_VENDOR_ID_DAVICOM, PCI_DEVICE_ID_DAVICOM_DM9102A },
+#endif
 	{ }
 };
 
@@ -211,10 +227,12 @@ int dc21x4x_initialize(bd_t *bis)
 		/* Get the chip configuration revision register. */
 		pci_read_config_dword(devbusfn, PCI_REVISION_ID, &cfrv);
 
+#ifndef CONFIG_TULIP_FIX_DAVICOM
 		if ((cfrv & CFRV_RN) < DC2114x_BRK ) {
 			printf("Error: The chip is not DC21143.\n");
 			continue;
 		}
+#endif
 
 		pci_read_config_word(devbusfn, PCI_COMMAND, &status);
 		status |=
@@ -265,7 +283,12 @@ int dc21x4x_initialize(bd_t *bis)
 
 		dev = (struct eth_device*) malloc(sizeof *dev);
 
-		sprintf(dev->name, "dc21x4x#%d", card_number);
+#ifdef CONFIG_TULIP_FIX_DAVICOM
+            sprintf(dev->name, "Davicom#%d", card_number);
+#else
+            sprintf(dev->name, "dc21x4x#%d", card_number);
+#endif
+
 #ifdef CONFIG_TULIP_USE_IO
 		dev->iobase = pci_io_to_phys(devbusfn, iobase);
 #else
@@ -282,8 +305,9 @@ int dc21x4x_initialize(bd_t *bis)
 
 		udelay(10 * 1000);
 
-		read_hw_addr(dev, bis);
-
+#ifndef CONFIG_TULIP_FIX_DAVICOM
+        read_hw_addr(dev, bis);
+#endif
 		eth_register(dev);
 
 		card_number++;
@@ -300,7 +324,11 @@ static int dc21x4x_init(struct eth_device* dev, bd_t* bis)
 	/* Ensure we're not sleeping. */
 	pci_write_config_byte(devbusfn, PCI_CFDA_PSM, WAKEUP);
 
+#ifdef CONFIG_TULIP_FIX_DAVICOM
+	RESET_DM9102(dev);
+#else
 	RESET_DE4X5(dev);
+#endif
 
 	if ((INL(dev, DE4X5_STS) & (STS_TS | STS_RS)) != 0) {
 		printf("Error: Cannot reset ethernet controller.\n");
@@ -317,14 +345,23 @@ static int dc21x4x_init(struct eth_device* dev, bd_t* bis)
 		rx_ring[i].status = cpu_to_le32(R_OWN);
 		rx_ring[i].des1 = cpu_to_le32(RX_BUFF_SZ);
 		rx_ring[i].buf = cpu_to_le32(phys_to_bus((u32) NetRxPackets[i]));
+#ifdef CONFIG_TULIP_FIX_DAVICOM
+		rx_ring[i].next = cpu_to_le32(phys_to_bus((u32) &rx_ring[(i+1) % NUM_RX_DESC]));
+#else
 		rx_ring[i].next = 0;
+#endif
 	}
 
 	for (i=0; i < NUM_TX_DESC; i++) {
 		tx_ring[i].status = 0;
 		tx_ring[i].des1 = 0;
 		tx_ring[i].buf = 0;
+
+#ifdef CONFIG_TULIP_FIX_DAVICOM
+        tx_ring[i].next = cpu_to_le32(phys_to_bus((u32) &tx_ring[(i+1) % NUM_TX_DESC]));
+#else
 		tx_ring[i].next = 0;
+#endif
 	}
 
 	rxRingSize = NUM_RX_DESC;
@@ -383,12 +420,14 @@ static int dc21x4x_send(struct eth_device* dev, volatile void *packet, int lengt
 		printf("TX error status = 0x%08X\n",
 		       le32_to_cpu(tx_ring[tx_new].status));
 #endif
+		tx_ring[tx_new].status = 0x0;
 		goto Done;
 	}
 
 	status = length;
 
  Done:
+    tx_new = (tx_new+1) % NUM_TX_DESC;
 	return status;
 }
 
@@ -485,6 +524,8 @@ static void send_setup_frame(struct eth_device* dev, bd_t *bis)
 	if (le32_to_cpu(tx_ring[tx_new].status) != 0x7FFFFFFF) {
 		printf("TX error status2 = 0x%08X\n", le32_to_cpu(tx_ring[tx_new].status));
 	}
+	tx_new = (tx_new+1) % NUM_TX_DESC;
+
 Done:
 	return;
 }

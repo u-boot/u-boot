@@ -47,6 +47,7 @@ extern int mpc5xxx_fec_initialize(bd_t*);
 extern int skge_initialize(bd_t*);
 extern int tsec_initialize(bd_t*);
 extern int au1x00_enet_initialize(bd_t*);
+extern int rtl8139_initialize(bd_t*);
 
 static struct eth_device *eth_devices, *eth_current;
 
@@ -153,6 +154,9 @@ int eth_initialize(bd_t *bis)
 #endif
 #if defined(CONFIG_AU1X00)
 	au1x00_enet_initialize(bis);
+#endif
+#if defined(CONFIG_RTL8139)
+	rtl8139_initialize(bis);
 #endif
 
 	if (!eth_devices) {

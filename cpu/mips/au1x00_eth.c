@@ -187,19 +187,24 @@ static int au1x00_init(struct eth_device* dev, bd_t * bd){
 	}
 
 	/* Put mac addr in little endian */
-	/* FIXME Check this for little endian mode */
 #define ea eth_get_dev()->enetaddr
 	*mac_addr_high  =	(ea[5] <<  8) | (ea[4]	    ) ;
 	*mac_addr_low   =	(ea[3] << 24) | (ea[2] << 16) |
 		(ea[1] <<  8) | (ea[0]      ) ;
 #undef ea
-
 	*mac_mcast_low = 0;
 	*mac_mcast_high = 0;
 
+	/* Make sure the MAC buffer is in the correct endian mode */
+#ifdef __LITTLE_ENDIAN
+	*mac_ctrl = MAC_FULL_DUPLEX;
+	udelay(1);
+	*mac_ctrl = MAC_FULL_DUPLEX|MAC_RX_ENABLE|MAC_TX_ENABLE;
+#else
 	*mac_ctrl = MAC_BIG_ENDIAN|MAC_FULL_DUPLEX;
 	udelay(1);
 	*mac_ctrl = MAC_BIG_ENDIAN|MAC_FULL_DUPLEX|MAC_RX_ENABLE|MAC_TX_ENABLE;
+#endif
 
 	return(1);
 }
