@@ -1094,6 +1094,18 @@ static void ide_ident (block_dev_desc_t *dev_desc)
 	ident_cpy (dev_desc->revision, iop->fw_rev, sizeof(dev_desc->revision));
 	ident_cpy (dev_desc->vendor, iop->model, sizeof(dev_desc->vendor));
 	ident_cpy (dev_desc->product, iop->serial_no, sizeof(dev_desc->product));
+#ifdef __LITTLE_ENDIAN
+	/*
+	 * firmware revision and model number have Big Endian Byte
+	 * order in Word. Convert both to little endian.
+	 *
+	 * See CF+ and CompactFlash Specification Revision 2.0:
+	 * 6.2.1.6: Identfy Drive, Table 39 for more details
+	 */
+
+	strswab (dev_desc->revision);
+	strswab (dev_desc->vendor);
+#endif /* __LITTLE_ENDIAN */
 
 	if ((iop->config & 0x0080)==0x0080)
 		dev_desc->removable = 1;
@@ -1135,8 +1147,18 @@ static void ide_ident (block_dev_desc_t *dev_desc)
 	}
 #endif /* CONFIG_ATAPI */
 
+#ifdef __BIG_ENDIAN
 	/* swap shorts */
 	dev_desc->lba = (iop->lba_capacity << 16) | (iop->lba_capacity >> 16);
+#else	/* ! __BIG_ENDIAN */
+	/*
+	 * do not swap shorts on little endian
+	 *
+	 * See CF+ and CompactFlash Specification Revision 2.0:
+	 * 6.2.1.6: Identfy Drive, Table 39, Word Address 57-58 for details.
+	 */
+	dev_desc->lba = iop->lba_capacity;
+#endif	/* __BIG_ENDIAN */
 
 #if CONFIG_LBA48
 	if (iop->command_set_2 & 0x0400) { /* LBA 48 support */

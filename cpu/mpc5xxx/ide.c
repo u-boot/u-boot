@@ -29,7 +29,9 @@
 
 #define CALC_TIMING(t) (t + period - 1) / period
 
-#define GPIO_PSC1_4	0x01000000ul
+#ifdef CONFIG_IDE_RESET
+extern void init_ide_reset (void);
+#endif
 
 int ide_preinit (void)
 {
@@ -70,24 +72,10 @@ int ide_preinit (void)
 
 	*(vu_long *) MPC5XXX_ATA_PIO2 = reg;
 
-#if defined (CONFIG_ICECUBE) && defined (CONFIG_IDE_RESET)
-	/* Configure PSC1_4 as GPIO output for ATA reset */
-	*(vu_long *) MPC5XXX_WU_GPIO_DATA |= GPIO_PSC1_4;
-	*(vu_long *) MPC5XXX_WU_GPIO_ENABLE |= GPIO_PSC1_4;
-	*(vu_long *) MPC5XXX_WU_GPIO_DIR |= GPIO_PSC1_4;
-#endif /* defined (CONFIG_ICECUBE) && defined (CONFIG_IDE_RESET) */
+#ifdef CONFIG_IDE_RESET
+        init_ide_reset ();
+#endif /* CONFIG_IDE_RESET */
 
 	return (0);
 }
-
-#if defined (CONFIG_ICECUBE) && defined (CONFIG_IDE_RESET)
-void ide_set_reset (int idereset)
-{
-	if (idereset) {
-		*(vu_long *) MPC5XXX_WU_GPIO_DATA &= ~GPIO_PSC1_4;
-	} else {
-		*(vu_long *) MPC5XXX_WU_GPIO_DATA |= GPIO_PSC1_4;
-	}
-}
-#endif /* defined (CONFIG_ICECUBE) && defined (CONFIG_IDE_RESET) */
 #endif /* CFG_CMD_IDE */

@@ -37,7 +37,7 @@
 #define NFS_TIMEOUT 10
 
 static int fs_mounted = 0;
-static unsigned long rpc_id;
+static unsigned long rpc_id = 0;
 static int nfs_offset = -1;
 static int nfs_len;
 
@@ -123,17 +123,6 @@ dirname (char *path)
 }
 
 /**************************************************************************
-RPC_INIT - set up the ID counter to something fairly random
-**************************************************************************/
-static void
-rpc_init (void)
-{
-	unsigned long t;
-	t=get_ticks();
-	rpc_id = t ^ (t << 8) ^ (t << 16);
-}
-
-/**************************************************************************
 RPC_ADD_CREDENTIALS - Add RPC authentication/verifier entries
 **************************************************************************/
 static long *rpc_add_credentials (long *p)
@@ -189,7 +178,7 @@ rpc_req (int rpc_prog, int rpc_proc, uint32_t *data, int datalen)
 	int pktlen;
 	int sport;
 
-	id = rpc_id++;
+	id = ++rpc_id;
 	pkt.u.call.id = htonl(id);
 	pkt.u.call.type = htonl(MSG_CALL);
 	pkt.u.call.rpcvers = htonl(2);	/* use RPC version 2 */
@@ -410,10 +399,14 @@ rpc_lookup_reply (int prog, uchar *pkt, unsigned len)
 	printf ("%s\n", __FUNCTION__);
 #endif
 
+	if (ntohl(rpc_pkt.u.reply.id) != rpc_id)
+		return -1;
+
 	if (rpc_pkt.u.reply.rstatus  ||
 	    rpc_pkt.u.reply.verifier ||
 	    rpc_pkt.u.reply.astatus  ||
 	    rpc_pkt.u.reply.astatus) {
+		return -1;
 	}
 
 	switch (prog) {
@@ -439,6 +432,9 @@ nfs_mount_reply (uchar *pkt, unsigned len)
 
 	memcpy ((unsigned char *)&rpc_pkt, pkt, len);
 
+	if (ntohl(rpc_pkt.u.reply.id) != rpc_id)
+		return -1;
+
 	if (rpc_pkt.u.reply.rstatus  ||
 	    rpc_pkt.u.reply.verifier ||
 	    rpc_pkt.u.reply.astatus  ||
@@ -463,6 +459,9 @@ nfs_umountall_reply (uchar *pkt, unsigned len)
 
 	memcpy ((unsigned char *)&rpc_pkt, pkt, len);
 
+	if (ntohl(rpc_pkt.u.reply.id) != rpc_id)
+		return -1;
+
 	if (rpc_pkt.u.reply.rstatus  ||
 	    rpc_pkt.u.reply.verifier ||
 	    rpc_pkt.u.reply.astatus) {
@@ -485,6 +484,9 @@ nfs_lookup_reply (uchar *pkt, unsigned len)
 #endif
 
 	memcpy ((unsigned char *)&rpc_pkt, pkt, len);
+
+	if (ntohl(rpc_pkt.u.reply.id) != rpc_id)
+		return -1;
 
 	if (rpc_pkt.u.reply.rstatus  ||
 	    rpc_pkt.u.reply.verifier ||
@@ -509,6 +511,9 @@ nfs_readlink_reply (uchar *pkt, unsigned len)
 #endif
 
 	memcpy ((unsigned char *)&rpc_pkt, pkt, len);
+
+	if (ntohl(rpc_pkt.u.reply.id) != rpc_id)
+		return -1;
 
 	if (rpc_pkt.u.reply.rstatus  ||
 	    rpc_pkt.u.reply.verifier ||
@@ -543,6 +548,9 @@ nfs_read_reply (uchar *pkt, unsigned len)
 #endif
 
 	memcpy ((uchar *)&rpc_pkt, pkt, sizeof(rpc_pkt.u.reply));
+
+	if (ntohl(rpc_pkt.u.reply.id) != rpc_id)
+		return -1;
 
 	if (rpc_pkt.u.reply.rstatus  ||
 	    rpc_pkt.u.reply.verifier ||
@@ -755,7 +763,6 @@ NfsStart (void)
 	NetSetTimeout (NFS_TIMEOUT * CFG_HZ, NfsTimeout);
 	NetSetHandler (NfsHandler);
 
-	rpc_init ();
 	NfsTimeoutCount = 0;
 	NfsState = STATE_PRCLOOKUP_PROG_MOUNT_REQ;
 

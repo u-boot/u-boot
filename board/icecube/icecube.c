@@ -207,3 +207,28 @@ void pci_init_board(void)
 	pci_mpc5xxx_init(&hose);
 }
 #endif
+
+#if defined (CFG_CMD_IDE) && defined (CONFIG_IDE_RESET)
+
+#define GPIO_PSC1_4	0x01000000ul
+
+void init_ide_reset (void)
+{
+    printf ("init_ide_reset\n");
+    
+    	/* Configure PSC1_4 as GPIO output for ATA reset */
+	*(vu_long *) MPC5XXX_WU_GPIO_DATA |= GPIO_PSC1_4;
+	*(vu_long *) MPC5XXX_WU_GPIO_ENABLE |= GPIO_PSC1_4;
+	*(vu_long *) MPC5XXX_WU_GPIO_DIR |= GPIO_PSC1_4;
+}
+
+void ide_set_reset (int idereset)
+{
+    printf ("ide_reset(%d)\n", idereset);
+	if (idereset) {
+		*(vu_long *) MPC5XXX_WU_GPIO_DATA &= ~GPIO_PSC1_4;
+	} else {
+		*(vu_long *) MPC5XXX_WU_GPIO_DATA |= GPIO_PSC1_4;
+	}
+}
+#endif /* defined (CFG_CMD_IDE) && defined (CONFIG_IDE_RESET) */

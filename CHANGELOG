@@ -2,7 +2,23 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
-* Patch by Travis Sawye, 01 Mar 2004:
+* Patch by Yuli Barcohen, 4 Mar 2004:
+  Fix problems with GCC 3.3.x which changed handling of global
+  variables explicitly initialized to zero (now in .bss instead of
+  .data as before).
+
+* Patch by Leon Kukovec, 02 Mar 2004:
+  add strswab() to fix IDE LBA capacity, firmware and model numbers
+  on little endian machines
+
+* Patch by Masami Komiya, 02 Mar 2004:
+  - Remove get_ticks() from NFS code
+  - Add verification of RPC transaction ID
+
+* Patch by Pierre Aubert, 02 Mar 2004:
+  cleanup for IDE and USB drivers for MPC5200
+
+* Patch by Travis Sawyer, 01 Mar 2004:
   Ocotea:
   - Add IBM PPC440GX Ref Platform support (Ocotea)
     Original code by Paul Reynolds <PaulReynolds@lhsolutions.com>
