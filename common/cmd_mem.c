@@ -53,6 +53,8 @@ int cmd_get_data_size(char* arg, int default_size)
 			return 2;
 		case 'l':
 			return 4;
+		case 's':
+			return -2;
 		default:
 			return -1;
 		}

@@ -1,5 +1,9 @@
 #
 # (C) Copyright 2000
+# Sysgo Real-Time Solutions, GmbH <www.elinos.com>
+# Marius Groeger <mgroeger@sysgo.de>
+#
+# (C) Copyright 2000-2004
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -21,23 +25,5 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
-
-LIB	= lib$(CPU).a
-
-START	= start.o
-OBJS	= serial.o serial_netarm.o interrupts.o cpu.o
-
-all:	.depend $(START) $(LIB)
-
-$(LIB):	$(OBJS)
-	$(AR) crv $@ $(OBJS)
-
-#########################################################################
-
-.depend:	Makefile $(START:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(START:.o=.S) $(OBJS:.o=.c) > $@
-
-sinclude .depend
-
-#########################################################################
+TEXT_BASE = 0x00f00000
+#CROSS_COMPILE = arm-elf-

@@ -67,6 +67,10 @@
 #define DELETED_FLAG	((char)0xe5) /* Marks deleted files when in name[0] */
 #define aRING		0x05	     /* Used to represent 'å' in name[0] */
 
+/* Indicates that the entry is the last long entry in a set of long
+ * dir entries
+ */
+#define LAST_LONG_ENTRY_MASK	0x40
 
 /* Flags telling whether we should read a file or list a directory */
 #define LS_NO	0

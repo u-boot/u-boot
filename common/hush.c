@@ -2173,7 +2173,7 @@ static int set_local_var(const char *s, int flg_export)
 #ifdef __U_BOOT__
 	if (getenv(name) != NULL) {
 		printf ("ERROR: "
-				"There is a global environmet variable with the same name.\n");
+				"There is a global environment variable with the same name.\n");
 		return -1;
 	}
 #endif

@@ -959,6 +959,9 @@ impa7_config	:	unconfig
 ep7312_config	:	unconfig
 	@./mkconfig $(@:_config=) arm arm720t ep7312
 
+modnet50_config :	unconfig
+	@./mkconfig $(@:_config=) arm arm720t modnet50
+
 #########################################################################
 ## XScale Systems
 #########################################################################

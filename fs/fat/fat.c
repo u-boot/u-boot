@@ -432,12 +432,13 @@ get_vfatname(fsdata *mydata, int curclust, __u8 *cluster,
 	dir_entry *realdent;
 	dir_slot  *slotptr = (dir_slot*) retdent;
 	__u8	  *nextclust = cluster + mydata->clust_size * SECTOR_SIZE;
-	__u8	   counter = slotptr->id & 0xf;
+	__u8	   counter = (slotptr->id & ~LAST_LONG_ENTRY_MASK) & 0xff;
 	int idx = 0;
 
 	while ((__u8*)slotptr < nextclust) {
 		if (counter == 0) break;
-		if ((slotptr->id & 0x0f) != counter) return -1;
+		if (((slotptr->id & ~LAST_LONG_ENTRY_MASK) & 0xff) != counter)
+			return -1;
 		slotptr++;
 		counter--;
 	}
@@ -475,7 +476,7 @@ get_vfatname(fsdata *mydata, int curclust, __u8 *cluster,
 	do {
 		slotptr--;
 		if (slot2str(slotptr, l_name, &idx)) break;
-	} while (!(slotptr->id & 0x40));
+	} while (!(slotptr->id & LAST_LONG_ENTRY_MASK));
 
 	l_name[idx] = '\0';
 	if (*l_name == DELETED_FLAG) *l_name = '\0';
@@ -536,7 +537,7 @@ static dir_entry *get_dentfromdir (fsdata * mydata, int startsect,
 	    if ((dentptr->attr & ATTR_VOLUME)) {
 #ifdef CONFIG_SUPPORT_VFAT
 		if ((dentptr->attr & ATTR_VFAT) &&
-		    (dentptr->name[0] & 0x40)) {
+		    (dentptr->name[0] & LAST_LONG_ENTRY_MASK)) {
 		    prevcksum = ((dir_slot *) dentptr)
 			    ->alias_checksum;
 		    get_vfatname (mydata, curclust, get_dentfromdir_block,
@@ -799,7 +800,7 @@ do_fat_read (const char *filename, void *buffer, unsigned long maxsize,
 	    if ((dentptr->attr & ATTR_VOLUME)) {
 #ifdef CONFIG_SUPPORT_VFAT
 		if ((dentptr->attr & ATTR_VFAT) &&
-		    (dentptr->name[0] & 0x40)) {
+		    (dentptr->name[0] & LAST_LONG_ENTRY_MASK)) {
 		    prevcksum = ((dir_slot *) dentptr)->alias_checksum;
 		    get_vfatname (mydata, 0, do_fat_read_block, dentptr, l_name);
 		    if (dols == LS_ROOT) {

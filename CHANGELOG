@@ -2,6 +2,19 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
+* Patch by Thomas Elste, 10 Feb 2004:
+  Add support for NET+50 CPU and ModNET50 board
+
+* Patch by Sam Song, 10 Feb 2004:
+  Fix typos in cfi_flash.c
+
+* Patch by Leon Kukovec, 10 Feb 2004
+  Fixed long dir entry slot id calculation in get_vfatname
+
+* Patch by Robin Gilks, 10 Feb 2004:
+  add "itest" command (operators: -eq, -ne, -lt, -gt, -le, -ge, ==,
+  !=, <>, <, >, <=, >=)
+
 * Fix problem with side effects in macros in include/usb.h
 
 * Patch by David Benson, 13 Nov 2003:

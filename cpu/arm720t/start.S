@@ -26,7 +26,9 @@
 
 #include <config.h>
 #include <version.h>
-
+#ifdef CONFIG_NETARM
+#include <asm/arch/netarm_registers.h>
+#endif
 
 /*
  *************************************************************************
@@ -195,6 +197,7 @@ SYSCON3:	.word	0x80002200
 #define CLKCTL_73      0x6  /* 73.728 MHz */
 
 cpu_init_crit:
+#ifndef CONFIG_NETARM
 	/*
 	 * mask all IRQs by clearing all bits in the INTMRs
 	 */
@@ -221,6 +224,54 @@ cpu_init_crit:
 	bic	r0, r0, #0x0000008f	@ clear bits 7, 3:0 (B--- WCAM)
 	orr	r0, r0, #0x00000002	@ set bit 2 (A) Align
 	mcr	p15,0,r0,c1,c0
+#else /* CONFIG_NETARM */
+	/*
+	 * prior to software reset : need to set pin PORTC4 to be *HRESET
+	 */
+	ldr	r0, =NETARM_GEN_MODULE_BASE
+	ldr	r1, =(NETARM_GEN_PORT_MODE(0x10) | \
+			NETARM_GEN_PORT_DIR(0x10))
+	str	r1, [r0, #+NETARM_GEN_PORTC]
+	/*
+	 * software reset : see HW Ref. Guide 8.2.4 : Software Service register
+	 *                  for an explanation of this process
+	 */
+	ldr	r0, =NETARM_GEN_MODULE_BASE
+	ldr	r1, =NETARM_GEN_SW_SVC_RESETA
+	str	r1, [r0, #+NETARM_GEN_SOFTWARE_SERVICE]
+	ldr	r1, =NETARM_GEN_SW_SVC_RESETB
+	str	r1, [r0, #+NETARM_GEN_SOFTWARE_SERVICE]
+	ldr	r1, =NETARM_GEN_SW_SVC_RESETA
+	str	r1, [r0, #+NETARM_GEN_SOFTWARE_SERVICE]
+	ldr	r1, =NETARM_GEN_SW_SVC_RESETB
+	str	r1, [r0, #+NETARM_GEN_SOFTWARE_SERVICE]
+	/*
+	 * setup PLL and System Config
+	 */
+	ldr	r0, =NETARM_GEN_MODULE_BASE
+
+	ldr	r1, =(	NETARM_GEN_SYS_CFG_LENDIAN | \
+			NETARM_GEN_SYS_CFG_BUSFULL | \
+			NETARM_GEN_SYS_CFG_USER_EN | \
+			NETARM_GEN_SYS_CFG_ALIGN_ABORT | \
+			NETARM_GEN_SYS_CFG_BUSARB_INT | \
+			NETARM_GEN_SYS_CFG_BUSMON_EN )
+
+	str	r1, [r0, #+NETARM_GEN_SYSTEM_CONTROL]
+
+	ldr	r1, =(	NETARM_GEN_PLL_CTL_PLLCNT(NETARM_PLL_COUNT_VAL) | \
+			NETARM_GEN_PLL_CTL_POLTST_DEF | \
+			NETARM_GEN_PLL_CTL_INDIV(1) | \
+			NETARM_GEN_PLL_CTL_ICP_DEF | \
+			NETARM_GEN_PLL_CTL_OUTDIV(2) )
+	str	r1, [r0, #+NETARM_GEN_PLL_CONTROL]
+	/*
+	 * mask all IRQs by clearing all bits in the INTMRs
+	 */
+	mov	r1, #0
+	ldr	r0, =NETARM_GEN_MODULE_BASE
+	str	r1, [r0, #+NETARM_GEN_INTR_ENABLE]
+#endif /* CONFIG_NETARM */
 
 #ifdef CONFIG_ARM7_REVD
 	/* set clock speed */
@@ -415,6 +466,7 @@ fiq:
 	.align	5
 .globl reset_cpu
 reset_cpu:
+#ifndef CONFIG_NETARM
 	mov     ip, #0
 	mcr     p15, 0, ip, c7, c7, 0           @ invalidate cache
 	mcr     p15, 0, ip, c8, c7, 0           @ flush TLB (v4)
@@ -423,3 +475,21 @@ reset_cpu:
 	bic     ip, ip, #0x2100                 @ ..v....s........
 	mcr     p15, 0, ip, c1, c0, 0           @ ctrl register
 	mov     pc, r0
+#else
+	ldr	r1, =NETARM_MEM_MODULE_BASE
+	ldr	r0, [r1, #+NETARM_MEM_CS0_BASE_ADDR]
+	ldr	r1, =0xFFFFF000
+	and	r0, r1, r0
+	ldr	r1, =(relocate-TEXT_BASE)
+	add	r0, r1, r0
+	ldr	r4, =NETARM_GEN_MODULE_BASE
+	ldr	r1, =NETARM_GEN_SW_SVC_RESETA
+	str	r1, [r4, #+NETARM_GEN_SOFTWARE_SERVICE]
+	ldr	r1, =NETARM_GEN_SW_SVC_RESETB
+	str	r1, [r4, #+NETARM_GEN_SOFTWARE_SERVICE]
+	ldr	r1, =NETARM_GEN_SW_SVC_RESETA
+	str	r1, [r4, #+NETARM_GEN_SOFTWARE_SERVICE]
+	ldr	r1, =NETARM_GEN_SW_SVC_RESETB
+	str	r1, [r4, #+NETARM_GEN_SOFTWARE_SERVICE]
+	mov	pc, r0
+#endif

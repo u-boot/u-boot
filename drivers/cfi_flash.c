@@ -36,13 +36,14 @@
  *
  * Tested Architectures
  * Port Width  Chip Width    # of banks	   Flash Chip  Board
- * 32	       16	     1		   23F128J3    seranoa/eagle
- * 64	       16	     1		   23F128J3    seranoa/falcon
+ * 32	       16	     1		   28F128J3    seranoa/eagle
+ * 64	       16	     1		   28F128J3    seranoa/falcon
  *
  */
 
 /* The DEBUG define must be before common to enable debugging */
-#undef	DEBUG
+/* #define DEBUG	*/
+
 #include <common.h>
 #include <asm/processor.h>
 #ifdef	CFG_FLASH_CFI_DRIVER

@@ -31,6 +31,8 @@
 #include <common.h>
 #include <clps7111.h>
 
+#ifndef CONFIG_NETARM
+
 void serial_setbrg (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
@@ -124,3 +126,5 @@ serial_puts (const char *s)
 		serial_putc (*s++);
 	}
 }
+
+#endif /* CONFIG_NETARM */

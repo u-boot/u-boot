@@ -106,7 +106,9 @@ int cleanup_before_linux (void)
 	unsigned long i;
 
 	disable_interrupts ();
-
+#ifdef CONFIG_NETARM
+	return 0;
+#endif
 	/* turn off I-cache */
 	asm ("mrc p15, 0, %0, c1, c0, 0":"=r" (i));
 	i &= ~0x1000;

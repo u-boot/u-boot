@@ -30,14 +30,24 @@
 #include <clps7111.h>
 
 #include <asm/proc-armv/ptrace.h>
+#ifdef CONFIG_NETARM
+#include <asm/arch/netarm_registers.h>
+#endif
 
 extern void reset_cpu(ulong addr);
 
+#ifndef CONFIG_NETARM
 /* we always count down the max. */
 #define TIMER_LOAD_VAL 0xffff
-
 /* macro to read the 16 bit timer */
 #define READ_TIMER (IO_TC1D & 0xffff)
+#else
+#define IRQEN	(*(volatile unsigned int *)(NETARM_GEN_MODULE_BASE + NETARM_GEN_INTR_ENABLE))
+#define TM2CTRL	(*(volatile unsigned int *)(NETARM_GEN_MODULE_BASE + NETARM_GEN_TIMER2_CONTROL))
+#define TM2STAT	(*(volatile unsigned int *)(NETARM_GEN_MODULE_BASE + NETARM_GEN_TIMER2_STATUS))
+#define TIMER_LOAD_VAL NETARM_GEN_TSTAT_CTC_MASK
+#define READ_TIMER (TM2STAT & NETARM_GEN_TSTAT_CTC_MASK)
+#endif
 
 #ifdef CONFIG_USE_IRQ
 /* enable IRQ/FIQ interrupts */
@@ -177,6 +187,18 @@ static ulong lastdec;
 
 int interrupt_init (void)
 {
+#ifdef CONFIG_NETARM
+        /* disable all interrupts */
+	IRQEN = 0;
+
+	/* operate timer 2 in non-prescale mode */
+	TM2CTRL = ( NETARM_GEN_TIMER_SET_HZ(CFG_HZ) |
+		    NETARM_GEN_TCTL_ENABLE |
+		    NETARM_GEN_TCTL_INIT_COUNT(TIMER_LOAD_VAL));
+
+	/* set timer 2 counter */
+	lastdec = TIMER_LOAD_VAL;
+#else
 	/* disable all interrupts */
 	IO_INTMR1 = 0;
 
@@ -188,6 +210,7 @@ int interrupt_init (void)
 
 	/* set timer 1 counter */
 	lastdec = IO_TC1D = TIMER_LOAD_VAL;
+#endif
 	timestamp = 0;
 
 	return (0);
