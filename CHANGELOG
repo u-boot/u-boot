@@ -2,6 +2,9 @@
 Changes since U-Boot 0.4.0:
 ======================================================================
 
+* Rewrite command lookup and help command (fix problems with bubble
+  sort when sorting command name list). Minor cleanup here and there.
+
 * Merge from "stable branch", tag LABEL_2003_06_28_1800-stable:
   - Allow to call sysmon function interactively
   - PIC on LWMON board needs delay after power-on

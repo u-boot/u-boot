@@ -26,6 +26,7 @@
  */
 #include <common.h>
 #include <command.h>
+#include <net.h>		/* for print_IPaddr */
 
 
 #if (CONFIG_COMMANDS & CFG_CMD_BDI)

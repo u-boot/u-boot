@@ -72,44 +72,44 @@ int do_help (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 	if (argc == 1) {	/*show list of commands */
 
-		int cmd_items = (((int) &__u_boot_cmd_end) -
-				 ((int) &__u_boot_cmd_start)) /
-				sizeof (*cmdtp);
-		int end_sort;
-		cmd_tbl_t *cmd_array[(cmd_items + 1)];
-		int i;
+		int cmd_items = &__u_boot_cmd_end -
+				&__u_boot_cmd_start;	/* pointer arith! */
+		cmd_tbl_t *cmd_array[cmd_items];
+		int i, j, swaps;
 
-		/* Make list of commands from .uboot_cmd section */
-		cmdtp = (cmd_tbl_t *) & __u_boot_cmd_start;
-		for (i = 1; i <= cmd_items; i++) {
-			cmd_array[i] = cmdtp;
-			cmdtp++;
+		/* Make array of commands from .uboot_cmd section */
+		cmdtp = &__u_boot_cmd_start;
+		for (i = 0; i < cmd_items; i++) {
+			cmd_array[i] = cmdtp++;
 		}
-		/* Sort command list */
-		end_sort = 0;
-		for (i = 1; end_sort != 1 || i <= cmd_items - 1; i++) {
-			if (i == cmd_items) {	/* Last command */
-				end_sort = 1;
-				i = 1;
-			}
 
-			if (strcmp (cmd_array[i]->name, cmd_array[i + 1]->name) > 0) {
-				end_sort = 0;
-				*cmd_array[0] = *cmd_array[i];
-				*cmd_array[i] = *cmd_array[i + 1];
-				*cmd_array[i + 1] = *cmd_array[0];
+		/* Sort command list (trivial bubble sort) */
+		for (i = cmd_items - 1; i > 0; --i) {
+			swaps = 0;
+			for (j = 0; j < i; ++j) {
+				if (strcmp (cmd_array[j]->name,
+					    cmd_array[j + 1]->name) > 0) {
+					cmd_tbl_t *tmp;
+					tmp = cmd_array[j];
+					cmd_array[j] = cmd_array[j + 1];
+					cmd_array[j + 1] = tmp;
+					++swaps;
+				}
 			}
+			if (!swaps)
+				break;
 		}
 
 		/* print short help (usage) */
-		for (cmdtp = (cmd_tbl_t *) & __u_boot_cmd_start;
-			 cmdtp != (cmd_tbl_t *) & __u_boot_cmd_end; cmdtp++) {
+		for (i = 0; i < cmd_items; i++) {
+			const char *usage = cmd_array[i]->usage;
+
 			/* allow user abort */
 			if (ctrlc ())
 				return 1;
-			if (cmdtp->usage == NULL)
+			if (usage == NULL)
 				continue;
-			puts (cmdtp->usage);
+			puts (usage);
 		}
 		return 0;
 	}
@@ -181,21 +181,31 @@ cmd_tbl_t U_BOOT_CMD(ECHO) = MK_CMD_ENTRY(
 cmd_tbl_t *find_cmd (const char *cmd)
 {
 	cmd_tbl_t *cmdtp;
-
 	cmd_tbl_t *cmdtp_temp = &__u_boot_cmd_start;	/*Init value */
-	int one_cmd_name = 0;
+	const char *p;
+	int len;
+	int n_found = 0;
 
-	for (cmdtp = &__u_boot_cmd_start; cmdtp != &__u_boot_cmd_end; cmdtp++) {
-		if ((strncmp (cmd, cmdtp->name, strlen (cmd)) == 0) &&
-		    (strlen (cmd) == strlen (cmdtp->name)))
-			return cmdtp;
-		else if (strncmp (cmd, cmdtp->name, strlen (cmd)) == 0) {
-			cmdtp_temp = cmdtp;
-			one_cmd_name++;
-		} else;
+	/*
+	 * Some commands allow length modifiers (like "cp.b");
+	 * compare command name only until first dot.
+	 */
+	len = ((p = strchr(cmd, '.')) == NULL) ? strlen (cmd) : (p - cmd);
+
+	for (cmdtp = &__u_boot_cmd_start;
+	     cmdtp != &__u_boot_cmd_end;
+	     cmdtp++) {
+		if (strncmp (cmd, cmdtp->name, len) == 0) {
+			if (len == strlen (cmdtp->name))
+				return cmdtp;	/* full match */
+
+			cmdtp_temp = cmdtp;	/* abbreviated command ? */
+			n_found++;
+		}
 	}
-	if (one_cmd_name == 1)
+	if (n_found == 1) {			/* exactly one match */
 		return cmdtp_temp;
+	}
 
-	return NULL;	/* not found || one_cmd_name >2 */
+	return NULL;	/* not found or ambiguous command */
 }

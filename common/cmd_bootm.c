@@ -873,7 +873,14 @@ int do_bootd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 cmd_tbl_t U_BOOT_CMD(BOOTD) = MK_CMD_ENTRY(
- 	"bootd",	1,	1,	do_bootd,
+ 	"boot",	1,	1,	do_bootd,
+ 	"boot    - boot default, i.e., run 'bootcmd'\n",
+	NULL
+);
+
+/* keep old command name "bootd" for backward compatibility */
+cmd_tbl_t U_BOOT_CMD(BOOTD) = MK_CMD_ENTRY(
+ 	"bootd", 1,	1,	do_bootd,
  	"bootd   - boot default, i.e., run 'bootcmd'\n",
 	NULL
 );

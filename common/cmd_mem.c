@@ -36,8 +36,10 @@
 #include <dataflash.h>
 #endif
 
-#if (CONFIG_COMMANDS & (CFG_CMD_MEMORY | CFG_CMD_PCI | CFG_CMD_I2C\
-			| CMD_CMD_PORTIO))
+#if (CONFIG_COMMANDS & (CFG_CMD_MEMORY	| \
+			CFG_CMD_I2C	| \
+			CFG_CMD_PCI	| \
+			CMD_CMD_PORTIO	) )
 int cmd_get_data_size(char* arg, int default_size)
 {
 	/* Check for a size specification .b, .w or .l.
