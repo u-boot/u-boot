@@ -284,25 +284,20 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 			sect, info->start[sect]);
 
 		/* arm simple, non interrupt dependent timer */
-		reset_timer();
+		reset_timer_masked();
 
 		if (info->protect[sect] == 0) {	/* not protected */
 			vu_long *addr = (vu_long *) (info->start[sect]);
 			ulong bsR7, bsR7_2, bsR5, bsR5_2;
-			ulong tstart;
 
 			/* *addr = CMD_STATUS_RESET; */
 			*addr = CMD_ERASE_SETUP;
 			*addr = CMD_ERASE_CONFIRM;
 
 			/* wait until flash is ready */
-			tstart = get_timer(0);
 			do {
-				ulong now;
 				/* check timeout */
-				/*if (get_timer_masked () > CFG_FLASH_ERASE_TOUT) { */
-				if ((now = get_timer(tstart)) > CFG_FLASH_ERASE_TOUT) {
-					printf("tstart = 0x%08lx, now = 0x%08lx\n", tstart, now);
+				if (get_timer_masked () > CFG_FLASH_ERASE_TOUT) {
 					*addr = CMD_STATUS_RESET;
 					result = BIT_TIMEOUT;
 					break;

@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Paul Ruhland, 11 Jun 2004:
+  Remove debug code from 'board/lpd7a40x/flash.c'
+
 * Patch by Andrea Marson, 11 Jun 2004:
   Update for PPChameleon board:
   - support for SysClk @ 25MHz
