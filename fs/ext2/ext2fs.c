@@ -724,7 +724,7 @@ int ext2fs_find_file
 
 
 	symlinknest = 0;
-	if (!path || path[0] != '/') {
+	if (!path) {
 		return (0);
 	}
 
@@ -769,7 +769,7 @@ int ext2fs_open (char *filename) {
 	int len;
 
 	if (ext2fs_root == NULL) {
-		return (0);
+		return (-1);
 	}
 	ext2fs_file = NULL;
 	status = ext2fs_find_file (filename, &ext2fs_root->diropen, &fdiro,
@@ -788,9 +788,9 @@ int ext2fs_open (char *filename) {
 	ext2fs_file = fdiro;
 	return (len);
 
-      fail:
+fail:
 	ext2fs_free_node (fdiro, &ext2fs_root->diropen);
-	return (0);
+	return (-1);
 }
 
 
