@@ -305,8 +305,8 @@
  * USB stuff
  *-----------------------------------------------------------------------
  */
-#define CONFIG_USB_CDMFDC5xxx   0x0001BBBB
-#define CONFIG_USB_GPSCFG5xxx   0x00001000
+#define CONFIG_USB_CLOCK	0x0001BBBB
+#define CONFIG_USB_CONFIG	0x00001000
 
 /*-----------------------------------------------------------------------
  * IDE/ATA stuff Supports IDE harddisk

@@ -63,7 +63,7 @@
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 
 
-#ifdef CONFIG_EVAL5200		/* PCI is supported with Evaluation board only */
+#if defined (CONFIG_EVAL5200) || defined (CONFIG_LITE5200)
 /*
  * PCI Mapping:
  * 0x40000000 - 0x4fffffff - PCI Memory
@@ -89,11 +89,41 @@
 
 #endif
 
+/* USB */
+#if defined (CONFIG_EVAL5200) || defined (CONFIG_LITE5200)
+
+#  define CONFIG_USB_OHCI
+#  define CONFIG_USB_CLOCK	0x0001bbbb
+#  define CONFIG_USB_CONFIG	0x00005000
+#  define ADD_USB_CMD             CFG_CMD_USB | CFG_CMD_FAT
+#  define CONFIG_DOS_PARTITION
+#  define CONFIG_USB_STORAGE
+
+#else
+
+#  define ADD_USB_CMD		0
+
+#endif
+
+/* IDE */
+#if defined (CONFIG_EVAL5200) || defined (CONFIG_LITE5200)
+
+#  define ADD_IDE_CMD             CFG_CMD_IDE | CFG_CMD_FAT
+#  define CONFIG_DOS_PARTITION
+
+#else
+
+#  define ADD_IDE_CMD		0
+
+#endif
+
 /*
  * Supported commands
  */
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
 				ADD_PCI_CMD	| \
+				ADD_USB_CMD	| \
+				ADD_IDE_CMD | \
 				CFG_CMD_ASKENV	| \
 				CFG_CMD_DATE	| \
 				CFG_CMD_DHCP	| \
@@ -110,11 +140,13 @@
 #include <cmd_confdefs.h>
 
 /*
- * low boot
+ * MUST be low boot - HIGHBOOT is not supported anymore
  */
 #if (TEXT_BASE == 0xFF000000)		/* Boot low with 16 MB Flash */
 #   define CFG_LOWBOOT		1
 #   define CFG_LOWBOOT16	1
+#else
+#   error "TEXT_BASE must be 0xff000000"
 #endif
 
 /*
@@ -168,7 +200,7 @@
 #define CONFIG_MISC_INIT_R
 
 #undef	CONFIG_HARD_I2C			/* I2C with hardware support */
-#define	CONFIG_SOFT_I2C		1
+#define	CONFIG_SOFT_I2C		1	/* I2C with softwate support */
 
 #if defined (CONFIG_SOFT_I2C)
 #  define SDA0			0x40
@@ -187,12 +219,16 @@
 #  define I2C_TRISTATE	{DDR0&=~SDA0;}
 #  define CFG_I2C_SPEED		100000
 #  define CFG_I2C_SLAVE		0x7F
+#define CFG_I2C_EEPROM_ADDR 0x57
+#define CFG_I2C_FACT_ADDR	0x57
 #endif
 
 #if defined (CONFIG_HARD_I2C)
 #  define CFG_I2C_MODULE	2		/* Select I2C module #1 or #2 */
 #  define CFG_I2C_SPEED		100000	/* 100 kHz */
 #  define CFG_I2C_SLAVE		0x7F
+#define CFG_I2C_EEPROM_ADDR 0x54
+#define CFG_I2C_FACT_ADDR	0x54
 #endif
 
 /*
@@ -242,14 +278,12 @@
 #define CFG_ENV_IS_IN_EEPROM	1	/* turn on EEPROM env feature */
 #define CFG_ENV_OFFSET		0x1000
 #define CFG_ENV_SIZE		0x0700
-#define CFG_I2C_EEPROM_ADDR 0x57
 
 /*
  * VPD settings
  */
 #define CFG_FACT_OFFSET		0x1800
 #define CFG_FACT_SIZE		0x0800
-#define CFG_I2C_FACT_ADDR	0x57
 
 /*
  * Memory map
@@ -310,7 +344,7 @@
 #define CFG_MEMTEST_START	0x00100000	/* memtest works on */
 #define CFG_MEMTEST_END		0x01f00000	/* 1 ... 31 MB in DRAM	*/
 
-#define CFG_LOAD_ADDR		0x100000	/* default load address */
+#define CFG_LOAD_ADDR		0x200000	/* default load address */
 
 #define CFG_HZ			1000	/* decrementer freq: 1 ms ticks */
 
@@ -344,5 +378,37 @@
 #define CFG_CS_DEADCYCLE	0x33333333
 
 #define CFG_RESET_ADDRESS	0x7f000000
+
+/*-----------------------------------------------------------------------
+ * IDE/ATA stuff Supports IDE harddisk
+ *-----------------------------------------------------------------------
+ */
+
+#undef  CONFIG_IDE_8xx_PCCARD		/* Use IDE with PC Card	Adapter	*/
+
+#undef	CONFIG_IDE_8xx_DIRECT		/* Direct IDE    not supported	*/
+#undef	CONFIG_IDE_LED			/* LED   for ide not supported	*/
+
+#define CONFIG_IDE_RESET	1
+#define CONFIG_IDE_PREINIT
+
+#define CFG_IDE_MAXBUS		1	/* max. 1 IDE bus		*/
+#define CFG_IDE_MAXDEVICE	1	/* max. 1 drive per IDE bus	*/
+
+#define CFG_ATA_IDE0_OFFSET	0x0000
+
+#define CFG_ATA_BASE_ADDR	MPC5XXX_ATA
+
+/* Offset for data I/O			*/
+#define CFG_ATA_DATA_OFFSET	(0x0060)
+
+/* Offset for normal register accesses	*/
+#define CFG_ATA_REG_OFFSET	(CFG_ATA_DATA_OFFSET)
+
+/* Offset for alternate registers	*/
+#define CFG_ATA_ALT_OFFSET	(0x005c)
+
+/* Interval between registers                                                */
+#define CFG_ATA_STRIDE          4
 
 #endif /* __CONFIG_H */

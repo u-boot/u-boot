@@ -21,9 +21,8 @@
  * MA 02111-1307 USA
  */
 
-#include <asm/u-boot.h>
-#include <asm/processor.h>
 #include <common.h>
+#include <asm/processor.h>
 #include <i2c.h>
 #include <miiphy.h>
 #include <405gp_enet.h>
@@ -57,10 +56,10 @@ int pll_init(void)
 }
 
 /*
- * board_pre_init: do any preliminary board initialization
+ * board_early_init_f: do early board initialization
  *
  */
-int board_pre_init(void)
+int board_early_init_f(void)
 {
 	/* initialize PLL so UART, LCD, Ethernet clocked at correctly */
 	(void) get_clocks();
@@ -172,3 +171,4 @@ int last_stage_init(void)
 
 	return 0; /* success */
 }
+

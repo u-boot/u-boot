@@ -36,7 +36,7 @@
 #define CONFIG_405GP		1	/* This is a PPC405GP CPU     	*/
 #define CONFIG_4xx		1	/* ...member of PPC4xx family   */
 #define CONFIG_CSB272		1	/* on a Cogent CSB272 board     */
-#define CONFIG_BOARD_PRE_INIT	1	/* Call board_pre_init()	*/
+#define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_early_init_f()    */
 #define CONFIG_LAST_STAGE_INIT	1	/* Call last_stage_init()	*/
 #define CONFIG_SYS_CLK_FREQ     33000000 /* external frequency to pll   */
 

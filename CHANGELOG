@@ -2,6 +2,18 @@
 Changes for U-Boot 1.0.2:
 ======================================================================
 
+* Patch by Tolunay Orkun, 5 Mar 2004:
+  Fix early board initialization for Cogent CSB272 board
+
+* Patch by Ed Okerson, 3 Mar 2004:
+  fix CFI flash writes for little endian systems
+
+* Patch by Reinhard Meyer, 01 Mar 2004:
+  generalize USB and IDE support for MPC5200 with according
+  changes to IceCube.h and TOP5200.h
+  add Am29LV256 256 MBit FLASH support for TOP5200 boards
+  add info about USB and IDE to README
+
 * Patch by Yuli Barcohen, 4 Mar 2004:
   Fix problems with GCC 3.3.x which changed handling of global
   variables explicitly initialized to zero (now in .bss instead of

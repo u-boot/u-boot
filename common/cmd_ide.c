@@ -503,6 +503,7 @@ void ide_init (void)
 #endif	/* CONFIG_IDE_8xx_PCCARD */
 
 #ifdef CONFIG_IDE_PREINIT
+	extern int ide_preinit (void);
 	WATCHDOG_RESET();
 
 	if (ide_preinit ()) {

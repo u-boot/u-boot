@@ -724,18 +724,42 @@ static int flash_full_status_check (flash_info_t * info, flash_sect_t sector,
  */
 static void flash_add_byte (flash_info_t * info, cfiword_t * cword, uchar c)
 {
+#if defined(__LITTLE_ENDIAN)
+	unsigned short	w;
+	unsigned int	l;
+	unsigned long long ll;
+#endif
+
 	switch (info->portwidth) {
 	case FLASH_CFI_8BIT:
 		cword->c = c;
 		break;
 	case FLASH_CFI_16BIT:
+#if defined(__LITTLE_ENDIAN)
+		w = c;
+		w <<= 8;
+		cword->w = (cword->w >> 8) | w;
+#else
 		cword->w = (cword->w << 8) | c;
+#endif
 		break;
 	case FLASH_CFI_32BIT:
+#if defined(__LITTLE_ENDIAN)
+		l = c;
+		l <<= 24;
+		cword->l = (cword->l >> 8) | l;
+#else
 		cword->l = (cword->l << 8) | c;
+#endif
 		break;
 	case FLASH_CFI_64BIT:
+#if defined(__LITTLE_ENDIAN)
+		ll = c;
+		ll <<= 56;
+		cword->ll = (cword->ll >> 8) | ll;
+#else
 		cword->ll = (cword->ll << 8) | c;
+#endif
 		break;
 	}
 }

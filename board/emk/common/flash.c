@@ -40,9 +40,11 @@ flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
   #define FLASH_CYCLE2	0x02aa
   #define FLASH_ID1		0
   #define FLASH_ID2		1
+  #define FLASH_ID3		0x0e
+  #define FLASH_ID4		0x0F
 #endif
 
-#if defined (CONFIG_TOP5200)
+#if defined (CONFIG_TOP5200) && !defined (CONFIG_LITE5200)
   typedef unsigned char FLASH_PORT_WIDTH;
   typedef volatile unsigned char FLASH_PORT_WIDTHV;
   #define	FLASH_ID_MASK	0xFF
@@ -54,6 +56,24 @@ flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
   #define FLASH_CYCLE2	0x0555
   #define FLASH_ID1		0
   #define FLASH_ID2		2
+  #define FLASH_ID3		0x1c
+  #define FLASH_ID4		0x1E
+#endif
+
+#if defined (CONFIG_TOP5200) && defined (CONFIG_LITE5200)
+  typedef unsigned char FLASH_PORT_WIDTH;
+  typedef volatile unsigned char FLASH_PORT_WIDTHV;
+  #define	FLASH_ID_MASK	0xFF
+
+  #define FPW	FLASH_PORT_WIDTH
+  #define FPWV	FLASH_PORT_WIDTHV
+
+  #define FLASH_CYCLE1	0x0555
+  #define FLASH_CYCLE2	0x02aa
+  #define FLASH_ID1		0
+  #define FLASH_ID2		1
+  #define FLASH_ID3		0x0E
+  #define FLASH_ID4		0x0F
 #endif
 
 /*-----------------------------------------------------------------------
@@ -183,6 +203,15 @@ void flash_print_info (flash_info_t *info)
 	case FLASH_AM160B:
 		fmt = "29LV160%s (16 Mbit, %s)\n";
 		break;
+	case FLASH_AMLV640U:
+		fmt = "29LV640M (64 Mbit)\n";
+		break;
+	case FLASH_AMDLV065D:
+		fmt = "29LV065D (64 Mbit)\n";
+		break;
+	case FLASH_AMLV256U:
+		fmt = "29LV256M (256 Mbit)\n";
+		break;
 	default:
 		fmt = "Unknown Chip Type\n";
 		break;
@@ -239,7 +268,6 @@ void flash_print_info (flash_info_t *info)
 ulong flash_get_size (FPWV *addr, flash_info_t *info)
 {
 	int		i;
-	ulong	offset;
 
 	/* Write auto select command: read Manufacturer ID */
 	/* Write auto select command sequence and test FLASH answer */
@@ -278,27 +306,64 @@ ulong flash_get_size (FPWV *addr, flash_info_t *info)
 		info->flash_id += FLASH_AM160B;
 		info->sector_count = 35;
 		info->size = 0x00200000;
-#ifdef CFG_LOWBOOT
-		offset = 0;
-#else
-		offset = 0x00e00000;
-#endif
-		info->start[0] = (ulong)addr + offset;
-		info->start[1] = (ulong)addr + offset + 0x4000;
-		info->start[2] = (ulong)addr + offset + 0x6000;
-		info->start[3] = (ulong)addr + offset + 0x8000;
+		info->start[0] = (ulong)addr;
+		info->start[1] = (ulong)addr + 0x4000;
+		info->start[2] = (ulong)addr + 0x6000;
+		info->start[3] = (ulong)addr + 0x8000;
 		for (i = 4; i < info->sector_count; i++)
 		{
-			info->start[i] = (ulong)addr + offset + 0x10000 * (i-3);
+			info->start[i] = (ulong)addr + 0x10000 * (i-3);
 		}
 		break;
 
+	case (FPW)AMD_ID_LV065D:
+		info->flash_id += FLASH_AMDLV065D;
+		info->sector_count = 128;
+		info->size = 0x00800000;
+		for (i = 0; i < info->sector_count; i++)
+		{
+			info->start[i] = (ulong)addr + 0x10000 * i;
+		}
+		break;
+
+	case (FPW)AMD_ID_MIRROR:
+		/* MIRROR BIT FLASH, read more ID bytes */
+		if ((FPW)addr[FLASH_ID3] == (FPW)AMD_ID_LV640U_2 &&
+			(FPW)addr[FLASH_ID4] == (FPW)AMD_ID_LV640U_3)
+		{
+			info->flash_id += FLASH_AMLV640U;
+			info->sector_count = 128;
+			info->size = 0x00800000;
+			for (i = 0; i < info->sector_count; i++)
+			{
+				info->start[i] = (ulong)addr + 0x10000 * i;
+			}
+			break;
+		}
+		if ((FPW)addr[FLASH_ID3] == (FPW)AMD_ID_LV256U_2 &&
+			(FPW)addr[FLASH_ID4] == (FPW)AMD_ID_LV256U_3)
+		{
+			/* attention: only the first 16 MB will be used in u-boot */
+			info->flash_id += FLASH_AMLV256U;
+			info->sector_count = 256;
+			info->size = 0x01000000;
+			for (i = 0; i < info->sector_count; i++)
+			{
+				info->start[i] = (ulong)addr + 0x10000 * i;
+			}
+			break;
+		}
+		
+		/* fall thru to here ! */
 	default:
-		printf ("unknown AMD device=%x ", (FPW)addr[FLASH_ID2]);
+		printf ("unknown AMD device=%x %x %x",
+			(FPW)addr[FLASH_ID2],
+			(FPW)addr[FLASH_ID3],
+			(FPW)addr[FLASH_ID4]);
 		info->flash_id = FLASH_UNKNOWN;
 		info->sector_count = 0;
-		info->size = 0;
-		return (0);			/* => no or unknown flash */
+		info->size = 0x800000;
+		break;
 	}
 
 	/* Put FLASH back in read mode */
@@ -329,6 +394,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 
 	switch (info->flash_id & FLASH_TYPEMASK) {
 	case FLASH_AM160B:
+	case FLASH_AMLV640U:
 		break;
 	case FLASH_UNKNOWN:
 	default:

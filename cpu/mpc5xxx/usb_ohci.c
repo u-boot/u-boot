@@ -1532,12 +1532,13 @@ int usb_lowlevel_init(void)
 {
 
 	/* Set the USB Clock						     */
-	*(vu_long *)MPC5XXX_CDM_48_FDC = CONFIG_USB_CDMFDC5xxx;
+	*(vu_long *)MPC5XXX_CDM_48_FDC = CONFIG_USB_CLOCK;
 
 	/* remove all USB bits first before ORing in ours */
 	*(vu_long *)MPC5XXX_GPS_PORT_CONFIG &= ~0x00807000;
+
 	/* Activate USB port						     */
-	*(vu_long *)MPC5XXX_GPS_PORT_CONFIG |= CONFIG_USB_GPSCFG5xxx;
+	*(vu_long *)MPC5XXX_GPS_PORT_CONFIG |= CONFIG_USB_CONFIG;
 
 	memset (&gohci, 0, sizeof (ohci_t));
 	memset (&urb_priv, 0, sizeof (urb_priv_t));

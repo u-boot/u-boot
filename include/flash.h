@@ -183,6 +183,8 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 #define AMD_ID_LV640U_3	0x22012201	/* 3d ID word for AM29LV640M  at 0x3c */
 #define AMD_ID_LV128U_2 0x22122212	/* 2d ID word for AM29LV128M  at 0x38 */
 #define AMD_ID_LV128U_3 0x22002200	/* 3d ID word for AM29LV128M  at 0x3c */
+#define AMD_ID_LV256U_2 0x22122212	/* 2d ID word for AM29LV256M  at 0x38 */
+#define AMD_ID_LV256U_3 0x22012201	/* 3d ID word for AM29LV256M  at 0x3c */
 
 #define AMD_ID_LV320B_2	0x221A221A	/* 2d ID word for AM29LV320MB at 0x38 */
 #define AMD_ID_LV320B_3 0x22002200	/* 3d ID word for AM29LV320MB at 0x3c */
@@ -345,6 +347,7 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 #define FLASH_AMLV128U	0x00A6		/* AMD 29LV128M	   ( 128M = 8M x 16 )	*/
 #define FLASH_AMLV320B  0x00A7		/* AMD 29LV320MB   ( 32M = 2M x 16 )	*/
 #define FLASH_AMLV320T	0x00A8		/* AMD 29LV320MT   ( 32M = 2M x 16 )	*/
+#define FLASH_AMLV256U	0x00AA		/* AMD 29LV256M	   ( 256M = 16M x 16 )	*/
 /* Intel 28F256L18T 256M = 128K x 255 + 32k x 4	*/
 #define FLASH_28F256L18T 0x00B0
 #define FLASH_AMDL163T	0x00B2		/* AMD AM29DL163T (2M x 16 )			*/

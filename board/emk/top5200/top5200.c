@@ -113,10 +113,14 @@ int checkboard (void)
 #if defined (CONFIG_EVAL5200)
 	puts ("Board: EMK TOP5200 on EVAL5200\n");
 #else
+#if defined (CONFIG_LITE5200)
+	puts ("Board: LITE5200\n");
+#else
 #if defined (CONFIG_MINI5200)
 	puts ("Board: EMK TOP5200 on MINI5200\n");
 #else
 	puts ("Board: EMK TOP5200\n");
+#endif
 #endif
 #endif
 	return 0;
@@ -155,10 +159,11 @@ void flash_afterinit(uint bank, ulong start, ulong size)
  *****************************************************************************/
 int misc_init_r (void)
 {
+#if !defined (CONFIG_LITE5200)
 	/* read 'factory' part of EEPROM */
 	extern void read_factory_r (void);
 	read_factory_r ();
-
+#endif
 	return (0);
 }
 
@@ -173,5 +178,25 @@ extern void pci_mpc5xxx_init(struct pci_controller *);
 void pci_init_board(void)
 {
 	pci_mpc5xxx_init(&hose);
+}
+#endif
+
+/*****************************************************************************
+ * provide the PCI Reset Function
+ *****************************************************************************/
+#ifdef CFG_CMD_IDE
+#define GPIO_PSC1_4	0x01000000ul
+void ide_set_reset (int idereset)
+{
+	if (idereset) {
+		*(vu_long *) MPC5XXX_WU_GPIO_DATA &= ~GPIO_PSC1_4;
+	} else {
+		*(vu_long *) MPC5XXX_WU_GPIO_DATA |= GPIO_PSC1_4;
+	}
+
+	/* Configure PSC1_4 as GPIO output for ATA reset */
+	/* (it does not matter we do this every time) */
+	*(vu_long *) MPC5XXX_WU_GPIO_ENABLE |= GPIO_PSC1_4;
+	*(vu_long *) MPC5XXX_WU_GPIO_DIR |= GPIO_PSC1_4;
 }
 #endif
