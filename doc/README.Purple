@@ -3,7 +3,7 @@ Installation Instructions:
 
 1. Put the s2 switch into the following position:
 
-	 1  0
+	Off On
 	------
 	|x   |
 	|   x|
@@ -13,7 +13,7 @@ Installation Instructions:
 
    Put the s3 switch into the following position:
 
-	 1  0
+	Off On
 	------
 	| x  |
 	| x  |
@@ -23,7 +23,7 @@ Installation Instructions:
 
    Put the s4 switch into the following position:
 
-	 1  0
+	Off On
 	------
 	|x   |
 	|x   |
@@ -60,7 +60,7 @@ Installation Instructions:
 
 6. Power off. Restore the original S2 switch position:
 
-	 1  0
+	Off On
 	------
 	|   x|
 	|   x|

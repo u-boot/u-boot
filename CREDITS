@@ -26,6 +26,10 @@ N: Guillaume Alexandre
 E: guillaume.alexandre@gespac.ch
 D: Add PCIPPC6 configuration
 
+N: Pantelis Antoniou
+E: panto@intracom.gr
+D: NETVIA board support, ARTOS support.
+
 N: Pierre Aubert
 E: <p.aubert@staubli.com>
 D: Support for RPXClassic board

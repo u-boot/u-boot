@@ -345,4 +345,6 @@
 /* Ethernet at SCC2 */
 #define CONFIG_SCC2_ENET
 
+#define CONFIG_ARTOS			/* include ARTOS support */
+
 #endif	/* __CONFIG_H */

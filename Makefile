@@ -747,6 +747,7 @@ clean:
 	rm -f tools/easylogo/easylogo tools/bmp_logo
 	rm -f tools/gdb/astest tools/gdb/gdbcont tools/gdb/gdbsend
 	rm -f tools/env/fw_printenv tools/env/fw_setenv
+	rm -f board/cray/L1/bootscript.c board/cray/L1/bootscript.image
 
 clobber:	clean
 	find . -type f \

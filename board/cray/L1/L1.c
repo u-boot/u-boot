@@ -27,7 +27,9 @@
 #include <command.h>
 #include <cmd_nvedit.h>
 #include <cmd_bootm.h>
+#include <cmd_boot.h>
 #include <rtc.h>
+#include <post.h>
 #include <net.h>
 #include <malloc.h>
 
@@ -53,17 +55,19 @@
  * space.
  * on the server this looks like:
  *
- * option space U-Boot;
- * option U-Boot.initrd    code 3 = string;
- * option U-Boot.bootcmd   code 4 = string;
- * option U-Boot.bootflags code 5 = string;
- * option U-Boot.rootdev   code 6 = string;
+ * option space CRAYL1;
+ * option CRAYL1.initrd     code 3 = string;
+ * ..etc...
  */
 #define DHCP_VENDOR_SPECX   43
 #define DHCP_VX_INITRD       3
 #define DHCP_VX_BOOTCMD      4
-#define DHCP_VX_BOOTFLAGS    5
+#define DHCP_VX_BOOTARGS     5
 #define DHCP_VX_ROOTDEV      6
+#define DHCP_VX_FROMFLASH    7
+#define DHCP_VX_BOOTSCRIPT   8
+#define DHCP_VX_RCFILE	     9
+#define DHCP_VX_MAGIC        10
 
 /* Things DHCP server can tellme about.  If there's no flash address, then
  * they dont participate in 'update' to flash, and we force their values
@@ -89,18 +93,29 @@ static dhcp_item_t Things[] = {
 /* and the other way.. */
 	{DHCP_VENDOR_SPECX, DHCP_VX_INITRD, NULL, "initrd"},
 	{DHCP_VENDOR_SPECX, DHCP_VX_BOOTCMD, NULL, "bootcmd"},
-	{DHCP_VENDOR_SPECX, DHCP_VX_BOOTFLAGS, NULL, NULL},
+	{DHCP_VENDOR_SPECX, DHCP_VX_FROMFLASH, NULL, "fromflash"},
+	{DHCP_VENDOR_SPECX, DHCP_VX_BOOTSCRIPT, NULL, "bootscript"},
+	{DHCP_VENDOR_SPECX, DHCP_VX_RCFILE, NULL, "rcfile"},
+	{DHCP_VENDOR_SPECX, DHCP_VX_BOOTARGS, NULL, "xbootargs"},
 	{DHCP_VENDOR_SPECX, DHCP_VX_ROOTDEV, NULL, NULL},
+	{DHCP_VENDOR_SPECX, DHCP_VX_MAGIC, NULL, NULL}
 };
 
 #define N_THINGS ((sizeof(Things))/(sizeof(dhcp_item_t)))
 
-static void init_ecc_sdram (void);
+extern char bootscript[];
+
+/* Here is the boot logic as HUSH script. Overridden by any TFP provided
+ * bootscript file.
+ */
+
+static void init_sdram (void);
 
 /* ------------------------------------------------------------------------- */
 int board_pre_init (void)
 {
-	init_ecc_sdram ();
+	/* Running from ROM: global data is still READONLY */
+	init_sdram ();
 	mtdcr (uicsr, 0xFFFFFFFF);	/* clear all ints */
 	mtdcr (uicer, 0x00000000);	/* disable all ints */
 	mtdcr (uiccr, 0x00000020);	/* set all but FPGA SMI to be non-critical */
@@ -116,6 +131,7 @@ int checkboard (void)
 {
 	return (0);
 }
+/* ------------------------------------------------------------------------- */
 
 /* ------------------------------------------------------------------------- */
 int misc_init_r (void)
@@ -124,6 +140,7 @@ int misc_init_r (void)
 	image_header_t *hdr;
 	time_t timestamp;
 	struct rtc_time tm;
+	char bootcmd[32];
 
 	hdr = (image_header_t *) (CFG_MONITOR_BASE - sizeof (image_header_t));
 	timestamp = (time_t) hdr->ih_time;
@@ -143,6 +160,8 @@ int misc_init_r (void)
 			setenv ("ethaddr", e);
 		}
 	}
+	sprintf (bootcmd,"autoscript %X",(unsigned)bootscript);
+	setenv ("bootcmd", bootcmd);
 	return (0);
 }
 
@@ -168,11 +187,11 @@ void rtc_reset (void)
 }
 
 /* ------------------------------------------------------------------------- */
-/*  Do sdram bank init in C so I can read it..
+/*  Do sdram bank init in C so I can read it..no console to print to yet!
  */
-static void init_ecc_sdram (void)
+static void init_sdram (void)
 {
-	unsigned long tmp, *p;
+ unsigned long tmp;
 
 	/* write SDRAM bank 0 register */
 	mtdcr (memcfga, mem_mb0cf);
@@ -202,33 +221,78 @@ static void init_ecc_sdram (void)
 	mtdcr (memcfgd, 0x90800000);
 	udelay (200);
 
-/* disable ECC on all banks */
+/* initially, disable ECC on all banks */
+	udelay (200);
 	mtdcr (memcfga, mem_ecccf);
 	tmp = mfdcr (memcfgd);
 	tmp &= 0xff0fffff;
 	mtdcr (memcfga, mem_ecccf);
 	mtdcr (memcfgd, tmp);
 
-/* set up SDRAM Controller with ECC enabled */
+	return;
+}
+
+extern int memory_post_test (int flags);
+
+int testdram (void)
+{
+ unsigned long tmp;
+	uint *pstart = (uint *) 0x00000000;
+	uint *pend = (uint *) L1_MEMSIZE;
+	uint *p;
+
+	if (getenv_r("booted",NULL,0) <= 0)
+	{
+		printf ("testdram..");
+	/*AA*/
+		for (p = pstart; p < pend; p++)
+			*p = 0xaaaaaaaa;
+		for (p = pstart; p < pend; p++) {
+			if (*p != 0xaaaaaaaa) {
+				printf ("SDRAM test fails at: %08x, was %08x expected %08x\n", 
+						(uint) p, *p, 0xaaaaaaaa);
+				return 1;
+			}
+		}
+	/*55*/
+		for (p = pstart; p < pend; p++)
+			*p = 0x55555555;
+		for (p = pstart; p < pend; p++) {
+			if (*p != 0x55555555) {
+				printf ("SDRAM test fails at: %08x, was %08x expected %08x\n", 
+						(uint) p, *p, 0x55555555);
+				return 1;
+			}
+		}
+	/*addr*/
+		for (p = pstart; p < pend; p++)
+			*p = (unsigned)p;
+		for (p = pstart; p < pend; p++) {
+			if (*p != (unsigned)p) {
+				printf ("SDRAM test fails at: %08x, was %08x expected %08x\n", 
+						(uint) p, *p, (uint)p);
+				return 1;
+			}
+		}
+		printf ("Success. ");
+	}
+	printf ("Enable ECC..");
+
 	mtdcr (memcfga, mem_mcopt1);
 	tmp = (mfdcr (memcfgd) & ~0xFFE00000) | 0x90800000;
 	mtdcr (memcfga, mem_mcopt1);
 	mtdcr (memcfgd, tmp);
 	udelay (600);
-
-/* fill all the memory */
-	for (p = (unsigned long) 0; ((unsigned long) p < L1_MEMSIZE);
-		 *p++ = 0L);
+	for (p = (unsigned long) 0; ((unsigned long) p < L1_MEMSIZE); *p++ = 0L)
+		;
 	udelay (400);
 	mtdcr (memcfga, mem_ecccf);
 	tmp = mfdcr (memcfgd);
-
-/* enable ECC on bank 0 */
 	tmp |= 0x00800000;
 	mtdcr (memcfgd, tmp);
 	udelay (400);
-
-	return;
+	printf ("enabled.\n");
+	return (0);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -250,7 +314,9 @@ static u8 *dhcp_env_update (u8 thing, u8 * pop)
 
 /* set env. */
 	if (Things[thing].envname)
+	{
 		setenv (Things[thing].envname, Things[thing].dhcpvalue);
+	}
 	return (Things[thing].dhcpvalue);
 }
 
@@ -285,9 +351,9 @@ u8 *dhcp_vendorex_proc (u8 * pop)
 		     oplen -= sub_oplen, sub_op += (sub_oplen + 2)) {
 			for (thing = 0; thing < N_THINGS; thing++) {
 			    if (*sub_op == Things[thing].dhcp_vendor_option) {
-				if (!(retval = dhcp_env_update (thing, sub_op))) {
-					return NULL;
-				}
+					if (!(retval = dhcp_env_update (thing, sub_op))) {
+						return NULL;
+					}
 			    }
 			}
 		}
@@ -298,5 +364,5 @@ u8 *dhcp_vendorex_proc (u8 * pop)
 					return NULL;
 		}
 	}
-	return (thing >= N_THINGS ? NULL : pop);
+	return (pop);
 }

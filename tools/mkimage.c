@@ -93,6 +93,7 @@ table_entry_t os_name[] = {
     {	IH_OS_QNX,	"qnx",		"QNX",			},
     {	IH_OS_U_BOOT,	"u-boot",	"U-Boot",		},
     {	IH_OS_RTEMS,	"rtems",	"RTEMS",		},
+    {	IH_OS_ARTOS,	"artos",	"ARTOS",		},
     {	-1,		"",		"",			},
 };
 

@@ -46,6 +46,7 @@
 #define IH_OS_QNX		16	/* QNX		*/
 #define IH_OS_U_BOOT		17	/* Firmware	*/
 #define IH_OS_RTEMS		18	/* RTEMS	*/
+#define IH_OS_ARTOS		19	/* ARTOS	*/
 
 /*
  * CPU Architecture Codes (supported by Linux)

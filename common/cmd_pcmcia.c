@@ -87,7 +87,9 @@ static int  hardware_disable(int slot);
 static int  hardware_enable (int slot);
 static int  voltage_set(int slot, int vcc, int vpp);
 
+#ifndef	CONFIG_I82365
 static u_int m8xx_get_graycode(u_int size);
+#endif	/* CONFIG_I82365 */
 #if 0
 static u_int m8xx_get_speed(u_int ns, u_int is_io);
 #endif
@@ -2258,6 +2260,8 @@ static const u_int m8xx_size_to_gray[M8XX_SIZES_NO] =
 
 /* -------------------------------------------------------------------- */
 
+#ifndef	CONFIG_I82365
+
 static u_int m8xx_get_graycode(u_int size)
 {
 	u_int k;
@@ -2272,6 +2276,8 @@ static u_int m8xx_get_graycode(u_int size)
 
 	return k;
 }
+
+#endif	/* CONFIG_I82365 */
 
 /* -------------------------------------------------------------------- */
 

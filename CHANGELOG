@@ -2,6 +2,18 @@
 Changes since U-Boot 0.3.1:
 ======================================================================
 
+* Patch by David Updegraff, 22 Apr 2003:
+  update for CrayL1 board
+
+* Patch by Pantelis Antoniou, 21 Apr 2003:
+  add boot support for ARTOS (a proprietary OS)
+
+* Patch by Steven Scholz, 11 Apr 2003:
+  Add support for RTC DS1338
+
+* Patch by Rod Boyce, 24 Jan 2003:
+  Fix counting of extended partitions in diskboot command
+
 * Patch by Christophe Lindheimer, 20 May 2003:
   allow the use of CFG_LOADS when CFG_NO_FLASH is set
 

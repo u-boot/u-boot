@@ -25,17 +25,27 @@ include $(TOPDIR)/config.mk
 
 LIB	= lib$(BOARD).a
 
-OBJS	= $(BOARD).o flash.o
-SOBJS	= init.o
+OBJS	= $(BOARD).o flash.o bootscript.o
+SOBJS	= init.o 
 
 $(LIB):	$(OBJS) $(SOBJS)
 	$(AR) crv $@ $^
 
 clean:
-	rm -f $(SOBJS) $(OBJS)
+	rm -f $(SOBJS) $(OBJS) bootscript.c bootscript.image
 
 distclean:	clean
 	rm -f $(LIB) core *.bak .depend
+
+$(BOARD).o: $(BOARD).c bootscript.o
+
+bootscript.o: bootscript.c
+
+bootscript.c: bootscript.image
+	od -t x1 -v -A x $^ | awk -f x2c.awk > $@
+
+bootscript.image: bootscript.hush Makefile
+	-$(TOPDIR)/tools/mkimage -A ppc -O linux -T script -C none -a 0 -e 0 -n bootscript -d  bootscript.hush $@
 
 #########################################################################
 

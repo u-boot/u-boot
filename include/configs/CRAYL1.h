@@ -41,43 +41,28 @@
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 #define CONFIG_MII		    1	/* MII PHY management */
 #define	CONFIG_PHY_ADDR		1	/* PHY address; handling of ENET */
-#define CONFIG_BOARD_PRE_INIT 1 /* setup for 405gp */
+#define CONFIG_BOARD_PRE_INIT 1 /* early setup for 405gp */
 #define CONFIG_MISC_INIT_R	1	/* so that a misc_init_r() is called */
 
 /* set PRAM to keep U-Boot out, mem= to keep linux out, and initrd_hi to
  * keep possible initrd ramdisk decompression out.  This is in k (1024 bytes)
- #define CONFIG_PRAM			16
+ #define CONFIG_PRAM			16 
  */
-#define	CONFIG_LOADADDR		0x100000
+#define	CONFIG_LOADADDR		0x100000	/* where TFTP images go */
 #undef CONFIG_BOOTARGS
 
-/* the logic is that booting is driven by what env vars get set from DHCP.
- * Normal DHCP sets things like serverip, rootpath, etc.
- * if printenv
+/* Bootcmd is overridden by the bootscript in board/cray/L1
  */
-#define	CFG_AUTOLOAD		"yes"
-#define CONFIG_BOOTCOMMAND	"dhcp;"\
-	"setenv bootargs devfs=mount;"\
-	"setenv bootargs ip=$ipaddr:$serverip:$gatewayip:$netmask:::off $bootargs;"\
-	"if printenv initrd;"\
-	"then;" \
-	 "setenv initrd_hi $mem;"\
-	 "tftp 1000000 $initrd;"\
-	 "setenv bootargs root=/dev/ram0 rw cwsroot=$serverip:$rootpath $bootargs;"\
-	 "bootm 100000 1000000;"\
-	"else;"\
-	 "setenv bootargs root=/dev/nfs ro nfsroot=$serverip:$rootpath $bootargs;"\
-	 "bootm 100000;"\
-	"fi;"
+#define	CFG_AUTOLOAD		"no"
+#define CONFIG_BOOTCOMMAND	"dhcp"
 
-#define CONFIG_EXTRA_ENV_SETTINGS ""
-
-/*
+/* 
  * ..during experiments..
  #define CONFIG_SERVERIP         10.0.0.1
- #define CONFIG_ETHADDR          00:40:a6:80:14:5
+ #define CONFIG_ETHADDR          00:40:a6:80:14:5 
  */
 #define CONFIG_HARD_I2C         1		/* hardware support for i2c */
+#define CONFIG_SDRAM_BANK0		1
 #define CFG_I2C_SPEED		    400000	/* I2C speed and slave address	*/
 #define CFG_I2C_SLAVE		    0x7F
 #define CFG_I2C_EEPROM_ADDR     0x57
@@ -87,6 +72,7 @@
 #define	CFG_HZ		             1000	/* decrementer freq: 1 ms ticks	*/
 #define CFG_HUSH_PARSER			1
 #define CFG_PROMPT_HUSH_PS2		"> "
+#define CONFIG_AUTOSCRIPT		1
 
 
 #define CONFIG_COMMANDS	 (\
@@ -106,6 +92,8 @@
 	CFG_CMD_RUN|\
 	CFG_CMD_I2C|\
 	CFG_CMD_EEPROM|\
+	CFG_CMD_DIAG|\
+	CFG_CMD_AUTOSCRIPT|\
 	CFG_CMD_SETGETDCR)
 
 /*
@@ -120,7 +108,13 @@
 	CONFIG_BOOTP_BOOTFILESIZE|\
 	CONFIG_BOOTP_BOOTPATH)
 
-/*
+/* 
+ * how many time to fail & restart a net-TFTP before giving up & resetting
+ * the board hoping that a reset of net interface might help..
+ */
+#define CONFIG_NET_RESET 5
+
+/* 
  * bauds.  Just to make it compile; in our case, I read the base_baud
  * from the DCR anyway, so its kinda-tied to the above ref. clock which in turn
  * drives the system clock.
@@ -145,6 +139,7 @@
 #define CFG_LOAD_ADDR   	0x100000/* where to load what we get from TFTP */
 #define CFG_TFTP_LOADADDR	CFG_LOAD_ADDR
 #define CFG_EXTBDINFO		1	/* To use extended board_into (bd_t) */
+#define CFG_DRAM_TEST		1
 
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration
@@ -155,15 +150,8 @@
 #define CFG_FLASH_BASE		0xFFC00000
 #define CFG_MONITOR_BASE	TEXT_BASE
 
-#ifndef  CFG_HUSH_PARSER
-#define CFG_MONITOR_LEN		(128 * 1024)	/* Reserve 128 kB for Monitor	*/
-#define CFG_ENV_OFFSET		0x3D0000
-#else
-#define CFG_MONITOR_LEN		(192 * 1024)	/* Reserve 192 kB for Monitor	*/
-#define CFG_ENV_OFFSET		0x3FE000
-#endif
 
-#define CFG_MALLOC_LEN		(128 * 1024)	/* Reserve 128 kB for malloc()	*/
+#define CFG_MONITOR_LEN		(192 * 1024)	/* Reserve 192 kB for Monitor	*/
 
 /*
  * For booting Linux, the board info and command line data
@@ -180,11 +168,12 @@
 #define CFG_FLASH_WRITE_TOUT 500	/* Timeout for Flash Write (in ms)	*/
 
 /* BEG ENVIRONNEMENT FLASH: needs to be a whole FlashSector  */
+#define CFG_ENV_OFFSET		0x3c8000 
 #define CFG_ENV_IS_IN_FLASH	1	/* use FLASH for environment vars */
-#define	CFG_ENV_SIZE		0x1000	 /* Total Size of Environment Sector	*/
+#define	CFG_ENV_SIZE		0x1000	 /* Total Size of Environment area	*/
 #define CFG_ENV_SECT_SIZE	0x10000	 /* see README - env sector total size	*/
 
-/* Memory tests: U-Boot relocates itself to the top of Ram, so its at
+/* Memory tests: U-BOOT relocates itself to the top of Ram, so its at
  * 32meg-(128k+some_malloc_space+copy-of-ENV sector)..
  */
 #define CFG_SDRAM_SIZE		32		/* megs of ram */
@@ -193,6 +182,7 @@
 									/* to the end of the DRAM  */
 									/* less monitor and malloc area */
 #define CFG_STACK_USAGE		0x10000 /* Reserve 64k for the stack usage */
+#define CFG_MALLOC_LEN		(128 << 10)	/* 128k for malloc space */
 #define CFG_MEM_END_USAGE	( CFG_MONITOR_LEN \
                                 + CFG_MALLOC_LEN \
                                 + CFG_ENV_SECT_SIZE \
@@ -202,7 +192,7 @@
 /* END ENVIRONNEMENT FLASH */
 
 /*-----------------------------------------------------------------------
- * Cache Configuration.  Only used to ..?? clear it, I guess..
+ * Cache Configuration.  Only used to ..?? clear it, I guess.. 
  */
 #define CFG_DCACHE_SIZE		16384
 #define CFG_CACHELINE_SIZE	32
@@ -219,20 +209,26 @@
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in OnChipMem )
  */
-#if 0
-#define CFG_INIT_RAM_ADDR       0x40000000  /* use data cache               */
-#define CFG_INIT_RAM_END        0x2000  /* End of used area in RAM             */
-#else
+#if 1
+/* On Chip Memory location */
 #define CFG_TEMP_STACK_OCM	1
+#define CFG_OCM_DATA_ADDR	0xF0000000
+#define CFG_OCM_DATA_SIZE	0x1000
+
+#define CFG_INIT_RAM_ADDR	CFG_OCM_DATA_ADDR /* inside of SDRAM		*/
+#define CFG_INIT_RAM_END	CFG_OCM_DATA_SIZE /* End of used area in RAM	*/
+#define CFG_GBL_DATA_SIZE      256  /* size in bytes reserved for initial data */
+#define CFG_GBL_DATA_OFFSET    (CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
+#define CFG_INIT_SP_OFFSET      CFG_GBL_DATA_OFFSET
+#else
 #define CFG_OCM_DATA_ADDR	0xF0000000
 #define CFG_OCM_DATA_SIZE	0x1000
 #define CFG_INIT_RAM_ADDR	CFG_OCM_DATA_ADDR 	/* inside of On Chip SRAM    */
 #define CFG_INIT_RAM_END	CFG_OCM_DATA_SIZE	/* End of On Chip SRAM	     */
-#endif
-
 #define CFG_GBL_DATA_SIZE	64	/* size in bytes reserved for initial data */
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
+#endif
 
 /*-----------------------------------------------------------------------
  * Definitions for Serial Presence Detect EEPROM address

@@ -25,7 +25,7 @@
 
 /*
  * Date & Time support (no alarms) for Dallas Semiconductor (now Maxim)
- * DS1307 Real Time Clock (RTC).
+ * DS1307 and DS1338 Real Time Clock (RTC).
  *
  * based on ds1337.c
  */
@@ -35,7 +35,8 @@
 #include <rtc.h>
 #include <i2c.h>
 
-#if defined(CONFIG_RTC_DS1307) && (CONFIG_COMMANDS & CFG_CMD_DATE)
+#if (defined(CONFIG_RTC_DS1307) || defined(CONFIG_RTC_DS1338) ) && \
+    (CONFIG_COMMANDS & CFG_CMD_DATE)
 
 /*---------------------------------------------------------------------*/
 #undef DEBUG_RTC
@@ -200,4 +201,4 @@ static unsigned char bin2bcd (unsigned int n)
 	return (((n / 10) << 4) | (n % 10));
 }
 
-#endif /* CONFIG_RTC_DS1307 && (CFG_COMMANDS & CFG_CMD_DATE) */
+#endif /* (CONFIG_RTC_DS1307 || CONFIG_RTC_DS1338) && (CFG_COMMANDS & CFG_CMD_DATE) */

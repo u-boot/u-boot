@@ -169,7 +169,9 @@ static int get_partition_info_extended (block_dev_desc_t *dev_desc, int ext_part
                  * fdisk does not show the extended partitions that
                  * are not in the MBR
 		 */
-		if (pt->sys_ind != 0 && part_num == which_part) {
+		if ((pt->sys_ind != 0) &&
+		    (part_num == which_part) &&
+		    (is_extended(pt->sys_ind) == 0)) {
 			info->blksz = 512;
 			info->start = ext_part_sector + le32_to_int (pt->start4);
 			info->size  = le32_to_int (pt->size4);
