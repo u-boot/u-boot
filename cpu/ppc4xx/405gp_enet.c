@@ -944,6 +944,7 @@ int ppc_4xx_eth_initialize (bd_t * bis)
 				"Cannot allocate eth_device %d\n", eth_num);
 			return (-1);
 		}
+		memset(dev, 0, sizeof(*dev));
 		/* Allocate our private use data */
 		hw = (EMAC_405_HW_PST) malloc (sizeof (*hw));
 		if (hw == NULL) {
@@ -953,6 +954,7 @@ int ppc_4xx_eth_initialize (bd_t * bis)
 			free (dev);
 			return (-1);
 		}
+		memset(hw, 0, sizeof(*hw));
 
 		switch (eth_num) {
 		case 0:
