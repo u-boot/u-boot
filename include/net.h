@@ -51,10 +51,10 @@
  *
  */
 
-#ifndef	CONFIG_EEPRO100
-#define PKTBUFSRX	4
+#ifdef CFG_RX_ETH_BUFFER
+# define PKTBUFSRX	CFG_RX_ETH_BUFFER
 #else
-#define PKTBUFSRX	8
+# define PKTBUFSRX	4
 #endif
 
 #define PKTALIGN	32
@@ -74,8 +74,6 @@ typedef void	rxhand_f(uchar *, unsigned, unsigned, unsigned);
  *	A timeout handler.  Called after time interval has expired.
  */
 typedef void	thand_f(void);
-
-#ifdef CONFIG_NET_MULTI
 
 #define NAMESIZE 16
 
@@ -105,7 +103,6 @@ extern int eth_register(struct eth_device* dev);/* Register network device	*/
 extern void eth_try_another(int first_restart);	/* Change the device		*/
 extern struct eth_device *eth_get_dev(void);	/* get the current device MAC	*/
 extern void eth_set_enetaddr(int num, char* a);	/* Set new MAC address		*/
-#endif
 
 extern int eth_init(bd_t *bis);			/* Initialize the device	*/
 extern int eth_send(volatile void *packet, int length);	   /* Send a packet	*/
