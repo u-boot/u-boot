@@ -585,7 +585,7 @@ NetSetHandler(rxhand_f * f)
 
 
 void
-NetSetTimeout(int iv, thand_f * f)
+NetSetTimeout(ulong iv, thand_f * f)
 {
 	if (iv == 0) {
 		timeHandler = (thand_f *)0;

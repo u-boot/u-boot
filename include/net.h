@@ -374,7 +374,7 @@ extern uint	NetCksum(uchar *, int);		/* Calculate the checksum	*/
 
 /* Set callbacks */
 extern void	NetSetHandler(rxhand_f *);	/* Set RX packet handler	*/
-extern void	NetSetTimeout(int, thand_f *);	/* Set timeout handler		*/
+extern void	NetSetTimeout(ulong, thand_f *);/* Set timeout handler		*/
 
 /* Transmit "NetTxPacket" */
 extern void	NetSendPacket(volatile uchar *, int);
