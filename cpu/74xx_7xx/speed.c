@@ -12,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -49,29 +49,29 @@ static const int hid1_multipliers_x_10[] = {
 };
 
 static const int hid1_fx_multipliers_x_10[] = {
-	00,     /* 0000 - off */
-	00,     /* 0001 - off */
-	10,     /* 0010 - bypass */
-	10,     /* 0011 - bypass */
-	20,     /* 0100 - 2x */
-	25,     /* 0101 - 2.5x */
-	30,     /* 0110 - 3x */
-	35,     /* 0111 - 3.5x */
-	40,     /* 1000 - 4x */
-	45,     /* 1001 - 4.5x */
-	50,     /* 1010 - 5x */
-	55,     /* 1011 - 5.5x */
-	60,     /* 1100 - 6x */
-	65,     /* 1101 - 6.5x */
-	70,     /* 1110 - 7x */
-	75,     /* 1111 - 7.5 */
-	80,     /* 10000 - 8x */
-	85,     /* 10001 - 8.5x */
-	90,     /* 10010 - 9x */
-	95,     /* 10011 - 9.5x */
-	100,    /* 10100 - 10x */
-	110,    /* 10101 - 11x */
-	120,    /* 10110 - 12x */
+	00,	/* 0000 - off */
+	00,	/* 0001 - off */
+	10,	/* 0010 - bypass */
+	10,	/* 0011 - bypass */
+	20,	/* 0100 - 2x */
+	25,	/* 0101 - 2.5x */
+	30,	/* 0110 - 3x */
+	35,	/* 0111 - 3.5x */
+	40,	/* 1000 - 4x */
+	45,	/* 1001 - 4.5x */
+	50,	/* 1010 - 5x */
+	55,	/* 1011 - 5.5x */
+	60,	/* 1100 - 6x */
+	65,	/* 1101 - 6.5x */
+	70,	/* 1110 - 7x */
+	75,	/* 1111 - 7.5 */
+	80,	/* 10000 - 8x */
+	85,	/* 10001 - 8.5x */
+	90,	/* 10010 - 9x */
+	95,	/* 10011 - 9.5x */
+	100,	/* 10100 - 10x */
+	110,	/* 10101 - 11x */
+	120,	/* 10110 - 12x */
 };
 
 
@@ -86,26 +86,52 @@ static const int hid1_fx_multipliers_x_10[] = {
 int get_clocks (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-#ifdef CONFIG_750FX
-	ulong clock = CFG_BUS_CLK * \
-		      hid1_fx_multipliers_x_10[get_hid1 () >> 27] / 10;
-#else
-	ulong clock = CFG_BUS_CLK * \
-		      hid1_multipliers_x_10[get_hid1 () >> 28] / 10;
-#endif
+	ulong clock = 0;
+
+	/* calculate the clock frequency based upon the CPU type */
+	switch (get_cpu_type()) {
+	case CPU_7455:
+	case CPU_7457:
+		/*
+		 * It is assumed that the PLL_EXT line is zero.
+		 * Make sure division is done before multiplication to prevent 32-bit
+		 * arithmetic overflows which will cause a negative number
+		 */
+		clock = (CFG_BUS_CLK / 10) * hid1_multipliers_x_10[(get_hid1 () >> 13) & 0xF];
+		break;
+
+	case CPU_750GX:
+	case CPU_750FX:
+		clock = CFG_BUS_CLK * hid1_fx_multipliers_x_10[get_hid1 () >> 27] / 10;
+		break;
+
+	case CPU_7450:
+	case CPU_740:
+	case CPU_740P:
+	case CPU_745:
+	case CPU_750CX:
+	case CPU_750:
+	case CPU_750P:
+	case CPU_755:
+	case CPU_7400:
+	case CPU_7410:
+		/*
+		 * Make sure division is done before multiplication to prevent 32-bit
+		 * arithmetic overflows which will cause a negative number
+		 */
+		clock = (CFG_BUS_CLK / 10) * hid1_multipliers_x_10[get_hid1 () >> 28];
+		break;
+
+	case CPU_UNKNOWN:
+	       printf ("get_gclk_freq(): unknown CPU type\n");
+	       clock = 0;
+	       return (1);
+	}
+
 	gd->cpu_clk = clock;
 	gd->bus_clk = CFG_BUS_CLK;
 
 	return (0);
 }
-
-/* ------------------------------------------------------------------------- */
-
-#if 0	/* disabled XXX - use global data instead */
-ulong get_bus_freq (ulong gclk_freq)
-{
-	return CFG_BUS_CLK;
-}
-#endif /* 0 */
 
 /* ------------------------------------------------------------------------- */

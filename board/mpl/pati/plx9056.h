@@ -34,9 +34,9 @@
 #endif
 
 #define PCI9056_VENDOR_ID            PCI_VENDOR_ID
-//#define PCI9656_DEVICE_ID            PCI_DEVICE_ID
+/*#define PCI9656_DEVICE_ID            PCI_DEVICE_ID */
 #define PCI9056_COMMAND              PCI_COMMAND
-//#define PCI9656_STATUS               PCI_STATUS
+/*#define PCI9656_STATUS               PCI_STATUS */
 #define PCI9056_REVISION             PCI_REVISION_ID
 
 #define PCI9056_CACHE_SIZE           PCI_CACHE_LINE_SIZE

@@ -108,10 +108,10 @@ typedef enum __cpu_t {
 	CPU_740, CPU_750,
 	CPU_740P, CPU_750P,
 	CPU_745, CPU_755,
-	CPU_750CX, CPU_750FX,
+	CPU_750CX, CPU_750FX, CPU_750GX,
 	CPU_7400,
 	CPU_7410,
-	CPU_7450,
+	CPU_7450, CPU_7455, CPU_7457,
 	CPU_UNKNOWN} cpu_t;
 
 extern cpu_t get_cpu_type(void);

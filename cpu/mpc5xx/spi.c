@@ -354,8 +354,6 @@ ssize_t spi_read (uchar *addr, int alen, uchar *buffer, int len)
 	return (len);
 }
 
-
-
 /****************************************************************************
  *  Function:    spi_xfer
  **************************************************************************** */
@@ -412,5 +410,3 @@ ssize_t spi_xfer (size_t count)
 }
 
 #endif	/* CONFIG_SPI  */
-
-

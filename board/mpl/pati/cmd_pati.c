@@ -296,8 +296,6 @@ static int pati_pci_eeprom_read(unsigned short offset, unsigned long addr, unsig
 	return 0;
 }
 
-
-
 /******************************************************************************
  * PCI Bridge Registers Dump
 *******************************************************************************/

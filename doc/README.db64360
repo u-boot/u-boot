@@ -1,0 +1,105 @@
+This file contains status information for the port of the U-Boot to the Marvell Development Board DB64360.
+
+Author: Ronen Shitrit <rshitrit@il.marvell.com>
+
+This U-Boot version is based on the work of Brian Waite and his team from Sky Computers, THANKS A LOT.
+
+Supported CPU Types :
++++++++++++++++++++++
+ IBM750FX (ver 2.3)
+ MPC7455 (ver 2.1)
+
+Supported CPU Cache Library:
+++++++++++++++++++++++++++++
+ L1 and L2 only.
+
+CPU Control:
+++++++++++++
+ Marvell optimized CPU control settings:
+  Big Endian
+  Enable CPU pipeline
+  Data and address parity checking
+  AACK# assert after 2 cycles
+
+U-Boot I/O Interface Support:
++++++++++++++++++++++++++++++
+- Serial Interface (UART)
+  This version of U-Boot supports the SIO U-Boot interface driver, with a PC standard baud rate up to 115200 BPS on the ST16C2552 DUART device located on DB-64360-BP device module.
+- Network Interface
+  This LSP supports the following network devices:
+  o MV64360 Gigabit Ethernet Controller device
+  o Intel 82559 PCI NIC device
+- PCI Interface
+  This LSP supports the following capabilities over the Marvell(r) device PCI0/1 units:
+  o Local PCI configuration header control.
+  o External PCI configuration header control (for other agents on the bus).
+  o PCI configuration application. Scans and configures the PCI agents on the bus.
+  o PCI Internal Arbiter activation and configuration.
+
+Memory Interface Support:
++++++++++++++++++++++++++
+- DDR
+  o DDR auto-detection and configuration. Enables access up to 256 MB, due to the limitations of using only four Base Address Translations (BATs).
+  o Enable DDR ECC in case both DIMM support ECC, and initialize the entire DDR memory by using the idma.
+
+- Devices
+  o Initializes the MV64360 device's chip-selects 0-3 to enable access to the boot flash, main flash, real time clock (RTC), and external SRAM.
+  o JFFS2
+    JFFS2 is a crash/power down safe file system for disk-less embedded devices.
+    This version of U-Boot supports scanning a JFFS2 file system on the large flash and loading files from it.
+
+Unsupported Features:
++++++++++++++++++++++
+ Messaging unit - No support for MV64360 Messaging unit.
+ Watchdog Timer - No support for MV64360 Watchdog unit.
+ L3 cache - No support for L3 cache on MPC7455
+ Dual PCU - No support for Dual CPU
+ PCI-X was never tested
+ IDMA driver - No support for MV64360 IDMA unit.
+
+BSP Special Considerations:
++++++++++++++++++++++++++++
+- DDR DIMM location: Due to PCI specifications, place the larger DIMM module in the MAIN DIMM slot, in order to have full access from the PCI to the DDR while using both DDR slots.
+- DDR DIMM types: Due to architectural and software limitations, the registration, CAS Latency, and ECC of both DIMMS should be identical.
+
+Test Cases:
+###########
+UART:
++++++
+Check that the UART baud rate is configured to 57600 and 115200, and check:
+	Transmit (to the hyper terminal) and Receive (using the keyboard) using Linux minicom.
+	Load S-Record file over the UART using Windows HyperTerminal.
+
+Network:
+++++++++
+Use TFTP application to load a debugged executable and execute it.
+Insert Intel PCI NIC 82557 rev 08 to PCI slots 0-3 Check correct detection of the PCI NIC, correct configuration of the NIC BARs , and load files by using tftp through the PCI NIC.
+
+Memory:
++++++++
+Test DDR DIMMs on DB-64360-BP. See that Uboot report their correct parameters:
+o	128MB DIMM consist of 16 x 64Mbit devices
+o	128MB DIMM consist of 09 x 128Mbit devices @ 266MHz.
+o	256MB DIMM consist of 16 x 128Mbit devices @ 266MHz.
+o	256MB DIMM consist of 09 x 256Mbit devices @ 400MHz.
+o	512MB DIMM consist of 16 x 256Mbit devices @ 333MHz.
+o	512MB DIMM consist of 18 x 256Mbit devices @ 266MHz.
+o	GigaB DIMM consist of 36 x 256Mbit devices @ 266MHz registered
+
+For each chip select device perform data access to verify its accessibility.
+
+Create a JFFS2 on the large flash through the Linux holding few files, few dirs and a uImage.
+Load the U-Boot and:
+use the ls command to check correct scan of the JFFS2 on the large flash.
+Use the floads command to copy the uImage from the JFFS2 on the large flash to the DIMM SDRAM, and boot the uImage.
+
+PCI:
+++++
+1)Insert different PCI cards:
+Galileo 64120A rev 10 and 12, Intel Nic 82557 rev 08 and Real Tech  NIC 8139 rev10
+on different slots (0-3) of the PCI and check:
+o	Correct detection of the PCI devices.
+o	Correct address mapping of the PCI devices.
+2)Insert Galileo 64120A rev 10 on different slots (0-3) of the PCI and check writing and reading pci configuration register through the U-Boot.
+
+Booting Linux through the U-Boot (use the bootargs of the U-Boot as a bootcmd to the kernal)

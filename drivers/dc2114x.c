@@ -284,9 +284,9 @@ int dc21x4x_initialize(bd_t *bis)
 		dev = (struct eth_device*) malloc(sizeof *dev);
 
 #ifdef CONFIG_TULIP_FIX_DAVICOM
-            sprintf(dev->name, "Davicom#%d", card_number);
+	    sprintf(dev->name, "Davicom#%d", card_number);
 #else
-            sprintf(dev->name, "dc21x4x#%d", card_number);
+	    sprintf(dev->name, "dc21x4x#%d", card_number);
 #endif
 
 #ifdef CONFIG_TULIP_USE_IO
@@ -306,7 +306,7 @@ int dc21x4x_initialize(bd_t *bis)
 		udelay(10 * 1000);
 
 #ifndef CONFIG_TULIP_FIX_DAVICOM
-        read_hw_addr(dev, bis);
+	read_hw_addr(dev, bis);
 #endif
 		eth_register(dev);
 
@@ -358,7 +358,7 @@ static int dc21x4x_init(struct eth_device* dev, bd_t* bis)
 		tx_ring[i].buf = 0;
 
 #ifdef CONFIG_TULIP_FIX_DAVICOM
-        tx_ring[i].next = cpu_to_le32(phys_to_bus((u32) &tx_ring[(i+1) % NUM_TX_DESC]));
+	tx_ring[i].next = cpu_to_le32(phys_to_bus((u32) &tx_ring[(i+1) % NUM_TX_DESC]));
 #else
 		tx_ring[i].next = 0;
 #endif

@@ -59,7 +59,7 @@
 
 #define CONFIG_WATCHDOG				/* turn on platform specific watchdog 	*/
 
-/*#define CONFIG_STATUS_LED	1		*//* Enable status led */
+/*#define CONFIG_STATUS_LED	1		*/ /* Enable status led */
 
 #define CONFIG_LOADS_ECHO	1		/* Echo on for serial download */
 
@@ -129,8 +129,6 @@
 #define	CFG_MONITOR_LEN		(256 << 10)	/* Reserve 192 kB for Monitor				*/
 #define	CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()				*/
 
-
-
 #define CFG_RESET_ADDRESS	(PLD_CONFIG_BASE + 0x10)	 /* Adress which causes reset */
 
 /*
@@ -184,9 +182,6 @@
 #define CFG_SYPCR	(SYPCR_SWTC | SYPCR_BMT | SYPCR_BME | SYPCR_SWF | \
 			 SYPCR_SWP)
 #endif	/* CONFIG_WATCHDOG */
-
-
-
 
 /*-----------------------------------------------------------------------
  * TBSCR - Time Base Status and Control

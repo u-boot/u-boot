@@ -601,5 +601,3 @@ pll_prog_code_end:
 	nop
 	blr
 #endif
-
-

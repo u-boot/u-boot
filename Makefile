@@ -863,6 +863,12 @@ AmigaOneG3SE_config:	unconfig
 BAB7xx_config: unconfig
 	@./mkconfig $(@:_config=) ppc 74xx_7xx bab7xx eltec
 
+DB64360_config:  unconfig
+	@./mkconfig DB64360 ppc 74xx_7xx db64360 Marvell
+
+DB64460_config:  unconfig
+	@./mkconfig DB64460 ppc 74xx_7xx db64460 Marvell
+
 debris_config: unconfig
 	@./mkconfig $(@:_config=) ppc mpc824x debris etin
 

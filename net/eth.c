@@ -31,23 +31,25 @@
 extern int gt6426x_eth_initialize(bd_t *bis);
 #endif
 
+extern int au1x00_enet_initialize(bd_t*);
+extern int dc21x4x_initialize(bd_t*);
 extern int e1000_initialize(bd_t*);
 extern int eepro100_initialize(bd_t*);
+extern int eth_3com_initialize(bd_t*);
+extern int fec_initialize(bd_t*);
+extern int inca_switch_initialize(bd_t*);
+extern int mpc5xxx_fec_initialize(bd_t*);
+extern int mv6436x_eth_initialize(bd_t *);
+extern int mv6446x_eth_initialize(bd_t *);
 extern int natsemi_initialize(bd_t*);
 extern int ns8382x_initialize(bd_t*);
-extern int dc21x4x_initialize(bd_t*);
-extern int eth_3com_initialize(bd_t*);
 extern int pcnet_initialize(bd_t*);
-extern int fec_initialize(bd_t*);
-extern int scc_initialize(bd_t*);
-extern int inca_switch_initialize(bd_t*);
-extern int ppc_4xx_eth_initialize(bd_t *);
 extern int plb2800_eth_initialize(bd_t*);
-extern int mpc5xxx_fec_initialize(bd_t*);
+extern int ppc_4xx_eth_initialize(bd_t *);
+extern int rtl8139_initialize(bd_t*);
+extern int scc_initialize(bd_t*);
 extern int skge_initialize(bd_t*);
 extern int tsec_initialize(bd_t*);
-extern int au1x00_enet_initialize(bd_t*);
-extern int rtl8139_initialize(bd_t*);
 
 static struct eth_device *eth_devices, *eth_current;
 
@@ -104,6 +106,12 @@ int eth_initialize(bd_t *bis)
 	eth_devices = NULL;
 	eth_current = NULL;
 
+#ifdef CONFIG_DB64360
+	mv6436x_eth_initialize(bis);
+#endif
+#ifdef CONFIG_DB64460
+	mv6446x_eth_initialize(bis);
+#endif
 #if defined(CONFIG_405GP) || defined(CONFIG_440) || defined(CONFIG_405EP)
 	ppc_4xx_eth_initialize(bis);
 #endif

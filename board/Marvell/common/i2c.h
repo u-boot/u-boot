@@ -1,6 +1,6 @@
 /*
- * (C) Copyright 2001
- * Josh Huber <huber@mclx.com>, Mission Critical Linux, Inc.
+ * (C) Copyright 2000
+ * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -19,43 +19,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
- */
-
-/*
- * cpu_init.c - low level cpu init
  *
- * there's really nothing going on here yet.  future work area?
+ * Hacked for the DB64360 board by Ingo.Assmus@keymile.com
  */
 
-#include <common.h>
-#include <74xx_7xx.h>
+#ifndef __I2C_H__
+#define __I2C_H__
 
-/*
- * Breath some life into the CPU...
- *
- * there's basically nothing to do here since the memory controller
- * isn't on the CPU in this case.
- */
-void
-cpu_init_f (void)
-{
-	switch (get_cpu_type()) {
-	case CPU_7450:
-	case CPU_7455:
-	case CPU_7457:
-		/* enable the timebase bit in HID0 */
-		set_hid0(get_hid0() | 0x4000000);
-		break;
-	default:
-		/* do nothing */
-		break;
-	}
-}
+/* function declarations */
+uchar i2c_read(uchar, unsigned int, int, uchar*, int);
 
-/*
- * initialize higher level parts of CPU like timers
- */
-int cpu_init_r (void)
-{
-	return (0);
-}
+#endif

@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000 - 2002
+# (C) Copyright 2000 - 2004
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -197,6 +197,9 @@ Directory Hierarchy:
 - board/ivm	Files specific to IVMS8/IVML24 boards
 - board/lantec	Files specific to LANTEC     boards
 - board/lwmon	Files specific to LWMON	     boards
+- board/Marvell Files specific to Marvell development boards
+- board/Marvell/db64360 Files specific to db64360 board
+- board/Marvell/db64460 Files specific to db64460 board
 - board/mbx8xx	Files specific to MBX	     boards
 - board/mpc8260ads
 		Files specific to MPC8260ADS and PQ2FADS-ZU boards
@@ -365,8 +368,9 @@ The following options need to be configured:
 		CONFIG_EBONY,      CONFIG_sacsng,     CONFIG_FPS860L,
 		CONFIG_V37,        CONFIG_ELPT860,    CONFIG_CMI,
 		CONFIG_NETVIA,     CONFIG_RBC823,     CONFIG_ZPC1900,
-		CONFIG_MPC8540ADS, CONFIG_MPC8560ADS, CONFIG_QS850
-		CONFIG_QS823,      CONFIG_QS860T
+		CONFIG_MPC8540ADS, CONFIG_MPC8560ADS, CONFIG_QS850,
+		CONFIG_QS823,      CONFIG_QS860T,     CONFIG_DB64360,
+		CONFIG_DB64460
 
 		ARM based boards:
 		-----------------

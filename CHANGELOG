@@ -2,6 +2,12 @@
 Changes since U-Boot 1.0.0:
 ======================================================================
 
+* Patch by Ronen Shitrit, 10 Dec 2003:
+  Add support for the Marvell DB64360 / DB64460 development boards
+
+* Patch by Detlev Zundel, 10 Dec 2003:
+  fix dependency problem in examples/Makefile
+
 * Patch by Denis Peter, 8 Dec 2003
   - add support for the PATI board (MPC555)
   - add SPI support for the MPC5xx

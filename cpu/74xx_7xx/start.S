@@ -42,7 +42,10 @@
 #include <asm/cache.h>
 #include <asm/mmu.h>
 
+#if !defined(CONFIG_DB64360) && \
+    !defined(CONFIG_DB64460)
 #include <galileo/gt64260R.h>
+#endif
 
 #ifndef  CONFIG_IDENT_STRING
 #define  CONFIG_IDENT_STRING ""
@@ -749,7 +752,9 @@ in_ram:
 	bne	5b
 6:
 	mr	r3, r10		/* Destination Address		*/
-#ifdef CONFIG_AMIGAONEG3SE
+#if defined(CONFIG_AMIGAONEG3SE) || \
+    defined(CONFIG_DB64360)	 || \
+    defined(CONFIG_DB64460)
 	mr	r4, r9		/* Use RAM copy of the global data */
 #endif
 	bl	after_reloc

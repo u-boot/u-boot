@@ -44,16 +44,16 @@ endif
 include $(TOPDIR)/config.mk
 
 SREC	= hello_world.srec
-BIN	= hello_world.bin
+BIN	= hello_world.bin hello_world
 
 ifeq ($(ARCH),i386)
 SREC   += 82559_eeprom.srec
-BIN    += 82559_eeprom.bin
+BIN    += 82559_eeprom.bin 82559_eeprom
 endif
 
 ifeq ($(ARCH),ppc)
 SREC   += sched.srec
-BIN    += sched.bin
+BIN    += sched.bin sched
 endif
 
 ifeq ($(ARCH),m68k)
@@ -64,18 +64,19 @@ endif
 # The following example is pretty 8xx specific...
 ifeq ($(CPU),mpc8xx)
 SREC   += timer.srec
-BIN    += timer.bin
+BIN    += timer.bin timer
 endif
 
 # The following example is 8260 specific...
 ifeq ($(CPU),mpc8260)
 SREC   += mem_to_mem_idma2intr.srec
-BIN    += mem_to_mem_idma2intr.bin
+BIN    += mem_to_mem_idma2intr.bin mem_to_mem_idma2intr
 endif
 
 # Utility for resetting i82559 EEPROM
 ifeq ($(BOARD),oxc)
 SREC   += eepro100_eeprom.srec
+BIN    += eepro100_eeprom.bin eepro100_eeprom
 endif
 
 ifeq ($(BIG_ENDIAN),y)
@@ -102,14 +103,15 @@ all:	.depend $(LIB) $(SREC) $(BIN)
 $(LIB): .depend $(LIBOBJS)
 	$(AR) crv $@ $(LIBOBJS)
 
-%.srec:	%.o $(LIB)
+%:	%.o $(LIB)
 	$(LD) -g $(EX_LDFLAGS) -Ttext $(LOAD_ADDR) \
-		-o $(<:.o=) -e $(<:.o=) $< $(LIB) \
+		-o $@ -e $(<:.o=) $< $(LIB) \
 		-L$(gcclibdir) -lgcc
-	$(OBJCOPY) -O srec $(<:.o=) $@
+%.srec:	%
+	$(OBJCOPY) -O srec $< $@ 2>/dev/null
 
-%.bin:	%.srec
-	$(OBJCOPY) -O binary $(<:.srec=) $@ 2>/dev/null
+%.bin:	%
+	$(OBJCOPY) -O binary $< $@ 2>/dev/null
 
 #########################################################################
 
