@@ -86,10 +86,14 @@
 
 #define	CONFIG_TIMESTAMP	1	/* Print timestamp info for images */
 
+/* Use s3c2400's RTC */
+#define CONFIG_RTC_S3C24X0	1
+
 #ifndef USE_920T_MMU
-#define CONFIG_COMMANDS_tmp	(CONFIG_CMD_DFL & ~CFG_CMD_CACHE)
+#define CONFIG_COMMANDS_tmp	((CONFIG_CMD_DFL & ~CFG_CMD_CACHE) | \
+				 CFG_CMD_DATE)
 #else
-#define CONFIG_COMMANDS_tmp	(CONFIG_CMD_DFL)
+#define CONFIG_COMMANDS_tmp	(CONFIG_CMD_DFL | CFG_CMD_DATE)
 #endif
 
 #ifdef CONFIG_HWFLOW

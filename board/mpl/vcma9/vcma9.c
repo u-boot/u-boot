@@ -72,41 +72,46 @@ static inline void delay(unsigned long loops)
 int board_init(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
+	S3C24X0_CLOCK_POWER * const clk_power = S3C24X0_GetBase_CLOCK_POWER();
+	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
 
 	/* to reduce PLL lock time, adjust the LOCKTIME register */
-	rLOCKTIME = 0xFFFFFF;
+	clk_power->LOCKTIME = 0xFFFFFF;
 
 	/* configure MPLL */
-	rMPLLCON = ((M_MDIV << 12) + (M_PDIV << 4) + M_SDIV);
+	clk_power->MPLLCON = ((M_MDIV << 12) + (M_PDIV << 4) + M_SDIV);
 
 	/* some delay between MPLL and UPLL */
 	delay (4000);
 
 	/* configure UPLL */
-	rUPLLCON = ((U_M_MDIV << 12) + (U_M_PDIV << 4) + U_M_SDIV);
+	clk_power->UPLLCON = ((U_M_MDIV << 12) + (U_M_PDIV << 4) + U_M_SDIV);
 
 	/* some delay between MPLL and UPLL */
 	delay (8000);
 
 	/* set up the I/O ports */
-	rGPACON = 0x007FFFFF;
-	rGPBCON = 0x002AAAAA;
-	rGPBUP = 0x000002BF;
-	rGPCCON = 0xAAAAAAAA;
-	rGPCUP = 0x0000FFFF;
-	rGPDCON = 0xAAAAAAAA;
-	rGPDUP = 0x0000FFFF;
-	rGPECON = 0xAAAAAAAA;
-	rGPEUP = 0x000037F7;
-	rGPFCON = 0x00000000;
-	rGPFUP = 0x00000000;
-	rGPGCON = 0xFFEAFF5A;
-	rGPGUP = 0x0000F0DC;
-	rGPHCON = 0x0028AAAA;
-	rGPHUP = 0x00000656;
+	gpio->GPACON = 0x007FFFFF;
+	gpio->GPBCON = 0x002AAAAA;
+	gpio->GPBUP = 0x000002BF;
+	gpio->GPCCON = 0xAAAAAAAA;
+	gpio->GPCUP = 0x0000FFFF;
+	gpio->GPDCON = 0xAAAAAAAA;
+	gpio->GPDUP = 0x0000FFFF;
+	gpio->GPECON = 0xAAAAAAAA;
+	gpio->GPEUP = 0x000037F7;
+	gpio->GPFCON = 0x00000000;
+	gpio->GPFUP = 0x00000000;
+	gpio->GPGCON = 0xFFEAFF5A;
+	gpio->GPGUP = 0x0000F0DC;
+	gpio->GPHCON = 0x0028AAAA;
+	gpio->GPHUP = 0x00000656;
 
 	/* setup correct IRQ modes for NIC */
-	rEXTINT2 = (rEXTINT2 & ~(7<<8)) | (4<<8); /* rising edge mode */
+	gpio->EXTINT2 = (gpio->EXTINT2 & ~(7<<8)) | (4<<8); /* rising edge mode */
+
+	/* select USB port 2 to be host or device (fix to host for now) */
+	gpio->MISCCR |= 0x08;
 
 	/* init serial */
 	gd->baudrate = CONFIG_BAUDRATE;
@@ -134,6 +139,50 @@ int dram_init(void)
 
 	return 0;
 }
+
+/*
+ * NAND flash initialization.
+ */
+#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+extern void
+nand_probe(ulong physadr);
+
+
+static inline void NF_Reset(void)
+{
+    int i;
+
+    NF_SetCE(NFCE_LOW);
+    NF_Cmd(0xFF);		/* reset command */
+    for(i = 0; i < 10; i++);	/* tWB = 100ns. */
+    NF_WaitRB();		/* wait 200~500us; */
+    NF_SetCE(NFCE_HIGH);
+}
+
+
+static inline void NF_Init(void)
+{
+#define TACLS   0
+#define TWRPH0  3
+#define TWRPH1  0
+    NF_Conf((1<<15)|(0<<14)|(0<<13)|(1<<12)|(1<<11)|(TACLS<<8)|(TWRPH0<<4)|(TWRPH1<<0));
+    //nand->NFCONF = (1<<15)|(1<<14)|(1<<13)|(1<<12)|(1<<11)|(TACLS<<8)|(TWRPH0<<4)|(TWRPH1<<0);
+    // 1  1    1     1,   1      xxx,  r xxx,   r xxx
+    // En 512B 4step ECCR nFCE=H tACLS   tWRPH0   tWRPH1
+
+    NF_Reset();
+}
+
+void
+nand_init(void)
+{
+	S3C2410_NAND * const nand = S3C2410_GetBase_NAND();
+
+	NF_Init();
+	printf("NAND flash probing at 0x%.8lX\n", (ulong)nand);
+	nand_probe((ulong)nand);
+}
+#endif
 
 /*
  * Get some Board/PLD Info
@@ -195,12 +244,12 @@ int checkboard(void)
 			puts ("### No HW ID - assuming VCMA9");
 		} else {
 			b->serial_name[5] = 0;
-			printf ("%s-%d Rev %c SN: %s", b->serial_name, Get_Board_Config(),
+			printf ("%s-%d PCB Rev %c SN: %s", b->serial_name, Get_Board_Config(),
 					Get_Board_PCB(), &b->serial_name[6]);
 		}
 	} else {
 		s[5] = 0;
-		printf ("%s-%d Rev %c SN: %s", s, Get_Board_Config(), Get_Board_PCB(),
+		printf ("%s-%d PCB Rev %c SN: %s", s, Get_Board_Config(), Get_Board_PCB(),
 				&s[6]);
 	}
 	printf("\n");
@@ -211,7 +260,7 @@ int checkboard(void)
 
 void print_vcma9_rev(void)
 {
-	printf("Board: VCMA9-%d Rev: %c (PLD Ver: %d, Rev: %d)\n",
+	printf("Board: VCMA9-%d PCB Rev: %c (PLD Ver: %d, Rev: %d)\n",
 		Get_Board_Config(), Get_Board_PCB(),
 		Get_PLD_Version(), Get_PLD_Revision());
 }
@@ -245,5 +294,3 @@ void print_vcma9_info(void)
 {
     print_vcma9_rev();
 }
-
-

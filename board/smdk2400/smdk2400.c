@@ -46,33 +46,35 @@ extern int do_mdm_init; /* defined in common/main.c */
 int board_init (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
+	S3C24X0_CLOCK_POWER * const clk_power = S3C24X0_GetBase_CLOCK_POWER();
+	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
 
 	/* memory and cpu-speed are setup before relocation */
 	/* change the clock to be 50 MHz 1:1:1 */
-	rMPLLCON = 0x5c042;
-	rCLKDIVN = 0;
+	clk_power->MPLLCON = 0x5c042;
+	clk_power->CLKDIVN = 0;
 	/* set up the I/O ports */
-	rPACON = 0x3ffff;
-	rPBCON = 0xaaaaaaaa;
-	rPBUP = 0xffff;
-	rPECON = 0x0;
-	rPEUP = 0x0;
+	gpio->PACON = 0x3ffff;
+	gpio->PBCON = 0xaaaaaaaa;
+	gpio->PBUP = 0xffff;
+	gpio->PECON = 0x0;
+	gpio->PEUP = 0x0;
 #ifdef CONFIG_HWFLOW
 	/*CTS[0] RTS[0] INPUT INPUT TXD[0] INPUT RXD[0] */
 	/*   10,   10,   00,   00,    10,   00,    10 */
-	rPFCON=0xa22;
+	gpio->PFCON=0xa22;
 	/* Disable pull-up on Rx, Tx, CTS and RTS pins */
-	rPFUP=0x35;
+	gpio->PFUP=0x35;
 #else
 	/*INPUT INPUT INPUT INPUT TXD[0] INPUT RXD[0] */
 	/*   00,   00,   00,   00,    10,   00,    10 */
-	rPFCON = 0x22;
+	gpio->PFCON = 0x22;
 	/* Disable pull-up on Rx and Tx pins */
-	rPFUP = 0x5;
+	gpio->PFUP = 0x5;
 #endif	/* CONFIG_HWFLOW */
-	rPGCON = 0x0;
-	rPGUP = 0x0;
-	rOPENCR = 0x0;
+	gpio->PGCON = 0x0;
+	gpio->PGUP = 0x0;
+	gpio->OPENCR = 0x0;
 
 	/* arch number of SAMSUNG-Board to MACH_TYPE_SMDK2400 */
 	gd->bd->bi_arch_number = 145;

@@ -59,9 +59,13 @@
 #define CONFIG_COMMANDS \
 			(CONFIG_CMD_DFL	 | \
 			CFG_CMD_CACHE	 | \
+			/*CFG_CMD_JFFS2	 |*/ \
+			/*CFG_CMD_NAND	 |*/ \
 			CFG_CMD_EEPROM	 | \
 			CFG_CMD_I2C	 | \
+			/*CFG_CMD_USB	 |*/ \
 			CFG_CMD_REGINFO  | \
+			CFG_CMD_DATE	 | \
 			CFG_CMD_ELF	 | \
 			CFG_CMD_BSP)
 
@@ -111,6 +115,24 @@
  */
 #define CONFIG_SERIAL1          1	/* we use SERIAL 1 on VCMA9 */
 
+/************************************************************
+ * USB support
+ ************************************************************/
+#if 0
+#define CONFIG_USB_OHCI
+#define CONFIG_USB_KEYBOARD
+#define CONFIG_USB_STORAGE
+
+/* Enable needed helper functions */
+#define CFG_DEVICE_DEREGISTER		/* needs device_deregister */
+#endif
+
+/************************************************************
+ * RTC
+ ************************************************************/
+#define	CONFIG_RTC_S3C24X0	1
+
+
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 
@@ -138,7 +160,7 @@
 #define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
 
 #define CFG_MEMTEST_START	0x30000000	/* memtest works on	*/
-#define CFG_MEMTEST_END		0x33F00000	/* 63 MB in DRAM	*/
+#define CFG_MEMTEST_END		0x33F80000	/* 63.5 MB in DRAM	*/
 #define CFG_ALT_MEMTEST
 #define	CFG_LOAD_ADDR		0x33000000	/* default load address	*/
 
@@ -151,6 +173,13 @@
 
 /* valid baudrates */
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+
+/************************************************************
+ * Ident
+ ************************************************************/
+/*#define VERSION_TAG "released"*/
+#define VERSION_TAG "unstable"
+#define CONFIG_IDENT_STRING "\n(c) 2003 by MPL AG Switzerland, MEV-10080-001 " VERSION_TAG
 
 /*-----------------------------------------------------------------------
  * Stack sizes
@@ -204,6 +233,48 @@
 #define CFG_ENV_SIZE		0x10000	/* Total Size of Environment Sector */
 #endif
 
-#define MULTI_PURPOSE_SOCKET_ADDR 0
+
+#define CFG_JFFS2_FIRST_BANK	0
+#define CFG_JFFS2_NUM_BANKS	1
+
+#define MULTI_PURPOSE_SOCKET_ADDR 0x08000000
+
+/*-----------------------------------------------------------------------
+ * NAND flash settings
+ */
+#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+
+#define CFG_MAX_NAND_DEVICE	1	/* Max number of NAND devices		*/
+#define SECTORSIZE 512
+
+#define ADDR_COLUMN 1
+#define ADDR_PAGE 2
+#define ADDR_COLUMN_PAGE 3
+
+#define NAND_ChipID_UNKNOWN 	0x00
+#define NAND_MAX_FLOORS 1
+#define NAND_MAX_CHIPS 1
+
+#define NAND_WAIT_READY(nand)	NF_WaitRB()
+
+#define NAND_DISABLE_CE(nand)	NF_SetCE(NFCE_HIGH)
+#define NAND_ENABLE_CE(nand)	NF_SetCE(NFCE_LOW)
+
+
+#define WRITE_NAND_COMMAND(d, adr)	NF_Cmd(d)
+#define WRITE_NAND_COMMANDW(d, adr)	NF_CmdW(d)
+#define WRITE_NAND_ADDRESS(d, adr)	NF_Addr(d)
+#define WRITE_NAND(d, adr)		NF_Write(d)
+#define READ_NAND(adr)			NF_Read()
+/* the following functions are NOP's because S3C24X0 handles this in hardware */
+#define NAND_CTL_CLRALE(nandptr)
+#define NAND_CTL_SETALE(nandptr)
+#define NAND_CTL_CLRCLE(nandptr)
+#define NAND_CTL_SETCLE(nandptr)
+
+#define CONFIG_MTD_NAND_VERIFY_WRITE	1
+#define CONFIG_MTD_NAND_ECC_JFFS2	1
+
+#endif	/* CONFIG_COMMANDS & CFG_CMD_NAND */
 
 #endif	/* __CONFIG_H */

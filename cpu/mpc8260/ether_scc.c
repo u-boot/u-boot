@@ -333,7 +333,7 @@ int eth_init(bd_t *bis)
     immr->im_scc[CONFIG_ETHER_INDEX-1].scc_gsmrl |= (SCC_GSMRL_ENR |
                                                      SCC_GSMRL_ENT);
 
-    return 1;
+    return 0;
 }
 
 

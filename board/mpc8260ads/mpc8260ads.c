@@ -9,6 +9,10 @@
  * (C) Copyright 2001, Stuart Hughes, Lineo Inc, stuarth@lineo.com
  * Added support for the 16M dram simm on the 8260ads boards
  *
+ * (C) Copyright 2003 Arabella Software Ltd.
+ * Yuli Barcohen <yuli@arabellasw.com>
+ * Added support for SDRAM DIMMs SPD EEPROM, MII, Ethernet PHY init.
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *

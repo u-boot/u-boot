@@ -67,16 +67,29 @@
  */
 #define CONFIG_SERIAL1          1	/* we use SERIAL 1 on SMDK2410 */
 
+/************************************************************
+ * RTC
+ ************************************************************/
+#define	CONFIG_RTC_S3C24X0	1
+
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_BAUDRATE		115200
 
-#ifndef USE_920T_MMU
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL & ~CFG_CMD_CACHE)
-#else
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL)
-#endif
+/***********************************************************
+ * Command definition
+ ***********************************************************/
+#define CONFIG_COMMANDS \
+			(CONFIG_CMD_DFL	 | \
+			CFG_CMD_CACHE	 | \
+			/*CFG_CMD_NAND	 |*/ \
+			/*CFG_CMD_EEPROM |*/ \
+			/*CFG_CMD_I2C	 |*/ \
+			/*CFG_CMD_USB	 |*/ \
+			CFG_CMD_REGINFO  | \
+			CFG_CMD_DATE	 | \
+			CFG_CMD_ELF)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>

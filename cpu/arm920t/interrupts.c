@@ -43,7 +43,12 @@ extern void reset_cpu(ulong addr);
 int timer_load_val = 0;
 
 /* macro to read the 16 bit timer */
-#define READ_TIMER (rTCNTO4 & 0xffff)
+static inline ulong READ_TIMER(void)
+{
+	S3C24X0_TIMERS * const timers = S3C24X0_GetBase_TIMERS();
+
+	return (timers->TCNTO4 & 0xffff);
+}
 
 #ifdef CONFIG_USE_IRQ
 /* enable IRQ interrupts */
@@ -184,9 +189,11 @@ static ulong lastdec;
 
 int interrupt_init (void)
 {
+	S3C24X0_TIMERS * const timers = S3C24X0_GetBase_TIMERS();
+
 	/* use PWM Timer 4 because it has no output */
 	/* prescaler for Timer 4 is 16 */
-	rTCFG0 = 0x0f00;
+	timers->TCFG0 = 0x0f00;
 	if (timer_load_val == 0)
 	{
 		/*
@@ -197,11 +204,11 @@ int interrupt_init (void)
 		timer_load_val = get_PCLK()/(2 * 16 * 100);
 	}
 	/* load value for 10 ms timeout */
-	lastdec = rTCNTB4 = timer_load_val;
+	lastdec = timers->TCNTB4 = timer_load_val;
 	/* auto load, manual update of Timer 4 */
-	rTCON = (rTCON & ~0x0700000) | 0x600000;
+	timers->TCON = (timers->TCON & ~0x0700000) | 0x600000;
 	/* auto load, start Timer 4 */
-	rTCON = (rTCON & ~0x0700000) | 0x500000;
+	timers->TCON = (timers->TCON & ~0x0700000) | 0x500000;
 	timestamp = 0;
 
 	return (0);
@@ -243,13 +250,13 @@ void udelay (unsigned long usec)
 void reset_timer_masked (void)
 {
 	/* reset time */
-	lastdec = READ_TIMER;
+	lastdec = READ_TIMER();
 	timestamp = 0;
 }
 
 ulong get_timer_masked (void)
 {
-	ulong now = READ_TIMER;
+	ulong now = READ_TIMER();
 
 	if (lastdec >= now) {
 		/* normal mode */

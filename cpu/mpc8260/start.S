@@ -161,6 +161,7 @@ _hrcw_table:
 	.globl	_start
 _start:
 	li	r21, BOOTFLAG_COLD	/* Normal Power-On: Boot from FLASH*/
+	nop
 	b	boot_cold
 
 	. = EXC_OFF_SYS_RESET + 0x10
@@ -171,6 +172,18 @@ _start_warm:
 	b	boot_warm
 
 boot_cold:
+#if defined(CONFIG_MPC8260ADS)
+	lis	r3, CFG_DEFAULT_IMMR@h
+	nop
+	lwz	r4, 0(r3)
+	nop
+	rlwinm	r4, r4, 0, 8, 5
+	nop
+	oris	r4, r4, 0x0200
+	nop
+	stw	r4, 0(r3)
+	nop
+#endif /* CONFIG_MPC8260ADS */
 boot_warm:
 	mfmsr	r5			/* save msr contents		*/
 

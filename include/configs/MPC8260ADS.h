@@ -26,10 +26,6 @@
  * MA 02111-1307 USA
  */
 
-/*
- * Config header file for a MPC8260ADS Pilot 16M Ram Simm, 8Mbytes Flash Simm
- */
-
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
@@ -77,22 +73,44 @@
 #undef	CONFIG_ETHER_ON_SCC		/* define if ether on SCC   */
 #define CONFIG_ETHER_ON_FCC		/* define if ether on FCC   */
 #undef	CONFIG_ETHER_NONE		/* define if ether on something else */
-#define CONFIG_ETHER_INDEX	2	/* which channel for ether  */
+
+#ifdef CONFIG_ETHER_ON_FCC
+
+#define CONFIG_ETHER_INDEX	2	/* which SCC/FCC channel for ethernet */
 
 #if (CONFIG_ETHER_INDEX == 2)
-
 /*
  * - Rx-CLK is CLK13
  * - Tx-CLK is CLK14
  * - Select bus for bd/buffers (see 28-13)
- * - Half duplex
+ * - Full duplex
  */
 # define CFG_CMXFCR_MASK	(CMXFCR_FC2 | CMXFCR_RF2CS_MSK | CMXFCR_TF2CS_MSK)
 # define CFG_CMXFCR_VALUE	(CMXFCR_RF2CS_CLK13 | CMXFCR_TF2CS_CLK14)
 # define CFG_CPMFCR_RAMTYPE	0
-# define CFG_FCC_PSMR		0
+# define CFG_FCC_PSMR		(FCC_PSMR_FDE | FCC_PSMR_LPB)
 
 #endif	/* CONFIG_ETHER_INDEX */
+
+#define CONFIG_MII			/* MII PHY management		*/
+#define CONFIG_BITBANGMII		/* bit-bang MII PHY management	*/
+/*
+ * GPIO pins used for bit-banged MII communications
+ */
+#define MDIO_PORT	2		/* Port C */
+#define MDIO_ACTIVE	(iop->pdir |=  0x00400000)
+#define MDIO_TRISTATE	(iop->pdir &= ~0x00400000)
+#define MDIO_READ	((iop->pdat &  0x00400000) != 0)
+
+#define MDIO(bit)	if(bit) iop->pdat |=  0x00400000; \
+			else	iop->pdat &= ~0x00400000
+
+#define MDC(bit)	if(bit) iop->pdat |=  0x00200000; \
+			else	iop->pdat &= ~0x00200000
+
+#define MIIDELAY	udelay(1)
+
+#endif /* CONFIG_ETHER_ON_FCC */
 
 /* other options */
 #define CONFIG_HARD_I2C		1	/* To enable I2C support	*/
@@ -172,9 +190,6 @@
 #define CFG_MEMTEST_START	0x00100000	/* memtest works on */
 #define CFG_MEMTEST_END		0x00f00000	/* 1 ... 15 MB in DRAM	*/
 
-#define CONFIG_CLOCKS_IN_MHZ	1	/* clocks passsed to Linux in MHz */
-					/* for versions < 2.4.5-pre5	*/
-
 #define CFG_LOAD_ADDR		0x100000	/* default load address */
 
 #define CFG_HZ			1000	/* decrementer freq: 1 ms ticks */
@@ -239,8 +254,8 @@
 
 #ifndef CFG_RAMBOOT
 #  define CFG_ENV_IS_IN_FLASH	1
-#    define CFG_ENV_ADDR	(CFG_MONITOR_BASE + 0x40000)
-#    define CFG_ENV_SECT_SIZE	0x40000
+#  define CFG_ENV_SECT_SIZE	0x40000
+#  define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_ENV_SECT_SIZE)
 #else
 #  define CFG_ENV_IS_IN_NVRAM	1
 #  define CFG_ENV_ADDR		(CFG_MONITOR_BASE - 0x1000)

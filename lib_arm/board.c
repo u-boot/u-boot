@@ -42,8 +42,12 @@ extern int  AT91F_DataflashInit(void);
 extern void dataflash_print_info(void);
 #endif
 
+#ifndef CONFIG_IDENT_STRING
+#define CONFIG_IDENT_STRING ""
+#endif
+
 const char version_string[] =
-	U_BOOT_VERSION" (" __DATE__ " - " __TIME__ ")";
+	U_BOOT_VERSION" (" __DATE__ " - " __TIME__ ")"CONFIG_IDENT_STRING;
 
 #ifdef CONFIG_DRIVER_CS8900
 extern void cs8900_get_enetaddr (uchar * addr);
@@ -148,7 +152,6 @@ static void display_flash_config (ulong size)
 	puts ("Flash: ");
 	print_size (size, "\n");
 }
-
 
 
 /*

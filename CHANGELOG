@@ -2,6 +2,18 @@
 Changes since U-Boot 0.3.1:
 ======================================================================
 
+* Patches by David Müller, 12 Jun 2003:
+  - rewrite of the S3C24X0 register definitions stuff
+  - "driver" for the built-in S3C24X0 RTC
+
+* Patches by Yuli Barcohen, 12 Jun 2003:
+  - Add MII support and Ethernet PHY initialization for MPC8260ADS board
+  - Fix incorrect SIUMCR initialisation caused by wrong Hard Reset
+    configuration word supplied by FPGA on some MPC8260ADS boards
+
+* Patch by Pantelis Antoniou, 10 Jun 2003:
+  Unify status LED interface
+
 * Add support for DS12887 RTC; add RTC support for ATC board
 
 * Patch by Nicolas Lacressonniere, 11 Jun 2003:

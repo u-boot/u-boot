@@ -38,7 +38,8 @@ OBJS	= 3c589.o 5701rls.o ali512x.o \
 	  pcnet.o plb2800_eth.o \
 	  s3c24x0_i2c.o sed13806.o serial.o \
 	  smc91111.o smiLynxEM.o              sym53c8xx.o \
-	  ti_pci1410a.o tigon3.o w83c553f.o
+	  ti_pci1410a.o tigon3.o w83c553f.o \
+	  status_led.o
 
 ## Disabled for now:
 ##	  cs8900.o ct69000.o dataflash.o dc2114x.o ds1722.o \

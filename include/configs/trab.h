@@ -90,6 +90,9 @@
 
 #define	CONFIG_TIMESTAMP	1	/* Print timestamp info for images */
 
+/* Use s3c2400's RTC */
+#define CONFIG_RTC_S3C24X0	1
+
 #ifdef CONFIG_HWFLOW
 #define CONFIG_COMMANDS_ADD_HWFLOW	CFG_CMD_HWFLOW
 #else
@@ -105,11 +108,13 @@
 #ifndef USE_920T_MMU
 #define CONFIG_COMMANDS		((CONFIG_CMD_DFL & ~CFG_CMD_CACHE) | \
 				 CFG_CMD_BSP			| \
+				 CFG_CMD_DATE			| \
 				 CONFIG_COMMANDS_ADD_HWFLOW	| \
 				 CONFIG_COMMANDS_ADD_VFD	)
 #else
 #define CONFIG_COMMANDS		(CONFIG_CMD_DFL			| \
 				 CFG_CMD_BSP			| \
+				 CFG_CMD_DATE			| \
 				 CONFIG_COMMANDS_ADD_HWFLOW	| \
 				 CONFIG_COMMANDS_ADD_VFD	)
 #endif

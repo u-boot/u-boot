@@ -25,57 +25,51 @@
 #include <s3c2410.h>
 #endif
 
+#ifdef CONFIG_SERIAL1
+#define UART_NR	S3C24X0_UART0
+
+#elif CONFIG_SERIAL2
+# if defined(CONFIG_TRAB)
+#  #error "TRAB supports only CONFIG_SERIAL1"
+# endif
+#define UART_NR	S3C24X0_UART1
+
+#elif CONFIG_SERIAL3
+# if defined(CONFIG_TRAB)
+#  #error "TRAB supports only CONFIG_SERIAL1"
+# endif
+#define UART_NR	S3C24X0_UART2
+
+#else
+#error "Bad: you didn't configure serial ..."
+#endif
 
 void serial_setbrg (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-
+	S3C24X0_UART * const uart = S3C24X0_GetBase_UART(UART_NR);
 	int i;
 	unsigned int reg = 0;
 
 	/* value is calculated so : (int)(PCLK/16./baudrate) -1 */
 	reg = get_PCLK() / (16 * gd->baudrate) - 1;
 
-#ifdef CONFIG_SERIAL1
 	/* FIFO enable, Tx/Rx FIFO clear */
-	rUFCON0 = 0x07;
-	rUMCON0 = 0x0;
+	uart->UFCON = 0x07;
+	uart->UMCON = 0x0;
 	/* Normal,No parity,1 stop,8 bit */
-	rULCON0 = 0x3;
+	uart->ULCON = 0x3;
 	/*
 	 * tx=level,rx=edge,disable timeout int.,enable rx error int.,
 	 * normal,interrupt or polling
 	 */
-	rUCON0 = 0x245;
-	rUBRDIV0 = reg;
+	uart->UCON = 0x245;
+	uart->UBRDIV = reg;
 
 #ifdef CONFIG_HWFLOW
-	rUMCON0 = 0x1; /* RTS up */
+	uart->UMCON = 0x1; /* RTS up */
 #endif
 	for (i = 0; i < 100; i++);
-#elif CONFIG_SERIAL2
-# if defined(CONFIG_TRAB)
-#  #error "TRAB supports only CONFIG_SERIAL1"
-# endif
-	/* FIFO enable, Tx/Rx FIFO clear */
-	rUFCON1 = 0x06;
-	rUMCON1 = 0x0;
-	/* Normal,No parity,1 stop,8 bit */
-	rULCON1 = 0x3;
-	/*
-	 * tx=level,rx=edge,disable timeout int.,enable rx error int.,
-	 * normal,interrupt or polling
-	 */
-	rUCON1 = 0x245;
-	rUBRDIV1 = reg;
-
-#ifdef CONFIG_HWFLOW
-	rUMCON1 = 0x1; /* RTS up */
-#endif
-	for (i = 0; i < 100; i++);
-#else
-#error "Bad: you didn't configure serial ..."
-#endif
 }
 
 /*
@@ -97,15 +91,12 @@ int serial_init (void)
  */
 int serial_getc (void)
 {
-#ifdef CONFIG_SERIAL1
-	while (!(rUTRSTAT0 & 0x1));
+	S3C24X0_UART * const uart = S3C24X0_GetBase_UART(UART_NR);
+	
+	/* wait for character to arrive */
+	while (!(uart->UTRSTAT & 0x1));
 
-	return rURXH0 & 0xff;
-#elif CONFIG_SERIAL2
-	while (!(rUTRSTAT1 & 0x1));
-
-	return rURXH1 & 0xff;
-#endif
+	return uart->URXH & 0xff;
 }
 
 #ifdef CONFIG_HWFLOW
@@ -146,33 +137,22 @@ void enable_putc(void)
  */
 void serial_putc (const char c)
 {
+	S3C24X0_UART * const uart = S3C24X0_GetBase_UART(UART_NR);
 #ifdef CONFIG_MODEM_SUPPORT
 	if (be_quiet)
 		return;
 #endif
 
-#ifdef CONFIG_SERIAL1
-	/* wait for room in the tx FIFO on SERIAL1 */
-	while (!(rUTRSTAT0 & 0x2));
+	/* wait for room in the tx FIFO */
+	while (!(uart->UTRSTAT & 0x2));
 
 #ifdef CONFIG_HWFLOW
 	/* Wait for CTS up */
-	while(hwflow && !(rUMSTAT0 & 0x1))
+	while(hwflow && !(uart->UMSTAT & 0x1))
 		;
 #endif
 
-	rUTXH0 = c;
-#elif CONFIG_SERIAL2
-	/* wait for room in the tx FIFO on SERIAL2 */
-	while (!(rUTRSTAT1 & 0x2));
-
-#ifdef CONFIG_HWFLOW
-	/* Wait for CTS up */
-	while(hwflow && !(rUMSTAT1 & 0x1))
-		;
-#endif
-	rUTXH1 = c;
-#endif
+	uart->UTXH = c;
 
 	/* If \n, also do \r */
 	if (c == '\n')
@@ -184,11 +164,9 @@ void serial_putc (const char c)
  */
 int serial_tstc (void)
 {
-#ifdef CONFIG_SERIAL1
-	return rUTRSTAT0 & 0x1;
-#elif CONFIG_SERIAL2
-	return rUTRSTAT1 & 0x1;
-#endif
+	S3C24X0_UART * const uart = S3C24X0_GetBase_UART(UART_NR);
+
+	return uart->UTRSTAT & 0x1;
 }
 
 void

@@ -35,7 +35,7 @@ include $(TOPDIR)/config.mk
 LIB	= lib$(CPU).a
 
 START	= start.S 
-OBJS	= serial.o cpu.o cpu_init.o interrupts.o traps.o speed.o status_led.o
+OBJS	= serial.o cpu.o cpu_init.o interrupts.o traps.o speed.o
 
 all:	.depend $(START) $(LIB)
 

@@ -321,6 +321,10 @@ void status_led_set  (int led, int state);
 #endif
 /************************************************************************/
 
+#ifndef CONFIG_BOARD_SPECIFIC_LED
+# include <asm/status_led.h>
+#endif
+
 #endif	/* CONFIG_STATUS_LED	*/
 
 #endif	/* _STATUS_LED_H_	*/

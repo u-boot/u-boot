@@ -51,12 +51,13 @@
 
 static ulong get_PLLCLK(int pllreg)
 {
+    S3C24X0_CLOCK_POWER * const clk_power = S3C24X0_GetBase_CLOCK_POWER();
     ulong r, m, p, s;
 
     if (pllreg == MPLL)
-	r = rMPLLCON;
+	r = clk_power->MPLLCON;
     else if (pllreg == UPLL)
-	r = rUPLLCON;
+	r = clk_power->UPLLCON;
     else
 	hang();
 
@@ -76,17 +77,17 @@ ulong get_FCLK(void)
 /* return HCLK frequency */
 ulong get_HCLK(void)
 {
-    ulong clkdiv = rCLKDIVN;
+    S3C24X0_CLOCK_POWER * const clk_power = S3C24X0_GetBase_CLOCK_POWER();
 
-    return((clkdiv & 0x2) ? get_FCLK()/2 : get_FCLK());
+    return((clk_power->CLKDIVN & 0x2) ? get_FCLK()/2 : get_FCLK());
 }
 
 /* return PCLK frequency */
 ulong get_PCLK(void)
 {
-    ulong clkdiv = rCLKDIVN;
+    S3C24X0_CLOCK_POWER * const clk_power = S3C24X0_GetBase_CLOCK_POWER();
 
-    return((clkdiv & 0x1) ? get_HCLK()/2 : get_HCLK());
+    return((clk_power->CLKDIVN & 0x1) ? get_HCLK()/2 : get_HCLK());
 }
 
 /* return UCLK frequency */

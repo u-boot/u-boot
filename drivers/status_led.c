@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000
+ * (C) Copyright 2000-2003
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -27,7 +27,7 @@
 /*
  * The purpose of this code is to signal the operational status of a
  * target which usually boots over the network; while running in
- * PCBoot, a status LED is blinking. As soon as a valid BOOTP reply
+ * U-Boot, a status LED is blinking. As soon as a valid BOOTP reply
  * message has been received, the LED is turned off. The Linux
  * kernel, once it is running, will start blinking the LED again,
  * with another frequency.
@@ -38,10 +38,10 @@
 #ifdef CONFIG_STATUS_LED
 
 typedef struct {
-	ulong	mask;
-	int	state;
-	int	period;
-	int	cnt;
+	led_id_t mask;
+	int state;
+	int period;
+	int cnt;
 } led_dev_t;
 
 led_dev_t led_dev[] = {
@@ -64,6 +64,13 @@ led_dev_t led_dev[] = {
 	0,
     },
 #endif
+#if defined(STATUS_LED_BIT3)
+    {	STATUS_LED_BIT3,
+	STATUS_LED_STATE3,
+	STATUS_LED_PERIOD3,
+	0,
+    },
+#endif
 };
 
 #define MAX_LED_DEV	(sizeof(led_dev)/sizeof(led_dev_t))
@@ -72,89 +79,53 @@ static int status_led_init_done = 0;
 
 static void status_led_init (void)
 {
-    volatile immap_t *immr = (immap_t *)CFG_IMMR;
-    int i;
+	led_dev_t *ld;
+	int i;
 
-    for (i=0; i<MAX_LED_DEV; ++i) {
-	led_dev_t *ld = &led_dev[i];
-
-	immr->STATUS_LED_PAR &= ~(ld->mask);
-#ifdef STATUS_LED_ODR
-	immr->STATUS_LED_ODR &= ~(ld->mask);
-#endif
-#if (STATUS_LED_ACTIVE == 0)
-	if (ld->state == STATUS_LED_ON)
-		immr->STATUS_LED_DAT &= ~(ld->mask);
-	else
-		immr->STATUS_LED_DAT |=   ld->mask ;
-#else
-	if (ld->state == STATUS_LED_ON)
-		immr->STATUS_LED_DAT |=   ld->mask ;
-	else
-		immr->STATUS_LED_DAT &= ~(ld->mask);
-#endif
-	immr->STATUS_LED_DIR |=   ld->mask ;
-    }
-
-    status_led_init_done  = 1;
+	for (i = 0, ld = led_dev; i < MAX_LED_DEV; i++, ld++)
+		__led_init (ld->mask, ld->state);
+	status_led_init_done = 1;
 }
 
 void status_led_tick (ulong timestamp)
 {
-    volatile immap_t *immr = (immap_t *)CFG_IMMR;
-    int i;
+	led_dev_t *ld;
+	int i;
 
-    if (!status_led_init_done)
-	status_led_init();
+	if (!status_led_init_done)
+		status_led_init ();
 
-    for (i=0; i<MAX_LED_DEV; ++i) {
-	led_dev_t *ld = &led_dev[i];
+	for (i = 0, ld = led_dev; i < MAX_LED_DEV; i++, ld++) {
 
-	if (ld->state != STATUS_LED_BLINKING)
-		continue;
+		if (ld->state != STATUS_LED_BLINKING)
+			continue;
 
-	if (++(ld->cnt) >= ld->period) {
-		immr->STATUS_LED_DAT ^= ld->mask;
-		ld->cnt -= ld->period;
+		if (++ld->cnt >= ld->period) {
+			__led_toggle (ld->mask);
+			ld->cnt -= ld->period;
+		}
+
 	}
-    }
 }
 
 void status_led_set (int led, int state)
 {
-    volatile immap_t *immr = (immap_t *)CFG_IMMR;
-    led_dev_t *ld;
+	led_dev_t *ld;
 
-    if (led < 0 || led >= MAX_LED_DEV)
-	return;
+	if (led < 0 || led >= MAX_LED_DEV)
+		return;
 
-    if (!status_led_init_done)
-	status_led_init();
+	if (!status_led_init_done)
+		status_led_init ();
 
-    ld = &led_dev[led];
+	ld = &led_dev[led];
 
-    switch (state) {
-    default:
-	return;
-    case STATUS_LED_BLINKING:
-	ld->cnt = 0;		/* always start with full period	*/
-	/* fall through */	/* always start with LED _ON_		*/
-    case STATUS_LED_ON:
-#if (STATUS_LED_ACTIVE == 0)
-	immr->STATUS_LED_DAT &= ~(ld->mask);
-#else
-	immr->STATUS_LED_DAT |=   ld->mask ;
-#endif
-	break;
-    case STATUS_LED_OFF:
-#if (STATUS_LED_ACTIVE == 0)
-	immr->STATUS_LED_DAT |=   ld->mask ;
-#else
-	immr->STATUS_LED_DAT &= ~(ld->mask);
-#endif
-	break;
-    }
-    ld->state = state;
+	ld->state = state;
+	if (state == STATUS_LED_BLINKING) {
+		ld->cnt = 0;		/* always start with full period    */
+		state = STATUS_LED_ON;	/* always start with LED _ON_       */
+	}
+	__led_set (ld->mask, state);
 }
 
 #endif	/* CONFIG_STATUS_LED */

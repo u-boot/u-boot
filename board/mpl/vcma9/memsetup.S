@@ -54,8 +54,10 @@
 
 /* BANK0CON */
 #define B0_Tacs		 	0x0	/*  0clk */
-#define B0_Tcos		 	0x0	/*  0clk */
-#define B0_Tacc		 	0x5	/*  8clk */
+#define B0_Tcos		 	0x1	/*  1clk */
+/*#define B0_Tcos		0x0	  0clk */
+#define B0_Tacc		 	0x7	/*  14clk */
+/*#define B0_Tacc		0x5	  8clk */
 #define B0_Tcoh		 	0x0	/*  0clk */
 #define B0_Tah		 	0x0	/*  0clk */
 #define B0_Tacp		 	0x0     /* page mode is not used */
@@ -63,8 +65,10 @@
 
 /* BANK1CON */
 #define B1_Tacs		 	0x0	/*  0clk */
-#define B1_Tcos		 	0x0	/*  0clk */
-#define B1_Tacc		 	0x5	/*  8clk */
+#define B1_Tcos		 	0x1	/*  1clk */
+/*#define B1_Tcos		0x0	  0clk */
+#define B1_Tacc			0x7	/*  14clk */
+/*#define B1_Tacc		0x5	  8clk */
 #define B1_Tcoh		 	0x0	/*  0clk */
 #define B1_Tah		 	0x0	/*  0clk */
 #define B1_Tacp		 	0x0     /* page mode is not used */

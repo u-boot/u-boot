@@ -45,7 +45,11 @@ extern int  gunzip (void *, int, unsigned char *, int *);
 extern int mem_test(unsigned long start, unsigned long ramsize, int quiet);
 
 #define I2C_BACKUP_ADDR 0x7C00 /* 0x200 bytes for backup */
+#if defined(CONFIG_PIP405) || defined(CONFIG_MIP405)
 #define IMAGE_SIZE 0x80000
+#elif defined(CONFIG_VCMA9)
+#define IMAGE_SIZE 0x40000		/* ugly, but it works for now */
+#endif
 
 extern flash_info_t flash_info[];	/* info for FLASH chips */
 
