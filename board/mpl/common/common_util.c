@@ -301,7 +301,7 @@ extern char *stdio_names[];
 
 void show_stdio_dev(void)
 {
-	/* Print informations */
+	/* Print information */
 	printf ("In:    ");
 	if (stdio_devices[stdin] == NULL) {
 		printf ("No input devices available!\n");

@@ -149,7 +149,7 @@ int check_dev (BootSector_t *boot, Fs_t *fs)
             __le16_to_cpu (boot -> TimeF));
     
 
-    /* informations are extracted from boot sector                           */
+    /* information is extracted from boot sector                           */
     heads = __le16_to_cpu (boot -> nheads);
     sectors = __le16_to_cpu (boot -> nsect);
     fs -> tot_sectors = __le32_to_cpu (boot -> bigsect);

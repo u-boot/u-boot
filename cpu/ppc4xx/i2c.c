@@ -85,7 +85,15 @@ void i2c_init (int speed, int slaveadd)
 	unsigned long freqOPB;
 	int val, divisor;
 
+#ifdef CFG_I2C_INIT_BOARD        
+	/* call board specific i2c bus reset routine before accessing the   */
+	/* environment, which might be in a chip on that bus. For details   */
+	/* about this problem see doc/I2C_Edge_Conditions.                  */
+	i2c_init_board();
+#endif
+
 	/* Handle possible failed I2C state */
+	/* FIXME: put this into i2c_init_board()? */
 	_i2c_bus_reset ();
 
 	/* clear lo master address */

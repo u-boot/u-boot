@@ -25,6 +25,7 @@
 
 #include <common.h>
 #include <asm/arch/pxa-regs.h>
+#include <asm/mach-types.h>
 
 #ifdef CONFIG_SHOW_BOOT_PROGRESS
 # define SHOW_BOOT_PROGRESS(arg)        show_boot_progress(arg)
@@ -32,9 +33,52 @@
 # define SHOW_BOOT_PROGRESS(arg)
 #endif
 
-/*
- * Miscelaneous platform dependent initialisations
+/**
+ * i2c_init_board - reset i2c bus. When the board is powercycled during a
+ * bus transfer it might hang; for details see doc/I2C_Edge_Conditions.
+ * The Innokom board has GPIO70 connected to SCLK which can be toggled
+ * until all chips think that their current cycles are finished.
  */
+int i2c_init_board(void)
+{
+	int i;
+
+	/* set gpio pin to output */
+        GPDR(70) |= GPIO_bit(70);
+	for (i = 0; i < 11; i++) {
+		GPCR(70) = GPIO_bit(70);
+		udelay(10);
+		GPSR(70)  = GPIO_bit(70);
+		udelay(10);
+	}
+        /* set gpio pin to input */
+        GPDR(70) &= ~GPIO_bit(70);
+
+	return 0;
+}
+
+
+/**
+ * misc_init_r: - misc initialisation routines
+ */
+
+int misc_init_r(void)
+{
+	uchar *str;
+
+	/* determine if the software update key is pressed during startup   */
+	if (GPLR0 & 0x00000800) {
+		printf("using bootcmd_normal (sw-update button not pressed)\n");
+		str = getenv("bootcmd_normal");
+	} else {
+		printf("using bootcmd_update (sw-update button pressed)\n");
+		str = getenv("bootcmd_update");
+	}
+
+	setenv("bootcmd",str);
+
+	return 0;
+}
 
 
 /**
@@ -51,7 +95,7 @@ int board_init (void)
 	/* so we do _nothing_ here */
 
 	/* arch number of Innokom board */
-	gd->bd->bi_arch_number = 258;
+	gd->bd->bi_arch_number = MACH_TYPE_INNOKOM;
 
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0xa0000100;

@@ -30,7 +30,7 @@
 #if (CONFIG_COMMANDS & CFG_CMD_CONSOLE)
 #define	CMD_TBL_CONINFO	MK_CMD_TBL_ENTRY(			\
 	"coninfo",	5,	3,	1,	do_coninfo,	\
-	"coninfo - print console devices and informations\n",	\
+	"coninfo - print console devices and information\n",	\
 	""		 		 			\
 ),
 int do_coninfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);

@@ -55,12 +55,13 @@
 /*
  * select serial console configuration
  */
-#define CONFIG_FFUART		1	/* we use FFUART on CSB226 */
+#define CONFIG_FFUART		1	/* we use FFUART on CSB226          */
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_BAUDRATE		19200
+#undef  CONFIG_MISC_INIT_R		/* not used yet                     */
 
 #define CONFIG_COMMANDS		(CONFIG_CMD_DFL & ~CFG_CMD_NET)
 
@@ -68,7 +69,7 @@
 #include <cmd_confdefs.h>
 
 #define CONFIG_BOOTDELAY	3
-#define CONFIG_BOOTARGS		"root=/dev/nfs ip=bootp console=ttyS0,19200"
+#define CONFIG_BOOTARGS		"console=ttyS0,19200 ip=dhcp root=/dev/nfs, ether=0,0x08000000,eth0"
 #define CONFIG_ETHADDR		FF:FF:FF:FF:FF:FF
 #define CONFIG_NETMASK		255.255.255.0
 #define CONFIG_IPADDR		192.168.1.56
@@ -76,8 +77,10 @@
 #define CONFIG_BOOTCOMMAND	"bootm 0x40000"
 #define CONFIG_SHOW_BOOT_PROGRESS
 
+#define CONFIG_CMDLINE_TAG	1
+
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
-#define CONFIG_KGDB_BAUDRATE	115200		/* speed to run kgdb serial port */
+#define CONFIG_KGDB_BAUDRATE	19200		/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2		/* which serial port to use */
 #endif
 
@@ -90,7 +93,7 @@
  * used for the RAM copy of the uboot code
  *
  */
-#define CFG_MALLOC_LEN		(CFG_ENV_SIZE + 128*1024)
+#define CFG_MALLOC_LEN		(128*1024)
 
 #define CFG_LONGHELP				/* undef to save memory         */
 #define CFG_PROMPT		"uboot> "	/* Monitor Command Prompt       */
@@ -104,7 +107,7 @@
 
 #undef  CFG_CLKS_IN_HZ          /* everything, incl board info, in Hz */
 
-#define CFG_LOAD_ADDR           0xa7fe0000      /* default load address */
+#define CFG_LOAD_ADDR           0xa3000000	/* default load address */
 						/* RS: where is this documented? */
 						/* RS: is this where U-Boot is  */
 						/* RS: relocated to in RAM?      */

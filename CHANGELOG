@@ -2,6 +2,16 @@
 Changes since U-Boot 0.2.2:
 ======================================================================
 
+* Patches by Robert Schwebel, 06 Mar 2003:
+  - fix bug in BOOTP code (must use NetCopyIP)
+  - update of CSB226 port
+  - clear BSS segment on XScale
+  - added support for i2c_init_board() function
+  - update to the Innokom plattform
+
+* Extend support for redundand environments for configurations where
+  environment size < sector size
+
 * Patch by Rune Torgersen, 13 Feb 2003:
   Add support for Motorola MPC8266ADS board
 

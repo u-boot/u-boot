@@ -38,7 +38,7 @@ SECTIONS
 	  lib_generic/crc32.o	(.text)
 	  lib_generic/string.o	(.text)
 
-	. = env_offset;
+	. = DEFINED(env_offset) ? env_offset : .;
 	common/environment.o	(.ppcenv)
 
 	  *(.text)

@@ -897,6 +897,17 @@ The following options need to be configured:
 		controls the rate of data transfer.  The data rate thus
 		is 1 / (I2C_DELAY * 4).
 
+		CFG_I2C_INIT_BOARD
+
+                When a board is reset during an i2c bus transfer
+                chips might think that the current transfer is still
+                in progress. On some boards it is possible to access
+                the i2c SCLK line directly, either by using the
+                processor pin as a GPIO or by having a second pin
+                connected to the bus. If this option is defined a
+                custom i2c_init_board() routine in boards/xxx/board.c
+                is run early in the boot sequence.
+
 - SPI Support:	CONFIG_SPI
 
 		Enables SPI driver (so far only tested with
@@ -1043,7 +1054,7 @@ The following options need to be configured:
 
 		If CONFIG_ENV_OVERWRITE is #defined in your config
 		file, the write protection for vendor parameters is
-		completely disabled. Anybody can change or delte
+		completely disabled. Anybody can change or delete
 		these parameters.
 
 		Alternatively, if you #define _both_ CONFIG_ETHADDR

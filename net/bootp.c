@@ -211,7 +211,7 @@ static void BootpVendorFieldProcess(u8 *ext)
 		break;
 	case 18:	/* Extension path - Not yet supported		*/
 		/*
-                 * This can be used to send the informations of the
+                 * This can be used to send the information of the
                  * vendor area in another file that the client can
                  * access via TFTP.
 		 */
@@ -229,7 +229,7 @@ static void BootpVendorFieldProcess(u8 *ext)
     /* Application layer fields */
 	case 43:	/* Vendor specific info - Not yet supported	*/
 		/*
-                 * Binary informations to exchange specific
+                 * Binary information to exchange specific
                  * product information.
 		 */
 		break;
@@ -752,6 +752,7 @@ void DhcpSendRequestPkt(Bootp_t *bp_offer)
 	volatile uchar *pkt, *iphdr;
 	Bootp_t *bp;
 	int pktlen, iplen, extlen;
+	IPaddr_t OfferedIP;
 
 	debug ("DhcpSendRequestPkt: Sending DHCPREQUEST\n");
 	pkt = NetTxPacket;
@@ -784,7 +785,8 @@ void DhcpSendRequestPkt(Bootp_t *bp_offer)
 	/*
 	 * Copy options from OFFER packet if present
 	 */
-	extlen = DhcpExtended(bp->bp_vend, DHCP_REQUEST, NetServerIP, bp->bp_yiaddr);
+	NetCopyIP(&OfferedIP, &bp->bp_yiaddr);
+	extlen = DhcpExtended(bp->bp_vend, DHCP_REQUEST, NetServerIP, OfferedIP);
 
 	pktlen = BOOTP_SIZE - sizeof(bp->bp_vend) + extlen;
 	iplen = BOOTP_HDR_SIZE - sizeof(bp->bp_vend) + extlen;

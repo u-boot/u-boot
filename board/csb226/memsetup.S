@@ -313,16 +313,22 @@ mem_init:
 	/*          documented in SDRAM data sheets. The address(es) used   */
 	/*          for this purpose must not be cacheable.                 */
 
-	ldr	r3,	=CFG_DRAM_BASE
-	str	r2,	[r3]
-	str	r2,	[r3]
-	str	r2,	[r3]
-	str	r2,	[r3]
-	str	r2,	[r3]
-	str	r2,	[r3]
-	str	r2,	[r3]
-	str	r2,	[r3]
+	/*          There should 9 writes, since the first write doesn't    */
+	/*          trigger a refresh cycle on PXA250. See Intel PXA250 and */
+	/*          PXA210 Processors Specification Update,                 */
+	/*          Jan 2003, Errata #116, page 30.                         */
 
+
+	ldr	r3,	=CFG_DRAM_BASE
+	str	r2, [r3]
+	str	r2, [r3]
+	str	r2, [r3]
+	str	r2, [r3]
+	str	r2, [r3]
+	str	r2, [r3]
+	str	r2, [r3]
+	str	r2, [r3]
+	str	r2, [r3]
 
 	/* Step 4g: Write MDCNFG with enable bits asserted                  */
 	/*          (MDCNFG:DEx set to 1).                                  */
@@ -338,7 +344,6 @@ mem_init:
 
 
 	/* We are finished with Intel's memory controller initialisation    */
-
 
 	/* ---------------------------------------------------------------- */
 	/* Disable (mask) all interrupts at interrupt controller            */
@@ -378,10 +383,11 @@ initclks:
         str     r2,  [r1]
 
 	/* enable the 32Khz oscillator for RTC and PowerManager             */
+/*
         ldr     r1,  =OSCC
         mov     r2,  #OSCC_OON
         str     r2,  [r1]
-
+*/
 	/* NOTE:  spin here until OSCC.OOK get set, meaning the PLL         */
 	/* has settled.                                                     */
 60:
@@ -404,8 +410,7 @@ initclks:
 
 	/* FIXME */
 
-#define NODEBUG
-#ifdef NODEBUG
+#ifndef DEBUG
 	/*Disable software and data breakpoints */
 	mov	r0,#0
 	mcr	p15,0,r0,c14,c8,0  /* ibcr0 */
@@ -415,7 +420,6 @@ initclks:
 	/*Enable all debug functionality */
 	mov	r0,#0x80000000
 	mcr	p14,0,r0,c10,c0,0  /* dcsr */
-
 #endif
 
         /* ---------------------------------------------------------------- */

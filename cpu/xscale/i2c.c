@@ -41,6 +41,7 @@
  *	- I2C_PXA_SLAVE_ADDR 
  */
 
+#include <asm/arch/hardware.h>
 #include <asm/arch/pxa-regs.h>
 #include <i2c.h>
 
@@ -244,6 +245,12 @@ i2c_transfer_finish:
 
 void i2c_init(int speed, int slaveaddr)
 {
+#ifdef CFG_I2C_INIT_BOARD        
+	/* call board specific i2c bus reset routine before accessing the   */
+	/* environment, which might be in a chip on that bus. For details   */
+	/* about this problem see doc/I2C_Edge_Conditions.                  */
+	i2c_init_board();
+#endif
 }
 
 

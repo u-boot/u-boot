@@ -1128,6 +1128,15 @@ static void I2C_Set_Stat (unsigned int eumbbar, I2C_STAT stat)
 
 void i2c_init (int speed, int slaveadd)
 {
+#ifdef CFG_I2C_INIT_BOARD
+	/*
+	 * call board specific i2c bus reset routine before accessing the
+	 * environment, which might be in a chip on that bus. For details
+	 * about this problem see doc/I2C_Edge_Conditions.
+	 */
+	i2c_init_board();
+#endif
+
 #ifdef DEBUG
 	I2C_Initialize (0x7f, 0, (void *) printf);
 #else

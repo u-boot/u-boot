@@ -34,16 +34,12 @@
 #include <environment.h>
 #include <cmd_nvedit.h>
 #include <linux/stddef.h>
+#include <malloc.h>
 
 #if ((CONFIG_COMMANDS&(CFG_CMD_ENV|CFG_CMD_FLASH)) == (CFG_CMD_ENV|CFG_CMD_FLASH))
 #define CMD_SAVEENV
 #elif defined(CFG_ENV_ADDR_REDUND)
 #error Cannot use CFG_ENV_ADDR_REDUND without CFG_CMD_ENV & CFG_CMD_FLASH
-#endif
-
-#if defined(CFG_ENV_SECT_SIZE) && (CFG_ENV_SECT_SIZE > CFG_ENV_SIZE) && \
-    defined(CFG_ENV_ADDR_REDUND)
-#error CFG_ENV_ADDR_REDUND should not be used when CFG_ENV_SECT_SIZE > CFG_ENV_SIZE
 #endif
 
 #if defined(CFG_ENV_SIZE_REDUND) && (CFG_ENV_SIZE_REDUND < CFG_ENV_SIZE)
@@ -80,8 +76,9 @@ static env_t *flash_addr = (env_t *)CFG_ENV_ADDR;
 #ifdef CFG_ENV_ADDR_REDUND
 static env_t *flash_addr_new = (env_t *)CFG_ENV_ADDR_REDUND;
 
-static ulong end_addr = CFG_ENV_ADDR + CFG_ENV_SIZE - 1;
-static ulong end_addr_new = CFG_ENV_ADDR_REDUND + CFG_ENV_SIZE_REDUND - 1;
+/* CFG_ENV_ADDR is supposed to be on sector boundary */
+static ulong end_addr = CFG_ENV_ADDR + CFG_ENV_SECT_SIZE - 1;
+static ulong end_addr_new = CFG_ENV_ADDR_REDUND + CFG_ENV_SECT_SIZE - 1;
 
 static uchar active_flag = 1;
 static uchar obsolete_flag = 0;
@@ -164,6 +161,8 @@ int  env_init(void)
 int saveenv(void)
 {
 	int rc = 1;
+	ulong up_data = 0;
+	char *saved_data = NULL;
 
 	debug ("Protect off %08lX ... %08lX\n",
 		(ulong)flash_addr, end_addr);
@@ -179,6 +178,22 @@ int saveenv(void)
 		goto Done;
 	}
 
+#if CFG_ENV_SECT_SIZE > CFG_ENV_SIZE
+	up_data = (end_addr_new + 1 - ((long)flash_addr_new + CFG_ENV_SIZE));
+	debug ("Data to save 0x%x\n", up_data);
+	if (up_data) {
+		if ((saved_data = malloc(up_data)) == NULL) {
+			printf("Unable to save the rest of sector (%ld)\n", 
+				up_data);
+			goto Done;
+		}
+		memcpy(saved_data, 
+			(void *)((long)flash_addr_new + CFG_ENV_SIZE), up_data);
+		debug ("Data (start 0x%x, len 0x%x) saved at 0x%x\n", 
+			   (long)flash_addr_new + CFG_ENV_SIZE, 
+				up_data, saved_data);
+	}
+#endif
 	puts ("Erasing Flash...");
 	debug (" %08lX ... %08lX ...",
 		(ulong)flash_addr_new, end_addr_new);
@@ -212,6 +227,18 @@ int saveenv(void)
 	}
 	puts ("done\n");
 
+#if CFG_ENV_SECT_SIZE > CFG_ENV_SIZE
+	if (up_data) { /* restore the rest of sector */
+		debug ("Restoring the rest of data to 0x%x len 0x%x\n",
+			   (long)flash_addr_new + CFG_ENV_SIZE, up_data);
+		if (flash_write(saved_data, 
+				(long)flash_addr_new + CFG_ENV_SIZE, 
+				up_data)) {
+			flash_perror(rc);
+			goto Done;
+		}
+	}
+#endif
 	{
 		env_t * etmp = flash_addr;
 		ulong ltmp = end_addr;
@@ -226,6 +253,8 @@ int saveenv(void)
 	rc = 0;
 Done:
 
+	if (saved_data)
+		free (saved_data);
 	/* try to re-protect */
 	(void) flash_sect_protect (1, (ulong)flash_addr, end_addr);
 	(void) flash_sect_protect (1, (ulong)flash_addr_new, end_addr_new);

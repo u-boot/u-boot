@@ -84,6 +84,17 @@ _armboot_end:
 	.word armboot_end
 
 /*
+ * This is defined in the board specific linker script
+ */
+.globl _bss_start	
+_bss_start:	
+	.word bss_start
+
+.globl _bss_end
+_bss_end:
+	.word bss_end
+
+/*
  * _armboot_real_end is the first usable RAM address behind armboot
  * and the various stacks
  */
@@ -143,7 +154,20 @@ copy_loop:
 	ldr	r0, _uboot_reloc	/* upper 128 KiB: relocated uboot   */
 	sub	r0, r0, #CFG_MALLOC_LEN /* malloc area			    */
 					/* FIXME: bdinfo should be here	    */
-	sub	sp, r0, #12		/* leave 3 words for abort-stack */
+	sub	sp, r0, #12		/* leave 3 words for abort-stack    */
+
+clear_bss:
+
+	ldr	r0, _bss_start		/* find start of bss segment        */
+	add	r0, r0, #4		/* start at first byte of bss       */
+	ldr	r1, _bss_end		/* stop here                        */
+	mov 	r2, #0x00000000		/* clear                            */
+
+clbss_l:str	r2, [r0]		/* clear loop...                    */
+	add	r0, r0, #4
+	cmp	r0, r1
+	bne	clbss_l	 
+
 
 	ldr	pc, _start_armboot
 

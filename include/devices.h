@@ -35,7 +35,7 @@
 #define DEV_FLAGS_SYSTEM 0x80000000	/* Device is a system device		*/
 #define DEV_EXT_VIDEO	 0x00000001	/* Video extensions supported		*/
 
-/* Device informations */
+/* Device information */
 typedef struct {
 	int	flags;			/* Device flags: input/output/system	*/
 	int	ext;			/* Supported extensions			*/

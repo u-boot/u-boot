@@ -269,7 +269,7 @@ void start_armboot (void)
 	board_post_init ();
 #endif
 
-printf ("### vfd_type=0x%02X vfd_data_lines_inv=%d\n",gd->vfd_type,gd->vfd_inv_data);
+printf ("### FB @ %08lX vfd_type=0x%02X vfd_data_lines_inv=%d\n",gd->fb_base,gd->vfd_type,gd->vfd_inv_data);
 
 	/* main_loop() can return to retry autoboot, if so just run it again. */
 	for (;;) {

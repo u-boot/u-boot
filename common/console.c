@@ -496,7 +496,7 @@ int console_init_r (void)
 	}
 
 #ifndef CFG_CONSOLE_INFO_QUIET
-	/* Print informations */
+	/* Print information */
 	printf ("In:    ");
 	if (stdio_devices[stdin] == NULL) {
 		printf ("No input devices available!\n");
