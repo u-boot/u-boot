@@ -895,7 +895,7 @@ The following options need to be configured:
 		If this option is set, the environment is checked for
 		a variable "splashimage". If found, the usual display
 		of logo, copyright and system information on the LCD
-		is supressed and the BMP image at the address
+		is suppressed and the BMP image at the address
 		specified in "splashimage" is loaded instead. The
 		console is redirected to the "nulldev", too. This
 		allows for a "silent" boot where a splash screen is

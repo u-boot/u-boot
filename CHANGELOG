@@ -2,6 +2,11 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Fix "cls" command when used with splash screen
+
+* Increase NFS download timeout (now 1 min - 10 sec is to short for a
+  slow download of a big image)
+
 * Add "cls" function to MPC823 LCD driver so we can reinitialize the
   display even after showing a bitmap
 

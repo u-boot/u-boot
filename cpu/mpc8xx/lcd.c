@@ -1333,9 +1333,11 @@ static void *lcd_logo (void)
 #ifdef CONFIG_SPLASH_SCREEN
 	char *s;
 	ulong addr;
+	static int do_splash = 1;
 
-	if ((s = getenv("splashimage")) != NULL) {
+	if (do_splash && (s = getenv("splashimage")) != NULL) {
 		addr = simple_strtoul(s, NULL, 16);
+		do_splash = 0;
 
 		if (lcd_display_bitmap (addr, 0, 0) == 0) {
 			return ((void *)lcd_base);

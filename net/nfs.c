@@ -34,7 +34,7 @@
 #if ((CONFIG_COMMANDS & CFG_CMD_NET) && (CONFIG_COMMANDS & CFG_CMD_NFS))
 
 #define HASHES_PER_LINE 65	/* Number of "loading" hashes per line	*/
-#define NFS_TIMEOUT 10
+#define NFS_TIMEOUT 60
 
 static int fs_mounted = 0;
 static unsigned long rpc_id = 0;
