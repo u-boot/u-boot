@@ -2,6 +2,15 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Patches by Anders Larsen, 17 Sep 2003:
+  - fix spelling errors
+  - set GD_FLG_DEVINIT flag only after device function pointers
+    are valid
+  - Allow CFG_ALT_MEMTEST on systems where address zero isn't
+    writeable
+  - enable 3.rd UART (ST-UART) on PXA(XScale) CPUs
+  - trigger watchdog while waiting in serial driver
+
 * Add auto-update code for TRAB board using USB memory sticks,
   support new configuration with more memory
 

@@ -436,6 +436,8 @@ int console_init_r (void)
 		console_setfile (stdin, inputdev);
 	}
 
+	gd->flags |= GD_FLG_DEVINIT;	/* device initialization completed */
+
 #ifndef CFG_CONSOLE_INFO_QUIET
 	/* Print information */
 	printf ("In:    ");
@@ -480,6 +482,8 @@ int console_init_r (void)
 /* Called after the relocation - use desired console functions */
 int console_init_r (void)
 {
+	DECLARE_GLOBAL_DATA_PTR;
+
 	device_t *inputdev = NULL, *outputdev = NULL;
 	int i, items = ListNumItems (devlist);
 
@@ -513,6 +517,8 @@ int console_init_r (void)
 	if (inputdev != NULL) {
 		console_setfile (stdin, inputdev);
 	}
+
+	gd->flags |= GD_FLG_DEVINIT;	/* device initialization completed */
 
 #ifndef CFG_CONSOLE_INFO_QUIET
 	/* Print information */

@@ -74,7 +74,7 @@ unsigned long flash_init (void)
 		 flash_get_offsets(PHYS_FLASH_1, &flash_info[i]);
 		break;
 	   default:
-		panic("configured to many flash banks!\n");
+		panic("configured too many flash banks!\n");
 		break;
 	}
 	size += flash_info[i].size;

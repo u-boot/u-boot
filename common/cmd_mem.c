@@ -555,7 +555,11 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	vu_long	temp;
 	vu_long	anti_pattern;
 	vu_long	num_words;
+#if defined(CFG_MEMTEST_SCRATCH)
+	vu_long *dummy = (vu_long*)CFG_MEMTEST_SCRATCH;
+#else
 	vu_long *dummy = NULL;
+#endif
 	int	j;
 	int iterations = 1;
 

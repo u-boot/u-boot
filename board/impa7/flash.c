@@ -53,7 +53,7 @@ ulong flash_init(void)
 	else if (i == 1)
 	  flashbase = PHYS_FLASH_2;
 	else
-	  panic("configured to many flash banks!\n");
+	  panic("configured too many flash banks!\n");
 	for (j = 0; j < flash_info[i].sector_count; j++)
 	{
 	    if (j <= 7)

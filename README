@@ -1498,6 +1498,10 @@ Configuration Settings:
 - CFG_ALT_MEMTEST:
 		Enable an alternate, more extensive memory test.
 
+- CFG_MEMTEST_SCRATCH:
+		Scratch address used by the alternate memory test
+		You only need to set this if address zero isn't writeable
+
 - CFG_TFTP_LOADADDR:
 		Default load address for network file downloads
 

@@ -91,7 +91,7 @@ ulong flash_init(void)
 		flashbase = PHYS_FLASH_2;
 		break;
 	   default:
-		panic("configured to many flash banks!\n");
+		panic("configured too many flash banks!\n");
 		break;
 	}
 	for (j = 0; j < flash_info[i].sector_count; j++)

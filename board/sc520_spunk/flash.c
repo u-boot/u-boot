@@ -239,7 +239,7 @@ ulong flash_init(void)
 			flashbase = SC520_FLASH_BANK0_BASE;
 			break;
 		default:
-			panic("configured to many flash banks!\n");
+			panic("configured too many flash banks!\n");
 		}
 
 		id = identify_flash(flashbase, 2);

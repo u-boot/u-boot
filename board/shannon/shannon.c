@@ -60,7 +60,7 @@ int board_init (void)
 	*(unsigned long *)temp = 0x00060006;
 
 	}
-#endif /* CONFIG_INIT_CRITICAL */
+#endif /* CONFIG_INFERNO */
 
 	/* arch number for shannon */
 	gd->bd->bi_arch_number = 97;

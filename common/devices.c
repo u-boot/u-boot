@@ -158,8 +158,6 @@ int device_deregister(char *devname)
 
 int devices_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 #ifndef CONFIG_ARM     /* already relocated for current ARM implementation */
 	ulong relocation_offset = gd->reloc_off;
 	int i;
@@ -194,8 +192,6 @@ int devices_init (void)
 	drv_logbuff_init ();
 #endif
 	drv_system_init ();
-
-	gd-> flags |= GD_FLG_DEVINIT;	/* device initialization done */
 
 	return (0);
 }

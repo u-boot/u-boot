@@ -595,7 +595,7 @@ struct usb_device * usb_alloc_new_device(void)
 	int i;
 	USB_PRINTF("New Device %d\n",dev_index);
 	if(dev_index==USB_MAX_DEVICE) {
-		printf("ERROR, to many USB Devices max=%d\n",USB_MAX_DEVICE);
+		printf("ERROR, too many USB Devices, max=%d\n",USB_MAX_DEVICE);
 		return NULL;
 	}
 	usb_dev[dev_index].devnum=dev_index+1; /* default Address is 0, real addresses start with 1 */

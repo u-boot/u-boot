@@ -29,6 +29,7 @@
  */
 
 #include <common.h>
+#include <watchdog.h>
 #include <asm/arch/pxa-regs.h>
 
 void serial_setbrg (void)
@@ -38,7 +39,7 @@ void serial_setbrg (void)
 	unsigned int quot = 0;
 
 	if (gd->baudrate == 1200)
-		quot = 192;
+		quot = 768;
 	else if (gd->baudrate == 9600)
 		quot = 96;
 	else if (gd->baudrate == 19200)
@@ -53,7 +54,6 @@ void serial_setbrg (void)
 		hang ();
 
 #ifdef CONFIG_FFUART
-
 	CKEN |= CKEN6_FFUART;
 
 	FFIER = 0;					/* Disable for now */
@@ -82,9 +82,21 @@ void serial_setbrg (void)
 	BTIER = IER_UUE;			/* Enable BFUART */
 
 #elif defined(CONFIG_STUART)
-#error "Bad: not implemented yet!"
+	CKEN |= CKEN5_STUART;
+
+	STIER = 0;
+	STFCR = 0;
+
+	/* set baud rate */
+	STLCR = LCR_DLAB;
+	STDLL = quot & 0xff;
+	STDLH = quot >> 8;
+	STLCR = LCR_WLS0 | LCR_WLS1;
+
+	STIER = IER_UUE;			/* Enable STUART */
+
 #else
-#error "Bad: you didn't configured serial ..."
+#error "Bad: you didn't configure serial ..."
 #endif
 }
 
@@ -109,13 +121,17 @@ void serial_putc (const char c)
 {
 #ifdef CONFIG_FFUART
 	/* wait for room in the tx FIFO on FFUART */
-	while ((FFLSR & LSR_TEMT) == 0);
-
+	while ((FFLSR & LSR_TEMT) == 0)
+		WATCHDOG_RESET ();	/* Reset HW Watchdog, if needed */
 	FFTHR = c;
 #elif defined(CONFIG_BTUART)
-	while ((BTLSR & LSR_TEMT ) == 0 );
+	while ((BTLSR & LSR_TEMT ) == 0 )
+		WATCHDOG_RESET ();	/* Reset HW Watchdog, if needed */
 	BTTHR = c;
 #elif defined(CONFIG_STUART)
+	while ((STLSR & LSR_TEMT ) == 0 )
+		WATCHDOG_RESET ();	/* Reset HW Watchdog, if needed */
+	STTHR = c;
 #endif
 
 	/* If \n, also do \r */
@@ -135,6 +151,7 @@ int serial_tstc (void)
 #elif defined(CONFIG_BTUART)
 	return BTLSR & LSR_DR;
 #elif defined(CONFIG_STUART)
+	return STLSR & LSR_DR;
 #endif
 }
 
@@ -146,14 +163,17 @@ int serial_tstc (void)
 int serial_getc (void)
 {
 #ifdef CONFIG_FFUART
-	while (!(FFLSR & LSR_DR));
-
+	while (!(FFLSR & LSR_DR))
+		WATCHDOG_RESET ();	/* Reset HW Watchdog, if needed */
 	return (char) FFRBR & 0xff;
 #elif defined(CONFIG_BTUART)
-	while (!(BTLSR & LSR_DR));
-
+	while (!(BTLSR & LSR_DR))
+		WATCHDOG_RESET ();	/* Reset HW Watchdog, if needed */
 	return (char) BTRBR & 0xff;
 #elif defined(CONFIG_STUART)
+	while (!(STLSR & LSR_DR))
+		WATCHDOG_RESET ();	/* Reset HW Watchdog, if needed */
+	return (char) STRBR & 0xff;
 #endif
 }
 

@@ -101,7 +101,7 @@ ulong flash_init(void)
 			flashbase = SC520_FLASH_BANK0_BASE;
 			break;
 		default:
-			panic("configured to many flash banks!\n");
+			panic("configured too many flash banks!\n");
 		}
 
 		for (j = 0; j < flash_info[i].sector_count; j++) {

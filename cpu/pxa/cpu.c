@@ -83,7 +83,7 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	extern void reset_cpu (ulong addr);
 
-	printf ("reseting ...\n");
+	printf ("resetting ...\n");
 
 	udelay (50000);				/* wait 50 ms */
 	disable_interrupts ();
