@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001
+ * (C) Copyright 2001-2003
  * Stefan Roese, esd gmbh germany, stefan.roese@esd-electronics.com
  *
  * See file CREDITS for list of people who contributed to this
@@ -39,13 +39,31 @@ static void flash_get_offsets (ulong base, flash_info_t * info);
 /*-----------------------------------------------------------------------
  */
 
+unsigned long calc_size(unsigned long size)
+{
+	switch (size) {
+	case 1 << 20:
+		return 0;
+	case 2 << 20:
+		return 1;
+	case 4 << 20:
+		return 2;
+	case 8 << 20:
+		return 3;
+	case 16 << 20:
+		return 4;
+	default:
+		return 0;
+	}
+}
+
+
 unsigned long flash_init (void)
 {
 	unsigned long size_b0, size_b1;
 	int i;
 	uint pbcr;
 	unsigned long base_b0, base_b1;
-	int size_val = 0;
 
 	/* Init: no FLASHes known */
 	for (i = 0; i < CFG_MAX_FLASH_BANKS; ++i) {
@@ -68,61 +86,37 @@ unsigned long flash_init (void)
 	/* Re-do sizing to get full correct info */
 
 	if (size_b1) {
+		base_b1 = -size_b1;
+		if (size_b1 < (1 << 20)) {
+			/* minimum CS size on PPC405GP is 1MB !!! */
+			size_b1 = 1 << 20;
+		}
 		mtdcr (ebccfga, pb0cr);
 		pbcr = mfdcr (ebccfgd);
 		mtdcr (ebccfga, pb0cr);
-		base_b1 = -size_b1;
-		switch (size_b1) {
-		case 1 << 20:
-			size_val = 0;
-			break;
-		case 2 << 20:
-			size_val = 1;
-			break;
-		case 4 << 20:
-			size_val = 2;
-			break;
-		case 8 << 20:
-			size_val = 3;
-			break;
-		case 16 << 20:
-			size_val = 4;
-			break;
-		default:
-			size_val = 0;
-			break;
-
-		}
-		pbcr = (pbcr & 0x0001ffff) | base_b1 | (size_val << 17);
+		pbcr = (pbcr & 0x0001ffff) | base_b1 | (calc_size(size_b1) << 17);
 		mtdcr (ebccfgd, pbcr);
-		/*          printf("pb1cr = %x\n", pbcr); */
+#if 0 /* test-only */
+		printf("size_b1=%x base_b1=%x pb1cr = %x\n",
+		       size_b1, base_b1, pbcr); /* test-only */
+#endif
 	}
 
 	if (size_b0) {
+		base_b0 = base_b1 - size_b0;
+		if (size_b0 < (1 << 20)) {
+			/* minimum CS size on PPC405GP is 1MB !!! */
+			size_b0 = 1 << 20;
+		}
 		mtdcr (ebccfga, pb1cr);
 		pbcr = mfdcr (ebccfgd);
 		mtdcr (ebccfga, pb1cr);
-		base_b0 = base_b1 - size_b0;
-		switch (size_b1) {
-		case 1 << 20:
-			size_val = 0;
-			break;
-		case 2 << 20:
-			size_val = 1;
-			break;
-		case 4 << 20:
-			size_val = 2;
-			break;
-		case 8 << 20:
-			size_val = 3;
-			break;
-		case 16 << 20:
-			size_val = 4;
-			break;
-		}
-		pbcr = (pbcr & 0x0001ffff) | base_b0 | (size_val << 17);
+		pbcr = (pbcr & 0x0001ffff) | base_b0 | (calc_size(size_b0) << 17);
 		mtdcr (ebccfgd, pbcr);
-		/*            printf("pb0cr = %x\n", pbcr); */
+#if 0 /* test-only */
+		printf("size_b0=%x base_b0=%x pb0cr = %x\n",
+		       size_b0, base_b0, pbcr); /* test-only */
+#endif
 	}
 
 	size_b0 = flash_get_size ((vu_long *) base_b0, &flash_info[0]);

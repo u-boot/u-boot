@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001
+ * (C) Copyright 2001-2003
  * Stefan Roese, esd gmbh germany, stefan.roese@esd-electronics.com
  *
  * See file CREDITS for list of people who contributed to this
@@ -50,7 +50,7 @@ const unsigned char fpgadata[] =
 
 
 /* Prototypes */
-int version2(void);
+int cpci405_version(void);
 int gunzip(void *, int, unsigned char *, int *);
 
 
@@ -83,7 +83,7 @@ int board_pre_init (void)
 	 * Boot onboard FPGA
 	 */
 #ifndef CONFIG_CPCI405_VER2
-	if (!version2()) {
+	if (cpci405_version() == 1) {
 		status = fpga_boot((unsigned char *)fpgadata, sizeof(fpgadata));
 		if (status != 0) {
 			/* booting FPGA failed */
@@ -144,7 +144,11 @@ int board_pre_init (void)
 	mtdcr(uicsr, 0xFFFFFFFF);       /* clear all ints */
 	mtdcr(uicer, 0x00000000);       /* disable all ints */
 	mtdcr(uiccr, 0x00000000);       /* set all to be non-critical*/
-	mtdcr(uicpr, 0xFFFFFF81);       /* set int polarities */
+	if (cpci405_version() == 3) {
+		mtdcr(uicpr, 0xFFFFFF99);       /* set int polarities */
+	} else {
+		mtdcr(uicpr, 0xFFFFFF81);       /* set int polarities */
+	}
 	mtdcr(uictr, 0x10000000);       /* set int trigger levels */
 	mtdcr(uicvcr, 0x00000001);      /* set vect base=0,INT0 highest priority*/
 	mtdcr(uicsr, 0xFFFFFFFF);       /* clear all ints */
@@ -178,29 +182,43 @@ int cpci405_host(void)
 }
 
 
-int version2(void)
+int cpci405_version(void)
 {
 	unsigned long cntrl0Reg;
 	unsigned long value;
 
 	/*
-	 * Setup GPIO pins (CS2/GPIO11 as GPIO)
+	 * Setup GPIO pins (CS2/GPIO11 and CS3/GPIO12 as GPIO)
 	 */
 	cntrl0Reg = mfdcr(cntrl0);
-	mtdcr(cntrl0, cntrl0Reg | 0x02000000);
-
+	mtdcr(cntrl0, cntrl0Reg | 0x03000000);
+	out32(IBM405GP_GPIO0_ODR, in32(IBM405GP_GPIO0_ODR) & ~0x00180000);
+	out32(IBM405GP_GPIO0_TCR, in32(IBM405GP_GPIO0_TCR) & ~0x00180000);
 	udelay(1000);                   /* wait some time before reading input */
-	value = in32(IBM405GP_GPIO0_IR) & 0x00100000; /* test GPIO11 */
+	value = in32(IBM405GP_GPIO0_IR) & 0x00180000;       /* get config bits */
 
 	/*
-	 * Setup GPIO pins (CS2/GPIO11 as CS again)
+	 * Restore GPIO settings
 	 */
 	mtdcr(cntrl0, cntrl0Reg);
 
-	if (value)
-		return 0;               /* no, board is version 1.x */
-	else
-		return -1;              /* yes, board is version 2.x */
+	switch (value) {
+	case 0x00180000:
+		/* CS2==1 && CS3==1 -> version 1 */
+		return 1;
+	case 0x00080000:
+		/* CS2==0 && CS3==1 -> version 2 */
+		return 2;
+	case 0x00100000:
+		/* CS2==1 && CS3==0 -> version 3 */
+		return 3;
+	case 0x00000000:
+		/* CS2==0 && CS3==0 -> version 4 */
+		return 4;
+	default:
+		/* should not be reached! */
+		return 2;
+	}
 }
 
 
@@ -230,7 +248,7 @@ int misc_init_r (void)
 	 * FPGA can be gzip compressed (malloc) and booted this late.
 	 */
 
-	if (version2()) {
+	if (cpci405_version() >= 2) {
 		/*
 		 * Setup GPIO pins (CS6+CS7 as GPIO)
 		 */
@@ -291,11 +309,41 @@ int misc_init_r (void)
 		putc ('\n');
 
 		free(dst);
+
+		/*
+		 * Reset FPGA via FPGA_DATA pin
+		 */
+		SET_FPGA(FPGA_PRG | FPGA_CLK);
+		udelay(1000); /* wait 1ms */
+		SET_FPGA(FPGA_PRG | FPGA_CLK | FPGA_DATA);
+		udelay(1000); /* wait 1ms */
+
+		if (cpci405_version() == 3) {
+			volatile unsigned short *fpga_mode = (unsigned short *)CFG_FPGA_BASE_ADDR;
+			volatile unsigned char *leds = (unsigned char *)CFG_LED_ADDR;
+
+			/*
+			 * Enable outputs in fpga on version 3 board
+			 */
+			*fpga_mode |= CFG_FPGA_MODE_ENABLE_OUTPUT;
+
+			/*
+			 * Set outputs to 0
+			 */
+			*leds = 0x00;
+
+			/*
+			 * Reset external DUART
+			 */
+			*fpga_mode |= CFG_FPGA_MODE_DUART_RESET;
+			udelay(100);
+			*fpga_mode &= ~(CFG_FPGA_MODE_DUART_RESET);
+		}
 	}
 	else {
-		printf("\n*** U-Boot Version does not match Board Version!\n");
-		printf("*** CPCI-405 Version 2.x detected!\n");
-		printf("*** Please use correct U-Boot version (CPCI4052)!\n\n");
+		puts("\n*** U-Boot Version does not match Board Version!\n");
+		puts("*** CPCI-405 Version 1.x detected!\n");
+		puts("*** Please use correct U-Boot version (CPCI405 instead of CPCI4052)!\n\n");
 	}
 
 #else /* CONFIG_CPCI405_VER2 */
@@ -321,10 +369,10 @@ int misc_init_r (void)
 		}
 	}
 
-	if (version2()) {
-		printf("\n*** U-Boot Version does not match Board Version!\n");
-		printf("*** CPCI-405 Board Version 1.x detected!\n");
-		printf("*** Please use correct U-Boot version (CPCI405)!\n\n");
+	if (cpci405_version() >= 2) {
+		puts("\n*** U-Boot Version does not match Board Version!\n");
+		puts("*** CPCI-405 Board Version 2.x detected!\n");
+		puts("*** Please use correct U-Boot version (CPCI4052 instead of CPCI405)!\n\n");
 	}
 
 #endif /* CONFIG_CPCI405_VER2 */
@@ -350,6 +398,7 @@ int checkboard (void)
 #endif
 	unsigned char str[64];
 	int i = getenv_r ("serial#", str, sizeof(str));
+	unsigned short ver;
 
 	puts ("Board: ");
 
@@ -359,17 +408,19 @@ int checkboard (void)
 		puts(str);
 	}
 
-	if (version2())
-		puts (" (Ver 2.x, ");
-	else
-		puts (" (Ver 1.x, ");
+	ver = cpci405_version();
+	printf(" (Ver %d.x, ", ver);
 
-#if 0
-	if ((*(unsigned short *)((unsigned long)CFG_FPGA_BASE_ADDR) + CFG_FPGA_STATUS)
-	    & CFG_FPGA_STATUS_FLASH)
-		puts ("FLASH Bank A, ");
-	else
-		puts ("FLASH Bank B, ");
+#if 0 /* test-only */
+	if (ver >= 2) {
+		volatile u16 *fpga_status = (u16 *)CFG_FPGA_BASE_ADDR + 1;
+
+		if (*fpga_status & CFG_FPGA_STATUS_FLASH) {
+			puts ("FLASH Bank B, ");
+		} else {
+			puts ("FLASH Bank A, ");
+		}
+	}
 #endif
 
 	if (ctermm2()) {

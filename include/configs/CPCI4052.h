@@ -296,13 +296,15 @@
 /* Memory Bank 2 (CAN0, 1) initialization                                       */
 #define CFG_EBC_PB2AP           0x010053C0  /* BWT=2,WBN=1,WBF=1,TH=1,RE=1,SOR=1,BEM=1 */
 #define CFG_EBC_PB2CR           0xF0018000  /* BAS=0xF00,BS=1MB,BU=R/W,BW=8bit  */
+#define CFG_LED_ADDR            0xF0000380
 
 /* Memory Bank 3 (CompactFlash IDE) initialization                              */
 #define CFG_EBC_PB3AP           0x010053C0  /* BWT=2,WBN=1,WBF=1,TH=1,RE=1,SOR=1,BEM=1 */
 #define CFG_EBC_PB3CR           0xF011A000  /* BAS=0xF01,BS=1MB,BU=R/W,BW=16bit */
 
 /* Memory Bank 4 (NVRAM/RTC) initialization                                     */
-#define CFG_EBC_PB4AP           0x01005280  /* TWT=2,WBN=1,WBF=1,TH=1,SOR=1     */
+//#define CFG_EBC_PB4AP           0x01805280  /* TWT=3,WBN=1,WBF=1,TH=1,SOR=1     */
+#define CFG_EBC_PB4AP           0x01805680  /* TWT=3,WBN=1,WBF=1,TH=3,SOR=1     */
 #define CFG_EBC_PB4CR           0xF0218000  /* BAS=0xF02,BS=1MB,BU=R/W,BW=8bit  */
 
 /* Memory Bank 5 (optional Quart) initialization                                */
@@ -332,10 +334,12 @@
 #define CFG_FPGA_TS_CAP3_LOW    0x1e
 
 /* FPGA Mode Reg */
-#define CFG_FPGA_MODE_CF_RESET  0x0001
+#define CFG_FPGA_MODE_CF_RESET      0x0001
+#define CFG_FPGA_MODE_DUART_RESET   0x0002
+#define CFG_FPGA_MODE_ENABLE_OUTPUT 0x0004     /* only set on CPCI-405 Ver 3 */
 #define CFG_FPGA_MODE_TS_IRQ_ENABLE 0x0100
 #define CFG_FPGA_MODE_TS_IRQ_CLEAR  0x1000
-#define CFG_FPGA_MODE_TS_CLEAR  0x2000
+#define CFG_FPGA_MODE_TS_CLEAR      0x2000
 
 /* FPGA Status Reg */
 #define CFG_FPGA_STATUS_DIP0    0x0001
@@ -357,13 +361,9 @@
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in data cache)
  */
-#if 1 /* test-only */
 #define CFG_INIT_DCACHE_CS      7       /* use cs # 7 for data cache memory    */
 
 #define CFG_INIT_RAM_ADDR       0x40000000  /* use data cache                  */
-#else
-#define CFG_INIT_RAM_ADDR	0x00df0000 /* inside of SDRAM                   */
-#endif
 #define CFG_INIT_RAM_END        0x2000  /* End of used area in RAM             */
 #define CFG_GBL_DATA_SIZE      128  /* size in bytes reserved for initial data */
 #define CFG_GBL_DATA_OFFSET    (CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
