@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.3:
 ======================================================================
 
+* Patch by Stefan Roese, 16 Mar 2005:
+  Update for esd auto_update and hh405 board
+
 * Adapt for U-Boot image size (new features enabled) on TQM5200
 
 * Update code for TQM8540 board (and 85xx in general):

@@ -224,6 +224,25 @@ int au_do_update(int i, long sz)
 		start = au_image[i].start;
 		end = au_image[i].start + au_image[i].size - 1;
 
+		/*
+		 * do not update firmware when image is already in flash.
+		 */
+		if (au_image[i].type == AU_FIRMWARE) {
+			char *orig = (char*)start;
+			char *new  = (char *)((char *)hdr + sizeof(*hdr));
+			nbytes = ntohl(hdr->ih_size);
+
+			while(--nbytes) {
+				if (*orig++ != *new++) {
+					break;
+				}
+			}
+			if (!nbytes) {
+				printf("Skipping firmware update - images are identical\n");
+				break;
+			}
+		}
+
 		/* unprotect the address range */
 		/* this assumes that ONLY the firmware is protected! */
 		if (au_image[i].type == AU_FIRMWARE) {
