@@ -73,7 +73,7 @@ extern block_dev_desc_t * scsi_get_dev(int dev);
 extern block_dev_desc_t * ide_get_dev(int dev);
 
 #undef SDRAM_DEBUG
-
+#define ENABLE_ECC /* for ecc boards */
 #define FALSE           0
 #define TRUE            1
 
@@ -108,7 +108,27 @@ typedef struct {
 	unsigned char sz;		/* log binary => Size = (4MByte<<sz) 5 = 128, 4 = 64, 3 = 32, 2 = 16, 1=8 */
 	unsigned char ecc;		/* if true, ecc is enabled */
 } sdram_t;
-
+#if defined(CONFIG_MIP405T)
+const sdram_t sdram_table[] = {
+	{ 0x01,	/* MIP405T Rev A, 64MByte -1 Board */
+		3,	/* Case Latenty = 3 */
+		3,	/* trp 20ns / 7.5 ns datain[27] */
+		3,	/* trcd 20ns /7.5 ns (datain[29]) */
+		6,	/* tras 44ns /7.5 ns  (datain[30]) */
+		4,	/* tcpt 44 - 20ns = 24ns */
+		3,	/* Address Mode = 3 (13x9x4) */
+		4,	/* size value (64MByte) */
+		0},	/* ECC disabled */
+	{ 0xff, /* terminator */
+	  0xff,
+	  0xff,
+	  0xff,
+	  0xff,
+	  0xff,
+	  0xff,
+	  0xff }
+};
+#else
 const sdram_t sdram_table[] = {
 	{ 0x0f,	/* Rev A, 128MByte -1 Board */
 		3,	/* Case Latenty = 3 */
@@ -155,7 +175,7 @@ const sdram_t sdram_table[] = {
 	  0xff,
 	  0xff }
 };
-
+#endif /*CONFIG_MIP405T */
 void SDRAM_err (const char *s)
 {
 #ifndef SDRAM_DEBUG
@@ -222,17 +242,54 @@ int init_sdram (void)
 			tctp_clocks;
 	unsigned char	cal_val;
 	unsigned char	bc;
-	unsigned long	pbcr, sdram_tim, sdram_bank;
-	unsigned long	*p;
+	unsigned long	sdram_tim, sdram_bank;
 
-	i2c_init (CFG_I2C_SPEED, CFG_I2C_SLAVE);
+	/*i2c_init (CFG_I2C_SPEED, CFG_I2C_SLAVE);*/
 	(void) get_clocks ();
 	gd->baudrate = 9600;
 	serial_init ();
+	/* set up the pld */
+	mtdcr (ebccfga, pb7ap);
+	mtdcr (ebccfgd, PLD_AP);
+	mtdcr (ebccfga, pb7cr);
+	mtdcr (ebccfgd, PLD_CR);
+	/* THIS IS OBSOLETE */
+	/* set up the board rev reg*/
+	mtdcr (ebccfga, pb5ap);
+	mtdcr (ebccfgd, BOARD_AP);
+	mtdcr (ebccfga, pb5cr);
+	mtdcr (ebccfgd, BOARD_CR);
+#ifdef SDRAM_DEBUG
+	/* get all informations from PLD */
+	serial_puts ("\nPLD Part  0x");
+	bc = in8 (PLD_PART_REG);
+	write_hex (bc);
+	serial_puts ("\nPLD Vers  0x");
+	bc = in8 (PLD_VERS_REG);
+	write_hex (bc);
+	serial_puts ("\nBoard Rev 0x");
+	bc = in8 (PLD_BOARD_CFG_REG);
+	write_hex (bc);
+	serial_puts ("\n");
+#endif
+	/* check board */
+	bc = in8 (PLD_PART_REG);
+#if defined(CONFIG_MIP405T)
+	if((bc & 0x80)==0)
+		SDRAM_err ("U-Boot configured for a MIP405T not for a MIP405!!!\n");
+#else
+	if((bc & 0x80)==0x80)
+		SDRAM_err ("U-Boot configured for a MIP405 not for a MIP405T!!!\n");
+#endif
+#if !defined(CONFIG_MIP405T)
+	/* since the ECC initialisation needs some time,
+	 * we show that we're alive
+	 */
 	serial_puts ("\nInitializing SDRAM, Please stand by");
+	/* set-up the chipselect machine */
 	mtdcr (ebccfga, pb0cr);		/* get cs0 config reg */
-	pbcr = mfdcr (ebccfgd);
-	if ((pbcr & 0x00002000) == 0) {
+	tmp = mfdcr (ebccfgd);
+	if ((tmp & 0x00002000) == 0) {
 		/* MPS Boot, set up the flash */
 		mtdcr (ebccfga, pb1ap);
 		mtdcr (ebccfgd, FLASH_AP);
@@ -254,30 +311,8 @@ int init_sdram (void)
 	mtdcr (ebccfgd, UART1_AP);
 	mtdcr (ebccfga, pb3cr);
 	mtdcr (ebccfgd, UART1_CR);
-
-	/* set up the pld */
-	mtdcr (ebccfga, pb7ap);
-	mtdcr (ebccfgd, PLD_AP);
-	mtdcr (ebccfga, pb7cr);
-	mtdcr (ebccfgd, PLD_CR);
-	/* set up the board rev reg */
-	mtdcr (ebccfga, pb5ap);
-	mtdcr (ebccfgd, BOARD_AP);
-	mtdcr (ebccfga, pb5cr);
-	mtdcr (ebccfgd, BOARD_CR);
-
-
-#ifdef SDRAM_DEBUG
-	out8 (PER_BOARD_ADDR, 0);
-	bc = in8 (PER_BOARD_ADDR);
-	serial_puts ("\nBoard Rev: ");
-	write_hex (bc);
-	serial_puts (" (PLD=");
-	bc = in8 (PLD_BOARD_CFG_REG);
-	write_hex (bc);
-	serial_puts (")\n");
 #endif
-	bc = get_board_revcfg ();
+	bc = in8 (PLD_BOARD_CFG_REG);
 #ifdef SDRAM_DEBUG
 	serial_puts ("\nstart SDRAM Setup\n");
 	serial_puts ("\nBoard Rev: ");
@@ -367,9 +402,10 @@ int init_sdram (void)
 	mtdcr (memcfga, mem_rtr);
 	mtdcr (memcfgd, tmp);
 	/* enable ECC if used */
-#if 1
+#if defined(ENABLE_ECC) && !defined(CONFIG_BOOT_PCI)
 	if (sdram_table[i].ecc) {
 		/* disable checking for all banks */
+		unsigned long	*p;
 #ifdef SDRAM_DEBUG
 		serial_puts ("disable ECC.. ");
 #endif
@@ -398,8 +434,6 @@ int init_sdram (void)
 			*p++ = 0L;
 			if (!((unsigned long) p % 0x00800000))	/* every 8MByte */
 				serial_puts (".");
-
-
 		}
 		/* enable bank 0 */
 		serial_puts (".");
@@ -501,47 +535,69 @@ void ide_set_reset (int idereset)
 
 /* ------------------------------------------------------------------------- */
 
-/*
- * Check Board Identity:
- */
-
-int checkboard (void)
+void get_pcbrev_var(unsigned char *pcbrev, unsigned char *var)
 {
-	unsigned char s[50];
-	unsigned char bc, var, rc;
+#if !defined(CONFIG_MIP405T)
+	unsigned char bc,rc,tmp;
 	int i;
-	backup_t *b = (backup_t *) s;
 
-	puts ("Board: ");
-
-	bc = get_board_revcfg ();
-	var = ~bc;
-	var &= 0xf;
+	bc = in8 (PLD_BOARD_CFG_REG);
+	tmp = ~bc;
+	tmp &= 0xf;
 	rc = 0;
 	for (i = 0; i < 4; i++) {
 		rc <<= 1;
-		rc += (var & 0x1);
-		var >>= 1;
+		rc += (tmp & 0x1);
+		tmp >>= 1;
 	}
 	rc++;
 	if((((bc>>4) & 0xf)==0x1) /* Rev B PCB with */
 		&& (rc==0x1))     /* Population Option 1 is a -3 */
 		rc=3;
+	*pcbrev=(bc >> 4) & 0xf;
+	*var=rc;
+#else
+	unsigned char bc;
+	bc = in8 (PLD_BOARD_CFG_REG);
+	*pcbrev=(bc >> 4) & 0xf;
+	*var=bc & 0xf ;
+#endif
+}
+
+/*
+ * Check Board Identity:
+ */
+/* serial String: "MIP405_1000" OR "MIP405T_1000" */
+#if !defined(CONFIG_MIP405T)
+#define BOARD_NAME	"MIP405"
+#else
+#define BOARD_NAME	"MIP405T"
+#endif
+
+int checkboard (void)
+{
+	unsigned char s[50];
+	unsigned char bc, var;
+	int i;
+	backup_t *b = (backup_t *) s;
+
+	puts ("Board: ");
+	get_pcbrev_var(&bc,&var);
 	i = getenv_r ("serial#", s, 32);
-	if ((i == 0) || strncmp (s, "MIP405", 6)) {
+	if ((i == 0) || strncmp (s, BOARD_NAME,sizeof(BOARD_NAME))) {
 		get_backup_values (b);
 		if (strncmp (b->signature, "MPL\0", 4) != 0) {
-			puts ("### No HW ID - assuming MIP405");
-			printf ("-%d Rev %c", rc, 'A' + ((bc >> 4) & 0xf));
+			puts ("### No HW ID - assuming " BOARD_NAME);
+			printf ("-%d Rev %c", var, 'A' + bc);
 		} else {
-			b->serial_name[6] = 0;
-			printf ("%s-%d Rev %c SN: %s", b->serial_name, rc,
-					'A' + ((bc >> 4) & 0xf), &b->serial_name[7]);
+			b->serial_name[sizeof(BOARD_NAME)-1] = 0;
+			printf ("%s-%d Rev %c SN: %s", b->serial_name, var,
+					'A' + bc, &b->serial_name[sizeof(BOARD_NAME)]);
 		}
 	} else {
-		s[6] = 0;
-		printf ("%s-%d Rev %c SN: %s", s, rc, 'A' + ((bc >> 4) & 0xf),
-				&s[7]);
+		s[sizeof(BOARD_NAME)-1] = 0;
+		printf ("%s-%d Rev %c SN: %s", s, var,'A' + bc,
+				&s[sizeof(BOARD_NAME)]);
 	}
 	bc = in8 (PLD_EXT_CONF_REG);
 	printf (" Boot Config: 0x%x\n", bc);
@@ -613,30 +669,23 @@ static int test_dram (unsigned long ramsize)
 
 int misc_init_r (void)
 {
+	/* if MIP405 has booted from PCI, reset CCR0[24] as described in errata PCI_18 */
+	if (mfdcr(strap) & PSR_ROM_LOC)
+	       mtspr(ccr0, (mfspr(ccr0) & ~0x80));
+
 	return (0);
 }
 
 
 void print_mip405_rev (void)
 {
-	unsigned char part, vers, cfg, rev;
+	unsigned char part, vers, pcbrev, var;
 
-	cfg = get_board_revcfg ();
-	vers = cfg;
-	vers &= 0xf;
-	rev = (((vers & 0x1) ? 0x8 : 0) |
-		   ((vers & 0x2) ? 0x4 : 0) |
-		   ((vers & 0x4) ? 0x2 : 0) |
-		   ((vers & 0x8) ? 0x1 : 0));
-
-	vers=16-rev;
-	rev=vers;
-	if((rev==1) && ((cfg >> 4)==1)) /* Rev B PCB and -1 is a -3 */
-		rev=3;
+	get_pcbrev_var(&pcbrev,&var);
 	part = in8 (PLD_PART_REG);
 	vers = in8 (PLD_VERS_REG);
-	printf ("Rev:   MIP405-%d Rev %c PLD%d Vers %d\n",
-			rev, ((cfg >> 4) & 0xf) + 'A', part, vers);
+	printf ("Rev:   " BOARD_NAME "-%d Rev %c PLD %d Vers %d\n",
+			var, pcbrev + 'A', part & 0x7F, vers);
 }
 
 extern void mem_test_reloc(void);
@@ -683,24 +732,32 @@ void print_mip405_info (void)
 	com_mode = in8 (PLD_COM_MODE_REG);
 	ext = in8 (PLD_EXT_CONF_REG);
 
-	printf ("PLD Part %d version %d\n", part, vers);
+	printf ("PLD Part %d version %d\n", part & 0x7F, vers);
 	printf ("Board Revision %c\n", ((cfg >> 4) & 0xf) + 'A');
 	printf ("Population Options %d %d %d %d\n", (cfg) & 0x1,
 			(cfg >> 1) & 0x1, (cfg >> 2) & 0x1, (cfg >> 3) & 0x1);
 	printf ("User LED %s\n", (com_mode & 0x4) ? "on" : "off");
 	printf ("UART Clocks %d\n", (com_mode >> 4) & 0x3);
-	printf ("Test ist %x\n", com_mode);
+#if !defined(CONFIG_MIP405T)
 	printf ("User Config Switch %d %d %d %d %d %d %d %d\n",
 			(ext) & 0x1, (ext >> 1) & 0x1, (ext >> 2) & 0x1,
 			(ext >> 3) & 0x1, (ext >> 4) & 0x1, (ext >> 5) & 0x1,
 			(ext >> 6) & 0x1, (ext >> 7) & 0x1);
 	printf ("SER1 uses handshakes %s\n",
 			(ext & 0x80) ? "DTR/DSR" : "RTS/CTS");
+#else
+	printf ("User Config Switch %d %d %d %d %d %d %d %d %d\n",
+			(ext) & 0x1, (ext >> 1) & 0x1, (ext >> 2) & 0x1,
+			(ext >> 3) & 0x1, (ext >> 4) & 0x1, (ext >> 5) & 0x1,
+			(ext >> 6) & 0x1,(ext >> 7) & 0x1,(ext >> 8) & 0x1);
+#endif
 	printf ("IDE Reset %s\n", (ext & 0x01) ? "asserted" : "not asserted");
 	printf ("IRQs:\n");
 	printf ("  PIIX INTR: %s\n", (irq_reg & 0x80) ? "inactive" : "active");
+#if !defined(CONFIG_MIP405T)
 	printf ("  UART0 IRQ: %s\n", (irq_reg & 0x40) ? "inactive" : "active");
 	printf ("  UART1 IRQ: %s\n", (irq_reg & 0x20) ? "inactive" : "active");
+#endif
 	printf ("  PIIX SMI:  %s\n", (irq_reg & 0x10) ? "inactive" : "active");
 	printf ("  PIIX INIT: %s\n", (irq_reg & 0x8) ? "inactive" : "active");
 	printf ("  PIIX NMI:  %s\n", (irq_reg & 0x4) ? "inactive" : "active");

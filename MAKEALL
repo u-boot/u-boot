@@ -48,9 +48,9 @@ LIST_4xx="	\
         CANBT		CPCI405		CPCI4052 	CPCI405AB       \
         CPCI440         CPCIISER4	CRAYL1  	DASA_SIM	\
         DU405    	EBONY           ERIC  		MIP405  	\
-        ML2		OCRTC		ORSG		PCI405          \
-        PIP405		PMC405          W7OLMC		W7OLMG          \
-        WALNUT405	\
+        MIP405T		ML2		OCRTC		ORSG		\
+	PCI405		PIP405		PMC405          W7OLMC		\
+	W7OLMG          WALNUT405	\
 "
 
 #########################################################################

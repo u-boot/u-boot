@@ -449,6 +449,11 @@ ERIC_config:unconfig
 MIP405_config:unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx mip405 mpl
 
+MIP405T_config:unconfig
+	@echo "#define CONFIG_MIP405T" >include/config.h
+	@echo "Enable subset config for MIP405T"
+	@./mkconfig -a MIP405 ppc ppc4xx mip405 mpl
+
 ML2_config:unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx ml2
 

@@ -59,6 +59,7 @@ int mpl_prg(unsigned long src,unsigned long size)
 	flash_info_t *info;
 	int i,rc;
 #if defined(CONFIG_PIP405) || defined(CONFIG_MIP405)
+	char *copystr = (char *)src;
 	unsigned long *magic = (unsigned long *)src;
 #endif
 
@@ -69,8 +70,25 @@ int mpl_prg(unsigned long src,unsigned long size)
 		printf("Bad Magic number\n");
 		return -1;
 	}
-
-  	start = 0 - size;
+	/* some more checks before we delete the Flash... */
+	/* Checking the ISO_STRING prevents to program a
+	 * wrong Firmware Image into the flash.
+	 */
+	i=4; /* skip Magic number */
+	while(1) {
+		if(strncmp(&copystr[i],"MEV-",4)==0)
+			break;
+		if(i++>=0x100) {
+			printf("Firmware Image for unknown Target\n");
+			return -1;
+		}
+	}
+	/* we have the ISO STRING, check */
+	if(strncmp(&copystr[i],CONFIG_ISO_STRING,sizeof(CONFIG_ISO_STRING)-1)!=0) {
+		printf("Wrong Firmware Image: %s\n",&copystr[i]);
+		return -1;
+	}
+	start = 0 - size;
 	for(i=info->sector_count-1;i>0;i--)
 	{
 		info->protect[i] = 0; /* unprotect this sector */

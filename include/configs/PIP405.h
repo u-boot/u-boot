@@ -368,7 +368,8 @@
  * Ident
  ************************************************************/
 #define VERSION_TAG "released"
-#define CONFIG_IDENT_STRING "\n(c) 2002 by MPL AG Switzerland, MEV-10066-001 " VERSION_TAG
+#define CONFIG_ISO_STRING "MEV-10066-001"
+#define CONFIG_IDENT_STRING "\n(c) 2002 by MPL AG Switzerland, " CONFIG_ISO_STRING " " VERSION_TAG
 
 
 #endif	/* __CONFIG_H */

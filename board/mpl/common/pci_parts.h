@@ -108,17 +108,23 @@ static struct pci_pip405_config_entry piix4_isa_bridge_f0[] = {
 /* PIIX4 IDE Controller Function 1 */
 static struct pci_pip405_config_entry piix4_ide_cntrl_f1[] = {
 	{PCI_COMMAND,		0x0001,		2}, /* enable IO access 	*/
+#if !defined(CONFIG_MIP405T)
 	{PCI_CFG_PIIX4_IDETIM,	0x80008000,	4}, /* enable Both IDE channels	*/
+#else
+	{PCI_CFG_PIIX4_IDETIM,	0x80000000,	4}, /* enable IDE channel0	*/
+#endif
 	{ }					    /* end of device table 	*/
 };
 
 /* PIIX4 USB Controller Function 2 */
 static struct pci_pip405_config_entry piix4_usb_cntrl_f2[] = {
+#if !defined(CONFIG_MIP405T)
 	{PCI_INTERRUPT_LINE,	31,		1}, /* Int vector = 31 		*/
 	{PCI_BASE_ADDRESS_4,	0x0000E001,	4}, /* Set IO Address to 0xe000 to 0xe01F */
 	{PCI_LATENCY_TIMER,	0x80,		1}, /* Latency Timer 0x80 	*/
 	{0xC0,			0x2000,		2}, /* Legacy support 		*/
 	{PCI_COMMAND,		0x0005,		2}, /* enable IO access and Master */
+#endif
 	{ }					    /* end of device table 	*/
 };
 

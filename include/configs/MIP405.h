@@ -36,6 +36,16 @@
 #define CONFIG_4xx		1	/* ...member of PPC4xx family	*/
 #define CONFIG_MIP405		1	/* ...on a MIP405 board		*/
 /***********************************************************
+ * Note that it may also be a MIP405T board which is a subset of the
+ * MIP405
+ ***********************************************************/
+/***********************************************************
+ * WARNING:
+ * CONFIG_BOOT_PCI is only used for first boot-up and should
+ * NOT be enabled for production bootloader
+ ***********************************************************/
+/*#define        CONFIG_BOOT_PCI         1*/       
+/***********************************************************
  * Clock
  ***********************************************************/
 #define CONFIG_SYS_CLK_FREQ	33000000 /* external frequency to pll   */
@@ -43,7 +53,7 @@
 /***********************************************************
  * Command definitions
  ***********************************************************/
-#define CONFIG_COMMANDS		\
+#define MIP405_COMMON_CMDS \
 		       (CONFIG_CMD_DFL	| \
 			CFG_CMD_IDE	| \
 			CFG_CMD_DHCP	| \
@@ -56,11 +66,20 @@
 			CFG_CMD_REGINFO | \
 			CFG_CMD_DATE	| \
 			CFG_CMD_ELF	| \
-			CFG_CMD_USB	| \
 			CFG_CMD_MII	| \
-			CFG_CMD_DOC	| \
 			CFG_CMD_SAVES	| \
 			CFG_CMD_BSP	)
+
+#if defined(CONFIG_MIP405T)
+#define CONFIG_COMMANDS		\
+			MIP405_COMMON_CMDS
+#else
+#define CONFIG_COMMANDS		\
+			(MIP405_COMMON_CMDS | \
+			CFG_CMD_USB	| \
+			CFG_CMD_DOC	)
+
+#endif
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS  (if any) */
 #include <cmd_confdefs.h>
@@ -97,9 +116,9 @@
  * Definitions for Serial Presence Detect EEPROM address
  * (to get SDRAM settings)
  ***************************************************************/
-#define SDRAM_EEPROM_WRITE_ADDRESS	0xA0
+/*#define SDRAM_EEPROM_WRITE_ADDRESS	0xA0
 #define SDRAM_EEPROM_READ_ADDRESS 	0xA1
-
+*/
 /**************************************************************
  * Environment definitions
  **************************************************************/
@@ -287,7 +306,12 @@
 /************************************************************
  * IDE/ATA stuff
  ************************************************************/
+#if defined(CONFIG_MIP405T)
+#define CFG_IDE_MAXBUS		1   /* MIP405T has only one IDE bus	*/
+#else
 #define CFG_IDE_MAXBUS		2   /* max. 2 IDE busses	*/
+#endif
+
 #define CFG_IDE_MAXDEVICE	(CFG_IDE_MAXBUS*2) /* max. 2 drives per IDE bus */
 
 #define CFG_ATA_BASE_ADDR	CFG_ISA_IO_BASE_ADDRESS /* base address */
@@ -351,13 +375,14 @@
 /************************************************************
  * USB support EXPERIMENTAL
  ************************************************************/
+#if !defined(CONFIG_MIP405T)
 #define CONFIG_USB_UHCI
 #define CONFIG_USB_KEYBOARD
 #define CONFIG_USB_STORAGE
 
 /* Enable needed helper functions */
 #define CFG_DEVICE_DEREGISTER		/* needs device_deregister */
-
+#endif
 /************************************************************
  * Debug support
  ************************************************************/
@@ -369,8 +394,19 @@
 /************************************************************
  * Ident
  ************************************************************/
+
 #define VERSION_TAG "released"
-#define CONFIG_IDENT_STRING "\n(c) 2002 by MPL AG Switzerland, MEV-10072-001 " VERSION_TAG
+#if !defined(CONFIG_MIP405T)
+#define CONFIG_ISO_STRING "MEV-10072-001"
+#else
+#define CONFIG_ISO_STRING "MEV-10082-001"
+#endif
+
+#if !defined(CONFIG_BOOT_PCI)
+#define CONFIG_IDENT_STRING "\n(c) 2003 by MPL AG Switzerland, " CONFIG_ISO_STRING " " VERSION_TAG
+#else
+#define CONFIG_IDENT_STRING "\n(c) 2003 by MPL AG Switzerland, PCI_BOOT Version"
+#endif
 
 
 #endif	/* __CONFIG_H */

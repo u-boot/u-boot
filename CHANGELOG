@@ -2,6 +2,9 @@
 Changes since U-Boot 0.3.1:
 ======================================================================
 
+* Patch by Denis Peter, 04 June 2003:
+  add support for the MIP405T board
+
 * Patches by Udi Finkelstein, 2 June 2003:
   - Added support for custom keyboards, initialized by defining a
     board-specific drv_keyboard_init as well as defining CONFIG_KEYBOARD .

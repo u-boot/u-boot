@@ -50,9 +50,13 @@
 #include "mip405.h"
 
 
- 	.globl	ext_bus_cntlr_init
+  .globl ext_bus_cntlr_init
 ext_bus_cntlr_init:
-  mflr    r4                      /* save link register */
+  mflr   r4                      /* save link register */
+  mfdcr  r3,strap                /* get strapping reg */
+  andi.  r0, r3, PSR_ROM_LOC     /* mask out irrelevant bits */
+  bnelr                          /* jump back if PCI boot */
+
   bl      ..getAddr
 ..getAddr:
   mflr    r3                      /* get address of ..getAddr */
@@ -199,4 +203,46 @@ sdram_init:
 
 
   blr
+
+
+#if defined(CONFIG_BOOT_PCI)
+    .section .bootpg,"ax"
+    .globl _start_pci
+/*******************************************
+ */
+
+_start_pci:
+  /* first handle errata #68 / PCI_18 */
+  iccci   r0, r0          /* invalidate I-cache */
+  lis     r31, 0
+  mticcr  r31             /* ICCR = 0 (all uncachable) */
+  isync
+
+  mfccr0  r28             /* set CCR0[24] = 1 */
+  ori     r28, r28, 0x0080
+  mtccr0  r28
+
+  /* setup PMM0MA (0xEF400004) and PMM0PCIHA (0xEF40000C) */
+  lis     r28, 0xEF40
+  addi    r28, r28, 0x0004
+  stw     r31, 0x0C(r28)  /* clear PMM0PCIHA */
+  lis     r29, 0xFFF8     /* open 512 kByte */
+  addi    r29, r29, 0x0001/* and enable this region */
+  stwbrx  r29, r0, r28    /* write PMM0MA */
+
+  lis     r28, 0xEEC0     /* address of PCIC0_CFGADDR */
+  addi    r29, r28, 4     /* add 4 to r29 -> PCIC0_CFGDATA */
+
+  lis     r31, 0x8000     /* set en bit bus 0 */
+  ori     r31, r31, 0x304C/* device 6 func 0 reg 4C (XBCS register) */
+  stwbrx  r31, r0, r28    /* write it */
+
+  lwbrx   r31, r0, r29    /* load XBCS register */
+  oris    r31, r31, 0x02C4/* clear BIOSCS WPE, set lower, extended and 1M extended BIOS enable */
+  stwbrx  r31, r0, r29    /* write back XBCS register */
+
+  nop
+  nop
+  b	_start		/* normal start */
+#endif
 
