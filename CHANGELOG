@@ -2,6 +2,15 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Patch by Rune Torgersen, 17 Sep 2003:
+  - Fixes for MPC8266 default config
+
+* Patches by Jon Diekema, 17 Sep 2003:
+  - update README (SHOW_BOOT_PROGRESS values for cmd_nand.c and
+    env_common.c)
+  - sbc8260 tweaks
+  - adjust "help" output
+
 * Patches by Anders Larsen, 17 Sep 2003:
   - fix spelling errors
   - set GD_FLG_DEVINIT flag only after device function pointers

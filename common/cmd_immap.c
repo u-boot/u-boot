@@ -634,7 +634,7 @@ U_BOOT_CMD(
 
 U_BOOT_CMD(
 	iopset,	5,	0,	do_iopset,
-	"iopset - set I/O Port registers\n",
+	"iopset  - set I/O Port registers\n",
 	"PORT PIN CMD VALUE\nPORT: A-D, PIN: 0-31, CMD: [dat|dir|odr|sor], VALUE: 0|1"
 );
 

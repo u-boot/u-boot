@@ -1416,7 +1416,13 @@ The following options need to be configured:
    -1	common/cmd_ide.c	Read Error on boot device
    -1	common/cmd_ide.c	Image header has bad magic number
 
-   -1	common/cmd_nvedit.c	Environment not changable, but has bad CRC
+   -1	common/cmd_nand.c	Bad usage of "nand" command
+   -1	common/cmd_nand.c	No boot device
+   -1	common/cmd_nand.c	Unknown Chip ID on boot device
+   -1	common/cmd_nand.c	Read Error on boot device
+   -1	common/cmd_nand.c	Image header has bad magic number
+
+   -1	common/env_common.c     Environment has a bad CRC, using default
 
 
 Modem Support:
