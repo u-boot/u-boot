@@ -652,6 +652,15 @@ eth_loopback_test (void)
 #if defined(CONFIG_HYMOD)
 	/*
 	 * Attention: this is board-specific
+	 * 0, FCC1 
+	 * 1, FCC2 
+	 * 2, FCC3 
+         */
+#       define FCC_START_LOOP 0
+#       define FCC_END_LOOP   2
+
+	/*
+	 * Attention: this is board-specific
 	 * - FCC1 Rx-CLK is CLK10
 	 * - FCC1 Tx-CLK is CLK11
 	 * - FCC2 Rx-CLK is CLK13
@@ -665,13 +674,30 @@ eth_loopback_test (void)
 	immr->im_cpmux.cmx_fcr = CMXFCR_RF1CS_CLK10|CMXFCR_TF1CS_CLK11|\
 	    CMXFCR_RF2CS_CLK13|CMXFCR_TF2CS_CLK14|\
 	    CMXFCR_RF3CS_CLK15|CMXFCR_TF3CS_CLK16;
+#elif defined(CONFIG_SBC8260) || defined(CONFIG_SACSng)
+	/*
+	 * Attention: this is board-specific
+	 * 1, FCC2 
+         */
+#       define FCC_START_LOOP 1
+#       define FCC_END_LOOP   1
+
+	/*
+	 * Attention: this is board-specific
+	 * - FCC2 Rx-CLK is CLK13
+	 * - FCC2 Tx-CLK is CLK14
+	 */
+
+	/* 28.9 - (3): connect FCC's tx and rx clocks */
+	immr->im_cpmux.cmx_uar = 0;
+	immr->im_cpmux.cmx_fcr = CMXFCR_RF2CS_CLK13|CMXFCR_TF2CS_CLK14;
 #else
 #error "eth_loopback_test not supported on your board"
 #endif
 
 	puts ("Initialise FCC channels:");
 
-	for (c = 0; c < 3; c++) {
+	for (c = FCC_START_LOOP; c <= FCC_END_LOOP; c++) {
 		elbt_chan *ecp = &elbt_chans[c];
 		volatile fcc_t *fcp = &immr->im_fcc[c];
 		volatile fcc_enet_t *fpp;
@@ -853,7 +879,7 @@ eth_loopback_test (void)
 	do {
 		nclosed = 0;
 
-		for (c = 0; c < 3; c++) {
+		for (c = FCC_START_LOOP; c <= FCC_END_LOOP; c++) {
 			volatile fcc_t *fcp = &immr->im_fcc[c];
 			elbt_chan *ecp = &elbt_chans[c];
 			int i;
@@ -1082,7 +1108,7 @@ eth_loopback_test (void)
 			}
 		}
 
-	} while (nclosed < 3);
+	} while (nclosed < (FCC_END_LOOP - FCC_START_LOOP + 1));
 
 	runtime = get_timer (runtime);
 	if (runtime <= ELBT_CLSWAIT) {
@@ -1099,7 +1125,7 @@ eth_loopback_test (void)
 	 * now print stats
 	 */
 
-	for (c = 0; c < 3; c++) {
+	for (c = FCC_START_LOOP; c <= FCC_END_LOOP; c++) {
 		elbt_chan *ecp = &elbt_chans[c];
 		uint rxpps, txpps, nerr;
 
@@ -1131,17 +1157,17 @@ eth_loopback_test (void)
 	}
 
 	puts ("Receive Error Counts:\n");
-	for (c = 0; c < 3; c++)
+	for (c = FCC_START_LOOP; c <= FCC_END_LOOP; c++)
 		bases[c] = (uchar *)&elbt_chans[c].rxeacc;
 	print_desc (rxeacc_descs, rxeacc_ndesc, bases, 3);
 
 	puts ("\nTransmit Error Counts:\n");
-	for (c = 0; c < 3; c++)
+	for (c = FCC_START_LOOP; c <= FCC_END_LOOP; c++)
 		bases[c] = (uchar *)&elbt_chans[c].txeacc;
 	print_desc (txeacc_descs, txeacc_ndesc, bases, 3);
 
 	puts ("\nRMON(-like) Counters:\n");
-	for (c = 0; c < 3; c++)
+	for (c = FCC_START_LOOP; c <= FCC_END_LOOP; c++)
 		bases[c] = (uchar *)&immr->im_dprambase[elbt_chans[c].proff];
 	print_desc (epram_descs, epram_ndesc, bases, 3);
 }

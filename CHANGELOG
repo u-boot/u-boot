@@ -4,6 +4,7 @@ Changes for U-Boot 1.0.0:
 
 * Patch by Rune Torgersen, 17 Sep 2003:
   - Fixes for MPC8266 default config
+  - Allow eth_loopback_test() on 8260 to use a subset of the FCC's
 
 * Patches by Jon Diekema, 17 Sep 2003:
   - update README (SHOW_BOOT_PROGRESS values for cmd_nand.c and

@@ -427,7 +427,7 @@ long int initdram(int board_type)
     bsma = ((31 - width) - 14) - ((rows > cols) ? rows : cols);
     sda10 = sdam + 2;
 #else
-    sdam = cols - 6;
+    sdam = cols + banks - 8;
     bsma = ((31 - width) - 14) - ((rows > cols) ? rows : cols);
     sda10 = sdam;
 #endif
@@ -557,9 +557,18 @@ long int initdram(int board_type)
 	printf("SDRAM configuration read from SPD\n");
 	printf("\tSize per side = %dMB\n", sdram_size >> 20);
 	printf("\tOrganization: %d sides, %d banks, %d Columns, %d Rows, Data width = %d bits\n", chipselects, 1<<(banks), cols, rows, data_width);
-	printf("\tRefresh rate = %d, CAS latency = %d\n", psrt, caslatency);
+	printf("\tRefresh rate = %d, CAS latency = %d", psrt, caslatency);
+#if(CONFIG_PBI == 0)	/* bank-based interleaving */
+    printf(", Using Bank Based Interleave\n");
+#else
+    printf(", Using Page Based Interleave\n");
+#endif    
 	printf("\tTotal size: ");
 
+    /* this delay only needed for original 16MB DIMM... 
+     * Not needed for any other memory configuration */
+    if ((sdram_size * chipselects) == (16 *1024 *1024))
+        udelay (250000);
     return (sdram_size * chipselects);
 	/*return (16 * 1024 * 1024);*/
 }
@@ -575,3 +584,4 @@ void pci_init_board(void)
 	pci_mpc8250_init(&hose);
 }
 #endif
+

@@ -508,7 +508,8 @@
 #define CFG_MPTPR		0x00001900
 #define CFG_PSRT		0x00000021
 
-#define CFG_RESET_ADDRESS	0x04400000
+/* This address must not exist */
+#define CFG_RESET_ADDRESS	0xFCFFFF00
 
 /* PCI Memory map (if different from default map */
 #define CFG_PCI_SLV_MEM_LOCAL	CFG_SDRAM_BASE		/* Local base */
