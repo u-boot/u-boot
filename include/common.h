@@ -64,8 +64,10 @@ typedef volatile unsigned char	vu_char;
 
 #ifdef	DEBUG
 #define debug(fmt,args...)	printf (fmt ,##args)
+#define debugX(level,fmt,args...) if (DEBUG>=level) printf(fmt,##args);
 #else
 #define debug(fmt,args...)
+#define debugX(level,fmt,args...)
 #endif	/* DEBUG */
 
 typedef	void (interrupt_handler_t)(void *);

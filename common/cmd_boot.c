@@ -406,12 +406,13 @@ read_record (char *buf, ulong len)
 		}
 
 	    /* Check for the console hangup (if any different from serial) */
-
+#ifdef CONFIG_PPC	/* we don't have syscall_tbl anywhere else */
 	    if (syscall_tbl[SYSCALL_GETC] != serial_getc) {
 		if (ctrlc()) {
 		    return (-1);
 		}
 	    }
+#endif
 	}
 
 	/* line too long - truncate */
@@ -691,11 +692,24 @@ int do_load_serial_bin (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 static ulong load_serial_bin (ulong offset)
 {
-	int size;
+	int size, i;
 	char buf[32];
 
 	set_kerm_bin_mode ((ulong *) offset);
 	size = k_recv ();
+
+	/*
+	 * Gather any trailing characters (for instance, the ^D which
+	 * is sent by 'cu' after sending a file), and give the
+	 * box some time (100 * 1 ms)
+	 */
+	for (i=0; i<100; ++i) {
+		if (serial_tstc()) {
+			(void) serial_getc();
+		}
+		udelay(1000);
+	}
+	
 	flush_cache (offset, size);
 
 	printf("## Total Size      = 0x%08x = %d Bytes\n", size, size);

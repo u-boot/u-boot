@@ -2,6 +2,12 @@
 Changes since U-Boot 0.3.1:
 ======================================================================
 
+* Patches by Robert Schwebel, 14 Jun 2003:
+  - add support for Logotronic DL datalogger board
+  - cleanup serial line after kermit binary download
+  - add debugX macro (debug level support)
+  - update mach-types.h to latest arm.linux.org.uk master list.
+
 * Patches by David Müller, 12 Jun 2003:
   - rewrite of the S3C24X0 register definitions stuff
   - "driver" for the built-in S3C24X0 RTC

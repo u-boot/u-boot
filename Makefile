@@ -737,6 +737,9 @@ innokom_config	:	unconfig
 lubbock_config	:	unconfig
 	@./mkconfig $(@:_config=) arm pxa lubbock
 
+logodl_config	:	unconfig
+	@./mkconfig $(@:_config=) arm pxa logodl
+
 wepep250_config	:	unconfig
 	@./mkconfig $(@:_config=) arm pxa wepep250
 
