@@ -277,7 +277,21 @@ static int init_phy(struct eth_device *dev)
 	struct phy_info *curphy;
 
 	/* Assign a Physical address to the TBI */
-	priv->regs->tbipa=TBIPA_VALUE;
+	
+	{
+		volatile tsec_t *regs = (volatile tsec_t *)(TSEC_BASE_ADDR);
+		regs->tbipa = TBIPA_VALUE;
+		regs = (volatile tsec_t *)(TSEC_BASE_ADDR + TSEC_SIZE);
+		regs->tbipa = TBIPA_VALUE;
+		asm("msync");
+	}
+
+	/* Reset MII (due to new addresses) */
+	priv->phyregs->miimcfg = MIIMCFG_RESET;
+	asm("msync");
+	priv->phyregs->miimcfg = MIIMCFG_INIT_VALUE;
+	asm("msync");
+	while(priv->phyregs->miimind & MIIMIND_BUSY);
 
 	if(0 == relocated)
 		relocate_cmds();
@@ -793,19 +807,50 @@ struct phy_info phy_info_dm9161 = {
 	},
 };
 
+uint mii_parse_lxt971_sr2(uint mii_reg, struct tsec_private *priv)
+{
+        unsigned int speed;
+        if (priv->link) {
+                speed = mii_reg & MIIM_LXT971_SR2_SPEED_MASK;
+
+                switch (speed) {
+                case MIIM_LXT971_SR2_10HDX:
+                        priv->speed = 10;
+                        priv->duplexity = 0;
+                        break;
+                case MIIM_LXT971_SR2_10FDX:
+                        priv->speed = 10;
+                        priv->duplexity = 1;
+                        break;
+                case MIIM_LXT971_SR2_100HDX:
+                        priv->speed = 100;
+                        priv->duplexity = 0;
+                default:
+                        priv->speed = 100;
+                        priv->duplexity = 1;
+                        break;
+                }
+        } else {
+                priv->speed = 0;
+                priv->duplexity = 0;
+        }
+
+        return 0;
+}
+
 static struct phy_info phy_info_lxt971 = {
 	0x0001378e,
 	"LXT971",
 	4,
 	(struct phy_cmd []) {  /* config */
-		{ MIIM_CONTROL, MIIM_CONTROL_INIT, mii_cr_init }, /* autonegotiate */
+		{ MIIM_CR, MIIM_CR_INIT, mii_cr_init }, /* autonegotiate */
 		{ miim_end, }
 	},
 	(struct phy_cmd []) {  /* startup - enable interrupts */
 		/* { 0x12, 0x00f2, NULL }, */
-		{ 0x14, 0xd422, NULL }, /* LED config */
 		{ MIIM_STATUS, miim_read, NULL },
-		{ MIIM_STATUS, miim_read, mii_parse_sr },
+		{ MIIM_STATUS, miim_read, &mii_parse_sr },
+		{ MIIM_LXT971_SR2, miim_read, &mii_parse_lxt971_sr2 },
 		{ miim_end, }
 	},
 	(struct phy_cmd []) {  /* shutdown - disable interrupts */

@@ -140,14 +140,13 @@
 #define PHYS_SDRAM		0x20000000
 #define PHYS_SDRAM_SIZE		0x1000000 	/* 16 megs */
 
-#define CFG_MEMTEST_START		PHYS_SDRAM
-#define CFG_MEMTEST_END			CFG_MEMTEST_START + PHYS_SDRAM_SIZE - 262144
+#define CFG_MEMTEST_START	PHYS_SDRAM
+#define CFG_MEMTEST_END		CFG_MEMTEST_START + PHYS_SDRAM_SIZE - 262144
 
 #define CONFIG_DRIVER_ETHER
 #define CONFIG_NET_RETRY_COUNT		20
 #define CONFIG_AT91C_USE_RMII
 
-#define CONFIG_HAS_DATAFLASH		1
 #define CFG_SPI_WRITE_TOUT		(5*CFG_HZ)
 #define CFG_MAX_DATAFLASH_BANKS		2
 #define CFG_MAX_DATAFLASH_PAGES		16384
@@ -206,4 +205,48 @@ struct bd_info_ext {
 #error CONFIG_USE_IRQ not supported
 #endif
 
+#define CFG_DEVICE_NULLDEV	 1	/* enble null device		*/
+#define CONFIG_SILENT_CONSOLE	 1	/* enable silent startup	*/
+
+#define CONFIG_AUTOBOOT_KEYED
+#define CONFIG_AUTOBOOT_PROMPT "autoboot in %d seconds\n"
+#define CONFIG_AUTOBOOT_STOP_STR "R"	/* default password */
+
+#define CONFIG_VERSION_VARIABLE	1       /* include version env variable */
+
+#define	CONFIG_EXTRA_ENV_SETTINGS	\
+	"net_nfs=tftp $(loadaddr) $(bootfile);run nfsargs addip addcons " \
+		"addmtd;bootm\0" \
+	"nfsargs=setenv bootargs root=/dev/nfs rw " \
+		"nfsroot=$(serverip):$(rootpath)\0" \
+	"net_cramfs=tftp $(loadaddr) $(bootfile); run flashargs addip " \
+		"addcons addmtd; bootm\0" \
+	"flash_cramfs=run flashargs addip addcons addmtd; bootm 10030000\0" \
+	"flashargs=setenv bootargs root=/dev/mtdblock3 ro\0" \
+	"addip=setenv bootargs $(bootargs) ethaddr=$(ethaddr) " \
+		"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):" \
+		"$(hostname)::off\0" \
+	"addcons=setenv bootargs $(bootargs) console=ttyS0,$(baudrate)\0" \
+	"addmtd=setenv bootargs $(bootargs) mtdparts=cmc_pu2:128k(uboot)ro," \
+		"64k(environment),768k(linux),4096k(root),-\0" \
+	"load=tftp $(loadaddr) $(loadfile)\0" \
+	"update=protect off 10000000 1001ffff;erase 10000000 1001ffff; " \
+		"cp.b $(loadaddr) 10000000 $(filesize);" \
+		"protect on 10000000 1001ffff\0" \
+	"updatel=era 10030000 100effff;tftp $(loadaddr) $(bootfile); " \
+		"cp.b $(loadaddr) 10030000 $(filesize)\0" \
+	"updatec=era 100f0000 104effff;tftp $(loadaddr) $(cramfsimage); " \
+		"cp.b $(loadaddr) 100f0000 $(filesize)\0" \
+	"updatej=era 104f0000 107fffff;tftp $(loadaddr) $(jffsimage); " \
+		"cp.b $(loadaddr) 104f0000 $(filesize)\0" \
+	"cramfsimage=cramfs_cmc-pu2.img\0" \
+	"jffsimage=jffs2_cmc-pu2.img\0" \
+	"loadfile=u-boot_cmc-pu2.bin\0" \
+	"bootfile=uImage_cmc-pu2\0" \
+	"loadaddr=0x20800000\0" \
+	"hostname=CMC-TC-PU2\0" \
+	"bootcmd=run dhcp_start;run flash_cramfs\0" \
+	"autoload=n\0" \
+	"dhcp_start=echo no DHCP\0" \
+	"ipaddr=192.168.0.190\0"
 #endif	/* __CONFIG_H */

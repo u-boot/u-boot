@@ -291,7 +291,7 @@
 #define TSEC1_PHYIDX		0
 #define TSEC2_PHYIDX		0
 
-#undef CONFIG_MPC85XX_FEC
+#define CONFIG_MPC85XX_FEC	1
 #define FEC_PHY_ADDR		0
 #define FEC_PHYIDX		0
 

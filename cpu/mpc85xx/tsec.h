@@ -142,6 +142,14 @@
 #define MIIM_DM9161_10BTCSR	0x12
 #define MIIM_DM9161_10BTCSR_INIT	0x7800
 
+/* LXT971 Status 2 registers */
+#define MIIM_LXT971_SR2       	17  /* Status Register 2  */
+#define MIIM_LXT971_SR2_SPEED_MASK	0xf000
+#define MIIM_LXT971_SR2_10HDX	0x1000  /* 10 Mbit half duplex selected */
+#define MIIM_LXT971_SR2_10FDX	0x2000  /* 10 Mbit full duplex selected */
+#define MIIM_LXT971_SR2_100HDX	0x4000  /* 100 Mbit half duplex selected */
+#define MIIM_LXT971_SR2_100FDX	0x8000  /* 100 Mbit full duplex selected */
+
 #define MIIM_READ_COMMAND       0x00000001
 
 #define MRBLR_INIT_SETTINGS	PKTSIZE_ALIGN
