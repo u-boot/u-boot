@@ -75,6 +75,7 @@ void logbuff_init_ptrs (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 	unsigned long *ext_tag;
+	unsigned long post_word;
 	char *s;
 
 	log_buf = (unsigned char *)(gd->bd->bi_memsize-LOGBUFF_LEN);
@@ -82,9 +83,11 @@ void logbuff_init_ptrs (void)
  	ext_log_start = (unsigned long *)(log_buf)-3;
 	ext_log_size = (unsigned long *)(log_buf)-2;
 	ext_logged_chars = (unsigned long *)(log_buf)-1;
+	post_word = post_word_load();
 #ifdef CONFIG_POST
 	/* The post routines have setup the word so we can simply test it */
- 	if ((post_word_load () & 0xffff) == POST_POWERON) {
+ 	if (((post_word & 0xffff) == POST_POWERON) ||
+	    ((post_word & 0xffff) == POST_SLOWTEST)) {
  		logged_chars = log_size = log_start = 0;
 		*ext_tag = LOGBUFF_MAGIC;
  	}
