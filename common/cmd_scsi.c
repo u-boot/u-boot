@@ -281,6 +281,7 @@ int do_scsiboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		puts ("\n** Bad Header Checksum **\n");
 		return 1;
 	}
+	hdr->ih_hcrc = htonl(checksum);	/* restore checksum for later use */
 
 	print_image_hdr (hdr);
 	cnt = (ntohl(hdr->ih_size) + sizeof(image_header_t));

@@ -309,7 +309,7 @@ int do_usbboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	char *boot_device = NULL;
 	char *ep;
-	int dev, part=0, rcode;
+	int dev, part=1, rcode;
 	ulong addr, cnt, checksum;
 	disk_partition_t info;
 	image_header_t *hdr;
@@ -399,6 +399,7 @@ int do_usbboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		puts ("\n** Bad Header Checksum **\n");
 		return 1;
 	}
+	hdr->ih_hcrc = htonl(checksum);	/* restore checksum for later use */
 
 	print_image_hdr (hdr);
 
