@@ -193,6 +193,9 @@ void board_init_f(ulong bootflag)
 	/* Pointer is writable since we allocated a register for it.
 	 */
 	gd = &gd_data;
+	/* compiler optimization barrier needed for GCC >= 3.4 */
+	__asm__ __volatile__("": : :"memory");
+
 	memset ((void *)gd, 0, sizeof (gd_t));
 
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {

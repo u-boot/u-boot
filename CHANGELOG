@@ -2,6 +2,10 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patches by Richard Woodruff, 10 Jun 2004:
+  - fix problems with examples/stubs.c for GCC >= 3.4
+  - fix problems with gd initialization
+
 * Patch by Curt Brune, 17 May 2004:
   - Add support for Samsung S3C4510B CPU (ARM7tdmi based SoC)
   - Add support for ESPD-Inc. EVB4510 Board

@@ -353,6 +353,8 @@ void board_init_f (ulong bootflag)
 
 	/* Pointer is writable since we allocated a register for it */
 	gd = (gd_t *) (CFG_INIT_RAM_ADDR + CFG_GBL_DATA_OFFSET);
+	/* compiler optimization barrier needed for GCC >= 3.4 */
+	__asm__ __volatile__("": : :"memory");
 
 #if !(defined(CONFIG_8260) || defined(CONFIG_MPC8560))
 	/* Clear initial global data */

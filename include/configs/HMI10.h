@@ -131,6 +131,7 @@
 				CFG_CMD_BMP	| \
 				CFG_CMD_DATE	| \
 				CFG_CMD_DHCP	| \
+				CFG_CMD_FAT	| \
 				CFG_CMD_I2C	| \
 				CFG_CMD_IDE	)
 #else
@@ -138,6 +139,7 @@
 				CFG_CMD_ASKENV	| \
 				CFG_CMD_DATE	| \
 				CFG_CMD_DHCP	| \
+				CFG_CMD_FAT	| \
 				CFG_CMD_I2C	| \
 				CFG_CMD_IDE	)
 #endif

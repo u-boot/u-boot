@@ -1,5 +1,9 @@
 #include <exports.h>
 
+#ifndef GCC_VERSION
+#define GCC_VERSION (__GNUC__ * 1000 + __GNUC_MINOR__)
+#endif /* GCC_VERSION */
+
 #if defined(CONFIG_I386)
 /*
  * x86 does not have a dedicated register to store the pointer to
@@ -117,7 +121,10 @@ gd_t *global_data;
  * implementation. On the other hand, asm() statements with
  * arguments can be used only inside the functions (gcc limitation)
  */
-static void __attribute__((unused)) dummy(void)
+#if GCC_VERSION < 3004
+static
+#endif /* GCC_VERSION */
+void __attribute__((unused)) dummy(void)
 {
 #include <_exports.h>
 }

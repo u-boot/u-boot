@@ -117,6 +117,9 @@ void board_init (void)
 	 * Nios treats CFG_GBL_DATA_OFFSET as an address.
 	 */
 	gd = (gd_t *)CFG_GBL_DATA_OFFSET;
+	/* compiler optimization barrier needed for GCC >= 3.4 */
+	__asm__ __volatile__("": : :"memory");
+
 	memset( gd, 0, CFG_GBL_DATA_SIZE );
 
 	gd->bd = (bd_t *)(gd+1);	/* At end of global data */

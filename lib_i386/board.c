@@ -244,6 +244,8 @@ void start_i386boot (void)
 	show_boot_progress(0x21);
 
 	gd = global_data = &gd_data;
+	/* compiler optimization barrier needed for GCC >= 3.4 */
+	__asm__ __volatile__("": : :"memory");
 
 	memset (gd, 0, sizeof (gd_t));
 	gd->bd = &bd_data;
