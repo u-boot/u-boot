@@ -31,7 +31,7 @@
 /*
  * Debug stuff
  */
-#undef __DEBUG_START_FROM_SRAM__
+#undef  __DEBUG_START_FROM_SRAM__
 #define __DISABLE_MACHINE_EXCEPTION__
 
 #ifdef __DEBUG_START_FROM_SRAM__
@@ -52,12 +52,8 @@
 
 #define CONFIG_SYS_CLK_FREQ     33333333 /* external frequency to pll   */
 
-#if 1
-#define CONFIG_BAUDRATE		9600
-#else
 #define CONFIG_BAUDRATE		115200
-#endif
-#define CONFIG_BOOTDELAY	3	/* autoboot after 3 seconds	*/
+#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 
 #if 0
 #define CONFIG_PREBOOT                                                          \
@@ -69,12 +65,12 @@
 
 #undef	CONFIG_BOOTARGS
 #define CONFIG_RAMBOOTCOMMAND							\
-	"setenv bootargs root=/dev/ram rw nfsroot=$(serverip):$(rootpath) "	\
-	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;"	\
+	"setenv bootargs root=/dev/ram rw "	\
+	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname):$(netdev):off;"	\
 	"bootm ffc00000 ffca0000"
 #define CONFIG_NFSBOOTCOMMAND							\
 	"setenv bootargs root=/dev/nfs rw nfsroot=$(serverip):$(rootpath) "	\
-	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;"	\
+	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname):$(netdev):off;"	\
 	"bootm ffc00000"
 
 #define CONFIG_PELK_NOR_KERNEL_NOR_RAMDISK_BOOTCOMMAND				\
@@ -101,7 +97,7 @@
 #define CONFIG_ETH1ADDR	00:50:c2:1e:af:fd
 
 #undef CONFIG_EXT_PHY
-/*#define CONFIG_EXT_PHY*/
+
 #define CONFIG_MII		1	/* MII PHY management		*/
 #ifndef  CONFIG_EXT_PHY
 #define	CONFIG_PHY_ADDR		1	/* PHY address			*/
@@ -110,24 +106,14 @@
 #endif
 #define	CONFIG_PHY_CLK_FREQ	EMAC_STACR_CLK_66MHZ
 
-#if 0 /* test-only */
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
-				CFG_CMD_IRQ	| \
-				CFG_CMD_ELF	| \
 				CFG_CMD_DATE	| \
-				CFG_CMD_JFFS2	| \
-				CFG_CMD_I2C	| \
-				CFG_CMD_EEPROM  )
-#else
-#define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
-				CFG_CMD_IRQ	| \
 				CFG_CMD_ELF	| \
-				CFG_CMD_NAND	| \
-				CFG_CMD_MII		| \
-				CFG_CMD_DATE	| \
+				CFG_CMD_EEPROM	| \
 				CFG_CMD_I2C	| \
-				CFG_CMD_EEPROM  )
-#endif
+				CFG_CMD_IRQ	| \
+				CFG_CMD_MII	| \
+				CFG_CMD_NAND	)
 
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
@@ -146,7 +132,7 @@
  * Miscellaneous configurable options
  */
 #define CFG_LONGHELP			/* undef to save memory		*/
-#define CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
+#define CFG_PROMPT		"=> "	/* Monitor Command Prompt	*/
 
 #undef	CFG_HUSH_PARSER			/* use "hush" command parser	*/
 #ifdef	CFG_HUSH_PARSER

@@ -639,7 +639,9 @@ static int NanD_IdentChip(struct nand_chip *nand, int floor, int chip)
 	NAND_DISABLE_CE(nand);  /* set pin high */
 	/* No response - return failure */
 	if (mfr == 0xff || mfr == 0) {
+#ifdef NAND_DEBUG
 		printf("NanD_Command (ReadID) got %d %d\n", mfr, id);
+#endif
 		return 0;
 	}
 
@@ -732,7 +734,7 @@ static void NanD_ScanChips(struct nand_chip *nand)
 
 	/* If there are none at all that we recognise, bail */
 	if (!nand->numchips) {
-		puts ("No flash chips recognised.\n");
+		puts ("No NAND flash chips recognised.\n");
 		return;
 	}
 

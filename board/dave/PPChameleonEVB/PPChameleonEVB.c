@@ -261,9 +261,10 @@ nand_probe(ulong physadr);
 void
 nand_init(void)
 {
-	printf("Probing at 0x%.8x\n", CFG_NAND0_BASE);
-	nand_probe(CFG_NAND0_BASE);
-	printf("Probing at 0x%.8x\n", CFG_NAND1_BASE);
-	nand_probe(CFG_NAND1_BASE);
+	debug ("Probing at 0x%.8x\n", CFG_NAND0_BASE);
+	nand_probe (CFG_NAND0_BASE);
+
+	debug ("Probing at 0x%.8x\n", CFG_NAND1_BASE);
+	nand_probe (CFG_NAND1_BASE);
 }
 #endif
