@@ -29,6 +29,10 @@
 
 #include <common.h>
 
+#ifndef	CFG_ENV_ADDR
+#define CFG_ENV_ADDR	(CFG_FLASH_BASE + CFG_ENV_OFFSET)
+#endif
+
 flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
 
 /*
@@ -194,12 +198,12 @@ ulong flash_get_size (FPWV *addr, flash_info_t *info)
 	switch (addr[0] & 0xff) {
 
 	case (uchar)AMD_MANUFACT:
-		printf ("Manufacturer: AMD (Spansion)\n");
+		debug ("Manufacturer: AMD (Spansion)\n");
 		info->flash_id = FLASH_MAN_AMD;
 		break;
 
 	case (uchar)INTEL_MANUFACT:
-		printf ("Manufacturer: Intel (not supported yet)\n");
+		debug ("Manufacturer: Intel (not supported yet)\n");
 		info->flash_id = FLASH_MAN_INTEL;
 		break;
 
@@ -214,7 +218,7 @@ ulong flash_get_size (FPWV *addr, flash_info_t *info)
 	if (info->flash_id != FLASH_UNKNOWN) switch ((FPW)addr[1]) {
 
 	case AMD_ID_MIRROR:
-		printf ("Mirror Bit flash: addr[14] = %08X  addr[15] = %08X\n",
+		debug ("Mirror Bit flash: addr[14] = %08X  addr[15] = %08X\n",
 			addr[14], addr[15]);
 
 		switch(addr[14] & 0xffff) {
@@ -225,7 +229,7 @@ ulong flash_get_size (FPWV *addr, flash_info_t *info)
 				info->sector_count = 0;
 				info->size = 0;
 			} else {
-				printf ("Chip: S29GL064M-R6\n");
+				debug ("Chip: S29GL064M-R6\n");
 				info->flash_id += FLASH_S29GL064M;
 				info->sector_count = 128;
 				info->size = 0x00800000;
@@ -265,16 +269,16 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 	int flag, prot, sect, ssect, l_sect;
 	ulong start, now, last;
 
-	printf ("flash_erase: first: %d last: %d\n", s_first, s_last);
+	debug ("flash_erase: first: %d last: %d\n", s_first, s_last);
 
 	if ((s_first < 0) || (s_first > s_last)) {
 		if (info->flash_id == FLASH_UNKNOWN) {
 			printf ("- missing\n");
 		} else {
 			printf ("- no sectors to erase\n");
-			}
+		}
 		return 1;
-			}
+	}
 
 	if ((info->flash_id == FLASH_UNKNOWN) ||
 	    (info->flash_id > FLASH_AMD_COMP)) {

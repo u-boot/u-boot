@@ -33,7 +33,7 @@
 
 #include <at91rm9200_i2c.h>
 
-static int debug = 0;
+/* define DEBUG */
 
 /*
  * Poll the i2c status register until the specified bit is set.
@@ -79,15 +79,13 @@ at91_xfer(unsigned char chip, unsigned int addr, int alen,
 					twi->TWI_CR = AT91C_TWI_STOP;
 				/* Wait until transfer is finished */
 				if (!at91_poll_status(twi, AT91C_TWI_RXRDY)) {
-					if (debug)
-						printf("at91_i2c: timeout 1\n");
+					debug ("at91_i2c: timeout 1\n");
 					return 1;
 				}
 				*buf++ = twi->TWI_RHR;
 			}
 			if (!at91_poll_status(twi, AT91C_TWI_TXCOMP)) {
-				if (debug)
-					printf("at91_i2c: timeout 2\n");
+				debug ("at91_i2c: timeout 2\n");
 				return 1;
 			}
 		} else {
@@ -97,15 +95,13 @@ at91_xfer(unsigned char chip, unsigned int addr, int alen,
 				if (!length)
 					twi->TWI_CR = AT91C_TWI_STOP;
 				if (!at91_poll_status(twi, AT91C_TWI_TXRDY)) {
-					if (debug)
-						printf("at91_i2c: timeout 3\n");
+					debug ("at91_i2c: timeout 3\n");
 					return 1;
 				}
 			}
 			/* Wait until transfer is finished */
 			if (!at91_poll_status(twi, AT91C_TWI_TXCOMP)) {
-				if (debug)
-					printf("at91_i2c: timeout 4\n");
+				debug ("at91_i2c: timeout 4\n");
 				return 1;
 			}
 		}
@@ -190,7 +186,7 @@ i2c_init(int speed, int slaveaddr)
 	/* Here, CKDIV = 1 and CHDIV=CLDIV  ==> CLDIV = CHDIV = 1/4*((Fmclk/FTWI) -6) */
 	twi->TWI_CWGR = AT91C_TWI_CKDIV1 | AT91C_TWI_CLDIV3 | (AT91C_TWI_CLDIV3 << 8);
 
-	printf("Found AT91 i2c\n");
+	debug ("Found AT91 i2c\n");
 	return;
 }
 #endif /* CONFIG_HARD_I2C */
