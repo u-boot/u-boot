@@ -169,6 +169,7 @@ int serial_getc (void)
 		break;
 	default:
 		/* panic, be never here */
+		break;
 	}
 
 	serial_reg_ch1->status_a |= NETARM_SER_STATA_RX_CLOSED;

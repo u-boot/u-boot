@@ -170,7 +170,7 @@ s32 eth_send(volatile void *packet, s32 length)
 	ETH *eth = &m_eth;
 
 	if ( eth->m_curTX_FD->m_frameDataPtr.bf.owner) {
-		printf(__FUNCTION__"(): TX Frame.  CPU not owner.\n");
+		printf("eth_send(): TX Frame.  CPU not owner.\n");
 		return -1;
 	}
 

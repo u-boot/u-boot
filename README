@@ -25,9 +25,10 @@ Summary:
 ========
 
 This directory contains the source code for U-Boot, a boot loader for
-Embedded boards based on PowerPC and ARM processors, which can be
-installed in a boot ROM and used to initialize and test the hardware
-or to download and run application code.
+Embedded boards based on PowerPC, ARM, MIPS and several other
+processors, which can be installed in a boot ROM and used to
+initialize and test the hardware or to download and run application
+code.
 
 The development of U-Boot is closely related to Linux: some parts of
 the source code originate in the Linux source tree, we have some

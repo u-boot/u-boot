@@ -69,7 +69,7 @@
 
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 } /* valid baudrates */
 
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL | CFG_CMD_DIAG | CFG_CMD_SDRAM & ~CONFIG_CMD_DTT)
+#define CONFIG_COMMANDS		((CONFIG_CMD_DFL | CFG_CMD_DIAG | CFG_CMD_SDRAM) & ~CFG_CMD_DTT)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>

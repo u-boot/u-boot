@@ -272,7 +272,7 @@ int i2c_probe(uchar chip)
 		not implemented
 	*/
 
-	printf(__FUNCTION__ " chip %d\n", (int) chip);
+	printf("i2c_probe chip %d\n", (int) chip);
 	return -1;
 }
 

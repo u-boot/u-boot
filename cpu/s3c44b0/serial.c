@@ -112,7 +112,7 @@ void serial_setbrg (void)
 		divisor = 121;
 #else
 # error CONFIG_S3C44B0_CLOCK_SPEED undefined
-#endif		break;
+#endif	/* break; */
 
 	case 57600:
 #if CONFIG_S3C44B0_CLOCK_SPEED==66
@@ -121,7 +121,7 @@ void serial_setbrg (void)
 		divisor = 80;
 #else
 # error CONFIG_S3C44B0_CLOCK_SPEED undefined
-#endif		break;
+#endif	/* break; */
 
 	case 115200:
 #if CONFIG_S3C44B0_CLOCK_SPEED==66
@@ -130,7 +130,7 @@ void serial_setbrg (void)
 		divisor = 40;
 #else
 # error CONFIG_S3C44B0_CLOCK_SPEED undefined
-#endif		break;
+#endif	/* break; */
 	}
 
 	serial_flush_output();

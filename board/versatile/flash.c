@@ -239,7 +239,6 @@ static ulong flash_get_size (FPW * addr, flash_info_t * info)
 		info->flash_id += FLASH_28F256K3;
 		info->sector_count = 256;
 		info->size = 0x02000000;
-		printf ("\Intel StrataFlash 28F256K3C device initialized\n");
 		break;
 
 	default:

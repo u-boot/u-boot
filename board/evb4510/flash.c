@@ -362,8 +362,7 @@ unsigned long flash_init (void)
 	}
 #endif
 	else {
-		printf (__FUNCTION__
-			"(): Unable to detect PHYS_FLASH_1: 0x%08x\n",
+		printf ("flash_init(): Unable to detect PHYS_FLASH_1: 0x%08x\n",
 			PHYS_FLASH_1);
 	}
 

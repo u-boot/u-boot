@@ -479,7 +479,7 @@ int memory_post_test (int flags)
 
 	return ret;
 }
-#endif 0
+#endif /* 0 */
 
 /* #endif */ /* CONFIG_POST & CFG_POST_MEMORY */
 /* #endif */ /* CONFIG_POST */

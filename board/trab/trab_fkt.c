@@ -35,7 +35,7 @@
  * command do_touch is invoked and the touch is not pressed within an specific
  * interval.
  */
-#undef  CONFIG_TOUCH_WAIT_PRESSED 1
+#undef	CONFIG_TOUCH_WAIT_PRESSED
 
 /* max time to wait for touch is pressed */
 #ifndef CONFIG_TOUCH_WAIT_PRESSED

@@ -718,6 +718,7 @@ static void led_set (unsigned int state)
 		gpio->PADAT &= ~(1 << 12);
 		break;
 	default:
+		break;
 	}
 }
 

@@ -925,7 +925,9 @@ int usb_hub_configure(struct usb_device *dev)
 	}
 	descriptor = (struct usb_hub_descriptor *)buffer;
 
-	if (descriptor->bLength > USB_BUFSIZ) {
+	/* silence compiler warning if USB_BUFSIZ is > 256 [= sizeof(char)] */
+	i = descriptor->bLength;
+	if (i > USB_BUFSIZ) {
 		USB_HUB_PRINTF("usb_hub_configure: failed to get hub descriptor - too long: %d\N",
 			descriptor->bLength);
 		return -1;
