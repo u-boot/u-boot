@@ -203,7 +203,7 @@ unconfig:
 cmi_mpc5xx_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc5xx cmi
 
-PATI_config:unconfig
+PATI_config:		unconfig
 	@./mkconfig $(@:_config=) ppc mpc5xx pati mpl
 
 #########################################################################
@@ -569,7 +569,7 @@ AR405_config:	unconfig
 ASH405_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx ash405 esd
 
-BUBINGA405EP_config:unconfig
+BUBINGA405EP_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx bubinga405ep
 
 CANBT_config:	unconfig
@@ -587,7 +587,7 @@ CPCI440_config:	unconfig
 CPCIISER4_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx cpciiser4 esd
 
-CRAYL1_config:unconfig
+CRAYL1_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx L1 cray
 
 csb272_config:	unconfig
@@ -602,33 +602,36 @@ DP405_config:	unconfig
 DU405_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx du405 esd
 
-EBONY_config:unconfig
+EBONY_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx ebony
 
-ERIC_config:unconfig
+ERIC_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx eric
 
-EXBITGEN_config:unconfig
+EXBITGEN_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx exbitgen
 
 HUB405_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx hub405 esd
 
-MIP405_config:unconfig
+JSE_config:	unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx jse
+
+MIP405_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx mip405 mpl
 
-MIP405T_config:unconfig
+MIP405T_config:	unconfig
 	@echo "#define CONFIG_MIP405T" >include/config.h
 	@echo "Enable subset config for MIP405T"
 	@./mkconfig -a MIP405 ppc ppc4xx mip405 mpl
 
-ML2_config:unconfig
+ML2_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx ml2
 
-ml300_config:unconfig
+ml300_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx ml300 xilinx
 
-OCOTEA_config:unconfig
+OCOTEA_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx ocotea
 
 OCRTC_config		\
@@ -638,7 +641,7 @@ ORSG_config:	unconfig
 PCI405_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx pci405 esd
 
-PIP405_config:unconfig
+PIP405_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx pip405 mpl
 
 PLU405_config:	unconfig
@@ -673,10 +676,10 @@ W7OLMC_config	\
 W7OLMG_config: unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx w7o
 
-WALNUT405_config:unconfig
+WALNUT405_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx walnut405
 
-XPEDITE1K_config:unconfig
+XPEDITE1K_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx xpedite1k
 
 #########################################################################

@@ -63,6 +63,9 @@
 #if defined(CONFIG_LWMON)
 #include <i2c.h>
 #endif
+#ifdef CONFIG_PXA_PCMCIA
+#include <asm/arch/pxa-regs.h>
+#endif
 
 #if (CONFIG_COMMANDS & CFG_CMD_PCMCIA) || \
     ((CONFIG_COMMANDS & CFG_CMD_IDE) && defined(CONFIG_IDE_8xx_PCCARD))
@@ -86,7 +89,7 @@ static int  hardware_disable(int slot);
 static int  hardware_enable (int slot);
 static int  voltage_set(int slot, int vcc, int vpp);
 
-#ifndef	CONFIG_I82365
+#if (! defined(CONFIG_I82365)) && (! defined(CONFIG_PXA_PCMCIA))
 static u_int m8xx_get_graycode(u_int size);
 #endif	/* CONFIG_I82365 */
 #if 0
@@ -94,6 +97,8 @@ static u_int m8xx_get_speed(u_int ns, u_int is_io);
 #endif
 
 /* -------------------------------------------------------------------- */
+
+#ifndef CONFIG_PXA_PCMCIA
 
 /* look up table for pgcrx registers */
 
@@ -106,12 +111,14 @@ static u_int *pcmcia_pgcrx[2] = {
 
 #endif /* CONFIG_I82365 */
 
-#ifdef CONFIG_IDE_8xx_PCCARD
+#if defined(CONFIG_IDE_8xx_PCCARD)  || defined(CONFIG_PXA_PCMCIA)
 static void print_funcid (int func);
 static void print_fixed  (volatile uchar *p);
 static int  identify     (volatile uchar *p);
 static int  check_ide_device (int slot);
 #endif	/* CONFIG_IDE_8xx_PCCARD */
+
+#endif
 
 const char *indent = "\t   ";
 
@@ -151,14 +158,15 @@ int pcmcia_on (void)
 
 	rc = i82365_init();
 
-	if (rc == 0)
-	{
+	if (rc == 0) {
 		rc = check_ide_device(0);
 	}
 
 	return (rc);
 }
 #else
+
+#ifndef CONFIG_PXA_PCMCIA
 
 #ifdef CONFIG_HMI10
 # define  HMI10_FRAM_TIMING	(PCMCIA_SHT(2) | PCMCIA_SST(2) | PCMCIA_SL(4))
@@ -280,7 +288,107 @@ int pcmcia_on (void)
 	}
 	return (rc);
 }
+
+#endif / CONFIG_PXA_PCMCIA */
+
 #endif /* CONFIG_I82365 */
+
+#ifdef CONFIG_PXA_PCMCIA
+
+static int hardware_enable (int slot)
+{
+	return 0;	/* No hardware to enable */
+}
+
+static int hardware_disable(int slot)
+{
+	return 0;	/* No hardware to disable */
+}
+
+static int voltage_set(int slot, int vcc, int vpp)
+{
+	return 0;
+}
+
+void msWait(unsigned msVal)
+{
+	udelay(msVal*1000);
+}
+
+int pcmcia_on (void)
+{
+	unsigned int reg_arr[] = {
+		0x48000028, CFG_MCMEM0_VAL,
+		0x4800002c, CFG_MCMEM1_VAL,
+		0x48000030, CFG_MCATT0_VAL,
+		0x48000034, CFG_MCATT1_VAL,
+		0x48000038, CFG_MCIO0_VAL,
+		0x4800003c, CFG_MCIO1_VAL,
+
+		0, 0
+	};
+	int i, rc;
+
+#ifdef CONFIG_EXADRON1
+	int cardDetect;
+	volatile unsigned int *v_pBCRReg =
+		(volatile unsigned int *) 0x08000000;
+#endif
+
+	debug ("%s\n", __FUNCTION__);
+
+	i = 0;
+	while (reg_arr[i])
+		*((volatile unsigned int *) reg_arr[i++]) |= reg_arr[i++];
+	udelay (1000);
+
+	debug ("%s: programmed mem controller \n", __FUNCTION__);
+
+#ifdef CONFIG_EXADRON1
+
+/*define useful BCR masks */
+#define BCR_CF_INIT_VAL  		    0x00007230
+#define BCR_CF_PWRON_BUSOFF_RESETOFF_VAL    0x00007231
+#define BCR_CF_PWRON_BUSOFF_RESETON_VAL     0x00007233
+#define BCR_CF_PWRON_BUSON_RESETON_VAL      0x00007213
+#define BCR_CF_PWRON_BUSON_RESETOFF_VAL     0x00007211
+
+	/* we see from the GPIO bit if the card is present */
+	cardDetect = !(GPLR0 & GPIO_bit (14));
+
+	if (cardDetect) {
+		printf ("No PCMCIA card found!\n");
+	}
+
+	/* reset the card via the BCR line */
+	*v_pBCRReg = (unsigned) BCR_CF_INIT_VAL;
+	msWait (500);
+
+	*v_pBCRReg = (unsigned) BCR_CF_PWRON_BUSOFF_RESETOFF_VAL;
+	msWait (500);
+
+	*v_pBCRReg = (unsigned) BCR_CF_PWRON_BUSOFF_RESETON_VAL;
+	msWait (500);
+
+	*v_pBCRReg = (unsigned) BCR_CF_PWRON_BUSON_RESETON_VAL;
+	msWait (500);
+
+	*v_pBCRReg = (unsigned) BCR_CF_PWRON_BUSON_RESETOFF_VAL;
+	msWait (1500);
+
+	/* enable address bus */
+	GPCR1 = 0x01;
+	/* and the first CF slot */
+	MECR = 0x00000002;
+
+#endif /* EXADRON 1 */
+
+	rc = check_ide_device (0);	/* use just slot 0 */
+
+	return rc;
+}
+
+#endif /* CONFIG_PXA_PCMCIA */
 
 /* -------------------------------------------------------------------- */
 
@@ -296,6 +404,9 @@ static int pcmcia_off (void)
 	return 0;
 }
 #else
+
+#ifndef CONFIG_PXA_PCMCIA
+
 static int pcmcia_off (void)
 {
 	int i;
@@ -327,13 +438,23 @@ static int pcmcia_off (void)
 	hardware_disable(_slot_);
 	return 0;
 }
+
+#endif /* CONFIG_PXA_PCMCIA */
+
 #endif /* CONFIG_I82365 */
+
+#ifdef CONFIG_PXA_PCMCIA
+static int pcmcia_off (void)
+{
+	return 0;
+}
+#endif
 
 #endif	/* CFG_CMD_PCMCIA */
 
 /* -------------------------------------------------------------------- */
 
-#ifdef CONFIG_IDE_8xx_PCCARD
+#if defined(CONFIG_IDE_8xx_PCCARD) || defined(CONFIG_PXA_PCMCIA)
 
 #define	MAX_TUPEL_SZ	512
 #define MAX_FEATURES	4
@@ -2370,7 +2491,7 @@ static const u_int m8xx_size_to_gray[M8XX_SIZES_NO] =
 
 /* -------------------------------------------------------------------- */
 
-#ifndef	CONFIG_I82365
+#if ( ! defined(CONFIG_I82365) && ! defined(CONFIG_PXA_PCMCIA) )
 
 static u_int m8xx_get_graycode(u_int size)
 {
@@ -2444,7 +2565,7 @@ static u_int m8xx_get_speed(u_int ns, u_int is_io)
 
 /* -------------------------------------------------------------------- */
 
-#ifdef CONFIG_IDE_8xx_PCCARD
+#if defined(CONFIG_IDE_8xx_PCCARD) || defined(CONFIG_PXA_PCMCIA)
 static void print_funcid (int func)
 {
 	puts (indent);
@@ -2486,7 +2607,7 @@ static void print_funcid (int func)
 
 /* -------------------------------------------------------------------- */
 
-#ifdef CONFIG_IDE_8xx_PCCARD
+#if defined(CONFIG_IDE_8xx_PCCARD) || defined(CONFIG_PXA_PCMCIA)
 static void print_fixed (volatile uchar *p)
 {
 	if (p == NULL)
@@ -2544,7 +2665,7 @@ static void print_fixed (volatile uchar *p)
 
 /* -------------------------------------------------------------------- */
 
-#ifdef CONFIG_IDE_8xx_PCCARD
+#if defined(CONFIG_IDE_8xx_PCCARD) || defined(CONFIG_PXA_PCMCIA)
 
 #define MAX_IDENT_CHARS		64
 #define	MAX_IDENT_FIELDS	4

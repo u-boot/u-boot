@@ -210,4 +210,11 @@ long file_fat_read(const char *filename, void *buffer, unsigned long maxsize);
 const char *file_getfsname(int idx);
 int fat_register_device(block_dev_desc_t *dev_desc, int part_no);
 
+#ifdef CONFIG_PXA250
+#undef FAT2CPU16
+#define FAT2CPU16(x) x
+#undef FAT2CPU32
+#define FAT2CPU32(x) x
+#endif
+
 #endif /* _FAT_H_ */

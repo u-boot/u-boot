@@ -2,6 +2,12 @@
 Changes for U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Stephen Williams, 01 Apr 2004:
+  Add support for Picture Elements JSE board
+
+* Patch by Christian Pell, 01 Apr 2004:
+  Add CompactFlash support for PXA systems.
+
 * Patches by Pantelis Antoniou, 30 Mar 2004:
   - add auto-complete support to the U-Boot CLI
   - add support for NETTA and NETPHONE boards; fix NETVIA board

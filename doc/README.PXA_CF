@@ -1,0 +1,50 @@
+
+These are brief instructions on how to add support for CF adapters to 
+custom designed  PXA boards. You need to set the parameters in the 
+config file. This should work for most implementations especially if you
+follow the connections of the standard lubbock. Anyway just the block
+marked memory configuration should be touched since the other parameters 
+are imposed by the PXA architecture.
+
+#define CONFIG_PXA_PCMCIA 1
+#define CONFIG_PXA_IDE 1
+
+#define CONFIG_PCMCIA_SLOT_A 1	
+/* just to keep build system happy  */
+
+#define CFG_PCMCIA_MEM_ADDR     0x28000000
+#define CFG_PCMCIA_MEM_SIZE     0x10000000
+
+#define CFG_MECR_VAL		0x00000000
+#define CFG_MCMEM0_VAL		0x00004204
+#define CFG_MCMEM1_VAL		0x00000000
+#define CFG_MCATT0_VAL		0x00010504
+#define CFG_MCATT1_VAL		0x00000000
+#define CFG_MCIO0_VAL		0x00008407
+#define CFG_MCIO1_VAL		0x00000000
+/* memory configuration */
+
+#define CFG_IDE_MAXBUS		1	
+/* max. 1 IDE bus		*/
+#define CFG_IDE_MAXDEVICE	1	
+/* max. 1 drive per IDE bus	*/
+
+#define CFG_ATA_IDE0_OFFSET	0x0000
+
+#define CFG_ATA_BASE_ADDR	0x20000000
+
+/* Offset for data I/O			*/
+#define CFG_ATA_DATA_OFFSET	0x1f0
+
+/* Offset for normal register accesses	*/
+#define CFG_ATA_REG_OFFSET	0x1f0
+
+/* Offset for alternate registers	*/
+#define CFG_ATA_ALT_OFFSET	0x3f0
+	
+
+Another important point is that maybe you have to power the pcmcia 
+subsystem. This is very board specific, for an example on how to
+do it please search for CONFIG_EXADRON1 in cmd_pcmcia.c
+
+

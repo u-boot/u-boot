@@ -782,15 +782,17 @@ set_pcmcia_timing (int pmode)
 
 /* ------------------------------------------------------------------------- */
 
-#ifdef __PPC__
+#if defined(__PPC__) || defined(CONFIG_PXA_PCMCIA)
 static void __inline__
 ide_outb(int dev, int port, unsigned char val)
 {
-	PRINTF ("ide_outb (dev= %d, port= %d, val= 0x%02x) : @ 0x%08lx\n",
+	PRINTF ("ide_outb (dev= %d, port= 0x%x, val= 0x%02x) : @ 0x%08lx\n",
 		dev, port, val, (ATA_CURR_BASE(dev)+port));
 
 	/* Ensure I/O operations complete */
+#ifdef __PPC__
 	__asm__ volatile("eieio");
+#endif
 	*((uchar *)(ATA_CURR_BASE(dev)+port)) = val;
 }
 #else	/* ! __PPC__ */
@@ -802,15 +804,17 @@ ide_outb(int dev, int port, unsigned char val)
 #endif	/* __PPC__ */
 
 
-#ifdef __PPC__
+#if defined(__PPC__) || defined(CONFIG_PXA_PCMCIA)
 static unsigned char __inline__
 ide_inb(int dev, int port)
 {
 	uchar val;
 	/* Ensure I/O operations complete */
+#ifdef __PPC__
 	__asm__ volatile("eieio");
+#endif
 	val = *((uchar *)(ATA_CURR_BASE(dev)+port));
-	PRINTF ("ide_inb (dev= %d, port= %d) : @ 0x%08lx -> 0x%02x\n",
+	PRINTF ("ide_inb (dev= %d, port= 0x%x) : @ 0x%08lx -> 0x%02x\n",
 		dev, port, (ATA_CURR_BASE(dev)+port), val);
 	return (val);
 }
@@ -856,6 +860,8 @@ input_swap_data(int dev, ulong *sect_buf, int words)
 	volatile ushort	*pbuf = (ushort *)(ATA_CURR_BASE(dev)+ATA_DATA_REG);
 	ushort	*dbuf = (ushort *)sect_buf;
 
+	PRINTF("in input swap data base for read is %lx\n", (unsigned long) pbuf);
+
 	while (words--) {
 		*dbuf++ = ld_le16(pbuf);
 		*dbuf++ = ld_le16(pbuf);
@@ -878,7 +884,7 @@ input_swap_data(int dev, ulong *sect_buf, int words)
 #endif	/* __LITTLE_ENDIAN || CONFIG_AU1X00 */
 
 
-#ifdef __PPC__
+#if defined(__PPC__) || defined(CONFIG_PXA_PCMCIA)
 static void
 output_data(int dev, ulong *sect_buf, int words)
 {
@@ -889,9 +895,13 @@ output_data(int dev, ulong *sect_buf, int words)
 	pbuf = (ushort *)(ATA_CURR_BASE(dev)+ATA_DATA_REG);
 	dbuf = (ushort *)sect_buf;
 	while (words--) {
+#ifdef __PPC__
 		__asm__ volatile ("eieio");
+#endif
 		*pbuf = *dbuf++;
+#ifdef __PPC__
 		__asm__ volatile ("eieio");
+#endif
 		*pbuf = *dbuf++;
 	}
 #else	/* CONFIG_HMI10 */
@@ -922,7 +932,7 @@ output_data(int dev, ulong *sect_buf, int words)
 }
 #endif	/* __PPC__ */
 
-#ifdef __PPC__
+#if defined(__PPC__) || defined(CONFIG_PXA_PCMCIA)
 static void
 input_data(int dev, ulong *sect_buf, int words)
 {
@@ -932,10 +942,17 @@ input_data(int dev, ulong *sect_buf, int words)
 
 	pbuf = (ushort *)(ATA_CURR_BASE(dev)+ATA_DATA_REG);
 	dbuf = (ushort *)sect_buf;
+
+	PRINTF("in input data base for read is %lx\n", (unsigned long) pbuf);
+
 	while (words--) {
+#ifdef __PPC__
 		__asm__ volatile ("eieio");
+#endif
 		*dbuf++ = *pbuf;
+#ifdef __PPC__
 		__asm__ volatile ("eieio");
+#endif
 		*dbuf++ = *pbuf;
 	}
 #else	/* CONFIG_HMI10 */
@@ -1576,7 +1593,7 @@ static void ide_led (uchar led, uchar status)
 #define AT_PRINTF(fmt,args...)
 #endif
 
-#ifdef __PPC__
+#if defined(__PPC__) || defined(CONFIG_PXA_PCMCIA)
 /* since ATAPI may use commands with not 4 bytes alligned length
  * we have our own transfer functions, 2 bytes alligned */
 static void
@@ -1588,8 +1605,13 @@ output_data_shorts(int dev, ushort *sect_buf, int shorts)
 
 	pbuf = (ushort *)(ATA_CURR_BASE(dev)+ATA_DATA_REG);
 	dbuf = (ushort *)sect_buf;
+
+	PRINTF("in output data shorts base for read is %lx\n", (unsigned long) pbuf);
+
 	while (shorts--) {
+#ifdef __PPC__
 		__asm__ volatile ("eieio");
+#endif
 		*pbuf = *dbuf++;
 	}
 #else	/* CONFIG_HMI10 */
@@ -1617,8 +1639,13 @@ input_data_shorts(int dev, ushort *sect_buf, int shorts)
 
 	pbuf = (ushort *)(ATA_CURR_BASE(dev)+ATA_DATA_REG);
 	dbuf = (ushort *)sect_buf;
+
+	PRINTF("in input data shorts base for read is %lx\n", (unsigned long) pbuf);
+
 	while (shorts--) {
+#ifdef __PPC__
 		__asm__ volatile ("eieio");
+#endif
 		*dbuf++ = *pbuf;
 	}
 #else	/* CONFIG_HMI10 */
