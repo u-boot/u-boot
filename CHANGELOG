@@ -2,6 +2,13 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Yuli Barcohen, 19 Jul 2004:
+  - Fix host tools building in Cygwin environment
+  - Fix header files search order for host tools
+
+* Patch by Tom Armistead, 19 Jul 2004:
+  Fix kgdb.S support for 74xx_75x cpu
+
 * Patch by Jon Loeliger, 15 Jul 2004:
   Fix MPC85xx I2C driver
 

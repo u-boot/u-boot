@@ -20,8 +20,6 @@
  * MA 02111-1307USA
  */
 
-/* note - this won't work with the 74xx cpus.  needs more work [josh] */
-
 #include <config.h>
 #include <command.h>
 #include <74xx_7xx.h>
@@ -41,12 +39,18 @@
 
 	.globl	kgdb_flush_cache_all
 kgdb_flush_cache_all:
-	lis	r3, IDC_INVALL@h
-	mtspr	DC_CST, r3
-	sync
-	lis	r3, IDC_INVALL@h
-	mtspr	IC_CST, r3
+	lis	r3,0
+	addis	r4,r0,0x0040
+kgdb_flush_loop:
+	lwz	r5,0(r3)
+	addi	r3,r3,CFG_CACHELINE_SIZE
+	cmp	0,0,r3,r4
+	bne	kgdb_flush_loop
 	SYNC
+	mfspr	r3,1008
+	ori	r3,r3,0x8800
+	mtspr	1008,r3
+	sync
 	blr
 
 	.globl	kgdb_flush_cache_range

@@ -96,11 +96,9 @@ endif
 #
 ifeq ($(HOSTOS),cygwin)
 SFX = .exe
-HOST_CFLAGS += -D__WIN32__
 else
 SFX =
 endif
-
 
 #
 # Include this after HOSTOS HOSTARCH check
@@ -111,7 +109,7 @@ include $(TOPDIR)/config.mk
 #
 # Use native tools and options
 #
-CPPFLAGS   = -I../include -I.. -DTEXT_BASE=$(TEXT_BASE) -DUSE_HOSTCC
+CPPFLAGS   = -idirafter ../include -DTEXT_BASE=$(TEXT_BASE) -DUSE_HOSTCC
 CFLAGS     = $(HOST_CFLAGS) $(CPPFLAGS) -O
 AFLAGS	   = -D__ASSEMBLY__ $(CPPFLAGS)
 CC	   = $(HOSTCC)
