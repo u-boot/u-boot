@@ -39,13 +39,6 @@ long int initdram(int board_type)
 /* In cpu/mips/cpu.c */
 void write_one_tlb( int index, u32 pagemask, u32 hi, u32 low0, u32 low1 );
 
-#ifdef CONFIG_DBAU1100
-#warning "FIXME Check that bcsr is the same as dbau1000 board!"
-#endif
-#ifdef CONFIG_DBAU1500
-#warning "FIXME Check that bcsr is the same as dbau1000 board!"
-#endif
-
 int checkboard (void)
 {
 	u16 status;

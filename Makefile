@@ -261,10 +261,7 @@ AMX860_config	:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx amx860 westel
 
 bms2003_config	:	unconfig
-	@echo "#define CONFIG_BMS2003" >include/config.h
-	@echo "#define CONFIG_LCD" >>include/config.h
-	@echo "#define CONFIG_NEC_NL6448BC33_54" >>include/config.h
-	@./mkconfig -a TQM823L ppc mpc8xx tqm8xx
+	@./mkconfig $(@:_config=) ppc mpc8xx tqm8xx
 
 c2mon_config:		unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx c2mon

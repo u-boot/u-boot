@@ -229,7 +229,7 @@ int pcmcia_on (void)
 #endif	/* CONFIG_IDE_8xx_PCCARD */
 #ifdef CONFIG_BMS2003
 		case 3: {	/* map I/O window for 4xUART data/ctrl */
-			win->br += 0x140000;
+			win->br += 0x40000;
 			win->or = (	PCMCIA_BSIZE_256K
 				|	PCMCIA_PPS_8
 				|	PCMCIA_PRS_IO
@@ -622,6 +622,7 @@ static int hardware_enable(int slot)
 	PCMCIA_PGCRX(slot) = reg;
 	udelay(500);
 
+#ifndef CONFIG_BMS2003
 #ifndef CONFIG_NSCU
 	/*
 	 * Configure Port C pins for
@@ -633,6 +634,16 @@ static int hardware_enable(int slot)
 
 	immap->im_ioport.iop_pcdat &= ~(0x0002 | 0x0004);
 #endif
+#else	/* CONFIG_BMS2003 */
+	/*
+	 * Configure Port B  pins for
+	 * 5 Volts Enable and 3 Volts enable
+	 */
+	immap->im_cpm.cp_pbpar &= ~(0x00000300);
+
+	/* remove all power */
+	immap->im_cpm.cp_pbdat |= 0x00000300;
+#endif	/* CONFIG_BMS2003 */
 
 	/*
 	 * Make sure there is a card in the slot, then configure the interface.
@@ -641,7 +652,11 @@ static int hardware_enable(int slot)
 	debug ("[%d] %s: PIPR(%p)=0x%x\n",
 		__LINE__,__FUNCTION__,
 		&(pcmp->pcmc_pipr),pcmp->pcmc_pipr);
+#ifndef CONFIG_BMS2003
 	if (pcmp->pcmc_pipr & (0x18000000 >> (slot << 4))) {
+#else
+	if (pcmp->pcmc_pipr & (0x10000000 >> (slot << 4))) {
+#endif	/* CONFIG_BMS2003 */
 		printf ("   No Card found\n");
 		return (1);
 	}
@@ -657,13 +672,25 @@ static int hardware_enable(int slot)
 		(reg&PCMCIA_VS2(slot))?"n":"ff");
 #ifndef CONFIG_NSCU
 	if ((reg & mask) == mask) {
+#ifndef CONFIG_BMS2003
 		immap->im_ioport.iop_pcdat |= 0x0004;
+#else
+		immap->im_cpm.cp_pbdat &= ~(0x0000100);
+#endif	/* CONFIG_BMS2003 */
 		puts (" 5.0V card found: ");
 	} else {
+#ifndef CONFIG_BMS2003
 		immap->im_ioport.iop_pcdat |= 0x0002;
+#else
+		immap->im_cpm.cp_pbdat &= ~(0x0000200);
+#endif	/* CONFIG_BMS2003 */
 		puts (" 3.3V card found: ");
 	}
+#ifndef CONFIG_BMS2003
 	immap->im_ioport.iop_pcdir |= (0x0002 | 0x0004);
+#else
+	immap->im_cpm.cp_pbdir |= 0x00000300;
+#endif	/* CONFIG_BMS2003 */
 #else
 	if ((reg & mask) == mask) {
 		puts (" 5.0V card found: ");
@@ -708,10 +735,14 @@ static int hardware_disable(int slot)
 	immap = (immap_t *)CFG_IMMR;
 	pcmp = (pcmconf8xx_t *)(&(((immap_t *)CFG_IMMR)->im_pcmcia));
 
+#ifndef CONFIG_BMS2003
 #ifndef CONFIG_NSCU
 	/* remove all power */
 	immap->im_ioport.iop_pcdat &= ~(0x0002 | 0x0004);
 #endif
+#else	/* CONFIG_BMS2003 */
+	immap->im_cpm.cp_pbdat |= 0x00000300;
+#endif	/* CONFIG_BMS2003 */
 
 	debug ("Disable PCMCIA buffers and assert RESET\n");
 	reg  = 0;
@@ -761,6 +792,7 @@ static int voltage_set(int slot, int vcc, int vpp)
 	PCMCIA_PGCRX(slot) = reg;
 	udelay(500);
 
+#ifndef CONFIG_BMS2003
 	/*
 	 * Configure Port C pins for
 	 * 5 Volts Enable and 3 Volts enable,
@@ -778,6 +810,26 @@ static int voltage_set(int slot, int vcc, int vpp)
 	case 50: reg |= 0x0004;	break;
 	default: 		goto done;
 	}
+#else	/* CONFIG_BMS2003 */
+	/*
+	 * Configure Port B pins for
+	 * 5 Volts Enable and 3 Volts enable,
+	 * Turn off all power
+	 */
+	debug ("PCMCIA power OFF\n");
+	immap->im_cpm.cp_pbpar &= ~(0x00000300);
+	/* remove all power */
+
+	immap->im_cpm.cp_pbdat |= 0x00000300;
+
+	reg = 0;
+	switch(vcc) {
+		case  0:			break;
+		case 33: reg |= 0x00000200;	break;
+		case 50: reg |= 0x00000100;	break;
+		default:			goto done;
+}
+#endif	/* CONFIG_BMS2003 */
 
 	/* Checking supported voltages */
 
@@ -785,11 +837,21 @@ static int voltage_set(int slot, int vcc, int vpp)
 		pcmp->pcmc_pipr,
 		(pcmp->pcmc_pipr & 0x00008000) ? "only 5 V" : "can do 3.3V");
 
+#ifndef CONFIG_BMS2003
 	immap->im_ioport.iop_pcdat |= reg;
 	immap->im_ioport.iop_pcdir |= (0x0002 | 0x0004);
+#else
+	immap->im_cpm.cp_pbdat &= !reg;
+	immap->im_cpm.cp_pbdir |= 0x00000300;
+#endif	/* CONFIG_BMS2003 */
 	if (reg) {
+#ifndef CONFIG_BMS2003
 		debug ("PCMCIA powered at %sV\n",
 			(reg&0x0004) ? "5.0" : "3.3");
+#else
+		debug ("PCMCIA powered at %sV\n",
+			(reg&0x00000200) ? "5.0" : "3.3");
+#endif	/* CONFIG_BMS2003 */
 	} else {
 		debug ("PCMCIA powered down\n");
 	}
@@ -1774,7 +1836,11 @@ static int hardware_enable (int slot)
 	debug ("[%d] %s: PIPR(%p)=0x%x\n",
 		__LINE__,__FUNCTION__,
 		&(pcmp->pcmc_pipr),pcmp->pcmc_pipr);
+#ifndef CONFIG_BMS2003
 	if (pcmp->pcmc_pipr & (0x18000000 >> (slot << 4))) {
+#else
+	if (pcmp->pcmc_pipr & (0x10000000 >> (slot << 4))) {
+#endif	/* CONFIG_BMS2003 */
 		printf ("   No Card found\n");
 		return (1);
 	}

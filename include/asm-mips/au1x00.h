@@ -128,6 +128,9 @@ static __inline__ int au_ffs(int x)
 #define ALLINTS (IE_IRQ0 | IE_IRQ1 | IE_IRQ2 | IE_IRQ3 | IE_IRQ4 | IE_IRQ5)
 #endif
 
+#define CP0_IWATCHLO		$18,1
+#define CP0_DEBUG		$23
+
 /* SDRAM Controller */
 #define MEM_SDMODE0                0xB4000000
 #define MEM_SDMODE1                0xB4000004

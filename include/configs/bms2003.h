@@ -33,8 +33,12 @@
  * (easy to change)
  */
 
+#define CONFIG_BMS2003
 #define CONFIG_MPC823		1	/* This is a MPC823 CPU		*/
 #define CONFIG_TQM823L		1	/* ...on a TQM8xxL module	*/
+
+#define CONFIG_LCD
+#define CONFIG_NEC_NL6448BC33_54	/* NEC NL6448BC33_54 display	*/
 
 #ifdef	CONFIG_LCD			/* with LCD controller ?	*/
 #define	CONFIG_SPLASH_SCREEN		/* ... with splashscreen support*/
@@ -78,22 +82,40 @@
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #undef	CFG_LOADS_BAUD_CHANGE		/* don't allow baudrate change	*/
 
+/* enable I2C and select the hardware/software driver */
+#undef	CONFIG_HARD_I2C			/* I2C with hardware support	*/
+#define CONFIG_SOFT_I2C		1	/* I2C bit-banged		*/
+
+#define CFG_I2C_SPEED		40000	/* 40 kHz is supposed to work	*/
+#define CFG_I2C_SLAVE		0xFE
+
+/* Software (bit-bang) I2C driver configuration */
+#define PB_SCL		0x00000020	/* PB 26 */
+#define PB_SDA		0x00000010	/* PB 27 */
+
+#define I2C_INIT	(immr->im_cpm.cp_pbdir |=  PB_SCL)
+#define I2C_ACTIVE	(immr->im_cpm.cp_pbdir |=  PB_SDA)
+#define I2C_TRISTATE	(immr->im_cpm.cp_pbdir &= ~PB_SDA)
+#define I2C_READ	((immr->im_cpm.cp_pbdat & PB_SDA) != 0)
+#define I2C_SDA(bit)	if(bit) immr->im_cpm.cp_pbdat |=  PB_SDA; \
+			else    immr->im_cpm.cp_pbdat &= ~PB_SDA
+#define I2C_SCL(bit)	if(bit) immr->im_cpm.cp_pbdat |=  PB_SCL; \
+			else    immr->im_cpm.cp_pbdat &= ~PB_SCL
+#define I2C_DELAY	udelay(5)	/* 1/4 I2C clock duration */
+
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 
-#if defined(CONFIG_LCD)
-# undef	 CONFIG_STATUS_LED		/* disturbs display		*/
-#else
-# define CONFIG_STATUS_LED	1	/* Status LED enabled		*/
-#endif	/* CONFIG_LCD */
+#define CONFIG_STATUS_LED	1	/* Status LED enabled		*/
 
-#undef	CONFIG_CAN_DRIVER		/* CAN Driver support disabled	*/
+#define CONFIG_CAN_DRIVER	1	/* CAN Driver support enabled	*/
 
 #define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | CONFIG_BOOTP_BOOTFILESIZE)
 
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
 
-#define	CONFIG_RTC_MPC8xx		/* use internal RTC of MPC8xx	*/
+#define CONFIG_RTC_DS1337		/* Use ds1337 rtc via i2c	*/
+#define CFG_I2C_RTC_ADDR 0x68		/* at address 0x68		*/
 
 #ifdef	CONFIG_SPLASH_SCREEN
 # define CONFIG_COMMANDS      ( CONFIG_CMD_DFL	| \
@@ -101,12 +123,14 @@
 				CFG_CMD_BMP	| \
 				CFG_CMD_DATE	| \
 				CFG_CMD_DHCP	| \
+				CFG_CMD_I2C	| \
 				CFG_CMD_IDE	)
 #else
 # define CONFIG_COMMANDS      ( CONFIG_CMD_DFL	| \
 				CFG_CMD_ASKENV	| \
 				CFG_CMD_DATE	| \
 				CFG_CMD_DHCP	| \
+				CFG_CMD_I2C	| \
 				CFG_CMD_IDE	)
 #endif
 
@@ -296,6 +320,7 @@
  *-----------------------------------------------------------------------
  *
  */
+#ifndef CONFIG_BMS2003
 #define CFG_PCMCIA_MEM_ADDR	(0xE0000000)
 #define CFG_PCMCIA_MEM_SIZE	( 64 << 20 )
 #define CFG_PCMCIA_DMA_ADDR	(0xE4000000)
@@ -304,6 +329,17 @@
 #define CFG_PCMCIA_ATTRB_SIZE	( 64 << 20 )
 #define CFG_PCMCIA_IO_ADDR	(0xEC000000)
 #define CFG_PCMCIA_IO_SIZE	( 64 << 20 )
+#else	/* CONFIG_BMS2003 */
+#define CFG_PCMCIA_MEM_ADDR	(0xE0100000)
+#define CFG_PCMCIA_MEM_SIZE	( 64 << 20 )
+#define CFG_PCMCIA_DMA_ADDR	(0xE4100000)
+#define CFG_PCMCIA_DMA_SIZE	( 64 << 20 )
+#define CFG_PCMCIA_ATTRB_ADDR	(0xE8100000)
+#define CFG_PCMCIA_ATTRB_SIZE	( 64 << 20 )
+#define CFG_PCMCIA_IO_ADDR	(0xEC100000)
+#define CFG_PCMCIA_IO_SIZE	( 64 << 20 )
+#define NSCU_OE_INV		1 		/* PCMCIA_GCRX_CXOE is inverted */
+#endif
 
 /*-----------------------------------------------------------------------
  * IDE/ATA stuff (Supports IDE harddisk on PCMCIA Adapter)

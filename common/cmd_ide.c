@@ -835,6 +835,7 @@ output_data_short(int dev, ulong *sect_buf, int words)
 static void
 input_swap_data(int dev, ulong *sect_buf, int words)
 {
+#ifndef CONFIG_BMS2003
 	volatile ushort	*pbuf = (ushort *)(ATA_CURR_BASE(dev)+ATA_DATA_REG);
 	ushort	*dbuf = (ushort *)sect_buf;
 
@@ -842,6 +843,20 @@ input_swap_data(int dev, ulong *sect_buf, int words)
 		*dbuf++ = ld_le16(pbuf);
 		*dbuf++ = ld_le16(pbuf);
 	}
+#else	/* CONFIG_BMS2003 */
+	uchar i;
+	volatile uchar *pbuf_even = (uchar *)(ATA_CURR_BASE(dev)+ATA_DATA_EVEN);
+	volatile uchar *pbuf_odd  = (uchar *)(ATA_CURR_BASE(dev)+ATA_DATA_ODD);
+	ushort  *dbuf = (ushort *)sect_buf;
+
+	while (words--) {
+		for (i=0; i<2; i++) {
+			*(((uchar *)(dbuf)) + 1) = *pbuf_even;
+			*(uchar *)dbuf = *pbuf_odd;
+			dbuf+=1;
+		}
+	}
+#endif	/* CONFIG_BMS2003 */
 }
 #endif	/* __LITTLE_ENDIAN || CONFIG_AU1X00 */
 
@@ -850,6 +865,7 @@ input_swap_data(int dev, ulong *sect_buf, int words)
 static void
 output_data(int dev, ulong *sect_buf, int words)
 {
+#ifndef CONFIG_BMS2003
 	ushort	*dbuf;
 	volatile ushort	*pbuf;
 
@@ -861,6 +877,25 @@ output_data(int dev, ulong *sect_buf, int words)
 		__asm__ volatile ("eieio");
 		*pbuf = *dbuf++;
 	}
+#else	/* CONFIG_BMS2003 */
+	uchar	*dbuf;
+	volatile uchar	*pbuf_even;
+	volatile uchar	*pbuf_odd;
+
+	pbuf_even = (uchar *)(ATA_CURR_BASE(dev)+ATA_DATA_EVEN);
+	pbuf_odd  = (uchar *)(ATA_CURR_BASE(dev)+ATA_DATA_ODD);
+	dbuf = (uchar *)sect_buf;
+	while (words--) {
+		__asm__ volatile ("eieio");
+		*pbuf_even = *dbuf++;
+		__asm__ volatile ("eieio");
+		*pbuf_odd = *dbuf++;
+		__asm__ volatile ("eieio");
+		*pbuf_even = *dbuf++;
+		__asm__ volatile ("eieio");
+		*pbuf_odd = *dbuf++;
+	}
+#endif	/* CONFIG_BMS2003 */
 }
 #else	/* ! __PPC__ */
 static void
@@ -874,6 +909,7 @@ output_data(int dev, ulong *sect_buf, int words)
 static void
 input_data(int dev, ulong *sect_buf, int words)
 {
+#ifndef CONFIG_BMS2003
 	ushort	*dbuf;
 	volatile ushort	*pbuf;
 
@@ -885,6 +921,25 @@ input_data(int dev, ulong *sect_buf, int words)
 		__asm__ volatile ("eieio");
 		*dbuf++ = *pbuf;
 	}
+#else	/* CONFIG_BMS2003 */
+	uchar	*dbuf;
+	volatile uchar	*pbuf_even;
+	volatile uchar	*pbuf_odd;
+
+	pbuf_even = (uchar *)(ATA_CURR_BASE(dev)+ATA_DATA_EVEN);
+	pbuf_odd  = (uchar *)(ATA_CURR_BASE(dev)+ATA_DATA_ODD);
+	dbuf = (uchar *)sect_buf;
+	while (words--) {
+		__asm__ volatile ("eieio");
+		*dbuf++ = *pbuf_even;
+		__asm__ volatile ("eieio");
+		*dbuf++ = *pbuf_odd;
+		__asm__ volatile ("eieio");
+		*dbuf++ = *pbuf_even;
+		__asm__ volatile ("eieio");
+		*dbuf++ = *pbuf_odd;
+	}
+#endif	/* CONFIG_BMS2003 */
 }
 #else	/* ! __PPC__ */
 static void
@@ -1409,6 +1464,7 @@ static void ide_led (uchar led, uchar status)
 static void
 output_data_shorts(int dev, ushort *sect_buf, int shorts)
 {
+#ifndef CONFIG_BMS2003
 	ushort	*dbuf;
 	volatile ushort	*pbuf;
 
@@ -1418,11 +1474,26 @@ output_data_shorts(int dev, ushort *sect_buf, int shorts)
 		__asm__ volatile ("eieio");
 		*pbuf = *dbuf++;
 	}
+#else	/* CONFIG_BMS2003 */
+	uchar	*dbuf;
+	volatile uchar	*pbuf_even;
+	volatile uchar	*pbuf_odd;
+
+	pbuf_even = (uchar *)(ATA_CURR_BASE(dev)+ATA_DATA_EVEN);
+	pbuf_odd  = (uchar *)(ATA_CURR_BASE(dev)+ATA_DATA_ODD);
+	while (shorts--) {
+		__asm__ volatile ("eieio");
+		*pbuf_even = *dbuf++;
+		__asm__ volatile ("eieio");
+		*pbuf_odd = *dbuf++;
+	}
+#endif	/* CONFIG_BMS2003 */
 }
 
 static void
 input_data_shorts(int dev, ushort *sect_buf, int shorts)
 {
+#ifndef CONFIG_BMS2003
 	ushort	*dbuf;
 	volatile ushort	*pbuf;
 
@@ -1432,6 +1503,20 @@ input_data_shorts(int dev, ushort *sect_buf, int shorts)
 		__asm__ volatile ("eieio");
 		*dbuf++ = *pbuf;
 	}
+#else	/* CONFIG_BMS2003 */
+	uchar	*dbuf;
+	volatile uchar	*pbuf_even;
+	volatile uchar	*pbuf_odd;
+
+	pbuf_even = (uchar *)(ATA_CURR_BASE(dev)+ATA_DATA_EVEN);
+	pbuf_odd  = (uchar *)(ATA_CURR_BASE(dev)+ATA_DATA_ODD);
+	while (shorts--) {
+		__asm__ volatile ("eieio");
+		*dbuf++ = *pbuf_even;
+		__asm__ volatile ("eieio");
+		*dbuf++ = *pbuf_odd;
+	}
+#endif	/* CONFIG_BMS2003 */
 }
 
 #else	/* ! __PPC__ */

@@ -2,6 +2,13 @@
 Changes since U-Boot 1.0.0:
 ======================================================================
 
+* Make BMS2003 use a separate config file to avoid #ifdef mess;
+  add I2C support; add support for DS1337 RTC
+
+* Add CompactFlash support  for BMS2003 board
+
+* Add support for status LED on BMS2003 board
+
 * Patch by Scott McNutt, 02 Jan 2004:
   Add support for the Nios Active Serial Memory Interface (ASMI)
   on Cyclone devices
