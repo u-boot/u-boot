@@ -270,6 +270,32 @@ PM520_ROMBOOT_DDR_config:	unconfig
 		}
 	@./mkconfig -a PM520 ppc mpc5xxx pm520
 
+TQM5200_AA_config	\
+TQM5200_AB_config	\
+TQM5200_AC_config	\
+MiniFAP_config:	unconfig
+	@ >include/config.h
+	@[ -z "$(findstring Mini-FAP,$@)" ] || \
+		{ echo "#define CONFIG_MINIFAP"	>>include/config.h ; \
+		  echo "#define CONFIG_TQM5200_AC"	>>include/config.h ; \
+		  echo "... TQM5200_AC on Mini-FAP" ; \
+		}
+	@[ -z "$(findstring AA,$@)" ] || \
+		{ echo "#define CONFIG_TQM5200_AA"	>>include/config.h ; \
+		  echo "... with 4 MB Flash, 16 MB SDRAM, 32 kB EEPROM" ; \
+		}
+	@[ -z "$(findstring AB,$@)" ] || \
+		{ echo "#define CONFIG_TQM5200_AB"	>>include/config.h ; \
+		  echo "... with 64 MB Flash, 64 MB SDRAM, 32 kB EEPROM, 512 kB SRAM" ; \
+		  echo "... with Grafic Controller"; \
+		}
+	@[ -z "$(findstring AC,$@)" ] || \
+		{ echo "#define CONFIG_TQM5200_AC"	>>include/config.h ; \
+		  echo "... with 4 MB Flash, 128 MB SDRAM" ; \
+		  echo "... with Grafic Controller"; \
+		}
+	@./mkconfig -a TQM5200 ppc mpc5xxx tqm5200
+
 #########################################################################
 ## MPC8xx Systems
 #########################################################################

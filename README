@@ -572,7 +572,7 @@ The following options need to be configured:
 		CFG_CMD_LOADB	  loadb
 		CFG_CMD_LOADS	  loads
 		CFG_CMD_MEMORY	  md, mm, nm, mw, cp, cmp, crc, base,
-				  loop, mtest
+				  loop, loopw, mtest
 		CFG_CMD_MISC	  Misc functions like sleep etc
 		CFG_CMD_MMC	  MMC memory mapped support
 		CFG_CMD_MII	  MII utility commands
@@ -2052,6 +2052,10 @@ Low Level (hardware related) configuration options:
 		and crc32 is the correct crc32 which the
 		area should have.
 
+- CONFIG_LOOPW
+		Add the "loopw" memory command. This only takes effect if
+		the memory commands are activated globally (CFG_CMD_MEM).
+
 Building the Software:
 ======================
 
@@ -2224,6 +2228,7 @@ iminfo	- print header information for application image
 coninfo - print console devices and informations
 ide	- IDE sub-system
 loop	- infinite loop on address range
+loopw	- infinite write loop on address range
 mtest	- simple RAM test
 icache	- enable or disable instruction cache
 dcache	- enable or disable data cache

@@ -2,6 +2,12 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Martin Krause, 30 Jun 2004:
+  Add support for TQM5200 board
+
+* Patch by Martin Krause, 29 Jun 2004:
+  Add loopw command: infinite write loop on address range
+
 * Patches by Yasushi Shoji, 29 Jun 2004:
   - add empty include/asm-microblaze/processor.h
   - add to CREDITS and MAINTAINERS

@@ -550,6 +550,81 @@ int do_mem_loop (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 }
 
+#ifdef CONFIG_LOOPW
+int do_mem_loopw (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	ulong	addr, length, i, data;
+	int	size;
+	volatile uint	*longp;
+	volatile ushort *shortp;
+	volatile u_char	*cp;
+	
+	if (argc < 4) {
+		printf ("Usage:\n%s\n", cmdtp->usage);
+		return 1;
+	}
+
+	/* Check for a size spefication.
+	 * Defaults to long if no or incorrect specification.
+	 */
+	if ((size = cmd_get_data_size(argv[0], 4)) < 0)
+		return 1;
+
+	/* Address is always specified.
+	*/
+	addr = simple_strtoul(argv[1], NULL, 16);
+
+	/* Length is the number of objects, not number of bytes.
+	*/
+	length = simple_strtoul(argv[2], NULL, 16);
+
+	/* data to write */
+	data = simple_strtoul(argv[3], NULL, 16);
+	
+	/* We want to optimize the loops to run as fast as possible.
+	 * If we have only one object, just run infinite loops.
+	 */
+	if (length == 1) {
+		if (size == 4) {
+			longp = (uint *)addr;
+			for (;;)
+				*longp = data;
+					}
+		if (size == 2) {
+			shortp = (ushort *)addr;
+			for (;;)
+				*shortp = data;
+		}
+		cp = (u_char *)addr;
+		for (;;)
+			*cp = data;
+	}
+
+	if (size == 4) {
+		for (;;) {
+			longp = (uint *)addr;
+			i = length;
+			while (i-- > 0)
+				*longp++ = data;
+		}
+	}
+	if (size == 2) {
+		for (;;) {
+			shortp = (ushort *)addr;
+			i = length;
+			while (i-- > 0)
+				*shortp++ = data;
+		}
+	}
+	for (;;) {
+		cp = (u_char *)addr;
+		i = length;
+		while (i-- > 0)
+			*cp++ = data;
+	}
+}
+#endif /* CONFIG_LOOPW */
+
 /*
  * Perform a memory test. A more complete alternative test can be
  * configured using CFG_ALT_MEMTEST. The complete test loops until
@@ -1122,6 +1197,15 @@ U_BOOT_CMD(
 	"[.b, .w, .l] address number_of_objects\n"
 	"    - loop on a set of addresses\n"
 );
+
+#ifdef CONFIG_LOOPW
+U_BOOT_CMD(
+	loopw,    4,    1,    do_mem_loopw,
+	"loopw   - infinite write loop on address range\n",
+	"[.b, .w, .l] address number_of_objects data_to_write\n"
+	"    - loop on a set of addresses\n"
+);
+#endif /* CONFIG_LOOPW */
 
 U_BOOT_CMD(
 	mtest,    4,    1,     do_mem_mtest,
