@@ -66,7 +66,6 @@
 				CFG_CMD_ELF     )
 #else
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
-				CFG_CMD_EEPROM  | \
 				CFG_CMD_BSP     )
 #endif
 
