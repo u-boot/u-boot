@@ -45,9 +45,6 @@ unsigned long flash_init (void)
 #else
 	unsigned long size_b0;
 	int i;
-	uint pbcr;
-	unsigned long base_b0;
-	int size_val = 0;
 
 	/* Init: no FLASHes known */
 	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {

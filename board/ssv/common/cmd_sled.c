@@ -12,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -28,20 +28,20 @@
 #if	defined(CONFIG_STATUS_LED)
 
 /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- * !!!!!       Q u i c k   &   D i r t y   H a c k       !!!!!
+ * !!!!!       Q u i c k   &   D i r t y   H a c k	 !!!!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- * !!!!!                                                 !!!!!
- * !!!!! Next type definition was coming from original   !!!!!
- * !!!!! status LED driver drivers/status_led.c and      !!!!!
- * !!!!! should exported for using here.                 !!!!!
- * !!!!!                                                 !!!!!
+ * !!!!!						 !!!!!
+ * !!!!! Next type definition was coming from original	 !!!!!
+ * !!!!! status LED driver drivers/status_led.c and	 !!!!!
+ * !!!!! should exported for using here.		 !!!!!
+ * !!!!!						 !!!!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
 
 typedef struct {
-        led_id_t mask;
-        int state;
-        int period;
-        int cnt;
+	led_id_t mask;
+	int state;
+	int period;
+	int cnt;
 } led_dev_t;
 
 extern led_dev_t led_dev[];
@@ -141,18 +141,18 @@ int do_sled (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 #ifdef	STATUS_LED_RED
 #ifdef	STATUS_LED_YELLOW
 #ifdef	STATUS_LED_GREEN
-#define	__NAME_STR		"    - name: boot|red|yellow|green\n"
+#define __NAME_STR		"    - name: boot|red|yellow|green\n"
 #else
-#define	__NAME_STR		"    - name: boot|red|yellow\n"
+#define __NAME_STR		"    - name: boot|red|yellow\n"
 #endif
 #else
-#define	__NAME_STR		"    - name: boot|red\n"
+#define __NAME_STR		"    - name: boot|red\n"
 #endif
 #else
-#define	__NAME_STR		"    - name: boot\n"
+#define __NAME_STR		"    - name: boot\n"
 #endif
 #else
-#define	__NAME_STR		"    - name: (no such defined)\n"
+#define __NAME_STR		"    - name: (no such defined)\n"
 #endif
 
 U_BOOT_CMD (sled, 3, 0, do_sled,

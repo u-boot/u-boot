@@ -134,7 +134,7 @@ typedef void (interrupt_handler_t)(void *);
  * Function Prototypes
  */
 
-#if CONFIG_SERIAL_SOFTWARE_FIFO
+#ifdef CONFIG_SERIAL_SOFTWARE_FIFO
 void	serial_buffered_init (void);
 void	serial_buffered_putc (const char);
 void	serial_buffered_puts (const char *);
@@ -459,7 +459,7 @@ int	init_timebase (void);
 
 /* lib_generic/vsprintf.c */
 ulong	simple_strtoul(const char *cp,char **endp,unsigned int base);
-#if CFG_64BIT_VSPRINTF
+#ifdef CFG_64BIT_VSPRINTF
 unsigned long long	simple_strtoull(const char *cp,char **endp,unsigned int base);
 #endif
 long	simple_strtol(const char *cp,char **endp,unsigned int base);

@@ -43,7 +43,7 @@ choices & assume that the monitor is placed at the end of a memory
 resource. So you must make sure TEXT_BASE is chosen appropriately.
 This is very important if you plan to move your memory to another
 place as configured at this time!
- 
+
 	-The heap is placed below the monitor (U-Boot code).
 	-Global data is placed below the heap.
 	-The stack is placed below global data (&grows down).
@@ -190,7 +190,7 @@ you have to check-up the next environment variables:
 2. appl_entry_addr
 
 	- Nios application area start address (usually in Flash)
-	- this is the startup address for autoboot 
+	- this is the startup address for autoboot
 	- each Nios application code we want to update will be copied
 	  to this address
 	- default is CFG_ADNPESC1_NIOS_APPL_ENTRY

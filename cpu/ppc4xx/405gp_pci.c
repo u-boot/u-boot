@@ -364,7 +364,7 @@ void pci_405gp_setup_vga(struct pci_controller *hose, pci_dev_t dev,
  */
 static struct pci_config_table pci_405gp_config_table[] = {
 /*if VendID is 0 it terminates the table search (ie Walnut)*/
-#if CFG_PCI_SUBSYS_VENDORID
+#ifdef CFG_PCI_SUBSYS_VENDORID
 	{CFG_PCI_SUBSYS_VENDORID, PCI_ANY_ID, PCI_CLASS_BRIDGE_HOST,
 	 PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, pci_405gp_setup_bridge},
 #endif

@@ -247,7 +247,7 @@ void get_sys_info (sys_info_t * sysInfo)
 	unsigned long temp1;
 	unsigned long lfdiv;
 	unsigned long m;
-	unsigned long prbdv0;    
+	unsigned long prbdv0;
 
 	/* Extract configured divisors */
 	mfsdr( sdr_sdstp0,strp0 );

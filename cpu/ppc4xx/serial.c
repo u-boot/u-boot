@@ -48,7 +48,7 @@
 #include <watchdog.h>
 #include "vecnum.h"
 
-#if CONFIG_SERIAL_SOFTWARE_FIFO
+#ifdef CONFIG_SERIAL_SOFTWARE_FIFO
 #include <malloc.h>
 #endif
 
@@ -351,7 +351,7 @@ int serial_tstc ()
 /*#define asyncRxBufferport1      ACTING_UART0_BASE+0x00 */
 
 
-#if CONFIG_SERIAL_SOFTWARE_FIFO
+#ifdef CONFIG_SERIAL_SOFTWARE_FIFO
 /*-----------------------------------------------------------------------------+
   | Fifo
   +-----------------------------------------------------------------------------*/
@@ -637,7 +637,7 @@ int serial_tstc ()
 }
 
 
-#if CONFIG_SERIAL_SOFTWARE_FIFO
+#ifdef CONFIG_SERIAL_SOFTWARE_FIFO
 
 void serial_isr (void *arg)
 {

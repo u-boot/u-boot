@@ -208,7 +208,7 @@ typedef struct hd_driveid {
 	unsigned short	word92;		/* reserved (word 92) */
 	unsigned short	hw_config;	/* hardware config */
 	unsigned short	words94_99[6];/* reserved words 94-99 */
-	//unsigned long long  lba48_capacity; /* 4 16bit values containing lba 48 total number of sectors */
+	/*unsigned long long  lba48_capacity; /--* 4 16bit values containing lba 48 total number of sectors */
 	unsigned short	lba48_capacity[4]; /* 4 16bit values containing lba 48 total number of sectors */
 	unsigned short	words104_125[22];/* reserved words 104-125 */
 	unsigned short	last_lun;	/* reserved (word 126) */

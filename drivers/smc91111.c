@@ -7,7 +7,7 @@
  . Rolf Offermanns <rof@sysgo.de>
  .
  . Copyright (C) 2001 Standard Microsystems Corporation (SMSC)
- .       Developed by Simple Network Magic Corporation (SNMC)
+ .	 Developed by Simple Network Magic Corporation (SNMC)
  . Copyright (C) 1996 by Erik Stahlman (ES)
  .
  . This program is free software; you can redistribute it and/or modify
@@ -17,12 +17,12 @@
  .
  . This program is distributed in the hope that it will be useful,
  . but WITHOUT ANY WARRANTY; without even the implied warranty of
- . MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ . MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  . GNU General Public License for more details.
  .
  . You should have received a copy of the GNU General Public License
  . along with this program; if not, write to the Free Software
- . Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ . Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307	 USA
  .
  . Information contained in this file was obtained from the LAN91C111
  . manual from SMC.  To get a copy, if you really want one, you can find
@@ -36,27 +36,27 @@
  .   EEPROM interface for configuration
  .
  . Arguments:
- . 	io	= for the base address
+ .	io	= for the base address
  .	irq	= for the IRQ
  .
  . author:
- . 	Erik Stahlman				( erik@vt.edu )
- . 	Daris A Nevil				( dnevil@snmc.com )
+ .	Erik Stahlman				( erik@vt.edu )
+ .	Daris A Nevil				( dnevil@snmc.com )
  .
  .
  . Hardware multicast code from Peter Cammaert ( pc@denkart.be )
  .
  . Sources:
- .    o   SMSC LAN91C111 databook (www.smsc.com)
- .    o   smc9194.c by Erik Stahlman
- .    o   skeleton.c by Donald Becker ( becker@cesdis.gsfc.nasa.gov )
+ .    o	  SMSC LAN91C111 databook (www.smsc.com)
+ .    o	  smc9194.c by Erik Stahlman
+ .    o	  skeleton.c by Donald Becker ( becker@cesdis.gsfc.nasa.gov )
  .
  . History:
- .      06/19/03  Richard Woodruff Made u-boot environment aware and added mac addr checks.
+ .	06/19/03  Richard Woodruff Made u-boot environment aware and added mac addr checks.
  .	10/17/01  Marco Hasewinkel Modify for DNP/1110
- .	07/25/01  Woojung Huh      Modify for ADS Bitsy
- .	04/25/01  Daris A Nevil    Initial public release through SMSC
- .	03/16/01  Daris A Nevil    Modified smc9194.c for use with LAN91C111
+ .	07/25/01  Woojung Huh	   Modify for ADS Bitsy
+ .	04/25/01  Daris A Nevil	   Initial public release through SMSC
+ .	03/16/01  Daris A Nevil	   Modified smc9194.c for use with LAN91C111
  ----------------------------------------------------------------------------*/
 
 #include <common.h>
@@ -113,7 +113,7 @@ static const char version[] =
 
 /*------------------------------------------------------------------------
  .
- . The internal workings of the driver.  If you are changing anything
+ . The internal workings of the driver.	 If you are changing anything
  . here with the SMC stuff, you should have the datasheet and know
  . what you are doing.
  .
@@ -138,7 +138,7 @@ static const char version[] =
 
 #define ETH_ZLEN 60
 
-#ifdef  CONFIG_SMC_USE_32_BIT
+#ifdef	CONFIG_SMC_USE_32_BIT
 #define USE_32_BIT  1
 #else
 #undef USE_32_BIT
@@ -253,7 +253,7 @@ void smc_get_macaddr( byte *addr ) {
 #endif /* 0 */
 
 /***********************************************
- * Show available memory                       *
+ * Show available memory		       *
  ***********************************************/
 void dump_memory_info(void)
 {
@@ -337,8 +337,8 @@ static inline void smc_wait_mmu_release_complete (void)
 /*
  . Function: smc_reset( void )
  . Purpose:
- .  	This sets the SMC91111 chip to its normal state, hopefully from whatever
- . 	mess that any other DOS driver has put it in.
+ .	This sets the SMC91111 chip to its normal state, hopefully from whatever
+ .	mess that any other DOS driver has put it in.
  .
  . Maybe I should reset more registers to defaults in here?  SOFTRST  should
  . do that for me.
@@ -436,7 +436,7 @@ static void smc_enable()
  .   (1) maybe utilize power down mode.
  .	Why not yet?  Because while the chip will go into power down mode,
  .	the manual says that it will wake up in response to any I/O requests
- .	in the register space.   Empirical results do not show this working.
+ .	in the register space.	 Empirical results do not show this working.
 */
 static void smc_shutdown()
 {
@@ -459,7 +459,7 @@ static void smc_shutdown()
  .	This sends the actual packet to the SMC9xxx chip.
  .
  . Algorithm:
- . 	First, see if a saved_skb is available.
+ .	First, see if a saved_skb is available.
  .		( this should NOT be called if there is no 'saved_skb'
  .	Now, find the packet number that the chip allocated
  .	Point the data pointers at it in memory
@@ -467,9 +467,9 @@ static void smc_shutdown()
  .	Dump the packet to chip memory
  .	Check if a last byte is needed ( odd length packet )
  .		if so, set the control flag right
- . 	Tell the card to send it
+ .	Tell the card to send it
  .	Enable the transmit interrupt, so I know if it failed
- . 	Free the kernel data if I actually sent it.
+ .	Free the kernel data if I actually sent it.
 */
 static int smc_send_packet (volatile void *packet, int packet_length)
 {
@@ -512,9 +512,9 @@ static int smc_send_packet (volatile void *packet, int packet_length)
 	SMC_outw (MC_ALLOC | numPages, MMU_CMD_REG);
 
 	/* FIXME: the ALLOC_INT bit never gets set *
-	 * so the following will always give a     *
-	 * memory allocation error.                *
-	 * same code works in armboot though       *
+	 * so the following will always give a	   *
+	 * memory allocation error.		   *
+	 * same code works in armboot though	   *
 	 * -ro
 	 */
 
@@ -583,7 +583,7 @@ again:
 	/* send the actual data
 	   . I _think_ it's faster to send the longs first, and then
 	   . mop up by sending the last word.  It depends heavily
-	   . on alignment, at least on the 486.  Maybe it would be
+	   . on alignment, at least on the 486.	 Maybe it would be
 	   . a good idea to check which is optimal?  But that could take
 	   . almost as much time as is saved?
 	 */
@@ -596,7 +596,7 @@ again:
 	SMC_outsw (SMC91111_DATA_REG, buf, (length) >> 1);
 #endif /* USE_32_BIT */
 
-	/* Send the last byte, if there is one.   */
+	/* Send the last byte, if there is one.	  */
 	if ((length & 1) == 0) {
 		SMC_outw (0, SMC91111_DATA_REG);
 	} else {
@@ -690,7 +690,7 @@ static int smc_open (bd_t * bd)
 
 	err = smc_get_ethaddr (bd);	/* set smc_mac_addr, and sync it with u-boot globals */
 	if (err < 0) {
-		memset (bd->bi_enetaddr, 0, 6);	/* hack to make error stick! upper code will abort if not set */
+		memset (bd->bi_enetaddr, 0, 6); /* hack to make error stick! upper code will abort if not set */
 		return (-1);	/* upper code ignores this, but NOT bi_enetaddr */
 	}
 #ifdef USE_32_BIT
@@ -723,10 +723,10 @@ static int smc_open (bd_t * bd)
 */
 static int smc_rcv()
 {
-	int 	packet_number;
+	int	packet_number;
 	word	status;
 	word	packet_length;
-	int     is_error = 0;
+	int	is_error = 0;
 #ifdef USE_32_BIT
 	dword stat_len;
 #endif
@@ -749,8 +749,8 @@ static int smc_rcv()
 	status = stat_len & 0xffff;
 	packet_length = stat_len >> 16;
 #else
-	status 		= SMC_inw( SMC91111_DATA_REG );
-	packet_length 	= SMC_inw( SMC91111_DATA_REG );
+	status		= SMC_inw( SMC91111_DATA_REG );
+	packet_length	= SMC_inw( SMC91111_DATA_REG );
 #endif
 
 	packet_length &= 0x07ff;  /* mask off top bits */
@@ -773,7 +773,7 @@ static int smc_rcv()
 		/* QUESTION:  Like in the TX routine, do I want
 		   to send the DWORDs or the bytes first, or some
 		   mixture.  A mixture might improve already slow PIO
-		   performance  */
+		   performance	*/
 		SMC_insl( SMC91111_DATA_REG , NetRxPackets[0], packet_length >> 2 );
 		/* read the left over bytes */
 		if (packet_length & 3) {
@@ -825,7 +825,7 @@ static int smc_rcv()
  . smc_close
  .
  . this makes the board clean up everything that it can
- . and not talk to the outside world.   Caused by
+ . and not talk to the outside world.	Caused by
  . an 'ifconfig ethX down'
  .
  -----------------------------------------------------*/
@@ -1380,7 +1380,7 @@ int smc_get_ethaddr (bd_t * bd)
 		s = s_env_mac;
 	}
 
-	for (reg = 0; reg < 6; ++reg) {	/* turn string into mac value */
+	for (reg = 0; reg < 6; ++reg) { /* turn string into mac value */
 		v_env_mac[reg] = s ? simple_strtoul (s, &e, 16) : 0;
 		if (s)
 			s = (*e) ? e + 1 : e;
@@ -1403,7 +1403,7 @@ int smc_get_ethaddr (bd_t * bd)
 		v_mac = v_env_mac;	/* always use a good env over a ROM */
 	}
 
-	if (env_present && rom_valid) {	/* if both env and ROM are good */
+	if (env_present && rom_valid) { /* if both env and ROM are good */
 		if (memcmp (v_env_mac, v_rom_mac, 6) != 0) {
 			printf ("\nWarning: MAC addresses don't match:\n");
 			printf ("\tHW MAC address:  "
@@ -1422,7 +1422,7 @@ int smc_get_ethaddr (bd_t * bd)
 	memcpy (bd->bi_enetaddr, v_mac, 6);	/* update global address to match env (allows env changing) */
 	smc_set_mac_addr (v_mac);	/* use old function to update smc default */
 	PRINTK("Using MAC Address %02X:%02X:%02X:%02X:%02X:%02X\n", v_mac[0], v_mac[1],
-                v_mac[2], v_mac[3], v_mac[4], v_mac[5]);
+		v_mac[2], v_mac[3], v_mac[4], v_mac[5]);
 	return (0);
 }
 

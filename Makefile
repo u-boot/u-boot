@@ -1144,17 +1144,17 @@ ADNPESC1_base_32_config		\
 ADNPESC1_config: unconfig
 	@ >include/config.h
 	@[ -z "$(findstring _DNPEVA2,$@)" ] || \
-                { echo "#define CONFIG_DNPEVA2 1" >>include/config.h ; \
-                  echo "... DNP/EVA2 configuration" ; \
-                }
+		{ echo "#define CONFIG_DNPEVA2 1" >>include/config.h ; \
+		  echo "... DNP/EVA2 configuration" ; \
+		}
 	@[ -z "$(findstring _base_32,$@)" ] || \
-                { echo "#define CONFIG_NIOS_BASE_32 1" >>include/config.h ; \
-                  echo "... NIOS 'base_32' configuration" ; \
-                }
+		{ echo "#define CONFIG_NIOS_BASE_32 1" >>include/config.h ; \
+		  echo "... NIOS 'base_32' configuration" ; \
+		}
 	@[ -z "$(findstring ADNPESC1_config,$@)" ] || \
-                { echo "#define CONFIG_NIOS_BASE_32 1" >>include/config.h ; \
-                  echo "... NIOS 'base_32' configuration (DEFAULT)" ; \
-                }
+		{ echo "#define CONFIG_NIOS_BASE_32 1" >>include/config.h ; \
+		  echo "... NIOS 'base_32' configuration (DEFAULT)" ; \
+		}
 	@./mkconfig -a ADNPESC1 nios nios adnpesc1 ssv
 
 

@@ -156,14 +156,14 @@
 #define CFG_FLASH_ERASE_TOUT	(2*CFG_HZ) /* Timeout for Flash Erase */
 #define CFG_FLASH_WRITE_TOUT	(2*CFG_HZ) /* Timeout for Flash Write */
 #else
-/* REVISIT: This doesn't work on ADS GCPlus just yet:
+/* REVISIT: This doesn't work on ADS GCPlus just yet: */
 #define CFG_FLASH_CFI           1       /* flash is CFI conformant      */
 #define CFG_FLASH_CFI_DRIVER    1       /* use common cfi driver        */
 #define CFG_FLASH_USE_BUFFER_WRITE 1    /* use buffered writes (20x faster) */
 #define CFG_MAX_FLASH_BANKS     1       /* max # of memory banks        */
 #define CFG_FLASH_INCREMENT     0       /* there is only one bank       */
 #define CFG_MAX_FLASH_SECT      128     /* max # of sectors on one chip */
-//#define CFG_FLASH_PROTECTION    1       /* hardware flash protection    */
+/*#define CFG_FLASH_PROTECTION    1       /--* hardware flash protection    */
 #define CFG_FLASH_BANKS_LIST    { CFG_FLASH_BASE }
 #endif
 

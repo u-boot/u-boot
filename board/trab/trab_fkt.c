@@ -890,7 +890,7 @@ int do_touch (char **argv)
 	int     x, y;
 
 	if (strcmp (argv[2], "tl") == 0) {
-#if CONFIG_TOUCH_WAIT_PRESSED
+#ifdef CONFIG_TOUCH_WAIT_PRESSED
 		touch_wait_pressed();
 #else
 		{
@@ -915,7 +915,7 @@ int do_touch (char **argv)
 		return touch_write_clibration_values (CALIB_TL, x, y);
 	}
 	else if (strcmp (argv[2], "dr") == 0) {
-#if CONFIG_TOUCH_WAIT_PRESSED
+#ifdef CONFIG_TOUCH_WAIT_PRESSED
 		touch_wait_pressed();
 #else
 		{

@@ -175,7 +175,7 @@
 #define CONFIG_BOOT_ROOT_INITRD 0	/* Use ram disk for the root file system */
 #define CONFIG_BOOT_ROOT_NFS	1	/* Use a NFS mounted root file system */
 
-#if CONFIG_BOOT_ROOT_INITRD
+#ifdef CONFIG_BOOT_ROOT_INITRD
 #define CONFIG_BOOTCOMMAND \
 	"version;" \
 	"echo;" \
@@ -185,7 +185,7 @@
 	"bootm"
 #endif /* CONFIG_BOOT_ROOT_INITRD */
 
-#if CONFIG_BOOT_ROOT_NFS
+#ifdef CONFIG_BOOT_ROOT_NFS
 #define CONFIG_BOOTCOMMAND \
 	"version;" \
 	"echo;" \

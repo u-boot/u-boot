@@ -70,17 +70,17 @@ int checkcpu (void)
 
 	get_sys_info(&sys_info);
 
-#if CONFIG_405GP
+#ifdef CONFIG_405GP
 	puts ("IBM PowerPC 405GP");
 	if (pvr == PVR_405GPR_RB) {
 		putc('r');
 	}
 	puts (" Rev. ");
 #endif
-#if CONFIG_405CR
+#ifdef CONFIG_405CR
 	puts ("IBM PowerPC 405CR Rev. ");
 #endif
-#if CONFIG_405EP
+#ifdef CONFIG_405EP
 	puts ("IBM PowerPC 405EP Rev. ");
 #endif
 	switch (pvr) {
@@ -89,7 +89,7 @@ int checkcpu (void)
 		putc('B');
 		break;
 	case PVR_405GP_RC:
-#if CONFIG_405CR
+#ifdef CONFIG_405CR
 	case PVR_405CR_RC:
 #endif
 		putc('C');
@@ -97,7 +97,7 @@ int checkcpu (void)
 	case PVR_405GP_RD:
 		putc('D');
 		break;
-#if CONFIG_405GP
+#ifdef CONFIG_405GP
 	case PVR_405GP_RE:
 		putc('E');
 		break;

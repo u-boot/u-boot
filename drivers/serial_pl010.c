@@ -41,137 +41,134 @@
 #define NUM_PORTS 2
 #define CONSOLE_PORT CONFIG_CONS_INDEX
 #define baudRate CONFIG_BAUDRATE
-static volatile unsigned char * const port[NUM_PORTS] = {(void*)(CFG_SERIAL0),
-                                                         (void*)(CFG_SERIAL1)};
+static volatile unsigned char *const port[NUM_PORTS] = {
+	(void *) (CFG_SERIAL0),
+	(void *) (CFG_SERIAL1)
+};
 
 
-static void pl010_putc(int portnum, char c);
-static int pl010_getc(int portnum);
-static int pl010_tstc(int portnum);
+static void pl010_putc (int portnum, char c);
+static int pl010_getc (int portnum);
+static int pl010_tstc (int portnum);
 
 
 int serial_init (void)
 {
-    unsigned int temp;
-    unsigned int divisor;
+	unsigned int divisor;
 
-    /*
-    ** First, disable everything.
-    */
-    IO_WRITE(port[CONSOLE_PORT] + UART_PL010_CR, 0x0);
+	/*
+	 ** First, disable everything.
+	 */
+	IO_WRITE (port[CONSOLE_PORT] + UART_PL010_CR, 0x0);
 
-    /*
-    ** Set baud rate
-    **
-    */
-    switch (baudRate) {
-    case 9600:
-      divisor = UART_PL010_BAUD_9600;
-      break;
+	/*
+	 ** Set baud rate
+	 **
+	 */
+	switch (baudRate) {
+	case 9600:
+		divisor = UART_PL010_BAUD_9600;
+		break;
 
-    case 19200:
-      divisor = UART_PL010_BAUD_9600;
-      break;
+	case 19200:
+		divisor = UART_PL010_BAUD_9600;
+		break;
 
-    case 38400:
-      divisor = UART_PL010_BAUD_38400;
-      break;
+	case 38400:
+		divisor = UART_PL010_BAUD_38400;
+		break;
 
-    case 57600:
-      divisor = UART_PL010_BAUD_57600;
-      break;
+	case 57600:
+		divisor = UART_PL010_BAUD_57600;
+		break;
 
-    case 115200:
-      divisor = UART_PL010_BAUD_115200;
-      break;
+	case 115200:
+		divisor = UART_PL010_BAUD_115200;
+		break;
 
-    default:
-      divisor = UART_PL010_BAUD_38400;
-    }
- 
-    IO_WRITE(port[CONSOLE_PORT] + UART_PL010_LCRM, ((divisor & 0xf00) >> 8));
-    IO_WRITE(port[CONSOLE_PORT] + UART_PL010_LCRL, (divisor & 0xff));
+	default:
+		divisor = UART_PL010_BAUD_38400;
+	}
 
-    /*
-    ** Set the UART to be 8 bits, 1 stop bit, no parity, fifo enabled.
-    */
-    IO_WRITE(port[CONSOLE_PORT] + UART_PL010_LCRH,
-        (UART_PL010_LCRH_WLEN_8 | UART_PL010_LCRH_FEN));
+	IO_WRITE (port[CONSOLE_PORT] + UART_PL010_LCRM,
+		  ((divisor & 0xf00) >> 8));
+	IO_WRITE (port[CONSOLE_PORT] + UART_PL010_LCRL, (divisor & 0xff));
 
-    /*
-    ** Finally, enable the UART
-    */
-    IO_WRITE(port[CONSOLE_PORT] + UART_PL010_CR, (UART_PL010_CR_UARTEN));
+	/*
+	 ** Set the UART to be 8 bits, 1 stop bit, no parity, fifo enabled.
+	 */
+	IO_WRITE (port[CONSOLE_PORT] + UART_PL010_LCRH,
+		  (UART_PL010_LCRH_WLEN_8 | UART_PL010_LCRH_FEN));
 
-    return (0);
+	/*
+	 ** Finally, enable the UART
+	 */
+	IO_WRITE (port[CONSOLE_PORT] + UART_PL010_CR, (UART_PL010_CR_UARTEN));
+
+	return (0);
 }
 
-void
-serial_putc(const char c)
+void serial_putc (const char c)
 {
 	if (c == '\n')
-		pl010_putc(CONSOLE_PORT, '\r');
+		pl010_putc (CONSOLE_PORT, '\r');
 
-	pl010_putc(CONSOLE_PORT, c);
+	pl010_putc (CONSOLE_PORT, c);
 }
 
-void
-serial_puts (const char *s)
+void serial_puts (const char *s)
 {
 	while (*s) {
 		serial_putc (*s++);
 	}
 }
 
-int
-serial_getc(void)
+int serial_getc (void)
 {
-	return pl010_getc(CONSOLE_PORT);
+	return pl010_getc (CONSOLE_PORT);
 }
 
-int
-serial_tstc(void)
+int serial_tstc (void)
 {
-	return pl010_tstc(CONSOLE_PORT);
+	return pl010_tstc (CONSOLE_PORT);
 }
 
-void
-serial_setbrg (void)
+void serial_setbrg (void)
 {
 }
 
-static void pl010_putc(int portnum, char c)
+static void pl010_putc (int portnum, char c)
 {
-    /* Wait until there is space in the FIFO */
-    while (IO_READ(port[portnum] + UART_PL01x_FR) & UART_PL01x_FR_TXFF);
-    
-    /* Send the character */
-    IO_WRITE(port[portnum] + UART_PL01x_DR, c);
+	/* Wait until there is space in the FIFO */
+	while (IO_READ (port[portnum] + UART_PL01x_FR) & UART_PL01x_FR_TXFF);
+
+	/* Send the character */
+	IO_WRITE (port[portnum] + UART_PL01x_DR, c);
 }
 
-static int pl010_getc(int portnum)
+static int pl010_getc (int portnum)
 {
-    unsigned int data;
+	unsigned int data;
 
-    /* Wait until there is data in the FIFO */
-    while (IO_READ(port[portnum] + UART_PL01x_FR) & UART_PL01x_FR_RXFE);
-    
-    data = IO_READ(port[portnum] + UART_PL01x_DR);
-    
-    /* Check for an error flag */
-    if (data & 0xFFFFFF00)
-    {
-        /* Clear the error */
-        IO_WRITE(port[portnum] + UART_PL01x_ECR, 0xFFFFFFFF);
-        return -1;
-    }
-    
-    return (int)data;
+	/* Wait until there is data in the FIFO */
+	while (IO_READ (port[portnum] + UART_PL01x_FR) & UART_PL01x_FR_RXFE);
+
+	data = IO_READ (port[portnum] + UART_PL01x_DR);
+
+	/* Check for an error flag */
+	if (data & 0xFFFFFF00) {
+		/* Clear the error */
+		IO_WRITE (port[portnum] + UART_PL01x_ECR, 0xFFFFFFFF);
+		return -1;
+	}
+
+	return (int) data;
 }
 
-static int pl010_tstc(int portnum)
+static int pl010_tstc (int portnum)
 {
-    return !(IO_READ(port[portnum] + UART_PL01x_FR) & UART_PL01x_FR_RXFE);
+	return !(IO_READ (port[portnum] + UART_PL01x_FR) &
+		 UART_PL01x_FR_RXFE);
 }
 
 #endif

@@ -51,7 +51,7 @@
 #include <asm/io.h>
 #include <asm/ibmpc.h>
 
-#if CONFIG_SERIAL_SOFTWARE_FIFO
+#ifdef CONFIG_SERIAL_SOFTWARE_FIFO
 #include <malloc.h>
 #endif
 
@@ -81,7 +81,7 @@
 #define asyncLSRRxFifoError1          0x80
 
 
-#if CONFIG_SERIAL_SOFTWARE_FIFO
+#ifdef CONFIG_SERIAL_SOFTWARE_FIFO
 /*-----------------------------------------------------------------------------+
   | Fifo
   +-----------------------------------------------------------------------------*/
@@ -193,7 +193,7 @@ int serial_getc(void)
 {
 	unsigned char status = 0;
 
-#if CONFIG_SERIAL_SOFTWARE_FIFO
+#ifdef CONFIG_SERIAL_SOFTWARE_FIFO
 	if (serial_buffer_active) {
 		return serial_buffered_getc();
 	}
@@ -225,7 +225,7 @@ int serial_tstc(void)
 {
 	unsigned char status;
 
-#if CONFIG_SERIAL_SOFTWARE_FIFO
+#ifdef CONFIG_SERIAL_SOFTWARE_FIFO
 	if (serial_buffer_active) {
 		return serial_buffered_tstc();
 	}
@@ -248,7 +248,7 @@ int serial_tstc(void)
 }
 
 
-#if CONFIG_SERIAL_SOFTWARE_FIFO
+#ifdef CONFIG_SERIAL_SOFTWARE_FIFO
 
 void serial_isr(void *arg)
 {

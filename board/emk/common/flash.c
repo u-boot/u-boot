@@ -353,7 +353,7 @@ ulong flash_get_size (FPWV *addr, flash_info_t *info)
 			}
 			break;
 		}
-		
+
 		/* fall thru to here ! */
 	default:
 		printf ("unknown AMD device=%x %x %x",

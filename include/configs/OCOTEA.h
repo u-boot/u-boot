@@ -21,7 +21,7 @@
  */
 
 /************************************************************************
- * 1 March 2004  Travis B. Sawyer <tsawyer@sandburst.com>
+ * 1 March 2004	 Travis B. Sawyer <tsawyer@sandburst.com>
  * Adapted to current Das U-Boot source
  ***********************************************************************/
 
@@ -37,7 +37,7 @@
  * High Level Configuration Options
  *----------------------------------------------------------------------*/
 #define CONFIG_OCOTEA		1	    /* Board is ebony		*/
-#define CONFIG_440_GX           1           /* Specifc GX support       */
+#define CONFIG_440_GX		1	    /* Specifc GX support	*/
 #define CONFIG_4xx		1	    /* ... PPC4xx family	*/
 #define CONFIG_BOARD_EARLY_INIT_F 1	    /* Call board_pre_init	*/
 #undef	CFG_DRAM_TEST			    /* Disable-takes long time! */
@@ -68,8 +68,8 @@
 #define CFG_GBL_DATA_SIZE   128		    /* num bytes initial data	*/
 
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define CFG_POST_WORD_ADDR      (CFG_GBL_DATA_OFFSET - 0x4)
-#define CFG_INIT_SP_OFFSET      CFG_POST_WORD_ADDR
+#define CFG_POST_WORD_ADDR	(CFG_GBL_DATA_OFFSET - 0x4)
+#define CFG_INIT_SP_OFFSET	CFG_POST_WORD_ADDR
 
 #define CFG_MONITOR_LEN	    (256 * 1024)    /* Reserve 256 kB for Mon	*/
 #define CFG_MALLOC_LEN	    (128 * 1024)    /* Reserve 128 kB for malloc*/
@@ -110,8 +110,8 @@
 /*-----------------------------------------------------------------------
  * DDR SDRAM
  *----------------------------------------------------------------------*/
-#define CONFIG_SPD_EEPROM       1        /* Use SPD EEPROM for setup     */
-#define SPD_EEPROM_ADDRESS {0x53,0x52}  /* SPD i2c spd addresses        */
+#define CONFIG_SPD_EEPROM	1	 /* Use SPD EEPROM for setup	 */
+#define SPD_EEPROM_ADDRESS {0x53,0x52}	/* SPD i2c spd addresses	*/
 
 /*-----------------------------------------------------------------------
  * I2C
@@ -129,7 +129,7 @@
 #define CFG_ENV_IS_IN_NVRAM	1	    /* Environment uses NVRAM	*/
 #undef	CFG_ENV_IS_IN_FLASH		    /* ... not in flash		*/
 #undef	CFG_ENV_IS_IN_EEPROM		    /* ... not in EEPROM	*/
-#define CONFIG_ENV_OVERWRITE    1
+#define CONFIG_ENV_OVERWRITE	1
 
 #define CFG_ENV_SIZE		0x1000	    /* Size of Environment vars */
 #define CFG_ENV_ADDR		\
@@ -146,18 +146,18 @@
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_NET_MULTI	1
 #define CONFIG_PHY_ADDR		1	/* PHY address, See schematics	*/
-#define CONFIG_PHY1_ADDR        2
-#define CONFIG_PHY2_ADDR        0x10
-#define CONFIG_PHY3_ADDR        0x18
-#define CONFIG_CIS8201_PHY      1       /* Enable 'special' RGMII mode for Cicada phy */
-#define CONFIG_NETMASK          255.255.255.0
-#define CONFIG_IPADDR           10.1.2.3
-#define CONFIG_ETHADDR          00:04:AC:E3:28:8A
-#define CONFIG_ETHADDR1         00:04:AC:E3:28:8B
-#define CONFIG_ETHADDR2         00:04:AC:E3:28:8C
-#define CONFIG_ETHADDR3         00:04:AC:E3:28:8D
-#define CFG_RX_ETH_BUFFER       32        /* Number of ethernet rx buffers & descriptors */
-#define CONFIG_SERVERIP         10.1.2.2
+#define CONFIG_PHY1_ADDR	2
+#define CONFIG_PHY2_ADDR	0x10
+#define CONFIG_PHY3_ADDR	0x18
+#define CONFIG_CIS8201_PHY	1	/* Enable 'special' RGMII mode for Cicada phy */
+#define CONFIG_NETMASK		255.255.255.0
+#define CONFIG_IPADDR		10.1.2.3
+#define CONFIG_ETHADDR		00:04:AC:E3:28:8A
+#define CONFIG_ETHADDR1		00:04:AC:E3:28:8B
+#define CONFIG_ETHADDR2		00:04:AC:E3:28:8C
+#define CONFIG_ETHADDR3		00:04:AC:E3:28:8D
+#define CFG_RX_ETH_BUFFER	32	  /* Number of ethernet rx buffers & descriptors */
+#define CONFIG_SERVERIP		10.1.2.2
 
 #define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
 				CFG_CMD_PCI	| \
@@ -167,10 +167,10 @@
 				CFG_CMD_DHCP	| \
 				CFG_CMD_DATE	| \
 				CFG_CMD_BEDBUG	| \
-                                CFG_CMD_PING    | \
-				CFG_CMD_DIAG    | \
-                                CFG_CMD_MII     | \
-                                CFG_CMD_NET     | \
+				CFG_CMD_PING	| \
+				CFG_CMD_DIAG	| \
+				CFG_CMD_MII	| \
+				CFG_CMD_NET	| \
 				CFG_CMD_ELF	)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
@@ -206,17 +206,17 @@
  *-----------------------------------------------------------------------
  */
 /* General PCI */
-#define CONFIG_PCI			            /* include pci support	        */
-#define CONFIG_PCI_PNP			        /* do pci plug-and-play         */
-#define CONFIG_PCI_SCAN_SHOW            /* show pci devices on startup  */
-#define CFG_PCI_TARGBASE    0x80000000  /* PCIaddr mapped to CFG_PCI_MEMBASE */
+#define CONFIG_PCI				    /* include pci support		*/
+#define CONFIG_PCI_PNP				/* do pci plug-and-play		*/
+#define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup	*/
+#define CFG_PCI_TARGBASE    0x80000000	/* PCIaddr mapped to CFG_PCI_MEMBASE */
 
 /* Board-specific PCI */
-#define CFG_PCI_PRE_INIT                /* enable board pci_pre_init()  */
-#define CFG_PCI_TARGET_INIT	            /* let board init pci target    */
+#define CFG_PCI_PRE_INIT		/* enable board pci_pre_init()	*/
+#define CFG_PCI_TARGET_INIT		    /* let board init pci target    */
 
-#define CFG_PCI_SUBSYS_VENDORID 0x1014  /* IBM */
-#define CFG_PCI_SUBSYS_DEVICEID 0xcafe  /* Whatever */
+#define CFG_PCI_SUBSYS_VENDORID 0x1014	/* IBM */
+#define CFG_PCI_SUBSYS_DEVICEID 0xcafe	/* Whatever */
 
 /*
  * For booting Linux, the board info and command line data

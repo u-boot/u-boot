@@ -232,7 +232,7 @@ mpl_prg_image(uchar *ld_addr)
 			}
 			puts("OK\n");
 			break;
-#if CONFIG_BZIP2
+#ifdef CONFIG_BZIP2
 		case IH_COMP_BZIP2:
 			puts("Uncompressing (BZIP2) ... ");
 			{

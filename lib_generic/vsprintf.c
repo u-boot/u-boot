@@ -55,7 +55,7 @@ long simple_strtol(const char *cp,char **endp,unsigned int base)
 	return simple_strtoul(cp,endp,base);
 }
 
-#if CFG_64BIT_STRTOUL
+#ifdef CFG_64BIT_STRTOUL
 unsigned long long simple_strtoull (const char *cp, char **endp, unsigned int base)
 {
 	unsigned long long result = 0, value;
@@ -112,7 +112,7 @@ static int skip_atoi(const char **s)
 	__res; \
 })
 
-#if CFG_64BIT_VSPRINTF
+#ifdef CFG_64BIT_VSPRINTF
 static char * number(char * str, long long num, int base, int size, int precision ,int type)
 #else
 static char * number(char * str, long num, int base, int size, int precision ,int type)
@@ -188,7 +188,7 @@ int sprintf(char * buf, const char *fmt, ...);
 int vsprintf(char *buf, const char *fmt, va_list args)
 {
 	int len;
-#if CFG_64BIT_VSPRINTF
+#ifdef CFG_64BIT_VSPRINTF
 	unsigned long long num;
 #else
 	unsigned long num;
@@ -337,7 +337,7 @@ int vsprintf(char *buf, const char *fmt, va_list args)
 				--fmt;
 			continue;
 		}
-#if CFG_64BIT_VSPRINTF
+#ifdef CFG_64BIT_VSPRINTF
 		if (qualifier == 'q')  /* "quad" for 64 bit variables */
 			num = va_arg(args, unsigned long long);
 		else

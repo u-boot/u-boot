@@ -66,7 +66,7 @@ void serial_setbrg (void)
 	Ser1UTCR1 = 0;
 	Ser1UTCR2 = (u32)reg;
 	Ser1UTCR3 = ( UTCR3_RXE | UTCR3_TXE );
-#elif CONFIG_SERIAL3
+#elif defined(CONFIG_SERIAL3)
 	/* Wait until port is ready ... */
 	while (Ser3UTSR1 & UTSR1_TBY) {
 	}
@@ -107,7 +107,7 @@ void serial_putc (const char c)
 	while ((Ser1UTSR0 & UTSR0_TFS) == 0);
 
 	Ser1UTDR = c;
-#elif CONFIG_SERIAL3
+#elif defined(CONFIG_SERIAL3)
 	/* wait for room in the tx FIFO on SERIAL3 */
 	while ((Ser3UTSR0 & UTSR0_TFS) == 0);
 
@@ -128,7 +128,7 @@ int serial_tstc (void)
 {
 #ifdef CONFIG_SERIAL1
 	return Ser1UTSR1 & UTSR1_RNE;
-#elif CONFIG_SERIAL3
+#elif defined(CONFIG_SERIAL3)
 	return Ser3UTSR1 & UTSR1_RNE;
 #endif
 }
@@ -144,7 +144,7 @@ int serial_getc (void)
 	while (!(Ser1UTSR1 & UTSR1_RNE));
 
 	return (char) Ser1UTDR & 0xff;
-#elif CONFIG_SERIAL3
+#elif defined(CONFIG_SERIAL3)
 	while (!(Ser3UTSR1 & UTSR1_RNE));
 
 	return (char) Ser3UTDR & 0xff;

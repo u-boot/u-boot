@@ -404,7 +404,7 @@ write_data(flash_info_t * info, ulong dest, FPW data)
 
 	/* Check if Flash is (sufficiently) erased */
 	if ((*addr & data) != data) {
-		printf("not erased at %08lx (%x)\n", (ulong) addr, *addr);
+		printf("not erased at %08lX (%lX)\n", (ulong) addr, *addr);
 		return (2);
 	}
 	/* Disable interrupts which might cause a timeout here */

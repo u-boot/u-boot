@@ -577,7 +577,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	 */
 	timer_init();
 
-#if CONFIG_SERIAL_SOFTWARE_FIFO
+#ifdef CONFIG_SERIAL_SOFTWARE_FIFO
 	serial_buffered_init();
 #endif
 

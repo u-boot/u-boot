@@ -171,4 +171,3 @@ int last_stage_init(void)
 
 	return 0; /* success */
 }
-

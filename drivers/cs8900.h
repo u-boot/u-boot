@@ -47,7 +47,7 @@
   #define CS8900_OFF 0x02
   #define CS8900_BUS16_0  *(volatile u8 *)(CS8900_BASE+0x00)
   #define CS8900_BUS16_1  *(volatile u8 *)(CS8900_BASE+0x01)
-#elif  CS8900_BUS32
+#elif  defined(CS8900_BUS32)
   /* 32 bit aligned registers, 16 bit wide (we ignore upper 16 bits) */
   #define CS8900_REG u32
   #define CS8900_OFF 0x04

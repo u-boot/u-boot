@@ -72,6 +72,7 @@
  * Size of malloc() pool
  */
 #define CFG_MALLOC_LEN	(CFG_ENV_SIZE + 128*1024)
+#define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
  * Hardware drivers
@@ -94,7 +95,7 @@
 
 #define CONFIG_COMMANDS	(CFG_CMD_DHCP | CFG_CMD_IMI | CFG_CMD_NET | CFG_CMD_PING | CFG_CMD_BDI | CFG_CMD_MEMORY)
 
-//#define CONFIG_COMMANDS	(CFG_CMD_IMI | CFG_CMD_BDI | CFG_CMD_MEMORY)
+/*#define CONFIG_COMMANDS	(CFG_CMD_IMI | CFG_CMD_BDI | CFG_CMD_MEMORY) */
 
 #define CONFIG_BOOTP_MASK	CONFIG_BOOTP_DEFAULT
 
@@ -102,15 +103,15 @@
 #include <cmd_confdefs.h>
 
 #define CONFIG_BOOTDELAY	2
-#define CONFIG_BOOTARGS	"root=/dev/nfs mem=128M ip=dhcp netdev=27,0,0xfc800000,0xfc800010,eth0" 
-//#define CONFIG_BOOTCOMMAND "bootp ; bootm"
+#define CONFIG_BOOTARGS	"root=/dev/nfs mem=128M ip=dhcp netdev=27,0,0xfc800000,0xfc800010,eth0"
+/*#define CONFIG_BOOTCOMMAND "bootp ; bootm" */
 
 /*
  * Static configuration when assigning fixed address
  */
-//#define CONFIG_NETMASK	255.255.255.0	/* talk on MY local net */
-//#define CONFIG_IPADDR		xx.xx.xx.xx	/* static IP I currently own */
-//#define CONFIG_SERVERIP	xx.xx.xx.xx	/* current IP of my dev pc */
+/*#define CONFIG_NETMASK	255.255.255.0	/--* talk on MY local net */
+/*#define CONFIG_IPADDR		xx.xx.xx.xx	/--* static IP I currently own */
+/*#define CONFIG_SERVERIP	xx.xx.xx.xx	/--* current IP of my dev pc */
 #define CONFIG_BOOTFILE	    "/tftpboot/uImage" /* file to load */
 
 

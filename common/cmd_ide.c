@@ -303,16 +303,19 @@ int do_ide (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	if (strcmp(argv[1],"read") == 0) {
 		ulong addr = simple_strtoul(argv[2], NULL, 16);
-#if CFG_64BIT_STRTOUL
-		lbaint_t blk  = simple_strtoull(argv[3], NULL, 16);
-#else
-		lbaint_t blk  = simple_strtoul(argv[3], NULL, 16);
-#endif
 		ulong cnt  = simple_strtoul(argv[4], NULL, 16);
 		ulong n;
+#ifdef CFG_64BIT_STRTOUL
+		lbaint_t blk  = simple_strtoull(argv[3], NULL, 16);
 
 		printf ("\nIDE read: device %d block # %qd, count %ld ... ",
 			curr_device, blk, cnt);
+#else
+		lbaint_t blk  = simple_strtoul(argv[3], NULL, 16);
+
+		printf ("\nIDE read: device %d block # %ld, count %ld ... ",
+			curr_device, blk, cnt);
+#endif
 
 		n = ide_dev_desc[curr_device].block_read (curr_device,
 							  blk, cnt,
@@ -329,16 +332,19 @@ int do_ide (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		}
 	} else if (strcmp(argv[1],"write") == 0) {
 		ulong addr = simple_strtoul(argv[2], NULL, 16);
-#if CFG_64BIT_STRTOUL
-		lbaint_t blk  = simple_strtoull(argv[3], NULL, 16);
-#else
-		lbaint_t blk  = simple_strtoul(argv[3], NULL, 16);
-#endif
 		ulong cnt  = simple_strtoul(argv[4], NULL, 16);
 		ulong n;
+#ifdef CFG_64BIT_STRTOUL
+		lbaint_t blk  = simple_strtoull(argv[3], NULL, 16);
 
 		printf ("\nIDE write: device %d block # %qd, count %ld ... ",
 			curr_device, blk, cnt);
+#else
+		lbaint_t blk  = simple_strtoul(argv[3], NULL, 16);
+
+		printf ("\nIDE write: device %d block # %ld, count %ld ... ",
+			curr_device, blk, cnt);
+#endif
 
 		n = ide_write (curr_device, blk, cnt, (ulong *)addr);
 
@@ -1161,7 +1167,7 @@ static void ide_ident (block_dev_desc_t *dev_desc)
 	dev_desc->lba = iop->lba_capacity;
 #endif	/* __BIG_ENDIAN */
 
-#if CONFIG_LBA48
+#ifdef CONFIG_LBA48
 	if (iop->command_set_2 & 0x0400) { /* LBA 48 support */
 		dev_desc->lba48support = 1;
 		dev_desc->lba48 = (unsigned long long)iop->lba48_capacity[0] |
@@ -1203,7 +1209,7 @@ ulong ide_read (int device, lbaint_t blknr, ulong blkcnt, ulong *buffer)
 	ulong n = 0;
 	unsigned char c;
 	unsigned char pwrsave=0; /* power save */
-#if CONFIG_LBA48
+#ifdef CONFIG_LBA48
 	unsigned char lba48 = 0;
 
 	if (blknr & 0x0000fffff0000000) {
@@ -1255,7 +1261,7 @@ ulong ide_read (int device, lbaint_t blknr, ulong blkcnt, ulong *buffer)
 			printf ("IDE read: device %d not ready\n", device);
 			break;
 		}
-#if CONFIG_LBA48
+#ifdef CONFIG_LBA48
 		if (lba48) {
 			/* write high bits */
 			ide_outb (device, ATA_SECT_CNT, 0);
@@ -1269,7 +1275,7 @@ ulong ide_read (int device, lbaint_t blknr, ulong blkcnt, ulong *buffer)
 		ide_outb (device, ATA_LBA_MID,  (blknr >>  8) & 0xFF);
 		ide_outb (device, ATA_LBA_HIGH, (blknr >> 16) & 0xFF);
 
-#if CONFIG_LBA48
+#ifdef CONFIG_LBA48
 		if (lba48) {
 			ide_outb (device, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(device) );
 			ide_outb (device, ATA_COMMAND, ATA_CMD_READ_EXT);
@@ -1293,7 +1299,7 @@ ulong ide_read (int device, lbaint_t blknr, ulong blkcnt, ulong *buffer)
 		}
 
 		if ((c&(ATA_STAT_DRQ|ATA_STAT_BUSY|ATA_STAT_ERR)) != ATA_STAT_DRQ) {
-#if CFG_64BIT_LBA && CFG_64BIT_VSPRINTF
+#if defined(CFG_64BIT_LBA) && defined(CFG_64BIT_VSPRINTF)
 			printf ("Error (no IRQ) dev %d blk %qd: status 0x%02x\n",
 				device, blknr, c);
 #else
@@ -1322,7 +1328,7 @@ ulong ide_write (int device, lbaint_t blknr, ulong blkcnt, ulong *buffer)
 {
 	ulong n = 0;
 	unsigned char c;
-#if CONFIG_LBA48
+#ifdef CONFIG_LBA48
 	unsigned char lba48 = 0;
 
 	if (blknr & 0x0000fffff0000000) {
@@ -1345,7 +1351,7 @@ ulong ide_write (int device, lbaint_t blknr, ulong blkcnt, ulong *buffer)
 			printf ("IDE read: device %d not ready\n", device);
 			goto WR_OUT;
 		}
-#if CONFIG_LBA48
+#ifdef CONFIG_LBA48
 		if (lba48) {
 			/* write high bits */
 			ide_outb (device, ATA_SECT_CNT, 0);
@@ -1359,7 +1365,7 @@ ulong ide_write (int device, lbaint_t blknr, ulong blkcnt, ulong *buffer)
 		ide_outb (device, ATA_LBA_MID,  (blknr >>  8) & 0xFF);
 		ide_outb (device, ATA_LBA_HIGH, (blknr >> 16) & 0xFF);
 
-#if CONFIG_LBA48
+#ifdef CONFIG_LBA48
 		if (lba48) {
 			ide_outb (device, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(device) );
 			ide_outb (device, ATA_COMMAND,	ATA_CMD_WRITE_EXT);
@@ -1378,7 +1384,7 @@ ulong ide_write (int device, lbaint_t blknr, ulong blkcnt, ulong *buffer)
 		c = ide_wait (device, IDE_TIME_OUT);	/* can't take over 500 ms */
 
 		if ((c&(ATA_STAT_DRQ|ATA_STAT_BUSY|ATA_STAT_ERR)) != ATA_STAT_DRQ) {
-#if CFG_64BIT_LBA && CFG_64BIT_VSPRINTF
+#if defined(CFG_64BIT_LBA) && defined(CFG_64BIT_VSPRINTF)
 			printf ("Error (no IRQ) dev %d blk %qd: status 0x%02x\n",
 				device, blknr, c);
 #else
@@ -1959,7 +1965,9 @@ static void	atapi_inquiry(block_dev_desc_t * dev_desc)
 			((unsigned long)iobuf[5]<<16) +
 			((unsigned long)iobuf[6]<< 8) +
 			((unsigned long)iobuf[7]);
+#ifdef CONFIG_LBA48
 	dev_desc->lba48 = 0; /* ATAPI devices cannot use 48bit addressing (ATA/ATAPI v7) */
+#endif
 	return;
 }
 

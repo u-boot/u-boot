@@ -51,7 +51,7 @@ SECTIONS
 	armboot_end_data = .;
 
 	. = ALIGN(4);
+	__bss_start = .;
 	.bss : { *(.bss) }
-
-	armboot_end = .;
+	_end = .;
 }

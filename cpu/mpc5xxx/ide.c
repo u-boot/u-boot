@@ -73,7 +73,7 @@ int ide_preinit (void)
 	*(vu_long *) MPC5XXX_ATA_PIO2 = reg;
 
 #ifdef CONFIG_IDE_RESET
-        init_ide_reset ();
+	init_ide_reset ();
 #endif /* CONFIG_IDE_RESET */
 
 	return (0);

@@ -364,7 +364,7 @@
  *	5	0		00000
  */
 #define SCCR_MASK	0
-#if CONFIG_EBDF
+#ifdef CONFIG_EBDF
  #define CFG_SCCR	(SCCR_COM11 | SCCR_TBS | SCCR_EBDF01)
 #else
  #define CFG_SCCR	(SCCR_COM11 | SCCR_TBS)

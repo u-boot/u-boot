@@ -52,6 +52,7 @@
  * Size of malloc() pool
  */
 #define CFG_MALLOC_LEN	(CFG_ENV_SIZE + 128*1024)
+#define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
  * Hardware drivers
@@ -78,7 +79,7 @@
 #include <cmd_confdefs.h>
 
 #define CONFIG_BOOTDELAY	2
-#define CONFIG_BOOTARGS	"root=/dev/nfs mem=128M ip=dhcp netdev=27,0,0xfc800000,0xfc800010,eth0" 
+#define CONFIG_BOOTARGS	"root=/dev/nfs mem=128M ip=dhcp netdev=27,0,0xfc800000,0xfc800010,eth0"
 #define CONFIG_BOOTCOMMAND "bootp ; bootm"
 
 /*

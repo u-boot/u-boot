@@ -52,6 +52,7 @@
  * Size of malloc() pool
  */
 #define CFG_MALLOC_LEN	(CFG_ENV_SIZE + 128*1024)
+#define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
  * PL010 Configuration
@@ -63,9 +64,9 @@
 #define CFG_SERIAL0		0x16000000
 #define CFG_SERIAL1		0x17000000
 
-//#define CONFIG_COMMANDS	(CFG_CMD_DHCP | CFG_CMD_IMI | CFG_CMD_NET | CFG_CMD_PING | CFG_CMD_BDI | CFG_CMD_PCI)
-//#define CONFIG_NET_MULTI
-//#define CONFIG_BOOTP_MASK       CONFIG_BOOTP_DEFAULT
+/*#define CONFIG_COMMANDS	(CFG_CMD_DHCP | CFG_CMD_IMI | CFG_CMD_NET | CFG_CMD_PING | CFG_CMD_BDI | CFG_CMD_PCI) */
+/*#define CONFIG_NET_MULTI */
+/*#define CONFIG_BOOTP_MASK       CONFIG_BOOTP_DEFAULT */
 
 #define CONFIG_COMMANDS	(CFG_CMD_IMI | CFG_CMD_BDI | CFG_CMD_MEMORY)
 
@@ -74,7 +75,7 @@
 #include <cmd_confdefs.h>
 
 #define CONFIG_BOOTDELAY        2
-#define CONFIG_BOOTARGS         "root=/dev/mtdblock0 mem=32M console=ttyAM0 console=tty" 
+#define CONFIG_BOOTARGS         "root=/dev/mtdblock0 mem=32M console=ttyAM0 console=tty"
 #define CONFIG_BOOTCOMMAND      ""
 
 /*
@@ -129,7 +130,7 @@
  * PCI definitions
  */
 
-//#define CONFIG_PCI			/* include pci support			*/
+/*#define CONFIG_PCI			/--* include pci support			*/
 #undef CONFIG_PCI_PNP
 #define CONFIG_PCI_SCAN_SHOW    1       /* show pci devices on startup  */
 #define DEBUG
@@ -141,28 +142,28 @@
 #define INTEGRATOR_BOOT_ROM_BASE	0x20000000
 #define INTEGRATOR_HDR0_SDRAM_BASE      0x80000000
 
-// PCI Base area
+/* PCI Base area */
 #define INTEGRATOR_PCI_BASE		0x40000000
 #define INTEGRATOR_PCI_SIZE		0x3FFFFFFF
 
-// memory map as seen by the CPU on the local bus
-#define CPU_PCI_IO_ADRS		0x60000000 	// PCI I/O space base
-#define CPU_PCI_IO_SIZE		0x10000	
+/* memory map as seen by the CPU on the local bus */
+#define CPU_PCI_IO_ADRS		0x60000000 	/* PCI I/O space base */
+#define CPU_PCI_IO_SIZE		0x10000
 
-#define CPU_PCI_CNFG_ADRS	0x61000000	// PCI config space
+#define CPU_PCI_CNFG_ADRS	0x61000000	/* PCI config space */
 #define CPU_PCI_CNFG_SIZE	0x1000000
 
-#define PCI_MEM_BASE            0x40000000   // 512M to xxx
-//  unused 256M from A0000000-AFFFFFFF might be used for I2O ???
-#define INTEGRATOR_PCI_IO_BASE  0x60000000   // 16M to xxx
-//  unused (128-16)M from B1000000-B7FFFFFF
-#define PCI_CONFIG_BASE         0x61000000   // 16M to xxx
-//  unused ((128-16)M - 64K) from XXX
+#define PCI_MEM_BASE            0x40000000   /* 512M to xxx */
+/*  unused 256M from A0000000-AFFFFFFF might be used for I2O ??? */
+#define INTEGRATOR_PCI_IO_BASE  0x60000000   /* 16M to xxx */
+/*  unused (128-16)M from B1000000-B7FFFFFF */
+#define PCI_CONFIG_BASE         0x61000000   /* 16M to xxx */
+/*  unused ((128-16)M - 64K) from XXX */
 
 #define PCI_V3_BASE             0x62000000
 
-// V3 PCI bridge controller
-#define V3_BASE			0x62000000    // V360EPC registers
+/* V3 PCI bridge controller */
+#define V3_BASE			0x62000000    /* V360EPC registers */
 
 #define PCI_ENET0_IOADDR	(CPU_PCI_IO_ADRS)
 #define PCI_ENET0_MEMADDR	(PCI_MEM_BASE)
@@ -221,16 +222,16 @@
 #define V3_MAIL_RD_STAT         0x000000DA
 #define V3_QBA_MAP              0x000000DC
 
-// SYSTEM register bits
+/* SYSTEM register bits */
 #define V3_SYSTEM_M_RST_OUT             (1 << 15)
 #define V3_SYSTEM_M_LOCK                (1 << 14)
 
-//  PCI_CFG bits
+/*  PCI_CFG bits */
 #define V3_PCI_CFG_M_RETRY_EN           (1 << 10)
 #define V3_PCI_CFG_M_AD_LOW1            (1 << 9)
 #define V3_PCI_CFG_M_AD_LOW0            (1 << 8)
 
-// PCI MAP register bits (PCI -> Local bus)
+/* PCI MAP register bits (PCI -> Local bus) */
 #define V3_PCI_MAP_M_MAP_ADR            0xFFF00000
 #define V3_PCI_MAP_M_RD_POST_INH        (1 << 15)
 #define V3_PCI_MAP_M_ROM_SIZE           (1 << 11 | 1 << 10)
@@ -239,20 +240,20 @@
 #define V3_PCI_MAP_M_REG_EN             (1 << 1)
 #define V3_PCI_MAP_M_ENABLE             (1 << 0)
 
-// 9 => 512M window size
+/* 9 => 512M window size */
 #define V3_PCI_MAP_M_ADR_SIZE_512M      0x00000090
 
-// A => 1024M window size
+/* A => 1024M window size */
 #define V3_PCI_MAP_M_ADR_SIZE_1024M     0x000000A0
 
-// LB_BASE register bits (Local bus -> PCI)
+/* LB_BASE register bits (Local bus -> PCI) */
 #define V3_LB_BASE_M_MAP_ADR            0xFFF00000
 #define V3_LB_BASE_M_SWAP               (1 << 8 | 1 << 9)
 #define V3_LB_BASE_M_ADR_SIZE           0x000000F0
 #define V3_LB_BASE_M_PREFETCH           (1 << 3)
 #define V3_LB_BASE_M_ENABLE             (1 << 0)
 
-// PCI COMMAND REGISTER bits
+/* PCI COMMAND REGISTER bits */
 #define V3_COMMAND_M_FBB_EN             (1 << 9)
 #define V3_COMMAND_M_SERR_EN            (1 << 8)
 #define V3_COMMAND_M_PAR_EN             (1 << 6)

@@ -309,7 +309,7 @@ void reset_phy (void)
 
 	/* Configure all needed port pins for GPIO */
 #if PCU_E_WITH_SWAPPED_CS	/* XXX */
-# if CFG_ETH_MDDIS_VALUE
+# ifdef CFG_ETH_MDDIS_VALUE
 	immr->im_ioport.iop_padat |= CFG_PA_ETH_MDDIS;
 # else
 	immr->im_ioport.iop_padat &= ~(CFG_PA_ETH_MDDIS);	/* Set low */
@@ -329,23 +329,23 @@ void reset_phy (void)
 
 	/* PHY configuration includes MDDIS and CFG1 ... CFG3 */
 #if !PCU_E_WITH_SWAPPED_CS
-# if CFG_ETH_MDDIS_VALUE
+# ifdef CFG_ETH_MDDIS_VALUE
 	value |= CFG_PB_ETH_MDDIS;
 # else
 	value &= ~(CFG_PB_ETH_MDDIS);
 # endif
 #endif
-#if CFG_ETH_CFG1_VALUE
+#ifdef CFG_ETH_CFG1_VALUE
 	value |= CFG_PB_ETH_CFG1;
 #else
 	value &= ~(CFG_PB_ETH_CFG1);
 #endif
-#if CFG_ETH_CFG2_VALUE
+#ifdef CFG_ETH_CFG2_VALUE
 	value |= CFG_PB_ETH_CFG2;
 #else
 	value &= ~(CFG_PB_ETH_CFG2);
 #endif
-#if CFG_ETH_CFG3_VALUE
+#ifdef CFG_ETH_CFG3_VALUE
 	value |= CFG_PB_ETH_CFG3;
 #else
 	value &= ~(CFG_PB_ETH_CFG3);

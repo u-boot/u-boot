@@ -38,7 +38,7 @@
 
 #endif /* CONFIG_IDE_LED */
 
-#if CFG_64BIT_LBA
+#ifdef CFG_64BIT_LBA
 typedef uint64_t lbaint_t;
 #else
 typedef ulong lbaint_t;

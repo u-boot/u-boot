@@ -293,7 +293,7 @@ ulong get_timer_masked (void)
 /* waits specified delay value and resets timestamp */
 void udelay_masked (unsigned long usec)
 {
-	ulong tmo, tmp;
+	ulong tmo;
 
 	if(usec >= 1000){               /* if "big" number, spread normalization to seconds */
 		tmo = usec / 1000;      /* start to normalize for usec to ticks per sec */

@@ -314,7 +314,7 @@ int drv_usbtty_init (void)
 	int rc;
 	char * sn;
 	int snlen;
-	
+
 	if (!(sn = getenv("serial#"))) {
 		sn = "000000000000";
 	}

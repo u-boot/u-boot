@@ -57,7 +57,7 @@ long int initdram (int board_type)
 	*(vu_long *)MPC5XXX_SDRAM_CTRL = CFG_DRAM_CONTROL | MODE_EN;
 	/* precharge all banks */
 	*(vu_long *)MPC5XXX_SDRAM_CTRL = CFG_DRAM_CONTROL | MODE_EN | SOFT_PRE;
-#if CFG_DRAM_DDR
+#ifdef CFG_DRAM_DDR
 	/* set extended mode register */
 	*(vu_short *)MPC5XXX_SDRAM_MODE = CFG_DRAM_EMODE;
 #endif

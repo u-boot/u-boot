@@ -71,16 +71,15 @@ _armboot_start:
 	.word _start
 
 /*
- * Note: _armboot_end_data and _armboot_end are defined
- * by the (board-dependent) linker script.
- * _armboot_end_data is the first usable FLASH address after armboot
+ * These are defined in the board-specific linker script.
  */
-.globl _armboot_end_data
-_armboot_end_data:
-	.word armboot_end_data
-.globl _armboot_end
-_armboot_end:
-	.word armboot_end
+.globl _bss_start
+_bss_start:
+	.word __bss_start
+
+.globl _bss_end
+_bss_end:
+	.word _end
 
 #ifdef CONFIG_USE_IRQ
 /* IRQ stack memory (calculated at run-time) */
@@ -130,7 +129,7 @@ relocate:				/* relocate U-Boot to RAM	    */
 	beq     stack_setup
 
 	ldr	r2, _armboot_start
-	ldr	r3, _armboot_end
+	ldr	r3, _bss_start
 	sub	r2, r3, r2		/* r2 <- size of armboot            */
 	add	r2, r0, r2		/* r2 <- source end address         */
 

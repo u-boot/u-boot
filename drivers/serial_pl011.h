@@ -23,11 +23,11 @@
  */
 
 /*
- * ARM PrimeCell UART's (PL010 & PL011) 
+ * ARM PrimeCell UART's (PL010 & PL011)
  * ------------------------------------
- *  
+ *
  *  Definitions common to both PL010 & PL011
- * 
+ *
  */
 #define UART_PL01x_DR                   0x00	 /*  Data read or written from the interface. */
 #define UART_PL01x_RSR                  0x04	 /*  Receive status register (Read). */
@@ -46,9 +46,9 @@
 #define UART_PL01x_FR_BUSY              0x08
 #define UART_PL01x_FR_TMSK              (UART_PL01x_FR_TXFF + UART_PL01x_FR_BUSY)
 
-/* 
+/*
  *  PL010 definitions
- * 
+ *
  */
 #define UART_PL010_LCRH                 0x08	 /*  Line control register, high byte. */
 #define UART_PL010_LCRM                 0x0C	 /*  Line control register, middle byte. */
@@ -57,7 +57,7 @@
 #define UART_PL010_IIR                  0x1C	 /*  Interrupt indentification register (Read). */
 #define UART_PL010_ICR                  0x1C	 /*  Interrupt clear register (Write). */
 #define UART_PL010_ILPR                 0x20	 /*  IrDA low power counter register. */
- 
+
 #define UART_PL010_CR_LPE               (1 << 7)
 #define UART_PL010_CR_RTIE              (1 << 6)
 #define UART_PL010_CR_TIE               (1 << 5)
@@ -66,7 +66,7 @@
 #define UART_PL010_CR_IIRLP             (1 << 2)
 #define UART_PL010_CR_SIREN             (1 << 1)
 #define UART_PL010_CR_UARTEN            (1 << 0)
- 
+
 #define UART_PL010_LCRH_WLEN_8          (3 << 5)
 #define UART_PL010_LCRH_WLEN_7          (2 << 5)
 #define UART_PL010_LCRH_WLEN_6          (1 << 5)
@@ -89,9 +89,9 @@
 #define UART_PL010_BAUD_4800              191
 #define UART_PL010_BAUD_2400              383
 #define UART_PL010_BAUD_1200              767
-/* 
+/*
  *  PL011 definitions
- * 
+ *
  */
 #define UART_PL011_IBRD                 0x24
 #define UART_PL011_FBRD                 0x28
@@ -99,7 +99,7 @@
 #define UART_PL011_CR                   0x30
 #define UART_PL011_IMSC                 0x38
 #define UART_PL011_PERIPH_ID0           0xFE0
- 
+
 #define UART_PL011_LCRH_SPS             (1 << 7)
 #define UART_PL011_LCRH_WLEN_8          (3 << 5)
 #define UART_PL011_LCRH_WLEN_7          (2 << 5)

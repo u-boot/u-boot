@@ -235,7 +235,7 @@ int misc_init_f (void)
 
 long int initdram (int board_type)
 {
-#if CONFIG_CMA111
+#ifdef CONFIG_CMA111
 	return (32L * 1024L * 1024L);
 #else
 	unsigned char dipsw_val;

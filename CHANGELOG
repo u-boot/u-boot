@@ -14,7 +14,7 @@ Changes for U-Boot 1.0.2:
 
 * Patch by Leon Kukovec, 12 Mar 2004:
   Fix get_dentfromdir() to correctly handle deleted dentries
-  
+
 * Patch by George G. Davis, 11 Mar 2004:
   Remove hard coded network settings in TI OMAP1610 H2
   default board config

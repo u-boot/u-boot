@@ -874,7 +874,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	/* Must happen after interrupts are initialized since
 	 * an irq handler gets installed
 	 */
-#if CONFIG_SERIAL_SOFTWARE_FIFO
+#ifdef CONFIG_SERIAL_SOFTWARE_FIFO
 	serial_buffered_init();
 #endif
 

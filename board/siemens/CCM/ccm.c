@@ -351,7 +351,7 @@ void	reset_phy(void)
 	ulong value;
 
 	/* Configure all needed port pins for GPIO */
-#if CFG_ETH_MDDIS_VALUE
+#ifdef CFG_ETH_MDDIS_VALUE
 	immr->im_ioport.iop_padat |=   CFG_PA_ETH_MDDIS;
 #else
 	immr->im_ioport.iop_padat &= ~(CFG_PA_ETH_MDDIS | CFG_PA_ETH_RESET);	/* Set low */
@@ -369,17 +369,17 @@ void	reset_phy(void)
 	value |=  CFG_PB_ETH_POWERDOWN;
 
 	/* PHY configuration includes MDDIS and CFG1 ... CFG3 */
-#if CFG_ETH_CFG1_VALUE
+#ifdef CFG_ETH_CFG1_VALUE
 	value |=   CFG_PB_ETH_CFG1;
 #else
 	value &= ~(CFG_PB_ETH_CFG1);
 #endif
-#if CFG_ETH_CFG2_VALUE
+#ifdef CFG_ETH_CFG2_VALUE
 	value |=   CFG_PB_ETH_CFG2;
 #else
 	value &= ~(CFG_PB_ETH_CFG2);
 #endif
-#if CFG_ETH_CFG3_VALUE
+#ifdef CFG_ETH_CFG3_VALUE
 	value |=   CFG_PB_ETH_CFG3;
 #else
 	value &= ~(CFG_PB_ETH_CFG3);

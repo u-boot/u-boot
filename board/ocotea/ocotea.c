@@ -474,4 +474,3 @@ int post_hotkeys_pressed(void)
 	return (ctrlc());
 }
 #endif
-
