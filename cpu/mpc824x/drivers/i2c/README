@@ -1,0 +1,105 @@
+CONTENT:
+
+   i2c.h
+   i2c1.c
+   i2c2.s
+
+WHAT ARE THESE FILES:
+
+These files contain MPC8240 (Kahlua) I2C
+driver routines. The driver routines are not
+written for any specific operating system.
+They serves the purpose of code sample, and
+jump-start for using the MPC8240 I2C unit.
+
+For the reason of correctness of C language
+syntax, these files are compiled by Metaware
+C compiler and assembler.
+
+ENDIAN NOTATION:
+
+The algorithm is designed for big-endian mode,
+software is responsible for byte swapping.
+
+USAGE:
+
+1. The host system that is running on MPC8240
+   shall link the files listed here. The memory
+   location of driver routines shall take into
+   account of that driver routines need to run
+   in supervisor mode and they process I2C
+   interrupt.
+
+2. The host system is responsible for configuring
+   the MPC8240 including Embedded Utilities Memory
+   Block. All I2C driver functions require the
+   content of Embedded Utilities Memory Block
+   Base Address Register, EUMBBAR, as the first
+   parameter.
+
+3. Before I2C unit of MPC8240 can be used,
+   initialize I2C unit by calling I2C_Init
+   with the corresponding parameters.
+
+   Note that the I2CFDR register shall be written
+   once during the initialization. If it is written
+   in the midst of transers, or after I2C STOPs or
+   REPEAT STATRs, depending on the data written,
+   a long reset time may be encountered.
+
+4. After I2C unit has been successfully initialized,
+   use the Application level API to send data or
+   receive data upon the desired mode, Master or
+   Slave.
+
+5. If the host system is also using the EPIC unit
+   on MPC8240, the system can register the
+   I2C_ISR with the EPIC including other
+   desired resources.
+
+   If the host system does not using the EPIC unit
+   on MPC8240, I2C_Timer_Event function can
+   be called for each desired time interval.
+
+   In both cases, the host system is free to provide
+   its own timer event handler and interrupt service
+   routine.
+
+6. The I2C driver routines contains a set
+   of utilities, Set and Get, for host system
+   to query and modify the desired I2C registers.
+
+7. It is the host system's responsibility of
+   queueing the I2C I/O request. The host
+   system shall check the I2C_ISR return code
+   for I2C I/O status. If I2C_ISR returns
+   I2CBUFFEMPTY or I2CBUFFFULL, it means
+   I2C unit has completed a I/O request
+   stated by the Application API.
+
+8. If the host system has more than one master
+   mode I2C unit I/O requests but doesn't want
+   to be intervented by being addressed as slave,
+   the host system can use the master mode
+   Application API with stop_flag set to 0 in
+   conjunction with is_cnt flag set to 1.
+   The first API call sets both stop_flag and
+   is_cnt to 0, indicating a START condition
+   shall be generated but when the end of
+   transaction is reached, do not generate a
+   STOP condition. Once the host system is
+   informed that the transaction has been
+   completed, the next Application API call
+   shall set is_cnt flag to 1, indicating a
+   repeated START condition shall be generated.
+   The last Application API call shall set
+   stop_flag
+   to 1.
+
+9. The I2C_Timer_Event function containes
+   a user defined function pointer. It
+   serves the purpose of providing the
+   host system a way to use its own event
+   handler instead of the I2C_ISR provided
+   here.
+

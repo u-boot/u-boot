@@ -1,0 +1,102 @@
+CONTENT:
+
+   dma.h
+   dma1.c
+   dma2.s
+
+WHAT ARE THESE FILES:
+
+These files contain MPC8240 (Kahlua) DMA controller
+driver routines. The driver routines are not
+written for any specific operating system.
+They serves the purpose of code sample, and
+jump-start for using the MPC8240 DMA controller.
+
+For the reason of correctness of C language
+syntax, these files are compiled by Metaware
+C compiler and assembler.
+
+ENDIAN NOTATION:
+
+The algorithm is designed for big-endian mode,
+software is responsible for byte swapping.
+
+USAGE:
+
+1. The host system that is running on MPC8240
+   or using MPC8240 as I/O device shall link
+   the files listed here. The memory location
+   of driver routines shall take into account of
+   that driver routines need to run in supervisor
+   mode and they process DMA controller interrupt.
+
+2. The host system is responsible for configuring
+   the MPC8240 including Embedded Utilities Memory
+   Block. Since the DMA controller on MPC8240 can
+   be accessed by either local 603e core or the host
+   that MPC8240 serves as I/O processor through host
+   PCI configuration, it is important that the local
+   processor uses EUMBBAR to access its local DMA
+   controller while the PCI master uses I/O
+   processor's PCSRBAR to access the DMA controller
+   on I/O device.
+
+   To qualify whether is EUMBBAR or PCSRBAR, one
+   additional parameter is requied from the host
+   system, LOCAL or REMOTE so that the base value
+   can be correctly interpreted.
+
+3. If the host system is also using the EPIC unit
+   on MPC8240, the system can register the
+   DMA_ISR with the EPIC including other
+   desired resources.
+
+   If the host system does not using the EPIC unit
+   on MPC8240, DMA_ISR function can be called for
+   each desired time interval.
+
+   In both cases, the host system is free to
+   provide its own interrupt service routine.
+
+4. To start a direct mode DMA transaction,
+   use DMA_Bld_Curr with the start parameter
+   set to 1.
+
+   To start a chaining mode DMA transaction,
+   the application shall build descriptors
+   in memory first, next, use DMA_Bld_Desp
+   with the start parameter set to 1.
+
+5. DMA_Start function clears, then sets the CS
+   bit of DMA mode register.
+
+   DMA_Halt function clears the CS bit of DMA
+   mode register.
+
+   These functions can be used to start and
+   halt the DMA transaction.
+
+   If the chaining descriptors has been
+   modified since the last time a DMA
+   transaction started, use DMA_Chn_Cnt
+   function to let DMA controller process
+   the modified descriptor chain without
+   stopping or disturbing the current DMA
+   transaction.
+
+   It is the host system's responsibility of
+   setting up the correct DMA transfer mode
+   and pass the correct memory address parameters.
+
+6. It is the host system's responsibility of
+   queueing the DMA I/O request. The host
+   system can call the DMA_ISR with its own
+   desired interrupt service subroutines to
+   handle each individual interrupt and queued
+   DMA I/O requests.
+
+7. The DMA driver routines contains a set
+   of utilities, Set and Get, for host system
+   to query and modify the desired DMA registers.
+
+

@@ -1,0 +1,101 @@
+/*
+ * (C) Copyright 2000
+ * Rob Taylor, Flying Pig Systems Ltd. robt@flyingpig.com
+ *
+ * See file CREDITS for list of people who contributed to this
+ * project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+ * MA 02111-1307 USA
+ */
+
+OUTPUT_ARCH(powerpc)
+SEARCH_DIR(/lib); SEARCH_DIR(/usr/lib); SEARCH_DIR(/usr/local/lib); SEARCH_DIR(/usr/local/powerpc-any-elf/lib);
+
+MEMORY {
+ 	ram  (!rx) : org = 0x00000000 , LENGTH = 8M
+ 	code (!rx) : org = 0x00002000 , LENGTH = (4M - 0x2000)
+ 	rom   (rx) : org = 0xfff00000 , LENGTH = 512K
+}
+
+SECTIONS
+{
+  _f_init = .;
+  PROVIDE(_f_init = .);
+  _f_init_rom = .;
+  PROVIDE(_f_init_rom = .);
+
+  .init : {
+      cpu/mpc824x/start.o	(.text)
+      *(.init)
+  } > ram
+  _init_size = SIZEOF(.init);
+  PROVIDE(_init_size = SIZEOF(.init));
+
+  ENTRY(_start)
+
+/*  _ftext = .;
+  _ftext_rom = .;
+  _text_size = SIZEOF(.text);
+ */
+  .text : {
+      *(.text)
+      *(.got1)
+      } > ram
+  .rodata : { *(.rodata) } > ram
+  .dtors : { *(.dtors) } > ram
+  .data : { *(.data) } > ram
+  .sdata : { *(.sdata) } > ram
+  .sdata2 : { *(.sdata2)
+      *(.got)
+    _GOT2_TABLE_ = .;
+    *(.got2)
+    _FIXUP_TABLE_ = .;
+    *(.fixup)
+    } > ram
+  __got2_entries = (_FIXUP_TABLE_ - _GOT2_TABLE_) >>2;
+  __fixup_entries = (. - _FIXUP_TABLE_)>>2;
+
+  .sbss : { *(.sbss) } > ram
+  .sbss2 : { *(.sbss2) } > ram
+  .bss : { *(.bss) } > ram
+  .debug : { *(.debug) } > ram
+  .line : { *(.line) } > ram
+  .symtab : { *(.symtab) } > ram
+  .shrstrtab : { *(.shstrtab) } > ram
+  .strtab : { *(.strtab) } > ram
+ /* .reloc   :
+  {
+    *(.got)
+    _GOT2_TABLE_ = .;
+    *(.got2)
+    _FIXUP_TABLE_ = .;
+    *(.fixup)
+  } > ram
+  */
+   __start___ex_table = .;
+    __ex_table : { *(__ex_table) } > ram
+    __stop___ex_table = .;
+
+
+  .ppcenv	:
+  {
+    common/environment.o (.ppcenv)
+  } > ram
+
+  _end = . ;
+  PROVIDE (end = .);
+}
+
