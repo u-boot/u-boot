@@ -159,6 +159,8 @@ int device_deregister(char *devname)
 int devices_init (void)
 {
 #ifndef CONFIG_ARM     /* already relocated for current ARM implementation */
+	DECLARE_GLOBAL_DATA_PTR;
+
 	ulong relocation_offset = gd->reloc_off;
 	int i;
 

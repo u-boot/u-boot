@@ -202,6 +202,7 @@ extern int transfer_pic(unsigned char, unsigned char *, int, int);
 /* change char* to void* to shutup the compiler */
 extern int i2c_write_multiple (uchar, uint, int, void *, int);
 extern int i2c_read_multiple (uchar, uint, int, void *, int);
+extern block_dev_desc_t *get_dev (char*, int);
 
 int
 au_check_valid(int idx, long nbytes)
@@ -220,68 +221,72 @@ au_check_valid(int idx, long nbytes)
 	printf("type %#x %#x ", hdr->ih_type, IH_TYPE_KERNEL);
 #endif
 	if (ntohl(hdr->ih_magic) != IH_MAGIC ||
-		hdr->ih_arch != IH_CPU_ARM ||
-		nbytes < ntohl(hdr->ih_size)) {
-	    printf ("Image %s bad MAGIC or ARCH or SIZE\n", aufile[idx]);
-	    return -1;
+	    hdr->ih_arch != IH_CPU_ARM ||
+	    nbytes < ntohl(hdr->ih_size))
+	{
+		printf ("Image %s bad MAGIC or ARCH or SIZE\n", aufile[idx]);
+		return -1;
 	}
 	/* check the hdr CRC */
 	checksum = ntohl(hdr->ih_hcrc);
 	hdr->ih_hcrc = 0;
 
 	if (crc32 (0, (char *)hdr, sizeof(*hdr)) != checksum) {
-	    printf ("Image %s bad header checksum\n", aufile[idx]);
-	    return -1;
+		printf ("Image %s bad header checksum\n", aufile[idx]);
+		return -1;
 	}
+	hdr->ih_hcrc = htonl(checksum);
 	/* check the data CRC */
 	checksum = ntohl(hdr->ih_dcrc);
 
 	if (crc32 (0, (char *)(LOAD_ADDR + sizeof(*hdr)), ntohl(hdr->ih_size))
 		!= checksum)
 	{
-	    printf ("Image %s bad data checksum\n", aufile[idx]);
-	    return -1;
+		printf ("Image %s bad data checksum\n", aufile[idx]);
+		return -1;
 	}
 	/* check the type - could do this all in one gigantic if() */
 	if ((idx == IDX_FIRMWARE) && (hdr->ih_type != IH_TYPE_FIRMWARE)) {
-	    printf ("Image %s wrong type\n", aufile[idx]);
-	    return -1;
+		printf ("Image %s wrong type\n", aufile[idx]);
+		return -1;
 	}
 	if ((idx == IDX_KERNEL) && (hdr->ih_type != IH_TYPE_KERNEL)) {
-	    printf ("Image %s wrong type\n", aufile[idx]);
-	    return -1;
+		printf ("Image %s wrong type\n", aufile[idx]);
+		return -1;
 	}
 	if ((idx == IDX_DISK || idx == IDX_APP)
 		&& (hdr->ih_type != IH_TYPE_RAMDISK))
 	{
-	    printf ("Image %s wrong type\n", aufile[idx]);
-	    return -1;
+		printf ("Image %s wrong type\n", aufile[idx]);
+		return -1;
 	}
 	if ((idx == IDX_PREPARE || idx == IDX_PREINST || idx == IDX_POSTINST)
 		&& (hdr->ih_type != IH_TYPE_SCRIPT))
 	{
-	    printf ("Image %s wrong type\n", aufile[idx]);
-	    return -1;
+		printf ("Image %s wrong type\n", aufile[idx]);
+		return -1;
 	}
 	/* special case for prepare.img */
 	if (idx == IDX_PREPARE)
 		return 0;
 	/* check the size does not exceed space in flash */
 	if ((ausize[idx] != 0) && (ausize[idx] < ntohl(hdr->ih_size))) {
-	    printf ("Image %s is bigger than FLASH\n", aufile[idx]);
-	    return -1;
+		printf ("Image %s is bigger than FLASH\n", aufile[idx]);
+		return -1;
 	}
 	/* check the time stamp from the EEPROM */
 	/* read it in */
 	i2c_read_multiple(0x54, auee_off[idx].time, 1, buf, sizeof(buf));
 #ifdef CHECK_VALID_DEBUG
-printf("buf[0] %#x buf[1] %#x buf[2] %#x buf[3] %#x as int %#x time %#x\n",
-buf[0], buf[1], buf[2], buf[3], *((unsigned int *)buf), ntohl(hdr->ih_time));
+	printf ("buf[0] %#x buf[1] %#x buf[2] %#x buf[3] %#x "
+		"as int %#x time %#x\n",
+		buf[0], buf[1], buf[2], buf[3],
+		*((unsigned int *)buf), ntohl(hdr->ih_time));
 #endif
 	/* check it */
 	if (*((unsigned int *)buf) >= ntohl(hdr->ih_time)) {
-	    printf ("Image %s is too old\n", aufile[idx]);
-	    return -1;
+		printf ("Image %s is too old\n", aufile[idx]);
+		return -1;
 	}
 
 	return 0;
@@ -292,7 +297,7 @@ buf[0], buf[1], buf[2], buf[3], *((unsigned int *)buf), ntohl(hdr->ih_time));
 #define POWER_OFF (1 << 1)
 
 int
-au_do_update(int idx, long sz)
+au_do_update(int idx, long sz, int repeat)
 {
 	image_header_t *hdr;
 	char *addr;
@@ -332,12 +337,17 @@ au_do_update(int idx, long sz)
 			FLAG_PARSE_SEMICOLON | FLAG_EXIT_FROM_LOOP);
 	}
 
-	/* erase the address range */
-	debug ("erase %lx %lx\n", start, end);
-	sprintf(strbuf, "erase %lx %lx\n", start, end);
-	parse_string_outer(strbuf,
-		FLAG_PARSE_SEMICOLON | FLAG_EXIT_FROM_LOOP);
-
+	/*
+	 * erase the address range. Multiple erases seem to cause
+	 * problems.
+	 */
+	if (repeat == 0) {
+		debug ("erase %lx %lx\n", start, end);
+		sprintf(strbuf, "erase %lx %lx\n", start, end);
+		parse_string_outer(strbuf,
+			FLAG_PARSE_SEMICOLON | FLAG_EXIT_FROM_LOOP);
+	}
+	wait_ms(100);
 	/* strip the header - except for the kernel */
 	if (idx == IDX_FIRMWARE || idx == IDX_DISK || idx == IDX_APP) {
 		addr = (char *)((char *)hdr + sizeof(*hdr));
@@ -361,16 +371,15 @@ au_do_update(int idx, long sz)
 		FLAG_PARSE_SEMICOLON | FLAG_EXIT_FROM_LOOP);
 
 	/* check the dcrc of the copy */
-	if (crc32 (0, (char *)(start + off), ntohl(hdr->ih_size))
-		!= ntohl(hdr->ih_dcrc)) {
-	    printf ("Image %s Bad Data Checksum After COPY\n", aufile[idx]);
-	    return -1;
+	if (crc32 (0, (char *)(start + off), ntohl(hdr->ih_size)) != ntohl(hdr->ih_dcrc)) {
+		printf ("Image %s Bad Data Checksum After COPY\n", aufile[idx]);
+		return -1;
 	}
 
 	/* protect the address range */
 	/* this assumes that ONLY the firmware is protected! */
 	if (idx == IDX_FIRMWARE) {
-		printf("protect on %lx %lx\n", start, end);
+		debug ("protect on %lx %lx\n", start, end);
 		sprintf(strbuf, "protect on %lx %lx\n", start, end);
 		parse_string_outer(strbuf,
 			FLAG_PARSE_SEMICOLON | FLAG_EXIT_FROM_LOOP);
@@ -413,8 +422,9 @@ do_auto_update(void)
 {
 	block_dev_desc_t *stor_dev;
 	long sz;
-	int i, res, bitmap_first, cnt;
+	int i, res, bitmap_first, cnt, old_ctrlc, got_ctrlc;
 	char *env;
+	long start, end;
 
 #undef ERASE_EEPROM
 #ifdef ERASE_EEPROM
@@ -442,8 +452,8 @@ do_auto_update(void)
 		return -1;
 	}
 	/* check whether it has a partition table */
-	stor_dev = usb_stor_get_dev(au_usb_stor_curr_dev);
-	if (stor_dev->type == DEV_TYPE_UNKNOWN) {
+	stor_dev = get_dev("usb", 0);
+	if (stor_dev == NULL) {
 		debug ("uknown device type\n");
 		return -1;
 	}
@@ -471,6 +481,49 @@ do_auto_update(void)
 	ausize[IDX_KERNEL] = (AU_FL_KERNEL_ND + 1) - AU_FL_KERNEL_ST;
 	ausize[IDX_APP] = (AU_FL_APP_ND + 1) - AU_FL_APP_ST;
 	ausize[IDX_DISK] = (AU_FL_DISK_ND + 1) - AU_FL_DISK_ST;
+	/*
+	 * now check whether start and end are defined using environment
+	 * variables.
+	 */
+	start = end = 0;
+	env = getenv("firmware_st");
+	if (env != NULL)
+		start = simple_strtoul(env, NULL, 16);
+	env = getenv("firmware_nd");
+	if (env != NULL)
+		end = simple_strtoul(env, NULL, 16);
+	if (start && end && end > start)
+		ausize[IDX_FIRMWARE] = (end + 1) - start;
+	start = end = 0;
+	env = getenv("kernel_st");
+	if (env != NULL)
+		start = simple_strtoul(env, NULL, 16);
+	env = getenv("kernel_nd");
+	if (env != NULL)
+		end = simple_strtoul(env, NULL, 16);
+	if (start && end && end > start)
+		ausize[IDX_KERNEL] = (end + 1) - start;
+	start = end = 0;
+	env = getenv("app_st");
+	if (env != NULL)
+		start = simple_strtoul(env, NULL, 16);
+	env = getenv("app_nd");
+	if (env != NULL)
+		end = simple_strtoul(env, NULL, 16);
+	if (start && end && end > start)
+		ausize[IDX_APP] = (end + 1) - start;
+	start = end = 0;
+	env = getenv("disk_st");
+	if (env != NULL)
+		start = simple_strtoul(env, NULL, 16);
+	env = getenv("disk_nd");
+	if (env != NULL)
+		end = simple_strtoul(env, NULL, 16);
+	if (start && end && end > start)
+		ausize[IDX_DISK] = (end + 1) - start;
+	/* make sure that we see CTRL-C and save the old state */
+	old_ctrlc = disable_ctrlc(0);
+
 	bitmap_first = 0;
 	/* just loop thru all the possible files */
 	for (i = 0; i < AU_MAXFILES; i++) {
@@ -509,18 +562,33 @@ do_auto_update(void)
 		/* this is really not a good idea, but it's what the */
 		/* customer wants. */
 		cnt = 0;
+		got_ctrlc = 0;
 		do {
-			res = au_do_update(i, sz);
-#ifdef AU_TEST_ONLY
+			res = au_do_update(i, sz, cnt);
+			/* let the user break out of the loop */
+			if (ctrlc() || had_ctrlc()) {
+				clear_ctrlc();
+				if (res < 0)
+					got_ctrlc = 1;
+				break;
+			}
 			cnt++;
+#ifdef AU_TEST_ONLY
 		} while (res < 0 && cnt < 3);
 		if (cnt < 3)
 #else
 		} while (res < 0);
 #endif
-		au_update_eeprom(i);
+		/*
+		 * it doesn't make sense to update the EEPROM if the
+		 * update was interrupted by the user due to errors.
+		 */
+		if (got_ctrlc == 0)
+			au_update_eeprom(i);
 	}
 	usb_stop();
+	/* restore the old state */
+	disable_ctrlc(old_ctrlc);
 	return 0;
 }
 #endif /* CONFIG_AUTO_UPDATE */
