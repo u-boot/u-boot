@@ -2,6 +2,13 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Patch by Stefan Roese, 12 Sep 2003:
+  - new boards added: DP405, HUB405, PLU405, VOH405
+  - some esd boards updated
+  - cpu/ppc4xx/sdram.c: disable memory controller before setting
+    first values
+  - cpu/ppc4xx/405_pci.c: set vendor id on PPC405EP systems
+
 * Patch by Martin Krause, 11 Sep 2003:
   add burn-in tests for TRAB board
 
