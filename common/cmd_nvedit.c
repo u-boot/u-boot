@@ -42,6 +42,7 @@
 #include <common.h>
 #include <command.h>
 #include <environment.h>
+#include <watchdog.h>
 #include <cmd_nvedit.h>
 #include <linux/stddef.h>
 #include <asm/byteorder.h>
@@ -458,6 +459,8 @@ int do_askenv ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 char *getenv (uchar *name)
 {
 	int i, nxt;
+
+	WATCHDOG_RESET();
 
 	for (i=0; env_get_char(i) != '\0'; i=nxt+1) {
 		int val;

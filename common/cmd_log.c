@@ -92,7 +92,7 @@ void logbuff_log(char *msg)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
-	if (gd->flags & GD_FLG_RELOC) {
+	if ((gd->flags & GD_FLG_RELOC)&&(getenv ("logstart") != NULL)) {
 		logbuff_printk(msg);
 	} else {
 		puts(msg);
@@ -109,10 +109,10 @@ void logbuff_reset (void)
 		ext_tag=(unsigned long *)(log_buf)-3;
 		ext_log_start=(unsigned long *)(log_buf)-2;
 		ext_logged_chars=(unsigned long *)(log_buf)-1;
-//		if (*ext_tag!=LOGBUFF_MAGIC) {
+/*		if (*ext_tag!=LOGBUFF_MAGIC) {	*/
 			logged_chars=log_start=0;
 			*ext_tag=LOGBUFF_MAGIC;
-//		}
+/*		}	*/
 		log_size=logged_chars;
 	}
 }

@@ -41,7 +41,7 @@
 #define	CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
 #undef	CONFIG_8xx_CONS_SMC2
 #undef	CONFIG_8xx_CONS_NONE
-#define CONFIG_BAUDRATE		115200	/* console baudrate = 115kbps	*/
+#define CONFIG_BAUDRATE		9600	/* console baudrate		*/
 #if 0
 #define CONFIG_BOOTDELAY	-1	/* autoboot disabled		*/
 #else
