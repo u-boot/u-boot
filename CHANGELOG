@@ -2,6 +2,13 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Yuli Barcohen, 16 Jun 2004:
+  Remove obsolete AdderII port which was superseded by unified
+  AdderII/Adder87x port
+
+* Patch by Ladislav Michl, 16 Jun 2004:
+  Fix gcc-3.3.3 warnings for smc91111.c
+
 * Patch by Stefan Roese, 02 Jul 2004:
   - Fix bug in 405 ethernet driver; allocated data not cleared!
   - Fix problem in 405 i2c driver; don't try to print without console!

@@ -33,7 +33,7 @@ LIST_5xxx="	\
 #########################################################################
 
 LIST_8xx="	\
-	Adder		GENIETV		MBX860T		RBC823		\
+	Adder87x	GENIETV		MBX860T		RBC823		\
 	AdderII		GTH		MHPC		rmu		\
 	ADS860		hermes		MPC86xADS	RPXClassic	\
 	AMX860		IAD210		MPC885ADS	RPXlite		\

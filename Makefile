@@ -276,14 +276,11 @@ PM520_ROMBOOT_DDR_config:	unconfig
 
 Adder_config    \
 Adder87x_config \
-Adder852_config \
+AdderII_config  \
 	:		unconfig
-	$(if $(findstring 852,$@), \
+	$(if $(findstring AdderII,$@), \
 	@echo "#define CONFIG_MPC852T" > include/config.h)
 	@./mkconfig -a Adder ppc mpc8xx adder
-
-AdderII_config:	unconfig
-	@./mkconfig $(@:_config=) ppc mpc8xx adderII
 
 ADS860_config     \
 FADS823_config    \

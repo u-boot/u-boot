@@ -1414,7 +1414,7 @@ static void smc_phy_configure ()
 	/* Re-Configure the Receive/Phy Control register */
 	SMC_outw (RPC_DEFAULT, RPC_REG);
 
-      smc_phy_configure_exit:
+smc_phy_configure_exit:	;
 
 }
 #endif /* !CONFIG_SMC91111_EXT_PHY */

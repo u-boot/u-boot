@@ -126,6 +126,8 @@
 #define CFG_OR0_PRELIM		0xFF000774
 #define CFG_BR0_PRELIM		(CFG_FLASH_BASE | BR_PS_16 | BR_MS_GPCM | BR_V)
 
+#define	CFG_DIRECT_FLASH_TFTP
+
 /*-----------------------------------------------------------------------
  * Internal Memory Map Register
  */
