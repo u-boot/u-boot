@@ -196,7 +196,12 @@ int checkboard (void)
 
 long int initdram (int board_type)
 {
-	return (16 * 1024 * 1024);
+	unsigned long val;
+
+	mtdcr(memcfga, mem_mb0cf);
+	val = mfdcr(memcfgd);
+
+	return (4*1024*1024 << ((val & 0x000e0000) >> 17));
 }
 
 /* ------------------------------------------------------------------------- */
@@ -209,4 +214,225 @@ int testdram (void)
 	return (0);
 }
 
-/* ------------------------------------------------------------------------- */
+
+#if 1 /* test-only: some internal test routines... */
+/*
+ * Some test routines
+ */
+int do_digtest(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	volatile uchar *digen = (volatile uchar *)0xf03000b4;
+	volatile ushort *digout = (volatile ushort *)0xf03000b0;
+	volatile ushort *digin = (volatile ushort *)0xf03000a0;
+	int i;
+	int k;
+	int start;
+	int end;
+
+	if (argc != 3) {
+		puts("Usage: digtest n_start n_end (digtest 0 7)\n");
+		return 0;
+	}
+
+	start = simple_strtol (argv[1], NULL, 10);
+	end = simple_strtol (argv[2], NULL, 10);
+
+	/*
+	 * Enable digital outputs
+	 */
+	*digen = 0x08;
+
+	printf("\nStarting digital In-/Out Test from I/O %d to %d (Cntrl-C to abort)...\n",
+	       start, end);
+
+	/*
+	 * Set outputs one by one
+	 */
+	for (;;) {
+		for (i=start; i<=end; i++) {
+			*digout = 0x0001 << i;
+			for (k=0; k<200; k++)
+				udelay(1000);
+
+			if (*digin != (0x0001 << i)) {
+				printf("ERROR: OUT=0x%04X, IN=0x%04X\n", 0x0001 << i, *digin);
+				return 0;
+			}
+
+			/* Abort if ctrl-c was pressed */
+			if (ctrlc()) {
+				puts("\nAbort\n");
+				return 0;
+			}
+		}
+	}
+
+	return 0;
+}
+U_BOOT_CMD(
+	digtest,	3,	1,	do_digtest,
+	"digtest - Test digital in-/output\n",
+	NULL
+	);
+
+
+#define ERROR_DELTA     256
+
+struct io {
+	volatile short val;
+	short dummy;
+};
+
+int do_anatest(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	volatile short val;
+	int i;
+	int volt;
+	struct io *out;
+	struct io *in;
+
+	out = (struct io *)0xf0300090;
+	in = (struct io *)0xf0300000;
+
+	i = simple_strtol (argv[1], NULL, 10);
+
+	volt = 0;
+	printf("Setting Channel %d to %dV...\n", i, volt);
+	out[i].val = (volt * 0x7fff) / 10;
+	udelay(10000);
+	val = in[i*2].val;
+	printf("-> InChannel %d: 0x%04x=%dV\n", i*2, val, (val * 4000) / 0x7fff);
+	if ((val < ((volt * 0x7fff) / 40) - ERROR_DELTA) ||
+	    (val > ((volt * 0x7fff) / 40) + ERROR_DELTA)) {
+		printf("ERROR! (min=0x%04x max=0x%04x)\n", ((volt * 0x7fff) / 40) - ERROR_DELTA,
+		       ((volt * 0x7fff) / 40) + ERROR_DELTA);
+		return -1;
+	}
+	val = in[i*2+1].val;
+	printf("-> InChannel %d: 0x%04x=%dV\n", i*2+1, val, (val * 4000) / 0x7fff);
+	if ((val < ((volt * 0x7fff) / 40) - ERROR_DELTA) ||
+	    (val > ((volt * 0x7fff) / 40) + ERROR_DELTA)) {
+		printf("ERROR! (min=0x%04x max=0x%04x)\n", ((volt * 0x7fff) / 40) - ERROR_DELTA,
+		       ((volt * 0x7fff) / 40) + ERROR_DELTA);
+		return -1;
+	}
+
+	volt = 5;
+	printf("Setting Channel %d to %dV...\n", i, volt);
+	out[i].val = (volt * 0x7fff) / 10;
+	udelay(10000);
+	val = in[i*2].val;
+	printf("-> InChannel %d: 0x%04x=%dV\n", i*2, val, (val * 4000) / 0x7fff);
+	if ((val < ((volt * 0x7fff) / 40) - ERROR_DELTA) ||
+	    (val > ((volt * 0x7fff) / 40) + ERROR_DELTA)) {
+		printf("ERROR! (min=0x%04x max=0x%04x)\n", ((volt * 0x7fff) / 40) - ERROR_DELTA,
+		       ((volt * 0x7fff) / 40) + ERROR_DELTA);
+		return -1;
+	}
+	val = in[i*2+1].val;
+	printf("-> InChannel %d: 0x%04x=%dV\n", i*2+1, val, (val * 4000) / 0x7fff);
+	if ((val < ((volt * 0x7fff) / 40) - ERROR_DELTA) ||
+	    (val > ((volt * 0x7fff) / 40) + ERROR_DELTA)) {
+		printf("ERROR! (min=0x%04x max=0x%04x)\n", ((volt * 0x7fff) / 40) - ERROR_DELTA,
+		       ((volt * 0x7fff) / 40) + ERROR_DELTA);
+		return -1;
+	}
+
+	volt = 10;
+	printf("Setting Channel %d to %dV...\n", i, volt);
+	out[i].val = (volt * 0x7fff) / 10;
+	udelay(10000);
+	val = in[i*2].val;
+	printf("-> InChannel %d: 0x%04x=%dV\n", i*2, val, (val * 4000) / 0x7fff);
+	if ((val < ((volt * 0x7fff) / 40) - ERROR_DELTA) ||
+	    (val > ((volt * 0x7fff) / 40) + ERROR_DELTA)) {
+		printf("ERROR! (min=0x%04x max=0x%04x)\n", ((volt * 0x7fff) / 40) - ERROR_DELTA,
+		       ((volt * 0x7fff) / 40) + ERROR_DELTA);
+		return -1;
+	}
+	val = in[i*2+1].val;
+	printf("-> InChannel %d: 0x%04x=%dV\n", i*2+1, val, (val * 4000) / 0x7fff);
+	if ((val < ((volt * 0x7fff) / 40) - ERROR_DELTA) ||
+	    (val > ((volt * 0x7fff) / 40) + ERROR_DELTA)) {
+		printf("ERROR! (min=0x%04x max=0x%04x)\n", ((volt * 0x7fff) / 40) - ERROR_DELTA,
+		       ((volt * 0x7fff) / 40) + ERROR_DELTA);
+		return -1;
+	}
+
+	printf("Channel %d OK!\n", i);
+
+	return 0;
+}
+U_BOOT_CMD(
+	anatest,	2,	1,	do_anatest,
+	"anatest - Test analog in-/output\n",
+	NULL
+	);
+
+
+int counter = 0;
+
+void cyclicInt(void *ptr)
+{
+	*(ushort *)0xf03000e8 = 0x0800; /* ack int */
+	counter++;
+}
+
+
+int do_inctest(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	volatile uchar *digout = (volatile uchar *)0xf03000b4;
+	volatile ulong *incin;
+	int i;
+
+	incin = (volatile ulong *)0xf0300040;
+
+	/*
+	 * Clear inc counter
+	 */
+	incin[0] = 0;
+	incin[1] = 0;
+	incin[2] = 0;
+	incin[3] = 0;
+
+	incin = (volatile ulong *)0xf0300050;
+
+	/*
+	 * Inc a little
+	 */
+	for (i=0; i<10000; i++) {
+		switch (i & 0x03) {
+		case 0:
+			*digout = 0x02;
+			break;
+		case 1:
+			*digout = 0x03;
+			break;
+		case 2:
+			*digout = 0x01;
+			break;
+		case 3:
+			*digout = 0x00;
+			break;
+		}
+		udelay(10);
+	}
+
+	printf("Inc 0 = %ld\n", incin[0]);
+	printf("Inc 1 = %ld\n", incin[1]);
+	printf("Inc 2 = %ld\n", incin[2]);
+	printf("Inc 3 = %ld\n", incin[3]);
+
+	*(ushort *)0xf03000e0 = 0x0c80-1; /* set counter */
+	*(ushort *)0xf03000ec |= 0x0800; /* enable int */
+	irq_install_handler (30, (interrupt_handler_t *) cyclicInt, NULL);
+	printf("counter=%d\n", counter);
+
+	return 0;
+}
+U_BOOT_CMD(
+	inctest,	3,	1,	do_inctest,
+	"inctest - Test incremental encoder inputs\n",
+	NULL
+	);
+#endif

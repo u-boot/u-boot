@@ -83,7 +83,10 @@ SECTIONS
     common/lists.o		(.text)
     common/main.o		(.text)
 
-    . = env_offset;
+/*
+    . = DEFINED(env_offset) ? env_offset : .;
+    common/environment.o	(.ppcenv)
+*/
     common/environment.o	(.text)
 
     *(.text)
