@@ -131,6 +131,28 @@ void set_timer (ulong t)
 
 void udelay(unsigned long usec)
 {
+	volatile unsigned short *timerp;
+	uint tmp;
+
+	timerp = (volatile unsigned short *) (CFG_MBAR + MCFTIMER_BASE3);
+	
+	while (usec > 0) {
+		if (usec > 65000)
+			tmp = 65000;
+		else
+			tmp = usec;
+		usec = usec - tmp;
+
+		/* Set up TIMER 3 as timebase clock */
+		timerp[MCFTIMER_PCSR] = MCFTIMER_PCSR_OVW;
+		timerp[MCFTIMER_PMR] = 0;
+		/* set period to 1 us */
+		timerp[MCFTIMER_PCSR] =
+			(5 << 8) | MCFTIMER_PCSR_EN | MCFTIMER_PCSR_OVW;
+
+                timerp[MCFTIMER_PMR] = tmp;
+		while (timerp[MCFTIMER_PCNTR] > 0);
+	}
 }
 
 void timer_init (void)
