@@ -46,7 +46,7 @@
 struct interrupt_action {
 	interrupt_handler_t *handler;
 	void *arg;
-}
+};
 
 static struct interrupt_action irq_vecs[NR_IRQS];
 
