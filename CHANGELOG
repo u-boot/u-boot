@@ -2,6 +2,8 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Add generic filesystem image type
+
 * Make fatload set filesize environment variable
 
 * enable basic / medium / high-end configurations for PPChameleonEVB

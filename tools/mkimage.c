@@ -110,6 +110,7 @@ table_entry_t type_name[] = {
     {	IH_TYPE_MULTI,	    "multi",	  "Multi-File Image",	},
     {	IH_TYPE_FIRMWARE,   "firmware",	  "Firmware",		},
     {	IH_TYPE_SCRIPT,     "script",	  "Script",		},
+    {	IH_TYPE_FILESYSTEM, "filesystem", "Filesystem Image",	},
     {	-1,		    "",		  "",			},
 };
 
