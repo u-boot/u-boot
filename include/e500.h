@@ -20,13 +20,28 @@ typedef struct
  * initial memory mapping like legacy BAT registers do. Usually we
  * use four MAS registers(MAS0-3) to operate on TLB1 entries.
  *
+ * While there are 16 Entries with variable Page Sizes in TLB1,
+ * there are also 256 Entries with fixed 4K pages in TLB0.
+ *
  * We also need LAWs(Local Access Window) to associate a range of
  * the local 32-bit address space with a particular target interface
  * such as PCI/PCI-X, RapidIO, Local Bus and DDR SDRAM.
  *
  * We put TLB1/LAW code here because memory mapping is board-specific
  * instead of cpu-specific.
+ *
+ * While these macros are all nominally for TLB1 by name, they can
+ * also be used for TLB0 as well.
  */
+
+
+/*
+ * Convert addresses to Effective and Real Page Numbers.
+ * Grab the high 20-bits and shift 'em down, dropping the "byte offset".
+ */
+#define E500_TLB_EPN(addr)	(((addr) >> 12) & 0xfffff)
+#define E500_TLB_RPN(addr)	(((addr) >> 12) & 0xfffff)
+
 
 /* MAS0
  * tlbsel(TLB Select):0,1

@@ -218,7 +218,19 @@ _start_e500:
 	mtspr   MMUCSR0, r2
 	isync
 
-	/* After reset, CCSRBAR is located at CFG_CCSRBAR_DEFAULT, i.e.
+	/*
+	 * Invalidate all TLB0 entries.
+	 */
+	li 	r3,4
+	li	r4,0
+	tlbivax	r4,r3
+	/*
+	 * To avoid REV1 Errata CPU6 issues, make sure
+	 * the instruction following tlbivax is not a store.
+	 */
+
+	/*
+	 * After reset, CCSRBAR is located at CFG_CCSRBAR_DEFAULT, i.e.
 	 * 0xff700000-0xff800000. We need add a TLB1 entry for this 1MB
 	 * region before we can access any CCSR registers such as L2
 	 * registers, Local Access Registers,etc. We will also re-allocate
@@ -230,7 +242,7 @@ _start_e500:
 	 */
 	bl 	tlb1_entry
 	mr	r5,r0
-	li	r1,0x000f	/* max 16 TLB1 entries */
+	li	r1,0x0020	/* max 16 TLB1 plus some TLB0 entries */
 	mtctr	r1
 	lwzu	r4,0(r5)	/* how many TLB1 entries we actually use */
 
@@ -273,15 +285,6 @@ _start_e500:
 	isync
 #endif
 
-	/*  invalidate all TLB0 entries */
-	li 	r3,4
-	li	r4,0
-	tlbivax	r4,r3
-	/*
-	 * To avoid REV1 Errata CPU6 issues, make sure
-	 * the instruction following tlbivax is not a store.
-	 */
-
 
 	/* set up local access windows, defined at board/<boardname>/init.S */
 	lis	r7,CFG_CCSRBAR@h
@@ -289,21 +292,12 @@ _start_e500:
 
 	bl 	law_entry
 	mr	r6,r0
-#if  defined(CONFIG_RAM_AS_FLASH)
-	li	r1,0x0006
-#else
-	li	r1,0x0007	/*we have 8 LAWs, but reseve one for boot-over-rio-or-pci */
-#endif
+	li	r1,0x0007	/* 8 LAWs, but reserve one for boot-over-rio-or-pci */
 	mtctr	r1
 	lwzu	r5,0(r6)	/* how many windows we actually use */
 
-#if defined(CONFIG_RAM_AS_FLASH)
-	li 	r2,0x0c48
-	li	r1,0x0c50
-#else
 	li	r2,0x0c28	/* the first pair is reserved for boot-over-rio-or-pci */
 	li	r1,0x0c30
-#endif
 
 0:	cmpwi	r5,0
 	beq	1f

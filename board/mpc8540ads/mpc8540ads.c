@@ -26,6 +26,7 @@
 
 
 #include <common.h>
+#include <pci.h>
 #include <asm/processor.h>
 #include <asm/immap_85xx.h>
 #include <spd.h>
@@ -36,6 +37,7 @@ extern void ddr_enable_ecc(unsigned int dram_size);
 
 extern long int spd_sdram(void);
 
+void local_bus_init(void);
 void sdram_init(void);
 long int fixed_sdram(void);
 
@@ -43,13 +45,13 @@ long int fixed_sdram(void);
 int board_early_init_f (void)
 {
 #if defined(CONFIG_PCI)
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
-	volatile ccsr_pcix_t *pci = &immr->im_pcix;
+    volatile immap_t *immr = (immap_t *)CFG_IMMR;
+    volatile ccsr_pcix_t *pci = &immr->im_pcix;
 
-	pci->peer &= 0xffffffdf;	/* disable master abort */
+    pci->peer &= 0xffffffdf; /* disable master abort */
 #endif
 
-	return 0;
+    return 0;
 }
 
 int checkboard (void)
@@ -62,6 +64,11 @@ int checkboard (void)
 #else
 	printf("    PCI1: disabled\n");
 #endif
+
+	/*
+	 * Initialize local bus.
+	 */
+	local_bus_init();
 
 	return 0;
 }
@@ -78,15 +85,15 @@ initdram(int board_type)
 
 #if defined(CONFIG_DDR_DLL)
 	{
-		volatile ccsr_gur_t *gur= &immap->im_gur;
-		uint temp_ddrdll = 0;
+	    volatile ccsr_gur_t *gur= &immap->im_gur;
+	    uint temp_ddrdll = 0;
 
-		/*
-		* Work around to stabilize DDR DLL
-		*/
-		temp_ddrdll = gur->ddrdllcr;
-		gur->ddrdllcr = ((temp_ddrdll & 0xff) << 16) | 0x80000000;
-		asm("sync;isync;msync");
+	    /*
+	     * Work around to stabilize DDR DLL
+	     */
+	    temp_ddrdll = gur->ddrdllcr;
+	    gur->ddrdllcr = ((temp_ddrdll & 0xff) << 16) | 0x80000000;
+	    asm("sync;isync;msync");
 	}
 #endif
 
@@ -114,55 +121,79 @@ initdram(int board_type)
 
 
 /*
- * Initialize SDRAM memory on the Local Bus.
+ * Initialize Local Bus
  */
 
-void sdram_init (void)
+void
+local_bus_init(void)
 {
-#if !defined(CONFIG_RAM_AS_FLASH)
-	sys_info_t sysinfo;
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile ccsr_gur_t *gur = &immap->im_gur;
 	volatile ccsr_lbc_t *lbc = &immap->im_lbc;
-	uint *sdram_addr = (uint *) CFG_LBC_SDRAM_BASE;
 
-	puts ("    SDRAM: ");
-	print_size (CFG_LBC_SDRAM_SIZE * 1024 * 1024, "\n");
-
-	/*
-	 * LocalBus SDRAM is not emulating flash.
-	 */
+	uint clkdiv;
+	uint lbc_hz;
+	sys_info_t sysinfo;
 
 	/*
-	 * Fix Local Bus clock glitch.  Errata LBC11.
+	 * Errata LBC11.
+	 * Fix Local Bus clock glitch when DLL is enabled.
 	 *
-	 * If localbus freq is less than 66Mhz, use bypass mode,
-	 * otherwise use DLL.
-	 * lcrr is the local-bus clock ratio register.
+	 * If localbus freq is < 66Mhz, DLL bypass mode must be used.
+	 * If localbus freq is > 133Mhz, DLL can be safely enabled.
+	 * Between 66 and 133, the DLL is enabled with an override workaround.
 	 */
-	get_sys_info (&sysinfo);
-	if (sysinfo.freqSystemBus / (CFG_LBC_LCRR & 0x0f) < 66000000) {
-		lbc->lcrr = (CFG_LBC_LCRR & 0x0fffffff) | 0x80000000;
+
+	get_sys_info(&sysinfo);
+	clkdiv = lbc->lcrr & 0x0f;
+	lbc_hz = sysinfo.freqSystemBus / 1000000 / clkdiv;
+
+	if (lbc_hz < 66) {
+		lbc->lcrr = CFG_LBC_LCRR | 0x80000000;	/* DLL Bypass */
+
+	} else if (lbc_hz >= 133) {
+		lbc->lcrr = CFG_LBC_LCRR & (~0x80000000); /* DLL Enabled */
 
 	} else {
 		/*
 		 * On REV1 boards, need to change CLKDIV before enable DLL.
 		 * Default CLKDIV is 8, change it to 4 temporarily.
 		 */
-		volatile ccsr_gur_t *gur = &immap->im_gur;
-		uint pvr = get_pvr ();
+		uint pvr = get_pvr();
 		uint temp_lbcdll = 0;
 
 		if (pvr == PVR_85xx_REV1) {
+			/* FIXME: Justify the high bit here. */
 			lbc->lcrr = 0x10000004;
 		}
 
-		/* FIXME: jdl  Should lcrr have 0x8000000 OR'ed in here too? */
-		lbc->lcrr = CFG_LBC_LCRR & 0x7fffffff;
-		udelay (200);
+		lbc->lcrr = CFG_LBC_LCRR & (~0x80000000); /* DLL Enabled */
+		udelay(200);
+
+		/*
+		 * Sample LBC DLL ctrl reg, upshift it to set the
+		 * override bits.
+		 */
 		temp_lbcdll = gur->lbcdllcr;
-		gur->lbcdllcr = ((temp_lbcdll & 0xff) << 16) | 0x80000000;
-		asm ("sync;isync;msync");
+		gur->lbcdllcr = (((temp_lbcdll & 0xff) << 16) | 0x80000000);
+		asm("sync;isync;msync");
 	}
+}
+
+
+/*
+ * Initialize SDRAM memory on the Local Bus.
+ */
+
+void
+sdram_init(void)
+{
+	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile ccsr_lbc_t *lbc= &immap->im_lbc;
+	uint *sdram_addr = (uint *)CFG_LBC_SDRAM_BASE;
+
+	puts("    SDRAM: ");
+	print_size (CFG_LBC_SDRAM_SIZE * 1024 * 1024, "\n");
 
 	/*
 	 * Setup SDRAM Base and Option Registers
@@ -170,46 +201,44 @@ void sdram_init (void)
 	lbc->or2 = CFG_OR2_PRELIM;
 	lbc->br2 = CFG_BR2_PRELIM;
 	lbc->lbcr = CFG_LBC_LBCR;
-	asm ("msync");
+	asm("msync");
 
 	lbc->lsrt = CFG_LBC_LSRT;
 	lbc->mrtpr = CFG_LBC_MRTPR;
-	asm ("sync");
+	asm("sync");
 
 	/*
 	 * Configure the SDRAM controller.
 	 */
 	lbc->lsdmr = CFG_LBC_LSDMR_1;
-	asm ("sync");
+	asm("sync");
 	*sdram_addr = 0xff;
-	ppcDcbf ((unsigned long) sdram_addr);
-	udelay (100);
+	ppcDcbf((unsigned long) sdram_addr);
+	udelay(100);
 
 	lbc->lsdmr = CFG_LBC_LSDMR_2;
-	asm ("sync");
+	asm("sync");
 	*sdram_addr = 0xff;
-	ppcDcbf ((unsigned long) sdram_addr);
-	udelay (100);
+	ppcDcbf((unsigned long) sdram_addr);
+	udelay(100);
 
 	lbc->lsdmr = CFG_LBC_LSDMR_3;
-	asm ("sync");
+	asm("sync");
 	*sdram_addr = 0xff;
-	ppcDcbf ((unsigned long) sdram_addr);
-	udelay (100);
+	ppcDcbf((unsigned long) sdram_addr);
+	udelay(100);
 
 	lbc->lsdmr = CFG_LBC_LSDMR_4;
-	asm ("sync");
+	asm("sync");
 	*sdram_addr = 0xff;
-	ppcDcbf ((unsigned long) sdram_addr);
-	udelay (100);
+	ppcDcbf((unsigned long) sdram_addr);
+	udelay(100);
 
 	lbc->lsdmr = CFG_LBC_LSDMR_5;
-	asm ("sync");
+	asm("sync");
 	*sdram_addr = 0xff;
-	ppcDcbf ((unsigned long) sdram_addr);
-	udelay (100);
-
-#endif
+	ppcDcbf((unsigned long) sdram_addr);
+	udelay(100);
 }
 
 
@@ -282,3 +311,41 @@ long int fixed_sdram (void)
 	return CFG_SDRAM_SIZE * 1024 * 1024;
 }
 #endif	/* !defined(CONFIG_SPD_EEPROM) */
+
+
+#if defined(CONFIG_PCI)
+/*
+ * Initialize PCI Devices, report devices found.
+ */
+
+#ifndef CONFIG_PCI_PNP
+static struct pci_config_table pci_mpc85xxads_config_table[] = {
+    { PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
+      PCI_IDSEL_NUMBER, PCI_ANY_ID,
+      pci_cfgfunc_config_device, { PCI_ENET0_IOADDR,
+				   PCI_ENET0_MEMADDR,
+				   PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER
+      } },
+    { }
+};
+#endif
+
+
+static struct pci_controller hose = {
+#ifndef CONFIG_PCI_PNP
+	config_table: pci_mpc85xxads_config_table,
+#endif
+};
+
+#endif	/* CONFIG_PCI */
+
+
+void
+pci_init_board(void)
+{
+#ifdef CONFIG_PCI
+	extern void pci_mpc85xx_init(struct pci_controller *hose);
+
+	pci_mpc85xx_init(&hose);
+#endif /* CONFIG_PCI */
+}

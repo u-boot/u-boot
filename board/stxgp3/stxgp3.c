@@ -32,6 +32,7 @@
 extern long int spd_sdram (void);
 
 #include <common.h>
+#include <pci.h>
 #include <asm/processor.h>
 #include <asm/immap_85xx.h>
 #include <ioports.h>
@@ -198,7 +199,8 @@ const iop_conf_t iop_conf_tab[4][32] = {
 static	uint64_t	next_led_update;
 static	uint		led_bit;
 
-int board_pre_init (void)
+int
+board_early_init_f(void)
 {
 #if defined(CONFIG_PCI)
     volatile immap_t *immr = (immap_t *)CFG_IMMR;
@@ -209,7 +211,8 @@ int board_pre_init (void)
 	return 0;
 }
 
-void reset_phy (void)
+void
+reset_phy(void)
 {
 	volatile uint *blatch;
 
@@ -243,25 +246,10 @@ void reset_phy (void)
 #endif
 }
 
-int checkboard (void)
+int
+checkboard(void)
 {
-	sys_info_t sysinfo;
-
-	get_sys_info (&sysinfo);
-
 	printf ("Board: Silicon Tx GPPP 8560 Board\n");
-	printf ("\tCPU: %lu MHz\n", sysinfo.freqProcessor / 1000000);
-	printf ("\tCCB: %lu MHz\n", sysinfo.freqSystemBus / 1000000);
-	printf ("\tDDR: %lu MHz\n", sysinfo.freqSystemBus / 2000000);
-	if((CFG_LBC_LCRR & 0x0f) == 2 || (CFG_LBC_LCRR & 0x0f) == 4 \
-		|| (CFG_LBC_LCRR & 0x0f) == 8) {
-		printf ("\tLBC: %lu MHz\n", sysinfo.freqSystemBus / 1000000 /(CFG_LBC_LCRR & 0x0f));
-	} else {
-		printf("\tLBC: unknown\n");
-	}
-	printf("\tCPM: %lu Mhz\n", sysinfo.freqSystemBus / 1000000);
-	printf("L1 D-cache 32KB, L1 I-cache 32KB enabled.\n");
-
 	return (0);
 }
 
@@ -285,68 +273,31 @@ show_activity(int flag)
 	next_led_update += (get_tbclk() / 4);
 }
 
-long int initdram (int board_type)
+long int
+initdram (int board_type)
 {
 	long dram_size = 0;
 	extern long spd_sdram (void);
 	volatile immap_t *immap = (immap_t *)CFG_IMMR;
 
 #if defined(CONFIG_DDR_DLL)
-	volatile ccsr_gur_t *gur= &immap->im_gur;
-	uint temp_ddrdll = 0;
+	{
+		volatile ccsr_gur_t *gur= &immap->im_gur;
+		uint temp_ddrdll = 0;
 
-	/* Work around to stabilize DDR DLL */
-	temp_ddrdll = gur->ddrdllcr;
-	gur->ddrdllcr = ((temp_ddrdll & 0xff) << 16) | 0x80000000;
-	asm("sync;isync;msync");
+		/* Work around to stabilize DDR DLL */
+		temp_ddrdll = gur->ddrdllcr;
+		gur->ddrdllcr = ((temp_ddrdll & 0xff) << 16) | 0x80000000;
+		asm("sync;isync;msync");
+	}
 #endif
 
 	dram_size = spd_sdram ();
 
 #if defined(CONFIG_DDR_ECC)
-	{
-		/* Initialize all of memory for ECC, then
-		 * enable errors */
-		uint *p = 0;
-		uint i = 0;
-		volatile immap_t *immap = (immap_t *)CFG_IMMR;
-		volatile ccsr_ddr_t *ddr= &immap->im_ddr;
-		dma_init();
-		for (*p = 0; p < (uint *)(8 * 1024); p++) {
-			if (((unsigned int)p & 0x1f) == 0) { dcbz(p); }
-			*p = (unsigned int)0xdeadbeef;
-			if (((unsigned int)p & 0x1c) == 0x1c) { dcbf(p); }
-		}
-
-		/* 8K */
-		dma_xfer((uint *)0x2000,0x2000,(uint *)0);
-		/* 16K */
-		dma_xfer((uint *)0x4000,0x4000,(uint *)0);
-		/* 32K */
-		dma_xfer((uint *)0x8000,0x8000,(uint *)0);
-		/* 64K */
-		dma_xfer((uint *)0x10000,0x10000,(uint *)0);
-		/* 128k */
-		dma_xfer((uint *)0x20000,0x20000,(uint *)0);
-		/* 256k */
-		dma_xfer((uint *)0x40000,0x40000,(uint *)0);
-		/* 512k */
-		dma_xfer((uint *)0x80000,0x80000,(uint *)0);
-		/* 1M */
-		dma_xfer((uint *)0x100000,0x100000,(uint *)0);
-		/* 2M */
-		dma_xfer((uint *)0x200000,0x200000,(uint *)0);
-		/* 4M */
-		dma_xfer((uint *)0x400000,0x400000,(uint *)0);
-
-		for (i = 1; i < dram_size / 0x800000; i++) {
-			dma_xfer((uint *)(0x800000*i),0x800000,(uint *)0);
-		}
-
-		/* Enable errors for ECC */
-		ddr->err_disable = 0x00000000;
-		asm("sync;isync;msync");
-	}
+	/* Initialize and enable DDR ECC.
+	*/
+	ddr_enable_ecc(dram_size);
 #endif
 
 	return dram_size;
@@ -387,37 +338,40 @@ int testdram (void)
 }
 #endif
 
-#if !defined(CONFIG_SPD_EEPROM)
-/*************************************************************************
- *  fixed sdram init -- doesn't use serial presence detect.
- ************************************************************************/
-long int fixed_sdram (void)
-{
-  #ifndef CFG_RAMBOOT
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_ddr_t *ddr= &immap->im_ddr;
+#if defined(CONFIG_PCI)
 
-	ddr->cs0_bnds = CFG_DDR_CS0_BNDS;
-	ddr->cs0_config = CFG_DDR_CS0_CONFIG;
-	ddr->timing_cfg_1 = CFG_DDR_TIMING_1;
-	ddr->timing_cfg_2 = CFG_DDR_TIMING_2;
-	ddr->sdram_mode = CFG_DDR_MODE;
-	ddr->sdram_interval = CFG_DDR_INTERVAL;
-    #if defined (CONFIG_DDR_ECC)
-	ddr->err_disable = 0x0000000D;
-	ddr->err_sbe = 0x00ff0000;
-    #endif
-	asm("sync;isync;msync");
-	udelay(500);
-    #if defined (CONFIG_DDR_ECC)
-	/* Enable ECC checking */
-	ddr->sdram_cfg = (CFG_DDR_CONTROL | 0x20000000);
-    #else
-	ddr->sdram_cfg = CFG_DDR_CONTROL;
-    #endif
-	asm("sync; isync; msync");
-	udelay(500);
-  #endif
-	return ( CFG_SDRAM_SIZE * 1024 * 1024);
+/*
+ * Initialize PCI Devices, report devices found.
+ */
+
+#ifndef CONFIG_PCI_PNP
+static struct pci_config_table pci_stxgp3_config_table[] = {
+    { PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
+      PCI_IDSEL_NUMBER, PCI_ANY_ID,
+      pci_cfgfunc_config_device, { PCI_ENET0_IOADDR,
+				   PCI_ENET0_MEMADDR,
+				   PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER
+      } },
+    { }
+};
+#endif
+
+
+static struct pci_controller hose = {
+#ifndef CONFIG_PCI_PNP
+	config_table: pci_stxgp3_config_table,
+#endif
+};
+
+#endif	/* CONFIG_PCI */
+
+
+void
+pci_init_board(void)
+{
+#ifdef CONFIG_PCI
+	extern void pci_mpc85xx_init(struct pci_controller *hose);
+
+	pci_mpc85xx_init(&hose);
+#endif /* CONFIG_PCI */
 }
-#endif	/* !defined(CONFIG_SPD_EEPROM) */

@@ -22,7 +22,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -46,9 +46,10 @@ int (*debugger_exception_handler)(struct pt_regs *) = 0;
 /* Returns 0 if exception not found and fixup otherwise.  */
 extern unsigned long search_exception_table(unsigned long);
 
-/* THIS NEEDS CHANGING to use the board info structure.
+/*
+ * End of memory as shown by board info and determined by DDR setup.
  */
-#define END_OF_MEM	(CFG_SDRAM_SIZE * 1024 * 1024)
+#define END_OF_MEM	(gd->bd->bi_memstart + gd->bd->bi_memsize)
 
 
 static __inline__ void set_tsr(unsigned long val)
@@ -82,6 +83,7 @@ extern void do_bedbug_breakpoint(struct pt_regs *);
 void
 print_backtrace(unsigned long *sp)
 {
+	DECLARE_GLOBAL_DATA_PTR;
 	int cnt = 0;
 	unsigned long i;
 
@@ -261,7 +263,7 @@ DebugException(struct pt_regs *regs)
 #endif
 }
 
-/* Probe an address by reading.  If not present, return -1, otherwise
+/* Probe an address by reading.	 If not present, return -1, otherwise
  * return 0.
  */
 int

@@ -2,6 +2,18 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Jon Loeliger, 16 Jul 2004:
+  - support larger DDR memories up to 2G on the PC8540/8560ADS and
+    STXGP3 boards
+  - Made MPC8540/8560ADS be 33Mhz PCI by default.
+  - Removed moldy CONFIG_RAM_AS_FLASH, CFG_FLASH_PORT_WIDTH_16
+    and CONFIG_L2_INIT_RAM options.
+  - Refactor Local Bus initialization out of SDRAM setup.
+  - Re-implement new version of LBC11/DDR11 errata workarounds.
+  - Moved board specific PCI init parts out of CPU directory.
+  - Added TLB entry for PCI-1 IO Memory
+  - Updated README.mpc85xxads
+
 * Patch by Sascha Hauer, 28 Jun:
   - add generic support for Motorola i.MX architecture
   - add support for mx1ads, mx1fs2 and scb9328 boards
