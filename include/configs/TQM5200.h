@@ -102,16 +102,13 @@
 #endif
 
 /* Partitions */
-#undef CONFIG_MAC_PARTITION
-#if defined (CONFIG_MINIFAP)
+#define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
-#endif
 
 /* USB */
 #ifdef CONFIG_STK52XX
 #define CONFIG_USB_OHCI
 #define ADD_USB_CMD		CFG_CMD_USB | CFG_CMD_FAT
-#define CONFIG_DOS_PARTITION
 #define CONFIG_USB_STORAGE
 #else
 #define ADD_USB_CMD		0
@@ -176,102 +173,37 @@
 #undef	CONFIG_BOOTARGS
 
 #if defined (CONFIG_TQM5200_AA)
-#define CONFIG_EXTRA_ENV_SETTINGS					\
-	"netdev=eth0\0"							\
-	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
-		"nfsroot=$(serverip):$(rootpath)\0"			\
-	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
-	"addip=setenv bootargs $(bootargs) "				\
-		"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask)"	\
-		":$(hostname):$(netdev):off panic=1\0"			\
-	"flash_nfs=run nfsargs addip;"					\
-		"bootm $(kernel_addr)\0"				\
-	"flash_self=run ramargs addip;"					\
-		"bootm $(kernel_addr) $(ramdisk_addr)\0"		\
-	"net_nfs=tftp 200000 $(bootfile);run nfsargs addip;bootm\0"	\
-	"rootpath=/opt/eldk3.0_ppc/ppc_82xx\0"				\
-	"bootfile=uImage_tqm5200_mkr\0"					\
-	"load=tftp 200000 $(loadfile)\0"				\
-	"load133=tftp 200000 $(loadfile133)\0"				\
-	"loadfile=u-boot_tqm5200_aa_mkr.bin\0"				\
-	"loadfile133=u-boot_tqm5200_aa_133_mkr.bin\0"			\
-	"update=protect off 1:0-4; erase 1:0-4; cp.b 200000 0xfc000000 $(filesize); protect on 1:0-4\0"		\
-	"serverip=172.20.5.13\0"					\
-	""
+# define CONFIG_U_BOOT_SUFFIX	"-AA"
+#elif defined (CONFIG_TQM5200_AB)
+# define CONFIG_U_BOOT_SUFFIX	"-AB"
+#elif defined (CONFIG_TQM5200_AC)
+# define CONFIG_U_BOOT_SUFFIX	"-AC"
 #else
-#if defined (CONFIG_TQM5200_AB)
+# define CONFIG_U_BOOT_SUFFIX	/* nothing */
+#endif
+
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
+	"rootpath=/opt/eldk/ppc_6xx\0"					\
+	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=$(serverip):$(rootpath)\0"			\
-	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
 	"addip=setenv bootargs $(bootargs) "				\
 		"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask)"	\
 		":$(hostname):$(netdev):off panic=1\0"			\
-	"flash_nfs=run nfsargs addip;"					\
-		"bootm $(kernel_addr)\0"				\
 	"flash_self=run ramargs addip;"					\
 		"bootm $(kernel_addr) $(ramdisk_addr)\0"		\
-	"net_nfs=tftp 200000 $(bootfile);run nfsargs addip;bootm\0"	\
-	"rootpath=/opt/eldk3.0_ppc/ppc_82xx\0"				\
-	"bootfile=uImage_tqm5200_mkr\0"					\
-	"load=tftp 200000 $(loadfile)\0"				\
-	"load133=tftp 200000 $(loadfile133)\0"				\
-	"loadfile=u-boot_tqm5200_ab_mkr.bin\0"				\
-	"loadfile133=u-boot_tqm5200_ab_133_mkr.bin\0"			\
-	"update=protect off 1:0-1; erase 1:0-1; cp.b 200000 0xfc000000 $(filesize); protect on 1:0-1\0"		\
-	"serverip=172.20.5.13\0"					\
-	""
-#else
-#if defined (CONFIG_TQM5200_AC)
-#define CONFIG_EXTRA_ENV_SETTINGS					\
-	"netdev=eth0\0"							\
-	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
-		"nfsroot=$(serverip):$(rootpath)\0"			\
-	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
-	"addip=setenv bootargs $(bootargs) "				\
-		"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask)"	\
-		":$(hostname):$(netdev):off panic=1\0"			\
 	"flash_nfs=run nfsargs addip;"					\
 		"bootm $(kernel_addr)\0"				\
-	"flash_self=run ramargs addip;"					\
-		"bootm $(kernel_addr) $(ramdisk_addr)\0"		\
 	"net_nfs=tftp 200000 $(bootfile);run nfsargs addip;bootm\0"	\
-	"rootpath=/opt/eldk3.0_ppc/ppc_82xx\0"				\
-	"bootfile=uImage_tqm5200_mkr\0"					\
-	"load=tftp 200000 $(loadfile)\0"				\
-	"load133=tftp 200000 $(loadfile133)\0"				\
-	"loadfile=u-boot_tqm5200_ac_mkr.bin\0"				\
-	"loadfile133=u-boot_tqm5200_ac_133_mkr.bin\0"			\
-	"update=protect off 1:0-4; erase 1:0-4; cp.b 200000 0xfc000000 $(filesize); protect on 1:0-4\0"		\
-	"serverip=172.20.5.13\0"					\
+	"bootfile=/tftpboot/tqm5200/uImage\0"				\
+	"load=tftp 200000 $(u-boot)\0"					\
+	"u-boot=/tftpboot/tqm5200/u-boot.bin"	CONFIG_U_BOOT_SUFFIX	\
+	"update=protect off FC000000 FC05FFFF;"				\
+		"erase FC000000 FC05FFFF;"				\
+		"cp.b 200000 FC000000 $(filesize);"			\
+		"protect on FC000000 FC05FFFF\0"a			\
 	""
-#else
-#define CONFIG_EXTRA_ENV_SETTINGS					\
-	"netdev=eth0\0"							\
-	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
-		"nfsroot=$(serverip):$(rootpath)\0"			\
-	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
-	"addip=setenv bootargs $(bootargs) "				\
-		"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask)"	\
-		":$(hostname):$(netdev):off panic=1\0"			\
-	"flash_nfs=run nfsargs addip;"					\
-		"bootm $(kernel_addr)\0"				\
-	"flash_self=run ramargs addip;"					\
-		"bootm $(kernel_addr) $(ramdisk_addr)\0"		\
-	"net_nfs=tftp 200000 $(bootfile);run nfsargs addip;bootm\0"	\
-	"rootpath=/opt/eldk3.0_ppc/ppc_82xx\0"				\
-	"bootfile=uImage_tqm5200_mkr\0"					\
-	"load=tftp 200000 $(loadfile)\0"				\
-	"load133=tftp 200000 $(loadfile133)\0"				\
-	"loadfile=u-boot_tqm5200_mkr.bin\0"				\
-	"loadfile133=u-boot_tqm5200_133_mkr.bin\0"			\
-	"update=protect off fc000000 fc03ffff; erase fc000000 fc03ffff; cp.b 200000 0xfc000000 $(filesize); protect on fc000000 fc03ffff\0"		\
-	"serverip=172.20.5.13\0"					\
-	""
-#endif
-#endif
-#endif
 
 #define CONFIG_BOOTCOMMAND	"run net_nfs"
 
@@ -360,9 +292,9 @@
 #define CFG_MAX_FLASH_SECT	256	/* max num of sects on one chip */
 
 #if !defined(CFG_LOWBOOT)
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x00740000 + 0x00800000)
+#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x00760000 + 0x00800000)
 #else	/* CFG_LOWBOOT */
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x00040000)
+#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x00060000)
 #endif	/* CFG_LOWBOOT */
 #define CFG_MAX_FLASH_BANKS	1	/* max num of flash banks
 					   (= chip selects) */
@@ -376,7 +308,8 @@
 #define CFG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_SIZE		0x10000
 #define CFG_ENV_SECT_SIZE	0x20000
-#define CONFIG_ENV_OVERWRITE	1
+#define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR + CFG_ENV_SECT_SIZE)
+#define	CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
 
 /*
  * Memory map
@@ -399,12 +332,12 @@
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
-#define CFG_MONITOR_BASE    TEXT_BASE
+#define CFG_MONITOR_BASE	TEXT_BASE
 #if (CFG_MONITOR_BASE < CFG_FLASH_BASE)
 #   define CFG_RAMBOOT		1
 #endif
 
-#define CFG_MONITOR_LEN		(192 << 10)	/* Reserve 192 kB for Monitor	*/
+#define CFG_MONITOR_LEN		(384 << 10)	/* Reserve 384 kB for Monitor	*/
 #define CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
 #define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
