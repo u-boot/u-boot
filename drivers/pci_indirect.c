@@ -1,0 +1,74 @@
+/*
+ * Support for indirect PCI bridges.
+ *
+ * Copyright (C) 1998 Gabriel Paubert.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version
+ * 2 of the License, or (at your option) any later version.
+ */
+
+#include <common.h>
+
+#ifdef CONFIG_PCI
+
+#include <asm/processor.h>
+#include <asm/io.h>
+#include <pci.h>
+
+#define cfg_read(val, addr, type, op)	*val = op((type)(addr))
+#define cfg_write(val, addr, type, op)	op((type *)(addr), (val))
+
+#define INDIRECT_PCI_OP(rw, size, type, op, mask)			 \
+static int								 \
+indirect_##rw##_config_##size(struct pci_controller *hose, 		 \
+			      pci_dev_t dev, int offset, type val)	 \
+{									 \
+	out_le32(hose->cfg_addr, dev | (offset & 0xfc) | 0x80000000); 	 \
+	cfg_##rw(val, hose->cfg_data + (offset & mask), type, op);	 \
+	return 0;    					 		 \
+}
+
+#define INDIRECT_PCI_OP_ERRATA6(rw, size, type, op, mask)		 \
+static int								 \
+indirect_##rw##_config_##size(struct pci_controller *hose, 		 \
+			      pci_dev_t dev, int offset, type val)	 \
+{									 \
+	unsigned int msr = mfmsr();					 \
+	mtmsr(msr & ~(MSR_EE | MSR_CE));				 \
+	out_le32(hose->cfg_addr, dev | (offset & 0xfc) | 0x80000000); 	 \
+	cfg_##rw(val, hose->cfg_data + (offset & mask), type, op);	 \
+	out_le32(hose->cfg_addr, 0x00000000); 				 \
+	mtmsr(msr);							 \
+	return 0;    					 		 \
+}
+
+INDIRECT_PCI_OP(read, byte, u8 *, in_8, 3)
+INDIRECT_PCI_OP(read, word, u16 *, in_le16, 2)
+INDIRECT_PCI_OP(read, dword, u32 *, in_le32, 0)
+#ifdef CONFIG_405GP
+INDIRECT_PCI_OP_ERRATA6(write, byte, u8, out_8, 3)
+INDIRECT_PCI_OP_ERRATA6(write, word, u16, out_le16, 2)
+INDIRECT_PCI_OP_ERRATA6(write, dword, u32, out_le32, 0)
+#else
+INDIRECT_PCI_OP(write, byte, u8, out_8, 3)
+INDIRECT_PCI_OP(write, word, u16, out_le16, 2)
+INDIRECT_PCI_OP(write, dword, u32, out_le32, 0)
+#endif
+
+void pci_setup_indirect(struct pci_controller* hose, u32 cfg_addr, u32 cfg_data)
+{
+	pci_set_ops(hose,
+		    indirect_read_config_byte,
+		    indirect_read_config_word,
+		    indirect_read_config_dword,
+		    indirect_write_config_byte,
+		    indirect_write_config_word,
+		    indirect_write_config_dword);
+
+	hose->cfg_addr = (unsigned int *) cfg_addr;
+	hose->cfg_data = (unsigned char *) cfg_data;
+}
+
+#endif
