@@ -507,6 +507,9 @@ CRAYL1_config:unconfig
 DASA_SIM_config: unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx dasa_sim esd
 
+DP405_config:	unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx dp405 esd
+
 DU405_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx du405 esd
 
@@ -518,6 +521,9 @@ ERIC_config:unconfig
 
 EXBITGEN_config:unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx exbitgen
+
+HUB405_config:	unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx hub405 esd
 
 MIP405_config:unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx mip405 mpl
@@ -540,11 +546,17 @@ PCI405_config:	unconfig
 PIP405_config:unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx pip405 mpl
 
+PLU405_config:	unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx plu405 esd
+
 PMC405_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx pmc405 esd
 
 PPChameleonEVB_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx PPChameleonEVB dave
+
+VOH405_config:	unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx voh405 esd
 
 W7OLMC_config	\
 W7OLMG_config: unconfig

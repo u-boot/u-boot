@@ -56,10 +56,11 @@ LIST_4xx="	\
 	ADCIOP		AR405		ASH405          BUBINGA405EP    \
 	CANBT		CPCI405		CPCI4052 	CPCI405AB       \
 	CPCI440         CPCIISER4	CRAYL1  	DASA_SIM	\
-	DU405    	EBONY           ERIC  		EXBITGEN	\
-	MIP405  	MIP405T		ML2		OCRTC		\
-	ORSG		PCI405		PIP405		PMC405          \
-	PPChameleonEVB	W7OLMC		W7OLMG          WALNUT405	\
+	DP405           DU405    	EBONY           ERIC  		\
+	EXBITGEN	HUB405          MIP405  	MIP405T		\
+	ML2		OCRTC		ORSG		PCI405		\
+	PIP405		PLU405          PMC405          PPChameleonEVB	\
+	VOH405          W7OLMC		W7OLMG          WALNUT405	\
 "
 
 #########################################################################
