@@ -45,24 +45,16 @@ static char *cpu_warning = "\n         " \
 #if ((defined(CONFIG_MPC86x) || defined(CONFIG_MPC855)) && \
      !defined(CONFIG_MPC862))
 
-# if defined(CONFIG_MPC855)
-#  define	ID_STR	"PC855"
-# elif defined(CONFIG_MPC852T)
-#  define	ID_STR	"PC852T"
-# elif defined(CONFIG_MPC859T)
-#  define	ID_STR	"PC859T"
-# elif defined(CONFIG_MPC859DSL)
-#  define	ID_STR	"PC859DSL"
-# elif defined(CONFIG_MPC860P)
-#  define	ID_STR	"PC860P"
-# elif defined(CONFIG_MPC866T)
-#  define	ID_STR	"PC866T"
-# else
-#  define	ID_STR	"PC86x"	/* unknown 86x chip */
-# endif
-
 static int check_CPU (long clock, uint pvr, uint immr)
 {
+	char *id_str =
+# if defined(CONFIG_MPC855)
+	"PC855";
+# elif defined(CONFIG_MPC860P)
+	"PC860P";
+# else
+	NULL;
+# endif
 	volatile immap_t *immap = (immap_t *) (immr & 0xFFFF0000);
 	uint k, m;
 	char buf[32];
@@ -78,12 +70,12 @@ static int check_CPU (long clock, uint pvr, uint immr)
 	k = (immr << 16) | *((ushort *) & immap->im_cpm.cp_dparam[0xB0]);
 	m = 0;
 
+	/*
+	 * Some boards use sockets so different CPUs can be used.
+	 * We have to check chip version in run time.
+	 */
 	switch (k) {
-#ifdef CONFIG_MPC866_et_al
-		/* MPC866P/MPC866T/MPC859T/MPC859DSL/MPC852T */
-	case 0x08000003: pre = 'M'; suf = ""; m = 1; break;
-#else
-	case 0x00020001: pre = 'p'; suf = ""; break;
+	case 0x00020001: pre = 'P'; suf = ""; break;
 	case 0x00030001: suf = ""; break;
 	case 0x00120003: suf = "A"; break;
 	case 0x00130003: suf = "A3"; break;
@@ -98,18 +90,38 @@ static int check_CPU (long clock, uint pvr, uint immr)
 	case 0x00310065: mid = "SR"; suf = "C1"; m = 1; break;
 	case 0x05010000: suf = "D3"; m = 1; break;
 	case 0x05020000: suf = "D4"; m = 1; break;
-	case 0x08000003: suf = ""; m = 1; break;
 		/* this value is not documented anywhere */
 	case 0x40000000: pre = 'P'; suf = "D"; m = 1; break;
-#endif
+		/* MPC866P/MPC866T/MPC859T/MPC859DSL/MPC852T */
+	case 0x08000003: pre = 'M'; suf = ""; m = 1;
+		if (id_str == NULL)
+			id_str =
+# if defined(CONFIG_MPC852T)
+		"PC852T";
+# elif defined(CONFIG_MPC859T)
+		"PC859T";
+# elif defined(CONFIG_MPC859DSL)
+		"PC859DSL";
+# elif defined(CONFIG_MPC866T)
+		"PC866T";
+# else
+		"PC866x"; /* Unknown chip from MPC866 family */
+# endif
+		break;
+	case 0x09000000: pre = 'M'; mid = suf = ""; m = 1;
+		if (id_str == NULL)
+			id_str = "PC885"; /* 870/875/880/885 */
+		break;
 
 	default: suf = NULL; break;
 	}
 
+	if (id_str == NULL)
+		id_str = "PC86x";	/* Unknown 86x chip */
 	if (suf)
-		printf ("%c" ID_STR "%sZPnn%s", pre, mid, suf);
+		printf ("%c%s%sZPnn%s", pre, id_str, mid, suf);
 	else
-		printf ("unknown M" ID_STR " (0x%08x)", k);
+		printf ("unknown M%s (0x%08x)", id_str, k);
 
 	printf (" at %s MHz:", strmhz (buf, clock));
 
@@ -471,36 +483,46 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 /*
  * Get timebase clock frequency (like cpu_clk in Hz)
  *
- * See table 15-5 pp. 15-16, and SCCR[RTSEL] pp. 15-27.
+ * See sections 14.2 and 14.6 of the User's Manual
  */
 unsigned long get_tbclk (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
-	volatile immap_t *immr = (volatile immap_t *) CFG_IMMR;
-	ulong oscclk, factor;
+	uint immr = get_immr (0);	/* Return full IMMR contents */
+	volatile immap_t *immap = (volatile immap_t *)(immr & 0xFFFF0000);
+	ulong oscclk, factor, pll;
 
-	if (immr->im_clkrst.car_sccr & SCCR_TBS) {
+	if (immap->im_clkrst.car_sccr & SCCR_TBS) {
 		return (gd->cpu_clk / 16);
 	}
-#define PLPRCR_val(a) (((CFG_PLPRCR) & PLPRCR_ ## a ## _MSK) >> PLPRCR_ ## a ## _SHIFT)
-#ifdef CONFIG_MPC866_et_al
-	/*                   MFN
-		     MFI + -------
-			   MFD + 1
-	  factor =  -----------------
-		     (PDF + 1) * 2^S
-	 */
 
-	factor = (PLPRCR_val(MFI) + PLPRCR_val(MFN)/(PLPRCR_val(MFD)+1))/
-		 (PLPRCR_val(PDF)+1) / (1<<PLPRCR_val(S));
-#else
-	factor = PLPRCR_val(MF)+1;
-#endif
+	pll = immap->im_clkrst.car_plprcr;
+
+#define PLPRCR_val(a) ((pll & PLPRCR_ ## a ## _MSK) >> PLPRCR_ ## a ## _SHIFT)
+
+	/*
+	 * For newer PQ1 chips (MPC866/87x/88x families), PLL multiplication
+	 * factor is calculated as follows:
+	 *
+	 *		     MFN
+	 *	     MFI + -------
+	 *		   MFD + 1
+	 * factor =  -----------------
+	 *	     (PDF + 1) * 2^S
+	 *
+	 * For older chips, it's just MF field of PLPRCR plus one.
+	 */
+	if ((immr & 0xFFFF) >= MPC8xx_NEW_CLK) { /* MPC866/87x/88x series */
+		factor = (PLPRCR_val(MFI) + PLPRCR_val(MFN)/(PLPRCR_val(MFD)+1))/
+			(PLPRCR_val(PDF)+1) / (1<<PLPRCR_val(S));
+	} else {
+		factor = PLPRCR_val(MF)+1;
+	}
 
 	oscclk = gd->cpu_clk / factor;
 
-	if ((immr->im_clkrst.car_sccr & SCCR_RTSEL) == 0 || factor > 2) {
+	if ((immap->im_clkrst.car_sccr & SCCR_RTSEL) == 0 || factor > 2) {
 		return (oscclk / 4);
 	}
 	return (oscclk / 16);

@@ -132,10 +132,15 @@
 #define RSR_ALLBITS	(RSR_JTRS|RSR_DBSRS|RSR_DBHRS|RSR_CSRS|RSR_SWRS|RSR_LLRS|RSR_ESRS|RSR_EHRS)
 
 /*-----------------------------------------------------------------------
+ * Newer chips (MPC866 family and MPC87x/88x family) have different
+ * clock distribution system. Their IMMR lower half is >= 0x0800
+ */
+#define MPC8xx_NEW_CLK 0x0800
+
+/*-----------------------------------------------------------------------
  * PLPRCR - PLL, Low-Power, and Reset Control Register			15-30
  */
-#ifdef CONFIG_MPC866_et_al
-#define PLPRCR_MF_MSK	0xFFFF001E	/* Multiplication factor + PDF bits	*/
+/* Newer chips (MPC866/87x/88x et al) defines */
 #define PLPRCR_MFN_MSK	0xF8000000	/* Multiplication factor numerator bits */
 #define PLPRCR_MFN_SHIFT	27	/* Multiplication factor numerator shift*/
 #define PLPRCR_MFD_MSK	0x07C00000	/* Multiplication factor denominator bits */
@@ -144,32 +149,39 @@
 #define PLPRCR_S_SHIFT		20	/* Multiplication factor integer shift	*/
 #define PLPRCR_MFI_MSK	0x000F0000	/* Multiplication factor integer bits	*/
 #define PLPRCR_MFI_SHIFT	16	/* Multiplication factor integer shift	*/
-#else
+
+#define PLPRCR_PDF_MSK	0x0000001E	/* Predivision Factor bits		*/
+#define PLPRCR_PDF_SHIFT	 1	/* Predivision Factor shift value	*/
+#define PLPRCR_DBRMO	0x00000001	/* DPLL BRM Order bit			*/
+
+/* Multiplication factor + PDF bits */
+#define PLPRCR_MFACT_MSK (PLPRCR_MFN_MSK | \
+			  PLPRCR_MFD_MSK | \
+			  PLPRCR_S_MSK	 | \
+			  PLPRCR_MFI_MSK | \
+			  PLPRCR_PDF_MSK)
+
+/* Older chips (MPC860/862 et al) defines */
 #define PLPRCR_MF_MSK	0xFFF00000	/* Multiplication factor bits		*/
 #define PLPRCR_MF_SHIFT		20	/* Multiplication factor shift value	*/
-#endif
+
 #define PLPRCR_SPLSS	0x00008000	/* SPLL Lock Status Sticky bit		*/
-#define PLPRCR_TEXPS	0x00004000	/* TEXP Status				*/
-#ifndef CONFIG_MPC866_et_al
 #define PLPRCR_TMIST	0x00001000	/* Timers Interrupt Status		*/
-#endif
-#define PLPRCR_CSRC	0x00000400	/* Clock Source				*/
-#ifndef CONFIG_MPC866_et_al
+
 #define PLPRCR_LPM_MSK	0x00000300	/* Low Power Mode mask			*/
 #define PLPRCR_LPM_NORMAL 0x00000000	/* normal power management mode		*/
 #define PLPRCR_LPM_DOZE	  0x00000100	/* doze power management mode		*/
 #define PLPRCR_LPM_SLEEP  0x00000200	/* sleep power management mode		*/
 #define PLPRCR_LPM_DEEP_SLEEP 0x00000300 /* deep sleep power mgt mode		*/
 #define PLPRCR_LPM_DOWN	  0x00000300	/* down power management mode		*/
-#endif
+
+/* Common defines */
+#define PLPRCR_TEXPS	0x00004000	/* TEXP Status				*/
+#define PLPRCR_CSRC	0x00000400	/* Clock Source				*/
+
 #define PLPRCR_CSR	0x00000080	/* CheskStop Reset value		*/
 #define PLPRCR_LOLRE	0x00000040	/* Loss Of Lock Reset Enable		*/
 #define PLPRCR_FIOPD	0x00000020	/* Force I/O Pull Down			*/
-#ifdef CONFIG_MPC866_et_al
-#define PLPRCR_PDF_MSK	0x0000001E	/* Predivision Factor bits		*/
-#define PLPRCR_PDF_SHIFT	 1	/* Predivision Factor shift value	*/
-#define PLPRCR_DBRMO	0x00000001	/* DPLL BRM Order bit			*/
-#endif
 
 /*-----------------------------------------------------------------------
  * SCCR - System Clock and reset Control Register			15-27

@@ -512,7 +512,7 @@ jffs2_1pass_find_inode(struct b_lists * pL, const char *name, u32 pino)
 	return inode;
 }
 
-static char *mkmodestr(unsigned long mode, char *str)
+char *mkmodestr(unsigned long mode, char *str)
 {
 	static const char *l = "xwr";
 	int mask = 1, i;

@@ -2,6 +2,16 @@
 Changes since U-Boot 1.0.0:
 ======================================================================
 
+* Patch by Scott McNutt, 02 Jan 2004:
+  Add support for the Nios Active Serial Memory Interface (ASMI)
+  on Cyclone devices
+
+* Patch by Andrea Marson, 16 Dec 2003:
+  Add support for the PPChameleon ME and HI modules
+
+* Patch by Yuli Barcohen, 22 Dec 2003:
+  Add support for Motorola DUET ADS board (MPC87x/88x)
+
 * Patch by Robert Schwebel, 15 Dec 2003:
   add support for cramfs (uses JFFS2 command interface)
 

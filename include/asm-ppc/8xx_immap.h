@@ -435,7 +435,19 @@ typedef struct comm_proc {
 	u_char	res13[2];
 	ushort	cp_pbodr;
 	uint	cp_pbdat;
-	u_char	res14[0x18];
+
+	/* Port E - MPC87x/88x only.
+	 */
+	uint	cp_pedir;
+	uint	cp_pepar;
+	uint	cp_peso;
+	uint	cp_peodr;
+	uint	cp_pedat;
+
+	/* Communications Processor Timing Register -
+	   Contains RMII Timing for the FECs on MPC87x/88x only.
+	*/
+	uint	cp_cptr;
 
 	/* Serial Interface and Time Slot Assignment.
 	*/

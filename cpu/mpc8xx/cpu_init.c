@@ -42,6 +42,7 @@ void cpu_init_f (volatile immap_t * immr)
 {
 #ifndef CONFIG_MBX
 	volatile memctl8xx_t *memctl = &immr->im_memctl;
+	ulong mfmask;
 #endif
 	ulong reg;
 
@@ -86,16 +87,23 @@ void cpu_init_f (volatile immap_t * immr)
 
 	/* If CFG_PLPRCR (set in the various *_config.h files) tries to
 	 * set the MF field, then just copy CFG_PLPRCR over car_plprcr,
-	 * otherwise OR in CFG_PLPRCR so we do not change the currentMF
+	 * otherwise OR in CFG_PLPRCR so we do not change the current MF
 	 * field value.
+	 *
+	 * For newer (starting MPC866) chips PLPRCR layout is different.
 	 */
-#if ((CFG_PLPRCR & PLPRCR_MF_MSK) != 0)
-	reg = CFG_PLPRCR;			/* reset control bits   */
-#else
-	reg = immr->im_clkrst.car_plprcr;
-	reg &= PLPRCR_MF_MSK;			/* isolate MF field */
-	reg |= CFG_PLPRCR;			/* reset control bits   */
-#endif
+	if (get_immr(0xFFFF) >= MPC8xx_NEW_CLK)
+	   mfmask = PLPRCR_MFACT_MSK;
+	else
+	   mfmask = PLPRCR_MF_MSK;
+
+	if ((CFG_PLPRCR & mfmask) != 0)
+	   reg = CFG_PLPRCR;			/* reset control bits   */
+	else {
+	   reg = immr->im_clkrst.car_plprcr;
+	   reg &= mfmask;			/* isolate MF-related fields */
+	   reg |= CFG_PLPRCR;			/* reset control bits   */
+	}
 	immr->im_clkrst.car_plprcr = reg;
 
 	/*

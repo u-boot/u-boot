@@ -99,7 +99,7 @@ LIBS  = lib_generic/libgeneric.a
 LIBS += board/$(BOARDDIR)/lib$(BOARD).a
 LIBS += cpu/$(CPU)/lib$(CPU).a
 LIBS += lib_$(ARCH)/lib$(ARCH).a
-LIBS += fs/jffs2/libjffs2.a fs/fdos/libfdos.a fs/fat/libfat.a
+LIBS += fs/cramfs/libcramfs.a fs/fat/libfat.a fs/fdos/libfdos.a fs/jffs2/libjffs2.a
 LIBS += net/libnet.a
 LIBS += disk/libdisk.a
 LIBS += rtc/librtc.a
@@ -249,7 +249,12 @@ TOP5200_config:	unconfig
 AdderII_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx adderII
 
-ADS860_config:	unconfig
+ADS860_config     \
+DUET_ADS_config   \
+FADS823_config    \
+FADS850SAR_config \
+MPC86xADS_config  \
+FADS860T_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx fads
 
 AMX860_config	:	unconfig
@@ -278,12 +283,6 @@ ESTEEM192E_config:	unconfig
 
 ETX094_config	:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx etx094
-
-FADS823_config	\
-FADS850SAR_config \
-MPC86xADS_config \
-FADS860T_config:	unconfig
-	@./mkconfig $(@:_config=) ppc mpc8xx fads
 
 FLAGADM_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx flagadm

@@ -136,4 +136,35 @@ typedef volatile struct nios_spi_t {
 #define NIOS_SPI_IE		(1 << 8)	/* exception int ena */
 #define NIOS_SPI_SSO		(1 << 10)	/* override SS_n output */
 
+/*------------------------------------------------------------------------
+ * ASMI
+ *----------------------------------------------------------------------*/
+typedef volatile struct nios_asmi_t {
+	unsigned	rxdata;		/* Rx data reg */
+	unsigned	txdata;		/* Tx data reg */
+	unsigned	status;		/* Status reg */
+	unsigned	control;	/* Control reg */
+	unsigned	reserved;
+	unsigned	slavesel;	/* Slave select */
+	unsigned	endofpacket;	/* End-of-packet reg */
+}nios_asmi_t;
+
+/* status register */
+#define NIOS_ASMI_ROE		(1 << 3)	/* rx overrun */
+#define NIOS_ASMI_TOE		(1 << 4)	/* tx overrun */
+#define NIOS_ASMI_TMT		(1 << 5)	/* tx empty */
+#define NIOS_ASMI_TRDY		(1 << 6)	/* tx ready */
+#define NIOS_ASMI_RRDY		(1 << 7)	/* rx ready */
+#define NIOS_ASMI_E		(1 << 8)	/* exception */
+#define NIOS_ASMI_EOP		(1 << 9)	/* eop detected */
+
+/* control register */
+#define NIOS_ASMI_IROE		(1 << 3)	/* rx overrun int ena */
+#define NIOS_ASMI_ITOE		(1 << 4)	/* tx overrun int ena */
+#define NIOS_ASMI_ITRDY		(1 << 6)	/* tx ready int ena */
+#define NIOS_ASMI_IRRDY		(1 << 7)	/* rx ready int ena */
+#define NIOS_ASMI_IE		(1 << 8)	/* exception int ena */
+#define NIOS_ASMI_IEOP		(1 << 9)	/* rx eop int ena */
+#define NIOS_ASMI_SSO		(1 << 10)	/* slave select enable */
+
 #endif /* __NIOSIO_H__ */

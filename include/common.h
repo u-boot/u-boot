@@ -12,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -29,7 +29,7 @@
 
 typedef unsigned char		uchar;
 typedef volatile unsigned long	vu_long;
-typedef volatile unsigned short	vu_short;
+typedef volatile unsigned short vu_short;
 typedef volatile unsigned char	vu_char;
 
 #include <config.h>
@@ -41,21 +41,25 @@ typedef volatile unsigned char	vu_char;
 #if defined(CONFIG_PCI) && defined(CONFIG_440)
 #include <pci.h>
 #endif
-#ifdef	CONFIG_8xx
+#if defined(CONFIG_8xx)
 #include <asm/8xx_immap.h>
-#ifdef CONFIG_MPC860
-#define CONFIG_MPC86x 1
-#endif
-#ifdef CONFIG_MPC860T
-#define CONFIG_MPC86x 1
-#endif
 #if defined(CONFIG_MPC852)	|| defined(CONFIG_MPC852T)	|| \
     defined(CONFIG_MPC859)	|| defined(CONFIG_MPC859T)	|| \
     defined(CONFIG_MPC859DSL)	|| \
     defined(CONFIG_MPC866)	|| defined(CONFIG_MPC866T)	|| \
     defined(CONFIG_MPC866P)
-#define CONFIG_MPC866_et_al 1
-#define CONFIG_MPC86x 1
+# define CONFIG_MPC866_et_al 1
+#elif defined(CONFIG_MPC870) \
+   || defined(CONFIG_MPC875) \
+   || defined(CONFIG_MPC880) \
+   || defined(CONFIG_MPC885)
+# define CONFIG_DUET   1
+#endif
+#if   defined(CONFIG_MPC860)	   \
+   || defined(CONFIG_MPC860T)	   \
+   || defined(CONFIG_MPC866_et_al) \
+   || defined(CONFIG_DUET)
+# define CONFIG_MPC86x 1
 #endif
 #elif defined(CONFIG_5xx)
 #include <asm/5xx_immap.h>

@@ -521,7 +521,7 @@
 #define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
 #define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
-#if 1 /* test-only */
+
 #define CONFIG_NO_SERIAL_EEPROM
 /*#undef CONFIG_NO_SERIAL_EEPROM*/
 /*--------------------------------------------------------------------*/
@@ -651,16 +651,11 @@
 #define PLL_PCIDIV_3               0x00000002
 #define PLL_PCIDIV_4               0x00000003
 
-/*
-!-----------------------------------------------------------------------
-! PLL settings for 266MHz CPU, 133MHz PLB/SDRAM, 66MHz EBC, 33MHz PCI,
-! assuming a 33.3MHz input clock to the 405EP.
-!-----------------------------------------------------------------------
-*/
-#define PLLMR0_133_66_66_33  (PLL_CPUDIV_1 | PLL_PLBDIV_1 |  \
+/* CPU - PLB/SDRAM - EBC - OPB - PCI (assuming a 33.3MHz input clock to the 405EP) */
+#define PLLMR0_133_133_33_66_33  (PLL_CPUDIV_1 | PLL_PLBDIV_1 |  \
 			      PLL_OPBDIV_2 | PLL_EXTBUSDIV_4 |  \
 			      PLL_MALDIV_1 | PLL_PCIDIV_4)
-#define PLLMR1_133_66_66_33  (PLL_FBKDIV_4  |  \
+#define PLLMR1_133_133_33_66_33  (PLL_FBKDIV_4  |  \
 			      PLL_FWDDIVA_6 | PLL_FWDDIVB_6 |  \
 			      PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
 #define PLLMR0_200_100_50_33 (PLL_CPUDIV_1 | PLL_PLBDIV_2 |  \
@@ -669,27 +664,35 @@
 #define PLLMR1_200_100_50_33 (PLL_FBKDIV_6  |  \
 			      PLL_FWDDIVA_4 | PLL_FWDDIVB_4 |  \
 			      PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
-#define PLLMR0_266_133_66_33 (PLL_CPUDIV_1 | PLL_PLBDIV_2 |  \
+#define PLLMR0_266_133_33_66_33 (PLL_CPUDIV_1 | PLL_PLBDIV_2 |  \
 			      PLL_OPBDIV_2 | PLL_EXTBUSDIV_4 |  \
 			      PLL_MALDIV_1 | PLL_PCIDIV_4)
-#define PLLMR1_266_133_66_33 (PLL_FBKDIV_8  |  \
+#define PLLMR1_266_133_33_66_33 (PLL_FBKDIV_8  |  \
 			      PLL_FWDDIVA_3 | PLL_FWDDIVB_3 |  \
 			      PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
-#if 0 /* test-only */
-#define PLLMR0_DEFAULT   PLLMR0_266_133_66_33
-#define PLLMR1_DEFAULT   PLLMR1_266_133_66_33
-#endif
-#if 0 /* test-only */
-#define PLLMR0_DEFAULT   PLLMR0_200_100_50_33
-#define PLLMR1_DEFAULT   PLLMR1_200_100_50_33
-#endif
-#if 1 /* test-only */
-#define PLLMR0_DEFAULT   PLLMR0_133_66_66_33
-#define PLLMR1_DEFAULT   PLLMR1_133_66_66_33
-#endif
+#define PLLMR0_333_111_37_55_55 (PLL_CPUDIV_1 | PLL_PLBDIV_3 |  \
+			      PLL_OPBDIV_2 | PLL_EXTBUSDIV_3 |  \
+			      PLL_MALDIV_1 | PLL_PCIDIV_2)
+#define PLLMR1_333_111_37_55_55 (PLL_FBKDIV_10  |  \
+			      PLL_FWDDIVA_3 | PLL_FWDDIVB_3 |  \
+			      PLL_TUNE_15_M_40 | PLL_TUNE_VCO_HI)
+
+#if   (CONFIG_PPCHAMELEON_MODULE_MODEL == CONFIG_PPCHAMELEON_MODULE_HI)
+/* Model HI */
+#define PLLMR0_DEFAULT   PLLMR0_333_111_37_55_55
+#define PLLMR1_DEFAULT   PLLMR1_333_111_37_55_55
+/* Model ME */
+#elif (CONFIG_PPCHAMELEON_MODULE_MODEL == CONFIG_PPCHAMELEON_MODULE_ME)
+#define PLLMR0_DEFAULT   PLLMR0_266_133_33_66_33
+#define PLLMR1_DEFAULT   PLLMR1_266_133_33_66_33
+#else
+/* Model BA (default) */
+#define PLLMR0_DEFAULT   PLLMR0_133_133_33_66_33
+#define PLLMR1_DEFAULT   PLLMR1_133_133_33_66_33
 
 #endif
-#endif
+
+#endif /* CONFIG_NO_SERIAL_EEPROM */
 
 #define CFG_OPB_FREQ	50000000
 

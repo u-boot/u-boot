@@ -202,4 +202,5 @@ void dynrubin_decompress(unsigned char *data_in, unsigned char *cpage_out,
 long zlib_decompress(unsigned char *data_in, unsigned char *cpage_out,
 	                      __u32 srclen, __u32 destlen);
 
+char *mkmodestr(unsigned long mode, char *str);
 #endif /* __LINUX_JFFS2_H__ */

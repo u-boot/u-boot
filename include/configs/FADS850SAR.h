@@ -30,8 +30,6 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#include <mpc8xx_irq.h>
-
 #define CONFIG_MPC850		1
 #define CONFIG_MPC850SAR	1
 #define CONFIG_FADS			1
@@ -393,14 +391,6 @@
 #define CONFIG_DRAM_50MHZ		1
 #define CONFIG_SDRAM_50MHZ
 
-#ifdef CONFIG_MPC860T
-
-/* Interrupt level assignments.
-*/
-#define FEC_INTERRUPT	SIU_LEVEL1	/* FEC interrupt */
-
-#endif /* CONFIG_MPC860T */
-
 /* We don't use the 8259.
 */
 #define NR_8259_INTS	0
@@ -419,5 +409,7 @@
 #ifdef CONFIG_MPC860
 #define PCMCIA_SLOT_A 1
 #endif
+
+#define CFG_DAUGHTERBOARD
 
 #endif	/* __CONFIG_H */

@@ -1,7 +1,7 @@
 
 			   U-Boot for Nios-32
 
-		    Last Update: November 30, 2003
+		    Last Update: January 2, 2004
 ====================================================================
 
 This file contains information regarding U-Boot and the Altera
@@ -31,7 +31,7 @@ For those interested in contributing ... see HELP WANTED below.
 
 U-Boot has been successfully tested on the Nios Cyclone development
 board using both the 'safe' and 'standard 32' configurations with
-Nios CPU revision 3.08 (CPU_ID = 0x3008). U-Boot can be used with
+Nios CPU revision 3.1 (CPU_ID = 0x3018). U-Boot can be used with
 or without the GERMS monitor. The initial version of U-Boot for the
 Cyclone development kit is about 60 Kbyte and will fit in a single
 sector of on-board FLASH. Only the Nios 32-bit CPU is supported.
@@ -54,9 +54,6 @@ The Altera license is not clear in terms of distributing Altera
 sources (when altera silicon is not involved). This isn't really
 a problem as little, if any, of the Altera source contains
 features that are not already available in U-Boot.
-
-The Nios port also does not use the long-winded peripheral
-structure definitions from the Nios SDK.
 
 
 2. CONFIGURATION OPTIONS/SETTINGS
@@ -102,6 +99,9 @@ CFG_NIOS_TMRIRQ -- the interrupt request (vector number) assigned to
 	na_low_priority_timer2_irq).
 
 CFG_NIOS_TMRMS -- the period of the timer in milliseconds.
+
+CFG_NIOS_ASMIBASE -- the base address of the ASMI peripheral.
+	(standard-32: na_asmi_base).
 
 2.2 Differences in U-Boot Options/Settings
 -------------------------------------------
@@ -237,8 +237,6 @@ There are plenty of areas where help is needed. Here's are some ideas
 for those interested in contributing:
 
 -CompactFlash. Port & test CF/FAT.
-
--ASMI support. Use ASMI for environment, etc.
 
 -Bedbug. Develop bedbug for Nios ... or at least provide a disassemble
  command.

@@ -31,8 +31,9 @@
 
 #include <asm/byteorder.h>
 #include <linux/stat.h>
+#include <jffs2/jffs2.h>
 #include <jffs2/load_kernel.h>
-#include "cramfs_fs.h"
+#include <cramfs/cramfs_fs.h>
 
 /* These two macros may change in future, to provide better st_ino
    semantics. */
@@ -196,36 +197,6 @@ int cramfs_load (char *loadoffset, struct part_info *info, char *filename)
 
 	return cramfs_uncompress (info->offset, offset,
 				  (unsigned long) loadoffset);
-}
-
-static char *mkmodestr (unsigned long mode, char *str)
-{
-	static const char *l = "xwr";
-	int mask = 1, i;
-	char c;
-
-	switch (mode & S_IFMT) {
-	case S_IFDIR:	str[0] = 'd'; break;
-	case S_IFBLK:	str[0] = 'b'; break;
-	case S_IFCHR:	str[0] = 'c'; break;
-	case S_IFIFO:	str[0] = 'f'; break;
-	case S_IFLNK:	str[0] = 'l'; break;
-	case S_IFSOCK:	str[0] = 's'; break;
-	case S_IFREG:	str[0] = '-'; break;
-	default: str[0] = '?'; break;
-	}
-
-	for (i = 0; i < 9; i++) {
-		c = l[i % 3];
-		str[9 - i] = (mode & mask) ? c : '-';
-		mask = mask << 1;
-	}
-
-	if (mode & S_ISUID) str[3] = (mode & S_IXUSR) ? 's' : 'S';
-	if (mode & S_ISGID) str[6] = (mode & S_IXGRP) ? 's' : 'S';
-	if (mode & S_ISVTX) str[9] = (mode & S_IXOTH) ? 't' : 'T';
-	str[10] = '\0';
-	return str;
 }
 
 static int cramfs_list_inode (struct part_info *info, unsigned long offset)

@@ -38,6 +38,11 @@
 
 #include <cramfs/cramfs_fs.h>
 
+extern int cramfs_check (struct part_info *info);
+extern int cramfs_load (char *loadoffset, struct part_info *info, char *filename);
+extern int cramfs_ls (struct part_info *info, char *filename);
+extern int cramfs_info (struct part_info *info);
+
 static int part_num=0;
 
 #ifndef CFG_JFFS_CUSTOM_PART

@@ -1,6 +1,8 @@
 /*
- * (C) Copyright 2000
+ * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ *
+ * Modified by, Yuli Barcohen, Arabella Software Ltd., yuli@arabellasw.com
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -21,14 +23,15 @@
  * MA 02111-1307 USA
  */
 
-#include <common.h>
 #include <config.h>
+#include <common.h>
 #include <mpc8xx.h>
-#include "fads.h"
-
-/* ------------------------------------------------------------------------- */
 
 #define	_NOT_USED_	0xFFFFFFFF
+
+/* ========================================================================= */
+
+#ifndef CONFIG_DUET_ADS /* No old DRAM on Duet */
 
 #if defined(CONFIG_DRAM_50MHZ)
 /* 50MHz tables */
@@ -184,105 +187,6 @@ static const uint edo_70ns[] =
 #endif
 
 /* ------------------------------------------------------------------------- */
-
-
-/*
- * Check Board Identity:
- */
-
-#if defined(CONFIG_FADS) && !defined(CONFIG_MPC86xADS)
-static void checkdboard(void)
-{
-	/* get db type from BCSR 3 */
-	uint k = (*((uint *)BCSR3) >> 24) & 0x3f;
-
-	printf(" with db ");
-
-	switch(k) {
-	case 0x03 :
-		puts ("MPC823");
-		break;
-	case 0x20 :
-		puts ("MPC801");
-		break;
-	case 0x21 :
-		puts ("MPC850");
-		break;
-	case 0x22 :
-		puts ("MPC821, MPC860 / MPC860SAR / MPC860T");
-		break;
-	case 0x23 :
-		puts ("MPC860SAR");
-		break;
-	case 0x24 :
-	case 0x2A :
-		puts ("MPC860T");
-		break;
-	case 0x3F :
-		puts ("MPC850SAR");
-		break;
-	default : printf("0x%x", k);
-	}
-}
-#endif	/* defined(CONFIG_FADS) && !defined(CONFIG_MPC86xADS) */
-
-int checkboard (void)
-{
-	/* get revision from BCSR 3 */
-	uint r =  (((*((uint *) BCSR3) >> 23) & 1) << 3)
-		| (((*((uint *) BCSR3) >> 19) & 1) << 2)
-		| (((*((uint *) BCSR3) >> 16) & 3));
-
-	puts ("Board: ");
-
-#ifdef CONFIG_FADS
-# ifdef CONFIG_MPC86xADS
-	puts ("MPC86xADS");
-# else
-	puts ("FADS");
-	checkdboard ();
-# endif	/* !CONFIG_MPC86xADS */
-	printf (" rev ");
-
-	switch (r) {
-	case 0x00:
-		puts ("ENG\n");
-		break;
-	case 0x01:
-		puts ("PILOT\n");
-		break;
-	default:
-		printf ("unknown (0x%x)\n", r);
-		return (-1);
-	}
-#endif	/* CONFIG_FADS */
-
-#ifdef CONFIG_ADS
-	printf ("ADS rev ");
-
-	switch (r) {
-	case 0x00:
-		puts ("ENG - this board sucks, check the errata, not supported\n");
-		return -1;
-	case 0x01:
-		puts ("PILOT - warning, read errata \n");
-		break;
-	case 0x02:
-		puts ("A - warning, read errata \n");
-		break;
-	case 0x03:
-		puts ("B \n");
-		break;
-	default:
-		printf ("unknown revision (0x%x)\n", r);
-		return (-1);
-	}
-#endif	/* CONFIG_ADS */
-
-	return 0;
-}
-
-/* ------------------------------------------------------------------------- */
 static long int dram_size (long int *base, long int maxsize)
 {
 	volatile long int *addr=base;
@@ -425,9 +329,11 @@ static void _dramdisable(void)
 
 	/* maybe we should turn off upma here or something */
 }
+#endif /* !CONFIG_DUET_ADS */
 
-#ifdef CONFIG_FADS
-/* SDRAM SUPPORT (FADS ONLY) */
+/* ========================================================================= */
+
+#ifdef CONFIG_FADS /* SDRAM exists on FADS and newer boards */
 
 #if defined(CONFIG_SDRAM_100MHZ)
 
@@ -728,15 +634,18 @@ static int initsdram(uint base, uint *noMbytes)
 	}
 }
 
-/* SDRAM SUPPORT (FADS ONLY) */
 #endif /* CONFIG_FADS */
+
+/* ========================================================================= */
 
 long int initdram (int board_type)
 {
 	uint sdramsz = 0;	/* size of sdram in Mbytes */
 	uint base = 0;		/* base of dram in bytes */
 	uint m = 0;		/* size of dram in Mbytes */
+#ifndef CONFIG_DUET_ADS
 	uint k, s;
+#endif
 
 #ifdef CONFIG_FADS
 	if (!initsdram (0x00000000, &sdramsz)) {
@@ -744,7 +653,7 @@ long int initdram (int board_type)
 		printf ("(%u MB SDRAM) ", sdramsz);
 	}
 #endif
-
+#ifndef CONFIG_DUET_ADS /* No old DRAM on Duet */
 	k = (*((uint *) BCSR2) >> 23) & 0x0f;
 
 	switch (k & 0x3) {
@@ -795,16 +704,8 @@ long int initdram (int board_type)
 		_dramdisable ();
 		m = 0;
 	}
-
+#endif /* !CONFIG_DUET_ADS */
 	m += sdramsz;				/* add sdram size to total */
-
-	if (!m) {
-		/********************************
-		*DRAM ERROR, HALT PROCESSOR
-		*********************************/
-		while (1);
-		return -1;
-	}
 
 	return (m << 20);
 }
@@ -819,6 +720,105 @@ int testdram (void)
     return (0);
 }
 
+/* ========================================================================= */
+
+/*
+ * Check Board Identity:
+ */
+
+#if defined(CONFIG_FADS) && defined(CFG_DAUGHTERBOARD)
+static void checkdboard(void)
+{
+	/* get db type from BCSR 3 */
+	uint k = (*((uint *)BCSR3) >> 24) & 0x3f;
+
+	puts (" with db ");
+
+	switch(k) {
+	case 0x03 :
+		puts ("MPC823");
+		break;
+	case 0x20 :
+		puts ("MPC801");
+		break;
+	case 0x21 :
+		puts ("MPC850");
+		break;
+	case 0x22 :
+		puts ("MPC821, MPC860 / MPC860SAR / MPC860T");
+		break;
+	case 0x23 :
+		puts ("MPC860SAR");
+		break;
+	case 0x24 :
+	case 0x2A :
+		puts ("MPC860T");
+		break;
+	case 0x3F :
+		puts ("MPC850SAR");
+		break;
+	default : printf("0x%x", k);
+	}
+}
+#endif	/* defined(CONFIG_FADS) && defined(CFG_DAUGHTERBOARD) */
+
+int checkboard (void)
+{
+	/* get revision from BCSR 3 */
+	uint r =  (((*((uint *) BCSR3) >> 23) & 1) << 3)
+		| (((*((uint *) BCSR3) >> 19) & 1) << 2)
+		| (((*((uint *) BCSR3) >> 16) & 3));
+
+	puts ("Board: ");
+
+#if defined(CONFIG_MPC86xADS)
+	puts ("MPC86xADS");
+#elif defined(CONFIG_DUET_ADS)
+	puts ("DUET ADS");
+	r = 0; /* I've got NR (No Revision) board */
+#elif defined(CONFIG_FADS)
+	puts ("FADS");
+	checkdboard ();
+#else
+	puts ("ADS");
+#endif
+	puts (" rev ");
+
+	switch (r) {
+#if defined(CONFIG_ADS)
+	case 0x00:
+		puts ("ENG - this board sucks, check the errata, not supported\n");
+		return -1;
+	case 0x01:
+		puts ("PILOT - warning, read errata \n");
+		break;
+	case 0x02:
+		puts ("A - warning, read errata \n");
+		break;
+	case 0x03:
+		puts ("B \n");
+		break;
+#elif defined(CONFIG_DUET_ADS)
+	case 0x00:
+		puts ("NR\n");
+		break;
+#else  /* FADS and newer */
+	case 0x00:
+		puts ("ENG\n");
+		break;
+	case 0x01:
+		puts ("PILOT\n");
+		break;
+#endif /* CONFIG_ADS */
+	default:
+		printf ("unknown (0x%x)\n", r);
+		return -1;
+	}
+
+	return 0;
+}
+
+/* ========================================================================= */
 
 #if (CONFIG_COMMANDS & CFG_CMD_PCMCIA)
 
@@ -964,7 +964,7 @@ int pcmcia_init(void)
 
 #endif	/* CFG_CMD_PCMCIA */
 
-/* ------------------------------------------------------------------------- */
+/* ========================================================================= */
 
 #ifdef CFG_PC_IDE_RESET
 
@@ -988,4 +988,3 @@ void ide_set_reset(int on)
 }
 
 #endif	/* CFG_PC_IDE_RESET */
-/* ------------------------------------------------------------------------- */

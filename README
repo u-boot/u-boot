@@ -202,7 +202,7 @@ Directory Hierarchy:
 - board/Marvell/db64460 Files specific to db64460 board
 - board/mbx8xx	Files specific to MBX	     boards
 - board/mpc8260ads
-		Files specific to MPC8260ADS and PQ2FADS-ZU boards
+		Files specific to MPC826xADS and PQ2FADS-ZU/VR boards
 - board/mpc8540ads
 		Files specific to MPC8540ADS boards
 - board/mpc8560ads
@@ -370,7 +370,7 @@ The following options need to be configured:
 		CONFIG_NETVIA,     CONFIG_RBC823,     CONFIG_ZPC1900,
 		CONFIG_MPC8540ADS, CONFIG_MPC8560ADS, CONFIG_QS850,
 		CONFIG_QS823,      CONFIG_QS860T,     CONFIG_DB64360,
-		CONFIG_DB64460
+		CONFIG_DB64460,	   CONFIG_DUET_ADS
 
 		ARM based boards:
 		-----------------
@@ -407,7 +407,7 @@ The following options need to be configured:
 		CONFIG_ADSTYPE
 		Possible values are:
 			CFG_8260ADS	- original MPC8260ADS
-			CFG_8266ADS	- MPC8266ADS (untested)
+			CFG_8266ADS	- MPC8266ADS
 			CFG_PQ2FADS	- PQ2FADS-ZU or PQ2FADS-VR
 
 
@@ -2004,7 +2004,7 @@ configurations; the following names are supported:
     at91rm9200dk_config	  omap1510inn_config	MPC8260ADS_config
     omap1610inn_config	  ZPC1900_config	MPC8540ADS_config
     MPC8560ADS_config	  QS850_config		QS823_config
-    QS860T_config
+    QS860T_config         DUET_ADS_config
 
 Note: for some board special configuration names may exist; check  if
       additional  information is available from the board vendor; for
@@ -3157,6 +3157,13 @@ kernel source directory.
 Please note that U-Boot is implemented in C (and to some small parts
 in Assembler); no C++ is used, so please do not use C++ style
 comments (//) in your code.
+
+Please also stick to the following formatiing rules:
+- remove any trailing white space
+- use TAB characters for indentation, not spaces
+- make sure NOT to use DOS '\r\n' line feeds
+- do not add more than 2 empty lines to source files
+- do not add trailing empty lines to source files
 
 Submissions which do not conform to the standards may be returned
 with a request to reformat the changes.

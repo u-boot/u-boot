@@ -413,7 +413,7 @@
 #endif
 
 /*------------------------------------------------------------------------
- * Ethernet -- needs work!
+ * Ethernet
  *----------------------------------------------------------------------*/
 #if	(CFG_NIOS_CPU_LAN_NUMS == 1)
 
@@ -640,6 +640,15 @@
 #define	SEVENSEG_DIGIT_DP		(1 << 7) /* bit 7 is decimal point */
 
 #endif	/* CFG_NIOS_CPU_PIO_NUMS */
+
+/*------------------------------------------------------------------------
+ * ASMI - Active Serial Memory Interface.
+ *
+ * ASMI is for Cyclone devices only and only works when the configuration
+ * is loaded via JTAG or ASMI. Please see doc/README.dk1c20 for details.
+ *----------------------------------------------------------------------*/
+#define CONFIG_NIOS_ASMI			/* Enable ASMI		*/
+#define CFG_NIOS_ASMIBASE	0x00920b00	/* ASMI base address	*/
 
 /*------------------------------------------------------------------------
  * COMMANDS

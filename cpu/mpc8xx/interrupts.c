@@ -274,11 +274,21 @@ void timer_interrupt_cpu (struct pt_regs *regs)
 	/* Reset Timer Expired and Timers Interrupt Status */
 	immr->im_clkrstk.cark_plprcrk = KAPWR_KEY;
 	__asm__ ("nop");
-#ifdef CONFIG_MPC866_et_al
-	immr->im_clkrst.car_plprcr |= PLPRCR_TEXPS;
-#else
-	immr->im_clkrst.car_plprcr |= PLPRCR_TEXPS | PLPRCR_TMIST;
-#endif
+	/*
+	  Clear TEXPS (and TMIST on older chips). SPLSS (on older
+	  chips) is cleared too.
+
+	  Bitwise OR is a read-modify-write operation so ALL bits
+	  which are cleared by writing `1' would be cleared by
+	  operations like
+
+	  immr->im_clkrst.car_plprcr |= PLPRCR_TEXPS;
+
+	  The same can be achieved by simple writing of the PLPRCR
+	  to itself. If a bit value should be preserved, read the
+	  register, ZERO the bit and write, not OR, the result back.
+	*/
+	immr->im_clkrst.car_plprcr = immr->im_clkrst.car_plprcr;
 }
 
 /************************************************************************/

@@ -37,8 +37,8 @@ int checkcpu (void)
 	printf ("CPU: ");
 	printf ("%s", (val & 0x00008000) ? "Nios-16 " : "Nios-32 ");
 	rev_major = (val>>12) & 0x07;
-	rev_minor = val & 0x0f;
-	printf ("Rev. %d.%02d (0x%04x)", rev_major, rev_minor,
+	rev_minor = (val>>4) & 0x0ff;
+	printf ("Rev. %d.%d (0x%04x)", rev_major, rev_minor,
 			val & 0xffff);
 	if (rev_major == 0x08)
 		printf (" [OpenCore (R) Plus]");

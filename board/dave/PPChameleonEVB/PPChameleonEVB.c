@@ -1,6 +1,9 @@
 /*
- * (C) Copyright 2001-2003
- * Stefan Roese, esd gmbh germany, stefan.roese@esd-electronics.com
+ * (C) Copyright 2003
+ * DAVE Srl
+ * http://www.dave-tech.it
+ * http://www.wawnet.biz
+ * mailto:info@wawnet.biz
  *
  * See file CREDITS for list of people who contributed to this
  * project.

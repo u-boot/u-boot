@@ -217,8 +217,10 @@ static int fec_init(struct eth_device* dev, bd_t * bd)
 	volatile immap_t *immr = (immap_t *) CFG_IMMR;
 	volatile fec_t *fecp = &(immr->im_cpm.cp_fec);
 
-#if defined(CONFIG_FADS) && \
-	( defined(CONFIG_MPC860T) || defined(CONFIG_MPC866_et_al) )
+#if defined(CONFIG_FADS) /* FADS family uses FPGA (BCSR) to control PHYs */
+#if defined(CONFIG_DUET_ADS)
+	*(vu_char *)BCSR5 &= ~(BCSR5_MII1_EN | BCSR5_MII1_RST);
+#else
 	/* configure FADS for fast (FEC) ethernet, half-duplex */
 	/* The LXT970 needs about 50ms to recover from reset, so
 	 * wait for it by discovering the PHY before leaving eth_init().
@@ -234,7 +236,8 @@ static int fec_init(struct eth_device* dev, bd_t * bd)
 		*bcsr4 |= BCSR4_FETHRST;
 		udelay (10);
 	}
-#endif
+#endif /* CONFIG_DUET_ADS */
+#endif /* CONFIG_FADS */
 	/* Whack a reset.
 	 * A delay is required between a reset of the FEC block and
 	 * initialization of other FEC registers because the reset takes
@@ -350,7 +353,20 @@ static int fec_init(struct eth_device* dev, bd_t * bd)
 	 */
 	fecp->fec_mii_speed = ((bd->bi_intfreq + 4999999) / 5000000) << 1;
 
-#if !defined(CONFIG_ICU862) && !defined(CONFIG_IAD210)
+#if defined(CONFIG_DUET) /* MPC87x/88x have got 2 FECs and different pinout */
+	immr->im_ioport.iop_papar |=  0xf830;
+	immr->im_ioport.iop_padir |=  0x0830;
+	immr->im_ioport.iop_padir &= ~0xf000;
+	immr->im_cpm.cp_pbpar     |=  0x00001001;
+	immr->im_cpm.cp_pbdir     &= ~0x00001001;
+	immr->im_ioport.iop_pcpar |=  0x000c;
+	immr->im_ioport.iop_pcdir &= ~0x000c;
+	immr->im_ioport.iop_pdpar |=  0x0080;
+	immr->im_ioport.iop_pddir &= ~0x0080;
+	immr->im_cpm.cp_pepar     |=  0x00000003;
+	immr->im_cpm.cp_pedir     |=  0x00000003;
+	immr->im_cpm.cp_peso      &= ~0x00000003;
+#elif !defined(CONFIG_ICU862) && !defined(CONFIG_IAD210)
 	/* Configure all of port D for MII.
 	 */
 	immr->im_ioport.iop_pdpar = 0x1fff;
@@ -465,7 +481,7 @@ static	uint	phytype;
 #define PHY_ID_AMD79C784	0x00225610	/* AMD 79C784 */
 #define PHY_ID_LSI80225		0x0016f870	/* LSI 80225 */
 #define PHY_ID_LSI80225B	0x0016f880	/* LSI 80225/B */
-
+#define PHY_ID_DM9161		0x0181B880	/* Davicom DM9161 */
 
 /* send command to phy using mii, wait for result */
 static uint
@@ -541,6 +557,9 @@ mii_discover_phy(void)
 				case PHY_ID_LSI80225B:
 					printf("LSI L80225/B\n");
 					break;
+				case PHY_ID_DM9161:
+					printf("Davicom DM9161\n");
+					break;
 				default:
 					printf("0x%08x\n", phytype);
 					break;
@@ -614,7 +633,20 @@ void mii_init (void)
 	 */
 	fecp->fec_mii_speed = ((bd->bi_intfreq + 4999999) / 5000000) << 1;
 
-#if !defined(CONFIG_ICU862) && !defined(CONFIG_IAD210)
+#if defined(CONFIG_DUET) /* MPC87x/88x have got 2 FECs and different pinout */
+	immr->im_ioport.iop_papar |=  0xf830;
+	immr->im_ioport.iop_padir |=  0x0830;
+	immr->im_ioport.iop_padir &= ~0xf000;
+	immr->im_cpm.cp_pbpar     |=  0x00001001;
+	immr->im_cpm.cp_pbdir     &= ~0x00001001;
+	immr->im_ioport.iop_pcpar |=  0x000c;
+	immr->im_ioport.iop_pcdir &= ~0x000c;
+	immr->im_ioport.iop_pdpar |=  0x0080;
+	immr->im_ioport.iop_pddir &= ~0x0080;
+	immr->im_cpm.cp_pepar     |=  0x00000003;
+	immr->im_cpm.cp_pedir     |=  0x00000003;
+	immr->im_cpm.cp_peso      &= ~0x00000003;
+#elif !defined(CONFIG_ICU862) && !defined(CONFIG_IAD210)
 	/* Configure all of port D for MII.
 	 */
 	immr->im_ioport.iop_pdpar = 0x1fff;

@@ -1,6 +1,8 @@
 #
-# (C) Copyright 2000
+# (C) Copyright 2000-2004
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+#
+# Modified by, Yuli Barcohen, Arabella Software Ltd., yuli@arabellasw.com
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -22,9 +24,11 @@
 #
 
 #
-# Motorola old MPC821/860ADS, MPC8xxFADS, and new MPC866ADS boards
+# Motorola old MPC821/860ADS, MPC8xxFADS, new MPC866ADS, and DUET
+# (MPC87x/88x) ADS boards
 #
 
 TEXT_BASE = 0xFE000000
-#TEXT_BASE = 0x02800000
-#OBJCFLAGS = --set-section-flags=.ppcenv=contents,alloc,load,data
+PLATFORM_CPPFLAGS += -I$(TOPDIR)/board/fads
+HOST_CFLAGS += -I$(TOPDIR)/board/fads
+HOST_ENVIRO_CFLAGS += -I$(TOPDIR)/board/fads
