@@ -2,6 +2,12 @@
 Changes since U-Boot 1.0.1:
 ======================================================================
 
+* Patch by Travis Sawyer, 30 Dec 2003:
+  Add support for IBM PPC440GX. Multiple EMAC Ethernet devices,
+  select MDI port based on enabled EMAC device.
+  Add support for XES Inc <http://www.xes-inc.com> XPedite1000 440GX
+  base PrPMC board.
+
 * Patch by Wolter Kamphuis, 15 Dec 2003:
   made CONFIG_SILENT_CONSOLE usable on all architectures
 

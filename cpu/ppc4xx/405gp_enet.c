@@ -83,7 +83,8 @@
 #include <malloc.h>
 #include "vecnum.h"
 
-#if defined(CONFIG_405GP) || defined(CONFIG_440) || defined(CONFIG_405EP)
+#if defined(CONFIG_405GP) || defined(CONFIG_405EP) || \
+  ( defined(CONFIG_440)   && !defined(CONFIG_NET_MULTI))
 
 #define EMAC_RESET_TIMEOUT 1000	/* 1000 ms reset timeout */
 #define PHY_AUTONEGOTIATE_TIMEOUT 4000	/* 4000 ms autonegotiate timeout */

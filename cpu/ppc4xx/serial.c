@@ -271,9 +271,15 @@ int serial_tstc ()
 #if defined(CONFIG_440)
 #define UART0_BASE  CFG_PERIPHERAL_BASE + 0x00000200
 #define UART1_BASE  CFG_PERIPHERAL_BASE + 0x00000300
+#if defined(CONFIG_440_GX)
+#define CR0_MASK        0xdfffffff
+#define CR0_EXTCLK_ENA  0x00800000
+#define CR0_UDIV_POS    0
+#else
 #define CR0_MASK        0x3fff0000
 #define CR0_EXTCLK_ENA  0x00600000
 #define CR0_UDIV_POS    16
+#endif /* CONFIG_440_GX */
 #elif defined(CONFIG_405EP)
 #define UART0_BASE      0xef600300
 #define UART1_BASE      0xef600400
@@ -295,9 +301,17 @@ int serial_tstc ()
 #if defined(CONFIG_UART1_CONSOLE)
 #define ACTING_UART0_BASE	UART1_BASE
 #define ACTING_UART1_BASE	UART0_BASE
+#if defined(CONFIG_440_GX)
+#define UART0_SDR           sdr_uart1
+#define UART1_SDR           sdr_uart0
+#endif /* CONFIG_440_GX */
 #else
 #define ACTING_UART0_BASE	UART0_BASE
 #define ACTING_UART1_BASE	UART1_BASE
+#if defined(CONFIG_440_GX)
+#define UART0_SDR           sdr_uart0
+#define UART1_SDR           sdr_uart1
+#endif /* CONFIG_440_GX */
 #endif
 
 #if defined(CONFIG_405EP) && defined(CFG_EXT_SERIAL_CLOCK)
@@ -416,7 +430,12 @@ int serial_init (void)
 	unsigned long tmp;
 #endif
 
+#if defined(CONFIG_440_GX)
+	mfsdr(UART0_SDR,reg);
+	reg &= ~CR0_MASK;
+#else
 	reg = mfdcr(cntrl0) & ~CR0_MASK;
+#endif /* CONFIG_440_GX */
 #ifdef CFG_EXT_SERIAL_CLOCK
 	reg |= CR0_EXTCLK_ENA;
 	udiv = 1;
@@ -430,9 +449,13 @@ int serial_init (void)
 	serial_divs (gd->baudrate, &udiv, &bdiv);
 #endif
 
+#if defined(CONFIG_440_GX)
+	reg |= udiv << CR0_UDIV_POS;	/* set the UART divisor */
+	mtsdr (UART0_SDR,reg);
+#else
 	reg |= (udiv - 1) << CR0_UDIV_POS;	/* set the UART divisor */
 	mtdcr (cntrl0, reg);
-
+#endif
 	out8 (ACTING_UART0_BASE + UART_LCR, 0x80);	/* set DLAB bit */
 	out8 (ACTING_UART0_BASE + UART_DLL, bdiv);	/* set baudrate divisor */
 	out8 (ACTING_UART0_BASE + UART_DLM, bdiv >> 8);/* set baudrate divisor */

@@ -166,7 +166,12 @@ _start_440:
 	mtspr	srr1,r0
 	mtspr	csrr0,r0
 	mtspr	csrr1,r0
-
+#if defined (CONFIG_440_GX) /* NOTE: 440GX adds machine check status regs */
+	mtspr   mcsrr0,r0
+	mtspr   mcsrr1,r0
+	mfspr   r1, mcsr
+	mtspr   mcsr,r1
+#endif
 	/*----------------------------------------------------------------*/
 	/* Initialize debug */
 	/*----------------------------------------------------------------*/
@@ -335,9 +340,23 @@ _start:
 	mtspr	tcr,r0			/* disable all */
 	mtspr	esr,r0			/* clear exception syndrome register */
 	mtxer	r0			/* clear integer exception register */
+#if !defined(CONFIG_440_GX)
 	lis	r1,0x0002		/* set CE bit (Critical Exceptions) */
 	ori	r1,r1,0x1000		/* set ME bit (Machine Exceptions) */
 	mtmsr	r1			/* change MSR */
+#else
+	bl	__440gx_msr_set
+	b	__440gx_msr_continue
+
+__440gx_msr_set:
+	lis 	r1, 0x0002		/* set CE bit (Critical Exceptions) */
+	ori 	r1,r1,0x1000	/* set ME bit (Machine Exceptions) */
+	mtspr	srr1,r1
+	mflr	r1
+	mtspr	srr0,r1
+	rfi
+__440gx_msr_continue:
+#endif
 
 	/*----------------------------------------------------------------*/
 	/* Debug setup -- some (not very good) ice's need an event*/
@@ -358,6 +377,9 @@ _start:
 	/* Setup the internal SRAM */
 	/*----------------------------------------------------------------*/
 	li	r0,0
+#if defined (CONFIG_440_GX)
+	mtdcr   l2_cache_cfg,r0		/* Ensure L2 Cache is off */
+#endif
 	mtdcr	isram0_sb1cr,r0		/* Disable bank 1 */
 
 	li	r2,0x7fff
@@ -370,8 +392,22 @@ _start:
 	mtdcr	isram0_pmeg,r1
 
 	lis	r1,0x8000		/* BAS = 8000_0000 */
+#if defined(CONFIG_440_GX)
+	ori	r1,r1,0x0980		/* first 64k */
+	mtdcr   isram0_sb0cr,r1
+	lis	r1,0x8001
+	ori	r1,r1,0x0980		/* second 64k */
+	mtdcr   isram0_sb1cr,r1
+	lis	r1, 0x8002
+	ori	r1,r1, 0x0980		/* third 64k */
+	mtdcr   isram0_sb2cr,r1
+	lis	r1, 0x8003
+	ori	r1,r1, 0x0980		/* fourth 64k */
+	mtdcr   isram0_sb3cr,r1
+#else
 	ori	r1,r1,0x0380		/* 8k rw */
 	mtdcr	isram0_sb0cr,r1
+#endif
 
 	/*----------------------------------------------------------------*/
 	/* Setup the stack in internal SRAM */
@@ -921,7 +957,12 @@ invalidate_icache:
 invalidate_dcache:
 	addi	r6,0,0x0000		/* clear GPR 6 */
 	/* Do loop for # of dcache congruence classes. */
+#if defined(CONFIG_440_GX)
+	lis     r7, (CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@ha	/* TBS for large sized cache */
+	ori     r7, r7, (CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@l
+#else
 	addi	r7,r0, (CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)
+#endif
 					/* NOTE: dccci invalidates both */
 	mtctr	r7			/* ways in the D cache */
 ..dcloop:
@@ -942,8 +983,15 @@ flush_dcache:
 	mtdccr	r10
 
 	/* do loop for # of congruence classes. */
+#if defined(CONFIG_440_GX)
+	lis     r10,(CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@ha	/* TBS: for large cache sizes */
+	ori     r10,r10,(CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@l
+	lis     r11,(CFG_DCACHE_SIZE / 2)@ha /* D cache set size - 2 way sets */
+	ori     r11,r11,(CFG_DCACHE_SIZE / 2)@l /* D cache set size - 2 way sets */
+#else
 	addi	r10,r0,(CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)
 	addi	r11,r0,(CFG_DCACHE_SIZE / 2) /* D cache set size - 2 way sets */
+#endif
 	mtctr	r10
 	addi	r10,r0,(0xE000-0x10000)	/* start at 0xFFFFE000 */
 	add	r11,r10,r11		/* add to get to other side of cache line */

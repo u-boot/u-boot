@@ -5,6 +5,9 @@
  * (C) Copyright 2002 (440 port)
  * Scott McNutt, Artesyn Communication Producs, smcnutt@artsyncp.com
  *
+ * (C) Copyright 2003 (440GX port)
+ * Travis B. Sawyer, Sandburst Corporation, tsawyer@sandburst.com
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -50,7 +53,15 @@ static struct irq_action irq_vecs[32];
 static struct irq_action irq_vecs1[32]; /* For UIC1 */
 
 void uic1_interrupt( void * parms); /* UIC1 handler */
-#endif
+
+#if defined(CONFIG_440_GX)
+static struct irq_action irq_vecs2[32]; /* For UIC2 */
+
+void uic0_interrupt( void * parms); /* UIC0 handler */
+void uic2_interrupt( void * parms); /* UIC2 handler */
+#endif /* CONFIG_440_GX */
+
+#endif /* CONFIG_440 */
 
 /****************************************************************************/
 #if defined(CONFIG_440)
@@ -104,6 +115,11 @@ int interrupt_init_cpu (unsigned *decrementer_count)
 		irq_vecs1[vec].handler = NULL;
 		irq_vecs1[vec].arg = NULL;
 		irq_vecs1[vec].count = 0;
+#if defined(CONFIG_440_GX)
+		irq_vecs2[vec].handler = NULL;
+		irq_vecs2[vec].arg = NULL;
+		irq_vecs2[vec].count = 0;
+#endif /* CONFIG_440_GX */
 #endif
 	}
 
@@ -146,9 +162,17 @@ int interrupt_init_cpu (unsigned *decrementer_count)
 	set_evpr(0x00000000);
 
 #if defined(CONFIG_440)
+#if !defined(CONFIG_440_GX)
 	/* Install the UIC1 handlers */
 	irq_install_handler(VECNUM_UIC1NC, uic1_interrupt, 0);
 	irq_install_handler(VECNUM_UIC1C, uic1_interrupt, 0);
+#endif
+#endif
+
+#if defined(CONFIG_440_GX)
+	/* Enable UIC interrupts via UIC Base Enable Register */
+	mtdcr(uicb0er, UICB0_ALL);
+	mtdcr(uicb0cr, UICB0_ALL);
 #endif
 
 	return (0);
@@ -159,6 +183,29 @@ int interrupt_init_cpu (unsigned *decrementer_count)
 /*
  * Handle external interrupts
  */
+#if defined(CONFIG_440_GX)
+void external_interrupt(struct pt_regs *regs)
+{
+	ulong uic_msr;
+
+	/*
+	 * Read masked interrupt status register to determine interrupt source
+	 */
+	/* 440 GX uses base uic register */
+	uic_msr = mfdcr(uicb0msr);
+
+	uic0_interrupt(0);
+	uic1_interrupt(0);
+	uic2_interrupt(0);
+
+	mtdcr(uicb0sr, UICB0_ALL);
+
+	return;
+
+} /* external_interrupt CONFIG_440_GX */
+
+#else
+
 void external_interrupt(struct pt_regs *regs)
 {
 	ulong uic_msr;
@@ -200,6 +247,53 @@ void external_interrupt(struct pt_regs *regs)
 		vec++;
 	}
 }
+#endif
+
+#if defined(CONFIG_440_GX)
+/* Handler for UIC0 interrupt */
+void uic0_interrupt( void * parms)
+{
+	ulong uic_msr;
+	ulong msr_shift;
+	int vec;
+
+	/*
+	 * Read masked interrupt status register to determine interrupt source
+	 */
+	uic_msr = mfdcr(uicmsr);
+	msr_shift = uic_msr;
+	vec = 0;
+
+	while (msr_shift != 0) {
+		if (msr_shift & 0x80000000) {
+			/*
+			 * Increment irq counter (for debug purpose only)
+			 */
+			irq_vecs[vec].count++;
+
+			if (irq_vecs[vec].handler != NULL) {
+				/* call isr */
+				(*irq_vecs[vec].handler)(irq_vecs[vec].arg);
+			} else {
+				mtdcr(uicer, mfdcr(uicer) & ~(0x80000000 >> vec));
+				printf ("Masking bogus interrupt vector (uic0) 0x%x\n", vec);
+			}
+
+			/*
+			 * After servicing the interrupt, we have to remove the status indicator.
+			 */
+			mtdcr(uicsr, (0x80000000 >> vec));
+		}
+
+		/*
+		 * Shift msr to next position and increment vector
+		 */
+		msr_shift <<= 1;
+		vec++;
+	}
+}
+
+#endif /* CONFIG_440_GX */
 
 #if defined(CONFIG_440)
 /* Handler for UIC1 interrupt */
@@ -246,50 +340,119 @@ void uic1_interrupt( void * parms)
 }
 #endif /* defined(CONFIG_440) */
 
+#if defined(CONFIG_440_GX)
+/* Handler for UIC1 interrupt */
+void uic2_interrupt( void * parms)
+{
+	ulong uic2_msr;
+	ulong msr_shift;
+	int vec;
+
+	/*
+	 * Read masked interrupt status register to determine interrupt source
+	 */
+	uic2_msr = mfdcr(uic2msr);
+	msr_shift = uic2_msr;
+	vec = 0;
+
+	while (msr_shift != 0) {
+		if (msr_shift & 0x80000000) {
+			/*
+			 * Increment irq counter (for debug purpose only)
+			 */
+			irq_vecs2[vec].count++;
+
+			if (irq_vecs2[vec].handler != NULL) {
+				/* call isr */
+				(*irq_vecs2[vec].handler)(irq_vecs2[vec].arg);
+			} else {
+				mtdcr(uic2er, mfdcr(uic2er) & ~(0x80000000 >> vec));
+				printf ("Masking bogus interrupt vector (uic1) 0x%x\n", vec);
+			}
+
+			/*
+			 * After servicing the interrupt, we have to remove the status indicator.
+			 */
+			mtdcr(uic2sr, (0x80000000 >> vec));
+		}
+
+		/*
+		 * Shift msr to next position and increment vector
+		 */
+		msr_shift <<= 1;
+		vec++;
+	}
+}
+#endif /* defined(CONFIG_440_GX) */
+
 /****************************************************************************/
 
 /*
  * Install and free a interrupt handler.
  */
 
-void
-irq_install_handler(int vec, interrupt_handler_t *handler, void *arg)
+void irq_install_handler (int vec, interrupt_handler_t * handler, void *arg)
 {
 	struct irq_action *irqa = irq_vecs;
-	int   i = vec;
+	int i = vec;
 
 #if defined(CONFIG_440)
+#if defined(CONFIG_440_GX)
+	if ((vec > 31) && (vec < 64)) {
+		i = vec - 32;
+		irqa = irq_vecs1;
+	} else if (vec > 63) {
+		i = vec - 64;
+		irqa = irq_vecs2;
+	}
+#else  /* CONFIG_440_GX */
 	if (vec > 31) {
 		i = vec - 32;
 		irqa = irq_vecs1;
 	}
-#endif
+#endif /* CONFIG_440_GX */
+#endif /* CONFIG_440 */
 
 	if (irqa[i].handler != NULL) {
 		printf ("Interrupt vector %d: handler 0x%x replacing 0x%x\n",
-			vec, (uint)handler, (uint)irqa[i].handler);
+			vec, (uint) handler, (uint) irqa[i].handler);
 	}
 	irqa[i].handler = handler;
-	irqa[i].arg     = arg;
+	irqa[i].arg = arg;
 
 #if defined(CONFIG_440)
-	if( vec > 31 )
-		mtdcr(uic1er, mfdcr(uic1er) | (0x80000000 >> i));
+#if defined(CONFIG_440_GX)
+	if ((vec > 31) && (vec < 64))
+		mtdcr (uic1er, mfdcr (uic1er) | (0x80000000 >> i));
+	else if (vec > 63)
+		mtdcr (uic2er, mfdcr (uic2er) | (0x80000000 >> i));
+	else
+#endif /* CONFIG_440_GX */
+	if (vec > 31)
+		mtdcr (uic1er, mfdcr (uic1er) | (0x80000000 >> i));
 	else
 #endif
-		mtdcr(uicer, mfdcr(uicer) | (0x80000000 >> i));
+		mtdcr (uicer, mfdcr (uicer) | (0x80000000 >> i));
 #if 0
 	printf ("Install interrupt for vector %d ==> %p\n", vec, handler);
 #endif
 }
 
-void
-irq_free_handler(int vec)
+void irq_free_handler (int vec)
 {
 	struct irq_action *irqa = irq_vecs;
-	int   i = vec;
+	int i = vec;
 
 #if defined(CONFIG_440)
+#if defined(CONFIG_440_GX)
+	if ((vec > 31) && (vec < 64)) {
+		irqa = irq_vecs1;
+		i = vec - 32;
+	} else if (vec > 63) {
+		irqa = irq_vecs2;
+		i = vec - 64;
+	}
+#endif /* CONFIG_440_GX */
 	if (vec > 31) {
 		irqa = irq_vecs1;
 		i = vec - 32;
@@ -302,14 +465,21 @@ irq_free_handler(int vec)
 #endif
 
 #if defined(CONFIG_440)
+#if defined(CONFIG_440_GX)
+	if ((vec > 31) && (vec < 64))
+		mtdcr (uic1er, mfdcr (uic1er) & ~(0x80000000 >> i));
+	else if (vec > 63)
+		mtdcr (uic2er, mfdcr (uic2er) & ~(0x80000000 >> i));
+	else
+#endif /* CONFIG_440_GX */
 	if (vec > 31)
-		mtdcr(uic1er, mfdcr(uic1er) & ~(0x80000000 >> i));
+		mtdcr (uic1er, mfdcr (uic1er) & ~(0x80000000 >> i));
 	else
 #endif
-		mtdcr(uicer, mfdcr(uicer) & ~(0x80000000 >> i));
+		mtdcr (uicer, mfdcr (uicer) & ~(0x80000000 >> i));
 
 	irqa[i].handler = NULL;
-	irqa[i].arg     = NULL;
+	irqa[i].arg = NULL;
 }
 
 /****************************************************************************/
@@ -354,8 +524,7 @@ do_irqinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	printf ("\nUIC 1\n");
 	printf ("Nr  Routine   Arg       Count\n");
 
-	for (vec=0; vec<32; vec++)
-	{
+	for (vec=0; vec<32; vec++) {
 		if (irq_vecs1[vec].handler != NULL)
 			printf ("%02d  %08lx  %08lx  %d\n",
 				vec+31, (ulong)irq_vecs1[vec].handler,
@@ -363,8 +532,20 @@ do_irqinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 	printf("\n");
 #endif
+
+#if defined(CONFIG_440_GX)
+	printf ("\nUIC 2\n");
+	printf ("Nr  Routine   Arg       Count\n");
+
+	for (vec=0; vec<32; vec++) {
+		if (irq_vecs2[vec].handler != NULL)
+			printf ("%02d  %08lx  %08lx  %d\n",
+				vec+63, (ulong)irq_vecs2[vec].handler,
+				(ulong)irq_vecs2[vec].arg, irq_vecs2[vec].count);
+	}
+	printf("\n");
+#endif
+
 	return 0;
 }
-
-
 #endif  /* CONFIG_COMMANDS & CFG_CMD_IRQ */

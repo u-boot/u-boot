@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000
+# (C) Copyright 2002-2004
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,27 +23,25 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(CPU).a
+LIB	= lib$(BOARD).a
 
-START	= start.o resetvec.o kgdb.o
-AOBJS	= dcr.o
-COBJS	= 405gp_enet.o 405gp_pci.o 440gx_enet.o \
-	  bedbug_405.o \
-	  cpu.o cpu_init.o i2c.o interrupts.o \
-	  miiphy.o miiphy_440.o sdram.o serial.o \
-	  spd_sdram.o speed.o traps.o
+OBJS	= $(BOARD).o
+OBJS +=flash.o
+SOBJS	= init.o
 
-OBJS	= $(AOBJS) $(COBJS)
-
-all:	.depend $(START) $(LIB)
-
-$(LIB):	$(OBJS)
+$(LIB):	$(OBJS) $(SOBJS)
 	$(AR) crv $@ $(OBJS)
+
+clean:
+	rm -f $(SOBJS) $(OBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak .depend
 
 #########################################################################
 
-.depend:	Makefile $(START:.o=.S) $(AOBJS:.o=.S) $(COBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(START:.o=.S) $(AOBJS:.o=.S) $(COBJS:.o=.c) > $@
+.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
+		$(CC) -M $(CFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
 
 sinclude .depend
 

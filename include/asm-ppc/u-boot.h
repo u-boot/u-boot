@@ -83,14 +83,19 @@ typedef struct bd_info {
     defined(CONFIG_SXNI855T)		|| \
     defined(CONFIG_SVM_SC8xx)		|| \
     defined(CONFIG_MPC8540ADS)          || \
-    defined(CONFIG_MPC8560ADS)
+    defined(CONFIG_MPC8560ADS)      || \
+    defined(CONFIG_440_GX)
 	/* second onboard ethernet port */
 	unsigned char   bi_enet1addr[6];
 #endif
 #if defined(CFG_GT_6426x) || defined(CONFIG_SVM_SC8xx) || \
-    defined(CONFIG_MPC8540ADS) || defined(CONFIG_MPC8560ADS)
+    defined(CONFIG_MPC8540ADS) || defined(CONFIG_MPC8560ADS) || \
+    defined(CONFIG_440_GX)
 	/* third onboard ethernet port */
 	unsigned char	bi_enet2addr[6];
+#endif
+#if defined(CONFIG_440_GX)
+	unsigned char   bi_enet3addr[6];
 #endif
 #if defined(CONFIG_405GP) || defined(CONFIG_405EP)
 	unsigned int	bi_opbfreq;		/* OPB clock in Hz */

@@ -635,6 +635,9 @@ W7OLMG_config: unconfig
 WALNUT405_config:unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx walnut405
 
+XPEDITE1K_config:unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx xpedite1k
+
 #########################################################################
 ## MPC824x Systems
 #########################################################################

@@ -141,7 +141,7 @@ Directory Hierarchy:
 
 - cpu/74xx_7xx	Files specific to Motorola MPC74xx and 7xx CPUs
 - cpu/arm925t	Files specific to ARM	   925	   CPUs
-- cpu/arm926ejs	Files specific to ARM	926	CPUs
+- cpu/arm926ejs Files specific to ARM	926	CPUs
 - cpu/mpc5xx	Files specific to Motorola MPC5xx  CPUs
 - cpu/mpc8xx	Files specific to Motorola MPC8xx  CPUs
 - cpu/mpc824x	Files specific to Motorola MPC824x CPUs
@@ -150,22 +150,22 @@ Directory Hierarchy:
 - cpu/ppc4xx	Files specific to IBM	   4xx	   CPUs
 
 
-- board/LEOX/   Files specific to boards manufactured by The LEOX team
+- board/LEOX/	Files specific to boards manufactured by The LEOX team
 - board/LEOX/elpt860	Files specific to ELPT860 boards
 - board/RPXClassic
 		Files specific to RPXClassic boards
-- board/RPXlite	Files specific to RPXlite    boards
+- board/RPXlite Files specific to RPXlite    boards
 - board/at91rm9200dk Files specific to AT91RM9200DK boards
 - board/c2mon	Files specific to c2mon	     boards
-- board/cmi	Files specific to cmi        boards
+- board/cmi	Files specific to cmi	     boards
 - board/cogent	Files specific to Cogent     boards
 		(need further configuration)
 		Files specific to CPCIISER4  boards
-- board/cpu86	Files specific to CPU86      boards
+- board/cpu86	Files specific to CPU86	     boards
 - board/cray/	Files specific to boards manufactured by Cray
-- board/cray/L1		Files specific to L1         boards
+- board/cray/L1		Files specific to L1	     boards
 - board/cu824	Files specific to CU824	     boards
-- board/ebony   Files specific to IBM Ebony board
+- board/ebony	Files specific to IBM Ebony board
 - board/eric	Files specific to ERIC	     boards
 - board/esd/	Files specific to boards manufactured by ESD
 - board/esd/adciop	Files specific to ADCIOP     boards
@@ -175,8 +175,8 @@ Directory Hierarchy:
 - board/esd/cpciiser4	Files specific to CPCIISER4  boards
 - board/esd/common	Common files for ESD boards
 - board/esd/dasa_sim	Files specific to DASA_SIM   boards
-- board/esd/du405	Files specific to DU405      boards
-- board/esd/ocrtc	Files specific to OCRTC      boards
+- board/esd/du405	Files specific to DU405	     boards
+- board/esd/ocrtc	Files specific to OCRTC	     boards
 - board/esd/pci405	Files specific to PCI405     boards
 - board/esteem192e
 		Files specific to ESTEEM192E boards
@@ -211,17 +211,17 @@ Directory Hierarchy:
 - board/mpl/common	Common files for MPL boards
 - board/mpl/pip405	Files specific to PIP405     boards
 - board/mpl/mip405	Files specific to MIP405     boards
-- board/mpl/vcma9	Files specific to VCMA9      boards
-- board/musenki	Files specific to MUSEKNI    boards
-- board/mvs1	Files specific to MVS1       boards
-- board/nx823   Files specific to NX823      boards
-- board/oxc	Files specific to OXC        boards
+- board/mpl/vcma9	Files specific to VCMA9	     boards
+- board/musenki Files specific to MUSEKNI    boards
+- board/mvs1	Files specific to MVS1	     boards
+- board/nx823	Files specific to NX823	     boards
+- board/oxc	Files specific to OXC	     boards
 - board/omap1510inn
 		Files specific to OMAP 1510 Innovator boards
 - board/omap1610inn
 		Files specific to OMAP 1610 Innovator boards
-- board/pcippc2	Files specific to PCIPPC2/PCIPPC6 boards
-- board/pm826	Files specific to PM826      boards
+- board/pcippc2 Files specific to PCIPPC2/PCIPPC6 boards
+- board/pm826	Files specific to PM826	     boards
 - board/ppmc8260
 		Files specific to PPMC8260   boards
 - board/snmc/qs850	Files specific to QS850/823  boards
@@ -232,24 +232,24 @@ Directory Hierarchy:
 		Files specific to RSDproto   boards
 - board/sandpoint
 		Files specific to Sandpoint  boards
-- board/sbc8260	Files specific to SBC8260    boards
+- board/sbc8260 Files specific to SBC8260    boards
 - board/sacsng	Files specific to SACSng     boards
 - board/siemens Files specific to boards manufactured by Siemens AG
 - board/siemens/CCM	Files specific to CCM	     boards
 - board/siemens/IAD210	Files specific to IAD210     boards
-- board/siemens/SCM	Files specific to SCM        boards
+- board/siemens/SCM	Files specific to SCM	     boards
 - board/siemens/pcu_e	Files specific to PCU_E	     boards
 - board/sixnet	Files specific to SIXNET     boards
 - board/spd8xx	Files specific to SPD8xxTS   boards
 - board/tqm8260 Files specific to TQM8260    boards
 - board/tqm8xx	Files specific to TQM8xxL    boards
-- board/w7o	Files specific to W7O        boards
+- board/w7o	Files specific to W7O	     boards
 - board/walnut405
 		Files specific to Walnut405  boards
-- board/westel/	Files specific to boards manufactured by Westel Wireless
+- board/westel/ Files specific to boards manufactured by Westel Wireless
 - board/westel/amx860	Files specific to AMX860     boards
-- board/utx8245	Files specific to UTX8245   boards
-- board/zpc1900	Files specific to Zephyr Engineering ZPC.1900 board
+- board/utx8245 Files specific to UTX8245   boards
+- board/zpc1900 Files specific to Zephyr Engineering ZPC.1900 board
 
 Software Configuration:
 =======================
@@ -336,49 +336,49 @@ The following options need to be configured:
 		PowerPC based boards:
 		---------------------
 
-		CONFIG_ADCIOP,     CONFIG_ICU862      CONFIG_RPXsuper,
-		CONFIG_ADS860,     CONFIG_IP860,      CONFIG_SM850,
-		CONFIG_AMX860,     CONFIG_IPHASE4539, CONFIG_SPD823TS,
-		CONFIG_AR405,      CONFIG_IVML24,     CONFIG_SXNI855T,
-		CONFIG_BAB7xx,     CONFIG_IVML24_128, CONFIG_Sandpoint8240,
-		CONFIG_CANBT,      CONFIG_IVML24_256, CONFIG_Sandpoint8245,
-		CONFIG_CCM,        CONFIG_IVMS8,      CONFIG_TQM823L,
-		CONFIG_CPCI405,    CONFIG_IVMS8_128,  CONFIG_TQM850L,
+		CONFIG_ADCIOP,	   CONFIG_ICU862      CONFIG_RPXsuper,
+		CONFIG_ADS860,	   CONFIG_IP860,      CONFIG_SM850,
+		CONFIG_AMX860,	   CONFIG_IPHASE4539, CONFIG_SPD823TS,
+		CONFIG_AR405,	   CONFIG_IVML24,     CONFIG_SXNI855T,
+		CONFIG_BAB7xx,	   CONFIG_IVML24_128, CONFIG_Sandpoint8240,
+		CONFIG_CANBT,	   CONFIG_IVML24_256, CONFIG_Sandpoint8245,
+		CONFIG_CCM,	   CONFIG_IVMS8,      CONFIG_TQM823L,
+		CONFIG_CPCI405,	   CONFIG_IVMS8_128,  CONFIG_TQM850L,
 		CONFIG_CPCI4052,   CONFIG_IVMS8_256,  CONFIG_TQM855L,
 		CONFIG_CPCIISER4,  CONFIG_LANTEC,     CONFIG_TQM860L,
-		CONFIG_CPU86,      CONFIG_MBX,        CONFIG_TQM8260,
-		CONFIG_CRAYL1,     CONFIG_MBX860T,    CONFIG_TTTech,
-		CONFIG_CU824,      CONFIG_MHPC,       CONFIG_UTX8245,
+		CONFIG_CPU86,	   CONFIG_MBX,	      CONFIG_TQM8260,
+		CONFIG_CRAYL1,	   CONFIG_MBX860T,    CONFIG_TTTech,
+		CONFIG_CU824,	   CONFIG_MHPC,	      CONFIG_UTX8245,
 		CONFIG_DASA_SIM,   CONFIG_MIP405,     CONFIG_W7OLMC,
-		CONFIG_DU405,      CONFIG_MOUSSE,     CONFIG_W7OLMG,
-		CONFIG_ELPPC,      CONFIG_MPC8260ADS, CONFIG_WALNUT405,
-		CONFIG_ERIC,       CONFIG_MUSENKI,    CONFIG_ZUMA,
-		CONFIG_ESTEEM192E, CONFIG_MVS1,       CONFIG_c2mon,
-		CONFIG_ETX094,     CONFIG_NX823,      CONFIG_cogent_mpc8260,
+		CONFIG_DU405,	   CONFIG_MOUSSE,     CONFIG_W7OLMG,
+		CONFIG_ELPPC,	   CONFIG_MPC8260ADS, CONFIG_WALNUT405,
+		CONFIG_ERIC,	   CONFIG_MUSENKI,    CONFIG_ZUMA,
+		CONFIG_ESTEEM192E, CONFIG_MVS1,	      CONFIG_c2mon,
+		CONFIG_ETX094,	   CONFIG_NX823,      CONFIG_cogent_mpc8260,
 		CONFIG_EVB64260,   CONFIG_OCRTC,      CONFIG_cogent_mpc8xx,
-		CONFIG_FADS823,    CONFIG_ORSG,       CONFIG_ep8260,
-		CONFIG_FADS850SAR, CONFIG_OXC,        CONFIG_gw8260,
+		CONFIG_FADS823,	   CONFIG_ORSG,	      CONFIG_ep8260,
+		CONFIG_FADS850SAR, CONFIG_OXC,	      CONFIG_gw8260,
 		CONFIG_FADS860T,   CONFIG_PCI405,     CONFIG_hermes,
-		CONFIG_FLAGADM,    CONFIG_PCIPPC2,    CONFIG_hymod,
-		CONFIG_FPS850L,    CONFIG_PCIPPC6,    CONFIG_lwmon,
-		CONFIG_GEN860T,    CONFIG_PIP405,     CONFIG_pcu_e,
-		CONFIG_GENIETV,    CONFIG_PM826,      CONFIG_ppmc8260,
-		CONFIG_GTH,        CONFIG_RPXClassic, CONFIG_rsdproto,
-		CONFIG_IAD210,     CONFIG_RPXlite,    CONFIG_sbc8260,
-		CONFIG_EBONY,      CONFIG_sacsng,     CONFIG_FPS860L,
-		CONFIG_V37,        CONFIG_ELPT860,    CONFIG_CMI,
-		CONFIG_NETVIA,     CONFIG_RBC823,     CONFIG_ZPC1900,
+		CONFIG_FLAGADM,	   CONFIG_PCIPPC2,    CONFIG_hymod,
+		CONFIG_FPS850L,	   CONFIG_PCIPPC6,    CONFIG_lwmon,
+		CONFIG_GEN860T,	   CONFIG_PIP405,     CONFIG_pcu_e,
+		CONFIG_GENIETV,	   CONFIG_PM826,      CONFIG_ppmc8260,
+		CONFIG_GTH,	   CONFIG_RPXClassic, CONFIG_rsdproto,
+		CONFIG_IAD210,	   CONFIG_RPXlite,    CONFIG_sbc8260,
+		CONFIG_EBONY,	   CONFIG_sacsng,     CONFIG_FPS860L,
+		CONFIG_V37,	   CONFIG_ELPT860,    CONFIG_CMI,
+		CONFIG_NETVIA,	   CONFIG_RBC823,     CONFIG_ZPC1900,
 		CONFIG_MPC8540ADS, CONFIG_MPC8560ADS, CONFIG_QS850,
-		CONFIG_QS823,      CONFIG_QS860T,     CONFIG_DB64360,
+		CONFIG_QS823,	   CONFIG_QS860T,     CONFIG_DB64360,
 		CONFIG_DB64460,	   CONFIG_DUET_ADS
 
 		ARM based boards:
 		-----------------
 
 		CONFIG_HHP_CRADLE,  CONFIG_DNP1110,    CONFIG_EP7312,
-		CONFIG_IMPA7,       CONFIG_LART,       CONFIG_LUBBOCK,
+		CONFIG_IMPA7,	    CONFIG_LART,       CONFIG_LUBBOCK,
 		CONFIG_INNOVATOROMAP1510,	CONFIG_INNOVATOROMAP1610
-		CONFIG_SHANNON,     CONFIG_SMDK2400,   CONFIG_SMDK2410,
+		CONFIG_SHANNON,	    CONFIG_SMDK2400,   CONFIG_SMDK2410,
 		CONFIG_TRAB,	    CONFIG_VCMA9,      CONFIG_AT91RM9200DK
 
 
@@ -430,12 +430,12 @@ The following options need to be configured:
 
 		CFG_MEASURE_CPUCLK
 
-                Define this to measure the actual CPU clock instead
-                of relying on the correctness of the configured
-                values. Mostly useful for board bringup to make sure
-                the PLL is locked at the intended frequency. Note
-                that this requires a (stable) reference clock (32 kHz
-                RTC clock),
+		Define this to measure the actual CPU clock instead
+		of relying on the correctness of the configured
+		values. Mostly useful for board bringup to make sure
+		the PLL is locked at the intended frequency. Note
+		that this requires a (stable) reference clock (32 kHz
+		RTC clock),
 
 - Linux Kernel Interface:
 		CONFIG_CLOCKS_IN_MHZ
@@ -479,11 +479,11 @@ The following options need to be configured:
 						bit-blit (cf. smiLynxEM)
 			VIDEO_VISIBLE_COLS	visible pixel columns
 						(cols=pitch)
-			VIDEO_VISIBLE_ROWS      visible pixel rows
-			VIDEO_PIXEL_SIZE        bytes per pixel
+			VIDEO_VISIBLE_ROWS	visible pixel rows
+			VIDEO_PIXEL_SIZE	bytes per pixel
 			VIDEO_DATA_FORMAT	graphic data format
 						(0-5, cf. cfb_console.c)
-			VIDEO_FB_ADRS           framebuffer address
+			VIDEO_FB_ADRS		framebuffer address
 			VIDEO_KBD_INIT_FCT	keyboard int fct
 						(i.e. i8042_kbd_init())
 			VIDEO_TSTC_FCT		test char fct
@@ -619,15 +619,15 @@ The following options need to be configured:
 		CFG_CMD_AUTOSCRIPT Autoscript Support
 		CFG_CMD_BDI	  bdinfo
 		CFG_CMD_BEDBUG	  Include BedBug Debugger
-		CFG_CMD_BMP     * BMP support
+		CFG_CMD_BMP	* BMP support
 		CFG_CMD_BOOTD	  bootd
 		CFG_CMD_CACHE	  icache, dcache
 		CFG_CMD_CONSOLE	  coninfo
 		CFG_CMD_DATE	* support for RTC, date/time...
 		CFG_CMD_DHCP	  DHCP support
-		CFG_CMD_DIAG    * Diagnostics
-		CFG_CMD_DOC     * Disk-On-Chip Support
-		CFG_CMD_DTT       Digital Therm and Thermostat
+		CFG_CMD_DIAG	* Diagnostics
+		CFG_CMD_DOC	* Disk-On-Chip Support
+		CFG_CMD_DTT	  Digital Therm and Thermostat
 		CFG_CMD_ECHO	* echo arguments
 		CFG_CMD_EEPROM	* EEPROM read/write support
 		CFG_CMD_ELF	  bootelf, bootvx
@@ -637,37 +637,37 @@ The following options need to be configured:
 		CFG_CMD_FDOS	* Dos diskette Support
 		CFG_CMD_FLASH	  flinfo, erase, protect
 		CFG_CMD_FPGA	  FPGA device initialization support
-		CFG_CMD_HWFLOW  * RTS/CTS hw flow control
+		CFG_CMD_HWFLOW	* RTS/CTS hw flow control
 		CFG_CMD_I2C	* I2C serial bus support
 		CFG_CMD_IDE	* IDE harddisk support
 		CFG_CMD_IMI	  iminfo
-		CFG_CMD_IMLS      List all found images
+		CFG_CMD_IMLS	  List all found images
 		CFG_CMD_IMMAP	* IMMR dump support
 		CFG_CMD_IRQ	* irqinfo
-		CFG_CMD_JFFS2   * JFFS2 Support
+		CFG_CMD_JFFS2	* JFFS2 Support
 		CFG_CMD_KGDB	* kgdb
 		CFG_CMD_LOADB	  loadb
 		CFG_CMD_LOADS	  loads
 		CFG_CMD_MEMORY	  md, mm, nm, mw, cp, cmp, crc, base,
 				  loop, mtest
-		CFG_CMD_MISC      Misc functions like sleep etc
+		CFG_CMD_MISC	  Misc functions like sleep etc
 		CFG_CMD_MMC	  MMC memory mapped support
 		CFG_CMD_MII	  MII utility commands
-		CFG_CMD_NAND    * NAND support
+		CFG_CMD_NAND	* NAND support
 		CFG_CMD_NET	  bootp, tftpboot, rarpboot
 		CFG_CMD_PCI	* pciinfo
 		CFG_CMD_PCMCIA	* PCMCIA support
-		CFG_CMD_PING    * send ICMP ECHO_REQUEST to network host
-		CFG_CMD_PORTIO  * Port I/O
+		CFG_CMD_PING	* send ICMP ECHO_REQUEST to network host
+		CFG_CMD_PORTIO	* Port I/O
 		CFG_CMD_REGINFO * Register dump
 		CFG_CMD_RUN	  run command in env variable
-		CFG_CMD_SAVES     save S record dump
+		CFG_CMD_SAVES	  save S record dump
 		CFG_CMD_SCSI	* SCSI Support
-		CFG_CMD_SDRAM   * print SDRAM configuration information
+		CFG_CMD_SDRAM	* print SDRAM configuration information
 		CFG_CMD_SETGETDCR Support for DCR Register access (4xx only)
 		CFG_CMD_SPI	* SPI serial bus support
 		CFG_CMD_USB	* USB support
-		CFG_CMD_VFD     * VFD support (TRAB)
+		CFG_CMD_VFD	* VFD support (TRAB)
 		CFG_CMD_BSP	* Board SPecific functions
 		-----------------------------------------------
 		CFG_CMD_ALL	all
@@ -850,9 +850,9 @@ The following options need to be configured:
 		Following modes are supported  (* is default):
 
 			    800x600  1024x768  1280x1024
-	      256  (8bit)     303*      305       307
-	    65536 (16bit)     314       317       31a
-	16,7 Mill (24bit)     315       318       31b
+	      256  (8bit)     303*	305	  307
+	    65536 (16bit)     314	317	  31a
+	16,7 Mill (24bit)     315	318	  31b
 		(i.e. setenv videomode 317; saveenv; reset;)
 
 		CONFIG_VIDEO_SED13806
@@ -1031,7 +1031,7 @@ The following options need to be configured:
 		clock chips. See common/cmd_i2c.c for a description of the
 		command line interface.
 
-		CONFIG_HARD_I2C	selects the CPM hardware driver for I2C.
+		CONFIG_HARD_I2C selects the CPM hardware driver for I2C.
 
 		CONFIG_SOFT_I2C configures u-boot to use a software (aka
 		bit-banging) driver instead of CPM or similar hardware
@@ -1061,7 +1061,7 @@ The following options need to be configured:
 		(Optional). Any commands necessary to enable the I2C
 		controller or configure ports.
 
-		eg: #define I2C_INIT (immr->im_cpm.cp_pbdir |=  PB_SCL)
+		eg: #define I2C_INIT (immr->im_cpm.cp_pbdir |=	PB_SCL)
 
 		I2C_PORT
 
@@ -1099,7 +1099,7 @@ The following options need to be configured:
 
 		eg: #define I2C_SDA(bit) \
 			if(bit) immr->im_cpm.cp_pbdat |=  PB_SDA; \
-			else    immr->im_cpm.cp_pbdat &= ~PB_SDA
+			else	immr->im_cpm.cp_pbdat &= ~PB_SDA
 
 		I2C_SCL(bit)
 
@@ -1108,7 +1108,7 @@ The following options need to be configured:
 
 		eg: #define I2C_SCL(bit) \
 			if(bit) immr->im_cpm.cp_pbdat |=  PB_SCL; \
-			else    immr->im_cpm.cp_pbdat &= ~PB_SCL
+			else	immr->im_cpm.cp_pbdat &= ~PB_SCL
 
 		I2C_DELAY
 
@@ -1205,7 +1205,7 @@ The following options need to be configured:
 		Time to wait after FPGA configuration. The default is
 		200 mS.
 
-- FPGA Support:	CONFIG_FPGA_COUNT
+- FPGA Support: CONFIG_FPGA_COUNT
 
 		Specify the number of FPGA devices to support.
 
@@ -1422,11 +1422,11 @@ The following options need to be configured:
 
   Arg	Where			When
     1	common/cmd_bootm.c	before attempting to boot an image
-   -1	common/cmd_bootm.c	Image header has bad     magic number
+   -1	common/cmd_bootm.c	Image header has bad	 magic number
     2	common/cmd_bootm.c	Image header has correct magic number
-   -2	common/cmd_bootm.c	Image header has bad     checksum
+   -2	common/cmd_bootm.c	Image header has bad	 checksum
     3	common/cmd_bootm.c	Image header has correct checksum
-   -3	common/cmd_bootm.c	Image data   has bad     checksum
+   -3	common/cmd_bootm.c	Image data   has bad	 checksum
     4	common/cmd_bootm.c	Image data   has correct checksum
    -4	common/cmd_bootm.c	Image is for unsupported architecture
     5	common/cmd_bootm.c	Architecture check OK
@@ -1439,10 +1439,10 @@ The following options need to be configured:
     8	common/cmd_bootm.c	Image Type check OK
    -9	common/cmd_bootm.c	Unsupported OS (not Linux, BSD, VxWorks, QNX)
     9	common/cmd_bootm.c	Start initial ramdisk verification
-  -10	common/cmd_bootm.c	Ramdisk header has bad     magic number
-  -11	common/cmd_bootm.c	Ramdisk header has bad     checksum
+  -10	common/cmd_bootm.c	Ramdisk header has bad	   magic number
+  -11	common/cmd_bootm.c	Ramdisk header has bad	   checksum
    10	common/cmd_bootm.c	Ramdisk header is OK
-  -12	common/cmd_bootm.c	Ramdisk data   has bad     checksum
+  -12	common/cmd_bootm.c	Ramdisk data   has bad	   checksum
    11	common/cmd_bootm.c	Ramdisk data   has correct checksum
    12	common/cmd_bootm.c	Ramdisk verification complete, start loading
   -13	common/cmd_bootm.c	Wrong Image Type (not PPC Linux Ramdisk)
@@ -1470,7 +1470,7 @@ The following options need to be configured:
    -1	common/cmd_nand.c	Read Error on boot device
    -1	common/cmd_nand.c	Image header has bad magic number
 
-   -1	common/env_common.c     Environment has a bad CRC, using default
+   -1	common/env_common.c	Environment has a bad CRC, using default
 
 
 Modem Support:
@@ -1774,7 +1774,7 @@ to save the current settings.
 
 	- CFG_EEPROM_PAGE_WRITE_DELAY_MS:
 	  If defined, the number of milliseconds to delay between
-	  page writes.  The default is zero milliseconds.
+	  page writes.	The default is zero milliseconds.
 
 	- CFG_I2C_EEPROM_ADDR_LEN:
 	  The length in bytes of the EEPROM memory array address.  Note
@@ -1992,7 +1992,7 @@ change it to:
 	CROSS_COMPILE = ppc_4xx-
 
 
-U-Boot is intended to be  simple  to  build.  After  installing  the
+U-Boot is intended to be  simple  to  build.  After  installing	 the
 sources	 you must configure U-Boot for one specific board type. This
 is done by typing:
 
@@ -2020,7 +2020,7 @@ configurations; the following names are supported:
     at91rm9200dk_config	  omap1510inn_config	MPC8260ADS_config
     omap1610inn_config	  ZPC1900_config	MPC8540ADS_config
     MPC8560ADS_config	  QS850_config		QS823_config
-    QS860T_config         DUET_ADS_config
+    QS860T_config	  DUET_ADS_config
 
 Note: for some board special configuration names may exist; check  if
       additional  information is available from the board vendor; for
@@ -2136,15 +2136,15 @@ mw	- memory write (fill)
 cp	- memory copy
 cmp	- memory compare
 crc32	- checksum calculation
-imd     - i2c memory display
-imm     - i2c memory modify (auto-incrementing)
-inm     - i2c memory modify (constant address)
-imw     - i2c memory write (fill)
-icrc32  - i2c checksum calculation
-iprobe  - probe to discover valid I2C chip addresses
-iloop   - infinite loop on address range
-isdram  - print SDRAM configuration information
-sspi    - SPI utility commands
+imd	- i2c memory display
+imm	- i2c memory modify (auto-incrementing)
+inm	- i2c memory modify (constant address)
+imw	- i2c memory write (fill)
+icrc32	- i2c checksum calculation
+iprobe	- probe to discover valid I2C chip addresses
+iloop	- infinite loop on address range
+isdram	- print SDRAM configuration information
+sspi	- SPI utility commands
 base	- print or set address offset
 printenv- print environment variables
 setenv	- set environment variables
@@ -2473,7 +2473,7 @@ Example:
 	make uImage
 
 The "uImage" build target uses a special tool (in 'tools/mkimage') to
-encapsulate a compressed Linux kernel image with header  information,
+encapsulate a compressed Linux kernel image with header	 information,
 CRC32 checksum etc. for use with U-Boot. This is what we are doing:
 
 * build a standard "vmlinux" kernel image (in ELF binary format):
@@ -2860,9 +2860,9 @@ use "cu" for S-Record download ("loads" command).
 Nevertheless, if you absolutely want to use it try adding this
 configuration to your "File transfer protocols" section:
 
-	   Name    Program                      Name U/D FullScr IO-Red. Multi
-	X  kermit  /usr/bin/kermit -i -l %l -s   Y    U    Y       N      N
-	Y  kermit  /usr/bin/kermit -i -l %l -r   N    D    Y       N      N
+	   Name	   Program			Name U/D FullScr IO-Red. Multi
+	X  kermit  /usr/bin/kermit -i -l %l -s	 Y    U	   Y	   N	  N
+	Y  kermit  /usr/bin/kermit -i -l %l -r	 N    D	   Y	   N	  N
 
 
 NetBSD Notes:
@@ -2918,7 +2918,7 @@ models provide on-chip memory (like the IMMR area on MPC8xx and
 MPC826x processors), on others (parts of) the data cache can be
 locked as (mis-) used as memory, etc.
 
-	Chris Hallinan posted a good summary of  these  issues  to  the
+	Chris Hallinan posted a good summary of	 these	issues	to  the
 	u-boot-users mailing list:
 
 	Subject: RE: [U-Boot-Users] RE: More On Memory Bank x (nothingness)?
@@ -2987,7 +2987,7 @@ For PowerPC, the following registers have specific use:
 	R1:	stack pointer
 	R2:	TOC pointer
 	R3-R4:	parameter passing and return values
-	R5-R10:	parameter passing
+	R5-R10: parameter passing
 	R13:	small data area pointer
 	R30:	GOT pointer
 	R31:	frame pointer

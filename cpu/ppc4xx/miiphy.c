@@ -48,8 +48,8 @@
 #include <405_mal.h>
 #include <miiphy.h>
 
-#if defined(CONFIG_405GP) || defined(CONFIG_440) || defined(CONFIG_405EP)
-
+#if (defined(CONFIG_405GP) || defined(CONFIG_405EP) || defined(CONFIG_440)) \
+   && !defined (CONFIG_NET_MULTI)
 
 /***********************************************************/
 /* Dump out to the screen PHY regs                         */

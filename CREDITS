@@ -276,6 +276,10 @@ N: Neil Russell
 E: caret@c-side.com
 D: Author of LiMon-1.4.2, which contributed some ideas
 
+N: Travis B. Sawyer
+E: travis.sawyer@sandburst.com
+D: Support for IBM PPC440GX, XES XPedite1000 440GX PrPMC board.
+
 N: Paolo Scaffardi
 E: arsenio@tin.it
 D: FADS823 configuration, MPC823 video support, I2C, wireless keyboard, lots more

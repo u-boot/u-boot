@@ -152,10 +152,10 @@ int checkcpu (void)
 #endif
 
 #if defined(CONFIG_440)
-	puts ("IBM PowerPC 440 Rev. ");
+	puts ("IBM PowerPC 440 G");
 	switch(pvr) {
 	case PVR_440GP_RB:
-		putc('B');
+		puts("P Rev. B");
 		/* See errata 1.12: CHIP_4 */
 		if ((mfdcr(cpc0_sys0) != mfdcr(cpc0_strp0)) ||
 		    (mfdcr(cpc0_sys1) != mfdcr(cpc0_strp1)) ){
@@ -167,7 +167,13 @@ int checkcpu (void)
 		}
 		break;
 	case PVR_440GP_RC:
-		putc('C');
+		puts("P Rev. C");
+		break;
+	case PVR_440GX_RA:
+		puts("X Rev. A");
+		break;
+	case PVR_440GX_RB:
+		puts("X Rev. B");
 		break;
 	default:
 		printf ("UNKNOWN (PVR=%08x)", pvr);

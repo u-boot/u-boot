@@ -206,6 +206,7 @@ ulong get_PCI_freq (void)
 
 
 #elif defined(CONFIG_440)
+#if !defined(CONFIG_440_GX)
 void get_sys_info (sys_info_t * sysInfo)
 {
 	unsigned long strp0;
@@ -237,6 +238,58 @@ void get_sys_info (sys_info_t * sysInfo)
 	sysInfo->freqEPB = sysInfo->freqOPB/sysInfo->pllExtBusDiv;
 
 }
+#else
+void get_sys_info (sys_info_t * sysInfo)
+{
+	unsigned long strp0;
+	unsigned long strp1;
+	unsigned long temp;
+	unsigned long temp1;
+	unsigned long lfdiv;
+	unsigned long m;
+
+
+	/* Extract configured divisors */
+	mfsdr( sdr_sdstp0,strp0 );
+	mfsdr( sdr_sdstp1,strp1 );
+
+	temp = ((strp0 & PLLSYS0_FWD_DIV_A_MASK) >> 8);
+	sysInfo->pllFwdDivA = temp ? temp : 16 ;
+	temp = ((strp0 & PLLSYS0_FWD_DIV_B_MASK) >> 5);
+	sysInfo->pllFwdDivB = temp ? temp: 8 ;
+	temp = (strp0 & PLLSYS0_FB_DIV_MASK) >> 12;
+	sysInfo->pllFbkDiv = temp ? temp : 32;
+	temp = (strp0 & PLLSYS0_OPB_DIV_MASK);
+	sysInfo->pllOpbDiv = temp ? temp : 4;
+	temp = (strp1 & PLLSYS1_PERCLK_DIV_MASK) >> 24;
+	sysInfo->pllExtBusDiv = temp ? temp : 4;
+
+	/* Calculate 'M' based on feedback source */
+	temp = (strp0 & PLLSYS0_SEL_MASK) >> 27;
+	temp1 = (strp1 & PLLSYS1_LF_DIV_MASK) >> 26;
+	lfdiv = temp1 ? temp1 : 64;
+	if (temp == 0) { /* PLL output */
+		/* Figure which pll to use */
+		temp = (strp0 & PLLSYS0_SRC_MASK) >> 30;
+		if (!temp)
+			m = sysInfo->pllFbkDiv * lfdiv * sysInfo->pllFwdDivA;
+		else
+			m = sysInfo->pllFbkDiv * lfdiv * sysInfo->pllFwdDivB;
+	}
+	else if (temp == 1) /* CPU output */
+		m = sysInfo->pllFbkDiv * sysInfo->pllFwdDivA;
+	else /* PerClk */
+		m = sysInfo->pllExtBusDiv * sysInfo->pllOpbDiv * sysInfo->pllFwdDivB;
+
+	/* Now calculate the individual clocks */
+	sysInfo->freqVCOMhz = (m * CONFIG_SYS_CLK_FREQ) + (m>>1);
+	sysInfo->freqProcessor = sysInfo->freqVCOMhz/sysInfo->pllFwdDivA;
+	sysInfo->freqPLB = sysInfo->freqVCOMhz/sysInfo->pllFwdDivB;
+	sysInfo->freqOPB = sysInfo->freqPLB/sysInfo->pllOpbDiv;
+	sysInfo->freqEPB = sysInfo->freqOPB/sysInfo->pllExtBusDiv;
+
+}
+#endif
 
 ulong get_OPB_freq (void)
 {

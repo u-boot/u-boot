@@ -266,7 +266,8 @@ void	board_serial_init (void);
 void	board_ether_init (void);
 #endif
 
-#if defined(CONFIG_RPXCLASSIC) || defined(CONFIG_MBX) || defined(CONFIG_IAD210)
+#if defined(CONFIG_RPXCLASSIC)	|| defined(CONFIG_MBX) || \
+    defined(CONFIG_IAD210)	|| defined(CONFIG_XPEDITE1K)
 void	board_get_enetaddr (uchar *addr);
 #endif
 

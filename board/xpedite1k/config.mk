@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000
+# (C) Copyright 2002-2004
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -21,30 +21,24 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
+#
+# esd ADCIOP boards
+#
 
-LIB	= lib$(CPU).a
+#TEXT_BASE = 0xFFFE0000
 
-START	= start.o resetvec.o kgdb.o
-AOBJS	= dcr.o
-COBJS	= 405gp_enet.o 405gp_pci.o 440gx_enet.o \
-	  bedbug_405.o \
-	  cpu.o cpu_init.o i2c.o interrupts.o \
-	  miiphy.o miiphy_440.o sdram.o serial.o \
-	  spd_sdram.o speed.o traps.o
+ifeq ($(ramsym),1)
+TEXT_BASE = 0x07FD0000
+else
+TEXT_BASE = 0xFFF80000
+endif
 
-OBJS	= $(AOBJS) $(COBJS)
+PLATFORM_CPPFLAGS += -DCONFIG_440=1
 
-all:	.depend $(START) $(LIB)
+ifeq ($(debug),1)
+PLATFORM_CPPFLAGS += -DDEBUG
+endif
 
-$(LIB):	$(OBJS)
-	$(AR) crv $@ $(OBJS)
-
-#########################################################################
-
-.depend:	Makefile $(START:.o=.S) $(AOBJS:.o=.S) $(COBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(START:.o=.S) $(AOBJS:.o=.S) $(COBJS:.o=.c) > $@
-
-sinclude .depend
-
-#########################################################################
+ifeq ($(dbcr),1)
+PLATFORM_CPPFLAGS += -DCFG_INIT_DBCR=0x8cff0000
+endif

@@ -749,7 +749,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #endif
 
 #if defined(CFG_GT_6426x) || defined(CONFIG_PN62) || defined(CONFIG_PPCHAMELEONEVB) || \
-    defined(CONFIG_MPC8540ADS) || defined(CONFIG_MPC8560ADS)
+    defined(CONFIG_MPC8540ADS) || defined(CONFIG_MPC8560ADS) || defined(CONFIG_440_GX)
 	/* handle the 2nd ethernet address */
 
 	s = getenv ("eth1addr");
@@ -760,11 +760,16 @@ void board_init_r (gd_t *id, ulong dest_addr)
 			s = (*e) ? e + 1 : e;
 	}
 #endif
-#if defined(CFG_GT_6426x) || defined(CONFIG_MPC8540ADS) || defined(CONFIG_MPC8560ADS)
+#if defined(CFG_GT_6426x) || defined(CONFIG_MPC8540ADS) || defined(CONFIG_MPC8560ADS) || \
+	defined(CONFIG_440_GX)
 	/* handle the 3rd ethernet address */
 
 	s = getenv ("eth2addr");
-
+#if defined(CONFIG_XPEDITE1K)
+	if (s == NULL)
+		board_get_enetaddr(bd->bi_enet2addr);
+	else
+#endif
 	for (i = 0; i < 6; ++i) {
 		bd->bi_enet2addr[i] = s ? simple_strtoul (s, &e, 16) : 0;
 		if (s)
@@ -772,6 +777,20 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	}
 #endif
 
+#if defined(CONFIG_440_GX)
+	/* handle 4th ethernet address */
+	s = getenv("eth3addr");
+#if defined(CONFIG_XPEDITE1K)
+	if (s == NULL)
+		board_get_enetaddr(bd->bi_enet3addr);
+	else
+#endif
+	for (i = 0; i < 6; ++i) {
+		bd->bi_enet3addr[i] = s ? simple_strtoul (s, &e, 16) : 0;
+		if (s)
+			s = (*e) ? e + 1 : e;
+	}
+#endif
 
 #if defined(CONFIG_TQM8xxL) || defined(CONFIG_TQM8260) || \
     defined(CONFIG_CCM)
