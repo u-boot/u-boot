@@ -1,6 +1,6 @@
 /*
- * (C) Copyright 2004, Freescale Inc.
- * TsiChung Liew, Tsi-Chung.Liew@freescale.com
+ * (C) Copyright 2002
+ * Gary Jennejohn, DENX Software Engineering, <gj@denx.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -21,23 +21,35 @@
  * MA 02111-1307 USA
  */
 
-#include <common.h>
-#include <mpc8220.h>
-#include <asm/processor.h>
-#include <asm/mmu.h>
-
-long int initdram (int board_type)
+OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
+OUTPUT_ARCH(arm)
+ENTRY(_start)
+SECTIONS
 {
-	ulong size;
+	. = 0x00000000;
 
-	size = dramSetup ();
+	. = ALIGN(4);
+	.text      :
+	{
+	  cpu/arm925t/start.o	(.text)
+	  *(.text)
+	}
 
-	return get_ram_size((ulong *)CFG_SDRAM_BASE, size);
-}
+	. = ALIGN(4);
+	.rodata : { *(.rodata) }
 
-int checkboard (void)
-{
-	puts ("Board: Sorcery-C MPC8220\n");
+	. = ALIGN(4);
+	.data : { *(.data) }
 
-	return 0;
+	. = ALIGN(4);
+	.got : { *(.got) }
+
+	__u_boot_cmd_start = .;
+	.u_boot_cmd : { *(.u_boot_cmd) }
+	__u_boot_cmd_end = .;
+
+	. = ALIGN(4);
+	__bss_start = .;
+	.bss : { *(.bss) }
+	_end = .;
 }

@@ -2,6 +2,12 @@
 Changes for U-Boot 1.1.3:
 ======================================================================
 
+* Patch by Ladislav Michl, 05 Apr 2005:
+  Add support for VoiceBlue board.
+
+* Patch by Ladislav Michl, 05 Apr 2005:
+  Fix netboot_common() prototypes.
+
 * Patch by Steven Scholz, 05 Apr 2005:
   Use i.MX watchdog timer for reset_cpu()
 
@@ -36,7 +42,7 @@ Changes for U-Boot 1.1.3:
 
 * Patch by Tolunay Orkun, 16 November 2004:
   fix incorrect onboard Xilinx CPLD base address
-  
+
 * Patch by Jerry Van Baren, 08 Nov 2004:
   - Add low-boot option for MPC8260ADS board (if lowboot is selected,
     the jumper for the HRCW source should select flash. If lowboot is

@@ -130,8 +130,8 @@
 
 /*
  * Flexbus Chipselect configuration
- * Beware: Some CS# seem to be mandatory (if these CS# are not set, 
- * board can hang-up in unpredictable place). 
+ * Beware: Some CS# seem to be mandatory (if these CS# are not set,
+ * board can hang-up in unpredictable place).
  * Sorcery_Memory_Map v0.3 is possibly wrong with CPLD CS#
  */
 
@@ -141,7 +141,7 @@
 
 /* Workaround of hang-up after setting ctrl register for flash
    After reset this register has value 0x003ffd80, which differs
-   from suggested only by the number of wait states. 
+   from suggested only by the number of wait states.
 #define CFG_CS0_CTRL		0x003f1580
 */
 
@@ -271,7 +271,7 @@
 /*
  * Various low-level settings
  */
-#define CFG_HID0_INIT		0 
-#define CFG_HID0_FINAL		0 
+#define CFG_HID0_INIT		0
+#define CFG_HID0_FINAL		0
 
 #endif /* __CONFIG_H */

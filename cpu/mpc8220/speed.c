@@ -74,7 +74,7 @@ int get_clocks (void)
 	gd->inp_clk = CFG_MPC8220_CLKIN;
 
 	/* Read XLB to PCI(INP) clock multiplier */
-	pci2bus = (*((volatile u32 *)PCI_REG_PCIGSCR) & 
+	pci2bus = (*((volatile u32 *)PCI_REG_PCIGSCR) &
 		PCI_REG_PCIGSCR_PCI2XLB_CLK_MASK)>>PCI_REG_PCIGSCR_PCI2XLB_CLK_BIT;
 
 	/* XLB bus clock */

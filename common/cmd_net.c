@@ -33,7 +33,7 @@
 
 extern int do_bootm (cmd_tbl_t *, int, int, char *[]);
 
-static int netboot_common (int, cmd_tbl_t *, int , char *[]);
+static int netboot_common (proto_t, cmd_tbl_t *, int , char *[]);
 
 int do_bootp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
@@ -152,7 +152,7 @@ static void netboot_update_env (void)
 }
 
 static int
-netboot_common (int proto, cmd_tbl_t *cmdtp, int argc, char *argv[])
+netboot_common (proto_t proto, cmd_tbl_t *cmdtp, int argc, char *argv[])
 {
 	char *s;
 	int   rcode = 0;

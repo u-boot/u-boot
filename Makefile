@@ -1382,6 +1382,19 @@ VCMA9_config	:	unconfig
 versatile_config :	unconfig
 	@./mkconfig $(@:_config=) arm arm926ejs versatile
 
+voiceblue_smallflash_config	\
+voiceblue_config:	unconfig
+	@if [ "$(findstring _smallflash_,$@)" ] ; then \
+		echo "... boot from lower flash bank" ; \
+		echo "#define VOICEBLUE_SMALL_FLASH" >>include/config.h ; \
+		echo "VOICEBLUE_SMALL_FLASH=y" >board/voiceblue/config.tmp ; \
+	else \
+		echo "... boot from upper flash bank" ; \
+		>include/config.h ; \
+		echo "VOICEBLUE_SMALL_FLASH=n" >board/voiceblue/config.tmp ; \
+	fi
+	@./mkconfig -a voiceblue arm arm925t voiceblue
+
 #########################################################################
 ## S3C44B0 Systems
 #########################################################################

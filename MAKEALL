@@ -157,7 +157,7 @@ LIST_ARM9="	\
 	lpd7a400	mx1ads		mx1fs2		omap1510inn	\
 	omap1610h2	omap1610inn	omap730p2	scb9328		\
 	smdk2400	smdk2410	trab		VCMA9		\
-	versatile							\
+	versatile	voiceblue					\
 "
 
 #########################################################################

@@ -135,7 +135,7 @@ void udelay(unsigned long usec)
 	uint tmp;
 
 	timerp = (volatile unsigned short *) (CFG_MBAR + MCFTIMER_BASE3);
-	
+
 	while (usec > 0) {
 		if (usec > 65000)
 			tmp = 65000;
@@ -150,7 +150,7 @@ void udelay(unsigned long usec)
 		timerp[MCFTIMER_PCSR] =
 			(5 << 8) | MCFTIMER_PCSR_EN | MCFTIMER_PCSR_OVW;
 
-                timerp[MCFTIMER_PMR] = tmp;
+		timerp[MCFTIMER_PMR] = tmp;
 		while (timerp[MCFTIMER_PCNTR] > 0);
 	}
 }

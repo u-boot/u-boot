@@ -277,7 +277,7 @@ static int init_phy(struct eth_device *dev)
 	struct phy_info *curphy;
 
 	/* Assign a Physical address to the TBI */
-	
+
 	{
 		volatile tsec_t *regs = (volatile tsec_t *)(TSEC_BASE_ADDR);
 		regs->tbipa = TBIPA_VALUE;
@@ -809,33 +809,33 @@ struct phy_info phy_info_dm9161 = {
 
 uint mii_parse_lxt971_sr2(uint mii_reg, struct tsec_private *priv)
 {
-        unsigned int speed;
-        if (priv->link) {
-                speed = mii_reg & MIIM_LXT971_SR2_SPEED_MASK;
+	unsigned int speed;
+	if (priv->link) {
+		speed = mii_reg & MIIM_LXT971_SR2_SPEED_MASK;
 
-                switch (speed) {
-                case MIIM_LXT971_SR2_10HDX:
-                        priv->speed = 10;
-                        priv->duplexity = 0;
-                        break;
-                case MIIM_LXT971_SR2_10FDX:
-                        priv->speed = 10;
-                        priv->duplexity = 1;
-                        break;
-                case MIIM_LXT971_SR2_100HDX:
-                        priv->speed = 100;
-                        priv->duplexity = 0;
-                default:
-                        priv->speed = 100;
-                        priv->duplexity = 1;
-                        break;
-                }
-        } else {
-                priv->speed = 0;
-                priv->duplexity = 0;
-        }
+		switch (speed) {
+		case MIIM_LXT971_SR2_10HDX:
+			priv->speed = 10;
+			priv->duplexity = 0;
+			break;
+		case MIIM_LXT971_SR2_10FDX:
+			priv->speed = 10;
+			priv->duplexity = 1;
+			break;
+		case MIIM_LXT971_SR2_100HDX:
+			priv->speed = 100;
+			priv->duplexity = 0;
+		default:
+			priv->speed = 100;
+			priv->duplexity = 1;
+			break;
+		}
+	} else {
+		priv->speed = 0;
+		priv->duplexity = 0;
+	}
 
-        return 0;
+	return 0;
 }
 
 static struct phy_info phy_info_lxt971 = {

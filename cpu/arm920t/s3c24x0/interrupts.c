@@ -190,9 +190,11 @@ ulong get_tbclk (void)
  */
 void reset_cpu (ulong ignored)
 {
-	S3C24X0_WATCHDOG * const watchdog;
+	volatile S3C24X0_WATCHDOG * watchdog;
 
 #ifdef CONFIG_TRAB
+	extern void disable_vfd (void);
+
 	disable_vfd();
 #endif
 
