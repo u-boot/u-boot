@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Ganapathi C, 04 Aug 2004:
+  Fix NFS timeout issue
+
 * Patch by Yuli Barcohen, 19 Jul 2004:
   - Fix host tools building in Cygwin environment
   - Fix header files search order for host tools

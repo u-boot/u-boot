@@ -583,6 +583,14 @@ Interfaces of U-BOOT
 **************************************************************************/
 
 static void
+NfsTimeout (void)
+{
+	puts ("Timeout\n");
+	NetState = NETLOOP_FAIL;
+	return;
+}
+
+static void
 NfsHandler (uchar *pkt, unsigned dest, unsigned src, unsigned len)
 {
 	int rlen;
@@ -660,6 +668,7 @@ NfsHandler (uchar *pkt, unsigned dest, unsigned src, unsigned len)
 
 	case STATE_READ_REQ:
 		rlen = nfs_read_reply (pkt, len);
+		NetSetTimeout (NFS_TIMEOUT * CFG_HZ, NfsTimeout);
 		if (rlen > 0) {
 			nfs_offset += rlen;
 			NfsSend ();
@@ -676,13 +685,6 @@ NfsHandler (uchar *pkt, unsigned dest, unsigned src, unsigned len)
 	}
 }
 
-static void
-NfsTimeout (void)
-{
-	puts ("Timeout\n");
-	NetState = NETLOOP_FAIL;
-	return;
-}
 
 void
 NfsStart (void)
