@@ -35,9 +35,10 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-/* Enable debug prints */
 #undef DEBUG		      /* General debug */
 #undef DEBUG_BOOTP_EXT	      /* Debug received vendor fields */
+
+#undef CONFIG_LOGBUFFER       /* External logbuffer support */
 
 /*****************************************************************************
  *
@@ -172,6 +173,7 @@
 
 #ifdef	CONFIG_ETHER_ON_FCC
 #define CONFIG_ETHER_INDEX	2	/* which SCC/FCC channel for ethernet */
+#undef  CONFIG_ETHER_LOOPBACK_TEST      /* Ethernet external loopback test */
 #define CONFIG_MII			/* MII PHY management		*/
 #define CONFIG_BITBANGMII		/* bit-bang MII PHY management	*/
 /*
@@ -318,10 +320,12 @@
  * will be part of the default enviroment compiled into the boot image.
  */
 #define CONFIG_EXTRA_ENV_SETTINGS \
-"serverip=192.168.123.201\0" \
+"quiet=0\0" \
+"serverip=192.168.123.205\0" \
 "ipaddr=192.168.123.203\0" \
 "checkhostname=VR8500\0" \
 "reprog="\
+    "bootp; " \
     "tftpboot 0x140000 /bdi2000/u-boot.bin; " \
     "protect off 60000000 6003FFFF; " \
     "erase 60000000 6003FFFF; " \
@@ -405,7 +409,7 @@
 "adc-12=echo ### ADC-12 ; imd.b e 81 e\0" \
 "adc-34=echo ### ADC-34 ; imd.b f 81 e\0" \
 "dac=echo ### DAC ; imd.b 11 81 5\0" \
-"boot-hook=run ana\0"
+"boot-hook=echo\0"
 
 /* What should the console's baud rate be? */
 #define CONFIG_BAUDRATE		9600
@@ -466,15 +470,16 @@
 
 #define CONFIG_BOOTP_RANDOM_DELAY       /* Randomize the BOOTP retry delay */
 
-#define CONFIG_BOOTP_RETRY_COUNT 0x40000000 /* # of timeouts before giving up */
-
 /* Add support for a few extra bootp options like:
  *	- File size
- *	- DNS
+ *	- DNS (up to 2 servers)
+ *      - Send hostname to DHCP server 
  */
 #define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | \
 				 CONFIG_BOOTP_BOOTFILESIZE | \
-				 CONFIG_BOOTP_DNS)
+				 CONFIG_BOOTP_DNS | \
+                                 CONFIG_BOOTP_DNS2 | \
+                                 CONFIG_BOOTP_SEND_HOSTNAME)
 
 /* undef this to save memory */
 #define CFG_LONGHELP
@@ -492,6 +497,11 @@
  */
 #define CONFIG_TIMESTAMP
 
+/* If this variable is defined, an environment variable named "ver" 
+ * is created by U-Boot showing the U-Boot version.
+ */
+#define CONFIG_VERSION_VARIABLE
+
 /* What U-Boot subsytems do you want enabled? */
 #ifdef CONFIG_ETHER_ON_FCC
 # define CONFIG_COMMANDS	(((CONFIG_CMD_DFL & ~(CFG_CMD_KGDB))) | \
@@ -503,6 +513,8 @@
 				CFG_CMD_SDRAM   | \
 				CFG_CMD_REGINFO | \
 				CFG_CMD_IMMAP	| \
+				CFG_CMD_IRQ	| \
+				CFG_CMD_PING	| \
 				CFG_CMD_MII	)
 #else
 # define CONFIG_COMMANDS	(((CONFIG_CMD_DFL & ~(CFG_CMD_KGDB))) | \
@@ -513,11 +525,15 @@
 				CFG_CMD_SPI	| \
 				CFG_CMD_SDRAM   | \
 				CFG_CMD_REGINFO | \
-				CFG_CMD_IMMAP	)
+				CFG_CMD_IMMAP	| \
+				CFG_CMD_IRQ	| \
+				CFG_CMD_PING	)
 #endif /* CONFIG_ETHER_ON_FCC */
 
 /* Where do the internal registers live? */
 #define CFG_IMMR		0xF0000000
+
+#undef	CONFIG_WATCHDOG			/* disable the watchdog */
 
 /*****************************************************************************
  *
@@ -532,9 +548,48 @@
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
 
+
 /*
  * Miscellaneous configurable options
  */
+#define CFG_BOOTM_HEADER_QUIET 1        /* Suppress the image header dump    */
+                                        /* in the bootm command.             */
+#define CFG_BOOTM_PROGESS_QUIET 1       /* Suppress the progress displays,   */
+                                        /* "## <message>" from the bootm cmd */
+#define CFG_BOOTP_CHECK_HOSTNAME 1      /* If checkhostname environment is   */
+                                        /* defined, then the hostname param  */
+                                        /* validated against checkhostname.  */
+#define CFG_BOOTP_RETRY_COUNT 0x40000000 /* # of timeouts before giving up   */
+#define CFG_BOOTP_SHORT_RANDOM_DELAY 1  /* Use a short random delay value    */
+                                        /* (limited to maximum of 1024 msec) */
+#define CFG_CHK_FOR_ABORT_AT_LEAST_ONCE 1
+                                        /* Check for abort key presses       */
+                                        /* at least once in dependent of the */
+                                        /* CONFIG_BOOTDELAY value.           */
+#define CFG_CONSOLE_INFO_QUIET 1        /* Don't print console @ startup     */
+#define CFG_FAULT_ECHO_LINK_DOWN 1      /* Echo the inverted Ethernet link   */
+                                        /* state to the fault LED.           */
+#define CFG_FAULT_MII_ADDR 0x02         /* MII addr of the PHY to check for  */
+                                        /* the Ethernet link state.          */
+#define CFG_STATUS_FLASH_UNTIL_TFTP_OK 1 /* Keeping the status LED flashing  */
+                                        /* until the TFTP is successful.     */
+#define CFG_STATUS_OFF_AFTER_NETBOOT 1  /* After a successful netboot,       */
+                                        /* turn off the STATUS LEDs.         */
+#define CFG_TFTP_BLINK_STATUS_ON_DATA_IN 1 /* Blink status LED based on      */
+                                        /* incoming data.                    */
+#define CFG_TFTP_BLOCKS_PER_HASH 100    /* For every XX blocks, output a '#' */
+                                        /* to signify that tftp is moving.   */
+#define CFG_TFTP_HASHES_PER_FLASH 200   /* For every '#' hashes,             */
+ 				        /* flash the status LED.             */
+#define CFG_TFTP_HASHES_PER_LINE 65     /* Only output XX '#'s per line      */
+                                        /* during the tftp file transfer.    */
+#define CFG_TFTP_PROGESS_QUIET 1        /* Suppress the progress displays    */
+                                        /* '#'s from the tftp command.       */
+#define CFG_TFTP_STATUS_QUIET 1         /* Suppress the status displays      */
+                                        /* issued during the tftp command.   */
+#define CFG_TFTP_TIMEOUT_COUNT 5        /* How many timeouts TFTP will allow */
+					/* before it gives up.               */
+
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 #  define CFG_CBSIZE		1024	/* Console I/O Buffer Size	     */
 #else
@@ -734,12 +789,22 @@
  *-----------------------------------------------------------------------
  * Watchdog & Bus Monitor Timer max, 60x Bus Monitor enable
  */
+#if defined(CONFIG_WATCHDOG)
+#define CFG_SYPCR	(SYPCR_SWTC |\
+			 SYPCR_BMT  |\
+			 SYPCR_PBME |\
+			 SYPCR_LBME |\
+			 SYPCR_SWRI |\
+			 SYPCR_SWP  |\
+                         SYPCR_SWE)
+#else
 #define CFG_SYPCR	(SYPCR_SWTC |\
 			 SYPCR_BMT  |\
 			 SYPCR_PBME |\
 			 SYPCR_LBME |\
 			 SYPCR_SWRI |\
 			 SYPCR_SWP)
+#endif /* CONFIG_WATCHDOG */
 
 /*-----------------------------------------------------------------------
  * TMCNTSC - Time Counter Status and Control			 4-40

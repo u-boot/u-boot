@@ -28,10 +28,17 @@
 #include <mpc8260.h>
 #include <i2c.h>
 #include <spi.h>
+#include <command.h>
 
 #ifdef CONFIG_SHOW_BOOT_PROGRESS
 #include <status_led.h>
 #endif
+
+#ifdef CONFIG_ETHER_LOOPBACK_TEST
+extern void eth_loopback_test(void);
+#endif /* CONFIG_ETHER_LOOPBACK_TEST */
+
+extern int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 #include "clkinit.h"
 #include "ioconfig.h" /* I/O configuration table */
@@ -243,15 +250,15 @@ long int initdram(int board_type)
 
     /* We don't trust CL less than 2 (only saw it on an old 16MByte DIMM) */
     if(caslatency < 2) {
-	printf("CL was %d, forcing to 2\n", caslatency);
+	printf("WARNING: CL was %d, forcing to 2\n", caslatency);
 	caslatency = 2;
     }
     if(rows > 14) {
-	printf("This doesn't look good, rows = %d, should be <= 14\n", rows);
+	printf("WARNING: This doesn't look good, rows = %d, should be <= 14\n", rows);
 	rows = 14;
     }
     if(cols > 11) {
-	printf("This doesn't look good, columns = %d, should be <= 11\n", cols);
+	printf("WARNING: This doesn't look good, columns = %d, should be <= 11\n", cols);
 	cols = 11;
     }
 
@@ -450,6 +457,15 @@ int misc_init_r(void)
     int  sample_128x;  /* Use 128/4 clocking for the ADC/DAC */
     int  right_just;   /* Is the data to the DAC right justified? */
     int  mclk_divide;  /* MCLK Divide */
+    int  quiet;        /* Quiet or minimal output mode */
+
+    quiet = 0;
+    if ((ep = getenv("quiet")) != NULL) {
+	quiet = simple_strtol(ep, NULL, 10);
+    }
+    else {
+	setenv("quiet", "0");
+    }
 
     /*
      * SACSng custom initialization:
@@ -517,8 +533,12 @@ int misc_init_r(void)
 	setenv("Daq128xSampling", "1");
     }
 
-    /* Display the ADC/DAC clocking information */
-    Daq_Display_Clocks();
+    /* 
+     * Display the ADC/DAC clocking information 
+     */
+    if (!quiet) {
+        Daq_Display_Clocks();
+    }
 
     /*
      * Determine the DAC data justification
@@ -552,8 +572,10 @@ int misc_init_r(void)
      * 3) Write the I2C address to register 6
      * 4) Enable address matching by setting the MSB in register 7
      */
-
-    printf("Initializing the ADC...\n");
+    
+    if (!quiet) {
+        printf("Initializing the ADC...\n");
+    }
     udelay(ADC_INITIAL_DELAY);		/* 10uSec per uF of VREF cap */
 
     iopa->pdat &= ~ADC_SDATA1_MASK;     /* release SDATA1 */
@@ -615,7 +637,9 @@ int misc_init_r(void)
      * sending an I2C "start" sequence.  When we bring the I2C back to
      * the normal state, we send an I2C "stop" sequence.
      */
-    printf("Initializing the DAC...\n");
+    if (!quiet) {
+	printf("Initializing the DAC...\n");
+    }
 
     /*
      * Bring the I2C clock and data lines low for initialization
@@ -695,7 +719,16 @@ int misc_init_r(void)
     I2C_DELAY;
     I2C_TRISTATE;
 
-    printf("\n");
+    if (!quiet) {
+        printf("\n");
+    }
+
+#ifdef CONFIG_ETHER_LOOPBACK_TEST
+    /*
+     * Run the Ethernet loopback test
+     */
+    eth_loopback_test ();
+#endif /* CONFIG_ETHER_LOOPBACK_TEST */
 
 #ifdef CONFIG_SHOW_BOOT_PROGRESS
     /*
@@ -758,17 +791,44 @@ static int last_boot_progress;
 
 void show_boot_progress (int status)
 {
-    if(status != -1) {
+    int i,j;
+    if(status > 0) {
 	last_boot_progress = status;
     } else {
-	/*
-	 * Houston, we have a problem.  Blink the last OK status which
-	 * indicates where things failed.
+        /* 
+	 * If a specific failure code is given, flash this code
+	 * else just use the last success code we've seen
 	 */
-	status_led_set(STATUS_LED_RED, STATUS_LED_ON);
-	flash_code(last_boot_progress, 5, 3);
-	udelay(1000000);
-	status_led_set(STATUS_LED_RED, STATUS_LED_BLINKING);
+	if(status < -1)
+	    last_boot_progress = -status;
+	
+	/* 
+	 * Flash this code 5 times
+	 */
+	for(j=0; j<5; j++) {
+	    /*
+	     * Houston, we have a problem.
+	     * Blink the last OK status which indicates where things failed.
+	     */
+	    status_led_set(STATUS_LED_RED, STATUS_LED_ON);
+	    flash_code(last_boot_progress, 5, 3);
+
+	    /* 
+	     * Delay 5 seconds between repetitions, 
+	     * with the fault LED blinking 
+	     */
+	    for(i=0; i<5; i++) {
+	    	status_led_set(STATUS_LED_RED, STATUS_LED_OFF);
+	    	udelay(500000);
+	    	status_led_set(STATUS_LED_RED, STATUS_LED_ON);
+	    	udelay(500000);
+	    }
+	}
+
+	/*
+	 * Reset the board to retry initialization.
+	 */
+	do_reset (NULL, 0, 0, NULL);
     }
 }
 #endif /* CONFIG_SHOW_BOOT_PROGRESS */

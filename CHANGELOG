@@ -2,6 +2,10 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Patches by Jon Diekema, 15 Sep 2003:
+  - add description for missing CFG_CMD_* entries in the README file
+  - sacsng tweaks
+
 * Patch by Gleb Natapov, 14 Sep 2003:
   enable watchdog support for all MPC824x boards that have a watchdog
 
