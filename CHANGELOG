@@ -2,6 +2,10 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Fix memory leak in the NAND-specific JFFS2 code
+
+* Fix SL811 USB controller when attached to a USB hub
+
 * Fix config option spelling in PM520 config file
 
 * Fix PHY discovery problem in cpu/mpc8xx/fec.c (introduced by

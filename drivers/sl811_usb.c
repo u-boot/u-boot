@@ -226,7 +226,12 @@ int usb_lowlevel_stop(void)
 	return 0;
 }
 
-int sl811_send_packet(int dir_to_host, int data1, __u8 *buffer, int len)
+static int calc_needed_buswidth(int bytes, int low_speed)
+{
+	return bytes * 8 + 512;
+}
+
+static int sl811_send_packet(int dir_to_host, int data1, __u8 *buffer, int len)
 {
 	__u8 ctrl = SL811_USB_CTRL_ARM | SL811_USB_CTRL_ENABLE;
 	__u16 status = 0;
@@ -248,7 +253,7 @@ int sl811_send_packet(int dir_to_host, int data1, __u8 *buffer, int len)
 		if (!dir_to_host && len)
 			sl811_write_buf(0x10, buffer, len);
 
-		if (sl811_read(SL811_SOFCNTDIV)*64 < len * 8 * 2)
+		if (sl811_read(SL811_SOFCNTDIV)*64 < calc_needed_buswidth(len, 0))
 			ctrl |= SL811_USB_CTRL_SOF;
 		else
 			ctrl &= ~SL811_USB_CTRL_SOF;
@@ -494,7 +499,7 @@ static int ascii2utf (char *s, u8 *utf, int utfmax)
  * root_hub_string is used by each host controller's root hub code,
  * so that they're identified consistently throughout the system.
  */
-int usb_root_hub_string (int id, int serial, char *type, __u8 *data, int len)
+static int usb_root_hub_string (int id, int serial, char *type, __u8 *data, int len)
 {
 	char buf [30];
 
@@ -503,7 +508,7 @@ int usb_root_hub_string (int id, int serial, char *type, __u8 *data, int len)
 
 	/* language ids */
 	if (id == 0) {
-		*data++ = 4; *data++ = 3;	/* 4 bytes data */
+		*data++ = 3; *data++ = 4;	/* 4 bytes data */
 		*data++ = 0; *data++ = 0;	/* some language id */
 		return 4;
 
