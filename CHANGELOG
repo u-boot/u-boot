@@ -2,6 +2,8 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Fix problems with I2C support for mpc5200
+
 * Adapt TRAB configuration and auto_update to new memory layout
 
 * Add configuration for wtk board
