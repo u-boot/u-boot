@@ -161,6 +161,9 @@ void cpu_init_f (void)
 	addecr |= 0x02;
 	*(vu_long *)MPC5XXX_CDM_CFG = addecr;
 #endif
+	/* Configure the XLB Arbiter */
+	*(vu_long *)MPC5XXX_XLBARB_MPRIEN = 0xff;
+	*(vu_long *)MPC5XXX_XLBARB_MPRIVAL = 0x11111111;
 #endif
 }
 
@@ -177,6 +180,8 @@ int cpu_init_r (void)
 #endif
 	*(vu_long *)MPC5XXX_ICTL_CRIT |= 0x0001ffff;
 	*(vu_long *)MPC5XXX_ICTL_EXT &= ~0x00000f00;
+	/* route critical ints to normal ints */
+	*(vu_long *)MPC5XXX_ICTL_EXT |= 0x00000001;
 
 #if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_MPC5XXX_FEC)
 	/* load FEC microcode */

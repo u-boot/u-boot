@@ -2,6 +2,10 @@
 Changes for U-Boot 1.0.0:
 ======================================================================
 
+* Modify XLB arbiter priorities on MPC5200 so all devices use same
+  priority; configure critical interrupts to be handled like external
+  interrupts
+
 * Make IPB clock on MGT5100/MPC5200 configurable in board config file;
   go back to 66 MHz for stability
 
