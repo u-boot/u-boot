@@ -148,6 +148,7 @@
 					CFG_CMD_JFFS2	| \
 					CFG_CMD_NAND	| \
 					CFG_CMD_MII	| \
+					CFG_CMD_MMC	| \
 					CFG_CMD_PCMCIA	| \
 					CFG_CMD_PCI	| \
 					CFG_CMD_USB	| \

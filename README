@@ -565,6 +565,7 @@ The following options need to be configured:
 		CFG_CMD_ELF	  bootelf, bootvx
 		CFG_CMD_ENV	  saveenv
 		CFG_CMD_FDC	* Floppy Disk Support
+		CFG_CMD_FAT	  FAT partition support
 		CFG_CMD_FDOS	* Dos diskette Support
 		CFG_CMD_FLASH	  flinfo, erase, protect
 		CFG_CMD_FPGA	  FPGA device initialization support
@@ -578,6 +579,7 @@ The following options need to be configured:
 		CFG_CMD_LOADS	  loads
 		CFG_CMD_MEMORY	  md, mm, nm, mw, cp, cmp, crc, base,
 				  loop, mtest
+		CFG_CMD_MMC	  MMC memory mapped support
 		CFG_CMD_MII	  MII utility commands
 		CFG_CMD_NET	  bootp, tftpboot, rarpboot
 		CFG_CMD_PCI	* pciinfo
@@ -729,6 +731,14 @@ The following options need to be configured:
 		Note:
 		Supported are USB Keyboards and USB Floppy drives
 		(TEAC FD-05PUB).
+
+- MMC Support:
+  		The MMC controller on the Intel PXA is supported. To
+		enable this define CONFIG_MMC. The MMC can be 
+		accessed from the boot prompt by mapping the device 
+		to physical memory similar to flash. Command line is
+		enabled with CFG_CMD_MMC. The MMC driver also works with
+		the FAT fs. This is enabled with CFG_CMD_FAT. 
 
 - Keyboard Support:
 		CONFIG_ISA_KEYBOARD

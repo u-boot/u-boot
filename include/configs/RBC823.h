@@ -113,6 +113,7 @@
 				~CFG_CMD_JFFS2	& \
 				~CFG_CMD_DTT	& \
 				~CFG_CMD_MII	& \
+				~CFG_CMD_MMC	& \
 				/*~CFG_CMD_NET	&*/ \
 				/*~CFG_CMD_ELF	&*/ \
 				/* ~CFG_CMD_EEPROM	& */ \

@@ -74,6 +74,8 @@
 #include <cmd_fdos.h>
 #include <cmd_bmp.h>
 #include <cmd_portio.h>
+#include <cmd_mmc.h>
+#include <cmd_fat.h>
 
 #ifdef CONFIG_AMIGAONEG3SE
 #include <cmd_menu.h>
@@ -131,13 +133,14 @@ do_echo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 		if (i > 1)
 			putc(' ');
-		while ((c = *p++) != '\0')
+		while ((c = *p++) != '\0') {
 			if (c == '\\' && *p == 'c') {
 				putnl = 0;
 				p++;
-			}
-			else
+			} else {
 				putc(c);
+			}
+		}
 	}
 
 	if (putnl)
@@ -190,8 +193,7 @@ do_help (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			if (cmdtp->usage)
 				puts (cmdtp->usage);
 #endif	/* CFG_LONGHELP */
-		}
-		else {
+		} else {
 			printf ("Unknown command '%s' - try 'help'"
 				" without arguments for list of all"
 				" known commands\n\n",
@@ -263,6 +265,7 @@ cmd_tbl_t cmd_tbl[] = {
 	CMD_TBL_DTT
 	CMD_TBL_ECHO
 	CMD_TBL_EEPROM
+	CMD_TBL_FAT
 	CMD_TBL_FCCINFO
 	CMD_TBL_FLERASE
 	CMD_TBL_FDC
@@ -302,6 +305,7 @@ cmd_tbl_t cmd_tbl[] = {
 	CMD_TBL_LOOP
 	CMD_TBL_JFFS2_LS
 	CMD_TBL_MCCINFO
+	CMD_TBL_MMC
 	CMD_TBL_MD
 	CMD_TBL_MEMCINFO
 #ifdef CONFIG_AMIGAONEG3SE

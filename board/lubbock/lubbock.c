@@ -50,6 +50,14 @@ int board_init (void)
 	return 0;
 }
 
+int board_post_init(void)
+{
+   setenv("stdout", "serial");
+   setenv("stderr", "serial");
+	return 0;
+}
+
+
 int dram_init (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;

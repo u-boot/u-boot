@@ -158,6 +158,10 @@ extern int flash_real_protect(flash_info_t *info, long sector, int prot);
 #define AMD_ID_DL324B	0x225F225F	/* 29DL324B ID (32 M, bottom boot sect) */
 
 #define AMD_ID_DL640	0x227E227E	/* 29DL640D ID (64 M, dual boot sectors)*/
+#define AMD_ID_MIRROR	0x227E227E	/* 1st ID word for MirrorBit family */ 
+#define AMD_ID_LV128U_2	0x22122212	/* 2d ID word for AM29LV128M at 0x38 */
+#define AMD_ID_LV128U_3	0x22002200	/* 3d ID word for AM29LV128M at 0x3c */
+
 #define AMD_ID_LV640U	0x22D722D7	/* 29LV640U ID (64 M, uniform sectors)	*/
 
 #define ATM_ID_BV1614   0x000000C0      /* 49BV1614 ID */
@@ -302,6 +306,7 @@ extern int flash_real_protect(flash_info_t *info, long sector, int prot);
 #define FLASH_28F320C3B	0x009F		/* Intel 28F320C3B ( 32M = 2M x 16 )	*/
 #define FLASH_28F640C3T	0x00A0		/* Intel 28F640C3T ( 64M = 4M x 16 )	*/
 #define FLASH_28F640C3B	0x00A1		/* Intel 28F640C3B ( 64M = 4M x 16 )	*/
+#define FLASH_AMLV128U		0x00A2		/* AMD 29LV128M    ( 128M = 8M x 16 )	*/
 
 #define FLASH_UNKNOWN	0xFFFF		/* unknown flash type			*/
 

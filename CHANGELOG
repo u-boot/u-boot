@@ -2,6 +2,19 @@
 Changes since U-Boot 0.3.1:
 ======================================================================
 
+* Fix CONFIG_NET_MULTI support in include/net.h
+
+* Patches by Kyle Harris, 13 Mar 2003:
+  - Add FAT partition support
+  - Add command support for FAT
+  - Add command support for MMC
+  ----
+  - Add Intel PXA support for video
+  - Add Intel PXA support for MMC
+  ----
+  - Enable MMC and FAT for lubbock board
+  - Other misc changes for lubbock board
+
 * Patch by Robert Schwebel, April 02, 2003:
   fix for SMSC91111 driver
 

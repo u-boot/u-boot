@@ -73,10 +73,21 @@ typedef	void (interrupt_handler_t)(void *);
 #include <asm/u-boot.h>	/* boot information for Linux kernel */
 #include <asm/global_data.h>	/* global data used for startup functions */
 
-/* enable common handling for all TQM8xxL boards */
+/*
+ * enable common handling for all TQM8xxL/M boards:
+ * - CONFIG_TQM8xxM will be defined for all TQM8xxM boards
+ * - CONFIG_TQM8xxL will be defined for all TQM8xxL _and_ TQM8xxM boards
+ */
+#if defined(CONFIG_TQM823M) || defined(CONFIG_TQM850M) || \
+    defined(CONFIG_TQM855M) || defined(CONFIG_TQM860M) || \
+    defined(CONFIG_TQM862M)
+# ifndef CONFIG_TQM8xxM
+#  define CONFIG_TQM8xxM
+# endif
+#endif
 #if defined(CONFIG_TQM823L) || defined(CONFIG_TQM850L) || \
     defined(CONFIG_TQM855L) || defined(CONFIG_TQM860L) || \
-    defined(CONFIG_TQM862L)
+    defined(CONFIG_TQM862L) || defined(CONFIG_TQM8xxM)
 # ifndef CONFIG_TQM8xxL
 #  define CONFIG_TQM8xxL
 # endif
@@ -237,6 +248,7 @@ void	load_sernum_ethaddr (void);
 
 /* $(BOARD)/$(BOARD).c */
 int board_pre_init (void);
+int board_post_init (void);
 int board_postclk_init (void); /* after clocks/timebase, before env/serial */
 void board_poweroff (void);
 

@@ -25,6 +25,7 @@
 
 #include <common.h>
 #include <mpc8xx.h>
+#include <environment.h>
 
 #ifndef	CFG_ENV_ADDR
 #define CFG_ENV_ADDR	(CFG_FLASH_BASE + CFG_ENV_OFFSET)
@@ -103,17 +104,41 @@ unsigned long flash_init (void)
 
 #if CFG_MONITOR_BASE >= CFG_FLASH_BASE
 	/* monitor protection ON by default */
+	debug ("Protect monitor: %08lx ... %08lx\n",
+		(ulong)CFG_MONITOR_BASE,
+		(ulong)CFG_MONITOR_BASE + monitor_flash_len - 1);
+
 	flash_protect(FLAG_PROTECT_SET,
 		      CFG_MONITOR_BASE,
-		      CFG_MONITOR_BASE+monitor_flash_len-1,
+		      CFG_MONITOR_BASE + monitor_flash_len - 1,
 		      &flash_info[0]);
 #endif
 
 #ifdef	CFG_ENV_IS_IN_FLASH
 	/* ENV protection ON by default */
+	debug ("Protect %senvironment: %08lx ... %08lx\n",
+# ifdef CFG_ENV_ADDR_REDUND
+		"primary   ",
+# else
+		"",
+# endif
+		(ulong)CFG_ENV_ADDR,
+		(ulong)CFG_ENV_ADDR + CFG_ENV_SECT_SIZE - 1);
+
 	flash_protect(FLAG_PROTECT_SET,
 		      CFG_ENV_ADDR,
-		      CFG_ENV_ADDR+CFG_ENV_SIZE-1,
+		      CFG_ENV_ADDR + CFG_ENV_SECT_SIZE - 1,
+		      &flash_info[0]);
+#endif
+
+#ifdef CFG_ENV_ADDR_REDUND
+	debug ("Protect redundand environment: %08lx ... %08lx\n",
+		(ulong)CFG_ENV_ADDR_REDUND,
+		(ulong)CFG_ENV_ADDR_REDUND + CFG_ENV_SECT_SIZE - 1);
+
+	flash_protect(FLAG_PROTECT_SET,
+		      CFG_ENV_ADDR_REDUND,
+		      CFG_ENV_ADDR_REDUND + CFG_ENV_SECT_SIZE - 1,
 		      &flash_info[0]);
 #endif
 
@@ -181,6 +206,10 @@ void flash_print_info  (flash_info_t *info)
 	}
 
 	switch (info->flash_id & FLASH_TYPEMASK) {
+#ifdef CONFIG_TQM8xxM	/* mirror bit flash */
+	case FLASH_AMLV128U:	printf ("AM29LV128ML (128Mbit, uniform sector size)\n");
+				break;
+# else	/* ! TQM8xxM */
 	case FLASH_AM400B:	printf ("AM29LV400B (4 Mbit, bottom boot sect)\n");
 				break;
 	case FLASH_AM400T:	printf ("AM29LV400T (4 Mbit, top boot sector)\n");
@@ -197,6 +226,7 @@ void flash_print_info  (flash_info_t *info)
 				break;
 	case FLASH_AM320T:	printf ("AM29LV320T (32 Mbit, top boot sector)\n");
 				break;
+#endif	/* TQM8xxM */
 	default:		printf ("Unknown Chip Type\n");
 				break;
 	}
@@ -262,6 +292,25 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 	debug ("Device ID @ 0x%08lx: 0x%08lx\n", (ulong)(&addr[1]), value);
 
 	switch (value) {
+#ifdef CONFIG_TQM8xxM	/* mirror bit flash */
+	case AMD_ID_MIRROR:
+		switch(addr[14]) {
+		case AMD_ID_LV128U_2:
+			if (addr[15] != AMD_ID_LV128U_3) {
+				info->flash_id = FLASH_UNKNOWN;
+			}
+			else {
+				info->flash_id += FLASH_AMLV128U;
+				info->sector_count = 256;
+				info->size = 0x02000000;
+			}
+			break;				/* => 32 MB		*/
+		default:
+			info->flash_id = FLASH_UNKNOWN;
+			break;
+		}
+		break;
+# else	/* ! TQM8xxM */
 	case AMD_ID_LV400T:
 		info->flash_id += FLASH_AM400T;
 		info->sector_count = 11;
@@ -297,6 +346,7 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 		info->sector_count = 35;
 		info->size = 0x00400000;
 		break;				/* => 4 MB		*/
+
 	case AMD_ID_LV320T:
 		info->flash_id += FLASH_AM320T;
 		info->sector_count = 71;
@@ -308,12 +358,7 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 		info->sector_count = 71;
 		info->size = 0x00800000;
 		break;				/* => 8 MB		*/
-	case AMD_ID_DL640:
-debug ("## oops - same ID used for AM29LV128ML/H mirror bit flash ???\n");
-		info->flash_id += FLASH_AMDL640;
-		info->sector_count = 142;
-		info->size = 0x00800000;
-		break;
+#endif	/* TQM8xxM */
 	default:
 		info->flash_id = FLASH_UNKNOWN;
 		return (0);			/* => no or unknown flash */
@@ -321,6 +366,19 @@ debug ("## oops - same ID used for AM29LV128ML/H mirror bit flash ???\n");
 
 	/* set up sector start address table */
 	switch (value) {
+#ifdef CONFIG_TQM8xxM	/* mirror bit flash */
+	case AMD_ID_MIRROR:
+		switch (info->flash_id & FLASH_TYPEMASK) {
+			/* only known types here - no default */
+		case FLASH_AMLV128U:
+			for (i = 0; i < info->sector_count; i++) {
+				info->start[i] = base;
+				base += 0x20000;
+			}
+			break;
+		}
+		break;
+# else	/* ! TQM8xxM */
 	case AMD_ID_LV400B:
 	case AMD_ID_LV800B:
 	case AMD_ID_LV160B:
@@ -369,6 +427,7 @@ debug ("## oops - same ID used for AM29LV128ML/H mirror bit flash ???\n");
 				:  2 * ( 8 << 10);
 		}
 		break;
+#endif	/* TQM8xxM */
 	default:
 		return (0);
 		break;

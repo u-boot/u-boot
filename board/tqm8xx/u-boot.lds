@@ -66,7 +66,7 @@ SECTIONS
     lib_ppc/cache.o		(.text)
     lib_ppc/time.o		(.text)
 
-    . = env_offset;
+    . = DEFINED(env_offset) ? env_offset : .;
     common/environment.o	(.ppcenv)
 
     *(.text)

@@ -1,6 +1,4 @@
 #
-# (C) Copyright 2000, 2002
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -21,22 +19,27 @@
 # MA 02111-1307 USA
 #
 
+TOPDIR=../../
+
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(CPU).a
+LIB	= libfat.a
 
-START	= start.o
-OBJS	= serial.o interrupts.o cpu.o i2c.o pxafb.o mmc.o
+AOBJS	=
+COBJS	= fat.o file.o
 
-all:	.depend $(START) $(LIB)
+OBJS	= $(AOBJS) $(COBJS)
 
-$(LIB):	$(OBJS)
+all:	$(LIB) $(AOBJS)
+
+$(LIB):	.depend $(OBJS)
 	$(AR) crv $@ $(OBJS)
+
 
 #########################################################################
 
-.depend:	Makefile $(START:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(START:.o=.S) $(OBJS:.o=.c) > $@
+.depend:	Makefile $(AOBJS:.o=.S) $(COBJS:.o=.c)
+		$(CC) -M $(CFLAGS) $(AOBJS:.o=.S) $(COBJS:.o=.c) > $@
 
 sinclude .depend
 

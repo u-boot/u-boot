@@ -12,12 +12,14 @@
 #ifndef __NET_H__
 #define __NET_H__
 
-#if !defined(CONFIG_NET_MULTI) && defined(CONFIG_8xx)
+#if defined(CONFIG_8xx)
 #include <commproc.h>
-#if defined(FEC_ENET) || defined(SCC_ENET)
-#define CONFIG_NET_MULTI
-#endif
-#endif
+# if !defined(CONFIG_NET_MULTI)
+#  if defined(FEC_ENET) || defined(SCC_ENET)
+#   define CONFIG_NET_MULTI
+#  endif
+# endif
+#endif	/* CONFIG_8xx */
 
 #if !defined(CONFIG_NET_MULTI) && defined(CONFIG_8260)
 #include <config.h>

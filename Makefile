@@ -106,7 +106,7 @@ endif
 LIBS  =	board/$(BOARDDIR)/lib$(BOARD).a
 LIBS += cpu/$(CPU)/lib$(CPU).a
 LIBS += lib_$(ARCH)/lib$(ARCH).a
-LIBS += fs/jffs2/libjffs2.a fs/fdos/libfdos.a
+LIBS += fs/jffs2/libjffs2.a fs/fdos/libfdos.a fs/fat/libfat.a
 LIBS += net/libnet.a
 LIBS += disk/libdisk.a
 LIBS += rtc/librtc.a
@@ -377,7 +377,7 @@ TQM860L_80MHz_config	\
 TQM862L_config		\
 TQM862L_66MHz_config	\
 TQM862L_80MHz_config	\
-TQM862L_100MHz_config:	unconfig
+TQM862M_100MHz_config:	unconfig
 	@ >include/config.h
 	@[ -z "$(findstring _66MHz,$@)" ] || \
 		{ echo "#define CONFIG_66MHz"		>>include/config.h ; \

@@ -82,6 +82,8 @@
 #define CFG_CMD_BMP	0x0001000000000000	/* BMP support			*/
 #define CFG_CMD_PORTIO	0x0002000000000000	/* Port I/O		        */
 #define CFG_CMD_PING	0x0004000000000000	/* ping support			*/
+#define CFG_CMD_MMC	0x0008000000000000	/* MMC support			*/
+#define CFG_CMD_FAT	0x0010000000000000	/* FAT support			*/
 
 #define CFG_CMD_ALL	0xFFFFFFFFFFFFFFFF	/* ALL commands			*/
 
@@ -102,6 +104,7 @@
 			CFG_CMD_EEPROM	| \
 			CFG_CMD_ELF	| \
 			CFG_CMD_FDC	| \
+			CFG_CMD_FAT	| \
 			CFG_CMD_FDOS	| \
 			CFG_CMD_HWFLOW	| \
 			CFG_CMD_I2C	| \
@@ -111,6 +114,7 @@
 			CFG_CMD_JFFS2	| \
 			CFG_CMD_KGDB	| \
 			CFG_CMD_MII	| \
+			CFG_CMD_MMC	| \
 			CFG_CMD_NAND	| \
 			CFG_CMD_PCI	| \
 			CFG_CMD_PCMCIA	| \

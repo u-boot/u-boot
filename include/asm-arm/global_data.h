@@ -41,8 +41,8 @@ typedef	struct	global_data {
 	unsigned long	reloc_off;	/* Relocation Offset */
 	unsigned long	env_addr;	/* Address  of Environment struct */
 	unsigned long	env_valid;	/* Checksum of Environment valid? */
-#ifdef CONFIG_VFD
 	unsigned long	fb_base;	/* base address of frame buffer */
+#ifdef CONFIG_VFD
 	unsigned char	vfd_type;	/* display type */
 #endif
 #if 0
