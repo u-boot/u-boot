@@ -145,9 +145,7 @@ void cpu_init_f (volatile immap_t * immr)
     defined(CONFIG_R360MPI)	|| \
     defined(CONFIG_RPXCLASSIC)	|| \
     defined(CONFIG_RPXLITE)	|| \
-    defined(CONFIG_SPD823TS)	|| \
-    defined(CONFIG_MPC86xADS)	|| \
-   (defined(CONFIG_MPC860T) && defined(CONFIG_FADS))
+    defined(CONFIG_SPD823TS)
 
 	memctl->memc_br0 = CFG_BR0_PRELIM;
 #endif

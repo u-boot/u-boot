@@ -2,6 +2,15 @@
 Changes since U-Boot 1.0.0:
 ======================================================================
 
+* Patch by Yuli Barcohen, 3 Dec 2003:
+  "revive" U-Boot support for old Motorola MPC860ADS board
+
+* Patch by Cam(ilo?), 03 Dec 2003:
+  make examples build even with broken Montavista objcopy
+
+* Patch by Pavel Bartusek, 27 Nov 2003:
+  fix conversion problem with "bootretry" evironment variable
+
 * Patch by Andre Schwarz, 24 Nov 2003:
   add support for mvblue (mvBlueLYNX and mvBlueBOX) boards
 

@@ -57,7 +57,7 @@
 #include <command.h>
 #include <config.h>
 #include <pcmcia.h>
-#if defined(CONFIG_IDE_8xx_PCCARD) && defined(CONFIG_8xx)
+#if defined(CONFIG_8xx)
 #include <mpc8xx.h>
 #endif
 #if defined(CONFIG_LWMON)

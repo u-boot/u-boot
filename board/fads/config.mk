@@ -22,9 +22,9 @@
 #
 
 #
-# FADS boards
+# Motorola old MPC821/860ADS, MPC8xxFADS, and new MPC866ADS boards
 #
 
-#TEXT_BASE = 0xFE000000
-TEXT_BASE = 0x02800000
-OBJCFLAGS =	--set-section-flags=.ppcenv=contents,alloc,load,data
+TEXT_BASE = 0xFE000000
+#TEXT_BASE = 0x02800000
+#OBJCFLAGS = --set-section-flags=.ppcenv=contents,alloc,load,data

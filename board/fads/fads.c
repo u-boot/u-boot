@@ -360,7 +360,11 @@ static int _draminit (uint base, uint noMbytes, uint edo, uint delay)
 
 	switch (noMbytes) {
 	case 4:				/* 4 Mbyte uses only CS2 */
+#ifdef CONFIG_ADS
+		memctl->memc_mamr = 0xc0a21114;
+#else
 		memctl->memc_mamr = 0x13a01114;	/* PTA 0x13 AMA 010 */
+#endif
 		memctl->memc_or2 = 0xffc00800;	/* 4M */
 		break;
 
@@ -393,17 +397,18 @@ static int _draminit (uint base, uint noMbytes, uint edo, uint delay)
 
 	memctl->memc_br2 = 0x81 + base;	/* use upma */
 
+	*((uint *) BCSR1) &= ~BCSR1_DRAM_EN;	/* enable dram */
+
 	/* if no dimm is inserted, noMbytes is still detected as 8m, so
 	 * sanity check top and bottom of memory */
 
-	*((uint *) BCSR1) &= ~BCSR1_DRAM_EN;	/* enable dram */
-
 	/* check bytes / 2 because dram_size tests at base+bytes, which
 	 * is not mapped */
-	if (dram_size ((long *) base, noMbytes << 19) != noMbytes << 19) {
-		*((uint *) BCSR1) |= BCSR1_DRAM_EN;	/* disable dram */
-		return -1;
-	}
+	if (noMbytes == 8)
+		if (dram_size ((long *) base, noMbytes << 19) != noMbytes << 19) {
+			*((uint *) BCSR1) |= BCSR1_DRAM_EN;	/* disable dram */
+			return -1;
+		}
 
 	return 0;
 }

@@ -30,7 +30,6 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#include <mpc8xx_irq.h>
 
 /* board type */
 #define CONFIG_FADS		1       /* old/new FADS + new ADS */
@@ -57,9 +56,6 @@
 /* should ALWAYS define this, measure_gclk in speed.c is unreliable */
 /* in general, we always know this for FADS+new ADS anyway */
 #define CONFIG_8xx_GCLK_FREQ     MPC8XX_HZ
-
-/* most vanilla kernels do not like this, set to 0 if in doubt */
-#define	CONFIG_CLOCKS_IN_MHZ	1	/* clocks passsed to Linux in MHz */
 
 #if 1
 #define CONFIG_BOOTDELAY	-1	/* autoboot disabled		*/
@@ -163,11 +159,11 @@
 # define	CFG_SDRAM_SIZE	0x00000000      /* NO SDRAM */
 #endif
 
-#define CFG_FLASH_BASE		0x02800000
+#define CFG_FLASH_BASE		TEXT_BASE
 
 #define CFG_FLASH_SIZE		((uint)(8 * 1024 * 1024))	/* max 8Mbyte */
 
-#define	CFG_MONITOR_LEN		(272 << 10)	/* Reserve 272 kB for Monitor	*/
+#define	CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
 #define CFG_MONITOR_BASE	CFG_FLASH_BASE
 #define	CFG_MALLOC_LEN		(384 << 10)	/* Reserve 384 kB for malloc()	*/
 
@@ -184,7 +180,7 @@
 #define CFG_MAX_FLASH_SECT	16      /* max number of sectors on one chip	*/
 
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
-#define CFG_FLASH_WRITE_TOUT	500		/* Timeout for Flash Write (in ms)	*/
+#define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
 #define	CFG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_OFFSET		0x00040000
@@ -276,13 +272,10 @@
 #define BCSR_ADDR		((uint) 0xFF010000)
 #define BCSR_SIZE		((uint)(64 * 1024))
 
-#define CFG_REMAP_OR_AM		0x80000000	/* OR addr mask */
 #define CFG_PRELIM_OR_AM	0xFF800000	/* OR addr mask */
 
-/* FLASH timing: ACS = 10, TRLX = 1, CSNT = 1, SCY = 3, EHTR = 0	*/
+/* FLASH timing: ACS = 10, TRLX = 1, CSNT = 1, SCY = 3, EHTR = 0 */
 #define CFG_OR_TIMING_FLASH	(OR_CSNT_SAM  | OR_ACS_DIV4 | OR_BI | OR_SCY_3_CLK | OR_TRLX)
-
-#define CFG_OR0_REMAP	(CFG_REMAP_OR_AM  | CFG_OR_TIMING_FLASH)
 
 #ifdef USE_REAL_FLASH_VALUES
 /*
@@ -297,7 +290,6 @@
 #endif
 
 /* BCSRx - Board Control and Status Registers */
-#define CFG_OR1_REMAP	CFG_OR0_REMAP
 #define CFG_OR1_PRELIM	0xffff8110		/* 64Kbyte address space */
 #define CFG_BR1_PRELIM	((BCSR_ADDR) | BR_V )
 
@@ -316,7 +308,7 @@
 #define PCMCIA_MEM_ADDR		((uint)0xff020000)
 #define PCMCIA_MEM_SIZE		((uint)(64 * 1024))
 
-#define	BCSR0			((uint) (BCSR_ADDR + 00))
+#define	BCSR0			((uint) (BCSR_ADDR + 0x00))
 #define	BCSR1			((uint) (BCSR_ADDR + 0x04))
 #define	BCSR2			((uint) (BCSR_ADDR + 0x08))
 #define	BCSR3			((uint) (BCSR_ADDR + 0x0c))
@@ -418,14 +410,6 @@
 #define CONFIG_DRAM_50MHZ		1
 #define CONFIG_SDRAM_50MHZ              1
 
-#ifdef CONFIG_MPC860T
-
-/* Interrupt level assignments.
-*/
-#define FEC_INTERRUPT	SIU_LEVEL1	/* FEC interrupt */
-
-#endif /* CONFIG_MPC860T */
-
 /* We don't use the 8259.
 */
 #define NR_8259_INTS	0
@@ -438,8 +422,6 @@
 
 
 /* PCMCIA configuration */
-
-#define PCMCIA_MAX_SLOTS    2
 
 #ifdef CONFIG_MPC860
 #define PCMCIA_SLOT_A 1

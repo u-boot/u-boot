@@ -9,10 +9,10 @@
  * 1999-nov-26: The FADS is using the following physical memorymap:
  *
  * ff020000 -> ff02ffff : pcmcia
- * ff010000 -> ff01ffff : BCSR       connected to CS1, setup by 8xxrom
+ * ff010000 -> ff01ffff : BCSR       connected to CS1
  * ff000000 -> ff00ffff : IMAP       internal in the cpu
- * fe000000 -> ffnnnnnn : flash      connected to CS0, setup by 8xxrom
- * 00000000 -> nnnnnnnn : sdram/dram setup by 8xxrom
+ * fe000000 -> fennnnnn : flash      connected to CS0
+ * 00000000 -> nnnnnnnn : sdram      connected to CS4
  */
 
 /* ------------------------------------------------------------------------- */
@@ -28,7 +28,6 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#include <mpc8xx_irq.h>
 
 /* board type */
 #define CONFIG_MPC86xADS        1       /* new ADS */
@@ -66,9 +65,6 @@
 /* in general, we always know this for FADS+new ADS anyway */
 #define CONFIG_8xx_GCLK_FREQ     MPC8XX_HZ
 
-/* most vanilla kernels do not like this, set to 0 if in doubt */
-#define	CONFIG_CLOCKS_IN_MHZ	1	/* clocks passsed to Linux in MHz */
-
 #if 1
 #define CONFIG_BOOTDELAY	-1	/* autoboot disabled		*/
 #else
@@ -76,13 +72,11 @@
 #endif
 
 #undef	CONFIG_BOOTARGS
-#define CONFIG_BOOTCOMMAND			    \
-    "bootp; "				    \
-    "setenv bootargs root=/dev/nfs rw nfsroot=$(serverip):$(rootpath) "	    \
-    "ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off; "   \
+#define CONFIG_BOOTCOMMAND							\
+    "dhcp;"									\
+    "setenv bootargs root=/dev/nfs rw nfsroot=$(serverip):$(rootpath) "		\
+    "ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;"	\
     "bootm"
-
-/* #include "local.h" */
 
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 
@@ -96,20 +90,26 @@
 #undef	CONFIG_IDE_LED			/* LED	 for ide not supported	*/
 #undef	CONFIG_IDE_RESET		/* reset for ide not supported	*/
 
-/* choose SCC1 ethernet (10BASET on motherboard)
- * or FEC ethernet (10/100 on daughterboard)
+/*
+ * New MPC86xADS provides two Ethernet connectivity options:
+ * 10Mbit/s on SCC1 and 100Mbit/s on FEC. All new PQ1 chips
+ * has got FEC so FEC is the default.
  */
-#if 0
-#define	CONFIG_SCC1_ENET	1	/* use SCC1 ethernet */
-#undef	CONFIG_FEC_ENET			/* disable FEC ethernet  */
-#else   /* all 86x cores have FECs, if in doubt, use it */
 #undef	CONFIG_SCC1_ENET		/* disable SCC1 ethernet */
 #define	CONFIG_FEC_ENET		1	/* use FEC ethernet  */
+#ifdef CONFIG_FEC_ENET
 #define CFG_DISCOVER_PHY
 #endif
 #if defined(CONFIG_SCC1_ENET) && defined(CONFIG_FEC_ENET)
 #error Both CONFIG_SCC1_ENET and CONFIG_FEC_ENET configured
 #endif
+
+#define CONFIG_COMMANDS	(CONFIG_CMD_DFL  \
+			 | CFG_CMD_DHCP  \
+			 | CFG_CMD_IMMAP \
+			 | CFG_CMD_MII   \
+			 | CFG_CMD_PING  \
+			)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -127,13 +127,6 @@
 #define	CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
 #define	CFG_MAXARGS	16		/* max number of command args	*/
 #define CFG_BARGSIZE	CFG_CBSIZE	/* Boot Argument Buffer Size	*/
-
-#define CFG_MEMTEST_START	0x0100000	/* memtest works on	*/
-#if (CFG_SDRAM_SIZE)
-#define CFG_MEMTEST_END		CFG_SDRAM_SIZE	/* 1 ... SDRAM_SIZE	*/
-#else
-#define CFG_MEMTEST_END		0x0400000     	/* 1 ... 4 MB in DRAM	*/
-#endif
 
 #define CFG_LOAD_ADDR	 	0x00100000
 
@@ -167,23 +160,20 @@
  * Please note that CFG_SDRAM_BASE _must_ start at 0
  */
 #define	CFG_SDRAM_BASE		0x00000000
-#ifdef CONFIG_FADS
-# ifdef CONFIG_MPC86xADS /* new ADS */
-#  define	CFG_SDRAM_SIZE	0x00800000      /* 8 meg */
-# else                   /* old/new FADS */
-#  define	CFG_SDRAM_SIZE	0x00400000      /* 4 meg */
-# endif
-#else   /* !CONFIG_FADS */ /* old ADS */
-# define	CFG_SDRAM_SIZE	0x00000000      /* NO SDRAM */
+#if defined(CONFIG_MPC86xADS) /* new ADS */
+#define	CFG_SDRAM_SIZE	0x00800000      /* 8 meg */
+#elif defined(CONFIG_FADS)    /* old/new FADS */
+#define	CFG_SDRAM_SIZE	0x00400000      /* 4 meg */
+#else                         /* old ADS */
+#define	CFG_SDRAM_SIZE	0x00000000      /* No SDRAM */
 #endif
 
-#define CFG_FLASH_BASE		0x02800000
-
-#define CFG_FLASH_SIZE		((uint)(8 * 1024 * 1024))	/* max 8Mbyte */
-
-#define	CFG_MONITOR_LEN		(272 << 10)	/* Reserve 272 kB for Monitor	*/
-#define CFG_MONITOR_BASE	CFG_FLASH_BASE
-#define	CFG_MALLOC_LEN		(384 << 10)	/* Reserve 384 kB for malloc()	*/
+#define CFG_MEMTEST_START	0x0100000	/* memtest works on	*/
+#if (CFG_SDRAM_SIZE)
+#define CFG_MEMTEST_END		CFG_SDRAM_SIZE	/* 1 ... SDRAM_SIZE	*/
+#else
+#define CFG_MEMTEST_END		0x0400000     	/* 1 ... 4 MB in DRAM	*/
+#endif /* CFG_SDRAM_SIZE */
 
 /*
  * For booting Linux, the board info and command line data
@@ -194,6 +184,9 @@
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
+#define CFG_FLASH_BASE		TEXT_BASE
+#define CFG_FLASH_SIZE		((uint)(8 * 1024 * 1024))	/* max 8Mbyte */
+
 #define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
 #define CFG_MAX_FLASH_SECT	16      /* max number of sectors on one chip	*/
 
@@ -201,10 +194,13 @@
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
 #define	CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_OFFSET		0x00040000
-#define	CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
-
 #define CFG_ENV_SECT_SIZE	0x40000	/* see README - env sector total size	*/
+#define CFG_ENV_OFFSET		CFG_ENV_SECT_SIZE
+#define	CFG_ENV_SIZE		0x4000	/* Total Size of Environment		*/
+
+#define CFG_MONITOR_BASE	CFG_FLASH_BASE
+#define	CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 KB for monitor	*/
+#define	CFG_MALLOC_LEN		(384 << 10)	/* Reserve 384 kB for malloc()	*/
 
 /*-----------------------------------------------------------------------
  * Cache Configuration
@@ -215,7 +211,7 @@
 #endif
 
 /*-----------------------------------------------------------------------
- * SYPCR - System Protection Control					11-9
+ * SYPCR - System Protection Control				11-9
  * SYPCR can only be written once after reset!
  *-----------------------------------------------------------------------
  * Software & Bus Monitor Timer max, Bus Monitor enable, SW Watchdog freeze
@@ -228,14 +224,14 @@
 #endif
 
 /*-----------------------------------------------------------------------
- * SIUMCR - SIU Module Configuration					11-6
+ * SIUMCR - SIU Module Configuration				11-6
  *-----------------------------------------------------------------------
  * PCMCIA config., multi-function pin tri-state
  */
 #define CFG_SIUMCR	(SIUMCR_DBGC00 | SIUMCR_DBPC00 | SIUMCR_MLRC01)
 
 /*-----------------------------------------------------------------------
- * TBSCR - Time Base Status and Control					11-26
+ * TBSCR - Time Base Status and Control				11-26
  *-----------------------------------------------------------------------
  * Clear Reference Interrupt Status, Timebase freezing enabled
  */
@@ -249,9 +245,9 @@
 #define CFG_PISCR	(PISCR_PS | PISCR_PITF)
 
 /*-----------------------------------------------------------------------
- * PLPRCR - PLL, Low-Power, and Reset Control Register	15-30
+ * PLPRCR - PLL, Low-Power, and Reset Control Register		15-30
  *-----------------------------------------------------------------------
- * set the PLL, the low-power modes and the reset control (15-29)
+ * set the PLL, the low-power modes and the reset control 	(15-29)
  */
 #define CFG_PLPRCR	((CFG_8XX_FACT << PLPRCR_MFI_SHIFT) |	\
 				PLPRCR_SPLSS | PLPRCR_TEXPS)
@@ -283,34 +279,23 @@
 /*
  * Init Memory Controller:
  *
- * BR0/1 and OR0/1 (FLASH)
+ * BR0/OR0 (Flash)
+ * BR1/OR1 (BCSR)
  */
 /* the other CS:s are determined by looking at parameters in BCSRx */
 
 #define BCSR_ADDR		((uint) 0xFF010000)
 #define BCSR_SIZE		((uint)(64 * 1024))
 
-#define CFG_REMAP_OR_AM		0x80000000	/* OR addr mask */
 #define CFG_PRELIM_OR_AM	0xFF800000	/* OR addr mask */
 
-/* FLASH timing: ACS = 10, TRLX = 1, CSNT = 1, SCY = 3, EHTR = 0	*/
+/* FLASH timing: ACS = 10, TRLX = 1, CSNT = 1, SCY = 3, EHTR = 0 */
 #define CFG_OR_TIMING_FLASH	(OR_CSNT_SAM  | OR_ACS_DIV4 | OR_BI | OR_SCY_3_CLK | OR_TRLX)
 
-#define CFG_OR0_REMAP	(CFG_REMAP_OR_AM  | CFG_OR_TIMING_FLASH)
-
-#ifdef USE_REAL_FLASH_VALUES
-/*
- * The "default" behaviour with 1Mbyte initial doesn't work for us!
- */
-#define CFG_OR0_PRELIM	0x0FFC00D34 /* Real values for the board */
-#define CFG_BR0_PRELIM	0x02800001  /* Real values for the board */
-#else
 #define CFG_OR0_PRELIM	(CFG_PRELIM_OR_AM | CFG_OR_TIMING_FLASH)   /* 8 Mbyte until detected */
 #define CFG_BR0_PRELIM	((CFG_FLASH_BASE & BR_BA_MSK) | BR_V )
-#endif
 
 /* BCSRx - Board Control and Status Registers */
-#define CFG_OR1_REMAP	CFG_OR0_REMAP
 #define CFG_OR1_PRELIM	0xffff8110		/* 64Kbyte address space */
 #define CFG_BR1_PRELIM	((BCSR_ADDR) | BR_V )
 
@@ -327,7 +312,7 @@
 #define PCMCIA_MEM_ADDR		((uint)0xff020000)
 #define PCMCIA_MEM_SIZE		((uint)(64 * 1024))
 
-#define	BCSR0			((uint) (BCSR_ADDR + 00))
+#define	BCSR0			((uint) (BCSR_ADDR + 0x00))
 #define	BCSR1			((uint) (BCSR_ADDR + 0x04))
 #define	BCSR2			((uint) (BCSR_ADDR + 0x08))
 #define	BCSR3			((uint) (BCSR_ADDR + 0x0c))
@@ -389,10 +374,6 @@
 #define CONFIG_DRAM_50MHZ		1
 #define CONFIG_SDRAM_50MHZ              1
 
-/* Interrupt level assignments.
-*/
-#define FEC_INTERRUPT	SIU_LEVEL1	/* FEC interrupt */
-
 /* We don't use the 8259.
 */
 #define NR_8259_INTS	0
@@ -406,12 +387,10 @@
 
 /* PCMCIA configuration */
 
-#define PCMCIA_MAX_SLOTS    2
-
 #ifdef CONFIG_MPC860
 #define PCMCIA_SLOT_A 1
 #endif
-/*#define CFG_PCMCIA_MEM_SIZE     ( 64 << 20) */
+
 #define CFG_PCMCIA_MEM_ADDR	(0x50000000)
 #define CFG_PCMCIA_MEM_SIZE	( 64 << 20 )
 #define CFG_PCMCIA_DMA_ADDR	(0x54000000)

@@ -22,9 +22,6 @@
  */
 
 OUTPUT_ARCH(powerpc)
-SEARCH_DIR(/lib); SEARCH_DIR(/usr/lib); SEARCH_DIR(/usr/local/lib); SEARCH_DIR(/usr/local/powerpc-any-elf/lib);
-/* Do we need any of these for elf?
-   __DYNAMIC = 0;    */
 SECTIONS
 {
   /* Read-only sections, merged into text segment: */
@@ -33,41 +30,30 @@ SECTIONS
   .hash          : { *(.hash)		}
   .dynsym        : { *(.dynsym)		}
   .dynstr        : { *(.dynstr)		}
-  .rel.text      : { *(.rel.text)		}
+  .rel.text      : { *(.rel.text)	}
   .rela.text     : { *(.rela.text) 	}
-  .rel.data      : { *(.rel.data)		}
+  .rel.data      : { *(.rel.data)	}
   .rela.data     : { *(.rela.data) 	}
   .rel.rodata    : { *(.rel.rodata) 	}
   .rela.rodata   : { *(.rela.rodata) 	}
-  .rel.got       : { *(.rel.got)		}
-  .rela.got      : { *(.rela.got)		}
+  .rel.got       : { *(.rel.got)	}
+  .rela.got      : { *(.rela.got)	}
   .rel.ctors     : { *(.rel.ctors)	}
   .rela.ctors    : { *(.rela.ctors)	}
   .rel.dtors     : { *(.rel.dtors)	}
   .rela.dtors    : { *(.rela.dtors)	}
-  .rel.bss       : { *(.rel.bss)		}
-  .rela.bss      : { *(.rela.bss)		}
-  .rel.plt       : { *(.rel.plt)		}
-  .rela.plt      : { *(.rela.plt)		}
-  .init          : { *(.init)	}
+  .rel.bss       : { *(.rel.bss)	}
+  .rela.bss      : { *(.rela.bss)	}
+  .rel.plt       : { *(.rel.plt)	}
+  .rela.plt      : { *(.rela.plt)	}
+  .init          : { *(.init)		}
   .plt : { *(.plt) }
   .text      :
   {
-    /* WARNING - the following is hand-optimized to fit within	*/
-    /* the sector layout of our flash chips!	XXX FIXME XXX	*/
+    cpu/mpc8xx/start.o		(.text)
 
-    cpu/mpc8xx/start.o	(.text)
-/*
-    cpu/mpc8xx/start.o	(.text)
-    common/dlmalloc.o	(.text)
-    lib_ppc/ppcstring.o	(.text)
-    lib_generic/vsprintf.o	(.text)
-    lib_generic/crc32.o		(.text)
-    lib_generic/zlib.o		(.text)
-
-    . = env_offset;
-    common/environment.o(.text)
-*/
+    . = DEFINED(env_offset) ? env_offset : .;
+    common/environment.o	(.ppcenv)
 
     *(.text)
     *(.fixup)
@@ -136,11 +122,7 @@ SECTIONS
    *(.bss)
    *(COMMON)
   }
-  . = ALIGN(256 * 1024);
-  .ppcenv	:
-  {
-    common/environment.o (.ppcenv)
-  }
   _end = . ;
   PROVIDE (end = .);
 }
+ENTRY(_start)

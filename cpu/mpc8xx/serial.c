@@ -153,7 +153,7 @@ int serial_init (void)
 # endif
 #endif
 
-#if defined(CONFIG_FADS)
+#if defined(CONFIG_FADS) || defined(CONFIG_ADS)
 	/* Enable RS232 */
 #if defined(CONFIG_8xx_CONS_SMC1)
 	*((uint *) BCSR1) &= ~BCSR1_RS232EN_1;

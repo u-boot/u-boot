@@ -505,7 +505,7 @@ void init_cmd_timeout(void)
 	char *s = getenv ("bootretry");
 
 	if (s != NULL)
-		retry_time = (int)simple_strtoul(s, NULL, 10);
+		retry_time = (int)simple_strtol(s, NULL, 10);
 	else
 		retry_time =  CONFIG_BOOT_RETRY_TIME;
 
