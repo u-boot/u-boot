@@ -70,6 +70,36 @@ const uint sdram_table[] = {
 	0x7ffffc07, _not_used_, _not_used_, _not_used_
 };
 
+const uint nand_flash_table[] = {
+	/* single read. (offset 0 in upm RAM) */
+	0x0ff3fc04, 0x0ff3fc04, 0x0ff3fc04, 0x0ffffc04,
+	0xfffffc00, 0xfffffc05, 0xfffffc05, 0xfffffc05,
+
+	/* burst read. (offset 8 in upm RAM) */
+	0xffffcc05, 0xffffcc05, 0xffffcc05, 0xffffcc05,
+	0xffffcc05, 0xffffcc05, 0xffffcc05, 0xffffcc05,
+	0xffffcc05, 0xffffcc05, 0xffffcc05, 0xffffcc05,
+	0xffffcc05, 0xffffcc05, 0xffffcc05, 0xffffcc05,
+
+	/* single write. (offset 18 in upm RAM) */
+	0x00fffc04, 0x00fffc04, 0x00fffc04, 0x0ffffc04,
+	0x0ffffc84, 0x0ffffc84, 0xfffffc00, 0xfffffc05,
+
+	/* burst write. (offset 20 in upm RAM) */
+	0xffffcc05, 0xffffcc05, 0xffffcc05, 0xffffcc05,
+	0xffffcc05, 0xffffcc05, 0xffffcc05, 0xffffcc05,
+	0xffffcc05, 0xffffcc05, 0xffffcc05, 0xffffcc05,
+	0xffffcc05, 0xffffcc05, 0xffffcc05, 0xffffcc05,
+
+	/* refresh. (offset 30 in upm RAM) */
+	0xffffcc05, 0xffffcc05, 0xffffcc05, 0xffffcc05,
+	0xffffcc05, 0xffffcc05, 0xffffcc05, 0xffffcc05,
+	0xffffcc05, 0xffffcc05, 0xffffcc05, 0xffffcc05,
+
+	/* exception. (offset 3c in upm RAM) */
+	0xffffcc05, 0xffffcc05, 0xffffcc05, 0xffffcc05
+};
+
 /* ------------------------------------------------------------------------- */
 
 /*
@@ -181,6 +211,12 @@ long int initdram (int board_type)
 	memctl->memc_mptpr = reg;
 
 	udelay (10000);
+
+	/* Configure UPMB for NAND flash access */
+	upmconfig (UPMB, (uint *) nand_flash_table,
+			   sizeof (nand_flash_table) / sizeof (uint));
+
+	memctl->memc_mbmr = CFG_MBMR_NAND;
 
 	return (size_b0);
 }

@@ -309,7 +309,7 @@
 #define CFG_BR0_PRELIM	((FLASH_BASE0_PRELIM & BR_BA_MSK) | BR_PS_8 | BR_V)
 
 /*
- * BR2 and OR2 (NAND Flash)
+ * BR2 and OR2 (NAND Flash) - now addressed through UPMB
  */
 #define CFG_NAND_BASE		0x50000000
 #define CFG_NAND_SIZE		0x04000000
@@ -317,8 +317,8 @@
 #define CFG_OR_TIMING_NAND	(OR_CSNT_SAM | OR_ACS_DIV1 | OR_BI | \
 				 OR_SCY_15_CLK | OR_EHTR | OR_TRLX)
 
-#define CFG_BR2_PRELIM  ((CFG_NAND_BASE & BR_BA_MSK) | BR_PS_8 | BR_V )
-#define CFG_OR2_PRELIM  (((-CFG_NAND_SIZE) & OR_AM_MSK) | CFG_OR_TIMING_NAND)
+#define CFG_BR2_PRELIM  ((CFG_NAND_BASE & BR_BA_MSK) | BR_PS_8 | BR_MS_UPMB | BR_V  )
+#define CFG_OR2_PRELIM  (((-CFG_NAND_SIZE) & OR_AM_MSK) | OR_BI ) 
 
 /*
  * BR3 and OR3 (SDRAM)
@@ -381,6 +381,12 @@
 #define CFG_MAMR_9COL	((CFG_MAMR_PTA << MAMR_PTA_SHIFT)  | MAMR_PTAE | \
 			 MAMR_AMA_TYPE_1 | MAMR_DSA_1_CYCL | MAMR_G0CLA_A10 | \
 			 MAMR_RLFA_1X    | MAMR_WLFA_1X    | MAMR_TLFA_4X)
+
+/*
+ * MBMR settings for NAND flash
+ */
+
+#define CFG_MBMR_NAND ( MBMR_WLFB_5X )
 
 /*
  * Internal Definitions
