@@ -488,6 +488,30 @@ RPXClassic_config:	unconfig
 RPXlite_config:		unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx RPXlite
 
+RPXlite_DW_64_config  		\
+RPXlite_DW_LCD_config 		\
+RPXlite_DW_64_LCD_config 	\
+RPXlite_DW_NVRAM_config		\
+RPXlite_DW_NVRAM_64_config      \
+RPXlite_DW_NVRAM_LCD_config	\
+RPXlite_DW_NVRAM_64_LCD_config  \
+RPXlite_DW_config:         unconfig
+	@ >include/config.h
+	@[ -z "$(findstring _64,$@)" ] || \
+		{ echo "#define RPXlite_64MHz"		>>include/config.h ; \
+		  echo "... with 64MHz system clock ..."; \
+		}
+	@[ -z "$(findstring _LCD,$@)" ] || \
+		{ echo "#define CONFIG_LCD"          	>>include/config.h ; \
+		  echo "#define CONFIG_NEC_NL6448BC20"	>>include/config.h ; \
+		  echo "... with LCD display ..."; \
+		}
+	@[ -z "$(findstring _NVRAM,$@)" ] || \
+		{ echo "#define  CFG_ENV_IS_IN_NVRAM" 	>>include/config.h ; \
+		  echo "... with ENV in NVRAM ..."; \
+		}
+	@./mkconfig -a RPXlite_DW ppc mpc8xx RPXlite_dw
+
 rmu_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx rmu
 

@@ -240,6 +240,10 @@ void cpu_init_f (volatile immap_t * immr)
 	rpxclassic_init ();
 #endif
 
+#if defined(CONFIG_RPXLITE) && defined(CFG_ENV_IS_IN_NVRAM)
+	rpxlite_init ();
+#endif
+
 #ifdef CFG_RCCR			/* must be done before cpm_load_patch() */
 	/* write config value */
 	immr->im_cpm.cp_rccr = CFG_RCCR;

@@ -2086,21 +2086,21 @@ configurations; the following names are supported:
 	CANBT_config		hermes_config		QS850_config
 	cmi_mpc5xx_config	hymod_config		QS860T_config
 	cogent_common_config	IP860_config		RPXlite_config
-	cogent_mpc8260_config	IVML24_config		RPXsuper_config
-	cogent_mpc8xx_config	IVMS8_config		rsdproto_config
-	CPCI405_config		JSE_config		Sandpoint8240_config
-	CPCIISER4_config	LANTEC_config		sbc8260_config
-	csb272_config		lwmon_config		SM850_config
-	CU824_config		MBX860T_config		SPD823TS_config
-	DUET_ADS_config		MBX_config		stxgp3_config
-	EBONY_config		MPC8260ADS_config	SXNI855T_config
-	ELPT860_config		MPC8540ADS_config	TQM823L_config
-	ESTEEM192E_config	MPC8560ADS_config	TQM850L_config
-	ETX094_config		NETVIA_config		TQM855L_config
-	FADS823_config		omap1510inn_config	TQM860L_config
-	FADS850SAR_config	omap1610h2_config	WALNUT405_config
-	FADS860T_config		omap1610inn_config	ZPC1900_config
-	FPS850L_config		omap5912osk_config
+	cogent_mpc8260_config	IVML24_config		RPXlite_DW_config
+	cogent_mpc8xx_config	IVMS8_config		RPXsuper_config
+	CPCI405_config		JSE_config		rsdproto_config
+	CPCIISER4_config	LANTEC_config		Sandpoint8240_config
+	csb272_config		lwmon_config		sbc8260_config
+	CU824_config		MBX860T_config		SM850_config
+	DUET_ADS_config		MBX_config		SPD823TS_config
+	EBONY_config		MPC8260ADS_config	stxgp3_config
+	ELPT860_config		MPC8540ADS_config	SXNI855T_config
+	ESTEEM192E_config	MPC8560ADS_config	TQM823L_config
+	ETX094_config		NETVIA_config		TQM850L_config
+	FADS823_config		omap1510inn_config	TQM855L_config
+	FADS850SAR_config	omap1610h2_config	TQM860L_config
+	FADS860T_config		omap1610inn_config	WALNUT405_config
+	FPS850L_config		omap5912osk_config	ZPC1900_config
 
 Note: for some board special configuration names may exist; check if
       additional information is available from the board vendor; for

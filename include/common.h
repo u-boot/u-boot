@@ -272,6 +272,8 @@ extern ssize_t spi_write (uchar *, int, uchar *, int);
 void rpxclassic_init (void);
 #endif
 
+void rpxlite_init (void);
+
 #ifdef CONFIG_MBX
 /* $(BOARD)/mbx8xx.c */
 void	mbx_init (void);

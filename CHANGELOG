@@ -2,6 +2,11 @@
 Changes since U-Boot 1.1.1:
 ======================================================================
 
+* Patch by Sam Song, 09 Jun 2004:
+  - Add support for RPXlite_DW board
+  - Update FLASH driver for 4*AM29DL323DB90VI
+  - Add option configuration of CFG_ENV_IS_IN_NVRAM on RPXlite_DW board
+
 * Patch by Mark Jonas, 08 June 2004:
   - Make MPC5200 boards evaluate the SVR to print processor name and
     version in checkcpu() (cpu/mpc5xxx/cpu.c).
