@@ -490,10 +490,10 @@ The following options need to be configured:
 		default i/o. Serial console can be forced with
 		environment 'console=serial'.
 
-                When CONFIG_SILENT_CONSOLE is defined, all console
-                messages (by U-Boot and Linux!) can be silenced with
-                the "silent" environment variable. See
-                doc/README.silent for more information.
+		When CONFIG_SILENT_CONSOLE is defined, all console
+		messages (by U-Boot and Linux!) can be silenced with
+		the "silent" environment variable. See
+		doc/README.silent for more information.
 
 - Console Baudrate:
 		CONFIG_BAUDRATE - in bps
@@ -1472,16 +1472,16 @@ Modem Support:
 
 - Interrupt support (PPC):
 
-                There are common interrupt_init() and timer_interrupt()
-                for all PPC archs. interrupt_init() calls interrupt_init_cpu()
-                for cpu specific initialization. interrupt_init_cpu()
-                should set decrementer_count to appropriate value. If
-                cpu resets decrementer automatically after interrupt
-                (ppc4xx) it should set decrementer_count to zero.
-                timer_interrupt() calls timer_interrupt_cpu() for cpu
-                specific handling. If board has watchdog / status_led
-                / other_activity_monitor it works automatically from
-                general timer_interrupt().
+		There are common interrupt_init() and timer_interrupt()
+		for all PPC archs. interrupt_init() calls interrupt_init_cpu()
+		for cpu specific initialization. interrupt_init_cpu()
+		should set decrementer_count to appropriate value. If
+		cpu resets decrementer automatically after interrupt
+		(ppc4xx) it should set decrementer_count to zero.
+		timer_interrupt() calls timer_interrupt_cpu() for cpu
+		specific handling. If board has watchdog / status_led
+		/ other_activity_monitor it works automatically from
+		general timer_interrupt().
 
 - General:
 
@@ -1766,7 +1766,7 @@ to save the current settings.
 
 - CFG_ENV_IS_IN_DATAFLASH:
 
-	Define this if you have a DataFlash memory device which you 
+	Define this if you have a DataFlash memory device which you
 	want to use for the environment.
 
 	- CFG_ENV_OFFSET:

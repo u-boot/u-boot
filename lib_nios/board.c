@@ -174,4 +174,3 @@ void hang (void)
 	puts("### ERROR ### Please reset board ###\n");
 	for (;;);
 }
-

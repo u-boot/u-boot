@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2004
+ * (C) Copyright 2000-2003
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -33,8 +33,10 @@
  * (easy to change)
  */
 
-#define CONFIG_MPC855		1	/* This is a MPC855 CPU		*/
-#define CONFIG_TQM855M		1	/* ...on a TQM8xxM module	*/
+#define CONFIG_MPC866		1	/* This is a MPC866 CPU		*/
+#define CONFIG_TQM866M		1	/* ...on a TQM8xxM module	*/
+
+#define	CFG_8XX_XIN	10000000 /* XXX XXX XXX */
 
 #define	CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
 #undef	CONFIG_8xx_CONS_SMC2
@@ -108,13 +110,10 @@
 #define I2C_DELAY	udelay(2)	/* 1/4 I2C clock duration */
 #endif	/* CONFIG_SOFT_I2C */
 
-#define CFG_I2C_EEPROM_ADDR	0x50		/* EEPROM AT24C64	*/
+#define CFG_I2C_EEPROM_ADDR	0x50		/* EEPROM AT24C256	*/
 #define CFG_I2C_EEPROM_ADDR_LEN	2		/* two byte address	*/
-#if 0
-#define CFG_EEPROM_PAGE_WRITE_DELAY_MS	10	/* takes up to 10 msec	*/
-#define CFG_I2C_EEPROM_ADDR_OVERFLOW 0x01
-#define CFG_EEPROM_PAGE_WRITE_BITS	5
-#endif
+#define CFG_EEPROM_PAGE_WRITE_BITS	4
+#define CFG_EEPROM_PAGE_WRITE_DELAY_MS	10	/* and takes up to 10 msec */
 
 #define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | CONFIG_BOOTP_BOOTFILESIZE)
 
@@ -128,6 +127,7 @@
 				CFG_CMD_DHCP	| \
 				CFG_CMD_EEPROM	| \
 				CFG_CMD_IDE	| \
+				CFG_CMD_I2C	| \
 				CFG_CMD_DATE	)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
@@ -204,7 +204,7 @@
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
+#define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks		*/
 #define CFG_MAX_FLASH_SECT	256	/* max number of sectors on one chip	*/
 
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
@@ -284,14 +284,22 @@
  * Reset PLL lock status sticky bit, timer expired status bit and timer
  * interrupt status bit
  *
- * If this is a 80 MHz CPU, set PLL multiplication factor to 5 (5*16=80)!
+ * set PLL multiplication factor
  */
-#ifdef	CONFIG_80MHz	/* for 80 MHz, we use a 16 MHz clock * 5 */
+#if defined(CONFIG_133MHz)
+    /* for 133 MHz, we use a 10 MHz clock:
+     * MFN = 0x09, MFD = 0x1D, S = 0, MFI = 13
+     */
 #define CFG_PLPRCR							\
-		( (5-1)<<PLPRCR_MF_SHIFT | PLPRCR_TEXPS | PLPRCR_TMIST )
+		( 9 << PLPRCR_MFN_SHIFT | 0x1D << PLPRCR_MFD_SHIFT  |	\
+		  0 << PLPRCR_S_SHIFT	| 0x0D << PLPRCR_MFI_SHIFT  |	\
+		  PLPRCR_TEXPS )
+#elif defined(CONFIG_80MHz) /* for  80 MHz, we use a 16 MHz clock *  5 */
+#define CFG_PLPRCR							\
+		( (5-1)<<PLPRCR_MFI_SHIFT | PLPRCR_TEXPS )
 #else			/* up to 66 MHz we use a 1:1 clock */
-#define CFG_PLPRCR	(PLPRCR_SPLSS | PLPRCR_TEXPS | PLPRCR_TMIST)
-#endif	/* CONFIG_80MHz */
+#define CFG_PLPRCR	( PLPRCR_SPLSS | PLPRCR_TEXPS )
+#endif	/* CONFIG_??MHz */
 
 /*-----------------------------------------------------------------------
  * SCCR - System Clock and reset Control Register		15-27
@@ -300,7 +308,12 @@
  * power management and some other internal clocks
  */
 #define SCCR_MASK	SCCR_EBDF11
-#ifdef	CONFIG_80MHz	/* for 80 MHz, we use a 16 MHz clock * 5 */
+#if defined(CONFIG_133MHz)  /* for 133 MHz, we use a 10 MHz clock * 13 */
+#define CFG_SCCR	(/* SCCR_TBS  | */ \
+			 SCCR_COM00   | SCCR_DFSYNC00 | SCCR_DFBRG00  | \
+			 SCCR_DFNL000 | SCCR_DFNH000  | SCCR_DFLCD000 | \
+			 SCCR_DFALCD00)
+#elif defined(CONFIG_80MHz) /* for  80 MHz, we use a 16 MHz clock *  5 */
 #define CFG_SCCR	(/* SCCR_TBS  | */ \
 			 SCCR_COM00   | SCCR_DFSYNC00 | SCCR_DFBRG00  | \
 			 SCCR_DFNL000 | SCCR_DFNH000  | SCCR_DFLCD000 | \
@@ -310,7 +323,7 @@
 			 SCCR_COM00   | SCCR_DFSYNC00 | SCCR_DFBRG00  | \
 			 SCCR_DFNL000 | SCCR_DFNH000  | SCCR_DFLCD000 | \
 			 SCCR_DFALCD00)
-#endif	/* CONFIG_80MHz */
+#endif	/* CONFIG_??MHz */
 
 /*-----------------------------------------------------------------------
  * PCMCIA stuff
@@ -379,7 +392,13 @@
 /*
  * FLASH timing:
  */
-#if   defined(CONFIG_80MHz)
+#if defined(CONFIG_133MHz)
+/* 133 MHz CPU - 66 MHz bus: */
+#define CFG_OR_TIMING_FLASH	(OR_ACS_DIV1  | OR_TRLX | OR_CSNT_SAM | \
+				 OR_SCY_3_CLK | OR_EHTR | OR_BI)
+#elif defined(CONFIG_100MHz)
+/* 100 MHz CPU - 50 MHz bus: */
+#elif defined(CONFIG_80MHz)
 /* 80 MHz CPU - 40 MHz bus: ACS = 00, TRLX = 0, CSNT = 1, SCY = 3, EHTR = 1 */
 #define CFG_OR_TIMING_FLASH	(OR_ACS_DIV1  | 0       | OR_CSNT_SAM | \
 				 OR_SCY_3_CLK | OR_EHTR | OR_BI)
@@ -407,7 +426,7 @@
  */
 #define SDRAM_BASE2_PRELIM	0x00000000	/* SDRAM bank #0	*/
 #define SDRAM_BASE3_PRELIM	0x20000000	/* SDRAM bank #1	*/
-#define	SDRAM_MAX_SIZE		0x04000000	/* max 64 MB per bank	*/
+#define	SDRAM_MAX_SIZE		(256 << 20)	/* max 256 MB per bank	*/
 
 /* SDRAM timing: Multiplexed addresses, GPL5 output to GPL5_A (don't care)	*/
 #define CFG_OR_TIMING_SDRAM	0x00000A00
@@ -452,7 +471,11 @@
  * 66 Mhz => 66.000.000 / Divider = 129
  * 80 Mhz => 80.000.000 / Divider = 156
  */
-#if   defined(CONFIG_80MHz)
+#if   defined(CONFIG_133MHz)
+#define CFG_MAMR_PTA		129
+#elif defined(CONFIG_100MHz)
+#define CFG_MAMR_PTA		 98
+#elif defined(CONFIG_80MHz)
 #define CFG_MAMR_PTA		156
 #elif defined(CONFIG_66MHz)
 #define CFG_MAMR_PTA		129
@@ -487,7 +510,6 @@
 #define CFG_MAMR_9COL	((CFG_MAMR_PTA << MAMR_PTA_SHIFT)  | MAMR_PTAE	    |	\
 			 MAMR_AMA_TYPE_1 | MAMR_DSA_1_CYCL | MAMR_G0CLA_A10 |	\
 			 MAMR_RLFA_1X	 | MAMR_WLFA_1X	   | MAMR_TLFA_4X)
-
 
 /*
  * Internal Definitions

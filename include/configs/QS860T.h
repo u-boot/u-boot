@@ -47,7 +47,6 @@
 #define CONFIG_ENV_OVERWRITE	1	/* allow overwrite MAC address */
 
 
-
 /*
  * High Level Configuration Options
  * (easy to change)
@@ -368,7 +367,6 @@ CONFIG_SPI
 /* #define CFG_BR5		0xE4000000 */
 
 
-
 /*
  * BR6 and OR6 (Expansion bus)
  * Base address = 0xE800_0000 - 0xEBFF_FFFF
@@ -381,7 +379,6 @@ CONFIG_SPI
 /* #define CFG_BR6		0xE8000000 */
 
 
-
 /*
  * BR7 and OR7 (Expansion bus)
  * Base address = 0xEC00_0000 - 0xEFFF_FFFF
@@ -392,7 +389,6 @@ CONFIG_SPI
 #define CFG_BR7_PRELIM		0xE8000000
 /* #define CFG_OR7		0xFF000000 */
 /* #define CFG_BR7		0xE8000000 */
-
 
 
 /*

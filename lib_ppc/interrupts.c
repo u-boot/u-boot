@@ -46,11 +46,11 @@ static unsigned decrementer_count; /* count value for 1e6/HZ microseconds */
 
 static __inline__ unsigned long get_msr (void)
 {
-        unsigned long msr;
+	unsigned long msr;
 
-        asm volatile ("mfmsr %0":"=r" (msr):);
+	asm volatile ("mfmsr %0":"=r" (msr):);
 
-        return msr;
+	return msr;
 }
 
 static __inline__ void set_msr (unsigned long msr)
@@ -93,7 +93,7 @@ int interrupt_init (void)
 {
 	int ret;
 
-        /* call cpu specific function from $(CPU)/interrupts.c */
+	/* call cpu specific function from $(CPU)/interrupts.c */
 	ret = interrupt_init_cpu (&decrementer_count);
 
 	if (ret)
@@ -124,7 +124,7 @@ void timer_interrupt (struct pt_regs *regs)
 #endif    /* CONFIG_WATCHDOG || CONFIG_HW_WATCHDOG */
 
 #ifdef CONFIG_STATUS_LED
-        status_led_tick (timestamp);
+	status_led_tick (timestamp);
 #endif /* CONFIG_STATUS_LED */
 
 #ifdef CONFIG_SHOW_ACTIVITY

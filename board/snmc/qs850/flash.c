@@ -151,7 +151,6 @@ unsigned long flash_init (void)
 }
 
 
-
 /*-----------------------------------------------------------------------
  This code is specific to the AM29DL163/AM29DL232 for the QS850/QS823.
  */

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000, 2001
+ * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -165,10 +165,13 @@ extern int flash_real_protect(flash_info_t *info, long sector, int prot);
 
 #define AMD_ID_DL640	0x227E227E	/* 29DL640D ID (64 M, dual boot sectors)*/
 #define AMD_ID_MIRROR	0x227E227E	/* 1st ID word for MirrorBit family */
-#define AMD_ID_LV640U_2	0x220C220C	/* 2d ID word for AM29LV640M at 0x38 */
-#define AMD_ID_LV640U_3	0x22012201	/* 3d ID word for AM29LV640M at 0x3c */
-#define AMD_ID_LV128U_2 0x22122212	/* 2d ID word for AM29LV128M at 0x38 */
-#define AMD_ID_LV128U_3 0x22002200	/* 3d ID word for AM29LV128M at 0x3c */
+#define AMD_ID_LV640U_2	0x220C220C	/* 2d ID word for AM29LV640M  at 0x38 */
+#define AMD_ID_LV640U_3	0x22012201	/* 3d ID word for AM29LV640M  at 0x3c */
+#define AMD_ID_LV128U_2 0x22122212	/* 2d ID word for AM29LV128M  at 0x38 */
+#define AMD_ID_LV128U_3 0x22002200	/* 3d ID word for AM29LV128M  at 0x3c */
+
+#define AMD_ID_LV320B_2	0x221A221A	/* 2d ID word for AM29LV320MB at 0x38 */
+#define AMD_ID_LV320B_3 0x22002200	/* 3d ID word for AM29LV320MB at 0x3c */
 
 #define AMD_ID_LV640U	0x22D722D7	/* 29LV640U ID (64 M, uniform sectors)	*/
 
@@ -322,13 +325,15 @@ extern int flash_real_protect(flash_info_t *info, long sector, int prot);
 #define FLASH_28F320C3B 0x009F		/* Intel 28F320C3B ( 32M = 2M x 16 )	*/
 #define FLASH_28F640C3T 0x00A0		/* Intel 28F640C3T ( 64M = 4M x 16 )	*/
 #define FLASH_28F640C3B 0x00A1		/* Intel 28F640C3B ( 64M = 4M x 16 )	*/
-#define FLASH_AMLV320U	0x00A2		/* AMD 29LV128M    ( 128M = 8M x 16 )	*/
+#define FLASH_AMLV320U	0x00A2		/* AMD 29LV320M    ( 32M = 2M x 16 )	*/
 #define FLASH_AMLV640U	0x00A4		/* AMD 29LV640M    ( 64M = 4M x 16 )	*/
 #define FLASH_AMLV128U	0x00A6		/* AMD 29LV128M	   ( 128M = 8M x 16 )	*/
+#define FLASH_AMLV320B  0x00A7		/* AMD 29LV320MB   ( 32M = 2M x 16 )	*/
+#define FLASH_AMLV320T	0x00A8		/* AMD 29LV320MT   ( 32M = 2M x 16 )	*/
 /* Intel 28F256L18T 256M = 128K x 255 + 32k x 4	*/
-#define FLASH_28F256L18T 0x00A8
-#define FLASH_AMDL163T	0x00A2		/* AMD AM29DL163T (2M x 16 )			*/
-#define FLASH_AMDL163B	0x00A3
+#define FLASH_28F256L18T 0x00B0
+#define FLASH_AMDL163T	0x00B2		/* AMD AM29DL163T (2M x 16 )			*/
+#define FLASH_AMDL163B	0x00B3
 
 #define FLASH_UNKNOWN	0xFFFF		/* unknown flash type			*/
 

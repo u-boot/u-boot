@@ -263,7 +263,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	case IH_TYPE_KERNEL:
 		name = "Kernel Image";
 		break;
-	case IH_TYPE_MULTI:	
+	case IH_TYPE_MULTI:
 		name = "Multi-File Image";
 		len  = ntohl(len_ptr[0]);
 		/* OS kernel is always the first image */

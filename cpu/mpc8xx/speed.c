@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2002
+ * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -160,7 +160,7 @@ unsigned long measure_gclk(void)
 	timerp->cpmt_tgcr &= ~(TGCR_RST2 | TGCR_FRZ2 | TGCR_STP2);
 	immr->im_sit.sit_piscr &= ~PISCR_PTE;
 
-#ifdef CONFIG_MPC866_et_al
+#if defined(CONFIG_MPC866_et_al)
 	/* not using OSCM, using XIN, so scale appropriately */
 	return (((timer2_val + 2) / 4) * (CFG_8XX_XIN/512))/8192 * 100000L;
 #else

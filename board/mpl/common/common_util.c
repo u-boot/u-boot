@@ -54,7 +54,7 @@ extern flash_info_t flash_info[];	/* info for FLASH chips */
 static image_header_t header;
 
 
-static int 
+static int
 mpl_prg(uchar *src, ulong size)
 {
 	ulong start;
@@ -105,7 +105,6 @@ mpl_prg(uchar *src, ulong size)
 		flash_perror(rc);
 		return (1);
 	}
-	
 
 #elif defined(CONFIG_VCMA9)
 	start = 0;
@@ -125,7 +124,8 @@ mpl_prg(uchar *src, ulong size)
 	}
 
 #endif
-	printf("flash erased, programming from 0x%lx 0x%lx Bytes\n",src,size);
+	printf("flash erased, programming from 0x%lx 0x%lx Bytes\n",
+		(ulong)src, size);
 	if ((rc = flash_write (src, start, size)) != 0) {
 		puts("ERROR ");
 		flash_perror(rc);
@@ -136,14 +136,14 @@ mpl_prg(uchar *src, ulong size)
 }
 
 
-static int 
+static int
 mpl_prg_image(uchar *ld_addr)
 {
 	unsigned long len, checksum;
 	uchar *data;
 	image_header_t *hdr = &header;
 	int rc;
-	
+
 	/* Copy header so we can blank CRC field for re-calculation */
 	memcpy (&header, (char *)ld_addr, sizeof(image_header_t));
 	if (ntohl(hdr->ih_magic)  != IH_MAGIC) {
@@ -183,7 +183,7 @@ mpl_prg_image(uchar *ld_addr)
 		    	puts("Insufficient space for decompression\n");
 			return 1;
 		}
-				 
+
 		switch (hdr->ih_comp) {
 		case IH_COMP_GZIP:
 			puts("Uncompressing (GZIP) ... ");
@@ -217,13 +217,13 @@ mpl_prg_image(uchar *ld_addr)
 			free(buf);
 			return 1;
 		}
-		
+
 		rc = mpl_prg(buf, len);
 		free(buf);
 	} else {
 		rc = mpl_prg(data, len);
 	}
-	
+
 	return(rc);
 }
 
@@ -445,7 +445,7 @@ int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 				ld_addr=CFG_LOAD_ADDR;
 				result=do_fdcboot(cmdtp, 0, 1, local_args);
 			}
-			result=mpl_prg_image(ld_addr);
+			result=mpl_prg_image((uchar *)ld_addr);
 			return result;
 		}
 #endif /* (CONFIG_COMMANDS & CFG_CMD_FDC) */

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2002
+ * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -21,7 +21,9 @@
  * MA 02111-1307 USA
  */
 
-/* #define DEBUG */
+#if 0
+#define DEBUG
+#endif
 
 #include <common.h>
 #include <mpc8xx.h>
@@ -214,6 +216,8 @@ void flash_print_info  (flash_info_t *info)
 				break;
 	case FLASH_AMLV640U:	printf ("AM29LV640ML (64Mbit, uniform sector size)\n");
 				break;
+	case FLASH_AMLV320B:	printf ("AM29LV320MB (32Mbit, bottom boot sect)\n");
+				break;
 # else	/* ! TQM8xxM */
 	case FLASH_AM400B:	printf ("AM29LV400B (4 Mbit, bottom boot sect)\n");
 				break;
@@ -231,6 +235,8 @@ void flash_print_info  (flash_info_t *info)
 	case FLASH_AM160B:	printf ("AM29LV160B (16 Mbit, bottom boot sect)\n");
 				break;
 	case FLASH_AM160T:	printf ("AM29LV160T (16 Mbit, top boot sector)\n");
+				break;
+	case FLASH_AMDL163B:	printf ("AM29DL163B (16 Mbit, bottom boot sect)\n");
 				break;
 	default:		printf ("Unknown Chip Type\n");
 				break;
@@ -280,12 +286,15 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 
 	switch (value) {
 	case AMD_MANUFACT:
+		debug ("Manufacturer: AMD\n");
 		info->flash_id = FLASH_MAN_AMD;
 		break;
 	case FUJ_MANUFACT:
+		debug ("Manufacturer: FUJITSU\n");
 		info->flash_id = FLASH_MAN_FUJ;
 		break;
 	default:
+		debug ("Manufacturer: *** unknown ***\n");
 		info->flash_id = FLASH_UNKNOWN;
 		info->sector_count = 0;
 		info->size = 0;
@@ -299,36 +308,53 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 	switch (value) {
 #ifdef CONFIG_TQM8xxM	/* mirror bit flash */
 	case AMD_ID_MIRROR:
+		debug ("Mirror Bit flash: addr[14] = %08lX  addr[15] = %08lX\n",
+			addr[14], addr[15]);
 		/* Special case for AMLV320MH/L */
 		if ((addr[14] & 0x00ff00ff) == 0x001d001d &&
-			(addr[15] & 0x00ff00ff) == 0x00000000) {
+		    (addr[15] & 0x00ff00ff) == 0x00000000) {
+			debug ("Chip: AMLV320MH/L\n");
 			info->flash_id += FLASH_AMLV320U;
 			info->sector_count = 64;
-			info->size = 0x00800000; /* => 8 MB */
+			info->size = 0x00800000;	/* => 8 MB */
 			break;
 		}
 		switch(addr[14]) {
 		case AMD_ID_LV128U_2:
 			if (addr[15] != AMD_ID_LV128U_3) {
+				debug ("Chip: AMLV128U -> unknown\n");
 				info->flash_id = FLASH_UNKNOWN;
-			}
-			else {
+			} else {
+				debug ("Chip: AMLV128U\n");
 				info->flash_id += FLASH_AMLV128U;
 				info->sector_count = 256;
 				info->size = 0x02000000;
 			}
-			break;				/* => 32 MB		*/
+			break;				/* => 32 MB	*/
 		case AMD_ID_LV640U_2:
 			if (addr[15] != AMD_ID_LV640U_3) {
+				debug ("Chip: AMLV640U -> unknown\n");
 				info->flash_id = FLASH_UNKNOWN;
-			}
-			else {
+			} else {
+				debug ("Chip: AMLV640U\n");
 				info->flash_id += FLASH_AMLV640U;
 				info->sector_count = 128;
 				info->size = 0x01000000;
 			}
-			break;				/* => 16 MB		*/
+			break;				/* => 16 MB	*/
+		case AMD_ID_LV320B_2:
+			if (addr[15] != AMD_ID_LV320B_3) {
+				debug ("Chip: AMLV320B -> unknown\n");
+				info->flash_id = FLASH_UNKNOWN;
+			} else {
+				debug ("Chip: AMLV320B\n");
+				info->flash_id += FLASH_AMLV320B;
+				info->sector_count = 71;
+				info->size = 0x00800000;
+			}
+			break;				/* =>  8 MB	*/
 		default:
+			debug ("Chip: *** unknown ***\n");
 			info->flash_id = FLASH_UNKNOWN;
 			break;
 		}
@@ -338,50 +364,56 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 		info->flash_id += FLASH_AM400T;
 		info->sector_count = 11;
 		info->size = 0x00100000;
-		break;				/* => 1 MB		*/
+		break;					/* => 1 MB		*/
 
 	case AMD_ID_LV400B:
 		info->flash_id += FLASH_AM400B;
 		info->sector_count = 11;
 		info->size = 0x00100000;
-		break;				/* => 1 MB		*/
+		break;					/* => 1 MB		*/
 
 	case AMD_ID_LV800T:
 		info->flash_id += FLASH_AM800T;
 		info->sector_count = 19;
 		info->size = 0x00200000;
-		break;				/* => 2 MB		*/
+		break;					/* => 2 MB	*/
 
 	case AMD_ID_LV800B:
 		info->flash_id += FLASH_AM800B;
 		info->sector_count = 19;
 		info->size = 0x00200000;
-		break;				/* => 2 MB		*/
+		break;					/* => 2 MB	*/
 
 	case AMD_ID_LV320T:
 		info->flash_id += FLASH_AM320T;
 		info->sector_count = 71;
 		info->size = 0x00800000;
-		break;				/* => 8 MB		*/
+		break;					/* => 8 MB	*/
 
 	case AMD_ID_LV320B:
 		info->flash_id += FLASH_AM320B;
 		info->sector_count = 71;
 		info->size = 0x00800000;
-		break;				/* => 8 MB		*/
+		break;					/* => 8 MB	*/
 #endif	/* TQM8xxM */
 
 	case AMD_ID_LV160T:
 		info->flash_id += FLASH_AM160T;
 		info->sector_count = 35;
 		info->size = 0x00400000;
-		break;				/* => 4 MB		*/
+		break;					/* => 4 MB	*/
 
 	case AMD_ID_LV160B:
 		info->flash_id += FLASH_AM160B;
 		info->sector_count = 35;
 		info->size = 0x00400000;
-		break;				/* => 4 MB		*/
+		break;					/* => 4 MB	*/
+
+	case AMD_ID_DL163B:
+		info->flash_id += FLASH_AMDL163B;
+		info->sector_count = 39;
+		info->size = 0x00400000;
+		break;					/* => 4 MB	*/
 
 	default:
 		info->flash_id = FLASH_UNKNOWN;
@@ -400,6 +432,18 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 			for (i = 0; i < info->sector_count; i++) {
 				info->start[i] = base;
 				base += 0x20000;
+			}
+			break;
+		case FLASH_AMLV320B:
+			for (i = 0; i < info->sector_count; i++) {
+				info->start[i] = base;
+				/*
+				 * The first 8 sectors are 8 kB,
+				 * all the other ones  are 64 kB
+				 */
+				base += (i < 8)
+					?  2 * ( 8 << 10)
+					:  2 * (64 << 10);
 			}
 			break;
 		}
@@ -472,11 +516,24 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 			info->start[i] = base + i * 0x00020000;
 		}
 		break;
+	case AMD_ID_DL163B:
+		for (i = 0; i < info->sector_count; i++) {
+			info->start[i] = base;
+			/*
+			 * The first 8 sectors are 8 kB,
+			 * all the other ones  are 64 kB
+			 */
+			base += (i < 8)
+				?  2 * ( 8 << 10)
+				:  2 * (64 << 10);
+		}
+		break;
 	default:
 		return (0);
 		break;
 	}
 
+#if 0
 	/* check for protected sectors */
 	for (i = 0; i < info->sector_count; i++) {
 		/* read sector protection at sector address, (A7 .. A0) = 0x02 */
@@ -484,6 +541,7 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 		addr = (volatile unsigned long *)(info->start[i]);
 		info->protect[i] = addr[2] & 1;
 	}
+#endif
 
 	/*
 	 * Prevent writes to uninitialized FLASH.

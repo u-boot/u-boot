@@ -2,6 +2,9 @@
  * (C) Copyright 2003
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
+ * (C) Copyright 2003
+ * Reinhard Meyer, EMK Elektronik GmbH, r.meyer@emk-elektronik.de
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -51,7 +54,7 @@ static flash_info_t *flash_get_info(ulong base);
 unsigned long flash_init (void)
 {
 	unsigned long size = 0;
-	int i;
+	int i = 0;
 	extern void flash_preinit(void);
 	extern void flash_afterinit(uint, ulong, ulong);
 	ulong flashbase = CFG_FLASH_BASE;
@@ -59,10 +62,10 @@ unsigned long flash_init (void)
 	flash_preinit();
 
 	/* There is only ONE FLASH device */
-	memset(&flash_info[0], 0, sizeof(flash_info_t));
-	flash_info[0].size =
-			flash_get_size((FPW *)flashbase, &flash_info[0]);
-	size += flash_info[0].size;
+	memset(&flash_info[i], 0, sizeof(flash_info_t));
+	flash_info[i].size =
+			flash_get_size((FPW *)flashbase, &flash_info[i]);
+	size += flash_info[i].size;
 
 #if CFG_MONITOR_BASE >= CFG_FLASH_BASE
 	/* monitor protection ON by default */
@@ -81,7 +84,7 @@ unsigned long flash_init (void)
 #endif
 
 
-	flash_afterinit(0, flash_info[0].start[0], flash_info[0].size);
+	flash_afterinit(i, flash_info[i].start[0], flash_info[i].size);
 	return size ? size : 1;
 }
 
@@ -151,7 +154,8 @@ void flash_print_info (flash_info_t *info)
 	if (info->flash_id & FLASH_BTYPE) {
 		boottype = botboottype;
 		bootletter = botbootletter;
-	} else {
+	}
+	else {
 		boottype = topboottype;
 		bootletter = topbootletter;
 	}
@@ -238,12 +242,17 @@ ulong flash_get_size (FPWV *addr, flash_info_t *info)
 		info->flash_id += FLASH_AM160B;
 		info->sector_count = 35;
 		info->size = 0x00200000;
+#ifdef CFG_LOWBOOT
+		offset = 0;
+#else
 		offset = 0x00e00000;
+#endif
 		info->start[0] = (ulong)addr + offset;
 		info->start[1] = (ulong)addr + offset + 0x4000;
 		info->start[2] = (ulong)addr + offset + 0x6000;
 		info->start[3] = (ulong)addr + offset + 0x8000;
-		for (i = 4; i < info->sector_count; i++) {
+		for (i = 4; i < info->sector_count; i++)
+		{
 			info->start[i] = (ulong)addr + offset + 0x10000 * (i-3);
 		}
 		break;
@@ -252,8 +261,12 @@ ulong flash_get_size (FPWV *addr, flash_info_t *info)
 		info->flash_id += FLASH_AMDLV065D;
 		info->sector_count = 128;
 		info->size = 0x00800000;
+#ifdef CFG_LOWBOOT
+		offset = 0;
+#else
 		offset = 0x00800000;
-		for (i = 0; i < info->sector_count; i++)
+#endif
+		for( i = 0; i < info->sector_count; i++ )
 			info->start[i] = (ulong)addr + offset + (i * 0x10000);
 		break;				/* => 8 or 16 MB	*/
 

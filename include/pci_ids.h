@@ -1543,4 +1543,3 @@
 #define PCI_DEVICE_ID_SMI_710           0x0710
 #define PCI_DEVICE_ID_SMI_712           0x0712
 #define PCI_DEVICE_ID_SMI_810           0x0810
-

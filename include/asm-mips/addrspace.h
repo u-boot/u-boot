@@ -14,21 +14,21 @@
 /*
  * Memory segments (32bit kernel mode addresses)
  */
-#define KUSEG                   0x00000000
-#define KSEG0                   0x80000000
-#define KSEG1                   0xa0000000
-#define KSEG2                   0xc0000000
-#define KSEG3                   0xe0000000
+#define KUSEG			0x00000000
+#define KSEG0			0x80000000
+#define KSEG1			0xa0000000
+#define KSEG2			0xc0000000
+#define KSEG3			0xe0000000
 
-#define K0BASE  KSEG0
+#define K0BASE	KSEG0
 
 /*
  * Returns the kernel segment base of a given address
  */
 #ifndef __ASSEMBLY__
-#define KSEGX(a)                (((unsigned long)(a)) & 0xe0000000)
+#define KSEGX(a)		(((unsigned long)(a)) & 0xe0000000)
 #else
-#define KSEGX(a)                ((a) & 0xe0000000)
+#define KSEGX(a)		((a) & 0xe0000000)
 #endif
 
 /*
@@ -40,8 +40,8 @@
 #define PHYSADDR(a)		((a) & 0x1fffffff)
 #endif
 
-/* 
- * Returns the uncached address of a sdram address 
+/*
+ * Returns the uncached address of a sdram address
  */
 #ifndef __ASSEMBLY__
 #ifdef CONFIG_AU1X00
@@ -49,7 +49,7 @@
    cannot access physical memory directly from core */
 #define UNCACHED_SDRAM(a) (((unsigned long)(a)) | 0x20000000)
 #else	/* !CONFIG_AU1X00 */
-#define UNCACHED_SDRAM(a) PHYSADDR(a) 
+#define UNCACHED_SDRAM(a) PHYSADDR(a)
 #endif	/* CONFIG_AU1X00 */
 #endif	/* __ASSEMBLY__ */
 /*
@@ -70,13 +70,13 @@
 /*
  * Memory segments (64bit kernel mode addresses)
  */
-#define XKUSEG                  0x0000000000000000
-#define XKSSEG                  0x4000000000000000
-#define XKPHYS                  0x8000000000000000
-#define XKSEG                   0xc000000000000000
-#define CKSEG0                  0xffffffff80000000
-#define CKSEG1                  0xffffffffa0000000
-#define CKSSEG                  0xffffffffc0000000
-#define CKSEG3                  0xffffffffe0000000
+#define XKUSEG			0x0000000000000000
+#define XKSSEG			0x4000000000000000
+#define XKPHYS			0x8000000000000000
+#define XKSEG			0xc000000000000000
+#define CKSEG0			0xffffffff80000000
+#define CKSEG1			0xffffffffa0000000
+#define CKSSEG			0xffffffffc0000000
+#define CKSEG3			0xffffffffe0000000
 
 #endif /* __ASM_MIPS_ADDRSPACE_H */

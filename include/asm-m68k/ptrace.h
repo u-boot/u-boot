@@ -105,4 +105,3 @@ struct pt_regs {
 #define PT_FPSCR (PT_FPR0 + 2*32 + 1)
 
 #endif
-

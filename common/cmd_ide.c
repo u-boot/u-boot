@@ -771,7 +771,7 @@ ide_outb(int dev, int port, unsigned char val)
 {
 	PRINTF ("ide_outb (dev= %d, port= %d, val= 0x%02x) : @ 0x%08lx\n",
 		dev, port, val, (ATA_CURR_BASE(dev)+port));
-    
+
 	/* Ensure I/O operations complete */
 	__asm__ volatile("eieio");
 	*((uchar *)(ATA_CURR_BASE(dev)+port)) = val;

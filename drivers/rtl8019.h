@@ -115,21 +115,3 @@
 
 
 #endif /*end of CONFIG_DRIVER_RTL8019*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -2,6 +2,9 @@
 # (C) Copyright 2003
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
+# (C) Copyright 2003
+# Reinhard Meyer, EMK Elektronik GmbH, r.meyer@emk-elektronik.de
+#
 # See file CREDITS for list of people who contributed to this
 # project.
 #
@@ -24,8 +27,15 @@
 #
 # TOP5200 board, on optional MINI5200 and EVAL5200 boards
 #
+# allowed and functional TEXT_BASE values:
+#
+#   0xff000000		low boot at 0x00000100 (default board setting)
+#   0xfff00000		high boot at 0xfff00100 (board needs modification)
+#	0x00100000		RAM load and test
+#
 
-TEXT_BASE = 0xfff00000
+TEXT_BASE = 0xff000000
+#TEXT_BASE = 0xfff00000
 #TEXT_BASE = 0x00100000
 
 PLATFORM_CPPFLAGS += -DTEXT_BASE=$(TEXT_BASE) -I$(TOPDIR)/board

@@ -2,6 +2,22 @@
 Changes since U-Boot 1.0.0:
 ======================================================================
 
+* Minor code cleanup (coding style)
+
+* Patch by Reinhard Meyer, 30 Dec 2003:
+  - cpu/mpc5xxx/fec.c: added CONFIG_PHY_ADDR, added CONFIG_PHY_TYPE,
+  - added CONFIG_PHY_ADDR to include/configs/IceCube.h,
+  - turned debug print of PHY registers into a function (called in two places)
+  - added support for EMK MPC5200 based modules
+
+* Fix MPC8xx PLPRCR_MFD_SHIFT typo
+
+* Add support for TQM866M modules
+
+* Fixes for TQM855M with 4 MB flash (Am29DL163 = _no_ mirror bit flash)
+
+* Fix a few compiler warnings
+
 * Patch by Reinhard Meyer, 28 Dec 2003:
   Add initial support for TOP5200 board
 

@@ -2,6 +2,9 @@
  * MPC8xx Communication Processor Module.
  * Copyright (c) 1997 Dan Malek (dmalek@jlc.net)
  *
+ * (C) Copyright 2000-2004
+ * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ *
  * This file contains structures and information for the communication
  * processor channels.  Some CPM control and status is available
  * throught the MPC8xx internal memory map.  See immap.h for details.
@@ -1430,11 +1433,12 @@ typedef struct scc_enet {
 #define SICR_ENET_CLKRT	((uint)0x00002600)
 #endif	/* CONFIG_MVS v1, CONFIG_TQM823L/M, CONFIG_TQM850L/M, etc. */
 
-/***  TQM855L/M, TQM860L/M, TQM862L/M  ********************************/
+/***  TQM855L/M, TQM860L/M, TQM862L/M, TQM866L/M  *********************/
 
 #if defined(CONFIG_TQM855L) || defined(CONFIG_TQM855M) || \
     defined(CONFIG_TQM860L) || defined(CONFIG_TQM860M) || \
-    defined(CONFIG_TQM862L) || defined(CONFIG_TQM862M)
+    defined(CONFIG_TQM862L) || defined(CONFIG_TQM862M) || \
+    defined(CONFIG_TQM866L) || defined(CONFIG_TQM866M)
 
 # ifdef CONFIG_SCC1_ENET	/* use SCC for 10Mbps Ethernet	*/
 

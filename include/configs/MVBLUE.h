@@ -53,7 +53,7 @@
 #define ERR_LED(code)
 #endif
 
-#undef DEBUG 
+#undef DEBUG
 
 #define CONFIG_MPC824X		1
 #define CONFIG_MPC8245		1
@@ -71,14 +71,14 @@
 #define CONFIG_BOOT_RETRY_TIME	-1
 
 #define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_PROMPT		"autoboot in %d seconds (stop with 's')...\n\0"
-#define CONFIG_AUTOBOOT_STOP_STR	"s\0"
+#define CONFIG_AUTOBOOT_PROMPT		"autoboot in %d seconds (stop with 's')...\n"
+#define CONFIG_AUTOBOOT_STOP_STR	"s"
 #define CONFIG_ZERO_BOOTDELAY_CHECK
 #define CONFIG_RESET_TO_RETRY		60
 
 #define CONFIG_COMMANDS		( CFG_CMD_ASKENV | CFG_CMD_BOOTD | CFG_CMD_CACHE | CFG_CMD_DHCP	| \
-							  CFG_CMD_ECHO	 | CFG_CMD_ENV   | CFG_CMD_FLASH | CFG_CMD_IMI	| \
-							  CFG_CMD_IRQ	 | CFG_CMD_NET	 | CFG_CMD_PCI	 | CFG_CMD_RUN   )  
+				  CFG_CMD_ECHO	 | CFG_CMD_ENV   | CFG_CMD_FLASH | CFG_CMD_IMI	| \
+				  CFG_CMD_IRQ	 | CFG_CMD_NET	 | CFG_CMD_PCI	 | CFG_CMD_RUN   )
 
 
 #define CONFIG_BOOTP_MASK   ( 0xffffffff )
@@ -103,19 +103,19 @@
 
 #define CONFIG_NFSBOOTCOMMAND  	"bootp; run nfsargs addcons;bootm"
 
-#define CONFIG_EXTRA_ENV_SETTINGS                   \
-	"console_nr=0\0"								\
-    "dhcp_client_id=mvBOX-XP\0"                     \
-    "dhcp_vendor-class-identifier=mvBOX\0"          \
-    "adminboot=setenv bootargs root=/dev/mtdblock5 rw rootfstype=jffs2;run addcons;bootm ffc00000\0" 	\
-    "flashboot=setenv bootargs root=/dev/mtdblock5 ro rootfstype=jffs2;run addcons;bootm ffc00000\0" 	\
-    "safeboot=setenv bootargs root=/dev/mtdblock2 rw rootfstype=cramfs;run addcons;bootm ffc00000\0" 	\
-    "hdboot=setenv bootargs root=/dev/hda1;run addcons;bootm ffc00000\0" 								\
-	"nfsargs=setenv bootargs root=/dev/nfs rw nfsroot=$(serverip):$(rootpath) "				\
-			"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off\0"			\
-	"addcons=setenv bootargs $(bootargs) console=ttyS$(console_nr),$(baudrate)N8\0"	\
+#define CONFIG_EXTRA_ENV_SETTINGS			\
+	"console_nr=0\0"				\
+    "dhcp_client_id=mvBOX-XP\0"				\
+    "dhcp_vendor-class-identifier=mvBOX\0"		\
+    "adminboot=setenv bootargs root=/dev/mtdblock5 rw rootfstype=jffs2;run addcons;bootm ffc00000\0"	\
+    "flashboot=setenv bootargs root=/dev/mtdblock5 ro rootfstype=jffs2;run addcons;bootm ffc00000\0"	\
+    "safeboot=setenv bootargs root=/dev/mtdblock2 rw rootfstype=cramfs;run addcons;bootm ffc00000\0"	\
+    "hdboot=setenv bootargs root=/dev/hda1;run addcons;bootm ffc00000\0"	\
+	"nfsargs=setenv bootargs root=/dev/nfs rw nfsroot=$(serverip):$(rootpath) "	\
+			"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off\0"	\
+	"addcons=setenv bootargs $(bootargs) console=ttyS$(console_nr),$(baudrate)N8\0" \
     "mv_version=" MV_VERSION "\0"	\
-	"bootretry=30\0"			
+	"bootretry=30\0"
 
 #define CONFIG_OVERWRITE_ETHADDR_ONCE
 
@@ -124,11 +124,11 @@
  *-----------------------------------------------------------------------
  */
 
-#define CONFIG_PCI      	
+#define CONFIG_PCI
 #define CONFIG_PCI_PNP
 #define CONFIG_PCI_SCAN_SHOW
 
-#define CONFIG_NET_MULTI	
+#define CONFIG_NET_MULTI
 #define CONFIG_NET_RETRY_COUNT 5
 
 #define CONFIG_TULIP
@@ -144,8 +144,8 @@
  */
 #define CFG_SDRAM_BASE	    0x00000000
 
-#define CFG_FLASH_BASE      0xFFF00000  
-#define CFG_MONITOR_BASE    TEXT_BASE    
+#define CFG_FLASH_BASE      0xFFF00000
+#define CFG_MONITOR_BASE    TEXT_BASE
 
 #define CFG_RESET_ADDRESS   0xFFF00100
 #define CFG_EUMB_ADDR	    0xFC000000
@@ -196,7 +196,7 @@
  * For the detail description refer to the MPC8240 user's manual.
  */
 
-#define CONFIG_SYS_CLK_FREQ  33000000	
+#define CONFIG_SYS_CLK_FREQ  33000000
 #define CFG_HZ		     	 10000
 
 /* Bit-field values for MCCR1.  */
@@ -205,17 +205,17 @@
 
 /* Bit-field values for MCCR2.  */
 #define CFG_TSWAIT      0x5
-#define CFG_REFINT      430   
+#define CFG_REFINT      430
 
 /* Burst To Precharge. Bits of this value go to MCCR3 and MCCR4.  */
-#define CFG_BSTOPRE     121 
+#define CFG_BSTOPRE     121
 
 /* Bit-field values for MCCR3.  */
 #define CFG_REFREC      8
 
 /* Bit-field values for MCCR4.  */
-#define CFG_PRETOACT    3  
-#define CFG_ACTTOPRE    5     
+#define CFG_PRETOACT    3
+#define CFG_ACTTOPRE    5
 #define CFG_ACTORW      3
 #define CFG_SDMODE_CAS_LAT  3
 #define CFG_REGISTERD_TYPE_BUFFER 1
@@ -292,7 +292,7 @@
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
-#undef  CFG_FLASH_PROTECTION    
+#undef  CFG_FLASH_PROTECTION
 #define CFG_MAX_FLASH_BANKS		1	/* Max number of flash banks		*/
 #define CFG_MAX_FLASH_SECT		63	/* Max number of sectors per flash	*/
 
@@ -300,11 +300,11 @@
 #define CFG_FLASH_WRITE_TOUT	1000
 
 
-#define CFG_ENV_IS_IN_FLASH	    
+#define CFG_ENV_IS_IN_FLASH
 
 #define CFG_ENV_OFFSET		0x00010000
-#define CFG_ENV_SIZE        0x00010000 
-#define CFG_ENV_SECT_SIZE	0x00010000 
+#define CFG_ENV_SIZE		0x00010000
+#define CFG_ENV_SECT_SIZE	0x00010000
 
 /*-----------------------------------------------------------------------
  * Cache Configuration

@@ -79,7 +79,6 @@ int board_pre_init (void)
 int checkboard (void)
 {
 	unsigned char *s = getenv ("serial#");
-	unsigned char *e;
 
 	puts ("Board: IBM 405EP Eval Board");
 

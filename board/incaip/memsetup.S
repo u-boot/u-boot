@@ -13,7 +13,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -27,35 +27,35 @@
 #include <asm/regdef.h>
 
 
-#define EBU_MODUL_BASE          0xB8000200
-#define EBU_CLC(value)          0x0000(value)
-#define EBU_CON(value)          0x0010(value)
-#define EBU_ADDSEL0(value)      0x0020(value)
-#define EBU_ADDSEL1(value)      0x0024(value)
-#define EBU_ADDSEL2(value)      0x0028(value)
-#define EBU_BUSCON0(value)      0x0060(value)
-#define EBU_BUSCON1(value)      0x0064(value)
-#define EBU_BUSCON2(value)      0x0068(value)
+#define EBU_MODUL_BASE		0xB8000200
+#define EBU_CLC(value)		0x0000(value)
+#define EBU_CON(value)		0x0010(value)
+#define EBU_ADDSEL0(value)	0x0020(value)
+#define EBU_ADDSEL1(value)	0x0024(value)
+#define EBU_ADDSEL2(value)	0x0028(value)
+#define EBU_BUSCON0(value)	0x0060(value)
+#define EBU_BUSCON1(value)	0x0064(value)
+#define EBU_BUSCON2(value)	0x0068(value)
 
-#define MC_MODUL_BASE           0xBF800000
-#define MC_ERRCAUSE(value)      0x0100(value)
-#define MC_ERRADDR(value)       0x0108(value)
-#define MC_IOGP(value)          0x0800(value)
-#define MC_SELFRFSH(value)      0x0A00(value)
-#define MC_CTRLENA(value)       0x1000(value)
-#define MC_MRSCODE(value)       0x1008(value)
-#define MC_CFGDW(value)         0x1010(value)
-#define MC_CFGPB0(value)        0x1018(value)
-#define MC_LATENCY(value)       0x1038(value)
-#define MC_TREFRESH(value)      0x1040(value)
+#define MC_MODUL_BASE		0xBF800000
+#define MC_ERRCAUSE(value)	0x0100(value)
+#define MC_ERRADDR(value)	0x0108(value)
+#define MC_IOGP(value)		0x0800(value)
+#define MC_SELFRFSH(value)	0x0A00(value)
+#define MC_CTRLENA(value)	0x1000(value)
+#define MC_MRSCODE(value)	0x1008(value)
+#define MC_CFGDW(value)		0x1010(value)
+#define MC_CFGPB0(value)	0x1018(value)
+#define MC_LATENCY(value)	0x1038(value)
+#define MC_TREFRESH(value)	0x1040(value)
 
-#define CGU_MODUL_BASE          0xBF107000
-#define CGU_PLL1CR(value)       0x0008(value)
-#define CGU_DIVCR(value)        0x0010(value)
-#define CGU_MUXCR(value)        0x0014(value)
-#define CGU_PLL1SR(value)       0x000C(value)
+#define CGU_MODUL_BASE		0xBF107000
+#define CGU_PLL1CR(value)	0x0008(value)
+#define CGU_DIVCR(value)	0x0010(value)
+#define CGU_MUXCR(value)	0x0014(value)
+#define CGU_PLL1SR(value)	0x000C(value)
 
-	.set	noreorder		
+	.set	noreorder
 
 
 /*
@@ -234,4 +234,3 @@ memsetup:
 	j	ra
 	nop
 	.end	memsetup
-

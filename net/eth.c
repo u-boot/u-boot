@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001, 2002
+ * (C) Copyright 2001-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -217,9 +217,8 @@ void eth_set_enetaddr(int num, char *addr) {
 	char *end;
 	int i;
 
-#ifdef DEBUG
-	printf("eth_set_enetaddr(num=%d, addr=%s)\n", num, addr);
-#endif
+	debug ("eth_set_enetaddr(num=%d, addr=%s)\n", num, addr);
+
 	if (!eth_devices)
 		return;
 
@@ -237,14 +236,12 @@ void eth_set_enetaddr(int num, char *addr) {
 			return;
 	}
 
-#ifdef DEBUG
-	printf("Setting new HW address on %s\n", dev->name);
-	printf("New Address is             "
-	       "%02X:%02X:%02X:%02X:%02X:%02X\n",
-	       dev->enetaddr[0], dev->enetaddr[1],
-	       dev->enetaddr[2], dev->enetaddr[3],
-	       dev->enetaddr[4], dev->enetaddr[5]);
-#endif
+	debug ( "Setting new HW address on %s\n"
+		"New Address is             %02X:%02X:%02X:%02X:%02X:%02X\n",
+		dev->name,
+		dev->enetaddr[0], dev->enetaddr[1],
+		dev->enetaddr[2], dev->enetaddr[3],
+		dev->enetaddr[4], dev->enetaddr[5]);
 
 	memcpy(dev->enetaddr, enetaddr, 6);
 }
@@ -258,19 +255,14 @@ int eth_init(bd_t *bis)
 
 	old_current = eth_current;
 	do {
-#ifdef DEBUG
-		printf("Trying %s\n", eth_current->name);
-#endif
+		debug ("Trying %s\n", eth_current->name);
 
 		if (eth_current->init(eth_current, bis)) {
 			eth_current->state = ETH_STATE_ACTIVE;
 
 			return 1;
 		}
-
-#ifdef DEBUG
-		puts ("FAIL\n");
-#endif
+		debug  ("FAIL\n");
 
 		eth_try_another(0);
 	} while (old_current != eth_current);

@@ -299,8 +299,7 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 	*addr = 0;
 
 	if ((val = *addr) != 0) {
-		/* Restore the original data before leaving the function.
-		 */
+		/* Restore the original data before leaving the function.  */
 		*addr = save[i];
 		for (cnt = 1; cnt <= maxsize / sizeof(long); cnt <<= 1) {
 			addr  = (volatile ulong *) base + cnt;
@@ -315,8 +314,7 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 		*addr = save[--i];
 		if (val != ~cnt) {
 			size = cnt * sizeof (long);
-			/* Restore the original data before leaving the function.
-			 */ 
+			/* Restore the original data before leaving the function.  */
 			for (cnt <<= 1; cnt <= maxsize / sizeof (long); cnt <<= 1) {
 				addr  = (volatile ulong *) base + cnt;
 				*addr = save[--i];

@@ -118,18 +118,12 @@ boot_warm:
 	ori	r3, r3, 0x02010000@l
 	stw	r3, 0x54(r4)
 
-#if defined(CFG_LOWBOOT08)
-	lis	r3,     0xff800160@h
-	ori	r3, r3, 0xff800160@l
-#endif
-#if defined(CFG_LOWBOOT16)
-	lis	r3,     0xff000160@h
-	ori	r3, r3, 0xff000160@l
-#endif
+	lis     r3,	lowboot_reentry@h
+	ori     r3, r3, lowboot_reentry@l
 	mtlr	r3
-	blr
-lowboot_reentry:	/* FLASH_BASE + 0x160 */
-	
+	blr				/* jump to flash based address */
+
+lowboot_reentry:
 	lis	r3,     0x0000FF00@h
 	ori	r3, r3, 0x0000FF00@l
 	stw	r3, 0x4c(r4)
@@ -143,7 +137,7 @@ lowboot_reentry:	/* FLASH_BASE + 0x160 */
 	ori	r3, r3, 0x02000001@l
 	stw	r3, 0x54(r4)
 #endif	/* CFG_LOWBOOT */
-	
+
 #if defined(CFG_DEFAULT_MBAR) && !defined(CFG_RAMBOOT)
 	lis	r3, CFG_MBAR@h
 	ori	r3, r3, CFG_MBAR@l

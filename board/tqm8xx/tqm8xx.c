@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000, 2001, 2002
+ * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -20,6 +20,10 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
+
+#if 0
+#define DEBUG
+#endif
 
 #include <common.h>
 #include <mpc8xx.h>
@@ -92,7 +96,7 @@ const uint sdram_table[] =
  * If present, check for "L" type (no second DRAM bank),
  * otherwise "L" type is assumed as default.
  *
- * Set board_type to 'L' for "L" type, 0 else.
+ * Set board_type to 'L' for "L" type, 'M' for "M" type, 0 else.
  */
 
 int checkboard (void)
@@ -110,6 +114,10 @@ int checkboard (void)
 
 	if ((*(s + 6) == 'L')) {	/* a TQM8xxL type */
 		gd->board_type = 'L';
+	}
+
+	if ((*(s + 6) == 'M')) {	/* a TQM8xxM type */
+		gd->board_type = 'M';
 	}
 
 	for (; *s; ++s) {
@@ -167,7 +175,8 @@ long int initdram (int board_type)
 	memctl->memc_br2 = CFG_BR2_PRELIM;
 
 #ifndef	CONFIG_CAN_DRIVER
-	if (board_type != 'L') {	/* "L" type boards have only one bank SDRAM */
+	if ((board_type != 'L') &&
+	    (board_type != 'M') ) {	/* "L" and "M" type boards have only one bank SDRAM */
 		memctl->memc_or3 = CFG_OR3_PRELIM;
 		memctl->memc_br3 = CFG_BR3_PRELIM;
 	}
@@ -185,7 +194,8 @@ long int initdram (int board_type)
 	udelay (1);
 
 #ifndef	CONFIG_CAN_DRIVER
-	if (board_type != 'L') {	/* "L" type boards have only one bank SDRAM */
+	if ((board_type != 'L') &&
+	    (board_type != 'M') ) {	/* "L" and "M" type boards have only one bank SDRAM */
 		memctl->memc_mcr = 0x80006105;	/* SDRAM bank 1 */
 		udelay (1);
 		memctl->memc_mcr = 0x80006230;	/* SDRAM bank 1 - execute twice */
@@ -204,6 +214,7 @@ long int initdram (int board_type)
 	 */
 	size8 = dram_size (CFG_MAMR_8COL, (ulong *) SDRAM_BASE2_PRELIM,
 					   SDRAM_MAX_SIZE);
+	debug ("SDRAM Bank 0 in 8 column mode: %ld MB\n", size8 >> 20);
 
 	udelay (1000);
 
@@ -212,33 +223,33 @@ long int initdram (int board_type)
 	 */
 	size9 = dram_size (CFG_MAMR_9COL, (ulong *) SDRAM_BASE2_PRELIM,
 					   SDRAM_MAX_SIZE);
+	debug ("SDRAM Bank 0 in 9 column mode: %ld MB\n", size9 >> 20);
 
 	if (size8 < size9) {		/* leave configuration at 9 columns */
 		size_b0 = size9;
-/*	debug ("SDRAM Bank 0 in 9 column mode: %ld MB\n", size >> 20);	*/
 	} else {					/* back to 8 columns            */
 		size_b0 = size8;
 		memctl->memc_mamr = CFG_MAMR_8COL;
 		udelay (500);
-/*	debug ("SDRAM Bank 0 in 8 column mode: %ld MB\n", size >> 20);	*/
 	}
+	debug ("SDRAM Bank 0: %ld MB\n", size_b0 >> 20);
 
 #ifndef	CONFIG_CAN_DRIVER
-	if (board_type != 'L') {	/* "L" type boards have only one bank SDRAM */
+	if ((board_type != 'L') &&
+	    (board_type != 'M') ) {	/* "L" and "M" type boards have only one bank SDRAM */
 		/*
 		 * Check Bank 1 Memory Size
 		 * use current column settings
 		 * [9 column SDRAM may also be used in 8 column mode,
 		 *  but then only half the real size will be used.]
 		 */
-		size_b1 =
-				dram_size (memctl->memc_mamr, (ulong *) SDRAM_BASE3_PRELIM,
-						   SDRAM_MAX_SIZE);
-/*	debug ("SDRAM Bank 1: %ld MB\n", size8 >> 20);	*/
+		size_b1 = dram_size (memctl->memc_mamr, (ulong *) SDRAM_BASE3_PRELIM,
+				     SDRAM_MAX_SIZE);
+		debug ("SDRAM Bank 1: %ld MB\n", size_b1 >> 20);
 	} else {
 		size_b1 = 0;
 	}
-#endif							/* CONFIG_CAN_DRIVER */
+#endif	/* CONFIG_CAN_DRIVER */
 
 	udelay (1000);
 
@@ -383,8 +394,7 @@ long int initdram (int board_type)
  * - short between data lines
  */
 
-static long int dram_size (long int mamr_value, long int *base,
-						   long int maxsize)
+static long int dram_size (long int mamr_value, long int *base, long int maxsize)
 {
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;

@@ -2,15 +2,16 @@
  * (C) Copyright 2003
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * modified for TOP5200 by Reinhard Meyer, www.emk-elektronik.de
+ * modified for TOP5200-series by Reinhard Meyer, www.emk-elektronik.de
+ *
  * TOP5200 differences from IceCube:
  * 1 FLASH Bank for one Chip only, up to 64 MB in 16 MB Banks
  *   bank switch controlled by TIMER_6(LSB) and TIMER_7(MSB) Pins
  * 1 SDRAM/DDRAM Bank up to 256 MB
  * local VPD I2C Bus is software driven and uses
  *   GPIO_WKUP_6 for SDA, GPIO_WKUP_7 for SCL
- * FLASH is located at 0x80000000
- * Internal regs are at 0xfff00000
+ * FLASH is re-located at 0xff000000
+ * Internal regs are at 0xf0000000
  * Reset jumps to 0x00000100
  *
  * See file CREDITS for list of people who contributed to this
@@ -44,7 +45,7 @@
 #define CONFIG_MPC5200		1	/* More exactly a MPC5200 */
 #define CONFIG_TOP5200		1	/* ... on TOP5200 board - we need this for FEC.C */
 
-#define CFG_MPC5XXX_CLKIN	33333333 /* ... running at 33MHz */
+#define CFG_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz */
 
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH  */
 #define BOOTFLAG_WARM		0x02	/* Software reboot	     */
@@ -98,11 +99,42 @@
 #include <cmd_confdefs.h>
 
 /*
+ * low boot
+ */
+#if (TEXT_BASE == 0xFF000000)		/* Boot low with 16 MB Flash */
+#   define CFG_LOWBOOT		1
+#   define CFG_LOWBOOT16	1
+#endif
+
+/*
  * Autobooting
  */
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds */
-#define CONFIG_BOOTCOMMAND	"bootm 100000"	/* autoboot command */
-#define CONFIG_BOOTARGS		"root=/dev/ram rw"
+
+#define CONFIG_PREBOOT	"echo;"	\
+	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
+	"echo"
+
+#undef	CONFIG_BOOTARGS
+
+#define	CONFIG_EXTRA_ENV_SETTINGS					\
+	"netdev=eth0\0"							\
+	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
+		"nfsroot=$(serverip):$(rootpath)\0"			\
+	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
+	"addip=setenv bootargs $(bootargs) "				\
+		"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask)"	\
+		":$(hostname):$(netdev):off panic=1\0"			\
+	"flash_nfs=run nfsargs addip;"					\
+		"bootm $(kernel_addr)\0"				\
+	"flash_self=run ramargs addip;"					\
+		"bootm $(kernel_addr) $(ramdisk_addr)\0"		\
+	"net_nfs=tftp 200000 $(bootfile);run nfsargs addip;bootm\0"	\
+	"rootpath=/opt/eldk/ppc_82xx\0"					\
+	"bootfile=/tftpboot/MPC5200/uImage\0"				\
+	""
+
+#define CONFIG_BOOTCOMMAND	"run flash_self"
 
 /*
  * IPB Bus clocking configuration.

@@ -279,8 +279,8 @@ au_check_header_valid(int idx, long nbytes)
 		printf ("Image %s wrong type\n", aufile[idx]);
 		return -1;
 	}
-	if ((idx == IDX_APP) && (hdr->ih_type != IH_TYPE_RAMDISK) 
-            && (hdr->ih_type != IH_TYPE_FILESYSTEM)) {
+	if ((idx == IDX_APP) && (hdr->ih_type != IH_TYPE_RAMDISK)
+	    && (hdr->ih_type != IH_TYPE_FILESYSTEM)) {
 		printf ("Image %s wrong type\n", aufile[idx]);
 		return -1;
 	}

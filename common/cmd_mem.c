@@ -146,9 +146,9 @@ int do_mem_md ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		if ((rc = read_dataflash(addr, (linebytes/size)*size, linebuf)) == DATAFLASH_OK){
 			/* if outside dataflash */
 			/*if (rc != 1) {
-        	                dataflash_perror (rc);
-                	        return (1);
-	                }*/
+				dataflash_perror (rc);
+				return (1);
+			}*/
 			for (i=0; i<linebytes; i+= size) {
 				if (size == 4) {
 					printf(" %08x", *uip++);
@@ -439,9 +439,9 @@ int do_mem_cp ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		int rc;
 		rc = read_dataflash(addr, count * size, (char *) dest);
 		if (rc != 1) {
-                        dataflash_perror (rc);
-                        return (1);
-                }
+			dataflash_perror (rc);
+			return (1);
+		}
 		return 0;
 	}
 

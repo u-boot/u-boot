@@ -310,7 +310,7 @@ void board_init_final (ulong dest_addr)
 	bd_t *bd;
 
 	bd = gd->bd;
-	// icache_enable(); /* it's time to enable the instruction cache */
+	/* icache_enable(); /XX* it's time to enable the instruction cache */
 
 	/*
 	 * Setup trap handlers

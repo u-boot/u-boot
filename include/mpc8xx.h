@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000
+ * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -135,18 +135,18 @@
  * PLPRCR - PLL, Low-Power, and Reset Control Register			15-30
  */
 #ifdef CONFIG_MPC866_et_al
-#define PLPRCR_MF_MSK	0xffff001e	/* Multiplication factor + PDF bits	*/
-#define PLPRCR_MFN_MSK	0xf8000000	/* Multiplication factor numerator bits */
-#define PLPRCR_MFN_SHIFT 0x0000001b	/* Multiplication factor numerator shift*/
-#define PLPRCR_MFD_MSK	0x07c00000	/* Multiplication factor denominator bits */
-#define PLPRCR_MFD_SHIFT 0x00000017	/* Multiplication factor denominator shift*/
+#define PLPRCR_MF_MSK	0xFFFF001E	/* Multiplication factor + PDF bits	*/
+#define PLPRCR_MFN_MSK	0xF8000000	/* Multiplication factor numerator bits */
+#define PLPRCR_MFN_SHIFT	27	/* Multiplication factor numerator shift*/
+#define PLPRCR_MFD_MSK	0x07C00000	/* Multiplication factor denominator bits */
+#define PLPRCR_MFD_SHIFT	22	/* Multiplication factor denominator shift*/
 #define PLPRCR_S_MSK	0x00300000	/* Multiplication factor integer bits	*/
-#define PLPRCR_S_SHIFT	0x00000014	/* Multiplication factor integer shift	*/
-#define PLPRCR_MFI_MSK	0x000f0000	/* Multiplication factor integer bits	*/
-#define PLPRCR_MFI_SHIFT 0x00000010	/* Multiplication factor integer shift	*/
+#define PLPRCR_S_SHIFT		20	/* Multiplication factor integer shift	*/
+#define PLPRCR_MFI_MSK	0x000F0000	/* Multiplication factor integer bits	*/
+#define PLPRCR_MFI_SHIFT	16	/* Multiplication factor integer shift	*/
 #else
-#define PLPRCR_MF_MSK	0xfff00000	/* Multiplication factor bits		*/
-#define PLPRCR_MF_SHIFT 0x00000014	/* Multiplication factor shift value	*/
+#define PLPRCR_MF_MSK	0xFFF00000	/* Multiplication factor bits		*/
+#define PLPRCR_MF_SHIFT		20	/* Multiplication factor shift value	*/
 #endif
 #define PLPRCR_SPLSS	0x00008000	/* SPLL Lock Status Sticky bit		*/
 #define PLPRCR_TEXPS	0x00004000	/* TEXP Status				*/
@@ -166,8 +166,8 @@
 #define PLPRCR_LOLRE	0x00000040	/* Loss Of Lock Reset Enable		*/
 #define PLPRCR_FIOPD	0x00000020	/* Force I/O Pull Down			*/
 #ifdef CONFIG_MPC866_et_al
-#define PLPRCR_PDF_MSK	0x0000001e	/* Predivision Factor bits		*/
-#define PLPRCR_PDF_SHIFT 0x00000001	/* Predivision Factor shift value	*/
+#define PLPRCR_PDF_MSK	0x0000001E	/* Predivision Factor bits		*/
+#define PLPRCR_PDF_SHIFT	 1	/* Predivision Factor shift value	*/
 #define PLPRCR_DBRMO	0x00000001	/* DPLL BRM Order bit			*/
 #endif
 

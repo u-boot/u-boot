@@ -92,7 +92,7 @@ int interrupt_init_cpu (unsigned *decrementer_count)
 
 	/* decrementer is automatically reloaded */
 	*decrementer_count = 0;
-	
+
 	/*
 	 * Mark all irqs as free
 	 */

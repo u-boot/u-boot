@@ -36,8 +36,10 @@ long int initdram (int board_type)
 {
 	ulong dramsize = 0;
 #ifndef CFG_RAMBOOT
+#if 0
 	ulong	t;
 	ulong	tap_del;
+#endif
 
 	#define	MODE_EN		0x80000000
 	#define	SOFT_PRE	2
@@ -73,16 +75,19 @@ long int initdram (int board_type)
 	*(vu_long *)MPC5XXX_CDM_PORCFG = CFG_DRAM_TAP_DEL << 24;
 
 #if 0
-	for (tap_del = 0; tap_del < 32; tap_del++) {
+	for (tap_del = 0; tap_del < 32; tap_del++)
+	{
 		*(vu_long *)MPC5XXX_CDM_PORCFG = tap_del << 24;
 
 		printf ("\nTAP Delay:%x Filling DRAM...", *(vu_long *)MPC5XXX_CDM_PORCFG);
 		for (t = 0; t < 0x04000000; t+=4)
 			*(vu_long *) t = t;
 		printf ("Checking DRAM...\n");
-		for (t = 0; t < 0x04000000; t+=4) {
+		for (t = 0; t < 0x04000000; t+=4)
+		{
 			ulong	rval = *(vu_long *) t;
-			if (rval != t) {
+			if (rval != t)
+			{
 				printf ("mismatch at %x: ", t);
 				printf (" 1.read %x", rval);
 				printf (" 2.read %x", *(vu_long *) t);

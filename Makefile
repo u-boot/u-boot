@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000, 2001, 2002
+# (C) Copyright 2000-2004
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -204,6 +204,7 @@ cmi_mpc5xx_config:	unconfig
 MPC5200LITE_config		\
 MPC5200LITE_LOWBOOT_config	\
 MPC5200LITE_LOWBOOT08_config	\
+icecube_5200_DDR_LOWBOOT_config	\
 icecube_5200_DDR_config		\
 IceCube_5200_DDR_config		\
 icecube_5200_config		\
@@ -218,19 +219,25 @@ IceCube_5100_config:		unconfig
 		{ echo "TEXT_BASE = 0xFF800000" >board/icecube/config.tmp ; \
 		  echo "... with 8 MB flash only" ; \
 		}
-	@[ -z "$(findstring 5200,$@)" ] || \
-		{ echo "#define CONFIG_MPC5200"		>>include/config.h ; \
-		  echo "... with MPC5200 processor" ; \
-		}
 	@[ -z "$(findstring DDR,$@)" ] || \
 		{ echo "#define CONFIG_MPC5200_DDR"	>>include/config.h ; \
 		  echo "... DDR memory revision" ; \
+		}
+	@[ -z "$(findstring 5200,$@)" ] || \
+		{ echo "#define CONFIG_MPC5200"		>>include/config.h ; \
+		  echo "... with MPC5200 processor" ; \
 		}
 	@[ -z "$(findstring 5100,$@)" ] || \
 		{ echo "#define CONFIG_MGT5100"		>>include/config.h ; \
 		  echo "... with MGT5100 processor" ; \
 		}
 	@./mkconfig -a IceCube ppc mpc5xxx icecube
+
+MINI5200_config	\
+EVAL5200_config	\
+TOP5200_config:	unconfig
+	@ echo "#define CONFIG_$(@:_config=) 1"	>include/config.h
+	@./mkconfig -a TOP5200 ppc mpc5xxx top5200 emk
 
 #########################################################################
 ## MPC8xx Systems
@@ -438,7 +445,7 @@ TOP860_config:		unconfig
 # All boards can come with 50 MHz (default), 66MHz, 80MHz or 100 MHz clock,
 # but only 855 and 860 boards may come with FEC
 # and 823 boards may have LCD support
-xtract_8xx = $(subst _66MHz,,$(subst _80MHz,,$(subst _100MHz,,$(subst _LCD,,$(subst _config,,$1)))))
+xtract_8xx = $(subst _66MHz,,$(subst _80MHz,,$(subst _100MHz,,$(subst _133MHz,,$(subst _LCD,,$(subst _config,,$1))))))
 
 FPS850L_config		\
 FPS860L_config		\
@@ -476,7 +483,12 @@ TQM860M_80MHz_config	\
 TQM862M_config		\
 TQM862M_66MHz_config	\
 TQM862M_80MHz_config	\
-TQM862M_100MHz_config:	unconfig
+TQM862M_100MHz_config	\
+TQM866M_config		\
+TQM866M_66MHz_config	\
+TQM866M_80MHz_config	\
+TQM866M_100MHz_config	\
+TQM866M_133MHz_config:	unconfig
 	@ >include/config.h
 	@[ -z "$(findstring _66MHz,$@)" ] || \
 		{ echo "#define CONFIG_66MHz"		>>include/config.h ; \
@@ -489,6 +501,10 @@ TQM862M_100MHz_config:	unconfig
 	@[ -z "$(findstring _100MHz,$@)" ] || \
 		{ echo "#define CONFIG_100MHz"		>>include/config.h ; \
 		  echo "... with 100MHz system clock" ; \
+		}
+	@[ -z "$(findstring _133MHz,$@)" ] || \
+		{ echo "#define CONFIG_133MHz"		>>include/config.h ; \
+		  echo "... with 133MHz system clock" ; \
 		}
 	@[ -z "$(findstring _LCD,$@)" ] || \
 		{ echo "#define CONFIG_LCD"		>>include/config.h ; \

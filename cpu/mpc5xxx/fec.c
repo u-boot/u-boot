@@ -36,6 +36,33 @@ typedef struct {
 } NBUF;
 
 /********************************************************************/
+#if (DEBUG & 0x2)
+static void mpc5xxx_fec_phydump (void)
+{
+	uint16 phyStatus, i;
+	uint8 phyAddr = CONFIG_PHY_ADDR;
+	uint8 reg_mask[] = {
+#if CONFIG_PHY_TYPE == 0x79c874	/* AMD Am79C874 */
+		/* regs to print: 0...7, 16...19, 21, 23, 24 */
+		1, 1, 1, 1,  1, 1, 1, 1,     0, 0, 0, 0,  0, 0, 0, 0,
+		1, 1, 1, 1,  0, 1, 0, 1,     1, 0, 0, 0,  0, 0, 0, 0,
+#else
+		/* regs to print: 0...8, 16...20 */
+		1, 1, 1, 1,  1, 1, 1, 1,     1, 0, 0, 0,  0, 0, 0, 0,
+		1, 1, 1, 1,  1, 0, 0, 0,     0, 0, 0, 0,  0, 0, 0, 0,
+#endif
+	};
+
+	for (i = 0; i < 32; i++) {
+		if (reg_mask[i]) {
+			miiphy_read(phyAddr, i, &phyStatus);
+			printf("Mii reg %d: 0x%04x\n", i, phyStatus);
+		}
+	}
+}
+#endif
+
+/********************************************************************/
 static int mpc5xxx_fec_rbd_init(mpc5xxx_fec_priv *fec)
 {
 	int ix;
@@ -211,7 +238,7 @@ static int mpc5xxx_fec_init(struct eth_device *dev, bd_t * bis)
 	DECLARE_GLOBAL_DATA_PTR;
 	mpc5xxx_fec_priv *fec = (mpc5xxx_fec_priv *)dev->priv;
 	struct mpc5xxx_sdma *sdma = (struct mpc5xxx_sdma *)MPC5XXX_SDMA;
-	const uint8 phyAddr = 0;	/* Only one PHY */
+	const uint8 phyAddr = CONFIG_PHY_ADDR;	/* Only one PHY */
 
 #if (DEBUG & 0x1)
 	printf ("mpc5xxx_fec_init... Begin\n");
@@ -472,21 +499,11 @@ static int mpc5xxx_fec_init(struct eth_device *dev, bd_t * bis)
 	 */
 	fec->eth->ecntrl |= 0x00000006;
 
-	if (fec->xcv_type != SEVENWIRE) {
 #if (DEBUG & 0x2)
-		uint16 phyStatus, i;
-		uint8 phyAddr = 0;
-
-		for (i = 0; i < 9; i++) {
-			miiphy_read(phyAddr, i, &phyStatus);
-			printf("Mii reg %d: 0x%04x\n", i, phyStatus);
-		}
-		for (i = 16; i < 21; i++) {
-			miiphy_read(phyAddr, i, &phyStatus);
-			printf("Mii reg %d: 0x%04x\n", i, phyStatus);
-		}
+	if (fec->xcv_type != SEVENWIRE)
+		mpc5xxx_fec_phydump ();
 #endif
-	}
+
 	/*
 	 * Enable SmartDMA receive task
 	 */
@@ -509,21 +526,9 @@ static void mpc5xxx_fec_halt(struct eth_device *dev)
 	int counter = 0xffff;
 
 #if (DEBUG & 0x2)
-	if (fec->xcv_type != SEVENWIRE) {
-		uint16 phyStatus, i;
-		uint8 phyAddr = 0;
-
-		for (i = 0; i < 9; i++) {
-			miiphy_read(phyAddr, i, &phyStatus);
-			printf("Mii reg %d: 0x%04x\n", i, phyStatus);
-		}
-		for (i = 16; i < 21; i++) {
-			miiphy_read(phyAddr, i, &phyStatus);
-			printf ("Mii reg %d: 0x%04x\n", i, phyStatus);
-		}
-	}
+	if (fec->xcv_type != SEVENWIRE)
+		mpc5xxx_fec_phydump ();
 #endif
-
 
 	/*
 	 * mask FEC chip interrupts
@@ -587,7 +592,7 @@ static void mpc5xxx_fec_halt(struct eth_device *dev)
 
 static void tfifo_print(mpc5xxx_fec_priv *fec)
 {
-	uint16 phyAddr = 0;
+	uint16 phyAddr = CONFIG_PHY_ADDR;
 	uint16 phyStatus;
 
 	if ((fec->eth->tfifo_lrf_ptr != fec->eth->tfifo_lwf_ptr)
@@ -611,7 +616,7 @@ static void tfifo_print(mpc5xxx_fec_priv *fec)
 
 static void rfifo_print(mpc5xxx_fec_priv *fec)
 {
-	uint16 phyAddr = 0;
+	uint16 phyAddr = CONFIG_PHY_ADDR;
 	uint16 phyStatus;
 
 	if ((fec->eth->rfifo_lrf_ptr != fec->eth->rfifo_lwf_ptr)
@@ -825,12 +830,12 @@ int mpc5xxx_fec_initialize(bd_t * bis)
 	fec->eth = (ethernet_regs *)MPC5XXX_FEC;
 	fec->tbdBase = (FEC_TBD *)FEC_BD_BASE;
 	fec->rbdBase = (FEC_RBD *)(FEC_BD_BASE + FEC_TBD_NUM * sizeof(FEC_TBD));
-#ifdef CONFIG_ICECUBE
-#ifndef CONFIG_FEC_10MBIT
+#if defined(CONFIG_ICECUBE) || defined(CONFIG_TOP5200)
+#  ifndef CONFIG_FEC_10MBIT
 	fec->xcv_type = MII100;
-#else
+#  else
 	fec->xcv_type = MII10;
-#endif
+#  endif
 #else
 #error fec->xcv_type not initialized.
 #endif

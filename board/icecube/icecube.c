@@ -126,7 +126,7 @@ long int initdram (int board_type)
 	/* setup config registers */
 	*(vu_long *)MPC5XXX_SDRAM_CONFIG1 = 0x73722930;
 	*(vu_long *)MPC5XXX_SDRAM_CONFIG2 = 0x47770000;
-	
+
 	/* set tap delay to 0x10 */
 	*(vu_long *)MPC5XXX_CDM_PORCFG = 0x10000000;
 #else

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2002
+ * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -49,11 +49,11 @@ typedef volatile unsigned char	vu_char;
 #ifdef CONFIG_MPC860T
 #define CONFIG_MPC86x 1
 #endif
-#if defined(CONFIG_MPC866P) || \
-    defined(CONFIG_MPC866T) || \
-    defined(CONFIG_MPC859T) || \
-    defined(CONFIG_MPC859DSL) || \
-    defined(CONFIG_MPC852T)
+#if defined(CONFIG_MPC852)	|| defined(CONFIG_MPC852T)	|| \
+    defined(CONFIG_MPC859)	|| defined(CONFIG_MPC859T)	|| \
+    defined(CONFIG_MPC859DSL)	|| \
+    defined(CONFIG_MPC866)	|| defined(CONFIG_MPC866T)	|| \
+    defined(CONFIG_MPC866P)
 #define CONFIG_MPC866_et_al 1
 #define CONFIG_MPC86x 1
 #endif
@@ -100,7 +100,7 @@ typedef	void (interrupt_handler_t)(void *);
  */
 #if defined(CONFIG_TQM823M) || defined(CONFIG_TQM850M) || \
     defined(CONFIG_TQM855M) || defined(CONFIG_TQM860M) || \
-    defined(CONFIG_TQM862M)
+    defined(CONFIG_TQM862M) || defined(CONFIG_TQM866M)
 # ifndef CONFIG_TQM8xxM
 #  define CONFIG_TQM8xxM
 # endif

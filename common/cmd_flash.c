@@ -333,15 +333,15 @@ int do_protect (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			status = dataflash_real_protect(p,addr_first,addr_last);
 			if (status < 0){
 				printf("Bad DataFlash sector specification\n");
-                		return 1;
-        		}
-        		printf("%sProtect %d DataFlash Sectors\n",
-                		p ? "" : "Un-", status);
+				return 1;
+			}
+			printf("%sProtect %d DataFlash Sectors\n",
+				p ? "" : "Un-", status);
 			return 0;
 		}
 	}
 #endif
-	
+
 	if (strcmp(argv[2], "all") == 0) {
 		for (bank=1; bank<=CFG_MAX_FLASH_BANKS; ++bank) {
 			info = &flash_info[bank-1];

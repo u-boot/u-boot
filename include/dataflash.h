@@ -91,7 +91,6 @@ typedef struct _AT91S_DataFlash {
 } AT91S_DataFlash, *AT91PS_DataFlash;
 
 
-
 typedef struct _AT91S_DATAFLASH_INFO {
 
 	AT91S_DataflashDesc Desc;

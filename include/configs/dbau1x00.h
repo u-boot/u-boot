@@ -30,24 +30,24 @@
 
 #define CONFIG_MIPS32		1  /* MIPS32 CPU core	*/
 #define CONFIG_DBAU1X00		1
-#define CONFIG_AU1X00           1  /* alchemy series cpu */
+#define CONFIG_AU1X00		1  /* alchemy series cpu */
 
 #ifdef CONFIG_DBAU1000
 /* Also known as Merlot */
-#define CONFIG_AU1000           1
+#define CONFIG_AU1000		1
 #else
 #ifdef CONFIG_DBAU1100
-#define CONFIG_AU1100           1
+#define CONFIG_AU1100		1
 #else
 #ifdef CONFIG_DBAU1500
-#define CONFIG_AU1500           1
-#else  
+#define CONFIG_AU1500		1
+#else
 #error "No valid board set"
 #endif
 #endif
 #endif
 
-#define CONFIG_ETHADDR          DE:AD:BE:EF:01:01    /* Ethernet address */
+#define CONFIG_ETHADDR		DE:AD:BE:EF:01:01    /* Ethernet address */
 
 #define CONFIG_BOOTDELAY	2	/* autoboot after 2 seconds	*/
 
@@ -158,7 +158,7 @@
 
 #define CFG_ATA_BASE_ADDR       CFG_PCMCIA_MEM_ADDR
 
-/* Offset for data I/O                  */
+/* Offset for data I/O			*/
 #define CFG_ATA_DATA_OFFSET     8
 
 /* Offset for normal register accesses  */
