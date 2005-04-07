@@ -24,7 +24,6 @@
 int board_init(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-	unsigned int val;
 
 	*((volatile unsigned char *) VOICEBLUE_LED_REG) = 0xaa;
 
