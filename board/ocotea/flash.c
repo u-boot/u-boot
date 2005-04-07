@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2004
+ * (C) Copyright 2004-2005
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * (C) Copyright 2002 Jun Gu <jung@artesyncp.com>
@@ -43,7 +43,9 @@
 #define DEBUGF(x...)
 #endif				/* DEBUG */
 
-#define     BOOT_SMALL_FLASH        32	/* 00100000 */
+#define     BOOT_SMALL_FLASH        0x40 /* 01000000 */
+#define     FLASH_ONBD_N            2	/* 00000010 */
+#define     FLASH_SRAM_SEL          1	/* 00000001 */
 #define     FLASH_ONBD_N            2	/* 00000010 */
 #define     FLASH_SRAM_SEL          1	/* 00000001 */
 
@@ -55,8 +57,8 @@
 flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips        */
 
 static unsigned long flash_addr_table[8][CFG_MAX_FLASH_BANKS] = {
-	{0xFF800000, 0xFF900000, 0xFFC00000},	/* 0:000: configuraton 4 */
-	{0xFF900000, 0xFF800000, 0xFFC00000},	/* 1:001: configuraton 3 */
+	{0xFF800000, 0xFF880000, 0xFFC00000},	/* 0:000: configuraton 4 */
+	{0xFF900000, 0xFF980000, 0xFFC00000},	/* 1:001: configuraton 3 */
 	{0x00000000, 0x00000000, 0x00000000},	/* 2:010: configuraton 8 */
 	{0x00000000, 0x00000000, 0x00000000},	/* 3:011: configuraton 7 */
 	{0xFFE00000, 0xFFF00000, 0xFF800000},	/* 4:100: configuraton 2 */
@@ -131,6 +133,12 @@ unsigned long flash_init(void)
 		total_b += flash_info[i].size;
 	}
 
+	/* Monitor protection ON by default */
+	(void)flash_protect(FLAG_PROTECT_SET,
+			    -CFG_MONITOR_LEN,
+			    0xffffffff,
+			    &flash_info[2]);
+
 	return total_b;
 }
 
@@ -152,6 +160,9 @@ void flash_print_info(flash_info_t * info)
 	switch (info->flash_id & FLASH_VENDMASK) {
 	case FLASH_MAN_AMD:
 		printf("AMD ");
+		break;
+	case FLASH_MAN_STM:
+		printf("STM ");
 		break;
 	case FLASH_MAN_FUJ:
 		printf("FUJITSU ");
@@ -300,6 +311,11 @@ static ulong flash_get_size(vu_long * addr, flash_info_t * info)
 		info->sector_count = 8;
 		info->size = 0x0080000;	/* => 512 ko */
 		break;
+	case (FLASH_WORD_SIZE) STM_ID_M29W040B:
+		info->flash_id += FLASH_AM040;
+		info->sector_count = 8;
+		info->size = 0x0080000;	/* => 512 ko */
+		break;
 	case (FLASH_WORD_SIZE) AMD_ID_LV033C:
 		info->flash_id += FLASH_AMDLV033C;
 		info->sector_count = 64;
@@ -312,8 +328,8 @@ static ulong flash_get_size(vu_long * addr, flash_info_t * info)
 
 	/* set up sector start address table */
 	if (((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_SST) ||
-	    (info->flash_id == FLASH_AM040) ||
-	    (info->flash_id == FLASH_AMD016)) {
+	    ((info->flash_id & FLASH_TYPEMASK) == FLASH_AM040) ||
+	    ((info->flash_id & FLASH_TYPEMASK) == FLASH_AMD016)) {
 		for (i = 0; i < info->sector_count; i++)
 			info->start[i] = base + (i * 0x00010000);
 	} else {
@@ -343,6 +359,15 @@ static ulong flash_get_size(vu_long * addr, flash_info_t * info)
 		/* read sector protection at sector address, (A7 .. A0) = 0x02 */
 		/* D0 = 1 if protected */
 		addr2 = (volatile FLASH_WORD_SIZE *) (info->start[i]);
+
+		/* For AMD29033C flash we need to resend the command of	*
+		 * reading flash protection for upper 8 Mb of flash	*/
+		if ( i == 32 ) {
+			addr2[ADDR0] = (FLASH_WORD_SIZE) 0xAAAAAAAA;
+			addr2[ADDR1] = (FLASH_WORD_SIZE) 0x55555555;
+			addr2[ADDR0] = (FLASH_WORD_SIZE) 0x90909090;
+		}
+
 		if ((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_SST)
 			info->protect[i] = 0;
 		else
@@ -432,7 +457,6 @@ int flash_erase(flash_info_t * info, int s_first, int s_last)
 	for (sect = s_first; sect <= s_last; sect++) {
 		if (info->protect[sect] == 0) {	/* not protected */
 			addr2 = (FLASH_WORD_SIZE *) (info->start[sect]);
-			printf("Erasing sector %p\n", addr2);
 
 			if ((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_SST) {
 				addr[ADDR0] = (FLASH_WORD_SIZE) 0x00AA00AA;

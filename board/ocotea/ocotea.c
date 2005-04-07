@@ -37,6 +37,15 @@ void fpga_init (void);
 int board_early_init_f (void)
 {
 	unsigned long mfr;
+	unsigned char *fpga_base = (unsigned char *) CFG_FPGA_BASE;
+	unsigned char switch_status;
+	unsigned long cs0_base;
+	unsigned long cs0_size;
+	unsigned long cs0_twt;
+	unsigned long cs2_base;
+	unsigned long cs2_size;
+	unsigned long cs2_twt;
+
 	/*-------------------------------------------------------------------------+
 	  | Initialize EBC CONFIG
 	  +-------------------------------------------------------------------------*/
@@ -47,17 +56,49 @@ int board_early_init_f (void)
 	      EBC_CFG_PME_DISABLE | EBC_CFG_PR_32);
 
 	/*-------------------------------------------------------------------------+
-	  | 1 MB FLASH / 1 MB SRAM. Initialize bank 0 with default values.
+	  | FPGA. Initialize bank 7 with default values.
 	  +-------------------------------------------------------------------------*/
-	mtebc(pb0ap, EBC_BXAP_BME_DISABLED|EBC_BXAP_TWT_ENCODE(8)|
+	mtebc(pb7ap, EBC_BXAP_BME_DISABLED|EBC_BXAP_TWT_ENCODE(7)|
 	      EBC_BXAP_BCE_DISABLE|
 	      EBC_BXAP_CSN_ENCODE(1)|EBC_BXAP_OEN_ENCODE(1)|
 	      EBC_BXAP_WBN_ENCODE(1)|EBC_BXAP_WBF_ENCODE(1)|
 	      EBC_BXAP_TH_ENCODE(1)|EBC_BXAP_RE_DISABLED|
 	      EBC_BXAP_BEM_WRITEONLY|
 	      EBC_BXAP_PEN_DISABLED);
-	mtebc(pb0cr, EBC_BXCR_BAS_ENCODE(0xFFE00000)|
-	      EBC_BXCR_BS_2MB|EBC_BXCR_BU_RW|EBC_BXCR_BW_8BIT);
+	mtebc(pb7cr, EBC_BXCR_BAS_ENCODE(0x48300000)|
+	      EBC_BXCR_BS_1MB|EBC_BXCR_BU_RW|EBC_BXCR_BW_8BIT);
+
+	/* read FPGA base register FPGA_REG0 */
+	switch_status = *fpga_base;
+
+	if (switch_status & 0x40) {
+		cs0_base = 0xFFE00000;
+		cs0_size = EBC_BXCR_BS_2MB;
+		cs0_twt = 8;
+		cs2_base = 0xFF800000;
+		cs2_size = EBC_BXCR_BS_4MB;
+		cs2_twt = 10;
+	} else {
+		cs0_base = 0xFFC00000;
+		cs0_size = EBC_BXCR_BS_4MB;
+		cs0_twt = 10;
+		cs2_base = 0xFF800000;
+		cs2_size = EBC_BXCR_BS_2MB;
+		cs2_twt = 8;
+	}
+
+	/*-------------------------------------------------------------------------+
+	  | 1 MB FLASH / 1 MB SRAM. Initialize bank 0 with default values.
+	  +-------------------------------------------------------------------------*/
+	mtebc(pb0ap, EBC_BXAP_BME_DISABLED|EBC_BXAP_TWT_ENCODE(cs0_twt)|
+	      EBC_BXAP_BCE_DISABLE|
+	      EBC_BXAP_CSN_ENCODE(1)|EBC_BXAP_OEN_ENCODE(1)|
+	      EBC_BXAP_WBN_ENCODE(1)|EBC_BXAP_WBF_ENCODE(1)|
+	      EBC_BXAP_TH_ENCODE(1)|EBC_BXAP_RE_DISABLED|
+	      EBC_BXAP_BEM_WRITEONLY|
+	      EBC_BXAP_PEN_DISABLED);
+	mtebc(pb0cr, EBC_BXCR_BAS_ENCODE(cs0_base)|
+	      cs0_size|EBC_BXCR_BU_RW|EBC_BXCR_BW_8BIT);
 
 	/*-------------------------------------------------------------------------+
 	  | 8KB NVRAM/RTC. Initialize bank 1 with default values.
@@ -75,15 +116,15 @@ int board_early_init_f (void)
 	/*-------------------------------------------------------------------------+
 	  | 4 MB FLASH. Initialize bank 2 with default values.
 	  +-------------------------------------------------------------------------*/
-	mtebc(pb2ap, EBC_BXAP_BME_DISABLED|EBC_BXAP_TWT_ENCODE(10)|
+	mtebc(pb2ap, EBC_BXAP_BME_DISABLED|EBC_BXAP_TWT_ENCODE(cs2_twt)|
 	      EBC_BXAP_BCE_DISABLE|
 	      EBC_BXAP_CSN_ENCODE(1)|EBC_BXAP_OEN_ENCODE(1)|
 	      EBC_BXAP_WBN_ENCODE(1)|EBC_BXAP_WBF_ENCODE(1)|
 	      EBC_BXAP_TH_ENCODE(1)|EBC_BXAP_RE_DISABLED|
 	      EBC_BXAP_BEM_WRITEONLY|
 	      EBC_BXAP_PEN_DISABLED);
-	mtebc(pb2cr, EBC_BXCR_BAS_ENCODE(0xFF800000)|
-	      EBC_BXCR_BS_4MB|EBC_BXCR_BU_RW|EBC_BXCR_BW_8BIT);
+	mtebc(pb2cr, EBC_BXCR_BAS_ENCODE(cs2_base)|
+	      cs2_size|EBC_BXCR_BU_RW|EBC_BXCR_BW_8BIT);
 
 	/*-------------------------------------------------------------------------+
 	  | FPGA. Initialize bank 7 with default values.

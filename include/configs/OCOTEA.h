@@ -49,7 +49,7 @@
  *----------------------------------------------------------------------*/
 #define CFG_SDRAM_BASE	    0x00000000	    /* _must_ be 0		*/
 #define CFG_FLASH_BASE	    0xff800000	    /* start of FLASH		*/
-#define CFG_MONITOR_BASE    0xfff80000	    /* start of monitor		*/
+#define CFG_MONITOR_BASE    0xfffc0000	    /* start of monitor		*/
 #define CFG_PCI_MEMBASE	    0x80000000	    /* mapped pci memory	*/
 #define CFG_PERIPHERAL_BASE 0xe0000000	    /* internal peripherals	*/
 #define CFG_ISRAM_BASE	    0xc0000000	    /* internal SRAM		*/
