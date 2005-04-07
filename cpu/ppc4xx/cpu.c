@@ -175,8 +175,11 @@ int checkcpu (void)
 	case PVR_440GX_RB:
 		puts("X Rev. B");
 		break;
+	case PVR_440GX_RC:
+		puts("X Rev. C");
+		break;
 	default:
-		printf ("UNKNOWN (PVR=%08x)", pvr);
+		printf (" UNKNOWN (PVR=%08x)", pvr);
 		break;
 	}
 #endif
