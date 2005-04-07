@@ -134,7 +134,7 @@ int interrupt_init_cpu (unsigned *decrementer_count)
 	mtspr( dec, 0 );		/* Prevent exception after TSR clear*/
 	mtspr( decar, 0 );		/* clear reload */
 	mtspr( tsr, 0x08000000 );	/* clear DEC status */
-	val = gd->bd->bi_intfreq/100;	/* 10 msec */
+	val = gd->bd->bi_intfreq/1000;	/* 1 msec */
 	mtspr( decar, val );		/* Set auto-reload value */
 	mtspr( dec, val );		/* Set inital val */
 #else
