@@ -98,19 +98,16 @@
 #endif
 
 /*
- * Size of malloc() pool
+ * Size of malloc() pool and stack
  */
 #define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 #ifdef VOICEBLUE_SMALL_FLASH
 #define CFG_MALLOC_LEN		(SZ_64K - CFG_GBL_DATA_SIZE)
+#define CONFIG_STACKSIZE	SZ_8K
 #else
-#define CFG_MALLOC_LEN		(SZ_4M - CFG_GBL_DATA_SIZE)
+#define CFG_MALLOC_LEN		SZ_4M
+#define CONFIG_STACKSIZE	SZ_1M
 #endif
-
-/*
- * The stack size is set up in start.S using the settings below
- */
-#define CONFIG_STACKSIZE	SZ_8K	/* regular stack */
 
 /*
  * Hardware drivers
@@ -163,7 +160,7 @@
 #ifdef VOICEBLUE_SMALL_FLASH
 #define CONFIG_BOOTDELAY	0
 #undef  CONFIG_BOOTARGS		/* the preboot command will set bootargs*/
-#define CFG_AUTOLOAD		"n"	/* No autoload */
+#define CFG_AUTOLOAD		"n"	/* no autoload */
 #define CONFIG_PREBOOT		"run setup"
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
 	"setup=setenv bootargs console=ttyS0,$(baudrate) "	\
@@ -172,8 +169,8 @@
 		"cp.b 10400000 c000000 $(filesize)\0"
 #else
 #define CONFIG_BOOTDELAY	3
-#undef  CONFIG_BOOTARGS		/* the boot command will set bootargs*/
-#define CFG_AUTOLOAD		"n"	/* No autoload */
+#undef  CONFIG_BOOTARGS		/* boot command will set bootargs */
+#define CFG_AUTOLOAD		"n"	/* no autoload */
 #define CONFIG_BOOTCOMMAND	"run nboot"
 #define CONFIG_PREBOOT		"run setup"
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
@@ -188,11 +185,11 @@
 	"fi\0"							\
 	"setup=setenv bootargs console=ttyS0,$baudrate "	\
 		"mtdparts=$mtdparts\0"				\
-	"nfsargs=setenv bootargs $bootargs "			\
-		"root=/dev/nfs ip=dhcp; run setpart\0"			\
-	"flashargs=setenv bootargs $bootargs "			\
-		"root=/dev/mtdblock$partition "			\
-		"rootfstype=jffs2; run setpart\0"				\
+	"nfsargs=run setpart; setenv bootargs $bootargs "	\
+		"root=/dev/nfs ip=dhcp\0"			\
+	"flashargs=run setpart; setenv bootargs $bootargs "	\
+		"root=/dev/mtdblock$partition ro "		\
+		"rootfstype=jffs2\0"				\
 	"nboot=run nfsargs; bootp; tftp; bootm\0"		\
 	"fboot=run flashargs; fsload /boot/uImage; bootm\0"
 #endif

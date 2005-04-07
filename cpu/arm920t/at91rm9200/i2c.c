@@ -189,4 +189,19 @@ i2c_init(int speed, int slaveaddr)
 	debug ("Found AT91 i2c\n");
 	return;
 }
+
+uchar i2c_reg_read(uchar i2c_addr, uchar reg)
+{
+	char buf;
+
+	i2c_read(i2c_addr, reg, 1, &buf, 1);
+
+	return(buf);
+}
+
+void i2c_reg_write(uchar i2c_addr, uchar reg, uchar val)
+{
+	i2c_write(i2c_addr, reg, 1, &val, 1);
+}
+
 #endif /* CONFIG_HARD_I2C */

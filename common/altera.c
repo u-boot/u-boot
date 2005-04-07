@@ -158,6 +158,7 @@ int altera_info( Altera_desc *desc )
 				/* Add new family types here */
 			default:
 				/* we don't need a message here - we give one up above */
+				break;
 			}
 		} else {
 			printf ("No Device Function Table.\n");
