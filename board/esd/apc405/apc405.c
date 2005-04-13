@@ -63,8 +63,54 @@ unsigned char logo_bmp[] =
  */
 #include "../common/lcd.c"
 
-#include "../common/"CFG_LCD_HEADER_NAME
+#include CFG_LCD_HEADER_NAME
 #endif /* CONFIG_LCD_USED */
+
+
+int board_revision(void)
+{
+	unsigned long cntrl0Reg;
+	unsigned long value;
+
+	/*
+	 * Get version of APC405 board from GPIO's
+	 */
+
+	/*
+	 * Setup GPIO pins (CS2/GPIO11 and CS3/GPIO12 as GPIO)
+	 */
+	cntrl0Reg = mfdcr(cntrl0);
+	mtdcr(cntrl0, cntrl0Reg | 0x03000000);
+	out32(GPIO0_ODR, in32(GPIO0_ODR) & ~0x00180000);
+	out32(GPIO0_TCR, in32(GPIO0_TCR) & ~0x00180000);
+	udelay(1000);                   /* wait some time before reading input */
+	value = in32(GPIO0_IR) & 0x00180000;       /* get config bits */
+
+	/*
+	 * Restore GPIO settings
+	 */
+	mtdcr(cntrl0, cntrl0Reg);
+
+	switch (value) {
+	case 0x00180000:
+		/* CS2==1 && CS3==1 -> version <= 1.2 */
+		return 2;
+	case 0x00080000:
+		/* CS2==0 && CS3==1 -> version 1.3 */
+		return 3;
+#if 0 /* not yet manufactured ! */
+	case 0x00100000:
+		/* CS2==1 && CS3==0 -> version 1.4 */
+		return 4;
+	case 0x00000000:
+		/* CS2==0 && CS3==0 -> version 1.5 */
+		return 5;
+#endif
+	default:
+		/* should not be reached! */
+		return 0;
+	}
+}
 
 
 int board_early_init_f (void)
@@ -120,8 +166,12 @@ int misc_init_f (void)
 
 int misc_init_r (void)
 {
+	DECLARE_GLOBAL_DATA_PTR;
+
 	volatile unsigned short *fpga_mode =
 		(unsigned short *)((ulong)CFG_FPGA_BASE_ADDR + CFG_FPGA_CTRL);
+	volatile unsigned short *fpga_ctrl2 =
+		(unsigned short *)((ulong)CFG_FPGA_BASE_ADDR + CFG_FPGA_CTRL2);
 	volatile unsigned char *duart0_mcr =
 		(unsigned char *)((ulong)DUART0_BA + 4);
 	volatile unsigned char *duart1_mcr =
@@ -205,6 +255,11 @@ int misc_init_r (void)
 	udelay(1000); /* wait 1ms */
 
 	/*
+	 * Write board revision in FPGA
+	 */
+	*fpga_ctrl2 = (*fpga_ctrl2 & 0xfff0) | (gd->board_type & 0x000f);
+
+	/*
 	 * Enable power on PS/2 interface (with reset)
 	 */
 	*fpga_mode |= CFG_FPGA_CTRL_PS2_RESET;
@@ -228,8 +283,11 @@ int misc_init_r (void)
 		 logo_bmp, sizeof(logo_bmp));
 
 	/*
-	 * Enable microcontroller and setup backlight PWM controller
+	 * Reset microcontroller and setup backlight PWM controller
 	 */
+	*fpga_mode |= 0x0014;
+	for (i=0;i<10;i++)
+		udelay(1000);
 	*fpga_mode |= 0x001c;
 	*fuji_lcdbl_pwm = 0x00ff;
 
@@ -243,6 +301,8 @@ int misc_init_r (void)
 
 int checkboard (void)
 {
+	DECLARE_GLOBAL_DATA_PTR;
+
 	unsigned char str[64];
 	int i = getenv_r ("serial#", str, sizeof(str));
 
@@ -254,7 +314,8 @@ int checkboard (void)
 		puts(str);
 	}
 
-	putc ('\n');
+	gd->board_type = board_revision();
+	printf(", Rev 1.%ld\n", gd->board_type);
 
 	/*
 	 * Disable sleep mode in LXT971

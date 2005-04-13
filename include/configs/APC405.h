@@ -42,6 +42,8 @@
 
 #define CONFIG_SYS_CLK_FREQ     33333400 /* external frequency to pll   */
 
+#define CONFIG_BOARD_TYPES	1	/* support board types		*/
+
 #define CONFIG_BAUDRATE		9600
 #define CONFIG_BOOTDELAY	3	/* autoboot after 3 seconds	*/
 
@@ -321,6 +323,7 @@
 
 /* FPGA internal regs */
 #define CFG_FPGA_CTRL           0x008
+#define CFG_FPGA_CTRL2          0x00a
 
 /* FPGA Control Reg */
 #define CFG_FPGA_CTRL_CF_RESET  0x0001
@@ -348,7 +351,7 @@
 
 /* Image information... */
 #define CONFIG_LCD_USED         CONFIG_LCD_BIG
-#define CFG_LCD_HEADER_NAME     "s1d13806_640_480_16bpp.h"
+#define CFG_LCD_HEADER_NAME     "../common/s1d13806_640_480_16bpp.h"
 #define CFG_LCD_LOGO_NAME       "logo_640_480_24bpp.c"
 
 #define CFG_LCD_MEM             CFG_LCD_BIG_MEM
