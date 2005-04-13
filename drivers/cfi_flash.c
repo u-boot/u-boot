@@ -48,6 +48,7 @@
 #include <asm/processor.h>
 #include <asm/byteorder.h>
 #include <linux/byteorder/swab.h>
+#include <environment.h>
 #ifdef	CFG_FLASH_CFI_DRIVER
 
 /*

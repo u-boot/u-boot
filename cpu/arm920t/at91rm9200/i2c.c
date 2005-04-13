@@ -138,12 +138,12 @@ i2c_read (unsigned char chip, unsigned int addr, int alen,
 
 int
 i2c_write(unsigned char chip, unsigned int addr, int alen,
-							unsigned char *buffer, int len)
+	  unsigned char *buffer, int len)
 {
+#ifdef CFG_I2C_EEPROM_ADDR_OVERFLOW
 	int i;
 	unsigned char *buf;
 
-#ifdef CFG_I2C_EEPROM_ADDR_OVERFLOW
 	/* we only allow one address byte */
 	if (alen > 1)
 		return 1;

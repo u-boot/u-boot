@@ -135,7 +135,7 @@ static RTXBD rtx __attribute__ ((aligned(8)));
 #error "rtx must be 64-bit aligned"
 #endif
 
-#define ET_DEBUG
+#undef ET_DEBUG
 
 static int fec_send(struct eth_device* dev, volatile void *packet, int length)
 {

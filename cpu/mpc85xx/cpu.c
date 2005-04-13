@@ -145,7 +145,7 @@ unsigned long get_tbclk (void)
 	sys_info_t  sys_info;
 
 	get_sys_info(&sys_info);
-	return ((sys_info.freqSystemBus + 3L) / 4L);
+	return ((sys_info.freqSystemBus + 7L) / 8L);
 }
 
 

@@ -3081,8 +3081,7 @@ Booting assumes that (the first part of) the image booted is a
 stage-2 loader which in turn loads and then invokes the kernel
 proper. Loader sources will eventually appear in the NetBSD source
 tree (probably in sys/arc/mpc8xx/stand/u-boot_stage2/); in the
-meantime, send mail to bruno@exet-ag.de and/or wd@denx.de for
-details.
+meantime, see ftp://ftp.denx.de/pub/u-boot/ppcboot_stage2.tar.gz
 
 
 Implementation Internals:
