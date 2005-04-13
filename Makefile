@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000-2004
+# (C) Copyright 2000-2005
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -214,6 +214,9 @@ unconfig:
 #########################################################################
 ## MPC5xx Systems
 #########################################################################
+
+canmb_config:	unconfig
+	@./mkconfig -a canmb ppc mpc5xxx canmb
 
 cmi_mpc5xx_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc5xx cmi

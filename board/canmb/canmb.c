@@ -1,0 +1,103 @@
+/*
+ * (C) Copyright 2005
+ * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ *
+ * (C) Copyright 2003
+ * Reinhard Meyer, EMK Elektronik GmbH, r.meyer@emk-elektronik.de
+ *
+ * See file CREDITS for list of people who contributed to this
+ * project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+ * MA 02111-1307 USA
+ */
+
+#include <common.h>
+#include <mpc5xxx.h>
+#include <pci.h>
+
+/*****************************************************************************
+ * initialize SDRAM/DDRAM controller.
+ * TBD: get data from I2C EEPROM
+ *****************************************************************************/
+long int initdram (int board_type)
+{
+	ulong dramsize = 0;
+#ifndef CFG_RAMBOOT
+#if 0
+	ulong	t;
+	ulong	tap_del;
+#endif
+
+	#define	MODE_EN		0x80000000
+	#define	SOFT_PRE	2
+	#define	SOFT_REF	4
+
+	/* configure SDRAM start/end */
+	*(vu_long *)MPC5XXX_SDRAM_CS0CFG = (CFG_SDRAM_BASE & 0xFFF00000) | CFG_DRAM_RAM_SIZE;
+	*(vu_long *)MPC5XXX_SDRAM_CS1CFG = 0x8000000;
+
+	/* setup config registers */
+	*(vu_long *)MPC5XXX_SDRAM_CONFIG1 = CFG_DRAM_CONFIG1;
+	*(vu_long *)MPC5XXX_SDRAM_CONFIG2 = CFG_DRAM_CONFIG2;
+
+	/* unlock mode register */
+	*(vu_long *)MPC5XXX_SDRAM_CTRL = CFG_DRAM_CONTROL | MODE_EN;
+	/* precharge all banks */
+	*(vu_long *)MPC5XXX_SDRAM_CTRL = CFG_DRAM_CONTROL | MODE_EN | SOFT_PRE;
+#ifdef CFG_DRAM_DDR
+	/* set extended mode register */
+	*(vu_short *)MPC5XXX_SDRAM_MODE = CFG_DRAM_EMODE;
+#endif
+	/* set mode register */
+	*(vu_short *)MPC5XXX_SDRAM_MODE = CFG_DRAM_MODE | 0x0400;
+	/* precharge all banks */
+	*(vu_long *)MPC5XXX_SDRAM_CTRL = CFG_DRAM_CONTROL | MODE_EN | SOFT_PRE;
+	/* auto refresh */
+	*(vu_long *)MPC5XXX_SDRAM_CTRL = CFG_DRAM_CONTROL | MODE_EN | SOFT_REF;
+	/* set mode register */
+	*(vu_short *)MPC5XXX_SDRAM_MODE = CFG_DRAM_MODE;
+	/* normal operation */
+	*(vu_long *)MPC5XXX_SDRAM_CTRL = CFG_DRAM_CONTROL;
+	/* write default TAP delay */
+	*(vu_long *)MPC5XXX_CDM_PORCFG = CFG_DRAM_TAP_DEL << 24;
+
+#endif /* CFG_RAMBOOT */
+
+	dramsize = ((1 << (*(vu_long *)MPC5XXX_SDRAM_CS0CFG - 0x13)) << 20) +
+		((1 << (*(vu_long *)MPC5XXX_SDRAM_CS1CFG - 0x13)) << 20);
+
+	/* return total ram size */
+	return dramsize;
+}
+
+/*****************************************************************************
+ * print board identification
+ *****************************************************************************/
+int checkboard (void)
+{
+	puts ("Board: CANMB\n");
+	return 0;
+}
+
+int board_early_init_r (void)
+{
+	*(vu_long *)MPC5XXX_BOOTCS_CFG &= ~0x1; /* clear RO */
+	*(vu_long *)MPC5XXX_BOOTCS_START =
+	*(vu_long *)MPC5XXX_CS0_START = START_REG(CFG_FLASH_BASE);
+	*(vu_long *)MPC5XXX_BOOTCS_STOP =
+	*(vu_long *)MPC5XXX_CS0_STOP = STOP_REG(CFG_FLASH_BASE, CFG_FLASH_SIZE);
+	return 0;
+}

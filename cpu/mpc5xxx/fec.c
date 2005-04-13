@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2003
+ * (C) Copyright 2003-2005
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * This file is based on mpc4200fec.c,
@@ -869,9 +869,9 @@ int mpc5xxx_fec_initialize(bd_t * bis)
 	fec->eth = (ethernet_regs *)MPC5XXX_FEC;
 	fec->tbdBase = (FEC_TBD *)FEC_BD_BASE;
 	fec->rbdBase = (FEC_RBD *)(FEC_BD_BASE + FEC_TBD_NUM * sizeof(FEC_TBD));
-#if defined(CONFIG_ICECUBE) || defined(CONFIG_PM520)   || \
-    defined(CONFIG_TOP5200) || defined(CONFIG_TQM5200) || \
-    defined(CONFIG_INKA4X0)
+#if defined(CONFIG_CANMB)   || defined(CONFIG_ICECUBE) || \
+    defined(CONFIG_INKA4X0) || defined(CONFIG_PM520)   || \
+    defined(CONFIG_TOP5200) || defined(CONFIG_TQM5200)
 # ifndef CONFIG_FEC_10MBIT
 	fec->xcv_type = MII100;
 # else
