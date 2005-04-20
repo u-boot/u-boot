@@ -81,8 +81,6 @@
 
 #define CONFIG_BAUDRATE 115200
 
-#define CFG_AT91C_BRGR_DIVISOR	33	/* hardcode so no __divsi3 : AT91C_MASTER_CLOCK / baudrate / 16 */
-
 /*
  * Hardware drivers
  */
