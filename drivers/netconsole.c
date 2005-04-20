@@ -153,11 +153,12 @@ int nc_start (void)
 	nc_port = 6666;		/* default port */
 
 	if (getenv ("ncip")) {
+		char *p;
+
 		nc_ip = getenv_IPaddr ("ncip");
 		if (!nc_ip)
 			return -1;	/* ncip is 0.0.0.0 */
-		char *p = strchr (getenv ("ncip"), ':');
-		if (p)
+		if ((p = strchr (getenv ("ncip"), ':')) != NULL)
 			nc_port = simple_strtoul (p + 1, NULL, 10);
 	} else
 		nc_ip = ~0;		/* ncip is not set */
@@ -188,13 +189,13 @@ void nc_putc (char c)
 
 void nc_puts (const char *s)
 {
+	int len;
+
 	if (output_recursion)
 		return;
 	output_recursion = 1;
 
-	int len = strlen (s);
-
-	if (len > 512)
+	if ((len = strlen (s)) > 512)
 		len = 512;
 
 	nc_send_packet (s, len);
@@ -204,6 +205,8 @@ void nc_puts (const char *s)
 
 int nc_getc (void)
 {
+	uchar c;
+
 	input_recursion = 1;
 
 	net_timeout = 0;	/* no timeout */
@@ -212,8 +215,8 @@ int nc_getc (void)
 
 	input_recursion = 0;
 
-	uchar c = input_buffer[input_offset];
-	input_offset++;
+	c = input_buffer[input_offset++];
+
 	if (input_offset >= sizeof input_buffer)
 		input_offset -= sizeof input_buffer;
 	input_size--;

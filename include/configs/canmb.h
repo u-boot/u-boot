@@ -129,18 +129,6 @@
 #define CFG_FLASH_EMPTY_INFO
 
 /*
- * DRAM configuration
- */
-#define	CFG_DRAM_DDR		0
-#define CFG_DRAM_EMODE		0
-#define CFG_DRAM_MODE		0x00CD
-#define CFG_DRAM_CONTROL	0x514F0000
-#define CFG_DRAM_CONFIG1	0xD2333A00
-#define CFG_DRAM_CONFIG2	0x8AD70004
-#define	CFG_DRAM_TAP_DEL	0x08
-#define CFG_DRAM_RAM_SIZE	0x19
-
-/*
  * Environment settings
  */
 #define CFG_ENV_IS_IN_FLASH	1

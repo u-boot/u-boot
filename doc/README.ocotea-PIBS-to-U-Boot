@@ -77,14 +77,14 @@ U-Boot 1.1.3 (Apr  5 2005 - 22:59:57)
 
 IBM PowerPC 440 GX Rev. C
 Board: IBM 440GX Evaluation Board
-        VCO: 1066 MHz
-        CPU: 533 MHz
-        PLB: 152 MHz
-        OPB: 76 MHz
-        EPB: 76 MHz
+	VCO: 1066 MHz
+	CPU: 533 MHz
+	PLB: 152 MHz
+	OPB: 76 MHz
+	EPB: 76 MHz
 I2C:   ready
 DRAM:  256 MB
-FLASH:  5 MB
+FLASH:	5 MB
 PCI:   Bus Dev VenId DevId Class Int
 In:    serial
 Out:   serial
