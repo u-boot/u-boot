@@ -252,7 +252,7 @@
 #define CFG_EBC_PB1CR	FLASH1_BA | 0x9A000 /* BAS=0xFE0,BS=16MB,BU=R/W,BW=16bit*/
 
 /* Memory Bank 2 (CAN0, 1, RTC) initialization					*/
-#define CFG_EBC_PB2AP	0x03000040   /* TWT=6,TH=0,CSN=0,OEN=0,WBN=0,WBF=0	*/
+#define CFG_EBC_PB2AP	0x03000440   /* TWT=5,TH=2,CSN=0,OEN=0,WBN=0,WBF=0      */
 #define CFG_EBC_PB2CR	CAN_BA | 0x18000    /* BAS=0xF00,BS=1MB,BU=R/W,BW=8bit	*/
 
 /* Memory Bank 3 (CompactFlash IDE, FPGA internal) initialization		*/

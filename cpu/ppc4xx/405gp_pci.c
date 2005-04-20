@@ -98,6 +98,7 @@ void pci_405gp_init(struct pci_controller *hose)
 #if defined(CONFIG_CPCI405) || defined(CONFIG_PMC405)
 	unsigned long ptmla[2]    = {bd->bi_memstart, bd->bi_flashstart};
 	unsigned long ptmms[2]    = {~(bd->bi_memsize - 1) | 1, ~(bd->bi_flashsize - 1) | 1};
+	char *ptmla_str, *ptmms_str;
 #else
 	unsigned long ptmla[2]    = {CFG_PCI_PTM1LA, CFG_PCI_PTM2LA};
 	unsigned long ptmms[2]    = {CFG_PCI_PTM1MS, CFG_PCI_PTM2MS};
@@ -117,6 +118,22 @@ void pci_405gp_init(struct pci_controller *hose)
 #if (CONFIG_PCI_HOST == PCI_HOST_AUTO)
 	char *s;
 #endif
+#endif
+
+#if defined(CONFIG_CPCI405) || defined(CONFIG_PMC405)
+	ptmla_str = getenv("ptm1la");
+	ptmms_str = getenv("ptm1ms");
+	if(NULL != ptmla_str && NULL != ptmms_str ) {
+	        ptmla[0] = simple_strtoul (ptmla_str, NULL, 16);
+		ptmms[0] = simple_strtoul (ptmms_str, NULL, 16);
+	}
+
+	ptmla_str = getenv("ptm2la");
+	ptmms_str = getenv("ptm2ms");
+	if(NULL != ptmla_str && NULL != ptmms_str ) {
+	        ptmla[1] = simple_strtoul (ptmla_str, NULL, 16);
+		ptmms[1] = simple_strtoul (ptmms_str, NULL, 16);
+	}
 #endif
 
 	/*
