@@ -167,7 +167,7 @@
  * Ethernet configuration
  */
 #define CONFIG_MPC5xxx_FEC	1
-#define	CONFIG_PHY_ADDR		0x1
+#define	CONFIG_PHY_ADDR		0x0
 /*
  * GPIO configuration:
  * PSC1,2,3 predefined as UART

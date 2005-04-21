@@ -157,7 +157,7 @@ static int fec_send(struct eth_device* dev, volatile void *packet, int length)
     rtx.txbd[txIdx].cbd_bufaddr = (uint)packet;
     rtx.txbd[txIdx].cbd_datlen = length;
     rtx.txbd[txIdx].cbd_sc |= (BD_ENET_TX_READY | BD_ENET_TX_LAST | \
-			       BD_ENET_TX_TC );
+			       BD_ENET_TX_TC | BD_ENET_TX_PAD);
 
     for(i=0; rtx.txbd[txIdx].cbd_sc & BD_ENET_TX_READY; i++) {
 	if (i >= TOUT_LOOP) {
@@ -414,7 +414,7 @@ static int fec_init(struct eth_device* dev, bd_t *bis)
 	immr->im_cpm.im_cpm_fcc3.gfmr |= FCC_GFMR_ENT | FCC_GFMR_ENR;
     }
 
-    return 0;
+    return 1;
 }
 
 static void fec_halt(struct eth_device* dev)
