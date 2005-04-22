@@ -197,8 +197,8 @@
 /*
  * GPIO configuration
  *
- * use pin gpio_wkup_6 as second SDRAM chip select (mem_cs1):
- *	Bit 0 (mask: 0x80000000): 1
+ * use CS1 as gpio_wkup_6 output
+ *	Bit 0 (mask: 0x80000000): 0
  * use ALT CAN position: Bits 2-3 (mask: 0x30000000):
  *	00 -> No Alternatives, I2C1 is used for onboard EEPROM
  *	01 -> CAN1 on I2C1, CAN2 on Tmr0/1 do not use on TQM5200 with onboard
@@ -206,14 +206,8 @@
  * use PSC1 as UART: Bits 28-31 (mask: 0x00000007): 0100
  * use PSC6_1 and PSC6_3 as GPIO: Bits 9:11 (mask: 0x07000000):
  *	011 -> PSC6 could not be used as UART or CODEC. IrDA still possible.
- * GPIO on PSC6_3 is used in post_hotkeys_pressed() to enable extended POST
- * tests.
  */
-#if defined (CONFIG_MINIFAP)
-#define CFG_GPS_PORT_CONFIG	0x93000004
-#else
-#define CFG_GPS_PORT_CONFIG	0x81001004
-#endif
+#define CFG_GPS_PORT_CONFIG	0x01001004
 
 /*
  * RTC configuration
