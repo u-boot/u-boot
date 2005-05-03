@@ -629,6 +629,7 @@ static void gt_setup_ide (struct pci_controller *hose,
 	}
 }
 
+#ifndef CONFIG_P3G4
 static void gt_fixup_irq (struct pci_controller *hose, pci_dev_t dev)
 {
 	unsigned char pin, irq;
@@ -642,6 +643,7 @@ static void gt_fixup_irq (struct pci_controller *hose, pci_dev_t dev)
 			pci_write_config_byte (dev, PCI_INTERRUPT_LINE, irq);
 	}
 }
+#endif
 
 struct pci_config_table gt_config_table[] = {
 	{PCI_ANY_ID, PCI_ANY_ID, PCI_CLASS_STORAGE_IDE,
@@ -651,12 +653,16 @@ struct pci_config_table gt_config_table[] = {
 };
 
 struct pci_controller pci0_hose = {
+#ifndef CONFIG_P3G4
 	fixup_irq:gt_fixup_irq,
+#endif
 	config_table:gt_config_table,
 };
 
 struct pci_controller pci1_hose = {
+#ifndef CONFIG_P3G4
 	fixup_irq:gt_fixup_irq,
+#endif
 	config_table:gt_config_table,
 };
 
@@ -692,8 +698,10 @@ void pci_init_board (void)
 
 	pci_register_hose (&pci0_hose);
 
+#ifndef CONFIG_P3G4
 	pciArbiterEnable (PCI_HOST0);
 	pciParkingDisable (PCI_HOST0, 1, 1, 1, 1, 1, 1, 1);
+#endif
 
 	command = pciReadConfigReg (PCI_HOST0, PCI_COMMAND, SELF);
 	command |= PCI_COMMAND_MASTER;
@@ -735,8 +743,10 @@ void pci_init_board (void)
 
 	pci_register_hose (&pci1_hose);
 
+#ifndef CONFIG_P3G4
 	pciArbiterEnable (PCI_HOST1);
 	pciParkingDisable (PCI_HOST1, 1, 1, 1, 1, 1, 1, 1);
+#endif
 
 	command = pciReadConfigReg (PCI_HOST1, PCI_COMMAND, SELF);
 	command |= PCI_COMMAND_MASTER;

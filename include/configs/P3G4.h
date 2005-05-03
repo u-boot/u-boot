@@ -28,8 +28,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include <asm/processor.h>
-
 #ifndef __ASSEMBLY__
 #include <galileo/core.h>
 #endif
@@ -66,7 +64,7 @@
  * mpsc channel, change CONFIG_MPSC_PORT to the desired value.
  */
 #define	CONFIG_MPSC
-#define CONFIG_MPSC_PORT	1
+#define CONFIG_MPSC_PORT	0
 
 #define CONFIG_NET_MULTI        /* attempt all available adapters */
 
@@ -75,20 +73,46 @@
 
 #undef CONFIG_ETHER_PORT_MII	/* use RMII */
 
-#if 1
+#if 0
 #define CONFIG_BOOTDELAY	-1	/* autoboot disabled		*/
 #else
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 #endif
 #define CONFIG_ZERO_BOOTDELAY_CHECK
 
+#define CONFIG_PREBOOT	"echo;"	\
+	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
+	"echo"
+
 #undef	CONFIG_BOOTARGS
-#define CONFIG_BOOTCOMMAND						     \
-	"bootp;" 						     \
-	"setenv bootargs root=/dev/nfs rw nfsroot=$serverip:$rootpath " \
-	"ip=$ipaddr:$serverip:$gatewayip:" \
-	"$netmask:$hostname:eth0:none;" \
-	"bootm"
+
+#define	CONFIG_EXTRA_ENV_SETTINGS					\
+	"netdev=eth0\0"							\
+	"hostname=p3g4\0"						\
+	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
+		"nfsroot=$(serverip):$(rootpath)\0"			\
+	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
+	"addip=setenv bootargs $(bootargs) "				\
+		"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask)"	\
+		":$(hostname):$(netdev):off panic=1\0"			\
+	"addtty=setenv bootargs $(bootargs) console=ttyS0,$(baudrate)\0"\
+	"flash_nfs=run nfsargs addip addtty;"				\
+		"bootm $(kernel_addr)\0"				\
+	"flash_self=run ramargs addip addtty;"				\
+		"bootm $(kernel_addr) $(ramdisk_addr)\0"		\
+	"net_nfs=tftp 200000 $(bootfile);run nfsargs addip addtty;"     \
+	        "bootm\0"						\
+	"rootpath=/opt/eldk/ppc_74xx\0"					\
+	"bootfile=/tftpboot/p3g4/uImage\0"				\
+	"kernel_addr=ff000000\0"					\
+	"ramdisk_addr=ff010000\0"					\
+	"load=tftp 100000 /tftpboot/p3g4/u-boot.bin\0"			\
+	"update=protect off fff00000 fff3ffff;era fff00000 fff3ffff;"	\
+		"cp.b 100000 fff00000 $(filesize);"			\
+		"setenv filesize;saveenv\0"				\
+	"upd=run load;run update\0"					\
+	""
+#define CONFIG_BOOTCOMMAND	"run flash_self"
 
 #define CONFIG_LOADS_ECHO	0	/* echo off for serial download	*/
 #define	CFG_LOADS_BAUD_CHANGE		/* allow baudrate changes	*/
@@ -101,7 +125,15 @@
 
 #define	CONFIG_TIMESTAMP		/* Print image info with timestamp */
 
-#define CONFIG_COMMANDS	(CONFIG_CMD_DFL | CFG_CMD_ASKENV)
+#define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
+				CFG_CMD_ASKENV	| \
+				CFG_CMD_DHCP	| \
+				CFG_CMD_PCI	| \
+				CFG_CMD_ELF	| \
+				CFG_CMD_MII	| \
+				CFG_CMD_PING	| \
+				CFG_CMD_UNIVERSE| \
+				CFG_CMD_BSP	)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -271,21 +303,20 @@
 /* PCI MEMORY MAP section */
 #define CFG_PCI0_MEM_BASE	0x80000000
 #define CFG_PCI0_MEM_SIZE	_128M
+#define CFG_PCI0_0_MEM_SPACE	(CFG_PCI0_MEM_BASE)
+
 #define CFG_PCI1_MEM_BASE	0x88000000
 #define CFG_PCI1_MEM_SIZE	_128M
-
-#define CFG_PCI0_0_MEM_SPACE	(CFG_PCI0_MEM_BASE)
 #define CFG_PCI1_0_MEM_SPACE	(CFG_PCI1_MEM_BASE)
-
 
 /* PCI I/O MAP section */
 #define CFG_PCI0_IO_BASE	0xfa000000
 #define CFG_PCI0_IO_SIZE	_16M
-#define CFG_PCI1_IO_BASE	0xfb000000
-#define CFG_PCI1_IO_SIZE	_16M
-
 #define CFG_PCI0_IO_SPACE	(CFG_PCI0_IO_BASE)
 #define CFG_PCI0_IO_SPACE_PCI	0x00000000
+
+#define CFG_PCI1_IO_BASE	0xfb000000
+#define CFG_PCI1_IO_SIZE	_16M
 #define CFG_PCI1_IO_SPACE	(CFG_PCI1_IO_BASE)
 #define CFG_PCI1_IO_SPACE_PCI	0x00000000
 

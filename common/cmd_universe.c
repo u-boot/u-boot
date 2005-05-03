@@ -72,6 +72,9 @@ int universe_init(void)
 	dev->busdevfn = busdevfn;
 
 	pci_read_config_dword(busdevfn, PCI_BASE_ADDRESS_1, &val);
+	if (val & 1) {
+		pci_read_config_dword(busdevfn, PCI_BASE_ADDRESS_0, &val);
+	}
 	val &= ~0xf;
 	dev->uregs = (UNIVERSE *)val;
 
@@ -102,7 +105,13 @@ int universe_init(void)
 	 *   Arbitration Mode
 	 *   DTACK Enable
 	 */
-	writel(0x15060000, &dev->uregs->misc_ctl);
+	writel(0x15040000 | (readl(&dev->uregs->misc_ctl) & 0x00020000), &dev->uregs->misc_ctl);
+
+	if (readl(&dev->uregs->misc_ctl) & 0x00020000) {
+		debug ("System Controller!\n"); /* test-only */
+	} else {
+		debug ("Not System Controller!\n"); /* test-only */
+	}
 
 	/*
 	 * Lets turn off interrupts
@@ -114,12 +123,14 @@ int universe_init(void)
 	writel(0x0000, &dev->uregs->lint_map1);  /* Map all ints to 0 */
 	eieio();
 
+	return 0;
+
  break_30:
 	free(dev);
  break_20:
 	lastError = result;
 
-	return 0;
+	return result;
 }
 
 
@@ -193,13 +204,13 @@ int universe_pci_slave_window(unsigned int pciAddr, unsigned int vmeAddr, int si
 
 	switch (pms & PCI_MS_Mxx) {
 	case PCI_MS_MEM:
-		ctl = 0x00000000;
+		ctl |= 0x00000000;
 		break;
 	case PCI_MS_IO:
-		ctl = 0x00000001;
+		ctl |= 0x00000001;
 		break;
 	case PCI_MS_CONFIG:
-		ctl = 0x00000002;
+		ctl |= 0x00000002;
 		break;
 	}
 
@@ -278,13 +289,13 @@ int universe_vme_slave_window(unsigned int vmeAddr, unsigned int pciAddr, int si
 
 	switch (pms & PCI_MS_Mxx) {
 	case PCI_MS_MEM:
-		ctl = 0x00000000;
+		ctl |= 0x00000000;
 		break;
 	case PCI_MS_IO:
-		ctl = 0x00000001;
+		ctl |= 0x00000001;
 		break;
 	case PCI_MS_CONFIG:
-		ctl = 0x00000002;
+		ctl |= 0x00000002;
 		break;
 	}
 
