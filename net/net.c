@@ -1405,11 +1405,11 @@ NetReceive(volatile uchar * inpkt, int len)
 
 			switch (icmph->type) {
 			case ICMP_REDIRECT:
-			if (icmph->code != ICMP_REDIR_HOST)
-				return;
-			puts (" ICMP Host Redirect to ");
-			print_IPaddr(icmph->un.gateway);
-			putc(' ');
+				if (icmph->code != ICMP_REDIR_HOST)
+					return;
+				puts (" ICMP Host Redirect to ");
+				print_IPaddr(icmph->un.gateway);
+				putc(' ');
 				break;
 #if (CONFIG_COMMANDS & CFG_CMD_PING)
 			case ICMP_ECHO_REPLY:

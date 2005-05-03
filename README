@@ -3381,6 +3381,7 @@ Since the number of patches for U-Boot is growing, we need to
 establish some rules. Submissions which do not conform to these rules
 may be rejected, even when they contain important and valuable stuff.
 
+Patches shall be sent to the u-boot-users mailing list.
 
 When you send a patch, please include the following information with
 it:
@@ -3438,3 +3439,6 @@ Notes:
   (using #ifdef), and the resulting code with the new feature
   disabled must not need more memory than the old code without your
   modification.
+
+* Remember that there is a size limit of 40 kB per message on the
+  u-boot-users mailing list. Compression may help.
