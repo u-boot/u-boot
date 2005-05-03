@@ -2,6 +2,14 @@
 Changes for U-Boot 1.1.3:
 ======================================================================
 
+* Patch by Stefan Roese, 03 May 2005:
+  Update for P3G4
+  Fix problems in cmd_universe.c
+
+* Patch by Matthias Fuchs, 03 May 2005:
+  Added missing variable declaration in cmd_nand.c
+  Modified CFG_PCI_PTM1MS in configs/PLU405.h to map 128MB ram
+
 * Fix INKA4x0: use CS1 as gpio_wkup_6 output
 
 * Fix bug in the SDRAM initialization code for canmb, IceCube and
