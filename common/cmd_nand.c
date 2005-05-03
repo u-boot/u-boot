@@ -1218,6 +1218,8 @@ static int nand_write_page (struct nand_chip *nand,
 	}
 	if (nand->bus16) {
 		for (i = 0; i < nand->oobsize; i += 2) {
+			u16 val;
+
 			val = READ_NAND (nand->IO_ADDR);
 			nand->data_buf[i] = val & 0xff;
 			nand->data_buf[i + 1] = val >> 8;
