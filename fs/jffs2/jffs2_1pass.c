@@ -760,7 +760,11 @@ jffs2_1pass_list_inodes(struct b_lists * pL, u32 pino)
 				if (jNode->ino == jDir->ino && jNode->version >= i_version) {
 					if (i)
 						put_fl_mem(i);
-					i = get_fl_mem(b2->offset, sizeof(*i), NULL);
+
+					if (jDir->type == DT_LNK)
+						i = get_node_mem(b2->offset);
+					else
+						i = get_fl_mem(b2->offset, sizeof(*i), NULL);
 				}
 				b2 = b2->next;
 			}
