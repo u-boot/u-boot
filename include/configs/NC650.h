@@ -122,6 +122,7 @@
 				CFG_CMD_DHCP	| \
 				CFG_CMD_I2C	| \
 				CFG_CMD_NAND	| \
+				CFG_CMD_JFFS2	| \
 				CFG_CMD_NFS	| \
 				CFG_CMD_SNTP	)
 
@@ -398,5 +399,10 @@
 #define	BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
 #define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
+#define CONFIG_JFFS2_NAND 1			/* jffs2 on nand support */
+#define CONFIG_JFFS2_NAND_DEV 0			/* nand device jffs2 lives on */
+#define CONFIG_JFFS2_NAND_OFF 0			/* start of jffs2 partition */
+#define CONFIG_JFFS2_NAND_SIZE 4*1024*1024	/* size of jffs2 partition */
+#define NAND_CACHE_PAGES 16			/* size of nand cache in 512 bytes pages */
 
 #endif	/* __CONFIG_H */

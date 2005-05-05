@@ -27,6 +27,7 @@ LIB	= libjffs2.a
 
 AOBJS	=
 COBJS	= jffs2_1pass.o compr_rtime.o compr_rubin.o compr_zlib.o mini_inflate.o
+COBJS	+= compr_lzo.o compr_lzari.o
 OBJS	= $(AOBJS) $(COBJS)
 
 #CPPFLAGS +=

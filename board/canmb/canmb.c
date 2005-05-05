@@ -133,7 +133,7 @@ long int initdram (int board_type)
 	*(vu_long *)MPC5XXX_SDRAM_CS1CFG = dramsize + 0x0000001e;/* 2G */
 
 	/* find RAM size using SDRAM CS1 only */
-	if (!dramsize) 
+	if (!dramsize)
 		sdram_start(0);
 	test2 = test1 = get_ram_size((ulong *)(CFG_SDRAM_BASE + dramsize), 0x80000000);
 	if (!dramsize) {

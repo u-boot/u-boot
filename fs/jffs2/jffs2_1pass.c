@@ -274,7 +274,13 @@ static char *compr_names[] = {
 	"RUBINMIPS",
 	"COPY",
 	"DYNRUBIN",
-	"ZLIB"
+	"ZLIB",
+#if defined(CONFIG_JFFS2_LZO)
+	"LZO",
+#endif
+#if defined(CONFIG_JFFS2_LZARI)
+	"LZARI",
+#endif
 };
 
 /* Spinning wheel */
@@ -583,6 +589,16 @@ jffs2_1pass_read_inode(struct b_lists *pL, u32 inode, char *dest)
 				case JFFS2_COMPR_ZLIB:
 					ret = zlib_decompress(src, lDest, jNode->csize, jNode->dsize);
 					break;
+#if defined(CONFIG_JFFS2_LZARI)
+				case JFFS2_COMPR_LZARI:
+					ret = lzari_decompress(src, lDest, jNode->csize, jNode->dsize);
+					break;
+#endif
+#if defined(CONFIG_JFFS2_LZO)
+				case JFFS2_COMPR_LZO:
+					ret = lzo_decompress(src, lDest, jNode->csize, jNode->dsize);
+					break;
+#endif
 				default:
 					/* unknown */
 					putLabeledWord("UNKOWN COMPRESSION METHOD = ", jNode->compr);

@@ -772,7 +772,7 @@
 #define CONFIG_JFFS2_NAND 1			/* jffs2 on nand support */
 #define CONFIG_JFFS2_NAND_DEV 0			/* nand device jffs2 lives on */
 #define CONFIG_JFFS2_NAND_OFF 0			/* start of jffs2 partition */
-#define CONFIG_JFFS2_NAND_SIZE 2*1024*1024	/* size of jffs2 partition */
+#define CONFIG_JFFS2_NAND_SIZE 4*1024*1024	/* size of jffs2 partition */
 #define NAND_CACHE_PAGES 16			/* size of nand cache in 512 bytes pages */
 
 #endif	/* __CONFIG_H */

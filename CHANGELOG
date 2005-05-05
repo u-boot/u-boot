@@ -2,6 +2,10 @@
 Changes for U-Boot 1.1.3:
 ======================================================================
 
+* Major upate of JFFS2 code; now in sync with snapshot of MTD CVS of
+  March 13, 2005); new configuration options CONFIG_JFFS2_LZO and
+  CONFIG_JFFS2_LZARI are added. Both are undefined by default.
+
 * Fix problem with symbolic links in JFFS2 code.
 
 * Use linker ASSERT statement to prevent undetected overlapping of
