@@ -195,7 +195,7 @@
 #define CFG_RAMBOOT
 #endif
 
-#define CFG_MONITOR_LEN		(192 << 10)	/* Reserve 192 kB for Monitor	*/
+#define CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
 
 #define CFG_ENV_IS_IN_FLASH
 
