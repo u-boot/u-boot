@@ -58,6 +58,11 @@ include $(TOPDIR)/config.mk
 SREC	= hello_world.srec
 BIN	= hello_world.bin hello_world
 
+ifeq ($(ARCH),ppc)
+SREC	= test_burst.srec
+BIN	= test_burst.bin test_burst
+endif
+
 ifeq ($(ARCH),i386)
 SREC   += 82559_eeprom.srec
 BIN    += 82559_eeprom.bin 82559_eeprom
@@ -96,6 +101,7 @@ LIB	= libstubs.a
 LIBAOBJS=
 ifeq ($(ARCH),ppc)
 LIBAOBJS+= $(ARCH)_longjmp.o $(ARCH)_setjmp.o
+LIBAOBJS+= test_burst_lib.o
 endif
 LIBCOBJS= stubs.o
 LIBOBJS	= $(LIBAOBJS) $(LIBCOBJS)
