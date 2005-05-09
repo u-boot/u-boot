@@ -463,6 +463,8 @@ void upmconfig (uint upm, uint * table, uint size)
 
 /* ------------------------------------------------------------------------- */
 
+#ifndef CONFIG_LWMON
+
 int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	ulong msr, addr;
@@ -496,6 +498,32 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	((void (*)(void)) addr) ();
 	return 1;
 }
+
+#else	/* CONFIG_LWMON */
+
+/*
+ * On the LWMON board, the MCLR reset input of the PIC's on the board
+ * uses a 47K/1n RC combination which has a 47us time  constant.  The
+ * low  signal on the HRESET pin of the CPU is only 512 clocks = 8 us
+ * and thus too short to reset the external hardware. So we  use  the
+ * watchdog to reset the board.
+ */
+int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	/* prevent triggering the watchdog */
+	disable_interrupts ();
+
+	/* make sure the watchdog is running */
+	reset_8xx_watchdog ((immap_t *) CFG_IMMR);
+
+	/* wait for watchdog reset */
+	while (1) {};
+
+	/* NOTREACHED */
+	return 1;
+}
+
+#endif	/* CONFIG_LWMON */
 
 /* ------------------------------------------------------------------------- */
 
@@ -558,6 +586,9 @@ void watchdog_reset (void)
 	if (re_enable)
 		enable_interrupts ();
 }
+#endif /* CONFIG_WATCHDOG */
+
+#if defined(CONFIG_WATCHDOG) || defined(CONFIG_LWMON)
 
 void reset_8xx_watchdog (volatile immap_t * immr)
 {
