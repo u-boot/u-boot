@@ -279,7 +279,7 @@
 #endif
 
 #define CONFIG_MII		1	/* MII PHY management */
-#undef CONFIG_MPC85XX_TSEC1
+#define CONFIG_MPC85XX_TSEC1	1
 #define CONFIG_MPC85XX_TSEC2	1
 #define TSEC1_PHY_ADDR		0
 #define TSEC2_PHY_ADDR		1
@@ -287,8 +287,11 @@
 #define TSEC2_PHYIDX		0
 
 #define CONFIG_MPC85XX_FEC	1
-#define FEC_PHY_ADDR		0
+#define FEC_PHY_ADDR		2
 #define FEC_PHYIDX		0
+
+#define CONFIG_HAS_ETH1
+#define CONFIG_HAS_ETH2
 
 #define CONFIG_ETHPRIME		"ENET1"
 
