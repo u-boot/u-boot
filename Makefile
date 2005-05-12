@@ -987,6 +987,9 @@ gw8260_config:	unconfig
 hymod_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8260 hymod
 
+IDS8247_config:	unconfig
+	@./mkconfig $(@:_config=) ppc mpc8260 ids8247
+
 IPHASE4539_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8260 iphase4539
 

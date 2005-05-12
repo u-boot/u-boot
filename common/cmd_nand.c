@@ -670,11 +670,12 @@ static int NanD_IdentChip(struct nand_chip *nand, int floor, int chip)
 	id = READ_NAND(nand->IO_ADDR);
 
 	NAND_DISABLE_CE(nand);  /* set pin high */
-	/* No response - return failure */
-	if (mfr == 0xff || mfr == 0) {
+
 #ifdef NAND_DEBUG
-		printf("NanD_Command (ReadID) got %d %d\n", mfr, id);
+	printf("NanD_Command (ReadID) got %x %x\n", mfr, id);
 #endif
+	if (mfr == 0xff || mfr == 0) {
+		/* No response - return failure */
 		return 0;
 	}
 

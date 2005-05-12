@@ -72,7 +72,7 @@
 #else
 #define JFFS2_NUM_COMPR		7
 #endif
- 
+
 /* Compatibility flags. */
 #define JFFS2_COMPAT_MASK 0xc000      /* What do to if an unknown nodetype is found */
 #define JFFS2_NODE_ACCURATE 0x2000
