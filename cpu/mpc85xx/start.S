@@ -115,8 +115,8 @@ _start_e500:
 	 * BookE: isync after MSR,PID; msync_isync after tlbivax & tlbwe
 	 * E500:  msync,isync before L1CSR0
 	 * E500:  isync after BBEAR,BBTAR,BUCSR,DBCR0,DBCR1,HID0,HID1,
-	 *        L1CSR0, L1CSR1, MAS[0,1,2,3,4,6],MMUCSR0, PID[0,1,2],
-	 *        SPEFCSR
+	 *	  L1CSR0, L1CSR1, MAS[0,1,2,3,4,6],MMUCSR0, PID[0,1,2],
+	 *	  SPEFCSR
 	 */
 
 	/* invalidate d-cache */
@@ -172,21 +172,21 @@ _start_e500:
 	mtspr	TCR,r0
 
 	mtspr	BUCSR,r0	/* disable branch prediction */
-	mtspr   MAS4,r0
-	mtspr   MAS6,r0
+	mtspr	MAS4,r0
+	mtspr	MAS6,r0
 	isync
 
 	/* Setup interrupt vectors */
-	lis     r1,0xfff8
+	lis	r1,TEXT_BASE@h
 	mtspr IVPR, r1
 
-	li      r1,0x0100
+	li	r1,0x0100
 	mtspr	IVOR0,r1	/* 0: Critical input */
-	li      r1,0x0200
+	li	r1,0x0200
 	mtspr	IVOR1,r1	/* 1: Machine check */
-	li      r1,0x0300
+	li	r1,0x0300
 	mtspr	IVOR2,r1	/* 2: Data storage */
-	li      r1,0x0400
+	li	r1,0x0400
 	mtspr	IVOR3,r1	/* 3: Instruction storage */
 	li	r1,0x0500
 	mtspr	IVOR4,r1	/* 4: External interrupt */
@@ -196,16 +196,20 @@ _start_e500:
 	mtspr	IVOR6,r1	/* 6: Program check */
 	li	r1,0x0800
 	mtspr	IVOR7,r1	/* 7: floating point unavailable */
-	li	r1,0x0c00
+	li	r1,0x0900
 	mtspr	IVOR8,r1	/* 8: System call */
 	/* 9: Auxiliary processor unavailable(unsupported) */
-	li	r1,0x1000
+	li	r1,0x0a00
 	mtspr	IVOR10,r1	/* 10: Decrementer */
-	li	r1,0x1400
+	li	r1,0x0b00
+	mtspr	IVOR11,r1	/* 11: Interval timer */
+	li	r1,0x0c00
+	mtspr	IVOR12,r1	/* 11: Watchdog timer */
+	li	r10,0x0d00
 	mtspr	IVOR13,r1	/* 13: Data TLB error */
-	li	r1,0x1300
+	li	r1,0x0e00
 	mtspr	IVOR14,r1	/* 14: Instruction TLB error */
-	li	r1,0x2000
+	li	r1,0x0f00
 	mtspr	IVOR15,r1	/* 15: Debug */
 
 	/*
@@ -214,16 +218,16 @@ _start_e500:
 	 * Note: There is a fixup earlier for Errata CPU4 on
 	 * Rev 1 parts that must precede this MMU invalidation.
 	 */
-	li      r2, 0x001e
-	mtspr   MMUCSR0, r2
+	li	r2, 0x001e
+	mtspr	MMUCSR0, r2
 	isync
 
 	/*
 	 * Invalidate all TLB0 entries.
 	 */
-	li 	r3,4
+	li	r3,4
 	li	r4,0
-	tlbivax	r4,r3
+	tlbivax r4,r3
 	/*
 	 * To avoid REV1 Errata CPU6 issues, make sure
 	 * the instruction following tlbivax is not a store.
@@ -240,7 +244,7 @@ _start_e500:
 	 * (e.g. board/<yourboard>/init.S)
 	 *
 	 */
-	bl 	tlb1_entry
+	bl	tlb1_entry
 	mr	r5,r0
 	li	r1,0x0020	/* max 16 TLB1 plus some TLB0 entries */
 	mtctr	r1
@@ -269,8 +273,8 @@ _start_e500:
 	lis	r4, CFG_CCSRBAR_DEFAULT@h
 	ori	r4, r4, CFG_CCSRBAR_DEFAULT@l
 
-	lis   	r5, CFG_CCSRBAR@h
-	ori   	r5, r5, CFG_CCSRBAR@l
+	lis	r5, CFG_CCSRBAR@h
+	ori	r5, r5, CFG_CCSRBAR@l
 	srwi	r6,r5,12
 	stw	r6, 0(r4)
 	isync
@@ -290,7 +294,7 @@ _start_e500:
 	lis	r7,CFG_CCSRBAR@h
 	ori	r7,r7,CFG_CCSRBAR@l
 
-	bl 	law_entry
+	bl	law_entry
 	mr	r6,r0
 	li	r1,0x0007	/* 8 LAWs, but reserve one for boot-over-rio-or-pci */
 	mtctr	r1
@@ -380,35 +384,35 @@ _start:
 
 /* L1 DCache is used for initial RAM */
 	mfspr	r2, L1CSR0
-	ori    	r2, r2, 0x0003
-	oris   	r2, r2, 0x0001
-	mtspr  	L1CSR0, r2	/* enable/invalidate L1 Dcache */
+	ori	r2, r2, 0x0003
+	oris	r2, r2, 0x0001
+	mtspr	L1CSR0, r2	/* enable/invalidate L1 Dcache */
 	isync
 
 	/* Allocate Initial RAM in data cache.
 	 */
-	lis     r3, CFG_INIT_RAM_ADDR@h
-	ori     r3, r3, CFG_INIT_RAM_ADDR@l
-	li      r2, 512 /* 512*32=16K */
-	mtctr   r2
+	lis	r3, CFG_INIT_RAM_ADDR@h
+	ori	r3, r3, CFG_INIT_RAM_ADDR@l
+	li	r2, 512 /* 512*32=16K */
+	mtctr	r2
 	li	r0, 0
 1:
 	dcbz	r0, r3
-	dcbtls  0,r0, r3
-	addi    r3, r3, 32
-	bdnz    1b
+	dcbtls	0,r0, r3
+	addi	r3, r3, 32
+	bdnz	1b
 
 #ifndef CFG_RAMBOOT
-	/* Calculate absolute address in FLASH and jump there           */
+	/* Calculate absolute address in FLASH and jump there		*/
 	/*--------------------------------------------------------------*/
-	lis     r3, CFG_MONITOR_BASE@h
-	ori     r3, r3, CFG_MONITOR_BASE@l
-	addi    r3, r3, in_flash - _start + EXC_OFF_SYS_RESET
-	mtlr    r3
+	lis	r3, CFG_MONITOR_BASE@h
+	ori	r3, r3, CFG_MONITOR_BASE@l
+	addi	r3, r3, in_flash - _start + EXC_OFF_SYS_RESET
+	mtlr	r3
 	blr
 
 in_flash:
-#endif  /* CFG_RAMBOOT */
+#endif	/* CFG_RAMBOOT */
 
 	/* Setup the stack in initial RAM,could be L2-as-SRAM or L1 dcache*/
 	lis	r1,CFG_INIT_RAM_ADDR@h
@@ -485,105 +489,84 @@ ProgramCheck:
 	/* No FPU on MPC85xx.  This exception is not supposed to happen.
 	*/
 	STD_EXCEPTION(0x0800, FPUnavailable, UnknownException)
-	STD_EXCEPTION(0x0900, Decrementer, timer_interrupt)
-	STD_EXCEPTION(0x0a00, Trap_0a, UnknownException)
-	STD_EXCEPTION(0x0b00, Trap_0b, UnknownException)
 
-	. = 0x0c00
+	. = 0x0900
 /*
  * r0 - SYSCALL number
  * r3-... arguments
  */
 SystemCall:
-	addis   r11,r0,0                /* get functions table addr */
-	ori     r11,r11,0               /* Note: this code is patched in trap_init */
-	addis   r12,r0,0                /* get number of functions */
-	ori     r12,r12,0
+	addis	r11,r0,0		/* get functions table addr */
+	ori	r11,r11,0		/* Note: this code is patched in trap_init */
+	addis	r12,r0,0		/* get number of functions */
+	ori	r12,r12,0
 
-	cmplw   0, r0, r12
-	bge     1f
+	cmplw	0, r0, r12
+	bge	1f
 
-	rlwinm  r0,r0,2,0,31            /* fn_addr = fn_tbl[r0] */
-	add     r11,r11,r0
-	lwz     r11,0(r11)
+	rlwinm	r0,r0,2,0,31		/* fn_addr = fn_tbl[r0] */
+	add	r11,r11,r0
+	lwz	r11,0(r11)
 
-	li      r20,0xd00-4             /* Get stack pointer */
-	lwz     r12,0(r20)
-	subi    r12,r12,12              /* Adjust stack pointer */
-	li      r0,0xc00+_end_back-SystemCall
-	cmplw   0, r0, r12              /* Check stack overflow */
-	bgt     1f
-	stw     r12,0(r20)
+	li	r20,0xd00-4		/* Get stack pointer */
+	lwz	r12,0(r20)
+	subi	r12,r12,12		/* Adjust stack pointer */
+	li	r0,0xc00+_end_back-SystemCall
+	cmplw	0, r0, r12		/* Check stack overflow */
+	bgt	1f
+	stw	r12,0(r20)
 
-	mflr    r0
-	stw     r0,0(r12)
-	mfspr   r0,SRR0
-	stw     r0,4(r12)
-	mfspr   r0,SRR1
-	stw     r0,8(r12)
+	mflr	r0
+	stw	r0,0(r12)
+	mfspr	r0,SRR0
+	stw	r0,4(r12)
+	mfspr	r0,SRR1
+	stw	r0,8(r12)
 
-	li      r12,0xc00+_back-SystemCall
-	mtlr    r12
-	mtspr   SRR0,r11
+	li	r12,0xc00+_back-SystemCall
+	mtlr	r12
+	mtspr	SRR0,r11
 
-1:      SYNC
+1:	SYNC
 	rfi
 _back:
 
-	mfmsr   r11                     /* Disable interrupts */
-	li      r12,0
-	ori     r12,r12,MSR_EE
-	andc    r11,r11,r12
-	SYNC                            /* Some chip revs need this... */
-	mtmsr   r11
+	mfmsr	r11			/* Disable interrupts */
+	li	r12,0
+	ori	r12,r12,MSR_EE
+	andc	r11,r11,r12
+	SYNC				/* Some chip revs need this... */
+	mtmsr	r11
 	SYNC
 
-	li      r12,0xd00-4             /* restore regs */
-	lwz     r12,0(r12)
+	li	r12,0xd00-4		/* restore regs */
+	lwz	r12,0(r12)
 
-	lwz     r11,0(r12)
-	mtlr    r11
-	lwz     r11,4(r12)
-	mtspr   SRR0,r11
-	lwz     r11,8(r12)
-	mtspr   SRR1,r11
+	lwz	r11,0(r12)
+	mtlr	r11
+	lwz	r11,4(r12)
+	mtspr	SRR0,r11
+	lwz	r11,8(r12)
+	mtspr	SRR1,r11
 
-	addi    r12,r12,12              /* Adjust stack pointer */
-	li      r20,0xd00-4
-	stw     r12,0(r20)
+	addi	r12,r12,12		/* Adjust stack pointer */
+	li	r20,0xd00-4
+	stw	r12,0(r20)
 
 	SYNC
 	rfi
 _end_back:
 
-	STD_EXCEPTION(0xd00, SingleStep, UnknownException)
+	STD_EXCEPTION(0x0a00, Decrementer, timer_interrupt)
+	STD_EXCEPTION(0x0b00, IntervalTimer, UnknownException)
+	STD_EXCEPTION(0x0c00, WatchdogTimer, UnknownException)
 
-	STD_EXCEPTION(0xe00, Trap_0e, UnknownException)
-	STD_EXCEPTION(0xf00, Trap_0f, UnknownException)
+	STD_EXCEPTION(0x0d00, DataTLBError, UnknownException)
+	STD_EXCEPTION(0x0e00, InstructionTLBError, UnknownException)
 
-	STD_EXCEPTION(0x1000, PIT, PITException)
+	CRIT_EXCEPTION(0x0f00, DebugBreakpoint, DebugException )
 
-	STD_EXCEPTION(0x1100, InstructionTLBMiss, UnknownException)
-	STD_EXCEPTION(0x1200, DataTLBMiss, UnknownException)
-	STD_EXCEPTION(0x1300, InstructionTLBError, UnknownException)
-	STD_EXCEPTION(0x1400, DataTLBError, UnknownException)
-
-	STD_EXCEPTION(0x1500, Reserved5, UnknownException)
-	STD_EXCEPTION(0x1600, Reserved6, UnknownException)
-	STD_EXCEPTION(0x1700, Reserved7, UnknownException)
-	STD_EXCEPTION(0x1800, Reserved8, UnknownException)
-	STD_EXCEPTION(0x1900, Reserved9, UnknownException)
-	STD_EXCEPTION(0x1a00, ReservedA, UnknownException)
-	STD_EXCEPTION(0x1b00, ReservedB, UnknownException)
-
-	STD_EXCEPTION(0x1c00, DataBreakpoint, UnknownException)
-	STD_EXCEPTION(0x1d00, InstructionBreakpoint, UnknownException)
-	STD_EXCEPTION(0x1e00, PeripheralBreakpoint, UnknownException)
-	STD_EXCEPTION(0x1f00, DevPortBreakpoint, UnknownException)
-
-	CRIT_EXCEPTION(0x2000, DebugBreakpoint, DebugException )
-
-	.globl  _end_of_vectors
+	.globl	_end_of_vectors
 _end_of_vectors:
 
 
@@ -1077,72 +1060,69 @@ clear_bss:
 	 * r3: dest_addr
 	 * r7: source address, r8: end address, r9: target address
 	 */
-	.globl  trap_init
+	.globl	trap_init
 trap_init:
-	lwz     r7, GOT(_start)
-	lwz     r8, GOT(_end_of_vectors)
+	lwz	r7, GOT(_start)
+	lwz	r8, GOT(_end_of_vectors)
 
 	li	r9, 0x100		/* reset vector always at 0x100 */
 
-	cmplw   0, r7, r8
-	bgelr                           /* return if r7>=r8 - just in case */
+	cmplw	0, r7, r8
+	bgelr				/* return if r7>=r8 - just in case */
 
-	mflr    r4                      /* save link register           */
+	mflr	r4			/* save link register		*/
 1:
-	lwz     r0, 0(r7)
-	stw     r0, 0(r9)
-	addi    r7, r7, 4
-	addi    r9, r9, 4
-	cmplw   0, r7, r8
-	bne     1b
+	lwz	r0, 0(r7)
+	stw	r0, 0(r9)
+	addi	r7, r7, 4
+	addi	r9, r9, 4
+	cmplw	0, r7, r8
+	bne	1b
 
 	/*
 	 * relocate `hdlr' and `int_return' entries
 	 */
-	li      r7, .L_MachineCheck - _start + EXC_OFF_SYS_RESET
-	li      r8, Alignment - _start + EXC_OFF_SYS_RESET
+	li	r7, .L_MachineCheck - _start + EXC_OFF_SYS_RESET
+	bl	trap_reloc
+	li	r7, .L_DataStorage - _start + EXC_OFF_SYS_RESET
+	bl	trap_reloc
+	li	r7, .L_InstStorage - _start + EXC_OFF_SYS_RESET
+	bl	trap_reloc
+	li	r7, .L_ExtInterrupt - _start + EXC_OFF_SYS_RESET
+	bl	trap_reloc
+	li	r7, .L_Alignment - _start + EXC_OFF_SYS_RESET
+	bl	trap_reloc
+	li	r7, .L_ProgramCheck - _start + EXC_OFF_SYS_RESET
+	bl	trap_reloc
+	li	r7, .L_FPUnavailable - _start + EXC_OFF_SYS_RESET
+	bl	trap_reloc
+	li	r7, .L_Decrementer - _start + EXC_OFF_SYS_RESET
+	bl	trap_reloc
+	li	r7, .L_IntervalTimer - _start + EXC_OFF_SYS_RESET
+	li	r8, _end_of_vectors - _start + EXC_OFF_SYS_RESET
 2:
-	bl      trap_reloc
-	addi    r7, r7, 0x100           /* next exception vector        */
-	cmplw   0, r7, r8
-	blt     2b
+	bl	trap_reloc
+	addi	r7, r7, 0x100		/* next exception vector	*/
+	cmplw	0, r7, r8
+	blt	2b
 
-	li      r7, .L_Alignment - _start + EXC_OFF_SYS_RESET
-	bl      trap_reloc
+	lis	r7,0x0
+	mtspr	IVPR, r7
 
-	li      r7, .L_ProgramCheck - _start + EXC_OFF_SYS_RESET
-	bl      trap_reloc
-
-	li      r7, .L_FPUnavailable - _start + EXC_OFF_SYS_RESET
-	li      r8, SystemCall - _start + EXC_OFF_SYS_RESET
-3:
-	bl      trap_reloc
-	addi    r7, r7, 0x100           /* next exception vector        */
-	cmplw   0, r7, r8
-	blt     3b
-
-	li      r7, .L_SingleStep - _start + EXC_OFF_SYS_RESET
-	li      r8, _end_of_vectors - _start + EXC_OFF_SYS_RESET
-4:
-	bl      trap_reloc
-	addi    r7, r7, 0x100           /* next exception vector        */
-	cmplw   0, r7, r8
-	blt     4b
-
-	mtlr    r4                      /* restore link register        */
+	mtlr	r4			/* restore link register	*/
 	blr
 
 	/*
 	 * Function: relocate entries for one exception vector
 	 */
 trap_reloc:
-	lwz     r0, 0(r7)               /* hdlr ...                     */
-	add     r0, r0, r3              /*  ... += dest_addr            */
-	stw     r0, 0(r7)
+	lwz	r0, 0(r7)		/* hdlr ...			*/
+	add	r0, r0, r3		/*  ... += dest_addr		*/
+	stw	r0, 0(r7)
 
-	lwz     r0, 4(r7)               /* int_return ...               */
-	add     r0, r0, r3              /*  ... += dest_addr            */
-	stw     r0, 4(r7)
+	lwz	r0, 4(r7)		/* int_return ...		*/
+	add	r0, r0, r3		/*  ... += dest_addr		*/
+	stw	r0, 4(r7)
 
 	blr
 
@@ -1158,7 +1138,7 @@ unlock_ram_in_cache:
 	dcbi	r0, r3
 	addi	r3, r3, 32
 	bdnz	1b
-	sync			/* Wait for all icbi to complete on bus	*/
+	sync			/* Wait for all icbi to complete on bus */
 	isync
 	blr
 #endif

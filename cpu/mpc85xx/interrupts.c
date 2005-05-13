@@ -49,6 +49,22 @@ static __inline__ void set_msr(unsigned long msr)
 	asm volatile("isync");
 }
 
+static __inline__ unsigned long get_dec (void)
+{
+	unsigned long val;
+
+	asm volatile ("mfdec %0":"=r" (val):);
+
+	return val;
+}
+
+
+static __inline__ void set_dec (unsigned long val)
+{
+	if (val)
+		asm volatile ("mtdec %0"::"r" (val));
+}
+
 void enable_interrupts (void)
 {
 	set_msr (get_msr() | MSR_EE);
@@ -62,9 +78,17 @@ int disable_interrupts (void)
 	return ((msr & MSR_EE) != 0);
 }
 
-/* interrupt is not supported yet */
 int interrupt_init (void)
 {
+	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+
+	immr->im_pic.gcr = MPC85xx_PICGCR_RST;
+	while (immr->im_pic.gcr & MPC85xx_PICGCR_RST);
+	immr->im_pic.gcr = MPC85xx_PICGCR_M;
+	decrementer_count = get_tbclk() / CFG_HZ;
+	mtspr(SPRN_TCR, TCR_PIE);
+	set_dec (decrementer_count);
+	set_msr (get_msr () | MSR_EE);
 	return (0);
 }
 
@@ -96,9 +120,9 @@ volatile ulong timestamp = 0;
  */
 void timer_interrupt(struct pt_regs *regs)
 {
-	printf ("*** Timer Interrupt *** ");
 	timestamp++;
-
+	set_dec (decrementer_count);
+	mtspr(SPRN_TSR, TSR_PIS);
 #if defined(CONFIG_WATCHDOG)
 	if ((timestamp % 1000) == 0)
 		reset_85xx_watchdog();
