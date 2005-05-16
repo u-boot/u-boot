@@ -48,38 +48,45 @@
 /*
  * Serial console configuration
  */
-#define CONFIG_PSC_CONSOLE	1	/* console is on PSC */
+
+/* Define this for PSC console
+#define CONFIG_PSC_CONSOLE	1
+*/
+
 #define CONFIG_EXTUART_CONSOLE	1
 
 #ifdef CONFIG_EXTUART_CONSOLE
+#   define CONFIG_CONS_INDEX	1
+#   define CFG_NS16550_SERIAL
 #   define CFG_NS16550
 #   define CFG_NS16550_REG_SIZE 1
 #   define CFG_NS16550_COM1	(CFG_CPLD_BASE + 0x1008)
+#   define CFG_NS16550_CLK	18432000
 #endif
 
 #define CONFIG_BAUDRATE		115200	    /* ... at 115200 bps */
 
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 
-#define	CONFIG_TIMESTAMP			/* Print image info with timestamp */
+#define CONFIG_TIMESTAMP			/* Print image info with timestamp */
 
 /*
  * Supported commands
  */
-#define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL  | \
-				CFG_CMD_BOOTD   | \
-				CFG_CMD_CACHE   | \
+#define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
+				CFG_CMD_BOOTD	| \
+				CFG_CMD_CACHE	| \
 				CFG_CMD_DHCP	| \
-				CFG_CMD_DIAG    | \
-				CFG_CMD_EEPROM  | \
-				CFG_CMD_ELF     | \
-				CFG_CMD_I2C     | \
-				CFG_CMD_NET     | \
+				CFG_CMD_DIAG	| \
+				CFG_CMD_EEPROM	| \
+				CFG_CMD_ELF	| \
+				CFG_CMD_I2C	| \
+				CFG_CMD_NET	| \
 				CFG_CMD_NFS	| \
-				CFG_CMD_PING    | \
 				CFG_CMD_PCI	| \
+				CFG_CMD_PING	| \
 				CFG_CMD_REGINFO | \
-				CFG_CMD_SDRAM   | \
+				CFG_CMD_SDRAM	| \
 				CFG_CMD_SNTP	)
 
 #define CONFIG_NET_MULTI
@@ -260,10 +267,17 @@
 #define CFG_BOOTMAPSZ		(8 << 20)   /* Initial Memory map for Linux */
 
 /* SDRAM configuration */
-#define CFG_SDRAM_TOTAL_BANKS           2
-#define CFG_SDRAM_SPD_I2C_ADDR          0x51            /* 7bit */
-#define CFG_SDRAM_SPD_SIZE              0x40
-#define CFG_SDRAM_CAS_LATENCY           4               /* (CL=2)x2 */
+#define CFG_SDRAM_TOTAL_BANKS		2
+#define CFG_SDRAM_SPD_I2C_ADDR		0x51		/* 7bit */
+#define CFG_SDRAM_SPD_SIZE		0x40
+#define CFG_SDRAM_CAS_LATENCY		4		/* (CL=2)x2 */
+
+/* SDRAM drive strength register */
+#define CFG_SDRAM_DRIVE_STRENGTH	((DRIVE_STRENGTH_LOW  << SDRAMDS_SBE_SHIFT) | \
+					 (DRIVE_STRENGTH_HIGH << SDRAMDS_SBC_SHIFT) | \
+					 (DRIVE_STRENGTH_LOW  << SDRAMDS_SBA_SHIFT) | \
+					 (DRIVE_STRENGTH_OFF  << SDRAMDS_SBS_SHIFT) | \
+					 (DRIVE_STRENGTH_LOW  << SDRAMDS_SBD_SHIFT))
 
 /*
  * Ethernet configuration

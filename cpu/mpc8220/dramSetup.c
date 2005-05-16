@@ -543,12 +543,7 @@ u32 dramSetup (void)
 	}
 
 	/* Set up the Drive Strength register */
-	temp = ((DRIVE_STRENGTH_LOW << SDRAMDS_SBE_SHIFT)
-		| (DRIVE_STRENGTH_HIGH << SDRAMDS_SBC_SHIFT)
-		| (DRIVE_STRENGTH_LOW << SDRAMDS_SBA_SHIFT)
-		| (DRIVE_STRENGTH_OFF << SDRAMDS_SBS_SHIFT)
-		| (DRIVE_STRENGTH_LOW << SDRAMDS_SBD_SHIFT));
-	sysconf->sdramds = temp;
+	sysconf->sdramds = CFG_SDRAM_DRIVE_STRENGTH;
 
 	/* ********************** Cfg 1 ************************* */
 

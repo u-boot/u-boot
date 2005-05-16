@@ -189,6 +189,7 @@ static ulong flash_get_size (ulong base, int banknum);
 static int flash_write_cfiword (flash_info_t * info, ulong dest, cfiword_t cword);
 static int flash_full_status_check (flash_info_t * info, flash_sect_t sector,
 				    ulong tout, char *prompt);
+static flash_info_t *flash_get_info(ulong base);
 #ifdef CFG_FLASH_USE_BUFFER_WRITE
 static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp, int len);
 #endif
@@ -341,8 +342,8 @@ unsigned long flash_init (void)
 #if (CFG_MONITOR_BASE >= CFG_FLASH_BASE)
 	flash_protect (FLAG_PROTECT_SET,
 		       CFG_MONITOR_BASE,
-		       CFG_MONITOR_BASE + CFG_MONITOR_LEN - 1,
-		       &flash_info[0]);
+		       CFG_MONITOR_BASE + monitor_flash_len  - 1,
+		       flash_get_info(CFG_MONITOR_BASE));
 #endif
 
 	/* Environment protection ON by default */
@@ -350,7 +351,7 @@ unsigned long flash_init (void)
 	flash_protect (FLAG_PROTECT_SET,
 		       CFG_ENV_ADDR,
 		       CFG_ENV_ADDR + CFG_ENV_SECT_SIZE - 1,
-		       &flash_info[0]);
+		       flash_get_info(CFG_ENV_ADDR));
 #endif
 
 	/* Redundant environment protection ON by default */
@@ -358,9 +359,26 @@ unsigned long flash_init (void)
 	flash_protect (FLAG_PROTECT_SET,
 		       CFG_ENV_ADDR_REDUND,
 		       CFG_ENV_ADDR_REDUND + CFG_ENV_SIZE_REDUND - 1,
-		       &flash_info[0]);
+		       flash_get_info(CFG_ENV_ADDR_REDUND));
 #endif
 	return (size);
+}
+
+/*-----------------------------------------------------------------------
+ */
+static flash_info_t *flash_get_info(ulong base)
+{
+	int i;
+	flash_info_t * info;
+
+	for (i = 0; i < CFG_MAX_FLASH_BANKS; i ++) {
+		info = & flash_info[i];
+		if (info->size && info->start[0] <= base &&
+		    base <= info->start[0] + info->size - 1)
+			break;
+	}
+
+	return i == CFG_MAX_FLASH_BANKS ? 0 : info;
 }
 
 /*-----------------------------------------------------------------------

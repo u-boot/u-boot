@@ -15,11 +15,10 @@
 #include "fec.h"
 
 #define DEBUG	0
-/*tbd - rtm */
-/*#if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_NET_MULTI) && \
-    defined(CONFIG_MPC8220_FEC)*/
+#if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_NET_MULTI) && \
+    defined(CONFIG_MPC8220_FEC)
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET)
+/*#if (CONFIG_COMMANDS & CFG_CMD_NET)*/
 
 #if (DEBUG & 0x60)
 static void tfifo_print (mpc8220_fec_priv * fec);

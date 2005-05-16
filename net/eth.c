@@ -148,7 +148,7 @@ int eth_initialize(bd_t *bis)
 #if defined(CONFIG_MPC5xxx_FEC)
 	mpc5xxx_fec_initialize(bis);
 #endif
-#if defined(CONFIG_MPC8220)
+#if defined(CONFIG_MPC8220_FEC)
 	mpc8220_fec_initialize(bis);
 #endif
 #if defined(CONFIG_SK98)

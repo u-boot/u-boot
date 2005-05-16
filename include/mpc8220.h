@@ -259,9 +259,11 @@
 #define PSC_TFLWFPTR(x)		(x&0x1ff)     /* last write frame pointer */
 
 /* PCI configuration (only for PLL determination)*/
-#define PCI_REG_PCIGSCR 	(MMAP_XCPCI + 0x60) /* Global status/control register */
+#define PCI_REG_PCIGSCR		(MMAP_XCPCI + 0x60) /* Global status/control register */
 #define PCI_REG_PCIGSCR_PCI2XLB_CLK_MASK	0x07000000
 #define PCI_REG_PCIGSCR_PCI2XLB_CLK_BIT		24
+
+#define PCI_REG_PCICAR		(MMAP_XCPCI + 0xF8) /* Configuration Address Register */
 
 /* ------------------------------------------------------------------------ */
 /*
@@ -300,18 +302,21 @@
  */
 #define CFG_FEC1_PORT0_CONFIG	0x00000000
 #define CFG_FEC1_PORT1_CONFIG	0x00000000
-#define CFG_1284_PORT0_CONFIG	0x55555557
-#define CFG_1284_PORT1_CONFIG	0x80000000
+#define CFG_1284_PORT0_CONFIG  0x00000000
+#define CFG_1284_PORT1_CONFIG  0x00000000
 #define CFG_FEC2_PORT2_CONFIG	0x00000000
-#define CFG_PEV_PORT2_CONFIG	0x55555540
-#define CFG_GP0_PORT0_CONFIG	0xaaaaaaa0
-#define CFG_GP1_PORT2_CONFIG	0xaaaaa000
-#define CFG_PSC_PORT3_CONFIG	0x00000000
+#define CFG_PEV_PORT2_CONFIG   0x00000000
+#define CFG_GP0_PORT0_CONFIG   0x00000000
+#define CFG_GP1_PORT2_CONFIG   0xaaaaaac0
+#define CFG_PSC_PORT3_CONFIG   0x00020000
+#define CFG_CS1_PORT3_CONFIG   0x00000000
 #define CFG_CS2_PORT3_CONFIG	0x10000000
 #define CFG_CS3_PORT3_CONFIG	0x40000000
 #define CFG_CS4_PORT3_CONFIG	0x00000400
 #define CFG_CS5_PORT3_CONFIG	0x00000200
-#define CFG_I2C_PORT3_CONFIG	0x003c0000
+#define CFG_PCI_PORT3_CONFIG   0x01400180
+#define CFG_I2C_PORT3_CONFIG   0x00000000
+#define CFG_GP2_PORT3_CONFIG   0x000200a0
 
 /* ------------------------------------------------------------------------ */
 /*
@@ -527,6 +532,162 @@ struct mpc8220_dma {
     u32 EU37;		/* DMA + 0xfc */
 };
 
+/*
+ * PCI Header Registers
+ */
+typedef struct mpc8220_xcpci {
+	u32	dev_ven_id;		/* 0xb00 - device/vendor ID */
+	u32	stat_cmd_reg;		/* 0xb04 - status command register */
+	u32	class_code_rev_id;	/* 0xb08 - class code / revision ID */
+	u32	bist_htyp_lat_cshl;	/* 0xb0c - BIST/HeaderType/Latency/cache line */
+	u32	base0;			/* 0xb10 - base address 0 */
+	u32	base1;			/* 0xb14 - base address 1 */
+	u32	reserved1[4];		/* 0xb18->0xd27 - base address 2 - 5 */
+	u32	cis;			/* 0xb28 - cardBus CIS pointer */
+	u32	sub_sys_ven_id;		/* 0xb2c - sub system ID/ subsystem vendor ID */
+	u32	reserved2;		/* 0xb30 - expansion ROM base address */
+	u32	reserved3;		/* 0xb00 - reserved */
+	u32	reserved4;		/* 0xb00 - reserved */
+	u32	mlat_mgnt_ipl;		/* 0xb3c - MaxLat/MinGnt/ int pin/int line */
+	u32	reserved5[8];
+	/* MPC8220 specific - not accessible in PCI header space externally */
+	u32	glb_stat_ctl;		/* 0xb60 - Global Status Control */
+	u32	target_bar0;		/* 0xb64 - Target Base Address 0 */
+	u32	target_bar1;		/* 0xb68 - Target Base Address 1 */
+	u32	target_ctrl;		/* 0xb6c - Target Control */
+	u32	init_win0;		/* 0xb70 - Initiator Window 0 Base/Translation */
+	u32	init_win1;		/* 0xb74 - Initiator Window 1 Base/Translation */
+	u32	init_win2;		/* 0xb78 - Initiator Window 2 Base/Translation */
+	u32	reserved6;		/* 0xb7c - reserved  */
+	u32	init_win_cfg;		/* 0xb80 */
+	u32	init_ctrl;		/* 0xb84 */
+	u32	init_stat;		/* 0xb88 */
+	u32	reserved7[27];
+	u32	cfg_adr;		/* 0xbf8 */
+	u32	reserved8;
+} mpc8220_xcpci_t;
+
+/* PCI->XLB space translation (MPC8220 target), reg0 can address max 256MB,
+   reg1 - 1GB */
+#define PCI_BASE_ADDR_REG0			0x40000000
+#define PCI_BASE_ADDR_REG1			(CFG_SDRAM_BASE)
+#define PCI_TARGET_BASE_ADDR_REG0		(CFG_MBAR)
+#define PCI_TARGET_BASE_ADDR_REG1		(CFG_SDRAM_BASE)
+#define PCI_TARGET_BASE_ADDR_EN			1<<0
+
+
+/* PCI Global Status/Control Register (PCIGSCR) */
+#define PCI_GLB_STAT_CTRL_PE_SHIFT		29
+#define PCI_GLB_STAT_CTRL_SE_SHIFT		28
+#define PCI_GLB_STAT_CTRL_XLB_TO_PCI_CLK_SHIFT	24
+#define PCI_GLB_STAT_CTRL_XLB_TO_PCI_CLK_MASK	0x7
+#define PCI_GLB_STAT_CTRL_IPG_TO_PCI_CLK_SHIFT	16
+#define PCI_GLB_STAT_CTRL_IPG_TO_PCI_CLK_MASK	0x7
+#define PCI_GLB_STAT_CTRL_PEE_SHIFT		13
+#define PCI_GLB_STAT_CTRL_SEE_SHIFT		12
+#define PCI_GLB_STAT_CTRL_PR_SHIFT		0
+
+#define PCI_GLB_STAT_CTRL_PE			(1<<PCI_GLB_STAT_CTRL_PE_SHIFT)
+#define PCI_GLB_STAT_CTRL_SE			(1<<PCI_GLB_STAT_CTRL_SE_SHIFT)
+#define PCI_GLB_STAT_CTRL_PEE			(1<<PCI_GLB_STAT_CTRL_PEE_SHIFT)
+#define PCI_GLB_STAT_CTRL_SEE			(1<<PCI_GLB_STAT_CTRL_SEE_SHIFT)
+#define PCI_GLB_STAT_CTRL_PR			(1<<PCI_GLB_STAT_CTRL_PR_SHIFT)
+
+/* PCI Target Control Register (PCITCR) */
+#define PCI_TARGET_CTRL_LD_SHIFT		24
+#define PCI_TARGET_CTRL_P_SHIFT			16
+
+#define PCI_TARGET_CTRL_LD			(1<<PCI_TARGET_CTRL_LD_SHIFT)
+#define PCI_TARGET_CTRL_P			(1<<PCI_TARGET_CTRL_P_SHIFT)
+
+/* PCI Initiator Window Configuration Register (PCIIWCR) */
+#define PCI_INIT_WIN_CFG_WIN0_CTRL_IO_SHIFT	27
+#define PCI_INIT_WIN_CFG_WIN0_CTRL_PRC_SHIFT	25
+#define PCI_INIT_WIN_CFG_WIN0_CTRL_PRC_MASK	0x3
+#define PCI_INIT_WIN_CFG_WIN0_CTRL_EN_SHIFT	24
+#define PCI_INIT_WIN_CFG_WIN1_CTRL_IO_SHIFT	19
+#define PCI_INIT_WIN_CFG_WIN1_CTRL_PRC_SHIFT	17
+#define PCI_INIT_WIN_CFG_WIN1_CTRL_PRC_MASK	0x3
+#define PCI_INIT_WIN_CFG_WIN1_CTRL_EN_SHIFT	16
+#define PCI_INIT_WIN_CFG_WIN2_CTRL_IO_SHIFT	11
+#define PCI_INIT_WIN_CFG_WIN2_CTRL_PRC_SHIFT	9
+#define PCI_INIT_WIN_CFG_WIN2_CTRL_PRC_MASK	0x3
+#define PCI_INIT_WIN_CFG_WIN2_CTRL_EN_SHIFT	8
+
+#define PCI_INIT_WIN_CFG_WIN_MEM_READ		0x0
+#define PCI_INIT_WIN_CFG_WIN_MEM_READ_LINE	0x1
+#define PCI_INIT_WIN_CFG_WIN_MEM_READ_MULTIPLE	0x2
+
+#define PCI_INIT_WIN_CFG_WIN0_CTRL_IO		(1<<PCI_INIT_WIN_CFG_WIN0_CTRL_IO_SHIFT)
+#define PCI_INIT_WIN_CFG_WIN0_CTRL_EN		(1<<PCI_INIT_WIN_CFG_WIN0_CTRL_EN_SHIFT)
+#define PCI_INIT_WIN_CFG_WIN1_CTRL_IO		(1<<PCI_INIT_WIN_CFG_WIN1_CTRL_IO_SHIFT)
+#define PCI_INIT_WIN_CFG_WIN1_CTRL_EN		(1<<PCI_INIT_WIN_CFG_WIN1_CTRL_EN_SHIFT)
+#define PCI_INIT_WIN_CFG_WIN2_CTRL_IO		(1<<PCI_INIT_WIN_CFG_WIN2_CTRL_IO_SHIFT)
+#define PCI_INIT_WIN_CFG_WIN2_CTRL_EN		(1<<PCI_INIT_WIN_CFG_WIN2_CTRL_EN_SHIFT)
+
+/* PCI Initiator Control Register (PCIICR) */
+#define PCI_INIT_CTRL_REE_SHIFT			26
+#define PCI_INIT_CTRL_IAE_SHIFT			25
+#define PCI_INIT_CTRL_TAE_SHIFT			24
+#define PCI_INIT_CTRL_MAX_RETRIES_SHIFT		0
+#define PCI_INIT_CTRL_MAX_RETRIES_MASK		0xff
+
+#define PCI_INIT_CTRL_REE			(1<<PCI_INIT_CTRL_REE_SHIFT)
+#define PCI_INIT_CTRL_IAE			(1<<PCI_INIT_CTRL_IAE_SHIFT)
+#define PCI_INIT_CTRL_TAE			(1<<PCI_INIT_CTRL_TAE_SHIFT)
+
+/* PCI Status/Command Register (PCISCR) - PCI Dword 1 */
+#define PCI_STAT_CMD_PE_SHIFT			31
+#define PCI_STAT_CMD_SE_SHIFT			30
+#define PCI_STAT_CMD_MA_SHIFT			29
+#define PCI_STAT_CMD_TR_SHIFT			28
+#define PCI_STAT_CMD_TS_SHIFT			27
+#define PCI_STAT_CMD_DT_SHIFT			25
+#define PCI_STAT_CMD_DT_MASK			0x3
+#define PCI_STAT_CMD_DP_SHIFT			24
+#define PCI_STAT_CMD_FC_SHIFT			23
+#define PCI_STAT_CMD_R_SHIFT			22
+#define PCI_STAT_CMD_66M_SHIFT			21
+#define PCI_STAT_CMD_C_SHIFT			20
+#define PCI_STAT_CMD_F_SHIFT			9
+#define PCI_STAT_CMD_S_SHIFT			8
+#define PCI_STAT_CMD_ST_SHIFT			7
+#define PCI_STAT_CMD_PER_SHIFT			6
+#define PCI_STAT_CMD_V_SHIFT			5
+#define PCI_STAT_CMD_MW_SHIFT			4
+#define PCI_STAT_CMD_SP_SHIFT			3
+#define PCI_STAT_CMD_B_SHIFT			2
+#define PCI_STAT_CMD_M_SHIFT			1
+#define PCI_STAT_CMD_IO_SHIFT			0
+
+#define PCI_STAT_CMD_PE			(1<<PCI_STAT_CMD_PE_SHIFT)
+#define PCI_STAT_CMD_SE			(1<<PCI_STAT_CMD_SE_SHIFT)
+#define PCI_STAT_CMD_MA			(1<<PCI_STAT_CMD_MA_SHIFT)
+#define PCI_STAT_CMD_TR			(1<<PCI_STAT_CMD_TR_SHIFT)
+#define PCI_STAT_CMD_TS			(1<<PCI_STAT_CMD_TS_SHIFT)
+#define PCI_STAT_CMD_DP			(1<<PCI_STAT_CMD_DP_SHIFT)
+#define PCI_STAT_CMD_FC			(1<<PCI_STAT_CMD_FC_SHIFT)
+#define PCI_STAT_CMD_R				(1<<PCI_STAT_CMD_R_SHIFT)
+#define PCI_STAT_CMD_66M			(1<<PCI_STAT_CMD_66M_SHIFT)
+#define PCI_STAT_CMD_C				(1<<PCI_STAT_CMD_C_SHIFT)
+#define PCI_STAT_CMD_F				(1<<PCI_STAT_CMD_F_SHIFT)
+#define PCI_STAT_CMD_S				(1<<PCI_STAT_CMD_S_SHIFT)
+#define PCI_STAT_CMD_ST			(1<<PCI_STAT_CMD_ST_SHIFT)
+#define PCI_STAT_CMD_PER			(1<<PCI_STAT_CMD_PER_SHIFT)
+#define PCI_STAT_CMD_V				(1<<PCI_STAT_CMD_V_SHIFT)
+#define PCI_STAT_CMD_MW			(1<<PCI_STAT_CMD_MW_SHIFT)
+#define PCI_STAT_CMD_SP			(1<<PCI_STAT_CMD_SP_SHIFT)
+#define PCI_STAT_CMD_B				(1<<PCI_STAT_CMD_B_SHIFT)
+#define PCI_STAT_CMD_M				(1<<PCI_STAT_CMD_M_SHIFT)
+#define PCI_STAT_CMD_IO			(1<<PCI_STAT_CMD_IO_SHIFT)
+
+/* PCI Configuration 1 Register (PCICR1) - PCI Dword 3 */
+#define PCI_CFG1_HT_SHIFT			16
+#define PCI_CFG1_HT_MASK			0xff
+#define PCI_CFG1_LT_SHIFT			8
+#define PCI_CFG1_LT_MASK			0xff
+#define PCI_CFG1_CLS_SHIFT			0
+#define PCI_CFG1_CLS_MASK			0xf
 
 /* function prototypes */
 void loadtask(int basetask, int tasks);

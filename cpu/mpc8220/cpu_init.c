@@ -49,6 +49,8 @@ void cpu_init_f (void)
 	portcfg->pcfg1 = 0;
 	portcfg->pcfg2 = 0;
 	portcfg->pcfg3 = 0;
+	portcfg->pcfg2 = CFG_GP1_PORT2_CONFIG;
+	portcfg->pcfg3 = CFG_PCI_PORT3_CONFIG | CFG_GP2_PORT3_CONFIG;
 
 	/*
 	 * Flexbus Controller: configure chip selects and enable them
@@ -109,7 +111,7 @@ void cpu_init_f (void)
 
 	/* Master Priority Enable */
 	xlbarb->mastPriority = 0;
-	xlbarb->mastPriEn = 0x1f;
+	xlbarb->mastPriEn = 0xff;
 }
 
 /*

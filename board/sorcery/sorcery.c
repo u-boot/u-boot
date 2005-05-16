@@ -25,6 +25,7 @@
 #include <mpc8220.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
+#include <pci.h>
 
 long int initdram (int board_type)
 {
@@ -40,4 +41,20 @@ int checkboard (void)
 	puts ("Board: Sorcery-C MPC8220\n");
 
 	return 0;
+}
+
+#if defined(CONFIG_PCI)
+/*
+ * Initialize PCI devices, report devices found.
+ */
+static struct pci_controller hose;
+
+#endif /* CONFIG_PCI */
+
+void pci_init_board (void)
+{
+#ifdef CONFIG_PCI
+	extern void pci_mpc8220_init (struct pci_controller *hose);
+	pci_mpc8220_init (&hose);
+#endif /* CONFIG_PCI */
 }

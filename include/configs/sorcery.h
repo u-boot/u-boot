@@ -53,6 +53,22 @@
 #define CONFIG_BAUDRATE		115200	    /* ... at 115200 bps */
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 
+/* PCI */
+#define CONFIG_PCI              1
+#define CONFIG_PCI_PNP          1
+
+#define CONFIG_PCI_MEM_BUS      0x80000000
+#define CONFIG_PCI_MEM_PHYS     CONFIG_PCI_MEM_BUS
+#define CONFIG_PCI_MEM_SIZE     0x10000000
+
+#define CONFIG_PCI_IO_BUS	0x71000000
+#define CONFIG_PCI_IO_PHYS	CONFIG_PCI_IO_BUS
+#define CONFIG_PCI_IO_SIZE	0x01000000
+
+#define CONFIG_PCI_CFG_BUS	0x70000000
+#define CONFIG_PCI_CFG_PHYS	CONFIG_PCI_CFG_BUS
+#define CONFIG_PCI_CFG_SIZE	0x01000000
+
 /*
  * Supported commands
  */
@@ -65,6 +81,7 @@
 				CFG_CMD_I2C	| \
 				CFG_CMD_NET	| \
 				CFG_CMD_NFS	| \
+				CFG_CMD_PCI	| \
 				CFG_CMD_PING	| \
 				CFG_CMD_REGINFO	| \
 				CFG_CMD_SDRAM	| \
@@ -72,7 +89,6 @@
 				0)
 
 /*			CFG_CMD_MII	| \ */
-/*			       CFG_CMD_PCI	| \ */
 /*			       CFG_CMD_USB	| \ */
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
@@ -113,6 +129,7 @@
 #define CONFIG_TIMESTAMP		/* Print image info with timestamp */
 
 #define CONFIG_NET_MULTI
+#define CONFIG_EEPRO100
 
 /*
  * I2C configuration
@@ -138,49 +155,38 @@
 /* Flash */
 #define CFG_CS0_BASE		0xf800
 #define CFG_CS0_MASK		0x08000000 /* 128 MB (two chips) */
-
-/* Workaround of hang-up after setting ctrl register for flash
-   After reset this register has value 0x003ffd80, which differs
-   from suggested only by the number of wait states.
-#define CFG_CS0_CTRL		0x003f1580
-*/
+#define CFG_CS0_CTRL		0x001019c0
 
 /* NVM */
-#define CFG_CS1_BASE		0xf100
-#define CFG_CS1_MASK		0x00080000  /* 512K */
-#define CFG_CS1_CTRL		0x003ffd40  /* 8bit port size? */
+#define CFG_CS1_BASE		0xf7e8
+#define CFG_CS1_MASK		0x00040000 /* 256K */
+#define CFG_CS1_CTRL		0x00101940 /* 8bit port size */
 
 /* Atlas2 + Gemini */
-/* This CS# is mandatory? */
-#define CFG_CS2_BASE		0xf10A
-#define CFG_CS2_MASK		0x00020000 /* 2x64K*/
-#define CFG_CS2_CTRL		0x003ffd00 /* 32bit port size? */
+#define CFG_CS2_BASE		0xf7e7
+#define CFG_CS2_MASK		0x00010000 /* 64K*/
+#define CFG_CS2_CTRL		0x001011c0 /* 16bit port size */
 
 /* CAN Controller */
-/* This CS# is mandatory? */
-#define CFG_CS3_BASE		0xf10C
+#define CFG_CS3_BASE		0xf7e6
 #define CFG_CS3_MASK		0x00010000 /* 64K */
-#define CFG_CS3_CTRL		0x003ffd40 /* 8Bit port size */
+#define CFG_CS3_CTRL		0x00102140 /* 8Bit port size */
 
 /* Foreign interface */
-#define CFG_CS4_BASE		0xF10D
+#define CFG_CS4_BASE		0xf7e5
 #define CFG_CS4_MASK		0x00010000 /* 64K */
-#define CFG_CS4_CTRL		0x003ffd80 /* 16bit port size */
+#define CFG_CS4_CTRL		0x00101dc0 /* 16bit port size */
 
-/* CPLD? */
-/* This CS# is mandatory? */
-#define CFG_CS5_BASE		0xF108
-#define CFG_CS5_MASK		0x00010000
-#define CFG_CS5_CTRL		0x003ffd80 /* 16bit port size */
+/* CPLD */
+#define CFG_CS5_BASE		0xf7e4
+#define CFG_CS5_MASK		0x00010000 /* 64K */
+#define CFG_CS5_CTRL		0x001000c0 /* 16bit port size */
 
 #define CFG_FLASH0_BASE		(CFG_CS0_BASE << 16)
-#define CFG_FLASH_BASE		CFG_FLASH0_BASE
+#define CFG_FLASH_BASE		(CFG_FLASH0_BASE)
 
-#define CFG_MAX_FLASH_BANKS	2	/* max num of memory banks (actually 4? (at least 2)) */
-#define CFG_MAX_FLASH_SECT	512	/* max num of sects on one chip (actually 256) */
-
-
-#define PHYS_AMD_SECT_SIZE	0x00020000 /* 128 KB sectors (x2) */
+#define CFG_MAX_FLASH_BANKS	2	/* max num of flash banks */
+#define CFG_MAX_FLASH_SECT	512	/* max num of sects on one chip */
 
 #define CFG_FLASH_CFI_DRIVER
 #define CFG_FLASH_CFI
@@ -191,9 +197,11 @@
  * Environment settings
  */
 #define CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_ADDR		(CFG_FLASH0_BASE)
-#define CFG_ENV_SIZE		PHYS_AMD_SECT_SIZE
-#define CFG_ENV_SECT_SIZE	PHYS_AMD_SECT_SIZE
+#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x8000000 - 0x40000)
+#define CFG_ENV_SIZE		0x4000                       /* 16K */
+#define CFG_ENV_SECT_SIZE	0x20000
+#define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR + 0x20000)
+#define CFG_ENV_SIZE_REDUND	CFG_ENV_SIZE
 
 #define CONFIG_ENV_OVERWRITE	1
 
@@ -240,6 +248,13 @@
 #define CFG_SDRAM_SPD_SIZE		0x100
 #define CFG_SDRAM_CAS_LATENCY		5 		/* (CL=2.5)x2 */
 
+/* SDRAM drive strength register (for SSTL_2 class II)*/
+#define CFG_SDRAM_DRIVE_STRENGTH 	((DRIVE_STRENGTH_HIGH << SDRAMDS_SBE_SHIFT) | \
+					 (DRIVE_STRENGTH_HIGH << SDRAMDS_SBC_SHIFT) | \
+					 (DRIVE_STRENGTH_HIGH << SDRAMDS_SBA_SHIFT) | \
+					 (DRIVE_STRENGTH_HIGH << SDRAMDS_SBS_SHIFT) | \
+					 (DRIVE_STRENGTH_HIGH << SDRAMDS_SBD_SHIFT))
+
 /*
  * Ethernet configuration
  */
@@ -273,5 +288,10 @@
  */
 #define CFG_HID0_INIT		0
 #define CFG_HID0_FINAL		0
+
+/*
+#define CFG_HID0_INIT           HID0_ICE | HID0_ICFI
+#define CFG_HID0_FINAL          HID0_ICE
+*/
 
 #endif /* __CONFIG_H */
