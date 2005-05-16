@@ -58,7 +58,7 @@ include $(TOPDIR)/config.mk
 SREC	= hello_world.srec
 BIN	= hello_world.bin hello_world
 
-ifeq ($(ARCH),ppc)
+ifeq ($(CPU),mpc8xx)
 SREC	= test_burst.srec
 BIN	= test_burst.bin test_burst
 endif
@@ -101,6 +101,8 @@ LIB	= libstubs.a
 LIBAOBJS=
 ifeq ($(ARCH),ppc)
 LIBAOBJS+= $(ARCH)_longjmp.o $(ARCH)_setjmp.o
+endif
+ifeq ($(CPU),mpc8xx)
 LIBAOBJS+= test_burst_lib.o
 endif
 LIBCOBJS= stubs.o

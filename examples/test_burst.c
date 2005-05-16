@@ -47,12 +47,32 @@
 */
 #define TEST_FLASH_ADDR	0x40100000
 
+/* Define GPIO ports to signal start of burst transfers and errors */
+#ifdef CONFIG_LWMON
+/* Use PD.8 to signal start of burst transfers */
+#define GPIO1_DAT	(((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pddat)
+#define GPIO1_BIT	0x0080
+/* Configure PD.8 as general purpose output */
+#define GPIO1_INIT \
+	((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pdpar &= ~GPIO1_BIT; \
+	((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pddir |=  GPIO1_BIT;
+/* Use PD.9 to signal error */
+#define GPIO2_DAT	(((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pddat)
+#define GPIO2_BIT	0x0040
+/* Configure PD.9 as general purpose output */
+#define GPIO2_INIT \
+	((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pdpar &= ~GPIO2_BIT; \
+	((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pddir |=  GPIO2_BIT;
+#endif /* CONFIG_LWMON */
+
+
 static void test_prepare (void);
 static int test_burst_start (unsigned long size, unsigned long pattern);
 static void test_map_8M (unsigned long paddr, unsigned long vaddr, int cached);
 static int test_mmu_is_on(void);
 static void test_desc(unsigned long size);
 static void test_error(char * step, volatile void * addr, unsigned long val, unsigned long pattern);
+static void signal_init(void);
 static void signal_start(void);
 static void signal_error(void);
 static void test_usage(void);
@@ -107,8 +127,6 @@ Done:
 
 static void test_prepare (void)
 {
-	volatile immap_t *immr = (immap_t *)  CFG_IMMR;
-
 	printf ("\n");
 
 	caches_init();
@@ -127,9 +145,8 @@ static void test_prepare (void)
 
 	test_map_8M (TEST_FLASH_ADDR & 0xFF800000, TEST_FLASH_ADDR & 0xFF800000, 0);
 
-	/* Configure PD.8 and PD.9 as general purpose output */
-	immr->im_ioport.iop_pdpar &= ~0x00C0;
-	immr->im_ioport.iop_pddir |=  0x00C0;
+	/* Configure GPIO ports */
+	signal_init();
 }
 
 static int test_burst_start (unsigned long size, unsigned long pattern)
@@ -247,26 +264,36 @@ static void test_error(
 		step, addr, val, pattern);
 }
 
+static void signal_init(void)
+{
+#if defined(GPIO1_INIT)
+	GPIO1_INIT;
+#endif
+#if defined(GPIO2_INIT)
+	GPIO2_INIT;
+#endif
+}
+
 static void signal_start(void)
 {
-	volatile immap_t *immr = (immap_t *)  CFG_IMMR;
-
-	if (immr->im_ioport.iop_pddat & 0x0080) {
-		immr->im_ioport.iop_pddat &= ~0x0080;
+#if defined(GPIO1_INIT)
+	if (GPIO1_DAT & GPIO1_BIT) {
+		GPIO1_DAT &= ~GPIO1_BIT;
 	} else {
-		immr->im_ioport.iop_pddat |= 0x0080;
+		GPIO1_DAT |= GPIO1_BIT;
 	}
+#endif
 }
 
 static void signal_error(void)
 {
-	volatile immap_t *immr = (immap_t *)  CFG_IMMR;
-
-	if (immr->im_ioport.iop_pddat & 0x0040) {
-		immr->im_ioport.iop_pddat &= ~0x0040;
+#if defined(GPIO2_INIT)
+	if (GPIO2_DAT & GPIO2_BIT) {
+		GPIO2_DAT &= ~GPIO2_BIT;
 	} else {
-		immr->im_ioport.iop_pddat |= 0x0040;
+		GPIO2_DAT |= GPIO2_BIT;
 	}
+#endif
 }
 
 static void test_usage(void)
