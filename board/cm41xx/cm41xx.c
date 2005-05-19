@@ -51,7 +51,7 @@ int env_flash_cmdline (void)
 	/* Check if "erase" push button is depressed */
 	if ((ks8695_read(KS8695_GPIO_DATA) & 0x8) == 0) {
 		printf("### Entering network recovery mode...\n");
-		setenv("bootargs", "console=ttyAM0,115200 mem=16M initrd=0x400000,6M root=/dev/ram0");
+		setenv("bootargs", "console=ttyAM0,115200 mem=32M initrd=0x400000,8M root=/dev/ram0");
 		setenv("bootcmd", "bootp 0x400000; gofsk 0x400000");
 		setenv("bootdelay", "2");
 		return 0;
@@ -77,8 +77,8 @@ int board_init (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
-	/* arch number of CM4008 */
-	gd->bd->bi_arch_number = 624;
+	/* arch number of CM41xx */
+	gd->bd->bi_arch_number = 672;
 
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0x00000100;

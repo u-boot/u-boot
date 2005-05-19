@@ -1407,6 +1407,12 @@ voiceblue_config:	unconfig
 	fi
 	@./mkconfig -a voiceblue arm arm925t voiceblue
 
+cm4008_config	:	unconfig
+	@./mkconfig $(@:_config=) arm arm920t cm4008 NULL ks8695
+
+cm41xx_config	:	unconfig
+	@./mkconfig $(@:_config=) arm arm920t cm41xx NULL ks8695
+
 #########################################################################
 ## S3C44B0 Systems
 #########################################################################
