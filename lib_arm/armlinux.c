@@ -377,15 +377,30 @@ static void setup_videolfb_tag (gd_t *gd)
 }
 #endif /* CONFIG_VFD || CONFIG_LCD */
 
+#ifdef CONFIG_SERIAL_TAG
+void setup_serial_tag (struct tag **tmp)
+{
+	struct tag *params = *tmp;
+	struct tag_serialnr serialnr;
+	void get_board_serial(struct tag_serialnr *serialnr);
+
+	get_board_serial(&serialnr);
+	params->hdr.tag = ATAG_SERIAL;
+	params->hdr.size = tag_size (tag_serialnr);
+	params->u.serialnr.low = serialnr.low;
+	params->u.serialnr.high= serialnr.high;
+	params = tag_next (params);
+	*tmp = params;
+}
+#endif
+
 #ifdef CONFIG_REVISION_TAG
 void setup_revision_tag(struct tag **in_params)
 {
 	u32 rev = 0;
-#ifdef CONFIG_OMAP2420H4
 	u32 get_board_rev(void);
 
 	rev = get_board_rev();
-#endif
 	params->hdr.tag = ATAG_REVISION;
 	params->hdr.size = tag_size (tag_revision);
 	params->u.revision.rev = rev;

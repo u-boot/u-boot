@@ -2,6 +2,13 @@
 Changes for U-Boot 1.1.3:
 ======================================================================
 
+* Patches by Greg Ungerer, 19 May 2005:
+  - add support for the KS8695P (ARM 922 based) CPU
+  - add support for the OpenGear CM4008, CM4116 and CM4148 boards
+
+* Patch by Steven Scholz, 19 May 2005:
+  Add support for CONFIG_SERIAL_TAG on ARM boards
+
 * Add PCI support for Sorcery board.
   Code cleanup (especially Sorcery / Alaska / Yukon serial driver).
 

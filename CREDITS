@@ -394,6 +394,10 @@ N: Rune Torgersen
 E: <runet@innovsys.com>
 D: Support for Motorola MPC8266ADS board
 
+N: Greg Ungerer
+E: greg.ungerer@opengear.com
+D: Support for ks8695 CPU, and OpenGear cmXXXX boards
+
 N: David Updegraff
 E: dave@cray.com
 D: Port to Cray L1 board; DHCP vendor extensions

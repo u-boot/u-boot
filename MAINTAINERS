@@ -413,6 +413,12 @@ Andrea Scian <andrea.scian@dave-tech.it>
 
 	B2				ARM7TDMI (S3C44B0X)
 
+Greg Ungerer <greg.ungerer@opengear.com>
+
+	cm4008			ks8695p
+	cm4116			ks8695p
+	cm4148			ks8695p
+
 Alex Züpke <azu@sysgo.de>
 
 	lart			SA1100
