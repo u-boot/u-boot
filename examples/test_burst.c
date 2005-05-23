@@ -88,10 +88,11 @@ static unsigned long test_pattern [] = {
 int test_burst (int argc, char *argv[])
 {
 	unsigned long size = CACHE_LINE_SIZE;
-	int res;
-	int i;
+	unsigned int pass = 0;
+	int res = 0;
+	int i, j;
 
-	if (argc == 2) {
+	if (argc == 3) {
 		char * d;
 		for (size = 0, d = argv[1]; *d >= '0' && *d <= '9'; d++) {
 			size *= 10;
@@ -101,7 +102,15 @@ int test_burst (int argc, char *argv[])
 			test_usage();
 			return 1;
 		}
-	} else if (argc > 2) {
+		for (d = argv[2]; *d >= '0' && *d <= '9'; d++) {
+			pass *= 10;
+			pass += *d - '0';
+		}
+		if (*d) {
+			test_usage();
+			return 1;
+		}
+	} else if (argc > 3) {
 		test_usage();
 		return 1;
 	}
@@ -115,11 +124,19 @@ int test_burst (int argc, char *argv[])
 
 	test_desc(size);
 
-	for (i = 0; i < sizeof(test_pattern) / sizeof(test_pattern[0]); i++) {
-		res = test_burst_start(size, test_pattern[i]);
-		if (res != 0) {
-			goto Done;
+	for (j = 0; !pass || j < pass; j++) {
+		for (i = 0; i < sizeof(test_pattern) / sizeof(test_pattern[0]);
+		     i++) {
+			res = test_burst_start(size, test_pattern[i]);
+			if (res != 0) {
+				goto Done;
+			}
 		}
+
+		printf ("Iteration #%d passed\n", j + 1);
+
+		if (tstc() && 0x03 == getc())
+			break;
 	}
 Done:
 	return res;
@@ -298,5 +315,5 @@ static void signal_error(void)
 
 static void test_usage(void)
 {
-	printf("Usage: go 0x40004 [size]\n");
+	printf("Usage: go 0x40004 [size] [count]\n");
 }

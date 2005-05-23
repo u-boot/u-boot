@@ -31,11 +31,13 @@
 #define CONFIG_KS8695	1		/* it is a KS8695 CPU */
 #define CONFIG_CM41xx	1		/* it is an OpenGear CM41xx boad */
 
-#undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff */
+#undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff	*/
 
 #define CONFIG_CMDLINE_TAG	 1	/* enable passing of ATAGs	*/
 #define CONFIG_SETUP_MEMORY_TAGS 1
 #define CONFIG_INITRD_TAG	 1
+
+#define CONFIG_DRIVER_KS8695ETH		/* use KS8695 ethernet driver	*/
 
 /*
  * Size of malloc() pool

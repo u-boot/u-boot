@@ -18,6 +18,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#ifdef	CONFIG_DRIVER_KS8695ETH
+
 /****************************************************************************/
 
 #include <common.h>
@@ -233,4 +235,4 @@ int eth_send(volatile void *packet, int len)
 	return len;
 }
 
-/****************************************************************************/
+#endif	/* CONFIG_DRIVER_KS8695ETH */
