@@ -1152,6 +1152,11 @@ TQM8265_AA_config:  unconfig
 	fi
 	@./mkconfig -a TQM8260 ppc mpc8260 tqm8260
 
+VoVPN-GW_66MHz_config	\
+VoVPN-GW_100MHz_config:		unconfig
+	@echo "#define CONFIG_CLKIN_$(word 2,$(subst _, ,$@))" > include/config.h
+	@./mkconfig -a VoVPN-GW ppc mpc8260 vovpn-gw funkwerk
+
 ZPC1900_config: unconfig
 	@./mkconfig $(@:_config=) ppc mpc8260 zpc1900
 

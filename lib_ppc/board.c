@@ -905,7 +905,8 @@ void board_init_r (gd_t *id, ulong dest_addr)
     defined(CONFIG_PCU_E)	|| \
     defined(CONFIG_RPXSUPER)	|| \
     defined(CONFIG_STXGP3)	|| \
-    defined(CONFIG_SPD823TS)	)
+    defined(CONFIG_SPD823TS)	|| \
+    defined(CONFIG_RESET_PHY_R)	)
 
 	WATCHDOG_RESET ();
 	debug ("Reset Ethernet PHY\n");
