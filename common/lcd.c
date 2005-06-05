@@ -655,6 +655,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 	fb   = (uchar *) (lcd_base +
 		(y + height - 1) * lcd_line_length + x);
 	for (i = 0; i < height; ++i) {
+		WATCHDOG_RESET();
 		for (j = 0; j < width ; j++)
 #if defined(CONFIG_PXA250)
 			*(fb++)=*(bmap++);

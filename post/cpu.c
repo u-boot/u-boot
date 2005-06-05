@@ -120,6 +120,7 @@ int cpu_post_test (int flags)
 	WATCHDOG_RESET();
 	if (ret == 0)
 		ret = cpu_post_test_multi ();
+	WATCHDOG_RESET();
 	if (ret == 0)
 		ret = cpu_post_test_string ();
 	if (ret == 0)
