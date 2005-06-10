@@ -227,6 +227,10 @@ PATI_config:		unconfig
 #########################################################################
 ## MPC5xxx Systems
 #########################################################################
+
+hmi1001_config:         unconfig
+	@./mkconfig hmi1001 ppc mpc5xxx hmi1001
+
 Lite5200_config				\
 Lite5200_LOWBOOT_config			\
 Lite5200_LOWBOOT08_config		\

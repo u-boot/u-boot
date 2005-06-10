@@ -136,13 +136,11 @@
 
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
 				CFG_CMD_ASKENV	| \
-				CFG_CMD_DATE	| \
 				CFG_CMD_DHCP	| \
 				CFG_CMD_EEPROM	| \
 				CFG_CMD_I2C	| \
 				CFG_CMD_IDE	| \
-				CFG_CMD_NFS	| \
-				CFG_CMD_SNTP	)
+				CFG_CMD_NFS	)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>

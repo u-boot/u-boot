@@ -175,10 +175,9 @@ do_jffs2_fsload(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 int
 do_jffs2_ls(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-   struct part_info* jffs2_part_info(int);
-   int jffs2_1pass_ls(struct part_info *,char *);
-
-   char *filename = "/";
+	struct part_info* jffs2_part_info(int);
+	int jffs2_1pass_ls(struct part_info *,char *);
+	char *filename = "/";
 	int ret;
 	struct part_info *part;
 
@@ -235,11 +234,11 @@ do_jffs2_chpart(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	int tmp_part;
 	char str_part_num[3];
-   struct part_info* jffs2_part_info(int);
+	struct part_info* jffs2_part_info(int);
 
-   if (argc >= 2) {
+	if (argc >= 2) {
 		tmp_part = simple_strtoul(argv[1], NULL, 16);
-	}else{
+	} else {
 		puts ("Need partition number in argument list\n");
 		return 0;
 

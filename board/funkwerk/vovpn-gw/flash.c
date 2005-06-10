@@ -5,7 +5,7 @@
  * Support for the Elmeg VoVPN Gateway Module
  * ------------------------------------------
  * This is a signle bank flashdriver for INTEL 28F320J3, 28F640J3
- * and 28F128J3A flashs working in 8 Bit mode. 
+ * and 28F128J3A flashs working in 8 Bit mode.
  *
  * Most of this code is taken from existing u-boot source code.
  *
@@ -286,8 +286,8 @@ flash_erase(flash_info_t *info, int s_first, int s_last)
 
 static int
 write_buff2( volatile FLASH_WORD_SIZE *dst,
-             volatile FLASH_WORD_SIZE *src,
-             unsigned long cnt )
+	     volatile FLASH_WORD_SIZE *src,
+	     unsigned long cnt )
 {
 	unsigned long start;
 	FLASH_WORD_SIZE status;

@@ -261,7 +261,7 @@
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CFG_BOOTMAPSZ			(8 << 20)   
+#define CFG_BOOTMAPSZ			(8 << 20)
 
 /* hard reset configuration words */
 #ifdef	CONFIG_CLKIN_66MHz
@@ -342,13 +342,13 @@
 
 /* TMCNTSC - time counter status and control */
 /* clear interrupts XXX jse */
-//#define CFG_TMCNTSC			(TMCNTSC_SEC|TMCNTSC_ALR)
+/*#define CFG_TMCNTSC			(TMCNTSC_SEC|TMCNTSC_ALR) */
 #define CFG_TMCNTSC			(TMCNTSC_SEC|TMCNTSC_ALR|\
 					 TMCNTSC_TCF|TMCNTSC_TCE)
 
 /* PISCR - periodic interrupt status and control */
 /* clear interrupts XXX jse */
-//#define CFG_PISCR			(PISCR_PS)
+/*#define CFG_PISCR			(PISCR_PS) */
 #define CFG_PISCR			(PISCR_PS|PISCR_PTF|PISCR_PTE)
 
 /* SCCR - system clock control */
@@ -397,7 +397,7 @@
 #define CFG_OR7_PRELIM			0xffff8104
 #define CFG_MPTPR			0x2700
 #define CFG_PSDMR			0x822a2452	/* optimal */
-//#define CFG_PSDMR			0x822a48a3	/* relaxed */
+/*#define CFG_PSDMR			0x822a48a3 */	/* relaxed */
 #define CFG_PSRT			0x1a
 
 /* "bad" address */
