@@ -119,7 +119,6 @@
 #define CFG_FLASH_CFI
 #define CFG_FLASH_EMPTY_INFO
 #define CFG_FLASH_CFI_AMD_RESET
-#define CFG_FLASH_PROTECTION
 
 /*
  * Environment settings
@@ -127,6 +126,8 @@
 #define CFG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_SIZE		0x4000
 #define CFG_ENV_SECT_SIZE	0x20000
+#define CFG_ENV_OFFSET_REDUND   (CFG_ENV_OFFSET+CFG_ENV_SECT_SIZE)
+#define CFG_ENV_SIZE_REDUND     (CFG_ENV_SIZE)
 
 /*
  * Memory map
