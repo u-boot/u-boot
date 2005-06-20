@@ -261,7 +261,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		name = "Standalone Application";
 		/* A second argument overwrites the load address */
 		if (argc > 2) {
-			hdr->ih_load = simple_strtoul(argv[2], NULL, 16);
+			hdr->ih_load = htonl(simple_strtoul(argv[2], NULL, 16));
 		}
 		break;
 	case IH_TYPE_KERNEL:
