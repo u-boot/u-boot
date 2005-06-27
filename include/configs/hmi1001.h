@@ -56,7 +56,10 @@
  * Supported commands
  */
 #define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
+				CFG_CMD_DATE	| \
 				CFG_CMD_DHCP	| \
+				CFG_CMD_EEPROM	| \
+				CFG_CMD_I2C	| \
 				CFG_CMD_NFS	| \
 				CFG_CMD_SNTP)
 
@@ -100,6 +103,29 @@
  * IPB Bus clocking configuration.
  */
 #undef CFG_IPBSPEED_133		/* define for 133MHz speed */
+
+/*
+ * I2C configuration
+ */
+#define CONFIG_HARD_I2C		1	/* I2C with hardware support */
+#define CFG_I2C_MODULE		2	/* Select I2C module #1 or #2 */
+
+#define CFG_I2C_SPEED		100000 /* 100 kHz */
+#define CFG_I2C_SLAVE		0x7F
+
+/*
+ * EEPROM configuration
+ */
+#define CFG_I2C_EEPROM_ADDR		0x58
+#define CFG_I2C_EEPROM_ADDR_LEN		1
+#define CFG_EEPROM_PAGE_WRITE_BITS	4
+#define CFG_EEPROM_PAGE_WRITE_DELAY_MS	10
+
+/*
+ * RTC configuration
+ */
+#define CONFIG_RTC_PCF8563
+#define CFG_I2C_RTC_ADDR		0x51
 
 /*
  * Flash configuration
@@ -165,7 +191,7 @@
 #endif
 
 #define CFG_MONITOR_LEN		(192 << 10)	/* Reserve 192 kB for Monitor	*/
-#define CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
+#define CFG_MALLOC_LEN		(512 << 10)	/* Reserve 128 kB for malloc()	*/
 #define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
 /*
@@ -178,11 +204,6 @@
  * GPIO configuration
  */
 #define CFG_GPS_PORT_CONFIG	0x01051004
-
-/*
- * RTC configuration
- */
-#define CONFIG_RTC_MPC5200	1	/* use internal MPC5200 RTC */
 
 /*
  * Miscellaneous configurable options

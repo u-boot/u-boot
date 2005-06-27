@@ -173,6 +173,7 @@ void flash_preinit(void)
 	*(vu_long *)MPC5XXX_BOOTCS_CFG &= ~0x1; /* clear RO */
 }
 
+#define GPIO_WKUP_7	0x80000000UL
 #define GPIO_PSC3_9	0x04000000UL
 
 int misc_init_f (void)
@@ -189,13 +190,13 @@ int misc_init_f (void)
 
 	/* Initialize GPIO output pins.
 	 */
-	/* Configure GPT as GPIO output */
+	/* Configure GPT as GPIO output (and set them as they control low-active LEDs */
 	*(vu_long *)MPC5XXX_GPT0_ENABLE =
 	*(vu_long *)MPC5XXX_GPT1_ENABLE =
 	*(vu_long *)MPC5XXX_GPT2_ENABLE =
 	*(vu_long *)MPC5XXX_GPT3_ENABLE =
 	*(vu_long *)MPC5XXX_GPT4_ENABLE =
-	*(vu_long *)MPC5XXX_GPT5_ENABLE = 0x24;
+	*(vu_long *)MPC5XXX_GPT5_ENABLE = 0x34;
 
 	/* Configure GPT7 as PWM timer, 1kHz, no ints. */
 	*(vu_long *)MPC5XXX_GPT7_ENABLE = 0;/* Disable */
@@ -216,6 +217,8 @@ int misc_init_f (void)
 	*(vu_long *)MPC5XXX_WU_GPIO_ENABLE |= 0xc4000000;
 	*(vu_long *)MPC5XXX_WU_GPIO_DIR |= 0xc4000000;
 
+	/* Set LR mirror bit because it is low-active */
+	*(vu_long *)MPC5XXX_WU_GPIO_DATA    |= GPIO_WKUP_7;
 	/*
 	 * Reset Coral-P graphics controller
 	 */

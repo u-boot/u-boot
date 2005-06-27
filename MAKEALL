@@ -129,11 +129,11 @@ LIST_7xx="	\
 	BAB7xx		CPCI750		ELPPC				\
 "
 
-LIST_ppc="${LIST_5xx}  ${LIST_5xxx} \
-	  ${LIST_8xx}  \
-	  ${LIST_824x} ${LIST_8260} \
-	  ${LIST_85xx}	\
-	  ${LIST_4xx}		    \
+LIST_ppc="${LIST_5xx}  ${LIST_5xxx}		\
+	  ${LIST_8xx}				\
+	  ${LIST_8220} ${LIST_824x} ${LIST_8260} \
+	  ${LIST_85xx}				\
+	  ${LIST_4xx}				\
 	  ${LIST_74xx} ${LIST_7xx}"
 
 #########################################################################

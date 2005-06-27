@@ -609,7 +609,7 @@ U_BOOT_CMD(
 	"usb tree  - show USB device tree\n"
 	"usb info [dev] - show available USB devices\n"
 	"usb scan  - (re-)scan USB bus for storage devices\n"
-	"usb device [dev] - show or set current USB storage device\n"
+	"usb dev [dev] - show or set current USB storage device\n"
 	"usb part [dev] - print partition table of one or all USB storage devices\n"
 	"usb read addr blk# cnt - read `cnt' blocks starting at block `blk#'\n"
 	"    to memory address `addr'\n"
