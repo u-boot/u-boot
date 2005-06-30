@@ -230,7 +230,7 @@ Daniel Poirot <dan.poirot@windriver.com>
 	sbc8240			MPC8240
 	sbc405			PPC405GP
 
-Stefan Roese <stefan.roese@esd-electronics.com>
+Matthias Fuchs <matthias.fuchs@esd-electronics.com>
 
 	ADCIOP			IOP480 (PPC401)
 	APC405			PPC405GP
@@ -496,7 +496,7 @@ Yasushi Shoji <yashi@atmark-techno.com>
 #	Board			CPU					#
 #########################################################################
 
-Stefan Roese <stefan.roese@esd-electronics.com>
+Matthias Fuchs <matthias.fuchs@esd-electronics.com>
 
 	TASREG			MCF5249
 

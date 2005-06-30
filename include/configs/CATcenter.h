@@ -110,8 +110,8 @@
 
 #define CONFIG_MII		1	/* MII PHY management		*/
 #ifndef	 CONFIG_EXT_PHY
-#define CONFIG_PHY_ADDR		0	/* EMAC0 PHY address		*/
-#define CONFIG_PHY1_ADDR	1	/* EMAC1 PHY address		*/
+#define CONFIG_PHY_ADDR		1	/* EMAC0 PHY address		*/
+#define CONFIG_PHY1_ADDR	2	/* EMAC1 PHY address		*/
 #else
 #define CONFIG_PHY_ADDR		2	/* PHY address			*/
 #endif
