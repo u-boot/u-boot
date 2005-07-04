@@ -53,6 +53,8 @@
 #define CONFIG_LCD		1	/* use LCD controller ...	*/
 #define CONFIG_HLD1045		1	/* ... with a HLD1045 display	*/
 
+#define CONFIG_LCD_LOGO		1	/* print our logo on the LCD	*/
+#define CONFIG_LCD_INFO		1	/* ... and some board info	*/
 #define	CONFIG_SPLASH_SCREEN		/* ... with splashscreen support*/
 
 #define CONFIG_SERIAL_MULTI	1

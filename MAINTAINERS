@@ -298,6 +298,8 @@ Jon Loeliger <jdl@freescale.com>
 
 	MPC8540ADS		MPC8540
 	MPC8560ADS		MPC8560
+	MPC8541CDS		MPC8541
+	MPC8555CDS		MPC8555
 
 Dan Malek <dan@embeddededge.com>
 

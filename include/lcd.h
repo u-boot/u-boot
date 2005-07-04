@@ -171,13 +171,6 @@ void	lcd_printf	(const char *fmt, ...);
 # include <asm/byteorder.h>
 #endif /* (CONFIG_COMMANDS & CFG_CMD_BMP) || CONFIG_SPLASH_SCREEN */
 
-/************************************************************************/
-/* ** LOGO DATA								*/
-/************************************************************************/
-#ifdef CONFIG_LCD_LOGO
-# include <bmp_logo.h>		/* Get logo data, width and height	*/
-#endif
-
 /*
  *  Information about displays we are using. This is for configuring
  *  the LCD controller and memory allocation. Someone has to know what
@@ -193,7 +186,7 @@ void	lcd_printf	(const char *fmt, ...);
 #define LCD_COLOR16	4
 
 /*----------------------------------------------------------------------*/
-#if defined(LCD_INFO_BELOW_LOGO)
+#if defined(CONFIG_LCD_INFO_BELOW_LOGO)
 # define LCD_INFO_X		0
 # define LCD_INFO_Y		(BMP_LOGO_HEIGHT + VIDEO_FONT_HEIGHT)
 #elif defined(CONFIG_LCD_LOGO)
@@ -252,10 +245,6 @@ void	lcd_printf	(const char *fmt, ...);
 
 #endif /* color definitions */
 
-#if defined(CONFIG_LCD_LOGO) && (CONSOLE_COLOR_WHITE >= BMP_LOGO_OFFSET)
-# error Default Color Map overlaps with Logo Color Map
-#endif
-
 /************************************************************************/
 #ifndef PAGE_SIZE
 # define PAGE_SIZE	4096
@@ -264,7 +253,7 @@ void	lcd_printf	(const char *fmt, ...);
 /************************************************************************/
 /* ** CONSOLE DEFINITIONS & FUNCTIONS					*/
 /************************************************************************/
-#if defined(CONFIG_LCD_LOGO) && !defined(LCD_INFO_BELOW_LOGO)
+#if defined(CONFIG_LCD_LOGO) && !defined(CONFIG_LCD_INFO_BELOW_LOGO)
 # define CONSOLE_ROWS		((panel_info.vl_row-BMP_LOGO_HEIGHT) \
 					/ VIDEO_FONT_HEIGHT)
 #else

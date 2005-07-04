@@ -46,12 +46,13 @@
 /************************************************************************/
 /* ** CONFIG STUFF -- should be moved to board config file		*/
 /************************************************************************/
-#define CONFIG_LCD_LOGO
-#define LCD_INFO		/* Display Logo, (C) and system info	*/
+#ifndef CONFIG_LCD_INFO
+#define CONFIG_LCD_INFO		/* Display Logo, (C) and system info	*/
+#endif
 
 #if defined(CONFIG_V37) || defined(CONFIG_EDT32F10)
 #undef CONFIG_LCD_LOGO
-#undef LCD_INFO
+#undef CONFIG_LCD_INFO
 #endif
 
 /*----------------------------------------------------------------------*/
@@ -155,7 +156,7 @@ vidinfo_t panel_info = {
     3, 0, 0, 1, 1, 15, 4, 0, 3
 		/* wbl, vpw, lcdac, wbf */
 };
-#define LCD_INFO_BELOW_LOGO
+#define CONFIG_LCD_INFO_BELOW_LOGO
 #endif /* CONFIG_SHARP_LQ057Q3DC02 */
 /*----------------------------------------------------------------------*/
 
@@ -179,7 +180,7 @@ vidinfo_t panel_info = {
     3, 0, 0, 1, 1, 248, 4, 0, 35
 		/* wbl, vpw, lcdac, wbf */
 };
-#define LCD_INFO_BELOW_LOGO
+#define CONFIG_LCD_INFO_BELOW_LOGO
 #endif /* CONFIG_SHARP_LQ065T9DR51U */
 
 #ifdef CONFIG_SHARP_LQ084V1DG21
