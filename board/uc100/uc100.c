@@ -28,6 +28,7 @@
 #include <common.h>
 #include <mpc8xx.h>
 #include <i2c.h>
+#include <miiphy.h>
 
 
 /*********************************************************************/
@@ -251,6 +252,14 @@ int misc_init_r (void)
 	val = i2c_reg_read (CFG_I2C_RTC_ADDR, 0x0D);
 	val |= 0x80;
 	i2c_reg_write (CFG_I2C_RTC_ADDR, 0x0D, val);
+
+	/*
+	 * Configure PHY to setup LED's correctly and use 100MBit, FD
+	 */
+	mii_init();
+
+	miiphy_write(0, PHY_BMCR, 0x2100);    /* disable auto-negotiation, 100mbit, full-duplex */
+	miiphy_write(0, PHY_FCSCR, 0x4122);   /* set LED's to Link, Transmit, Receive           */
 
 	return 0;
 }
