@@ -98,6 +98,8 @@ urb_priv_t urb_priv;
 int got_rhsc;
 /* device which was disconnected */
 struct usb_device *devgone;
+/* flag guarding URB transation */
+int urb_finished = 0;
 
 /*-------------------------------------------------------------------------*/
 
@@ -402,6 +404,16 @@ int sohci_submit_job(struct usb_device *dev, unsigned long pipe, void *buffer,
 		return -1;
 	}
 
+	/* if we have an unfinished URB from previous transaction let's
+	 * fail and scream as quickly as possible so as not to corrupt
+	 * further communication */
+	if (!urb_finished) {
+		err("sohci_submit_job: URB NOT FINISHED");
+		return -1;
+	}
+	/* we're about to begin a new transaction here so mark the URB unfinished */
+	urb_finished = 0;
+
 	/* every endpoint has a ed, locate and fill it */
 	if (!(ed = ep_add_ed (dev, pipe))) {
 		err("sohci_submit_job: ENOMEM");
@@ -664,7 +676,6 @@ static void td_fill (ohci_t *ohci, unsigned int info,
 	else
 		td->hwBE = 0;
 	td->hwNextTD = ohci_cpu_to_le32 ((unsigned long)td_pt);
-	td->hwPSW [0] = ohci_cpu_to_le16 (((__u32)data & 0x0FFF) | 0xE000);
 
 	/* append to queue */
 	td->ed->hwTailP = td->hwNextTD;
@@ -673,7 +684,6 @@ static void td_fill (ohci_t *ohci, unsigned int info,
 /*-------------------------------------------------------------------------*/
 
 /* prepare all TDs of a transfer */
-
 static void td_submit_job (struct usb_device *dev, unsigned long pipe, void *buffer,
 	int transfer_len, struct devrequest *setup, urb_priv_t *urb, int interval)
 {
@@ -813,7 +823,7 @@ static int dl_done_list (ohci_t *ohci, td_t *td_list)
 	td_t *td_list_next = NULL;
 	ed_t *ed;
 	int cc = 0;
-	int stat = 0xff;
+	int stat = 0;
 	/* urb_t *urb; */
 	urb_priv_t *lurb_priv;
 	__u32 tdINFO, edHeadP, edTailP;
@@ -835,6 +845,7 @@ static int dl_done_list (ohci_t *ohci, td_t *td_list)
 					&& (lurb_priv->state != URB_DEL)) {
 				dbg("ConditionCode %#x", cc);
 				stat = cc_to_error[cc];
+				urb_finished = 1;
 			}
 		}
 
@@ -1250,18 +1261,35 @@ int submit_common_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 			stat = USB_ST_CRC_ERR;
 			break;
 		}
-		if (stat >= 0 && stat < 0xff) {
+		
+		/* NOTE: since we are not interrupt driven in U-Boot and always
+		 * handle only one URB at a time, we cannot assume the
+		 * transaction finished on the first successful return from
+		 * hc_interrupt().. unless the flag for current URB is set,
+		 * meaning that all TD's to/from device got actually
+		 * transferred and processed. If the current URB is not
+		 * finished we need to re-iterate this loop so as
+		 * hc_interrupt() gets called again as there needs to be some
+		 * more TD's to process still */
+		if ((stat >= 0) && (stat != 0xff) && (urb_finished)) {
 			/* 0xff is returned for an SF-interrupt */
 			break;
 		}
+
 		if (--timeout) {
 			wait_ms(1);
+			if (!urb_finished)
+				dbg("\%");
+
 		} else {
 			err("CTL:TIMEOUT ");
+			dbg("submit_common_msg: TO status %x\n", stat);
 			stat = USB_ST_CRC_ERR;
+			urb_finished = 1;
 			break;
 		}
 	}
+#if 0
 	/* we got an Root Hub Status Change interrupt */
 	if (got_rhsc) {
 #ifdef DEBUG
@@ -1283,6 +1311,7 @@ int submit_common_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 			devgone = dev;
 		}
 	}
+#endif
 
 	dev->status = stat;
 	dev->act_len = transfer_len;
@@ -1454,17 +1483,27 @@ hc_interrupt (void)
 	struct ohci_regs *regs = ohci->regs;
 	int ints;
 	int stat = -1;
+	
+	if ((ohci->hcca->done_head != 0) &&
+	     !(ohci_cpu_to_le32(ohci->hcca->done_head) & 0x01)) {
 
-	if ((ohci->hcca->done_head != 0) && !(ohci_cpu_to_le32 (ohci->hcca->done_head) & 0x01)) {
-		ints =	OHCI_INTR_WDH;
-	} else {
-		ints = readl (&regs->intrstatus);
+		ints =  OHCI_INTR_WDH;
+
+	} else if ((ints = readl (&regs->intrstatus)) == ~(u32)0) {
+		ohci->disabled++;
+		err ("%s device removed!", ohci->slot_name);
+		return -1;
+	
+	} else if ((ints &= readl (&regs->intrenable)) == 0) {
+		dbg("hc_interrupt: returning..\n");
+		return 0xff;
 	}
 
 	/* dbg("Interrupt: %x frame: %x", ints, le16_to_cpu (ohci->hcca->frame_no)); */
 
 	if (ints & OHCI_INTR_RHSC) {
 		got_rhsc = 1;
+		stat = 0xff;
 	}
 
 	if (ints & OHCI_INTR_UE) {
@@ -1499,6 +1538,7 @@ hc_interrupt (void)
 	/* FIXME:  this assumes SOF (1/ms) interrupts don't get lost... */
 	if (ints & OHCI_INTR_SF) {
 		unsigned int frame = ohci_cpu_to_le16 (ohci->hcca->frame_no) & 1;
+		wait_ms(1);
 		writel (OHCI_INTR_SF, &regs->intrdisable);
 		if (ohci->ed_rm_list[frame] != NULL)
 			writel (OHCI_INTR_SF, &regs->intrenable);
@@ -1589,6 +1629,8 @@ int usb_lowlevel_init(void)
 	ohci_dump (&gohci, 1);
 #endif
 	ohci_inited = 1;
+	urb_finished = 1;
+
 	return 0;
 }
 

@@ -121,7 +121,7 @@ typedef struct {
 #define UMASS_BBB_CSW_SIZE	13
 
 #define USB_MAX_STOR_DEV 5
-static int usb_max_devs; /* number of highest available usb device */
+static int usb_max_devs = 0; /* number of highest available usb device */
 
 static block_dev_desc_t usb_dev_desc[USB_MAX_STOR_DEV];
 
@@ -177,7 +177,24 @@ void usb_show_progress(void)
 }
 
 /*********************************************************************************
- * (re)-scan the usb and reports device info
+ * show info on storage devices; 'usb start/init' must be invoked earlier
+ * as we only retrieve structures populated during devices initialization
+ */
+void usb_stor_info(void)
+{
+	int i;
+
+	if (usb_max_devs > 0)
+		for (i = 0; i < usb_max_devs; i++) {
+			printf ("  Device %d: ", i);
+			dev_print(&usb_dev_desc[i]);
+		}
+	else
+		printf("No storage devices, perhaps not 'usb start'ed..?\n");
+}
+
+/*********************************************************************************
+ * scan the usb and reports device info
  * to the user if mode = 1
  * returns current device or -1 if no
  */
@@ -190,7 +207,7 @@ int usb_stor_scan(int mode)
 	memset(usb_stor_buf, 0, sizeof(usb_stor_buf));
 
 	if(mode==1) {
-		printf("       scanning bus for storage devices...\n");
+		printf("       scanning bus for storage devices... ");
 	}
 	usb_disable_asynch(1); /* asynch transfer not allowed */
 
@@ -202,6 +219,7 @@ int usb_stor_scan(int mode)
 		usb_dev_desc[i].part_type=PART_TYPE_UNKNOWN;
 		usb_dev_desc[i].block_read=usb_stor_read;
 	}
+
 	usb_max_devs=0;
 	for(i=0;i<USB_MAX_DEVICE;i++) {
 		dev=usb_get_dev_index(i); /* get device */
@@ -211,21 +229,17 @@ int usb_stor_scan(int mode)
 		}
 		if(usb_storage_probe(dev,0,&usb_stor[usb_max_devs])) { /* ok, it is a storage devices */
 			/* get info and fill it in */
-
-			if(usb_stor_get_info(dev, &usb_stor[usb_max_devs], &usb_dev_desc[usb_max_devs])) {
-				if(mode==1) {
-					printf ("  Device %d: ", usb_max_devs);
-					dev_print(&usb_dev_desc[usb_max_devs]);
-				} /* if mode */
+			if(usb_stor_get_info(dev, &usb_stor[usb_max_devs], &usb_dev_desc[usb_max_devs])) 
 				usb_max_devs++;
-			} /* if get info ok */
 		} /* if storage device */
 		if(usb_max_devs==USB_MAX_STOR_DEV) {
 			printf("max USB Storage Device reached: %d stopping\n",usb_max_devs);
 			break;
 		}
 	} /* for */
+	
 	usb_disable_asynch(0); /* asynch transfer allowed */
+	printf("%d Storage Device(s) found\n", usb_max_devs);
 	if(usb_max_devs>0)
 		return 0;
 	else
@@ -367,11 +381,13 @@ static int usb_stor_BBB_reset(struct us_data *us)
 	result = usb_control_msg(us->pusb_dev, usb_sndctrlpipe(us->pusb_dev,0),
 				 US_BBB_RESET, USB_TYPE_CLASS | USB_RECIP_INTERFACE,
 				 0, us->ifnum, 0, 0, USB_CNTL_TIMEOUT*5);
+
 	if((result < 0) && (us->pusb_dev->status & USB_ST_STALLED))
 	{
 		USB_STOR_PRINTF("RESET:stall\n");
 		return -1;
 	}
+
 	/* long wait for reset */
 	wait_ms(150);
 	USB_STOR_PRINTF("BBB_reset result %d: status %X reset\n",result,us->pusb_dev->status);
@@ -640,7 +656,9 @@ int usb_stor_BBB_transport(ccb *srb, struct us_data *us)
 	retry = 0;
    again:
 	USB_STOR_PRINTF("STATUS phase\n");
-	result = usb_bulk_msg(us->pusb_dev, pipein, &csw, UMASS_BBB_CSW_SIZE, &actlen, USB_CNTL_TIMEOUT*5);
+	result = usb_bulk_msg(us->pusb_dev, pipein, &csw, UMASS_BBB_CSW_SIZE, 
+				&actlen, USB_CNTL_TIMEOUT*5);
+
 	/* special handling of STALL in STATUS phase */
 	if((result < 0) && (retry < 1) && (us->pusb_dev->status & USB_ST_STALLED)) {
 		USB_STOR_PRINTF("STATUS:stall\n");
@@ -797,7 +815,7 @@ do_retry:
 static int usb_inquiry(ccb *srb,struct us_data *ss)
 {
 	int retry,i;
-	retry=3;
+	retry=5;
 	do {
 		memset(&srb->cmd[0],0,12);
 		srb->cmd[0]=SCSI_INQUIRY;
@@ -838,7 +856,7 @@ static int usb_request_sense(ccb *srb,struct us_data *ss)
 
 static int usb_test_unit_ready(ccb *srb,struct us_data *ss)
 {
-	int retries=10;
+	int retries = 10;
 
 	do {
 		memset(&srb->cmd[0],0,12);
@@ -859,7 +877,7 @@ static int usb_test_unit_ready(ccb *srb,struct us_data *ss)
 static int usb_read_capacity(ccb *srb,struct us_data *ss)
 {
 	int retry;
-	retry=2; /* retries */
+	retry = 3; /* retries */
 	do {
 		memset(&srb->cmd[0],0,12);
 		srb->cmd[0]=SCSI_RD_CAPAC;
@@ -972,9 +990,6 @@ int usb_storage_probe(struct usb_device *dev, unsigned int ifnum,struct us_data 
 	int protocol = 0;
 	int subclass = 0;
 
-
-	memset(ss, 0, sizeof(struct us_data));
-
 	/* let's examine the device now */
 	iface = &dev->config.if_desc[ifnum];
 
@@ -995,6 +1010,8 @@ int usb_storage_probe(struct usb_device *dev, unsigned int ifnum,struct us_data 
 		/* if it's not a mass storage, we go no further */
 		return 0;
 	}
+
+	memset(ss, 0, sizeof(struct us_data));
 
 	/* At this point, we know we've got a live one */
 	USB_STOR_PRINTF("\n\nUSB Mass Storage device detected\n");
@@ -1103,50 +1120,62 @@ int usb_stor_get_info(struct usb_device *dev,struct us_data *ss,block_dev_desc_t
 	unsigned char perq,modi;
 	unsigned long cap[2];
 	unsigned long *capacity,*blksz;
-	ccb *pccb=&usb_ccb;
+	ccb *pccb = &usb_ccb;
 
-	/* For some mysterious reason the 256MB flash disk of Ours Technology, Inc
-	 * doesn't survive this reset */
-	if (dev->descriptor.idVendor != 0xea0 || dev->descriptor.idProduct != 0x6828)
+	/* for some reasons a couple of devices would not survive this reset */
+	if (
+	    /* Sony USM256E */
+	    (dev->descriptor.idVendor == 0x054c &&
+	     dev->descriptor.idProduct == 0x019e)
+
+	    ||
+	    /* USB007 Mini-USB2 Flash Drive */
+	    (dev->descriptor.idVendor == 0x066f &&
+	     dev->descriptor.idProduct == 0x2010)
+	    )
+		USB_STOR_PRINTF("usb_stor_get_info: skipping RESET..\n");
+	else 
 		ss->transport_reset(ss);
-	pccb->pdata=usb_stor_buf;
 
-	dev_desc->target=dev->devnum;
-	pccb->lun=dev_desc->lun;
+	pccb->pdata = usb_stor_buf;
+
+	dev_desc->target = dev->devnum;
+	pccb->lun = dev_desc->lun;
 	USB_STOR_PRINTF(" address %d\n",dev_desc->target);
 
 	if(usb_inquiry(pccb,ss))
 		return -1;
-	perq=usb_stor_buf[0];
-	modi=usb_stor_buf[1];
-	if((perq & 0x1f)==0x1f) {
+		
+	perq = usb_stor_buf[0];
+	modi = usb_stor_buf[1];
+	if((perq & 0x1f) == 0x1f) {
 		return 0; /* skip unknown devices */
 	}
-	if((modi&0x80)==0x80) {/* drive is removable */
-		dev_desc->removable=1;
+	if((modi&0x80) == 0x80) {/* drive is removable */
+		dev_desc->removable = 1;
 	}
 	memcpy(&dev_desc->vendor[0], &usb_stor_buf[8], 8);
 	memcpy(&dev_desc->product[0], &usb_stor_buf[16], 16);
 	memcpy(&dev_desc->revision[0], &usb_stor_buf[32], 4);
-	dev_desc->vendor[8]=0;
-	dev_desc->product[16]=0;
-	dev_desc->revision[4]=0;
+	dev_desc->vendor[8] = 0;
+	dev_desc->product[16] = 0;
+	dev_desc->revision[4] = 0;
 	USB_STOR_PRINTF("ISO Vers %X, Response Data %X\n",usb_stor_buf[2],usb_stor_buf[3]);
 	if(usb_test_unit_ready(pccb,ss)) {
 		printf("Device NOT ready\n   Request Sense returned %02X %02X %02X\n",pccb->sense_buf[2],pccb->sense_buf[12],pccb->sense_buf[13]);
-		if(dev_desc->removable==1) {
-			dev_desc->type=perq;
+		if(dev_desc->removable == 1) {
+			dev_desc->type = perq;
 			return 1;
 		}
 		else
 			return 0;
 	}
-	pccb->pdata=(unsigned char *)&cap[0];
+	pccb->pdata = (unsigned char *)&cap[0];
 	memset(pccb->pdata,0,8);
-	if(usb_read_capacity(pccb,ss)!=0) {
+	if(usb_read_capacity(pccb,ss) != 0) {
 		printf("READ_CAP ERROR\n");
-		cap[0]=2880;
-		cap[1]=0x200;
+		cap[0] = 2880;
+		cap[1] = 0x200;
 	}
 	USB_STOR_PRINTF("Read Capacity returns: 0x%lx, 0x%lx\n",cap[0],cap[1]);
 #if 0
@@ -1166,13 +1195,13 @@ int usb_stor_get_info(struct usb_device *dev,struct us_data *ss,block_dev_desc_t
 		(((unsigned long)(cap[1]) & (unsigned long)0xff000000UL) >> 24) ));
 #endif
 	/* this assumes bigendian! */
-	cap[0]+=1;
-	capacity=&cap[0];
-	blksz=&cap[1];
+	cap[0] += 1;
+	capacity = &cap[0];
+	blksz = &cap[1];
 	USB_STOR_PRINTF("Capacity = 0x%lx, blocksz = 0x%lx\n",*capacity,*blksz);
-	dev_desc->lba=*capacity;
-	dev_desc->blksz=*blksz;
-	dev_desc->type=perq;
+	dev_desc->lba = *capacity;
+	dev_desc->blksz = *blksz;
+	dev_desc->type = perq;
 	USB_STOR_PRINTF(" address %d\n",dev_desc->target);
 	USB_STOR_PRINTF("partype: %d\n",dev_desc->part_type);
 

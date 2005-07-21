@@ -448,11 +448,17 @@ int do_usb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	block_dev_desc_t *stor_dev;
 #endif
 
-	if ((strncmp(argv[1],"reset",5) == 0) ||
-		 (strncmp(argv[1],"start",5) == 0)){
+	if ((strncmp(argv[1], "reset", 5) == 0) ||
+		 (strncmp(argv[1], "start", 5) == 0)){
 		usb_stop();
 		printf("(Re)start USB...\n");
-		usb_init();
+		i = usb_init();
+#ifdef CONFIG_USB_STORAGE
+		/* try to recognize storage devices immediately */
+		if (i >= 0) 
+	 		usb_stor_curr_dev = usb_stor_scan(1);
+		
+#endif
 		return 0;
 	}
 	if (strncmp(argv[1],"stop",4) == 0) {
@@ -513,15 +519,18 @@ int do_usb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return 0;
 	}
 #ifdef CONFIG_USB_STORAGE
-	if (strncmp(argv[1],"scan",4) == 0) {
-		printf("Scan for storage device:\n");
-	 	usb_stor_curr_dev=usb_stor_scan(1);
-		if (usb_stor_curr_dev==-1) {
-			printf("No device found. Not initialized?\n");
-			return 1;
-		}
+	if (strncmp(argv[1], "scan", 4) == 0) {
+		printf("  NOTE: this command is obsolete and will be phased out\n");
+		printf("  please use 'usb storage' for USB storage devices information\n\n");
+		usb_stor_info();
 		return 0;
 	}
+
+	if (strncmp(argv[1], "stor", 4) == 0) {
+		usb_stor_info();
+		return 0;
+	}
+
 	if (strncmp(argv[1],"part",4) == 0) {
 		int devno, ok;
 		for (ok=0, devno=0; devno<USB_MAX_STOR_DEV; ++devno) {
@@ -560,8 +569,8 @@ int do_usb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			return 1;
 		}
 	}
-	if (strcmp(argv[1],"dev") == 0) {
-		if (argc==3) {
+	if (strncmp(argv[1], "dev", 3) == 0) {
+		if (argc == 3) {
 			int dev = (int)simple_strtoul(argv[2], NULL, 10);
 			printf ("\nUSB device %d: ", dev);
 			if (dev >= USB_MAX_STOR_DEV) {
@@ -608,7 +617,7 @@ U_BOOT_CMD(
 	"usb stop [f]  - stop USB [f]=force stop\n"
 	"usb tree  - show USB device tree\n"
 	"usb info [dev] - show available USB devices\n"
-	"usb scan  - (re-)scan USB bus for storage devices\n"
+	"usb storage  - show details of USB storage devices\n"
 	"usb dev [dev] - show or set current USB storage device\n"
 	"usb part [dev] - print partition table of one or all USB storage devices\n"
 	"usb read addr blk# cnt - read `cnt' blocks starting at block `blk#'\n"

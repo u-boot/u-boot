@@ -30,7 +30,6 @@ static int cc_to_error[16] = {
 };
 
 /* ED States */
-
 #define ED_NEW 		0x00
 #define ED_UNLINK 	0x01
 #define ED_OPER		0x02
@@ -104,7 +103,6 @@ struct td {
   	__u32 hwNextTD;		/* Next TD Pointer */
   	__u32 hwBE;		/* Memory Buffer End Pointer */
 
-  	__u16 hwPSW[MAXPSW];
   	__u8 unused;
   	__u8 index;
   	struct ed *ed;

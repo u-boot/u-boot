@@ -104,7 +104,6 @@ struct td {
 	__u32 hwNextTD;		/* Next TD Pointer */
 	__u32 hwBE;		/* Memory Buffer End Pointer */
 
-	__u16 hwPSW[MAXPSW];
 	__u8 unused;
 	__u8 index;
 	struct ed *ed;
