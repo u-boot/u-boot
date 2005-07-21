@@ -52,6 +52,9 @@
 #define CONFIG_BAUDRATE		115200	/* ... at 115200 bps	*/
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 
+/* Partitions */
+#define CONFIG_DOS_PARTITION
+
 /*
  * Supported commands
  */
@@ -60,6 +63,7 @@
 				CFG_CMD_DHCP	| \
 				CFG_CMD_EEPROM	| \
 				CFG_CMD_I2C	| \
+				CFG_CMD_IDE	| \
 				CFG_CMD_NFS	| \
 				CFG_CMD_SNTP)
 
@@ -269,5 +273,36 @@
 
 #define CFG_CS_BURST		0x00000000
 #define CFG_CS_DEADCYCLE	0x33333333
+
+/*-----------------------------------------------------------------------
+ * IDE/ATA stuff Supports IDE harddisk
+ *-----------------------------------------------------------------------
+ */
+
+#undef  CONFIG_IDE_8xx_PCCARD		/* Use IDE with PC Card	Adapter	*/
+
+#undef	CONFIG_IDE_8xx_DIRECT		/* Direct IDE    not supported	*/
+#undef	CONFIG_IDE_LED			/* LED   for ide not supported	*/
+
+#define CFG_IDE_MAXBUS		1	/* max. 1 IDE bus		*/
+#define CFG_IDE_MAXDEVICE	2	/* max. 2 drives per IDE bus	*/
+
+#define CFG_ATA_IDE0_OFFSET	0x0000
+
+#define CFG_ATA_BASE_ADDR	MPC5XXX_ATA
+
+/* Offset for data I/O			*/
+#define CFG_ATA_DATA_OFFSET	(0x0060)
+
+/* Offset for normal register accesses	*/
+#define CFG_ATA_REG_OFFSET	(CFG_ATA_DATA_OFFSET)
+
+/* Offset for alternate registers	*/
+#define CFG_ATA_ALT_OFFSET	(0x005C)
+
+/* Interval between registers                                                */
+#define CFG_ATA_STRIDE          4
+
+#define CONFIG_ATAPI            1
 
 #endif /* __CONFIG_H */

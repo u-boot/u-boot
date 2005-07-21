@@ -2,6 +2,10 @@
 Changes for U-Boot 1.1.3:
 ======================================================================
 
+* Add CompactFlash support for HMI1001 board.
+
+* Adjust printed board ID for LWMON board.
+
 * Add new argument format for flash commands to allow for usage like
   "erase $(addr) +$(filesize)", i. e. a size argument can be used and
   U-Boot will automaticially find the end of the corresponding sector.
