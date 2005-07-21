@@ -185,7 +185,7 @@ V* Verification: dzu@denx.de
  ***********************************************************************/
 int checkboard (void)
 {
-	puts ("Board: LICCON Konsole LCD2\n");
+	puts ("Board: LICCON Konsole LCD3\n");
 	return (0);
 }
 
