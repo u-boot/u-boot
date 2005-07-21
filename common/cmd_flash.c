@@ -96,6 +96,93 @@ abbrev_spec (char *str, flash_info_t ** pinfo, int *psf, int *psl)
 	return 1;
 }
 
+/*
+ * This function computes the start and end addresses for both
+ * erase and protect commands. The range of the addresses on which
+ * either of the commands is to operate can be given in two forms:
+ * 1. <cmd> start end - operate on <'start',  'end')
+ * 2. <cmd> start +length - operate on <'start', start + length) 
+ * If the second form is used and the end address doesn't fall on the
+ * sector boundary, than it will be adjusted to the next sector boundary.
+ * If it isn't in the flash, the function will fail (return -1).
+ * Input:
+ *    arg1, arg2: address specification (i.e. both command arguments)
+ * Output:
+ *    addr_first, addr_last: computed address range
+ * Return:
+ *    1: success
+ *   -1: failure (bad format, bad address).
+*/
+static int
+addr_spec(char *arg1, char *arg2, ulong *addr_first, ulong *addr_last)
+{
+	char *ep;
+	*addr_first = simple_strtoul(arg1, &ep, 16);
+	if (ep == arg1 || *ep != '\0')
+		return -1;
+
+	char len_used = 0; /* indicates if the "start +length" form used */
+	if (arg2 && *arg2 == '+'){
+		len_used = 1;
+		++arg2;
+	}
+
+	*addr_last = simple_strtoul(arg2, &ep, 16);
+	if (ep == arg2 || *ep != '\0')
+		return -1;
+
+	if (len_used){
+		/*
+		 * *addr_last has the length, compute correct *addr_last
+		 * XXX watch out for the integer overflow! Right now it is
+		 * checked for in both the callers.
+		 */
+		*addr_last = *addr_first + *addr_last - 1;
+
+		/*
+		 * It may happen that *addr_last doesn't fall on the sector
+		 * boundary. We want to round such an address to the next
+		 * sector boundary, so that the commands don't fail later on.
+		 */
+
+		/* find the end addr of the sector where the *addr_last is */
+		char found = 0;
+		ulong bank;
+		for (bank = 0; bank < CFG_MAX_FLASH_BANKS && !found; ++bank){
+			int i;
+			flash_info_t *info = &flash_info[bank];
+			for (i = 0; i < info->sector_count && !found; ++i){
+				/* get the end address of the sector */
+				ulong sector_end_addr;
+				if (i == info->sector_count - 1){
+					sector_end_addr =
+						info->start[0] + info->size - 1;
+				} else {
+					sector_end_addr =
+						info->start[i+1] - 1;
+				}
+				if (*addr_last <= sector_end_addr &&
+						*addr_last >= info->start[i]){
+					/* sector found */
+					found = 1;
+					/* adjust *addr_last if necessary */
+					if (*addr_last < sector_end_addr){
+						*addr_last = sector_end_addr;
+					}
+				}
+			} /* sector */
+		} /* bank */
+		if (!found){
+			/* error, addres not in flash */
+			printf("Error: end address (0x%08lx) not in flash!\n",
+								*addr_last);
+			return -1;
+		}
+	} /* "start +length" from used */
+
+	return 1;
+}
+
 static int
 flash_fill_sect_ranges (ulong addr_first, ulong addr_last,
 			int *s_first, int *s_last,
@@ -256,8 +343,10 @@ int do_flerase (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return rcode;
 	}
 
-	addr_first = simple_strtoul(argv[1], NULL, 16);
-	addr_last  = simple_strtoul(argv[2], NULL, 16);
+	if (addr_spec(argv[1], argv[2], &addr_first, &addr_last) < 0){
+		printf ("Bad address format\n");
+		return 1;
+	}
 
 	if (addr_first >= addr_last) {
 		printf ("Usage:\n%s\n", cmdtp->usage);
@@ -435,8 +524,10 @@ int do_protect (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return rcode;
 	}
 
-	addr_first = simple_strtoul(argv[2], NULL, 16);
-	addr_last  = simple_strtoul(argv[3], NULL, 16);
+	if (addr_spec(argv[2], argv[3], &addr_first, &addr_last) < 0){
+		printf("Bad address format\n");
+		return 1;
+	}
 
 	if (addr_first >= addr_last) {
 		printf ("Usage:\n%s\n", cmdtp->usage);
@@ -511,6 +602,9 @@ U_BOOT_CMD(
 	"erase   - erase FLASH memory\n",
 	"start end\n"
 	"    - erase FLASH from addr 'start' to addr 'end'\n"
+	"erase start +len\n"
+	"    - erase FLASH from addr 'start' to the end of sect "
+	"w/addr 'start'+'len'-1\n"
 	"erase N:SF[-SL]\n    - erase sectors SF-SL in FLASH bank # N\n"
 	"erase bank N\n    - erase FLASH bank # N\n"
 	"erase all\n    - erase all FLASH banks\n"
@@ -521,12 +615,18 @@ U_BOOT_CMD(
 	"protect - enable or disable FLASH write protection\n",
 	"on  start end\n"
 	"    - protect FLASH from addr 'start' to addr 'end'\n"
+	"protect on start +len\n"
+	"    - protect FLASH from addr 'start' to end of sect "
+	"w/addr 'start'+'len'-1\n"
 	"protect on  N:SF[-SL]\n"
 	"    - protect sectors SF-SL in FLASH bank # N\n"
 	"protect on  bank N\n    - protect FLASH bank # N\n"
 	"protect on  all\n    - protect all FLASH banks\n"
 	"protect off start end\n"
 	"    - make FLASH from addr 'start' to addr 'end' writable\n"
+	"protect off start +len\n"
+	"    - make FLASH from addr 'start' to end of sect "
+	"w/addr 'start'+'len'-1 wrtable\n"
 	"protect off N:SF[-SL]\n"
 	"    - make sectors SF-SL writable in FLASH bank # N\n"
 	"protect off bank N\n    - make FLASH bank # N writable\n"
