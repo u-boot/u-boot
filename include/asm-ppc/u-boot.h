@@ -59,7 +59,7 @@ typedef struct bd_info {
 	unsigned short	bi_ethspeed;	/* Ethernet speed in Mbps */
 	unsigned long	bi_intfreq;	/* Internal Freq, in MHz */
 	unsigned long	bi_busfreq;	/* Bus Freq, in MHz */
-#if defined(CONFIG_8260) || defined(CONFIG_MPC8560)
+#if defined(CONFIG_CPM2)
 	unsigned long	bi_cpmfreq;	/* CPM_CLK Freq, in MHz */
 	unsigned long	bi_brgfreq;	/* BRG_CLK Freq, in MHz */
 	unsigned long	bi_sccfreq;	/* SCC_CLK Freq, in MHz */

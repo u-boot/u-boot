@@ -1,6 +1,12 @@
 ======================================================================
 Changes for U-Boot 1.1.3:
 ======================================================================
+* Patch by Jon Loeliger, Kumar Gala 2005-02-08
+  - Convert the CPM2 based functionality to use new CONFIG_CPM2
+    option rather than a myriad of CONFIG_MPC8560-like variants.
+    Applies to MPC85xx and MPC8260 boards, includes stxgp3 and sbc8560.
+    Eliminates the CONFIG_MPC8560 option entirely.  Distributes the
+    new CONFIG_CPM2 option to each 8260 board.
 
 * Patch by Jon Loeliger, 20 Jul 2005:
   Add missing PCI IO port definitions.

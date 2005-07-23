@@ -30,7 +30,7 @@
 #include <ioports.h>
 #include <asm/io.h>
 
-#ifdef CONFIG_MPC8560
+#ifdef CONFIG_CPM2
 static void config_8560_ioports (volatile immap_t * immr)
 {
 	int portnum;
@@ -115,7 +115,7 @@ void cpu_init_f (void)
 	memset ((void *) gd, 0, sizeof (gd_t));
 
 
-#ifdef CONFIG_MPC8560
+#ifdef CONFIG_CPM2
 	config_8560_ioports(immap);
 #endif
 
@@ -173,7 +173,7 @@ void cpu_init_f (void)
 	memctl->br7 = CFG_BR7_PRELIM;
 #endif
 
-#if defined(CONFIG_MPC8560)
+#if defined(CONFIG_CPM2)
 	m8560_cpm_reset();
 #endif
 }

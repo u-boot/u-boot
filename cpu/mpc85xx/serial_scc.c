@@ -35,7 +35,7 @@
 #include <common.h>
 #include <asm/cpm_85xx.h>
 
-#if defined(CONFIG_MPC8560)
+#if defined(CONFIG_CPM2)
 #if defined(CONFIG_CONS_ON_SCC)
 
 #if CONFIG_CONS_INDEX == 1	/* Console on SCC1 */
@@ -271,4 +271,4 @@ serial_tstc()
 
 #endif	/* CONFIG_CONS_ON_SCC */
 
-#endif /* CONFIG_MPC8560 */
+#endif /* CONFIG_CPM2 */

@@ -50,7 +50,7 @@
 #include <net.h>
 #include <serial.h>
 #ifdef CFG_ALLOC_DPRAM
-#if !(defined(CONFIG_8260)||defined(CONFIG_MPC8560))
+#if !defined(CONFIG_CPM2)
 #include <commproc.h>
 #endif
 #endif
@@ -272,7 +272,7 @@ init_fnc_t *init_sequence[] = {
 	init_timebase,
 #endif
 #ifdef CFG_ALLOC_DPRAM
-#if !(defined(CONFIG_8260) || defined(CONFIG_MPC8560))
+#if !defined(CONFIG_CPM2)
 	dpram_init,
 #endif
 #endif
@@ -360,7 +360,7 @@ void board_init_f (ulong bootflag)
 	/* compiler optimization barrier needed for GCC >= 3.4 */
 	__asm__ __volatile__("": : :"memory");
 
-#if !(defined(CONFIG_8260) || defined(CONFIG_MPC8560))
+#if !defined(CONFIG_CPM2)
 	/* Clear initial global data */
 	memset ((void *) gd, 0, sizeof (gd_t));
 #endif
@@ -521,12 +521,12 @@ void board_init_f (ulong bootflag)
 	WATCHDOG_RESET ();
 	bd->bi_intfreq = gd->cpu_clk;	/* Internal Freq, in Hz */
 	bd->bi_busfreq = gd->bus_clk;	/* Bus Freq,      in Hz */
-#if defined(CONFIG_8260) || defined(CONFIG_MPC8560)
+#if defined(CONFIG_CPM2)
 	bd->bi_cpmfreq = gd->cpm_clk;
 	bd->bi_brgfreq = gd->brg_clk;
 	bd->bi_sccfreq = gd->scc_clk;
 	bd->bi_vco     = gd->vco_out;
-#endif /* CONFIG_8260 */
+#endif /* CONFIG_CPM2 */
 #if defined(CONFIG_MPC5xxx)
 	bd->bi_ipbfreq = gd->ipb_clk;
 	bd->bi_pcifreq = gd->pci_clk;

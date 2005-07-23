@@ -46,7 +46,7 @@
 #define CONFIG_MPC85xx_REV1	1	/* MPC85xx Rev 1.0 chip		*/
 
 
-#define CONFIG_MPC8560		1	/* MPC8560 (CPU) specific		*/
+#define CONFIG_CPM2		1	/* has CPM2 */
 #define CONFIG_SBC8560      	1   	/* configuration for SBC8560 board */
 
 #define CONFIG_MPC8560ADS	1	/* MPC8560ADS board specific (supplement)	*/

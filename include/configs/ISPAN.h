@@ -31,6 +31,7 @@
 
 #define CONFIG_MPC8260			/* This is an MPC8260 CPU               */
 #define CONFIG_ISPAN			/* ...on one of Interphase iSPAN boards */
+#define CONFIG_CPM2		1	/* Has a CPM2 */
 
 /*-----------------------------------------------------------------------
  * Select serial console configuration

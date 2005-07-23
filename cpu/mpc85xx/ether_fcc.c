@@ -48,7 +48,7 @@
 #include <config.h>
 #include <net.h>
 
-#if defined(CONFIG_MPC8560)
+#if defined(CONFIG_CPM2)
 
 #if defined(CONFIG_ETHER_ON_FCC) && (CONFIG_COMMANDS & CFG_CMD_NET) && \
 	defined(CONFIG_NET_MULTI)
@@ -458,4 +458,4 @@ int fec_initialize(bd_t *bis)
 
 #endif	/* CONFIG_ETHER_ON_FCC && CFG_CMD_NET && CONFIG_NET_MULTI */
 
-#endif /* CONFIG_MPC8560 */
+#endif /* CONFIG_CPM2 */

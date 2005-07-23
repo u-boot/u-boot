@@ -1025,9 +1025,7 @@ typedef struct ccsr_pic {
 } ccsr_pic_t;
 
 /* CPM Block(0x8_0000-0xc_0000) */
-#if defined(CONFIG_MPC8540) \
-	|| defined(CONFIG_MPC8541) \
-	|| defined(CONFIG_MPC8555)
+#ifndef CONFIG_CPM2
 typedef struct ccsr_cpm {
 	char res[262144];
 } ccsr_cpm_t;

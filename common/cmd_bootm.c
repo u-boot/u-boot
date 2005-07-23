@@ -580,12 +580,12 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	kbd->bi_flbfreq /= 1000000L;
 	kbd->bi_vcofreq /= 1000000L;
 #endif
-#if defined(CONFIG_8260) || defined(CONFIG_MPC8560)
+#if defined(CONFIG_CPM2)
 		kbd->bi_cpmfreq /= 1000000L;
 		kbd->bi_brgfreq /= 1000000L;
 		kbd->bi_sccfreq /= 1000000L;
 		kbd->bi_vco     /= 1000000L;
-#endif /* CONFIG_8260 */
+#endif
 #if defined(CONFIG_MPC5xxx)
 		kbd->bi_ipbfreq /= 1000000L;
 		kbd->bi_pcifreq /= 1000000L;

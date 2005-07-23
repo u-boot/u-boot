@@ -37,6 +37,7 @@
 #define CONFIG_MPC8272_FAMILY	1
 #define CONFIG_IDS8247		1
 #define CPU_ID_STR		"MPC8247"
+#define CONFIG_CPM2		1	/* Has a CPM2 */
 
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 

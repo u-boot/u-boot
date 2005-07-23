@@ -36,6 +36,7 @@
 #define CONFIG_MPC8260		1	/* This is an MPC8260 CPU		*/
 #define CONFIG_CPU87		1	/* ...on a CPU87 board	*/
 #define CONFIG_PCI
+#define CONFIG_CPM2		1	/* Has a CPM2 */
 
 /*
  * select serial console configuration

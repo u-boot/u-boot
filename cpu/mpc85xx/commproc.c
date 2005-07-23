@@ -24,7 +24,7 @@
 #include <common.h>
 #include <asm/cpm_85xx.h>
 
-#if defined(CONFIG_MPC8560)
+#if defined(CONFIG_CPM2)
 /*
  * because we have stack and init data in dual port ram
  * we must reduce the size
@@ -211,4 +211,4 @@ ulong post_word_load (void)
 
 #endif	/* CONFIG_POST */
 
-#endif /* CONFIG_MPC8560 */
+#endif /* CONFIG_CPM2 */

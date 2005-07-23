@@ -48,6 +48,8 @@
 #define CFG_EP8260_H2	1
 /* #undef CFG_EP8260_H2  */
 
+#define CONFIG_CPM2		1	/* Has a CPM2 */
+
 /* What is the oscillator's (UX2) frequency in Hz? */
 #define CONFIG_8260_CLKIN  (66 * 1000 * 1000)
 

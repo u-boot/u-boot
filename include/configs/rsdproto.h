@@ -37,6 +37,7 @@
 
 #define CONFIG_MPC8260		1	/* This is an MPC8260 CPU	*/
 #define CONFIG_RSD_PROTO	1	/* on a R&S Protocol Board      */
+#define CONFIG_CPM2		1	/* Has a CPM2 */
 
 #define	CONFIG_MISC_INIT_F	1	/* Use misc_init_f()		*/
 
