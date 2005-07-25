@@ -1,6 +1,9 @@
 ======================================================================
 Changes for U-Boot 1.1.3:
 ======================================================================
+* Patch by Jon Loeliger 2005-02-08
+  Determine L2 Cache size dynamically on 85XX boards.
+
 * Patch by Jon Loeliger, Kumar Gala 2005-02-08
   - Convert the CPM2 based functionality to use new CONFIG_CPM2
     option rather than a myriad of CONFIG_MPC8560-like variants.

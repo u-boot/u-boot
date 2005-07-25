@@ -189,6 +189,21 @@ int cpu_init_r (void)
 	volatile uint temp;
 
 	asm("msync;isync");
+	temp = l2cache->l2ctl;
+	temp &= 0x30000000;
+	switch ( temp ) {
+	case 0x20000000:
+		printf ("L2 cache 256KB:");
+		break;
+	case 0x00000000:
+	case 0x10000000:
+	case 0x30000000:
+	default:
+		printf ("L2 cache unknown size. Check the silicon!\n");
+		return -1;
+	}
+
+	asm("msync;isync");
 	l2cache->l2ctl = 0x68000000; /* invalidate */
 	temp = l2cache->l2ctl;
 	asm("msync;isync");
@@ -196,7 +211,7 @@ int cpu_init_r (void)
 	temp = l2cache->l2ctl;
 	asm("msync;isync");
 
-	printf("L2:    256 kB enabled\n");
+	printf("enabled\n");
 #else
 	printf("L2:    disabled.\n");
 #endif
