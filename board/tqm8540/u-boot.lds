@@ -70,7 +70,6 @@ SECTIONS
     cpu/mpc85xx/interrupts.o (.text)
     cpu/mpc85xx/cpu_init.o (.text)
     cpu/mpc85xx/cpu.o (.text)
-    cpu/mpc85xx/tsec.o (.text)
     cpu/mpc85xx/speed.o (.text)
     cpu/mpc85xx/pci.o (.text)
     common/dlmalloc.o (.text)
