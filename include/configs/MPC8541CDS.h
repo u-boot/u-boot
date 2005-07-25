@@ -95,18 +95,50 @@ extern unsigned long get_clock_freq(void);
 #error ("CONFIG_SPD_EEPROM is required by MPC85555CDS")
 #endif
 
+#undef CONFIG_CLOCKS_IN_MHZ
+
+
 /*
- * SDRAM on the Local Bus
+ * Local Bus Definitions
  */
-#define CFG_LBC_SDRAM_BASE	0xf0000000	/* Localbus SDRAM */
-#define CFG_LBC_SDRAM_SIZE	64		/* LBC SDRAM is 64MB */
+
+/*
+ * FLASH on the Local Bus
+ * Two banks, 8M each, using the CFI driver.
+ * Boot from BR0/OR0 bank at 0xff00_0000
+ * Alternate BR1/OR1 bank at 0xff80_0000
+ *
+ * BR0, BR1:
+ *    Base address 0 = 0xff00_0000 = BR0[0:16] = 1111 1111 0000 0000 0
+ *    Base address 1 = 0xff80_0000 = BR1[0:16] = 1111 1111 1000 0000 0
+ *    Port Size = 16 bits = BRx[19:20] = 10
+ *    Use GPCM = BRx[24:26] = 000
+ *    Valid = BRx[31] = 1
+ *
+ * 0    4    8    12   16   20   24   28
+ * 1111 1111 1000 0000 0001 0000 0000 0001 = ff801001    BR0
+ * 1111 1111 0000 0000 0001 0000 0000 0001 = ff001001    BR1
+ *
+ * OR0, OR1:
+ *    Addr Mask = 8M = ORx[0:16] = 1111 1111 1000 0000 0
+ *    Reserved ORx[17:18] = 11, confusion here?
+ *    CSNT = ORx[20] = 1
+ *    ACS = half cycle delay = ORx[21:22] = 11
+ *    SCY = 6 = ORx[24:27] = 0110
+ *    TRLX = use relaxed timing = ORx[29] = 1
+ *    EAD = use external address latch delay = OR[31] = 1
+ *
+ * 0    4    8    12   16   20   24   28
+ * 1111 1111 1000 0000 0110 1110 0110 0101 = ff806e65    ORx
+ */
+
 #define CFG_FLASH_BASE		0xff000000	/* start of FLASH 8M */
 
-#define CFG_BR0_PRELIM		0xff801001	/* port size 16bit */
-#define CFG_BR1_PRELIM		0xff001001	/* port size 16bit */
+#define CFG_BR0_PRELIM		0xff801001
+#define CFG_BR1_PRELIM		0xff001001
 
-#define	CFG_OR0_PRELIM		0xff806e61	/* 8MB Flash */
-#define	CFG_OR1_PRELIM		0xff806e61	/* 8MB Flash */
+#define	CFG_OR0_PRELIM		0xff806e65
+#define	CFG_OR1_PRELIM		0xff806e65
 
 #define CFG_FLASH_BANKS_LIST	{0xff800000, CFG_FLASH_BASE}
 #define CFG_MAX_FLASH_BANKS	2		/* number of banks */
@@ -121,11 +153,12 @@ extern unsigned long get_clock_freq(void);
 #define CFG_FLASH_CFI
 #define CFG_FLASH_EMPTY_INFO
 
-#undef CONFIG_CLOCKS_IN_MHZ
 
 /*
- * Local Bus Definitions
+ * SDRAM on the Local Bus
  */
+#define CFG_LBC_SDRAM_BASE	0xf0000000	/* Localbus SDRAM */
+#define CFG_LBC_SDRAM_SIZE	64		/* LBC SDRAM is 64MB */
 
 /*
  * Base Register 2 and Option Register 2 configure SDRAM.
