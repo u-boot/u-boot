@@ -135,8 +135,8 @@ The default setting of all switches on the carrier board is:
   SW4=10001000
 
 
-CPU Card Switches
------------------
+8555/41 CPU Card Switches
+-------------------------
 
 Most switches on the CPU Card should not be changed.  However, the
 frequency can be changed by setting SW3:
@@ -158,6 +158,45 @@ A safe default setting for all switches on the CPU board is:
   SW2=01000111
   SW3=00001000
   SW4=11111110
+
+
+8548 CPU Card Switches
+----------------------
+And, just to be confusing, in this set of switches:
+
+    ON  = 1
+    OFF = 0
+
+Default
+  SW1=11111101
+  SW2=10011111
+  SW3=11001000    (8X) (2:1)
+  SW4=11110011
+
+  SW3=X000XXXX  == CORE:CCB    4:1
+      X001XXXX  == CORE:CCB    9:2
+      X010XXXX  == CORE:CCB    1:1
+      X011XXXX  == CORE:CCB    3:2
+      X100XXXX  == CORE:CCB    2:1
+      X101XXXX  == CORE:CCB    5:2
+      X110XXXX  == CORE:CCB    3:1
+      X111XXXX  == CORE:CCB    7:2
+      XXXX0000  == CCB:SYSCLK 16:1
+      XXXX0001  == RESERVED
+      XXXX0010  == CCB:SYSCLK  2:1
+      XXXX0011  == CCB:SYSCLK  3:1
+      XXXX0100  == CCB:SYSCLK  4:1
+      XXXX0101  == CCB:SYSCLK  5:1
+      XXXX0110  == CCB:SYSCLK  6:1
+      XXXX0111  == RESERVED
+      XXXX1000  == CCB:SYSCLK  8:1
+      XXXX1001  == CCB:SYSCLK  9:1
+      XXXX1010  == CCB:SYSCLK 10:1
+      XXXX1011  == RESERVED
+      XXXX1100  == CCB:SYSCLK 12:1
+      XXXX1101  == CCB:SYSCLK 20:1
+      XXXX1110  == RESERVED
+      XXXX1111  == RESERVED
 
 
 eDINK Info

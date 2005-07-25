@@ -81,21 +81,27 @@ typedef struct ccsr_ddr {
 	uint	cs1_config;		/* 0x2084 - DDR Chip Select Configuration */
 	uint	cs2_config;		/* 0x2088 - DDR Chip Select Configuration */
 	uint	cs3_config;		/* 0x208c - DDR Chip Select Configuration */
-	char	res5[120];
+	char	res5[112];
+	uint	ext_refrec;		/* 0x2100 - DDR SDRAM Extended Refresh Recovery */
+	uint	timing_cfg_0;		/* 0x2104 - DDR SDRAM Timing Configuration Register 0 */
 	uint	timing_cfg_1;		/* 0x2108 - DDR SDRAM Timing Configuration Register 1 */
 	uint	timing_cfg_2;		/* 0x210c - DDR SDRAM Timing Configuration Register 2 */
 	uint	sdram_cfg;		/* 0x2110 - DDR SDRAM Control Configuration */
-	char	res6[4];
+	uint	sdram_cfg_2;		/* 0x2114 - DDR SDRAM Control Configuration 2 */
 	uint	sdram_mode;		/* 0x2118 - DDR SDRAM Mode Configuration */
-	char	res7[8];
+	uint	sdram_mode_2;		/* 0x211c - DDR SDRAM Mode Configuration 2*/
+	uint	sdram_md_cntl;		/* 0x2120 - DDR SDRAM Mode Control */
 	uint	sdram_interval;		/* 0x2124 - DDR SDRAM Interval Configuration */
-#ifdef MPC85xx_DDR_SDRAM_CLK_CNTL
-	char	res7_5[8];
+	uint	sdram_data_init;	/* 0x2128 - DDR SDRAM Data initialization */
+	char	res6[4];
 	uint	sdram_clk_cntl;		/* 0x2130 - DDR SDRAM Clock Control */
-	char	res8[3276];
-#else
-	char	res8[3288];
-#endif
+	char	res7[20];
+	uint	init_address;		/* 0x2148 - DDR training initialization address */
+	uint	init_ext_address;	/* 0x214C - DDR training initialization extended address */
+	char	res8_1[2728];
+	uint	ip_rev1;		/* 0x2BF8 - DDR IP Block Revision 1 */
+	uint	ip_rev2;		/* 0x2BFC - DDR IP Block Revision 2 */
+	char	res8_2[512];
 	uint	data_err_inject_hi;	/* 0x2e00 - DDR Memory Data Path Error Injection Mask High */
 	uint	data_err_inject_lo;	/* 0x2e04 - DDR Memory Data Path Error Injection Mask Low */
 	uint	ecc_err_inject;		/* 0x2e08 - DDR Memory Data Path Error Injection Mask ECC */
@@ -118,6 +124,8 @@ typedef struct ccsr_ddr {
 	uint	debug_4;
 	char	res12[240];
 } ccsr_ddr_t;
+
+
 
 
 /* I2C Registers(0x3000-0x4000) */
@@ -158,6 +166,7 @@ typedef struct ccsr_i2c {
 
 #if defined(CONFIG_MPC8540) \
 	|| defined(CONFIG_MPC8541) \
+	|| defined(CONFIG_MPC8548) \
 	|| defined(CONFIG_MPC8555)
 /* DUART Registers(0x4000-0x5000) */
 typedef struct ccsr_duart {
@@ -1547,7 +1556,13 @@ typedef struct ccsr_gur {
 	uint	ddrdllcr;	/* 0xe0e10 - DDR DLL control register */
 	char	res12[12];
 	uint	lbcdllcr;	/* 0xe0e20 - LBC DLL control register */
-	char	res13[61915];
+	char	res13[248];
+	uint	lbiuiplldcr0;	/* 0xe0f1c -- LBIU PLL Debug Reg 0 */
+	uint	lbiuiplldcr1;	/* 0xe0f20 -- LBIU PLL Debug Reg 1 */
+	uint	ddrioovcr;	/* 0xe0f24 - DDR IO Override Control */
+	uint	res14;		/* 0xe0f28 */
+	uint	tsec34ioovcr;	/* 0xe0f2c - eTSEC 3/4 IO override control */
+	char	res15[61651];
 } ccsr_gur_t;
 
 typedef struct immap {

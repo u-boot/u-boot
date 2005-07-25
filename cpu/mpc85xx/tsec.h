@@ -51,6 +51,7 @@
 
 #define ECNTRL_INIT_SETTINGS	0x00001000
 #define ECNTRL_TBI_MODE         0x00000020
+#define ECNTRL_R100		0x00000008
 
 #define miim_end -2
 #define miim_read -1
@@ -107,6 +108,7 @@
 /* Cicada 8204 Extended PHY Control Register 1 */
 #define MIIM_CIS8204_EPHY_CON		0x17
 #define MIIM_CIS8204_EPHYCON_INIT	0x0006
+#define MIIM_CIS8204_EPHYCON_RGMII	0x1000
 
 /* Cicada 8204 Serial LED Control Register */
 #define MIIM_CIS8204_SLED_CON		0x1b
@@ -424,12 +426,18 @@ typedef struct tsec
 	uint	resc00[256];
 } tsec_t;
 
+#define TSEC_GIGABIT (1)
+
+/* This flag currently only has
+ * meaning if we're using the eTSEC */
+#define TSEC_REDUCED (1 << 1)
+
 struct tsec_private {
 	volatile tsec_t *regs;
 	volatile tsec_t *phyregs;
 	struct phy_info *phyinfo;
 	uint phyaddr;
-	uint gigabit;
+	u32 flags;
 	uint link;
 	uint duplexity;
 	uint speed;

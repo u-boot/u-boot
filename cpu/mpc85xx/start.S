@@ -174,6 +174,9 @@ _start_e500:
 	mtspr	BUCSR,r0	/* disable branch prediction */
 	mtspr	MAS4,r0
 	mtspr	MAS6,r0
+#if defined(CONFIG_ENABLE_36BIT_PHYS)
+	mtspr	MAS7,r0
+#endif
 	isync
 
 	/* Setup interrupt vectors */
@@ -358,6 +361,9 @@ _start:
 	/* Enable Time Base and Select Time Base Clock */
 	lis	r0,HID0_EMCP@h		/* Enable machine check */
 	ori	r0,r0,0x4000		/* time base is processor clock */
+#if defined(CONFIG_ENABLE_36BIT_PHYS)
+	ori	r0,r0,0x0080		/* enable MAS7 updates */
+#endif
 	mtspr	HID0,r0
 
 #if defined(CONFIG_ADDR_STREAMING)

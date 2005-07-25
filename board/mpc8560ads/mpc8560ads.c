@@ -33,7 +33,7 @@
 #include <spd.h>
 #include <miiphy.h>
 
-#if defined(CONFIG_DDR_ECC)
+#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 extern void ddr_enable_ecc(unsigned int dram_size);
 #endif
 
@@ -293,7 +293,7 @@ initdram(int board_type)
 	dram_size = fixed_sdram ();
 #endif
 
-#if defined(CONFIG_DDR_ECC)
+#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 	/*
 	 * Initialize and enable DDR ECC.
 	 */

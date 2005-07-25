@@ -143,6 +143,7 @@ Updated 13-July-2004 Jon Loeliger
     CONFIG_DDR_ECC	    only for ECC DDR module
     CONFIG_DDR_DLL	    DLL fix on some ADS boards needed for more
 			    stability.
+    CONFIG_HAS_FEC	    If an FEC is on chip, set to 1, else 0.
 
 Other than the above definitions, the rest in the config files are
 straightforward.
@@ -190,10 +191,10 @@ straightforward.
 
 4.4 Reflash U-boot Image using U-boot
 
-    => tftp 10000 u-boot.bin
-    => protect off fff80000 ffffffff
-    => erase fff80000 ffffffff
-    => cp.b 10000 fff80000 80000
+    tftp 10000 u-boot.bin
+    protect off fff80000 ffffffff
+    erase fff80000 ffffffff
+    cp.b 10000 fff80000 80000
 
 
 4.5 Reflash U-Boot with a BDI-2000

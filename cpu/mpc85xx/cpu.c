@@ -38,6 +38,7 @@ int checkcpu (void)
 	uint lcrr;		/* local bus clock ratio register */
 	uint clkdiv;		/* clock divider portion of lcrr */
 	uint pvr, svr;
+	uint fam;
 	uint ver;
 	uint major, minor;
 
@@ -60,6 +61,12 @@ int checkcpu (void)
 	case SVR_8560:
 		puts("8560");
 		break;
+	case SVR_8548:
+		puts("8548");
+		break;
+	case SVR_8548_E:
+		puts("8548_E");
+		break;
 	default:
 		puts("Unknown");
 		break;
@@ -67,13 +74,14 @@ int checkcpu (void)
 	printf(", Version: %d.%d, (0x%08x)\n", major, minor, svr);
 
 	pvr = get_pvr();
+	fam = PVR_FAM(pvr);
 	ver = PVR_VER(pvr);
 	major = PVR_MAJ(pvr);
 	minor = PVR_MIN(pvr);
 
 	printf("Core:  ");
-	switch (ver) {
-	case PVR_VER(PVR_85xx):
+	switch (fam) {
+	case PVR_FAM(PVR_85xx):
 	    puts("E500");
 	    break;
 	default:
@@ -84,7 +92,7 @@ int checkcpu (void)
 
 	get_sys_info(&sysinfo);
 
-	puts("Clocks Configuration:\n");
+	puts("Clock Configuration:\n");
 	printf("       CPU:%4lu MHz, ", sysinfo.freqProcessor / 1000000);
 	printf("CCB:%4lu MHz,\n", sysinfo.freqSystemBus / 1000000);
 	printf("       DDR:%4lu MHz, ", sysinfo.freqSystemBus / 2000000);
@@ -101,6 +109,13 @@ int checkcpu (void)
 #endif
 	clkdiv = lcrr & 0x0f;
 	if (clkdiv == 2 || clkdiv == 4 || clkdiv == 8) {
+#ifdef CONFIG_MPC8548
+		/*
+		 * Yes, the entire PQ38 family use the same
+		 * bit-representation for twice the clock divider values.
+		 */
+		 clkdiv *= 2;
+#endif
 		printf("LBC:%4lu MHz\n",
 		       sysinfo.freqSystemBus / 1000000 / clkdiv);
 	} else {

@@ -1193,6 +1193,9 @@ MPC8560ADS_config:	unconfig
 MPC8541CDS_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc85xx mpc8541cds cds
 
+MPC8548CDS_config:	unconfig
+	@./mkconfig $(@:_config=) ppc mpc85xx mpc8548cds cds
+
 MPC8555CDS_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc85xx mpc8555cds cds
 

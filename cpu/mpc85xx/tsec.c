@@ -35,7 +35,7 @@ typedef volatile struct rtxbd {
 
 struct tsec_info_struct {
 	unsigned int phyaddr;
-	unsigned int gigabit;
+	u32 flags;
 	unsigned int phyregidx;
 };
 
@@ -48,8 +48,9 @@ struct tsec_info_struct {
  *  phyaddr - The address of the PHY which is attached to
  *	the given device.
  *
- *  gigabit - This variable indicates whether the device
- *	supports gigabit speed ethernet
+ *  flags - This variable indicates whether the device
+ *	supports gigabit speed ethernet, and whether it should be
+ *	in reduced mode.
  *
  *  phyregidx - This variable specifies which ethernet device
  *	controls the MII Management registers which are connected
@@ -70,23 +71,32 @@ struct tsec_info_struct {
  */
 static struct tsec_info_struct tsec_info[] = {
 #ifdef CONFIG_MPC85XX_TSEC1
-	{TSEC1_PHY_ADDR, 1, TSEC1_PHYIDX},
+	{TSEC1_PHY_ADDR, TSEC_GIGABIT, TSEC1_PHYIDX},
 #else
 	{ 0, 0, 0},
 #endif
 #ifdef CONFIG_MPC85XX_TSEC2
-	{TSEC2_PHY_ADDR, 1, TSEC2_PHYIDX},
+	{TSEC2_PHY_ADDR, TSEC_GIGABIT, TSEC2_PHYIDX},
 #else
 	{ 0, 0, 0},
 #endif
 #ifdef CONFIG_MPC85XX_FEC
 	{FEC_PHY_ADDR, 0, FEC_PHYIDX},
 #else
+#    ifdef CONFIG_MPC85XX_TSEC3
+	{TSEC3_PHY_ADDR, TSEC_GIGABIT | TSEC_REDUCED, TSEC3_PHYIDX},
+#    else
 	{ 0, 0, 0},
+#    endif
+#    ifdef CONFIG_MPC85XX_TSEC4
+	{TSEC4_PHY_ADDR, TSEC_REDUCED, TSEC4_PHYIDX},
+#    else
+	{ 0, 0, 0},
+#    endif
 #endif
 };
 
-#define MAXCONTROLLERS 3
+#define MAXCONTROLLERS	(4)
 
 static int relocated = 0;
 
@@ -115,7 +125,7 @@ static void relocate_cmds(void);
 /* Initialize device structure. Returns success if PHY
  * initialization succeeded (i.e. if it recognizes the PHY)
  */
-int tsec_initialize(bd_t *bis, int index)
+int tsec_initialize(bd_t *bis, int index, char *devname)
 {
 	struct eth_device* dev;
 	int i;
@@ -139,9 +149,9 @@ int tsec_initialize(bd_t *bis, int index)
 			tsec_info[index].phyregidx*TSEC_SIZE);
 
 	priv->phyaddr = tsec_info[index].phyaddr;
-	priv->gigabit = tsec_info[index].gigabit;
+	priv->flags = tsec_info[index].flags;
 
-	sprintf(dev->name, "ENET%d", index);
+	sprintf(dev->name, devname);
 	dev->iobase = 0;
 	dev->priv   = priv;
 	dev->init   = tsec_init;
@@ -318,7 +328,7 @@ static int init_phy(struct eth_device *dev)
 /* For 10/100, the value is slightly different */
 uint mii_cr_init(uint mii_reg, struct tsec_private *priv)
 {
-	if(priv->gigabit)
+	if(priv->flags & TSEC_GIGABIT)
 		return MIIM_CONTROL_INIT;
 	else
 		return MIIM_CR_INIT;
@@ -438,6 +448,13 @@ uint mii_cis8204_fixled(uint mii_reg, struct tsec_private *priv)
 	return MIIM_CIS8204_SLEDCON_INIT;
 }
 
+uint mii_cis8204_setmode(uint mii_reg, struct tsec_private *priv)
+{
+	if (priv->flags & TSEC_REDUCED)
+		return MIIM_CIS8204_EPHYCON_INIT | MIIM_CIS8204_EPHYCON_RGMII;
+	else
+		return MIIM_CIS8204_EPHYCON_INIT;
+}
 
 /* Initialized required registers to appropriate values, zeroing
  * those we don't care about (unless zero is bad, in which case,
@@ -507,6 +524,15 @@ static void adjust_link(struct eth_device *dev)
 			case 10:
 				regs->maccfg2 = ((regs->maccfg2&~(MACCFG2_IF))
 					| MACCFG2_MII);
+
+				/* If We're in reduced mode, we
+				 * need to say whether we're 10
+				 * or 100 MB. */
+				if ((priv->speed == 100) 
+						&& (priv->flags & TSEC_REDUCED))
+					regs->ecntrl |= ECNTRL_R100;
+				else
+					regs->ecntrl &= ~(ECNTRL_R100);
 				break;
 			default:
 				printf("%s: Speed was bad\n", dev->name);
@@ -731,7 +757,7 @@ struct phy_info phy_info_cis8204 = {
 		/* Configure some basic stuff */
 		{MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
 		{MIIM_CIS8204_SLED_CON, MIIM_CIS8204_SLEDCON_INIT, &mii_cis8204_fixled},
-		{MIIM_CIS8204_EPHY_CON, MIIM_CIS8204_EPHYCON_INIT, NULL},
+		{MIIM_CIS8204_EPHY_CON, MIIM_CIS8204_EPHYCON_INIT, &mii_cis8204_setmode},
 		{miim_end,}
 	},
 	(struct phy_cmd[]) { /* startup */

@@ -1,6 +1,13 @@
 ======================================================================
 Changes for U-Boot 1.1.3:
 ======================================================================
+* Patch by Jon Loeliger, 2005-05-05
+  Implemented support for MPC8548CDS board.
+  Added DDR II support based on SPD values for MPC85xx boards.
+  This roll-up patch also includes bugfies for the previously
+  published patches:
+    DDRII CPO, pre eTSEC, 8548 LBIU, Andy's TSEC, eTSEC 3&4 I/O
+
 * Patch by Jon Loeliger, 2005-Feb-10
   Add config option CONFIG_HAS_FEC calling out 8540 FEC features.
 

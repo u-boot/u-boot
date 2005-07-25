@@ -46,9 +46,11 @@
 #undef  CONFIG_ETHER_ON_FCC             /* cpm FCC ethernet support */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup*/
-#define CONFIG_DDR_ECC			/* only for ECC DDR module */
 #define CONFIG_DDR_DLL			/* possible DLL fix needed */
 #define CONFIG_DDR_2T_TIMING		/* Sets the 2T timing bit */
+
+#define CONFIG_DDR_ECC			/* only for ECC DDR module */
+#define CONFIG_MEM_INIT_VALUE		0xDeadBeef
 
 
 /*
@@ -337,13 +339,17 @@
 
 #define CONFIG_MII		1	/* MII PHY management */
 #define CONFIG_MPC85XX_TSEC1	1
+#define CONFIG_MPC85XX_TSEC1_NAME	"TSEC0"
 #define CONFIG_MPC85XX_TSEC2	1
+#define CONFIG_MPC85XX_TSEC2_NAME	"TSEC1"
 #undef CONFIG_MPC85XX_FEC
 #define TSEC1_PHY_ADDR		0
 #define TSEC2_PHY_ADDR		1
 #define TSEC1_PHYIDX		0
 #define TSEC2_PHYIDX		0
-#define CONFIG_ETHPRIME		"MOTO ENET0"
+
+/* Options are: TSEC[0-1] */
+#define CONFIG_ETHPRIME		"TSEC0"
 
 #elif defined(CONFIG_ETHER_ON_FCC)	/* CPM FCC Ethernet */
 

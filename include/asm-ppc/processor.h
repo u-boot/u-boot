@@ -420,6 +420,7 @@
 #define SPRN_MAS4       0x274   /* MMU Assist Register 4 */
 #define SPRN_MAS5       0x275   /* MMU Assist Register 5 */
 #define SPRN_MAS6       0x276   /* MMU Assist Register 6 */
+#define SPRN_MAS7	0x3B0	/* MMU Assist Register 7 */
 
 #define SPRN_IVOR32     0x210   /* Interrupt Vector Offset Register 32 */
 #define SPRN_IVOR33     0x211   /* Interrupt Vector Offset Register 33 */
@@ -584,6 +585,7 @@
 #define MAS4	SPRN_MAS4
 #define MAS5	SPRN_MAS5
 #define MAS6	SPRN_MAS6
+#define MAS7	SPRN_MAS7
 
 /* Device Control Registers */
 
@@ -792,6 +794,8 @@
 #define SVR_8560	0x8070
 #define SVR_8555	0x8079
 #define SVR_8541	0x807A
+#define SVR_8548	0x8031
+#define SVR_8548_E	0x8039
 
 
 /* I am just adding a single entry for 8260 boards.  I think we may be
