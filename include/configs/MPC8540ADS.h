@@ -41,6 +41,10 @@
 #define CONFIG_MPC8540		1	/* MPC8540 specific */
 #define CONFIG_MPC8540ADS	1	/* MPC8540ADS board specific */
 
+#ifndef CONFIG_HAS_FEC
+#define CONFIG_HAS_FEC		1	/* 8540 has FEC */
+#endif
+
 #define CONFIG_PCI
 #define CONFIG_TSEC_ENET 		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
@@ -344,9 +348,12 @@
 #define TSEC1_PHYIDX		0
 #define TSEC2_PHYIDX		0
 
+
+#if CONFIG_HAS_FEC
 #define CONFIG_MPC85XX_FEC	1
 #define FEC_PHY_ADDR		3
 #define FEC_PHYIDX		0
+#endif
 
 #define CONFIG_ETHPRIME		"MOTO ENET0"
 
