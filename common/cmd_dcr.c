@@ -29,7 +29,7 @@
 #include <config.h>
 #include <command.h>
 
-#if defined(CONFIG_4xx) && defined(CFG_CMD_SETGETDCR)
+#if defined(CONFIG_4xx) && (CONFIG_COMMANDS & CFG_CMD_SETGETDCR)
 
 /* ======================================================================
  * Interpreter command to retrieve an IBM PPC 4xx Device Control Register
