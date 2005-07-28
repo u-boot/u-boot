@@ -200,6 +200,11 @@
 #define SPRN_HASH1	0x3D2	/* Primary Hash Address Register */
 #define SPRN_HASH2	0x3D3	/* Secondary Hash Address Resgister */
 #define SPRN_HID0	0x3F0	/* Hardware Implementation Register 0 */
+
+#define HID0_ICE_SHIFT		15
+#define HID0_DCE_SHIFT		14
+#define HID0_DLOCK_SHIFT	12
+
 #define   HID0_EMCP	(1<<31)		/* Enable Machine Check pin */
 #define   HID0_EBA	(1<<29)		/* Enable Bus Address Parity */
 #define   HID0_EBD	(1<<28)		/* Enable Bus Data Parity */
@@ -211,10 +216,10 @@
 #define   HID0_NAP	(1<<22)
 #define   HID0_SLEEP	(1<<21)
 #define   HID0_DPM	(1<<20)
-#define   HID0_ICE	(1<<15)		/* Instruction Cache Enable */
-#define   HID0_DCE	(1<<14)		/* Data Cache Enable */
+#define   HID0_ICE	(1<<HID0_ICE_SHIFT)	/* Instruction Cache Enable */
+#define   HID0_DCE	(1<<HID0_DCE_SHIFT)	/* Data Cache Enable */
 #define   HID0_ILOCK	(1<<13)		/* Instruction Cache Lock */
-#define   HID0_DLOCK	(1<<12)		/* Data Cache Lock */
+#define   HID0_DLOCK	(1<<HID0_DLOCK_SHIFT)	/* Data Cache Lock */
 #define   HID0_ICFI	(1<<11)		/* Instr. Cache Flash Invalidate */
 #define   HID0_DCFI	(1<<10)		/* Data Cache Flash Invalidate */
 #define   HID0_DCI	HID0_DCFI

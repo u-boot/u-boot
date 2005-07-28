@@ -54,7 +54,7 @@ ifeq ($(HOSTARCH),ppc)
 CROSS_COMPILE =
 else
 ifeq ($(ARCH),ppc)
-CROSS_COMPILE = ppc_8xx-
+CROSS_COMPILE = powerpc-linux-
 endif
 ifeq ($(ARCH),arm)
 CROSS_COMPILE = arm-linux-
@@ -95,6 +95,9 @@ OBJS += cpu/$(CPU)/start16.o
 OBJS += cpu/$(CPU)/reset.o
 endif
 ifeq ($(CPU),ppc4xx)
+OBJS += cpu/$(CPU)/resetvec.o
+endif
+ifeq ($(CPU),mpc83xx)
 OBJS += cpu/$(CPU)/resetvec.o
 endif
 ifeq ($(CPU),mpc85xx)
@@ -1179,6 +1182,13 @@ M5282EVB_config :		unconfig
 
 TASREG_config :		unconfig
 	@./mkconfig $(@:_config=) m68k mcf52x2 tasreg esd
+
+#########################################################################
+## MPC83xx Systems
+#########################################################################
+
+MPC8349ADS_config:	unconfig
+	@./mkconfig $(@:_config=) ppc mpc83xx mpc8349ads
 
 #########################################################################
 ## MPC85xx Systems

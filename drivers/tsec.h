@@ -18,10 +18,21 @@
 #define __TSEC_H
 
 #include <net.h>
-#include <mpc85xx.h>
+#include <config.h>
 
-#define TSEC_BASE_ADDR	(CFG_IMMR + 0x24000)
+#ifndef CFG_TSEC1_OFFSET
+    #define CFG_TSEC1_OFFSET	(0x24000)
+#endif
+
 #define TSEC_SIZE	0x01000
+
+/* FIXME:  Should these be pushed back to 83xx and 85xx config files? */
+#if defined(CONFIG_MPC85xx)
+    #define TSEC_BASE_ADDR	(CFG_IMMR + CFG_TSEC1_OFFSET)
+#elif defined(CONFIG_MPC83XX)
+    #define TSEC_BASE_ADDR	(CFG_IMMRBAR + CFG_TSEC1_OFFSET)
+#endif
+
 
 #define MAC_ADDR_LEN 6
 

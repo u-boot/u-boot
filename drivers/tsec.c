@@ -8,7 +8,6 @@
  *
  * Copyright 2004 Freescale Semiconductor.
  * (C) Copyright 2003, Motorola, Inc.
- * maintained by Jon Loeliger (loeliger@freescale.com)
  * author Andy Fleming
  *
  */
@@ -70,12 +69,12 @@ struct tsec_info_struct {
  *   FEC_PHYIDX
  */
 static struct tsec_info_struct tsec_info[] = {
-#ifdef CONFIG_MPC85XX_TSEC1
+#if defined(CONFIG_MPC85XX_TSEC1) || defined(CONFIG_MPC83XX_TSEC1)
 	{TSEC1_PHY_ADDR, TSEC_GIGABIT, TSEC1_PHYIDX},
 #else
 	{ 0, 0, 0},
 #endif
-#ifdef CONFIG_MPC85XX_TSEC2
+#if defined(CONFIG_MPC85XX_TSEC2) || defined(CONFIG_MPC83XX_TSEC2)
 	{TSEC2_PHY_ADDR, TSEC_GIGABIT, TSEC2_PHYIDX},
 #else
 	{ 0, 0, 0},
@@ -83,12 +82,12 @@ static struct tsec_info_struct tsec_info[] = {
 #ifdef CONFIG_MPC85XX_FEC
 	{FEC_PHY_ADDR, 0, FEC_PHYIDX},
 #else
-#    ifdef CONFIG_MPC85XX_TSEC3
+#    if defined(CONFIG_MPC85XX_TSEC3) || defined(CONFIG_MPC83XX_TSEC3)
 	{TSEC3_PHY_ADDR, TSEC_GIGABIT | TSEC_REDUCED, TSEC3_PHYIDX},
 #    else
 	{ 0, 0, 0},
 #    endif
-#    ifdef CONFIG_MPC85XX_TSEC4
+#    if defined(CONFIG_MPC85XX_TSEC4) || defined(CONFIG_MPC83XX_TSEC4)
 	{TSEC4_PHY_ADDR, TSEC_REDUCED, TSEC4_PHYIDX},
 #    else
 	{ 0, 0, 0},
@@ -236,7 +235,7 @@ void write_phy_reg(struct tsec_private *priv, uint regnum, uint value)
 
 	regbase->miimadd = (phyid << 8) | regnum;
 	regbase->miimcon = value;
-	asm("msync");
+	asm("sync");
 
 	timeout=1000000;
 	while((regbase->miimind & MIIMIND_BUSY) && timeout--);
@@ -261,11 +260,11 @@ uint read_phy_reg(struct tsec_private *priv, uint regnum)
 
 	/* Clear the command register, and wait */
 	regbase->miimcom = 0;
-	asm("msync");
+	asm("sync");
 
 	/* Initiate a read command, and wait */
 	regbase->miimcom = MIIM_READ_COMMAND;
-	asm("msync");
+	asm("sync");
 
 	/* Wait for the the indication that the read is done */
 	while((regbase->miimind & (MIIMIND_NOTVALID | MIIMIND_BUSY)));
@@ -293,14 +292,14 @@ static int init_phy(struct eth_device *dev)
 		regs->tbipa = TBIPA_VALUE;
 		regs = (volatile tsec_t *)(TSEC_BASE_ADDR + TSEC_SIZE);
 		regs->tbipa = TBIPA_VALUE;
-		asm("msync");
+		asm("sync");
 	}
 
 	/* Reset MII (due to new addresses) */
 	priv->phyregs->miimcfg = MIIMCFG_RESET;
-	asm("msync");
+	asm("sync");
 	priv->phyregs->miimcfg = MIIMCFG_INIT_VALUE;
-	asm("msync");
+	asm("sync");
 	while(priv->phyregs->miimind & MIIMIND_BUSY);
 
 	if(0 == relocated)
@@ -439,7 +438,7 @@ uint mii_cis8204_fixled(uint mii_reg, struct tsec_private *priv)
 	for(phyid=0;phyid<4;phyid++) {
 		regbase->miimadd = (phyid << 8) | mii_reg;
 		regbase->miimcon = MIIM_CIS8204_SLEDCON_INIT;
-		asm("msync");
+		asm("sync");
 
 		timeout=1000000;
 		while((regbase->miimind & MIIMIND_BUSY) && timeout--);

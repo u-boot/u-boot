@@ -161,6 +161,10 @@ BFD_ROOT_DIR =		/opt/powerpc
 endif
 endif
 
+ifeq ($(PCI_CLOCK),PCI_66M)
+CFLAGS := $(CFLAGS) -DPCI_66M
+endif
+
 #########################################################################
 
 export	CONFIG_SHELL HPATH HOSTCC HOSTCFLAGS CROSS_COMPILE \

@@ -156,18 +156,26 @@ int eth_initialize(bd_t *bis)
 #endif
 #if defined(CONFIG_MPC85XX_TSEC1)
 	tsec_initialize(bis, 0, CONFIG_MPC85XX_TSEC1_NAME);
+#elif defined(CONFIG_MPC83XX_TSEC1)
+	tsec_initialize(bis, 0, CONFIG_MPC83XX_TSEC1_NAME);
 #endif
 #if defined(CONFIG_MPC85XX_TSEC2)
 	tsec_initialize(bis, 1, CONFIG_MPC85XX_TSEC2_NAME);
+#elif defined(CONFIG_MPC83XX_TSEC2)
+	tsec_initialize(bis, 1, CONFIG_MPC83XX_TSEC2_NAME);
 #endif
 #if defined(CONFIG_MPC85XX_FEC)
 	tsec_initialize(bis, 2, CONFIG_MPC85XX_FEC_NAME);
 #else
 #    if defined(CONFIG_MPC85XX_TSEC3)
 	tsec_initialize(bis, 2, CONFIG_MPC85XX_TSEC3_NAME);
+#    elif defined(CONFIG_MPC83XX_TSEC3)
+	tsec_initialize(bis, 2, CONFIG_MPC83XX_TSEC3_NAME);
 #    endif
 #    if defined(CONFIG_MPC85XX_TSEC4)
 	tsec_initialize(bis, 3, CONFIG_MPC85XX_TSEC4_NAME);
+#    elif defined(CONFIG_MPC83XX_TSEC4)
+	tsec_initialize(bis, 3, CONFIG_MPC83XX_TSEC4_NAME);
 #    endif
 #endif
 #if defined(CONFIG_AU1X00)

@@ -293,6 +293,11 @@ init_fnc_t *init_sequence[] = {
 	prt_8260_rsr,
 	prt_8260_clks,
 #endif /* CONFIG_8260 */
+
+#if defined(CONFIG_MPC83XX)
+	print_clock_conf,
+#endif
+
 	checkcpu,
 #if defined(CONFIG_MPC5xxx)
 	prt_mpc5xxx_clks,
@@ -494,6 +499,9 @@ void board_init_f (ulong bootflag)
 #endif
 #if defined(CONFIG_MPC5xxx)
 	bd->bi_mbar_base = CFG_MBAR;	/* base of internal registers */
+#endif
+#if defined(CONFIG_MPC83XX)
+	bd->bi_immrbar = CFG_IMMRBAR;
 #endif
 #if defined(CONFIG_MPC8220)
 	bd->bi_mbar_base = CFG_MBAR;	/* base of internal registers */
