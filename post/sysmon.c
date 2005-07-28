@@ -185,6 +185,10 @@ static char *sysmon_unit_value (sysmon_table_t *s, uint val)
 	char *p, sign;
 	int dec, frac;
 
+	if (val == -1) {
+		return "I/O ERROR";
+	}
+
 	if (unit_val < 0) {
 		sign = '-';
 		unit_val = -unit_val;
@@ -297,8 +301,13 @@ int sysmon_post_test (int flags)
 		}
 
 		val = t->sysmon->read(t->sysmon, t->addr);
-		t->val_valid = val >= t->val_min && val <= t->val_max;
-		t->val_valid_alt = val >= t->val_min_alt && val <= t->val_max_alt;
+		if (val != -1) {
+			t->val_valid = val >= t->val_min && val <= t->val_max;
+			t->val_valid_alt = val >= t->val_min_alt && val <= t->val_max_alt;
+		} else {
+			t->val_valid = 0;
+			t->val_valid_alt = 0;
+		}
 
 		if (t->exec_after) {
 			t->exec_after(t);
