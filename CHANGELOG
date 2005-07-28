@@ -34,6 +34,14 @@ Changes for U-Boot 1.1.3:
     Eliminates the CONFIG_MPC8560 option entirely.  Distributes the
     new CONFIG_CPM2 option to each 8260 board.
 
+* Fix sysmon POST problem: check I2C error codes
+  This fixes a problem of displaying bogus voltages when the voltages
+  are so low that the I2C devices start failing while the rest of the
+  system keeps running.
+
+* Patch by Cedric Vincent, 6 Jul 2005:
+  Fix CFG_CMD_SETGETDCR handling in "common/cmd_dcr.c"
+
 * Patch by Jon Loeliger, 20 Jul 2005:
   Add missing PCI IO port definitions.
 
