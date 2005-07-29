@@ -1197,6 +1197,26 @@ MPC8349ADS_config:	unconfig
 MPC8540ADS_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc85xx mpc8540ads
 
+MPC8540EVAL_config \
+MPC8540EVAL_33_config \
+MPC8540EVAL_66_config \
+MPC8540EVAL_33_slave_config \
+MPC8540EVAL_66_slave_config:      unconfig
+	@echo "" >include/config.h ; \
+	if [ "$(findstring _33_,$@)" ] ; then \
+		echo -n "... 33 MHz PCI" ; \
+	else \
+		echo "#define CONFIG_SYSCLK_66M" >>include/config.h ; \
+		echo -n "... 66 MHz PCI" ; \
+	fi ; \
+	if [ "$(findstring _slave_,$@)" ] ; then \
+		echo "#define CONFIG_PCI_SLAVE" >>include/config.h ; \
+		echo " slave" ; \
+	else \
+		echo " host" ; \
+	fi
+	@./mkconfig -a MPC8540EVAL ppc mpc85xx mpc8540eval
+
 MPC8560ADS_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc85xx mpc8560ads
 

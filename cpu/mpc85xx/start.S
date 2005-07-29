@@ -155,11 +155,13 @@ _start_e500:
 	mtspr	MCSR,r0
 	mtspr	DEAR,r0
 
-	mtspr	DBCR0,r0
+	/* not needed and conflicts with some debuggers */
+	/* mtspr	DBCR0,r0 */
 	mtspr	DBCR1,r0
 	mtspr	DBCR2,r0
-	mtspr	IAC1,r0
-	mtspr	IAC2,r0
+	/* not needed and conflicts with some debuggers */
+	/* mtspr	IAC1,r0 */
+	/* mtspr	IAC2,r0 */
 	mtspr	DAC1,r0
 	mtspr	DAC2,r0
 
