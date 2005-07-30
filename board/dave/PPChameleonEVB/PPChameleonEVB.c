@@ -261,7 +261,7 @@ nand_init(void)
 	debug ("Probing at 0x%.8x\n", CFG_NAND1_BASE);
 	totlen += nand_probe (CFG_NAND1_BASE);
 
-	printf ("%4lu MB\n", totlen >>20);
+	printf ("%3lu MB\n", totlen >>20);
 }
 #endif
 
