@@ -78,7 +78,7 @@
 #define	 ivor13 0x19d	/* interrupt vector offset register 13 */
 #define	 ivor14 0x19e	/* interrupt vector offset register 14 */
 #define	 ivor15 0x19f	/* interrupt vector offset register 15 */
-#if defined(CONFIG_440_GX)
+#if defined(CONFIG_440_GX) || defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
 #define	 mcsrr0 0x23a	/* machine check save/restore register 0 */
 #define	 mcsrr1 0x23b	/* mahcine check save/restore register 1 */
 #define	 mcsr	0x23c	/* machine check status register */
@@ -108,6 +108,7 @@
 #define	 icdbtrh 0x39f	/* instruction cache debug tag register high */
 #define	 mmucr	0x3b2	/* mmu control register */
 #define	 ccr0	0x3b3	/* core configuration register 0 */
+#define  ccr1  	0x378	/* core configuration for 440x5 only */
 #define	 icdbdr 0x3d3	/* instruction cache debug data register */
 #define	 dbdr	0x3f3	/* debug data register */
 
@@ -131,6 +132,7 @@
 #define clk_opbd	0x00c0
 #define clk_perd	0x00e0
 #define clk_mald	0x0100
+#define clk_spcid   	0x0120
 #define clk_icfg	0x0140
 
 /* 440gx sdr register definations */
@@ -149,19 +151,24 @@
 #define sdr_ebc		0x0100
 #define sdr_uart0	0x0120	/* UART0 Config */
 #define sdr_uart1	0x0121	/* UART1 Config */
+#define sdr_uart2	0x0122	/* UART2 Config */
+#define sdr_uart3	0x0123	/* UART3 Config */
 #define sdr_cp440	0x0180
 #define sdr_xcr		0x01c0
 #define sdr_xpllc	0x01c1
 #define sdr_xplld	0x01c2
 #define sdr_srst	0x0200
 #define sdr_slpipe	0x0220
-#define sdr_amp		0x0240
+#define sdr_amp0        0x0240  /* Override PLB4 prioritiy for up to 8 masters */
+#define sdr_amp1        0x0241  /* Override PLB3 prioritiy for up to 8 masters */
 #define sdr_mirq0	0x0260
 #define sdr_mirq1	0x0261
 #define sdr_maltbl	0x0280
 #define sdr_malrbl	0x02a0
 #define sdr_maltbs	0x02c0
 #define sdr_malrbs	0x02e0
+#define sdr_pci0        0x0300
+#define sdr_usb0        0x0320
 #define sdr_cust0	0x4000
 #define sdr_sdstp2	0x4001
 #define sdr_cust1	0x4002
@@ -234,6 +241,98 @@
 #define xbcfg		0x23	/* external bus configuration reg	*/
 #define xbcid		0x23	/* external bus core id reg		*/
 
+#if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
+
+/* PLB4 to PLB3 Bridge OUT */
+#define P4P3_DCR_BASE           0x020
+#define p4p3_esr0_read          (P4P3_DCR_BASE+0x0)
+#define p4p3_esr0_write         (P4P3_DCR_BASE+0x1)
+#define p4p3_eadr               (P4P3_DCR_BASE+0x2)
+#define p4p3_euadr              (P4P3_DCR_BASE+0x3)
+#define p4p3_esr1_read          (P4P3_DCR_BASE+0x4)
+#define p4p3_esr1_write         (P4P3_DCR_BASE+0x5)
+#define p4p3_confg              (P4P3_DCR_BASE+0x6)
+#define p4p3_pic                (P4P3_DCR_BASE+0x7)
+#define p4p3_peir               (P4P3_DCR_BASE+0x8)
+#define p4p3_rev                (P4P3_DCR_BASE+0xA)
+
+/* PLB3 to PLB4 Bridge IN */
+#define P3P4_DCR_BASE           0x030
+#define p3p4_esr0_read          (P3P4_DCR_BASE+0x0)
+#define p3p4_esr0_write         (P3P4_DCR_BASE+0x1)
+#define p3p4_eadr               (P3P4_DCR_BASE+0x2)
+#define p3p4_euadr              (P3P4_DCR_BASE+0x3)
+#define p3p4_esr1_read          (P3P4_DCR_BASE+0x4)
+#define p3p4_esr1_write         (P3P4_DCR_BASE+0x5)
+#define p3p4_confg              (P3P4_DCR_BASE+0x6)
+#define p3p4_pic                (P3P4_DCR_BASE+0x7)
+#define p3p4_peir               (P3P4_DCR_BASE+0x8)
+#define p3p4_rev                (P3P4_DCR_BASE+0xA)
+
+/* PLB3 Arbiter */
+#define PLB3_DCR_BASE           0x070
+#define plb3_revid              (PLB3_DCR_BASE+0x2)
+#define plb3_besr               (PLB3_DCR_BASE+0x3)
+#define plb3_bear               (PLB3_DCR_BASE+0x6)
+#define plb3_acr                (PLB3_DCR_BASE+0x7)
+
+/* PLB4 Arbiter - PowerPC440EP Pass1 */
+#define PLB4_DCR_BASE           0x080
+#define plb4_revid              (PLB4_DCR_BASE+0x2)
+#define plb4_acr                (PLB4_DCR_BASE+0x3)
+#define plb4_besr               (PLB4_DCR_BASE+0x4)
+#define plb4_bearl              (PLB4_DCR_BASE+0x6)
+#define plb4_bearh              (PLB4_DCR_BASE+0x7)
+
+/* Nebula PLB4 Arbiter - PowerPC440EP */
+#define PLB_ARBITER_BASE   0x80
+
+#define plb0_revid                (PLB_ARBITER_BASE+ 0x00)
+#define plb0_acr                  (PLB_ARBITER_BASE+ 0x01)
+#define   plb0_acr_ppm_mask             0xF0000000
+#define   plb0_acr_ppm_fixed            0x00000000
+#define   plb0_acr_ppm_fair             0xD0000000
+#define   plb0_acr_hbu_mask             0x08000000
+#define   plb0_acr_hbu_disabled         0x00000000
+#define   plb0_acr_hbu_enabled          0x08000000
+#define   plb0_acr_rdp_mask             0x06000000
+#define   plb0_acr_rdp_disabled         0x00000000
+#define   plb0_acr_rdp_2deep            0x02000000
+#define   plb0_acr_rdp_3deep            0x04000000
+#define   plb0_acr_rdp_4deep            0x06000000
+#define   plb0_acr_wrp_mask             0x01000000
+#define   plb0_acr_wrp_disabled         0x00000000
+#define   plb0_acr_wrp_2deep            0x01000000
+
+#define plb0_besrl                (PLB_ARBITER_BASE+ 0x02)
+#define plb0_besrh                (PLB_ARBITER_BASE+ 0x03)
+#define plb0_bearl                (PLB_ARBITER_BASE+ 0x04)
+#define plb0_bearh                (PLB_ARBITER_BASE+ 0x05)
+#define plb0_ccr                  (PLB_ARBITER_BASE+ 0x08)
+
+#define plb1_acr                  (PLB_ARBITER_BASE+ 0x09)
+#define   plb1_acr_ppm_mask             0xF0000000
+#define   plb1_acr_ppm_fixed            0x00000000
+#define   plb1_acr_ppm_fair             0xD0000000
+#define   plb1_acr_hbu_mask             0x08000000
+#define   plb1_acr_hbu_disabled         0x00000000
+#define   plb1_acr_hbu_enabled          0x08000000
+#define   plb1_acr_rdp_mask             0x06000000
+#define   plb1_acr_rdp_disabled         0x00000000
+#define   plb1_acr_rdp_2deep            0x02000000
+#define   plb1_acr_rdp_3deep            0x04000000
+#define   plb1_acr_rdp_4deep            0x06000000
+#define   plb1_acr_wrp_mask             0x01000000
+#define   plb1_acr_wrp_disabled         0x00000000
+#define   plb1_acr_wrp_2deep            0x01000000
+
+#define plb1_besrl                (PLB_ARBITER_BASE+ 0x0A)
+#define plb1_besrh                (PLB_ARBITER_BASE+ 0x0B)
+#define plb1_bearl                (PLB_ARBITER_BASE+ 0x0C)
+#define plb1_bearh                (PLB_ARBITER_BASE+ 0x0D)
+
+#else
+
 /*-----------------------------------------------------------------------------
  | Internal SRAM
  +----------------------------------------------------------------------------*/
@@ -265,6 +364,7 @@
 #define l2_cache_snp1	(L2_CACHE_BASE+0x07)	/* L2 Cache Snoop reg 1 */
 
 #endif /* CONFIG_440_GX */
+#endif /* !CONFIG_440_EP !CONFIG_440_GR*/
 
 /*-----------------------------------------------------------------------------
  | On-Chip Buses
@@ -417,10 +517,8 @@
 #define malrxbattr  (MAL_DCR_BASE+0x15) /* RX descriptor base addr reg	    */
 #define maltxctp0r  (MAL_DCR_BASE+0x20) /* TX 0 Channel table pointer reg   */
 #define maltxctp1r  (MAL_DCR_BASE+0x21) /* TX 1 Channel table pointer reg   */
-#if defined(CONFIG_440_GX)
 #define maltxctp2r  (MAL_DCR_BASE+0x22) /* TX 2 Channel table pointer reg   */
 #define maltxctp3r  (MAL_DCR_BASE+0x23) /* TX 3 Channel table pointer reg   */
-#endif /* CONFIG_440_GX */
 #define malrxctp0r  (MAL_DCR_BASE+0x40) /* RX 0 Channel table pointer reg   */
 #define malrxctp1r  (MAL_DCR_BASE+0x41) /* RX 1 Channel table pointer reg   */
 #if defined(CONFIG_440_GX)
@@ -893,6 +991,23 @@
 #define SDR0_MFR_ECS_MASK		0x10000000
 #define SDR0_MFR_ECS_INTERNAL		0x10000000
 
+#define SDR0_MFR_ETH0_CLK_SEL        0x08000000   /* Ethernet0 Clock Select */
+#define SDR0_MFR_ETH1_CLK_SEL        0x04000000   /* Ethernet1 Clock Select */
+#define SDR0_MFR_ZMII_MODE_MASK      0x03000000   /* ZMII Mode Mask   */
+#define SDR0_MFR_ZMII_MODE_MII       0x00000000     /* ZMII Mode MII  */
+#define SDR0_MFR_ZMII_MODE_SMII      0x01000000     /* ZMII Mode SMII */
+#define SDR0_MFR_ZMII_MODE_RMII_10M  0x02000000     /* ZMII Mode RMII - 10 Mbs   */
+#define SDR0_MFR_ZMII_MODE_RMII_100M 0x03000000     /* ZMII Mode RMII - 100 Mbs  */
+#define SDR0_MFR_ZMII_MODE_BIT0      0x02000000     /* ZMII Mode Bit0 */
+#define SDR0_MFR_ZMII_MODE_BIT1      0x01000000     /* ZMII Mode Bit1 */
+#define SDR0_MFR_ERRATA3_EN0         0x00800000
+#define SDR0_MFR_ERRATA3_EN1         0x00400000
+#define SDR0_MFR_PKT_REJ_MASK        0x00300000   /* Pkt Rej. Enable Mask */
+#define SDR0_MFR_PKT_REJ_EN          0x00300000   /* Pkt Rej. Enable on both EMAC3 0-1 */
+#define SDR0_MFR_PKT_REJ_EN0         0x00200000   /* Pkt Rej. Enable on EMAC3(0) */
+#define SDR0_MFR_PKT_REJ_EN1         0x00100000   /* Pkt Rej. Enable on EMAC3(1) */
+#define SDR0_MFR_PKT_REJ_POL         0x00080000   /* Packet Reject Polarity      */
+
 #define SDR0_SRST_BGO			0x80000000
 #define SDR0_SRST_PLB			0x40000000
 #define SDR0_SRST_EBC			0x20000000
@@ -927,7 +1042,7 @@
 /*-----------------------------------------------------------------------------+
 |  Clocking
 +-----------------------------------------------------------------------------*/
-#if !defined (CONFIG_440_GX)
+#if !defined (CONFIG_440_GX) && !defined(CONFIG_440_EP) && !defined(CONFIG_440_GR)
 #define PLLSYS0_TUNE_MASK	0xffc00000	/* PLL TUNE bits	    */
 #define PLLSYS0_FB_DIV_MASK	0x003c0000	/* Feedback divisor	    */
 #define PLLSYS0_FWD_DIV_A_MASK	0x00038000	/* Forward divisor A	    */
@@ -945,7 +1060,7 @@
 #define PLL_VCO_FREQ_MAX	1000		/* Max VCO freq (MHz)	    */
 #define PLL_CPU_FREQ_MAX	400		/* Max CPU freq (MHz)	    */
 #define PLL_PLB_FREQ_MAX	133		/* Max PLB freq (MHz)	    */
-#else /* !CONFIG_440_GX */
+#else /* !CONFIG_440_GX or CONFIG_440_EP or CONFIG_440_GR */
 #define PLLSYS0_ENG_MASK	0x80000000	/* 0 = SysClk, 1 = PLL VCO */
 #define PLLSYS0_SRC_MASK	0x40000000	/* 0 = PLL A, 1 = PLL B */
 #define PLLSYS0_SEL_MASK	0x38000000	/* 0 = PLL, 1 = CPU, 5 = PerClk */
@@ -955,6 +1070,19 @@
 #define PLLSYS0_FWD_DIV_B_MASK	0x000000e0	/* Fwd Div B */
 #define PLLSYS0_PRI_DIV_B_MASK	0x0000001c	/* PLL Primary Divisor B */
 #define PLLSYS0_OPB_DIV_MASK	0x00000003	/* OPB Divisor */
+
+#define PLLC_ENG_MASK       0x20000000  /* PLL primary forward divisor source   */
+#define PLLC_SRC_MASK       0x20000000  /* PLL feedback source   */
+#define PLLD_FBDV_MASK      0x1f000000  /* PLL Feedback Divisor  */
+#define PLLD_FWDVA_MASK     0x000f0000  /* PLL Forward Divisor A */
+#define PLLD_FWDVB_MASK     0x00000700  /* PLL Forward Divisor B */
+#define PLLD_LFBDV_MASK     0x0000003f  /* PLL Local Feedback Divisor */
+
+#define OPBDDV_MASK         0x03000000  /* OPB Clock Divisor Register */
+#define PERDV_MASK          0x07000000  /* Periferal Clock Divisor */
+#define PRADV_MASK          0x07000000  /* Primary Divisor A */
+#define PRBDV_MASK          0x07000000  /* Primary Divisor B */
+#define SPCID_MASK          0x03000000  /* Sync PCI Divisor  */
 
 #define PLL_VCO_FREQ_MIN	500		/* Min VCO freq (MHz)	    */
 #define PLL_VCO_FREQ_MAX	1000		/* Max VCO freq (MHz)	    */
@@ -1023,6 +1151,34 @@
 #define PCIX0_CFGBASE		(CFG_PCI_BASE + 0x0ec80000)
 #define PCIX0_IOBASE		(CFG_PCI_BASE + 0x08000000)
 
+#if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
+
+/* PCI Local Configuration Registers
+   --------------------------------- */
+#define PCI_MMIO_LCR_BASE (CFG_PCI_BASE + 0x0f400000)    /* Real => 0x0EF400000 */
+
+/* PCI Master Local Configuration Registers */
+#define PCIX0_PMM0LA         (PCI_MMIO_LCR_BASE + 0x00) /* PMM0 Local Address */
+#define PCIX0_PMM0MA         (PCI_MMIO_LCR_BASE + 0x04) /* PMM0 Mask/Attribute */
+#define PCIX0_PMM0PCILA      (PCI_MMIO_LCR_BASE + 0x08) /* PMM0 PCI Low Address */
+#define PCIX0_PMM0PCIHA      (PCI_MMIO_LCR_BASE + 0x0C) /* PMM0 PCI High Address */
+#define PCIX0_PMM1LA         (PCI_MMIO_LCR_BASE + 0x10) /* PMM1 Local Address */
+#define PCIX0_PMM1MA         (PCI_MMIO_LCR_BASE + 0x14) /* PMM1 Mask/Attribute */
+#define PCIX0_PMM1PCILA      (PCI_MMIO_LCR_BASE + 0x18) /* PMM1 PCI Low Address */
+#define PCIX0_PMM1PCIHA      (PCI_MMIO_LCR_BASE + 0x1C) /* PMM1 PCI High Address */
+#define PCIX0_PMM2LA         (PCI_MMIO_LCR_BASE + 0x20) /* PMM2 Local Address */
+#define PCIX0_PMM2MA         (PCI_MMIO_LCR_BASE + 0x24) /* PMM2 Mask/Attribute */
+#define PCIX0_PMM2PCILA      (PCI_MMIO_LCR_BASE + 0x28) /* PMM2 PCI Low Address */
+#define PCIX0_PMM2PCIHA      (PCI_MMIO_LCR_BASE + 0x2C) /* PMM2 PCI High Address */
+
+/* PCI Target Local Configuration Registers */
+#define PCIX0_PTM1MS         (PCI_MMIO_LCR_BASE + 0x30) /* PTM1 Memory Size/Attribute */
+#define PCIX0_PTM1LA         (PCI_MMIO_LCR_BASE + 0x34) /* PTM1 Local Addr. Reg */
+#define PCIX0_PTM2MS         (PCI_MMIO_LCR_BASE + 0x38) /* PTM2 Memory Size/Attribute */
+#define PCIX0_PTM2LA         (PCI_MMIO_LCR_BASE + 0x3C) /* PTM2 Local Addr. Reg */
+
+#else
+
 #define PCIX0_VENDID		(PCIX0_CFGBASE + PCI_VENDOR_ID )
 #define PCIX0_DEVID		(PCIX0_CFGBASE + PCI_DEVICE_ID )
 #define PCIX0_CMD		(PCIX0_CFGBASE + PCI_COMMAND )
@@ -1079,6 +1235,52 @@
 
 #define PCIX0_STS		(PCIX0_CFGBASE + 0x00e0)
 
+#endif /* !defined(CONFIG_440_EP) !defined(CONFIG_440_GR) */
+
+/******************************************************************************
+ * GPIO macro register defines
+ ******************************************************************************/
+#if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
+#define GPIO_BASE0             (CFG_PERIPHERAL_BASE+0x00000B00)
+#define GPIO_BASE1             (CFG_PERIPHERAL_BASE+0x00000C00)
+
+#define GPIO0_OR               (GPIO_BASE0+0x0)
+#define GPIO0_TCR              (GPIO_BASE0+0x4)
+#define GPIO0_OSRL             (GPIO_BASE0+0x8)
+#define GPIO0_OSRH             (GPIO_BASE0+0xC)
+#define GPIO0_TSRL             (GPIO_BASE0+0x10)
+#define GPIO0_TSRH             (GPIO_BASE0+0x14)
+#define GPIO0_ODR              (GPIO_BASE0+0x18)
+#define GPIO0_IR               (GPIO_BASE0+0x1C)
+#define GPIO0_RR1              (GPIO_BASE0+0x20)
+#define GPIO0_RR2              (GPIO_BASE0+0x24)
+#define GPIO0_RR3	       (GPIO_BASE0+0x28)
+#define GPIO0_ISR1L            (GPIO_BASE0+0x30)
+#define GPIO0_ISR1H            (GPIO_BASE0+0x34)
+#define GPIO0_ISR2L            (GPIO_BASE0+0x38)
+#define GPIO0_ISR2H            (GPIO_BASE0+0x3C)
+#define GPIO0_ISR3L            (GPIO_BASE0+0x40)
+#define GPIO0_ISR3H            (GPIO_BASE0+0x44)
+
+#define GPIO1_OR               (GPIO_BASE1+0x0)
+#define GPIO1_TCR              (GPIO_BASE1+0x4)
+#define GPIO1_OSRL             (GPIO_BASE1+0x8)
+#define GPIO1_OSRH             (GPIO_BASE1+0xC)
+#define GPIO1_TSRL             (GPIO_BASE1+0x10)
+#define GPIO1_TSRH             (GPIO_BASE1+0x14)
+#define GPIO1_ODR              (GPIO_BASE1+0x18)
+#define GPIO1_IR               (GPIO_BASE1+0x1C)
+#define GPIO1_RR1              (GPIO_BASE1+0x20)
+#define GPIO1_RR2              (GPIO_BASE1+0x24)
+#define GPIO1_RR3              (GPIO_BASE1+0x28)
+#define GPIO1_ISR1L            (GPIO_BASE1+0x30)
+#define GPIO1_ISR1H            (GPIO_BASE1+0x34)
+#define GPIO1_ISR2L            (GPIO_BASE1+0x38)
+#define GPIO1_ISR2H            (GPIO_BASE1+0x3C)
+#define GPIO1_ISR3L            (GPIO_BASE1+0x40)
+#define GPIO1_ISR3H            (GPIO_BASE1+0x44)
+#endif
+
 /*
  * Macros for accessing the indirect EBC registers
  */
@@ -1111,12 +1313,17 @@ typedef struct {
 	unsigned long pllFwdDivB;
 	unsigned long pllFbkDiv;
 	unsigned long pllOpbDiv;
+	unsigned long pllPciDiv;
 	unsigned long pllExtBusDiv;
 	unsigned long freqVCOMhz;	/* in MHz			   */
 	unsigned long freqProcessor;
+	unsigned long freqTmrClk;
 	unsigned long freqPLB;
 	unsigned long freqOPB;
 	unsigned long freqEPB;
+	unsigned long freqPCI;
+	unsigned long pciIntArbEn;            /* Internal PCI arbiter is enabled */
+	unsigned long pciClkSync;             /* PCI clock is synchronous        */
 } PPC440_SYS_INFO;
 
 #endif	/* _ASMLANGUAGE */

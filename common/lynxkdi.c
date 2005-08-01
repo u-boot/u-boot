@@ -20,7 +20,7 @@
 #if defined(CONFIG_LYNXKDI)
 #include <lynxkdi.h>
 
-#if defined(CONFIG_MPC8260)
+#if defined(CONFIG_MPC8260) || defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
 void lynxkdi_boot ( image_header_t *hdr )
 {
 	void (*lynxkdi)(void) = (void(*)(void))hdr->ih_ep;

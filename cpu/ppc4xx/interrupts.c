@@ -430,7 +430,10 @@ void irq_install_handler (int vec, interrupt_handler_t * handler, void *arg)
 #endif /* CONFIG_440_GX */
 #endif /* CONFIG_440 */
 
-	if (irqa[i].handler != NULL) {
+	/*
+	 * print warning when replacing with a different irq vector
+	 */
+	if ((irqa[i].handler != NULL) && (irqa[i].handler != handler)) {
 		printf ("Interrupt vector %d: handler 0x%x replacing 0x%x\n",
 			vec, (uint) handler, (uint) irqa[i].handler);
 	}

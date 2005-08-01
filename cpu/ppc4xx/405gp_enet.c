@@ -227,7 +227,12 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	 /* wait for reset */
 	 while (mfdcr (malmcr) & MAL_CR_MMSR) {
 	 };
-#if defined(CONFIG_440)
+#if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
+	out32 (ZMII_FER, 0);
+	udelay(100);
+	/* set RII mode */
+	out32 (ZMII_FER, ZMII_RMII | ZMII_MDI0);
+#elif defined(CONFIG_440)
 	 /* set RMII mode */
 	 out32 (ZMII_FER, ZMII_RMII | ZMII_MDI0);
 #endif /* CONFIG_440 */
@@ -461,6 +466,18 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 		out32(ZMII_SSR, in32(ZMII_SSR) | 0x10000000);
 	else
 		out32(ZMII_SSR, in32(ZMII_SSR) & ~0x10000000);
+#if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
+	mfsdr(sdr_mfr, reg);
+	/* set speed */
+	if (speed == _100BASET) {
+		out32(ZMII_SSR, in32(ZMII_SSR) | 0x10000000);
+		reg = (reg & ~SDR0_MFR_ZMII_MODE_MASK) | SDR0_MFR_ZMII_MODE_RMII_100M;
+	} else {
+		reg = (reg & ~SDR0_MFR_ZMII_MODE_MASK) | SDR0_MFR_ZMII_MODE_RMII_10M;
+		out32(ZMII_SSR, in32(ZMII_SSR) & ~0x10000000);
+	}
+	mtsdr(sdr_mfr, reg);
+#endif
 #endif
 
 	/* Enable broadcast and indvidual address */
@@ -498,11 +515,6 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 		/*
 		 * Connect interrupt service routines
 		 */
-#if !defined(CONFIG_405EP)
-		/* 405EP has one EWU interrupt */
-		irq_install_handler (VECNUM_EWU0 + (hw_p->devnum * 2),
-				     (interrupt_handler_t *) enetInt, dev);
-#endif
 		irq_install_handler (VECNUM_ETH0 + (hw_p->devnum * 2),
 				     (interrupt_handler_t *) enetInt, dev);
 	}
@@ -993,12 +1005,6 @@ int ppc_4xx_eth_initialize (bd_t * bis)
 			mtdcr (malrxdeir, 0xffffffff);	/* clear pending interrupts */
 			mtdcr (malier, mal_ier);
 
-#if defined(CONFIG_405EP)
-			/* 405EP has one EWU interrupt */
-			irq_install_handler (VECNUM_EWU0,
-					     (interrupt_handler_t *) enetInt,
-					     dev);
-#endif
 			/* install MAL interrupt handler */
 			irq_install_handler (VECNUM_MS,
 					     (interrupt_handler_t *) enetInt,

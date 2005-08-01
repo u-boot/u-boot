@@ -269,9 +269,14 @@ int serial_tstc ()
 #if defined(CONFIG_405GP) || defined(CONFIG_405CR) || defined(CONFIG_440) || defined(CONFIG_405EP)
 
 #if defined(CONFIG_440)
+#if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
+#define UART0_BASE  CFG_PERIPHERAL_BASE + 0x00000300
+#define UART1_BASE  CFG_PERIPHERAL_BASE + 0x00000400
+#else
 #define UART0_BASE  CFG_PERIPHERAL_BASE + 0x00000200
 #define UART1_BASE  CFG_PERIPHERAL_BASE + 0x00000300
-#if defined(CONFIG_440_GX)
+#endif
+#if defined(CONFIG_440_GX) || defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
 #define CR0_MASK        0xdfffffff
 #define CR0_EXTCLK_ENA  0x00800000
 #define CR0_UDIV_POS    0
@@ -301,14 +306,14 @@ int serial_tstc ()
 #if defined(CONFIG_UART1_CONSOLE)
 #define ACTING_UART0_BASE	UART1_BASE
 #define ACTING_UART1_BASE	UART0_BASE
-#if defined(CONFIG_440_GX)
+#if defined(CONFIG_440_GX) || defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
 #define UART0_SDR           sdr_uart1
 #define UART1_SDR           sdr_uart0
 #endif /* CONFIG_440_GX */
 #else
 #define ACTING_UART0_BASE	UART0_BASE
 #define ACTING_UART1_BASE	UART1_BASE
-#if defined(CONFIG_440_GX)
+#if defined(CONFIG_440_GX) || defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
 #define UART0_SDR           sdr_uart0
 #define UART1_SDR           sdr_uart1
 #endif /* CONFIG_440_GX */
@@ -460,7 +465,7 @@ int serial_init(void)
 	serial_divs (gd->baudrate, &udiv, &bdiv);
 #endif
 
-#if defined(CONFIG_440_GX)
+#if defined(CONFIG_440_GX) || defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
 	reg |= udiv << CR0_UDIV_POS;	/* set the UART divisor */
 #if defined(CONFIG_SERIAL_MULTI)
 	if (UART0_BASE == dev_base) {

@@ -71,17 +71,17 @@ int checkcpu (void)
 	get_sys_info(&sys_info);
 
 #ifdef CONFIG_405GP
-	puts ("IBM PowerPC 405GP");
+	puts ("AMCC PowerPC 405GP");
 	if (pvr == PVR_405GPR_RB) {
 		putc('r');
 	}
 	puts (" Rev. ");
 #endif
 #ifdef CONFIG_405CR
-	puts ("IBM PowerPC 405CR Rev. ");
+	puts ("AMCC PowerPC 405CR Rev. ");
 #endif
 #ifdef CONFIG_405EP
-	puts ("IBM PowerPC 405EP Rev. ");
+	puts ("AMCC PowerPC 405EP Rev. ");
 #endif
 	switch (pvr) {
 	case PVR_405GP_RB:
@@ -152,10 +152,10 @@ int checkcpu (void)
 #endif
 
 #if defined(CONFIG_440)
-	puts ("IBM PowerPC 440 G");
+	puts ("AMCC PowerPC 440 ");
 	switch(pvr) {
 	case PVR_440GP_RB:
-		puts("P Rev. B");
+		puts("GP Rev. B");
 		/* See errata 1.12: CHIP_4 */
 		if ((mfdcr(cpc0_sys0) != mfdcr(cpc0_strp0)) ||
 		    (mfdcr(cpc0_sys1) != mfdcr(cpc0_strp1)) ){
@@ -167,19 +167,35 @@ int checkcpu (void)
 		}
 		break;
 	case PVR_440GP_RC:
-		puts("P Rev. C");
+		puts("GP Rev. C");
 		break;
 	case PVR_440GX_RA:
-		puts("X Rev. A");
+		puts("GX Rev. A");
 		break;
 	case PVR_440GX_RB:
-		puts("X Rev. B");
+		puts("GX Rev. B");
 		break;
 	case PVR_440GX_RC:
-		puts("X Rev. C");
+		puts("GX Rev. C");
 		break;
+#if defined(CONFIG_440_GR)
+	case PVR_440EP_RA:
+		puts("GR Rev. A");
+		break;
+	case PVR_440EP_RB:
+		puts("GR Rev. B");
+		break;
+#else
+	case PVR_440EP_RA:
+		puts("EP Rev. A");
+		break;
+	case PVR_440EP_RB:
+		puts("EP Rev. B");
+		break;
+#endif
+
 	default:
-		printf (" UNKNOWN (PVR=%08x)", pvr);
+		printf ("UNKNOWN (PVR=%08x)", pvr);
 		break;
 	}
 #endif
@@ -193,6 +209,12 @@ int checkcpu (void)
 
 int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
+#if defined(CONFIG_YOSEMITE) || defined(CONFIG_YELLOWSTONE)
+	/*give reset to BCSR*/
+	*(unsigned char*)(CFG_BCSR_BASE | 0x06) = 0x09;
+
+#else
+
 	/*
 	 * Initiate system reset in debug control register DBCR
 	 */
@@ -202,6 +224,8 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #else
 	__asm__ __volatile__("mtspr 0x3f2, 3");
 #endif
+
+#endif/* defined(CONFIG_YOSEMITE) || defined(CONFIG_YELLOWSTONE)*/
 	return 1;
 }
 
