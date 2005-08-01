@@ -2,6 +2,18 @@
 Changes for U-Boot 1.1.3:
 ======================================================================
 
+* Patch by Stefan Roese, 01 Aug 2005:
+  - Major cleanup for AMCC eval boards Walnut, Bubinga, Ebony, Ocotea
+    (former IBM eval board). Please see "doc/README.AMCC-eval-boards-cleanup"
+    for details.
+  - Sycamore (PPC405GPr) eval board added (Walnut port is extended
+    to run on both 405GP and 405GPr eval boards).
+
+* Patch by Steven Blakeslee, 27 Jul 2005:
+  - Add support for AMCC PPC440EP/GR.
+  - Add support for AMCC Yosemite PPC440EP eval board.
+  - Add support for AMCC Yellowstone PPC440GR eval board.
+
 * Fix sysmon POST problem: check I2C error codes
   This fixes a problem of displaying bogus voltages when the voltages
   are so low that the I2C devices start failing while the rest of the
