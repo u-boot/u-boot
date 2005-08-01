@@ -45,12 +45,12 @@ void
 pci_mpc83xx_init(volatile struct pci_controller *hose)
 {
 	volatile immap_t *	immr;
-	volatile clk8349_t *	clk;	
+	volatile clk8349_t *	clk;
 	volatile law8349_t *	pci_law;
 	volatile pot8349_t *	pci_pot;
 	volatile pcictrl8349_t *	pci_ctrl;
 	volatile pciconf8349_t *	pci_conf;
-	
+
 	u8 val8,tmp8,ret;
 	u16 reg16,tmp16;
 	u32 val32,tmp32;
@@ -69,7 +69,7 @@ pci_mpc83xx_init(volatile struct pci_controller *hose)
 	udelay(2000);
 	clk->occr = 0xff000000;
 	udelay(2000);
-	
+
 	/*
 	 * Configure PCI Local Access Windows
 	 */
@@ -89,7 +89,7 @@ pci_mpc83xx_init(volatile struct pci_controller *hose)
 	pci_pot[1].potar = (CFG_PCI1_IO_BASE >> 12) & POTAR_TA_MASK;
 	pci_pot[1].pobar = (CFG_PCI1_IO_PHYS >> 12) & POBAR_BA_MASK;
 	pci_pot[1].pocmr = POCMR_EN | POCMR_IO | (POCMR_CM_16M & POCMR_CM_MASK);
-//#if defined(CONFIG_PCI_2)	
+
 	pci_pot[3].potar = (CFG_PCI2_MEM_BASE >> 12) & POTAR_TA_MASK;
 	pci_pot[3].pobar = (CFG_PCI2_MEM_PHYS >> 12) & POBAR_BA_MASK;
 	pci_pot[3].pocmr = POCMR_EN | POCMR_DST | (POCMR_CM_512M & POCMR_CM_MASK);
@@ -98,8 +98,7 @@ pci_mpc83xx_init(volatile struct pci_controller *hose)
 	pci_pot[4].potar = (CFG_PCI2_IO_BASE >> 12) & POTAR_TA_MASK;
 	pci_pot[4].pobar = (CFG_PCI2_IO_PHYS >> 12) & POBAR_BA_MASK;
 	pci_pot[4].pocmr = POCMR_EN | POCMR_DST | POCMR_IO | (POCMR_CM_16M & POCMR_CM_MASK);
-//#endif	
-	
+
 	/*
 	 * Configure PCI Inbound Translation Windows
 	 */
@@ -131,13 +130,13 @@ pci_mpc83xx_init(volatile struct pci_controller *hose)
 	val8 = 0x34;
 	ret = i2c_write(0x26,0x7,1,&val8,1);
 #if defined(PCI_64BIT)
-	val8 = 0xf4;		// PMC2<->PCI1  64bit
+	val8 = 0xf4;	/* PMC2<->PCI1  64bit */
 #elif defined(PCI_ALL_PCI1)
-	val8 = 0xf3;		// PMC1<->PCI1,PMC2<->PCI1,PMC3<->PCI1  32bit
+	val8 = 0xf3;	/* PMC1<->PCI1,PMC2<->PCI1,PMC3<->PCI1  32bit */
 #elif defined(PCI_ONE_PCI1)
-	val8 = 0xf9;		// PMC1<->PCI1,PMC2<->PCI2,PMC3<->PCI2  32bit
+	val8 = 0xf9;	/* PMC1<->PCI1,PMC2<->PCI2,PMC3<->PCI2  32bit */
 #elif defined(PCI_TWO_PCI1)
-	val8 = 0xf5;		// PMC1<->PCI1,PMC2<->PCI1,PMC3<->PCI2 32bit
+	val8 = 0xf5;	/* PMC1<->PCI1,PMC2<->PCI1,PMC3<->PCI2 32bit */
 #else
 	val8 = 0xf5;
 #endif
@@ -160,7 +159,7 @@ pci_mpc83xx_init(volatile struct pci_controller *hose)
 	pci_ctrl[0].gcr = 1;
 #ifndef PCI_64BIT
 	pci_ctrl[1].gcr = 1;
-#endif	
+#endif
 	udelay(2000);
 
 	hose[0].first_busno = 0;
@@ -186,7 +185,7 @@ pci_mpc83xx_init(volatile struct pci_controller *hose)
 #define PCI_CLASS_BRIDGE	0x06
 	reg16 = 0xff;
 	tmp32 = 0xffff;
-	pci_hose_write_config_byte(&hose[0],PCI_BDF(0,0,0),PCI_CLASS_CODE,PCI_CLASS_BRIDGE);	
+	pci_hose_write_config_byte(&hose[0],PCI_BDF(0,0,0),PCI_CLASS_CODE,PCI_CLASS_BRIDGE);
 
 	pci_hose_read_config_word (&hose[0],PCI_BDF(0,0,0),PCI_COMMAND, &reg16);
 	reg16 |= PCI_COMMAND_SERR | PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY;
@@ -219,7 +218,7 @@ pci_mpc83xx_init(volatile struct pci_controller *hose)
 			   (CFG_IMMRBAR+0x8380),
 			   (CFG_IMMRBAR+0x8384));
 
-	pci_hose_write_config_byte(&hose[1],PCI_BDF(0,0,0),PCI_CLASS_CODE,PCI_CLASS_BRIDGE);	
+	pci_hose_write_config_byte(&hose[1],PCI_BDF(0,0,0),PCI_CLASS_CODE,PCI_CLASS_BRIDGE);
 	pci_hose_read_config_word (&hose[1],PCI_BDF(0,0,0), PCI_COMMAND, &reg16);
 	reg16 |= PCI_COMMAND_SERR | PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY;
 	pci_hose_write_config_word(&hose[1],PCI_BDF(0,0,0), PCI_COMMAND, reg16);

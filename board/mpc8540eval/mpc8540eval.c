@@ -23,33 +23,14 @@
  * MA 02111-1307 USA
  */
 
-
-extern long int spd_sdram (void);
-
 #include <common.h>
 #include <asm/processor.h>
 #include <asm/immap_85xx.h>
 #include <spd.h>
 
-
+extern long int spd_sdram (void);
 
 long int fixed_sdram (void);
-
-/* MPC8540ADS Board Status & Control Registers */
-#if 0
-typedef struct bscr_ {
-	unsigned long bcsr0;
-	unsigned long bcsr1;
-	unsigned long bcsr2;
-	unsigned long bcsr3;
-	unsigned long bcsr4;
-	unsigned long bcsr5;
-	unsigned long bcsr6;
-	unsigned long bcsr7;
-} bcsr_t;
-#endif
-
-
 
 int board_pre_init (void)
 {
@@ -74,7 +55,8 @@ int checkboard (void)
 	printf ("\tDDR: %lu MHz\n", sysinfo.freqSystemBus / 2000000);
 	if((CFG_LBC_LCRR & 0x0f) == 2 || (CFG_LBC_LCRR & 0x0f) == 4 \
 		|| (CFG_LBC_LCRR & 0x0f) == 8) {
-		printf ("\tLBC: %lu MHz\n", sysinfo.freqSystemBus / 1000000 /(CFG_LBC_LCRR & 0x0f));
+		printf ("\tLBC: %lu MHz\n",
+			sysinfo.freqSystemBus / 1000000/(CFG_LBC_LCRR & 0x0f));
 	} else {
 		printf("\tLBC: unknown\n");
 	}
@@ -199,7 +181,6 @@ long int initdram (int board_type)
 	return dram_size;
 }
 
-
 #if defined(CFG_DRAM_TEST)
 int testdram (void)
 {
@@ -234,14 +215,13 @@ int testdram (void)
 }
 #endif
 
-
 #if !defined(CONFIG_SPD_EEPROM)
 /*************************************************************************
  *  fixed sdram init -- doesn't use serial presence detect.
  ************************************************************************/
 long int fixed_sdram (void)
 {
-  #ifndef CFG_RAMBOOT
+#ifndef CFG_RAMBOOT
 	volatile immap_t *immap = (immap_t *)CFG_IMMR;
 	volatile ccsr_ddr_t *ddr= &immap->im_ddr;
 
@@ -251,21 +231,21 @@ long int fixed_sdram (void)
 	ddr->timing_cfg_2 = CFG_DDR_TIMING_2;
 	ddr->sdram_mode = CFG_DDR_MODE;
 	ddr->sdram_interval = CFG_DDR_INTERVAL;
-    #if defined (CONFIG_DDR_ECC)
+#if defined (CONFIG_DDR_ECC)
 	ddr->err_disable = 0x0000000D;
 	ddr->err_sbe = 0x00ff0000;
-    #endif
+#endif
 	asm("sync;isync;msync");
 	udelay(500);
-    #if defined (CONFIG_DDR_ECC)
+#if defined (CONFIG_DDR_ECC)
 	/* Enable ECC checking */
 	ddr->sdram_cfg = (CFG_DDR_CONTROL | 0x20000000);
-    #else
+#else
 	ddr->sdram_cfg = CFG_DDR_CONTROL;
-    #endif
+#endif
 	asm("sync; isync; msync");
 	udelay(500);
-  #endif
+#endif
 	return (CFG_SDRAM_SIZE * 1024 * 1024);
 }
 #endif	/* !defined(CONFIG_SPD_EEPROM) */

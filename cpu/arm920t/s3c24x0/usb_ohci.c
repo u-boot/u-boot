@@ -53,7 +53,6 @@
 #define OHCI_USE_NPS		/* force NoPowerSwitching mode */
 #undef OHCI_VERBOSE_DEBUG	/* not always helpful */
 
-
 /* For initializing controller (mask in an HCFS mode too) */
 #define	OHCI_CONTROL_INIT \
 	(OHCI_CTRL_CBSR & 0x3) | OHCI_CTRL_IE | OHCI_CTRL_PLE
@@ -1221,7 +1220,6 @@ pkt_print(dev, pipe, buffer, transfer_len, cmd, "SUB(rh)", usb_pipein(pipe));
 }
 
 
-
 /*-------------------------------------------------------------------------*/
 
 /* common code for handling submit messages - used for all but root hub */
@@ -1294,7 +1292,7 @@ int submit_common_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 			wait_ms(1);
 			if (!urb_finished)
 				dbg("\%");
-			
+
 		} else {
 			err("CTL:TIMEOUT ");
 			dbg("submit_common_msg: TO status %x\n", stat);
@@ -1511,7 +1509,7 @@ hc_interrupt (void)
 		ohci->disabled++;
 		err ("%s device removed!", ohci->slot_name);
 		return -1;
-	
+
 	} else if ((ints &= readl (&regs->intrenable)) == 0) {
 		dbg("hc_interrupt: returning..\n");
 		return 0xff;

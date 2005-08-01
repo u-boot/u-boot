@@ -9,9 +9,9 @@
 #ifndef __IMMAP_85xx__
 #define __IMMAP_85xx__
 
-
-/* Local-Access Registers and ECM Registers(0x0000-0x2000) */
-
+/*
+ * Local-Access Registers and ECM Registers(0x0000-0x2000)
+ */
 typedef struct ccsr_local_ecm {
 	uint	ccsrbar;	/* 0x0 - Control Configuration Status Registers Base Address Register */
 	char	res1[4];
@@ -65,9 +65,9 @@ typedef struct ccsr_local_ecm {
 	char	res24[492];
 } ccsr_local_ecm_t;
 
-
-/* DDR memory controller registers(0x2000-0x3000) */
-
+/*
+ * DDR memory controller registers(0x2000-0x3000)
+ */
 typedef struct ccsr_ddr {
 	uint	cs0_bnds;		/* 0x2000 - DDR Chip Select 0 Memory Bounds */
 	char	res1[4];
@@ -125,11 +125,9 @@ typedef struct ccsr_ddr {
 	char	res12[240];
 } ccsr_ddr_t;
 
-
-
-
-/* I2C Registers(0x3000-0x4000) */
-
+/*
+ * I2C Registers(0x3000-0x4000)
+ */
 typedef struct ccsr_i2c {
 	u_char	i2cadr;		/* 0x3000 - I2C Address Register */
 #define MPC85xx_I2CADR_MASK	0xFE
@@ -246,10 +244,10 @@ typedef struct ccsr_lbc {
 	char	res8[12072];
 } ccsr_lbc_t;
 
-
-/* PCI Registers(0x8000-0x9000) */
-/* Omitting Reserved(0x9000-0x2_0000) */
-
+/*
+ * PCI Registers(0x8000-0x9000)
+ * Omitting Reserved(0x9000-0x2_0000)
+ */
 typedef struct ccsr_pcix {
 	uint	cfg_addr;	/* 0x8000 - PCIX Configuration Address Register */
 	uint	cfg_data;	/* 0x8004 - PCIX Configuration Data Register */
@@ -314,9 +312,9 @@ typedef struct ccsr_pcix {
 	char	res11[94688];
 } ccsr_pcix_t;
 
-
-/* L2 Cache Registers(0x2_0000-0x2_1000) */
-
+/*
+ * L2 Cache Registers(0x2_0000-0x2_1000)
+ */
 typedef struct ccsr_l2cache {
 	uint	l2ctl;		/* 0x20000 - L2 configuration register 0 */
 	char	res1[12];
@@ -358,9 +356,9 @@ typedef struct ccsr_l2cache {
 	char	res15[420];
 } ccsr_l2cache_t;
 
-
-/* DMA Registers(0x2_1000-0x2_2000) */
-
+/*
+ * DMA Registers(0x2_1000-0x2_2000)
+ */
 typedef struct ccsr_dma {
 	char	res1[256];
 	uint	mr0;		/* 0x21100 - DMA 0 Mode Register */
@@ -439,7 +437,9 @@ typedef struct ccsr_dma {
 	char	res22[11516];
 } ccsr_dma_t;
 
-/* tsec1 tsec2: 24000-26000 */
+/*
+ * tsec1 tsec2: 24000-26000
+ */
 typedef struct ccsr_tsec {
 	char	res1[16];
 	uint	ievent;		/* 0x24010 - Interrupt Event Register */
@@ -726,8 +726,9 @@ typedef struct ccsr_tsec {
 	char	res74[1024];
 } ccsr_tsec_t;
 
-/* PIC Registers(0x2_6000-0x4_0000-0x8_0000) */
-
+/*
+ * PIC Registers(0x2_6000-0x4_0000-0x8_0000)
+ */
 typedef struct ccsr_pic {
 	char 	res0[106496];	/* 0x26000-0x40000 */
 	char	res1[64];
@@ -1033,15 +1034,18 @@ typedef struct ccsr_pic {
 	char	res150[130892];
 } ccsr_pic_t;
 
-/* CPM Block(0x8_0000-0xc_0000) */
+/*
+ * CPM Block(0x8_0000-0xc_0000)
+ */
 #ifndef CONFIG_CPM2
 typedef struct ccsr_cpm {
 	char res[262144];
 } ccsr_cpm_t;
 #else
-/* 0x8000-0x8ffff:DPARM */
-
-/* 0x9000-0x90bff: General SIU */
+/*
+ * 0x8000-0x8ffff:DPARM
+ * 0x9000-0x90bff: General SIU
+ */
 typedef struct ccsr_cpm_siu {
 	char 	res1[80];
 	uint	smaer;
@@ -1332,7 +1336,6 @@ typedef struct ccsr_cpm {
 	char            	res1[16*1024];
 	u_char          	im_dpram2[16*1024];
 	char            	res2[16*1024];
-
 	ccsr_cpm_siu_t  	im_cpm_siu;     /* SIU Configuration */
 	ccsr_cpm_intctl_t    	im_cpm_intctl;  /* Interrupt Controller */
 	ccsr_cpm_iop_t       	im_cpm_iop;     /* IO Port control/status */
@@ -1357,8 +1360,10 @@ typedef struct ccsr_cpm {
 	ccsr_cpm_iram_t		im_cpm_iram;
 } ccsr_cpm_t;
 #endif
-/* RapidIO Registers(0xc_0000-0xe_0000) */
 
+/*
+ * RapidIO Registers(0xc_0000-0xe_0000)
+ */
 typedef struct ccsr_rio {
 	uint	didcar;		/* 0xc0000 - Device Identity Capability Register */
 	uint	dicar;		/* 0xc0004 - Device Information Capability Register */
@@ -1524,7 +1529,9 @@ typedef struct ccsr_rio {
 	char	res58[60176];
 } ccsr_rio_t;
 
-/* Global Utilities Register Block(0xe_0000-0xf_ffff) */
+/*
+ * Global Utilities Register Block(0xe_0000-0xf_ffff)
+ */
 typedef struct ccsr_gur {
 	uint	porpllsr;	/* 0xe0000 - POR PLL ratio status register */
 	uint	porbmsr;	/* 0xe0004 - POR boot mode status register */

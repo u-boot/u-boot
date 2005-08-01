@@ -2,7 +2,7 @@
  * MPC8349 Internal Memory Map
  * Copyright (c) 2004 Freescale Semiconductor.
  * Eran Liberty (liberty@freescale.com)
- * 
+ *
  * based on:
  * - MPC8260 Internal Memory Map
  *   Copyright (c) 1999 Dan Malek (dmalek@jlc.net)
@@ -16,20 +16,32 @@
 #include <asm/types.h>
 #include <asm/i2c.h>
 
-/* 
+/*
  * Local Access Window.
  */
 typedef struct law8349 {
 	u32 bar; /* LBIU local access window base address register */
-#define LAWBAR_BAR         0xFFFFF000 /* Identifies the 20 most-significant address bits of the base of local access window n. The specified base address should be aligned to the window size, as defined by LBLAWARn[SIZE]. */
+/* Identifies the 20 most-significant address bits of the base of local
+ * access window n. The specified base address should be aligned to the
+ * window size, as defined by LBLAWARn[SIZE].
+ */
+#define LAWBAR_BAR         0xFFFFF000
 #define LAWBAR_RES	     ~(LAWBAR_BAR)
 	u32 ar; /* LBIU local access window attribute register */
 /*
  * This Macro were moved into mmu.h
  */
-#if 0    
-#define LAWAR_EN           0x80000000 /* 0 The local bus local access window n is disabled. 1 The local bus local access window n is enabled and other LBLAWAR0 and LBLAWBAR0 fields combine to identify an address range for this window. */
-#define LAWAR_SIZE         0x0000003F /* Identifies the size of the window from the starting address. Window size is 2^(SIZE+1) bytes. 000000–001010Reserved. Window is undefined. */
+#if 0
+/* 0 The local bus local access window n is disabled. 1 The local bus
+ * local access window n is enabled and other LBLAWAR0 and LBLAWBAR0 fields
+ * combine to identify an address range for this window.
+ */
+#define LAWAR_EN           0x80000000
+/* Identifies the size of the window from the starting address. Window
+ * size is 2^(SIZE+1) bytes. 000000–001010Reserved. Window is
+ * undefined.
+ */
+#define LAWAR_SIZE         0x0000003F
 #define	LAWAR_SIZE_4K	0x0000000B
 #define	LAWAR_SIZE_8K	0x0000000C
 #define	LAWAR_SIZE_16K	0x0000000D
@@ -55,14 +67,17 @@ typedef struct law8349 {
 
 } law8349_t;
 
-/* 
+/*
  * System configuration registers.
  */
 typedef struct sysconf8349 {
 	u32 immrbar; /* Internal memory map base address register */
 	u8 res0[0x04];
 	u32 altcbar; /* Alternate configuration base address register */
-#define ALTCBAR_BASE_ADDR     0xFFF00000 /* Identifies the12 most significant address bits of an alternate base address used for boot sequencer configuration accesses. */
+/* Identifies the12 most significant address bits of an alternate base
+ * address used for boot sequencer configuration accesses.
+ */
+#define ALTCBAR_BASE_ADDR     0xFFF00000
 #define ALTCBAR_RES           ~(ALTCBAR_BASE_ADDR) /* Reserved. Write has no effect, read returns 0. */
 	u8 res1[0x14];
 	law8349_t lblaw[4]; /* LBIU local access window */
@@ -77,7 +92,7 @@ typedef struct sysconf8349 {
 #define SPRIDR_PARTID         0xFFFF0000 /* Part Identification. */
 #define SPRIDR_REVID          0x0000FFFF /* Revision Identification. */
 	u8 res5[0x04];
-	u32 spcr; /* System Priority Configuration Register */ 
+	u32 spcr; /* System Priority Configuration Register */
 #define SPCR_PCIHPE   0x10000000 /* PCI Highest Priority Enable. */
 #define SPCR_PCIPR    0x03000000 /* PCI bridge system bus request priority. */
 #define SPCR_TBEN     0x00400000 /* E300 PowerPC core time base unit enable. */
@@ -88,8 +103,9 @@ typedef struct sysconf8349 {
 #define SPCR_TSEC2DP  0x00000030 /* TSEC2 data priority. */
 #define SPCR_TSEC2BDP 0x0000000C /* TSEC2 buffer descriptor priority. */
 #define SPCR_TSEC2EP  0x00000003 /* TSEC2 emergency priority. */
-#define SPCR_RES      ~(SPCR_PCIHPE|SPCR_PCIPR|SPCR_TBEN|SPCR_COREPR|SPCR_TSEC1DP \
-                       |SPCR_TSEC1BDP|SPCR_TSEC1EP|SPCR_TSEC2DP|SPCR_TSEC2BDP|SPCR_TSEC2EP)
+#define SPCR_RES      ~(SPCR_PCIHPE | SPCR_PCIPR | SPCR_TBEN | SPCR_COREPR \
+			| SPCR_TSEC1DP | SPCR_TSEC1BDP | SPCR_TSEC1EP \
+			| SPCR_TSEC2DP | SPCR_TSEC2BDP | SPCR_TSEC2EP)
 	u32 sicrl; /* System General Purpose Register Low */
 #define SICRL_LDP_A   0x80000000
 #define SICRL_USB0    0x40000000
@@ -107,10 +123,11 @@ typedef struct sysconf8349 {
 #define SICRL_GPIO1_J 0x00008000
 #define SICRL_GPIO1_K 0x00004000
 #define SICRL_GPIO1_L 0x00003000
-#define SICRL_RES ~(SICRL_LDP_A|SICRL_USB0|SICRL_USB1|SICRL_UART|SICRL_GPIO1_A \
-                    |SICRL_GPIO1_B|SICRL_GPIO1_C|SICRL_GPIO1_D|SICRL_GPIO1_E \
-                    |SICRL_GPIO1_F|SICRL_GPIO1_G|SICRL_GPIO1_H|SICRL_GPIO1_I \
-                    |SICRL_GPIO1_J|SICRL_GPIO1_K|SICRL_GPIO1_L )
+#define SICRL_RES ~(SICRL_LDP_A | SICRL_USB0 | SICRL_USB1 | SICRL_UART \
+			| SICRL_GPIO1_A | SICRL_GPIO1_B | SICRL_GPIO1_C \
+			| SICRL_GPIO1_D | SICRL_GPIO1_E | SICRL_GPIO1_F \
+			| SICRL_GPIO1_G | SICRL_GPIO1_H | SICRL_GPIO1_I \
+			| SICRL_GPIO1_J | SICRL_GPIO1_K | SICRL_GPIO1_L )
 	u32 sicrh; /* System General Purpose Register High */
 #define SICRH_DDR     0x80000000
 #define SICRH_TSEC1_A 0x10000000
@@ -137,30 +154,32 @@ typedef struct sysconf8349 {
 #define SICRH_GPIO2_H 0x00000060
 #define SICRH_TSOBI1  0x00000002
 #define SICRH_TSOBI2  0x00000001
-#define SICRh_RES     ~(SICRH_DDR|SICRH_TSEC1_A|SICRH_TSEC1_B|SICRH_TSEC1_C \
-                        |SICRH_TSEC1_D|SICRH_TSEC1_E|SICRH_TSEC1_F|SICRH_TSEC2_A \
-                        |SICRH_TSEC2_B|SICRH_TSEC2_C|SICRH_TSEC2_D|SICRH_TSEC2_E \
-                        |SICRH_TSEC2_F|SICRH_TSEC2_G|SICRH_TSEC2_H|SICRH_GPIO2_A \
-                        |SICRH_GPIO2_B|SICRH_GPIO2_C|SICRH_GPIO2_D|SICRH_GPIO2_E \
-                        |SICRH_GPIO2_F|SICRH_GPIO2_G|SICRH_GPIO2_H|SICRH_TSOBI1  \
-                        |SICRH_TSOBI2)
+#define SICRh_RES     ~(  SICRH_DDR | SICRH_TSEC1_A | SICRH_TSEC1_B \
+			| SICRH_TSEC1_C | SICRH_TSEC1_D | SICRH_TSEC1_E \
+			| SICRH_TSEC1_F | SICRH_TSEC2_A | SICRH_TSEC2_B \
+			| SICRH_TSEC2_C | SICRH_TSEC2_D | SICRH_TSEC2_E \
+			| SICRH_TSEC2_F | SICRH_TSEC2_G | SICRH_TSEC2_H \
+			| SICRH_GPIO2_A | SICRH_GPIO2_B | SICRH_GPIO2_C \
+			| SICRH_GPIO2_D | SICRH_GPIO2_E | SICRH_GPIO2_F \
+			| SICRH_GPIO2_G | SICRH_GPIO2_H | SICRH_TSOBI1 \
+			| SICRH_TSOBI2)
 	u8 res6[0xE4];
 } sysconf8349_t;
 
-/* 
+/*
  * Watch Dog Timer (WDT) Registers
  */
 typedef struct wdt8349 {
-	u8 res0[4]; 
+	u8 res0[4];
 	u32 swcrr; /* System watchdog control register */
 	u32 swcnr; /* System watchdog count register */
 #define SWCNR_SWCN 0x0000FFFF Software Watchdog Count Field.
 #define SWCNR_RES  ~(SWCNR_SWCN)
-	u8 res1[2]; 
+	u8 res1[2];
 	u16 swsrr; /* System watchdog service register */
 	u8 res2[0xF0];
 } wdt8349_t;
- 
+
 /*
  * RTC/PIT Module Registers
  */
@@ -173,7 +192,7 @@ typedef struct rtclk8349 {
 #define CNR_RES  ~(CNR_CLEN | CNR_CLIN | CNR_AIM | CNR_SIM)
 	u32 ldr; /* load register */
 	u32 psr; /* prescale register */
-	u32 ctr; /* register */ 
+	u32 ctr; /* register */
 	u32 evr; /* event register */
 #define RTEVR_SIF  0x00000001 /* Second Interrupt Flag Bit  */
 #define RTEVR_AIF  0x00000002 /* Alarm Interrupt Flag Bit  */
@@ -187,7 +206,7 @@ typedef struct rtclk8349 {
  */
 
 typedef struct gtm8349 {
-    u8    cfr1; /* Timer1/2 Configuration  */
+	u8    cfr1; /* Timer1/2 Configuration  */
 #define CFR1_PCAS 0x80 /* Pair Cascade mode  */
 #define CFR1_BCM  0x40  /* Backward compatible mode  */
 #define CFR1_STP2 0x20 /* Stop timer  */
@@ -196,8 +215,8 @@ typedef struct gtm8349 {
 #define CFR1_GM1  0x04 /* Gate mode for pin 1  */
 #define CFR1_STP1 0x02 /* Stop timer  */
 #define CFR1_RST1 0x01 /* Reset timer  */
-    u8    res0[3];
-    u8    cfr2; /* Timer3/4 Configuration  */
+	u8    res0[3];
+	u8    cfr2; /* Timer3/4 Configuration  */
 #define CFR2_PCAS 0x80 /* Pair Cascade mode  */
 #define CFR2_SCAS 0x40 /* Super Cascade mode  */
 #define CFR2_STP4 0x20 /* Stop timer  */
@@ -206,8 +225,8 @@ typedef struct gtm8349 {
 #define CFR2_GM3  0x04 /* Gate mode for pin 3  */
 #define CFR2_STP3 0x02 /* Stop timer  */
 #define CFR2_RST3 0x01 /* Reset timer  */
-    u8    res1[10];
-    u16   mdr1; /* Timer1 Mode Register  */
+	u8    res1[10];
+	u16   mdr1; /* Timer1 Mode Register  */
 #define MDR_SPS  0xff00 /* Secondary Prescaler value  */
 #define MDR_CE   0x00c0 /* Capture edge and enable interrupt  */
 #define MDR_OM   0x0020 /* Output mode  */
@@ -215,40 +234,40 @@ typedef struct gtm8349 {
 #define MDR_FRR  0x0008 /* Free run/restart  */
 #define MDR_ICLK 0x0006 /* Input clock source for the timer  */
 #define MDR_GE   0x0001 /* Gate enable  */
-    u16   mdr2; /* Timer2 Mode Register  */
+	u16   mdr2; /* Timer2 Mode Register  */
 	u16   rfr1; /* Timer1 Reference Register  */
-    u16   rfr2; /* Timer2 Reference Register  */
-    u16   cpr1; /* Timer1 Capture Register  */
-    u16   cpr2; /* Timer2 Capture Register  */
-    u16   cnr1; /* Timer1 Counter Register  */
-    u16   cnr2; /* Timer2 Counter Register  */
-    u16   mdr3; /* Timer3 Mode Register  */
-    u16   mdr4; /* Timer4 Mode Register  */
-    u16   rfr3; /* Timer3 Reference Register  */
-    u16   rfr4; /* Timer4 Reference Register  */
-    u16   cpr3; /* Timer3 Capture Register  */
-    u16   cpr4; /* Timer4 Capture Register  */
-    u16   cnr3; /* Timer3 Counter Register  */
-    u16   cnr4; /* Timer4 Counter Register  */
-    u16   evr1; /* Timer1 Event Register  */
-    u16   evr2; /* Timer2 Event Register  */
-    u16   evr3; /* Timer3 Event Register  */
-    u16   evr4; /* Timer4 Event Register  */
+	u16   rfr2; /* Timer2 Reference Register  */
+	u16   cpr1; /* Timer1 Capture Register  */
+	u16   cpr2; /* Timer2 Capture Register  */
+	u16   cnr1; /* Timer1 Counter Register  */
+	u16   cnr2; /* Timer2 Counter Register  */
+	u16   mdr3; /* Timer3 Mode Register  */
+	u16   mdr4; /* Timer4 Mode Register  */
+	u16   rfr3; /* Timer3 Reference Register  */
+	u16   rfr4; /* Timer4 Reference Register  */
+	u16   cpr3; /* Timer3 Capture Register  */
+	u16   cpr4; /* Timer4 Capture Register  */
+	u16   cnr3; /* Timer3 Counter Register  */
+	u16   cnr4; /* Timer4 Counter Register  */
+	u16   evr1; /* Timer1 Event Register  */
+	u16   evr2; /* Timer2 Event Register  */
+	u16   evr3; /* Timer3 Event Register  */
+	u16   evr4; /* Timer4 Event Register  */
 #define GTEVR_REF 0x0002 /* Output reference event  */
 #define GTEVR_CAP 0x0001 /* Counter Capture event   */
 #define GTEVR_RES ~(EVR_CAP|EVR_REF)
-    u16   psr1; /* Timer1 Prescaler Register  */
-    u16   psr2; /* Timer2 Prescaler Register  */
-    u16   psr3; /* Timer3 Prescaler Register  */
-    u16   psr4; /* Timer4 Prescaler Register  */
-    u8    res[0xC0];
-} gtm8349_t; 
+	u16   psr1; /* Timer1 Prescaler Register  */
+	u16   psr2; /* Timer2 Prescaler Register  */
+	u16   psr3; /* Timer3 Prescaler Register  */
+	u16   psr4; /* Timer4 Prescaler Register  */
+	u8    res[0xC0];
+} gtm8349_t;
 
 /*
  * Integrated Programmable Interrupt Controller
  */
 typedef struct ipic8349 {
-    u32    sicfr; /*  System Global Interrupt Configuration Register (SICFR)  */
+	u32    sicfr; /*  System Global Interrupt Configuration Register (SICFR)  */
 #define SICFR_HPI  0x7f000000 /*  Highest Priority Interrupt  */
 #define SICFR_MPSB 0x00400000 /*  Mixed interrupts Priority Scheme for group B  */
 #define SICFR_MPSA 0x00200000 /*  Mixed interrupts Priority Scheme for group A  */
@@ -256,11 +275,11 @@ typedef struct ipic8349 {
 #define SICFR_IPSA 0x00010000 /*  Internal interrupts Priority Scheme for group A  */
 #define SICFR_HPIT 0x00000300 /*  HPI priority position IPIC output interrupt Type  */
 #define SICFR_RES ~(SICFR_HPI|SICFR_MPSB|SICFR_MPSA|SICFR_IPSD|SICFR_IPSA|SICFR_HPIT)
-    u32    sivcr; /*  System Global Interrupt Vector Register (SIVCR)  */
+	u32    sivcr; /*  System Global Interrupt Vector Register (SIVCR)  */
 #define SICVR_IVECX 0xfc000000 /*  Interrupt vector (for CE compatibility purpose only not used in 8349 IPIC implementation)  */
 #define SICVR_IVEC  0x0000007f /*  Interrupt vector  */
 #define SICVR_RES ~(SICVR_IVECX|SICVR_IVEC)
-    u32    sipnr_h; /*  System Internal Interrupt Pending Register - High (SIPNR_H)  */
+	u32    sipnr_h; /*  System Internal Interrupt Pending Register - High (SIPNR_H)  */
 #define SIIH_TSEC1TX 0x80000000 /*  TSEC1 Tx interrupt  */
 #define SIIH_TSEC1RX 0x40000000 /*  TSEC1 Rx interrupt  */
 #define SIIH_TSEC1ER 0x20000000 /*  TSEC1 Eror interrupt  */
@@ -275,11 +294,12 @@ typedef struct ipic8349 {
 #define SIIH_I2C1    0x00000004 /*  I2C1 interrupt  */
 #define SIIH_I2C2    0x00000002 /*  I2C1 interrupt  */
 #define SIIH_SPI     0x00000001 /*  SPI interrupt  */
-#define SIIH_RES ~(SIIH_TSEC1TX|SIIH_TSEC1RX|SIIH_TSEC1ER|SIIH_TSEC2TX \
-                    |SIIH_TSEC2RX|SIIH_TSEC2ER|SIIH_USB2DR|SIIH_USB2MPH \
-                    |SIIH_UART1  |SIIH_UART2  |SIIH_SEC   |SIIH_I2C1    \
-                    |SIIH_I2C2   |SIIH_SPI)
-    u32    sipnr_l; /*  System Internal Interrupt Pending Register - Low (SIPNR_L)  */
+#define SIIH_RES	~(SIIH_TSEC1TX | SIIH_TSEC1RX | SIIH_TSEC1ER \
+			| SIIH_TSEC2TX | SIIH_TSEC2RX | SIIH_TSEC2ER \
+			| SIIH_USB2DR | SIIH_USB2MPH | SIIH_UART1 \
+			| SIIH_UART2 | SIIH_SEC | SIIH_I2C1 \
+			| SIIH_I2C2 | SIIH_SPI)
+	u32    sipnr_l; /*  System Internal Interrupt Pending Register - Low (SIPNR_L)  */
 #define SIIL_RTCS  0x80000000 /*  RTC SECOND interrupt  */
 #define SIIL_PIT   0x40000000 /*  PIT interrupt  */
 #define SIIL_PCI1  0x20000000 /*  PCI1 interrupt  */
@@ -302,20 +322,21 @@ typedef struct ipic8349 {
 #define SIIL_GTM1  0x00000020 /*  GTM1 interrupt  */
 #define SIIL_GTM5  0x00000010 /*  GTM5 interrupt  */
 #define SIIL_DPTC  0x00000001 /*  DPTC interrupt (!!! Invisible for user !!!)  */
-#define SIIL_RES ~(SIIL_RTCS  |SIIL_PIT  |SIIL_PCI1 |SIIL_PCI2 |SIIL_RTCA \
-                   |SIIL_MU   |SIIL_SBA  |SIIL_DMA  |SIIL_GTM4 |SIIL_GTM8 \
-                   |SIIL_GPIO1|SIIL_GPIO2|SIIL_DDR  |SIIL_LBC  |SIIL_GTM2 \
-                   |SIIL_GTM6 |SIIL_PMC  |SIIL_GTM3 |SIIL_GTM7 |SIIL_GTM1 \
-                   |SIIL_GTM5 |SIIL_DPTC )
-    u32    siprr_a; /*  System Internal Interrupt Group A Priority Register (PRR)  */
-    u8     res0[8];
-    u32    siprr_d; /*  System Internal Interrupt Group D Priority Register (PRR)  */
-    u32    simsr_h; /*  System Internal Interrupt Mask Register - High (SIIH)  */
-    u32    simsr_l; /*  System Internal Interrupt Mask Register - Low (SIIL)  */
-    u8     res1[4];
-    u32    sepnr;   /*  System External Interrupt Pending Register (SEI)  */
-    u32    smprr_a; /*  System Mixed Interrupt Group A Priority Register (PRR)  */
-    u32    smprr_b; /*  System Mixed Interrupt Group B Priority Register (PRR)  */
+#define SIIL_RES	~(SIIL_RTCS | SIIL_PIT | SIIL_PCI1 | SIIL_PCI2 \
+			| SIIL_RTCA | SIIL_MU | SIIL_SBA | SIIL_DMA \
+			| SIIL_GTM4 | SIIL_GTM8 | SIIL_GPIO1 | SIIL_GPIO2 \
+			| SIIL_DDR | SIIL_LBC | SIIL_GTM2 | SIIL_GTM6 \
+			| SIIL_PMC |SIIL_GTM3 | SIIL_GTM7 | SIIL_GTM1 \
+			| SIIL_GTM5 |SIIL_DPTC )
+	u32    siprr_a; /*  System Internal Interrupt Group A Priority Register (PRR)  */
+	u8     res0[8];
+	u32    siprr_d; /*  System Internal Interrupt Group D Priority Register (PRR)  */
+	u32    simsr_h; /*  System Internal Interrupt Mask Register - High (SIIH)  */
+	u32    simsr_l; /*  System Internal Interrupt Mask Register - Low (SIIL)  */
+	u8     res1[4];
+	u32    sepnr;   /*  System External Interrupt Pending Register (SEI)  */
+	u32    smprr_a; /*  System Mixed Interrupt Group A Priority Register (PRR)  */
+	u32    smprr_b; /*  System Mixed Interrupt Group B Priority Register (PRR)  */
 #define PRR_0 0xe0000000 /* Priority Register, Position 0 programming */
 #define PRR_1 0x1c000000 /* Priority Register, Position 1 programming */
 #define PRR_2 0x03800000 /* Priority Register, Position 2 programming */
@@ -325,7 +346,7 @@ typedef struct ipic8349 {
 #define PRR_6 0x00000380 /* Priority Register, Position 6 programming */
 #define PRR_7 0x00000070 /* Priority Register, Position 7 programming */
 #define PRR_RES ~(PRR_0|PRR_1|PRR_2|PRR_3|PRR_4|PRR_5|PRR_6|PRR_7)
-    u32    semsr; /*  System External Interrupt Mask Register (SEI)  */
+	u32    semsr; /*  System External Interrupt Mask Register (SEI)  */
 #define SEI_IRQ0  0x80000000 /*  IRQ0 external interrupt  */
 #define SEI_IRQ1  0x40000000 /*  IRQ1 external interrupt  */
 #define SEI_IRQ2  0x20000000 /*  IRQ2 external interrupt  */
@@ -335,9 +356,10 @@ typedef struct ipic8349 {
 #define SEI_IRQ6  0x02000000 /*  IRQ6 external interrupt  */
 #define SEI_IRQ7  0x01000000 /*  IRQ7 external interrupt  */
 #define SEI_SIRQ0 0x00008000 /*  SIRQ0 external interrupt  */
-#define SEI_RES ~( SEI_IRQ0 |SEI_IRQ1 |SEI_IRQ2 |SEI_IRQ3 |SEI_IRQ4 \
-                  |SEI_IRQ5 |SEI_IRQ6 |SEI_IRQ7 |SEI_SIRQ0)
-    u32    secnr; /*  System External Interrupt Control Register (SECNR)  */
+#define SEI_RES		~( SEI_IRQ0 | SEI_IRQ1 | SEI_IRQ2 | SEI_IRQ3 \
+			| SEI_IRQ4 | SEI_IRQ5 | SEI_IRQ6 | SEI_IRQ7 \
+			| SEI_SIRQ0)
+	u32    secnr; /*  System External Interrupt Control Register (SECNR) */
 #define SECNR_MIXB0T 0xc0000000 /*  MIXB0 priority position IPIC output interrupt type  */
 #define SECNR_MIXB1T 0x30000000 /*  MIXB1 priority position IPIC output interrupt type  */
 #define SECNR_MIXA0T 0x00c00000 /*  MIXA0 priority position IPIC output interrupt type  */
@@ -350,11 +372,12 @@ typedef struct ipic8349 {
 #define SECNR_EDI5   0x00000400 /*  IRQ5 external interrupt edge/level detect  */
 #define SECNR_EDI6   0x00000200 /*  IRQ6 external interrupt edge/level detect  */
 #define SECNR_EDI7   0x00000100 /*  IRQ7 external interrupt edge/level detect  */
-#define SECNR_RES ~( SECNR_MIXB0T|SECNR_MIXB1T|SECNR_MIXA0T|SECNR_SYSA1T \
-                    |SECNR_EDI0  |SECNR_EDI1  |SECNR_EDI2  |SECNR_EDI3   \
-                    |SECNR_EDI4  |SECNR_EDI5  |SECNR_EDI6  |SECNR_EDI7)
-    u32   sersr; /*  System Error Status Register (SERR)  */
-    u32   sermr; /*  System Error Mask Register (SERR)  */
+#define SECNR_RES	~( SECNR_MIXB0T | SECNR_MIXB1T | SECNR_MIXA0T \
+			| SECNR_SYSA1T | SECNR_EDI0 | SECNR_EDI1 \
+			| SECNR_EDI2 | SECNR_EDI3 | SECNR_EDI4 \
+			| SECNR_EDI5 | SECNR_EDI6 | SECNR_EDI7)
+	u32   sersr; /*  System Error Status Register (SERR)  */
+	u32   sermr; /*  System Error Mask Register (SERR)  */
 #define SERR_IRQ0 0x80000000 /*  IRQ0 MCP request  */
 #define SERR_WDT  0x40000000 /*  WDT MCP request  */
 #define SERR_SBA  0x20000000 /*  SBA MCP request  */
@@ -364,17 +387,18 @@ typedef struct ipic8349 {
 #define SERR_PCI2 0x02000000 /*  PCI2 MCP request  */
 #define SERR_MU   0x01000000 /*  MU MCP request  */
 #define SERR_RNC  0x00010000 /*  MU MCP request (!!! Non-visible for users !!!)  */
-#define SERR_RES ~( SERR_IRQ0|SERR_WDT |SERR_SBA |SERR_DDR |SERR_LBC \
-                   |SERR_PCI1|SERR_PCI2|SERR_MU  |SERR_RNC )
-    u32    sercr; /*  System Error Control Register  (SERCR)  */
+#define SERR_RES	~( SERR_IRQ0 | SERR_WDT | SERR_SBA | SERR_DDR \
+			|SERR_LBC | SERR_PCI1 | SERR_PCI2 | SERR_MU \
+			|SERR_RNC )
+	u32    sercr; /*  System Error Control Register  (SERCR)  */
 #define SERCR_MCPR 0x00000001 /*  MCP Route  */
 #define SERCR_RES ~(SERCR_MCPR)
-    u8    res2[4];
-    u32   sifcr_h; /*  System Internal Interrupt Force Register - High (SIIH)  */
-    u32   sifcr_l; /*  System Internal Interrupt Force Register - Low (SIIL)  */
-    u32   sefcr;   /*  System External Interrupt Force Register (SEI)  */
-    u32   serfr;   /*  System Error Force Register (SERR)  */
-    u8    res3[0xA0];
+	u8    res2[4];
+	u32   sifcr_h; /*  System Internal Interrupt Force Register - High (SIIH)  */
+	u32   sifcr_l; /*  System Internal Interrupt Force Register - Low (SIIL)  */
+	u32   sefcr;   /*  System External Interrupt Force Register (SEI)  */
+	u32   serfr;   /*  System Error Force Register (SERR)  */
+	u8    res3[0xA0];
 } ipic8349_t;
 
 /*
@@ -382,10 +406,10 @@ typedef struct ipic8349 {
  */
 typedef struct arbiter8349 {
 	u32 acr; /* Arbiter Configuration Register */
-#define ACR_COREDIS    0x10000000 /* Core disable. */    
+#define ACR_COREDIS    0x10000000 /* Core disable. */
 #define ACR_PIPE_DEP   0x00070000 /* Pipeline depth (number of outstanding transactions). */
 #define ACR_PCI_RPTCNT 0x00007000 /* PCI repeat count. */
-#define ACR_RPTCNT     0x00000700 /* Repeat count. */ 
+#define ACR_RPTCNT     0x00000700 /* Repeat count. */
 #define ACR_APARK      0x00000030 /* Address parking. */
 #define ACR_PARKM	   0x0000000F /* Parking master. */
 #define ACR_RES ~(ACR_COREDIS|ACR_PIPE_DEP|ACR_PCI_RPTCNT|ACR_RPTCNT|ACR_APARK|ACR_PARKM)
@@ -420,7 +444,7 @@ typedef struct arbiter8349 {
  * Reset Module
  */
 typedef struct reset8349 {
-    u32    rcwl; /* RCWL Register  */
+	u32    rcwl; /* RCWL Register  */
 #define RCWL_LBIUCM  0x80000000 /* LBIUCM  */
 #define RCWL_LBIUCM_SHIFT    31
 #define RCWL_DDRCM   0x40000000 /* DDRCM  */
@@ -433,8 +457,8 @@ typedef struct reset8349 {
 #define RCWL_CEVCOD  0x000000C0 /* CEVCOD  */
 #define RCWL_CEPDF   0x00000020 /* CEPDF  */
 #define RCWL_CEPMF   0x0000001F /* CEPMF  */
-#define RCWL_RES ~(RCWL_BIUCM|RCWL_DDRCM|RCWL_SVCOD|RCWL_SPMF|RCWL_COREPLL|RCWL_CEVCOD|RCWL_CEPDF|RCWL_CEPMF)  
-    u32    rcwh; /* RCHL Register  */
+#define RCWL_RES ~(RCWL_BIUCM|RCWL_DDRCM|RCWL_SVCOD|RCWL_SPMF|RCWL_COREPLL|RCWL_CEVCOD|RCWL_CEPDF|RCWL_CEPMF)
+	u32    rcwh; /* RCHL Register  */
 #define RCWH_PCIHOST 0x80000000 /* PCIHOST  */
 #define RCWH_PCIHOST_SHIFT   31
 #define RCWH_PCI64   0x40000000 /* PCI64  */
@@ -450,11 +474,13 @@ typedef struct reset8349 {
 #define RCWH_TPR     0x00000100 /* TPR  */
 #define RCWH_TLE     0x00000008 /* TLE  */
 #define RCWH_LALE    0x00000004 /* LALE  */
-#define RCWH_RES ~(RCWH_PCIHOST|RCWH_PCI64|RCWH_PCI1ARB|RCWH_PCI2ARB \
-                    |RCWH_COREDIS|RCWH_BMS|RCWH_BOOTSEQ|RCWH_SWEN|RCWH_ROMLOC \
-                    |RCWH_TSEC1M|RCWH_TSEC2M|RCWH_TPR|RCWH_TLE|RCWH_LALE)
-    u8     res0[8];
-    u32    rsr; /* Reset status Register  */
+#define RCWH_RES	~(RCWH_PCIHOST | RCWH_PCI64 | RCWH_PCI1ARB \
+			| RCWH_PCI2ARB | RCWH_COREDIS | RCWH_BMS \
+			| RCWH_BOOTSEQ | RCWH_SWEN | RCWH_ROMLOC \
+			| RCWH_TSEC1M | RCWH_TSEC2M | RCWH_TPR \
+			| RCWH_TLE | RCWH_LALE)
+	u8     res0[8];
+	u32    rsr; /* Reset status Register  */
 #define RSR_RSTSRC 0xE0000000 /* Reset source  */
 #define RSR_RSTSRC_SHIFT   29
 #define RSR_BSF    0x00010000 /* Boot seq. fail  */
@@ -477,37 +503,38 @@ typedef struct reset8349 {
 #define RSR_SRS_SHIFT       1
 #define RSR_HRS    0x00000001 /* hard reset status  */
 #define RSR_HRS_SHIFT       0
-#define RSR_RES ~(RSR_RSTSRC|RSR_BSF|RSR_SWSR|RSR_SWHR|RSR_JHRS|RSR_JSRS|RSR_CSHR|RSR_SWRS|RSR_BMRS|RSR_SRS|RSR_HRS)
-    u32    rmr; /* Reset mode Register  */
+#define RSR_RES ~(RSR_RSTSRC | RSR_BSF | RSR_SWSR | RSR_SWHR | RSR_JHRS | RSR_JSRS | RSR_CSHR | RSR_SWRS | RSR_BMRS | RSR_SRS | RSR_HRS)
+	u32    rmr; /* Reset mode Register  */
 #define RMR_CSRE   0x00000001 /* checkstop reset enable  */
 #define RMR_CSRE_SHIFT      0
 #define RMR_RES ~(RMR_CSRE)
-    u32    rpr; /* Reset protection Register  */
-    u32    rcr; /* Reset Control Register  */
+	u32    rpr; /* Reset protection Register  */
+	u32    rcr; /* Reset Control Register  */
 #define RCR_SWHR 0x00000002 /* software hard reset  */
 #define RCR_SWSR 0x00000001 /* software soft reset  */
-#define RCR_RES ~(RCR_SWHR|RCR_SWSR)
-    u32    rcer; /* Reset Control Enable Register  */
+#define RCR_RES ~(RCR_SWHR | RCR_SWSR)
+	u32    rcer; /* Reset Control Enable Register  */
 #define RCER_CRE 0x00000001 /* software hard reset  */
 #define RCER_RES ~(RCER_CRE)
 	u8     res1[0xDC];
 } reset8349_t;
- 
+
 typedef struct clk8349 {
-    u32    spmr; /* system PLL mode Register  */
+	u32    spmr; /* system PLL mode Register  */
 #define SPMR_LBIUCM  0x80000000 /* LBIUCM  */
 #define SPMR_DDRCM   0x40000000 /* DDRCM  */
 #define SPMR_SVCOD   0x30000000 /* SVCOD  */
 #define SPMR_SPMF    0x0F000000 /* SPMF  */
 #define SPMR_CKID    0x00800000 /* CKID  */
-#define SPMR_CKID_SHIFT 23 
+#define SPMR_CKID_SHIFT 23
 #define SPMR_COREPLL 0x007F0000 /* COREPLL  */
 #define SPMR_CEVCOD  0x000000C0 /* CEVCOD  */
 #define SPMR_CEPDF   0x00000020 /* CEPDF  */
 #define SPMR_CEPMF   0x0000001F /* CEPMF  */
-#define SPMR_RES ~(SPMR_LBIUCM|SPMR_DDRCM|SPMR_SVCOD|SPMR_SPMF|SPMR_CKID \
-                   |SPMR_COREPLL|SPMR_CEVCOD|SPMR_CEPDF|SPMR_CEPMF)
-    u32    occr; /* output clock control Register  */
+#define SPMR_RES	~(SPMR_LBIUCM | SPMR_DDRCM | SPMR_SVCOD \
+			| SPMR_SPMF | SPMR_CKID | SPMR_COREPLL \
+			| SPMR_CEVCOD | SPMR_CEPDF | SPMR_CEPMF)
+	u32    occr; /* output clock control Register  */
 #define OCCR_PCICOE0 0x80000000 /* PCICOE0  */
 #define OCCR_PCICOE1 0x40000000 /* PCICOE1  */
 #define OCCR_PCICOE2 0x20000000 /* PCICOE2  */
@@ -526,11 +553,13 @@ typedef struct clk8349 {
 #define OCCR_PCICD7  0x00010000 /* PCICD7  */
 #define OCCR_PCI1CR  0x00000002 /* PCI1CR  */
 #define OCCR_PCI2CR  0x00000001 /* PCI2CR  */
-#define OCCR_RES ~(OCCR_PCICOE0|OCCR_PCICOE1|OCCR_PCICOE2|OCCR_PCICOE3|OCCR_PCICOE4 \
-                   |OCCR_PCICOE5|OCCR_PCICOE6|OCCR_PCICOE7|OCCR_PCICD0|OCCR_PCICD1  \
-                   |OCCR_PCICD2 |OCCR_PCICD3 |OCCR_PCICD4 |OCCR_PCICD5|OCCR_PCICD6  \
-                   |OCCR_PCICD7 |OCCR_PCI1CR |OCCR_PCI2CR )
-    u32    sccr; /* system clock control Register  */
+#define OCCR_RES	~(OCCR_PCICOE0 | OCCR_PCICOE1 | OCCR_PCICOE2 \
+			| OCCR_PCICOE3 | OCCR_PCICOE4 | OCCR_PCICOE5 \
+			| OCCR_PCICOE6 | OCCR_PCICOE7 | OCCR_PCICD0 \
+			| OCCR_PCICD1 | OCCR_PCICD2  | OCCR_PCICD3 \
+			| OCCR_PCICD4  | OCCR_PCICD5 | OCCR_PCICD6  \
+			| OCCR_PCICD7  | OCCR_PCI1CR  | OCCR_PCI2CR )
+	u32    sccr; /* system clock control Register  */
 #define SCCR_TSEC1CM  0xc0000000 /* TSEC1CM  */
 #define SCCR_TSEC1CM_SHIFT 30
 #define SCCR_TSEC2CM  0x30000000 /* TSEC2CM  */
@@ -542,23 +571,23 @@ typedef struct clk8349 {
 #define SCCR_USBDRCM  0x00300000 /* USBDRCM  */
 #define SCCR_USBDRCM_SHIFT 20
 #define SCCR_PCICM    0x00010000 /* PCICM  */
-#define SCCR_RES ~( SCCR_TSEC1CM|SCCR_TSEC2CM|SCCR_ENCCM|SCCR_USBMPHCM \
-                   |SCCR_USBDRCM|SCCR_PCICM)
+#define SCCR_RES	~( SCCR_TSEC1CM | SCCR_TSEC2CM | SCCR_ENCCM \
+			| SCCR_USBMPHCM | SCCR_USBDRCM | SCCR_PCICM)
 	u8     res0[0xF4];
-} clk8349_t; 
+} clk8349_t;
 
 /*
  * Power Management Control Module
  */
 typedef struct pmc8349 {
-    u32    pmccr; /* PMC Configuration Register  */
+	u32    pmccr; /* PMC Configuration Register  */
 #define PMCCR_SLPEN 0x00000001 /* System Low Power Enable  */
 #define PMCCR_DLPEN 0x00000002 /* DDR SDRAM Low Power Enable  */
-#define PMCCR_RES ~(PMCCR_SLPEN|PMCCR_DLPEN)
-    u32    pmcer; /* PMC Event Register  */
+#define PMCCR_RES ~(PMCCR_SLPEN | PMCCR_DLPEN)
+	u32    pmcer; /* PMC Event Register  */
 #define PMCER_PMCI  0x00000001 /* PMC Interrupt  */
 #define PMCER_RES ~(PMCER_PMCI)
-    u32    pmcmr; /* PMC Mask Register  */
+	u32    pmcmr; /* PMC Mask Register  */
 #define PMCMR_PMCIE 0x0001 /* PMC Interrupt Enable  */
 #define PMCMR_RES ~(PMCMR_PMCIE)
 	u8 res0[0xF4];
@@ -570,7 +599,7 @@ typedef struct pmc8349 {
  */
 typedef struct gpio8349 {
 	u32 dir; /* direction register */
-	u32 odr; /* open drain register */ 
+	u32 odr; /* open drain register */
 	u32 dat; /* data register */
 	u32 ier; /* interrupt event register */
 	u32 imr; /* interrupt mask register */
@@ -578,22 +607,22 @@ typedef struct gpio8349 {
 	u8 res0[0xE8];
 } gpio8349_t;
 
-/* 
+/*
  * DDR Memory Controller Memory Map
  */
 typedef struct ddr_cs_bnds{
-    u32 csbnds;
+	u32 csbnds;
 #define CSBNDS_SA 0x00FF0000
 #define CSBNDS_SA_SHIFT   16
 #define CSBNDS_EA 0x000000FF
 #define CSBNDS_EA_SHIFT    0
-    u8  res0[4];
+	u8  res0[4];
 } ddr_cs_bnds_t;
 
 typedef struct ddr8349{
-    ddr_cs_bnds_t csbnds[4];            /**< Chip Select x Memory Bounds */ 
-    u8 res0[0x60];
-    u32 cs_config[4];       /**< Chip Select x Configuration */ 
+	ddr_cs_bnds_t csbnds[4];            /**< Chip Select x Memory Bounds */
+	u8 res0[0x60];
+	u32 cs_config[4];       /**< Chip Select x Configuration */
 #define CSCONFIG_EN         0x80000000
 #define CSCONFIG_AP         0x00800000
 #define CSCONFIG_ROW_BIT    0x00000700
@@ -605,8 +634,8 @@ typedef struct ddr8349{
 #define CSCONFIG_COL_BIT_9  0x00000001
 #define CSCONFIG_COL_BIT_10 0x00000002
 #define CSCONFIG_COL_BIT_11 0x00000003
-    u8 res1[0x78];
-    u32 timing_cfg_1;       /**< SDRAM Timing Configuration 1 */
+	u8 res1[0x78];
+	u32 timing_cfg_1;       /**< SDRAM Timing Configuration 1 */
 #define TIMING_CFG1_PRETOACT 0x70000000
 #define TIMING_CFG1_PRETOACT_SHIFT   28
 #define TIMING_CFG1_ACTTOPRE 0x0F000000
@@ -620,18 +649,18 @@ typedef struct ddr8349{
 #define TIMING_CFG1_WRREC    0x00000700
 #define TIMING_CFG1_WRREC_SHIFT       8
 #define TIMING_CFG1_ACTTOACT 0x00000070
-#define TIMING_CFG1_ACTTOACT_SHIFT    4   
+#define TIMING_CFG1_ACTTOACT_SHIFT    4
 #define TIMING_CFG1_WRTORD   0x00000007
 #define TIMING_CFG1_WRTORD_SHIFT      0
 
-    u32 timing_cfg_2;       /**< SDRAM Timing Configuration 2 */
+	u32 timing_cfg_2;       /**< SDRAM Timing Configuration 2 */
 #define TIMING_CFG2_CPO           0x0F000000
 #define TIMING_CFG2_CPO_SHIFT             24
 #define TIMING_CFG2_ACSM          0x00080000
-#define TIMING_CFG2_WR_DATA_DELAY 0x00001C00   
+#define TIMING_CFG2_WR_DATA_DELAY 0x00001C00
 #define TIMING_CFG2_WR_DATA_DELAY_SHIFT   10
 
-    u32 sdram_cfg;          /**< SDRAM Control Configuration */
+	u32 sdram_cfg;          /**< SDRAM Control Configuration */
 #define SDRAM_CFG_MEM_EN     0x80000000
 #define SDRAM_CFG_SREN       0x40000000
 #define SDRAM_CFG_ECC_EN     0x20000000
@@ -644,109 +673,108 @@ typedef struct ddr8349{
 #define SDRAM_CFG_NCAP       0x00020000
 #define SDRAM_CFG_2T_EN      0x00008000
 
-    u8 res2[4];
-    u32 sdram_mode;         /**< SDRAM Mode Configuration */ 
-#define SDRAM_MODE_ESD 0xFFFF0000   
-#define SDRAM_MODE_ESD_SHIFT   16              
+	u8 res2[4];
+	u32 sdram_mode;         /**< SDRAM Mode Configuration */
+#define SDRAM_MODE_ESD 0xFFFF0000
+#define SDRAM_MODE_ESD_SHIFT   16
 #define SDRAM_MODE_SD  0x0000FFFF
 #define SDRAM_MODE_SD_SHIFT     0
 
-    u8 res3[8];
-    u32 sdram_interval;     /**< SDRAM Interval Configuration */
+	u8 res3[8];
+	u32 sdram_interval;     /**< SDRAM Interval Configuration */
 #define SDRAM_INTERVAL_REFINT  0x3FFF0000
 #define SDRAM_INTERVAL_REFINT_SHIFT    16
 #define SDRAM_INTERVAL_BSTOPRE 0x00003FFF
 #define SDRAM_INTERVAL_BSTOPRE_SHIFT    0
-    u8   res9[8];
-    u32  sdram_clk_cntl;
-    u8 res4[0xCCC];
-    u32 data_err_inject_hi; /**< Memory Data Path Error Injection Mask High */
-    u32 data_err_inject_lo; /**< Memory Data Path Error Injection Mask Low */
-    u32 ecc_err_inject;     /**< Memory Data Path Error Injection Mask ECC */
-    u8 res5[0x14];
-    u32 capture_data_hi;    /**< Memory Data Path Read Capture High */
-    u32 capture_data_lo;    /**< Memory Data Path Read Capture Low */
-    u32 capture_ecc;        /**< Memory Data Path Read Capture ECC */
-    u8 res6[0x14];
-    u32 err_detect;         /**< Memory Error Detect */ 
-    u32 err_disable;        /**< Memory Error Disable */
-    u32 err_int_en;         /**< Memory Error Interrupt Enable */
-    u32 capture_attributes; /**< Memory Error Attributes Capture */
-    u32 capture_address;    /**< Memory Error Address Capture */
-    u32 capture_ext_address;/**< Memory Error Extended Address Capture */
-    u32 err_sbe;            /**< Memory Single-Bit ECC Error Management */
-    u8 res7[0xA4];
+	u8   res9[8];
+	u32  sdram_clk_cntl;
+	u8 res4[0xCCC];
+	u32 data_err_inject_hi; /**< Memory Data Path Error Injection Mask High */
+	u32 data_err_inject_lo; /**< Memory Data Path Error Injection Mask Low */
+	u32 ecc_err_inject;     /**< Memory Data Path Error Injection Mask ECC */
+	u8 res5[0x14];
+	u32 capture_data_hi;    /**< Memory Data Path Read Capture High */
+	u32 capture_data_lo;    /**< Memory Data Path Read Capture Low */
+	u32 capture_ecc;        /**< Memory Data Path Read Capture ECC */
+	u8 res6[0x14];
+	u32 err_detect;         /**< Memory Error Detect */
+	u32 err_disable;        /**< Memory Error Disable */
+	u32 err_int_en;         /**< Memory Error Interrupt Enable */
+	u32 capture_attributes; /**< Memory Error Attributes Capture */
+	u32 capture_address;    /**< Memory Error Address Capture */
+	u32 capture_ext_address;/**< Memory Error Extended Address Capture */
+	u32 err_sbe;            /**< Memory Single-Bit ECC Error Management */
+	u8 res7[0xA4];
 	u32 debug_reg;
-    u8 res8[0xFC];
+	u8 res8[0xFC];
 } ddr8349_t;
 
 /*
  * I2C1 Controller
- */ 
+ */
 
 
 /*
  * DUART
  */
 typedef struct duart8349{
-    u8 urbr_ulcr_udlb; /**< combined register for URBR, UTHR and UDLB */
-    u8 uier_udmb;      /**< combined register for UIER and UDMB */
-    u8 uiir_ufcr_uafr; /**< combined register for UIIR, UFCR and UAFR */
-    u8 ulcr;        /**< line control register */
-    u8 umcr;        /**< MODEM control register */
-    u8 ulsr;        /**< line status register */
-    u8 umsr;        /**< MODEM status register */
-    u8 uscr;        /**< scratch register */
-    u8 res0[8];
-    u8 udsr;        /**< DMA status register */
-    u8 res1[3];
-    u8 res2[0xEC];
-    
+	u8 urbr_ulcr_udlb; /**< combined register for URBR, UTHR and UDLB */
+	u8 uier_udmb;      /**< combined register for UIER and UDMB */
+	u8 uiir_ufcr_uafr; /**< combined register for UIIR, UFCR and UAFR */
+	u8 ulcr;        /**< line control register */
+	u8 umcr;        /**< MODEM control register */
+	u8 ulsr;        /**< line status register */
+	u8 umsr;        /**< MODEM status register */
+	u8 uscr;        /**< scratch register */
+	u8 res0[8];
+	u8 udsr;        /**< DMA status register */
+	u8 res1[3];
+	u8 res2[0xEC];
 } duart8349_t;
 
 /*
  * Local Bus Controller Registers
  */
 typedef struct lbus_bank{
-    u32 br;             /**< Base Register  */
-    u32 or;             /**< Base Register  */
+	u32 br;             /**< Base Register  */
+	u32 or;             /**< Base Register  */
 } lbus_bank_t;
 
 typedef struct lbus8349 {
-    lbus_bank_t bank[8];
-    u8 res0[0x28];
-    u32 mar;                /**< UPM Address Register */
-    u8 res1[0x4];
-    u32 mamr;               /**< UPMA Mode Register */
-    u32 mbmr;               /**< UPMB Mode Register */
-    u32 mcmr;               /**< UPMC Mode Register */
-    u8 res2[0x8];
-    u32 mrtpr;              /**< Memory Refresh Timer Prescaler Register */
-    u32 mdr;                /**< UPM Data Register */
-    u8 res3[0x8];
-    u32 lsdmr;              /**< SDRAM Mode Register */
-    u8 res4[0x8];
-    u32 lurt;               /**< UPM Refresh Timer */
-    u32 lsrt;               /**< SDRAM Refresh Timer */
-    u8 res5[0x8];
-    u32 ltesr;              /**< Transfer Error Status Register */
-    u32 ltedr;              /**< Transfer Error Disable Register */
-    u32 lteir;              /**< Transfer Error Interrupt Register */
-    u32 lteatr;             /**< Transfer Error Attributes Register */
-    u32 ltear;              /**< Transfer Error Address Register */
-    u8 res6[0xC];
-    u32 lbcr;               /**< Configuration Register */
+	lbus_bank_t bank[8];
+	u8 res0[0x28];
+	u32 mar;                /**< UPM Address Register */
+	u8 res1[0x4];
+	u32 mamr;               /**< UPMA Mode Register */
+	u32 mbmr;               /**< UPMB Mode Register */
+	u32 mcmr;               /**< UPMC Mode Register */
+	u8 res2[0x8];
+	u32 mrtpr;              /**< Memory Refresh Timer Prescaler Register */
+	u32 mdr;                /**< UPM Data Register */
+	u8 res3[0x8];
+	u32 lsdmr;              /**< SDRAM Mode Register */
+	u8 res4[0x8];
+	u32 lurt;               /**< UPM Refresh Timer */
+	u32 lsrt;               /**< SDRAM Refresh Timer */
+	u8 res5[0x8];
+	u32 ltesr;              /**< Transfer Error Status Register */
+	u32 ltedr;              /**< Transfer Error Disable Register */
+	u32 lteir;              /**< Transfer Error Interrupt Register */
+	u32 lteatr;             /**< Transfer Error Attributes Register */
+	u32 ltear;              /**< Transfer Error Address Register */
+	u8 res6[0xC];
+	u32 lbcr;               /**< Configuration Register */
 #define LBCR_LDIS  0x80000000
 #define LBCR_LDIS_SHIFT    31
 #define LBCR_BCTLC 0x00C00000
 #define LBCR_BCTLC_SHIFT   22
 #define LBCR_LPBSE 0x00020000
-#define LBCR_LPBSE_SHIFT   17  
+#define LBCR_LPBSE_SHIFT   17
 #define LBCR_EPAR  0x00010000
 #define LBCR_EPAR_SHIFT    16
 #define LBCR_BMT   0x0000FF00
 #define LBCR_BMT_SHIFT      8
-    u32 lcrr;               /**< Clock Ratio Register */
+	u32 lcrr;               /**< Clock Ratio Register */
 #define LCRR_DBYP    0x80000000
 #define LCRR_DBYP_SHIFT      31
 #define LCRR_BUFCMDC 0x30000000
@@ -759,8 +787,8 @@ typedef struct lbus8349 {
 #define LCRR_CLKDIV_SHIFT     0
 
 
-    u8 res7[0x28];
-    u8 res8[0xF00];
+	u8 res7[0x28];
+	u8 res8[0xF00];
 } lbus8349_t;
 
 /*
@@ -768,16 +796,16 @@ typedef struct lbus8349 {
  */
 typedef struct spi8349
 {
-    u32 mode;     /**< mode register  */
-    u32 event;    /**< event register */
-    u32 mask;     /**< mask register  */
-    u32 com;      /**< command register */
-    u8 res0[0x10];
-    u32 tx;       /**< transmit register */
-    u32 rx;       /**< receive register */
-    u8 res1[0xD8];
+	u32 mode;     /**< mode register  */
+	u32 event;    /**< event register */
+	u32 mask;     /**< mask register  */
+	u32 com;      /**< command register */
+	u8 res0[0x10];
+	u32 tx;       /**< transmit register */
+	u32 rx;       /**< receive register */
+	u8 res1[0xD8];
 } spi8349_t;
- 
+
 typedef struct dma8349 {
 	u8 fixme[0x300];
 } dma8349_t;
@@ -814,7 +842,7 @@ typedef struct pci_outbound_window {
 } pot8349_t;
 /*
  * Sequencer
- */ 
+ */
 typedef struct ios8349 {
 	pot8349_t	pot[6];
 #define POTAR_TA_MASK	0x000fffff
@@ -905,7 +933,7 @@ typedef struct pcictrl8349 {
 #define	EATCR_TS_3		0x00300000
 #define	EATCR_ES_MASK		0x000f0000	/* error source */
 #define	EATCR_ES_EM		0x00000000	/* external master */
-#define	EATCR_ES_DMA		0x00050000	
+#define	EATCR_ES_DMA		0x00050000
 #define	EATCR_CMD_MASK		0x0000f000
 #define	EATCR_HBE_MASK		0x00000f00	/* PCI high byte enable*/
 #define	EATCR_BE_MASK		0x000000f0	/* PCI byte enable */
@@ -948,7 +976,7 @@ typedef struct pcictrl8349 {
 #define PIWAR_RTT_SNOOP		0x00050000
 #define	PIWAR_WTT_MASK		0x0000f000
 #define	PIWAR_WTT_NO_SNOOP	0x00004000
-#define PIWAR_WTT_SNOOP		0x00005000	
+#define PIWAR_WTT_SNOOP		0x00005000
 #define	PIWAR_IWS_MASK	0x0000003F
 #define	PIWAR_IWS_4K	0x0000000B
 #define	PIWAR_IWS_8K	0x0000000C
@@ -973,7 +1001,7 @@ typedef struct pcictrl8349 {
 } pcictrl8349_t;
 
 /*
- * USB 
+ * USB
  */
 typedef struct usb8349 {
 	u8 fixme[0x2000];
@@ -1000,9 +1028,9 @@ typedef struct immap {
 	rtclk8349_t   pit;     /* Periodic Interval Timer */
 	gtm8349_t     gtm[2];  /* Global Timers Module */
 	ipic8349_t    ipic;    /* Integrated Programmable Interrupt Controller */
-	arbiter8349_t arbiter; /* System Arbiter Registers */ 
+	arbiter8349_t arbiter; /* System Arbiter Registers */
 	reset8349_t   reset;   /* Reset Module */
-	clk8349_t     clk;     /* System Clock Module */ 
+	clk8349_t     clk;     /* System Clock Module */
 	pmc8349_t     pmc;     /* Power Management Control Module */
 	gpio8349_t    pgio[2]; /* general purpose I/O module */
 	u8 res0[0x200];
@@ -1026,7 +1054,7 @@ typedef struct immap {
 	usb8349_t     usb;
 	tsec8349_t    tsec[2];
 	u8 res7[0xA000];
-	security8349_t security; 
+	security8349_t security;
 } immap_t;
 
 #endif /* __IMMAP_8349__ */

@@ -51,10 +51,13 @@
 
 /* sysclk for MPC8540EVAL */
 #if defined(CONFIG_SYSCLK_66M)
-#define CONFIG_SYS_CLK_FREQ   66000000    /* the oscillator on board is 66Mhz   */
-                                            /* can also get 66M clock from external PCI */
+	/*
+	 * the oscillator on board is 66Mhz
+	 * can also get 66M clock from external PCI
+	 */
+	#define CONFIG_SYS_CLK_FREQ   66000000
 #else
-  #define CONFIG_SYS_CLK_FREQ   33000000   /* most pci cards are 33Mhz */
+	#define CONFIG_SYS_CLK_FREQ   33000000   /* most pci cards are 33Mhz */
 #endif
 
 /* below can be toggled for performance analysis. otherwise use default */
@@ -194,11 +197,11 @@
 #undef CONFIG_EEPRO100
 #define CONFIG_TULIP
 #define CONFIG_PCI_PNP	               	/* do pci plug-and-play */
-  #if !defined(CONFIG_PCI_PNP)
-  #define PCI_ENET0_IOADDR      0xe0000000
-  #define PCI_ENET0_MEMADDR     0xe0000000
-  #define PCI_IDSEL_NUMBER      0x0c 	/*slot0->3(IDSEL)=12->15*/
-  #endif
+#if !defined(CONFIG_PCI_PNP)
+#define PCI_ENET0_IOADDR      0xe0000000
+#define PCI_ENET0_MEMADDR     0xe0000000
+#define PCI_IDSEL_NUMBER      0x0c 	/*slot0->3(IDSEL)=12->15*/
+#endif
 #define CONFIG_PCI_SCAN_SHOW    1       /* show pci devices on startup  */
 #define CFG_PCI_SUBSYS_VENDORID 0x1057  /* Motorola */
 #define CFG_PCI_SUBSYS_DEVICEID 0x0008
@@ -221,23 +224,23 @@
 #define CONFIG_ETHPRIME                "TSEC0"
 
 #define CONFIG_PHY_M88E1011     1       /* GigaBit Ether PHY    */
-#define INTEL_LXT971_PHY	1	/* on EVAL board. It is Davicom 9161 on ADS. */
+#define INTEL_LXT971_PHY	1
 #endif
 
 #undef DEBUG
 
 /* Environment */
 #ifndef CFG_RAMBOOT
-  #if defined(CONFIG_RAM_AS_FLASH)
-  #define CFG_ENV_IS_NOWHERE
-  #define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x100000)
-  #define CFG_ENV_SIZE		0x2000
-  #else
-  #define CFG_ENV_IS_IN_FLASH	1
-  #define CFG_ENV_ADDR		(CFG_MONITOR_BASE + 0x40000)
-  #define CFG_ENV_SECT_SIZE	0x40000	/* 256K(one sector) for env */
-  #endif
-  #define CFG_ENV_SIZE		0x2000
+#if defined(CONFIG_RAM_AS_FLASH)
+#define CFG_ENV_IS_NOWHERE
+#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x100000)
+#define CFG_ENV_SIZE		0x2000
+#else
+#define CFG_ENV_IS_IN_FLASH	1
+#define CFG_ENV_ADDR		(CFG_MONITOR_BASE + 0x40000)
+#define CFG_ENV_SECT_SIZE	0x40000	/* 256K(one sector) for env */
+#endif
+#define CFG_ENV_SIZE		0x2000
 #else
 /* #define CFG_NO_FLASH		1 */	/* Flash is not usable now	*/
 #define CFG_ENV_IS_NOWHERE	1	/* Store ENV in memory only	*/
@@ -245,7 +248,6 @@
 #define CFG_ENV_SIZE		0x2000
 #endif
 
-/*#define CONFIG_BOOTARGS	"root=/dev/nfs rw nfsroot=192.168.1.10:/tftproot/192.168.1.11 ip=192.168.1.11:192.168.1.10:192.168.1.0:255.255.255.0:mpc8540ads-003:eth0:off console=ttyS0,115200"*/
 #define CONFIG_BOOTARGS	"root=/dev/ram rw console=ttyS0,115200"
 #define CONFIG_BOOTCOMMAND	"bootm 0xff800000 0xffa00000"
 #define CONFIG_BOOTDELAY	3 	/* -1 disable autoboot */
@@ -254,21 +256,24 @@
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
 #if defined(CFG_RAMBOOT) || defined(CONFIG_RAM_AS_FLASH)
-  #if defined(CONFIG_PCI)
-  #define  CONFIG_COMMANDS	((CONFIG_CMD_DFL | CFG_CMD_PING | CFG_CMD_PCI | CFG_CMD_I2C ) & \
+#if defined(CONFIG_PCI)
+#define  CONFIG_COMMANDS	((CONFIG_CMD_DFL | CFG_CMD_PING \
+				| CFG_CMD_PCI | CFG_CMD_I2C ) & \
 				 ~(CFG_CMD_ENV | CFG_CMD_LOADS ))
-  #else
-  #define  CONFIG_COMMANDS	((CONFIG_CMD_DFL | CFG_CMD_PING | CFG_CMD_I2C ) & \
-				 ~(CFG_CMD_ENV | \
-				  CFG_CMD_LOADS ))
-  #endif
 #else
-  #if defined(CONFIG_PCI)
-  #define  CONFIG_COMMANDS	(CONFIG_CMD_DFL | CFG_CMD_PCI | CFG_CMD_PING | CFG_CMD_I2C )
-  #else
-  #define  CONFIG_COMMANDS	(CONFIG_CMD_DFL | CFG_CMD_PING | CFG_CMD_I2C )
-  #endif
+#define  CONFIG_COMMANDS	((CONFIG_CMD_DFL | CFG_CMD_PING \
+				| CFG_CMD_I2C ) & \
+				 ~(CFG_CMD_ENV | CFG_CMD_LOADS ))
 #endif
+#else
+#if defined(CONFIG_PCI)
+#define  CONFIG_COMMANDS	(CONFIG_CMD_DFL | CFG_CMD_PCI \
+				| CFG_CMD_PING | CFG_CMD_I2C )
+#else
+#define  CONFIG_COMMANDS	(CONFIG_CMD_DFL | CFG_CMD_PING | CFG_CMD_I2C )
+#endif
+#endif
+
 #include <cmd_confdefs.h>
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled		*/

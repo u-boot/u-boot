@@ -630,7 +630,7 @@ spd_sdram(void)
 
 	ddr->timing_cfg_2 = (0
 		| ((add_lat & 0x7) << 28)		/* ADD_LAT */
-		| ((cpo & 0x1f) << 23)			/* CPO */ 
+		| ((cpo & 0x1f) << 23)			/* CPO */
 		| ((wr_lat & 0x7) << 19)		/* WR_LAT */
 		| ((trtp_clk & 0x7) << 13)		/* RD_TO_PRE */
 		| ((wr_data_delay & 0x7) << 10)		/* WR_DATA_DELAY */
@@ -822,7 +822,7 @@ spd_sdram(void)
 	/*
 	 * Memory will be initialized via DMA, or not at all.
 	 */
-	d_init = 0;	
+	d_init = 0;
 #endif
 
 	ddr->sdram_cfg_2 = (0

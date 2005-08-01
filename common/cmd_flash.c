@@ -101,7 +101,7 @@ abbrev_spec (char *str, flash_info_t ** pinfo, int *psf, int *psl)
  * erase and protect commands. The range of the addresses on which
  * either of the commands is to operate can be given in two forms:
  * 1. <cmd> start end - operate on <'start',  'end')
- * 2. <cmd> start +length - operate on <'start', start + length) 
+ * 2. <cmd> start +length - operate on <'start', start + length)
  * If the second form is used and the end address doesn't fall on the
  * sector boundary, than it will be adjusted to the next sector boundary.
  * If it isn't in the flash, the function will fail (return -1).

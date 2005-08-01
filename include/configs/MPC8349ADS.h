@@ -73,8 +73,6 @@
 #define CFG_MEMTEST_START       0x00000000      /* memtest region */
 #define CFG_MEMTEST_END         0x00100000
 
-
-
 /*
  * DDR Setup
  */
@@ -85,24 +83,22 @@
 #define CFG_DDR_SDRAM_BASE CFG_DDR_BASE
 
 #if defined(CONFIG_SPD_EEPROM)
-    /*
-     * Determine DDR configuration from I2C interface.
-     */
-    #define SPD_EEPROM_ADDRESS	0x51		/* DDR DIMM */
-
+	/*
+	 * Determine DDR configuration from I2C interface.
+	 */
+	#define SPD_EEPROM_ADDRESS	0x51		/* DDR DIMM */
 #else
-    /*
-     * Manually set up DDR parameters
-     */
-    #define CFG_DDR_SIZE	    256		/* Mb */
-    #define CFG_DDR_CONFIG	(CSCONFIG_EN | CSCONFIG_ROW_BIT_13 | CSCONFIG_COL_BIT_9)
-    #define CFG_DDR_TIMING_1	0x37344321
-    #define CFG_DDR_TIMING_2	0x00000800  /* P9-45,may need tuning */
-    #define CFG_DDR_CONTROL 	0xc2000000  /* unbuffered,no DYN_PWR */
-    #define CFG_DDR_MODE    	0x00000062  /* DLL,normal,seq,4/2.5 */
-    #define CFG_DDR_INTERVAL	0x05200100  /* autocharge,no open page */
+	/*
+	 * Manually set up DDR parameters
+	 */
+	#define CFG_DDR_SIZE	    256		/* Mb */
+	#define CFG_DDR_CONFIG	(CSCONFIG_EN | CSCONFIG_ROW_BIT_13 | CSCONFIG_COL_BIT_9)
+	#define CFG_DDR_TIMING_1	0x37344321
+	#define CFG_DDR_TIMING_2	0x00000800  /* P9-45,may need tuning */
+	#define CFG_DDR_CONTROL 	0xc2000000  /* unbuffered,no DYN_PWR */
+	#define CFG_DDR_MODE    	0x00000062  /* DLL,normal,seq,4/2.5 */
+	#define CFG_DDR_INTERVAL	0x05200100  /* autocharge,no open page */
 #endif
-
 
 /*
  * SDRAM on the Local Bus
@@ -126,7 +122,6 @@
 #define CFG_LBLAWBAR0_PRELIM CFG_FLASH_BASE	/* Window base at flash base */
 #define CFG_LBLAWAR0_PRELIM  0x80000016		/* 16Mb window size */
 
-
 #define CFG_MAX_FLASH_BANKS	1		/* number of banks */
 #define CFG_MAX_FLASH_SECT	64		/* sectors per device */
 
@@ -136,7 +131,6 @@
 
 #define CFG_MID_FLASH_JUMP      0x7F000000
 #define CFG_MONITOR_BASE    	TEXT_BASE	/* start of monitor */
-
 
 #if (CFG_MONITOR_BASE < CFG_FLASH_BASE)
 #define CFG_RAMBOOT
@@ -152,7 +146,6 @@
 #define CFG_LBLAWAR1_PRELIM  0x8000000E		/* Access window size 32K */
 #define CFG_BR1_PRELIM	  (CFG_BCSR|0x00000801)	/* Port-size=8bit, MSEL=GPCM */
 #define CFG_OR1_PRELIM		0xFFFFE8f0	/* length 32K */
-
 
 #define CONFIG_L1_INIT_RAM
 #define CFG_INIT_RAM_LOCK 	1
@@ -198,11 +191,8 @@
  */
 
 #define CFG_BR2_PRELIM		0xf0001861 /*Port-size=32bit, MSEL=SDRAM*/
-
-#define CFG_LBLAWBAR2_PRELIM 0xF0000000
-
-#define CFG_LBLAWAR2_PRELIM 0x80000019 /*64M*/
-
+#define CFG_LBLAWBAR2_PRELIM	0xF0000000
+#define CFG_LBLAWAR2_PRELIM	0x80000019 /*64M*/
 
 /*
  * The SDRAM size in MB, CFG_LBC_SDRAM_SIZE, is 64.
@@ -255,7 +245,7 @@
 #define CFG_LBC_LSDMR_OP_RWINV	(7 << (31 - 4))
 
 #define CFG_LBC_LSDMR_COMMON    ( CFG_LBC_LSDMR_RFEN            \
-                                | CFG_LBC_LSDMR_BSMA1516	\
+				| CFG_LBC_LSDMR_BSMA1516	\
 				| CFG_LBC_LSDMR_RFCR8		\
 				| CFG_LBC_LSDMR_PRETOACT6	\
 				| CFG_LBC_LSDMR_ACTTORW3	\
@@ -263,7 +253,6 @@
 				| CFG_LBC_LSDMR_WRC3		\
 				| CFG_LBC_LSDMR_CL3		\
 				)
-
 
 /*
  * SDRAM Controller configuration sequence.
@@ -278,12 +267,7 @@
 				| CFG_LBC_LSDMR_OP_MRW)
 #define CFG_LBC_LSDMR_5		( CFG_LBC_LSDMR_COMMON \
 				| CFG_LBC_LSDMR_OP_NORMAL)
-
 #endif
-
-
-
-
 
 /*
  * Serial Port
@@ -322,7 +306,6 @@
 #define CFG_TSEC2_OFFSET 0x25000
 #define CFG_TSEC2 (CFG_IMMRBAR+CFG_TSEC2_OFFSET)
 
-
 /* IO Configuration */
 #define CFG_IO_CONF (\
 	IO_CONF_UART |\
@@ -347,7 +330,6 @@
 #define CFG_PCI1_IO_PHYS	0xe2000000
 #define CFG_PCI1_IO_SIZE	0x1000000	/* 16M */
 
-
 #define CFG_PCI2_MEM_BASE	0xA0000000
 #define CFG_PCI2_MEM_PHYS	CFG_PCI2_MEM_BASE
 #define CFG_PCI2_MEM_SIZE	0x20000000	/* 512M */
@@ -356,10 +338,7 @@
 #define CFG_PCI2_IO_SIZE	0x1000000	/* 16M */
 #if defined(CONFIG_PCI)
 
-//#define PCI_64BIT
 #define PCI_ALL_PCI1
-//#define PCI_ONE_PCI1
-//#define PCI_TWO_PCI1
 #if defined(PCI_64BIT)
 #undef PCI_ALL_PCI1
 #undef PCI_TWO_PCI1
@@ -373,9 +352,9 @@
 #undef CONFIG_TULIP
 
 #if !defined(CONFIG_PCI_PNP)
-    #define PCI_ENET0_IOADDR	0xFIXME
-    #define PCI_ENET0_MEMADDR	0xFIXME
-    #define PCI_IDSEL_NUMBER	0x0c 	/* slot0->3(IDSEL)=12->15 */
+	#define PCI_ENET0_IOADDR	0xFIXME
+	#define PCI_ENET0_MEMADDR	0xFIXME
+	#define PCI_IDSEL_NUMBER	0x0c 	/* slot0->3(IDSEL)=12->15 */
 #endif
 
 #undef CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
@@ -383,9 +362,7 @@
 
 #endif	/* CONFIG_PCI */
 
-
 #if defined(CONFIG_TSEC_ENET)
-
 #ifndef CONFIG_NET_MULTI
 #define CONFIG_NET_MULTI 	1
 #endif
@@ -405,55 +382,54 @@
 
 #endif	/* CONFIG_TSEC_ENET */
 
-
 /*
  * Environment
  */
 #ifndef CFG_RAMBOOT
-  #define CFG_ENV_IS_IN_FLASH	1
-  #define CFG_ENV_ADDR		(CFG_MONITOR_BASE + 0x40000)
-  #define CFG_ENV_SECT_SIZE	0x40000	/* 256K(one sector) for env */
-  #define CFG_ENV_SIZE		0x2000
+	#define CFG_ENV_IS_IN_FLASH	1
+	#define CFG_ENV_ADDR		(CFG_MONITOR_BASE + 0x40000)
+	#define CFG_ENV_SECT_SIZE	0x40000	/* 256K(one sector) for env */
+	#define CFG_ENV_SIZE		0x2000
 #else
-  #define CFG_NO_FLASH		1	/* Flash is not usable now */
-  #define CFG_ENV_IS_NOWHERE	1	/* Store ENV in memory only */
-  #define CFG_ENV_ADDR		(CFG_MONITOR_BASE - 0x1000)
-  #define CFG_ENV_SIZE		0x2000
+	#define CFG_NO_FLASH		1	/* Flash is not usable now */
+	#define CFG_ENV_IS_NOWHERE	1	/* Store ENV in memory only */
+	#define CFG_ENV_ADDR		(CFG_MONITOR_BASE - 0x1000)
+	#define CFG_ENV_SIZE		0x2000
 #endif
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
 #if defined(CFG_RAMBOOT)
-  #if defined(CONFIG_PCI)
-    #define  CONFIG_COMMANDS	((CONFIG_CMD_DFL	\
+#if defined(CONFIG_PCI)
+#define  CONFIG_COMMANDS	((CONFIG_CMD_DFL	\
 				 | CFG_CMD_PING		\
 				 | CFG_CMD_PCI		\
 				 | CFG_CMD_I2C)		\
 				&			\
 				 ~(CFG_CMD_ENV		\
 				  | CFG_CMD_LOADS))
-  #else
-    #define  CONFIG_COMMANDS	((CONFIG_CMD_DFL	\
+#else
+#define  CONFIG_COMMANDS	((CONFIG_CMD_DFL	\
 				 | CFG_CMD_PING		\
 				 | CFG_CMD_I2C)		\
 				&			\
 				 ~(CFG_CMD_ENV		\
 				  | CFG_CMD_LOADS))
-  #endif
+#endif
 #else
-  #if defined(CONFIG_PCI)
-    #define  CONFIG_COMMANDS	(CONFIG_CMD_DFL		\
+#if defined(CONFIG_PCI)
+#define  CONFIG_COMMANDS	(CONFIG_CMD_DFL		\
 				| CFG_CMD_PCI		\
 				| CFG_CMD_PING		\
 				| CFG_CMD_I2C)
-  #else
-    #define  CONFIG_COMMANDS	(CONFIG_CMD_DFL		\
+#else
+#define  CONFIG_COMMANDS	(CONFIG_CMD_DFL		\
 				| CFG_CMD_PING		\
 				| CFG_CMD_I2C       \
 				| CFG_CMD_MII       \
 				)
-  #endif
+#endif
 #endif
 
 #include <cmd_confdefs.h>
@@ -468,9 +444,9 @@
 #define CFG_PROMPT	"=> "		/* Monitor Command Prompt */
 
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
-    #define CFG_CBSIZE	1024		/* Console I/O Buffer Size */
+	#define CFG_CBSIZE	1024		/* Console I/O Buffer Size */
 #else
-    #define CFG_CBSIZE	256		/* Console I/O Buffer Size */
+	#define CFG_CBSIZE	256		/* Console I/O Buffer Size */
 #endif
 
 #define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
@@ -529,7 +505,6 @@
 	HRCWH_TSEC2M_IN_GMII )
 #endif
 
-
 #define CFG_HID0_INIT 0x000000000
 
 #define CFG_HID0_FINAL CFG_HID0_INIT
@@ -554,7 +529,6 @@
 #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif
 
-
 /*
  * Environment Configuration
  */
@@ -565,13 +539,13 @@
 #define CONFIG_ETH1ADDR  00:E0:0C:00:7D:01
 #endif
 
-#define CONFIG_IPADDR    10.193.20.150
+#define CONFIG_IPADDR    192.168.1.253
 
 #define CONFIG_HOSTNAME	 unknown
-#define CONFIG_ROOTPATH	 /tftpboot/10.193.20.150
-#define CONFIG_BOOTFILE	 /tftpboot/vmlinux.150
+#define CONFIG_ROOTPATH	 /nfsroot
+#define CONFIG_BOOTFILE	 your.uImage
 
-#define CONFIG_SERVERIP  10.193.20.58
+#define CONFIG_SERVERIP  192.168.1.1
 #define CONFIG_GATEWAYIP 192.168.1.1
 #define CONFIG_NETMASK   255.255.255.0
 
@@ -583,26 +557,26 @@
 #define CONFIG_BAUDRATE	 115200
 
 
-#define	CONFIG_EXTRA_ENV_SETTINGS		                        \
-   "netdev=eth0\0"                                                      \
-   "consoledev=ttyS0\0"                                                 \
-   "ramdiskaddr=400000\0"			                        \
-   "ramdiskfile=ramfs.83xx\0"						\
+#define	CONFIG_EXTRA_ENV_SETTINGS			\
+	"netdev=eth0\0"					\
+	"consoledev=ttyS0\0"				\
+	"ramdiskaddr=400000\0"				\
+	"ramdiskfile=ramfs.83xx\0"
 
-#define CONFIG_NFSBOOTCOMMAND	                                        \
-   "setenv bootargs root=/dev/nfs rw "                                  \
-   "nfsroot=$serverip:$rootpath "                                       \
-   "ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off "    \
-   "console=$consoledev,$baudrate $othbootargs;"                        \
-   "tftp $loadaddr $bootfile;"                                          \
-   "bootm $loadaddr"
+#define CONFIG_NFSBOOTCOMMAND				\
+	"setenv bootargs root=/dev/nfs rw "		\
+	"nfsroot=$serverip:$rootpath "			\
+	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
+	"console=$consoledev,$baudrate $othbootargs;"	\
+	"tftp $loadaddr $bootfile;"			\
+	"bootm $loadaddr"
 
-#define CONFIG_RAMBOOTCOMMAND \
-   "setenv bootargs root=/dev/ram rw "                                  \
-   "console=$consoledev,$baudrate $othbootargs;"                        \
-   "tftp $ramdiskaddr $ramdiskfile;"                                    \
-   "tftp $loadaddr $bootfile;"                                          \
-   "bootm $loadaddr $ramdiskaddr"
+#define CONFIG_RAMBOOTCOMMAND				\
+	"setenv bootargs root=/dev/ram rw "		\
+	"console=$consoledev,$baudrate $othbootargs;"	\
+	"tftp $ramdiskaddr $ramdiskfile;"		\
+	"tftp $loadaddr $bootfile;"			\
+	"bootm $loadaddr $ramdiskaddr"
 
 #define CONFIG_BOOTCOMMAND CONFIG_NFSBOOTCOMMAND
 

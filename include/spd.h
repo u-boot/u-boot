@@ -103,6 +103,4 @@ typedef struct spd_eeprom_s {
 #define SPD_MEMTYPE_DDR		(0x07)
 #define SPD_MEMTYPE_DDR2	(0x08)
 
-
 #endif /* _SPD_H_ */
-

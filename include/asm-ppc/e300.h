@@ -7,7 +7,7 @@
 #define __E300_H__
 
 /*
- * e300 Processor Version & Revision Numbers 
+ * e300 Processor Version & Revision Numbers
  */
 #define PVR_83xx 0x80830000
 #define PVR_8349_REV10 (PVR_83xx | 0x0010)
@@ -16,7 +16,7 @@
 /*
  * Hardware Implementation-Dependent Register 0 (HID0)
  */
- 
+
 /* #define HID0 1008 already defined in processor.h */
 #define HID0_MASK_MACHINE_CHECK              0x00000000
 #define HID0_ENABLE_MACHINE_CHECK            0x80000000

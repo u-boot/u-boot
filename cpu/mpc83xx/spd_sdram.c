@@ -36,19 +36,15 @@
 
 #ifdef CONFIG_SPD_EEPROM
 
-
 #if defined(CONFIG_DDR_ECC)
 extern void dma_init(void);
 extern uint dma_check(void);
 extern int dma_xfer(void *dest, uint count, void *src);
 #endif
 
-
 #ifndef	CFG_READ_SPD
 #define CFG_READ_SPD	i2c_read
 #endif
-
-
 
 /*
  * Convert picoseconds into clock cycles (rounding up if needed).
@@ -67,13 +63,11 @@ picos_to_clk(int picos)
 	return clks;
 }
 
-
 unsigned int
 banksize(unsigned char row_dens)
 {
 	return ((row_dens >> 2) | ((row_dens & 3) << 6)) << 24;
 }
-
 
 long int spd_sdram(int(read_spd)(uint addr))
 {
@@ -86,8 +80,8 @@ long int spd_sdram(int(read_spd)(uint addr))
 	unsigned int law_size;
 	unsigned char caslat;
 	unsigned int trfc, trfc_clk, trfc_low;
-	
-#warning Current spd_sdram does not fit its usage... adjust implementation or API...	
+
+#warning Current spd_sdram does not fit its usage... adjust implementation or API...
 
 	CFG_READ_SPD(SPD_EEPROM_ADDRESS, 0, 1, (uchar *) & spd, sizeof (spd));
 
@@ -111,7 +105,7 @@ long int spd_sdram(int(read_spd)(uint addr))
 	debug("\n");
 	debug("cs2_bnds = 0x%08x\n",ddr->csbnds[2].csbnds);
 	debug("cs2_config = 0x%08x\n",ddr->cs_config[2]);
-	
+
 	if (spd.nrows == 2) {
 		ddr->csbnds[3].csbnds = ( (banksize(spd.row_dens) >> 8)
 				  | ((banksize(spd.row_dens) >> 23) - 1) );
@@ -298,9 +292,12 @@ long int spd_sdram(int(read_spd)(uint addr))
 
 	udelay(500);
 
-
-	ddr->sdram_clk_cntl = 0x82000000;/*SS_EN=1, CLK_ADJST = 2-MCK/MCK_B, is lauched 1/2 of one SDRAM clock cycle after address/command*/
-
+	/*
+	 * SS_EN=1,
+	 * CLK_ADJST = 2-MCK/MCK_B, is lauched 1/2 of one SDRAM
+	 * clock cycle after address/command
+	 */
+	ddr->sdram_clk_cntl = 0x82000000;
 
 	/*
 	 * Figure out the settings for the sdram_cfg register.  Build up
@@ -339,7 +336,6 @@ long int spd_sdram(int(read_spd)(uint addr))
 #endif
 
 	ddr->sdram_cfg = tmp;
-
 	asm("sync;isync");
 	udelay(500);
 
@@ -347,7 +343,6 @@ long int spd_sdram(int(read_spd)(uint addr))
 
 	return memsize;/*in MBytes*/
 }
-
 #endif /* CONFIG_SPD_EEPROM */
 
 
@@ -407,7 +402,7 @@ ddr_enable_ecc(unsigned int dram_size)
 	 */
 	ddr->err_disable = 0x00000000;
 	asm("sync;isync");
-#endif	
+#endif
 }
 
 #endif	/* CONFIG_DDR_ECC */

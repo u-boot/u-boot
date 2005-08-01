@@ -28,7 +28,7 @@
  */
 
 #include <config.h>
-#include <mpc83xx.h> 
+#include <mpc83xx.h>
 #include <version.h>
 
 #define CONFIG_83XX	1		/* needed for Linux kernel header files*/
@@ -89,7 +89,7 @@ version_string:
 	.ascii U_BOOT_VERSION
 	.ascii " (", __DATE__, " - ", __TIME__, ")"
 	.ascii " ", CONFIG_IDENT_STRING, "\0"
-	
+
 	.text
 #define _HRCW_TABLE_ENTRY(w)		\
 	.fill	8,1,(((w)>>24)&0xff);	\
@@ -101,7 +101,6 @@ version_string:
 	_HRCW_TABLE_ENTRY(CFG_HRCW_HIGH)
 
 
-	
 #ifndef CONFIG_DEFAULT_IMMR
 #error CONFIG_DEFAULT_IMMR must be defined
 #endif /* CFG_DEFAULT_IMMR */
@@ -143,7 +142,7 @@ _start: /* time t 0 */
 	. = EXC_OFF_SYS_RESET + 0x10
 
 	.globl	_start_warm
-_start_warm: 
+_start_warm:
 	li	r21, BOOTFLAG_WARM	/* Software reboot	*/
 	b	boot_warm
 
@@ -156,12 +155,12 @@ boot_warm: /* time t 5 */
 	lis	r3, CFG_IMMRBAR@h
 	ori	r3, r3, CFG_IMMRBAR@l
 	stw	r3, IMMRBAR(r4)
-	
+
 	/* Initialise the E300 processor core		*/
 	/*------------------------------------------*/
-	
+
 	bl	init_e300_core
-	
+
 #ifndef CFG_RAMBOOT
 
 	/* Inflate flash location so it appears everywhere, calculate */
@@ -218,7 +217,7 @@ _start_of_vectors:
 /* External Interrupt exception. */
 #ifndef FIXME
 	STD_EXCEPTION(0x500, ExtInterrupt, external_interrupt)
-#endif	
+#endif
 
 /* Alignment exception. */
 	. = 0x600
@@ -417,9 +416,9 @@ init_e300_core: /* time t 10 */
 	lis r4, CFG_WATCHDOG_VALUE
 	ori r4, r4, (SWCRR_SWEN | SWCRR_SWRI | SWCRR_SWPR)
 	stw r4, SWCRR(r3)
-	
+
 	/* and reset it */
-	
+
 	li	r4, 0x556C
 	sth	r4, SWSRR@l(r3)
 	li	r4, 0xAA39
@@ -502,7 +501,7 @@ init_e300_core: /* time t 10 */
 
 	/* Done!						*/
 	/*------------------------------*/
-	blr 
+	blr
 
 /* Cache functions.
  *
@@ -645,8 +644,8 @@ relocate_code:
 	mtctr	r0
 	la	r8,-4(r4)
 	la	r7,-4(r3)
-	
-	/* and compare */	
+
+	/* and compare */
 20:	lwzu	r20,4(r8)
 	lwzu	r21,4(r7)
 	xor. r22, r20, r21
@@ -664,21 +663,19 @@ relocate_code:
 3:	lwzu	r0,-4(r8)
 	stwu	r0,-4(r7)
 	bdnz	3b
-	
-	
 
 /*
  * Now flush the cache: note that we must start from a cache aligned
  * address. Otherwise we might miss one cache line.
  */
-4:	
+4:
 	bl un_setup_stack_in_data_cache
 	mr r7, r3
 	mr r8, r4
 	bl dcache_disable
 	mr r3, r7
 	mr r4, r8
-	
+
 	cmpwi	r6,0
 	add	r5,r3,r5
 	beq	7f	/* Always flush prefetch queue in any case */
@@ -889,9 +886,9 @@ map_flash_by_law1:
 	/* Address Mask in OR0 so ROM appears everywhere      */
 	/*----------------------------------------------------*/
 	lis	r3, (CFG_IMMRBAR)@h  /* r3 <= CFG_IMMRBAR    */
-	lwz	r4, OR0@l(r3)     
+	lwz	r4, OR0@l(r3)
 	li	r5, 0x7fff        /* r5 <= 0x00007FFFF */
-	and	r4, r4, r5        
+	and	r4, r4, r5
 	stw	r4, OR0@l(r3)     /* OR0 <= OR0 & 0x00007FFFF */
 
 	/* As MPC8349E User's Manual presented, when RCW[BMS] is set to 0,
@@ -926,9 +923,9 @@ remap_flash_by_law0:
 	/* Initialize the BR0 with the boot ROM starting address. */
 	lwz r4, BR0(r3)
 	li  r5, 0x7FFF
-	and r4, r4, r5             
+	and r4, r4, r5
 	lis r5, (CFG_FLASH_BASE & 0xFFFF8000)@h
-	ori r5, r5, (CFG_FLASH_BASE & 0xFFFF8000)@l 
+	ori r5, r5, (CFG_FLASH_BASE & 0xFFFF8000)@l
 	or  r5, r5, r4
 	stw r5, BR0(r3) /* r5 <= (CFG_FLASH_BASE & 0xFFFF8000) | (BR0 & 0x00007FFF) */
 
@@ -950,9 +947,9 @@ remap_flash_by_law0:
 	stw r4, LBLAWAR1(r3) /* Off LBIU LAW1 */
 	blr
 
-setup_stack_in_data_cache_on_r1: 
+setup_stack_in_data_cache_on_r1:
 	lis r3, (CFG_IMMRBAR)@h
-	
+
 	/* setup D-BAT for the D-Cache (with out real memory backup) */
 
 	lis r4, (CFG_INIT_RAM_ADDR & 0xFFFE0000)@h
@@ -961,13 +958,13 @@ setup_stack_in_data_cache_on_r1:
 	mtspr	DBAT0L, r4
 	isync
 
-#if 0	
+#if 0
 	/* Enable MMU */
 	mfmsr r4
 	ori r4, r4, (MSR_DR | MSR_IR)@l
 	mtmsr r4
-#endif	
-	
+#endif
+
 	/* Enable and invalidate data cache. */
 	mfspr	r4, HID0
 	mr	r5, r4
@@ -977,19 +974,19 @@ setup_stack_in_data_cache_on_r1:
 	mtspr	HID0, r4
 	mtspr	HID0, r5
 	sync
-	
+
 	/* Allocate Initial RAM in data cache.*/
 	li  r0, 0
 	lis	r4, (CFG_INIT_RAM_ADDR)@h
 	ori	r4, r4, (CFG_INIT_RAM_ADDR)@l
-	li	r5, 128*8 /* 128*8*32=32Kb */ 
+	li	r5, 128*8 /* 128*8*32=32Kb */
 	mtctr	r5
 1:
 	dcbz	r0, r4
 	addi	r4, r4, 32
 	bdnz	1b
 	isync
-		
+
 	/* Lock all the D-cache, basically leaving the reset of the program without dcache */
 	mfspr	r4, HID0
 	ori	r4, r4, (HID0_DLOCK)@l
@@ -1010,14 +1007,14 @@ un_setup_stack_in_data_cache:
 	blr
 	mr r14, r4
 	mr r15, r5
-	
+
 
 	lis r4, (CFG_INIT_RAM_ADDR & 0xFFFE0000)@h
 	mtspr	DBAT0U, r4
 	ori r4, r4, 0x0002
 	mtspr	DBAT0L, r4
 	isync
-	
+
 	/* un lock all the D-cache */
 	mfspr	r4, HID0
 	lis r5, (~(HID0_DLOCK))@h
@@ -1030,20 +1027,20 @@ un_setup_stack_in_data_cache:
 	li  r0, 0
 	lis	r4, (CFG_INIT_RAM_ADDR)@h
 	ori	r4, r4, (CFG_INIT_RAM_ADDR)@l
-	li	r5, 128*8 /* 128*8*32=32Kb */ 
+	li	r5, 128*8 /* 128*8*32=32Kb */
 	mtctr	r5
 1:
 	dcbz	r0, r4
 	addi	r4, r4, 32
 	bdnz	1b
 	isync
-	
+
 	mflr r16
 	bl dcache_disable
 	mtlr r16
-	
+
 	blr
-	
+
 #if 0
 #define GREEN_LIGHT 0x2B0D4046
 #define RED_LIGHT   0x250D4046
@@ -1054,7 +1051,7 @@ un_setup_stack_in_data_cache:
  */
 
 	.globl liblight
-liblight:	
+liblight:
 	lis	r3, CFG_IMMRBAR@h
 	ori	r3, r3, CFG_IMMRBAR@l
 	li r4, 0x3002
@@ -1063,7 +1060,7 @@ liblight:
 	mtspr	HID0, r4
 	mtspr	HID2, r4
 	lis r4, 0xF8000000@h
-	ori r4, r4, 0xF8000000@l	
+	ori r4, r4, 0xF8000000@l
 	stw r4, LBLAWBAR1(r3)
 	lis r4, 0x8000000E@h
 	ori r4, r4, 0x8000000E@l
@@ -1083,14 +1080,14 @@ liblight:
 	ori r6, r6, RED_LIGHT@l
 	lis r7, LIB_CNT@h
 	ori r7, r7, LIB_CNT@l
-	
+
 1:
 	stw r5, 0(r4)
-	mtctr r7	
+	mtctr r7
 2:	bdnz 2b
 	stw r6, 0(r4)
-	mtctr r7	
+	mtctr r7
 3:	bdnz 3b
 	b 1b
-	
+
 #endif

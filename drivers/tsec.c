@@ -524,11 +524,11 @@ static void adjust_link(struct eth_device *dev)
 				regs->maccfg2 = ((regs->maccfg2&~(MACCFG2_IF))
 					| MACCFG2_MII);
 
-				/* If We're in reduced mode, we
-				 * need to say whether we're 10
-				 * or 100 MB. */
-				if ((priv->speed == 100) 
-						&& (priv->flags & TSEC_REDUCED))
+				/* If We're in reduced mode, we need
+				 * to say whether we're 10 or 100 MB.
+				 */
+				if ((priv->speed == 100)
+				    && (priv->flags & TSEC_REDUCED))
 					regs->ecntrl |= ECNTRL_R100;
 				else
 					regs->ecntrl &= ~(ECNTRL_R100);

@@ -36,13 +36,12 @@ typedef struct i2c
 #define I2C_ADR	      0xFE
 #define I2C_ADR_SHIFT 1
 #define I2C_ADR_RES   ~(I2C_ADR)
-    u8 res0[3];     
+    u8 res0[3];
     u8 fdr;          /**< I2C frequency divider register */
-    
 #define IC2_FDR       0x3F
 #define IC2_FDR_SHIFT 0
 #define IC2_FDR_RES   ~(IC2_FDR)
-    u8 res1[3];     
+    u8 res1[3];
     u8 cr;           /**< I2C control redister           */
 #define I2C_CR_MEN	  0x80
 #define I2C_CR_MIEN	  0x40
@@ -51,7 +50,7 @@ typedef struct i2c
 #define I2C_CR_TXAK   0x08
 #define I2C_CR_RSTA   0x04
 #define I2C_CR_BCST   0x01
-    u8 res2[3];     
+    u8 res2[3];
     u8 sr;           /**< I2C status register            */
 #define I2C_SR_MCF    0x80
 #define I2C_SR_MAAS   0x40
@@ -61,18 +60,18 @@ typedef struct i2c
 #define I2C_SR_SRW    0x04
 #define I2C_SR_MIF    0x02
 #define I2C_SR_RXAK   0x01
-    u8 res3[3];     
+    u8 res3[3];
     u8 dr;           /**< I2C data register              */
 #define I2C_DR 0xFF
 #define I2C_DR_SHIFT 0
 #define I2C_DR_RES ~(I2C_DR)
-    u8 res4[3];     
+    u8 res4[3];
     u8 dfsrr;        /**< I2C digital filter sampling rate register */
 #define I2C_DFSRR 0x3F
 #define I2C_DFSRR_SHIFT 0
 #define I2C_DFSRR_RES ~(I2C_DR)
     u8 res5[3];
-    u8 res6[0xE8];     
+    u8 res6[0xE8];
 } i2c_t;
 
 #ifndef CFG_HZ
@@ -89,8 +88,8 @@ typedef struct i2c
 #endif
 
 #ifdef CONFIG_MPC8349ADS
-/* 
- * MPC8349 have two i2c bus 
+/*
+ * MPC8349 have two i2c bus
  */
 extern i2c_t * mpc8349_i2c;
 #define I2C mpc8349_i2c

@@ -53,10 +53,10 @@
 /*
  * Watchdog
  */
-#define SWCRR      0x0204 
+#define SWCRR      0x0204
 #define SWCRR_SWTC 0xFFFF0000 /* Software Watchdog Time Count. */
 #define SWCRR_SWEN 0x00000004 /* Watchdog Enable bit. */
-#define SWCRR_SWRI 0x00000002 /* Software Watchdog Reset/Interrupt Select bit. */ 
+#define SWCRR_SWRI 0x00000002 /* Software Watchdog Reset/Interrupt Select bit. */
 #define SWCRR_SWPR 0x00000001 /* Software Watchdog Counter Prescale bit. */
 #define SWCRR_RES  ~(SWCRR_SWTC | SWCRR_SWEN | SWCRR_SWRI | SWCRR_SWPR)
 
@@ -172,7 +172,7 @@
 
 /*
  * Hard Reset Configration Word - High
- */	
+ */
 #define HRCWH_PCI_AGENT              0x00000000
 #define HRCWH_PCI_HOST               0x80000000
 
@@ -195,8 +195,8 @@
 #define HRCWH_BOOTSEQ_NORMAL         0x01000000
 #define HRCWH_BOOTSEQ_EXTENDED       0x02000000
 
-#define HRCWH_SW_WATCHDOG_DISABLE    0x00000000 
-#define HRCWH_SW_WATCHDOG_ENABLE     0x00800000 
+#define HRCWH_SW_WATCHDOG_DISABLE    0x00000000
+#define HRCWH_SW_WATCHDOG_ENABLE     0x00800000
 
 #define HRCWH_ROM_LOC_DDR_SDRAM      0x00000000
 #define HRCWH_ROM_LOC_PCI1           0x00100000
@@ -257,7 +257,7 @@
 #define HRCWL_CORE_TO_CSB_3X1        0x00060000
 
 /*
- * LCRR - Clock Ratio Register (10.3.1.16) 
+ * LCRR - Clock Ratio Register (10.3.1.16)
  */
 #define LCRR_DBYP      0x80000000
 #define LCRR_DBYP_SHIFT        31
@@ -284,6 +284,5 @@
 #define LCRR_CLKDIV_4  0x00000004
 #define LCRR_CLKDIV_8  0x00000008
 #define LCRR_CLKDIV_SHIFT       0
- 
 
 #endif	/* __MPC83XX_H__ */

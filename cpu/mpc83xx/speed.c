@@ -101,7 +101,7 @@ int get_clocks (void)
 	u32 corecnf_tab_index;
 	u8  corepll;
 	u32 lcrr;
-	
+
 	u32 csb_clk;
 	u32 tsec1_clk;
 	u32 tsec2_clk;
@@ -113,10 +113,10 @@ int get_clocks (void)
 	u32 lbiu_clk;
 	u32 lclk_clk;
 	u32 ddr_clk;
-	
+
 	if ((im->sysconf.immrbar & IMMRBAR_BASE_ADDR) != (u32)im)
 		return -1;
-		
+
 #ifndef CFG_HRCW_HIGH
 # error "CFG_HRCW_HIGH must be defined in include/configs/MCP83XXADS.h"
 #endif /* CFG_HCWD_HIGH */
@@ -133,7 +133,6 @@ int get_clocks (void)
 		/* though RCWH_PCIHOST is defined in CFG_HRCW_HIGH the im->reset.rcwhr PCI Host Mode is disabled */
 		/* FIXME: findout if there is a way to issue some warning */
 		return -2;
-		
 	}
 	if (im->clk.spmr & SPMR_CKID) {
 		pci_sync_in = CONFIG_83XX_CLKIN / 2; /* PCI Clock is half CONFIG_83XX_CLKIN */
@@ -157,17 +156,16 @@ int get_clocks (void)
 #endif /* (CFG_HRCW_HIGH | RCWH_PCIHOST) */
 
 	/* we have up to date pci_sync_in */
-	
 	spmf = ((im->reset.rcwl & RCWL_SPMF) >> RCWL_SPMF_SHIFT);
 	clkin_div = ((im->clk.spmr & SPMR_CKID) >> SPMR_CKID_SHIFT);
-	
+
 	if ((im->reset.rcwl & RCWL_LBIUCM) || (im->reset.rcwl & RCWL_DDRCM)) {
 		csb_clk	= (pci_sync_in * spmf * (1 + clkin_div)) / 2;
 	}
 	else {
 		csb_clk = pci_sync_in * spmf * (1 + clkin_div);
 	}
-	
+
 	sccr = im->clk.sccr;
 	switch ((sccr & SCCR_TSEC1CM) >> SCCR_TSEC1CM_SHIFT) {
 	case 0:
@@ -186,7 +184,7 @@ int get_clocks (void)
 		/* unkown SCCR_TSEC1CM value */
 		return -4;
 	}
-	
+
 	switch ((sccr & SCCR_TSEC2CM) >> SCCR_TSEC2CM_SHIFT) {
 	case 0:
 		tsec2_clk = 0;
@@ -205,7 +203,7 @@ int get_clocks (void)
 		return -5;
 	}
 	i2c_clk = tsec2_clk;
-	
+
 	switch ((sccr & SCCR_ENCCM) >> SCCR_ENCCM_SHIFT) {
 	case 0:
 		enc_clk = 0;
@@ -223,7 +221,7 @@ int get_clocks (void)
 		/* unkown SCCR_ENCCM value */
 		return -6;
 	}
-	
+
 	switch ((sccr & SCCR_USBMPHCM) >> SCCR_USBMPHCM_SHIFT) {
 	case 0:
 		usbmph_clk = 0;
@@ -259,14 +257,14 @@ int get_clocks (void)
 		/* unkown SCCR_USBDRCM value */
 		return -8;
 	}
-	
+
 	if (usbmph_clk != 0
 		&& usbdr_clk != 0
 		&& usbmph_clk != usbdr_clk ) {
 		/* if USB MPH clock is not disabled and USB DR clock is not disabled than USB MPH & USB DR must have the same rate */
 		return -9;
 	}
-	
+
 	lbiu_clk = csb_clk * (1 + ((im->reset.rcwl & RCWL_LBIUCM) >> RCWL_LBIUCM_SHIFT));
 	lcrr = (im->lbus.lcrr & LCRR_CLKDIV) >> LCRR_CLKDIV_SHIFT;
 	switch (lcrr) {
@@ -279,9 +277,9 @@ int get_clocks (void)
 		/* unknown lcrr */
 		return -10;
 	}
-	
+
 	ddr_clk = csb_clk * (1 + ((im->reset.rcwl & RCWL_DDRCM) >> RCWL_DDRCM_SHIFT));
-	
+
 	corepll = (im->reset.rcwl & RCWL_COREPLL) >> RCWL_COREPLL_SHIFT;
 	corecnf_tab_index = ((corepll & 0x1F) << 2) | ((corepll & 0x60) >> 5);
 	if (corecnf_tab_index > (sizeof(corecnf_tab)/sizeof(corecnf_t)) ) {
@@ -310,7 +308,7 @@ int get_clocks (void)
 		/* unkown core to csb ratio */
 		return -12;
 	}
-	
+
 	gd->csb_clk    = csb_clk   ;
 	gd->tsec1_clk  = tsec1_clk ;
 	gd->tsec2_clk  = tsec2_clk ;
@@ -318,11 +316,11 @@ int get_clocks (void)
 	gd->usbmph_clk = usbmph_clk;
 	gd->usbdr_clk  = usbdr_clk ;
 	gd->i2c_clk    = i2c_clk   ;
-	gd->enc_clk    = enc_clk   ;	
+	gd->enc_clk    = enc_clk   ;
 	gd->lbiu_clk   = lbiu_clk  ;
 	gd->lclk_clk   = lclk_clk  ;
 	gd->ddr_clk    = ddr_clk   ;
-	
+
 	gd->cpu_clk = gd->core_clk;
 	gd->bus_clk = gd->lbiu_clk;
 	return 0;
@@ -341,7 +339,7 @@ ulong get_bus_freq (ulong dummy)
 int print_clock_conf (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-	
+
 	printf("Clock configuration:\n");
 	printf("  Coherent System Bus: %4d MHz\n",gd->csb_clk/1000000);
 	printf("  Core:                %4d MHz\n",gd->core_clk/1000000);
@@ -353,7 +351,7 @@ int print_clock_conf (void)
 	printf("  TSEC2:               %4d MHz\n",gd->tsec2_clk/1000000);
 	printf("  USB MPH:             %4d MHz\n",gd->usbmph_clk/1000000);
 	printf("  USB DR:              %4d MHz\n",gd->usbdr_clk/1000000);
-	
+
 #if 0
 	DECLARE_GLOBAL_DATA_PTR;
 
@@ -419,6 +417,5 @@ int print_clock_conf (void)
 	}
 	putc ('\n');
 #endif
-	return (0);
+	return 0;
 }
-

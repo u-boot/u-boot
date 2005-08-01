@@ -53,7 +53,6 @@ int board_early_init_f (void)
 
 #define ns2clk(ns) (ns / (1000000000 / CONFIG_8349_CLKIN) + 1)
 
-
 long int initdram (int board_type)
 {
 	volatile immap_t *im = (immap_t *)CFG_IMMRBAR;
@@ -148,7 +147,7 @@ int checkboard (void)
 	return 0;
 }
 
-#if defined(CONFIG_PCI) //copy from mpc85xx
+#if defined(CONFIG_PCI)
 /*
  * Initialize PCI Devices, report devices found
  */
@@ -190,8 +189,8 @@ pci_init_board(void)
 }
 
 /*
-if MPC8349ADS is soldered with SDRAM
-*/
+ * if MPC8349ADS is soldered with SDRAM
+ */
 #if defined(CFG_BR2_PRELIM)  \
 	&& defined(CFG_OR2_PRELIM) \
 	&& defined(CFG_LBLAWBAR2_PRELIM) \
@@ -206,7 +205,6 @@ sdram_init(void)
 	volatile immap_t *immap = (immap_t *)CFG_IMMRBAR;
 	volatile lbus8349_t *lbc= &immap->lbus;
 	uint *sdram_addr = (uint *)CFG_LBC_SDRAM_BASE;
-
 
 	puts("\n   SDRAM on Local Bus: ");
 	print_size (CFG_LBC_SDRAM_SIZE * 1024 * 1024, "\n");
@@ -233,32 +231,33 @@ sdram_init(void)
 
 	lbc->lsdmr = CFG_LBC_LSDMR_2;/*0x48636733;auto refresh*/
 	asm("sync");
-/*1 times*/
+	/*1 times*/
 	*sdram_addr = 0xff;
 	udelay(100);
-/*2 times*/
+	/*2 times*/
 	*sdram_addr = 0xff;
 	udelay(100);
-/*3 times*/
+	/*3 times*/
 	*sdram_addr = 0xff;
 	udelay(100);
-/*4 times*/
+	/*4 times*/
 	*sdram_addr = 0xff;
 	udelay(100);
-/*5 times*/
+	/*5 times*/
 	*sdram_addr = 0xff;
 	udelay(100);
-/*6 times*/
+	/*6 times*/
 	*sdram_addr = 0xff;
 	udelay(100);
-/*7 times*/
+	/*7 times*/
 	*sdram_addr = 0xff;
 	udelay(100);
-/*8 times*/
+	/*8 times*/
 	*sdram_addr = 0xff;
 	udelay(100);
 
-	lbc->lsdmr = CFG_LBC_LSDMR_4; /*0x58636733;mode register write operation*/
+	/* 0x58636733;mode register write operation */
+	lbc->lsdmr = CFG_LBC_LSDMR_4;
 	asm("sync");
 	*sdram_addr = 0xff;
 	udelay(100);
@@ -275,4 +274,3 @@ sdram_init(void)
 	put("SDRAM on Local Bus is NOT available!\n");
 }
 #endif
-
