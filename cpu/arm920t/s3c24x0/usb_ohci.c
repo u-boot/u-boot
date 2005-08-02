@@ -53,6 +53,7 @@
 #define OHCI_USE_NPS		/* force NoPowerSwitching mode */
 #undef OHCI_VERBOSE_DEBUG	/* not always helpful */
 
+
 /* For initializing controller (mask in an HCFS mode too) */
 #define	OHCI_CONTROL_INIT \
 	(OHCI_CTRL_CBSR & 0x3) | OHCI_CTRL_IE | OHCI_CTRL_PLE
@@ -1218,7 +1219,6 @@ pkt_print(dev, pipe, buffer, transfer_len, cmd, "SUB(rh)", usb_pipein(pipe));
 
 	return stat;
 }
-
 
 /*-------------------------------------------------------------------------*/
 

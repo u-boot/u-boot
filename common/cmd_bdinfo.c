@@ -61,13 +61,15 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #endif
 	print_num ("bootflags",	    bd->bi_bootflags	);
 #if defined(CONFIG_405GP) || defined(CONFIG_405CR) || \
-    defined(CONFIG_405EP) || defined(CONFIG_XILINX_ML300)
+    defined(CONFIG_405EP) || defined(CONFIG_XILINX_ML300) || \
+    defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
 	print_str ("procfreq",	    strmhz(buf, bd->bi_procfreq));
 	print_str ("plb_busfreq",   strmhz(buf, bd->bi_plb_busfreq));
-#if defined(CONFIG_405GP) || defined(CONFIG_405EP) || defined(CONFIG_XILINX_ML300)
+#if defined(CONFIG_405GP) || defined(CONFIG_405EP) || defined(CONFIG_XILINX_ML300) || \
+    defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
 	print_str ("pci_busfreq",   strmhz(buf, bd->bi_pci_busfreq));
 #endif
-#else	/* ! CONFIG_405GP, CONFIG_405CR, CONFIG_405EP, CONFIG_XILINX_ML300 */
+#else	/* ! CONFIG_405GP, CONFIG_405CR, CONFIG_405EP, CONFIG_XILINX_ML300, CONFIG_440_EP CONFIG_440_GR */
 #if defined(CONFIG_CPM2)
 	print_str ("vco",	    strmhz(buf, bd->bi_vco));
 	print_str ("sccfreq",	    strmhz(buf, bd->bi_sccfreq));
@@ -78,7 +80,7 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	print_str ("cpmfreq",	    strmhz(buf, bd->bi_cpmfreq));
 #endif
 	print_str ("busfreq",	    strmhz(buf, bd->bi_busfreq));
-#endif /* CONFIG_405GP, CONFIG_405CR, CONFIG_405EP, CONFIG_XILINX_ML300 */
+#endif /* CONFIG_405GP, CONFIG_405CR, CONFIG_405EP, CONFIG_XILINX_ML300, CONFIG_440_EP CONFIG_440_GR */
 #if defined(CONFIG_MPC8220)
 	print_str ("inpfreq",	    strmhz(buf, bd->bi_inpfreq));
 	print_str ("flbfreq",	    strmhz(buf, bd->bi_flbfreq));

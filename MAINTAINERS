@@ -210,6 +210,11 @@ Keith Outwater <Keith_Outwater@mvis.com>
 	GEN860T			MPC860T
 	GEN860T_SC		MPC860T
 
+Stefan Roese <sr@denx.de>
+
+	sycamore		PPC4xx
+	walnut			PPC4xx
+
 Frank Panno <fpanno@delphintech.com>
 
 	ep8260			MPC8260
@@ -327,7 +332,6 @@ Unknown / orphaned boards:
 
 	CRAYL1			PPC4xx
 	ERIC			PPC4xx
-	WALNUT405		PPC4xx
 
 	MOUSSE			MPC824x
 

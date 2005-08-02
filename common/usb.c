@@ -46,7 +46,6 @@
 #include <405gp_pci.h>
 #endif
 
-
 #undef USB_DEBUG
 
 #ifdef	USB_DEBUG
@@ -523,6 +522,7 @@ int usb_get_string(struct usb_device *dev, unsigned short langid, unsigned char 
 		if (result > 0)
 			break;
 	}
+
 	return result;
 }
 
@@ -723,6 +723,7 @@ int usb_new_device(struct usb_device *dev)
 
 	/* find the port number we're at */
 	if (parent) {
+
 		for (j = 0; j < parent->maxchild; j++) {
 			if (parent->children[j] == dev) {
 				port = j;
@@ -956,6 +957,7 @@ static int hub_port_reset(struct usb_device *dev, int port,
 			return -1;
 
 		if (portstatus & USB_PORT_STAT_ENABLE) {
+
 			break;
 		}
 

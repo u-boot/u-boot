@@ -344,7 +344,7 @@ _start:
 	lis	r1,0x0002		/* set CE bit (Critical Exceptions) */
 	ori	r1,r1,0x1000		/* set ME bit (Machine Exceptions) */
 	mtmsr	r1			/* change MSR */
-#else
+#elif !defined(CONFIG_440_EP) && !defined(CONFIG_440_GR)
 	bl	__440gx_msr_set
 	b	__440gx_msr_continue
 
@@ -377,6 +377,21 @@ __440gx_msr_continue:
 	/* Setup the internal SRAM */
 	/*----------------------------------------------------------------*/
 	li	r0,0
+#if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
+	/* Clear Dcache to use as RAM */
+	lis     r3,CFG_INIT_RAM_ADDR@h
+	li      r4,CFG_INIT_RAM_END@l
+	rlwinm. r5,r4,0,27,31
+	rlwinm  r5,r4,27,5,31
+	beq	..d_ran
+	addi    r5,r5,0x0001
+..d_ran:
+	mtctr   r5
+..d_ag:
+	dcbz    r0,r3
+	addi    r3,r3,32
+	bdnz    ..d_ag
+#else
 #if defined (CONFIG_440_GX)
 	mtdcr   l2_cache_cfg,r0		/* Ensure L2 Cache is off */
 #endif
@@ -407,6 +422,7 @@ __440gx_msr_continue:
 #else
 	ori	r1,r1,0x0380		/* 8k rw */
 	mtdcr	isram0_sb0cr,r1
+#endif
 #endif
 
 	/*----------------------------------------------------------------*/
@@ -957,7 +973,7 @@ invalidate_icache:
 invalidate_dcache:
 	addi	r6,0,0x0000		/* clear GPR 6 */
 	/* Do loop for # of dcache congruence classes. */
-#if defined(CONFIG_440_GX)
+#if defined(CONFIG_440_GX) || defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
 	lis     r7, (CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@ha	/* TBS for large sized cache */
 	ori     r7, r7, (CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@l
 #else
@@ -983,7 +999,7 @@ flush_dcache:
 	mtdccr	r10
 
 	/* do loop for # of congruence classes. */
-#if defined(CONFIG_440_GX)
+#if defined(CONFIG_440_GX) || defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
 	lis     r10,(CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@ha	/* TBS: for large cache sizes */
 	ori     r10,r10,(CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@l
 	lis     r11,(CFG_DCACHE_SIZE / 2)@ha /* D cache set size - 2 way sets */
@@ -1210,6 +1226,15 @@ ppcSync:
  */
 	.globl	relocate_code
 relocate_code:
+#if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
+	dccci	0,0		            /* Invalidate data cache, now no longer our stack */
+	sync
+	addi    r1,r0,0x0000        /* Tlb entry #0 */
+	tlbre	r0,r1,0x0002		/* Read contents */
+	ori     r0,r0,0x0c00        /* Or in the inhibit, write through bit */
+	tlbwe   r0,r1,0x0002		/* Save it out */
+	isync
+#endif
 	mr	r1,  r3		/* Set new stack pointer		*/
 	mr	r9,  r4		/* Save copy of Init Data pointer	*/
 	mr	r10, r5		/* Save copy of Destination Address	*/
@@ -1433,7 +1458,7 @@ trap_reloc:
 #ifdef CONFIG_405EP
 ppc405ep_init:
 
-#ifdef CONFIG_BUBINGA405EP
+#ifdef CONFIG_BUBINGA
 	/*
 	 * Initialize EBC chip selects 1 & 4 and GPIO pins (for alternate
 	 * function) to support FPGA and NVRAM accesses below.
@@ -1513,7 +1538,7 @@ ppc405ep_init:
 #endif
 
 	addi    r3,0,CPC0_PCI_HOST_CFG_EN
-#ifdef CONFIG_BUBINGA405EP
+#ifdef CONFIG_BUBINGA
 	/*
 	!-----------------------------------------------------------------------
 	! Check FPGA for PCI internal/external arbitration
@@ -1548,7 +1573,7 @@ ppc405ep_init:
 					  /* and CPU has been reset */
 					  /* so skip to next section */
 
-#ifdef CONFIG_BUBINGA405EP
+#ifdef CONFIG_BUBINGA
 	/*
 	!-----------------------------------------------------------------------
 	! Read NVRAM to get value to write in PLLMR.
@@ -1583,7 +1608,7 @@ ppc405ep_init:
 	cmpi     cr0,0,r5,1             /* See if PLL is locked */
 	beq     pll_write
 ..no_pllset:
-#endif /* CONFIG_BUBINGA405EP */
+#endif /* CONFIG_BUBINGA */
 
 	addis   r3,0,PLLMR0_DEFAULT@h       /* PLLMR0 default value */
 	ori     r3,r3,PLLMR0_DEFAULT@l     /* */

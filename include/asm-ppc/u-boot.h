@@ -101,12 +101,17 @@ typedef struct bd_info {
 	unsigned char   bi_enet3addr[6];
 #endif
 
-#if defined(CONFIG_405GP) || defined(CONFIG_405EP) || defined (CONFIG_440_GX)
+#if defined(CONFIG_405GP) || defined(CONFIG_405EP) || defined (CONFIG_440_GX) || \
+    defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
 	unsigned int	bi_opbfreq;		/* OPB clock in Hz */
 	int		bi_iic_fast[2];		/* Use fast i2c mode */
 #endif
 #if defined(CONFIG_NX823)
 	unsigned char	bi_sernum[8];
+#endif
+#if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
+	int 		bi_phynum[2];           /* Determines phy mapping */
+	int 		bi_phymode[2];          /* Determines phy mode */
 #endif
 #if defined(CONFIG_440_GX)
 	int 		bi_phynum[4];           /* Determines phy mapping */

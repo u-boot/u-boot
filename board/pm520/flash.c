@@ -75,6 +75,8 @@ static ulong flash_get_size (FPW *addr, flash_info_t *info);
 static int write_data (flash_info_t *info, ulong dest, FPW data);
 static void flash_get_offsets (ulong base, flash_info_t *info);
 void inline spin_wheel (void);
+static void flash_sync_real_protect (flash_info_t * info);
+static unsigned char intel_sector_protected (flash_info_t *info, ushort sector);
 
 /*-----------------------------------------------------------------------
  */
@@ -101,6 +103,9 @@ unsigned long flash_init (void)
 			break;
 		}
 		size += flash_info[i].size;
+
+		/* get the h/w and s/w protection status in sync */
+		flash_sync_real_protect(&flash_info[i]);
 	}
 
 	/* Protect monitor and environment sectors
@@ -138,7 +143,6 @@ static void flash_get_offsets (ulong base, flash_info_t *info)
 	if ((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_INTEL) {
 		for (i = 0; i < info->sector_count; i++) {
 			info->start[i] = base + (i * PHYS_FLASH_SECT_SIZE);
-			info->protect[i] = 0;
 		}
 	}
 }
@@ -269,6 +273,83 @@ static ulong flash_get_size (FPW *addr, flash_info_t *info)
 	return (info->size);
 }
 
+
+/*
+ * This function gets the u-boot flash sector protection status
+ * (flash_info_t.protect[]) in sync with the sector protection
+ * status stored in hardware.
+ */
+static void flash_sync_real_protect (flash_info_t * info)
+{
+	int i;
+
+	switch (info->flash_id & FLASH_TYPEMASK) {
+
+	case FLASH_28F128J3A:
+	case FLASH_28F640J3A:
+	case FLASH_28F320J3A:
+		for (i = 0; i < info->sector_count; ++i) {
+			info->protect[i] = intel_sector_protected(info, i);
+		}
+		break;
+	default:
+		/* no h/w protect support */
+		break;
+	}
+}
+
+
+/*
+ * checks if "sector" in bank "info" is protected. Should work on intel
+ * strata flash chips 28FxxxJ3x in 8-bit mode.
+ * Returns 1 if sector is protected (or timed-out while trying to read
+ * protection status), 0 if it is not.
+ */
+static unsigned char intel_sector_protected (flash_info_t *info, ushort sector)
+{
+	FPWV *addr;
+	FPWV *lock_conf_addr;
+	ulong start;
+	unsigned char ret;
+
+	/*
+	 * first, wait for the WSM to be finished. The rationale for
+	 * waiting for the WSM to become idle for at most
+	 * CFG_FLASH_ERASE_TOUT is as follows. The WSM can be busy
+	 * because of: (1) erase, (2) program or (3) lock bit
+	 * configuration. So we just wait for the longest timeout of
+	 * the (1)-(3), i.e. the erase timeout.
+	 */
+
+	/* wait at least 35ns (W12) before issuing Read Status Register */
+	udelay(1);
+	addr = (FPWV *) info->start[sector];
+	*addr = (FPW) INTEL_STATUS;
+
+	start = get_timer (0);
+	while ((*addr & (FPW) INTEL_FINISHED) != (FPW) INTEL_FINISHED) {
+		if (get_timer (start) > CFG_FLASH_ERASE_TOUT) {
+			*addr = (FPW) INTEL_RESET; /* restore read mode */
+			printf("WSM busy too long, can't get prot status\n");
+			return 1;
+		}
+	}
+
+	/* issue the Read Identifier Codes command */
+	*addr = (FPW) INTEL_READID;
+
+	/* wait at least 35ns (W12) before reading */
+	udelay(1);
+
+	/* Intel example code uses offset of 2 for 16 bit flash */
+	lock_conf_addr = (FPWV *) info->start[sector] + 2;
+	ret = (*lock_conf_addr & (FPW) INTEL_PROTECT) ? 1 : 0;
+
+	/* put flash back in read mode */
+	*addr = (FPW) INTEL_RESET;
+
+	return ret;
+}
 
 /*-----------------------------------------------------------------------
  */
@@ -491,7 +572,7 @@ void inline spin_wheel (void)
  * 0 - OK
  * 1 - Error (timeout, voltage problems, etc.)
  */
-int flash_real_protect(flash_info_t *info, long sector, int prot)
+int flash_real_protect (flash_info_t *info, long sector, int prot)
 {
 	ulong start;
 	int i;
@@ -531,6 +612,11 @@ int flash_real_protect(flash_info_t *info, long sector, int prot)
 	/*
 	 * Clear lock bit command clears all sectors lock bits, so
 	 * we have to restore lock bits of protected sectors.
+	 * WARNING: code below re-locks sectors only for one bank (info).
+	 * This causes problems on boards where several banks share
+	 * the same chip, as sectors in othere banks will be unlocked
+	 * but not re-locked. It works fine on pm520 though, as there
+	 * is only one chip and one bank.
 	 */
 	if (!prot)
 	{
@@ -553,6 +639,11 @@ int flash_real_protect(flash_info_t *info, long sector, int prot)
 				}
 			}
 		}
+		/*
+		 * get the s/w sector protection status in sync with the h/w,
+		 * in case something went wrong during the re-locking.
+		 */
+		flash_sync_real_protect(info); /* resets flash to read  mode */
 	}
 
 	if (flag)

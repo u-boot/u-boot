@@ -710,8 +710,11 @@ AR405_config:	unconfig
 ASH405_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx ash405 esd
 
-BUBINGA405EP_config:	unconfig
-	@./mkconfig $(@:_config=) ppc ppc4xx bubinga405ep
+bamboo_config:	unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx bamboo amcc
+
+bubinga_config:	unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx bubinga amcc
 
 CANBT_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx canbt esd
@@ -762,8 +765,8 @@ DP405_config:	unconfig
 DU405_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx du405 esd
 
-EBONY_config:	unconfig
-	@./mkconfig $(@:_config=) ppc ppc4xx ebony
+ebony_config:	unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx ebony amcc
 
 ERIC_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx eric
@@ -797,8 +800,8 @@ ML2_config:	unconfig
 ml300_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx ml300 xilinx
 
-OCOTEA_config:	unconfig
-	@./mkconfig $(@:_config=) ppc ppc4xx ocotea
+ocotea_config:	unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx ocotea amcc
 
 OCRTC_config		\
 ORSG_config:	unconfig
@@ -849,6 +852,10 @@ PPChameleonEVB_HI_33_config:	unconfig
 sbc405_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx sbc405
 
+sycamore_config:	unconfig
+	@echo "Configuring for sycamore board as subset of walnut..."
+	@./mkconfig -a walnut ppc ppc4xx walnut amcc
+
 VOH405_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx voh405 esd
 
@@ -859,14 +866,20 @@ W7OLMC_config	\
 W7OLMG_config: unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx w7o
 
-WALNUT405_config:	unconfig
-	@./mkconfig $(@:_config=) ppc ppc4xx walnut405
+walnut_config: unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx walnut amcc
 
 WUH405_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx wuh405 esd
 
 XPEDITE1K_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx xpedite1k
+
+yosemite_config:	unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx yosemite amcc
+
+yellowstone_config:	unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx yellowstone amcc
 
 #########################################################################
 ## MPC8220 Systems

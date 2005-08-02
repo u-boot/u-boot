@@ -140,7 +140,11 @@ typedef struct emac_440gx_hw_st {
 
 
 /*ZMII Bridge Register addresses */
+#if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
+#define ZMII_BASE			(CFG_PERIPHERAL_BASE + 0x0D00)
+#else
 #define ZMII_BASE			(CFG_PERIPHERAL_BASE + 0x0780)
+#endif
 #define ZMII_FER			(ZMII_BASE)
 #define ZMII_SSR			(ZMII_BASE + 4)
 #define ZMII_SMIISR			(ZMII_BASE + 8)
@@ -272,7 +276,11 @@ typedef struct emac_440gx_hw_st {
 
 
 /* Ethernet MAC Regsiter Addresses */
+#if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
+#define EMAC_BASE			    (CFG_PERIPHERAL_BASE + 0x0E00)
+#else
 #define EMAC_BASE			    (CFG_PERIPHERAL_BASE + 0x0800)
+#endif
 
 #define EMAC_M0				    (EMAC_BASE)
 #define EMAC_M1				    (EMAC_BASE + 4)
