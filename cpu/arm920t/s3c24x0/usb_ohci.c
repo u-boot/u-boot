@@ -1220,8 +1220,6 @@ pkt_print(dev, pipe, buffer, transfer_len, cmd, "SUB(rh)", usb_pipein(pipe));
 	return stat;
 }
 
-
-
 /*-------------------------------------------------------------------------*/
 
 /* common code for handling submit messages - used for all but root hub */
@@ -1294,7 +1292,7 @@ int submit_common_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 			wait_ms(1);
 			if (!urb_finished)
 				dbg("\%");
-			
+
 		} else {
 			err("CTL:TIMEOUT ");
 			dbg("submit_common_msg: TO status %x\n", stat);
@@ -1511,7 +1509,7 @@ hc_interrupt (void)
 		ohci->disabled++;
 		err ("%s device removed!", ohci->slot_name);
 		return -1;
-	
+
 	} else if ((ints &= readl (&regs->intrenable)) == 0) {
 		dbg("hc_interrupt: returning..\n");
 		return 0xff;

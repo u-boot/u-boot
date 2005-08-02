@@ -229,7 +229,7 @@ int usb_stor_scan(int mode)
 		}
 		if(usb_storage_probe(dev,0,&usb_stor[usb_max_devs])) { /* ok, it is a storage devices */
 			/* get info and fill it in */
-			if(usb_stor_get_info(dev, &usb_stor[usb_max_devs], &usb_dev_desc[usb_max_devs])) 
+			if(usb_stor_get_info(dev, &usb_stor[usb_max_devs], &usb_dev_desc[usb_max_devs]))
 				usb_max_devs++;
 		} /* if storage device */
 		if(usb_max_devs==USB_MAX_STOR_DEV) {
@@ -237,7 +237,7 @@ int usb_stor_scan(int mode)
 			break;
 		}
 	} /* for */
-	
+
 	usb_disable_asynch(0); /* asynch transfer allowed */
 	printf("%d Storage Device(s) found\n", usb_max_devs);
 	if(usb_max_devs>0)
@@ -656,7 +656,7 @@ int usb_stor_BBB_transport(ccb *srb, struct us_data *us)
 	retry = 0;
    again:
 	USB_STOR_PRINTF("STATUS phase\n");
-	result = usb_bulk_msg(us->pusb_dev, pipein, &csw, UMASS_BBB_CSW_SIZE, 
+	result = usb_bulk_msg(us->pusb_dev, pipein, &csw, UMASS_BBB_CSW_SIZE,
 				&actlen, USB_CNTL_TIMEOUT*5);
 
 	/* special handling of STALL in STATUS phase */
@@ -1134,7 +1134,7 @@ int usb_stor_get_info(struct usb_device *dev,struct us_data *ss,block_dev_desc_t
 	     dev->descriptor.idProduct == 0x2010)
 	    )
 		USB_STOR_PRINTF("usb_stor_get_info: skipping RESET..\n");
-	else 
+	else
 		ss->transport_reset(ss);
 
 	pccb->pdata = usb_stor_buf;
@@ -1145,7 +1145,7 @@ int usb_stor_get_info(struct usb_device *dev,struct us_data *ss,block_dev_desc_t
 
 	if(usb_inquiry(pccb,ss))
 		return -1;
-		
+
 	perq = usb_stor_buf[0];
 	modi = usb_stor_buf[1];
 	if((perq & 0x1f) == 0x1f) {

@@ -46,8 +46,7 @@
 #include <405gp_pci.h>
 #endif
 
-
-#undef USB_DEBUG 
+#undef USB_DEBUG
 
 #ifdef	USB_DEBUG
 #define	USB_PRINTF(fmt,args...)	printf (fmt ,##args)
@@ -342,7 +341,7 @@ int usb_clear_halt(struct usb_device *dev, int pipe)
 	if (result < 0)
 		return result;
 
-	/* 
+	/*
 	 * NOTE: we do not get status and verify reset was successful
 	 * as some devices are reported to lock up upon this check..
 	 */
@@ -517,13 +516,13 @@ int usb_get_string(struct usb_device *dev, unsigned short langid, unsigned char 
 		/* some devices are flaky */
 		result = usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
 			USB_REQ_GET_DESCRIPTOR, USB_DIR_IN,
-			(USB_DT_STRING << 8) + index, langid, buf, size, 
+			(USB_DT_STRING << 8) + index, langid, buf, size,
 			USB_CNTL_TIMEOUT);
 
 		if (result > 0)
 			break;
-	}	
-				
+	}
+
 	return result;
 }
 
@@ -572,7 +571,7 @@ static int usb_string_sub(struct usb_device *dev, unsigned int langid,
 	}
 
 	if (rc < 2)
-		rc = -1; 
+		rc = -1;
 
 	return rc;
 }
@@ -721,10 +720,10 @@ int usb_new_device(struct usb_device *dev)
 		}
 	}
 	dev->descriptor.bMaxPacketSize0 = desc->bMaxPacketSize0;
-	
+
 	/* find the port number we're at */
 	if (parent) {
-	
+
 		for (j = 0; j < parent->maxchild; j++) {
 			if (parent->children[j] == dev) {
 				port = j;
@@ -958,7 +957,7 @@ static int hub_port_reset(struct usb_device *dev, int port,
 			return -1;
 
 		if (portstatus & USB_PORT_STAT_ENABLE) {
-			
+
 			break;
 		}
 

@@ -1261,7 +1261,7 @@ int submit_common_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 			stat = USB_ST_CRC_ERR;
 			break;
 		}
-		
+
 		/* NOTE: since we are not interrupt driven in U-Boot and always
 		 * handle only one URB at a time, we cannot assume the
 		 * transaction finished on the first successful return from
@@ -1483,7 +1483,7 @@ hc_interrupt (void)
 	struct ohci_regs *regs = ohci->regs;
 	int ints;
 	int stat = -1;
-	
+
 	if ((ohci->hcca->done_head != 0) &&
 	     !(ohci_cpu_to_le32(ohci->hcca->done_head) & 0x01)) {
 
@@ -1493,7 +1493,7 @@ hc_interrupt (void)
 		ohci->disabled++;
 		err ("%s device removed!", ohci->slot_name);
 		return -1;
-	
+
 	} else if ((ints &= readl (&regs->intrenable)) == 0) {
 		dbg("hc_interrupt: returning..\n");
 		return 0xff;
