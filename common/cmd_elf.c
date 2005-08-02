@@ -78,7 +78,7 @@ int do_bootelf (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
  * ====================================================================== */
 int do_bootvx ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-#if defined(CONFIG_WALNUT405)	|| \
+#if defined(CONFIG_WALNUT)	|| \
     defined(CFG_VXWORKS_MAC_PTR)
 	DECLARE_GLOBAL_DATA_PTR;
 #endif
@@ -121,7 +121,7 @@ int do_bootvx ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	 * This will vary from board to board
 	 */
 
-#if defined(CONFIG_WALNUT405)
+#if defined(CONFIG_WALNUT)
 	tmp = (char *) CFG_NVRAM_BASE_ADDR + 0x500;
 	memcpy ((char *) tmp, (char *) &gd->bd->bi_enetaddr[3], 3);
 #elif defined(CFG_VXWORKS_MAC_PTR)

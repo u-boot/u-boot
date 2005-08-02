@@ -69,6 +69,7 @@
 #define VECNUM_MS           (32 + 0 )   /* MAL SERR                     */
 #define VECNUM_TXDE         (32 + 1 )   /* MAL TXDE                     */
 #define VECNUM_RXDE         (32 + 2 )   /* MAL RXDE                     */
+#define VECNUM_USBDEV	    (32 + 23)   /* USB 1.1/USB 2.0 Device       */
 #define VECNUM_ETH0         (32 + 28)   /* Ethernet 0 interrupt status  */
 #define VECNUM_EWU0         (32 + 29)   /* Ethernet 0 wakeup            */
 

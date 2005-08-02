@@ -295,7 +295,7 @@ The following options need to be configured:
 		CONFIG_FADS823		CONFIG_NETVIA		CONFIG_V37
 		CONFIG_FADS850SAR	CONFIG_NX823		CONFIG_W7OLMC
 		CONFIG_FADS860T		CONFIG_OCRTC		CONFIG_W7OLMG
-		CONFIG_FLAGADM		CONFIG_ORSG		CONFIG_WALNUT405
+		CONFIG_FLAGADM		CONFIG_ORSG		CONFIG_WALNUT
 		CONFIG_FPS850L		CONFIG_OXC		CONFIG_ZPC1900
 		CONFIG_FPS860L					CONFIG_ZUMA
 
@@ -2192,7 +2192,7 @@ configurations; the following names are supported:
 	FADS850SAR_config	omap1610h2_config	TQM850L_config
 	FADS860T_config		omap1610inn_config	TQM855L_config
 	FPS850L_config		omap5912osk_config	TQM860L_config
-				omap2420h4_config	WALNUT405_config
+				omap2420h4_config	walnut_config
 							Yukon8220_config
 							ZPC1900_config
 
@@ -3135,7 +3135,7 @@ locked as (mis-) used as memory, etc.
 	CFG_INIT_RAM_ADDR should be somewhere that won't interfere
 	with your processor/board/system design. The default value
 	you will find in any recent u-boot distribution in
-	Walnut405.h should work for you. I'd set it to a value larger
+	walnut.h should work for you. I'd set it to a value larger
 	than your SDRAM module. If you have a 64MB SDRAM module, set
 	it above 400_0000. Just make sure your board has no resources
 	that are supposed to respond to that address! That code in

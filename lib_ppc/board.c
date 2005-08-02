@@ -539,7 +539,7 @@ void board_init_f (ulong bootflag)
 
 	bd->bi_procfreq = gd->cpu_clk;	/* Processor Speed, In Hz */
 	bd->bi_plb_busfreq = gd->bus_clk;
-#if defined(CONFIG_405GP) || defined(CONFIG_405EP)
+#if defined(CONFIG_405GP) || defined(CONFIG_405EP) || defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
 	bd->bi_pci_busfreq = get_PCI_freq ();
 	bd->bi_opbfreq = get_OPB_freq ();
 #elif defined(CONFIG_XILINX_ML300)

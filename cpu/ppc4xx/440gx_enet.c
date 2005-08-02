@@ -167,6 +167,8 @@ static void ppc_440x_eth_halt (struct eth_device *dev)
 	/* EMAC RESET */
 	out32 (EMAC_M0 + hw_p->hw_addr, EMAC_M0_SRST);
 
+	hw_p->print_speed = 1;	/* print speed message again next time */
+
 	return;
 }
 
@@ -277,7 +279,9 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 	unsigned short devnum;
 	unsigned short reg_short;
 	sys_info_t sysinfo;
+#if defined(CONFIG_440_GX)
 	int ethgroup;
+#endif
 
 	EMAC_440GX_HW_PST hw_p = dev->priv;
 
@@ -288,7 +292,6 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 
 	/* Need to get the OPB frequency so we can access the PHY */
 	get_sys_info (&sysinfo);
-
 
 	msr = mfmsr ();
 	mtmsr (msr & ~(MSR_EE));	/* disable interrupts */
@@ -320,7 +323,12 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 	/* MAL Channel RESET */
 	/* 1st reset MAL channel */
 	/* Note: writing a 0 to a channel has no effect */
+#if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
+	mtdcr (maltxcarr, (MAL_TXRX_CASR >> (hw_p->devnum*2)));
+#else
 	mtdcr (maltxcarr, (MAL_TXRX_CASR >> hw_p->devnum));
+#endif
+
 	mtdcr (malrxcarr, (MAL_TXRX_CASR >> hw_p->devnum));
 
 	/* wait for reset */
@@ -354,7 +362,9 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 	out32 (ZMII_FER, 0);
 	udelay (100);
 
-#if defined(CONFIG_440_GX)
+#if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
+   	out32 (ZMII_FER, (ZMII_FER_RMII | ZMII_FER_MDI) << ZMII_FER_V (devnum));
+#elif defined(CONFIG_440_GX)
 	ethgroup = ppc_440x_eth_setup_bridge(devnum, bis);
 #else
 	if ((devnum == 0) || (devnum == 1)) {
@@ -499,6 +509,15 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 			(int) speed, (duplex == HALF) ? "HALF" : "FULL");
 	}
 
+#if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
+	mfsdr(sdr_mfr, reg);
+	if (speed == 100) {
+		reg = (reg & ~SDR0_MFR_ZMII_MODE_MASK) | SDR0_MFR_ZMII_MODE_RMII_100M;
+	} else {
+		reg = (reg & ~SDR0_MFR_ZMII_MODE_MASK) | SDR0_MFR_ZMII_MODE_RMII_10M;
+	}
+	mtsdr(sdr_mfr, reg);
+#endif
 	/* Set ZMII/RGMII speed according to the phy link speed */
 	reg = in32 (ZMII_SSR);
 	if ( (speed == 100) || (speed == 1000) )
@@ -618,8 +637,12 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 	switch (devnum) {
 	case 1:
 		/* setup MAL tx & rx channel pointers */
-		mtdcr (maltxbattr, 0x0);
+#if defined (CONFIG_440_EP) || defined (CONFIG_440_GR)
+		mtdcr (maltxctp2r, hw_p->tx);
+#else
 		mtdcr (maltxctp1r, hw_p->tx);
+#endif
+		mtdcr (maltxbattr, 0x0);
 		mtdcr (malrxbattr, 0x0);
 		mtdcr (malrxctp1r, hw_p->rx);
 		/* set RX buffer size */
@@ -658,7 +681,11 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 	}
 
 	/* Enable MAL transmit and receive channels */
+#if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
+	mtdcr (maltxcasr, (MAL_TXRX_CASR >> (hw_p->devnum*2)));
+#else
 	mtdcr (maltxcasr, (MAL_TXRX_CASR >> hw_p->devnum));
+#endif
 	mtdcr (malrxcasr, (MAL_TXRX_CASR >> hw_p->devnum));
 
 	/* set transmit enable & receive enable */
@@ -1148,19 +1175,24 @@ static int ppc_440x_eth_rx (struct eth_device *dev)
 int ppc_440x_eth_initialize (bd_t * bis)
 {
 	static int virgin = 0;
-	unsigned long pfc1;
 	struct eth_device *dev;
 	int eth_num = 0;
-
 	EMAC_440GX_HW_PST hw = NULL;
+
+#if defined(CONFIG_440_GX)
+	unsigned long pfc1;
 
 	mfsdr (sdr_pfc1, pfc1);
 	pfc1 &= ~(0x01e00000);
 	pfc1 |= 0x01200000;
 	mtsdr (sdr_pfc1, pfc1);
+#endif
 	/* set phy num and mode */
 	bis->bi_phynum[0] = CONFIG_PHY_ADDR;
+#if defined(CONFIG_PHY1_ADDR)
 	bis->bi_phynum[1] = CONFIG_PHY1_ADDR;
+#endif
+#if defined(CONFIG_440_GX)
 	bis->bi_phynum[2] = CONFIG_PHY2_ADDR;
 	bis->bi_phynum[3] = CONFIG_PHY3_ADDR;
 	bis->bi_phymode[0] = 0;
@@ -1170,6 +1202,7 @@ int ppc_440x_eth_initialize (bd_t * bis)
 
 #if defined (CONFIG_440_GX)
 	ppc_440x_eth_setup_bridge(0, bis);
+#endif
 #endif
 
 	for (eth_num = 0; eth_num < EMAC_NUM_DEV; eth_num++) {
@@ -1256,6 +1289,7 @@ int ppc_440x_eth_initialize (bd_t * bis)
 		}
 
 		hw->devnum = eth_num;
+		hw->print_speed = 1;
 
 		sprintf (dev->name, "ppc_440x_eth%d", eth_num);
 		dev->priv = (void *) hw;

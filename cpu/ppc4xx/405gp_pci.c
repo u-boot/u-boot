@@ -437,7 +437,7 @@ void pci_440_init (struct pci_controller *hose)
 	 * The PCI initialization sequence enable bit must be set ... if not abort
 	 * pci setup since updating the bit requires chip reset.
 	 *--------------------------------------------------------------------------*/
-#if defined (CONFIG_440_GX)
+#if defined (CONFIG_440_GX) || defined (CONFIG_440_EP) || defined(CONFIG_440_GR)
 	mfsdr(sdr_sdstp1,strap);
 	if ( (strap & 0x00010000) == 0 ){
 		printf("PCI: SDR0_STRP1[PISE] not set.\n");
@@ -498,7 +498,7 @@ void pci_440_init (struct pci_controller *hose)
 #if defined(CONFIG_440_GX)
 	out32r( PCIX0_BRDGOPT1, 0x04000060 );               /* PLB Rq pri highest   */
 	out32r( PCIX0_BRDGOPT2, in32(PCIX0_BRDGOPT2) | 0x83 ); /* Enable host config, clear Timeout, ensure int src1  */
-#else
+#elif defined(PCIX0_BRDGOPT1)
 	out32r( PCIX0_BRDGOPT1, 0x10000060 );               /* PLB Rq pri highest   */
 	out32r( PCIX0_BRDGOPT2, in32(PCIX0_BRDGOPT2) | 1 ); /* Enable host config   */
 #endif
@@ -531,7 +531,9 @@ void pci_440_init (struct pci_controller *hose)
 #ifdef CONFIG_PCI_SCAN_SHOW
 	printf("PCI:   Bus Dev VenId DevId Class Int\n");
 #endif
+#if !defined(CONFIG_440_EP) && !defined(CONFIG_440_GR)
 	out16r( PCIX0_CMD, in16r( PCIX0_CMD ) | PCI_COMMAND_MASTER);
+#endif
 	hose->last_busno = pci_hose_scan(hose);
     }
 }
