@@ -150,8 +150,6 @@ Howard Gray <mvsensor@matrix-vision.de>
 
 Bill Hargen <Bill_Hargen@Jabil.com>
 
-	BUBINGA405EP		PPC405EP
-
 Klaus Heydeck <heydeck@kieback-peter.de>
 
 	KUP4K			MPC855
@@ -199,8 +197,6 @@ Reinhard Meyer <r.meyer@emk-elektronik.de>
 
 Scott McNutt <smcnutt@artesyncp.com>
 
-	EBONY			PPC440GP
-
 Tolunay Orkun <torkun@nextio.com>
 	csb272			PPC405GP
 	csb472			PPC405GP
@@ -212,8 +208,14 @@ Keith Outwater <Keith_Outwater@mvis.com>
 
 Stefan Roese <sr@denx.de>
 
-	sycamore		PPC4xx
-	walnut			PPC4xx
+	bamboo			PPC440EP
+	bunbinga		PPC405EP
+	ebony			PPC440GP
+	ocotea			PPC440GX
+	sycamore		PPC405GPr
+	walnut			PPC405GP
+	yellowstone		PPC440GR
+	yosemite		PPC440EP
 
 Frank Panno <fpanno@delphintech.com>
 
@@ -266,7 +268,6 @@ Matthias Fuchs <matthias.fuchs@esd-electronics.com>
 Travis Sawyer (travis.sawyer@sandburst.com>
 
 	XPEDITE1K		PPC440GX
-	OCOTEA			PPC440GX
 
 Peter De Schrijver <p2@mind.be>
 
