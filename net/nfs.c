@@ -703,13 +703,11 @@ NfsStart (void)
 	}
 
 	if (BootFile[0] == '\0') {
-		IPaddr_t OurIP = ntohl (NetOurIP);
-
 		sprintf (default_filename, "/nfsroot/%02lX%02lX%02lX%02lX.img",
-			OurIP & 0xFF,
-			(OurIP >>  8) & 0xFF,
-			(OurIP >> 16) & 0xFF,
-			(OurIP >> 24) & 0xFF	);
+			NetOurIP & 0xFF,
+			(NetOurIP >>  8) & 0xFF,
+			(NetOurIP >> 16) & 0xFF,
+			(NetOurIP >> 24) & 0xFF	);
 		strcpy (nfs_path, default_filename);
 
 		printf ("*** Warning: no boot file name; using '%s'\n",
