@@ -1,6 +1,25 @@
 /*
- * (C) Copyright 2001
- * Denis Peter, MPL AG Switzerland
+ * Part of this code has been derived from linux:
+ * Universal Host Controller Interface driver for USB (take II).
+ *
+ * (c) 1999-2001 Georg Acher, acher@in.tum.de (executive slave) (base guitar)
+ *               Deti Fliegl, deti@fliegl.de (executive slave) (lead voice)
+ *               Thomas Sailer, sailer@ife.ee.ethz.ch (chief consultant) (cheer leader)
+ *               Roman Weissgaerber, weissg@vienna.at (virt root hub) (studio porter)
+ * (c) 2000      Yggdrasil Computing, Inc. (port of new PCI interface support
+ *               from usb-ohci.c by Adam Richter, adam@yggdrasil.com).
+ * (C) 2000      David Brownell, david-b@pacbell.net (usb-ohci.c)
+ *
+ * HW-initalization based on material of
+ *
+ * (C) Copyright 1999 Linus Torvalds
+ * (C) Copyright 1999 Johannes Erdfelt
+ * (C) Copyright 1999 Randy Dunlap
+ * (C) Copyright 1999 Gregory P. Smith
+ *
+ *
+ * Adapted for U-Boot:
+ * (C) Copyright 2001 Denis Peter, MPL AG Switzerland
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -20,7 +39,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  *
- * Note: Part of this code has been derived from linux
  *
  */
 

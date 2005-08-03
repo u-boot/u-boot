@@ -1,9 +1,19 @@
 /*
- * (C) Copyright 2001
- * Denis Peter, MPL AG Switzerland
  *
  * Most of this source has been derived from the Linux USB
- * project.
+ * project:
+ * (C) Copyright Linus Torvalds 1999
+ * (C) Copyright Johannes Erdfelt 1999-2001
+ * (C) Copyright Andreas Gal 1999
+ * (C) Copyright Gregory P. Smith 1999
+ * (C) Copyright Deti Fliegl 1999 (new USB architecture)
+ * (C) Copyright Randy Dunlap 2000
+ * (C) Copyright David Brownell 2000 (kernel hotplug, usb_device_id)
+ * (C) Copyright Yggdrasil Computing, Inc. 2000
+ *     (usb_device_id matching changes by Adam J. Richter)
+ *
+ * Adapted for U-Boot:
+ * (C) Copyright 2001 Denis Peter, MPL AG Switzerland
  *
  * See file CREDITS for list of people who contributed to this
  * project.

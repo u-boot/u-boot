@@ -585,4 +585,23 @@ void scsi_setup_inquiry(ccb * pccb)
 	pccb->msgout[0]=SCSI_IDENTIFY; /* NOT USED */
 }
 
+
+U_BOOT_CMD(
+	scsi, 5, 1, do_scsi,
+	"scsi    - SCSI sub-system\n",
+	"reset - reset SCSI controller\n"
+	"scsi info  - show available SCSI devices\n"
+	"scsi scan  - (re-)scan SCSI bus\n"
+	"scsi device [dev] - show or set current device\n"
+	"scsi part [dev] - print partition table of one or all SCSI devices\n"
+	"scsi read addr blk# cnt - read `cnt' blocks starting at block `blk#'\n"
+	"     to memory address `addr'\n"
+);
+
+U_BOOT_CMD(
+	scsiboot, 3, 1, do_scsiboot,
+	"scsiboot- boot from SCSI device\n",
+	"loadAddr dev:part\n"
+);
+
 #endif /* #if (CONFIG_COMMANDS & CFG_CMD_SCSI) */

@@ -1,6 +1,8 @@
-/*
- * (C) Copyright 2002
- * Denis Peter, MPL AG Switzerland
+/* ported from ctfb.c (linux kernel):
+ * Created in Jan - July 2000 by Thomas Höhenleitner <th@visuelle-maschinen.de>
+ *
+ * Ported to U-Boot:
+ * (C) Copyright 2002 Denis Peter, MPL AG Switzerland
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -21,10 +23,6 @@
  * MA 02111-1307 USA
  */
 
-/*
- * ported from ctfb.c (linux kernel) for the U-Boot
- *
- */
 
 
 #include <common.h>
