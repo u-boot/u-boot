@@ -129,6 +129,34 @@ Thomas Frieden <ThomasF@hyperion-entertainment.com>
 
 	AmigaOneG3SE		MPC7xx
 
+Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+	ADCIOP			IOP480 (PPC401)
+	APC405			PPC405GP
+	AR405			PPC405GP
+	ASH405			PPC405EP
+	CANBT			PPC405CR
+	CPCI405			PPC405GP
+	CPCI4052		PPC405GP
+	CPCI405AB		PPC405GP
+	CPCI405DT		PPC405GP
+	CPCI440			PPC440GP
+	CPCIISER4		PPC405GP
+	DASA_SIM		IOP480 (PPC401)
+	DP405			PPC405EP
+	DU405			PPC405GP
+	G2000			PPC405EP
+	HH405			PPC405EP
+	HUB405			PPC405EP
+	OCRTC			PPC405GP
+	ORSG			PPC405GP
+	PCI405			PPC405GP
+	PLU405			PPC405EP
+	PMC405			PPC405GP
+	VOH405			PPC405EP
+	VOM405			PPC405EP
+	WUH405			PPC405EP
+
 Frank Gottschling <fgottschling@eltec.de>
 
 	MHPC			MPC8xx
@@ -168,10 +196,6 @@ Sangmoon Kim <dogoil@etinsys.com>
 
 	debris			MPC8245
 
-Nye Liu <nyet@zumanetworks.com>
-
-	ZUMA			MPC7xx_74xx
-
 Thomas Lange <thomas@corelatus.se>
 
 	GTH			MPC860
@@ -179,6 +203,21 @@ Thomas Lange <thomas@corelatus.se>
 The LEOX team <team@leox.org>
 
 	ELPT860			MPC860T
+
+Nye Liu <nyet@zumanetworks.com>
+
+	ZUMA			MPC7xx_74xx
+
+Jon Loeliger <jdl@freescale.com>
+
+	MPC8540ADS		MPC8540
+	MPC8560ADS		MPC8560
+	MPC8541CDS		MPC8541
+	MPC8555CDS		MPC8555
+
+Dan Malek <dan@embeddededge.com>
+
+	STxGP3			MPC85xx
 
 Eran Man <eran@nbase.co.il>
 
@@ -194,6 +233,7 @@ Reinhard Meyer <r.meyer@emk-elektronik.de>
 	TOP5200			MPC5200
 
 Tolunay Orkun <torkun@nextio.com>
+
 	csb272			PPC405GP
 	csb472			PPC405GP
 
@@ -201,17 +241,6 @@ Keith Outwater <Keith_Outwater@mvis.com>
 
 	GEN860T			MPC860T
 	GEN860T_SC		MPC860T
-
-Stefan Roese <sr@denx.de>
-
-	bamboo			PPC440EP
-	bunbinga		PPC405EP
-	ebony			PPC440GP
-	ocotea			PPC440GX
-	sycamore		PPC405GPr
-	walnut			PPC405GP
-	yellowstone		PPC440GR
-	yosemite		PPC440EP
 
 Frank Panno <fpanno@delphintech.com>
 
@@ -234,33 +263,20 @@ Daniel Poirot <dan.poirot@windriver.com>
 	sbc8240			MPC8240
 	sbc405			PPC405GP
 
-Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Stefan Roese <sr@denx.de>
 
-	ADCIOP			IOP480 (PPC401)
-	APC405			PPC405GP
-	AR405			PPC405GP
-	ASH405			PPC405EP
-	CANBT			PPC405CR
-	CPCI405			PPC405GP
-	CPCI4052		PPC405GP
-	CPCI405AB		PPC405GP
-	CPCI405DT		PPC405GP
-	CPCI440			PPC440GP
-	CPCIISER4		PPC405GP
-	DASA_SIM		IOP480 (PPC401)
-	DP405			PPC405EP
-	DU405			PPC405GP
-	G2000			PPC405EP
-	HH405			PPC405EP
-	HUB405			PPC405EP
-	OCRTC			PPC405GP
-	ORSG			PPC405GP
-	PCI405			PPC405GP
-	PLU405			PPC405EP
-	PMC405			PPC405GP
-	VOH405			PPC405EP
-	VOM405			PPC405EP
-	WUH405			PPC405EP
+	bamboo			PPC440EP
+	bunbinga		PPC405EP
+	ebony			PPC440GP
+	ocotea			PPC440GX
+	sycamore		PPC405GPr
+	walnut			PPC405GP
+	yellowstone		PPC440GR
+	yosemite		PPC440EP
+
+Yusdi Santoso <yusdi_santoso@adaptec.com>
+
+	HIDDEN_DRAGON	MPC8241/MPC8245
 
 Travis Sawyer (travis.sawyer@sandburst.com>
 
@@ -297,21 +313,6 @@ John Zhan <zhanz@sinovee.com>
 
 	svm_sc8xx		MPC8xx
 
-Jon Loeliger <jdl@freescale.com>
-
-	MPC8540ADS		MPC8540
-	MPC8560ADS		MPC8560
-	MPC8541CDS		MPC8541
-	MPC8555CDS		MPC8555
-
-Dan Malek <dan@embeddededge.com>
-
-	STxGP3			MPC85xx
-
-Yusdi Santoso <yusdi_santoso@adaptec.com>
-
-	HIDDEN_DRAGON	MPC8241/MPC8245
-
 -------------------------------------------------------------------------
 
 Unknown / orphaned boards:
@@ -346,6 +347,10 @@ Unknown / orphaned boards:
 #	Board			CPU					#
 #########################################################################
 
+Rishi Bhattacharya <rishi@ti.com>
+
+	omap5912osk		ARM926EJS
+
 George G. Davis <gdavis@mvista.com>
 
 	assabet			SA1100
@@ -364,6 +369,11 @@ Marius Gröger <mag@sysgo.de>
 	impa7			ARM720T (EP7211)
 	ep7312			ARM720T (EP7312)
 
+Kshitij Gupta <kshitij@ti.com>
+
+	omap1510inn		ARM925T
+	omap1610inn		ARM926EJS
+
 Kyle Harris <kharris@nexus-tech.net>
 
 	lubbock			xscale
@@ -375,29 +385,13 @@ Gary Jennejohn <gj@denx.de>
 	smdk2400		ARM920T
 	trab			ARM920T
 
-Prakash Kumar <prakash@embedx.com>
-
-	cerf250			xscale
-
-Kshitij Gupta <kshitij@ti.com>
-
-	omap1510inn		ARM925T
-	omap1610inn		ARM926EJS
-
-Dave Peverley <dpeverley@mpc-data.co.uk>
-	omap730p2		ARM926EJS
-
 Nishant Kamat <nskamat@ti.com>
 
 	omap1610h2		ARM926EJS
 
-Rishi Bhattacharya <rishi@ti.com>
+Prakash Kumar <prakash@embedx.com>
 
-	omap5912osk		ARM926EJS
-
-Richard Woodruff <r-woodruff2@ti.com>
-
-	omap2420h4		ARM1136EJS
+	cerf250			xscale
 
 David Müller <d.mueller@elsoft.ch>
 
@@ -408,6 +402,10 @@ Rolf Offermanns <rof@sysgo.de>
 
 	shannon			SA1100
 
+Dave Peverley <dpeverley@mpc-data.co.uk>
+
+	omap730p2		ARM926EJS
+
 Robert Schwebel <r.schwebel@pengutronix.de>
 
 	csb226			xscale
@@ -415,13 +413,17 @@ Robert Schwebel <r.schwebel@pengutronix.de>
 
 Andrea Scian <andrea.scian@dave-tech.it>
 
-	B2				ARM7TDMI (S3C44B0X)
+	B2			ARM7TDMI (S3C44B0X)
 
 Greg Ungerer <greg.ungerer@opengear.com>
 
 	cm4008			ks8695p
 	cm4116			ks8695p
 	cm4148			ks8695p
+
+Richard Woodruff <r-woodruff2@ti.com>
+
+	omap2420h4		ARM1136EJS
 
 Alex Züpke <azu@sysgo.de>
 

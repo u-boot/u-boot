@@ -315,10 +315,6 @@ int pci_pre_init(struct pci_controller *hose)
 #if defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT)
 void pci_target_init(struct pci_controller *hose)
 {
-	u16 cmdstat;
-
-	DECLARE_GLOBAL_DATA_PTR;
-
 	/*--------------------------------------------------------------------------+
 	 * Set up Direct MMIO registers
 	 *--------------------------------------------------------------------------*/

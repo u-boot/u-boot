@@ -25,7 +25,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#define	__ASSEMBLY__	/* Dirty trick to get only #defines */
+#ifndef __ASSEMBLY__
+#define	__ASSEMBLY__			/* Dirty trick to get only #defines	*/
+#endif
+#define	__ASM_STUB_PROCESSOR_H__	/* don't include asm/processor.		*/
 #include <config.h>
 #undef	__ASSEMBLY__
 
@@ -73,24 +76,24 @@ extern unsigned char environment;
 int main (int argc, char **argv)
 {
 #ifdef	ENV_IS_EMBEDDED
-    int crc ;
-    unsigned char 	*envptr 	= &environment,
-			*dataptr 	= envptr + ENV_HEADER_SIZE;
-    unsigned int	datasize 	= ENV_SIZE;
+	int crc;
+	unsigned char *envptr = &environment,
+		*dataptr = envptr + ENV_HEADER_SIZE;
+	unsigned int datasize = ENV_SIZE;
 
-    crc = crc32(0, dataptr, datasize) ;
+	crc = crc32 (0, dataptr, datasize);
 
-    /* Check if verbose mode is activated passing a parameter to the program */
-    if (argc > 1) {
-	printf("CRC32 from offset %08X to %08X of environment = %08X\n",
-	    (unsigned int)(dataptr - envptr),
-	    (unsigned int)(dataptr - envptr) + datasize,
-	    crc);
-    } else {
-	printf("0x%08X\n", crc);
-    }
+	/* Check if verbose mode is activated passing a parameter to the program */
+	if (argc > 1) {
+		printf ("CRC32 from offset %08X to %08X of environment = %08X\n",
+			(unsigned int) (dataptr - envptr),
+			(unsigned int) (dataptr - envptr) + datasize,
+			crc);
+	} else {
+		printf ("0x%08X\n", crc);
+	}
 #else
-	printf("0\n");
+	printf ("0\n");
 #endif
-    return EXIT_SUCCESS;
+	return EXIT_SUCCESS;
 }

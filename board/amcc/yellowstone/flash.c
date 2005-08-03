@@ -329,7 +329,6 @@ int flash_erase(flash_info_t * info, int s_first, int s_last)
 	volatile FLASH_WORD_SIZE *addr = (FLASH_WORD_SIZE *) (info->start[0]);
 	volatile FLASH_WORD_SIZE *addr2;
 	int flag, prot, sect, l_sect;
-	int i;
 
 	if ((s_first < 0) || (s_first > s_last)) {
 		if (info->flash_id == FLASH_UNKNOWN) {
@@ -517,7 +516,7 @@ int write_buff(flash_info_t * info, uchar * src, ulong addr, ulong cnt)
  */
 static int write_word(flash_info_t * info, ulong dest, ulong data)
 {
-	volatile vu_long *addr2 = (vu_long *) (info->start[0]);
+	vu_long *addr2 = (vu_long *) (info->start[0]);
 	volatile FLASH_WORD_SIZE *dest2 = (FLASH_WORD_SIZE *) dest;
 	volatile FLASH_WORD_SIZE *data2 = (FLASH_WORD_SIZE *) & data;
 	ulong start;
