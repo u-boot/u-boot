@@ -204,8 +204,8 @@ _start_e500:
 	li	r1,0x0b00
 	mtspr	IVOR11,r1	/* 11: Interval timer */
 	li	r1,0x0c00
-	mtspr	IVOR12,r1	/* 11: Watchdog timer */
-	li	r10,0x0d00
+	mtspr	IVOR12,r1	/* 12: Watchdog timer */
+	li	r1,0x0d00
 	mtspr	IVOR13,r1	/* 13: Data TLB error */
 	li	r1,0x0e00
 	mtspr	IVOR14,r1	/* 14: Instruction TLB error */
