@@ -41,7 +41,8 @@
 #define CONFIG_MPC8349		1	/* MPC8349 specific */
 #define CONFIG_MPC8349ADS	1	/* MPC8349ADS board specific */
 
-#define CONFIG_PCI
+/* FIXME: Real PCI support will come in a follow-up update. */
+#undef CONFIG_PCI
 
 #define CONFIG_TSEC_ENET 		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
