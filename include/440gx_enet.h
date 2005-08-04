@@ -318,6 +318,8 @@ typedef struct emac_440gx_hw_st {
 #define EMAC_M0_RXE			    (0x08000000)
 #define EMAC_M0_WKE			    (0x04000000)
 
+/* on 440GX EMAC_MR1 has a different layout! */
+#if defined(CONFIG_440_GX)
 /* MODE Reg 1 */
 #define EMAC_M1_FDE		(0x80000000)
 #define EMAC_M1_ILE		(0x40000000)
@@ -347,6 +349,31 @@ typedef struct emac_440gx_hw_st {
 #define EMAC_M1_OBCI_83		(0x00000010)
 #define EMAC_M1_OBCI_66		(0x00000008)
 #define EMAC_M1_RSVD1		(0x00000007)
+#else /* defined(CONFIG_440_GX) */
+/* EMAC_MR1 is the same on 405GP, 405GPr, 405EP, 440GP, 440EP */
+#define EMAC_M1_FDE			0x80000000
+#define EMAC_M1_ILE			0x40000000
+#define EMAC_M1_VLE			0x20000000
+#define EMAC_M1_EIFC			0x10000000
+#define EMAC_M1_APP			0x08000000
+#define EMAC_M1_AEMI			0x02000000
+#define EMAC_M1_IST			0x01000000
+#define EMAC_M1_MF_1000MBPS		0x00800000	/* 0's for 10MBPS */
+#define EMAC_M1_MF_100MBPS		0x00400000
+#define EMAC_M1_RFS_4K			0x00300000	/* ~4k for 512 byte */
+#define EMAC_M1_RFS_2K			0x00200000
+#define EMAC_M1_RFS_1K			0x00100000
+#define EMAC_M1_TX_FIFO_2K		0x00080000	/* 0's for 512 byte */
+#define EMAC_M1_TX_FIFO_1K		0x00040000
+#define EMAC_M1_TR0_DEPEND		0x00010000	/* 0'x for single packet */
+#define EMAC_M1_TR0_MULTI		0x00008000
+#define EMAC_M1_TR1_DEPEND		0x00004000
+#define EMAC_M1_TR1_MULTI		0x00002000
+#if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
+#define EMAC_M1_JUMBO_ENABLE		0x00001000
+#endif /* defined(CONFIG_440_EP) || defined(CONFIG_440_GR) */
+#endif /* defined(CONFIG_440_GX) */
+
 /* Transmit Mode Register 0 */
 #define EMAC_TXM0_GNP0			(0x80000000)
 #define EMAC_TXM0_GNP1			(0x40000000)

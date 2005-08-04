@@ -331,6 +331,158 @@
 #define plb1_bearl                (PLB_ARBITER_BASE+ 0x0C)
 #define plb1_bearh                (PLB_ARBITER_BASE+ 0x0D)
 
+/* Pin Function Control Register 1 */
+#define SDR0_PFC1                    0x4101
+#define   SDR0_PFC1_U1ME_MASK         0x02000000    /* UART1 Mode Enable */
+#define   SDR0_PFC1_U1ME_DSR_DTR      0x00000000      /* UART1 in DSR/DTR Mode */
+#define   SDR0_PFC1_U1ME_CTS_RTS      0x02000000      /* UART1 in CTS/RTS Mode */
+#define   SDR0_PFC1_U0ME_MASK         0x00080000    /* UART0 Mode Enable */
+#define   SDR0_PFC1_U0ME_DSR_DTR      0x00000000      /* UART0 in DSR/DTR Mode */
+#define   SDR0_PFC1_U0ME_CTS_RTS      0x00080000      /* UART0 in CTS/RTS Mode */
+#define   SDR0_PFC1_U0IM_MASK         0x00040000    /* UART0 Interface Mode */
+#define   SDR0_PFC1_U0IM_8PINS        0x00000000      /* UART0 Interface Mode 8 pins */
+#define   SDR0_PFC1_U0IM_4PINS        0x00040000      /* UART0 Interface Mode 4 pins */
+#define   SDR0_PFC1_SIS_MASK          0x00020000    /* SCP or IIC1 Selection */
+#define   SDR0_PFC1_SIS_SCP_SEL       0x00000000      /* SCP Selected */
+#define   SDR0_PFC1_SIS_IIC1_SEL      0x00020000      /* IIC1 Selected */
+#define   SDR0_PFC1_UES_MASK          0x00010000    /* USB2D_RX_Active / EBC_Hold Req Selection */
+#define   SDR0_PFC1_UES_USB2D_SEL     0x00000000      /* USB2D_RX_Active Selected */
+#define   SDR0_PFC1_UES_EBCHR_SEL     0x00010000      /* EBC_Hold Req Selected */
+#define   SDR0_PFC1_DIS_MASK          0x00008000    /* DMA_Req(1) / UIC_IRQ(5) Selection */
+#define   SDR0_PFC1_DIS_DMAR_SEL      0x00000000      /* DMA_Req(1) Selected */
+#define   SDR0_PFC1_DIS_UICIRQ5_SEL   0x00008000      /* UIC_IRQ(5) Selected */
+#define   SDR0_PFC1_ERE_MASK          0x00004000    /* EBC Mast.Ext.Req.En./GPIO0(27) Selection */
+#define   SDR0_PFC1_ERE_EXTR_SEL      0x00000000      /* EBC Mast.Ext.Req.En. Selected */
+#define   SDR0_PFC1_ERE_GPIO0_27_SEL  0x00004000      /* GPIO0(27) Selected */
+#define   SDR0_PFC1_UPR_MASK          0x00002000    /* USB2 Device Packet Reject Selection */
+#define   SDR0_PFC1_UPR_DISABLE       0x00000000      /* USB2 Device Packet Reject Disable */
+#define   SDR0_PFC1_UPR_ENABLE        0x00002000      /* USB2 Device Packet Reject Enable */
+
+#define   SDR0_PFC1_PLB_PME_MASK      0x00001000    /* PLB3/PLB4 Perf. Monitor En. Selection */
+#define   SDR0_PFC1_PLB_PME_PLB3_SEL  0x00000000      /* PLB3 Performance Monitor Enable */
+#define   SDR0_PFC1_PLB_PME_PLB4_SEL  0x00001000      /* PLB3 Performance Monitor Enable */
+#define   SDR0_PFC1_GFGGI_MASK        0x0000000F    /* GPT Frequency Generation Gated In */
+
+/* USB Control Register */
+#define SDR0_USB0                    0x0320
+#define   SDR0_USB0_USB_DEVSEL_MASK   0x00000002    /* USB Device Selection */
+#define   SDR0_USB0_USB20D_DEVSEL     0x00000000      /* USB2.0 Device Selected */
+#define   SDR0_USB0_USB11D_DEVSEL     0x00000002      /* USB1.1 Device Selected */
+#define   SDR0_USB0_LEEN_MASK         0x00000001    /* Little Endian selection */
+#define   SDR0_USB0_LEEN_DISABLE      0x00000000      /* Little Endian Disable */
+#define   SDR0_USB0_LEEN_ENABLE       0x00000001      /* Little Endian Enable */
+
+/* CUST0 Customer Configuration Register0 */
+#define SDR0_CUST0                   0x4000
+#define   SDR0_CUST0_MUX_E_N_G_MASK   0xC0000000     /* Mux_Emac_NDFC_GPIO */
+#define   SDR0_CUST0_MUX_EMAC_SEL     0x40000000       /* Emac Selection */
+#define   SDR0_CUST0_MUX_NDFC_SEL     0x80000000       /* NDFC Selection */
+#define   SDR0_CUST0_MUX_GPIO_SEL     0xC0000000       /* GPIO Selection */
+
+#define   SDR0_CUST0_NDFC_EN_MASK     0x20000000     /* NDFC Enable Mask */
+#define   SDR0_CUST0_NDFC_ENABLE      0x20000000       /* NDFC Enable */
+#define   SDR0_CUST0_NDFC_DISABLE     0x00000000       /* NDFC Disable */
+
+#define   SDR0_CUST0_NDFC_BW_MASK     0x10000000     /* NDFC Boot Width */
+#define   SDR0_CUST0_NDFC_BW_16_BIT   0x10000000       /* NDFC Boot Width = 16 Bit */
+#define   SDR0_CUST0_NDFC_BW_8_BIT    0x00000000       /* NDFC Boot Width =  8 Bit */
+
+#define   SDR0_CUST0_NDFC_BP_MASK     0x0F000000     /* NDFC Boot Page */
+#define   SDR0_CUST0_NDFC_BP_ENCODE(n) ((((unsigned long)(n))&0xF)<<24)
+#define   SDR0_CUST0_NDFC_BP_DECODE(n) ((((unsigned long)(n))>>24)&0x0F)
+
+#define   SDR0_CUST0_NDFC_BAC_MASK    0x00C00000     /* NDFC Boot Address Cycle */
+#define   SDR0_CUST0_NDFC_BAC_ENCODE(n) ((((unsigned long)(n))&0x3)<<22)
+#define   SDR0_CUST0_NDFC_BAC_DECODE(n) ((((unsigned long)(n))>>22)&0x03)
+
+#define   SDR0_CUST0_NDFC_ARE_MASK    0x00200000     /* NDFC Auto Read Enable */
+#define   SDR0_CUST0_NDFC_ARE_ENABLE  0x00200000       /* NDFC Auto Read Enable */
+#define   SDR0_CUST0_NDFC_ARE_DISABLE 0x00000000       /* NDFC Auto Read Disable */
+
+#define   SDR0_CUST0_NRB_MASK         0x00100000     /* NDFC Ready / Busy */
+#define   SDR0_CUST0_NRB_BUSY         0x00100000       /* Busy */
+#define   SDR0_CUST0_NRB_READY        0x00000000       /* Ready */
+
+#define   SDR0_CUST0_NDRSC_MASK       0x0000FFF0     /* NDFC Device Reset Count Mask */
+#define   SDR0_CUST0_NDRSC_ENCODE(n) ((((unsigned long)(n))&0xFFF)<<4)
+#define   SDR0_CUST0_NDRSC_DECODE(n) ((((unsigned long)(n))>>4)&0xFFF)
+
+#define   SDR0_CUST0_CHIPSELGAT_MASK  0x0000000F     /* Chip Select Gating Mask */
+#define   SDR0_CUST0_CHIPSELGAT_DIS   0x00000000       /* Chip Select Gating Disable */
+#define   SDR0_CUST0_CHIPSELGAT_ENALL 0x0000000F       /* All Chip Select Gating Enable */
+#define   SDR0_CUST0_CHIPSELGAT_EN0   0x00000008       /* Chip Select0 Gating Enable */
+#define   SDR0_CUST0_CHIPSELGAT_EN1   0x00000004       /* Chip Select1 Gating Enable */
+#define   SDR0_CUST0_CHIPSELGAT_EN2   0x00000002       /* Chip Select2 Gating Enable */
+#define   SDR0_CUST0_CHIPSELGAT_EN3   0x00000001       /* Chip Select3 Gating Enable */
+
+/* CUST1 Customer Configuration Register1 */
+#define   SDR0_CUST1                 0x4002
+#define   SDR0_CUST1_NDRSC_MASK       0xFFFF0000     /* NDRSC Device Read Count */
+#define   SDR0_CUST1_NDRSC_ENCODE(n) ((((unsigned long)(n))&0xFFFF)<<16)
+#define   SDR0_CUST1_NDRSC_DECODE(n) ((((unsigned long)(n))>>16)&0xFFFF)
+
+/* Pin Function Control Register 0 */
+#define SDR0_PFC0                    0x4100
+#define   SDR0_PFC0_CPU_TR_EN_MASK    0x00000100    /* CPU Trace Enable Mask */
+#define   SDR0_PFC0_CPU_TRACE_EN      0x00000100      /* CPU Trace Enable */
+#define   SDR0_PFC0_CPU_TRACE_DIS     0x00000100      /* CPU Trace Disable */
+#define   SDR0_PFC0_CTE_ENCODE(n)    ((((unsigned long)(n))&0x01)<<8)
+#define   SDR0_PFC0_CTE_DECODE(n)    ((((unsigned long)(n))>>8)&0x01)
+
+/* Pin Function Control Register 1 */
+#define SDR0_PFC1                    0x4101
+#define   SDR0_PFC1_U1ME_MASK         0x02000000    /* UART1 Mode Enable */
+#define   SDR0_PFC1_U1ME_DSR_DTR      0x00000000      /* UART1 in DSR/DTR Mode */
+#define   SDR0_PFC1_U1ME_CTS_RTS      0x02000000      /* UART1 in CTS/RTS Mode */
+#define   SDR0_PFC1_U0ME_MASK         0x00080000    /* UART0 Mode Enable */
+#define   SDR0_PFC1_U0ME_DSR_DTR      0x00000000      /* UART0 in DSR/DTR Mode */
+#define   SDR0_PFC1_U0ME_CTS_RTS      0x00080000      /* UART0 in CTS/RTS Mode */
+#define   SDR0_PFC1_U0IM_MASK         0x00040000    /* UART0 Interface Mode */
+#define   SDR0_PFC1_U0IM_8PINS        0x00000000      /* UART0 Interface Mode 8 pins */
+#define   SDR0_PFC1_U0IM_4PINS        0x00040000      /* UART0 Interface Mode 4 pins */
+#define   SDR0_PFC1_SIS_MASK          0x00020000    /* SCP or IIC1 Selection */
+#define   SDR0_PFC1_SIS_SCP_SEL       0x00000000      /* SCP Selected */
+#define   SDR0_PFC1_SIS_IIC1_SEL      0x00020000      /* IIC1 Selected */
+#define   SDR0_PFC1_UES_MASK          0x00010000    /* USB2D_RX_Active / EBC_Hold Req Selection */
+#define   SDR0_PFC1_UES_USB2D_SEL     0x00000000      /* USB2D_RX_Active Selected */
+#define   SDR0_PFC1_UES_EBCHR_SEL     0x00010000      /* EBC_Hold Req Selected */
+#define   SDR0_PFC1_DIS_MASK          0x00008000    /* DMA_Req(1) / UIC_IRQ(5) Selection */
+#define   SDR0_PFC1_DIS_DMAR_SEL      0x00000000      /* DMA_Req(1) Selected */
+#define   SDR0_PFC1_DIS_UICIRQ5_SEL   0x00008000      /* UIC_IRQ(5) Selected */
+#define   SDR0_PFC1_ERE_MASK          0x00004000    /* EBC Mast.Ext.Req.En./GPIO0(27) Selection */
+#define   SDR0_PFC1_ERE_EXTR_SEL      0x00000000      /* EBC Mast.Ext.Req.En. Selected */
+#define   SDR0_PFC1_ERE_GPIO0_27_SEL  0x00004000      /* GPIO0(27) Selected */
+#define   SDR0_PFC1_UPR_MASK          0x00002000    /* USB2 Device Packet Reject Selection */
+#define   SDR0_PFC1_UPR_DISABLE       0x00000000      /* USB2 Device Packet Reject Disable */
+#define   SDR0_PFC1_UPR_ENABLE        0x00002000      /* USB2 Device Packet Reject Enable */
+
+#define   SDR0_PFC1_PLB_PME_MASK      0x00001000    /* PLB3/PLB4 Perf. Monitor En. Selection */
+#define   SDR0_PFC1_PLB_PME_PLB3_SEL  0x00000000      /* PLB3 Performance Monitor Enable */
+#define   SDR0_PFC1_PLB_PME_PLB4_SEL  0x00001000      /* PLB3 Performance Monitor Enable */
+#define   SDR0_PFC1_GFGGI_MASK        0x0000000F    /* GPT Frequency Generation Gated In */
+
+/* Miscealleneaous Function Reg. */
+#define SDR0_MFR                     0x4300
+#define   SDR0_MFR_ETH0_CLK_SEL        0x08000000   /* Ethernet0 Clock Select */
+#define   SDR0_MFR_ETH1_CLK_SEL        0x04000000   /* Ethernet1 Clock Select */
+#define   SDR0_MFR_ZMII_MODE_MASK      0x03000000   /* ZMII Mode Mask */
+#define   SDR0_MFR_ZMII_MODE_MII       0x00000000     /* ZMII Mode MII */
+#define   SDR0_MFR_ZMII_MODE_SMII      0x01000000     /* ZMII Mode SMII */
+#define   SDR0_MFR_ZMII_MODE_RMII_10M  0x02000000     /* ZMII Mode RMII - 10 Mbs */
+#define   SDR0_MFR_ZMII_MODE_RMII_100M 0x03000000     /* ZMII Mode RMII - 100 Mbs */
+#define   SDR0_MFR_ZMII_MODE_BIT0      0x02000000     /* ZMII Mode Bit0 */
+#define   SDR0_MFR_ZMII_MODE_BIT1      0x01000000     /* ZMII Mode Bit1 */
+#define   SDR0_MFR_ZM_ENCODE(n)        ((((unsigned long)(n))&0x3)<<24)
+#define   SDR0_MFR_ZM_DECODE(n)        ((((unsigned long)(n))<<24)&0x3)
+
+#define   SDR0_MFR_ERRATA3_EN0         0x00800000
+#define   SDR0_MFR_ERRATA3_EN1         0x00400000
+#define   SDR0_MFR_PKT_REJ_MASK        0x00300000   /* Pkt Rej. Enable Mask */
+#define   SDR0_MFR_PKT_REJ_EN          0x00300000   /* Pkt Rej. Enable on both EMAC3 0-1 */
+#define   SDR0_MFR_PKT_REJ_EN0         0x00200000   /* Pkt Rej. Enable on EMAC3(0) */
+#define   SDR0_MFR_PKT_REJ_EN1         0x00100000   /* Pkt Rej. Enable on EMAC3(1) */
+#define   SDR0_MFR_PKT_REJ_POL         0x00080000   /* Packet Reject Polarity */
+
 #else
 
 /*-----------------------------------------------------------------------------

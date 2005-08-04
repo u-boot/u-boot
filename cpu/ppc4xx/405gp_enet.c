@@ -166,7 +166,6 @@ static void ppc_4xx_eth_halt (struct eth_device *dev)
 		failsafe--;
 		if (failsafe == 0)
 			break;
-
 	}
 
 	/* EMAC RESET */
@@ -223,18 +222,19 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 #endif
 
 	/* MAL RESET */
-	 mtdcr (malmcr, MAL_CR_MMSR);
-	 /* wait for reset */
-	 while (mfdcr (malmcr) & MAL_CR_MMSR) {
-	 };
+	mtdcr (malmcr, MAL_CR_MMSR);
+	/* wait for reset */
+	while (mfdcr (malmcr) & MAL_CR_MMSR) {
+	};
+
 #if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
 	out32 (ZMII_FER, 0);
 	udelay(100);
 	/* set RII mode */
 	out32 (ZMII_FER, ZMII_RMII | ZMII_MDI0);
 #elif defined(CONFIG_440)
-	 /* set RMII mode */
-	 out32 (ZMII_FER, ZMII_RMII | ZMII_MDI0);
+	/* set RMII mode */
+	out32 (ZMII_FER, ZMII_RMII | ZMII_MDI0);
 #endif /* CONFIG_440 */
 
 	/* MAL Channel RESET */
@@ -324,14 +324,11 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 			(int) speed, (duplex == HALF) ? "HALF" : "FULL");
 	}
 
-#if defined(CONFIG_440)
-	/* Errata 1.12: MAL_1 -- Disable MAL bursting */
-	if( get_pvr() == PVR_440GP_RB)
-		mtdcr (malmcr, MAL_CR_OPBBL | MAL_CR_LEA | MAL_CR_PLBLT_DEFAULT);
-	else
-#else
 	mtdcr (malmcr, MAL_CR_PLBB | MAL_CR_OPBBL | MAL_CR_LEA | MAL_CR_PLBLT_DEFAULT);
-#endif
+	/* Errata 1.12: MAL_1 -- Disable MAL bursting */
+	if (get_pvr() == PVR_440GP_RB) {
+		mtdcr (malmcr, mfdcr(malmcr) & ~MAL_CR_PLBB);
+	}
 
 	/* Free "old" buffers */
 	if (hw_p->alloc_tx_buf)
@@ -418,6 +415,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	reg |= dev->enetaddr[5];
 
 	out32 (EMAC_IAL + hw_p->hw_addr, reg);
+
 	switch (devnum) {
 #if defined(CONFIG_NET_MULTI)
 	case 1:
@@ -497,7 +495,6 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	/* 405s have a 16 byte burst length */
 	out32 (EMAC_RX_HI_LO_WMARK + hw_p->hw_addr, 0x0f002000);
 #endif
-
 
 	/* Frame gap set */
 	out32 (EMAC_I_FRAME_GAP_REG + hw_p->hw_addr, 0x00000008);

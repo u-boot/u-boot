@@ -1590,7 +1590,6 @@ unsigned long program_bxcr(unsigned long* dimm_populated,
 			   unsigned long  num_dimm_banks)
 {
 	unsigned long dimm_num;
-	unsigned long bxcr_num;
 	unsigned long bank_base_addr;
 	unsigned long bank_size_bytes;
 	unsigned long cr;
@@ -1601,6 +1600,8 @@ unsigned long program_bxcr(unsigned long* dimm_populated,
 	unsigned char num_banks;
 	unsigned char bank_size_id;
 
+#ifndef CONFIG_BAMBOO
+	unsigned long bxcr_num;
 
 	/*
 	 * Set the BxCR regs.  First, wipe out the bank config registers.
@@ -1609,11 +1610,16 @@ unsigned long program_bxcr(unsigned long* dimm_populated,
 		mtdcr(memcfga, mem_b0cr + (bxcr_num << 2));
 		mtdcr(memcfgd, 0x00000000);
 	}
+#endif
 
 	/*
 	 * reset the bank_base address
 	 */
+#ifndef CONFIG_BAMBOO
 	bank_base_addr = CFG_SDRAM_BASE;
+#else
+	bank_base_addr = CFG_SDRAM_ONBOARD_SIZE;
+#endif
 
 	for (dimm_num = 0; dimm_num < num_dimm_banks; dimm_num++) {
 		if (dimm_populated[dimm_num] == TRUE) {
@@ -1691,7 +1697,11 @@ unsigned long program_bxcr(unsigned long* dimm_populated,
 			  +-----------------------------------------------------------------*/
 			if (dimm_num == 0) {
 				for (i = 0; i < num_banks; i++) {
+#ifndef CONFIG_BAMBOO
 					mtdcr(memcfga, mem_b0cr + (i << 2));
+#else
+					mtdcr(memcfga, mem_b1cr + (i << 2));
+#endif
 					temp = mfdcr(memcfgd) & ~(SDRAM_BXCR_SDBA_MASK |
 								  SDRAM_BXCR_SDSZ_MASK |
 								  SDRAM_BXCR_SDAM_MASK |
@@ -1703,7 +1713,11 @@ unsigned long program_bxcr(unsigned long* dimm_populated,
 				}
 			} else {
 				for (i = 0; i < num_banks; i++) {
+#ifndef CONFIG_BAMBOO
 					mtdcr(memcfga, mem_b2cr + (i << 2));
+#else
+					mtdcr(memcfga, mem_b3cr + (i << 2));
+#endif
 					temp = mfdcr(memcfgd) & ~(SDRAM_BXCR_SDBA_MASK |
 								  SDRAM_BXCR_SDSZ_MASK |
 								  SDRAM_BXCR_SDAM_MASK |

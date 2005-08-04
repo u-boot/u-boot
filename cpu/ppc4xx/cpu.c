@@ -152,7 +152,7 @@ int checkcpu (void)
 #endif
 
 #if defined(CONFIG_440)
-	puts ("AMCC PowerPC 440 ");
+	puts ("AMCC PowerPC 440");
 	switch(pvr) {
 	case PVR_440GP_RB:
 		puts("GP Rev. B");
@@ -195,7 +195,7 @@ int checkcpu (void)
 #endif
 
 	default:
-		printf ("UNKNOWN (PVR=%08x)", pvr);
+		printf (" UNKNOWN (PVR=%08x)", pvr);
 		break;
 	}
 #endif

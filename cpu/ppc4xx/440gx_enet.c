@@ -391,6 +391,7 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 		failsafe--;
 	}
 
+#if defined(CONFIG_440_GX)
 	/* Whack the M1 register */
 	mode_reg = 0x0;
 	mode_reg &= ~0x00000038;
@@ -405,7 +406,7 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 		mode_reg |= EMAC_M1_OBCI_GT100;
 
 	out32 (EMAC_M1 + hw_p->hw_addr, mode_reg);
-
+#endif /*  defined(CONFIG_440_GX) */
 
 	/* wait for PHY to complete auto negotiation */
 	reg_short = 0;
@@ -432,6 +433,7 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 
 	bis->bi_phynum[devnum] = reg;
 
+#ifndef CONFIG_NO_PHY_RESET
 	/*
 	 * Reset the phy, only if its the first time through
 	 * otherwise, just check the speeds & feeds
@@ -441,35 +443,36 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 
 #if defined(CONFIG_440_GX)
 #if defined(CONFIG_CIS8201_PHY)
-	/*
-	 * Cicada 8201 PHY needs to have an extended register whacked
-	 * for RGMII mode.
-	 */
-	if ( ((devnum == 2) || (devnum ==3)) && (4 == ethgroup) ) {
-		miiphy_write (reg, 23, 0x1200);
 		/*
-		 * Vitesse VSC8201/Cicada CIS8201 errata:
-		 * Interoperability problem with Intel 82547EI phys
-		 * This work around (provided by Vitesse) changes
-		 * the default timer convergence from 8ms to 12ms
+		 * Cicada 8201 PHY needs to have an extended register whacked
+		 * for RGMII mode.
 		 */
-		miiphy_write (reg, 0x1f, 0x2a30);
-		miiphy_write (reg, 0x08, 0x0200);
-		miiphy_write (reg, 0x1f, 0x52b5);
-		miiphy_write (reg, 0x02, 0x0004);
-		miiphy_write (reg, 0x01, 0x0671);
-		miiphy_write (reg, 0x00, 0x8fae);
-		miiphy_write (reg, 0x1f, 0x2a30);
-		miiphy_write (reg, 0x08, 0x0000);
-		miiphy_write (reg, 0x1f, 0x0000);
-		/* end Vitesse/Cicada errata */
-	}
+		if ( ((devnum == 2) || (devnum ==3)) && (4 == ethgroup) ) {
+			miiphy_write (reg, 23, 0x1200);
+			/*
+			 * Vitesse VSC8201/Cicada CIS8201 errata:
+			 * Interoperability problem with Intel 82547EI phys
+			 * This work around (provided by Vitesse) changes
+			 * the default timer convergence from 8ms to 12ms
+			 */
+			miiphy_write (reg, 0x1f, 0x2a30);
+			miiphy_write (reg, 0x08, 0x0200);
+			miiphy_write (reg, 0x1f, 0x52b5);
+			miiphy_write (reg, 0x02, 0x0004);
+			miiphy_write (reg, 0x01, 0x0671);
+			miiphy_write (reg, 0x00, 0x8fae);
+			miiphy_write (reg, 0x1f, 0x2a30);
+			miiphy_write (reg, 0x08, 0x0000);
+			miiphy_write (reg, 0x1f, 0x0000);
+			/* end Vitesse/Cicada errata */
+		}
 #endif
 #endif
 		/* Start/Restart autonegotiation */
 		phy_setup_aneg (reg);
 		udelay (1000);
 	}
+#endif /* CONFIG_NO_PHY_RESET */
 
 	miiphy_read (reg, PHY_BMSR, &reg_short);
 
@@ -538,14 +541,16 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 	}
 
 	/* set the Mal configuration reg */
+#if defined(CONFIG_440_GX)
+	mtdcr (malmcr, MAL_CR_PLBB | MAL_CR_OPBBL | MAL_CR_LEA |
+	       MAL_CR_PLBLT_DEFAULT | MAL_CR_EOPIE | 0x00330000);
+#else
+	mtdcr (malmcr, MAL_CR_PLBB | MAL_CR_OPBBL | MAL_CR_LEA | MAL_CR_PLBLT_DEFAULT);
 	/* Errata 1.12: MAL_1 -- Disable MAL bursting */
-	if (get_pvr () == PVR_440GP_RB)
-		mtdcr (malmcr,
-		       MAL_CR_OPBBL | MAL_CR_LEA | MAL_CR_PLBLT_DEFAULT);
-	else
-		mtdcr (malmcr,
-		       MAL_CR_PLBB | MAL_CR_OPBBL | MAL_CR_LEA |
-		       MAL_CR_PLBLT_DEFAULT | MAL_CR_EOPIE | 0x00330000);
+	if (get_pvr() == PVR_440GP_RB) {
+		mtdcr (malmcr, mfdcr(malmcr) & ~MAL_CR_PLBB);
+	}
+#endif
 
 	/* Free "old" buffers */
 	if (hw_p->alloc_tx_buf)
