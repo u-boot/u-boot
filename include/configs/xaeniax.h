@@ -236,7 +236,7 @@
  * GP30 == SDATA_OUT is 0
  * GP81 == NSSPCLK   is 0
  */
-#define CFG_GPCR0_VAL		0x40C31868
+#define CFG_GPCR0_VAL		0x40C31848
 #define CFG_GPCR1_VAL		0x00000000
 #define CFG_GPCR2_VAL		0x00020000
 
@@ -455,10 +455,10 @@
  * [14:12] 010  - RRR2: CS deselect to CS time: 2*(2*MemClk) = 40 ns
  * [11:08] 0010 - RDN2: Address to data valid in bursts: (2+1)*MemClk = 30 ns
  * [07:04] 0110 - RDF2: Address for first access: (6+1)*MemClk = 70 ns
- * [03]    0    - 32 Bit bus width
+ * [03]    1    - 16 Bit bus width
  * [02:00] 100  - variable latency I/O
  */
-#define CFG_MSC1_VAL		0x1224A264
+#define CFG_MSC1_VAL		0x1224A26C
 
 /* This is the configuration for nCS4/5 -> LAN
  * configuration for nCS5:
