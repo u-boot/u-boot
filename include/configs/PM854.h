@@ -102,7 +102,7 @@
     /*
      * Determine DDR configuration from I2C interface.
      */
-    #define SPD_EEPROM_ADDRESS	0x51		/* DDR DIMM */
+    #define SPD_EEPROM_ADDRESS	0x58		/* DDR DIMM */
 
 #else
     /*
@@ -143,6 +143,12 @@
 #else
 #undef	CFG_RAMBOOT
 #endif
+
+#define CFG_FLASH_CFI_DRIVER
+#define CFG_FLASH_CFI
+#define CFG_FLASH_EMPTY_INFO
+
+#undef CONFIG_CLOCKS_IN_MHZ
 
 /*
  * Local Bus Definitions
@@ -251,16 +257,16 @@
 #define CONFIG_MII		1	/* MII PHY management */
 #define CONFIG_MPC85XX_TSEC1	1
 #define CONFIG_MPC85XX_TSEC2	1
-#define TSEC1_PHY_ADDR		2
-#define TSEC2_PHY_ADDR		3
+#define TSEC1_PHY_ADDR		0
+#define TSEC2_PHY_ADDR		1
 #define TSEC1_PHYIDX		0
 #define TSEC2_PHYIDX		0
 
 #define CONFIG_MPC85XX_FEC	1
-#define FEC_PHY_ADDR		1
+#define FEC_PHY_ADDR		3
 #define FEC_PHYIDX		0
 
-#define CONFIG_ETHPRIME		"MOTO ENET0"
+#define CONFIG_ETHPRIME		"ENET0"
 
 #define	CONFIG_HAS_ETH1		1
 #define	CONFIG_HAS_ETH2		1
@@ -382,13 +388,13 @@
 #define CONFIG_ETH2ADDR	 00:40:42:01:00:02
 #endif
 
+
+#define CONFIG_ROOTPATH		/opt/eldk/ppc_85xx
+#define CONFIG_BOOTFILE		pm854/uImage
+
+#define CONFIG_HOSTNAME		pm854
 #define CONFIG_IPADDR	 192.168.0.103
-
-#define CONFIG_HOSTNAME		PM854
-#define CONFIG_ROOTPATH		/opt/eldk30/ppc_82xx
-#define CONFIG_BOOTFILE		uImage
-
-#define CONFIG_SERVERIP	 192.168.0.54
+#define CONFIG_SERVERIP	 192.168.0.64
 #define CONFIG_GATEWAYIP 192.168.0.1
 #define CONFIG_NETMASK	 255.255.255.0
 
@@ -403,7 +409,7 @@
    "netdev=eth0\0"							\
    "consoledev=ttyS0\0"							\
    "ramdiskaddr=400000\0"						\
-   "ramdiskfile=uRamdisk\0"
+   "ramdiskfile=pm854/uRamdisk\0"
 
 #define CONFIG_NFSBOOTCOMMAND						\
    "setenv bootargs root=/dev/nfs rw "					\
