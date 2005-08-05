@@ -15,7 +15,7 @@
 #define USB_DT_INTERFACE     0x04
 #define USB_DT_ENDPOINT      0x05
 
-unsigned char set_value = -1;
+int set_value = -1;
 
 void process_endpoints(unsigned short usb2d0_intrin)
 {
@@ -25,7 +25,7 @@ void process_endpoints(unsigned short usb2d0_intrin)
 	struct usb_string_descriptor usb_string_packet;
 	struct devrequest setup_packet;
 	unsigned int *setup_packet_pt;
-	unsigned char *packet_pt;
+	unsigned char *packet_pt = NULL;
 	int temp, temp1;
 
 	int i;
@@ -35,7 +35,7 @@ void process_endpoints(unsigned short usb2d0_intrin)
 	/*set usb address, seems to not work unless it is done in the next
 	   interrupt, so that is why it is done this way */
 	if (set_value != -1)
-		*(unsigned char *)USB2D0_FADDR_8 = set_value;
+		*(unsigned char *)USB2D0_FADDR_8 = (unsigned char)set_value;
 
 	/*endpoint 1 */
 	if (usb2d0_intrin & 0x01) {
