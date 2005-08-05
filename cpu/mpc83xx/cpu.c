@@ -22,7 +22,7 @@
  * Change log:
  *
  * 20050101: Eran Liberty (liberty@freescale.com)
- *           Initial file creating (porting from 85XX & 8260)
+ *	     Initial file creating (porting from 85XX & 8260)
  */
 
 /*
@@ -74,7 +74,10 @@ void upmconfig (uint upm, uint *table, uint size)
 int
 do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
-	ulong msr, addr;
+	ulong msr;
+#ifndef MPC83xx_RESET
+	ulong addr;
+#endif
 
 	volatile immap_t *immap = (immap_t *) CFG_IMMRBAR;
 
@@ -97,12 +100,14 @@ do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	udelay(200);
 
 	/* perform reset, only one bit */
-       immap->reset.rcr = RCR_SWHR;
-#else
-       immap->reset.rmr = RMR_CSRE;    /* Checkstop Reset enable */
+	immap->reset.rcr = RCR_SWHR;
 
-       /* Interrupts and MMU off */
-       __asm__ __volatile__ ("mfmsr    %0":"=r" (msr):);
+#else	/* ! MPC83xx_RESET */
+
+	immap->reset.rmr = RMR_CSRE;    /* Checkstop Reset enable */
+
+	/* Interrupts and MMU off */
+	__asm__ __volatile__ ("mfmsr    %0":"=r" (msr):);
 
 	msr &= ~(MSR_ME | MSR_EE | MSR_IR | MSR_DR);
 	__asm__ __volatile__ ("mtmsr    %0"::"r" (msr));
@@ -116,7 +121,8 @@ do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	printf("resetting the board.");
 	printf("\n");
 	((void (*)(void)) addr) ();
-#endif
+#endif	/* MPC83xx_RESET */
+
 	return 1;
 }
 
