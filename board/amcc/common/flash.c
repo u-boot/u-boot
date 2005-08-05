@@ -41,6 +41,14 @@ flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips        */
  * Functions
  */
 static int write_word(flash_info_t * info, ulong dest, ulong data);
+#ifdef CFG_FLASH_2ND_16BIT_DEV
+static int write_word_1(flash_info_t * info, ulong dest, ulong data);
+static int write_word_2(flash_info_t * info, ulong dest, ulong data);
+static int flash_erase_1(flash_info_t * info, int s_first, int s_last);
+static int flash_erase_2(flash_info_t * info, int s_first, int s_last);
+static ulong flash_get_size_1(vu_long * addr, flash_info_t * info);
+static ulong flash_get_size_2(vu_long * addr, flash_info_t * info);
+#endif
 
 void flash_print_info(flash_info_t * info)
 {
@@ -113,6 +121,9 @@ void flash_print_info(flash_info_t * info)
 	case FLASH_SST160A:
 		printf("SST39LF/VF160 (16 Mbit, uniform sector size)\n");
 		break;
+	case FLASH_STMW320DT:
+		printf ("M29W320DT (32 M, top sector)\n");
+		break;
 	default:
 		printf("Unknown Chip Type\n");
 		break;
@@ -154,7 +165,21 @@ void flash_print_info(flash_info_t * info)
 /*
  * The following code cannot be run from FLASH!
  */
+#ifdef CFG_FLASH_2ND_16BIT_DEV
 static ulong flash_get_size(vu_long * addr, flash_info_t * info)
+{
+	/* bit 0 used for big flash marking */
+	if ((ulong)addr & 0x1) {
+		return flash_get_size_2((vu_long *)((ulong)addr & 0xfffffffe), info);
+	} else {
+		return flash_get_size_1(addr, info);
+	}
+}
+
+static ulong flash_get_size_1(vu_long * addr, flash_info_t * info)
+#else
+static ulong flash_get_size(vu_long * addr, flash_info_t * info)
+#endif
 {
 	short i;
 	CFG_FLASH_WORD_SIZE value;
@@ -193,7 +218,6 @@ static ulong flash_get_size(vu_long * addr, flash_info_t * info)
 	}
 
 	value = addr2[1];	/* device ID            */
-
 	DEBUGF("\nFLASH DEVICEID: %x\n", value);
 
 	switch (value) {
@@ -323,7 +347,7 @@ static ulong flash_get_size(vu_long * addr, flash_info_t * info)
 	return (info->size);
 }
 
-int wait_for_DQ7(flash_info_t * info, int sect)
+static int wait_for_DQ7_1(flash_info_t * info, int sect)
 {
 	ulong start, now, last;
 	volatile CFG_FLASH_WORD_SIZE *addr =
@@ -346,7 +370,22 @@ int wait_for_DQ7(flash_info_t * info, int sect)
 	return 0;
 }
 
+#ifdef CFG_FLASH_2ND_16BIT_DEV
 int flash_erase(flash_info_t * info, int s_first, int s_last)
+{
+	if (((info->flash_id & FLASH_TYPEMASK) == FLASH_AM320B) ||
+	    ((info->flash_id & FLASH_TYPEMASK) == FLASH_AM320T) ||
+	    ((info->flash_id & FLASH_TYPEMASK) == FLASH_STMW320DT)) {
+		return flash_erase_2(info, s_first, s_last);
+	} else {
+		return flash_erase_1(info, s_first, s_last);
+	}
+}
+
+static int flash_erase_1(flash_info_t * info, int s_first, int s_last)
+#else
+int flash_erase(flash_info_t * info, int s_first, int s_last)
+#endif
 {
 	volatile CFG_FLASH_WORD_SIZE *addr = (CFG_FLASH_WORD_SIZE *) (info->start[0]);
 	volatile CFG_FLASH_WORD_SIZE *addr2;
@@ -416,7 +455,7 @@ int flash_erase(flash_info_t * info, int s_first, int s_last)
 			 * timeout.  This has been seen to fail, especially
 			 * if printf()s are included (for debug)!!
 			 */
-			wait_for_DQ7(info, sect);
+			wait_for_DQ7_1(info, sect);
 		}
 	}
 
@@ -506,12 +545,27 @@ int write_buff(flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 }
 
 /*-----------------------------------------------------------------------
- * Write a word to Flash, returns:
+ * Copy memory to flash, returns:
  * 0 - OK
  * 1 - write timeout
  * 2 - Flash not erased
  */
+#ifdef CFG_FLASH_2ND_16BIT_DEV
 static int write_word(flash_info_t * info, ulong dest, ulong data)
+{
+	if (((info->flash_id & FLASH_TYPEMASK) == FLASH_AM320B) ||
+	    ((info->flash_id & FLASH_TYPEMASK) == FLASH_AM320T) ||
+	    ((info->flash_id & FLASH_TYPEMASK) == FLASH_STMW320DT)) {
+		return write_word_2(info, dest, data);
+	} else {
+		return write_word_1(info, dest, data);
+	}
+}
+
+static int write_word_1(flash_info_t * info, ulong dest, ulong data)
+#else
+static int write_word(flash_info_t * info, ulong dest, ulong data)
+#endif
 {
 	volatile CFG_FLASH_WORD_SIZE *addr2 = (CFG_FLASH_WORD_SIZE *) (info->start[0]);
 	volatile CFG_FLASH_WORD_SIZE *dest2 = (CFG_FLASH_WORD_SIZE *) dest;
@@ -553,3 +607,311 @@ static int write_word(flash_info_t * info, ulong dest, ulong data)
 
 	return (0);
 }
+
+#ifdef CFG_FLASH_2ND_16BIT_DEV
+
+#undef  CFG_FLASH_WORD_SIZE
+#define CFG_FLASH_WORD_SIZE unsigned short
+
+/*
+ * The following code cannot be run from FLASH!
+ */
+static ulong flash_get_size_2(vu_long * addr, flash_info_t * info)
+{
+	short i;
+	int n;
+	CFG_FLASH_WORD_SIZE value;
+	ulong base = (ulong) addr;
+	volatile CFG_FLASH_WORD_SIZE *addr2 = (CFG_FLASH_WORD_SIZE *) addr;
+
+	DEBUGF("FLASH ADDR: %08x\n", (unsigned)addr);
+
+	/* Write auto select command: read Manufacturer ID */
+	addr2[CFG_FLASH_ADDR0] = (CFG_FLASH_WORD_SIZE) 0x00AA00AA;
+	addr2[CFG_FLASH_ADDR1] = (CFG_FLASH_WORD_SIZE) 0x00550055;
+	addr2[CFG_FLASH_ADDR0] = (CFG_FLASH_WORD_SIZE) 0x00900090;
+	udelay(1000);
+
+	value = addr2[0];
+	DEBUGF("FLASH MANUFACT: %x\n", value);
+
+	switch (value) {
+	case (CFG_FLASH_WORD_SIZE) AMD_MANUFACT:
+		info->flash_id = FLASH_MAN_AMD;
+		break;
+	case (CFG_FLASH_WORD_SIZE) FUJ_MANUFACT:
+		info->flash_id = FLASH_MAN_FUJ;
+		break;
+	case (CFG_FLASH_WORD_SIZE) SST_MANUFACT:
+		info->flash_id = FLASH_MAN_SST;
+		break;
+	case (CFG_FLASH_WORD_SIZE) STM_MANUFACT:
+		info->flash_id = FLASH_MAN_STM;
+		break;
+	default:
+		info->flash_id = FLASH_UNKNOWN;
+		info->sector_count = 0;
+		info->size = 0;
+		return (0);	/* no or unknown flash  */
+	}
+
+	value = addr2[1];	/* device ID            */
+
+	DEBUGF("\nFLASH DEVICEID: %x\n", value);
+
+	switch (value) {
+
+	case (CFG_FLASH_WORD_SIZE)AMD_ID_LV320T:
+		info->flash_id += FLASH_AM320T;
+		info->sector_count = 71;
+		info->size = 0x00400000;  break;	/* => 4 MB	*/
+
+	case (CFG_FLASH_WORD_SIZE)AMD_ID_LV320B:
+		info->flash_id += FLASH_AM320B;
+		info->sector_count = 71;
+		info->size = 0x00400000;  break;	/* => 4 MB	*/
+
+	case (CFG_FLASH_WORD_SIZE)STM_ID_29W320DT:
+		info->flash_id += FLASH_STMW320DT;
+		info->sector_count = 67;
+		info->size = 0x00400000;  break;	/* => 4 MB	*/
+
+	default:
+		info->flash_id = FLASH_UNKNOWN;
+		return (0);	/* => no or unknown flash */
+	}
+
+	/* set up sector start address table */
+	if (((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_SST) ||
+	    ((info->flash_id & FLASH_TYPEMASK) == FLASH_AM040) ||
+	    ((info->flash_id & FLASH_TYPEMASK) == FLASH_AMD016)) {
+		for (i = 0; i < info->sector_count; i++)
+			info->start[i] = base + (i * 0x00010000);
+	} else if ((info->flash_id & FLASH_TYPEMASK) == FLASH_STMW320DT) {
+		/* set sector offsets for top boot block type		*/
+		base += info->size;
+		i = info->sector_count;
+		/*  1 x 16k boot sector */
+		base -= 16 << 10;
+		--i;
+		info->start[i] = base;
+		/*  2 x 8k  boot sectors */
+		for (n=0; n<2; ++n) {
+			base -= 8 << 10;
+			--i;
+			info->start[i] = base;
+		}
+		/*  1 x 32k boot sector */
+		base -= 32 << 10;
+		--i;
+		info->start[i] = base;
+
+		while (i > 0) {			/* 64k regular sectors	*/
+			base -= 64 << 10;
+			--i;
+			info->start[i] = base;
+		}
+	} else {
+		if (info->flash_id & FLASH_BTYPE) {
+			/* set sector offsets for bottom boot block type        */
+			info->start[0] = base + 0x00000000;
+			info->start[1] = base + 0x00004000;
+			info->start[2] = base + 0x00006000;
+			info->start[3] = base + 0x00008000;
+			for (i = 4; i < info->sector_count; i++) {
+				info->start[i] =
+				    base + (i * 0x00010000) - 0x00030000;
+			}
+		} else {
+			/* set sector offsets for top boot block type           */
+			i = info->sector_count - 1;
+			info->start[i--] = base + info->size - 0x00004000;
+			info->start[i--] = base + info->size - 0x00006000;
+			info->start[i--] = base + info->size - 0x00008000;
+			for (; i >= 0; i--) {
+				info->start[i] = base + i * 0x00010000;
+			}
+		}
+	}
+
+	/* check for protected sectors */
+	for (i = 0; i < info->sector_count; i++) {
+		/* read sector protection at sector address, (A7 .. A0) = 0x02 */
+		/* D0 = 1 if protected */
+		addr2 = (volatile CFG_FLASH_WORD_SIZE *)(info->start[i]);
+
+		/* For AMD29033C flash we need to resend the command of *
+		 * reading flash protection for upper 8 Mb of flash     */
+		if (i == 32) {
+			addr2[CFG_FLASH_ADDR0] = (CFG_FLASH_WORD_SIZE) 0xAAAAAAAA;
+			addr2[CFG_FLASH_ADDR1] = (CFG_FLASH_WORD_SIZE) 0x55555555;
+			addr2[CFG_FLASH_ADDR0] = (CFG_FLASH_WORD_SIZE) 0x90909090;
+		}
+
+		if ((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_SST)
+			info->protect[i] = 0;
+		else
+			info->protect[i] = addr2[2] & 1;
+	}
+
+	/* issue bank reset to return to read mode */
+	addr2[0] = (CFG_FLASH_WORD_SIZE) 0x00F000F0;
+
+	return (info->size);
+}
+
+static int wait_for_DQ7_2(flash_info_t * info, int sect)
+{
+	ulong start, now, last;
+	volatile CFG_FLASH_WORD_SIZE *addr =
+	    (CFG_FLASH_WORD_SIZE *) (info->start[sect]);
+
+	start = get_timer(0);
+	last = start;
+	while ((addr[0] & (CFG_FLASH_WORD_SIZE) 0x00800080) !=
+	       (CFG_FLASH_WORD_SIZE) 0x00800080) {
+		if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+			printf("Timeout\n");
+			return -1;
+		}
+		/* show that we're waiting */
+		if ((now - last) > 1000) {	/* every second */
+			putc('.');
+			last = now;
+		}
+	}
+	return 0;
+}
+
+static int flash_erase_2(flash_info_t * info, int s_first, int s_last)
+{
+	volatile CFG_FLASH_WORD_SIZE *addr = (CFG_FLASH_WORD_SIZE *) (info->start[0]);
+	volatile CFG_FLASH_WORD_SIZE *addr2;
+	int flag, prot, sect, l_sect;
+	int i;
+
+	if ((s_first < 0) || (s_first > s_last)) {
+		if (info->flash_id == FLASH_UNKNOWN) {
+			printf("- missing\n");
+		} else {
+			printf("- no sectors to erase\n");
+		}
+		return 1;
+	}
+
+	if (info->flash_id == FLASH_UNKNOWN) {
+		printf("Can't erase unknown flash type - aborted\n");
+		return 1;
+	}
+
+	prot = 0;
+	for (sect = s_first; sect <= s_last; ++sect) {
+		if (info->protect[sect]) {
+			prot++;
+		}
+	}
+
+	if (prot) {
+		printf("- Warning: %d protected sectors will not be erased!\n",
+		       prot);
+	} else {
+		printf("\n");
+	}
+
+	l_sect = -1;
+
+	/* Disable interrupts which might cause a timeout here */
+	flag = disable_interrupts();
+
+	/* Start erase on unprotected sectors */
+	for (sect = s_first; sect <= s_last; sect++) {
+		if (info->protect[sect] == 0) {	/* not protected */
+			addr2 = (CFG_FLASH_WORD_SIZE *) (info->start[sect]);
+
+			if ((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_SST) {
+				addr[CFG_FLASH_ADDR0] = (CFG_FLASH_WORD_SIZE) 0x00AA00AA;
+				addr[CFG_FLASH_ADDR1] = (CFG_FLASH_WORD_SIZE) 0x00550055;
+				addr[CFG_FLASH_ADDR0] = (CFG_FLASH_WORD_SIZE) 0x00800080;
+				addr[CFG_FLASH_ADDR0] = (CFG_FLASH_WORD_SIZE) 0x00AA00AA;
+				addr[CFG_FLASH_ADDR1] = (CFG_FLASH_WORD_SIZE) 0x00550055;
+				addr2[0] = (CFG_FLASH_WORD_SIZE) 0x00500050;	/* block erase */
+				for (i = 0; i < 50; i++)
+					udelay(1000);	/* wait 1 ms */
+			} else {
+				addr[CFG_FLASH_ADDR0] = (CFG_FLASH_WORD_SIZE) 0x00AA00AA;
+				addr[CFG_FLASH_ADDR1] = (CFG_FLASH_WORD_SIZE) 0x00550055;
+				addr[CFG_FLASH_ADDR0] = (CFG_FLASH_WORD_SIZE) 0x00800080;
+				addr[CFG_FLASH_ADDR0] = (CFG_FLASH_WORD_SIZE) 0x00AA00AA;
+				addr[CFG_FLASH_ADDR1] = (CFG_FLASH_WORD_SIZE) 0x00550055;
+				addr2[0] = (CFG_FLASH_WORD_SIZE) 0x00300030;	/* sector erase */
+			}
+			l_sect = sect;
+			/*
+			 * Wait for each sector to complete, it's more
+			 * reliable.  According to AMD Spec, you must
+			 * issue all erase commands within a specified
+			 * timeout.  This has been seen to fail, especially
+			 * if printf()s are included (for debug)!!
+			 */
+			wait_for_DQ7_2(info, sect);
+		}
+	}
+
+	/* re-enable interrupts if necessary */
+	if (flag)
+		enable_interrupts();
+
+	/* wait at least 80us - let's wait 1 ms */
+	udelay(1000);
+
+	/* reset to read mode */
+	addr = (CFG_FLASH_WORD_SIZE *) info->start[0];
+	addr[0] = (CFG_FLASH_WORD_SIZE) 0x00F000F0;	/* reset bank */
+
+	printf(" done\n");
+	return 0;
+}
+
+static int write_word_2(flash_info_t * info, ulong dest, ulong data)
+{
+	volatile CFG_FLASH_WORD_SIZE *addr2 = (CFG_FLASH_WORD_SIZE *) (info->start[0]);
+	volatile CFG_FLASH_WORD_SIZE *dest2 = (CFG_FLASH_WORD_SIZE *) dest;
+	volatile CFG_FLASH_WORD_SIZE *data2 = (CFG_FLASH_WORD_SIZE *) & data;
+	ulong start;
+	int i;
+
+	/* Check if Flash is (sufficiently) erased */
+	if ((*((vu_long *)dest) & data) != data) {
+		return (2);
+	}
+
+	for (i = 0; i < 4 / sizeof(CFG_FLASH_WORD_SIZE); i++) {
+		int flag;
+
+		/* Disable interrupts which might cause a timeout here */
+		flag = disable_interrupts();
+
+		addr2[CFG_FLASH_ADDR0] = (CFG_FLASH_WORD_SIZE) 0x00AA00AA;
+		addr2[CFG_FLASH_ADDR1] = (CFG_FLASH_WORD_SIZE) 0x00550055;
+		addr2[CFG_FLASH_ADDR0] = (CFG_FLASH_WORD_SIZE) 0x00A000A0;
+
+		dest2[i] = data2[i];
+
+		/* re-enable interrupts if necessary */
+		if (flag)
+			enable_interrupts();
+
+		/* data polling for D7 */
+		start = get_timer(0);
+		while ((dest2[i] & (CFG_FLASH_WORD_SIZE) 0x00800080) !=
+		       (data2[i] & (CFG_FLASH_WORD_SIZE) 0x00800080)) {
+
+			if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+				return (1);
+			}
+		}
+	}
+
+	return (0);
+}
+#endif /* CFG_FLASH_2ND_16BIT_DEV */

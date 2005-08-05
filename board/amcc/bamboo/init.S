@@ -93,7 +93,7 @@ tlbtab:
     tlbentry( 0xf0000000, SZ_256M, 0xf0000000, 0, AC_R|AC_W|AC_X|SA_G/*|SA_I*/)
     tlbentry( CFG_SDRAM_BASE, SZ_256M, 0x00000000, 0, AC_R|AC_W|AC_X|SA_G|SA_I )
     tlbentry( CFG_PCI_BASE, SZ_256M, 0xE0000000, 0, AC_R|AC_W|SA_G|SA_I )
-    tlbentry( CFG_NVRAM_BASE_ADDR, SZ_16K, 0x80000000, 0, AC_R|AC_W|AC_X|SA_W|SA_I )
+    tlbentry( CFG_NVRAM_BASE_ADDR, SZ_256M, 0x80000000, 0, AC_R|AC_W|AC_X|SA_W|SA_I )
 
     /* PCI */
     tlbentry( CFG_PCI_MEMBASE, SZ_256M, CFG_PCI_MEMBASE, 0, AC_R|AC_W|SA_G|SA_I )

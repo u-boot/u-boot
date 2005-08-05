@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.3:
 ======================================================================
 
+* Add support for AMCC Bamboo PPC440EP eval board
+  Patch by Stefan Roese, 04 Aug 2005
+
 * Patch by Jon Loeliger
   Fix style issues primarily in 85xx and 83xx boards.
     - C++ comments

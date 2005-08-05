@@ -379,11 +379,13 @@ __440gx_msr_continue:
 	li	r0,0
 #if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
 	/* Clear Dcache to use as RAM */
-	lis     r3,CFG_INIT_RAM_ADDR@h
-	li      r4,CFG_INIT_RAM_END@l
+        addis   r3,r0,CFG_INIT_RAM_ADDR@h
+        ori     r3,r3,CFG_INIT_RAM_ADDR@l
+        addis   r4,r0,CFG_INIT_RAM_END@h
+        ori     r4,r4,CFG_INIT_RAM_END@l
 	rlwinm. r5,r4,0,27,31
 	rlwinm  r5,r4,27,5,31
-	beq	..d_ran
+	beq     ..d_ran
 	addi    r5,r5,0x0001
 ..d_ran:
 	mtctr   r5
