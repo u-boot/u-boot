@@ -2,6 +2,9 @@
  * (C) Copyright 2003, Psyent Corporation <www.psyent.com>
  * Scott McNutt <smcnutt@psyent.com>
  *
+ * CompactFlash/IDE:
+ * (C) Copyright 2004, Shlomo Kut <skut@vyyo.com>
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -22,6 +25,7 @@
  */
 
 #include <common.h>
+#include <nios-io.h>
 #if	defined(CONFIG_SEVENSEG)
 #include "../common/sevenseg.h"
 #endif
@@ -50,3 +54,28 @@ long int initdram (int board_type)
 {
 	return (0);
 }
+
+#if (CONFIG_COMMANDS & CFG_CMD_IDE)
+int ide_preinit (void)
+{
+	nios_pio_t *present = (nios_pio_t *) CFG_CF_PRESENT;
+	nios_pio_t *power = (nios_pio_t *) CFG_CF_POWER;
+	nios_pio_t *atasel = (nios_pio_t *) CFG_CF_ATASEL;
+
+	/* setup data direction registers */
+	present->direction = NIOS_PIO_IN;
+	power->direction = NIOS_PIO_OUT;
+	atasel->direction = NIOS_PIO_OUT;
+
+	/* Check for presence of card */
+	if (present->data)
+		return 1;
+	printf ("Ok\n");
+
+	/* Finish setup */
+	power->data = 1;	/* Turn on power FET */
+	atasel->data = 0;	/* Put in ATA mode */
+
+	return 0;
+}
+#endif /* CONFIG_COMMANDS & CFG_CMD_IDE */

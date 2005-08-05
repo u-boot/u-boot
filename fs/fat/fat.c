@@ -722,6 +722,9 @@ long
 do_fat_read (const char *filename, void *buffer, unsigned long maxsize,
 	     int dols)
 {
+#if CONFIG_NIOS /* NIOS CPU cannot access big automatic arrays */
+    static
+#endif
     char fnamecopy[2048];
     boot_sector bs;
     volume_info volinfo;

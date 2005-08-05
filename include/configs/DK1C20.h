@@ -3,6 +3,9 @@
  * Scott McNutt <smcnutt@psyent.com>
  * Stephan Linz <linz@li-pro.net>
  *
+ * CompactFlash/IDE:
+ * (C) Copyright 2004, Shlomo Kut <skut@vyyo.com>
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -457,11 +460,9 @@
 				 CFG_CMD_DTT	| \
 				 CFG_CMD_EEPROM | \
 				 CFG_CMD_ELF    | \
-				 CFG_CMD_FAT	| \
 				 CFG_CMD_FDC	| \
 				 CFG_CMD_FDOS	| \
 				 CFG_CMD_HWFLOW	| \
-				 CFG_CMD_IDE	| \
 				 CFG_CMD_I2C	| \
 				 CFG_CMD_JFFS2	| \
 				 CFG_CMD_KGDB	| \
@@ -480,6 +481,29 @@
 
 
 #include <cmd_confdefs.h>
+
+/*------------------------------------------------------------------------
+ * COMPACT FLASH
+ *----------------------------------------------------------------------*/
+#if (CONFIG_COMMANDS & CFG_CMD_IDE)
+#define CONFIG_IDE_PREINIT			/* Implement id_preinit	*/
+#define CFG_IDE_MAXBUS		1		/* 1 IDE bus		*/
+#define CFG_IDE_MAXDEVICE	1		/* 1 drive per IDE bus	*/
+
+#define CFG_ATA_BASE_ADDR	0x00920a00	/* IDE/ATA base addr	*/
+#define CFG_ATA_IDE0_OFFSET	0x0000		/* IDE0 offset		*/
+#define CFG_ATA_DATA_OFFSET	0x0040		/* Data IO offset	*/
+#define CFG_ATA_REG_OFFSET	0x0040		/* Register offset	*/
+#define CFG_ATA_ALT_OFFSET	0x0100		/* Alternate reg offset	*/
+#define CFG_ATA_STRIDE          4		/* Width betwix addrs	*/
+#define CONFIG_DOS_PARTITION
+
+/* Board-specific cf regs */
+#define CFG_CF_PRESENT		0x009209b0	/* CF Present PIO base	*/
+#define CFG_CF_POWER		0x009209c0	/* CF Power FET PIO base*/
+#define CFG_CF_ATASEL		0x009209d0	/* CF ATASEL PIO base	*/
+
+#endif /* CONFIG_COMMANDS & CFG_CMD_IDE */
 
 /*------------------------------------------------------------------------
  * KGDB
