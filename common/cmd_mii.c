@@ -549,7 +549,7 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	mii,	5,	1,	do_mii,
 	"mii     - MII utility commands\n",
-	"info  <addr>                  - display MII PHY info\n"
+	"info  <addr>              - display MII PHY info\n"
 	"mii read  <addr> <reg>        - read  MII PHY <addr> register <reg>\n"
 	"mii write <addr> <reg> <data> - write MII PHY <addr> register <reg>\n"
 	"mii dump  <addr> <reg>        - pretty-print <addr> <reg> (0-5 only)\n"
