@@ -35,6 +35,7 @@
 
 #define CONFIG_MPC8260		1	/* This is an MPC8260 CPU	*/
 #define CONFIG_COGENT		1	/* using Cogent Modular Architecture */
+#define CONFIG_CPM2		1	/* Has a CPM2 */
 
 #define	CONFIG_MISC_INIT_F	1	/* Use misc_init_f()		*/
 

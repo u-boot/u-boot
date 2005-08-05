@@ -26,7 +26,7 @@ include $(TOPDIR)/config.mk
 LIB	= lib$(CPU).a
 
 START	= start.o resetvec.o
-COBJS	= traps.o cpu.o cpu_init.o speed.o interrupts.o tsec.o \
+COBJS	= traps.o cpu.o cpu_init.o speed.o interrupts.o \
 	  pci.o serial_scc.o commproc.o ether_fcc.o i2c.o spd_sdram.o
 OBJS	= $(COBJS)
 

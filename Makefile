@@ -54,7 +54,7 @@ ifeq ($(HOSTARCH),ppc)
 CROSS_COMPILE =
 else
 ifeq ($(ARCH),ppc)
-CROSS_COMPILE = ppc_8xx-
+CROSS_COMPILE = powerpc-linux-
 endif
 ifeq ($(ARCH),arm)
 CROSS_COMPILE = arm-linux-
@@ -95,6 +95,9 @@ OBJS += cpu/$(CPU)/start16.o
 OBJS += cpu/$(CPU)/reset.o
 endif
 ifeq ($(CPU),ppc4xx)
+OBJS += cpu/$(CPU)/resetvec.o
+endif
+ifeq ($(CPU),mpc83xx)
 OBJS += cpu/$(CPU)/resetvec.o
 endif
 ifeq ($(CPU),mpc85xx)
@@ -1193,17 +1196,47 @@ TASREG_config :		unconfig
 	@./mkconfig $(@:_config=) m68k mcf52x2 tasreg esd
 
 #########################################################################
+## MPC83xx Systems
+#########################################################################
+
+MPC8349ADS_config:	unconfig
+	@./mkconfig $(@:_config=) ppc mpc83xx mpc8349ads
+
+#########################################################################
 ## MPC85xx Systems
 #########################################################################
 
 MPC8540ADS_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc85xx mpc8540ads
 
+MPC8540EVAL_config \
+MPC8540EVAL_33_config \
+MPC8540EVAL_66_config \
+MPC8540EVAL_33_slave_config \
+MPC8540EVAL_66_slave_config:      unconfig
+	@echo "" >include/config.h ; \
+	if [ "$(findstring _33_,$@)" ] ; then \
+		echo -n "... 33 MHz PCI" ; \
+	else \
+		echo "#define CONFIG_SYSCLK_66M" >>include/config.h ; \
+		echo -n "... 66 MHz PCI" ; \
+	fi ; \
+	if [ "$(findstring _slave_,$@)" ] ; then \
+		echo "#define CONFIG_PCI_SLAVE" >>include/config.h ; \
+		echo " slave" ; \
+	else \
+		echo " host" ; \
+	fi
+	@./mkconfig -a MPC8540EVAL ppc mpc85xx mpc8540eval
+
 MPC8560ADS_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc85xx mpc8560ads
 
 MPC8541CDS_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc85xx mpc8541cds cds
+
+MPC8548CDS_config:	unconfig
+	@./mkconfig $(@:_config=) ppc mpc85xx mpc8548cds cds
 
 MPC8555CDS_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc85xx mpc8555cds cds

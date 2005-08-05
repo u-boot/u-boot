@@ -33,6 +33,8 @@
 #define CPU_ID_STR		"MPC8250"
 #endif /* CONFIG_MPC8248 */
 
+#define CONFIG_CPM2		1	/* Has a CPM2 */
+
 #define CONFIG_RATTLER			/* Analogue&Micro Rattler board */
 
 #undef DEBUG

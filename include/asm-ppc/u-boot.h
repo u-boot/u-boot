@@ -45,6 +45,9 @@ typedef struct bd_info {
 #if defined(CONFIG_MPC5xxx)
 	unsigned long	bi_mbar_base;	/* base of internal registers */
 #endif
+#if defined(CONFIG_MPC83XX)
+	unsigned long	bi_immrbar;
+#endif
 #if defined(CONFIG_MPC8220)
 	unsigned long	bi_mbar_base;	/* base of internal registers */
 	unsigned long   bi_inpfreq;     /* Input Freq, In MHz */
@@ -59,7 +62,7 @@ typedef struct bd_info {
 	unsigned short	bi_ethspeed;	/* Ethernet speed in Mbps */
 	unsigned long	bi_intfreq;	/* Internal Freq, in MHz */
 	unsigned long	bi_busfreq;	/* Bus Freq, in MHz */
-#if defined(CONFIG_8260) || defined(CONFIG_MPC8560)
+#if defined(CONFIG_CPM2)
 	unsigned long	bi_cpmfreq;	/* CPM_CLK Freq, in MHz */
 	unsigned long	bi_brgfreq;	/* BRG_CLK Freq, in MHz */
 	unsigned long	bi_sccfreq;	/* SCC_CLK Freq, in MHz */

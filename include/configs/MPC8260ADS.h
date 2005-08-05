@@ -42,6 +42,8 @@
 
 #define CONFIG_MPC8260ADS	1	/* Motorola PQ2 ADS family board */
 
+#define CONFIG_CPM2		1	/* Has a CPM2 */
+
 /*
  * Figure out if we are booting low via flash HRCW or high via the BCSR.
  */

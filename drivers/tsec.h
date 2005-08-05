@@ -18,10 +18,21 @@
 #define __TSEC_H
 
 #include <net.h>
-#include <mpc85xx.h>
+#include <config.h>
 
-#define TSEC_BASE_ADDR	(CFG_IMMR + 0x24000)
+#ifndef CFG_TSEC1_OFFSET
+    #define CFG_TSEC1_OFFSET	(0x24000)
+#endif
+
 #define TSEC_SIZE	0x01000
+
+/* FIXME:  Should these be pushed back to 83xx and 85xx config files? */
+#if defined(CONFIG_MPC85xx)
+    #define TSEC_BASE_ADDR	(CFG_IMMR + CFG_TSEC1_OFFSET)
+#elif defined(CONFIG_MPC83XX)
+    #define TSEC_BASE_ADDR	(CFG_IMMRBAR + CFG_TSEC1_OFFSET)
+#endif
+
 
 #define MAC_ADDR_LEN 6
 
@@ -51,6 +62,7 @@
 
 #define ECNTRL_INIT_SETTINGS	0x00001000
 #define ECNTRL_TBI_MODE         0x00000020
+#define ECNTRL_R100		0x00000008
 
 #define miim_end -2
 #define miim_read -1
@@ -107,6 +119,7 @@
 /* Cicada 8204 Extended PHY Control Register 1 */
 #define MIIM_CIS8204_EPHY_CON		0x17
 #define MIIM_CIS8204_EPHYCON_INIT	0x0006
+#define MIIM_CIS8204_EPHYCON_RGMII	0x1000
 
 /* Cicada 8204 Serial LED Control Register */
 #define MIIM_CIS8204_SLED_CON		0x1b
@@ -424,12 +437,18 @@ typedef struct tsec
 	uint	resc00[256];
 } tsec_t;
 
+#define TSEC_GIGABIT (1)
+
+/* This flag currently only has
+ * meaning if we're using the eTSEC */
+#define TSEC_REDUCED (1 << 1)
+
 struct tsec_private {
 	volatile tsec_t *regs;
 	volatile tsec_t *phyregs;
 	struct phy_info *phyinfo;
 	uint phyaddr;
-	uint gigabit;
+	u32 flags;
 	uint link;
 	uint duplexity;
 	uint speed;

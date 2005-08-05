@@ -23,6 +23,9 @@
 
 #ifndef	__ASM_GBL_DATA_H
 #define __ASM_GBL_DATA_H
+
+#include "asm/types.h"
+
 /*
  * The following data structure is placed in some memory wich is
  * available very early after boot (like DPRAM on MPC8xx/MPC82xx, or
@@ -39,12 +42,26 @@ typedef	struct	global_data {
 	unsigned long	baudrate;
 	unsigned long	cpu_clk;	/* CPU clock in Hz!		*/
 	unsigned long	bus_clk;
-#if defined(CONFIG_8260) || defined(CONFIG_MPC8560)
+#if defined(CONFIG_CPM2)
 	/* There are many clocks on the MPC8260 - see page 9-5 */
 	unsigned long	vco_out;
 	unsigned long	cpm_clk;
 	unsigned long	scc_clk;
 	unsigned long	brg_clk;
+#endif
+#if defined(CONFIG_MPC83XX)
+	/* There are other clocks in the MPC83XX */
+	u32 csb_clk;
+	u32 tsec1_clk;
+	u32 tsec2_clk;
+	u32 core_clk;
+	u32 usbmph_clk;
+	u32 usbdr_clk;
+	u32 i2c_clk;
+	u32 enc_clk;
+	u32 lbiu_clk;
+	u32 lclk_clk;
+	u32 ddr_clk;
 #endif
 #if defined(CONFIG_MPC5xxx)
 	unsigned long	ipb_clk;
@@ -64,7 +81,7 @@ typedef	struct	global_data {
 	unsigned long	env_addr;	/* Address  of Environment struct	*/
 	unsigned long	env_valid;	/* Checksum of Environment valid?	*/
 	unsigned long	have_console;	/* serial_init() was called		*/
-#if defined(CFG_ALLOC_DPRAM) || defined(CONFIG_8260) || defined(CONFIG_MPC8560)
+#if defined(CFG_ALLOC_DPRAM) || defined(CONFIG_CPM2)
 	unsigned int	dp_alloc_base;
 	unsigned int	dp_alloc_top;
 #endif

@@ -52,6 +52,8 @@
 #define CONFIG_TQM8260		200	/* ...on a TQM8260 module Rev.200	*/
 #endif
 
+#define CONFIG_CPM2		1	/* Has a CPM2 */
+
 #define CONFIG_82xx_CONS_SMC1	1	/* console on SMC1			*/
 
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/

@@ -30,7 +30,7 @@
 #include <ioports.h>
 #include <asm/io.h>
 
-#ifdef CONFIG_MPC8560
+#ifdef CONFIG_CPM2
 static void config_8560_ioports (volatile immap_t * immr)
 {
 	int portnum;
@@ -115,7 +115,7 @@ void cpu_init_f (void)
 	memset ((void *) gd, 0, sizeof (gd_t));
 
 
-#ifdef CONFIG_MPC8560
+#ifdef CONFIG_CPM2
 	config_8560_ioports(immap);
 #endif
 
@@ -173,32 +173,63 @@ void cpu_init_f (void)
 	memctl->br7 = CFG_BR7_PRELIM;
 #endif
 
-#if defined(CONFIG_MPC8560)
+#if defined(CONFIG_CPM2)
 	m8560_cpm_reset();
 #endif
 }
 
+
 /*
- * We initialize L2 as cache here.
+ * Initialize L2 as cache.
+ *
+ * The newer 8548, etc, parts have twice as much cache, but
+ * use the same bit-encoding as the older 8555, etc, parts.
+ *
+ * FIXME: Use PVR_VER(pvr) == 1 test here instead of SVR_VER()?
  */
-int cpu_init_r (void)
+
+int cpu_init_r(void)
 {
 #if defined(CONFIG_L2_CACHE)
-	volatile immap_t    *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t *immap = (immap_t *)CFG_IMMR;
 	volatile ccsr_l2cache_t *l2cache = &immap->im_l2cache;
-	volatile uint temp;
+	volatile uint cache_ctl;
+	uint svr, ver;
+
+	svr = get_svr();
+	ver = SVR_VER(svr);
+
+	asm("msync;isync");
+	cache_ctl = l2cache->l2ctl;
+
+	switch (cache_ctl & 0x30000000) {
+	case 0x20000000:
+		if (ver == SVR_8548 || ver == SVR_8548_E) {
+			printf ("L2 cache 512KB:");
+		} else {
+			printf ("L2 cache 256KB:");
+		}
+		break;
+	case 0x00000000:
+	case 0x10000000:
+	case 0x30000000:
+	default:
+		printf ("L2 cache unknown size (0x%08x)\n", cache_ctl);
+		return -1;
+	}
 
 	asm("msync;isync");
 	l2cache->l2ctl = 0x68000000; /* invalidate */
-	temp = l2cache->l2ctl;
-	asm("msync;isync");
-	l2cache->l2ctl = 0xa8000000; /* enable 256KB L2 cache */
-	temp = l2cache->l2ctl;
+	cache_ctl = l2cache->l2ctl;
 	asm("msync;isync");
 
-	printf("L2:    256 kB enabled\n");
+	l2cache->l2ctl = 0xa8000000; /* enable 256KB L2 cache */
+	cache_ctl = l2cache->l2ctl;
+	asm("msync;isync");
+
+	printf(" enabled\n");
 #else
-	printf("L2:    disabled.\n");
+	printf("L2 cache: disabled\n");
 #endif
 
 	return 0;

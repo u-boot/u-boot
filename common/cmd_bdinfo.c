@@ -70,13 +70,13 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	print_str ("pci_busfreq",   strmhz(buf, bd->bi_pci_busfreq));
 #endif
 #else	/* ! CONFIG_405GP, CONFIG_405CR, CONFIG_405EP, CONFIG_XILINX_ML300, CONFIG_440_EP CONFIG_440_GR */
-#if defined(CONFIG_8260) || defined(CONFIG_MPC8560)
+#if defined(CONFIG_CPM2)
 	print_str ("vco",	    strmhz(buf, bd->bi_vco));
 	print_str ("sccfreq",	    strmhz(buf, bd->bi_sccfreq));
 	print_str ("brgfreq",	    strmhz(buf, bd->bi_brgfreq));
 #endif
 	print_str ("intfreq",	    strmhz(buf, bd->bi_intfreq));
-#if defined(CONFIG_8260) || defined(CONFIG_MPC8560)
+#if defined(CONFIG_CPM2)
 	print_str ("cpmfreq",	    strmhz(buf, bd->bi_cpmfreq));
 #endif
 	print_str ("busfreq",	    strmhz(buf, bd->bi_busfreq));

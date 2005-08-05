@@ -83,6 +83,10 @@ typedef volatile unsigned char	vu_char;
 #include <mpc85xx.h>
 #include <asm/immap_85xx.h>
 #endif
+#ifdef CONFIG_MPC83XX
+#include <mpc83xx.h>
+#include <asm/immap_83xx.h>
+#endif
 #ifdef	CONFIG_4xx
 #include <ppc4xx.h>
 #endif
@@ -409,8 +413,9 @@ int	sdram_adjust_866 (void);
 int	adjust_sdram_tbs_8xx (void);
 #if defined(CONFIG_8260)
 int	prt_8260_clks (void);
-#endif
-#if defined(CONFIG_MPC5xxx)
+#elif defined(CONFIG_MPC83XX)
+int print_clock_conf(void);
+#elif defined(CONFIG_MPC5xxx)
 int	prt_mpc5xxx_clks (void);
 #endif
 #if defined(CONFIG_MPC8220)

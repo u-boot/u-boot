@@ -30,7 +30,7 @@
 #include "../common/cadmus.h"
 #include "../common/eeprom.h"
 
-#if defined(CONFIG_DDR_ECC)
+#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 extern void ddr_enable_ecc(unsigned int dram_size);
 #endif
 
@@ -269,7 +269,7 @@ initdram(int board_type)
 #endif
 	dram_size = spd_sdram();
 
-#if defined(CONFIG_DDR_ECC)
+#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 	/*
 	 * Initialize and enable DDR ECC.
 	 */

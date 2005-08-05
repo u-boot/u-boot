@@ -82,7 +82,7 @@ int get_clocks (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 	sys_info_t sys_info;
-#if defined(CONFIG_MPC8560)
+#if defined(CONFIG_CPM2)
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	uint sccr, dfbrg;
 
@@ -94,7 +94,7 @@ int get_clocks (void)
 	get_sys_info (&sys_info);
 	gd->cpu_clk = sys_info.freqProcessor;
 	gd->bus_clk = sys_info.freqSystemBus;
-#if defined(CONFIG_MPC8560)
+#if defined(CONFIG_CPM2)
 	gd->vco_out = 2*sys_info.freqSystemBus;
 	gd->cpm_clk = gd->vco_out / 2;
 	gd->scc_clk = gd->vco_out / 4;

@@ -36,6 +36,7 @@
 #define CONFIG_MPC8260		1	/* This is a MPC8260 CPU		*/
 #define CONFIG_TQM8260		200	/* ...on a TQM8260 module Rev.200	*/
 #define CONFIG_SCM              1	/* ...on a System Controller Module	*/
+#define CONFIG_CPM2		1	/* Has a CPM2 */
 
 #if (CONFIG_TQM8260 <= 100)
 #  error "TQM8260 module revison not supported"

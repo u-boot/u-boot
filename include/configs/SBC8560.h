@@ -46,7 +46,7 @@
 #define CONFIG_MPC85xx_REV1	1	/* MPC85xx Rev 1.0 chip		*/
 
 
-#define CONFIG_MPC8560		1	/* MPC8560 (CPU) specific		*/
+#define CONFIG_CPM2		1	/* has CPM2 */
 #define CONFIG_SBC8560      	1   	/* configuration for SBC8560 board */
 
 #define CONFIG_MPC8560ADS	1	/* MPC8560ADS board specific (supplement)	*/
@@ -215,10 +215,14 @@
 
 #if defined(CONFIG_TSEC_ENET)		/* TSEC Ethernet port */
 
-  #define CONFIG_NET_MULTI	1
-  #define CONFIG_PHY_BCM5421S		/* GigaBit Ether PHY	     */
-  #define CONFIG_MII		1	/* MII PHY management		*/
-  #define CONFIG_PHY_ADDR	25	/* PHY address			*/
+#  define CONFIG_NET_MULTI	1
+#  define CONFIG_MII		1	/* MII PHY management		*/
+#  define CONFIG_MPC85xx_TSEC1
+#  define CONFIG_MPC85xx_TSEC1_NAME	"TSEC0"
+#  define TSEC1_PHY_ADDR	25
+#  define TSEC1_PHYIDX		0
+/* Options are: TSEC0 */
+#  define CONFIG_ETHPRIME		"TSEC0"
 
 
 #elif defined(CONFIG_ETHER_ON_FCC)	/* CPM FCC Ethernet */

@@ -276,6 +276,7 @@
 
 #define CONFIG_MII		1	/* MII PHY management */
 #define CONFIG_MPC85XX_TSEC2	1
+#define CONFIG_MPC85XX_TSEC2_NAME	"TSEC1"
 #define TSEC2_PHY_ADDR		1
 #define TSEC2_PHYIDX		0
 
@@ -288,7 +289,7 @@
 #define CFG_CPMFCR_RAMTYPE    0
 #define CFG_FCC_PSMR          (FCC_PSMR_FDE | FCC_PSMR_LPB)
 
-#define CONFIG_ETHPRIME		"ENET1"
+#define CONFIG_ETHPRIME		"TSEC1"
 
 /*
  * Environment

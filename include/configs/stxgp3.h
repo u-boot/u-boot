@@ -39,7 +39,7 @@
 #define CONFIG_BOOKE		1	/* BOOKE		*/
 #define CONFIG_E500		1	/* BOOKE e500 family	*/
 #define CONFIG_MPC85xx		1	/* MPC8540/MPC8560	*/
-#define CONFIG_MPC8560		1	/* MPC8560 specific	*/
+#define CONFIG_CPM2		1	/* has CPM2 */
 #define CONFIG_STXGP3		1	/* Silicon Tx GPPP board specific*/
 
 #undef  CONFIG_PCI	         	/* pci ethernet support	*/
@@ -227,14 +227,16 @@
 #define CONFIG_MII		1	/* MII PHY management		*/
 
 #define CONFIG_MPC85XX_TSEC1	1
+#define CONFIG_MPC85XX_TSEC1_NAME	"TSEC0"
 #define CONFIG_MPC85XX_TSEC2	1
+#define CONFIG_MPC85XX_TSEC2_NAME	"TSEC1"
 #undef CONFIG_MPS85XX_FEC
 
 #define TSEC1_PHY_ADDR		2
 #define TSEC2_PHY_ADDR		4
 #define TSEC1_PHYIDX		0
 #define TSEC2_PHYIDX		0
-#define CONFIG_ETHPRIME		"MOTO ENET0"
+#define CONFIG_ETHPRIME		"TSEC0"
 
 #elif defined(CONFIG_ETHER_ON_FCC)	/* CPM FCC Ethernet */
 
