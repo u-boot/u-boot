@@ -44,6 +44,7 @@ static int nfs_len;
 static char dirfh[NFS_FHSIZE];	/* file handle of directory */
 static char filefh[NFS_FHSIZE]; /* file handle of kernel image */
 
+static int	NfsDownloadState;
 static IPaddr_t NfsServerIP;
 static int	NfsSrvMountPort;
 static int	NfsSrvNfsPort;
@@ -63,7 +64,7 @@ static char *nfs_filename;
 static char *nfs_path;
 static char nfs_path_buff[2048];
 
-static __inline__ void
+static __inline__ int
 store_block (uchar * src, unsigned offset, unsigned len)
 {
 	ulong newsize = offset + len;
@@ -82,8 +83,7 @@ store_block (uchar * src, unsigned offset, unsigned len)
 		rc = flash_write ((uchar *)src, (ulong)(load_addr+offset), len);
 		if (rc) {
 			flash_perror (rc);
-			NetState = NETLOOP_FAIL;
-			return;
+			return -1;
 		}
 	} else
 #endif /* CFG_DIRECT_FLASH_NFS */
@@ -93,6 +93,7 @@ store_block (uchar * src, unsigned offset, unsigned len)
 
 	if (NetBootFileXferSize < (offset+len))
 		NetBootFileXferSize = newsize;
+	return 0;
 }
 
 static char*
@@ -573,7 +574,8 @@ nfs_read_reply (uchar *pkt, unsigned len)
 	}
 
 	rlen = ntohl(rpc_pkt.u.reply.data[18]);
-	store_block ((uchar *)pkt+sizeof(rpc_pkt.u.reply), nfs_offset, rlen);
+	if ( store_block ((uchar *)pkt+sizeof(rpc_pkt.u.reply), nfs_offset, rlen) )
+		return -9999;
 
 	return rlen;
 }
@@ -632,7 +634,7 @@ NfsHandler (uchar *pkt, unsigned dest, unsigned src, unsigned len)
 			NetState = NETLOOP_FAIL;
 		} else {
 			puts ("\ndone\n");
-			NetState = NETLOOP_SUCCESS;
+			NetState = NfsDownloadState;
 		}
 		break;
 
@@ -678,6 +680,7 @@ NfsHandler (uchar *pkt, unsigned dest, unsigned src, unsigned len)
 			NfsState = STATE_READLINK_REQ;
 			NfsSend ();
 		} else {
+			if ( ! rlen ) NfsDownloadState = NETLOOP_SUCCESS;
 			NfsState = STATE_UMOUNT_REQ;
 			NfsSend ();
 		}
@@ -692,6 +695,7 @@ NfsStart (void)
 #ifdef NFS_DEBUG
 	printf ("%s\n", __FUNCTION__);
 #endif
+	NfsDownloadState = NETLOOP_FAIL;
 
 	NfsServerIP = NetServerIP;
 	nfs_path = (char *)nfs_path_buff;
