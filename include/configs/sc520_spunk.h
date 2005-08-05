@@ -169,7 +169,7 @@
 #define CFG_ATA_REG_OFFSET	0	/* reg offset */
 #define CFG_ATA_ALT_OFFSET	0x200	/* alternate register offset */
 
-#define CFG_FISRT_PCMCIA_BUS    1
+#define CFG_FIRST_PCMCIA_BUS    1
 
 #undef	CONFIG_IDE_LED			/* no led for ide supported	*/
 #undef  CONFIG_IDE_RESET		/* reset for ide unsupported...	*/

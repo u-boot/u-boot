@@ -88,8 +88,8 @@ const char *indent = "\t   ";
 
 int do_pinit(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-#ifndef CFG_FISRT_PCMCIA_BUS
-# define CFG_FISRT_PCMCIA_BUS 0
+#ifndef CFG_FIRST_PCMCIA_BUS
+# define CFG_FIRST_PCMCIA_BUS 0
 #endif
 
 	int rcode = 0;
@@ -99,7 +99,7 @@ int do_pinit(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return 1;
 	}
 	if (strcmp(argv[1],"on") == 0) {
-		rcode = pcmcia_on(CFG_FISRT_PCMCIA_BUS);
+		rcode = pcmcia_on(CFG_FIRST_PCMCIA_BUS);
 	} else if (strcmp(argv[1],"off") == 0) {
 		rcode = pcmcia_off();
 	} else {
