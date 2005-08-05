@@ -1211,6 +1211,9 @@ MPC8555CDS_config:	unconfig
 PM854_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc85xx pm854
 
+PM856_config:	unconfig
+	@./mkconfig $(@:_config=) ppc mpc85xx pm856
+
 sbc8540_config \
 sbc8540_33_config \
 sbc8540_66_config:	unconfig
