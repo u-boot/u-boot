@@ -367,17 +367,6 @@
 #define CONFIG_ATAPI			/* enable ATAPI Support */
 
 /************************************************************
- * SCSI support (experimental) only SYM53C8xx supported
- ************************************************************/
-#undef CONFIG_SCSI_SYM53C8XX
-
-#ifdef CONFIG_SCSI_SYM53C8XX
-#define CFG_SCSI_MAX_LUN	8 /* number of supported LUNs */
-#define CFG_SCSI_MAX_SCSI_ID	7 /* maximum SCSI ID (0..6) */
-#define CFG_SCSI_MAX_DEVICE	CFG_SCSI_MAX_SCSI_ID * CFG_SCSI_MAX_LUN /* maximum Target devices */
-#define CFG_SCSI_SPIN_UP_TIME	2
-#endif /* CONFIG_SCSI_SYM53C8XX */
-/************************************************************
  * DISK Partition support
  ************************************************************/
 #define CONFIG_DOS_PARTITION

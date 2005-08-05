@@ -32,7 +32,7 @@ rm -f asm
 ln -s asm-$2 asm
 rm -f asm-$2/arch
 
-if [ -z "$6" -o "$6" == "NULL" ] ; then
+if [ -z "$6" -o "$6" = "NULL" ] ; then
 	ln -s arch-$3 asm-$2/arch
 else
 	ln -s arch-$6 asm-$2/arch

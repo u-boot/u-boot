@@ -46,6 +46,30 @@ Changes for U-Boot 1.1.3:
     Eliminates the CONFIG_MPC8560 option entirely.  Distributes the
     new CONFIG_CPM2 option to each 8260 board.
 
+* Adjust configuration of XENIAX board
+  (chip select and GPIO required for USB operation)
+
+* Fix typos in cpu/85xx/start.S which caused DataTLB exception to be
+  routed to the Watchdog handler
+  Patch by Eugene Surovegin, 18 Jun 2005
+
+* (re)enabled scsi commands do_scsi() and do_scsiboot() 
+  Patch by Denis Peter, 06 Dec 2004
+
+* Fix endianess problem in TFTP / NFS default filenames
+  Patch by Hiroshi Ito, 06 Dec 2004
+
+* Ignore broadcast status bit in received frames in 8260 FCC ethernet
+  loopback test code
+  Patch by Murray Jensen, 18 Jul 2005
+
+* Fix typo in mkconfig script (used == instead of =)
+  Patch by Murray Jensen, 18 Jul 2005
+
+* Cleanup build problems on 64 bit build hosts
+
+* Update MAINTAINERS file
+
 * Patch by Stefan Roese, 01 Aug 2005:
   - Major cleanup for AMCC eval boards Walnut, Bubinga, Ebony, Ocotea
     (former IBM eval board). Please see "doc/README.AMCC-eval-boards-cleanup"

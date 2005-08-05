@@ -884,14 +884,13 @@ yellowstone_config:	unconfig
 #########################################################################
 ## MPC8220 Systems
 #########################################################################
-Alaska8220_config:	unconfig
+
+Alaska8220_config	\
+Yukon8220_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8220 alaska
 
 sorcery_config:		unconfig
 	@./mkconfig $(@:_config=) ppc mpc8220 sorcery
-
-Yukon8220_config:	unconfig
-	@./mkconfig $(@:_config=) ppc mpc8220 yukon
 
 #########################################################################
 ## MPC824x Systems

@@ -1,12 +1,19 @@
 /*
- * (C) Copyright 2001
- * Denis Peter, MPL AG Switzerland
+ * Most of this source has been derived from the Linux USB
+ * project:
+ *   (c) 1999-2002 Matthew Dharm (mdharm-usb@one-eyed-alien.net)
+ *   (c) 2000 David L. Brown, Jr. (usb-storage@davidb.org)
+ *   (c) 1999 Michael Gee (michael@linuxspecific.com)
+ *   (c) 2000 Yggdrasil Computing, Inc.
+ *
+ *
+ * Adapted for U-Boot:
+ *   (C) Copyright 2001 Denis Peter, MPL AG Switzerland
  *
  * For BBB support (C) Copyright 2003
  * Gary Jennejohn, DENX Software Engineering <gj@denx.de>
  *
- * Most of this source has been derived from the Linux USB
- * project. BBB support based on /sys/dev/usb/umass.c from
+ * BBB support based on /sys/dev/usb/umass.c from
  * FreeBSD.
  *
  * See file CREDITS for list of people who contributed to this

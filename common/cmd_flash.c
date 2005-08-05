@@ -116,12 +116,13 @@ abbrev_spec (char *str, flash_info_t ** pinfo, int *psf, int *psl)
 static int
 addr_spec(char *arg1, char *arg2, ulong *addr_first, ulong *addr_last)
 {
+	char len_used = 0; /* indicates if the "start +length" form used */
 	char *ep;
+
 	*addr_first = simple_strtoul(arg1, &ep, 16);
 	if (ep == arg1 || *ep != '\0')
 		return -1;
 
-	char len_used = 0; /* indicates if the "start +length" form used */
 	if (arg2 && *arg2 == '+'){
 		len_used = 1;
 		++arg2;
@@ -132,6 +133,9 @@ addr_spec(char *arg1, char *arg2, ulong *addr_first, ulong *addr_last)
 		return -1;
 
 	if (len_used){
+		char found = 0;
+		ulong bank;
+
 		/*
 		 * *addr_last has the length, compute correct *addr_last
 		 * XXX watch out for the integer overflow! Right now it is
@@ -146,8 +150,6 @@ addr_spec(char *arg1, char *arg2, ulong *addr_first, ulong *addr_last)
 		 */
 
 		/* find the end addr of the sector where the *addr_last is */
-		char found = 0;
-		ulong bank;
 		for (bank = 0; bank < CFG_MAX_FLASH_BANKS && !found; ++bank){
 			int i;
 			flash_info_t *info = &flash_info[bank];

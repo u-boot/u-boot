@@ -21,7 +21,12 @@
  * MA 02111-1307 USA
  */
 
+#ifndef __ASSEMBLY__
+#define	__ASSEMBLY__			/* Dirty trick to get only #defines	*/
+#endif
+#define	__ASM_STUB_PROCESSOR_H__	/* don't include asm/processor.		*/
 #include <config.h>
+#undef	__ASSEMBLY__
 #include <environment.h>
 
 /*
