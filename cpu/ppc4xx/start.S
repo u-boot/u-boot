@@ -158,8 +158,8 @@ _start_440:
 	/*----------------------------------------------------------------*/
 	/* Clear and set up some registers. */
 	/*----------------------------------------------------------------*/
-	iccci	r0,r0           /* NOTE: operands not used for 440 */
-	dccci	r0,r0           /* NOTE: operands not used for 440 */
+	iccci	r0,r0		/* NOTE: operands not used for 440 */
+	dccci	r0,r0		/* NOTE: operands not used for 440 */
 	sync
 	li	r0,0
 	mtspr	srr0,r0
@@ -167,10 +167,10 @@ _start_440:
 	mtspr	csrr0,r0
 	mtspr	csrr1,r0
 #if defined (CONFIG_440_GX) /* NOTE: 440GX adds machine check status regs */
-	mtspr   mcsrr0,r0
-	mtspr   mcsrr1,r0
-	mfspr   r1, mcsr
-	mtspr   mcsr,r1
+	mtspr	mcsrr0,r0
+	mtspr	mcsrr1,r0
+	mfspr	r1, mcsr
+	mtspr	mcsr,r1
 #endif
 	/*----------------------------------------------------------------*/
 	/* Initialize debug */
@@ -204,13 +204,13 @@ _start_440:
 	/* Setup interrupt vectors */
 	/*----------------------------------------------------------------*/
 	mtspr	ivpr,r0		/* Vectors start at 0x0000_0000 */
-	li      r1,0x0100
+	li	r1,0x0100
 	mtspr	ivor0,r1	/* Critical input */
-	li      r1,0x0200
+	li	r1,0x0200
 	mtspr	ivor1,r1	/* Machine check */
-	li      r1,0x0300
+	li	r1,0x0300
 	mtspr	ivor2,r1	/* Data storage */
-	li      r1,0x0400
+	li	r1,0x0400
 	mtspr	ivor3,r1	/* Instruction storage */
 	li	r1,0x0500
 	mtspr	ivor4,r1	/* External interrupt */
@@ -349,8 +349,8 @@ _start:
 	b	__440gx_msr_continue
 
 __440gx_msr_set:
-	lis 	r1, 0x0002		/* set CE bit (Critical Exceptions) */
-	ori 	r1,r1,0x1000	/* set ME bit (Machine Exceptions) */
+	lis	r1, 0x0002		/* set CE bit (Critical Exceptions) */
+	ori	r1,r1,0x1000	/* set ME bit (Machine Exceptions) */
 	mtspr	srr1,r1
 	mflr	r1
 	mtspr	srr0,r1
@@ -379,23 +379,23 @@ __440gx_msr_continue:
 	li	r0,0
 #if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
 	/* Clear Dcache to use as RAM */
-        addis   r3,r0,CFG_INIT_RAM_ADDR@h
-        ori     r3,r3,CFG_INIT_RAM_ADDR@l
-        addis   r4,r0,CFG_INIT_RAM_END@h
-        ori     r4,r4,CFG_INIT_RAM_END@l
+	addis	r3,r0,CFG_INIT_RAM_ADDR@h
+	ori	r3,r3,CFG_INIT_RAM_ADDR@l
+	addis	r4,r0,CFG_INIT_RAM_END@h
+	ori	r4,r4,CFG_INIT_RAM_END@l
 	rlwinm. r5,r4,0,27,31
-	rlwinm  r5,r4,27,5,31
-	beq     ..d_ran
-	addi    r5,r5,0x0001
+	rlwinm	r5,r4,27,5,31
+	beq	..d_ran
+	addi	r5,r5,0x0001
 ..d_ran:
-	mtctr   r5
+	mtctr	r5
 ..d_ag:
-	dcbz    r0,r3
-	addi    r3,r3,32
-	bdnz    ..d_ag
+	dcbz	r0,r3
+	addi	r3,r3,32
+	bdnz	..d_ag
 #else
 #if defined (CONFIG_440_GX)
-	mtdcr   l2_cache_cfg,r0		/* Ensure L2 Cache is off */
+	mtdcr	l2_cache_cfg,r0		/* Ensure L2 Cache is off */
 #endif
 	mtdcr	isram0_sb1cr,r0		/* Disable bank 1 */
 
@@ -411,16 +411,16 @@ __440gx_msr_continue:
 	lis	r1,0x8000		/* BAS = 8000_0000 */
 #if defined(CONFIG_440_GX)
 	ori	r1,r1,0x0980		/* first 64k */
-	mtdcr   isram0_sb0cr,r1
+	mtdcr	isram0_sb0cr,r1
 	lis	r1,0x8001
 	ori	r1,r1,0x0980		/* second 64k */
-	mtdcr   isram0_sb1cr,r1
+	mtdcr	isram0_sb1cr,r1
 	lis	r1, 0x8002
 	ori	r1,r1, 0x0980		/* third 64k */
-	mtdcr   isram0_sb2cr,r1
+	mtdcr	isram0_sb2cr,r1
 	lis	r1, 0x8003
 	ori	r1,r1, 0x0980		/* fourth 64k */
-	mtdcr   isram0_sb3cr,r1
+	mtdcr	isram0_sb3cr,r1
 #else
 	ori	r1,r1,0x0380		/* 8k rw */
 	mtdcr	isram0_sb0cr,r1
@@ -610,11 +610,11 @@ __440gx_msr_continue:
 	/*----------------------------------------------------------------------- */
 	/* DMA Status, clear to come up clean */
 	/*----------------------------------------------------------------------- */
-	addis   r3,r0, 0xFFFF         /* Clear all existing DMA status */
-	ori     r3,r3, 0xFFFF
-	mtdcr   dmasr, r3
+	addis	r3,r0, 0xFFFF	      /* Clear all existing DMA status */
+	ori	r3,r3, 0xFFFF
+	mtdcr	dmasr, r3
 
-	bl	ppc405ep_init         /* do ppc405ep specific init */
+	bl	ppc405ep_init	      /* do ppc405ep specific init */
 #endif /* CONFIG_405EP */
 
 #if defined(CFG_OCM_DATA_ADDR) && defined(CFG_OCM_DATA_SIZE)
@@ -624,7 +624,7 @@ __440gx_msr_continue:
 	/* Setup OCM */
 	lis	r0, 0x7FFF
 	ori	r0, r0, 0xFFFF
-	mfdcr	r3, ocmiscntl 		/* get instr-side IRAM config */
+	mfdcr	r3, ocmiscntl		/* get instr-side IRAM config */
 	mfdcr	r4, ocmdscntl	/* get data-side IRAM config */
 	and	r3, r3, r0	/* disable data-side IRAM */
 	and	r4, r4, r0	/* disable data-side IRAM */
@@ -666,13 +666,13 @@ __440gx_msr_continue:
 	/* set stack pointer and clear stack to known value */
 
 	lis	r1,CFG_INIT_RAM_ADDR@h
-	ori     r1,r1,CFG_INIT_SP_OFFSET@l
+	ori	r1,r1,CFG_INIT_SP_OFFSET@l
 
 	li	r4,2048			/* we store 2048 words to stack */
 	mtctr	r4
 
 	lis	r2,CFG_INIT_RAM_ADDR@h		/* we also clear data area */
-	ori	r2,r2,CFG_INIT_RAM_END@l 	/* so cant copy value from r1 */
+	ori	r2,r2,CFG_INIT_RAM_END@l	/* so cant copy value from r1 */
 
 	lis	r4,0xdead		/* we store 0xdeaddead in the stack */
 	ori	r4,r4,0xdead
@@ -721,7 +721,7 @@ __440gx_msr_continue:
 #endif /* CFG_INIT_DCACHE_CS */
 
 	/*----------------------------------------------------------------------- */
-	/* Initialize SDRAM Controller  */
+	/* Initialize SDRAM Controller	*/
 	/*----------------------------------------------------------------------- */
 	bl	sdram_init
 
@@ -747,11 +747,11 @@ __440gx_msr_continue:
 	ori	r0, r0, RESET_VECTOR@l
 	stwu	r1, -8(r1)		/* Save back chain and move SP */
 	stw	r0, +12(r1)		/* Save return addr (underflow vect) */
-#endif /* !(CFG_INIT_DCACHE_CS  || !CFG_TEM_STACK_OCM) */
+#endif /* !(CFG_INIT_DCACHE_CS	|| !CFG_TEM_STACK_OCM) */
 
 	GET_GOT			/* initialize GOT access			*/
 
-	bl	cpu_init_f	/* run low-level CPU init code     (from Flash)	*/
+	bl	cpu_init_f	/* run low-level CPU init code	   (from Flash) */
 
 	/* NEVER RETURNS! */
 	bl	board_init_f	/* run first part of init code (from Flash)	*/
@@ -976,8 +976,8 @@ invalidate_dcache:
 	addi	r6,0,0x0000		/* clear GPR 6 */
 	/* Do loop for # of dcache congruence classes. */
 #if defined(CONFIG_440_GX) || defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
-	lis     r7, (CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@ha	/* TBS for large sized cache */
-	ori     r7, r7, (CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@l
+	lis	r7, (CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@ha	/* TBS for large sized cache */
+	ori	r7, r7, (CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@l
 #else
 	addi	r7,r0, (CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)
 #endif
@@ -1002,16 +1002,16 @@ flush_dcache:
 
 	/* do loop for # of congruence classes. */
 #if defined(CONFIG_440_GX) || defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
-	lis     r10,(CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@ha	/* TBS: for large cache sizes */
-	ori     r10,r10,(CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@l
-	lis     r11,(CFG_DCACHE_SIZE / 2)@ha /* D cache set size - 2 way sets */
-	ori     r11,r11,(CFG_DCACHE_SIZE / 2)@l /* D cache set size - 2 way sets */
+	lis	r10,(CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@ha	/* TBS: for large cache sizes */
+	ori	r10,r10,(CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@l
+	lis	r11,(CFG_DCACHE_SIZE / 2)@ha /* D cache set size - 2 way sets */
+	ori	r11,r11,(CFG_DCACHE_SIZE / 2)@l /* D cache set size - 2 way sets */
 #else
 	addi	r10,r0,(CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)
 	addi	r11,r0,(CFG_DCACHE_SIZE / 2) /* D cache set size - 2 way sets */
 #endif
 	mtctr	r10
-	addi	r10,r0,(0xE000-0x10000)	/* start at 0xFFFFE000 */
+	addi	r10,r0,(0xE000-0x10000) /* start at 0xFFFFE000 */
 	add	r11,r10,r11		/* add to get to other side of cache line */
 ..flush_dcache_loop:
 	lwz	r3,0(r10)		/* least recently used side */
@@ -1229,12 +1229,12 @@ ppcSync:
 	.globl	relocate_code
 relocate_code:
 #if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
-	dccci	0,0		            /* Invalidate data cache, now no longer our stack */
+	dccci	0,0			    /* Invalidate data cache, now no longer our stack */
 	sync
-	addi    r1,r0,0x0000        /* Tlb entry #0 */
+	addi	r1,r0,0x0000	    /* Tlb entry #0 */
 	tlbre	r0,r1,0x0002		/* Read contents */
-	ori     r0,r0,0x0c00        /* Or in the inhibit, write through bit */
-	tlbwe   r0,r1,0x0002		/* Save it out */
+	ori	r0,r0,0x0c00	    /* Or in the inhibit, write through bit */
+	tlbwe	r0,r1,0x0002		/* Save it out */
 	isync
 #endif
 	mr	r1,  r3		/* Set new stack pointer		*/
@@ -1455,7 +1455,7 @@ trap_reloc:
 
 
 /**************************************************************************/
-/* PPC405EP specific stuff                                                */
+/* PPC405EP specific stuff						  */
 /**************************************************************************/
 #ifdef CONFIG_405EP
 ppc405ep_init:
@@ -1539,7 +1539,7 @@ ppc405ep_init:
 	mtdcr	ebccfgd,r3
 #endif
 
-	addi    r3,0,CPC0_PCI_HOST_CFG_EN
+	addi	r3,0,CPC0_PCI_HOST_CFG_EN
 #ifdef CONFIG_BUBINGA
 	/*
 	!-----------------------------------------------------------------------
@@ -1547,30 +1547,30 @@ ppc405ep_init:
 	!   If board is set to internal arbitration, update cpc0_pci
 	!-----------------------------------------------------------------------
 	*/
-	addis   r5,r0,FPGA_REG1@h      /* set offset for FPGA_REG1 */
-	ori     r5,r5,FPGA_REG1@l
-	lbz     r5,0x0(r5)              /* read to get PCI arb selection */
-	andi.   r6,r5,FPGA_REG1_PCI_INT_ARB  /* using internal arbiter ?*/
-	beq     ..pci_cfg_set             /* if not set, then bypass reg write*/
+	addis	r5,r0,FPGA_REG1@h      /* set offset for FPGA_REG1 */
+	ori	r5,r5,FPGA_REG1@l
+	lbz	r5,0x0(r5)		/* read to get PCI arb selection */
+	andi.	r6,r5,FPGA_REG1_PCI_INT_ARB  /* using internal arbiter ?*/
+	beq	..pci_cfg_set		  /* if not set, then bypass reg write*/
 #endif
-	ori     r3,r3,CPC0_PCI_ARBIT_EN
+	ori	r3,r3,CPC0_PCI_ARBIT_EN
 ..pci_cfg_set:
-	mtdcr   CPC0_PCI, r3             /* Enable internal arbiter*/
+	mtdcr	CPC0_PCI, r3		 /* Enable internal arbiter*/
 
 	/*
 	!-----------------------------------------------------------------------
 	! Check to see if chip is in bypass mode.
 	! If so, write stored CPC0_PLLMR0 and CPC0_PLLMR1 values and perform a
 	! CPU reset   Otherwise, skip this step and keep going.
-	! Note:  Running BIOS in bypass mode is not supported since PLB speed
-	!        will not be fast enough for the SDRAM (min 66MHz)
+	! Note:	 Running BIOS in bypass mode is not supported since PLB speed
+	!	 will not be fast enough for the SDRAM (min 66MHz)
 	!-----------------------------------------------------------------------
 	*/
-	mfdcr   r5, CPC0_PLLMR1
-	rlwinm  r4,r5,1,0x1            /* get system clock source (SSCS) */
-	cmpi    cr0,0,r4,0x1
+	mfdcr	r5, CPC0_PLLMR1
+	rlwinm	r4,r5,1,0x1	       /* get system clock source (SSCS) */
+	cmpi	cr0,0,r4,0x1
 
-	beq    pll_done                   /* if SSCS =b'1' then PLL has */
+	beq    pll_done			  /* if SSCS =b'1' then PLL has */
 					  /* already been set */
 					  /* and CPU has been reset */
 					  /* so skip to next section */
@@ -1584,40 +1584,40 @@ ppc405ep_init:
 	! See CPU_DEFAULT_200 and CPU_DEFAULT_266 above.
 	!
 	! WARNING:  This code assumes the first three words in the nvram_t
-	!           structure in openbios.h.  Changing the beginning of
-	!           the structure will break this code.
+	!	    structure in openbios.h.  Changing the beginning of
+	!	    the structure will break this code.
 	!
 	!-----------------------------------------------------------------------
 	*/
-	addis   r3,0,NVRAM_BASE@h
-	addi    r3,r3,NVRAM_BASE@l
+	addis	r3,0,NVRAM_BASE@h
+	addi	r3,r3,NVRAM_BASE@l
 
-	lwz     r4, 0(r3)
-	addis   r5,0,NVRVFY1@h
-	addi    r5,r5,NVRVFY1@l
-	cmp     cr0,0,r4,r5            /* Compare 1st NVRAM Magic number*/
-	bne     ..no_pllset
-	addi    r3,r3,4
-	lwz     r4, 0(r3)
-	addis   r5,0,NVRVFY2@h
-	addi    r5,r5,NVRVFY2@l
-	cmp     cr0,0,r4,r5            /* Compare 2 NVRAM Magic number */
-	bne     ..no_pllset
-	addi    r3,r3,8                 /* Skip over conf_size */
-	lwz     r4, 4(r3)               /* Load PLLMR1 value from NVRAM */
-	lwz     r3, 0(r3)               /* Load PLLMR0 value from NVRAM */
-	rlwinm  r5,r4,1,0x1             /* get system clock source (SSCS) */
-	cmpi     cr0,0,r5,1             /* See if PLL is locked */
-	beq     pll_write
+	lwz	r4, 0(r3)
+	addis	r5,0,NVRVFY1@h
+	addi	r5,r5,NVRVFY1@l
+	cmp	cr0,0,r4,r5	       /* Compare 1st NVRAM Magic number*/
+	bne	..no_pllset
+	addi	r3,r3,4
+	lwz	r4, 0(r3)
+	addis	r5,0,NVRVFY2@h
+	addi	r5,r5,NVRVFY2@l
+	cmp	cr0,0,r4,r5	       /* Compare 2 NVRAM Magic number */
+	bne	..no_pllset
+	addi	r3,r3,8			/* Skip over conf_size */
+	lwz	r4, 4(r3)		/* Load PLLMR1 value from NVRAM */
+	lwz	r3, 0(r3)		/* Load PLLMR0 value from NVRAM */
+	rlwinm	r5,r4,1,0x1		/* get system clock source (SSCS) */
+	cmpi	 cr0,0,r5,1		/* See if PLL is locked */
+	beq	pll_write
 ..no_pllset:
 #endif /* CONFIG_BUBINGA */
 
-	addis   r3,0,PLLMR0_DEFAULT@h       /* PLLMR0 default value */
-	ori     r3,r3,PLLMR0_DEFAULT@l     /* */
-	addis   r4,0,PLLMR1_DEFAULT@h       /* PLLMR1 default value */
-	ori     r4,r4,PLLMR1_DEFAULT@l     /* */
+	addis	r3,0,PLLMR0_DEFAULT@h	    /* PLLMR0 default value */
+	ori	r3,r3,PLLMR0_DEFAULT@l	   /* */
+	addis	r4,0,PLLMR1_DEFAULT@h	    /* PLLMR1 default value */
+	ori	r4,r4,PLLMR1_DEFAULT@l	   /* */
 
-	b       pll_write                 /* Write the CPC0_PLLMR with new value */
+	b	pll_write		  /* Write the CPC0_PLLMR with new value */
 
 pll_done:
 	/*
@@ -1626,27 +1626,27 @@ pll_done:
 	! This is needed to enable PCI if not booting from serial EPROM
 	!-----------------------------------------------------------------------
 		*/
-	addi    r3, 0, 0x0
-	mtdcr   CPC0_SRR, r3
+	addi	r3, 0, 0x0
+	mtdcr	CPC0_SRR, r3
 
-	addis    r3,0,0x0010
-	mtctr   r3
+	addis	 r3,0,0x0010
+	mtctr	r3
 pci_wait:
-	bdnz    pci_wait
+	bdnz	pci_wait
 
 	blr				  /* return to main code */
 
 /*
 !-----------------------------------------------------------------------------
-! Function:     pll_write
-! Description:  Updates the value of the CPC0_PLLMR according to CMOS27E documentation
-!               That is:
-!                         1.  Pll is first disabled (de-activated by putting in bypass mode)
-!                         2.  PLL is reset
-!                         3.  Clock dividers are set while PLL is held in reset and bypassed
-!                         4.  PLL Reset is cleared
-!                         5.  Wait 100us for PLL to lock
-!                         6.  A core reset is performed
+! Function:	pll_write
+! Description:	Updates the value of the CPC0_PLLMR according to CMOS27E documentation
+!		That is:
+!			  1.  Pll is first disabled (de-activated by putting in bypass mode)
+!			  2.  PLL is reset
+!			  3.  Clock dividers are set while PLL is held in reset and bypassed
+!			  4.  PLL Reset is cleared
+!			  5.  Wait 100us for PLL to lock
+!			  6.  A core reset is performed
 ! Input: r3 = Value to write to CPC0_PLLMR0
 ! Input: r4 = Value to write to CPC0_PLLMR1
 ! Output r3 = none
@@ -1655,41 +1655,41 @@ pci_wait:
 pll_write:
 	mfdcr  r5, CPC0_UCR
 	andis. r5,r5,0xFFFF
-	ori    r5,r5,0x0101              /* Stop the UART clocks */
-	mtdcr  CPC0_UCR,r5               /* Before changing PLL */
+	ori    r5,r5,0x0101		 /* Stop the UART clocks */
+	mtdcr  CPC0_UCR,r5		 /* Before changing PLL */
 
 	mfdcr  r5, CPC0_PLLMR1
-	rlwinm r5,r5,0,0x7FFFFFFF        /* Disable PLL */
-	mtdcr   CPC0_PLLMR1,r5
-	oris   r5,r5,0x4000              /* Set PLL Reset */
-	mtdcr   CPC0_PLLMR1,r5
+	rlwinm r5,r5,0,0x7FFFFFFF	 /* Disable PLL */
+	mtdcr	CPC0_PLLMR1,r5
+	oris   r5,r5,0x4000		 /* Set PLL Reset */
+	mtdcr	CPC0_PLLMR1,r5
 
-	mtdcr   CPC0_PLLMR0,r3           /* Set clock dividers */
-	rlwinm r5,r4,0,0x3FFFFFFF        /* Reset & Bypass new PLL dividers */
-	oris   r5,r5,0x4000              /* Set PLL Reset */
-	mtdcr   CPC0_PLLMR1,r5           /* Set clock dividers */
-	rlwinm r5,r5,0,0xBFFFFFFF        /* Clear PLL Reset */
-	mtdcr   CPC0_PLLMR1,r5
+	mtdcr	CPC0_PLLMR0,r3		 /* Set clock dividers */
+	rlwinm r5,r4,0,0x3FFFFFFF	 /* Reset & Bypass new PLL dividers */
+	oris   r5,r5,0x4000		 /* Set PLL Reset */
+	mtdcr	CPC0_PLLMR1,r5		 /* Set clock dividers */
+	rlwinm r5,r5,0,0xBFFFFFFF	 /* Clear PLL Reset */
+	mtdcr	CPC0_PLLMR1,r5
 
 		/*
 	! Wait min of 100us for PLL to lock.
 	! See CMOS 27E databook for more info.
 	! At 200MHz, that means waiting 20,000 instructions
 		 */
-	addi    r3,0,20000              /* 2000 = 0x4e20 */
-	mtctr   r3
+	addi	r3,0,20000		/* 2000 = 0x4e20 */
+	mtctr	r3
 pll_wait:
-	bdnz    pll_wait
+	bdnz	pll_wait
 
-	oris   r5,r5,0x8000             /* Enable PLL */
-	mtdcr   CPC0_PLLMR1,r5          /* Engage */
+	oris   r5,r5,0x8000		/* Enable PLL */
+	mtdcr	CPC0_PLLMR1,r5		/* Engage */
 
 	/*
 	 * Reset CPU to guarantee timings are OK
 	 * Not sure if this is needed...
 	 */
 	addis r3,0,0x1000
-	mtspr dbcr0,r3               /* This will cause a CPU core reset, and */
+	mtspr dbcr0,r3		     /* This will cause a CPU core reset, and */
 				     /* execution will continue from the poweron */
 				     /* vector of 0xfffffffc */
 #endif /* CONFIG_405EP */

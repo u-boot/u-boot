@@ -997,6 +997,10 @@ CPU87_ROMBOOT_config: unconfig
 	fi; \
 	echo "export CONFIG_BOOT_ROM" >> config.mk;
 
+ep8248_config	\
+ep8248E_config	:	unconfig
+	@./mkconfig ep8248 ppc mpc8260 ep8248
+
 ep8260_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8260 ep8260
 

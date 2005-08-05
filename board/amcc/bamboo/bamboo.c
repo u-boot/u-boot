@@ -12,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -32,180 +32,192 @@ void configure_ppc440ep_pins(void);
 
 gpio_param_s gpio_tab[GPIO_GROUP_MAX][GPIO_MAX];
 #if 0
-{                                          /* GPIO   Alternate1       Alternate2        Alternate3 */
-	{
-		/* GPIO Core 0 */
-		{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_0  -> EBC_ADDR(7)      DMA_REQ(2) */
-		{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_1  -> EBC_ADDR(6)      DMA_ACK(2) */
-		{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_2  -> EBC_ADDR(5)      DMA_EOT/TC(2) */
-		{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_3  -> EBC_ADDR(4)      DMA_REQ(3) */
-		{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_4  -> EBC_ADDR(3)      DMA_ACK(3) */
-		{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_5 ................. */
-		{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_6  -> EBC_CS_N(1) */
-		{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_7  -> EBC_CS_N(2) */
-		{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_8  -> EBC_CS_N(3) */
-		{ GPIO0_BASE, GPIO_DIS, GPIO_ALT1 }, /* GPIO0_9  -> EBC_CS_N(4) */
-		{ GPIO0_BASE, GPIO_OUT, GPIO_ALT1 }, /* GPIO0_10 -> EBC_CS_N(5) */
-		{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_11 -> EBC_BUS_ERR */
-		{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_12 -> ZII_p0Rxd(0) */
-		{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_13 -> ZII_p0Rxd(1) */
-		{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_14 -> ZII_p0Rxd(2) */
-		{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_15 -> ZII_p0Rxd(3) */
-		{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_16 -> ZII_p0Txd(0) */
-		{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_17 -> ZII_p0Txd(1) */
-		{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_18 -> ZII_p0Txd(2) */
-		{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_19 -> ZII_p0Txd(3) */
-		{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_20 -> ZII_p0Rx_er */
-		{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_21 -> ZII_p0Rx_dv */
-		{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_22 -> ZII_p0RxCrs */
-		{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_23 -> ZII_p0Tx_er */
-		{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_24 -> ZII_p0Tx_en */
-		{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_25 -> ZII_p0Col */
-		{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_26 ->                  USB2D_RXVALID */
-		{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_27 -> EXT_EBC_REQ      USB2D_RXERROR */
-		{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_28 ->                  USB2D_TXVALID */
-		{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_29 -> EBC_EXT_HDLA     USB2D_PAD_SUSPNDM */
-		{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_30 -> EBC_EXT_ACK      USB2D_XCVRSELECT */
-		{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_31 -> EBC_EXR_BUSREQ   USB2D_TERMSELECT */
-			},
-	{
-		/* GPIO Core 1 */
-		{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_0  -> USB2D_OPMODE0 */
-		{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_1  -> USB2D_OPMODE1 */
-		{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_2  -> UART0_DCD_N      UART1_DSR_CTS_N   UART2_SOUT */
-		{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_3  -> UART0_8PIN_DSR_N UART1_RTS_DTR_N   UART2_SIN */
-		{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_4  -> UART0_8PIN_CTS_N                   UART3_SIN */
-		{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_5  -> UART0_RTS_N */
-		{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_6  -> UART0_DTR_N      UART1_SOUT */
-		{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_7  -> UART0_RI_N       UART1_SIN */
-		{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_8  -> UIC_IRQ(0) */
-		{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_9  -> UIC_IRQ(1) */
-		{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_10 -> UIC_IRQ(2) */
-		{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_11 -> UIC_IRQ(3) */
-		{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_12 -> UIC_IRQ(4)       DMA_ACK(1) */
-		{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_13 -> UIC_IRQ(6)       DMA_EOT/TC(1) */
-		{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_14 -> UIC_IRQ(7)       DMA_REQ(0) */
-		{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_15 -> UIC_IRQ(8)       DMA_ACK(0) */
-		{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_16 -> UIC_IRQ(9)       DMA_EOT/TC(0) */
-		{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_17 -> - */
-		{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_18 ->  | */
-		{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_19 ->  | */
-		{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_20 ->  | */
-		{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_21 ->  | */
-		{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_22 ->  | */
-		{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_23 ->   \     Can be unselected thru TraceSelect Bit */
-		{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_24 ->   /        in PowerPC440EP Chip */
-		{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_25 ->  | */
-		{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_26 ->  | */
-		{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_27 ->  | */
-		{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_28 ->  | */
-		{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_29 ->  | */
-		{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_30 ->  | */
-		{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_31 -> - */
-			}
+{	   /* GPIO   Alternate1	      Alternate2	Alternate3 */
+    {
+	/* GPIO Core 0 */
+	{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_0	-> EBC_ADDR(7)	    DMA_REQ(2) */
+	{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_1	-> EBC_ADDR(6)	    DMA_ACK(2) */
+	{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_2	-> EBC_ADDR(5)	    DMA_EOT/TC(2) */
+	{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_3	-> EBC_ADDR(4)	    DMA_REQ(3) */
+	{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_4	-> EBC_ADDR(3)	    DMA_ACK(3) */
+	{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_5 ................. */
+	{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_6	-> EBC_CS_N(1) */
+	{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_7	-> EBC_CS_N(2) */
+	{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_8	-> EBC_CS_N(3) */
+	{ GPIO0_BASE, GPIO_DIS, GPIO_ALT1 }, /* GPIO0_9	 -> EBC_CS_N(4) */
+	{ GPIO0_BASE, GPIO_OUT, GPIO_ALT1 }, /* GPIO0_10 -> EBC_CS_N(5) */
+	{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_11 -> EBC_BUS_ERR */
+	{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_12 -> ZII_p0Rxd(0) */
+	{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_13 -> ZII_p0Rxd(1) */
+	{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_14 -> ZII_p0Rxd(2) */
+	{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_15 -> ZII_p0Rxd(3) */
+	{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_16 -> ZII_p0Txd(0) */
+	{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_17 -> ZII_p0Txd(1) */
+	{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_18 -> ZII_p0Txd(2) */
+	{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_19 -> ZII_p0Txd(3) */
+	{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_20 -> ZII_p0Rx_er */
+	{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_21 -> ZII_p0Rx_dv */
+	{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_22 -> ZII_p0RxCrs */
+	{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_23 -> ZII_p0Tx_er */
+	{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_24 -> ZII_p0Tx_en */
+	{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_25 -> ZII_p0Col */
+	{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_26 ->		    USB2D_RXVALID */
+	{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_27 -> EXT_EBC_REQ	    USB2D_RXERROR */
+	{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_28 ->		    USB2D_TXVALID */
+	{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_29 -> EBC_EXT_HDLA	    USB2D_PAD_SUSPNDM */
+	{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_30 -> EBC_EXT_ACK	    USB2D_XCVRSELECT */
+	{ GPIO0_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO0_31 -> EBC_EXR_BUSREQ   USB2D_TERMSELECT */
+    },
+    {
+	/* GPIO Core 1 */
+	{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_0	-> USB2D_OPMODE0 */
+	{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_1	-> USB2D_OPMODE1 */
+	{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_2	-> UART0_DCD_N	    UART1_DSR_CTS_N   UART2_SOUT */
+	{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_3	-> UART0_8PIN_DSR_N UART1_RTS_DTR_N   UART2_SIN */
+	{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_4	-> UART0_8PIN_CTS_N		      UART3_SIN */
+	{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_5	-> UART0_RTS_N */
+	{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_6	-> UART0_DTR_N	    UART1_SOUT */
+	{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_7	-> UART0_RI_N	    UART1_SIN */
+	{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_8	-> UIC_IRQ(0) */
+	{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_9	-> UIC_IRQ(1) */
+	{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_10 -> UIC_IRQ(2) */
+	{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_11 -> UIC_IRQ(3) */
+	{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_12 -> UIC_IRQ(4)	    DMA_ACK(1) */
+	{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_13 -> UIC_IRQ(6)	    DMA_EOT/TC(1) */
+	{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_14 -> UIC_IRQ(7)	    DMA_REQ(0) */
+	{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_15 -> UIC_IRQ(8)	    DMA_ACK(0) */
+	{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_16 -> UIC_IRQ(9)	    DMA_EOT/TC(0) */
+	{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_17 -> - */
+	{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_18 ->  | */
+	{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_19 ->  | */
+	{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_20 ->  | */
+	{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_21 ->  | */
+	{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_22 ->  | */
+	{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_23 ->   \	   Can be unselected thru TraceSelect Bit */
+	{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_24 ->   /	      in PowerPC440EP Chip */
+	{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_25 ->  | */
+	{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_26 ->  | */
+	{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_27 ->  | */
+	{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_28 ->  | */
+	{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_29 ->  | */
+	{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_30 ->  | */
+	{ GPIO1_BASE, GPIO_DIS, GPIO_SEL }, /* GPIO1_31 -> - */
+    }
 };
 #endif
 
 /*----------------------------------------------------------------------------+
   | EBC Devices Characteristics
-  |   Peripheral Bank Access Parameters       -   EBC0_BnAP
-  |   Peripheral Bank Configuration Register  -   EBC0_BnCR
+  |   Peripheral Bank Access Parameters	      -	  EBC0_BnAP
+  |   Peripheral Bank Configuration Register  -	  EBC0_BnCR
   +----------------------------------------------------------------------------*/
 /* Small Flash */
-#define EBC0_BNAP_SMALL_FLASH           EBC0_BNAP_BME_DISABLED      |	\
-	EBC0_BNAP_TWT_ENCODE(6)     |					\
-	EBC0_BNAP_CSN_ENCODE(0)     |					\
-	EBC0_BNAP_OEN_ENCODE(1)     |					\
-	EBC0_BNAP_WBN_ENCODE(1)     |					\
-	EBC0_BNAP_WBF_ENCODE(3)     |					\
-	EBC0_BNAP_TH_ENCODE(1)      |					\
-	EBC0_BNAP_RE_ENABLED        |					\
-	EBC0_BNAP_SOR_DELAYED       |					\
-	EBC0_BNAP_BEM_WRITEONLY     |					\
+#define EBC0_BNAP_SMALL_FLASH				\
+	EBC0_BNAP_BME_DISABLED			|	\
+	EBC0_BNAP_TWT_ENCODE(6)			|	\
+	EBC0_BNAP_CSN_ENCODE(0)	    		|	\
+	EBC0_BNAP_OEN_ENCODE(1)	    		|	\
+	EBC0_BNAP_WBN_ENCODE(1)	    		|	\
+	EBC0_BNAP_WBF_ENCODE(3)	    		|	\
+	EBC0_BNAP_TH_ENCODE(1)	    		|	\
+	EBC0_BNAP_RE_ENABLED	    		|	\
+	EBC0_BNAP_SOR_DELAYED	    		|	\
+	EBC0_BNAP_BEM_WRITEONLY	    		|	\
 	EBC0_BNAP_PEN_DISABLED
 
-#define EBC0_BNCR_SMALL_FLASH_CS0       EBC0_BNCR_BAS_ENCODE(0xFFF00000)    | \
-	EBC0_BNCR_BS_1MB                    |				\
-	EBC0_BNCR_BU_RW                     |				\
+#define EBC0_BNCR_SMALL_FLASH_CS0			\
+	EBC0_BNCR_BAS_ENCODE(0xFFF00000)    	| 	\
+	EBC0_BNCR_BS_1MB		    	|	\
+	EBC0_BNCR_BU_RW			    	|	\
 	EBC0_BNCR_BW_8BIT
 
-#define EBC0_BNCR_SMALL_FLASH_CS4       EBC0_BNCR_BAS_ENCODE(0x87800000)    | \
-	EBC0_BNCR_BS_8MB                    |				\
-	EBC0_BNCR_BU_RW                     |				\
+#define EBC0_BNCR_SMALL_FLASH_CS4			\
+	EBC0_BNCR_BAS_ENCODE(0x87800000)    	| 	\
+	EBC0_BNCR_BS_8MB		    	|	\
+	EBC0_BNCR_BU_RW			    	|	\
 	EBC0_BNCR_BW_16BIT
 
 /* Large Flash or SRAM */
-#define EBC0_BNAP_LARGE_FLASH_OR_SRAM   EBC0_BNAP_BME_DISABLED      |	\
-	EBC0_BNAP_TWT_ENCODE(8)     |					\
-	EBC0_BNAP_CSN_ENCODE(0)     |					\
-	EBC0_BNAP_OEN_ENCODE(1)     |					\
-	EBC0_BNAP_WBN_ENCODE(1)     |					\
-	EBC0_BNAP_WBF_ENCODE(1)     |					\
-	EBC0_BNAP_TH_ENCODE(2)      |					\
-	EBC0_BNAP_SOR_DELAYED       |					\
-	EBC0_BNAP_BEM_RW            |					\
+#define EBC0_BNAP_LARGE_FLASH_OR_SRAM			\
+	EBC0_BNAP_BME_DISABLED	    		|	\
+	EBC0_BNAP_TWT_ENCODE(8)	    		|	\
+	EBC0_BNAP_CSN_ENCODE(0)	    		|	\
+	EBC0_BNAP_OEN_ENCODE(1)	    		|	\
+	EBC0_BNAP_WBN_ENCODE(1)	    		|	\
+	EBC0_BNAP_WBF_ENCODE(1)	    		|	\
+	EBC0_BNAP_TH_ENCODE(2)	    		|	\
+	EBC0_BNAP_SOR_DELAYED	    		|	\
+	EBC0_BNAP_BEM_RW	    		|	\
 	EBC0_BNAP_PEN_DISABLED
 
-#define EBC0_BNCR_LARGE_FLASH_OR_SRAM_CS0   EBC0_BNCR_BAS_ENCODE(0xFF800000)    | \
-	EBC0_BNCR_BS_8MB                    |				\
-	EBC0_BNCR_BU_RW                     |				\
+#define EBC0_BNCR_LARGE_FLASH_OR_SRAM_CS0   		\
+	EBC0_BNCR_BAS_ENCODE(0xFF800000)	| 	\
+	EBC0_BNCR_BS_8MB		    	|	\
+	EBC0_BNCR_BU_RW			    	|	\
 	EBC0_BNCR_BW_16BIT
 
 
-#define EBC0_BNCR_LARGE_FLASH_OR_SRAM_CS4   EBC0_BNCR_BAS_ENCODE(0x87800000)    | \
-	EBC0_BNCR_BS_8MB                    |				\
-	EBC0_BNCR_BU_RW                     |				\
+#define EBC0_BNCR_LARGE_FLASH_OR_SRAM_CS4   		\
+	EBC0_BNCR_BAS_ENCODE(0x87800000)	| 	\
+	EBC0_BNCR_BS_8MB		    	|	\
+	EBC0_BNCR_BU_RW			    	|	\
 	EBC0_BNCR_BW_16BIT
 
 /* NVRAM - FPGA */
-#define EBC0_BNAP_NVRAM_FPGA            EBC0_BNAP_BME_DISABLED      |	\
-	EBC0_BNAP_TWT_ENCODE(9)     |					\
-	EBC0_BNAP_CSN_ENCODE(0)     |					\
-	EBC0_BNAP_OEN_ENCODE(1)     |					\
-	EBC0_BNAP_WBN_ENCODE(1)     |					\
-	EBC0_BNAP_WBF_ENCODE(0)     |					\
-	EBC0_BNAP_TH_ENCODE(2)      |					\
-	EBC0_BNAP_RE_ENABLED        |					\
-	EBC0_BNAP_SOR_DELAYED       |					\
-	EBC0_BNAP_BEM_WRITEONLY     |					\
+#define EBC0_BNAP_NVRAM_FPGA				\
+	EBC0_BNAP_BME_DISABLED	    		|	\
+	EBC0_BNAP_TWT_ENCODE(9)	    		|	\
+	EBC0_BNAP_CSN_ENCODE(0)	    		|	\
+	EBC0_BNAP_OEN_ENCODE(1)	    		|	\
+	EBC0_BNAP_WBN_ENCODE(1)	    		|	\
+	EBC0_BNAP_WBF_ENCODE(0)	    		|	\
+	EBC0_BNAP_TH_ENCODE(2)	    		|	\
+	EBC0_BNAP_RE_ENABLED	    		|	\
+	EBC0_BNAP_SOR_DELAYED	    		|	\
+	EBC0_BNAP_BEM_WRITEONLY	    		|	\
 	EBC0_BNAP_PEN_DISABLED
 
-#define EBC0_BNCR_NVRAM_FPGA_CS5        EBC0_BNCR_BAS_ENCODE(0x80000000)    | \
-	EBC0_BNCR_BS_1MB                    |				\
-	EBC0_BNCR_BU_RW                     |				\
+#define EBC0_BNCR_NVRAM_FPGA_CS5			\
+	EBC0_BNCR_BAS_ENCODE(0x80000000)    	| 	\
+	EBC0_BNCR_BS_1MB		    	|	\
+	EBC0_BNCR_BU_RW			    	|	\
 	EBC0_BNCR_BW_8BIT
 
 /* Nand Flash */
-#define EBC0_BNAP_NAND_FLASH            EBC0_BNAP_BME_DISABLED      |	\
-	EBC0_BNAP_TWT_ENCODE(3)     |					\
-	EBC0_BNAP_CSN_ENCODE(0)     |					\
-	EBC0_BNAP_OEN_ENCODE(0)     |					\
-	EBC0_BNAP_WBN_ENCODE(0)     |					\
-	EBC0_BNAP_WBF_ENCODE(0)     |					\
-	EBC0_BNAP_TH_ENCODE(1)      |					\
-	EBC0_BNAP_RE_ENABLED        |					\
-	EBC0_BNAP_SOR_NOT_DELAYED   |					\
-	EBC0_BNAP_BEM_RW            |					\
+#define EBC0_BNAP_NAND_FLASH				\
+	EBC0_BNAP_BME_DISABLED	    		|	\
+	EBC0_BNAP_TWT_ENCODE(3)	    		|	\
+	EBC0_BNAP_CSN_ENCODE(0)	    		|	\
+	EBC0_BNAP_OEN_ENCODE(0)	    		|	\
+	EBC0_BNAP_WBN_ENCODE(0)	    		|	\
+	EBC0_BNAP_WBF_ENCODE(0)	    		|	\
+	EBC0_BNAP_TH_ENCODE(1)	    		|	\
+	EBC0_BNAP_RE_ENABLED	    		|	\
+	EBC0_BNAP_SOR_NOT_DELAYED   		|	\
+	EBC0_BNAP_BEM_RW	    		|	\
 	EBC0_BNAP_PEN_DISABLED
 
 
-#define EBC0_BNCR_NAND_FLASH_CS0        0xB8400000
+#define EBC0_BNCR_NAND_FLASH_CS0	0xB8400000
 
 /* NAND0 */
-#define EBC0_BNCR_NAND_FLASH_CS1        EBC0_BNCR_BAS_ENCODE(0x90000000)    | \
-	EBC0_BNCR_BS_1MB                    |				\
-	EBC0_BNCR_BU_RW                     |				\
+#define EBC0_BNCR_NAND_FLASH_CS1			\
+	EBC0_BNCR_BAS_ENCODE(0x90000000)    	| 	\
+	EBC0_BNCR_BS_1MB		    	|	\
+	EBC0_BNCR_BU_RW			    	|	\
 	EBC0_BNCR_BW_32BIT
 /* NAND1 - Bank2 */
-#define EBC0_BNCR_NAND_FLASH_CS2        EBC0_BNCR_BAS_ENCODE(0x94000000)    | \
-	EBC0_BNCR_BS_1MB                    |				\
-	EBC0_BNCR_BU_RW                     |				\
+#define EBC0_BNCR_NAND_FLASH_CS2			\
+	EBC0_BNCR_BAS_ENCODE(0x94000000)    	| 	\
+	EBC0_BNCR_BS_1MB		    	|	\
+	EBC0_BNCR_BU_RW			    	|	\
 	EBC0_BNCR_BW_32BIT
 
 /* NAND1 - Bank3 */
-#define EBC0_BNCR_NAND_FLASH_CS3        EBC0_BNCR_BAS_ENCODE(0x94000000)    | \
-	EBC0_BNCR_BS_1MB                    |				\
-	EBC0_BNCR_BU_RW                     |				\
+#define EBC0_BNCR_NAND_FLASH_CS3			\
+	EBC0_BNCR_BAS_ENCODE(0x94000000)    	| 	\
+	EBC0_BNCR_BS_1MB		    	|	\
+	EBC0_BNCR_BU_RW			    	|	\
 	EBC0_BNCR_BW_32BIT
 
 int board_early_init_f(void)
@@ -289,18 +301,18 @@ int checkboard(void)
  * fixed_sdram_init -- Bamboo has one bank onboard sdram (plus DIMM)
  *
  * Fixed memory is composed of :
- *      MT46V16M16TG-75 from Micron (x 2), 256Mb, 16 M x16, DDR266,
- *      13 row add bits, 10 column add bits (but 12 row used only).
- *      ECC device: MT46V16M8TG-75 from Micron (x 1), 128Mb, x8, DDR266,
- *      12 row add bits, 10 column add bits.
- *      Prepare a subset (only the used ones) of SPD data
+ *	MT46V16M16TG-75 from Micron (x 2), 256Mb, 16 M x16, DDR266,
+ *	13 row add bits, 10 column add bits (but 12 row used only).
+ *	ECC device: MT46V16M8TG-75 from Micron (x 1), 128Mb, x8, DDR266,
+ *	12 row add bits, 10 column add bits.
+ *	Prepare a subset (only the used ones) of SPD data
  *
- *      Note : if the ECC is enabled (SDRAM_ECC_ENABLE) the size of
- *      the corresponding bank is divided by 2 due to number of Row addresses
- *      12 in the ECC module
+ *	Note : if the ECC is enabled (SDRAM_ECC_ENABLE) the size of
+ *	the corresponding bank is divided by 2 due to number of Row addresses
+ *	12 in the ECC module
  *
- *  Assumes:    64 MB, ECC, non-registered
- *              PLB @ 133 MHz
+ *  Assumes:	64 MB, ECC, non-registered
+ *		PLB @ 133 MHz
  *
  ************************************************************************/
 void fixed_sdram_init(void)
@@ -469,7 +481,7 @@ void pci_target_init(struct pci_controller *hose)
 	out32r(PCIX0_PMM0MA, 0xE0000001);	/* 512M + No prefetching, and enable region */
 
 	out32r(PCIX0_PMM1MA, 0x00000000);	/* PMM0 Mask/Attribute - disabled b4 setting */
-	out32r(PCIX0_PMM1LA, CFG_PCI_MEMBASE2);	/* PMM0 Local Address */
+	out32r(PCIX0_PMM1LA, CFG_PCI_MEMBASE2); /* PMM0 Local Address */
 	out32r(PCIX0_PMM1PCILA, CFG_PCI_MEMBASE2);	/* PMM0 PCI Low Address */
 	out32r(PCIX0_PMM1PCIHA, 0x00000000);	/* PMM0 PCI High Address */
 	out32r(PCIX0_PMM1MA, 0xE0000001);	/* 512M + No prefetching, and enable region */
@@ -593,7 +605,7 @@ void ext_bus_cntlr_init(void)
 {
 	unsigned long sdr0_pstrp0, sdr0_sdstp1;
 	unsigned long bootstrap_settings, boot_selection, ebc_boot_size;
-	int           computed_boot_device = BOOT_DEVICE_UNKNOWN;
+	int	      computed_boot_device = BOOT_DEVICE_UNKNOWN;
 	unsigned long ebc0_cs0_bnap_value = 0, ebc0_cs0_bncr_value = 0;
 	unsigned long ebc0_cs1_bnap_value = 0, ebc0_cs1_bncr_value = 0;
 	unsigned long ebc0_cs2_bnap_value = 0, ebc0_cs2_bncr_value = 0;
@@ -666,8 +678,8 @@ void ext_bus_cntlr_init(void)
 			/* Boot Settings in IIC EEprom address 0xA8 or 0xA4 */
 			/* Read Serial Device Strap Register1 in PPC440EP */
 			mfsdr(sdr_sdstp1, sdr0_sdstp1);
-			boot_selection  = sdr0_sdstp1 & SDR0_SDSTP1_BOOT_SEL_MASK;
-			ebc_boot_size   = sdr0_sdstp1 & SDR0_SDSTP1_EBC_ROM_BS_MASK;
+			boot_selection	= sdr0_sdstp1 & SDR0_SDSTP1_BOOT_SEL_MASK;
+			ebc_boot_size	= sdr0_sdstp1 & SDR0_SDSTP1_EBC_ROM_BS_MASK;
 
 			switch(boot_selection) {
 			case SDR0_SDSTP1_BOOT_SEL_EBC:
@@ -739,8 +751,8 @@ void ext_bus_cntlr_init(void)
 			/* Boot Settings in IIC EEprom address 0xA8 or 0xA4 */
 			/* Read Serial Device Strap Register1 in PPC440EP */
 			mfsdr(sdr_sdstp1, sdr0_sdstp1);
-			boot_selection  = sdr0_sdstp1 & SDR0_SDSTP1_BOOT_SEL_MASK;
-			ebc_boot_size   = sdr0_sdstp1 & SDR0_SDSTP1_EBC_ROM_BS_MASK;
+			boot_selection	= sdr0_sdstp1 & SDR0_SDSTP1_BOOT_SEL_MASK;
+			ebc_boot_size	= sdr0_sdstp1 & SDR0_SDSTP1_EBC_ROM_BS_MASK;
 
 			switch(boot_selection) {
 			case SDR0_SDSTP1_BOOT_SEL_EBC:
@@ -774,42 +786,42 @@ void ext_bus_cntlr_init(void)
 	  | Resulting EBC init will be among following configurations :
 	  |
 	  |  - Boot from EBC 8bits => boot from SMALL FLASH selected
-	  |            EBC-CS0     = Small Flash
-	  |            EBC-CS1,2,3 = NAND Flash or
-	  |                         Exp.Slot depending on Soft Config
-	  |            EBC-CS4     = SRAM/Large Flash or
-	  |                         Large Flash/SRAM depending on jumpers
-	  |            EBC-CS5     = NVRAM / EPLD
+	  |	       EBC-CS0	   = Small Flash
+	  |	       EBC-CS1,2,3 = NAND Flash or
+	  |			    Exp.Slot depending on Soft Config
+	  |	       EBC-CS4	   = SRAM/Large Flash or
+	  |			    Large Flash/SRAM depending on jumpers
+	  |	       EBC-CS5	   = NVRAM / EPLD
 	  |
 	  |  - Boot from EBC 16bits => boot from Large Flash or SRAM selected
-	  |            EBC-CS0     = SRAM/Large Flash or
-	  |                          Large Flash/SRAM depending on jumpers
-	  |            EBC-CS1,2,3 = NAND Flash or
-	  |                          Exp.Slot depending on Software Configuration
-	  |            EBC-CS4     = Small Flash
-	  |            EBC-CS5     = NVRAM / EPLD
+	  |	       EBC-CS0	   = SRAM/Large Flash or
+	  |			     Large Flash/SRAM depending on jumpers
+	  |	       EBC-CS1,2,3 = NAND Flash or
+	  |			     Exp.Slot depending on Software Configuration
+	  |	       EBC-CS4	   = Small Flash
+	  |	       EBC-CS5	   = NVRAM / EPLD
 	  |
 	  |  - Boot from NAND Flash
-	  |            EBC-CS0     = NAND Flash0
-	  |            EBC-CS1,2,3 = NAND Flash1
-	  |            EBC-CS4     = SRAM/Large Flash or
-	  |                          Large Flash/SRAM depending on jumpers
-	  |            EBC-CS5     = NVRAM / EPLD
+	  |	       EBC-CS0	   = NAND Flash0
+	  |	       EBC-CS1,2,3 = NAND Flash1
+	  |	       EBC-CS4	   = SRAM/Large Flash or
+	  |			     Large Flash/SRAM depending on jumpers
+	  |	       EBC-CS5	   = NVRAM / EPLD
 	  |
 	  |    - Boot from PCI
-	  |            EBC-CS0     = ...
-	  |            EBC-CS1,2,3 = NAND Flash or
-	  |                          Exp.Slot depending on Software Configuration
-	  |            EBC-CS4     = SRAM/Large Flash or
-	  |                          Large Flash/SRAM or
-	  |                          Small Flash depending on jumpers
-	  |            EBC-CS5     = NVRAM / EPLD
+	  |	       EBC-CS0	   = ...
+	  |	       EBC-CS1,2,3 = NAND Flash or
+	  |			     Exp.Slot depending on Software Configuration
+	  |	       EBC-CS4	   = SRAM/Large Flash or
+	  |			     Large Flash/SRAM or
+	  |			     Small Flash depending on jumpers
+	  |	       EBC-CS5	   = NVRAM / EPLD
 	  |
 	  +-------------------------------------------------------------------------*/
 
 	switch(computed_boot_device) {
 		/*------------------------------------------------------------------------- */
-        case BOOT_FROM_SMALL_FLASH:
+	case BOOT_FROM_SMALL_FLASH:
 		/*------------------------------------------------------------------------- */
 		ebc0_cs0_bnap_value = EBC0_BNAP_SMALL_FLASH;
 		ebc0_cs0_bncr_value = EBC0_BNCR_SMALL_FLASH_CS0;
@@ -840,7 +852,7 @@ void ext_bus_cntlr_init(void)
 		break;
 
 		/*------------------------------------------------------------------------- */
-        case BOOT_FROM_LARGE_FLASH_OR_SRAM:
+	case BOOT_FROM_LARGE_FLASH_OR_SRAM:
 		/*------------------------------------------------------------------------- */
 		ebc0_cs0_bnap_value = EBC0_BNAP_LARGE_FLASH_OR_SRAM;
 		ebc0_cs0_bncr_value = EBC0_BNCR_LARGE_FLASH_OR_SRAM_CS0;
@@ -867,7 +879,7 @@ void ext_bus_cntlr_init(void)
 		break;
 
 		/*------------------------------------------------------------------------- */
-        case BOOT_FROM_NAND_FLASH0:
+	case BOOT_FROM_NAND_FLASH0:
 		/*------------------------------------------------------------------------- */
 		ebc0_cs0_bnap_value = 0;
 		ebc0_cs0_bncr_value = 0;
@@ -886,7 +898,7 @@ void ext_bus_cntlr_init(void)
 		break;
 
 		/*------------------------------------------------------------------------- */
-        case BOOT_FROM_PCI:
+	case BOOT_FROM_PCI:
 		/*------------------------------------------------------------------------- */
 		ebc0_cs0_bnap_value = 0;
 		ebc0_cs0_bncr_value = 0;
@@ -922,7 +934,7 @@ void ext_bus_cntlr_init(void)
 		break;
 
 		/*------------------------------------------------------------------------- */
-        case BOOT_DEVICE_UNKNOWN:
+	case BOOT_DEVICE_UNKNOWN:
 		/*------------------------------------------------------------------------- */
 		/* Error */
 		break;
@@ -934,16 +946,16 @@ void ext_bus_cntlr_init(void)
 	  | Initialize EBC CONFIG
 	  +-------------------------------------------------------------------------*/
 	mtdcr(ebccfga, xbcfg);
-	mtdcr(ebccfgd, EBC0_CFG_EBTC_DRIVEN        |
-	      EBC0_CFG_PTD_ENABLED        |
-	      EBC0_CFG_RTC_2048PERCLK     |
-	      EBC0_CFG_EMPL_LOW           |
-	      EBC0_CFG_EMPH_LOW           |
-	      EBC0_CFG_CSTC_DRIVEN        |
-	      EBC0_CFG_BPF_ONEDW          |
-	      EBC0_CFG_EMS_8BIT           |
-	      EBC0_CFG_PME_DISABLED       |
-	      EBC0_CFG_PMT_ENCODE(0)      );
+	mtdcr(ebccfgd, EBC0_CFG_EBTC_DRIVEN	   |
+	      EBC0_CFG_PTD_ENABLED	  |
+	      EBC0_CFG_RTC_2048PERCLK	  |
+	      EBC0_CFG_EMPL_LOW		  |
+	      EBC0_CFG_EMPH_LOW		  |
+	      EBC0_CFG_CSTC_DRIVEN	  |
+	      EBC0_CFG_BPF_ONEDW	  |
+	      EBC0_CFG_EMS_8BIT		  |
+	      EBC0_CFG_PME_DISABLED	  |
+	      EBC0_CFG_PMT_ENCODE(0)	  );
 
 	/*-------------------------------------------------------------------------+
 	  | Initialize EBC Bank 0-4
@@ -988,17 +1000,17 @@ void set_phy_configuration_through_fpga(zmii_config_t config)
 
 	switch(config)
 	{
-        case ZMII_CONFIGURATION_IS_MII:
+	case ZMII_CONFIGURATION_IS_MII:
 		fpga_selection_reg = fpga_selection_reg | FPGA_SEL_1_REG_MII;
 		break;
-        case ZMII_CONFIGURATION_IS_RMII:
+	case ZMII_CONFIGURATION_IS_RMII:
 		fpga_selection_reg = fpga_selection_reg | FPGA_SEL_1_REG_RMII;
 		break;
-        case ZMII_CONFIGURATION_IS_SMII:
+	case ZMII_CONFIGURATION_IS_SMII:
 		fpga_selection_reg = fpga_selection_reg | FPGA_SEL_1_REG_SMII;
 		break;
-        case ZMII_CONFIGURATION_UNKNOWN:
-        default:
+	case ZMII_CONFIGURATION_UNKNOWN:
+	default:
 		break;
 	}
 	out8(FPGA_SELECTION_1_REG,fpga_selection_reg);
@@ -1131,7 +1143,7 @@ void ndfc_selection_in_fpga(void)
 void uart_selection_in_fpga(uart_config_nb_t uart_config)
 {
 	/* FPGA register */
-	unsigned char   fpga_selection_3_reg;
+	unsigned char	fpga_selection_3_reg;
 
 	/* Read FPGA Reagister */
 	fpga_selection_3_reg = in8(FPGA_SELECTION_3_REG);
@@ -1140,43 +1152,43 @@ void uart_selection_in_fpga(uart_config_nb_t uart_config)
 	{
 	case L1:
 		/* ----------------------------------------------------------------------- */
-		/* L1 configuration:    UART0 = 8 pins */
+		/* L1 configuration:	UART0 = 8 pins */
 		/* ----------------------------------------------------------------------- */
 		/* Configure FPGA */
-		fpga_selection_3_reg    = fpga_selection_3_reg & ~FPGA_SEL3_REG_SEL_UART_CONFIG_MASK;
-		fpga_selection_3_reg    = fpga_selection_3_reg | FPGA_SEL3_REG_SEL_UART_CONFIG1;
+		fpga_selection_3_reg	= fpga_selection_3_reg & ~FPGA_SEL3_REG_SEL_UART_CONFIG_MASK;
+		fpga_selection_3_reg	= fpga_selection_3_reg | FPGA_SEL3_REG_SEL_UART_CONFIG1;
 		out8(FPGA_SELECTION_3_REG, fpga_selection_3_reg);
 
 		break;
 
 	case L2:
 		/* ----------------------------------------------------------------------- */
-		/* L2 configuration:    UART0 = 4 pins */
-		/*                      UART1 = 4 pins */
+		/* L2 configuration:	UART0 = 4 pins */
+		/*			UART1 = 4 pins */
 		/* ----------------------------------------------------------------------- */
 		/* Configure FPGA */
-		fpga_selection_3_reg    = fpga_selection_3_reg & ~FPGA_SEL3_REG_SEL_UART_CONFIG_MASK;
-		fpga_selection_3_reg    = fpga_selection_3_reg | FPGA_SEL3_REG_SEL_UART_CONFIG2;
+		fpga_selection_3_reg	= fpga_selection_3_reg & ~FPGA_SEL3_REG_SEL_UART_CONFIG_MASK;
+		fpga_selection_3_reg	= fpga_selection_3_reg | FPGA_SEL3_REG_SEL_UART_CONFIG2;
 		out8(FPGA_SELECTION_3_REG, fpga_selection_3_reg);
 
 		break;
 
 	case L3:
 		/* ----------------------------------------------------------------------- */
-		/* L3 configuration:    UART0 = 4 pins */
-		/*                      UART1 = 2 pins */
-		/*                      UART2 = 2 pins */
+		/* L3 configuration:	UART0 = 4 pins */
+		/*			UART1 = 2 pins */
+		/*			UART2 = 2 pins */
 		/* ----------------------------------------------------------------------- */
 		/* Configure FPGA */
-		fpga_selection_3_reg    = fpga_selection_3_reg & ~FPGA_SEL3_REG_SEL_UART_CONFIG_MASK;
-		fpga_selection_3_reg    = fpga_selection_3_reg | FPGA_SEL3_REG_SEL_UART_CONFIG3;
+		fpga_selection_3_reg	= fpga_selection_3_reg & ~FPGA_SEL3_REG_SEL_UART_CONFIG_MASK;
+		fpga_selection_3_reg	= fpga_selection_3_reg | FPGA_SEL3_REG_SEL_UART_CONFIG3;
 		out8(FPGA_SELECTION_3_REG, fpga_selection_3_reg);
 		break;
 
 	case L4:
 		/* Configure FPGA */
-		fpga_selection_3_reg    = fpga_selection_3_reg & ~FPGA_SEL3_REG_SEL_UART_CONFIG_MASK;
-		fpga_selection_3_reg    = fpga_selection_3_reg | FPGA_SEL3_REG_SEL_UART_CONFIG4;
+		fpga_selection_3_reg	= fpga_selection_3_reg & ~FPGA_SEL3_REG_SEL_UART_CONFIG_MASK;
+		fpga_selection_3_reg	= fpga_selection_3_reg | FPGA_SEL3_REG_SEL_UART_CONFIG4;
 		out8(FPGA_SELECTION_3_REG, fpga_selection_3_reg);
 
 		break;
@@ -1201,7 +1213,7 @@ void init_default_gpio(void)
 	/* Init GPIO0 */
 	for(i=0; i<GPIO_MAX; i++)
 	{
-		gpio_tab[GPIO0][i].add    = GPIO0_BASE;
+		gpio_tab[GPIO0][i].add	  = GPIO0_BASE;
 		gpio_tab[GPIO0][i].in_out = GPIO_DIS;
 		gpio_tab[GPIO0][i].alt_nb = GPIO_SEL;
 	}
@@ -1209,7 +1221,7 @@ void init_default_gpio(void)
 	/* Init GPIO1 */
 	for(i=0; i<GPIO_MAX; i++)
 	{
-		gpio_tab[GPIO1][i].add    = GPIO1_BASE;
+		gpio_tab[GPIO1][i].add	  = GPIO1_BASE;
 		gpio_tab[GPIO1][i].in_out = GPIO_DIS;
 		gpio_tab[GPIO1][i].alt_nb = GPIO_SEL;
 	}
@@ -1230,35 +1242,35 @@ void init_default_gpio(void)
   | Set UART Configuration in PowerPC440EP
   |
   | +---------------------------------------------------------------------+
-  | | Configuartion   |   Connector   | Nb of pins | Pins   | Associated  |
-  | |    Number       |   Port Name   |  available | naming |   CORE      |
+  | | Configuartion   |	  Connector   | Nb of pins | Pins   | Associated  |
+  | |	 Number	      |	  Port Name   |	 available | naming |	CORE	  |
   | +-----------------+---------------+------------+--------+-------------+
-  | |     L1          |   Port_A      |     8      | UART   | UART core 0 |
+  | |	  L1	      |	  Port_A      |	    8	   | UART   | UART core 0 |
   | +-----------------+---------------+------------+--------+-------------+
-  | |     L2          |   Port_A      |     4      | UART1  | UART core 0 |
-  | |    (L2D)        |   Port_B      |     4      | UART2  | UART core 1 |
+  | |	  L2	      |	  Port_A      |	    4	   | UART1  | UART core 0 |
+  | |	 (L2D)	      |	  Port_B      |	    4	   | UART2  | UART core 1 |
   | +-----------------+---------------+------------+--------+-------------+
-  | |     L3          |   Port_A      |     4      | UART1  | UART core 0 |
-  | |    (L3D)        |   Port_B      |     2      | UART2  | UART core 1 |
-  | |                 |   Port_C      |     2      | UART3  | UART core 2 |
+  | |	  L3	      |	  Port_A      |	    4	   | UART1  | UART core 0 |
+  | |	 (L3D)	      |	  Port_B      |	    2	   | UART2  | UART core 1 |
+  | |		      |	  Port_C      |	    2	   | UART3  | UART core 2 |
   | +-----------------+---------------+------------+--------+-------------+
-  | |                 |   Port_A      |     2      | UART1  | UART core 0 |
-  | |     L4          |   Port_B      |     2      | UART2  | UART core 1 |
-  | |    (L4D)        |   Port_C      |     2      | UART3  | UART core 2 |
-  | |                 |   Port_D      |     2      | UART4  | UART core 3 |
+  | |		      |	  Port_A      |	    2	   | UART1  | UART core 0 |
+  | |	  L4	      |	  Port_B      |	    2	   | UART2  | UART core 1 |
+  | |	 (L4D)	      |	  Port_C      |	    2	   | UART3  | UART core 2 |
+  | |		      |	  Port_D      |	    2	   | UART4  | UART core 3 |
   | +-----------------+---------------+------------+--------+-------------+
   |
   |  Involved GPIOs
   |
   | +------------------------------------------------------------------------------+
-  | |  GPIO   |   Aternate 1     | I/O |  Alternate 2    | I/O | Alternate 3 | I/O |
+  | |  GPIO   |	  Aternate 1	 | I/O |  Alternate 2	 | I/O | Alternate 3 | I/O |
   | +---------+------------------+-----+-----------------+-----+-------------+-----+
-  | | GPIO1_2 | UART0_DCD_N      |  I  | UART1_DSR_CTS_N |  I  | UART2_SOUT  |  O  |
-  | | GPIO1_3 | UART0_8PIN_DSR_N |  I  | UART1_RTS_DTR_N |  O  | UART2_SIN   |  I  |
-  | | GPIO1_4 | UART0_8PIN_CTS_N |  I  | NA              |  NA | UART3_SIN   |  I  |
-  | | GPIO1_5 | UART0_RTS_N      |  O  | NA              |  NA | UART3_SOUT  |  O  |
-  | | GPIO1_6 | UART0_DTR_N      |  O  | UART1_SOUT      |  O  | NA          |  NA |
-  | | GPIO1_7 | UART0_RI_N       |  I  | UART1_SIN       |  I  | NA          |  NA |
+  | | GPIO1_2 | UART0_DCD_N	 |  I  | UART1_DSR_CTS_N |  I  | UART2_SOUT  |	O  |
+  | | GPIO1_3 | UART0_8PIN_DSR_N |  I  | UART1_RTS_DTR_N |  O  | UART2_SIN   |	I  |
+  | | GPIO1_4 | UART0_8PIN_CTS_N |  I  | NA		 |  NA | UART3_SIN   |	I  |
+  | | GPIO1_5 | UART0_RTS_N	 |  O  | NA		 |  NA | UART3_SOUT  |	O  |
+  | | GPIO1_6 | UART0_DTR_N	 |  O  | UART1_SOUT	 |  O  | NA	     |	NA |
+  | | GPIO1_7 | UART0_RI_N	 |  I  | UART1_SIN	 |  I  | NA	     |	NA |
   | +------------------------------------------------------------------------------+
   |
   |
@@ -1270,7 +1282,7 @@ void update_uart_ios(uart_config_nb_t uart_config)
 	{
 	case L1:
 		/* ----------------------------------------------------------------------- */
-		/* L1 configuration:    UART0 = 8 pins */
+		/* L1 configuration:	UART0 = 8 pins */
 		/* ----------------------------------------------------------------------- */
 		/* Update GPIO Configuration Table */
 		gpio_tab[GPIO1][2].in_out = GPIO_IN;
@@ -1295,8 +1307,8 @@ void update_uart_ios(uart_config_nb_t uart_config)
 
 	case L2:
 		/* ----------------------------------------------------------------------- */
-		/* L2 configuration:    UART0 = 4 pins */
-		/*                      UART1 = 4 pins */
+		/* L2 configuration:	UART0 = 4 pins */
+		/*			UART1 = 4 pins */
 		/* ----------------------------------------------------------------------- */
 		/* Update GPIO Configuration Table */
 		gpio_tab[GPIO1][2].in_out = GPIO_IN;
@@ -1321,9 +1333,9 @@ void update_uart_ios(uart_config_nb_t uart_config)
 
 	case L3:
 		/* ----------------------------------------------------------------------- */
-		/* L3 configuration:    UART0 = 4 pins */
-		/*                      UART1 = 2 pins */
-		/*                      UART2 = 2 pins */
+		/* L3 configuration:	UART0 = 4 pins */
+		/*			UART1 = 2 pins */
+		/*			UART2 = 2 pins */
 		/* ----------------------------------------------------------------------- */
 		/* Update GPIO Configuration Table */
 		gpio_tab[GPIO1][2].in_out = GPIO_OUT;
@@ -1348,10 +1360,10 @@ void update_uart_ios(uart_config_nb_t uart_config)
 
 	case L4:
 		/* ----------------------------------------------------------------------- */
-		/* L4 configuration:    UART0 = 2 pins */
-		/*                      UART1 = 2 pins */
-		/*                      UART2 = 2 pins */
-		/*                      UART3 = 2 pins */
+		/* L4 configuration:	UART0 = 2 pins */
+		/*			UART1 = 2 pins */
+		/*			UART2 = 2 pins */
+		/*			UART3 = 2 pins */
 		/* ----------------------------------------------------------------------- */
 		/* Update GPIO Configuration Table */
 		gpio_tab[GPIO1][2].in_out = GPIO_OUT;
@@ -1394,15 +1406,15 @@ void update_uart_ios(uart_config_nb_t uart_config)
   +----------------------------------------------------------------------------*/
 void update_ndfc_ios(void)
 {
-        /* Update GPIO Configuration Table */
-        gpio_tab[GPIO0][6].in_out = GPIO_OUT;       /* EBC_CS_N(1) */
-        gpio_tab[GPIO0][6].alt_nb = GPIO_ALT1;
+	/* Update GPIO Configuration Table */
+	gpio_tab[GPIO0][6].in_out = GPIO_OUT;	    /* EBC_CS_N(1) */
+	gpio_tab[GPIO0][6].alt_nb = GPIO_ALT1;
 
 #if 0
-        gpio_tab[GPIO0][7].in_out = GPIO_OUT;       /* EBC_CS_N(2) */
+	gpio_tab[GPIO0][7].in_out = GPIO_OUT;	    /* EBC_CS_N(2) */
 	gpio_tab[GPIO0][7].alt_nb = GPIO_ALT1;
 
-	gpio_tab[GPIO0][7].in_out = GPIO_OUT;       /* EBC_CS_N(3) */
+	gpio_tab[GPIO0][7].in_out = GPIO_OUT;	    /* EBC_CS_N(3) */
 	gpio_tab[GPIO0][7].alt_nb = GPIO_ALT1;
 #endif
 }
@@ -1412,48 +1424,48 @@ void update_ndfc_ios(void)
   +----------------------------------------------------------------------------*/
 void update_zii_ios(void)
 {
-        /* Update GPIO Configuration Table */
-        gpio_tab[GPIO0][12].in_out = GPIO_IN;       /* ZII_p0Rxd(0) */
-        gpio_tab[GPIO0][12].alt_nb = GPIO_ALT1;
+	/* Update GPIO Configuration Table */
+	gpio_tab[GPIO0][12].in_out = GPIO_IN;	    /* ZII_p0Rxd(0) */
+	gpio_tab[GPIO0][12].alt_nb = GPIO_ALT1;
 
-        gpio_tab[GPIO0][13].in_out = GPIO_IN;       /* ZII_p0Rxd(1) */
-        gpio_tab[GPIO0][13].alt_nb = GPIO_ALT1;
+	gpio_tab[GPIO0][13].in_out = GPIO_IN;	    /* ZII_p0Rxd(1) */
+	gpio_tab[GPIO0][13].alt_nb = GPIO_ALT1;
 
-        gpio_tab[GPIO0][14].in_out = GPIO_IN;       /* ZII_p0Rxd(2) */
-        gpio_tab[GPIO0][14].alt_nb = GPIO_ALT1;
+	gpio_tab[GPIO0][14].in_out = GPIO_IN;	    /* ZII_p0Rxd(2) */
+	gpio_tab[GPIO0][14].alt_nb = GPIO_ALT1;
 
-        gpio_tab[GPIO0][15].in_out = GPIO_IN;       /* ZII_p0Rxd(3) */
-        gpio_tab[GPIO0][15].alt_nb = GPIO_ALT1;
+	gpio_tab[GPIO0][15].in_out = GPIO_IN;	    /* ZII_p0Rxd(3) */
+	gpio_tab[GPIO0][15].alt_nb = GPIO_ALT1;
 
-        gpio_tab[GPIO0][16].in_out = GPIO_OUT;      /* ZII_p0Txd(0) */
-        gpio_tab[GPIO0][16].alt_nb = GPIO_ALT1;
+	gpio_tab[GPIO0][16].in_out = GPIO_OUT;	    /* ZII_p0Txd(0) */
+	gpio_tab[GPIO0][16].alt_nb = GPIO_ALT1;
 
-        gpio_tab[GPIO0][17].in_out = GPIO_OUT;      /* ZII_p0Txd(1) */
-        gpio_tab[GPIO0][17].alt_nb = GPIO_ALT1;
+	gpio_tab[GPIO0][17].in_out = GPIO_OUT;	    /* ZII_p0Txd(1) */
+	gpio_tab[GPIO0][17].alt_nb = GPIO_ALT1;
 
-        gpio_tab[GPIO0][18].in_out = GPIO_OUT;      /* ZII_p0Txd(2) */
-        gpio_tab[GPIO0][18].alt_nb = GPIO_ALT1;
+	gpio_tab[GPIO0][18].in_out = GPIO_OUT;	    /* ZII_p0Txd(2) */
+	gpio_tab[GPIO0][18].alt_nb = GPIO_ALT1;
 
-        gpio_tab[GPIO0][19].in_out = GPIO_OUT;      /* ZII_p0Txd(3) */
-        gpio_tab[GPIO0][19].alt_nb = GPIO_ALT1;
+	gpio_tab[GPIO0][19].in_out = GPIO_OUT;	    /* ZII_p0Txd(3) */
+	gpio_tab[GPIO0][19].alt_nb = GPIO_ALT1;
 
-        gpio_tab[GPIO0][20].in_out = GPIO_IN;       /* ZII_p0Rx_er */
-        gpio_tab[GPIO0][20].alt_nb = GPIO_ALT1;
+	gpio_tab[GPIO0][20].in_out = GPIO_IN;	    /* ZII_p0Rx_er */
+	gpio_tab[GPIO0][20].alt_nb = GPIO_ALT1;
 
-        gpio_tab[GPIO0][21].in_out = GPIO_IN;       /* ZII_p0Rx_dv */
-        gpio_tab[GPIO0][21].alt_nb = GPIO_ALT1;
+	gpio_tab[GPIO0][21].in_out = GPIO_IN;	    /* ZII_p0Rx_dv */
+	gpio_tab[GPIO0][21].alt_nb = GPIO_ALT1;
 
-        gpio_tab[GPIO0][22].in_out = GPIO_IN;       /* ZII_p0Crs */
-        gpio_tab[GPIO0][22].alt_nb = GPIO_ALT1;
+	gpio_tab[GPIO0][22].in_out = GPIO_IN;	    /* ZII_p0Crs */
+	gpio_tab[GPIO0][22].alt_nb = GPIO_ALT1;
 
-        gpio_tab[GPIO0][23].in_out = GPIO_OUT;      /* ZII_p0Tx_er */
-        gpio_tab[GPIO0][23].alt_nb = GPIO_ALT1;
+	gpio_tab[GPIO0][23].in_out = GPIO_OUT;	    /* ZII_p0Tx_er */
+	gpio_tab[GPIO0][23].alt_nb = GPIO_ALT1;
 
-        gpio_tab[GPIO0][24].in_out = GPIO_OUT;      /* ZII_p0Tx_en */
-        gpio_tab[GPIO0][24].alt_nb = GPIO_ALT1;
+	gpio_tab[GPIO0][24].in_out = GPIO_OUT;	    /* ZII_p0Tx_en */
+	gpio_tab[GPIO0][24].alt_nb = GPIO_ALT1;
 
-        gpio_tab[GPIO0][25].in_out = GPIO_IN;       /* ZII_p0Col */
-        gpio_tab[GPIO0][25].alt_nb = GPIO_ALT1;
+	gpio_tab[GPIO0][25].in_out = GPIO_IN;	    /* ZII_p0Col */
+	gpio_tab[GPIO0][25].alt_nb = GPIO_ALT1;
 
 }
 
@@ -1462,16 +1474,16 @@ void update_zii_ios(void)
   +----------------------------------------------------------------------------*/
 void update_uic_0_3_irq_ios(void)
 {
-	gpio_tab[GPIO1][8].in_out = GPIO_IN;        /* UIC_IRQ(0) */
+	gpio_tab[GPIO1][8].in_out = GPIO_IN;	    /* UIC_IRQ(0) */
 	gpio_tab[GPIO1][8].alt_nb = GPIO_ALT1;
 
-	gpio_tab[GPIO1][9].in_out = GPIO_IN;        /* UIC_IRQ(1) */
+	gpio_tab[GPIO1][9].in_out = GPIO_IN;	    /* UIC_IRQ(1) */
 	gpio_tab[GPIO1][9].alt_nb = GPIO_ALT1;
 
-	gpio_tab[GPIO1][10].in_out = GPIO_IN;       /* UIC_IRQ(2) */
+	gpio_tab[GPIO1][10].in_out = GPIO_IN;	    /* UIC_IRQ(2) */
 	gpio_tab[GPIO1][10].alt_nb = GPIO_ALT1;
 
-	gpio_tab[GPIO1][11].in_out = GPIO_IN;       /* UIC_IRQ(3) */
+	gpio_tab[GPIO1][11].in_out = GPIO_IN;	    /* UIC_IRQ(3) */
 	gpio_tab[GPIO1][11].alt_nb = GPIO_ALT1;
 }
 
@@ -1480,19 +1492,19 @@ void update_uic_0_3_irq_ios(void)
   +----------------------------------------------------------------------------*/
 void update_uic_4_9_irq_ios(void)
 {
-	gpio_tab[GPIO1][12].in_out = GPIO_IN;       /* UIC_IRQ(4) */
+	gpio_tab[GPIO1][12].in_out = GPIO_IN;	    /* UIC_IRQ(4) */
 	gpio_tab[GPIO1][12].alt_nb = GPIO_ALT1;
 
-	gpio_tab[GPIO1][13].in_out = GPIO_IN;       /* UIC_IRQ(6) */
+	gpio_tab[GPIO1][13].in_out = GPIO_IN;	    /* UIC_IRQ(6) */
 	gpio_tab[GPIO1][13].alt_nb = GPIO_ALT1;
 
-	gpio_tab[GPIO1][14].in_out = GPIO_IN;       /* UIC_IRQ(7) */
+	gpio_tab[GPIO1][14].in_out = GPIO_IN;	    /* UIC_IRQ(7) */
 	gpio_tab[GPIO1][14].alt_nb = GPIO_ALT1;
 
-	gpio_tab[GPIO1][15].in_out = GPIO_IN;       /* UIC_IRQ(8) */
+	gpio_tab[GPIO1][15].in_out = GPIO_IN;	    /* UIC_IRQ(8) */
 	gpio_tab[GPIO1][15].alt_nb = GPIO_ALT1;
 
-	gpio_tab[GPIO1][16].in_out = GPIO_IN;       /* UIC_IRQ(9) */
+	gpio_tab[GPIO1][16].in_out = GPIO_IN;	    /* UIC_IRQ(9) */
 	gpio_tab[GPIO1][16].alt_nb = GPIO_ALT1;
 }
 
@@ -1501,19 +1513,19 @@ void update_uic_4_9_irq_ios(void)
   +----------------------------------------------------------------------------*/
 void update_dma_a_b_ios(void)
 {
-	gpio_tab[GPIO1][12].in_out = GPIO_OUT;      /* DMA_ACK(1) */
+	gpio_tab[GPIO1][12].in_out = GPIO_OUT;	    /* DMA_ACK(1) */
 	gpio_tab[GPIO1][12].alt_nb = GPIO_ALT2;
 
-	gpio_tab[GPIO1][13].in_out = GPIO_BI;       /* DMA_EOT/TC(1) */
+	gpio_tab[GPIO1][13].in_out = GPIO_BI;	    /* DMA_EOT/TC(1) */
 	gpio_tab[GPIO1][13].alt_nb = GPIO_ALT2;
 
-	gpio_tab[GPIO1][14].in_out = GPIO_IN;       /* DMA_REQ(0) */
+	gpio_tab[GPIO1][14].in_out = GPIO_IN;	    /* DMA_REQ(0) */
 	gpio_tab[GPIO1][14].alt_nb = GPIO_ALT2;
 
-	gpio_tab[GPIO1][15].in_out = GPIO_OUT;      /* DMA_ACK(0) */
+	gpio_tab[GPIO1][15].in_out = GPIO_OUT;	    /* DMA_ACK(0) */
 	gpio_tab[GPIO1][15].alt_nb = GPIO_ALT2;
 
-	gpio_tab[GPIO1][16].in_out = GPIO_BI;       /* DMA_EOT/TC(0) */
+	gpio_tab[GPIO1][16].in_out = GPIO_BI;	    /* DMA_EOT/TC(0) */
 	gpio_tab[GPIO1][16].alt_nb = GPIO_ALT2;
 }
 
@@ -1522,22 +1534,22 @@ void update_dma_a_b_ios(void)
   +----------------------------------------------------------------------------*/
 void update_dma_c_d_ios(void)
 {
-	gpio_tab[GPIO0][0].in_out = GPIO_IN;        /* DMA_REQ(2) */
+	gpio_tab[GPIO0][0].in_out = GPIO_IN;	    /* DMA_REQ(2) */
 	gpio_tab[GPIO0][0].alt_nb = GPIO_ALT2;
 
-	gpio_tab[GPIO0][1].in_out = GPIO_OUT;       /* DMA_ACK(2) */
+	gpio_tab[GPIO0][1].in_out = GPIO_OUT;	    /* DMA_ACK(2) */
 	gpio_tab[GPIO0][1].alt_nb = GPIO_ALT2;
 
-	gpio_tab[GPIO0][2].in_out = GPIO_BI;        /* DMA_EOT/TC(2) */
+	gpio_tab[GPIO0][2].in_out = GPIO_BI;	    /* DMA_EOT/TC(2) */
 	gpio_tab[GPIO0][2].alt_nb = GPIO_ALT2;
 
-	gpio_tab[GPIO0][3].in_out = GPIO_IN;        /* DMA_REQ(3) */
+	gpio_tab[GPIO0][3].in_out = GPIO_IN;	    /* DMA_REQ(3) */
 	gpio_tab[GPIO0][3].alt_nb = GPIO_ALT2;
 
-	gpio_tab[GPIO0][4].in_out = GPIO_OUT;       /* DMA_ACK(3) */
+	gpio_tab[GPIO0][4].in_out = GPIO_OUT;	    /* DMA_ACK(3) */
 	gpio_tab[GPIO0][4].alt_nb = GPIO_ALT2;
 
-	gpio_tab[GPIO0][5].in_out = GPIO_BI;        /* DMA_EOT/TC(3) */
+	gpio_tab[GPIO0][5].in_out = GPIO_BI;	    /* DMA_EOT/TC(3) */
 	gpio_tab[GPIO0][5].alt_nb = GPIO_ALT2;
 
 }
@@ -1547,16 +1559,16 @@ void update_dma_c_d_ios(void)
   +----------------------------------------------------------------------------*/
 void update_ebc_master_ios(void)
 {
-	gpio_tab[GPIO0][27].in_out = GPIO_IN;       /* EXT_EBC_REQ */
+	gpio_tab[GPIO0][27].in_out = GPIO_IN;	    /* EXT_EBC_REQ */
 	gpio_tab[GPIO0][27].alt_nb = GPIO_ALT1;
 
-	gpio_tab[GPIO0][29].in_out = GPIO_OUT;      /* EBC_EXT_HDLA */
+	gpio_tab[GPIO0][29].in_out = GPIO_OUT;	    /* EBC_EXT_HDLA */
 	gpio_tab[GPIO0][29].alt_nb = GPIO_ALT1;
 
-	gpio_tab[GPIO0][30].in_out = GPIO_OUT;      /* EBC_EXT_ACK */
+	gpio_tab[GPIO0][30].in_out = GPIO_OUT;	    /* EBC_EXT_ACK */
 	gpio_tab[GPIO0][30].alt_nb = GPIO_ALT1;
 
-	gpio_tab[GPIO0][31].in_out = GPIO_OUT;      /* EBC_EXR_BUSREQ */
+	gpio_tab[GPIO0][31].in_out = GPIO_OUT;	    /* EBC_EXR_BUSREQ */
 	gpio_tab[GPIO0][31].alt_nb = GPIO_ALT1;
 }
 
@@ -1565,28 +1577,28 @@ void update_ebc_master_ios(void)
   +----------------------------------------------------------------------------*/
 void update_usb2_device_ios(void)
 {
-	gpio_tab[GPIO0][26].in_out = GPIO_IN;       /* USB2D_RXVALID */
+	gpio_tab[GPIO0][26].in_out = GPIO_IN;	    /* USB2D_RXVALID */
 	gpio_tab[GPIO0][26].alt_nb = GPIO_ALT2;
 
-	gpio_tab[GPIO0][27].in_out = GPIO_IN;       /* USB2D_RXERROR */
+	gpio_tab[GPIO0][27].in_out = GPIO_IN;	    /* USB2D_RXERROR */
 	gpio_tab[GPIO0][27].alt_nb = GPIO_ALT2;
 
-	gpio_tab[GPIO0][28].in_out = GPIO_OUT;      /* USB2D_TXVALID */
+	gpio_tab[GPIO0][28].in_out = GPIO_OUT;	    /* USB2D_TXVALID */
 	gpio_tab[GPIO0][28].alt_nb = GPIO_ALT2;
 
-	gpio_tab[GPIO0][29].in_out = GPIO_OUT;      /* USB2D_PAD_SUSPNDM */
+	gpio_tab[GPIO0][29].in_out = GPIO_OUT;	    /* USB2D_PAD_SUSPNDM */
 	gpio_tab[GPIO0][29].alt_nb = GPIO_ALT2;
 
-	gpio_tab[GPIO0][30].in_out = GPIO_OUT;      /* USB2D_XCVRSELECT */
+	gpio_tab[GPIO0][30].in_out = GPIO_OUT;	    /* USB2D_XCVRSELECT */
 	gpio_tab[GPIO0][30].alt_nb = GPIO_ALT2;
 
-	gpio_tab[GPIO0][31].in_out = GPIO_OUT;      /* USB2D_TERMSELECT */
+	gpio_tab[GPIO0][31].in_out = GPIO_OUT;	    /* USB2D_TERMSELECT */
 	gpio_tab[GPIO0][31].alt_nb = GPIO_ALT2;
 
-	gpio_tab[GPIO1][0].in_out = GPIO_OUT;       /* USB2D_OPMODE0 */
+	gpio_tab[GPIO1][0].in_out = GPIO_OUT;	    /* USB2D_OPMODE0 */
 	gpio_tab[GPIO1][0].alt_nb = GPIO_ALT1;
 
-	gpio_tab[GPIO1][1].in_out = GPIO_OUT;       /* USB2D_OPMODE1 */
+	gpio_tab[GPIO1][1].in_out = GPIO_OUT;	    /* USB2D_OPMODE1 */
 	gpio_tab[GPIO1][1].alt_nb = GPIO_ALT1;
 
 }
@@ -1596,7 +1608,7 @@ void update_usb2_device_ios(void)
   +----------------------------------------------------------------------------*/
 void update_pci_patch_ios(void)
 {
-	gpio_tab[GPIO0][29].in_out = GPIO_OUT;      /* EBC_EXT_HDLA */
+	gpio_tab[GPIO0][29].in_out = GPIO_OUT;	    /* EBC_EXT_HDLA */
 	gpio_tab[GPIO0][29].alt_nb = GPIO_ALT1;
 }
 
@@ -1701,22 +1713,22 @@ void force_bup_core_selection(core_selection_t *core_select_P, config_validity_t
 	}
 
 	/* L4 Selection */
-	*(core_select_P+UART_CORE0)            = CORE_SELECTED;
-	*(core_select_P+UART_CORE1)            = CORE_SELECTED;
-	*(core_select_P+UART_CORE2)            = CORE_SELECTED;
-	*(core_select_P+UART_CORE3)            = CORE_SELECTED;
+	*(core_select_P+UART_CORE0)	       = CORE_SELECTED;
+	*(core_select_P+UART_CORE1)	       = CORE_SELECTED;
+	*(core_select_P+UART_CORE2)	       = CORE_SELECTED;
+	*(core_select_P+UART_CORE3)	       = CORE_SELECTED;
 
 	/* RMII Selection */
-	*(core_select_P+RMII_SEL)               = CORE_SELECTED;
+	*(core_select_P+RMII_SEL)		= CORE_SELECTED;
 
 	/* External Interrupt 0-9 selection */
-	*(core_select_P+UIC_0_3)                = CORE_SELECTED;
-	*(core_select_P+UIC_4_9)                = CORE_SELECTED;
+	*(core_select_P+UIC_0_3)		= CORE_SELECTED;
+	*(core_select_P+UIC_4_9)		= CORE_SELECTED;
 
-	*(core_select_P+SCP_CORE)            = CORE_SELECTED;
-	*(core_select_P+DMA_CHANNEL_CD)            = CORE_SELECTED;
-	*(core_select_P+PACKET_REJ_FUNC_AVAIL)            = CORE_SELECTED;
-	*(core_select_P+USB1_DEVICE)            = CORE_SELECTED;
+	*(core_select_P+SCP_CORE)	     = CORE_SELECTED;
+	*(core_select_P+DMA_CHANNEL_CD)		   = CORE_SELECTED;
+	*(core_select_P+PACKET_REJ_FUNC_AVAIL)		  = CORE_SELECTED;
+	*(core_select_P+USB1_DEVICE)		= CORE_SELECTED;
 
 	*config_val_P = CONFIG_IS_VALID;
 
@@ -1733,28 +1745,28 @@ void configure_ppc440ep_pins(void)
 	/* Create Core Selection Table */
 	core_selection_t ppc440ep_core_selection[MAX_CORE_SELECT_NB] =
 		{
-			CORE_NOT_SELECTED,      /* IIC_CORE, */
-			CORE_NOT_SELECTED,      /* SPC_CORE, */
-			CORE_NOT_SELECTED,      /* DMA_CHANNEL_AB, */
-			CORE_NOT_SELECTED,      /* UIC_4_9, */
-			CORE_NOT_SELECTED,      /* USB2_HOST, */
-			CORE_NOT_SELECTED,      /* DMA_CHANNEL_CD, */
-			CORE_NOT_SELECTED,      /* USB2_DEVICE, */
-			CORE_NOT_SELECTED,      /* PACKET_REJ_FUNC_AVAIL, */
-			CORE_NOT_SELECTED,      /* USB1_DEVICE, */
-			CORE_NOT_SELECTED,      /* EBC_MASTER, */
-			CORE_NOT_SELECTED,      /* NAND_FLASH, */
-			CORE_NOT_SELECTED,      /* UART_CORE0, */
-			CORE_NOT_SELECTED,      /* UART_CORE1, */
-			CORE_NOT_SELECTED,      /* UART_CORE2, */
-			CORE_NOT_SELECTED,      /* UART_CORE3, */
-			CORE_NOT_SELECTED,      /* MII_SEL, */
-			CORE_NOT_SELECTED,      /* RMII_SEL, */
-			CORE_NOT_SELECTED,      /* SMII_SEL, */
-			CORE_NOT_SELECTED,      /* PACKET_REJ_FUNC_EN */
-			CORE_NOT_SELECTED,      /* UIC_0_3 */
-			CORE_NOT_SELECTED,      /* USB1_HOST */
-			CORE_NOT_SELECTED       /* PCI_PATCH */
+			CORE_NOT_SELECTED,	/* IIC_CORE, */
+			CORE_NOT_SELECTED,	/* SPC_CORE, */
+			CORE_NOT_SELECTED,	/* DMA_CHANNEL_AB, */
+			CORE_NOT_SELECTED,	/* UIC_4_9, */
+			CORE_NOT_SELECTED,	/* USB2_HOST, */
+			CORE_NOT_SELECTED,	/* DMA_CHANNEL_CD, */
+			CORE_NOT_SELECTED,	/* USB2_DEVICE, */
+			CORE_NOT_SELECTED,	/* PACKET_REJ_FUNC_AVAIL, */
+			CORE_NOT_SELECTED,	/* USB1_DEVICE, */
+			CORE_NOT_SELECTED,	/* EBC_MASTER, */
+			CORE_NOT_SELECTED,	/* NAND_FLASH, */
+			CORE_NOT_SELECTED,	/* UART_CORE0, */
+			CORE_NOT_SELECTED,	/* UART_CORE1, */
+			CORE_NOT_SELECTED,	/* UART_CORE2, */
+			CORE_NOT_SELECTED,	/* UART_CORE3, */
+			CORE_NOT_SELECTED,	/* MII_SEL, */
+			CORE_NOT_SELECTED,	/* RMII_SEL, */
+			CORE_NOT_SELECTED,	/* SMII_SEL, */
+			CORE_NOT_SELECTED,	/* PACKET_REJ_FUNC_EN */
+			CORE_NOT_SELECTED,	/* UIC_0_3 */
+			CORE_NOT_SELECTED,	/* USB1_HOST */
+			CORE_NOT_SELECTED	/* PCI_PATCH */
 		};
 
 
@@ -1773,9 +1785,9 @@ void configure_ppc440ep_pins(void)
 	/*----------------------------------------------------------------------------+
 	  | SDR + ios table update + fpga initialization
 	  +----------------------------------------------------------------------------*/
-	unsigned long sdr0_pfc1     = 0;
-	unsigned long sdr0_usb0     = 0;
-	unsigned long sdr0_mfr      = 0;
+	unsigned long sdr0_pfc1	    = 0;
+	unsigned long sdr0_usb0	    = 0;
+	unsigned long sdr0_mfr	    = 0;
 
 	/* PCI Always selected */
 
@@ -1886,9 +1898,9 @@ void configure_ppc440ep_pins(void)
 		update_ndfc_ios();
 
 		mtsdr(sdr_cust0, SDR0_CUST0_MUX_NDFC_SEL   |
-		      SDR0_CUST0_NDFC_ENABLE    |
-		      SDR0_CUST0_NDFC_BW_8_BIT  |
-		      SDR0_CUST0_NDFC_ARE_MASK  |
+		      SDR0_CUST0_NDFC_ENABLE	|
+		      SDR0_CUST0_NDFC_BW_8_BIT	|
+		      SDR0_CUST0_NDFC_ARE_MASK	|
 		      SDR0_CUST0_CHIPSELGAT_EN1 );
 		/*SDR0_CUST0_CHIPSELGAT_EN2 ); */
 		/*SDR0_CUST0_CHIPSELGAT_EN3 ); */
@@ -1938,25 +1950,25 @@ void configure_ppc440ep_pins(void)
 	uart_configuration = get_uart_configuration();
 	switch (uart_configuration)
 	{
-	case L1:         /* L1 Selection */
+	case L1:	 /* L1 Selection */
 		/* UART0 8 pins Only */
 		/*sdr0_pfc1 = (sdr0_pfc1 & ~SDR0_PFC1_U0ME_MASK) | SDR0_PFC1_U0ME_DSR_DTR; */
-		sdr0_pfc1 = (sdr0_pfc1 & ~SDR0_PFC1_U0ME_MASK) |SDR0_PFC1_U0ME_CTS_RTS;   /* Chip Pb */
+		sdr0_pfc1 = (sdr0_pfc1 & ~SDR0_PFC1_U0ME_MASK) |SDR0_PFC1_U0ME_CTS_RTS;	  /* Chip Pb */
 		sdr0_pfc1 = (sdr0_pfc1 & ~SDR0_PFC1_U0IM_MASK) | SDR0_PFC1_U0IM_8PINS;
 		break;
-	case L2:         /* L2 Selection */
+	case L2:	 /* L2 Selection */
 		/* UART0 and UART1 4 pins */
 		sdr0_pfc1 = (sdr0_pfc1 & ~SDR0_PFC1_U0ME_MASK) | SDR0_PFC1_U1ME_DSR_DTR;
 		sdr0_pfc1 = (sdr0_pfc1 & ~SDR0_PFC1_U0IM_MASK) | SDR0_PFC1_U0IM_4PINS;
 		sdr0_pfc1 = (sdr0_pfc1 & ~SDR0_PFC1_U1ME_MASK) | SDR0_PFC1_U1ME_DSR_DTR;
 		break;
-	case L3:         /* L3 Selection */
+	case L3:	 /* L3 Selection */
 		/* UART0 4 pins, UART1 and UART2 2 pins */
 		sdr0_pfc1 = (sdr0_pfc1 & ~SDR0_PFC1_U0ME_MASK) | SDR0_PFC1_U1ME_DSR_DTR;
 		sdr0_pfc1 = (sdr0_pfc1 & ~SDR0_PFC1_U0IM_MASK) | SDR0_PFC1_U0IM_4PINS;
 		sdr0_pfc1 = (sdr0_pfc1 & ~SDR0_PFC1_U1ME_MASK) | SDR0_PFC1_U1ME_DSR_DTR;
 		break;
-	case L4:         /* L4 Selection */
+	case L4:	 /* L4 Selection */
 		/* UART0, UART1, UART2 and UART3 2 pins */
 		sdr0_pfc1 = (sdr0_pfc1 & ~SDR0_PFC1_U0ME_MASK) | SDR0_PFC1_U0ME_DSR_DTR;
 		sdr0_pfc1 = (sdr0_pfc1 & ~SDR0_PFC1_U0IM_MASK) | SDR0_PFC1_U0IM_4PINS;

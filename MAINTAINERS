@@ -32,6 +32,7 @@ Reinhard Arlt <reinhard.arlt@esd-electronics.com>
 Yuli Barcohen <yuli@arabellasw.com>
 
 	Adder			MPC87x/MPC852T
+	ep8248			MPC8248
 	ISPAN			MPC8260
 	MPC8260ADS		MPC826x/MPC827x/MPC8280
 	Rattler			MPC8248

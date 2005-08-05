@@ -3,9 +3,11 @@ Freescale MPC83xx ADS Boards
 
 0. Toolchain / Building
 
-    % setenv CROSS_COMPILE /usr/powerpc/bin/powerpc-linux-
+    $ PATH=$PATH:/usr/powerpc/bin
+    $ CROSS_COMPILE=powerpc-linux-
+    $ export PATH CROSS_COMPILE
 
-    % /usr/powerpc/bin/powerpc-linux-gcc -v
+    $ powerpc-linux-gcc -v
     Reading specs from /usr/powerpc/lib/gcc/powerpc-linux/3.4.3/specs
     Configured with: ../configure --prefix=/usr/powerpc
     --exec-prefix=/usr/powerpc --target=powerpc-linux --enable-shared
@@ -13,14 +15,14 @@ Freescale MPC83xx ADS Boards
     Thread model: posix
     gcc version 3.4.3 (Debian)
 
-    % /usr/powerpc/bin/powerpc-linux-as -v
+    $ powerpc-linux-as -v
     GNU assembler version 2.15 (powerpc-linux) using BFD version 2.15
 
 
-    % make MPC8349ADS_config
+    $ make MPC8349ADS_config
     Configuring for MPC8349ADS board...
 
-    % make
+    $ make
 
 
 1. Board Switches and Jumpers
@@ -76,7 +78,7 @@ Freescale MPC83xx ADS Boards
 
     Or via tftp:
 
-        tftp 10000 u-boot.bin
+	tftp 10000 u-boot.bin
 
 5.1 Reflash U-boot Image using U-boot
 
