@@ -360,10 +360,10 @@ kgdb_serial_init (void)
 	/* Set up the baud rate generator.
 	*/
 #if defined(CONFIG_KGDB_USE_EXTC)
-	m8260_cpm_extcbrg(KGDB_SMC_INDEX, speed,
+	m8260_cpm_extcbrg(brg_map[KGDB_SMC_INDEX], speed,
 		CONFIG_KGDB_EXTC_RATE, CONFIG_KGDB_EXTC_PINSEL);
 #else
-	m8260_cpm_setbrg(KGDB_SMC_INDEX, speed);
+	m8260_cpm_setbrg(brg_map[KGDB_SMC_INDEX], speed);
 #endif
 
 	/* Make the first buffer the only buffer.

@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.3:
 ======================================================================
 
+* Fix baudrate setting for KGDB on MPC8260
+  Patch by HoJin, 11 Dec 2004
+
 * Fix 'mii help' text formatting
   Patch by Cory Tusar, 10 Dec 2004
   
