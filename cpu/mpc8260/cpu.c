@@ -137,13 +137,13 @@ int checkcpu (void)
 		puts ("0.0 0K50M");
 		break;
 	case 0x0C10:
-		puts ("1.0 0K50M");
+		puts ("1.0 1K50M");
 		break;
 	case 0x0D00:
 		puts ("0.0 0K50M");
 		break;
 	case 0x0D10:
-		puts ("1.0 0K50M");
+		puts ("1.0 1K50M");
 		break;
 	default:
 		printf ("unknown [immr=0x%04x,k=0x%04x]", m, k);
