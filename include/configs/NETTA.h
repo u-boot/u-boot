@@ -685,10 +685,25 @@
 	((unsigned char)(*(volatile unsigned char *)(unsigned long)(adr)))
 
 #define CONFIG_JFFS2_NAND	1			/* jffs2 on nand support */
-#define CONFIG_JFFS2_NAND_DEV	0			/* nand device jffs2 lives on */
-#define CONFIG_JFFS2_NAND_OFF	(2 * 1024 * 1024)	/* start of jffs2 partition */
-#define CONFIG_JFFS2_NAND_SIZE	(1*1024*1024)		/* size of jffs2 partition */
 #define NAND_CACHE_PAGES	16			/* size of nand cache in 512 bytes pages */
+
+/*
+ * JFFS2 partitions
+ *
+ */
+/* No command line, one static partition, whole device */
+#undef CONFIG_JFFS2_CMDLINE
+#define CONFIG_JFFS2_DEV		"nand0"
+#define CONFIG_JFFS2_PART_SIZE		0x00100000 
+#define CONFIG_JFFS2_PART_OFFSET	0x00200000
+
+/* mtdparts command line support */
+/* Note: fake mtd_id used, no linux mtd map file */
+/*
+#define CONFIG_JFFS2_CMDLINE
+#define MTDIDS_DEFAULT		"nand0=netta-nand"
+#define MTDPARTS_DEFAULT	"mtdparts=netta-nand:1m@2m(jffs2)"
+*/
 
 /*****************************************************************************/
 

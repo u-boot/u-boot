@@ -27,10 +27,6 @@
 #include <common.h>
 #include <linux/byteorder/swab.h>
 
-#if defined CFG_JFFS_CUSTOM_PART
-#include <jffs2/jffs2.h>
-#endif
-
 #define SWAP(x)               __swab32(x)
 
 flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
@@ -39,80 +35,6 @@ flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
 static ulong flash_get_size (vu_long *addr, flash_info_t *info);
 static int write_word (flash_info_t *info, ulong dest, ulong data);
 static void flash_get_offsets (ulong base, flash_info_t *info);
-
-#if defined CFG_JFFS_CUSTOM_PART
-
-/*
- * jffs2_part_info - get information about a JFFS2 partition
- *
- * @part_num: number of the partition you want to get info about
- * @return:   struct part_info* in case of success, 0 if failure
- */
-
-static struct part_info part;
-static int current_part = -1;
-
-struct part_info* jffs2_part_info(int part_num) {
-	void *jffs2_priv_saved = part.jffs2_priv;
-
-	printf("jffs2_part_info: part_num=%i\n",part_num);
-
-	if (current_part == part_num)
-		return &part;
-
-	/* u-boot partition                                                 */
-	if(part_num==0){
-		memset(&part, 0, sizeof(part));
-
-		part.offset=(char*)0x00000000;
-		part.size=256*1024;
-
-		/* Mark the struct as ready */
-		current_part = part_num;
-
-		printf("part.offset = 0x%08x\n",(unsigned int)part.offset);
-		printf("part.size   = 0x%08x\n",(unsigned int)part.size);
-	}
-
-	/* primary OS+firmware partition                                    */
-	if(part_num==1){
-		memset(&part, 0, sizeof(part));
-
-		part.offset=(char*)0x00040000;
-		part.size=1024*1024;
-
-		/* Mark the struct as ready */
-		current_part = part_num;
-
-		printf("part.offset = 0x%08x\n",(unsigned int)part.offset);
-		printf("part.size   = 0x%08x\n",(unsigned int)part.size);
-	}
-
-	/* secondary OS+firmware partition                                  */
-	if(part_num==2){
-		memset(&part, 0, sizeof(part));
-
-		part.offset=(char*)0x00140000;
-		part.size=8*1024*1024;
-
-		/* Mark the struct as ready */
-		current_part = part_num;
-
-		printf("part.offset = 0x%08x\n",(unsigned int)part.offset);
-		printf("part.size   = 0x%08x\n",(unsigned int)part.size);
-	}
-
-	if (current_part == part_num) {
-		part.usr_priv = &current_part;
-		part.jffs2_priv = jffs2_priv_saved;
-		return &part;
-	}
-
-	printf("jffs2_part_info: end of partition table\n");
-	return 0;
-}
-#endif
-
 
 /*-----------------------------------------------------------------------
  */

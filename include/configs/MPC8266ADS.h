@@ -573,5 +573,21 @@
 #define CFG_PCI_MSTR_IO_SIZE        0x04000000          /* 64MB */
 #define CFG_POCMR2_MASK_ATTRIB      (POCMR_MASK_64MB | POCMR_ENABLE | POCMR_PCI_IO)
 
+/*
+ * JFFS2 partitions
+ *
+ */
+/* No command line, one static partition, whole device */
+#undef CONFIG_JFFS2_CMDLINE
+#define CONFIG_JFFS2_DEV		"nor0"
+#define CONFIG_JFFS2_PART_SIZE		0xFFFFFFFF
+#define CONFIG_JFFS2_PART_OFFSET	0x00000000
+
+/* mtdparts command line support */
+/*
+#define CONFIG_JFFS2_CMDLINE
+#define MTDIDS_DEFAULT		""
+#define MTDPARTS_DEFAULT	""
+*/
 
 #endif /* __CONFIG_H */

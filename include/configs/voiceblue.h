@@ -247,4 +247,22 @@
 
 #define VOICEBLUE_LED_REG	0x04030000
 
+/*
+ * JFFS2 partitions
+ *
+ */
+/* No command line, one static partition */
+#undef CONFIG_JFFS2_CMDLINE
+#define CONFIG_JFFS2_DEV		"nor0"
+#define CONFIG_JFFS2_PART_SIZE		0xFFFFFFFF
+#define CONFIG_JFFS2_PART_OFFSET	0x00040000
+
+/* mtdparts command line support */
+/* Note: fake mtd_id used, no linux mtd map file */
+/*
+#define CONFIG_JFFS2_CMDLINE
+#define MTDIDS_DEFAULT		"nor0=voiceblue-0"
+#define MTDPARTS_DEFAULT	"mtdparts=voiceblue-0:128k(uboot),64k(env),64k(renv),-(jffs2)"
+*/
+
 #endif	/* __CONFIG_H */

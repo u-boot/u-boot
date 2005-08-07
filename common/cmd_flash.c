@@ -27,12 +27,21 @@
 #include <common.h>
 #include <command.h>
 
-
 #ifdef CONFIG_HAS_DATAFLASH
 #include <dataflash.h>
 #endif
 
 #if (CONFIG_COMMANDS & CFG_CMD_FLASH)
+
+#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+#include <jffs2/jffs2.h>
+
+/* parition handling routines */
+int mtdparts_init(void);
+int id_parse(const char *id, const char **ret_id, u8 *dev_type, u8 *dev_num);
+int find_dev_and_part(const char *id, struct mtd_device **dev,
+		u8 *part_num, struct part_info **part);
+#endif
 
 extern flash_info_t flash_info[];	/* info for FLASH chips */
 
@@ -295,11 +304,17 @@ int do_flinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	flash_print_info (&flash_info[bank-1]);
 	return 0;
 }
+
 int do_flerase (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	flash_info_t *info;
 	ulong bank, addr_first, addr_last;
 	int n, sect_first, sect_last;
+#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+	struct mtd_device *dev;
+	struct part_info *part;
+	u8 dev_type, dev_num, pnum;
+#endif
 	int rcode = 0;
 
 	if (argc < 2) {
@@ -326,6 +341,32 @@ int do_flerase (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		rcode = flash_erase(info, sect_first, sect_last);
 		return rcode;
 	}
+
+#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+	/* erase <part-id> - erase partition */
+	if ((argc == 2) && (id_parse(argv[1], NULL, &dev_type, &dev_num) == 0)) {
+		mtdparts_init();
+		if (find_dev_and_part(argv[1], &dev, &pnum, &part) == 0) {
+			if (dev->id->type == MTD_DEV_TYPE_NOR) {
+				bank = dev->id->num;
+				info = &flash_info[bank];
+				addr_first = part->offset + info->start[0];
+				addr_last = addr_first + part->size - 1;
+
+				printf ("Erase Flash Parition %s, "
+						"bank %d, 0x%08lx - 0x%08lx ",
+						argv[1], bank, addr_first,
+						addr_last);
+
+				rcode = flash_sect_erase(addr_first, addr_last);
+				return rcode;
+			}
+
+			printf("cannot erase, not a NOR device\n");
+			return 1;
+		}
+	}
+#endif
 
 	if (argc != 3) {
 		printf ("Usage:\n%s\n", cmdtp->usage);
@@ -401,6 +442,11 @@ int do_protect (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	flash_info_t *info;
 	ulong bank, addr_first, addr_last;
 	int i, p, n, sect_first, sect_last;
+#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+	struct mtd_device *dev;
+	struct part_info *part;
+	u8 dev_type, dev_num, pnum;
+#endif
 	int rcode = 0;
 #ifdef CONFIG_HAS_DATAFLASH
 	int status;
@@ -488,6 +534,33 @@ int do_protect (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 		return rcode;
 	}
+	
+#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+	/* protect on/off <part-id> */
+	if ((argc == 3) && (id_parse(argv[2], NULL, &dev_type, &dev_num) == 0)) {
+		mtdparts_init();
+		if (find_dev_and_part(argv[2], &dev, &pnum, &part) == 0) {
+			if (dev->id->type == MTD_DEV_TYPE_NOR) {
+				bank = dev->id->num;
+				info = &flash_info[bank];
+				addr_first = part->offset + info->start[0];
+				addr_last = addr_first + part->size - 1;
+
+				printf ("%sProtect Flash Parition %s, "
+						"bank %d, 0x%08lx - 0x%08lx\n",
+						p ? "" : "Un", argv[1],
+						bank, addr_first, addr_last);
+
+				rcode = flash_sect_protect (p, addr_first, addr_last);
+				return rcode;
+			}
+
+			printf("cannot %sprotect, not a NOR device\n",
+					p ? "" : "un");
+			return 1;
+		}
+	}
+#endif
 
 	if (argc != 4) {
 		printf ("Usage:\n%s\n", cmdtp->usage);
@@ -609,6 +682,9 @@ U_BOOT_CMD(
 	"w/addr 'start'+'len'-1\n"
 	"erase N:SF[-SL]\n    - erase sectors SF-SL in FLASH bank # N\n"
 	"erase bank N\n    - erase FLASH bank # N\n"
+#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+	"erase <part-id>\n    - erase partition\n"
+#endif
 	"erase all\n    - erase all FLASH banks\n"
 );
 
@@ -623,6 +699,9 @@ U_BOOT_CMD(
 	"protect on  N:SF[-SL]\n"
 	"    - protect sectors SF-SL in FLASH bank # N\n"
 	"protect on  bank N\n    - protect FLASH bank # N\n"
+#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+	"protect on <part-id>\n    - protect partition\n"
+#endif
 	"protect on  all\n    - protect all FLASH banks\n"
 	"protect off start end\n"
 	"    - make FLASH from addr 'start' to addr 'end' writable\n"
@@ -632,6 +711,9 @@ U_BOOT_CMD(
 	"protect off N:SF[-SL]\n"
 	"    - make sectors SF-SL writable in FLASH bank # N\n"
 	"protect off bank N\n    - make FLASH bank # N writable\n"
+#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+	"protect off <part-id>\n    - make partition writable\n"
+#endif
 	"protect off all\n    - make all FLASH banks writable\n"
 );
 

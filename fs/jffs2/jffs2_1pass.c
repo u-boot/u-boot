@@ -140,8 +140,10 @@
 # define DEBUGF(fmt,args...)
 #endif
 
-#if defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND)
+/* keeps pointer to currentlu processed partition */
+static struct part_info *current_part;
 
+#if defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND)
 /*
  * Support for jffs2 on top of NAND-flash
  *
@@ -167,10 +169,10 @@ int read_jffs2_nand(size_t start, size_t len,
 
 static u8* nand_cache = NULL;
 static u32 nand_cache_off = (u32)-1;
-static int nanddev = 0; /* nand device of current partition */
 
 static int read_nand_cached(u32 off, u32 size, u_char *buf)
 {
+	struct mtdids *id = current_part->dev->id;
 	u32 bytes_read = 0;
 	size_t retlen;
 	int cpy_bytes;
@@ -190,10 +192,10 @@ static int read_nand_cached(u32 off, u32 size, u_char *buf)
 				}
 			}
 			if (read_jffs2_nand(nand_cache_off, NAND_CACHE_SIZE,
-					    &retlen, nand_cache, nanddev) < 0 ||
-			    retlen != NAND_CACHE_SIZE) {
+						&retlen, nand_cache, id->num) < 0 ||
+					retlen != NAND_CACHE_SIZE) {
 				printf("read_nand_cached: error reading nand off %#x size %d bytes\n",
-				       nand_cache_off, NAND_CACHE_SIZE);
+						nand_cache_off, NAND_CACHE_SIZE);
 				return -1;
 			}
 		}
@@ -208,12 +210,12 @@ static int read_nand_cached(u32 off, u32 size, u_char *buf)
 	return bytes_read;
 }
 
-static void *get_fl_mem(u32 off, u32 size, void *ext_buf)
+static void *get_fl_mem_nand(u32 off, u32 size, void *ext_buf)
 {
 	u_char *buf = ext_buf ? (u_char*)ext_buf : (u_char*)malloc(size);
 
 	if (NULL == buf) {
-		printf("get_fl_mem: can't alloc %d bytes\n", size);
+		printf("get_fl_mem_nand: can't alloc %d bytes\n", size);
 		return NULL;
 	}
 	if (read_nand_cached(off, size, buf) < 0) {
@@ -225,15 +227,15 @@ static void *get_fl_mem(u32 off, u32 size, void *ext_buf)
 	return buf;
 }
 
-static void *get_node_mem(u32 off)
+static void *get_node_mem_nand(u32 off)
 {
 	struct jffs2_unknown_node node;
 	void *ret = NULL;
 
-	if (NULL == get_fl_mem(off, sizeof(node), &node))
+	if (NULL == get_fl_mem_nand(off, sizeof(node), &node))
 		return NULL;
 
-	if (!(ret = get_fl_mem(off, node.magic ==
+	if (!(ret = get_fl_mem_nand(off, node.magic ==
 			       JFFS2_MAGIC_BITMASK ? node.totlen : sizeof(node),
 			       NULL))) {
 		printf("off = %#x magic %#x type %#x node.totlen = %d\n",
@@ -242,29 +244,88 @@ static void *get_node_mem(u32 off)
 	return ret;
 }
 
-static void put_fl_mem(void *buf)
+static void put_fl_mem_nand(void *buf)
 {
 	free(buf);
 }
+#endif /* #if defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND) */
 
-#else /* defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND) */
 
+#if (CONFIG_COMMANDS & CFG_CMD_FLASH)
+/*
+ * Support for jffs2 on top of NOR-flash
+ *
+ * NOR flash memory is mapped in processor's address space,
+ * just return address.
+ */
+static inline void *get_fl_mem_nor(u32 off)
+{
+	u32 addr = off;
+	struct mtdids *id = current_part->dev->id;
+
+	extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
+	flash_info_t *flash = &flash_info[id->num];
+
+	addr += flash->start[0];
+	return (void*)addr;
+}
+
+static inline void *get_node_mem_nor(u32 off)
+{
+	return (void*)get_fl_mem_nor(off);
+}
+#endif /* #if (CONFIG_COMMANDS & CFG_CMD_FLASH) */
+
+
+/*
+ * Generic jffs2 raw memory and node read routines. 
+ *
+ */
 static inline void *get_fl_mem(u32 off, u32 size, void *ext_buf)
 {
+	struct mtdids *id = current_part->dev->id;
+	
+#if (CONFIG_COMMANDS & CFG_CMD_FLASH)
+	if (id->type == MTD_DEV_TYPE_NOR)
+		return get_fl_mem_nor(off);
+#endif
+
+#if defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND)
+	if (id->type == MTD_DEV_TYPE_NAND)
+		return get_fl_mem_nand(off, size, ext_buf);
+#endif
+
+	printf("get_fl_mem: unknown device type, using raw offset!\n");
 	return (void*)off;
 }
 
 static inline void *get_node_mem(u32 off)
 {
+	struct mtdids *id = current_part->dev->id;
+	
+#if (CONFIG_COMMANDS & CFG_CMD_FLASH)
+	if (id->type == MTD_DEV_TYPE_NOR)
+		return get_node_mem_nor(off);
+#endif
+
+#if defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND)
+	if (id->type == MTD_DEV_TYPE_NAND)
+		return get_node_mem_nand(off);
+#endif
+
+	printf("get_node_mem: unknown device type, using raw offset!\n");
 	return (void*)off;
 }
 
 static inline void put_fl_mem(void *buf)
 {
+#if defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND)
+	struct mtdids *id = current_part->dev->id;
+
+	if (id->type == MTD_DEV_TYPE_NAND)
+		return put_fl_mem_nand(buf);
+#endif
 }
-
-#endif /* defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND) */
-
 
 /* Compression names */
 static char *compr_names[] = {
@@ -457,8 +518,8 @@ static int compare_dirents(struct b_node *new, struct b_node *old)
 static u32
 jffs2_scan_empty(u32 start_offset, struct part_info *part)
 {
-	char *max = part->offset + part->size - sizeof(struct jffs2_raw_inode);
-	char *offset = part->offset + start_offset;
+	char *max = (char *)(part->offset + part->size - sizeof(struct jffs2_raw_inode));
+	char *offset = (char *)(part->offset + start_offset);
 	u32 off;
 
 	while (offset < max &&
@@ -468,11 +529,11 @@ jffs2_scan_empty(u32 start_offset, struct part_info *part)
 		if (((u32)offset & ((1 << SPIN_BLKSIZE)-1)) == 0) break;
 	}
 
-	return offset - part->offset;
+	return (u32)offset - part->offset;
 }
 
-static u32
-jffs_init_1pass_list(struct part_info *part)
+void
+jffs2_free_cache(struct part_info *part)
 {
 	struct b_lists *pL;
 
@@ -482,6 +543,15 @@ jffs_init_1pass_list(struct part_info *part)
 		free_nodes(&pL->dir);
 		free(pL);
 	}
+}
+
+static u32
+jffs_init_1pass_list(struct part_info *part)
+{
+	struct b_lists *pL;
+
+	jffs2_free_cache(part);
+
 	if (NULL != (part->jffs2_priv = malloc(sizeof(struct b_lists)))) {
 		pL = (struct b_lists *)part->jffs2_priv;
 
@@ -979,24 +1049,12 @@ jffs2_1pass_rescan_needed(struct part_info *part)
 		DEBUGF ("rescan: First time in use\n");
 		return 1;
 	}
+
 	/* if we have no list, we need to rescan */
 	if (pL->frag.listCount == 0) {
 		DEBUGF ("rescan: fraglist zero\n");
 		return 1;
 	}
-
-	/* or if we are scanning a new partition */
-	if (pL->partOffset != part->offset) {
-		DEBUGF ("rescan: different partition\n");
-		return 1;
-	}
-
-#if defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND)
-	if (nanddev != (int)part->usr_priv - 1) {
-		DEBUGF ("rescan: nand device changed\n");
-		return -1;
-	}
-#endif /* defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND) */
 
 	/* but suppose someone reflashed a partition at the same offset... */
 	b = pL->dir.listHead;
@@ -1087,10 +1145,6 @@ jffs2_1pass_build_lists(struct part_info * part)
 	u32 counterF = 0;
 	u32 counterN = 0;
 
-#if defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND)
-	nanddev = (int)part->usr_priv - 1;
-#endif /* defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND) */
-
 	/* turn off the lcd.  Refreshing the lcd adds 50% overhead to the */
 	/* jffs2 list building enterprise nope.  in newer versions the overhead is */
 	/* only about 5 %.  not enough to inconvenience people for. */
@@ -1099,7 +1153,6 @@ jffs2_1pass_build_lists(struct part_info * part)
 	/* if we are building a list we need to refresh the cache. */
 	jffs_init_1pass_list(part);
 	pL = (struct b_lists *)part->jffs2_priv;
-	pL->partOffset = part->offset;
 	offset = 0;
 	puts ("Scanning JFFS2 FS:   ");
 
@@ -1217,6 +1270,9 @@ jffs2_1pass_fill_info(struct b_lists * pL, struct b_jffs2_info * piL)
 static struct b_lists *
 jffs2_get_list(struct part_info * part, const char *who)
 {
+	/* copy requested part_info struct pointer to global location */
+	current_part = part;
+
 	if (jffs2_1pass_rescan_needed(part)) {
 		if (!jffs2_1pass_build_lists(part)) {
 			printf("%s: Failed to scan JFFSv2 file structure\n", who);

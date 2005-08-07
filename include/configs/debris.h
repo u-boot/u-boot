@@ -217,8 +217,27 @@
 #define CFG_FLASH_RANGE_SIZE	0x01000000
 #define FLASH_BASE0_PRELIM	0x7C000000	/* debris flash		*/
 
-#define CFG_JFFS2_FIRST_BANK    0           /* use for JFFS2 */
-#define CFG_JFFS2_NUM_BANKS     1
+/*
+ * JFFS2 partitions
+ *
+ */
+/* No command line, one static partition, whole device */
+#undef CONFIG_JFFS2_CMDLINE
+#define CONFIG_JFFS2_DEV		"nor0"
+#define CONFIG_JFFS2_PART_SIZE		0xFFFFFFFF
+#define CONFIG_JFFS2_PART_OFFSET	0x00000000
+
+/* mtdparts command line support */
+
+/* Use first bank for JFFS2, second bank contains U-Boot.
+ *
+ * Note: fake mtd_id's used, no linux mtd map file.
+ */
+/*
+#define CONFIG_JFFS2_CMDLINE
+#define MTDIDS_DEFAULT		"nor0=debris-0"
+#define MTDPARTS_DEFAULT	"mtdparts=debris-0:-(jffs2)"
+*/
 
 #define CFG_ENV_IS_IN_NVRAM      1
 #define CONFIG_ENV_OVERWRITE     1

@@ -38,8 +38,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include <asm/processor.h>
-
 /* This define must be before the core.h include */
 #define CONFIG_CPCI750		1	/* this is an CPCI750 board	*/
 

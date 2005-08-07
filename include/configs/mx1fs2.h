@@ -87,7 +87,6 @@
 #define	 CONFIG_INITRD_TAG	     1	   /* send initrd params	*/
 #undef	CONFIG_VFD			 /* do not send framebuffer setup    */
 
-#define CFG_JFFS_CUSTOM_PART
 /*
  * Malloc pool need to host env + 128 Kb reserve for other allocations.
  */
@@ -136,10 +135,6 @@
 #define MX1FS2_FLASH_INTERLEAVE 2	/* ... made of 2 chips */
 #define MX1FS2_FLASH_BANK_SIZE	0x02000000  /* size of one flash bank*/
 #define MX1FS2_FLASH_SECT_SIZE	0x00020000  /* size of erase sector */
-#define MX1FS2_JFFS2_PART0_START 0x10200000
-#define MX1FS2_JFFS2_PART0_SIZE	 0x00500000
-#define MX1FS2_JFFS2_PART1_START 0x10700000
-#define MX1FS2_JFFS2_PART1_SIZE	 0x00900000
 #else
 #define MX1FS2_FLASH_BUS_WIDTH	2	/* we use 16 bit FLASH memory...     */
 #define MX1FS2_FLASH_INTERLEAVE 1	/* ... made of 1 chip */
@@ -167,9 +162,28 @@
  * footprint.
  * NOTE: Enable CFG_CMD_JFFS2 for JFFS2 support.
  */
-#define CFG_JFFS2_FIRST_BANK		0
-#define CFG_JFFS2_FIRST_SECTOR		5
-#define CFG_JFFS2_NUM_BANKS		1
+
+/*
+ * JFFS2 partitions
+ */
+/* No command line, one static partition, whole device */
+/*
+#undef CONFIG_JFFS2_CMDLINE
+#define CONFIG_JFFS2_DEV		"nor0"
+#define CONFIG_JFFS2_PART_SIZE		0xFFFFFFFF
+#define CONFIG_JFFS2_PART_OFFSET	0x00050000
+*/
+
+/* mtdparts command line support */
+/* Note: fake mtd_id used, no linux mtd map file */
+#define CONFIG_JFFS2_CMDLINE
+#define MTDIDS_DEFAULT		"nor0=mx1fs2-0"
+
+#ifdef BUS32BIT_VERSION
+#define MTDPARTS_DEFAULT	"mtdparts=mx1fs2-0:2m@5m(part0),5m@9m(part1)"
+#else
+#define MTDPARTS_DEFAULT	"mtdparts=mx1fs2-0:-@320k(jffs2)"
+#endif
 
 /*
  * Environment setup. Definitions of monitor location and size with

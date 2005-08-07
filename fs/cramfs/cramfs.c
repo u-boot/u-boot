@@ -42,17 +42,22 @@
 
 struct cramfs_super super;
 
+/* CPU address space offset calculation macro, struct part_info offset is
+ * device address space offset, so we need to shift it by a device start address. */
+extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
+#define PART_OFFSET(x)	(x->offset + flash_info[x->dev->id->num].start[0])
+
 static int cramfs_read_super (struct part_info *info)
 {
 	unsigned long root_offset;
 
 	/* Read the first block and get the superblock from it */
-	memcpy (&super, (void *) info->offset, sizeof (super));
+	memcpy (&super, (void *) PART_OFFSET(info), sizeof (super));
 
 	/* Do sanity checks on the superblock */
 	if (super.magic != CRAMFS_32 (CRAMFS_MAGIC)) {
 		/* check at 512 byte offset */
-		memcpy (&super, (void *) info->offset + 512, sizeof (super));
+		memcpy (&super, (void *) PART_OFFSET(info) + 512, sizeof (super));
 		if (super.magic != CRAMFS_32 (CRAMFS_MAGIC)) {
 			printf ("cramfs: wrong magic\n");
 			return -1;
@@ -87,7 +92,7 @@ static int cramfs_read_super (struct part_info *info)
 	return 0;
 }
 
-static unsigned long cramfs_resolve (char *begin, unsigned long offset,
+static unsigned long cramfs_resolve (unsigned long begin, unsigned long offset,
 				     unsigned long size, int raw,
 				     char *filename)
 {
@@ -150,7 +155,7 @@ static unsigned long cramfs_resolve (char *begin, unsigned long offset,
 	return 0;
 }
 
-static int cramfs_uncompress (char *begin, unsigned long offset,
+static int cramfs_uncompress (unsigned long begin, unsigned long offset,
 			      unsigned long loadoffset)
 {
 	struct cramfs_inode *inode = (struct cramfs_inode *) (begin + offset);
@@ -187,7 +192,7 @@ int cramfs_load (char *loadoffset, struct part_info *info, char *filename)
 	if (cramfs_read_super (info))
 		return -1;
 
-	offset = cramfs_resolve (info->offset,
+	offset = cramfs_resolve (PART_OFFSET(info),
 				 CRAMFS_GET_OFFSET (&(super.root)) << 2,
 				 CRAMFS_24 (super.root.size), 0,
 				 strtok (filename, "/"));
@@ -195,14 +200,14 @@ int cramfs_load (char *loadoffset, struct part_info *info, char *filename)
 	if (offset <= 0)
 		return offset;
 
-	return cramfs_uncompress (info->offset, offset,
+	return cramfs_uncompress (PART_OFFSET(info), offset,
 				  (unsigned long) loadoffset);
 }
 
 static int cramfs_list_inode (struct part_info *info, unsigned long offset)
 {
 	struct cramfs_inode *inode = (struct cramfs_inode *)
-		(info->offset + offset);
+		(PART_OFFSET(info) + offset);
 	char *name, str[20];
 	int namelen, nextoff;
 
@@ -233,7 +238,7 @@ static int cramfs_list_inode (struct part_info *info, unsigned long offset)
 		unsigned long size = CRAMFS_24 (inode->size);
 		char *link = malloc (size);
 
-		if (link != NULL && cramfs_uncompress (info->offset, offset,
+		if (link != NULL && cramfs_uncompress (PART_OFFSET(info), offset,
 						       (unsigned long) link)
 		    == size)
 			printf (" -> %*.*s\n", (int) size, (int) size, link);
@@ -262,7 +267,7 @@ int cramfs_ls (struct part_info *info, char *filename)
 		size = CRAMFS_24 (super.root.size);
 	} else {
 		/* Resolve the path */
-		offset = cramfs_resolve (info->offset,
+		offset = cramfs_resolve (PART_OFFSET(info),
 					 CRAMFS_GET_OFFSET (&(super.root)) <<
 					 2, CRAMFS_24 (super.root.size), 1,
 					 strtok (filename, "/"));
@@ -271,7 +276,7 @@ int cramfs_ls (struct part_info *info, char *filename)
 			return offset;
 
 		/* Resolving was successful. Examine the inode */
-		inode = (struct cramfs_inode *) (info->offset + offset);
+		inode = (struct cramfs_inode *) (PART_OFFSET(info) + offset);
 		if (!S_ISDIR (CRAMFS_16 (inode->mode))) {
 			/* It's not a directory - list it, and that's that */
 			return (cramfs_list_inode (info, offset) > 0);
@@ -284,7 +289,7 @@ int cramfs_ls (struct part_info *info, char *filename)
 
 	/* List the given directory */
 	while (inodeoffset < size) {
-		inode = (struct cramfs_inode *) (info->offset + offset +
+		inode = (struct cramfs_inode *) (PART_OFFSET(info) + offset +
 						 inodeoffset);
 
 		nextoffset = cramfs_list_inode (info, offset + inodeoffset);
@@ -324,14 +329,17 @@ int cramfs_info (struct part_info *info)
 
 int cramfs_check (struct part_info *info)
 {
-	struct cramfs_super *sb = (struct cramfs_super *) info->offset;
+	struct cramfs_super *sb;
 
+	if (info->dev->id->type != MTD_DEV_TYPE_NOR)
+		return 0;
+
+	sb = (struct cramfs_super *) PART_OFFSET(info);
 	if (sb->magic != CRAMFS_32 (CRAMFS_MAGIC)) {
 		/* check at 512 byte offset */
-		sb = (struct cramfs_super *) (info->offset + 512);
-		if (sb->magic != CRAMFS_32 (CRAMFS_MAGIC)) {
+		sb = (struct cramfs_super *) (PART_OFFSET(info) + 512);
+		if (sb->magic != CRAMFS_32 (CRAMFS_MAGIC))
 			return 0;
-		}
 	}
 	return 1;
 }

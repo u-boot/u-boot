@@ -27,6 +27,7 @@
 
 #include <pci.h>
 #include <mpc106.h>
+#include <asm/processor.h>
 
 /* defines L2CR register for MPC750 */
 

@@ -144,9 +144,21 @@
 #define CFG_ENV_ADDR		(PHYS_FLASH_1 + 0x1C000)	/* Addr of Environment Sector	*/
 #define CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
 
-/* Flash banks JFFS2 should use */
-#define CFG_JFFS2_FIRST_BANK    0
-#define CFG_JFFS2_FIRST_SECTOR	8
-#define CFG_JFFS2_NUM_BANKS     2
+/*
+ * JFFS2 partitions
+ *
+ */
+/* No command line, one static partition, whole device */
+#undef CONFIG_JFFS2_CMDLINE
+#define CONFIG_JFFS2_DEV		"nor0"
+#define CONFIG_JFFS2_PART_SIZE		0xFFFFFFFF
+#define CONFIG_JFFS2_PART_OFFSET	0x00020000
+
+/* mtdparts command line support */
+/*
+#define CONFIG_JFFS2_CMDLINE
+#define MTDIDS_DEFAULT		"nor0=impA7 NOR Flash Bank #0,nor1=impA7 NOR Flash Bank #1"
+#define MTDPARTS_DEFAULT	"mtdparts=impA7 NOR Flash Bank #0:-(FileSystem1);impA7 NOR Flash Bank #1:-(FileSystem2)"
+*/
 
 #endif	/* __CONFIG_H */

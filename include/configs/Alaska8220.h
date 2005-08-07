@@ -229,17 +229,6 @@
 #undef CFG_ENV_IS_IN_FLASH
 #endif
 
-#ifndef CFG_JFFS2_FIRST_SECTOR
-#define CFG_JFFS2_FIRST_SECTOR	0
-#endif
-#ifndef CFG_JFFS2_FIRST_BANK
-#define CFG_JFFS2_FIRST_BANK	0
-#endif
-#ifndef CFG_JFFS2_NUM_BANKS
-#define CFG_JFFS2_NUM_BANKS	1
-#endif
-#define CFG_JFFS2_LAST_BANK (CFG_JFFS2_FIRST_BANK + CFG_JFFS2_NUM_BANKS - 1)
-
 /*
  * Memory map
  */
@@ -313,5 +302,24 @@
  */
 #define CFG_HID0_INIT		HID0_ICE | HID0_ICFI
 #define CFG_HID0_FINAL		HID0_ICE
+
+/*
+ * JFFS2 partitions
+ */
+
+/* No command line, one static partition */
+/*
+#undef CONFIG_JFFS2_CMDLINE
+#define CONFIG_JFFS2_DEV		"nor0"
+#define CONFIG_JFFS2_PART_SIZE		0x00400000
+#define CONFIG_JFFS2_PART_OFFSET	0x00000000
+*/
+
+/* mtdparts command line support */
+/*
+#define CONFIG_JFFS2_CMDLINE
+#define MTDIDS_DEFAULT		"nor0=alaska-0"
+#define MTDPARTS_DEFAULT	"mtdparts=alaska-0:4m(user)"
+*/
 
 #endif /* __CONFIG_H */

@@ -674,5 +674,21 @@
 #undef	CFG_MEMTEST_END
 #endif
 
+/*
+ * JFFS2 partitions
+ *
+ */
+/* No command line, one static partition */
+#undef CONFIG_JFFS2_CMDLINE
+#define CONFIG_JFFS2_DEV		"nor"
+#define CONFIG_JFFS2_PART_SIZE		0xFFFFFFFF
+#define CONFIG_JFFS2_PART_OFFSET	0x00000000
+
+/* mtdparts command line support */
+/*
+#define CONFIG_JFFS2_CMDLINE
+#define MTDIDS_DEFAULT		""
+#define MTDPARTS_DEFAULT	""
+*/
 
 #endif	/* __CONFIG_H */

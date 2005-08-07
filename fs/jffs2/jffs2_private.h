@@ -22,7 +22,6 @@ struct b_list {
 };
 
 struct b_lists {
-	char *partOffset;
 	struct b_list dir;
 	struct b_list frag;
 

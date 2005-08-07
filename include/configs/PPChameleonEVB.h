@@ -336,9 +336,19 @@
  * Please note that CFG_SDRAM_BASE _must_ start at 0
  */
 #define CFG_SDRAM_BASE		0x00000000
+
+/* Reserve 256 kB for Monitor	*/
 #define CFG_FLASH_BASE		0xFFFC0000
 #define CFG_MONITOR_BASE	CFG_FLASH_BASE
-#define CFG_MONITOR_LEN		(256 * 1024)	/* Reserve 256 kB for Monitor	*/
+#define CFG_MONITOR_LEN		(256 * 1024)
+
+/* Reserve 320 kB for Monitor	*/
+/*
+#define CFG_FLASH_BASE		0xFFFB0000
+#define CFG_MONITOR_BASE	CFG_FLASH_BASE
+#define CFG_MONITOR_LEN		(320 * 1024)
+*/
+
 #define CFG_MALLOC_LEN		(256 * 1024)	/* Reserve 256 kB for malloc()	*/
 
 /*
@@ -368,11 +378,6 @@
 #define CFG_FLASH_READ2		0x0002	/* 2 is standard			*/
 
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
-
-#if 0 /* test-only */
-#define CFG_JFFS2_FIRST_BANK	0	 /* use for JFFS2 */
-#define CFG_JFFS2_NUM_BANKS	1	 /* ! second bank contains U-Boot */
-#endif
 
 /*-----------------------------------------------------------------------
  * Environment Variable setup
@@ -770,9 +775,36 @@
 #endif /* CONFIG_NO_SERIAL_EEPROM */
 
 #define CONFIG_JFFS2_NAND 1			/* jffs2 on nand support */
-#define CONFIG_JFFS2_NAND_DEV 0			/* nand device jffs2 lives on */
-#define CONFIG_JFFS2_NAND_OFF 0			/* start of jffs2 partition */
-#define CONFIG_JFFS2_NAND_SIZE 4*1024*1024	/* size of jffs2 partition */
 #define NAND_CACHE_PAGES 16			/* size of nand cache in 512 bytes pages */
+
+/*
+ * JFFS2 partitions
+ */
+
+/* No command line, one static partition */
+#undef CONFIG_JFFS2_CMDLINE
+#define CONFIG_JFFS2_DEV		"nand0"
+#define CONFIG_JFFS2_PART_SIZE		0x00400000
+#define CONFIG_JFFS2_PART_OFFSET	0x00000000
+
+/* mtdparts command line support */
+/*
+#define CONFIG_JFFS2_CMDLINE
+#define MTDIDS_DEFAULT		"nor0=PPChameleon-0,nand0=ppchameleonevb-nand"
+*/
+
+/* 256 kB U-boot image */
+/*
+#define MTDPARTS_DEFAULT	"mtdparts=PPChameleon-0:1m(kernel1),1m(kernel2)," \
+					"1792k(user),256k(u-boot);" \
+				"ppchameleonevb-nand:-(nand)"
+*/
+
+/* 320 kB U-boot image */
+/*
+#define MTDPARTS_DEFAULT	"mtdparts=PPChameleon-0:1m(kernel1),1m(kernel2)," \
+					"1728k(user),320k(u-boot);" \
+				"ppchameleonevb-nand:-(nand)"
+*/
 
 #endif	/* __CONFIG_H */

@@ -278,10 +278,14 @@
 #define CFG_FLASH_UNLOCK_TOUT	10000	/* Timeout for Flash Clear Lock Bits (in ms) */
 #define CFG_FLASH_PROTECTION		/* "Real" (hardware) sectors protection */
 
-#define CFG_JFFS2_FIRST_SECTOR  1
-#define CFG_JFFS2_LAST_SECTOR   27
+/*
+ * JFFS2 partitions
+ *
+ * Note: fake mtd_id used, no linux mtd map file
+ */
+#define MTDIDS_DEFAULT		"nor0=mpc8260ads-0"
+#define MTDPARTS_DEFAULT	"mtdparts=mpc8260ads-0:-@1m(jffs2)"
 #define CFG_JFFS2_SORT_FRAGMENTS
-#define CFG_JFFS_CUSTOM_PART
 
 /* this is stuff came out of the Motorola docs */
 #ifndef CFG_LOWBOOT

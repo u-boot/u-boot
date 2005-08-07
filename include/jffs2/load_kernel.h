@@ -25,40 +25,37 @@
  *
  */
 
-/* this struct is very similar to mtd_info */
-struct part_info {
-	u32 size;	 /* Total size of the Partition */
+#include <linux/list.h>
 
-	/* "Major" erase size for the device. Naïve users may take this
-	 * to be the only erase size available, or may use the more detailed
-	 * information below if they desire
-	 */
-	u32 erasesize;
+/* mtd device types */
+#define MTD_DEV_TYPE_NOR      0x0001
+#define MTD_DEV_TYPE_NAND     0x0002
+#define MTD_DEV_TYPE(type) ((type == MTD_DEV_TYPE_NAND) ? "nand" : "nor")
 
-	/* Where in memory does this partition start? */
-	char *offset;
-
-	/* used by jffs2 set to NULL */
-	void *jffs2_priv;
-
-	/* private filed used by user */
-	void *usr_priv;
+struct mtd_device {
+	struct list_head link;
+	struct mtdids *id;		/* parent mtd id entry */
+	u16 num_parts;			/* number of partitions on this device */
+	struct list_head parts;		/* partitions */
 };
 
-struct part_info*
-jffs2_part_info(int part_num);
+struct part_info {
+	struct list_head link;
+	char *name;			/* partition name */
+	u8 auto_name;			/* set to 1 for generated name */
+	u32 size;			/* total size of the partition */
+	u32 offset;			/* offset within device */
+	void *jffs2_priv;		/* used internaly by jffs2 */
+	u32 mask_flags;			/* kernel MTD mask flags */
+	struct mtd_device *dev;		/* parent device */
+};
 
-struct kernel_loader {
-
-	/* Return true if there is a kernel contained at src */
-	int (* check_magic)(struct part_info *part);
-
-	/* load the kernel from the partition part to dst, return the number
-	 * of bytes copied if successful, zero if not */
-	u32 (* load_kernel)(u32 *dst, struct part_info *part, const char *kernel_filename);
-
-	/* A brief description of the module (ie, "cramfs") */
-	char *name;
+struct mtdids {
+	struct list_head link;
+	u8 type;			/* device type */
+	u8 num;				/* device number */
+	u32 size;			/* device size */
+	char *mtd_id;			/* linux kernel device id */
 };
 
 #define ldr_strlen	strlen

@@ -148,8 +148,26 @@
 #define CONFIG_NET_MULTI
 #define CONFIG_INCA_IP_SWITCH_AMDIX
 
-#define CFG_JFFS2_FIRST_BANK	1
-#define CFG_JFFS2_NUM_BANKS	1
+/*
+ * JFFS2 partitions
+ */
+/* No command line, one static partition, use all space on the device */
+#undef CONFIG_JFFS2_CMDLINE
+#define CONFIG_JFFS2_DEV		"nor1"
+#define CONFIG_JFFS2_PART_SIZE		0xFFFFFFFF
+#define CONFIG_JFFS2_PART_OFFSET	0x00000000
+
+/* mtdparts command line support */
+/*
+#define CONFIG_JFFS2_CMDLINE
+#define MTDIDS_DEFAULT		"nor0=INCA-IP Bank 0"
+#define MTDPARTS_DEFAULT	"mtdparts=INCA-IP Bank 0:192k(uboot)," \
+							"64k(env)," \
+							"768k(linux)," \
+							"1m@3m(rootfs)," \
+							"768k(linux2)," \
+							"3m@5m(rootfs2)"
+*/
 
 /*-----------------------------------------------------------------------
  * Cache Configuration

@@ -24,6 +24,7 @@
  */
 
 #include <config.h>
+#include <asm/processor.h>
 #include <74xx_7xx.h>
 #include <mpc106.h>
 #include <version.h>

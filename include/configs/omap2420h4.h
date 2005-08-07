@@ -265,10 +265,23 @@
 #define CFG_FLASH_ERASE_TOUT     (30*75*CFG_HZ) /* Timeout for Flash Erase */
 #define CFG_FLASH_WRITE_TOUT     (30*75*CFG_HZ) /* Timeout for Flash Write */
 
-/* Flash banks JFFS2 should use */
-#define CFG_MAX_MTD_BANKS	(CFG_MAX_FLASH_BANKS+CFG_MAX_NAND_DEVICE)
 #define CFG_JFFS2_MEM_NAND
-#define CFG_JFFS2_FIRST_BANK	1		/* use flash_info[1] */
-#define CFG_JFFS2_NUM_BANKS     1
+
+/*
+ * JFFS2 partitions
+ */
+/* No command line, one static partition, whole device */
+#undef CONFIG_JFFS2_CMDLINE
+#define CONFIG_JFFS2_DEV		"nor1"
+#define CONFIG_JFFS2_PART_SIZE		0xFFFFFFFF
+#define CONFIG_JFFS2_PART_OFFSET	0x00000000
+
+/* mtdparts command line support */
+/* Note: fake mtd_id used, no linux mtd map file */
+/*
+#define CONFIG_JFFS2_CMDLINE
+#define MTDIDS_DEFAULT		"nor1=omap2420-1"
+#define MTDPARTS_DEFAULT	"mtdparts=omap2420-1:-(jffs2)"
+*/
 
 #endif							/* __CONFIG_H */

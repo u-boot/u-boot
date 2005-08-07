@@ -377,11 +377,6 @@
 
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 
-#if 0 /* test-only */
-#define CFG_JFFS2_FIRST_BANK	0	/* use for JFFS2			*/
-#define CFG_JFFS2_NUM_BANKS	1	/* ! second bank contains U-Boot	*/
-#endif
-
 /*-----------------------------------------------------------------------
  * Environment Variable setup
  */
@@ -767,9 +762,26 @@
 #endif /* CONFIG_NO_SERIAL_EEPROM */
 
 #define CONFIG_JFFS2_NAND 1			/* jffs2 on nand support */
-#define CONFIG_JFFS2_NAND_DEV 0			/* nand device jffs2 lives on */
-#define CONFIG_JFFS2_NAND_OFF 0			/* start of jffs2 partition */
-#define CONFIG_JFFS2_NAND_SIZE 2*1024*1024	/* size of jffs2 partition */
 #define NAND_CACHE_PAGES 16			/* size of nand cache in 512 bytes pages */
+
+/*
+ * JFFS2 partitions
+ *
+ */
+/* No command line, one static partition */
+#undef CONFIG_JFFS2_CMDLINE
+#define CONFIG_JFFS2_DEV		"nand"
+#define CONFIG_JFFS2_PART_SIZE		0x00200000
+#define CONFIG_JFFS2_PART_OFFSET	0x00000000
+
+/* mtdparts command line support
+ *
+ * Note: fake mtd_id used, no linux mtd map file
+ */
+/*
+#define CONFIG_JFFS2_CMDLINE
+#define MTDIDS_DEFAULT		"nand0=catcenter"
+#define MTDPARTS_DEFAULT	"mtdparts=catcenter:2m(nand)"
+*/
 
 #endif	/* __CONFIG_H */

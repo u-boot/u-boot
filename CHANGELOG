@@ -2,6 +2,30 @@
 Changes for U-Boot 1.1.3:
 ======================================================================
 
+* Add common (with Linux) MTD partition scheme and "mtdparts" command
+
+  Old, obsolete and duplicated code was cleaned up and replace by the
+  new partitioning method. There are two possible approaches now:
+
+  The first one is to define a single, static partition:
+
+  #undef CONFIG_JFFS2_CMDLINE
+  #define CONFIG_JFFS2_DEV               "nor0"
+  #define CONFIG_JFFS2_PART_SIZE         0xFFFFFFFF	/* use whole device */
+  #define CONFIG_JFFS2_PART_SIZE         0x00100000	/* use 1MB */
+  #define CONFIG_JFFS2_PART_OFFSET       0x00000000
+
+  The second method uses the mtdparts command line option and dynamic
+  partitioning:
+
+  /* mtdparts command line support */
+  #define CONFIG_JFFS2_CMDLINE
+  #define MTDIDS_DEFAULT         "nor1=zuma-1,nor2=zuma-2"
+  #define MTDPARTS_DEFAULT       "mtdparts=zuma-1:-(jffs2),zuma-2:-(user)"
+
+  Command line of course produces bigger images, and may be inappropriate
+  for some targets, so by default it's off.
+
 * Fix build problems for PM856 Board
 
 * Fix sign extension bug in 'fpga loadb' command;

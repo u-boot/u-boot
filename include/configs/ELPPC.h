@@ -28,8 +28,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include <asm/processor.h>
-
 #undef  DEBUG
 #define GTREGREAD(x) 0xffffffff         /* needed for debug */
 
@@ -181,8 +179,23 @@
 #define CFG_FLASH_ERASE_TOUT    120000      /* Timeout for Flash Erase (in ms) */
 #define CFG_FLASH_WRITE_TOUT    500         /* Timeout for Flash Write (in ms) */
 
-#define CFG_JFFS2_FIRST_BANK    0           /* use for JFFS2 */
-#define CFG_JFFS2_NUM_BANKS     2           /* ! second bank contains U-Boot */
+/*
+ * JFFS2 partitions
+ *
+ */
+/* No command line, one static partition, whole device */
+#undef CONFIG_JFFS2_CMDLINE
+#define CONFIG_JFFS2_DEV		"nor0"
+#define CONFIG_JFFS2_PART_SIZE		0xFFFFFFFF
+#define CONFIG_JFFS2_PART_OFFSET	0x00000000
+
+/* mtdparts command line support */
+/* Note: fake mtd_id used, no linux mtd map file */
+/*
+#define CONFIG_JFFS2_CMDLINE
+#define MTDIDS_DEFAULT		"nor0=elppc-0,nor1=elppc-1"
+#define MTDPARTS_DEFAULT	"mtdparts=elppc-0:-(jffs2),elppc-1:-(user)"
+*/
 
 #define CFG_MONITOR_BASE        CFG_FLASH_BASE
 #define CFG_MONITOR_LEN         0x40000     /* Reserve 256 kB for Monitor */

@@ -164,14 +164,42 @@
 
 #define CFG_FLASH_BASE          PHYS_FLASH_1
 
-
 /*
- * JFFS2 Partitions
+ * JFFS2 partitions
+ *
  */
-#define CFG_JFFS_CUSTOM_PART	1		/* see board/innokom/flash.c */
-#define CONFIG_MTD_INNOKOM_16MB 1		/* development flash         */
-#undef  CONFIG_MTD_INNOKOM_64MB			/* production flash          */
+/* development flash */
+#define CONFIG_MTD_INNOKOM_16MB	1
+#undef CONFIG_MTD_INNOKOM_64MB
 
+/* production flash */
+/*
+#define CONFIG_MTD_INNOKOM_64MB	1
+#undef CONFIG_MTD_INNOKOM_16MB
+*/
+
+/* No command line, one static partition, whole device */
+#undef CONFIG_JFFS2_CMDLINE
+#define CONFIG_JFFS2_DEV		"nor0"
+#define CONFIG_JFFS2_PART_SIZE		0xFFFFFFFF
+#define CONFIG_JFFS2_PART_OFFSET	0x00000000
+
+/* mtdparts command line support */
+/* Note: fake mtd_id used, no linux mtd map file */
+/*
+#define CONFIG_JFFS2_CMDLINE
+#define MTDIDS_DEFAULT		"nor0=innokom-0"
+*/
+
+/* development flash */
+/*
+#define MTDPARTS_DEFAULT	"mtdparts=innokom-0:256k(uboot),768k(kernel),8m(user),7m(data)"
+*/
+
+/* production flash */
+/*
+#define MTDPARTS_DEFAULT	"mtdparts=innokom-0:256k(uboot),768k(kernel),16256k(user1),16256k(user2),32m(data)"
+*/
 
 /*
  * GPIO settings

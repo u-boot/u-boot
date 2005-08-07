@@ -138,8 +138,22 @@
 #define CONFIG_SC520_CDP_USE_SPI  /* Store configuration in the SPI part */
 #undef CONFIG_SC520_CDP_USE_MW    /* Store configuration in the MicroWire part */
 #define CONFIG_SPI_X 1
-#define CFG_JFFS2_FIRST_BANK    0           /* use for JFFS2 */
-#define CFG_JFFS2_NUM_BANKS     1           /*  */
+
+/*
+ * JFFS2 partitions
+ */
+/* No command line, one static partition, whole device */
+#undef CONFIG_JFFS2_CMDLINE
+#define CONFIG_JFFS2_DEV		"nor0"
+#define CONFIG_JFFS2_PART_SIZE		0xFFFFFFFF
+#define CONFIG_JFFS2_PART_OFFSET	0x00000000
+
+/* mtdparts command line support */
+/*
+#define CONFIG_JFFS2_CMDLINE
+#define MTDIDS_DEFAULT		"nor0=SC520CDP Flash Bank #0"
+#define MTDPARTS_DEFAULT	"mtdparts=SC520CDP Flash Bank #0:-(jffs2)"
+*/
 
 /*-----------------------------------------------------------------------
  * Device drivers

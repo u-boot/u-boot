@@ -165,9 +165,22 @@
 #define CFG_ENV_SECT_SIZE       0x10000 /* Total Size of Environment Sector */
 #define CFG_ENV_SIZE		0x4000	/* max size for environment */
 
-/* Flash banks JFFS2 should use */
-#define CFG_JFFS2_FIRST_BANK    0
-#define CFG_JFFS2_FIRST_SECTOR	8
-#define CFG_JFFS2_NUM_BANKS     2
+/*
+ * JFFS2 partitions
+ *
+ */
+/* No command line, one static partition, whole device */
+#undef CONFIG_JFFS2_CMDLINE
+#define CONFIG_JFFS2_DEV		"nor0"
+#define CONFIG_JFFS2_PART_SIZE		0xFFFFFFFF
+#define CONFIG_JFFS2_PART_OFFSET	0x00080000
+
+/* mtdparts command line support */
+/* Note: fake mtd_id used, no linux mtd map file */
+/*
+#define CONFIG_JFFS2_CMDLINE
+#define MTDIDS_DEFAULT		"nor0=modnet50-0"
+#define MTDPARTS_DEFAULT	"mtdparts=modnet50-0:-@512k(jffs2)"
+*/
 
 #endif	/* __CONFIG_H */

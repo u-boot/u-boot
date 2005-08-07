@@ -59,9 +59,23 @@
 #define PHYS_FLASH_2			0x00000000	/* Flash Bank #2 */
 #define PHYS_FLASH_SECT_SIZE		0x00020000	/* 127 KB sectors */
 #define CFG_FLASH_BASE			PHYS_FLASH_1
-#define CFG_JFFS2_NUM_BANKS		1
-#define CFG_JFFS2_FIRST_BANK		0
-#define CFG_JFFS_CUSTOM_PART		1
+
+/*
+ * JFFS2 partitions
+ */
+/* No command line, one static partition, whole device */
+#undef CONFIG_JFFS2_CMDLINE
+#define CONFIG_JFFS2_DEV		"nor0"
+#define CONFIG_JFFS2_PART_SIZE		0xFFFFFFFF
+#define CONFIG_JFFS2_PART_OFFSET	0x00000000
+
+/* mtdparts command line support */
+/* Note: fake mtd_id used, no linux mtd map file */
+/*
+#define CONFIG_JFFS2_CMDLINE
+#define MTDIDS_DEFAULT		"nor0=xsengine-0"
+#define MTDPARTS_DEFAULT	"mtdparts=xsengine-0:256k(uboot),1m(kernel1),8m(kernel2)"
+*/
 
 /* Environment settings */
 #define CONFIG_ENV_OVERWRITE

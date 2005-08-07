@@ -154,14 +154,32 @@
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
 
-#define CFG_JFFS_CUSTOM_PART
 #define CFG_JFFS2_SORT_FRAGMENTS
-/* JFFS2 location when using NOR flash */
-#define CFG_JFFS2_BASE	(CFG_FLASH_BASE + 0x80000)
-#define CFG_JFFS2_SIZE	(0x780000)
-/* JFFS2 location (in RAM) when using NAND flash */
-#define	CFG_JFFS2_RAMBASE 0x400000
-#define	CFG_JFFS2_RAMSIZE 0x200000	/* NAND boot partition is 2MiB	*/
+
+/*
+ * JFFS2 partitions
+ *
+ */
+/* No command line, one static partition */
+#undef CONFIG_JFFS2_CMDLINE
+
+/*
+#define CONFIG_JFFS2_DEV		"nor0"
+#define CONFIG_JFFS2_PART_SIZE		0x00780000
+#define CONFIG_JFFS2_PART_OFFSET	0x00080000
+*/
+
+#define CONFIG_JFFS2_DEV		"nand0"
+#define CONFIG_JFFS2_PART_SIZE		0x00200000
+#define CONFIG_JFFS2_PART_OFFSET	0x00000000
+
+/* mtdparts command line support */
+/* Note: fake mtd_id used, no linux mtd map file */
+/*
+#define CONFIG_JFFS2_CMDLINE
+#define MTDIDS_DEFAULT		"nor0=sixnet-0,nand0=sixnet-nand"
+#define MTDPARTS_DEFAULT	"mtdparts=sixnet-0:7680k@512k();sixnet-nand:2m(jffs2-nand)"
+*/
 
 /* NAND flash support */
 #define CONFIG_MTD_NAND_ECC_JFFS2

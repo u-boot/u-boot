@@ -184,8 +184,23 @@
 #define CFG_MONITOR_BASE	CFG_FLASH_BASE
 #define CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
 
-#define CFG_JFFS2_FIRST_BANK	0	    /* use for JFFS2 */
-#define CFG_JFFS2_NUM_BANKS	1	    /* one flash only */
+/*
+ * JFFS2 partitions
+ *
+ */
+/* No command line, one static partition, whole device */
+#undef CONFIG_JFFS2_CMDLINE
+#define CONFIG_JFFS2_DEV		"nor0"
+#define CONFIG_JFFS2_PART_SIZE		0xFFFFFFFF
+#define CONFIG_JFFS2_PART_OFFSET	0x00000000
+
+/* mtdparts command line support */
+/* Note: fake mtd_id used, no linux mtd map file */
+/*
+#define CONFIG_JFFS2_CMDLINE
+#define MTDIDS_DEFAULT		"nor0=mhpc-0"
+#define MTDPARTS_DEFAULT	"mtdparts=mhpc-0:-(jffs2)"
+*/
 
 /*
  * For booting Linux, the board info and command line data

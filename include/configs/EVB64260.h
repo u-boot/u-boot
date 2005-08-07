@@ -28,8 +28,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include <asm/processor.h>
-
 #ifndef __ASSEMBLY__
 #include <galileo/core.h>
 #endif

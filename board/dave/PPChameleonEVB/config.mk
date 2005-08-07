@@ -21,4 +21,8 @@
 # MA 02111-1307 USA
 #
 
+# Reserve 256 kB for Monitor
 TEXT_BASE = 0xFFFC0000
+
+# Reserve 320 kB for Monitor
+#TEXT_BASE = 0xFFFB0000

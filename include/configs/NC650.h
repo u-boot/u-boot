@@ -400,9 +400,27 @@
 #define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
 #define CONFIG_JFFS2_NAND 1			/* jffs2 on nand support */
-#define CONFIG_JFFS2_NAND_DEV 0			/* nand device jffs2 lives on */
-#define CONFIG_JFFS2_NAND_OFF 0			/* start of jffs2 partition */
-#define CONFIG_JFFS2_NAND_SIZE 4*1024*1024	/* size of jffs2 partition */
 #define NAND_CACHE_PAGES 16			/* size of nand cache in 512 bytes pages */
+
+/*
+ * JFFS2 partitions
+ */
+
+/* No command line, one static partition */
+#undef CONFIG_JFFS2_CMDLINE
+#define CONFIG_JFFS2_DEV		"nand0"
+#define CONFIG_JFFS2_PART_SIZE		0x00400000
+#define CONFIG_JFFS2_PART_OFFSET	0x00000000
+
+/* mtdparts command line support */
+/*
+#define CONFIG_JFFS2_CMDLINE
+#define MTDIDS_DEFAULT		"nor0=nc650-0,nand0=nc650-nand"
+
+#define MTDPARTS_DEFAULT	"mtdparts=nc650-0:1m(kernel1),1m(kernel2)," \
+					"2560k(cramfs1),2560k(cramfs2)," \
+					"256k(u-boot),256k(env);" \
+				"nc650-nand:4m(nand1),28m(nand2)"
+*/
 
 #endif	/* __CONFIG_H */

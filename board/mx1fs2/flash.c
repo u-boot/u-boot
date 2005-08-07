@@ -25,10 +25,6 @@
 
 #include <common.h>
 
-#if defined CFG_JFFS_CUSTOM_PART
-#include <jffs2/jffs2.h>
-#endif
-
 #define FLASH_BANK_SIZE MX1FS2_FLASH_BANK_SIZE
 #define MAIN_SECT_SIZE  MX1FS2_FLASH_SECT_SIZE
 
@@ -69,67 +65,6 @@ static int write_word_amd(flash_info_t * info, FPWV * dest, FPW data);
 #ifdef CFG_FLASH_PROTECTION
 static void flash_sync_real_protect(flash_info_t * info);
 #endif
-
-#if defined CFG_JFFS_CUSTOM_PART
-
-/**
- * jffs2_part_info - get information about a JFFS2 partition
- *
- * @part_num: number of the partition you want to get info about
- * @return:   struct part_info* in case of success, 0 if failure
- */
-
-static struct part_info part;
-static int current_part = -1;
-
-struct part_info *
-jffs2_part_info(int part_num)
-{
-	void *jffs2_priv_saved = part.jffs2_priv;
-
-	printf("jffs2_part_info: part_num=%i\n", part_num);
-
-	if (current_part == part_num)
-		return &part;
-
-	/* rootfs                                                 */
-	if (part_num == 0) {
-		memset(&part, 0, sizeof (part));
-
-		part.offset = (char *) MX1FS2_JFFS2_PART0_START;
-		part.size = MX1FS2_JFFS2_PART0_SIZE;
-
-		/* Mark the struct as ready */
-		current_part = part_num;
-
-		printf("part.offset = 0x%08x\n", (unsigned int) part.offset);
-		printf("part.size   = 0x%08x\n", (unsigned int) part.size);
-	}
-
-	/* userfs                                    */
-	if (part_num == 1) {
-		memset(&part, 0, sizeof (part));
-
-		part.offset = (char *) MX1FS2_JFFS2_PART1_START;
-		part.size = MX1FS2_JFFS2_PART1_SIZE;
-
-		/* Mark the struct as ready */
-		current_part = part_num;
-
-		printf("part.offset = 0x%08x\n", (unsigned int) part.offset);
-		printf("part.size   = 0x%08x\n", (unsigned int) part.size);
-	}
-
-	if (current_part == part_num) {
-		part.usr_priv = &current_part;
-		part.jffs2_priv = jffs2_priv_saved;
-		return &part;
-	}
-
-	printf("jffs2_part_info: end of partition table\n");
-	return 0;
-}
-#endif				/* CFG_JFFS_CUSTOM_PART */
 
 /*-----------------------------------------------------------------------
  * flash_init()
