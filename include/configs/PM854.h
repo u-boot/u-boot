@@ -49,7 +49,7 @@
 #define CONFIG_DDR_2T_TIMING		/* Sets the 2T timing bit */
 
 #define CONFIG_DDR_ECC			/* only for ECC DDR module */
-#define CONFIG_MEM_INIT_VALUE		0xDeadBeef
+#define CONFIG_MEM_INIT_VALUE		0xDEADBEEF
 
 
 /*
