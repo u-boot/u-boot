@@ -31,6 +31,12 @@
  * available to cmd_fat.c:get_dev and filling in a block device
  * description that has all the bits needed for FAT support to
  * read sectors.
+ * 
+ * According to Xilinx technical support, before accessing the
+ * SystemACE CF you need to set the following control bits:
+ * 	FORCECFGMODE : 1
+ * 	CFGMODE : 0
+ * 	CFGSTART : 0
  */
 
 # include  <common.h>
@@ -95,7 +101,9 @@ static int get_cf_lock(void)
       int retry = 10;
 
 	/* CONTROLREG = LOCKREG */
-      ace_writew(0x0002, 0x18);
+      unsigned val=ace_readw(0x18);
+      val|=0x0002;
+      ace_writew((val&0xffff), 0x18);
 
 	/* Wait for MPULOCK in STATUSREG[15:0] */
       while (! (ace_readw(0x04) & 0x0002)) {
@@ -112,8 +120,9 @@ static int get_cf_lock(void)
 
 static void release_cf_lock(void)
 {
-	/* CONTROLREG = none */
-      ace_writew(0x0000, 0x18);
+	unsigned val=ace_readw(0x18);
+	val&=~(0x0002);
+	ace_writew((val&0xffff), 0x18);
 }
 
 block_dev_desc_t *  systemace_get_dev(int dev)
@@ -127,6 +136,9 @@ block_dev_desc_t *  systemace_get_dev(int dev)
 	    systemace_dev.blksz     = 512;
 	    systemace_dev.removable = 1;
 	    systemace_dev.block_read = systemace_read;
+
+	    init_part(&systemace_dev);
+
       }
 
       return &systemace_dev;
@@ -145,6 +157,7 @@ static unsigned long systemace_read(int dev,
       int retry;
       unsigned blk_countdown;
       unsigned char*dp = (unsigned char*)buffer;
+      unsigned val;
 
       if (get_cf_lock() < 0) {
 	    unsigned status = ace_readw(0x04);
@@ -165,7 +178,7 @@ static unsigned long systemace_read(int dev,
 
       retry = 2000;
       for (;;) {
-	    unsigned val = ace_readw(0x04);
+	    val = ace_readw(0x04);
 
 	      /* If CFDETECT is false, card is missing. */
 	    if (! (val & 0x0010)) {
@@ -212,6 +225,11 @@ static unsigned long systemace_read(int dev,
 	      /* Write sector count | ReadMemCardData. */
 	    ace_writew((trans&0xff) | 0x0300, 0x14);
 
+	    /* Reset the configruation controller */
+	    val = ace_readw(0x18);
+	    val|=0x0080;
+	    ace_writew(val, 0x18);
+
 	    retry = trans * 16;
 	    while (retry > 0) {
 		  int idx;
@@ -230,6 +248,11 @@ static unsigned long systemace_read(int dev,
 
 		  retry -= 1;
 	    }
+
+	    /* Clear the configruation controller reset */
+	    val = ace_readw(0x18);
+	    val&=~0x0080;
+	    ace_writew(val, 0x18);
 
 	      /* Count the blocks we transfer this time. */
 	    start += trans;
