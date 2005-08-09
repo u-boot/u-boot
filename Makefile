@@ -271,6 +271,9 @@ icecube_5100_config:			unconfig
 		}
 	@./mkconfig -a IceCube ppc mpc5xxx icecube
 
+o2dnt_config:
+	@./mkconfig -a o2dnt ppc mpc5xxx o2dnt
+
 inka4x0_config:		unconfig
 	@./mkconfig inka4x0 ppc mpc5xxx inka4x0
 
