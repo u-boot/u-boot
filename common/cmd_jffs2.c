@@ -1627,6 +1627,9 @@ int mtdparts_init(void)
 
 	DEBUGF("\n---mtdparts_init---\n");
 	if (!initialized) {
+		struct mtdids *id;
+		struct part_info *part;
+
 		initialized = 1;
 		current_dev = (struct mtd_device *)
 			malloc(sizeof(struct mtd_device) +
@@ -1639,8 +1642,8 @@ int mtdparts_init(void)
 		memset(current_dev, 0, sizeof(struct mtd_device) +
 					sizeof(struct part_info) + sizeof(struct mtdids));
 
-		struct mtdids *id = (struct mtdids *)(current_dev + 1);
-		struct part_info *part = (struct part_info *)(id + 1);
+		id = (struct mtdids *)(current_dev + 1);
+		part = (struct part_info *)(id + 1);
 
 		/* id */
 		id->mtd_id = "single part";
