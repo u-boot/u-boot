@@ -67,7 +67,7 @@ struct arp_entry {
 
 			/*Register addresses */
 #if defined(CONFIG_440)
-#if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
 #define ZMII_BASE			(CFG_PERIPHERAL_BASE + 0x0D00)
 #else
 #define ZMII_BASE			(CFG_PERIPHERAL_BASE + 0x0780)
@@ -81,7 +81,7 @@ struct arp_entry {
 #endif /* CONFIG_440 */
 
 #if defined(CONFIG_440)
-#if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
 #define EMAC_BASE			    (CFG_PERIPHERAL_BASE + 0x0E00)
 #else
 #define EMAC_BASE			    (CFG_PERIPHERAL_BASE + 0x0800)

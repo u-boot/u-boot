@@ -78,7 +78,7 @@
 #define	 ivor13 0x19d	/* interrupt vector offset register 13 */
 #define	 ivor14 0x19e	/* interrupt vector offset register 14 */
 #define	 ivor15 0x19f	/* interrupt vector offset register 15 */
-#if defined(CONFIG_440_GX) || defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
+#if defined(CONFIG_440GX) || defined(CONFIG_440EP) || defined(CONFIG_440GR)
 #define	 mcsrr0 0x23a	/* machine check save/restore register 0 */
 #define	 mcsrr1 0x23b	/* mahcine check save/restore register 1 */
 #define	 mcsr	0x23c	/* machine check status register */
@@ -241,7 +241,7 @@
 #define xbcfg		0x23	/* external bus configuration reg	*/
 #define xbcid		0x23	/* external bus core id reg		*/
 
-#if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
 
 /* PLB4 to PLB3 Bridge OUT */
 #define P4P3_DCR_BASE           0x020
@@ -504,7 +504,7 @@
 /*-----------------------------------------------------------------------------
  | L2 Cache
  +----------------------------------------------------------------------------*/
-#if defined (CONFIG_440_GX)
+#if defined (CONFIG_440GX)
 #define L2_CACHE_BASE	0x030
 #define l2_cache_cfg	(L2_CACHE_BASE+0x00)	/* L2 Cache Config	*/
 #define l2_cache_cmd	(L2_CACHE_BASE+0x01)	/* L2 Cache Command	*/
@@ -515,8 +515,8 @@
 #define l2_cache_snp0	(L2_CACHE_BASE+0x06)	/* L2 Cache Snoop reg 0 */
 #define l2_cache_snp1	(L2_CACHE_BASE+0x07)	/* L2 Cache Snoop reg 1 */
 
-#endif /* CONFIG_440_GX */
-#endif /* !CONFIG_440_EP !CONFIG_440_GR*/
+#endif /* CONFIG_440GX */
+#endif /* !CONFIG_440EP !CONFIG_440GR*/
 
 /*-----------------------------------------------------------------------------
  | On-Chip Buses
@@ -527,7 +527,7 @@
  | Clocking, Power Management and Chip Control
  +----------------------------------------------------------------------------*/
 #define CNTRL_DCR_BASE 0x0b0
-#if defined (CONFIG_440_GX)
+#if defined (CONFIG_440GX)
 #define cpc0_er		(CNTRL_DCR_BASE+0x00)	/* CPM enable register		*/
 #define cpc0_fr		(CNTRL_DCR_BASE+0x01)	/* CPM force register		*/
 #define cpc0_sr		(CNTRL_DCR_BASE+0x02)	/* CPM status register		*/
@@ -573,7 +573,7 @@
 #define uic1vr	(UIC1_DCR_BASE+0x7)   /* UIC1 vector			   */
 #define uic1vcr (UIC1_DCR_BASE+0x8)   /* UIC1 vector configuration	   */
 
-#if defined(CONFIG_440_GX)
+#if defined(CONFIG_440GX)
 #define UIC2_DCR_BASE 0x210
 #define uic2sr	(UIC2_DCR_BASE+0x0)   /* UIC2 status			   */
 #define uic2er	(UIC2_DCR_BASE+0x2)   /* UIC2 enable			   */
@@ -594,7 +594,7 @@
 #define uicb0msr (UIC_DCR_BASE+0x6)   /* UIC Base masked status		   */
 #define uicb0vr	 (UIC_DCR_BASE+0x7)   /* UIC Base vector		   */
 #define uicb0vcr (UIC_DCR_BASE+0x8)   /* UIC Base vector configuration	   */
-#endif /* CONFIG_440_GX */
+#endif /* CONFIG_440GX */
 
 /* The following is for compatibility with 405 code */
 #define uicsr  uic0sr
@@ -673,16 +673,16 @@
 #define maltxctp3r  (MAL_DCR_BASE+0x23) /* TX 3 Channel table pointer reg   */
 #define malrxctp0r  (MAL_DCR_BASE+0x40) /* RX 0 Channel table pointer reg   */
 #define malrxctp1r  (MAL_DCR_BASE+0x41) /* RX 1 Channel table pointer reg   */
-#if defined(CONFIG_440_GX)
+#if defined(CONFIG_440GX)
 #define malrxctp2r  (MAL_DCR_BASE+0x42) /* RX 0 Channel table pointer reg   */
 #define malrxctp3r  (MAL_DCR_BASE+0x43) /* RX 1 Channel table pointer reg   */
-#endif /* CONFIG_440_GX */
+#endif /* CONFIG_440GX */
 #define malrcbs0    (MAL_DCR_BASE+0x60) /* RX 0 Channel buffer size reg	    */
 #define malrcbs1    (MAL_DCR_BASE+0x61) /* RX 1 Channel buffer size reg	    */
-#if defined(CONFIG_440_GX)
+#if defined(CONFIG_440GX)
 #define malrcbs2    (MAL_DCR_BASE+0x62) /* RX 2 Channel buffer size reg	    */
 #define malrcbs3    (MAL_DCR_BASE+0x63) /* RX 3 Channel buffer size reg	    */
-#endif /* CONFIG_440_GX */
+#endif /* CONFIG_440GX */
 
 
 /*---------------------------------------------------------------------------+
@@ -770,7 +770,7 @@
 /*---------------------------------------------------------------------------+
 |  Universal interrupt controller 2 interrupts (UIC2)
 +---------------------------------------------------------------------------*/
-#if defined(CONFIG_440_GX)
+#if defined(CONFIG_440GX)
 #define UIC_ETH2	0x80000000	/* Ethernet 2			    */
 #define UIC_EWU2	0x40000000	/* Ethernet 2 wakeup		    */
 #define UIC_ETH3	0x20000000	/* Ethernet 3			    */
@@ -803,12 +803,12 @@
 #define UIC_RSVD29	0x00000004	/* Reserved			    */
 #define UIC_RSVD30	0x00000002	/* Reserved			    */
 #define UIC_RSVD31	0x00000001	/* Reserved			    */
-#endif	/* CONFIG_440_GX */
+#endif	/* CONFIG_440GX */
 
 /*---------------------------------------------------------------------------+
 |  Universal interrupt controller Base 0 interrupts (UICB0)
 +---------------------------------------------------------------------------*/
-#if defined(CONFIG_440_GX)
+#if defined(CONFIG_440GX)
 #define UICB0_UIC0CI	0x80000000	/* UIC0 Critical Interrupt	    */
 #define UICB0_UIC0NCI	0x40000000	/* UIC0 Noncritical Interrupt	    */
 #define UICB0_UIC1CI	0x20000000	/* UIC1 Critical Interrupt	    */
@@ -818,7 +818,7 @@
 
 #define UICB0_ALL		(UICB0_UIC0CI | UICB0_UIC0NCI | UICB0_UIC1CI | \
 						 UICB0_UIC1NCI | UICB0_UIC2CI | UICB0_UIC2NCI)
-#endif /* CONFIG_440_GX */
+#endif /* CONFIG_440GX */
 
 /*-----------------------------------------------------------------------------+
 |  External Bus Controller Bit Settings
@@ -1194,7 +1194,7 @@
 /*-----------------------------------------------------------------------------+
 |  Clocking
 +-----------------------------------------------------------------------------*/
-#if !defined (CONFIG_440_GX) && !defined(CONFIG_440_EP) && !defined(CONFIG_440_GR)
+#if !defined (CONFIG_440GX) && !defined(CONFIG_440EP) && !defined(CONFIG_440GR)
 #define PLLSYS0_TUNE_MASK	0xffc00000	/* PLL TUNE bits	    */
 #define PLLSYS0_FB_DIV_MASK	0x003c0000	/* Feedback divisor	    */
 #define PLLSYS0_FWD_DIV_A_MASK	0x00038000	/* Forward divisor A	    */
@@ -1212,7 +1212,7 @@
 #define PLL_VCO_FREQ_MAX	1000		/* Max VCO freq (MHz)	    */
 #define PLL_CPU_FREQ_MAX	400		/* Max CPU freq (MHz)	    */
 #define PLL_PLB_FREQ_MAX	133		/* Max PLB freq (MHz)	    */
-#else /* !CONFIG_440_GX or CONFIG_440_EP or CONFIG_440_GR */
+#else /* !CONFIG_440GX or CONFIG_440EP or CONFIG_440GR */
 #define PLLSYS0_ENG_MASK	0x80000000	/* 0 = SysClk, 1 = PLL VCO */
 #define PLLSYS0_SRC_MASK	0x40000000	/* 0 = PLL A, 1 = PLL B */
 #define PLLSYS0_SEL_MASK	0x38000000	/* 0 = PLL, 1 = CPU, 5 = PerClk */
@@ -1260,7 +1260,7 @@
 #define PLLSYS1_RMII_MASK	0x00000004	/* RMII Mode */
 #define PLLSYS1_TRE_MASK	0x00000002	/* GPIO Trace Enable */
 #define PLLSYS1_NTO1_MASK	0x00000001	/* CPU:PLB N-to-1 ratio */
-#endif /* CONFIG_440_GX */
+#endif /* CONFIG_440GX */
 
 /*-----------------------------------------------------------------------------
 | IIC Register Offsets
@@ -1303,7 +1303,7 @@
 #define PCIX0_CFGBASE		(CFG_PCI_BASE + 0x0ec80000)
 #define PCIX0_IOBASE		(CFG_PCI_BASE + 0x08000000)
 
-#if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
 
 /* PCI Local Configuration Registers
    --------------------------------- */
@@ -1387,12 +1387,12 @@
 
 #define PCIX0_STS		(PCIX0_CFGBASE + 0x00e0)
 
-#endif /* !defined(CONFIG_440_EP) !defined(CONFIG_440_GR) */
+#endif /* !defined(CONFIG_440EP) !defined(CONFIG_440GR) */
 
 /******************************************************************************
  * GPIO macro register defines
  ******************************************************************************/
-#if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
 #define GPIO_BASE0             (CFG_PERIPHERAL_BASE+0x00000B00)
 #define GPIO_BASE1             (CFG_PERIPHERAL_BASE+0x00000C00)
 

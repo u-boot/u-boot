@@ -165,13 +165,13 @@ int miiphy_read (unsigned char addr, unsigned char reg, unsigned short *value)
 	}
 	sta_reg = reg;		/* reg address */
 	/* set clock (50Mhz) and read flags */
-#if defined(CONFIG_440_GX)
+#if defined(CONFIG_440GX)
 	sta_reg |= EMAC_STACR_READ;
 #else
 	sta_reg = (sta_reg | EMAC_STACR_READ) & ~EMAC_STACR_CLK_100MHZ;
 #endif
 
-#if defined(CONFIG_PHY_CLK_FREQ) && !defined(CONFIG_440_GX)
+#if defined(CONFIG_PHY_CLK_FREQ) && !defined(CONFIG_440GX)
 	sta_reg = sta_reg | CONFIG_PHY_CLK_FREQ;
 #endif
 	sta_reg = sta_reg | (addr << 5);	/* Phy address */
@@ -225,13 +225,13 @@ int miiphy_write (unsigned char addr, unsigned char reg, unsigned short value)
 	sta_reg = 0;
 	sta_reg = reg;		/* reg address */
 	/* set clock (50Mhz) and read flags */
-#if defined(CONFIG_440_GX)
+#if defined(CONFIG_440GX)
 	sta_reg |= EMAC_STACR_WRITE;
 #else
 	sta_reg = (sta_reg | EMAC_STACR_WRITE) & ~EMAC_STACR_CLK_100MHZ;
 #endif
 
-#if defined(CONFIG_PHY_CLK_FREQ) && !defined(CONFIG_440_GX)
+#if defined(CONFIG_PHY_CLK_FREQ) && !defined(CONFIG_440GX)
 	sta_reg = sta_reg | CONFIG_PHY_CLK_FREQ;	/* Set clock frequency (PLB freq. dependend) */
 #endif
 	sta_reg = sta_reg | ((unsigned long) addr << 5);	/* Phy address */

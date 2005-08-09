@@ -734,7 +734,7 @@ long int spd_sdram(void) {
 	 */
 	check_volt_type(dimm_populated, iic0_dimm_addr, num_dimm_banks);
 
-#if defined(CONFIG_440_GX)
+#if defined(CONFIG_440GX)
 	/*
 	 * Soft-reset SDRAM controller.
 	 */

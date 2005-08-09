@@ -178,7 +178,7 @@ int checkcpu (void)
 	case PVR_440GX_RC:
 		puts("GX Rev. C");
 		break;
-#if defined(CONFIG_440_GR)
+#if defined(CONFIG_440GR)
 	case PVR_440EP_RA:
 		puts("GR Rev. A");
 		break;

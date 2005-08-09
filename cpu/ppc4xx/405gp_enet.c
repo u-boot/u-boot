@@ -227,7 +227,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	while (mfdcr (malmcr) & MAL_CR_MMSR) {
 	};
 
-#if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
 	out32 (ZMII_FER, 0);
 	udelay(100);
 	/* set RII mode */
@@ -464,7 +464,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 		out32(ZMII_SSR, in32(ZMII_SSR) | 0x10000000);
 	else
 		out32(ZMII_SSR, in32(ZMII_SSR) & ~0x10000000);
-#if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
 	mfsdr(sdr_mfr, reg);
 	/* set speed */
 	if (speed == _100BASET) {

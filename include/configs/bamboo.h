@@ -31,7 +31,7 @@
  * High Level Configuration Options
  *----------------------------------------------------------------------*/
 #define CONFIG_BAMBOO		1	/* Board is BAMBOO              */
-#define CONFIG_440_EP		1	/* Specific PPC440EP support    */
+#define CONFIG_440EP		1	/* Specific PPC440EP support    */
 
 #define CONFIG_4xx		1	/* ... PPC4xx family	        */
 #define CONFIG_BOARD_EARLY_INIT_F 	1   /* Call board_early_init_f	*/
@@ -219,14 +219,14 @@
 #define CONFIG_DOS_PARTITION
 #define CONFIG_ISO_PARTITION
 
-#ifdef CONFIG_440_EP
+#ifdef CONFIG_440EP
 /* USB */
 #define CONFIG_USB_OHCI
 #define CONFIG_USB_STORAGE
 
 /*Comment this out to enable USB 1.1 device*/
 #define USB_2_0_DEVICE
-#endif /*CONFIG_440_EP*/
+#endif /*CONFIG_440EP*/
 
 #define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
 				CFG_CMD_ASKENV	| \
