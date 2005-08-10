@@ -287,6 +287,8 @@
 #define CFG_IDE_MAXBUS		1	/* max. 1 IDE bus		*/
 #define CFG_IDE_MAXDEVICE	2	/* max. 2 drives per IDE bus	*/
 
+#define CONFIG_IDE_PREINIT	1
+
 #define CFG_ATA_IDE0_OFFSET	0x0000
 
 #define CFG_ATA_BASE_ADDR	MPC5XXX_ATA
