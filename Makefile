@@ -354,6 +354,11 @@ MiniFAP_config:	unconfig
 		}
 	@./mkconfig -a TQM5200 ppc mpc5xxx tqm5200
 
+spieval_config:	unconfig
+	echo "#define CONFIG_CS_AUTOCONF">>include/config.h
+	echo "... with automatic CS configuration"
+	@./mkconfig -a spieval ppc mpc5xxx tqm5200
+
 #########################################################################
 ## MPC8xx Systems
 #########################################################################
