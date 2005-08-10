@@ -534,7 +534,7 @@ int do_protect (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 		return rcode;
 	}
-	
+
 #if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
 	/* protect on/off <part-id> */
 	if ((argc == 3) && (id_parse(argv[2], NULL, &dev_type, &dev_num) == 0)) {

@@ -359,6 +359,9 @@ spieval_config:	unconfig
 	echo "... with automatic CS configuration"
 	@./mkconfig -a spieval ppc mpc5xxx tqm5200
 
+aev_config: unconfig
+	@./mkconfig -a aev ppc mpc5xxx tqm5200
+
 #########################################################################
 ## MPC8xx Systems
 #########################################################################
