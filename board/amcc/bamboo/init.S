@@ -86,14 +86,20 @@
 
 tlbtab:
     tlbtab_start
-	/*
-		0xf0000000 must be first, before relocation SA_I must be off to use the
-	    dcache as stack. It is patched after relocation to enable SA_I
-	*/
-    tlbentry( 0xf0000000, SZ_256M, 0xf0000000, 0, AC_R|AC_W|AC_X|SA_G/*|SA_I*/)
-    tlbentry( CFG_SDRAM_BASE, SZ_256M, 0x00000000, 0, AC_R|AC_W|AC_X|SA_G|SA_I )
-    tlbentry( CFG_PCI_BASE, SZ_256M, 0xE0000000, 0, AC_R|AC_W|SA_G|SA_I )
-    tlbentry( CFG_NVRAM_BASE_ADDR, SZ_256M, 0x80000000, 0, AC_R|AC_W|AC_X|SA_W|SA_I )
+
+    /*
+     * BOOT_CS (FLASH) must be first. Before relocation SA_I can be off to use the
+     * speed up boot process. It is patched after relocation to enable SA_I
+     */
+    tlbentry( CFG_BOOT_BASE_ADDR, SZ_256M, CFG_BOOT_BASE_ADDR, 0, AC_R|AC_W|AC_X|SA_G/*|SA_I*/)
+
+    /* TLB-entry for init-ram in dcache (SA_I must be turned off!) */
+    tlbentry( CFG_INIT_RAM_ADDR, SZ_64K, CFG_INIT_RAM_ADDR, 0, AC_R|AC_W|AC_X|SA_G )
+
+    tlbentry( CFG_SDRAM_BASE, SZ_256M, CFG_SDRAM_BASE, 0, AC_R|AC_W|AC_X|SA_G|SA_I )
+    tlbentry( CFG_PCI_BASE, SZ_256M, CFG_PCI_BASE, 0, AC_R|AC_W|SA_G|SA_I )
+    tlbentry( CFG_NVRAM_BASE_ADDR, SZ_256M, CFG_NVRAM_BASE_ADDR, 0, AC_R|AC_W|AC_X|SA_W|SA_I )
+    tlbentry( CFG_NAND_ADDR, SZ_256M, CFG_NAND_ADDR, 0, AC_R|AC_W|AC_X|SA_W|SA_I )
 
     /* PCI */
     tlbentry( CFG_PCI_MEMBASE, SZ_256M, CFG_PCI_MEMBASE, 0, AC_R|AC_W|SA_G|SA_I )
@@ -102,6 +108,6 @@ tlbtab:
     tlbentry( CFG_PCI_MEMBASE3, SZ_256M, CFG_PCI_MEMBASE3, 0, AC_R|AC_W|SA_G|SA_I )
 
     /* USB 2.0 Device */
-    tlbentry( CFG_USB_DEVICE, SZ_1K, 0x50000000, 0, AC_R|AC_W|SA_G|SA_I )
+    tlbentry( CFG_USB_DEVICE, SZ_1K, CFG_USB_DEVICE, 0, AC_R|AC_W|SA_G|SA_I )
 
     tlbtab_end
