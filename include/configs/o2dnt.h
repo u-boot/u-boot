@@ -169,9 +169,8 @@
 
 #define CFG_FLASH_ERASE_TOUT	240000	/* Flash Erase Timeout (in ms)  */
 #define CFG_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (in ms)  */
-
-#undef CONFIG_FLASH_16BIT	/* Flash is 8-bit */
-
+#define CFG_FLASH_UNLOCK_TOUT	10000	/* Timeout for Flash Clear Lock Bits (in ms) */
+#define CFG_FLASH_PROTECTION		/* "Real" (hardware) sectors protection */
 
 /*
  * Environment settings

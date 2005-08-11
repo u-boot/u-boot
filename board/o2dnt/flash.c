@@ -2,6 +2,10 @@
  * (C) Copyright 2005
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
+ * flash_real_protect() routine based on boards/alaska/flash.c
+ * (C) Copyright 2001
+ * Kyle Harris, Nexus Technologies, Inc. kharris@nexus-tech.net
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -23,28 +27,35 @@
 
 #include <common.h>
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
+/* Intel-compatible flash commands */
+#define INTEL_ERASE	0x20
+#define INTEL_PROGRAM	0x40
+#define INTEL_CLEAR	0x50
+#define INTEL_LOCKBIT	0x60
+#define INTEL_PROTECT	0x01
+#define INTEL_STATUS	0x70
+#define INTEL_READID	0x90
+#define INTEL_READID	0x90
+#define INTEL_SUSPEND	0xB0
+#define INTEL_CONFIRM	0xD0
+#define INTEL_RESET	0xFF
 
-/* NOTE - CONFIG_FLASH_16BIT means the CPU interface is 16-bit, it
- *        has nothing to do with the flash chip being 8-bit or 16-bit.
- */
-#ifdef CONFIG_FLASH_16BIT
-typedef unsigned short FLASH_PORT_WIDTH;
-typedef volatile unsigned short FLASH_PORT_WIDTHV;
-#define	FLASH_ID_MASK	0xFFFF
-#else
+/* Intel-compatible flash status bits */
+#define INTEL_FINISHED	0x80
+#define INTEL_OK	0x80
+
 typedef unsigned char FLASH_PORT_WIDTH;
 typedef volatile unsigned char FLASH_PORT_WIDTHV;
+#define FPW		FLASH_PORT_WIDTH
+#define FPWV		FLASH_PORT_WIDTHV
 #define	FLASH_ID_MASK	0xFF
-#endif
-
-#define FPW	FLASH_PORT_WIDTH
-#define FPWV	FLASH_PORT_WIDTHV
 
 #define ORMASK(size) ((-size) & OR_AM_MSK)
 
 #define FLASH_CYCLE1	0x0555
 #define FLASH_CYCLE2	0x02aa
+
+flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
 
 /*-----------------------------------------------------------------------
  * Functions
@@ -53,6 +64,8 @@ static ulong flash_get_size(FPWV *addr, flash_info_t *info);
 static void flash_reset(flash_info_t *info);
 static flash_info_t *flash_get_info(ulong base);
 static int write_data (flash_info_t *info, FPWV *dest, FPW data); /* O2D */
+static void flash_sync_real_protect (flash_info_t * info);
+static unsigned char intel_sector_protected (flash_info_t *info, ushort sector);
 
 /*-----------------------------------------------------------------------
  * flash_init()
@@ -78,6 +91,9 @@ unsigned long flash_init (void)
 	flash_info[0].size =
 		flash_get_size((FPW *)CFG_FLASH_BASE, &flash_info[0]);
 	size += flash_info[0].size;
+
+	/* get the h/w and s/w protection status in sync */
+	flash_sync_real_protect(&flash_info[0]);
 
 #if CFG_MONITOR_BASE >= CFG_FLASH_BASE
 	/* monitor protection ON by default */
@@ -108,7 +124,7 @@ static void flash_reset(flash_info_t *info)
 
 	/* Put FLASH back in read mode */
 	if ((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_INTEL)
-		*base = (FPW)0x00FF00FF;	/* Intel Read Mode */
+		*base = (FPW) INTEL_RESET;	/* Intel Read Mode */
 }
 
 /*-----------------------------------------------------------------------
@@ -204,7 +220,7 @@ ulong flash_get_size (FPWV *addr, flash_info_t *info)
 
 	/* Write auto select command: read Manufacturer ID */
 	/* Write auto select command sequence and test FLASH answer */
-	addr[FLASH_CYCLE1] = (FPW)0x00900090;	/* selects Intel or AMD */
+	addr[FLASH_CYCLE1] = (FPW) INTEL_READID;	/* selects Intel or AMD */
 
 	/* The manufacturer codes are only 1 byte, so just use 1 byte.
 	 * This works for any bus width and any FLASH device width.
@@ -298,9 +314,9 @@ int flash_erase (flash_info_t *info, int s_first, int s_last)
 		flag = disable_interrupts();
 
 		addr = (FPWV *)(info->start[sect]);
-		*addr = (FPW)0x00500050; /* clear status register */
-		*addr = (FPW)0x00200020; /* erase setup */
-		*addr = (FPW)0x00D000D0; /* erase confirm */
+		*addr = (FPW) INTEL_CLEAR; /* clear status register */
+		*addr = (FPW) INTEL_ERASE; /* erase setup */
+		*addr = (FPW) INTEL_CONFIRM; /* erase confirm */
 
 		/* re-enable interrupts if necessary */
 		if (flag)
@@ -311,10 +327,10 @@ int flash_erase (flash_info_t *info, int s_first, int s_last)
 		/* wait at least 80us for Intel - let's wait 1 ms */
 		udelay (1000);
 
-		while ((*addr & (FPW)0x00800080) != (FPW)0x00800080) {
+		while ((*addr & (FPW) INTEL_FINISHED) != (FPW) INTEL_FINISHED) {
 			if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
 				printf ("Timeout\n");
-				*addr = (FPW)0x00B000B0;/* suspend erase */
+				*addr = (FPW) INTEL_SUSPEND;/* suspend erase */
 				flash_reset(info);	/* reset to read mode */
 				rcode = 1;		/* failed */
 				break;
@@ -401,23 +417,172 @@ static int write_data (flash_info_t *info, FPWV *dest, FPW data)
 	/* Disable interrupts which might cause a timeout here */
 	flag = disable_interrupts ();
 
-	*addr = (FPW) 0x00400040;	/* write setup */
+	*addr = (FPW) INTEL_PROGRAM;	/* write setup */
 	*addr = data;
 
 	/* arm simple, non interrupt dependent timer */
 	start = get_timer(0);
 
 	/* wait while polling the status register */
-	while (((status = *addr) & (FPW) 0x00800080) != (FPW) 0x00800080) {
+	while (((status = *addr) & (FPW) INTEL_FINISHED) != (FPW) INTEL_FINISHED) {
 		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
-			*addr = (FPW) 0x00FF00FF;	/* restore read mode */
+			*addr = (FPW) INTEL_RESET;	/* restore read mode */
 			return (1);
 		}
 	}
 
-	*addr = (FPW) 0x00FF00FF;	/* restore read mode */
+	*addr = (FPW) INTEL_RESET;	/* restore read mode */
 	if (flag)
 		enable_interrupts();
 
 	return (0);
 }
+
+
+/*-----------------------------------------------------------------------
+ * Set/Clear sector's lock bit, returns:
+ * 0 - OK
+ * 1 - Error (timeout, voltage problems, etc.)
+ */
+int flash_real_protect (flash_info_t * info, long sector, int prot)
+{
+	ulong start;
+	int i;
+	int rc = 0;
+	FPWV *addr = (FPWV *) (info->start[sector]);
+	int flag = disable_interrupts ();
+
+	*addr = INTEL_CLEAR;	/* Clear status register    */
+	if (prot) {		/* Set sector lock bit      */
+		*addr = INTEL_LOCKBIT;	/* Sector lock bit          */
+		*addr = INTEL_PROTECT;	/* set                      */
+	} else {		/* Clear sector lock bit    */
+		*addr = INTEL_LOCKBIT;	/* All sectors lock bits    */
+		*addr = INTEL_CONFIRM;	/* clear                    */
+	}
+
+	start = get_timer (0);
+
+	while ((*addr & INTEL_FINISHED) != INTEL_FINISHED) {
+		if (get_timer (start) > CFG_FLASH_UNLOCK_TOUT) {
+			printf ("Flash lock bit operation timed out\n");
+			rc = 1;
+			break;
+		}
+	}
+
+	if (*addr != INTEL_OK) {
+		printf ("Flash lock bit operation failed at %08X, CSR=%08X\n",
+			(uint) addr, (uint) * addr);
+		rc = 1;
+	}
+
+	if (!rc)
+		info->protect[sector] = prot;
+
+	/*
+	 * Clear lock bit command clears all sectors lock bits, so
+	 * we have to restore lock bits of protected sectors.
+	 */
+	if (!prot) {
+		for (i = 0; i < info->sector_count; i++) {
+			if (info->protect[i]) {
+				start = get_timer (0);
+				addr = (FPWV *) (info->start[i]);
+				*addr = INTEL_LOCKBIT;	/* Sector lock bit  */
+				*addr = INTEL_PROTECT;	/* set              */
+				while ((*addr & INTEL_FINISHED) !=
+				       INTEL_FINISHED) {
+					if (get_timer (start) >
+					    CFG_FLASH_UNLOCK_TOUT) {
+						printf ("Flash lock bit operation timed out\n");
+						rc = 1;
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	if (flag)
+		enable_interrupts ();
+
+	*addr = INTEL_RESET;	/* Reset to read array mode */
+
+	return rc;
+}
+
+
+/*
+ * This function gets the u-boot flash sector protection status
+ * (flash_info_t.protect[]) in sync with the sector protection
+ * status stored in hardware.
+ */
+static void flash_sync_real_protect (flash_info_t * info)
+{
+	int i;
+	switch (info->flash_id & FLASH_TYPEMASK) {
+	case FLASH_28F128J3A:
+		for (i = 0; i < info->sector_count; ++i) {
+			info->protect[i] = intel_sector_protected(info, i);
+		}
+		break;
+	default:
+		/* no h/w protect support */
+		break;
+	}
+}
+
+
+/*
+ * checks if "sector" in bank "info" is protected. Should work on intel
+ * strata flash chips 28FxxxJ3x in 8-bit mode.
+ * Returns 1 if sector is protected (or timed-out while trying to read
+ * protection status), 0 if it is not.
+ */
+static unsigned char intel_sector_protected (flash_info_t *info, ushort sector)
+{
+	FPWV *addr;
+	FPWV *lock_conf_addr;
+	ulong start;
+	unsigned char ret;
+
+	/*
+	 * first, wait for the WSM to be finished. The rationale for
+	 * waiting for the WSM to become idle for at most
+	 * CFG_FLASH_ERASE_TOUT is as follows. The WSM can be busy
+	 * because of: (1) erase, (2) program or (3) lock bit
+	 * configuration. So we just wait for the longest timeout of
+	 * the (1)-(3), i.e. the erase timeout.
+	 */
+
+	/* wait at least 35ns (W12) before issuing Read Status Register */
+	udelay(1);
+	addr = (FPWV *) info->start[sector];
+	*addr = (FPW) INTEL_STATUS;
+
+	start = get_timer (0);
+	while ((*addr & (FPW) INTEL_FINISHED) != (FPW) INTEL_FINISHED) {
+		if (get_timer (start) > CFG_FLASH_ERASE_TOUT) {
+			*addr = (FPW) INTEL_RESET; /* restore read mode */
+			printf("WSM busy too long, can't get prot status\n");
+			return 1;
+		}
+	}
+
+	/* issue the Read Identifier Codes command */
+	*addr = (FPW) INTEL_READID;
+
+	/* wait at least 35ns (W12) before reading */
+	udelay(1);
+
+	/* Intel example code uses offset of 4 for 8-bit flash */
+	lock_conf_addr = (FPWV *) info->start[sector] + 4;
+	ret = (*lock_conf_addr & (FPW) INTEL_PROTECT) ? 1 : 0;
+
+	/* put flash back in read mode */
+	*addr = (FPW) INTEL_RESET;
+
+	return ret;
+}
+
