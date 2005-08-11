@@ -50,15 +50,16 @@ flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips        */
 /*
  * Mark big flash bank (16 bit instead of 8 bit access) in address with bit 0
  */
-static unsigned long flash_addr_table[8][CFG_MAX_FLASH_BANKS] = {
+static unsigned long flash_addr_table[][CFG_MAX_FLASH_BANKS] = {
 	{0x87800001, 0xFFF00000, 0xFFF80000}, /* 0:boot from small flash */
 	{0x00000000, 0x00000000, 0x00000000}, /* 1:boot from pci 66      */
 	{0x00000000, 0x00000000, 0x00000000}, /* 2:boot from nand flash  */
-	{0x87800000, 0x87880000, 0xFF800001}, /* 3:boot from big flash 33*/
-	{0x87800000, 0x87880000, 0xFF800001}, /* 4:boot from big flash 66*/
+	{0x87F00000, 0x87F80000, 0xFFC00001}, /* 3:boot from big flash 33*/
+	{0x87F00000, 0x87F80000, 0xFFC00001}, /* 4:boot from big flash 66*/
 	{0x00000000, 0x00000000, 0x00000000}, /* 5:boot from             */
 	{0x00000000, 0x00000000, 0x00000000}, /* 6:boot from pci 66      */
 	{0x00000000, 0x00000000, 0x00000000}, /* 7:boot from             */
+	{0x87C00001, 0xFFF00000, 0xFFF80000}, /* 0:boot from small flash */
 };
 
 /*
@@ -116,6 +117,10 @@ unsigned long flash_init(void)
 		case SDR0_SDSTP1_BOOT_SEL_NDFC:
 			index = 2;
 			break;
+		}
+	} else if (index == 0) {
+		if (in8(FPGA_SETTING_REG) & FPGA_SET_REG_OP_CODE_FLASH_ABOVE) {
+			index = 8; /* sram below op code flash -> new index 8 */
 		}
 	}
 

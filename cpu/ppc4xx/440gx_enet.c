@@ -375,8 +375,8 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 		out32 (RGMII_FER, ((RGMII_FER_RGMII << RGMII_FER_V (2)) |
 				   (RGMII_FER_RGMII << RGMII_FER_V (3))));
 	}
-
 #endif
+
 	out32 (ZMII_SSR, ZMII_SSR_SP << ZMII_SSR_V(devnum));
 	__asm__ volatile ("eieio");
 
@@ -521,13 +521,13 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 	}
 	mtsdr(sdr_mfr, reg);
 #endif
+
 	/* Set ZMII/RGMII speed according to the phy link speed */
 	reg = in32 (ZMII_SSR);
 	if ( (speed == 100) || (speed == 1000) )
 		out32 (ZMII_SSR, reg | (ZMII_SSR_SP << ZMII_SSR_V (devnum)));
 	else
-		out32 (ZMII_SSR,
-		       reg & (~(ZMII_SSR_SP << ZMII_SSR_V (devnum))));
+		out32 (ZMII_SSR, reg & (~(ZMII_SSR_SP << ZMII_SSR_V (devnum))));
 
 	if ((devnum == 2) || (devnum == 3)) {
 		if (speed == 1000)
@@ -672,7 +672,7 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 		/* set RX buffer size */
 		mtdcr (malrcbs3, ENET_MAX_MTU_ALIGNED / 16);
 		break;
-#endif /*CONFIG_440GX */
+#endif /* CONFIG_440GX */
 	case 0:
 	default:
 		/* setup MAL tx & rx channel pointers */
