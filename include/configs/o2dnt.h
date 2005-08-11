@@ -150,12 +150,23 @@
 #define CFG_I2C_SLAVE		0x7F
 
 /*
- * EEPROM configuration
+ * EEPROM configuration:
+ *
+ * O2DNT board is equiped with Ramtron FRAM device FM24CL16
+ * 16 Kib Ferroelectric Nonvolatile serial RAM memory
+ * organized as 2048 x 8 bits and addressable as eight I2C devices
+ * 0x50 ... 0x57 each 256 bytes in size
+ *
  */
 #define CFG_I2C_EEPROM_ADDR		0x50	/* 1010000x */
 #define CFG_I2C_EEPROM_ADDR_LEN		1
 #define CFG_EEPROM_PAGE_WRITE_BITS	3
-#define CFG_EEPROM_PAGE_WRITE_DELAY_MS	70
+/*
+ * There is no write delay with FRAM, write operations are performed at bus
+ * speed. Thus, no status polling or write delay is needed.
+ */
+/*#define CFG_EEPROM_PAGE_WRITE_DELAY_MS	70*/
+
 
 /*
  * Flash configuration
