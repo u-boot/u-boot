@@ -20,8 +20,11 @@
  */
 
 #include <common.h>
+#include <ppc4xx.h>
 #include <asm/processor.h>
 #include <spd_sdram.h>
+
+extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
 int board_early_init_f(void)
 {
@@ -35,7 +38,7 @@ int board_early_init_f(void)
 	mtdcr(ebccfgd, reg | 0x04000000);	/* Set ATC */
 
 	mtebc(pb0ap, 0x03017300);	/* FLASH/SRAM */
-	mtebc(pb0cr, 0xfe0ba000);	/* BAS=0xfe0 32MB r/w 16-bit */
+	mtebc(pb0cr, 0xfc0da000);	/* BAS=0xfc0 64MB r/w 16-bit */
 
 	mtebc(pb1ap, 0x00000000);
 	mtebc(pb1cr, 0x00000000);
@@ -122,6 +125,54 @@ int board_early_init_f(void)
 	return 0;
 }
 
+int misc_init_r (void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+	uint pbcr;
+	int size_val = 0;
+
+	/* Re-do sizing to get full correct info */
+	mtdcr(ebccfga, pb0cr);
+	pbcr = mfdcr(ebccfgd);
+	switch (gd->bd->bi_flashsize) {
+	case 1 << 20:
+		size_val = 0;
+		break;
+	case 2 << 20:
+		size_val = 1;
+		break;
+	case 4 << 20:
+		size_val = 2;
+		break;
+	case 8 << 20:
+		size_val = 3;
+		break;
+	case 16 << 20:
+		size_val = 4;
+		break;
+	case 32 << 20:
+		size_val = 5;
+		break;
+	case 64 << 20:
+		size_val = 6;
+		break;
+	case 128 << 20:
+		size_val = 7;
+		break;
+	}
+	pbcr = (pbcr & 0x0001ffff) | gd->bd->bi_flashstart | (size_val << 17);
+	mtdcr(ebccfga, pb0cr);
+	mtdcr(ebccfgd, pbcr);
+
+	/* Monitor protection ON by default */
+	(void)flash_protect(FLAG_PROTECT_SET,
+			    -CFG_MONITOR_LEN,
+			    0xffffffff,
+			    &flash_info[0]);
+
+	return 0;
+}
+
 int checkboard(void)
 {
 	sys_info_t sysinfo;
@@ -135,6 +186,8 @@ int checkboard(void)
 	printf("\tOPB: %lu MHz\n", sysinfo.freqOPB / 1000000);
 	printf("\tPER: %lu MHz\n", sysinfo.freqEPB / 1000000);
 	printf("\tPCI: %lu MHz\n", sysinfo.freqPCI / 1000000);
+
+
 	return (0);
 }
 
