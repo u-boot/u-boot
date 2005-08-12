@@ -31,11 +31,18 @@
  * High Level Configuration Options
  *----------------------------------------------------------------------*/
 #define CONFIG_BAMBOO		1	/* Board is BAMBOO              */
-#define CONFIG_440_EP		1	/* Specific PPC440EP support    */
-
+#define CONFIG_440EP		1	/* Specific PPC440EP support    */
 #define CONFIG_4xx		1	/* ... PPC4xx family	        */
-#define CONFIG_BOARD_EARLY_INIT_F 	1   /* Call board_early_init_f	*/
 #define CONFIG_SYS_CLK_FREQ	33333333    /* external freq to pll	*/
+
+#define CONFIG_BOARD_EARLY_INIT_F 1     /* Call board_early_init_f	*/
+
+/*
+ * Please note that, if NAND support is enabled, the 2nd ethernet port
+ * can't be used because of pin multiplexing. So, if you want to use the
+ * 2nd ethernet port you have to "undef" the following define.
+ */
+#define CONFIG_BAMBOO_NAND      1       /* enable nand flash support    */
 
 /*-----------------------------------------------------------------------
  * Base addresses -- Note these are effective addresses where the
@@ -58,13 +65,15 @@
 
 #define CFG_USB_DEVICE          0x50000000
 #define CFG_NVRAM_BASE_ADDR     0x80000000
-#define CFG_BCSR_BASE	        (CFG_NVRAM_BASE_ADDR | 0x2000)
+#define CFG_BOOT_BASE_ADDR      0xf0000000
+#define CFG_NAND_ADDR           0x90000000
+#define CFG_NAND2_ADDR          0x94000000
 
 /*-----------------------------------------------------------------------
  * Initial RAM & stack pointer (placed in SDRAM)
  *----------------------------------------------------------------------*/
-#define CFG_INIT_RAM_ADDR	0xf0000000		/* DCache       */
-#define CFG_INIT_RAM_END	0x1000
+#define CFG_INIT_RAM_ADDR	0x70000000		/* DCache       */
+#define CFG_INIT_RAM_END	(8 << 10)
 #define CFG_GBL_DATA_SIZE	256		    	/* num bytes initial data	*/
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
@@ -88,7 +97,7 @@
  * The DS1558 code assumes this condition
  *
  *----------------------------------------------------------------------*/
-#define CFG_NVRAM_SIZE	    (0x2000 - 0x10) /* NVRAM size(8k)- RTC regs */
+#define CFG_NVRAM_SIZE	        (0x2000 - 0x10) /* NVRAM size(8k)- RTC regs     */
 #define CONFIG_RTC_DS1556	1		         /* DS1556 RTC		*/
 
 /*-----------------------------------------------------------------------
@@ -118,20 +127,79 @@
 #define CFG_FLASH_ADDR1         0x2aa
 #define CFG_FLASH_WORD_SIZE     unsigned char
 
-#define CFG_FLASH_2ND_16BIT_DEV 1         /* bamboo has 8 and 16bit device     */
-#define CFG_FLASH_2ND_ADDR      0x87800000  /* bamboo has 8 and 16bit device     */
+#define CFG_FLASH_2ND_16BIT_DEV 1         /* bamboo has 8 and 16bit device      */
+#define CFG_FLASH_2ND_ADDR      0x87800000  /* bamboo has 8 and 16bit device    */
 
 #ifdef CFG_ENV_IS_IN_FLASH
 #define CFG_ENV_SECT_SIZE	0x10000 	/* size of one complete sector	*/
 #define CFG_ENV_ADDR		(CFG_MONITOR_BASE-CFG_ENV_SECT_SIZE)
-#define	CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
+#define	CFG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/
 
-#if 0 /* test-only */
 /* Address and size of Redundant Environment Sector	*/
 #define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR-CFG_ENV_SECT_SIZE)
 #define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
-#endif
 #endif /* CFG_ENV_IS_IN_FLASH */
+
+/*-----------------------------------------------------------------------
+ * NAND-FLASH related
+ *----------------------------------------------------------------------*/
+#define NAND_CMD_REG   (0x00) /* NandFlash Command Register */
+#define NAND_ADDR_REG  (0x04) /* NandFlash Address Register */
+#define NAND_DATA_REG  (0x08) /* NandFlash Data Register */
+#define NAND_ECC0_REG  (0x10) /* NandFlash ECC Register0 */
+#define NAND_ECC1_REG  (0x14) /* NandFlash ECC Register1 */
+#define NAND_ECC2_REG  (0x18) /* NandFlash ECC Register2 */
+#define NAND_ECC3_REG  (0x1C) /* NandFlash ECC Register3 */
+#define NAND_ECC4_REG  (0x20) /* NandFlash ECC Register4 */
+#define NAND_ECC5_REG  (0x24) /* NandFlash ECC Register5 */
+#define NAND_ECC6_REG  (0x28) /* NandFlash ECC Register6 */
+#define NAND_ECC7_REG  (0x2C) /* NandFlash ECC Register7 */
+#define NAND_CR0_REG   (0x30) /* NandFlash Device Bank0 Config Register */
+#define NAND_CR1_REG   (0x34) /* NandFlash Device Bank1 Config Register */
+#define NAND_CR2_REG   (0x38) /* NandFlash Device Bank2 Config Register */
+#define NAND_CR3_REG   (0x3C) /* NandFlash Device Bank3 Config Register */
+#define NAND_CCR_REG   (0x40) /* NandFlash Core Configuration Register */
+#define NAND_STAT_REG  (0x44) /* NandFlash Device Status Register */
+#define NAND_HWCTL_REG (0x48) /* NandFlash Direct Hwd Control Register */
+#define NAND_REVID_REG (0x50) /* NandFlash Core Revision Id Register */
+
+/* Nand Flash K9F1208U0A Command Set => Nand Flash 0 */
+#define NAND0_CMD_READ1_HALF1     0x00     /* Starting addr for 1rst half of registers */
+#define NAND0_CMD_READ1_HALF2     0x01     /* Starting addr for 2nd half of registers */
+#define NAND0_CMD_READ2           0x50
+#define NAND0_CMD_READ_ID         0x90
+#define NAND0_CMD_READ_STATUS     0x70
+#define NAND0_CMD_RESET           0xFF
+#define NAND0_CMD_PAGE_PROG       0x80
+#define NAND0_CMD_PAGE_PROG_TRUE  0x10
+#define NAND0_CMD_PAGE_PROG_DUMMY 0x11
+#define NAND0_CMD_BLOCK_ERASE     0x60
+#define NAND0_CMD_BLOCK_ERASE_END 0xD0
+
+#define CFG_MAX_NAND_DEVICE     1	/* Max number of NAND devices */
+#define SECTORSIZE              512
+
+#define ADDR_COLUMN             1
+#define ADDR_PAGE               2
+#define ADDR_COLUMN_PAGE        3
+
+#define NAND_ChipID_UNKNOWN     0x00
+#define NAND_MAX_FLOORS         1
+#define NAND_MAX_CHIPS          1
+
+#define WRITE_NAND_COMMAND(d, adr) do {*(volatile u8 *)((ulong)adr+NAND_CMD_REG) = d;} while(0)
+#define WRITE_NAND_ADDRESS(d, adr) do {*(volatile u8 *)((ulong)adr+NAND_ADDR_REG) = d;} while(0)
+#define WRITE_NAND(d, adr)      do {*(volatile u8 *)((ulong)adr+NAND_DATA_REG) = d;} while(0)
+#define READ_NAND(adr)          (*(volatile u8 *)((ulong)adr+NAND_DATA_REG))
+#define NAND_WAIT_READY(nand)   while (!(*(volatile u8 *)((ulong)nand->IO_ADDR+NAND_STAT_REG) & 0x01))
+
+/* not needed with 440EP NAND controller */
+#define NAND_CTL_CLRALE(nandptr)
+#define NAND_CTL_SETALE(nandptr)
+#define NAND_CTL_CLRCLE(nandptr)
+#define NAND_CTL_SETCLE(nandptr)
+#define NAND_DISABLE_CE(nand)
+#define NAND_ENABLE_CE(nand)
 
 /*-----------------------------------------------------------------------
  * DDR SDRAM
@@ -206,10 +274,14 @@
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
 #define CONFIG_MII		1	/* MII PHY management		*/
-#define CONFIG_NET_MULTI        1       /* required for netconsole      */
 #define CONFIG_PHY_ADDR		0	/* PHY address, See schematics	*/
+
+#ifndef CONFIG_BAMBOO_NAND
+#define CONFIG_NET_MULTI        1       /* required for netconsole      */
 #define CONFIG_PHY1_ADDR        1
 #define CONFIG_HAS_ETH1		1	/* add support for "eth1addr"	*/
+#endif /* CONFIG_BAMBOO_NAND */
+
 #define CONFIG_NO_PHY_RESET     1       /* no PHY reset on bamboo!!!    */
 
 #define CFG_RX_ETH_BUFFER	32	/* Number of ethernet rx buffers & descriptors */
@@ -219,17 +291,24 @@
 #define CONFIG_DOS_PARTITION
 #define CONFIG_ISO_PARTITION
 
-#ifdef CONFIG_440_EP
+#ifdef CONFIG_440EP
 /* USB */
 #define CONFIG_USB_OHCI
 #define CONFIG_USB_STORAGE
 
 /*Comment this out to enable USB 1.1 device*/
 #define USB_2_0_DEVICE
-#endif /*CONFIG_440_EP*/
+#endif /*CONFIG_440EP*/
+
+#ifdef CONFIG_BAMBOO_NAND
+#define _CFG_CMD_NAND CFG_CMD_NAND
+#else
+#define _CFG_CMD_NAND 0
+#endif /* CONFIG_BAMBOO_NAND */
 
 #define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
 				CFG_CMD_ASKENV	| \
+				CFG_CMD_EEPROM	| \
 				CFG_CMD_DATE	| \
 				CFG_CMD_DHCP	| \
 				CFG_CMD_DIAG	| \
@@ -244,6 +323,7 @@
 				CFG_CMD_REGINFO	| \
 				CFG_CMD_SDRAM	| \
 				CFG_CMD_USB	| \
+				_CFG_CMD_NAND	| \
 				CFG_CMD_SNTP	)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
@@ -253,42 +333,42 @@
  * Miscellaneous configurable options
  */
 #define CFG_LONGHELP			/* undef to save memory		*/
-#define CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
+#define CFG_PROMPT	        "=> "	/* Monitor Command Prompt	*/
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
-#define CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
+#define CFG_CBSIZE	        1024	/* Console I/O Buffer Size	*/
 #else
-#define CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
+#define CFG_CBSIZE	        256	/* Console I/O Buffer Size	*/
 #endif
-#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define CFG_MAXARGS	16		/* max number of command args	*/
-#define CFG_BARGSIZE	CFG_CBSIZE	/* Boot Argument Buffer Size	*/
+#define CFG_PBSIZE              (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
+#define CFG_MAXARGS	        16	/* max number of command args	*/
+#define CFG_BARGSIZE	        CFG_CBSIZE /* Boot Argument Buffer Size	*/
 
-#define CFG_MEMTEST_START	0x0400000	/* memtest works on	*/
-#define CFG_MEMTEST_END		0x0C00000	/* 4 ... 12 MB in DRAM	*/
+#define CFG_MEMTEST_START	0x0400000 /* memtest works on	        */
+#define CFG_MEMTEST_END		0x0C00000 /* 4 ... 12 MB in DRAM	*/
 
 #define CFG_LOAD_ADDR		0x100000	/* default load address */
-#define CFG_EXTBDINFO		    1	/* To use extended board_into (bd_t) */
-#define CONFIG_LYNXKDI          1   /* support kdi files */
+#define CFG_EXTBDINFO		1	/* To use extended board_into (bd_t) */
+#define CONFIG_LYNXKDI          1       /* support kdi files            */
 
-#define CFG_HZ		1000		/* decrementer freq: 1 ms ticks */
+#define CFG_HZ		        1000	/* decrementer freq: 1 ms ticks */
 
 /*-----------------------------------------------------------------------
  * PCI stuff
  *-----------------------------------------------------------------------
  */
 /* General PCI */
-#define CONFIG_PCI			            /* include pci support	        */
-#undef  CONFIG_PCI_PNP			        /* do (not) pci plug-and-play         */
+#define CONFIG_PCI			/* include pci support	        */
+#undef  CONFIG_PCI_PNP			/* do (not) pci plug-and-play   */
 #define CONFIG_PCI_SCAN_SHOW            /* show pci devices on startup  */
-#define CFG_PCI_TARGBASE    0x80000000  /* PCIaddr mapped to CFG_PCI_MEMBASE */
+#define CFG_PCI_TARGBASE        0x80000000 /* PCIaddr mapped to CFG_PCI_MEMBASE*/
 
 /* Board-specific PCI */
 #define CFG_PCI_PRE_INIT                /* enable board pci_pre_init()  */
 #define CFG_PCI_TARGET_INIT
 #define CFG_PCI_MASTER_INIT
 
-#define CFG_PCI_SUBSYS_VENDORID 0x1014  /* IBM */
-#define CFG_PCI_SUBSYS_ID 0xcafe        /* Whatever */
+#define CFG_PCI_SUBSYS_VENDORID 0x10e8	/* AMCC */
+#define CFG_PCI_SUBSYS_ID       0xcafe	/* Whatever */
 
 /*
  * For booting Linux, the board info and command line data
@@ -300,7 +380,7 @@
 /*-----------------------------------------------------------------------
  * Cache Configuration
  */
-#define CFG_DCACHE_SIZE		32768	/* For IBM 440 CPUs			*/
+#define CFG_DCACHE_SIZE		(32<<10) /* For IBM 440 CPUs			*/
 #define CFG_CACHELINE_SIZE	32	/* ...			*/
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/

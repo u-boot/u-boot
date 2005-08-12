@@ -76,7 +76,7 @@
 #define m16_swap(x) swap_16(x)
 #define m32_swap(x) swap_32(x)
 
-#ifdef CONFIG_440_EP
+#ifdef CONFIG_440EP
 #define ohci_cpu_to_le16(x) (x)
 #define ohci_cpu_to_le32(x) (x)
 #else

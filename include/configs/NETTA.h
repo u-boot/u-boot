@@ -694,7 +694,7 @@
 /* No command line, one static partition, whole device */
 #undef CONFIG_JFFS2_CMDLINE
 #define CONFIG_JFFS2_DEV		"nand0"
-#define CONFIG_JFFS2_PART_SIZE		0x00100000 
+#define CONFIG_JFFS2_PART_SIZE		0x00100000
 #define CONFIG_JFFS2_PART_OFFSET	0x00200000
 
 /* mtdparts command line support */

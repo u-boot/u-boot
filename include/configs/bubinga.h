@@ -127,6 +127,10 @@
 
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define	CONFIG_PHY_ADDR		1	/* PHY address			*/
+#define CONFIG_HAS_ETH1
+#define CONFIG_PHY1_ADDR	2	/* EMAC1 PHY address		*/
+#define CONFIG_NET_MULTI	1
+#define CFG_RX_ETH_BUFFER	16	/* Number of ethernet rx buffers & descriptors */
 
 #define CONFIG_RTC_DS174x	1	/* use DS1743 RTC in Bubinga	*/
 
@@ -198,8 +202,6 @@
 #define CONFIG_LOOPW            1       /* enable loopw command         */
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 #define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
-
-#define CFG_RX_ETH_BUFFER	16	  /* Number of ethernet rx buffers & descriptors */
 
 /*-----------------------------------------------------------------------
  * I2C stuff
