@@ -32,6 +32,7 @@
  * High Level Configuration Options
  * (easy to change)
  */
+#define CONFIG_IDENT_STRING     " $Name:  $"
 
 #define CONFIG_405EP		1	/* This is a PPC405 CPU		*/
 #define CONFIG_4xx		1	/* ...member of PPC4xx family	*/
