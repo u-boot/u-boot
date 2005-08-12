@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.3:
 ======================================================================
 
+* Move the AT91RM9200DK to the ARM Systems list.
+  Patch by Anders Larsen, 26 Apr 2005
+  
 * Eliminate calls of ARM libgcc.a helper functions _divsi3 and _modsi3
   Patch by Anders Larsen, 26 Apr 2005
 
