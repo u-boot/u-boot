@@ -31,7 +31,7 @@
  * available to cmd_fat.c:get_dev and filling in a block device
  * description that has all the bits needed for FAT support to
  * read sectors.
- * 
+ *
  * According to Xilinx technical support, before accessing the
  * SystemACE CF you need to set the following control bits:
  * 	FORCECFGMODE : 1

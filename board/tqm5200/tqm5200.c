@@ -250,6 +250,10 @@ long int initdram (int board_type)
 
 int checkboard (void)
 {
+#if defined (CONFIG_AEVFIFO)
+	puts ("Board: AEVFIFO\n");
+	return 0;
+#endif
 #if defined (CONFIG_TQM5200_AA)
 	puts ("Board: TQM5200-AA (TQ-Components GmbH)\n");
 #elif defined (CONFIG_TQM5200_AB)

@@ -534,7 +534,7 @@ int do_protect (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 		return rcode;
 	}
-	
+
 #if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
 	/* protect on/off <part-id> */
 	if ((argc == 3) && (id_parse(argv[2], NULL, &dev_type, &dev_num) == 0)) {
@@ -664,6 +664,15 @@ int flash_sect_protect (int p, ulong addr_first, ulong addr_last)
 
 
 /**************************************************/
+#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+# define TMP_ERASE	"erase <part-id>\n    - erase partition\n"
+# define TMP_PROT_ON	"protect on <part-id>\n    - protect partition\n"
+# define TMP_PROT_OFF	"protect off <part-id>\n    - make partition writable\n"
+#else
+# define TMP_ERASE	/* empty */
+# define TMP_PROT_ON	/* empty */
+# define TMP_PROT_OFF	/* empty */
+#endif
 
 U_BOOT_CMD(
 	flinfo,    2,    1,    do_flinfo,
@@ -682,9 +691,7 @@ U_BOOT_CMD(
 	"w/addr 'start'+'len'-1\n"
 	"erase N:SF[-SL]\n    - erase sectors SF-SL in FLASH bank # N\n"
 	"erase bank N\n    - erase FLASH bank # N\n"
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
-	"erase <part-id>\n    - erase partition\n"
-#endif
+	TMP_ERASE
 	"erase all\n    - erase all FLASH banks\n"
 );
 
@@ -699,9 +706,7 @@ U_BOOT_CMD(
 	"protect on  N:SF[-SL]\n"
 	"    - protect sectors SF-SL in FLASH bank # N\n"
 	"protect on  bank N\n    - protect FLASH bank # N\n"
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
-	"protect on <part-id>\n    - protect partition\n"
-#endif
+	TMP_PROT_ON
 	"protect on  all\n    - protect all FLASH banks\n"
 	"protect off start end\n"
 	"    - make FLASH from addr 'start' to addr 'end' writable\n"
@@ -711,10 +716,12 @@ U_BOOT_CMD(
 	"protect off N:SF[-SL]\n"
 	"    - make sectors SF-SL writable in FLASH bank # N\n"
 	"protect off bank N\n    - make FLASH bank # N writable\n"
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
-	"protect off <part-id>\n    - make partition writable\n"
-#endif
+	TMP_PROT_OFF
 	"protect off all\n    - make all FLASH banks writable\n"
 );
+
+#undef	TMP_ERASE
+#undef	TMP_PROT_ON
+#undef	TMP_PROT_OFF
 
 #endif	/* CFG_CMD_FLASH */

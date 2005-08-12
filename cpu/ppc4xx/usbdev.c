@@ -3,7 +3,7 @@
 #include <common.h>
 #include <asm/processor.h>
 
-#ifdef CONFIG_440_EP
+#ifdef CONFIG_440EP
 
 #include <usb.h>
 #include "usbdev.h"
@@ -211,4 +211,4 @@ void usb_dev_init()
 			    NULL);
 }
 
-#endif				/*CONFIG_440_EP */
+#endif				/*CONFIG_440EP */

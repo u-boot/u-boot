@@ -1,7 +1,7 @@
 <?php // php pages made with phpMyBuilder <http://kyber.dk/phpMyBuilder> ?>
 <?php
 	// (C) Copyright 2001
-	// Murray Jensen <Murray.Jensen@cmst.csiro.au>
+	// Murray Jensen <Murray.Jensen@csiro.au>
 	// CSIRO Manufacturing Science and Technology, Preston Lab
 
 	// edit page (hymod_bddb / boards)
@@ -10,11 +10,13 @@
 
 	pg_head("$bddb_label - Edit Board Log Entry");
 
-	if ($serno == 0)
+	if (!isset($_REQUEST['serno']) || $_REQUEST['serno'] == '')
 		die("serial number not specified!");
+	$serno=intval($_REQUEST['serno']);
 
-	if (!isset($logno) || $logno == 0)
+	if (!isset($_REQUEST['logno']) || $_REQUEST['logno'] == '')
 		die("log number not specified!");
+	$logno=intval($_REQUEST['logno']);
 
 	$pserno = sprintf("%010d", $serno);
 	$plogno = sprintf("%010d", $logno);

@@ -1022,12 +1022,30 @@ static void get_user_input(struct in_str *i)
 	int n;
 	static char the_command[CFG_CBSIZE];
 
+#ifdef CONFIG_BOOT_RETRY_TIME
+#  ifdef CONFIG_RESET_TO_RETRY
+	extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+#  else
+#	error "This currently only works with CONFIG_RESET_TO_RETRY enabled"
+#  endif
+	reset_cmd_timeout();
+#endif
 	i->__promptme = 1;
 	if (i->promptmode == 1) {
 		n = readline(CFG_PROMPT);
 	} else {
 		n = readline(CFG_PROMPT_HUSH_PS2);
 	}
+#ifdef CONFIG_BOOT_RETRY_TIME
+	if (n == -2) {
+	  puts("\nTimeout waiting for command\n");
+#  ifdef CONFIG_RESET_TO_RETRY
+	  do_reset(NULL, 0, 0, NULL);
+#  else
+#	error "This currently only works with CONFIG_RESET_TO_RETRY enabled"
+#  endif
+	}
+#endif
 	if (n == -1 ) {
 		flag_repeat = 0;
 		i->__promptme = 0;

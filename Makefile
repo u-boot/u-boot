@@ -29,10 +29,10 @@ HOSTARCH := $(shell uname -m | \
 	    -e s/powerpc/ppc/ \
 	    -e s/macppc/ppc/)
 
-HOSTOS := $(shell uname -s | tr A-Z a-z | \
+HOSTOS := $(shell uname -s | tr '[:upper:]' '[:lower:]' | \
 	    sed -e 's/\(cygwin\).*/cygwin/')
 
-export	HOSTARCH
+export	HOSTARCH HOSTOS
 
 # Deal with colliding definitions from tcsh etc.
 VENDOR=
@@ -231,6 +231,9 @@ PATI_config:		unconfig
 ## MPC5xxx Systems
 #########################################################################
 
+aev_config: unconfig
+	@./mkconfig -a aev ppc mpc5xxx tqm5200
+
 hmi1001_config:         unconfig
 	@./mkconfig hmi1001 ppc mpc5xxx hmi1001
 
@@ -353,6 +356,11 @@ MiniFAP_config:	unconfig
 		  echo "... with automatic CS configuration" ; \
 		}
 	@./mkconfig -a TQM5200 ppc mpc5xxx tqm5200
+
+spieval_config:	unconfig
+	echo "#define CONFIG_CS_AUTOCONF">>include/config.h
+	echo "... with automatic CS configuration"
+	@./mkconfig -a spieval ppc mpc5xxx tqm5200
 
 #########################################################################
 ## MPC8xx Systems

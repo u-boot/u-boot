@@ -137,9 +137,9 @@ int fpga_loadbitstream(unsigned long dev, char* fpgadata, size_t size)
 			__FUNCTION__);
 		return FPGA_FAIL;
 	}
-	swapsize = ((unsigned int) *dataptr     <<24) + 
-	           ((unsigned int) *(dataptr+1) <<16) + 
-	           ((unsigned int) *(dataptr+2) <<8 ) + 
+	swapsize = ((unsigned int) *dataptr     <<24) +
+	           ((unsigned int) *(dataptr+1) <<16) +
+	           ((unsigned int) *(dataptr+2) <<8 ) +
 	           ((unsigned int) *(dataptr+3)     ) ;
 	dataptr+=4;
 	printf("  bytes in bitstream = %d\n", swapsize);
@@ -217,7 +217,7 @@ int do_fpga (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		PRINTF ("%s: device = %d\n", __FUNCTION__, dev);
 		/* FIXME - this is a really weak test */
 		if ((argc == 3) && (dev > fpga_count ())) {	/* must be buffer ptr */
-			PRINTF ("%s: Assuming buffer pointer in arg 3\n", 
+			PRINTF ("%s: Assuming buffer pointer in arg 3\n",
 				__FUNCTION__);
 			fpga_data = (void *) dev;
 			PRINTF ("%s: fpga_data = 0x%x\n",

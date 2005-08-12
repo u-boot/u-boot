@@ -130,9 +130,9 @@ typedef struct emac_440gx_hw_st {
 } EMAC_440GX_HW_ST, *EMAC_440GX_HW_PST;
 
 
-#if defined(CONFIG_440_GX)
+#if defined(CONFIG_440GX)
 #define EMAC_NUM_DEV	    4
-#elif defined(CONFIG_440) && !defined(CONFIG_440_GX)
+#elif defined(CONFIG_440) && !defined(CONFIG_440GX)
 #define EMAC_NUM_DEV	    2
 #else
 #warning Bad configuration
@@ -140,7 +140,7 @@ typedef struct emac_440gx_hw_st {
 
 
 /*ZMII Bridge Register addresses */
-#if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
 #define ZMII_BASE			(CFG_PERIPHERAL_BASE + 0x0D00)
 #else
 #define ZMII_BASE			(CFG_PERIPHERAL_BASE + 0x0780)
@@ -212,7 +212,7 @@ typedef struct emac_440gx_hw_st {
 /*---------------------------------------------------------------------------+
 |  TCP/IP Acceleration Hardware (TAH) 440GX Only
 +---------------------------------------------------------------------------*/
-#if defined(CONFIG_440_GX)
+#if defined(CONFIG_440GX)
 #define TAH_BASE		(CFG_PERIPHERAL_BASE + 0x0B50)
 #define TAH_REVID		(TAH_BASE + 0x0)    /* Revision ID (RO)*/
 #define TAH_MR			(TAH_BASE + 0x10)   /* Mode Register (R/W) */
@@ -272,11 +272,11 @@ typedef struct emac_440gx_hw_st {
 #define TAH_TSR_TFPE		(0x00080000)	    /* Transmit FIFO parity error */
 #define TAH_TSR_SSTS		(0x00040000)	    /* Segment size too small */
 #define TAH_TSR_RSVD		(0x0003FFFF)	    /* Reserved */
-#endif /* CONFIG_440_GX */
+#endif /* CONFIG_440GX */
 
 
 /* Ethernet MAC Regsiter Addresses */
-#if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
 #define EMAC_BASE			    (CFG_PERIPHERAL_BASE + 0x0E00)
 #else
 #define EMAC_BASE			    (CFG_PERIPHERAL_BASE + 0x0800)
@@ -319,7 +319,7 @@ typedef struct emac_440gx_hw_st {
 #define EMAC_M0_WKE			    (0x04000000)
 
 /* on 440GX EMAC_MR1 has a different layout! */
-#if defined(CONFIG_440_GX)
+#if defined(CONFIG_440GX)
 /* MODE Reg 1 */
 #define EMAC_M1_FDE		(0x80000000)
 #define EMAC_M1_ILE		(0x40000000)
@@ -349,7 +349,7 @@ typedef struct emac_440gx_hw_st {
 #define EMAC_M1_OBCI_83		(0x00000010)
 #define EMAC_M1_OBCI_66		(0x00000008)
 #define EMAC_M1_RSVD1		(0x00000007)
-#else /* defined(CONFIG_440_GX) */
+#else /* defined(CONFIG_440GX) */
 /* EMAC_MR1 is the same on 405GP, 405GPr, 405EP, 440GP, 440EP */
 #define EMAC_M1_FDE			0x80000000
 #define EMAC_M1_ILE			0x40000000
@@ -369,10 +369,10 @@ typedef struct emac_440gx_hw_st {
 #define EMAC_M1_TR0_MULTI		0x00008000
 #define EMAC_M1_TR1_DEPEND		0x00004000
 #define EMAC_M1_TR1_MULTI		0x00002000
-#if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
 #define EMAC_M1_JUMBO_ENABLE		0x00001000
-#endif /* defined(CONFIG_440_EP) || defined(CONFIG_440_GR) */
-#endif /* defined(CONFIG_440_GX) */
+#endif /* defined(CONFIG_440EP) || defined(CONFIG_440GR) */
+#endif /* defined(CONFIG_440GX) */
 
 /* Transmit Mode Register 0 */
 #define EMAC_TXM0_GNP0			(0x80000000)

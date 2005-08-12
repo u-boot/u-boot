@@ -1,7 +1,7 @@
 <?php // php pages made with phpMyBuilder <http://kyber.dk/phpMyBuilder> ?>
 <?php
 	// (C) Copyright 2001
-	// Murray Jensen <Murray.Jensen@cmst.csiro.au>
+	// Murray Jensen <Murray.Jensen@csiro.au>
 	// CSIRO Manufacturing Science and Technology, Preston Lab
 
 	// dodelete page (hymod_bddb / boards)
@@ -10,8 +10,9 @@
 
 	pg_head("$bddb_label - Delete Board Results");
 
-	if (!($serno=intval($serno)))
+	if (!isset($_REQUEST['serno']))
 		die("the board serial number was not specified");
+	$serno=intval($_REQUEST['serno']);
 
 	mysql_query("delete from boards where serno=$serno");
 

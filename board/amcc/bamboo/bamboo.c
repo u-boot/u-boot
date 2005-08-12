@@ -29,6 +29,7 @@
 
 void ext_bus_cntlr_init(void);
 void configure_ppc440ep_pins(void);
+int is_nand_selected(void);
 
 gpio_param_s gpio_tab[GPIO_GROUP_MAX][GPIO_MAX];
 #if 0
@@ -132,10 +133,10 @@ gpio_param_s gpio_tab[GPIO_GROUP_MAX][GPIO_MAX];
 	EBC0_BNCR_BW_8BIT
 
 #define EBC0_BNCR_SMALL_FLASH_CS4			\
-	EBC0_BNCR_BAS_ENCODE(0x87800000)    	| 	\
-	EBC0_BNCR_BS_8MB		    	|	\
+	EBC0_BNCR_BAS_ENCODE(0x87F00000)    	| 	\
+	EBC0_BNCR_BS_1MB		    	|	\
 	EBC0_BNCR_BU_RW			    	|	\
-	EBC0_BNCR_BW_16BIT
+	EBC0_BNCR_BW_8BIT
 
 /* Large Flash or SRAM */
 #define EBC0_BNAP_LARGE_FLASH_OR_SRAM			\
@@ -272,6 +273,87 @@ int board_early_init_f(void)
 
 	return 0;
 }
+
+#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#include <linux/mtd/nand.h>
+extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];
+
+/*----------------------------------------------------------------------------+
+  | nand_reset.
+  |   Reset Nand flash
+  |   This routine will abort previous cmd
+  +----------------------------------------------------------------------------*/
+int nand_reset(ulong addr)
+{
+	int wait=0, stat=0;
+
+	out8(addr + NAND_CMD_REG, NAND0_CMD_RESET);
+	out8(addr + NAND_CMD_REG, NAND0_CMD_READ_STATUS);
+
+	while ((stat != 0xc0) && (wait != 0xffff)) {
+		stat = in8(addr + NAND_DATA_REG);
+		wait++;
+	}
+
+	if (stat == 0xc0) {
+		return 0;
+	} else {
+		printf("NAND Reset timeout.\n");
+		return -1;
+	}
+}
+
+void board_nand_set_device(int cs, ulong addr)
+{
+	/* Set NandFlash Core Configuration Register */
+	out32(addr + NAND_CCR_REG, 0x00001000 | (cs << 24));
+
+	switch (cs) {
+	case 1:
+		/* -------
+		 *  NAND0
+		 * -------
+		 * K9F1208U0A : 4 addr cyc, 1 col + 3 Row
+		 * Set NDF1CR - Enable External CS1 in NAND FLASH controller
+		 */
+		out32(addr + NAND_CR1_REG, 0x80002222);
+		break;
+
+	case 2:
+		/* -------
+		 *  NAND1
+		 * -------
+		 * K9K2G0B : 5 addr cyc, 2 col + 3 Row
+		 * Set NDF2CR : Enable External CS2 in NAND FLASH controller
+		 */
+		out32(addr + NAND_CR2_REG, 0xC0007777);
+		break;
+	}
+
+	/* Perform Reset Command */
+	if (nand_reset(addr) != 0)
+		return;
+}
+
+void nand_init(void)
+{
+	board_nand_set_device(1, CFG_NAND_ADDR);
+
+	nand_probe(CFG_NAND_ADDR);
+	if (nand_dev_desc[0].ChipID != NAND_ChipID_UNKNOWN) {
+		print_size(nand_dev_desc[0].totlen, "\n");
+	}
+
+#if 0 /* NAND1 not supported yet */
+	board_nand_set_device(2, CFG_NAND2_ADDR);
+
+	nand_probe(CFG_NAND2_ADDR);
+	if (nand_dev_desc[0].ChipID != NAND_ChipID_UNKNOWN) {
+		print_size(nand_dev_desc[0].totlen, "\n");
+	}
+#endif
+}
+#endif /* (CONFIG_COMMANDS & CFG_CMD_NAND) */
 
 int checkboard(void)
 {
@@ -585,7 +667,11 @@ int is_powerpc440ep_pass1(void)
   +----------------------------------------------------------------------------*/
 int is_nand_selected(void)
 {
-	return FALSE; /* test-only */
+#ifdef CONFIG_BAMBOO_NAND
+	return TRUE;
+#else
+	return FALSE;
+#endif
 }
 
 /*----------------------------------------------------------------------------+
@@ -829,12 +915,8 @@ void ext_bus_cntlr_init(void)
 			/* NAND Flash */
 			ebc0_cs1_bnap_value = EBC0_BNAP_NAND_FLASH;
 			ebc0_cs1_bncr_value = EBC0_BNCR_NAND_FLASH_CS1;
-			/*ebc0_cs2_bnap_value = EBC0_BNAP_NAND_FLASH;
-			  ebc0_cs2_bncr_value = EBC0_BNCR_NAND_FLASH_CS2;
-			  ebc0_cs3_bnap_value = EBC0_BNAP_NAND_FLASH;
-			  ebc0_cs3_bncr_value = EBC0_BNCR_NAND_FLASH_CS3;*/
-			ebc0_cs2_bnap_value = 0;
-			ebc0_cs2_bncr_value = 0;
+			ebc0_cs2_bnap_value = EBC0_BNAP_NAND_FLASH;
+			ebc0_cs2_bncr_value = EBC0_BNCR_NAND_FLASH_CS2;
 			ebc0_cs3_bnap_value = 0;
 			ebc0_cs3_bncr_value = 0;
 		} else {
@@ -985,7 +1067,7 @@ void ext_bus_cntlr_init(void)
   +----------------------------------------------------------------------------*/
 uart_config_nb_t get_uart_configuration(void)
 {
-	return (L4); /* test-only */
+	return (L4);
 }
 
 /*----------------------------------------------------------------------------+
@@ -1132,8 +1214,7 @@ void ndfc_selection_in_fpga(void)
 
 	fpga_selection_1_reg  = in8(FPGA_SELECTION_1_REG) &~FPGA_SEL_1_REG_NF_SELEC_MASK;
 	fpga_selection_1_reg |= FPGA_SEL_1_REG_NF0_SEL_BY_NFCS1;
-	/*fpga_selection_1_reg |= FPGA_SEL_1_REG_NF1_SEL_BY_NFCS2; */
-	/*fpga_selection_1_reg |= FPGA_SEL_1_REG_NF1_SEL_BY_NFCS3; */
+	fpga_selection_1_reg |= FPGA_SEL_1_REG_NF1_SEL_BY_NFCS2;
 	out8(FPGA_SELECTION_1_REG,fpga_selection_1_reg);
 }
 
@@ -1725,10 +1806,14 @@ void force_bup_core_selection(core_selection_t *core_select_P, config_validity_t
 	*(core_select_P+UIC_0_3)		= CORE_SELECTED;
 	*(core_select_P+UIC_4_9)		= CORE_SELECTED;
 
-	*(core_select_P+SCP_CORE)	     = CORE_SELECTED;
-	*(core_select_P+DMA_CHANNEL_CD)		   = CORE_SELECTED;
-	*(core_select_P+PACKET_REJ_FUNC_AVAIL)		  = CORE_SELECTED;
+	*(core_select_P+SCP_CORE)	        = CORE_SELECTED;
+	*(core_select_P+DMA_CHANNEL_CD)		= CORE_SELECTED;
+	*(core_select_P+PACKET_REJ_FUNC_AVAIL)	= CORE_SELECTED;
 	*(core_select_P+USB1_DEVICE)		= CORE_SELECTED;
+
+	if (is_nand_selected()) {
+		*(core_select_P+NAND_FLASH)	= CORE_SELECTED;
+	}
 
 	*config_val_P = CONFIG_IS_VALID;
 
@@ -1901,9 +1986,8 @@ void configure_ppc440ep_pins(void)
 		      SDR0_CUST0_NDFC_ENABLE	|
 		      SDR0_CUST0_NDFC_BW_8_BIT	|
 		      SDR0_CUST0_NDFC_ARE_MASK	|
-		      SDR0_CUST0_CHIPSELGAT_EN1 );
-		/*SDR0_CUST0_CHIPSELGAT_EN2 ); */
-		/*SDR0_CUST0_CHIPSELGAT_EN3 ); */
+		      SDR0_CUST0_CHIPSELGAT_EN1 |
+		      SDR0_CUST0_CHIPSELGAT_EN2);
 
 		ndfc_selection_in_fpga();
 	}

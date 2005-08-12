@@ -1,36 +1,38 @@
 <?php // php pages made with phpMyBuilder <http://kyber.dk/phpMyBuilder> ?>
 <?php
 	// (C) Copyright 2001
-	// Murray Jensen <Murray.Jensen@cmst.csiro.au>
+	// Murray Jensen <Murray.Jensen@csiro.au>
 	// CSIRO Manufacturing Science and Technology, Preston Lab
 
 	// list page (hymod_bddb / boards)
 
 	require("defs.php");
 
-	if (!isset($verbose))
-		$verbose = 0;
+	$serno=isset($_REQUEST['serno'])?$_REQUEST['serno']:'';
 
-	if (!isset($serno))
-		$serno = 0;
+	$verbose=isset($_REQUEST['verbose'])?intval($_REQUEST['verbose']):0;
 
 	pg_head("$bddb_label - Browse database" . ($verbose?" (verbose)":""));
 ?>
 <p></p>
 <?php
-	if ($serno == 0) {
-		$limit=abs(isset($limit)?$limit:20);
-		$offset=abs(isset($offset)?$offset:0);
+	$limit=isset($_REQUEST['limit'])?abs(intval($_REQUEST['limit'])):20;
+	$offset=isset($_REQUEST['offset'])?abs(intval($_REQUEST['offset'])):0;
+
+	if ($serno == '') {
+
 		$lr=mysql_query("select count(*) as n from boards");
 		$lrow=mysql_fetch_array($lr);
+
 		if($lrow['n']>$limit){
 			$preoffset=max(0,$offset-$limit);
 			$postoffset=$offset+$limit;
-			echo "<table width=\"100%\">\n<tr align=center>\n";
-			printf("<td><%sa href=\"%s?offset=%d\"><img border=0 alt=\"&lt;\" src=\"/icons/left.gif\"></a></td>\n", $offset>0?"":"no", $PHP_SELF, $preoffset);
-			printf("<td><%sa href=\"%s?offset=%d\"><img border=0 alt=\"&gt;\" src=\"/icons/right.gif\"></a></td>\n", $postoffset<$lrow['n']?"":"no", $PHP_SELF, $postoffset);
+			echo "<table width=\"100%\">\n<tr>\n";
+			printf("<td align=left><%sa href=\"%s?submit=Browse&offset=%d&verbose=%d\"><img border=0 alt=\"&lt;\" src=\"/icons/left.gif\"></a></td>\n", $offset>0?"":"no", $PHP_SELF, $preoffset, $verbose);
+			printf("<td align=right><%sa href=\"%s?submit=Browse&offset=%d&verbose=%d\"><img border=0 alt=\"&gt;\" src=\"/icons/right.gif\"></a></td>\n", $postoffset<$lrow['n']?"":"no", $PHP_SELF, $postoffset, $offset);
 			echo "</tr>\n</table>\n";
 		}
+
 		mysql_free_result($lr);
 	}
 ?>
@@ -65,10 +67,28 @@
 ?>
 </tr>
 <?php
-	if ($serno == 0)
-		$r=mysql_query("select * from boards order by serno limit $offset,$limit");
-	else
-		$r=mysql_query("select * from boards where serno=$serno");
+	$query = "select * from boards";
+	if ($serno != '') {
+		$pre = " where ";
+		foreach (preg_split("/[\s,]+/", $serno) as $s) {
+			if (preg_match('/^[0-9]+$/',$s))
+				$query .= $pre . "serno=" . $s;
+			else if (preg_match('/^([0-9]+)-([0-9]+)$/',$s,$m)) {
+				$m1 = intval($m[1]); $m2 = intval($m[2]);
+				if ($m2 <= $m1)
+					die("bad serial number range ($s)");
+				$query .= $pre . "(serno>=$m[1] and serno<=$m[2])";
+			}
+			else
+				die("illegal serial number ($s)");
+			$pre = " or ";
+		}
+	}
+	$query .= " order by serno";
+	if ($serno == '')
+		$query .= " limit $offset,$limit";
+
+	$r = mysql_query($query);
 
 	function print_cell($str) {
 		if ($str == '')
@@ -117,10 +137,7 @@
 <table width="100%">
 <tr>
   <td align=center><?php
-	if ($verbose)
-		echo "<a href=\"browse.php?verbose=0\">Terse Listing</a>";
-	else
-		echo "<a href=\"browse.php?verbose=1\">Verbose Listing</a>";
+	printf("<a href=\"%s?submit=Browse&offset=%d&verbose=%d%s\">%s Listing</a>\n", $PHP_SELF, $offset, $verbose?0:1, $serno!=''?"&serno=$serno":'', $verbose?"Terse":"Verbose");
   ?></td>
   <td align=center><a href="index.php">Back to Start</a></td>
 </tr>

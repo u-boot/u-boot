@@ -32,21 +32,23 @@ SOBJS	:= setup.o
 gcclibdir := $(shell dirname `$(CC) -print-libgcc-file-name`)
 
 LOAD_ADDR = 0x10400000
+LDSCRIPT = $(TOPDIR)/board/$(BOARDDIR)/eeprom.lds
 
 all:	$(LIB) eeprom.srec eeprom.bin
 
 $(LIB):	$(OBJS) $(SOBJS)
 	$(AR) crv $@ $(OBJS) $(SOBJS)
 
-eeprom.srec:	eeprom.o
-	$(LD) -g -Ttext $(LOAD_ADDR) -o $(<:.o=) -e $(<:.o=) $^ \
+eeprom.srec:	eeprom.o eeprom_start.o
+	$(LD) -T $(LDSCRIPT) -g -Ttext $(LOAD_ADDR) \
+		-o $(<:.o=) -e $(<:.o=) $^ \
 		-L../../examples -lstubs \
 		-L../../lib_generic -lgeneric \
 		-L$(gcclibdir) -lgcc
 	$(OBJCOPY) -O srec $(<:.o=) $@
 
 eeprom.bin:	eeprom.srec
-	$(OBJCOPY) -O binary $< $@ 2>/dev/null
+	$(OBJCOPY) -I srec -O binary $< $@ 2>/dev/null
 
 clean:
 	rm -f $(SOBJS) $(OBJS) eeprom eeprom.srec eeprom.bin

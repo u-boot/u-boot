@@ -30,40 +30,6 @@
 
 #define SMC_BASE_ADDRESS CONFIG_SMC91111_BASE
 
-static int verify_macaddr(char *);
-static int set_mac(char *);
-
-int eeprom(int argc, char *argv[])
-{
-	app_startup(argv);
-	if (get_version() != XF_VERSION) {
-		printf("Wrong XF_VERSION.\n");
-		printf("Application expects ABI version %d\n", XF_VERSION);
-		printf("Actual U-Boot ABI version %d\n", (int)get_version());
-		return 1;
-	}
-
-	if ((SMC_inw (BANK_SELECT) & 0xFF00) != 0x3300) {
-		printf("SMSC91111 not found.\n");
-		return 2;
-	}
-
-	if (argc != 2) {
-		printf("VoiceBlue EEPROM writer\n");
-		printf("Built: %s at %s\n", __DATE__ , __TIME__ );
-		printf("Usage:\n\t<mac_address>");
-		return 3;
-	}
-
-	set_mac(argv[1]);
-	if (verify_macaddr(argv[1])) {
-		printf("*** ERROR ***\n");
-		return 4;
-	}
-
-	return 0;
-}
-
 static u16 read_eeprom_reg(u16 reg)
 {
 	int timeout;
@@ -106,17 +72,28 @@ static int write_eeprom_reg(u16 value, u16 reg)
 	return 1;
 }
 
+static int write_data(u16 *buf, int len)
+{
+	u16 reg = 0x23;
+
+	while (len--)
+		write_eeprom_reg(*buf++, reg++);
+
+	return 0;
+}
+
 static int verify_macaddr(char *s)
 {
 	u16 reg;
 	int i, err = 0;
 
-	printf("Verifying MAC Address: ");
+	printf("MAC Address: ");
 	err = i = 0;
 	for (i = 0; i < 3; i++) {
 		reg = read_eeprom_reg(0x20 + i);
 		printf("%02x:%02x%c", reg & 0xff, reg >> 8, i != 2 ? ':' : '\n');
-		err |= reg != ((u16 *)s)[i];
+		if (s)
+			err |= reg != ((u16 *)s)[i];
 	}
 
 	return err ? 0 : 1;
@@ -135,6 +112,100 @@ static int set_mac(char *s)
 
 	for (i = 0; i < 3; i++)
 		write_eeprom_reg(*(((u16 *)eaddr) + i), 0x20 + i);
+
+	return 0;
+}
+
+static int parse_element(char *s, unsigned char *buf, int len)
+{
+	int cnt;
+	char *p, num[3];
+	unsigned char id;
+
+	id = simple_strtoul(s, &p, 16);
+	if (*p++ != ':')
+		return -1;
+	cnt = 2;
+	num[2] = 0;
+	for (; *p; p += 2) {
+		if (p[1] == 0)
+			return -2;
+		if (cnt + 3 > len)
+			return -3;
+		num[0] = p[0];
+		num[1] = p[1];
+		buf[cnt++] = simple_strtoul(num, NULL, 16);
+	}
+	buf[0] = id;
+	buf[1] = cnt - 2;
+
+	return cnt;
+}
+
+int eeprom(int argc, char *argv[])
+{
+	int i, len, ret;
+	unsigned char buf[58], *p;
+
+	app_startup(argv);
+	if (get_version() != XF_VERSION) {
+		printf("Wrong XF_VERSION.\n");
+		printf("Application expects ABI version %d\n", XF_VERSION);
+		printf("Actual U-Boot ABI version %d\n", (int)get_version());
+		return 1;
+	}
+
+	if ((SMC_inw (BANK_SELECT) & 0xFF00) != 0x3300) {
+		printf("SMSC91111 not found.\n");
+		return 2;
+	}
+
+	/* Called without parameters - print MAC address */
+	if (argc < 2) {
+		verify_macaddr(NULL);
+		return 0;
+	}
+
+	/* Print help message */
+	if (argv[1][1] == 'h') {
+		printf("VoiceBlue EEPROM writer\n");
+		printf("Built: %s at %s\n", __DATE__ , __TIME__ );
+		printf("Usage:\n\t<mac_address> [<element_1>] [<...>]\n");
+		return 0;
+	}
+
+	/* Try to parse information elements */
+	len = sizeof(buf);
+	p = buf;
+	for (i = 2; i < argc; i++) {
+		ret = parse_element(argv[i], p, len);
+		switch (ret) {
+		case -1:
+			printf("Element %d: malformed\n", i - 1);
+			return 3;
+		case -2:
+			printf("Element %d: odd character count\n", i - 1);
+			return 3;
+		case -3:
+			printf("Out of EEPROM memory\n");
+			return 3;
+		default:
+			p += ret;
+			len -= ret;
+		}
+	}
+
+	/* First argument (MAC) is mandatory */
+	set_mac(argv[1]);
+	if (verify_macaddr(argv[1])) {
+		printf("*** MAC address does not match! ***\n");
+		return 4;
+	}
+
+	while (len--)
+		*p++ = 0;
+
+	write_data((u16 *)buf, sizeof(buf) >> 1);
 
 	return 0;
 }

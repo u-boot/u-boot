@@ -1,7 +1,7 @@
 <?php // php pages made with phpMyBuilder <http://kyber.dk/phpMyBuilder> ?>
 <?php
 	// (C) Copyright 2001
-	// Murray Jensen <Murray.Jensen@cmst.csiro.au>
+	// Murray Jensen <Murray.Jensen@csiro.au>
 	// CSIRO Manufacturing Science and Technology, Preston Lab
 
 	// edit page (hymod_bddb / boards)
@@ -13,6 +13,7 @@
 <form action=donew.php method=POST>
 <p></p>
 <?php
+	$serno=intval($serno);
 	// if a serial number was supplied, fetch the record
 	// and use its contents as defaults
 	if ($serno != 0) {
@@ -22,8 +23,6 @@
 	}
 	else
 		$row = array();
-
-	echo "<input type=hidden name=serno value=0>\n";
 
 	begin_table(5);
 
@@ -60,17 +59,17 @@
 	// xlxgrd[0-3] enum('NORMAL','ENGSAMP')
 	print_enum_multi("xlxgrd", $row, $xlxgrd_vals, 4, array(1), 1);
 
-	// cputyp enum('MPC8260')
+	// cputyp enum('MPC8260(HIP3)','MPC8260A(HIP4)','MPC8280(HIP7)')
 	print_enum("cputyp", $row, $cputyp_vals, 1);
 
-	// cpuspd enum('33MHZ','66MHZ','100MHZ','133MHZ','166MHZ','200MHZ')
-	print_enum("cpuspd", $row, $clk_vals, 4);
+	// cpuspd enum('33MHZ','66MHZ','100MHZ','133MHZ','166MHZ','200MHZ','233MHZ','266MHZ')
+	print_enum_select("cpuspd", $row, $clk_vals, 4);
 
-	// cpmspd enum('33MHZ','66MHZ','100MHZ','133MHZ','166MHZ','200MHZ')
-	print_enum("cpmspd", $row, $clk_vals, 4);
+	// cpmspd enum('33MHZ','66MHZ','100MHZ','133MHZ','166MHZ','200MHZ','233MHZ','266MHZ')
+	print_enum_select("cpmspd", $row, $clk_vals, 4);
 
-	// busspd enum('33MHZ','66MHZ','100MHZ','133MHZ','166MHZ','200MHZ')
-	print_enum("busspd", $row, $clk_vals, 2);
+	// busspd enum('33MHZ','66MHZ','100MHZ','133MHZ','166MHZ','200MHZ','233MHZ','266MHZ')
+	print_enum_select("busspd", $row, $clk_vals, 2);
 
 	// hstype enum('AMCC-S2064A')
 	print_enum("hstype", $row, $hstype_vals, 1);

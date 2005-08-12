@@ -166,7 +166,7 @@ _start_440:
 	mtspr	srr1,r0
 	mtspr	csrr0,r0
 	mtspr	csrr1,r0
-#if defined (CONFIG_440_GX) /* NOTE: 440GX adds machine check status regs */
+#if defined (CONFIG_440GX) /* NOTE: 440GX adds machine check status regs */
 	mtspr	mcsrr0,r0
 	mtspr	mcsrr1,r0
 	mfspr	r1, mcsr
@@ -340,11 +340,11 @@ _start:
 	mtspr	tcr,r0			/* disable all */
 	mtspr	esr,r0			/* clear exception syndrome register */
 	mtxer	r0			/* clear integer exception register */
-#if !defined(CONFIG_440_GX)
+#if !defined(CONFIG_440GX)
 	lis	r1,0x0002		/* set CE bit (Critical Exceptions) */
 	ori	r1,r1,0x1000		/* set ME bit (Machine Exceptions) */
 	mtmsr	r1			/* change MSR */
-#elif !defined(CONFIG_440_EP) && !defined(CONFIG_440_GR)
+#elif !defined(CONFIG_440EP) && !defined(CONFIG_440GR)
 	bl	__440gx_msr_set
 	b	__440gx_msr_continue
 
@@ -377,7 +377,7 @@ __440gx_msr_continue:
 	/* Setup the internal SRAM */
 	/*----------------------------------------------------------------*/
 	li	r0,0
-#if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
 	/* Clear Dcache to use as RAM */
 	addis	r3,r0,CFG_INIT_RAM_ADDR@h
 	ori	r3,r3,CFG_INIT_RAM_ADDR@l
@@ -394,7 +394,7 @@ __440gx_msr_continue:
 	addi	r3,r3,32
 	bdnz	..d_ag
 #else
-#if defined (CONFIG_440_GX)
+#if defined (CONFIG_440GX)
 	mtdcr	l2_cache_cfg,r0		/* Ensure L2 Cache is off */
 #endif
 	mtdcr	isram0_sb1cr,r0		/* Disable bank 1 */
@@ -409,7 +409,7 @@ __440gx_msr_continue:
 	mtdcr	isram0_pmeg,r1
 
 	lis	r1,0x8000		/* BAS = 8000_0000 */
-#if defined(CONFIG_440_GX)
+#if defined(CONFIG_440GX)
 	ori	r1,r1,0x0980		/* first 64k */
 	mtdcr	isram0_sb0cr,r1
 	lis	r1,0x8001
@@ -975,7 +975,7 @@ invalidate_icache:
 invalidate_dcache:
 	addi	r6,0,0x0000		/* clear GPR 6 */
 	/* Do loop for # of dcache congruence classes. */
-#if defined(CONFIG_440_GX) || defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
+#if defined(CONFIG_440GX) || defined(CONFIG_440EP) || defined(CONFIG_440GR)
 	lis	r7, (CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@ha	/* TBS for large sized cache */
 	ori	r7, r7, (CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@l
 #else
@@ -1001,7 +1001,7 @@ flush_dcache:
 	mtdccr	r10
 
 	/* do loop for # of congruence classes. */
-#if defined(CONFIG_440_GX) || defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
+#if defined(CONFIG_440GX) || defined(CONFIG_440EP) || defined(CONFIG_440GR)
 	lis	r10,(CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@ha	/* TBS: for large cache sizes */
 	ori	r10,r10,(CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@l
 	lis	r11,(CFG_DCACHE_SIZE / 2)@ha /* D cache set size - 2 way sets */
@@ -1228,7 +1228,7 @@ ppcSync:
  */
 	.globl	relocate_code
 relocate_code:
-#if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
 	dccci	0,0			    /* Invalidate data cache, now no longer our stack */
 	sync
 	addi	r1,r0,0x0000	    /* Tlb entry #0 */

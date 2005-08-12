@@ -175,7 +175,7 @@ static void ppc_440x_eth_halt (struct eth_device *dev)
 extern int phy_setup_aneg (unsigned char addr);
 extern int miiphy_reset (unsigned char addr);
 
-#if defined (CONFIG_440_GX)
+#if defined (CONFIG_440GX)
 int ppc_440x_eth_setup_bridge(int devnum, bd_t * bis)
 {
 	unsigned long pfc1;
@@ -279,7 +279,7 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 	unsigned short devnum;
 	unsigned short reg_short;
 	sys_info_t sysinfo;
-#if defined(CONFIG_440_GX)
+#if defined(CONFIG_440GX)
 	int ethgroup;
 #endif
 
@@ -323,7 +323,7 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 	/* MAL Channel RESET */
 	/* 1st reset MAL channel */
 	/* Note: writing a 0 to a channel has no effect */
-#if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
 	mtdcr (maltxcarr, (MAL_TXRX_CASR >> (hw_p->devnum*2)));
 #else
 	mtdcr (maltxcarr, (MAL_TXRX_CASR >> hw_p->devnum));
@@ -362,9 +362,9 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 	out32 (ZMII_FER, 0);
 	udelay (100);
 
-#if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
    	out32 (ZMII_FER, (ZMII_FER_RMII | ZMII_FER_MDI) << ZMII_FER_V (devnum));
-#elif defined(CONFIG_440_GX)
+#elif defined(CONFIG_440GX)
 	ethgroup = ppc_440x_eth_setup_bridge(devnum, bis);
 #else
 	if ((devnum == 0) || (devnum == 1)) {
@@ -375,8 +375,8 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 		out32 (RGMII_FER, ((RGMII_FER_RGMII << RGMII_FER_V (2)) |
 				   (RGMII_FER_RGMII << RGMII_FER_V (3))));
 	}
-
 #endif
+
 	out32 (ZMII_SSR, ZMII_SSR_SP << ZMII_SSR_V(devnum));
 	__asm__ volatile ("eieio");
 
@@ -391,7 +391,7 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 		failsafe--;
 	}
 
-#if defined(CONFIG_440_GX)
+#if defined(CONFIG_440GX)
 	/* Whack the M1 register */
 	mode_reg = 0x0;
 	mode_reg &= ~0x00000038;
@@ -406,7 +406,7 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 		mode_reg |= EMAC_M1_OBCI_GT100;
 
 	out32 (EMAC_M1 + hw_p->hw_addr, mode_reg);
-#endif /*  defined(CONFIG_440_GX) */
+#endif /*  defined(CONFIG_440GX) */
 
 	/* wait for PHY to complete auto negotiation */
 	reg_short = 0;
@@ -418,7 +418,7 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 	case 1:
 		reg = CONFIG_PHY1_ADDR;
 		break;
-#if defined (CONFIG_440_GX)
+#if defined (CONFIG_440GX)
 	case 2:
 		reg = CONFIG_PHY2_ADDR;
 		break;
@@ -441,7 +441,7 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 	if (hw_p->first_init == 0) {
 		miiphy_reset (reg);
 
-#if defined(CONFIG_440_GX)
+#if defined(CONFIG_440GX)
 #if defined(CONFIG_CIS8201_PHY)
 		/*
 		 * Cicada 8201 PHY needs to have an extended register whacked
@@ -512,7 +512,7 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 			(int) speed, (duplex == HALF) ? "HALF" : "FULL");
 	}
 
-#if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
 	mfsdr(sdr_mfr, reg);
 	if (speed == 100) {
 		reg = (reg & ~SDR0_MFR_ZMII_MODE_MASK) | SDR0_MFR_ZMII_MODE_RMII_100M;
@@ -521,13 +521,13 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 	}
 	mtsdr(sdr_mfr, reg);
 #endif
+
 	/* Set ZMII/RGMII speed according to the phy link speed */
 	reg = in32 (ZMII_SSR);
 	if ( (speed == 100) || (speed == 1000) )
 		out32 (ZMII_SSR, reg | (ZMII_SSR_SP << ZMII_SSR_V (devnum)));
 	else
-		out32 (ZMII_SSR,
-		       reg & (~(ZMII_SSR_SP << ZMII_SSR_V (devnum))));
+		out32 (ZMII_SSR, reg & (~(ZMII_SSR_SP << ZMII_SSR_V (devnum))));
 
 	if ((devnum == 2) || (devnum == 3)) {
 		if (speed == 1000)
@@ -541,7 +541,7 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 	}
 
 	/* set the Mal configuration reg */
-#if defined(CONFIG_440_GX)
+#if defined(CONFIG_440GX)
 	mtdcr (malmcr, MAL_CR_PLBB | MAL_CR_OPBBL | MAL_CR_LEA |
 	       MAL_CR_PLBLT_DEFAULT | MAL_CR_EOPIE | 0x00330000);
 #else
@@ -642,7 +642,7 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 	switch (devnum) {
 	case 1:
 		/* setup MAL tx & rx channel pointers */
-#if defined (CONFIG_440_EP) || defined (CONFIG_440_GR)
+#if defined (CONFIG_440EP) || defined (CONFIG_440GR)
 		mtdcr (maltxctp2r, hw_p->tx);
 #else
 		mtdcr (maltxctp1r, hw_p->tx);
@@ -653,7 +653,7 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 		/* set RX buffer size */
 		mtdcr (malrcbs1, ENET_MAX_MTU_ALIGNED / 16);
 		break;
-#if defined (CONFIG_440_GX)
+#if defined (CONFIG_440GX)
 	case 2:
 		/* setup MAL tx & rx channel pointers */
 		mtdcr (maltxbattr, 0x0);
@@ -672,7 +672,7 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 		/* set RX buffer size */
 		mtdcr (malrcbs3, ENET_MAX_MTU_ALIGNED / 16);
 		break;
-#endif /*CONFIG_440_GX */
+#endif /* CONFIG_440GX */
 	case 0:
 	default:
 		/* setup MAL tx & rx channel pointers */
@@ -686,7 +686,7 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 	}
 
 	/* Enable MAL transmit and receive channels */
-#if defined(CONFIG_440_EP) || defined(CONFIG_440_GR)
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
 	mtdcr (maltxcasr, (MAL_TXRX_CASR >> (hw_p->devnum*2)));
 #else
 	mtdcr (maltxcasr, (MAL_TXRX_CASR >> hw_p->devnum));
@@ -836,7 +836,7 @@ int enetInt (struct eth_device *dev)
 	unsigned long mal_rx_eob;
 	unsigned long my_uic0msr, my_uic1msr;
 
-#if defined(CONFIG_440_GX)
+#if defined(CONFIG_440GX)
 	unsigned long my_uic2msr;
 #endif
 	EMAC_440GX_HW_PST hw_p;
@@ -856,7 +856,7 @@ int enetInt (struct eth_device *dev)
 
 		my_uic0msr = mfdcr (uic0msr);
 		my_uic1msr = mfdcr (uic1msr);
-#if defined(CONFIG_440_GX)
+#if defined(CONFIG_440GX)
 		my_uic2msr = mfdcr (uic2msr);
 #endif
 		if (!(my_uic0msr & (UIC_MRE | UIC_MTE))
@@ -866,7 +866,7 @@ int enetInt (struct eth_device *dev)
 			/* not for us */
 			return (rc);
 		}
-#if defined (CONFIG_440_GX)
+#if defined (CONFIG_440GX)
 		if (!(my_uic0msr & (UIC_MRE | UIC_MTE))
 		    && !(my_uic2msr & (UIC_ETH2 | UIC_ETH3))) {
 			/* not for us */
@@ -922,7 +922,7 @@ int enetInt (struct eth_device *dev)
 				return (rc);	/* we had errors so get out */
 			}
 		}
-#if defined (CONFIG_440_GX)
+#if defined (CONFIG_440GX)
 		if (hw_p->devnum == 2) {
 			if (UIC_ETH2 & my_uic2msr) {	/* look for EMAC errors */
 				emac_isr = in32 (EMAC_ISR + hw_p->hw_addr);
@@ -958,7 +958,7 @@ int enetInt (struct eth_device *dev)
 				return (rc);	/* we had errors so get out */
 			}
 		}
-#endif /* CONFIG_440_GX */
+#endif /* CONFIG_440GX */
 		/* handle MAX TX EOB interrupt from a tx */
 		if (my_uic0msr & UIC_MTE) {
 			mal_rx_eob = mfdcr (maltxeobisr);
@@ -987,14 +987,14 @@ int enetInt (struct eth_device *dev)
 		case 1:
 			mtdcr (uic1sr, UIC_ETH1);
 			break;
-#if defined (CONFIG_440_GX)
+#if defined (CONFIG_440GX)
 		case 2:
 			mtdcr (uic2sr, UIC_ETH2);
 			break;
 		case 3:
 			mtdcr (uic2sr, UIC_ETH3);
 			break;
-#endif /* CONFIG_440_GX */
+#endif /* CONFIG_440GX */
 		default:
 			break;
 		}
@@ -1184,7 +1184,7 @@ int ppc_440x_eth_initialize (bd_t * bis)
 	int eth_num = 0;
 	EMAC_440GX_HW_PST hw = NULL;
 
-#if defined(CONFIG_440_GX)
+#if defined(CONFIG_440GX)
 	unsigned long pfc1;
 
 	mfsdr (sdr_pfc1, pfc1);
@@ -1197,7 +1197,7 @@ int ppc_440x_eth_initialize (bd_t * bis)
 #if defined(CONFIG_PHY1_ADDR)
 	bis->bi_phynum[1] = CONFIG_PHY1_ADDR;
 #endif
-#if defined(CONFIG_440_GX)
+#if defined(CONFIG_440GX)
 	bis->bi_phynum[2] = CONFIG_PHY2_ADDR;
 	bis->bi_phynum[3] = CONFIG_PHY3_ADDR;
 	bis->bi_phymode[0] = 0;
@@ -1205,7 +1205,7 @@ int ppc_440x_eth_initialize (bd_t * bis)
 	bis->bi_phymode[2] = 2;
 	bis->bi_phymode[3] = 2;
 
-#if defined (CONFIG_440_GX)
+#if defined (CONFIG_440GX)
 	ppc_440x_eth_setup_bridge(0, bis);
 #endif
 #endif

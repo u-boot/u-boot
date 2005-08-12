@@ -2,6 +2,78 @@
 Changes for U-Boot 1.1.3:
 ======================================================================
 
+* Minor code cleanup
+
+* Add forgotten new fils from latest VoiceBlue update
+
+* Make bootretry feature work with hush shell.
+  Caveat: this currently *requires* CONFIG_RESET_TO_RETRY to be set, too.
+  Patch by Andreas Engel, 19 Jul 2005
+
+* Update Hymod Board Database PHP code in "tools" directory
+  Patch by Murray Jensen, 01 Jul 2005
+
+* Make "tr" command use POSIX compliant; export HOSTOS make variable
+  Patch by Murray Jensen, 30 Jun 2005
+
+* Fix Murray Jensen's mail address.
+  Patch by Murray Jensen, 30 Jun 2005
+
+* Preserve PHY_BMCR during a soft reset.
+  Patch by Carl Riechers, 24 Jun 2005
+
+* VoiceBlue update: eeprom tool can also store firmware version now.
+  eeprom.bin is runable by jumping at load address.
+  Patch by Ladislav Michl, 23 May 2005
+
+* Move the AT91RM9200DK to the ARM Systems list.
+  Patch by Anders Larsen, 26 Apr 2005
+
+* Eliminate calls of ARM libgcc.a helper functions _divsi3 and _modsi3
+  Patch by Anders Larsen, 26 Apr 2005
+
+* measure_gclk() is needed when DEBUG is enabled
+  Patch by Bryan O'Donoghue, 25 Apr 2005
+
+* Add UPD-Checksum code, fix problem in net.c (return instead of break)
+  Patch by Reinhard Arlt, 12 Aug 2005
+
+* esd PCI405 board updated
+  Patch by Matthias Fuchs, 28 Jul 2005
+
+* esd WUH405 and DU405 board updated
+  Patch by Matthias Fuchs, 27 Jul 2005
+
+* Fix problem in cmd_nand.c (only when defined CFG_NAND_SKIP_BAD_DOT_I)
+  Patch by Matthias Fuchs, 4 May 2005
+
+* Update AMCC Yosemite to get a consistent setup for all AMCC eval
+  boards (baudrate, environment...). Flash driver fixed.
+  Patch by Stefan Roese, 11 Aug 2005
+
+* Changed AMCC Bubinga (405EP) configuration to support 2nd eth port
+  Patch by Stefan Roese, 11 Aug 2005
+
+* Add NAND FLASH support for AMCC Bamboo 440EP eval board
+  Patch by Stefan Roese, 11 Aug 2005
+
+* Add configuration for IFM AEV FIFO board.
+  Minor coding style cleanup.
+
+* Add configuration for IFM SPI eval board
+
+* Fix CompactFlash problem on HMI1001 board
+
+* Make new "mtdparts" code build with older compilers
+  Patch by Andrea Scian, 09 Aug 2005
+
+* Changed CONFIG_440_GX, CONFIG_440_EP and CONFIG_440_GR options to
+  CONFIG_44GX, CONFIG_440EP and CONFIG_440GR for a consistent design
+  with the 405 defines and the linux kernel defines.
+  Patch by Stefan Roese, 08 Aug 2005
+
+* Fix compiler warnings with older GCC versions
+
 * Add common (with Linux) MTD partition scheme and "mtdparts" command
 
   Old, obsolete and duplicated code was cleaned up and replace by the
@@ -34,13 +106,13 @@ Changes for U-Boot 1.1.3:
 
 * Fix errors that occur when accessing SystemACE CF
   Patch by Jeff Angielski, 09 Jan 2005
-  
+
 * Document switching between U-Boot and PlanetCore on RPXlite
   by Sam Song, 24 Dec 2004
 
 * Fix PowerQUICC II mask detection.
   Patch by Eugene Surovegin, 20 Dec 2004
-  
+
 * Add support for Altera NIOS DK1C20 board
   Patch by Shlomo Kut, 13 Dec 2004
 

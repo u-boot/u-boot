@@ -1,7 +1,7 @@
 <?php // php pages made with phpMyBuilder <http://kyber.dk/phpMyBuilder> ?>
 <?php
 	// (C) Copyright 2001
-	// Murray Jensen <Murray.Jensen@cmst.csiro.au>
+	// Murray Jensen <Murray.Jensen@csiro.au>
 	// CSIRO Manufacturing Science and Technology, Preston Lab
 
 	// doedit page (hymod_bddb / boards)
@@ -10,15 +10,18 @@
 
 	pg_head("$bddb_label - Edit Log Entry Results");
 
-	if ($serno == 0)
+	if (!isset($_REQUEST['serno']) || $_REQUEST['serno'] == '')
 		die("the board serial number was not specified");
+	$serno=intval($_REQUEST['serno']);
 
-	if (!isset($logno) || $logno == 0)
+	if (!isset($_REQUEST['logno']) || $_REQUEST['logno'] == '')
 		die("log number not specified!");
+	$logno=intval($_REQUEST['logno']);
 
 	$query="update log set";
 
-	if (isset($date)) {
+	if (isset($_REQUEST['date'])) {
+		$date=$_REQUEST['date'];
 		list($y, $m, $d) = split("-", $date);
 		if (!checkdate($m, $d, $y) || $y < 1999)
 			die("date is invalid (input '$date', " .
@@ -26,11 +29,15 @@
 		$query.=" date='$date'";
 	}
 
-	if (isset($who))
+	if (isset($_REQUEST['who'])) {
+		$who=$_REQUEST['who'];
 		$query.=", who='" . $who . "'";
+	}
 
-	if (isset($details))
+	if (isset($_REQUEST['details'])) {
+		$details=$_REQUEST['details'];
 		$query.=", details='" . rawurlencode($details) . "'";
+	}
 
 	$query.=" where serno=$serno and logno=$logno";
 
