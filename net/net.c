@@ -1410,7 +1410,7 @@ NetReceive(volatile uchar * inpkt, int len)
 				puts (" ICMP Host Redirect to ");
 				print_IPaddr(icmph->un.gateway);
 				putc(' ');
-				break;
+				return;
 #if (CONFIG_COMMANDS & CFG_CMD_PING)
 			case ICMP_ECHO_REPLY:
 				/*
@@ -1418,7 +1418,7 @@ NetReceive(volatile uchar * inpkt, int len)
 				 */
 				/* XXX point to ip packet */
 				(*packetHandler)((uchar *)ip, 0, 0, 0);
-				break;
+				return;
 #endif
 			default:
 				return;
@@ -1426,6 +1426,46 @@ NetReceive(volatile uchar * inpkt, int len)
 		} else if (ip->ip_p != IPPROTO_UDP) {	/* Only UDP packets */
 			return;
 		}
+
+#ifdef CONFIG_UDP_CHECKSUM
+		if (ip->udp_xsum != 0) {
+		        ulong   xsum;
+			ushort *sumptr;
+			ushort  sumlen;
+
+			xsum  = ip->ip_p;
+			xsum += (ntohs(ip->udp_len));
+			xsum += (ntohl(ip->ip_src) >> 16) & 0x0000ffff;
+			xsum += (ntohl(ip->ip_src) >>  0) & 0x0000ffff;
+			xsum += (ntohl(ip->ip_dst) >> 16) & 0x0000ffff;
+			xsum += (ntohl(ip->ip_dst) >>  0) & 0x0000ffff;
+
+			sumlen = ntohs(ip->udp_len);
+			sumptr = (ushort *) &(ip->udp_src);
+
+			while (sumlen > 1) {
+			        ushort sumdata;
+
+				sumdata = *sumptr++;
+				xsum += ntohs(sumdata);
+				sumlen -= 2;
+			}
+			if (sumlen > 0) {
+			        ushort sumdata;
+
+				sumdata = *(unsigned char *) sumptr;
+                                sumdata = (sumdata << 8) & 0xff00;
+				xsum += sumdata;
+			}
+			while ((xsum >> 16) != 0) {
+			        xsum = (xsum & 0x0000ffff) + ((xsum >> 16) & 0x0000ffff);
+			}
+			if ((xsum != 0x00000000) && (xsum != 0x0000ffff)) {
+			        printf(" UDP wrong checksum %08x %08x\n", xsum, ntohs(ip->udp_xsum));
+				return;
+			}
+		}
+#endif
 
 #ifdef CONFIG_NETCONSOLE
 		nc_input_packet((uchar *)ip +IP_HDR_SIZE,
