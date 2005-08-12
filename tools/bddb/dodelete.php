@@ -10,8 +10,9 @@
 
 	pg_head("$bddb_label - Delete Board Results");
 
-	if (!($serno=intval($serno)))
+	if (!isset($_REQUEST['serno']))
 		die("the board serial number was not specified");
+	$serno=intval($_REQUEST['serno']);
 
 	mysql_query("delete from boards where serno=$serno");
 

@@ -10,8 +10,10 @@
 
 	pg_head("$bddb_label - Board Registration Results");
 
-	if (($serno=intval($serno)) != 0)
+	if (isset($_REQUEST['serno'])) {
+		$serno=$_REQUEST['serno'];
 		die("serial number must not be set ($serno) when Creating!");
+	}
 
 	$query="update boards set";
 
