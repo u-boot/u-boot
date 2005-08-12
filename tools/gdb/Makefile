@@ -1,6 +1,6 @@
 #
 # (C) Copyright 2000
-# Murray Jensen <Murray.Jensen@cmst.csiro.au>
+# Murray Jensen <Murray.Jensen@csiro.au>
 #
 # See file CREDITS for list of people who contributed to this
 # project.

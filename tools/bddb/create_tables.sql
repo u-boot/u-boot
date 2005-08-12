@@ -4,8 +4,8 @@
 # Host: localhost Database : hymod_bddb
 
 # (C) Copyright 2001
-# Murray Jensen <Murray.Jensen@cmst.csiro.au>
-# CSIRO Manufacturing Science and Technology, Preston Lab
+# Murray Jensen <Murray.Jensen@csiro.au>
+# CSIRO Manufacturing and Infrastructure Technology, Preston Lab
 
 # --------------------------------------------------------
 #

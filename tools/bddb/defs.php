@@ -1,7 +1,7 @@
 <?php // php pages made with phpMyBuilder <http://kyber.dk/phpMyBuilder> ?>
 <?php
 	// (C) Copyright 2001
-	// Murray Jensen <Murray.Jensen@cmst.csiro.au>
+	// Murray Jensen <Murray.Jensen@csiro.au>
 	// CSIRO Manufacturing Science and Technology, Preston Lab
 
 	// contains mysql user id and password - keep secret
@@ -108,7 +108,7 @@
 		echo "<hr></hr>\n";
 		echo "<table width=\"100%\"><tr><td align=left>\n<address>" .
 			"If you have any problems, email " .
-			"<a href=\"mailto:Murray.Jensen@cmst.csiro.au\">" .
+			"<a href=\"mailto:Murray.Jensen@csiro.au\">" .
 			"Murray Jensen" .
 			"</a></address>\n" .
 			"</td><td align=right>\n" .

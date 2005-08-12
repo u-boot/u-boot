@@ -198,10 +198,9 @@ D: Support for Samsung ARM920T S3C2400X, ARM920T "TRAB"
 W: www.denx.de
 
 N: Murray Jensen
-E: Murray.Jensen@cmst.csiro.au
+E: Murray.Jensen@csiro.au
 D: Initial 8260 support; GDB support
 D: Port to Cogent+Hymod boards; Hymod Board Database
-W: http://www.msa.cmst.csiro.au/ourstaff/MurrayJensen/mjj.html
 
 N: Yoo. Jonghoon
 E: yooth@ipone.co.kr
