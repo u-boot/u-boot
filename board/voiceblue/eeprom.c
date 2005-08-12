@@ -146,7 +146,7 @@ int eeprom(int argc, char *argv[])
 {
 	int i, len, ret;
 	unsigned char buf[58], *p;
-	
+
 	app_startup(argv);
 	if (get_version() != XF_VERSION) {
 		printf("Wrong XF_VERSION.\n");
@@ -209,4 +209,3 @@ int eeprom(int argc, char *argv[])
 
 	return 0;
 }
-

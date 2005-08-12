@@ -32,7 +32,7 @@ SOBJS	:= setup.o
 gcclibdir := $(shell dirname `$(CC) -print-libgcc-file-name`)
 
 LOAD_ADDR = 0x10400000
-LDSCRIPT = $(TOPDIR)/board/$(BOARDDIR)/eeprom.lds 
+LDSCRIPT = $(TOPDIR)/board/$(BOARDDIR)/eeprom.lds
 
 all:	$(LIB) eeprom.srec eeprom.bin
 

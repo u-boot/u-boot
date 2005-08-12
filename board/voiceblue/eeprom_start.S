@@ -7,6 +7,5 @@
  *
  */
 
-.globl _start
-_start:	b       eeprom
-
+.globl	_start
+_start:	b	eeprom
