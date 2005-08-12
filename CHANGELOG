@@ -2,6 +2,10 @@
 Changes for U-Boot 1.1.3:
 ======================================================================
 
+* VoiceBlue update: eeprom tool can also store firmware version now.
+  eeprom.bin is runable by jumping at load address.
+  Patch by Ladislav Michl, 23 May 2005
+
 * Move the AT91RM9200DK to the ARM Systems list.
   Patch by Anders Larsen, 26 Apr 2005
   
