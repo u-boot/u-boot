@@ -25,7 +25,7 @@
 #include <mpc8xx.h>
 #include <asm/processor.h>
 
-#if !defined(CONFIG_8xx_CPUCLK_DEFAULT) || defined(CFG_MEASURE_CPUCLK)
+#if !defined(CONFIG_8xx_CPUCLK_DEFAULT) || defined(CFG_MEASURE_CPUCLK) || defined(DEBUG)
 
 #define PITC_SHIFT 16
 #define PITR_SHIFT 16
