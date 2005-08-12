@@ -295,7 +295,13 @@ int do_i2c_mw ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		 * chip doesn't respond.  This apparently isn't a
 		 * universal feature so we don't take advantage of it.
 		 */
+/*
+ * No write delay with FRAM devices.
+ */
+#if !defined(CFG_I2C_FRAM)
 		udelay(11000);
+#endif
+
 #if 0
 		for(timeout = 0; timeout < 10; timeout++) {
 			udelay(2000);

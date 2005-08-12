@@ -158,6 +158,7 @@
  * 0x50 ... 0x57 each 256 bytes in size
  *
  */
+#define CFG_I2C_FRAM
 #define CFG_I2C_EEPROM_ADDR		0x50	/* 1010000x */
 #define CFG_I2C_EEPROM_ADDR_LEN		1
 #define CFG_EEPROM_PAGE_WRITE_BITS	3
