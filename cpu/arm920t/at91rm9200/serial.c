@@ -56,7 +56,7 @@ void serial_setbrg (void)
 	if ((baudrate = gd->baudrate) <= 0)
 		baudrate = CONFIG_BAUDRATE;
 	/* MASTER_CLOCK/(16 * baudrate) */
-	us->US_BRGR = (AT91C_MASTER_CLOCK >> 4)/baudrate;
+	us->US_BRGR = (AT91C_MASTER_CLOCK >> 4) / (unsigned)baudrate;
 }
 
 int serial_init (void)
