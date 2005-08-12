@@ -29,10 +29,10 @@ HOSTARCH := $(shell uname -m | \
 	    -e s/powerpc/ppc/ \
 	    -e s/macppc/ppc/)
 
-HOSTOS := $(shell uname -s | tr A-Z a-z | \
+HOSTOS := $(shell uname -s | tr '[:upper:]' '[:lower:]' | \
 	    sed -e 's/\(cygwin\).*/cygwin/')
 
-export	HOSTARCH
+export	HOSTARCH HOSTOS
 
 # Deal with colliding definitions from tcsh etc.
 VENDOR=
