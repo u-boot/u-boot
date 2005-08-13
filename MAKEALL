@@ -196,7 +196,7 @@ LIST_arm="	\
 "
 
 #########################################################################
-## MIPS Systems
+## MIPS Systems		(default = big endian)
 #########################################################################
 
 LIST_mips4kc="incaip"
@@ -206,6 +206,18 @@ LIST_mips5kc="purple"
 LIST_au1xx0="dbau1000 dbau1100 dbau1500 dbau1550 dbau1550_el"
 
 LIST_mips="${LIST_mips4kc} ${LIST_mips5kc} ${LIST_au1xx0}"
+
+#########################################################################
+## MIPS Systems		(little endian)
+#########################################################################
+
+LIST_mips4kc_el=""
+
+LIST_mips5kc_el=""
+
+LIST_au1xx0_el="dbau1550_el"
+
+LIST_mips_el="${LIST_mips4kc_el} ${LIST_mips5kc_el} ${LIST_au1xx0_el}"
 
 #########################################################################
 ## i386 Systems
@@ -263,7 +275,7 @@ do
 	ppc|5xx|5xxx|8xx|8220|824x|8260|83xx|85xx|4xx|7xx|74xx| \
 	arm|SA|ARM7|ARM9|ARM11|pxa|ixp| \
 	microblaze| \
-	mips| \
+	mips|mips_el| \
 	nios|nios2| \
 	x86|I486)
 			for target in `eval echo '$LIST_'${arg}`
