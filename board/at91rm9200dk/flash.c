@@ -259,8 +259,7 @@ void flash_print_info (flash_info_t * info)
 		break;
 	default:
 		printf ("Unknown Chip Type\n");
-		goto Done;
-		break;
+		return;
 	}
 
 	printf ("  Size: %ld MB in %d Sectors\n",
@@ -275,8 +274,6 @@ void flash_print_info (flash_info_t * info)
 			info->protect[i] ? " (RO)" : "     ");
 	}
 	printf ("\n");
-
-Done:	;
 }
 
 /*-----------------------------------------------------------------------
