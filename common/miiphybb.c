@@ -38,72 +38,79 @@
  * Utility to send the preamble, address, and register (common to read
  * and write).
  */
-static void miiphy_pre(char	      read,
-		       unsigned char  addr,
-		       unsigned char  reg)
+static void miiphy_pre (char read, unsigned char addr, unsigned char reg)
 {
-  int   j;	/* counter */
-  volatile ioport_t *iop = ioport_addr((immap_t *)CFG_IMMR, MDIO_PORT);
+	int j;			/* counter */
+#ifndef CONFIG_EP8248
+	volatile ioport_t *iop = ioport_addr ((immap_t *) CFG_IMMR, MDIO_PORT);
+#endif
 
-  /*
-   * Send a 32 bit preamble ('1's) with an extra '1' bit for good measure.
-   * The IEEE spec says this is a PHY optional requirement.  The AMD
-   * 79C874 requires one after power up and one after a MII communications
-   * error.  This means that we are doing more preambles than we need,
-   * but it is safer and will be much more robust.
-   */
+	/*
+	 * Send a 32 bit preamble ('1's) with an extra '1' bit for good measure.
+	 * The IEEE spec says this is a PHY optional requirement.  The AMD
+	 * 79C874 requires one after power up and one after a MII communications
+	 * error.  This means that we are doing more preambles than we need,
+	 * but it is safer and will be much more robust.
+	 */
 
-  MDIO_ACTIVE;
-  MDIO(1);
-  for(j = 0; j < 32; j++)
-  {
-    MDC(0);
-    MIIDELAY;
-    MDC(1);
-    MIIDELAY;
-  }
+	MDIO_ACTIVE;
+	MDIO (1);
+	for (j = 0; j < 32; j++) {
+		MDC (0);
+		MIIDELAY;
+		MDC (1);
+		MIIDELAY;
+	}
 
-  /* send the start bit (01) and the read opcode (10) or write (10) */
-  MDC(0); MDIO(0); MIIDELAY; MDC(1); MIIDELAY;
-  MDC(0); MDIO(1); MIIDELAY; MDC(1); MIIDELAY;
-  MDC(0); MDIO(read);  MIIDELAY; MDC(1); MIIDELAY;
-  MDC(0); MDIO(!read); MIIDELAY; MDC(1); MIIDELAY;
+	/* send the start bit (01) and the read opcode (10) or write (10) */
+	MDC (0);
+	MDIO (0);
+	MIIDELAY;
+	MDC (1);
+	MIIDELAY;
+	MDC (0);
+	MDIO (1);
+	MIIDELAY;
+	MDC (1);
+	MIIDELAY;
+	MDC (0);
+	MDIO (read);
+	MIIDELAY;
+	MDC (1);
+	MIIDELAY;
+	MDC (0);
+	MDIO (!read);
+	MIIDELAY;
+	MDC (1);
+	MIIDELAY;
 
-  /* send the PHY address */
-  for(j = 0; j < 5; j++)
-  {
-    MDC(0);
-    if((addr & 0x10) == 0)
-    {
-      MDIO(0);
-    }
-    else
-    {
-      MDIO(1);
-    }
-    MIIDELAY;
-    MDC(1);
-    MIIDELAY;
-    addr <<= 1;
-  }
+	/* send the PHY address */
+	for (j = 0; j < 5; j++) {
+		MDC (0);
+		if ((addr & 0x10) == 0) {
+			MDIO (0);
+		} else {
+			MDIO (1);
+		}
+		MIIDELAY;
+		MDC (1);
+		MIIDELAY;
+		addr <<= 1;
+	}
 
-  /* send the register address */
-  for(j = 0; j < 5; j++)
-  {
-    MDC(0);
-    if((reg & 0x10) == 0)
-    {
-      MDIO(0);
-    }
-    else
-    {
-      MDIO(1);
-    }
-    MIIDELAY;
-    MDC(1);
-    MIIDELAY;
-    reg <<= 1;
-  }
+	/* send the register address */
+	for (j = 0; j < 5; j++) {
+		MDC (0);
+		if ((reg & 0x10) == 0) {
+			MDIO (0);
+		} else {
+			MDIO (1);
+		}
+		MIIDELAY;
+		MDC (1);
+		MIIDELAY;
+		reg <<= 1;
+	}
 }
 
 
@@ -114,66 +121,63 @@ static void miiphy_pre(char	      read,
  * Returns:
  *   0 on success
  */
-int miiphy_read(unsigned char  addr,
-		unsigned char  reg,
-		unsigned short *value)
+int miiphy_read (unsigned char addr, unsigned char reg, unsigned short *value)
 {
-  short rdreg;	/* register working value */
-  int   j;	/* counter */
-  volatile ioport_t *iop = ioport_addr((immap_t *)CFG_IMMR, MDIO_PORT);
-
-  miiphy_pre(1, addr, reg);
-
-  /* tri-state our MDIO I/O pin so we can read */
-  MDC(0);
-  MDIO_TRISTATE;
-  MIIDELAY;
-  MDC(1);
-  MIIDELAY;
-
-  /* check the turnaround bit: the PHY should be driving it to zero */
-  if(MDIO_READ != 0)
-  {
-    /* puts ("PHY didn't drive TA low\n"); */
-    for(j = 0; j < 32; j++)
-    {
-      MDC(0);
-      MIIDELAY;
-      MDC(1);
-      MIIDELAY;
-    }
-    return(-1);
-  }
-
-  MDC(0);
-  MIIDELAY;
-
-  /* read 16 bits of register data, MSB first */
-  rdreg = 0;
-  for(j = 0; j < 16; j++)
-  {
-    MDC(1);
-    MIIDELAY;
-    rdreg <<= 1;
-    rdreg |= MDIO_READ;
-    MDC(0);
-    MIIDELAY;
-  }
-
-  MDC(1);
-  MIIDELAY;
-  MDC(0);
-  MIIDELAY;
-  MDC(1);
-  MIIDELAY;
-
-  *value = rdreg;
-
-#ifdef DEBUG
-  printf ("miiphy_read(0x%x) @ 0x%x = 0x%04x\n", reg, addr, *value);
+	short rdreg;		/* register working value */
+	int j;			/* counter */
+#ifndef CONFIG_EP8248
+	volatile ioport_t *iop = ioport_addr ((immap_t *) CFG_IMMR, MDIO_PORT);
 #endif
 
-  return 0;
+	miiphy_pre (1, addr, reg);
+
+	/* tri-state our MDIO I/O pin so we can read */
+	MDC (0);
+	MDIO_TRISTATE;
+	MIIDELAY;
+	MDC (1);
+	MIIDELAY;
+
+	/* check the turnaround bit: the PHY should be driving it to zero */
+	if (MDIO_READ != 0) {
+		/* puts ("PHY didn't drive TA low\n"); */
+		for (j = 0; j < 32; j++) {
+			MDC (0);
+			MIIDELAY;
+			MDC (1);
+			MIIDELAY;
+		}
+		return (-1);
+	}
+
+	MDC (0);
+	MIIDELAY;
+
+	/* read 16 bits of register data, MSB first */
+	rdreg = 0;
+	for (j = 0; j < 16; j++) {
+		MDC (1);
+		MIIDELAY;
+		rdreg <<= 1;
+		rdreg |= MDIO_READ;
+		MDC (0);
+		MIIDELAY;
+	}
+
+	MDC (1);
+	MIIDELAY;
+	MDC (0);
+	MIIDELAY;
+	MDC (1);
+	MIIDELAY;
+
+	*value = rdreg;
+
+#ifdef DEBUG
+	printf ("miiphy_read(0x%x) @ 0x%x = 0x%04x\n", reg, addr, *value);
+#endif
+
+	return 0;
 }
 
 
@@ -184,47 +188,51 @@ int miiphy_read(unsigned char  addr,
  * Returns:
  *   0 on success
  */
-int miiphy_write(unsigned char  addr,
-		 unsigned char  reg,
-		 unsigned short value)
+int miiphy_write (unsigned char addr, unsigned char reg, unsigned short value)
 {
-  int   j;	/* counter */
-  volatile ioport_t *iop = ioport_addr((immap_t *)CFG_IMMR, MDIO_PORT);
+	int j;			/* counter */
+#ifndef CONFIG_EP8248
+	volatile ioport_t *iop = ioport_addr ((immap_t *) CFG_IMMR, MDIO_PORT);
+#endif
 
-  miiphy_pre(0, addr, reg);
+	miiphy_pre (0, addr, reg);
 
-  /* send the turnaround (10) */
-  MDC(0); MDIO(1); MIIDELAY; MDC(1); MIIDELAY;
-  MDC(0); MDIO(0); MIIDELAY; MDC(1); MIIDELAY;
+	/* send the turnaround (10) */
+	MDC (0);
+	MDIO (1);
+	MIIDELAY;
+	MDC (1);
+	MIIDELAY;
+	MDC (0);
+	MDIO (0);
+	MIIDELAY;
+	MDC (1);
+	MIIDELAY;
 
-  /* write 16 bits of register data, MSB first */
-  for(j = 0; j < 16; j++)
-  {
-    MDC(0);
-    if((value & 0x00008000) == 0)
-    {
-      MDIO(0);
-    }
-    else
-    {
-      MDIO(1);
-    }
-    MIIDELAY;
-    MDC(1);
-    MIIDELAY;
-    value <<= 1;
-  }
+	/* write 16 bits of register data, MSB first */
+	for (j = 0; j < 16; j++) {
+		MDC (0);
+		if ((value & 0x00008000) == 0) {
+			MDIO (0);
+		} else {
+			MDIO (1);
+		}
+		MIIDELAY;
+		MDC (1);
+		MIIDELAY;
+		value <<= 1;
+	}
 
-  /*
-   * Tri-state the MDIO line.
-   */
-  MDIO_TRISTATE;
-  MDC(0);
-  MIIDELAY;
-  MDC(1);
-  MIIDELAY;
+	/*
+	 * Tri-state the MDIO line.
+	 */
+	MDIO_TRISTATE;
+	MDC (0);
+	MIIDELAY;
+	MDC (1);
+	MIIDELAY;
 
-  return 0;
+	return 0;
 }
 
 #endif /* CONFIG_BITBANGMII */
