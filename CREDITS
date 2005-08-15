@@ -29,6 +29,7 @@ D: ERIC Support
 N: Pantelis Antoniou
 E: panto@intracom.gr
 D: NETVIA & NETPHONE board support, ARTOS support.
+D: Support for Silicon Turnkey eXpress XTc
 
 N: Pierre Aubert
 E: <p.aubert@staubli.com>
@@ -268,8 +269,9 @@ E: lo@routefree.com
 D: Support for DOS partitions
 
 N: Dan Malek
-E: dan@netx4.com
+E: dan@embeddedalley.com
 D: FADSROM, the grandfather of all of this
+D: Support for Silicon Turnkey eXpress XTc
 
 N: Andrea "llandre" Marson
 E: andrea.marson@dave-tech.it

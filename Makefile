@@ -644,6 +644,9 @@ SM850_config	:	unconfig
 SPD823TS_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx spd8xx
 
+stxxtc_config:	unconfig
+	@./mkconfig $(@:_config=) ppc mpc8xx stxxtc
+
 svm_sc8xx_config:	unconfig
 	@ >include/config.h
 	@./mkconfig $(@:_config=) ppc mpc8xx svm_sc8xx
