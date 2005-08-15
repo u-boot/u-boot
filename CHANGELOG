@@ -2,6 +2,8 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Coding style cleanup
+
 * Add support for Silicon Turnkey eXpress XTc (mpc87x/88x) board.
   Patch by Dan Malek and Pantelis Antoniou, 15 Aug 2005
 

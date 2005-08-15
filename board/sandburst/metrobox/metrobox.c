@@ -32,8 +32,6 @@
 #include "../common/ppc440gx_i2c.h"
 #include "../common/sb_common.h"
 
-
-
 void fpga_init (void);
 
 METROBOX_BOARD_ID_ST board_id_as[] =
@@ -43,13 +41,11 @@ METROBOX_BOARD_ID_ST board_id_as[] =
 	{"Reserved"},			     /* Reserved for future use */
 };
 
-
 /*************************************************************************
  *  board_early_init_f
  *
  *  Setup chip selects, initialize the Opto-FPGA, initialize
  *  interrupt polarity and triggers.
- *
  ************************************************************************/
 int board_early_init_f (void)
 {
@@ -186,7 +182,6 @@ int board_early_init_f (void)
 	mtebc(pb7cr, EBC_BXCR_BAS_ENCODE(0x48500000) |
 	      EBC_BXCR_BS_1MB | EBC_BXCR_BU_RW | EBC_BXCR_BW_32BIT);
 
-
 	/*--------------------------------------------------------------------+
 	 * Setup the interrupt controller polarities, triggers, etc.
 	 +-------------------------------------------------------------------*/
@@ -226,12 +221,10 @@ int board_early_init_f (void)
 	return 0;
 }
 
-
 /*************************************************************************
  *  checkboard
  *
  *  Dump pertinent info to the console
- *
  ************************************************************************/
 int checkboard (void)
 {
@@ -295,12 +288,10 @@ int checkboard (void)
 	return (0);
 }
 
-
 /*************************************************************************
  *  misc_init_f
  *
  *  Initialize I2C bus one to gain access to the fans
- *
  ************************************************************************/
 int misc_init_f (void)
 {
@@ -314,11 +305,11 @@ int misc_init_f (void)
 
 	return (0);
 }
+
 /*************************************************************************
  *  misc_init_r
  *
  *  Do nothing.
- *
  ************************************************************************/
 int misc_init_r (void)
 {
@@ -384,13 +375,8 @@ int misc_init_r (void)
 	return (0);
 }
 
-
-
 /*************************************************************************
  *  ide_set_reset
- *
- *
- *
  ************************************************************************/
 #ifdef CONFIG_IDE_RESET
 void ide_set_reset(int on)
@@ -408,9 +394,6 @@ void ide_set_reset(int on)
 
 /*************************************************************************
  *  fpga_init
- *
- *
- *
  ************************************************************************/
 void fpga_init(void)
 {
@@ -461,8 +444,6 @@ void fpga_init(void)
 
 	return;
 }
-
-
 
 int metroboxSetupVars(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
@@ -524,7 +505,6 @@ int metroboxSetupVars(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return(1);
 }
 
-
 int metroboxRecover(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	unsigned short sernum;
@@ -556,15 +536,8 @@ int metroboxRecover(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return(1);
 }
 
-
-
-
-
-
-
 U_BOOT_CMD(mbsetup, 1, 1, metroboxSetupVars,
 	   "mbsetup - Set environment to factory defaults\n", NULL);
 
 U_BOOT_CMD(mbrecover, 1, 1, metroboxRecover,
 	   "mbrecover - Set environment to allow for fs recovery\n", NULL);
-

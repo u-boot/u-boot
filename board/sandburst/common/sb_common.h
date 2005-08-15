@@ -30,38 +30,35 @@
 #include <i2c.h>
 #include "ppc440gx_i2c.h"
 
-
-
-
 /*
  * GPIO Settings
  */
 /* Chassis settings */
-#define SBCOMMON_GPIO_PRI_N             0x00001000  /* 0 = Chassis Master, 1 = Slave */
-#define SBCOMMON_GPIO_SEC_PRES          0x00000800  /* 1 = Other board present */
+#define SBCOMMON_GPIO_PRI_N		0x00001000  /* 0 = Chassis Master, 1 = Slave */
+#define SBCOMMON_GPIO_SEC_PRES		0x00000800  /* 1 = Other board present */
 
 /* Debug LEDs */
-#define SBCOMMON_GPIO_DBGLED_0          0x00000400
-#define SBCOMMON_GPIO_DBGLED_1          0x00000200
-#define SBCOMMON_GPIO_DBGLED_2          0x00100000
-#define SBCOMMON_GPIO_DBGLED_3          0x00000100
+#define SBCOMMON_GPIO_DBGLED_0		0x00000400
+#define SBCOMMON_GPIO_DBGLED_1		0x00000200
+#define SBCOMMON_GPIO_DBGLED_2		0x00100000
+#define SBCOMMON_GPIO_DBGLED_3		0x00000100
 
-#define SBCOMMON_GPIO_DBGLEDS           (SBCOMMON_GPIO_DBGLED_0 | \
-                                         SBCOMMON_GPIO_DBGLED_1 | \
-                                         SBCOMMON_GPIO_DBGLED_2 | \
-                                         SBCOMMON_GPIO_DBGLED_3)
+#define SBCOMMON_GPIO_DBGLEDS		(SBCOMMON_GPIO_DBGLED_0 | \
+					 SBCOMMON_GPIO_DBGLED_1 | \
+					 SBCOMMON_GPIO_DBGLED_2 | \
+					 SBCOMMON_GPIO_DBGLED_3)
 
-#define SBCOMMON_GPIO_SYS_FAULT         0x00000080
-#define SBCOMMON_GPIO_SYS_OTEMP         0x00000040
-#define SBCOMMON_GPIO_SYS_STATUS        0x00000020
+#define SBCOMMON_GPIO_SYS_FAULT		0x00000080
+#define SBCOMMON_GPIO_SYS_OTEMP		0x00000040
+#define SBCOMMON_GPIO_SYS_STATUS	0x00000020
 
-#define SBCOMMON_GPIO_SYS_LEDS          (SBCOMMON_GPIO_SYS_STATUS)
+#define SBCOMMON_GPIO_SYS_LEDS		(SBCOMMON_GPIO_SYS_STATUS)
 
-#define SBCOMMON_GPIO_LEDS              (SBCOMMON_GPIO_DBGLED_0 | \
-                                         SBCOMMON_GPIO_DBGLED_1 | \
-                                         SBCOMMON_GPIO_DBGLED_2 | \
-                                         SBCOMMON_GPIO_DBGLED_3 | \
-                                         SBCOMMON_GPIO_SYS_STATUS)
+#define SBCOMMON_GPIO_LEDS		(SBCOMMON_GPIO_DBGLED_0 | \
+					 SBCOMMON_GPIO_DBGLED_1 | \
+					 SBCOMMON_GPIO_DBGLED_2 | \
+					 SBCOMMON_GPIO_DBGLED_3 | \
+					 SBCOMMON_GPIO_SYS_STATUS)
 
 typedef struct ppc440_gpio_regs {
 	volatile unsigned long out;
@@ -71,13 +68,9 @@ typedef struct ppc440_gpio_regs {
 	volatile unsigned long in;
 }  __attribute__((packed)) ppc440_gpio_regs_t;
 
-
-
-
 int sbcommon_get_master(void);
 int sbcommon_secondary_present(void);
 unsigned short sbcommon_get_serial_number(void);
 void sbcommon_fans(void);
-
 
 #endif /* __SBCOMMON_H__ */

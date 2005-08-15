@@ -34,10 +34,7 @@
 #endif
 #include <i2c.h>
 
-
 #ifdef CONFIG_HARD_I2C
-
-
 
 #define I2C_BUS1_BASE_ADDR (CFG_PERIPHERAL_BASE + 0x00000500)
 #define	   I2C_REGISTERS_BUS1_BASE_ADDRESS I2C_BUS1_BASE_ADDR
@@ -64,4 +61,4 @@ int i2c_write1 (uchar chip, uint addr, int alen, uchar * buffer, int len);
 uchar i2c_reg_read1(uchar i2c_addr, uchar reg);
 void i2c_reg_write1(uchar i2c_addr, uchar reg, uchar val);
 
-#endif
+#endif	/* CONFIG_HARD_I2C */

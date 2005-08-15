@@ -39,8 +39,6 @@
 
 #ifdef CONFIG_I2C_BUS1
 
-
-
 #define IIC_OK		0
 #define IIC_NOK		1
 #define IIC_NOK_LA	2		/* Lost arbitration */
@@ -511,5 +509,4 @@ U_BOOT_CMD(
 	"\n    -discover valid I2C chip addresses\n"
 );
 
-#endif
-
+#endif	/* CONFIG_I2C_BUS1 */
