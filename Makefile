@@ -794,6 +794,12 @@ HUB405_config:	unconfig
 JSE_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx jse
 
+KAREF_config: unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx karef sandburst
+
+METROBOX_config: unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx metrobox sandburst
+
 MIP405_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx mip405 mpl
 

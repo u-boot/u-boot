@@ -828,7 +828,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	/* handle the 3rd ethernet address */
 
 	s = getenv ("eth2addr");
-#if defined(CONFIG_XPEDITE1K)
+#if defined(CONFIG_XPEDITE1K) || defined(CONFIG_METROBOX) || defined(CONFIG_KAREF)
 	if (s == NULL)
 		board_get_enetaddr(bd->bi_enet2addr);
 	else
@@ -843,7 +843,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #ifdef CONFIG_HAS_ETH3
 	/* handle 4th ethernet address */
 	s = getenv("eth3addr");
-#if defined(CONFIG_XPEDITE1K)
+#if defined(CONFIG_XPEDITE1K) || defined(CONFIG_METROBOX) || defined(CONFIG_KAREF)
 	if (s == NULL)
 		board_get_enetaddr(bd->bi_enet3addr);
 	else

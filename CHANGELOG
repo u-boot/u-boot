@@ -1,4 +1,16 @@
 ======================================================================
+Changes for U-Boot 1.1.4:
+======================================================================
+
+* Check return value of malloc in 440gx_enet.c
+  Patch by Travis B. Sawyer, 18 Jul 2005
+
+* Add Sandburst Metrobox and Sandburst Karef board support packages.
+  Second serial port on 440GX now defined as a system device.
+  Add 'Short Etch' code for Cicada PHY within 440gx_enet.c
+  Patch by Travis B. Sawyer, 12 Jul 2005
+
+======================================================================
 Changes for U-Boot 1.1.3:
 ======================================================================
 
