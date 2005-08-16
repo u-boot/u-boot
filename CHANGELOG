@@ -2,6 +2,8 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Enable PCI on hmi1001 board
+
 * Fix return values of the jffs2 commands ls/fsload/fsinfo,
   so we can use them to, e.g., check the existence of a file with
   "if ls foo; then this; else that; fi" in the hush shell

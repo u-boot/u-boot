@@ -65,6 +65,7 @@
 				CFG_CMD_I2C	| \
 				CFG_CMD_IDE	| \
 				CFG_CMD_NFS	| \
+				CFG_CMD_PCI	| \
 				CFG_CMD_SNTP)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
@@ -306,5 +307,22 @@
 #define CFG_ATA_STRIDE          4
 
 #define CONFIG_ATAPI            1
+
+/*
+ * PCI Mapping:
+ * 0x40000000 - 0x4fffffff - PCI Memory
+ * 0x50000000 - 0x50ffffff - PCI IO Space
+ */
+#define CONFIG_PCI		1
+#define CONFIG_PCI_PNP		1
+#define CONFIG_PCI_SCAN_SHOW	1
+
+#define CONFIG_PCI_MEM_BUS	0x40000000
+#define CONFIG_PCI_MEM_PHYS	CONFIG_PCI_MEM_BUS
+#define CONFIG_PCI_MEM_SIZE	0x10000000
+
+#define CONFIG_PCI_IO_BUS	0x50000000
+#define CONFIG_PCI_IO_PHYS	CONFIG_PCI_IO_BUS
+#define CONFIG_PCI_IO_SIZE	0x01000000
 
 #endif /* __CONFIG_H */
