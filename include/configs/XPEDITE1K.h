@@ -175,6 +175,7 @@ extern void out32(unsigned int, unsigned long);
 #define CONFIG_PHY3_ADDR	8	/* PHY address phy3 */
 #define CONFIG_NET_MULTI	1
 #define CONFIG_PHY_GIGE		1	/* Include GbE speed/duplex detection */
+#define CONFIG_PHY_RESET        1       /* reset phy upon startup         */
 #define CFG_RX_ETH_BUFFER   32	/* Number of ethernet rx buffers & descriptors */
 
 #define CONFIG_HAS_ETH1		1	/* add support for "eth1addr"	*/

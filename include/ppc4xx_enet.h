@@ -38,10 +38,9 @@
 |	       ported to handle 440GP and 440GX multiple EMACs
 +----------------------------------------------------------------------------*/
 
-#ifndef _emacgx_enet_h_
-#define _emacgx_enet_h_
+#ifndef _PPC4XX_ENET_H_
+#define _PPC4XX_ENET_H_
 
-#if defined(CONFIG_440)
 #include <net.h>
 #include "405_mal.h"
 
@@ -84,15 +83,15 @@ typedef struct emac_stats_st{	/* Statistic Block */
 	int rx;
 	int rx_prot_err;
 	int int_err;
-    int pkts_tx;
-    int pkts_rx;
-    int pkts_handled;
+	int pkts_tx;
+	int pkts_rx;
+	int pkts_handled;
 	short tx_err_log[MAX_ERR_LOG];
 	short rx_err_log[MAX_ERR_LOG];
 } EMAC_STATS_ST, *EMAC_STATS_PST;
 
-/* Structure containing variables used by the shared code (440gx_enet.c) */
-typedef struct emac_440gx_hw_st {
+/* Structure containing variables used by the shared code (4xx_enet.c) */
+typedef struct emac_4xx_hw_st {
     uint32_t		hw_addr;		/* EMAC offset */
     uint32_t		tah_addr;		/* TAH offset */
     uint32_t		phy_id;
@@ -127,15 +126,15 @@ typedef struct emac_440gx_hw_st {
     int			is_receiving;	/* sync with eth interrupt */
     int			print_speed;	/* print speed message upon start */
     EMAC_STATS_ST	stats;
-} EMAC_440GX_HW_ST, *EMAC_440GX_HW_PST;
+} EMAC_4XX_HW_ST, *EMAC_4XX_HW_PST;
 
 
 #if defined(CONFIG_440GX)
 #define EMAC_NUM_DEV	    4
-#elif defined(CONFIG_440) && !defined(CONFIG_440GX)
+#elif (defined(CONFIG_440) || defined(CONFIG_405EP)) && defined(CONFIG_NET_MULTI)
 #define EMAC_NUM_DEV	    2
 #else
-#warning Bad configuration
+#define EMAC_NUM_DEV	    1
 #endif
 
 
@@ -224,7 +223,6 @@ typedef struct emac_440gx_hw_st {
 #define TAH_SSR5		(TAH_BASE + 0x28)   /* Segment Size Reg 5 (R/W) */
 #define TAH_TSR			(TAH_BASE + 0x2C)   /* Transmit Status Register (RO) */
 
-
 /* TAH Revision */
 #define TAH_REV_RN_M		(0x000FFF00)	    /* Revision Number */
 #define TAH_REV_BN_M		(0x000000FF)	    /* Branch Revision Number */
@@ -276,10 +274,14 @@ typedef struct emac_440gx_hw_st {
 
 
 /* Ethernet MAC Regsiter Addresses */
+#if defined(CONFIG_440)
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR)
 #define EMAC_BASE			    (CFG_PERIPHERAL_BASE + 0x0E00)
 #else
 #define EMAC_BASE			    (CFG_PERIPHERAL_BASE + 0x0800)
+#endif
+#else
+#define EMAC_BASE 			0xEF600800
 #endif
 
 #define EMAC_M0				    (EMAC_BASE)
@@ -471,5 +473,4 @@ typedef struct emac_440gx_hw_st {
 /* all the errors we care about */
 #define EMAC_RX_ERRORS		(0x03FF)
 
-#endif /* CONFIG_440 */
-#endif /* _enetLib_h_ */
+#endif /* _PPC4XX_ENET_H_ */

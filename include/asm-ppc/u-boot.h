@@ -109,14 +109,18 @@ typedef struct bd_info {
 #if defined(CONFIG_NX823)
 	unsigned char	bi_sernum[8];
 #endif
-#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
-	int 		bi_phynum[2];           /* Determines phy mapping */
-	int 		bi_phymode[2];          /* Determines phy mode */
-#endif
+#if defined(CONFIG_4xx)
 #if defined(CONFIG_440GX)
 	int 		bi_phynum[4];           /* Determines phy mapping */
 	int 		bi_phymode[4];          /* Determines phy mode */
+#elif defined(CONFIG_405EP) || defined(CONFIG_440)
+	int 		bi_phynum[2];           /* Determines phy mapping */
+	int 		bi_phymode[2];          /* Determines phy mode */
+#else
+	int 		bi_phynum[1];           /* Determines phy mapping */
+	int 		bi_phymode[1];          /* Determines phy mode */
 #endif
+#endif /* defined(CONFIG_4xx) */
 } bd_t;
 
 #endif /* __ASSEMBLY__ */

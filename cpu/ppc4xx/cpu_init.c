@@ -23,7 +23,7 @@
 
 #include <common.h>
 #include <watchdog.h>
-#include <405gp_enet.h>
+#include <ppc4xx_enet.h>
 #include <asm/processor.h>
 #include <ppc4xx.h>
 

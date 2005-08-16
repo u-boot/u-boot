@@ -25,7 +25,7 @@
 #include <asm/processor.h>
 #include <i2c.h>
 #include <miiphy.h>
-#include <405gp_enet.h>
+#include <ppc4xx_enet.h>
 
 /*
  * board_early_init_f: do early board initialization

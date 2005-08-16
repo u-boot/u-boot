@@ -28,7 +28,7 @@
 #include "ocotea.h"
 #include <asm/processor.h>
 #include <spd_sdram.h>
-#include <440gx_enet.h>
+#include <ppc4xx_enet.h>
 
 #define BOOT_SMALL_FLASH	32	/* 00100000 */
 #define FLASH_ONBD_N		2	/* 00000010 */

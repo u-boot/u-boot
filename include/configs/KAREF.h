@@ -166,6 +166,7 @@
 #define CONFIG_HAS_ETH1
 #define CONFIG_HAS_ETH2
 #define CONFIG_HAS_ETH3
+#define CONFIG_PHY_RESET      1              /* reset phy upon startup  */
 #define CONFIG_CIS8201_PHY    1		     /* RGMII mode for Cicada	*/
 #define CONFIG_CIS8201_SHORT_ETCH 1	     /* Use short etch mode	*/
 #define CONFIG_PHY_GIGE	      1		     /* GbE speed/duplex detect */

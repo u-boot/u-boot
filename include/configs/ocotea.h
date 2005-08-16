@@ -211,8 +211,14 @@
 #define CONFIG_PHY1_ADDR	2
 #define CONFIG_PHY2_ADDR	0x10
 #define CONFIG_PHY3_ADDR	0x18
+#define CONFIG_HAS_ETH0
+#define CONFIG_HAS_ETH1
+#define CONFIG_HAS_ETH2
+#define CONFIG_HAS_ETH3
 #define CONFIG_CIS8201_PHY	1	/* Enable 'special' RGMII mode for Cicada phy */
 #define CONFIG_PHY_GIGE		1	/* Include GbE speed/duplex detection */
+#define CONFIG_PHY_RESET        1       /* reset phy upon startup         */
+#define CONFIG_PHY_RESET_DELAY	1000
 
 #define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
 				CFG_CMD_ASKENV	| \
@@ -256,7 +262,7 @@
 #define CFG_LOAD_ADDR		0x100000	/* default load address */
 #define CFG_EXTBDINFO		1	/* To use extended board_into (bd_t) */
 
-#define CFG_HZ		100		/* decrementer freq: 1 ms ticks */
+#define CFG_HZ			1000	/* decrementer freq: 1 ms ticks */
 
 #define CONFIG_AUTO_COMPLETE	1       /* add autocompletion support   */
 #define CONFIG_LOOPW            1       /* enable loopw command         */

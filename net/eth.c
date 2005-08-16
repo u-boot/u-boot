@@ -47,7 +47,6 @@ extern int ns8382x_initialize(bd_t*);
 extern int pcnet_initialize(bd_t*);
 extern int plb2800_eth_initialize(bd_t*);
 extern int ppc_4xx_eth_initialize(bd_t *);
-extern int ppc_440x_eth_initialize(bd_t *);
 extern int rtl8139_initialize(bd_t*);
 extern int rtl8169_initialize(bd_t*);
 extern int scc_initialize(bd_t*);
@@ -126,12 +125,8 @@ int eth_initialize(bd_t *bis)
 #ifdef CONFIG_DB64460
 	mv6446x_eth_initialize(bis);
 #endif
-#if defined(CONFIG_405GP) || defined(CONFIG_405EP) || \
-  ( defined(CONFIG_440) && !defined(CONFIG_NET_MULTI) )
+#if defined(CONFIG_4xx) && !defined(CONFIG_IOP480)
 	ppc_4xx_eth_initialize(bis);
-#endif
-#if defined(CONFIG_440) && defined(CONFIG_NET_MULTI)
-	ppc_440x_eth_initialize(bis);
 #endif
 #ifdef CONFIG_INCA_IP_SWITCH
 	inca_switch_initialize(bis);
