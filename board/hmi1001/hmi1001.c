@@ -170,3 +170,13 @@ int board_early_init_r (void)
 	*(vu_long *)MPC5XXX_CS0_STOP = STOP_REG(CFG_FLASH_BASE, CFG_FLASH_SIZE);
 	return 0;
 }
+#ifdef	CONFIG_PCI
+static struct pci_controller hose;
+
+extern void pci_mpc5xxx_init(struct pci_controller *);
+
+void pci_init_board(void)
+{
+	pci_mpc5xxx_init(&hose);
+}
+#endif

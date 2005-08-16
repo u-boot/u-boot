@@ -32,6 +32,7 @@
  * High Level Configuration Options
  * (easy to change)
  */
+#define CONFIG_IDENT_STRING     " $Name: esd_PCI405_05_07_28 $"
 
 #define CONFIG_405GP		1	/* This is a PPC405 CPU		*/
 #define CONFIG_4xx		1	/* ...member of PPC4xx family	*/

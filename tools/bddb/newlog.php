@@ -1,7 +1,7 @@
 <?php // php pages made with phpMyBuilder <http://kyber.dk/phpMyBuilder> ?>
 <?php
 	// (C) Copyright 2001
-	// Murray Jensen <Murray.Jensen@cmst.csiro.au>
+	// Murray Jensen <Murray.Jensen@csiro.au>
 	// CSIRO Manufacturing Science and Technology, Preston Lab
 
 	// edit page (hymod_bddb / boards)
@@ -10,11 +10,14 @@
 
 	pg_head("$bddb_label - New Log Entry");
 
-	if ($serno == 0)
-		die("serial number not specified!");
+	if (!isset($_REQUEST['serno']) || $_REQUEST['serno'] == '')
+		die("serial number not specified or invalid!");
+	$serno=intval($_REQUEST['serno']);
 
-	if (isset($logno))
-		die("log number must not be specified when adding!");
+	if (isset($_REQUEST['logno'])) {
+		$logno=$_REQUEST['logno'];
+		die("log number must not be specified when adding! ($logno)");
+	}
 ?>
 <form action=donewlog.php method=POST>
 <p></p>
@@ -27,7 +30,7 @@
 	print_field("date", array('date' => date("Y-m-d")));
 
 	// who char(20)
-	print_field("who", "");
+	print_field("who", array());
 
 	// details text
 	print_field_multiline("details", array(), 60, 10, 'text_filter');

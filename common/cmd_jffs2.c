@@ -1810,7 +1810,7 @@ int do_jffs2_fsload(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 		return !(size > 0);
 	}
-	return 0;
+	return 1;
 }
 
 /**
@@ -1846,9 +1846,9 @@ int do_jffs2_ls(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			ret = jffs2_1pass_ls(part, filename);
 		}
 
-		return (ret == 1);
+		return ret ? 0 : 1;
 	}
-	return 0;
+	return 1;
 }
 
 /**
@@ -1884,9 +1884,9 @@ int do_jffs2_fsinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			ret = jffs2_1pass_info(part);
 		}
 
-		return (ret == 1);
+		return ret ? 0 : 1;
 	}
-	return 0;
+	return 1;
 }
 
 /* command line only */

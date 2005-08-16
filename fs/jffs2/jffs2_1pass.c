@@ -1288,7 +1288,7 @@ u32
 jffs2_1pass_ls(struct part_info * part, const char *fname)
 {
 	struct b_lists *pl;
-	long ret = 0;
+	long ret = 1;
 	u32 inode;
 
 	if (! (pl = jffs2_get_list(part, "ls")))
@@ -1315,7 +1315,7 @@ jffs2_1pass_load(char *dest, struct part_info * part, const char *fname)
 {
 
 	struct b_lists *pl;
-	long ret = 0;
+	long ret = 1;
 	u32 inode;
 
 	if (! (pl  = jffs2_get_list(part, "load")))

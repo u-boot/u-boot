@@ -1,7 +1,7 @@
 <?php // php pages made with phpMyBuilder <http://kyber.dk/phpMyBuilder> ?>
 <?php
 	// (C) Copyright 2001
-	// Murray Jensen <Murray.Jensen@cmst.csiro.au>
+	// Murray Jensen <Murray.Jensen@csiro.au>
 	// CSIRO Manufacturing Science and Technology, Preston Lab
 
 	// list page (hymod_bddb / boards)
@@ -10,8 +10,9 @@
 
 	pg_head("$bddb_label - Browse Board Log");
 
-	if (!isset($serno) || $serno == 0)
-		die("serial number not specified!");
+	$serno=intval($serno);
+	if ($serno == 0)
+		die("serial number not specified or invalid!");
 
 	function print_cell($str) {
 		if ($str == '')
@@ -55,16 +56,16 @@
 <hr></hr>
 <p></p>
 <?php
-	$limit=abs(isset($limit)?$limit:20);
-	$offset=abs(isset($offset)?$offset:0);
+	$limit=abs(isset($_REQUEST['limit'])?$_REQUEST['limit']:20);
+	$offset=abs(isset($_REQUEST['offset'])?$_REQUEST['offset']:0);
 	$lr=mysql_query("select count(*) as n from log where serno=$serno");
 	$lrow=mysql_fetch_array($lr);
 	if($lrow['n']>$limit){
 		$preoffset=max(0,$offset-$limit);
 		$postoffset=$offset+$limit;
 		echo "<table width=\"100%\">\n<tr align=center>\n";
-		printf("<td><%sa href=\"%s?serno=$serno&offset=%d\"><img border=0 alt=\"&lt;\" src=\"/icons/left.gif\"></a></td>\n", $offset>0?"":"no", $PHP_SELF, $preoffset);
-		printf("<td><%sa href=\"%s?serno=$serno&offset=%d\"><img border=0 alt=\"&gt;\" src=\"/icons/right.gif\"></a></td>\n", $postoffset<$lrow['n']?"":"no", $PHP_SELF, $postoffset);
+		printf("<td><%sa href=\"%s?submit=Log&serno=$serno&offset=%d\"><img border=0 alt=\"&lt;\" src=\"/icons/left.gif\"></a></td>\n", $offset>0?"":"no", $PHP_SELF, $preoffset);
+		printf("<td><%sa href=\"%s?submit=Log&serno=$serno&offset=%d\"><img border=0 alt=\"&gt;\" src=\"/icons/right.gif\"></a></td>\n", $postoffset<$lrow['n']?"":"no", $PHP_SELF, $postoffset);
 		echo "</tr>\n</table>\n";
 	}
 	mysql_free_result($lr);

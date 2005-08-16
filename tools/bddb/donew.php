@@ -1,7 +1,7 @@
 <?php // php pages made with phpMyBuilder <http://kyber.dk/phpMyBuilder> ?>
 <?php
 	// (C) Copyright 2001
-	// Murray Jensen <Murray.Jensen@cmst.csiro.au>
+	// Murray Jensen <Murray.Jensen@csiro.au>
 	// CSIRO Manufacturing Science and Technology, Preston Lab
 
 	// doedit page (hymod_bddb / boards)
@@ -10,8 +10,10 @@
 
 	pg_head("$bddb_label - Board Registration Results");
 
-	if (($serno=intval($serno)) != 0)
+	if (isset($_REQUEST['serno'])) {
+		$serno=$_REQUEST['serno'];
 		die("serial number must not be set ($serno) when Creating!");
+	}
 
 	$query="update boards set";
 

@@ -269,7 +269,7 @@ int ppc_440x_eth_setup_bridge(int devnum, bd_t * bis)
 
 static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 {
-	int i;
+	int i, j;
 	unsigned long reg;
 	unsigned long msr;
 	unsigned long speed;
@@ -448,7 +448,11 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 		 * for RGMII mode.
 		 */
 		if ( ((devnum == 2) || (devnum ==3)) && (4 == ethgroup) ) {
-			miiphy_write (reg, 23, 0x1200);
+#if defined(CONFIG_CIS8201_SHORT_ETCH)
+			miiphy_write (reg, 23, 0x1300);
+#else
+			miiphy_write (reg, 23, 0x1000);
+#endif
 			/*
 			 * Vitesse VSC8201/Cicada CIS8201 errata:
 			 * Interoperability problem with Intel 82547EI phys
@@ -567,6 +571,8 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 	hw_p->alloc_tx_buf =
 		(mal_desc_t *) malloc ((sizeof (mal_desc_t) * NUM_TX_BUFF) +
 				       ((2 * CFG_CACHELINE_SIZE) - 2));
+	if (NULL == hw_p->alloc_tx_buf)
+		return -1;
 	if (((int) hw_p->alloc_tx_buf & CACHELINE_MASK) != 0) {
 		hw_p->tx =
 			(mal_desc_t *) ((int) hw_p->alloc_tx_buf +
@@ -580,6 +586,12 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 	hw_p->alloc_rx_buf =
 		(mal_desc_t *) malloc ((sizeof (mal_desc_t) * NUM_RX_BUFF) +
 				       ((2 * CFG_CACHELINE_SIZE) - 2));
+	if (NULL == hw_p->alloc_rx_buf) {
+		free(hw_p->alloc_tx_buf);
+		hw_p->alloc_tx_buf = NULL;
+		return -1;
+	}
+
 	if (((int) hw_p->alloc_rx_buf & CACHELINE_MASK) != 0) {
 		hw_p->rx =
 			(mal_desc_t *) ((int) hw_p->alloc_rx_buf +
@@ -593,9 +605,20 @@ static int ppc_440x_eth_init (struct eth_device *dev, bd_t * bis)
 	for (i = 0; i < NUM_TX_BUFF; i++) {
 		hw_p->tx[i].ctrl = 0;
 		hw_p->tx[i].data_len = 0;
-		if (hw_p->first_init == 0)
+		if (hw_p->first_init == 0) {
 			hw_p->txbuf_ptr =
 				(char *) malloc (ENET_MAX_MTU_ALIGNED);
+			if (NULL == hw_p->txbuf_ptr) {
+				free(hw_p->alloc_rx_buf);
+				free(hw_p->alloc_tx_buf);
+				hw_p->alloc_rx_buf = NULL;
+				hw_p->alloc_tx_buf = NULL;
+				for(j = 0; j < i; j++) {
+					free(hw_p->tx[i].data_ptr);
+					hw_p->tx[i].data_ptr = NULL;
+				}
+			}
+		}
 		hw_p->tx[i].data_ptr = hw_p->txbuf_ptr;
 		if ((NUM_TX_BUFF - 1) == i)
 			hw_p->tx[i].ctrl |= MAL_TX_CTRL_WRAP;

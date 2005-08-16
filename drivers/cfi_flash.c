@@ -557,7 +557,7 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 		i = buffered_size > cnt ? cnt : buffered_size;
 		if ((rc = flash_write_cfibuffer (info, wp, src, i)) != ERR_OK)
 			return rc;
-		i -= (i % info->portwidth);
+		i -= i & (info->portwidth - 1);
 		wp += i;
 		src += i;
 		cnt -= i;
@@ -805,7 +805,7 @@ static void flash_make_cmd (flash_info_t * info, uchar cmd, void *cmdbuf)
 	uchar *cp = (uchar *) cmdbuf;
 
 	for (i = 0; i < info->portwidth; i++)
-		*cp++ = ((i + 1) % info->chipwidth) ? '\0' : cmd;
+		*cp++ = ((i + 1) & (info->chipwidth - 1)) ? '\0' : cmd;
 #if defined(__LITTLE_ENDIAN)
 	switch (info->portwidth) {
 	case FLASH_CFI_8BIT:

@@ -29,10 +29,10 @@ HOSTARCH := $(shell uname -m | \
 	    -e s/powerpc/ppc/ \
 	    -e s/macppc/ppc/)
 
-HOSTOS := $(shell uname -s | tr A-Z a-z | \
+HOSTOS := $(shell uname -s | tr '[:upper:]' '[:lower:]' | \
 	    sed -e 's/\(cygwin\).*/cygwin/')
 
-export	HOSTARCH
+export	HOSTARCH HOSTOS
 
 # Deal with colliding definitions from tcsh etc.
 VENDOR=
@@ -647,6 +647,9 @@ SM850_config	:	unconfig
 SPD823TS_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx spd8xx
 
+stxxtc_config:	unconfig
+	@./mkconfig $(@:_config=) ppc mpc8xx stxxtc
+
 svm_sc8xx_config:	unconfig
 	@ >include/config.h
 	@./mkconfig $(@:_config=) ppc mpc8xx svm_sc8xx
@@ -796,6 +799,12 @@ HUB405_config:	unconfig
 
 JSE_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx jse
+
+KAREF_config: unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx karef sandburst
+
+METROBOX_config: unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx metrobox sandburst
 
 MIP405_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx mip405 mpl
@@ -1626,7 +1635,7 @@ dbau1550_config		:	unconfig
 dbau1550_el_config	:	unconfig
 	@ >include/config.h
 	@echo "#define CONFIG_DBAU1550 1" >>include/config.h
-	@./mkconfig -a dbau1x00 mips mips dbau1x00 "" little
+	@./mkconfig -a dbau1x00 mips mips dbau1x00
 
 #########################################################################
 ## MIPS64 5Kc
@@ -1740,7 +1749,7 @@ clean:
 	rm -f tools/gdb/astest tools/gdb/gdbcont tools/gdb/gdbsend
 	rm -f tools/env/fw_printenv tools/env/fw_setenv
 	rm -f board/cray/L1/bootscript.c board/cray/L1/bootscript.image
-	rm -f board/trab/trab_fkt
+	rm -f board/trab/trab_fkt board/voiceblue/eeprom
 
 clobber:	clean
 	find . -type f \( -name .depend \

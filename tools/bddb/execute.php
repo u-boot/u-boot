@@ -1,16 +1,12 @@
 <?php // php pages made with phpMyBuilder <http://kyber.dk/phpMyBuilder> ?>
 <?php
 	// (C) Copyright 2001
-	// Murray Jensen <Murray.Jensen@cmst.csiro.au>
+	// Murray Jensen <Murray.Jensen@csiro.au>
 	// CSIRO Manufacturing Science and Technology, Preston Lab
 
-	if (!isset($serno))
-		$serno = 0;
-	else
-		$serno = intval($serno);
+	$serno=isset($_REQUEST['serno'])?$_REQUEST['serno']:'';
 
-	if (!isset($submit))
-		$submit = "[NOT SET]";
+	$submit=isset($_REQUEST['submit'])?$_REQUEST['submit']:"[NOT SET]";
 
 	switch ($submit) {
 

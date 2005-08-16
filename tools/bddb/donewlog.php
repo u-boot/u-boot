@@ -1,7 +1,7 @@
 <?php // php pages made with phpMyBuilder <http://kyber.dk/phpMyBuilder> ?>
 <?php
 	// (C) Copyright 2001
-	// Murray Jensen <Murray.Jensen@cmst.csiro.au>
+	// Murray Jensen <Murray.Jensen@csiro.au>
 	// CSIRO Manufacturing Science and Technology, Preston Lab
 
 	// doedit page (hymod_bddb / boards)
@@ -10,11 +10,14 @@
 
 	pg_head("$bddb_label - Add Log Entry Results");
 
-	if ($serno == 0)
+	if (!isset($_REQUEST['serno']) || $_REQUEST['serno'] == '')
 		die("serial number not specified!");
+	$serno=intval($_REQUEST['serno']);
 
-	if (isset($logno))
+	if (isset($_REQUEST['logno'])) {
+		$logno=$_REQUEST['logno'];
 		die("log number must not be set ($logno) when Creating!");
+	}
 
 	$query="update log set serno=$serno";
 
@@ -23,11 +26,15 @@
 		die("date is invalid (input '$date', yyyy-mm-dd '$y-$m-$d')");
 	$query.=", date='$date'";
 
-	if (isset($who))
+	if (isset($_REQUEST['who'])) {
+		$who=$_REQUEST['who'];
 		$query.=", who='" . $who . "'";
+	}
 
-	if (isset($details))
+	if (isset($_REQUEST['details'])) {
+		$details=$_REQUEST['details'];
 		$query.=", details='" . rawurlencode($details) . "'";
+	}
 
 	// echo "final query = '$query'<br>\n";
 

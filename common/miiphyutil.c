@@ -93,7 +93,13 @@ int miiphy_reset (unsigned char addr)
 	unsigned short reg;
 	int loop_cnt;
 
-	if (miiphy_write (addr, PHY_BMCR, 0x8000) != 0) {
+	if (miiphy_read (addr, PHY_BMCR, &reg) != 0) {
+#ifdef DEBUG
+		printf ("PHY status read failed\n");
+#endif
+		return (-1);
+	}
+	if (miiphy_write (addr, PHY_BMCR, reg | 0x8000) != 0) {
 #ifdef DEBUG
 		puts ("PHY reset failed\n");
 #endif

@@ -77,10 +77,10 @@ int board_revision(void)
 	 */
 	cntrl0Reg = mfdcr(cntrl0);
 	mtdcr(cntrl0, cntrl0Reg | 0x03000000);
-	out32(GPIO0_ODR, in32(GPIO0_ODR) & ~0x00180000);
-	out32(GPIO0_TCR, in32(GPIO0_TCR) & ~0x00180000);
+	out32(GPIO0_ODR, in32(GPIO0_ODR) & ~0x00100200);
+	out32(GPIO0_TCR, in32(GPIO0_TCR) & ~0x00100200);
 	udelay(1000);                   /* wait some time before reading input */
-	value = in32(GPIO0_IR) & 0x00180000;       /* get config bits */
+	value = in32(GPIO0_IR) & 0x00100200;       /* get config bits */
 
 	/*
 	 * Restore GPIO settings
@@ -88,18 +88,18 @@ int board_revision(void)
 	mtdcr(cntrl0, cntrl0Reg);
 
 	switch (value) {
-	case 0x00180000:
-		/* CS2==1 && CS3==1 -> version 1.0 and 1.1 */
+	case 0x00100200:
+		/* CS2==1 && IRQ5==1 -> version 1.0 and 1.1 */
 		return 1;
-	case 0x00080000:
-		/* CS2==0 && CS3==1 -> version 1.2 */
+	case 0x00000200:
+		/* CS2==0 && IRQ5==1 -> version 1.2 */
 		return 2;
+	case 0x00000000:
+		/* CS2==0 && IRQ5==0 -> version 1.3 */
+		return 3;
 #if 0 /* not yet manufactured ! */
 	case 0x00100000:
-		/* CS2==1 && CS3==0 -> version 1.3 */
-		return 3;
-	case 0x00000000:
-		/* CS2==0 && CS3==0 -> version 1.4 */
+		/* CS2==1 && IRQ5==0 -> version 1.4 */
 		return 4;
 #endif
 	default:
@@ -393,3 +393,48 @@ int testdram (void)
 }
 
 /* ------------------------------------------------------------------------- */
+int wpeeprom(int wp)
+{
+	int wp_state = wp;
+	volatile unsigned char *uart1_mcr = (volatile unsigned char *)0xef600404;
+
+	if (wp == 1) {
+		*uart1_mcr &= ~0x02;
+	} else if (wp == 0) {
+		*uart1_mcr |= 0x02;
+	} else {
+		if (*uart1_mcr & 0x02) {
+			wp_state = 0;
+		} else {
+			wp_state = 1;
+		}
+	}
+	return wp_state;
+}
+
+int do_wpeeprom(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	int wp = -1;
+	if (argc >= 2) {
+		if (argv[1][0] == '1') {
+			wp = 1;
+		} else if (argv[1][0] == '0') {
+			wp = 0;
+		}
+	}
+
+	wp = wpeeprom(wp);
+	printf("EEPROM write protection %s\n", wp ? "ENABLED" : "DISABLED");
+	return 0;
+}
+
+U_BOOT_CMD(
+	wpeeprom,	2,	1,	do_wpeeprom,
+	"wpeeprom - Check/Enable/Disable I2C EEPROM write protection\n",
+	"wpeeprom\n"
+	"    - check I2C EEPROM write protection state\n"
+	"wpeeprom 1\n"
+	"    - enable I2C EEPROM write protection\n"
+	"wpeeprom 0\n"
+	"    - disable I2C EEPROM write protection\n"
+	);

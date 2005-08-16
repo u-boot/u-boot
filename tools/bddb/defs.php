@@ -1,13 +1,13 @@
 <?php // php pages made with phpMyBuilder <http://kyber.dk/phpMyBuilder> ?>
 <?php
 	// (C) Copyright 2001
-	// Murray Jensen <Murray.Jensen@cmst.csiro.au>
+	// Murray Jensen <Murray.Jensen@csiro.au>
 	// CSIRO Manufacturing Science and Technology, Preston Lab
 
 	// contains mysql user id and password - keep secret
 	require("config.php");
 
-	if (isset($logout)) {
+	if (isset($_REQUEST['logout'])) {
 		Header("status: 401 Unauthorized");
 		Header("HTTP/1.0 401 Unauthorized");
 		Header("WWW-authenticate: basic realm=\"$bddb_label\"");
@@ -45,32 +45,40 @@
 	// board type
 	$type_vals = array('IO','CLP','DSP','INPUT','ALT-INPUT','DISPLAY');
 
-	// sdram sizes (nbits array is for write into eeprom config file)
-	$sdram_vals = array('','32M','64M','128M','256M');
-	$sdram_nbits = array(0,25,26,27,28);
+	// Xilinx fpga types
+	$xlxtyp_vals = array('','XCV300E','XCV400E','XCV600E','XC2V2000','XC2V3000','XC2V4000','XC2V6000','XC2VP2','XC2VP4','XC2VP7','XC2VP20','XC2VP30','XC2VP50','XC4VFX20','XC4VFX40','XC4VFX60','XC4VFX100','XC4VFX140');
 
-	// flash sizes (nbits array is for write into eeprom config file)
-	$flash_vals = array('','4M','8M','16M','32M','64M');
-	$flash_nbits = array(0,22,23,24,25,26);
+	// Xilinx fpga speeds
+	$xlxspd_vals = array('','6','7','8','4','5','9','10','11','12');
 
-	// zbt ram sizes (nbits array is for write into eeprom config file)
-	$zbt_vals = array('','512K','1M','2M','4M');
-	$zbt_nbits = array(0,19,20,21,22);
-
-	// Xilinx attributes
-	$xlxtyp_vals = array('','XCV300E','XCV400E','XCV600E','XC2V2000','XC2V3000','XC2V4000','XC2V6000');
-	$xlxspd_vals = array('','6','7','8','4','5');
+	// Xilinx fpga temperatures (commercial or industrial)
 	$xlxtmp_vals = array('','COM','IND');
+
+	// Xilinx fpga grades (normal or engineering sample)
 	$xlxgrd_vals = array('','NORMAL','ENGSAMP');
 
-	// processor attributes
-	$cputyp_vals = array('','MPC8260');
-	$clk_vals = array('','33MHZ','66MHZ','100MHZ','133MHZ','166MHZ','200MHZ');
+	// CPU types
+	$cputyp_vals = array('','MPC8260(HIP3)','MPC8260A(HIP4)','MPC8280(HIP7)','MPC8560');
+
+	// CPU/BUS/CPM clock speeds 
+	$clk_vals = array('','33MHZ','66MHZ','100MHZ','133MHZ','166MHZ','200MHZ','233MHZ','266MHZ','300MHZ','333MHZ','366MHZ','400MHZ','433MHZ','466MHZ','500MHZ','533MHZ','566MHZ','600MHZ','633MHZ','666MHZ','700MHZ','733MHZ','766MHZ','800MHZ','833MHZ','866MHZ','900MHZ','933MHZ','966MHZ','1000MHZ','1033MHZ','1066MHZ','1100MHZ','1133MHZ','1166MHZ','1200MHZ','1233MHZ','1266MHZ','1300MHZ','1333MHZ');
+
+	// sdram sizes (nbits array is for eeprom config file)
+	$sdram_vals = array('','32M','64M','128M','256M','512M','1G','2G','4G');
+	$sdram_nbits = array(0,25,26,27,28,29,30,31,32);
+
+	// flash sizes (nbits array is for eeprom config file)
+	$flash_vals = array('','4M','8M','16M','32M','64M','128M','256M','512M','1G');
+	$flash_nbits = array(0,22,23,24,25,26,27,28,29,30);
+
+	// zbt ram sizes (nbits array is for write into eeprom config file)
+	$zbt_vals = array('','512K','1M','2M','4M','8M','16M');
+	$zbt_nbits = array(0,19,20,21,22,23,24);
 
 	// high-speed serial attributes
-	$hstype_vals = array('','AMCC-S2064A');
-	$hschin_vals = array('0','1','2','3','4');
-	$hschout_vals = array('0','1','2','3','4');
+	$hstype_vals = array('','AMCC-S2064A','Xilinx-Rockets');
+	$hschin_vals = array('0','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16');
+	$hschout_vals = array('0','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16');
 
 	// value filters - used when outputting html
 	function rev_filter($num) {
@@ -108,7 +116,7 @@
 		echo "<hr></hr>\n";
 		echo "<table width=\"100%\"><tr><td align=left>\n<address>" .
 			"If you have any problems, email " .
-			"<a href=\"mailto:Murray.Jensen@cmst.csiro.au\">" .
+			"<a href=\"mailto:Murray.Jensen@csiro.au\">" .
 			"Murray Jensen" .
 			"</a></address>\n" .
 			"</td><td align=right>\n" .
@@ -310,6 +318,38 @@
 		end_field();
 	}
 
+	// print a mysql ENUM as an html SELECT INPUT
+	function print_enum_select($name, $array, $vals, $def = -1) {
+
+		begin_field($name);
+
+		echo "\t\t<select name=$name>\n";
+
+		if (key_in_array($name, $array))
+			$chk = array_search($array[$name], $vals, FALSE);
+		else
+			$chk = $def;
+
+		$nval = count($vals);
+
+		for ($i = 0; $i < $nval; $i++) {
+
+			$val = $vals[$i];
+			if ($val == '')
+				$pval = "none";
+			else
+				$pval = "$val";
+
+			printf("\t\t\t<option " .
+				"value=\"%s\"%s>%s</option>\n",
+				$val, $i == $chk ? " selected" : "", $pval);
+		}
+
+		echo "\t\t</select>\n";
+
+		end_field();
+	}
+
 	// print a group of mysql ENUMs (e.g. name0,name1,...) as an html SELECT
 	function print_enum_multi($base, $array, $vals, $cnt, $defs, $grp = 0) {
 
@@ -375,9 +415,9 @@
 
 			$name = sprintf("%s%x", $base, $i);
 
-			if (isset($GLOBALS[$name])) {
+			if (isset($_REQUEST[$name])) {
 				$retval .= sprintf(", %s='%s'",
-					$name, $GLOBALS[$name]);
+					$name, $_REQUEST[$name]);
 			}
 		}
 
@@ -437,7 +477,7 @@
 
 			$name = sprintf("%s%x", $base, $i);
 
-			if (isset($GLOBALS[$name]))
+			if (isset($_REQUEST[$name]))
 				$retval++;
 		}
 
@@ -458,13 +498,14 @@
 
 	function gen_eth_addr($serno) {
 
-		$ethaddr_high = (mt_rand(0, 65535) & 0xfeff) | 0x0200;
-		$ethaddr_low = mt_rand(0, 4294967295);
+		$ethaddr_hgh = (mt_rand(0, 65535) & 0xfeff) | 0x0200;
+		$ethaddr_mid = mt_rand(0, 65535);
+		$ethaddr_low = mt_rand(0, 65535);
 
 		return sprintf("%02lx:%02lx:%02lx:%02lx:%02lx:%02lx",
-			$ethaddr_high >> 8, $ethaddr_high & 0xff,
-			$ethaddr_low >> 24, ($ethaddr_low >> 16) & 0xff,
-			($ethaddr_low >> 8) & 0xff, $ethaddr_low & 0xff);
+			$ethaddr_hgh >> 8, $ethaddr_hgh & 0xff,
+			$ethaddr_mid >> 8, $ethaddr_mid & 0xff,
+			$ethaddr_low >> 8, $ethaddr_low & 0xff);
 	}
 
 	// check that an ethernet address is valid

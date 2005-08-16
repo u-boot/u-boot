@@ -40,10 +40,10 @@
  *
  * DHCP:
  *
- *     Prerequisites:   - own ethernet address
- *     We want:         - IP, Netmask, ServerIP, Gateway IP
- *                      - bootfilename, lease time
- *     Next step:       - TFTP
+ *     Prerequisites:	- own ethernet address
+ *     We want:		- IP, Netmask, ServerIP, Gateway IP
+ *			- bootfilename, lease time
+ *     Next step:	- TFTP
  *
  * TFTP:
  *
@@ -67,7 +67,7 @@
  *
  * SNTP:
  *
- *	Prerequisites:  - own ethernet address
+ *	Prerequisites:	- own ethernet address
  *			- own IP address
  *	We want:	- network time
  *	Next step:	none
@@ -185,7 +185,7 @@ static int net_check_prereq (proto_t protocol);
 IPaddr_t	NetArpWaitPacketIP;
 IPaddr_t	NetArpWaitReplyIP;
 uchar	       *NetArpWaitPacketMAC;	/* MAC address of waiting packet's destination	*/
-uchar          *NetArpWaitTxPacket;	/* THE transmit packet			*/
+uchar	       *NetArpWaitTxPacket;	/* THE transmit packet			*/
 int		NetArpWaitTxPacketSize;
 uchar 		NetArpWaitPacketBuf[PKTSIZE_ALIGN + PKTALIGN];
 ulong		NetArpWaitTimerStart;
@@ -212,8 +212,8 @@ void ArpRequest (void)
 	arp->ar_pln = 4;
 	arp->ar_op = htons (ARPOP_REQUEST);
 
-	memcpy (&arp->ar_data[0], NetOurEther, 6);		/* source ET addr       */
-	NetWriteIP ((uchar *) & arp->ar_data[6], NetOurIP);	/* source IP addr       */
+	memcpy (&arp->ar_data[0], NetOurEther, 6);		/* source ET addr	*/
+	NetWriteIP ((uchar *) & arp->ar_data[6], NetOurIP);	/* source IP addr	*/
 	for (i = 10; i < 16; ++i) {
 		arp->ar_data[i] = 0;				/* dest ET addr = 0     */
 	}
@@ -372,11 +372,11 @@ restart:
 		 */
 		NetOurIP = 0;
 		NetServerIP = getenv_IPaddr ("serverip");
- 		NetOurVLAN = getenv_VLAN("vlan");	/* VLANs must be read */
- 		NetOurNativeVLAN = getenv_VLAN("nvlan");
- 	case CDP:
- 		NetOurVLAN = getenv_VLAN("vlan");	/* VLANs must be read */
- 		NetOurNativeVLAN = getenv_VLAN("nvlan");
+		NetOurVLAN = getenv_VLAN("vlan");	/* VLANs must be read */
+		NetOurNativeVLAN = getenv_VLAN("nvlan");
+	case CDP:
+		NetOurVLAN = getenv_VLAN("vlan");	/* VLANs must be read */
+		NetOurNativeVLAN = getenv_VLAN("nvlan");
 		break;
 	default:
 		break;
@@ -1410,7 +1410,7 @@ NetReceive(volatile uchar * inpkt, int len)
 				puts (" ICMP Host Redirect to ");
 				print_IPaddr(icmph->un.gateway);
 				putc(' ');
-				break;
+				return;
 #if (CONFIG_COMMANDS & CFG_CMD_PING)
 			case ICMP_ECHO_REPLY:
 				/*
@@ -1418,7 +1418,7 @@ NetReceive(volatile uchar * inpkt, int len)
 				 */
 				/* XXX point to ip packet */
 				(*packetHandler)((uchar *)ip, 0, 0, 0);
-				break;
+				return;
 #endif
 			default:
 				return;
@@ -1426,6 +1426,46 @@ NetReceive(volatile uchar * inpkt, int len)
 		} else if (ip->ip_p != IPPROTO_UDP) {	/* Only UDP packets */
 			return;
 		}
+
+#ifdef CONFIG_UDP_CHECKSUM
+		if (ip->udp_xsum != 0) {
+			ulong   xsum;
+			ushort *sumptr;
+			ushort  sumlen;
+
+			xsum  = ip->ip_p;
+			xsum += (ntohs(ip->udp_len));
+			xsum += (ntohl(ip->ip_src) >> 16) & 0x0000ffff;
+			xsum += (ntohl(ip->ip_src) >>  0) & 0x0000ffff;
+			xsum += (ntohl(ip->ip_dst) >> 16) & 0x0000ffff;
+			xsum += (ntohl(ip->ip_dst) >>  0) & 0x0000ffff;
+
+			sumlen = ntohs(ip->udp_len);
+			sumptr = (ushort *) &(ip->udp_src);
+
+			while (sumlen > 1) {
+				ushort sumdata;
+
+				sumdata = *sumptr++;
+				xsum += ntohs(sumdata);
+				sumlen -= 2;
+			}
+			if (sumlen > 0) {
+				ushort sumdata;
+
+				sumdata = *(unsigned char *) sumptr;
+				sumdata = (sumdata << 8) & 0xff00;
+				xsum += sumdata;
+			}
+			while ((xsum >> 16) != 0) {
+				xsum = (xsum & 0x0000ffff) + ((xsum >> 16) & 0x0000ffff);
+			}
+			if ((xsum != 0x00000000) && (xsum != 0x0000ffff)) {
+				printf(" UDP wrong checksum %08x %08x\n", xsum, ntohs(ip->udp_xsum));
+				return;
+			}
+		}
+#endif
 
 #ifdef CONFIG_NETCONSOLE
 		nc_input_packet((uchar *)ip +IP_HDR_SIZE,
@@ -1477,7 +1517,7 @@ static int net_check_prereq (proto_t protocol)
 			return (1);
 		}
 #if (CONFIG_COMMANDS & (CFG_CMD_PING | CFG_CMD_SNTP))
-	      common:
+    common:
 #endif
 
 		if (NetOurIP == 0) {

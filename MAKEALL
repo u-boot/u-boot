@@ -61,17 +61,17 @@ LIST_8xx="	\
 #########################################################################
 
 LIST_4xx="	\
-	ADCIOP		AR405		ASH405		bubinga	        \
+	ADCIOP		AR405		ASH405		bubinga		\
 	CANBT		CPCI405		CPCI4052	CPCI405AB	\
 	CPCI440		CPCIISER4	CRAYL1		csb272		\
 	csb472		DASA_SIM	DP405		DU405		\
 	ebony		ERIC		EXBITGEN	HUB405		\
-	JSE		MIP405		MIP405T		ML2		\
-	ml300		ocotea		OCRTC		ORSG		\
-	PCI405		PIP405		PLU405		PMC405		\
-	PPChameleonEVB	VOH405		W7OLMC		W7OLMG		\
-	walnut	        WUH405          XPEDITE1K	yellowstone     \
-	yosemite                                                        \
+	JSE		KAREF		METROBOX	MIP405		\
+	MIP405T		ML2		ml300		ocotea		\
+	OCRTC		ORSG		PCI405		PIP405		\
+	PLU405		PMC405		PPChameleonEVB	VOH405		\
+	W7OLMC		W7OLMG		walnut		WUH405		\
+	XPEDITE1K	yellowstone	yosemite			\
 "
 
 #########################################################################
@@ -91,7 +91,7 @@ LIST_824x="	\
 	debris		eXalion		HIDDEN_DRAGON	MOUSSE		\
 	MUSENKI		MVBLUE		OXC		PN62		\
 	Sandpoint8240	Sandpoint8245	SL8245		utx8245		\
-	sbc8240	\
+	sbc8240 \
 "
 
 #########################################################################
@@ -165,7 +165,7 @@ LIST_ARM7="B2 ep7312 evb4510 impa7 modnet50"
 #########################################################################
 
 LIST_ARM9="	\
-	at91rm9200dk	cmc_pu2		integratorcp	integratorap 	\
+	at91rm9200dk	cmc_pu2		integratorcp	integratorap	\
 	lpd7a400	mx1ads		mx1fs2		omap1510inn	\
 	omap1610h2	omap1610inn	omap730p2	scb9328		\
 	smdk2400	smdk2410	trab		VCMA9		\
@@ -197,7 +197,7 @@ LIST_arm="	\
 "
 
 #########################################################################
-## MIPS Systems
+## MIPS Systems		(default = big endian)
 #########################################################################
 
 LIST_mips4kc="incaip"
@@ -207,6 +207,18 @@ LIST_mips5kc="purple"
 LIST_au1xx0="dbau1000 dbau1100 dbau1500 dbau1550 dbau1550_el"
 
 LIST_mips="${LIST_mips4kc} ${LIST_mips5kc} ${LIST_au1xx0}"
+
+#########################################################################
+## MIPS Systems		(little endian)
+#########################################################################
+
+LIST_mips4kc_el=""
+
+LIST_mips5kc_el=""
+
+LIST_au1xx0_el="dbau1550_el"
+
+LIST_mips_el="${LIST_mips4kc_el} ${LIST_mips5kc_el} ${LIST_au1xx0_el}"
 
 #########################################################################
 ## i386 Systems
@@ -264,7 +276,7 @@ do
 	ppc|5xx|5xxx|8xx|8220|824x|8260|83xx|85xx|4xx|7xx|74xx| \
 	arm|SA|ARM7|ARM9|ARM11|pxa|ixp| \
 	microblaze| \
-	mips| \
+	mips|mips_el| \
 	nios|nios2| \
 	x86|I486)
 			for target in `eval echo '$LIST_'${arg}`

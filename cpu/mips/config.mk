@@ -24,9 +24,17 @@ v=$(shell \
 mips-linux-as --version|grep "GNU assembler"|awk '{print $$3}'|awk -F . '{print $$2}')
 MIPSFLAGS=$(shell \
 if [ "$v" -lt "14" ]; then \
-	echo "-mcpu=4kc -EB -mabicalls"; \
+	echo "-mcpu=4kc"; \
 else \
-	echo "-march=4kc -mtune=4kc -Wa,-mips_allow_branch_to_undefined -EB -mabicalls"; \
+	echo "-march=4kc -mtune=4kc -Wa,-mips_allow_branch_to_undefined"; \
 fi)
+
+ifneq (,$(findstring 4KCle,$(CROSS_COMPILE)))
+ENDIANNESS = -EL
+else
+ENDIANNESS = -EB
+endif
+
+MIPSFLAGS += $(ENDIANNESS) -mabicalls
 
 PLATFORM_CPPFLAGS += $(MIPSFLAGS)

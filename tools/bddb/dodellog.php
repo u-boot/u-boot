@@ -1,7 +1,7 @@
 <?php // php pages made with phpMyBuilder <http://kyber.dk/phpMyBuilder> ?>
 <?php
 	// (C) Copyright 2001
-	// Murray Jensen <Murray.Jensen@cmst.csiro.au>
+	// Murray Jensen <Murray.Jensen@csiro.au>
 	// CSIRO Manufacturing Science and Technology, Preston Lab
 
 	// dodelete page (hymod_bddb / boards)
@@ -10,11 +10,13 @@
 
 	pg_head("$bddb_label - Delete Log Entry Results");
 
-	if (!($serno=intval($serno)))
+	if (!isset($_REQUEST['serno']))
 		die("the board serial number was not specified");
+	$serno=intval($_REQUEST['serno']);
 
-	if (!isset($logno) || $logno == 0)
+	if (!isset($_REQUEST['logno']) || $_REQUEST['logno'] == 0)
 		die("the log entry number not specified!");
+	$logno=$_REQUEST['logno'];
 
 	mysql_query("delete from log where serno=$serno and logno=$logno");
 
