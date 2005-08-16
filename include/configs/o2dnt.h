@@ -90,7 +90,6 @@
 				CFG_CMD_FAT	| \
 				CFG_CMD_I2C	| \
 				CFG_CMD_NFS	| \
-				CFG_CMD_SNTP	| \
 				CFG_CMD_MII	| \
 				CFG_CMD_PING	| \
 				ADD_PCI_CMD	)
