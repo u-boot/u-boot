@@ -326,7 +326,7 @@ Total5200_Rev2_lowboot_config:	unconfig
 		}
 	@./mkconfig -a Total5200 ppc mpc5xxx total5200
 
-TQM5200_auto_config		\
+TQM5200_auto_config	\
 TQM5200_AA_config	\
 TQM5200_AB_config	\
 TQM5200_AC_config	\
