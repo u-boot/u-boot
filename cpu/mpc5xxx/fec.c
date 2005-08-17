@@ -872,7 +872,7 @@ int mpc5xxx_fec_initialize(bd_t * bis)
 #if defined(CONFIG_CANMB)   || defined(CONFIG_HMI1001)	|| \
     defined(CONFIG_ICECUBE) || defined(CONFIG_INKA4X0)	|| \
     defined(CONFIG_PM520)   || defined(CONFIG_TOP5200)	|| \
-    defined(CONFIG_TQM5200)
+    defined(CONFIG_TQM5200) || defined(CONFIG_O2DNT)
 # ifndef CONFIG_FEC_10MBIT
 	fec->xcv_type = MII100;
 # else

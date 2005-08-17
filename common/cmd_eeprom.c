@@ -22,6 +22,21 @@
  *
  */
 
+/*
+ * Support for read and write access to EEPROM like memory devices. This
+ * includes regular EEPROM as well as  FRAM (ferroelectic nonvolaile RAM).
+ * FRAM devices read and write data at bus speed. In particular, there is no
+ * write delay. Also, there is no limit imposed on the numer of bytes that can
+ * be transferred with a single read or write.
+ * 
+ * Use the following configuration options to ensure no unneeded performance
+ * degradation (typical for EEPROM) is incured for FRAM memory:
+ * 
+ * #define CFG_I2C_FRAM
+ * #undef CFG_EEPROM_PAGE_WRITE_DELAY_MS
+ *
+ */
+
 #include <common.h>
 #include <config.h>
 #include <command.h>
@@ -122,7 +137,11 @@ int eeprom_read (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt
 	 * because the next page may be in a different device.
 	 */
 	while (offset < end) {
-		unsigned alen, len, maxlen;
+		unsigned alen, len;
+#if !defined(CFG_I2C_FRAM)
+		unsigned maxlen;
+#endif
+
 #if CFG_I2C_EEPROM_ADDR_LEN == 1 && !defined(CONFIG_SPI_X)
 		uchar addr[2];
 
@@ -144,12 +163,21 @@ int eeprom_read (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt
 
 		addr[0] |= dev_addr;		/* insert device address */
 
+		len = end - offset;
+
+		/*
+		 * For a FRAM device there is no limit on the number of the
+		 * bytes that can be ccessed with the single read or write
+		 * operation.
+		 */
+#if !defined(CFG_I2C_FRAM)
 		maxlen = 0x100 - blk_off;
 		if (maxlen > I2C_RXTX_LEN)
 			maxlen = I2C_RXTX_LEN;
-		len    = end - offset;
 		if (len > maxlen)
 			len = maxlen;
+#endif
+
 #ifdef CONFIG_SPI
 		spi_read (addr, alen, buffer, len);
 #else
@@ -159,6 +187,7 @@ int eeprom_read (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt
 		buffer += len;
 		offset += len;
 	}
+
 	return rcode;
 }
 
@@ -191,7 +220,11 @@ int eeprom_write (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cn
 	 */
 
 	while (offset < end) {
-		unsigned alen, len, maxlen;
+		unsigned alen, len;
+#if !defined(CFG_I2C_FRAM)
+		unsigned maxlen;
+#endif
+
 #if CFG_I2C_EEPROM_ADDR_LEN == 1 && !defined(CONFIG_SPI_X)
 		uchar addr[2];
 
@@ -213,6 +246,15 @@ int eeprom_write (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cn
 
 		addr[0] |= dev_addr;		/* insert device address */
 
+		len = end - offset;
+
+		/*
+		 * For a FRAM device there is no limit on the number of the
+		 * bytes that can be ccessed with the single read or write
+		 * operation.
+		 */
+#if !defined(CFG_I2C_FRAM)
+
 #if defined(CFG_EEPROM_PAGE_WRITE_BITS)
 
 #define	EEPROM_PAGE_SIZE	(1 << CFG_EEPROM_PAGE_WRITE_BITS)
@@ -225,9 +267,10 @@ int eeprom_write (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cn
 		if (maxlen > I2C_RXTX_LEN)
 			maxlen = I2C_RXTX_LEN;
 
-		len = end - offset;
 		if (len > maxlen)
 			len = maxlen;
+#endif
+
 #ifdef CONFIG_SPI
 		spi_write (addr, alen, buffer, len);
 #else

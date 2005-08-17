@@ -277,6 +277,9 @@ icecube_5100_config:			unconfig
 inka4x0_config:		unconfig
 	@./mkconfig inka4x0 ppc mpc5xxx inka4x0
 
+o2dnt_config:
+	@./mkconfig -a o2dnt ppc mpc5xxx o2dnt
+
 PM520_config \
 PM520_DDR_config \
 PM520_ROMBOOT_config \
