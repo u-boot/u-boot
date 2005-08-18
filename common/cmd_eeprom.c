@@ -28,10 +28,10 @@
  * FRAM devices read and write data at bus speed. In particular, there is no
  * write delay. Also, there is no limit imposed on the numer of bytes that can
  * be transferred with a single read or write.
- * 
+ *
  * Use the following configuration options to ensure no unneeded performance
  * degradation (typical for EEPROM) is incured for FRAM memory:
- * 
+ *
  * #define CFG_I2C_FRAM
  * #undef CFG_EEPROM_PAGE_WRITE_DELAY_MS
  *

@@ -26,7 +26,7 @@ include $(TOPDIR)/config.mk
 LIB	= lib$(BOARD).a
 
 #OBJS	:= $(BOARD).o flash.o
-OBJS	:= $(BOARD).o
+OBJS	:= $(BOARD).o cmd_stk52xx.o
 
 $(LIB):	$(OBJS) $(SOBJS)
 	$(AR) crv $@ $(OBJS)

@@ -585,4 +585,3 @@ static unsigned char intel_sector_protected (flash_info_t *info, ushort sector)
 
 	return ret;
 }
-

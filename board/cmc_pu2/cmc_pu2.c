@@ -138,7 +138,7 @@ int hw_detect (void)
 	pio->PIO_ODR = AT91C_PIO_PB12;
 	pio->PIO_PPUDR = AT91C_PIO_PB12;
 	pio->PIO_PER = AT91C_PIO_PB12;
-	
+
 	/* configure PB13 as input without pull up */
 	pio->PIO_ODR = AT91C_PIO_PB13;
 	pio->PIO_PPUDR = AT91C_PIO_PB13;

@@ -2,7 +2,12 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
-* Change main clock on CMC-PU2 board from 207 MHz to 179 MHz 
+* Add new board specific commands for TQM5200/STK52XX
+  - Sound commands (beep, wav, sound)
+  - Test commands (led, can, backlight, rs232)
+  Patch by Martin Krause, 02 May 2005
+
+* Change main clock on CMC-PU2 board from 207 MHz to 179 MHz
   because of a bug in the AT91RM9200 CPU PLL
   Patch by Martin Krause, 22 Apr 2005
 

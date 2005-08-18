@@ -91,6 +91,7 @@
 #define MPC5XXX_GPIO		(CFG_MBAR + 0x0b00)
 #define MPC5XXX_WU_GPIO         (CFG_MBAR + 0x0c00)
 #define MPC5XXX_PCI		(CFG_MBAR + 0x0d00)
+#define MPC5XXX_SPI		(CFG_MBAR + 0x0f00)
 #define MPC5XXX_USB		(CFG_MBAR + 0x1000)
 #define MPC5XXX_SDMA		(CFG_MBAR + 0x1200)
 #define MPC5XXX_XLBARB		(CFG_MBAR + 0x1f00)
@@ -381,17 +382,18 @@ struct mpc5xxx_psc {
 	volatile u8	ctur;		/* PSC + 0x18 */
 	volatile u8	reserved5[3];
 	volatile u8	ctlr;		/* PSC + 0x1c */
-	volatile u8	reserved6[19];
+	volatile u8	reserved6[3];
+	volatile u16	ccr;		/* PSC + 0x20 */
+	volatile u8	reserved7[14];
 	volatile u8	ivr;		/* PSC + 0x30 */
-	volatile u8	reserved7[3];
-	volatile u8	ip;		/* PSC + 0x34 */
 	volatile u8	reserved8[3];
-	volatile u8	op1;		/* PSC + 0x38 */
+	volatile u8	ip;		/* PSC + 0x34 */
 	volatile u8	reserved9[3];
-	volatile u8	op0;		/* PSC + 0x3c */
+	volatile u8	op1;		/* PSC + 0x38 */
 	volatile u8	reserved10[3];
-	volatile u8	sicr;		/* PSC + 0x40 */
+	volatile u8	op0;		/* PSC + 0x3c */
 	volatile u8	reserved11[3];
+	volatile u32	sicr;		/* PSC + 0x40 */
 	volatile u8	ircr1;		/* PSC + 0x44 */
 	volatile u8	reserved12[3];
 	volatile u8	ircr2;		/* PSC + 0x44 */
@@ -598,6 +600,101 @@ struct mpc5xxx_i2c {
 	volatile u32 msr;		/* I2Cn + 0x0C */
 	volatile u32 mdr;		/* I2Cn + 0x10 */
 };
+
+struct mpc5xxx_spi {
+	volatile u8 cr1;		/* SPI + 0x0F00 */
+	volatile u8 cr2;		/* SPI + 0x0F01 */
+	volatile u8 reserved1[2];
+	volatile u8 brr;		/* SPI + 0x0F04 */
+	volatile u8 sr;			/* SPI + 0x0F05 */
+	volatile u8 reserved2[3];
+	volatile u8 dr;			/* SPI + 0x0F09 */
+	volatile u8 reserved3[3];
+	volatile u8 pdr;		/* SPI + 0x0F0D */
+	volatile u8 reserved4[2];
+	volatile u8 ddr;		/* SPI + 0x0F10 */
+};
+
+
+struct mpc5xxx_gpt {
+	volatile u32 emsr;		/* GPT + Timer# * 0x10 + 0x00 */
+	volatile u32 cir;		/* GPT + Timer# * 0x10 + 0x04 */
+	volatile u32 pwmcr;		/* GPT + Timer# * 0x10 + 0x08 */
+	volatile u32 sr;		/* GPT + Timer# * 0x10 + 0x0c */
+};
+
+struct mpc5xxx_gpt_0_7 {
+	struct mpc5xxx_gpt gpt0;
+	struct mpc5xxx_gpt gpt1;
+	struct mpc5xxx_gpt gpt2;
+	struct mpc5xxx_gpt gpt3;
+	struct mpc5xxx_gpt gpt4;
+	struct mpc5xxx_gpt gpt5;
+	struct mpc5xxx_gpt gpt6;
+	struct mpc5xxx_gpt gpt7;
+};
+
+struct mscan_buffer {
+	volatile u8  idr[0x8];          /* 0x00 */
+	volatile u8  dsr[0x10];         /* 0x08 */
+	volatile u8  dlr;               /* 0x18 */
+	volatile u8  tbpr;              /* 0x19 */      /* This register is not applicable for receive buffers */
+	volatile u16 rsrv1;             /* 0x1A */
+	volatile u8  tsrh;              /* 0x1C */
+	volatile u8  tsrl;              /* 0x1D */
+	volatile u16 rsrv2;             /* 0x1E */
+};
+
+struct mpc5xxx_mscan {
+	volatile u8  canctl0;           /* MSCAN + 0x00 */
+	volatile u8  canctl1;           /* MSCAN + 0x01 */
+	volatile u16 rsrv1;             /* MSCAN + 0x02 */
+	volatile u8  canbtr0;           /* MSCAN + 0x04 */
+	volatile u8  canbtr1;           /* MSCAN + 0x05 */
+	volatile u16 rsrv2;             /* MSCAN + 0x06 */
+	volatile u8  canrflg;           /* MSCAN + 0x08 */
+	volatile u8  canrier;           /* MSCAN + 0x09 */
+	volatile u16 rsrv3;             /* MSCAN + 0x0A */
+	volatile u8  cantflg;           /* MSCAN + 0x0C */
+	volatile u8  cantier;           /* MSCAN + 0x0D */
+	volatile u16 rsrv4;             /* MSCAN + 0x0E */
+	volatile u8  cantarq;           /* MSCAN + 0x10 */
+	volatile u8  cantaak;           /* MSCAN + 0x11 */
+	volatile u16 rsrv5;             /* MSCAN + 0x12 */
+	volatile u8  cantbsel;          /* MSCAN + 0x14 */
+	volatile u8  canidac;           /* MSCAN + 0x15 */
+	volatile u16 rsrv6[3];          /* MSCAN + 0x16 */
+	volatile u8  canrxerr;          /* MSCAN + 0x1C */
+	volatile u8  cantxerr;          /* MSCAN + 0x1D */
+	volatile u16 rsrv7;             /* MSCAN + 0x1E */
+	volatile u8  canidar0;          /* MSCAN + 0x20 */
+	volatile u8  canidar1;          /* MSCAN + 0x21 */
+	volatile u16 rsrv8;             /* MSCAN + 0x22 */
+	volatile u8  canidar2;          /* MSCAN + 0x24 */
+	volatile u8  canidar3;          /* MSCAN + 0x25 */
+	volatile u16 rsrv9;             /* MSCAN + 0x26 */
+	volatile u8  canidmr0;          /* MSCAN + 0x28 */
+	volatile u8  canidmr1;          /* MSCAN + 0x29 */
+	volatile u16 rsrv10;            /* MSCAN + 0x2A */
+	volatile u8  canidmr2;          /* MSCAN + 0x2C */
+	volatile u8  canidmr3;          /* MSCAN + 0x2D */
+	volatile u16 rsrv11;            /* MSCAN + 0x2E */
+	volatile u8  canidar4;          /* MSCAN + 0x30 */
+	volatile u8  canidar5;          /* MSCAN + 0x31 */
+	volatile u16 rsrv12;            /* MSCAN + 0x32 */
+	volatile u8  canidar6;          /* MSCAN + 0x34 */
+	volatile u8  canidar7;          /* MSCAN + 0x35 */
+	volatile u16 rsrv13;            /* MSCAN + 0x36 */
+	volatile u8  canidmr4;          /* MSCAN + 0x38 */
+	volatile u8  canidmr5;          /* MSCAN + 0x39 */
+	volatile u16 rsrv14;            /* MSCAN + 0x3A */
+	volatile u8  canidmr6;          /* MSCAN + 0x3C */
+	volatile u8  canidmr7;          /* MSCAN + 0x3D */
+	volatile u16 rsrv15;            /* MSCAN + 0x3E */
+
+	struct mscan_buffer canrxfg;    /* MSCAN + 0x40 */    /* Foreground receive buffer */
+	struct mscan_buffer cantxfg;    /* MSCAN + 0x60 */    /* Foreground transmit buffer */
+	};
 
 /* function prototypes */
 void loadtask(int basetask, int tasks);

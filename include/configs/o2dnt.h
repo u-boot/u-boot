@@ -225,8 +225,8 @@
 /*
  * GPIO configuration
  */
-//#define CFG_GPS_PORT_CONFIG	0x10002004
-#define CFG_GPS_PORT_CONFIG	0x00002004 //no CAN
+/*#define CFG_GPS_PORT_CONFIG	0x10002004 */
+#define CFG_GPS_PORT_CONFIG	0x00002004	/* no CAN */
 
 /*
  * Miscellaneous configurable options
