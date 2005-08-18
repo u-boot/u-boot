@@ -26,7 +26,7 @@
 #define __CONFIG_H
 
 /* ARM asynchronous clock */
-#define AT91C_MAIN_CLOCK	207360000	/* from 18.432 MHz crystal (18432000 / 4 * 45) */
+#define AT91C_MAIN_CLOCK	179712000	/* from 18.432 MHz crystal (18432000 / 4 * 39) */
 #define AT91C_MASTER_CLOCK	(AT91C_MAIN_CLOCK/3)	/* peripheral clock */
 
 #define AT91_SLOW_CLOCK		32768	/* slow clock */
@@ -53,7 +53,7 @@
 #define SMC2_CSR_VAL	0x100032ad /* 16bit, 2 TDF, 4 WS */
 
 /* clocks */
-#define PLLAR_VAL	0x202CBE04 /* 207.360 MHz for PCK */
+#define PLLAR_VAL	0x2026BE04 /* 179,712 MHz for PCK */
 #define PLLBR_VAL	0x10483E0E /* 48.054857 MHz (divider by 2 for USB) */
 #define MCKR_VAL	0x00000202 /* PCK/3 = MCK Master Clock = 69.120MHz from PLLA */
 
