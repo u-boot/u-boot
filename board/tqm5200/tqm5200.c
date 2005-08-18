@@ -425,7 +425,7 @@ int last_stage_init (void)
 	 * Check for SRAM and SRAM size
 	 */
 
-	/* save origianl SRAM content  */
+	/* save original SRAM content  */
 	save = *(volatile u16 *)CFG_CS2_START;
 	restore = 1;
 
@@ -447,8 +447,7 @@ int last_stage_init (void)
 		*(vu_long *)MPC5XXX_CS2_STOP = 0x0000FFFF;
 		restore = 0;
 		__asm__ volatile ("sync");
-	}
-	else if (*(volatile u16 *)(CFG_CS2_START + (1<<19)) == 0xA5A5) {
+	} else if (*(volatile u16 *)(CFG_CS2_START + (1<<19)) == 0xA5A5) {
 		/* make sure that we access a mirrored address */
 		*(volatile u16 *)CFG_CS2_START = 0x1111;
 		__asm__ volatile ("sync");
@@ -461,8 +460,7 @@ int last_stage_init (void)
 		}
 		else
 			puts ("!! possible error in SRAM detection\n");
-	}
-	else {
+	} else {
 		puts ("SRAM:  1 MB\n");
 	}
 	/* restore origianl SRAM content  */
@@ -497,8 +495,7 @@ int last_stage_init (void)
 		*(vu_long *)MPC5XXX_CS1_STOP = 0x0000FFFF;
 		restore = 0;
 		__asm__ volatile ("sync");
-	}
-	else {
+	} else {
 		puts ("VGA:   SMI501 (Voyager) with 8 MB\n");
 	}
 	/* restore origianl FB content  */
@@ -598,11 +595,46 @@ void video_get_info_str (int line_number, char *info)
 #endif
 
 /*
- * Returns SM501 register base address. First thing called in the driver.
+ * Returns SM501 register base address. First thing called in the
+ * driver. Checks if SM501 is physically present.
  */
 unsigned int board_video_init (void)
 {
-	return SM501_MMIO_BASE;
+	u16 save, tmp;
+	int restore, ret;
+
+	/*
+	 * Check for Grafic Controller
+	 */
+
+	/* save origianl FB content  */
+	save = *(volatile u16 *)CFG_CS1_START;
+	restore = 1;
+
+	/* write test pattern to FB memory */
+	*(volatile u16 *)CFG_CS1_START = 0xA5A5;
+	__asm__ volatile ("sync");
+	/*
+	 * Put a different pattern on the data lines: otherwise they may float
+	 * long enough to read back what we wrote.
+	 */
+	tmp = *(volatile u16 *)CFG_FLASH_BASE;
+	if (tmp == 0xA5A5)
+		puts ("!! possible error in grafic controller detection\n");
+
+	if (*(volatile u16 *)CFG_CS1_START != 0xA5A5) {
+		/* no grafic controller found */
+		restore = 0;
+		ret = 0;
+	} else {
+		ret = SM501_MMIO_BASE;
+	}
+
+	if (restore) {
+		*(volatile u16 *)CFG_CS1_START = save;
+		__asm__ volatile ("sync");
+	}
+	return ret;
 }
 
 /*
