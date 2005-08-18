@@ -35,8 +35,9 @@
 /*
  * Miscelaneous platform dependent initialisations
  */
-#define CMC_BASIC	1
+#define CMC_HP_BASIC	1
 #define CMC_PU2		2
+#define CMC_BASIC	4
 
 int hw_detect (void);
 
@@ -74,14 +75,14 @@ int board_init (void)
 	/*
 	 * On CMC-PU2 board configure PB3-PB6 to input without pull ups to
 	 * clear the duo LEDs (the external pull downs assure a proper
-	 * signal). On CMC-BASIC set PB3-PB6 to output and drive it
-	 * high, to configure current meassurement on AINx.
+	 * signal). On CMC-BASIC and CMC-HP-BASIC set PB3-PB6 to output and
+	 * drive it high, to configure current measurement on AINx.
 	 */
 	if (hw_detect() & CMC_PU2) {
 		piob->PIO_ODR = AT91C_PIO_PB3 | AT91C_PIO_PB4 |
 				AT91C_PIO_PB5 | AT91C_PIO_PB6;
 	}
-	else if (hw_detect() & CMC_BASIC) {
+	else if ((hw_detect() & CMC_BASIC) || (hw_detect() & CMC_HP_BASIC)) {
 		piob->PIO_SODR = AT91C_PIO_PB3 | AT91C_PIO_PB4 |
 				AT91C_PIO_PB5 | AT91C_PIO_PB6;
 		piob->PIO_OER = AT91C_PIO_PB3 | AT91C_PIO_PB4 |
@@ -119,6 +120,8 @@ int checkboard (void)
 		puts ("Board: CMC-PU2 (Rittal GmbH)\n");
 	else if (hw_detect() & CMC_BASIC)
 		puts ("Board: CMC-BASIC (Rittal GmbH)\n");
+	else if (hw_detect() & CMC_HP_BASIC)
+		puts ("Board: CMC-HP-BASIC (Rittal GmbH)\n");
 	else
 		puts ("Board: unknown\n");
 	return 0;
@@ -135,7 +138,17 @@ int hw_detect (void)
 	pio->PIO_ODR = AT91C_PIO_PB12;
 	pio->PIO_PPUDR = AT91C_PIO_PB12;
 	pio->PIO_PER = AT91C_PIO_PB12;
+	
+	/* configure PB13 as input without pull up */
+	pio->PIO_ODR = AT91C_PIO_PB13;
+	pio->PIO_PPUDR = AT91C_PIO_PB13;
+	pio->PIO_PER = AT91C_PIO_PB13;
 
 	/* read board identification pin */
-	return ((pio->PIO_PDSR & AT91C_PIO_PB12) ? CMC_PU2 : CMC_BASIC);
+	if (pio->PIO_PDSR & AT91C_PIO_PB12)
+		return ((pio->PIO_PDSR & AT91C_PIO_PB13)
+			? CMC_PU2 : 0);
+	else
+		return ((pio->PIO_PDSR & AT91C_PIO_PB13)
+			? CMC_HP_BASIC : CMC_BASIC);
 }
