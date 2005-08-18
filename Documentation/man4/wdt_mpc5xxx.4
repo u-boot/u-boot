@@ -1,0 +1,214 @@
+.\" Hey Emacs! This file is -*- nroff -*- source.
+.\"
+.\" Copyright 2002 Detlev Zundel (dzu@denx.de)
+.\"
+.\" Permission is granted to make and distribute verbatim copies of this
+.\" manual provided the copyright notice and this permission notice are
+.\" preserved on all copies.
+.\"
+.\" Permission is granted to copy and distribute modified versions of this
+.\" manual under the conditions for verbatim copying, provided that the
+.\" entire resulting derived work is distributed under the terms of a
+.\" permission notice identical to this one
+.\"
+.TH WDT_MPC5XXX "Denx specific extensions"
+.SH NAME
+wdt_mpc5xxx \- Watchdog driver
+.SH SYNOPSIS
+.B #include <linux/asm/wdt_mpc5xxx.h>
+.SH DESCRIPTION
+The
+.B wdt_mpc5xxx
+driver implements a character device with major number 10 and minor
+number 130.  It is a software abstraction of the hardware watchdog
+with two different APIs.  While the driver periodically triggers the
+hardware watchdog, the software can setup independent timeout periods.
+
+.SH "REGULAR API"
+The regular API provides a facility to setup a watchdog behaviour
+.I shared
+by all processes using the driver.  This interface uses read(2),
+write(2) and the first two ioctl(2) calls listed below.  The
+parameterless ioctl(2) calls select the operational mode of the
+driver, which can be
+.I open-only
+or
+.I always.
+
+In open-only mode, the watchdog will not expire if the device file is
+not opened by any process, while in always
+mode the behaviour is independent of the device file being opened.
+
+Reading from the device file will return an unsigned integer denoting
+the number of seconds left till the watchdog expires.  Writing an
+unsigned integer to the device file will set the expiration period in
+seconds.  Note that the hardware watchdog will be triggered
+independently with a configurable period.  See the section
+CONFIGURATION for details.
+
+An expiration of the watchdog will trigger a hard-reset of the machine.
+
+.SH "CHAIN API"
+The second API, which is implemented only through calls to ioctl(2),
+can be used to register configurable
+.I watchdog chains
+from either user or kernel space.  A watchdog chain
+is identified by an unsigned integer and can contain up to three
+.I action stages.
+A
+.I time interval
+in seconds and an
+.I action
+is associated with each stage.  When the chain is not reset before the
+interval elapses, the associated action is triggered and the chain
+moves on to the next stage.
+
+A chain can request to kill the registering process if the interval
+elapses.  In this case a restarted process can register with the
+driver giving the same identifier and reset the chain.  This is the
+main reason why there is no association between chains and processes
+or open device files.
+
+For a detailed description of the possible chain configurations, see
+the description of the
+.B WDT_REGISTER
+ioctl call.
+
+Note that when mixing the two interfaces, the second API takes
+precedence.  That is, expiry of the interval set by writing to the
+device file while a chain is registered, will not trigger any actions.
+
+Also note that the default operational mode of the driver,
+i.e. open-only or always can only be configured in the source-code.
+
+.SH IOCTLS
+.TP
+WDT_OPEN_ONLY
+This parameterless call selects the
+.I open-only
+operational mode of the driver as described above.
+
+.TP
+WDT_ALWAYS
+Also a parameterless call, this sets the driver to the
+.I always
+operational mode.
+
+.TP
+WDT_REGISTER
+This and the two following ioctls constitute the
+.I chain interface
+described above.  The parameter given to the call is a pointer to a
+structure with the following layout:
+
+ typedef struct wdt_param {
+   unsigned chainid;
+   unsigned long timer_count[3];
+   int action[3];
+   int signal;
+ } wdt_param_t;
+
+Each stage is configured with entries in the arrays
+.I timer_count
+and
+.I action.
+The timer_count contains the length of the interval in seconds
+while action contains one of the constants
+.B WDT_ACTION_SIGNAL, WDT_ACTION_KILL,
+.B WDT_ACTION_REBOOT
+and
+.B WDT_ACTION_RESET.
+A timer_count of zero signals the end of the chain.
+
+The ACTION_SIGNAL will send the configurable signal with number
+.I signal
+to the registering process, while ACTION_KILL signals SIGKILL which
+can not be caught by the registered process.
+ACTION_REBOOT tries a soft reboot and ACTION_RESET
+triggers a hard-reset of the machine.
+
+When stages of the chain are to be left unused, they should be filled
+with zero entries.
+
+Note that internally a hard-reset stage is appended as a stop entry
+ensuring a chain will never exceed its stages.
+
+.TP
+WDT_RESET
+This call resets the chain denoted by the unsigned integer passed to
+it.  When reset, a chain will expire beginning with stage zero again.
+
+.TP
+WDT_UNREGISTER
+As closing the device file will not have any effect on chains, a
+process must unregister a chain if the service is no longer needed.
+This can be done with this ioctl taking an unsigned integer as a
+parameter denoting the chain to be unregistered.
+
+.SH "IOCTL RESULT VALUES"
+On successful completion, the above calls to ioctl(2) return 0.  When
+invalid parameters are provided or an error occurs, a negative value
+will be returned and
+.B errno
+set accordingly.  Specifically
+.B "EINVAL, EFAULT, ENOMEM"
+can be returned.
+
+.SH "KERNEL INTERFACE"
+Modules can also register with the chain API of the watchdog driver.
+For this the three functions
+.B wdt_register_mon_chain, wdt_reset_mon_chain
+and
+.B wdt_unregister_mon_chain
+are exported from the driver.  The first function takes one argument,
+namely a pointer to a
+.I wdt_param
+structure.  The other two calls take a pointer to an unsigned integer
+as a parameter, namely the chain id of the chain to be reset or
+unregistered.
+
+.SH CONFIGURATION
+The driver is configurable through parameters passed to the driver
+through the Linux commandline as
+.B "wdt=<opts>".
+Multiple options can be seperated by
+commas, as usual.
+
+.B timeout:<n>
+will set the expiry period of the regular driver API to <n> seconds.
+
+.B period:<n>
+sets the period with which the hardware watchdog is triggered to <n>
+jiffies.  This usually means 1/100th of a second.  The default for the
+MPC5xxx is (1*HZ), resulting in 1 watchdog trigger per second.
+
+.B off
+will disable the software APIs of the driver but still trigger the
+hardware watchdog as described previously.
+
+.SH EXAMPLE
+The following code snippet registers a watchdog chain whose first
+stage will expire after 3 seconds and send the SIGUSR1 signal to the
+process.  When 5 seconds after this the chain is not reset, the
+machine will do a hard-reset.
+
+  wdt_param_t param;
+
+  /* Setup signal handling */
+  signal(SIGUSR1, got_signal);
+
+  param.chainid=823;
+  param.timer_count[0]=3;
+  param.action[0]=WDT_ACTION_KILL;
+  param.signal=SIGUSR1;
+  param.timer_count[1]=5;
+  param.action[1]=WDT_ACTION_RESET;
+
+  /* Register chain */
+  ioctl(fd, WDT_REGISTER, &param);
+  ..
+  /* Reset chain    */
+  ioctl(fd, WDT_RESET, &param.chainid);
+
+.SH FILES
+ /dev/watchdog
