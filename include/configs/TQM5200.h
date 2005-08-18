@@ -416,7 +416,12 @@
 /*
  * RTC configuration
  */
-#define CONFIG_RTC_MPC5200	1	/* use internal MPC5200 RTC */
+#if defined (CONFIG_STK52XX) && !defined (CONFIG_STK52XX_REV100)
+# define CONFIG_RTC_M41T11 1
+# define CFG_I2C_RTC_ADDR 0x68
+#else
+# define CONFIG_RTC_MPC5200	1	/* use internal MPC5200 RTC */
+#endif
 
 /*
  * Miscellaneous configurable options
