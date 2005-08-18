@@ -305,6 +305,10 @@ void start_armboot (void)
 
 	devices_init ();	/* get the devices list going. */
 
+#ifdef CONFIG_CMC_PU2
+	load_sernum_ethaddr ();
+#endif /* CONFIG_CMC_PU2 */
+
 	jumptable_init ();
 
 	console_init_r ();	/* fully init console as a device */
