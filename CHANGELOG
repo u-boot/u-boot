@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Remove CONFIG_AT91RM9200DK in CMC-PU2 configuration
+  Patch by Martin Krause, 19 Apr 2005
+
 * Fix initialization problem on TQM5200 without SM501
   Patch by Martin Krause, 8 Apr. 2005
 
