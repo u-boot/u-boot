@@ -62,7 +62,7 @@
  */
 
 #ifndef CONFIG_SYS_CLK_FREQ
-#define CONFIG_SYS_CLK_FREQ	33000000
+#define CONFIG_SYS_CLK_FREQ	33333333
 #endif
 
 /*
