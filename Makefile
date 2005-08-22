@@ -234,6 +234,9 @@ PATI_config:		unconfig
 aev_config: unconfig
 	@./mkconfig -a aev ppc mpc5xxx tqm5200
 
+cpci5200_config:  unconfig
+	@./mkconfig -a cpci5200  ppc mpc5xxx cpci5200 esd
+
 hmi1001_config:         unconfig
 	@./mkconfig hmi1001 ppc mpc5xxx hmi1001
 
@@ -279,6 +282,9 @@ inka4x0_config:		unconfig
 
 o2dnt_config:
 	@./mkconfig -a o2dnt ppc mpc5xxx o2dnt
+
+pf5200_config:  unconfig
+	@./mkconfig -a pf5200  ppc mpc5xxx pf5200 esd
 
 PM520_config \
 PM520_DDR_config \

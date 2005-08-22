@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Add esd cpci5200 and pf5200 boards
+  Patch by Reinhard Arlt, 22 Aug 2005
+
 * Fix sysclock for TQM8540 and TQM8560 boards
   Patch by Martin Krause, 25 Jul 2005
 
