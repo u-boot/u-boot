@@ -25,7 +25,7 @@
 #include <asm/processor.h>
 #include <i2c.h>
 #include <miiphy.h>
-#include <405gp_enet.h>
+#include <ppc4xx_enet.h>
 
 /*
  * Configuration data for AMIS FS6377-01 Programmable 3-PLL Clock Generator

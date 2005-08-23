@@ -67,7 +67,6 @@ SECTIONS
     cpu/ppc4xx/serial.o		(.text)
     cpu/ppc4xx/cpu_init.o	(.text)
     cpu/ppc4xx/speed.o		(.text)
-    cpu/ppc4xx/405gp_enet.o	(.text)
     common/dlmalloc.o		(.text)
     lib_ppc/extable.o		(.text)
     lib_ppc/board.o		(.text)

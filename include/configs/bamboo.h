@@ -275,14 +275,12 @@
 
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_PHY_ADDR		0	/* PHY address, See schematics	*/
+#define CONFIG_PHY1_ADDR        1
 
 #ifndef CONFIG_BAMBOO_NAND
 #define CONFIG_NET_MULTI        1       /* required for netconsole      */
-#define CONFIG_PHY1_ADDR        1
 #define CONFIG_HAS_ETH1		1	/* add support for "eth1addr"	*/
 #endif /* CONFIG_BAMBOO_NAND */
-
-#define CONFIG_NO_PHY_RESET     1       /* no PHY reset on bamboo!!!    */
 
 #define CFG_RX_ETH_BUFFER	32	/* Number of ethernet rx buffers & descriptors */
 
