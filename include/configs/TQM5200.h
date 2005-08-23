@@ -164,6 +164,7 @@
 				CFG_CMD_ECHO	| \
 				CFG_CMD_EEPROM	| \
 				CFG_CMD_I2C	| \
+				CFG_CMD_JFFS2	| \
 				CFG_CMD_MII	| \
 				CFG_CMD_NFS	| \
 				CFG_CMD_PING	| \
@@ -322,6 +323,15 @@
 #define CFG_FLASH_ERASE_TOUT	240000	/* Flash Erase Timeout (in ms)	*/
 #define CFG_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (in ms)	*/
 
+/* Dynamic MTD partition support */
+#define CONFIG_JFFS2_CMDLINE
+#define MTDIDS_DEFAULT		"nor0=TQM5200-0"
+#define MTDPARTS_DEFAULT	"mtdparts=TQM5200-0:640k(firmware),"	\
+						"1408k(kernel),"	\
+						"2m(initrd),"		\
+						"4m(small-fs),"		\
+						"16m(big-fs),"		\
+						"8m(misc)"
 
 /*
  * Environment settings
