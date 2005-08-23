@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Fix make dependencies for at91rm9200 and ks8695 cpus
+  Patch by Steven Scholz, 23 Aug 2005
+
 * Add JFFS2 support for TQM5200 board
 
 * Add esd cpci5200 and pf5200 boards
