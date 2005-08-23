@@ -2,6 +2,10 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Merged 405gp_enet.c and 440gx_enet.c to generic 4xx_enet.c
+  now handling all 4xx cpu's
+  Patch by Stefan Roese, 16 Aug 2005
+
 * Fix make dependencies for at91rm9200 and ks8695 cpus
   Patch by Steven Scholz, 23 Aug 2005
 
