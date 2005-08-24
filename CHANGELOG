@@ -2,6 +2,10 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Fixed bamboo port to enable running without DDR-DIMM (bamboo has also
+  64MB onboard DDR)
+  Patch by Stefan Roese, 24 Aug 2005
+
 * Merged 405gp_enet.c and 440gx_enet.c to generic 4xx_enet.c
   now handling all 4xx cpu's
   Patch by Stefan Roese, 16 Aug 2005

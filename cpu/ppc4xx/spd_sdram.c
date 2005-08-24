@@ -849,10 +849,12 @@ void get_spd_info(unsigned long*   dimm_populated,
 		}
 	}
 
+#ifndef CONFIG_BAMBOO /* bamboo has onboard DDR _and_ DDR DIMM's */
 	if (dimm_found == FALSE) {
 		printf("ERROR - No memory installed. Install a DDR-SDRAM DIMM.\n\n");
 		hang();
 	}
+#endif /* CONFIG_BAMBOO */
 }
 
 void check_mem_type(unsigned long*   dimm_populated,
