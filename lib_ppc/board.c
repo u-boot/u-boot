@@ -352,6 +352,7 @@ void board_init_f (ulong bootflag)
 
 	bd_t *bd;
 	ulong len, addr, addr_sp;
+	ulong *s;
 	gd_t *id;
 	init_fnc_t **init_fnc_ptr;
 #ifdef CONFIG_PRAM
@@ -471,8 +472,10 @@ void board_init_f (ulong bootflag)
 	 */
 	addr_sp -= 16;
 	addr_sp &= ~0xF;
-	*((ulong *) addr_sp)-- = 0;
-	*((ulong *) addr_sp)-- = 0;
+	s = (ulong *)addr_sp;
+	*s-- = 0;
+	*s-- = 0;
+	addr_sp = (ulong)s;
 	debug ("Stack Pointer at: %08lx\n", addr_sp);
 
 	/*

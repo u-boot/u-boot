@@ -745,7 +745,7 @@ static int
 ns8382x_send(struct eth_device *dev, volatile void *packet, int length)
 {
 	u32 i, status = 0;
-	u32 tx_stat = 0;
+	vu_long tx_stat = 0;
 
 	/* Stop the transmitter */
 	OUTL(dev, TxOff, ChipCmd);
@@ -771,7 +771,7 @@ ns8382x_send(struct eth_device *dev, volatile void *packet, int length)
 	/* restart the transmitter */
 	OUTL(dev, TxOn, ChipCmd);
 
-	for (i = 0; ((vu_long)tx_stat = le32_to_cpu(txd.cmdsts)) & DescOwn; i++) {
+	for (i = 0; (tx_stat = le32_to_cpu(txd.cmdsts)) & DescOwn; i++) {
 		if (i >= TOUT_LOOP) {
 			printf ("%s: tx error buffer not ready: txd.cmdsts %#X\n",
 			     dev->name, tx_stat);

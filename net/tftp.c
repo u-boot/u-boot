@@ -106,6 +106,7 @@ TftpSend (void)
 	volatile uchar *	pkt;
 	volatile uchar *	xp;
 	int			len = 0;
+	volatile ushort *s;
 
 	/*
 	 *	We will always be sending some sort of packet, so
@@ -117,7 +118,9 @@ TftpSend (void)
 
 	case STATE_RRQ:
 		xp = pkt;
-		*((ushort *)pkt)++ = htons(TFTP_RRQ);
+		s = (ushort *)pkt;
+		*s++ = htons(TFTP_RRQ);
+		pkt = (uchar *)s;
 		strcpy ((char *)pkt, tftp_filename);
 		pkt += strlen(tftp_filename) + 1;
 		strcpy ((char *)pkt, "octet");
@@ -135,15 +138,19 @@ TftpSend (void)
 	case STATE_DATA:
 	case STATE_OACK:
 		xp = pkt;
-		*((ushort *)pkt)++ = htons(TFTP_ACK);
-		*((ushort *)pkt)++ = htons(TftpBlock);
+		s = (ushort *)pkt;
+		*s++ = htons(TFTP_ACK);
+		*s++ = htons(TftpBlock);
+		pkt = (uchar *)s;
 		len = pkt - xp;
 		break;
 
 	case STATE_TOO_LARGE:
 		xp = pkt;
-		*((ushort *)pkt)++ = htons(TFTP_ERROR);
-		*((ushort *)pkt)++ = htons(3);
+		s = (ushort *)pkt;
+		*s++ = htons(TFTP_ERROR);
+		*s++ = htons(3);
+		pkt = (uchar *)s;
 		strcpy ((char *)pkt, "File too large");
 		pkt += 14 /*strlen("File too large")*/ + 1;
 		len = pkt - xp;
@@ -151,8 +158,10 @@ TftpSend (void)
 
 	case STATE_BAD_MAGIC:
 		xp = pkt;
-		*((ushort *)pkt)++ = htons(TFTP_ERROR);
-		*((ushort *)pkt)++ = htons(2);
+		s = (ushort *)pkt;
+		*s++ = htons(TFTP_ERROR);
+		*s++ = htons(2);
+		pkt = (uchar *)s;
 		strcpy ((char *)pkt, "File has bad magic");
 		pkt += 18 /*strlen("File has bad magic")*/ + 1;
 		len = pkt - xp;
@@ -167,6 +176,7 @@ static void
 TftpHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 {
 	ushort proto;
+	ushort *s;
 
 	if (dest != TftpOurPort) {
 		return;
@@ -180,7 +190,9 @@ TftpHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 	}
 	len -= 2;
 	/* warning: don't use increment (++) in ntohs() macros!! */
-	proto = *((ushort *)pkt)++;
+	s = (ushort *)pkt;
+	proto = *s++;
+	pkt = (uchar *)s;
 	switch (ntohs(proto)) {
 
 	case TFTP_RRQ:
