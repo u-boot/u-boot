@@ -90,6 +90,7 @@ extern flash_info_t flash_info[];
 #endif
 
 #include <environment.h>
+DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CFG_ENV_IS_EMBEDDED)
 #define TOTAL_MALLOC_LEN	CFG_MALLOC_LEN
@@ -126,8 +127,6 @@ static	ulong	mem_malloc_brk	 = 0;
  */
 static void mem_malloc_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	ulong dest_addr = CFG_MONITOR_BASE + gd->reloc_off;
 
 	mem_malloc_end = dest_addr;
@@ -187,8 +186,6 @@ typedef int (init_fnc_t) (void);
 
 static int init_baudrate (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	uchar tmp[64];	/* long enough for environment variables */
 	int i = getenv_r ("baudrate", tmp, sizeof (tmp));
 
@@ -202,8 +199,6 @@ static int init_baudrate (void)
 
 static int init_func_ram (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 #ifdef	CONFIG_BOARD_TYPES
 	int board_type = gd->board_type;
 #else
@@ -348,8 +343,6 @@ init_fnc_t *init_sequence[] = {
 
 void board_init_f (ulong bootflag)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	bd_t *bd;
 	ulong len, addr, addr_sp;
 	ulong *s;
@@ -589,7 +582,6 @@ void board_init_f (ulong bootflag)
 
 void board_init_r (gd_t *id, ulong dest_addr)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	cmd_tbl_t *cmdtp;
 	char *s, *e;
 	bd_t *bd;
