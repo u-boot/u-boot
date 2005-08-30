@@ -60,13 +60,14 @@
  */
 #define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
 				CFG_CMD_DATE	| \
+				CFG_CMD_DISPLAY	| \
 				CFG_CMD_DHCP	| \
 				CFG_CMD_EEPROM	| \
 				CFG_CMD_I2C	| \
 				CFG_CMD_IDE	| \
 				CFG_CMD_NFS	| \
 				CFG_CMD_PCI	| \
-				CFG_CMD_SNTP)
+				CFG_CMD_SNTP	)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -103,6 +104,8 @@
 	""
 
 #define CONFIG_BOOTCOMMAND	"run net_nfs"
+
+#define CONFIG_MISC_INIT_R	1
 
 /*
  * IPB Bus clocking configuration.
@@ -166,6 +169,9 @@
 #define CFG_MBAR		0xF0000000
 #define CFG_SDRAM_BASE		0x00000000
 #define CFG_DEFAULT_MBAR	0x80000000
+#define CFG_DISPLAY_BASE	0x80600000
+#define CFG_STATUS1_BASE	0x80600200
+#define CFG_STATUS2_BASE	0x80600300
 
 /* Settings for XLB = 132 MHz */
 #define SDRAM_DDR	 1
@@ -269,8 +275,8 @@
 
 /* Display H1, Status Inputs, EPLD @0x80600000 */
 #define CFG_CS3_START		0x80600000
-#define CFG_CS3_SIZE		0x00000210
-#define CFG_CS3_CFG		0x9800
+#define CFG_CS3_SIZE		0x00100000
+#define CFG_CS3_CFG		0xffff9830
 
 #define CFG_CS_BURST		0x00000000
 #define CFG_CS_DEADCYCLE	0x33333333
@@ -324,5 +330,12 @@
 #define CONFIG_PCI_IO_BUS	0x50000000
 #define CONFIG_PCI_IO_PHYS	CONFIG_PCI_IO_BUS
 #define CONFIG_PCI_IO_SIZE	0x01000000
+
+/*---------------------------------------------------------------------*/
+/* Display addresses						       */
+/*---------------------------------------------------------------------*/
+
+#define CFG_DISP_CHR_RAM	(CFG_DISPLAY_BASE + 0x38)
+#define CFG_DISP_CWORD		(CFG_DISPLAY_BASE + 0x30)
 
 #endif /* __CONFIG_H */

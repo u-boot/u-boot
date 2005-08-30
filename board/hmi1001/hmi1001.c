@@ -156,8 +156,126 @@ int checkboard (void)
 	return 0;
 }
 
+#ifdef CONFIG_PREBOOT
+
+static uchar kbd_magic_prefix[]		= "key_magic";
+static uchar kbd_command_prefix[]	= "key_cmd";
+
+#define S1_ROT	0xf0
+#define S2_Q	0x40
+#define S2_M	0x20
+
+struct kbd_data_t {
+	char s1;
+	char s2;
+};
+
+struct kbd_data_t* get_keys (struct kbd_data_t *kbd_data)
+{
+	kbd_data->s1 = *((volatile uchar*)(CFG_STATUS1_BASE));
+	kbd_data->s2 = *((volatile uchar*)(CFG_STATUS2_BASE));
+
+	return kbd_data;
+}
+
+static int compare_magic (struct kbd_data_t *kbd_data, uchar *str)
+{
+	char s1 = str[0];
+	char s2;
+
+	if (s1 >= '0' && s1 <= '9')
+		s1 -= '0';
+	else if (s1 >= 'a' && s1 <= 'f')
+		s1 = s1 - 'a' + 10;
+	else if (s1 >= 'A' && s1 <= 'F')
+		s1 = s1 - 'A' + 10;
+	else
+		return -1;
+
+	if (((S1_ROT & kbd_data->s1) >> 4) != s1)
+		return -1;
+
+	s2 = (S2_Q | S2_M) & kbd_data->s2;
+
+	switch (str[1]) {
+	case 'q':
+	case 'Q':
+		if (s2 == S2_Q)
+			return -1;
+		break;
+	case 'm':
+	case 'M':
+		if (s2 == S2_M)
+			return -1;
+		break;
+	case '\0':
+		if (s2 == (S2_Q | S2_M))
+			return 0;
+	default:
+		return -1;
+	}
+
+	if (str[2])
+		return -1;
+
+	return 0;
+}
+
+static uchar *key_match (const struct kbd_data_t *kbd_data)
+{
+	uchar magic[sizeof (kbd_magic_prefix) + 1];
+	uchar *suffix;
+	uchar *kbd_magic_keys;
+
+	/*
+	 * The following string defines the characters that can be appended
+	 * to "key_magic" to form the names of environment variables that
+	 * hold "magic" key codes, i. e. such key codes that can cause
+	 * pre-boot actions. If the string is empty (""), then only
+	 * "key_magic" is checked (old behaviour); the string "125" causes
+	 * checks for "key_magic1", "key_magic2" and "key_magic5", etc.
+	 */
+	if ((kbd_magic_keys = getenv ("magic_keys")) == NULL)
+		kbd_magic_keys = "";
+
+	/* loop over all magic keys;
+	 * use '\0' suffix in case of empty string
+	 */
+	for (suffix = kbd_magic_keys; *suffix ||
+		     suffix == kbd_magic_keys; ++suffix) {
+		sprintf (magic, "%s%c", kbd_magic_prefix, *suffix);
+
+		if (compare_magic(kbd_data, getenv(magic)) == 0) {
+			uchar cmd_name[sizeof (kbd_command_prefix) + 1];
+			char *cmd;
+
+			sprintf (cmd_name, "%s%c", kbd_command_prefix, *suffix);
+			cmd = getenv (cmd_name);
+
+			return (cmd);
+		}
+	}
+
+	return (NULL);
+}
+
+#endif /* CONFIG_PREBOOT */
+
 int misc_init_f (void)
 {
+}
+
+int misc_init_r (void)
+{
+#ifdef CONFIG_PREBOOT
+	struct kbd_data_t kbd_data;
+	/* Decode keys */
+	uchar *str = strdup (key_match (get_keys (&kbd_data)));
+	/* Set or delete definition */
+	setenv ("preboot", str);
+	free (str);
+#endif /* CONFIG_PREBOOT */
+
 	return 0;
 }
 
