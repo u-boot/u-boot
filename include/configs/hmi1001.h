@@ -276,7 +276,7 @@
 /* Display H1, Status Inputs, EPLD @0x80600000 */
 #define CFG_CS3_START		0x80600000
 #define CFG_CS3_SIZE		0x00100000
-#define CFG_CS3_CFG		0xffff9830
+#define CFG_CS3_CFG		0x00019800
 
 #define CFG_CS_BURST		0x00000000
 #define CFG_CS_DEADCYCLE	0x33333333
