@@ -229,15 +229,26 @@ long int initdram (int board_type)
 
 #if defined(CONFIG_DDR_DLL)
 	{
-		volatile ccsr_gur_t *gur = &immap->im_gur;
-		uint temp_ddrdll = 0;
+		volatile ccsr_gur_t *gur= &immap->im_gur;
+		int i,x;
+
+		x = 10;
 
 		/*
 		 * Work around to stabilize DDR DLL
 		 */
-		temp_ddrdll = gur->ddrdllcr;
-		gur->ddrdllcr = ((temp_ddrdll & 0xff) << 16) | 0x80000000;
-		asm ("sync;isync;msync");
+		gur->ddrdllcr = 0x81000000;
+		asm("sync;isync;msync");
+		udelay (200);
+		while (gur->ddrdllcr != 0x81000100) {
+			gur->devdisr = gur->devdisr | 0x00010000;
+			asm("sync;isync;msync");
+			for (i=0; i<x; i++)
+				;
+			gur->devdisr = gur->devdisr & 0xfff7ffff;
+			asm("sync;isync;msync");
+			x++;
+		}
 	}
 #endif
 
