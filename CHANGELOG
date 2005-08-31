@@ -2,6 +2,18 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Fix problems with ld version 2.16 (dot outside sections problem)
+  Pointed out by Gerhard Jaeger, 31 Aug 2005;
+  cf. http://sourceware.org/ml/binutils/2005-08/msg00412.html
+
+* Prepare U-Boot for gcc-4.x: fix global data pointer initialization
+
+* Adjust CS3 timings on HMI1001 board for dot matrix display under Linux
+
+* Add keyboard and dot matrix display support for HMI1001 board.
+
+* Prepare U-Boot for gcc-4.x
+
 * Fixed Bamboo port to enable running without DDR-DIMM
   (Bamboo has also 64MB onboard DDR)
   Patch by Stefan Roese, 24 Aug 2005
