@@ -51,6 +51,7 @@ SECTIONS
 
 	.u_boot_cmd ALIGN(0x4):
 	{
+		. = .;
 		__u_boot_cmd_start = .;
 		*(.u_boot_cmd)
 		__u_boot_cmd_end = .;

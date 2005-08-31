@@ -104,10 +104,12 @@ SECTIONS
   PROVIDE (edata = .);
 
 
+  . = .;
   __u_boot_cmd_start = .;
   .u_boot_cmd : { *(.u_boot_cmd) }
   __u_boot_cmd_end = .;
 
+  . = .;
   __start___ex_table = .;
   __ex_table : { *(__ex_table) }
   __stop___ex_table = .;

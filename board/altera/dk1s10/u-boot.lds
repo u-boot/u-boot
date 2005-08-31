@@ -50,6 +50,7 @@ SECTIONS
 	. = ALIGN(4);
 	__data_end = .;
 
+	. = .;
 	__u_boot_cmd_start = .;
 	.u_boot_cmd :
 	{

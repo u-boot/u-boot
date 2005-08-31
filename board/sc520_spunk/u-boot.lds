@@ -50,6 +50,7 @@ SECTIONS
 	_i386boot_bss_size = SIZEOF(.bss);
 
 
+  . = .;
   __u_boot_cmd_start = .;
   .u_boot_cmd : { *(.u_boot_cmd) }
   __u_boot_cmd_end = .;

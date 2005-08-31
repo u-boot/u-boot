@@ -96,6 +96,7 @@ SECTIONS
 
 	/* CMD TABLE - uboot command sections
 	 */
+	. = .;
 	__uboot_cmd_start = .;
 	.u_boot_cmd :
 	{

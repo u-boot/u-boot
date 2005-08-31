@@ -46,6 +46,7 @@ SECTIONS
 	 * the initialization code relocates the command table as
 	 * well -- admittedly, this is just pure laziness ;-)
 	 */
+	. = .;
 	__u_boot_cmd_start = .;
 	.u_boot_cmd :
 	{

@@ -62,6 +62,7 @@ SECTIONS
 	_i386boot_bios_size = SIZEOF(.bios);
 
 
+  . = .;
   __u_boot_cmd_start = .;
   .u_boot_cmd : { *(.u_boot_cmd) }
   __u_boot_cmd_end = .;
