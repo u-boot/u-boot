@@ -2,6 +2,8 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Cleanup
+
 * Enable SM712 driver support for HMI1001 board.
 
 * Fix problems with ld version 2.16 (dot outside sections problem)

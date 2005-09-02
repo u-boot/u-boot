@@ -30,6 +30,7 @@
 #include <common.h>
 #include <mpc5xxx.h>
 #include <pci.h>
+#include <malloc.h>
 
 #ifndef CFG_RAMBOOT
 static void sdram_start (int hi_addr)
@@ -178,7 +179,7 @@ struct kbd_data_t* get_keys (struct kbd_data_t *kbd_data)
 	return kbd_data;
 }
 
-static int compare_magic (struct kbd_data_t *kbd_data, uchar *str)
+static int compare_magic (const struct kbd_data_t *kbd_data, uchar *str)
 {
 	char s1 = str[0];
 	char s2;
@@ -260,10 +261,6 @@ static uchar *key_match (const struct kbd_data_t *kbd_data)
 }
 
 #endif /* CONFIG_PREBOOT */
-
-int misc_init_f (void)
-{
-}
 
 int misc_init_r (void)
 {
