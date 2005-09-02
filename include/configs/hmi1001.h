@@ -314,6 +314,11 @@
 
 #define CONFIG_ATAPI            1
 
+#define CONFIG_VIDEO_SMI_LYNXEM
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_VIDEO_LOGO
+
 /*
  * PCI Mapping:
  * 0x40000000 - 0x4fffffff - PCI Memory
@@ -330,6 +335,8 @@
 #define CONFIG_PCI_IO_BUS	0x50000000
 #define CONFIG_PCI_IO_PHYS	CONFIG_PCI_IO_BUS
 #define CONFIG_PCI_IO_SIZE	0x01000000
+
+#define CFG_ISA_IO		CONFIG_PCI_IO_BUS
 
 /*---------------------------------------------------------------------*/
 /* Display addresses						       */
