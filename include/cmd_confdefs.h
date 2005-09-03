@@ -109,6 +109,7 @@
 			CFG_CMD_DATE	| \
 			CFG_CMD_DHCP	| \
 			CFG_CMD_DIAG	| \
+			CFG_CMD_DISPLAY	| \
 			CFG_CMD_DOC	| \
 			CFG_CMD_DTT	| \
 			CFG_CMD_ECHO	| \
