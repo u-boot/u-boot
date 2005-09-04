@@ -291,7 +291,8 @@ static int mpc5xxx_fec_init(struct eth_device *dev, bd_t * bis)
 	/*
 	 * Set Rx FIFO alarm and granularity value
 	 */
-	fec->eth->rfifo_cntrl = 0x0c000000;
+	fec->eth->rfifo_cntrl = 0x0c000000
+				| (fec->eth->rfifo_cntrl & ~0x0f000000);
 	fec->eth->rfifo_alarm = 0x0000030c;
 #if (DEBUG & 0x22)
 	if (fec->eth->rfifo_status & 0x00700000 ) {
@@ -302,7 +303,8 @@ static int mpc5xxx_fec_init(struct eth_device *dev, bd_t * bis)
 	/*
 	 * Set Tx FIFO granularity value
 	 */
-	fec->eth->tfifo_cntrl = 0x0c000000;
+	fec->eth->tfifo_cntrl = 0x0c000000
+				| (fec->eth->tfifo_cntrl & ~0x0f000000);
 #if (DEBUG & 0x2)
 	printf("tfifo_status: 0x%08x\n", fec->eth->tfifo_status);
 	printf("tfifo_alarm: 0x%08x\n", fec->eth->tfifo_alarm);
