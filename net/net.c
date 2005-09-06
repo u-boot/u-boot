@@ -1574,7 +1574,7 @@ unsigned
 NetCksum(uchar * ptr, int len)
 {
 	ulong	xsum;
-	ushort *p = (ushort*)ptr;
+	ushort *p = (ushort *)ptr;
 
 	xsum = 0;
 	while (len-- > 0)

@@ -230,11 +230,33 @@
 #endif
 
 /* I2C */
-#define	 CONFIG_HARD_I2C		/* I2C with hardware support*/
-#undef	CONFIG_SOFT_I2C			/* I2C bit-banged */
-#define CFG_I2C_SPEED		400000	/* I2C speed and slave address */
+#define CONFIG_HARD_I2C			/* I2C with hardware support	*/
+#undef	CONFIG_SOFT_I2C			/* I2C bit-banged		*/
+#define CFG_I2C_SPEED		400000	/* I2C speed and slave address	*/
 #define CFG_I2C_SLAVE		0x7F
-#define CFG_I2C_NOPROBES	{0x69}	/* Don't probe these addrs */
+#define CFG_I2C_NOPROBES	{0x48}	/* Don't probe these addrs	*/
+
+/* I2C RTC */
+#define CONFIG_RTC_DS1337		/* Use ds1337 rtc via i2c	*/
+#define CFG_I2C_RTC_ADDR	0x68	/* at address 0x68		*/
+
+/* I2C EEPROM */
+/*
+ * EEPROM configuration for onboard EEPROM M24C32 (M24C64 should work also).
+ */
+#define CFG_I2C_EEPROM_ADDR		0x50	/* 1010000x		*/
+#define CFG_I2C_EEPROM_ADDR_LEN		2
+#define CFG_EEPROM_PAGE_WRITE_BITS	5	/* =32 Bytes per write	*/
+#define CFG_EEPROM_PAGE_WRITE_ENABLE
+#define CFG_EEPROM_PAGE_WRITE_DELAY_MS	20
+#define CFG_I2C_MULTI_EEPROMS		1       /* more than one eeprom */
+
+/* I2C SYSMON (LM75) */
+#define CONFIG_DTT_LM75		1		/* ON Semi's LM75	*/
+#define CONFIG_DTT_SENSORS	{0}		/* Sensor addresses	*/
+#define CFG_DTT_MAX_TEMP	70
+#define CFG_DTT_LOW_TEMP	-30
+#define CFG_DTT_HYSTERESIS	3
 
 /* RapidIO MMU */
 #define CFG_RIO_MEM_BASE	0xc0000000	/* base address */
@@ -301,7 +323,6 @@
 
 #endif	/* CONFIG_TSEC_ENET */
 
-
 /*
  * Environment
  */
@@ -342,6 +363,9 @@
 #define CONFIG_COMMANDS        (CONFIG_CMD_PRIV	| \
 				ADD_PCI_CMD	| \
 				CFG_CMD_I2C	| \
+				CFG_CMD_DATE	| \
+				CFG_CMD_EEPROM	| \
+				CFG_CMD_DTT	| \
 				CFG_CMD_PING	)
 #include <cmd_confdefs.h>
 
@@ -426,6 +450,11 @@
 	"bootfile=/tftpboot/tqm8540/uImage\0"				\
 	"kernel_addr=FE000000\0"					\
 	"ramdisk_addr=FE100000\0"					\
+	"load=tftp 100000 /tftpboot/tqm8540/u-boot.bin\0"		\
+	"update=protect off fffc0000 ffffffff;era fffc0000 ffffffff;"	\
+		"cp.b 100000 fffc0000 40000;"			        \
+		"setenv filesize;saveenv\0"				\
+	"upd=run load;run update\0"					\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
