@@ -2,6 +2,10 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Fix problem in 440GP ethernet driver (ebony). Add support for 2nd
+  ethernet port on ebony.
+  Patch by Stefan Roese, 7 Sep 2005
+
 * Add I2C support to TQM8540 and TQM8560 boards (EEPROM, RTC, LM75-DTT).
   Removed CFG_CMD_DISPLAY from default commands.
   Fixed compiler warning in net.c.

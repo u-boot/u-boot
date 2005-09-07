@@ -365,6 +365,9 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
    	out32 (ZMII_FER, (ZMII_FER_RMII | ZMII_FER_MDI) << ZMII_FER_V (devnum));
 #elif defined(CONFIG_440GX)
 	ethgroup = ppc_4xx_eth_setup_bridge(devnum, bis);
+#elif defined(CONFIG_440GP)
+	/* set RMII mode */
+	out32 (ZMII_FER, ZMII_RMII | ZMII_MDI0);
 #else
 	if ((devnum == 0) || (devnum == 1)) {
 		out32 (ZMII_FER, (ZMII_FER_SMII | ZMII_FER_MDI) << ZMII_FER_V (devnum));
