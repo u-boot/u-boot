@@ -238,6 +238,46 @@ static void memsize_format(char *buf, u32 size)
 }
 
 /**
+ * This routine does global indexing of all partitions. Resulting index for
+ * current partition is saved in 'mtddevnum'. Current partition name in
+ * 'mtddevname'.
+ */
+static void index_partitions(void)
+{
+	char buf[16];
+	u16 mtddevnum;
+	struct part_info *part;
+	struct list_head *dentry;
+	struct mtd_device *dev;
+
+	DEBUGF("--- index partitions ---\n");
+
+	if (current_dev) {
+		mtddevnum = 0;
+		list_for_each(dentry, &devices) {
+			dev = list_entry(dentry, struct mtd_device, link);
+			if (dev == current_dev) {
+				mtddevnum += current_partnum;
+				sprintf(buf, "%d", mtddevnum);
+				setenv("mtddevnum", buf);
+				break;
+			}
+			mtddevnum += dev->num_parts;
+		}
+
+		part = jffs2_part_info(current_dev, current_partnum);
+		setenv("mtddevname", part->name);
+
+		DEBUGF("=> mtddevnum %d,\n=> mtddevname %s\n", mtddevnum, part->name);
+	} else {
+		setenv("mtddevnum", NULL);
+		setenv("mtddevname", NULL);
+
+		DEBUGF("=> mtddevnum NULL\n=> mtddevname NULL\n");
+	}
+}
+
+/**
  * Save current device and partition in environment variable 'partition'.
  */
 static void current_save(void)
@@ -260,6 +300,7 @@ static void current_save(void)
 
 		DEBUGF("=> partition NULL\n");
 	}
+	index_partitions();
 }
 
 /**
@@ -398,6 +439,8 @@ static int part_validate(struct mtdids *id, struct part_info *part)
  */
 static int part_del(struct mtd_device *dev, struct part_info *part)
 {
+	u8 current_save_needed = 0;
+
 	/* if there is only one partition, remove whole device */
 	if (dev->num_parts == 1)
 		return device_del(dev);
@@ -414,19 +457,22 @@ static int part_del(struct mtd_device *dev, struct part_info *part)
 			if (curr_pi == part) {
 				printf("current partition deleted, resetting current to 0\n");
 				current_partnum = 0;
-				current_save();
 			} else if (part->offset <= curr_pi->offset) {
 				current_partnum--;
-				current_save();
 			}
+			current_save_needed = 1;
 		}
 	}
-
 
 	jffs2_free_cache(part);
 	list_del(&part->link);
 	free(part);
 	dev->num_parts--;
+
+	if (current_save_needed > 0)
+		current_save();
+	else
+		index_partitions();
 
 	return 0;
 }
@@ -469,6 +515,8 @@ static int part_sort_add(struct mtd_device *dev, struct part_info *part)
 	if (list_empty(&dev->parts)) {
 		DEBUGF("part_sort_add: list empty\n");
 		list_add(&part->link, &dev->parts);
+		dev->num_parts++;
+		index_partitions();
 		return 0;
 	}
 
@@ -492,18 +540,23 @@ static int part_sort_add(struct mtd_device *dev, struct part_info *part)
 
 		if (new_pi->offset <= pi->offset) {
 			list_add_tail(&part->link, entry);
+			dev->num_parts++;
 
 			if (curr_pi && (pi->offset <= curr_pi->offset)) {
 				/* we are modyfing partitions for the current
 				 * device, update current */
 				current_partnum++;
 				current_save();
+			} else {
+				index_partitions();
 			}
-
 			return 0;
 		}
 	}
+
 	list_add_tail(&part->link, &dev->parts);
+	dev->num_parts++;
+	index_partitions();
 	return 0;
 }
 
@@ -524,7 +577,6 @@ static int part_add(struct mtd_device *dev, struct part_info *part)
 	if (part_sort_add(dev, part) != 0)
 		return 1;
 
-	dev->num_parts++;
 	return 0;
 }
 
@@ -735,9 +787,10 @@ static int device_del(struct mtd_device *dev)
 			current_partnum = 0;
 		}
 		current_save();
+		return 0;
 	}
 
-
+	index_partitions();
 	return 0;
 }
 
@@ -771,13 +824,20 @@ static struct mtd_device* device_find(u8 type, u8 num)
  */
 static void device_add(struct mtd_device *dev)
 {
+	u8 current_save_needed = 0;
+
 	if (list_empty(&devices)) {
 		current_dev = dev;
 		current_partnum = 0;
-		current_save();
+		current_save_needed = 1;
 	}
 
 	list_add_tail(&dev->link, &devices);
+
+	if (current_save_needed > 0)
+		current_save();
+	else
+		index_partitions();
 }
 
 /**
@@ -896,7 +956,7 @@ static int device_parse(const char *const mtd_dev, const char **ret, struct mtd_
 	}
 	memset(dev, 0, sizeof(struct mtd_device));
 	dev->id = id;
-	dev->num_parts = num_parts;
+	dev->num_parts = 0; /* part_sort_add increments num_parts */
 	INIT_LIST_HEAD(&dev->parts);
 	INIT_LIST_HEAD(&dev->link);
 
@@ -1548,7 +1608,7 @@ int mtdparts_init(void)
 		ids_changed = 1;
 
 		if (parse_mtdids(ids) != 0) {
-			device_delall(&devices);
+			devices_init();
 			return 1;
 		}
 

@@ -2,6 +2,8 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Added support for mtddevnum and mtddevname variables (mtdparts command)
+
 * Fix default command set (don't include CFG_CMD_DISPLAY command)
   Patch by Pantelis Antoniou, 02 Sep 2005
 
