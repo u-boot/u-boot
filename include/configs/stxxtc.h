@@ -42,7 +42,7 @@
 #undef	CONFIG_8xx_CONS_SMC2
 #undef	CONFIG_8xx_CONS_NONE
 
-#define CONFIG_BAUDRATE		38400	/* console baudrate = 38.4kbps	*/
+#define CONFIG_BAUDRATE		115200	/* console baudrate = 115.2kbps	*/
 
 #define CONFIG_XIN		10000000	/* 10 MHz input xtal */
 

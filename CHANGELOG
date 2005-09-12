@@ -2,6 +2,8 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Change default console baud rate for stxxtc board
+
 * Add I2C support to TQM8540 and TQM8560 boards (EEPROM, RTC, LM75-DTT).
   Patch by Stefan Roese, 31 Aug 2005
 
