@@ -22,6 +22,6 @@
 #
 
 PLATFORM_RELFLAGS += -fno-strict-aliasing  -fno-common -ffixed-r8 \
-	-mshort-load-bytes -msoft-float
+	-msoft-float
 
 PLATFORM_CPPFLAGS += -mapcs-32 -march=armv4

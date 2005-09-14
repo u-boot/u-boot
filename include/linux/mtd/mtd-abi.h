@@ -1,7 +1,7 @@
 /*
  * $Id: mtd-abi.h,v 1.7 2004/11/23 15:37:32 gleixner Exp $
  *
- * Portions of MTD ABI definition which are shared by kernel and user space 
+ * Portions of MTD ABI definition which are shared by kernel and user space
  */
 
 #ifndef __MTD_ABI_H__
@@ -27,17 +27,17 @@ struct mtd_oob_buf {
 #define MTD_OTHER		14
 #define MTD_UNKNOWN		15
 
-#define MTD_CLEAR_BITS		1       // Bits can be cleared (flash)
-#define MTD_SET_BITS		2       // Bits can be set
-#define MTD_ERASEABLE		4       // Has an erase function
-#define MTD_WRITEB_WRITEABLE	8       // Direct IO is possible
-#define MTD_VOLATILE		16      // Set for RAMs
-#define MTD_XIP			32	// eXecute-In-Place possible
-#define MTD_OOB			64	// Out-of-band data (NAND flash)
-#define MTD_ECC			128	// Device capable of automatic ECC
-#define MTD_NO_VIRTBLOCKS	256	// Virtual blocks not allowed
+#define MTD_CLEAR_BITS		1       /* Bits can be cleared (flash) */
+#define MTD_SET_BITS		2       /* Bits can be set */
+#define MTD_ERASEABLE		4       /* Has an erase function */
+#define MTD_WRITEB_WRITEABLE	8       /* Direct IO is possible */
+#define MTD_VOLATILE		16      /* Set for RAMs */
+#define MTD_XIP			32	/* eXecute-In-Place possible */
+#define MTD_OOB			64	/* Out-of-band data (NAND flash) */
+#define MTD_ECC			128	/* Device capable of automatic ECC */
+#define MTD_NO_VIRTBLOCKS	256	/* Virtual blocks not allowed */
 
-// Some common devices / combinations of capabilities
+/* Some common devices / combinations of capabilities */
 #define MTD_CAP_ROM		0
 #define MTD_CAP_RAM		(MTD_CLEAR_BITS|MTD_SET_BITS|MTD_WRITEB_WRITEABLE)
 #define MTD_CAP_NORFLASH        (MTD_CLEAR_BITS|MTD_ERASEABLE)
@@ -45,31 +45,31 @@ struct mtd_oob_buf {
 #define MTD_WRITEABLE		(MTD_CLEAR_BITS|MTD_SET_BITS)
 
 
-// Types of automatic ECC/Checksum available
-#define MTD_ECC_NONE		0 	// No automatic ECC available
-#define MTD_ECC_RS_DiskOnChip	1	// Automatic ECC on DiskOnChip
-#define MTD_ECC_SW		2	// SW ECC for Toshiba & Samsung devices
+/* Types of automatic ECC/Checksum available */
+#define MTD_ECC_NONE		0 	/* No automatic ECC available */
+#define MTD_ECC_RS_DiskOnChip	1	/* Automatic ECC on DiskOnChip */
+#define MTD_ECC_SW		2	/* SW ECC for Toshiba & Samsung devices */
 
 /* ECC byte placement */
-#define MTD_NANDECC_OFF		0	// Switch off ECC (Not recommended)
-#define MTD_NANDECC_PLACE	1	// Use the given placement in the structure (YAFFS1 legacy mode)
-#define MTD_NANDECC_AUTOPLACE	2	// Use the default placement scheme
-#define MTD_NANDECC_PLACEONLY	3	// Use the given placement in the structure (Do not store ecc result on read)
-#define MTD_NANDECC_AUTOPL_USR 	4	// Use the given autoplacement scheme rather than using the default
+#define MTD_NANDECC_OFF		0	/* Switch off ECC (Not recommended) */
+#define MTD_NANDECC_PLACE	1	/* Use the given placement in the structure (YAFFS1 legacy mode) */
+#define MTD_NANDECC_AUTOPLACE	2	/* Use the default placement scheme */
+#define MTD_NANDECC_PLACEONLY	3	/* Use the given placement in the structure (Do not store ecc result on read) */
+#define MTD_NANDECC_AUTOPL_USR 	4	/* Use the given autoplacement scheme rather than using the default */
 
 struct mtd_info_user {
 	uint8_t type;
 	uint32_t flags;
-	uint32_t size;	 // Total size of the MTD
+	uint32_t size;	 /* Total size of the MTD */
 	uint32_t erasesize;
-	uint32_t oobblock;  // Size of OOB blocks (e.g. 512)
-	uint32_t oobsize;   // Amount of OOB data per block (e.g. 16)
+	uint32_t oobblock;  /* Size of OOB blocks (e.g. 512) */
+	uint32_t oobsize;   /* Amount of OOB data per block (e.g. 16) */
 	uint32_t ecctype;
 	uint32_t eccsize;
 };
 
 struct region_info_user {
-	uint32_t offset;		/* At which this region starts, 
+	uint32_t offset;		/* At which this region starts,
 					 * from the beginning of the MTD */
 	uint32_t erasesize;		/* For this region */
 	uint32_t numblocks;		/* Number of blocks in this region */

@@ -143,7 +143,7 @@
 /* keeps pointer to currentlu processed partition */
 static struct part_info *current_part;
 
-#if defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND) && !defined(CONFIG_NEW_NAND_CODE)
 /*
  * Support for jffs2 on top of NAND-flash
  *
@@ -290,7 +290,7 @@ static inline void *get_fl_mem(u32 off, u32 size, void *ext_buf)
 		return get_fl_mem_nor(off);
 #endif
 
-#if defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND) && !defined(CONFIG_NEW_NAND_CODE)
 	if (id->type == MTD_DEV_TYPE_NAND)
 		return get_fl_mem_nand(off, size, ext_buf);
 #endif
@@ -308,7 +308,7 @@ static inline void *get_node_mem(u32 off)
 		return get_node_mem_nor(off);
 #endif
 
-#if defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND) && !defined(CONFIG_NEW_NAND_CODE)
 	if (id->type == MTD_DEV_TYPE_NAND)
 		return get_node_mem_nand(off);
 #endif
@@ -319,7 +319,7 @@ static inline void *get_node_mem(u32 off)
 
 static inline void put_fl_mem(void *buf)
 {
-#if defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND) && !defined(CONFIG_NEW_NAND_CODE)
 	struct mtdids *id = current_part->dev->id;
 
 	if (id->type == MTD_DEV_TYPE_NAND)

@@ -14,4 +14,3 @@ $(LIB):	$(OBJS)
 		$(CC) -M $(CFLAGS) $(OBJS:.o=.c) > $@
 
 sinclude .depend
-

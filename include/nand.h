@@ -24,7 +24,7 @@
 #ifndef _NAND_H_
 #define _NAND_H_
 
-#include <linux_compat.h>
+#include <linux/mtd/compat.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/nand.h>
 

@@ -1,4 +1,4 @@
-/* 
+/*
  * drivers/mtd/nand/diskonchip.c
  *
  * (C) 2003 Red Hat, Inc.
@@ -8,12 +8,12 @@
  * Author: David Woodhouse <dwmw2@infradead.org>
  * Additional Diskonchip 2000 and Millennium support by Dan Brown <dan_brown@ieee.org>
  * Diskonchip Millennium Plus support by Kalev Lember <kalev@smartlink.ee>
- * 
+ *
  * Error correction code lifted from the old docecc code
- * Author: Fabrice Bellard (fabrice.bellard@netgem.com) 
+ * Author: Fabrice Bellard (fabrice.bellard@netgem.com)
  * Copyright (C) 2000 Netgem S.A.
  * converted to the generic Reed-Solomon library by Thomas Gleixner <tglx@linutronix.de>
- *  
+ *
  * Interface to generic NAND code for M-Systems DiskOnChip devices
  *
  * $Id: diskonchip.c,v 1.45 2005/01/05 18:05:14 dwmw2 Exp $
@@ -42,25 +42,25 @@
 static unsigned long __initdata doc_locations[] = {
 #if defined (__alpha__) || defined(__i386__) || defined(__x86_64__)
 #ifdef CONFIG_MTD_DISKONCHIP_PROBE_HIGH
-	0xfffc8000, 0xfffca000, 0xfffcc000, 0xfffce000, 
+	0xfffc8000, 0xfffca000, 0xfffcc000, 0xfffce000,
 	0xfffd0000, 0xfffd2000, 0xfffd4000, 0xfffd6000,
-	0xfffd8000, 0xfffda000, 0xfffdc000, 0xfffde000, 
-	0xfffe0000, 0xfffe2000, 0xfffe4000, 0xfffe6000, 
+	0xfffd8000, 0xfffda000, 0xfffdc000, 0xfffde000,
+	0xfffe0000, 0xfffe2000, 0xfffe4000, 0xfffe6000,
 	0xfffe8000, 0xfffea000, 0xfffec000, 0xfffee000,
 #else /*  CONFIG_MTD_DOCPROBE_HIGH */
-	0xc8000, 0xca000, 0xcc000, 0xce000, 
+	0xc8000, 0xca000, 0xcc000, 0xce000,
 	0xd0000, 0xd2000, 0xd4000, 0xd6000,
-	0xd8000, 0xda000, 0xdc000, 0xde000, 
-	0xe0000, 0xe2000, 0xe4000, 0xe6000, 
+	0xd8000, 0xda000, 0xdc000, 0xde000,
+	0xe0000, 0xe2000, 0xe4000, 0xe6000,
 	0xe8000, 0xea000, 0xec000, 0xee000,
 #endif /*  CONFIG_MTD_DOCPROBE_HIGH */
 #elif defined(__PPC__)
 	0xe4000000,
 #elif defined(CONFIG_MOMENCO_OCELOT)
 	0x2f000000,
-        0xff000000,
+	0xff000000,
 #elif defined(CONFIG_MOMENCO_OCELOT_G) || defined (CONFIG_MOMENCO_OCELOT_C)
-        0xff000000,
+	0xff000000,
 ##else
 #warning Unknown architecture for DiskOnChip. No default probe locations defined
 #endif
@@ -142,7 +142,7 @@ MODULE_PARM_DESC(doc_config_location, "Physical memory address at which to probe
 /* the Reed Solomon control structure */
 static struct rs_control *rs_decoder;
 
-/* 
+/*
  * The HW decoder in the DoC ASIC's provides us a error syndrome,
  * which we must convert to a standard syndrom usable by the generic
  * Reed-Solomon library code.
@@ -167,8 +167,8 @@ static int doc_ecc_decode (struct rs_control *rs, uint8_t *data, uint8_t *ecc)
 	/* Initialize the syndrom buffer */
 	for (i = 0; i < NROOTS; i++)
 		s[i] = ds[0];
-	/* 
-	 *  Evaluate 
+	/*
+	 *  Evaluate
 	 *  s[i] = ds[3]x^3 + ds[2]x^2 + ds[1]x^1 + ds[0]
 	 *  where x = alpha^(FCR + i)
 	 */
@@ -192,7 +192,7 @@ static int doc_ecc_decode (struct rs_control *rs, uint8_t *data, uint8_t *ecc)
 	if (nerr < 0)
 		return nerr;
 
-	/* 
+	/*
 	 * Correct the errors. The bitpositions are a bit of magic,
 	 * but they are given by the design of the de/encoder circuit
 	 * in the DoC ASIC's.
@@ -209,7 +209,7 @@ static int doc_ecc_decode (struct rs_control *rs, uint8_t *data, uint8_t *ecc)
 			   can be modified since pos is even */
 			index = (pos >> 3) ^ 1;
 			bitpos = pos & 7;
-			if ((index >= 0 && index < SECTOR_SIZE) || 
+			if ((index >= 0 && index < SECTOR_SIZE) ||
 			    index == (SECTOR_SIZE + 1)) {
 				val = (uint8_t) (errval[i] >> (2 + bitpos));
 				parity ^= val;
@@ -220,7 +220,7 @@ static int doc_ecc_decode (struct rs_control *rs, uint8_t *data, uint8_t *ecc)
 			bitpos = (bitpos + 10) & 7;
 			if (bitpos == 0)
 				bitpos = 8;
-			if ((index >= 0 && index < SECTOR_SIZE) || 
+			if ((index >= 0 && index < SECTOR_SIZE) ||
 			    index == (SECTOR_SIZE + 1)) {
 				val = (uint8_t)(errval[i] << (8 - bitpos));
 				parity ^= val;
@@ -237,7 +237,7 @@ static void DoC_Delay(struct doc_priv *doc, unsigned short cycles)
 {
 	volatile char dummy;
 	int i;
-	
+
 	for (i = 0; i < cycles; i++) {
 		if (DoC_is_Millennium(doc))
 			dummy = ReadDOC(doc->virtadr, NOP);
@@ -246,7 +246,7 @@ static void DoC_Delay(struct doc_priv *doc, unsigned short cycles)
 		else
 			dummy = ReadDOC(doc->virtadr, DOCStatus);
 	}
-	
+
 }
 
 #define CDSN_CTRL_FR_B_MASK	(CDSN_CTRL_FR_B0 | CDSN_CTRL_FR_B1)
@@ -254,7 +254,7 @@ static void DoC_Delay(struct doc_priv *doc, unsigned short cycles)
 /* DOC_WaitReady: Wait for RDY line to be asserted by the flash chip */
 static int _DoC_WaitReady(struct doc_priv *doc)
 {
-        void __iomem *docptr = doc->virtadr;
+	void __iomem *docptr = doc->virtadr;
 	unsigned long timeo = jiffies + (HZ * 10);
 
 	if(debug) printk("_DoC_WaitReady...\n");
@@ -284,7 +284,7 @@ static int _DoC_WaitReady(struct doc_priv *doc)
 
 static inline int DoC_WaitReady(struct doc_priv *doc)
 {
-        void __iomem *docptr = doc->virtadr;
+	void __iomem *docptr = doc->virtadr;
 	int ret = 0;
 
 	if (DoC_is_MillenniumPlus(doc)) {
@@ -310,7 +310,7 @@ static void doc2000_write_byte(struct mtd_info *mtd, u_char datum)
 {
 	struct nand_chip *this = mtd->priv;
 	struct doc_priv *doc = this->priv;
-        void __iomem *docptr = doc->virtadr;
+	void __iomem *docptr = doc->virtadr;
 
 	if(debug)printk("write_byte %02x\n", datum);
 	WriteDOC(datum, docptr, CDSNSlowIO);
@@ -321,7 +321,7 @@ static u_char doc2000_read_byte(struct mtd_info *mtd)
 {
 	struct nand_chip *this = mtd->priv;
 	struct doc_priv *doc = this->priv;
-        void __iomem *docptr = doc->virtadr;
+	void __iomem *docptr = doc->virtadr;
 	u_char ret;
 
 	ReadDOC(docptr, CDSNSlowIO);
@@ -331,12 +331,12 @@ static u_char doc2000_read_byte(struct mtd_info *mtd)
 	return ret;
 }
 
-static void doc2000_writebuf(struct mtd_info *mtd, 
+static void doc2000_writebuf(struct mtd_info *mtd,
 			     const u_char *buf, int len)
 {
 	struct nand_chip *this = mtd->priv;
 	struct doc_priv *doc = this->priv;
-        void __iomem *docptr = doc->virtadr;
+	void __iomem *docptr = doc->virtadr;
 	int i;
 	if (debug)printk("writebuf of %d bytes: ", len);
 	for (i=0; i < len; i++) {
@@ -347,12 +347,12 @@ static void doc2000_writebuf(struct mtd_info *mtd,
 	if (debug) printk("\n");
 }
 
-static void doc2000_readbuf(struct mtd_info *mtd, 
+static void doc2000_readbuf(struct mtd_info *mtd,
 			    u_char *buf, int len)
 {
 	struct nand_chip *this = mtd->priv;
 	struct doc_priv *doc = this->priv;
-        void __iomem *docptr = doc->virtadr;
+	void __iomem *docptr = doc->virtadr;
  	int i;
 
 	if (debug)printk("readbuf of %d bytes: ", len);
@@ -362,12 +362,12 @@ static void doc2000_readbuf(struct mtd_info *mtd,
 	}
 }
 
-static void doc2000_readbuf_dword(struct mtd_info *mtd, 
+static void doc2000_readbuf_dword(struct mtd_info *mtd,
 			    u_char *buf, int len)
 {
 	struct nand_chip *this = mtd->priv;
 	struct doc_priv *doc = this->priv;
-        void __iomem *docptr = doc->virtadr;
+	void __iomem *docptr = doc->virtadr;
  	int i;
 
 	if (debug) printk("readbuf_dword of %d bytes: ", len);
@@ -383,12 +383,12 @@ static void doc2000_readbuf_dword(struct mtd_info *mtd,
 	}
 }
 
-static int doc2000_verifybuf(struct mtd_info *mtd, 
+static int doc2000_verifybuf(struct mtd_info *mtd,
 			      const u_char *buf, int len)
 {
 	struct nand_chip *this = mtd->priv;
 	struct doc_priv *doc = this->priv;
-        void __iomem *docptr = doc->virtadr;
+	void __iomem *docptr = doc->virtadr;
 	int i;
 
 	for (i=0; i < len; i++)
@@ -435,7 +435,7 @@ static uint16_t __init doc200x_ident_chip(struct mtd_info *mtd, int nr)
 			this->read_buf = &doc2000_readbuf_dword;
 		}
 	}
-		
+
 	return ret;
 }
 
@@ -466,7 +466,7 @@ static int doc200x_wait(struct mtd_info *mtd, struct nand_chip *this, int state)
 	struct doc_priv *doc = this->priv;
 
 	int status;
-	
+
 	DoC_WaitReady(doc);
 	this->cmdfunc(mtd, NAND_CMD_STATUS, -1, -1);
 	DoC_WaitReady(doc);
@@ -479,7 +479,7 @@ static void doc2001_write_byte(struct mtd_info *mtd, u_char datum)
 {
 	struct nand_chip *this = mtd->priv;
 	struct doc_priv *doc = this->priv;
-        void __iomem *docptr = doc->virtadr;
+	void __iomem *docptr = doc->virtadr;
 
 	WriteDOC(datum, docptr, CDSNSlowIO);
 	WriteDOC(datum, docptr, Mil_CDSN_IO);
@@ -490,22 +490,22 @@ static u_char doc2001_read_byte(struct mtd_info *mtd)
 {
 	struct nand_chip *this = mtd->priv;
 	struct doc_priv *doc = this->priv;
-        void __iomem *docptr = doc->virtadr;
+	void __iomem *docptr = doc->virtadr;
 
-	//ReadDOC(docptr, CDSNSlowIO);
+	/*ReadDOC(docptr, CDSNSlowIO); */
 	/* 11.4.5 -- delay twice to allow extended length cycle */
 	DoC_Delay(doc, 2);
 	ReadDOC(docptr, ReadPipeInit);
-	//return ReadDOC(docptr, Mil_CDSN_IO);
+	/*return ReadDOC(docptr, Mil_CDSN_IO); */
 	return ReadDOC(docptr, LastDataRead);
 }
 
-static void doc2001_writebuf(struct mtd_info *mtd, 
+static void doc2001_writebuf(struct mtd_info *mtd,
 			     const u_char *buf, int len)
 {
 	struct nand_chip *this = mtd->priv;
 	struct doc_priv *doc = this->priv;
-        void __iomem *docptr = doc->virtadr;
+	void __iomem *docptr = doc->virtadr;
 	int i;
 
 	for (i=0; i < len; i++)
@@ -514,12 +514,12 @@ static void doc2001_writebuf(struct mtd_info *mtd,
 	WriteDOC(0x00, docptr, WritePipeTerm);
 }
 
-static void doc2001_readbuf(struct mtd_info *mtd, 
+static void doc2001_readbuf(struct mtd_info *mtd,
 			    u_char *buf, int len)
 {
 	struct nand_chip *this = mtd->priv;
 	struct doc_priv *doc = this->priv;
-        void __iomem *docptr = doc->virtadr;
+	void __iomem *docptr = doc->virtadr;
 	int i;
 
 	/* Start read pipeline */
@@ -532,12 +532,12 @@ static void doc2001_readbuf(struct mtd_info *mtd,
 	buf[i] = ReadDOC(docptr, LastDataRead);
 }
 
-static int doc2001_verifybuf(struct mtd_info *mtd, 
+static int doc2001_verifybuf(struct mtd_info *mtd,
 			     const u_char *buf, int len)
 {
 	struct nand_chip *this = mtd->priv;
 	struct doc_priv *doc = this->priv;
-        void __iomem *docptr = doc->virtadr;
+	void __iomem *docptr = doc->virtadr;
 	int i;
 
 	/* Start read pipeline */
@@ -557,22 +557,22 @@ static u_char doc2001plus_read_byte(struct mtd_info *mtd)
 {
 	struct nand_chip *this = mtd->priv;
 	struct doc_priv *doc = this->priv;
-        void __iomem *docptr = doc->virtadr;
+	void __iomem *docptr = doc->virtadr;
 	u_char ret;
 
-        ReadDOC(docptr, Mplus_ReadPipeInit);
-        ReadDOC(docptr, Mplus_ReadPipeInit);
-        ret = ReadDOC(docptr, Mplus_LastDataRead);
+	ReadDOC(docptr, Mplus_ReadPipeInit);
+	ReadDOC(docptr, Mplus_ReadPipeInit);
+	ret = ReadDOC(docptr, Mplus_LastDataRead);
 	if (debug) printk("read_byte returns %02x\n", ret);
 	return ret;
 }
 
-static void doc2001plus_writebuf(struct mtd_info *mtd, 
+static void doc2001plus_writebuf(struct mtd_info *mtd,
 			     const u_char *buf, int len)
 {
 	struct nand_chip *this = mtd->priv;
 	struct doc_priv *doc = this->priv;
-        void __iomem *docptr = doc->virtadr;
+	void __iomem *docptr = doc->virtadr;
 	int i;
 
 	if (debug)printk("writebuf of %d bytes: ", len);
@@ -584,12 +584,12 @@ static void doc2001plus_writebuf(struct mtd_info *mtd,
 	if (debug) printk("\n");
 }
 
-static void doc2001plus_readbuf(struct mtd_info *mtd, 
+static void doc2001plus_readbuf(struct mtd_info *mtd,
 			    u_char *buf, int len)
 {
 	struct nand_chip *this = mtd->priv;
 	struct doc_priv *doc = this->priv;
-        void __iomem *docptr = doc->virtadr;
+	void __iomem *docptr = doc->virtadr;
 	int i;
 
 	if (debug)printk("readbuf of %d bytes: ", len);
@@ -614,12 +614,12 @@ static void doc2001plus_readbuf(struct mtd_info *mtd,
 	if (debug) printk("\n");
 }
 
-static int doc2001plus_verifybuf(struct mtd_info *mtd, 
+static int doc2001plus_verifybuf(struct mtd_info *mtd,
 			     const u_char *buf, int len)
 {
 	struct nand_chip *this = mtd->priv;
 	struct doc_priv *doc = this->priv;
-        void __iomem *docptr = doc->virtadr;
+	void __iomem *docptr = doc->virtadr;
 	int i;
 
 	if (debug)printk("verifybuf of %d bytes: ", len);
@@ -645,7 +645,7 @@ static void doc2001plus_select_chip(struct mtd_info *mtd, int chip)
 {
 	struct nand_chip *this = mtd->priv;
 	struct doc_priv *doc = this->priv;
-        void __iomem *docptr = doc->virtadr;
+	void __iomem *docptr = doc->virtadr;
 	int floor = 0;
 
 	if(debug)printk("select chip (%d)\n", chip);
@@ -671,7 +671,7 @@ static void doc200x_select_chip(struct mtd_info *mtd, int chip)
 {
 	struct nand_chip *this = mtd->priv;
 	struct doc_priv *doc = this->priv;
-        void __iomem *docptr = doc->virtadr;
+	void __iomem *docptr = doc->virtadr;
 	int floor = 0;
 
 	if(debug)printk("select chip (%d)\n", chip);
@@ -698,7 +698,7 @@ static void doc200x_hwcontrol(struct mtd_info *mtd, int cmd)
 {
 	struct nand_chip *this = mtd->priv;
 	struct doc_priv *doc = this->priv;
-        void __iomem *docptr = doc->virtadr;
+	void __iomem *docptr = doc->virtadr;
 
 	switch(cmd) {
 	case NAND_CTL_SETNCE:
@@ -736,7 +736,7 @@ static void doc2001plus_command (struct mtd_info *mtd, unsigned command, int col
 {
 	struct nand_chip *this = mtd->priv;
 	struct doc_priv *doc = this->priv;
-        void __iomem *docptr = doc->virtadr;
+	void __iomem *docptr = doc->virtadr;
 
 	/*
 	 * Must terminate write pipeline before sending any commands
@@ -794,7 +794,7 @@ static void doc2001plus_command (struct mtd_info *mtd, unsigned command, int col
 			WriteDOC(0, docptr, Mplus_FlashControl);
 	}
 
-	/* 
+	/*
 	 * program and erase have their own busy handlers
 	 * status and sequential in needs no delay
 	*/
@@ -819,7 +819,7 @@ static void doc2001plus_command (struct mtd_info *mtd, unsigned command, int col
 
 	/* This applies to read commands */
 	default:
-		/* 
+		/*
 		 * If we don't have access to the busy pin, we apply the given
 		 * command delay
 		*/
@@ -840,7 +840,7 @@ static int doc200x_dev_ready(struct mtd_info *mtd)
 {
 	struct nand_chip *this = mtd->priv;
 	struct doc_priv *doc = this->priv;
-        void __iomem *docptr = doc->virtadr;
+	void __iomem *docptr = doc->virtadr;
 
 	if (DoC_is_MillenniumPlus(doc)) {
 		/* 11.4.2 -- must NOP four times before checking FR/B# */
@@ -878,7 +878,7 @@ static void doc200x_enable_hwecc(struct mtd_info *mtd, int mode)
 {
 	struct nand_chip *this = mtd->priv;
 	struct doc_priv *doc = this->priv;
-        void __iomem *docptr = doc->virtadr;
+	void __iomem *docptr = doc->virtadr;
 
 	/* Prime the ECC engine */
 	switch(mode) {
@@ -897,7 +897,7 @@ static void doc2001plus_enable_hwecc(struct mtd_info *mtd, int mode)
 {
 	struct nand_chip *this = mtd->priv;
 	struct doc_priv *doc = this->priv;
-        void __iomem *docptr = doc->virtadr;
+	void __iomem *docptr = doc->virtadr;
 
 	/* Prime the ECC engine */
 	switch(mode) {
@@ -918,7 +918,7 @@ static int doc200x_calculate_ecc(struct mtd_info *mtd, const u_char *dat,
 {
 	struct nand_chip *this = mtd->priv;
 	struct doc_priv *doc = this->priv;
-        void __iomem *docptr = doc->virtadr;
+	void __iomem *docptr = doc->virtadr;
 	int i;
 	int emptymatch = 1;
 
@@ -942,7 +942,7 @@ static int doc200x_calculate_ecc(struct mtd_info *mtd, const u_char *dat,
 	for (i = 0; i < 6; i++) {
 		if (DoC_is_MillenniumPlus(doc))
 			ecc_code[i] = ReadDOC_(docptr, DoC_Mplus_ECCSyndrome0 + i);
-		else 
+		else
 			ecc_code[i] = ReadDOC_(docptr, DoC_ECCSyndrome0 + i);
 		if (ecc_code[i] != empty_write_ecc[i])
 			emptymatch = 0;
@@ -976,10 +976,10 @@ static int doc200x_correct_data(struct mtd_info *mtd, u_char *dat, u_char *read_
 	int i, ret = 0;
 	struct nand_chip *this = mtd->priv;
 	struct doc_priv *doc = this->priv;
-        void __iomem *docptr = doc->virtadr;
+	void __iomem *docptr = doc->virtadr;
 	volatile u_char dummy;
 	int emptymatch = 1;
-	
+
 	/* flush the pipeline */
 	if (DoC_is_2000(doc)) {
 		dummy = ReadDOC(docptr, 2k_ECCStatus);
@@ -994,7 +994,7 @@ static int doc200x_correct_data(struct mtd_info *mtd, u_char *dat, u_char *read_
 		dummy = ReadDOC(docptr, ECCConf);
 		dummy = ReadDOC(docptr, ECCConf);
 	}
-	
+
 	/* Error occured ? */
 	if (dummy & 0x80) {
 		for (i = 0; i < 6; i++) {
@@ -1032,7 +1032,7 @@ static int doc200x_correct_data(struct mtd_info *mtd, u_char *dat, u_char *read_
 		if (!emptymatch) ret = doc_ecc_decode (rs_decoder, dat, calc_ecc);
 		if (ret > 0)
 			printk(KERN_ERR "doc200x_correct_data corrected %d errors\n", ret);
-	}	
+	}
 	if (DoC_is_MillenniumPlus(doc))
 		WriteDOC(DOC_ECC_DIS, docptr, Mplus_ECCConf);
 	else
@@ -1043,16 +1043,16 @@ static int doc200x_correct_data(struct mtd_info *mtd, u_char *dat, u_char *read_
 	}
 	return ret;
 }
-		
-//u_char mydatabuf[528];
+
+/*u_char mydatabuf[528]; */
 
 static struct nand_oobinfo doc200x_oobinfo = {
-        .useecc = MTD_NANDECC_AUTOPLACE,
-        .eccbytes = 6,
-        .eccpos = {0, 1, 2, 3, 4, 5},
-        .oobfree = { {8, 8} }
+	.useecc = MTD_NANDECC_AUTOPLACE,
+	.eccbytes = 6,
+	.eccpos = {0, 1, 2, 3, 4, 5},
+	.oobfree = { {8, 8} }
 };
- 
+
 /* Find the (I)NFTL Media Header, and optionally also the mirror media header.
    On sucessful return, buf will contain a copy of the media header for
    further processing.  id is the string to scan for, and will presumably be
@@ -1068,7 +1068,7 @@ static int __init find_media_headers(struct mtd_info *mtd, u_char *buf,
 	int ret;
 	size_t retlen;
 
-	end = min(end, mtd->size); // paranoia
+	end = min(end, mtd->size); /* paranoia */
 	for (offs = 0; offs < end; offs += mtd->erasesize) {
 		ret = mtd->read(mtd, offs, mtd->oobblock, &retlen, buf);
 		if (retlen != mtd->oobblock) continue;
@@ -1122,8 +1122,8 @@ static inline int __init nftl_partscan(struct mtd_info *mtd,
 	if (!(numheaders=find_media_headers(mtd, buf, "ANAND", 1))) goto out;
 	mh = (struct NFTLMediaHeader *) buf;
 
-//#ifdef CONFIG_MTD_DEBUG_VERBOSE
-//	if (CONFIG_MTD_DEBUG_VERBOSE >= 2)
+/*#ifdef CONFIG_MTD_DEBUG_VERBOSE */
+/*	if (CONFIG_MTD_DEBUG_VERBOSE >= 2) */
 	printk(KERN_INFO "    DataOrgID        = %s\n"
 			 "    NumEraseUnits    = %d\n"
 			 "    FirstPhysicalEUN = %d\n"
@@ -1132,7 +1132,7 @@ static inline int __init nftl_partscan(struct mtd_info *mtd,
 		mh->DataOrgID, mh->NumEraseUnits,
 		mh->FirstPhysicalEUN, mh->FormattedSize,
 		mh->UnitSizeFactor);
-//#endif
+/*#endif */
 
 	blocks = mtd->size >> this->phys_erase_shift;
 	maxblocks = min(32768U, mtd->erasesize - psize);
@@ -1175,9 +1175,9 @@ static inline int __init nftl_partscan(struct mtd_info *mtd,
 	offs <<= this->page_shift;
 	offs += mtd->erasesize;
 
-	//parts[0].name = " DiskOnChip Boot / Media Header partition";
-	//parts[0].offset = 0;
-	//parts[0].size = offs;
+	/*parts[0].name = " DiskOnChip Boot / Media Header partition"; */
+	/*parts[0].offset = 0; */
+	/*parts[0].size = offs; */
 
 	parts[0].name = " DiskOnChip BDTL partition";
 	parts[0].offset = offs;
@@ -1232,9 +1232,9 @@ static inline int __init inftl_partscan(struct mtd_info *mtd,
 	mh->BlockMultiplierBits = le32_to_cpu(mh->BlockMultiplierBits);
 	mh->FormatFlags = le32_to_cpu(mh->FormatFlags);
 	mh->PercentUsed = le32_to_cpu(mh->PercentUsed);
- 
-//#ifdef CONFIG_MTD_DEBUG_VERBOSE
-//	if (CONFIG_MTD_DEBUG_VERBOSE >= 2)
+
+/*#ifdef CONFIG_MTD_DEBUG_VERBOSE */
+/*	if (CONFIG_MTD_DEBUG_VERBOSE >= 2) */
 	printk(KERN_INFO "    bootRecordID          = %s\n"
 			 "    NoOfBootImageBlocks   = %d\n"
 			 "    NoOfBinaryPartitions  = %d\n"
@@ -1252,7 +1252,7 @@ static inline int __init inftl_partscan(struct mtd_info *mtd,
 		((unsigned char *) &mh->OsakVersion)[2] & 0xf,
 		((unsigned char *) &mh->OsakVersion)[3] & 0xf,
 		mh->PercentUsed);
-//#endif
+/*#endif */
 
 	vshift = this->phys_erase_shift + mh->BlockMultiplierBits;
 
@@ -1278,8 +1278,8 @@ static inline int __init inftl_partscan(struct mtd_info *mtd,
 		ip->spareUnits = le32_to_cpu(ip->spareUnits);
 		ip->Reserved0 = le32_to_cpu(ip->Reserved0);
 
-//#ifdef CONFIG_MTD_DEBUG_VERBOSE
-//		if (CONFIG_MTD_DEBUG_VERBOSE >= 2)
+/*#ifdef CONFIG_MTD_DEBUG_VERBOSE */
+/*		if (CONFIG_MTD_DEBUG_VERBOSE >= 2) */
 		printk(KERN_INFO	"    PARTITION[%d] ->\n"
 			"        virtualUnits    = %d\n"
 			"        firstUnit       = %d\n"
@@ -1289,7 +1289,7 @@ static inline int __init inftl_partscan(struct mtd_info *mtd,
 			i, ip->virtualUnits, ip->firstUnit,
 			ip->lastUnit, ip->flags,
 			ip->spareUnits);
-//#endif
+/*#endif */
 
 /*
 		if ((i == 0) && (ip->firstUnit > 0)) {
@@ -1456,7 +1456,7 @@ static inline int __init doc2001_init(struct mtd_info *mtd)
 	ReadDOC(doc->virtadr, ChipID);
 	if (ReadDOC(doc->virtadr, ChipID) != DOC_ChipID_DocMil) {
 		/* It's not a Millennium; it's one of the newer
-		   DiskOnChip 2000 units with a similar ASIC. 
+		   DiskOnChip 2000 units with a similar ASIC.
 		   Treat it like a Millennium, except that it
 		   can have multiple chips. */
 		doc2000_count_chips(mtd);
@@ -1518,20 +1518,20 @@ static inline int __init doc_probe(unsigned long physadr)
 	 * to the DOCControl register. So we store the current contents
 	 * of the DOCControl register's location, in case we later decide
 	 * that it's not a DiskOnChip, and want to put it back how we
-	 * found it. 
+	 * found it.
 	 */
 	save_control = ReadDOC(virtadr, DOCControl);
 
 	/* Reset the DiskOnChip ASIC */
-	WriteDOC(DOC_MODE_CLR_ERR | DOC_MODE_MDWREN | DOC_MODE_RESET, 
+	WriteDOC(DOC_MODE_CLR_ERR | DOC_MODE_MDWREN | DOC_MODE_RESET,
 		 virtadr, DOCControl);
-	WriteDOC(DOC_MODE_CLR_ERR | DOC_MODE_MDWREN | DOC_MODE_RESET, 
+	WriteDOC(DOC_MODE_CLR_ERR | DOC_MODE_MDWREN | DOC_MODE_RESET,
 		 virtadr, DOCControl);
 
 	/* Enable the DiskOnChip ASIC */
-	WriteDOC(DOC_MODE_CLR_ERR | DOC_MODE_MDWREN | DOC_MODE_NORMAL, 
+	WriteDOC(DOC_MODE_CLR_ERR | DOC_MODE_MDWREN | DOC_MODE_NORMAL,
 		 virtadr, DOCControl);
-	WriteDOC(DOC_MODE_CLR_ERR | DOC_MODE_MDWREN | DOC_MODE_NORMAL, 
+	WriteDOC(DOC_MODE_CLR_ERR | DOC_MODE_MDWREN | DOC_MODE_NORMAL,
 		 virtadr, DOCControl);
 
 	ChipID = ReadDOC(virtadr, ChipID);
@@ -1614,11 +1614,11 @@ static inline int __init doc_probe(unsigned long physadr)
 		if (ChipID == DOC_ChipID_DocMilPlus16) {
 			WriteDOC(~newval, virtadr, Mplus_AliasResolution);
 			oldval = ReadDOC(doc->virtadr, Mplus_AliasResolution);
-			WriteDOC(newval, virtadr, Mplus_AliasResolution); // restore it
+			WriteDOC(newval, virtadr, Mplus_AliasResolution); /* restore it */
 		} else {
 			WriteDOC(~newval, virtadr, AliasResolution);
 			oldval = ReadDOC(doc->virtadr, AliasResolution);
-			WriteDOC(newval, virtadr, AliasResolution); // restore it
+			WriteDOC(newval, virtadr, AliasResolution); /* restore it */
 		}
 		newval = ~newval;
 		if (oldval == newval) {
@@ -1726,7 +1726,7 @@ static int __init init_nanddoc(void)
 	int i, ret = 0;
 
 	/* We could create the decoder on demand, if memory is a concern.
-	 * This way we have it handy, if an error happens 
+	 * This way we have it handy, if an error happens
 	 *
 	 * Symbolsize is 10 (bits)
 	 * Primitve polynomial is x^10+x^3+1

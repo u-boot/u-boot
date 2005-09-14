@@ -99,6 +99,10 @@
 
 #include <cramfs/cramfs_fs.h>
 
+#ifdef CONFIG_NEW_NAND_CODE
+#include <nand.h>
+#endif
+
 /* enable/disable debugging messages */
 #define	DEBUG
 #undef	DEBUG
@@ -324,10 +328,9 @@ static int part_validate_nand(struct mtdids *id, struct part_info *part)
 {
 #if defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND)
 	/* info for NAND chips */
-	extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];
-	struct nand_chip *nand;
+	nand_info_t *nand;
 
-	nand = &nand_dev_desc[id->num];
+	nand = &nand_info[id->num];
 
 	if ((unsigned long)(part->offset) % nand->erasesize) {
 		printf("%s%d: partition (%s) start offset alignment incorrect\n",
@@ -422,8 +425,9 @@ static int part_del(struct mtd_device *dev, struct part_info *part)
 		}
 	}
 
-
+#ifndef CONFIG_NEW_NAND_CODE
 	jffs2_free_cache(part);
+#endif
 	list_del(&part->link);
 	free(part);
 	dev->num_parts--;
@@ -445,7 +449,9 @@ static void part_delall(struct list_head *head)
 	list_for_each_safe(entry, n, head) {
 		part_tmp = list_entry(entry, struct part_info, link);
 
+#ifndef CONFIG_NEW_NAND_CODE
 		jffs2_free_cache(part_tmp);
+#endif
 		list_del(entry);
 		free(part_tmp);
 	}
@@ -661,6 +667,7 @@ static int device_validate(u8 type, u8 num, u32 *size)
 		if (num < CFG_MAX_FLASH_BANKS) {
 			extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
 			*size = flash_info[num].size;
+
 			return 0;
 		}
 
@@ -672,8 +679,12 @@ static int device_validate(u8 type, u8 num, u32 *size)
 	} else if (type == MTD_DEV_TYPE_NAND) {
 #if defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND)
 		if (num < CFG_MAX_NAND_DEVICE) {
+#ifdef CONFIG_NEW_NAND_CODE
+			*size = nand_info[num].size;
+#else
 			extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];
 			*size = nand_dev_desc[num].totlen;
+#endif
 			return 0;
 		}
 

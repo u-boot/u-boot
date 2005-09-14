@@ -1,6 +1,6 @@
 #include <common.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2)
+#if defined(CONFIG_NEW_NAND_CODE) && (CONFIG_COMMANDS & CFG_CMD_JFFS2)
 
 #include <malloc.h>
 #include <linux/stat.h>
@@ -12,12 +12,12 @@
 
 #include "jffs2_nand_private.h"
 
-#define	NODE_CHUNK  	1024	/* size of memory allocation chunk in b_nodes */
+#define	NODE_CHUNK	1024	/* size of memory allocation chunk in b_nodes */
 
 /* Debugging switches */
 #undef	DEBUG_DIRENTS		/* print directory entry list after scan */
 #undef	DEBUG_FRAGMENTS		/* print fragment list after scan */
-#undef	DEBUG  			/* enable debugging messages */
+#undef	DEBUG			/* enable debugging messages */
 
 #ifdef  DEBUG
 # define DEBUGF(fmt,args...)	printf(fmt ,##args)
@@ -25,7 +25,6 @@
 # define DEBUGF(fmt,args...)
 #endif
 
-static int nanddev = -1; /* nand device of current partition */
 static nand_info_t *nand;
 
 /* Compression names */
@@ -385,10 +384,10 @@ jffs2_1pass_find_inode(struct b_lists * pL, const char *name, u32 pino)
 				continue;
 
 			if (jDir->version == version && inode != 0) {
-			    	/* I'm pretty sure this isn't legal */
+				/* I'm pretty sure this isn't legal */
 				putstr(" ** ERROR ** ");
-//				putnstr(jDir->name, jDir->nsize);
-//				putLabeledWord(" has dup version =", version);
+/*				putnstr(jDir->name, jDir->nsize); */
+/*				putLabeledWord(" has dup version =", version); */
 			}
 			inode = jDir->ino;
 			version = jDir->version;
@@ -574,15 +573,15 @@ jffs2_1pass_resolve_inode(struct b_lists * pL, u32 ino)
 	/* we need to search all and return the inode with the highest version */
 	for (jDir = (struct b_dirent *)pL->dir.listHead; jDir; jDir = jDir->next) {
 		if (ino == jDir->ino) {
-		    	if (jDir->version < version)
+			if (jDir->version < version)
 				continue;
 
 			if (jDir->version == version && jDirFoundType) {
-			    	/* I'm pretty sure this isn't legal */
+				/* I'm pretty sure this isn't legal */
 				putstr(" ** ERROR ** ");
-//				putnstr(jDir->name, jDir->nsize);
-//				putLabeledWord(" has dup version (resolve) = ",
-//					version);
+/*				putnstr(jDir->name, jDir->nsize); */
+/*				putLabeledWord(" has dup version (resolve) = ", */
+/*					version); */
 			}
 
 			jDirFoundType = jDir->type;
@@ -686,12 +685,6 @@ jffs2_1pass_rescan_needed(struct part_info *part)
 		return 1;
 	}
 
-#if defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND)
-	if (nanddev != (int)part->usr_priv - 1) {
-		DEBUGF ("rescan: nand device changed\n");
-		return -1;
-	}
-#endif /* defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND) */
 	/* FIXME */
 #if 0
 	/* but suppose someone reflashed a partition at the same offset... */
@@ -806,10 +799,8 @@ jffs2_1pass_build_lists(struct part_info * part)
 	u32 counterF = 0;
 	u32 counterN = 0;
 
-#if defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND)
-	nanddev = (int)part->usr_priv - 1;
-	nand = &nand_info[nanddev];
-#endif /* defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND) */
+	struct mtdids *id = part->dev->id;
+	nand = nand_info + id->num;
 
 	/* if we are building a list we need to refresh the cache. */
 	jffs_init_1pass_list(part);
@@ -993,7 +984,7 @@ jffs2_1pass_load(char *dest, struct part_info * part, const char *fname)
 	long ret = 0;
 	u32 inode;
 
-	if (! (pl  = jffs2_get_list(part, "load")))
+	if (! (pl = jffs2_get_list(part, "load")))
 		return 0;
 
 	if (! (inode = jffs2_1pass_search_inode(pl, fname, 1))) {
@@ -1025,7 +1016,7 @@ jffs2_1pass_info(struct part_info * part)
 	struct b_lists *pl;
 	int i;
 
-	if (! (pl  = jffs2_get_list(part, "info")))
+	if (! (pl = jffs2_get_list(part, "info")))
 		return 0;
 
 	jffs2_1pass_fill_info(pl, &info);
