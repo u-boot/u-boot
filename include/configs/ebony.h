@@ -31,6 +31,7 @@
  * High Level Configuration Options
  *----------------------------------------------------------------------*/
 #define CONFIG_EBONY		1	    /* Board is ebony		*/
+#define CONFIG_440GP		1	    /* Specifc GP support	*/
 #define CONFIG_4xx		1	    /* ... PPC4xx family	*/
 #define CONFIG_BOARD_EARLY_INIT_F 1	    /* Call board_early_init_f	*/
 #undef	CFG_DRAM_TEST			    /* Disable-takes long time! */
@@ -191,6 +192,10 @@
 
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_PHY_ADDR		8	/* PHY address			*/
+#define CONFIG_HAS_ETH1
+#define CONFIG_PHY1_ADDR	9	/* EMAC1 PHY address		*/
+#define CONFIG_NET_MULTI	1
+#define CFG_RX_ETH_BUFFER	32	/* Number of ethernet rx buffers & descriptors */
 
 #define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
 				CFG_CMD_ASKENV	| \
@@ -240,8 +245,6 @@
 #define CONFIG_LOOPW            1       /* enable loopw command         */
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 #define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
-
-#define CFG_RX_ETH_BUFFER	32	  /* Number of ethernet rx buffers & descriptors */
 
 /*-----------------------------------------------------------------------
  * PCI stuff
