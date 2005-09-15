@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Add PCI support to TQM8540 and TQM8560 boards
+  Patch by Stefan Roese, 15 Sep 2005
+
 * Update AMCC Yosemite to get a consistent setup for all AMCC eval
   boards (baudrate, environment...). Flash driver fixed.
   Patch by Stefan Roese, 15 Sep 2005

@@ -41,7 +41,7 @@
 #define CONFIG_MPC8540		1	/* MPC8540 specific */
 #define CONFIG_TQM8540		1	/* TQM8540 board specific */
 
-#undef CONFIG_PCI
+#define CONFIG_PCI
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #undef CONFIG_DDR_ECC			/* only for ECC DDR module */
 #define CONFIG_DDR_DLL			/* possible DLL fix needed */
@@ -73,6 +73,8 @@
 #define CONFIG_ADDR_STREAMING		/* toggle addr streaming */
 
 #define CONFIG_BOARD_EARLY_INIT_F	1	/* Call board_pre_init */
+
+#define CFG_INIT_DBCR DBCR_IDM		/* Enable Debug Exceptions */
 
 #undef	CFG_DRAM_TEST			/* memory test, takes time */
 #define CFG_MEMTEST_START	0x00000000	/* memtest region */

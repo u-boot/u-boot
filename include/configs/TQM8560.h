@@ -42,7 +42,12 @@
 #define CONFIG_MPC8560		1	/* MPC8560 specific */
 #define CONFIG_TQM8560		1	/* TQM8560 board specific */
 
-#undef CONFIG_PCI
+/*
+ * BIG FAT WARNING: Right now PCI seems to have a problem on the
+ * TQM8560 on the Starter Kit. So, if the board doen't come up
+ * please disable the PCI support for now. sr@denx.de, 15-09-2005
+ */
+#define CONFIG_PCI
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #undef CONFIG_DDR_ECC			/* only for ECC DDR module */
 #define CONFIG_DDR_DLL			/* possible DLL fix needed */
@@ -74,6 +79,8 @@
 #define CONFIG_ADDR_STREAMING		/* toggle addr streaming */
 
 #define CONFIG_BOARD_EARLY_INIT_F	1	/* Call board_pre_init */
+
+#define CFG_INIT_DBCR DBCR_IDM		/* Enable Debug Exceptions */
 
 #undef	CFG_DRAM_TEST			/* memory test, takes time */
 #define CFG_MEMTEST_START	0x00000000	/* memtest region */
@@ -276,7 +283,7 @@
 #define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
-#undef CONFIG_EEPRO100
+#define CONFIG_EEPRO100
 #undef CONFIG_TULIP
 
 #if !defined(CONFIG_PCI_PNP)
@@ -298,12 +305,27 @@
 #endif
 
 #define CONFIG_MII		1	/* MII PHY management */
+#define CONFIG_MPC85XX_TSEC1	1
+#define CONFIG_MPC85XX_TSEC1_NAME	"TSEC0"
 #define CONFIG_MPC85XX_TSEC2	1
 #define CONFIG_MPC85XX_TSEC2_NAME	"TSEC1"
+#define TSEC1_PHY_ADDR		0
 #define TSEC2_PHY_ADDR		1
+#define TSEC1_PHYIDX		0
 #define TSEC2_PHYIDX		0
 
-#endif  /* CONFIG_TSEC_ENET */
+#define CONFIG_MPC85XX_FEC	1
+#define CONFIG_MPC85XX_FEC_NAME	"FEC"
+#define FEC_PHY_ADDR		2
+#define FEC_PHYIDX		0
+
+#define CONFIG_HAS_ETH1
+#define CONFIG_HAS_ETH2
+
+/* Options are TSEC[0-1], FEC */
+#define CONFIG_ETHPRIME		"TSEC0"
+
+#endif	/* CONFIG_TSEC_ENET */
 
 #define CONFIG_ETHER_ON_FCC
 #define CONFIG_ETHER_ON_FCC3
@@ -311,8 +333,6 @@
 #define CFG_CMXFCR_VALUE3     (CMXFCR_RF3CS_CLK15 | CMXFCR_TF3CS_CLK14)
 #define CFG_CPMFCR_RAMTYPE    0
 #define CFG_FCC_PSMR          (FCC_PSMR_FDE | FCC_PSMR_LPB)
-
-#define CONFIG_ETHPRIME		"TSEC1"
 
 /*
  * Environment
