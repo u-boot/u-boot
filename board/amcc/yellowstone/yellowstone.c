@@ -20,8 +20,11 @@
  */
 
 #include <common.h>
+#include <ppc4xx.h>
 #include <asm/processor.h>
 #include <spd_sdram.h>
+
+extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
 int board_early_init_f(void)
 {
@@ -35,7 +38,7 @@ int board_early_init_f(void)
 	mtdcr(ebccfgd, reg | 0x04000000);	/* Set ATC */
 
 	mtebc(pb0ap, 0x03017300);	/* FLASH/SRAM */
-	mtebc(pb0cr, 0xfe0ba000);	/* BAS=0xfe0 32MB r/w 16-bit */
+	mtebc(pb0cr, 0xfc0da000);	/* BAS=0xfc0 64MB r/w 16-bit */
 
 	mtebc(pb1ap, 0x00000000);
 	mtebc(pb1cr, 0x00000000);
@@ -92,12 +95,14 @@ int board_early_init_f(void)
 	out32(GPIO1_OSRL, in32(GPIO1_OSRL) | 0x00080000);
 	out32(GPIO1_ISR2L, in32(GPIO1_ISR2L) | 0x00010000);
 
+#if 0 /* test-only */
 	/*setup USB 2.0 */
 	out32(GPIO1_TCR, in32(GPIO1_TCR) | 0xc0000000);
 	out32(GPIO1_OSRL, in32(GPIO1_OSRL) | 0x50000000);
 	out32(GPIO0_TCR, in32(GPIO0_TCR) | 0xf);
 	out32(GPIO0_OSRH, in32(GPIO0_OSRH) | 0xaa);
 	out32(GPIO0_ISR2H, in32(GPIO0_ISR2H) | 0x00000500);
+#endif
 
 	/*--------------------------------------------------------------------
 	 * Setup other serial configuration
@@ -113,11 +118,61 @@ int board_early_init_f(void)
 	/*enable ethernet */
 	*(unsigned char *)(CFG_BCSR_BASE | 0x08) = 0xf0;
 
+#if 0 /* test-only */
 	/*enable usb 1.1 fs device and remove usb 2.0 reset */
 	*(unsigned char *)(CFG_BCSR_BASE | 0x09) = 0x00;
+#endif
 
 	/*get rid of flash write protect */
 	*(unsigned char *)(CFG_BCSR_BASE | 0x07) = 0x40;
+
+	return 0;
+}
+
+int misc_init_r (void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+	uint pbcr;
+	int size_val = 0;
+
+	/* Re-do sizing to get full correct info */
+	mtdcr(ebccfga, pb0cr);
+	pbcr = mfdcr(ebccfgd);
+	switch (gd->bd->bi_flashsize) {
+	case 1 << 20:
+		size_val = 0;
+		break;
+	case 2 << 20:
+		size_val = 1;
+		break;
+	case 4 << 20:
+		size_val = 2;
+		break;
+	case 8 << 20:
+		size_val = 3;
+		break;
+	case 16 << 20:
+		size_val = 4;
+		break;
+	case 32 << 20:
+		size_val = 5;
+		break;
+	case 64 << 20:
+		size_val = 6;
+		break;
+	case 128 << 20:
+		size_val = 7;
+		break;
+	}
+	pbcr = (pbcr & 0x0001ffff) | gd->bd->bi_flashstart | (size_val << 17);
+	mtdcr(ebccfga, pb0cr);
+	mtdcr(ebccfgd, pbcr);
+
+	/* Monitor protection ON by default */
+	(void)flash_protect(FLAG_PROTECT_SET,
+			    -CFG_MONITOR_LEN,
+			    0xffffffff,
+			    &flash_info[0]);
 
 	return 0;
 }
@@ -135,6 +190,8 @@ int checkboard(void)
 	printf("\tOPB: %lu MHz\n", sysinfo.freqOPB / 1000000);
 	printf("\tPER: %lu MHz\n", sysinfo.freqEPB / 1000000);
 	printf("\tPCI: %lu MHz\n", sysinfo.freqPCI / 1000000);
+
+
 	return (0);
 }
 
@@ -170,6 +227,7 @@ void sdram_init(void)
 	 */
 	mtsdram(mem_b0cr, 0x000a4001);	/* SDBA=0x000 128MB, Mode 3, enabled */
 	mtsdram(mem_b1cr, 0x080a4001);	/* SDBA=0x080 128MB, Mode 3, enabled */
+
 	mtsdram(mem_tr0, 0x410a4012);	/* ?? */
 	mtsdram(mem_tr1, 0x8080080b);	/* ?? */
 	mtsdram(mem_rtr, 0x04080000);	/* ?? */
@@ -256,8 +314,8 @@ int pci_pre_init(struct pci_controller *hose)
 	unsigned long addr;
 
 	/*--------------------------------------------------------------------------+
-     *	Bamboo is always configured as the host & requires the
-     *	PCI arbiter to be enabled.
+	 *	Bamboo is always configured as the host & requires the
+	 *	PCI arbiter to be enabled.
 	 *--------------------------------------------------------------------------*/
 	mfsdr(sdr_sdstp1, strap);
 	if ((strap & SDR0_SDSTP1_PAE_MASK) == 0) {
@@ -266,27 +324,27 @@ int pci_pre_init(struct pci_controller *hose)
 		return 0;
 	}
 
-    /*-------------------------------------------------------------------------+
-    | Set priority for all PLB3 devices to 0.
-    | Set PLB3 arbiter to fair mode.
-    +-------------------------------------------------------------------------*/
+	/*-------------------------------------------------------------------------+
+	  | Set priority for all PLB3 devices to 0.
+	  | Set PLB3 arbiter to fair mode.
+	  +-------------------------------------------------------------------------*/
 	mfsdr(sdr_amp1, addr);
 	mtsdr(sdr_amp1, (addr & 0x000000FF) | 0x0000FF00);
 	addr = mfdcr(plb3_acr);
 	mtdcr(plb3_acr, addr | 0x80000000);
 
-    /*-------------------------------------------------------------------------+
-    | Set priority for all PLB4 devices to 0.
-    +-------------------------------------------------------------------------*/
+	/*-------------------------------------------------------------------------+
+	  | Set priority for all PLB4 devices to 0.
+	  +-------------------------------------------------------------------------*/
 	mfsdr(sdr_amp0, addr);
 	mtsdr(sdr_amp0, (addr & 0x000000FF) | 0x0000FF00);
 	addr = mfdcr(plb4_acr) | 0xa0000000;	/* Was 0x8---- */
 	mtdcr(plb4_acr, addr);
 
-    /*-------------------------------------------------------------------------+
-    | Set Nebula PLB4 arbiter to fair mode.
-    +-------------------------------------------------------------------------*/
-	/*  Segment0 */
+	/*-------------------------------------------------------------------------+
+	  | Set Nebula PLB4 arbiter to fair mode.
+	  +-------------------------------------------------------------------------*/
+	/* Segment0 */
 	addr = (mfdcr(plb0_acr) & ~plb0_acr_ppm_mask) | plb0_acr_ppm_fair;
 	addr = (addr & ~plb0_acr_hbu_mask) | plb0_acr_hbu_enabled;
 	addr = (addr & ~plb0_acr_rdp_mask) | plb0_acr_rdp_4deep;
@@ -318,13 +376,13 @@ void pci_target_init(struct pci_controller *hose)
 	/*--------------------------------------------------------------------------+
 	 * Set up Direct MMIO registers
 	 *--------------------------------------------------------------------------*/
-   /*--------------------------------------------------------------------------+
-   | PowerPC440 EP PCI Master configuration.
-   | Map one 1Gig range of PLB/processor addresses to PCI memory space.
-   |   PLB address 0xA0000000-0xDFFFFFFF ==> PCI address 0xA0000000-0xDFFFFFFF
-   |   Use byte reversed out routines to handle endianess.
-   | Make this region non-prefetchable.
-   +--------------------------------------------------------------------------*/
+	/*--------------------------------------------------------------------------+
+	  | PowerPC440 EP PCI Master configuration.
+	  | Map one 1Gig range of PLB/processor addresses to PCI memory space.
+	  |   PLB address 0xA0000000-0xDFFFFFFF ==> PCI address 0xA0000000-0xDFFFFFFF
+	  |   Use byte reversed out routines to handle endianess.
+	  | Make this region non-prefetchable.
+	  +--------------------------------------------------------------------------*/
 	out32r(PCIX0_PMM0MA, 0x00000000);	/* PMM0 Mask/Attribute - disabled b4 setting */
 	out32r(PCIX0_PMM0LA, CFG_PCI_MEMBASE);	/* PMM0 Local Address */
 	out32r(PCIX0_PMM0PCILA, CFG_PCI_MEMBASE);	/* PMM0 PCI Low Address */
@@ -374,11 +432,11 @@ void pci_master_init(struct pci_controller *hose)
 {
 	unsigned short temp_short;
 
-   /*--------------------------------------------------------------------------+
-   | Write the PowerPC440 EP PCI Configuration regs.
-   |   Enable PowerPC440 EP to be a master on the PCI bus (PMM).
-   |   Enable PowerPC440 EP to act as a PCI memory target (PTM).
-   +--------------------------------------------------------------------------*/
+	/*--------------------------------------------------------------------------+
+	  | Write the PowerPC440 EP PCI Configuration regs.
+	  |   Enable PowerPC440 EP to be a master on the PCI bus (PMM).
+	  |   Enable PowerPC440 EP to act as a PCI memory target (PTM).
+	  +--------------------------------------------------------------------------*/
 	pci_read_config_word(0, PCI_COMMAND, &temp_short);
 	pci_write_config_word(0, PCI_COMMAND,
 			      temp_short | PCI_COMMAND_MASTER |
@@ -418,5 +476,6 @@ int is_pci_host(struct pci_controller *hose)
 #if defined(CONFIG_HW_WATCHDOG)
 void hw_watchdog_reset(void)
 {
+
 }
 #endif
