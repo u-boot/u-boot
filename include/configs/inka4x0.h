@@ -305,22 +305,14 @@
 #define CFG_IDE_MAXDEVICE	2	/* max. 1 drive per IDE bus	*/
 
 #define CFG_ATA_IDE0_OFFSET	0x0000
-
 #define CFG_ATA_BASE_ADDR	MPC5XXX_ATA
-
-/* Offset for data I/O			*/
-#define CFG_ATA_DATA_OFFSET	(0x0060)
-
-/* Offset for normal register accesses	*/
-#define CFG_ATA_REG_OFFSET	(CFG_ATA_DATA_OFFSET)
-
-/* Offset for alternate registers	*/
-#define CFG_ATA_ALT_OFFSET	(0x005C)
-
-/* Interval between registers                                                */
-#define CFG_ATA_STRIDE          4
+#define CFG_ATA_DATA_OFFSET	0x0060	/* Offset for data I/O		*/
+#define CFG_ATA_REG_OFFSET (CFG_ATA_DATA_OFFSET) /* Offset for normal register accesses */
+#define CFG_ATA_ALT_OFFSET	0x005C	/* Offset for alternate registers */
+#define CFG_ATA_STRIDE          4	/* Interval between registers	*/
 
 #define CONFIG_ATAPI            1
-#define CFG_BRIGHTNESS          0x20
+
+#define CFG_BRIGHTNESS          0xFF	/* LCD Default Brightness (255 = off) */
 
 #endif /* __CONFIG_H */
