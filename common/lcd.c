@@ -638,9 +638,8 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 			bmp_color_table_entry_t cte = bmp->color_table[i];
 			ushort colreg =
 				( ((cte.red)   << 8) & 0xf800) |
-				( ((cte.green) << 4) & 0x07e0) |
-				( (cte.blue) & 0x001f) ;
-
+				( ((cte.green) << 3) & 0x07e0) |
+				( ((cte.blue)  >> 3) & 0x001f) ;
 #ifdef CFG_INVERT_COLORS
 			*cmap = 0xffff - colreg;
 #else
