@@ -235,8 +235,9 @@
 #define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
-#undef CONFIG_EEPRO100
-#undef CONFIG_TULIP
+#define	CONFIG_EEPRO100
+#define	CONFIG_E1000
+#undef	CONFIG_TULIP
 
 #if !defined(CONFIG_PCI_PNP)
     #define PCI_ENET0_IOADDR	0xe0000000
@@ -320,6 +321,7 @@
     #define  CONFIG_COMMANDS	(CONFIG_CMD_DFL		\
 				| CFG_CMD_EEPROM	\
 				| CFG_CMD_DATE		\
+				| CFG_CMD_MII		\
 				| CFG_CMD_PCI		\
 				| CFG_CMD_PING		\
 				| CFG_CMD_I2C)
@@ -327,6 +329,7 @@
     #define  CONFIG_COMMANDS	(CONFIG_CMD_DFL		\
 				| CFG_CMD_EEPROM	\
 				| CFG_CMD_DATE		\
+				| CFG_CMD_MII		\
 				| CFG_CMD_PING		\
 				| CFG_CMD_I2C)
   #endif

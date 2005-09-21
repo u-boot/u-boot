@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Update configuration for PM854 board
+  Based on patch by R. Loeffl, 20 Jul 2005
+
 * Add PCI support to TQM8540 and TQM8560 boards
   Patch by Stefan Roese, 15 Sep 2005
 
