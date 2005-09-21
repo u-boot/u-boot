@@ -40,6 +40,8 @@
 #define TSEC_TIMEOUT 1000
 #define TOUT_LOOP 	1000000
 
+#define PHY_AUTONEGOTIATE_TIMEOUT	5000 /* in ms */
+
 /* MAC register bits */
 #define MACCFG1_SOFT_RESET	0x80000000
 #define MACCFG1_RESET_RX_MC	0x00080000
@@ -77,6 +79,7 @@
 #define MIIM_CONTROL            0x00
 #define MIIM_CONTROL_RESET	0x00009140
 #define MIIM_CONTROL_INIT       0x00001140
+#define MIIM_CONTROL_RESTART    0x00001340
 #define MIIM_ANEN               0x00001000
 
 #define MIIM_CR                 0x00
@@ -86,6 +89,8 @@
 #define MIIM_STATUS		0x1
 #define MIIM_STATUS_AN_DONE 	0x00000020
 #define MIIM_STATUS_LINK	0x0004
+#define PHY_BMSR_AUTN_ABLE	0x0008
+#define PHY_BMSR_AUTN_COMP	0x0020
 
 #define MIIM_PHYIR1		0x2
 #define MIIM_PHYIR2		0x3

@@ -338,16 +338,35 @@ uint mii_cr_init(uint mii_reg, struct tsec_private *priv)
  * auto-negotiation */
 uint mii_parse_sr(uint mii_reg, struct tsec_private *priv)
 {
-	uint timeout = TSEC_TIMEOUT;
+	/*
+	 * Wait if PHY is capable of autonegotiation and autonegotiation is not complete
+	 */
+	mii_reg = read_phy_reg(priv, MIIM_STATUS);
+	if ((mii_reg & PHY_BMSR_AUTN_ABLE) && !(mii_reg & PHY_BMSR_AUTN_COMP)) {
+		int i = 0;
 
-	if(mii_reg & MIIM_STATUS_LINK)
-		priv->link = 1;
-	else
-		priv->link = 0;
+		puts ("Waiting for PHY auto negotiation to complete");
+		while (!((mii_reg & PHY_BMSR_AUTN_COMP) && (mii_reg & MIIM_STATUS_LINK))) {
+			/*
+			 * Timeout reached ?
+			 */
+			if (i > PHY_AUTONEGOTIATE_TIMEOUT) {
+				puts (" TIMEOUT !\n");
+				priv->link = 0;
+				break;
+			}
 
-	if(priv->link) {
-		while((!(mii_reg & MIIM_STATUS_AN_DONE)) && timeout--)
+			if ((i++ % 1000) == 0) {
+				putc ('.');
+			}
+			udelay (1000);	/* 1 ms */
 			mii_reg = read_phy_reg(priv, MIIM_STATUS);
+		}
+		puts (" done\n");
+		priv->link = 1;
+		udelay (500000);	/* another 500 ms (results in faster booting) */
+	} else {
+		priv->link = 1;
 	}
 
 	return 0;
@@ -359,6 +378,34 @@ uint mii_parse_sr(uint mii_reg, struct tsec_private *priv)
 uint mii_parse_88E1011_psr(uint mii_reg, struct tsec_private *priv)
 {
 	uint speed;
+
+	mii_reg = read_phy_reg(priv, MIIM_88E1011_PHY_STATUS);
+
+	if (!((mii_reg & MIIM_88E1011_PHYSTAT_SPDDONE) &&
+	      (mii_reg & MIIM_88E1011_PHYSTAT_LINK))) {
+		int i = 0;
+
+		puts ("Waiting for PHY realtime link");
+		while (!((mii_reg & MIIM_88E1011_PHYSTAT_SPDDONE) &&
+			 (mii_reg & MIIM_88E1011_PHYSTAT_LINK))) {
+			/*
+			 * Timeout reached ?
+			 */
+			if (i > PHY_AUTONEGOTIATE_TIMEOUT) {
+				puts (" TIMEOUT !\n");
+				priv->link = 0;
+				break;
+			}
+
+			if ((i++ % 1000) == 0) {
+				putc ('.');
+			}
+			udelay (1000);	/* 1 ms */
+			mii_reg = read_phy_reg(priv, MIIM_88E1011_PHY_STATUS);
+		}
+		puts (" done\n");
+		udelay (500000);	/* another 500 ms (results in faster booting) */
+	}
 
 	if(mii_reg & MIIM_88E1011_PHYSTAT_DUPLEX)
 		priv->duplexity = 1;
@@ -926,8 +973,7 @@ struct phy_info * get_phy_info(struct eth_device *dev)
 		printf("%s: PHY id %x is not supported!\n", dev->name, phy_ID);
 		return NULL;
 	} else {
-		printf("%s: PHY is %s (%x)\n", dev->name, theInfo->name,
-				phy_ID);
+		debug("%s: PHY is %s (%x)\n", dev->name, theInfo->name, phy_ID);
 	}
 
 	return theInfo;

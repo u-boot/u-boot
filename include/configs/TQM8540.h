@@ -368,6 +368,7 @@
 				CFG_CMD_DATE	| \
 				CFG_CMD_EEPROM	| \
 				CFG_CMD_DTT	| \
+				CFG_CMD_MII	| \
 				CFG_CMD_PING	)
 #include <cmd_confdefs.h>
 
