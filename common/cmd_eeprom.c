@@ -49,6 +49,9 @@ extern int  eeprom_read  (unsigned dev_addr, unsigned offset,
 			  uchar *buffer, unsigned cnt);
 extern int  eeprom_write (unsigned dev_addr, unsigned offset,
 			  uchar *buffer, unsigned cnt);
+#if defined(CFG_EEPROM_WREN)
+extern int eeprom_write_enable (unsigned dev_addr, int state);
+#endif
 #endif
 
 
@@ -214,6 +217,9 @@ int eeprom_write (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cn
 	int	i;
 #endif
 
+#if defined(CFG_EEPROM_WREN)
+	eeprom_write_enable (dev_addr,1);
+#endif
 	/* Write data until done or would cross a write page boundary.
 	 * We must write the address again when changing pages
 	 * because the address counter only increments within a page.
@@ -367,6 +373,9 @@ int eeprom_write (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cn
 		udelay(CFG_EEPROM_PAGE_WRITE_DELAY_MS * 1000);
 #endif
 	}
+#if defined(CFG_EEPROM_WREN)
+	eeprom_write_enable (dev_addr,0);
+#endif
 	return rcode;
 }
 

@@ -131,6 +131,16 @@ CONFIG_VIDEO_HW_CURSOR:	     - Uses the hardware cursor capability of the
 #endif
 
 /*****************************************************************************/
+/* Defines for the SED13806 driver					     */
+/*****************************************************************************/
+#ifdef CONFIG_VIDEO_SM501
+
+#ifdef CONFIG_HH405
+#define VIDEO_FB_LITTLE_ENDIAN
+#endif
+#endif
+
+/*****************************************************************************/
 /* Include video_fb.h after definitions of VIDEO_HW_RECTFILL etc	     */
 /*****************************************************************************/
 #include <video_fb.h>
@@ -371,6 +381,8 @@ static const int video_font_draw_table32[16][4] = {
 	    { 0x00ffffff, 0x00ffffff, 0x00ffffff, 0x00000000 },
 	    { 0x00ffffff, 0x00ffffff, 0x00ffffff, 0x00ffffff } };
 
+
+int gunzip(void *, int, unsigned char *, unsigned long *);
 
 /******************************************************************************/
 
@@ -751,13 +763,42 @@ int video_display_bitmap (ulong bmp_image, int x, int y)
 	unsigned colors;
 	unsigned long compression;
 	bmp_color_table_entry_t cte;
+#ifdef CONFIG_VIDEO_BMP_GZIP
+	unsigned char *dst = NULL;
+	ulong len;
+#endif
 
 	WATCHDOG_RESET ();
 
 	if (!((bmp->header.signature[0] == 'B') &&
 	      (bmp->header.signature[1] == 'M'))) {
+
+#ifdef CONFIG_VIDEO_BMP_GZIP
+		/*
+		 * Could be a gzipped bmp image, try to decrompress...
+		 */
+		len = CFG_VIDEO_LOGO_MAX_SIZE;
+		dst = malloc(CFG_VIDEO_LOGO_MAX_SIZE);
+		if (gunzip(dst, CFG_VIDEO_LOGO_MAX_SIZE, (uchar *)bmp_image, &len) != 0) {
+			printf ("Error: no valid bmp or bmp.gz image at %lx\n", bmp_image);
+			free(dst);
+			return 1;
+		}
+
+		/*
+		 * Set addr to decompressed image
+		 */
+		bmp = (bmp_image_t *)dst;
+
+		if (!((bmp->header.signature[0] == 'B') &&
+		      (bmp->header.signature[1] == 'M'))) {
+			printf ("Error: no valid bmp.gz image at %lx\n", bmp_image);
+			return 1;
+		}
+#else
 		printf ("Error: no valid bmp image at %lx\n", bmp_image);
 		return 1;
+#endif /* CONFIG_VIDEO_BMP_GZIP */
 	}
 
 	width = le32_to_cpu (bmp->header.width);
@@ -947,6 +988,13 @@ int video_display_bitmap (ulong bmp_image, int x, int y)
 			le16_to_cpu (bmp->header.bit_count));
 		break;
 	}
+
+#ifdef CONFIG_VIDEO_BMP_GZIP
+	if (dst) {
+		free(dst);
+	}
+#endif
+
 	return (0);
 }
 #endif /* (CONFIG_COMMANDS & CFG_CMD_BMP) || CONFIG_SPLASH_SCREEN */
@@ -1060,7 +1108,6 @@ static void *video_logo (void)
 		}
 	}
 #endif /* CONFIG_SPLASH_SCREEN */
-
 
 	logo_plot (video_fb_address, VIDEO_COLS, 0, 0);
 

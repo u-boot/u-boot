@@ -960,6 +960,12 @@ The following options need to be configured:
 		allows for a "silent" boot where a splash screen is
 		loaded very quickly after power-on.
 
+- Gzip compressed BMP image support: CONFIG_VIDEO_BMP_GZIP
+
+		If this option is set, additionally to standard BMP
+		images, gzipped BMP images can be displayed via the
+		splashscreen support or the bmp command.
+
 - Compression support:
 		CONFIG_BZIP2
 

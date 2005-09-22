@@ -2,6 +2,11 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Add SM501 support to HH405 board.
+  Add support for gzip compressed bmp's (CONFIG_VIDEO_BMP_GZIP).
+  Add support for eeprom write-enable (CFG_EEPROM_WREN).
+  Patch by Stefan Roese, 22 Sep 2005
+
 * Update configuration for INKA4x0 board
 
 * Update configuration for PM854 board

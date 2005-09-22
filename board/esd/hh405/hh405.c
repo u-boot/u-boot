@@ -2,6 +2,9 @@
  * (C) Copyright 2001-2004
  * Stefan Roese, esd gmbh germany, stefan.roese@esd-electronics.com
  *
+ * (C) Copyright 2005
+ * Stefan Roese, DENX Software Engineering, sr@denx.de.
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -25,8 +28,176 @@
 #include <asm/processor.h>
 #include <command.h>
 #include <malloc.h>
+#include <pci.h>
+#include <sm501.h>
 
-/* ------------------------------------------------------------------------- */
+
+#ifdef CONFIG_VIDEO_SM501
+
+#define SWAP32(x)	 ((((x) & 0x000000ff) << 24) | (((x) & 0x0000ff00) << 8)|\
+			  (((x) & 0x00ff0000) >>  8) | (((x) & 0xff000000) >> 24) )
+
+#ifdef CONFIG_VIDEO_SM501_8BPP
+#error CONFIG_VIDEO_SM501_8BPP not supported.
+#endif /* CONFIG_VIDEO_SM501_8BPP */
+
+#ifdef CONFIG_VIDEO_SM501_16BPP
+#define BPP	16
+
+/*
+ * 800x600 display B084SN03: PCLK = 40MHz
+ * => 2*PCLK = 80MHz
+ * 336/4 = 84MHz
+ * => PCLK = 84MHz
+ */
+static const SMI_REGS init_regs_800x600 [] =
+{
+#if 1 /* test-only */
+	{0x0005c, SWAP32(0xffffffff)}, /* set endianess to big endian */
+#else
+	{0x0005c, SWAP32(0x00000000)}, /* set endianess to little endian */
+#endif
+	{0x00004, SWAP32(0x00000000)},
+	/* clocks for pm1... */
+	{0x00048, SWAP32(0x00021807)},
+	{0x0004C, SWAP32(0x221a0a01)},
+	{0x00054, SWAP32(0x00000001)},
+	/* clocks for pm0... */
+	{0x00040, SWAP32(0x00021807)},
+	{0x00044, SWAP32(0x221a0a01)},
+	{0x00054, SWAP32(0x00000000)},
+	/* panel control regs... */
+	{0x80000, SWAP32(0x0f013105)}, /* panel display control: 16-bit RGB 5:6:5 mode */
+	{0x80004, SWAP32(0xc428bb17)}, /* panel panning control ??? */
+	{0x8000C, SWAP32(0x00000000)}, /* panel fb address */
+	{0x80010, SWAP32(0x06400640)}, /* panel fb offset/window width */
+	{0x80014, SWAP32(0x03200000)}, /* panel fb width (0x320=800) */
+	{0x80018, SWAP32(0x02580000)}, /* panel fb height (0x258=600) */
+	{0x8001C, SWAP32(0x00000000)}, /* panel plane tl location */
+	{0x80020, SWAP32(0x02580320)}, /* panel plane br location */
+	{0x80024, SWAP32(0x041f031f)}, /* panel horizontal total */
+	{0x80028, SWAP32(0x00800347)}, /* panel horizontal sync */
+	{0x8002C, SWAP32(0x02730257)}, /* panel vertical total */
+	{0x80030, SWAP32(0x00040258)}, /* panel vertical sync */
+	{0x80200, SWAP32(0x00010000)}, /* crt display control */
+	{0, 0}
+};
+
+/*
+ * 1024x768 display G150XG02: PCLK = 65MHz
+ * => 2*PCLK = 130MHz
+ * 288/2 = 144MHz
+ * => PCLK = 72MHz
+ */
+static const SMI_REGS init_regs_1024x768 [] =
+{
+	{0x00004, SWAP32(0x00000000)},
+	/* clocks for pm1... */
+	{0x00048, SWAP32(0x00021807)},
+	{0x0004C, SWAP32(0x011a0a01)},
+	{0x00054, SWAP32(0x00000001)},
+	/* clocks for pm0... */
+	{0x00040, SWAP32(0x00021807)},
+	{0x00044, SWAP32(0x011a0a01)},
+	{0x00054, SWAP32(0x00000000)},
+	/* panel control regs... */
+	{0x80000, SWAP32(0x0f013105)}, /* panel display control: 16-bit RGB 5:6:5 mode */
+	{0x80004, SWAP32(0xc428bb17)}, /* panel panning control ??? */
+	{0x8000C, SWAP32(0x00000000)}, /* panel fb address */
+	{0x80010, SWAP32(0x08000800)}, /* panel fb offset/window width */
+	{0x80014, SWAP32(0x04000000)}, /* panel fb width (0x400=1024) */
+	{0x80018, SWAP32(0x03000000)}, /* panel fb height (0x300=768) */
+	{0x8001C, SWAP32(0x00000000)}, /* panel plane tl location */
+	{0x80020, SWAP32(0x03000400)}, /* panel plane br location */
+	{0x80024, SWAP32(0x053f03ff)}, /* panel horizontal total */
+	{0x80028, SWAP32(0x0140040f)}, /* panel horizontal sync */
+	{0x8002C, SWAP32(0x032502ff)}, /* panel vertical total */
+	{0x80030, SWAP32(0x00260301)}, /* panel vertical sync */
+	{0x80200, SWAP32(0x00010000)}, /* crt display control */
+	{0, 0}
+};
+
+#endif /* CONFIG_VIDEO_SM501_16BPP */
+
+#ifdef CONFIG_VIDEO_SM501_32BPP
+#define BPP	32
+
+/*
+ * 800x600 display B084SN03: PCLK = 40MHz
+ * => 2*PCLK = 80MHz
+ * 336/4 = 84MHz
+ * => PCLK = 84MHz
+ */
+static const SMI_REGS init_regs_800x600 [] =
+{
+#if 0 /* test-only */
+	{0x0005c, SWAP32(0xffffffff)}, /* set endianess to big endian */
+#else
+	{0x0005c, SWAP32(0x00000000)}, /* set endianess to little endian */
+#endif
+	{0x00004, SWAP32(0x00000000)},
+	/* clocks for pm1... */
+	{0x00048, SWAP32(0x00021807)},
+	{0x0004C, SWAP32(0x221a0a01)},
+	{0x00054, SWAP32(0x00000001)},
+	/* clocks for pm0... */
+	{0x00040, SWAP32(0x00021807)},
+	{0x00044, SWAP32(0x221a0a01)},
+	{0x00054, SWAP32(0x00000000)},
+	/* panel control regs... */
+	{0x80000, SWAP32(0x0f013106)}, /* panel display control: 32-bit RGB 8:8:8 mode */
+	{0x80004, SWAP32(0xc428bb17)}, /* panel panning control ??? */
+	{0x8000C, SWAP32(0x00000000)}, /* panel fb address */
+	{0x80010, SWAP32(0x0c800c80)}, /* panel fb offset/window width */
+	{0x80014, SWAP32(0x03200000)}, /* panel fb width (0x320=800) */
+	{0x80018, SWAP32(0x02580000)}, /* panel fb height (0x258=600) */
+	{0x8001C, SWAP32(0x00000000)}, /* panel plane tl location */
+	{0x80020, SWAP32(0x02580320)}, /* panel plane br location */
+	{0x80024, SWAP32(0x041f031f)}, /* panel horizontal total */
+	{0x80028, SWAP32(0x00800347)}, /* panel horizontal sync */
+	{0x8002C, SWAP32(0x02730257)}, /* panel vertical total */
+	{0x80030, SWAP32(0x00040258)}, /* panel vertical sync */
+	{0x80200, SWAP32(0x00010000)}, /* crt display control */
+	{0, 0}
+};
+
+/*
+ * 1024x768 display G150XG02: PCLK = 65MHz
+ * => 2*PCLK = 130MHz
+ * 288/2 = 144MHz
+ * => PCLK = 72MHz
+ */
+static const SMI_REGS init_regs_1024x768 [] =
+{
+	{0x00004, SWAP32(0x00000000)},
+	/* clocks for pm1... */
+	{0x00048, SWAP32(0x00021807)},
+	{0x0004C, SWAP32(0x011a0a01)},
+	{0x00054, SWAP32(0x00000001)},
+	/* clocks for pm0... */
+	{0x00040, SWAP32(0x00021807)},
+	{0x00044, SWAP32(0x011a0a01)},
+	{0x00054, SWAP32(0x00000000)},
+	/* panel control regs... */
+	{0x80000, SWAP32(0x0f013106)}, /* panel display control: 32-bit RGB 8:8:8 mode */
+	{0x80004, SWAP32(0xc428bb17)}, /* panel panning control ??? */
+	{0x8000C, SWAP32(0x00000000)}, /* panel fb address */
+	{0x80010, SWAP32(0x10001000)}, /* panel fb offset/window width */
+	{0x80014, SWAP32(0x04000000)}, /* panel fb width (0x400=1024) */
+	{0x80018, SWAP32(0x03000000)}, /* panel fb height (0x300=768) */
+	{0x8001C, SWAP32(0x00000000)}, /* panel plane tl location */
+	{0x80020, SWAP32(0x03000400)}, /* panel plane br location */
+	{0x80024, SWAP32(0x053f03ff)}, /* panel horizontal total */
+	{0x80028, SWAP32(0x0140040f)}, /* panel horizontal sync */
+	{0x8002C, SWAP32(0x032502ff)}, /* panel vertical total */
+	{0x80030, SWAP32(0x00260301)}, /* panel vertical sync */
+	{0x80200, SWAP32(0x00010000)}, /* crt display control */
+	{0, 0}
+};
+
+#endif /* CONFIG_VIDEO_SM501_32BPP */
+
+#endif /* CONFIG_VIDEO_SM501 */
 
 #if 0
 #define FPGA_DEBUG
@@ -134,14 +305,15 @@ int board_revision(void)
 
 	if (value & 0x80000000) {
 		/* Revision 1.0 or 1.1 detected */
-		return 1;
+		return 0x0101;
 	} else {
 		if (value & 0x00400000) {
-			/* Revision 1.3 detected */
-			return 3;
+			/* unused */
+			return 0x0103;
 		} else {
-			/* Revision 1.2 detected */
-			return 2;
+			/* Revision >= 2.0 detected */
+			/* rev. 2.x uses four SM501 GPIOs for revision coding */
+			return 0x0200;
 		}
 	}
 }
@@ -195,6 +367,7 @@ int misc_init_r (void)
 	int i;
 	char *str;
 	unsigned long contrast0 = 0xffffffff;
+	pci_dev_t devbusfn;
 
 	dst = malloc(CFG_FPGA_MAX_SIZE);
 	if (gunzip (dst, CFG_FPGA_MAX_SIZE, (uchar *)fpgadata, &len) != 0) {
@@ -261,9 +434,14 @@ int misc_init_r (void)
 	 * Write Board revision into FPGA
 	 */
 	*fpga_ctrl |= gd->board_type & 0x0003;
-	if (gd->board_type >= 2) {
+	if (gd->board_type >= 0x0200) {
 		*fpga_ctrl |= CFG_FPGA_CTRL_CF_BUS_EN;
 	}
+
+ 	/*
+	 * Setup and enable EEPROM write protection
+	 */
+	out32(GPIO0_OR, in32(GPIO0_OR) | CFG_EEPROM_WP);
 
 	/*
 	 * Set NAND-FLASH GPIO signals to default
@@ -301,6 +479,7 @@ int misc_init_r (void)
 	/*
 	 * Init lcd interface and display logo
 	 */
+
 	str = getenv("bd_type");
 	if (strcmp(str, "ppc230") == 0) {
 		/*
@@ -376,8 +555,24 @@ int misc_init_r (void)
 			 sizeof(regs_13704_320_240_4bpp)/sizeof(regs_13704_320_240_4bpp[0]),
 			 logo_bmp_320, sizeof(logo_bmp_320));
 	} else {
-		printf("Unsupported bd_type defined (%s) -> No display configured!\n", str);
-		return 0;
+		/*
+		 * Is SM501 connected (ppc221/ppc231)?
+		 */
+		devbusfn = pci_find_device(PCI_VENDOR_SM, PCI_DEVICE_SM501, 0);
+		if (devbusfn != -1) {
+			puts("VGA:   SM501 with 8 MB ");
+			if (strcmp(str, "ppc221") == 0) {
+				printf("(800*600, %dbpp)\n", BPP);
+			} else if (strcmp(str, "ppc231") == 0) {
+				printf("(1024*768, %dbpp)\n", BPP);
+			} else {
+				printf("Unsupported bd_type defined (%s) -> No display configured!\n", str);
+				return 0;
+			}
+		} else {
+			printf("Unsupported bd_type defined (%s) -> No display configured!\n", str);
+			return 0;
+		}
 	}
 
 	return (0);
@@ -410,7 +605,9 @@ int checkboard (void)
 	}
 
 	gd->board_type = board_revision();
-	printf(", Rev 1.%ld)\n", gd->board_type);
+	printf(", Rev %ld.%ld)\n",
+	       (gd->board_type >> 8) & 0xff,
+	       gd->board_type & 0xff);
 
 	/*
 	 * Disable sleep mode in LXT971
@@ -420,7 +617,6 @@ int checkboard (void)
 	return 0;
 }
 
-/* ------------------------------------------------------------------------- */
 
 long int initdram (int board_type)
 {
@@ -437,7 +633,6 @@ long int initdram (int board_type)
 	return (4*1024*1024 << ((val & 0x000e0000) >> 17));
 }
 
-/* ------------------------------------------------------------------------- */
 
 int testdram (void)
 {
@@ -447,7 +642,6 @@ int testdram (void)
 	return (0);
 }
 
-/* ------------------------------------------------------------------------- */
 
 #ifdef CONFIG_IDE_RESET
 void ide_set_reset(int on)
@@ -479,3 +673,202 @@ void nand_init(void)
 	}
 }
 #endif
+
+
+#if defined(CFG_EEPROM_WREN)
+/* Input: <dev_addr>  I2C address of EEPROM device to enable.
+ *         <state>     -1: deliver current state
+ *	               0: disable write
+ *		       1: enable write
+ *  Returns:           -1: wrong device address
+ *                      0: dis-/en- able done
+ *		     0/1: current state if <state> was -1.
+ */
+int eeprom_write_enable (unsigned dev_addr, int state)
+{
+	if (CFG_I2C_EEPROM_ADDR != dev_addr) {
+		return -1;
+	} else {
+		switch (state) {
+		case 1:
+			/* Enable write access, clear bit GPIO_SINT2. */
+			out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_EEPROM_WP);
+			state = 0;
+			break;
+		case 0:
+			/* Disable write access, set bit GPIO_SINT2. */
+			out32(GPIO0_OR, in32(GPIO0_OR) | CFG_EEPROM_WP);
+			state = 0;
+			break;
+		default:
+			/* Read current status back. */
+			state = (0 == (in32(GPIO0_OR) & CFG_EEPROM_WP));
+			break;
+		}
+	}
+	return state;
+}
+
+int do_eep_wren (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	int query = argc == 1;
+	int state = 0;
+
+	if (query) {
+		/* Query write access state. */
+		state = eeprom_write_enable (CFG_I2C_EEPROM_ADDR, -1);
+		if (state < 0) {
+			puts ("Query of write access state failed.\n");
+		} else {
+			printf ("Write access for device 0x%0x is %sabled.\n",
+				CFG_I2C_EEPROM_ADDR, state ? "en" : "dis");
+			state = 0;
+		}
+	} else {
+		if ('0' == argv[1][0]) {
+			/* Disable write access. */
+			state = eeprom_write_enable (CFG_I2C_EEPROM_ADDR, 0);
+		} else {
+			/* Enable write access. */
+			state = eeprom_write_enable (CFG_I2C_EEPROM_ADDR, 1);
+		}
+		if (state < 0) {
+			puts ("Setup of write access state failed.\n");
+		}
+	}
+
+	return state;
+}
+
+U_BOOT_CMD(eepwren,	2,	0,	do_eep_wren,
+	   "eepwren - Enable / disable / query EEPROM write access\n",
+	   NULL);
+#endif /* #if defined(CFG_EEPROM_WREN) */
+
+
+#ifdef CONFIG_VIDEO_SM501
+#ifdef CONFIG_CONSOLE_EXTRA_INFO
+/*
+ * Return text to be printed besides the logo.
+ */
+void video_get_info_str (int line_number, char *info)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+
+	char str[64];
+	char str2[64];
+	int i = getenv_r("serial#", str2, sizeof(str));
+
+	if (line_number == 1) {
+		sprintf(str, " Board: ");
+
+		if (i == -1) {
+			strcat(str, "### No HW ID - assuming HH405");
+		} else {
+			strcat(str, str2);
+		}
+
+		if (getenv_r("bd_type", str2, sizeof(str2)) != -1) {
+			strcat(str, " (");
+			strcat(str, str2);
+		} else {
+			strcat(str, " (Missing bd_type!");
+		}
+
+		sprintf(str2, ", Rev %ld.%ld)",
+		       (gd->board_type >> 8) & 0xff, gd->board_type & 0xff);
+		strcat(str, str2);
+		strcpy(info, str);
+	} else {
+		info [0] = '\0';
+	}
+}
+#endif /* CONFIG_CONSOLE_EXTRA_INFO */
+
+/*
+ * Returns SM501 register base address. First thing called in the driver.
+ */
+unsigned int board_video_init (void)
+{
+	pci_dev_t devbusfn;
+	u32 addr;
+
+	/*
+	 * Is SM501 connected (ppc221/ppc231)?
+	 */
+	devbusfn = pci_find_device(PCI_VENDOR_SM, PCI_DEVICE_SM501, 0);
+	if (devbusfn != -1) {
+		pci_read_config_dword(devbusfn, PCI_BASE_ADDRESS_1, (u32 *)&addr);
+		return (addr & 0xfffffffe);
+	}
+
+	return 0;
+}
+
+/*
+ * Returns SM501 framebuffer address
+ */
+unsigned int board_video_get_fb (void)
+{
+	pci_dev_t devbusfn;
+	u32 addr;
+
+	/*
+	 * Is SM501 connected (ppc221/ppc231)?
+	 */
+	devbusfn = pci_find_device(PCI_VENDOR_SM, PCI_DEVICE_SM501, 0);
+	if (devbusfn != -1) {
+		pci_read_config_dword(devbusfn, PCI_BASE_ADDRESS_0, (u32 *)&addr);
+		return (addr & 0xfffffffe);
+	}
+
+	return 0;
+}
+
+/*
+ * Called after initializing the SM501 and before clearing the screen.
+ */
+void board_validate_screen (unsigned int base)
+{
+}
+
+/*
+ * Return a pointer to the initialization sequence.
+ */
+const SMI_REGS *board_get_regs (void)
+{
+	char *str;
+
+	str = getenv("bd_type");
+	if (strcmp(str, "ppc221") == 0) {
+		return init_regs_800x600;
+	} else {
+		return init_regs_1024x768;
+	}
+}
+
+int board_get_width (void)
+{
+	char *str;
+
+	str = getenv("bd_type");
+	if (strcmp(str, "ppc221") == 0) {
+		return 800;
+	} else {
+		return 1024;
+	}
+}
+
+int board_get_height (void)
+{
+	char *str;
+
+	str = getenv("bd_type");
+	if (strcmp(str, "ppc221") == 0) {
+		return 600;
+	} else {
+		return 768;
+	}
+}
+
+#endif /* CONFIG_VIDEO_SM501 */

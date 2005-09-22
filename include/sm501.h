@@ -32,6 +32,9 @@
 #ifndef _SM501_H_
 #define _SM501_H_
 
+#define PCI_VENDOR_SM		0x126f
+#define PCI_DEVICE_SM501	0x0501
+
 typedef struct {
 	unsigned int Index;
 	unsigned int Value;
