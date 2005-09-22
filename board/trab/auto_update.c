@@ -296,7 +296,7 @@ au_check_header_valid(int idx, long nbytes)
 	/* recycle checksum */
 	checksum = ntohl(hdr->ih_size);
 	/* for kernel and app the image header must also fit into flash */
-	if (idx != IDX_DISK)
+	if ((idx != IDX_DISK) && (idx != IDX_FIRMWARE))
 		checksum += sizeof(*hdr);
 	/* check the size does not exceed space in flash. HUSH scripts */
 	/* all have ausize[] set to 0 */
