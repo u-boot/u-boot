@@ -183,13 +183,16 @@
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
-#define CFG_FLASH_CFI		1	/* Flash is CFI conformant		*/
-#define CFG_MAX_FLASH_SECT	128	/* max number of sectors on one chip	*/
-#define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks		*/
-#undef CFG_FLASH_PROTECTION		/* don't use hardware protection	*/
-#define CFG_FLASH_USE_BUFFER_WRITE 1	/* use buffered writes (20x faster)	*/
 #define CFG_FLASH_BASE		0xFE000000
 #define CFG_FLASH_INCREMENT	0x01000000
+
+#define CFG_FLASH_CFI         1       /* Flash is CFI conformant */
+#define CFG_FLASH_CFI_DRIVER  1       /* Use the common driver */
+#define CFG_FLASH_PROTECTION  1       /* don't use hardware protection        */
+#define CFG_FLASH_USE_BUFFER_WRITE 1  /* use buffered writes (20x faster)     */
+#define CFG_MAX_FLASH_BANKS   2       /* max num of flash banks */
+#define CFG_FLASH_BANKS_LIST { CFG_FLASH_BASE, CFG_FLASH_BASE + CFG_FLASH_INCREMENT }
+#define CFG_MAX_FLASH_SECT    128     /* max num of sects on one chip */
 
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 
@@ -200,8 +203,8 @@
 /* No command line, one static partition, whole device */
 #undef CONFIG_JFFS2_CMDLINE
 #define CONFIG_JFFS2_DEV		"nor0"
-#define CONFIG_JFFS2_PART_SIZE		0xFFFFFFFF
-#define CONFIG_JFFS2_PART_OFFSET	0x00000000
+#define CONFIG_JFFS2_PART_SIZE		0x01b00000
+#define CONFIG_JFFS2_PART_OFFSET	0x00400000
 
 /* mtdparts command line support */
 /* Note: fake mtd_id used, no linux mtd map file */
