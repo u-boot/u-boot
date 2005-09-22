@@ -13,6 +13,9 @@ Changes for U-Boot 1.1.4:
   Add support for eeprom write-enable (CFG_EEPROM_WREN).
   Patch by Stefan Roese, 22 Sep 2005
 
+* Fix autonegotiation in tsec ethernet driver
+  Patch by Stefan Roese, 21 Sep 2005
+
 * Update configuration for INKA4x0 board
 
 * Update configuration for PM854 board

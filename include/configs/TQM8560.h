@@ -48,7 +48,6 @@
  * please disable the PCI support for now. sr@denx.de, 15-09-2005
  */
 #define CONFIG_PCI
-#undef CONFIG_PCI /* test-only !!!!!!!!!!!!!!!! */
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #undef CONFIG_DDR_ECC			/* only for ECC DDR module */
 #define CONFIG_DDR_DLL			/* possible DLL fix needed */
