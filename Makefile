@@ -754,6 +754,9 @@ CATcenter_33_config:	unconfig
 		}
 	@./mkconfig -a $(call xtract_4xx,$@) ppc ppc4xx PPChameleonEVB dave
 
+CPCI2DP_config:	unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx cpci2dp esd
+
 CPCI405_config	\
 CPCI4052_config	\
 CPCI405DT_config	\

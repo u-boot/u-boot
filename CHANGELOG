@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* esd CPCI2DP board added
+  Patch by Matthias Fuchs, 22 Sep 2005
+
 * esd PMC405 board updated
   Patch by Matthias Fuchs, 22 Sep 2005
 
