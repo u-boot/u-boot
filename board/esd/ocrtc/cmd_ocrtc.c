@@ -24,14 +24,11 @@
 #include <common.h>
 #include <command.h>
 #include <pci.h>
+#include <pci_ids.h>
 #include <405gp_pci.h>
 
 
 #if (CONFIG_COMMANDS & CFG_CMD_BSP)
-
-#define AMCC_VENDOR_ID		0x1014
-#define PPC405_DEVICE_ID	0x0156
-
 
 /*
  * Set device number on pci board
@@ -43,7 +40,7 @@ int do_setdevice(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	u32 addr;
 
 	while (bdf >= 0) {
-		if ((bdf = pci_find_device(AMCC_VENDOR_ID, PPC405_DEVICE_ID, idx++)) < 0) {
+		if ((bdf = pci_find_device(PCI_VENDOR_ID_IBM, PCI_DEVICE_ID_IBM_405GP, idx++)) < 0) {
 			break;
 		}
 		printf("Found device nr %d at %x!\n", idx-1, bdf);
