@@ -14,7 +14,7 @@
  *
  * (C) Copyright 2002
  * Jun Gu, Artesyn Technology, jung@artesyncp.com
- * Support for IBM 440 based on OpenBIOS draminit.c from IBM.
+ * Support for AMCC 440 based on OpenBIOS draminit.c from IBM.
  *
  * (C) Copyright 2005
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
@@ -108,7 +108,7 @@ int spd_read(uint addr);
  * This function is reading data from the DIMM module EEPROM over the SPD bus
  * and uses that to program the sdram controller.
  *
- * This works on boards that has the same schematics that the IBM walnut has.
+ * This works on boards that has the same schematics that the AMCC walnut has.
  *
  * Input: null for default I2C spd functions or a pointer to a custom function
  * returning spd_data.
@@ -696,7 +696,7 @@ long  program_bxcr(unsigned long* dimm_populated,
  * This function is reading data from the DIMM module EEPROM over the SPD bus
  * and uses that to program the sdram controller.
  *
- * This works on boards that has the same schematics that the IBM walnut has.
+ * This works on boards that has the same schematics that the AMCC walnut has.
  *
  * BUG: Don't handle ECC memory
  * BUG: A few values in the TR register is currently hardcoded

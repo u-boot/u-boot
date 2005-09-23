@@ -77,17 +77,17 @@ fpgaDownload(unsigned char *saddr,
     dest = (unsigned short *)daddr;
 
     /* Get DCR output register */
-    grego = in32(IBM405GP_GPIO0_OR);
+    grego = in32(PPC405GP_GPIO0_OR);
 
     /* Reset FPGA */
     grego &= ~GPIO_XCV_PROG;			/* PROG line low */
-    out32(IBM405GP_GPIO0_OR, grego);
+    out32(PPC405GP_GPIO0_OR, grego);
 
     /* Setup timeout timer */
     start = get_timer(0);
 
     /* Wait for FPGA init line */
-    while(in32(IBM405GP_GPIO0_IR) & GPIO_XCV_INIT) { /* Wait INIT line low */
+    while(in32(PPC405GP_GPIO0_IR) & GPIO_XCV_INIT) { /* Wait INIT line low */
 	/* Check for timeout - 100us max, so use 3ms */
 	if (get_timer(start) > 3) {
 	    printf("     failed to start init.\n");
@@ -100,10 +100,10 @@ fpgaDownload(unsigned char *saddr,
 
     /* Unreset FPGA */
     grego |= GPIO_XCV_PROG;			/* PROG line high */
-    out32(IBM405GP_GPIO0_OR, grego);
+    out32(PPC405GP_GPIO0_OR, grego);
 
     /* Wait for FPGA end of init period .  */
-    while(!(in32(IBM405GP_GPIO0_IR) & GPIO_XCV_INIT)) { /* Wait for INIT hi */
+    while(!(in32(PPC405GP_GPIO0_IR) & GPIO_XCV_INIT)) { /* Wait for INIT hi */
 
 	/* Check for timeout */
 	if (get_timer(start) > 3) {
@@ -112,7 +112,7 @@ fpgaDownload(unsigned char *saddr,
 
 	    /* Reset FPGA */
 	    grego &= ~GPIO_XCV_PROG;		/* PROG line low */
-	    out32(IBM405GP_GPIO0_OR, grego);
+	    out32(PPC405GP_GPIO0_OR, grego);
 
 	    goto done;
 	}
@@ -127,18 +127,18 @@ fpgaDownload(unsigned char *saddr,
 	mtdcr(CPC0_CR0, greg);			/*  ... just do it */
 
 	/* turn on open drain for CNFG */
-	greg = in32(IBM405GP_GPIO0_ODR);	/* get open drain register */
+	greg = in32(PPC405GP_GPIO0_ODR);	/* get open drain register */
 	greg |= cnfg;				/* CNFG open drain */
-	out32(IBM405GP_GPIO0_ODR, greg);	/*  .. just do it */
+	out32(PPC405GP_GPIO0_ODR, greg);	/*  .. just do it */
 
 	/* Turn output enable on for CNFG */
-	greg = in32(IBM405GP_GPIO0_TCR);	/* get tristate register */
+	greg = in32(PPC405GP_GPIO0_TCR);	/* get tristate register */
 	greg |= cnfg;				/* CNFG tristate inactive */
-	out32(IBM405GP_GPIO0_TCR, greg);	/*  ... just do it */
+	out32(PPC405GP_GPIO0_TCR, greg);	/*  ... just do it */
 
 	/* Setup FPGA for programming */
 	grego &= ~cnfg;				/* CONFIG line low */
-	out32(IBM405GP_GPIO0_OR, grego);
+	out32(PPC405GP_GPIO0_OR, grego);
 
 	/*
 	 * Program the FPGA
@@ -149,12 +149,12 @@ fpgaDownload(unsigned char *saddr,
 
 	/* Done programming */
 	grego |= cnfg;				/* CONFIG line high */
-	out32(IBM405GP_GPIO0_OR, grego);
+	out32(PPC405GP_GPIO0_OR, grego);
 
 	/* Turn output enable OFF for CNFG */
-	greg = in32(IBM405GP_GPIO0_TCR);	/* get tristate register */
+	greg = in32(PPC405GP_GPIO0_TCR);	/* get tristate register */
 	greg &= ~cnfg;				/* CNFG tristate inactive */
-	out32(IBM405GP_GPIO0_TCR, greg);	/*  ... just do it */
+	out32(PPC405GP_GPIO0_TCR, greg);	/*  ... just do it */
 
 	/* Toggle IRQ/GPIO */
 	greg = mfdcr(CPC0_CR0);			/* get chip ctrl register */
@@ -180,7 +180,7 @@ fpgaDownload(unsigned char *saddr,
     start = get_timer(0);
 
     /* Wait for FPGA end of programming period .  */
-    while(!(in32(IBM405GP_GPIO0_IR) & GPIO_XCV_DONE)) { /* Test DONE low */
+    while(!(in32(PPC405GP_GPIO0_IR) & GPIO_XCV_DONE)) { /* Test DONE low */
 
 	/* Check for timeout */
 	if (get_timer(start) > 3) {
@@ -189,7 +189,7 @@ fpgaDownload(unsigned char *saddr,
 
 	    /* Reset FPGA */
 	    grego &= ~GPIO_XCV_PROG;		/* PROG line low */
-	    out32(IBM405GP_GPIO0_OR, grego);
+	    out32(PPC405GP_GPIO0_OR, grego);
 
 	    goto done;
 	}

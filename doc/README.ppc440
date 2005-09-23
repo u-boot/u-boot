@@ -12,7 +12,7 @@ and enabled via the CONFIG_440 flag. It is largely based on the
 405gp code. A sample board support implementation is contained
 in the board/ebony directory.
 
-All testing was performed using the IBM Ebony board using both
+All testing was performed using the AMCC Ebony board using both
 Rev B and Rev C silicon. However, since the Rev B. silicon has
 extensive errata, support for Rev B. is minimal (it boots, and
 features such as i2c, pci, tftpboot, etc. seem to work ok).

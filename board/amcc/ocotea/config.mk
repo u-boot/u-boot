@@ -22,7 +22,7 @@
 #
 
 #
-# IBM 440GX Reference Platform (Ocotea) board
+# AMCC 440GX Reference Platform (Ocotea) board
 #
 
 #TEXT_BASE = 0xFFFE0000

@@ -24,7 +24,7 @@
  * config for XPedite1000 from XES Inc.
  * Ported from EBONY config by Travis B. Sawyer <tsawyer@sandburst.com>
  * (C) Copyright 2003 Sandburst Corporation
- * board/config_EBONY.h - configuration for IBM 440GP Ref (Ebony)
+ * board/config_EBONY.h - configuration for AMCC 440GP Ref (Ebony)
  ***********************************************************************/
 
 #ifndef __CONFIG_H
@@ -253,7 +253,7 @@ extern void out32(unsigned int, unsigned long);
 /*-----------------------------------------------------------------------
  * Cache Configuration
  */
-#define CFG_DCACHE_SIZE		8192 /* For IBM 440GX CPUs */
+#define CFG_DCACHE_SIZE		8192 /* For AMCC 440GX CPUs */
 #define CFG_CACHELINE_SIZE	32	/* ...			*/
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/

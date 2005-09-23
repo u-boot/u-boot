@@ -320,7 +320,7 @@ int serial_tstc ()
 #endif
 
 #if defined(CONFIG_405EP) && defined(CFG_EXT_SERIAL_CLOCK)
-#error "External serial clock not supported on IBM PPC405EP!"
+#error "External serial clock not supported on AMCC PPC405EP!"
 #endif
 
 #define UART_RBR    0x00

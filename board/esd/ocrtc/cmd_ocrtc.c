@@ -29,8 +29,8 @@
 
 #if (CONFIG_COMMANDS & CFG_CMD_BSP)
 
-#define IBM_VENDOR_ID    0x1014
-#define PPC405_DEVICE_ID 0x0156
+#define AMCC_VENDOR_ID		0x1014
+#define PPC405_DEVICE_ID	0x0156
 
 
 /*
@@ -43,7 +43,7 @@ int do_setdevice(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	u32 addr;
 
 	while (bdf >= 0) {
-		if ((bdf = pci_find_device(IBM_VENDOR_ID, PPC405_DEVICE_ID, idx++)) < 0) {
+		if ((bdf = pci_find_device(AMCC_VENDOR_ID, PPC405_DEVICE_ID, idx++)) < 0) {
 			break;
 		}
 		printf("Found device nr %d at %x!\n", idx-1, bdf);

@@ -26,10 +26,10 @@
 #include "eric.h"
 #include <asm/processor.h>
 
-#define IBM405GP_GPIO0_OR      0xef600700	/* GPIO Output */
-#define IBM405GP_GPIO0_TCR     0xef600704	/* GPIO Three-State Control */
-#define IBM405GP_GPIO0_ODR     0xef600718	/* GPIO Open Drain */
-#define IBM405GP_GPIO0_IR      0xef60071c	/* GPIO Input */
+#define PPC405GP_GPIO0_OR      0xef600700	/* GPIO Output */
+#define PPC405GP_GPIO0_TCR     0xef600704	/* GPIO Three-State Control */
+#define PPC405GP_GPIO0_ODR     0xef600718	/* GPIO Open Drain */
+#define PPC405GP_GPIO0_IR      0xef60071c	/* GPIO Input */
 
 int board_early_init_f (void)
 {
@@ -50,7 +50,7 @@ int board_early_init_f (void)
    |       IRQ 30 (EXT IRQ 5) PCI INTB#; active low; level sensitive
    |       IRQ 31 (EXT IRQ 6) PCI INTA#; active low; level sensitive
    |        -> IRQ6 Pin is NOW GPIO23 and can be activateted by setting
-   |           IBM405GP_GPIO0_TCR Bit 0 = 1 (driving the output as defined in IBM405GP_GPIO0_OR,
+   |           PPC405GP_GPIO0_TCR Bit 0 = 1 (driving the output as defined in PPC405GP_GPIO0_OR,
    |           else tristate)
    | Note for ERIC board:
    |       An interrupt taken for the HOST (IRQ 28) indicates that
@@ -70,8 +70,8 @@ int board_early_init_f (void)
 
 	mtdcr (cntrl0, 0x00002000);	/* set IRQ6 as GPIO23 to generate an interrupt request to the PCP2PCI bridge */
 
-	out32 (IBM405GP_GPIO0_OR, 0x60000000);	/*fixme is SMB_INT high or low active??; IRQ6 is GPIO23 output */
-	out32 (IBM405GP_GPIO0_TCR, 0x7E400000);
+	out32 (PPC405GP_GPIO0_OR, 0x60000000);	/*fixme is SMB_INT high or low active??; IRQ6 is GPIO23 output */
+	out32 (PPC405GP_GPIO0_TCR, 0x7E400000);
 
 	return 0;
 }

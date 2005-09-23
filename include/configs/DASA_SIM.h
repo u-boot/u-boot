@@ -183,7 +183,7 @@
  * Cache Configuration
  */
 #define CFG_DCACHE_SIZE		2048	/* For PLX IOP480			*/
-#define CFG_CACHELINE_SIZE	16	/* For IBM 401/403 CPUs			*/
+#define CFG_CACHELINE_SIZE	16	/* For AMCC 401/403 CPUs		*/
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	4	/* log base 2 of the above value	*/
 #endif

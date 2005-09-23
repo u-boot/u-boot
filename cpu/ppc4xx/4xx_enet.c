@@ -90,7 +90,7 @@
 #include "vecnum.h"
 
 /*
- * Only compile for platform with IBM/AMCC EMAC ethernet controller and
+ * Only compile for platform with AMCC EMAC ethernet controller and
  * network support enabled.
  * Remark: CONFIG_405 describes Xilinx PPC405 FPGA without EMAC controller!
  */

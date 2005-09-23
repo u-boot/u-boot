@@ -30,7 +30,7 @@
 
 
 /************************************************************************
- * OCOTEA.h - configuration for IBM 440GX Ref (Ocotea)
+ * OCOTEA.h - configuration for AMCC 440GX Ref (Ocotea)
  ***********************************************************************/
 
 #ifndef __CONFIG_H
@@ -297,7 +297,7 @@
 /*-----------------------------------------------------------------------
  * Cache Configuration
  */
-#define CFG_DCACHE_SIZE		32768	/* For IBM 440 CPUs			*/
+#define CFG_DCACHE_SIZE		32768	/* For AMCC 440 CPUs			*/
 #define CFG_CACHELINE_SIZE	32	/* ...			*/
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/

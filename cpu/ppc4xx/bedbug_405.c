@@ -25,7 +25,7 @@ int bedbug405_clear __P ((int));
 
 
 /* ======================================================================
- * Initialize the global bug_ctx structure for the IBM PPC405.	Clear all
+ * Initialize the global bug_ctx structure for the AMCC PPC405.	Clear all
  * of the breakpoints.
  * ====================================================================== */
 

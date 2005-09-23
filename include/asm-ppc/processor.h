@@ -694,7 +694,7 @@
 #define PVR_REV(pvr)  (((pvr) >>   0) & 0xFFFF)	/* Revison field */
 
 /*
- * IBM has further subdivided the standard PowerPC 16-bit version and
+ * AMCC has further subdivided the standard PowerPC 16-bit version and
  * revision subfields of the PVR for the PowerPC 403s into the following:
  */
 
@@ -825,7 +825,7 @@
 #define _MACH_gemini	0x00000200	/* Synergy Microsystems gemini board */
 #define _MACH_classic	0x00000400	/* RPCG RPX-Classic 8xx board */
 #define _MACH_oak	0x00000800	/* IBM "Oak" 403 eval. board */
-#define _MACH_walnut	0x00001000	/* IBM "Walnut" 405GP eval. board */
+#define _MACH_walnut	0x00001000	/* AMCC "Walnut" 405GP eval. board */
 #define _MACH_8260	0x00002000	/* Generic 8260 */
 #define _MACH_sandpoint 0x00004000	/* Motorola SPS Processor eval board */
 #define _MACH_tqm860	0x00008000	/* TQM860/L */

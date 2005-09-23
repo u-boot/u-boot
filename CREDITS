@@ -340,7 +340,7 @@ W: http://www.windriver.com
 
 N: Stefan Roese
 E: stefan.roese@esd-electronics.com
-D: IBM PPC401/403/405GP Support; Windows environment support
+D: AMCC PPC401/403/405GP Support; Windows environment support
 
 N: Erwin Rol
 E: erwin@muffin.org
@@ -356,7 +356,7 @@ D: Author of LiMon-1.4.2, which contributed some ideas
 
 N: Travis B. Sawyer
 E: travis.sawyer@sandburst.com
-D: Support for IBM PPC440GX, XES XPedite1000 440GX PrPMC board.  IBM 440gx Ref Platform (Ocotea)
+D: Support for AMCC PPC440GX, XES XPedite1000 440GX PrPMC board.  AMCC 440gx Ref Platform (Ocotea)
 
 N: Paolo Scaffardi
 E: arsenio@tin.it

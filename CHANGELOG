@@ -2,6 +2,8 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Cleanup (PPC4xx is AMCC now)
+
 * esd CPCI2DP board added
   Patch by Matthias Fuchs, 22 Sep 2005
 

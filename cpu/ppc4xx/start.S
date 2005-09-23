@@ -42,7 +42,7 @@
 /*	 LICENSED MATERIAL  -  PROGRAM PROPERTY OF I B M */
 /*------------------------------------------------------------------------------- */
 
-/*  U-Boot - Startup Code for IBM 4xx PowerPC based Embedded Boards
+/*  U-Boot - Startup Code for AMCC 4xx PowerPC based Embedded Boards
  *
  *
  *  The processor starts at 0xfffffffc and the code is executed

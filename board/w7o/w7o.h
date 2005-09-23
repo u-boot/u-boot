@@ -25,13 +25,13 @@
 #define _W7O_H_
 #include <config.h>
 
-/* IBM 405GP PowerPC GPIO registers */
-#define IBM405GP_GPIO0_OR	0xef600700L	/* GPIO Output */
-#define IBM405GP_GPIO0_TCR	0xef600704L	/* GPIO Three-State Control */
-#define IBM405GP_GPIO0_ODR	0xef600718L	/* GPIO Open Drain */
-#define IBM405GP_GPIO0_IR	0xef60071cL	/* GPIO Input */
+/* AMCC 405GP PowerPC GPIO registers */
+#define PPC405GP_GPIO0_OR	0xef600700L	/* GPIO Output */
+#define PPC405GP_GPIO0_TCR	0xef600704L	/* GPIO Three-State Control */
+#define PPC405GP_GPIO0_ODR	0xef600718L	/* GPIO Open Drain */
+#define PPC405GP_GPIO0_IR	0xef60071cL	/* GPIO Input */
 
-/* IBM 405GP DCRs */
+/* AMCC 405GP DCRs */
 #define CPC0_CR0		0xb1		/* Chip control register 0 */
 
 /* LMG FPGA <=> CPU GPIO signals */

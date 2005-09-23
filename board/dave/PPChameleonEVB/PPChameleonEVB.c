@@ -279,10 +279,10 @@ void video_get_info_str (int line_number, char *info)
 	case 1:
 		switch (pvr) {
 		case PVR_405EP_RB:
-			sprintf (info, " IBM PowerPC 405EP Rev. B");
+			sprintf (info, " AMCC PowerPC 405EP Rev. B");
 			break;
 		default:
-			sprintf (info, " IBM PowerPC 405EP Rev. <unknown>");
+			sprintf (info, " AMCC PowerPC 405EP Rev. <unknown>");
 			break;
 		}
 		return;

@@ -137,7 +137,7 @@ static struct pci_pip405_config_entry piix4_pmm_cntrl_f3[] = {
 	{ }					    /* end of device table 	*/
 };
 /* PPC405 Dummy only used to prevent autosetup on this host bridge */
-static struct pci_pip405_config_entry ibm405_dummy[] = {
+static struct pci_pip405_config_entry ppc405_dummy[] = {
 	{ }				    	    /* end of device table 	*/
 };
 
@@ -150,7 +150,7 @@ static struct pci_config_table pci_pip405_config_table[]={
 	 PCI_DEVICE_ID_IBM_405GP,
 	 PCI_ANY_ID,
 	 PCI_ANY_ID, PCI_ANY_ID, 0,
-	 pci_pip405_write_regs, {(unsigned long) ibm405_dummy}},
+	 pci_pip405_write_regs, {(unsigned long) ppc405_dummy}},
 
 	{PCI_VENDOR_ID_INTEL, 			/* PIIX4 ISA Bridge Function 0 */
 	 PCI_DEVICE_ID_INTEL_82371AB_0,

@@ -22,7 +22,7 @@
  */
 
 /*
- * IBM 4XX DCR Functions
+ * AMCC 4XX DCR Functions
  */
 
 #include <common.h>
@@ -31,89 +31,91 @@
 
 #if defined(CONFIG_4xx) && (CONFIG_COMMANDS & CFG_CMD_SETGETDCR)
 
-/* ======================================================================
- * Interpreter command to retrieve an IBM PPC 4xx Device Control Register
- * ======================================================================
+/* =======================================================================
+ * Interpreter command to retrieve an AMCC PPC 4xx Device Control Register
+ * =======================================================================
  */
 int do_getdcr ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[] )
 {
-    unsigned short dcrn;                     /* Device Control Register Num */
-    unsigned long value;                     /* DCR's value */
+	unsigned short dcrn;	/* Device Control Register Num */
+	unsigned long value;	/* DCR's value */
 
-    unsigned long get_dcr(unsigned short);
+	unsigned long get_dcr (unsigned short);
 
-    /* Validate arguments */
-    if (argc < 2) {
-	printf("Usage:\n%s\n", cmdtp->usage);
-	return 1;
-    }
+	/* Validate arguments */
+	if (argc < 2) {
+		printf ("Usage:\n%s\n", cmdtp->usage);
+		return 1;
+	}
 
-    /* Get a DCR */
-    dcrn = (unsigned short)simple_strtoul(argv[ 1 ], NULL, 16);
-    value = get_dcr(dcrn);
+	/* Get a DCR */
+	dcrn = (unsigned short) simple_strtoul (argv[1], NULL, 16);
+	value = get_dcr (dcrn);
 
-    printf("%04x: %08lx\n", dcrn, value);
+	printf ("%04x: %08lx\n", dcrn, value);
 
-    return 0;
-} /* do_getdcr */
+	return 0;
+}
 
 
 /* ======================================================================
- * Interpreter command to set an IBM PPC 4xx Device Control Register
+ * Interpreter command to set an AMCC PPC 4xx Device Control Register
  * ======================================================================
 */
-int do_setdcr ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_setdcr (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
-   unsigned long get_dcr(unsigned short );
-   unsigned long set_dcr(unsigned short , unsigned long );
-    unsigned short dcrn;                     /* Device Control Register Num */
-   unsigned long value;
-		    /* DCR's value */
-    int nbytes;
-    extern char console_buffer[];
+	unsigned long get_dcr (unsigned short);
+	unsigned long set_dcr (unsigned short, unsigned long);
+	unsigned short dcrn;	/* Device Control Register Num */
+	unsigned long value;
 
-    /* Validate arguments */
-    if (argc < 2) {
-	printf("Usage:\n%s\n", cmdtp->usage);
-	return 1;
-    }
+	/* DCR's value */
+	int nbytes;
+	extern char console_buffer[];
 
-    /* Set a DCR */
-    dcrn = (unsigned short)simple_strtoul(argv[1], NULL, 16);
-    do {
-	value = get_dcr(dcrn);
-	printf("%04x: %08lx", dcrn, value);
-	nbytes = readline(" ? ");
-	if (nbytes == 0) {
-	    /*
-	     * <CR> pressed as only input, don't modify current
-	     * location and exit command.
-	     */
-	    nbytes = 1;
-	    return 0;
-	} else {
-	    unsigned long i;
-	    char *endp;
-	    i = simple_strtoul(console_buffer, &endp, 16);
-	    nbytes = endp - console_buffer;
-	    if (nbytes)
-		set_dcr(dcrn, i);
+	/* Validate arguments */
+	if (argc < 2) {
+		printf ("Usage:\n%s\n", cmdtp->usage);
+		return 1;
 	}
-    } while (nbytes);
 
-    return 0;
-} /* do_setdcr */
+	/* Set a DCR */
+	dcrn = (unsigned short) simple_strtoul (argv[1], NULL, 16);
+	do {
+		value = get_dcr (dcrn);
+		printf ("%04x: %08lx", dcrn, value);
+		nbytes = readline (" ? ");
+		if (nbytes == 0) {
+			/*
+			 * <CR> pressed as only input, don't modify current
+			 * location and exit command.
+			 */
+			nbytes = 1;
+			return 0;
+		} else {
+			unsigned long i;
+			char *endp;
+
+			i = simple_strtoul (console_buffer, &endp, 16);
+			nbytes = endp - console_buffer;
+			if (nbytes)
+				set_dcr (dcrn, i);
+		}
+	} while (nbytes);
+
+	return 0;
+}
 
 /***************************************************/
 
 U_BOOT_CMD(
 	getdcr,	2,	1,	do_getdcr,
-	"getdcr  - Get an IBM PPC 4xx DCR's value\n",
+	"getdcr  - Get an AMCC PPC 4xx DCR's value\n",
 	"dcrn - return a DCR's value.\n"
 );
 U_BOOT_CMD(
 	setdcr,	2,	1,	do_setdcr,
-	"setdcr  - Set an IBM PPC 4xx DCR's value\n",
+	"setdcr  - Set an AMCC PPC 4xx DCR's value\n",
 	"dcrn - set a DCR's value.\n"
 );
 

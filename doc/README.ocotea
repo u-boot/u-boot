@@ -1,9 +1,9 @@
-			   IBM Ocotea Board
+			   AMCC Ocotea Board
 
 		    Last Update: March 2, 2004
 =======================================================================
 
-This file contains some handy info regarding U-Boot and the IBM
+This file contains some handy info regarding U-Boot and the AMCC
 Ocotea 440gx  evalutation board. See the README.ppc440 for additional
 information.
 
@@ -53,7 +53,7 @@ Special note about the Cicada CIS8201:
 	This has been done in the 440gx_enet.c file with a #ifdef/endif
 	pair.
 
-IBM does not store the EMAC ethernet addresses within their PIBS bootloader.
+AMCC does not store the EMAC ethernet addresses within their PIBS bootloader.
 The addresses contained in the config header file are from my particular
 board and you _*should*_ change them to reflect your board either in the
 config file and/or in your environment variables.  I found the addresses on

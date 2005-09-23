@@ -28,7 +28,7 @@ I2C Edge Conditions:
 
 Notes
 -----
-!!!THIS IS AN UNDOCUMENTED I2C BUS BUG, NOT A IBM 4xx BUG!!!
+!!!THIS IS AN UNDOCUMENTED I2C BUS BUG, NOT A AMCC 4xx BUG!!!
 
 This reset edge condition could possibly be present in every I2C
 controller and device available. For boards where a I2C bus reset

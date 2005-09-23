@@ -147,7 +147,7 @@
 /*-----------------------------------------------------------------------
  * Cache Configuration
  */
-#define CFG_DCACHE_SIZE		16384	/* For IBM 405 CPUs	*/
+#define CFG_DCACHE_SIZE		16384	/* For AMCC 405 CPUs	*/
 #define CFG_CACHELINE_SIZE	32	/* ...			*/
 
 /*-----------------------------------------------------------------------

@@ -2,7 +2,7 @@ BEDBUG Support for U-Boot
 --------------------------
 
 These changes implement the bedbug (emBEDded deBUGger) debugger in U-Boot.
-A specific implementation is made for the IBM405 processor but other flavors
+A specific implementation is made for the AMCC 405 processor but other flavors
 can be easily implemented.
 
 #####################
@@ -58,7 +58,7 @@ can be easily implemented.
 	routines are common to all PowerPC processors.
 
 ./cpu/ppc4xx/bedbug_405.c
-	IBM PPC405 specific debugger routines.
+	AMCC  PPC405 specific debugger routines.
 
 
 Bedbug support for the MPC860

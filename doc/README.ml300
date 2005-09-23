@@ -5,7 +5,7 @@ Xilinx ML300 platform
 ---------------
 
 The Xilinx ML300 board is based on the Virtex-II Pro FPGA with
-integrated IBM PowerPC 405 core. The board is normally booted from
+integrated AMCC PowerPC 405 core. The board is normally booted from
 System ACE CF. U-Boot is then run out of main memory.
 
 An FPGA is a configurable and thus very flexible device. To

@@ -84,7 +84,7 @@
 	void reset_5xx_watchdog(volatile immap_t *immr);
 #endif
 
-/* IBM 4xx */
+/* AMCC 4xx */
 #if defined(CONFIG_4xx) && !defined(__ASSEMBLY__)
 	void reset_4xx_watchdog(void);
 #endif

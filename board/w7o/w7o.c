@@ -47,9 +47,9 @@ int board_early_init_f (void)
 	/*
 	 * Setup GPIO pins - reset devices.
 	 */
-	out32 (IBM405GP_GPIO0_ODR, 0x10000000);	/* one open drain pin */
-	out32 (IBM405GP_GPIO0_OR, 0x3E000000);	/* set output pins to default */
-	out32 (IBM405GP_GPIO0_TCR, 0x7f800000);	/* setup for output */
+	out32 (PPC405GP_GPIO0_ODR, 0x10000000);	/* one open drain pin */
+	out32 (PPC405GP_GPIO0_OR, 0x3E000000);	/* set output pins to default */
+	out32 (PPC405GP_GPIO0_TCR, 0x7f800000);	/* setup for output */
 
 	/*
 	 * IRQ 0-15  405GP internally generated; active high; level sensitive
@@ -78,9 +78,9 @@ int board_early_init_f (void)
 	/*
 	 * Setup GPIO pins
 	 */
-	out32 (IBM405GP_GPIO0_ODR, 0x01800000);	/* XCV Done Open Drain */
-	out32 (IBM405GP_GPIO0_OR, 0x03800000);	/* set out pins to default */
-	out32 (IBM405GP_GPIO0_TCR, 0x66C00000);	/* setup for output */
+	out32 (PPC405GP_GPIO0_ODR, 0x01800000);	/* XCV Done Open Drain */
+	out32 (PPC405GP_GPIO0_OR, 0x03800000);	/* set out pins to default */
+	out32 (PPC405GP_GPIO0_TCR, 0x66C00000);	/* setup for output */
 
 	/*
 	 * IRQ 0-15  405GP internally generated; active high; level sensitive
@@ -238,14 +238,14 @@ int misc_init_r (void)
 #if defined(CONFIG_W7OLMG)
 	unsigned long greg;	/* GPIO Register */
 
-	greg = in32 (IBM405GP_GPIO0_OR);
+	greg = in32 (PPC405GP_GPIO0_OR);
 
 	/*
 	 * XXX - Unreset devices - this should be moved into VxWorks driver code
 	 */
 	greg |= 0x41800000L;	/* SAM, PHY, Galileo */
 
-	out32 (IBM405GP_GPIO0_OR, greg);	/* set output pins to default */
+	out32 (PPC405GP_GPIO0_OR, greg);	/* set output pins to default */
 #endif /* CONFIG_W7OLMG */
 
 	/*

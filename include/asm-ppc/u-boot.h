@@ -79,7 +79,7 @@ typedef struct bd_info {
     defined(CONFIG_405EP) || \
     defined(CONFIG_440)
 	unsigned char	bi_s_version[4];	/* Version of this structure */
-	unsigned char	bi_r_version[32];	/* Version of the ROM (IBM) */
+	unsigned char	bi_r_version[32];	/* Version of the ROM (AMCC) */
 	unsigned int	bi_procfreq;	/* CPU (Internal) Freq, in Hz */
 	unsigned int	bi_plb_busfreq;	/* PLB Bus speed, in Hz */
 	unsigned int	bi_pci_busfreq;	/* PCI Bus speed, in Hz */

@@ -193,7 +193,7 @@ static char * kbd_initialize(void)
 			      | KBD_MODE_DISABLE_MOUSE
 			      | KBD_MODE_KCC);
 
-	/* ibm powerpc portables need this to use scan-code set 1 -- Cort */
+	/* AMCC powerpc portables need this to use scan-code set 1 -- Cort */
 	kbd_write_command_w(KBD_CCMD_READ_MODE);
 	if (!(kbd_wait_for_input() & KBD_MODE_KCC)) {
 		/*
