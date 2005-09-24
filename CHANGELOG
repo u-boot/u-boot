@@ -2,6 +2,11 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Update for TFTP using a fixed UDP port
+  Use the approved environment variable names. Added "tftpdstp" to
+  allow ports other than 69 per Tolunay Orkun's recommendation.
+  Patch by Jerry Van Baren, 12 Jan 2005
+
 * Allow to force TFTP to use a fixed UDP port
   (Add a configuration option CONFIG_TFTP_PORT and optional env
   variable tftpport)

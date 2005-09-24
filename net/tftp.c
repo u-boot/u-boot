@@ -371,7 +371,10 @@ TftpStart (void)
 	/* Use a pseudo-random port unless a specific port is set */
 	TftpOurPort = 1024 + (get_timer(0) % 3072);
 #ifdef CONFIG_TFTP_PORT
-	if ((ep = getenv("tftpport")) != NULL) {
+	if ((ep = getenv("tftpdstp")) != NULL) {
+		TftpServerPort = simple_strtol(ep, NULL, 10);
+	}
+	if ((ep = getenv("tftpsrcp")) != NULL) {
 		TftpOurPort= simple_strtol(ep, NULL, 10);
 	}
 #endif

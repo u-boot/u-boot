@@ -1490,12 +1490,16 @@ The following options need to be configured:
 - TFTP Fixed UDP Port:
 		CONFIG_TFTP_PORT
 
-		If this is defined, the environment variable tftpport
+		If this is defined, the environment variable tftpsrcp
 		is used to supply the TFTP UDP source port value.
-		If tftpport isn't defined, the normal pseudo-random port
+		If tftpsrcp isn't defined, the normal pseudo-random port
 		number generator is used.
 
-		The purpose for this is to allow a TFTP server to
+		Also, the environment variable tftpdstp is used to supply
+		the TFTP UDP destination port value.  If tftpdstp isn't
+		defined, the normal port 69 is used.
+
+		The purpose for tftpsrcp is to allow a TFTP server to
 		blindly start the TFTP transfer using the pre-configured
 		target IP address and UDP port. This has the effect of
 		"punching through" the (Windows XP) firewall, allowing
@@ -2468,8 +2472,11 @@ Some configuration options can be set using Environment Variables:
 		  Useful on scripts which control the retry operation
 		  themselves.
 
-  tftpport	- If this is set, the value is used for TFTP's
+  tftpsrcport	- If this is set, the value is used for TFTP's
 		  UDP source port.
+
+  tftpdstport	- If this is set, the value is used for TFTP's UDP
+		  destination port instead of the Well Know Port 69.
 
    vlan		- When set to a value < 4095 the traffic over
 		  ethernet is encapsulated/received over 802.1q
