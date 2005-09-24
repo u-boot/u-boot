@@ -35,7 +35,7 @@
 
 #if 0
 #define FPGA_DEBUG
-#endif 
+#endif
 
 #ifdef	FPGA_DEBUG
 #define	PRINTF(fmt,args...)	printf (fmt ,##args)

@@ -1646,6 +1646,11 @@ dbau1550_el_config	:	unconfig
 	@echo "#define CONFIG_DBAU1550 1" >>include/config.h
 	@./mkconfig -a dbau1x00 mips mips dbau1x00
 
+pb1000_config		: 	unconfig
+	@ >include/config.h
+	@echo "#define CONFIG_PB1000 1" >>include/config.h
+	@./mkconfig -a pb1x00 mips mips pb1x00
+
 #########################################################################
 ## MIPS64 5Kc
 #########################################################################

@@ -2,6 +2,11 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Add support for AMD's Pb1x00 eval board;
+  add MII routines to the au1x00 ethernet driver;
+  add USB ohci driver (work in progress)
+  Patch by Thomas Sailer, 20 Jan 2005
+
 * Update omap5912osk board
   Use drivers/cfi_flash.c instead of private flash driver;
   Remove hardcoded personalized settings from omap5912osk.h;

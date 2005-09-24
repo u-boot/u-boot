@@ -26,7 +26,7 @@ include $(TOPDIR)/config.mk
 LIB	= lib$(CPU).a
 
 START	= start.o
-OBJS	= asc_serial.o au1x00_serial.o au1x00_eth.o \
+OBJS	= asc_serial.o au1x00_serial.o au1x00_eth.o au1x00_usb_ohci.o \
 	  cpu.o interrupts.o incaip_clock.o
 SOBJS	= incaip_wdt.o cache.o
 

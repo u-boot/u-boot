@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000
+# (C) Copyright 2003
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -21,26 +21,12 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
+#
+# AMD development board AMD Alchemy Pb1x00, MIPS32 core
+#
 
-LIB	= lib$(BOARD).a
+# ROM version
+#TEXT_BASE = 0xbfc00000
 
-OBJS	= $(BOARD).o flash.o ../common/misc.o
-
-$(LIB):	$(OBJS) $(SOBJS)
-	$(AR) crv $@ $(OBJS)
-
-clean:
-	rm -f $(SOBJS) $(OBJS)
-
-distclean:	clean
-	rm -f $(LIB) core *.bak .depend
-
-#########################################################################
-
-.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
-
-sinclude .depend
-
-#########################################################################
+# SDRAM version
+TEXT_BASE = 0x83800000

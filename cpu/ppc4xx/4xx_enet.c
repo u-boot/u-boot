@@ -1,80 +1,80 @@
 /*-----------------------------------------------------------------------------+
  *
- *       This source code has been made available to you by IBM on an AS-IS
- *       basis.  Anyone receiving this source is licensed under IBM
- *       copyrights to use it in any way he or she deems fit, including
- *       copying it, modifying it, compiling it, and redistributing it either
- *       with or without modifications.  No license under IBM patents or
- *       patent applications is to be implied by the copyright license.
+ *	 This source code has been made available to you by IBM on an AS-IS
+ *	 basis.	 Anyone receiving this source is licensed under IBM
+ *	 copyrights to use it in any way he or she deems fit, including
+ *	 copying it, modifying it, compiling it, and redistributing it either
+ *	 with or without modifications.	 No license under IBM patents or
+ *	 patent applications is to be implied by the copyright license.
  *
- *       Any user of this software should understand that IBM cannot provide
- *       technical support for this software and will not be responsible for
- *       any consequences resulting from the use of this software.
+ *	 Any user of this software should understand that IBM cannot provide
+ *	 technical support for this software and will not be responsible for
+ *	 any consequences resulting from the use of this software.
  *
- *       Any person who transfers this source code or any derivative work
- *       must include the IBM copyright notice, this paragraph, and the
- *       preceding two paragraphs in the transferred software.
+ *	 Any person who transfers this source code or any derivative work
+ *	 must include the IBM copyright notice, this paragraph, and the
+ *	 preceding two paragraphs in the transferred software.
  *
- *       COPYRIGHT   I B M   CORPORATION 1995
- *       LICENSED MATERIAL  -  PROGRAM PROPERTY OF I B M
+ *	 COPYRIGHT   I B M   CORPORATION 1995
+ *	 LICENSED MATERIAL  -  PROGRAM PROPERTY OF I B M
  *-----------------------------------------------------------------------------*/
 /*-----------------------------------------------------------------------------+
  *
- *  File Name:  enetemac.c
+ *  File Name:	enetemac.c
  *
- *  Function:   Device driver for the ethernet EMAC3 macro on the 405GP.
+ *  Function:	Device driver for the ethernet EMAC3 macro on the 405GP.
  *
- *  Author:     Mark Wisner
+ *  Author:	Mark Wisner
  *
  *  Change Activity-
  *
- *  Date        Description of Change                                       BY
- *  ---------   ---------------------                                       ---
- *  05-May-99   Created                                                     MKW
- *  27-Jun-99   Clean up                                                    JWB
- *  16-Jul-99   Added MAL error recovery and better IP packet handling      MKW
- *  29-Jul-99   Added Full duplex support                                   MKW
- *  06-Aug-99   Changed names for Mal CR reg                                MKW
- *  23-Aug-99   Turned off SYE when running at 10Mbs                        MKW
- *  24-Aug-99   Marked descriptor empty after call_xlc                      MKW
- *  07-Sep-99   Set MAL RX buffer size reg to ENET_MAX_MTU_ALIGNED / 16     MCG
- *              to avoid chaining maximum sized packets. Push starting
- *              RX descriptor address up to the next cache line boundary.
- *  16-Jan-00   Added support for booting with IP of 0x0                    MKW
- *  15-Mar-00   Updated enetInit() to enable broadcast addresses in the
- *	        EMAC_RXM register.                                          JWB
- *  12-Mar-01   anne-sophie.harnois@nextream.fr
- *               - Variables are compatible with those already defined in
- *                include/net.h
- *              - Receive buffer descriptor ring is used to send buffers
- *                to the user
- *              - Info print about send/received/handled packet number if
- *                INFO_405_ENET is set
- *  17-Apr-01   stefan.roese@esd-electronics.com
- *              - MAL reset in "eth_halt" included
- *              - Enet speed and duplex output now in one line
- *  08-May-01   stefan.roese@esd-electronics.com
- *              - MAL error handling added (eth_init called again)
- *  13-Nov-01   stefan.roese@esd-electronics.com
- *              - Set IST bit in EMAC_M1 reg upon 100MBit or full duplex
- *  04-Jan-02   stefan.roese@esd-electronics.com
- *              - Wait for PHY auto negotiation to complete added
- *  06-Feb-02   stefan.roese@esd-electronics.com
- *              - Bug fixed in waiting for auto negotiation to complete
- *  26-Feb-02   stefan.roese@esd-electronics.com
- *              - rx and tx buffer descriptors now allocated (no fixed address
- *                used anymore)
- *  17-Jun-02   stefan.roese@esd-electronics.com
- *              - MAL error debug printf 'M' removed (rx de interrupt may
- *                occur upon many incoming packets with only 4 rx buffers).
+ *  Date	Description of Change					    BY
+ *  ---------	---------------------					    ---
+ *  05-May-99	Created							    MKW
+ *  27-Jun-99	Clean up						    JWB
+ *  16-Jul-99	Added MAL error recovery and better IP packet handling	    MKW
+ *  29-Jul-99	Added Full duplex support				    MKW
+ *  06-Aug-99	Changed names for Mal CR reg				    MKW
+ *  23-Aug-99	Turned off SYE when running at 10Mbs			    MKW
+ *  24-Aug-99	Marked descriptor empty after call_xlc			    MKW
+ *  07-Sep-99	Set MAL RX buffer size reg to ENET_MAX_MTU_ALIGNED / 16	    MCG
+ *		to avoid chaining maximum sized packets. Push starting
+ *		RX descriptor address up to the next cache line boundary.
+ *  16-Jan-00	Added support for booting with IP of 0x0		    MKW
+ *  15-Mar-00	Updated enetInit() to enable broadcast addresses in the
+ *		EMAC_RXM register.					    JWB
+ *  12-Mar-01	anne-sophie.harnois@nextream.fr
+ *		 - Variables are compatible with those already defined in
+ *		  include/net.h
+ *		- Receive buffer descriptor ring is used to send buffers
+ *		  to the user
+ *		- Info print about send/received/handled packet number if
+ *		  INFO_405_ENET is set
+ *  17-Apr-01	stefan.roese@esd-electronics.com
+ *		- MAL reset in "eth_halt" included
+ *		- Enet speed and duplex output now in one line
+ *  08-May-01	stefan.roese@esd-electronics.com
+ *		- MAL error handling added (eth_init called again)
+ *  13-Nov-01	stefan.roese@esd-electronics.com
+ *		- Set IST bit in EMAC_M1 reg upon 100MBit or full duplex
+ *  04-Jan-02	stefan.roese@esd-electronics.com
+ *		- Wait for PHY auto negotiation to complete added
+ *  06-Feb-02	stefan.roese@esd-electronics.com
+ *		- Bug fixed in waiting for auto negotiation to complete
+ *  26-Feb-02	stefan.roese@esd-electronics.com
+ *		- rx and tx buffer descriptors now allocated (no fixed address
+ *		  used anymore)
+ *  17-Jun-02	stefan.roese@esd-electronics.com
+ *		- MAL error debug printf 'M' removed (rx de interrupt may
+ *		  occur upon many incoming packets with only 4 rx buffers).
  *-----------------------------------------------------------------------------*
- *  17-Nov-03   travis.sawyer@sandburst.com
- *              - ported from 405gp_enet.c to utilized upto 4 EMAC ports
- *                in the 440GX.  This port should work with the 440GP
- *                (2 EMACs) also
- *  15-Aug-05   sr@denx.de
- *              - merged 405gp_enet.c and 440gx_enet.c to generic 4xx_enet.c
-                  now handling all 4xx cpu's.
+ *  17-Nov-03	travis.sawyer@sandburst.com
+ *		- ported from 405gp_enet.c to utilized upto 4 EMAC ports
+ *		  in the 440GX.	 This port should work with the 440GP
+ *		  (2 EMACs) also
+ *  15-Aug-05	sr@denx.de
+ *		- merged 405gp_enet.c and 440gx_enet.c to generic 4xx_enet.c
+		  now handling all 4xx cpu's.
  *-----------------------------------------------------------------------------*/
 
 #include <config.h>
@@ -100,7 +100,7 @@
 #error "CONFIG_MII has to be defined!"
 #endif
 
-#define EMAC_RESET_TIMEOUT 1000	/* 1000 ms reset timeout */
+#define EMAC_RESET_TIMEOUT 1000 /* 1000 ms reset timeout */
 #define PHY_AUTONEGOTIATE_TIMEOUT 4000	/* 4000 ms autonegotiate timeout */
 
 /* Ethernet Transmit and Receive Buffers */
@@ -108,12 +108,12 @@
  * In the same way ENET_MAX_MTU and ENET_MAX_MTU_ALIGNED are set from
  * PKTSIZE and PKTSIZE_ALIGN (include/net.h)
  */
-#define ENET_MAX_MTU           PKTSIZE
+#define ENET_MAX_MTU	       PKTSIZE
 #define ENET_MAX_MTU_ALIGNED   PKTSIZE_ALIGN
 
 /* define the number of channels implemented */
-#define EMAC_RXCHL      EMAC_NUM_DEV
-#define EMAC_TXCHL      EMAC_NUM_DEV
+#define EMAC_RXCHL	EMAC_NUM_DEV
+#define EMAC_TXCHL	EMAC_NUM_DEV
 
 /*-----------------------------------------------------------------------------+
  * Defines for MAL/EMAC interrupt conditions as reported in the UIC (Universal
@@ -127,8 +127,8 @@
 
 #undef INFO_4XX_ENET
 
-#define BI_PHYMODE_NONE  0
-#define BI_PHYMODE_ZMII  1
+#define BI_PHYMODE_NONE	 0
+#define BI_PHYMODE_ZMII	 1
 #define BI_PHYMODE_RGMII 2
 
 
@@ -322,7 +322,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 #ifdef INFO_4XX_ENET
 	/* AS.HARNOIS
 	 * We should have :
-	 * hw_p->stats.pkts_handled <=  hw_p->stats.pkts_rx <= hw_p->stats.pkts_handled+PKTBUFSRX
+	 * hw_p->stats.pkts_handled <=	hw_p->stats.pkts_rx <= hw_p->stats.pkts_handled+PKTBUFSRX
 	 * In the most cases hw_p->stats.pkts_handled = hw_p->stats.pkts_rx, but it
 	 * is possible that new packets (without relationship with
 	 * current transfer) have got the time to arrived before
@@ -341,8 +341,8 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	hw_p->stats.pkts_handled = 0;
 #endif
 
-	hw_p->tx_err_index = 0;	/* Transmit Error Index for tx_err_log */
-	hw_p->rx_err_index = 0;	/* Receive Error Index for rx_err_log */
+	hw_p->tx_err_index = 0; /* Transmit Error Index for tx_err_log */
+	hw_p->rx_err_index = 0; /* Receive Error Index for rx_err_log */
 
 	hw_p->rx_slot = 0;	/* MAL Receive Slot */
 	hw_p->rx_i_index = 0;	/* Receive Interrupt Queue Index */
@@ -362,7 +362,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	udelay (100);
 
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR)
-   	out32 (ZMII_FER, (ZMII_FER_RMII | ZMII_FER_MDI) << ZMII_FER_V (devnum));
+	out32 (ZMII_FER, (ZMII_FER_RMII | ZMII_FER_MDI) << ZMII_FER_V (devnum));
 #elif defined(CONFIG_440GX)
 	ethgroup = ppc_4xx_eth_setup_bridge(devnum, bis);
 #elif defined(CONFIG_440GP)
@@ -641,7 +641,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	for (i = 0; i < NUM_RX_BUFF; i++) {
 		hw_p->rx[i].ctrl = 0;
 		hw_p->rx[i].data_len = 0;
-		/*       rx[i].data_ptr = (char *) &rx_buff[i]; */
+		/*	 rx[i].data_ptr = (char *) &rx_buff[i]; */
 		hw_p->rx[i].data_ptr = (char *) NetRxPackets[i];
 		if ((NUM_RX_BUFF - 1) == i)
 			hw_p->rx[i].ctrl |= MAL_RX_CTRL_WRAP;
@@ -757,7 +757,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	/* set transmit request threshold register */
 	out32 (EMAC_TRTR + hw_p->hw_addr, 0x18000000);	/* 256 byte threshold */
 
-	/* set receive  low/high water mark register */
+	/* set receive	low/high water mark register */
 #if defined(CONFIG_440)
 	/* 440GP has a 64 byte burst length */
 	out32 (EMAC_RX_HI_LO_WMARK + hw_p->hw_addr, 0x80009000);
@@ -1012,7 +1012,7 @@ int enetInt (struct eth_device *dev)
 		/* check for EOB on valid channels	      */
 		if (my_uic0msr & UIC_MRE) {
 			mal_rx_eob = mfdcr (malrxeobisr);
-			if ((mal_rx_eob & (0x80000000 >> hw_p->devnum)) != 0) {	/* call emac routine for channel x */
+			if ((mal_rx_eob & (0x80000000 >> hw_p->devnum)) != 0) { /* call emac routine for channel x */
 				/* clear EOB
 				   mtdcr(malrxeobisr, mal_rx_eob); */
 				enet_rcv (dev, emac_isr);
@@ -1118,7 +1118,7 @@ int enetInt (struct eth_device *dev)
 		if (my_uicmsr & UIC_MAL_RXEOB)
 		{
 			mal_rx_eob = mfdcr (malrxeobisr);
-			if ((mal_rx_eob & (0x80000000 >> hw_p->devnum)) != 0) {	/* call emac routine for channel x */
+			if ((mal_rx_eob & (0x80000000 >> hw_p->devnum)) != 0) { /* call emac routine for channel x */
 				/* clear EOB
 				 mtdcr(malrxeobisr, mal_rx_eob); */
 				enet_rcv (dev, emac_isr);
@@ -1152,7 +1152,7 @@ static void mal_err (struct eth_device *dev, unsigned long isr,
 	mtdcr (malrxdeir, 0x80000000);
 
 #ifdef INFO_4XX_ENET
-	printf ("\nMAL error occured.... ISR = %lx UIC = = %lx  MAL_DEF = %lx  MAL_ERR= %lx \n", isr, uic, maldef, mal_errr);
+	printf ("\nMAL error occured.... ISR = %lx UIC = = %lx	MAL_DEF = %lx  MAL_ERR= %lx \n", isr, uic, maldef, mal_errr);
 #endif
 
 	eth_init (hw_p->bis);	/* start again... */
@@ -1266,7 +1266,7 @@ static int ppc_4xx_eth_rx (struct eth_device *dev)
 	unsigned long msr;
 	EMAC_4XX_HW_PST hw_p = dev->priv;
 
-	hw_p->is_receiving = 1;	/* tell driver */
+	hw_p->is_receiving = 1; /* tell driver */
 
 	for (;;) {
 		/* AS.HARNOIS
@@ -1285,8 +1285,8 @@ static int ppc_4xx_eth_rx (struct eth_device *dev)
 		length = hw_p->rx[user_index].data_len;
 
 		/* Pass the packet up to the protocol layers. */
-		/*       NetReceive(NetRxPackets[rxIdx], length - 4); */
-		/*       NetReceive(NetRxPackets[i], length); */
+		/*	 NetReceive(NetRxPackets[rxIdx], length - 4); */
+		/*	 NetReceive(NetRxPackets[i], length); */
 		NetReceive (NetRxPackets[user_index], length - 4);
 		/* Free Recv Buffer */
 		hw_p->rx[user_index].ctrl |= MAL_RX_CTRL_EMPTY;
@@ -1303,7 +1303,7 @@ static int ppc_4xx_eth_rx (struct eth_device *dev)
 		mtmsr (msr);	/* Enable IRQ's */
 	}
 
-	hw_p->is_receiving = 0;	/* tell driver */
+	hw_p->is_receiving = 0; /* tell driver */
 
 	return length;
 }
