@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Fix warnings for PCI code on ixp
+  Patch by Joe <lgxue@yahoo.com>, 13 Jan 2005
+
 * virtex2 fix for bogus download error messages
   The virtex2 FPGA download code watches for init going active during
   a download of config data as an error condition. init also goes

@@ -75,6 +75,7 @@ int dram_init (void)
 /**********************************************************/
 
 extern struct pci_controller hose;
+extern void pci_ixp_init(struct pci_controller * hose);
 
 void pci_init_board(void)
 {
