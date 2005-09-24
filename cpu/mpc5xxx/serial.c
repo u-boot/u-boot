@@ -152,14 +152,14 @@ serial_setbrg(void)
 	unsigned long baseclk, div;
 
 #if defined(CONFIG_MGT5100)
-	baseclk = CFG_MPC5XXX_CLKIN / 32;
+	baseclk = (CFG_MPC5XXX_CLKIN + 16) / 32;
 #elif defined(CONFIG_MPC5200)
 	baseclk = (gd->ipb_clk + 16) / 32;
 #endif
 
 	/* set up UART divisor */
 	div = (baseclk + (gd->baudrate/2)) / gd->baudrate;
-	psc->ctur = div >> 8;
-	psc->ctlr = div & 0xff;
+	psc->ctur = (div >> 8) & 0xFF;
+	psc->ctlr =  div & 0xff;
 }
 #endif /* CONFIG_PSC_CONSOLE */
