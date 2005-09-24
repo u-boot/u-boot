@@ -2,6 +2,11 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Cleanup: fix broken builds
+
+* Fix PHY address argument passing with mii info command
+  Patch by Andrew Dyer, 28 Dec 2004
+
 * Cleanup (PPC4xx is AMCC now)
 
 * esd CPCI2DP board added

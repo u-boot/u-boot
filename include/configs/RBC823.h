@@ -97,6 +97,7 @@
 #define CONFIG_COMMANDS	      ( CFG_CMD_ALL	& \
 				~CFG_CMD_BSP	& \
 				~CFG_CMD_DATE	& \
+				~CFG_CMD_DISPLAY& \
 				~CFG_CMD_DTT	& \
 				~CFG_CMD_EXT2	& \
 				~CFG_CMD_FDC	& \

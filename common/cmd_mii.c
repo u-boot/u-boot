@@ -414,7 +414,7 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	char		op;
 	unsigned char	addrlo, addrhi, reglo, reghi;
-	unsigned char	addr = 0, reg = 0;
+	unsigned char	addr, reg;
 	unsigned short	data;
 	int		rcode = 0;
 
@@ -456,12 +456,12 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		 * Look for any and all PHYs.  Valid addresses are 0..31.
 		 */
 		if (argc >= 3) {
-			start = addr; end = addr + 1;
+			start = addrlo; end = addrhi;
 		} else {
-			start = 0; end = 32;
+			start = 0; end = 31;
 		}
 
-		for (j = start; j < end; j++) {
+		for (j = start; j <= end; j++) {
 			if (miiphy_info (j, &oui, &model, &rev) == 0) {
 				printf("PHY 0x%02X: "
 					"OUI = 0x%04X, "
@@ -482,8 +482,7 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 					"Error reading from the PHY addr=%02x reg=%02x\n",
 						addr, reg);
 					rcode = 1;
-				}
-				else {
+				} else {
 					if ((addrlo != addrhi) || (reglo != reghi))
 						printf("addr=%02x reg=%02x data=",
 							(uint)addr, (uint)reg);

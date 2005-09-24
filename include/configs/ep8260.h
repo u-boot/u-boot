@@ -299,6 +299,7 @@
 					CFG_CMD_BSP	| \
 					CFG_CMD_DCR	| \
 					CFG_CMD_DHCP	| \
+					CFG_CMD_DISPLAY	| \
 					CFG_CMD_DOC	| \
 					CFG_CMD_DTT	| \
 					CFG_CMD_EEPROM	| \

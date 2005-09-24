@@ -242,7 +242,7 @@ int checkboard (void)
 	sys_info_t sysinfo;
 	unsigned char brd_rev, brd_id;
 	unsigned short sernum;
-	unsigned char scan_rev, scan_id, ofem_rev, ofem_id;
+	unsigned char scan_rev, scan_id, ofem_rev=0, ofem_id=0;
 	unsigned char ofem_brd_rev, ofem_brd_id;
 	KAREF_FPGA_REGS_ST *karef_ps;
 	OFEM_FPGA_REGS_ST *ofem_ps;
@@ -349,7 +349,6 @@ int misc_init_r (void)
 	char envstr[255];
 	KAREF_FPGA_REGS_ST *karef_ps;
 	OFEM_FPGA_REGS_ST *ofem_ps;
-	unsigned char ofem_id;
 
 	if(NULL != getenv("secondserial")) {
 		puts("secondserial is set, switching to second serial port\n");

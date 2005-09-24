@@ -48,7 +48,7 @@
  * Figure out if we are booting low via flash HRCW or high via the BCSR.
  */
 #if (TEXT_BASE != 0xFFF00000)		/* Boot low (flash HRCW) */
-#   define CFG_LOWBOOT          1
+#   define CFG_LOWBOOT		1
 #endif
 
 
@@ -143,7 +143,7 @@
 #define CFG_MDIO_PIN	0x00002000	/* PC18 */
 #define CFG_MDC_PIN	0x00001000	/* PC19 */
 #else
-#define CFG_MDIO_PIN	0x00400000	/* PC9  */
+#define CFG_MDIO_PIN	0x00400000	/* PC9	*/
 #define CFG_MDC_PIN	0x00200000	/* PC10 */
 #endif /* CONFIG_ADSTYPE == CFG_8272ADS */
 
@@ -169,12 +169,12 @@
 #define CFG_I2C_SLAVE		0x7F
 
 #if defined(CONFIG_SPD_EEPROM) && !defined(CONFIG_SPD_ADDR)
-#define CONFIG_SPD_ADDR         0x50
+#define CONFIG_SPD_ADDR		0x50
 #endif
 #endif /* CONFIG_ADSTYPE >= CFG_PQ2FADS */
 
 #ifndef CONFIG_SDRAM_PBI
-#define CONFIG_SDRAM_PBI        0 /* By default, use bank-based interleaving */
+#define CONFIG_SDRAM_PBI	0 /* By default, use bank-based interleaving */
 #endif
 
 #ifndef CONFIG_8260_CLKIN
@@ -187,16 +187,17 @@
 
 #define CONFIG_BAUDRATE		115200
 
-#define CFG_EXCLUDE		CFG_CMD_BEDBUG | \
+#define CFG_EXCLUDE		CFG_CMD_BEDBUG	| \
 				CFG_CMD_BMP	| \
 				CFG_CMD_BSP	| \
 				CFG_CMD_DATE	| \
+				CFG_CMD_DISPLAY | \
 				CFG_CMD_DOC	| \
 				CFG_CMD_DTT	| \
-				CFG_CMD_EEPROM | \
-				CFG_CMD_ELF    | \
+				CFG_CMD_EEPROM	| \
+				CFG_CMD_ELF	| \
 				CFG_CMD_EXT2	| \
-				CFG_CMD_FAT    | \
+				CFG_CMD_FAT	| \
 				CFG_CMD_FDC	| \
 				CFG_CMD_FDOS	| \
 				CFG_CMD_HWFLOW	| \
@@ -205,7 +206,7 @@
 				CFG_CMD_MMC	| \
 				CFG_CMD_NAND	| \
 				CFG_CMD_PCI	| \
-				CFG_CMD_PCMCIA | \
+				CFG_CMD_PCMCIA	| \
 				CFG_CMD_REISER	| \
 				CFG_CMD_SCSI	| \
 				CFG_CMD_SPI	| \
@@ -241,7 +242,7 @@
 #endif
 
 #define CONFIG_BZIP2	/* include support for bzip2 compressed images */
-#undef	CONFIG_WATCHDOG	/* disable platform specific watchdog */
+#undef	CONFIG_WATCHDOG /* disable platform specific watchdog */
 
 /*
  * Miscellaneous configurable options

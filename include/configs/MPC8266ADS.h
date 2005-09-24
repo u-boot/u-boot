@@ -31,13 +31,13 @@
  */
 
 /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   !!                                                                 !!
+   !!								      !!
    !!  This configuration requires JP3 to be in position 1-2 to work  !!
-   !!  To make it work for the default, the TEXT_BASE define in       !!
+   !!  To make it work for the default, the TEXT_BASE define in	      !!
    !!  board/mpc8266ads/config.mk must be changed from 0xfe000000 to  !!
    !!  0xfff00000						      !!
    !!  The CFG_HRCW_MASTER define below must also be changed to match !!
-   !!                                                                 !!
+   !!								      !!
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
 
@@ -139,23 +139,24 @@
  * Definitions for Serial Presence Detect EEPROM address
  * (to get SDRAM settings)
  */
-#define SPD_EEPROM_ADDRESS      0x50
+#define SPD_EEPROM_ADDRESS	0x50
 
 
 #define CONFIG_8260_CLKIN	66000000	/* in Hz */
 #define CONFIG_BAUDRATE		115200
 
 
-#define CONFIG_COMMANDS       ( CFG_CMD_ALL & ~( \
-				CFG_CMD_BEDBUG | \
+#define CONFIG_COMMANDS	      ( CFG_CMD_ALL & ~( \
+				CFG_CMD_BEDBUG	| \
 				CFG_CMD_BMP	| \
 				CFG_CMD_BSP	| \
 				CFG_CMD_DATE	| \
-				CFG_CMD_DHCP   | \
+				CFG_CMD_DHCP	| \
+				CFG_CMD_DISPLAY | \
 				CFG_CMD_DOC	| \
 				CFG_CMD_DTT	| \
-				CFG_CMD_EEPROM | \
-				CFG_CMD_ELF    | \
+				CFG_CMD_EEPROM	| \
+				CFG_CMD_ELF	| \
 				CFG_CMD_EXT2	| \
 				CFG_CMD_FDC	| \
 				CFG_CMD_FDOS	| \
@@ -165,7 +166,7 @@
 				CFG_CMD_KGDB	| \
 				CFG_CMD_MMC	| \
 				CFG_CMD_NAND	| \
-				CFG_CMD_PCMCIA | \
+				CFG_CMD_PCMCIA	| \
 				CFG_CMD_REISER	| \
 				CFG_CMD_SCSI	| \
 				CFG_CMD_SPI	| \
@@ -178,8 +179,8 @@
 /* Define a command string that is automatically executed when no character
  * is read on the console interface withing "Boot Delay" after reset.
  */
-#undef	CONFIG_BOOT_ROOT_INITRD 	/* Use ram disk for the root file system */
-#define	CONFIG_BOOT_ROOT_NFS		/* Use a NFS mounted root file system */
+#undef	CONFIG_BOOT_ROOT_INITRD		/* Use ram disk for the root file system */
+#define CONFIG_BOOT_ROOT_NFS		/* Use a NFS mounted root file system */
 
 #ifdef CONFIG_BOOT_ROOT_INITRD
 #define CONFIG_BOOTCOMMAND \
@@ -457,7 +458,7 @@
 
 
 /*-----------------------------------------------------------------------
- * HIDx - Hardware Implementation-dependent Registers                    2-11
+ * HIDx - Hardware Implementation-dependent Registers			 2-11
  *-----------------------------------------------------------------------
  * HID0 also contains cache control - initially enable both caches and
  * invalidate contents, then the final state leaves only the instruction
@@ -489,7 +490,7 @@
  *	0x80000000-0x9FFFFFFF	512MB	outbound prefetchable PCI memory window
  *	0xA0000000-0xBFFFFFFF	512MB	outbound non-prefetchable PCI memory window
  *	0xF0000000-0xF001FFFF	128KB	MPC8266 internal memory
- *	0xF4000000-0xF7FFFFFF	 64MB   outbound PCI I/O window
+ *	0xF4000000-0xF7FFFFFF	 64MB	outbound PCI I/O window
  *	0xF8000000-0xF8007FFF	 32KB	BCSR
  *	0xF8100000-0xF8107FFF	 32KB	ATM UNI
  *	0xF8200000-0xF8207FFF	 32KB	PCI interrupt controller
@@ -543,10 +544,10 @@
  * in the bridge.
  */
 
-#define CFG_PCI_MSTR_MEM_LOCAL	0x80000000          /* Local base */
-#define CFG_PCI_MSTR_MEM_BUS	0x80000000          /* PCI base   */
-#define	CFG_CPU_PCI_MEM_START	PCI_MSTR_MEM_LOCAL
-#define CFG_PCI_MSTR_MEM_SIZE	0x20000000          /* 512MB */
+#define CFG_PCI_MSTR_MEM_LOCAL	0x80000000			/* Local base */
+#define CFG_PCI_MSTR_MEM_BUS	0x80000000			/* PCI base   */
+#define CFG_CPU_PCI_MEM_START	PCI_MSTR_MEM_LOCAL
+#define CFG_PCI_MSTR_MEM_SIZE	0x20000000			/* 512MB */
 #define CFG_POCMR0_MASK_ATTRIB	(POCMR_MASK_512MB | POCMR_ENABLE | POCMR_PREFETCH_EN)
 
 /*
@@ -555,11 +556,11 @@
  * in the bridge.
  */
 
-#define CFG_PCI_MSTR_MEMIO_LOCAL    0xA0000000          /* Local base */
-#define CFG_PCI_MSTR_MEMIO_BUS      0xA0000000          /* PCI base   */
-#define CFG_CPU_PCI_MEMIO_START     PCI_MSTR_MEMIO_LOCAL
-#define CFG_PCI_MSTR_MEMIO_SIZE     0x20000000          /* 512MB */
-#define CFG_POCMR1_MASK_ATTRIB      (POCMR_MASK_512MB | POCMR_ENABLE)
+#define CFG_PCI_MSTR_MEMIO_LOCAL    0xA0000000			/* Local base */
+#define CFG_PCI_MSTR_MEMIO_BUS	    0xA0000000			/* PCI base   */
+#define CFG_CPU_PCI_MEMIO_START	    PCI_MSTR_MEMIO_LOCAL
+#define CFG_PCI_MSTR_MEMIO_SIZE	    0x20000000			/* 512MB */
+#define CFG_POCMR1_MASK_ATTRIB	    (POCMR_MASK_512MB | POCMR_ENABLE)
 
 /*
  * Master window that allows the CPU to access PCI IO space.
@@ -567,11 +568,11 @@
  * in the bridge.
  */
 
-#define CFG_PCI_MSTR_IO_LOCAL       0xF4000000          /* Local base */
-#define CFG_PCI_MSTR_IO_BUS         0xF4000000          /* PCI base   */
-#define CFG_CPU_PCI_IO_START        PCI_MSTR_IO_LOCAL
-#define CFG_PCI_MSTR_IO_SIZE        0x04000000          /* 64MB */
-#define CFG_POCMR2_MASK_ATTRIB      (POCMR_MASK_64MB | POCMR_ENABLE | POCMR_PCI_IO)
+#define CFG_PCI_MSTR_IO_LOCAL	    0xF4000000			/* Local base */
+#define CFG_PCI_MSTR_IO_BUS	    0xF4000000			/* PCI base   */
+#define CFG_CPU_PCI_IO_START	    PCI_MSTR_IO_LOCAL
+#define CFG_PCI_MSTR_IO_SIZE	    0x04000000			/* 64MB */
+#define CFG_POCMR2_MASK_ATTRIB	    (POCMR_MASK_64MB | POCMR_ENABLE | POCMR_PCI_IO)
 
 /*
  * JFFS2 partitions

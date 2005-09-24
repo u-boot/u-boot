@@ -177,6 +177,7 @@
 #define CONFIG_COMMANDS		(CFG_CMD_ALL & ~( \
 					CFG_CMD_BEDBUG	| \
 					CFG_CMD_BMP	| \
+					CFG_CMD_DISPLAY	| \
 					CFG_CMD_DOC	| \
 					CFG_CMD_EXT2	| \
 					CFG_CMD_FDC	| \
