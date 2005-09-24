@@ -65,6 +65,24 @@ int board_init (void)
 }
 
 /**********************************************************
+ * Routine: try_unlock_sram()
+ * Description: If chip is GP type, unlock the SRAM for
+ *  general use.
+ ***********************************************************/
+void try_unlock_sram(void)
+{
+	int mode;
+
+	/* if GP device unlock device SRAM for general use */
+	mode = (__raw_readl(CONTROL_STATUS) & (BIT8|BIT9));
+	if (mode == GP_DEVICE) {
+		__raw_writel(0xFF, A_REQINFOPERM0);
+		__raw_writel(0xCFDE, A_READPERM0);
+		__raw_writel(0xCFDE, A_WRITEPERM0);
+	}
+}
+
+/**********************************************************
  * Routine: s_init
  * Description: Does early system init of muxing and clocks.
  * - Called path is with sram stack.
@@ -76,6 +94,7 @@ void s_init(void)
 	watchdog_init();
 	set_muxconf_regs();
 	delay(100);
+	try_unlock_sram();
 
 	if(!in_sdram)
 		prcm_init();
@@ -102,20 +121,10 @@ int misc_init_r (void)
  *****************************************/
 void watchdog_init(void)
 {
-	int mode;
-	#define GP (BIT8|BIT9)
-
 	/* There are 4 watch dogs.  1 secure, and 3 general purpose.
-	 * I would expect that the ROM takes care of the secure one,
-	 * but we will try also.  Of the 3 GP ones, 1 can reset us
-	 * directly, the other 2 only generate MPU interrupts.
-	 */
-	mode = (__raw_readl(CONTROL_STATUS) & (BIT8|BIT9));
-	if (mode == GP) {
-		__raw_writel(WD_UNLOCK1 ,WD1_BASE+WSPR);
-		wait_for_command_complete(WD1_BASE);
-		__raw_writel(WD_UNLOCK2 ,WD1_BASE+WSPR);
-	}
+	* The ROM takes care of the secure one. Of the 3 GP ones, 
+	* 1 can reset us directly, the other 2 only generate MPU interrupts.
+	*/
 	__raw_writel(WD_UNLOCK1 ,WD2_BASE+WSPR);
 	wait_for_command_complete(WD2_BASE);
 	__raw_writel(WD_UNLOCK2 ,WD2_BASE+WSPR);

@@ -31,6 +31,12 @@
  * 2420 specific Section
  */
 
+/* L3 Firewall */
+#define A_REQINFOPERM0        0x68005048
+#define A_READPERM0           0x68005050
+#define A_WRITEPERM0          0x68005058
+#define GP_DEVICE             (BIT8|BIT9)
+
 /* CONTROL */
 #define OMAP2420_CTRL_BASE    (0x48000000)
 #define CONTROL_STATUS        (OMAP2420_CTRL_BASE + 0x2F8)

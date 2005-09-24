@@ -68,8 +68,8 @@ typedef enum {
 # define H4_2420_SDRC_RFR_CTRL_ES1	0x00002401
 # define H4_2420_SDRC_RFR_CTRL		0x0002da01
 #endif
-#define H4_2420_SDRC_DLLA_CTRL		0x00007307 /* load value at 100Mhz */
-#define H4_2420_SDRC_DLLB_CTRL		0x00007307
+#define H4_2420_SDRC_DLLA_CTRL		0x0000E307 /* DLL value used for 50MHz */
+#define H4_2420_SDRC_DLLB_CTRL		0x0000E307 /* allow DPLLout*1 to work */
 
 #define H4_2422_SDRC_SHARING		0x00004b00
 #define H4_2422_SDRC_MDCFG_0_DDR	0x00801011 /* stacked ddr on 2422 */
