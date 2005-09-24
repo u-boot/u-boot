@@ -1,4 +1,7 @@
 /*
+ * (C) Copyright 2003
+ * Texas Instruments <www.ti.com>
+ *
  * (C) Copyright 2002
  * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
  * Marius Groeger <mgroeger@sysgo.de>
@@ -7,8 +10,11 @@
  * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
  * Alex Zuepke <azu@sysgo.de>
  *
- * (C) Copyright 2002
+ * (C) Copyright 2002-2004
  * Gary Jennejohn, DENX Software Engineering, <gj@denx.de>
+ *
+ * (C) Copyright 2004
+ * Philippe Robin, ARM Ltd. <philippe.robin@arm.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -30,8 +36,24 @@
  */
 
 #include <common.h>
-#include <arm920t.h>
 #include <asm/proc-armv/ptrace.h>
+
+#ifndef CONFIG_INTEGRATOR
+/* Only to be used for integrator/AP or /CP */
+/* Allows U-Boot to be used with any ARM supplied core module (CM), 
+ * provided the ARM boot monitor, or similar software,
+ * runs first to set up the platform e.g. map writeable memory to 0x00000000
+ * - see Integrator User Guides
+ * Versatile has a supported cpu - arm926ejs
+ * Some integrator CMs cpus are supported
+ * CM926EJ-S, CM946E-S
+ * For platforms with supported cpus U-Boot can be used as the sole boot 
+ * monitor/loader - it will configure the platform itself
+ * Also U-Boot may be faster/smaller in those cases since specific 
+ * qualities of the cpu and/or CM can be used e.g i and/or d caches etc.
+ */
+#endif
+extern void reset_cpu(ulong addr);
 
 #ifdef CONFIG_USE_IRQ
 /* enable IRQ interrupts */
@@ -161,14 +183,10 @@ void do_fiq (struct pt_regs *pt_regs)
 
 void do_irq (struct pt_regs *pt_regs)
 {
-#if defined (CONFIG_USE_IRQ) && defined (CONFIG_ARCH_INTEGRATOR)
-	/* ASSUMED to be a timer interrupt  */
-	/* Just clear it - count handled in */
-	/* integratorap.c                   */
-	*(volatile ulong *)(CFG_TIMERBASE + 0x0C) = 0;	
-#else
 	printf ("interrupt request\n");
 	show_regs (pt_regs);
 	bad_mode ();
-#endif
 }
+
+/* The timer functionality is supplied by the Integrator board */
+/* - see board/integrator<>.c */

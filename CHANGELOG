@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Add ARM946E cpu and core module targets; remap memory to 0x00000000
+  Patch by Peter Pearse, 2 Feb 2005
+
 * Fix error handling in tools/env/fw_env.c
   Patch by Ara Avanesyan, 01 Feb 2005
 

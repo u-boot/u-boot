@@ -31,7 +31,7 @@
 
 #include <common.h>
 #include <command.h>
-#include <arm920t.h>
+#include <arm946es.h>
 
 /* read co-processor 15, register #1 (control register) */
 static unsigned long read_p15_c1 (void)
@@ -73,7 +73,7 @@ static void cp_delay (void)
 	for (i = 0; i < 100; i++);
 }
 
-/* See also ARM920T    Technical reference Manual */
+/* See also ARM946E-S  Technical Reference Manual */
 #define C1_MMU		(1<<0)		/* mmu off/on */
 #define C1_ALIGN	(1<<1)		/* alignment faults off/on */
 #define C1_DC		(1<<2)		/* dcache off/on */
@@ -112,6 +112,10 @@ int cleanup_before_linux (void)
 
 	disable_interrupts ();
 
+	/* ARM926E-S needs the protection unit enabled for the icache to have 
+         * been enabled  - left for possible later use
+	 * should turn off the protection unit as well....
+         */
 	/* turn off I/D-cache */
 	asm ("mrc p15, 0, %0, c1, c0, 0":"=r" (i));
 	i &= ~(C1_DC | C1_IC);
@@ -119,19 +123,22 @@ int cleanup_before_linux (void)
 
 	/* flush I/D-cache */
 	i = 0;
-	asm ("mcr p15, 0, %0, c7, c7, 0": :"r" (i));
-
+	asm ("mcr p15, 0, %0, c7, c5, 0": :"r" (i));
+	asm ("mcr p15, 0, %0, c7, c6, 0": :"r" (i));
 	return (0);
 }
 
 int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
+	extern void reset_cpu (ulong addr);
+
 	disable_interrupts ();
 	reset_cpu (0);
 	/*NOTREACHED*/
 	return (0);
 }
-
+/* ARM926E-S needs the protection unit enabled for this to have any effect
+   - left for possible later use */
 void icache_enable (void)
 {
 	ulong reg;
@@ -155,29 +162,3 @@ int icache_status (void)
 	return (read_p15_c1 () & C1_IC) != 0;
 }
 
-#ifdef USE_920T_MMU
-/* It makes no sense to use the dcache if the MMU is not enabled */
-void dcache_enable (void)
-{
-	ulong reg;
-
-	reg = read_p15_c1 ();
-	cp_delay ();
-	write_p15_c1 (reg | C1_DC);
-}
-
-void dcache_disable (void)
-{
-	ulong reg;
-
-	reg = read_p15_c1 ();
-	cp_delay ();
-	reg &= ~C1_DC;
-	write_p15_c1 (reg);
-}
-
-int dcache_status (void)
-{
-	return (read_p15_c1 () & C1_DC) != 0;
-}
-#endif

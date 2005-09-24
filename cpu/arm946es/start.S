@@ -34,12 +34,6 @@
 #include <config.h>
 #include <version.h>
 
-#if defined(CONFIG_OMAP1610)
-#include <./configs/omap1510.h>
-#elif defined(CONFIG_OMAP730)
-#include <./configs/omap730.h>
-#endif
-
 /*
  *************************************************************************
  *
@@ -139,11 +133,10 @@ reset:
 	 * we do sys-critical inits only at reboot,
 	 * not when booting from ram!
 	 */
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+#ifdef CONFIG_INIT_CRITICAL
 	bl	cpu_init_crit
 #endif
 
-#ifndef CONFIG_SKIP_RELOCATE_UBOOT
 relocate:				/* relocate U-Boot to RAM	    */
 	adr	r0, _start		/* r0 <- current position of code   */
 	ldr	r1, _TEXT_BASE		/* test if we run from flash or RAM */
@@ -160,7 +153,6 @@ copy_loop:
 	stmia	r1!, {r3-r10}		/* copy to   target address [r1]    */
 	cmp	r0, r2			/* until source end addreee [r2]    */
 	ble	copy_loop
-#endif	/* CONFIG_SKIP_RELOCATE_UBOOT */
 
 	/* Set up the stack						    */
 stack_setup:
@@ -180,7 +172,7 @@ clear_bss:
 clbss_l:str	r2, [r0]		/* clear loop...                    */
 	add	r0, r0, #4
 	cmp	r0, r1
-	ble	clbss_l
+	bne	clbss_l
 
 	ldr	pc, _start_armboot
 
@@ -205,8 +197,8 @@ cpu_init_crit:
 	 * flush v4 I/D caches
 	 */
 	mov	r0, #0
-	mcr	p15, 0, r0, c7, c7, 0	/* flush v3/v4 cache */
-	mcr	p15, 0, r0, c8, c7, 0	/* flush v4 TLB */
+	mcr	p15, 0, r0, c7, c5, 0	/* flush v4 I-cache */
+	mcr	p15, 0, r0, c7, c6, 0	/* flush v4 D-cache */
 
 	/*
 	 * disable MMU stuff and caches
@@ -222,7 +214,7 @@ cpu_init_crit:
 	 * Go setup Memory and board specific bits prior to relocation.
 	 */
 	mov	ip, lr		/* perserve link reg across call */
-	bl	platformsetup	/* go setup pll,mux,memory */
+	bl	platformsetup	/* go setup memory */
 	mov	lr, ip		/* restore link */
 	mov	pc, lr		/* back to my caller */
 /*
@@ -395,13 +387,14 @@ fiq:
 
 # ifdef CONFIG_INTEGRATOR
 
-	/* Satisfied by Integrator routine (AP or CP) */ 
+	/* Satisfied by general board level routine */
 
 #else
 
 	.align	5
 .globl reset_cpu
 reset_cpu:
+
 	ldr	r1, rstctl1	/* get clkm1 reset ctl */
 	mov	r3, #0x0
 	strh	r3, [r1]	/* clear it */
@@ -413,5 +406,4 @@ _loop_forever:
 rstctl1:
 	.word	0xfffece10
 
-#endif /* #ifdef CONFIG_INTEGRATOR */
-
+#endif	/* #ifdef CONFIG_INTEGRATOR */

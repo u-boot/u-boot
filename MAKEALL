@@ -160,14 +160,25 @@ LIST_SA="assabet dnp1110 gcplus lart shannon"
 ## ARM7 Systems
 #########################################################################
 
-LIST_ARM7="B2 ep7312 evb4510 impa7 modnet50"
+LIST_ARM7="	\
+	B2		ep7312		evb4510		impa7		\
+	integratorap_CM720T		integratorap_CM7TDMI		\
+	modnet50							\
+"
 
 #########################################################################
 ## ARM9 Systems
 #########################################################################
 
 LIST_ARM9="	\
-	at91rm9200dk	cmc_pu2		integratorcp	integratorap	\
+	at91rm9200dk	cmc_pu2						\
+	integratorap_CM920T		integratorap_CM920T_ETM		\
+	integratorap_CM922T_XA10	integratorap_CM926EJ_S		\
+	integratorap_CM940T		integratorap_CM946E_S		\
+	integratorap_CM966E_S		integratorcp_CM920T		\
+	integratorcp_CM920T_ETM		integratorcp_CM922T_XA10	\
+	integratorcp_CM926EJ_S		integratorcp_CM940T		\
+	integratorcp_CM946E_S		integratorcp_CM966E_S		\
 	lpd7a400	mx1ads		mx1fs2		omap1510inn	\
 	omap1610h2	omap1610inn	omap730p2	scb9328		\
 	smdk2400	smdk2410	trab		VCMA9		\
@@ -175,9 +186,18 @@ LIST_ARM9="	\
 "
 
 #########################################################################
+## ARM10 Systems
+#########################################################################
+LIST_ARM10="	\
+	integratorcp_CM10220E		integratorcp_CM1026EJ_S		\
+"
+
+#########################################################################
 ## ARM11 Systems
 #########################################################################
-LIST_ARM11="omap2420h4"
+LIST_ARM11="	\
+	integratorcp_CM1136JF_S		omap2420h4			\
+"
 
 #########################################################################
 ## Xscale Systems
@@ -186,7 +206,7 @@ LIST_ARM11="omap2420h4"
 LIST_pxa="	\
 	adsvix		cerf250		cradle		csb226		\
 	innokom		lubbock		wepep250	xaeniax		\
-	xm250		xsengine							\
+	xm250		xsengine					\
 "
 
 LIST_ixp="ixdp425"
@@ -194,7 +214,7 @@ LIST_ixp="ixdp425"
 
 LIST_arm="	\
 	${LIST_SA}							\
-	${LIST_ARM7} ${LIST_ARM9} ${LIST_ARM11}				\
+	${LIST_ARM7} ${LIST_ARM9} ${LIST_ARM10} ${LIST_ARM11}		\
 	${LIST_pxa} ${LIST_ixp}						\
 "
 
@@ -276,7 +296,7 @@ for arg in $@
 do
 	case "$arg" in
 	ppc|5xx|5xxx|8xx|8220|824x|8260|83xx|85xx|4xx|7xx|74xx| \
-	arm|SA|ARM7|ARM9|ARM11|pxa|ixp| \
+	arm|SA|ARM7|ARM9|ARM10|ARM11|pxa|ixp| \
 	microblaze| \
 	mips|mips_el| \
 	nios|nios2| \

@@ -1,10 +1,6 @@
 #
-# (C) Copyright 2000-2004
+# (C) Copyright 2000-2003
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
-# (C) Copyright 2004
-# ARM Ltd.
-# Philippe Robin, <philippe.robin@arm.com>
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -27,26 +23,21 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(BOARD).a
+LIB	= lib$(CPU).a
 
-OBJS	:= integratorap.o flash.o
-SOBJS	:= platform.o memsetup.o
+START	= start.o
+OBJS	= interrupts.o cpu.o
 
-$(LIB):	$(OBJS) $(SOBJS)
-	$(AR) crv $@ $^
+all:	.depend $(START) $(LIB)
 
-clean:
-	rm -f $(SOBJS) $(OBJS)
-
-distclean:	clean
-	rm -f $(LIB) core *.bak .depend
+$(LIB):	$(OBJS)
+	$(AR) crv $@ $(OBJS)
 
 #########################################################################
 
-.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CPPFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
+.depend:	Makefile $(START:.o=.S) $(OBJS:.o=.c)
+		$(CC) -M $(CFLAGS) $(START:.o=.S) $(OBJS:.o=.c) > $@
 
--include .depend
+sinclude .depend
 
 #########################################################################
-

@@ -1,10 +1,6 @@
 #
-# (C) Copyright 2000-2004
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
-# (C) Copyright 2004
-# ARM Ltd.
-# Philippe Robin, <philippe.robin@arm.com>
+# (C) Copyright 2002
+# Gary Jennejohn, DENX Software Engineering, <gj@denx.de>
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -25,28 +21,7 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
+PLATFORM_RELFLAGS += -fno-strict-aliasing  -fno-common -ffixed-r8 \
+	 -msoft-float
 
-LIB	= lib$(BOARD).a
-
-OBJS	:= integratorap.o flash.o
-SOBJS	:= platform.o memsetup.o
-
-$(LIB):	$(OBJS) $(SOBJS)
-	$(AR) crv $@ $^
-
-clean:
-	rm -f $(SOBJS) $(OBJS)
-
-distclean:	clean
-	rm -f $(LIB) core *.bak .depend
-
-#########################################################################
-
-.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CPPFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
-
--include .depend
-
-#########################################################################
-
+PLATFORM_CPPFLAGS +=  -march=armv4

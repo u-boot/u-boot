@@ -27,23 +27,18 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-
+			
 #ifndef __CONFIG_H
 #define __CONFIG_H
-
 /*
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_ARM926EJS	1	/* This is an arm926ejs CPU core  */
-#define CONFIG_INTEGRATOR	1	/* in an Integrator board	*/
-#define CONFIG_ARCH_CINTEGRATOR 1	/* Specifically, a CP		*/
-
-
-#define CFG_MEMTEST_START   0x100000
-#define CFG_MEMTEST_END   0x10000000
-#define CFG_HZ	(1000000 / 256)		/* Timer 1 is clocked at 1Mhz, with 256 divider */
-#define CFG_TIMERBASE 0x13000100
+#define CFG_MEMTEST_START	0x100000
+#define CFG_MEMTEST_END		0x10000000
+#define CFG_HZ			1000
+#define CFG_HZ_CLOCK		24000000	/* Timer 1 is clocked at 24Mhz */
+#define CFG_TIMERBASE		0x13000100	/* Timer1                      */
 
 #define CONFIG_CMDLINE_TAG	1	/* enable passing of ATAGs  */
 #define CONFIG_SETUP_MEMORY_TAGS	1
@@ -120,8 +115,8 @@
 #define CFG_MAX_FLASH_BANKS	1		/* max number of memory banks */
 #define PHYS_FLASH_SIZE		0x01000000	/* 16MB */
 /* timeout values are in ticks */
-#define CFG_FLASH_ERASE_TOUT	(20*CFG_HZ)	/* Timeout for Flash Erase */
-#define CFG_FLASH_WRITE_TOUT	(20*CFG_HZ)	/* Timeout for Flash Write */
+#define CFG_FLASH_ERASE_TOUT	(2*CFG_HZ)	/* Timeout for Flash Erase */
+#define CFG_FLASH_WRITE_TOUT	(2*CFG_HZ)	/* Timeout for Flash Write */
 #define CFG_MAX_FLASH_SECT 	128
 #define CFG_ENV_SIZE 		32768
 
@@ -131,7 +126,7 @@
  * PCI definitions
  */
 
-/*#define CONFIG_PCI			/--* include pci support			*/
+/*#define CONFIG_PCI			/--* include pci support	*/
 #undef CONFIG_PCI_PNP
 #define CONFIG_PCI_SCAN_SHOW    1       /* show pci devices on startup  */
 #define DEBUG
@@ -267,5 +262,31 @@
 #define INTEGRATOR_SC_PCIENABLE \
 			(INTEGRATOR_SC_BASE + INTEGRATOR_SC_PCIENABLE_OFFSET)
 
+/*-----------------------------------------------------------------------
+ * There are various dependencies on the core module (CM) fitted
+ * Users should refer to their CM user guide
+ * - when porting adjust u-boot/Makefile accordingly
+ *   to define the necessary CONFIG_ s for the CM involved
+ * see e.g. integratorcp_CM926EJ-S_config
+ */
+
+#define CM_BASE		0x10000000
+
+/* CM registers common to all integrator/CP CMs */
+#define OS_CTRL			0x0000000C
+#define CMMASK_REMAP		0x00000005	/* Set remap & led           */
+#define CMMASK_RESET		0x00000008
+#define OS_LOCK			0x00000014
+#define CMVAL_LOCK		0x0000A000	/* Locking value             */
+#define CMMASK_LOCK		0x0000005F	/* Locking value             */
+#define CMVAL_UNLOCK		0x00000000	/* Any value != CM_LOCKVAL   */
+#define OS_SDRAM		0x00000020
+#define OS_INIT			0x00000024
+#define CMMASK_MAP_SIMPLE	0xFFFDFFFF	/* simple mapping */
+#define CMMASK_TCRAM_DISABLE	0xFFFEFFFF	/* TCRAM disabled */
+
+#ifdef CONFIG_CM_SPD_DETECT
+#define OS_SPD		0x00000100	/* The SDRAM SPD data is copied here */
+#endif
 
 #endif							/* __CONFIG_H */

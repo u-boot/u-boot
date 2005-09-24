@@ -26,7 +26,7 @@ include $(TOPDIR)/config.mk
 LIB	= lib$(BOARD).a
 
 OBJS	:= integratorcp.o flash.o
-SOBJS	:= platform.o
+SOBJS	:= platform.o memsetup.o
 
 $(LIB):	$(OBJS) $(SOBJS)
 	$(AR) crv $@ $^

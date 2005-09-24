@@ -1,8 +1,5 @@
 /*
- * Board specific setup info
- *
- * (C) Copyright 2004, ARM Ltd.
- * Philippe Robin, <philippe.robin@arm.com>
+ * Memory setup for integratorAP 
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -22,24 +19,12 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
+/*
+ * 	Memory setup
+ *      - the reset defaults are assumed sufficient
+ */
 
-#include <config.h>
-#include <version.h>
-
-.globl platformsetup
-platformsetup:
-
-	/* All done by Integrator's boot monitor! */
-	mov pc, lr
-
-	/* Reset using CM control register */
-.global reset_cpu
-reset_cpu:
-	mov	r0, #CM_BASE
-	ldr	r1,[r0,#OS_CTRL]
-	orr	r1,r1,#CMMASK_RESET
-	str	r1,[r0]
-
-reset_failed:
-	b	reset_failed
+.globl memsetup
+memsetup:
+	mov	pc,lr
 

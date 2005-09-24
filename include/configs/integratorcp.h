@@ -35,23 +35,15 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#if 1
-#define CONFIG_ARM926EJS	1	/* This is an arm926ejs CPU core  */
-#else
-#define CONFIG_ARM946ES		1	/* This is an arm946es CPU core */
-#endif
-#define CONFIG_INTEGRATOR	1	/* in an Integrator board	*/
-#define CONFIG_ARCH_CINTEGRATOR 1	/* Specifically, a CP		*/
+#define CFG_MEMTEST_START	0x100000
+#define CFG_MEMTEST_END		0x10000000
+#define CFG_HZ			1000
+#define CFG_HZ_CLOCK		1000000	/* Timer 1 is clocked at 1Mhz */
+#define CFG_TIMERBASE		0x13000100
 
-
-#define CFG_MEMTEST_START       0x100000
-#define CFG_MEMTEST_END         0x10000000
-#define CFG_HZ                  (1000000 / 256)	/* Timer 1 is clocked at 1Mhz, with 256 divider */
-#define CFG_TIMERBASE           0x13000100
-
-#define CONFIG_CMDLINE_TAG	1	/* enable passing of ATAGs  */
+#define CONFIG_CMDLINE_TAG		1	/* enable passing of ATAGs  */
 #define CONFIG_SETUP_MEMORY_TAGS	1
-#define CONFIG_MISC_INIT_R	1	/* call misc_init_r during start up */
+#define CONFIG_MISC_INIT_R		1	/* call misc_init_r during start up */
 /*
  * Size of malloc() pool
  */
@@ -96,6 +88,16 @@
 #define CONFIG_BOOTCOMMAND "bootp ; bootm"
 #endif
 
+/* Flash loaded
+   - U-Boot	     
+   - u-linux
+   - system.cramfs
+*/
+#define CONFIG_BOOTDELAY	2
+#define CONFIG_BOOTARGS	"root=/dev/mtdblock2 mem=128M ip=dhcp netdev=27,0, \
+0xfc800000,0xfc800010,eth0 video=clcdfb:0"
+#define CONFIG_BOOTCOMMAND "cp 0x24040000 0x7fc0 0x80000; bootm"
+
 /*
  * Miscellaneous configurable options
  */
@@ -135,13 +137,79 @@
 #define CFG_MAX_FLASH_SECT 	64
 #define CFG_MAX_FLASH_BANKS	1		/* max number of memory banks */
 #define PHYS_FLASH_SIZE         0x01000000	/* 16MB */
-#define CFG_FLASH_ERASE_TOUT	(20*CFG_HZ)	/* Timeout for Flash Erase */
-#define CFG_FLASH_WRITE_TOUT	(20*CFG_HZ)	/* Timeout for Flash Write */
+#define CFG_FLASH_ERASE_TOUT	(2*CFG_HZ)	/* Timeout for Flash Erase */
+#define CFG_FLASH_WRITE_TOUT	(2*CFG_HZ)	/* Timeout for Flash Write */
 
 #define CFG_MONITOR_BASE	0x24F40000
 #define CFG_ENV_IS_IN_FLASH
 #define CFG_ENV_ADDR		0x24F00000
 #define CFG_ENV_SECT_SIZE	0x40000		/* 256KB */
 #define CFG_ENV_SIZE		8192		/* 8KB */
+
+/*-----------------------------------------------------------------------
+ * There are various dependencies on the core module (CM) fitted
+ * Users should refer to their CM user guide
+ * - when porting adjust u-boot/Makefile accordingly
+ *   to define the necessary CONFIG_ s for the CM involved
+ * see e.g. integratorcp_CM926EJ-S_config
+ */
+
+#define CM_BASE		0x10000000
+
+/* CM registers common to all integrator/CP CMs */
+#define OS_CTRL			0x0000000C
+#define CMMASK_REMAP		0x00000005	/* set remap & led           */
+#define CMMASK_RESET		0x00000008
+#define OS_LOCK	        	0x00000014
+#define CMVAL_LOCK	     	0x0000A000	/* locking value             */
+#define CMMASK_LOCK		0x0000005F	/* locking value             */
+#define CMVAL_UNLOCK		0x00000000	/* any value != CM_LOCKVAL   */
+#define OS_SDRAM		0x00000020
+#define OS_INIT			0x00000024
+#define CMMASK_MAP_SIMPLE	0xFFFDFFFF	/* simple mapping */
+#define CMMASK_TCRAM_DISABLE	0xFFFEFFFF	/* TCRAM disabled */
+#define CMMASK_LOWVEC		0x00000004	/* vectors @ 0x00000000 */
+#if defined (CONFIG_CM10200E) || defined (CONFIG_CM10220E)
+#define CMMASK_INIT_102		0x00000300	/* see CM102xx ref manual 
+						 * - PLL test clock bypassed
+						 * - bus clock ratio 2
+						 * - little endian
+						 * - vectors at zero
+						 */
+#endif /* CM1022xx */ 
+
+#define CMMASK_LE		0x00000008	/* little endian */
+#define CMMASK_CMxx6_COMMON	0x00000100      /* Common value for CMxx6  
+						 * - divisor/ratio b00000001
+						 *                 bx
+						 * - HCLKDIV       b000
+						 *                 bxx
+						 * - PLL BYPASS    b00
+						 */
+
+/* Determine CM characteristics */
+
+#undef	CONFIG_CM_MULTIPLE_SSRAM
+#undef	CONFIG_CM_SPD_DETECT	
+#undef	CONFIG_CM_REMAP		
+#undef	CONFIG_CM_INIT	
+#undef	CONFIG_CM_TCRAM	  
+
+#if defined (CONFIG_CM946E_S) || defined (CONFIG_CM966E_S)
+#define	CONFIG_CM_MULTIPLE_SSRAM	/* CM has multiple SSRAM mapping */
+#endif
+
+#ifndef	CONFIG_CM922t_XA10					
+#define CONFIG_CM_SPD_DETECT			/* CM supports SPD query      */
+#define OS_SPD			0x00000100	/* Address of SPD data        */
+#define CONFIG_CM_REMAP				/* CM supports remapping      */
+#define CONFIG_CM_INIT				/* CM has initialization reg  */
+#endif	
+
+#if defined(CONFIG_CM926EJ_S)   || defined (CONFIG_CM946E_S)	|| \
+    defined(CONFIG_CM966E_S)    || defined (CONFIG_CM1026EJ_S)	|| \
+    defined(CONFIG_CM1136JF_S)
+#define CONFIG_CM_TCRAM				/* CM has TCRAM  */
+#endif				
 
 #endif /* __CONFIG_H */

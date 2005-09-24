@@ -34,20 +34,13 @@
 #include <config.h>
 #include <version.h>
 
-#if defined(CONFIG_OMAP1610)
-#include <./configs/omap1510.h>
-#elif defined(CONFIG_OMAP730)
-#include <./configs/omap730.h>
-#endif
-
 /*
  *************************************************************************
  *
- * Jump vector table as in table 3.1 in [1]
+ * Jump vector table
  *
  *************************************************************************
  */
-
 
 .globl _start
 _start:
@@ -77,14 +70,13 @@ _fiq:
 
 	.balignl 16,0xdeadbeef
 
-
 /*
  *************************************************************************
  *
  * Startup Code (reset vector)
  *
  * do important init only if we don't start from memory!
- * setup Memory and board specific bits prior to relocation.
+ * setup memory and board specific bits prior to relocation.
  * relocate armboot to ram
  * setup stack
  *
@@ -92,7 +84,7 @@ _fiq:
  */
 
 _TEXT_BASE:
-	.word	TEXT_BASE
+	.word	TEXT_BASE /* address of _start in the linked image */
 
 .globl _armboot_start
 _armboot_start:
@@ -125,7 +117,7 @@ FIQ_STACK_START:
 /*
  * the actual reset code
  */
-
+.globl reset
 reset:
 	/*
 	 * set the cpu to SVC32 mode
@@ -139,16 +131,15 @@ reset:
 	 * we do sys-critical inits only at reboot,
 	 * not when booting from ram!
 	 */
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+#ifdef CONFIG_INIT_CRITICAL
 	bl	cpu_init_crit
 #endif
 
-#ifndef CONFIG_SKIP_RELOCATE_UBOOT
 relocate:				/* relocate U-Boot to RAM	    */
-	adr	r0, _start		/* r0 <- current position of code   */
-	ldr	r1, _TEXT_BASE		/* test if we run from flash or RAM */
-	cmp     r0, r1                  /* don't reloc during debug         */
-	beq     stack_setup
+	adr	r0, _start		/* pc relative  address of label    */
+	ldr	r1, _TEXT_BASE		/* linked image address of label    */
+	cmp	r0, r1                  /* test if we run from flash or RAM */
+	beq	stack_setup             /* ifeq we are in the RAM copy      */
 
 	ldr	r2, _armboot_start
 	ldr	r3, _bss_start
@@ -160,7 +151,6 @@ copy_loop:
 	stmia	r1!, {r3-r10}		/* copy to   target address [r1]    */
 	cmp	r0, r2			/* until source end addreee [r2]    */
 	ble	copy_loop
-#endif	/* CONFIG_SKIP_RELOCATE_UBOOT */
 
 	/* Set up the stack						    */
 stack_setup:
@@ -187,7 +177,6 @@ clbss_l:str	r2, [r0]		/* clear loop...                    */
 _start_armboot:
 	.word start_armboot
 
-
 /*
  *************************************************************************
  *
@@ -199,31 +188,10 @@ _start_armboot:
  *************************************************************************
  */
 
-
 cpu_init_crit:
-	/*
-	 * flush v4 I/D caches
+	/*  arm_int_generic assumes the ARM boot monitor, or user software,
+	 * has initialized the platform
 	 */
-	mov	r0, #0
-	mcr	p15, 0, r0, c7, c7, 0	/* flush v3/v4 cache */
-	mcr	p15, 0, r0, c8, c7, 0	/* flush v4 TLB */
-
-	/*
-	 * disable MMU stuff and caches
-	 */
-	mrc	p15, 0, r0, c1, c0, 0
-	bic	r0, r0, #0x00002300	/* clear bits 13, 9:8 (--V- --RS) */
-	bic	r0, r0, #0x00000087	/* clear bits 7, 2:0 (B--- -CAM) */
-	orr	r0, r0, #0x00000002	/* set bit 2 (A) Align */
-	orr	r0, r0, #0x00001000	/* set bit 12 (I) I-Cache */
-	mcr	p15, 0, r0, c1, c0, 0
-
-	/*
-	 * Go setup Memory and board specific bits prior to relocation.
-	 */
-	mov	ip, lr		/* perserve link reg across call */
-	bl	platformsetup	/* go setup pll,mux,memory */
-	mov	lr, ip		/* restore link */
 	mov	pc, lr		/* back to my caller */
 /*
  *************************************************************************
@@ -331,38 +299,43 @@ cpu_init_crit:
  * exception handlers
  */
 	.align  5
+.globl undefined_instruction
 undefined_instruction:
 	get_bad_stack
 	bad_save_user_regs
 	bl	do_undefined_instruction
 
 	.align	5
+.globl software_interrupt
 software_interrupt:
 	get_bad_stack
 	bad_save_user_regs
 	bl	do_software_interrupt
 
 	.align	5
+.globl prefetch_abort
 prefetch_abort:
 	get_bad_stack
 	bad_save_user_regs
 	bl	do_prefetch_abort
 
 	.align	5
+.globl data_abort
 data_abort:
 	get_bad_stack
 	bad_save_user_regs
 	bl	do_data_abort
 
 	.align	5
+.globl not_used
 not_used:
 	get_bad_stack
 	bad_save_user_regs
 	bl	do_not_used
 
 #ifdef CONFIG_USE_IRQ
-
 	.align	5
+.globl irq
 irq:
 	get_irq_stack
 	irq_save_user_regs
@@ -370,6 +343,7 @@ irq:
 	irq_restore_user_regs
 
 	.align	5
+.globl fiq
 fiq:
 	get_fiq_stack
 	/* someone ought to write a more effiction fiq_save_user_regs */
@@ -380,38 +354,17 @@ fiq:
 #else
 
 	.align	5
+.globl irq	
 irq:
 	get_bad_stack
 	bad_save_user_regs
 	bl	do_irq
 
 	.align	5
+.globl fiq	
 fiq:
 	get_bad_stack
 	bad_save_user_regs
 	bl	do_fiq
 
 #endif
-
-# ifdef CONFIG_INTEGRATOR
-
-	/* Satisfied by Integrator routine (AP or CP) */ 
-
-#else
-
-	.align	5
-.globl reset_cpu
-reset_cpu:
-	ldr	r1, rstctl1	/* get clkm1 reset ctl */
-	mov	r3, #0x0
-	strh	r3, [r1]	/* clear it */
-	mov	r3, #0x8
-	strh	r3, [r1]	/* force dsp+arm reset */
-_loop_forever:
-	b	_loop_forever
-
-rstctl1:
-	.word	0xfffece10
-
-#endif /* #ifdef CONFIG_INTEGRATOR */
-
