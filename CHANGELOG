@@ -2,6 +2,13 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Optimize flash_make_cmd in drivers/cfi_flash.c for little endian
+  Fix "WARNING: flash_make_cmd: unsuppported LittleEndian mode"
+  message when probing for nonexistent flash in little endian mode.
+  As a side effect more efficient and smaller code is generated,
+  which is always a Good Thing (TM).
+  Patch by Ladislav Michl, 24 Sep 2005
+
 * Update for TFTP using a fixed UDP port
   Use the approved environment variable names. Added "tftpdstp" to
   allow ports other than 69 per Tolunay Orkun's recommendation.

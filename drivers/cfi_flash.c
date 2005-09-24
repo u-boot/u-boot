@@ -47,7 +47,6 @@
 #include <common.h>
 #include <asm/processor.h>
 #include <asm/byteorder.h>
-#include <linux/byteorder/swab.h>
 #include <environment.h>
 #ifdef	CFG_FLASH_CFI_DRIVER
 
@@ -797,32 +796,14 @@ static void flash_add_byte (flash_info_t * info, cfiword_t * cword, uchar c)
 static void flash_make_cmd (flash_info_t * info, uchar cmd, void *cmdbuf)
 {
 	int i;
-
-#if defined(__LITTLE_ENDIAN)
-	ushort stmpw;
-	uint   stmpi;
-#endif
 	uchar *cp = (uchar *) cmdbuf;
 
-	for (i = 0; i < info->portwidth; i++)
-		*cp++ = ((i + 1) & (info->chipwidth - 1)) ? '\0' : cmd;
 #if defined(__LITTLE_ENDIAN)
-	switch (info->portwidth) {
-	case FLASH_CFI_8BIT:
-		break;
-	case FLASH_CFI_16BIT:
-		stmpw = *(ushort *) cmdbuf;
-		*(ushort *) cmdbuf = __swab16 (stmpw);
-		break;
-	case FLASH_CFI_32BIT:
-		stmpi = *(uint *) cmdbuf;
-		*(uint *) cmdbuf = __swab32 (stmpi);
-		break;
-	default:
-		puts ("WARNING: flash_make_cmd: unsuppported LittleEndian mode\n");
-		break;
-	}
+	for (i = info->portwidth; i > 0; i--)
+#else
+	for (i = 1; i <= info->portwidth; i++)
 #endif
+		*cp++ = (i % info->chipwidth) ? '\0' : cmd;
 }
 
 /*
