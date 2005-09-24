@@ -497,11 +497,11 @@ void flash_print_info (flash_info_t * info)
 			info->start[i],
 			erased ? " E" : "  ",
 			info->protect[i] ? "RO " : "   ");
-#else
+#else	/* ! CFG_FLASH_EMPTY_INFO */
 		if ((i % 5) == 0)
 			printf ("\n   ");
 		printf (" %08lX%s",
-			info->start[i], info->protect[i] ? " (RO)  " : "     ");
+			info->start[i], info->protect[i] ? " (RO)" : "     ");
 #endif
 	}
 	putc ('\n');

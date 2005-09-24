@@ -2,6 +2,12 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Update omap5912osk board
+  Use drivers/cfi_flash.c instead of private flash driver;
+  Remove hardcoded personalized settings from omap5912osk.h;
+  Fix spacing with (RO) marks in 'flinfo' output.
+  Patch by Michael Bendzick, 14 Jan 2005
+
 * Fix warnings for PCI code on ixp
   Patch by Joe <lgxue@yahoo.com>, 13 Jan 2005
 
