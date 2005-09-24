@@ -313,6 +313,10 @@ TftpTimeout (void)
 void
 TftpStart (void)
 {
+#ifdef CONFIG_TFTP_PORT
+	char *ep;             /* Environment pointer */
+#endif
+
 	if (BootFile[0] == '\0') {
 		sprintf(default_filename, "%02lX%02lX%02lX%02lX.img",
 			NetOurIP & 0xFF,
@@ -364,7 +368,13 @@ TftpStart (void)
 	TftpServerPort = WELL_KNOWN_PORT;
 	TftpTimeoutCount = 0;
 	TftpState = STATE_RRQ;
+	/* Use a pseudo-random port unless a specific port is set */
 	TftpOurPort = 1024 + (get_timer(0) % 3072);
+#ifdef CONFIG_TFTP_PORT
+	if ((ep = getenv("tftpport")) != NULL) {
+		TftpOurPort= simple_strtol(ep, NULL, 10);
+	}
+#endif
 	TftpBlock = 0;
 
 	/* zero out server ether in case the server ip has changed */

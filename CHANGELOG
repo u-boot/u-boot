@@ -2,6 +2,11 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Allow to force TFTP to use a fixed UDP port
+  (Add a configuration option CONFIG_TFTP_PORT and optional env
+  variable tftpport)
+  Patch by Jerry Van Baren, 10 Jan 2005
+
 * Fix ethernet timeouts on dbau1550 and other au1x00 systems
   Patch by Leif Lindholm, 29 Dec 2004
 
