@@ -2,6 +2,18 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* virtex2 fix for bogus download error messages
+  The virtex2 FPGA download code watches for init going active during
+  a download of config data as an error condition. init also goes
+  active after a configuration is finished in concert with the done
+  signal. So far, the code does not check for done active until all
+  of the configuration data is sent. If configuration data has a few
+  extra pad bytes at the end, this would cause an error message even
+  though the download had suceeded.
+  NOTE: virtex2 slave serial and spartan2 versions may still have the
+  same problem.
+  Patch by Andrew Dyer, 12 Jan 2005
+
 * Optimize flash_make_cmd in drivers/cfi_flash.c for little endian
   Fix "WARNING: flash_make_cmd: unsuppported LittleEndian mode"
   message when probing for nonexistent flash in little endian mode.

@@ -33,6 +33,10 @@
 
 #if (CONFIG_FPGA & (CFG_XILINX | CFG_VIRTEX2))
 
+#if 0
+#define FPGA_DEBUG
+#endif 
+
 #ifdef	FPGA_DEBUG
 #define	PRINTF(fmt,args...)	printf (fmt ,##args)
 #else
@@ -190,7 +194,7 @@ int Virtex2_reloc (Xilinx_desc * desc, ulong reloc_offset)
  *    this process, a configuration error (most likely CRC failure) has
  *    ocurred.  At this point a status word may be read from the
  *    SelectMap interface to determine the source of the problem (You
- *    could, for instance, put this in you 'abort' function handler).
+ *    could, for instance, put this in your 'abort' function handler).
  * 4. After all data has been written, test the state of the FPGA
  *    INIT_B and DONE lines.  If both are high, configuration has
  *    succeeded. Congratulations!
@@ -251,7 +255,7 @@ static int Virtex2_ssm_load (Xilinx_desc * desc, void *buf, size_t bsize)
 		ts = get_timer (0);
 		do {
 			if (get_timer (ts) > CFG_FPGA_WAIT_INIT) {
-				printf ("%s:%d: ** Timeout after %d mS waiting for INIT"
+				printf ("%s:%d: ** Timeout after %d ticks waiting for INIT"
 						" to assert.\n", __FUNCTION__, __LINE__,
 						CFG_FPGA_WAIT_INIT);
 				(*fn->abort) (cookie);
@@ -270,7 +274,7 @@ static int Virtex2_ssm_load (Xilinx_desc * desc, void *buf, size_t bsize)
 		do {
 			CONFIG_FPGA_DELAY ();
 			if (get_timer (ts) > CFG_FPGA_WAIT_INIT) {
-				printf ("%s:%d: ** Timeout after %d mS waiting for INIT"
+				printf ("%s:%d: ** Timeout after %d ticks waiting for INIT"
 						" to deassert.\n", __FUNCTION__, __LINE__,
 						CFG_FPGA_WAIT_INIT);
 				(*fn->abort) (cookie);
@@ -293,14 +297,24 @@ static int Virtex2_ssm_load (Xilinx_desc * desc, void *buf, size_t bsize)
 				return FPGA_FAIL;
 			}
 #endif
+
+			if ((*fn->done) (cookie) == FPGA_SUCCESS) {
+			    PRINTF ("%s:%d:done went active early, bytecount = %d\n",
+				    __FUNCTION__, __LINE__, bytecount);
+			    break;
+			}
+
 #ifdef CFG_FPGA_CHECK_ERROR
 			if ((*fn->init) (cookie)) {
-				printf ("%s:%d:  ** Error: INIT asserted during"
+				printf ("\n%s:%d:  ** Error: INIT asserted during"
 						" configuration\n", __FUNCTION__, __LINE__);
+				printf ("%d = buffer offset, %d = buffer size\n",
+					bytecount, bsize);
 				(*fn->abort) (cookie);
 				return FPGA_FAIL;
 			}
 #endif
+
 			(*fn->wdata) (data[bytecount++], TRUE, cookie);
 			CONFIG_FPGA_DELAY ();
 
@@ -315,7 +329,7 @@ static int Virtex2_ssm_load (Xilinx_desc * desc, void *buf, size_t bsize)
 			ts = get_timer (0);
 			while ((*fn->busy) (cookie)) {
 				if (get_timer (ts) > CFG_FPGA_WAIT_BUSY) {
-					printf ("%s:%d: ** Timeout after %d mS waiting for"
+					printf ("%s:%d: ** Timeout after %d ticks waiting for"
 							" BUSY to deassert\n",
 							__FUNCTION__, __LINE__, CFG_FPGA_WAIT_BUSY);
 					(*fn->abort) (cookie);
@@ -349,7 +363,7 @@ static int Virtex2_ssm_load (Xilinx_desc * desc, void *buf, size_t bsize)
 		ret_val = FPGA_SUCCESS;
 		while (((*fn->done) (cookie) == FPGA_FAIL) || (*fn->init) (cookie)) {
 			if (get_timer (ts) > CFG_FPGA_WAIT_CONFIG) {
-				printf ("%s:%d: ** Timeout after %d mS waiting for DONE to"
+				printf ("%s:%d: ** Timeout after %d ticks waiting for DONE to"
 						"assert and INIT to deassert\n",
 						__FUNCTION__, __LINE__, CFG_FPGA_WAIT_CONFIG);
 				(*fn->abort) (cookie);
