@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Fix error handling in tools/env/fw_env.c
+  Patch by Ara Avanesyan, 01 Feb 2005
+
 * Fix MGT5100 PSC baudrate calculation
   Patch by Sebastian Schau, 27 Jan 2005
 

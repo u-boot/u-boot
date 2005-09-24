@@ -726,7 +726,7 @@ static int parse_config ()
 	if (HaveRedundEnv && stat (DEVNAME (1), &st)) {
 		fprintf (stderr,
 			"Cannot access MTD device %s: %s\n",
-			DEVNAME (2), strerror (errno));
+			DEVNAME (1), strerror (errno));
 		return 1;
 	}
 	return 0;
