@@ -172,8 +172,8 @@ static int au1x00_init(struct eth_device* dev, bd_t * bd){
 		(volatile mac_fifo_t*)(MAC0_RX_DMA_ADDR+MAC_RX_BUFF0_STATUS);
 	int i;
 
-	next_tx = 0;
-	next_rx = 0;
+	next_tx = TX_GET_DMA_BUFFER(fifo_tx[0].addr);
+	next_rx = RX_GET_DMA_BUFFER(fifo_rx[0].addr);
 
 	/* We have to enable clocks before releasing reset */
 	*macen = MAC_EN_CLOCK_ENABLE;

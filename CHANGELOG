@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Fix ethernet timeouts on dbau1550 and other au1x00 systems
+  Patch by Leif Lindholm, 29 Dec 2004
+
 * Cleanup: fix broken builds
 
 * Fix PHY address argument passing with mii info command
