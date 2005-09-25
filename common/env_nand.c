@@ -36,7 +36,6 @@
 #include <command.h>
 #include <environment.h>
 #include <linux/stddef.h>
-#include <malloc.h>
 #include <linux/mtd/nand.h>
 
 #if ((CONFIG_COMMANDS&(CFG_CMD_ENV|CFG_CMD_NAND)) == (CFG_CMD_ENV|CFG_CMD_NAND))

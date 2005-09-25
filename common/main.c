@@ -26,7 +26,6 @@
 #include <common.h>
 #include <watchdog.h>
 #include <command.h>
-#include <malloc.h>
 
 #ifdef CFG_HUSH_PARSER
 #include <hush.h>

@@ -24,7 +24,6 @@
 #include <command.h>
 #include <environment.h>
 #include <linux/stddef.h>
-#include <malloc.h>
 #include <dataflash.h>
 
 env_t *env_ptr = NULL;

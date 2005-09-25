@@ -47,7 +47,6 @@
 #include <command.h>
 #include <environment.h>
 #include <linux/stddef.h>
-#include <malloc.h>
 
 #ifdef CFG_NVRAM_ACCESS_ROUTINE
 extern void *nvram_read(void *dest, const long src, size_t count);
