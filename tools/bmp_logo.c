@@ -46,7 +46,7 @@ int main (int argc, char *argv[])
 	FILE	*fp;
 	bitmap_t bmp;
 	bitmap_t *b = &bmp;
-	uint16_t n_colors;
+	uint16_t data_offset, n_colors;
 
 	if (argc < 2) {
 		fprintf (stderr, "Usage: %s file\n", argv[0]);
@@ -67,7 +67,9 @@ int main (int argc, char *argv[])
 	 * read width and height of the image, and the number of colors used;
 	 * ignore the rest
 	 */
-	skip_bytes (fp, 16);
+	skip_bytes (fp, 8);
+	fread (&data_offset, sizeof (uint16_t), 1, fp);
+	skip_bytes (fp, 6);
 	fread (&b->width,   sizeof (uint16_t), 1, fp);
 	skip_bytes (fp, 2);
 	fread (&b->height,  sizeof (uint16_t), 1, fp);
@@ -78,6 +80,7 @@ int main (int argc, char *argv[])
 	/*
 	 * Repair endianess.
 	 */
+	data_offset = le_short(data_offset);
 	b->width = le_short(b->width);
 	b->height = le_short(b->height);
 	n_colors = le_short(n_colors);
@@ -128,6 +131,9 @@ int main (int argc, char *argv[])
 			((i%8) == 7) ? "\n" : ""
 		);
 	}
+
+	/* seek to offset indicated by file header */
+	fseek(fp, (long)data_offset, SEEK_SET);
 
 	/* read the bitmap; leave room for default color map */
 	printf ("\n");
