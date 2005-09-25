@@ -99,7 +99,7 @@ void lcd_bmp(uchar *logo_bmp)
 		/*
 		 * Decompress bmp image
 		 */
-		len = CFG_VIDEO_LOGO_MAX_SIZE;
+		len = CFG_LCD_LOGO_MAX_SIZE;
 		dst = malloc(CFG_LCD_LOGO_MAX_SIZE);
 		do_free = 1;
 		if (gunzip(dst, CFG_LCD_LOGO_MAX_SIZE, (uchar *)logo_bmp, &len) != 0) {
@@ -291,7 +291,7 @@ void lcd_init(uchar *lcd_reg, uchar *lcd_mem, S1D_REGS *regs, int reg_count,
 	lcd_bmp(logo_bmp);
 }
 
-
+#ifdef CONFIG_VIDEO_SM501
 int do_esdbmp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	ulong addr;
@@ -324,3 +324,4 @@ U_BOOT_CMD(
 	"esdbmp   - display BMP image\n",
 	"<imageAddr> - display image\n"
 );
+#endif

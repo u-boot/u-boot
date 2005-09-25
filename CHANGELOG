@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Fix VOH405 Support
+  Patch by Matthias Fuchs, 25 Sep 2005
+
 * Added support for PCI bridge on MPC8272ADS
   Patch by Vitaly Bordug, Feb 09 2005
 
