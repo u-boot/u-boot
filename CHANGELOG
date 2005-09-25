@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Update ep8260: Fix flash timeouts; improve clock resolution for faster UARTs
+  Patch by Jeff Angielski, 21 Feb 2005 
+    
 * Fix au1x00_serial baud rate calculation:
   remove hardcoded cpu clock divisor and use register instead;
   round up instead of truncate

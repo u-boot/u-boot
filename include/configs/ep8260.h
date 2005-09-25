@@ -466,8 +466,13 @@
 #define CFG_MAX_FLASH_SECT    71      /* max number of sectors on one chip  */
 #endif
 
+#ifdef CFG_EP8260_H2
+#define CFG_FLASH_ERASE_TOUT  240000  /* Timeout for Flash Erase (in ms)    */
+#define CFG_FLASH_WRITE_TOUT  500     /* Timeout for Flash Write (in ms)    */
+#else
 #define CFG_FLASH_ERASE_TOUT  8000    /* Timeout for Flash Erase (in ms)    */
 #define CFG_FLASH_WRITE_TOUT  1       /* Timeout for Flash Write (in ms)    */
+#endif
 
 #ifndef CFG_RAMBOOT
 #  define CFG_ENV_IS_IN_FLASH  1
@@ -607,7 +612,11 @@
  * SCCR - System Clock Control                                   9-8
  *-----------------------------------------------------------------------
  */
+#ifdef CFG_EP8260_H2
+#define CFG_SCCR        (SCCR_DFBRG00)
+#else
 #define CFG_SCCR        (SCCR_DFBRG01)
+#endif
 
 /*-----------------------------------------------------------------------
  * RCCR - RISC Controller Configuration                         13-7
