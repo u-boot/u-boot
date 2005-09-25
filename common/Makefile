@@ -49,7 +49,7 @@ COBJS	= main.o ACEX1K.o altera.o bedbug.o circbuf.o \
 	  flash.o fpga.o \
 	  hush.o kgdb.o lcd.o lists.o lynxkdi.o \
 	  memsize.o miiphybb.o miiphyutil.o \
-	  s_record.o serial.o soft_i2c.o soft_spi.o spartan2.o \
+	  s_record.o serial.o soft_i2c.o soft_spi.o spartan2.o spartan3.o \
 	  usb.o usb_kbd.o usb_storage.o \
 	  virtex2.o xilinx.o
 

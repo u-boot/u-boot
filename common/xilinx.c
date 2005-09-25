@@ -30,6 +30,7 @@
 #include <common.h>
 #include <virtex2.h>
 #include <spartan2.h>
+#include <spartan3.h>
 
 #if (CONFIG_FPGA & CFG_FPGA_XILINX)
 
@@ -64,6 +65,16 @@ int xilinx_load (Xilinx_desc * desc, void *buf, size_t bsize)
 			ret_val = Spartan2_load (desc, buf, bsize);
 #else
 			printf ("%s: No support for Spartan-II devices.\n",
+					__FUNCTION__);
+#endif
+			break;
+		case Xilinx_Spartan3:
+#if (CONFIG_FPGA & CFG_SPARTAN3)
+			PRINTF ("%s: Launching the Spartan-III Loader...\n",
+					__FUNCTION__);
+			ret_val = Spartan3_load (desc, buf, bsize);
+#else
+			printf ("%s: No support for Spartan-III devices.\n",
 					__FUNCTION__);
 #endif
 			break;
@@ -104,6 +115,16 @@ int xilinx_dump (Xilinx_desc * desc, void *buf, size_t bsize)
 					__FUNCTION__);
 #endif
 			break;
+		case Xilinx_Spartan3:
+#if (CONFIG_FPGA & CFG_SPARTAN3)
+			PRINTF ("%s: Launching the Spartan-III Reader...\n",
+					__FUNCTION__);
+			ret_val = Spartan3_dump (desc, buf, bsize);
+#else
+			printf ("%s: No support for Spartan-III devices.\n",
+					__FUNCTION__);
+#endif
+			break;
 		case Xilinx_Virtex2:
 #if (CONFIG_FPGA & CFG_VIRTEX2)
 			PRINTF ("%s: Launching the Virtex-II Reader...\n",
@@ -132,6 +153,9 @@ int xilinx_info (Xilinx_desc * desc)
 		switch (desc->family) {
 		case Xilinx_Spartan2:
 			printf ("Spartan-II\n");
+			break;
+		case Xilinx_Spartan3:
+			printf ("Spartan-III\n");
 			break;
 		case Xilinx_Virtex2:
 			printf ("Virtex-II\n");
@@ -182,6 +206,15 @@ int xilinx_info (Xilinx_desc * desc)
 						__FUNCTION__);
 #endif
 				break;
+			case Xilinx_Spartan3:
+#if (CONFIG_FPGA & CFG_SPARTAN3)
+				Spartan3_info (desc);
+#else
+				/* just in case */
+				printf ("%s: No support for Spartan-III devices.\n",
+						__FUNCTION__);
+#endif
+				break;
 			case Xilinx_Virtex2:
 #if (CONFIG_FPGA & CFG_VIRTEX2)
 				Virtex2_info (desc);
@@ -220,6 +253,14 @@ int xilinx_reloc (Xilinx_desc * desc, ulong reloc_offset)
 			ret_val = Spartan2_reloc (desc, reloc_offset);
 #else
 			printf ("%s: No support for Spartan-II devices.\n",
+					__FUNCTION__);
+#endif
+			break;
+		case Xilinx_Spartan3:
+#if (CONFIG_FPGA & CFG_SPARTAN3)
+			ret_val = Spartan3_reloc (desc, reloc_offset);
+#else
+			printf ("%s: No support for Spartan-III devices.\n",
 					__FUNCTION__);
 #endif
 			break;
