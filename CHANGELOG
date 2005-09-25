@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Fix strswab() to reliably find end of string
+  Patch by Andrew Dyer, 08 Feb 2005
+
 * Fix typos in include/ppc440.h
   Patch by Andrew E Mileski, 04 Feb 2005
 

@@ -374,17 +374,18 @@ char * strsep(char **s, const char *ct)
  */
 char *strswab(const char *s)
 {
-	char *p;
+	char *p, *q;
 
 	if ((NULL == s) || ('\0' == *s)) {
 		return (NULL);
 	}
 
-	for (p = ((char *)s + 1); '\0' != *p; p += 2) {
+	for (p=(char *)s, q=p+1; (*p != '\0') && (*p != '\0'); p+=2, q+=2) {
 		char  tmp;
-		tmp = *(p-1);
-		*(p-1) = *p;
-		*p = tmp;
+
+		tmp = *p;
+		*p  = *q;
+		*q  = tmp;
 	}
 
 	return (char *) s;
