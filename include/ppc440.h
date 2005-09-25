@@ -214,7 +214,7 @@
 #define mem_eccesr	0x0098	/* ECC error status			    */
 
 /*-----------------------------------------------------------------------------
- | Extrnal Bus Controller
+ | External Bus Controller
  +----------------------------------------------------------------------------*/
 #define EBC_DCR_BASE 0x12
 #define ebccfga (EBC_DCR_BASE+0x0)   /* External bus controller addr reg     */
@@ -239,7 +239,7 @@
 #define pbear		0x20	/* periph bus error addr reg		*/
 #define pbesr		0x21	/* periph bus error status reg		*/
 #define xbcfg		0x23	/* external bus configuration reg	*/
-#define xbcid		0x23	/* external bus core id reg		*/
+#define xbcid		0x24	/* external bus core id reg		*/
 
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR)
 

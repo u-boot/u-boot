@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Fix typos in include/ppc440.h
+  Patch by Andrew E Mileski, 04 Feb 2005
+
 * Add Vibren (was Accelent) PXA255 IDP Support
   Patch by Cliff Brake, 04 Feb 2005
 
