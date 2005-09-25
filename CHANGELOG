@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Add support for AT91RM9200 OHCI Controller.
+  Patch by Eric Benard, 07 Apr 2005
+
 * Update ARM mach-types.h
   Patch by Eric Benard, 07 Apr 2005
 

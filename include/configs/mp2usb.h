@@ -59,7 +59,7 @@
 
 /* clocks */
 #define PLLAR_VAL	0x20263E04 /* 180 MHz for PCK */
-#define PLLBR_VAL	0x10483E0E /* 48 MHz (divider by 2 for USB) */
+#define PLLBR_VAL	0x1048bE0E /* 48 MHz (divider by 2 for USB) */
 #define MCKR_VAL	0x00000202 /* PCK/3 = MCK Master Clock = 60MHz from PLLA */
 
 /* sdram */
@@ -101,6 +101,12 @@
 
 #undef	CONFIG_MODEM_SUPPORT		/* disable modem initialization stuff */
 
+#define CONFIG_USB_OHCI		1
+#define CONFIG_USB_KEYBOARD	1
+#define CONFIG_USB_STORAGE	1
+#define CONFIG_DOS_PARTITION	1
+#define CONFIG_AT91C_PQFP_UHPBUG 1
+
 #undef CONFIG_HARD_I2C
 
 #ifdef CONFIG_HARD_I2C
@@ -133,6 +139,7 @@
 			CFG_CMD_DHCP 	| \
 			CFG_CMD_NFS	| \
 			CFG_CMD_SNTP	| \
+			CFG_CMD_USB      | \
 			CFG_CMD_CACHE)	& \
 		      ~(CFG_CMD_BDI | \
 			CFG_CMD_IMI | \
@@ -183,6 +190,9 @@
 #define CFG_CBSIZE		256		/* Console I/O Buffer Size */
 #define CFG_MAXARGS		32		/* max number of command args */
 #define CFG_PBSIZE		(CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
+
+#define CFG_DEVICE_DEREGISTER           /* needs device_deregister */
+#define LITTLEENDIAN            1       /* used by usb_ohci.c  */
 
 #ifndef __ASSEMBLY__
 /*-----------------------------------------------------------------------

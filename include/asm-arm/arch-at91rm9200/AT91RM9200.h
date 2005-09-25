@@ -592,6 +592,9 @@ AT91S_PDC, *AT91PS_PDC;
 /* ========== Register definition ==================================== */
 #define AT91C_SPI_CSR		((AT91_REG *)	0xFFFE0030) /* (SPI) Chip Select Register */
 #define AT91C_PMC_PCER		((AT91_REG *)	0xFFFFFC10) /* (PMC) Peripheral Clock Enable Register */
+#define AT91C_PMC_PCDR		((AT91_REG *)	0xFFFFFC14) /* (PMC) Peripheral Clock Enable Register */
+#define AT91C_PMC_SCER		((AT91_REG *)	0xFFFFFC00) /* (PMC) Peripheral Clock Enable Register */
+#define AT91C_PMC_SCDR		((AT91_REG *)	0xFFFFFC04) /* (PMC) Peripheral Clock Enable Register */
 #define AT91C_PIOA_PER		((AT91_REG *)	0xFFFFF400) /* (PIOA) PIO Enable Register */
 #define AT91C_PIOA_PDR		((AT91_REG *)	0xFFFFF404) /* (PIOA) PIO Disable Register */
 #define AT91C_PIOA_PSR		((AT91_REG *)	0xFFFFF408) /* (PIOA) PIO Status Register */
@@ -649,6 +652,7 @@ AT91S_PDC, *AT91PS_PDC;
 #define AT91C_ID_TWI		((unsigned int) 12) /* Two Wire Interface */
 #define AT91C_ID_SPI		((unsigned int) 13) /* Serial Peripheral Interface */
 #define AT91C_ID_TC0		((unsigned int) 17) /* Timer Counter 0 */
+#define AT91C_ID_UHP		((unsigned int) 23) /* OHCI USB Host Port */
 #define AT91C_ID_EMAC		((unsigned int) 24) /* Ethernet MAC */
 
 #define AT91C_PIO_PC1		((unsigned int) 1 <<  1)	/* Pin Controlled by PC1 */
