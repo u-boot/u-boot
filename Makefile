@@ -1390,6 +1390,9 @@ at91rm9200dk_config	:	unconfig
 cmc_pu2_config	:	unconfig
 	@./mkconfig $(@:_config=) arm arm920t cmc_pu2 NULL at91rm9200
 
+mp2usb_config	:	unconfig
+	@./mkconfig $(@:_config=) arm arm920t mp2usb NULL at91rm9200
+
 ########################################################################
 ## ARM Integrator boards
 ## There are two variants /AP && /CP
