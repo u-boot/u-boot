@@ -67,7 +67,7 @@ struct stat {
 
 #endif	/* __PPC__ */
 
-#if defined (__ARM__) || defined (__I386__)
+#if defined (__ARM__) || defined (__I386__) || defined (__M68K__)
 
 struct stat {
 	unsigned short st_dev;
