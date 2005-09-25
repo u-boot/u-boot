@@ -42,4 +42,6 @@
 #define CFG_OR5_PRELIM		0xFFFF8110	/* 64Kbyte address space */
 #define CFG_BR5_PRELIM		(CFG_PHYDEV_ADDR | BR_PS_8 | BR_V)
 
+#define CONFIG_HAS_ETH1
+
 #endif	/* __CONFIG_H */

@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Second Ethernet address enabled for MPC885ADS and MPC8272ADS.
+  Patch by Vitaly Bordug, 30 Mar 2005
+
 * Add iopset command on mpc8xx
   Patch by Daniel Eisenhut, 25 Mar 2005
 

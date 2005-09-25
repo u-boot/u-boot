@@ -502,4 +502,8 @@
 
 #endif /* CONFIG_ADSTYPE == CONFIG_8272ADS*/
 
+#if CONFIG_ADSTYPE == CFG_8272ADS
+#define CONFIG_HAS_ETH1	
+#endif
+
 #endif /* __CONFIG_H */
