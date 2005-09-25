@@ -70,9 +70,21 @@ void serial_setbrg (void)
 {
 	volatile u32 *uart_clk = (volatile u32*)(UART0_ADDR+UART_CLK);
 	volatile u32 *uart_lcr = (volatile u32*)(UART0_ADDR+UART_LCR);
+	volatile u32 *sys_powerctrl = (u32 *)SYS_POWERCTRL;
+	int sd;
+	int divisorx2;
 
-	/* Set baudrate - FIXME for bus speeds != CPU/2 */
-	*uart_clk = ((CFG_HZ/(CONFIG_BAUDRATE * 64)));
+	/* sd is system clock divisor			*/
+	/* see section 10.4.5 in au1550 datasheet	*/
+	sd = (*sys_powerctrl & 0x03) + 2;
+
+	/* calulate 2x baudrate and round */
+	divisorx2 = ((CFG_HZ/(sd * 16 * CONFIG_BAUDRATE)));
+
+	if (divisorx2 & 0x01)
+		divisorx2 = divisorx2 + 1;
+
+	*uart_clk = divisorx2 / 2;
 
 	/* Set parity, stop bits and word length to 8N1 */
 	*uart_lcr = UART_LCR_WLEN8;

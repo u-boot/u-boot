@@ -2,8 +2,13 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Fix au1x00_serial baud rate calculation:
+  remove hardcoded cpu clock divisor and use register instead;
+  round up instead of truncate
+  Patch by Andrew Dyer, 15 Feb 2005
+
 * Add Xilinx Spartan3 family FPGA support
-  Patch by Kurt Stremerch, 14 February 2005
+  Patch by Kurt Stremerch, 14 Feb 2005
 
 * Fix drivers/cfi_flash.c: use info->reset_cmd instead of FLASH_CMD_RESET
   Patch by Zachary Landau, 11 Feb 2005
