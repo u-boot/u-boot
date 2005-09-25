@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Add support for MII in eepro100 driver.
+  Patch by Gleb Natapov, 21 Mar 2005
+
 * Fixes to the Lubbock (PXA 25x) support:
   - Resolve the FIXME with respect to saving the u-boot environment.
   - Make the default load address land in real memory.

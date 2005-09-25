@@ -271,6 +271,47 @@ static inline void OUTL (struct eth_device *dev, int command, u_long addr)
 	*(volatile u32 *) ((addr + dev->iobase)) = cpu_to_le32 (command);
 }
 
+#if defined (CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+static inline int INL (struct eth_device *dev, u_long addr)
+{
+	return le32_to_cpu (*(volatile u32 *) (addr + dev->iobase));
+}
+
+int miiphy_read (unsigned char  addr,
+                unsigned char  reg,
+                unsigned short *value)
+{
+	int cmd = (2 << 26) | ((addr & 0x1f) << 21) | ((reg & 0x1f) << 16);
+
+	struct eth_device *dev = eth_get_dev ();
+
+	OUTL (dev, cmd, SCBCtrlMDI);
+	
+	do {
+		cmd = INL (dev, SCBCtrlMDI);
+	} while (!(cmd & (1 << 28)));
+
+	*value = (unsigned short) (cmd & 0xffff);
+	
+	return 0;
+}
+
+int miiphy_write (unsigned char  addr,
+		unsigned char  reg,
+		unsigned short value)
+{
+	int cmd = (1 << 26) | ((addr & 0x1f) << 21) | ((reg & 0x1f) << 16);
+
+	struct eth_device *dev = eth_get_dev ();
+
+	OUTL (dev, cmd | value, SCBCtrlMDI);
+
+	while (!(INL (dev, SCBCtrlMDI) & (1 << 28)));
+
+	return 0;
+}
+#endif /* (CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII) */
+
 	/* Wait for the chip get the command.
 	 */
 static int wait_for_eepro100 (struct eth_device *dev)
