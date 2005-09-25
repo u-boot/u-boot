@@ -1,0 +1,46 @@
+Notes on the Vibren PXA255 IDP.
+
+Chip select usage:
+
+CS0 - flash
+CS1 - alt flash (Mdoc or main flash)
+CS2 - high speed expansion bus
+CS3 - Media Q, low speed exp bus
+CS4 - low speed exp bus
+CS5 - low speed exp bus
+  - IDE: offset 0x03000000 (abs: 0x17000000)
+  - Eth: offset 0x03400000 (abs: 0x17400000)
+  - core voltage latch: offset 0x03800000 (abs: 0x17800000)
+  - CPLD: offset 0x03C00000 (abs: 0x17C00000)
+
+PCMCIA Power control
+
+MAX1602EE w/ code pulled high (Cirrus code)
+vx = 5v
+vy = 3v
+
+			Bit pattern
+			PWR 3,2,1,0
+vcc	     vpp	A1VCC  A0VCC   A1VPP   A0VPP
+=====================================================
+0	     0            0      0       0       0	0x0
+3 (vy)	     0            1      0       1       1	0xB
+3 (vy)	     3 (vy)       1      0       0       1	0x9
+3 (vy)	     12(12in)     1      0       1       0	0xA
+5 (vx)	     0            0      1       1       1	0x7
+5 (vx)	     5 (vx)       0      1       0       1	0x5
+5 (vx	     12(12in)     0      1       1       0	0x6
+
+Display power sequencing:
+
+- VDD applied
+- within 1sec, activate scanning signals
+- wait at least 50mS - scanning signals must be active before activating DISP
+
+Signal mapping:
+Schematic            LV8V31 signal name
+=========================================
+LCD_ENAVLCD		DISP
+LCD_PWR			Applies VDD to board
+
+Both of the above signals are controlled by the CPLD

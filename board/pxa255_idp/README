@@ -1,0 +1,11 @@
+Tested:
+
+- MMC
+- Ethernet
+- BL console (on serial port connector J5)
+- flash support
+
+Todo:
+
+- display support
+- PCMCIA support
