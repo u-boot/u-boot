@@ -638,7 +638,7 @@ void flash_read_user_serial (flash_info_t * info, void *buffer, int offset,
 	src = flash_make_addr (info, 0, FLASH_OFFSET_USER_PROTECTION);
 	flash_write_cmd (info, 0, 0, FLASH_CMD_READ_ID);
 	memcpy (dst, src + offset, len);
-	flash_write_cmd (info, 0, 0, FLASH_CMD_RESET);
+	flash_write_cmd (info, 0, 0, info->cmd_reset);
 }
 
 /*
@@ -652,7 +652,7 @@ void flash_read_factory_serial (flash_info_t * info, void *buffer, int offset,
 	src = flash_make_addr (info, 0, FLASH_OFFSET_INTEL_PROTECTION);
 	flash_write_cmd (info, 0, 0, FLASH_CMD_READ_ID);
 	memcpy (buffer, src + offset, len);
-	flash_write_cmd (info, 0, 0, FLASH_CMD_RESET);
+	flash_write_cmd (info, 0, 0, info->cmd_reset);
 }
 
 #endif /* CFG_FLASH_PROTECTION */
@@ -737,7 +737,7 @@ static int flash_full_status_check (flash_info_t * info, flash_sect_t sector,
 			if (flash_isset (info, sector, 0, FLASH_STATUS_VPENS))
 				puts ("Vpp Low Error.\n");
 		}
-		flash_write_cmd (info, sector, 0, FLASH_CMD_RESET);
+		flash_write_cmd (info, sector, 0, info->cmd_reset);
 		break;
 	default:
 		break;
@@ -978,7 +978,7 @@ static int flash_detect_cfi (flash_info_t * info)
 		for (info->chipwidth = FLASH_CFI_BY8;
 		     info->chipwidth <= info->portwidth;
 		     info->chipwidth <<= 1) {
-			flash_write_cmd (info, 0, 0, FLASH_CMD_RESET);
+			flash_write_cmd (info, 0, 0, info->cmd_reset);
 			flash_write_cmd (info, 0, FLASH_OFFSET_CFI, FLASH_CMD_CFI);
 			if (flash_isequal (info, 0, FLASH_OFFSET_CFI_RESP, 'Q')
 			    && flash_isequal (info, 0, FLASH_OFFSET_CFI_RESP + 1, 'R')
@@ -1102,7 +1102,7 @@ static ulong flash_get_size (ulong base, int banknum)
 		}
 	}
 
-	flash_write_cmd (info, 0, 0, FLASH_CMD_RESET);
+	flash_write_cmd (info, 0, 0, info->cmd_reset);
 	return (info->size);
 }
 
