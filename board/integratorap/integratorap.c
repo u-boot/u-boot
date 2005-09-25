@@ -24,7 +24,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -109,17 +109,17 @@ static struct pci_config_table pci_integrator_config_table[] = {
 
 /* V3 access routines */
 #define _V3Write16(o,v) (*(volatile unsigned short *)(PCI_V3_BASE + (unsigned int)(o)) = (unsigned short)(v))
-#define _V3Read16(o)    (*(volatile unsigned short *)(PCI_V3_BASE + (unsigned int)(o)))
+#define _V3Read16(o)	(*(volatile unsigned short *)(PCI_V3_BASE + (unsigned int)(o)))
 
 #define _V3Write32(o,v) (*(volatile unsigned int *)(PCI_V3_BASE + (unsigned int)(o)) = (unsigned int)(v))
-#define _V3Read32(o)    (*(volatile unsigned int *)(PCI_V3_BASE + (unsigned int)(o)))
+#define _V3Read32(o)	(*(volatile unsigned int *)(PCI_V3_BASE + (unsigned int)(o)))
 
 /* Compute address necessary to access PCI config space for the given */
 /* bus and device. */
 #define PCI_CONFIG_ADDRESS( __bus, __devfn, __offset ) ({				\
 	unsigned int __address, __devicebit;						\
 	unsigned short __mapaddress;							\
-	unsigned int __dev = PCI_DEV (__devfn);	/* FIXME to check!! (slot?) */		\
+	unsigned int __dev = PCI_DEV (__devfn); /* FIXME to check!! (slot?) */		\
 											\
 	if (__bus == 0) {								\
 		/* local bus segment so need a type 0 config cycle */			\
@@ -142,10 +142,10 @@ static struct pci_config_table pci_integrator_config_table[] = {
 		/* A31-A24 are don't care (so clear to 0) */				\
 		__mapaddress = 0x000B;	/* 101=>config cycle, 1=>A1&A0 from PCI_CFG */	\
 		__address = PCI_CONFIG_BASE;						\
-		__address |= ((__bus & 0xFF) << 16);	/* bits 23..16 = bus number     */  \
-		__address |= ((__dev & 0x1F) << 11);	/* bits 15..11 = device number  */  \
+		__address |= ((__bus & 0xFF) << 16);	/* bits 23..16 = bus number	*/  \
+		__address |= ((__dev & 0x1F) << 11);	/* bits 15..11 = device number	*/  \
 		__address |= ((__devfn & 0x07) << 8);	/* bits 10..8  = function number */ \
-		__address |= __offset & 0xFF;	/* bits  7..0  = register number */	\
+		__address |= __offset & 0xFF;	/* bits	 7..0  = register number */	\
 	}										\
 	_V3Write16 (V3_LB_MAP1, __mapaddress);						\
 	__address;									\
@@ -463,7 +463,7 @@ void flash__init (void)
 /*************************************************************
  Routine:ether__init
  Description: take the Ethernet controller out of reset and wait
-	  		   for the EEPROM load to complete.
+			   for the EEPROM load to complete.
 *************************************************************/
 void ether__init (void)
 {
@@ -483,36 +483,36 @@ int dram_init (void)
  * and is a 16-bit counter
  */
 /* U-Boot expects a 32 bit timer running at CFG_HZ*/
-static ulong timestamp;		/* U-Boot ticks since startup         */
-static ulong total_count = 0;	/* Total timer count                  */
-static ulong lastdec;		/* Timer reading at last call         */
-static ulong div_clock   = 256;	/* Divisor applied to the timer clock */
-static ulong div_timer   = 1;	/* Divisor to convert timer reading   
-                                 * change to U-Boot ticks
-                                 */
+static ulong timestamp;		/* U-Boot ticks since startup	      */
+static ulong total_count = 0;	/* Total timer count		      */
+static ulong lastdec;		/* Timer reading at last call	      */
+static ulong div_clock	 = 256; /* Divisor applied to the timer clock */
+static ulong div_timer	 = 1;	/* Divisor to convert timer reading
+				 * change to U-Boot ticks
+				 */
 /* CFG_HZ = CFG_HZ_CLOCK/(div_clock * div_timer) */
 
 #define TIMER_LOAD_VAL 0x0000FFFFL
 #define READ_TIMER ((*(volatile ulong *)(CFG_TIMERBASE+4)) & 0x0000FFFFL)
 
-/* all function return values in U-Boot ticks i.e. (1/CFG_HZ) sec 
+/* all function return values in U-Boot ticks i.e. (1/CFG_HZ) sec
  *  - unless otherwise stated
  */
 
-/* starts a counter 
- * - the Integrator/AP timer issues an interrupt 
- *   each time it reaches zero 
+/* starts a counter
+ * - the Integrator/AP timer issues an interrupt
+ *   each time it reaches zero
  */
 int interrupt_init (void)
 {
 	/* Load timer with initial value */
 	*(volatile ulong *)(CFG_TIMERBASE + 0) = TIMER_LOAD_VAL;
 	/* Set timer to be
-	 * 	enabled           1
-	 * 	free-running      0
-         * 	XX               00
-	 * 	divider 256      10
-         * 	XX               00
+	 *	enabled		  1
+	 *	free-running	  0
+	 *	XX		 00
+	 *	divider 256	 10
+	 *	XX		 00
 	 */
 	*(volatile ulong *)(CFG_TIMERBASE + 8) = 0x00000088;
 	total_count = 0;
@@ -555,10 +555,9 @@ void udelay (unsigned long usec)
 	tmo /= (1000000L);
 
 	tmp  = get_timer_masked();	/* get current timestamp */
-	tmo += tmp;			/* wake up timestamp     */
+	tmo += tmp;			/* wake up timestamp	 */
 
-	while (get_timer_masked () < tmo)/* loop till event */
-	{
+	while (get_timer_masked () < tmo) { /* loop till event */
 		/*NOP*/;
 	}
 }
@@ -566,11 +565,11 @@ void udelay (unsigned long usec)
 void reset_timer_masked (void)
 {
 	/* reset time */
-	lastdec   = READ_TIMER;	/* capture current decrementer value   */
+	lastdec	  = READ_TIMER; /* capture current decrementer value   */
 	timestamp = 0;		/* start "advancing" time stamp from 0 */
 }
 
-/* converts the timer reading to U-Boot ticks          */
+/* converts the timer reading to U-Boot ticks	       */
 /* the timestamp is the number of ticks since reset    */
 /* This routine does not detect wraps unless called regularly
    ASSUMES a call at least every 16 seconds to detect every reload */
@@ -578,14 +577,13 @@ ulong get_timer_masked (void)
 {
 	ulong now = READ_TIMER;		/* current count */
 
-	if(now > lastdec)
-	{
+	if (now > lastdec) {
 		/* Must have wrapped */
-		total_count += lastdec + TIMER_LOAD_VAL + 1 - now; 	
+		total_count += lastdec + TIMER_LOAD_VAL + 1 - now;
 	} else {
 		total_count += lastdec - now;
 	}
-	lastdec   = now;
+	lastdec	  = now;
 	timestamp = total_count/div_timer;
 
 	return timestamp;
@@ -594,7 +592,7 @@ ulong get_timer_masked (void)
 /* waits specified delay value and resets timestamp */
 void udelay_masked (unsigned long usec)
 {
-    udelay(usec);
+	udelay(usec);
 }
 
 /*

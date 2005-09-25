@@ -1,5 +1,5 @@
 /*
- * Memory setup for integratorAP 
+ * Memory setup for integratorAP
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -27,4 +27,3 @@
 .globl memsetup
 memsetup:
 	mov	pc,lr
-

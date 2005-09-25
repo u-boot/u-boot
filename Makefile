@@ -1409,7 +1409,7 @@ xtract_int_cm    = $(subst integrator$1_,,$(subst _config,,$2))
 integratorap_config	:	unconfig
 	@echo -n "/* Integrator configuration implied " >  tmp.fil;	\
 	 echo    " by Makefile target	*/"		>> tmp.fil;	\
-	 echo    					>> tmp.fil 
+	 echo    					>> tmp.fil
 	@echo -n "#define CONFIG_INTEGRATOR	1"	>> tmp.fil;	\
 	echo	 "	/* Integrator board	*/"	>> tmp.fil;	\
 	echo  -n "#define CONFIG_ARCH_INTEGRATOR"	>> tmp.fil;	\
@@ -1435,7 +1435,7 @@ integratorap_CM10220E_config		integratorap_CM1026EJ_S_config	\
 integratorap_CM1136JF_S_config	:	unconfig
 	@echo -n "/* Integrator configuration implied " >  tmp.fil;	\
 	 echo    " by Makefile target	*/"		>> tmp.fil;	\
-	 echo    					>> tmp.fil 
+	 echo    					>> tmp.fil
 	@echo -n "#define CONFIG_INTEGRATOR	1"	>>  tmp.fil;	\
 	echo	 "	/* Integrator board	*/"	>> tmp.fil;	\
 	echo  -n "#define CONFIG_ARCH_INTEGRATOR"	>> tmp.fil;	\
@@ -1481,7 +1481,7 @@ integratorap_CM1136JF_S_config	:	unconfig
 integratorcp_config	:	unconfig
 	@echo -n "/* Integrator configuration implied " >  tmp.fil;	\
 	 echo    " by Makefile target	*/"		>> tmp.fil;	\
-	 echo    					>> tmp.fil 
+	 echo    					>> tmp.fil
 	@echo -n "#define CONFIG_INTEGRATOR	1"	>> tmp.fil;	\
 	echo	 "	/* Integrator board	*/"	>> tmp.fil;	\
 	echo  -n "#define CONFIG_ARCH_CINTEGRATOR"	>> tmp.fil;	\
@@ -1520,7 +1520,7 @@ integratorcp_CM10220E_config		integratorcp_CM1026EJ_S_config	\
 integratorcp_CM1136JF_S_config	:	unconfig
 	@echo -n "/* Integrator configuration implied " >  tmp.fil;	\
 	 echo    " by Makefile target	*/"		>> tmp.fil;	\
-	 echo    					>> tmp.fil 
+	 echo    					>> tmp.fil
 	@echo -n "#define CONFIG_INTEGRATOR	1"	>> tmp.fil;	\
 	echo	 "	/* Integrator board	*/"	>> tmp.fil;	\
 	echo  -n "#define CONFIG_ARCH_CINTEGRATOR"	>> tmp.fil;	\

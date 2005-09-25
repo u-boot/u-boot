@@ -12,7 +12,7 @@ Overview :
 --------
 There are two Integrator variants - Integrator/AP and Integrator/CP.
 Each may be fitted with a variety of core modules (CMs).
-Each CM consists of a ARM processor core and associated hardware e.g 
+Each CM consists of a ARM processor core and associated hardware e.g
 	FPGA implementing various controllers and/or register
 	SSRAM
 	SDRAM
@@ -26,29 +26,29 @@ a) Run ARM boot monitor, manually run U-Boot image from flash
 b) Run ARM boot monitor, automatically run U-Boot image from flash
 c) Run U-Boot image direct from flash.
 
-In cases a) and b) the ARM boot monitor will have configured the CM and mapped 
+In cases a) and b) the ARM boot monitor will have configured the CM and mapped
 writeable memory to 0x00000000 in the Integrator address space.
 U-Boot has to carry out minimal configration before standard code is run.
 
 In case c) it may be necessary for U-Boot to perform CM dependent initialization.
 
 Configuring U-Boot :
-------------------	
+------------------
 	The makefile contains targets for Integrator platforms of both types
-fitted with all current variants of CM. If these targets are to be used with 
-boot process c) above then CONFIG_INIT_CRITICAL may need to be defined to ensure 
+fitted with all current variants of CM. If these targets are to be used with
+boot process c) above then CONFIG_INIT_CRITICAL may need to be defined to ensure
 that the CM is correctly configured.
 
 	There are also targets independent of CM. These may not be suitable for
-boot process c) above. They have been preserved for backward compatibility with 
+boot process c) above. They have been preserved for backward compatibility with
 existing build processes.
 
 Code Hierarchy Applied :
 ----------------------
-Code specific to initialization of a particular ARM processor has been placed in 
+Code specific to initialization of a particular ARM processor has been placed in
 cpu/arm<>/start.S so that it may be used by other boards.
 
-However, to avoid duplicating code through all processor files, a generic core 
+However, to avoid duplicating code through all processor files, a generic core
 for ARM Integrator CMs has been added
 
 	cpu/arm_intcm
@@ -57,10 +57,7 @@ Otherwise. for example,  the standard CM reset via the CM control register would
 need placing in each CM processor file......
 
 Code specific to the initialization of the CM, rather than the cpu, and initialization
-of the Integrator board itself, has been placed in 
+of the Integrator board itself, has been placed in
 
-	board/integrator<>/platform.S 
+	board/integrator<>/platform.S
 	board/integrator<>/integrator<>.c
-
-  
-

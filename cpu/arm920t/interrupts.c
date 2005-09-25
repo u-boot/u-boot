@@ -165,7 +165,7 @@ void do_irq (struct pt_regs *pt_regs)
 	/* ASSUMED to be a timer interrupt  */
 	/* Just clear it - count handled in */
 	/* integratorap.c                   */
-	*(volatile ulong *)(CFG_TIMERBASE + 0x0C) = 0;	
+	*(volatile ulong *)(CFG_TIMERBASE + 0x0C) = 0;
 #else
 	printf ("interrupt request\n");
 	show_regs (pt_regs);

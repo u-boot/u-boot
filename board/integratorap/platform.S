@@ -42,4 +42,3 @@ reset_cpu:
 
 reset_failed:
 	b	reset_failed
-

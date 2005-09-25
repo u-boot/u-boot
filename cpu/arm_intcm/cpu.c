@@ -58,8 +58,8 @@ int cleanup_before_linux (void)
 
 	disable_interrupts ();
 
-	/* Since the CM has unknown processor we do not support 
-	 * cache operations 
+	/* Since the CM has unknown processor we do not support
+	 * cache operations
 	 */
 
 	return (0);

@@ -395,7 +395,7 @@ fiq:
 
 # ifdef CONFIG_INTEGRATOR
 
-	/* Satisfied by Integrator routine (AP or CP) */ 
+	/* Satisfied by Integrator routine (AP or CP) */
 
 #else
 
@@ -414,4 +414,3 @@ rstctl1:
 	.word	0xfffece10
 
 #endif /* #ifdef CONFIG_INTEGRATOR */
-

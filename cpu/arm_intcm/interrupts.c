@@ -40,16 +40,16 @@
 
 #ifndef CONFIG_INTEGRATOR
 /* Only to be used for integrator/AP or /CP */
-/* Allows U-Boot to be used with any ARM supplied core module (CM), 
+/* Allows U-Boot to be used with any ARM supplied core module (CM),
  * provided the ARM boot monitor, or similar software,
  * runs first to set up the platform e.g. map writeable memory to 0x00000000
  * - see Integrator User Guides
  * Versatile has a supported cpu - arm926ejs
  * Some integrator CMs cpus are supported
  * CM926EJ-S, CM946E-S
- * For platforms with supported cpus U-Boot can be used as the sole boot 
+ * For platforms with supported cpus U-Boot can be used as the sole boot
  * monitor/loader - it will configure the platform itself
- * Also U-Boot may be faster/smaller in those cases since specific 
+ * Also U-Boot may be faster/smaller in those cases since specific
  * qualities of the cpu and/or CM can be used e.g i and/or d caches etc.
  */
 #endif

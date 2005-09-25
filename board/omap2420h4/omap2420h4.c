@@ -122,7 +122,7 @@ int misc_init_r (void)
 void watchdog_init(void)
 {
 	/* There are 4 watch dogs.  1 secure, and 3 general purpose.
-	* The ROM takes care of the secure one. Of the 3 GP ones, 
+	* The ROM takes care of the secure one. Of the 3 GP ones,
 	* 1 can reset us directly, the other 2 only generate MPU interrupts.
 	*/
 	__raw_writel(WD_UNLOCK1 ,WD2_BASE+WSPR);

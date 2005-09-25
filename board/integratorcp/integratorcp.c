@@ -24,7 +24,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -108,33 +108,33 @@ int dram_init (void)
 	DECLARE_GLOBAL_DATA_PTR;
 
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size  = PHYS_SDRAM_1_SIZE;
+	gd->bd->bi_dram[0].size	 = PHYS_SDRAM_1_SIZE;
 
 #ifdef CONFIG_CM_SPD_DETECT
-	{
+    {
 extern void dram_query(void);
 	unsigned long cm_reg_sdram;
 	unsigned long sdram_shift;
 
 	dram_query();	/* Assembler accesses to CM registers */
-			/* Queries the SPD values   	      */
+			/* Queries the SPD values	      */
 
 	/* Obtain the SDRAM size from the CM SDRAM register */
 
 	cm_reg_sdram = *(volatile ulong *)(CM_BASE + OS_SDRAM);
-	/*   Register         SDRAM size
-	 *				
-	 *   0xXXXXXXbbb000bb    16 MB
-	 *   0xXXXXXXbbb001bb    32 MB
-	 *   0xXXXXXXbbb010bb    64 MB
-	 *   0xXXXXXXbbb011bb   128 MB
-	 *   0xXXXXXXbbb100bb   256 MB
-         *
+	/*   Register	      SDRAM size
+	 *
+	 *   0xXXXXXXbbb000bb	 16 MB
+	 *   0xXXXXXXbbb001bb	 32 MB
+	 *   0xXXXXXXbbb010bb	 64 MB
+	 *   0xXXXXXXbbb011bb	128 MB
+	 *   0xXXXXXXbbb100bb	256 MB
+	 *
 	 */
-	sdram_shift              = ((cm_reg_sdram & 0x0000001C)/4)%4;
-	gd->bd->bi_dram[0].size  = 0x01000000 << sdram_shift;
+	sdram_shift		 = ((cm_reg_sdram & 0x0000001C)/4)%4;
+	gd->bd->bi_dram[0].size	 = 0x01000000 << sdram_shift;
 
-	}
+    }
 #endif /* CM_SPD_DETECT */
 
 	return 0;
@@ -147,13 +147,13 @@ extern void dram_query(void);
 /* U-Boot expects a 32 bit timer, running at CFG_HZ */
 /* Keep total timer count to avoid losing decrements < div_timer */
 static unsigned long long total_count = 0;
-static unsigned long long lastdec;	 /* Timer reading at last call     */
+static unsigned long long lastdec;	 /* Timer reading at last call	   */
 static unsigned long long div_clock = 1; /* Divisor applied to timer clock */
 static unsigned long long div_timer = 1; /* Divisor to convert timer reading
 					  * change to U-Boot ticks
 					  */
 /* CFG_HZ = CFG_HZ_CLOCK/(div_clock * div_timer) */
-static ulong timestamp;		/* U-Boot ticks since startup         */
+static ulong timestamp;		/* U-Boot ticks since startup	      */
 
 #define TIMER_LOAD_VAL ((ulong)0xFFFFFFFF)
 #define READ_TIMER (*(volatile ulong *)(CFG_TIMERBASE+4))
@@ -169,13 +169,13 @@ int interrupt_init (void)
 	/* Load timer with initial value */
 	*(volatile ulong *)(CFG_TIMERBASE + 0) = TIMER_LOAD_VAL;
 	/* Set timer to be
-	 * 	enabled           1
-	 * 	periodic          1
-	 * 	no interrupts     0
-         * 	X                 0
-	 * 	divider 1        00 == less rounding error
-	 * 	32 bit            1
-	 * 	wrapping          0
+	 *	enabled		  1
+	 *	periodic	  1
+	 *	no interrupts	  0
+	 *	X		  0
+	 *	divider 1	 00 == less rounding error
+	 *	32 bit		  1
+	 *	wrapping	  0
 	 */
 	*(volatile ulong *)(CFG_TIMERBASE + 8) = 0x000000C2;
 	/* init the timestamp */
@@ -219,8 +219,7 @@ void udelay (unsigned long usec)
 	tmp  = get_timer_masked();	/* get current timestamp */
 	tmo += tmp;			/* form target timestamp */
 
-	while (get_timer_masked () < tmo)/* loop till event */
-	{
+	while (get_timer_masked () < tmo) {/* loop till event */
 		/*NOP*/;
 	}
 }
@@ -228,26 +227,25 @@ void udelay (unsigned long usec)
 void reset_timer_masked (void)
 {
 	/* capure current decrementer value    */
-	lastdec   = (unsigned long long)READ_TIMER;
+	lastdec	  = (unsigned long long)READ_TIMER;
 	/* start "advancing" time stamp from 0 */
-	timestamp = 0L;          
+	timestamp = 0L;
 }
 
-/* converts the timer reading to U-Boot ticks          */
+/* converts the timer reading to U-Boot ticks	       */
 /* the timestamp is the number of ticks since reset    */
 ulong get_timer_masked (void)
 {
 	/* get current count */
 	unsigned long long now = (unsigned long long)READ_TIMER;
 
-	if(now > lastdec)
-	{
+	if(now > lastdec) {
 		/* Must have wrapped */
-		total_count += lastdec + TIMER_LOAD_VAL + 1 - now; 	
+		total_count += lastdec + TIMER_LOAD_VAL + 1 - now;
 	} else {
 		total_count += lastdec - now;
 	}
-	lastdec   = now;
+	lastdec	  = now;
 	timestamp = (ulong)(total_count/div_timer);
 
 	return timestamp;

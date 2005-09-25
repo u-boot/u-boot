@@ -89,7 +89,7 @@
 #endif
 
 /* Flash loaded
-   - U-Boot	     
+   - U-Boot
    - u-linux
    - system.cramfs
 */
@@ -170,16 +170,16 @@
 #define CMMASK_TCRAM_DISABLE	0xFFFEFFFF	/* TCRAM disabled */
 #define CMMASK_LOWVEC		0x00000004	/* vectors @ 0x00000000 */
 #if defined (CONFIG_CM10200E) || defined (CONFIG_CM10220E)
-#define CMMASK_INIT_102		0x00000300	/* see CM102xx ref manual 
+#define CMMASK_INIT_102		0x00000300	/* see CM102xx ref manual
 						 * - PLL test clock bypassed
 						 * - bus clock ratio 2
 						 * - little endian
 						 * - vectors at zero
 						 */
-#endif /* CM1022xx */ 
+#endif /* CM1022xx */
 
 #define CMMASK_LE		0x00000008	/* little endian */
-#define CMMASK_CMxx6_COMMON	0x00000100      /* Common value for CMxx6  
+#define CMMASK_CMxx6_COMMON	0x00000100      /* Common value for CMxx6
 						 * - divisor/ratio b00000001
 						 *                 bx
 						 * - HCLKDIV       b000
@@ -190,26 +190,26 @@
 /* Determine CM characteristics */
 
 #undef	CONFIG_CM_MULTIPLE_SSRAM
-#undef	CONFIG_CM_SPD_DETECT	
-#undef	CONFIG_CM_REMAP		
-#undef	CONFIG_CM_INIT	
-#undef	CONFIG_CM_TCRAM	  
+#undef	CONFIG_CM_SPD_DETECT
+#undef	CONFIG_CM_REMAP
+#undef	CONFIG_CM_INIT
+#undef	CONFIG_CM_TCRAM
 
 #if defined (CONFIG_CM946E_S) || defined (CONFIG_CM966E_S)
 #define	CONFIG_CM_MULTIPLE_SSRAM	/* CM has multiple SSRAM mapping */
 #endif
 
-#ifndef	CONFIG_CM922t_XA10					
+#ifndef	CONFIG_CM922t_XA10
 #define CONFIG_CM_SPD_DETECT			/* CM supports SPD query      */
 #define OS_SPD			0x00000100	/* Address of SPD data        */
 #define CONFIG_CM_REMAP				/* CM supports remapping      */
 #define CONFIG_CM_INIT				/* CM has initialization reg  */
-#endif	
+#endif
 
 #if defined(CONFIG_CM926EJ_S)   || defined (CONFIG_CM946E_S)	|| \
     defined(CONFIG_CM966E_S)    || defined (CONFIG_CM1026EJ_S)	|| \
     defined(CONFIG_CM1136JF_S)
 #define CONFIG_CM_TCRAM				/* CM has TCRAM  */
-#endif				
+#endif
 
 #endif /* __CONFIG_H */

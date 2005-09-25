@@ -354,14 +354,14 @@ fiq:
 #else
 
 	.align	5
-.globl irq	
+.globl irq
 irq:
 	get_bad_stack
 	bad_save_user_regs
 	bl	do_irq
 
 	.align	5
-.globl fiq	
+.globl fiq
 fiq:
 	get_bad_stack
 	bad_save_user_regs

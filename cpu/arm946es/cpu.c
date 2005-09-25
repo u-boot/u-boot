@@ -16,7 +16,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -39,7 +39,7 @@ static unsigned long read_p15_c1 (void)
 	unsigned long value;
 
 	__asm__ __volatile__(
-		"mrc	p15, 0, %0, c1, c0, 0   @ read control reg\n"
+		"mrc	p15, 0, %0, c1, c0, 0	@ read control reg\n"
 		: "=r" (value)
 		:
 		: "memory");
@@ -57,7 +57,7 @@ static void write_p15_c1 (unsigned long value)
 	printf ("write %08lx to p15/c1\n", value);
 #endif
 	__asm__ __volatile__(
-		"mcr	p15, 0, %0, c1, c0, 0   @ write it back\n"
+		"mcr	p15, 0, %0, c1, c0, 0	@ write it back\n"
 		:
 		: "r" (value)
 		: "memory");
@@ -82,7 +82,7 @@ static void cp_delay (void)
 #define C1_SYS_PROT	(1<<8)		/* system protection */
 #define C1_ROM_PROT	(1<<9)		/* ROM protection */
 #define C1_IC		(1<<12)		/* icache off/on */
-#define C1_HIGH_VECTORS	(1<<13)		/* location of vectors: low/high addresses */
+#define C1_HIGH_VECTORS (1<<13)		/* location of vectors: low/high addresses */
 
 
 int cpu_init (void)
@@ -112,10 +112,10 @@ int cleanup_before_linux (void)
 
 	disable_interrupts ();
 
-	/* ARM926E-S needs the protection unit enabled for the icache to have 
-         * been enabled  - left for possible later use
+	/* ARM926E-S needs the protection unit enabled for the icache to have
+	 * been enabled	 - left for possible later use
 	 * should turn off the protection unit as well....
-         */
+	 */
 	/* turn off I/D-cache */
 	asm ("mrc p15, 0, %0, c1, c0, 0":"=r" (i));
 	i &= ~(C1_DC | C1_IC);
@@ -161,4 +161,3 @@ int icache_status (void)
 {
 	return (read_p15_c1 () & C1_IC) != 0;
 }
-
