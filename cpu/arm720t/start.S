@@ -188,7 +188,7 @@ _start_armboot: .word start_armboot
  *************************************************************************
  */
 
-#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312)
+#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) || defined(CONFIG_ARMADILLO)
 
 /* Interupt-Controller base addresses */
 INTMR1:		.word	0x80000280 @ 32 bit size
@@ -209,7 +209,7 @@ SYSCON3:	.word	0x80002200
 #endif
 
 cpu_init_crit:
-#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312)
+#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) || defined(CONFIG_ARMADILLO)
 
 	/*
 	 * mask all IRQs by clearing all bits in the INTMRs
@@ -495,7 +495,7 @@ fiq:
 
 #endif
 
-#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312)
+#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) || defined(CONFIG_ARMADILLO)
 	.align	5
 .globl reset_cpu
 reset_cpu:

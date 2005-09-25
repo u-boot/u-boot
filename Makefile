@@ -1684,6 +1684,9 @@ B2_config	:	unconfig
 ## ARM720T Systems
 #########################################################################
 
+armadillo_config:	unconfig
+	@./mkconfig $(@:_config=) arm arm720t armadillo
+
 ep7312_config	:	unconfig
 	@./mkconfig $(@:_config=) arm arm720t ep7312
 

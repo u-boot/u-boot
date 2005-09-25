@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Add board support for armadillo HT1070
+  Patch by Rowel Atienza, 06 Apr 2005
+
 * Second Ethernet address enabled for MPC885ADS and MPC8272ADS.
   Patch by Vitaly Bordug, 30 Mar 2005
 

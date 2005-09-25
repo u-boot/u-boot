@@ -57,7 +57,7 @@ int cleanup_before_linux (void)
 	 * and we set the CPU-speed to 73 MHz - see start.S for details
 	 */
 
-#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312)
+#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) || defined(CONFIG_ARMADILLO)
 	unsigned long i;
 
 	disable_interrupts ();
@@ -95,7 +95,7 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
  *
  */
 
-#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) || defined(CONFIG_NETARM)
+#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) || defined(CONFIG_NETARM) || defined(CONFIG_ARMADILLO)
 /* read co-processor 15, register #1 (control register) */
 static unsigned long read_p15_c1(void)
 {

@@ -180,7 +180,7 @@ void do_fiq (struct pt_regs *pt_regs)
 
 void do_irq (struct pt_regs *pt_regs)
 {
-#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) || defined(CONFIG_NETARM)
+#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) || defined(CONFIG_NETARM) || defined(CONFIG_ARMADILLO)
 	printf ("interrupt request\n");
 	show_regs (pt_regs);
 	bad_mode ();
@@ -233,7 +233,7 @@ int interrupt_init (void)
 
 	/* set timer 2 counter */
 	lastdec = TIMER_LOAD_VAL;
-#elif defined(CONFIG_IMPA7) || defined(CONFIG_EP7312)
+#elif defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) || defined(CONFIG_ARMADILLO)
 	/* disable all interrupts */
 	IO_INTMR1 = 0;
 
@@ -301,7 +301,7 @@ int interrupt_init (void)
  */
 
 
-#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) || defined(CONFIG_NETARM)
+#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) || defined(CONFIG_NETARM) || defined(CONFIG_ARMADILLO)
 
 void reset_timer (void)
 {

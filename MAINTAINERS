@@ -351,6 +351,10 @@ Unknown / orphaned boards:
 #	Board			CPU					#
 #########################################################################
 
+Rowel Atienza <rowel@diwalabs.com>
+
+	armadillo		ARM720T
+
 Rishi Bhattacharya <rishi@ti.com>
 
 	omap5912osk		ARM926EJS

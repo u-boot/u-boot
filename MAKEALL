@@ -161,8 +161,8 @@ LIST_SA="assabet dnp1110 gcplus lart shannon"
 #########################################################################
 
 LIST_ARM7="	\
-	B2		ep7312		evb4510		impa7		\
-	integratorap_CM720T		integratorap_CM7TDMI		\
+	armadillo	B2		ep7312		evb4510		\
+	impa7		integratorap_CM720T	integratorap_CM7TDMI	\
 	modnet50							\
 "
 
