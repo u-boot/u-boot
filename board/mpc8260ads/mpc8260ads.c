@@ -13,6 +13,10 @@
  * Yuli Barcohen <yuli@arabellasw.com>
  * Added support for SDRAM DIMMs SPD EEPROM, MII, Ethernet PHY init.
  *
+ * Copyright (c) 2005 MontaVista Software, Inc.   
+ * Vitaly Bordug <vbordug@ru.mvista.com>
+ * Added support for PCI.
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -39,6 +43,9 @@
 #include <i2c.h>
 #include <spd.h>
 #include <miiphy.h>
+#ifdef CONFIG_PCI
+#include <pci.h>
+#endif
 
 /*
  * I/O Port configuration table
@@ -247,10 +254,23 @@ void reset_phy (void)
 #endif /* CONFIG_MII */
 }
 
+#ifdef CONFIG_PCI
+typedef struct pci_ic_s {
+	unsigned long pci_int_stat;
+	unsigned long pci_int_mask;
+}pci_ic_t;
+#endif
+
 int board_early_init_f (void)
 {
 	vu_long *bcsr = (vu_long *)CFG_BCSR;
 
+#ifdef CONFIG_PCI
+	volatile pci_ic_t* pci_ic = (pci_ic_t *) CFG_PCI_INT;
+	
+	/* mask alll the PCI interrupts */
+	pci_ic->pci_int_mask |= 0xfff00000;
+#endif
 #if (CONFIG_CONS_INDEX == 1) || (CONFIG_KGDB_INDEX == 1)
 	bcsr[1] &= ~RS232EN_1;
 #endif
@@ -506,3 +526,14 @@ int checkboard (void)
 #endif
 	return 0;
 }
+
+#ifdef CONFIG_PCI
+struct pci_controller hose;
+
+extern void pci_mpc8250_init(struct pci_controller *);
+
+void pci_init_board(void)
+{
+	pci_mpc8250_init(&hose);
+}
+#endif

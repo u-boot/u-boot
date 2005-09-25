@@ -2,6 +2,10 @@
  * (C) Copyright 2003
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
+ * Copyright (c) 2005 MontaVista Software, Inc.   
+ * Vitaly Bordug <vbordug@ru.mvista.com>
+ * Added support for PCI bridge on MPC8272ADS
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -230,7 +234,7 @@ static inline void pci_outl (u32 addr, u32 data)
 
 void pci_mpc8250_init (struct pci_controller *hose)
 {
-#ifdef CONFIG_MPC8266ADS
+#if defined CONFIG_MPC8266ADS || defined CONFIG_MPC8272
 	DECLARE_GLOBAL_DATA_PTR;
 #endif
 	u16 tempShort;
@@ -248,6 +252,27 @@ void pci_mpc8250_init (struct pci_controller *hose)
 	immap->im_siu_conf.sc_siumcr =
 		(immap->im_siu_conf.sc_siumcr & ~SIUMCR_LBPC11)
 		| SIUMCR_LBPC01;
+#elif defined CONFIG_MPC8272
+	immap->im_siu_conf.sc_siumcr = (immap->im_siu_conf.sc_siumcr & 
+                                  ~SIUMCR_BBD &
+                                  ~SIUMCR_ESE &
+                                  ~SIUMCR_PBSE &
+                                  ~SIUMCR_CDIS &
+                                  ~SIUMCR_DPPC11 &
+                                  ~SIUMCR_L2CPC11 &
+                                  ~SIUMCR_LBPC11 &
+                                  ~SIUMCR_APPC11 &
+                                  ~SIUMCR_CS10PC11 &
+                                  ~SIUMCR_BCTLC11 &
+                                  ~SIUMCR_MMR11)
+                                  | SIUMCR_DPPC11
+                                  | SIUMCR_L2CPC01
+                                  | SIUMCR_LBPC00
+                                  | SIUMCR_APPC10
+                                  | SIUMCR_CS10PC00
+                                  | SIUMCR_BCTLC00
+                                  | SIUMCR_MMR11;
+
 #else
 	/*
 	 * Setting required to enable IRQ1-IRQ7 (SIUMCR [DPPC]),
@@ -290,7 +315,7 @@ void pci_mpc8250_init (struct pci_controller *hose)
 	immap->im_memctl.memc_pcimsk0 = PCIMSK0_MASK;
 	immap->im_memctl.memc_pcibr0 = PCI_MSTR0_LOCAL | PCIBR_ENABLE;
 
-#ifdef CONFIG_MPC8266ADS
+#if defined CONFIG_MPC8266ADS || defined CONFIG_MPC8272
 	immap->im_memctl.memc_pcimsk1 = PCIMSK1_MASK;
 	immap->im_memctl.memc_pcibr1 = PCI_MSTR1_LOCAL | PCIBR_ENABLE;
 #endif
@@ -300,7 +325,7 @@ void pci_mpc8250_init (struct pci_controller *hose)
 
 	/* give it some time */
 	{
-#ifdef CONFIG_MPC8266ADS
+#if defined CONFIG_MPC8266ADS || defined CONFIG_MPC8272
 		/* Give the PCI cards more time to initialize before query
 		   This might be good for other boards also
 		 */
@@ -344,7 +369,11 @@ void pci_mpc8250_init (struct pci_controller *hose)
 	immap->im_pci.pci_picmr0 = cpu_to_le32 (PICMR0_MASK_ATTRIB);	/* Size & attribute */
 
 	/* See above for description - puts PCI request as highest priority */
+#ifdef CONFIG_MPC8272
+	immap->im_siu_conf.sc_ppc_alrh = 0x01236745;
+#else
 	immap->im_siu_conf.sc_ppc_alrh = 0x03124567;
+#endif
 
 	/* Park the bus on the PCI */
 	immap->im_siu_conf.sc_ppc_acr = PPC_ACR_BUS_PARK_PCI;
@@ -370,7 +399,7 @@ void pci_mpc8250_init (struct pci_controller *hose)
 	hose->last_busno = 0xff;
 
 	/* System memory space */
-#ifdef CONFIG_MPC8266ADS
+#if defined CONFIG_MPC8266ADS || defined CONFIG_MPC8272 
 	pci_set_region (hose->regions + 0,
 			PCI_SLV_MEM_BUS,
 			PCI_SLV_MEM_LOCAL,
@@ -383,7 +412,7 @@ void pci_mpc8250_init (struct pci_controller *hose)
 #endif
 
 	/* PCI memory space */
-#ifdef CONFIG_MPC8266ADS
+#if defined CONFIG_MPC8266ADS || defined CONFIG_MPC8272 
 	pci_set_region (hose->regions + 1,
 			PCI_MSTR_MEMIO_BUS,
 			PCI_MSTR_MEMIO_LOCAL,
