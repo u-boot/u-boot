@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Fix formating in include/asm-arm/arch-at91rm9200/AT91RM9200.h
+  Patch by Steven Scholz, 02 Mar 2005
+
 * Fix typo in eth.c
   Patch by Ara Avanesyan, 24 Feb 2005
 
