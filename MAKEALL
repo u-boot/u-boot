@@ -205,8 +205,8 @@ LIST_ARM11="	\
 
 LIST_pxa="	\
 	adsvix		cerf250		cradle		csb226		\
-	innokom		lubbock		wepep250	xaeniax		\
-	xm250		xsengine					\
+	innokom		lubbock		pxa255_idp	wepep250	\
+	xaeniax		xm250		xsengine			\
 "
 
 LIST_ixp="ixdp425"

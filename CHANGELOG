@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Add Vibren (was Accelent) PXA255 IDP Support
+  Patch by Cliff Brake, 04 Feb 2005
+
 * Fix tools/bmp_logo.c using incorrect offset to pixel data
   Patch by Andrew Dyer, 31 Jan 2005
 

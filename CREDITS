@@ -65,6 +65,12 @@ N: Raphael Bossek
 E: raphael.bossek@solutions4linux.de
 D: 8xxrom-0.3.0
 
+N: Cliff Brake
+E: cliff.brake@gmail.com
+D: Port to Vibren PXA255 IDP platform
+W: http://www.vibren.com
+W: http://bec-systems.com
+
 N: Rick Bronson
 E: rick@efn.org
 D: Atmel AT91RM9200DK and NAND support
