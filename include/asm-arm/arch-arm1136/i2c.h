@@ -33,6 +33,7 @@
 #define I2C_BUF                 (I2C_BASE + 0x14)
 #define I2C_CNT                 (I2C_BASE + 0x18)
 #define I2C_DATA                (I2C_BASE + 0x1c)
+#define I2C_SYSC                (I2C_BASE + 0x20)
 #define I2C_CON                 (I2C_BASE + 0x24)
 #define I2C_OA                  (I2C_BASE + 0x28)
 #define I2C_SA                  (I2C_BASE + 0x2c)

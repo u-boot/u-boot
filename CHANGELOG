@@ -2,6 +2,19 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* OMAP242x H4 board update
+  - fix for ES2 differences.
+  - switch to using the cfi_flash driver.
+  - fix SRAM build address.
+  - fix for GP device operation.
+  - unlock SRAM for GP devices.
+  - display more device information.
+  - fix potential deadlock in omap24xx_i2c driver.
+  - fix DLL load values to match dpllout*1 operation.
+  - fix 2nd chip select init for combo DDR device.
+  - add support for CFI Intel 28F256L18 on H4 board.
+  Patch by Richard Woodruff, 03 Mar 2005
+
 * Fix formating in include/asm-arm/arch-at91rm9200/AT91RM9200.h
   Patch by Steven Scholz, 02 Mar 2005
 

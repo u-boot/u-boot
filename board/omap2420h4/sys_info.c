@@ -29,6 +29,16 @@
 #include <i2c.h>
 
 /**************************************************************************
+ * get_prod_id() - get id info from chips
+ ***************************************************************************/
+static u32 get_prod_id(void)
+{
+	u32 p;
+	p = __raw_readl(PRODUCTION_ID); /* get production ID */
+	return((p & CPU_242X_PID_MASK) >> 16);
+}
+
+/**************************************************************************
  * get_cpu_type() - low level get cpu type
  * - no C globals yet.
  * - just looking to say if this is a 2422 or 2420 or ...
@@ -39,6 +49,14 @@
 u32 get_cpu_type(void)
 {
 	u32 v;
+
+	switch(get_prod_id()){
+		case 1:;/* 2420 */
+		case 2: return(CPU_2420); break; /* 2420 pop */
+		case 4: return(CPU_2422); break;
+		case 8: return(CPU_2423); break;
+		default: break;  /* early 2420/2422's unmarked */
+	}
 
 	v = __raw_readl(TAP_IDCODE_REG);
 	v &= CPU_24XX_ID_MASK;
@@ -61,6 +79,16 @@ u32 get_cpu_rev(void)
 	v = v >> 28;
 	return(v+1);  /* currently 2422 and 2420 match up */
 }
+/****************************************************
+ * is_mem_sdr() - return 1 if mem type in use is SDR
+ ****************************************************/
+u32 is_mem_sdr(void)
+{
+	volatile u32 *burst = (volatile u32 *)(SDRC_MR_0+SDRC_CS0_OSET);
+	if(*burst == H4_2420_SDRC_MR_0_SDR)
+		return(1);
+	return(0);
+}
 
 /***********************************************************
  * get_mem_type() - identify type of mDDR part used.
@@ -70,21 +98,37 @@ u32 get_cpu_rev(void)
  *************************************************************/
 u32 get_mem_type(void)
 {
-	volatile u32 *burst = (volatile u32 *)(SDRC_MR_0+SDRC_CS0_OSET);
+	u32 cpu, sdr = is_mem_sdr();
 
-	if (get_cpu_type() == CPU_2422)
+	cpu = get_cpu_type();
+	if (cpu == CPU_2422 || cpu == CPU_2423)
 		return(DDR_STACKED);
 
+	if(get_prod_id() == 0x2)
+		return(XDR_POP);
+
 	if (get_board_type() == BOARD_H4_MENELAUS)
-		if(*burst == H4_2420_SDRC_MR_0_SDR)
+		if(sdr)
 			return(SDR_DISCRETE);
 		else
 			return(DDR_COMBO);
 	else
-		if(*burst == H4_2420_SDRC_MR_0_SDR) /* SDP + SDR kit */
+		if(sdr) /* SDP + SDR kit */
 			return(SDR_DISCRETE);
 		else
 			return(DDR_DISCRETE); /* origional SDP */
+}
+
+/***********************************************************************
+ * get_cs0_size() - get size of chip select 0/1
+ ************************************************************************/
+u32 get_sdr_cs_size(u32 offset)
+{
+	u32 size;
+	size = __raw_readl(SDRC_MCFG_0+offset) >> 8; /* get ram size field */
+	size &= 0x2FF;   /* remove unwanted bits */
+	size *= SZ_2M;   /* find size in MB */
+	return(size);
 }
 
 /***********************************************************************
@@ -104,7 +148,7 @@ u32 get_board_type(void)
 /******************************************************************
  * get_sysboot_value() - get init word settings (dip switch on h4)
  ******************************************************************/
-u32 get_sysboot_value(void)
+inline u32 get_sysboot_value(void)
 {
 	return(0x00000FFF & __raw_readl(CONTROL_STATUS));
 }
@@ -193,22 +237,53 @@ u32 wait_on_value(u32 read_bit_mask, u32 match_value, u32 read_addr, u32 bound)
  *********************************************************************/
 void display_board_info(u32 btype)
 {
-	char cpu_2420[] = "2420";
+	char cpu_2420[] = "2420";   /* cpu type */
 	char cpu_2422[] = "2422";
-	char db_men[] = "Menelaus";
-	char db_ip[]= "IP";
-	char *cpu_s, *db_s;
-	u32 cpu = get_cpu_type();
+	char cpu_2423[] = "2423";
+	char db_men[] = "Menelaus"; /* board type */
+	char db_ip[] = "IP";
+	char mem_sdr[] = "mSDR";    /* memory type */
+	char mem_ddr[] = "mDDR";
+	char t_tst[] = "TST";	    /* security level */
+	char t_emu[] = "EMU";
+	char t_hs[] = "HS";
+	char t_gp[] = "GP";
+	char unk[] = "?";
 
-	if(cpu == CPU_2420)
-		cpu_s = cpu_2420;
+	char *cpu_s, *db_s, *mem_s, *sec_s;
+	u32 cpu, rev, sec;
+
+	rev = get_cpu_rev();
+	cpu = get_cpu_type();
+	sec = get_device_type();
+
+	if(is_mem_sdr())
+		mem_s = mem_sdr;
 	else
+		mem_s = mem_ddr;
+
+	if(cpu == CPU_2423)
+		cpu_s = cpu_2423;
+	else if (cpu == CPU_2422)
 		cpu_s = cpu_2422;
+	else
+		cpu_s = cpu_2420;
+
 	if(btype ==  BOARD_H4_MENELAUS)
 		db_s = db_men;
 	else
 		db_s = db_ip;
-	printf("TI H4 SDP Base Board with OMAP%s %s Daughter Board\n",cpu_s, db_s);
+
+	switch(sec){
+		case TST_DEVICE: sec_s = t_tst; break;
+		case EMU_DEVICE: sec_s = t_emu; break;
+		case HS_DEVICE:  sec_s = t_hs; break;
+		case GP_DEVICE:  sec_s = t_gp; break;
+		default: sec_s = unk;
+	}
+
+	printf("OMAP%s-%s revision %d\n", cpu_s, sec_s, rev-1);
+	printf("TI H4 SDP Base Board + %s Daughter Board + %s \n", db_s, mem_s);
 }
 
 /*************************************************************************
@@ -230,7 +305,7 @@ u32 get_board_rev(void)
 /********************************************************
  *  get_base(); get upper addr of current execution
  *******************************************************/
-static u32 get_base(void)
+u32 get_base(void)
 {
 	u32  val;
 	__asm__ __volatile__("mov %0, pc \n" : "=r" (val) : : "memory");
@@ -242,7 +317,7 @@ static u32 get_base(void)
 /********************************************************
  *  get_base2(); get 2upper addr of current execution
  *******************************************************/
-static u32 get_base2(void)
+u32 get_base2(void)
 {
 	u32  val;
 	__asm__ __volatile__("mov %0, pc \n" : "=r" (val) : : "memory");
@@ -300,3 +375,14 @@ u32 running_from_internal_boot(void)
 	else
 		return(0);
 }
+
+/*************************************************************
+ *  get_device_type(): tell if GP/HS/EMU/TST
+ *************************************************************/
+u32 get_device_type(void)
+{
+	int mode;
+	mode = __raw_readl(CONTROL_STATUS) & (BIT10|BIT9|BIT8);
+	return(mode >>= 8);
+}
+

@@ -37,13 +37,25 @@
 #define A_WRITEPERM0          0x68005058
 #define GP_DEVICE             (BIT8|BIT9)
 
+/* L3 Firewall */
+#define A_REQINFOPERM0        0x68005048
+#define A_READPERM0           0x68005050
+#define A_WRITEPERM0          0x68005058
+
 /* CONTROL */
 #define OMAP2420_CTRL_BASE    (0x48000000)
 #define CONTROL_STATUS        (OMAP2420_CTRL_BASE + 0x2F8)
 
+/* device type */
+#define TST_DEVICE	0x0
+#define EMU_DEVICE	0x1
+#define HS_DEVICE	0x2
+#define GP_DEVICE	0x3
+
 /* TAP information */
 #define OMAP2420_TAP_BASE     (0x48014000)
 #define TAP_IDCODE_REG        (OMAP2420_TAP_BASE+0x204)
+#define PRODUCTION_ID         (OMAP2420_TAP_BASE+0x208)
 
 /* GPMC */
 #define OMAP2420_GPMC_BASE    (0x6800A000)
@@ -76,6 +88,7 @@
 #define OMAP2420_SDRC_BASE 0x68009000
 #define SDRC_SYSCONFIG     (OMAP2420_SDRC_BASE+0x10)
 #define SDRC_STATUS        (OMAP2420_SDRC_BASE+0x14)
+#define SDRC_CS_CFG        (OMAP2420_SDRC_BASE+0x40)
 #define SDRC_SHARING       (OMAP2420_SDRC_BASE+0x44)
 #define SDRC_DLLA_CTRL     (OMAP2420_SDRC_BASE+0x60)
 #define SDRC_DLLB_CTRL     (OMAP2420_SDRC_BASE+0x68)

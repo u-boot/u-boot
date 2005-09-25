@@ -32,11 +32,15 @@
 
 static void wait_for_bb (void);
 static u16 wait_for_pin (void);
-void flush_fifo(void);
+static void flush_fifo(void);
 
 void i2c_init (int speed, int slaveadd)
 {
 	u16 scl;
+
+	outw(0x2, I2C_SYSC); /* for ES2 after soft reset */
+	udelay(1000);
+	outw(0x0, I2C_SYSC); /* will probably self clear but */
 
 	if (inw (I2C_CON) & I2C_CON_EN) {
 		outw (0, I2C_CON);
@@ -52,11 +56,14 @@ void i2c_init (int speed, int slaveadd)
 	/* own address */
 	outw (slaveadd, I2C_OA);
 	outw (I2C_CON_EN, I2C_CON);
-	outw (0, I2C_CNT);
+
 	/* have to enable intrrupts or OMAP i2c module doesn't work */
 	outw (I2C_IE_XRDY_IE | I2C_IE_RRDY_IE | I2C_IE_ARDY_IE |
 	      I2C_IE_NACK_IE | I2C_IE_AL_IE, I2C_IE);
 	udelay (1000);
+	flush_fifo();
+	outw (0xFFFF, I2C_STAT);
+	outw (0, I2C_CNT);
 }
 
 static int i2c_read_byte (u8 devaddr, u8 regoffset, u8 * value)
@@ -160,11 +167,15 @@ static int i2c_write_byte (u8 devaddr, u8 regoffset, u8 value)
 	}
 
 	if (!i2c_error) {
+		int eout = 200;
+
 		outw (I2C_CON_EN, I2C_CON);
 		while ((stat = inw (I2C_STAT)) || (inw (I2C_CON) & I2C_CON_MST)) {
 			udelay (1000);
 			/* have to read to clear intrrupt */
 			outw (0xFFFF, I2C_STAT);
+			if(--eout == 0) /* better leave with error than hang */
+				break;
 		}
 	}
 	flush_fifo();
@@ -173,7 +184,7 @@ static int i2c_write_byte (u8 devaddr, u8 regoffset, u8 value)
 	return i2c_error;
 }
 
-void flush_fifo(void)
+static void flush_fifo(void)
 {	u16 stat;
 
 	/* note: if you try and read data when its not there or ready

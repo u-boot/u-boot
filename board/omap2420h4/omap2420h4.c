@@ -36,7 +36,7 @@
 extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];
 #endif
 
-static void wait_for_command_complete(unsigned int wd_base);
+ void wait_for_command_complete(unsigned int wd_base);
 
 /*******************************************************
  * Routine: delay
@@ -76,6 +76,21 @@ void try_unlock_sram(void)
 	/* if GP device unlock device SRAM for general use */
 	mode = (__raw_readl(CONTROL_STATUS) & (BIT8|BIT9));
 	if (mode == GP_DEVICE) {
+		__raw_writel(0xFF, A_REQINFOPERM0);
+		__raw_writel(0xCFDE, A_READPERM0);
+		__raw_writel(0xCFDE, A_WRITEPERM0);
+	}
+}
+
+/**********************************************************
+ * Routine: try_unlock_sram()
+ * Description: If chip is GP type, unlock the SRAM for
+ *  general use.
+ ***********************************************************/
+void try_unlock_sram(void)
+{
+	/* if GP device unlock device SRAM for general use */
+	if (get_device_type() == GP_DEVICE) {
 		__raw_writel(0xFF, A_REQINFOPERM0);
 		__raw_writel(0xCFDE, A_READPERM0);
 		__raw_writel(0xCFDE, A_WRITEPERM0);
@@ -144,7 +159,7 @@ void watchdog_init(void)
  * Routine: wait_for_command_complete
  * Description: Wait for posting to finish on watchdog
  ******************************************************/
-static void wait_for_command_complete(unsigned int wd_base)
+void wait_for_command_complete(unsigned int wd_base)
 {
 	int pending = 1;
 	do {
@@ -200,7 +215,7 @@ int dram_init (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 	unsigned int size0=0,size1=0;
-	u32 mtype, btype;
+	u32 mtype, btype, rev, cpu;
 	u8 chg_on = 0x5; /* enable charge of back up battery */
 	u8 vmode_on = 0x8C;
 	#define NOT_EARLY 0
@@ -209,6 +224,8 @@ int dram_init (void)
 
 	btype = get_board_type();
 	mtype = get_mem_type();
+	rev = get_cpu_rev();
+	cpu = get_cpu_type();
 
 	display_board_info(btype);
 	if (btype == BOARD_H4_MENELAUS){
@@ -219,15 +236,16 @@ int dram_init (void)
 
 	if ((mtype == DDR_COMBO) || (mtype == DDR_STACKED)) {
 		do_sdrc_init(SDRC_CS1_OSET, NOT_EARLY);	/* init other chip select */
-		size0 = size1 = SZ_32M;
-	} else if (mtype == SDR_DISCRETE)
-		size0 = SZ_128M;
-	else
-		size0 = SZ_64M;
+	}
+	size0 = get_sdr_cs_size(SDRC_CS0_OSET);
+	size1 = get_sdr_cs_size(SDRC_CS1_OSET);
 
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size = size0;
-	gd->bd->bi_dram[1].start = PHYS_SDRAM_2;
+	if(rev == CPU_2420_2422_ES1) /* ES1's 128MB remap granularity isn't worth doing */
+		gd->bd->bi_dram[1].start = PHYS_SDRAM_2;
+	else /* ES2 and above can remap at 32MB granularity */
+		gd->bd->bi_dram[1].start = PHYS_SDRAM_1+size0;
 	gd->bd->bi_dram[1].size = size1;
 
 	return 0;

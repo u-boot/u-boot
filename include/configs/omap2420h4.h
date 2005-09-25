@@ -39,11 +39,8 @@
 /*#define CONFIG_VIRTIO          1    #* Using Virtio simulator */
 
 /* Clock config to target*/
-#define PRCM_CONFIG_II		1
-/*#define PRCM_CONFIG_III	1 */
-
-/* Memory configuration on board */
-/*#define CONFIG_OPTIMIZE_DDR	1 */
+#define PRCM_CONFIG_II	1
+//#define PRCM_CONFIG_III		1
 
 #include <asm/arch/omap2420.h>        /* get chip and board defs */
 
@@ -125,11 +122,8 @@
 #ifdef CFG_NAND_BOOT
 #define CONFIG_COMMANDS          (CONFIG_CMD_DFL | CFG_CMD_DHCP | CFG_CMD_I2C | CFG_CMD_NAND | CFG_CMD_JFFS2)
 #else
-#define CONFIG_COMMANDS          (CONFIG_CMD_DFL | CFG_CMD_DHCP | CFG_CMD_I2C | CFG_CMD_JFFS2)
+#define CONFIG_COMMANDS          ((CONFIG_CMD_DFL | CFG_CMD_DHCP | CFG_CMD_I2C | CFG_CMD_JFFS2) & ~CFG_CMD_AUTOSCRIPT)
 #endif
-/* I'd like to get to these. Snap kernel loads if we make MMC go */
-  /* #define CONFIG_COMMANDS       (CONFIG_CMD_DFL | CFG_CMD_NAND | CFG_CMD_JFFS2 | CFG_CMD_DHCP | CFG_CMD_MMC | CFG_CMD_FAT | CFG_CMD_I2C) */
-
 #define CONFIG_BOOTP_MASK        CONFIG_BOOTP_DEFAULT
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
@@ -241,17 +235,21 @@
 #define PHYS_SDRAM_1_SIZE        SZ_32M            /* at least 32 meg */
 #define PHYS_SDRAM_2             OMAP2420_SDRC_CS1
 
+#define PHYS_FLASH_SECT_SIZE     SZ_128K
 #define PHYS_FLASH_1             H4_CS0_BASE	   /* Flash Bank #1 */
 #define PHYS_FLASH_SIZE_1        SZ_32M
 #define PHYS_FLASH_2             (H4_CS0_BASE+SZ_32M) /* same cs, 2 chips in series */
 #define PHYS_FLASH_SIZE_2        SZ_32M
-#define CFG_FLASH_BASE           PHYS_FLASH_1
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
+#define CFG_FLASH_BASE           PHYS_FLASH_1
 #define CFG_MAX_FLASH_BANKS      2           /* max number of memory banks */
 #define CFG_MAX_FLASH_SECT       (259)	     /* max number of sectors on one chip */
+#define CFG_MONITOR_BASE	CFG_FLASH_BASE /* Monitor at beginning of flash */
+#define CFG_MONITOR_LEN		SZ_128K      /* Reserve 1 sector */
+#define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE, CFG_FLASH_BASE + PHYS_FLASH_SIZE_1 }
 
 #ifdef CFG_NAND_BOOT
 #define CFG_ENV_IS_IN_NAND	1
@@ -259,11 +257,24 @@
 #else
 #define CFG_ENV_ADDR             (CFG_FLASH_BASE + SZ_128K)
 #define	CFG_ENV_IS_IN_FLASH      1
+#define CFG_ENV_SECT_SIZE	PHYS_FLASH_SECT_SIZE
+#define CFG_ENV_OFFSET	( CFG_MONITOR_BASE + CFG_MONITOR_LEN ) /* Environment after Monitor */
 #endif
 
+
+
+
+/*-----------------------------------------------------------------------
+ * CFI FLASH driver setup
+ */
+#define CFG_FLASH_CFI		1	/* Flash memory is CFI compliant */
+#define CFG_FLASH_CFI_DRIVER	1	/* Use drivers/cfi_flash.c */
+#define CFG_FLASH_USE_BUFFER_WRITE 1	/* Use buffered writes (~10x faster) */
+#define CFG_FLASH_PROTECTION	1	/* Use hardware sector protection */
+
 /* timeout values are in ticks */
-#define CFG_FLASH_ERASE_TOUT     (30*75*CFG_HZ) /* Timeout for Flash Erase */
-#define CFG_FLASH_WRITE_TOUT     (30*75*CFG_HZ) /* Timeout for Flash Write */
+#define CFG_FLASH_ERASE_TOUT     (100*CFG_HZ) /* Timeout for Flash Erase */
+#define CFG_FLASH_WRITE_TOUT     (100*CFG_HZ) /* Timeout for Flash Write */
 
 #define CFG_JFFS2_MEM_NAND
 

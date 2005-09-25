@@ -48,7 +48,7 @@ void sdelay (unsigned long loops)
  *********************************************************************************/
 void prcm_init(void)
 {
-	u32 rev,div;
+	u32 div;
 	void (*f_lock_pll) (u32, u32, u32, u32);
 	extern void *_end_vect, *_start;
 
@@ -64,11 +64,7 @@ void prcm_init(void)
 	__raw_writel(DSP_DIV, CM_CLKSEL_DSP);	/* set dsp and iva dividers */
 	__raw_writel(GFX_DIV, CM_CLKSEL_GFX);	/* set gfx dividers */
 
-	rev  = get_cpu_rev();
-	if (rev == CPU_2420_ES1 || rev ==  CPU_2422_ES1)
-		div = BUS_DIV_ES1;
-	else
-		div	= BUS_DIV;
+	div = BUS_DIV;
 	__raw_writel(div, CM_CLKSEL1_CORE);/* set L3/L4/USB/Display/Vlnc/SSi dividers */
 	sdelay(1000);
 
@@ -99,6 +95,23 @@ void prcm_init(void)
 	sdelay(1000);
 }
 
+/**************************************************************************
+ * make_cs1_contiguous() - for es2 and above remap cs1 behind cs0 to allow
+ *  command line mem=xyz use all memory with out discontigious support
+ *  compiled in.  Could do it at the ATAG, but there really is two banks...
+ * Called as part of 2nd phase DDR init.
+ **************************************************************************/
+void make_cs1_contiguous(void)
+{
+	u32 size, a_add_low, a_add_high;
+
+	size = get_sdr_cs_size(SDRC_CS0_OSET);
+	size /= SZ_32M;  /* find size to offset CS1 */
+	a_add_high = (size & 3) << 8;   /* set up low field */
+	a_add_low = (size & 0x3C) >> 2; /* set up high field */
+	__raw_writel((a_add_high|a_add_low),SDRC_CS_CFG);
+
+}
 
 /********************************************************
  *  mem_ok() - test used to see if timings are correct
@@ -121,6 +134,7 @@ u32 mem_ok(void)
 	else
 		return(1);
 }
+
 
 /********************************************************
  *  sdrc_init() - init the sdrc chip selects CS0 and CS1
@@ -148,28 +162,29 @@ void sdrc_init(void)
  **************************************************************************/
 void do_sdrc_init(u32 offset, u32 early)
 {
-	u32 cpu, bug=0, rev, common=0, cs0=0, pmask=0, pass_type;
+	u32 cpu, dllen=0, rev, common=0, cs0=0, pmask=0, pass_type, mtype;
 	sdrc_data_t *sdata;	 /* do not change type */
 	u32 a, b, r;
 
 	static const sdrc_data_t sdrc_2422 =
 	{
 		H4_2422_SDRC_SHARING, H4_2422_SDRC_MDCFG_0_DDR, 0 , H4_2422_SDRC_ACTIM_CTRLA_0,
-		H4_2422_SDRC_ACTIM_CTRLB_0, H4_2422_SDRC_RFR_CTRL_ES1, H4_2422_SDRC_MR_0_DDR,
-		0, H4_2422_SDRC_DLLA_CTRL, H4_2422_SDRC_DLLB_CTRL
+		H4_2422_SDRC_ACTIM_CTRLB_0, H4_2422_SDRC_RFR_CTRL, H4_2422_SDRC_MR_0_DDR,
+		0, H4_2422_SDRC_DLLAB_CTRL
 	};
 	static const sdrc_data_t sdrc_2420 =
 	{
 		H4_2420_SDRC_SHARING, H4_2420_SDRC_MDCFG_0_DDR, H4_2420_SDRC_MDCFG_0_SDR,
 		H4_2420_SDRC_ACTIM_CTRLA_0, H4_2420_SDRC_ACTIM_CTRLB_0,
-		H4_2420_SDRC_RFR_CTRL_ES1, H4_2420_SDRC_MR_0_DDR, H4_2420_SDRC_MR_0_SDR,
-		H4_2420_SDRC_DLLA_CTRL, H4_2420_SDRC_DLLB_CTRL
+		H4_2420_SDRC_RFR_CTRL, H4_2420_SDRC_MR_0_DDR, H4_2420_SDRC_MR_0_SDR,
+		H4_2420_SDRC_DLLAB_CTRL
 	};
 
 	if (offset == SDRC_CS0_OSET)
 		cs0 = common = 1;  /* int regs shared between both chip select */
 
 	cpu = get_cpu_type();
+	rev = get_cpu_rev();
 
 	/* warning generated, though code generation is correct. this may bite later,
 	 * but is ok for now. there is only so much C code you can do on stack only
@@ -197,9 +212,15 @@ void do_sdrc_init(u32 offset, u32 early)
 		if(running_from_internal_boot())
 			sdata = (sdrc_data_t *)((u32)sdata + 0x4000);
 	}
-	if (!early && (get_mem_type() == DDR_COMBO)) {/* combo part has a shared CKE signal, can't use feature */
-		pmask = BIT2;
-		pass_type = COMBO_DDR; /* CS1 config */
+
+	if (!early && (((mtype = get_mem_type()) == DDR_COMBO)||(mtype == DDR_STACKED))) {
+		if(mtype == DDR_COMBO){
+			pmask = BIT2;/* combo part has a shared CKE signal, can't use feature */
+			pass_type = COMBO_DDR; /* CS1 config */
+			__raw_writel((__raw_readl(SDRC_POWER)) & ~pmask, SDRC_POWER);
+		}
+		if(rev != CPU_2420_2422_ES1)	/* for es2 and above smooth things out */
+			make_cs1_contiguous();
 	}
 
 next_mem_type:
@@ -208,11 +229,10 @@ next_mem_type:
 		wait_on_value(BIT0, BIT0, SDRC_STATUS, 12000000);/* wait till reset done set */
 		__raw_writel(0, SDRC_SYSCONFIG);		/* clear soft reset */
 		__raw_writel(sdata->sdrc_sharing, SDRC_SHARING);
-		__raw_writel((__raw_readl(SDRC_POWER)) & ~pmask, SDRC_POWER);
 #ifdef POWER_SAVE
 		__raw_writel(__raw_readl(SMS_SYSCONFIG)|SMART_IDLE, SMS_SYSCONFIG);
 		__raw_writel(sdata->sdrc_sharing|SMART_IDLE, SDRC_SHARING);
-		__raw_writel((__raw_readl(SDRC_POWER)|BIT6) & ~pmask, SDRC_POWER);
+		__raw_writel((__raw_readl(SDRC_POWER)|BIT6), SDRC_POWER);
 #endif
 	}
 
@@ -224,15 +244,16 @@ next_mem_type:
 		__raw_writel(sdata->sdrc_mdcfg_0_sdr, SDRC_MCFG_0+offset);
 	}
 
-	if(pass_type == IP_SDR){  /* SDRAM can run full speed only rated for 105MHz*/
-		a = H4_242X_SDRC_ACTIM_CTRLA_0_100MHz;
-		b = H4_242X_SDRC_ACTIM_CTRLB_0_100MHz;
-		r = H4_2420_SDRC_RFR_CTRL;
-	} else {
-		a = sdata->sdrc_actim_ctrla_0;
-		b = sdata->sdrc_actim_ctrlb_0;
-		r = sdata->sdrc_rfr_ctrl;
-	}
+	a = sdata->sdrc_actim_ctrla_0;
+	b = sdata->sdrc_actim_ctrlb_0;
+	r = sdata->sdrc_dllab_ctrl;
+
+	/* work around ES1 DDR issues */
+	if((pass_type != IP_SDR) && (rev == CPU_2420_2422_ES1)){
+		a = H4_242x_SDRC_ACTIM_CTRLA_0_ES1;
+		b = H4_242x_SDRC_ACTIM_CTRLB_0_ES1;
+		r = H4_242x_SDRC_RFR_CTRL_ES1;
+ 	}
 
 	if (cs0) {
 		__raw_writel(a, SDRC_ACTIM_CTRLA_0);
@@ -241,7 +262,6 @@ next_mem_type:
 		__raw_writel(a, SDRC_ACTIM_CTRLA_1);
 		__raw_writel(b, SDRC_ACTIM_CTRLB_1);
 	}
-
 	__raw_writel(r, SDRC_RFR_CTRL+offset);
 
 	/* init sequence for mDDR/mSDR using manual commands (DDR is a bit different) */
@@ -263,18 +283,22 @@ next_mem_type:
 		__raw_writel(sdata->sdrc_mr_0_ddr, SDRC_MR_0+offset);
 
 	/* NOTE: ES1 242x _BUG_ DLL + External Bandwidth fix*/
-	rev  = get_cpu_rev();
-	if (rev == CPU_2420_ES1 || rev ==  CPU_2422_ES1){
-		bug = BIT0;
+	if (rev == CPU_2420_2422_ES1){
+		dllen = (BIT0|BIT3); /* es1 clear both bit0 and bit3 */
 		__raw_writel((__raw_readl(SMS_CLASS_ARB0)|BURSTCOMPLETE_GROUP7)
 			,SMS_CLASS_ARB0);/* enable bust complete for lcd */
 	}
-	/* enable & load up DLL with good value for 75MHz, and set phase to 90% */
+	else
+		dllen = BIT0|BIT1; /* es2, clear bit0, and 1 (set phase to 72) */
+
+	/* enable & load up DLL with good value for 75MHz, and set phase to 90
+	 * ES1 recommends 90 phase, ES2 recommends 72 phase.
+	 */
 	if (common && (pass_type != IP_SDR)) {
-		__raw_writel(sdata->sdrc_dlla_ctrl, SDRC_DLLA_CTRL);
-		__raw_writel(sdata->sdrc_dlla_ctrl & ~(BIT2|bug), SDRC_DLLA_CTRL);
-		__raw_writel(sdata->sdrc_dllb_ctrl, SDRC_DLLB_CTRL);
-		__raw_writel(sdata->sdrc_dllb_ctrl & ~(BIT2|bug) , SDRC_DLLB_CTRL);
+		__raw_writel(sdata->sdrc_dllab_ctrl, SDRC_DLLA_CTRL);
+		__raw_writel(sdata->sdrc_dllab_ctrl & ~(BIT2|dllen), SDRC_DLLA_CTRL);
+		__raw_writel(sdata->sdrc_dllab_ctrl, SDRC_DLLB_CTRL);
+		__raw_writel(sdata->sdrc_dllab_ctrl & ~(BIT2|dllen) , SDRC_DLLB_CTRL);
 	}
 	sdelay(90000);
 
@@ -291,12 +315,18 @@ next_mem_type:
  *****************************************************/
 void gpmc_init(void)
 {
-	u32 mux=0, mtype, mwidth;
+	u32 mux=0, mtype, mwidth, rev, tval;
+
+	rev  = get_cpu_rev();
+	if (rev == CPU_2420_2422_ES1)
+		tval = 1;
+	else
+		tval = 0;  /* disable bit switched meaning */
 
 	/* global settings */
 	__raw_writel(0x10, GPMC_SYSCONFIG);	/* smart idle */
 	__raw_writel(0x0, GPMC_IRQENABLE);	/* isr's sources masked */
-	__raw_writel(0x1, GPMC_TIMEOUT_CONTROL);/* timeout disable */
+	__raw_writel(tval, GPMC_TIMEOUT_CONTROL);/* timeout disable */
 #ifdef CFG_NAND_BOOT
 	__raw_writel(0x001, GPMC_CONFIG);	/* set nWP, disable limited addr */
 #else
