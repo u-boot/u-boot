@@ -43,6 +43,12 @@
 #define CONFIG_CMDLINE_TAG	1	/* enable passing of ATAGs  */
 #define CONFIG_SETUP_MEMORY_TAGS	1
 #define CONFIG_MISC_INIT_R	1	/* call misc_init_r during start up */
+
+#undef CONFIG_INIT_CRITICAL
+#define CONFIG_CM_INIT          1
+#define CONFIG_CM_REMAP         1
+#undef CONFIG_CM_SPD_DETECT
+
 /*
  * Size of malloc() pool
  */
@@ -284,9 +290,28 @@
 #define OS_INIT			0x00000024
 #define CMMASK_MAP_SIMPLE	0xFFFDFFFF	/* simple mapping */
 #define CMMASK_TCRAM_DISABLE	0xFFFEFFFF	/* TCRAM disabled */
+#define CMMASK_LOWVEC         0x00000004      /* vectors @ 0x00000000 */
 
 #ifdef CONFIG_CM_SPD_DETECT
 #define OS_SPD		0x00000100	/* The SDRAM SPD data is copied here */
 #endif
 
+#if defined (CONFIG_CM10200E) || defined (CONFIG_CM10220E)
+#define CMMASK_INIT_102       0x00000300      /* see CM102xx ref manual
+                                               * - PLL test clock bypassed
+                                               * - bus clock ratio 2
+                                               * - little endian
+                                               * - vectors at zero
+                                               */
+#endif /* CM1022xx */
+
+#define CMMASK_LE             0x00000008      /* little endian */
+#define CMMASK_CMxx6_COMMON   0x00000100      /* Common value for CMxx6
+                                               * - divisor/ratio b00000001
+                                               *                 bx
+                                               * - HCLKDIV       b000
+                                               *                 bxx
+                                               * - PLL BYPASS    b00
+                                               */
 #endif							/* __CONFIG_H */
+
