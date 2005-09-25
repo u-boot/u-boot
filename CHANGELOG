@@ -2,6 +2,12 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Fixes to the Lubbock (PXA 25x) support:
+  - Resolve the FIXME with respect to saving the u-boot environment.
+  - Make the default load address land in real memory.
+  - Fix lan91c96 SMC_{in,out}{b,w,l}() macros
+  Patch by David Brownell, 10 Mar 2005
+
 * Add Barco Streaming Video Card (SVC) and Sample Compress Network (SCN) board
   Patch by Marc Leeman, 04 Mar 2005
 

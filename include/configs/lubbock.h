@@ -77,9 +77,10 @@
 #define CONFIG_NETMASK		255.255.0.0
 #define CONFIG_IPADDR		192.168.0.21
 #define CONFIG_SERVERIP		192.168.0.250
-#define CONFIG_BOOTCOMMAND	"bootm 40000"
+#define CONFIG_BOOTCOMMAND	"bootm 80000"
 #define CONFIG_BOOTARGS		"root=/dev/mtdblock2 rootfstype=cramfs console=ttyS0,115200"
 #define CONFIG_CMDLINE_TAG
+#define CONFIG_TIMESTAMP
 
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400		/* speed to run kgdb serial port */
@@ -109,7 +110,7 @@
 
 #undef	CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
 
-#define CFG_LOAD_ADDR		0xa8000000	/* default load address */
+#define CFG_LOAD_ADDR	(CFG_DRAM_BASE + 0x8000) /* default load address */
 
 #define CFG_HZ			3686400		/* incrementer freq: 3.6864 MHz */
 #define CFG_CPUSPEED		0x161		/* set core clock to 400/200/100 MHz */
@@ -211,10 +212,14 @@
 #define CFG_FLASH_ERASE_TOUT	(25*CFG_HZ) /* Timeout for Flash Erase */
 #define CFG_FLASH_WRITE_TOUT	(25*CFG_HZ) /* Timeout for Flash Write */
 
-/* FIXME */
+/* NOTE: many default partitioning schemes assume the kernel starts at the
+ * second sector, not an environment.  You have been warned!
+ */
+#define	CFG_MONITOR_LEN		PHYS_FLASH_SECT_SIZE
 #define CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_ADDR		(PHYS_FLASH_1 + 0x1C000)	/* Addr of Environment Sector	*/
-#define CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
+#define CFG_ENV_ADDR		(PHYS_FLASH_1 + PHYS_FLASH_SECT_SIZE)
+#define CFG_ENV_SECT_SIZE	PHYS_FLASH_SECT_SIZE
+#define CFG_ENV_SIZE		(PHYS_FLASH_SECT_SIZE / 16)
 
 
 /*

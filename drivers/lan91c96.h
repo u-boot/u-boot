@@ -78,17 +78,27 @@ typedef unsigned long int 		dword;
 
 #ifdef CONFIG_PXA250
 
-#define	SMC_inl(r) 	(*((volatile dword *)(SMC_BASE_ADDRESS+( r * 4 ))))
-#define	SMC_inw(r) 	(*((volatile word *)(SMC_BASE_ADDRESS+( r * 4 ))))
-#define SMC_inb(p)	({ \
-	unsigned int __p = (unsigned int)(SMC_BASE_ADDRESS + (p * 4)); \
-	unsigned int __v = *(volatile unsigned short *)((__p) & ~1); \
+#ifdef	CONFIG_LUBBOCK
+#define	SMC_IO_SHIFT	2
+#undef	USE_32_BIT
+
+#else
+#define	SMC_IO_SHIFT	0
+#endif
+
+#define	SMCREG(r)	(SMC_BASE_ADDRESS+((r)<<SMC_IO_SHIFT))
+
+#define	SMC_inl(r) 	(*((volatile dword *)SMCREG(r)))
+#define	SMC_inw(r) 	(*((volatile word *)SMCREG(r)))
+#define SMC_inb(p) ({ \
+	unsigned int __p = p; \
+	unsigned int __v = SMC_inw(__p & ~1); \
 	if (__p & 1) __v >>= 8; \
 	else __v &= 0xff; \
 	__v; })
 
-#define	SMC_outl(d,r)	(*((volatile dword *)(SMC_BASE_ADDRESS+(r * 4))) = d)
-#define	SMC_outw(d,r)	(*((volatile word *)(SMC_BASE_ADDRESS+(r * 4))) = d)
+#define	SMC_outl(d,r)	(*((volatile dword *)SMCREG(r)) = d)
+#define	SMC_outw(d,r)	(*((volatile word *)SMCREG(r)) = d)
 #define	SMC_outb(d,r)	({	word __d = (byte)(d);  \
 				word __w = SMC_inw((r)&~1);  \
 				__w &= ((r)&1) ? 0x00FF : 0xFF00;  \
