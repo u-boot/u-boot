@@ -302,9 +302,9 @@ void eth_set_enetaddr(int num, char *addr) {
 	debug ( "Setting new HW address on %s\n"
 		"New Address is             %02X:%02X:%02X:%02X:%02X:%02X\n",
 		dev->name,
-		dev->enetaddr[0], dev->enetaddr[1],
-		dev->enetaddr[2], dev->enetaddr[3],
-		dev->enetaddr[4], dev->enetaddr[5]);
+		enetaddr[0], enetaddr[1],
+		enetaddr[2], enetaddr[3],
+		enetaddr[4], enetaddr[5]);
 
 	memcpy(dev->enetaddr, enetaddr, 6);
 }

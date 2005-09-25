@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Fix typo in eth.c
+  Patch by Ara Avanesyan, 24 Feb 2005
+
 * Remove unneeded #include <malloc.h>
   Patch by Ladislav Michl, 22 Feb 2005
 
