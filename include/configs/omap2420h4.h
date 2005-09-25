@@ -40,7 +40,7 @@
 
 /* Clock config to target*/
 #define PRCM_CONFIG_II	1
-//#define PRCM_CONFIG_III		1
+/* #define PRCM_CONFIG_III		1 */
 
 #include <asm/arch/omap2420.h>        /* get chip and board defs */
 
@@ -157,14 +157,12 @@
 #define NAND_WP_OFF()  do {*(volatile u32 *)(0x6800A050) |= 0x00000010;} while(0)
 #define NAND_WP_ON()  do {*(volatile u32 *)(0x6800A050) &= ~0x00000010;} while(0)
 
-
 #define NAND_CTL_CLRALE(nandptr)
 #define NAND_CTL_SETALE(nandptr)
 #define NAND_CTL_CLRCLE(nandptr)
 #define NAND_CTL_SETCLE(nandptr)
 #define NAND_DISABLE_CE(nand)
 #define NAND_ENABLE_CE(nand)
-
 
 #define CONFIG_BOOTDELAY         3
 
@@ -260,9 +258,6 @@
 #define CFG_ENV_SECT_SIZE	PHYS_FLASH_SECT_SIZE
 #define CFG_ENV_OFFSET	( CFG_MONITOR_BASE + CFG_MONITOR_LEN ) /* Environment after Monitor */
 #endif
-
-
-
 
 /*-----------------------------------------------------------------------
  * CFI FLASH driver setup

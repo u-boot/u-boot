@@ -13,7 +13,7 @@
  * Ported to PQ2FADS-ZU and PQ2FADS-VR boards.
  * Ported to MPC8272ADS board.
  *
- * Copyright (c) 2005 MontaVista Software, Inc.   
+ * Copyright (c) 2005 MontaVista Software, Inc.
  * Vitaly Bordug <vbordug@ru.mvista.com>
  * Added support for PCI bridge on MPC8272ADS
  *
@@ -54,7 +54,6 @@
 #if (TEXT_BASE != 0xFFF00000)		/* Boot low (flash HRCW) */
 #   define CFG_LOWBOOT		1
 #endif
-
 
 /* ADS flavours */
 #define CFG_8260ADS		1	/* MPC8260ADS */
@@ -184,7 +183,6 @@
 #define CONFIG_PCI_BOOTDELAY 0
 #define CONFIG_PCI_SCAN_SHOW
 #endif
-
 
 #ifndef CONFIG_SDRAM_PBI
 #define CONFIG_SDRAM_PBI	0 /* By default, use bank-based interleaving */
@@ -334,7 +332,6 @@
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
-
 #ifdef CFG_LOWBOOT
 /* PQ2FADS flash HRCW = 0x0EB4B645 */
 #define CFG_HRCW_MASTER (   ( HRCW_BPS11 | HRCW_CIP )			    |\
@@ -386,12 +383,10 @@
 #  define CFG_ENV_SIZE		0x200
 #endif /* CFG_RAMBOOT */
 
-
 #define CFG_CACHELINE_SIZE	32	/* For MPC8260 CPU */
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 #  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
-
 
 #define CFG_HID0_INIT		0
 #define CFG_HID0_FINAL		(HID0_ICE | HID0_IFEM | HID0_ABE )
@@ -461,8 +456,6 @@
  * these windows.
  */
 
-
-
 /*
  * Master window that allows the CPU to access PCI Memory (prefetch).
  * This window will be setup with the second set of Outbound ATU registers
@@ -504,7 +497,7 @@
 #define CFG_PCI_MSTR0_LOCAL		CFG_PCI_MSTR_IO_LOCAL		/* Local base */
 #define CFG_PCIMSK0_MASK		~(CFG_PCI_MSTR_IO_SIZE - 1U)	/* Size of window */
 /* PCIBR1 - prefetch and non-prefetch regions joined together */
-#define CFG_PCI_MSTR1_LOCAL		CFG_PCI_MSTR_MEM_LOCAL	
+#define CFG_PCI_MSTR1_LOCAL		CFG_PCI_MSTR_MEM_LOCAL
 #define CFG_PCIMSK1_MASK		~(CFG_PCI_MSTR_MEM_SIZE + CFG_PCI_MSTR_MEMIO_SIZE - 1U)
 
 #endif /* CONFIG_ADSTYPE == CONFIG_8272ADS*/

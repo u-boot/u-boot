@@ -2,7 +2,7 @@
  * (C) Copyright 2003
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * Copyright (c) 2005 MontaVista Software, Inc.   
+ * Copyright (c) 2005 MontaVista Software, Inc.
  * Vitaly Bordug <vbordug@ru.mvista.com>
  * Added support for PCI bridge on MPC8272ADS
  *
@@ -253,25 +253,25 @@ void pci_mpc8250_init (struct pci_controller *hose)
 		(immap->im_siu_conf.sc_siumcr & ~SIUMCR_LBPC11)
 		| SIUMCR_LBPC01;
 #elif defined CONFIG_MPC8272
-	immap->im_siu_conf.sc_siumcr = (immap->im_siu_conf.sc_siumcr & 
-                                  ~SIUMCR_BBD &
-                                  ~SIUMCR_ESE &
-                                  ~SIUMCR_PBSE &
-                                  ~SIUMCR_CDIS &
-                                  ~SIUMCR_DPPC11 &
-                                  ~SIUMCR_L2CPC11 &
-                                  ~SIUMCR_LBPC11 &
-                                  ~SIUMCR_APPC11 &
-                                  ~SIUMCR_CS10PC11 &
-                                  ~SIUMCR_BCTLC11 &
-                                  ~SIUMCR_MMR11)
-                                  | SIUMCR_DPPC11
-                                  | SIUMCR_L2CPC01
-                                  | SIUMCR_LBPC00
-                                  | SIUMCR_APPC10
-                                  | SIUMCR_CS10PC00
-                                  | SIUMCR_BCTLC00
-                                  | SIUMCR_MMR11;
+	immap->im_siu_conf.sc_siumcr = (immap->im_siu_conf.sc_siumcr &
+				  ~SIUMCR_BBD &
+				  ~SIUMCR_ESE &
+				  ~SIUMCR_PBSE &
+				  ~SIUMCR_CDIS &
+				  ~SIUMCR_DPPC11 &
+				  ~SIUMCR_L2CPC11 &
+				  ~SIUMCR_LBPC11 &
+				  ~SIUMCR_APPC11 &
+				  ~SIUMCR_CS10PC11 &
+				  ~SIUMCR_BCTLC11 &
+				  ~SIUMCR_MMR11)
+				  | SIUMCR_DPPC11
+				  | SIUMCR_L2CPC01
+				  | SIUMCR_LBPC00
+				  | SIUMCR_APPC10
+				  | SIUMCR_CS10PC00
+				  | SIUMCR_BCTLC00
+				  | SIUMCR_MMR11;
 
 #else
 	/*
@@ -399,7 +399,7 @@ void pci_mpc8250_init (struct pci_controller *hose)
 	hose->last_busno = 0xff;
 
 	/* System memory space */
-#if defined CONFIG_MPC8266ADS || defined CONFIG_MPC8272 
+#if defined CONFIG_MPC8266ADS || defined CONFIG_MPC8272
 	pci_set_region (hose->regions + 0,
 			PCI_SLV_MEM_BUS,
 			PCI_SLV_MEM_LOCAL,
@@ -412,7 +412,7 @@ void pci_mpc8250_init (struct pci_controller *hose)
 #endif
 
 	/* PCI memory space */
-#if defined CONFIG_MPC8266ADS || defined CONFIG_MPC8272 
+#if defined CONFIG_MPC8266ADS || defined CONFIG_MPC8272
 	pci_set_region (hose->regions + 1,
 			PCI_MSTR_MEMIO_BUS,
 			PCI_MSTR_MEMIO_LOCAL,

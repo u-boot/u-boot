@@ -26,7 +26,7 @@
  * Configuration support for Xilinx Spartan3 devices.  Based
  * on spartan2.c (Rich Ireland, rireland@enterasys.com).
  */
-   
+
 #include <common.h>		/* core U-Boot definitions */
 #include <spartan3.h>		/* Spartan-II device family */
 

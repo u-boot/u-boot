@@ -13,7 +13,7 @@
  * Yuli Barcohen <yuli@arabellasw.com>
  * Added support for SDRAM DIMMs SPD EEPROM, MII, Ethernet PHY init.
  *
- * Copyright (c) 2005 MontaVista Software, Inc.   
+ * Copyright (c) 2005 MontaVista Software, Inc.
  * Vitaly Bordug <vbordug@ru.mvista.com>
  * Added support for PCI.
  *
@@ -267,7 +267,7 @@ int board_early_init_f (void)
 
 #ifdef CONFIG_PCI
 	volatile pci_ic_t* pci_ic = (pci_ic_t *) CFG_PCI_INT;
-	
+
 	/* mask alll the PCI interrupts */
 	pci_ic->pci_int_mask |= 0xfff00000;
 #endif

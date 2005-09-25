@@ -36,7 +36,7 @@
 #include <common.h>
 
 #ifdef CONFIG_PCI
-#   include <pci.h>
+#include <pci.h>
 #endif
 
 void flash__init (void);
@@ -46,7 +46,7 @@ void peripheral_power_enable (void);
 #if defined(CONFIG_SHOW_BOOT_PROGRESS)
 void show_boot_progress(int progress)
 {
-    printf("Boot reached stage %d\n", progress);
+	printf("Boot reached stage %d\n", progress);
 }
 #endif
 
@@ -79,7 +79,7 @@ int board_init (void)
 extern void cm_remap(void);
 	cm_remap();	/* remaps writeable memory to 0x00000000 */
 #endif
-        
+
 	icache_enable ();
 
 	flash__init ();
@@ -483,7 +483,7 @@ int dram_init (void)
 	DECLARE_GLOBAL_DATA_PTR;
 
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size  = PHYS_SDRAM_1_SIZE;
+	gd->bd->bi_dram[0].size	 = PHYS_SDRAM_1_SIZE;
 
 #ifdef CONFIG_CM_SPD_DETECT
 	{
@@ -492,22 +492,22 @@ extern void dram_query(void);
 	unsigned long sdram_shift;
 
 	dram_query();	/* Assembler accesses to CM registers */
-			/* Queries the SPD values   	      */
+			/* Queries the SPD values	      */
 
 	/* Obtain the SDRAM size from the CM SDRAM register */
 
 	cm_reg_sdram = *(volatile ulong *)(CM_BASE + OS_SDRAM);
-	/*   Register         SDRAM size
+	/*   Register	      SDRAM size
 	 *
-	 *   0xXXXXXXbbb000bb    16 MB
-	 *   0xXXXXXXbbb001bb    32 MB
-	 *   0xXXXXXXbbb010bb    64 MB
-	 *   0xXXXXXXbbb011bb   128 MB
-	 *   0xXXXXXXbbb100bb   256 MB
-         *
+	 *   0xXXXXXXbbb000bb	 16 MB
+	 *   0xXXXXXXbbb001bb	 32 MB
+	 *   0xXXXXXXbbb010bb	 64 MB
+	 *   0xXXXXXXbbb011bb	128 MB
+	 *   0xXXXXXXbbb100bb	256 MB
+	 *
 	 */
-	sdram_shift              = ((cm_reg_sdram & 0x0000001C)/4)%4;
-	gd->bd->bi_dram[0].size  = 0x01000000 << sdram_shift;
+	sdram_shift		 = ((cm_reg_sdram & 0x0000001C)/4)%4;
+	gd->bd->bi_dram[0].size	 = 0x01000000 << sdram_shift;
 
 	}
 #endif /* CM_SPD_DETECT */

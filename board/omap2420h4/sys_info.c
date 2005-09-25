@@ -385,4 +385,3 @@ u32 get_device_type(void)
 	mode = __raw_readl(CONTROL_STATUS) & (BIT10|BIT9|BIT8);
 	return(mode >>= 8);
 }
-
