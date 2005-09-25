@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Add iopset command on mpc8xx
+  Patch by Daniel Eisenhut, 25 Mar 2005
+
 * Add support for MII in eepro100 driver.
   Patch by Gleb Natapov, 21 Mar 2005
 
