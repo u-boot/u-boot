@@ -88,11 +88,11 @@ LIST_8220="	\
 #########################################################################
 
 LIST_824x="	\
-	A3000		BMW		CPC45		CU824		\
-	debris		eXalion		HIDDEN_DRAGON	MOUSSE		\
-	MUSENKI		MVBLUE		OXC		PN62		\
-	Sandpoint8240	Sandpoint8245	SL8245		utx8245		\
-	sbc8240 \
+	A3000		barco		BMW		CPC45		\
+	CU824		debris		eXalion		HIDDEN_DRAGON	\
+	MOUSSE		MUSENKI		MVBLUE		OXC		\
+	PN62		Sandpoint8240	Sandpoint8245	sbc8240		\
+	SL8245		utx8245						\
 "
 
 #########################################################################

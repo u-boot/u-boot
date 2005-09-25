@@ -1,0 +1,11 @@
+This port of U-Boot is tuned to run on a range of Barco Control Rooms
+Streaming Video Solutions, including:
+
+   - Streaming Video Card (SVC)
+   - Sample Compress Network (SCN)
+
+For more information, see http://www.barcocontrolrooms.com/
+
+Code and configuration are originally based on the Sandpoint board
+
+Marc Leeman <marc.leeman@barco.com>

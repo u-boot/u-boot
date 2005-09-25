@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Add Barco Streaming Video Card (SVC) and Sample Compress Network (SCN) board
+  Patch by Marc Leeman, 04 Mar 2005
+
 * OMAP242x H4 board update
   - fix for ES2 differences.
   - switch to using the cfi_flash driver.

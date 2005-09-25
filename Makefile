@@ -929,6 +929,9 @@ xtract_82xx = $(subst _BIGFLASH,,$(subst _ROMBOOT,,$(subst _L2,,$(subst _266MHz,
 A3000_config: unconfig
 	@./mkconfig $(@:_config=) ppc mpc824x a3000
 
+barco_config: unconfig
+	@./mkconfig $(@:_config=) ppc mpc824x barco
+
 BMW_config: unconfig
 	@./mkconfig $(@:_config=) ppc mpc824x bmw
 
