@@ -399,7 +399,7 @@
 #define CFG_ENV_SIZE		0x4000
 #define CFG_ENV_SECT_SIZE	0x20000
 #else
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x8000)
+#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x4000)
 #define CFG_ENV_SIZE		0x4000
 #define CFG_ENV_SECT_SIZE	0x4000
 #endif

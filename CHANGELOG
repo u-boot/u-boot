@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Undo change of f6e20fc6ca... to include/configs/trab.h
+  (Must have been an accident?)
+
 * Add support for AT91RM9200 OHCI Controller.
   Patch by Eric Benard, 07 Apr 2005
 
