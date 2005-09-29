@@ -314,7 +314,7 @@
 
 #define CONFIG_MPC85XX_FEC	1
 #define CONFIG_MPC85XX_FEC_NAME	"FEC"
-#define FEC_PHY_ADDR		2
+#define FEC_PHY_ADDR		3
 #define FEC_PHYIDX		0
 
 #define CONFIG_HAS_ETH1

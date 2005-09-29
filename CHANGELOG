@@ -2,6 +2,8 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Fix FEC PHY addresses for TQM85xx boards
+
 * Fix uninitialized variable problem in hush shell
   Patch by Lars Rostock, 26 Sep 2005
 
