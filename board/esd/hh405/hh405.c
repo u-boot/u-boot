@@ -367,7 +367,6 @@ int misc_init_r (void)
 	int i;
 	char *str;
 	unsigned long contrast0 = 0xffffffff;
-	pci_dev_t devbusfn;
 
 	dst = malloc(CFG_FPGA_MAX_SIZE);
 	if (gunzip (dst, CFG_FPGA_MAX_SIZE, (uchar *)fpgadata, &len) != 0) {
@@ -554,7 +553,10 @@ int misc_init_r (void)
 			 regs_13704_320_240_4bpp,
 			 sizeof(regs_13704_320_240_4bpp)/sizeof(regs_13704_320_240_4bpp[0]),
 			 logo_bmp_320, sizeof(logo_bmp_320));
+#ifdef CONFIG_VIDEO_SM501
 	} else {
+		pci_dev_t devbusfn;
+
 		/*
 		 * Is SM501 connected (ppc221/ppc231)?
 		 */
@@ -573,6 +575,7 @@ int misc_init_r (void)
 			printf("Unsupported bd_type defined (%s) -> No display configured!\n", str);
 			return 0;
 		}
+#endif /* CONFIG_VIDEO_SM501 */
 	}
 
 	return (0);

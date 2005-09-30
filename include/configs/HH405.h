@@ -55,6 +55,10 @@
 
 #define CONFIG_PREBOOT	        "autoupd"
 
+#define	CONFIG_EXTRA_ENV_SETTINGS					\
+	"pciconfighost=1\0"						\
+	""
+
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
 #define CONFIG_MII		1	/* MII PHY management		*/
@@ -66,7 +70,9 @@
 /*
  * Video console
  */
-#define CONFIG_VIDEO
+#define CONFIG_VIDEO			/* for sm501 video support	*/
+
+#ifdef CONFIG_VIDEO
 #define CONFIG_VIDEO_SM501
 #if 0
 #define CONFIG_VIDEO_SM501_32BPP
@@ -84,11 +90,10 @@
 #define CONFIG_VIDEO_BMP_GZIP		/* gzip compressed bmp images	*/
 #define CFG_VIDEO_LOGO_MAX_SIZE	(1024*1024)	/* for decompressed img */
 
-#ifdef CONFIG_VIDEO
 #define ADD_BMP_CMD		CFG_CMD_BMP
 #else
 #define ADD_BMP_CMD		0
-#endif
+#endif /* CONFIG_VIDEO */
 
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
 				CFG_CMD_DHCP	| \
