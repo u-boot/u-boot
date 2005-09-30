@@ -2,6 +2,8 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Fix compiler warning
+
 * Fix FEC PHY addresses for TQM85xx boards
 
 * Fix uninitialized variable problem in hush shell

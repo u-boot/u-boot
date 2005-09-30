@@ -26,6 +26,9 @@
 #include <common.h>
 #include <watchdog.h>
 #include <command.h>
+#ifdef CONFIG_MODEM_SUPPORT
+#include <malloc.h>		/* for free() prototype */
+#endif
 
 #ifdef CFG_HUSH_PARSER
 #include <hush.h>
