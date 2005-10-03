@@ -180,17 +180,23 @@ int misc_init_r (void)
 int checkboard(void)
 {
 	sys_info_t sysinfo;
+	unsigned char *s = getenv("serial#");
 
 	get_sys_info(&sysinfo);
 
-	printf("Board: AMCC YELLOWSTONE\n");
+	printf("Board: Yellowstone - AMCC PPC440GR Evaluation Board");
+	if (s != NULL) {
+		puts(", serial# ");
+		puts(s);
+	}
+	putc('\n');
+
 	printf("\tVCO: %lu MHz\n", sysinfo.freqVCOMhz / 1000000);
 	printf("\tCPU: %lu MHz\n", sysinfo.freqProcessor / 1000000);
 	printf("\tPLB: %lu MHz\n", sysinfo.freqPLB / 1000000);
 	printf("\tOPB: %lu MHz\n", sysinfo.freqOPB / 1000000);
-	printf("\tPER: %lu MHz\n", sysinfo.freqEPB / 1000000);
+	printf("\tEPB: %lu MHz\n", sysinfo.freqEPB / 1000000);
 	printf("\tPCI: %lu MHz\n", sysinfo.freqPCI / 1000000);
-
 
 	return (0);
 }
