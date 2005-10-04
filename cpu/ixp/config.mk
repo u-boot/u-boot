@@ -35,4 +35,3 @@ PLATFORM_CPPFLAGS += -mbig-endian -march=armv4 -mtune=strongarm1100
 # =========================================================================
 PLATFORM_CPPFLAGS +=$(call cc-option,-mapcs-32,-mabi=apcs-gnu)
 PLATFORM_RELFLAGS +=$(call cc-option,-mshort-load-bytes,$(call cc-option,-malignment-traps,))
-

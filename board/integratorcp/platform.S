@@ -32,7 +32,7 @@ reset_cpu:
 	mov	r0, #CM_BASE
 	ldr	r1,[r0,#OS_CTRL]
 	orr	r1,r1,#CMMASK_RESET
-	str	r1,[r0]
+	str	r1,[r0,#OS_CTRL]
 
 reset_failed:
 	b	reset_failed
@@ -65,6 +65,7 @@ platformsetup:
 
 #if !defined (CONFIG_CM920T) && !defined (CONFIG_CM920T_ETM) && \
     !defined (CONFIG_CM940T)
+    /* CMxx6 code */
 
 #ifdef	CONFIG_CM_MULTIPLE_SSRAM
 	/* set simple mapping		  */
@@ -98,8 +99,8 @@ platformsetup:
 	beq	init_reg_OK
 
 	/* lock for change */
-	mov	r3, #CMVAL_LOCK
-	and	r3,r3,#CMMASK_LOCK
+	mov	r3, #CMVAL_LOCK1
+	and	r3, r3, #CMVAL_LOCK2
 	str	r3, [r0, #OS_LOCK]
 	/* set desired value */
 	orr	r1,r1,r2

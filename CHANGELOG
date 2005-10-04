@@ -2,16 +2,24 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Cleanup
+
+* Update ARM Integrator boards:
+  Correct addessing errors in platform files.
+  Split off common core module data from Integrator header files to
+  include/armcoremodule.h.
+  Patch by Peter Pearse, 04 Oct 2005
+
 * Make sure only supported compiler options are used
   Import "cc-option" shell function from kernel and
   use it to get the correct ARM GCC options for individual CPUs
   Patch by Peter Pearse, 30 Jun 2005
 
 * Fix 440GR to print correct cpu revision
-  Patch by Stefan Roese, 4 Oct 2005
+  Patch by Stefan Roese, 04 Oct 2005
 
 * Change board message on AMCC Yosemite & Yellowstone to common style
-  Patch by Stefan Roese, 3 Oct 2005
+  Patch by Stefan Roese, 03 Oct 2005
 
 * Fix compiler warning
 

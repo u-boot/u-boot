@@ -18,6 +18,7 @@ Each CM consists of a ARM processor core and associated hardware e.g
 	SDRAM
 	RAM controllers
 	clock generators etc.
+CMs may be fitted with varying amounts of SDRAM using a DIMM socket.
 
 Boot Methods :
 ------------

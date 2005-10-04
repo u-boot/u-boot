@@ -66,7 +66,7 @@
 #define CONFIG_PL01x_PORTS	{ (void *)CFG_SERIAL0, (void *)CFG_SERIAL1 }
 #define CONFIG_CONS_INDEX	0
 #define CONFIG_BAUDRATE		38400
-#define CFG_BAUDRATE_TABLE      { 9600, 19200, 38400, 57600, 115200 }
+#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 #define CFG_SERIAL0		0x16000000
 #define CFG_SERIAL1		0x17000000
 
@@ -84,30 +84,31 @@
 
 #if 0
 #define CONFIG_BOOTDELAY	2
-#define CONFIG_BOOTARGS	"root=/dev/nfs mem=128M ip=dhcp netdev=27,0,0xfc800000,0xfc800010,eth0"
+#define CONFIG_BOOTARGS	"root=/dev/nfs nfsroot=<IP address>:/<exported rootfs>  mem=128M ip=dhcp netdev=27,0,0xfc800000,0xfc800010,eth0 video=clcdfb:0"
 #define CONFIG_BOOTCOMMAND "bootp ; bootm"
 #endif
+/* The kernel command line & boot command below are for a platform flashed with afu.axf
 
-/* Flash loaded
-   - U-Boot
-   - u-linux
-   - system.cramfs
+Image 666 Block  0 End Block  0 address 0x24000000 exec 0x24000000- name u-boot
+Image 667 Block  1 End Block 13 address 0x24040000 exec 0x24040000- name u-linux
+Image 668 Block 14 End Block 33 address 0x24380000 exec 0x24380000- name rootfs
+SIB at Block62 End Block62 address 0x24f80000
+
 */
 #define CONFIG_BOOTDELAY	2
-#define CONFIG_BOOTARGS	"root=/dev/mtdblock2 mem=128M ip=dhcp netdev=27,0, \
-0xfc800000,0xfc800010,eth0 video=clcdfb:0"
-#define CONFIG_BOOTCOMMAND "cp 0x24040000 0x7fc0 0x80000; bootm"
+#define CONFIG_BOOTARGS	"root=/dev/mtdblock2 mem=128M ip=dhcp netdev=27,0,0xfc800000,0xfc800010,eth0 video=clcdfb:0 console=ttyAMA0"
+#define CONFIG_BOOTCOMMAND "cp 0x24080000 0x7fc0 0x100000; bootm"
 
 /*
  * Miscellaneous configurable options
  */
-#define CFG_LONGHELP				/* undef to save memory     */
-#define CFG_PROMPT	"Integrator-CP # "	/* Monitor Command Prompt   */
-#define CFG_CBSIZE	256			/* Console I/O Buffer Size  */
+#define CFG_LONGHELP				/* undef to save memory */
+#define CFG_PROMPT	"Integrator-CP # "	/* Monitor Command Prompt */
+#define CFG_CBSIZE	256			/* Console I/O Buffer Size*/
 /* Print Buffer Size */
 #define CFG_PBSIZE	(CFG_CBSIZE+sizeof(CFG_PROMPT)+16)
-#define CFG_MAXARGS	16			/* max number of command args   */
-#define CFG_BARGSIZE	CFG_CBSIZE		/* Boot Argument Buffer Size    */
+#define CFG_MAXARGS	16			/* max number of command args */
+#define CFG_BARGSIZE	CFG_CBSIZE		/* Boot Argument Buffer Size*/
 
 #undef	CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
 #define CFG_LOAD_ADDR	0x7fc0	/* default load address */
@@ -126,90 +127,117 @@
 /*-----------------------------------------------------------------------
  * Physical Memory Map
  */
-#define CONFIG_NR_DRAM_BANKS    1		/* we have 1 bank of DRAM */
-#define PHYS_SDRAM_1            0x00000000	/* SDRAM Bank #1 */
-#define PHYS_SDRAM_1_SIZE       0x08000000	/* 128 MB */
+#define CONFIG_NR_DRAM_BANKS	1		/* we have 1 bank of DRAM */
+#define PHYS_SDRAM_1		0x00000000	/* SDRAM Bank #1 */
+#define PHYS_SDRAM_1_SIZE 	0x08000000	/* 128 MB */
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
+
+ * Top varies according to amount fitted
+ * Reserve top 4 blocks of flash
+ * - ARM Boot Monitor
+ * - Unused
+ * - SIB block
+ * - U-Boot environment
+ *
+ * Base is always 0x24000000
+
  */
-#define CFG_FLASH_BASE          0x24000000
+#define CFG_FLASH_BASE		0x24000000
 #define CFG_MAX_FLASH_SECT 	64
 #define CFG_MAX_FLASH_BANKS	1		/* max number of memory banks */
-#define PHYS_FLASH_SIZE         0x01000000	/* 16MB */
+#define PHYS_FLASH_SIZE 	0x01000000	/* 16MB */
 #define CFG_FLASH_ERASE_TOUT	(2*CFG_HZ)	/* Timeout for Flash Erase */
 #define CFG_FLASH_WRITE_TOUT	(2*CFG_HZ)	/* Timeout for Flash Write */
 
-#define CFG_MONITOR_BASE	0x24F40000
-#define CFG_ENV_IS_IN_FLASH
+#define CFG_MONITOR_LEN		0x00100000
+#define CFG_ENV_IS_IN_FLASH	(1)
+
+/*
+ * Move up the U-Boot & monitor area if more flash is fitted.
+ * If this U-Boot is to be run on Integrators with varying flash sizes,
+ * drivers/cfi_flash.c::flash_init() can read the Integrator CP_FLASHPROG
+ * register and dynamically assign CFG_ENV_ADDR & CFG_MONITOR_BASE
+ * - CFG_MONITOR_BASE is set to indicate that the environment is not
+ * embedded in the boot monitor(s) area
+ */
+#if ( PHYS_FLASH_SIZE == 0x04000000 )
+
+#define CFG_ENV_ADDR		0x27F00000
+#define CFG_MONITOR_BASE	0x27F40000
+
+#elif (PHYS_FLASH_SIZE == 0x02000000 )
+
+#define CFG_ENV_ADDR		0x25F00000
+#define CFG_MONITOR_BASE	0x25F40000
+
+#else
+
 #define CFG_ENV_ADDR		0x24F00000
+#define CFG_MONITOR_BASE	0x27F40000
+
+#endif
+
 #define CFG_ENV_SECT_SIZE	0x40000		/* 256KB */
 #define CFG_ENV_SIZE		8192		/* 8KB */
+/*-----------------------------------------------------------------------
+ * CP control registers
+ */
+#define CPCR_BASE		0xCB000000	/* CP Registers*/
+#define OS_FLASHPROG		0x00000004	/* Flash register*/
+#define CPMASK_EXTRABANK	0x8
+#define CPMASK_FLASHSIZE	0x4
+#define CPMASK_FLWREN		0x2
+#define CPMASK_FLVPPEN		0x1
 
+/*
+ * The ARM boot monitor initializes the board.
+ * However, the default U-Boot code also performs the initialization.
+ * If desired, this can be prevented by defining SKIP_LOWLEVEL_INIT
+ * - see documentation supplied with board for details of how to choose the
+ * image to run at reset/power up
+ * e.g. whether the ARM Boot Monitor runs before U-Boot
+
+#define CONFIG_SKIP_LOWLEVEL_INIT
+
+ */
+
+/*
+ * The ARM boot monitor does not relocate U-Boot.
+ * However, the default U-Boot code performs the relocation check,
+ * and may relocate the code if the memory map is changed.
+ * If necessary this can be prevented by defining SKIP_RELOCATE_UBOOT
+
+#define SKIP_CONFIG_RELOCATE_UBOOT
+
+ */
 /*-----------------------------------------------------------------------
  * There are various dependencies on the core module (CM) fitted
  * Users should refer to their CM user guide
  * - when porting adjust u-boot/Makefile accordingly
- *   to define the necessary CONFIG_ s for the CM involved
- * see e.g. integratorcp_CM926EJ-S_config
+ * to define the necessary CONFIG_ s for the CM involved
+ * see e.g. cp_926ejs_config
  */
 
-#define CM_BASE		0x10000000
+#include "armcoremodule.h"
 
-/* CM registers common to all integrator/CP CMs */
-#define OS_CTRL			0x0000000C
-#define CMMASK_REMAP		0x00000005	/* set remap & led           */
-#define CMMASK_RESET		0x00000008
-#define OS_LOCK	        	0x00000014
-#define CMVAL_LOCK	     	0x0000A000	/* locking value             */
-#define CMMASK_LOCK		0x0000005F	/* locking value             */
-#define CMVAL_UNLOCK		0x00000000	/* any value != CM_LOCKVAL   */
-#define OS_SDRAM		0x00000020
-#define OS_INIT			0x00000024
-#define CMMASK_MAP_SIMPLE	0xFFFDFFFF	/* simple mapping */
-#define CMMASK_TCRAM_DISABLE	0xFFFEFFFF	/* TCRAM disabled */
-#define CMMASK_LOWVEC		0x00000004	/* vectors @ 0x00000000 */
-#if defined (CONFIG_CM10200E) || defined (CONFIG_CM10220E)
-#define CMMASK_INIT_102		0x00000300	/* see CM102xx ref manual
-						 * - PLL test clock bypassed
-						 * - bus clock ratio 2
-						 * - little endian
-						 * - vectors at zero
-						 */
-#endif /* CM1022xx */
-
-#define CMMASK_LE		0x00000008	/* little endian */
-#define CMMASK_CMxx6_COMMON	0x00000100      /* Common value for CMxx6
-						 * - divisor/ratio b00000001
-						 *                 bx
-						 * - HCLKDIV       b000
-						 *                 bxx
-						 * - PLL BYPASS    b00
-						 */
-
-/* Determine CM characteristics */
-
-#undef	CONFIG_CM_MULTIPLE_SSRAM
-#undef	CONFIG_CM_SPD_DETECT
-#undef	CONFIG_CM_REMAP
+/*
+ * If CONFIG_SKIP_LOWLEVEL_INIT is not defined &
+ * the core module has a CM_INIT register
+ * then the U-Boot initialisation code will
+ * e.g. ARM Boot Monitor or pre-loader is repeated once
+ * (to re-initialise any existing CM_INIT settings to safe values).
+ *
+ * This is usually not the desired behaviour since the platform
+ * will either reboot into the ARM monitor (or pre-loader)
+ * or continuously cycle thru it without U-Boot running,
+ * depending upon the setting of Integrator/CP switch S2-4.
+ *
+ * However it may be needed if Integrator/CP switch S2-1
+ * is set OFF to boot direct into U-Boot.
+ * In that case comment out the line below.
 #undef	CONFIG_CM_INIT
-#undef	CONFIG_CM_TCRAM
-
-#if defined (CONFIG_CM946E_S) || defined (CONFIG_CM966E_S)
-#define	CONFIG_CM_MULTIPLE_SSRAM	/* CM has multiple SSRAM mapping */
-#endif
-
-#ifndef	CONFIG_CM922t_XA10
-#define CONFIG_CM_SPD_DETECT			/* CM supports SPD query      */
-#define OS_SPD			0x00000100	/* Address of SPD data        */
-#define CONFIG_CM_REMAP				/* CM supports remapping      */
-#define CONFIG_CM_INIT				/* CM has initialization reg  */
-#endif
-
-#if defined(CONFIG_CM926EJ_S)   || defined (CONFIG_CM946E_S)	|| \
-    defined(CONFIG_CM966E_S)    || defined (CONFIG_CM1026EJ_S)	|| \
-    defined(CONFIG_CM1136JF_S)
-#define CONFIG_CM_TCRAM				/* CM has TCRAM  */
-#endif
+ */
 
 #endif /* __CONFIG_H */

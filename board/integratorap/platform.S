@@ -32,7 +32,7 @@ reset_cpu:
 	mov	r0, #CM_BASE
 	ldr	r1,[r0,#OS_CTRL]
 	orr	r1,r1,#CMMASK_RESET
-	str	r1,[r0]
+	str	r1,[r0,#OS_CTRL]
 
 reset_failed:
 	b	reset_failed
@@ -98,8 +98,8 @@ platformsetup:
 	beq	init_reg_OK
 
 	/* lock for change */
-	mov	r3, #CMVAL_LOCK
-	and	r3,r3,#CMMASK_LOCK
+	mov	r3, #CMVAL_LOCK1
+	add	r3,r3,#CMVAL_LOCK2
 	str	r3, [r0, #OS_LOCK]
 	/* set desired value */
 	orr	r1,r1,r2
