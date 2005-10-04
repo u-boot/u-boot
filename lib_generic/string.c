@@ -380,7 +380,7 @@ char *strswab(const char *s)
 		return (NULL);
 	}
 
-	for (p=(char *)s, q=p+1; (*p != '\0') && (*p != '\0'); p+=2, q+=2) {
+	for (p=(char *)s, q=p+1; (*p != '\0') && (*q != '\0'); p+=2, q+=2) {
 		char  tmp;
 
 		tmp = *p;
