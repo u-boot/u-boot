@@ -995,6 +995,11 @@ relocate_code:
 7:	sync			/* Wait for all icbi to complete on bus */
 	isync
 
+	/*
+	 * Re-point the IVPR at RAM
+	 */
+	mtspr	IVPR,r10
+	
 /*
  * We are done. Do not return, instead branch to second part of board
  * initialization, now running from RAM.

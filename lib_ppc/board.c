@@ -429,6 +429,10 @@ void board_init_f (ulong bootflag)
 	 */
 	addr -= len;
 	addr &= ~(4096 - 1);
+#ifdef CONFIG_E500
+	/* round down to next 64 kB limit so that IVPR stays aligned */
+	addr &= ~(65536 - 1);
+#endif
 
 	debug ("Reserving %ldk for U-Boot at: %08lx\n", len >> 10, addr);
 

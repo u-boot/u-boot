@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* E500 update: repoint IVPR to RAM when code is relocated
+  Patch by Kylo Ginsberg, 13 Apr 2005
+
 * Fix loop end test in lib_generic/string.c:strswab()
   Patch by Andrew Dyer, October 10, 2005
   Signed-off-by: Andrew Dyer <amdyer@gmail.com>
