@@ -23,7 +23,15 @@
 #
 
 PLATFORM_RELFLAGS += -fno-strict-aliasing  -fno-common -ffixed-r8 \
-	-mshort-load-bytes -msoft-float
+	-msoft-float
 
 #PLATFORM_CPPFLAGS += -mapcs-32 -march=armv4 -mtune=strongarm1100
-PLATFORM_CPPFLAGS += -mapcs-32 -march=armv5 -mtune=xscale
+PLATFORM_CPPFLAGS += -march=armv5 -mtune=xscale
+# =========================================================================
+#
+# Supply options according to compiler version
+#
+# ========================================================================
+PLATFORM_CPPFLAGS +=$(call cc-option,-mapcs-32,-mabi=apcs-gnu)
+PLATFORM_RELFLAGS +=$(call cc-option,-mshort-load-bytes,$(call cc-option,-malignment-traps,))
+

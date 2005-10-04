@@ -2,6 +2,11 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Make sure only supported compiler options are used
+  Import "cc-option" shell function from kernel and
+  use it to get the correct ARM GCC options for individual CPUs
+  Patch by Peter Pearse, 30 Jun 2005
+
 * Fix 440GR to print correct cpu revision
   Patch by Stefan Roese, 4 Oct 2005
 

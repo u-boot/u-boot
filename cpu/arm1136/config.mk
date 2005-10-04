@@ -21,6 +21,15 @@
 # MA 02111-1307 USA
 #
 PLATFORM_RELFLAGS += -fno-strict-aliasing  -fno-common -ffixed-r8 \
+	-msoft-float
 
 # Make ARMv5 to allow more compilers to work, even though its v6.
-PLATFORM_CPPFLAGS += -mapcs-32 -march=armv5
+PLATFORM_CPPFLAGS += -march=armv5
+# =========================================================================
+#
+# Supply options according to compiler version
+#
+# =========================================================================
+PLATFORM_CPPFLAGS +=$(call cc-option,-mapcs-32,-mabi=apcs-gnu)
+PLATFORM_RELFLAGS +=$(call cc-option,-mshort-load-bytes,$(call cc-option,-malignment-traps,))
+
