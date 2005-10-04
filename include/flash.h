@@ -206,6 +206,8 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 #define AMD_ID_LV256U_3 0x22012201	/* 3rd ID word for AM29LV256M  at 0x3c */
 #define AMD_ID_GL064M_2 0x22132213	/* 2nd ID word for S29GL064M-R6 */
 #define AMD_ID_GL064M_3 0x22012201	/* 3rd ID word for S29GL064M-R6 */
+#define AMD_ID_GL064MT_2 0x22102210	/* 2nd ID word for S29GL064M-R3 (top boot sector) */
+#define AMD_ID_GL064MT_3 0x22012201	/* 3rd ID word for S29GL064M-R3 (top boot sector) */
 
 #define AMD_ID_LV320B_2 0x221A221A	/* 2d ID word for AM29LV320MB at 0x38 */
 #define AMD_ID_LV320B_3 0x22002200	/* 3d ID word for AM29LV320MB at 0x3c */

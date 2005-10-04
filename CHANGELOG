@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Add support for S29GL064M-R3 flash chip on xsengine board
+  Patch by Kurt Stremerch, 18 Apr 2005
+
 * E500 update: repoint IVPR to RAM when code is relocated
   Patch by Kylo Ginsberg, 13 Apr 2005
 
