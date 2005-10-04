@@ -135,16 +135,16 @@
 #define CONFIG_PHY_ADDR		1	/* PHY address			*/
 
 #define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
-				CFG_CMD_PCI	| \
-				CFG_CMD_IRQ	| \
-				CFG_CMD_FLASH	| \
-				CFG_CMD_NET	| \
 				CFG_CMD_DHCP	| \
-				CFG_CMD_PING	| \
-				CFG_CMD_MII	| \
 				CFG_CMD_EEPROM	| \
+				CFG_CMD_ELF	| \
 				CFG_CMD_FAT	| \
-				CFG_CMD_ELF	)
+				CFG_CMD_FLASH	| \
+				CFG_CMD_IRQ	| \
+				CFG_CMD_MII	| \
+				CFG_CMD_NET	| \
+				CFG_CMD_PCI	| \
+				CFG_CMD_PING	)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>

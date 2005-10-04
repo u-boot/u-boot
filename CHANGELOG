@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Fix device partition intialization for SystemACE disks.
+  Patch by Stephen Williams, 28 Apr 2005
+
 * Added support for KwikByte KB920x boards (based on AT91RM9200)
   Patch by Matt ?? <kb9200_dev@kwikbyte.com>, 27 Apr 2005
 
