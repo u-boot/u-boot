@@ -23,9 +23,10 @@
  */
 
 /*
- * Adatped for KwikByte KB920x board: 22APR2005
+ * Adapted for KwikByte KB920x board: 22APR2005
  */
 
+#include <common.h>
 #include <at91rm9200_net.h>
 #include <net.h>
 #include <lxt971a.h>
@@ -45,7 +46,7 @@
  *	TRUE - if id read successfully
  *	FALSE- if error
  */
-static unsigned int lxt972_IsPhyConnected (AT91PS_EMAC p_mac)
+unsigned int lxt972_IsPhyConnected (AT91PS_EMAC p_mac)
 {
 	unsigned short Id1, Id2;
 
@@ -72,7 +73,7 @@ static unsigned int lxt972_IsPhyConnected (AT91PS_EMAC p_mac)
  *	TRUE - if link status set succesfully
  *	FALSE - if link status not set
  */
-static UCHAR lxt972_GetLinkSpeed (AT91PS_EMAC p_mac)
+UCHAR lxt972_GetLinkSpeed (AT91PS_EMAC p_mac)
 {
 	unsigned short stat1;
 
@@ -131,7 +132,7 @@ static UCHAR lxt972_GetLinkSpeed (AT91PS_EMAC p_mac)
  *	TRUE - if link status set succesfully
  *	FALSE - if link status not set
  */
-static UCHAR lxt972_InitPhy (AT91PS_EMAC p_mac)
+UCHAR lxt972_InitPhy (AT91PS_EMAC p_mac)
 {
 	UCHAR ret = TRUE;
 
@@ -163,7 +164,7 @@ static UCHAR lxt972_InitPhy (AT91PS_EMAC p_mac)
  *	TRUE - if link status set successfully
  *	FALSE - if link status not set
  */
-static UCHAR lxt972_AutoNegotiate (AT91PS_EMAC p_mac, int *status)
+UCHAR lxt972_AutoNegotiate (AT91PS_EMAC p_mac, int *status)
 {
 	unsigned short value;
 
@@ -183,25 +184,6 @@ static UCHAR lxt972_AutoNegotiate (AT91PS_EMAC p_mac, int *status)
 		return FALSE;
 
 	return (lxt972_GetLinkSpeed (p_mac));
-}
-
-
-/*
- * Name:
- *	at91rm92000_GetPhyInterface
- * Description:
- *	Initialise the interface functions to the PHY
- * Arguments:
- *	None
- * Return value:
- *	None
- */
-void at91rm92000_GetPhyInterface(AT91PS_PhyOps p_phyops)
-{
-	p_phyops->Init = lxt972_InitPhy;
-	p_phyops->IsPhyConnected = lxt972_IsPhyConnected;
-	p_phyops->GetLinkSpeed = lxt972_GetLinkSpeed;
-	p_phyops->AutoNegotiate = lxt972_AutoNegotiate;
 }
 
 #endif	/* CONFIG_COMMANDS & CFG_CMD_NET */

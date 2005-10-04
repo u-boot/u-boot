@@ -28,7 +28,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= lib$(BOARD).a
 
-OBJS	:= kb9202.o lxt972.o
+OBJS	:= kb9202.o
 
 $(LIB):	$(OBJS) $(SOBJS)
 	$(AR) crv $@ $(OBJS) $(SOBJS)

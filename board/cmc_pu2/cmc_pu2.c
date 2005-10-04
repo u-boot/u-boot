@@ -30,6 +30,8 @@
 #include <common.h>
 #include <asm/mach-types.h>
 #include <asm/arch/AT91RM9200.h>
+#include <at91rm9200_net.h>
+#include <dm9161.h>
 
 /* ------------------------------------------------------------------------- */
 /*
@@ -152,3 +154,27 @@ int hw_detect (void)
 		return ((pio->PIO_PDSR & AT91C_PIO_PB13)
 			? CMC_HP_BASIC : CMC_BASIC);
 }
+
+#ifdef CONFIG_DRIVER_ETHER
+#if (CONFIG_COMMANDS & CFG_CMD_NET)
+
+/*
+ * Name:
+ *	at91rm9200_GetPhyInterface
+ * Description:
+ *	Initialise the interface functions to the PHY
+ * Arguments:
+ *	None
+ * Return value:
+ *	None
+ */
+void at91rm9200_GetPhyInterface(AT91PS_PhyOps p_phyops)
+{
+	p_phyops->Init = dm9161_InitPhy;
+	p_phyops->IsPhyConnected = dm9161_IsPhyConnected;
+	p_phyops->GetLinkSpeed = dm9161_GetLinkSpeed;
+	p_phyops->AutoNegotiate = dm9161_AutoNegotiate;
+}
+
+#endif	/* CONFIG_COMMANDS & CFG_CMD_NET */
+#endif	/* CONFIG_DRIVER_ETHER */

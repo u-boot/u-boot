@@ -40,7 +40,7 @@
  *	TRUE - if id read successfully
  *	FALSE- if error
  */
-static unsigned int dm9161_IsPhyConnected (AT91PS_EMAC p_mac)
+unsigned int dm9161_IsPhyConnected (AT91PS_EMAC p_mac)
 {
 	unsigned short Id1, Id2;
 
@@ -68,7 +68,7 @@ static unsigned int dm9161_IsPhyConnected (AT91PS_EMAC p_mac)
  *	TRUE - if link status set succesfully
  *	FALSE - if link status not set
  */
-static UCHAR dm9161_GetLinkSpeed (AT91PS_EMAC p_mac)
+UCHAR dm9161_GetLinkSpeed (AT91PS_EMAC p_mac)
 {
 	unsigned short stat1, stat2;
 
@@ -124,7 +124,7 @@ static UCHAR dm9161_GetLinkSpeed (AT91PS_EMAC p_mac)
  *	TRUE - if link status set succesfully
  *	FALSE - if link status not set
  */
-static UCHAR dm9161_InitPhy (AT91PS_EMAC p_mac)
+UCHAR dm9161_InitPhy (AT91PS_EMAC p_mac)
 {
 	UCHAR ret = TRUE;
 	unsigned short IntValue;
@@ -160,7 +160,7 @@ static UCHAR dm9161_InitPhy (AT91PS_EMAC p_mac)
  *	TRUE - if link status set successfully
  *	FALSE - if link status not set
  */
-static UCHAR dm9161_AutoNegotiate (AT91PS_EMAC p_mac, int *status)
+UCHAR dm9161_AutoNegotiate (AT91PS_EMAC p_mac, int *status)
 {
 	unsigned short value;
 	unsigned short PhyAnar;
@@ -217,25 +217,6 @@ static UCHAR dm9161_AutoNegotiate (AT91PS_EMAC p_mac, int *status)
 		return TRUE;
 	}
 	return FALSE;
-}
-
-
-/*
- * Name:
- *	at91rm92000_GetPhyInterface
- * Description:
- *	Initialise the interface functions to the PHY
- * Arguments:
- *	None
- * Return value:
- *	None
- */
-void at91rm92000_GetPhyInterface(AT91PS_PhyOps p_phyops)
-{
-	p_phyops->Init = dm9161_InitPhy;
-	p_phyops->IsPhyConnected = dm9161_IsPhyConnected;
-	p_phyops->GetLinkSpeed = dm9161_GetLinkSpeed;
-	p_phyops->AutoNegotiate = dm9161_AutoNegotiate;
 }
 
 #endif	/* CONFIG_COMMANDS & CFG_CMD_NET */

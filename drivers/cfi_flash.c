@@ -188,7 +188,9 @@ static ulong flash_get_size (ulong base, int banknum);
 static int flash_write_cfiword (flash_info_t * info, ulong dest, cfiword_t cword);
 static int flash_full_status_check (flash_info_t * info, flash_sect_t sector,
 				    ulong tout, char *prompt);
+#if defined(CFG_ENV_IS_IN_FLASH) || defined(CFG_ENV_ADDR_REDUND) || (CFG_MONITOR_BASE >= CFG_FLASH_BASE)
 static flash_info_t *flash_get_info(ulong base);
+#endif
 #ifdef CFG_FLASH_USE_BUFFER_WRITE
 static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp, int len);
 #endif
@@ -365,6 +367,7 @@ unsigned long flash_init (void)
 
 /*-----------------------------------------------------------------------
  */
+#if defined(CFG_ENV_IS_IN_FLASH) || defined(CFG_ENV_ADDR_REDUND) || (CFG_MONITOR_BASE >= CFG_FLASH_BASE)
 static flash_info_t *flash_get_info(ulong base)
 {
 	int i;
@@ -379,6 +382,7 @@ static flash_info_t *flash_get_info(ulong base)
 
 	return i == CFG_MAX_FLASH_BANKS ? 0 : info;
 }
+#endif
 
 /*-----------------------------------------------------------------------
  */

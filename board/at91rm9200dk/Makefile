@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= lib$(BOARD).a
 
-OBJS	:= at91rm9200dk.o at45.o dm9161.o flash.o
+OBJS	:= at91rm9200dk.o at45.o flash.o
 
 $(LIB):	$(OBJS) $(SOBJS)
 	$(AR) crv $@ $(OBJS) $(SOBJS)

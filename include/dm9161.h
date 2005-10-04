@@ -124,7 +124,7 @@
 
 
 /******************  function prototypes **********************/
-static unsigned int dm9161_IsPhyConnected(AT91PS_EMAC p_mac);
-static unsigned char  dm9161_GetLinkSpeed(AT91PS_EMAC p_mac);
-static unsigned char dm9161_AutoNegotiate(AT91PS_EMAC p_mac, int *status);
-static unsigned char dm9161_InitPhy(AT91PS_EMAC p_mac);
+unsigned int  dm9161_IsPhyConnected(AT91PS_EMAC p_mac);
+unsigned char dm9161_GetLinkSpeed(AT91PS_EMAC p_mac);
+unsigned char dm9161_AutoNegotiate(AT91PS_EMAC p_mac, int *status);
+unsigned char dm9161_InitPhy(AT91PS_EMAC p_mac);

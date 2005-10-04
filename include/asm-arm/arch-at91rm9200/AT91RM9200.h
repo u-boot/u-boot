@@ -43,8 +43,7 @@ typedef struct _AT91S_TC
 	AT91_REG	 TC_IER; 	/* Interrupt Enable Register */
 	AT91_REG	 TC_IDR; 	/* Interrupt Disable Register */
 	AT91_REG	 TC_IMR; 	/* Interrupt Mask Register */
-}
-AT91S_TC, *AT91PS_TC;
+} AT91S_TC, *AT91PS_TC;
 
 #define AT91C_TC_TIMER_DIV1_CLOCK	((unsigned int) 0x0 <<  0) /* (TC) MCK/2 */
 #define AT91C_TC_TIMER_DIV2_CLOCK	((unsigned int) 0x1 <<  0) /* (TC) MCK/8 */
@@ -93,8 +92,7 @@ typedef struct _AT91S_USART
 	AT91_REG	 US_TNCR; 	/* Transmit Next Counter Register */
 	AT91_REG	 US_PTCR; 	/* PDC Transfer Control Register */
 	AT91_REG	 US_PTSR; 	/* PDC Transfer Status Register */
-}
-AT91S_USART, *AT91PS_USART;
+} AT91S_USART, *AT91PS_USART;
 
 /******************************************************************************/
 /*          SOFTWARE API DEFINITION  FOR Clock Generator Controler            */
@@ -105,8 +103,7 @@ typedef struct _AT91S_CKGR
 	AT91_REG	 CKGR_MCFR; 	/* Main Clock  Frequency Register */
 	AT91_REG	 CKGR_PLLAR; 	/* PLL A Register */
 	AT91_REG	 CKGR_PLLBR; 	/* PLL B Register */
-}
-AT91S_CKGR, *AT91PS_CKGR;
+} AT91S_CKGR, *AT91PS_CKGR;
 
 /* -------- CKGR_MOR : (CKGR Offset: 0x0) Main Oscillator Register -------- */
 #define AT91C_CKGR_MOSCEN	((unsigned int) 0x1  <<  0)	/* (CKGR) Main Oscillator Enable */
@@ -184,8 +181,7 @@ typedef struct _AT91S_PIO
 	AT91_REG	 PIO_OWER; 	/* Output Write Enable Register */
 	AT91_REG	 PIO_OWDR; 	/* Output Write Disable Register */
 	AT91_REG	 PIO_OWSR; 	/* Output Write Status Register */
-}
-AT91S_PIO, *AT91PS_PIO;
+} AT91S_PIO, *AT91PS_PIO;
 
 
 /******************************************************************************/
@@ -217,8 +213,7 @@ typedef struct _AT91S_DBGU
 	AT91_REG	 DBGU_TNCR; 	/* Transmit Next Counter Register */
 	AT91_REG	 DBGU_PTCR; 	/* PDC Transfer Control Register */
 	AT91_REG	 DBGU_PTSR; 	/* PDC Transfer Status Register */
-}
-AT91S_DBGU, *AT91PS_DBGU;
+} AT91S_DBGU, *AT91PS_DBGU;
 
 /* -------- DBGU_IER : (DBGU Offset: 0x8) Debug Unit Interrupt Enable Register --------  */
 #define AT91C_US_RXRDY		((unsigned int) 0x1 <<  0) /* (DBGU) RXRDY Interrupt */
@@ -253,8 +248,7 @@ AT91S_DBGU, *AT91PS_DBGU;
 typedef struct _AT91S_SMC2
 {
 	AT91_REG	 SMC2_CSR[8]; 	/* SMC2 Chip Select Register */
-}
-AT91S_SMC2, *AT91PS_SMC2;
+} AT91S_SMC2, *AT91PS_SMC2;
 
 /* -------- SMC2_CSR : (SMC2 Offset: 0x0) SMC2 Chip Select Register --------  */
 #define AT91C_SMC2_NWS			((unsigned int) 0x7F << 0) /* (SMC2) Number of Wait States */
@@ -293,8 +287,7 @@ typedef struct _AT91S_PMC
 	AT91_REG	 PMC_IDR; 	/* Interrupt Disable Register */
 	AT91_REG	 PMC_SR; 	/* Status Register */
 	AT91_REG	 PMC_IMR; 	/* Interrupt Mask Register */
-}
-AT91S_PMC, *AT91PS_PMC;
+} AT91S_PMC, *AT91PS_PMC;
 
 /*------- PMC_SCER : (PMC Offset: 0x0) System Clock Enable Register --------*/
 #define AT91C_PMC_PCK		((unsigned int) 0x1 <<  0) /* (PMC) Processor Clock */
@@ -396,8 +389,7 @@ typedef struct _AT91S_EMAC
 	AT91_REG	 EMAC_SA3H; 	/* Specific Address 3 High, Last 2 bytes */
 	AT91_REG	 EMAC_SA4L; 	/* Specific Address 4 Low, First 4 bytes */
 	AT91_REG	 EMAC_SA4H; 	/* Specific Address 4 High, Last 2 bytesr */
-}
-AT91S_EMAC, *AT91PS_EMAC;
+} AT91S_EMAC, *AT91PS_EMAC;
 
 /* -------- EMAC_CTL : (EMAC Offset: 0x0)  --------  */
 #define AT91C_EMAC_LB		((unsigned int) 0x1 <<  0) /* (EMAC) Loopback. Optional. When set, loopback signal is at high level. */
@@ -505,8 +497,7 @@ typedef struct _AT91S_SPI
 	AT91_REG	 SPI_TNCR; 	/* Transmit Next Counter Register */
 	AT91_REG	 SPI_PTCR; 	/* PDC Transfer Control Register */
 	AT91_REG	 SPI_PTSR; 	/* PDC Transfer Status Register */
-}
-AT91S_SPI, *AT91PS_SPI;
+} AT91S_SPI, *AT91PS_SPI;
 
 /* -------- SPI_CR : (SPI Offset: 0x0) SPI Control Register -------- */
 #define AT91C_SPI_SPIEN		((unsigned int) 0x1 <<  0) /* (SPI) SPI Enable */
@@ -579,8 +570,7 @@ typedef struct _AT91S_PDC
 	AT91_REG	 PDC_TNCR; 	/* Transmit Next Counter Register */
 	AT91_REG	 PDC_PTCR; 	/* PDC Transfer Control Register */
 	AT91_REG	 PDC_PTSR; 	/* PDC Transfer Status Register */
-}
-AT91S_PDC, *AT91PS_PDC;
+} AT91S_PDC, *AT91PS_PDC;
 
 /* -------- PDC_PTCR : (PDC Offset: 0x20) PDC Transfer Control Register -------- */
 #define AT91C_PDC_RXTEN		((unsigned int) 0x1 <<  0) /* (PDC) Receiver Transfer Enable */
@@ -702,6 +692,10 @@ AT91S_PDC, *AT91PS_PDC;
 #define AT91C_PIO_PA7		((unsigned int) 1 <<  7)	/* Pin Controlled by PA7 */
 #define AT91C_PA7_ETXCK_EREFCK	((unsigned int) AT91C_PIO_PA7)	/* Ethernet MAC Transmit Clock/Reference Clock */
 
+#define AT91C_PIO_PB3		((unsigned int) 1 <<  3)	/* Pin Controlled by PB3 */
+#define AT91C_PIO_PB4		((unsigned int) 1 <<  4)	/* Pin Controlled by PB4 */
+#define AT91C_PIO_PB5		((unsigned int) 1 <<  5)	/* Pin Controlled by PB5 */
+#define AT91C_PIO_PB6		((unsigned int) 1 <<  6)	/* Pin Controlled by PB6 */
 #define AT91C_PIO_PB7		((unsigned int) 1 <<  7)	/* Pin Controlled by PB7 */
 #define AT91C_PIO_PB25		((unsigned int) 1 << 25)	/* Pin Controlled by PB25 */
 #define AT91C_PB25_DSR1		((unsigned int) AT91C_PIO_PB25)	/* USART 1 Data Set ready */

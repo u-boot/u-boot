@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= lib$(BOARD).a
 
-OBJS	:= cmc_pu2.o at45.o dm9161.o flash.o load_sernum_ethaddr.o
+OBJS	:= cmc_pu2.o at45.o flash.o load_sernum_ethaddr.o
 
 $(LIB):	$(OBJS) $(SOBJS)
 	$(AR) crv $@ $(OBJS) $(SOBJS)

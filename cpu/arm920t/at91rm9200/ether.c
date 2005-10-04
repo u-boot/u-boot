@@ -217,7 +217,7 @@ int eth_init (bd_t * bd)
 
 	p_mac->EMAC_CTL |= AT91C_EMAC_TE | AT91C_EMAC_RE;
 
-	at91rm92000_GetPhyInterface (& PhyOps);
+	at91rm9200_GetPhyInterface (& PhyOps);
 
 	if (!PhyOps.IsPhyConnected (p_mac))
 		printf ("PHY not connected!!\n\r");

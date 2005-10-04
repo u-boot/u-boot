@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= lib$(SOC).a
 
-OBJS	= ether.o i2c.o interrupts.o serial.o usb_ohci.o
+OBJS	= dm9161.o ether.o i2c.o interrupts.o lxt972.o serial.o usb_ohci.o
 SOBJS	= lowlevel_init.o
 
 all:	.depend $(LIB)

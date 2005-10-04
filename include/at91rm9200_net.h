@@ -52,6 +52,6 @@ void at91rm9200_EmacEnableMDIO(AT91PS_EMAC p_mac);
 void at91rm9200_EmacDisableMDIO(AT91PS_EMAC p_mac);
 UCHAR at91rm9200_EmacReadPhy(AT91PS_EMAC p_mac, unsigned char RegisterAddress, unsigned short *pInput);
 UCHAR at91rm9200_EmacWritePhy(AT91PS_EMAC p_mac, unsigned char RegisterAddress, unsigned short *pOutput);
-void at91rm92000_GetPhyInterface(AT91PS_PhyOps p_phyops);
+void at91rm9200_GetPhyInterface(AT91PS_PhyOps p_phyops);
 
 #endif /* AT91RM9200_ETHERNET */

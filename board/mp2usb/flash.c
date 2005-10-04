@@ -237,7 +237,7 @@ static ulong flash_get_size (FPW *addr, flash_info_t *info)
 
 int flash_erase (flash_info_t *info, int s_first, int s_last)
 {
-	int flag, prot, sect;
+	int prot, sect;
 	ulong type, start, last;
 	int rcode = 0;
 	int cflag, iflag;
@@ -284,10 +284,8 @@ int flash_erase (flash_info_t *info, int s_first, int s_last)
 	 */
 	cflag = icache_status ();
 	icache_disable ();
-	iflag = disable_interrupts ();
-
 	/* Disable interrupts which might cause a timeout here */
-/*	flag = disable_interrupts (); */
+	iflag = disable_interrupts ();
 
 	/* Start erase on unprotected sectors */
 	for (sect = s_first; sect <= s_last; sect++) {
@@ -314,8 +312,8 @@ int flash_erase (flash_info_t *info, int s_first, int s_last)
 				}
 			}
 
-			*addr = INTEL_CLEAR;	/* clear status register cmd.   */
-			*addr = INTEL_RESET;	/* resest to read mode          */
+			*addr = (FPWV)INTEL_CLEAR;	/* clear status register cmd.   */
+			*addr = (FPWV)INTEL_RESET;	/* resest to read mode          */
 
 			printf (" done\n");
 		}
@@ -425,7 +423,6 @@ static int write_data (flash_info_t *info, ulong dest, FPW data)
 	FPWV *addr = (FPWV *) dest;
 	ulong status;
 	int cflag, iflag;
-	int flag;
 
 	/* Check if Flash is (sufficiently) erased */
 	if ((*addr & data) != data) {
@@ -441,10 +438,8 @@ static int write_data (flash_info_t *info, ulong dest, FPW data)
 	 */
 	cflag = icache_status ();
 	icache_disable ();
-	iflag = disable_interrupts ();
-
 	/* Disable interrupts which might cause a timeout here */
-	/*flag = disable_interrupts (); */
+	iflag = disable_interrupts ();
 
 	*addr = (FPW) INTEL_PROG;	/* write setup */
 	*addr = data;

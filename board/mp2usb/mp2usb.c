@@ -27,6 +27,8 @@
 
 #include <common.h>
 #include <asm/arch/AT91RM9200.h>
+#include <at91rm9200_net.h>
+#include <dm9161.h>
 #include <asm/mach-types.h>
 
 /* ------------------------------------------------------------------------- */
@@ -60,3 +62,27 @@ int dram_init (void)
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_SIZE;
 	return 0;
 }
+
+#ifdef CONFIG_DRIVER_ETHER
+#if (CONFIG_COMMANDS & CFG_CMD_NET)
+
+/*
+ * Name:
+ *	at91rm9200_GetPhyInterface
+ * Description:
+ *	Initialise the interface functions to the PHY
+ * Arguments:
+ *	None
+ * Return value:
+ *	None
+ */
+void at91rm9200_GetPhyInterface(AT91PS_PhyOps p_phyops)
+{
+	p_phyops->Init = dm9161_InitPhy;
+	p_phyops->IsPhyConnected = dm9161_IsPhyConnected;
+	p_phyops->GetLinkSpeed = dm9161_GetLinkSpeed;
+	p_phyops->AutoNegotiate = dm9161_AutoNegotiate;
+}
+
+#endif	/* CONFIG_COMMANDS & CFG_CMD_NET */
+#endif	/* CONFIG_DRIVER_ETHER */
