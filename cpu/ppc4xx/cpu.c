@@ -178,22 +178,19 @@ int checkcpu (void)
 	case PVR_440GX_RC:
 		puts("GX Rev. C");
 		break;
-#if defined(CONFIG_440GR)
-	case PVR_440EP_RA:
-		puts("GR Rev. A");
-		break;
-	case PVR_440EP_RB:
-		puts("GR Rev. B");
-		break;
-#else
 	case PVR_440EP_RA:
 		puts("EP Rev. A");
 		break;
-	case PVR_440EP_RB:
+#ifdef CONFIG_440EP
+	case PVR_440EP_RB: /* 440EP rev B and 440GR rev A have same PVR */
 		puts("EP Rev. B");
 		break;
-#endif
-
+#endif /*  CONFIG_440EP */
+#ifdef CONFIG_440GR
+	case PVR_440GR_RA: /* 440EP rev B and 440GR rev A have same PVR */
+		puts("GR Rev. A");
+		break;
+#endif /* CONFIG_440GR */
 	default:
 		printf (" UNKNOWN (PVR=%08x)", pvr);
 		break;
