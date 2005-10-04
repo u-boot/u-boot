@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Fix dm9161.c initialization
+  Patch by Anders Larsen, 29 Apr 2005
+
 * Fix problems introduced by Patch by Steven Scholz, 02 Mar 2005
   (8e2be51de8dd03c1ce4d06cbb18ad06133d47cd5)
 

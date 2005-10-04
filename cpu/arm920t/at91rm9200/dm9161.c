@@ -138,9 +138,9 @@ UCHAR dm9161_InitPhy (AT91PS_EMAC p_mac)
 
 	/* Disable PHY Interrupts */
 	at91rm9200_EmacReadPhy (p_mac, DM9161_MDINTR, &IntValue);
-	/* clear FDX, SPD, Link, INTR masks */
-	IntValue &= ~(DM9161_FDX_MASK | DM9161_SPD_MASK |
-		      DM9161_LINK_MASK | DM9161_INTR_MASK);
+	/* set FDX, SPD, Link, INTR masks */
+	IntValue |= (DM9161_FDX_MASK | DM9161_SPD_MASK |
+		     DM9161_LINK_MASK | DM9161_INTR_MASK);
 	at91rm9200_EmacWritePhy (p_mac, DM9161_MDINTR, &IntValue);
 	at91rm9200_EmacDisableMDIO (p_mac);
 
@@ -190,6 +190,7 @@ UCHAR dm9161_AutoNegotiate (AT91PS_EMAC p_mac, int *status)
 		return FALSE;
 	/* Restart Auto_negotiation  */
 	value |= DM9161_RESTART_AUTONEG;
+	value &= ~DM9161_ISOLATE;
 	if (!at91rm9200_EmacWritePhy (p_mac, DM9161_BMCR, &value))
 		return FALSE;
 
