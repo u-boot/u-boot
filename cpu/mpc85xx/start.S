@@ -999,7 +999,7 @@ relocate_code:
 	 * Re-point the IVPR at RAM
 	 */
 	mtspr	IVPR,r10
-	
+
 /*
  * We are done. Do not return, instead branch to second part of board
  * initialization, now running from RAM.

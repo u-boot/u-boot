@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Added support for KwikByte KB920x boards (based on AT91RM9200)
+  Patch by Matt ?? <kb9200_dev@kwikbyte.com>, 27 Apr 2005
+
 * Add support for S29GL064M-R3 flash chip on xsengine board
   Patch by Kurt Stremerch, 18 Apr 2005
 

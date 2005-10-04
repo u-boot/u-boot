@@ -1566,6 +1566,9 @@ integratorcp_CM1136JF_S_config	:	unconfig
 	./mkconfig -a $(call xtract_int_board,cp,$@) arm $$cpu 		\
 	              $(call xtract_int_board,cp,$@);
 
+kb9202_config	:	unconfig
+	@./mkconfig $(@:_config=) arm arm920t kb9202 NULL at91rm9200
+
 lpd7a400_config \
 lpd7a404_config:	unconfig
 	@./mkconfig $(@:_config=) arm lh7a40x lpd7a40x

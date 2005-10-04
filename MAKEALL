@@ -179,10 +179,10 @@ LIST_ARM9="	\
 	integratorcp_CM920T_ETM		integratorcp_CM922T_XA10	\
 	integratorcp_CM926EJ_S		integratorcp_CM940T		\
 	integratorcp_CM946E_S		integratorcp_CM966E_S		\
-	lpd7a400	mp2usb		mx1ads		mx1fs2		\
-	omap1510inn	omap1610h2	omap1610inn	omap730p2	\
-	scb9328		smdk2400	smdk2410	trab		\
-	VCMA9		versatile	voiceblue			\
+	kb9202		lpd7a400	mp2usb		mx1ads		\
+	mx1fs2		omap1510inn	omap1610h2	omap1610inn	\
+	omap730p2	scb9328		smdk2400	smdk2410	\
+	trab		VCMA9		versatile	voiceblue	\
 "
 
 #########################################################################
