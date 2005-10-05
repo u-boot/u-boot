@@ -65,9 +65,8 @@ at91_xfer(unsigned char chip, unsigned int addr, int alen,
 		| ((rw == 1) ? AT91C_TWI_MREAD : 0);
 
 	/* Set TWI Internal Address Register with first messages data field */
-	/* only one address byte is supported  */
 	if (alen > 0)
-		twi->TWI_IADR = addr & 0xff;
+		twi->TWI_IADR = addr;
 
 	length = len;
 	buf = buffer;

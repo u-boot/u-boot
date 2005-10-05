@@ -116,8 +116,8 @@
 #define	CFG_ENV_IS_IN_EEPROM
 
 #ifdef CONFIG_KB9202
-#define CFG_ENV_OFFSET			0x3000
-#define CFG_ENV_SIZE			0x1000
+#define CFG_ENV_OFFSET			0x3E00
+#define CFG_ENV_SIZE			0x0200
 #else
 #define CFG_ENV_OFFSET			0x1000
 #define CFG_ENV_SIZE			0x1000
