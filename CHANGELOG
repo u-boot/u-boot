@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Set the AT91RM9200 clock to asynchronous mode
+  Patch by Anders Larsen, 03 May 2005
+
 * Set the AT91RM9200 clock to synchronous mode
   Patch by Anders Larsen, 29 Apr 2005
 

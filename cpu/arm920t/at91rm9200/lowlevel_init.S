@@ -123,9 +123,9 @@ LoopOsc:
 	cmp	r2, r0
 	bne	2b
 
-	/* switch from FastBus to Synchronous clock mode */
+	/* switch from FastBus to Asynchronous clock mode */
 	mrc	p15, 0, r0, c1, c0, 0
-	orr	r0, r0, #0x40000000	@ set bit 30 (nF) notFastBus
+	orr	r0, r0, #0xC0000000	@ set bit 31 (iA) and 30 (nF)
 	mcr	p15, 0, r0, c1, c0, 0
 
 	/* everything is fine now */
