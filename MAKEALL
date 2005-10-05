@@ -171,7 +171,7 @@ LIST_ARM7="	\
 #########################################################################
 
 LIST_ARM9="	\
-	at91rm9200dk	cmc_pu2						\
+	at91rm9200dk	cmc_pu2		csb637				\
 	integratorap_CM920T		integratorap_CM920T_ETM		\
 	integratorap_CM922T_XA10	integratorap_CM926EJ_S		\
 	integratorap_CM940T		integratorap_CM946E_S		\

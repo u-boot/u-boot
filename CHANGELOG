@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Add support for Cogent csb637
+  Patch by Anders Larsen, 29 Apr 2005
+
 * Fix dm9161.c initialization
   Patch by Anders Larsen, 29 Apr 2005
 

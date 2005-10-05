@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000-2005
+# (C) Copyright 2003
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,22 +23,24 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(SOC).a
+LIB	= lib$(BOARD).a
 
-OBJS	= bcm5221.o dm9161.o ether.o i2c.o interrupts.o \
-	  lxt972.o serial.o usb_ohci.o
-SOBJS	= lowlevel_init.o
-
-all:	.depend $(LIB)
+OBJS	:= csb637.o
 
 $(LIB):	$(OBJS) $(SOBJS)
 	$(AR) crv $@ $(OBJS) $(SOBJS)
 
+clean:
+	rm -f $(SOBJS) $(OBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak .depend
+
 #########################################################################
 
 .depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
+		$(CC) -M $(CPPFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
 
-sinclude .depend
+-include .depend
 
 #########################################################################
