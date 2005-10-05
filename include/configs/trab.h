@@ -159,10 +159,11 @@
 				CFG_CMD_BSP			| \
 				CFG_CMD_DATE			| \
 				CFG_CMD_DHCP			| \
-				CFG_CMD_USB			| \
 				CFG_CMD_FAT			| \
+				CFG_CMD_JFFS2			| \
 				CFG_CMD_NFS			| \
-				CFG_CMD_SNTP	)
+				CFG_CMD_SNTP			| \
+				CFG_CMD_USB	)
 #else
 #define CONFIG_COMMANDS	       (CONFIG_CMD_DFL			| \
 				CONFIG_COMMANDS_ADD_HWFLOW	| \
@@ -172,10 +173,11 @@
 				CFG_CMD_BSP			| \
 				CFG_CMD_DATE			| \
 				CFG_CMD_DHCP			| \
-				CFG_CMD_USB			| \
 				CFG_CMD_FAT			| \
+				CFG_CMD_JFFS2			| \
 				CFG_CMD_NFS			| \
-				CFG_CMD_SNTP	)
+				CFG_CMD_SNTP			| \
+				CFG_CMD_USB	)
 #endif
 
 /* moved up */
@@ -376,6 +378,20 @@
 /* The following #defines are needed to get flash environment right */
 #define	CFG_MONITOR_BASE	CFG_FLASH_BASE
 #define	CFG_MONITOR_LEN		(256 << 10)
+
+/* Dynamic MTD partition support */
+#define CONFIG_JFFS2_CMDLINE
+#define MTDIDS_DEFAULT		"nor0=0"
+
+/* production flash layout */
+#define MTDPARTS_DEFAULT	"mtdparts=0:32k(Firmware1)ro,"		\
+						"16k(Env1),"		\
+						"16k(Env2),"		\
+						"320k(Firmware2)ro,"	\
+						"896k(Kernel),"		\
+						"5376k(Root-FS),"	\
+						"1408k(JFFS2),"		\
+						"-(VFD)"
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
