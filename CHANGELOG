@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Fix the machine-id of the Cogent csb637 board
+  Patch by Anders Larsen, 05 Oct 2005
+
 * Complete support for the KwikByte KB920x boards
   Patch by Anders Larsen, 05 Oct 2005
 

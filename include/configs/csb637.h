@@ -34,6 +34,7 @@
 
 #define CONFIG_ARM920T		1	/* This is an ARM920T Core	*/
 #define CONFIG_AT91RM9200	1	/* It's an Atmel AT91RM9200 SoC	*/
+#define CONFIG_CSB637		1	/* on a CSB637 board		*/
 #undef  CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff	*/
 #define USE_920T_MMU		1
 
@@ -78,7 +79,7 @@
 #define CFG_MALLOC_LEN	(CFG_ENV_SIZE + 128*1024)
 #define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
-#define CONFIG_BAUDRATE 38400
+#define CONFIG_BAUDRATE 115200
 
 #define CFG_AT91C_BRGR_DIVISOR	75	/* hardcode so no __divsi3 : AT91C_MASTER_CLOCK / baudrate / 16 */
 
