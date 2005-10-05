@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Remove unnecessary dependency of netconsole on CONFIG_NET_MULTI
+  Patch by Marcus Hall, 24 Aug 2005
+
 * Fix the machine-id of the Cogent csb637 board
   Patch by Anders Larsen, 05 Oct 2005
 

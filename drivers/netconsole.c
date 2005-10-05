@@ -29,10 +29,6 @@
 #include <devices.h>
 #include <net.h>
 
-#ifndef CONFIG_NET_MULTI
-#error define CONFIG_NET_MULTI to use netconsole
-#endif
-
 static char input_buffer[512];
 static int input_size = 0;		/* char count in input buffer */
 static int input_offset = 0;		/* offset to valid chars in input buffer */
