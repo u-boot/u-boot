@@ -1409,7 +1409,6 @@ ap720t_config  		\
 ap920t_config		\
 ap926ejs_config		\
 ap946es_config: unconfig
-	@chmod a+x board/integratorap/split_by_variant.sh 
 	@board/integratorap/split_by_variant.sh $@ $(CC)
 
 integratorcp_config	\
@@ -1422,7 +1421,6 @@ cp966_config		\
 cp922_config		\
 cp922_XA10_config	\
 cp1026_config: unconfig
-	@chmod a+x board/integratorcp/split_by_variant.sh 
 	@board/integratorcp/split_by_variant.sh $@ $(CC)
 
 kb9202_config	:	unconfig
@@ -1522,7 +1520,6 @@ VCMA9_config	:	unconfig
 versatile_config	\
 versatileab_config	\
 versatilepb_config :	unconfig
-	@chmod a+x board/versatile/split_by_variant.sh 
 	@board/versatile/split_by_variant.sh $@ $(CC)
 
 voiceblue_smallflash_config	\
