@@ -1,11 +1,18 @@
 /*
  * Board specific setup info
  *
- * (C) Copyright 2003
+ * (C) Copyright 2003-2004
+ *
  * Texas Instruments, <www.ti.com>
  * Kshitij Gupta <Kshitij@ti.com>
  *
  * Modified for OMAP 1610 H2 board by Nishant Kamat, Jan 2004
+ *
+ * Modified for OMAP730 P2 Board by Dave Peverley, MPC-Data Limited
+ * (http://www.mpc-data.co.uk)
+ *
+ * TODO : Tidy up and change to use system register defines
+ *        from omap730.h where possible.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -29,26 +36,26 @@
 #include <config.h>
 #include <version.h>
 
-#if defined(CONFIG_OMAP1610)
-#include <./configs/omap1510.h>
+#if defined(CONFIG_OMAP730)
+#include <./configs/omap730.h>
 #endif
-
 
 _TEXT_BASE:
 	.word	TEXT_BASE	/* sdram load addr from config.mk */
 
-.globl platformsetup
-platformsetup:
-
+.globl lowlevel_init
+lowlevel_init:
+	/* Save callers address in r11 - r11 must never be modified */
+	mov r11, lr
 
 	/*------------------------------------------------------*
 	 *mask all IRQs by setting all bits in the INTMR default*
 	 *------------------------------------------------------*/
-	mov	r1, #0xffffffff
-	ldr	r0, =REG_IHL1_MIR
-	str	r1, [r0]
-	ldr	r0, =REG_IHL2_MIR
-	str	r1, [r0]
+	mov	r1,	#0xffffffff
+	ldr	r0,	=REG_IHL1_MIR
+	str	r1,	[r0]
+	ldr	r0,	=REG_IHL2_MIR
+	str	r1,	[r0]
 
 	/*------------------------------------------------------*
 	 * Set up ARM CLM registers (IDLECT1)                   *
@@ -71,12 +78,6 @@ platformsetup:
 	ldr	r1,	VAL_ARM_IDLECT3
 	str	r1,	[r0]
 
-#ifdef CONFIG_CS_AUTOBOOT		/* do the setup depending on boot mode */
-	ldr	r0, CONF_STATUS
-	ldr	r1, [r0]
-	tst	r1, #0x02
-	beq	disable_wd		/* booting from RAM, skip setup */
-#endif
 
 	mov	r1,	#0x01		/* PER_EN bit */
 	ldr	r0,	REG_ARM_RSTCT2
@@ -84,7 +85,7 @@ platformsetup:
 
 	/* Set CLKM to Sync-Scalable	*/
 	/* I supposedly need to enable the dsp clock before switching */
-	mov	r1,	#0x0000
+	mov	r1,	#0x1000
 	ldr	r0,	REG_ARM_SYSST
 	strh	r1,	[r0]
 	mov	r0,	#0x400
@@ -120,11 +121,9 @@ platformsetup:
 	beq 2b			/*	loop until bit goes hi. */
 lock_end:
 
-
 	/*------------------------------------------------------*
 	 * Turn off the watchdog during init...			*
  	 *------------------------------------------------------*/
-disable_wd:
 	ldr	r0,	REG_WATCHDOG
 	ldr	r1,	WATCHDOG_VAL1
 	str	r1,	[r0]
@@ -149,20 +148,17 @@ watch2Wait:
 	tst	r1,	#0x10
 	bne	watch2Wait
 
-
 	/* Set memory timings corresponding to the new clock speed */
 
 	/* Check execution location to determine current execution location
 	 * and branch to appropriate initialization code.
 	 */
-	/* Load physical SDRAM base. */
-	mov 	r0, 	#0x10000000
-	/* Get current execution location. */
-	mov 	r1, 	pc
+	/* Compare physical SDRAM base & current execution location. */
+	and     r0, pc, #0xF0000000
 	/* Compare. */
-	cmp 	r1, 	r0
+	cmp     r0, #0
 	/* Skip over EMIF-fast initialization if running from SDRAM. */
-	bge 	skip_sdram
+	bne 	skip_sdram
 
 	/*
 	* Delay for SDRAM initialization.
@@ -172,87 +168,15 @@ watch2Wait:
 	subs	r3,	r3,	#0x1	/* Decrement count */
 	bne 	3b
 
-
-	/*
-	 * Set SDRAM control values. Disable refresh before MRS command.
-	 */
-
-	/* mobile ddr operation */
-	ldr	r0,	REG_SDRAM_OPERATION
-	mov	r2,	#07
-	str	r2,	[r0]
-
-	/* config register */
 	ldr	r0,	REG_SDRAM_CONFIG
 	ldr	r1,	SDRAM_CONFIG_VAL
 	str	r1,	[r0]
 
-	/* manual command register */
-	ldr	r0,	REG_SDRAM_MANUAL_CMD
-	/* issue set cke high */
-	mov	r1,	#CMD_SDRAM_CKE_SET_HIGH
+	ldr	r0,	REG_SDRAM_MRS_LEGACY
+	ldr	r1,	SDRAM_MRS_VAL
 	str	r1,	[r0]
-	/* issue nop */
-	mov	r1,	#CMD_SDRAM_NOP
-	str	r1,	[r0]
-
-	mov	r2,	#0x0100
-waitMDDR1:
-	subs	r2,	r2,	 #1
-	bne	waitMDDR1	/* delay loop */
-
-	/* issue precharge */
-	mov	r1,	#CMD_SDRAM_PRECHARGE
-	str	r1,	[r0]
-
-	/* issue autorefresh x 2 */
-	mov	r1,	#CMD_SDRAM_AUTOREFRESH
-	str	r1,	[r0]
-	str	r1,	[r0]
-
-	/* mrs register ddr mobile */
-	ldr	r0,	REG_SDRAM_MRS
-	mov	r1,	#0x33
-	str	r1,	[r0]
-
-	/* emrs1 low-power register */
-	ldr	r0,	REG_SDRAM_EMRS1
-	/* self refresh on all banks */
-	mov	r1,	#0
-	str	r1,	[r0]
-
-	ldr	r0,	REG_DLL_URD_CONTROL
-	ldr	r1,	DLL_URD_CONTROL_VAL
-	str	r1,	[r0]
-
-	ldr	r0,	REG_DLL_LRD_CONTROL
-	ldr	r1,	DLL_LRD_CONTROL_VAL
-	str	r1,	[r0]
-
-	ldr	r0,	REG_DLL_WRT_CONTROL
-	ldr	r1,	DLL_WRT_CONTROL_VAL
-	str	r1,	[r0]
-
-	/* delay loop */
-	mov	r2,	#0x0100
-waitMDDR2:
-	subs	r2,	r2,	#1
-	bne	waitMDDR2
-
-	/*
-	 * Delay for SDRAM initialization.
-	 */
-	mov	r3,	#0x1800
-4:
-	subs	r3,	r3,	#1	/* Decrement count. */
-	bne	4b
-	b	common_tc
 
 skip_sdram:
-
-	ldr	r0,	REG_SDRAM_CONFIG
-	ldr	r1,	SDRAM_CONFIG_VAL
-	str	r1,	[r0]
 
 common_tc:
 	/* slow interface */
@@ -263,11 +187,56 @@ common_tc:
 	ldr	r1,	VAL_TC_EMIFS_CS1_CONFIG
 	ldr	r0,	REG_TC_EMIFS_CS1_CONFIG
 	str	r1,	[r0] /* Chip Select 1 */
+	ldr	r1,	VAL_TC_EMIFS_CS2_CONFIG
+	ldr	r0,	REG_TC_EMIFS_CS2_CONFIG
+	str	r1,	[r0] /* Chip Select 2 */
 	ldr	r1,	VAL_TC_EMIFS_CS3_CONFIG
 	ldr	r0,	REG_TC_EMIFS_CS3_CONFIG
 	str	r1,	[r0] /* Chip Select 3 */
 
-#ifdef CONFIG_H2_OMAP1610
+	/* 48MHz clock request for UART1 */
+	ldr	r1,	PERSEUS2_CONFIG_BASE
+	ldrh	r0,	[r1, #CONFIG_PCC_CONF]
+	orr	r0,	r0, #CONF_MOD_UART1_CLK_MODE_R
+	strh	r0,	[r1, #CONFIG_PCC_CONF]
+
+	/* Initialize public and private rheas
+	 *  - set access factor 2 on both rhea / strobe
+	 *  - disable write buffer on strb0, enable write buffer on strb1
+	 */
+
+	ldr	R0,	REG_RHEA_PUB_CTL
+	ldr	R1,	REG_RHEA_PRIV_CTL
+	ldr	R2,	VAL_RHEA_CTL
+	strh	R2,	[R0]
+	strh	R2,	[R1]
+	mov	R3,	#2          /* disable write buffer on strb0, enable write buffer on strb1 */
+	strh	R3,	[R0, #0x08]	/* arm rhea control reg */
+	strh	R3,	[R1, #0x08]
+
+	/* enable IRQ and FIQ */
+
+	mrs	r4,	CPSR
+	bic	r4,	r4, #IRQ_MASK
+	bic	r4,	r4, #FIQ_MASK
+	msr	CPSR,	r4
+
+	/* set TAP CONF to TRI EMULATION */
+
+	ldr	r1,	[r0, #CONFIG_MODE2]
+	bic	r1,	r1, #0x18
+	orr	r1,	r1, #0x10
+	str	r1,	[r0, #CONFIG_MODE2]
+
+	/* set tdbgen to 1 */
+
+	ldr	r0,	PERSEUS2_CONFIG_BASE
+	ldr	r1,	[r0, #CONFIG_MODE1]
+	mov	r2,	#0x10000
+	orr	r1,	r1, r2
+	str	r1,	[r0, #CONFIG_MODE1]
+
+#ifdef CONFIG_P2_OMAP1610
 	/* inserting additional 2 clock cycle hold time for LAN */
 	ldr     r0,     REG_TC_EMIFS_CS1_ADVANCED
 	ldr    	r1,     VAL_TC_EMIFS_CS1_ADVANCED
@@ -283,15 +252,10 @@ common_tc:
 	str	r1,	[r0]
 
 	/* back to arch calling code */
-	mov	pc,	lr
+	mov	pc,	r11
 
 	/* the literal pools origin */
 	.ltorg
-
-#ifdef CONFIG_CS_AUTOBOOT
-CONF_STATUS:
-	.word 0xfffe1130	/* 32 bits */
-#endif
 
 REG_TC_EMIFS_CONFIG:		/* 32 bits */
 	.word 0xfffecc0c
@@ -304,7 +268,7 @@ REG_TC_EMIFS_CS2_CONFIG:	/* 32 bits */
 REG_TC_EMIFS_CS3_CONFIG:	/* 32 bits */
 	.word 0xfffecc1c
 
-#ifdef CONFIG_H2_OMAP1610
+#ifdef CONFIG_P2_OMAP730
 REG_TC_EMIFS_CS1_ADVANCED:	/* 32 bits */
 	.word 0xfffecc54
 #endif
@@ -346,37 +310,8 @@ WSPRDOG_VAL2:
 REG_SDRAM_CONFIG:
 	.word 0xfffecc20
 
-/* Operation register */
-REG_SDRAM_OPERATION:
-	.word 0xfffecc80
-
-/* Manual command register */
-REG_SDRAM_MANUAL_CMD:
-	.word 0xfffecc84
-
-/* SDRAM MRS (New) config is: CAS latency is 2, burst length 8 */
-REG_SDRAM_MRS:
-	.word 0xfffecc70
-
-/* SDRAM MRS (New) config is: CAS latency is 2, burst length 8 */
-REG_SDRAM_EMRS1:
-	.word 0xfffecc78
-
-/* WRT DLL register */
-REG_DLL_WRT_CONTROL:
-	.word 0xfffecc68
-DLL_WRT_CONTROL_VAL:
-	.word 0x03f00002
-
-/* URD DLL register */
-REG_DLL_URD_CONTROL:
-	.word 0xfffeccc0
-DLL_URD_CONTROL_VAL:
-	.word 0x00800002
-
-/* LRD DLL register */
-REG_DLL_LRD_CONTROL:
-	.word 0xfffecccc
+REG_SDRAM_MRS_LEGACY:
+	.word 0xfffecc24
 
 REG_WATCHDOG:
 	.word 0xfffec808
@@ -386,50 +321,48 @@ REG_MPU_LOAD_TIMER:
 REG_MPU_CNTL_TIMER:
 	.word 0xfffec500
 
-/* 96 MHz Samsung Mobile DDR */
-SDRAM_CONFIG_VAL:
-	.word 0x001200f4
+/* Public and private rhea bridge registers definition */
 
-DLL_LRD_CONTROL_VAL:
-	.word 0x00800002
+REG_RHEA_PUB_CTL:
+	.word 0xFFFECA00
+
+REG_RHEA_PRIV_CTL:
+	.word 0xFFFED300
+
+/* EMIFF SDRAM Configuration register
+   - self refresh disable
+   - auto refresh enabled
+   - SDRAM type 64 Mb, 16 bits bus 4 banks
+   - power down enabled
+   - SDRAM clock disabled
+ */
+SDRAM_CONFIG_VAL:
+	.word 0x0C017DF4
+
+/* Burst full page length ; cas latency = 3 */
+SDRAM_MRS_VAL:
+	.word 0x00000037
 
 VAL_ARM_CKCTL:
-	.word 0x3000
+	.word 0x6505
 VAL_DPLL1_CTL:
-	.word 0x2830
+	.word 0x3412
 
-#ifdef CONFIG_INNOVATOROMAP1610
+#ifdef CONFIG_P2_OMAP730
 VAL_TC_EMIFS_CS0_CONFIG:
-	.word 0x002130b0
+	.word 0x0000FFF3
 VAL_TC_EMIFS_CS1_CONFIG:
-	.word 0x00001131
+	.word 0x00004278
 VAL_TC_EMIFS_CS2_CONFIG:
-	.word 0x000055f0
+	.word 0x00004278
 VAL_TC_EMIFS_CS3_CONFIG:
-	.word 0x88011131
-#endif
-
-#ifdef CONFIG_H2_OMAP1610
-VAL_TC_EMIFS_CS0_CONFIG:
-	.word 0x00203331
-VAL_TC_EMIFS_CS1_CONFIG:
-	.word 0x8180fff3
-VAL_TC_EMIFS_CS2_CONFIG:
-	.word 0xf800f22a
-VAL_TC_EMIFS_CS3_CONFIG:
-	.word 0x88011131
+	.word 0x00004278
 VAL_TC_EMIFS_CS1_ADVANCED:
 	.word 0x00000022
 #endif
 
-VAL_TC_EMIFF_SDRAM_CONFIG:
-	.word 0x010290fc
-VAL_TC_EMIFF_MRS:
-	.word 0x00000027
-
 VAL_ARM_IDLECT1:
 	.word 0x00000400
-
 VAL_ARM_IDLECT2:
 	.word 0x00000886
 VAL_ARM_IDLECT3:
@@ -445,8 +378,18 @@ VAL_MPU_LOAD_TIMER:
 VAL_MPU_CNTL_TIMER:
 	.word 0xffffffa1
 
-/* command values */
-.equ CMD_SDRAM_NOP,		0x00000000
-.equ CMD_SDRAM_PRECHARGE,	0x00000001
-.equ CMD_SDRAM_AUTOREFRESH,	0x00000002
-.equ CMD_SDRAM_CKE_SET_HIGH,	0x00000007
+VAL_RHEA_CTL:
+	.word			0xFF22
+
+/* Config Register vals */
+PERSEUS2_CONFIG_BASE:
+	.word			0xFFFE1000
+
+.equ	CONFIG_PCC_CONF,	0xB4
+.equ	CONFIG_MODE1,		0x10
+.equ	CONFIG_MODE2,		0x14
+.equ	CONF_MOD_UART1_CLK_MODE_R,	0x0A
+
+/* misc values */
+.equ	IRQ_MASK,		0x80           /* IRQ mask value */
+.equ	FIQ_MASK,		0x40           /* FIQ mask value */

@@ -162,7 +162,7 @@ LIST_SA="assabet dnp1110 gcplus lart shannon"
 
 LIST_ARM7="	\
 	armadillo	B2		ep7312		evb4510		\
-	impa7		integratorap_CM720T	integratorap_CM7TDMI	\
+	impa7		integratorap	ap7		ap720t		\
 	modnet50							\
 "
 
@@ -171,32 +171,28 @@ LIST_ARM7="	\
 #########################################################################
 
 LIST_ARM9="	\
-	at91rm9200dk	cmc_pu2		csb637				\
-	integratorap_CM920T		integratorap_CM920T_ETM		\
-	integratorap_CM922T_XA10	integratorap_CM926EJ_S		\
-	integratorap_CM940T		integratorap_CM946E_S		\
-	integratorap_CM966E_S		integratorcp_CM920T		\
-	integratorcp_CM920T_ETM		integratorcp_CM922T_XA10	\
-	integratorcp_CM926EJ_S		integratorcp_CM940T		\
-	integratorcp_CM946E_S		integratorcp_CM966E_S		\
-	kb9202		lpd7a400	mp2usb		mx1ads		\
-	mx1fs2		omap1510inn	omap1610h2	omap1610inn	\
-	omap730p2	scb9328		smdk2400	smdk2410	\
-	trab		VCMA9		versatile	voiceblue	\
+	at91rm9200dk	cmc_pu2						\
+	ap920t		ap922_XA10	ap926ejs	ap946es		\
+	ap966		cp920t		cp922_XA10	cp926ejs	\
+	cp946es		cp966		lpd7a400	mp2usb		\
+	mx1ads		mx1fs2		omap1510inn	omap1610h2	\
+	omap1610inn	omap730p2	scb9328		smdk2400	\
+	smdk2410	trab		VCMA9		versatile	\
+	versatileab	versatilepb	voiceblue
 "
 
 #########################################################################
 ## ARM10 Systems
 #########################################################################
 LIST_ARM10="	\
-	integratorcp_CM10220E		integratorcp_CM1026EJ_S		\
+	integratorcp	cp1026						\
 "
 
 #########################################################################
 ## ARM11 Systems
 #########################################################################
 LIST_ARM11="	\
-	integratorcp_CM1136JF_S		omap2420h4			\
+	cp1136		omap2420h4					\
 "
 
 #########################################################################

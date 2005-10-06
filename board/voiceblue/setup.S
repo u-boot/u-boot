@@ -122,8 +122,8 @@ MUX_CONFIG_OFFSETS:
 	.byte 0x0c		@ COMP_MODE_CTRL_0
 	.byte 0xff
 
-.globl platformsetup
-platformsetup:
+.globl lowlevel_init
+lowlevel_init:
 	/* Improve performance a bit... */
 	mrc	p15, 0, r1, c0, c0, 0		@ read C15 ID register
 	mrc	p15, 0, r1, c0, c0, 1		@ read C15 Cache information register

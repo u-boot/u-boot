@@ -210,7 +210,7 @@ cpu_init_crit:
 	 * basic memory.  Go here to bump up clock rate and handle wake up conditions.
 	 */
 	mov	ip, lr		/* persevere link reg across call */
-	bl	platformsetup	/* go setup pll,mux,memory */
+	bl	lowlevel_init	/* go setup pll,mux,memory */
 	mov	lr, ip		/* restore link */
 	mov	pc, lr		/* back to my caller */
 /*
@@ -397,6 +397,10 @@ arm1136_cache_flush:
 		mcr	p15, 0, r1, c7, c5, 0	@ invalidate I cache
 		mov	pc, lr			@ back to caller
 
+#if defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_CINTEGRATOR)
+/* Use the IntegratorCP function from board/integratorcp/platform.S */
+#else
+
 	.align	5
 .globl reset_cpu
 reset_cpu:
@@ -408,3 +412,5 @@ _loop_forever:
 	b	_loop_forever
 rstctl:
 	.word	PM_RSTCTRL_WKUP
+
+#endif

@@ -76,6 +76,8 @@ int cleanup_before_linux (void)
 #elif defined(CONFIG_NETARM) || defined(CONFIG_S3C4510B)
 	disable_interrupts ();
 	/* Nothing more needed */
+#elif defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
+	/* No cleanup before linux for IntegratorAP/CM720T as yet */
 #else
 #error No cleanup_before_linux() defined for this CPU type
 #endif
@@ -245,6 +247,11 @@ int dcache_status (void)
 	return icache_status();
 }
 
+#elif defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
+	/* No specific cache setup for IntegratorAP/CM720T as yet */
+	void icache_enable (void)
+	{
+	}
 #else
 #error No icache/dcache enable/disable functions defined for this CPU type
 #endif

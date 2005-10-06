@@ -249,11 +249,13 @@ Frank Panno <fpanno@delphintech.com>
 	ep8260			MPC8260
 
 Peter Pearse <peter.pearse@arm.com>
-
-	Integrator/AP		CM 926EJ-S, CM7x0T, CM9x0T
-	Integrator/CP		CM 926EJ-S  CM920T, CM940T, CM922T-XA10
-	Versatile/AB		ARM926EJ-S
-	Versatile/PB		ARM926EJ-S
+	integratorcp		All current ARM supplied &
+	                        supported core modules
+				- see http://www.arm.com
+				/products/DevTools
+				/Hardware_Platforms.html
+	versatile		ARM926EJ-S
+	versatile		ARM926EJ-S
 
 Denis Peter <d.peter@mpl.ch>
 

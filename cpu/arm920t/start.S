@@ -255,7 +255,6 @@ cpu_init_crit:
 	orr	r0, r0, #0x00001000	@ set bit 12 (I) I-Cache
 	mcr	p15, 0, r0, c1, c0, 0
 
-
 	/*
 	 * before relocating, we have to setup RAM timing
 	 * because memory timing is board-dependend, you will
@@ -264,7 +263,6 @@ cpu_init_crit:
 	mov	ip, lr
 	bl	lowlevel_init
 	mov	lr, ip
-
 	mov	pc, lr
 
 

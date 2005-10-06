@@ -301,6 +301,8 @@ cpu_init_crit:
 	ldr r1, =0x83ffffa0	/* cache-disabled  */
 	str r1, [r0]
 
+#elif defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
+	/* No specific initialisation for IntegratorAP/CM720T as yet */
 #else
 #error No cpu_init_crit() defined for current CPU type
 #endif
@@ -316,12 +318,12 @@ cpu_init_crit:
 	str	r1, [r0]
 #endif
 
+	mov	ip, lr
 	/*
 	 * before relocating, we have to setup RAM timing
 	 * because memory timing is board-dependent, you will
 	 * find a lowlevel_init.S in your board directory.
 	 */
-	mov	ip, lr
 	bl	lowlevel_init
 	mov	lr, ip
 
@@ -530,6 +532,8 @@ reset_cpu:
 #elif defined(CONFIG_S3C4510B)
 /* Nothing done here as reseting the CPU is board specific, depending
  * on external peripherals such as watchdog timers, etc. */
+#elif defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
+	/* No specific reset actions for IntegratorAP/CM720T as yet */
 #else
 #error No reset_cpu() defined for current CPU type
 #endif

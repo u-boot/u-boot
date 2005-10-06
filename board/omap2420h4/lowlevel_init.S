@@ -158,8 +158,8 @@ pll_div_add:
 pll_div_val:
     .word DPLL_VAL	/* DPLL setting (300MHz default) */
 
-.globl platformsetup
-platformsetup:
+.globl lowlevel_init
+lowlevel_init:
 	ldr	sp,	SRAM_STACK
 	str	ip,	[sp]	/* stash old link register */
 	mov	ip,	lr	/* save link reg across call */

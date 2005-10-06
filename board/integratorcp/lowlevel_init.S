@@ -1,7 +1,7 @@
 /*
  * Board specific setup info
  *
- * (C) Copyright 2004, ARM Ltd.
+ * (C) Copyright 2003, ARM Ltd.
  * Philippe Robin, <philippe.robin@arm.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -26,7 +26,7 @@
 #include <config.h>
 #include <version.h>
 
-	/* Reset using CM control register */
+/* Reset using CM control register */
 .global reset_cpu
 reset_cpu:
 	mov	r0, #CM_BASE
@@ -37,9 +37,9 @@ reset_cpu:
 reset_failed:
 	b	reset_failed
 
-/* set up the platform, once the cpu has been initialized */
-.globl platformsetup
-platformsetup:
+/* Set up the platform, once the cpu has been initialized */
+.globl lowlevel_init
+lowlevel_init:
 	/* If U-Boot has been run after the ARM boot monitor
 	 * then all the necessary actions have been done
 	 * otherwise we are running from user flash mapped to 0x00000000
@@ -64,7 +64,8 @@ platformsetup:
 #else
 
 #if !defined (CONFIG_CM920T) && !defined (CONFIG_CM920T_ETM) && \
-     !defined (CONFIG_CM940T)
+    !defined (CONFIG_CM940T)
+    /* CMxx6 code */
 
 #ifdef	CONFIG_CM_MULTIPLE_SSRAM
 	/* set simple mapping		  */
@@ -99,7 +100,7 @@ platformsetup:
 
 	/* lock for change */
 	mov	r3, #CMVAL_LOCK1
-	add	r3,r3,#CMVAL_LOCK2
+	and	r3, r3, #CMVAL_LOCK2
 	str	r3, [r0, #OS_LOCK]
 	/* set desired value */
 	orr	r1,r1,r2

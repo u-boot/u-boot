@@ -39,8 +39,8 @@
 _TEXT_BASE:
 	.word	TEXT_BASE	 /* sdram load addr from config.mk */
 
-.globl platformsetup
-platformsetup:
+.globl lowlevel_init
+lowlevel_init:
 
 	/*
 	 * Configure 1510 pins functions to match our board.

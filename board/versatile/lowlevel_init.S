@@ -1,6 +1,8 @@
 /*
- * (C) Copyright 2002
- * Gary Jennejohn, DENX Software Engineering, <gj@denx.de>
+ * Board specific setup info
+ *
+ * (C) Copyright 2003, ARM Ltd.
+ * Philippe Robin, <philippe.robin@arm.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -21,31 +23,12 @@
  * MA 02111-1307 USA
  */
 
-OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
-OUTPUT_ARCH(arm)
-ENTRY(_start)
-SECTIONS
-{
-	. = 0x00000000;
-	. = ALIGN(4);
-	.text	:
-	{
-	  cpu/arm926ejs/start.o	(.text)
-	  *(.text)
-	}
-	.rodata : { *(.rodata) }
-	. = ALIGN(4);
-	.data : { *(.data) }
-	. = ALIGN(4);
-	.got : { *(.got) }
+#include <config.h>
+#include <version.h>
 
-	. = .;
-	__u_boot_cmd_start = .;
-	.u_boot_cmd : { *(.u_boot_cmd) }
-	__u_boot_cmd_end = .;
+/* Set up the platform, once the cpu has been initialized */
+.globl lowlevel_init
+lowlevel_init:
 
-	. = ALIGN(4);
-	__bss_start = .;
-	.bss : { *(.bss) }
-	_end = .;
-}
+	/* All done by Versatile's boot monitor! */
+	mov pc, lr

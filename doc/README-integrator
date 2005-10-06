@@ -62,3 +62,49 @@ of the Integrator board itself, has been placed in
 
 	board/integrator<>/platform.S
 	board/integrator<>/integrator<>.c
+
+Targets
+=======
+The U-Boot make targets map to the available core modules as below.
+
+Integrator/AP is no longer available from ARM.
+Core modules marked ** are also no longer available.
+
+ap720t_config		** CM720T
+ap920t_config		** CM920T
+ap926ejs_config	Integrator Core Module for ARM926EJ-STM
+ap946es_config		Integrator Core Module for ARM946E-STM
+cp920t_config		** CM920T
+cp926ejs_config	Integrator Core Module for ARM926EJ-STM
+cp946es_config		Integrator Core Module for ARM946E-STM
+cp1136_config		Integrator Core Module ARM1136JF-S  TM
+
+The final groups of targets are for core modules where no explicit cpu
+code has yet been added to U-Boot i.e. they all use the same U-Boot binary
+using the generic "arm_intcm" core:
+
+ap966_config			Integrator Core Module for ARM966E-S TM
+ap922_config			Integrator Core Module for ARM922T TM with ETM
+ap922_XA10_config		Integrator Core Module for ARM922T using Altera Excalibur
+ap7_config	       		** CM7TDMI
+integratorap_config
+ap_config
+
+
+cp966_config  			Integrator Core Module for ARM966E-S TM
+cp922_config			Integrator Core Module for ARM922T TM with ETM
+cp922_XA10_config		Integrator Core Module for ARM922T using Altera Excalibur
+cp1026_config			Integrator Core Module ARM1026EJ-S TM
+integratorcp_config
+cp_config
+
+The Makefile targets call board/integrator<>/split_by_variant.sh
+to configure various defines in include/configs/integrator<>.h
+to indicate the core module & core configuration and ensure that
+board/integrator<>/u-boot.lds loads the cpu object first in the U-Boot image.
+
+*********************************
+Because of this mechanism
+> make clean
+must be run before each change in configuration
+*********************************

@@ -193,6 +193,8 @@ void do_irq (struct pt_regs *pt_regs)
 		/* clear pending interrupt */
 		PUT_REG( REG_INTPEND, (1<<(pending>>2)));
 	}
+#elif defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
+	/* No do_irq() for IntegratorAP/CM720T as yet */
 #else
 #error do_irq() not defined for this CPU type
 #endif
@@ -218,6 +220,10 @@ static void timer_isr( void *data) {
 
 static ulong timestamp;
 static ulong lastdec;
+
+#if defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
+	/* Use IntegratorAP routines in board/integratorap.c */
+#else
 
 int interrupt_init (void)
 {
@@ -295,6 +301,8 @@ int interrupt_init (void)
 
 	return (0);
 }
+
+#endif /* ! IntegratorAP */
 
 /*
  * timer without interrupts
@@ -398,6 +406,8 @@ void udelay (unsigned long usec)
 
 }
 
+#elif defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
+	/* No timer routines for IntegratorAP/CM720T as yet */
 #else
 #error Timer routines not defined for this CPU type
 #endif

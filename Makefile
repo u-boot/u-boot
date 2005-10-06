@@ -1396,178 +1396,34 @@ csb637_config	:	unconfig
 mp2usb_config	:	unconfig
 	@./mkconfig $(@:_config=) arm arm920t mp2usb NULL at91rm9200
 
+
 ########################################################################
-## ARM Integrator boards
-## There are two variants /AP && /CP
-## - many different core modules (CMs) can be used
-## - some share characteristics
-## Those without specific cpu support can still use U-Boot
-## provided the ARM boot monitor (or similar) runs before U-Boot
-## to set up the platform e.g. map writeable memory to 0x00000000
-## setup MMU, setup caches etc.
-## Ported cores are:-
-## 	ARM926EJ-S
-## 	ARM946E-S
-##
-########################################################################
-xtract_int_board = $(subst _$(subst integrator$1_,,$(subst _config,,$2)),,$(subst _config,,$2))
-xtract_int_cm    = $(subst integrator$1_,,$(subst _config,,$2))
-#########################################################################
-## Integrator/AP
-#########################################################################
-integratorap_config	:	unconfig
-	@echo -n "/* Integrator configuration implied " >  tmp.fil;	\
-	 echo    " by Makefile target	*/"		>> tmp.fil;	\
-	 echo    					>> tmp.fil
-	@echo -n "#define CONFIG_INTEGRATOR	1"	>> tmp.fil;	\
-	echo	 "	/* Integrator board	*/"	>> tmp.fil;	\
-	echo  -n "#define CONFIG_ARCH_INTEGRATOR"	>> tmp.fil;	\
-	echo	 "	1	/* Integrator/AP */"	>> tmp.fil;	\
-	echo "/* Core module not defined	*/"	>> tmp.fil;	\
-	echo -n "#define CONFIG_ARM_INTCM	1"	>> tmp.fil;	\
-	echo -n "	/* Integrator core module "	>> tmp.fil;	\
-	echo    "with unknown core	*/"		>> tmp.fil;	\
-	cpu=arm_intcm;							\
-	mv tmp.fil ./include/config.h;					\
-	ubootlds=board/integratorap/u-boot.lds; 			\
-	sed -e 's/cpu\/.*\/st/cpu\/'$$cpu'\/st/' 			\
-	                                   $$ubootlds > $$ubootlds.tmp; \
-	mv -f $$ubootlds.tmp $$ubootlds;				\
-	./mkconfig -a integratorap arm arm_intcm integratorap;
+## ARM Integrator boards - see doc/README-integrator for more info.
+integratorap_config	\
+ap_config		\
+ap966_config		\
+ap922_config		\
+ap922_XA10_config	\
+ap7_config		\
+ap720t_config  		\
+ap920t_config		\
+ap926ejs_config		\
+ap946es_config: unconfig
+	@chmod a+x board/integratorap/split_by_variant.sh 
+	@board/integratorap/split_by_variant.sh $@ $(CC)
 
-integratorap_CM720T_config		integratorap_CM7TDMI_config	\
-integratorap_CM920T_config		integratorap_CM920T_ETM_config	\
-integratorap_CM922T_XA10_config		integratorap_CM926EJ_S_config	\
-integratorap_CM940T_config		integratorap_CM946E_S_config	\
-integratorap_CM966E_S_config		integratorap_CM10200E_config	\
-integratorap_CM10220E_config		integratorap_CM1026EJ_S_config	\
-integratorap_CM1136JF_S_config	:	unconfig
-	@echo -n "/* Integrator configuration implied " >  tmp.fil;	\
-	 echo    " by Makefile target	*/"		>> tmp.fil;	\
-	 echo    					>> tmp.fil
-	@echo -n "#define CONFIG_INTEGRATOR	1"	>>  tmp.fil;	\
-	echo	 "	/* Integrator board	*/"	>> tmp.fil;	\
-	echo  -n "#define CONFIG_ARCH_INTEGRATOR"	>> tmp.fil;	\
-	echo	 "	1	/* Integrator/AP */"	>> tmp.fil;	\
-	cm=$(call xtract_int_cm,ap,$@); 				\
-	echo  -n "#define CONFIG_$$cm		"	>> tmp.fil;	\
-	echo     "	/* core module */"		>> tmp.fil;	\
-	case $$cm in							\
-	CM920T)								\
-			echo -n	"#define CONFIG_ARM920" >> tmp.fil;	\
-			echo -n "T	1	/* CPU"	>> tmp.fil;	\
-			echo -n " core is ARM920T"	>> tmp.fil;	\
-			echo    "	*/"		>> tmp.fil;	\
-			cpu=arm920t;;					\
-	CM926EJ_S)	echo -n	"#define CONFIG_ARM926" >> tmp.fil;	\
-			echo -n "EJ_S	1	/* CPU"	>> tmp.fil;	\
-			echo -n " core is ARM926EJ-S"	>> tmp.fil;	\
-			echo    "	*/"		>> tmp.fil;	\
-			cpu=arm926ejs;;					\
-	CM946E_S)	echo -n	"#define CONFIG_ARM946" >> tmp.fil;	\
-			echo -n "E_S	1	/* CPU"	>> tmp.fil;	\
-			echo -n " core is ARM946E-S"	>> tmp.fil;	\
-			echo    "	*/"		>> tmp.fil;	\
-			cpu=arm946es;;					\
-	*)		echo -n "#define CONFIG_ARM_IN"	>> tmp.fil;	\
-			echo -n "TCM	1	/* Int"	>> tmp.fil;	\
-			echo -n "egrator core module w" >> tmp.fil;	\
-			echo -n "ith unported core"	>> tmp.fil;	\
-			echo    "	*/"		>> tmp.fil;	\
-			cpu=arm_intcm;;					\
-	esac; 								\
-	mv tmp.fil ./include/config.h;					\
-	ubootlds=board/$(call xtract_int_board,ap,$@)/u-boot.lds; 	\
-	sed -e 's/cpu\/.*\/st/cpu\/'$$cpu'\/st/' 			\
-	                                   $$ubootlds > $$ubootlds.tmp; \
-	mv -f $$ubootlds.tmp $$ubootlds;				\
-	./mkconfig -a $(call xtract_int_board,ap,$@) arm $$cpu 		\
-	              $(call xtract_int_board,ap,$@);
-
-#########################################################################
-## Integrator/CP
-#########################################################################
-integratorcp_config	:	unconfig
-	@echo -n "/* Integrator configuration implied " >  tmp.fil;	\
-	 echo    " by Makefile target	*/"		>> tmp.fil;	\
-	 echo    					>> tmp.fil
-	@echo -n "#define CONFIG_INTEGRATOR	1"	>> tmp.fil;	\
-	echo	 "	/* Integrator board	*/"	>> tmp.fil;	\
-	echo  -n "#define CONFIG_ARCH_CINTEGRATOR"	>> tmp.fil;	\
-	echo	 "	1	/* Integrator/CP */"	>> tmp.fil;	\
-	echo     "/* Core module not defined	*/"	>> tmp.fil;	\
-	echo -n "#define CONFIG_ARM_INTCM	1"	>> tmp.fil;	\
-	echo -n "	/* Integrator core module "	>> tmp.fil;	\
-	echo    "with unknown core	*/"		>> tmp.fil;	\
-	cpu=arm_intcm;							\
-	echo -n "#undef CONFIG_CM_MULTIPLE_SSRAM"	>> tmp.fil;	\
-	echo -n "		/* CM may not have "	>> tmp.fil;	\
-	echo    "multiple SSRAM mapping	*/"		>> tmp.fil;	\
-	echo -n "#undef CONFIG_CM_SPD_DETECT	"	>> tmp.fil;	\
-	echo -n "	/* CM may not support SPD "	>> tmp.fil;	\
-	echo    "query */"				>> tmp.fil; 	\
-	echo -n "#undef CONFIG_CM_REMAP		"	>> tmp.fil;	\
-	echo -n "	/* CM may not support "		>> tmp.fil;	\
-	echo    "remapping	*/"			>> tmp.fil; 	\
-	echo -n "#undef CONFIG_CM_INIT		"	>> tmp.fil;	\
-	echo -n "	/* CM may not have  "		>> tmp.fil;	\
-	echo    "initialization reg	*/"		>> tmp.fil; 	\
-	echo -n "#undef CONFIG_CM_TCRAM		"	>> tmp.fil;	\
-	echo -n "	/* CM may not have TCRAM */"	>> tmp.fil; 	\
-	mv tmp.fil ./include/config.h;					\
-	ubootlds=board/integratorcp/u-boot.lds; 			\
-	sed -e 's/cpu\/.*\/st/cpu\/'$$cpu'\/st/' 			\
-	                                   $$ubootlds > $$ubootlds.tmp; \
-	mv -f $$ubootlds.tmp $$ubootlds;				\
-	./mkconfig -a integratorcp arm arm_intcm integratorcp;
-
-integratorcp_CM920T_config		integratorcp_CM920T_ETM_config	\
-integratorcp_CM922T_XA10_config		integratorcp_CM926EJ_S_config	\
-integratorcp_CM940T_config		integratorcp_CM946E_S_config	\
-integratorcp_CM966E_S_config		integratorcp_CM10200E_config	\
-integratorcp_CM10220E_config		integratorcp_CM1026EJ_S_config	\
-integratorcp_CM1136JF_S_config	:	unconfig
-	@echo -n "/* Integrator configuration implied " >  tmp.fil;	\
-	 echo    " by Makefile target	*/"		>> tmp.fil;	\
-	 echo    					>> tmp.fil
-	@echo -n "#define CONFIG_INTEGRATOR	1"	>> tmp.fil;	\
-	echo	 "	/* Integrator board	*/"	>> tmp.fil;	\
-	echo  -n "#define CONFIG_ARCH_CINTEGRATOR"	>> tmp.fil;	\
-	echo	 "	1	/* Integrator/CP */"	>> tmp.fil;	\
-	cm=$(call xtract_int_cm,cp,$@); 				\
-	echo  -n "#define CONFIG_$$cm		"	>> tmp.fil;	\
-	echo     "	/* core module */"		>> tmp.fil;	\
-	echo "/* $$cm core module	*/" 		>> tmp.fil;	\
-	case $$cm in							\
-	CM920T)		echo -n	"#define CONFIG_ARM920" >> tmp.fil;	\
-			echo -n "T	1	/* CPU"	>> tmp.fil;	\
-			echo -n " core is ARM920T"	>> tmp.fil;	\
-			echo    "	*/"		>> tmp.fil;	\
-			cpu=arm920t;;					\
-	CM946E_S)	echo -n	"#define CONFIG_ARM946" >> tmp.fil;	\
-			echo -n "E_S	1	/* CPU"	>> tmp.fil;	\
-			echo -n " core is ARM946E-S"	>> tmp.fil;	\
-			echo    "	*/"		>> tmp.fil;	\
-			cpu=arm946es;;					\
-	CM926EJ_S)	echo -n	"#define CONFIG_ARM926" >> tmp.fil;	\
-			echo -n "EJ_S	1	/* CPU"	>> tmp.fil;	\
-			echo -n " core is ARM926EJ-S"	>> tmp.fil;	\
-			echo    "	*/"		>> tmp.fil;	\
-			cpu=arm926ejs;;					\
-	*)		echo -n "#define CONFIG_ARM_IN"	>> tmp.fil;	\
-			echo -n "TCM	1	/* Int"	>> tmp.fil;	\
-			echo -n "egrator core module w" >> tmp.fil;	\
-			echo -n "ith unported core"	>> tmp.fil;	\
-			echo    "	*/"		>> tmp.fil;	\
-			cpu=arm_intcm;;					\
-	esac; 								\
-	mv tmp.fil ./include/config.h;					\
-	ubootlds=board/$(call xtract_int_board,cp,$@)/u-boot.lds; 	\
-	sed -e 's/cpu\/.*\/st/cpu\/'$$cpu'\/st/' 			\
-	                                   $$ubootlds > $$ubootlds.tmp; \
-	mv -f $$ubootlds.tmp $$ubootlds;				\
-	./mkconfig -a $(call xtract_int_board,cp,$@) arm $$cpu 		\
-	              $(call xtract_int_board,cp,$@);
+integratorcp_config	\
+cp_config		\
+cp920t_config		\
+cp926ejs_config		\
+cp946es_config		\
+cp1136_config		\
+cp966_config		\
+cp922_config		\
+cp922_XA10_config	\
+cp1026_config: unconfig
+	@chmod a+x board/integratorcp/split_by_variant.sh 
+	@board/integratorcp/split_by_variant.sh $@ $(CC)
 
 kb9202_config	:	unconfig
 	@./mkconfig $(@:_config=) arm arm920t kb9202 NULL at91rm9200
@@ -1660,8 +1516,14 @@ trab_old_config:	unconfig
 VCMA9_config	:	unconfig
 	@./mkconfig $(@:_config=) arm arm920t vcma9 mpl s3c24x0
 
-versatile_config :	unconfig
-	@./mkconfig $(@:_config=) arm arm926ejs versatile
+#========================================================================
+# ARM supplied Versatile development boards
+#========================================================================
+versatile_config	\
+versatileab_config	\
+versatilepb_config :	unconfig
+	@chmod a+x board/versatile/split_by_variant.sh 
+	@board/versatile/split_by_variant.sh $@ $(CC)
 
 voiceblue_smallflash_config	\
 voiceblue_config:	unconfig
@@ -1946,6 +1808,7 @@ clean:
 	rm -f tools/env/fw_printenv tools/env/fw_setenv
 	rm -f board/cray/L1/bootscript.c board/cray/L1/bootscript.image
 	rm -f board/trab/trab_fkt board/voiceblue/eeprom
+	rm -f board/integratorap/u-boot.lds board/integratorcp/u-boot.lds
 
 clobber:	clean
 	find . -type f \( -name .depend \

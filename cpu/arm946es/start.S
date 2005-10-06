@@ -214,7 +214,7 @@ cpu_init_crit:
 	 * Go setup Memory and board specific bits prior to relocation.
 	 */
 	mov	ip, lr		/* perserve link reg across call */
-	bl	platformsetup	/* go setup memory */
+	bl	lowlevel_init	/* go setup memory */
 	mov	lr, ip		/* restore link */
 	mov	pc, lr		/* back to my caller */
 /*

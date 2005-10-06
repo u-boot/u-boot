@@ -75,8 +75,8 @@ _CAS_LATENCY:
 	.word	0x00022000	@ for CAS2 latency
 
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
-.globl platformsetup
-platformsetup:
+.globl lowlevel_init
+lowlevel_init:
 
 	/* U-Boot may be linked to RAM at 0x780000. But this code will run in
 	   flash from 0x0. But in order to enable RAM we have to disable the

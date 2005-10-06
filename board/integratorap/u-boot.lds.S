@@ -1,8 +1,6 @@
 /*
- * Board specific setup info
- *
- * (C) Copyright 2003, ARM Ltd.
- * Philippe Robin, <philippe.robin@arm.com>
+ * (C) Copyright 2002
+ * Gary Jennejohn, DENX Software Engineering, <gj@denx.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -22,12 +20,34 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
+/* Preprocessed during configuration to emsure the core module processor code,
+   from CPU_FILE, is placed at the start of the image */
 
-#include <config.h>
-#include <version.h>
+OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
+OUTPUT_ARCH(arm)
+ENTRY(_start)
+SECTIONS
+{
+	. = 0x00000000;
+	. = ALIGN(4);
+	.text	:
+	{
+	  CPU_FILE (.text)
+	  *(.text)
+	}
+	.rodata : { *(.rodata) }
+	. = ALIGN(4);
+	.data : { *(.data) }
+	. = ALIGN(4);
+	.got : { *(.got) }
 
-.globl platformsetup
-platformsetup:
+	. = .;
+	__u_boot_cmd_start = .;
+	.u_boot_cmd : { *(.u_boot_cmd) }
+	__u_boot_cmd_end = .;
 
-	/* All done by Versatile's boot monitor! */
-	mov pc, lr
+	. = ALIGN(4);
+	__bss_start = .;
+	.bss : { *(.bss) }
+	_end = .;
+}

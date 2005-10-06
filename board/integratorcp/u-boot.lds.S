@@ -20,6 +20,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
+/* Preprocessed during configuration to emsure the core module processor code,
+   from CPU_FILE, is placed at the start of the image */
 
 OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
@@ -30,7 +32,7 @@ SECTIONS
 	. = ALIGN(4);
 	.text	:
 	{
-	  cpu/arm926ejs/start.o	(.text)
+	  CPU_FILE (.text)
 	  *(.text)
 	}
 	.rodata : { *(.rodata) }

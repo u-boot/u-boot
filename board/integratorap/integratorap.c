@@ -649,8 +649,3 @@ ulong get_tbclk (void)
 {
 	return CFG_HZ_CLOCK/div_clock;
 }
-
-/* The Integrator/AP timer1 is clocked at 24MHz
- * can be divided by 16 or 256
- * and is a 16-bit counter
- */

@@ -32,7 +32,11 @@
 
 #include <common.h>
 #include <asm/arch/bits.h>
-#include <asm/arch/omap2420.h>
+
+#if !defined(CONFIG_INTEGRATOR) || ! defined(CONFIG_ARCH_CINTEGRATOR)
+# include <asm/arch/omap2420.h>
+#endif
+
 #include <asm/proc-armv/ptrace.h>
 
 #define TIMER_LOAD_VAL 0
@@ -175,6 +179,9 @@ void do_irq (struct pt_regs *pt_regs)
 static ulong timestamp;
 static ulong lastinc;
 
+#if defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_CINTEGRATOR)
+/* Use the IntegratorCP function from board/integratorcp.c */
+#else
 /* nothing really to do with interrupts, just starts up a counter. */
 int interrupt_init (void)
 {
@@ -189,7 +196,6 @@ int interrupt_init (void)
 
 	return(0);
 }
-
 /*
  * timer without interrupts
  */
@@ -281,7 +287,6 @@ unsigned long long get_ticks(void)
 {
 	return get_timer(0);
 }
-
 /*
  * This function is derived from PowerPC code (timebase clock frequency).
  * On ARM it returns the number of timer ticks per second.
@@ -292,3 +297,4 @@ ulong get_tbclk (void)
 	tbclk = CFG_HZ;
 	return tbclk;
 }
+#endif /* !Integrator/CP */
