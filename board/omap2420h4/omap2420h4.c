@@ -71,24 +71,6 @@ int board_init (void)
  ***********************************************************/
 void try_unlock_sram(void)
 {
-	int mode;
-
-	/* if GP device unlock device SRAM for general use */
-	mode = (__raw_readl(CONTROL_STATUS) & (BIT8|BIT9));
-	if (mode == GP_DEVICE) {
-		__raw_writel(0xFF, A_REQINFOPERM0);
-		__raw_writel(0xCFDE, A_READPERM0);
-		__raw_writel(0xCFDE, A_WRITEPERM0);
-	}
-}
-
-/**********************************************************
- * Routine: try_unlock_sram()
- * Description: If chip is GP type, unlock the SRAM for
- *  general use.
- ***********************************************************/
-void try_unlock_sram(void)
-{
 	/* if GP device unlock device SRAM for general use */
 	if (get_device_type() == GP_DEVICE) {
 		__raw_writel(0xFF, A_REQINFOPERM0);

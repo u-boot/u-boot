@@ -118,7 +118,9 @@ void flash_print_info (flash_info_t * info)
 	}
 	printf ("\n");
 
-      Done:
+/*
+Done:	;
+*/
 }
 
 /*

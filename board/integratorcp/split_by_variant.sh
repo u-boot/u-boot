@@ -11,12 +11,12 @@ echo     " 1 /* Integrator/CP   */"  		>> tmp.fil
 # ---------------------------------------------------------
 #  Set the core module defines according to Core Module
 # ---------------------------------------------------------
-CC=$(CROSS_COMPILE)gcc
+CC=${CROSS_COMPILE}gcc
 cpu="arm_intcm"
 
 if [ "$2" == "" ]
 then
-	echo "$0:: No preprocessor parameter - using $(CROSS_COMPILE)gcc"
+	echo "$0:: No preprocessor parameter - using ${CROSS_COMPILE}gcc"
 else
 	CC=$2
 fi
@@ -24,7 +24,7 @@ fi
 
 if [ "$1" == "" ]
 then
-	echo "$0:: No parameters - using $(CROSS_COMPILE)gcc arm_intcm"
+	echo "$0:: No parameters - using ${CROSS_COMPILE}gcc arm_intcm"
 else
 	case "$1" in
 	cp966_config		|	\

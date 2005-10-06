@@ -35,7 +35,7 @@
 #define A_REQINFOPERM0        0x68005048
 #define A_READPERM0           0x68005050
 #define A_WRITEPERM0          0x68005058
-#define GP_DEVICE             (BIT8|BIT9)
+/* #define GP_DEVICE	(BIT8|BIT9)  FIXME -- commented out to make compile -- FIXME */
 
 /* L3 Firewall */
 #define A_REQINFOPERM0        0x68005048
