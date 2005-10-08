@@ -30,105 +30,121 @@
 #define PCI_IO_82559ER_CSR_BASE     0x40000200
 
 /** AP1100 specific values */
-#define PSII_BASE                   0x30000000    /**< PowerSpan II dual bridge local bus register address */
-#define PSII_CONFIG_ADDR            0x30000290    /**< PowerSpan II Configuration Cycle Address configuration register */
-#define PSII_CONFIG_DATA            0x30000294    /**< PowerSpan II Configuration Cycle Data register. */
-#define PSII_CONFIG_DEST_PCI2       0x01000000    /**< PowerSpan II configuration cycle destination selection, set for PCI2 bus */
-#define PSII_PCI_MEM_BASE           0x30200000    /**< Local Bus address for start of PCI memory space on PCI2 bus. */
-#define PSII_PCI_MEM_SIZE           0x1BE00000    /**< PCI Memory space about 510 Meg. */
-#define AP1000_SYS_MEM_START        0x00000000    /**< System memory starts at 0. */
-#define AP1000_SYS_MEM_SIZE         0x08000000    /**< System memory is 128 Meg. */
+#define PSII_BASE                   0x30000000	  /**< PowerSpan II dual bridge local bus register address */
+#define PSII_CONFIG_ADDR            0x30000290	  /**< PowerSpan II Configuration Cycle Address configuration register */
+#define PSII_CONFIG_DATA            0x30000294	  /**< PowerSpan II Configuration Cycle Data register. */
+#define PSII_CONFIG_DEST_PCI2       0x01000000	  /**< PowerSpan II configuration cycle destination selection, set for PCI2 bus */
+#define PSII_PCI_MEM_BASE           0x30200000	  /**< Local Bus address for start of PCI memory space on PCI2 bus. */
+#define PSII_PCI_MEM_SIZE           0x1BE00000	  /**< PCI Memory space about 510 Meg. */
+#define AP1000_SYS_MEM_START        0x00000000	  /**< System memory starts at 0. */
+#define AP1000_SYS_MEM_SIZE         0x08000000	  /**< System memory is 128 Meg. */
 
 /* static int G_verbosity_level = 1; */
 #define G_verbosity_level 1
 
-void write1(unsigned long addr, unsigned char val) {
-    volatile unsigned char* p = (volatile unsigned char*)addr;
+void write1 (unsigned long addr, unsigned char val)
+{
+	volatile unsigned char *p = (volatile unsigned char *) addr;
 
-    if(G_verbosity_level > 1)
-        printf("write1: addr=%08x val=%02x\n", (unsigned int)addr, val);
-    *p = val;
-    asm("eieio");
+	if (G_verbosity_level > 1)
+		printf ("write1: addr=%08x val=%02x\n", (unsigned int) addr,
+			val);
+	*p = val;
+	asm ("eieio");
 }
 
-unsigned char read1(unsigned long addr) {
-    unsigned char val;
-    volatile unsigned char* p = (volatile unsigned char*)addr;
+unsigned char read1 (unsigned long addr)
+{
+	unsigned char val;
+	volatile unsigned char *p = (volatile unsigned char *) addr;
 
-    if(G_verbosity_level > 1)
-        printf("read1: addr=%08x ", (unsigned int)addr);
-    val = *p;
-    asm("eieio");
-    if(G_verbosity_level > 1)
-        printf("val=%08x\n", val);
-    return val;
+	if (G_verbosity_level > 1)
+		printf ("read1: addr=%08x ", (unsigned int) addr);
+	val = *p;
+	asm ("eieio");
+	if (G_verbosity_level > 1)
+		printf ("val=%08x\n", val);
+	return val;
 }
 
-void write2(unsigned long addr, unsigned short val) {
-    volatile unsigned short* p = (volatile unsigned short*)addr;
+void write2 (unsigned long addr, unsigned short val)
+{
+	volatile unsigned short *p = (volatile unsigned short *) addr;
 
-    if(G_verbosity_level > 1)
-        printf("write2: addr=%08x val=%04x -> *p=%04x\n", (unsigned int)addr, val,
-                ((val & 0xFF00) >> 8) | ((val & 0x00FF) << 8));
+	if (G_verbosity_level > 1)
+		printf ("write2: addr=%08x val=%04x -> *p=%04x\n",
+			(unsigned int) addr, val,
+			((val & 0xFF00) >> 8) | ((val & 0x00FF) << 8));
 
-    *p = ((val & 0xFF00) >> 8) | ((val & 0x00FF) << 8);
-    asm("eieio");
+	*p = ((val & 0xFF00) >> 8) | ((val & 0x00FF) << 8);
+	asm ("eieio");
 }
 
-unsigned short read2(unsigned long addr) {
-    unsigned short val;
-    volatile unsigned short* p = (volatile unsigned short*)addr;
+unsigned short read2 (unsigned long addr)
+{
+	unsigned short val;
+	volatile unsigned short *p = (volatile unsigned short *) addr;
 
-    if(G_verbosity_level > 1)
-        printf("read2: addr=%08x ", (unsigned int)addr);
-    val = *p;
-    val = ((val & 0xFF00) >> 8) | ((val & 0x00FF) << 8);
-    asm("eieio");
-    if(G_verbosity_level > 1)
-        printf("*p=%04x -> val=%04x\n",
-            ((val & 0xFF00) >> 8) | ((val & 0x00FF) << 8), val);
-    return val;
+	if (G_verbosity_level > 1)
+		printf ("read2: addr=%08x ", (unsigned int) addr);
+	val = *p;
+	val = ((val & 0xFF00) >> 8) | ((val & 0x00FF) << 8);
+	asm ("eieio");
+	if (G_verbosity_level > 1)
+		printf ("*p=%04x -> val=%04x\n",
+			((val & 0xFF00) >> 8) | ((val & 0x00FF) << 8), val);
+	return val;
 }
 
-void write4(unsigned long addr, unsigned long val) {
-    volatile unsigned long* p = (volatile unsigned long*)addr;
+void write4 (unsigned long addr, unsigned long val)
+{
+	volatile unsigned long *p = (volatile unsigned long *) addr;
 
-    if(G_verbosity_level > 1)
-        printf("write4: addr=%08x val=%08x -> *p=%08x\n", (unsigned int)addr, (unsigned int)val,
-            (unsigned int)(((val & 0xFF000000) >> 24) | ((val & 0x000000FF) << 24) |
-            ((val & 0x00FF0000) >> 8)  | ((val & 0x0000FF00) << 8)));
+	if (G_verbosity_level > 1)
+		printf ("write4: addr=%08x val=%08x -> *p=%08x\n",
+			(unsigned int) addr, (unsigned int) val,
+			(unsigned int) (((val & 0xFF000000) >> 24) |
+					((val & 0x000000FF) << 24) |
+					((val & 0x00FF0000) >> 8) |
+					((val & 0x0000FF00) << 8)));
 
-    *p = ((val & 0xFF000000) >> 24) | ((val & 0x000000FF) << 24) |
-         ((val & 0x00FF0000) >> 8)  | ((val & 0x0000FF00) << 8);
-    asm("eieio");
+	*p = ((val & 0xFF000000) >> 24) | ((val & 0x000000FF) << 24) |
+		((val & 0x00FF0000) >> 8) | ((val & 0x0000FF00) << 8);
+	asm ("eieio");
 }
 
-unsigned long read4(unsigned long addr) {
-    unsigned long val;
-    volatile unsigned long* p = (volatile unsigned long*)addr;
+unsigned long read4 (unsigned long addr)
+{
+	unsigned long val;
+	volatile unsigned long *p = (volatile unsigned long *) addr;
 
-    if(G_verbosity_level > 1)
-        printf("read4: addr=%08x", (unsigned int)addr);
+	if (G_verbosity_level > 1)
+		printf ("read4: addr=%08x", (unsigned int) addr);
 
-    val = *p;
-    val = ((val & 0xFF000000) >> 24) | ((val & 0x000000FF) << 24) |
-          ((val & 0x00FF0000) >> 8)  | ((val & 0x0000FF00) << 8);
-    asm("eieio");
+	val = *p;
+	val = ((val & 0xFF000000) >> 24) | ((val & 0x000000FF) << 24) |
+		((val & 0x00FF0000) >> 8) | ((val & 0x0000FF00) << 8);
+	asm ("eieio");
 
-    if(G_verbosity_level > 1)
-        printf("*p=%04x -> val=%04x\n",
-            (unsigned int)(((val & 0xFF000000) >> 24) | ((val & 0x000000FF) << 24) |
-            ((val & 0x00FF0000) >> 8)  | ((val & 0x0000FF00) << 8)), (unsigned int)val);
-    return val;
+	if (G_verbosity_level > 1)
+		printf ("*p=%04x -> val=%04x\n",
+			(unsigned int) (((val & 0xFF000000) >> 24) |
+					((val & 0x000000FF) << 24) |
+					((val & 0x00FF0000) >> 8) |
+					((val & 0x0000FF00) << 8)),
+			(unsigned int) val);
+	return val;
 }
 
-void write4be(unsigned long addr, unsigned long val) {
-    volatile unsigned long* p = (volatile unsigned long*)addr;
+void write4be (unsigned long addr, unsigned long val)
+{
+	volatile unsigned long *p = (volatile unsigned long *) addr;
 
-    if(G_verbosity_level > 1)
-        printf("write4: addr=%08x val=%08x\n", (unsigned int)addr, (unsigned int)val);
-    *p = val;
-    asm("eieio");
+	if (G_verbosity_level > 1)
+		printf ("write4: addr=%08x val=%08x\n", (unsigned int) addr,
+			(unsigned int) val);
+	*p = val;
+	asm ("eieio");
 }
 
 /** One byte configuration write on PSII.
@@ -140,21 +156,14 @@ void write4be(unsigned long addr, unsigned long val) {
  *  @param    val        Address of location for received byte.
  *  @return Always Zero.
  */
-static int psII_read_config_byte(
-                    struct    pci_controller *hose,
-                    pci_dev_t                dev,
-                    int                      reg,
-                    u8                       *val)
+static int psII_read_config_byte (struct pci_controller *hose,
+				  pci_dev_t dev, int reg, u8 * val)
 {
-    write4be(PSII_CONFIG_ADDR,
-            PSII_CONFIG_DEST_PCI2 |  /* Operate on PCI2 bus interface . */
-            (PCI_BUS(dev) << 16) |
-            (PCI_DEV(dev) << 11) |
-            (PCI_FUNC(dev) << 8) |
-            ((reg & 0xFF) & ~3));  /* Configuation cycle type 0 */
+	write4be (PSII_CONFIG_ADDR, PSII_CONFIG_DEST_PCI2 |	/* Operate on PCI2 bus interface . */
+		  (PCI_BUS (dev) << 16) | (PCI_DEV (dev) << 11) | (PCI_FUNC (dev) << 8) | ((reg & 0xFF) & ~3));	/* Configuation cycle type 0 */
 
-    *val = read1(PSII_CONFIG_DATA+(reg&0x03));
-    return(0);
+	*val = read1 (PSII_CONFIG_DATA + (reg & 0x03));
+	return (0);
 }
 
 /** One byte configuration write on PSII.
@@ -166,22 +175,15 @@ static int psII_read_config_byte(
  *  @param    val        Output byte.
  *  @return Always Zero.
  */
-static int psII_write_config_byte(
-                  struct    pci_controller    *hose,
-                  pci_dev_t                    dev,
-                  int                        reg,
-                  u8                        val)
+static int psII_write_config_byte (struct pci_controller *hose,
+				   pci_dev_t dev, int reg, u8 val)
 {
-    write4be(PSII_CONFIG_ADDR,
-            PSII_CONFIG_DEST_PCI2 |  /* Operate on PCI2 bus interface . */
-            (PCI_BUS(dev) << 16) |
-            (PCI_DEV(dev) << 11) |
-            (PCI_FUNC(dev) << 8) |
-            ((reg & 0xFF) & ~3));  /* Configuation cycle type 0 */
+	write4be (PSII_CONFIG_ADDR, PSII_CONFIG_DEST_PCI2 |	/* Operate on PCI2 bus interface . */
+		  (PCI_BUS (dev) << 16) | (PCI_DEV (dev) << 11) | (PCI_FUNC (dev) << 8) | ((reg & 0xFF) & ~3));	/* Configuation cycle type 0 */
 
-    write1(PSII_CONFIG_DATA+(reg&0x03),(unsigned char )val);
+	write1 (PSII_CONFIG_DATA + (reg & 0x03), (unsigned char) val);
 
-    return(0);
+	return (0);
 }
 
 /** One word (16 bit) configuration read on PSII.
@@ -193,21 +195,14 @@ static int psII_write_config_byte(
  *  @param    val        Address of location for received word.
  *  @return Always Zero.
  */
-static int psII_read_config_word(
-                    struct    pci_controller    *hose,
-                    pci_dev_t                dev,
-                    int                        reg,
-                    u16                        *val)
+static int psII_read_config_word (struct pci_controller *hose,
+				  pci_dev_t dev, int reg, u16 * val)
 {
-    write4be(PSII_CONFIG_ADDR,
-            PSII_CONFIG_DEST_PCI2 |  /* Operate on PCI2 bus interface . */
-            (PCI_BUS(dev) << 16) |
-            (PCI_DEV(dev) << 11) |
-            (PCI_FUNC(dev) << 8) |
-            ((reg & 0xFF) & ~3));  /* Configuation cycle type 0 */
+	write4be (PSII_CONFIG_ADDR, PSII_CONFIG_DEST_PCI2 |	/* Operate on PCI2 bus interface . */
+		  (PCI_BUS (dev) << 16) | (PCI_DEV (dev) << 11) | (PCI_FUNC (dev) << 8) | ((reg & 0xFF) & ~3));	/* Configuation cycle type 0 */
 
-    *val = read2(PSII_CONFIG_DATA+(reg&0x03));
-    return(0);
+	*val = read2 (PSII_CONFIG_DATA + (reg & 0x03));
+	return (0);
 }
 
 /** One word (16 bit) configuration write on PSII.
@@ -219,22 +214,15 @@ static int psII_read_config_word(
  *  @param    val        Output word.
  *  @return Always Zero.
  */
-static int psII_write_config_word(
-                  struct    pci_controller    *hose,
-                  pci_dev_t                    dev,
-                  int                        reg,
-                  u16                        val)
+static int psII_write_config_word (struct pci_controller *hose,
+				   pci_dev_t dev, int reg, u16 val)
 {
-    write4be(PSII_CONFIG_ADDR,
-            PSII_CONFIG_DEST_PCI2 |  /* Operate on PCI2 bus interface . */
-            (PCI_BUS(dev) << 16) |
-            (PCI_DEV(dev) << 11) |
-            (PCI_FUNC(dev) << 8) |
-            ((reg & 0xFF) & ~3));  /* Configuation cycle type 0 */
+	write4be (PSII_CONFIG_ADDR, PSII_CONFIG_DEST_PCI2 |	/* Operate on PCI2 bus interface . */
+		  (PCI_BUS (dev) << 16) | (PCI_DEV (dev) << 11) | (PCI_FUNC (dev) << 8) | ((reg & 0xFF) & ~3));	/* Configuation cycle type 0 */
 
-    write2(PSII_CONFIG_DATA+(reg&0x03),(unsigned short )val);
+	write2 (PSII_CONFIG_DATA + (reg & 0x03), (unsigned short) val);
 
-    return(0);
+	return (0);
 }
 
 /** One DWord (32 bit) configuration read on PSII.
@@ -246,21 +234,14 @@ static int psII_write_config_word(
  *  @param    val        Address of location for received byte.
  *  @return Always Zero.
  */
-static int psII_read_config_dword(
-                    struct    pci_controller    *hose,
-                    pci_dev_t                dev,
-                    int                        reg,
-                    u32                        *val)
+static int psII_read_config_dword (struct pci_controller *hose,
+				   pci_dev_t dev, int reg, u32 * val)
 {
-    write4be(PSII_CONFIG_ADDR,
-            PSII_CONFIG_DEST_PCI2 |  /* Operate on PCI2 bus interface . */
-            (PCI_BUS(dev) << 16) |
-            (PCI_DEV(dev) << 11) |
-            (PCI_FUNC(dev) << 8) |
-            ((reg & 0xFF) & ~3));  /* Configuation cycle type 0 */
+	write4be (PSII_CONFIG_ADDR, PSII_CONFIG_DEST_PCI2 |	/* Operate on PCI2 bus interface . */
+		  (PCI_BUS (dev) << 16) | (PCI_DEV (dev) << 11) | (PCI_FUNC (dev) << 8) | ((reg & 0xFF) & ~3));	/* Configuation cycle type 0 */
 
-    *val = read4(PSII_CONFIG_DATA);
-    return(0);
+	*val = read4 (PSII_CONFIG_DATA);
+	return (0);
 }
 
 /** One DWord (32 bit) configuration write on PSII.
@@ -272,75 +253,66 @@ static int psII_read_config_dword(
  *  @param    val        Output Dword.
  *  @return Always Zero.
  */
-static int psII_write_config_dword(
-                  struct    pci_controller    *hose,
-                  pci_dev_t                    dev,
-                  int                        reg,
-                  u32                        val)
+static int psII_write_config_dword (struct pci_controller *hose,
+				    pci_dev_t dev, int reg, u32 val)
 {
-    write4be(PSII_CONFIG_ADDR,
-            PSII_CONFIG_DEST_PCI2 |  /* Operate on PCI2 bus interface . */
-            (PCI_BUS(dev) << 16) |
-            (PCI_DEV(dev) << 11) |
-            (PCI_FUNC(dev) << 8) |
-            ((reg & 0xFF) & ~3));  /* Configuation cycle type 0 */
+	write4be (PSII_CONFIG_ADDR, PSII_CONFIG_DEST_PCI2 |	/* Operate on PCI2 bus interface . */
+		  (PCI_BUS (dev) << 16) | (PCI_DEV (dev) << 11) | (PCI_FUNC (dev) << 8) | ((reg & 0xFF) & ~3));	/* Configuation cycle type 0 */
 
-    write4(PSII_CONFIG_DATA,(unsigned long)val);
+	write4 (PSII_CONFIG_DATA, (unsigned long) val);
 
-    return(0);
+	return (0);
 }
 
-
-
-static struct pci_config_table    ap1000_config_table[] = {
+static struct pci_config_table ap1000_config_table[] = {
 #ifdef CONFIG_AP1000
-    {PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
-    PCI_BUS(CFG_ETH_DEV_FN), PCI_DEV(CFG_ETH_DEV_FN), PCI_FUNC(CFG_ETH_DEV_FN),
-    pci_cfgfunc_config_device, 
-    {CFG_ETH_IOBASE, CFG_ETH_MEMBASE, PCI_COMMAND_IO | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER }},
+	{PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
+	 PCI_BUS (CFG_ETH_DEV_FN), PCI_DEV (CFG_ETH_DEV_FN),
+	 PCI_FUNC (CFG_ETH_DEV_FN),
+	 pci_cfgfunc_config_device,
+	 {CFG_ETH_IOBASE, CFG_ETH_MEMBASE,
+	  PCI_COMMAND_IO | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER}},
 #endif
-    { }
+	{}
 };
-
 
 static struct pci_controller psII_hose = {
-    config_table: ap1000_config_table,
+      config_table:ap1000_config_table,
 };
 
-void pci_init_board(void)
+void pci_init_board (void)
 {
-  struct pci_controller *hose = &psII_hose;
+	struct pci_controller *hose = &psII_hose;
 
-  /*
-   * Register the hose
-   */
-  hose->first_busno = 0;
-  hose->last_busno = 0xff;
+	/*
+	 * Register the hose
+	 */
+	hose->first_busno = 0;
+	hose->last_busno = 0xff;
 
+	/* System memory space */
+	pci_set_region (hose->regions + 0,
+			AP1000_SYS_MEM_START, AP1000_SYS_MEM_START,
+			AP1000_SYS_MEM_SIZE,
+			PCI_REGION_MEM | PCI_REGION_MEMORY);
 
-  /* System memory space */
-  pci_set_region(hose->regions + 0,
-         AP1000_SYS_MEM_START, AP1000_SYS_MEM_START, AP1000_SYS_MEM_SIZE,
-         PCI_REGION_MEM | PCI_REGION_MEMORY);
+	/* PCI Memory space */
+	pci_set_region (hose->regions + 1,
+			PSII_PCI_MEM_BASE, PSII_PCI_MEM_BASE,
+			PSII_PCI_MEM_SIZE, PCI_REGION_MEM);
 
-  /* PCI Memory space */
-  pci_set_region(hose->regions + 1,
-         PSII_PCI_MEM_BASE, PSII_PCI_MEM_BASE, PSII_PCI_MEM_SIZE,
-         PCI_REGION_MEM);
+	/* No IO Memory space  - for now */
 
-  /* No IO Memory space  - for now */
+	pci_set_ops (hose,
+		     psII_read_config_byte,
+		     psII_read_config_word,
+		     psII_read_config_dword,
+		     psII_write_config_byte,
+		     psII_write_config_word, psII_write_config_dword);
 
-  pci_set_ops(hose,
-          psII_read_config_byte,
-          psII_read_config_word,
-          psII_read_config_dword,
-          psII_write_config_byte,
-          psII_write_config_word,
-          psII_write_config_dword);
+	hose->region_count = 2;
 
-  hose->region_count = 2;
+	pci_register_hose (hose);
 
-  pci_register_hose(hose);
-
-  hose->last_busno = pci_hose_scan(hose);
+	hose->last_busno = pci_hose_scan (hose);
 }

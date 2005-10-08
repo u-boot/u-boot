@@ -35,7 +35,11 @@
 #include <asm/hardware.h>
 
 #define PORTA	(*(volatile unsigned int *)(NETARM_GEN_MODULE_BASE + NETARM_GEN_PORTA))
+#if !defined(CONFIG_NETARM_NS7520)
 #define PORTB	(*(volatile unsigned int *)(NETARM_GEN_MODULE_BASE + NETARM_GEN_PORTB))
+#else
+#define PORTC	(*(volatile unsigned int *)(NETARM_GEN_MODULE_BASE + NETARM_GEN_PORTC))
+#endif
 
 /* wait until transmitter is ready for another character */
 #define TXWAITRDY(registers) 							\
@@ -48,8 +52,13 @@
 }
 
 
+#ifndef CONFIG_UART1_CONSOLE
 volatile netarm_serial_channel_t *serial_reg_ch1 = get_serial_channel(0);
 volatile netarm_serial_channel_t *serial_reg_ch2 = get_serial_channel(1);
+#else
+volatile netarm_serial_channel_t *serial_reg_ch1 = get_serial_channel(1);
+volatile netarm_serial_channel_t *serial_reg_ch2 = get_serial_channel(0);
+#endif
 
 extern void _netarm_led_FAIL1(void);
 
@@ -62,8 +71,13 @@ void serial_setbrg (void)
 	DECLARE_GLOBAL_DATA_PTR;
 
 	/* set 0 ... make sure pins are configured for serial */
+#if !defined(CONFIG_NETARM_NS7520)
 	PORTA = PORTB =
 		NETARM_GEN_PORT_MODE (0xef) | NETARM_GEN_PORT_DIR (0xe0);
+#else
+	PORTA = NETARM_GEN_PORT_MODE (0xef) | NETARM_GEN_PORT_DIR (0xe0);
+	PORTC = NETARM_GEN_PORT_CSF (0xef) | NETARM_GEN_PORT_MODE (0xef) | NETARM_GEN_PORT_DIR (0xe0);
+#endif
 
 	/* first turn em off */
 	serial_reg_ch1->ctrl_a = serial_reg_ch2->ctrl_a = 0;

@@ -1,6 +1,9 @@
 /*
  * include/asm-armnommu/arch-netarm/netarm_mem_module.h
  *
+ * Copyright (C) 2005
+ * Art Shipkowski, Videon Central, Inc., <art@videon-central.com>
+ *
  * Copyright (C) 2000, 2001 NETsilicon, Inc.
  * Copyright (C) 2000, 2001 Red Hat, Inc.
  *
@@ -27,6 +30,8 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  * author(s) : Joe deBlaquiere
+ *
+ * Modified to support NS7520 by Art Shipkowski.
  */
 
 #ifndef __NETARM_MEM_MODULE_REGISTERS_H
@@ -153,5 +158,27 @@
 
 #define NETARM_MEM_OPT_WRITE_ASYNC	(0x00000000)
 #define NETARM_MEM_OPT_WRITE_SYNC	(0x00000001)
+
+#ifdef CONFIG_NETARM_NS7520
+/* The NS7520 has a second options register for each chip select */
+#define	NETARM_MEM_CS0_OPTIONS_B  (0x18)
+#define	NETARM_MEM_CS1_OPTIONS_B  (0x28)
+#define	NETARM_MEM_CS2_OPTIONS_B  (0x38)
+#define	NETARM_MEM_CS3_OPTIONS_B  (0x48)
+#define	NETARM_MEM_CS4_OPTIONS_B  (0x58)
+
+/* Option B Registers (0xFFC0_00x8) */
+#define NETARM_MEM_OPTB_SYNC_1_STAGE	(0x00000001)
+#define NETARM_MEM_OPTB_SYNC_2_STAGE	(0x00000002)
+#define NETARM_MEM_OPTB_BCYC_PLUS0   	(0x00000000)
+#define NETARM_MEM_OPTB_BCYC_PLUS4   	(0x00000004)
+#define NETARM_MEM_OPTB_BCYC_PLUS8   	(0x00000008)
+#define NETARM_MEM_OPTB_BCYC_PLUS12  	(0x0000000C)
+
+#define NETARM_MEM_OPTB_WAIT_PLUS0   	(0x00000000)
+#define NETARM_MEM_OPTB_WAIT_PLUS16   	(0x00000010)
+#define NETARM_MEM_OPTB_WAIT_PLUS32   	(0x00000020)
+#define NETARM_MEM_OPTB_WAIT_PLUS48   	(0x00000030)
+#endif
 
 #endif

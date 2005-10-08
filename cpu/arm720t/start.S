@@ -272,12 +272,15 @@ cpu_init_crit:
 
 	str	r1, [r0, #+NETARM_GEN_SYSTEM_CONTROL]
 
+#ifndef CONFIG_NETARM_PLL_BYPASS
 	ldr	r1, =(	NETARM_GEN_PLL_CTL_PLLCNT(NETARM_PLL_COUNT_VAL) | \
 			NETARM_GEN_PLL_CTL_POLTST_DEF | \
 			NETARM_GEN_PLL_CTL_INDIV(1) | \
 			NETARM_GEN_PLL_CTL_ICP_DEF | \
 			NETARM_GEN_PLL_CTL_OUTDIV(2) )
 	str	r1, [r0, #+NETARM_GEN_PLL_CONTROL]
+#endif
+
 	/*
 	 * mask all IRQs by clearing all bits in the INTMRs
 	 */

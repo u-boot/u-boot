@@ -377,6 +377,10 @@ N: Robert Schwebel
 E: r.schwebel@pengutronix.de
 D: Support for csb226, logodl and innokom boards (PXA2xx)
 
+N: Art Shipkowski
+E: art@videon-central.com
+D: Support for NetSilicon NS7520
+
 N: Yasushi Shoji
 E: yashi@atmark-techno.com
 D: Support for Xilinx MicroBlaze, for Atmark Techno SUZAKU FPGA board

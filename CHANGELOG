@@ -2,6 +2,11 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Cleanup
+
+* Add support for NetSilicon NS7520 processor.
+  Patch by Art Shipkowski, 12 May 2005
+
 * Add support for AP1000 board.
   Patch by James MacAulay, 07 Oct 2005
 
@@ -15,7 +20,7 @@ Changes for U-Boot 1.1.4:
   issue - the table is aligned on a PAGE_SIZE (4096) boundary).
 
 * Fixed compilation for ARM when using a (standard) hard-FP toolchain
-  Patch by Anders Larsen, 07 Oct 2005 
+  Patch by Anders Larsen, 07 Oct 2005
 
 * Cleanup warnings for cpu/arm720t & cpu/arm1136 files.
   sed the linker scripts, rather than pre-process them.
