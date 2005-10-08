@@ -29,11 +29,14 @@
 #include <bmp_layout.h>
 #include <command.h>
 #include <asm/byteorder.h>
+#include <malloc.h>
 
 #if (CONFIG_COMMANDS & CFG_CMD_BMP)
 
 static int bmp_info (ulong addr);
 static int bmp_display (ulong addr, int x, int y);
+
+int gunzip(void *, int, unsigned char *, unsigned long *);
 
 /*
  * Subroutine:  do_bmp
@@ -100,15 +103,64 @@ U_BOOT_CMD(
 static int bmp_info(ulong addr)
 {
 	bmp_image_t *bmp=(bmp_image_t *)addr;
+#ifdef CONFIG_VIDEO_BMP_GZIP
+	unsigned char *dst = NULL;
+	ulong len;
+#endif /* CONFIG_VIDEO_BMP_GZIP */
+
 	if (!((bmp->header.signature[0]=='B') &&
 	      (bmp->header.signature[1]=='M'))) {
+
+#ifdef CONFIG_VIDEO_BMP_GZIP
+		/*
+		 * Decompress bmp image
+		 */
+		len = CFG_VIDEO_LOGO_MAX_SIZE;
+		dst = malloc(CFG_VIDEO_LOGO_MAX_SIZE);
+		if (dst == NULL) {
+			printf("Error: malloc in gunzip failed!\n");
+			return(1);
+		}
+		if (gunzip(dst, CFG_VIDEO_LOGO_MAX_SIZE, (uchar *)addr, &len) != 0) {
+			printf("There is no valid bmp file at the given address\n");
+			return(1);
+		}
+		if (len == CFG_VIDEO_LOGO_MAX_SIZE) {
+			printf("Image could be truncated (increase CFG_VIDEO_LOGO_MAX_SIZE)!\n");
+		}
+
+		/*
+		 * Set addr to decompressed image
+		 */
+		bmp = (bmp_image_t *)dst;
+
+		/*
+		 * Check for bmp mark 'BM'
+		 */
+		if (!((bmp->header.signature[0] == 'B') &&
+		      (bmp->header.signature[1] == 'M'))) {
+			printf("There is no valid bmp file at the given address\n");
+			free(dst);
+			return(1);
+		}
+
+		printf("Gzipped BMP image detected!\n");
+#else /* CONFIG_VIDEO_BMP_GZIP */
 		printf("There is no valid bmp file at the given address\n");
 		return(1);
+#endif /* CONFIG_VIDEO_BMP_GZIP */
 	}
 	printf("Image size    : %d x %d\n", le32_to_cpu(bmp->header.width),
 	       le32_to_cpu(bmp->header.height));
 	printf("Bits per pixel: %d\n", le16_to_cpu(bmp->header.bit_count));
 	printf("Compression   : %d\n", le32_to_cpu(bmp->header.compression));
+
+#ifdef CONFIG_VIDEO_BMP_GZIP
+	if (dst) {
+		free(dst);
+	}
+#endif /* CONFIG_VIDEO_BMP_GZIP */
+
 	return(0);
 }
 

@@ -362,7 +362,7 @@
 #define CFG_LCD_SMALL_MEM       0xF1400000  /* Epson S1D13704 Mem Base Address  */
 #define CFG_LCD_SMALL_REG       0xF140FFE0  /* Epson S1D13704 Reg Base Address  */
 
-#define CFG_LCD_LOGO_MAX_SIZE   (1024*1024)
+#define CFG_VIDEO_LOGO_MAX_SIZE (1 << 20)
 
 /*-----------------------------------------------------------------------
  * FPGA stuff

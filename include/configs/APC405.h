@@ -357,7 +357,7 @@
 #define CFG_LCD_MEM             CFG_LCD_BIG_MEM
 #define CFG_LCD_REG             CFG_LCD_BIG_REG
 
-#define CFG_LCD_LOGO_MAX_SIZE   (1024*1024)
+#define CFG_VIDEO_LOGO_MAX_SIZE (1 << 20)
 
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in data cache)
