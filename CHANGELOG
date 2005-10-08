@@ -2,6 +2,15 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Eliminate hard-coded address of Ethernet transfer buffer on at91rm9200
+  Patch by Anders Larsen, 07 Oct 2005
+
+  The Atmel errata #11 states that the transfer buffer descriptor
+  table must be aligned on a 16-word boundary. As it turned out, this
+  is insufficient - it seems the table must be aligned on a boundary
+  at least as large as the table itself (in Linux this is not an
+  issue - the table is aligned on a PAGE_SIZE (4096) boundary).
+
 * Fixed compilation for ARM when using a (standard) hard-FP toolchain
   Patch by Anders Larsen, 07 Oct 2005 
 

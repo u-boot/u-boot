@@ -44,20 +44,18 @@ typedef struct {
 #define RBF_LOCAL2    (1<<24)
 #define RBF_LOCAL1    (1<<23)
 
-/* Emac Buffers in last 512KBytes of SDRAM*/
-/* Be careful, buffer size is limited to 512KBytes !!! */
-#define RBF_FRAMEMAX 100
-/*#define RBF_FRAMEMEM 0x200000 */
-#define RBF_FRAMEMEM 0x21F80000
+#define RBF_FRAMEMAX 64
 #define RBF_FRAMELEN 0x600
-
-#define RBF_FRAMEBTD RBF_FRAMEMEM
-#define RBF_FRAMEBUF (RBF_FRAMEMEM + RBF_FRAMEMAX*sizeof(rbf_t))
-
 
 #ifdef CONFIG_DRIVER_ETHER
 
 #if (CONFIG_COMMANDS & CFG_CMD_NET)
+
+/* alignment as per Errata #11 (64 bytes) is insufficient! */
+rbf_t rbfdt[RBF_FRAMEMAX] __attribute((aligned(512)));
+rbf_t *rbfp;
+
+unsigned char rbf_framebuf[RBF_FRAMEMAX][RBF_FRAMELEN] __attribute((aligned(4)));
 
 /* structure to interface the PHY */
 AT91S_PhyOps PhyOps;
@@ -153,9 +151,6 @@ UCHAR at91rm9200_EmacWritePhy (AT91PS_EMAC p_mac,
 }
 
 
-rbf_t *rbfdt;
-rbf_t *rbfp;
-
 int eth_init (bd_t * bd)
 {
 	int ret;
@@ -188,9 +183,8 @@ int eth_init (bd_t * bd)
 	p_mac->EMAC_CFG |= AT91C_EMAC_CSR;	/* Clear statistics */
 
 	/* Init Ehternet buffers */
-	rbfdt = (rbf_t *) RBF_FRAMEBTD;
 	for (i = 0; i < RBF_FRAMEMAX; i++) {
-		rbfdt[i].addr = RBF_FRAMEBUF + RBF_FRAMELEN * i;
+		rbfdt[i].addr = rbf_framebuf[i];
 		rbfdt[i].size = 0;
 	}
 	rbfdt[RBF_FRAMEMAX - 1].addr |= RBF_WRAP;
