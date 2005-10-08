@@ -67,17 +67,17 @@ lowlevel_init:
      !defined (CONFIG_CM940T)
 
 #ifdef	CONFIG_CM_MULTIPLE_SSRAM
-	/* set simple mapping		  */
+	/* set simple mapping			*/
 	and	r2,r2,#CMMASK_MAP_SIMPLE
-#endif /* #ifdef CONFIG_CM_MULTIPLE_SSRAM */
+#endif /* #ifdef CONFIG_CM_MULTIPLE_SSRAM	*/
 
 #ifdef	CONFIG_CM_TCRAM
-	/* disable TCRAM		  */
+	/* disable TCRAM			*/
 	and	r2,r2,#CMMASK_TCRAM_DISABLE
-#endif /* #ifdef CONFIG_CM_TCRAM	  */
+#endif /* #ifdef CONFIG_CM_TCRAM		*/
 
 #if defined (CONFIG_CM926EJ_S) || defined (CONFIG_CM1026EJ_S) || \
-	    defined (CONFIG_CM1136JF_S)
+     defined (CONFIG_CM1136JF_S)
 
 	and	r2,r2,#CMMASK_LE
 
@@ -89,7 +89,7 @@ lowlevel_init:
 
 #endif /* ARM102xxE value */
 
-	/* read CM_INIT	   */
+	/* read CM_INIT		 */
 	mov	r0, #CM_BASE
 	ldr	r1, [r0, #OS_INIT]
 	/* check against desired bit setting */
@@ -125,28 +125,28 @@ init_reg_OK:
 .globl dram_query
 dram_query:
 	stmfd	r13!,{r4-r6,lr}
-	/* set up SDRAM info				  */
+	/* set up SDRAM info					*/
 	/* - based on example code from the CM User Guide */
 	mov	r0, #CM_BASE
 
 readspdbit:
-	ldr	r1, [r0, #OS_SDRAM]	/* read the SDRAM register */
-	and	r1, r1, #0x20		/* mask SPD bit (5)	   */
-	cmp	r1, #0x20		/* test if set		   */
+	ldr	r1, [r0, #OS_SDRAM]	/* read the SDRAM register	*/
+	and	r1, r1, #0x20		/* mask SPD bit (5)		*/
+	cmp	r1, #0x20		/* test if set			*/
 	bne	readspdbit
 
 setupsdram:
-	add	r0, r0, #OS_SPD		/* address the copy of the SDP data */
-	ldrb	r1, [r0, #3]		/* number of row address lines	    */
-	ldrb	r2, [r0, #4]		/* number of column address lines   */
-	ldrb	r3, [r0, #5]		/* number of banks		    */
-	ldrb	r4, [r0, #31]		/* module bank density		    */
-	mul	r5, r4, r3		/* size of SDRAM (MB divided by 4)  */
-	mov	r5, r5, ASL#2		/* size in MB			    */
-	mov	r0, #CM_BASE		/* reload for later code	    */
-	cmp	r5, #0x10		/* is it 16MB?			    */
+	add	r0, r0, #OS_SPD		/* address the copy of the SDP data	*/
+	ldrb	r1, [r0, #3]		/* number of row address lines		*/
+	ldrb	r2, [r0, #4]		/* number of column address lines	*/
+	ldrb	r3, [r0, #5]		/* number of banks			*/
+	ldrb	r4, [r0, #31]		/* module bank density			*/
+	mul	r5, r4, r3		/* size of SDRAM (MB divided by 4)	*/
+	mov	r5, r5, ASL#2		/* size in MB				*/
+	mov	r0, #CM_BASE		/* reload for later code		*/
+	cmp	r5, #0x10		/* is it 16MB?				*/
 	bne	not16
-	mov	r6, #0x2		/* store size and CAS latency of 2  */
+	mov	r6, #0x2		/* store size and CAS latency of 2	*/
 	b	writesize
 
 not16:
@@ -197,17 +197,17 @@ cm_remap:
 	orr	r1, r1, #CMMASK_REMAP	/* set remap and led bits */
 	str	r1, [r0, #OS_CTRL]
 
-	/* Now 0x00000000 is writeable, replace the vectors  */
-	ldr	r0, =_start	/* r0 <- start of vectors	    */
-	ldr	r2, =_armboot_start	/* r2 <- past vectors		    */
-	sub	r1,r1,r1		/* destination 0x00000000	    */
+	/* Now 0x00000000 is writeable, replace the vectors	*/
+	ldr	r0, =_start	/* r0 <- start of vectors	*/
+	ldr	r2, =_armboot_start	/* r2 <- past vectors	*/
+	sub	r1,r1,r1		/* destination 0x00000000	*/
 
 copy_vec:
-	ldmia	r0!, {r3-r10}		/* copy from source address [r0]    */
-	stmia	r1!, {r3-r10}		/* copy to   target address [r1]    */
-	cmp	r0, r2			/* until source end address [r2]    */
+	ldmia	r0!, {r3-r10}		/* copy from source address [r0]	*/
+	stmia	r1!, {r3-r10}		/* copy to	 target address [r1]	*/
+	cmp	r0, r2			/* until source end address [r2]	*/
 	ble	copy_vec
 
-	ldmfd	r13!,{r4-r10,pc}	/* back to caller		    */
+	ldmfd	r13!,{r4-r10,pc}	/* back to caller			*/
 
 #endif /* #ifdef CONFIG_CM_REMAP */

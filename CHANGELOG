@@ -2,6 +2,10 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Cleanup warnings for cpu/arm720t & cpu/arm1136 files.
+  sed the linker scripts, rather than pre-process them.
+  Patch by Peter Pearse, 07 Oct 2005
+
 * Update make target for ARM supported boards.
   Use lowlevel_init() instead of platformsetup() [rename].
   Patch by Peter Pearse, 06 Oct 2005

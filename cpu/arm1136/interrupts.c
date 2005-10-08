@@ -33,7 +33,7 @@
 #include <common.h>
 #include <asm/arch/bits.h>
 
-#if !defined(CONFIG_INTEGRATOR) || ! defined(CONFIG_ARCH_CINTEGRATOR)
+#if !defined(CONFIG_INTEGRATOR) && ! defined(CONFIG_ARCH_CINTEGRATOR)
 # include <asm/arch/omap2420.h>
 #endif
 
@@ -176,12 +176,13 @@ void do_irq (struct pt_regs *pt_regs)
 	bad_mode ();
 }
 
-static ulong timestamp;
-static ulong lastinc;
-
 #if defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_CINTEGRATOR)
 /* Use the IntegratorCP function from board/integratorcp.c */
 #else
+
+static ulong timestamp;
+static ulong lastinc;
+
 /* nothing really to do with interrupts, just starts up a counter. */
 int interrupt_init (void)
 {

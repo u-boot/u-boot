@@ -33,7 +33,9 @@
 
 #include <common.h>
 #include <command.h>
+#if !defined(CONFIG_INTEGRATOR) && ! defined(CONFIG_ARCH_CINTEGRATOR)
 #include <asm/arch/omap2420.h>
+#endif
 
 /* read co-processor 15, register #1 (control register) */
 static unsigned long read_p15_c1 (void)

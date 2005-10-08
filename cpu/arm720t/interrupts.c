@@ -218,12 +218,12 @@ static void timer_isr( void *data) {
 }
 #endif
 
-static ulong timestamp;
-static ulong lastdec;
-
 #if defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
 	/* Use IntegratorAP routines in board/integratorap.c */
 #else
+
+static ulong timestamp;
+static ulong lastdec;
 
 int interrupt_init (void)
 {

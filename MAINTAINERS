@@ -250,7 +250,7 @@ Frank Panno <fpanno@delphintech.com>
 
 Peter Pearse <peter.pearse@arm.com>
 	integratorcp		All current ARM supplied &
-	                        supported core modules
+				supported core modules
 				- see http://www.arm.com
 				/products/DevTools
 				/Hardware_Platforms.html

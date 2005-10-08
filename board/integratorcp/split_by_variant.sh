@@ -8,47 +8,48 @@ echo -n "#define CONFIG_INTEGRATOR"  		>> tmp.fil
 echo	 " /* Integrator board */"  		>> tmp.fil
 echo -n "#define CONFIG_ARCH_CINTEGRATOR"	>> tmp.fil
 echo     " 1 /* Integrator/CP   */"  		>> tmp.fil
-# ---------------------------------------------------------
-#  Set the core module defines according to Core Module
-# ---------------------------------------------------------
-CC=${CROSS_COMPILE}gcc
+
 cpu="arm_intcm"
-
-if [ "$2" == "" ]
-then
-	echo "$0:: No preprocessor parameter - using ${CROSS_COMPILE}gcc"
-else
-	CC=$2
-fi
-
+variant="unknown core module"
 
 if [ "$1" == "" ]
 then
-	echo "$0:: No parameters - using ${CROSS_COMPILE}gcc arm_intcm"
+	echo "$0:: No parameters - using arm_intcm"
 else
 	case "$1" in
-	cp966_config		|	\
-	cp922_config		|	\
-	cp1026_config		|	\
+	ap966)
+	cpu="arm_intcm"
+	variant="unported core module CM966E-S"
+	;;
+
+	ap922_config)
+	cpu="arm_intcm"
+	variant="unported core module CM922T"
+	;;
+
 	integratorcp_config	|	\
 	cp_config)
 	cpu="arm_intcm"
+	variant="unspecified core module"
 	;;
 
 	cp922_XA10_config)
+	cpu="arm_intcm"
+	variant="unported core module CM922T_XA10"
 	echo -n "#define CONFIG_CM922T_XA10" 		>> tmp.fil
 	echo    " 1 /* CPU core is ARM922T_XA10 */" 	>> tmp.fil
-	cpu="arm_intcm"
 	;;
 
 	cp920t_config)
 	cpu="arm920t"
+	variant="Core module CM920T"
 	echo -n "#define CONFIG_CM920T" 		>> tmp.fil
 	echo    " 1 /* CPU core is ARM920T */"		>> tmp.fil
 	;;
 
 	cp926ejs_config)
 	cpu="arm926ejs"
+	variant="Core module CM926EJ-S"
 	echo -n "#define CONFIG_CM926EJ_S"		>> tmp.fil
 	echo    " 1 /* CPU core is ARM926EJ-S */ "	>> tmp.fil
 	;;
@@ -56,18 +57,21 @@ else
 
 	cp946es_config)
 	cpu="arm946es"
+	variant="Core module CM946E-S"
 	echo -n "#define CONFIG_CM946E_S"		>> tmp.fil
 	echo    " 1 /* CPU core is ARM946E-S */ "	>> tmp.fil
 	;;
 
 	cp1136_config)
 	cpu="arm1136"
+	variant="Core module CM1136EJF-S"
 	echo -n "#define CONFIG_CM1136EJF_S"		>> tmp.fil
 	echo    " 1 /* CPU core is ARM1136JF-S */ "	>> tmp.fil
 	;;
 
 	*)
-	echo "$0:: Unrecognised target - using arm_intcm"
+	echo "$0:: Unknown core module"
+	variant="unknown core module"
 	cpu="arm_intcm"
 	;;
 
@@ -98,9 +102,10 @@ mv tmp.fil ./include/config.h
 # ---------------------------------------------------------
 #  Ensure correct core object loaded first in U-Boot image
 # ---------------------------------------------------------
-$CC -E -P -C -D CPU_FILE=cpu/$cpu/start.o 		\
--o board/integratorcp/u-boot.lds board/integratorcp/u-boot.lds.S
+sed -r 's/CPU_FILE/cpu\/'$cpu'\/start.o/; s/#.*//' board/integratorcp/u-boot.lds.template > board/integratorcp/u-boot.lds
 # ---------------------------------------------------------
 # Complete the configuration
 # ---------------------------------------------------------
 ./mkconfig -a integratorcp arm $cpu integratorcp;
+echo "Variant:: $variant with core $cpu"
+

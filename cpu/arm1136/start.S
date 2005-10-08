@@ -30,8 +30,9 @@
 
 #include <config.h>
 #include <version.h>
+#if !defined(CONFIG_INTEGRATOR) && ! defined(CONFIG_ARCH_CINTEGRATOR)
 #include <asm/arch/omap2420.h>
-
+#endif
 .globl _start
 _start: b	reset
 	ldr	pc, _undefined_instruction

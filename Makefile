@@ -1409,7 +1409,7 @@ ap720t_config  		\
 ap920t_config		\
 ap926ejs_config		\
 ap946es_config: unconfig
-	@board/integratorap/split_by_variant.sh $@ $(CC)
+	@board/integratorap/split_by_variant.sh $@
 
 integratorcp_config	\
 cp_config		\
@@ -1421,7 +1421,7 @@ cp966_config		\
 cp922_config		\
 cp922_XA10_config	\
 cp1026_config: unconfig
-	@board/integratorcp/split_by_variant.sh $@ $(CC)
+	@board/integratorcp/split_by_variant.sh $@
 
 kb9202_config	:	unconfig
 	@./mkconfig $(@:_config=) arm arm920t kb9202 NULL at91rm9200
@@ -1520,7 +1520,7 @@ VCMA9_config	:	unconfig
 versatile_config	\
 versatileab_config	\
 versatilepb_config :	unconfig
-	@board/versatile/split_by_variant.sh $@ $(CC)
+	@board/versatile/split_by_variant.sh $@
 
 voiceblue_smallflash_config	\
 voiceblue_config:	unconfig
