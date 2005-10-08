@@ -125,7 +125,7 @@ int eth_initialize(bd_t *bis)
 #ifdef CONFIG_DB64460
 	mv6446x_eth_initialize(bis);
 #endif
-#if defined(CONFIG_4xx) && !defined(CONFIG_IOP480)
+#if defined(CONFIG_4xx) && !defined(CONFIG_IOP480) && !defined(CONFIG_AP1000)
 	ppc_4xx_eth_initialize(bis);
 #endif
 #ifdef CONFIG_INCA_IP_SWITCH

@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Add support for AP1000 board.
+  Patch by James MacAulay, 07 Oct 2005
+
 * Eliminate hard-coded address of Ethernet transfer buffer on at91rm9200
   Patch by Anders Larsen, 07 Oct 2005
 

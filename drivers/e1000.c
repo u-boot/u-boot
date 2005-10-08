@@ -112,6 +112,7 @@ static int e1000_detect_gig_phy(struct e1000_hw *hw);
 	readl((a)->hw_addr + E1000_##reg + ((offset) << 2)))
 #define E1000_WRITE_FLUSH(a) {uint32_t x; x = E1000_READ_REG(a, STATUS);}
 
+#ifndef CONFIG_AP1000 /* remove for warnings */
 /******************************************************************************
  * Raises the EEPROM's clock input.
  *
@@ -478,6 +479,7 @@ e1000_validate_eeprom_checksum(struct eth_device *nic)
 		return -E1000_ERR_EEPROM;
 	}
 }
+#endif /* #ifndef CONFIG_AP1000 */
 
 /******************************************************************************
  * Reads the adapter's MAC address from the EEPROM and inverts the LSB for the
@@ -488,6 +490,7 @@ e1000_validate_eeprom_checksum(struct eth_device *nic)
 static int
 e1000_read_mac_addr(struct eth_device *nic)
 {
+#ifndef CONFIG_AP1000
 	struct e1000_hw *hw = nic->priv;
 	uint16_t offset;
 	uint16_t eeprom_data;
@@ -509,6 +512,32 @@ e1000_read_mac_addr(struct eth_device *nic)
 		/* Invert the last bit if this is the second device */
 		nic->enetaddr[5] += 1;
 	}
+#else
+	/*
+	 * The AP1000's e1000 has no eeprom; the MAC address is stored in the
+	 * environment variables.  Currently this does not support the addition
+	 * of a PMC e1000 card, which is certainly a possibility, so this should
+	 * be updated to properly use the env variable only for the onboard e1000
+	 */
+
+	int ii;
+	char *s, *e;
+
+	DEBUGFUNC();
+
+	s = getenv ("ethaddr");
+	if (s == NULL){
+		return -E1000_ERR_EEPROM;
+	}
+	else{
+		for(ii = 0; ii < 6; ii++) {
+			nic->enetaddr[ii] = s ? simple_strtoul (s, &e, 16) : 0;
+			if (s){
+				s = (*e) ? e + 1 : e;
+			}
+		}
+	}
+#endif
 	return 0;
 }
 
@@ -876,6 +905,7 @@ e1000_setup_link(struct eth_device *nic)
 
 	DEBUGFUNC();
 
+#ifndef CONFIG_AP1000
 	/* Read and store word 0x0F of the EEPROM. This word contains bits
 	 * that determine the hardware's default PAUSE (flow control) mode,
 	 * a bit that determines whether the HW defaults to enabling or
@@ -888,6 +918,11 @@ e1000_setup_link(struct eth_device *nic)
 		DEBUGOUT("EEPROM Read Error\n");
 		return -E1000_ERR_EEPROM;
 	}
+#else
+	/* we have to hardcode the proper value for our hardware. */
+	/* this value is for the 82540EM pci card used for prototyping, and it works. */
+	eeprom_data = 0xb220;
+#endif
 
 	if (hw->fc == e1000_fc_default) {
 		if ((eeprom_data & EEPROM_WORD0F_PAUSE_MASK) == 0)
@@ -2950,12 +2985,14 @@ e1000_initialize(bd_t * bis)
 			free(nic);
 			return 0;
 		}
+#ifndef CONFIG_AP1000
 		if (e1000_validate_eeprom_checksum(nic) < 0) {
 			printf("The EEPROM Checksum Is Not Valid\n");
 			free(hw);
 			free(nic);
 			return 0;
 		}
+#endif
 		e1000_read_mac_addr(nic);
 
 		E1000_WRITE_REG(hw, PBA, E1000_DEFAULT_PBA);

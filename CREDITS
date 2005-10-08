@@ -443,3 +443,8 @@ N: Alex Zuepke
 E: azu@sysgo.de
 D: Overall improvements on StrongARM, ARM720TDMI; Support for Tuxscreen; initial PCMCIA support for ARM
 W: www.elinos.com
+
+N: James MacAulay
+E: james.macaulay@amirix.com
+D: Suppport for Amirix AP1000
+W: www.amirix.com
