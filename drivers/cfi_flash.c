@@ -221,7 +221,7 @@ static void flash_printqry (flash_info_t * info, flash_sect_t sect)
 	cfiptr_t cptr;
 	int x, y;
 
-	for (x = 0; x < 0x40; x += 16 / info->portwidth) {
+	for (x = 0; x < 0x40; x += 16U / info->portwidth) {
 		cptr.cp =
 			flash_make_addr (info, sect,
 					 x + FLASH_OFFSET_CFI_RESP);
@@ -807,7 +807,7 @@ static void flash_make_cmd (flash_info_t * info, uchar cmd, void *cmdbuf)
 #else
 	for (i = 1; i <= info->portwidth; i++)
 #endif
-		*cp++ = (i % info->chipwidth) ? '\0' : cmd;
+		*cp++ = (i & (info->chipwidth - 1)) ? '\0' : cmd;
 }
 
 /*
