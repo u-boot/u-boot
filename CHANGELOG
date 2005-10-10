@@ -2,6 +2,10 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Fix problem in ppc4xx eth-driver without ethaddr (only without
+  CONFIG_NET_MULTI set)
+  Patch by Stefan Roese, 10 Oct 2005
+
 * Fix gzip bmp support (test if malloc fails, warning when truncated).
   Increase CFG_VIDEO_LOGO_MAX_SIZE on HH405 board.
   Patch by Stefan Roese, 07 Oct 2005
