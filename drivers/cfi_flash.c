@@ -166,9 +166,15 @@ typedef union {
 
 #define NUM_ERASE_REGIONS 4
 
+/* use CFG_MAX_FLASH_BANKS_DETECT if defined */
+#ifdef CFG_MAX_FLASH_BANKS_DETECT
+static ulong bank_base[CFG_MAX_FLASH_BANKS_DETECT] = CFG_FLASH_BANKS_LIST;
+flash_info_t flash_info[CFG_MAX_FLASH_BANKS_DETECT];	/* FLASH chips info */
+#else
 static ulong bank_base[CFG_MAX_FLASH_BANKS] = CFG_FLASH_BANKS_LIST;
+flash_info_t flash_info[CFG_MAX_FLASH_BANKS];		/* FLASH chips info */
+#endif
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips	  */
 
 /*-----------------------------------------------------------------------
  * Functions
@@ -184,7 +190,7 @@ static int flash_isequal (flash_info_t * info, flash_sect_t sect, uint offset, u
 static int flash_isset (flash_info_t * info, flash_sect_t sect, uint offset, uchar cmd);
 static int flash_toggle (flash_info_t * info, flash_sect_t sect, uint offset, uchar cmd);
 static int flash_detect_cfi (flash_info_t * info);
-static ulong flash_get_size (ulong base, int banknum);
+ulong flash_get_size (ulong base, int banknum);
 static int flash_write_cfiword (flash_info_t * info, ulong dest, cfiword_t cword);
 static int flash_full_status_check (flash_info_t * info, flash_sect_t sector,
 				    ulong tout, char *prompt);
@@ -371,7 +377,7 @@ unsigned long flash_init (void)
 static flash_info_t *flash_get_info(ulong base)
 {
 	int i;
-	flash_info_t * info;
+	flash_info_t * info = 0;
 
 	for (i = 0; i < CFG_MAX_FLASH_BANKS; i ++) {
 		info = & flash_info[i];
@@ -1007,7 +1013,7 @@ static int flash_detect_cfi (flash_info_t * info)
  * The following code cannot be run from FLASH!
  *
  */
-static ulong flash_get_size (ulong base, int banknum)
+ulong flash_get_size (ulong base, int banknum)
 {
 	flash_info_t *info = &flash_info[banknum];
 	int i, j;

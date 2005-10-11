@@ -39,7 +39,7 @@
 #endif
 /*---------------------------------------------------------------------*/
 
-flash_info_t	flash_info[CFG_MAX_FLASH_BANKS];
+flash_info_t	flash_info[];
 
 static ulong flash_get_size (ulong addr, flash_info_t *info);
 static int flash_get_offsets (ulong base, flash_info_t *info);

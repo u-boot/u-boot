@@ -84,7 +84,7 @@ static int image_info (unsigned long addr);
 
 #if (CONFIG_COMMANDS & CFG_CMD_IMLS)
 #include <flash.h>
-extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
+extern flash_info_t flash_info[]; /* info for FLASH chips */
 static int do_imls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 #endif
 
@@ -1082,7 +1082,7 @@ int do_imls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	for (i=0, info=&flash_info[0]; i<CFG_MAX_FLASH_BANKS; ++i, ++info) {
 		if (info->flash_id == FLASH_UNKNOWN)
 			goto next_bank;
-		for (j=0; j<CFG_MAX_FLASH_SECT; ++j) {
+		for (j=0; j<info->sector_count; ++j) {
 
 			if (!(hdr=(image_header_t *)info->start[j]) ||
 			    (ntohl(hdr->ih_magic) != IH_MAGIC))

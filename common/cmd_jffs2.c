@@ -316,7 +316,7 @@ static int part_validate_nor(struct mtdids *id, struct part_info *part)
 {
 #if (CONFIG_COMMANDS & CFG_CMD_FLASH)
 	/* info for FLASH chips */
-	extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
+	extern flash_info_t flash_info[];
 	flash_info_t *flash;
 	int offset_aligned;
 	u32 end_offset;
@@ -711,7 +711,7 @@ static int device_validate(u8 type, u8 num, u32 *size)
 	if (type == MTD_DEV_TYPE_NOR) {
 #if (CONFIG_COMMANDS & CFG_CMD_FLASH)
 		if (num < CFG_MAX_FLASH_BANKS) {
-			extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
+			extern flash_info_t flash_info[];
 			*size = flash_info[num].size;
 			return 0;
 		}

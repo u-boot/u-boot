@@ -1241,6 +1241,9 @@ TASREG_config :		unconfig
 MPC8349ADS_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc83xx mpc8349ads
 
+TQM834x_config:	unconfig
+	@./mkconfig $(@:_config=) ppc mpc83xx tqm834x
+
 #########################################################################
 ## MPC85xx Systems
 #########################################################################

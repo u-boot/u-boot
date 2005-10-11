@@ -35,7 +35,7 @@
 #include <common.h>
 #include <pci.h>
 
-#ifdef CONFIG_MPC8349ADS
+#if defined(CONFIG_MPC8349ADS) || defined(CONFIG_TQM834X)
 #include <asm/i2c.h>
 #endif
 
@@ -114,7 +114,7 @@ pci_mpc83xx_init(volatile struct pci_controller *hose)
 	/*
 	 * Assign PIB PMC slot to desired PCI bus
 	 */
-#ifdef CONFIG_MPC8349ADS
+#if defined(CONFIG_MPC8349ADS) || defined(CONFIG_TQM834X)
 	mpc8349_i2c = (i2c_t*)(CFG_IMMRBAR + CFG_I2C2_OFFSET);
 	i2c_init(CFG_I2C_SPEED,CFG_I2C_SLAVE);
 #endif

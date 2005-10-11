@@ -98,19 +98,27 @@
 #define BR6 0x5030
 #define BR7 0x5038
 
-#define BR_BA   0xFFFF8000
-#define BR_BA_SHIFT     15
-#define BR_PS   0x00001800
-#define BR_PS_SHIFT     11
-#define BR_DECC 0x00000600
-#define BR_DECC_SHIFT    9
-#define BR_WP   0x00000100
-#define BR_WP_SHIFT      8
-#define BR_MSEL 0x000000E0
-#define BR_MSEL_SHIFT    5
-#define BR_V    0x00000001
-#define BR_V_SHIFT       0
-#define BR_RES  ~(BR_BA|BR_PS|BR_DECC|BR_WP|BR_MSEL|BR_V)
+#define BR_BA		0xFFFF8000
+#define BR_BA_SHIFT		15
+#define BR_PS		0x00001800
+#define BR_PS_SHIFT		11
+#define BR_PS_8		0x00000800  /* Port Size 8 bit */
+#define BR_PS_16	0x00001000  /* Port Size 16 bit */
+#define BR_PS_32	0x00001800  /* Port Size 32 bit */
+#define BR_DECC		0x00000600
+#define BR_DECC_SHIFT		 9
+#define BR_WP		0x00000100
+#define BR_WP_SHIFT		 8
+#define BR_MSEL		0x000000E0
+#define BR_MSEL_SHIFT		 5
+#define BR_MS_GPCM	0x00000000  /* GPCM */
+#define BR_MS_SDRAM	0x00000060  /* SDRAM */
+#define BR_MS_UPMA	0x00000080  /* UPMA */
+#define BR_MS_UPMB	0x000000A0  /* UPMB */
+#define BR_MS_UPMC	0x000000C0  /* UPMC */
+#define BR_V		0x00000001
+#define BR_V_SHIFT		 0
+#define BR_RES		~(BR_BA|BR_PS|BR_DECC|BR_WP|BR_MSEL|BR_V)
 
 #define OR0 0x5004
 #define OR1 0x500C
@@ -121,26 +129,43 @@
 #define OR6 0x5034
 #define OR7 0x503C
 
-#define OR_GPCM_AM    0xFFFF8000
-#define OR_GPCM_AM_SHIFT      15
-#define OR_GPCM_BCTLD 0x00001000
-#define OR_GPCM_BCTLD_SHIFT   12
-#define OR_GPCM_CSNT  0x00000800
-#define OR_GPCM_CSNT_SHIFT    11
-#define OR_GPCM_ACS   0x00000600
-#define OR_GPCM_ACS_SHIFT      9
-#define OR_GPCM_XACS  0x00000100
-#define OR_GPCM_XACS_SHIFT     8
-#define OR_GPCM_SCY   0x000000F0
-#define OR_GPCM_SCY_SHIFT      4
-#define OR_GPCM_SETA  0x00000008
-#define OR_GPCM_SETA_SHIFT     3
-#define OR_GPCM_TRLX  0x00000004
-#define OR_GPCM_TRLX_SHIFT     2
-#define OR_GPCM_EHTR  0x00000002
-#define OR_GPCM_EHTR_SHIFT     1
-#define OR_GPCM_EAD   0x00000001
-#define OR_GPCM_EAD_SHIFT      0
+#define OR_GPCM_AM		0xFFFF8000
+#define OR_GPCM_AM_SHIFT		15
+#define OR_GPCM_BCTLD		0x00001000
+#define OR_GPCM_BCTLD_SHIFT		12
+#define OR_GPCM_CSNT		0x00000800
+#define OR_GPCM_CSNT_SHIFT		11
+#define OR_GPCM_ACS		0x00000600
+#define OR_GPCM_ACS_SHIFT		 9
+#define OR_GPCM_ACS_0b10	0x00000400
+#define OR_GPCM_ACS_0b11	0x00000600
+#define OR_GPCM_XACS		0x00000100
+#define OR_GPCM_XACS_SHIFT		 8
+#define OR_GPCM_SCY		0x000000F0
+#define OR_GPCM_SCY_SHIFT		 4
+#define OR_GPCM_SCY_1		0x00000010
+#define OR_GPCM_SCY_2		0x00000020
+#define OR_GPCM_SCY_3		0x00000030
+#define OR_GPCM_SCY_4		0x00000040
+#define OR_GPCM_SCY_5		0x00000050
+#define OR_GPCM_SCY_6		0x00000060
+#define OR_GPCM_SCY_7		0x00000070
+#define OR_GPCM_SCY_8		0x00000080
+#define OR_GPCM_SCY_9		0x00000090
+#define OR_GPCM_SCY_10		0x000000a0
+#define OR_GPCM_SCY_11		0x000000b0
+#define OR_GPCM_SCY_12		0x000000c0
+#define OR_GPCM_SCY_13		0x000000d0
+#define OR_GPCM_SCY_14		0x000000e0
+#define OR_GPCM_SCY_15		0x000000f0
+#define OR_GPCM_SETA		0x00000008
+#define OR_GPCM_SETA_SHIFT		 3
+#define OR_GPCM_TRLX		0x00000004
+#define OR_GPCM_TRLX_SHIFT		 2
+#define OR_GPCM_EHTR		0x00000002
+#define OR_GPCM_EHTR_SHIFT		 1
+#define OR_GPCM_EAD		0x00000001
+#define OR_GPCM_EAD_SHIFT		 0
 
 #define OR_UPM_AM    0xFFFF8000
 #define OR_UPM_AM_SHIFT      15

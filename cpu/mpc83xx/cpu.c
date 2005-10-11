@@ -50,7 +50,7 @@ int checkcpu(void)
 		return -1;
 	}
 
-	puts("CPU: MPC83xx, ");
+	puts("CPU:   MPC83xx, ");
 	switch(pvr) {
 	case PVR_8349_REV10:
 		break;

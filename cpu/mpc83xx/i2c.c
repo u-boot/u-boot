@@ -41,7 +41,7 @@
 #include <i2c.h>
 #include <asm/i2c.h>
 
-#ifdef CONFIG_MPC8349ADS
+#if defined(CONFIG_MPC8349ADS) || defined(CONFIG_TQM834X)
 i2c_t * mpc8349_i2c = (i2c_t*)(CFG_IMMRBAR + CFG_I2C_OFFSET);
 #endif
 
@@ -109,7 +109,9 @@ i2c_wait (int write)
 
 		return 0;
 	} while (get_timer (timeval) < I2C_TIMEOUT);
+
 	debug("i2c_wait: timed out\n");
+	return -1;
 }
 
 static __inline__ int

@@ -404,7 +404,11 @@ int flash_sect_erase (ulong addr_first, ulong addr_last)
 {
 	flash_info_t *info;
 	ulong bank;
+#ifdef CFG_MAX_FLASH_BANKS_DETECT
+	int s_first[CFG_MAX_FLASH_BANKS_DETECT], s_last[CFG_MAX_FLASH_BANKS_DETECT];
+#else
 	int s_first[CFG_MAX_FLASH_BANKS], s_last[CFG_MAX_FLASH_BANKS];
+#endif
 	int erased = 0;
 	int planned;
 	int rcode = 0;
@@ -617,7 +621,11 @@ int flash_sect_protect (int p, ulong addr_first, ulong addr_last)
 {
 	flash_info_t *info;
 	ulong bank;
+#ifdef CFG_MAX_FLASH_BANKS_DETECT
+	int s_first[CFG_MAX_FLASH_BANKS_DETECT], s_last[CFG_MAX_FLASH_BANKS_DETECT];
+#else
 	int s_first[CFG_MAX_FLASH_BANKS], s_last[CFG_MAX_FLASH_BANKS];
+#endif
 	int protected, i;
 	int planned;
 	int rcode;
