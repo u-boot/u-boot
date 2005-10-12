@@ -1598,6 +1598,9 @@ lubbock_config	:	unconfig
 logodl_config	:	unconfig
 	@./mkconfig $(@:_config=) arm pxa logodl
 
+pxa255_idp_config:	unconfig
+	@./mkconfig $(@:_config=) arm pxa pxa255_idp
+
 wepep250_config	:	unconfig
 	@./mkconfig $(@:_config=) arm pxa wepep250
 

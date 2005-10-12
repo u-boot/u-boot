@@ -99,19 +99,17 @@
 #define SCL		0x1000		/* PA 3 */
 #define SDA		0x2000		/* PA 2 */
 
-#define PAR		immr->im_ioport.iop_papar
-#define DIR		immr->im_ioport.iop_padir
-#define DAT		immr->im_ioport.iop_padat
-
-#define I2C_INIT	{PAR &= ~(SCL | SDA); DIR |=  SCL;}
-#define I2C_ACTIVE	(DIR |=  SDA)
-#define I2C_TRISTATE	(DIR &= ~SDA)
-#define I2C_READ	((DAT & SDA) != 0)
-#define I2C_SDA(bit)	if (bit) DAT |=  SDA; \
-			else DAT &= ~SDA
-#define I2C_SCL(bit)	if (bit) DAT |=  SCL; \
-			else DAT &= ~SCL
-#define I2C_DELAY	udelay(5)	/* 1/4 I2C clock duration */
+#define __I2C_DIR	immr->im_ioport.iop_padir
+#define __I2C_DAT	immr->im_ioport.iop_padat
+#define __I2C_PAR	immr->im_ioport.iop_papar
+#define	I2C_INIT	{ __I2C_PAR &= ~(SDA|SCL);	\
+			  __I2C_DIR |= (SDA|SCL);	}
+#define	I2C_READ	((__I2C_DAT & SDA) ? 1 : 0)
+#define	I2C_SDA(x)	{ if (x) __I2C_DAT |= SDA; else __I2C_DAT &= ~SDA; }
+#define	I2C_SCL(x)	{ if (x) __I2C_DAT |= SCL; else __I2C_DAT &= ~SCL; }
+#define	I2C_DELAY	{ udelay(5); }
+#define	I2C_ACTIVE	{ __I2C_DIR |= SDA; }
+#define	I2C_TRISTATE	{ __I2C_DIR &= ~SDA; }
 
 #define CONFIG_RTC_PCF8563
 #define CFG_I2C_RTC_ADDR		0x51

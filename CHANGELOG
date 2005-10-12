@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Support passing of OF flat trees to the kernel.
+  Patch by Pantelis Antoniou, 04 Sep 2005
+
 * Cleanup
 
 * Add support for NetSilicon NS7520 processor.

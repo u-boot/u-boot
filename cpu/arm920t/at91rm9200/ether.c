@@ -184,7 +184,7 @@ int eth_init (bd_t * bd)
 
 	/* Init Ehternet buffers */
 	for (i = 0; i < RBF_FRAMEMAX; i++) {
-		rbfdt[i].addr = rbf_framebuf[i];
+		rbfdt[i].addr = (unsigned long)rbf_framebuf[i];
 		rbfdt[i].size = 0;
 	}
 	rbfdt[RBF_FRAMEMAX - 1].addr |= RBF_WRAP;

@@ -318,11 +318,20 @@ int
 do_iopset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	uint rcode = 0;
+	iopin_t iopin;
 	static uint port = 0;
 	static uint pin = 0;
 	static uint value = 0;
-	static enum { DIR, PAR, SOR, ODR, DAT, INT } cmd = DAT;
-	iopin_t iopin;
+	static enum {
+		DIR,
+		PAR,
+		SOR,
+		ODR,
+		DAT,
+#if defined(CONFIG_8xx)
+		INT
+#endif
+	} cmd = DAT;
 
 	if (argc != 5) {
 		puts ("iopset PORT PIN CMD VALUE\n");

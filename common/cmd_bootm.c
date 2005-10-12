@@ -34,6 +34,10 @@
 #include <environment.h>
 #include <asm/byteorder.h>
 
+#ifdef CONFIG_OF_FLAT_TREE
+#include <ft_build.h>
+#endif
+
  /*cmd_boot.c*/
  extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
@@ -489,6 +493,11 @@ fixup_silent_linux ()
 }
 #endif /* CONFIG_SILENT_CONSOLE */
 
+#ifdef CONFIG_OF_FLAT_TREE
+extern const unsigned char oftree_dtb[];
+extern const unsigned int oftree_dtb_len;
+#endif
+
 #ifdef CONFIG_PPC
 static void
 do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
@@ -511,6 +520,9 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	bd_t	*kbd;
 	void	(*kernel)(bd_t *, ulong, ulong, ulong, ulong);
 	image_header_t *hdr = &header;
+#ifdef CONFIG_OF_FLAT_TREE
+	char	*of_flat_tree;
+#endif
 
 	if ((s = getenv ("initrd_high")) != NULL) {
 		/* a value of "no" or a similar string will act like 0,
@@ -776,15 +788,26 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		initrd_end = 0;
 	}
 
+#ifdef CONFIG_OF_FLAT_TREE
+	if (initrd_start == 0)
+		of_flat_tree = (char *)(((ulong)kbd - OF_FLAT_TREE_MAX_SIZE -
+					sizeof(bd_t)) & ~0xF);
+	else
+		of_flat_tree = (char *)((initrd_start - OF_FLAT_TREE_MAX_SIZE -
+					sizeof(bd_t)) & ~0xF);
+#endif
 
 	debug ("## Transferring control to Linux (at address %08lx) ...\n",
 		(ulong)kernel);
 
 	SHOW_BOOT_PROGRESS (15);
 
+#ifndef CONFIG_OF_FLAT_TREE
+
 #if defined(CFG_INIT_RAM_LOCK) && !defined(CONFIG_E500)
 	unlock_ram_in_cache();
 #endif
+
 	/*
 	 * Linux Kernel Parameters:
 	 *   r3: ptr to board info data
@@ -794,6 +817,25 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	 *   r7: End   of command line string
 	 */
 	(*kernel) (kbd, initrd_start, initrd_end, cmd_start, cmd_end);
+
+#else
+	ft_setup(of_flat_tree, OF_FLAT_TREE_MAX_SIZE, kbd);
+	/* ft_dump_blob(of_flat_tree); */
+
+#if defined(CFG_INIT_RAM_LOCK) && !defined(CONFIG_E500)
+	unlock_ram_in_cache();
+#endif
+	/*
+	 * Linux Kernel Parameters:
+	 *   r3: ptr to OF flat tree, followed by the board info data
+	 *   r4: initrd_start or 0 if no initrd
+	 *   r5: initrd_end - unused if r4 is 0
+	 *   r6: Start of command line string
+	 *   r7: End   of command line string
+	 */
+	(*kernel) ((bd_t *)of_flat_tree, initrd_start, initrd_end, cmd_start, cmd_end);
+
+#endif
 }
 #endif /* CONFIG_PPC */
 

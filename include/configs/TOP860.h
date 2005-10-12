@@ -181,17 +181,20 @@
 #if defined (CONFIG_SOFT_I2C)
 #define	SDA	0x00010
 #define	SCL	0x00020
-#define DIR immr->im_cpm.cp_pbdir
-#define DAT	immr->im_cpm.cp_pbdat
-#define PAR	immr->im_cpm.cp_pbpar
-#define	ODR	immr->im_cpm.cp_pbodr
-#define	I2C_INIT	{PAR&=~(SDA|SCL);ODR&=~(SDA|SCL);DAT|=(SDA|SCL);DIR|=(SDA|SCL);}
-#define	I2C_READ	((DAT&SDA)?1:0)
-#define	I2C_SDA(x)	{if(x)DAT|=SDA;else DAT&=~SDA;}
-#define	I2C_SCL(x)	{if(x)DAT|=SCL;else DAT&=~SCL;}
-#define	I2C_DELAY	{udelay(5);}
-#define	I2C_ACTIVE	 {DIR|=SDA;}
-#define	I2C_TRISTATE {DIR&=~SDA;}
+#define __I2C_DIR	immr->im_cpm.cp_pbdir
+#define __I2C_DAT	immr->im_cpm.cp_pbdat
+#define __I2C_PAR	immr->im_cpm.cp_pbpar
+#define	__I2C_ODR	immr->im_cpm.cp_pbodr
+#define	I2C_INIT	{ __I2C_PAR &= ~(SDA|SCL);	\
+			  __I2C_ODR &= ~(SDA|SCL);	\
+			  __I2C_DAT |= (SDA|SCL);	\
+			  __I2C_DIR|=(SDA|SCL);	}
+#define	I2C_READ	((__I2C_DAT & SDA) ? 1 : 0)
+#define	I2C_SDA(x)	{ if (x) __I2C_DAT |= SDA; else __I2C_DAT &= ~SDA; }
+#define	I2C_SCL(x)	{ if (x) __I2C_DAT |= SCL; else __I2C_DAT &= ~SCL; }
+#define	I2C_DELAY	{ udelay(5); }
+#define	I2C_ACTIVE	{ __I2C_DIR |= SDA; }
+#define	I2C_TRISTATE	{ __I2C_DIR &= ~SDA; }
 #endif
 
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }

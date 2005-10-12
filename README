@@ -399,6 +399,20 @@ The following options need to be configured:
 		expect it to be in bytes, others in MB.
 		Define CONFIG_MEMSIZE_IN_BYTES to make it in bytes.
 
+		CONFIG_OF_FLAT_TREE
+
+		New kernel versions are expecting firmware settings to be
+		passed using flat open firmware trees.
+		The environment variable "disable_of", when set, disables this
+		functionality.
+
+		CONFIG_OF_FLAT_TREE_MAX_SIZE
+
+		The maximum size of the constructed OF tree.
+
+		OF_CPU - The proper name of the cpus node.
+		OF_TBCLK - The timebase frequency.
+
 - Serial Ports:
 		CFG_PL010_SERIAL
 
