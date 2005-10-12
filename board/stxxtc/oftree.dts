@@ -1,0 +1,52 @@
+/ {
+	model = "STXXTC V1";
+	compatible = "STXXTC";
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	cpus {
+		linux,phandle = <1>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		PowerPC,MPC870@0 {
+			linux,phandle = <3>;
+			name = "PowerPC,MPC870";
+			device_type = "cpu";
+			reg = <0>;
+			clock-frequency = <0>;		/* place-holder for runtime fillup */
+			timebase-frequency = <0>;	/* dido */
+			linux,boot-cpu;
+			i-cache-size = <2000>;
+			d-cache-size = <2000>;
+			32-bit;
+		};
+	};
+
+	memory@0 {
+		device_type = "memory";
+		reg = <00000000 00000000 00000000 20000000>;
+	};
+
+	/* copy of the bd_t information (place-holders) */
+	bd_t {
+		memstart	= <0>;
+		memsize		= <0>;
+		flashstart	= <0>;
+		flashsize	= <0>;
+		flashoffset	= <0>;
+		sramstart	= <0>;
+		sramsize	= <0>;
+
+		immr_base	= <0>;
+
+		bootflags	= <0>;
+		ip_addr		= <0>;
+		enetaddr	= [ 00 00 00 00 00 00 ];
+		ethspeed	= <0>;
+		intfreq		= <0>;
+		busfreq		= <0>;
+
+		baudrate	= <0>;
+	};
+
+};
