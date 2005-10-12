@@ -88,7 +88,7 @@
 #define CFG_CONSOLE_IS_IN_ENV
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_VIDEO_BMP_GZIP		/* gzip compressed bmp images	*/
-#define CFG_VIDEO_LOGO_MAX_SIZE	(1024*1024)	/* for decompressed img */
+#define CFG_VIDEO_LOGO_MAX_SIZE	(2 << 20)	/* for decompressed img */
 
 #define ADD_BMP_CMD		CFG_CMD_BMP
 #else
@@ -308,7 +308,7 @@
 #define CFG_FLASH_BASE		0xFFF80000
 #define CFG_MONITOR_BASE	TEXT_BASE
 #define CFG_MONITOR_LEN		(512 * 1024)	/* Reserve 512 kB for Monitor	*/
-#define CFG_MALLOC_LEN		(2 * 1024*1024)	/* Reserve 2 MB for malloc()	*/
+#define CFG_MALLOC_LEN		(4 << 20)	/* Reserve 4 MB for malloc()	*/
 
 #if (CFG_MONITOR_BASE < FLASH_BASE0_PRELIM)
 # define CFG_RAMBOOT		1
@@ -408,8 +408,6 @@
 #define CFG_LCD_BIG_REG         0xF1000000  /* Epson S1D13806 Reg Base Address  */
 #define CFG_LCD_SMALL_MEM       0xF1400000  /* Epson S1D13704 Mem Base Address  */
 #define CFG_LCD_SMALL_REG       0xF140FFE0  /* Epson S1D13704 Reg Base Address  */
-
-#define CFG_LCD_LOGO_MAX_SIZE   (1024*1024)
 
 /*-----------------------------------------------------------------------
  * Universal Interrupt Controller (UIC) Setup

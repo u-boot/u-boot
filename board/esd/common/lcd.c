@@ -81,7 +81,7 @@ void lcd_bmp(uchar *logo_bmp)
 	uchar *ptr;
 	ushort *ptr2;
 	ushort val;
-	unsigned char *dst;
+	unsigned char *dst = NULL;
 	int x, y;
 	int width, height, bpp, colors, line_size;
 	int header_size;
@@ -89,7 +89,6 @@ void lcd_bmp(uchar *logo_bmp)
 	unsigned char r, g, b;
 	BITMAPINFOHEADER *bm_info;
 	ulong len;
-	int do_free = 0;
 
 	/*
 	 * Check for bmp mark 'BM'
@@ -99,11 +98,17 @@ void lcd_bmp(uchar *logo_bmp)
 		/*
 		 * Decompress bmp image
 		 */
-		len = CFG_LCD_LOGO_MAX_SIZE;
-		dst = malloc(CFG_LCD_LOGO_MAX_SIZE);
-		do_free = 1;
-		if (gunzip(dst, CFG_LCD_LOGO_MAX_SIZE, (uchar *)logo_bmp, &len) != 0) {
+		len = CFG_VIDEO_LOGO_MAX_SIZE;
+		dst = malloc(CFG_VIDEO_LOGO_MAX_SIZE);
+		if (dst == NULL) {
+			printf("Error: malloc in gunzip failed!\n");
 			return;
+		}
+		if (gunzip(dst, CFG_VIDEO_LOGO_MAX_SIZE, (uchar *)logo_bmp, &len) != 0) {
+			return;
+		}
+		if (len == CFG_VIDEO_LOGO_MAX_SIZE) {
+			printf("Image could be truncated (increase CFG_VIDEO_LOGO_MAX_SIZE)!\n");
 		}
 
 		/*
@@ -147,7 +152,9 @@ void lcd_bmp(uchar *logo_bmp)
 		break;
 	default:
 		printf("LCD: Unknown bpp (%d) im image!\n", bpp);
-		free(dst);
+		if ((dst != NULL) && (dst != (uchar *)logo_bmp)) {
+			free(dst);
+		}
 		return;
 	}
 	printf(" (%d*%d, %dbpp)\n", width, height, bpp);
@@ -205,7 +212,7 @@ void lcd_bmp(uchar *logo_bmp)
 		}
 	}
 
-	if (do_free) {
+	if ((dst != NULL) && (dst != (uchar *)logo_bmp)) {
 		free(dst);
 	}
 }

@@ -139,7 +139,7 @@
 static uint32_t mal_ier;
 
 #if !defined(CONFIG_NET_MULTI)
-struct eth_device *emac0_dev;
+struct eth_device *emac0_dev = NULL;
 #endif
 
 
@@ -306,8 +306,10 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 
 	/* before doing anything, figure out if we have a MAC address */
 	/* if not, bail */
-	if (memcmp (dev->enetaddr, "\0\0\0\0\0\0", 6) == 0)
+	if (memcmp (dev->enetaddr, "\0\0\0\0\0\0", 6) == 0) {
+		printf("ERROR: ethaddr not set!\n");
 		return -1;
+	}
 
 #if defined(CONFIG_440GX)
 	/* Need to get the OPB frequency so we can access the PHY */
@@ -1486,12 +1488,16 @@ void eth_halt (void) {
 int eth_init (bd_t *bis)
 {
 	ppc_4xx_eth_initialize(bis);
-	return(ppc_4xx_eth_init(emac0_dev, bis));
+	if (emac0_dev) {
+		return ppc_4xx_eth_init(emac0_dev, bis);
+	} else {
+		printf("ERROR: ethaddr not set!\n");
+		return -1;
+	}
 }
 
 int eth_send(volatile void *packet, int length)
 {
-
 	return (ppc_4xx_eth_send(emac0_dev, packet, length));
 }
 

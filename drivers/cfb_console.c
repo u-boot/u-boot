@@ -779,10 +779,17 @@ int video_display_bitmap (ulong bmp_image, int x, int y)
 		 */
 		len = CFG_VIDEO_LOGO_MAX_SIZE;
 		dst = malloc(CFG_VIDEO_LOGO_MAX_SIZE);
+		if (dst == NULL) {
+			printf("Error: malloc in gunzip failed!\n");
+			return(1);
+		}
 		if (gunzip(dst, CFG_VIDEO_LOGO_MAX_SIZE, (uchar *)bmp_image, &len) != 0) {
 			printf ("Error: no valid bmp or bmp.gz image at %lx\n", bmp_image);
 			free(dst);
 			return 1;
+		}
+		if (len == CFG_VIDEO_LOGO_MAX_SIZE) {
+			printf("Image could be truncated (increase CFG_VIDEO_LOGO_MAX_SIZE)!\n");
 		}
 
 		/*
