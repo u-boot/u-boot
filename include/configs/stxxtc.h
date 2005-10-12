@@ -574,19 +574,15 @@ typedef unsigned int led_id_t;
 #define CONFIG_CRC32_VERIFY	1
 #define CONFIG_HUSH_OLD_PARSER_COMPATIBLE	1
 
-/* Note: change below for your network setting!!!
- * This was done just to facilitate manufacturing test and configuration.
- */
-#define CONFIG_ETHADDR	 00:e0:0c:07:9b:8a
+/*****************************************************************************/
 
-#define CONFIG_SERVERIP 	192.168.08.1
-#define CONFIG_IPADDR  		192.168.08.85
-#define CONFIG_GATEWAYIP	192.168.08.1
-#define CONFIG_NETMASK		255.255.255.0
-#define CONFIG_HOSTNAME 	stx_xtc
-#define CONFIG_ROOTPATH 	/xtcroot
-#define CONFIG_BOOTFILE 	uImage
-#define CONFIG_LOADADDR		0x1000000
+/* pass open firmware flat tree */
+#define CONFIG_OF_FLAT_TREE	1
 
+/* maximum size of the flat tree (8K) */
+#define OF_FLAT_TREE_MAX_SIZE	8192
+
+#define OF_CPU			"PowerPC,MPC870@0"
+#define OF_TBCLK		(MPC8XX_HZ / 16)
 
 #endif	/* __CONFIG_H */
