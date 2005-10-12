@@ -40,7 +40,7 @@
 #define CONFIG_TQM834X		1	/* TQM834X board specific */
 
 /* IMMR Base Addres Register, use Freescale default: 0xff400000 */
-#define CFG_IMMRBAR		IMMRBAR_BASE_ADDR
+#define CFG_IMMRBAR		0xff400000
 
 /* System clock. Primary input clock when in PCI host mode */
 #define CONFIG_83XX_CLKIN	66666000	/* 66,666 MHz */
