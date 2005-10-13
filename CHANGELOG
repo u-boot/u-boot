@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Add documentation for Open Firmware Flat Tree and usage.
+  Patch by Pantelis Antoniou, 13 Oct 2005
+
 * Add missing files for Pantelis Antoniou's patch
   Patch by Pantelis Antoniou, 04 Sep 2005
 
