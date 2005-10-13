@@ -38,7 +38,7 @@ env_callback (uchar *name, uchar *value)
 	char ov[CFG_CBSIZE], nv[CFG_CBSIZE], *p, *q, *nn, c, *curver, *newver;
 	int override = 1, append = 0, remove = 0, nnl, ovl, nvl;
 
-	nn = name;
+	nn = (char *)name;
 
 	if (*nn == '-') {
 		override = 0;
@@ -68,7 +68,7 @@ env_callback (uchar *name, uchar *value)
 		return (0);
 	}
 
-	p = value;
+	p = (char *)value;
 	q = nv;
 
 	while ((c = *p) == ' ' || c == '\t')

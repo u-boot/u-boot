@@ -525,7 +525,8 @@ static unsigned int FindPQ (unsigned int freq, unsigned int *pp, unsigned int *p
 /*****************************************************************************/
 static void smiLoadCcr (struct ctfb_res_modes *var, unsigned short device_id)
 {
-	unsigned int p, q;
+	unsigned int p = 0;
+	unsigned int q = 0;
 	long long freq;
 	register GraphicDevice *pGD  = (GraphicDevice *)&smi;
 

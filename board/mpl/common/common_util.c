@@ -163,7 +163,7 @@ mpl_prg(uchar *src, ulong size)
 #endif
 	printf("flash erased, programming from 0x%lx 0x%lx Bytes\n",
 		(ulong)src, size);
-	if ((rc = flash_write (src, start, size)) != 0) {
+	if ((rc = flash_write ((char *)src, start, size)) != 0) {
 		puts("ERROR ");
 		flash_perror(rc);
 		return (1);
@@ -200,14 +200,14 @@ mpl_prg_image(uchar *ld_addr)
 	len  = sizeof(image_header_t);
 	checksum = ntohl(hdr->ih_hcrc);
 	hdr->ih_hcrc = 0;
-	if (crc32 (0, (char *)data, len) != checksum) {
+	if (crc32 (0, (uchar *)data, len) != checksum) {
 		puts("Bad Header Checksum\n");
 		return 1;
 	}
 	data = ld_addr + sizeof(image_header_t);
 	len  = ntohl(hdr->ih_size);
 	puts("Verifying Checksum ... ");
-	if (crc32 (0, (char *)data, len) != ntohl(hdr->ih_dcrc)) {
+	if (crc32 (0, (uchar *)data, len) != ntohl(hdr->ih_dcrc)) {
 		puts("Bad Data CRC\n");
 		return 1;
 	}
@@ -376,8 +376,8 @@ void copy_old_env(ulong size)
 			} while(len > off);
 			name=&name_buf[0];
 			value=&value_buf[0];
-			if(strncmp(name,"baudrate",8)!=0) {
-				setenv(name,value);
+			if(strncmp((char *)name,"baudrate",8)!=0) {
+				setenv((char *)name,(char *)value);
 			}
 
 		}
@@ -387,7 +387,7 @@ void copy_old_env(ulong size)
 
 void check_env(void)
 {
-	unsigned char *s;
+	char *s;
 	int i=0;
 	char buf[32];
 	backup_t back;
@@ -592,7 +592,7 @@ void video_get_info_str (int line_number, char *info)
 	char buf[64];
 	char tmp[16];
 	char cpustr[16];
-	unsigned char *s, *e, bc;
+	char *s, *e, bc;
 	switch (line_number)
 	{
 	case 2:

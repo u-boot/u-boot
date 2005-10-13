@@ -133,7 +133,7 @@ int checkboard (void)
 /* ------------------------------------------------------------------------- */
 int misc_init_r (void)
 {
-	unsigned char *s, *e;
+	char *s, *e;
 	image_header_t *hdr;
 	time_t timestamp;
 	struct rtc_time tm;
@@ -146,7 +146,7 @@ int misc_init_r (void)
 
 #define FACTORY_SETTINGS 0xFFFC0000
 	if ((s = getenv ("ethaddr")) == NULL) {
-		e = (unsigned char *) (FACTORY_SETTINGS);
+		e = (char *) (FACTORY_SETTINGS);
 		if (*(e + 0) != '0'
 			|| *(e + 1) != '0'
 			|| *(e + 2) != ':'
@@ -314,7 +314,7 @@ static u8 *dhcp_env_update (u8 thing, u8 * pop)
 	{
 		setenv (Things[thing].envname, Things[thing].dhcpvalue);
 	}
-	return (Things[thing].dhcpvalue);
+	return ((u8 *)(Things[thing].dhcpvalue));
 }
 
 /* ------------------------------------------------------------------------- */

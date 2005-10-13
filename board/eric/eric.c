@@ -85,8 +85,8 @@ int board_early_init_f (void)
 
 int checkboard (void)
 {
-	unsigned char *s = getenv ("serial#");
-	unsigned char *e;
+	char *s = getenv ("serial#");
+	char *e;
 
 	puts ("Board: ");
 

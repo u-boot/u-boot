@@ -188,12 +188,11 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 #endif
 	switch (value)
 	{
-		case 0x01:
-		case AMD_MANUFACT:
+		case 0x01: /*AMD_MANUFACT*/
 			info->flash_id = FLASH_MAN_AMD;
 		break;
 
-		case FUJ_MANUFACT:
+		case 0x04: /*FUJ_MANUFACT*/
 			info->flash_id = FLASH_MAN_FUJ;
 		break;
 

@@ -76,7 +76,7 @@ autoscript (ulong addr)
 	hdr->ih_hcrc = 0;
 	len = sizeof (image_header_t);
 	data = (ulong)hdr;
-	if (crc32(0, (char *)data, len) != crc) {
+	if (crc32(0, (uchar *)data, len) != crc) {
 		puts ("Bad header crc\n");
 		return 1;
 	}
@@ -85,7 +85,7 @@ autoscript (ulong addr)
 	len = ntohl(hdr->ih_size);
 
 	if (verify) {
-		if (crc32(0, (char *)data, len) != ntohl(hdr->ih_dcrc)) {
+		if (crc32(0, (uchar *)data, len) != ntohl(hdr->ih_dcrc)) {
 			puts ("Bad data crc\n");
 			return 1;
 		}

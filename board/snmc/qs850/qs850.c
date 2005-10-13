@@ -89,8 +89,8 @@ const uint sdram_table[] =
 
 int checkboard (void)
 {
-	unsigned char *s, *e;
-	unsigned char buf[64];
+	char *s, *e;
+	char buf[64];
 	int i;
 
 	i = getenv_r("serial#", buf, sizeof(buf));
@@ -192,7 +192,7 @@ long int initdram (int board_type)
 	* Check for 32M SDRAM Memory Size
 	*/
 	size = dram_size(CFG_32M_MAMR|MAMR_PTAE,
-	(ulong *)SDRAM_BASE, SDRAM_32M_MAX_SIZE);
+	(long *)SDRAM_BASE, SDRAM_32M_MAX_SIZE);
 	udelay (1000);
 
 	/*
@@ -200,7 +200,7 @@ long int initdram (int board_type)
 	*/
 	if (size != SDRAM_32M_MAX_SIZE) {
 	size = dram_size(CFG_16M_MAMR|MAMR_PTAE,
-	(ulong *)SDRAM_BASE, SDRAM_16M_MAX_SIZE);
+	(long *)SDRAM_BASE, SDRAM_16M_MAX_SIZE);
 	udelay (1000);
 	}
 

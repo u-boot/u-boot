@@ -292,7 +292,7 @@ static int thread_start (int id)
 		current_tid = id;
 		PDEBUG ("thread_start: to be stack=0%08x",
 			(unsigned)lthreads[id].stack);
-		setctxsp (&lthreads[id].stack[STK_SIZE]);
+		setctxsp ((vu_char *)&lthreads[id].stack[STK_SIZE]);
 		thread_launcher ();
 	}
 

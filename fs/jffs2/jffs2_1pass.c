@@ -496,7 +496,7 @@ static int compare_dirents(struct b_node *new, struct b_node *old)
 
 	/* length is also the same, so use ascending sort by name
 	 */
-	cmp = strncmp(jNew->name, jOld->name, jNew->nsize);
+	cmp = strncmp((char *)jNew->name, (char *)jOld->name, jNew->nsize);
 	if (cmp != 0)
 		return cmp > 0;
 
@@ -572,8 +572,8 @@ jffs2_1pass_read_inode(struct b_lists *pL, u32 inode, char *dest)
 	struct jffs2_raw_inode *jNode;
 	u32 totalSize = 0;
 	u32 latestVersion = 0;
-	char *lDest;
-	char *src;
+	uchar *lDest;
+	uchar *src;
 	long ret;
 	int i;
 	u32 counter = 0;
@@ -624,14 +624,14 @@ jffs2_1pass_read_inode(struct b_lists *pL, u32 inode, char *dest)
 #endif
 
 			if(dest) {
-				src = ((char *) jNode) + sizeof(struct jffs2_raw_inode);
+				src = ((uchar *) jNode) + sizeof(struct jffs2_raw_inode);
 				/* ignore data behind latest known EOF */
 				if (jNode->offset > totalSize) {
 					put_fl_mem(jNode);
 					continue;
 				}
 
-				lDest = (char *) (dest + jNode->offset);
+				lDest = (uchar *) (dest + jNode->offset);
 #if 0
 				putLabeledWord("read_inode: src = ", src);
 				putLabeledWord("read_inode: dest = ", lDest);
@@ -709,7 +709,7 @@ jffs2_1pass_find_inode(struct b_lists * pL, const char *name, u32 pino)
 		jDir = (struct jffs2_raw_dirent *) get_node_mem(b->offset);
 		if ((pino == jDir->pino) && (len == jDir->nsize) &&
 		    (jDir->ino) &&	/* 0 for unlink */
-		    (!strncmp(jDir->name, name, len))) {	/* a match */
+		    (!strncmp((char *)jDir->name, name, len))) {	/* a match */
 			if (jDir->version < version) {
 				put_fl_mem(jDir);
 				continue;
@@ -776,7 +776,7 @@ static inline void dump_stat(struct stat *st, const char *name)
 	if (st->st_mtime == (time_t)(-1)) /* some ctimes really hate -1 */
 		st->st_mtime = 1;
 
-	ctime_r(&st->st_mtime, s/*,64*/); /* newlib ctime doesn't have buflen */
+	ctime_r((time_t *)&st->st_mtime, s/*,64*/); /* newlib ctime doesn't have buflen */
 
 	if ((p = strchr(s,'\n')) != NULL) *p = '\0';
 	if ((p = strchr(s,'\r')) != NULL) *p = '\0';
@@ -796,7 +796,7 @@ static inline u32 dump_inode(struct b_lists * pL, struct jffs2_raw_dirent *d, st
 
 	if(!d || !i) return -1;
 
-	strncpy(fname, d->name, d->nsize);
+	strncpy(fname, (char *)d->name, d->nsize);
 	fname[d->nsize] = '\0';
 
 	memset(&st,0,sizeof(st));
@@ -971,7 +971,7 @@ jffs2_1pass_resolve_inode(struct b_lists * pL, u32 ino)
 			putnstr(src, jNode->dsize);
 			putstr("\r\n");
 #endif
-			strncpy(tmp, src, jNode->dsize);
+			strncpy(tmp, (char *)src, jNode->dsize);
 			tmp[jNode->dsize] = '\0';
 			put_fl_mem(jNode);
 			break;

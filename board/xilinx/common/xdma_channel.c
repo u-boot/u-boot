@@ -123,7 +123,7 @@ XDmaChannel_Initialize(XDmaChannel * InstancePtr, u32 BaseAddress)
 
 	/* initialize the version of the component
 	 */
-	XVersion_FromString(&InstancePtr->Version, "1.00a");
+	XVersion_FromString(&InstancePtr->Version, (s8 *)"1.00a");
 
 	/* reset the DMA channel such that it's in a known state and ready
 	 * and indicate the initialization occured with no errors, note that

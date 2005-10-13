@@ -363,7 +363,7 @@ ns8382x_initialize(bd_t * bis)
 		/* get MAC address */
 		for (i = 0; i < 3; i++) {
 			u32 data;
-			char *mac = &dev->enetaddr[i * 2];
+			char *mac = (char *)&dev->enetaddr[i * 2];
 
 			OUTL(dev, i * 2, RxFilterAddr);
 			data = INL(dev, RxFilterData);

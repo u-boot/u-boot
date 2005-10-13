@@ -266,14 +266,14 @@ long int initdram (int board_type)
 	 *
 	 * try 8 column mode
 	 */
-	size8 = dram_size (CFG_MAMR_8COL, (ulong *)SDRAM_BASE3_PRELIM, SDRAM_MAX_SIZE);
+	size8 = dram_size (CFG_MAMR_8COL, (long *)SDRAM_BASE3_PRELIM, SDRAM_MAX_SIZE);
 
 	udelay (1000);
 
 	/*
 	 * try 9 column mode
 	 */
-	size9 = dram_size (CFG_MAMR_9COL, (ulong *)SDRAM_BASE3_PRELIM, SDRAM_MAX_SIZE);
+	size9 = dram_size (CFG_MAMR_9COL, (long *)SDRAM_BASE3_PRELIM, SDRAM_MAX_SIZE);
 
 	if (size8 < size9) {		/* leave configuration at 9 columns */
 		size_b0 = size9;
@@ -574,11 +574,11 @@ int misc_init_r (void)
 	DECLARE_GLOBAL_DATA_PTR;
 
 	uchar kbd_data[KEYBD_DATALEN];
-	uchar keybd_env[2 * KEYBD_DATALEN + 1];
+	char keybd_env[2 * KEYBD_DATALEN + 1];
 	uchar kbd_init_status = gd->kbd_status >> 8;
 	uchar kbd_status = gd->kbd_status;
 	uchar val;
-	uchar *str;
+	char *str;
 	int i;
 
 	if (kbd_init_status) {
@@ -617,7 +617,7 @@ int misc_init_r (void)
 	}
 	setenv ("keybd", keybd_env);
 
-	str = strdup (key_match (kbd_data));	/* decode keys */
+	str = strdup ((char *)key_match (kbd_data));	/* decode keys */
 #ifdef KEYBD_SET_DEBUGMODE
 	if (kbd_data[0] == KEYBD_SET_DEBUGMODE) {	/* set debug mode */
 		if ((console_assign (stdout, "lcd") < 0) ||
@@ -649,11 +649,11 @@ static int compare_magic (uchar *kbd_data, uchar *str)
 	/* Don't include modifier byte */
 	memcpy (compare, kbd_data+1, KEYBD_DATALEN-1);
 
-	for (; str != NULL; str = (*nxt) ? nxt+1 : nxt) {
+	for (; str != NULL; str = (*nxt) ? (uchar *)(nxt+1) : (uchar *)nxt) {
 		uchar c;
 		int k;
 
-		c = (uchar) simple_strtoul (str, (char **) (&nxt), 16);
+		c = (uchar) simple_strtoul ((char *)str, (char **) (&nxt), 16);
 
 		if (str == (uchar *)nxt) {	/* invalid character */
 			break;
@@ -719,9 +719,9 @@ V* Verification: dzu@denx.de
  ***********************************************************************/
 static uchar *key_match (uchar *kbd_data)
 {
-	uchar magic[sizeof (kbd_magic_prefix) + 1];
+	char magic[sizeof (kbd_magic_prefix) + 1];
 	uchar *suffix;
-	uchar *kbd_magic_keys;
+	char *kbd_magic_keys;
 
 	/*
 	 * The following string defines the characters that can pe appended
@@ -737,13 +737,13 @@ static uchar *key_match (uchar *kbd_data)
 	/* loop over all magic keys;
 	 * use '\0' suffix in case of empty string
 	 */
-	for (suffix=kbd_magic_keys; *suffix || suffix==kbd_magic_keys; ++suffix) {
+	for (suffix=(uchar *)kbd_magic_keys; *suffix || suffix==(uchar *)kbd_magic_keys; ++suffix) {
 		sprintf (magic, "%s%c", kbd_magic_prefix, *suffix);
 #if 0
 		printf ("### Check magic \"%s\"\n", magic);
 #endif
-		if (compare_magic(kbd_data, getenv(magic)) == 0) {
-			uchar cmd_name[sizeof (kbd_command_prefix) + 1];
+		if (compare_magic(kbd_data, (uchar *)getenv(magic)) == 0) {
+			char cmd_name[sizeof (kbd_command_prefix) + 1];
 			char *cmd;
 
 			sprintf (cmd_name, "%s%c", kbd_command_prefix, *suffix);
@@ -754,7 +754,7 @@ static uchar *key_match (uchar *kbd_data)
 					cmd_name, cmd ? cmd : "<<NULL>>");
 #endif
 			*kbd_data = *suffix;
-			return (cmd);
+			return ((uchar *)cmd);
 		}
 	}
 #if 0
@@ -863,7 +863,7 @@ V* Verification: dzu@denx.de
 int do_kbd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	uchar kbd_data[KEYBD_DATALEN];
-	uchar keybd_env[2 * KEYBD_DATALEN + 1];
+	char keybd_env[2 * KEYBD_DATALEN + 1];
 	uchar val;
 	int i;
 
@@ -1044,7 +1044,7 @@ static int key_pressed(void)
 	i2c_write (kbd_addr, 0, 0, &val, 1);
 	i2c_read (kbd_addr, 0, 0, kbd_data, KEYBD_DATALEN);
 
-	return (compare_magic(kbd_data, CONFIG_MODEM_KEY_MAGIC) == 0);
+	return (compare_magic(kbd_data, (uchar *)CONFIG_MODEM_KEY_MAGIC) == 0);
 }
 #endif	/* CONFIG_MODEM_SUPPORT */
 
@@ -1063,6 +1063,6 @@ int post_hotkeys_pressed(void)
 	i2c_write (kbd_addr, 0, 0, &val, 1);
 	i2c_read (kbd_addr, 0, 0, kbd_data, KEYBD_DATALEN);
 
-	return (compare_magic(kbd_data, CONFIG_POST_KEY_MAGIC) == 0);
+	return (compare_magic(kbd_data, (uchar *)CONFIG_POST_KEY_MAGIC) == 0);
 }
 #endif

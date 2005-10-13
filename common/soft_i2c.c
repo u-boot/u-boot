@@ -399,7 +399,7 @@ int  i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
  */
 uchar i2c_reg_read(uchar i2c_addr, uchar reg)
 {
-	char buf;
+	uchar buf;
 
 	i2c_read(i2c_addr, reg, 1, &buf, 1);
 

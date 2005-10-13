@@ -96,7 +96,7 @@
 #endif /* OPTIMIZE */
 
 
-static __inline__ __const__ __u16 __fswab16(__u16 x)
+static __inline__ __attribute__((const)) __u16 __fswab16(__u16 x)
 {
 	return __arch__swab16(x);
 }
@@ -109,7 +109,7 @@ static __inline__ void __swab16s(__u16 *addr)
 	__arch__swab16s(addr);
 }
 
-static __inline__ __const__ __u32 __fswab32(__u32 x)
+static __inline__ __attribute__((const)) __u32 __fswab32(__u32 x)
 {
 	return __arch__swab32(x);
 }
@@ -123,7 +123,7 @@ static __inline__ void __swab32s(__u32 *addr)
 }
 
 #ifdef __BYTEORDER_HAS_U64__
-static __inline__ __const__ __u64 __fswab64(__u64 x)
+static __inline__ __attribute__((const)) __u64 __fswab64(__u64 x)
 {
 #  ifdef __SWAB_64_THRU_32__
 	__u32 h = x >> 32;

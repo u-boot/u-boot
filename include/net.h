@@ -453,7 +453,7 @@ extern IPaddr_t getenv_IPaddr (char *);
 extern ushort getenv_VLAN(char *);
 
 /* copy a filename (allow for "..." notation, limit length) */
-extern void	copy_filename (uchar *dst, uchar *src, int size);
+extern void	copy_filename (char *dst, char *src, int size);
 
 /**********************************************************************/
 

@@ -195,7 +195,7 @@ const iop_conf_t iop_conf_tab[4][32] = {
  */
 int checkboard (void)
 {
-	unsigned char str[64];
+	char str[64];
 	int i = getenv_r ("serial#", str, sizeof (str));
 
 	puts ("Board: ");

@@ -142,7 +142,7 @@ long int initdram (int board_type)
 	  * try 9 column mode
 	  */
 
-	size9 = dram_size (CFG_MAMR_9COL, (ulong *)SDRAM_BASE_PRELIM, SDRAM_MAX_SIZE);
+	size9 = dram_size (CFG_MAMR_9COL, SDRAM_BASE_PRELIM, SDRAM_MAX_SIZE);
 
 	/*
 	 * Final mapping:

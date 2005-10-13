@@ -110,6 +110,7 @@ i2c_wait (int write)
 		return 0;
 	} while (get_timer (timeval) < I2C_TIMEOUT);
 	debug("i2c_wait: timed out\n");
+	return -1;
 }
 
 static __inline__ int
@@ -231,12 +232,12 @@ int i2c_probe (uchar chip)
 	 * and looking for an <ACK> back.
 	 */
 	udelay(10000);
-	return i2c_read (chip, 0, 1, (char *)&tmp, 1);
+	return i2c_read (chip, 0, 1, (uchar *)&tmp, 1);
 }
 
 uchar i2c_reg_read (uchar i2c_addr, uchar reg)
 {
-	char buf[1];
+	uchar buf[1];
 
 	i2c_read (i2c_addr, reg, 1, buf, 1);
 

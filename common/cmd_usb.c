@@ -362,15 +362,15 @@ int do_usbboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	if (get_partition_info (stor_dev, part, &info)) {
 		/* try to boot raw .... */
-		strncpy(&info.type[0], BOOT_PART_TYPE, sizeof(BOOT_PART_TYPE));
-		strncpy(&info.name[0], "Raw", 4);
+		strncpy((char *)&info.type[0], BOOT_PART_TYPE, sizeof(BOOT_PART_TYPE));
+		strncpy((char *)&info.name[0], "Raw", 4);
 		info.start=0;
 		info.blksz=0x200;
 		info.size=2880;
 		printf("error reading partinfo...try to boot raw\n");
 	}
-	if ((strncmp(info.type, BOOT_PART_TYPE, sizeof(info.type)) != 0) &&
-	    (strncmp(info.type, BOOT_PART_COMP, sizeof(info.type)) != 0)) {
+	if ((strncmp((char *)info.type, BOOT_PART_TYPE, sizeof(info.type)) != 0) &&
+	    (strncmp((char *)info.type, BOOT_PART_COMP, sizeof(info.type)) != 0)) {
 		printf ("\n** Invalid partition type \"%.32s\""
 			" (expect \"" BOOT_PART_TYPE "\")\n",
 			info.type);
@@ -398,7 +398,7 @@ int do_usbboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	checksum = ntohl(hdr->ih_hcrc);
 	hdr->ih_hcrc = 0;
 
-	if (crc32 (0, (char *)hdr, sizeof(image_header_t)) != checksum) {
+	if (crc32 (0, (uchar *)hdr, sizeof(image_header_t)) != checksum) {
 		puts ("\n** Bad Header Checksum **\n");
 		return 1;
 	}

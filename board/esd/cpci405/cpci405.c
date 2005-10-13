@@ -440,7 +440,7 @@ int checkboard (void)
 	int index;
 	int len;
 #endif
-	unsigned char str[64];
+	char str[64];
 	int i = getenv_r ("serial#", str, sizeof(str));
 	unsigned short ver;
 
@@ -468,7 +468,7 @@ int checkboard (void)
 #endif
 
 	if (ctermm2()) {
-		unsigned char str[4];
+		char str[4];
 
 		/*
 		 * Read board-id and save in env-variable
@@ -664,7 +664,7 @@ int do_onewire(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	int result;
 	int i;
 	unsigned char ow_id[6];
-	unsigned char str[32];
+	char str[32];
 	unsigned char ow_crc;
 
 	/*
@@ -717,10 +717,10 @@ int do_get_bpip(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	IPaddr_t ipaddr;
 
 	buf = malloc(CFG_ENV_SIZE_2);
-	if (eeprom_read(CFG_I2C_EEPROM_ADDR_2, 0, buf, CFG_ENV_SIZE_2)) {
+	if (eeprom_read(CFG_I2C_EEPROM_ADDR_2, 0, (uchar *)buf, CFG_ENV_SIZE_2)) {
 		puts("\nError reading backplane EEPROM!\n");
 	} else {
-		crc = crc32(0, buf+4, CFG_ENV_SIZE_2-4);
+		crc = crc32(0, (uchar *)(buf+4), CFG_ENV_SIZE_2-4);
 		if (crc != *(ulong *)buf) {
 			printf("ERROR: crc mismatch %08lx %08lx\n", crc, *(ulong *)buf);
 			return -1;
@@ -766,7 +766,7 @@ U_BOOT_CMD(
 int do_set_bpip(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	char *buf;
-	unsigned char str[32];
+	char str[32];
 	ulong crc;
 
 	if (argc < 2) {
@@ -779,10 +779,10 @@ int do_set_bpip(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	memset(buf, 0, CFG_ENV_SIZE_2);
 	sprintf(str, "bp_ip=%s", argv[1]);
 	strcpy(buf+4, str);
-	crc = crc32(0, buf+4, CFG_ENV_SIZE_2-4);
+	crc = crc32(0, (uchar *)(buf+4), CFG_ENV_SIZE_2-4);
 	*(ulong *)buf = crc;
 
-	if (eeprom_write(CFG_I2C_EEPROM_ADDR_2, 0, buf, CFG_ENV_SIZE_2)) {
+	if (eeprom_write(CFG_I2C_EEPROM_ADDR_2, 0, (uchar *)buf, CFG_ENV_SIZE_2)) {
 		puts("\nError writing backplane EEPROM!\n");
 	}
 

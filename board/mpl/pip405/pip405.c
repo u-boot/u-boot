@@ -180,7 +180,7 @@ int board_early_init_f (void)
 {
 	unsigned char dataout[1];
 	unsigned char datain[128];
-	unsigned long sdram_size;
+	unsigned long sdram_size = 0;
 	SDRAM_SETUP *t = (SDRAM_SETUP *) sdram_setup_table;
 	unsigned long memclk;
 	unsigned long tmemclk = 0;
@@ -574,15 +574,15 @@ int board_early_init_f (void)
 
 int checkboard (void)
 {
-	unsigned char s[50];
+	char s[50];
 	unsigned char bc;
 	int i;
 	backup_t *b = (backup_t *) s;
 
 	puts ("Board: ");
 
-	i = getenv_r ("serial#", s, 32);
-	if ((i == 0) || strncmp (s, "PIP405", 6)) {
+	i = getenv_r ("serial#", (char *)s, 32);
+	if ((i == 0) || strncmp ((char *)s, "PIP405", 6)) {
 		get_backup_values (b);
 		if (strncmp (b->signature, "MPL\0", 4) != 0) {
 			puts ("### No HW ID - assuming PIP405");

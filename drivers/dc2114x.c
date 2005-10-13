@@ -214,7 +214,7 @@ int dc21x4x_initialize(bd_t *bis)
 {
 	int             	idx=0;
 	int             	card_number = 0;
-	int             	cfrv;
+	unsigned int           	cfrv;
 	unsigned char   	timer;
 	pci_dev_t		devbusfn;
 	unsigned int		iobase;
@@ -708,7 +708,7 @@ static int write_srom(struct eth_device *dev, u_long ioaddr, int index, int new_
 #ifndef CONFIG_TULIP_FIX_DAVICOM
 static void read_hw_addr(struct eth_device *dev, bd_t *bis)
 {
-	u_short tmp, *p = (short *)(&dev->enetaddr[0]);
+	u_short tmp, *p = (u_short *)(&dev->enetaddr[0]);
 	int i, j = 0;
 
 	for (i = 0; i < (ETH_ALEN >> 1); i++) {

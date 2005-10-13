@@ -216,7 +216,7 @@ int flash_erase (flash_info_t *info, int s_first, int s_last) {
 	return rc;
 }
 
-volatile static int write_word (flash_info_t *info, ulong dest, unsigned long long data) {
+static int write_word (flash_info_t *info, ulong dest, unsigned long long data) {
 
 	volatile unsigned long long *addr=(unsigned long long *)dest;
 	unsigned long long result;

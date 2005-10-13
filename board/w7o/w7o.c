@@ -207,8 +207,8 @@ static void w7o_env_init (VPD * vpd)
 	     (strncmp (vpd->productId, "CMM", 3) == 0))) {
 		char buf[30];
 		char *eth;
-		unsigned char *serial = getenv ("serial#");
-		unsigned char *ethaddr = getenv ("ethaddr");
+		char *serial = getenv ("serial#");
+		char *ethaddr = getenv ("ethaddr");
 
 		/* Set 'serial#' envvar if serial# isn't set */
 		if (!serial) {
@@ -218,7 +218,7 @@ static void w7o_env_init (VPD * vpd)
 		}
 
 		/* Set 'ethaddr' envvar if 'ethaddr' envvar is the default */
-		eth = vpd->ethAddrs[0];
+		eth = (char *)(vpd->ethAddrs[0]);
 		if (ethaddr
 		    && (strcmp (ethaddr, MK_STR (CONFIG_ETHADDR)) == 0)) {
 			/* Now setup ethaddr */

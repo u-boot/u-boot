@@ -279,9 +279,9 @@ static void lcd_drawchars (ushort x, ushort y, uchar *str, int count)
 static inline void lcd_puts_xy (ushort x, ushort y, uchar *s)
 {
 #if defined(CONFIG_LCD_LOGO) && !defined(CONFIG_LCD_INFO_BELOW_LOGO)
-	lcd_drawchars (x, y+BMP_LOGO_HEIGHT, s, strlen (s));
+	lcd_drawchars (x, y+BMP_LOGO_HEIGHT, s, strlen ((char *)s));
 #else
-	lcd_drawchars (x, y, s, strlen (s));
+	lcd_drawchars (x, y, s, strlen ((char *)s));
 #endif
 }
 
@@ -526,7 +526,7 @@ void bitmap_plot (int x, int y)
 		sizeof(bmp_logo_palette)/(sizeof(ushort)));
 
 	bmap = &bmp_logo_bitmap[0];
-	fb   = (char *)(lcd_base + y * lcd_line_length + x);
+	fb   = (uchar *)(lcd_base + y * lcd_line_length + x);
 
 	if (NBITS(panel_info.vl_bpix) < 12) {
 		/* Leave room for default color map */
@@ -710,15 +710,15 @@ static void *lcd_logo (void)
 #ifdef CONFIG_MPC823
 # ifdef CONFIG_LCD_INFO
 	sprintf (info, "%s (%s - %s) ", U_BOOT_VERSION, __DATE__, __TIME__);
-	lcd_drawchars (LCD_INFO_X, LCD_INFO_Y, info, strlen(info));
+	lcd_drawchars (LCD_INFO_X, LCD_INFO_Y, (uchar *)info, strlen(info));
 
 	sprintf (info, "(C) 2004 DENX Software Engineering");
 	lcd_drawchars (LCD_INFO_X, LCD_INFO_Y + VIDEO_FONT_HEIGHT,
-					info, strlen(info));
+					(uchar *)info, strlen(info));
 
 	sprintf (info, "    Wolfgang DENK, wd@denx.de");
 	lcd_drawchars (LCD_INFO_X, LCD_INFO_Y + VIDEO_FONT_HEIGHT * 2,
-					info, strlen(info));
+					(uchar *)info, strlen(info));
 #  ifdef CONFIG_LCD_INFO_BELOW_LOGO
 	sprintf (info, "MPC823 CPU at %s MHz",
 		strmhz(temp, gd->cpu_clk));
@@ -737,7 +737,7 @@ static void *lcd_logo (void)
 		gd->ram_size >> 20,
 		gd->bd->bi_flashsize >> 20 );
 	lcd_drawchars (LCD_INFO_X, LCD_INFO_Y + VIDEO_FONT_HEIGHT * 4,
-					info, strlen(info));
+					(uchar *)info, strlen(info));
 
 #  endif /* CONFIG_LCD_INFO_BELOW_LOGO */
 # endif /* CONFIG_LCD_INFO */

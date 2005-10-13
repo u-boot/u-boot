@@ -73,8 +73,10 @@ static int mpc_get_fdr (int);
 
 static int mpc_reg_in (volatile u32 * reg)
 {
-	return *reg >> 24;
+	int ret;
+	ret = *reg >> 24;
 	__asm__ __volatile__ ("eieio");
+	return ret;
 }
 
 static void mpc_reg_out (volatile u32 * reg, int val, int mask)
@@ -324,7 +326,7 @@ int i2c_read (uchar chip, uint addr, int alen, uchar * buf, int len)
 		goto Done;
 	}
 
-	if (send_bytes (chip, &xaddr[4 - alen], alen)) {
+	if (send_bytes (chip, (char *)&xaddr[4 - alen], alen)) {
 		printf ("i2c_read: send_bytes failed\n");
 		goto Done;
 	}
@@ -335,7 +337,7 @@ int i2c_read (uchar chip, uint addr, int alen, uchar * buf, int len)
 		goto Done;
 	}
 
-	if (receive_bytes (chip, buf, len)) {
+	if (receive_bytes (chip, (char *)buf, len)) {
 		printf ("i2c_read: receive_bytes failed\n");
 		goto Done;
 	}
@@ -368,12 +370,12 @@ int i2c_write (uchar chip, uint addr, int alen, uchar * buf, int len)
 		goto Done;
 	}
 
-	if (send_bytes (chip, &xaddr[4 - alen], alen)) {
+	if (send_bytes (chip, (char *)&xaddr[4 - alen], alen)) {
 		printf ("i2c_write: send_bytes failed\n");
 		goto Done;
 	}
 
-	if (send_bytes (chip, buf, len)) {
+	if (send_bytes (chip, (char *)buf, len)) {
 		printf ("i2c_write: send_bytes failed\n");
 		goto Done;
 	}
@@ -386,7 +388,7 @@ int i2c_write (uchar chip, uint addr, int alen, uchar * buf, int len)
 
 uchar i2c_reg_read (uchar chip, uchar reg)
 {
-	char buf;
+	uchar buf;
 
 	i2c_read (chip, reg, 1, &buf, 1);
 

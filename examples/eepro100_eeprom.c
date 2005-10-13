@@ -78,9 +78,9 @@ static inline short inw(long addr)
 
 static inline void *memcpy(void *dst, const void *src, unsigned int len)
 {
-	void * ret = dst;
-	while (len-- > 0) *((char *)dst)++ = *((char *)src)++;
-	return ret;
+	char *ret = dst;
+	while (len-- > 0) *(ret)++ = *((char *)src)++;
+	return (void *)ret;
 }
 
 /* The EEPROM commands include the alway-set leading bit. */

@@ -174,7 +174,7 @@ unsigned update_flash (unsigned char *buf)
 	switch ((*buf) & 0x3) {
 	case TRY_WORKING:
 		printf ("found 3 and converted it to 2\n");
-		write_flash (buf, (*buf) & 0xFE);
+		write_flash ((char *)buf, (*buf) & 0xFE);
 		*((unsigned char *)0xFF800000) = 0xF0;
 		udelay (100);
 		printf ("buf [%#010x] %#010x\n", buf, (*buf));

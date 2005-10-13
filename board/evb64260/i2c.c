@@ -146,7 +146,7 @@ i2c_select_device(uchar dev_addr, uchar read, int ten_bit)
 static uchar
 i2c_get_data(uchar* return_data, int len) {
 
-	unsigned int data, status;
+	unsigned int data, status = 0;
 	int count = 0;
 
 	DP(puts("i2c_get_data\n"));

@@ -57,7 +57,7 @@ int eepro100_srom_store (unsigned short *source)
 
     /* get onboard network iobase */
     pci_read_config_dword(PCI_BDF(0,0x10,0), PCI_BASE_ADDRESS_0,
-		 &onboard_dev.iobase);
+		 (unsigned int *)&onboard_dev.iobase);
     onboard_dev.iobase &= ~0xf;
 
     source[63] = eepro100_srom_checksum (source);

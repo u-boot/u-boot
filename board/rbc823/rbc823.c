@@ -127,7 +127,7 @@ const uint static_table[] =
 
 int checkboard (void)
 {
-	unsigned char *s = getenv ("serial#");
+	char *s = getenv ("serial#");
 
 	if (!s || strncmp (s, "TQM8", 4)) {
 		printf ("### No HW ID - assuming RBC823\n");
@@ -193,14 +193,14 @@ long int initdram (int board_type)
 	 *
 	 * try 8 column mode
 	 */
-	size8 = dram_size (CFG_MAMR_8COL, (ulong *) SDRAM_BASE4_PRELIM,
+	size8 = dram_size (CFG_MAMR_8COL, (long *) SDRAM_BASE4_PRELIM,
 			   SDRAM_MAX_SIZE);
 	udelay (1000);
 
 	/*
 	 * try 9 column mode
 	 */
-	size9 = dram_size (CFG_MAMR_9COL, (ulong *) SDRAM_BASE4_PRELIM,
+	size9 = dram_size (CFG_MAMR_9COL, (long *) SDRAM_BASE4_PRELIM,
 			   SDRAM_MAX_SIZE);
 
 	if (size8 < size9) {	/* leave configuration at 9 columns     */

@@ -2681,7 +2681,7 @@ static void print_fixed (volatile uchar *p)
 #define	MAX_IDENT_FIELDS	4
 
 static uchar *known_cards[] = {
-	"ARGOSY PnPIDE D5",
+	(uchar *)"ARGOSY PnPIDE D5",
 	NULL
 };
 
@@ -2722,12 +2722,12 @@ static int identify  (volatile uchar *p)
 		else
 			break;
 	}
-	puts (id_str);
+	puts ((char *)id_str);
 	putc ('\n');
 
 	for (card=known_cards; *card; ++card) {
 		debug ("## Compare against \"%s\"\n", *card);
-		if (strcmp(*card, id_str) == 0) {	/* found! */
+		if (strcmp((char *)*card, (char *)id_str) == 0) {	/* found! */
 			debug ("## CARD FOUND ##\n");
 			return (1);
 		}

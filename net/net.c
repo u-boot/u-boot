@@ -810,6 +810,7 @@ static ushort CDP_compute_csum(const uchar *buff, ushort len)
 	int     odd;
 	ulong   result = 0;
 	ushort  leftover;
+	ushort *p;
 
 	if (len > 0) {
 		odd = 1 & (ulong)buff;
@@ -819,7 +820,9 @@ static ushort CDP_compute_csum(const uchar *buff, ushort len)
 			buff++;
 		}
 		while (len > 1) {
-			result += *((const ushort *)buff)++;
+			p = (ushort *)buff;
+			result += *p++;
+			buff = (uchar *)p;
 			if (result & 0x80000000)
 				result = (result & 0xFFFF) + (result >> 16);
 			len -= 2;
@@ -1655,7 +1658,7 @@ NetSetIP(volatile uchar * xip, IPaddr_t dest, int dport, int sport, int len)
 	ip->ip_sum   = ~NetCksum((uchar *)ip, IP_HDR_SIZE_NO_UDP / 2);
 }
 
-void copy_filename (uchar *dst, uchar *src, int size)
+void copy_filename (char *dst, char *src, int size)
 {
 	if (*src && (*src == '"')) {
 		++src;

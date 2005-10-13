@@ -87,7 +87,7 @@ const uint sdram_table[] = {
 
 int checkboard (void)
 {
-	unsigned char *s = getenv ("serial#");
+	char *s = getenv ("serial#");
 
 	puts ("Board QUANTUM, Serial No: ");
 
@@ -136,7 +136,7 @@ long int initdram (int board_type)
 	/* Check Bank 0 Memory Size,
 	 * 9 column mode
 	 */
-	size9 = dram_size (CFG_MAMR_9COL, (ulong *) SDRAM_BASE_PRELIM,
+	size9 = dram_size (CFG_MAMR_9COL, (long *) SDRAM_BASE_PRELIM,
 			   SDRAM_MAX_SIZE);
 	/*
 	 * Final mapping:
@@ -162,7 +162,7 @@ static long int dram_size (long int mamr_value, long int *base,
 {
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
-	volatile long int *addr;
+	volatile ulong *addr;
 	ulong cnt, val, size;
 	ulong save[32];		/* to make test non-destructive */
 	unsigned char i = 0;

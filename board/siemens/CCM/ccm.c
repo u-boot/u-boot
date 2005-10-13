@@ -102,7 +102,7 @@ int checkboard (void)
     unsigned char *s;
     unsigned char buf[64];
 
-    s = (getenv_r ("serial#", buf, sizeof(buf)) > 0) ? buf : NULL;
+    s = (getenv_r ("serial#", (char *)&buf, sizeof(buf)) > 0) ? buf : NULL;
 
     puts ("Board: Siemens CCM");
 
@@ -203,14 +203,14 @@ long int initdram (int board_type)
      *
      * try 8 column mode
      */
-    size8 = dram_size (CFG_MAMR_8COL, (ulong *)SDRAM_BASE2_PRELIM, SDRAM_MAX_SIZE);
+    size8 = dram_size (CFG_MAMR_8COL, SDRAM_BASE2_PRELIM, SDRAM_MAX_SIZE);
 
     udelay (1000);
 
     /*
      * try 9 column mode
      */
-    size9 = dram_size (CFG_MAMR_9COL, (ulong *)SDRAM_BASE2_PRELIM, SDRAM_MAX_SIZE);
+    size9 = dram_size (CFG_MAMR_9COL, SDRAM_BASE2_PRELIM, SDRAM_MAX_SIZE);
 
     if (size8 < size9) {		/* leave configuration at 9 columns	*/
 	size = size9;

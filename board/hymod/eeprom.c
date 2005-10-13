@@ -58,7 +58,7 @@ hymod_eeprom_load (int which, hymod_eeprom_t *ep)
 	eeprom_read (dev_addr, offset, (uchar *)&crc, sizeof (ulong));
 	offset += sizeof (ulong);
 
-	if (crc32 (crc32 (0, (char *)&hdr, sizeof hdr), data, len) != crc)
+	if (crc32 (crc32 (0, (uchar *)&hdr, sizeof hdr), data, len) != crc)
 		return (0);
 
 	ep->ver = hdr.ver;
@@ -260,7 +260,7 @@ uint_handler (eerec_map_t *rp, uchar *val, uchar *dp, uchar *edp)
 	char *eval;
 	ulong lval;
 
-	lval = simple_strtol (val, &eval, 10);
+	lval = simple_strtol ((char *)val, &eval, 10);
 
 	if ((uchar *)eval == val || *eval != '\0') {
 		printf ("%s rec (%s) is not a valid uint\n", rp->name, val);
@@ -315,12 +315,12 @@ static uchar *
 date_handler (eerec_map_t *rp, uchar *val, uchar *dp, uchar *edp)
 {
 	hymod_date_t date;
-	uchar *p = val;
+	char *p = (char *)val;
 	char *ep;
 	ulong lval;
 
 	lval = simple_strtol (p, &ep, 10);
-	if ((uchar *)ep == p || *ep++ != '-') {
+	if (ep == p || *ep++ != '-') {
 bad_date:
 		printf ("%s rec (%s) is not a valid date\n", rp->name, val);
 		return (NULL);
@@ -330,12 +330,12 @@ bad_date:
 	date.year = lval;
 
 	lval = simple_strtol (p = ep, &ep, 10);
-	if ((uchar *)ep == p || *ep++ != '-' || lval == 0 || lval > 12)
+	if (ep == p || *ep++ != '-' || lval == 0 || lval > 12)
 		goto bad_date;
 	date.month = lval;
 
 	lval = simple_strtol (p = ep, &ep, 10);
-	if ((uchar *)ep == p || *ep != '\0' || lval == 0 || lval > 31)
+	if (ep == p || *ep != '\0' || lval == 0 || lval > 31)
 		goto bad_date;
 	date.day = lval;
 
@@ -359,7 +359,7 @@ string_handler (eerec_map_t *rp, uchar *val, uchar *dp, uchar *edp)
 {
 	uint len;
 
-	if ((len = strlen (val)) > rp->maxlen) {
+	if ((len = strlen ((char *)val)) > rp->maxlen) {
 		printf ("%s rec (%s) string is too long (%d>%d)\n",
 			rp->name, val, len, rp->maxlen);
 		return (NULL);
@@ -387,7 +387,7 @@ bytes_handler (eerec_map_t *rp, uchar *val, uchar *dp, uchar *edp)
 	for (nbytes = 0, p = val; *p != '\0'; p = (uchar *)ep) {
 		ulong lval;
 
-		lval = simple_strtol (p, &ep, 10);
+		lval = simple_strtol ((char *)p, &ep, 10);
 		if ((uchar *)ep == p || (*ep != '\0' && *ep != ',') || \
 		    lval >= 256) {
 			printf ("%s rec (%s) byte array has invalid uint\n",
@@ -451,7 +451,7 @@ eerec_callback (uchar *name, uchar *val)
 	eerec_map_t *rp;
 
 	for (rp = eerec_map; rp < &eerec_map[neerecs]; rp++)
-		if (strcmp (name, rp->name) == 0)
+		if (strcmp ((char *)name, rp->name) == 0)
 			break;
 
 	if (rp >= &eerec_map[neerecs])

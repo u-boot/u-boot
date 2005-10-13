@@ -221,7 +221,7 @@ long int initdram (int board_type)
 	 *
 	 * try 8 column mode
 	 */
-	size8 = dram_size (CFG_MAMR_8COL, (ulong *) SDRAM_BASE1_PRELIM,
+	size8 = dram_size (CFG_MAMR_8COL, (long *) SDRAM_BASE1_PRELIM,
 			   SDRAM_MAX_SIZE);
 
 	udelay (1000);
@@ -229,7 +229,7 @@ long int initdram (int board_type)
 	/*
 	 * try 9 column mode
 	 */
-	size9 = dram_size (CFG_MAMR_9COL, (ulong *) SDRAM_BASE1_PRELIM,
+	size9 = dram_size (CFG_MAMR_9COL, (long *) SDRAM_BASE1_PRELIM,
 			   SDRAM_MAX_SIZE);
 
 	if (size8 < size9) {	/* leave configuration at 9 columns     */
@@ -248,7 +248,7 @@ long int initdram (int board_type)
 	 * [9 column SDRAM may also be used in 8 column mode,
 	 *  but then only half the real size will be used.]
 	 */
-	size_b1 = dram_size (memctl->memc_mamr, (ulong *) SDRAM_BASE2_PRELIM,
+	size_b1 = dram_size (memctl->memc_mamr, (long *) SDRAM_BASE2_PRELIM,
 			     SDRAM_MAX_SIZE);
 /*	debug ("SDRAM Bank 1: %ld MB\n", size8 >> 20);	*/
 

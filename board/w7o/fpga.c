@@ -252,7 +252,7 @@ int init_fpga(void)
     xcv_len = len - 14 - fn_len;		/* fpga image length */
 
     /* Check for uninitialized FLASH */
-    if ((strncmp(buf, "w7o", 3)!=0) || (len > 0x0007ffffL) || (len == 0))
+    if ((strncmp((char *)buf, "w7o", 3)!=0) || (len > 0x0007ffffL) || (len == 0))
 	goto bad_image;
 
     /*

@@ -208,8 +208,8 @@ extern ulong load_addr;		/* Default Load Address */
 /* common/cmd_nvedit.c */
 int	env_init     (void);
 void	env_relocate (void);
-char	*getenv	     (uchar *);
-int	getenv_r     (uchar *name, uchar *buf, unsigned len);
+char	*getenv	     (char *);
+int	getenv_r     (char *name, char *buf, unsigned len);
 int	saveenv	     (void);
 #ifdef CONFIG_PPC		/* ARM version to be fixed! */
 void inline setenv   (char *, char *);

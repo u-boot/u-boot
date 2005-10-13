@@ -589,7 +589,7 @@ flash_get_size (int portwidth, vu_long *addr, flash_info_t *info)
 int
 flash_erase (flash_info_t *info, int s_first, int s_last)
 {
-	volatile unsigned char *addr = (char *)(info->start[0]);
+	volatile unsigned char *addr = (uchar *)(info->start[0]);
 	int flag, prot, sect, l_sect;
 	ulong start, now, last;
 
@@ -600,7 +600,7 @@ flash_erase (flash_info_t *info, int s_first, int s_last)
 	if((info->flash_id & FLASH_TYPEMASK) == FLASH_RAM) {
 	    for (sect = s_first; sect<=s_last; sect++) {
 		int sector_size=info->size/info->sector_count;
-		addr = (char *)(info->start[sect]);
+		addr = (uchar *)(info->start[sect]);
 		memset((void *)addr, 0, sector_size);
 	    }
 	    return 0;
@@ -658,7 +658,7 @@ flash_erase (flash_info_t *info, int s_first, int s_last)
 	/* Start erase on unprotected sectors */
 	for (sect = s_first; sect<=s_last; sect++) {
 		if (info->protect[sect] == 0) {	/* not protected */
-			addr = (char *)(info->start[sect]);
+			addr = (uchar *)(info->start[sect]);
 			flash_cmd(info->portwidth,addr,0,0x30);
 			l_sect = sect;
 		}
@@ -794,7 +794,7 @@ write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 static int
 write_word (flash_info_t *info, ulong dest, ulong data)
 {
-	volatile unsigned char *addr = (char *)(info->start[0]);
+	volatile unsigned char *addr = (uchar *)(info->start[0]);
 	ulong start;
 	int flag, i;
 

@@ -40,6 +40,6 @@ typedef struct opto_fpga_regs_s {
 	volatile unsigned long scrmask_ul;	/* Read/Write */
 	volatile unsigned long control_ul;	/* Read/Write */
 	volatile unsigned long boardinfo_ul;	/* Read Only  */
-} OPTO_FPGA_REGS_ST __attribute__ ((packed)), *OPTO_FPGA_REGS_PST;
+} __attribute__ ((packed)) OPTO_FPGA_REGS_ST , *OPTO_FPGA_REGS_PST;
 
 #endif /* __METROBOX_H__ */

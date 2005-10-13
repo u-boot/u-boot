@@ -55,8 +55,8 @@ board_pre_init(void)
 int
 checkboard(void)
 {
-	uchar tmp[64];		/* long enough for environment variables */
-	uchar *s, *e;
+	char tmp[64];		/* long enough for environment variables */
+	char *s, *e;
 	int i = getenv_r("L", tmp, sizeof (tmp));
 
 	if (i < 0) {

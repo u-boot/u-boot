@@ -2822,7 +2822,7 @@ e1000_poll(struct eth_device *nic)
 	if (!(le32_to_cpu(rd->status)) & E1000_RXD_STAT_DD)
 		return 0;
 	/*DEBUGOUT("recv: packet len=%d \n", rd->length); */
-	NetReceive(packet, le32_to_cpu(rd->length));
+	NetReceive((uchar *)packet, le32_to_cpu(rd->length));
 	fill_rx(hw);
 	return 1;
 }

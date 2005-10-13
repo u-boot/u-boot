@@ -417,8 +417,8 @@ int do_diskboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		SHOW_BOOT_PROGRESS (-1);
 		return 1;
 	}
-	if ((strncmp(info.type, BOOT_PART_TYPE, sizeof(info.type)) != 0) &&
-	    (strncmp(info.type, BOOT_PART_COMP, sizeof(info.type)) != 0)) {
+	if ((strncmp((char *)info.type, BOOT_PART_TYPE, sizeof(info.type)) != 0) &&
+	    (strncmp((char *)info.type, BOOT_PART_COMP, sizeof(info.type)) != 0)) {
 		printf ("\n** Invalid partition type \"%.32s\""
 			" (expect \"" BOOT_PART_TYPE "\")\n",
 			info.type);
@@ -450,7 +450,7 @@ int do_diskboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	checksum = ntohl(hdr->ih_hcrc);
 	hdr->ih_hcrc = 0;
 
-	if (crc32 (0, (char *)hdr, sizeof(image_header_t)) != checksum) {
+	if (crc32 (0, (uchar *)hdr, sizeof(image_header_t)) != checksum) {
 		puts ("\n** Bad Header Checksum **\n");
 		SHOW_BOOT_PROGRESS (-2);
 		return 1;

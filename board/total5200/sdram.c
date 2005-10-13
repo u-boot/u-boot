@@ -102,9 +102,9 @@ long int mpc5xxx_sdram_init (sdram_conf_t *sdram_conf)
 
 	/* find RAM size using SDRAM CS0 only */
 	mpc5xxx_sdram_start(sdram_conf, 0);
-	test1 = get_ram_size((ulong *)CFG_SDRAM_BASE, 0x80000000);
+	test1 = get_ram_size((long *)CFG_SDRAM_BASE, 0x80000000);
 	mpc5xxx_sdram_start(sdram_conf, 1);
-	test2 = get_ram_size((ulong *)CFG_SDRAM_BASE, 0x80000000);
+	test2 = get_ram_size((long *)CFG_SDRAM_BASE, 0x80000000);
 	if (test1 > test2) {
 		mpc5xxx_sdram_start(sdram_conf, 0);
 		dramsize = test1;
@@ -129,9 +129,9 @@ long int mpc5xxx_sdram_init (sdram_conf_t *sdram_conf)
 
 	/* find RAM size using SDRAM CS1 only */
 	mpc5xxx_sdram_start(sdram_conf, 0);
-	test1 = get_ram_size((ulong *)(CFG_SDRAM_BASE + dramsize), 0x80000000);
+	test1 = get_ram_size((long *)(CFG_SDRAM_BASE + dramsize), 0x80000000);
 	mpc5xxx_sdram_start(sdram_conf, 1);
-	test2 = get_ram_size((ulong *)(CFG_SDRAM_BASE + dramsize), 0x80000000);
+	test2 = get_ram_size((long *)(CFG_SDRAM_BASE + dramsize), 0x80000000);
 	if (test1 > test2) {
 		mpc5xxx_sdram_start(sdram_conf, 0);
 		dramsize2 = test1;
@@ -199,9 +199,9 @@ long int mpc5xxx_sdram_init (sdram_conf_t *sdram_conf)
 
 	/* find RAM size */
 	mpc5xxx_sdram_start(sdram_conf, 0);
-	test1 = get_ram_size((ulong *)CFG_SDRAM_BASE, 0x80000000);
+	test1 = get_ram_size((long *)CFG_SDRAM_BASE, 0x80000000);
 	mpc5xxx_sdram_start(sdram_conf, 1);
-	test2 = get_ram_size((ulong *)CFG_SDRAM_BASE, 0x80000000);
+	test2 = get_ram_size((long *)CFG_SDRAM_BASE, 0x80000000);
 	if (test1 > test2) {
 		mpc5xxx_sdram_start(sdram_conf, 0);
 		dramsize = test1;

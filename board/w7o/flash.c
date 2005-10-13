@@ -805,7 +805,7 @@ static int _flash_protect(flash_info_t *info, long sector)
     int flag;
     ulong status;
     int rcode = 0;
-    volatile long *addr = (unsigned long *)sector;
+    volatile long *addr = (long *)sector;
 
     switch(info->flash_id & FLASH_TYPEMASK) {
 	case FLASH_28F320J3A:
@@ -863,7 +863,7 @@ static int _flash_unprotect(flash_info_t *info, long sector)
     int flag;
     ulong status;
     int rcode = 0;
-    volatile long *addr = (unsigned long *)sector;
+    volatile long *addr = (long *)sector;
 
     switch(info->flash_id & FLASH_TYPEMASK) {
 	case FLASH_28F320J3A:

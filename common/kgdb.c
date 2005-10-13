@@ -144,7 +144,7 @@ mem2hex(char *mem, char *buf, int count)
 	}
 	*buf = 0;
 	longjmp_on_fault = 0;
-	return buf;
+	return (unsigned char *)buf;
 }
 
 /* convert the hex array pointed to by buf into binary to be placed in mem
@@ -353,7 +353,7 @@ handle_exception (struct pt_regs *regs)
 		*ptr++ = hexchars[rp->num >> 4];
 		*ptr++ = hexchars[rp->num & 0xf];
 		*ptr++ = ':';
-		ptr = mem2hex((char *)&rp->val, ptr, 4);
+		ptr = (char *)mem2hex((char *)&rp->val, ptr, 4);
 		*ptr++ = ';';
 	}
 
@@ -364,7 +364,7 @@ handle_exception (struct pt_regs *regs)
 		printf("kgdb: remcomOutBuffer: %s\n", remcomOutBuffer);
 #endif
 
-	putpacket(remcomOutBuffer);
+	putpacket((unsigned char *)&remcomOutBuffer);
 
 	while (1) {
 		volatile int errnum;
@@ -508,7 +508,7 @@ handle_exception (struct pt_regs *regs)
 #endif
 
 		/* reply to the request */
-		putpacket(remcomOutBuffer);
+		putpacket((unsigned char *)&remcomOutBuffer);
 
 	} /* while(1) */
 }
@@ -548,7 +548,7 @@ kgdb_output_string (const char* s, unsigned int count)
 
 	buffer[0] = 'O';
 	mem2hex ((char *)s, &buffer[1], count);
-	putpacket(buffer);
+	putpacket((unsigned char *)&buffer);
 
 	return 1;
 }

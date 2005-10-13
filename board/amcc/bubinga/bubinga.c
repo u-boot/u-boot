@@ -42,7 +42,7 @@ int board_early_init_f(void)
  */
 int checkboard(void)
 {
-	unsigned char *s = getenv("serial#");
+	char *s = getenv("serial#");
 
 	puts("Board: Bubinga - AMCC PPC405EP Evaluation Board");
 

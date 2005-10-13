@@ -182,7 +182,7 @@ gt6426x_eth_receive(struct eth_dev_s *p,unsigned int icr)
 	 */
 
 	/* let the upper layer handle the packet */
-	NetReceive (eth_data, eth_len);
+	NetReceive ((uchar *)eth_data, eth_len);
 
 	rx->buff_size_byte_count = GT6426x_ETH_BUF_SIZE<<16;
 
@@ -266,7 +266,7 @@ gt6426x_eth_transmit(void *v, volatile char *p, unsigned int s)
 #endif
 	memcpy(dev->eth_tx_buffer, (char *) p, s);
 
-	tx->buff_pointer = dev->eth_tx_buffer;
+	tx->buff_pointer = (uchar *)dev->eth_tx_buffer;
 	tx->bytecount_reserved = ((__u16)s) << 16;
 
 	/*    31 - own
@@ -583,7 +583,7 @@ gt6426x_eth_probe(void *v, bd_t *bis)
 
 	/* Initialize Rx Side */
 	for (temp = 0; temp < NR; temp++) {
-		p->eth_rx_desc[temp].buff_pointer = p->eth_rx_buffer[temp];
+		p->eth_rx_desc[temp].buff_pointer = (uchar *)p->eth_rx_buffer[temp];
 		p->eth_rx_desc[temp].buff_size_byte_count = GT6426x_ETH_BUF_SIZE<<16;
 
 		/* GT96100 Owner */
@@ -719,7 +719,8 @@ gt6426x_eth_initialize(bd_t *bis)
 		dev->send = (void*)gt6426x_eth_transmit;
 		dev->recv = (void*)gt6426x_eth_poll;
 
-		dev->priv = (void*)p = calloc( sizeof(*p), 1 );
+		p = calloc( sizeof(*p), 1 );
+		dev->priv = (void*)p;
 		if (!p)
 		{
 			printf( "%s: %s allocation failure, %s\n",

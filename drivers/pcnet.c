@@ -195,7 +195,7 @@ int pcnet_initialize(bd_t *bis)
 	/*
 	 * Setup the PCI device.
 	 */
-	pci_read_config_dword(devbusfn, PCI_BASE_ADDRESS_0, &dev->iobase);
+	pci_read_config_dword(devbusfn, PCI_BASE_ADDRESS_0, (unsigned int *)&dev->iobase);
 	dev->iobase &= ~0xf;
 
 	PCNET_DEBUG1("%s: devbusfn=0x%x iobase=0x%x: ",

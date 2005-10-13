@@ -179,7 +179,7 @@ int do_mem_md ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		}
 #endif
 		puts ("    ");
-		cp = linebuf;
+		cp = (u_char *)linebuf;
 		for (i=0; i<linebytes; i++) {
 			if ((*cp < 0x20) || (*cp > 0x7e))
 				putc ('.');
@@ -430,7 +430,7 @@ int do_mem_cp ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 		puts ("Copy to Flash... ");
 
-		rc = flash_write ((uchar *)addr, dest, count*size);
+		rc = flash_write ((char *)addr, dest, count*size);
 		if (rc != 0) {
 			flash_perror (rc);
 			return (1);

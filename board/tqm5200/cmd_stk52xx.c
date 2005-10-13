@@ -181,7 +181,7 @@ static void i2s_init(void)
 static int i2s_play_wave(unsigned long addr, unsigned long len)
 {
 	unsigned long i;
-	unsigned char *wave_file = (char *)addr + 44;	/* quick'n dirty: skip
+	unsigned char *wave_file = (uchar *)addr + 44;	/* quick'n dirty: skip
 							 * wav header*/
 	unsigned char swapped[4];
 	struct mpc5xxx_psc *psc = (struct mpc5xxx_psc*)MPC5XXX_PSC2;
@@ -304,7 +304,7 @@ static int i2s_squarewave(unsigned long duration, unsigned int freq,
 static int cmd_sound(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	unsigned long reg, val, duration;
-	unsigned char *tmp;
+	char *tmp;
 	unsigned int freq, channel;
 	unsigned char volume;
 	int rcode = 1;

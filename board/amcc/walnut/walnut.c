@@ -67,7 +67,7 @@ int board_early_init_f(void)
  */
 int checkboard(void)
 {
-	unsigned char *s = getenv("serial#");
+	char *s = getenv("serial#");
 	uint pvr = get_pvr();
 
 	if (pvr == PVR_405GPR_RB) {

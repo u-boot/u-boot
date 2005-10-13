@@ -525,11 +525,11 @@ int spi_post_test (int flags)
 
 	for (i = 0; i < TEST_NUM; i++) {
 		for (l = TEST_MIN_LENGTH; l <= TEST_MAX_LENGTH; l += 8) {
-			packet_fill (txbuf, l);
+			packet_fill ((char *)txbuf, l);
 
 			spi_xfer (l);
 
-			if (packet_check (rxbuf, l) < 0) {
+			if (packet_check ((char *)rxbuf, l) < 0) {
 				goto Done;
 			}
 		}

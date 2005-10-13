@@ -187,7 +187,7 @@ int board_early_init_f (void)
 int checkboard (void)
 {
 	sys_info_t sysinfo;
-	unsigned char *s = getenv ("serial#");
+	char *s = getenv ("serial#");
 
 	get_sys_info (&sysinfo);
 

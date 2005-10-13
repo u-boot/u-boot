@@ -57,7 +57,7 @@ typedef struct karef_fpga_regs_s
     volatile unsigned long brdout_enable_ul;  /* Read/Write */
     volatile unsigned long brdin_data_ul;     /* Read Only  */
     volatile unsigned long misc_ul;           /* Read/Write */
-} KAREF_FPGA_REGS_ST __attribute__((packed)), * KAREF_FPGA_REGS_PST;
+} __attribute__((packed)) KAREF_FPGA_REGS_ST , * KAREF_FPGA_REGS_PST;
 
 /* OFEM FPGA */
 typedef struct ofem_fpga_regs_s
@@ -70,7 +70,7 @@ typedef struct ofem_fpga_regs_s
     volatile unsigned long scrmask_ul;        /* Read/Write */
     volatile unsigned long control_ul;        /* Read/Write */
     volatile unsigned long mac_flow_ctrl_ul;  /* Read/Write */
-} OFEM_FPGA_REGS_ST __attribute__((packed)), * OFEM_FPGA_REGS_PST;
+} __attribute__((packed)) OFEM_FPGA_REGS_ST , * OFEM_FPGA_REGS_PST;
 
 
 #endif /* __KAREF_H__ */

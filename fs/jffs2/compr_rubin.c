@@ -48,8 +48,8 @@
 void rubin_do_decompress(unsigned char *bits, unsigned char *in,
 			 unsigned char *page_out, __u32 destlen)
 {
-	register char *curr = page_out;
-	char *end = page_out + destlen;
+	register char *curr = (char *)page_out;
+	char *end = (char *)(page_out + destlen);
 	register unsigned long temp;
 	register unsigned long result;
 	register unsigned long p;
@@ -85,8 +85,10 @@ void rubin_do_decompress(unsigned char *bits, unsigned char *in,
 				rec_q <<= 1;
 				rec_q |= (temp >> (bit++ ^ 7)) & 1;
 				if (bit > 31) {
+					u32 *p = (u32 *)in;
 					bit = 0;
-					temp = *(++((u32 *) in));
+					temp = *(++p);
+					in = (unsigned char *)p;
 				}
 			}
 			i0 =  (bits[i] * p) >> 8;

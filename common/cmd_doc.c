@@ -143,7 +143,7 @@ int do_doc (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			cmd ? "read" : "write", curr_device, off, size);
 
 		ret = doc_rw(doc_dev_desc + curr_device, cmd, off, size,
-			     &total, (u_char*)addr);
+			     (size_t *)&total, (u_char*)addr);
 
 		printf ("%d bytes %s: %s\n", total, cmd ? "read" : "write",
 			ret ? "ERROR" : "OK");
@@ -304,12 +304,12 @@ int doc_rw (struct DiskOnChip* this, int cmd,
 
 		if (cmd)
 			ret = doc_read_ecc(this, from, len,
-					   &n, (u_char*)buf,
-					   noecc ? NULL : eccbuf);
+					   (size_t *)&n, (u_char*)buf,
+					   noecc ? (uchar *)NULL : (uchar *)eccbuf);
 		else
 			ret = doc_write_ecc(this, from, len,
-					    &n, (u_char*)buf,
-					    noecc ? NULL : eccbuf);
+					    (size_t *)&n, (u_char*)buf,
+					    noecc ? (uchar *)NULL : (uchar *)eccbuf);
 
 		if (ret)
 			break;
@@ -804,7 +804,7 @@ static int find_boot_record(struct NFTLrecord *nftl)
 		/* Check for ANAND header first. Then can whinge if it's found but later
 		   checks fail */
 		if ((ret = doc_read_ecc(nftl->mtd, block * nftl->EraseSize, SECTORSIZE,
-					&retlen, buf, NULL))) {
+					(size_t *)&retlen, buf, NULL))) {
 			static int warncount = 5;
 
 			if (warncount) {
@@ -829,7 +829,7 @@ static int find_boot_record(struct NFTLrecord *nftl)
 
 		/* To be safer with BIOS, also use erase mark as discriminant */
 		if ((ret = doc_read_oob(nftl->mtd, block * nftl->EraseSize + SECTORSIZE + 8,
-				8, &retlen, (char *)&h1) < 0)) {
+				8, (size_t *)&retlen, (uchar *)&h1) < 0)) {
 #ifdef NFTL_DEBUG
 			printf("ANAND header found at 0x%x, but OOB data read failed\n",
 			       block * nftl->EraseSize);
@@ -902,7 +902,7 @@ static int find_boot_record(struct NFTLrecord *nftl)
 				/* read one sector for every SECTORSIZE of blocks */
 				if ((ret = doc_read_ecc(nftl->mtd, block * nftl->EraseSize +
 						       i + SECTORSIZE, SECTORSIZE,
-						       &retlen, buf, (char *)&oob)) < 0) {
+						       (size_t *)&retlen, buf, (uchar *)&oob)) < 0) {
 					puts ("Read of bad sector table failed\n");
 					return -1;
 				}

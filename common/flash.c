@@ -135,7 +135,7 @@ addr2info (ulong addr)
  *			(only some targets require alignment)
  */
 int
-flash_write (uchar *src, ulong addr, ulong cnt)
+flash_write (char *src, ulong addr, ulong cnt)
 {
 #ifdef CONFIG_SPD823TS
 	return (ERR_TIMOUT);	/* any other error codes are possible as well */
@@ -174,7 +174,7 @@ flash_write (uchar *src, ulong addr, ulong cnt)
 		len = info->start[0] + info->size - addr;
 		if (len > cnt)
 			len = cnt;
-		if ((i = write_buff(info, src, addr, len)) != 0) {
+		if ((i = write_buff(info, (uchar *)src, addr, len)) != 0) {
 			return (i);
 		}
 		cnt  -= len;

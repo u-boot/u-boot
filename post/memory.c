@@ -224,7 +224,7 @@ const unsigned long long otherpattern = 0x0123456789abcdefULL;
 
 static int memory_post_dataline(unsigned long long * pmem)
 {
-	unsigned long long temp64;
+	unsigned long long temp64 = 0;
 	int num_patterns = sizeof(pattern)/ sizeof(pattern[0]);
 	int i;
 	unsigned int hi, lo, pathi, patlo;
@@ -418,14 +418,14 @@ static int memory_post_tests (unsigned long start, unsigned long size)
 	int ret = 0;
 
 	if (ret == 0)
-		ret = memory_post_dataline ((long long *)start);
+		ret = memory_post_dataline ((unsigned long long *)start);
 	WATCHDOG_RESET ();
 	if (ret == 0)
-		ret = memory_post_addrline ((long *)start, (long *)start, size);
+		ret = memory_post_addrline ((ulong *)start, (ulong *)start, size);
 	WATCHDOG_RESET ();
 	if (ret == 0)
-		ret = memory_post_addrline ((long *)(start + size - 8),
-					    (long *)start, size);
+		ret = memory_post_addrline ((ulong *)(start + size - 8),
+					    (ulong *)start, size);
 	WATCHDOG_RESET ();
 	if (ret == 0)
 		ret = memory_post_test1 (start, size, 0x00000000);

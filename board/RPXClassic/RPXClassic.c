@@ -114,8 +114,8 @@ void board_get_enetaddr (uchar * enet)
 	i2c_init (CFG_I2C_SPEED, CFG_I2C_SLAVE);
 
 	/* Read 256 bytes in EEPROM				*/
-	i2c_read (0x54, 0, 1, buff, 128);
-	i2c_read (0x54, 128, 1, buff + 128, 128);
+	i2c_read (0x54, 0, 1, (uchar *)buff, 128);
+	i2c_read (0x54, 128, 1, (uchar *)buff + 128, 128);
 
 	/* Retrieve MAC address in buffer (key EA)		*/
 	for (cp = buff;;) {
@@ -123,7 +123,7 @@ void board_get_enetaddr (uchar * enet)
 			cp += 3;
 			/* Read MAC address			*/
 			for (i = 0; i < 6; i++, cp += 2) {
-				enet[i] = aschex_to_byte (cp);
+				enet[i] = aschex_to_byte ((unsigned char *)cp);
 			}
 		}
 		/* Scan to the end of the record		*/
@@ -200,7 +200,7 @@ long int initdram (int board_type)
 	 * try 10 column mode
 	 */
 
-	size10 = dram_size (CFG_MAMR_10COL, (ulong *) SDRAM_BASE_PRELIM,
+	size10 = dram_size (CFG_MAMR_10COL, SDRAM_BASE_PRELIM,
 						SDRAM_MAX_SIZE);
 
 	return (size10);

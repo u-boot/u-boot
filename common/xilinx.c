@@ -54,7 +54,7 @@ int xilinx_load (Xilinx_desc * desc, void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;	/* assume a failure */
 
-	if (!xilinx_validate (desc, __FUNCTION__)) {
+	if (!xilinx_validate (desc, (char *)__FUNCTION__)) {
 		printf ("%s: Invalid device descriptor\n", __FUNCTION__);
 	} else
 		switch (desc->family) {
@@ -101,7 +101,7 @@ int xilinx_dump (Xilinx_desc * desc, void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;	/* assume a failure */
 
-	if (!xilinx_validate (desc, __FUNCTION__)) {
+	if (!xilinx_validate (desc, (char *)__FUNCTION__)) {
 		printf ("%s: Invalid device descriptor\n", __FUNCTION__);
 	} else
 		switch (desc->family) {
@@ -148,7 +148,7 @@ int xilinx_info (Xilinx_desc * desc)
 {
 	int ret_val = FPGA_FAIL;
 
-	if (xilinx_validate (desc, __FUNCTION__)) {
+	if (xilinx_validate (desc, (char *)__FUNCTION__)) {
 		printf ("Family:        \t");
 		switch (desc->family) {
 		case Xilinx_Spartan2:
@@ -244,7 +244,7 @@ int xilinx_reloc (Xilinx_desc * desc, ulong reloc_offset)
 {
 	int ret_val = FPGA_FAIL;	/* assume a failure */
 
-	if (!xilinx_validate (desc, __FUNCTION__)) {
+	if (!xilinx_validate (desc, (char *)__FUNCTION__)) {
 		printf ("%s: Invalid device descriptor\n", __FUNCTION__);
 	} else
 		switch (desc->family) {

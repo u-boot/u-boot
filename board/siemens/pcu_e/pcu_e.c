@@ -241,9 +241,9 @@ long int initdram (int board_type)
 	 * Check Bank 0 Memory Size for re-configuration
 	 */
 #if PCU_E_WITH_SWAPPED_CS	/* XXX */
-	size_b0 = dram_size (CFG_MAMR, (ulong *) SDRAM_BASE5_PRELIM, SDRAM_MAX_SIZE);
+	size_b0 = dram_size (CFG_MAMR, (long *) SDRAM_BASE5_PRELIM, SDRAM_MAX_SIZE);
 #else  /* XXX */
-	size_b0 = dram_size (CFG_MAMR, (ulong *) SDRAM_BASE2_PRELIM, SDRAM_MAX_SIZE);
+	size_b0 = dram_size (CFG_MAMR, (long *) SDRAM_BASE2_PRELIM, SDRAM_MAX_SIZE);
 #endif /* XXX */
 
 	memctl->memc_mamr = CFG_MAMR | MAMR_PTAE;

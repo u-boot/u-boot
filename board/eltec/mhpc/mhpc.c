@@ -160,7 +160,7 @@ int misc_init_r (void)
 	int i;
 
 	/* check revision data */
-	eeprom_read (CFG_I2C_EEPROM_ADDR, 480, (char *) &mhpcRevInfo, 32);
+	eeprom_read (CFG_I2C_EEPROM_ADDR, 480, (uchar *) &mhpcRevInfo, 32);
 
 	if (strncmp ((char *) &mhpcRevInfo.board[2], "MHPC", 4) != 0) {
 		printf ("Enter revision number (0-9): %c  ",
@@ -228,7 +228,7 @@ int misc_init_r (void)
 		}
 
 		/* setup new revision data */
-		eeprom_write (CFG_I2C_EEPROM_ADDR, 480, (char *) &mhpcRevInfo,
+		eeprom_write (CFG_I2C_EEPROM_ADDR, 480, (uchar *) &mhpcRevInfo,
 			      32);
 	}
 
@@ -422,8 +422,8 @@ void *video_hw_init (void)
 	immap_t *immr = (immap_t *) CFG_IMMR;
 
 	/* enable video only on CLUT value */
-	if ((penv = getenv ("clut")) != NULL)
-		clut = (u_int) simple_strtoul (penv, NULL, 10);
+	if ((penv = (uchar *)getenv ("clut")) != NULL)
+		clut = (u_int) simple_strtoul ((char *)penv, NULL, 10);
 	else
 		return NULL;
 

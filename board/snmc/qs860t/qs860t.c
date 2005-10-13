@@ -89,8 +89,8 @@ const uint sdram_table[] =
 
 int checkboard (void)
 {
-	unsigned char *s, *e;
-	unsigned char buf[64];
+	char *s, *e;
+	char buf[64];
 	int i;
 
 	i = getenv_r("serial#", buf, sizeof(buf));
@@ -163,7 +163,7 @@ long int initdram (int board_type)
 	*/
 	if (size != SDRAM_64M_MAX_SIZE) {
 #endif
-	size = dram_size (CFG_16M_MBMR, (ulong *)SDRAM_BASE, SDRAM_16M_MAX_SIZE);
+	size = dram_size (CFG_16M_MBMR, (long *)SDRAM_BASE, SDRAM_16M_MAX_SIZE);
 	udelay (1000);
 #if 0
 	}

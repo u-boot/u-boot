@@ -156,7 +156,7 @@ int checkboard (void)
 {
 	int index;
 	int len;
-	unsigned char str[64];
+	char str[64];
 	int i = getenv_r ("serial#", str, sizeof (str));
 
 	puts ("Board: ");

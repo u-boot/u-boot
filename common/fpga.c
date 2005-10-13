@@ -53,8 +53,8 @@ static int next_desc = FPGA_INVALID_DEVICE;
 static fpga_desc desc_table[CONFIG_MAX_FPGA_DEVICES];
 
 /* Local static functions */
-static const fpga_desc * const fpga_get_desc( int devnum );
-static const fpga_desc * const fpga_validate( int devnum, void *buf,
+static __attribute__((__const__)) fpga_desc * __attribute__((__const__)) fpga_get_desc( int devnum );
+static __attribute__((__const__)) fpga_desc * __attribute__((__const__)) fpga_validate( int devnum, void *buf,
 					 size_t bsize, char *fn );
 static int fpga_dev_info( int devnum );
 
@@ -82,7 +82,7 @@ static void fpga_no_sup( char *fn, char *msg )
 /* fpga_get_desc
  *	map a device number to a descriptor
  */
-static const fpga_desc * const fpga_get_desc( int devnum )
+static __attribute__((__const__)) fpga_desc * __attribute__((__const__)) fpga_get_desc( int devnum )
 {
 	fpga_desc *desc = (fpga_desc * )NULL;
 
@@ -99,10 +99,10 @@ static const fpga_desc * const fpga_get_desc( int devnum )
 /* fpga_validate
  *	generic parameter checking code
  */
-static const fpga_desc * const fpga_validate( int devnum, void *buf,
+static __attribute__((__const__)) fpga_desc * __attribute__((__const__)) fpga_validate( int devnum, void *buf,
 					 size_t bsize, char *fn )
 {
-	const fpga_desc * const desc = fpga_get_desc( devnum );
+	fpga_desc * desc = fpga_get_desc( devnum );
 
 	if ( !desc ) {
 		printf( "%s: Invalid device number %d\n", fn, devnum );
@@ -147,7 +147,7 @@ static int fpga_dev_info( int devnum )
 			printf( "Altera Device\nDescriptor @ 0x%p\n", desc );
 			ret_val = altera_info( desc->devdesc );
 #else
-			fpga_no_sup( __FUNCTION__, "Altera devices" );
+			fpga_no_sup( (char *)__FUNCTION__, "Altera devices" );
 #endif
 			break;
 		default:
@@ -185,7 +185,7 @@ int fpga_reloc( fpga_type devtype, void *desc, ulong reloc_off )
 #if CONFIG_FPGA & CFG_FPGA_ALTERA
 		ret_val = altera_reloc( desc, reloc_off );
 #else
-		fpga_no_sup( __FUNCTION__, "Altera devices" );
+		fpga_no_sup( (char *)__FUNCTION__, "Altera devices" );
 #endif
 		break;
 	default:
@@ -216,7 +216,7 @@ void fpga_init( ulong reloc_off )
 /* fpga_count
  * Basic interface function to get the current number of devices available.
  */
-const int fpga_count( void )
+int fpga_count( void )
 {
 	return next_desc;
 }
@@ -263,7 +263,7 @@ int fpga_add( fpga_type devtype, void *desc )
 int fpga_load( int devnum, void *buf, size_t bsize )
 {
 	int ret_val = FPGA_FAIL;           /* assume failure */
-	const fpga_desc * const desc = fpga_validate( devnum, buf, bsize, __FUNCTION__ );
+	fpga_desc * desc = fpga_validate( devnum, buf, bsize, (char *)__FUNCTION__ );
 
 	if ( desc ) {
 		switch ( desc->devtype ) {
@@ -278,7 +278,7 @@ int fpga_load( int devnum, void *buf, size_t bsize )
 #if CONFIG_FPGA & CFG_FPGA_ALTERA
 			ret_val = altera_load( desc->devdesc, buf, bsize );
 #else
-			fpga_no_sup( __FUNCTION__, "Altera devices" );
+			fpga_no_sup( (char *)__FUNCTION__, "Altera devices" );
 #endif
 			break;
 		default:
@@ -296,7 +296,7 @@ int fpga_load( int devnum, void *buf, size_t bsize )
 int fpga_dump( int devnum, void *buf, size_t bsize )
 {
 	int ret_val = FPGA_FAIL;           /* assume failure */
-	const fpga_desc * const desc = fpga_validate( devnum, buf, bsize, __FUNCTION__ );
+	fpga_desc * desc = fpga_validate( devnum, buf, bsize, (char *)__FUNCTION__ );
 
 	if ( desc ) {
 		switch ( desc->devtype ) {
@@ -311,7 +311,7 @@ int fpga_dump( int devnum, void *buf, size_t bsize )
 #if CONFIG_FPGA & CFG_FPGA_ALTERA
 			ret_val = altera_dump( desc->devdesc, buf, bsize );
 #else
-			fpga_no_sup( __FUNCTION__, "Altera devices" );
+			fpga_no_sup( (char *)__FUNCTION__, "Altera devices" );
 #endif
 			break;
 		default:

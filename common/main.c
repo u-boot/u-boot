@@ -347,7 +347,7 @@ void main_loop (void)
 #ifdef CONFIG_MODEM_SUPPORT
 	debug ("DEBUG: main_loop:   do_mdm_init=%d\n", do_mdm_init);
 	if (do_mdm_init) {
-		uchar *str = strdup(getenv("mdm_cmd"));
+		char *str = strdup(getenv("mdm_cmd"));
 		setenv ("preboot", str);  /* set or delete definition */
 		if (str != NULL)
 			free (str);

@@ -40,7 +40,7 @@
 						/* crc, base, loop, mtest	*/
 #define CFG_CMD_NET		0x00000080ULL	/* bootp, tftpboot, rarpboot	*/
 #define CFG_CMD_ENV		0x00000100ULL	/* saveenv			*/
-#define CFG_CMD_KGDB		0x00000200ULL	/* kgdb				*/
+#define CFG_CMD_KGDB		0x0000000000000200ULL	/* kgdb				*/
 #define CFG_CMD_PCMCIA		0x00000400ULL	/* PCMCIA support		*/
 #define CFG_CMD_IDE		0x00000800ULL	/* IDE harddisk support		*/
 #define CFG_CMD_PCI		0x00001000ULL	/* pciinfo			*/

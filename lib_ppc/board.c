@@ -186,7 +186,7 @@ typedef int (init_fnc_t) (void);
 
 static int init_baudrate (void)
 {
-	uchar tmp[64];	/* long enough for environment variables */
+	char tmp[64];	/* long enough for environment variables */
 	int i = getenv_r ("baudrate", tmp, sizeof (tmp));
 
 	gd->baudrate = (i > 0)
@@ -401,8 +401,8 @@ void board_init_f (ulong bootflag)
 	/*
 	 * reserve protected RAM
 	 */
-	i = getenv_r ("pram", tmp, sizeof (tmp));
-	reg = (i > 0) ? simple_strtoul (tmp, NULL, 10) : CONFIG_PRAM;
+	i = getenv_r ("pram", (char *)tmp, sizeof (tmp));
+	reg = (i > 0) ? simple_strtoul ((const char *)tmp, NULL, 10) : CONFIG_PRAM;
 	addr -= (reg << 10);		/* size is in kB */
 	debug ("Reserving %ldk for protected RAM at %08lx\n", reg, addr);
 #endif /* CONFIG_PRAM */
@@ -542,8 +542,8 @@ void board_init_f (ulong bootflag)
 	bd->bi_baudrate = gd->baudrate;	/* Console Baudrate     */
 
 #ifdef CFG_EXTBDINFO
-	strncpy (bd->bi_s_version, "1.2", sizeof (bd->bi_s_version));
-	strncpy (bd->bi_r_version, U_BOOT_VERSION, sizeof (bd->bi_r_version));
+	strncpy ((char *)bd->bi_s_version, "1.2", sizeof (bd->bi_s_version));
+	strncpy ((char *)bd->bi_r_version, U_BOOT_VERSION, sizeof (bd->bi_r_version));
 
 	bd->bi_procfreq = gd->cpu_clk;	/* Processor Speed, In Hz */
 	bd->bi_plb_busfreq = gd->bus_clk;
@@ -1042,8 +1042,8 @@ void board_init_r (gd_t *id, ulong dest_addr)
 		/* Also take the logbuffer into account (pram is in kB) */
 		pram += (LOGBUFF_LEN+LOGBUFF_OVERHEAD)/1024;
 #endif
-		sprintf (memsz, "%ldk", (bd->bi_memsize / 1024) - pram);
-		setenv ("mem", memsz);
+		sprintf ((char *)memsz, "%ldk", (bd->bi_memsize / 1024) - pram);
+		setenv ("mem", (char *)memsz);
 	}
 #endif
 
@@ -1081,6 +1081,41 @@ void hang (void)
 
 #ifdef CONFIG_MODEM_SUPPORT
 /* called from main loop (common/main.c) */
+/* 'inline' - We have to do it fast */
+static inline void mdm_readline(char *buf, int bufsiz)
+{
+	char c;
+	char *p;
+	int n;
+
+	n = 0;
+	p = buf;
+	for(;;) {
+		c = serial_getc();
+
+		/*		dbg("(%c)", c); */
+
+		switch(c) {
+		case '\r':
+			break;
+		case '\n':
+			*p = '\0';
+			return;
+
+		default:
+			if(n++ > bufsiz) {
+				*p = '\0';
+				return; /* sanity check */
+			}
+			*p = c;
+			p++;
+			break;
+		}
+	}
+}
+
+
+
 extern void  dbg(const char *fmt, ...);
 int mdm_init (void)
 {
@@ -1088,7 +1123,6 @@ int mdm_init (void)
 	char *init_str;
 	int i;
 	extern char console_buffer[];
-	static inline void mdm_readline(char *buf, int bufsiz);
 	extern void enable_putc(void);
 	extern int hwflow_onoff(int);
 
@@ -1143,38 +1177,6 @@ int mdm_init (void)
 	return 0;
 }
 
-/* 'inline' - We have to do it fast */
-static inline void mdm_readline(char *buf, int bufsiz)
-{
-	char c;
-	char *p;
-	int n;
-
-	n = 0;
-	p = buf;
-	for(;;) {
-		c = serial_getc();
-
-		/*		dbg("(%c)", c); */
-
-		switch(c) {
-		case '\r':
-			break;
-		case '\n':
-			*p = '\0';
-			return;
-
-		default:
-			if(n++ > bufsiz) {
-				*p = '\0';
-				return; /* sanity check */
-			}
-			*p = c;
-			p++;
-			break;
-		}
-	}
-}
 #endif
 
 #if 0 /* We could use plain global data, but the resulting code is bigger */

@@ -261,7 +261,7 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 #if 0
 	ulong base = (ulong)addr;
 #endif
-	uchar value;
+	ulong value;
 
 	/* Write auto select command: read Manufacturer ID */
 #if 0
@@ -278,7 +278,7 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 
 	switch (value)
 	{
-		case AMD_MANUFACT:case 0x01:
+		case AMD_MANUFACT:
 			info->flash_id = FLASH_MAN_AMD;
 		break;
 

@@ -93,7 +93,7 @@ const uint sdram_table[] =
 
 int checkboard (void)
 {
-	unsigned char *s = getenv ("serial#");
+	char *s = getenv ("serial#");
 
 	puts ("Board: RRvision ");
 
@@ -157,7 +157,7 @@ long int initdram (int board_type)
 	 * try 8 column mode
 	 */
 	size8 = dram_size (CFG_MAMR_8COL,
-			   (ulong *)SDRAM_BASE2_PRELIM,
+			   SDRAM_BASE2_PRELIM,
 			   SDRAM_MAX_SIZE);
 
 	udelay (1000);
@@ -166,7 +166,7 @@ long int initdram (int board_type)
 	 * try 9 column mode
 	 */
 	size9 = dram_size (CFG_MAMR_9COL,
-			   (ulong *) SDRAM_BASE2_PRELIM,
+			   SDRAM_BASE2_PRELIM,
 			   SDRAM_MAX_SIZE);
 
 	if (size8 < size9) {		/* leave configuration at 9 columns */

@@ -296,7 +296,7 @@ extern char **environ; /* This is in <unistd.h>, but protected with __USE_GNU */
 #endif
 
 /* "globals" within this file */
-static char *ifs;
+static uchar *ifs;
 static char map[256];
 #ifndef __U_BOOT__
 static int fake_mode;
@@ -3134,8 +3134,8 @@ void mapset(const unsigned char *set, int code)
 void update_ifs_map(void)
 {
 	/* char *ifs and char map[256] are both globals. */
-	ifs = getenv("IFS");
-	if (ifs == NULL) ifs=" \t\n";
+	ifs = (uchar *)getenv("IFS");
+	if (ifs == NULL) ifs=(uchar *)" \t\n";
 	/* Precompute a list of 'flow through' behavior so it can be treated
 	 * quickly up front.  Computation is necessary because of IFS.
 	 * Special case handling of IFS == " \t\n" is not implemented.
@@ -3144,11 +3144,11 @@ void update_ifs_map(void)
 	 */
 	memset(map,0,sizeof(map)); /* most characters flow through always */
 #ifndef __U_BOOT__
-	mapset("\\$'\"`", 3);      /* never flow through */
-	mapset("<>;&|(){}#", 1);   /* flow through if quoted */
+	mapset((uchar *)"\\$'\"`", 3);      /* never flow through */
+	mapset((uchar *)"<>;&|(){}#", 1);   /* flow through if quoted */
 #else
-	mapset("\\$'\"", 3);       /* never flow through */
-	mapset(";&|#", 1);         /* flow through if quoted */
+	mapset((uchar *)"\\$'\"", 3);       /* never flow through */
+	mapset((uchar *)";&|#", 1);         /* flow through if quoted */
 #endif
 	mapset(ifs, 2);            /* also flow through if quoted */
 }
@@ -3168,7 +3168,7 @@ int parse_stream_outer(struct in_str *inp, int flag)
 		ctx.type = flag;
 		initialize_context(&ctx);
 		update_ifs_map();
-		if (!(flag & FLAG_PARSE_SEMICOLON) || (flag & FLAG_REPARSING)) mapset(";$&|", 0);
+		if (!(flag & FLAG_PARSE_SEMICOLON) || (flag & FLAG_REPARSING)) mapset((uchar *)";$&|", 0);
 		inp->promptmode=1;
 		rcode = parse_stream(&temp, &ctx, inp, '\n');
 #ifdef __U_BOOT__

@@ -107,8 +107,8 @@ int checkboard (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
-	unsigned char *s = getenv ("serial#");
-	unsigned char *e;
+	char *s = getenv ("serial#");
+	char *e;
 
 	puts ("Board: ");
 
@@ -179,7 +179,7 @@ long int initdram (int board_type)
 	 *
 	 * try 8 column mode
 	 */
-	size8 = dram_size (CFG_MAMR_8COL, (ulong *) SDRAM_BASE_PRELIM,
+	size8 = dram_size (CFG_MAMR_8COL, (long *) SDRAM_BASE_PRELIM,
 					   SDRAM_MAX_SIZE);
 
 	udelay (1000);
@@ -187,7 +187,7 @@ long int initdram (int board_type)
 	/*
 	 * try 9 column mode
 	 */
-	size9 = dram_size (CFG_MAMR_9COL, (ulong *) SDRAM_BASE_PRELIM,
+	size9 = dram_size (CFG_MAMR_9COL, (long *) SDRAM_BASE_PRELIM,
 					   SDRAM_MAX_SIZE);
 
 	if (size8 < size9) {		/* leave configuration at 9 columns */

@@ -87,7 +87,7 @@ int get_partition_info_iso_verb(block_dev_desc_t * dev_desc, int part_num, disk_
 				dev_desc->dev, part_num);
 		return (-1);
 	}
-	if(strncmp(ppr->stand_ident,"CD001",5)!=0) {
+	if(strncmp((char *)ppr->stand_ident,"CD001",5)!=0) {
 		if(verb)
 			printf ("** Wrong ISO Ident: %s on %d:%d **\n",
 				ppr->stand_ident,dev_desc->dev, part_num);
@@ -154,23 +154,23 @@ int get_partition_info_iso_verb(block_dev_desc_t * dev_desc, int part_num, disk_
 	/* the validation entry seems to be ok, now search the "partition" */
 	entry_num=0;
 	offset=0x20;
-	sprintf (info->type, "U-Boot");
+	sprintf ((char *)info->type, "U-Boot");
 	switch(dev_desc->if_type) {
 		case IF_TYPE_IDE:
 		case IF_TYPE_ATAPI:
-			sprintf (info->name, "hd%c%d\n", 'a' + dev_desc->dev, part_num);
+			sprintf ((char *)info->name, "hd%c%d\n", 'a' + dev_desc->dev, part_num);
 			break;
 		case IF_TYPE_SCSI:
-			sprintf (info->name, "sd%c%d\n", 'a' + dev_desc->dev, part_num);
+			sprintf ((char *)info->name, "sd%c%d\n", 'a' + dev_desc->dev, part_num);
 			break;
 		case IF_TYPE_USB:
-			sprintf (info->name, "usbd%c%d\n", 'a' + dev_desc->dev, part_num);
+			sprintf ((char *)info->name, "usbd%c%d\n", 'a' + dev_desc->dev, part_num);
 			break;
 		case IF_TYPE_DOC:
-			sprintf (info->name, "docd%c%d\n", 'a' + dev_desc->dev, part_num);
+			sprintf ((char *)info->name, "docd%c%d\n", 'a' + dev_desc->dev, part_num);
 			break;
 		default:
-			sprintf (info->name, "xx%c%d\n", 'a' + dev_desc->dev, part_num);
+			sprintf ((char *)info->name, "xx%c%d\n", 'a' + dev_desc->dev, part_num);
 			break;
 	}
 	/* the bootcatalog (including validation Entry) is limited to 2048Bytes

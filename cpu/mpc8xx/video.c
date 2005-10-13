@@ -447,9 +447,9 @@ static void video_drawchars (int xx, int yy, unsigned char *s, int count)
 	}
 }
 
-static inline void video_drawstring (int xx, int yy, unsigned char *s)
+static inline void video_drawstring (int xx, int yy, char *s)
 {
-	video_drawchars (xx, yy, s, strlen (s));
+	video_drawchars (xx, yy, (unsigned char *)s, strlen (s));
 }
 
 /* Relative to console plotting functions */
@@ -474,7 +474,7 @@ static void video_putchar (int xx, int yy, unsigned char c)
 
 static inline void video_putstring (int xx, int yy, unsigned char *s)
 {
-	video_putchars (xx, yy, s, strlen (s));
+	video_putchars (xx, yy, (unsigned char *)s, strlen ((char *)s));
 }
 
 /************************************************************************/

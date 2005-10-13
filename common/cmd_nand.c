@@ -200,12 +200,12 @@ int do_nand (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			/* read out-of-band data */
 			if (cmd & NANDRW_READ) {
 				ret = nand_read_oob(nand_dev_desc + curr_device,
-						    off, size, &total,
+						    off, size, (size_t *)&total,
 						    (u_char*)addr);
 			}
 			else {
 				ret = nand_write_oob(nand_dev_desc + curr_device,
-						     off, size, &total,
+						     off, size, (size_t *)&total,
 						     (u_char*)addr);
 			}
 			return ret;
@@ -241,7 +241,7 @@ int do_nand (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			curr_device, off, size);
 
 		ret = nand_rw(nand_dev_desc + curr_device, cmd, off, size,
-			     &total, (u_char*)addr);
+			     (size_t *)&total, (u_char*)addr);
 
 		printf (" %d bytes %s: %s\n", total,
 			(cmd & NANDRW_READ) ? "read" : "written",
@@ -401,7 +401,7 @@ U_BOOT_CMD(
  */
 int check_block (struct nand_chip *nand, unsigned long pos)
 {
-	int retlen;
+	size_t retlen;
 	uint8_t oob_data;
 	uint16_t oob_data16[6];
 	int page0 = pos & (-nand->erasesize);
@@ -423,9 +423,9 @@ int check_block (struct nand_chip *nand, unsigned long pos)
 			return 1;
 	} else {
 		/* Note - bad block marker can be on first or second page */
-		if (nand_read_oob(nand, page0 + badpos, 1, &retlen, &oob_data)
+		if (nand_read_oob(nand, page0 + badpos, 1, &retlen, (unsigned char *)&oob_data)
 		    || oob_data != 0xff
-		    || nand_read_oob (nand, page1 + badpos, 1, &retlen, &oob_data)
+		    || nand_read_oob (nand, page1 + badpos, 1, &retlen, (unsigned char *)&oob_data)
 		    || oob_data != 0xff)
 			return 1;
 	}
@@ -501,11 +501,11 @@ int nand_rw (struct nand_chip* nand, int cmd,
 		if (cmd & NANDRW_READ) {
 			ret = nand_read_ecc(nand, start,
 					   min(len, eblk + erasesize - start),
-					   &n, (u_char*)buf, eccbuf);
+					   (size_t *)&n, (u_char*)buf, (u_char *)eccbuf);
 		} else {
 			ret = nand_write_ecc(nand, start,
 					    min(len, eblk + erasesize - start),
-					    &n, (u_char*)buf, eccbuf);
+					    (size_t *)&n, (u_char*)buf, (u_char *)eccbuf);
 		}
 
 		if (ret)
@@ -1591,7 +1591,7 @@ int nand_erase(struct nand_chip* nand, size_t ofs, size_t len, int clean)
 					l = NAND_JFFS2_OOB16_FSDALEN;
 				}
 
-				ret = nand_write_oob(nand, ofs + p, l, &n,
+				ret = nand_write_oob(nand, ofs + p, l, (size_t *)&n,
 						     (u_char *)&clean_marker);
 				/* quit here if write failed */
 				if (ret)

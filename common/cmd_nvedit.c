@@ -124,7 +124,7 @@ int do_printenv (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 			for (nxt=j; env_get_char(nxt) != '\0'; ++nxt)
 				;
-			k = envmatch(name, j);
+			k = envmatch((uchar *)name, j);
 			if (k < 0) {
 				continue;
 			}
@@ -157,7 +157,7 @@ int _do_setenv (int flag, int argc, char *argv[])
 	int   i, len, oldval;
 	int   console = -1;
 	uchar *env, *nxt = NULL;
-	uchar *name;
+	char *name;
 	bd_t *bd = gd->bd;
 
 	uchar *env_data = env_get_addr(0);
@@ -174,7 +174,7 @@ int _do_setenv (int flag, int argc, char *argv[])
 	for (env=env_data; *env; env=nxt+1) {
 		for (nxt=env; *nxt; ++nxt)
 			;
-		if ((oldval = envmatch(name, env-env_data)) >= 0)
+		if ((oldval = envmatch((uchar *)name, env-env_data)) >= 0)
 			break;
 	}
 
@@ -191,7 +191,7 @@ int _do_setenv (int flag, int argc, char *argv[])
 		if ( (strcmp (name, "serial#") == 0) ||
 		    ((strcmp (name, "ethaddr") == 0)
 #if defined(CONFIG_OVERWRITE_ETHADDR_ONCE) && defined(CONFIG_ETHADDR)
-		     && (strcmp (env_get_addr(oldval),MK_STR(CONFIG_ETHADDR)) != 0)
+		     && (strcmp ((char *)env_get_addr(oldval),MK_STR(CONFIG_ETHADDR)) != 0)
 #endif	/* CONFIG_OVERWRITE_ETHADDR_ONCE && CONFIG_ETHADDR */
 		    ) ) {
 			printf ("Can't overwrite \"%s\"\n", name);
@@ -483,7 +483,7 @@ int do_askenv ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
  * or NULL if not found
  */
 
-char *getenv (uchar *name)
+char *getenv (char *name)
 {
 	int i, nxt;
 
@@ -497,15 +497,15 @@ char *getenv (uchar *name)
 				return (NULL);
 			}
 		}
-		if ((val=envmatch(name, i)) < 0)
+		if ((val=envmatch((uchar *)name, i)) < 0)
 			continue;
-		return (env_get_addr(val));
+		return ((char *)env_get_addr(val));
 	}
 
 	return (NULL);
 }
 
-int getenv_r (uchar *name, uchar *buf, unsigned len)
+int getenv_r (char *name, char *buf, unsigned len)
 {
 	int i, nxt;
 
@@ -517,7 +517,7 @@ int getenv_r (uchar *name, uchar *buf, unsigned len)
 				return (-1);
 			}
 		}
-		if ((val=envmatch(name, i)) < 0)
+		if ((val=envmatch((uchar *)name, i)) < 0)
 			continue;
 		/* found; copy out */
 		n = 0;

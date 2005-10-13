@@ -69,7 +69,7 @@ int fpga_loadbitstream(unsigned long dev, char* fpgadata, size_t size)
 	unsigned int i;
 	int rc;
 
-	dataptr = fpgadata;
+	dataptr = (unsigned char *)fpgadata;
 
 #if CFG_FPGA_XILINX
 	/* skip the first bytes of the bitsteam, their meaning is unknown */

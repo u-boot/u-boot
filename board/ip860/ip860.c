@@ -114,10 +114,10 @@ int checkboard (void)
 
 	puts ("Board: ");
 
-	i = getenv_r ("serial#", buf, sizeof (buf));
+	i = getenv_r ("serial#", (char *)buf, sizeof (buf));
 	s = (i > 0) ? buf : NULL;
 
-	if (!s || strncmp (s, "IP860", 5)) {
+	if (!s || strncmp ((char *)s, "IP860", 5)) {
 		puts ("### No HW ID - assuming IP860");
 	} else {
 		for (e = s; *e; ++e) {
@@ -190,9 +190,9 @@ long int initdram (int board_type)
 	 * Check SDRAM Memory Size
 	 */
 	if (ip860_get_dram_size() == 16)
-		size = dram_size (refresh_val | 0x00804114, (ulong *)SDRAM_BASE, SDRAM_MAX_SIZE);
+		size = dram_size (refresh_val | 0x00804114, SDRAM_BASE, SDRAM_MAX_SIZE);
 	else
-		size = dram_size (refresh_val | 0x00906114, (ulong *)SDRAM_BASE, SDRAM_MAX_SIZE);
+		size = dram_size (refresh_val | 0x00906114, SDRAM_BASE, SDRAM_MAX_SIZE);
 
 	udelay (1000);
 

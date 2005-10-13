@@ -200,11 +200,11 @@ int tsec_init(struct eth_device* dev, bd_t * bd)
 	for(i=0;i<MAC_ADDR_LEN;i++) {
 		tmpbuf[MAC_ADDR_LEN - 1 - i] = dev->enetaddr[i];
 	}
-	(uint)(regs->macstnaddr1) = *((uint *)(tmpbuf));
+	regs->macstnaddr1 = *((uint *)(tmpbuf));
 
 	tempval = *((uint *)(tmpbuf +4));
 
-	(uint)(regs->macstnaddr2) = tempval;
+	regs->macstnaddr2 = tempval;
 
 	/* reset the indices to zero */
 	rxIdx = 0;

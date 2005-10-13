@@ -610,7 +610,7 @@ unsigned long long pattern[] = {
 int mem_test_data (void)
 {
 	unsigned long long *pmem = (unsigned long long *) CFG_MEMTEST_START;
-	unsigned long long temp64;
+	unsigned long long temp64 = 0;
 	int num_patterns = sizeof (pattern) / sizeof (pattern[0]);
 	int i;
 	unsigned int hi, lo;
@@ -717,7 +717,7 @@ int mem_march (volatile unsigned long long *base,
 	       unsigned long long wmask, short read, short write)
 {
 	unsigned int i;
-	unsigned long long temp;
+	unsigned long long temp = 0;
 	unsigned int hitemp, lotemp, himask, lomask;
 
 	for (i = 0; i < size; i++) {

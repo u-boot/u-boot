@@ -2,6 +2,8 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Cleanup for GCC-4.x
+
 * Add documentation for Open Firmware Flat Tree and usage.
   Patch by Pantelis Antoniou, 13 Oct 2005
 

@@ -155,7 +155,7 @@ long int initdram (int board_type)
 	 * Check Bank 0 Memory Size for re-configuration
 	 *
 	 */
-	size = dram_size (CFG_MAMR, (ulong *) SDRAM_BASE_PRELIM,
+	size = dram_size (CFG_MAMR, (long *) SDRAM_BASE_PRELIM,
 			  SDRAM_MAX_SIZE);
 
 	udelay (1000);

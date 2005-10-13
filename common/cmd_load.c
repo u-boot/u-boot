@@ -166,7 +166,7 @@ load_serial (ulong offset)
 		    if (addr2info(store_addr)) {
 			int rc;
 
-			rc = flash_write((uchar *)binbuf,store_addr,binlen);
+			rc = flash_write((char *)binbuf,store_addr,binlen);
 			if (rc != 0) {
 				flash_perror (rc);
 				return (~0);

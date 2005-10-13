@@ -251,7 +251,7 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 
 	value = addr[1];			/* device ID		*/
 
-	switch (value) {
+	switch ((unsigned long)value) {
 	case AMD_ID_F040B:
 		info->flash_id += FLASH_AM040;
 		info->sector_count = 8;

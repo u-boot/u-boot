@@ -128,8 +128,8 @@ int checkboard (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
-	unsigned char *s;
-	unsigned char buf[64];
+	char *s;
+	char buf[64];
 	int i;
 
 	i = getenv_r ("board_id", buf, sizeof (buf));
@@ -266,7 +266,7 @@ int misc_init_r (void)
 int last_stage_init (void)
 {
 #if !defined(CONFIG_SC)
-	unsigned char buf[256];
+	char buf[256];
 	int i;
 
 	/*

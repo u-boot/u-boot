@@ -490,7 +490,7 @@ int usb_stor_BBB_comdat(ccb *srb, struct us_data *us)
  */
 int usb_stor_CB_comdat(ccb *srb, struct us_data *us)
 {
-	int result;
+	int result = 0;
 	int dir_in,retry;
 	unsigned int pipe;
 	unsigned long status;
@@ -528,7 +528,7 @@ int usb_stor_CB_comdat(ccb *srb, struct us_data *us)
 
 		USB_STOR_PRINTF("CB_transport: control msg returned %d, direction is %s to go 0x%lx\n",result,dir_in ? "IN" : "OUT",srb->datalen);
 		if (srb->datalen) {
-			result = us_one_transfer(us, pipe, srb->pdata,srb->datalen);
+			result = us_one_transfer(us, pipe, (char *)srb->pdata,srb->datalen);
 			USB_STOR_PRINTF("CBI attempted to transfer data, result is %d status %lX, len %d\n", result,us->pusb_dev->status,us->pusb_dev->act_len);
 			if(!(us->pusb_dev->status & USB_ST_NAK_REC))
 				break;
@@ -847,7 +847,7 @@ static int usb_request_sense(ccb *srb,struct us_data *ss)
 {
 	char *ptr;
 
-	ptr=srb->pdata;
+	ptr=(char *)srb->pdata;
 	memset(&srb->cmd[0],0,12);
 	srb->cmd[0]=SCSI_REQ_SENSE;
 	srb->cmd[1]=srb->lun<<5;
@@ -857,7 +857,7 @@ static int usb_request_sense(ccb *srb,struct us_data *ss)
 	srb->cmdlen=12;
 	ss->transport(srb,ss);
 	USB_STOR_PRINTF("Request Sense returned %02X %02X %02X\n",srb->sense_buf[2],srb->sense_buf[12],srb->sense_buf[13]);
-	srb->pdata=ptr;
+	srb->pdata=(uchar *)ptr;
 	return 0;
 }
 

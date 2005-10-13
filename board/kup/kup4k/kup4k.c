@@ -327,7 +327,7 @@ void lcd_logo (bd_t * bd)
 	int r = 8, g = 8, b = 4;
 	int r1, g1, b1;
 	int n;
-	uchar tmp[64];		/* long enough for environment variables */
+	char tmp[64];		/* long enough for environment variables */
 	int tft = 0;
 
 	immr->im_cpm.cp_pbpar &= ~(PB_LCD_PWM);
@@ -453,7 +453,7 @@ void lcd_logo (bd_t * bd)
 	}
 
 	/* copy bitmap */
-	fb = (char *) (fb_info.VmemAddr);
+	fb = (uchar *) (fb_info.VmemAddr);
 	memcpy (fb, (uchar *) CONFIG_KUP4K_LOGO, 320 * 240);
 }
 #endif	/* CONFIG_KUP4K_LOGO */

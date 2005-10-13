@@ -69,11 +69,11 @@ void read_factory_r (void)
 		/*printf ("%s\n", buf); */
 		/* search for our specific entry */
 		if (!strncmp ((char *) buf, "[RLA/lan/Ethernet] ", 19)) {
-			setenv ("ethaddr", buf + 19);
+			setenv ("ethaddr", (char *)(buf + 19));
 		} else if (!strncmp ((char *) buf, "[BOARD/SERIAL] ", 15)) {
-			setenv ("serial#", buf + 15);
+			setenv ("serial#", (char *)(buf + 15));
 		} else if (!strncmp ((char *) buf, "[BOARD/TYPE] ", 13)) {
-			setenv ("board_id", buf + 13);
+			setenv ("board_id", (char *)(buf + 13));
 		}
 	}
 }

@@ -356,7 +356,7 @@ void nand_init(void)
 static long ram_size(ulong *base, long maxsize)
 {
     volatile long	*test_addr;
-    volatile long	*base_addr = base;
+    volatile ulong	*base_addr = base;
     ulong		ofs;		/* byte offset from base_addr */
     ulong		save;		/* to make test non-destructive */
     ulong		save2;		/* to make test non-destructive */

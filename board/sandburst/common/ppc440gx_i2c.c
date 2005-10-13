@@ -451,9 +451,9 @@ int i2c_write1 (uchar chip, uint addr, int alen, uchar * buffer, int len)
  */
 uchar i2c_reg_read1(uchar i2c_addr, uchar reg)
 {
-	char buf;
+	uchar buf;
 
-	i2c_read1(i2c_addr, reg, 1, &buf, 1);
+	i2c_read1(i2c_addr, reg, 1, &buf, (uchar)1);
 
 	return(buf);
 }

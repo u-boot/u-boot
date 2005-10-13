@@ -179,7 +179,7 @@ int do_log (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	case 2:
 		if (strcmp(argv[1],"show") == 0) {
 			for (i=0; i < (log_size&LOGBUFF_MASK); i++) {
-				s = log_buf+((log_start+i)&LOGBUFF_MASK);
+				s = (char *)log_buf+((log_start+i)&LOGBUFF_MASK);
 				putc (*s);
 			}
 			return 0;

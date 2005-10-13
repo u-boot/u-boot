@@ -171,7 +171,7 @@ long int initdram (int board_type)
 	 * Check Bank 0 Memory Size for re-configuration
 	 */
 	size_b0 = dram_size (CFG_MAMR_8COL,
-			     (ulong *) SDRAM_BASE3_PRELIM, SDRAM_MAX_SIZE);
+			     (long *) SDRAM_BASE3_PRELIM, SDRAM_MAX_SIZE);
 
 	memctl->memc_mamr = CFG_MAMR_8COL | MAMR_PTAE;
 

@@ -201,7 +201,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	checksum = ntohl(hdr->ih_hcrc);
 	hdr->ih_hcrc = 0;
 
-	if (crc32 (0, (char *)data, len) != checksum) {
+	if (crc32 (0, (uchar *)data, len) != checksum) {
 		puts ("Bad Header Checksum\n");
 		SHOW_BOOT_PROGRESS (-2);
 		return 1;
@@ -225,7 +225,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	if (verify) {
 		puts ("   Verifying Checksum ... ");
-		if (crc32 (0, (char *)data, len) != ntohl(hdr->ih_dcrc)) {
+		if (crc32 (0, (uchar *)data, len) != ntohl(hdr->ih_dcrc)) {
 			printf ("Bad Data CRC\n");
 			SHOW_BOOT_PROGRESS (-3);
 			return 1;
@@ -633,7 +633,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		checksum = hdr->ih_hcrc;
 		hdr->ih_hcrc = 0;
 
-		if (crc32 (0, (char *)data, len) != checksum) {
+		if (crc32 (0, (uchar *)data, len) != checksum) {
 			puts ("Bad Header Checksum\n");
 			SHOW_BOOT_PROGRESS (-11);
 			do_reset (cmdtp, flag, argc, argv);
@@ -661,13 +661,13 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 
 				if (chunk > CHUNKSZ)
 					chunk = CHUNKSZ;
-				csum = crc32 (csum, (char *)cdata, chunk);
+				csum = crc32 (csum, (uchar *)cdata, chunk);
 				cdata += chunk;
 
 				WATCHDOG_RESET();
 			}
 #else	/* !(CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG) */
-			csum = crc32 (0, (char *)data, len);
+			csum = crc32 (0, (uchar *)data, len);
 #endif	/* CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG */
 
 			if (csum != hdr->ih_dcrc) {
@@ -1079,7 +1079,7 @@ static int image_info (ulong addr)
 	checksum = ntohl(hdr->ih_hcrc);
 	hdr->ih_hcrc = 0;
 
-	if (crc32 (0, (char *)data, len) != checksum) {
+	if (crc32 (0, (uchar *)data, len) != checksum) {
 		puts ("   Bad Header Checksum\n");
 		return 1;
 	}
@@ -1091,7 +1091,7 @@ static int image_info (ulong addr)
 	len  = ntohl(hdr->ih_size);
 
 	puts ("   Verifying Checksum ... ");
-	if (crc32 (0, (char *)data, len) != ntohl(hdr->ih_dcrc)) {
+	if (crc32 (0, (uchar *)data, len) != ntohl(hdr->ih_dcrc)) {
 		puts ("   Bad Data CRC\n");
 		return 1;
 	}
@@ -1136,7 +1136,7 @@ int do_imls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			checksum = ntohl(header.ih_hcrc);
 			header.ih_hcrc = 0;
 
-			if (crc32 (0, (char *)&header, sizeof(image_header_t))
+			if (crc32 (0, (uchar *)&header, sizeof(image_header_t))
 			    != checksum)
 				goto next_sector;
 
@@ -1147,7 +1147,7 @@ int do_imls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			len  = ntohl(hdr->ih_size);
 
 			puts ("   Verifying Checksum ... ");
-			if (crc32 (0, (char *)data, len) != ntohl(hdr->ih_dcrc)) {
+			if (crc32 (0, (uchar *)data, len) != ntohl(hdr->ih_dcrc)) {
 				puts ("   Bad Data CRC\n");
 			}
 			puts ("OK\n");

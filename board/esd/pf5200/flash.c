@@ -122,7 +122,7 @@ static flash_info_t *flash_get_info(ulong base) {
 
 void flash_print_info(flash_info_t * info) {
 	int i;
-	uchar *fmt;
+	char *fmt;
 
 	if (info->flash_id == FLASH_UNKNOWN) {
 		printf("missing or unknown FLASH type\n");

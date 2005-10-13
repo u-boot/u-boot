@@ -187,14 +187,14 @@ long int initdram (int board_type)
 	PrintState ();
 #endif
 /*    printf ("\nChecking bank1..."); */
-	size8 = dram_size (CFG_MBMR_8COL, (ulong *) SDRAM_BASE1_PRELIM,
+	size8 = dram_size (CFG_MBMR_8COL, (long *) SDRAM_BASE1_PRELIM,
 			   SDRAM_MAX_SIZE);
 
 	size_b0 = size8;
 
 /*    printf ("\nChecking bank2..."); */
 	size_b1 =
-		dram_size (memctl->memc_mbmr, (ulong *) SDRAM_BASE2_PRELIM,
+		dram_size (memctl->memc_mbmr, (long *) SDRAM_BASE2_PRELIM,
 			   SDRAM_MAX_SIZE);
 
 	/*

@@ -136,7 +136,7 @@ static ulong flash_get_size (ulong addr, flash_info_t *info)
 
 	DEBUGF("Device ID @ 0x%08lx: 0x%08x\n", addr+1, value);
 
-	switch (value) {
+	switch ((ulong)value) {
 		case AMD_ID_F040B:
 			DEBUGF("Am29F040B\n");
 			info->flash_id += FLASH_AM040;

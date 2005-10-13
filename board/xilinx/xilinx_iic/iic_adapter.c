@@ -291,15 +291,15 @@ read_crc(uchar * buffer, int len)
 static void
 ip_ml300(uchar * s, uchar * res)
 {
-	uchar temp[2];
+	char temp[2];
 	u8 i;
 
 	res[0] = 0x00;
 
 	for (i = 0; i < 4; i++) {
 		sprintf(temp, "%02x", atoi(s));
-		s = strchr(s, '.') + 1;
-		strcat(res, temp);
+		s = (uchar *)strchr((char *)s, '.') + 1;
+		strcat((char *)res, temp);
 	}
 }
 
@@ -310,8 +310,8 @@ static void
 change_null(uchar * s)
 {
 	if (s != NULL) {
-		change_null(strchr(s + 1, 255));
-		*(strchr(s, 255)) = '\0';
+		change_null((uchar *)strchr((char *)s + 1, 255));
+		*(strchr((char *)s, 255)) = '\0';
 	}
 }
 
@@ -321,8 +321,8 @@ change_null(uchar * s)
 void
 convert_env(void)
 {
-	uchar *s;		/* pointer to env value */
-	uchar temp[20];		/* temp storage for addresses */
+	char *s;		/* pointer to env value */
+	char temp[20];		/* temp storage for addresses */
 
 	/* E -> ethaddr */
 	s = getenv("E");
@@ -345,8 +345,8 @@ convert_env(void)
 	/* I -> ipaddr */
 	s = getenv("I");
 	if (s != NULL) {
-		sprintf(temp, "%d.%d.%d.%d", axtoi(s), axtoi(s + 2),
-			axtoi(s + 4), axtoi(s + 6));
+		sprintf(temp, "%d.%d.%d.%d", axtoi((u8 *)s), axtoi((u8 *)(s + 2)),
+			axtoi((u8 *)(s + 4)), axtoi((u8 *)(s + 6)));
 		setenv("ipaddr", temp);
 		setenv("I", NULL);
 	}
@@ -354,8 +354,8 @@ convert_env(void)
 	/* S -> serverip */
 	s = getenv("S");
 	if (s != NULL) {
-		sprintf(temp, "%d.%d.%d.%d", axtoi(s), axtoi(s + 2),
-			axtoi(s + 4), axtoi(s + 6));
+		sprintf(temp, "%d.%d.%d.%d", axtoi((u8 *)s), axtoi((u8 *)(s + 2)),
+			axtoi((u8 *)(s + 4)), axtoi((u8 *)(s + 6)));
 		setenv("serverip", temp);
 		setenv("S", NULL);
 	}
@@ -391,9 +391,9 @@ convert_env(void)
 static void
 save_env(void)
 {
-	uchar eprom[ENV_SIZE];	/* buffer to be written back to EEPROM */
-	uchar *s, temp[20];
-	uchar ff[] = { 0xff, 0x00 };	/* dummy null value */
+	char eprom[ENV_SIZE];	/* buffer to be written back to EEPROM */
+	char *s, temp[20];
+	char ff[] = { 0xff, 0x00 };	/* dummy null value */
 	u32 len;		/* length of env to be written to EEPROM */
 
 	eprom[0] = 0x00;
@@ -422,7 +422,7 @@ save_env(void)
 	s = getenv("ipaddr");
 	if (s != NULL) {
 		strcat(eprom, "I=");
-		ip_ml300(s, temp);
+		ip_ml300((uchar *)s, (uchar *)temp);
 		strcat(eprom, temp);
 		strcat(eprom, ff);
 	}
@@ -431,7 +431,7 @@ save_env(void)
 	s = getenv("serverip");
 	if (s != NULL) {
 		strcat(eprom, "S=");
-		ip_ml300(s, temp);
+		ip_ml300((uchar *)s, (uchar *)temp);
 		strcat(eprom, temp);
 		strcat(eprom, ff);
 	}
@@ -461,11 +461,11 @@ save_env(void)
 	}
 
 	len = strlen(eprom);	/* find env length without crc */
-	change_null(eprom);	/* change 0xff to 0x00 */
+	change_null((uchar *)eprom);	/* change 0xff to 0x00 */
 
 	/* update EEPROM env values if there is enough space */
-	if (update_crc(len, eprom) == 0)
-		send(CFG_ENV_OFFSET, eprom, len + 6);
+	if (update_crc(len, (uchar *)eprom) == 0)
+		send(CFG_ENV_OFFSET, (uchar *)eprom, len + 6);
 }
 
 /************************************************************************

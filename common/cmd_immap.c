@@ -383,6 +383,7 @@ do_iopset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (rcode == 0) {
 		iopin.port = port;
 		iopin.pin = pin;
+		iopin.flag = 0;
 		switch (cmd) {
 		case DIR:
 			if (value)

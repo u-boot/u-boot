@@ -152,7 +152,7 @@ long int initdram (int board_type)
 	 *
 	 * try 8 column mode
 	 */
-	size8 = dram_size (CFG_MAMR_8COL, (ulong *) SDRAM_BASE2_PRELIM,
+	size8 = dram_size (CFG_MAMR_8COL, (long *) SDRAM_BASE2_PRELIM,
 					   SDRAM_MAX_SIZE);
 
 	udelay (1000);
@@ -160,7 +160,7 @@ long int initdram (int board_type)
 	/*
 	 * try 9 column mode
 	 */
-	size9 = dram_size (CFG_MAMR_9COL, (ulong *) SDRAM_BASE2_PRELIM,
+	size9 = dram_size (CFG_MAMR_9COL, (long *) SDRAM_BASE2_PRELIM,
 					   SDRAM_MAX_SIZE);
 
 	if (size8 < size9) {		/* leave configuration at 9 columns */
@@ -287,21 +287,21 @@ static uchar *key_match (uchar *);
 
 int misc_init_r (void)
 {
-	uchar kbd_data[KEYBD_DATALEN];
-	uchar keybd_env[2 * KEYBD_DATALEN + 1];
-	uchar *str;
+	char kbd_data[KEYBD_DATALEN];
+	char keybd_env[2 * KEYBD_DATALEN + 1];
+	char *str;
 	int i;
 
 	i2c_init (CFG_I2C_SPEED, CFG_I2C_SLAVE);
 
-	i2c_read (CFG_I2C_KEY_ADDR, 0, 0, kbd_data, KEYBD_DATALEN);
+	i2c_read (CFG_I2C_KEY_ADDR, 0, 0, (uchar *)kbd_data, KEYBD_DATALEN);
 
 	for (i = 0; i < KEYBD_DATALEN; ++i) {
 		sprintf (keybd_env + i + i, "%02X", kbd_data[i]);
 	}
 	setenv ("keybd", keybd_env);
 
-	str = strdup (key_match (keybd_env));	/* decode keys */
+	str = strdup ((char *)key_match ((uchar *)keybd_env));	/* decode keys */
 
 #ifdef CONFIG_PREBOOT	/* automatically configure "preboot" command on key match */
 	setenv ("preboot", str);	/* set or delete definition */
@@ -347,36 +347,36 @@ static uchar *key_match (uchar * kbd_str)
 	 * "key_magic" is checked (old behaviour); the string "125" causes
 	 * checks for "key_magic1", "key_magic2" and "key_magic5", etc.
 	 */
-	if ((kbd_magic_keys = getenv ("magic_keys")) != NULL) {
+	if ((kbd_magic_keys = (uchar *)getenv ("magic_keys")) != NULL) {
 		/* loop over all magic keys;
 		 * use '\0' suffix in case of empty string
 		 */
 		for (suffix = kbd_magic_keys;
 		     *suffix || suffix == kbd_magic_keys;
 		     ++suffix) {
-			sprintf (magic, "%s%c", kbd_magic_prefix, *suffix);
+			sprintf ((char *)magic, "%s%c", kbd_magic_prefix, *suffix);
 
 #if 0
 			printf ("### Check magic \"%s\"\n", magic);
 #endif
 
-			if ((str = getenv (magic)) != 0) {
+			if ((str = (uchar *)getenv ((char *)magic)) != 0) {
 
 #if 0
 				printf ("### Compare \"%s\" \"%s\"\n",
 					kbd_str, str);
 #endif
-				if (strcmp (kbd_str, str) == 0) {
-					sprintf (cmd_name, "%s%c",
+				if (strcmp ((char *)kbd_str, (char *)str) == 0) {
+					sprintf ((char *)cmd_name, "%s%c",
 						 kbd_command_prefix,
 						 *suffix);
 
-					if ((cmd = getenv (cmd_name)) != 0) {
+					if ((cmd = getenv ((char *)cmd_name)) != 0) {
 #if 0
 						printf ("### Set PREBOOT to $(%s): \"%s\"\n",
 							cmd_name, cmd);
 #endif
-						return (cmd);
+						return ((uchar *)cmd);
 					}
 				}
 			}
@@ -404,11 +404,11 @@ int do_kbd (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 	puts ("Keys:");
 	for (i = 0; i < KEYBD_DATALEN; ++i) {
-		sprintf (keybd_env + i + i, "%02X", kbd_data[i]);
+		sprintf ((char *)(keybd_env + i + i), "%02X", kbd_data[i]);
 		printf (" %02x", kbd_data[i]);
 	}
 	putc ('\n');
-	setenv ("keybd", keybd_env);
+	setenv ("keybd", (char *)keybd_env);
 	return 0;
 }
 

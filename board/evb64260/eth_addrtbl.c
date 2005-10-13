@@ -55,8 +55,9 @@ unsigned int initAddressTable (u32 port, u32 hashMode, u32 hashSizeSelector)
 		int bytes =
 			hashLength[hashSizeSelector] * sizeof (addrTblEntry);
 
-		tableBase = (unsigned int) realAddrTableBase[port] =
+		realAddrTableBase[port] =
 			malloc (bytes + 64);
+		tableBase = (unsigned int)realAddrTableBase; 
 
 		if (!tableBase) {
 			printf ("%s: alloc memory failed \n", __FUNCTION__);

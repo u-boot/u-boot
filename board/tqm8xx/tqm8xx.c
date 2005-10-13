@@ -106,7 +106,7 @@ int checkboard (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
-	unsigned char *s = getenv ("serial#");
+	char *s = getenv ("serial#");
 
 	puts ("Board: ");
 
@@ -215,7 +215,7 @@ long int initdram (int board_type)
 	 *
 	 * try 8 column mode
 	 */
-	size8 = dram_size (CFG_MAMR_8COL, (ulong *) SDRAM_BASE2_PRELIM,
+	size8 = dram_size (CFG_MAMR_8COL, SDRAM_BASE2_PRELIM,
 					   SDRAM_MAX_SIZE);
 	debug ("SDRAM Bank 0 in 8 column mode: %ld MB\n", size8 >> 20);
 
@@ -224,7 +224,7 @@ long int initdram (int board_type)
 	/*
 	 * try 9 column mode
 	 */
-	size9 = dram_size (CFG_MAMR_9COL, (ulong *) SDRAM_BASE2_PRELIM,
+	size9 = dram_size (CFG_MAMR_9COL, SDRAM_BASE2_PRELIM,
 					   SDRAM_MAX_SIZE);
 	debug ("SDRAM Bank 0 in 9 column mode: %ld MB\n", size9 >> 20);
 
@@ -263,7 +263,7 @@ long int initdram (int board_type)
 		 * [9 column SDRAM may also be used in 8 column mode,
 		 *  but then only half the real size will be used.]
 		 */
-		size_b1 = dram_size (memctl->memc_mamr, (ulong *) SDRAM_BASE3_PRELIM,
+		size_b1 = dram_size (memctl->memc_mamr, (long int *)SDRAM_BASE3_PRELIM,
 				     SDRAM_MAX_SIZE);
 		debug ("SDRAM Bank 1: %ld MB\n", size_b1 >> 20);
 	} else {

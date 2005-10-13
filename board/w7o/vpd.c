@@ -125,7 +125,7 @@ static int vpd_is_valid(unsigned dev_addr, unsigned char *buf)
     unsigned short  stored_crc16, calc_crc16 = 0xffff;
 
     /* Check Eyecatcher */
-    if (strncmp(vpd->header.eyecatcher, VPD_EYECATCHER, VPD_EYE_SIZE) != 0) {
+    if (strncmp((char *)(vpd->header.eyecatcher), VPD_EYECATCHER, VPD_EYE_SIZE) != 0) {
 	unsigned offset = 0;
 	if (dev_addr == CFG_DEF_EEPROM_ADDR)
 	    offset += SDRAM_SPD_DATA_SIZE;
@@ -259,7 +259,7 @@ int vpd_get_data(unsigned char dev_addr, VPD *vpdInfo)
 	    case VPD_PID_PID:
 		if (strlen_ok(packet, MAX_PROD_ID)) {
 		    strncpy(vpdInfo->productId,
-			    packet->data, packet->size);
+			    (char *)(packet->data), packet->size);
 		}
 		break;
 	    case VPD_PID_REV:

@@ -39,7 +39,7 @@ extern __inline__ void st_le32(volatile unsigned *addr, const unsigned val)
 #  define __arch_swab16(x) ld_le16(&x)
 #  define __arch_swab32(x) ld_le32(&x)
 #else
-static __inline__ __const__ __u16 ___arch__swab16(__u16 value)
+static __inline__ __attribute__((const)) __u16 ___arch__swab16(__u16 value)
 {
 	__u16 result;
 
@@ -49,7 +49,7 @@ static __inline__ __const__ __u16 ___arch__swab16(__u16 value)
 	return result;
 }
 
-static __inline__ __const__ __u32 ___arch__swab32(__u32 value)
+static __inline__ __attribute__((const)) __u32 ___arch__swab32(__u32 value)
 {
 	__u32 result;
 

@@ -169,7 +169,7 @@ static int fpga_load (fpga_t* fpga, ulong addr, int checkall)
 	}
     }
 
-    if (checkall && fpga_get_version(fpga, hdr.ih_name) < 0)
+    if (checkall && fpga_get_version(fpga, (char *)(hdr.ih_name)) < 0)
 	return 1;
 
     /* align length */
@@ -341,7 +341,7 @@ int fpga_init (void)
 	}
 
 	hdr = (image_header_t *)addr;
-	if ((new_id = fpga_get_version(fpga, hdr->ih_name)) == -1)
+	if ((new_id = fpga_get_version(fpga, (char *)(hdr->ih_name))) == -1)
 	    return 1;
 
 	do_load = 1;

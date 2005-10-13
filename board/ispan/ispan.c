@@ -290,7 +290,7 @@ static int hwc_serial_number (void)
 {
 	int sn = -1;
 
-	if (!seeprom_read (0xa0, (char *) &sn, sizeof (sn))) {
+	if (!seeprom_read (0xa0, (uchar *) &sn, sizeof (sn))) {
 		sn = cpu_to_le32 (sn);
 	}
 	return sn;
@@ -300,7 +300,7 @@ static int hwc_mac_address (char *str)
 {
 	char mac[6];
 
-	if (!seeprom_read (0xb0, mac, sizeof (mac))) {
+	if (!seeprom_read (0xb0, (uchar *)mac, sizeof (mac))) {
 		sprintf (str, "%02X:%02X:%02X:%02X:%02X:%02X",
 				 mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 	} else {

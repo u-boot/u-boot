@@ -275,7 +275,7 @@ int misc_init_r (void)
 		 * Rewrite pci config regs (only after soft-reset with magic set)
 		 */
 		ptr = (unsigned int *)PCI_REGS_ADDR;
-		if (crc32(0, (char *)PCI_REGS_ADDR+4, PCI_REGS_LEN-4) == *ptr) {
+		if (crc32(0, (uchar *)PCI_REGS_ADDR+4, PCI_REGS_LEN-4) == *ptr) {
 			puts("Restoring PCI Configurations Regs!\n");
 			ptr = (unsigned int *)PCI_REGS_ADDR + 1;
 			for (i=0; i<0x40; i+=4) {
@@ -322,7 +322,7 @@ int checkboard (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
-	unsigned char str[64];
+	char str[64];
 	int i = getenv_r ("serial#", str, sizeof(str));
 
 	puts ("Board: ");

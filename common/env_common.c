@@ -283,7 +283,7 @@ int env_complete(char *var, int maxv, char *cmdv[], int bufsz, char *buf)
 		for (nxt=i; env_get_char(nxt) != '\0'; ++nxt)
 			;
 
-		lval = env_get_addr(i);
+		lval = (char *)env_get_addr(i);
 		rval = strchr(lval, '=');
 		if (rval != NULL) {
 			vallen = rval - lval;

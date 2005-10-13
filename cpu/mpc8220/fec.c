@@ -330,7 +330,7 @@ static int mpc8220_fec_init (struct eth_device *dev, bd_t * bis)
 	 * Set individual address filter for unicast address
 	 * and set physical address registers.
 	 */
-	mpc8220_fec_set_hwaddr (fec, dev->enetaddr);
+	mpc8220_fec_set_hwaddr (fec, (char *)(dev->enetaddr));
 
 	/*
 	 * Set multicast address filter

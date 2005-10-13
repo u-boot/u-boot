@@ -77,7 +77,7 @@ const uint sdram_table[] =
 
 int checkboard (void)
 {
-    unsigned char *s = getenv("serial#");
+    char *s = getenv("serial#");
     int board_type;
 
     if (!s || strncmp(s, "SVM8", 4)) {

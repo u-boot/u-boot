@@ -320,7 +320,7 @@ static int mpc5xxx_fec_init(struct eth_device *dev, bd_t * bis)
 	 * Set individual address filter for unicast address
 	 * and set physical address registers.
 	 */
-	mpc5xxx_fec_set_hwaddr(fec, dev->enetaddr);
+	mpc5xxx_fec_set_hwaddr(fec, (char *)dev->enetaddr);
 
 	/*
 	 * Set multicast address filter
@@ -785,7 +785,7 @@ static int mpc5xxx_fec_recv(struct eth_device *dev)
 	unsigned long ievent;
 	int frame_length, len = 0;
 	NBUF *frame;
-	char buff[FEC_MAX_PKT_SIZE];
+	uchar buff[FEC_MAX_PKT_SIZE];
 
 #if (DEBUG & 0x1)
 	printf ("mpc5xxx_fec_recv %d Start...\n", fec->rbdIndex);

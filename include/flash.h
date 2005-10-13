@@ -83,7 +83,7 @@ extern int flash_sect_protect (int flag, ulong addr_first, ulong addr_last);
 
 /* common/flash.c */
 extern void flash_protect (int flag, ulong from, ulong to, flash_info_t *info);
-extern int flash_write (uchar *, ulong, ulong);
+extern int flash_write (char *, ulong, ulong);
 extern flash_info_t *addr2info (ulong);
 extern int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt);
 

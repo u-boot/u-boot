@@ -155,7 +155,7 @@ void isa_write_table(SIO_LOGDEV_TABLE *ldt,unsigned char ldev)
 
 void isa_sio_loadtable(void)
 {
-	unsigned char *s = getenv("floppy");
+	char *s = getenv("floppy");
 	/* setup Floppy device 0*/
 	isa_write_table((SIO_LOGDEV_TABLE *)&sio_fdc,0);
 	/* setup parallel port device 3 */

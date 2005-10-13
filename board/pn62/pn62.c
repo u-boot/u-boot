@@ -167,7 +167,7 @@ static int get_serial_number (char *string, int size)
 	if (size < I2155X_VPD_SN_SIZE)
 		size = I2155X_VPD_SN_SIZE;
 	for (i = 0; i < (size - 1); i++) {
-		i2155x_read_vpd (I2155X_VPD_SN_START + i, 1, &c);
+		i2155x_read_vpd (I2155X_VPD_SN_START + i, 1, (uchar *)&c);
 		if (c == '\0')
 			break;
 		string[i] = c;

@@ -78,7 +78,7 @@ store_block (unsigned block, uchar * src, unsigned len)
 	}
 
 	if (rc) { /* Flash is destination for this packet */
-		rc = flash_write ((uchar *)src, (ulong)(load_addr+offset), len);
+		rc = flash_write ((char *)src, (ulong)(load_addr+offset), len);
 		if (rc) {
 			flash_perror (rc);
 			NetState = NETLOOP_FAIL;

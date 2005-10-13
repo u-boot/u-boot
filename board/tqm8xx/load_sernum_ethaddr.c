@@ -96,10 +96,10 @@ void load_sernum_ethaddr (void)
 
 	/* set serial# and ethaddr if not yet defined */
 	if (getenv("serial#") == NULL) {
-		setenv ("serial#", serial);
+		setenv ((char *)"serial#", (char *)serial);
 	}
 
 	if (getenv("ethaddr") == NULL) {
-		setenv ("ethaddr", ethaddr);
+		setenv ((char *)"ethaddr", (char *)ethaddr);
 	}
 }

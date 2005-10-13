@@ -461,7 +461,7 @@ mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char *argv[])
 	 */
 	do {
 		printf("%08lx:", addr);
-		if(i2c_read(chip, addr, alen, (char *)&data, size) != 0) {
+		if(i2c_read(chip, addr, alen, (uchar *)&data, size) != 0) {
 			puts ("\nError reading the chip,\n");
 		} else {
 			data = cpu_to_be32(data);
@@ -510,7 +510,7 @@ mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char *argv[])
 				 */
 				reset_cmd_timeout();
 #endif
-				if(i2c_write(chip, addr, alen, (char *)&data, size) != 0) {
+				if(i2c_write(chip, addr, alen, (uchar *)&data, size) != 0) {
 					puts ("Error writing the chip.\n");
 				}
 #ifdef CFG_EEPROM_PAGE_WRITE_DELAY_MS

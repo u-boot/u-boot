@@ -30,8 +30,8 @@ int board_early_init_f (void)
 
 int checkboard (void)
 {
-	unsigned char *s = getenv ("serial#");
-	unsigned char *e;
+	char *s = getenv ("serial#");
+	char *e;
 
 	if (!s || strncmp (s, "ML2", 9)) {
 		printf ("### No HW ID - assuming ML2");

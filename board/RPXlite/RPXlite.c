@@ -137,7 +137,7 @@ long int initdram (int board_type)
 	 * try 10 column mode
 	 */
 
-	size10 = dram_size (CFG_MAMR_10COL, (ulong *) SDRAM_BASE_PRELIM,
+	size10 = dram_size (CFG_MAMR_10COL, SDRAM_BASE_PRELIM,
 			    SDRAM_MAX_SIZE);
 
 	return (size10);

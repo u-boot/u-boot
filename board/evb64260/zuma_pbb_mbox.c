@@ -116,7 +116,7 @@ zuma_mbox_dump(void)
 static void
 zuma_mbox_setenv(void)
 {
-  unsigned char *data, buf[32];
+  char *data, buf[32];
   unsigned char save = 0;
 
   data = getenv("baudrate");

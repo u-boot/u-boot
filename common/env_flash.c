@@ -202,7 +202,7 @@ int saveenv(void)
 	debug (" %08lX ... %08lX ...",
 		(ulong)&(flash_addr_new->data),
 		sizeof(env_ptr->data)+(ulong)&(flash_addr_new->data));
-	if ((rc = flash_write(env_ptr->data,
+	if ((rc = flash_write((char *)env_ptr->data,
 			(ulong)&(flash_addr_new->data),
 			sizeof(env_ptr->data))) ||
 	    (rc = flash_write((char *)&(env_ptr->crc),
@@ -291,7 +291,7 @@ int saveenv(void)
 	ulong	flash_offset;
 	uchar	env_buffer[CFG_ENV_SECT_SIZE];
 #else
-	uchar *env_buffer = (char *)env_ptr;
+	uchar *env_buffer = (uchar *)env_ptr;
 #endif	/* CFG_ENV_SECT_SIZE */
 	int rcode = 0;
 
@@ -337,7 +337,7 @@ int saveenv(void)
 		return 1;
 
 	puts ("Writing to Flash... ");
-	rc = flash_write(env_buffer, flash_sect_addr, len);
+	rc = flash_write((char *)env_buffer, flash_sect_addr, len);
 	if (rc != 0) {
 		flash_perror (rc);
 		rcode = 1;

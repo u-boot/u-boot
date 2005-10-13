@@ -456,7 +456,7 @@ long int spd_sdram(int(read_spd)(uint addr))
 
 int spd_read(uint addr)
 {
-	char data[2];
+	uchar data[2];
 
 	if (i2c_read(SPD_EEPROM_ADDRESS, addr, 1, data, 1) == 0)
 		return (int)data[0];

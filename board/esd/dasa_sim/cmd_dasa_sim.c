@@ -111,7 +111,7 @@ static void showPci9054 (void)
 		for (i = 0; i < 4; i++) {
 			pci_read_config_dword (CFG_PCI9054_DEV_FN,
 						l * 16 + i * 4,
-						&val);
+						(unsigned int *)&val);
 			printf ("%08x ", val);
 		}
 		printf ("\n");

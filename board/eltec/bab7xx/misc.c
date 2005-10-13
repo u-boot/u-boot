@@ -58,7 +58,7 @@ unsigned char  scsi_sym53c8xx_ccf = 0x13;
 int misc_init_r (void)
 {
     revinfo eerev;
-    u_char *ptr;
+    char *ptr;
     u_int  i, l, initSrom, copyNv;
     char buf[256];
     char hex[23] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0,
@@ -139,7 +139,7 @@ int misc_init_r (void)
     if (strcmp (eerev.magic, "ELTEC") != 0)
     {
 	/* srom is not initialized -> create a default revision info */
-	for (i = 0, ptr = (u_char *)&eerev; i < sizeof(revinfo); i++)
+	for (i = 0, ptr = (char *)&eerev; i < sizeof(revinfo); i++)
 	    *ptr++ = 0x00;
 	strcpy(eerev.magic, "ELTEC");
 	eerev.revrev[0] = 1;

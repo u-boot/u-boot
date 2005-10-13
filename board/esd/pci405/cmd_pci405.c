@@ -91,7 +91,7 @@ int do_loadpci(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			pci_read_config_dword(PCIDEVID_405GP, i, ptr++);
 		}
 		ptr = (unsigned int *)PCI_REGS_ADDR;
-		*ptr = crc32(0, (char *)PCI_REGS_ADDR+4, PCI_REGS_LEN-4);
+		*ptr = crc32(0, (uchar *)PCI_REGS_ADDR+4, PCI_REGS_LEN-4);
 
 		printf("\nStoring PCI Configuration Regs...\n");
 	} else {
@@ -874,7 +874,7 @@ int do_savepci(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		pci_read_config_dword(PCIDEVID_405GP, i, ptr++);
 	}
 	ptr = (unsigned int *)PCI_REGS_ADDR;
-	*ptr = crc32(0, (char *)PCI_REGS_ADDR+4, PCI_REGS_LEN-4);
+	*ptr = crc32(0, (uchar *)PCI_REGS_ADDR+4, PCI_REGS_LEN-4);
 
 	printf("\nStoring PCI Configuration Regs...\n");
 
@@ -896,7 +896,7 @@ int do_restorepci(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	 * Rewrite pci config regs (only after soft-reset with magic set)
 	 */
 	ptr = (unsigned int *)PCI_REGS_ADDR;
-	if (crc32(0, (char *)PCI_REGS_ADDR+4, PCI_REGS_LEN-4) == *ptr) {
+	if (crc32(0, (uchar *)PCI_REGS_ADDR+4, PCI_REGS_LEN-4) == *ptr) {
 		puts("Restoring PCI Configurations Regs!\n");
 		ptr = (unsigned int *)PCI_REGS_ADDR + 1;
 		for (i=0; i<0x40; i+=4) {

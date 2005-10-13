@@ -501,7 +501,7 @@ static void video_drawchars (int xx, int yy, unsigned char *s, int count)
 
 static inline void video_drawstring (int xx, int yy, unsigned char *s)
 {
-	video_drawchars (xx, yy, s, strlen (s));
+	video_drawchars (xx, yy, s, strlen ((char *)s));
 }
 
 /*****************************************************************************/
@@ -548,12 +548,12 @@ void console_cursor (int state)
 		sprintf (info, " %02d:%02d:%02d ", tm.tm_hour, tm.tm_min,
 			 tm.tm_sec);
 		video_drawstring (VIDEO_VISIBLE_COLS - 10 * VIDEO_FONT_WIDTH,
-				  VIDEO_INFO_Y, info);
+				  VIDEO_INFO_Y, (uchar *)info);
 
 		sprintf (info, "%02d.%02d.%04d", tm.tm_mday, tm.tm_mon,
 			 tm.tm_year);
 		video_drawstring (VIDEO_VISIBLE_COLS - 10 * VIDEO_FONT_WIDTH,
-				  VIDEO_INFO_Y + 1 * VIDEO_FONT_HEIGHT, info);
+				  VIDEO_INFO_Y + 1 * VIDEO_FONT_HEIGHT, (uchar *)info);
 	}
 #endif
 
@@ -1119,7 +1119,7 @@ static void *video_logo (void)
 	logo_plot (video_fb_address, VIDEO_COLS, 0, 0);
 
 	sprintf (info, " %s", &version_string);
-	video_drawstring (VIDEO_INFO_X, VIDEO_INFO_Y, info);
+	video_drawstring (VIDEO_INFO_X, VIDEO_INFO_Y, (uchar *)info);
 
 #ifdef CONFIG_CONSOLE_EXTRA_INFO
 	{
@@ -1130,7 +1130,7 @@ static void *video_logo (void)
 			if (*info)
 				video_drawstring (VIDEO_INFO_X,
 						  VIDEO_INFO_Y + i * VIDEO_FONT_HEIGHT,
-						  info);
+						  (uchar *)info);
 		}
 	}
 #endif
