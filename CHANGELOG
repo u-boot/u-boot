@@ -2,6 +2,10 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Add fat & ext2 support to AMCC 440EP boards Yosemite & Bamboo.
+  Fix identification on ext2ls help entry.
+  Patch by Stefan Roese, 14 Oct 2005
+
 * Add missing files for Pantelis Antoniou's patch
   Patch by Pantelis Antoniou, 04 Sep 2005
 
