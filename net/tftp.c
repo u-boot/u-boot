@@ -58,7 +58,7 @@ static char default_filename[DEFAULT_NAME_LEN];
 static char *tftp_filename;
 
 #ifdef CFG_DIRECT_FLASH_TFTP
-extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
+extern flash_info_t flash_info[];
 #endif
 
 static __inline__ void

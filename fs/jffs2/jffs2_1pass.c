@@ -263,7 +263,7 @@ static inline void *get_fl_mem_nor(u32 off)
 	u32 addr = off;
 	struct mtdids *id = current_part->dev->id;
 
-	extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
+	extern flash_info_t flash_info[];
 	flash_info_t *flash = &flash_info[id->num];
 
 	addr += flash->start[0];

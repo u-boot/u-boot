@@ -118,41 +118,50 @@ int get_clocks (void)
 		return -1;
 
 #ifndef CFG_HRCW_HIGH
-# error "CFG_HRCW_HIGH must be defined in include/configs/MCP83XXADS.h"
+# error "CFG_HRCW_HIGH must be defined in board config file"
 #endif /* CFG_HCWD_HIGH */
 
 #if (CFG_HRCW_HIGH & HRCWH_PCI_HOST)
+
 # ifndef CONFIG_83XX_CLKIN
-#  error "In PCI Host Mode, CONFIG_83XX_CLKIN must be defined in include/configs/MCP83XXADS.h"
+#  error "In PCI Host Mode, CONFIG_83XX_CLKIN must be defined in board config file"
 # endif /* CONFIG_83XX_CLKIN */
 # ifdef CONFIG_83XX_PCICLK
-#  warning "In PCI Host Mode, CONFIG_83XX_PCICLK in include/configs/MCP83XXADS.h is igonred."
+#  warning "In PCI Host Mode, CONFIG_83XX_PCICLK in board config file is igonred"
 # endif /* CONFIG_83XX_PCICLK */
-/* PCI Host Mode */
+
+	/* PCI Host Mode */
 	if (!(im->reset.rcwh & RCWH_PCIHOST)) {
-		/* though RCWH_PCIHOST is defined in CFG_HRCW_HIGH the im->reset.rcwhr PCI Host Mode is disabled */
-		/* FIXME: findout if there is a way to issue some warning */
+		/* though RCWH_PCIHOST is defined in CFG_HRCW_HIGH 
+		 * the im->reset.rcwhr PCI Host Mode is disabled
+		 * FIXME: findout if there is a way to issue some warning */
 		return -2;
 	}
 	if (im->clk.spmr & SPMR_CKID) {
-		pci_sync_in = CONFIG_83XX_CLKIN / 2; /* PCI Clock is half CONFIG_83XX_CLKIN */
+		/* PCI Clock is half CONFIG_83XX_CLKIN */
+		pci_sync_in = CONFIG_83XX_CLKIN / 2;
 	}
 	else {
 		pci_sync_in = CONFIG_83XX_CLKIN;
 	}
-#else
+
+#else /* (CFG_HRCW_HIGH & HRCWH_PCI_HOST) */
+
 # ifdef CONFIG_83XX_CLKIN
-#  warning "In PCI Agent Mode, CONFIG_83XX_CLKIN in include/configs/MCP83XXADS.h is igonred."
+#  warning "In PCI Agent Mode, CONFIG_83XX_CLKIN in board config file is igonred"
 # endif /* CONFIG_83XX_CLKIN */
 # ifndef CONFIG_83XX_PCICLK
-#  error "In PCI Agent Mode, CONFIG_83XX_PCICLK must be defined in include/configs/MCP83XXADS.h"
+#  error "In PCI Agent Mode, CONFIG_83XX_PCICLK must be defined in board config file"
 # endif /* CONFIG_83XX_PCICLK */
-/* PCI Agent Mode */
+
+	/* PCI Agent Mode */
 	if (im->reset.rcwh & RCWH_PCIHOST) {
-		/* though RCWH_PCIHOST is not defined in CFG_HRCW_HIGH the im->reset.rcwhr PCI Host Mode is enabled */
+		/* though RCWH_PCIHOST is not defined in CFG_HRCW_HIGH 
+		 * the im->reset.rcwhr PCI Host Mode is enabled */
 		return -3;
 	}
 	pci_sync_in = CONFIG_83XX_PCICLK;
+
 #endif /* (CFG_HRCW_HIGH | RCWH_PCIHOST) */
 
 	/* we have up to date pci_sync_in */
@@ -343,79 +352,14 @@ int print_clock_conf (void)
 	printf("Clock configuration:\n");
 	printf("  Coherent System Bus: %4d MHz\n",gd->csb_clk/1000000);
 	printf("  Core:                %4d MHz\n",gd->core_clk/1000000);
-	printf("  Local Bus Controller:%4d MHz\n",gd->lbiu_clk/1000000);
+	debug("  Local Bus Controller:%4d MHz\n",gd->lbiu_clk/1000000);
 	printf("  Local Bus:           %4d MHz\n",gd->lclk_clk/1000000);
-	printf("  DDR:                 %4d MHz\n",gd->ddr_clk/1000000);
-	printf("  I2C:                 %4d MHz\n",gd->i2c_clk/1000000);
-	printf("  TSEC1:               %4d MHz\n",gd->tsec1_clk/1000000);
-	printf("  TSEC2:               %4d MHz\n",gd->tsec2_clk/1000000);
-	printf("  USB MPH:             %4d MHz\n",gd->usbmph_clk/1000000);
-	printf("  USB DR:              %4d MHz\n",gd->usbdr_clk/1000000);
+	debug("  DDR:                 %4d MHz\n",gd->ddr_clk/1000000);
+	debug("  I2C:                 %4d MHz\n",gd->i2c_clk/1000000);
+	debug("  TSEC1:               %4d MHz\n",gd->tsec1_clk/1000000);
+	debug("  TSEC2:               %4d MHz\n",gd->tsec2_clk/1000000);
+	debug("  USB MPH:             %4d MHz\n",gd->usbmph_clk/1000000);
+	debug("  USB DR:              %4d MHz\n",gd->usbdr_clk/1000000);
 
-#if 0
-	DECLARE_GLOBAL_DATA_PTR;
-
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
-	ulong sccr, dfbrg;
-	ulong scmr, corecnf, busdf, cpmdf, plldf, pllmf;
-	corecnf_t *cp;
-
-	sccr = immap->im_clkrst.car_sccr;
-	dfbrg = (sccr & SCCR_DFBRG_MSK) >> SCCR_DFBRG_SHIFT;
-
-	scmr = immap->im_clkrst.car_scmr;
-	corecnf = (scmr & SCMR_CORECNF_MSK) >> SCMR_CORECNF_SHIFT;
-	busdf = (scmr & SCMR_BUSDF_MSK) >> SCMR_BUSDF_SHIFT;
-	cpmdf = (scmr & SCMR_CPMDF_MSK) >> SCMR_CPMDF_SHIFT;
-	plldf = (scmr & SCMR_PLLDF) ? 1 : 0;
-	pllmf = (scmr & SCMR_PLLMF_MSK) >> SCMR_PLLMF_SHIFT;
-
-	cp = &corecnf_tab[corecnf];
-
-	puts (CPU_ID_STR " Clock Configuration\n - Bus-to-Core Mult ");
-
-	switch (cp->b2c_mult) {
-	case _byp:
-		puts ("BYPASS");
-		break;
-
-	case _off:
-		puts ("OFF");
-		break;
-
-	case _unk:
-		puts ("UNKNOWN");
-		break;
-
-	default:
-		printf ("%d%sx",
-			cp->b2c_mult / 2,
-			(cp->b2c_mult % 2) ? ".5" : "");
-		break;
-	}
-
-	printf (", VCO Div %d, 60x Bus Freq %s, Core Freq %s\n",
-			cp->vco_div, cp->freq_60x, cp->freq_core);
-
-	printf (" - dfbrg %ld, corecnf 0x%02lx, busdf %ld, cpmdf %ld, "
-			"plldf %ld, pllmf %ld\n", dfbrg, corecnf, busdf, cpmdf, plldf,
-			pllmf);
-
-	printf (" - vco_out %10ld, scc_clk %10ld, brg_clk %10ld\n",
-			gd->vco_out, gd->scc_clk, gd->brg_clk);
-
-	printf (" - cpu_clk %10ld, cpm_clk %10ld, bus_clk %10ld\n",
-			gd->cpu_clk, gd->cpm_clk, gd->bus_clk);
-
-	if (sccr & SCCR_PCI_MODE) {
-		uint pci_div;
-
-		pci_div = ( (sccr & SCCR_PCI_MODCK) ? 2 : 1) *
-			( ( (sccr & SCCR_PCIDF_MSK) >> SCCR_PCIDF_SHIFT) + 1);
-
-		printf (" - pci_clk %10ld\n", (gd->cpm_clk * 2) / pci_div);
-	}
-	putc ('\n');
-#endif
 	return 0;
 }

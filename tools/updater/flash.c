@@ -24,7 +24,7 @@
 #include <common.h>
 #include <flash.h>
 
-extern flash_info_t  flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
+extern flash_info_t  flash_info[]; /* info for FLASH chips */
 
 /*-----------------------------------------------------------------------
  * Functions

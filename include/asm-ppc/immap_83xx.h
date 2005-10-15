@@ -613,9 +613,9 @@ typedef struct gpio8349 {
 typedef struct ddr_cs_bnds{
 	u32 csbnds;
 #define CSBNDS_SA 0x00FF0000
-#define CSBNDS_SA_SHIFT   16
+#define CSBNDS_SA_SHIFT    8
 #define CSBNDS_EA 0x000000FF
-#define CSBNDS_EA_SHIFT    0
+#define CSBNDS_EA_SHIFT   24
 	u8  res0[4];
 } ddr_cs_bnds_t;
 
@@ -652,6 +652,8 @@ typedef struct ddr8349{
 #define TIMING_CFG1_ACTTOACT_SHIFT    4
 #define TIMING_CFG1_WRTORD   0x00000007
 #define TIMING_CFG1_WRTORD_SHIFT      0
+#define TIMING_CFG1_CASLAT_20 0x00030000  /* CAS latency = 2.0 */
+#define TIMING_CFG1_CASLAT_25 0x00040000  /* CAS latency = 2.5 */
 
 	u32 timing_cfg_2;       /**< SDRAM Timing Configuration 2 */
 #define TIMING_CFG2_CPO           0x0F000000
@@ -659,6 +661,7 @@ typedef struct ddr8349{
 #define TIMING_CFG2_ACSM          0x00080000
 #define TIMING_CFG2_WR_DATA_DELAY 0x00001C00
 #define TIMING_CFG2_WR_DATA_DELAY_SHIFT   10
+#define TIMING_CFG2_CPO_DEF       0x00000000  /* default (= CASLAT + 1) */
 
 	u32 sdram_cfg;          /**< SDRAM Control Configuration */
 #define SDRAM_CFG_MEM_EN     0x80000000
@@ -672,6 +675,7 @@ typedef struct ddr8349{
 #define SDRAM_CFG_8_BE       0x00040000
 #define SDRAM_CFG_NCAP       0x00020000
 #define SDRAM_CFG_2T_EN      0x00008000
+#define SDRAM_CFG_SDRAM_TYPE_DDR 0x02000000
 
 	u8 res2[4];
 	u32 sdram_mode;         /**< SDRAM Mode Configuration */
@@ -679,6 +683,25 @@ typedef struct ddr8349{
 #define SDRAM_MODE_ESD_SHIFT   16
 #define SDRAM_MODE_SD  0x0000FFFF
 #define SDRAM_MODE_SD_SHIFT     0
+#define DDR_MODE_EXT_MODEREG    0x4000  /* select extended mode reg */
+#define DDR_MODE_EXT_OPMODE     0x3FF8  /* operating mode, mask */
+#define DDR_MODE_EXT_OP_NORMAL  0x0000  /* normal operation */
+#define DDR_MODE_QFC            0x0004  /* QFC / compatibility, mask */
+#define DDR_MODE_QFC_COMP       0x0000  /* compatible to older SDRAMs */
+#define DDR_MODE_WEAK           0x0002  /* weak drivers */
+#define DDR_MODE_DLL_DIS        0x0001  /* disable DLL */
+#define DDR_MODE_CASLAT         0x0070  /* CAS latency, mask */
+#define DDR_MODE_CASLAT_15      0x0010  /* CAS latency 1.5 */
+#define DDR_MODE_CASLAT_20      0x0020  /* CAS latency 2 */
+#define DDR_MODE_CASLAT_25      0x0060  /* CAS latency 2.5 */
+#define DDR_MODE_CASLAT_30      0x0030  /* CAS latency 3 */
+#define DDR_MODE_BTYPE_SEQ      0x0000  /* sequential burst */
+#define DDR_MODE_BTYPE_ILVD     0x0008  /* interleaved burst */
+#define DDR_MODE_BLEN_2         0x0001  /* burst length 2 */
+#define DDR_MODE_BLEN_4         0x0002  /* burst length 4 */
+#define DDR_REFINT_166MHZ_7US   1302        /* exact value for 7.8125 µs */
+#define DDR_BSTOPRE     256     /* use 256 cycles as a starting point */
+#define DDR_MODE_MODEREG        0x0000  /* select mode register */
 
 	u8 res3[8];
 	u32 sdram_interval;     /**< SDRAM Interval Configuration */
@@ -688,6 +711,9 @@ typedef struct ddr8349{
 #define SDRAM_INTERVAL_BSTOPRE_SHIFT    0
 	u8   res9[8];
 	u32  sdram_clk_cntl;
+#define DDR_SDRAM_CLK_CNTL_SS_EN		0x80000000
+#define DDR_SDRAM_CLK_CNTL_CLK_ADJUST_05	0x02000000
+
 	u8 res4[0xCCC];
 	u32 data_err_inject_hi; /**< Memory Data Path Error Injection Mask High */
 	u32 data_err_inject_lo; /**< Memory Data Path Error Injection Mask Low */

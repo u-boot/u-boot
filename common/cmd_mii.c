@@ -91,7 +91,7 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		 * Look for any and all PHYs.  Valid addresses are 0..31.
 		 */
 		if (argc >= 3) {
-			start = addr; end = addr + 1;
+			start = addrlo; end = addrhi + 1;
 		} else {
 			start = 0; end = 32;
 		}
