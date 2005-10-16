@@ -236,7 +236,11 @@
 				CFG_CMD_PING	| \
 				CFG_CMD_REGINFO	| \
 				CFG_CMD_SDRAM	| \
+				CFG_CMD_FAT	| \
+				CFG_CMD_EXT2	| \
 				CFG_CMD_USB	)
+
+#define CONFIG_SUPPORT_VFAT
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>

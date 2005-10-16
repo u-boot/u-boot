@@ -152,7 +152,7 @@ int do_ext2ls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	ext2ls,	4,	1,	do_ext2ls,
-	"ext2ls- list files in a directory (default /)\n",
+	"ext2ls  - list files in a directory (default /)\n",
 	"<interface> <dev[:part]> [directory]\n"
 	"    - list files from 'dev' on 'interface' in a 'directory'\n"
 );
