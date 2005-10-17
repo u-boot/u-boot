@@ -32,7 +32,6 @@ COBJS	= traps.o \
 	  cpu_init.o \
 	  speed.o \
 	  interrupts.o \
-	  pci.o \
 	  i2c.o \
 	  spd_sdram.o
 

@@ -329,6 +329,7 @@ int get_clocks (void)
 	gd->lbiu_clk   = lbiu_clk  ;
 	gd->lclk_clk   = lclk_clk  ;
 	gd->ddr_clk    = ddr_clk   ;
+	gd->pci_clk    = pci_sync_in;
 
 	gd->cpu_clk = gd->core_clk;
 	gd->bus_clk = gd->lbiu_clk;

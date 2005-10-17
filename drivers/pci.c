@@ -142,7 +142,7 @@ struct pci_controller *pci_bus_to_hose (int bus)
 		if (bus >= hose->first_busno && bus <= hose->last_busno)
 			return hose;
 
-	debug ("pci_bus_to_hose() failed\n");
+	printf("pci_bus_to_hose() failed\n");
 	return NULL;
 }
 

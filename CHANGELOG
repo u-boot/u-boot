@@ -2,6 +2,8 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Add PCI support for the TQM834x board.
+
 * Add fat & ext2 support to AMCC 440EP boards Yosemite & Bamboo.
   Fix identation on ext2ls help entry.
   Patch by Stefan Roese, 14 Oct 2005

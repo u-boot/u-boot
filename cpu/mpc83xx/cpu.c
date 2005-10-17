@@ -60,7 +60,9 @@ int checkcpu(void)
 		puts("Rev: Unknown\n");
 		return -1;	/* Not sure what this is */
 	}
-	printf("Rev: %02x at %s MHz\n",pvr & 0x0000FFFF, strmhz(buf, clock));
+	printf("Rev: %d.%d at %s MHz\n", (pvr & 0xf0) >> 4,
+		(pvr & 0x0f), strmhz(buf, clock));
+
 	return 0;
 }
 

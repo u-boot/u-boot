@@ -30,10 +30,7 @@
 #include <spd.h>
 #include <miiphy.h>
 #include <asm-ppc/mmu.h>
-
-#if defined(CONFIG_PCI)
 #include <pci.h>
-#endif
 
 #define IOSYNC			asm("eieio")
 #define ISYNC			asm("isync")
@@ -145,36 +142,31 @@ int checkboard (void)
 	puts("Board: TQM834x\n");
 
 #ifdef CONFIG_PCI
-	printf("PCI1:  32 bit, %d MHz (compiled)\n",
-			CONFIG_SYS_CLK_FREQ / 1000000);
-#else
-	printf("PCI1:  disabled\n");
-#endif
+	DECLARE_GLOBAL_DATA_PTR;
+	volatile immap_t * immr;
+	u32 w, f;
 
+	immr = (immap_t *)CFG_IMMRBAR;
+	if (!(immr->reset.rcwh & RCWH_PCIHOST)) {
+		printf("PCI:   NOT in host mode..?!\n");
+		return 0;
+	}
+
+	/* get bus width */
+	w = 32;
+	if (immr->reset.rcwh & RCWH_PCI64) 
+		w = 64;
+
+	/* get clock */
+	f = gd->pci_clk;
+
+	printf("PCI1:  %d bit, %d MHz\n", w, f / 1000000);
+#else
+	printf("PCI:   disabled\n");
+#endif
 	return 0;
 }
 
-#if defined(CONFIG_PCI)
-/*
- * Initialize PCI Devices, report devices found
- */
-
-/* FIXME: No PCI support */
-
-#endif /* CONFIG_PCI */
-
-/**************************************************************************
- * pci_init_board()
- */
-void
-pci_init_board(void)
-{
-#ifdef CONFIG_PCI
-	extern void pci_mpc83xx_init(volatile struct pci_controller *hose);
-
-	pci_mpc83xx_init(hose);
-#endif /* CONFIG_PCI */
-}
 
 /**************************************************************************
  *

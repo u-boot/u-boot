@@ -122,6 +122,7 @@ extern int tqm834x_num_flash_banks;
 #define CFG_OR0_PRELIM		(CFG_PRELIM_OR_AM  | CFG_OR_TIMING_FLASH)
 
 #define CFG_LBLAWAR0_PRELIM	0x8000001D	/* 1 GiB window size (2^(size + 1)) */
+
 #define CFG_LBLAWBAR0_PRELIM	CFG_FLASH_BASE	/* Window base at flash base */
 
 /* disable remaining mappings */
@@ -241,7 +242,7 @@ extern int tqm834x_num_flash_banks;
 #if defined(CONFIG_TSEC_ENET)
 
 #ifndef CONFIG_NET_MULTI
-#define CONFIG_NET_MULTI		1
+#define CONFIG_NET_MULTI
 #endif
 
 #define CONFIG_MPC83XX_TSEC1		1
@@ -262,45 +263,32 @@ extern int tqm834x_num_flash_banks;
  * General PCI
  * Addresses are mapped 1-1.
  */
-/* FIXME: Real PCI support will come in a follow-up update. */
-#undef CONFIG_PCI
+#define CONFIG_PCI
 
-#define CFG_PCI1_MEM_BASE	0x80000000
-#define CFG_PCI1_MEM_PHYS	CFG_PCI1_MEM_BASE
-#define CFG_PCI1_MEM_SIZE	0x20000000	/* 512M */
-#define CFG_PCI1_IO_BASE	0x00000000
-#define CFG_PCI1_IO_PHYS	0xe2000000
-#define CFG_PCI1_IO_SIZE	0x1000000	/* 16M */
-
-#define CFG_PCI2_MEM_BASE	0xA0000000
-#define CFG_PCI2_MEM_PHYS	CFG_PCI2_MEM_BASE
-#define CFG_PCI2_MEM_SIZE	0x20000000	/* 512M */
-#define CFG_PCI2_IO_BASE	0x00000000
-#define CFG_PCI2_IO_PHYS	0xe3000000
-#define CFG_PCI2_IO_SIZE	0x1000000	/* 16M */
 #if defined(CONFIG_PCI)
 
-#define PCI_ALL_PCI1
-#if defined(PCI_64BIT)
-#undef PCI_ALL_PCI1
-#undef PCI_TWO_PCI1
-#undef PCI_ONE_PCI1
-#endif
+#define CONFIG_PCI_PNP                  /* do pci plug-and-play */
+#define CONFIG_PCI_SCAN_SHOW            /* show pci devices on startup */
 
-#define CONFIG_NET_MULTI
-#define CONFIG_PCI_PNP		/* do pci plug-and-play */
+/* PCI1 host bridge */
+#define CFG_PCI1_MEM_BASE       0xc0000000
+#define CFG_PCI1_MEM_PHYS       CFG_PCI1_MEM_BASE
+#define CFG_PCI1_MEM_SIZE       0x20000000      /* 512M */
+#define CFG_PCI1_IO_BASE        0xe2000000
+#define CFG_PCI1_IO_PHYS        CFG_PCI1_IO_BASE
+#define CFG_PCI1_IO_SIZE        0x1000000       /* 16M */
+
 
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
 
 #if !defined(CONFIG_PCI_PNP)
-	#define PCI_ENET0_IOADDR	0xFIXME
-	#define PCI_ENET0_MEMADDR	0xFIXME
-	#define PCI_IDSEL_NUMBER	0x0c 	/* slot0->3(IDSEL)=12->15 */
+	#define PCI_ENET0_IOADDR	CFG_PCI1_IO_BASE
+	#define PCI_ENET0_MEMADDR	CFG_PCI1_MEM_BASE
+	#define PCI_IDSEL_NUMBER	0x1c    /* slot0 (IDSEL) = 28 */
 #endif
 
-#undef CONFIG_PCI_SCAN_SHOW			/* show pci devices on startup */
-#define CFG_PCI_SUBSYS_VENDORID		0x1057  /* Motorola */
+#define CFG_PCI_SUBSYS_VENDORID		0x1957  /* Freescale */
 
 #endif	/* CONFIG_PCI */
 
@@ -418,7 +406,7 @@ extern int tqm834x_num_flash_banks;
 	HRCWH_PCI_HOST |\
 	HRCWH_32_BIT_PCI |\
 	HRCWH_PCI1_ARBITER_ENABLE |\
-	HRCWH_PCI2_ARBITER_ENABLE |\
+	HRCWH_PCI2_ARBITER_DISABLE |\
 	HRCWH_CORE_ENABLE |\
 	HRCWH_FROM_0X00000100 |\
 	HRCWH_BOOTSEQ_DISABLE |\

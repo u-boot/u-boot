@@ -28,43 +28,6 @@ typedef struct law8349 {
 #define LAWBAR_BAR         0xFFFFF000
 #define LAWBAR_RES	     ~(LAWBAR_BAR)
 	u32 ar; /* LBIU local access window attribute register */
-/*
- * This Macro were moved into mmu.h
- */
-#if 0
-/* 0 The local bus local access window n is disabled. 1 The local bus
- * local access window n is enabled and other LBLAWAR0 and LBLAWBAR0 fields
- * combine to identify an address range for this window.
- */
-#define LAWAR_EN           0x80000000
-/* Identifies the size of the window from the starting address. Window
- * size is 2^(SIZE+1) bytes. 000000–001010Reserved. Window is
- * undefined.
- */
-#define LAWAR_SIZE         0x0000003F
-#define	LAWAR_SIZE_4K	0x0000000B
-#define	LAWAR_SIZE_8K	0x0000000C
-#define	LAWAR_SIZE_16K	0x0000000D
-#define	LAWAR_SIZE_32K	0x0000000E
-#define	LAWAR_SIZE_64K	0x0000000F
-#define	LAWAR_SIZE_128K	0x00000010
-#define	LAWAR_SIZE_256K	0x00000011
-#define	LAWAR_SIZE_512K	0x00000012
-#define	LAWAR_SIZE_1M	0x00000013
-#define	LAWAR_SIZE_2M	0x00000014
-#define	LAWAR_SIZE_4M	0x00000015
-#define	LAWAR_SIZE_8M	0x00000016
-#define	LAWAR_SIZE_16M	0x00000017
-#define	LAWAR_SIZE_32M	0x00000018
-#define	LAWAR_SIZE_64M	0x00000019
-#define	LAWAR_SIZE_128M	0x0000001A
-#define	LAWAR_SIZE_256M	0x0000001B
-#define	LAWAR_SIZE_512M	0x0000001C
-#define	LAWAR_SIZE_1G	0x0000001D
-#define	LAWAR_SIZE_2G	0x0000001E
-#define LAWAR_RES          ~(LAWAR_EN|LAWAR_SIZE)
-#endif
-
 } law8349_t;
 
 /*

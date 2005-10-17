@@ -62,6 +62,7 @@ typedef	struct	global_data {
 	u32 lbiu_clk;
 	u32 lclk_clk;
 	u32 ddr_clk;
+	u32 pci_clk;
 #endif
 #if defined(CONFIG_MPC5xxx)
 	unsigned long	ipb_clk;
