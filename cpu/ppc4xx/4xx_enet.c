@@ -186,7 +186,9 @@ static void ppc_4xx_eth_halt (struct eth_device *dev)
 	/* EMAC RESET */
 	out32 (EMAC_M0 + hw_p->hw_addr, EMAC_M0_SRST);
 
+#ifndef CONFIG_NETCONSOLE
 	hw_p->print_speed = 1;	/* print speed message again next time */
+#endif
 
 	return;
 }
