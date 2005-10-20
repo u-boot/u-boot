@@ -100,6 +100,10 @@
 #error "CONFIG_MII has to be defined!"
 #endif
 
+#if defined(CONFIG_NETCONSOLE) && !defined(CONFIG_NET_MULTI)
+#error "CONFIG_NET_MULTI has to be defined for NetConsole"
+#endif
+
 #define EMAC_RESET_TIMEOUT 1000 /* 1000 ms reset timeout */
 #define PHY_AUTONEGOTIATE_TIMEOUT 4000	/* 4000 ms autonegotiate timeout */
 
@@ -110,10 +114,6 @@
  */
 #define ENET_MAX_MTU	       PKTSIZE
 #define ENET_MAX_MTU_ALIGNED   PKTSIZE_ALIGN
-
-/* define the number of channels implemented */
-#define EMAC_RXCHL	EMAC_NUM_DEV
-#define EMAC_TXCHL	EMAC_NUM_DEV
 
 /*-----------------------------------------------------------------------------+
  * Defines for MAL/EMAC interrupt conditions as reported in the UIC (Universal
@@ -142,6 +142,19 @@ static uint32_t mal_ier;
 struct eth_device *emac0_dev = NULL;
 #endif
 
+/*
+ * Get count of EMAC devices (doesn't have to be the max. possible number
+ * supported by the cpu)
+ */
+#if defined(CONFIG_HAS_ETH3)
+#define LAST_EMAC_NUM	4
+#elif defined(CONFIG_HAS_ETH2)
+#define LAST_EMAC_NUM	3
+#elif defined(CONFIG_HAS_ETH1)
+#define LAST_EMAC_NUM	2
+#else
+#define LAST_EMAC_NUM	1
+#endif
 
 /*-----------------------------------------------------------------------------+
  * Prototypes and externals.
@@ -1345,7 +1358,7 @@ int ppc_4xx_eth_initialize (bd_t * bis)
 #endif
 #endif
 
-	for (eth_num = 0; eth_num < EMAC_NUM_DEV; eth_num++) {
+	for (eth_num = 0; eth_num < LAST_EMAC_NUM; eth_num++) {
 
 		/* See if we can actually bring up the interface, otherwise, skip it */
 		switch (eth_num) {

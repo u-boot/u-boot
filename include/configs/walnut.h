@@ -163,6 +163,9 @@
 
 #define CFG_RX_ETH_BUFFER	16	/* use 16 rx buffer on 405 emac */
 
+#define CONFIG_NETCONSOLE		/* include NetConsole support	*/
+#define CONFIG_NET_MULTI		/* needed for NetConsole	*/
+
 /*-----------------------------------------------------------------------
  * I2C stuff
  *-----------------------------------------------------------------------

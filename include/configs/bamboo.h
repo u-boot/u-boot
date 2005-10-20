@@ -278,11 +278,13 @@
 #define CONFIG_PHY1_ADDR        1
 
 #ifndef CONFIG_BAMBOO_NAND
-#define CONFIG_NET_MULTI        1       /* required for netconsole      */
 #define CONFIG_HAS_ETH1		1	/* add support for "eth1addr"	*/
 #endif /* CONFIG_BAMBOO_NAND */
 
 #define CFG_RX_ETH_BUFFER	32	/* Number of ethernet rx buffers & descriptors */
+
+#define CONFIG_NETCONSOLE		/* include NetConsole support	*/
+#define CONFIG_NET_MULTI        1       /* required for netconsole      */
 
 /* Partitions */
 #define CONFIG_MAC_PARTITION

@@ -197,6 +197,8 @@
 #define CONFIG_NET_MULTI	1
 #define CFG_RX_ETH_BUFFER	32	/* Number of ethernet rx buffers & descriptors */
 
+#define CONFIG_NETCONSOLE		/* include NetConsole support	*/
+
 #define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
 				CFG_CMD_ASKENV	| \
 				CFG_CMD_DATE	| \

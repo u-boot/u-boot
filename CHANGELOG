@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Add NetConsole Support for AMCC eval boards
+  Patch by Stefan Roese, 20 Oct 2005
+
 * Fix NetConsole support on 4xx (only print eth link on 1st transfer)
   Patch by Stefan Roese, 18 Oct 2005
 
