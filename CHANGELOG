@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Fix conflicting types (flash_write()) in esd auto_update.c
+  Patch by Stefan Roese, 20 Oct 2005
+
 * Fix problem with sleep in NetConsole (use get_timer())
   Patch by Stefan Roese, 20 Oct 2005
 

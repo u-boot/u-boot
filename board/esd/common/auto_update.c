@@ -65,7 +65,7 @@ extern int transfer_pic(unsigned char, unsigned char *, int, int);
 #endif
 extern int flash_sect_erase(ulong, ulong);
 extern int flash_sect_protect (int, ulong, ulong);
-extern int flash_write (uchar *, ulong, ulong);
+extern int flash_write (char *, ulong, ulong);
 /* change char* to void* to shutup the compiler */
 extern block_dev_desc_t *get_dev (char*, int);
 
