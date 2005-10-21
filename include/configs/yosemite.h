@@ -200,7 +200,9 @@
 #define CONFIG_HAS_ETH1		1	/* add support for "eth1addr"	*/
 #define CONFIG_PHY_ADDR		1	/* PHY address, See schematics	*/
 
-#define CFG_RX_ETH_BUFFER	32	  /* Number of ethernet rx buffers & descriptors */
+#define CFG_RX_ETH_BUFFER	32	/* Number of ethernet rx buffers & descriptors */
+
+#define CONFIG_NETCONSOLE		/* include NetConsole support	*/
 
 /* Partitions */
 #define CONFIG_MAC_PARTITION

@@ -132,6 +132,8 @@
 #define CONFIG_NET_MULTI	1
 #define CFG_RX_ETH_BUFFER	16	/* Number of ethernet rx buffers & descriptors */
 
+#define CONFIG_NETCONSOLE		/* include NetConsole support	*/
+
 #define CONFIG_RTC_DS174x	1	/* use DS1743 RTC in Bubinga	*/
 
 #define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \

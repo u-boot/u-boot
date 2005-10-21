@@ -269,7 +269,9 @@
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 #define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
 
-#define CFG_RX_ETH_BUFFER	32	  /* Number of ethernet rx buffers & descriptors */
+#define CFG_RX_ETH_BUFFER	32	/* Number of ethernet rx buffers & descriptors */
+
+#define CONFIG_NETCONSOLE		/* include NetConsole support	*/
 
 /*-----------------------------------------------------------------------
  * PCI stuff
