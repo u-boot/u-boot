@@ -41,19 +41,21 @@ uint last_data;
 uint last_reg;
 
 /*
- * MII read/write
+ * MII device/info/read/write
  *
  * Syntax:
- *  mii read {addr} {reg}
- *  mii write {addr} {reg} {data}
+ *  mii device {devname}
+ *  mii info   {addr}
+ *  mii read   {addr} {reg}
+ *  mii write  {addr} {reg} {data}
  */
-
 int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	char		op;
 	unsigned char	addr, reg;
 	unsigned short	data;
 	int		rcode = 0;
+	char		*devname;
 
 #if defined(CONFIG_8xx) || defined(CONFIG_MCF52x2)
 	mii_init ();
@@ -78,8 +80,11 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			data = simple_strtoul (argv[4], NULL, 16);
 	}
 
+	/* use current device */
+	devname = miiphy_get_current_dev();
+
 	/*
-	 * check info/read/write.
+	 * check device/read/write/list.
 	 */
 	if (op == 'i') {
 		unsigned char j, start, end;
@@ -91,34 +96,43 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		 * Look for any and all PHYs.  Valid addresses are 0..31.
 		 */
 		if (argc >= 3) {
-			start = addrlo; end = addrhi + 1;
+			start = addr; end = addr + 1;
 		} else {
-			start = 0; end = 32;
+			start = 0; end = 31;
 		}
 
 		for (j = start; j < end; j++) {
-			if (miiphy_info (j, &oui, &model, &rev) == 0) {
+			if (miiphy_info (devname, j, &oui, &model, &rev) == 0) {
 				printf ("PHY 0x%02X: "
 					"OUI = 0x%04X, "
 					"Model = 0x%02X, "
 					"Rev = 0x%02X, "
 					"%3dbaseT, %s\n",
 					j, oui, model, rev,
-					miiphy_speed (j),
-					miiphy_duplex (j) == FULL ? "FDX" : "HDX");
+					miiphy_speed (devname, j),
+					(miiphy_duplex (devname, j) == FULL)
+						? "FDX" : "HDX");
+			} else {
+				puts ("Error reading info from the PHY\n");
 			}
 		}
 	} else if (op == 'r') {
-		if (miiphy_read (addr, reg, &data) != 0) {
+		if (miiphy_read (devname, addr, reg, &data) != 0) {
 			puts ("Error reading from the PHY\n");
 			rcode = 1;
+		} else {
+			printf ("%04X\n", data & 0x0000FFFF);
 		}
-		printf ("%04X\n", data & 0x0000FFFF);
 	} else if (op == 'w') {
-		if (miiphy_write (addr, reg, data) != 0) {
+		if (miiphy_write (devname, addr, reg, data) != 0) {
 			puts ("Error writing to the PHY\n");
 			rcode = 1;
 		}
+	} else if (op == 'd') {
+		if (argc == 2)
+			miiphy_listdev ();
+		else
+			miiphy_set_current_dev (argv[2]);
 	} else {
 		printf ("Usage:\n%s\n", cmdtp->usage);
 		return 1;
@@ -140,9 +154,11 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	mii,	5,	1,	do_mii,
 	"mii     - MII utility commands\n",
-	"info  <addr>              - display MII PHY info\n"
-	"mii read  <addr> <reg>        - read  MII PHY <addr> register <reg>\n"
-	"mii write <addr> <reg> <data> - write MII PHY <addr> register <reg>\n"
+	"device                     - list available devices\n"
+	"mii device <devname>           - set current device\n"
+	"mii info   <addr>              - display MII PHY info\n"
+	"mii read   <addr> <reg>        - read  MII PHY <addr> register <reg>\n"
+	"mii write  <addr> <reg> <data> - write MII PHY <addr> register <reg>\n"
 );
 
 #else /* ! CONFIG_TERSE_MII ================================================= */
@@ -386,7 +402,7 @@ static int special_field(
 	return 0;
 }
 
-uint last_op;
+char last_op[2];
 uint last_data;
 uint last_addr_lo;
 uint last_addr_hi;
@@ -412,11 +428,12 @@ static void extract_range(
 /* ---------------------------------------------------------------- */
 int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
-	char		op;
+	char		op[2];
 	unsigned char	addrlo, addrhi, reglo, reghi;
 	unsigned char	addr, reg;
 	unsigned short	data;
 	int		rcode = 0;
+	char		*devname;
 
 #ifdef CONFIG_8xx
 	mii_init ();
@@ -426,7 +443,8 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	 * We use the last specified parameters, unless new ones are
 	 * entered.
 	 */
-	op     = last_op;
+	op[0] = last_op[0];
+	op[1] = last_op[1];
 	addrlo = last_addr_lo;
 	addrhi = last_addr_hi;
 	reglo  = last_reg_lo;
@@ -434,7 +452,12 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	data   = last_data;
 
 	if ((flag & CMD_FLAG_REPEAT) == 0) {
-		op = argv[1][0];
+		op[0] = argv[1][0];
+		if (strlen(argv[1]) > 1)
+			op[1] = argv[1][1];
+		else
+			op[1] = '\0';
+
 		if (argc >= 3)
 			extract_range(argv[2], &addrlo, &addrhi);
 		if (argc >= 4)
@@ -443,10 +466,13 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			data = simple_strtoul (argv[4], NULL, 16);
 	}
 
+	/* use current device */
+	devname = miiphy_get_current_dev();
+
 	/*
 	 * check info/read/write.
 	 */
-	if (op == 'i') {
+	if (op[0] == 'i') {
 		unsigned char j, start, end;
 		unsigned int oui;
 		unsigned char model;
@@ -462,22 +488,25 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		}
 
 		for (j = start; j <= end; j++) {
-			if (miiphy_info (j, &oui, &model, &rev) == 0) {
+			if (miiphy_info (devname, j, &oui, &model, &rev) == 0) {
 				printf("PHY 0x%02X: "
 					"OUI = 0x%04X, "
 					"Model = 0x%02X, "
 					"Rev = 0x%02X, "
 					"%3dbaseT, %s\n",
 					j, oui, model, rev,
-					miiphy_speed (j),
-					miiphy_duplex (j) == FULL ? "FDX" : "HDX");
+					miiphy_speed (devname, j),
+					(miiphy_duplex (devname, j) == FULL)
+						? "FDX" : "HDX");
+			} else {
+				puts ("Error reading info from the PHY\n");
 			}
 		}
-	} else if (op == 'r') {
+	} else if (op[0] == 'r') {
 		for (addr = addrlo; addr <= addrhi; addr++) {
 			for (reg = reglo; reg <= reghi; reg++) {
 				data = 0xffff;
-				if (miiphy_read (addr, reg, &data) != 0) {
+				if (miiphy_read (devname, addr, reg, &data) != 0) {
 					printf(
 					"Error reading from the PHY addr=%02x reg=%02x\n",
 						addr, reg);
@@ -492,17 +521,17 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			if ((addrlo != addrhi) && (reglo != reghi))
 				printf("\n");
 		}
-	} else if (op == 'w') {
+	} else if (op[0] == 'w') {
 		for (addr = addrlo; addr <= addrhi; addr++) {
 			for (reg = reglo; reg <= reghi; reg++) {
-				if (miiphy_write (addr, reg, data) != 0) {
+				if (miiphy_write (devname, addr, reg, data) != 0) {
 					printf("Error writing to the PHY addr=%02x reg=%02x\n",
 						addr, reg);
 					rcode = 1;
 				}
 			}
 		}
-	} else if (op == 'd') {
+	} else if (strncmp(op, "du", 2) == 0) {
 		ushort regs[6];
 		int ok = 1;
 		if ((reglo > 5) || (reghi > 5)) {
@@ -512,8 +541,8 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			return 1;
 		}
 		for (addr = addrlo; addr <= addrhi; addr++) {
-			for (reg = 0; reg < 6; reg++) {
-				if (miiphy_read(addr, reg, &regs[reg]) != 0) {
+			for (reg = reglo; reg < reghi + 1; reg++) {
+				if (miiphy_read(devname, addr, reg, &regs[reg]) != 0) {
 					ok = 0;
 					printf(
 					"Error reading from the PHY addr=%02x reg=%02x\n",
@@ -525,6 +554,11 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 				MII_dump_0_to_5(regs, reglo, reghi);
 			printf("\n");
 		}
+	} else if (strncmp(op, "de", 2) == 0) {
+		if (argc == 2)
+			miiphy_listdev ();
+		else
+			miiphy_set_current_dev (argv[2]);
 	} else {
 		printf("Usage:\n%s\n", cmdtp->usage);
 		return 1;
@@ -533,7 +567,8 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	/*
 	 * Save the parameters for repeats.
 	 */
-	last_op      = op;
+	last_op[0] = op[0];
+	last_op[1] = op[1];
 	last_addr_lo = addrlo;
 	last_addr_hi = addrhi;
 	last_reg_lo  = reglo;
@@ -548,10 +583,12 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	mii,	5,	1,	do_mii,
 	"mii     - MII utility commands\n",
-	"info  <addr>              - display MII PHY info\n"
-	"mii read  <addr> <reg>        - read  MII PHY <addr> register <reg>\n"
-	"mii write <addr> <reg> <data> - write MII PHY <addr> register <reg>\n"
-	"mii dump  <addr> <reg>        - pretty-print <addr> <reg> (0-5 only)\n"
+	"device                     - list available devices\n"
+	"mii device <devname>           - set current device\n"
+	"mii info   <addr>              - display MII PHY info\n"
+	"mii read   <addr> <reg>        - read  MII PHY <addr> register <reg>\n"
+	"mii write  <addr> <reg> <data> - write MII PHY <addr> register <reg>\n"
+	"mii dump   <addr> <reg>        - pretty-print <addr> <reg> (0-5 only)\n"
 	"Addr and/or reg may be ranges, e.g. 2-7.\n"
 );
 

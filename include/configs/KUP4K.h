@@ -141,6 +141,7 @@
 #define CONFIG_RTC_PCF8563		/* use Philips PCF8563 RTC	*/
 
 #define CFG_DISCOVER_PHY
+#define CONFIG_MII
 
 #if 0
 #define CONFIG_ETHADDR                  00:0B:64:00:00:00 /* our OUI from IEEE */

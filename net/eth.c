@@ -60,6 +60,26 @@ struct eth_device *eth_get_dev(void)
 	return eth_current;
 }
 
+struct eth_device *eth_get_dev_by_name(char *devname)
+{
+	struct eth_device *dev, *target_dev;
+
+	if (!eth_devices)
+		return NULL;
+
+	dev = eth_devices;
+	target_dev = NULL;
+	do {
+		if (strcmp(devname, dev->name) == 0) {
+			target_dev = dev;
+			break;
+		}
+		dev = dev->next;
+	} while (dev != eth_devices);
+
+	return target_dev;
+}
+
 int eth_get_dev_index (void)
 {
 	struct eth_device *dev;
@@ -412,5 +432,29 @@ void eth_set_current(void)
 char *eth_get_name (void)
 {
 	return (eth_current ? eth_current->name : "unknown");
+}
+#elif (CONFIG_COMMANDS & CFG_CMD_NET) && !defined(CONFIG_NET_MULTI)
+
+extern int at91rm9200_miiphy_initialize(bd_t *bis);
+extern int emac4xx_miiphy_initialize(bd_t *bis);
+extern int mcf52x2_miiphy_initialize(bd_t *bis);
+extern int ns7520_miiphy_initialize(bd_t *bis);
+
+int eth_initialize(bd_t *bis)
+{
+#if defined(CONFIG_AT91RM9200)
+	at91rm9200_miiphy_initialize(bis);
+#endif
+#if defined(CONFIG_4xx) && !defined(CONFIG_IOP480) \
+	&& !defined(CONFIG_AP1000) && !defined(CONFIG_405)
+	emac4xx_miiphy_initialize(bis);
+#endif
+#if defined(CONFIG_MCF52x2)
+	mcf52x2_miiphy_initialize(bis);
+#endif
+#if defined(CONFIG_NETARM)
+	ns7520_miiphy_initialize(bis);
+#endif
+	return 0;
 }
 #endif

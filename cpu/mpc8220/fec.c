@@ -18,11 +18,13 @@
 #if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_NET_MULTI) && \
     defined(CONFIG_MPC8220_FEC)
 
-/*#if (CONFIG_COMMANDS & CFG_CMD_NET)*/
+#if !(defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII))
+#error "CONFIG_MII has to be defined!"
+#endif
 
 #ifdef DEBUG
-static void tfifo_print (mpc8220_fec_priv * fec);
-static void rfifo_print (mpc8220_fec_priv * fec);
+static void tfifo_print (char *devname, mpc8220_fec_priv * fec);
+static void rfifo_print (char *devname, mpc8220_fec_priv * fec);
 #endif /* DEBUG */
 
 #ifdef DEBUG
@@ -36,9 +38,12 @@ typedef struct {
 	u8 head[16];		/* MAC header(6 + 6 + 2) + 2(aligned) */
 } NBUF;
 
+int fec8220_miiphy_read (char *devname, u8 phyAddr, u8 regAddr, u16 * retVal);
+int fec8220_miiphy_write (char *devname, u8 phyAddr, u8 regAddr, u16 data);
+
 /********************************************************************/
 #ifdef DEBUG
-static void mpc8220_fec_phydump (void)
+static void mpc8220_fec_phydump (char *devname)
 {
 	u16 phyStatus, i;
 	u8 phyAddr = CONFIG_PHY_ADDR;
@@ -56,7 +61,7 @@ static void mpc8220_fec_phydump (void)
 
 	for (i = 0; i < 32; i++) {
 		if (reg_mask[i]) {
-			miiphy_read (phyAddr, i, &phyStatus);
+			miiphy_read (devname, phyAddr, i, &phyStatus);
 			printf ("Mii reg %d: 0x%04x\n", i, phyStatus);
 		}
 	}
@@ -400,7 +405,7 @@ static int mpc8220_fec_init (struct eth_device *dev, bd_t * bis)
 		/*
 		 * Reset PHY, then delay 300ns
 		 */
-		miiphy_write (phyAddr, 0x0, 0x8000);
+		miiphy_write (dev->name, phyAddr, 0x0, 0x8000);
 		udelay (1000);
 
 		if (fec->xcv_type == MII10) {
@@ -410,11 +415,11 @@ static int mpc8220_fec_init (struct eth_device *dev, bd_t * bis)
 #ifdef DEBUG
 			printf ("Forcing 10 Mbps ethernet link... ");
 #endif
-			miiphy_read (phyAddr, 0x1, &phyStatus);
+			miiphy_read (dev->name, phyAddr, 0x1, &phyStatus);
 			/*
 			   miiphy_write(fec, phyAddr, 0x0, 0x0100);
 			 */
-			miiphy_write (phyAddr, 0x0, 0x0180);
+			miiphy_write (dev->name, phyAddr, 0x0, 0x0180);
 
 			timeout = 20;
 			do {	/* wait for link status to go down */
@@ -425,7 +430,7 @@ static int mpc8220_fec_init (struct eth_device *dev, bd_t * bis)
 #endif
 					break;
 				}
-				miiphy_read (phyAddr, 0x1, &phyStatus);
+				miiphy_read (dev->name, phyAddr, 0x1, &phyStatus);
 #ifdef DEBUG
 				printf ("=");
 #endif
@@ -438,7 +443,7 @@ static int mpc8220_fec_init (struct eth_device *dev, bd_t * bis)
 					printf ("failed. Link is down.\n");
 					break;
 				}
-				miiphy_read (phyAddr, 0x1, &phyStatus);
+				miiphy_read (dev->name, phyAddr, 0x1, &phyStatus);
 #ifdef DEBUG
 				printf ("+");
 #endif
@@ -451,12 +456,12 @@ static int mpc8220_fec_init (struct eth_device *dev, bd_t * bis)
 			/*
 			 * Set the auto-negotiation advertisement register bits
 			 */
-			miiphy_write (phyAddr, 0x4, 0x01e1);
+			miiphy_write (dev->name, phyAddr, 0x4, 0x01e1);
 
 			/*
 			 * Set MDIO bit 0.12 = 1(&& bit 0.9=1?) to enable auto-negotiation
 			 */
-			miiphy_write (phyAddr, 0x0, 0x1200);
+			miiphy_write (dev->name, phyAddr, 0x0, 0x1200);
 
 			/*
 			 * Wait for AN completion
@@ -472,7 +477,7 @@ static int mpc8220_fec_init (struct eth_device *dev, bd_t * bis)
 					return -1;
 				}
 
-				if (miiphy_read (phyAddr, 0x1, &phyStatus) !=
+				if (miiphy_read (dev->name, phyAddr, 0x1, &phyStatus) !=
 				    0) {
 #ifdef DEBUG
 					printf ("PHY auto neg 1 failed 0x%04x...\n", phyStatus);
@@ -495,7 +500,7 @@ static int mpc8220_fec_init (struct eth_device *dev, bd_t * bis)
 
 #ifdef DEBUG
 	if (fec->xcv_type != SEVENWIRE)
-		mpc8220_fec_phydump ();
+		mpc8220_fec_phydump (dev->name);
 #endif
 
 	/*
@@ -518,7 +523,7 @@ static void mpc8220_fec_halt (struct eth_device *dev)
 
 #ifdef DEBUG
 	if (fec->xcv_type != SEVENWIRE)
-		mpc8220_fec_phydump ();
+		mpc8220_fec_phydump (dev->name);
 #endif
 
 	/*
@@ -573,7 +578,7 @@ static void mpc8220_fec_halt (struct eth_device *dev)
 #ifdef DEBUG
 /********************************************************************/
 
-static void tfifo_print (mpc8220_fec_priv * fec)
+static void tfifo_print (char *devname, mpc8220_fec_priv * fec)
 {
 	u16 phyAddr = CONFIG_PHY_ADDR;
 	u16 phyStatus;
@@ -581,7 +586,7 @@ static void tfifo_print (mpc8220_fec_priv * fec)
 	if ((fec->eth->tfifo_lrf_ptr != fec->eth->tfifo_lwf_ptr)
 	    || (fec->eth->tfifo_rdptr != fec->eth->tfifo_wrptr)) {
 
-		miiphy_read (phyAddr, 0x1, &phyStatus);
+		miiphy_read (devname, phyAddr, 0x1, &phyStatus);
 		printf ("\nphyStatus: 0x%04x\n", phyStatus);
 		printf ("ecntrl:   0x%08x\n", fec->eth->ecntrl);
 		printf ("ievent:   0x%08x\n", fec->eth->ievent);
@@ -597,7 +602,7 @@ static void tfifo_print (mpc8220_fec_priv * fec)
 	}
 }
 
-static void rfifo_print (mpc8220_fec_priv * fec)
+static void rfifo_print (char *devname, mpc8220_fec_priv * fec)
 {
 	u16 phyAddr = CONFIG_PHY_ADDR;
 	u16 phyStatus;
@@ -605,7 +610,7 @@ static void rfifo_print (mpc8220_fec_priv * fec)
 	if ((fec->eth->rfifo_lrf_ptr != fec->eth->rfifo_lwf_ptr)
 	    || (fec->eth->rfifo_rdptr != fec->eth->rfifo_wrptr)) {
 
-		miiphy_read (phyAddr, 0x1, &phyStatus);
+		miiphy_read (devname, phyAddr, 0x1, &phyStatus);
 		printf ("\nphyStatus: 0x%04x\n", phyStatus);
 		printf ("ecntrl:   0x%08x\n", fec->eth->ecntrl);
 		printf ("ievent:   0x%08x\n", fec->eth->ievent);
@@ -636,7 +641,7 @@ static int mpc8220_fec_send (struct eth_device *dev, volatile void *eth_data,
 
 #ifdef DEBUG
 	printf ("tbd status: 0x%04x\n", fec->tbdBase[0].status);
-	tfifo_print (fec);
+	tfifo_print (dev->name, fec);
 #endif
 
 	/*
@@ -680,7 +685,7 @@ static int mpc8220_fec_send (struct eth_device *dev, volatile void *eth_data,
 	if (fec->xcv_type != SEVENWIRE) {
 		u16 phyStatus;
 
-		miiphy_read (0, 0x1, &phyStatus);
+		miiphy_read (dev->name, 0, 0x1, &phyStatus);
 	}
 
 	/*
@@ -688,13 +693,13 @@ static int mpc8220_fec_send (struct eth_device *dev, volatile void *eth_data,
 	 */
 
 #ifdef DEBUG
-	tfifo_print (fec);
+	tfifo_print (dev->name, fec);
 #endif
 
 	DMA_TASK_ENABLE (FEC_XMIT_TASK_NO);
 
 #ifdef DEBUG
-	tfifo_print (fec);
+	tfifo_print (dev->name, fec);
 #endif
 
 #ifdef DEBUG
@@ -842,6 +847,11 @@ int mpc8220_fec_initialize (bd_t * bis)
 	sprintf (dev->name, "FEC ETHERNET");
 	eth_register (dev);
 
+#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+	miiphy_register (dev->name,
+			fec8220_miiphy_read, fec8220_miiphy_write);
+#endif
+
 	/*
 	 * Try to set the mac address now. The fec mac address is
 	 * a garbage after reset. When not using fec for booting
@@ -875,7 +885,7 @@ int mpc8220_fec_initialize (bd_t * bis)
 
 /* MII-interface related functions */
 /********************************************************************/
-int miiphy_read (u8 phyAddr, u8 regAddr, u16 * retVal)
+int fec8220_miiphy_read (char *devname, u8 phyAddr, u8 regAddr, u16 * retVal)
 {
 	ethernet_regs *eth = (ethernet_regs *) MMAP_FEC1;
 	u32 reg;		/* convenient holder for the PHY register */
@@ -919,7 +929,7 @@ int miiphy_read (u8 phyAddr, u8 regAddr, u16 * retVal)
 }
 
 /********************************************************************/
-int miiphy_write (u8 phyAddr, u8 regAddr, u16 data)
+int fec8220_miiphy_write (char *devname, u8 phyAddr, u8 regAddr, u16 data)
 {
 	ethernet_regs *eth = (ethernet_regs *) MMAP_FEC1;
 	u32 reg;		/* convenient holder for the PHY register */

@@ -519,7 +519,8 @@ void mii_init (void)
  *	  Otherwise they hang in mii_send() !!! Sorry!
  *****************************************************************************/
 
-int miiphy_read (unsigned char addr, unsigned char reg, unsigned short *value)
+int mcf52x2_miiphy_read (char *devname, unsigned char addr,
+		unsigned char reg, unsigned short *value)
 {
 	short rdreg;		/* register working value */
 
@@ -537,7 +538,8 @@ int miiphy_read (unsigned char addr, unsigned char reg, unsigned short *value)
 	return 0;
 }
 
-int miiphy_write (unsigned char addr, unsigned char reg, unsigned short value)
+int mcf52x2_miiphy_write (char *devname, unsigned char addr,
+		unsigned char reg, unsigned short value)
 {
 	short rdreg;		/* register working value */
 
@@ -554,5 +556,15 @@ int miiphy_write (unsigned char addr, unsigned char reg, unsigned short value)
 	return 0;
 }
 #endif /* (CONFIG_COMMANDS & CFG_CMD_MII) && !defined(CONFIG_BITBANGMII) */
-
 #endif /* CFG_CMD_NET, FEC_ENET */
+
+int mcf52x2_miiphy_initialize(bd_t *bis)
+{
+#if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(FEC_ENET)
+#if (CONFIG_COMMANDS & CFG_CMD_MII) && !defined(CONFIG_BITBANGMII)
+	miiphy_register("mcf52x2phy", mcf52x2_miiphy_read, mcf52x2_miiphy_write);
+#endif
+#endif
+	return 0;
+}
+

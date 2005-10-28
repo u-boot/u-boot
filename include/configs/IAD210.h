@@ -88,6 +88,7 @@
 
 # undef  CONFIG_SCC1_ENET		/* disable SCC1 ethernet */
 # define CONFIG_FEC_ENET    1	/* use FEC ethernet  */
+# define CONFIG_MII         1
 # define CFG_DISCOVER_PHY   1
 # define CONFIG_FEC_UTOPIA  1
 # define CONFIG_ETHADDR     08:00:06:26:A2:6D

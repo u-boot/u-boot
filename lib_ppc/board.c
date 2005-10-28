@@ -899,27 +899,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 		hermes_start_lxt980 ((int) bd->bi_ethspeed);
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET) && ( \
-    defined(CONFIG_CCM)		|| \
-    defined(CONFIG_ELPT860)	|| \
-    defined(CONFIG_EP8260)	|| \
-    defined(CONFIG_IP860)	|| \
-    defined(CONFIG_IVML24)	|| \
-    defined(CONFIG_IVMS8)	|| \
-    defined(CONFIG_MPC8260ADS)	|| \
-    defined(CONFIG_MPC8266ADS)	|| \
-    defined(CONFIG_MPC8560ADS)	|| \
-    defined(CONFIG_PCU_E)	|| \
-    defined(CONFIG_RPXSUPER)	|| \
-    defined(CONFIG_STXGP3)	|| \
-    defined(CONFIG_SPD823TS)	|| \
-    defined(CONFIG_RESET_PHY_R)	)
-
-	WATCHDOG_RESET ();
-	debug ("Reset Ethernet PHY\n");
-	reset_phy ();
-#endif
-
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 	WATCHDOG_RESET ();
 	puts ("KGDB:  ");
@@ -978,10 +957,33 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	nand_init();		/* go init the NAND */
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_NET_MULTI)
+#if (CONFIG_COMMANDS & CFG_CMD_NET)
+#if defined(CONFIG_NET_MULTI)
 	WATCHDOG_RESET ();
 	puts ("Net:   ");
+#endif
 	eth_initialize (bd);
+#endif
+
+#if (CONFIG_COMMANDS & CFG_CMD_NET) && ( \
+    defined(CONFIG_CCM)		|| \
+    defined(CONFIG_ELPT860)	|| \
+    defined(CONFIG_EP8260)	|| \
+    defined(CONFIG_IP860)	|| \
+    defined(CONFIG_IVML24)	|| \
+    defined(CONFIG_IVMS8)	|| \
+    defined(CONFIG_MPC8260ADS)	|| \
+    defined(CONFIG_MPC8266ADS)	|| \
+    defined(CONFIG_MPC8560ADS)	|| \
+    defined(CONFIG_PCU_E)	|| \
+    defined(CONFIG_RPXSUPER)	|| \
+    defined(CONFIG_STXGP3)	|| \
+    defined(CONFIG_SPD823TS)	|| \
+    defined(CONFIG_RESET_PHY_R)	)
+
+	WATCHDOG_RESET ();
+	debug ("Reset Ethernet PHY\n");
+	reset_phy ();
 #endif
 
 #ifdef CONFIG_POST

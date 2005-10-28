@@ -414,8 +414,10 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	misc_init_r ();
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_NET_MULTI)
+#if (CONFIG_COMMANDS & CFG_CMD_NET)
+#if defined(CONFIG_NET_MULTI)
 	puts ("Net:   ");
+#endif
 	eth_initialize(gd->bd);
 #endif
 

@@ -98,7 +98,7 @@
 /* #define CONFIG_ENV_OVERWRITE	1 */
 
 #define CONFIG_COMMANDS		\
-		       ((CONFIG_CMD_DFL | \
+		       ((CONFIG_CMD_DFL | CFG_CMD_MII |\
 			CFG_CMD_DHCP ) & \
 		      ~(CFG_CMD_BDI | \
 			CFG_CMD_IMI | \

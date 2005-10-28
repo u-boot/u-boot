@@ -55,14 +55,14 @@
 /* Dump out to the screen PHY regs			   */
 /***********************************************************/
 
-void miiphy_dump (unsigned char addr)
+void miiphy_dump (char *devname, unsigned char addr)
 {
 	unsigned long i;
 	unsigned short data;
 
 
 	for (i = 0; i < 0x1A; i++) {
-		if (miiphy_read (addr, i, &data)) {
+		if (miiphy_read (devname, addr, i, &data)) {
 			printf ("read error for reg %lx\n", i);
 			return;
 		}
@@ -79,21 +79,21 @@ void miiphy_dump (unsigned char addr)
 /***********************************************************/
 /* (Re)start autonegotiation				   */
 /***********************************************************/
-int phy_setup_aneg (unsigned char addr)
+int phy_setup_aneg (char *devname, unsigned char addr)
 {
 	unsigned short ctl, adv;
 
 	/* Setup standard advertise */
-	miiphy_read (addr, PHY_ANAR, &adv);
+	miiphy_read (devname, addr, PHY_ANAR, &adv);
 	adv |= (PHY_ANLPAR_ACK | PHY_ANLPAR_RF | PHY_ANLPAR_T4 |
 		PHY_ANLPAR_TXFD | PHY_ANLPAR_TX | PHY_ANLPAR_10FD |
 		PHY_ANLPAR_10);
-	miiphy_write (addr, PHY_ANAR, adv);
+	miiphy_write (devname, addr, PHY_ANAR, adv);
 
 	/* Start/Restart aneg */
-	miiphy_read (addr, PHY_BMCR, &ctl);
+	miiphy_read (devname, addr, PHY_BMCR, &ctl);
 	ctl |= (PHY_BMCR_AUTON | PHY_BMCR_RST_NEG);
-	miiphy_write (addr, PHY_BMCR, ctl);
+	miiphy_write (devname, addr, PHY_BMCR, ctl);
 
 	return 0;
 }
@@ -142,7 +142,8 @@ unsigned int miiphy_getemac_offset (void)
 }
 
 
-int miiphy_read (unsigned char addr, unsigned char reg, unsigned short *value)
+int emac4xx_miiphy_read (char *devname, unsigned char addr,
+		unsigned char reg, unsigned short *value)
 {
 	unsigned long sta_reg;	/* STA scratch area */
 	unsigned long i;
@@ -207,7 +208,8 @@ int miiphy_read (unsigned char addr, unsigned char reg, unsigned short *value)
 /* write a phy reg and return the value with a rc	    */
 /***********************************************************/
 
-int miiphy_write (unsigned char addr, unsigned char reg, unsigned short value)
+int emac4xx_miiphy_write (char *devname, unsigned char addr,
+		unsigned char reg, unsigned short value)
 {
 	unsigned long sta_reg;	/* STA scratch area */
 	unsigned long i;

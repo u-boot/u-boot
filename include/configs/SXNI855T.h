@@ -142,6 +142,7 @@
 # define CFG_I2C_EEPROM_ADDR_LEN 2	/* two byte address		*/
 
 #define	CONFIG_FEC_ENET		1	/* use FEC ethernet  */
+#define	CONFIG_MII		1
 
 #define CFG_DISCOVER_PHY
 

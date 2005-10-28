@@ -30,6 +30,8 @@
 #include <i2c.h>
 #include <miiphy.h>
 
+int fec8xx_miiphy_write(char *devname, unsigned char  addr,
+		unsigned char  reg, unsigned short value);
 
 /*********************************************************************/
 /* UPMA Pre Initilization Table by WV (Miron MT48LC16M16A2-7E B)     */
@@ -258,8 +260,11 @@ int misc_init_r (void)
 	 */
 	mii_init();
 
-	miiphy_write(0, PHY_BMCR, 0x2100);    /* disable auto-negotiation, 100mbit, full-duplex */
-	miiphy_write(0, PHY_FCSCR, 0x4122);   /* set LED's to Link, Transmit, Receive           */
+	/* disable auto-negotiation, 100mbit, full-duplex */
+	fec8xx_miiphy_write(NULL, 0, PHY_BMCR, 0x2100);
+
+	/* set LED's to Link, Transmit, Receive           */
+	fec8xx_miiphy_write(NULL,  0, PHY_FCSCR, 0x4122);
 
 	return 0;
 }

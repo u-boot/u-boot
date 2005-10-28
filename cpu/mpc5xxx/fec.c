@@ -19,9 +19,13 @@
 #if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_NET_MULTI) && \
 	defined(CONFIG_MPC5xxx_FEC)
 
+#if !(defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII))
+#error "CONFIG_MII has to be defined!"
+#endif
+
 #if (DEBUG & 0x60)
-static void tfifo_print(mpc5xxx_fec_priv *fec);
-static void rfifo_print(mpc5xxx_fec_priv *fec);
+static void tfifo_print(char *devname, mpc5xxx_fec_priv *fec);
+static void rfifo_print(char *devname, mpc5xxx_fec_priv *fec);
 #endif /* DEBUG */
 
 #if (DEBUG & 0x40)
@@ -35,9 +39,12 @@ typedef struct {
     uint8 head[16];             /* MAC header(6 + 6 + 2) + 2(aligned) */
 } NBUF;
 
+int fec5xxx_miiphy_read(char *devname, uint8 phyAddr, uint8 regAddr, uint16 * retVal);
+int fec5xxx_miiphy_write(char *devname, uint8 phyAddr, uint8 regAddr, uint16 data);
+
 /********************************************************************/
 #if (DEBUG & 0x2)
-static void mpc5xxx_fec_phydump (void)
+static void mpc5xxx_fec_phydump (char *devname)
 {
 	uint16 phyStatus, i;
 	uint8 phyAddr = CONFIG_PHY_ADDR;
@@ -55,7 +62,7 @@ static void mpc5xxx_fec_phydump (void)
 
 	for (i = 0; i < 32; i++) {
 		if (reg_mask[i]) {
-			miiphy_read(phyAddr, i, &phyStatus);
+			miiphy_read(devname, phyAddr, i, &phyStatus);
 			printf("Mii reg %d: 0x%04x\n", i, phyStatus);
 		}
 	}
@@ -457,7 +464,7 @@ static int mpc5xxx_fec_init_phy(struct eth_device *dev, bd_t * bis)
 		/*
 		 * Reset PHY, then delay 300ns
 		 */
-		miiphy_write(phyAddr, 0x0, 0x8000);
+		miiphy_write(dev->name, phyAddr, 0x0, 0x8000);
 		udelay(1000);
 
 		if (fec->xcv_type == MII10) {
@@ -467,11 +474,11 @@ static int mpc5xxx_fec_init_phy(struct eth_device *dev, bd_t * bis)
 #if (DEBUG & 0x2)
 			printf("Forcing 10 Mbps ethernet link... ");
 #endif
-			miiphy_read(phyAddr, 0x1, &phyStatus);
+			miiphy_read(dev->name, phyAddr, 0x1, &phyStatus);
 			/*
-			miiphy_write(fec, phyAddr, 0x0, 0x0100);
+			miiphy_write(dev->name, fec, phyAddr, 0x0, 0x0100);
 			*/
-			miiphy_write(phyAddr, 0x0, 0x0180);
+			miiphy_write(dev->name, phyAddr, 0x0, 0x0180);
 
 			timeout = 20;
 			do {	/* wait for link status to go down */
@@ -482,7 +489,7 @@ static int mpc5xxx_fec_init_phy(struct eth_device *dev, bd_t * bis)
 #endif
 					break;
 				}
-				miiphy_read(phyAddr, 0x1, &phyStatus);
+				miiphy_read(dev->name, phyAddr, 0x1, &phyStatus);
 #if (DEBUG & 0x2)
 				printf("=");
 #endif
@@ -495,7 +502,7 @@ static int mpc5xxx_fec_init_phy(struct eth_device *dev, bd_t * bis)
 					printf("failed. Link is down.\n");
 					break;
 				}
-				miiphy_read(phyAddr, 0x1, &phyStatus);
+				miiphy_read(dev->name, phyAddr, 0x1, &phyStatus);
 #if (DEBUG & 0x2)
 				printf("+");
 #endif
@@ -508,12 +515,12 @@ static int mpc5xxx_fec_init_phy(struct eth_device *dev, bd_t * bis)
 			/*
 			 * Set the auto-negotiation advertisement register bits
 			 */
-			miiphy_write(phyAddr, 0x4, 0x01e1);
+			miiphy_write(dev->name, phyAddr, 0x4, 0x01e1);
 
 			/*
 			 * Set MDIO bit 0.12 = 1(&& bit 0.9=1?) to enable auto-negotiation
 			 */
-			miiphy_write(phyAddr, 0x0, 0x1200);
+			miiphy_write(dev->name, phyAddr, 0x0, 0x1200);
 
 			/*
 			 * Wait for AN completion
@@ -529,7 +536,7 @@ static int mpc5xxx_fec_init_phy(struct eth_device *dev, bd_t * bis)
 					return -1;
 				}
 
-				if (miiphy_read(phyAddr, 0x1, &phyStatus) != 0) {
+				if (miiphy_read(dev->name, phyAddr, 0x1, &phyStatus) != 0) {
 #if (DEBUG & 0x2)
 					printf("PHY auto neg 1 failed 0x%04x...\n", phyStatus);
 #endif
@@ -546,7 +553,7 @@ static int mpc5xxx_fec_init_phy(struct eth_device *dev, bd_t * bis)
 
 #if (DEBUG & 0x2)
 	if (fec->xcv_type != SEVENWIRE)
-		mpc5xxx_fec_phydump ();
+		mpc5xxx_fec_phydump (dev->name);
 #endif
 
 
@@ -631,7 +638,7 @@ static void mpc5xxx_fec_halt(struct eth_device *dev)
 #if (DEBUG & 0x60)
 /********************************************************************/
 
-static void tfifo_print(mpc5xxx_fec_priv *fec)
+static void tfifo_print(char *devname, mpc5xxx_fec_priv *fec)
 {
 	uint16 phyAddr = CONFIG_PHY_ADDR;
 	uint16 phyStatus;
@@ -639,7 +646,7 @@ static void tfifo_print(mpc5xxx_fec_priv *fec)
 	if ((fec->eth->tfifo_lrf_ptr != fec->eth->tfifo_lwf_ptr)
 		|| (fec->eth->tfifo_rdptr != fec->eth->tfifo_wrptr)) {
 
-		miiphy_read(phyAddr, 0x1, &phyStatus);
+		miiphy_read(devname, phyAddr, 0x1, &phyStatus);
 		printf("\nphyStatus: 0x%04x\n", phyStatus);
 		printf("ecntrl:   0x%08x\n", fec->eth->ecntrl);
 		printf("ievent:   0x%08x\n", fec->eth->ievent);
@@ -655,7 +662,7 @@ static void tfifo_print(mpc5xxx_fec_priv *fec)
 	}
 }
 
-static void rfifo_print(mpc5xxx_fec_priv *fec)
+static void rfifo_print(char *devname, mpc5xxx_fec_priv *fec)
 {
 	uint16 phyAddr = CONFIG_PHY_ADDR;
 	uint16 phyStatus;
@@ -663,7 +670,7 @@ static void rfifo_print(mpc5xxx_fec_priv *fec)
 	if ((fec->eth->rfifo_lrf_ptr != fec->eth->rfifo_lwf_ptr)
 		|| (fec->eth->rfifo_rdptr != fec->eth->rfifo_wrptr)) {
 
-		miiphy_read(phyAddr, 0x1, &phyStatus);
+		miiphy_read(devname, phyAddr, 0x1, &phyStatus);
 		printf("\nphyStatus: 0x%04x\n", phyStatus);
 		printf("ecntrl:   0x%08x\n", fec->eth->ecntrl);
 		printf("ievent:   0x%08x\n", fec->eth->ievent);
@@ -694,7 +701,7 @@ static int mpc5xxx_fec_send(struct eth_device *dev, volatile void *eth_data,
 
 #if (DEBUG & 0x20)
 	printf("tbd status: 0x%04x\n", fec->tbdBase[0].status);
-	tfifo_print(fec);
+	tfifo_print(dev->name, fec);
 #endif
 
 	/*
@@ -737,7 +744,7 @@ static int mpc5xxx_fec_send(struct eth_device *dev, volatile void *eth_data,
 	 */
 	if (fec->xcv_type != SEVENWIRE) {
 		uint16 phyStatus;
-		miiphy_read(0, 0x1, &phyStatus);
+		miiphy_read(dev->name, 0, 0x1, &phyStatus);
 	}
 
 	/*
@@ -745,11 +752,11 @@ static int mpc5xxx_fec_send(struct eth_device *dev, volatile void *eth_data,
 	 */
 
 #if (DEBUG & 0x20)
-	tfifo_print(fec);
+	tfifo_print(dev->name, fec);
 #endif
 	SDMA_TASK_ENABLE (FEC_XMIT_TASK_NO);
 #if (DEBUG & 0x20)
-	tfifo_print(fec);
+	tfifo_print(dev->name, fec);
 #endif
 #if (DEBUG & 0x8)
 	printf( "+" );
@@ -896,6 +903,11 @@ int mpc5xxx_fec_initialize(bd_t * bis)
 	sprintf(dev->name, "FEC ETHERNET");
 	eth_register(dev);
 
+#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+	miiphy_register (dev->name,
+			fec5xxx_miiphy_read, fec5xxx_miiphy_write);
+#endif
+
 	/*
 	 * Try to set the mac address now. The fec mac address is
 	 * a garbage after reset. When not using fec for booting
@@ -912,12 +924,13 @@ int mpc5xxx_fec_initialize(bd_t * bis)
 	}
 
 	mpc5xxx_fec_init_phy(dev, bis);
+
 	return 1;
 }
 
 /* MII-interface related functions */
 /********************************************************************/
-int miiphy_read(uint8 phyAddr, uint8 regAddr, uint16 * retVal)
+int fec5xxx_miiphy_read(char *devname, uint8 phyAddr, uint8 regAddr, uint16 * retVal)
 {
 	ethernet_regs *eth = (ethernet_regs *)MPC5XXX_FEC;
 	uint32 reg;		/* convenient holder for the PHY register */
@@ -959,7 +972,7 @@ int miiphy_read(uint8 phyAddr, uint8 regAddr, uint16 * retVal)
 }
 
 /********************************************************************/
-int miiphy_write(uint8 phyAddr, uint8 regAddr, uint16 data)
+int fec5xxx_miiphy_write(char *devname, uint8 phyAddr, uint8 regAddr, uint16 data)
 {
 	ethernet_regs *eth = (ethernet_regs *)MPC5XXX_FEC;
 	uint32 reg;		/* convenient holder for the PHY register */

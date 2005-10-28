@@ -69,7 +69,7 @@
 #define CFG_XLB_PIPELINING	1
 
 #define CONFIG_NET_MULTI	1
-/* #define CONFIG_EEPRO100	XXX - FIXME: conflicts when CONFIG_MII is enabled */
+#define CONFIG_EEPRO100
 #define CFG_RX_ETH_BUFFER	8  /* use 8 rx buffer on eepro100  */
 #define CONFIG_NS8382X		1
 

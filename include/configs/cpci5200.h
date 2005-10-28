@@ -83,6 +83,8 @@
 #define CONFIG_PCI_IO_PHYS	CONFIG_PCI_IO_BUS
 #define CONFIG_PCI_IO_SIZE	0x01000000
 #endif
+
+#define CONFIG_MII
 #if 0				/* test-only !!! */
 #define CONFIG_NET_MULTI	1
 #define CONFIG_EEPRO100		1

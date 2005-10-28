@@ -46,6 +46,11 @@
 
 #if defined(WANT_MII)
 #include <miiphy.h>
+
+#if !(defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII))
+#error "CONFIG_MII has to be defined!"
+#endif
+
 #endif
 
 #if defined(CONFIG_RMII) && !defined(WANT_MII)
@@ -55,6 +60,11 @@
 #ifdef CFG_DISCOVER_PHY
 static int mii_discover_phy(struct eth_device *dev);
 #endif
+
+int fec8xx_miiphy_read(char *devname, unsigned char addr,
+		unsigned char  reg, unsigned short *value);
+int fec8xx_miiphy_write(char *devname, unsigned char  addr,
+		unsigned char  reg, unsigned short value);
 
 static struct ether_fcc_info_s
 {
@@ -169,6 +179,11 @@ int fec_initialize(bd_t *bis)
 		dev->recv = fec_recv;
 
 		eth_register(dev);
+
+#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+		miiphy_register(dev->name,
+			fec8xx_miiphy_read, fec8xx_miiphy_write);
+#endif
 	}
 	return 1;
 }
@@ -712,7 +727,7 @@ static int fec_init (struct eth_device *dev, bd_t * bd)
 	/*
 	 * adapt the RMII speed to the speed of the phy
 	 */
-	if (miiphy_speed (efis->actual_phy_addr) == _100BASET) {
+	if (miiphy_speed (dev->name, efis->actual_phy_addr) == _100BASET) {
 		fec_100Mbps (dev);
 	} else {
 		fec_10Mbps (dev);
@@ -723,7 +738,7 @@ static int fec_init (struct eth_device *dev, bd_t * bd)
 	/*
 	 * adapt to the half/full speed settings
 	 */
-	if (miiphy_duplex (efis->actual_phy_addr) == FULL) {
+	if (miiphy_duplex (dev->name, efis->actual_phy_addr) == FULL) {
 		fec_full_duplex (dev);
 	} else {
 		fec_half_duplex (dev);
@@ -969,7 +984,8 @@ void mii_init (void)
  *	  Otherwise they hang in mii_send() !!! Sorry!
  *****************************************************************************/
 
-int miiphy_read(unsigned char addr, unsigned char  reg, unsigned short *value)
+int fec8xx_miiphy_read(char *devname, unsigned char addr,
+		unsigned char  reg, unsigned short *value)
 {
 	short rdreg;    /* register working value */
 
@@ -985,7 +1001,8 @@ int miiphy_read(unsigned char addr, unsigned char  reg, unsigned short *value)
 	return 0;
 }
 
-int miiphy_write(unsigned char  addr, unsigned char  reg, unsigned short value)
+int fec8xx_miiphy_write(char *devname, unsigned char  addr,
+		unsigned char  reg, unsigned short value)
 {
 	short rdreg;    /* register working value */
 #ifdef MII_DEBUG

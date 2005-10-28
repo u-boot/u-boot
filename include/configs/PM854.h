@@ -235,7 +235,7 @@
 #define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
-/* #define CONFIG_EEPRO100	XXX - FIXME: conflicts when CONFIG_MII is enabled */
+#define CONFIG_EEPRO100
 #define	CONFIG_E1000
 #undef	CONFIG_TULIP
 
