@@ -95,6 +95,11 @@ int board_early_init_f(void)
 	out32(GPIO1_OSRL, in32(GPIO1_OSRL) | 0x00080000);
 	out32(GPIO1_ISR2L, in32(GPIO1_ISR2L) | 0x00010000);
 
+	/* external interrupts IRQ0...3 */
+	out32(GPIO1_TCR, in32(GPIO1_TCR) & ~0x0f000000);
+	out32(GPIO1_TSRL, in32(GPIO1_TSRL) & ~0x00005500);
+	out32(GPIO1_ISR1L, in32(GPIO1_ISR1L) | 0x00005500);
+
 	/*setup USB 2.0 */
 	out32(GPIO1_TCR, in32(GPIO1_TCR) | 0xc0000000);
 	out32(GPIO1_OSRL, in32(GPIO1_OSRL) | 0x50000000);

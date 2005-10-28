@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Fix external IRQ configuration on Yellowstone & Yosemite
+  Patch by Stefan Roese, 28 Oct 2005
+
 * Add PCI support for the TQM834x board.
 
 * Add missing 4xx board to MAKEALL
