@@ -6,12 +6,12 @@
 #include <malloc.h>
 #include <environment.h>
 
+#ifdef CONFIG_OF_FLAT_TREE
+
 #include <asm/errno.h>
 #include <stddef.h>
 
 #include <ft_build.h>
-
-#ifdef CONFIG_OF_FLAT_TREE
 
 /* align addr on a size boundary - adjust address up if needed -- Cort */
 #define _ALIGN(addr,size)       (((addr)+(size)-1)&(~((size)-1)))
