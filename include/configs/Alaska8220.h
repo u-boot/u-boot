@@ -90,6 +90,7 @@
 				CFG_CMD_SNTP	)
 
 #define CONFIG_NET_MULTI
+#define CONFIG_MII
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>

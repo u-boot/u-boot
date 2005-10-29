@@ -85,12 +85,17 @@ static const char ether_port_phy_addr[3]={0,1,2};
 static const char ether_port_phy_addr[3]={4,5,6};
 #endif
 
+/* MII PHY access routines are common for all i/f, use gal_ent0 */
+#define GT6426x_MII_DEVNAME	"gal_enet0"
+
+int gt6426x_miiphy_read(char *devname, unsigned char phy,
+		unsigned char reg, unsigned short *val);
 
 static inline unsigned short
 miiphy_read_ret(unsigned short phy, unsigned short reg)
 {
     unsigned short val;
-    miiphy_read(phy,reg,&val);
+    gt6426x_miiphy_read(GT6426x_MII_DEVNAME,phy,reg,&val);
     return val;
 }
 
@@ -339,8 +344,8 @@ gt6426x_eth_disable(void *v)
 MII utilities - write: write to an MII register via SMI
 ***************************************************************************/
 int
-miiphy_write(unsigned char phy, unsigned char reg,
-    unsigned short data)
+gt6426x_miiphy_write(char *devname, unsigned char phy,
+		unsigned char reg, unsigned short data)
 {
     unsigned int temp= (reg<<21) | (phy<<16) | data;
 
@@ -354,8 +359,8 @@ miiphy_write(unsigned char phy, unsigned char reg,
 MII utilities - read: read from an MII register via SMI
 ***************************************************************************/
 int
-miiphy_read(unsigned char phy, unsigned char reg,
-			unsigned short *val)
+gt6426x_miiphy_read(char *devname, unsigned char phy,
+		unsigned char reg, unsigned short *val)
 {
     unsigned int temp= (reg<<21) | (phy<<16) | 1<<26;
 
@@ -444,7 +449,7 @@ check_phy_state(struct eth_dev_s *p)
 		if ((psr & 0x3) != want) {
 			printf("MII: GT thinks %x, PHY thinks %x, restarting autoneg..\n",
 					psr & 0x3, want);
-			miiphy_write(ether_port_phy_addr[p->dev],0,
+			miiphy_write(GT6426x_MII_DEVNAME,ether_port_phy_addr[p->dev],0,
 					miiphy_read_ret(ether_port_phy_addr[p->dev],0) | (1<<9));
 			udelay(10000);	/* the EVB's GT takes a while to notice phy
 					   went down and up */
@@ -490,7 +495,7 @@ gt6426x_eth_probe(void *v, bd_t *bis)
 	   led 2: 0xc=link/rxact
 	   led 3: 0x2=rxact (N/C)
 	   strch: 0,2=30 ms, enable */
-	miiphy_write(ether_port_phy_addr[p->dev], 20, 0x1c22);
+	miiphy_write(GT6426x_MII_DEVNAME,ether_port_phy_addr[p->dev], 20, 0x1c22);
 
 	/* 2.7ns port rise time */
 	/*miiphy_write(ether_port_phy_addr[p->dev], 30, 0x0<<10); */
@@ -792,6 +797,11 @@ gt6426x_eth_initialize(bd_t *bis)
 
 
 		eth_register(dev);
+#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+		miiphy_register(dev->name,
+				gt6426x_miiphy_read, gt6426x_miiphy_write);
+#endif
 	}
+
 }
 #endif /* CFG_CMD_NET && CONFIG_NET_MULTI */

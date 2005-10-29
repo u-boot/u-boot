@@ -38,6 +38,11 @@
 #include <watchdog.h>
 #endif
 
+int fec8xx_miiphy_read(char *devname, unsigned char addr,
+		unsigned char  reg, unsigned short *value);
+int fec8xx_miiphy_write(char *devname, unsigned char  addr,
+		unsigned char  reg, unsigned short value);
+
 /****************************************************************/
 
 /* some sane bit macros */
@@ -483,12 +488,13 @@ void reset_phys(void)
 	mii_init();
 
 	for (phyno = 0; phyno < 32; ++phyno) {
-		miiphy_read(phyno, PHY_PHYIDR1, &v);
+		fec8xx_miiphy_read(NULL, phyno, PHY_PHYIDR1, &v);
 		if (v == 0xFFFF)
 			continue;
-		miiphy_write(phyno, PHY_BMCR, PHY_BMCR_POWD);
+		fec8xx_miiphy_write(NULL, phyno, PHY_BMCR, PHY_BMCR_POWD);
 		udelay(10000);
-		miiphy_write(phyno, PHY_BMCR, PHY_BMCR_RESET | PHY_BMCR_AUTON);
+		fec8xx_miiphy_write(NULL, phyno, PHY_BMCR,
+				PHY_BMCR_RESET | PHY_BMCR_AUTON);
 		udelay(10000);
 	}
 }

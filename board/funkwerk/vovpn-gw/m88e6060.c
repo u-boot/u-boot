@@ -160,12 +160,12 @@ m88e6060_initialize( int devAddr )
 
 	/*** reset all phys into powerdown ************************************/
 	for (i=0, err=0; i<M88X_PHY_CNT; i++) {
-		err += miiphy_read( devAddr+phyTab[i],M88X_PHY_CNTL,&val );
+		err += bb_miiphy_read(NULL, devAddr+phyTab[i],M88X_PHY_CNTL,&val );
 		/* keep SpeedLSB, Duplex */
 		val &= 0x2100;
 		/* set SWReset, AnegEn, PwrDwn, RestartAneg */
 		val |= 0x9a00;
-		err += miiphy_write( devAddr+phyTab[i],M88X_PHY_CNTL,val );
+		err += bb_miiphy_write(NULL, devAddr+phyTab[i],M88X_PHY_CNTL,val );
 	}
 	if (err) {
 		printf( "%s [ERR] reset phys\n",_f );
@@ -174,9 +174,9 @@ m88e6060_initialize( int devAddr )
 
 	/*** disable all ports ************************************************/
 	for (i=0, err=0; i<M88X_PRT_CNT; i++) {
-		err += miiphy_read( devAddr+prtTab[i],M88X_PRT_CNTL,&val );
+		err += bb_miiphy_read(NULL, devAddr+prtTab[i],M88X_PRT_CNTL,&val );
 		val &= 0xfffc;
-		err += miiphy_write( devAddr+prtTab[i],M88X_PRT_CNTL,val );
+		err += bb_miiphy_write(NULL, devAddr+prtTab[i],M88X_PRT_CNTL,val );
 	}
 	if (err) {
 		printf( "%s [ERR] disable ports\n",_f );
@@ -187,33 +187,33 @@ m88e6060_initialize( int devAddr )
 	/* set switch mac addr */
 #define ea eth_get_dev()->enetaddr
 	val = (ea[4] <<  8) | ea[5];
-	err = miiphy_write( devAddr+15,M88X_GLB_MAC45,val );
+	err = bb_miiphy_write(NULL, devAddr+15,M88X_GLB_MAC45,val );
 	val = (ea[2] <<  8) | ea[3];
-	err += miiphy_write( devAddr+15,M88X_GLB_MAC23,val );
+	err += bb_miiphy_write(NULL, devAddr+15,M88X_GLB_MAC23,val );
 	val = (ea[0] <<  8) | ea[1];
 #undef ea
 	val &= 0xfeff;		/* clear DiffAddr */
-	err += miiphy_write( devAddr+15,M88X_GLB_MAC01,val );
+	err += bb_miiphy_write(NULL, devAddr+15,M88X_GLB_MAC01,val );
 	if (err) {
 		printf( "%s [ERR] switch mac address register\n",_f );
 		return( -1 );
 	}
 
 	/* !DiscardExcessive, MaxFrameSize, CtrMode */
-	err = miiphy_read( devAddr+15,M88X_GLB_CNTL,&val );
+	err = bb_miiphy_read(NULL, devAddr+15,M88X_GLB_CNTL,&val );
 	val &= 0xd870;
 	val |= 0x0500;
-	err += miiphy_write( devAddr+15,M88X_GLB_CNTL,val );
+	err += bb_miiphy_write(NULL, devAddr+15,M88X_GLB_CNTL,val );
 	if (err) {
 		printf( "%s [ERR] switch global control register\n",_f );
 		return( -1 );
 	}
 
 	/* LernDis off, ATUSize 1024, AgeTime 5min */
-	err = miiphy_read( devAddr+15,M88X_ATU_CNTL,&val );
+	err = bb_miiphy_read(NULL, devAddr+15,M88X_ATU_CNTL,&val );
 	val &= 0x000f;
 	val |= 0x2130;
-	err += miiphy_write( devAddr+15,M88X_ATU_CNTL,val );
+	err += bb_miiphy_write(NULL, devAddr+15,M88X_ATU_CNTL,val );
 	if (err) {
 		printf( "%s [ERR] atu control register\n",_f );
 		return( -1 );
@@ -226,10 +226,10 @@ m88e6060_initialize( int devAddr )
 		}
 		while (p->reg != -1) {
 			err = 0;
-			err += miiphy_read( devAddr+prtTab[i],p->reg,&val );
+			err += bb_miiphy_read(NULL, devAddr+prtTab[i],p->reg,&val );
 			val &= p->msk;
 			val |= p->val;
-			err += miiphy_write( devAddr+prtTab[i],p->reg,val );
+			err += bb_miiphy_write(NULL, devAddr+prtTab[i],p->reg,val );
 			if (err) {
 				printf( "%s [ERR] config port %d register %d\n",_f,i,p->reg );
 				/* XXX what todo */
@@ -245,10 +245,10 @@ m88e6060_initialize( int devAddr )
 		}
 		while (p->reg != -1) {
 			err = 0;
-			err += miiphy_read( devAddr+phyTab[i],p->reg,&val );
+			err += bb_miiphy_read(NULL, devAddr+phyTab[i],p->reg,&val );
 			val &= p->msk;
 			val |= p->val;
-			err += miiphy_write( devAddr+phyTab[i],p->reg,val );
+			err += bb_miiphy_write(NULL, devAddr+phyTab[i],p->reg,val );
 			if (err) {
 				printf( "%s [ERR] config phy %d register %d\n",_f,i,p->reg );
 				/* XXX what todo */

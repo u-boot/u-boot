@@ -167,6 +167,11 @@ static void mal_err (struct eth_device *dev, unsigned long isr,
 		     unsigned long mal_errr);
 static void emac_err (struct eth_device *dev, unsigned long isr);
 
+extern int phy_setup_aneg (char *devname, unsigned char addr);
+extern int emac4xx_miiphy_read (char *devname, unsigned char addr,
+		unsigned char reg, unsigned short *value);
+extern int emac4xx_miiphy_write (char *devname, unsigned char addr,
+		unsigned char reg, unsigned short value);
 
 /*-----------------------------------------------------------------------------+
 | ppc_4xx_eth_halt
@@ -205,9 +210,6 @@ static void ppc_4xx_eth_halt (struct eth_device *dev)
 
 	return;
 }
-
-extern int phy_setup_aneg (unsigned char addr);
-extern int miiphy_reset (unsigned char addr);
 
 #if defined (CONFIG_440GX)
 int ppc_4xx_eth_setup_bridge(int devnum, bd_t * bis)
@@ -462,7 +464,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	 * otherwise, just check the speeds & feeds
 	 */
 	if (hw_p->first_init == 0) {
-		miiphy_reset (reg);
+		miiphy_reset (dev->name, reg);
 
 #if defined(CONFIG_440GX)
 #if defined(CONFIG_CIS8201_PHY)
@@ -472,9 +474,9 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 		 */
 		if ( ((devnum == 2) || (devnum ==3)) && (4 == ethgroup) ) {
 #if defined(CONFIG_CIS8201_SHORT_ETCH)
-			miiphy_write (reg, 23, 0x1300);
+			miiphy_write (dev->name, reg, 23, 0x1300);
 #else
-			miiphy_write (reg, 23, 0x1000);
+			miiphy_write (dev->name, reg, 23, 0x1000);
 #endif
 			/*
 			 * Vitesse VSC8201/Cicada CIS8201 errata:
@@ -482,26 +484,26 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 			 * This work around (provided by Vitesse) changes
 			 * the default timer convergence from 8ms to 12ms
 			 */
-			miiphy_write (reg, 0x1f, 0x2a30);
-			miiphy_write (reg, 0x08, 0x0200);
-			miiphy_write (reg, 0x1f, 0x52b5);
-			miiphy_write (reg, 0x02, 0x0004);
-			miiphy_write (reg, 0x01, 0x0671);
-			miiphy_write (reg, 0x00, 0x8fae);
-			miiphy_write (reg, 0x1f, 0x2a30);
-			miiphy_write (reg, 0x08, 0x0000);
-			miiphy_write (reg, 0x1f, 0x0000);
+			miiphy_write (dev->name, reg, 0x1f, 0x2a30);
+			miiphy_write (dev->name, reg, 0x08, 0x0200);
+			miiphy_write (dev->name, reg, 0x1f, 0x52b5);
+			miiphy_write (dev->name, reg, 0x02, 0x0004);
+			miiphy_write (dev->name, reg, 0x01, 0x0671);
+			miiphy_write (dev->name, reg, 0x00, 0x8fae);
+			miiphy_write (dev->name, reg, 0x1f, 0x2a30);
+			miiphy_write (dev->name, reg, 0x08, 0x0000);
+			miiphy_write (dev->name, reg, 0x1f, 0x0000);
 			/* end Vitesse/Cicada errata */
 		}
 #endif
 #endif
 		/* Start/Restart autonegotiation */
-		phy_setup_aneg (reg);
+		phy_setup_aneg (dev->name, reg);
 		udelay (1000);
 	}
 #endif /* defined(CONFIG_PHY_RESET) */
 
-	miiphy_read (reg, PHY_BMSR, &reg_short);
+	miiphy_read (dev->name, reg, PHY_BMSR, &reg_short);
 
 	/*
 	 * Wait if PHY is capable of autonegotiation and autonegotiation is not complete
@@ -523,7 +525,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 				putc ('.');
 			}
 			udelay (1000);	/* 1 ms */
-			miiphy_read (reg, PHY_BMSR, &reg_short);
+			miiphy_read (dev->name, reg, PHY_BMSR, &reg_short);
 
 		}
 		puts (" done\n");
@@ -531,8 +533,8 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	}
 #endif /* #ifndef CONFIG_CS8952_PHY */
 
-	speed = miiphy_speed (reg);
-	duplex = miiphy_duplex (reg);
+	speed = miiphy_speed (dev->name, reg);
+	duplex = miiphy_duplex (dev->name, reg);
 
 	if (hw_p->print_speed) {
 		hw_p->print_speed = 0;
@@ -1485,6 +1487,10 @@ int ppc_4xx_eth_initialize (bd_t * bis)
 #else
 		emac0_dev = dev;
 #endif
+#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+		miiphy_register (dev->name,
+				emac4xx_miiphy_read, emac4xx_miiphy_write);
+#endif
 
 	}			/* end for each supported device */
 	return (1);
@@ -1519,6 +1525,16 @@ int eth_send(volatile void *packet, int length)
 int eth_rx(void)
 {
 	return (ppc_4xx_eth_rx(emac0_dev));
+}
+
+int emac4xx_miiphy_initialize (bd_t * bis)
+{
+#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+	miiphy_register ("ppc_4xx_eth0",
+			emac4xx_miiphy_read, emac4xx_miiphy_write);
+#endif
+
+	return 0;
 }
 #endif /* !defined(CONFIG_NET_MULTI) */
 

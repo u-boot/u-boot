@@ -731,12 +731,12 @@ int last_stage_init (void)
 	char *s;
 	mem_test_reloc();
 	/* write correct LED configuration */
-	if (miiphy_write (0x1, 0x14, 0x2402) != 0) {
+	if (miiphy_write("ppc_4xx_eth0", 0x1, 0x14, 0x2402) != 0) {
 		printf ("Error writing to the PHY\n");
 	}
 	/* since LED/CFG2 is not connected on the -2,
 	 * write to correct capability information */
-	if (miiphy_write (0x1, 0x4, 0x01E1) != 0) {
+	if (miiphy_write("ppc_4xx_eth0", 0x1, 0x4, 0x01E1) != 0) {
 		printf ("Error writing to the PHY\n");
 	}
 	print_mip405_rev ();

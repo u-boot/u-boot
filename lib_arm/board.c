@@ -345,8 +345,10 @@ void start_armboot (void)
 #ifdef BOARD_LATE_INIT
 	board_late_init ();
 #endif
-#if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_NET_MULTI)
+#if (CONFIG_COMMANDS & CFG_CMD_NET)
+#if defined(CONFIG_NET_MULTI)
 	puts ("Net:   ");
+#endif
 	eth_initialize(gd->bd);
 #endif
 	/* main_loop() can return to retry autoboot, if so just run it again. */

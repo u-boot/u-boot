@@ -43,7 +43,9 @@
 
 #define CONFIG_PCI
 #define CONFIG_TSEC_ENET 		/* tsec ethernet support */
+#undef CONFIG_TSEC_ENET 		/* tsec ethernet support */
 #undef  CONFIG_ETHER_ON_FCC             /* cpm FCC ethernet support */
+#define  CONFIG_ETHER_ON_FCC             /* cpm FCC ethernet support */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup*/
 #define CONFIG_DDR_DLL			/* possible DLL fix needed */

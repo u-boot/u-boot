@@ -85,6 +85,7 @@
 
 #undef	CONFIG_SCC1_ENET		/* disable SCC1 ethernet */
 #define	CONFIG_FEC_ENET		1	/* use FEC ethernet  */
+#define	CONFIG_MII		1
 #if 1
 #define CFG_DISCOVER_PHY	1
 #else

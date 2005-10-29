@@ -461,7 +461,7 @@ restart:
 	/*
 	 * Echo the inverted link state to the fault LED.
 	 */
-	if(miiphy_link(CFG_FAULT_MII_ADDR)) {
+	if(miiphy_link(eth_get_dev()->name, CFG_FAULT_MII_ADDR)) {
 		status_led_set (STATUS_LED_RED, STATUS_LED_OFF);
 	} else {
 		status_led_set (STATUS_LED_RED, STATUS_LED_ON);
@@ -512,7 +512,7 @@ restart:
 			/*
 			 * Echo the inverted link state to the fault LED.
 			 */
-			if(miiphy_link(CFG_FAULT_MII_ADDR)) {
+			if(miiphy_link(eth_get_dev()->name, CFG_FAULT_MII_ADDR)) {
 				status_led_set (STATUS_LED_RED, STATUS_LED_OFF);
 			} else {
 				status_led_set (STATUS_LED_RED, STATUS_LED_ON);

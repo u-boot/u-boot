@@ -767,8 +767,8 @@ enum mii_status {
 /**
  * Read a 16-bit value from an MII register.
  */
-extern int miiphy_read(unsigned char const addr, unsigned char const reg,
-		       unsigned short *const value)
+extern int ns7520_miiphy_read(char *devname, unsigned char const addr,
+		unsigned char const reg, unsigned short *const value)
 {
 	int ret = MII_STATUS_FAILURE;
 
@@ -813,8 +813,8 @@ extern int miiphy_read(unsigned char const addr, unsigned char const reg,
 /**
  * Write a 16-bit value to an MII register.
  */
-extern int miiphy_write(unsigned char const addr, unsigned char const reg,
-			unsigned short const value)
+extern int ns7520_miiphy_write(char *devname, unsigned char const addr,
+		unsigned char const reg, unsigned short const value)
 {
 	int ret = MII_STATUS_FAILURE;
 
@@ -847,3 +847,13 @@ extern int miiphy_write(unsigned char const addr, unsigned char const reg,
 }
 #endif				/* defined(CONFIG_MII) */
 #endif				/* CONFIG_DRIVER_NS7520_ETHERNET */
+
+int ns7520_miiphy_initialize(bd_t *bis)
+{
+#if defined(CONFIG_DRIVER_NS7520_ETHERNET)
+#if defined(CONFIG_MII)
+	miiphy_register("ns7520phy", ns7520_miiphy_read, ns7520_miiphy_write);
+#endif
+#endif
+	return 0;
+}
