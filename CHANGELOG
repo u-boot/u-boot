@@ -3,6 +3,26 @@ Changes for U-Boot 1.1.4:
 ======================================================================
 
 * Add support for multiple PHYs.
+  Tested on the following boards:
+	cmcpu2      (at91rm9200/ether.c)
+	PPChameleon (ppc4xx/4xx_enet.c)
+	yukon       (mpc8220/fec.c)
+	uc100       (mpc8xx/fec.c)
+	tqm834x     (mpc834x/tsec.c) with EEPRO100
+	lite5200    (mpc5xxx/fec.c) with EEPRO100 card (drivers/eepro100.c)
+  Main changes include:
+  common/miiphyutil.c
+  - miiphy_register routine was added to allow multiple PHYs to be registered
+  - miiphy_read and miiphy_write are now defined in this file, and
+    require additional argument (char *devname)
+  - other miiphy_* routines also require additional device name argument
+  ../lib_i386/board.c
+  ../lib_ppc/board.c
+  Calling reset_phy() was moved to be executed *after* eth_initialize().
+  This is necessary as now some of the implementations of reset_phy()
+  may need to use miiphy_reset() which is not allowed before eth_initialize()
+  as eth_initialize registers all required miiphy_* routines.
+  Tested on IP860 and PHY initializes properly after this change.
 
 * Correct includes for flat tree builder.
 
