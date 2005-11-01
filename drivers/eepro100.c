@@ -26,6 +26,7 @@
 #include <net.h>
 #include <asm/io.h>
 #include <pci.h>
+#include <miiphy.h>
 
 #undef DEBUG
 
@@ -271,49 +272,124 @@ static inline void OUTL (struct eth_device *dev, int command, u_long addr)
 	*(volatile u32 *) ((addr + dev->iobase)) = cpu_to_le32 (command);
 }
 
-#if defined (CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
 static inline int INL (struct eth_device *dev, u_long addr)
 {
 	return le32_to_cpu (*(volatile u32 *) (addr + dev->iobase));
 }
 
-int miiphy_read (unsigned char	addr,
-		unsigned char  reg,
-		unsigned short *value)
+static int get_phyreg (struct eth_device *dev, unsigned char addr,
+		unsigned char reg, unsigned short *value)
 {
-	int cmd = (2 << 26) | ((addr & 0x1f) << 21) | ((reg & 0x1f) << 16);
+	int cmd;
+	int timeout = 50;
 
-	struct eth_device *dev = eth_get_dev ();
-
+	/* read requested data */
+	cmd = (2 << 26) | ((addr & 0x1f) << 21) | ((reg & 0x1f) << 16);
 	OUTL (dev, cmd, SCBCtrlMDI);
 
 	do {
+		udelay(1000);
 		cmd = INL (dev, SCBCtrlMDI);
-	} while (!(cmd & (1 << 28)));
+	} while (!(cmd & (1 << 28)) && (--timeout));
+
+	if (timeout == 0)
+		return -1;
 
 	*value = (unsigned short) (cmd & 0xffff);
 
 	return 0;
 }
 
-int miiphy_write (unsigned char	 addr,
-		unsigned char  reg,
-		unsigned short value)
+static int set_phyreg (struct eth_device *dev, unsigned char addr,
+		unsigned char reg, unsigned short value)
 {
-	int cmd = (1 << 26) | ((addr & 0x1f) << 21) | ((reg & 0x1f) << 16);
+	int cmd;
+	int timeout = 50;
 
-	struct eth_device *dev = eth_get_dev ();
-
+	/* write requested data */
+	cmd = (1 << 26) | ((addr & 0x1f) << 21) | ((reg & 0x1f) << 16);
 	OUTL (dev, cmd | value, SCBCtrlMDI);
 
-	while (!(INL (dev, SCBCtrlMDI) & (1 << 28)));
+	while (!(INL (dev, SCBCtrlMDI) & (1 << 28)) && (--timeout))
+		udelay(1000);
+
+	if (timeout == 0)
+		return -1;
 
 	return 0;
 }
-#endif /* (CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII) */
 
-	/* Wait for the chip get the command.
-	 */
+/* Check if given phyaddr is valid, i.e. there is a PHY connected.
+ * Do this by checking model value field from ID2 register.
+ */
+static struct eth_device* verify_phyaddr (char *devname, unsigned char addr)
+{
+	struct eth_device *dev;
+	unsigned short value;
+	unsigned char model;
+
+	dev = eth_get_dev_by_name(devname);
+	if (dev == NULL) {
+		printf("%s: no such device\n", devname);
+		return NULL;
+	}
+
+	/* read id2 register */
+	if (get_phyreg(dev, addr, PHY_PHYIDR2, &value) != 0) {
+		printf("%s: mii read timeout!\n", devname);
+		return NULL;
+	}
+
+	/* get model */
+	model = (unsigned char)((value >> 4) & 0x003f);
+
+	if (model == 0) {
+		printf("%s: no PHY at address %d\n", devname, addr);
+		return NULL;
+	}
+
+	return dev;
+}
+
+static int eepro100_miiphy_read (char *devname, unsigned char addr,
+		unsigned char reg, unsigned short *value)
+{
+	struct eth_device *dev;
+
+	dev = verify_phyaddr(devname, addr);
+	if (dev == NULL)
+		return -1;
+
+	if (get_phyreg(dev, addr, reg, value) != 0) {
+		printf("%s: mii read timeout!\n", devname);
+		return -1;
+	}
+
+	return 0;
+}
+
+static int eepro100_miiphy_write (char *devname, unsigned char addr,
+		unsigned char reg, unsigned short value)
+{
+	struct eth_device *dev;
+
+	dev = verify_phyaddr(devname, addr);
+	if (dev == NULL)
+		return -1;
+
+	if (set_phyreg(dev, addr, reg, value) != 0) {
+		printf("%s: mii write timeout!\n", devname);
+		return -1;
+	}
+
+	return 0;
+}
+
+#endif /* defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII) */
+
+/* Wait for the chip get the command.
+*/
 static int wait_for_eepro100 (struct eth_device *dev)
 {
 	int i;
@@ -385,6 +461,12 @@ int eepro100_initialize (bd_t * bis)
 		dev->recv = eepro100_recv;
 
 		eth_register (dev);
+
+#if defined (CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+		/* register mii command access routines */
+		miiphy_register(dev->name,
+				eepro100_miiphy_read, eepro100_miiphy_write);
+#endif
 
 		card_number++;
 

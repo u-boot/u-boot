@@ -317,15 +317,6 @@ void start_i386boot (void)
 	misc_init_r();
 #endif
 
-
-#if (CONFIG_COMMANDS & CFG_CMD_NET) && (0)
-	WATCHDOG_RESET();
-# ifdef DEBUG
-	puts ("Reset Ethernet PHY\n");
-# endif
-	reset_phy();
-#endif
-
 #if (CONFIG_COMMANDS & CFG_CMD_PCMCIA) && !(CONFIG_COMMANDS & CFG_CMD_IDE)
 	WATCHDOG_RESET();
 	puts ("PCMCIA:");
@@ -387,10 +378,20 @@ void start_i386boot (void)
 	doc_init();
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_NET_MULTI)
+#if (CONFIG_COMMANDS & CFG_CMD_NET)
+#if defined(CONFIG_NET_MULTI)
 	WATCHDOG_RESET();
 	puts("Net:   ");
+#endif
 	eth_initialize(gd->bd);
+#endif
+
+#if (CONFIG_COMMANDS & CFG_CMD_NET) && (0)
+	WATCHDOG_RESET();
+# ifdef DEBUG
+	puts ("Reset Ethernet PHY\n");
+# endif
+	reset_phy();
 #endif
 
 #ifdef CONFIG_LAST_STAGE_INIT

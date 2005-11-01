@@ -237,9 +237,14 @@ void reset_phy (void)
 	udelay(1000);
 #endif
 #if defined(CONFIG_MII) && defined(CONFIG_ETHER_ON_FCC)
-	miiphy_reset(0x0);	/* reset PHY */
-	miiphy_write(0, PHY_MIPSCR, 0xf028); /* change PHY address to 0x02 */
-	miiphy_write(0x02, PHY_BMCR, PHY_BMCR_AUTON | PHY_BMCR_RST_NEG);
+	/* reset PHY */
+	miiphy_reset("FCC1 ETHERNET", 0x0);
+
+	/* change PHY address to 0x02 */
+	bb_miiphy_write(NULL, 0, PHY_MIPSCR, 0xf028);
+
+	bb_miiphy_write(NULL, 0x02, PHY_BMCR,
+			PHY_BMCR_AUTON | PHY_BMCR_RST_NEG);
 #endif /* CONFIG_MII */
 }
 

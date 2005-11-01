@@ -121,7 +121,8 @@ static void miiphy_pre (char read, unsigned char addr, unsigned char reg)
  * Returns:
  *   0 on success
  */
-int miiphy_read (unsigned char addr, unsigned char reg, unsigned short *value)
+int bb_miiphy_read (char *devname, unsigned char addr,
+		unsigned char reg, unsigned short *value)
 {
 	short rdreg;		/* register working value */
 	int j;			/* counter */
@@ -188,7 +189,8 @@ int miiphy_read (unsigned char addr, unsigned char reg, unsigned short *value)
  * Returns:
  *   0 on success
  */
-int miiphy_write (unsigned char addr, unsigned char reg, unsigned short value)
+int bb_miiphy_write (char *devname, unsigned char addr,
+		unsigned char reg, unsigned short value)
 {
 	int j;			/* counter */
 #ifndef CONFIG_EP8248

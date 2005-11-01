@@ -238,8 +238,9 @@ void reset_phy (void)
 	 * Do not bypass Rx/Tx (de)scrambler (fix configuration error)
 	 * Enable autonegotiation.
 	 */
-	miiphy_write(CFG_PHY_ADDR, 16, 0x610);
-	miiphy_write(CFG_PHY_ADDR, PHY_BMCR, PHY_BMCR_AUTON | PHY_BMCR_RST_NEG);
+	bb_miiphy_write(NULL, CFG_PHY_ADDR, 16, 0x610);
+	bb_miiphy_write(NULL, CFG_PHY_ADDR, PHY_BMCR,
+			PHY_BMCR_AUTON | PHY_BMCR_RST_NEG);
 #else
 	/*
 	 * Ethernet PHY is configured (by means of configuration pins)
@@ -247,9 +248,15 @@ void reset_phy (void)
 	 * to advertise all capabilities, including 100Mb/s, and
 	 * restart autonegotiation.
 	 */
-	miiphy_write(CFG_PHY_ADDR, PHY_ANAR, 0x01E1); /* Advertise all capabilities */
-	miiphy_write(CFG_PHY_ADDR, PHY_DCR,  0x0000); /* Do not bypass Rx/Tx (de)scrambler */
-	miiphy_write(CFG_PHY_ADDR, PHY_BMCR, PHY_BMCR_AUTON | PHY_BMCR_RST_NEG);
+
+	/* Advertise all capabilities */
+	bb_miiphy_write(NULL, CFG_PHY_ADDR, PHY_ANAR, 0x01E1);
+	
+	/* Do not bypass Rx/Tx (de)scrambler */
+	bb_miiphy_write(NULL, CFG_PHY_ADDR, PHY_DCR,  0x0000);
+
+	bb_miiphy_write(NULL, CFG_PHY_ADDR, PHY_BMCR,
+			PHY_BMCR_AUTON | PHY_BMCR_RST_NEG);
 #endif /* CONFIG_ADSTYPE == CFG_PQ2FADS */
 #endif /* CONFIG_MII */
 }

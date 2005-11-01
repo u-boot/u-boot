@@ -280,6 +280,7 @@ extern int tqm834x_num_flash_banks;
 
 
 #undef CONFIG_EEPRO100
+#define CONFIG_EEPRO100
 #undef CONFIG_TULIP
 
 #if !defined(CONFIG_PCI_PNP)

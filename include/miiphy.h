@@ -38,18 +38,38 @@
 #ifndef _miiphy_h_
 #define _miiphy_h_
 
+#include <net.h>
 
-int  miiphy_read(unsigned char addr, unsigned char reg, unsigned short * value);
-int  miiphy_write(unsigned char addr, unsigned char reg, unsigned short value);
-int  miiphy_info(unsigned char addr, unsigned int  *oui, unsigned char *model,
-		 unsigned char *rev);
-int  miiphy_reset(unsigned char addr);
-int  miiphy_speed(unsigned char addr);
-int  miiphy_duplex(unsigned char addr);
+int  miiphy_read(char *devname, unsigned char addr, unsigned char reg,
+		unsigned short *value);
+int  miiphy_write(char *devname, unsigned char addr, unsigned char reg,
+		unsigned short value);
+int  miiphy_info(char *devname, unsigned char addr, unsigned int  *oui,
+		unsigned char *model, unsigned char *rev);
+int  miiphy_reset(char *devname, unsigned char addr);
+int  miiphy_speed(char *devname, unsigned char addr);
+int  miiphy_duplex(char *devname, unsigned char addr);
 #ifdef CFG_FAULT_ECHO_LINK_DOWN
-int  miiphy_link(unsigned char addr);
+int  miiphy_link(char *devname, unsigned char addr);
 #endif
 
+void miiphy_register(char *devname,
+	int (* read)(char *devname, unsigned char addr,
+		unsigned char reg, unsigned short *value),
+	int (* write)(char *devname, unsigned char addr,
+		unsigned char reg, unsigned short value));
+
+int miiphy_set_current_dev(char *devname);
+char *miiphy_get_current_dev(void);
+
+void miiphy_listdev(void);
+
+#define BB_MII_DEVNAME	"bbmii"
+
+int bb_miiphy_read (char *devname, unsigned char addr,
+		unsigned char reg, unsigned short *value);
+int bb_miiphy_write (char *devname, unsigned char addr,
+		unsigned char reg, unsigned short value);
 
 /* phy seed setup */
 #define AUTO			99

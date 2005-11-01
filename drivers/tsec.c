@@ -21,8 +21,9 @@
 
 #if defined(CONFIG_TSEC_ENET)
 #include "tsec.h"
+#include "miiphy.h"
 
-#define TX_BUF_CNT 2
+#define TX_BUF_CNT		2
 
 static uint rxIdx;	/* index of the current RX buffer */
 static uint txIdx;	/* index of the current TX buffer */
@@ -120,6 +121,10 @@ struct phy_info * get_phy_info(struct eth_device *dev);
 void phy_run_commands(struct tsec_private *priv, struct phy_cmd *cmd);
 static void adjust_link(struct eth_device *dev);
 static void relocate_cmds(void);
+static int tsec_miiphy_write(char *devname, unsigned char addr,
+		unsigned char reg, unsigned short value);
+static int tsec_miiphy_read(char *devname, unsigned char addr,
+		unsigned char reg, unsigned short *value);
 
 /* Initialize device structure. Returns success if PHY
  * initialization succeeded (i.e. if it recognizes the PHY)
@@ -168,6 +173,11 @@ int tsec_initialize(bd_t *bis, int index, char *devname)
 	/* Reset the MAC */
 	priv->regs->maccfg1 |= MACCFG1_SOFT_RESET;
 	priv->regs->maccfg1 &= ~(MACCFG1_SOFT_RESET);
+
+#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII) \
+	&& !defined(BITBANGMII)
+	miiphy_register(dev->name, tsec_miiphy_read, tsec_miiphy_write);
+#endif
 
 	/* Try to initialize PHY here, and return */
 	return init_phy(dev);
@@ -1058,7 +1068,8 @@ static void relocate_cmds(void)
 }
 
 
-#ifndef CONFIG_BITBANGMII
+#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII) \
+	&& !defined(BITBANGMII)
 
 struct tsec_private * get_priv_for_phy(unsigned char phyaddr)
 {
@@ -1078,7 +1089,8 @@ struct tsec_private * get_priv_for_phy(unsigned char phyaddr)
  * Returns:
  *  0 on success
  */
-int miiphy_read(unsigned char addr, unsigned char reg, unsigned short *value)
+static int tsec_miiphy_read(char *devname, unsigned char addr,
+		unsigned char reg, unsigned short *value)
 {
 	unsigned short ret;
 	struct tsec_private *priv = get_priv_for_phy(addr);
@@ -1100,7 +1112,8 @@ int miiphy_read(unsigned char addr, unsigned char reg, unsigned short *value)
  * Returns:
  *  0 on success
  */
-int miiphy_write(unsigned char addr, unsigned char reg, unsigned short value)
+static int tsec_miiphy_write(char *devname, unsigned char addr,
+		unsigned char reg, unsigned short value)
 {
 	struct tsec_private *priv = get_priv_for_phy(addr);
 
@@ -1114,6 +1127,7 @@ int miiphy_write(unsigned char addr, unsigned char reg, unsigned short value)
 	return 0;
 }
 
-#endif /* CONFIG_BITBANGMII */
+#endif /* defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+		&& !defined(BITBANGMII) */
 
 #endif /* CONFIG_TSEC_ENET */

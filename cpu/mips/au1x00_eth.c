@@ -63,6 +63,10 @@
 #include <asm/io.h>
 #include <asm/au1x00.h>
 
+#if (CONFIG_COMMANDS & CFG_CMD_MII)
+#include <miiphy.h>
+#endif
+
 /* Ethernet Transmit and Receive Buffers */
 #define DBUF_LENGTH  1520
 #define PKT_MAXBUF_SIZE		1518
@@ -233,11 +237,17 @@ int au1x00_enet_initialize(bd_t *bis){
 
 	eth_register(dev);
 
+#if (CONFIG_COMMANDS & CFG_CMD_MII)
+	miiphy_register(dev->name,
+		au1x00_miiphy_read, au1x00_miiphy_write);
+#endif
+
 	return 1;
 }
 
 #if (CONFIG_COMMANDS & CFG_CMD_MII)
-int  miiphy_read(unsigned char addr, unsigned char reg, unsigned short * value)
+int  au1x00_miiphy_read(char *devname, unsigned char addr,
+		unsigned char reg, unsigned short * value)
 {
 	volatile u32 *mii_control_reg = (volatile u32*)(ETH0_BASE+MAC_MII_CNTRL);
 	volatile u32 *mii_data_reg = (volatile u32*)(ETH0_BASE+MAC_MII_DATA);
@@ -269,7 +279,8 @@ int  miiphy_read(unsigned char addr, unsigned char reg, unsigned short * value)
 	return 0;
 }
 
-int  miiphy_write(unsigned char addr, unsigned char reg, unsigned short value)
+int  au1x00_miiphy_write(char *devname, unsigned char addr,
+		unsigned char reg, unsigned short value)
 {
 	volatile u32 *mii_control_reg = (volatile u32*)(ETH0_BASE+MAC_MII_CNTRL);
 	volatile u32 *mii_data_reg = (volatile u32*)(ETH0_BASE+MAC_MII_DATA);

@@ -164,10 +164,15 @@ long initdram (int board_type)
 int last_stage_init(void)
 {
 	/* initialize the PHY */
-	miiphy_reset(CONFIG_PHY_ADDR);
-	miiphy_write(CONFIG_PHY_ADDR, PHY_BMCR,
-			PHY_BMCR_AUTON | PHY_BMCR_RST_NEG);	/* AUTO neg */
-	miiphy_write(CONFIG_PHY_ADDR, PHY_FCSCR, 0x0d08);	/* LEDs     */
+	miiphy_reset("ppc_4xx_eth0", CONFIG_PHY_ADDR);
+
+	/* AUTO neg */
+	miiphy_write("ppc_4xx_eth0", CONFIG_PHY_ADDR, PHY_BMCR,
+			PHY_BMCR_AUTON | PHY_BMCR_RST_NEG);
+
+	/* LEDs     */
+	miiphy_write("ppc_4xx_eth0", CONFIG_PHY_ADDR, PHY_FCSCR, 0x0d08);
+
 
 	return 0; /* success */
 }

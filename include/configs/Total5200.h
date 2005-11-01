@@ -100,6 +100,7 @@
 #define CONFIG_PCI_IO_SIZE	0x01000000
 
 #define CONFIG_NET_MULTI	1
+#define CONFIG_MII		1
 #define CONFIG_EEPRO100		1
 #define CFG_RX_ETH_BUFFER	8  /* use 8 rx buffer on eepro100  */
 #define CONFIG_NS8382X		1
@@ -108,6 +109,7 @@
 
 #else	/* MGT5100 */
 
+#define CONFIG_MII		1
 #define ADD_PCI_CMD		0  /* no CFG_CMD_PCI */
 
 #endif

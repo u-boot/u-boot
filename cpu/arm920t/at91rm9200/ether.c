@@ -23,6 +23,7 @@
 
 #include <at91rm9200_net.h>
 #include <net.h>
+#include <miiphy.h>
 
 /* ----- Ethernet Buffer definitions ----- */
 
@@ -150,7 +151,6 @@ UCHAR at91rm9200_EmacWritePhy (AT91PS_EMAC p_mac,
 	return TRUE;
 }
 
-
 int eth_init (bd_t * bd)
 {
 	int ret;
@@ -265,8 +265,9 @@ void eth_halt (void)
 {
 };
 
-#if (CONFIG_COMMANDS & CFG_CMD_MII)
-int  miiphy_read(unsigned char addr, unsigned char reg, unsigned short * value)
+#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+int  at91rm9200_miiphy_read(char *devname, unsigned char addr,
+		unsigned char reg, unsigned short * value)
 {
 	at91rm9200_EmacEnableMDIO (p_mac);
 	at91rm9200_EmacReadPhy (p_mac, reg, value);
@@ -274,14 +275,24 @@ int  miiphy_read(unsigned char addr, unsigned char reg, unsigned short * value)
 	return 0;
 }
 
-int  miiphy_write(unsigned char addr, unsigned char reg, unsigned short value)
+int  at91rm9200_miiphy_write(char *devname, unsigned char addr,
+		unsigned char reg, unsigned short value)
 {
 	at91rm9200_EmacEnableMDIO (p_mac);
 	at91rm9200_EmacWritePhy (p_mac, reg, &value);
 	at91rm9200_EmacDisableMDIO (p_mac);
 	return 0;
 }
-#endif	/* CONFIG_COMMANDS & CFG_CMD_MII */
+
+#endif	/* defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII) */
+
+int at91rm9200_miiphy_initialize(bd_t *bis)
+{
+#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+	miiphy_register("at91rm9200phy", at91rm9200_miiphy_read, at91rm9200_miiphy_write);
+#endif
+	return 0;
+}
 
 #endif	/* CONFIG_COMMANDS & CFG_CMD_NET */
 

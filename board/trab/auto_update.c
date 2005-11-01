@@ -199,7 +199,7 @@ extern int transfer_pic(unsigned char, unsigned char *, int, int);
 #endif
 extern int flash_sect_erase(ulong, ulong);
 extern int flash_sect_protect (int, ulong, ulong);
-extern int flash_write (uchar *, ulong, ulong);
+extern int flash_write (char *, ulong, ulong);
 /* change char* to void* to shutup the compiler */
 extern int i2c_write_multiple (uchar, uint, int, void *, int);
 extern int i2c_read_multiple (uchar, uint, int, void *, int);
