@@ -178,6 +178,9 @@ int checkcpu (void)
 	case PVR_440GX_RC:
 		puts("GX Rev. C");
 		break;
+	case PVR_440GX_RF:
+		puts("GX Rev. F");
+		break;
 	case PVR_440EP_RA:
 		puts("EP Rev. A");
 		break;

@@ -80,6 +80,7 @@
 #define   FPGA_REG2_EXT_INTFACE_MASK      0x04
 #define   FPGA_REG2_EXT_INTFACE_ENABLE    0x00
 #define   FPGA_REG2_EXT_INTFACE_DISABLE   0x04
+#define   FPGA_REG2_SMII_RESET_DISABLE    0x02   /*Use on Ocotea pass 3 boards*/
 #define   FPGA_REG2_DEFAULT_UART1_N       0x01
 #define FPGA_REG3                       (CFG_FPGA_BASE + 0x03)
 #define   FPGA_REG3_GIGABIT_RESET_DISABLE 0x80   /*Use on Ocotea pass 1 boards*/

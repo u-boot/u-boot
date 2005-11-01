@@ -506,6 +506,15 @@ void fpga_init(void)
 		}
 	}
 
+	/*
+	 * new Ocotea with Rev. F (pass 3) chips has SMII PHY reset
+	 */
+	if ((in8(FPGA_REG0) & FPGA_REG0_ECLS_MASK) == FPGA_REG0_ECLS_VER2) {
+		out8(FPGA_REG2, in8(FPGA_REG2) & ~FPGA_REG2_SMII_RESET_DISABLE);
+		udelay(10000);
+		out8(FPGA_REG2, in8(FPGA_REG2) | FPGA_REG2_SMII_RESET_DISABLE);
+	}
+
 	/* Turn off the LED's */
 	out8(FPGA_REG3, (in8(FPGA_REG3) & ~FPGA_REG3_STAT_MASK) |
 	     FPGA_REG3_STAT_LED8_DISAB | FPGA_REG3_STAT_LED4_DISAB |
