@@ -50,7 +50,14 @@ static inline int nand_block_isbad(nand_info_t *info, ulong ofs)
 
 static inline int nand_erase(nand_info_t *info, ulong off, ulong size)
 {
-	return 0; /* FIXME */
+	struct erase_info instr;
+
+	instr.mtd = info;
+	instr.addr = off;
+	instr.len = size;
+	instr.callback = 0;
+
+	return info->erase(info, &instr);
 }
 
 #endif

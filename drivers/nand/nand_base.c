@@ -189,7 +189,11 @@ static void nand_release_device (struct mtd_info *mtd)
 	spin_unlock (&this->chip_lock);
 }
 #else
-#define nand_release_device(mtd)	do {} while(0)
+static void nand_release_device (struct mtd_info *mtd)
+{
+	struct nand_chip *this = mtd->priv;
+	this->select_chip(mtd, -1);	/* De-select the NAND device */
+}
 #endif
 
 /**
@@ -831,8 +835,34 @@ static int nand_wait(struct mtd_info *mtd, struct nand_chip *this, int state)
 #else
 static int nand_wait(struct mtd_info *mtd, struct nand_chip *this, int state)
 {
-	/* TODO */
-	return 0;
+	unsigned long	timeo;
+
+	if (state == FL_ERASING)
+		timeo = CFG_HZ * 400;
+	else
+		timeo = CFG_HZ * 20;
+
+	if ((state == FL_ERASING) && (this->options & NAND_IS_AND))
+		this->cmdfunc(mtd, NAND_CMD_STATUS_MULTI, -1, -1);
+	else
+		this->cmdfunc(mtd, NAND_CMD_STATUS, -1, -1);
+
+	reset_timer_masked();
+
+	while (1) {
+		if (get_timer_masked() > timeo)
+			return 0;
+
+		if (this->dev_ready) {
+			if (this->dev_ready(mtd))
+				break;
+		} else {
+			if (this->read_byte(mtd) & NAND_STATUS_READY)
+				break;
+		}
+	}
+
+	return this->read_byte(mtd);
 }
 #endif
 
