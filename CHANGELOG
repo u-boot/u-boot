@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Additional fix for external IRQ config on Yellowstone & Yosemite
+  Patch by Stefan Roese, 03 Nov 2005
+
 * Add support for Ocotea pass 3 with 440GX Rev. F
   Patch by Stefan Roese, 01 Nov 2005
 
