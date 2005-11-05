@@ -169,6 +169,10 @@ int misc_init_r (void)
 	mtdcr(ebccfga, pb0cr);
 	mtdcr(ebccfgd, pbcr);
 
+	/* adjust flash start and offset */
+	gd->bd->bi_flashstart = 0 - gd->bd->bi_flashsize;
+	gd->bd->bi_flashoffset = 0;
+
 	/* Monitor protection ON by default */
 	(void)flash_protect(FLAG_PROTECT_SET,
 			    -CFG_MONITOR_LEN,
