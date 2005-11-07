@@ -61,16 +61,6 @@ pci_mpc85xx_init(struct pci_controller *hose)
 			   (CFG_IMMR+0x8000),
 			   (CFG_IMMR+0x8004));
 
-	pci_read_config_word (PCI_BDF(0,0,0), PCI_COMMAND, &reg16);
-	reg16 |= PCI_COMMAND_SERR | PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY;
-	pci_write_config_word(PCI_BDF(0,0,0), PCI_COMMAND, reg16);
-
-	/*
-	 * Clear non-reserved bits in status register.
-	 */
-	pci_write_config_word(PCI_BDF(0,0,0), PCI_STATUS, 0xffff);
-	pci_write_config_byte(PCI_BDF(0,0,0), PCI_LATENCY_TIMER,0x80);
-
 	pcix->potar1   = (CFG_PCI1_MEM_BASE >> 12) & 0x000fffff;
 	pcix->potear1  = 0x00000000;
 	pcix->powbar1  = (CFG_PCI1_MEM_BASE >> 12) & 0x000fffff;
@@ -92,6 +82,16 @@ pci_mpc85xx_init(struct pci_controller *hose)
 	 * Hose scan.
 	 */
 	pci_register_hose(hose);
+
+	pci_read_config_word (PCI_BDF(0,0,0), PCI_COMMAND, &reg16);
+	reg16 |= PCI_COMMAND_SERR | PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY;
+	pci_write_config_word(PCI_BDF(0,0,0), PCI_COMMAND, reg16);
+
+	/*
+	 * Clear non-reserved bits in status register.
+	 */
+	pci_write_config_word(PCI_BDF(0,0,0), PCI_STATUS, 0xffff);
+	pci_write_config_byte(PCI_BDF(0,0,0), PCI_LATENCY_TIMER,0x80);
 
 #if defined(CONFIG_MPC8555CDS) || defined(CONFIG_MPC8541CDS)
 	/*
