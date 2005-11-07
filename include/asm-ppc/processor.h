@@ -310,10 +310,10 @@
 #define SPRN_TBHU	0x3CC	/* Time Base High User-mode */
 #define SPRN_TBLO	0x3DD	/* Time Base Low */
 #define SPRN_TBLU	0x3CD	/* Time Base Low User-mode */
-#define SPRN_TBRL	0x10D	/* Time Base Read Lower Register */
-#define SPRN_TBRU	0x10C	/* Time Base Read Upper Register */
-#define SPRN_TBWL	0x11D	/* Time Base Write Lower Register */
-#define SPRN_TBWU	0x11C	/* Time Base Write Upper Register */
+#define SPRN_TBRL	0x10C	/* Time Base Read Lower Register */
+#define SPRN_TBRU	0x10D	/* Time Base Read Upper Register */
+#define SPRN_TBWL	0x11C	/* Time Base Write Lower Register */
+#define SPRN_TBWU	0x11D	/* Time Base Write Upper Register */
 #ifndef CONFIG_BOOKE
 #define SPRN_TCR	0x3DA	/* Timer Control Register */
 #else
