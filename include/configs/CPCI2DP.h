@@ -146,9 +146,9 @@
 #define CFG_PCI_PTM1LA  0x00000000      /* point to sdram               */
 #define CFG_PCI_PTM1MS  0xfc000001      /* 64MB, enable hard-wired to 1 */
 #define CFG_PCI_PTM1PCI 0x00000000      /* Host: use this pci address   */
-#define CFG_PCI_PTM2LA	0xef600000	/* point to internal regs + PB0/1 */
+#define CFG_PCI_PTM2LA	0xef000000	/* point to internal regs + PB0/1 */
 #define CFG_PCI_PTM2MS  0xff000001      /* 16MB, enable                  */
-#define CFG_PCI_PTM2PCI 0x04000000      /* Host: use this pci address   */
+#define CFG_PCI_PTM2PCI 0x00000000      /* Host: use this pci address   */
 
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration
@@ -237,11 +237,11 @@
 
 /* Memory Bank 2 (PB0) initialization					*/
 #define CFG_EBC_PB2AP		0x03004580  /* TWT=6,WBN=1,TH=2,RE=1,SOR=1 */
-#define CFG_EBC_PB2CR		0xF0018000  /* BAS=0xF00,BS=1MB,BU=R/W,BW=8bit	*/
+#define CFG_EBC_PB2CR		0xEF018000  /* BAS=0xF00,BS=1MB,BU=R/W,BW=8bit	*/
 
 /* Memory Bank 3 (PB1) initialization				*/
 #define CFG_EBC_PB3AP		0x03004580  /* TWT=6,WBN=1,TH=2,RE=1,SOR=1 */
-#define CFG_EBC_PB3CR		0xF0118000  /* BAS=0xF01,BS=1MB,BU=R/W,BW=8bit */
+#define CFG_EBC_PB3CR		0xEF118000  /* BAS=0xF01,BS=1MB,BU=R/W,BW=8bit */
 
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in data cache)
@@ -258,6 +258,7 @@
  * GPIO definitions
  */
 #define CFG_EEPROM_WP		(0x80000000 >> 13)   /* GPIO13 */
+#define CFG_PB_LED		(0x80000000 >> 16)   /* GPIO16 */
 #define CFG_INTA_FAKE		(0x80000000 >> 23)   /* GPIO23 */
 
 /*

@@ -31,14 +31,17 @@ int board_early_init_f (void)
 	unsigned long cntrl0Reg;
 
 	/*
-	 * Setup GPIO pins (CS4 as GPIO)
+	 * Setup GPIO pins (CS4+CS7 as GPIO)
 	 */
 	cntrl0Reg = mfdcr(cntrl0);
-	mtdcr(cntrl0, cntrl0Reg | 0x00800000);
+	mtdcr(cntrl0, cntrl0Reg | 0x00900000);
 
-	out32(GPIO0_OR,  CFG_INTA_FAKE | CFG_EEPROM_WP); /* set output pins to high */
-	out32(GPIO0_ODR, CFG_INTA_FAKE);                 /* INTA# is open drain */
-	out32(GPIO0_TCR, CFG_INTA_FAKE | CFG_EEPROM_WP); /* setup for output        */
+        /* set output pins to high */
+	out32(GPIO0_OR,  CFG_INTA_FAKE | CFG_EEPROM_WP | CFG_PB_LED);
+        /* INTA# is open drain */
+	out32(GPIO0_ODR, CFG_INTA_FAKE);
+        /* setup for output */
+	out32(GPIO0_TCR, CFG_INTA_FAKE | CFG_EEPROM_WP);
 
 	/*
 	 * IRQ 0-15  405GP internally generated; active high; level sensitive
