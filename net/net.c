@@ -829,7 +829,10 @@ static ushort CDP_compute_csum(const uchar *buff, ushort len)
 		}
 		if (len) {
 			leftover = (signed short)(*(const signed char *)buff);
-			/* * XXX CISCO SUCKS big time! (and blows too) */
+			/* CISCO SUCKS big time! (and blows too):
+			 * CDP uses the IP checksum algorithm with a twist;
+			 * for the last byte it *sign* extends and sums.
+			 */
 			result = (result & 0xffff0000) | ((result + leftover) & 0x0000ffff);
 		}
 		while (result >> 16)
