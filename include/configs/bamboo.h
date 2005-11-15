@@ -205,8 +205,9 @@
  * DDR SDRAM
  *----------------------------------------------------------------------------- */
 #define CONFIG_SPD_EEPROM               /* Use SPD EEPROM for setup             */
-#define SPD_EEPROM_ADDRESS      {0x50,0x51}	/* SPD i2c spd addresses	*/
-#define CFG_SDRAM_ONBOARD_SIZE  (64 << 20) /* Bamboo has onboard and DIMM-slots!*/
+#undef CONFIG_DDR_ECC			/* don't use ECC			*/
+#define CFG_SIMULATE_SPD_EEPROM	0xff	/* simulate spd eeprom on this address	*/
+#define SPD_EEPROM_ADDRESS      {CFG_SIMULATE_SPD_EEPROM, 0x50, 0x51}
 
 /*-----------------------------------------------------------------------
  * I2C
