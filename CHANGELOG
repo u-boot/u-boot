@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Fix Bamboo DDR SDRAM initialization (problem with onboard SDRAM)
+  Patch by Stefan Roese, 15 Nov 2005
+
 * New PPC 405EP board added: CMS700
   Added CONFIG_NET_MULTI for VOM405 board.
   Added reset_phy() for VOM405 board.
