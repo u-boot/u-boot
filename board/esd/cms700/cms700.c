@@ -1,6 +1,6 @@
 /*
- * (C) Copyright 2001-2004
- * Stefan Roese, esd gmbh germany, stefan.roese@esd-electronics.com
+ * (C) Copyright 2005
+ * Matthias Fuchs, esd gmbh germany, matthias.fuchs@esd-electronics.com
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -68,9 +68,9 @@ int board_early_init_f (void)
 	/*
 	 * Reset CPLD via GPIO12 (CS3) pin
 	 */
-	out32(GPIO0_OR, in32(GPIO0_OR) & ~(0x80000000 >> 12));
+	out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_PLD_RESET);
 	udelay(1000); /* wait 1ms */
-	out32(GPIO0_OR, in32(GPIO0_OR) | (0x80000000 >> 12));
+	out32(GPIO0_OR, in32(GPIO0_OR) | CFG_PLD_RESET);
 	udelay(1000); /* wait 1ms */
 
 	return 0;
@@ -79,6 +79,12 @@ int board_early_init_f (void)
 
 /* ------------------------------------------------------------------------- */
 
+int misc_init_f (void)
+{
+	return 0;  /* dummy implementation */
+}
+
+
 int misc_init_r (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
@@ -86,6 +92,17 @@ int misc_init_r (void)
 	/* adjust flash start and offset */
 	gd->bd->bi_flashstart = 0 - gd->bd->bi_flashsize;
 	gd->bd->bi_flashoffset = 0;
+
+ 	/*
+	 * Setup and enable EEPROM write protection
+	 */
+	out32(GPIO0_OR, in32(GPIO0_OR) | CFG_EEPROM_WP);
+
+	/*
+	 * Set NAND-FLASH GPIO signals to default
+	 */
+	out32(GPIO0_OR, in32(GPIO0_OR) & ~(CFG_NAND_CLE | CFG_NAND_ALE));
+	out32(GPIO0_OR, in32(GPIO0_OR) | CFG_NAND_CE);
 
 	return (0);
 }
@@ -98,33 +115,33 @@ int misc_init_r (void)
 int checkboard (void)
 {
 	unsigned char str[64];
-	int i = getenv_r ("serial#", str, sizeof(str));
 	int flashcnt;
 	int delay;
-	volatile unsigned char *led_reg = (unsigned char *)((ulong)CAN_BA + 0x1000);
+	volatile unsigned char *led_reg = (unsigned char *)((ulong)CFG_PLD_BASE + 0x1000);
+	volatile unsigned char *ver_reg = (unsigned char *)((ulong)CFG_PLD_BASE + 0x1001);
 
 	puts ("Board: ");
 
-	if (i == -1) {
-		puts ("### No HW ID - assuming VOM405");
+	if (getenv_r("serial#", str, sizeof(str))  == -1) {
+		puts ("### No HW ID - assuming CMS700");
 	} else {
 		puts(str);
 	}
 
-	printf(" (PLD-Version=%02d)\n", *led_reg);
+	printf(" (PLD-Version=%02d)\n", *ver_reg);
 
 	/*
 	 * Flash LEDs
 	 */
 	for (flashcnt = 0; flashcnt < 3; flashcnt++) {
-		*led_reg = 0x40;        /* LED_B..D off */
+		*led_reg = 0x00;        /* LEDs off */
 		for (delay = 0; delay < 100; delay++)
 			udelay(1000);
-		*led_reg = 0x47;        /* LED_B..D on */
+		*led_reg = 0x0f;        /* LEDs on */
 		for (delay = 0; delay < 50; delay++)
 			udelay(1000);
 	}
-	*led_reg = 0x40;
+	*led_reg = 0x70;
 
 	return 0;
 }
@@ -147,6 +164,91 @@ long int initdram (int board_type)
 }
 
 /* ------------------------------------------------------------------------- */
+
+#if defined(CFG_EEPROM_WREN)
+/* Input: <dev_addr>  I2C address of EEPROM device to enable.
+ *         <state>     -1: deliver current state
+ *	               0: disable write
+ *		       1: enable write
+ *  Returns:           -1: wrong device address
+ *                      0: dis-/en- able done
+ *		     0/1: current state if <state> was -1.
+ */
+int eeprom_write_enable (unsigned dev_addr, int state)
+{
+	if (CFG_I2C_EEPROM_ADDR != dev_addr) {
+		return -1;
+	} else {
+		switch (state) {
+		case 1:
+			/* Enable write access, clear bit GPIO_SINT2. */
+			out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_EEPROM_WP);
+			state = 0;
+			break;
+		case 0:
+			/* Disable write access, set bit GPIO_SINT2. */
+			out32(GPIO0_OR, in32(GPIO0_OR) | CFG_EEPROM_WP);
+			state = 0;
+			break;
+		default:
+			/* Read current status back. */
+			state = (0 == (in32(GPIO0_OR) & CFG_EEPROM_WP));
+			break;
+		}
+	}
+	return state;
+}
+
+int do_eep_wren (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	int query = argc == 1;
+	int state = 0;
+
+	if (query) {
+		/* Query write access state. */
+		state = eeprom_write_enable (CFG_I2C_EEPROM_ADDR, -1);
+		if (state < 0) {
+			puts ("Query of write access state failed.\n");
+		} else {
+			printf ("Write access for device 0x%0x is %sabled.\n",
+				CFG_I2C_EEPROM_ADDR, state ? "en" : "dis");
+			state = 0;
+		}
+	} else {
+		if ('0' == argv[1][0]) {
+			/* Disable write access. */
+			state = eeprom_write_enable (CFG_I2C_EEPROM_ADDR, 0);
+		} else {
+			/* Enable write access. */
+			state = eeprom_write_enable (CFG_I2C_EEPROM_ADDR, 1);
+		}
+		if (state < 0) {
+			puts ("Setup of write access state failed.\n");
+		}
+	}
+
+	return state;
+}
+
+U_BOOT_CMD(eepwren,	2,	0,	do_eep_wren,
+	   "eepwren - Enable / disable / query EEPROM write access\n",
+	   NULL);
+#endif /* #if defined(CFG_EEPROM_WREN) */
+
+/* ------------------------------------------------------------------------- */
+
+#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#include <linux/mtd/nand.h>
+extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];
+
+void nand_init(void)
+{
+	nand_probe(CFG_NAND_BASE);
+	if (nand_dev_desc[0].ChipID != NAND_ChipID_UNKNOWN) {
+		print_size(nand_dev_desc[0].totlen, "\n");
+	}
+}
+#endif
 
 void reset_phy(void)
 {

@@ -62,18 +62,18 @@ LIST_8xx="	\
 
 LIST_4xx="	\
 	ADCIOP		AP1000		AR405		ASH405		\
-	bubinga		CANBT		CPCI2DP		CPCI405		\
-	CPCI4052	CPCI405AB	CPCI405DT	CPCI440		\
-	CPCIISER4	CRAYL1		csb272		csb472		\
-	DASA_SIM	DP405		DU405		ebony		\
-	ERIC		EXBITGEN	G2000		HH405		\
-	HUB405		JSE		KAREF		METROBOX	\
-	MIP405		MIP405T		ML2		ml300		\
-	ocotea		OCRTC		ORSG		PCI405		\
-	PIP405		PLU405		PMC405		PPChameleonEVB	\
-	sbc405		VOH405		W7OLMC		W7OLMG		\
-	walnut		WUH405		XPEDITE1K	yellowstone	\
-	yosemite        \
+	bubinga		CANBT		CMS700		CPCI2DP		\
+	CPCI405		CPCI4052	CPCI405AB	CPCI405DT	\
+	CPCI440		CPCIISER4	CRAYL1		csb272		\
+	csb472		DASA_SIM	DP405		DU405		\
+	ebony		ERIC		EXBITGEN	G2000		\
+	HH405		HUB405		JSE		KAREF		\
+	METROBOX	MIP405		MIP405T		ML2		\
+	ml300		ocotea		OCRTC		ORSG		\
+	PCI405		PIP405		PLU405		PMC405	        \
+	PPChameleonEVB	sbc405		VOH405		VOM405          \
+	W7OLMC		W7OLMG		walnut		WUH405		\
+        XPEDITE1K	yellowstone	yosemite        \
 "
 
 #########################################################################

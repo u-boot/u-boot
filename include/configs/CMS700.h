@@ -1,6 +1,6 @@
 /*
- * (C) Copyright 2001-2004
- * Stefan Roese, esd gmbh germany, stefan.roese@esd-electronics.com
+ * (C) Copyright 2005
+ * Matthias Fuchs, esd gmbh germany, matthias.fuchs@esd-electronics.com
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -22,7 +22,7 @@
  */
 
 /*
- * board/config.h - configuration options, board specific
+ * CMS700.h - configuration options, board specific
  */
 
 #ifndef __CONFIG_H
@@ -71,7 +71,9 @@
 				CFG_CMD_PCI	| \
 				CFG_CMD_IRQ	| \
 				CFG_CMD_ELF	| \
+				CFG_CMD_NAND	| \
 				CFG_CMD_I2C	| \
+				CFG_CMD_DATE	| \
 				CFG_CMD_MII	| \
 				CFG_CMD_PING	| \
 				CFG_CMD_EEPROM	)
@@ -115,7 +117,7 @@
 #undef	CFG_EXT_SERIAL_CLOCK	       /* no external serial clock used */
 #define CFG_IGNORE_405_UART_ERRATA_59	/* ignore ppc405gp errata #59	*/
 #define CFG_BASE_BAUD	    691200
-#undef	CONFIG_UART1_CONSOLE		/* define for uart1 as console	*/
+#define	CONFIG_UART1_CONSOLE		/* define for uart1 as console	*/
 
 /* The following table includes the supported baudrates */
 #define CFG_BAUDRATE_TABLE	\
@@ -132,6 +134,48 @@
 #define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
 
 #define CFG_RX_ETH_BUFFER	16	/* use 16 rx buffer on 405 emac */
+
+/*-----------------------------------------------------------------------
+ * RTC stuff
+ *-----------------------------------------------------------------------
+ */
+#define CONFIG_RTC_DS1337
+#define CFG_I2C_RTC_ADDR	0x68
+
+/*-----------------------------------------------------------------------
+ * NAND-FLASH stuff
+ *-----------------------------------------------------------------------
+ */
+#define CFG_MAX_NAND_DEVICE	1	/* Max number of NAND devices		*/
+#define SECTORSIZE 512
+
+#define ADDR_COLUMN 1
+#define ADDR_PAGE 2
+#define ADDR_COLUMN_PAGE 3
+
+#define NAND_ChipID_UNKNOWN	0x00
+#define NAND_MAX_FLOORS 1
+#define NAND_MAX_CHIPS 1
+
+#define CFG_NAND_CE  (0x80000000 >> 1)	/* our CE is GPIO1 */
+#define CFG_NAND_CLE (0x80000000 >> 2)	/* our CLE is GPIO2 */
+#define CFG_NAND_ALE (0x80000000 >> 3)	/* our ALE is GPIO3 */
+#define CFG_NAND_RDY (0x80000000 >> 4)	/* our RDY is GPIO4 */
+
+#define NAND_DISABLE_CE(nand) do { out32(GPIO0_OR, in32(GPIO0_OR) | CFG_NAND_CE);} while(0)
+#define NAND_ENABLE_CE(nand) do { out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_NAND_CE);} while(0)
+#define NAND_CTL_CLRALE(nandptr) do { out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_NAND_ALE);} while(0)
+#define NAND_CTL_SETALE(nandptr) do { out32(GPIO0_OR, in32(GPIO0_OR) | CFG_NAND_ALE);} while(0)
+#define NAND_CTL_CLRCLE(nandptr) do { out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_NAND_CLE);} while(0)
+#define NAND_CTL_SETCLE(nandptr) do { out32(GPIO0_OR, in32(GPIO0_OR) | CFG_NAND_CLE);} while(0)
+#define NAND_WAIT_READY(nand) while (!(in32(GPIO0_IR) & CFG_NAND_RDY))
+
+#define WRITE_NAND_COMMAND(d, adr) do{ *(volatile __u8 *)((unsigned long)adr) = (__u8)(d); } while(0)
+#define WRITE_NAND_ADDRESS(d, adr) do{ *(volatile __u8 *)((unsigned long)adr) = (__u8)(d); } while(0)
+#define WRITE_NAND(d, adr) do{ *(volatile __u8 *)((unsigned long)adr) = (__u8)d; } while(0)
+#define READ_NAND(adr) ((volatile unsigned char)(*(volatile __u8 *)(unsigned long)adr))
+
+#define CFG_NAND_SKIP_BAD_DOT_I      1  /* ".i" read skips bad blocks   */
 
 /*-----------------------------------------------------------------------
  * PCI stuff
@@ -218,14 +262,11 @@
 #define CFG_ENV_SIZE		0x700	/* 2048 bytes may be used for env vars*/
 				   /* total size of a CAT24WC16 is 2048 bytes */
 
-#define CFG_NVRAM_BASE_ADDR	0xF0000500		/* NVRAM base address	*/
-#define CFG_NVRAM_SIZE		242			/* NVRAM size		*/
-
 /*-----------------------------------------------------------------------
  * I2C EEPROM (CAT24WC16) for environment
  */
 #define CONFIG_HARD_I2C			/* I2c with hardware support */
-#define CFG_I2C_SPEED		400000	/* I2C speed and slave address */
+#define CFG_I2C_SPEED		100000	/* I2C speed and slave address */
 #define CFG_I2C_SLAVE		0x7F
 
 #define CFG_I2C_EEPROM_ADDR	0x50	/* EEPROM CAT28WC08		*/
@@ -237,6 +278,8 @@
 					/* last 4 bits of the address	*/
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS	10   /* and takes up to 10 msec */
 #define CFG_EEPROM_PAGE_WRITE_ENABLE
+
+#define CFG_EEPROM_WREN         1
 
 /*-----------------------------------------------------------------------
  * Cache Configuration
@@ -251,12 +294,16 @@
 /*-----------------------------------------------------------------------
  * External Bus Controller (EBC) Setup
  */
-
-#define CAN_BA		0xF0000000	    /* CAN Base Address			*/
+#define CFG_PLD_BASE            0xf0000000
+#define CFG_NAND_BASE	        0xF4000000  /* NAND FLASH Base Address		*/
 
 /* Memory Bank 0 (Flash Bank 0, NOR-FLASH) initialization			*/
 #define CFG_EBC_PB0AP		0x92015480
 #define CFG_EBC_PB0CR		0xFFC5A000  /* BAS=0xFFC,BS=4MB,BU=R/W,BW=16bit */
+
+/* Memory Bank 1 (Flash Bank 1, NAND-FLASH) initialization			*/
+#define CFG_EBC_PB1AP		0x92015480
+#define CFG_EBC_PB1CR		0xF4018000  /* BAS=0xF40,BS=1MB,BU=R/W,BW=8bit	*/
 
 /* Memory Bank 2 (8 Bit Peripheral: CAN, UART, RTC) initialization		*/
 #define CFG_EBC_PB2AP		0x010053C0  /* BWT=2,WBN=1,WBF=1,TH=1,RE=1,SOR=1,BEM=1 */
@@ -314,6 +361,9 @@
 #define CFG_GPIO0_TSRH		0x00000000  /*	0 ... 15 */
 #define CFG_GPIO0_TSRL		0x00000000  /* 16 ... 31 */
 #define CFG_GPIO0_TCR		0xF7FE0014  /*	0 ... 31 */
+
+#define CFG_EEPROM_WP		(0x80000000 >> 8)    /* GPIO8 */
+#define CFG_PLD_RESET		(0x80000000 >> 12)   /* GPIO12 */
 
 /*
  * Internal Definitions

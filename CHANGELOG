@@ -2,6 +2,11 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* New PPC 405EP board added: CMS700
+  Added CONFIG_NET_MULTI for VOM405 board.
+  Added reset_phy() for VOM405 board.
+  Patch by Matthias Fuchs, 09 Nov 2005
+
 * Updated PCI mapping for esd CPCI2DP board.
   Add support for error LED.
   Patch by Matthias Fuchs, 07 Nov 2005

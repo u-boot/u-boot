@@ -894,6 +894,9 @@ VOH405_config:	unconfig
 VOM405_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx vom405 esd
 
+CMS700_config:	unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx cms700 esd
+
 W7OLMC_config	\
 W7OLMG_config: unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx w7o
