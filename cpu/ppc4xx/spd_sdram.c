@@ -650,6 +650,17 @@ const unsigned long test[NUMMEMTESTS][NUMMEMWORDS] = {
 	 0xAA55AA55, 0xAA55AA55}
 };
 
+/* bank_parms is used to sort the bank sizes by descending order */
+struct bank_param {
+	unsigned long cr;
+	unsigned long bank_size_bytes;
+};
+
+typedef struct bank_param BANKPARMS;
+
+#ifdef CFG_SIMULATE_SPD_EEPROM
+extern unsigned char cfg_simulate_spd_eeprom[128];
+#endif
 
 unsigned char spd_read(uchar chip, uint addr);
 
@@ -806,8 +817,18 @@ long int spd_sdram(void) {
 	return total_size;
 }
 
-unsigned char spd_read(uchar chip, uint addr) {
+unsigned char spd_read(uchar chip, uint addr)
+{
 	unsigned char data[2];
+
+#ifdef CFG_SIMULATE_SPD_EEPROM
+	if (chip == CFG_SIMULATE_SPD_EEPROM) {
+		/*
+		 * Onboard spd eeprom requested -> simulate values
+		 */
+		return cfg_simulate_spd_eeprom[addr];
+	}
+#endif /* CFG_SIMULATE_SPD_EEPROM */
 
 	if (i2c_probe(chip) == 0) {
 		if (i2c_read(chip, addr, 1, data, 1) == 0) {
@@ -849,12 +870,10 @@ void get_spd_info(unsigned long*   dimm_populated,
 		}
 	}
 
-#ifndef CONFIG_BAMBOO /* bamboo has onboard DDR _and_ DDR DIMM's */
 	if (dimm_found == FALSE) {
 		printf("ERROR - No memory installed. Install a DDR-SDRAM DIMM.\n\n");
 		hang();
 	}
-#endif /* CONFIG_BAMBOO */
 }
 
 void check_mem_type(unsigned long*   dimm_populated,
@@ -1593,35 +1612,56 @@ unsigned long program_bxcr(unsigned long* dimm_populated,
 {
 	unsigned long dimm_num;
 	unsigned long bank_base_addr;
-	unsigned long bank_size_bytes;
 	unsigned long cr;
 	unsigned long i;
+	unsigned long j;
 	unsigned long temp;
 	unsigned char num_row_addr;
 	unsigned char num_col_addr;
 	unsigned char num_banks;
 	unsigned char bank_size_id;
-
-#ifndef CONFIG_BAMBOO
-	unsigned long bxcr_num;
+	unsigned long ctrl_bank_num[MAXBANKS];
+	unsigned long bx_cr_num;
+	unsigned long largest_size_index;
+        unsigned long largest_size;
+        unsigned long current_size_index;
+	BANKPARMS bank_parms[MAXBXCR];
+	unsigned long sorted_bank_num[MAXBXCR]; /* DDR Controller bank number table (sorted by size) */
+	unsigned long sorted_bank_size[MAXBXCR]; /* DDR Controller bank size table (sorted by size)*/
 
 	/*
 	 * Set the BxCR regs.  First, wipe out the bank config registers.
 	 */
-	for (bxcr_num = 0; bxcr_num < MAXBXCR; bxcr_num++) {
-		mtdcr(memcfga, mem_b0cr + (bxcr_num << 2));
+	for (bx_cr_num = 0; bx_cr_num < MAXBXCR; bx_cr_num++) {
+		mtdcr(memcfga, mem_b0cr + (bx_cr_num << 2));
 		mtdcr(memcfgd, 0x00000000);
+		bank_parms[bx_cr_num].bank_size_bytes = 0;
 	}
+
+#ifdef CONFIG_BAMBOO
+	/*
+	 * This next section is hardware dependent and must be programmed
+	 * to match the hardware.  For bammboo, the following holds...
+	 * 1. SDRAM0_B0CR: Bank 0 of dimm 0 ctrl_bank_num : 0
+	 * 2. SDRAM0_B1CR: Bank 0 of dimm 1 ctrl_bank_num : 1
+	 * 3. SDRAM0_B2CR: Bank 1 of dimm 1 ctrl_bank_num : 1
+	 * 4. SDRAM0_B3CR: Bank 0 of dimm 2 ctrl_bank_num : 3
+	 * ctrl_bank_num corresponds to the first usable DDR controller bank number by DIMM
+	 */
+	ctrl_bank_num[0] = 0;
+	ctrl_bank_num[1] = 1;
+	ctrl_bank_num[2] = 3;
+#else
+	ctrl_bank_num[0] = 0;
+	ctrl_bank_num[1] = 1;
+	ctrl_bank_num[2] = 2;
+	ctrl_bank_num[3] = 3;
 #endif
 
 	/*
 	 * reset the bank_base address
 	 */
-#ifndef CONFIG_BAMBOO
 	bank_base_addr = CFG_SDRAM_BASE;
-#else
-	bank_base_addr = CFG_SDRAM_ONBOARD_SIZE;
-#endif
 
 	for (dimm_num = 0; dimm_num < num_dimm_banks; dimm_num++) {
 		if (dimm_populated[dimm_num] == TRUE) {
@@ -1634,7 +1674,6 @@ unsigned long program_bxcr(unsigned long* dimm_populated,
 			 * Set the SDRAM0_BxCR regs
 			 */
 			cr = 0;
-			bank_size_bytes = 4 * 1024 * 1024 * bank_size_id;
 			switch (bank_size_id) {
 			case 0x02:
 				cr |= SDRAM_BXCR_SDSZ_8;
@@ -1693,43 +1732,53 @@ unsigned long program_bxcr(unsigned long* dimm_populated,
 			 */
 			cr |= SDRAM_BXCR_SDBE;
 
-			/*------------------------------------------------------------------
-			  | This next section is hardware dependent and must be programmed
-			  | to match the hardware.
-			  +-----------------------------------------------------------------*/
-			if (dimm_num == 0) {
-				for (i = 0; i < num_banks; i++) {
-#ifndef CONFIG_BAMBOO
-					mtdcr(memcfga, mem_b0cr + (i << 2));
-#else
-					mtdcr(memcfga, mem_b1cr + (i << 2));
-#endif
-					temp = mfdcr(memcfgd) & ~(SDRAM_BXCR_SDBA_MASK |
-								  SDRAM_BXCR_SDSZ_MASK |
-								  SDRAM_BXCR_SDAM_MASK |
-								  SDRAM_BXCR_SDBE);
-					cr |= temp;
-					cr |= bank_base_addr & SDRAM_BXCR_SDBA_MASK;
-					mtdcr(memcfgd, cr);
-					bank_base_addr += bank_size_bytes;
-				}
-			} else {
-				for (i = 0; i < num_banks; i++) {
-#ifndef CONFIG_BAMBOO
-					mtdcr(memcfga, mem_b2cr + (i << 2));
-#else
-					mtdcr(memcfga, mem_b3cr + (i << 2));
-#endif
-					temp = mfdcr(memcfgd) & ~(SDRAM_BXCR_SDBA_MASK |
-								  SDRAM_BXCR_SDSZ_MASK |
-								  SDRAM_BXCR_SDAM_MASK |
-								  SDRAM_BXCR_SDBE);
-					cr |= temp;
-					cr |= bank_base_addr & SDRAM_BXCR_SDBA_MASK;
-					mtdcr(memcfgd, cr);
-					bank_base_addr += bank_size_bytes;
-				}
+			for (i = 0; i < num_banks; i++) {
+				bank_parms[ctrl_bank_num[dimm_num]+i].bank_size_bytes =
+					(4 * 1024 * 1024) * bank_size_id;
+				bank_parms[ctrl_bank_num[dimm_num]+i].cr = cr;
 			}
+		}
+	}
+
+	/* Initialize sort tables */
+	for (i = 0; i < MAXBXCR; i++) {
+		sorted_bank_num[i] = i;
+		sorted_bank_size[i] = bank_parms[i].bank_size_bytes;
+	}
+
+	for (i = 0; i < MAXBXCR-1; i++) {
+		largest_size = sorted_bank_size[i];
+		largest_size_index = 255;
+
+		/* Find the largest remaining value */
+		for (j = i + 1; j < MAXBXCR; j++) {
+			if (sorted_bank_size[j] > largest_size) {
+				/* Save largest remaining value and its index */
+				largest_size = sorted_bank_size[j];
+				largest_size_index = j;
+			}
+		}
+
+		if (largest_size_index != 255) {
+			/* Swap the current and largest values */
+			current_size_index = sorted_bank_num[largest_size_index];
+			sorted_bank_size[largest_size_index] = sorted_bank_size[i];
+			sorted_bank_size[i] = largest_size;
+			sorted_bank_num[largest_size_index] = sorted_bank_num[i];
+			sorted_bank_num[i] = current_size_index;
+		}
+	}
+
+	/* Set the SDRAM0_BxCR regs thanks to sort tables */
+	for (bx_cr_num = 0, bank_base_addr = 0; bx_cr_num < MAXBXCR; bx_cr_num++) {
+		if (bank_parms[sorted_bank_num[bx_cr_num]].bank_size_bytes) {
+			mtdcr(memcfga, mem_b0cr + (sorted_bank_num[bx_cr_num] << 2));
+			temp = mfdcr(memcfgd) & ~(SDRAM_BXCR_SDBA_MASK | SDRAM_BXCR_SDSZ_MASK |
+						  SDRAM_BXCR_SDAM_MASK | SDRAM_BXCR_SDBE);
+			temp = temp | (bank_base_addr & SDRAM_BXCR_SDBA_MASK) |
+				bank_parms[sorted_bank_num[bx_cr_num]].cr;
+			mtdcr(memcfgd, temp);
+			bank_base_addr += bank_parms[sorted_bank_num[bx_cr_num]].bank_size_bytes;
 		}
 	}
 

@@ -31,6 +31,8 @@ void ext_bus_cntlr_init(void);
 void configure_ppc440ep_pins(void);
 int is_nand_selected(void);
 
+unsigned char cfg_simulate_spd_eeprom[128];
+
 gpio_param_s gpio_tab[GPIO_GROUP_MAX][GPIO_MAX];
 #if 0
 {	   /* GPIO   Alternate1	      Alternate2	Alternate3 */
@@ -380,7 +382,7 @@ int checkboard(void)
 
 /*************************************************************************
  *
- * fixed_sdram_init -- Bamboo has one bank onboard sdram (plus DIMM)
+ * init_spd_array -- Bamboo has one bank onboard sdram (plus DIMM)
  *
  * Fixed memory is composed of :
  *	MT46V16M16TG-75 from Micron (x 2), 256Mb, 16 M x16, DDR266,
@@ -397,24 +399,40 @@ int checkboard(void)
  *		PLB @ 133 MHz
  *
  ************************************************************************/
-void fixed_sdram_init(void)
+static void init_spd_array(void)
 {
-	/*
-	 * clear this first, if the DDR is enabled by a debugger
-	 * then you can not make changes.
-	 */
-	mtsdram(mem_cfg0, 0x00000000);	/* Disable EEC */
+	cfg_simulate_spd_eeprom[8]     = 0x04;    /* 2.5 Volt */
+	cfg_simulate_spd_eeprom[2]     = 0x07;    /* DDR ram */
 
-	/*--------------------------------------------------------------------
-	 * Setup for board-specific specific mem
-	 *------------------------------------------------------------------*/
-	/*
-	 * Following for CAS Latency = 2.5 @ 133 MHz PLB
-	 */
-	mtsdram(mem_b0cr, 0x00082001);
-	mtsdram(mem_b1cr, 0x00000000);
-	mtsdram(mem_b2cr, 0x00000000);
-	mtsdram(mem_b3cr, 0x00000000);
+#ifdef CONFIG_DDR_ECC
+	cfg_simulate_spd_eeprom[11]    = 0x02;    /* ECC ON : 02 OFF : 00 */
+	cfg_simulate_spd_eeprom[31]    = 0x08;    /* bankSizeID: 32MB */
+	cfg_simulate_spd_eeprom[3]     = 0x0C;    /* num Row Addr: 12 */
+#else
+	cfg_simulate_spd_eeprom[11]    = 0x00;    /* ECC ON : 02 OFF : 00 */
+	cfg_simulate_spd_eeprom[31]    = 0x10;    /* bankSizeID: 64MB */
+	cfg_simulate_spd_eeprom[3]     = 0x0D;    /* num Row Addr: 13 */
+#endif
+
+	cfg_simulate_spd_eeprom[4]     = 0x09;    /* numColAddr: 9  */
+	cfg_simulate_spd_eeprom[5]     = 0x01;    /* numBanks: 1 */
+	cfg_simulate_spd_eeprom[0]     = 0x80;    /* number of SPD bytes used: 128 */
+	cfg_simulate_spd_eeprom[1]     = 0x08;    /*  total number bytes in SPD device = 256 */
+	cfg_simulate_spd_eeprom[21]    = 0x00;    /* not registered: 0  registered : 0x02*/
+	cfg_simulate_spd_eeprom[6]     = 0x20;    /* Module data width: 32 bits */
+	cfg_simulate_spd_eeprom[7]     = 0x00;    /* Module data width continued: +0 */
+	cfg_simulate_spd_eeprom[15]    = 0x01;    /* wcsbc = 1 */
+	cfg_simulate_spd_eeprom[27]    = 0x50;    /* tRpNs = 20 ns  */
+	cfg_simulate_spd_eeprom[29]    = 0x50;    /* tRcdNs = 20 ns */
+
+	cfg_simulate_spd_eeprom[30]    = 45;      /* tRasNs */
+
+	cfg_simulate_spd_eeprom[18]    = 0x0C;    /* casBit (2,2.5) */
+
+	cfg_simulate_spd_eeprom[9]     = 0x75;    /* SDRAM Cycle Time (cas latency 2.5) = 7.5 ns */
+	cfg_simulate_spd_eeprom[23]    = 0xA0;    /* SDRAM Cycle Time (cas latency 2) = 10 ns */
+	cfg_simulate_spd_eeprom[25]    = 0x00;    /* SDRAM Cycle Time (cas latency 1.5) = N.A */
+	cfg_simulate_spd_eeprom[12]    = 0x82;    /* refresh Rate Type: Normal (15.625us) + Self refresh */
 }
 
 long int initdram (int board_type)
@@ -422,9 +440,10 @@ long int initdram (int board_type)
 	long dram_size = 0;
 
 	/*
-	 * First init bank0 (onboard sdram) and then configure the DIMM-slots
+	 * First write simulated values in eeprom array for onboard bank 0
 	 */
-	fixed_sdram_init();
+	init_spd_array();
+
 	dram_size = spd_sdram (0);
 
 	return dram_size;
