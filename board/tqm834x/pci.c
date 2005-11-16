@@ -129,10 +129,10 @@ pci_init_board(void)
 	 * Configure PCI Local Access Windows
 	 */
 	pci_law[0].bar = CFG_PCI1_MEM_PHYS & LAWBAR_BAR;
-	pci_law[0].ar = LAWAR_EN | LAWAR_TRGT_IF_PCI1 | LAWAR_SIZE_512M;
+	pci_law[0].ar = LAWAR_EN | LAWAR_SIZE_512M;
 
 	pci_law[1].bar = CFG_PCI1_IO_PHYS & LAWBAR_BAR;
-	pci_law[1].ar = LAWAR_EN | LAWAR_TRGT_IF_PCI1 | LAWAR_SIZE_16M;
+	pci_law[1].ar = LAWAR_EN | LAWAR_SIZE_16M;
 
 	/*
 	 * Configure PCI Outbound Translation Windows
@@ -157,7 +157,7 @@ pci_init_board(void)
 	pci_ctrl[0].pitar1 = 0x0;
 	pci_ctrl[0].pibar1 = 0x0;
 	pci_ctrl[0].piebar1 = 0x0;
-	pci_ctrl[0].piwar1 = PIWAR_EN | PIWAR_PF | PIWAR_RTT_SNOOP | PIWAR_IWS_256M;
+	pci_ctrl[0].piwar1 = PIWAR_EN | PIWAR_PF | PIWAR_RTT_SNOOP | PIWAR_WTT_SNOOP | PIWAR_IWS_256M;
 
 	hose->first_busno = 0;
 	hose->last_busno = 0xff;
