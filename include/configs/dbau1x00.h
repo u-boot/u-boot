@@ -65,11 +65,11 @@
 #undef	CONFIG_BOOTARGS
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
-	"addmisc=setenv bootargs $(bootargs) "				\
-		"console=ttyS0,$(baudrate) "				\
+	"addmisc=setenv bootargs ${bootargs} "				\
+		"console=ttyS0,${baudrate} "				\
 		"panic=1\0"						\
 	"bootfile=/tftpboot/vmlinux.srec\0"				\
-	"load=tftp 80500000 $(u-boot)\0"				\
+	"load=tftp 80500000 ${u-boot}\0"				\
 	""
 
 #ifdef CONFIG_DBAU1550

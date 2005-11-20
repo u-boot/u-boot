@@ -216,30 +216,30 @@ struct bd_info_ext {
 #define CONFIG_VERSION_VARIABLE	1       /* include version env variable */
 
 #define	CONFIG_EXTRA_ENV_SETTINGS	\
-	"net_nfs=tftp $(loadaddr) $(bootfile);run nfsargs addip addcons " \
+	"net_nfs=tftp ${loadaddr} ${bootfile};run nfsargs addip addcons " \
 		"addmtd;bootm\0" \
 	"nfsargs=setenv bootargs root=/dev/nfs rw " \
-		"nfsroot=$(serverip):$(rootpath)\0" \
-	"net_cramfs=tftp $(loadaddr) $(bootfile); run flashargs addip " \
+		"nfsroot=${serverip}:${rootpath}\0" \
+	"net_cramfs=tftp ${loadaddr} ${bootfile}; run flashargs addip " \
 		"addcons addmtd; bootm\0" \
 	"flash_cramfs=run flashargs addip addcons addmtd; bootm 10030000\0" \
 	"flashargs=setenv bootargs root=/dev/mtdblock3 ro\0" \
-	"addip=setenv bootargs $(bootargs) ethaddr=$(ethaddr) " \
-		"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):" \
-		"$(hostname)::off\0" \
-	"addcons=setenv bootargs $(bootargs) console=ttyS0,$(baudrate)\0" \
-	"addmtd=setenv bootargs $(bootargs) mtdparts=cmc_pu2:128k(uboot)ro," \
+	"addip=setenv bootargs ${bootargs} ethaddr=${ethaddr} " \
+		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:" \
+		"${hostname}::off\0" \
+	"addcons=setenv bootargs ${bootargs} console=ttyS0,${baudrate}\0" \
+	"addmtd=setenv bootargs ${bootargs} mtdparts=cmc_pu2:128k(uboot)ro," \
 		"64k(environment),768k(linux),4096k(root),-\0" \
-	"load=tftp $(loadaddr) $(loadfile)\0" \
+	"load=tftp ${loadaddr} ${loadfile}\0" \
 	"update=protect off 10000000 1001ffff;erase 10000000 1001ffff; " \
-		"cp.b $(loadaddr) 10000000 $(filesize);" \
+		"cp.b ${loadaddr} 10000000 ${filesize};" \
 		"protect on 10000000 1001ffff\0" \
-	"updatel=era 10030000 100effff;tftp $(loadaddr) $(bootfile); " \
-		"cp.b $(loadaddr) 10030000 $(filesize)\0" \
-	"updatec=era 100f0000 104effff;tftp $(loadaddr) $(cramfsimage); " \
-		"cp.b $(loadaddr) 100f0000 $(filesize)\0" \
-	"updatej=era 104f0000 107fffff;tftp $(loadaddr) $(jffsimage); " \
-		"cp.b $(loadaddr) 104f0000 $(filesize)\0" \
+	"updatel=era 10030000 100effff;tftp ${loadaddr} ${bootfile}; " \
+		"cp.b ${loadaddr} 10030000 ${filesize}\0" \
+	"updatec=era 100f0000 104effff;tftp ${loadaddr} ${cramfsimage}; " \
+		"cp.b ${loadaddr} 100f0000 ${filesize}\0" \
+	"updatej=era 104f0000 107fffff;tftp ${loadaddr} ${jffsimage}; " \
+		"cp.b ${loadaddr} 104f0000 ${filesize}\0" \
 	"cramfsimage=cramfs_cmc-pu2.img\0" \
 	"jffsimage=jffs2_cmc-pu2.img\0" \
 	"loadfile=u-boot_cmc-pu2.bin\0" \

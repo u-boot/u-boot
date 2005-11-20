@@ -59,14 +59,14 @@
 #undef	CONFIG_BOOTARGS
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
-	"addmisc=setenv bootargs $(bootargs) "				\
-		"console=ttyS0,$(baudrate) "				\
+	"addmisc=setenv bootargs ${bootargs} "				\
+		"console=ttyS0,${baudrate} "				\
 		"panic=1\0"						\
 	"bootfile=/vmlinux.img\0"				\
-	"load=tftp 80500000 $(u-boot)\0"				\
+	"load=tftp 80500000 ${u-boot}\0"				\
 	""
 /* Boot from NFS root */
-#define CONFIG_BOOTCOMMAND	"bootp; setenv bootargs root=/dev/nfs rw nfsroot=$(serverip):$(rootpath) ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off; bootm"
+#define CONFIG_BOOTCOMMAND	"bootp; setenv bootargs root=/dev/nfs rw nfsroot=${serverip}:${rootpath} ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off; bootm"
 
 /*
  * Miscellaneous configurable options

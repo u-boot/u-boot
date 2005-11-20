@@ -336,19 +336,19 @@
  *
  * => printenv bootcmd
  * bootcmd=version;echo;bootp;setenv bootargs root=/dev/nfs rw
- * nfsroot=$(serverip):$(rootpath)
- * ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;run boot-hook;bootm
+ * nfsroot=${serverip}:${rootpath}
+ * ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off;run boot-hook;bootm
  *
  * => run root-on-initrd
  * => printenv bootcmd
  * bootcmd=version;echo;bootp;setenv bootargs root=/dev/ram0 rw
- * ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;run boot-hook;bootm
+ * ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off;run boot-hook;bootm
  *
  * => run root-on-nfs
  * => printenv bootcmd
  * bootcmd=version;echo;bootp;setenv bootargs root=/dev/nfs rw
- * nfsroot=$(serverip):$(rootpath)
- * ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;run boot-hook;bootm
+ * nfsroot=${serverip}:${rootpath}
+ * ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off;run boot-hook;bootm
  *
  */
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -359,7 +359,7 @@
 		"tftpboot 0x140000 /bdi2000/u-boot.bin;" \
 		"protect off 1:0;" \
 		"erase 1:0;" \
-		"cp.b 140000 40000000 $(filesize);" \
+		"cp.b 140000 40000000 ${filesize};" \
 		"protect on 1:0\0" \
 	"zapenv="\
 		"protect off 1:1;" \
@@ -371,7 +371,7 @@
 		"echo;" \
 		"bootp;" \
 		"setenv bootargs root=/dev/ram0 rw " \
-		"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;" \
+		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off;" \
 		"run boot-hook;" \
 		"bootm\0" \
 	"root-on-nfs="\
@@ -380,8 +380,8 @@
 		"echo;" \
 		"bootp;" \
 		"setenv bootargs root=/dev/nfs rw " \
-		"nfsroot=$(serverip):$(rootpath) " \
-		"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;" \
+		"nfsroot=${serverip}:${rootpath} " \
+		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off;" \
 		"run boot-hook;" \
 		"bootm\0" \
 	"boot-hook=echo\0"
@@ -398,7 +398,7 @@
 	"echo;" \
 	"bootp;" \
 	"setenv bootargs root=/dev/ram0 rw " \
-	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;" \
+	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off;" \
 	"bootm"
 #endif /* CONFIG_BOOT_ROOT_INITRD */
 
@@ -407,8 +407,8 @@
 	"version;" \
 	"echo;" \
 	"bootp;" \
-	"setenv bootargs root=/dev/nfs rw nfsroot=$(serverip):$(rootpath) " \
-	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;" \
+	"setenv bootargs root=/dev/nfs rw nfsroot=${serverip}:${rootpath} " \
+	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off;" \
 	"bootm"
 #endif /* CONFIG_BOOT_ROOT_NFS */
 

@@ -66,12 +66,12 @@
 	"setenv bootargs root=/dev/ram rw ramdisk_size=4690 "			\
 	"U-Boot_version=U-Boot-1.0.x-Date "					\
 	"panic=1 "								\
-	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off; "	\
+	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off; "	\
 	"bootm"
 #define CONFIG_NFSBOOTCOMMAND							\
 	"bootp; "								\
-	"setenv bootargs root=/dev/nfs rw nfsroot=$(nfsip):$(rootpath) "	\
-	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off; "	\
+	"setenv bootargs root=/dev/nfs rw nfsroot=${nfsip}:${rootpath} "	\
+	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off; "	\
 	"bootm"
 #define CONFIG_BOOTCOMMAND CONFIG_RAMBOOTCOMMAND
 

@@ -58,7 +58,7 @@
 #define CONFIG_BOOTCOMMAND \
 	"setenv bootargs console=ttyS0,38400 debug " \
 	"root=/dev/ram rw ramdisk_size=4096 " \
-	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off; " \
+	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off; " \
 	"bootm fe000000 fe100000"
 #endif
 
@@ -67,8 +67,8 @@
 #define CONFIG_BOOTCOMMAND \
 	"bootp; " \
 	"setenv bootargs console=ttyS0,38400 debug " \
-	"root=/dev/nfs rw nfsroot=$(serverip):$(rootpath) " \
-	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off; " \
+	"root=/dev/nfs rw nfsroot=${serverip}:${rootpath} " \
+	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off; " \
 	"bootm"
 #endif
 

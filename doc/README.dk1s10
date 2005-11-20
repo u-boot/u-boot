@@ -118,11 +118,11 @@ see the following:
 
    at the Altera Standard 32 to SRAM:
 
-	==> cp.b 800000 40000 $(filesize)
+	==> cp.b 800000 40000 ${filesize}
 
    at the Microtronix LDK 2.0 to SDRAM:
 
-	==> cp.b 1010000 8000000 $(filesize)
+	==> cp.b 1010000 8000000 ${filesize}
 
 U-Boot will now automatically start when the board is powered on or
 reset using the Standard-32 configuration. To start U-Boot with the

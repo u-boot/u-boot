@@ -263,7 +263,7 @@ unsigned char logo_bmp_1024[] =
 au_image_t au_image[] = {
 	{"hh405/preinst.img", 0, -1, AU_SCRIPT},
 	{"hh405/u-boot.img", 0xfff80000, 0x00080000, AU_FIRMWARE},
-	{"hh405/pImage_$(bd_type)", 0x00000000, 0x00100000, AU_NAND},
+	{"hh405/pImage_${bd_type}", 0x00000000, 0x00100000, AU_NAND},
 	{"hh405/pImage.initrd", 0x00100000, 0x00200000, AU_NAND},
 	{"hh405/yaffsmt2.img", 0x00300000, 0x01c00000, AU_NAND},
 	{"hh405/postinst.img", 0, 0, AU_SCRIPT},

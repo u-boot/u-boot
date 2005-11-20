@@ -100,10 +100,10 @@ In U-Boot werden folgende Environment-Variablen gesetzt und abgespei-
 chert:
 
 (1)	=> setenv magic_keys 01234#X
-(2)	=> setenv key_cmd# setenv addfb setenv bootargs \\$(bootargs) console=tty0 console=ttyS1,\\$(baudrate)
-(3)	=> setenv nfsargs setenv bootargs root=/dev/nfs rw nfsroot=\$(serverip):\$(rootpath)
-(4)	=> setenv addip setenv bootargs \$(bootargs) ip=\$(ipaddr):\$(serverip):\$(gatewayip):\$(netmask):\$(hostname)::off panic=1
-(5)	=> setenv addfb setenv bootargs \$(bootargs) console=ttyS1,\$(baudrate)
+(2)	=> setenv key_cmd# setenv addfb setenv bootargs \\${bootargs} console=tty0 console=ttyS1,\\${baudrate}
+(3)	=> setenv nfsargs setenv bootargs root=/dev/nfs rw nfsroot=\${serverip}:\${rootpath}
+(4)	=> setenv addip setenv bootargs \${bootargs} ip=\${ipaddr}:\${serverip}:\${gatewayip}:\${netmask}:\${hostname}::off panic=1
+(5)	=> setenv addfb setenv bootargs \${bootargs} console=ttyS1,\${baudrate}
 (6)	=> setenv bootcmd bootp\;run nfsargs\;run addip\;run addfb\;bootm
 
 Hierbei wird die Linux Commandline (in der Variablen  "bootargs")  im

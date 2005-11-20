@@ -59,8 +59,8 @@
 #define CONFIG_BOOTCOMMAND                                  \
     "bootp 1000000; "                                       \
     "setenv bootargs root=ramfs console=ttyS00,9600 "       \
-    "ip=$(ipaddr):$(serverip):$(rootpath):$(gatewayip):"    \
-    "$(netmask):$(hostname):eth0:none; "                    \
+    "ip=${ipaddr}:${serverip}:${rootpath}:${gatewayip}:"    \
+    "${netmask}:${hostname}:eth0:none; "                    \
     "bootm"
 
 #define CONFIG_LOADS_ECHO       0       /* echo off for serial download */

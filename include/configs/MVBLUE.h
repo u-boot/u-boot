@@ -111,9 +111,9 @@
     "flashboot=setenv bootargs root=/dev/mtdblock5 ro rootfstype=jffs2;run addcons;bootm ffc00000\0"	\
     "safeboot=setenv bootargs root=/dev/mtdblock2 rw rootfstype=cramfs;run addcons;bootm ffc00000\0"	\
     "hdboot=setenv bootargs root=/dev/hda1;run addcons;bootm ffc00000\0"	\
-	"nfsargs=setenv bootargs root=/dev/nfs rw nfsroot=$(serverip):$(rootpath) "	\
-			"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off\0"	\
-	"addcons=setenv bootargs $(bootargs) console=ttyS$(console_nr),$(baudrate)N8\0" \
+	"nfsargs=setenv bootargs root=/dev/nfs rw nfsroot=${serverip}:${rootpath} "	\
+			"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off\0"	\
+	"addcons=setenv bootargs ${bootargs} console=ttyS${console_nr},${baudrate}N8\0" \
     "mv_version=" MV_VERSION "\0"	\
 	"bootretry=30\0"
 

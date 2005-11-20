@@ -59,8 +59,8 @@
 #undef	CONFIG_BOOTARGS
 
 #define CONFIG_BOOTCOMMAND      "setenv bootargs " \
-				"mem=$(mem) " \
-				"root=/dev/ram rw ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off " \
+				"mem=${mem} " \
+				"root=/dev/ram rw ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off " \
 				"wt_8xx=timeout:3600; " \
 				"bootm"
 

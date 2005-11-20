@@ -55,29 +55,29 @@
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
-		"nfsroot=$(serverip):$(rootpath)\0"			\
+		"nfsroot=${serverip}:${rootpath}\0"			\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
-	"addip=setenv bootargs $(bootargs) "				\
-		"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask)"	\
-		":$(hostname):$(netdev):off\0"				\
-	"addmisc=setenv bootargs $(bootargs) "				\
-		"console=ttyS0,$(baudrate) "				\
-		"ethaddr=$(ethaddr) "					\
+	"addip=setenv bootargs ${bootargs} "				\
+		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
+		":${hostname}:${netdev}:off\0"				\
+	"addmisc=setenv bootargs ${bootargs} "				\
+		"console=ttyS0,${baudrate} "				\
+		"ethaddr=${ethaddr} "					\
 		"panic=1\0"						\
 	"flash_nfs=run nfsargs addip addmisc;"				\
-		"bootm $(kernel_addr)\0"				\
+		"bootm ${kernel_addr}\0"				\
 	"flash_self=run ramargs addip addmisc;"				\
-		"bootm $(kernel_addr) $(ramdisk_addr)\0"		\
-	"net_nfs=tftp 80500000 $(bootfile);"				\
+		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
+	"net_nfs=tftp 80500000 ${bootfile};"				\
 		"run nfsargs addip addmisc;bootm\0"			\
 	"rootpath=/opt/eldk/mips_5KC\0"					\
 	"bootfile=/tftpboot/purple/uImage\0"				\
 	"kernel_addr=B0040000\0"					\
 	"ramdisk_addr=B0100000\0"					\
 	"u-boot=/tftpboot/purple/u-boot.bin\0"				\
-	"load=tftp 80500000 $(u-boot)\0"				\
+	"load=tftp 80500000 ${u-boot}\0"				\
 	"update=protect off 1:0-4;era 1:0-4;"				\
-		"cp.b 80500000 B0000000 $(filesize)\0"			\
+		"cp.b 80500000 B0000000 ${filesize}\0"			\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 

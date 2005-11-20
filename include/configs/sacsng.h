@@ -329,7 +329,7 @@
     "tftpboot 0x140000 /bdi2000/u-boot.bin; " \
     "protect off 60000000 6003FFFF; " \
     "erase 60000000 6003FFFF; " \
-    "cp.b 140000 60000000 $(filesize); " \
+    "cp.b 140000 60000000 ${filesize}; " \
     "protect on 60000000 6003FFFF\0" \
 "copyenv="\
     "protect off 60040000 6004FFFF; " \
@@ -355,7 +355,7 @@
     "echo\\;" \
     "bootp\\;" \
     "setenv bootargs root=/dev/ram0 rw quiet " \
-    "ip=\\$(ipaddr):\\$(serverip):\\$(gatewayip):\\$(netmask):\\$(hostname)::off\\;" \
+    "ip=\\${ipaddr}:\\${serverip}:\\${gatewayip}:\\${netmask}:\\${hostname}::off\\;" \
     "run boot-hook\\;" \
     "bootm\0" \
 "root-on-initrd-debug="\
@@ -364,7 +364,7 @@
     "echo\\;" \
     "bootp\\;" \
     "setenv bootargs root=/dev/ram0 rw debug " \
-    "ip=\\$(ipaddr):\\$(serverip):\\$(gatewayip):\\$(netmask):\\$(hostname)::off\\;" \
+    "ip=\\${ipaddr}:\\${serverip}:\\${gatewayip}:\\${netmask}:\\${hostname}::off\\;" \
     "run debug-hook\\;" \
     "run boot-hook\\;" \
     "bootm\0" \
@@ -374,8 +374,8 @@
     "echo\\;" \
     "bootp\\;" \
     "setenv bootargs root=/dev/nfs rw quiet " \
-    "nfsroot=\\$(serverip):\\$(rootpath) " \
-    "ip=\\$(ipaddr):\\$(serverip):\\$(gatewayip):\\$(netmask):\\$(hostname)::off\\;" \
+    "nfsroot=\\${serverip}:\\${rootpath} " \
+    "ip=\\${ipaddr}:\\${serverip}:\\${gatewayip}:\\${netmask}:\\${hostname}::off\\;" \
     "run boot-hook\\;" \
     "bootm\0" \
 "root-on-nfs-debug="\
@@ -384,8 +384,8 @@
     "echo\\;" \
     "bootp\\;" \
     "setenv bootargs root=/dev/nfs rw debug " \
-    "nfsroot=\\$(serverip):\\$(rootpath) " \
-    "ip=\\$(ipaddr):\\$(serverip):\\$(gatewayip):\\$(netmask):\\$(hostname)::off\\;" \
+    "nfsroot=\\${serverip}:\\${rootpath} " \
+    "ip=\\${ipaddr}:\\${serverip}:\\${gatewayip}:\\${netmask}:\\${hostname}::off\\;" \
     "run debug-hook\\;" \
     "run boot-hook\\;" \
     "bootm\0" \
@@ -393,17 +393,17 @@
     "setenv checkhostname;" \
     "setenv ethaddr 00:09:70:00:00:01;" \
     "bootp;" \
-    "setenv bootargs root=/dev/nfs rw nfsroot=$(serverip):$(rootpath) debug " \
-    "ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;" \
+    "setenv bootargs root=/dev/nfs rw nfsroot=${serverip}:${rootpath} debug " \
+    "ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off;" \
     "run debug-hook;" \
     "run boot-hook;" \
     "bootm\0" \
 "debug-hook="\
-    "echo ipaddr    $(ipaddr);" \
-    "echo serverip  $(serverip);" \
-    "echo gatewayip $(gatewayip);" \
-    "echo netmask   $(netmask);" \
-    "echo hostname  $(hostname)\0" \
+    "echo ipaddr    ${ipaddr};" \
+    "echo serverip  ${serverip};" \
+    "echo gatewayip ${gatewayip};" \
+    "echo netmask   ${netmask};" \
+    "echo hostname  ${hostname}\0" \
 "ana=run adc ; run dac\0" \
 "adc=run adc-12 ; run adc-34\0" \
 "adc-12=echo ### ADC-12 ; imd.b e 81 e\0" \
@@ -452,7 +452,7 @@
 	"echo;" \
 	"bootp;" \
 	"setenv bootargs root=/dev/ram0 rw quiet " \
-	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;" \
+	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off;" \
 	"run boot-hook;" \
 	"bootm"
 #endif /* CONFIG_BOOT_ROOT_INITRD */
@@ -462,8 +462,8 @@
 	"version;" \
 	"echo;" \
 	"bootp;" \
-	"setenv bootargs root=/dev/nfs rw nfsroot=$(serverip):$(rootpath) quiet " \
-	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;" \
+	"setenv bootargs root=/dev/nfs rw nfsroot=${serverip}:${rootpath} quiet " \
+	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off;" \
 	"run boot-hook;" \
 	"bootm"
 #endif /* CONFIG_BOOT_ROOT_NFS */

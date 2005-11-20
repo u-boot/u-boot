@@ -79,8 +79,8 @@
 #undef CONFIG_BOOTARGS
 /* TODO compare against CADM860 */
 #define CONFIG_BOOTCOMMAND	"bootp; " \
-	"setenv bootargs root=/dev/nfs rw nfsroot=$(serverip):$(rootpath) " \
-	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off; " \
+	"setenv bootargs root=/dev/nfs rw nfsroot=${serverip}:${rootpath} " \
+	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off; " \
 	"bootm"
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */

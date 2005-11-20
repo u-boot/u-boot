@@ -55,14 +55,14 @@
 	"netboot=dhcp;tftp;run netargs; bootm\0"			\
 	"nfsargs=setenv bootargs root=/dev/nfs ip=dhcp\0"		\
 	"localargs=setenv bootargs root=1F02 ip=dhcp\0"			\
-	"addmisc=setenv bootargs $(bootargs) "				\
-		"console=ttyS0,$(baudrate) "				\
+	"addmisc=setenv bootargs ${bootargs} "				\
+		"console=ttyS0,${baudrate} "				\
 		"read-only=readonly\0"					\
 	"netargs=run nfsargs addmisc\0"					\
 	"flash_nfs=run nfsargs addmisc;"				\
-		"bootm $(kernel_addr)\0"				\
+		"bootm ${kernel_addr}\0"				\
 	"flash_local=run localargs addmisc;"				\
-		"bootm $(kernel_addr)\0"				\
+		"bootm ${kernel_addr}\0"				\
 	"netboot_initrd=dhcp;tftp;tftp 80600000 initrd;"		\
 		"setenv bootargs root=/dev/ram ramdisk_size=8192 ip=dhcp;"\
 		"run addmisc;"						\
@@ -73,15 +73,15 @@
 	"ramdisk_addr=B0100000\0"					\
 	"u-boot=u-boot.bin\0"						\
 	"bootfile=uImage\0"						\
-	"load=dhcp;tftp 80400000 $(u-boot)\0"				\
-	"load_kernel=dhcp;tftp 80400000 $(bootfile)\0"			\
+	"load=dhcp;tftp 80400000 ${u-boot}\0"				\
+	"load_kernel=dhcp;tftp 80400000 ${bootfile}\0"			\
 	"update_uboot=run load;"					\
 		"protect off BFC00000 BFC3FFFF;"			\
 		"erase BFC00000 BFC3FFFF;"				\
-		"cp.b 80400000 BFC00000 $(filesize)\0"			\
+		"cp.b 80400000 BFC00000 ${filesize}\0"			\
 	"update_kernel=run load_kernel;"				\
 		"erase BFC60000 BFD5FFFF;"				\
-		"cp.b 80400000 BFC60000 $(filesize)\0"			\
+		"cp.b 80400000 BFC60000 ${filesize}\0"			\
 	"initenv=erase bfc40000 bfc5ffff\0"				\
 	""
 /*#define CONFIG_BOOTCOMMAND	"run flash_local" */

@@ -68,8 +68,8 @@
 #define CONFIG_BOOTCOMMAND \
 			"setenv verify y;" \
        			"setenv bootargs console=ttyS0,19200 mem=31M quiet " \
-			"root=/dev/nfs rw nfsroot=$(serverip):$(rootpath) " \
-			"ip=$(ipaddr):$(serverip)::$(netmask):pn62:eth0:off;" \
+			"root=/dev/nfs rw nfsroot=${serverip}:${rootpath} " \
+			"ip=${ipaddr}:${serverip}::${netmask}:pn62:eth0:off;" \
 			"loadp 100000; bootm"
 			/* "tftpboot 100000 uImage; bootm" */
 #else
@@ -78,7 +78,7 @@
 			"setenv verify n;" \
        			"setenv bootargs console=ttyS0,19200 mem=31M quiet " \
 			"root=/dev/ram rw " \
-			"ip=$(ipaddr):$(serverip)::$(netmask):pn62:eth0:off;" \
+			"ip=${ipaddr}:${serverip}::${netmask}:pn62:eth0:off;" \
 			"loadp 200000; bootm"
 #endif
 

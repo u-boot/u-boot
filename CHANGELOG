@@ -2,6 +2,11 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Change all '$(...)' variable references into '${...}'
+  which makes the environment compatible with the hush shell.
+  WARNING: Support for the old '$(...)' syntax will be
+  discontinued in a later version.
+
 * Minor changes to init flags in TQM834x PCI.
 
 * Fix Bamboo DDR SDRAM initialization (problem with onboard SDRAM)

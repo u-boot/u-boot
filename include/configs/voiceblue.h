@@ -163,10 +163,10 @@
 #define CFG_AUTOLOAD		"n"	/* no autoload */
 #define CONFIG_PREBOOT		"run setup"
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
-	"setup=setenv bootargs console=ttyS0,$(baudrate) "	\
+	"setup=setenv bootargs console=ttyS0,${baudrate} "	\
 		"root=/dev/nfs ip=dhcp\0"			\
 	"update=erase c000000 c03ffff; "			\
-		"cp.b 10400000 c000000 $(filesize)\0"
+		"cp.b 10400000 c000000 ${filesize}\0"
 #else
 #define CONFIG_BOOTDELAY	3
 #undef  CONFIG_BOOTARGS		/* boot command will set bootargs */

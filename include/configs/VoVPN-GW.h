@@ -165,18 +165,18 @@
 #undef  CONFIG_BOOTARGS
 #define	CONFIG_EXTRA_ENV_SETTINGS	\
 "clean_nv=erase fff20000 ffffffff\0" \
-"update_boss=tftp 100000 PPC/logic157.bin; protect off fff00000 ffffffff; erase fff00000 ffffffff; cp.b 100000 fff00000 $(filesize); tftp 100000 PPC/bootmon157.bin; cp.b 100000 fff20000 $(filesize)\0" \
-"update_lx=tftp 100000 $(kernel); erase $(kernel_addr) ffefffff; cp.b 100000 $(kernel_addr) $(filesize)\0" \
-"update_fs=tftp 100000 $(fs).$(fstype); erase ff840000 ffdfffff; cp.b 100000 ff840000 $(filesize)\0" \
-"update_ub=tftp 100000 $(uboot); protect off fff00000 fff1ffff; erase fff00000 fff1ffff; cp.b 100000 fff00000 $(filesize); protect off ff820000 ff83ffff; erase ff820000 ff83ffff\0" \
-"flashargs=setenv bootargs root=$(rootdev) rw rootfstype=$(fstype)\0" \
-"nfsargs=setenv bootargs root=/dev/nfs rw nfsroot=$(serverip):$(rootpath)\0" \
-"addip=setenv bootargs $(bootargs) ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname):$(netdev):off\0" \
-"addmisc=setenv bootargs $(bootargs) console=$(console),$(baudrate) ethaddr=$(ethaddr) panic=1\0" \
-"net_nfs=tftpboot 400000 $(kernel); run nfsargs addip addmisc; bootm\0" \
-"net_self=tftpboot 400000 $(kernel); run flashargs addmisc; bootm\0" \
-"flash_self=run flashargs addmisc; bootm $(kernel_addr)\0" \
-"flash_nfs=run nfsargs addip addmisc; bootm $(kernel_addr)\0" \
+"update_boss=tftp 100000 PPC/logic157.bin; protect off fff00000 ffffffff; erase fff00000 ffffffff; cp.b 100000 fff00000 ${filesize}; tftp 100000 PPC/bootmon157.bin; cp.b 100000 fff20000 ${filesize}\0" \
+"update_lx=tftp 100000 ${kernel}; erase ${kernel_addr} ffefffff; cp.b 100000 ${kernel_addr} ${filesize}\0" \
+"update_fs=tftp 100000 ${fs}.${fstype}; erase ff840000 ffdfffff; cp.b 100000 ff840000 ${filesize}\0" \
+"update_ub=tftp 100000 ${uboot}; protect off fff00000 fff1ffff; erase fff00000 fff1ffff; cp.b 100000 fff00000 ${filesize}; protect off ff820000 ff83ffff; erase ff820000 ff83ffff\0" \
+"flashargs=setenv bootargs root=${rootdev} rw rootfstype=${fstype}\0" \
+"nfsargs=setenv bootargs root=/dev/nfs rw nfsroot=${serverip}:${rootpath}\0" \
+"addip=setenv bootargs ${bootargs} ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}:${netdev}:off\0" \
+"addmisc=setenv bootargs ${bootargs} console=${console},${baudrate} ethaddr=${ethaddr} panic=1\0" \
+"net_nfs=tftpboot 400000 ${kernel}; run nfsargs addip addmisc; bootm\0" \
+"net_self=tftpboot 400000 ${kernel}; run flashargs addmisc; bootm\0" \
+"flash_self=run flashargs addmisc; bootm ${kernel_addr}\0" \
+"flash_nfs=run nfsargs addip addmisc; bootm ${kernel_addr}\0" \
 "fstype=cramfs\0" \
 "rootpath=/root_fs\0" \
 "uboot=PPC/u-boot.bin\0" \

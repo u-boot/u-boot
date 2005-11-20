@@ -124,9 +124,9 @@ nfsserverip=192.168.0.1
 preboot=echo;echo Type "run nfsboot" to mount root filesystem over NFS;echo
 gatewayip=192.168.0.1
 ramargs=setenv bootargs root=/dev/ram rw
-rootargs=setenv rootpath /tftp/$(ipaddr)
-nfsargs=setenv bootargs root=/dev/nfs rw nfsroot=$(nfsserverip):$(rootpath)
-addip=setenv bootargs $(bootargs) ip=$(ipaddr):$(nfsserverip):$(gatewayip):$(netmask):$(hostname):eth0:
+rootargs=setenv rootpath /tftp/${ipaddr}
+nfsargs=setenv bootargs root=/dev/nfs rw nfsroot=${nfsserverip}:${rootpath}
+addip=setenv bootargs ${bootargs} ip=${ipaddr}:${nfsserverip}:${gatewayip}:${netmask}:${hostname}:eth0:
 ramboot=tftp 400000 /home/leox/pMulti;run ramargs;bootm
 nfsboot=tftp 400000 /home/leox/uImage;run rootargs;run nfsargs;run addip;bootm
 bootcmd=run ramboot

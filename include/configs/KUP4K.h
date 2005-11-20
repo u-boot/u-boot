@@ -61,16 +61,16 @@
  "run addhw; diskboot 200000 2:1; bootm 200000\0"				\
 "nfs_boot=dhcp; run nfsargs addip addhw; bootm 200000\0"			\
 "panic_boot=echo No Bootdevice !!! reset\0"					\
-"nfsargs=setenv bootargs root=/dev/nfs rw nfsroot=$(serverip):$(rootpath)\0"	\
+"nfsargs=setenv bootargs root=/dev/nfs rw nfsroot=${serverip}:${rootpath}\0"	\
 "ramargs=setenv bootargs root=/dev/ram rw\0"					\
-"addip=setenv bootargs $(bootargs) ip=$(ipaddr):$(serverip):$(gatewayip)"	\
- ":$(netmask):$(hostname):$(netdev):off\0"					\
-"addhw=setenv bootargs $(bootargs) hw=$(hw) key1=$(key1) panic=1\0"		\
+"addip=setenv bootargs ${bootargs} ip=${ipaddr}:${serverip}:${gatewayip}"	\
+ ":${netmask}:${hostname}:${netdev}:off\0"					\
+"addhw=setenv bootargs ${bootargs} hw=${hw} key1=${key1} panic=1\0"		\
 "netdev=eth0\0"									\
 "contrast=55\0"									\
 "silent=1\0"									\
 "load=tftp 200000 bootloader-4k.bitmap;tftp 100000 bootloader-4k.bin\0"		\
-"update=protect off 1:0-7;era 1:0-7;cp.b 100000 40000000 $(filesize);"		\
+"update=protect off 1:0-7;era 1:0-7;cp.b 100000 40000000 ${filesize};"		\
  "cp.b 200000 40050000 14000\0"
 
 #define CONFIG_BOOTCOMMAND  \

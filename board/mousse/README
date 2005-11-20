@@ -132,7 +132,7 @@ pins 1-2 and follow the procedure below to FLASH a bootrom
 tftp 100000 u-boot.bin
 protect off FFF00000 FFF7FFFF
 erase FFF00000 FFF7FFFF
-cp.b 100000 FFF00000 \$(filesize)\
+cp.b 100000 FFF00000 \${filesize}\
 
 
 Here is an example:
@@ -169,7 +169,7 @@ into the onboard FLASH region (AMD29LV160DB 2MB FLASH):
 tftp 100000 u-boot.bin
 protect off FFF80000 FFFFFFFF
 erase FFF80000 FFFFFFFF
-cp.b 100000 FFF80000 \$(filesize)\
+cp.b 100000 FFF80000 \${filesize}\
 
 
 C. FLASH KERNEL REGION (960KB)
@@ -183,7 +183,7 @@ The following commands will FLASH a kernel image to 0xffe10000
 tftp 100000 vmlinux.img
 protect off FFE10000 FFEFFFFF
 erase FFE10000 FFEFFFFF
-cp.b 100000 FFE10000 \$(filesize)\
+cp.b 100000 FFE10000 \${filesize}\
 reset
 
 Here is an example:

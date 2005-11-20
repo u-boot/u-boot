@@ -65,22 +65,22 @@
 	"netdev=eth0\0"							\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
-		"nfsroot=$(serverip):$(rootpath)\0"			\
-	"addip=setenv bootargs $(bootargs) ip=$(ipaddr):$(serverip)"	\
-		":$(gatewayip):$(netmask):$(hostname):$(netdev):off\0"	\
-	"addtty=setenv bootargs $(bootargs) console=ttyS0,$(baudrate)\0"\
+		"nfsroot=${serverip}:${rootpath}\0"			\
+	"addip=setenv bootargs ${bootargs} ip=${ipaddr}:${serverip}"	\
+		":${gatewayip}:${netmask}:${hostname}:${netdev}:off\0"	\
+	"addtty=setenv bootargs ${bootargs} console=ttyS0,${baudrate}\0"\
 	"load=tftp 100000 /tftpboot/u-boot.bin\0"			\
 	"update=protect off 1:0-8;era 1:0-8;"				\
-		"cp.b 100000 40000000 $(filesize);"			\
+		"cp.b 100000 40000000 ${filesize};"			\
 		"setenv filesize;saveenv\0"				\
 	"kernel_addr=40040000\0"					\
 	"ramdisk_addr=40100000\0"					\
 	"kernel_img=/tftpboot/uImage\0"					\
-	"kernel_load=tftp 200000 $(kernel_img)\0"			\
+	"kernel_load=tftp 200000 ${kernel_img}\0"			\
 	"net_nfs=run kernel_load nfsargs addip addtty;bootm\0"		\
-	"flash_nfs=run nfsargs addip addtty;bootm $(kernel_addr)\0"	\
+	"flash_nfs=run nfsargs addip addtty;bootm ${kernel_addr}\0"	\
 	"flash_self=run ramargs addip addtty;"				\
-		"bootm $(kernel_addr) $(ramdisk_addr)\0"
+		"bootm ${kernel_addr} ${ramdisk_addr}\0"
 
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/

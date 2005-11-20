@@ -1377,7 +1377,7 @@ The following options need to be configured:
 		remaining RAM in a form that can be passed as boot
 		argument to Linux, for instance like that:
 
-			setenv bootargs ... mem=\$(mem)
+			setenv bootargs ... mem=\${mem}
 			saveenv
 
 		This way you can tell Linux not to use this memory,
@@ -2546,10 +2546,10 @@ Old, simple command line parser:
 
 - supports environment variables (through setenv / saveenv commands)
 - several commands on one line, separated by ';'
-- variable substitution using "... $(name) ..." syntax
+- variable substitution using "... ${name} ..." syntax
 - special characters ('$', ';') can be escaped by prefixing with '\',
   for example:
-	setenv bootcmd bootm \$(address)
+	setenv bootcmd bootm \${address}
 - You can also escape text by enclosing in single apostrophes, for example:
 	setenv addip 'setenv bootargs $bootargs ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname::off'
 

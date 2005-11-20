@@ -70,19 +70,19 @@
 	"ramdisk_addr=FF800000\0" \
 	"u-boot_startaddr=FFB00000\0" \
 	"u-boot_endaddr=FFB2FFFF\0" \
-	"nfsargs=setenv bootargs console=ttyS0,$(baudrate) root=/dev/nfs rw \
-nfsroot=$(nfsrootip):$(rootpath) ip=dhcp\0" \
-	"ramargs=setenv bootargs console=ttyS0,$(baudrate) root=/dev/ram0\0" \
-	"smargs=setenv bootargs console=ttyS0,$(baudrate) root=/dev/mtdblock1 ro\0" \
-	"fwargs=setenv bootargs console=ttyS0,$(baudrate) root=/dev/sda2 ro\0" \
-	"nfsboot=run nfsargs;bootm $(kernel_addr)\0" \
-	"ramboot=run ramargs;bootm $(kernel_addr) $(ramdisk_addr)\0" \
-	"smboot=run smargs;bootm $(kernel_addr) $(ramdisk_addr)\0" \
-	"fwboot=run fwargs;bootm $(kernel_addr) $(ramdisk_addr)\0" \
-	"update_u-boot=tftp $(loadaddr) /bdi2000/u-boot.bin;protect off \
-$(u-boot_startaddr) $(u-boot_endaddr);era $(u-boot_startaddr) \
-$(u-boot_endaddr);cp.b $(loadaddr) $(u-boot_startaddr) $(filesize);\
-protect on $(u-boot_startaddr) $(u-boot_endaddr)"
+	"nfsargs=setenv bootargs console=ttyS0,${baudrate} root=/dev/nfs rw \
+nfsroot=${nfsrootip}:${rootpath} ip=dhcp\0" \
+	"ramargs=setenv bootargs console=ttyS0,${baudrate} root=/dev/ram0\0" \
+	"smargs=setenv bootargs console=ttyS0,${baudrate} root=/dev/mtdblock1 ro\0" \
+	"fwargs=setenv bootargs console=ttyS0,${baudrate} root=/dev/sda2 ro\0" \
+	"nfsboot=run nfsargs;bootm ${kernel_addr}\0" \
+	"ramboot=run ramargs;bootm ${kernel_addr} ${ramdisk_addr}\0" \
+	"smboot=run smargs;bootm ${kernel_addr} ${ramdisk_addr}\0" \
+	"fwboot=run fwargs;bootm ${kernel_addr} ${ramdisk_addr}\0" \
+	"update_u-boot=tftp ${loadaddr} /bdi2000/u-boot.bin;protect off \
+${u-boot_startaddr} ${u-boot_endaddr};era ${u-boot_startaddr} \
+${u-boot_endaddr};cp.b ${loadaddr} ${u-boot_startaddr} ${filesize};\
+protect on ${u-boot_startaddr} ${u-boot_endaddr}"
 
 #define CONFIG_ENV_OVERWRITE
 

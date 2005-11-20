@@ -68,17 +68,17 @@
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
-		"nfsroot=$(serverip):$(rootpath)\0"			\
+		"nfsroot=${serverip}:${rootpath}\0"			\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
-	"addip=setenv bootargs $(bootargs) "				\
-		"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask)"	\
-		":$(hostname):$(netdev):off panic=1\0"			\
-	"addtty=setenv bootargs $(bootargs) console=ttyS0,$(baudrate)\0"\
+	"addip=setenv bootargs ${bootargs} "				\
+		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
+		":${hostname}:${netdev}:off panic=1\0"			\
+	"addtty=setenv bootargs ${bootargs} console=ttyS0,${baudrate}\0"\
 	"flash_nfs=run nfsargs addip addtty;"				\
-		"bootm $(kernel_addr)\0"				\
+		"bootm ${kernel_addr}\0"				\
 	"flash_self=run ramargs addip addtty;"				\
-		"bootm $(kernel_addr) $(ramdisk_addr)\0"		\
-	"net_nfs=tftp 200000 $(bootfile);run nfsargs addip addtty;"     \
+		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
+	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addtty;"     \
 	        "bootm\0"						\
 	"rootpath=/opt/eldk/ppc_8xx\0"					\
 	"bootfile=/tftpboot/uc100/uImage\0"				\
@@ -86,7 +86,7 @@
 	"ramdisk_addr=40100000\0"					\
 	"load=tftp 100000 /tftpboot/uc100/u-boot.bin\0"			\
 	"update=protect off 40700000 4073ffff;era 40700000 4073ffff;"	\
-		"cp.b 100000 40700000 $(filesize);"			\
+		"cp.b 100000 40700000 ${filesize};"			\
 		"setenv filesize;saveenv\0"				\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"

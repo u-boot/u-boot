@@ -83,25 +83,25 @@
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
 	"nfsargs=setenv bootargs console=tty0 console=ttyS0,9600 "	\
-		"root=/dev/nfs rw nfsroot=$(serverip):$(rootpath)\0"	\
+		"root=/dev/nfs rw nfsroot=${serverip}:${rootpath}\0"	\
 	"ramargs=setenv bootargs console=tty0 root=/dev/ram rw\0"	\
-	"addip=setenv bootargs $(bootargs) "				\
-		"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask)"	\
-		":$(hostname):$(netdev):off panic=1\0"			\
+	"addip=setenv bootargs ${bootargs} "				\
+		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
+		":${hostname}:${netdev}:off panic=1\0"			\
 	"flash_nfs=run nfsargs addip;"					\
-		"bootm $(kernel_addr)\0"				\
+		"bootm ${kernel_addr}\0"				\
 	"flash_self=run ramargs addip;"					\
-		"bootm $(kernel_addr) $(ramdisk_addr)\0"		\
-	"net_nfs=tftp 200000 $(bootfile);run nfsargs addip;bootm\0"	\
+		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
+	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip;bootm\0"	\
 	"gatewayip=172.16.115.254\0"					\
 	"netmask=255.255.255.0\0"					\
 	"kernel_addr=ff040000\0"					\
 	"ramdisk_addr=ff200000\0"					\
-	"ku=era $(kernel_addr) ff1fffff;cp.b 100000 $(kernel_addr) "	\
-		"$(filesize);md $(kernel_addr);"			\
+	"ku=era ${kernel_addr} ff1fffff;cp.b 100000 ${kernel_addr} "	\
+		"${filesize};md ${kernel_addr};"			\
 		"echo kernel updating finished\0"			\
 	"uu=protect off 1:0-4;era 1:0-4;cp.b 100000 ff000000 "		\
-		"$(filesize);md ff000000;"				\
+		"${filesize};md ff000000;"				\
 		"echo u-boot updating finished\0"			\
 	"eu=protect off 1:6;era 1:6;reset\0"				\
 	"lcd=setenv stdout lcd;setenv stdin lcd\0"			\

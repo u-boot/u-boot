@@ -96,8 +96,8 @@
 #define CONFIG_BOOTCOMMAND							\
 "bootp; tftp; "									\
 "setenv bootargs console=tty0 console=ttyS0 " 					\
-"root=/dev/nfs nfsroot=$(serverip):$(rootpath) " 				\
-"ip=$(ipaddr):$(serverip):$(gatewayip):$(subnetmask):$(hostname):eth0:off ;" 	\
+"root=/dev/nfs nfsroot=${serverip}:${rootpath} " 				\
+"ip=${ipaddr}:${serverip}:${gatewayip}:${subnetmask}:${hostname}:eth0:off ;" 	\
 "bootm "
 #else
 #define CONFIG_BOOTDELAY	0	/* autoboot disabled		*/

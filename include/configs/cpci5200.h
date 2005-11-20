@@ -154,9 +154,9 @@
 	"netdev=eth0\0" \
 	"flash_vxworks0=run ata_vxworks_args;setenv loadaddr ff000000;bootvx\0" \
 	"flash_vxworks1=run ata_vxworks_args;setenv loadaddr ff200000:bootvx\0" \
-	"net_vxworks=phypower 1;sleep 2;tftp $(loadaddr) $(image);run vxworks_args;bootvx\0" \
-	"vxworks_args=setenv bootargs fec(0,0)$(host):$(image) h=$(serverip) e=$(ipaddr) g=$(gatewayip) u=$(user) $(pass) tn=$(target) s=$(script)\0" \
-	"ata_vxworks_args=setenv bootargs /ata0/vxWorks h=$(serverip) e=$(ipaddr) g=$(gatewayip) u=$(user) $(pass) tn=$(target) s=$(script) o=fec0 \0" \
+	"net_vxworks=phypower 1;sleep 2;tftp ${loadaddr} ${image};run vxworks_args;bootvx\0" \
+	"vxworks_args=setenv bootargs fec(0,0)${host}:${image} h=${serverip} e=${ipaddr} g=${gatewayip} u=${user} ${pass} tn=${target} s=${script}\0" \
+	"ata_vxworks_args=setenv bootargs /ata0/vxWorks h=${serverip} e=${ipaddr} g=${gatewayip} u=${user} ${pass} tn=${target} s=${script} o=fec0 \0" \
 	"loadaddr=01000000\0" \
 	"serverip=192.168.2.99\0" \
 	"gatewayip=10.0.0.79\0" \

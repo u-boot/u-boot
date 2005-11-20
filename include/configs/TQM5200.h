@@ -208,21 +208,21 @@
 	"rootpath=/opt/eldk/ppc_6xx\0"					\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
-		"nfsroot=$(serverip):$(rootpath)\0"			\
-	"addip=setenv bootargs $(bootargs) "				\
-		"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask)"	\
-		":$(hostname):$(netdev):off panic=1\0"			\
+		"nfsroot=${serverip}:${rootpath}\0"			\
+	"addip=setenv bootargs ${bootargs} "				\
+		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
+		":${hostname}:${netdev}:off panic=1\0"			\
 	"flash_self=run ramargs addip;"					\
-		"bootm $(kernel_addr) $(ramdisk_addr)\0"		\
+		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"flash_nfs=run nfsargs addip;"					\
-		"bootm $(kernel_addr)\0"				\
-	"net_nfs=tftp 200000 $(bootfile);run nfsargs addip;bootm\0"	\
+		"bootm ${kernel_addr}\0"				\
+	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip;bootm\0"	\
 	"bootfile=/tftpboot/tqm5200/uImage\0"				\
-	"load=tftp 200000 $(u-boot)\0"					\
+	"load=tftp 200000 ${u-boot}\0"					\
 	"u-boot=/tftpboot/tqm5200/u-boot.bin"	CONFIG_U_BOOT_SUFFIX	\
 	"update=protect off FC000000 FC05FFFF;"				\
 		"erase FC000000 FC05FFFF;"				\
-		"cp.b 200000 FC000000 $(filesize);"			\
+		"cp.b 200000 FC000000 ${filesize};"			\
 		"protect on FC000000 FC05FFFF\0"			\
 	""
 

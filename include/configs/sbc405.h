@@ -46,16 +46,16 @@
 #define CONFIG_PREBOOT	"echo;echo Welcome to U-Boot for the sbc405;echo;echo Type \"? or help\" to get on-line help;echo"
 
 #define CONFIG_RAMBOOT								\
-	"setenv bootargs root=/dev/ram rw nfsroot=$(serverip):$(rootpath) "	\
-	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;"	\
+	"setenv bootargs root=/dev/ram rw nfsroot=${serverip}:${rootpath} "	\
+	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off;"	\
 	"bootm ffc00000 ffca0000"
 #define CONFIG_NFSBOOT								\
-	"setenv bootargs root=/dev/nfs rw nfsroot=$(serverip):$(rootpath) "	\
-	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;"	\
+	"setenv bootargs root=/dev/nfs rw nfsroot=${serverip}:${rootpath} "	\
+	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off;"	\
 	"bootm ffc00000"
 
 #undef CONFIG_BOOTARGS
-#define CONFIG_BOOTCOMMAND      "version;echo;tftpboot $(loadaddr) $(loadfile);bootvx"      /* autoboot command     */
+#define CONFIG_BOOTCOMMAND      "version;echo;tftpboot ${loadaddr} ${loadfile};bootvx"      /* autoboot command     */
 
 
 #define CONFIG_MII		1	/* MII PHY management		*/
@@ -70,17 +70,17 @@
 	"env_endaddr=FF03FFFF\0" \
 	"loadfile=vxWorks.st\0" \
 	"loadaddr=0x01000000\0" \
-	"net_load=tftpboot $(loadaddr) $(loadfile)\0" \
+	"net_load=tftpboot ${loadaddr} ${loadfile}\0" \
 	"uboot_startaddr=FFFC0000\0" \
 	"uboot_endaddr=FFFFFFFF\0" \
-	"update=tftp $(loadaddr) u-boot.bin;" \
-		"protect off $(uboot_startaddr) $(uboot_endaddr);" \
-		"era $(uboot_startaddr) $(uboot_endaddr);" \
-		"cp.b $(loadaddr) $(uboot_startaddr) $(filesize);" \
-		"protect on $(uboot_startaddr) $(uboot_endaddr)\0" \
-	"zapenv=protect off $(env_startaddr) $(env_endaddr);" \
-		"era $(env_startaddr) $(env_endaddr);" \
-		"protect on $(env_startaddr) $(env_endaddr)\0"
+	"update=tftp ${loadaddr} u-boot.bin;" \
+		"protect off ${uboot_startaddr} ${uboot_endaddr};" \
+		"era ${uboot_startaddr} ${uboot_endaddr};" \
+		"cp.b ${loadaddr} ${uboot_startaddr} ${filesize};" \
+		"protect on ${uboot_startaddr} ${uboot_endaddr}\0" \
+	"zapenv=protect off ${env_startaddr} ${env_endaddr};" \
+		"era ${env_startaddr} ${env_endaddr};" \
+		"protect on ${env_startaddr} ${env_endaddr}\0"
 
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 

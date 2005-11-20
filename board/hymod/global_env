@@ -135,26 +135,26 @@ newboot=run fetchboot eraseboot copyboot cmpboot
 
 fetchlinux=tftp 100000 /hymod/linux.bin
 eraselinux=erase 1:2-4
-copylinux=cp.b 100000 40080000 $(filesize)
-cmplinux=cmp.b 100000 40080000 $(filesize)
+copylinux=cp.b 100000 40080000 ${filesize}
+cmplinux=cmp.b 100000 40080000 ${filesize}
 newlinux=run fetchlinux eraselinux copylinux cmplinux
 
 fetchaltlinux=tftp 100000 /hymod/altlinux.bin
 erasealtlinux=erase 1:5-7
-copyaltlinux=cp.b 100000 40140000 $(filesize)
-cmpaltlinux=cmp.b 100000 40140000 $(filesize)
+copyaltlinux=cp.b 100000 40140000 ${filesize}
+cmpaltlinux=cmp.b 100000 40140000 ${filesize}
 newaltlinux=run fetchaltlinux erasealtlinux copyaltlinux cmpaltlinux
 
 fetchroot=tftp 100000 /hymod/root.bin
 eraseroot=erase 1:8-47
-copyroot=cp.b 100000 40200000 $(filesize)
-cmproot=cmp.b 100000 40200000 $(filesize)
+copyroot=cp.b 100000 40200000 ${filesize}
+cmproot=cmp.b 100000 40200000 ${filesize}
 newroot=run fetchroot eraseroot copyroot cmproot
 
 fetchard=tftp 100000 /hymod/apprd.bin
 eraseard=erase 1:48-63
-copyard=cp.b 100000 40c00000 $(filesize)
-cmpard=cmp.b 100000 40c00000 $(filesize)
+copyard=cp.b 100000 40c00000 ${filesize}
+cmpard=cmp.b 100000 40c00000 ${filesize}
 newapprd=run fetchard eraseard copyard cmpard
 
 # pass above map to linux mtd driver

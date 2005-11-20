@@ -68,12 +68,12 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
     "ramargs=setenv bootargs root=/dev/ram rw\0"			\
-    "rootargs=setenv rootpath /tftp/$(ipaddr)\0"			\
+    "rootargs=setenv rootpath /tftp/${ipaddr}\0"			\
     "nfsargs=setenv bootargs root=/dev/nfs rw "				\
-	"nfsroot=$(serverip):$(rootpath)\0"				\
-    "addip=setenv bootargs $(bootargs) "				\
-	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask)"		\
-	":$(hostname):eth0:off panic=1\0"				\
+	"nfsroot=${serverip}:${rootpath}\0"				\
+    "addip=setenv bootargs ${bootargs} "				\
+	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"		\
+	":${hostname}:eth0:off panic=1\0"				\
     "ramboot=tftp 400000 /home/paugaml/pMulti;"				\
 	"run ramargs;bootm\0"						\
     "nfsboot=tftp 400000 /home/paugaml/uImage;"				\

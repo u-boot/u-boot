@@ -112,8 +112,8 @@
 /* ronen - autoboot using tftp */
 #if (CONFIG_BOOTDELAY >= 0)
 #define CONFIG_BOOTCOMMAND	"tftpboot 0x400000 uImage;\
- setenv bootargs $(bootargs) $(bootargs_root) nfsroot=$(serverip):$(rootpath) \
- ip=$(ipaddr):$(serverip)$(bootargs_end);  bootm 0x400000; "
+ setenv bootargs ${bootargs} ${bootargs_root} nfsroot=${serverip}:${rootpath} \
+ ip=${ipaddr}:${serverip}${bootargs_end};  bootm 0x400000; "
 
 #define CONFIG_BOOTARGS "console=ttyS0,115200"
 
@@ -128,8 +128,8 @@ cp.b 100000 FFF00000 0x40000;protect on 1:0-7;\0" \
       "bootargs_root=root=/dev/nfs rw\0" \
       "bootargs_end=:::DB64460:eth0:none \0"\
       "ethprime=mv_enet0\0"\
-      "standalone=fsload 0x400000 uImage;setenv bootargs $(bootargs) root=/dev/mtdblock/0 rw \
-ip=$(ipaddr):$(serverip)$(bootargs_end); bootm 0x400000;\0"
+      "standalone=fsload 0x400000 uImage;setenv bootargs ${bootargs} root=/dev/mtdblock/0 rw \
+ip=${ipaddr}:${serverip}${bootargs_end}; bootm 0x400000;\0"
 
 /* --------------------------------------------------------------------------------------------------------------- */
 /* New bootcommands for Marvell DB64460 c 2002 Ingo Assmus */

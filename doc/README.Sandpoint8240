@@ -253,7 +253,7 @@ bootfile=telemetry
 hostname=sp1
 ethaddr=00:03:47:97:E4:6B
 load=tftp 100000 u-boot.bin
-update=protect off all;era FFF00000 FFF3FFFF;cp.b 100000 FFF00000 $(filesize);saveenv
+update=protect off all;era FFF00000 FFF3FFFF;cp.b 100000 FFF00000 ${filesize};saveenv
 filesize=1f304
 gatewayip=145.17.228.1
 netmask=255.255.255.0
@@ -308,7 +308,7 @@ Protected 1 sectors
 You can put these commands into some environment variables;
 
 => setenv load tftp 100000 u-boot.bin
-=> setenv update protect off all\;era FFF00000 FFF3FFFF\;cp.b 100000 FFF00000 \$(filesize)\;saveenv
+=> setenv update protect off all\;era FFF00000 FFF3FFFF\;cp.b 100000 FFF00000 \${filesize}\;saveenv
 => saveenv
 
 Then you just have to type "run load" then "run update"

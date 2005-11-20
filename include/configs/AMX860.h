@@ -55,8 +55,8 @@
 
 #define CONFIG_BOOTCOMMAND							\
 	"bootp;"								\
-	"setenv bootargs root=/dev/nfs rw nfsroot=$(serverip):$(rootpath) "	\
-	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off;"	\
+	"setenv bootargs root=/dev/nfs rw nfsroot=${serverip}:${rootpath} "	\
+	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off;"	\
 	"bootm"				/* autoboot command */
 
 #undef CONFIG_BOOTARGS

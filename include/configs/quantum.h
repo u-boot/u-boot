@@ -65,9 +65,9 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
     "serial#=12345\0"		\
-	"nfsargs=setenv bootargs root=/dev/nfs rw nfsroot=$(serverip):$(rootpath)\0"	\
+	"nfsargs=setenv bootargs root=/dev/nfs rw nfsroot=${serverip}:${rootpath}\0"	\
 	"ramargs=setenv bootargs root=/dev/ram rw\0" \
-    "addip=setenv bootargs $(bootargs) ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off\0"
+    "addip=setenv bootargs ${bootargs} ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off\0"
 
 /*
  * Select the more full-featured memory test (Barr embedded systems)

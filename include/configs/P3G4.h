@@ -90,17 +90,17 @@
 	"netdev=eth0\0"							\
 	"hostname=p3g4\0"						\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
-		"nfsroot=$(serverip):$(rootpath)\0"			\
+		"nfsroot=${serverip}:${rootpath}\0"			\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
-	"addip=setenv bootargs $(bootargs) "				\
-		"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask)"	\
-		":$(hostname):$(netdev):off panic=1\0"			\
-	"addtty=setenv bootargs $(bootargs) console=ttyS0,$(baudrate)\0"\
+	"addip=setenv bootargs ${bootargs} "				\
+		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
+		":${hostname}:${netdev}:off panic=1\0"			\
+	"addtty=setenv bootargs ${bootargs} console=ttyS0,${baudrate}\0"\
 	"flash_nfs=run nfsargs addip addtty;"				\
-		"bootm $(kernel_addr)\0"				\
+		"bootm ${kernel_addr}\0"				\
 	"flash_self=run ramargs addip addtty;"				\
-		"bootm $(kernel_addr) $(ramdisk_addr)\0"		\
-	"net_nfs=tftp 200000 $(bootfile);run nfsargs addip addtty;"     \
+		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
+	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addtty;"     \
 	        "bootm\0"						\
 	"rootpath=/opt/eldk/ppc_74xx\0"					\
 	"bootfile=/tftpboot/p3g4/uImage\0"				\
@@ -108,7 +108,7 @@
 	"ramdisk_addr=ff010000\0"					\
 	"load=tftp 100000 /tftpboot/p3g4/u-boot.bin\0"			\
 	"update=protect off fff00000 fff3ffff;era fff00000 fff3ffff;"	\
-		"cp.b 100000 fff00000 $(filesize);"			\
+		"cp.b 100000 fff00000 ${filesize};"			\
 		"setenv filesize;saveenv\0"				\
 	"upd=run load;run update\0"					\
 	""

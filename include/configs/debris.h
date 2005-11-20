@@ -45,9 +45,9 @@
 #define CONFIG_BOOTCOMMAND \
 	"tftp 800000 pImage; " \
 	"setenv bootargs console=ttyS0,9600 init=/linuxrc " \
-	"root=/dev/nfs rw nfsroot=$(serverip):$(rootpath) " \
-	"ip=$(ipaddr):$(serverip):$(gatewayip):" \
-	"$(netmask):$(hostname):eth0:none " \
+	"root=/dev/nfs rw nfsroot=${serverip}:${rootpath} " \
+	"ip=${ipaddr}:${serverip}:${gatewayip}:" \
+	"${netmask}:${hostname}:eth0:none " \
 	"mtdparts=phys:12m(root),-(kernel); " \
 	"bootm 800000"
 

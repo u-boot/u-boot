@@ -19,7 +19,7 @@ Die MTD-Partitionierung kann nun mittels "bootargs" ueber-
 geben werden:
 
   => printenv addmtd
-  addmtd=setenv bootargs $(bootargs)
+  addmtd=setenv bootargs ${bootargs}
     mtdparts=0:256k(U-Boot)ro,768k(Kernel),-(Rest)\;1:-(myJFFS2)
 
 Die Portierung auf SMC ist natuerlich noch nicht getestet.

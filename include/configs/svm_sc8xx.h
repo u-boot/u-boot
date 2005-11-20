@@ -93,24 +93,24 @@
 #undef	CONFIG_BOOTARGS
 #define CONFIG_EXTRA_ENV_SETTINGS                                       \
 	"nfsargs=setenv bootargs root=/dev/nfs rw "                     \
-	 "nfsroot=$(serverip):$(rootpath)\0"                     \
+	 "nfsroot=${serverip}:${rootpath}\0"                     \
 	"ramargs=setenv bootargs root=/dev/ram rw\0"                    \
-	"addip=setenv bootargs $(bootargs) "                            \
-	       "ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask)"      \
-		":$(hostname):$(netdev):off panic=1\0"                  \
+	"addip=setenv bootargs ${bootargs} "                            \
+	       "ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"      \
+		":${hostname}:${netdev}:off panic=1\0"                  \
 		"flash_nfs=run nfsargs addip;"                                  \
-	     "bootm $(kernel_addr)\0"                                \
+	     "bootm ${kernel_addr}\0"                                \
 	"flash_self=run ramargs addip;"                                 \
-	       "bootm $(kernel_addr) $(ramdisk_addr)\0"                \
-	"net_nfs=tftp 0x210000 $(bootfile);run nfsargs addip;bootm\0"     \
+	       "bootm ${kernel_addr} ${ramdisk_addr}\0"                \
+	"net_nfs=tftp 0x210000 ${bootfile};run nfsargs addip;bootm\0"     \
 	"rootpath=/opt/sinovee/ppc8xx-linux-2.0/target\0"                                  \
 	"bootfile=pImage-sc855t\0"                           \
 	"kernel_addr=48000000\0"                                        \
 	"ramdisk_addr=48100000\0"                                       \
 	""
 #define CONFIG_BOOTCOMMAND							\
-	"setenv bootargs root=/dev/nfs rw nfsroot=$(serverip):$(rootpath) " 	\
-	"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname)::off; " 	\
+	"setenv bootargs root=/dev/nfs rw nfsroot=${serverip}:${rootpath} " 	\
+	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off; " 	\
 	"tftpboot 0x210000 pImage-sc855t;bootm 0x210000"
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
