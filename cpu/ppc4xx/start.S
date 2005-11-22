@@ -444,6 +444,8 @@ __440gx_msr_continue:
 	stw	r0,+12(r1)		/* Save return addr (underflow vect) */
 
 	GET_GOT
+
+	bl	cpu_init_f	/* run low-level CPU init code	   (from Flash) */
 	bl	board_init_f
 
 #endif /* CONFIG_440 */

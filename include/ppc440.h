@@ -547,6 +547,8 @@
 #define cpc0_strp2	(CNTRL_DCR_BASE+0x36)	/* Power-on config reg 2 (RO)	*/
 #define cpc0_strp3	(CNTRL_DCR_BASE+0x37)	/* Power-on config reg 3 (RO)	*/
 
+#define cpc0_gpio	(CNTRL_DCR_BASE+0x38)	/* GPIO config reg (440GP)	*/
+
 #define cntrl0		(CNTRL_DCR_BASE+0x3b)	/* Control 0 register		*/
 #define cntrl1		(CNTRL_DCR_BASE+0x3a)	/* Control 1 register		*/
 
@@ -1392,6 +1394,15 @@
 /******************************************************************************
  * GPIO macro register defines
  ******************************************************************************/
+#if defined(CONFIG_440GP)
+#define GPIO_BASE0             (CFG_PERIPHERAL_BASE+0x00000700)
+
+#define GPIO0_OR               (GPIO_BASE0+0x0)
+#define GPIO0_TCR              (GPIO_BASE0+0x4)
+#define GPIO0_ODR              (GPIO_BASE0+0x18)
+#define GPIO0_IR               (GPIO_BASE0+0x1C)
+#endif /* CONFIG_440GP */
+
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR)
 #define GPIO_BASE0             (CFG_PERIPHERAL_BASE+0x00000B00)
 #define GPIO_BASE1             (CFG_PERIPHERAL_BASE+0x00000C00)

@@ -431,20 +431,24 @@ static struct pci_controller ppc440_hose = {0};
 void pci_440_init (struct pci_controller *hose)
 {
 	int reg_num = 0;
-	unsigned long strap;
 
+#ifndef CONFIG_DISABLE_PISE_TEST
 	/*--------------------------------------------------------------------------+
 	 * The PCI initialization sequence enable bit must be set ... if not abort
 	 * pci setup since updating the bit requires chip reset.
 	 *--------------------------------------------------------------------------*/
-#if defined (CONFIG_440GX) || defined (CONFIG_440EP) || defined(CONFIG_440GR)
+#if defined(CONFIG_440GX)
+	unsigned long strap;
+
 	mfsdr(sdr_sdstp1,strap);
 	if ( (strap & 0x00010000) == 0 ){
 		printf("PCI: SDR0_STRP1[PISE] not set.\n");
 		printf("PCI: Configuration aborted.\n");
 		return;
 	}
-#else
+#elif defined(CONFIG_440GP)
+	unsigned long strap;
+
 	strap = mfdcr(cpc0_strp1);
 	if( (strap & 0x00040000) == 0 ){
 		printf("PCI: CPC0_STRP1[PISE] not set.\n");
@@ -452,6 +456,8 @@ void pci_440_init (struct pci_controller *hose)
 		return;
 	}
 #endif
+#endif /* CONFIG_DISABLE_PISE_TEST */
+
 	/*--------------------------------------------------------------------------+
 	 * PCI controller init
 	 *--------------------------------------------------------------------------*/

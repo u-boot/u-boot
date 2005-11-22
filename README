@@ -1766,6 +1766,12 @@ Configuration Settings:
 		This option also enables the building of the cfi_flash driver
 		in the drivers directory
 
+- CFG_FLASH_QUIET_TEST
+		If this option is defined, the common CFI flash doesn't
+		print it's warning upon not recognized FLASH banks. This
+		is useful, if some of the configured banks are only
+		optionally available.
+
 - CFG_RX_ETH_BUFFER:
 		Defines the number of ethernet receive buffers. On some
 		ethernet controllers it is recommended to set this value

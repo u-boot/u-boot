@@ -2,6 +2,12 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Add support for Prodrive P3P440 board:
+  - Added onboard PPC440 DDR autodetection in cpu/ppc/sdram.c
+  - CFG_FLASH_QUIET_TEST added to use the common CFI driver
+    for bank autodetection
+  Patch by Stefan Roese, 22 Nov 2005
+
 * Change all '$(...)' variable references into '${...}'
   which makes the environment compatible with the hush shell.
   WARNING: Support for the old '$(...)' syntax will be

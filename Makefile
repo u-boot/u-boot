@@ -839,6 +839,9 @@ OCRTC_config		\
 ORSG_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx ocrtc esd
 
+p3p440_config:	unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx p3p440 prodrive
+
 PCI405_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx pci405 esd
 
