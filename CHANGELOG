@@ -2,6 +2,10 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Allow use of include/image.h and include/asm-*/u-boot.h in proprietary code.
+  The COPYING file was extended to make clear that these files can be
+  used in non-GPL code, too.
+
 * Add support for Prodrive P3P440 board:
   - Added onboard PPC440 DDR autodetection in cpu/ppc/sdram.c
   - CFG_FLASH_QUIET_TEST added to use the common CFI driver
