@@ -2,9 +2,12 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Remove unnnecessary #include <linux/types.h> from include/asm-*/u-boot.h
+
 * Allow use of include/image.h and include/asm-*/u-boot.h in proprietary code.
   The COPYING file was extended to make clear that these files can be
   used in non-GPL code, too.
+  Also, a corresponding note was placed in the headers of the affected files.
 
 * Add support for Prodrive P3P440 board:
   - Added onboard PPC440 DDR autodetection in cpu/ppc/sdram.c

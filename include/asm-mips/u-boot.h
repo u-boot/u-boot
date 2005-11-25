@@ -19,6 +19,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
+ *
+ ********************************************************************
+ * NOTE: This header file defines an interface to U-Boot. Including
+ * this (unmodified) header file in another file is considered normal
+ * use of U-Boot, and does *not* fall under the heading of "derived
+ * work".
+ ********************************************************************
  */
 
 #ifndef _U_BOOT_H_
