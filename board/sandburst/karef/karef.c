@@ -305,12 +305,6 @@ int checkboard (void)
 		printf("OFEM Board Rev:\t0x%02X\tID:   0x%02X\n", ofem_brd_id, ofem_brd_rev);
 	}
 
-	printf ("\tVCO: %lu MHz\n", sysinfo.freqVCOMhz / 1000000);
-	printf ("\tCPU: %lu MHz\n", sysinfo.freqProcessor / 1000000);
-	printf ("\tPLB: %lu MHz\n", sysinfo.freqPLB / 1000000);
-	printf ("\tOPB: %lu MHz\n", sysinfo.freqOPB / 1000000);
-	printf ("\tEPB: %lu MHz\n", sysinfo.freqEPB / 1000000);
-
 	/* Fix the ack in the bme 32 */
 	udelay(5000);
 	out32(CFG_BME32_BASE + 0x0000000C, 0x00000001);

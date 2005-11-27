@@ -2,6 +2,15 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Changed PPC44x startup message (cpu info, speed...) to common style:
+  On PPC44x platforms, the startup message generated in "cpu.c" only
+  comprised the ppc type and revision but not additional informations
+  like speed etc. Those speed infos where printed in the board specific
+  code. This new implementation now prints all CPU infos in the common
+  cpu specific code. No board specific code is needed anymore and
+  therefore removed from all current 44x implementations.
+  Patch by Stefan Roese, 27 Nov 2005
+
 * Remove unnnecessary #include <linux/types.h> from include/asm-*/u-boot.h
 
 * Allow use of include/image.h and include/asm-*/u-boot.h in proprietary code.

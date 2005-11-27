@@ -120,11 +120,7 @@ int board_early_init_f(void)
 
 int checkboard(void)
 {
-	sys_info_t sysinfo;
 	char *s = getenv("serial#");
-	char buf[32];
-
-	get_sys_info(&sysinfo);
 
 	printf("Board: P3P440");
 	if (s != NULL) {
@@ -139,13 +135,6 @@ int checkboard(void)
 	}
 
 	putc('\n');
-
-	printf("       at %s MHz (VCO=%lu, PLB=%lu, OPB=%lu, EBC=%lu MHz)\n",
-	       strmhz(buf, sysinfo.freqProcessor),
-	       sysinfo.freqVCOMhz / 1000000,
-	       sysinfo.freqPLB / 1000000,
-	       sysinfo.freqOPB / 1000000,
-	       sysinfo.freqEPB / 1000000);
 
 	return (0);
 }
