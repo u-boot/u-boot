@@ -283,7 +283,7 @@ ulong get_PCI_freq (void)
 	return sys_info.freqPCI;
 }
 
-#elif !defined(CONFIG_440GX)
+#elif !defined(CONFIG_440GX) && !defined(CONFIG_440SP)
 void get_sys_info (sys_info_t * sysInfo)
 {
 	unsigned long strp0;

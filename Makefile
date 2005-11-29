@@ -815,6 +815,9 @@ JSE_config:	unconfig
 KAREF_config: unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx karef sandburst
 
+luan_config:	unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx luan amcc
+
 METROBOX_config: unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx metrobox sandburst
 

@@ -38,40 +38,73 @@
 #include <ppc4xx.h>
 
 
-#if defined(CONFIG_405GP)
-#define PCI_ARBITER_ENABLED	(mfdcr(strap) & PSR_PCI_ARBIT_EN)
-#define PCI_ASYNC_ENABLED	(mfdcr(strap) & PSR_PCI_ASYNC_EN)
-#endif
-
-#if defined(CONFIG_405EP)
-#define PCI_ARBITER_ENABLED	(mfdcr(cpc0_pci) & CPC0_PCI_ARBIT_EN)
-#define I2C_BOOTROM_ENABLED	(mfdcr(cpc0_boot) & CPC0_BOOT_SEP)
-#endif
-
-#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
-#define SDR0_SDSTP1_PAE		(0x80000000 >> 21)
-#define SDR0_SDSTP1_PAME	(0x80000000 >> 27)
-
-#define PCI_ARBITER_ENABLED	(mfdcr(cpc0_strp1) & SDR0_SDSTP1_PAE)
-#define PCI_ASYNC_ENABLED	(mfdcr(cpc0_strp1) & SDR0_SDSTP1_PAME)
-#endif
-
-#if defined(CONFIG_440GP)
-#define CPC0_STRP1_PAE		(0x80000000 >> 11)
-
-#define PCI_ARBITER_ENABLED	(mfdcr(cpc0_strp1) & CPC0_STRP1_PAE)
-#endif
-
-#if defined(CONFIG_440GX)
-#define SDR0_SDSTP1_PAE		(0x80000000 >> 13)
-
-#define PCI_ARBITER_ENABLED	(mfdcr(cpc0_strp1) & SDR0_SDSTP1_PAE)
-#endif
-
 #if defined(CONFIG_440)
 #define FREQ_EBC		(sys_info.freqEPB)
 #else
 #define FREQ_EBC		(sys_info.freqPLB / sys_info.pllExtBusDiv)
+#endif
+
+#if defined(CONFIG_405GP) || defined(CONFIG_440EP) || defined(CONFIG_440GR)
+
+#define PCI_ASYNC
+
+int pci_async_enabled(void)
+{
+#if defined(CONFIG_405GP)
+	return (mfdcr(strap) & PSR_PCI_ASYNC_EN);
+#endif
+
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
+	unsigned long val;
+
+	mfsdr(cpc0_strp1, val);
+	return (val & SDR0_SDSTP1_PAME_MASK);
+#endif
+}
+#endif
+
+#if defined(CONFIG_PCI)
+int pci_arbiter_enabled(void)
+{
+#if defined(CONFIG_405GP)
+	return (mfdcr(strap) & PSR_PCI_ARBIT_EN);
+#endif
+
+#if defined(CONFIG_405EP)
+	return (mfdcr(cpc0_pci) & CPC0_PCI_ARBIT_EN);
+#endif
+
+#if defined(CONFIG_440GP)
+	return (mfdcr(cpc0_strp1) & CPC0_STRP1_PAE_MASK);
+#endif
+
+#if defined(CONFIG_440GX) || defined(CONFIG_440EP) || defined(CONFIG_440GR) || defined(CONFIG_440SP)
+	unsigned long val;
+
+	mfsdr(sdr_sdstp1, val);
+	return (val & SDR0_SDSTP1_PAE_MASK);
+#endif
+}
+#endif
+
+#if defined(CONFIG_405EP)|| defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
+	defined(CONFIG_440GX) || defined(CONFIG_440SP)
+
+#define I2C_BOOTROM
+
+int i2c_bootrom_enabled(void)
+{
+#if defined(CONFIG_405EP)
+	return (mfdcr(cpc0_boot) & CPC0_BOOT_SEP);
+#endif
+
+#if defined(CONFIG_440GX) || defined(CONFIG_440EP) || defined(CONFIG_440GR) || defined(CONFIG_440SP)
+	unsigned long val;
+
+	mfsdr(sdr_sdcs, val);
+	return (val & SDR0_SDCS_SDD);
+#endif
+}
 #endif
 
 
@@ -196,6 +229,14 @@ int checkcpu (void)
 #endif /* CONFIG_440GR */
 #endif /* CONFIG_440 */
 
+	case PVR_440SP_RA:
+		puts("SP Rev. A");
+		break;
+
+	case PVR_440SP_RB:
+		puts("SP Rev. B");
+		break;
+
 	default:
 		printf (" UNKNOWN (PVR=%08x)", pvr);
 		break;
@@ -206,17 +247,16 @@ int checkcpu (void)
 	       sys_info.freqPLB / sys_info.pllOpbDiv / 1000000,
 	       FREQ_EBC / 1000000);
 
-#if defined(I2C_BOOTROM_ENABLED)
-	printf ("       IIC Boot EEPROM %sabled\n", I2C_BOOTROM_ENABLED ? "en" : "dis");
+#if defined(I2C_BOOTROM)
+	printf ("       I2C boot EEPROM %sabled\n", i2c_bootrom_enabled() ? "en" : "dis");
 #endif
 
-#if defined(PCI_ARBITER_ENABLED)
-	printf ("       %sternal PCI arbiter enabled",
-		(PCI_ARBITER_ENABLED) ? "In" : "Ex");
+#if defined(CONFIG_PCI)
+	printf ("       Internal PCI arbiter %sabled", pci_arbiter_enabled() ? "en" : "dis");
 #endif
 
-#if defined(PCI_ASYNC_ENABLED)
-	if (PCI_ASYNC_ENABLED) {
+#if defined(PCI_ASYNC)
+	if (pci_async_enabled()) {
 		printf (", PCI async ext clock used");
 	} else {
 		printf (", PCI sync clock at %lu MHz",
@@ -224,7 +264,7 @@ int checkcpu (void)
 	}
 #endif
 
-#if defined(PCI_ARBITER_ENABLED) || defined(PCI_ASYNC_ENABLED)
+#if defined(CONFIG_PCI)
 	putc('\n');
 #endif
 

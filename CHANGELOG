@@ -2,6 +2,9 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Add support for AMCC 440SP, add support for AMCC Luan 440SP eval board.
+  Patch by John Otken, 23 Nov 2005
+
 * Changed PPC44x startup message (cpu info, speed...) to common style:
   On PPC44x platforms, the startup message generated in "cpu.c" only
   comprised the ppc type and revision but not additional informations
