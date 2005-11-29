@@ -63,7 +63,7 @@ int pci_async_enabled(void)
 }
 #endif
 
-#if defined(CONFIG_PCI)
+#if defined(CONFIG_PCI) && !defined(CONFIG_IOP480) && !defined(CONFIG_405)
 int pci_arbiter_enabled(void)
 {
 #if defined(CONFIG_405GP)
