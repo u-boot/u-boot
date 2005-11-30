@@ -24,6 +24,7 @@
 #include <common.h>
 #include <command.h>
 #include <net.h>
+#include <miiphy.h>
 
 #if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_NET_MULTI)
 
@@ -135,6 +136,10 @@ int eth_initialize(bd_t *bis)
 
 	eth_devices = NULL;
 	eth_current = NULL;
+
+#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+	miiphy_init();
+#endif
 
 #ifdef CONFIG_DB64360
 	mv6436x_eth_initialize(bis);
@@ -442,6 +447,10 @@ extern int ns7520_miiphy_initialize(bd_t *bis);
 
 int eth_initialize(bd_t *bis)
 {
+#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+	miiphy_init();
+#endif
+
 #if defined(CONFIG_AT91RM9200)
 	at91rm9200_miiphy_initialize(bis);
 #endif

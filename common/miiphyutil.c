@@ -60,6 +60,16 @@ static struct mii_dev *current_mii;
 
 /*****************************************************************************
  *
+ * Initialize global data. Need to be called before any other miiphy routine.
+ */
+void miiphy_init()
+{
+		INIT_LIST_HEAD(&mii_devs);
+		current_mii = NULL;
+}
+
+/*****************************************************************************
+ *
  * Register read and write MII access routines for the device <name>.
  */
 void miiphy_register(char *name,
@@ -71,14 +81,7 @@ void miiphy_register(char *name,
 	struct list_head *entry;
 	struct mii_dev *new_dev;
 	struct mii_dev *miidev;
-	static int head_initialized = 0;
 	unsigned int name_len;
-
-	if (head_initialized == 0) {
-		INIT_LIST_HEAD(&mii_devs);
-		current_mii = NULL;
-		head_initialized = 1;
-	}
 
 	/* check if we have unique name */
 	list_for_each(entry, &mii_devs) {

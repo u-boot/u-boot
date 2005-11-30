@@ -2,6 +2,12 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Fix miiphy global data initialization (problem on 4xx boards when no 
+  ethaddr is assigned). Initialization moved from miiphy_register() to
+  eth_initialize().
+
+  Based on initial patch for 4xx platform by Matthias Fuchs.
+
 * Remove unnnecessary #include <linux/types.h> from include/asm-*/u-boot.h
 
 * Allow use of include/image.h and include/asm-*/u-boot.h in proprietary code.

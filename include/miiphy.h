@@ -53,6 +53,8 @@ int  miiphy_duplex(char *devname, unsigned char addr);
 int  miiphy_link(char *devname, unsigned char addr);
 #endif
 
+void miiphy_init(void);
+
 void miiphy_register(char *devname,
 	int (* read)(char *devname, unsigned char addr,
 		unsigned char reg, unsigned short *value),
