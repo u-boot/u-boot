@@ -369,7 +369,7 @@
 #endif
 
 #define CFG_MONITOR_LEN		(384 << 10)	/* Reserve 384 kB for Monitor	*/
-#define CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
+#define CFG_MALLOC_LEN		(256 << 10)	/* Reserve 256 kB for malloc()	*/
 #define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
 /*
