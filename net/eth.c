@@ -157,9 +157,6 @@ int eth_initialize(bd_t *bis)
 #ifdef SCC_ENET
 	scc_initialize(bis);
 #endif
-#if defined(FEC_ENET) || defined(CONFIG_ETHER_ON_FCC)
-	fec_initialize(bis);
-#endif
 #if defined(CONFIG_MPC5xxx_FEC)
 	mpc5xxx_fec_initialize(bis);
 #endif
@@ -192,6 +189,9 @@ int eth_initialize(bd_t *bis)
 #    elif defined(CONFIG_MPC83XX_TSEC4)
 	tsec_initialize(bis, 3, CONFIG_MPC83XX_TSEC4_NAME);
 #    endif
+#endif
+#if defined(FEC_ENET) || defined(CONFIG_ETHER_ON_FCC)
+	fec_initialize(bis);
 #endif
 #if defined(CONFIG_AU1X00)
 	au1x00_enet_initialize(bis);

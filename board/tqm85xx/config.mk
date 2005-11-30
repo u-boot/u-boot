@@ -1,6 +1,6 @@
-#
-# (C) Copyright 2001
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+# Copyright 2004 Freescale Semiconductor.
+# Modified by Xianghua Xiao, X.Xiao@motorola.com
+# (C) Copyright 2002,Motorola Inc.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -12,7 +12,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
@@ -21,28 +21,9 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
-
-LIB	= lib$(BOARD).a
-
-OBJS	:= $(BOARD).o
-SOBJS	:= init.o
-#SOBJS	:=
-
-$(LIB): $(OBJS) $(SOBJS)
-	$(AR) crv $@ $(OBJS)
-
-clean:
-	rm -f $(OBJS) $(SOBJS)
-
-distclean:	clean
-	rm -f $(LIB) core *.bak .depend
-
-#########################################################################
-
-.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CPPFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
-
--include .depend
-
-#########################################################################
+#
+# tqm85xx board
+# default CCARBAR is at 0xff700000
+# assume U-Boot is less than 256k
+#
+TEXT_BASE = 0xfffc0000

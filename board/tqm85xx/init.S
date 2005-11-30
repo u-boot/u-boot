@@ -108,18 +108,18 @@ tlb1_entry:
 
 
 	/*
-	 * TLB 0, 1:	32M	Non-cacheable, guarded
-	 * 0xfe000000	32M	FLASH
+	 * TLB 0, 1:	128M	Non-cacheable, guarded
+	 * 0xf8000000	128M	FLASH
 	 * Out of reset this entry is only 4K.
 	 */
 	.long TLB1_MAS0(1, 1, 0)
-	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_16M)
+	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_64M)
 	.long TLB1_MAS2(E500_TLB_EPN(CFG_FLASH_BASE), 0,0,0,0,1,0,1,0)
 	.long TLB1_MAS3(E500_TLB_RPN(CFG_FLASH_BASE), 0,0,0,0,0,1,0,1,0,1)
 	.long TLB1_MAS0(1, 0, 0)
-	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_16M)
-	.long TLB1_MAS2(E500_TLB_EPN(CFG_FLASH_BASE+0x1000000), 0,0,0,0,1,0,1,0)
-	.long TLB1_MAS3(E500_TLB_RPN(CFG_FLASH_BASE+0x1000000), 0,0,0,0,0,1,0,1,0,1)
+	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_64M)
+	.long TLB1_MAS2(E500_TLB_EPN(CFG_FLASH_BASE+0x4000000), 0,0,0,0,1,0,1,0)
+	.long TLB1_MAS3(E500_TLB_RPN(CFG_FLASH_BASE+0x4000000), 0,0,0,0,0,1,0,1,0,1)
 
 	/*
 	 * TLB 2:	256M	Non-cacheable, guarded
@@ -171,23 +171,21 @@ tlb1_entry:
 	.long TLB1_MAS2(E500_TLB_EPN(CFG_CCSRBAR), 0,0,0,0,1,0,1,0)
 	.long TLB1_MAS3(E500_TLB_RPN(CFG_CCSRBAR), 0,0,0,0,0,1,0,1,0,1)
 
-#if !defined(CONFIG_SPD_EEPROM)
 	/*
-	 * TLB 7:	256M	DDR
-	 * 0x00000000  256M	DDR System memory
+	 * TLB 7+8:	512M	DDR, cache disabled (needed for memory test)
+	 * 0x00000000  512M	DDR System memory
 	 * Without SPD EEPROM configured DDR, this must be setup manually.
 	 * Make sure the TLB count at the top of this table is correct.
 	 * Likely it needs to be increased by two for these entries.
 	 */
 	.long TLB1_MAS0(1, 7, 0)
 	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_256M)
-	.long TLB1_MAS2(E500_TLB_EPN(CFG_DDR_SDRAM_BASE), 0,0,0,0,0,0,0,0)
+	.long TLB1_MAS2(E500_TLB_EPN(CFG_DDR_SDRAM_BASE), 0,0,0,0,1,0,1,0)
 	.long TLB1_MAS3(E500_TLB_RPN(CFG_DDR_SDRAM_BASE), 0,0,0,0,0,1,0,1,0,1)
 	.long TLB1_MAS0(1, 8, 0)
 	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_256M)
-	.long TLB1_MAS2(E500_TLB_EPN(CFG_DDR_SDRAM_BASE+0x10000000), 0,0,0,0,0,0,0,0)
+	.long TLB1_MAS2(E500_TLB_EPN(CFG_DDR_SDRAM_BASE+0x10000000), 0,0,0,0,1,0,1,0)
 	.long TLB1_MAS3(E500_TLB_RPN(CFG_DDR_SDRAM_BASE+0x10000000), 0,0,0,0,0,1,0,1,0,1)
-#endif
 
 	entry_end
 
@@ -207,19 +205,14 @@ tlb1_entry:
  *    If flash is 8M at default position (last 8M), no LAW needed.
  */
 
-#if !defined(CONFIG_SPD_EEPROM)
 #define LAWBAR0 ((CFG_DDR_SDRAM_BASE>>12) & 0xfffff)
-#define LAWAR0	(LAWAR_EN | LAWAR_TRGT_IF_DDR | (LAWAR_SIZE & LAWAR_SIZE_256M))
-#else
-#define LAWBAR0 0
-#define LAWAR0	((LAWAR_TRGT_IF_DDR | (LAWAR_SIZE & LAWAR_SIZE_128M)) & ~LAWAR_EN)
-#endif
+#define LAWAR0	(LAWAR_EN | LAWAR_TRGT_IF_DDR | (LAWAR_SIZE & LAWAR_SIZE_512M))
 
 #define LAWBAR1 ((CFG_PCI1_MEM_BASE>>12) & 0xfffff)
 #define LAWAR1	(LAWAR_EN | LAWAR_TRGT_IF_PCIX | (LAWAR_SIZE & LAWAR_SIZE_512M))
 
 #define LAWBAR2 ((CFG_LBC_FLASH_BASE>>12) & 0xfffff)
-#define LAWAR2	(LAWAR_EN | LAWAR_TRGT_IF_LBC | (LAWAR_SIZE & LAWAR_SIZE_32M))
+#define LAWAR2	(LAWAR_EN | LAWAR_TRGT_IF_LBC | (LAWAR_SIZE & LAWAR_SIZE_128M))
 
 #define LAWBAR3 ((CFG_PCI1_IO_BASE>>12) & 0xfffff)
 #define LAWAR3	(LAWAR_EN | LAWAR_TRGT_IF_PCIX | (LAWAR_SIZE & LAWAR_SIZE_16M))

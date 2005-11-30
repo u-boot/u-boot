@@ -1,5 +1,7 @@
 /*
- * Copyright 2005 DENX Software Engineering
+ * (C) Copyright 2005
+ * Stefan Roese, DENX Software Engineering, sr@denx.de.
+ *
  * Copyright 2004 Freescale Semiconductor.
  * (C) Copyright 2002,2003, Motorola Inc.
  * Xianghua Xiao, (X.Xiao@motorola.com)
@@ -32,16 +34,15 @@
 #include <asm/immap_85xx.h>
 #include <ioports.h>
 #include <spd.h>
+#include <flash.h>
 
-#if defined(CONFIG_DDR_ECC)
-extern void ddr_enable_ecc (unsigned int dram_size);
-#endif
-
-extern long int spd_sdram (void);
+extern flash_info_t flash_info[];	/* FLASH chips info */
 
 void local_bus_init (void);
 long int fixed_sdram (void);
+ulong flash_get_size (ulong base, int banknum);
 
+#ifdef CONFIG_CPM2
 /*
  * I/O Port configuration table
  *
@@ -53,24 +54,24 @@ const iop_conf_t iop_conf_tab[4][32] = {
 
     /* Port A configuration */
     {   /*            conf ppar psor pdir podr pdat */
-	/* PA31 */ {   0,   1,   0,   1,   0,   0   }, /* FCC1 TxENB */
-	/* PA30 */ {   0,   1,   0,   0,   0,   0   }, /* FCC1 TxClav   */
-	/* PA29 */ {   0,   1,   0,   1,   0,   0   }, /* FCC1 TxSOC  */
-	/* PA28 */ {   0,   1,   0,   1,   0,   0   }, /* FCC1 RxENB */
-	/* PA27 */ {   0,   1,   0,   0,   0,   0   }, /* FCC1 RxSOC */
-	/* PA26 */ {   0,   1,   0,   0,   0,   0   }, /* FCC1 RxClav */
+	/* PA31 */ {   1,   1,   1,   0,   0,   0   }, /* FCC1 MII COL */
+	/* PA30 */ {   1,   1,   1,   0,   0,   0   }, /* FCC1 MII CRS */
+	/* PA29 */ {   1,   1,   1,   1,   0,   0   }, /* FCC1 MII TX_ER */
+	/* PA28 */ {   1,   1,   1,   1,   0,   0   }, /* FCC1 MII TX_EN */
+	/* PA27 */ {   1,   1,   1,   0,   0,   0   }, /* FCC1 MII RX_DV */
+	/* PA26 */ {   1,   1,   1,   0,   0,   0   }, /* FCC1 MII RX_ER */
 	/* PA25 */ {   0,   1,   0,   1,   0,   0   }, /* FCC1 ATMTXD[0] */
 	/* PA24 */ {   0,   1,   0,   1,   0,   0   }, /* FCC1 ATMTXD[1] */
 	/* PA23 */ {   0,   1,   0,   1,   0,   0   }, /* FCC1 ATMTXD[2] */
 	/* PA22 */ {   0,   1,   0,   1,   0,   0   }, /* FCC1 ATMTXD[3] */
-	/* PA21 */ {   0,   1,   0,   1,   0,   0   }, /* FCC1 ATMTXD[4] */
-	/* PA20 */ {   0,   1,   0,   1,   0,   0   }, /* FCC1 ATMTXD[5] */
-	/* PA19 */ {   0,   1,   0,   1,   0,   0   }, /* FCC1 ATMTXD[6] */
-	/* PA18 */ {   0,   1,   0,   1,   0,   0   }, /* FCC1 ATMTXD[7] */
-	/* PA17 */ {   0,   1,   0,   0,   0,   0   }, /* FCC1 ATMRXD[7] */
-	/* PA16 */ {   0,   1,   0,   0,   0,   0   }, /* FCC1 ATMRXD[6] */
-	/* PA15 */ {   0,   1,   0,   0,   0,   0   }, /* FCC1 ATMRXD[5] */
-	/* PA14 */ {   0,   1,   0,   0,   0,   0   }, /* FCC1 ATMRXD[4] */
+	/* PA21 */ {   1,   1,   0,   1,   0,   0   }, /* FCC1 MII TxD[3] */
+	/* PA20 */ {   1,   1,   0,   1,   0,   0   }, /* FCC1 MII TxD[2] */
+	/* PA19 */ {   1,   1,   0,   1,   0,   0   }, /* FCC1 MII TxD[1] */
+	/* PA18 */ {   1,   1,   0,   1,   0,   0   }, /* FCC1 MII TxD[0] */
+	/* PA17 */ {   1,   1,   0,   0,   0,   0   }, /* FCC1 MII RxD[0] */
+	/* PA16 */ {   1,   1,   0,   0,   0,   0   }, /* FCC1 MII RxD[1] */
+	/* PA15 */ {   1,   1,   0,   0,   0,   0   }, /* FCC1 MII RxD[2] */
+	/* PA14 */ {   1,   1,   0,   0,   0,   0   }, /* FCC1 MII RxD[3] */
 	/* PA13 */ {   0,   1,   0,   0,   0,   0   }, /* FCC1 ATMRXD[3] */
 	/* PA12 */ {   0,   1,   0,   0,   0,   0   }, /* FCC1 ATMRXD[2] */
 	/* PA11 */ {   0,   1,   0,   0,   0,   0   }, /* FCC1 ATMRXD[1] */
@@ -89,20 +90,20 @@ const iop_conf_t iop_conf_tab[4][32] = {
 
     /* Port B configuration */
     {   /*            conf ppar psor pdir podr pdat */
-	/* PB31 */ {   0,   1,   0,   1,   0,   0   }, /* FCC2 MII TX_ER */
-	/* PB30 */ {   0,   1,   0,   0,   0,   0   }, /* FCC2 MII RX_DV */
-	/* PB29 */ {   0,   1,   1,   1,   0,   0   }, /* FCC2 MII TX_EN */
-	/* PB28 */ {   0,   1,   0,   0,   0,   0   }, /* FCC2 MII RX_ER */
-	/* PB27 */ {   0,   1,   0,   0,   0,   0   }, /* FCC2 MII COL */
-	/* PB26 */ {   0,   1,   0,   0,   0,   0   }, /* FCC2 MII CRS */
-	/* PB25 */ {   0,   1,   0,   1,   0,   0   }, /* FCC2 MII TxD[3] */
-	/* PB24 */ {   0,   1,   0,   1,   0,   0   }, /* FCC2 MII TxD[2] */
-	/* PB23 */ {   0,   1,   0,   1,   0,   0   }, /* FCC2 MII TxD[1] */
-	/* PB22 */ {   0,   1,   0,   1,   0,   0   }, /* FCC2 MII TxD[0] */
-	/* PB21 */ {   0,   1,   0,   0,   0,   0   }, /* FCC2 MII RxD[0] */
-	/* PB20 */ {   0,   1,   0,   0,   0,   0   }, /* FCC2 MII RxD[1] */
-	/* PB19 */ {   0,   1,   0,   0,   0,   0   }, /* FCC2 MII RxD[2] */
-	/* PB18 */ {   0,   1,   0,   0,   0,   0   }, /* FCC2 MII RxD[3] */
+	/* PB31 */ {   1,   1,   0,   1,   0,   0   }, /* FCC2 MII TX_ER */
+	/* PB30 */ {   1,   1,   0,   0,   0,   0   }, /* FCC2 MII RX_DV */
+	/* PB29 */ {   1,   1,   1,   1,   0,   0   }, /* FCC2 MII TX_EN */
+	/* PB28 */ {   1,   1,   0,   0,   0,   0   }, /* FCC2 MII RX_ER */
+	/* PB27 */ {   1,   1,   0,   0,   0,   0   }, /* FCC2 MII COL */
+	/* PB26 */ {   1,   1,   0,   0,   0,   0   }, /* FCC2 MII CRS */
+	/* PB25 */ {   1,   1,   0,   1,   0,   0   }, /* FCC2 MII TxD[3] */
+	/* PB24 */ {   1,   1,   0,   1,   0,   0   }, /* FCC2 MII TxD[2] */
+	/* PB23 */ {   1,   1,   0,   1,   0,   0   }, /* FCC2 MII TxD[1] */
+	/* PB22 */ {   1,   1,   0,   1,   0,   0   }, /* FCC2 MII TxD[0] */
+	/* PB21 */ {   1,   1,   0,   0,   0,   0   }, /* FCC2 MII RxD[0] */
+	/* PB20 */ {   1,   1,   0,   0,   0,   0   }, /* FCC2 MII RxD[1] */
+	/* PB19 */ {   1,   1,   0,   0,   0,   0   }, /* FCC2 MII RxD[2] */
+	/* PB18 */ {   1,   1,   0,   0,   0,   0   }, /* FCC2 MII RxD[3] */
 	/* PB17 */ {   1,   1,   0,   0,   0,   0   }, /* FCC3:RX_DIV */
 	/* PB16 */ {   1,   1,   0,   0,   0,   0   }, /* FCC3:RX_ERR */
 	/* PB15 */ {   1,   1,   0,   1,   0,   0   }, /* FCC3:TX_ERR */
@@ -135,12 +136,12 @@ const iop_conf_t iop_conf_tab[4][32] = {
 	/* PC24 */ {   0,   0,   0,   1,   0,   0   }, /* PC24 */
 	/* PC23 */ {   0,   1,   0,   1,   0,   0   }, /* ATMTFCLK */
 	/* PC22 */ {   0,   1,   0,   0,   0,   0   }, /* ATMRFCLK */
-	/* PC21 */ {   0,   1,   0,   0,   0,   0   }, /* SCC1 EN RXCLK */
-	/* PC20 */ {   0,   1,   0,   0,   0,   0   }, /* SCC1 EN TXCLK */
-	/* PC19 */ {   0,   1,   0,   0,   0,   0   }, /* FCC2 MII RX_CLK CLK13 */
+	/* PC21 */ {   1,   1,   0,   0,   0,   0   }, /* SCC1 EN RXCLK */
+	/* PC20 */ {   1,   1,   0,   0,   0,   0   }, /* SCC1 EN TXCLK */
+	/* PC19 */ {   1,   1,   0,   0,   0,   0   }, /* FCC2 MII RX_CLK CLK13 */
 	/* PC18 */ {   1,   1,   0,   0,   0,   0   }, /* FCC Tx Clock (CLK14) */
 	/* PC17 */ {   1,   1,   0,   0,   0,   0   }, /* PC17 */
-	/* PC16 */ {   0,   1,   0,   0,   0,   0   }, /* FCC Tx Clock (CLK16) */
+	/* PC16 */ {   1,   1,   0,   0,   0,   0   }, /* FCC Tx Clock (CLK16) */
 	/* PC15 */ {   0,   1,   0,   0,   0,   0   }, /* PC15 */
 	/* PC14 */ {   0,   1,   0,   0,   0,   0   }, /* SCC1 EN *CD */
 	/* PC13 */ {   0,   1,   0,   0,   0,   0   }, /* PC13 */
@@ -195,16 +196,49 @@ const iop_conf_t iop_conf_tab[4][32] = {
 	/* PD0  */ {   0,   0,   0,   0,   0,   0   }  /* pin doesn't exist */
     }
 };
+#endif /*  CONFIG_CPM2 */
 
+#define CASL_STRING1	"casl=xx"
+#define CASL_STRING2	"casl="
 
-int board_early_init_f (void)
+static const int casl_table[] = { 20, 25, 30 };
+#define	N_CASL (sizeof(casl_table) / sizeof(casl_table[0]))
+
+int cas_latency(void)
 {
-	return 0;
+	char *s = getenv("serial#");
+	int casl;
+	int val;
+	int i;
+
+	casl = CONFIG_DDR_DEFAULT_CL;
+
+	if (s != NULL) {
+		if (strncmp(s + strlen(s) - strlen(CASL_STRING1), CASL_STRING2,
+			    strlen(CASL_STRING2)) == 0) {
+			val = simple_strtoul(s + strlen(s) - 2, NULL, 10);
+
+			for (i=0; i<N_CASL; ++i) {
+				if (val == casl_table[i]) {
+					return val;
+				}
+			}
+		}
+	}
+
+	return casl;
 }
 
 int checkboard (void)
 {
-	puts ("Board: TQM8560\n");
+	char *s = getenv("serial#");
+
+	printf("Board: %s", CONFIG_BOARDNAME);
+	if (s != NULL) {
+		puts(", serial# ");
+		puts(s);
+	}
+	putc('\n');
 
 #ifdef CONFIG_PCI
 	printf ("PCI1:  32 bit, %d MHz (compiled)\n",
@@ -212,6 +246,7 @@ int checkboard (void)
 #else
 	printf ("PCI1:  disabled\n");
 #endif
+
 	/*
 	 * Initialize local bus.
 	 */
@@ -220,59 +255,69 @@ int checkboard (void)
 	return 0;
 }
 
-
-long int initdram (int board_type)
+int misc_init_r (void)
 {
-	long dram_size = 0;
-	extern long spd_sdram (void);
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	DECLARE_GLOBAL_DATA_PTR;
+	volatile immap_t    *immap = (immap_t *)CFG_IMMR;
+	volatile ccsr_lbc_t *memctl = &immap->im_lbc;
 
-#if defined(CONFIG_DDR_DLL)
-	{
-		volatile ccsr_gur_t *gur= &immap->im_gur;
-		int i,x;
+	/*
+	 * Adjust flash start and offset to detected values
+	 */
+	gd->bd->bi_flashstart = 0 - gd->bd->bi_flashsize;
+	gd->bd->bi_flashoffset = 0;
 
-		x = 10;
+	/*
+	 * Check if boot FLASH isn't max size
+	 */
+	if (gd->bd->bi_flashsize < (0 - CFG_FLASH0)) {
+		memctl->or0 = gd->bd->bi_flashstart | (CFG_OR0_PRELIM & 0x00007fff);
+		memctl->br0 = gd->bd->bi_flashstart | (CFG_BR0_PRELIM & 0x00007fff);
 
 		/*
-		 * Work around to stabilize DDR DLL
+		 * Re-check to get correct base address
 		 */
-		gur->ddrdllcr = 0x81000000;
-		asm("sync;isync;msync");
-		udelay (200);
-		while (gur->ddrdllcr != 0x81000100) {
-			gur->devdisr = gur->devdisr | 0x00010000;
-			asm("sync;isync;msync");
-			for (i=0; i<x; i++)
-				;
-			gur->devdisr = gur->devdisr & 0xfff7ffff;
-			asm("sync;isync;msync");
-			x++;
-		}
+		flash_get_size(gd->bd->bi_flashstart, CFG_MAX_FLASH_BANKS - 1);
 	}
-#endif
 
-#if defined(CONFIG_SPD_EEPROM)
-	dram_size = spd_sdram ();
-#else
-	dram_size = fixed_sdram ();
-#endif
-
-#if defined(CONFIG_DDR_ECC)
 	/*
-	 * Initialize and enable DDR ECC.
+	 * Check if only one FLASH bank is available
 	 */
-	ddr_enable_ecc (dram_size);
-#endif
+	if (gd->bd->bi_flashsize != CFG_MAX_FLASH_BANKS * (0 - CFG_FLASH0)) {
+		memctl->or1 = 0;
+		memctl->br1 = 0;
 
-	return dram_size;
+		/*
+		 * Re-do flash protection upon new addresses
+		 */
+		flash_protect (FLAG_PROTECT_CLEAR,
+			       gd->bd->bi_flashstart, 0xffffffff,
+			       &flash_info[CFG_MAX_FLASH_BANKS - 1]);
+
+		/* Monitor protection ON by default */
+		flash_protect (FLAG_PROTECT_SET,
+			       CFG_MONITOR_BASE, 0xffffffff,
+			       &flash_info[CFG_MAX_FLASH_BANKS - 1]);
+
+		/* Environment protection ON by default */
+		flash_protect (FLAG_PROTECT_SET,
+			       CFG_ENV_ADDR,
+			       CFG_ENV_ADDR + CFG_ENV_SECT_SIZE - 1,
+			       &flash_info[CFG_MAX_FLASH_BANKS - 1]);
+
+		/* Redundant environment protection ON by default */
+		flash_protect (FLAG_PROTECT_SET,
+			       CFG_ENV_ADDR_REDUND,
+			       CFG_ENV_ADDR_REDUND + CFG_ENV_SIZE_REDUND - 1,
+			       &flash_info[CFG_MAX_FLASH_BANKS - 1]);
+	}
+
+	return 0;
 }
-
 
 /*
  * Initialize Local Bus
  */
-
 void local_bus_init (void)
 {
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
@@ -328,79 +373,6 @@ void local_bus_init (void)
 		asm ("sync;isync;msync");
 	}
 }
-
-
-#if defined(CFG_DRAM_TEST)
-int testdram (void)
-{
-	uint *pstart = (uint *) CFG_MEMTEST_START;
-	uint *pend = (uint *) CFG_MEMTEST_END;
-	uint *p;
-
-	printf ("SDRAM test phase 1:\n");
-	for (p = pstart; p < pend; p++)
-		*p = 0xaaaaaaaa;
-
-	for (p = pstart; p < pend; p++) {
-		if (*p != 0xaaaaaaaa) {
-			printf ("SDRAM test fails at: %08x\n", (uint) p);
-			return 1;
-		}
-	}
-
-	printf ("SDRAM test phase 2:\n");
-	for (p = pstart; p < pend; p++)
-		*p = 0x55555555;
-
-	for (p = pstart; p < pend; p++) {
-		if (*p != 0x55555555) {
-			printf ("SDRAM test fails at: %08x\n", (uint) p);
-			return 1;
-		}
-	}
-
-	printf ("SDRAM test passed.\n");
-	return 0;
-}
-#endif
-
-
-#if !defined(CONFIG_SPD_EEPROM)
-/*************************************************************************
- *  fixed sdram init -- doesn't use serial presence detect.
- ************************************************************************/
-long int fixed_sdram (void)
-{
-#ifndef CFG_RAMBOOT
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
-	volatile ccsr_ddr_t *ddr = &immap->im_ddr;
-
-	ddr->cs0_bnds = CFG_DDR_CS0_BNDS;
-	ddr->cs0_config = CFG_DDR_CS0_CONFIG;
-	ddr->timing_cfg_1 = CFG_DDR_TIMING_1;
-	ddr->timing_cfg_2 = CFG_DDR_TIMING_2;
-	ddr->sdram_mode = CFG_DDR_MODE;
-	ddr->sdram_interval = CFG_DDR_INTERVAL;
-	ddr->err_disable = 0x0000000D;
-#if defined (CONFIG_DDR_ECC)
-	ddr->err_disable = 0x0000000D;
-	ddr->err_sbe = 0x00ff0000;
-#endif
-	asm ("sync;isync;msync");
-	udelay (500);
-#if defined (CONFIG_DDR_ECC)
-	/* Enable ECC checking */
-	ddr->sdram_cfg = (CFG_DDR_CONTROL | 0x20000000);
-#else
-	ddr->sdram_cfg = CFG_DDR_CONTROL;
-#endif
-	asm ("sync; isync; msync");
-	udelay (500);
-#endif
-	return get_ram_size (0, CFG_SDRAM_SIZE * 1024 * 1024);
-}
-#endif /* !defined(CONFIG_SPD_EEPROM) */
-
 
 #if defined(CONFIG_PCI)
 /*
