@@ -1,6 +1,6 @@
 /*
- * (C) Copyright 2002,2003, Motorola,Inc.
- * Xianghua Xiao, X.Xiao@motorola.com.
+ * (C) Copyright 2002
+ * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -12,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -34,61 +34,67 @@ SECTIONS
 
   .bootpg 0xFFFFF000 :
   {
-    cpu/mpc85xx/start.o (.bootpg)
-    board/tqm8540/init.o (.bootpg)
+    cpu/ppc4xx/start.o	(.bootpg)
   } = 0xffff
 
   /* Read-only sections, merged into text segment: */
   . = + SIZEOF_HEADERS;
   .interp : { *(.interp) }
-  .hash		 : { *(.hash)		}
-  .dynsym	 : { *(.dynsym)		}
-  .dynstr	 : { *(.dynstr)		}
-  .rel.text	 : { *(.rel.text)		}
-  .rela.text	 : { *(.rela.text)	}
-  .rel.data	 : { *(.rel.data)		}
-  .rela.data	 : { *(.rela.data)	}
-  .rel.rodata	 : { *(.rel.rodata)	}
-  .rela.rodata	 : { *(.rela.rodata)	}
-  .rel.got	 : { *(.rel.got)		}
-  .rela.got	 : { *(.rela.got)		}
-  .rel.ctors	 : { *(.rel.ctors)	}
-  .rela.ctors	 : { *(.rela.ctors)	}
-  .rel.dtors	 : { *(.rel.dtors)	}
-  .rela.dtors	 : { *(.rela.dtors)	}
-  .rel.bss	 : { *(.rel.bss)		}
-  .rela.bss	 : { *(.rela.bss)		}
-  .rel.plt	 : { *(.rel.plt)		}
-  .rela.plt	 : { *(.rela.plt)		}
-  .init		 : { *(.init)	}
+  .hash          : { *(.hash)		}
+  .dynsym        : { *(.dynsym)		}
+  .dynstr        : { *(.dynstr)		}
+  .rel.text      : { *(.rel.text)		}
+  .rela.text     : { *(.rela.text) 	}
+  .rel.data      : { *(.rel.data)		}
+  .rela.data     : { *(.rela.data) 	}
+  .rel.rodata    : { *(.rel.rodata) 	}
+  .rela.rodata   : { *(.rela.rodata) 	}
+  .rel.got       : { *(.rel.got)		}
+  .rela.got      : { *(.rela.got)		}
+  .rel.ctors     : { *(.rel.ctors)	}
+  .rela.ctors    : { *(.rela.ctors)	}
+  .rel.dtors     : { *(.rel.dtors)	}
+  .rela.dtors    : { *(.rela.dtors)	}
+  .rel.bss       : { *(.rel.bss)		}
+  .rela.bss      : { *(.rela.bss)		}
+  .rel.plt       : { *(.rel.plt)		}
+  .rela.plt      : { *(.rela.plt)		}
+  .init          : { *(.init)	}
   .plt : { *(.plt) }
-  .text	     :
+  .text      :
   {
-    cpu/mpc85xx/start.o (.text)
-    board/tqm8540/init.o (.text)
-    cpu/mpc85xx/traps.o (.text)
-    cpu/mpc85xx/interrupts.o (.text)
-    cpu/mpc85xx/cpu_init.o (.text)
-    cpu/mpc85xx/cpu.o (.text)
-    cpu/mpc85xx/speed.o (.text)
-    cpu/mpc85xx/pci.o (.text)
-    common/dlmalloc.o (.text)
-    lib_generic/crc32.o (.text)
-    lib_ppc/extable.o (.text)
-    lib_generic/zlib.o (.text)
+    /* WARNING - the following is hand-optimized to fit within	*/
+    /* the sector layout of our flash chips!	XXX FIXME XXX	*/
+
+    cpu/ppc4xx/start.o	(.text)
+    board/amcc/luan/init.o	(.text)
+    cpu/ppc4xx/kgdb.o	(.text)
+    cpu/ppc4xx/traps.o	(.text)
+    cpu/ppc4xx/interrupts.o	(.text)
+    cpu/ppc4xx/serial.o	(.text)
+    cpu/ppc4xx/cpu_init.o	(.text)
+    cpu/ppc4xx/speed.o	(.text)
+    common/dlmalloc.o	(.text)
+    lib_generic/crc32.o		(.text)
+    lib_ppc/extable.o	(.text)
+    lib_generic/zlib.o		(.text)
+
+/*    . = env_offset;*/
+/*    common/environment.o(.text)*/
+
     *(.text)
     *(.fixup)
     *(.got1)
-   }
-    _etext = .;
-    PROVIDE (etext = .);
-    .rodata    :
-   {
+  }
+  _etext = .;
+  PROVIDE (etext = .);
+  .rodata    :
+  {
     *(.rodata)
     *(.rodata1)
     *(.rodata.str1.4)
   }
-  .fini	     : { *(.fini)    } =0
+  .fini      : { *(.fini)    } =0
   .ctors     : { *(.ctors)   }
   .dtors     : { *(.dtors)   }
 
@@ -104,10 +110,10 @@ SECTIONS
     _FIXUP_TABLE_ = .;
     *(.fixup)
   }
-  __got2_entries = (_FIXUP_TABLE_ - _GOT2_TABLE_) >> 2;
-  __fixup_entries = (. - _FIXUP_TABLE_) >> 2;
+  __got2_entries = (_FIXUP_TABLE_ - _GOT2_TABLE_) >>2;
+  __fixup_entries = (. - _FIXUP_TABLE_)>>2;
 
-  .data	   :
+  .data    :
   {
     *(.data)
     *(.data1)
@@ -124,6 +130,7 @@ SECTIONS
   .u_boot_cmd : { *(.u_boot_cmd) }
   __u_boot_cmd_end = .;
 
+
   . = .;
   __start___ex_table = .;
   __ex_table : { *(__ex_table) }
@@ -137,7 +144,7 @@ SECTIONS
   __init_end = .;
 
   __bss_start = .;
-  .bss	     :
+  .bss       :
   {
    *(.sbss) *(.scommon)
    *(.dynbss)

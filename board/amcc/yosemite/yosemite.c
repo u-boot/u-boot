@@ -184,10 +184,7 @@ int misc_init_r (void)
 
 int checkboard(void)
 {
-	sys_info_t sysinfo;
-	unsigned char *s = getenv("serial#");
-
-	get_sys_info(&sysinfo);
+	char *s = getenv("serial#");
 
 	printf("Board: Yosemite - AMCC PPC440EP Evaluation Board");
 	if (s != NULL) {
@@ -195,13 +192,6 @@ int checkboard(void)
 		puts(s);
 	}
 	putc('\n');
-
-	printf("\tVCO: %lu MHz\n", sysinfo.freqVCOMhz / 1000000);
-	printf("\tCPU: %lu MHz\n", sysinfo.freqProcessor / 1000000);
-	printf("\tPLB: %lu MHz\n", sysinfo.freqPLB / 1000000);
-	printf("\tOPB: %lu MHz\n", sysinfo.freqOPB / 1000000);
-	printf("\tEPB: %lu MHz\n", sysinfo.freqEPB / 1000000);
-	printf("\tPCI: %lu MHz\n", sysinfo.freqPCI / 1000000);
 
 	return (0);
 }
@@ -321,19 +311,7 @@ int testdram(void)
 #if defined(CONFIG_PCI) && defined(CFG_PCI_PRE_INIT)
 int pci_pre_init(struct pci_controller *hose)
 {
-	unsigned long strap;
 	unsigned long addr;
-
-	/*--------------------------------------------------------------------------+
-	 *	Bamboo is always configured as the host & requires the
-	 *	PCI arbiter to be enabled.
-	 *--------------------------------------------------------------------------*/
-	mfsdr(sdr_sdstp1, strap);
-	if ((strap & SDR0_SDSTP1_PAE_MASK) == 0) {
-		printf("PCI: SDR0_STRP1[PAE] not set.\n");
-		printf("PCI: Configuration aborted.\n");
-		return 0;
-	}
 
 	/*-------------------------------------------------------------------------+
 	  | Set priority for all PLB3 devices to 0.

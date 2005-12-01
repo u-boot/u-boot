@@ -317,6 +317,10 @@ E: rof@sysgo.de
 D: Initial support for SSV-DNP1110, SMC91111 driver
 W: www.elinos.com
 
+N: John Otken
+E: jotken@softadvances.com
+D: Support for AMCC Luan 440SP board
+
 N: Tolunay Orkun
 E: torkun@nextio.com
 D: Support for Cogent CSB272 & CSB472 boards

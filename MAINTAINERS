@@ -240,6 +240,10 @@ Tolunay Orkun <torkun@nextio.com>
 	csb272			PPC405GP
 	csb472			PPC405GP
 
+John Otken <jotken@softadvances.com>
+
+	luan			PPC440SP
+
 Keith Outwater <Keith_Outwater@mvis.com>
 
 	GEN860T			MPC860T
@@ -270,10 +274,15 @@ Daniel Poirot <dan.poirot@windriver.com>
 
 Stefan Roese <sr@denx.de>
 
+	uc100			MPC857
+
+	TQM85xx			MPC8540/8541/8555/8560
+
 	bamboo			PPC440EP
 	bunbinga		PPC405EP
 	ebony			PPC440GP
 	ocotea			PPC440GX
+	p3p440			PPC440GP
 	sycamore		PPC405GPr
 	walnut			PPC405GP
 	yellowstone		PPC440GR

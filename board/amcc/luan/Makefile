@@ -1,6 +1,6 @@
-# Copyright 2004 Freescale Semiconductor.
-# Modified by Xianghua Xiao, X.Xiao@motorola.com
-# (C) Copyright 2002,Motorola Inc.
+#
+# (C) Copyright 2002
+# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -21,9 +21,28 @@
 # MA 02111-1307 USA
 #
 
-#
-# tqm8560 board
-# default CCARBAR is at 0xff700000
-# assume U-Boot is less than 256k
-#
-TEXT_BASE = 0xfffc0000
+include $(TOPDIR)/config.mk
+
+LIB	= lib$(BOARD).a
+
+OBJS	= $(BOARD).o
+OBJS   += flash.o
+SOBJS	= init.o
+
+$(LIB):	$(OBJS) $(SOBJS)
+	$(AR) crv $@ $(OBJS)
+
+clean:
+	rm -f $(SOBJS) $(OBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak .depend
+
+#########################################################################
+
+.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
+		$(CC) -M $(CFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
+
+sinclude .depend
+
+#########################################################################

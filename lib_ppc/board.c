@@ -197,6 +197,10 @@ static int init_baudrate (void)
 
 /***********************************************************************/
 
+#ifdef CONFIG_ADD_RAM_INFO
+void board_add_ram_info(int);
+#endif
+
 static int init_func_ram (void)
 {
 #ifdef	CONFIG_BOARD_TYPES
@@ -207,7 +211,11 @@ static int init_func_ram (void)
 	puts ("DRAM:  ");
 
 	if ((gd->ram_size = initdram (board_type)) > 0) {
-		print_size (gd->ram_size, "\n");
+		print_size (gd->ram_size, "");
+#ifdef CONFIG_ADD_RAM_INFO
+		board_add_ram_info(0);
+#endif
+		putc('\n');
 		return (0);
 	}
 	puts (failed);

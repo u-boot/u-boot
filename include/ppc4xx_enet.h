@@ -131,7 +131,9 @@ typedef struct emac_4xx_hw_st {
 
 #if defined(CONFIG_440GX)
 #define EMAC_NUM_DEV	    4
-#elif (defined(CONFIG_440) || defined(CONFIG_405EP)) && defined(CONFIG_NET_MULTI)
+#elif (defined(CONFIG_440) || defined(CONFIG_405EP)) &&	\
+	defined(CONFIG_NET_MULTI) &&			\
+	!defined(CONFIG_440SP)
 #define EMAC_NUM_DEV	    2
 #else
 #define EMAC_NUM_DEV	    1
@@ -321,7 +323,7 @@ typedef struct emac_4xx_hw_st {
 #define EMAC_M0_WKE			    (0x04000000)
 
 /* on 440GX EMAC_MR1 has a different layout! */
-#if defined(CONFIG_440GX)
+#if defined(CONFIG_440GX) || defined(CONFIG_440SP)
 /* MODE Reg 1 */
 #define EMAC_M1_FDE		(0x80000000)
 #define EMAC_M1_ILE		(0x40000000)

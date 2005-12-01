@@ -2,6 +2,33 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Add support for TQM8541/8555 boards, TQM85xx support reworked:
+  - Support for TQM8541/8555 boards added.
+  - Complete rework of TQM8540/8560 support.
+  - Common TQM85xx code now supports all current TQM85xx platforms
+    (TQM8540/8541/8555/8560).
+  - DDR SDRAM size detection added.
+  - CAS latency default values can be overwritten by setting "serial#"
+    to e.g. "ABC0001 casl=25" -> CAS latency 2.5 will be used.
+    If problems are detected with this non default CAS latency,
+    the default values will be used instead.
+  - Flash size detection added.
+  - Moved FCC ethernet driver initialization behind TSEC driver init
+    -> TSEC is first device.
+  Patch by Stefan Roese, 30 Nov 2005
+
+* Add support for AMCC 440SP, add support for AMCC Luan 440SP eval board.
+  Patch by John Otken, 23 Nov 2005
+
+* Changed PPC44x startup message (cpu info, speed...) to common style:
+  On PPC44x platforms, the startup message generated in "cpu.c" only
+  comprised the ppc type and revision but not additional information
+  like speed etc. Those speed infos where printed in the board specific
+  code. This new implementation now prints all CPU infos in the common
+  cpu specific code. No board specific code is needed anymore and
+  therefore removed from all current 44x implementations.
+  Patch by Stefan Roese, 27 Nov 2005
+
 * Adjust TQM834x PHY addresses for latest hardware revision.
 
 * Increase malloc arena on TQM5200 board to 256 kB.

@@ -166,7 +166,7 @@ _start_440:
 	mtspr	srr1,r0
 	mtspr	csrr0,r0
 	mtspr	csrr1,r0
-#if defined (CONFIG_440GX) /* NOTE: 440GX adds machine check status regs */
+#if defined(CONFIG_440GX) || defined(CONFIG_440SP) /* NOTE: 440GX adds machine check status regs */
 	mtspr	mcsrr0,r0
 	mtspr	mcsrr1,r0
 	mfspr	r1, mcsr
@@ -394,7 +394,7 @@ __440gx_msr_continue:
 	addi	r3,r3,32
 	bdnz	..d_ag
 #else
-#if defined (CONFIG_440GX)
+#if defined (CONFIG_440GX) || defined(CONFIG_440SP)
 	mtdcr	l2_cache_cfg,r0		/* Ensure L2 Cache is off */
 #endif
 	mtdcr	isram0_sb1cr,r0		/* Disable bank 1 */
@@ -409,7 +409,7 @@ __440gx_msr_continue:
 	mtdcr	isram0_pmeg,r1
 
 	lis	r1,0x8000		/* BAS = 8000_0000 */
-#if defined(CONFIG_440GX)
+#if defined(CONFIG_440GX) || defined(CONFIG_440SP)
 	ori	r1,r1,0x0980		/* first 64k */
 	mtdcr	isram0_sb0cr,r1
 	lis	r1,0x8001
@@ -432,7 +432,6 @@ __440gx_msr_continue:
 	/*----------------------------------------------------------------*/
 	lis	r1,CFG_INIT_RAM_ADDR@h
 	ori	r1,r1,CFG_INIT_SP_OFFSET@l
-
 	li	r0,0
 	stwu	r0,-4(r1)
 	stwu	r0,-4(r1)		/* Terminate call chain */
@@ -977,12 +976,8 @@ invalidate_icache:
 invalidate_dcache:
 	addi	r6,0,0x0000		/* clear GPR 6 */
 	/* Do loop for # of dcache congruence classes. */
-#if defined(CONFIG_440GX) || defined(CONFIG_440EP) || defined(CONFIG_440GR)
 	lis	r7, (CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@ha	/* TBS for large sized cache */
 	ori	r7, r7, (CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@l
-#else
-	addi	r7,r0, (CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)
-#endif
 					/* NOTE: dccci invalidates both */
 	mtctr	r7			/* ways in the D cache */
 ..dcloop:
@@ -1003,15 +998,10 @@ flush_dcache:
 	mtdccr	r10
 
 	/* do loop for # of congruence classes. */
-#if defined(CONFIG_440GX) || defined(CONFIG_440EP) || defined(CONFIG_440GR)
 	lis	r10,(CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@ha	/* TBS: for large cache sizes */
 	ori	r10,r10,(CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@l
 	lis	r11,(CFG_DCACHE_SIZE / 2)@ha /* D cache set size - 2 way sets */
 	ori	r11,r11,(CFG_DCACHE_SIZE / 2)@l /* D cache set size - 2 way sets */
-#else
-	addi	r10,r0,(CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)
-	addi	r11,r0,(CFG_DCACHE_SIZE / 2) /* D cache set size - 2 way sets */
-#endif
 	mtctr	r10
 	addi	r10,r0,(0xE000-0x10000) /* start at 0xFFFFE000 */
 	add	r11,r10,r11		/* add to get to other side of cache line */
@@ -1233,9 +1223,9 @@ relocate_code:
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR)
 	dccci	0,0			    /* Invalidate data cache, now no longer our stack */
 	sync
-	addi	r1,r0,0x0000	    /* Tlb entry #0 */
+	addi	r1,r0,0x0000		/* TLB entry #0 */
 	tlbre	r0,r1,0x0002		/* Read contents */
-	ori	r0,r0,0x0c00	    /* Or in the inhibit, write through bit */
+	ori	r0,r0,0x0c00		/* Or in the inhibit, write through bit */
 	tlbwe	r0,r1,0x0002		/* Save it out */
 	isync
 #endif

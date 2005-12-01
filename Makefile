@@ -815,6 +815,9 @@ JSE_config:	unconfig
 KAREF_config: unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx karef sandburst
 
+luan_config:	unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx luan amcc
+
 METROBOX_config: unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx metrobox sandburst
 
@@ -1322,11 +1325,24 @@ sbc8560_66_config:      unconfig
 stxgp3_config:		unconfig
 	@./mkconfig $(@:_config=) ppc mpc85xx stxgp3
 
-TQM8540_config:      unconfig
-	@./mkconfig $(@:_config=) ppc mpc85xx tqm8540
-
-TQM8560_config:      unconfig
-	@./mkconfig $(@:_config=) ppc mpc85xx tqm8560
+TQM8540_config		\
+TQM8541_config		\
+TQM8555_config		\
+TQM8560_config:		unconfig
+	@case "$@" in \
+	TQM8540_config) CTYPE=8540;;	\
+	TQM8541_config) CTYPE=8541;;	\
+	TQM8555_config) CTYPE=8555;;	\
+	TQM8560_config) CTYPE=8560;;	\
+	esac; \
+	>include/config.h ; \
+	echo "... TQM"$${CTYPE}; \
+	echo "#define CONFIG_MPC$${CTYPE}">>include/config.h; \
+	echo "#define CONFIG_TQM$${CTYPE}">>include/config.h; \
+	echo "#define CONFIG_HOSTNAME tqm$${CTYPE}">>include/config.h; \
+	echo "#define CONFIG_BOARDNAME \"TQM$${CTYPE}\"">>include/config.h; \
+	echo "#define CFG_BOOTFILE \"bootfile=/tftpboot/tqm$${CTYPE}/uImage\0\"">>include/config.h
+	@./mkconfig -a TQM85xx ppc mpc85xx tqm85xx
 
 #########################################################################
 ## 74xx/7xx Systems

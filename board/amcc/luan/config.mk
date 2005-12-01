@@ -1,6 +1,6 @@
-# Copyright 2004 Freescale Semiconductor.
-# Modified by Xianghua Xiao, X.Xiao@motorola.com
-# (C) Copyright 2002,Motorola Inc.
+#
+# (C) Copyright 2002
+# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -22,8 +22,23 @@
 #
 
 #
-# tqm8540 board
-# default CCARBAR is at 0xff700000
-# assume U-Boot is less than 256k
+# esd ADCIOP boards
 #
-TEXT_BASE = 0xfffc0000
+
+#TEXT_BASE = 0x00001000
+
+ifeq ($(ramsym),1)
+TEXT_BASE = 0xFBD00000
+else
+TEXT_BASE = 0xFFFC0000
+endif
+
+PLATFORM_CPPFLAGS += -DCONFIG_440=1
+
+ifeq ($(debug),1)
+PLATFORM_CPPFLAGS += -DDEBUG
+endif
+
+ifeq ($(dbcr),1)
+PLATFORM_CPPFLAGS += -DCFG_INIT_DBCR=0x8cff0000
+endif

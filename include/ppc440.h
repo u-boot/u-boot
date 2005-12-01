@@ -78,7 +78,7 @@
 #define	 ivor13 0x19d	/* interrupt vector offset register 13 */
 #define	 ivor14 0x19e	/* interrupt vector offset register 14 */
 #define	 ivor15 0x19f	/* interrupt vector offset register 15 */
-#if defined(CONFIG_440GX) || defined(CONFIG_440EP) || defined(CONFIG_440GR)
+#if defined(CONFIG_440GX) || defined(CONFIG_440EP) || defined(CONFIG_440GR) || defined(CONFIG_440SP)
 #define	 mcsrr0 0x23a	/* machine check save/restore register 0 */
 #define	 mcsrr1 0x23b	/* mahcine check save/restore register 1 */
 #define	 mcsr	0x23c	/* machine check status register */
@@ -177,7 +177,6 @@
 #define sdr_pfc1	0x4101	/* Pin Function 1 */
 #define sdr_plbtr	0x4200
 #define sdr_mfr		0x4300	/* SDR0_MFR reg */
-
 
 /*-----------------------------------------------------------------------------
  | SDRAM Controller
@@ -504,7 +503,7 @@
 /*-----------------------------------------------------------------------------
  | L2 Cache
  +----------------------------------------------------------------------------*/
-#if defined (CONFIG_440GX)
+#if defined (CONFIG_440GX) || defined(CONFIG_440SP)
 #define L2_CACHE_BASE	0x030
 #define l2_cache_cfg	(L2_CACHE_BASE+0x00)	/* L2 Cache Config	*/
 #define l2_cache_cmd	(L2_CACHE_BASE+0x01)	/* L2 Cache Command	*/
@@ -527,7 +526,7 @@
  | Clocking, Power Management and Chip Control
  +----------------------------------------------------------------------------*/
 #define CNTRL_DCR_BASE 0x0b0
-#if defined (CONFIG_440GX)
+#if defined(CONFIG_440GX) || defined(CONFIG_440SP)
 #define cpc0_er		(CNTRL_DCR_BASE+0x00)	/* CPM enable register		*/
 #define cpc0_fr		(CNTRL_DCR_BASE+0x01)	/* CPM force register		*/
 #define cpc0_sr		(CNTRL_DCR_BASE+0x02)	/* CPM status register		*/
@@ -690,6 +689,40 @@
 /*---------------------------------------------------------------------------+
 |  Universal interrupt controller 0 interrupts (UIC0)
 +---------------------------------------------------------------------------*/
+#if defined(CONFIG_440SP)
+#define UIC_U0		0x80000000	/* UART 0			    */
+#define UIC_U1		0x40000000	/* UART 1			    */
+#define UIC_IIC0	0x20000000	/* IIC				    */
+#define UIC_IIC1	0x10000000	/* IIC				    */
+#define UIC_PIM		0x08000000	/* PCI0 inbound message		    */
+#define UIC_PCRW	0x04000000	/* PCI0 command write register	    */
+#define UIC_PPM		0x02000000	/* PCI0 power management	    */
+#define UIC_PVPD	0x01000000	/* PCI0 VPD Access		    */
+#define UIC_MSI0	0x00800000	/* PCI0 MSI level 0		    */
+#define UIC_P1IM	0x00400000	/* PCI1 Inbound Message		    */
+#define UIC_P1CRW	0x00200000	/* PCI1 command write register	    */
+#define UIC_P1PM	0x00100000	/* PCI1 power management	    */
+#define UIC_P1VPD	0x00080000	/* PCI1 VPD Access		    */
+#define UIC_P1MSI0	0x00040000	/* PCI1 MSI level 0		    */
+#define UIC_P2IM	0x00020000	/* PCI2 inbound message		    */
+#define UIC_P2CRW	0x00010000	/* PCI2 command register write	    */
+#define UIC_P2PM	0x00008000	/* PCI2 power management	    */
+#define UIC_P2VPD	0x00004000	/* PCI2 VPD access		    */
+#define UIC_P2MSI0	0x00002000	/* PCI2 MSI level 0		    */
+#define UIC_D0CPF	0x00001000	/* DMA0 command pointer		    */
+#define UIC_D0CSF	0x00000800	/* DMA0 command status		    */
+#define UIC_D1CPF	0x00000400	/* DMA1 command pointer		    */
+#define UIC_D1CSF	0x00000200	/* DMA1 command status		    */
+#define UIC_I2OID	0x00000100	/* I2O inbound doorbell		    */
+#define UIC_I2OPLF	0x00000080	/* I2O inbound post list	    */
+#define UIC_I2O0LL	0x00000040	/* I2O0 low latency PLB write	    */
+#define UIC_I2O1LL	0x00000020	/* I2O1 low latency PLB write	    */
+#define UIC_I2O0HB	0x00000010	/* I2O0 high bandwidth PLB write    */
+#define UIC_I2O1HB	0x00000008	/* I2O1 high bandwidth PLB write    */
+#define UIC_GPTCT	0x00000004	/* GPT count timer		    */
+#define UIC_UIC1NC	0x00000002	/* UIC1 non-critical interrupt	    */
+#define UIC_UIC1C	0x00000001	/* UIC1 critical interrupt	    */
+#else  /* CONFIG_440SP */
 #define UIC_U0		0x80000000	/* UART 0			    */
 #define UIC_U1		0x40000000	/* UART 1			    */
 #define UIC_IIC0	0x20000000	/* IIC				    */
@@ -722,6 +755,7 @@
 #define UIC_EIR6	0x00000004	/* External interrupt 6		    */
 #define UIC_UIC1NC	0x00000002	/* UIC1 non-critical interrupt	    */
 #define UIC_UIC1C	0x00000001	/* UIC1 critical interrupt	    */
+#endif /* CONFIG_440SP */
 
 /* For compatibility with 405 code */
 #define UIC_MAL_TXEOB	UIC_MTE
@@ -730,6 +764,40 @@
 /*---------------------------------------------------------------------------+
 |  Universal interrupt controller 1 interrupts (UIC1)
 +---------------------------------------------------------------------------*/
+#if defined(CONFIG_440SP)
+#define UIC_EIR0	0x80000000	/* External interrupt 0		    */
+#define UIC_MS		0x40000000	/* MAL SERR			    */
+#define UIC_MTDE	0x20000000	/* MAL TXDE			    */
+#define UIC_MRDE	0x10000000	/* MAL RXDE			    */
+#define UIC_DECE	0x08000000	/* DDR SDRAM correctible error	    */
+#define UIC_EBCO	0x04000000	/* EBCO interrupt status	    */
+#define UIC_MTE		0x02000000	/* MAL TXEOB			    */
+#define UIC_MRE		0x01000000	/* MAL RXEOB			    */
+#define UIC_P0MSI1	0x00800000	/* PCI0 MSI level 1		    */
+#define UIC_P1MSI1	0x00400000	/* PCI1 MSI level 1		    */
+#define UIC_P2MSI1	0x00200000	/* PCI2 MSI level 1		    */
+#define UIC_L2C		0x00100000	/* L2 cache			    */
+#define UIC_CT0		0x00080000	/* GPT compare timer 0		    */
+#define UIC_CT1		0x00040000	/* GPT compare timer 1		    */
+#define UIC_CT2		0x00020000	/* GPT compare timer 2		    */
+#define UIC_CT3		0x00010000	/* GPT compare timer 3		    */
+#define UIC_CT4		0x00008000	/* GPT compare timer 4		    */
+#define UIC_EIR1	0x00004000	/* External interrupt 1		    */
+#define UIC_EIR2	0x00002000	/* External interrupt 2		    */
+#define UIC_EIR3	0x00001000	/* External interrupt 3		    */
+#define UIC_EIR4	0x00000800	/* External interrupt 4		    */
+#define UIC_EIR5	0x00000400	/* External interrupt 5		    */
+#define UIC_DMAE	0x00000200	/* DMA error			    */
+#define UIC_I2OE	0x00000100	/* I2O error			    */
+#define UIC_SRE		0x00000080	/* Serial ROM error		    */
+#define UIC_P0AE	0x00000040	/* PCI0 asynchronous error	    */
+#define UIC_P1AE	0x00000020	/* PCI1 asynchronous error	    */
+#define UIC_P2AE	0x00000010	/* PCI2 asynchronous error	    */
+#define UIC_ETH0	0x00000008	/* Ethernet 0			    */
+#define UIC_EWU0	0x00000004	/* Ethernet 0 wakeup		    */
+#define UIC_ETH1	0x00000002	/* Reserved			    */
+#define UIC_XOR		0x00000001	/* XOR				    */
+#else /* CONFIG_440SP */
 #define UIC_MS		0x80000000	/* MAL SERR			    */
 #define UIC_MTDE	0x40000000	/* MAL TXDE			    */
 #define UIC_MRDE	0x20000000	/* MAL RXDE			    */
@@ -762,6 +830,7 @@
 #define UIC_EWU0	0x00000004	/* Ethernet 0 wakeup		    */
 #define UIC_ETH1	0x00000002	/* Ethernet 1			    */
 #define UIC_EWU1	0x00000001	/* Ethernet 1 wakeup		    */
+#endif /* CONFIG_440SP */
 
 /* For compatibility with 405 code */
 #define UIC_MAL_SERR	UIC_MS
@@ -850,6 +919,11 @@
 #define EBC_BXAP_TWT_ENCODE(n)		((((unsigned long)(n))&0xFF)<<23)
 #define EBC_BXAP_BCE_DISABLE		0x00000000
 #define EBC_BXAP_BCE_ENABLE		0x00400000
+#define EBC_BXAP_BCT_MASK		0x00300000
+#define EBC_BXAP_BCT_2TRANS		0x00000000
+#define EBC_BXAP_BCT_4TRANS		0x00100000
+#define EBC_BXAP_BCT_8TRANS		0x00200000
+#define EBC_BXAP_BCT_16TRANS		0x00300000
 #define EBC_BXAP_CSN_ENCODE(n)		((((unsigned long)(n))&0x3)<<18)
 #define EBC_BXAP_OEN_ENCODE(n)		((((unsigned long)(n))&0x3)<<16)
 #define EBC_BXAP_WBN_ENCODE(n)		((((unsigned long)(n))&0x3)<<14)
@@ -905,133 +979,22 @@
 #define EBC_CFG_PR_128			0x0000C000
 
 /*-----------------------------------------------------------------------------+
-|  SDR 0 Bit Settings
+|  SDR0 Bit Settings
 +-----------------------------------------------------------------------------*/
-#define SDR0_SDSTP0_ENG_MASK		0x80000000
-#define SDR0_SDSTP0_ENG_PLLDIS		0x00000000
-#define SDR0_SDSTP0_ENG_PLLENAB		0x80000000
-#define SDR0_SDSTP0_ENG_ENCODE(n)	((((unsigned long)(n))&0x01)<<31)
-#define SDR0_SDSTP0_ENG_DECODE(n)	((((unsigned long)(n))>>31)&0x01)
-#define SDR0_SDSTP0_SRC_MASK		0x40000000
-#define SDR0_SDSTP0_SRC_PLLOUTA		0x00000000
-#define SDR0_SDSTP0_SRC_PLLOUTB		0x40000000
-#define SDR0_SDSTP0_SRC_ENCODE(n)	((((unsigned long)(n))&0x01)<<30)
-#define SDR0_SDSTP0_SRC_DECODE(n)	((((unsigned long)(n))>>30)&0x01)
-#define SDR0_SDSTP0_SEL_MASK		0x38000000
-#define SDR0_SDSTP0_SEL_PLLOUT		0x00000000
-#define SDR0_SDSTP0_SEL_CPU		0x08000000
-#define SDR0_SDSTP0_SEL_EBC		0x28000000
-#define SDR0_SDSTP0_SEL_ENCODE(n)	((((unsigned long)(n))&0x07)<<27)
-#define SDR0_SDSTP0_SEL_DECODE(n)	((((unsigned long)(n))>>27)&0x07)
-#define SDR0_SDSTP0_TUNE_MASK		0x07FE0000
-#define SDR0_SDSTP0_TUNE_ENCODE(n)	((((unsigned long)(n))&0x3FF)<<17)
-#define SDR0_SDSTP0_TUNE_DECODE(n)	((((unsigned long)(n))>>17)&0x3FF)
-#define SDR0_SDSTP0_FBDV_MASK		0x0001F000
-#define SDR0_SDSTP0_FBDV_ENCODE(n)	((((unsigned long)(n))&0x1F)<<12)
-#define SDR0_SDSTP0_FBDV_DECODE(n)	((((((unsigned long)(n))>>12)-1)&0x1F)+1)
-#define SDR0_SDSTP0_FWDVA_MASK		0x00000F00
-#define SDR0_SDSTP0_FWDVA_ENCODE(n)	((((unsigned long)(n))&0x0F)<<8)
-#define SDR0_SDSTP0_FWDVA_DECODE(n)	((((((unsigned long)(n))>>8)-1)&0x0F)+1)
-#define SDR0_SDSTP0_FWDVB_MASK		0x000000E0
-#define SDR0_SDSTP0_FWDVB_ENCODE(n)	((((unsigned long)(n))&0x07)<<5)
-#define SDR0_SDSTP0_FWDVB_DECODE(n)	((((((unsigned long)(n))>>5)-1)&0x07)+1)
-#define SDR0_SDSTP0_PRBDV0_MASK		0x0000001C
-#define SDR0_SDSTP0_PRBDV0_ENCODE(n)	((((unsigned long)(n))&0x07)<<2)
-#define SDR0_SDSTP0_PRBDV0_DECODE(n)	((((((unsigned long)(n))>>2)-1)&0x07)+1)
-#define SDR0_SDSTP0_OPBDV0_MASK		0x00000003
-#define SDR0_SDSTP0_OPBDV0_ENCODE(n)	((((unsigned long)(n))&0x03)<<0)
-#define SDR0_SDSTP0_OPBDV0_DECODE(n)	((((((unsigned long)(n))>>0)-1)&0x03)+1)
+#define SDR0_SDCS_SDD			(0x80000000 >> 31)
 
-#define SDR0_SDSTP1_LFBDV_MASK		0xFC000000
-#define SDR0_SDSTP1_LFBDV_ENCODE(n)	((((unsigned long)(n))&0x3F)<<26)
-#define SDR0_SDSTP1_LFBDV_DECODE(n)	((((unsigned long)(n))>>26)&0x3F)
-#define SDR0_SDSTP1_EBCDV0_MASK		0x03000000
-#define SDR0_SDSTP1_EBCDV0_ENCODE(n)	((((unsigned long)(n))&0x03)<<24)
-#define SDR0_SDSTP1_EBCDV0_DECODE(n)	((((unsigned long)(n))>>24)&0x03)
-#define SDR0_SDSTP1_MALDV0_MASK		0x00C00000
-#define SDR0_SDSTP1_MALDV0_ENCODE(n)	((((unsigned long)(n))&0x03)<<22)
-#define SDR0_SDSTP1_MALDV0_DECODE(n)	((((unsigned long)(n))>>22)&0x03)
-#define SDR0_SDSTP1_RW_MASK		0x00300000
-#define SDR0_SDSTP1_RW_8BIT		0x00000000
-#define SDR0_SDSTP1_RW_16BIT		0x00100000
-#define SDR0_SDSTP1_RW_32BIT		0x00200000
-#define SDR0_SDSTP1_RW_ENCODE(n)	((((unsigned long)(n))&0x03)<<20)
-#define SDR0_SDSTP1_RW_DECODE(n)	((((unsigned long)(n))>>20)&0x03)
-#define SDR0_SDSTP1_EARV_MASK		0x00080000
-#define SDR0_SDSTP1_EARV_EBC		0x00000000
-#define SDR0_SDSTP1_EARV_PCI		0x00080000
-#define SDR0_SDSTP1_PAE_MASK		0x00040000
-#define SDR0_SDSTP1_PAE_DISABLE		0x00000000
-#define SDR0_SDSTP1_PAE_ENABLE		0x00040000
-#define SDR0_SDSTP1_PAE_ENCODE(n)	((((unsigned long)(n))&0x01)<<18)
-#define SDR0_SDSTP1_PAE_DECODE(n)	((((unsigned long)(n))>>18)&0x01)
-#define SDR0_SDSTP1_PHCE_MASK		0x00020000
-#define SDR0_SDSTP1_PHCE_DISABLE	0x00000000
-#define SDR0_SDSTP1_PHCE_ENABLE		0x00020000
-#define SDR0_SDSTP1_PHCE_ENCODE(n)	((((unsigned long)(n))&0x01)<<17)
-#define SDR0_SDSTP1_PHCE_DECODE(n)	((((unsigned long)(n))>>17)&0x01)
-#define SDR0_SDSTP1_PISE_MASK		0x00010000
-#define SDR0_SDSTP1_PISE_DISABLE	0x00000000
-#define SDR0_SDSTP1_PISE_ENABLE		0x00010000
-#define SDR0_SDSTP1_PISE_ENCODE(n)	((((unsigned long)(n))&0x01)<<16)
-#define SDR0_SDSTP1_PISE_DECODE(n)	((((unsigned long)(n))>>16)&0x01)
-#define SDR0_SDSTP1_PCWE_MASK		0x00008000
-#define SDR0_SDSTP1_PCWE_DISABLE	0x00000000
-#define SDR0_SDSTP1_PCWE_ENABLE		0x00008000
-#define SDR0_SDSTP1_PCWE_ENCODE(n)	((((unsigned long)(n))&0x01)<<15)
-#define SDR0_SDSTP1_PCWE_DECODE(n)	((((unsigned long)(n))>>15)&0x01)
-#define SDR0_SDSTP1_PPIM_MASK		0x00008000
-#define SDR0_SDSTP1_PPIM_ENCODE(n)	((((unsigned long)(n))&0x0F)<<11)
-#define SDR0_SDSTP1_PPIM_DECODE(n)	((((unsigned long)(n))>>11)&0x0F)
-#define SDR0_SDSTP1_PR64E_MASK		0x00000400
-#define SDR0_SDSTP1_PR64E_DISABLE	0x00000000
-#define SDR0_SDSTP1_PR64E_ENABLE	0x00000400
-#define SDR0_SDSTP1_PR64E_ENCODE(n)	((((unsigned long)(n))&0x01)<<10)
-#define SDR0_SDSTP1_PR64E_DECODE(n)	((((unsigned long)(n))>>10)&0x01)
-#define SDR0_SDSTP1_PXFS_MASK		0x00000300
-#define SDR0_SDSTP1_PXFS_HIGH		0x00000000
-#define SDR0_SDSTP1_PXFS_MED		0x00000100
-#define SDR0_SDSTP1_PXFS_LOW		0x00000200
-#define SDR0_SDSTP1_PXFS_ENCODE(n)	((((unsigned long)(n))&0x03)<<8)
-#define SDR0_SDSTP1_PXFS_DECODE(n)	((((unsigned long)(n))>>8)&0x03)
-#define SDR0_SDSTP1_PDM_MASK		0x00000040
-#define SDR0_SDSTP1_PDM_MULTIPOINT	0x00000000
-#define SDR0_SDSTP1_PDM_P2P		0x00000040
-#define SDR0_SDSTP1_PDM_ENCODE(n)	((((unsigned long)(n))&0x01)<<6)
-#define SDR0_SDSTP1_PDM_DECODE(n)	((((unsigned long)(n))>>6)&0x01)
-#define SDR0_SDSTP1_EPS_MASK		0x00000038
-#define SDR0_SDSTP1_EPS_GROUP0		0x00000000
-#define SDR0_SDSTP1_EPS_GROUP1		0x00000008
-#define SDR0_SDSTP1_EPS_GROUP2		0x00000010
-#define SDR0_SDSTP1_EPS_GROUP3		0x00000018
-#define SDR0_SDSTP1_EPS_GROUP4		0x00000020
-#define SDR0_SDSTP1_EPS_GROUP5		0x00000028
-#define SDR0_SDSTP1_EPS_GROUP6		0x00000030
-#define SDR0_SDSTP1_EPS_GROUP7		0x00000038
-#define SDR0_SDSTP1_EPS_ENCODE(n)	((((unsigned long)(n))&0x07)<<3)
-#define SDR0_SDSTP1_EPS_DECODE(n)	((((unsigned long)(n))>>3)&0x07)
-#define SDR0_SDSTP1_RMII_MASK		0x00000004
-#define SDR0_SDSTP1_RMII_100MBIT	0x00000000
-#define SDR0_SDSTP1_RMII_10MBIT		0x00000004
-#define SDR0_SDSTP1_RMII_ENCODE(n)	((((unsigned long)(n))&0x01)<<2)
-#define SDR0_SDSTP1_RMII_DECODE(n)	((((unsigned long)(n))>>2)&0x01)
-#define SDR0_SDSTP1_TRE_MASK		0x00000002
-#define SDR0_SDSTP1_TRE_DISABLE		0x00000000
-#define SDR0_SDSTP1_TRE_ENABLE		0x00000002
-#define SDR0_SDSTP1_TRE_ENCODE(n)	((((unsigned long)(n))&0x01)<<1)
-#define SDR0_SDSTP1_TRE_DECODE(n)	((((unsigned long)(n))>>1)&0x01)
-#define SDR0_SDSTP1_NTO1_MASK		0x00000001
-#define SDR0_SDSTP1_NTO1_DISABLE	0x00000000
-#define SDR0_SDSTP1_NTO1_ENABLE		0x00000001
-#define SDR0_SDSTP1_NTO1_ENCODE(n)	((((unsigned long)(n))&0x01)<<0)
-#define SDR0_SDSTP1_NTO1_DECODE(n)	((((unsigned long)(n))>>0)&0x01)
-
-#define SDR0_EBC_RW_MASK		0x30000000
-#define SDR0_EBC_RW_8BIT		0x00000000
-#define SDR0_EBC_RW_16BIT		0x10000000
-#define SDR0_EBC_RW_32BIT		0x20000000
-#define SDR0_EBC_RW_ENCODE(n)		((((unsigned long)(n))&0x03)<<28)
-#define SDR0_EBC_RW_DECODE(n)		((((unsigned long)(n))>>28)&0x03)
+#if defined(CONFIG_440GP)
+#define CPC0_STRP1_PAE_MASK		(0x80000000 >> 11)
+#define CPC0_STRP1_PISE_MASK		(0x80000000 >> 13)
+#endif /* defined(CONFIG_440GP) */
+#if defined(CONFIG_440GX) || defined(CONFIG_440SP)
+#define SDR0_SDSTP1_PAE_MASK		(0x80000000 >> 13)
+#define SDR0_SDSTP1_PISE_MASK		(0x80000000 >> 15)
+#endif /* defined(CONFIG_440GX) || defined(CONFIG_440SP) */
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
+#define SDR0_SDSTP1_PAE_MASK		(0x80000000 >> 21)
+#define SDR0_SDSTP1_PAME_MASK		(0x80000000 >> 27)
+#endif /* defined(CONFIG_440EP) || defined(CONFIG_440GR) */
 
 #define SDR0_UARTX_UXICS_MASK		0xF0000000
 #define SDR0_UARTX_UXICS_PLB		0x20000000
@@ -1196,7 +1159,7 @@
 /*-----------------------------------------------------------------------------+
 |  Clocking
 +-----------------------------------------------------------------------------*/
-#if !defined (CONFIG_440GX) && !defined(CONFIG_440EP) && !defined(CONFIG_440GR)
+#if !defined (CONFIG_440GX) && !defined(CONFIG_440EP) && !defined(CONFIG_440GR) && !defined(CONFIG_440SP)
 #define PLLSYS0_TUNE_MASK	0xffc00000	/* PLL TUNE bits	    */
 #define PLLSYS0_FB_DIV_MASK	0x003c0000	/* Feedback divisor	    */
 #define PLLSYS0_FWD_DIV_A_MASK	0x00038000	/* Forward divisor A	    */

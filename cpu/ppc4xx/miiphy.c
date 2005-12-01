@@ -104,7 +104,7 @@ int phy_setup_aneg (char *devname, unsigned char addr)
 /***********************************************************/
 unsigned int miiphy_getemac_offset (void)
 {
-#if defined(CONFIG_440) && defined(CONFIG_NET_MULTI)
+#if (defined(CONFIG_440) && !defined(CONFIG_440SP)) && defined(CONFIG_NET_MULTI)
 	unsigned long zmii;
 	unsigned long eoffset;
 
