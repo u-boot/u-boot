@@ -234,21 +234,34 @@ reset:
 	li	t0, CONF_CM_UNCACHED
 	mtc0	t0, CP0_CONFIG
 
+	/* Initialize GOT pointer.
+	*/
+	bal     1f
+	nop
+	.word   _GLOBAL_OFFSET_TABLE_
+	1:
+	move    gp, ra
+	lw      t1, 0(ra)
+	move	gp, t1
+
 #ifdef CONFIG_INCA_IP
 	/* Disable INCA-IP Watchdog.
 	 */
-	bal	disable_incaip_wdt
+	la      t9, disable_incaip_wdt
+	jalr    t9
 	nop
 #endif
 
 	/* Initialize any external memory.
 	 */
-	bal	lowlevel_init
+	la      t9, lowlevel_init
+	jalr    t9
 	nop
 
 	/* Initialize caches...
 	 */
-	bal	mips_cache_reset
+	la      t9, mips_cache_reset
+	jalr    t9
 	nop
 
 	/* ... and enable them.
@@ -260,21 +273,13 @@ reset:
 	/* Set up temporary stack.
 	 */
 	li	a0, CFG_INIT_SP_OFFSET
-	bal	mips_cache_lock
+	la      t9, mips_cache_lock
+	jalr    t9
 	nop
 
 	li	t0, CFG_SDRAM_BASE + CFG_INIT_SP_OFFSET
 	la	sp, 0(t0)
 
-	/* Initialize GOT pointer.
-	 */
-	bal	1f
-	nop
-	.word	_GLOBAL_OFFSET_TABLE_ - 1f + 4
-1:
-	move	gp, ra
-	lw	t1, 0(ra)
-	add	gp, t1
 	la	t9, board_init_f
 	j	t9
 	nop

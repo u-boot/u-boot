@@ -49,7 +49,7 @@
 #include <asm/io.h>
 #ifdef __MIPS__
 /* Macros depend on this variable */
-static unsigned long mips_io_port_base = 0;
+unsigned long mips_io_port_base = 0;
 #endif
 #endif
 

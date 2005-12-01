@@ -26,7 +26,7 @@ MIPSFLAGS=$(shell \
 if [ "$v" -lt "14" ]; then \
 	echo "-mcpu=4kc"; \
 else \
-	echo "-march=4kc -mtune=4kc -Wa,-mips_allow_branch_to_undefined"; \
+	echo "-march=4kc -mtune=4kc"; \
 fi)
 
 ifneq (,$(findstring 4KCle,$(CROSS_COMPILE)))

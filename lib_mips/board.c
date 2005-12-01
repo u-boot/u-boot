@@ -29,6 +29,8 @@
 #include <net.h>
 #include <environment.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #if ( ((CFG_ENV_ADDR+CFG_ENV_SIZE) < CFG_MONITOR_BASE) || \
       (CFG_ENV_ADDR >= (CFG_MONITOR_BASE + CFG_MONITOR_LEN)) ) || \
     defined(CFG_ENV_IS_IN_NVRAM)
@@ -66,8 +68,6 @@ static ulong mem_malloc_brk;
  */
 static void mem_malloc_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	ulong dest_addr = CFG_MONITOR_BASE + gd->reloc_off;
 
 	mem_malloc_end = dest_addr;
@@ -94,8 +94,6 @@ void *sbrk (ptrdiff_t increment)
 
 static int init_func_ram (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 #ifdef	CONFIG_BOARD_TYPES
 	int board_type = gd->board_type;
 #else
@@ -127,8 +125,6 @@ static void display_flash_config(ulong size)
 
 static int init_baudrate (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	uchar tmp[64];	/* long enough for environment variables */
 	int i = getenv_r ("baudrate", tmp, sizeof (tmp));
 
@@ -180,12 +176,11 @@ init_fnc_t *init_sequence[] = {
 
 void board_init_f(ulong bootflag)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gd_t gd_data, *id;
 	bd_t *bd;
 	init_fnc_t **init_fnc_ptr;
 	ulong addr, addr_sp, len = (ulong)&uboot_end - CFG_MONITOR_BASE;
+	ulong *s;
 #ifdef CONFIG_PURPLE
 	void copy_code (ulong);
 #endif
@@ -262,8 +257,10 @@ void board_init_f(ulong bootflag)
 	 */
 	addr_sp -= 16;
 	addr_sp &= ~0xF;
-	*((ulong *) addr_sp)-- = 0;
-	*((ulong *) addr_sp)-- = 0;
+	s = (ulong *)addr_sp;
+	*s-- = 0;
+	*s-- = 0;
+	addr_sp = (ulong)s;
 	debug ("Stack Pointer at: %08lx\n", addr_sp);
 
 	/*
@@ -298,7 +295,6 @@ void board_init_f(ulong bootflag)
 
 void board_init_r (gd_t *id, ulong dest_addr)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	cmd_tbl_t *cmdtp;
 	ulong size;
 	extern void malloc_bin_reloc (void);
