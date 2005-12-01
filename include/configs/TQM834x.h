@@ -249,7 +249,7 @@ extern int tqm834x_num_flash_banks;
 #define CONFIG_MPC83XX_TSEC1_NAME	"TSEC0"
 #define CONFIG_MPC83XX_TSEC2		1
 #define CONFIG_MPC83XX_TSEC2_NAME	"TSEC1"
-#define TSEC1_PHY_ADDR			0
+#define TSEC1_PHY_ADDR			2
 #define TSEC2_PHY_ADDR			1
 #define TSEC1_PHYIDX			0
 #define TSEC2_PHYIDX			0

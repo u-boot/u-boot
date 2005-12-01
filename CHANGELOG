@@ -2,6 +2,8 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Adjust TQM834x PHY addresses for latest hardware revision.
+
 * Increase malloc arena on TQM5200 board to 256 kB.
   With 64 kb uniform flash sector size the old value of 128 kB was
   too small.
