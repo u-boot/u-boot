@@ -72,7 +72,7 @@ static void wait_for_pci_ready(void)
 	for (;;) {
 		if (in32(GPIO0_IR) & CFG_EREADY_IO)
 			return;
-        }
+	}
 
 }
 

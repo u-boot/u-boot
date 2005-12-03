@@ -48,49 +48,49 @@
 /*
  * Set default values
  */
-#ifndef	CFG_I2C_SPEED
-#define	CFG_I2C_SPEED	50000
+#ifndef CFG_I2C_SPEED
+#define CFG_I2C_SPEED	50000
 #endif
 
-#ifndef	CFG_I2C_SLAVE
-#define	CFG_I2C_SLAVE	0xFE
+#ifndef CFG_I2C_SLAVE
+#define CFG_I2C_SLAVE	0xFE
 #endif
 
-#define ONE_BILLION         1000000000
+#define ONE_BILLION	1000000000
 
-#ifndef  CONFIG_440              /* for 405 WALNUT/SYCAMORE/BUBINGA boards */
+#ifndef	 CONFIG_440		/* for 405 WALNUT/SYCAMORE/BUBINGA boards */
 
-#define  SDRAM0_CFG_DCE          0x80000000
-#define  SDRAM0_CFG_SRE          0x40000000
-#define  SDRAM0_CFG_PME          0x20000000
-#define  SDRAM0_CFG_MEMCHK       0x10000000
-#define  SDRAM0_CFG_REGEN        0x08000000
-#define  SDRAM0_CFG_ECCDD        0x00400000
-#define  SDRAM0_CFG_EMDULR       0x00200000
-#define  SDRAM0_CFG_DRW_SHIFT    (31-6)
-#define  SDRAM0_CFG_BRPF_SHIFT   (31-8)
+#define	 SDRAM0_CFG_DCE		0x80000000
+#define	 SDRAM0_CFG_SRE		0x40000000
+#define	 SDRAM0_CFG_PME		0x20000000
+#define	 SDRAM0_CFG_MEMCHK	0x10000000
+#define	 SDRAM0_CFG_REGEN	0x08000000
+#define	 SDRAM0_CFG_ECCDD	0x00400000
+#define	 SDRAM0_CFG_EMDULR	0x00200000
+#define	 SDRAM0_CFG_DRW_SHIFT	(31-6)
+#define	 SDRAM0_CFG_BRPF_SHIFT	(31-8)
 
-#define  SDRAM0_TR_CASL_SHIFT    (31-8)
-#define  SDRAM0_TR_PTA_SHIFT     (31-13)
-#define  SDRAM0_TR_CTP_SHIFT     (31-15)
-#define  SDRAM0_TR_LDF_SHIFT     (31-17)
-#define  SDRAM0_TR_RFTA_SHIFT    (31-29)
-#define  SDRAM0_TR_RCD_SHIFT     (31-31)
+#define	 SDRAM0_TR_CASL_SHIFT	(31-8)
+#define	 SDRAM0_TR_PTA_SHIFT	(31-13)
+#define	 SDRAM0_TR_CTP_SHIFT	(31-15)
+#define	 SDRAM0_TR_LDF_SHIFT	(31-17)
+#define	 SDRAM0_TR_RFTA_SHIFT	(31-29)
+#define	 SDRAM0_TR_RCD_SHIFT	(31-31)
 
-#define  SDRAM0_RTR_SHIFT        (31-15)
-#define  SDRAM0_ECCCFG_SHIFT     (31-11)
+#define	 SDRAM0_RTR_SHIFT	(31-15)
+#define	 SDRAM0_ECCCFG_SHIFT	(31-11)
 
 /* SDRAM0_CFG enable macro  */
 #define SDRAM0_CFG_BRPF(x) ( ( x & 0x3)<< SDRAM0_CFG_BRPF_SHIFT )
 
-#define SDRAM0_BXCR_SZ_MASK  0x000e0000
-#define SDRAM0_BXCR_AM_MASK  0x0000e000
+#define SDRAM0_BXCR_SZ_MASK	0x000e0000
+#define SDRAM0_BXCR_AM_MASK	0x0000e000
 
-#define SDRAM0_BXCR_SZ_SHIFT (31-14)
-#define SDRAM0_BXCR_AM_SHIFT (31-18)
+#define SDRAM0_BXCR_SZ_SHIFT	(31-14)
+#define SDRAM0_BXCR_AM_SHIFT	(31-18)
 
-#define SDRAM0_BXCR_SZ(x)  ( (( x << SDRAM0_BXCR_SZ_SHIFT) & SDRAM0_BXCR_SZ_MASK) )
-#define SDRAM0_BXCR_AM(x)  ( (( x << SDRAM0_BXCR_AM_SHIFT) & SDRAM0_BXCR_AM_MASK) )
+#define SDRAM0_BXCR_SZ(x)	( (( x << SDRAM0_BXCR_SZ_SHIFT) & SDRAM0_BXCR_SZ_MASK) )
+#define SDRAM0_BXCR_AM(x)	( (( x << SDRAM0_BXCR_AM_SHIFT) & SDRAM0_BXCR_AM_MASK) )
 
 #ifdef CONFIG_SPDDRAM_SILENT
 # define SPD_ERR(x) do { return 0; } while (0)
@@ -175,7 +175,7 @@ long int spd_sdram(int(read_spd)(uint addr))
 	 * data from DIMM:
 	 * 27	IN Row Precharge Time ( t RP)
 	 * 29	MIN RAS to CAS Delay ( t RCD)
-	 * 127   Component and Clock Detail ,clk0-clk3, junction temp, CAS
+	 * 127	 Component and Clock Detail ,clk0-clk3, junction temp, CAS
 	 * -------------------------------------------------------------------*/
 
 	/*
@@ -184,18 +184,18 @@ long int spd_sdram(int(read_spd)(uint addr))
 	 */
 
 	tmp = read_spd(127) & 0x6;
-	if (tmp == 0x02){      	   /* only cas = 2 supported */
+	if (tmp == 0x02) {		/* only cas = 2 supported */
 		min_cas = 2;
-/*     	  t_ck = read_spd(9); */
-/*     	  t_ac = read_spd(10); */
-	} else if (tmp == 0x04) {         /* only cas = 3 supported */
+/*		t_ck = read_spd(9); */
+/*		t_ac = read_spd(10); */
+	} else if (tmp == 0x04) {	/* only cas = 3 supported */
 		min_cas = 3;
-/*     	  t_ck = read_spd(9); */
-/*     	  t_ac = read_spd(10); */
-	} else if (tmp == 0x06) {         /* 2,3 supported, so use 2 */
+/*		t_ck = read_spd(9); */
+/*		t_ac = read_spd(10); */
+	} else if (tmp == 0x06) {	/* 2,3 supported, so use 2 */
 		min_cas = 2;
-/*     	  t_ck = read_spd(23); */
-/*     	  t_ac = read_spd(24); */
+/*		t_ck = read_spd(23); */
+/*		t_ac = read_spd(24); */
 	} else {
 		SPD_ERR("SDRAM - unsupported CAS latency \n");
 	}
@@ -263,7 +263,7 @@ long int spd_sdram(int(read_spd)(uint addr))
 	}
 	/* convert from nsec to bus cycles */
 	tmp = (tmp * 10) / bus_period_x_10;
-	sdram0_rtr = (tmp & 0x3ff8) <<  SDRAM0_RTR_SHIFT;
+	sdram0_rtr = (tmp & 0x3ff8) <<	SDRAM0_RTR_SHIFT;
 
 	/*------------------------------------------------------------------
 	 * determine the number of banks used
@@ -292,7 +292,7 @@ long int spd_sdram(int(read_spd)(uint addr))
 	else if (tmp==4)
 		bank_cnt *= 4;
 	else
-		bank_cnt = 8; 		/* 8 is an error code */
+		bank_cnt = 8;		/* 8 is an error code */
 
 	if (bank_cnt > 4)	/* we only have 4 banks to work with */
 		SPD_ERR("SDRAM - unsupported module rows for this width\n");
@@ -323,7 +323,7 @@ long int spd_sdram(int(read_spd)(uint addr))
 	total_size *= read_spd(5);	/* mult by module rows (dimm sides) */
 
 	/*------------------------------------------------------------------
-	 * map  rows * cols * banks to a mode
+	 * map	rows * cols * banks to a mode
 	 * -------------------------------------------------------------------*/
 
 	switch (row) {
@@ -388,9 +388,9 @@ long int spd_sdram(int(read_spd)(uint addr))
 	bank_size = total_size / bank_cnt;
 	/* convert bank size to bank size code for ppc4xx
 	   by takeing log2(bank_size) - 22 */
-	tmp = bank_size; 		/* start with tmp = bank_size */
+	tmp = bank_size;		/* start with tmp = bank_size */
 	bank_code = 0;			/* and bank_code = 0 */
-	while (tmp > 1) { 		/* this takes log2 of tmp */
+	while (tmp > 1) {		/* this takes log2 of tmp */
 		bank_code++;		/* and stores result in bank_code */
 		tmp = tmp >> 1;
 	}				/* bank_code is now log2(bank_size) */
@@ -444,7 +444,7 @@ long int spd_sdram(int(read_spd)(uint addr))
 #endif
 	mtsdram0( mem_sdtr1 , sdram0_tr );
 
-	/* SDRAM have a power on delay,  500 micro should do */
+	/* SDRAM have a power on delay,	 500 micro should do */
 	udelay(500);
 	sdram0_cfg = SDRAM0_CFG_DCE | SDRAM0_CFG_BRPF(1) | SDRAM0_CFG_ECCDD | SDRAM0_CFG_EMDULR;
 	if (ecc_on)
@@ -464,172 +464,172 @@ int spd_read(uint addr)
 		return 0;
 }
 
-#else                             /* CONFIG_440 */
+#else /* CONFIG_440 */
 
 /*-----------------------------------------------------------------------------
   |  Memory Controller Options 0
   +-----------------------------------------------------------------------------*/
-#define SDRAM_CFG0_DCEN           0x80000000  /* SDRAM Controller Enable      */
-#define SDRAM_CFG0_MCHK_MASK      0x30000000  /* Memory data errchecking mask */
-#define SDRAM_CFG0_MCHK_NON       0x00000000  /* No ECC generation            */
-#define SDRAM_CFG0_MCHK_GEN       0x20000000  /* ECC generation               */
-#define SDRAM_CFG0_MCHK_CHK       0x30000000  /* ECC generation and checking  */
-#define SDRAM_CFG0_RDEN           0x08000000  /* Registered DIMM enable       */
-#define SDRAM_CFG0_PMUD           0x04000000  /* Page management unit         */
-#define SDRAM_CFG0_DMWD_MASK      0x02000000  /* DRAM width mask              */
-#define SDRAM_CFG0_DMWD_32        0x00000000  /* 32 bits                      */
-#define SDRAM_CFG0_DMWD_64        0x02000000  /* 64 bits                      */
-#define SDRAM_CFG0_UIOS_MASK      0x00C00000  /* Unused IO State              */
-#define SDRAM_CFG0_PDP            0x00200000  /* Page deallocation policy     */
+#define SDRAM_CFG0_DCEN		0x80000000	/* SDRAM Controller Enable	*/
+#define SDRAM_CFG0_MCHK_MASK	0x30000000	/* Memory data errchecking mask */
+#define SDRAM_CFG0_MCHK_NON	0x00000000	/* No ECC generation		*/
+#define SDRAM_CFG0_MCHK_GEN	0x20000000	/* ECC generation		*/
+#define SDRAM_CFG0_MCHK_CHK	0x30000000	/* ECC generation and checking	*/
+#define SDRAM_CFG0_RDEN		0x08000000	/* Registered DIMM enable	*/
+#define SDRAM_CFG0_PMUD		0x04000000	/* Page management unit		*/
+#define SDRAM_CFG0_DMWD_MASK	0x02000000	/* DRAM width mask		*/
+#define SDRAM_CFG0_DMWD_32	0x00000000	/* 32 bits			*/
+#define SDRAM_CFG0_DMWD_64	0x02000000	/* 64 bits			*/
+#define SDRAM_CFG0_UIOS_MASK	0x00C00000	/* Unused IO State		*/
+#define SDRAM_CFG0_PDP		0x00200000	/* Page deallocation policy	*/
 
 /*-----------------------------------------------------------------------------
   |  Memory Controller Options 1
   +-----------------------------------------------------------------------------*/
-#define SDRAM_CFG1_SRE            0x80000000  /* Self-Refresh Entry           */
-#define SDRAM_CFG1_PMEN           0x40000000  /* Power Management Enable      */
+#define SDRAM_CFG1_SRE		0x80000000	/* Self-Refresh Entry		*/
+#define SDRAM_CFG1_PMEN		0x40000000	/* Power Management Enable	*/
 
 /*-----------------------------------------------------------------------------+
   |  SDRAM DEVPOT Options
   +-----------------------------------------------------------------------------*/
-#define SDRAM_DEVOPT_DLL          0x80000000
-#define SDRAM_DEVOPT_DS           0x40000000
+#define SDRAM_DEVOPT_DLL	0x80000000
+#define SDRAM_DEVOPT_DS		0x40000000
 
 /*-----------------------------------------------------------------------------+
   |  SDRAM MCSTS Options
   +-----------------------------------------------------------------------------*/
-#define SDRAM_MCSTS_MRSC          0x80000000
-#define SDRAM_MCSTS_SRMS          0x40000000
-#define SDRAM_MCSTS_CIS           0x20000000
+#define SDRAM_MCSTS_MRSC	0x80000000
+#define SDRAM_MCSTS_SRMS	0x40000000
+#define SDRAM_MCSTS_CIS		0x20000000
 
 /*-----------------------------------------------------------------------------
   |  SDRAM Refresh Timer Register
   +-----------------------------------------------------------------------------*/
-#define SDRAM_RTR_RINT_MASK       0xFFFF0000
+#define SDRAM_RTR_RINT_MASK	  0xFFFF0000
 #define SDRAM_RTR_RINT_ENCODE(n)  (((n) << 16) & SDRAM_RTR_RINT_MASK)
-#define sdram_HZ_to_ns(hertz)     (1000000000/(hertz))
+#define sdram_HZ_to_ns(hertz)	  (1000000000/(hertz))
 
 /*-----------------------------------------------------------------------------+
   |  SDRAM UABus Base Address Reg
   +-----------------------------------------------------------------------------*/
-#define SDRAM_UABBA_UBBA_MASK     0x0000000F
+#define SDRAM_UABBA_UBBA_MASK	0x0000000F
 
 /*-----------------------------------------------------------------------------+
   |  Memory Bank 0-7 configuration
   +-----------------------------------------------------------------------------*/
-#define SDRAM_BXCR_SDBA_MASK      0xff800000      /* Base address             */
-#define SDRAM_BXCR_SDSZ_MASK      0x000e0000      /* Size                     */
-#define SDRAM_BXCR_SDSZ_8         0x00020000      /*   8M                     */
-#define SDRAM_BXCR_SDSZ_16        0x00040000      /*  16M                     */
-#define SDRAM_BXCR_SDSZ_32        0x00060000      /*  32M                     */
-#define SDRAM_BXCR_SDSZ_64        0x00080000      /*  64M                     */
-#define SDRAM_BXCR_SDSZ_128       0x000a0000      /* 128M                     */
-#define SDRAM_BXCR_SDSZ_256       0x000c0000      /* 256M                     */
-#define SDRAM_BXCR_SDSZ_512       0x000e0000      /* 512M                     */
-#define SDRAM_BXCR_SDAM_MASK      0x0000e000      /* Addressing mode          */
-#define SDRAM_BXCR_SDAM_1         0x00000000      /*   Mode 1                 */
-#define SDRAM_BXCR_SDAM_2         0x00002000      /*   Mode 2                 */
-#define SDRAM_BXCR_SDAM_3         0x00004000      /*   Mode 3                 */
-#define SDRAM_BXCR_SDAM_4         0x00006000      /*   Mode 4                 */
-#define SDRAM_BXCR_SDBE           0x00000001      /* Memory Bank Enable       */
+#define SDRAM_BXCR_SDBA_MASK	0xff800000	  /* Base address	      */
+#define SDRAM_BXCR_SDSZ_MASK	0x000e0000	  /* Size		      */
+#define SDRAM_BXCR_SDSZ_8	0x00020000	  /*   8M		      */
+#define SDRAM_BXCR_SDSZ_16	0x00040000	  /*  16M		      */
+#define SDRAM_BXCR_SDSZ_32	0x00060000	  /*  32M		      */
+#define SDRAM_BXCR_SDSZ_64	0x00080000	  /*  64M		      */
+#define SDRAM_BXCR_SDSZ_128	0x000a0000	  /* 128M		      */
+#define SDRAM_BXCR_SDSZ_256	0x000c0000	  /* 256M		      */
+#define SDRAM_BXCR_SDSZ_512	0x000e0000	  /* 512M		      */
+#define SDRAM_BXCR_SDAM_MASK	0x0000e000	  /* Addressing mode	      */
+#define SDRAM_BXCR_SDAM_1	0x00000000	  /*   Mode 1		      */
+#define SDRAM_BXCR_SDAM_2	0x00002000	  /*   Mode 2		      */
+#define SDRAM_BXCR_SDAM_3	0x00004000	  /*   Mode 3		      */
+#define SDRAM_BXCR_SDAM_4	0x00006000	  /*   Mode 4		      */
+#define SDRAM_BXCR_SDBE		0x00000001	  /* Memory Bank Enable	      */
 
 /*-----------------------------------------------------------------------------+
   |  SDRAM TR0 Options
   +-----------------------------------------------------------------------------*/
-#define SDRAM_TR0_SDWR_MASK       0x80000000
-#define   SDRAM_TR0_SDWR_2_CLK    0x00000000
-#define   SDRAM_TR0_SDWR_3_CLK    0x80000000
-#define SDRAM_TR0_SDWD_MASK       0x40000000
-#define   SDRAM_TR0_SDWD_0_CLK    0x00000000
-#define   SDRAM_TR0_SDWD_1_CLK    0x40000000
-#define SDRAM_TR0_SDCL_MASK       0x01800000
-#define   SDRAM_TR0_SDCL_2_0_CLK  0x00800000
-#define   SDRAM_TR0_SDCL_2_5_CLK  0x01000000
-#define   SDRAM_TR0_SDCL_3_0_CLK  0x01800000
-#define SDRAM_TR0_SDPA_MASK       0x000C0000
-#define   SDRAM_TR0_SDPA_2_CLK    0x00040000
-#define   SDRAM_TR0_SDPA_3_CLK    0x00080000
-#define   SDRAM_TR0_SDPA_4_CLK    0x000C0000
-#define SDRAM_TR0_SDCP_MASK       0x00030000
-#define   SDRAM_TR0_SDCP_2_CLK    0x00000000
-#define   SDRAM_TR0_SDCP_3_CLK    0x00010000
-#define   SDRAM_TR0_SDCP_4_CLK    0x00020000
-#define   SDRAM_TR0_SDCP_5_CLK    0x00030000
-#define SDRAM_TR0_SDLD_MASK       0x0000C000
-#define   SDRAM_TR0_SDLD_1_CLK    0x00000000
-#define   SDRAM_TR0_SDLD_2_CLK    0x00004000
-#define SDRAM_TR0_SDRA_MASK       0x0000001C
-#define   SDRAM_TR0_SDRA_6_CLK    0x00000000
-#define   SDRAM_TR0_SDRA_7_CLK    0x00000004
-#define   SDRAM_TR0_SDRA_8_CLK    0x00000008
-#define   SDRAM_TR0_SDRA_9_CLK    0x0000000C
-#define   SDRAM_TR0_SDRA_10_CLK   0x00000010
-#define   SDRAM_TR0_SDRA_11_CLK   0x00000014
-#define   SDRAM_TR0_SDRA_12_CLK   0x00000018
-#define   SDRAM_TR0_SDRA_13_CLK   0x0000001C
-#define SDRAM_TR0_SDRD_MASK       0x00000003
-#define   SDRAM_TR0_SDRD_2_CLK    0x00000001
-#define   SDRAM_TR0_SDRD_3_CLK    0x00000002
-#define   SDRAM_TR0_SDRD_4_CLK    0x00000003
+#define SDRAM_TR0_SDWR_MASK	0x80000000
+#define	 SDRAM_TR0_SDWR_2_CLK	0x00000000
+#define	 SDRAM_TR0_SDWR_3_CLK	0x80000000
+#define SDRAM_TR0_SDWD_MASK	0x40000000
+#define	 SDRAM_TR0_SDWD_0_CLK	0x00000000
+#define	 SDRAM_TR0_SDWD_1_CLK	0x40000000
+#define SDRAM_TR0_SDCL_MASK	0x01800000
+#define	 SDRAM_TR0_SDCL_2_0_CLK 0x00800000
+#define	 SDRAM_TR0_SDCL_2_5_CLK 0x01000000
+#define	 SDRAM_TR0_SDCL_3_0_CLK 0x01800000
+#define SDRAM_TR0_SDPA_MASK	0x000C0000
+#define	 SDRAM_TR0_SDPA_2_CLK	0x00040000
+#define	 SDRAM_TR0_SDPA_3_CLK	0x00080000
+#define	 SDRAM_TR0_SDPA_4_CLK	0x000C0000
+#define SDRAM_TR0_SDCP_MASK	0x00030000
+#define	 SDRAM_TR0_SDCP_2_CLK	0x00000000
+#define	 SDRAM_TR0_SDCP_3_CLK	0x00010000
+#define	 SDRAM_TR0_SDCP_4_CLK	0x00020000
+#define	 SDRAM_TR0_SDCP_5_CLK	0x00030000
+#define SDRAM_TR0_SDLD_MASK	0x0000C000
+#define	 SDRAM_TR0_SDLD_1_CLK	0x00000000
+#define	 SDRAM_TR0_SDLD_2_CLK	0x00004000
+#define SDRAM_TR0_SDRA_MASK	0x0000001C
+#define	 SDRAM_TR0_SDRA_6_CLK	0x00000000
+#define	 SDRAM_TR0_SDRA_7_CLK	0x00000004
+#define	 SDRAM_TR0_SDRA_8_CLK	0x00000008
+#define	 SDRAM_TR0_SDRA_9_CLK	0x0000000C
+#define	 SDRAM_TR0_SDRA_10_CLK	0x00000010
+#define	 SDRAM_TR0_SDRA_11_CLK	0x00000014
+#define	 SDRAM_TR0_SDRA_12_CLK	0x00000018
+#define	 SDRAM_TR0_SDRA_13_CLK	0x0000001C
+#define SDRAM_TR0_SDRD_MASK	0x00000003
+#define	 SDRAM_TR0_SDRD_2_CLK	0x00000001
+#define	 SDRAM_TR0_SDRD_3_CLK	0x00000002
+#define	 SDRAM_TR0_SDRD_4_CLK	0x00000003
 
 /*-----------------------------------------------------------------------------+
   |  SDRAM TR1 Options
   +-----------------------------------------------------------------------------*/
-#define SDRAM_TR1_RDSS_MASK         0xC0000000
-#define   SDRAM_TR1_RDSS_TR0        0x00000000
-#define   SDRAM_TR1_RDSS_TR1        0x40000000
-#define   SDRAM_TR1_RDSS_TR2        0x80000000
-#define   SDRAM_TR1_RDSS_TR3        0xC0000000
-#define SDRAM_TR1_RDSL_MASK         0x00C00000
-#define   SDRAM_TR1_RDSL_STAGE1     0x00000000
-#define   SDRAM_TR1_RDSL_STAGE2     0x00400000
-#define   SDRAM_TR1_RDSL_STAGE3     0x00800000
-#define SDRAM_TR1_RDCD_MASK         0x00000800
-#define   SDRAM_TR1_RDCD_RCD_0_0    0x00000000
-#define   SDRAM_TR1_RDCD_RCD_1_2    0x00000800
-#define SDRAM_TR1_RDCT_MASK         0x000001FF
-#define   SDRAM_TR1_RDCT_ENCODE(x)  (((x) << 0) & SDRAM_TR1_RDCT_MASK)
-#define   SDRAM_TR1_RDCT_DECODE(x)  (((x) & SDRAM_TR1_RDCT_MASK) >> 0)
-#define   SDRAM_TR1_RDCT_MIN        0x00000000
-#define   SDRAM_TR1_RDCT_MAX        0x000001FF
+#define SDRAM_TR1_RDSS_MASK	0xC0000000
+#define	 SDRAM_TR1_RDSS_TR0	0x00000000
+#define	 SDRAM_TR1_RDSS_TR1	0x40000000
+#define	 SDRAM_TR1_RDSS_TR2	0x80000000
+#define	 SDRAM_TR1_RDSS_TR3	0xC0000000
+#define SDRAM_TR1_RDSL_MASK	0x00C00000
+#define	 SDRAM_TR1_RDSL_STAGE1	0x00000000
+#define	 SDRAM_TR1_RDSL_STAGE2	0x00400000
+#define	 SDRAM_TR1_RDSL_STAGE3	0x00800000
+#define SDRAM_TR1_RDCD_MASK	0x00000800
+#define	 SDRAM_TR1_RDCD_RCD_0_0 0x00000000
+#define	 SDRAM_TR1_RDCD_RCD_1_2 0x00000800
+#define SDRAM_TR1_RDCT_MASK	0x000001FF
+#define	 SDRAM_TR1_RDCT_ENCODE(x)  (((x) << 0) & SDRAM_TR1_RDCT_MASK)
+#define	 SDRAM_TR1_RDCT_DECODE(x)  (((x) & SDRAM_TR1_RDCT_MASK) >> 0)
+#define	 SDRAM_TR1_RDCT_MIN	0x00000000
+#define	 SDRAM_TR1_RDCT_MAX	0x000001FF
 
 /*-----------------------------------------------------------------------------+
   |  SDRAM WDDCTR Options
   +-----------------------------------------------------------------------------*/
-#define SDRAM_WDDCTR_WRCP_MASK       0xC0000000
-#define   SDRAM_WDDCTR_WRCP_0DEG     0x00000000
-#define   SDRAM_WDDCTR_WRCP_90DEG    0x40000000
-#define   SDRAM_WDDCTR_WRCP_180DEG   0x80000000
-#define SDRAM_WDDCTR_DCD_MASK        0x000001FF
+#define SDRAM_WDDCTR_WRCP_MASK	0xC0000000
+#define	 SDRAM_WDDCTR_WRCP_0DEG	  0x00000000
+#define	 SDRAM_WDDCTR_WRCP_90DEG  0x40000000
+#define	 SDRAM_WDDCTR_WRCP_180DEG 0x80000000
+#define SDRAM_WDDCTR_DCD_MASK	0x000001FF
 
 /*-----------------------------------------------------------------------------+
   |  SDRAM CLKTR Options
   +-----------------------------------------------------------------------------*/
-#define SDRAM_CLKTR_CLKP_MASK       0xC0000000
-#define   SDRAM_CLKTR_CLKP_0DEG     0x00000000
-#define   SDRAM_CLKTR_CLKP_90DEG    0x40000000
-#define   SDRAM_CLKTR_CLKP_180DEG   0x80000000
-#define SDRAM_CLKTR_DCDT_MASK       0x000001FF
+#define SDRAM_CLKTR_CLKP_MASK	0xC0000000
+#define	 SDRAM_CLKTR_CLKP_0DEG	  0x00000000
+#define	 SDRAM_CLKTR_CLKP_90DEG	  0x40000000
+#define	 SDRAM_CLKTR_CLKP_180DEG  0x80000000
+#define SDRAM_CLKTR_DCDT_MASK	0x000001FF
 
 /*-----------------------------------------------------------------------------+
   |  SDRAM DLYCAL Options
   +-----------------------------------------------------------------------------*/
-#define SDRAM_DLYCAL_DLCV_MASK      0x000003FC
-#define   SDRAM_DLYCAL_DLCV_ENCODE(x) (((x)<<2) & SDRAM_DLYCAL_DLCV_MASK)
-#define   SDRAM_DLYCAL_DLCV_DECODE(x) (((x) & SDRAM_DLYCAL_DLCV_MASK)>>2)
+#define SDRAM_DLYCAL_DLCV_MASK	0x000003FC
+#define	 SDRAM_DLYCAL_DLCV_ENCODE(x) (((x)<<2) & SDRAM_DLYCAL_DLCV_MASK)
+#define	 SDRAM_DLYCAL_DLCV_DECODE(x) (((x) & SDRAM_DLYCAL_DLCV_MASK)>>2)
 
 /*-----------------------------------------------------------------------------+
   |  General Definition
   +-----------------------------------------------------------------------------*/
-#define DEFAULT_SPD_ADDR1   0x53
-#define DEFAULT_SPD_ADDR2   0x52
-#define MAXBANKS            4               /* at most 4 dimm banks */
-#define MAX_SPD_BYTES       256
-#define NUMHALFCYCLES       4
-#define NUMMEMTESTS         8
-#define NUMMEMWORDS         8
-#define MAXBXCR             4
-#define TRUE                1
-#define FALSE               0
+#define DEFAULT_SPD_ADDR1	0x53
+#define DEFAULT_SPD_ADDR2	0x52
+#define MAXBANKS		4		/* at most 4 dimm banks */
+#define MAX_SPD_BYTES		256
+#define NUMHALFCYCLES		4
+#define NUMMEMTESTS		8
+#define NUMMEMWORDS		8
+#define MAXBXCR			4
+#define TRUE			1
+#define FALSE			0
 
 const unsigned long test[NUMMEMTESTS][NUMMEMWORDS] = {
 	{0x00000000, 0x00000000, 0xFFFFFFFF, 0xFFFFFFFF, 0x00000000, 0x00000000,
@@ -666,37 +666,37 @@ unsigned char spd_read(uchar chip, uint addr);
 
 void get_spd_info(unsigned long* dimm_populated,
 		  unsigned char* iic0_dimm_addr,
-		  unsigned long  num_dimm_banks);
+		  unsigned long	 num_dimm_banks);
 
 void check_mem_type
 (unsigned long* dimm_populated,
  unsigned char* iic0_dimm_addr,
- unsigned long  num_dimm_banks);
+ unsigned long	num_dimm_banks);
 
 void check_volt_type
 (unsigned long* dimm_populated,
  unsigned char* iic0_dimm_addr,
- unsigned long  num_dimm_banks);
+ unsigned long	num_dimm_banks);
 
 void program_cfg0(unsigned long* dimm_populated,
 		  unsigned char* iic0_dimm_addr,
-		  unsigned long  num_dimm_banks);
+		  unsigned long	 num_dimm_banks);
 
 void program_cfg1(unsigned long* dimm_populated,
 		  unsigned char* iic0_dimm_addr,
-		  unsigned long  num_dimm_banks);
+		  unsigned long	 num_dimm_banks);
 
 void program_rtr (unsigned long* dimm_populated,
 		  unsigned char* iic0_dimm_addr,
-		  unsigned long  num_dimm_banks);
+		  unsigned long	 num_dimm_banks);
 
 void program_tr0 (unsigned long* dimm_populated,
 		  unsigned char* iic0_dimm_addr,
-		  unsigned long  num_dimm_banks);
+		  unsigned long	 num_dimm_banks);
 
 void program_tr1 (void);
 
-void program_ecc (unsigned long  num_bytes);
+void program_ecc (unsigned long	 num_bytes);
 
 unsigned
 long  program_bxcr(unsigned long* dimm_populated,
@@ -719,7 +719,7 @@ long int spd_sdram(void) {
 	unsigned long total_size;
 	unsigned long cfg0;
 	unsigned long mcsts;
-	unsigned long num_dimm_banks;               /* on board dimm banks */
+	unsigned long num_dimm_banks;		    /* on board dimm banks */
 
 	num_dimm_banks = sizeof(iic0_dimm_addr);
 
@@ -841,7 +841,7 @@ unsigned char spd_read(uchar chip, uint addr)
 
 void get_spd_info(unsigned long*   dimm_populated,
 		  unsigned char*   iic0_dimm_addr,
-		  unsigned long    num_dimm_banks)
+		  unsigned long	   num_dimm_banks)
 {
 	unsigned long dimm_num;
 	unsigned long dimm_found;
@@ -931,7 +931,7 @@ void check_volt_type(unsigned long*   dimm_populated,
 
 void program_cfg0(unsigned long* dimm_populated,
 		  unsigned char* iic0_dimm_addr,
-		  unsigned long  num_dimm_banks)
+		  unsigned long	 num_dimm_banks)
 {
 	unsigned long dimm_num;
 	unsigned long cfg0;
@@ -1021,7 +1021,7 @@ void program_cfg0(unsigned long* dimm_populated,
 
 void program_cfg1(unsigned long* dimm_populated,
 		  unsigned char* iic0_dimm_addr,
-		  unsigned long  num_dimm_banks)
+		  unsigned long	 num_dimm_banks)
 {
 	unsigned long cfg1;
 	mfsdram(mem_cfg1, cfg1);
@@ -1039,7 +1039,7 @@ void program_cfg1(unsigned long* dimm_populated,
 
 void program_rtr (unsigned long* dimm_populated,
 		  unsigned char* iic0_dimm_addr,
-		  unsigned long  num_dimm_banks)
+		  unsigned long	 num_dimm_banks)
 {
 	unsigned long dimm_num;
 	unsigned long bus_period_x_10;
@@ -1100,7 +1100,7 @@ void program_rtr (unsigned long* dimm_populated,
 
 void program_tr0 (unsigned long* dimm_populated,
 		  unsigned char* iic0_dimm_addr,
-		  unsigned long  num_dimm_banks)
+		  unsigned long	 num_dimm_banks)
 {
 	unsigned long dimm_num;
 	unsigned long tr0;
@@ -1159,7 +1159,7 @@ void program_tr0 (unsigned long* dimm_populated,
 	for (dimm_num = 0; dimm_num < num_dimm_banks; dimm_num++) {
 		if (dimm_populated[dimm_num] == TRUE) {
 			wcsbc = spd_read(iic0_dimm_addr[dimm_num], 15);
-			t_rp_ns  = spd_read(iic0_dimm_addr[dimm_num], 27) >> 2;
+			t_rp_ns	 = spd_read(iic0_dimm_addr[dimm_num], 27) >> 2;
 			t_rcd_ns = spd_read(iic0_dimm_addr[dimm_num], 29) >> 2;
 			t_ras_ns = spd_read(iic0_dimm_addr[dimm_num], 30);
 			cas_bit = spd_read(iic0_dimm_addr[dimm_num], 18);
@@ -1234,7 +1234,7 @@ void program_tr0 (unsigned long* dimm_populated,
 	/*
 	 * Program SD_WR and SD_WCSBC fields
 	 */
-	tr0 |= SDRAM_TR0_SDWR_2_CLK;                /* Write Recovery: 2 CLK */
+	tr0 |= SDRAM_TR0_SDWR_2_CLK;		    /* Write Recovery: 2 CLK */
 	switch (wcsbc) {
 	case 0:
 		tr0 |= SDRAM_TR0_SDWD_0_CLK;
@@ -1623,8 +1623,8 @@ unsigned long program_bxcr(unsigned long* dimm_populated,
 	unsigned long ctrl_bank_num[MAXBANKS];
 	unsigned long bx_cr_num;
 	unsigned long largest_size_index;
-        unsigned long largest_size;
-        unsigned long current_size_index;
+	unsigned long largest_size;
+	unsigned long current_size_index;
 	BANKPARMS bank_parms[MAXBXCR];
 	unsigned long sorted_bank_num[MAXBXCR]; /* DDR Controller bank number table (sorted by size) */
 	unsigned long sorted_bank_size[MAXBXCR]; /* DDR Controller bank size table (sorted by size)*/
@@ -1785,7 +1785,7 @@ unsigned long program_bxcr(unsigned long* dimm_populated,
 	return(bank_base_addr);
 }
 
-void program_ecc (unsigned long  num_bytes)
+void program_ecc (unsigned long	 num_bytes)
 {
 	unsigned long bank_base_addr;
 	unsigned long current_address;

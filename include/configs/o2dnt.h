@@ -277,7 +277,7 @@
 #define CFG_BOOTCS_SIZE		CFG_FLASH_SIZE
 
 #ifdef CFG_PCISPEED_66
-/* 
+/*
  * For 66 MHz PCI clock additional Wait State is needed for CS0 (flash).
  */
 #define CFG_BOOTCS_CFG		0x00057801 /* for pci_clk = 66 MHz */

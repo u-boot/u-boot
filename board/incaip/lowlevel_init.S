@@ -66,6 +66,7 @@
 	.globl	ebu_init
 	.ent	ebu_init
 ebu_init:
+__ebu_init:
 
 	li	t1, EBU_MODUL_BASE
 	li	t2, 0xA0000041
@@ -118,6 +119,7 @@ ebu_init:
 	.globl	cgu_init
 	.ent	cgu_init
 cgu_init:
+__cgu_init:
 
 	li	t1, CGU_MODUL_BASE
 
@@ -182,6 +184,7 @@ cgu_init:
 	.globl	sdram_init
 	.ent	sdram_init
 sdram_init:
+__sdram_init:
 
 	li	t1, MC_MODUL_BASE
 
@@ -281,11 +284,11 @@ lowlevel_init:
 	/* We rely on the fact that neither ebu_init() nor cgu_init() nor sdram_init()
 	 * modify t0 and a0.
 	 */
-	bal	cgu_init
+	bal	__cgu_init
 	nop
-	bal	ebu_init
+	bal	__ebu_init
 	nop
-	bal	sdram_init
+	bal	__sdram_init
 	nop
 	move	ra, t0
 

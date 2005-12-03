@@ -102,7 +102,7 @@ int incaip_set_cpuclk (void)
 	extern void ebu_init(long);
 	extern void cgu_init(long);
 	extern void sdram_init(long);
-	uchar tmp[64];
+	char tmp[64];
 	ulong cpuclk;
 
 	if (getenv_r ("cpuclk", tmp, sizeof (tmp)) > 0) {

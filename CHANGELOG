@@ -36,7 +36,7 @@ Changes for U-Boot 1.1.4:
 * Increase malloc arena on TQM5200 board to 256 kB.
   With 64 kb uniform flash sector size the old value of 128 kB was
   too small.
-  
+
 * Fix miiphy global data initialization (problem on 4xx boards when
   no ethaddr is assigned). Initialization moved from
   miiphy_register() to eth_initialize().

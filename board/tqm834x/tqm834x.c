@@ -77,7 +77,7 @@ int board_early_init_r (void) {
 	/* sanity check, IMMARBAR should be mirrored at offset zero of IMMR */
 	if ((im->sysconf.immrbar & IMMRBAR_BASE_ADDR) != (u32)im)
 		return 0;
-	
+
 	/* detect the number of Flash banks */
 	return detect_num_flash_banks();
 }
@@ -108,7 +108,7 @@ long int initdram (int board_type)
 	set_ddr_config();
 
 	udelay(200);
-	
+
 	/* enable DDR controller */
 	im->ddr.sdram_cfg = (SDRAM_CFG_MEM_EN |
 		SDRAM_CFG_SREN |
@@ -154,7 +154,7 @@ int checkboard (void)
 
 	/* get bus width */
 	w = 32;
-	if (immr->reset.rcwh & RCWH_PCI64) 
+	if (immr->reset.rcwh & RCWH_PCI64)
 		w = 64;
 
 	/* get clock */
@@ -192,7 +192,7 @@ static int detect_num_flash_banks(void)
 	ulong total_size;
 
 	tqm834x_num_flash_banks = 2;	/* assume two banks */
-	
+
 	/* Get bank 1 and 2 information */
 	bank1_size = flash_get_size(CFG_FLASH_BASE, 0);
 	debug("Bank1 size: %lu\n", bank1_size);
@@ -318,10 +318,10 @@ static long int get_ddr_bank_size(short cs, volatile long *base)
 		set_cs_config(cs, 0);
 		return 0;
 	}
-		
+
 	debug("\nDetected configuration %ld x %ld (%ld MiB) at addr %p\n",
 			conf[detected].row, conf[detected].col, conf[detected].size >> 20, base);
-	
+
 	/* configure cs ro detected params */
 	set_cs_config(cs, CSCONFIG_EN | conf[detected].row |
 			conf[detected].col);
@@ -367,7 +367,7 @@ static void set_ddr_config(void) {
 	im->ddr.sdram_clk_cntl = DDR_SDRAM_CLK_CNTL_SS_EN |
 		DDR_SDRAM_CLK_CNTL_CLK_ADJUST_05;
 	SYNC;
-	
+
 	/* timing configuration */
 	im->ddr.timing_cfg_1 =
 		(4 << TIMING_CFG1_PRETOACT_SHIFT) |
@@ -389,7 +389,7 @@ static void set_ddr_config(void) {
 		SDRAM_CFG_SREN |
 		SDRAM_CFG_SDRAM_TYPE_DDR;
 	SYNC;
-	
+
 	/* Set SDRAM mode */
 	im->ddr.sdram_mode =
 		((DDR_MODE_EXT_MODEREG | DDR_MODE_WEAK) <<

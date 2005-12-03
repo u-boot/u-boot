@@ -86,29 +86,29 @@ pci_init_board(void)
 	pci_conf = immr->pci_conf;
 
 	hose = &pci1_hose;
-	
+
 	/*
-	 * Configure PCI controller and PCI_CLK_OUTPUT 
+	 * Configure PCI controller and PCI_CLK_OUTPUT
 	 */
 
 	/*
 	 * WARNING! only PCI_CLK_OUTPUT1 is enabled here as this is the one
 	 * line actually used for clocking all external PCI devices in TQM83xx.
-	 * Enabling other PCI_CLK_OUTPUT lines may lead to board's hang for 
+	 * Enabling other PCI_CLK_OUTPUT lines may lead to board's hang for
 	 * unknown reasons - particularly PCI_CLK_OUTPUT6 and PCI_CLK_OUTPUT7
-	 * are known to hang the board; this issue is under investigation 
+	 * are known to hang the board; this issue is under investigation
 	 * (13 oct 05)
 	 */
 	reg32 = OCCR_PCICOE1;
-#if 0	
+#if 0
 	/* enabling all PCI_CLK_OUTPUT lines HANGS the board... */
 	reg32 = 0xff000000;
-#endif	
+#endif
 	if (clk->spmr & SPMR_CKID) {
 		/* PCI Clock is half CONFIG_83XX_CLKIN so need to set up OCCR
 		 * fields accordingly */
 		reg32 |= (OCCR_PCI1CR | OCCR_PCI2CR);
-		
+
 		reg32 |= (OCCR_PCICD0 | OCCR_PCICD1 | OCCR_PCICD2 \
 			  | OCCR_PCICD3 | OCCR_PCICD4 | OCCR_PCICD5 \
 			  | OCCR_PCICD6 | OCCR_PCICD7);
@@ -138,7 +138,7 @@ pci_init_board(void)
 	 * Configure PCI Outbound Translation Windows
 	 */
 
-	/* PCI1 mem space */ 
+	/* PCI1 mem space */
 	pci_pot[0].potar = (CFG_PCI1_MEM_BASE >> 12) & POTAR_TA_MASK;
 	pci_pot[0].pobar = (CFG_PCI1_MEM_PHYS >> 12) & POBAR_BA_MASK;
 	pci_pot[0].pocmr = POCMR_EN | (POCMR_CM_512M & POCMR_CM_MASK);
@@ -152,8 +152,8 @@ pci_init_board(void)
 	 * Configure PCI Inbound Translation Windows
 	 */
 
-	/* we need RAM mapped to PCI space for the devices to 
-	 * access main memory */ 
+	/* we need RAM mapped to PCI space for the devices to
+	 * access main memory */
 	pci_ctrl[0].pitar1 = 0x0;
 	pci_ctrl[0].pibar1 = 0x0;
 	pci_ctrl[0].piebar1 = 0x0;
@@ -179,10 +179,10 @@ pci_init_board(void)
 	/* System memory space */
 	pci_set_region(hose->regions + 2,
 		       CONFIG_PCI_SYS_MEM_BUS,
-                       CONFIG_PCI_SYS_MEM_PHYS,
-                       CONFIG_PCI_SYS_MEM_SIZE,
-                       PCI_REGION_MEM | PCI_REGION_MEMORY);
-		       
+		       CONFIG_PCI_SYS_MEM_PHYS,
+		       CONFIG_PCI_SYS_MEM_SIZE,
+		       PCI_REGION_MEM | PCI_REGION_MEMORY);
+
 	hose->region_count = 3;
 
 	pci_setup_indirect(hose,
@@ -195,18 +195,18 @@ pci_init_board(void)
 	 * Write to Command register
 	 */
 	reg16 = 0xff;
-	pci_hose_read_config_word (hose, PCI_BDF(0,0,0), PCI_COMMAND, 
+	pci_hose_read_config_word (hose, PCI_BDF(0,0,0), PCI_COMMAND,
 					&reg16);
 	reg16 |= PCI_COMMAND_SERR | PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY;
-	pci_hose_write_config_word(hose, PCI_BDF(0,0,0), PCI_COMMAND, 
+	pci_hose_write_config_word(hose, PCI_BDF(0,0,0), PCI_COMMAND,
 					reg16);
 
 	/*
 	 * Clear non-reserved bits in status register.
 	 */
-	pci_hose_write_config_word(hose, PCI_BDF(0,0,0), PCI_STATUS, 
+	pci_hose_write_config_word(hose, PCI_BDF(0,0,0), PCI_STATUS,
 					0xffff);
-	pci_hose_write_config_byte(hose, PCI_BDF(0,0,0), PCI_LATENCY_TIMER, 
+	pci_hose_write_config_byte(hose, PCI_BDF(0,0,0), PCI_LATENCY_TIMER,
 					0x80);
 
 #ifdef CONFIG_PCI_SCAN_SHOW

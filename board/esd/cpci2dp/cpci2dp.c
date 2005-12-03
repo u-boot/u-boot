@@ -12,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -36,11 +36,11 @@ int board_early_init_f (void)
 	cntrl0Reg = mfdcr(cntrl0);
 	mtdcr(cntrl0, cntrl0Reg | 0x00900000);
 
-        /* set output pins to high */
-	out32(GPIO0_OR,  CFG_INTA_FAKE | CFG_EEPROM_WP | CFG_PB_LED);
-        /* INTA# is open drain */
+	/* set output pins to high */
+	out32(GPIO0_OR,	 CFG_INTA_FAKE | CFG_EEPROM_WP | CFG_PB_LED);
+	/* INTA# is open drain */
 	out32(GPIO0_ODR, CFG_INTA_FAKE);
-        /* setup for output */
+	/* setup for output */
 	out32(GPIO0_TCR, CFG_INTA_FAKE | CFG_EEPROM_WP);
 
 	/*
@@ -55,14 +55,14 @@ int board_early_init_f (void)
 	 * IRQ 30 (EXT IRQ 5) PCI SLOT 3; active low; level sensitive
 	 * IRQ 31 (EXT IRQ 6) unused
 	 */
-	mtdcr(uicsr, 0xFFFFFFFF);       /* clear all ints */
-	mtdcr(uicer, 0x00000000);       /* disable all ints */
-	mtdcr(uiccr, 0x00000000);       /* set all to be non-critical*/
-	mtdcr(uicpr, 0xFFFFFF81);       /* set int polarities */
+	mtdcr(uicsr, 0xFFFFFFFF);	/* clear all ints */
+	mtdcr(uicer, 0x00000000);	/* disable all ints */
+	mtdcr(uiccr, 0x00000000);	/* set all to be non-critical*/
+	mtdcr(uicpr, 0xFFFFFF81);	/* set int polarities */
 
-	mtdcr(uictr, 0x10000000);       /* set int trigger levels */
-	mtdcr(uicvcr, 0x00000001);      /* set vect base=0,INT0 highest priority*/
-	mtdcr(uicsr, 0xFFFFFFFF);       /* clear all ints */
+	mtdcr(uictr, 0x10000000);	/* set int trigger levels */
+	mtdcr(uicvcr, 0x00000001);	/* set vect base=0,INT0 highest priority*/
+	mtdcr(uicsr, 0xFFFFFFFF);	/* clear all ints */
 
 	return 0;
 }
@@ -142,18 +142,17 @@ int testdram (void)
 
 #if defined(CFG_EEPROM_WREN)
 /* Input: <dev_addr>  I2C address of EEPROM device to enable.
- *         <state>     -1: deliver current state
- *	               0: disable write
+ *	   <state>     -1: deliver current state
+ *		       0: disable write
  *		       1: enable write
- *  Returns:           -1: wrong device address
- *                      0: dis-/en- able done
+ *  Returns:	       -1: wrong device address
+ *			0: dis-/en- able done
  *		     0/1: current state if <state> was -1.
  */
 int eeprom_write_enable (unsigned dev_addr, int state) {
 	if (CFG_I2C_EEPROM_ADDR != dev_addr) {
 		return -1;
-	}
-	else {
+	} else {
 		switch (state) {
 		case 1:
 			/* Enable write access, clear bit GPIO_SINT2. */
@@ -186,19 +185,16 @@ int do_eep_wren (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		state = eeprom_write_enable (CFG_I2C_EEPROM_ADDR, -1);
 		if (state < 0) {
 			puts ("Query of write access state failed.\n");
-		}
-		else {
+		} else {
 			printf ("Write access for device 0x%0x is %sabled.\n",
 				CFG_I2C_EEPROM_ADDR, state ? "en" : "dis");
 			state = 0;
 		}
-	}
-	else {
+	} else {
 		if ('0' == argv[1][0]) {
 			/* Disable write access. */
 			state = eeprom_write_enable (CFG_I2C_EEPROM_ADDR, 0);
-		}
-		else {
+		} else {
 			/* Enable write access. */
 			state = eeprom_write_enable (CFG_I2C_EEPROM_ADDR, 1);
 		}

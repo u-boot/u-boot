@@ -5,7 +5,7 @@ As part of the ongoing cleanup of the Linux PPC trees, the preferred
 way to pass bootloader and board setup information is the open
 firmware flat tree.
 
-Please take a look at the following email discussion for some 
+Please take a look at the following email discussion for some
 background.
 
   http://ozlabs.org/pipermail/linuxppc-dev/2005-August/019408.html

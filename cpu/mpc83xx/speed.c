@@ -132,7 +132,7 @@ int get_clocks (void)
 
 	/* PCI Host Mode */
 	if (!(im->reset.rcwh & RCWH_PCIHOST)) {
-		/* though RCWH_PCIHOST is defined in CFG_HRCW_HIGH 
+		/* though RCWH_PCIHOST is defined in CFG_HRCW_HIGH
 		 * the im->reset.rcwhr PCI Host Mode is disabled
 		 * FIXME: findout if there is a way to issue some warning */
 		return -2;
@@ -156,7 +156,7 @@ int get_clocks (void)
 
 	/* PCI Agent Mode */
 	if (im->reset.rcwh & RCWH_PCIHOST) {
-		/* though RCWH_PCIHOST is not defined in CFG_HRCW_HIGH 
+		/* though RCWH_PCIHOST is not defined in CFG_HRCW_HIGH
 		 * the im->reset.rcwhr PCI Host Mode is enabled */
 		return -3;
 	}

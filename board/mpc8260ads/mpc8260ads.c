@@ -251,7 +251,7 @@ void reset_phy (void)
 
 	/* Advertise all capabilities */
 	bb_miiphy_write(NULL, CFG_PHY_ADDR, PHY_ANAR, 0x01E1);
-	
+
 	/* Do not bypass Rx/Tx (de)scrambler */
 	bb_miiphy_write(NULL, CFG_PHY_ADDR, PHY_DCR,  0x0000);
 

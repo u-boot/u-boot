@@ -94,7 +94,7 @@ void do_bootm_linux (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 		checksum = ntohl (hdr->ih_hcrc);
 		hdr->ih_hcrc = 0;
 
-		if (crc32 (0, (char *) data, len) != checksum) {
+		if (crc32 (0, (uchar *) data, len) != checksum) {
 			printf ("Bad Header Checksum\n");
 			SHOW_BOOT_PROGRESS (-11);
 			do_reset (cmdtp, flag, argc, argv);
@@ -111,7 +111,7 @@ void do_bootm_linux (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 			ulong csum = 0;
 
 			printf ("   Verifying Checksum ... ");
-			csum = crc32 (0, (char *) data, len);
+			csum = crc32 (0, (uchar *) data, len);
 			if (csum != ntohl (hdr->ih_dcrc)) {
 				printf ("Bad Data CRC\n");
 				SHOW_BOOT_PROGRESS (-12);

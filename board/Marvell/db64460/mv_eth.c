@@ -268,7 +268,7 @@ void mv6446x_eth_initialize (bd_t * bis)
 		dev->recv = (void *) db64460_eth_poll;
 
 		ethernet_private = calloc (sizeof (*ethernet_private), 1);
-		dev->priv = (void *)ethernet_private; 
+		dev->priv = (void *)ethernet_private;
 		if (!ethernet_private) {
 			printf ("%s: %s allocation failure, %s\n",
 				__FUNCTION__, dev->name,
@@ -282,7 +282,7 @@ void mv6446x_eth_initialize (bd_t * bis)
 
 		/* set pointer to memory for stats data structure etc... */
 		port_private = calloc (sizeof (*ethernet_private), 1);
-		ethernet_private->port_private = (void *)port_private; 
+		ethernet_private->port_private = (void *)port_private;
 		if (!port_private) {
 			printf ("%s: %s allocation failure, %s\n",
 				__FUNCTION__, dev->name,

@@ -125,7 +125,7 @@ static void display_flash_config(ulong size)
 
 static int init_baudrate (void)
 {
-	uchar tmp[64];	/* long enough for environment variables */
+	char tmp[64];	/* long enough for environment variables */
 	int i = getenv_r ("baudrate", tmp, sizeof (tmp));
 
 	gd->baudrate = (i > 0)

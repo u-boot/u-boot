@@ -95,14 +95,14 @@
  * When CFG_MAX_FLASH_BANKS_DETECT is defined, the actual number of Flash
  * banks has to be determined at runtime and stored in a gloabl variable
  * tqm834x_num_flash_banks. The value of CFG_MAX_FLASH_BANKS_DETECT is only
- * used insted of CFG_MAX_FLASH_BANKS to allocate the array flash_info, and
+ * used instead of CFG_MAX_FLASH_BANKS to allocate the array flash_info, and
  * should be made sufficiently large to accomodate the number of banks that
- * might acutally be detected.  Since most (all?) Flash related functions use
+ * might actually be detected.  Since most (all?) Flash related functions use
  * CFG_MAX_FLASH_BANKS as the number of actual banks on the board, it is
  * defined as tqm834x_num_flash_banks.
  */
 #define CFG_MAX_FLASH_BANKS_DETECT	2
-#ifndef __ASSEMBLY__ 
+#ifndef __ASSEMBLY__
 extern int tqm834x_num_flash_banks;
 #endif
 #define CFG_MAX_FLASH_BANKS (tqm834x_num_flash_banks)

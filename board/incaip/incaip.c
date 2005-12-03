@@ -68,7 +68,7 @@ long int initdram(int board_type)
 		{
 			*INCA_IP_SDRAM_MC_CFGPB0 = (0x14 << 8) |
 			                           (rows << 4) | cols;
-			size = get_ram_size((ulong *)CFG_SDRAM_BASE,
+			size = get_ram_size((long *)CFG_SDRAM_BASE,
 			                                     max_sdram_size());
 
 			if (size > max_size)

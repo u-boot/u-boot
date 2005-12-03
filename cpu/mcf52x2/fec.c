@@ -567,4 +567,3 @@ int mcf52x2_miiphy_initialize(bd_t *bis)
 #endif
 	return 0;
 }
-

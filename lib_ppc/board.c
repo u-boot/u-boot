@@ -581,7 +581,6 @@ void board_init_f (ulong bootflag)
 	/* NOTREACHED - relocate_code() does not return */
 }
 
-
 /************************************************************************
  *
  * This is the next part if the initialization sequence: we are now
@@ -591,7 +590,6 @@ void board_init_f (ulong bootflag)
  *
  ************************************************************************
  */
-
 void board_init_r (gd_t *id, ulong dest_addr)
 {
 	cmd_tbl_t *cmdtp;
@@ -1123,8 +1121,6 @@ static inline void mdm_readline(char *buf, int bufsiz)
 		}
 	}
 }
-
-
 
 extern void  dbg(const char *fmt, ...);
 int mdm_init (void)
