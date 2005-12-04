@@ -226,7 +226,7 @@ rtc_init(void)
 
 	if (bbclk.year>9) {
 		printf("ds1302: Year was corrupted, fixing\n");
-		bbclk.year10=100;	/* 2000 - why not? ;) */
+		bbclk.year10=100/10;	/* 2000 - why not? ;) */
 		bbclk.year=0;
 		mod=1;
 	}
