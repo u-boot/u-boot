@@ -2,6 +2,8 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Change port configuration for O2DNT (CODEC1 on PSC1).
+
 * Fix DPRAM offset/size for MPC8541/8555.
   Simplify TQM85xx Makefile handling.
 
