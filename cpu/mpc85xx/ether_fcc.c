@@ -307,7 +307,9 @@ static int fec_init(struct eth_device* dev, bd_t *bis)
      * Allocate space in the reserved FCC area of DPRAM for the
      * internal buffers.  No one uses this space (yet), so we
      * can do this.  Later, we will add resource management for
-     * this area. CPM_FCC_SPECIAL_BASE: 0xb000.
+     * this area.
+     * CPM_FCC_SPECIAL_BASE:	0xB000 for MPC8540, MPC8560
+     *				0x9000 for MPC8541, MPC8555
      */
     mem_addr = CPM_FCC_SPECIAL_BASE + ((info->ether_index) * 64);
     pram_ptr->fen_genfcc.fcc_riptr = mem_addr;

@@ -1329,12 +1329,7 @@ TQM8540_config		\
 TQM8541_config		\
 TQM8555_config		\
 TQM8560_config:		unconfig
-	@case "$@" in \
-	TQM8540_config) CTYPE=8540;;	\
-	TQM8541_config) CTYPE=8541;;	\
-	TQM8555_config) CTYPE=8555;;	\
-	TQM8560_config) CTYPE=8560;;	\
-	esac; \
+	@CTYPE=$(subst TQM,,$(@:_config=)); \
 	>include/config.h ; \
 	echo "... TQM"$${CTYPE}; \
 	echo "#define CONFIG_MPC$${CTYPE}">>include/config.h; \
