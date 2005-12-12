@@ -63,6 +63,7 @@ SECTIONS
     *(.rodata)
     *(.rodata1)
     *(.rodata.str1.4)
+    *(.eh_frame)
   }
   .fini      : { *(.fini)    } =0
   .ctors     : { *(.ctors)   }

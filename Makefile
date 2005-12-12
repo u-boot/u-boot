@@ -1002,9 +1002,6 @@ SL8245_config: unconfig
 utx8245_config: unconfig
 	@./mkconfig $(@:_config=) ppc mpc824x utx8245
 
-cobra5272_config :		unconfig
-	@./mkconfig $(@:_config=) m68k mcf52x2 cobra5272
-
 #########################################################################
 ## MPC8260 Systems
 #########################################################################
@@ -1233,6 +1230,9 @@ ZPC1900_config: unconfig
 #########################################################################
 ## Coldfire
 #########################################################################
+
+cobra5272_config :		unconfig
+	@./mkconfig $(@:_config=) m68k mcf52x2 cobra5272
 
 M5272C3_config :		unconfig
 	@./mkconfig $(@:_config=) m68k mcf52x2 m5272c3

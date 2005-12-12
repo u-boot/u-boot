@@ -2,6 +2,13 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Fix register for PCI async mode on PPC440EP
+  Patch by Youngchul Bang, 08 Dec 2005
+
+* Fix U-Boot linking problems (add .eh_frame segment to linker script)
+  This segment may be required by some libgcc.a functions
+  (like _udivdi3).
+
 * Fix DPRAM offset/size for MPC8541/8555.
   Simplify TQM85xx Makefile handling.
 

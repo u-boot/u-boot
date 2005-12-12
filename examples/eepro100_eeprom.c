@@ -79,7 +79,10 @@ static inline short inw(long addr)
 static inline void *memcpy(void *dst, const void *src, unsigned int len)
 {
 	char *ret = dst;
-	while (len-- > 0) *(ret)++ = *((char *)src)++;
+	while (len-- > 0) {
+		*ret++ = *((char *)src);
+		src++;
+	}
 	return (void *)ret;
 }
 

@@ -57,7 +57,7 @@ int pci_async_enabled(void)
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR)
 	unsigned long val;
 
-	mfsdr(cpc0_strp1, val);
+	mfsdr(sdr_sdstp1, val);
 	return (val & SDR0_SDSTP1_PAME_MASK);
 #endif
 }
