@@ -2,6 +2,8 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Change port configuration for O2DNT (CODEC1 on PSC1).
+
 * Fix register for PCI async mode on PPC440EP
   Patch by Youngchul Bang, 08 Dec 2005
 
