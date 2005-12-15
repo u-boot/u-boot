@@ -59,10 +59,10 @@ int board_early_init_f(void)
 	 * Setup the GPIO pins
 	 *-------------------------------------------------------------------*/
 	/*CPLD cs */
-	/*setup Address lines for flash sizes larger than 16Meg. */
-	out32(GPIO0_OSRL, in32(GPIO0_OSRL) | 0x40010000);
-	out32(GPIO0_TSRL, in32(GPIO0_TSRL) | 0x40010000);
-	out32(GPIO0_ISR1L, in32(GPIO0_ISR1L) | 0x40000000);
+	/*setup Address lines for flash size 64Meg. */
+	out32(GPIO0_OSRL, in32(GPIO0_OSRL) | 0x50010000);
+	out32(GPIO0_TSRL, in32(GPIO0_TSRL) | 0x50010000);
+	out32(GPIO0_ISR1L, in32(GPIO0_ISR1L) | 0x50000000);
 
 	/*setup emac */
 	out32(GPIO0_TCR, in32(GPIO0_TCR) | 0xC080);
@@ -129,7 +129,7 @@ int board_early_init_f(void)
 #endif
 
 	/*get rid of flash write protect */
-	*(unsigned char *)(CFG_BCSR_BASE | 0x07) = 0x40;
+	*(unsigned char *)(CFG_BCSR_BASE | 0x07) = 0x00;
 
 	return 0;
 }
@@ -207,9 +207,85 @@ int checkboard(void)
  *              PLB @ 133 MHz
  *
  ************************************************************************/
+#define NUM_TRIES 64
+#define NUM_READS 10
+
+void sdram_tr1_set(int ram_address, int* tr1_value)
+{
+	int i;
+	int j, k;
+	volatile unsigned int* ram_pointer =  (unsigned int*)ram_address;
+	int first_good = -1, last_bad = 0x1ff;
+
+	unsigned long test[NUM_TRIES] = {
+		0x00000000, 0x00000000, 0xFFFFFFFF, 0xFFFFFFFF,
+		0x00000000, 0x00000000, 0xFFFFFFFF, 0xFFFFFFFF,
+		0xFFFFFFFF, 0xFFFFFFFF, 0x00000000, 0x00000000,
+		0xFFFFFFFF, 0xFFFFFFFF, 0x00000000, 0x00000000,
+		0xAAAAAAAA, 0xAAAAAAAA, 0x55555555, 0x55555555,
+		0xAAAAAAAA, 0xAAAAAAAA, 0x55555555, 0x55555555,
+		0x55555555, 0x55555555, 0xAAAAAAAA, 0xAAAAAAAA,
+		0x55555555, 0x55555555, 0xAAAAAAAA, 0xAAAAAAAA,
+		0xA5A5A5A5, 0xA5A5A5A5, 0x5A5A5A5A, 0x5A5A5A5A,
+		0xA5A5A5A5, 0xA5A5A5A5, 0x5A5A5A5A, 0x5A5A5A5A,
+		0x5A5A5A5A, 0x5A5A5A5A, 0xA5A5A5A5, 0xA5A5A5A5,
+		0x5A5A5A5A, 0x5A5A5A5A, 0xA5A5A5A5, 0xA5A5A5A5,
+		0xAA55AA55, 0xAA55AA55, 0x55AA55AA, 0x55AA55AA,
+		0xAA55AA55, 0xAA55AA55, 0x55AA55AA, 0x55AA55AA,
+		0x55AA55AA, 0x55AA55AA, 0xAA55AA55, 0xAA55AA55,
+		0x55AA55AA, 0x55AA55AA, 0xAA55AA55, 0xAA55AA55 };
+
+	/* go through all possible SDRAM0_TR1[RDCT] values */
+	for (i=0; i<=0x1ff; i++) {
+		/* set the current value for TR1 */
+		mtsdram(mem_tr1, (0x80800800 | i));
+
+		/* write values */
+		for (j=0; j<NUM_TRIES; j++) {
+			ram_pointer[j] = test[j];
+
+			/* clear any cache at ram location */
+			__asm__("dcbf 0,%0": :"r" (&ram_pointer[j]));
+		}
+
+		/* read values back */
+		for (j=0; j<NUM_TRIES; j++) {
+			for (k=0; k<NUM_READS; k++) {
+				/* clear any cache at ram location */
+				__asm__("dcbf 0,%0": :"r" (&ram_pointer[j]));
+
+				if (ram_pointer[j] != test[j])
+					break;
+			}
+
+			/* read error */
+			if (k != NUM_READS) {
+				break;
+			}
+		}
+
+		/* we have a SDRAM0_TR1[RDCT] that is part of the window */
+		if (j == NUM_TRIES) {
+			if (first_good == -1)
+				first_good = i;		/* found beginning of window */
+		} else { /* bad read */
+			/* if we have not had a good read then don't care */
+			if(first_good != -1) {
+				/* first failure after a good read */
+				last_bad = i-1;
+				break;
+			}
+		}
+	}
+
+	/* return the current value for TR1 */
+	*tr1_value = (first_good + last_bad) / 2;
+}
+
 void sdram_init(void)
 {
 	register uint reg;
+	int tr1_bank1, tr1_bank2;
 
 	/*--------------------------------------------------------------------
 	 * Setup some default
@@ -221,7 +297,7 @@ void sdram_init(void)
 	mtsdram(mem_wddctr, 0x40000000);	/* ?? */
 
 	/*clear this first, if the DDR is enabled by a debugger
-	   then you can not make changes. */
+	  then you can not make changes. */
 	mtsdram(mem_cfg0, 0x00000000);	/* Disable EEC */
 
 	/*--------------------------------------------------------------------
@@ -234,7 +310,6 @@ void sdram_init(void)
 	mtsdram(mem_b1cr, 0x080a4001);	/* SDBA=0x080 128MB, Mode 3, enabled */
 
 	mtsdram(mem_tr0, 0x410a4012);	/* ?? */
-	mtsdram(mem_tr1, 0x8080080b);	/* ?? */
 	mtsdram(mem_rtr, 0x04080000);	/* ?? */
 	mtsdram(mem_cfg1, 0x00000000);	/* Self-refresh exit, disable PM    */
 	mtsdram(mem_cfg0, 0x34000000);	/* Disable EEC */
@@ -250,6 +325,10 @@ void sdram_init(void)
 		if (reg & 0x80000000)
 			break;
 	}
+
+	sdram_tr1_set(0x00000000, &tr1_bank1);
+	sdram_tr1_set(0x08000000, &tr1_bank2);
+	mtsdram(mem_tr1, (((tr1_bank1+tr1_bank2)/2) | 0x80800800) );
 }
 
 /*************************************************************************

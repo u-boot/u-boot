@@ -2,6 +2,13 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* Changes to Yellowstone & Yosemite 440EP/GR eval boards:
+  - Changed GPIO setup to enable another address line in order to
+    address 64M of FLASH.
+  - Added function sdram_tr1_set to auto calculate the tr1 value for
+    the DDR.
+  Patch by Steven Blakeslee, 12 Dec 2005
+
 * Change port configuration for O2DNT (CODEC1 on PSC1).
 
 * Fix register for PCI async mode on PPC440EP
