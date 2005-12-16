@@ -145,7 +145,11 @@ void pci_mpc5xxx_init (struct pci_controller *hose)
 
 	/* Disable interrupts from PCI controller */
 	*(vu_long *)MPC5XXX_PCI_GSCR &= ~(7 << 12);
-	*(vu_long *)MPC5XXX_PCI_ICR &= ~(7 << 24);
+	*(vu_long *)MPC5XXX_PCI_ICR  &= ~(7 << 24);
+
+	/* Set PCI retry counter to 0 = infinite retry. */
+	/* The default of 255 is too short for slow devices. */
+	*(vu_long *)MPC5XXX_PCI_ICR &= 0xFFFFFF00;
 
 	/* Disable initiator windows */
 	*(vu_long *)MPC5XXX_PCI_IWCR = 0;

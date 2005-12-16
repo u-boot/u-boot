@@ -2,6 +2,10 @@
 Changes for U-Boot 1.1.4:
 ======================================================================
 
+* MPC5200:  Set PCI retry counter to 0 = infinite retry;
+  The default of 255 is too short for slow devices.
+  Patch by Martin Nykodym, 12 Dec 2005
+
 * Change port configuration for O2DNT (CODEC1 on PSC1).
 
 * Fix register for PCI async mode on PPC440EP
