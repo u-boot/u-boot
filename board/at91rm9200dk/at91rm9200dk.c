@@ -41,7 +41,7 @@ int board_init (void)
 
 	/* Correct IRDA resistor problem */
 	/* Set PA23_TXD in Output */
-	(AT91PS_PIO) AT91C_BASE_PIOA->PIO_OER = AT91C_PA23_TXD2;
+	((AT91PS_PIO) AT91C_BASE_PIOA)->PIO_OER = AT91C_PA23_TXD2;
 
 	/* memory and cpu-speed are setup before relocation */
 	/* so we do _nothing_ here */
