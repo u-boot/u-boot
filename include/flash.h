@@ -269,6 +269,7 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 #define INTEL_ID_28F320J3A  0x00160016	/*  32M = 128K x  32	*/
 #define INTEL_ID_28F640J3A  0x00170017	/*  64M = 128K x  64	*/
 #define INTEL_ID_28F128J3A  0x00180018	/* 128M = 128K x 128	*/
+#define INTEL_ID_28F256J3A  0x001D001D	/* 256M = 128K x 256	*/
 #define INTEL_ID_28F256L18T 0x880D880D	/* 256M = 128K x 255 + 32k x 4 */
 #define INTEL_ID_28F64K3    0x88018801	/*  64M =  32K x 255 + 32k x 4 */
 #define INTEL_ID_28F128K3   0x88028802	/* 128M =  64K x 255 + 32k x 4 */
@@ -401,6 +402,7 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 #define FLASH_28F320J3A 0x00C0		/* INTEL 28F320J3A ( 32M = 128K x  32)	*/
 #define FLASH_28F640J3A 0x00C2		/* INTEL 28F640J3A ( 64M = 128K x  64)	*/
 #define FLASH_28F128J3A 0x00C4		/* INTEL 28F128J3A (128M = 128K x 128)	*/
+#define FLASH_28F256J3A 0x00C6		/* INTEL 28F256J3A (256M = 128K x 256)	*/
 
 #define FLASH_FUJLV650	0x00D0		/* Fujitsu MBM 29LV650UE/651UE		*/
 #define FLASH_MT28S4M16LC 0x00E1	/* Micron MT28S4M16LC			*/
