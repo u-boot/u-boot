@@ -168,6 +168,10 @@ void flash_print_info (flash_info_t *info)
 	}
 
 	switch (info->flash_id & FLASH_TYPEMASK) {
+	case FLASH_28F256J3A:
+		printf ("28F256J3A\n");
+		break;
+
 	case FLASH_28F128J3A:
 		printf ("28F128J3A\n");
 		break;
@@ -236,25 +240,32 @@ static ulong flash_get_size (FPW *addr, flash_info_t *info)
 
 	switch (value) {
 
+	case (FPW) INTEL_ID_28F256J3A:
+		info->flash_id += FLASH_28F256J3A;
+		info->sector_count = 256;
+		info->size = 0x04000000;
+		info->start[0] = CFG_FLASH_BASE;
+		break;				/* => 64 MB     */
+
 	case (FPW) INTEL_ID_28F128J3A:
 		info->flash_id += FLASH_28F128J3A;
 		info->sector_count = 128;
 		info->size = 0x02000000;
-		info->start[0] = CFG_FLASH_BASE;
+		info->start[0] = CFG_FLASH_BASE + 0x02000000;
 		break;				/* => 32 MB     */
 
 	case (FPW) INTEL_ID_28F640J3A:
 		info->flash_id += FLASH_28F640J3A;
 		info->sector_count = 64;
 		info->size = 0x01000000;
-		info->start[0] = CFG_FLASH_BASE + 0x01000000;
+		info->start[0] = CFG_FLASH_BASE + 0x03000000;
 		break;				/* => 16 MB     */
 
 	case (FPW) INTEL_ID_28F320J3A:
 		info->flash_id += FLASH_28F320J3A;
 		info->sector_count = 32;
 		info->size = 0x800000;
-		info->start[0] = CFG_FLASH_BASE + 0x01800000;
+		info->start[0] = CFG_FLASH_BASE + 0x03800000;
 		break;				/* => 8 MB     */
 
 	default:
@@ -285,6 +296,7 @@ static void flash_sync_real_protect (flash_info_t * info)
 
 	switch (info->flash_id & FLASH_TYPEMASK) {
 
+	case FLASH_28F256J3A:
 	case FLASH_28F128J3A:
 	case FLASH_28F640J3A:
 	case FLASH_28F320J3A:
