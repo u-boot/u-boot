@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Allow config of GPIO direction & data registers at boot on 83xx
+  Patch by Kumar Gala, 11 Jan 2006
+
 * Enable time handling on 83xx
   Patch by Kumar Gala, 11 Jan 2006
 
