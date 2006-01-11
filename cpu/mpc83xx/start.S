@@ -426,8 +426,14 @@ init_e300_core: /* time t 10 */
 #else
 	/* Disable Wathcdog  */
 	/*-------------------*/
+	lwz r4, SWCRR(r3)
+	/* Check to see if its enabled for disabling
+	   once disabled by SW you can't re-enable */
+	andi. r4, r4, 0x4
+	beq 1f
 	xor r4, r4, r4
 	stw r4, SWCRR(r3)
+1:
 #endif /* CONFIG_WATCHDOG */
 
 	/* Initialize the Hardware Implementation-dependent Registers */
