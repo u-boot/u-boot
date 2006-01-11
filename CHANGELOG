@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Report back PCI bus when doing table based device config
+  Patch by Kumar Gala 11 Jan 2006
+
 * Added support for PCI prefetchable region and BARs
   If a host controller sets up a region as prefetchable and
   a device's BAR denotes it as prefetchable, allocate the
