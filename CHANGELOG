@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix mkimage bug with multifile images created on 64 bit systems.
+
 * Add support for 28F256J3A flah (=> 64 MB) on PM520 board
 
 * Fix compiler problem with at91rm9200dk board.
