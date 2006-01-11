@@ -529,6 +529,7 @@ extern uchar(*env_get_char) (int);
 
 #define BDM(x)	{	.name = #x, .offset = offsetof(bd_t, bi_ ##x ) }
 
+#ifdef CONFIG_OF_HAS_BD_T
 static const struct {
 	const char *name;
 	int offset;
@@ -574,19 +575,24 @@ static const struct {
 #endif
 	BDM(baudrate),
 };
+#endif
 
 void ft_setup(void *blob, int size, bd_t * bd)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-	u8 *end;
 	u32 *p;
 	int len;
 	struct ft_cxt cxt;
-	int i, k, nxt;
-	static char tmpenv[256];
-	char *s, *lval, *rval;
 	ulong clock;
-	uint32_t v;
+#if defined(CONFIG_OF_HAS_UBOOT_ENV)
+	int k, nxt;
+#endif
+#if defined(CONFIG_OF_HAS_BD_T)
+	u8 *end;
+#endif
+#if defined(CONFIG_OF_HAS_UBOOT_ENV) || defined(CONFIG_OF_HAS_BD_T)
+	int i;
+	static char tmpenv[256];
+#endif
 
 	/* disable OF tree; booting old kernel */
 	if (getenv("disable_of") != NULL) {
@@ -610,9 +616,12 @@ void ft_setup(void *blob, int size, bd_t * bd)
 	/* back into root */
 	ft_backtrack_node(&cxt);
 
+#ifdef CONFIG_OF_HAS_UBOOT_ENV
 	ft_begin_node(&cxt, "u-boot-env");
 
 	for (i = 0; env_get_char(i) != '\0'; i = nxt + 1) {
+		char *s, *lval, *rval;
+
 		for (nxt = i; env_get_char(nxt) != '\0'; ++nxt) ;
 		s = tmpenv;
 		for (k = i; k < nxt && s < &tmpenv[sizeof(tmpenv) - 1]; ++k)
@@ -629,6 +638,7 @@ void ft_setup(void *blob, int size, bd_t * bd)
 	}
 
 	ft_end_node(&cxt);
+#endif
 
 	ft_begin_node(&cxt, "chosen");
 
@@ -647,14 +657,19 @@ void ft_setup(void *blob, int size, bd_t * bd)
 	   ft_dump_blob(blob);
 	 */
 
+#ifdef CONFIG_OF_HAS_BD_T
 	/* paste the bd_t at the end of the flat tree */
 	end = (char *)blob +
 	    be32_to_cpu(((struct boot_param_header *)blob)->totalsize);
 	memcpy(end, bd, sizeof(*bd));
+#endif
 
 #ifdef CONFIG_PPC
 
+#ifdef CONFIG_OF_HAS_BD_T
 	for (i = 0; i < sizeof(bd_map)/sizeof(bd_map[0]); i++) {
+		uint32_t v;
+
 		sprintf(tmpenv, "/bd_t/%s", bd_map[i].name);
 		v = *(uint32_t *)((char *)bd + bd_map[i].offset);
 
@@ -670,6 +685,7 @@ void ft_setup(void *blob, int size, bd_t * bd)
 	p = ft_get_prop(blob, "/bd_t/ethspeed", &len);
 	if (p != NULL)
 		*p = cpu_to_be32((uint32_t) bd->bi_ethspeed);
+#endif
 
 	clock = bd->bi_intfreq;
 	p = ft_get_prop(blob, "/cpus/" OF_CPU "/clock-frequency", &len);
@@ -680,7 +696,7 @@ void ft_setup(void *blob, int size, bd_t * bd)
 	clock = OF_TBCLK;
 	p = ft_get_prop(blob, "/cpus/" OF_CPU "/timebase-frequency", &len);
 	if (p != NULL)
-		*p = cpu_to_be32(OF_TBCLK);
+		*p = cpu_to_be32(clock);
 #endif
 
 #endif				/* __powerpc__ */

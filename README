@@ -413,6 +413,16 @@ The following options need to be configured:
 		OF_CPU - The proper name of the cpus node.
 		OF_TBCLK - The timebase frequency.
 
+		CONFIG_OF_HAS_BD_T
+
+		The resulting flat device tree will have a copy of the bd_t.
+		Space should be pre-allocated in the dts for the bd_t.
+
+		CONFIG_OF_HAS_UBOOT_ENV
+		
+		The resulting flat device tree will have a copy of u-boot's
+		environment variables
+
 - Serial Ports:
 		CFG_PL010_SERIAL
 
