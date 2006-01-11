@@ -77,6 +77,7 @@ int pciauto_region_allocate(struct pci_region* res, unsigned int size, unsigned 
 void pciauto_setup_device(struct pci_controller *hose,
 			  pci_dev_t dev, int bars_num,
 			  struct pci_region *mem,
+			  struct pci_region *prefetch,
 			  struct pci_region *io)
 {
 	unsigned int bar_value, bar_response, bar_size;
@@ -111,7 +112,10 @@ void pciauto_setup_device(struct pci_controller *hose,
 				found_mem64 = 1;
 
 			bar_size = ~(bar_response & PCI_BASE_ADDRESS_MEM_MASK) + 1;
-			bar_res = mem;
+			if (prefetch && (bar_response & PCI_BASE_ADDRESS_MEM_PREFETCH))
+				bar_res = prefetch;
+			else
+				bar_res = mem;
 
 			DEBUGF("PCI Autoconfig: BAR %d, Mem, size=0x%x, ", bar_nr, bar_size);
 		}
@@ -148,6 +152,7 @@ static void pciauto_prescan_setup_bridge(struct pci_controller *hose,
 					 pci_dev_t dev, int sub_bus)
 {
 	struct pci_region *pci_mem = hose->pci_mem;
+	struct pci_region *pci_prefetch = hose->pci_prefetch;
 	struct pci_region *pci_io = hose->pci_io;
 	unsigned int cmdstat;
 
@@ -169,6 +174,21 @@ static void pciauto_prescan_setup_bridge(struct pci_controller *hose,
 		cmdstat |= PCI_COMMAND_MEMORY;
 	}
 
+	if (pci_prefetch) {
+		/* Round memory allocator to 1MB boundary */
+		pciauto_region_align(pci_prefetch, 0x100000);
+
+		/* Set up memory and I/O filter limits, assume 32-bit I/O space */
+		pci_hose_write_config_word(hose, dev, PCI_PREF_MEMORY_BASE,
+					(pci_prefetch->bus_lower & 0xfff00000) >> 16);
+
+		cmdstat |= PCI_COMMAND_MEMORY;
+	} else {
+		/* We don't support prefetchable memory for now, so disable */
+		pci_hose_write_config_word(hose, dev, PCI_PREF_MEMORY_BASE, 0x1000);
+		pci_hose_write_config_word(hose, dev, PCI_PREF_MEMORY_LIMIT, 0x1000);
+	}
+
 	if (pci_io) {
 		/* Round I/O allocator to 4KB boundary */
 		pciauto_region_align(pci_io, 0x1000);
@@ -181,10 +201,6 @@ static void pciauto_prescan_setup_bridge(struct pci_controller *hose,
 		cmdstat |= PCI_COMMAND_IO;
 	}
 
-	/* We don't support prefetchable memory for now, so disable */
-	pci_hose_write_config_word(hose, dev, PCI_PREF_MEMORY_BASE, 0x1000);
-	pci_hose_write_config_word(hose, dev, PCI_PREF_MEMORY_LIMIT, 0x1000);
-
 	/* Enable memory and I/O accesses, enable bus master */
 	pci_hose_write_config_dword(hose, dev, PCI_COMMAND, cmdstat | PCI_COMMAND_MASTER);
 }
@@ -193,6 +209,7 @@ static void pciauto_postscan_setup_bridge(struct pci_controller *hose,
 					  pci_dev_t dev, int sub_bus)
 {
 	struct pci_region *pci_mem = hose->pci_mem;
+	struct pci_region *pci_prefetch = hose->pci_prefetch;
 	struct pci_region *pci_io = hose->pci_io;
 
 	/* Configure bus number registers */
@@ -204,6 +221,14 @@ static void pciauto_postscan_setup_bridge(struct pci_controller *hose,
 
 		pci_hose_write_config_word(hose, dev, PCI_MEMORY_LIMIT,
 					(pci_mem->bus_lower-1) >> 16);
+	}
+
+	if (pci_prefetch) {
+		/* Round memory allocator to 1MB boundary */
+		pciauto_region_align(pci_prefetch, 0x100000);
+
+		pci_hose_write_config_word(hose, dev, PCI_PREF_MEMORY_LIMIT,
+					(pci_prefetch->bus_lower-1) >> 16);
 	}
 
 	if (pci_io) {
@@ -239,6 +264,11 @@ void pciauto_config_init(struct pci_controller *hose)
 			    hose->pci_mem->size < hose->regions[i].size)
 				hose->pci_mem = hose->regions + i;
 			break;
+		case (PCI_REGION_MEM | PCI_REGION_PREFETCH):
+			if (!hose->pci_prefetch ||
+			    hose->pci_prefetch->size < hose->regions[i].size)
+				hose->pci_prefetch = hose->regions + i;
+			break;
 		}
 	}
 
@@ -249,6 +279,14 @@ void pciauto_config_init(struct pci_controller *hose)
 		DEBUGF("PCI Autoconfig: Memory region: [%lx-%lx]\n",
 		    hose->pci_mem->bus_start,
 		    hose->pci_mem->bus_start + hose->pci_mem->size - 1);
+	}
+
+	if (hose->pci_prefetch) {
+		pciauto_region_init(hose->pci_prefetch);
+
+		DEBUGF("PCI Autoconfig: Prefetchable Memory region: [%lx-%lx]\n",
+		    hose->pci_prefetch->bus_start,
+		    hose->pci_prefetch->bus_start + hose->pci_prefetch->size - 1);
 	}
 
 	if (hose->pci_io) {
@@ -275,7 +313,7 @@ int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 	switch(class) {
 	case PCI_CLASS_BRIDGE_PCI:
 		hose->current_busno++;
-		pciauto_setup_device(hose, dev, 2, hose->pci_mem, hose->pci_io);
+		pciauto_setup_device(hose, dev, 2, hose->pci_mem, hose->pci_prefetch, hose->pci_io);
 
 		DEBUGF("PCI Autoconfig: Found P2P bridge, device %d\n", PCI_DEV(dev));
 
@@ -301,12 +339,12 @@ int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 			return sub_bus;
 		}
 
-		pciauto_setup_device(hose, dev, 6, hose->pci_mem, hose->pci_io);
+		pciauto_setup_device(hose, dev, 6, hose->pci_mem, hose->pci_prefetch, hose->pci_io);
 		break;
 
 	case PCI_CLASS_BRIDGE_CARDBUS:
 		/* just do a minimal setup of the bridge, let the OS take care of the rest */
-		pciauto_setup_device(hose, dev, 0, hose->pci_mem, hose->pci_io);
+		pciauto_setup_device(hose, dev, 0, hose->pci_mem, hose->pci_prefetch, hose->pci_io);
 
 		DEBUGF("PCI Autoconfig: Found P2CardBus bridge, device %d\n", PCI_DEV(dev));
 
@@ -328,11 +366,11 @@ int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 		 * the PIMMR window to be allocated (BAR0 - 1MB size)
 		 */
 		DEBUGF("PCI Autoconfig: Broken bridge found, only minimal config\n");
-		pciauto_setup_device(hose, dev, 0, hose->pci_mem, hose->pci_io);
+		pciauto_setup_device(hose, dev, 0, hose->pci_mem, hose->pci_prefetch, hose->pci_io);
 		break;
 #endif
 	default:
-		pciauto_setup_device(hose, dev, 6, hose->pci_mem, hose->pci_io);
+		pciauto_setup_device(hose, dev, 6, hose->pci_mem, hose->pci_prefetch, hose->pci_io);
 		break;
 	}
 
