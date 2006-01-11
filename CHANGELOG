@@ -2,6 +2,34 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add helper function for generic flat device tree fixups for mpc83xx
+  Patch by Kumar Gala 11 Jan 2006
+
+* Add support for passing initrd information via flat device tree
+  Patch by Kumar Gala 11 Jan 2006
+
+* Added OF_STDOUT_PATH and OF_SOC
+
+  OF_STDOUT_PATH specifies the path to the device the kernel can use
+  for console output
+
+  OF_SOC specifies the proper name of the SOC node if one exists.
+  Patch by Kumar Gala 11 Jan 2006
+
+* Allow board code to fixup the flat device tree before booting a
+  kernel
+  Patch by Kumar Gala 11 Jan 2006
+
+* Added CONFIG_ options for bd_t and env in flat dev tree
+
+	CONFIG_OF_HAS_BD_T will put a copy of the bd_t
+	into the resulting flat device tree.
+
+	CONFIG_OF_HAS_UBOOT_ENV will copy the environment
+	variables from u-boot into the flat device tree
+
+  Patch by Kumar Gala 11 Jan 2006
+
 * Report back PCI bus when doing table based device config
   Patch by Kumar Gala 11 Jan 2006
 
