@@ -63,4 +63,6 @@ void ft_dump_blob(const void *bphp);
 void ft_merge_blob(struct ft_cxt *cxt, void *blob);
 void *ft_get_prop(void *bphp, const char *propname, int *szp);
 
+void ft_board_setup(void *blob, bd_t *bd);
+
 #endif

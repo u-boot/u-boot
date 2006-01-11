@@ -698,8 +698,11 @@ void ft_setup(void *blob, int size, bd_t * bd)
 	if (p != NULL)
 		*p = cpu_to_be32(clock);
 #endif
-
 #endif				/* __powerpc__ */
+
+#ifdef CONFIG_OF_BOARD_SETUP
+	ft_board_setup(blob, bd);
+#endif
 
 	/*
 	   printf("final OF-tree\n");

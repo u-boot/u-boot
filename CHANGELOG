@@ -2,6 +2,10 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Allow board code to fixup the flat device tree before booting a
+  kernel
+  Patch by Kumar Gala 11 Jan 2006
+
 * Added CONFIG_ options for bd_t and env in flat dev tree
 
 	CONFIG_OF_HAS_BD_T will put a copy of the bd_t

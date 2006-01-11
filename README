@@ -423,6 +423,11 @@ The following options need to be configured:
 		The resulting flat device tree will have a copy of u-boot's
 		environment variables
 
+		CONFIG_OF_BOARD_SETUP
+
+		Board code has addition modification that it wants to make
+		to the flat device tree before handing it off to the kernel
+
 - Serial Ports:
 		CFG_PL010_SERIAL
 
