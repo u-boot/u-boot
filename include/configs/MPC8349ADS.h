@@ -506,6 +506,10 @@
 	HRCWH_TSEC2M_IN_GMII )
 #endif
 
+/* System IO Config */
+#define CFG_SICRH	SICRH_TSOBI1
+#define CFG_SICRL	SICRL_LDP_A
+
 #define CFG_HID0_INIT 0x000000000
 
 #define CFG_HID0_FINAL CFG_HID0_INIT

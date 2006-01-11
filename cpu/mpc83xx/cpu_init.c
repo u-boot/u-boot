@@ -63,8 +63,12 @@ void cpu_init_f (volatile immap_t * im)
 	im->sysconf.spcr |= SPCR_TBEN;
 
 	/* System General Purpose Register */
-	im->sysconf.sicrh = SICRH_TSOBI1;
-	im->sysconf.sicrl = SICRL_LDP_A;
+#ifdef CFG_SICRH
+	im->sysconf.sicrh = CFG_SICRH;
+#endif
+#ifdef CFG_SICRL
+	im->sysconf.sicrl = CFG_SICRL;
+#endif
 
 	/*
 	 * Memory Controller:
