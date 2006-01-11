@@ -645,6 +645,9 @@ void ft_setup(void *blob, int size, bd_t * bd)
 	ft_prop_str(&cxt, "name", "chosen");
 	ft_prop_str(&cxt, "bootargs", getenv("bootargs"));
 	ft_prop_int(&cxt, "linux,platform", 0x600);	/* what is this? */
+#ifdef OF_STDOUT_PATH
+	ft_prop_str(&cxt, "linux,stdout-path", OF_STDOUT_PATH);
+#endif
 
 	ft_end_node(&cxt);
 

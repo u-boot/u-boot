@@ -2,6 +2,14 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Added OF_STDOUT_PATH and OF_SOC
+
+  OF_STDOUT_PATH specifies the path to the device the kernel can use
+  for console output
+
+  OF_SOC specifies the proper name of the SOC node if one exists.
+  Patch by Kumar Gala 11 Jan 2006
+
 * Allow board code to fixup the flat device tree before booting a
   kernel
   Patch by Kumar Gala 11 Jan 2006
