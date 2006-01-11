@@ -2,6 +2,16 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Added support for PCI prefetchable region and BARs
+  If a host controller sets up a region as prefetchable and
+  a device's BAR denotes it as prefetchable, allocate the
+  BAR into the prefetch region.
+
+  If a BAR is prefetchable and no prefetchable region has
+  been setup by the controller we fall back to allocating
+  the BAR into the normally memory region.
+  Patch by Kumar Gala 11 Jan 2006
+
 * Add support for 28F256J3A flah (=> 64 MB) on PM520 board
 
 * Fix compiler problem with at91rm9200dk board.
