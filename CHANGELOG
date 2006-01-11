@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add support for passing initrd information via flat device tree
+  Patch by Kumar Gala 11 Jan 2006
+
 * Added OF_STDOUT_PATH and OF_SOC
 
   OF_STDOUT_PATH specifies the path to the device the kernel can use

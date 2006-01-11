@@ -163,7 +163,7 @@ void ft_add_rsvmap(struct ft_cxt *cxt, u64 physaddr, u64 size)
 	((u64 *) cxt->pres)[0] = cpu_to_be64(physaddr);	/* phys = 0, size = 0, terminate */
 	((u64 *) cxt->pres)[1] = cpu_to_be64(size);
 
-	cxt->pres += 18;	/* advance */
+	cxt->pres += 16;	/* advance */
 
 	((u64 *) cxt->pres)[0] = 0;	/* phys = 0, size = 0, terminate */
 	((u64 *) cxt->pres)[1] = 0;
@@ -577,7 +577,7 @@ static const struct {
 };
 #endif
 
-void ft_setup(void *blob, int size, bd_t * bd)
+void ft_setup(void *blob, int size, bd_t * bd, ulong initrd_start, ulong initrd_end)
 {
 	u32 *p;
 	int len;
@@ -602,7 +602,8 @@ void ft_setup(void *blob, int size, bd_t * bd)
 
 	ft_begin(&cxt, blob, size);
 
-	/* fs_add_rsvmap not used */
+	if (initrd_start && initrd_end)
+		ft_add_rsvmap(&cxt, initrd_start, initrd_end - initrd_start + 1);
 
 	ft_begin_tree(&cxt);
 
@@ -645,6 +646,10 @@ void ft_setup(void *blob, int size, bd_t * bd)
 	ft_prop_str(&cxt, "name", "chosen");
 	ft_prop_str(&cxt, "bootargs", getenv("bootargs"));
 	ft_prop_int(&cxt, "linux,platform", 0x600);	/* what is this? */
+	if (initrd_start && initrd_end) {
+		ft_prop_int(&cxt, "linux,initrd-start", initrd_start);
+		ft_prop_int(&cxt, "linux,initrd-end", initrd_end);
+	}
 #ifdef OF_STDOUT_PATH
 	ft_prop_str(&cxt, "linux,stdout-path", OF_STDOUT_PATH);
 #endif
