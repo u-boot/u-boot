@@ -77,6 +77,7 @@
 #define POCMR_ENABLE        0x80000000
 #define POCMR_PCI_IO        0x40000000
 #define POCMR_PREFETCH_EN   0x20000000
+#define POCMR_PCI2          0x10000000
 
 /* Soft PCI reset */
 

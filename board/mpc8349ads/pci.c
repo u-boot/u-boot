@@ -23,6 +23,7 @@
 #include <common.h>
 #include <asm/global_data.h>
 #include <pci.h>
+#include <asm/mpc8349_pci.h>
 #include <i2c.h>
 
 #ifdef CONFIG_PCI
@@ -163,7 +164,20 @@ pci_init_board(void)
 	pci_ctrl[0].gcr = 0;
 	udelay(2000);
 	pci_ctrl[0].gcr = 1;
+
+#ifdef CONFIG_MPC83XX_PCI2
+	pci_ctrl[1].gcr = 0;
 	udelay(2000);
+	pci_ctrl[1].gcr = 1;
+#endif
+
+	/* We need to wait at least a 1sec based on PCI specs */
+	{
+		int i;
+
+		for (i = 0; i < 1000; ++i)
+			udelay (1000);
+	}
 
 	/*
 	 * Configure PCI Local Access Windows
@@ -178,15 +192,20 @@ pci_init_board(void)
 	 * Configure PCI Outbound Translation Windows
 	 */
 
-	/* PCI1 mem space */
+	/* PCI1 mem space - prefetch */
 	pci_pot[0].potar = (CFG_PCI1_MEM_BASE >> 12) & POTAR_TA_MASK;
 	pci_pot[0].pobar = (CFG_PCI1_MEM_PHYS >> 12) & POBAR_BA_MASK;
-	pci_pot[0].pocmr = POCMR_EN | (POCMR_CM_512M & POCMR_CM_MASK);
+	pci_pot[0].pocmr = POCMR_EN | POCMR_PREFETCH_EN | (POCMR_CM_256M & POCMR_CM_MASK);
 
 	/* PCI1 IO space */
 	pci_pot[1].potar = (CFG_PCI1_IO_BASE >> 12) & POTAR_TA_MASK;
 	pci_pot[1].pobar = (CFG_PCI1_IO_PHYS >> 12) & POBAR_BA_MASK;
 	pci_pot[1].pocmr = POCMR_EN | POCMR_IO | (POCMR_CM_16M & POCMR_CM_MASK);
+
+	/* PCI1 mmio - non-prefetch mem space */
+	pci_pot[2].potar = (CFG_PCI1_MMIO_BASE >> 12) & POTAR_TA_MASK;
+	pci_pot[2].pobar = (CFG_PCI1_MMIO_PHYS >> 12) & POBAR_BA_MASK;
+	pci_pot[2].pocmr = POCMR_EN | (POCMR_CM_256M & POCMR_CM_MASK);
 
 	/*
 	 * Configure PCI Inbound Translation Windows
@@ -197,33 +216,40 @@ pci_init_board(void)
 	pci_ctrl[0].pitar1 = 0x0;
 	pci_ctrl[0].pibar1 = 0x0;
 	pci_ctrl[0].piebar1 = 0x0;
-	pci_ctrl[0].piwar1 = PIWAR_EN | PIWAR_PF | PIWAR_RTT_SNOOP | PIWAR_WTT_SNOOP | PIWAR_IWS_2G;
+	pci_ctrl[0].piwar1 = PIWAR_EN | PIWAR_PF | PIWAR_RTT_SNOOP | PIWAR_WTT_SNOOP | (__ilog2(gd->ram_size) - 1);
 
 	hose->first_busno = 0;
 	hose->last_busno = 0xff;
 
-	/* PCI memory space */
+	/* PCI memory prefetch space */
 	pci_set_region(hose->regions + 0,
 		       CFG_PCI1_MEM_BASE,
 		       CFG_PCI1_MEM_PHYS,
 		       CFG_PCI1_MEM_SIZE,
+		       PCI_REGION_MEM|PCI_REGION_PREFETCH);
+
+	/* PCI memory space */
+	pci_set_region(hose->regions + 1,
+		       CFG_PCI1_MMIO_BASE,
+		       CFG_PCI1_MMIO_PHYS,
+		       CFG_PCI1_MMIO_SIZE,
 		       PCI_REGION_MEM);
 
 	/* PCI IO space */
-	pci_set_region(hose->regions + 1,
+	pci_set_region(hose->regions + 2,
 		       CFG_PCI1_IO_BASE,
 		       CFG_PCI1_IO_PHYS,
 		       CFG_PCI1_IO_SIZE,
 		       PCI_REGION_IO);
 
 	/* System memory space */
-	pci_set_region(hose->regions + 2,
+	pci_set_region(hose->regions + 3,
 		       CONFIG_PCI_SYS_MEM_BUS,
                        CONFIG_PCI_SYS_MEM_PHYS,
                        gd->ram_size,
                        PCI_REGION_MEM | PCI_REGION_MEMORY);
 
-	hose->region_count = 3;
+	hose->region_count = 4;
 
 	pci_setup_indirect(hose,
 			   (CFG_IMMRBAR+0x8300),
@@ -248,6 +274,8 @@ pci_init_board(void)
 					0xffff);
 	pci_hose_write_config_byte(hose, PCI_BDF(0,0,0), PCI_LATENCY_TIMER,
 					0x80);
+	pci_hose_write_config_byte(hose, PCI_BDF(0,0,0), PCI_CACHE_LINE_SIZE,
+					0x08);
 
 #ifdef CONFIG_PCI_SCAN_SHOW
 	printf("PCI:   Bus Dev VenId DevId Class Int\n");
@@ -256,5 +284,104 @@ pci_init_board(void)
 	 * Hose scan.
 	 */
 	hose->last_busno = pci_hose_scan(hose);
+
+#ifdef CONFIG_MPC83XX_PCI2
+	hose = &pci_hose[1];
+
+	/*
+	 * Configure PCI Outbound Translation Windows
+	 */
+
+	/* PCI2 mem space - prefetch */
+	pci_pot[3].potar = (CFG_PCI2_MEM_BASE >> 12) & POTAR_TA_MASK;
+	pci_pot[3].pobar = (CFG_PCI2_MEM_PHYS >> 12) & POBAR_BA_MASK;
+	pci_pot[3].pocmr = POCMR_EN | POCMR_PCI2 | POCMR_PREFETCH_EN | (POCMR_CM_256M & POCMR_CM_MASK);
+
+	/* PCI2 IO space */
+	pci_pot[4].potar = (CFG_PCI2_IO_BASE >> 12) & POTAR_TA_MASK;
+	pci_pot[4].pobar = (CFG_PCI2_IO_PHYS >> 12) & POBAR_BA_MASK;
+	pci_pot[4].pocmr = POCMR_EN | POCMR_PCI2 | POCMR_IO | (POCMR_CM_16M & POCMR_CM_MASK);
+
+	/* PCI2 mmio - non-prefetch mem space */
+	pci_pot[5].potar = (CFG_PCI2_MMIO_BASE >> 12) & POTAR_TA_MASK;
+	pci_pot[5].pobar = (CFG_PCI2_MMIO_PHYS >> 12) & POBAR_BA_MASK;
+	pci_pot[5].pocmr = POCMR_EN | POCMR_PCI2 | (POCMR_CM_256M & POCMR_CM_MASK);
+
+	/*
+	 * Configure PCI Inbound Translation Windows
+	 */
+
+	/* we need RAM mapped to PCI space for the devices to
+	 * access main memory */
+	pci_ctrl[1].pitar1 = 0x0;
+	pci_ctrl[1].pibar1 = 0x0;
+	pci_ctrl[1].piebar1 = 0x0;
+	pci_ctrl[1].piwar1 = PIWAR_EN | PIWAR_PF | PIWAR_RTT_SNOOP | PIWAR_WTT_SNOOP | (__ilog2(gd->ram_size) - 1);
+
+	hose->first_busno = pci_hose[0].last_busno + 1;
+	hose->last_busno = 0xff;
+
+	/* PCI memory prefetch space */
+	pci_set_region(hose->regions + 0,
+		       CFG_PCI2_MEM_BASE,
+		       CFG_PCI2_MEM_PHYS,
+		       CFG_PCI2_MEM_SIZE,
+		       PCI_REGION_MEM|PCI_REGION_PREFETCH);
+
+	/* PCI memory space */
+	pci_set_region(hose->regions + 1,
+		       CFG_PCI2_MMIO_BASE,
+		       CFG_PCI2_MMIO_PHYS,
+		       CFG_PCI2_MMIO_SIZE,
+		       PCI_REGION_MEM);
+
+	/* PCI IO space */
+	pci_set_region(hose->regions + 2,
+		       CFG_PCI2_IO_BASE,
+		       CFG_PCI2_IO_PHYS,
+		       CFG_PCI2_IO_SIZE,
+		       PCI_REGION_IO);
+
+	/* System memory space */
+	pci_set_region(hose->regions + 3,
+		       CONFIG_PCI_SYS_MEM_BUS,
+                       CONFIG_PCI_SYS_MEM_PHYS,
+                       gd->ram_size,
+                       PCI_REGION_MEM | PCI_REGION_MEMORY);
+
+	hose->region_count = 4;
+
+	pci_setup_indirect(hose,
+			   (CFG_IMMRBAR+0x8380),
+			   (CFG_IMMRBAR+0x8384));
+
+	pci_register_hose(hose);
+
+	/*
+	 * Write to Command register
+	 */
+	reg16 = 0xff;
+	pci_hose_read_config_word (hose, PCI_BDF(0,0,0), PCI_COMMAND,
+					&reg16);
+	reg16 |= PCI_COMMAND_SERR | PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY;
+	pci_hose_write_config_word(hose, PCI_BDF(0,0,0), PCI_COMMAND,
+					reg16);
+
+	/*
+	 * Clear non-reserved bits in status register.
+	 */
+	pci_hose_write_config_word(hose, PCI_BDF(0,0,0), PCI_STATUS,
+					0xffff);
+	pci_hose_write_config_byte(hose, PCI_BDF(0,0,0), PCI_LATENCY_TIMER,
+					0x80);
+	pci_hose_write_config_byte(hose, PCI_BDF(0,0,0), PCI_CACHE_LINE_SIZE,
+					0x08);
+
+	/*
+	 * Hose scan.
+	 */
+	hose->last_busno = pci_hose_scan(hose);
+#endif
+
 }
 #endif /* CONFIG_PCI */
