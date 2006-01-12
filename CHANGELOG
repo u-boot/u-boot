@@ -2,6 +2,11 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fixed PCI indirect config ops to handle multiple PCI controllers
+  We need to adjust the bus number we are trying to access based
+  on which PCI controller its on
+  Patch by Kumar Gala 12 Jan 2006
+
 * Add helper function for generic flat device tree fixups for mpc83xx
   Patch by Kumar Gala 11 Jan 2006
 
