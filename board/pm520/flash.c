@@ -242,10 +242,11 @@ static ulong flash_get_size (FPW *addr, flash_info_t *info)
 
 	case (FPW) INTEL_ID_28F256J3A:
 		info->flash_id += FLASH_28F256J3A;
-		info->sector_count = 256;
-		info->size = 0x04000000;
-		info->start[0] = CFG_FLASH_BASE;
-		break;				/* => 64 MB     */
+		/* In U-Boot we support only 32 MB (no bank-switching) */
+		info->sector_count = 256 / 2;
+		info->size =  0x04000000 / 2;
+		info->start[0] = CFG_FLASH_BASE + 0x02000000;
+		break;				/* => 32 MB     */
 
 	case (FPW) INTEL_ID_28F128J3A:
 		info->flash_id += FLASH_28F128J3A;
