@@ -136,6 +136,7 @@ pci_init_board(void)
 	volatile pciconf8349_t *	pci_conf;
 	u16 reg16;
 	u32 reg32;
+	u32 dev;
 	struct	pci_controller * hose;
 
 	immr = (immap_t *)CFG_IMMRBAR;
@@ -200,7 +201,7 @@ pci_init_board(void)
 	/* PCI1 IO space */
 	pci_pot[1].potar = (CFG_PCI1_IO_BASE >> 12) & POTAR_TA_MASK;
 	pci_pot[1].pobar = (CFG_PCI1_IO_PHYS >> 12) & POBAR_BA_MASK;
-	pci_pot[1].pocmr = POCMR_EN | POCMR_IO | (POCMR_CM_16M & POCMR_CM_MASK);
+	pci_pot[1].pocmr = POCMR_EN | POCMR_IO | (POCMR_CM_1M & POCMR_CM_MASK);
 
 	/* PCI1 mmio - non-prefetch mem space */
 	pci_pot[2].potar = (CFG_PCI1_MMIO_BASE >> 12) & POTAR_TA_MASK;
@@ -261,21 +262,17 @@ pci_init_board(void)
 	 * Write to Command register
 	 */
 	reg16 = 0xff;
-	pci_hose_read_config_word (hose, PCI_BDF(0,0,0), PCI_COMMAND,
-					&reg16);
+	dev = PCI_BDF(hose->first_busno, 0, 0);
+	pci_hose_read_config_word (hose, dev, PCI_COMMAND, &reg16);
 	reg16 |= PCI_COMMAND_SERR | PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY;
-	pci_hose_write_config_word(hose, PCI_BDF(0,0,0), PCI_COMMAND,
-					reg16);
+	pci_hose_write_config_word(hose, dev, PCI_COMMAND, reg16);
 
 	/*
 	 * Clear non-reserved bits in status register.
 	 */
-	pci_hose_write_config_word(hose, PCI_BDF(0,0,0), PCI_STATUS,
-					0xffff);
-	pci_hose_write_config_byte(hose, PCI_BDF(0,0,0), PCI_LATENCY_TIMER,
-					0x80);
-	pci_hose_write_config_byte(hose, PCI_BDF(0,0,0), PCI_CACHE_LINE_SIZE,
-					0x08);
+	pci_hose_write_config_word(hose, dev, PCI_STATUS, 0xffff);
+	pci_hose_write_config_byte(hose, dev, PCI_LATENCY_TIMER, 0x80);
+	pci_hose_write_config_byte(hose, dev, PCI_CACHE_LINE_SIZE, 0x08);
 
 #ifdef CONFIG_PCI_SCAN_SHOW
 	printf("PCI:   Bus Dev VenId DevId Class Int\n");
@@ -300,7 +297,7 @@ pci_init_board(void)
 	/* PCI2 IO space */
 	pci_pot[4].potar = (CFG_PCI2_IO_BASE >> 12) & POTAR_TA_MASK;
 	pci_pot[4].pobar = (CFG_PCI2_IO_PHYS >> 12) & POBAR_BA_MASK;
-	pci_pot[4].pocmr = POCMR_EN | POCMR_PCI2 | POCMR_IO | (POCMR_CM_16M & POCMR_CM_MASK);
+	pci_pot[4].pocmr = POCMR_EN | POCMR_PCI2 | POCMR_IO | (POCMR_CM_1M & POCMR_CM_MASK);
 
 	/* PCI2 mmio - non-prefetch mem space */
 	pci_pot[5].potar = (CFG_PCI2_MMIO_BASE >> 12) & POTAR_TA_MASK;
@@ -361,21 +358,17 @@ pci_init_board(void)
 	 * Write to Command register
 	 */
 	reg16 = 0xff;
-	pci_hose_read_config_word (hose, PCI_BDF(0,0,0), PCI_COMMAND,
-					&reg16);
+	dev = PCI_BDF(hose->first_busno, 0, 0);
+	pci_hose_read_config_word (hose, dev, PCI_COMMAND, &reg16);
 	reg16 |= PCI_COMMAND_SERR | PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY;
-	pci_hose_write_config_word(hose, PCI_BDF(0,0,0), PCI_COMMAND,
-					reg16);
+	pci_hose_write_config_word(hose, dev, PCI_COMMAND, reg16);
 
 	/*
 	 * Clear non-reserved bits in status register.
 	 */
-	pci_hose_write_config_word(hose, PCI_BDF(0,0,0), PCI_STATUS,
-					0xffff);
-	pci_hose_write_config_byte(hose, PCI_BDF(0,0,0), PCI_LATENCY_TIMER,
-					0x80);
-	pci_hose_write_config_byte(hose, PCI_BDF(0,0,0), PCI_CACHE_LINE_SIZE,
-					0x08);
+	pci_hose_write_config_word(hose, dev, PCI_STATUS, 0xffff);
+	pci_hose_write_config_byte(hose, dev, PCI_LATENCY_TIMER, 0x80);
+	pci_hose_write_config_byte(hose, dev, PCI_CACHE_LINE_SIZE, 0x08);
 
 	/*
 	 * Hose scan.
