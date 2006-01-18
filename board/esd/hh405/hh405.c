@@ -590,7 +590,7 @@ int checkboard (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
-	unsigned char str[64];
+	char str[64];
 	int i = getenv_r ("serial#", str, sizeof(str));
 
 	puts ("Board: ");

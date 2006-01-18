@@ -114,7 +114,7 @@ int misc_init_r (void)
 
 int checkboard (void)
 {
-	unsigned char str[64];
+	char str[64];
 	int flashcnt;
 	int delay;
 	volatile unsigned char *led_reg = (unsigned char *)((ulong)CFG_PLD_BASE + 0x1000);

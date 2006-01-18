@@ -97,7 +97,7 @@ int misc_init_r (void)
 
 int checkboard (void)
 {
-	unsigned char str[64];
+	char str[64];
 	int i = getenv_r ("serial#", str, sizeof(str));
 	int flashcnt;
 	int delay;
