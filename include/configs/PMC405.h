@@ -53,9 +53,15 @@
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
+#define CONFIG_NET_MULTI	1
+#undef  CONFIG_HAS_ETH1
+
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_PHY_ADDR		0	/* PHY address			*/
 #define CONFIG_LXT971_NO_SLEEP  1       /* disable sleep mode in LXT971 */
+#define CONFIG_RESET_PHY_R      1       /* use reset_phy() to disable phy sleep mode */
+
+#define CONFIG_NETCONSOLE		/* include NetConsole support	*/
 
 #define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
 				CFG_CMD_BSP	| \
@@ -154,15 +160,24 @@
 #define CONFIG_PCI_BOOTDELAY    0       /* enable pci bootdelay variable*/
 
 #define CFG_PCI_SUBSYS_VENDORID 0x12FE  /* PCI Vendor ID: esd gmbh      */
-#define CFG_PCI_SUBSYS_DEVICEID 0x0408  /* PCI Device ID: PMC-405       */
+#define CFG_PCI_SUBSYS_DEVICEID_NONMONARCH 0x0408  /* PCI Device ID: Non-Monarch */
+#define CFG_PCI_SUBSYS_DEVICEID_MONARCH 0x0409     /* PCI Device ID: Monarch */
+#define CFG_PCI_SUBSYS_DEVICEID pmc405_pci_subsys_deviceid()
+
 #define CFG_PCI_CLASSCODE       0x0b20  /* PCI Class Code: Processor/PPC*/
-#define CFG_PCI_PTM1LA  0x00000000      /* point to sdram               */
-#define CFG_PCI_PTM1MS  0xfc000001      /* 64MB, enable hard-wired to 1 */
+
+#define CFG_PCI_PTM1LA  (bd->bi_memstart) /* point to sdram               */
+#define CFG_PCI_PTM1MS  (~(bd->bi_memsize - 1) | 1) /* memsize, enable hard-wired to 1 */
 #define CFG_PCI_PTM1PCI 0x00000000      /* Host: use this pci address   */
+#if 1
+#define CFG_PCI_PTM2LA	0xef000000	/* point to internal regs       */
+#define CFG_PCI_PTM2MS  0xff000001      /* 16MB, enable                 */
+#define CFG_PCI_PTM2PCI 0x00000000      /* Host: use this pci address   */
+#else /* old mapping */
 #define CFG_PCI_PTM2LA  0xffc00000      /* point to flash               */
 #define CFG_PCI_PTM2MS  0xffc00001      /* 4MB, enable                  */
 #define CFG_PCI_PTM2PCI 0x04000000      /* Host: use this pci address   */
-
+#endif
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration
  * (Set up by the startup code)
@@ -259,7 +274,7 @@
 #define FLASH1_BA	0xFE000000	    /* FLASH 1 Base Address		*/
 #define CAN_BA		0xF0000000	    /* CAN Base Address			*/
 #define RTC_BA		0xF0000500	    /* RTC Base Address			*/
-#define CF_BA		0xF0100000	    /* CompactFlash Base Address	*/
+#define NVRAM_BA        0xF0200000          /* NVRAM Base Address               */
 
 /* Memory Bank 0 (Flash Bank 0) initialization					*/
 #define CFG_EBC_PB0AP	0x92015480
@@ -273,9 +288,11 @@
 #define CFG_EBC_PB2AP	0x03000440   /* TWT=5,TH=2,CSN=0,OEN=0,WBN=0,WBF=0      */
 #define CFG_EBC_PB2CR	CAN_BA | 0x18000    /* BAS=0xF00,BS=1MB,BU=R/W,BW=8bit	*/
 
-/* Memory Bank 3 (CompactFlash IDE, FPGA internal) initialization		*/
-#define CFG_EBC_PB3AP	0x010059C0   /* BWT=2,WBN=1,WBF=1,TH=1,RE=1,SOR=1,BEM=1 */
-#define CFG_EBC_PB3CR	CF_BA | 0x1A000	    /* BAS=0xF01,BS=1MB,BU=R/W,BW=16bit */
+/* Memory Bank 3 -> unused */
+
+/* Memory Bank 4 (NVRAM) initialization					*/
+#define CFG_EBC_PB4AP	0x03000440   /* TWT=5,TH=2,CSN=0,OEN=0,WBN=0,WBF=0      */
+#define CFG_EBC_PB4CR	NVRAM_BA | 0x18000    /* BAS=0xF00,BS=1MB,BU=R/W,BW=8bit	*/
 
 /*-----------------------------------------------------------------------
  * FPGA stuff
@@ -291,6 +308,15 @@
 #define CFG_FPGA_DONE		0x00008000  /* JTAG TDI->TDO pin (ppc input) */
 
 #define CFG_VXWORKS_MAC_PTR	0x00000000	/* Pass Ethernet MAC to VxWorks */
+
+/*-----------------------------------------------------------------------
+ * GPIOs
+ */
+#define CFG_NONMONARCH		(0x80000000 >> 14)   /* GPIO24 */
+#define CFG_XEREADY		(0x80000000 >> 15)   /* GPIO15 */
+#define CFG_INTA_FAKE		(0x80000000 >> 19)   /* GPIO19 */
+#define CFG_SELF_RST		(0x80000000 >> 21)   /* GPIO21 */
+#define CFG_REV1_2		(0x80000000 >> 23)   /* GPIO23 */
 
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in data cache)

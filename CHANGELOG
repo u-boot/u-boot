@@ -2,6 +2,11 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* PMC405 and CPCI405: Moved configuration of pci resources
+  into config file.
+  PMC405 and CPCI2DP: Added firmware download and booting via pci.
+  Patch by Matthias Fuchs, 20 Dec 2005
+
 * Fix 28F256J3A support on PM520 board
   (without bank-switching only 32 MB can be accessed)
 

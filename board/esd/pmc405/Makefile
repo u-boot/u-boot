@@ -30,7 +30,7 @@ CPLD    = ../common/xilinx_jtag/lenval.o \
 	  ../common/xilinx_jtag/micro.o \
 	  ../common/xilinx_jtag/ports.o
 
-OBJS	= $(BOARD).o ../common/misc.o $(CPLD)
+OBJS	= $(BOARD).o ../common/misc.o ../common/cmd_loadpci.o $(CPLD)
 
 $(LIB):	$(OBJS) $(SOBJS)
 	$(AR) crv $@ $(OBJS)
