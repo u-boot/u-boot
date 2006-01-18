@@ -70,9 +70,11 @@
 #define CONFIG_IDENT_STRING	"Marvell 64360 + IBM750FX"
 
 /*#define CFG_HUSH_PARSER*/
-#undef CFG_HUSH_PARSER
+#define CFG_HUSH_PARSER
 
 #define CFG_PROMPT_HUSH_PS2	"> "
+
+#define CFG_AUTO_COMPLETE 1
 
 /* Define which ETH port will be used for connecting the network */
 #define CFG_ETH_PORT		ETH_0
@@ -154,6 +156,18 @@
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
+
+#define CONFIG_USE_CPCIDVI
+
+#ifdef  CONFIG_USE_CPCIDVI
+#define CONFIG_VIDEO
+#define CONFIG_VIDEO_CT69000
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VIDEO_SW_CURSOR
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_I8042_KBD
+#define CFG_ISA_IO 0
+#endif
 
 /*
  * Miscellaneous configurable options
@@ -400,6 +414,8 @@
 #define CFG_PCI0_IO_SPACE_PCI	0x00000000
 #define CFG_PCI1_IO_SPACE	(CFG_PCI1_IO_BASE)
 #define CFG_PCI1_IO_SPACE_PCI	0x00000000
+
+#define CFG_ISA_IO_BASE_ADDRESS (CFG_PCI0_IO_BASE)
 
 #if defined (CONFIG_750CX)
 #define CFG_PCI_IDSEL 0x0

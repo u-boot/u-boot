@@ -29,6 +29,14 @@
 
 #ifdef CONFIG_I8042_KBD
 
+#ifdef CONFIG_USE_CPCIDVI
+extern u8  gt_cpcidvi_in8(u32 offset);
+extern void gt_cpcidvi_out8(u32 offset, u8 data);
+
+#define in8(a)     gt_cpcidvi_in8(a)
+#define out8(a, b) gt_cpcidvi_out8(a,b)
+#endif
+
 #include <i8042.h>
 
 /* defines */
@@ -318,6 +326,13 @@ int i8042_kbd_init (void)
     int keymap, try;
     char *penv;
 
+#ifdef CONFIG_USE_CPCIDVI
+    if ((penv = getenv ("console")) != NULL) {
+            if (strncmp (penv, "serial", 7) == 0) {
+	            return -1;
+	    }
+    }
+#endif
     /* Init keyboard device (default US layout) */
     keymap = KBD_US;
     if ((penv = getenv ("keymap")) != NULL)
@@ -633,7 +648,11 @@ static int kbd_reset (void)
     if (kbd_input_empty() == 0)
 	return -1;
 
+#ifdef CONFIG_USE_CPCIDVI
+    out8 (I8042_COMMAND_REG, 0x60);
+#else
     out8 (I8042_DATA_REG, 0x60);
+#endif
 
     if (kbd_input_empty() == 0)
 	return -1;
