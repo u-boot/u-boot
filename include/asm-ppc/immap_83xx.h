@@ -71,8 +71,8 @@ typedef struct sysconf8349 {
 			| SPCR_TSEC2DP | SPCR_TSEC2BDP | SPCR_TSEC2EP)
 	u32 sicrl; /* System General Purpose Register Low */
 #define SICRL_LDP_A   0x80000000
-#define SICRL_USB0    0x40000000
-#define SICRL_USB1    0x20000000
+#define SICRL_USB1    0x40000000
+#define SICRL_USB0    0x20000000
 #define SICRL_UART    0x0C000000
 #define SICRL_GPIO1_A 0x02000000
 #define SICRL_GPIO1_B 0x01000000
