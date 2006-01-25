@@ -91,66 +91,59 @@ void cpu_init_f (volatile immap_t * im)
 #error 	CFG_BR0_PRELIM, CFG_OR0_PRELIM, CFG_LBLAWBAR0_PRELIM & CFG_LBLAWAR0_PRELIM must be defined
 #endif
 
-#if defined(CFG_BR1_PRELIM)  \
-	&& defined(CFG_OR1_PRELIM) \
-	&& defined(CFG_LBLAWBAR1_PRELIM) \
-	&& defined(CFG_LBLAWAR1_PRELIM)
+#if defined(CFG_BR1_PRELIM) && defined(CFG_OR1_PRELIM)
 	im->lbus.bank[1].br = CFG_BR1_PRELIM;
 	im->lbus.bank[1].or = CFG_OR1_PRELIM;
+#endif
+#if defined(CFG_LBLAWBAR1_PRELIM) && defined(CFG_LBLAWAR1_PRELIM)
 	im->sysconf.lblaw[1].bar = CFG_LBLAWBAR1_PRELIM;
 	im->sysconf.lblaw[1].ar = CFG_LBLAWAR1_PRELIM;
 #endif
-#if defined(CFG_BR2_PRELIM)  \
-	&& defined(CFG_OR2_PRELIM) \
-	&& defined(CFG_LBLAWBAR2_PRELIM) \
-	&& defined(CFG_LBLAWAR2_PRELIM)
+#if defined(CFG_BR2_PRELIM) && defined(CFG_OR2_PRELIM)
 	im->lbus.bank[2].br = CFG_BR2_PRELIM;
 	im->lbus.bank[2].or = CFG_OR2_PRELIM;
+#endif
+#if defined(CFG_LBLAWBAR2_PRELIM) && defined(CFG_LBLAWAR2_PRELIM)
 	im->sysconf.lblaw[2].bar = CFG_LBLAWBAR2_PRELIM;
 	im->sysconf.lblaw[2].ar = CFG_LBLAWAR2_PRELIM;
 #endif
-#if defined(CFG_BR3_PRELIM)  \
-	&& defined(CFG_OR3_PRELIM) \
-	&& defined(CFG_LBLAWBAR3_PRELIM) \
-	&& defined(CFG_LBLAWAR3_PRELIM)
+#if defined(CFG_BR3_PRELIM) && defined(CFG_OR3_PRELIM)
 	im->lbus.bank[3].br = CFG_BR3_PRELIM;
 	im->lbus.bank[3].or = CFG_OR3_PRELIM;
+#endif
+#if defined(CFG_LBLAWBAR3_PRELIM) && defined(CFG_LBLAWAR3_PRELIM)
 	im->sysconf.lblaw[3].bar = CFG_LBLAWBAR3_PRELIM;
 	im->sysconf.lblaw[3].ar = CFG_LBLAWAR3_PRELIM;
 #endif
-#if defined(CFG_BR4_PRELIM)  \
-	&& defined(CFG_OR4_PRELIM) \
-	&& defined(CFG_LBLAWBAR4_PRELIM) \
-	&& defined(CFG_LBLAWAR4_PRELIM)
+#if defined(CFG_BR4_PRELIM) && defined(CFG_OR4_PRELIM)
 	im->lbus.bank[4].br = CFG_BR4_PRELIM;
 	im->lbus.bank[4].or = CFG_OR4_PRELIM;
+#endif
+#if defined(CFG_LBLAWBAR4_PRELIM) && defined(CFG_LBLAWAR4_PRELIM)
 	im->sysconf.lblaw[4].bar = CFG_LBLAWBAR4_PRELIM;
 	im->sysconf.lblaw[4].ar = CFG_LBLAWAR4_PRELIM;
 #endif
-#if defined(CFG_BR5_PRELIM)  \
-	&& defined(CFG_OR5_PRELIM) \
-	&& defined(CFG_LBLAWBAR5_PRELIM) \
-	&& defined(CFG_LBLAWAR5_PRELIM)
+#if defined(CFG_BR5_PRELIM) && defined(CFG_OR5_PRELIM)
 	im->lbus.bank[5].br = CFG_BR5_PRELIM;
 	im->lbus.bank[5].or = CFG_OR5_PRELIM;
+#endif
+#if defined(CFG_LBLAWBAR5_PRELIM) && defined(CFG_LBLAWAR5_PRELIM)
 	im->sysconf.lblaw[5].bar = CFG_LBLAWBAR5_PRELIM;
 	im->sysconf.lblaw[5].ar = CFG_LBLAWAR5_PRELIM;
 #endif
-#if defined(CFG_BR6_PRELIM)  \
-	&& defined(CFG_OR6_PRELIM) \
-	&& defined(CFG_LBLAWBAR6_PRELIM) \
-	&& defined(CFG_LBLAWAR6_PRELIM)
+#if defined(CFG_BR6_PRELIM) && defined(CFG_OR6_PRELIM)
 	im->lbus.bank[6].br = CFG_BR6_PRELIM;
 	im->lbus.bank[6].or = CFG_OR6_PRELIM;
+#endif
+#if defined(CFG_LBLAWBAR6_PRELIM) && defined(CFG_LBLAWAR6_PRELIM)
 	im->sysconf.lblaw[6].bar = CFG_LBLAWBAR6_PRELIM;
 	im->sysconf.lblaw[6].ar = CFG_LBLAWAR6_PRELIM;
 #endif
-#if defined(CFG_BR7_PRELIM)  \
-	&& defined(CFG_OR7_PRELIM) \
-	&& defined(CFG_LBLAWBAR7_PRELIM) \
-	&& defined(CFG_LBLAWAR7_PRELIM)
+#if defined(CFG_BR7_PRELIM) && defined(CFG_OR7_PRELIM)
 	im->lbus.bank[7].br = CFG_BR7_PRELIM;
 	im->lbus.bank[7].or = CFG_OR7_PRELIM;
+#endif
+#if defined(CFG_LBLAWBAR7_PRELIM) && defined(CFG_LBLAWAR7_PRELIM)
 	im->sysconf.lblaw[7].bar = CFG_LBLAWBAR7_PRELIM;
 	im->sysconf.lblaw[7].ar = CFG_LBLAWAR7_PRELIM;
 #endif
