@@ -27,6 +27,11 @@
 #include <watchdog.h>
 #include <asm/processor.h>
 
+#ifdef	CONFIG_M5271
+#include <asm/m5271.h>
+#include <asm/immap_5271.h>
+#endif
+
 #ifdef	CONFIG_M5272
 #include <asm/m5272.h>
 #include <asm/immap_5272.h>
@@ -171,7 +176,7 @@ int interrupt_init (void)
 }
 #endif
 
-#ifdef	CONFIG_M5282
+#if defined(CONFIG_M5282) || defined(CONFIG_M5271)
 int interrupt_init (void)
 {
 	return 0;

@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add support for Freescale M5271 processor
+  Patch by Zachary Landau, 26 Jan 2006
+
 * Fix 28F256J3A support on PM520 board
   (without bank-switching only 32 MB can be accessed)
 

@@ -25,6 +25,11 @@
 #include <watchdog.h>
 #include <command.h>
 
+#ifdef  CONFIG_M5271
+#include <asm/immap_5271.h>
+#include <asm/m5271.h>
+#endif
+
 #ifdef	CONFIG_M5272
 #include <asm/immap_5272.h>
 #include <asm/m5272.h>
@@ -38,6 +43,41 @@
 #include <asm/m5249.h>
 #endif
 
+#ifdef	CONFIG_M5271
+int checkcpu (void)
+{
+	puts ("CPU:   MOTOROLA Coldfire MCF5271\n");
+	return 0;
+}
+
+int do_reset (cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[]) {
+	mbar_writeByte(MCF_RCM_RCR,
+			MCF_RCM_RCR_SOFTRST | MCF_RCM_RCR_FRCRSTOUT);
+	return 0;
+};
+
+#if defined(CONFIG_WATCHDOG)
+void watchdog_reset (void)
+{
+	mbar_writeShort(MCF_WTM_WSR, 0x5555);
+	mbar_writeShort(MCF_WTM_WSR, 0xAAAA);
+}
+
+int watchdog_disable (void)
+{
+	mbar_writeShort(MCF_WTM_WCR, 0);
+	return (0);
+}
+
+int watchdog_init (void)
+{
+	mbar_writeShort(MCF_WTM_WCNTR, CONFIG_WATCHDOG_TIMEOUT);
+	mbar_writeShort(MCF_WTM_WCR, MCF_WTM_WCR_EN);
+	return (0);
+}
+#endif /* #ifdef CONFIG_WATCHDOG */
+
+#endif
 
 #ifdef	CONFIG_M5272
 int do_reset (cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[]) {
