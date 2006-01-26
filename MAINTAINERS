@@ -534,6 +534,10 @@ Matthias Fuchs <matthias.fuchs@esd-electronics.com>
 
 	TASREG			MCF5249
 
+Zachary P. Landau <zachary.landau@labxtechnologies.com>
+
+	r5200			mcf52x2
+
 #########################################################################
 # End of MAINTAINERS list						#
 #########################################################################
