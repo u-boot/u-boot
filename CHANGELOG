@@ -2,6 +2,15 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Cleanup U-Boot boot messages on ARM.
+
+  To match the U-Boot user interface on ARM platforms to the U-Boot
+  standard (as on PPC platforms), some messages with debug character
+  are removed from the default U-Boot build.
+  Enable DEBUG for lib_arm/board.c to enable debug messages.
+  New CONFIG_DISPLAY_CPUINFO and CONFIG_DISPLAY_BOARDINFO options.
+  Patch  by Stefan Roese, 24 Jan 2006
+
 * Fix various compiler warnings on ppc4xx builds (ELDK 4.0)
   Patch by Stefan Roese, 18 Jan 2006
 
