@@ -190,10 +190,10 @@ cpuspeed:	.word	CFG_CPUSPEED
 #endif
 
 
-	/* RS: ???							    */
-	.macro CPWAIT
-	mrc  p15,0,r0,c2,c0,0
-	mov  r0,r0
+	/* takes care the CP15 update has taken place */
+	.macro CPWAIT reg
+	mrc  p15,0,\reg,c2,c0,0
+	mov  \reg,\reg
 	sub  pc,pc,#4
 	.endm
 
@@ -201,13 +201,28 @@ cpuspeed:	.word	CFG_CPUSPEED
 cpu_init_crit:
 
 	/* mask all IRQs						    */
+#ifndef CONFIG_CPU_MONAHANS
+	
 	ldr	r0, IC_BASE
 	mov	r1, #0x00
 	str	r1, [r0, #ICMR]
+#else
+	/* Step 1 - Enable CP6 permission */
+        mrc     p15, 0, r1, c15, c1, 0  @ read CPAR
+        orr     r1, r1, #0x40
+	        mcr     p15, 0, r1, c15, c1, 0
+        CPWAIT  r1
 
-#if defined(CFG_CPUSPEED)
+        /* Step 2 - Mask ICMR & ICMR2 */
+        mov     r1, #0
+        mcr     p6, 0, r1, c1, c0, 0    @ ICMR
+	mcr     p6, 0, r1, c7, c0, 0    @ ICMR2
+#endif
 
-	/* set clock speed */
+#ifndef CONFIG_CPU_MONAHANS
+#ifdef CFG_CPUSPEED
+	
+	/* set clock speed tbd@mk: required for monahans? */
 	ldr	r0, CC_BASE
 	ldr	r1, cpuspeed
 	str	r1, [r0, #CCCR]
@@ -215,7 +230,10 @@ cpu_init_crit:
 	mcr	p14, 0, r0, c6, c0, 0
 
 setspeed_done:
-#endif
+	
+#endif /* CFG_CPUSPEED */
+#endif /* CONFIG_CPU_MONAHANS */
+	
 
 	/*
 	 * before relocating, we have to setup RAM timing
@@ -227,19 +245,21 @@ setspeed_done:
 	mov	lr,	ip
 
 	/* Memory interfaces are working. Disable MMU and enable I-cache.   */
+	/* mk: hmm, this is not in the monahans docs, leave it now but 
+	 *     check here if it doesn't work :-) */
 
 	ldr	r0, =0x2001		/* enable access to all coproc.	    */
 	mcr	p15, 0, r0, c15, c1, 0
-	CPWAIT
+	CPWAIT r0
 
 	mcr	p15, 0, r0, c7, c10, 4	/* drain the write & fill buffers   */
-	CPWAIT
+	CPWAIT r0
 
 	mcr	p15, 0, r0, c7, c7, 0	/* flush Icache, Dcache and BTB	    */
-	CPWAIT
+	CPWAIT r0
 
 	mcr	p15, 0, r0, c8, c7, 0	/* flush instuction and data TLBs   */
-	CPWAIT
+	CPWAIT r0
 
 	/* Enable the Icache						    */
 /*

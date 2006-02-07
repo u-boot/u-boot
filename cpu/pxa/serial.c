@@ -54,7 +54,11 @@ void serial_setbrg (void)
 		hang ();
 
 #ifdef CONFIG_FFUART
+#ifdef CONFIG_CPU_MONAHANS
+	CKENA |= CKENA_22_FFUART;
+#else
 	CKEN |= CKEN6_FFUART;
+#endif /* CONFIG_CPU_MONAHANS */
 
 	FFIER = 0;					/* Disable for now */
 	FFFCR = 0;					/* No fifos enabled */
@@ -68,7 +72,11 @@ void serial_setbrg (void)
 	FFIER = IER_UUE;			/* Enable FFUART */
 
 #elif defined(CONFIG_BTUART)
+#ifdef CONFIG_CPU_MONAHANS
+	CKENA |= CKENA_21_BTUART;
+#else
 	CKEN |= CKEN7_BTUART;
+#endif /*  CONFIG_CPU_MONAHANS */
 
 	BTIER = 0;
 	BTFCR = 0;
@@ -82,7 +90,11 @@ void serial_setbrg (void)
 	BTIER = IER_UUE;			/* Enable BFUART */
 
 #elif defined(CONFIG_STUART)
+#ifdef CONFIG_CPU_MONAHANS
+	CKENA |= CKENA_23_STUART;
+#else
 	CKEN |= CKEN5_STUART;
+#endif /* CONFIG_CPU_MONAHANS */
 
 	STIER = 0;
 	STFCR = 0;

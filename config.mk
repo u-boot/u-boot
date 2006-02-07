@@ -131,6 +131,10 @@ else
 CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes
 endif
 
+ifdef WILD_WILD_WEST
+CFLAGS := $(CFLAGS) -Werror
+endif
+
 # avoid trigraph warnings while parsing pci.h (produced by NIOS gcc-2.9)
 # this option have to be placed behind -Wall -- that's why it is here
 ifeq ($(ARCH),nios)

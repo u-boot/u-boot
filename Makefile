@@ -1633,6 +1633,9 @@ xm250_config	:	unconfig
 xsengine_config :	unconfig
 	@./mkconfig $(@:_config=) arm pxa xsengine
 
+zylonite_config :
+	@./mkconfig $(@:_config=) arm pxa zylonite
+
 #########################################################################
 ## ARM1136 Systems
 #########################################################################
@@ -1838,7 +1841,7 @@ clobber:	clean
 		-o -name '*.srec' -o -name '*.bin' -o -name u-boot.img \) \
 		-print0 \
 		| xargs -0 rm -f
-	rm -f $(OBJS) *.bak tags TAGS
+	rm -f $(OBJS) *.bak tags
 	rm -fr *.*~
 	rm -f u-boot u-boot.map u-boot.hex $(ALL)
 	rm -f tools/crc32.c tools/environment.c tools/env/crc32.c
