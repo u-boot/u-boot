@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Update default environment for INKA4x00 board.
+
 * Cleanup U-Boot boot messages on ARM.
 
   To match the U-Boot user interface on ARM platforms to the U-Boot
