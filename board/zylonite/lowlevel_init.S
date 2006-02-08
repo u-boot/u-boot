@@ -39,6 +39,16 @@ DRAM_SIZE:  .long   CFG_DRAM_SIZE
    .endm
 
 
+.macro wait time
+	ldr             r2, =OSCR
+	mov             r3, #0
+	str             r3, [r2]
+0:
+	ldr             r3, [r2]
+	cmp             r3, \time
+	bls             0b
+.endm
+			
 /*
  * 	Memory setup
  */
@@ -48,7 +58,7 @@ lowlevel_init:
 	/* Set up GPIO pins first ----------------------------------------- */
 	mov      r10, lr
 	
-        /*  GPIO41, 42, 43, 44, 45, 46, 47, 48 */
+        /*  Configure GPIO Pins 41 - 48 as UART1 / altern. Fkt. 2 */
 	ldr             r0, =0x40E10438 @ GPIO41 FFRXD
 	ldr             r1, =0x802
 	str             r1, [r0]
@@ -82,7 +92,7 @@ lowlevel_init:
 	str             r1, [r0]
 
         /* tebrandt - ASCR, clear the RDH bit */
-	ldr             r0, =ASCR
+	ldr             r0, =ASCR	
 	ldr             r1, [r0]
 	bic             r1, r1, #0x80000000
 	str             r1, [r0]
@@ -101,16 +111,18 @@ lowlevel_init:
 	/*         FIXME: can be optimized later                            */
 	/* ---------------------------------------------------------------- */
 
-	ldr r3, =OSCR			/* reset the OS Timer Count to zero */
-	mov r2, #0
-	str r2, [r3]
-	ldr r4, =0x300			/* really 0x2E1 is about 200usec,   */
-					/* so 0x300 should be plenty        */
-1:
-	ldr r2, [r3]
-	cmp r4, r2
-	bgt 1b
-
+	/* mk:	 replaced with wait macro */
+/* 	ldr r3, =OSCR			/\* reset the OS Timer Count to zero *\/ */
+/* 	mov r2, #0 */
+/* 	str r2, [r3] */
+/* 	ldr r4, =0x300			/\* really 0x2E1 is about 200usec,   *\/ */
+/* 					/\* so 0x300 should be plenty        *\/ */
+/* 1: */
+/* 	ldr r2, [r3] */
+/* 	cmp r4, r2 */
+/* 	bgt 1b */
+	wait #300
+	
 mem_init:
 
 	/* configure the MEMCLKCFG register */
@@ -209,8 +221,12 @@ mem_init:
 	str		r2, [r1]
 	ldr		r2, [r1]
 
-	/* DDR Read-Strobe Delay Calibration */
-	/* bl	ddr_calibration */
+	/* Hardware DDR Read-Strobe Delay Calibration */
+	ldr             r0, =DDR_HCAL           @ DDR_HCAL
+	ldr             r1, =0x803ffc07     @ the offset is correct? -SC
+	str             r1, [r0]
+	wait		#5
+	ldr             r1, [r0]
 
 	/* Here we assume the hardware calibration alwasy be successful. -SC */
 	/* Set DMCEN bit in MDCNFG Register */
@@ -220,10 +236,12 @@ mem_init:
 	str		r1, [r0]
 
 	/* scrub/init SDRAM if enabled/present */
-	ldr	r11, =0xa0000000 //RAM_BASE	// base address of SDRAM
-	ldr	r12, =0x04000000 // size of memory to scrub
-	mov	r8,r12		// save DRAM size
-	mov	r0, #0		// scrub with 0x0000:0000
+/* 	ldr	r11, =0xa0000000 /\* base address of SDRAM (CFG_DRAM_BASE) *\/ */
+/* 	ldr	r12, =0x04000000 /\* size of memory to scrub (CFG_DRAM_SIZE) *\/ */
+/* 	mov	r8,r12		 /\* save DRAM size (mk: why???) *\/ */
+	ldr	r8, =0xa0000000  /* base address of SDRAM (CFG_DRAM_BASE) */
+	ldr	r9, =0x04000000  /* size of memory to scrub (CFG_DRAM_SIZE) */
+	mov	r0, #0		 /* scrub with 0x0000:0000 */
 	mov	r1, #0
 	mov	r2, #0				
 	mov	r3, #0
@@ -232,8 +250,8 @@ mem_init:
 	mov	r6, #0					
 	mov	r7, #0
 10:     /* fastScrubLoop */
-	subs	r12, r12, #32	// 32 bytes/line
-	stmia	r11!, {r0-r7}
+	subs	r9, r9, #32	// 32 bytes/line
+	stmia	r8!, {r0-r7}
 	beq	15f
 	b	10b
 
@@ -264,3 +282,94 @@ mem_init:
 endlowlevel_init:
 
     mov     pc, lr
+
+
+/*
+@********************************************************************************
+@ DDR calibration
+@  
+@  This function is used to calibrate DQS delay lines.
+@ Monahans supports three ways to do it. One is software 
+@ calibration. Two is hardware calibration. Three is hybrid
+@ calibration.
+@
+@ TBD
+@ -SC
+ddr_calibration:
+
+	@ Case 1:	Write the correct delay value once
+        @ Configure DDR_SCAL Register
+	ldr             r0, =DDR_SCAL           @ DDR_SCAL
+q	ldr             r1, =0xaf2f2f2f
+	str             r1, [r0]
+	ldr             r1, [r0]
+*/
+/*	@ Case 2:	Software Calibration
+	@ Write test pattern to memory
+	ldr		r5, =0x0faf0faf         @ Data Pattern
+	ldr		r4, =0xa0000000		@ DDR ram
+	str		r5, [r4]
+
+	mov		r1, =0x0		@ delay count
+	mov		r6, =0x0
+	mov		r7, =0x0
+ddr_loop1:
+	add		r1, r1, =0x1
+	cmp		r1, =0xf
+	ble		end_loop
+	mov		r3, r1
+	mov             r0, r1, lsl #30
+	orr		r3, r3, r0
+	mov             r0, r1, lsl #22
+	orr		r3, r3, r0
+	mov             r0, r1, lsl #14
+	orr		r3, r3, r0
+	orr		r3, r3, =0x80000000
+	ldr		r2, =DDR_SCAL
+	str		r3, [r2]
+
+	ldr		r2, [r4]
+	cmp		r2, r5
+	bne		ddr_loop1
+	mov		r6, r1
+ddr_loop2:
+	add		r1, r1, =0x1
+	cmp		r1, =0xf
+	ble		end_loop
+        mov             r3, r1
+        mov             r0, r1, lsl #30
+        orr             r3, r3, r0
+        mov             r0, r1, lsl #22
+        orr             r3, r3, r0
+        mov             r0, r1, lsl #14
+        orr             r3, r3, r0
+        orr             r3, r3, =0x80000000
+        ldr             r2, =DDR_SCAL
+        str             r3, [r2]
+
+	ldr		r2, [r4]
+	cmp		r2, r5
+	be		ddr_loop2
+	mov		r7, r2
+
+	add		r3, r6, r7
+	lsr		r3, r3, =0x1
+        mov             r0, r1, lsl #30
+        orr             r3, r3, r0
+        mov             r0, r1, lsl #22
+        orr             r3, r3, r0
+        mov             r0, r1, lsl #14
+        orr             r3, r3, r0
+        orr             r3, r3, =0x80000000
+        ldr             r2, =DDR_SCAL
+	
+end_loop:
+
+	@ Case 3:	Hardware Calibratoin
+	ldr             r0, =DDR_HCAL           @ DDR_HCAL
+	ldr             r1, =0x803ffc07     @ the offset is correct? -SC
+	str             r1, [r0]
+	wait		#5
+	ldr             r1, [r0]
+	mov		pc, lr	
+*/
