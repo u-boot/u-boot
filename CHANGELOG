@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Convert CPCI750 to use common CFI flash driver
+  Patch by Reinhard Arlt, 8 Feb 2006
+
 * Various changes to esd HH405 board specific files
   Patch by Matthias Fuchs, 07 Feb 2006
 

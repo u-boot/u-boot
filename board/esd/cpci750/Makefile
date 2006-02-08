@@ -29,7 +29,7 @@ SOBJS	= misc.o
 
 OBJS	= $(BOARD).o serial.o ../../Marvell/common/memory.o pci.o \
 	  mv_eth.o  mpsc.o i2c.o \
-	  sdram_init.o strataflash.o ide.o
+	  sdram_init.o ide.o
 
 $(LIB):	.depend $(OBJS) $(SOBJS)
 	$(AR) crv $@ $(OBJS) $(SOBJS)

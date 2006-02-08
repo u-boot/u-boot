@@ -56,6 +56,7 @@
 
 extern void flush_data_cache (void);
 extern void invalidate_l1_instruction_cache (void);
+extern flash_info_t flash_info[];
 
 /* ------------------------------------------------------------------------- */
 
@@ -363,6 +364,22 @@ int misc_init_r ()
 	/* disable the dcache and MMU */
 	dcache_lock ();
 #endif
+	if (flash_info[3].size < CFG_FLASH_INCREMENT) {
+	        unsigned int flash_offset;
+		unsigned int l;
+
+		flash_offset =  CFG_FLASH_INCREMENT - flash_info[3].size;
+		for (l = 0; l < CFG_MAX_FLASH_SECT; l++) {
+		        if (flash_info[3].start[l] != 0) {
+			      flash_info[3].start[l] += flash_offset;
+			}
+		}
+		flash_protect (FLAG_PROTECT_SET,
+			       CFG_MONITOR_BASE,
+			       CFG_MONITOR_BASE + monitor_flash_len  - 1,
+			       &flash_info[3]);
+	
+	}
 	return 0;
 }
 
