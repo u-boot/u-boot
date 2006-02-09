@@ -61,7 +61,7 @@
 /*
  * select serial console configuration
  */
-#define CONFIG_FFUART	       1       /* we use FFUART on LUBBOCK */
+#define CONFIG_FFUART	       1
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE

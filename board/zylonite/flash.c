@@ -62,6 +62,7 @@ void inline spin_wheel (void);
 
 unsigned long flash_init (void)
 {
+#if 0
 	int i;
 	ulong size = 0;
 
@@ -94,6 +95,8 @@ unsigned long flash_init (void)
 			CFG_ENV_ADDR + CFG_ENV_SIZE - 1, &flash_info[0] );
 
 	return size;
+#endif
+	return 0;
 }
 
 /*-----------------------------------------------------------------------
