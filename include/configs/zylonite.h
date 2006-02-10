@@ -55,8 +55,15 @@
 /*
  * Hardware drivers
  */
-/* #define CONFIG_DRIVER_LAN91C96 */
-/* #define CONFIG_LAN91C96_BASE 0x0C000000 */
+
+#undef TURN_ON_ETHERNET
+#ifdef TURN_ON_ETHERNET
+# define CONFIG_DRIVER_SMC91111 1
+# define CONFIG_SMC91111_BASE   0x14000300
+# define CONFIG_SMC91111_EXT_PHY
+# define CONFIG_SMC_USE_32_BIT
+# undef CONFIG_SMC_USE_IOFUNCS
+#endif
 
 /*
  * select serial console configuration
@@ -68,8 +75,13 @@
 
 #define CONFIG_BAUDRATE		115200
 
-/* #define CONFIG_COMMANDS		(CONFIG_CMD_DFL | CFG_CMD_MMC | CFG_CMD_FAT) */
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL & ~CFG_CMD_REISER & ~CFG_CMD_NET)
+/* #define CONFIG_COMMANDS       (CONFIG_CMD_DFL | CFG_CMD_MMC | CFG_CMD_FAT) */
+#ifdef TURN_ON_ETHERNET
+# define CONFIG_COMMANDS        (CONFIG_CMD_DFL)
+#else
+# define CONFIG_COMMANDS	(CONFIG_CMD_DFL & ~CFG_CMD_NET)
+#endif
+
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -218,7 +230,7 @@
  * second sector, not an environment.  You have been warned!
  */
 #define	CFG_MONITOR_LEN		PHYS_FLASH_SECT_SIZE
-#define CFG_ENV_IS_IN_FLASH	1
+#undef  CFG_ENV_IS_IN_FLASH
 #define CFG_ENV_ADDR		(PHYS_FLASH_1 + PHYS_FLASH_SECT_SIZE)
 #define CFG_ENV_SECT_SIZE	PHYS_FLASH_SECT_SIZE
 #define CFG_ENV_SIZE		(PHYS_FLASH_SECT_SIZE / 16)
