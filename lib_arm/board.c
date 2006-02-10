@@ -54,6 +54,8 @@
 #include "../drivers/lan91c96.h"
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #if (CONFIG_COMMANDS & CFG_CMD_NAND)
 void nand_init (void);
 #endif
@@ -121,8 +123,6 @@ void *sbrk (ptrdiff_t increment)
 
 static int init_baudrate (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	uchar tmp[64];	/* long enough for environment variables */
 	int i = getenv_r ("baudrate", tmp, sizeof (tmp));
 	gd->bd->bi_baudrate = gd->baudrate = (i > 0)
@@ -157,7 +157,6 @@ static int display_banner (void)
  */
 static int display_dram_config (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	int i;
 
 #ifdef DEBUG
@@ -236,8 +235,6 @@ init_fnc_t *init_sequence[] = {
 
 void start_armboot (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	ulong size;
 	init_fnc_t **init_fnc_ptr;
 	char *s;
