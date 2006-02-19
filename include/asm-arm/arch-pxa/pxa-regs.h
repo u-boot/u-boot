@@ -33,12 +33,21 @@ typedef void		(*ExcpHndlr) (void) ;
 /*
  * PXA Chip selects
  */
+#ifdef CONFIG_CPU_MONAHANS
+#define PXA_CS0_PHYS   0x00000000 /* for both small and large same start */
+#define PXA_CS1_PHYS   0x04000000 /* Small partition start address (64MB) */
+#define PXA_CS1_LPHYS  0x30000000 /* Large partition start address (256MB) */
+#define PXA_CS2_PHYS   0x10000000 /* (64MB) */
+#define PXA_CS3_PHYS   0x14000000 /* (64MB) */
+#define PXA_PCMCIA_PHYS        0x20000000 /* (256MB) */
+#else
 #define PXA_CS0_PHYS	0x00000000
 #define PXA_CS1_PHYS	0x04000000
 #define PXA_CS2_PHYS	0x08000000
 #define PXA_CS3_PHYS	0x0C000000
 #define PXA_CS4_PHYS	0x10000000
 #define PXA_CS5_PHYS	0x14000000
+#endif /* CONFIG_CPU_MONAHANS */
 
 /*
  * Personal Computer Memory Card International Association (PCMCIA) sockets
@@ -49,10 +58,12 @@ typedef void		(*ExcpHndlr) (void) ;
 #define PCMCIAAttrSp	PCMCIAPrtSp	/* PCMCIA Attribute Space [byte]   */
 #define PCMCIAMemSp	PCMCIAPrtSp	/* PCMCIA Memory Space [byte]	   */
 
+#ifndef CONFIG_CPU_MONAHANS             /* Monahans supports only one slot */
 #define PCMCIA0Sp	PCMCIASp	/* PCMCIA 0 Space [byte]	   */
 #define PCMCIA0IOSp	PCMCIAIOSp	/* PCMCIA 0 I/O Space [byte]	   */
 #define PCMCIA0AttrSp	PCMCIAAttrSp	/* PCMCIA 0 Attribute Space [byte] */
 #define PCMCIA0MemSp	PCMCIAMemSp	/* PCMCIA 0 Memory Space [byte]	   */
+#endif
 
 #define PCMCIA1Sp	PCMCIASp	/* PCMCIA 1 Space [byte]	   */
 #define PCMCIA1IOSp	PCMCIAIOSp	/* PCMCIA 1 I/O Space [byte]	   */
@@ -72,10 +83,12 @@ typedef void		(*ExcpHndlr) (void) ;
 #define _PCMCIA0Attr	_PCMCIAAttr (0) /* PCMCIA 0 Attribute		   */
 #define _PCMCIA0Mem	_PCMCIAMem (0)	/* PCMCIA 0 Memory		   */
 
+#ifndef CONFIG_CPU_MONAHANS             /* Monahans supports only one slot */
 #define _PCMCIA1	_PCMCIA (1)	/* PCMCIA 1			   */
 #define _PCMCIA1IO	_PCMCIAIO (1)	/* PCMCIA 1 I/O			   */
 #define _PCMCIA1Attr	_PCMCIAAttr (1) /* PCMCIA 1 Attribute		   */
 #define _PCMCIA1Mem	_PCMCIAMem (1)	/* PCMCIA 1 Memory		   */
+#endif
 
 /*
  * DMA Controller
@@ -96,6 +109,24 @@ typedef void		(*ExcpHndlr) (void) ;
 #define DCSR13		__REG(0x40000034)  /* DMA Control / Status Register for Channel 13 */
 #define DCSR14		__REG(0x40000038)  /* DMA Control / Status Register for Channel 14 */
 #define DCSR15		__REG(0x4000003c)  /* DMA Control / Status Register for Channel 15 */
+#ifdef CONFIG_CPU_MONAHANS
+#define DCSR16		__REG(0x40000040)  /* DMA Control / Status Register for Channel 16 */
+#define DCSR17		__REG(0x40000044)  /* DMA Control / Status Register for Channel 17 */
+#define DCSR18		__REG(0x40000048)  /* DMA Control / Status Register for Channel 18 */
+#define DCSR19		__REG(0x4000004c)  /* DMA Control / Status Register for Channel 19 */
+#define DCSR20		__REG(0x40000050)  /* DMA Control / Status Register for Channel 20 */
+#define DCSR21		__REG(0x40000054)  /* DMA Control / Status Register for Channel 21 */
+#define DCSR22		__REG(0x40000058)  /* DMA Control / Status Register for Channel 22 */
+#define DCSR23		__REG(0x4000005c)  /* DMA Control / Status Register for Channel 23 */
+#define DCSR24		__REG(0x40000060)  /* DMA Control / Status Register for Channel 24 */
+#define DCSR25		__REG(0x40000064)  /* DMA Control / Status Register for Channel 25 */
+#define DCSR26		__REG(0x40000068)  /* DMA Control / Status Register for Channel 26 */
+#define DCSR27		__REG(0x4000006c)  /* DMA Control / Status Register for Channel 27 */
+#define DCSR28		__REG(0x40000070)  /* DMA Control / Status Register for Channel 28 */
+#define DCSR29		__REG(0x40000074)  /* DMA Control / Status Register for Channel 29 */
+#define DCSR30		__REG(0x40000078)  /* DMA Control / Status Register for Channel 30 */
+#define DCSR31		__REG(0x4000007c)  /* DMA Control / Status Register for Channel 31 */
+#endif /* CONFIG_CPU_MONAHANS */
 
 #define DCSR(x)		__REG2(0x40000000, (x) << 2)
 
@@ -103,7 +134,7 @@ typedef void		(*ExcpHndlr) (void) ;
 #define DCSR_NODESC	(1 << 30)	/* No-Descriptor Fetch (read / write) */
 #define DCSR_STOPIRQEN	(1 << 29)	/* Stop Interrupt Enable (read / write) */
 
-#if defined(CONFIG_PXA27X)
+#if defined(CONFIG_PXA27X) || defined (CONFIG_CPU_MONAHANS)
 #define DCSR_EORIRQEN	(1 << 28)	/* End of Receive Interrupt Enable (R/W) */
 #define DCSR_EORJMPEN	(1 << 27)	/* Jump to next descriptor on EOR */
 #define DCSR_EORSTOPEN	(1 << 26)	/* STOP on an EOR */
@@ -813,15 +844,45 @@ typedef void		(*ExcpHndlr) (void) ;
 /*
  * OS Timer & Match Registers
  */
-#define OSMR0		__REG(0x40A00000)  /* */
-#define OSMR1		__REG(0x40A00004)  /* */
-#define OSMR2		__REG(0x40A00008)  /* */
-#define OSMR3		__REG(0x40A0000C)  /* */
+#define OSMR0		__REG(0x40A00000)  /* OS Timer Match Register 0 */
+#define OSMR1		__REG(0x40A00004)  /* OS Timer Match Register 1 */
+#define OSMR2		__REG(0x40A00008)  /* OS Timer Match Register 2 */
+#define OSMR3		__REG(0x40A0000C)  /* OS Timer Match Register 3 */
 #define OSCR		__REG(0x40A00010)  /* OS Timer Counter Register */
 #define OSSR		__REG(0x40A00014)  /* OS Timer Status Register */
 #define OWER		__REG(0x40A00018)  /* OS Timer Watchdog Enable Register */
 #define OIER		__REG(0x40A0001C)  /* OS Timer Interrupt Enable Register */
 
+#ifdef CONFIG_CPU_MONAHANS
+#define OSCR4		__REG(0x40A00040)  /* OS Timer Counter Register 4 */
+#define OSCR5		__REG(0x40A00044)  /* OS Timer Counter Register 5 */
+#define OSCR6		__REG(0x40A00048)  /* OS Timer Counter Register 6 */
+#define OSCR7		__REG(0x40A0004C)  /* OS Timer Counter Register 7 */
+#define OSCR8		__REG(0x40A00050)  /* OS Timer Counter Register 8 */
+#define OSCR9		__REG(0x40A00054)  /* OS Timer Counter Register 9 */
+#define OSCR10		__REG(0x40A00058)  /* OS Timer Counter Register 10 */
+#define OSCR11		__REG(0x40A0005C)  /* OS Timer Counter Register 11 */
+
+#define OSMR4		__REG(0x40A00080)  /* OS Timer Match Register 4 */
+#define OSMR5		__REG(0x40A00084)  /* OS Timer Match Register 5 */
+#define OSMR6		__REG(0x40A00088)  /* OS Timer Match Register 6 */
+#define OSMR7		__REG(0x40A0008C)  /* OS Timer Match Register 7 */
+#define OSMR8		__REG(0x40A00090)  /* OS Timer Match Register 8 */
+#define OSMR9		__REG(0x40A00094)  /* OS Timer Match Register 9 */
+#define OSMR10		__REG(0x40A00098)  /* OS Timer Match Register 10 */
+#define OSMR11		__REG(0x40A0009C)  /* OS Timer Match Register 11 */
+
+#define OMCR4		__REG(0x40A000C0)  /* OS Match Control Register 4 */
+#define OMCR5		__REG(0x40A000C4)  /* OS Match Control Register 5 */
+#define OMCR6		__REG(0x40A000C8)  /* OS Match Control Register 6 */
+#define OMCR7		__REG(0x40A000CC)  /* OS Match Control Register 7 */
+#define OMCR8		__REG(0x40A000D0)  /* OS Match Control Register 8 */
+#define OMCR9		__REG(0x40A000D4)  /* OS Match Control Register 9 */
+#define OMCR10		__REG(0x40A000D8)  /* OS Match Control Register 10 */
+#define OMCR11		__REG(0x40A000DC)  /* OS Match Control Register 11 */
+#endif /* CONFIG_CPU_MONAHANS */
+
+#define OSSR_M4		(1 << 4)	/* Match status channel 4 */
 #define OSSR_M3		(1 << 3)	/* Match status channel 3 */
 #define OSSR_M2		(1 << 2)	/* Match status channel 2 */
 #define OSSR_M1		(1 << 1)	/* Match status channel 1 */
@@ -829,6 +890,7 @@ typedef void		(*ExcpHndlr) (void) ;
 
 #define OWER_WME	(1 << 0)	/* Watchdog Match Enable */
 
+#define OIER_E4		(1 << 4)	/* Interrupt enable channel 4 */
 #define OIER_E3		(1 << 3)	/* Interrupt enable channel 3 */
 #define OIER_E2		(1 << 2)	/* Interrupt enable channel 2 */
 #define OIER_E1		(1 << 1)	/* Interrupt enable channel 1 */
@@ -854,6 +916,19 @@ typedef void		(*ExcpHndlr) (void) ;
 #define ICFP		__REG(0x40D0000C)  /* Interrupt Controller FIQ Pending Register */
 #define ICPR		__REG(0x40D00010)  /* Interrupt Controller Pending Register */
 #define ICCR		__REG(0x40D00014)  /* Interrupt Controller Control Register */
+
+#ifdef CONFIG_CPU_MONAHANS
+#define ICHP		__REG(0x40D00018)  /* Interrupt Controller Highest Priority Register */
+/* Missing: 32 Interrupt priority registers */
+/* mk@tbd: These are the same as beneath for PXA27x: maybe can be
+ * merged if GPIO Stuff is same too. */
+#define ICIP2		__REG(0x40D0009C)  /* Interrupt Controller IRQ Pending Register 2 */
+#define ICMR2		__REG(0x40D000A0)  /* Interrupt Controller Mask Register 2 */
+#define ICLR2		__REG(0x40D000A4)  /* Interrupt Controller Level Register 2 */
+#define ICFP2		__REG(0x40D000A8)  /* Interrupt Controller FIQ Pending Register 2 */
+#define ICPR2		__REG(0x40D000AC)  /* Interrupt Controller Pending Register 2 */
+/* Missing: 2 Interrupt priority registers */
+#endif /* CONFIG_CPU_MONAHANS */
 
 /*
  * General Purpose I/O
@@ -1142,6 +1217,79 @@ typedef void		(*ExcpHndlr) (void) ;
 /*
  * Power Manager
  */
+#ifdef CONFIG_CPU_MONAHANS
+
+#define ASCR		__REG(0x40F40000)  /* Application Subsystem Power Status/Control Register */
+#define ARSR		__REG(0x40F40004)  /* Application Subsystem Reset Status Register */
+#define AD3ER		__REG(0x40F40008)  /* Application Subsystem D3 state Wakeup Enable Register */
+#define AD3SR		__REG(0x40F4000C)  /* Application Subsystem D3 state Wakeup Status Register */
+#define AD2D0ER		__REG(0x40F40010)  /* Application Subsystem D2 to D0 state Wakeup Enable Register */
+#define AD2D0SR		__REG(0x40F40014)  /* Application Subsystem D2 to D0 state Wakeup Status Register */
+#define AD2D1ER		__REG(0x40F40018)  /* Application Subsystem D2 to D1 state Wakeup Enable Register */
+#define AD2D1SR		__REG(0x40F4001C)  /* Application Subsystem D2 to D1 state Wakeup Status Register */
+#define AD1D0ER		__REG(0x40F40020)  /* Application Subsystem D1 to D0 state Wakeup Enable Register */
+#define AD1D0SR		__REG(0x40F40024)  /* Application Subsystem D1 to D0 state Wakeup Status Register */
+#define ASDCNT		__REG(0x40F40028)  /* Application Subsystem SRAM Drowsy Count Register */
+#define AD3R		__REG(0x40F40030)  /* Application Subsystem D3 State Configuration Register */
+#define AD2R		__REG(0x40F40034)  /* Application Subsystem D2 State Configuration Register */
+#define AD1R		__REG(0x40F40038)  /* Application Subsystem D1 State Configuration Register */
+
+#define PMCR		__REG(0x40F50000)  /* Power Manager Control Register */
+#define PSR		__REG(0x40F50004)  /* Power Manager S2 Status Register */
+#define PSPR		__REG(0x40F50008)  /* Power Manager Scratch Pad Register */
+#define PCFR		__REG(0x40F5000C)  /* Power Manager General Configuration Register */
+#define PWER		__REG(0x40F50010)  /* Power Manager Wake-up Enable Register */
+#define PWSR		__REG(0x40F50014)  /* Power Manager Wake-up Status Register */
+#define PECR		__REG(0x40F50018)  /* Power Manager EXT_WAKEUP[1:0] Control Register */
+#define DCDCSR		__REG(0x40F50080)  /* DC-DC Controller Status Register */
+#define PVCR		__REG(0x40F50100)  /* Power Manager Voltage Change Control Register */
+#define    PCMD(x) __REG(0x40F50110 + x*4)
+#define    PCMD0   __REG(0x40F50110 + 0 * 4)
+#define    PCMD1   __REG(0x40F50110 + 1 * 4)
+#define    PCMD2   __REG(0x40F50110 + 2 * 4)
+#define    PCMD3   __REG(0x40F50110 + 3 * 4)
+#define    PCMD4   __REG(0x40F50110 + 4 * 4)
+#define    PCMD5   __REG(0x40F50110 + 5 * 4)
+#define    PCMD6   __REG(0x40F50110 + 6 * 4)
+#define    PCMD7   __REG(0x40F50110 + 7 * 4)
+#define    PCMD8   __REG(0x40F50110 + 8 * 4)
+#define    PCMD9   __REG(0x40F50110 + 9 * 4)
+#define    PCMD10  __REG(0x40F50110 + 10 * 4)
+#define    PCMD11  __REG(0x40F50110 + 11 * 4)
+#define    PCMD12  __REG(0x40F50110 + 12 * 4)
+#define    PCMD13  __REG(0x40F50110 + 13 * 4)
+#define    PCMD14  __REG(0x40F50110 + 14 * 4)
+#define    PCMD15  __REG(0x40F50110 + 15 * 4)
+#define    PCMD16  __REG(0x40F50110 + 16 * 4)
+#define    PCMD17  __REG(0x40F50110 + 17 * 4)
+#define    PCMD18  __REG(0x40F50110 + 18 * 4)
+#define    PCMD19  __REG(0x40F50110 + 19 * 4)
+#define    PCMD20  __REG(0x40F50110 + 20 * 4)
+#define    PCMD21  __REG(0x40F50110 + 21 * 4)
+#define    PCMD22  __REG(0x40F50110 + 22 * 4)
+#define    PCMD23  __REG(0x40F50110 + 23 * 4)
+#define    PCMD24  __REG(0x40F50110 + 24 * 4)
+#define    PCMD25  __REG(0x40F50110 + 25 * 4)
+#define    PCMD26  __REG(0x40F50110 + 26 * 4)
+#define    PCMD27  __REG(0x40F50110 + 27 * 4)
+#define    PCMD28  __REG(0x40F50110 + 28 * 4)
+#define    PCMD29  __REG(0x40F50110 + 29 * 4)
+#define    PCMD30  __REG(0x40F50110 + 30 * 4)
+#define    PCMD31  __REG(0x40F50110 + 31 * 4)
+
+#define    PCMD_MBC    (1<<12)
+#define    PCMD_DCE    (1<<11)
+#define    PCMD_LC     (1<<10)
+#define    PCMD_SQC    (3<<8)  /* only 00 and 01 are valid */
+
+#define PVCR_FVC                   (0x1 << 28)
+#define PVCR_VCSA                  (0x1<<14)
+#define PVCR_CommandDelay          (0xf80)
+#define PVCR_ReadPointer           (0x01f00000)
+#define PVCR_SlaveAddress          (0x7f)
+
+#else /* ifdef CONFIG_CPU_MONAHANS */
+
 #define PMCR		__REG(0x40F00000)  /* Power Manager Control Register */
 #define PSSR		__REG(0x40F00004)  /* Power Manager Sleep Status Register */
 #define PSPR		__REG(0x40F00008)  /* Power Manager Scratch Pad Register */
@@ -1225,6 +1373,8 @@ typedef void		(*ExcpHndlr) (void) ;
 #define RCSR_WDR	(1 << 1)	/* Watchdog Reset */
 #define RCSR_HWR	(1 << 0)	/* Hardware Reset */
 
+#endif /* CONFIG_CPU_MONAHANS */
+
 /*
  * SSP Serial Port Registers
  */
@@ -1259,6 +1409,67 @@ typedef void		(*ExcpHndlr) (void) ;
 /*
  * Core Clock
  */
+
+#if defined(CONFIG_CPU_MONAHANS)
+#define ACCR		__REG(0x41340000)  /* Application Subsystem Clock Configuration Register */
+#define ACSR		__REG(0x41340004)  /* Application Subsystem Clock Status Register */
+#define AICSR		__REG(0x41340008)  /* Application Subsystem Interrupt Control/Status Register */
+#define CKENA		__REG(0x4134000C)  /* A Clock Enable Register */
+#define CKENB		__REG(0x41340010)  /* B Clock Enable Register */
+#define AC97_DIV	__REG(0x41340014)  /* AC97 clock divisor value register */
+
+#define ACCR_SMC_MASK	0x03800000	/* Static Memory Controller Frequency Select */
+#define ACCR_SRAM_MASK	0x000c0000	/* SRAM Controller Frequency Select */
+#define ACCR_FC_MASK	0x00030000	/* Frequency Change Frequency Select */
+#define ACCR_HSIO_MASK	0x0000c000	/* High Speed IO Frequency Select */
+#define ACCR_DDR_MASK	0x00003000	/* DDR Memory Controller Frequency Select */
+#define ACCR_XN_MASK	0x00000700	/* Run Mode Frequency to Turbo Mode Frequency Multiplier */
+#define ACCR_XL_MASK	0x0000001f	/* Crystal Frequency to Memory Frequency Multiplier */
+#define ACCR_XPDIS	(1 << 31)
+#define ACCR_SPDIS	(1 << 30)
+#define ACCR_13MEND1	(1 << 27)
+#define ACCR_D0CS	(1 << 26)
+#define ACCR_13MEND2	(1 << 21)
+#define ACCR_PCCE	(1 << 11)
+
+#define CKENA_30_MSL0	(1 << 30) 	/* MSL0 Interface Unit Clock Enable */
+#define CKENA_29_SSP4	(1 << 29) 	/* SSP3 Unit Clock Enable */
+#define CKENA_28_SSP3	(1 << 28) 	/* SSP2 Unit Clock Enable */
+#define CKENA_27_SSP2	(1 << 27)  	/* SSP1 Unit Clock Enable */
+#define CKENA_26_SSP1	(1 << 26)	/* SSP0 Unit Clock Enable */
+#define CKENA_25_TSI	(1 << 25)	/* TSI Clock Enable */
+#define CKENA_24_AC97	(1 << 24)	/* AC97 Unit Clock Enable */
+#define CKENA_23_STUART	(1 << 23)	/* STUART Unit Clock Enable */
+#define CKENA_22_FFUART	(1 << 22)	/* FFUART Unit Clock Enable */
+#define CKENA_21_BTUART	(1 << 21)	/* BTUART Unit Clock Enable */
+#define CKENA_20_UDC	(1 << 20)	/* UDC Clock Enable */
+#define CKENA_19_TPM	(1 << 19) 	/* TPM Unit Clock Enable */
+#define CKENA_18_USIM1	(1 << 18) 	/* USIM1 Unit Clock Enable */
+#define CKENA_17_USIM0	(1 << 17) 	/* USIM0 Unit Clock Enable */
+#define CKENA_15_CIR	(1 << 15) 	/* Consumer IR Clock Enable */
+#define CKENA_14_KEY	(1 << 14) 	/* Keypad Controller Clock Enable */
+#define CKENA_13_MMC1	(1 << 13) 	/* MMC1 Clock Enable */
+#define CKENA_12_MMC0	(1 << 12) 	/* MMC0 Clock Enable */
+#define CKENA_11_FLASH	(1 << 11) 	/* Boot ROM Clock Enable */
+#define CKENA_10_SRAM	(1 << 10) 	/* SRAM Controller Clock Enable */
+#define CKENA_9_SMC	(1 << 9) 	/* Static Memory Controller */
+#define CKENA_8_DMC	(1 << 8) 	/* Dynamic Memory Controller */
+#define CKENA_7_GRAPHICS (1 << 7) 	/* 2D Graphics Clock Enable */
+#define CKENA_6_USBCLI	(1 << 6)	/* USB Client Unit Clock Enable */
+#define CKENA_4_NAND	(1 << 4) 	/* NAND Flash Controller Clock Enable */
+#define CKENA_3_CAMERA	(1 << 3) 	/* Camera Interface Clock Enable */
+#define CKENA_2_USBHOST	(1 << 2)	/* USB Host Unit Clock Enable */
+#define CKENA_1_LCD	(1 << 1)	/* LCD Unit Clock Enable */
+
+#define CKENB_8_1WIRE	((1 << 8) + 32) /* One Wire Interface Unit Clock Enable */
+#define CKENB_7_GPIO	((1 << 7) + 32) 	/* GPIO Clock Enable */
+#define CKENB_6_IRQ	((1 << 6) + 32) 	/* Interrupt Controller Clock Enable */
+#define CKENB_4_I2C	((1 << 4) + 32)	/* I2C Unit Clock Enable */
+#define CKENB_1_PWM1	((1 << 1) + 32)	/* PWM2 & PWM3 Clock Enable */
+#define CKENB_0_PWM0	((1 << 0) + 32)	/* PWM0 & PWM1 Clock Enable */
+
+#else /* if defined CONFIG_CPU_MONAHANS */
+
 #define CCCR		__REG(0x41300000)  /* Core Clock Configuration Register */
 #define CKEN		__REG(0x41300004)  /* Clock Enable Register */
 #define OSCC		__REG(0x41300008)  /* Oscillator Configuration Register */
@@ -1317,6 +1528,8 @@ typedef void		(*ExcpHndlr) (void) ;
 #define	 CCCR_N25      (0x5 << 7)
 #define	 CCCR_N30      (0x6 << 7)
 #endif
+
+#endif /* CONFIG_CPU_MONAHANS */
 
 /*
  * LCD
@@ -1502,6 +1715,111 @@ typedef void		(*ExcpHndlr) (void) ;
 /*
  * Memory controller
  */
+
+#ifdef CONFIG_CPU_MONAHANS
+/* Static Memory Controller Registers */
+#define MSC0		__REG_2(0x4A000008)  /* Static Memory Control Register 0 */
+#define MSC1		__REG_2(0x4A00000C)  /* Static Memory Control Register 1 */
+#define MECR		__REG_2(0x4A000014)  /* Expansion Memory (PCMCIA/Compact Flash) Bus Configuration */
+#define SXCNFG		__REG_2(0x4A00001C)  /* Synchronous Static Memory Control Register */
+#define MCMEM0		__REG_2(0x4A000028)  /* Card interface Common Memory Space Socket 0 Timing */
+#define MCATT0		__REG_2(0x4A000030)  /* Card interface Attribute Space Socket 0 Timing Configuration */
+#define MCIO0		__REG_2(0x4A000038)  /* Card interface I/O Space Socket 0 Timing Configuration */
+#define MEMCLKCFG	__REG_2(0x4A000068)  /* SCLK speed configuration */
+#define CSADRCFG0	__REG_2(0x4A000080)  /* Address Configuration for chip select 0 */
+#define CSADRCFG1	__REG_2(0x4A000084)  /* Address Configuration for chip select 1 */
+#define CSADRCFG2	__REG_2(0x4A000088)  /* Address Configuration for chip select 2 */
+#define CSADRCFG3	__REG_2(0x4A00008C)  /* Address Configuration for chip select 3 */
+#define CSADRCFG_P	__REG_2(0x4A000090)  /* Address Configuration for pcmcia card interface */
+#define CSMSADRCFG	__REG_2(0x4A0000A0)  /* Master Address Configuration Register */
+#define CLK_RET_DEL	__REG_2(0x4A0000B0)  /* Delay line and mux selects for return data latching for sync. flash */
+#define ADV_RET_DEL	__REG_2(0x4A0000B4)  /* Delay line and mux selects for return data latching for sync. flash */
+
+/* Dynamic Memory Controller Registers */
+#define MDCNFG		__REG_2(0x48100000)  /* SDRAM Configuration Register 0 */
+#define MDREFR		__REG_2(0x48100004)  /* SDRAM Refresh Control Register */
+#define FLYCNFG		__REG_2(0x48100020)  /* Fly-by DMA DVAL[1:0] polarities */
+#define MDMRS		__REG_2(0x48100040)  /* MRS value to be written to SDRAM */
+#define	DDR_SCAL	__REG_2(0x48100050)  /* Software Delay Line Calibration/Configuration for external DDR memory. */
+#define	DDR_HCAL	__REG_2(0x48100060)  /* Hardware Delay Line Calibration/Configuration for external DDR memory. */
+#define	DDR_WCAL	__REG_2(0x48100068)  /* DDR Write Strobe Calibration Register */
+#define	DMCIER		__REG_2(0x48100070)  /* Dynamic MC Interrupt Enable Register. */
+#define	DMCISR		__REG_2(0x48100078)  /* Dynamic MC Interrupt Status Register. */
+#define	DDR_DLS		__REG_2(0x48100080)  /* DDR Delay Line Value Status register for external DDR memory. */
+#define	EMPI		__REG_2(0x48100090)  /* EMPI Control Register */
+#define RCOMP           __REG_2(0x48100100)
+#define PAD_MA          __REG_2(0x48100110)
+#define PAD_MDMSB       __REG_2(0x48100114)
+#define PAD_MDLSB       __REG_2(0x48100118)
+#define PAD_DMEM        __REG_2(0x4810011c)
+#define PAD_SDCLK       __REG_2(0x48100120)
+#define PAD_SDCS        __REG_2(0x48100124)
+#define PAD_SMEM        __REG_2(0x48100128)
+#define PAD_SCLK        __REG_2(0x4810012C)
+#define TAI		__REG_2(0x48100F00) /* TAI Tavor Address Isolation Register */
+
+
+/* Data Flash Controller Registers */
+
+#define NDCR		__REG_2(0x43100000)  /* Data Flash Control register */
+#define NDTR0CS0	__REG_2(0x43100004)  /* Data Controller Timing Parameter 0 Register for ND_nCS0 */
+#define NDTR0CS1	__REG_2(0x43100008)  /* Data Controller Timing Parameter 0 Register for ND_nCS1 */
+#define NDTR1CS0	__REG_2(0x4310000C)  /* Data Controller Timing Parameter 1 Register for ND_nCS0 */
+#define NDTR1CS1	__REG_2(0x43100010)  /* Data Controller Timing Parameter 1 Register for ND_nCS1 */
+#define NDSR		__REG_2(0x43100014)  /* Data Controller Status Register */
+#define NDPCR		__REG_2(0x43100018)  /* Data Controller Page Count Register */
+#define NDBDR0		__REG_2(0x4310001C)  /* Data Controller Bad Block Register 0 */
+#define NDBDR1		__REG_2(0x43100020)  /* Data Controller Bad Block Register 1 */
+#define NDDB		__REG_2(0x43100040)  /* Data Controller Data Buffer */
+#define NDCB0		__REG_2(0x43100048)  /* Data Controller Command Buffer0 */
+#define NDCB1		__REG_2(0x4310004C)  /* Data Controller Command Buffer1 */
+#define NDCB2		__REG_2(0x43100050)  /* Data Controller Command Buffer2 */
+
+#define NDCR_SPARE_EN	(0x1<<31)
+#define NDCR_ECC_EN	(0x1<<30)
+#define NDCR_DMA_EN	(0x1<<29)
+#define NDCR_ND_RUN	(0x1<<28)
+#define NDCR_DWIDTH_C	(0x1<<27)
+#define NDCR_DWIDTH_M	(0x1<<26)
+#define NDCR_PAGE_SZ	(0x3<<24)
+#define NDCR_NCSX	(0x1<<23)
+#define NDCR_ND_MODE	(0x3<<21)
+#define NDCR_NAND_MODE   0x0
+#define NDCR_CLR_PG_CNT	(0x1<<20)
+#define NDCR_CLR_ECC	(0x1<<19)
+#define NDCR_RD_ID_CNT	(0x7<<16)
+#define NDCR_RA_START	(0x1<<15)
+#define NDCR_PG_PER_BLK	(0x1<<14)
+#define NDCR_ND_ARB_EN	(0x1<<12)
+
+#define NDSR_RDY	(0x1<<11)
+#define NDSR_CS0_PAGED	(0x1<<10)
+#define NDSR_CS1_PAGED	(0x1<<9)
+#define NDSR_CS0_CMDD	(0x1<<8)
+#define NDSR_CS1_CMDD	(0x1<<7)
+#define NDSR_CS0_BBD	(0x1<<6)
+#define NDSR_CS1_BBD	(0x1<<5)
+#define NDSR_BDERR	(0x1<<4)
+#define NDSR_SBERR	(0x1<<3)
+#define NDSR_WRDREQ	(0x1<<2)
+#define NDSR_RDDREQ	(0x1<<1)
+#define NDSR_WRCMDREQ	(0x1)
+
+#define NDCB0_AUTO_RS	(0x1<<25)
+#define NDCB0_CSEL	(0x1<<24)
+#define NDCB0_CMD_TYPE	(0x7<<21)
+#define NDCB0_NC	(0x1<<20)
+#define NDCB0_DBC	(0x1<<19)
+#define NDCB0_ADDR_CYC	(0x7<<16)
+#define NDCB0_CMD2	(0xff<<8)
+#define NDCB0_CMD1	(0xff)
+#define MCMEM(s) MCMEM0
+#define MCATT(s) MCATT0
+#define MCIO(s) MCIO0
+#define MECR_CIT	(1 << 1)/* Card Is There: 0 -> no card, 1 -> card inserted */
+
+#else /* CONFIG_CPU_MONAHANS */
+
 #define MEMC_BASE	__REG(0x48000000)  /* Base of Memory Controller */
 #define MDCNFG_OFFSET	0x0
 #define MDREFR_OFFSET	0x4
@@ -1572,6 +1890,8 @@ typedef void		(*ExcpHndlr) (void) ;
 #define ARB_DMA_PARK		(1<<25)	   /* Be parked with DMA when idle */
 #define ARB_CORE_PARK		(1<<24)	   /* Be parked with core when idle */
 #define ARB_LOCK_FLAG		(1<<23)	   /* Only Locking masters gain access to the bus */
+
+#endif /* CONFIG_CPU_MONAHANS */
 
 /* Interrupt Controller */
 

@@ -36,6 +36,7 @@
  */
 #define CONFIG_CPU_MONAHANS	1	/* Intel Monahan CPU    */
 #define CONFIG_ZYLONITE		1	/* Zylonite board       */
+
 /* #define CONFIG_LCD		1 */
 #ifdef CONFIG_LCD
 #define CONFIG_SHARP_LM8V31
@@ -230,7 +231,8 @@
  * second sector, not an environment.  You have been warned!
  */
 #define	CFG_MONITOR_LEN		PHYS_FLASH_SECT_SIZE
-#undef  CFG_ENV_IS_IN_FLASH
+
+#define CFG_ENV_IS_IN_FLASH     1
 #define CFG_ENV_ADDR		(PHYS_FLASH_1 + PHYS_FLASH_SECT_SIZE)
 #define CFG_ENV_SECT_SIZE	PHYS_FLASH_SECT_SIZE
 #define CFG_ENV_SIZE		(PHYS_FLASH_SECT_SIZE / 16)
