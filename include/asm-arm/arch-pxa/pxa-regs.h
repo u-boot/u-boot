@@ -961,12 +961,217 @@ typedef void		(*ExcpHndlr) (void) ;
 #define GEDR1		__REG(0x40E0004C)  /* GPIO Edge Detect Status Register GPIO<63:32> */
 #define GEDR2		__REG(0x40E00050)  /* GPIO Edge Detect Status Register GPIO<80:64> */
 
+#ifdef CONFIG_CPU_MONAHANS
+#define GPLR3		__REG(0x40E00100)  /* GPIO Pin-Level Register GPIO<127:96> */
+#define GPDR3		__REG(0x40E0010C)  /* GPIO Pin Direction Register GPIO<127:96> */
+#define GPSR3		__REG(0x40E00118)  /* GPIO Pin Output Set Register GPIO<127:96> */
+#define GPCR3		__REG(0x40E00124)  /* GPIO Pin Output Clear Register GPIO<127:96> */
+#define GRER3		__REG(0x40E00130)  /* GPIO Rising-Edge Detect Register GPIO<127:96> */
+#define GFER3		__REG(0x40E0013C)  /* GPIO Falling-Edge Detect Register GPIO<127:96> */
+#define GEDR3		__REG(0x40E00148)  /* GPIO Edge Detect Status Register GPIO<127:96> */
+
+#define GSDR0		__REG(0x40E00400) /* Bit-wise Set of GPDR[31:0] */
+#define GSDR1		__REG(0x40E00404) /* Bit-wise Set of GPDR[63:32] */
+#define GSDR2		__REG(0x40E00408) /* Bit-wise Set of GPDR[95:64] */
+#define GSDR3		__REG(0x40E0040C) /* Bit-wise Set of GPDR[127:96] */
+
+#define GCDR0		__REG(0x40E00420) /* Bit-wise Clear of GPDR[31:0] */
+#define GCDR1		__REG(0x40E00424) /* Bit-wise Clear of GPDR[63:32] */
+#define GCDR2		__REG(0x40E00428) /* Bit-wise Clear of GPDR[95:64] */
+#define GCDR3		__REG(0x40E0042C) /* Bit-wise Clear of GPDR[127:96] */
+
+#define GSRER0		__REG(0x40E00440) /* Set Rising Edge Det. Enable [31:0] */
+#define GSRER1  	__REG(0x40E00444) /* Set Rising Edge Det. Enable [63:32] */
+#define GSRER2		__REG(0x40E00448) /* Set Rising Edge Det. Enable [95:64] */
+#define GSRER3  	__REG(0x40E0044C) /* Set Rising Edge Det. Enable [127:96] */
+
+#define GCRER0		__REG(0x40E00460) /* Clear Rising Edge Det. Enable [31:0] */
+#define GCRER1  	__REG(0x40E00464) /* Clear Rising Edge Det. Enable [63:32] */
+#define GCRER2		__REG(0x40E00468) /* Clear Rising Edge Det. Enable [95:64] */
+#define GCRER3  	__REG(0x40E0046C) /* Clear Rising Edge Det. Enable[127:96] */
+
+#define GSFER0		__REG(0x40E00480) /* Set Falling Edge Det. Enable [31:0] */
+#define GSFER1  	__REG(0x40E00484) /* Set Falling Edge Det. Enable [63:32] */
+#define GSFER2		__REG(0x40E00488) /* Set Falling Edge Det. Enable [95:64] */
+#define GSFER3  	__REG(0x40E0048C) /* Set Falling Edge Det. Enable[127:96] */
+
+#define GCFER0		__REG(0x40E004A0) /* Clr Falling Edge Det. Enable [31:0] */
+#define GCFER1  	__REG(0x40E004A4) /* Clr Falling Edge Det. Enable [63:32] */
+#define GCFER2		__REG(0x40E004A8) /* Clr Falling Edge Det. Enable [95:64] */
+#define GCFER3  	__REG(0x40E004AC) /* Clr Falling Edge Det. Enable[127:96] */
+
+#define GSDR(x)		__REG2(0x40E00400, ((x) & 0x60) >> 3)
+#define GCDR(x)		__REG2(0x40300420, ((x) & 0x60) >> 3)
+
+/* Multi-funktion Pin Registers, uncomplete, only GPIO relevant pins for now */
+#define GPIO0		__REG(0x40e10124) 
+#define GPIO1		__REG(0x40e10128)
+#define GPIO2		__REG(0x40e1012c)
+#define GPIO3		__REG(0x40e10130)
+#define GPIO4		__REG(0x40e10134)
+
+#define GPIO5		__REG(0x40e1028c)
+#define GPIO6		__REG(0x40e10290)
+#define GPIO7		__REG(0x40e10294)
+#define GPIO8		__REG(0x40e10298)
+#define GPIO9		__REG(0x40e1029c)
+
+#define GPIO11		__REG(0x40e102a0)
+#define GPIO12		__REG(0x40e102a4)
+#define GPIO13		__REG(0x40e102a8)
+#define GPIO14		__REG(0x40e102ac)
+#define GPIO15		__REG(0x40e102b0)
+#define GPIO16		__REG(0x40e102b4)
+#define GPIO17		__REG(0x40e102b8)
+#define GPIO18		__REG(0x40e102bc)
+#define GPIO19		__REG(0x40e102c0)
+#define GPIO20		__REG(0x40e102c4)
+#define GPIO21		__REG(0x40e102c8)
+#define GPIO22		__REG(0x40e102cc)
+#define GPIO23		__REG(0x40e102d0)
+#define GPIO24		__REG(0x40e102d4)
+#define GPIO25		__REG(0x40e102d8)
+#define GPIO26		__REG(0x40e102dc)
+
+#define GPIO27		__REG(0x40e10400)
+#define GPIO28		__REG(0x40e10404)
+#define GPIO29		__REG(0x40e10408)
+#define GPIO30		__REG(0x40e1040c)
+#define GPIO31		__REG(0x40e10410)
+#define GPIO32		__REG(0x40e10414)
+#define GPIO33		__REG(0x40e10418)
+#define GPIO34		__REG(0x40e1041c)
+#define GPIO35		__REG(0x40e10420)
+#define GPIO36		__REG(0x40e10424)
+#define GPIO37		__REG(0x40e10428)
+#define GPIO38		__REG(0x40e1042c)
+#define GPIO39		__REG(0x40e10430)
+#define GPIO40		__REG(0x40e10434)
+#define GPIO41		__REG(0x40e10438)
+#define GPIO42		__REG(0x40e1043c)
+#define GPIO43		__REG(0x40e10440)
+#define GPIO44		__REG(0x40e10444)
+#define GPIO45		__REG(0x40e10448)
+#define GPIO46		__REG(0x40e1044c)
+#define GPIO47		__REG(0x40e10450)
+#define GPIO48		__REG(0x40e10454)
+
+#define GPIO10		__REG(0x40e10458)
+
+#define GPIO49		__REG(0x40e1045c)
+#define GPIO50		__REG(0x40e10460)
+#define GPIO51		__REG(0x40e10464)
+#define GPIO52		__REG(0x40e10468)
+#define GPIO53		__REG(0x40e1046c)
+#define GPIO54		__REG(0x40e10470)
+#define GPIO55		__REG(0x40e10474)
+#define GPIO56		__REG(0x40e10478)
+#define GPIO57		__REG(0x40e1047c)
+#define GPIO58		__REG(0x40e10480)
+#define GPIO59		__REG(0x40e10484)
+#define GPIO60		__REG(0x40e10488)
+#define GPIO61		__REG(0x40e1048c)
+#define GPIO62		__REG(0x40e10490)
+
+#define GPIO6_2		__REG(0x40e10494)
+#define GPIO7_2		__REG(0x40e10498)
+#define GPIO8_2		__REG(0x40e1049c)
+#define GPIO9_2		__REG(0x40e104a0)
+#define GPIO10_2	__REG(0x40e104a4)
+#define GPIO11_2	__REG(0x40e104a8)
+#define GPIO12_2	__REG(0x40e104ac)
+#define GPIO13_2	__REG(0x40e104b0)
+
+#define GPIO63		__REG(0x40e104b4)
+#define GPIO64		__REG(0x40e104b8)
+#define GPIO65		__REG(0x40e104bc)
+#define GPIO66		__REG(0x40e104c0)
+#define GPIO67		__REG(0x40e104c4)
+#define GPIO68		__REG(0x40e104c8)
+#define GPIO69		__REG(0x40e104cc)
+#define GPIO70		__REG(0x40e104d0)
+#define GPIO71		__REG(0x40e104d4)
+#define GPIO72		__REG(0x40e104d8)
+#define GPIO73		__REG(0x40e104dc)
+
+#define GPIO14_2	__REG(0x40e104e0)
+#define GPIO15_2	__REG(0x40e104e4)
+#define GPIO16_2	__REG(0x40e104e8)
+#define GPIO17_2	__REG(0x40e104ec)
+
+#define GPIO74		__REG(0x40e104f0)
+#define GPIO75		__REG(0x40e104f4)
+#define GPIO76		__REG(0x40e104f8)
+#define GPIO77		__REG(0x40e104fc)
+#define GPIO78		__REG(0x40e10500)
+#define GPIO79		__REG(0x40e10504)
+#define GPIO80		__REG(0x40e10508)
+#define GPIO81		__REG(0x40e1050c)
+#define GPIO82		__REG(0x40e10510)
+#define GPIO83		__REG(0x40e10514)
+#define GPIO84		__REG(0x40e10518)
+#define GPIO85		__REG(0x40e1051c)
+#define GPIO86		__REG(0x40e10520)
+#define GPIO87		__REG(0x40e10524)
+#define GPIO88		__REG(0x40e10528)
+#define GPIO89		__REG(0x40e1052c)
+#define GPIO90		__REG(0x40e10530)
+#define GPIO91		__REG(0x40e10534)
+#define GPIO92		__REG(0x40e10538)
+#define GPIO93		__REG(0x40e1053c)
+#define GPIO94		__REG(0x40e10540)
+#define GPIO95		__REG(0x40e10544)
+#define GPIO96		__REG(0x40e10548)
+#define GPIO97		__REG(0x40e1054c)
+#define GPIO98		__REG(0x40e10550)
+
+#define GPIO99		__REG(0x40e10600)
+#define GPIO100		__REG(0x40e10604)
+#define GPIO101		__REG(0x40e10608)
+#define GPIO102		__REG(0x40e1060c)
+#define GPIO103		__REG(0x40e10610)
+#define GPIO104		__REG(0x40e10614)
+#define GPIO105		__REG(0x40e10618)
+#define GPIO106		__REG(0x40e1061c)
+#define GPIO107		__REG(0x40e10620)
+#define GPIO108		__REG(0x40e10624)
+#define GPIO109		__REG(0x40e10628)
+#define GPIO110		__REG(0x40e1062c)
+#define GPIO111		__REG(0x40e10630)
+#define GPIO112		__REG(0x40e10634)
+
+#define GPIO113		__REG(0x40e10638)
+#define GPIO114		__REG(0x40e1063c)
+#define GPIO115		__REG(0x40e10640)
+#define GPIO116		__REG(0x40e10644)
+#define GPIO117		__REG(0x40e10648)
+#define GPIO118		__REG(0x40e1064c)
+#define GPIO119		__REG(0x40e10650)
+#define GPIO120		__REG(0x40e10654)
+#define GPIO121		__REG(0x40e10658)
+#define GPIO122		__REG(0x40e1065c)
+#define GPIO123		__REG(0x40e10660)
+#define GPIO124		__REG(0x40e10664)
+#define GPIO125		__REG(0x40e10668)
+#define GPIO126		__REG(0x40e1066c)
+#define GPIO127		__REG(0x40e10670)
+
+#define GPIO0_2		__REG(0x40e10674)
+#define GPIO1_2		__REG(0x40e10678)
+#define GPIO2_2		__REG(0x40e1067c)
+#define GPIO3_2		__REG(0x40e10680)
+#define GPIO4_2		__REG(0x40e10684)
+#define GPIO5_2		__REG(0x40e10688)
+
+#else /* CONFIG_CPU_MONAHANS */
+
 #define GAFR0_L		__REG(0x40E00054)  /* GPIO Alternate Function Select Register GPIO<15:0> */
 #define GAFR0_U		__REG(0x40E00058)  /* GPIO Alternate Function Select Register GPIO<31:16> */
 #define GAFR1_L		__REG(0x40E0005C)  /* GPIO Alternate Function Select Register GPIO<47:32> */
 #define GAFR1_U		__REG(0x40E00060)  /* GPIO Alternate Function Select Register GPIO<63:48> */
 #define GAFR2_L		__REG(0x40E00064)  /* GPIO Alternate Function Select Register GPIO<79:64> */
 #define GAFR2_U		__REG(0x40E00068)  /* GPIO Alternate Function Select Register GPIO 80 */
+#endif /* CONFIG_CPU_MONAHANS */
 
 /* More handy macros.  The argument is a literal GPIO number. */
 

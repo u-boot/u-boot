@@ -63,7 +63,7 @@
 # define CONFIG_SMC91111_BASE   0x14000300
 # define CONFIG_SMC91111_EXT_PHY
 # define CONFIG_SMC_USE_32_BIT
-# undef CONFIG_SMC_USE_IOFUNCS
+# undef CONFIG_SMC_USE_IOFUNCS          /* just for use with the kernel */
 #endif
 
 /*
@@ -78,7 +78,7 @@
 
 /* #define CONFIG_COMMANDS       (CONFIG_CMD_DFL | CFG_CMD_MMC | CFG_CMD_FAT) */
 #ifdef TURN_ON_ETHERNET
-# define CONFIG_COMMANDS        (CONFIG_CMD_DFL)
+# define CONFIG_COMMANDS        (CONFIG_CMD_DFL | CFG_CMD_PING)
 #else
 # define CONFIG_COMMANDS	(CONFIG_CMD_DFL & ~CFG_CMD_NET)
 #endif
@@ -87,7 +87,7 @@
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
 
-#define CONFIG_BOOTDELAY	3
+#define CONFIG_BOOTDELAY	-1
 #define CONFIG_ETHADDR		08:00:3e:26:0a:5b
 #define CONFIG_NETMASK		255.255.0.0
 #define CONFIG_IPADDR		192.168.0.21
