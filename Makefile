@@ -1603,6 +1603,9 @@ cerf250_config :	unconfig
 cradle_config	:	unconfig
 	@./mkconfig $(@:_config=) arm pxa cradle
 
+delta_config :
+	@./mkconfig $(@:_config=) arm pxa delta
+
 csb226_config	:	unconfig
 	@./mkconfig $(@:_config=) arm pxa csb226
 

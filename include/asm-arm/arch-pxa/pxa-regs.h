@@ -1163,6 +1163,37 @@ typedef void		(*ExcpHndlr) (void) ;
 #define GPIO4_2		__REG(0x40e10684)
 #define GPIO5_2		__REG(0x40e10688)
 
+/* MFPR Bit Definitions, see 4-10, Vol. 1 */
+#define PULL_SEL	0x8000
+#define PULLUP_EN	0x4000
+#define PULLDOWN_EN	0x2000
+
+#define DRIVE_FAST_1mA	0x0
+#define DRIVE_FAST_2mA	0x400
+#define DRIVE_FAST_3mA	0x800
+#define DRIVE_FAST_4mA	0xC00
+#define DRIVE_SLOW_6mA	0x1000
+#define DRIVE_FAST_6mA	0x1400
+#define DRIVE_SLOW_10mA	0x1800
+#define DRIVE_FAST_10mA	0x1C00
+
+#define SLEEP_SEL	0x200
+#define SLEEP_DATA	0x100
+#define SLEEP_OE_N	0x80
+#define EDGE_CLEAR	0x40
+#define EDGE_FALL_EN	0x20
+#define EDGE_RISE_EN	0x10
+
+#define AF_SEL_0	0x0	/* Alternate function 0 (reset state) */
+#define AF_SEL_1	0x1	/* Alternate function 1 */
+#define AF_SEL_2	0x2	/* Alternate function 2 */
+#define AF_SEL_3	0x3	/* Alternate function 3 */
+#define AF_SEL_4	0x4	/* Alternate function 4 */
+#define AF_SEL_5	0x5	/* Alternate function 5 */
+#define AF_SEL_6	0x6	/* Alternate function 6 */
+#define AF_SEL_7	0x7	/* Alternate function 7 */
+
+
 #else /* CONFIG_CPU_MONAHANS */
 
 #define GAFR0_L		__REG(0x40E00054)  /* GPIO Alternate Function Select Register GPIO<15:0> */
