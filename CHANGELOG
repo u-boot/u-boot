@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add basic support for the SMMACO4 Board from PanDaCom.
+  Patch by Heiko Schocher, 20 Feb 2006
+
 * Update default environment for INKA4x00 board.
 
 * Cleanup U-Boot boot messages on ARM.
