@@ -291,14 +291,17 @@ icecube_5100_config:			unconfig
 		}
 	@./mkconfig -a IceCube ppc mpc5xxx icecube
 
-inka4x0_config:		unconfig
+inka4x0_config:	unconfig
 	@./mkconfig inka4x0 ppc mpc5xxx inka4x0
 
+mcc200_config:	unconfig
+	@./mkconfig mcc200 ppc mpc5xxx mcc200
+
 o2dnt_config:
-	@./mkconfig -a o2dnt ppc mpc5xxx o2dnt
+	@./mkconfig o2dnt ppc mpc5xxx o2dnt
 
 pf5200_config:  unconfig
-	@./mkconfig -a pf5200  ppc mpc5xxx pf5200 esd
+	@./mkconfig pf5200  ppc mpc5xxx pf5200 esd
 
 PM520_config \
 PM520_DDR_config \
