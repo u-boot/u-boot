@@ -1994,6 +1994,31 @@ typedef void		(*ExcpHndlr) (void) ;
 #define PAD_SCLK        __REG_2(0x4810012C)
 #define TAI		__REG_2(0x48100F00) /* TAI Tavor Address Isolation Register */
 
+/* Some frequently used bits */
+#define MDCNFG_DMAP	0x80000000	/* SDRAM 1GB Memory Map Enable */
+#define MDCNFG_DMCEN	0x40000000	/* Enable Dynamic Memory Controller */
+#define MDCNFG_HWFREQ	0x20000000	/* Hardware Frequency Change Calibration */
+#define MDCNFG_DTYPE	0x400		/* SDRAM Type: 1=DDR SDRAM */
+
+#define MDCNFG_DTC_0	0x0		/* Timing Category of SDRAM */
+#define MDCNFG_DTC_1	0x100
+#define MDCNFG_DTC_2	0x200
+#define MDCNFG_DTC_3	0x300
+
+#define MDCNFG_DRAC_12	0x0		/* Number of Row Access Bits */
+#define MDCNFG_DRAC_13	0x20
+#define MDCNFG_DRAC_14	0x40
+
+#define MDCNFG_DCAC_9	0x0		/* Number of Column Acess Bits */
+#define MDCNFG_DCAC_10	0x08
+#define MDCNFG_DCAC_11	0x10
+
+#define MDCNFG_DBW_16	0x4		/* SDRAM Data Bus width 16bit */
+#define MDCNFG_DCSE1	0x2		/* SDRAM CS 1 Enable */
+#define MDCNFG_DCSE0	0x1		/* SDRAM CS 0 Enable */
+
+	
+
 
 /* Data Flash Controller Registers */
 

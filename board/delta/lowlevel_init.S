@@ -48,7 +48,21 @@ DRAM_SIZE:  .long   CFG_DRAM_SIZE
 	cmp             r3, \time
 	bls             0b
 .endm
-			
+
+
+#define SDRAM_CMD_NOP	0x40000000
+
+.macro do_nop_cmd num
+	ldr		r2, =MDMRS
+	ldr		r3, =SDRAM_CMD_NOP
+	ldr		r4, =0x0
+loop:	
+	str		r3, [r2]
+	add		r4, r4, #1
+	cmp		r4, \num
+	bls		loop
+.endm
+	
 /*
  * 	Memory setup
  */
@@ -58,39 +72,15 @@ lowlevel_init:
 	/* Set up GPIO pins first ----------------------------------------- */
 	mov      r10, lr
 	
-        /*  Configure GPIO Pins 41 - 48 as UART1 / altern. Fkt. 2 */
-	ldr             r0, =0x40E10438 @ GPIO41 FFRXD
-	ldr             r1, =0x802
-	str             r1, [r0]
+        /*  Configure GPIO  Pins 97, 98 UART1 / altern. Fkt. 1 */
+	ldr		r0, =GPIO97
+	ldr		r1, =0x801
+	str		r1, [r0]
 
-	ldr             r0, =0x40E1043C @ GPIO42 FFTXD
-	ldr             r1, =0x802
-	str             r1, [r0]
-
-	ldr             r0, =0x40E10440 @ GPIO43 FFCTS
-	ldr             r1, =0x802
-	str             r1, [r0]
-
-	ldr             r0, =0x40E10444 @ GPIO 44 FFDCD
-	ldr             r1, =0x802
-	str             r1, [r0]
-
-	ldr             r0, =0x40E10448 @ GPIO 45 FFDSR
-	ldr             r1, =0x802
-	str             r1, [r0]
-
-	ldr             r0, =0x40E1044C @ GPIO 46 FFRI
-	ldr             r1, =0x802
-	str             r1, [r0]
-
-	ldr             r0, =0x40E10450 @ GPIO 47 FFDTR
-	ldr             r1, =0x802
-	str             r1, [r0]
-
-	ldr             r0, =0x40E10454 @ GPIO 48
-	ldr             r1, =0x802
-	str             r1, [r0]
-
+	ldr		r0, =GPIO98
+	ldr		r1, =0x801
+	str		r1, [r0]
+		
         /* tebrandt - ASCR, clear the RDH bit */
 	ldr             r0, =ASCR	
 	ldr             r1, [r0]
@@ -99,10 +89,6 @@ lowlevel_init:
 	
 	/* ---------------------------------------------------------------- */
 	/* Enable memory interface                                          */
-	/*                                                                  */
-	/* The sequence below is based on the recommended init steps        */
-	/* detailed in the Intel PXA250 Operating Systems Developers Guide, */
-	/* Chapter 10.                                                      */
 	/* ---------------------------------------------------------------- */
 
 	/* ---------------------------------------------------------------- */
@@ -110,21 +96,67 @@ lowlevel_init:
 	/*         clocks to settle. Only necessary after hard reset...     */
 	/*         FIXME: can be optimized later                            */
 	/* ---------------------------------------------------------------- */
-
-	/* mk:	 replaced with wait macro */
-/* 	ldr r3, =OSCR			/\* reset the OS Timer Count to zero *\/ */
-/* 	mov r2, #0 */
-/* 	str r2, [r3] */
-/* 	ldr r4, =0x300			/\* really 0x2E1 is about 200usec,   *\/ */
-/* 					/\* so 0x300 should be plenty        *\/ */
-/* 1: */
-/* 	ldr r2, [r3] */
-/* 	cmp r4, r2 */
-/* 	bgt 1b */
 	wait #300
 	
 mem_init:
 
+#define NEW_SDRAM_INIT 1
+#ifdef NEW_SDRAM_INIT
+
+	/* Configure ACCR Register - enable DMEMC Clock at 260 / 2 MHz */
+	ldr		r0, =ACCR
+	ldr		r1, [r0]
+	orr		r1, r1, #0x3000
+	str		r1, [r0]
+	ldr		r1, [r0]
+
+	/* 2. Programm MDCNFG, leaving DMCEN de-asserted */
+	ldr		r0, =MDCNFG
+	ldr		r1, =(MDCNFG_DMAP | MDCNFG_DTYPE | MDCNFG_DTC_2 | MDCNFG_DCSE0 | MDCNFG_DRAC_13)
+	/* 	ldr		r1, =0x80000403 */
+	str		r1, [r0]
+	ldr		r1, [r0]	/* delay until written */
+
+	/* 3. wait nop power up waiting period (200ms) 
+	 * optimization: Steps 4+6 can be done during this
+	 */
+	wait #300
+
+	/* 4. Perform an initial Rcomp-calibration cycle */
+	ldr		r0, =RCOMP
+	ldr		r1, =0x80000000
+	str		r1, [r0]
+	ldr		r1, [r0]	/* delay until written */
+	/* missing: program for automatic rcomp evaluation cycles */
+
+	/* 5. DDR DRAM strobe delay calibration */
+	ldr		r0, =DDR_HCAL
+	ldr		r1, =0x88000007
+	str		r1, [r0]
+	wait		#5
+	ldr		r1, [r0]	/* delay until written */
+
+	/* Set MDMRS */
+	ldr		r0, =MDMRS
+	ldr		r1, =0x60000023
+	str		r1, [r0]
+	wait	#300
+	
+	/* Configure MDREFR */
+	ldr		r0, =MDREFR
+	ldr		r1, =0x00000006
+	str		r1, [r0]
+	ldr		r1, [r0]
+
+	/* Enable the dynamic memory controller */
+	ldr		r0, =MDCNFG
+	ldr		r1, [r0]
+	orr		r1, r1, #MDCNFG_DMCEN
+	str		r1, [r0]
+
+
+#else /* NEW_SDRAM_INIT */
+	
 	/* configure the MEMCLKCFG register */
         ldr             r1, =MEMCLKCFG
         ldr             r2, =0x00010001
@@ -235,6 +267,8 @@ mem_init:
 	orr		r1, r1, #0x40000000	@ enable SDRAM for Normal Access
 	str		r1, [r0]
 
+#endif /* NEW_SDRAM_INIT */
+	
 	/* scrub/init SDRAM if enabled/present */
 /* 	ldr	r11, =0xa0000000 /\* base address of SDRAM (CFG_DRAM_BASE) *\/ */
 /* 	ldr	r12, =0x04000000 /\* size of memory to scrub (CFG_DRAM_SIZE) *\/ */
@@ -270,18 +304,9 @@ mem_init:
 	mov	r0,#0x80000000
 	mcr	p14,0,r0,c10,c0,0  // dcsr
 
-
-	
-	/* We are finished with Intel's memory controller initialisation    */
-
-
-	/* ---------------------------------------------------------------- */
-	/* End lowlevel_init                                                     */
-	/* ---------------------------------------------------------------- */
-
 endlowlevel_init:
 
-    mov     pc, lr
+	mov     pc, lr
 
 
 /*
