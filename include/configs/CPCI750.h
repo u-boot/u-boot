@@ -285,13 +285,19 @@
  * FLASH related
  *----------------------------------------------------------------------*/
 
+#define CFG_FLASH_CFI_DRIVER
 #define CFG_FLASH_CFI		1	   /* Flash is CFI conformant		*/
-#define CFG_MAX_FLASH_SECT	128	   /* max number of sectors on one chip	*/
-#define CFG_MAX_FLASH_BANKS	4	   /* max number of memory banks	*/
-#define CFG_FLASH_INCREMENT	0x01000000 /* there is only one bank		*/
 #define CFG_FLASH_PROTECTION	1	   /* use hardware protection		*/
 #define CFG_FLASH_USE_BUFFER_WRITE 1	   /* use buffered writes (20x faster)	*/
 #define CFG_FLASH_BASE		0xfc000000 /* start of flash banks              */
+#define CFG_MAX_FLASH_BANKS	4	   /* max number of memory banks	*/
+#define CFG_FLASH_INCREMENT     0x01000000 /* size of  flash bank               */
+#define CFG_MAX_FLASH_SECT	128	   /* max number of sectors on one chip	*/
+#define CFG_FLASH_BANKS_LIST  { CFG_FLASH_BASE,                            \
+                                CFG_FLASH_BASE + 1*CFG_FLASH_INCREMENT,    \
+                                CFG_FLASH_BASE + 2*CFG_FLASH_INCREMENT,    \
+                                CFG_FLASH_BASE + 3*CFG_FLASH_INCREMENT }
+#define CFG_FLASH_EMPTY_INFO    1          /* show if bank is empty             */
 
 /* areas to map different things with the GT in physical space */
 #define CFG_DRAM_BANKS		4
