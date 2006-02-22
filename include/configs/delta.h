@@ -143,14 +143,14 @@
  * Physical Memory Map
  */
 #define CONFIG_NR_DRAM_BANKS	4	   /* we have 2 banks of DRAM */
-#define PHYS_SDRAM_1		0x80000000 /* SDRAM Bank #1 */
-#define PHYS_SDRAM_1_SIZE	0x8000000  /* 128 MB */
-#define PHYS_SDRAM_2		0x88000000 /* SDRAM Bank #2 */
-#define PHYS_SDRAM_2_SIZE	0x8000000  /* 128 MB */
-#define PHYS_SDRAM_3		0x90000000 /* SDRAM Bank #3 */
-#define PHYS_SDRAM_3_SIZE	0x8000000  /* 128 MB */
-#define PHYS_SDRAM_4		0x98000000 /* SDRAM Bank #4 */
-#define PHYS_SDRAM_4_SIZE	0x8000000  /* 128 MB */
+#define PHYS_SDRAM_1		0xa0000000 /* SDRAM Bank #1 */
+#define PHYS_SDRAM_1_SIZE	0x1000000  /* 64 MB */
+#define PHYS_SDRAM_2		0xa1000000 /* SDRAM Bank #2 */
+#define PHYS_SDRAM_2_SIZE	0x1000000  /* 64 MB */
+#define PHYS_SDRAM_3		0xa2000000 /* SDRAM Bank #3 */
+#define PHYS_SDRAM_3_SIZE	0x1000000  /* 64 MB */
+#define PHYS_SDRAM_4		0xa3000000 /* SDRAM Bank #4 */
+#define PHYS_SDRAM_4_SIZE	0x1000000  /* 64 MB */
 
 #define PHYS_FLASH_1		0x00000000 /* Flash Bank #1 */
 #define PHYS_FLASH_2		0x04000000 /* Flash Bank #2 */
@@ -158,8 +158,8 @@
 #define PHYS_FLASH_BANK_SIZE	0x02000000 /* 32 MB Banks */
 #define PHYS_FLASH_SECT_SIZE	0x00040000 /* 256 KB sectors (x2) */
 
-#define CFG_DRAM_BASE		0x80000000 /* at CS0 */
-#define CFG_DRAM_SIZE		0x20000000 /* 512 MB Ram */
+#define CFG_DRAM_BASE		0xa0000000 /* at CS0 */
+#define CFG_DRAM_SIZE		0x04000000 /* 64 MB Ram */
 
 #define CFG_SKIP_DRAM_SCRUB	1
 
