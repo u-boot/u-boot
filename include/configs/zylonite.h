@@ -120,8 +120,8 @@
 #define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
 #define CFG_DEVICE_NULLDEV	1
 
-#define CFG_MEMTEST_START	0xa0400000	/* memtest works on	*/
-#define CFG_MEMTEST_END		0xa0800000	/* 4 ... 8 MB in DRAM	*/
+#define CFG_MEMTEST_START	0x9c000000	/* memtest works on	*/
+#define CFG_MEMTEST_END		0x9c400000	/* 4 ... 8 MB in DRAM	*/
 
 #undef	CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
 

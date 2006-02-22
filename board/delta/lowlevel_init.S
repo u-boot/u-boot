@@ -49,20 +49,6 @@ DRAM_SIZE:  .long   CFG_DRAM_SIZE
 	bls             0b
 .endm
 
-
-#define SDRAM_CMD_NOP	0x40000000
-
-.macro do_nop_cmd num
-	ldr		r2, =MDMRS
-	ldr		r3, =SDRAM_CMD_NOP
-	ldr		r4, =0x0
-loop:	
-	str		r3, [r2]
-	add		r4, r4, #1
-	cmp		r4, \num
-	bls		loop
-.endm
-	
 /*
  * 	Memory setup
  */
@@ -96,7 +82,7 @@ lowlevel_init:
 	/*         clocks to settle. Only necessary after hard reset...     */
 	/*         FIXME: can be optimized later                            */
 	/* ---------------------------------------------------------------- */
-	wait #300
+; 	wait #300
 	
 mem_init:
 
@@ -138,7 +124,7 @@ mem_init:
 
 	/* Set MDMRS */
 	ldr		r0, =MDMRS
-	ldr		r1, =0x60000023
+	ldr		r1, =0x60000033
 	str		r1, [r0]
 	wait	#300
 	
@@ -269,13 +255,11 @@ mem_init:
 
 #endif /* NEW_SDRAM_INIT */
 	
+#ifndef CFG_SKIP_DRAM_SCRUB
 	/* scrub/init SDRAM if enabled/present */
-/* 	ldr	r11, =0xa0000000 /\* base address of SDRAM (CFG_DRAM_BASE) *\/ */
-/* 	ldr	r12, =0x04000000 /\* size of memory to scrub (CFG_DRAM_SIZE) *\/ */
-/* 	mov	r8,r12		 /\* save DRAM size (mk: why???) *\/ */
-	ldr	r8, =0xa0000000  /* base address of SDRAM (CFG_DRAM_BASE) */
-	ldr	r9, =0x04000000  /* size of memory to scrub (CFG_DRAM_SIZE) */
-	mov	r0, #0		 /* scrub with 0x0000:0000 */
+	ldr	r8, =CFG_DRAM_BASE	/* base address of SDRAM (CFG_DRAM_BASE) */
+	ldr	r9, =CFG_DRAM_SIZE	/* size of memory to scrub (CFG_DRAM_SIZE) */
+	mov	r0, #0			/* scrub with 0x0000:0000 */
 	mov	r1, #0
 	mov	r2, #0				
 	mov	r3, #0
@@ -284,10 +268,11 @@ mem_init:
 	mov	r6, #0					
 	mov	r7, #0
 10:     /* fastScrubLoop */
-	subs	r9, r9, #32	// 32 bytes/line
+	subs	r9, r9, #32	/* 8 words/line */
 	stmia	r8!, {r0-r7}
 	beq	15f
 	b	10b
+#endif /* CFG_SKIP_DRAM_SCRUB */
 
 15:
 	/* Mask all interrupts */

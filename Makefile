@@ -1838,6 +1838,7 @@ clean:
 	rm -f board/cray/L1/bootscript.c board/cray/L1/bootscript.image
 	rm -f board/trab/trab_fkt board/voiceblue/eeprom
 	rm -f board/integratorap/u-boot.lds board/integratorcp/u-boot.lds
+	rm -f u-boot.objdump-*
 
 clobber:	clean
 	find . -type f \( -name .depend \
