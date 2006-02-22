@@ -315,8 +315,8 @@ PM520_ROMBOOT_DDR_config:	unconfig
 		}
 	@./mkconfig -a PM520 ppc mpc5xxx pm520
 
-SMMACO4_config: unconfig
-	@./mkconfig -a SMMACO4 ppc mpc5xxx tqm5200
+smmaco4_config: unconfig
+	@./mkconfig -a smmaco4 ppc mpc5xxx tqm5200
 
 spieval_config:	unconfig
 	echo "#define CONFIG_CS_AUTOCONF">>include/config.h
