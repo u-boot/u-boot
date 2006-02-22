@@ -143,8 +143,9 @@
 #define CFG_PCI_SUBSYS_VENDORID 0x12FE  /* PCI Vendor ID: esd gmbh      */
 #define CFG_PCI_SUBSYS_DEVICEID 0x040b  /* PCI Device ID: CPCI-2DP      */
 #define CFG_PCI_CLASSCODE       0x0280	/* PCI Class Code: Network/Other*/
-#define CFG_PCI_PTM1LA  0x00000000      /* point to sdram               */
-#define CFG_PCI_PTM1MS  0xfc000001      /* 64MB, enable hard-wired to 1 */
+
+#define CFG_PCI_PTM1LA  (bd->bi_memstart) /* point to sdram               */
+#define CFG_PCI_PTM1MS  (~(bd->bi_memsize - 1) | 1) /* memsize, enable hard-wired to 1 */
 #define CFG_PCI_PTM1PCI 0x00000000      /* Host: use this pci address   */
 #define CFG_PCI_PTM2LA	0xef000000	/* point to internal regs + PB0/1 */
 #define CFG_PCI_PTM2MS  0xff000001      /* 16MB, enable                  */
@@ -250,14 +251,15 @@
 
 #define CFG_INIT_RAM_ADDR	0x40000000  /* use data cache		       */
 #define CFG_INIT_RAM_END	0x2000	/* End of used area in RAM	       */
-#define CFG_GBL_DATA_SIZE      128  /* size in bytes reserved for initial data */
-#define CFG_GBL_DATA_OFFSET    (CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
+#define CFG_GBL_DATA_SIZE       128  /* size in bytes reserved for initial data */
+#define CFG_GBL_DATA_OFFSET     (CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
  * GPIO definitions
  */
 #define CFG_EEPROM_WP		(0x80000000 >> 13)   /* GPIO13 */
+#define CFG_SELF_RST		(0x80000000 >> 14)   /* GPIO14 */
 #define CFG_PB_LED		(0x80000000 >> 16)   /* GPIO16 */
 #define CFG_INTA_FAKE		(0x80000000 >> 23)   /* GPIO23 */
 

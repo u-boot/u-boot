@@ -5,6 +5,9 @@
  * (C) Copyright 2005
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
+ * (C) Copyright 2006
+ * Matthias Fuchs, esd GmbH, matthias.fuchs@esd-electronics.com
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -30,7 +33,6 @@
 #include <malloc.h>
 #include <pci.h>
 #include <sm501.h>
-
 
 #ifdef CONFIG_VIDEO_SM501
 
@@ -66,10 +68,12 @@ static const SMI_REGS init_regs_800x600 [] =
 	{0x00040, SWAP32(0x00021807)},
 	{0x00044, SWAP32(0x221a0a01)},
 	{0x00054, SWAP32(0x00000000)},
+	/* GPIO */
+	{0x1000c, SWAP32(0xfffffff0)}, /* GPIO32..63 direction */
 	/* panel control regs... */
 	{0x80000, SWAP32(0x0f013105)}, /* panel display control: 16-bit RGB 5:6:5 mode */
 	{0x80004, SWAP32(0xc428bb17)}, /* panel panning control ??? */
-	{0x8000C, SWAP32(0x00000000)}, /* panel fb address */
+	{0x8000C, SWAP32(0x00010000)}, /* panel fb address */
 	{0x80010, SWAP32(0x06400640)}, /* panel fb offset/window width */
 	{0x80014, SWAP32(0x03200000)}, /* panel fb width (0x320=800) */
 	{0x80018, SWAP32(0x02580000)}, /* panel fb height (0x258=600) */
@@ -100,10 +104,12 @@ static const SMI_REGS init_regs_1024x768 [] =
 	{0x00040, SWAP32(0x00021807)},
 	{0x00044, SWAP32(0x011a0a01)},
 	{0x00054, SWAP32(0x00000000)},
+	/* GPIO */
+	{0x1000c, SWAP32(0xfffffff0)}, /* GPIO32..63 direction */
 	/* panel control regs... */
 	{0x80000, SWAP32(0x0f013105)}, /* panel display control: 16-bit RGB 5:6:5 mode */
 	{0x80004, SWAP32(0xc428bb17)}, /* panel panning control ??? */
-	{0x8000C, SWAP32(0x00000000)}, /* panel fb address */
+	{0x8000C, SWAP32(0x00010000)}, /* panel fb address */
 	{0x80010, SWAP32(0x08000800)}, /* panel fb offset/window width */
 	{0x80014, SWAP32(0x04000000)}, /* panel fb width (0x400=1024) */
 	{0x80018, SWAP32(0x03000000)}, /* panel fb height (0x300=768) */
@@ -144,10 +150,12 @@ static const SMI_REGS init_regs_800x600 [] =
 	{0x00040, SWAP32(0x00021807)},
 	{0x00044, SWAP32(0x221a0a01)},
 	{0x00054, SWAP32(0x00000000)},
+	/* GPIO */
+	{0x1000c, SWAP32(0xfffffff0)}, /* GPIO32..63 direction */
 	/* panel control regs... */
 	{0x80000, SWAP32(0x0f013106)}, /* panel display control: 32-bit RGB 8:8:8 mode */
 	{0x80004, SWAP32(0xc428bb17)}, /* panel panning control ??? */
-	{0x8000C, SWAP32(0x00000000)}, /* panel fb address */
+	{0x8000C, SWAP32(0x00010000)}, /* panel fb address */
 	{0x80010, SWAP32(0x0c800c80)}, /* panel fb offset/window width */
 	{0x80014, SWAP32(0x03200000)}, /* panel fb width (0x320=800) */
 	{0x80018, SWAP32(0x02580000)}, /* panel fb height (0x258=600) */
@@ -178,10 +186,12 @@ static const SMI_REGS init_regs_1024x768 [] =
 	{0x00040, SWAP32(0x00021807)},
 	{0x00044, SWAP32(0x011a0a01)},
 	{0x00054, SWAP32(0x00000000)},
+	/* GPIO */
+	{0x1000c, SWAP32(0xfffffff0)}, /* GPIO32..63 direction */
 	/* panel control regs... */
 	{0x80000, SWAP32(0x0f013106)}, /* panel display control: 32-bit RGB 8:8:8 mode */
 	{0x80004, SWAP32(0xc428bb17)}, /* panel panning control ??? */
-	{0x8000C, SWAP32(0x00000000)}, /* panel fb address */
+	{0x8000C, SWAP32(0x00010000)}, /* panel fb address */
 	{0x80010, SWAP32(0x10001000)}, /* panel fb offset/window width */
 	{0x80014, SWAP32(0x04000000)}, /* panel fb width (0x400=1024) */
 	{0x80018, SWAP32(0x03000000)}, /* panel fb height (0x300=768) */
@@ -272,16 +282,15 @@ au_image_t au_image[] = {
 int N_AU_IMAGES = (sizeof(au_image) / sizeof(au_image[0]));
 
 
+/*
+ * Get version of HH405 board from GPIO's
+ */
 int board_revision(void)
 {
 	unsigned long osrh_reg;
 	unsigned long isr1h_reg;
 	unsigned long tcr_reg;
 	unsigned long value;
-
-	/*
-	 * Get version of HH405 board from GPIO's
-	 */
 
 	/*
 	 * Setup GPIO pins (BLAST/GPIO0 and GPIO9 as GPIO)
@@ -305,15 +314,13 @@ int board_revision(void)
 
 	if (value & 0x80000000) {
 		/* Revision 1.0 or 1.1 detected */
-		return 0x0101;
+		return 1;
 	} else {
 		if (value & 0x00400000) {
 			/* unused */
-			return 0x0103;
+			return 3;
 		} else {
-			/* Revision >= 2.0 detected */
-			/* rev. 2.x uses four SM501 GPIOs for revision coding */
-			return 0x0200;
+			return 2;
 		}
 	}
 }
@@ -349,6 +356,38 @@ int board_early_init_f (void)
 	return 0;
 }
 
+int cf_enable(void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+
+	int i;
+
+	volatile unsigned short *fpga_ctrl =
+		(unsigned short *)((ulong)CFG_FPGA_BASE_ADDR + CFG_FPGA_CTRL);
+	volatile unsigned short *fpga_status =
+		(unsigned short *)((ulong)CFG_FPGA_BASE_ADDR + CFG_FPGA_CTRL + 2);
+
+	if (gd->board_type >= 2) {
+		if (*fpga_status & CFG_FPGA_STATUS_CF_DETECT) {
+			if (!(*fpga_ctrl & CFG_FPGA_CTRL_CF_BUS_EN)) {
+				*fpga_ctrl &= ~CFG_FPGA_CTRL_CF_PWRN;
+
+				for (i=0; i<300; i++)
+					udelay(1000);
+
+				*fpga_ctrl |= CFG_FPGA_CTRL_CF_BUS_EN;
+
+				for (i=0; i<20; i++)
+					udelay(1000);
+			}
+		} else {
+			*fpga_ctrl &= ~CFG_FPGA_CTRL_CF_BUS_EN;
+			*fpga_ctrl |= CFG_FPGA_CTRL_CF_PWRN;
+		}
+	}
+
+	return 0;
+}
 
 int misc_init_r (void)
 {
@@ -433,9 +472,6 @@ int misc_init_r (void)
 	 * Write Board revision into FPGA
 	 */
 	*fpga_ctrl |= gd->board_type & 0x0003;
-	if (gd->board_type >= 0x0200) {
-		*fpga_ctrl |= CFG_FPGA_CTRL_CF_BUS_EN;
-	}
 
  	/*
 	 * Setup and enable EEPROM write protection
@@ -471,7 +507,7 @@ int misc_init_r (void)
 		contrast0 = simple_strtol(str, NULL, 16);
 		if (contrast0 > 255) {
 			printf("ERROR: contrast0 value too high (0x%lx)!\n", contrast0);
-			contrast0 = 0;
+			contrast0 = 0xffffffff;
 		}
 	}
 
@@ -544,9 +580,9 @@ int misc_init_r (void)
 		 */
 		*fpga_ctrl |= CFG_FPGA_CTRL_VGA0_BL | CFG_FPGA_CTRL_VGA0_BL_MODE;
 		/*
-		 * Set lcd clock (small epson)
+		 * Set lcd clock (small epson), enable 1-wire interface
 		 */
-		*fpga_ctrl |= LCD_CLK_08330;
+		*fpga_ctrl |= LCD_CLK_08330 | CFG_FPGA_CTRL_OW_ENABLE;
 
 		lcd_setup(0, 1);
 		lcd_init((uchar *)CFG_LCD_SMALL_REG, (uchar *)CFG_LCD_SMALL_MEM,
@@ -565,8 +601,10 @@ int misc_init_r (void)
 			puts("VGA:   SM501 with 8 MB ");
 			if (strcmp(str, "ppc221") == 0) {
 				printf("(800*600, %dbpp)\n", BPP);
+				*lcd_backlight = 0x002d; /* max. allowed brightness */
 			} else if (strcmp(str, "ppc231") == 0) {
 				printf("(1024*768, %dbpp)\n", BPP);
+				*lcd_backlight = 0x0000;
 			} else {
 				printf("Unsupported bd_type defined (%s) -> No display configured!\n", str);
 				return 0;
@@ -577,6 +615,8 @@ int misc_init_r (void)
 		}
 #endif /* CONFIG_VIDEO_SM501 */
 	}
+
+	cf_enable();
 
 	return (0);
 }
@@ -590,7 +630,7 @@ int checkboard (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
-	unsigned char str[64];
+	char str[64];
 	int i = getenv_r ("serial#", str, sizeof(str));
 
 	puts ("Board: ");
@@ -608,14 +648,7 @@ int checkboard (void)
 	}
 
 	gd->board_type = board_revision();
-	printf(", Rev %ld.%ld)\n",
-	       (gd->board_type >> 8) & 0xff,
-	       gd->board_type & 0xff);
-
-	/*
-	 * Disable sleep mode in LXT971
-	 */
-	lxt971_no_sleep();
+	printf(", Rev %ld.x)\n", gd->board_type);
 
 	return 0;
 }
@@ -637,28 +670,27 @@ long int initdram (int board_type)
 }
 
 
-int testdram (void)
-{
-	/* TODO: XXX XXX XXX */
-	printf ("test: 16 MB - ok\n");
-
-	return (0);
-}
-
-
 #ifdef CONFIG_IDE_RESET
 void ide_set_reset(int on)
 {
+	DECLARE_GLOBAL_DATA_PTR;
+
 	volatile unsigned short *fpga_mode =
 		(unsigned short *)((ulong)CFG_FPGA_BASE_ADDR + CFG_FPGA_CTRL);
+	volatile unsigned short *fpga_status =
+		(unsigned short *)((ulong)CFG_FPGA_BASE_ADDR + CFG_FPGA_CTRL + 2);
 
-	/*
-	 * Assert or deassert CompactFlash Reset Pin
-	 */
-	if (on) {		/* assert RESET */
-		*fpga_mode &= ~(CFG_FPGA_CTRL_CF_RESET);
-	} else {		/* release RESET */
-		*fpga_mode |= CFG_FPGA_CTRL_CF_RESET;
+	if (((gd->board_type >= 2) && (*fpga_status & CFG_FPGA_STATUS_CF_DETECT)) ||
+	    (gd->board_type < 2)) {
+		/*
+		 * Assert or deassert CompactFlash Reset Pin
+		 */
+		if (on) {		/* assert RESET */
+			cf_enable();
+			*fpga_mode &= ~(CFG_FPGA_CTRL_CF_RESET);
+		} else {		/* release RESET */
+			*fpga_mode |= CFG_FPGA_CTRL_CF_RESET;
+		}
 	}
 }
 #endif /* CONFIG_IDE_RESET */
@@ -778,8 +810,7 @@ void video_get_info_str (int line_number, char *info)
 			strcat(str, " (Missing bd_type!");
 		}
 
-		sprintf(str2, ", Rev %ld.%ld)",
-		       (gd->board_type >> 8) & 0xff, gd->board_type & 0xff);
+		sprintf(str2, ", Rev %ld.x)", gd->board_type);
 		strcat(str, str2);
 		strcpy(info, str);
 	} else {
@@ -822,7 +853,11 @@ unsigned int board_video_get_fb (void)
 	devbusfn = pci_find_device(PCI_VENDOR_SM, PCI_DEVICE_SM501, 0);
 	if (devbusfn != -1) {
 		pci_read_config_dword(devbusfn, PCI_BASE_ADDRESS_0, (u32 *)&addr);
-		return (addr & 0xfffffffe);
+		addr &= 0xfffffffe;
+#ifdef CONFIG_VIDEO_SM501_FBMEM_OFFSET
+		addr += CONFIG_VIDEO_SM501_FBMEM_OFFSET;
+#endif
+		return addr;
 	}
 
 	return 0;
@@ -875,3 +910,15 @@ int board_get_height (void)
 }
 
 #endif /* CONFIG_VIDEO_SM501 */
+
+
+void reset_phy(void)
+{
+#ifdef CONFIG_LXT971_NO_SLEEP
+
+	/*
+	 * Disable sleep mode in LXT971
+	 */
+	lxt971_no_sleep();
+#endif
+}

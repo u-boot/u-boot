@@ -229,6 +229,9 @@ void lcd_init(uchar *lcd_reg, uchar *lcd_mem, S1D_REGS *regs, int reg_count,
 	/*
 	 * Detect epson
 	 */
+	lcd_reg[0] = 0x00;
+	lcd_reg[1] = 0x00;
+
 	if (lcd_reg[0] == 0x1c) {
 		/*
 		 * Big epson detected

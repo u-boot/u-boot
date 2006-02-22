@@ -44,6 +44,14 @@ static const unsigned char pci_irq_swizzle[2][PCI_MAX_DEVICES] = {
 	{0, 0, 0, 0, 0, 0, 0, 29, 29, [9 ... PCI_MAX_DEVICES - 1] = 0 },
 };
 
+#ifdef CONFIG_USE_CPCIDVI
+typedef struct {
+        unsigned int base;
+        unsigned int init;
+} GT_CPCIDVI_ROM_T;
+
+static GT_CPCIDVI_ROM_T gt_cpcidvi_rom = {0, 0};
+#endif
 
 #ifdef DEBUG
 static const unsigned int pci_bus_list[] = { PCI_0_MODE, PCI_1_MODE };
@@ -800,21 +808,63 @@ static void gt_setup_ide (struct pci_controller *hose,
 		unsigned int offset =
 			(bar < 2) ? bar * 8 : 0x100 + (bar - 2) * 8;
 
-		pci_write_config_dword (dev, PCI_BASE_ADDRESS_0 + offset,
-					0x0);
-		pci_read_config_dword (dev, PCI_BASE_ADDRESS_0 + offset,
-				       &bar_response);
+		pci_hose_write_config_dword (hose, dev, PCI_BASE_ADDRESS_0 + offset,
+					     0x0);
+		pci_hose_read_config_dword (hose, dev, PCI_BASE_ADDRESS_0 + offset,
+					    &bar_response);
 
 		pciauto_region_allocate (bar_response &
 					 PCI_BASE_ADDRESS_SPACE_IO ? hose->
 					 pci_io : hose->pci_mem, ide_bar[bar],
 					 &bar_value);
 
-		pci_write_config_dword (dev, PCI_BASE_ADDRESS_0 + bar * 4,
-					bar_value);
+		pci_hose_write_config_dword (hose, dev, PCI_BASE_ADDRESS_0 + bar * 4,
+					     bar_value);
 	}
 }
 
+#ifdef CONFIG_USE_CPCIDVI
+static void gt_setup_cpcidvi (struct pci_controller *hose,
+			      pci_dev_t dev, struct pci_config_table *entry)
+{
+	u32               bar_value, pci_response;
+
+	pci_hose_read_config_dword (hose, dev, PCI_COMMAND, &pci_response);
+	pci_hose_write_config_dword (hose, dev, PCI_BASE_ADDRESS_0, 0xffffffff);
+	pci_hose_read_config_dword (hose, dev, PCI_BASE_ADDRESS_0, &pci_response);
+	pciauto_region_allocate (hose->pci_mem, 0x01000000, &bar_value);
+	pci_hose_write_config_dword (hose, dev, PCI_BASE_ADDRESS_0, (bar_value & 0xffffff00));
+	pci_hose_write_config_dword (hose, dev, PCI_ROM_ADDRESS, 0x0);
+	pciauto_region_allocate (hose->pci_mem, 0x40000, &bar_value);
+	pci_hose_write_config_dword (hose, dev, PCI_ROM_ADDRESS, (bar_value & 0xffffff00) | 0x01);
+	gt_cpcidvi_rom.base = bar_value & 0xffffff00;
+	gt_cpcidvi_rom.init = 1;
+}
+
+unsigned char gt_cpcidvi_in8(unsigned int offset)
+{
+        unsigned char     data;
+
+	if (gt_cpcidvi_rom.init == 0) {
+	        return(0);
+	        }
+        data = in8((offset & 0x04) + 0x3f000 + gt_cpcidvi_rom.base);
+        return(data);
+}
+
+void gt_cpcidvi_out8(unsigned int offset, unsigned char data)
+{
+        unsigned int      off;
+		
+	if (gt_cpcidvi_rom.init == 0) {
+	        return;
+	        }
+	off = data;
+	off = ((off << 3) & 0x7f8) + (offset & 0x4) + 0x3e000 + gt_cpcidvi_rom.base;
+        in8(off);
+        return;
+}
+#endif
 
 /* TODO BJW: Change this for DB64360. This was pulled from the EV64260  */
 /* and is curently not called *. */
@@ -835,9 +885,12 @@ static void gt_fixup_irq (struct pci_controller *hose, pci_dev_t dev)
 #endif
 
 struct pci_config_table gt_config_table[] = {
+#ifdef CONFIG_USE_CPCIDVI
+	{PCI_VENDOR_ID_CT, PCI_DEVICE_ID_CT_69030, PCI_CLASS_DISPLAY_VGA,
+	 PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, gt_setup_cpcidvi},
+#endif
 	{PCI_ANY_ID, PCI_ANY_ID, PCI_CLASS_STORAGE_IDE,
 	 PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, gt_setup_ide},
-
 	{}
 };
 
@@ -857,10 +910,21 @@ void pci_init_board (void)
 #ifdef CONFIG_PCI_PNP
 	unsigned int bar;
 #endif
-
 #ifdef DEBUG
 	gt_pci_bus_mode_display (PCI_HOST0);
 #endif
+#ifdef CONFIG_USE_CPCIDVI
+	gt_cpcidvi_rom.init = 0;
+	gt_cpcidvi_rom.base = 0;
+#endif
+
+	pci0_hose.config_table = gt_config_table;
+	pci1_hose.config_table = gt_config_table;
+
+#ifdef CONFIG_USE_CPCIDVI
+	gt_config_table[0].config_device =  gt_setup_cpcidvi;
+#endif
+	gt_config_table[1].config_device =  gt_setup_ide;
 
 	pci0_hose.first_busno = 0;
 	pci0_hose.last_busno = 0xff;

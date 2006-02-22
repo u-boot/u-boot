@@ -70,9 +70,11 @@
 #define CONFIG_IDENT_STRING	"Marvell 64360 + IBM750FX"
 
 /*#define CFG_HUSH_PARSER*/
-#undef CFG_HUSH_PARSER
+#define CFG_HUSH_PARSER
 
 #define CFG_PROMPT_HUSH_PS2	"> "
+
+#define CFG_AUTO_COMPLETE 1
 
 /* Define which ETH port will be used for connecting the network */
 #define CFG_ETH_PORT		ETH_0
@@ -154,6 +156,18 @@
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
+
+#define CONFIG_USE_CPCIDVI
+
+#ifdef  CONFIG_USE_CPCIDVI
+#define CONFIG_VIDEO
+#define CONFIG_VIDEO_CT69000
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VIDEO_SW_CURSOR
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_I8042_KBD
+#define CFG_ISA_IO 0
+#endif
 
 /*
  * Miscellaneous configurable options
@@ -271,13 +285,19 @@
  * FLASH related
  *----------------------------------------------------------------------*/
 
+#define CFG_FLASH_CFI_DRIVER
 #define CFG_FLASH_CFI		1	   /* Flash is CFI conformant		*/
-#define CFG_MAX_FLASH_SECT	128	   /* max number of sectors on one chip	*/
-#define CFG_MAX_FLASH_BANKS	4	   /* max number of memory banks	*/
-#define CFG_FLASH_INCREMENT	0x01000000 /* there is only one bank		*/
 #define CFG_FLASH_PROTECTION	1	   /* use hardware protection		*/
 #define CFG_FLASH_USE_BUFFER_WRITE 1	   /* use buffered writes (20x faster)	*/
 #define CFG_FLASH_BASE		0xfc000000 /* start of flash banks              */
+#define CFG_MAX_FLASH_BANKS	4	   /* max number of memory banks	*/
+#define CFG_FLASH_INCREMENT     0x01000000 /* size of  flash bank               */
+#define CFG_MAX_FLASH_SECT	128	   /* max number of sectors on one chip	*/
+#define CFG_FLASH_BANKS_LIST  { CFG_FLASH_BASE,                            \
+                                CFG_FLASH_BASE + 1*CFG_FLASH_INCREMENT,    \
+                                CFG_FLASH_BASE + 2*CFG_FLASH_INCREMENT,    \
+                                CFG_FLASH_BASE + 3*CFG_FLASH_INCREMENT }
+#define CFG_FLASH_EMPTY_INFO    1          /* show if bank is empty             */
 
 /* areas to map different things with the GT in physical space */
 #define CFG_DRAM_BANKS		4
@@ -400,6 +420,8 @@
 #define CFG_PCI0_IO_SPACE_PCI	0x00000000
 #define CFG_PCI1_IO_SPACE	(CFG_PCI1_IO_BASE)
 #define CFG_PCI1_IO_SPACE_PCI	0x00000000
+
+#define CFG_ISA_IO_BASE_ADDRESS (CFG_PCI0_IO_BASE)
 
 #if defined (CONFIG_750CX)
 #define CFG_PCI_IDSEL 0x0

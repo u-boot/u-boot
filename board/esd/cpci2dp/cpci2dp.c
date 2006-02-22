@@ -31,17 +31,15 @@ int board_early_init_f (void)
 	unsigned long cntrl0Reg;
 
 	/*
-	 * Setup GPIO pins (CS4+CS7 as GPIO)
+	 * Setup GPIO pins
 	 */
 	cntrl0Reg = mfdcr(cntrl0);
-	mtdcr(cntrl0, cntrl0Reg | 0x00900000);
+	mtdcr(cntrl0, cntrl0Reg | ((CFG_EEPROM_WP | CFG_PB_LED | CFG_SELF_RST | CFG_INTA_FAKE) << 5));
 
-	/* set output pins to high */
-	out32(GPIO0_OR,	 CFG_INTA_FAKE | CFG_EEPROM_WP | CFG_PB_LED);
-	/* INTA# is open drain */
-	out32(GPIO0_ODR, CFG_INTA_FAKE);
-	/* setup for output */
-	out32(GPIO0_TCR, CFG_INTA_FAKE | CFG_EEPROM_WP);
+        /* set output pins to high */
+	out32(GPIO0_OR,  CFG_EEPROM_WP);
+        /* setup for output (LED=off) */
+	out32(GPIO0_TCR, CFG_EEPROM_WP | CFG_PB_LED);
 
 	/*
 	 * IRQ 0-15  405GP internally generated; active high; level sensitive
@@ -130,16 +128,6 @@ long int initdram (int board_type)
 
 /* ------------------------------------------------------------------------- */
 
-int testdram (void)
-{
-	/* TODO: XXX XXX XXX */
-	printf ("test: 64 MB - ok\n");
-
-	return (0);
-}
-
-/* ------------------------------------------------------------------------- */
-
 #if defined(CFG_EEPROM_WREN)
 /* Input: <dev_addr>  I2C address of EEPROM device to enable.
  *	   <state>     -1: deliver current state
@@ -207,8 +195,8 @@ int do_eep_wren (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD(
-	   eepwren,	2,	0,	do_eep_wren,
-	   "eepwren - Enable / disable / query EEPROM write access\n",
-	   NULL
-	   );
+	eepwren,	2,	0,	do_eep_wren,
+	"eepwren - Enable / disable / query EEPROM write access\n",
+	NULL
+	);
 #endif /* #if defined(CFG_EEPROM_WREN) */

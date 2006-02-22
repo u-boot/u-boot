@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= lib$(BOARD).a
 
-OBJS	= $(BOARD).o flash.o ../common/misc.o
+OBJS	= $(BOARD).o flash.o ../common/misc.o ../common/cmd_loadpci.o
 
 $(LIB):	$(OBJS) $(SOBJS)
 	$(AR) crv $@ $(OBJS)

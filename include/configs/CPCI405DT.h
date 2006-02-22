@@ -183,8 +183,8 @@
 #define CFG_PCI_SUBSYS_DEVICEID 0x0405  /* PCI Device ID: CPCI-405      */
 #define CFG_PCI_SUBSYS_DEVICEID2 0x0406 /* PCI Device ID: CPCI-405-A    */
 #define CFG_PCI_CLASSCODE       0x0b20  /* PCI Class Code: Processor/PPC*/
-#define CFG_PCI_PTM1LA  0x00000000      /* point to sdram               */
-#define CFG_PCI_PTM1MS  0xfc000001      /* 64MB, enable hard-wired to 1 */
+#define CFG_PCI_PTM1LA  (bd->bi_memstart) /* point to sdram               */
+#define CFG_PCI_PTM1MS  (~(bd->bi_memsize - 1) | 1) /* memsize, enable hard-wired to 1 */
 #define CFG_PCI_PTM1PCI 0x00000000      /* Host: use this pci address   */
 #define CFG_PCI_PTM2LA  0xffc00000      /* point to flash               */
 #define CFG_PCI_PTM2MS  0xffc00001      /* 4MB, enable                  */

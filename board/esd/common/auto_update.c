@@ -283,7 +283,7 @@ int au_do_update(int i, long sz)
 		 */
 		if (au_image[i].type != AU_NAND) {
 			debug ("flash_write(%p, %lx %x)\n", addr, start, nbytes);
-			rc = flash_write((uchar *)addr, start, nbytes);
+			rc = flash_write((char *)addr, start, nbytes);
 		} else {
 #if (CONFIG_COMMANDS & CFG_CMD_NAND)
 			debug ("nand_rw(%p, %lx %x)\n", addr, start, nbytes);

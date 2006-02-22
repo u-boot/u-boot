@@ -5,6 +5,9 @@
  * (C) Copyright 2005
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
+ * (C) Copyright 2006
+ * Matthias Fuchs, esd GmbH, matthias.fuchs@esd-electronics.com
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -61,9 +64,13 @@
 
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
+#define CONFIG_NET_MULTI	1
+#undef  CONFIG_HAS_ETH1
+
 #define CONFIG_MII		1	/* MII PHY management		*/
-#define	CONFIG_PHY_ADDR		0	/* PHY address			*/
+#define CONFIG_PHY_ADDR		0	/* PHY address			*/
 #define CONFIG_LXT971_NO_SLEEP  1       /* disable sleep mode in LXT971 */
+#define CONFIG_RESET_PHY_R      1       /* use reset_phy() to disable phy sleep mode */
 
 #define CONFIG_PHY_CLK_FREQ	EMAC_STACR_CLK_66MHZ /* 66 MHz OPB clock*/
 
@@ -79,6 +86,7 @@
 #else
 #define CONFIG_VIDEO_SM501_16BPP
 #endif
+#define CONFIG_VIDEO_SM501_FBMEM_OFFSET 0x10000
 #define CONFIG_CFB_CONSOLE
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VGA_AS_SINGLE_DEVICE
@@ -434,9 +442,12 @@
 #define CFG_FPGA_CTRL_VGA0_BL_MODE 0x0008
 #define CFG_FPGA_CTRL_CF_RESET  0x0040
 #define CFG_FPGA_CTRL_PS2_PWR   0x0080
-#define CFG_FPGA_CTRL_CF_PWR    0x0100      /* low active                    */
+#define CFG_FPGA_CTRL_CF_PWRN   0x0100      /* low active                    */
 #define CFG_FPGA_CTRL_CF_BUS_EN 0x0200
 #define CFG_FPGA_CTRL_LCD_CLK   0x7000      /* Mask for lcd clock            */
+#define CFG_FPGA_CTRL_OW_ENABLE 0x8000
+
+#define CFG_FPGA_STATUS_CF_DETECT 0x8000
 
 #define LCD_CLK_OFF             0x0000      /* Off                           */
 #define LCD_CLK_02083           0x1000      /* 2.083 MHz                     */

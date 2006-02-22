@@ -389,7 +389,7 @@ int ext2fs_read_file
 	int blockcnt;
 	int log2blocksize = LOG2_EXT2_BLOCK_SIZE (node->data);
 	int blocksize = 1 << (log2blocksize + DISK_SECTOR_BITS);
-	unsigned int filesize = node->inode.size;
+	unsigned int filesize = __le32_to_cpu(node->inode.size);
 
 	/* Adjust len so it we can't read past the end of the file.  */
 	if (len > filesize) {

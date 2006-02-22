@@ -383,7 +383,7 @@ NXTARG:		;
 
 	if (opt_type == IH_TYPE_MULTI || opt_type == IH_TYPE_SCRIPT) {
 		char *file = datafile;
-		unsigned long size;
+		uint32_t size;
 
 		for (;;) {
 			char *sep = NULL;

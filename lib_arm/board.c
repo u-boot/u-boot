@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2002
+ * (C) Copyright 2002-2006
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * (C) Copyright 2002
@@ -23,6 +23,19 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
+ */
+
+/*
+ * To match the U-Boot user interface on ARM platforms to the U-Boot
+ * standard (as on PPC platforms), some messages with debug character
+ * are removed from the default U-Boot build.
+ *
+ * Define DEBUG here if you want additional info as shown below
+ * printed upon startup:
+ *
+ * U-Boot code: 00F00000 -> 00F3C774  BSS: -> 00FC3274
+ * IRQ Stack: 00ebff7c
+ * FIQ Stack: 00ebef7c
  */
 
 #include <common.h>
@@ -120,14 +133,14 @@ static int init_baudrate (void)
 static int display_banner (void)
 {
 	printf ("\n\n%s\n\n", version_string);
-	printf ("U-Boot code: %08lX -> %08lX  BSS: -> %08lX\n",
-		_armboot_start, _bss_start, _bss_end);
+	debug ("U-Boot code: %08lX -> %08lX  BSS: -> %08lX\n",
+	       _armboot_start, _bss_start, _bss_end);
 #ifdef CONFIG_MODEM_SUPPORT
-	puts ("Modem Support enabled\n");
+	debug ("Modem Support enabled\n");
 #endif
 #ifdef CONFIG_USE_IRQ
-	printf ("IRQ Stack: %08lx\n", IRQ_STACK_START);
-	printf ("FIQ Stack: %08lx\n", FIQ_STACK_START);
+	debug ("IRQ Stack: %08lx\n", IRQ_STACK_START);
+	debug ("FIQ Stack: %08lx\n", FIQ_STACK_START);
 #endif
 
 	return (0);
@@ -145,12 +158,22 @@ static int display_dram_config (void)
 	DECLARE_GLOBAL_DATA_PTR;
 	int i;
 
+#ifdef DEBUG
 	puts ("RAM Configuration:\n");
 
 	for(i=0; i<CONFIG_NR_DRAM_BANKS; i++) {
 		printf ("Bank #%d: %08lx ", i, gd->bd->bi_dram[i].start);
 		print_size (gd->bd->bi_dram[i].size, "\n");
 	}
+#else
+	ulong size = 0;
+
+	for (i=0; i<CONFIG_NR_DRAM_BANKS; i++) {
+		size += gd->bd->bi_dram[i].size;
+	}
+	puts("DRAM:  ");
+	print_size(size, "\n");
+#endif
 
 	return (0);
 }
@@ -187,6 +210,8 @@ static void display_flash_config (ulong size)
  */
 typedef int (init_fnc_t) (void);
 
+int print_cpuinfo (void); /* test-only */
+
 init_fnc_t *init_sequence[] = {
 	cpu_init,		/* basic cpu dependent setup */
 	board_init,		/* basic board dependent setup */
@@ -196,11 +221,14 @@ init_fnc_t *init_sequence[] = {
 	serial_init,		/* serial communications setup */
 	console_init_f,		/* stage 1 init of console */
 	display_banner,		/* say that we are here */
+#if defined(CONFIG_DISPLAY_CPUINFO)
+	print_cpuinfo,		/* display cpu info (and speed) */
+#endif
+#if defined(CONFIG_DISPLAY_BOARDINFO)
+	checkboard,		/* display board info */
+#endif
 	dram_init,		/* configure available RAM banks */
 	display_dram_config,
-#if defined(CONFIG_VCMA9) || defined (CONFIG_CMC_PU2)
-	checkboard,
-#endif
 	NULL,
 };
 
@@ -301,6 +329,17 @@ void start_armboot (void)
 			if (s)
 				s = (*e) ? e + 1 : e;
 		}
+
+#ifdef CONFIG_HAS_ETH1
+		i = getenv_r ("eth1addr", tmp, sizeof (tmp));
+		s = (i > 0) ? tmp : NULL;
+
+		for (reg = 0; reg < 6; ++reg) {
+			gd->bd->bi_enet1addr[reg] = s ? simple_strtoul (s, &e, 16) : 0;
+			if (s)
+				s = (*e) ? e + 1 : e;
+		}
+#endif
 	}
 
 	devices_init ();	/* get the devices list going. */

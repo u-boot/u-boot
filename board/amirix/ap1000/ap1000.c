@@ -36,8 +36,8 @@ int board_pre_init (void)
 /** serial number and platform display at startup */
 int checkboard (void)
 {
-	unsigned char *s = getenv ("serial#");
-	unsigned char *e;
+	char *s = getenv ("serial#");
+	char *e;
 
 	/* After a loadace command, the SystemAce control register is left in a wonky state. */
 	/* this code did not work in board_pre_init */
@@ -135,13 +135,13 @@ int checkboard (void)
 
 long int initdram (int board_type)
 {
-	unsigned char *s = getenv ("dramsize");
+	char *s = getenv ("dramsize");
 
 	if (s != NULL) {
 		if ((s[0] == '0') && ((s[1] == 'x') || (s[1] == 'X'))) {
 			s += 2;
 		}
-		return simple_strtoul (s, NULL, 16);
+		return (long int)simple_strtoul (s, NULL, 16);
 	} else {
 		/* give all 64 MB */
 		return 64 * 1024 * 1024;
@@ -293,7 +293,7 @@ int do_swconfigbyte (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 	printf ("Writing to Flash... ");
 	write_result =
-		flash_write (sector_buffer, SW_BYTE_SECTOR_ADDR,
+		flash_write ((char *)sector_buffer, SW_BYTE_SECTOR_ADDR,
 			     SW_BYTE_SECTOR_SIZE);
 	if (write_result != 0) {
 		flash_perror (write_result);

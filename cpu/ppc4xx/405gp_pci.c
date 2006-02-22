@@ -81,6 +81,10 @@
 
 #ifdef CONFIG_PCI
 
+#if defined(CONFIG_PMC405)
+ushort pmc405_pci_subsys_deviceid(void);
+#endif
+
 /*#define DEBUG*/
 
 /*-----------------------------------------------------------------------------+
@@ -96,13 +100,10 @@ void pci_405gp_init(struct pci_controller *hose)
 	unsigned short temp_short;
 	unsigned long ptmpcila[2] = {CFG_PCI_PTM1PCI, CFG_PCI_PTM2PCI};
 #if defined(CONFIG_CPCI405) || defined(CONFIG_PMC405)
-	unsigned long ptmla[2]    = {bd->bi_memstart, bd->bi_flashstart};
-	unsigned long ptmms[2]    = {~(bd->bi_memsize - 1) | 1, ~(bd->bi_flashsize - 1) | 1};
 	char *ptmla_str, *ptmms_str;
-#else
+#endif
 	unsigned long ptmla[2]    = {CFG_PCI_PTM1LA, CFG_PCI_PTM2LA};
 	unsigned long ptmms[2]    = {CFG_PCI_PTM1MS, CFG_PCI_PTM2MS};
-#endif
 #if defined(CONFIG_PIP405) || defined (CONFIG_MIP405)
 	unsigned long pmmla[3]    = {0x80000000, 0xA0000000, 0};
 	unsigned long pmmma[3]    = {0xE0000001, 0xE0000001, 0};

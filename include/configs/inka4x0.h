@@ -101,13 +101,23 @@
 /*
  * Autobooting
  */
-#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds */
+#define CONFIG_BOOTDELAY	1	/* autoboot after 1 second */
 
 #define CONFIG_PREBOOT	"echo;" \
 	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
 	"echo"
 
 #undef	CONFIG_BOOTARGS
+
+#define	CONFIG_ETHADDR		00:a0:a4:03:00:00
+#define	CONFIG_OVERWRITE_ETHADDR_ONCE
+
+#define	CONFIG_IPADDR		192.168.100.2
+#define	CONFIG_SERVERIP		192.168.100.1
+#define	CONFIG_NETMASK		255.255.255.0
+#define HOSTNAME		inka4x0
+#define CONFIG_BOOTFILE		/tftpboot/inka4x0/uImage
+#define	CONFIG_ROOTPATH		/opt/eldk/ppc_6xx
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
@@ -117,13 +127,22 @@
 	"addip=setenv bootargs ${bootargs} "				\
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
 		":${hostname}:${netdev}:off panic=1\0"			\
-	"flash_nfs=run nfsargs addip;"					\
+	"addcons=setenv bootargs ${bootargs} "				\
+		"console=ttyS0,${baudrate}\0"				\
+	"flash_nfs=run nfsargs addip addcons;"				\
 		"bootm ${kernel_addr}\0"				\
-	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip;bootm\0"	\
-	"rootpath=/opt/eldk/ppc_82xx\0"					\
+	"net_nfs=tftp 200000 ${bootfile};"				\
+		"run nfsargs addip addcons;bootm\0"			\
+	"enable_disp=mw.l 100000 04000000 1;"				\
+		"cp.l 100000 f0000b20 1;"				\
+		"cp.l 100000 f0000b28 1\0"				\
+	"ideargs=setenv bootargs root=/dev/hda1 rw\0"			\
+	"ide_boot=ext2load ide 0:1 200000 uImage;"			\
+		"run ideargs addip addcons enable_disp;bootm"		\
+	"brightness=255\0"						\
 	""
 
-#define CONFIG_BOOTCOMMAND	"run net_nfs"
+#define CONFIG_BOOTCOMMAND	"run ide_boot"
 
 /*
  * IPB Bus clocking configuration.
@@ -193,6 +212,7 @@
  */
 /* #define CONFIG_FEC_10MBIT 1 */
 #define CONFIG_PHY_ADDR		0x00
+#define CONFIG_MII
 
 /*
  * GPIO configuration

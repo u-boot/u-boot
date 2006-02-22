@@ -1,6 +1,9 @@
 /*
  * (C) Copyright 2001-2003
- * Stefan Roese, esd gmbh germany, stefan.roese@esd-electronics.com
+ * Stefan Roese, DENX Software Engineering, sr@denx.de.
+ *
+ * (C) Copyright 2005
+ * Matthias Fuchs, esd gmbh germany, matthias.fuchs@esd-electronics.com
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -66,27 +69,33 @@ int board_early_init_f (void)
 	mtebc (epcr, 0xa8400000);
 
 	/*
-	 * Setup GPIO pins (CS6+CS7 as GPIO)
+	 * Setup GPIO pins
 	 */
-	mtdcr(cntrl0, mfdcr(cntrl0) | 0x00300000);
 
-	/*
-	 * Configure GPIO pins
+	mtdcr(cntrl0, mfdcr(cntrl0) | ((CFG_FPGA_INIT | \
+					CFG_FPGA_DONE | \
+					CFG_XEREADY | \
+					CFG_NONMONARCH | \
+					CFG_REV1_2) << 5));
+
+	if (!(in32(GPIO0_IR) & CFG_REV1_2)) {
+		/* rev 1.2 boards */
+		mtdcr(cntrl0, mfdcr(cntrl0) | ((CFG_INTA_FAKE | \
+						CFG_SELF_RST) << 5));
+	}
+
+	out32(GPIO0_OR, 0);
+	out32(GPIO0_TCR, CFG_FPGA_PRG | CFG_FPGA_CLK | CFG_FPGA_DATA | CFG_XEREADY); /* setup for output */
+
+	/* - check if rev1_2 is low, then:
+	 * - set/reset CFG_INTA_FAKE/CFG_SELF_RST in TCR to assert INTA# or SELFRST#
 	 */
-	out32(GPIO0_ODR, 0x00000000);                                /* no open drain pins */
-	out32(GPIO0_TCR, CFG_FPGA_PRG | CFG_FPGA_CLK | CFG_FPGA_DATA); /* setup for output */
-	out32(GPIO0_OR, 0);                                            /* outputs -> low   */
 
 	return 0;
 }
 
 
 /* ------------------------------------------------------------------------- */
-
-int misc_init_f (void)
-{
-	return 0;  /* dummy implementation */
-}
 
 
 int misc_init_r (void)
@@ -97,16 +106,30 @@ int misc_init_r (void)
 	gd->bd->bi_flashstart = 0 - gd->bd->bi_flashsize;
 	gd->bd->bi_flashoffset = 0;
 
+	out32(GPIO0_OR, in32(GPIO0_OR) | CFG_XEREADY); /* deassert EREADY# */
 	return (0);
 }
 
+ushort pmc405_pci_subsys_deviceid(void)
+{
+	ulong val;
+	val = in32(GPIO0_IR);
+	if (!(val & CFG_REV1_2)) { /* low=rev1.2 */
+		if (val & CFG_NONMONARCH) { /* monarch# signal */
+			return CFG_PCI_SUBSYS_DEVICEID_NONMONARCH;
+		}
+		return CFG_PCI_SUBSYS_DEVICEID_MONARCH;
+	}
+	return CFG_PCI_SUBSYS_DEVICEID_NONMONARCH;
+}
 
 /*
  * Check Board Identity:
  */
-
 int checkboard (void)
 {
+	ulong val;
+
 	char str[64];
 	int i = getenv_r ("serial#", str, sizeof(str));
 
@@ -118,12 +141,18 @@ int checkboard (void)
 		puts(str);
 	}
 
-	putc ('\n');
+	val = in32(GPIO0_IR);
+	if (!(val & CFG_REV1_2)) { /* low=rev1.2 */
+		puts(" rev1.2 (");
+		if (val & CFG_NONMONARCH) { /* monarch# signal */
+			puts("non-");
+		}
+		puts("monarch)");
+	} else {
+		puts(" <=rev1.1");
+	}
 
-	/*
-	 * Disable sleep mode in LXT971
-	 */
-	lxt971_no_sleep();
+	putc ('\n');
 
 	return 0;
 }
@@ -145,17 +174,19 @@ long int initdram (int board_type)
 	return (4*1024*1024 << ((val & 0x000e0000) >> 17));
 }
 
+
 /* ------------------------------------------------------------------------- */
-
-int testdram (void)
+void reset_phy(void)
 {
-	/* TODO: XXX XXX XXX */
-	printf ("test: 16 MB - ok\n");
+#ifdef CONFIG_LXT971_NO_SLEEP
 
-	return (0);
+	/*
+	 * Disable sleep mode in LXT971
+	 */
+	lxt971_no_sleep();
+#endif
 }
 
-/* ------------------------------------------------------------------------- */
 
 int do_cantest(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
