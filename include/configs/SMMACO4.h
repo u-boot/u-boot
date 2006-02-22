@@ -88,8 +88,7 @@
 				CFG_CMD_PING	| \
 				CFG_CMD_POST_DIAG | \
 				CFG_CMD_REGINFO | \
-				CFG_CMD_SNTP	| \
-				CFG_CMD_BSP)
+				CFG_CMD_SNTP	)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
