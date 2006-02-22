@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add basic support for the SMMACO4 Board from PanDaCom.
+  Patch by Heiko Schocher, 20 Feb 2006
+
 * Add GIT version information (commid ID) to untagged U-Boot versions
 
   As done in the linux kernel, the U-Boot version (U_BOOT_VERSION)
