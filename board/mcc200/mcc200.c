@@ -240,13 +240,7 @@ long int initdram (int board_type)
 
 int checkboard (void)
 {
- puts("Board: Bluetechnix DevMPC5200Leica \n");
-/*
-#if defined(CONFIG_MPC5200)
-	puts ("Board: MicroSys PM520 \n");
-#elif defined(CONFIG_MGT5100)
-	puts ("Board: MicroSys PM510 \n");
-#endif*/
+	puts ("Board: MCC200\n");
 	return 0;
 }
 
