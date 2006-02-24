@@ -238,33 +238,6 @@ int testdram (void)
 
 /* ------------------------------------------------------------------------- */
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
-extern ulong
-nand_probe(ulong physadr);
-
-void
-nand_init(void)
-{
-	ulong totlen = 0;
-
-/*
-	The HI model is equipped with a large block NAND chip not supported yet
-	by U-Boot
-    (CONFIG_PPCHAMELEON_MODULE_MODEL == CONFIG_PPCHAMELEON_MODULE_HI)
-*/
-
-#if (CONFIG_PPCHAMELEON_MODULE_MODEL == CONFIG_PPCHAMELEON_MODULE_ME)
-	debug ("Probing at 0x%.8x\n", CFG_NAND0_BASE);
-	totlen += nand_probe (CFG_NAND0_BASE);
-#endif	/* CONFIG_PPCHAMELEON_MODULE_ME, CONFIG_PPCHAMELEON_MODULE_HI */
-
-	debug ("Probing at 0x%.8x\n", CFG_NAND1_BASE);
-	totlen += nand_probe (CFG_NAND1_BASE);
-
-	printf ("%3lu MB\n", totlen >>20);
-}
-#endif
-
 #ifdef CONFIG_CFB_CONSOLE
 # ifdef CONFIG_CONSOLE_EXTRA_INFO
 # include <video_fb.h>

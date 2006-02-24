@@ -2,6 +2,11 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Merge the new NAND code (testing-NAND brach)
+
+  Rewrite of NAND code based on what is in 2.6.12 Linux kernel
+  Patch by Ladislav Michl, 29 Jun 2005
+
 * Add basic support for the SMMACO4 Board from PanDaCom.
   Patch by Heiko Schocher, 20 Feb 2006
 
