@@ -121,6 +121,7 @@ LIBS += drivers/libdrivers.a
 LIBS += drivers/sk98lin/libsk98lin.a
 LIBS += post/libpost.a post/cpu/libcpu.a
 LIBS += common/libcommon.a
+LIBS += $(BOARDLIBS)
 .PHONY : $(LIBS)
 
 # Add GCC lib
@@ -1458,6 +1459,17 @@ mx1ads_config	:	unconfig
 
 mx1fs2_config	:	unconfig
 	@./mkconfig $(@:_config=) arm arm920t mx1fs2 NULL imx
+
+netstar_32_config	\
+netstar_config:		unconfig
+	@if [ "$(findstring _32_,$@)" ] ; then \
+		echo "... 32MB SDRAM" ; \
+		echo "#define PHYS_SDRAM_1_SIZE SZ_32M" >>include/config.h ; \
+	else \
+		echo "... 64MB SDRAM" ; \
+		echo "#define PHYS_SDRAM_1_SIZE SZ_64M" >>include/config.h ; \
+	fi
+	@./mkconfig -a netstar arm arm925t netstar
 
 omap1510inn_config :	unconfig
 	@./mkconfig $(@:_config=) arm arm925t omap1510inn

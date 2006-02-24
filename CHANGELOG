@@ -2,6 +2,11 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Merge the new NAND code (testing-NAND brach)
+
+  Rewrite of NAND code based on what is in 2.6.12 Linux kernel
+  Patch by Ladislav Michl, 29 Jun 2005
+
 * Update default environment for INKA4x00 board.
 
 * Cleanup U-Boot boot messages on ARM.

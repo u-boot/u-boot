@@ -188,10 +188,14 @@
  * NAND-FLASH stuff
  *-----------------------------------------------------------------------
  */
+
+/* Use the new NAND code. (BOARDLIBS = drivers/nand/libnand.a required) */
+#define CONFIG_NEW_NAND_CODE
 #define CFG_NAND0_BASE 0xFF400000
 #define CFG_NAND1_BASE 0xFF000000
-
-#define CFG_MAX_NAND_DEVICE	2	/* Max number of NAND devices		*/
+#define CFG_NAND_BASE_LIST	{ CFG_NAND0_BASE, CFG_NAND1_BASE }
+#define NAND_BIG_DELAY_US	25
+#define CFG_MAX_NAND_DEVICE	2	/* Max number of NAND devices */
 #define SECTORSIZE 512
 #define NAND_NO_RB
 
@@ -213,6 +217,83 @@
 #define CFG_NAND1_ALE (0x80000000 >> 16)  /* our ALE is GPIO16 */
 #define CFG_NAND1_RDY (0x80000000 >> 31)  /* our RDY is GPIO31 */
 
+#ifdef CONFIG_NEW_NAND_CODE
+#define MACRO_NAND_DISABLE_CE(nandptr) do \
+{ \
+	switch((unsigned long)nandptr) \
+	{ \
+	    case CFG_NAND0_BASE: \
+		out32(GPIO0_OR, in32(GPIO0_OR) | CFG_NAND0_CE); \
+		break; \
+	    case CFG_NAND1_BASE: \
+		out32(GPIO0_OR, in32(GPIO0_OR) | CFG_NAND1_CE); \
+		break; \
+	} \
+} while(0)
+
+#define MACRO_NAND_ENABLE_CE(nandptr) do \
+{ \
+	switch((unsigned long)nandptr) \
+	{ \
+	    case CFG_NAND0_BASE: \
+		out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_NAND0_CE); \
+		break; \
+	    case CFG_NAND1_BASE: \
+		out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_NAND1_CE); \
+		break; \
+	} \
+} while(0)
+
+#define MACRO_NAND_CTL_CLRALE(nandptr) do \
+{ \
+	switch((unsigned long)nandptr) \
+	{ \
+	    case CFG_NAND0_BASE: \
+		out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_NAND0_ALE); \
+		break; \
+	    case CFG_NAND1_BASE: \
+		out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_NAND1_ALE); \
+		break; \
+	} \
+} while(0)
+
+#define MACRO_NAND_CTL_SETALE(nandptr) do \
+{ \
+	switch((unsigned long)nandptr) \
+	{ \
+	    case CFG_NAND0_BASE: \
+		out32(GPIO0_OR, in32(GPIO0_OR) | CFG_NAND0_ALE); \
+		break; \
+	    case CFG_NAND1_BASE: \
+		out32(GPIO0_OR, in32(GPIO0_OR) | CFG_NAND1_ALE); \
+		break; \
+	} \
+} while(0)
+
+#define MACRO_NAND_CTL_CLRCLE(nandptr) do \
+{ \
+	switch((unsigned long)nandptr) \
+	{ \
+	    case CFG_NAND0_BASE: \
+		out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_NAND0_CLE); \
+		break; \
+	    case CFG_NAND1_BASE: \
+		out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_NAND1_CLE); \
+		break; \
+	} \
+} while(0)
+
+#define MACRO_NAND_CTL_SETCLE(nandptr) do { \
+	switch((unsigned long)nandptr) { \
+	case CFG_NAND0_BASE: \
+		out32(GPIO0_OR, in32(GPIO0_OR) | CFG_NAND0_CLE); \
+		break; \
+	case CFG_NAND1_BASE: \
+		out32(GPIO0_OR, in32(GPIO0_OR) | CFG_NAND1_CLE); \
+		break; \
+	} \
+} while(0)
+#else
 #define NAND_DISABLE_CE(nand) do \
 { \
 	switch((unsigned long)(((struct nand_chip *)nand)->IO_ADDR)) \
@@ -288,6 +369,7 @@
 		break; \
 	} \
 } while(0)
+#endif /* !CONFIG_NEW_NAND_CODE */
 
 #ifdef NAND_NO_RB
 /* constant delay (see also tR in the datasheet) */
@@ -338,16 +420,16 @@
 #define CFG_SDRAM_BASE		0x00000000
 
 /* Reserve 256 kB for Monitor	*/
+/*
 #define CFG_FLASH_BASE		0xFFFC0000
 #define CFG_MONITOR_BASE	CFG_FLASH_BASE
 #define CFG_MONITOR_LEN		(256 * 1024)
+*/
 
 /* Reserve 320 kB for Monitor	*/
-/*
 #define CFG_FLASH_BASE		0xFFFB0000
 #define CFG_MONITOR_BASE	CFG_FLASH_BASE
 #define CFG_MONITOR_LEN		(320 * 1024)
-*/
 
 #define CFG_MALLOC_LEN		(256 * 1024)	/* Reserve 256 kB for malloc()	*/
 

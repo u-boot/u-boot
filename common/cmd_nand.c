@@ -21,7 +21,7 @@
 # define SHOW_BOOT_PROGRESS(arg)
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if (CONFIG_COMMANDS & CFG_CMD_NAND) && !defined(CONFIG_NEW_NAND_CODE)
 
 #include <linux/mtd/nand.h>
 #include <linux/mtd/nand_ids.h>

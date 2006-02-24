@@ -36,6 +36,9 @@
 #ifndef __LINUX_MTD_NAND_H
 #define __LINUX_MTD_NAND_H
 
+#ifdef CONFIG_NEW_NAND_CODE
+#include "nand_new.h"
+#else
 /*
  * Standard NAND flash commands
  */
@@ -196,5 +199,5 @@ struct nand_flash_dev {
 #define NAND_JFFS2_OOB16_FSDALEN	8
 
 unsigned long nand_probe(unsigned long physadr);
-
+#endif /* !CONFIG_NEW_NAND_CODE */
 #endif /* __LINUX_MTD_NAND_H */
