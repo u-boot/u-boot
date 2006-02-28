@@ -30,6 +30,7 @@
 
 #include <config.h>
 #include <version.h>
+#include <asm/arch/pxa-regs.h>
 
 .globl _start
 _start: b	reset
@@ -217,6 +218,15 @@ cpu_init_crit:
         mov     r1, #0
         mcr     p6, 0, r1, c1, c0, 0    @ ICMR
 	mcr     p6, 0, r1, c7, c0, 0    @ ICMR2
+
+	/* turn off all clocks but the ones we will definitly require */
+	ldr     r1, =CKENA
+	ldr     r2, =(CKENA_22_FFUART | CKENA_10_SRAM | CKENA_9_SMC | CKENA_8_DMC)
+	str     r2, [r1]
+	ldr     r1, =CKENB
+	ldr     r2, =(CKENB_6_IRQ)
+	str     r2, [r1]
+	
 #endif
 
 #ifndef CONFIG_CPU_MONAHANS
