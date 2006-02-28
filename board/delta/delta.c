@@ -41,7 +41,7 @@ int board_init (void)
 	/* memory and cpu-speed are setup before relocation */
 	/* so we do _nothing_ here */
 
-	/* arch number of Lubbock-Board */
+	/* arch number of Lubbock-Board mk@tbd: fix this! */
 	gd->bd->bi_arch_number = MACH_TYPE_LUBBOCK;
 
 	/* adress of boot parameters */

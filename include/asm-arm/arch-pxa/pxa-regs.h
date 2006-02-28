@@ -1003,12 +1003,51 @@ typedef void		(*ExcpHndlr) (void) ;
 #define GSDR(x)		__REG2(0x40E00400, ((x) & 0x60) >> 3)
 #define GCDR(x)		__REG2(0x40300420, ((x) & 0x60) >> 3)
 
-/* Multi-funktion Pin Registers, uncomplete, only GPIO relevant pins for now */
+/* Multi-funktion Pin Registers, uncomplete, only:
+ *    - GPIO
+ *    - Data Flash DF_* pins defined.
+ */
 #define GPIO0		__REG(0x40e10124) 
 #define GPIO1		__REG(0x40e10128)
 #define GPIO2		__REG(0x40e1012c)
 #define GPIO3		__REG(0x40e10130)
 #define GPIO4		__REG(0x40e10134)
+#define nXCVREN		__REG(0x40e10138)
+
+#define DF_CLE_NOE	__REG(0x40e10204)
+#define DF_ALE_WE1	__REG(0x40e10208)
+
+#define DF_SCLK_E	__REG(0x40e10210)
+#define nBE0		__REG(0x40e10214)
+#define nBE1		__REG(0x40e10218)
+#define DF_ALE_WE2	__REG(0x40e1021c)
+#define DF_INT_RnB	__REG(0x40e10220)
+#define DF_nCS0		__REG(0x40e10224)
+#define DF_nCS1		__REG(0x40e10228)
+#define DF_nWE		__REG(0x40e1022c)
+#define DF_nRE		__REG(0x40e10230)
+#define nLUA		__REG(0x40e10234)
+#define nLLA		__REG(0x40e10238)
+#define DF_ADDR0	__REG(0x40e1023c)
+#define DF_ADDR1	__REG(0x40e10240)
+#define DF_ADDR2	__REG(0x40e10244)
+#define DF_ADDR3	__REG(0x40e10248)
+#define DF_IO0		__REG(0x40e1024c)
+#define DF_IO8		__REG(0x40e10250)
+#define DF_IO1		__REG(0x40e10254)
+#define DF_IO9		__REG(0x40e10258)
+#define DF_IO2		__REG(0x40e1025c)
+#define DF_IO10		__REG(0x40e10260)
+#define DF_IO3		__REG(0x40e10264)
+#define DF_IO11		__REG(0x40e10268)
+#define DF_IO4		__REG(0x40e1026c)
+#define DF_IO12		__REG(0x40e10270)
+#define DF_IO5		__REG(0x40e10274)
+#define DF_IO13		__REG(0x40e10278)
+#define DF_IO6		__REG(0x40e1027c)
+#define DF_IO14		__REG(0x40e10280)
+#define DF_IO7		__REG(0x40e10284)
+#define DF_IO15		__REG(0x40e10288)
 
 #define GPIO5		__REG(0x40e1028c)
 #define GPIO6		__REG(0x40e10290)
@@ -2022,19 +2061,19 @@ typedef void		(*ExcpHndlr) (void) ;
 
 /* Data Flash Controller Registers */
 
-#define NDCR		__REG_2(0x43100000)  /* Data Flash Control register */
-#define NDTR0CS0	__REG_2(0x43100004)  /* Data Controller Timing Parameter 0 Register for ND_nCS0 */
-#define NDTR0CS1	__REG_2(0x43100008)  /* Data Controller Timing Parameter 0 Register for ND_nCS1 */
-#define NDTR1CS0	__REG_2(0x4310000C)  /* Data Controller Timing Parameter 1 Register for ND_nCS0 */
-#define NDTR1CS1	__REG_2(0x43100010)  /* Data Controller Timing Parameter 1 Register for ND_nCS1 */
-#define NDSR		__REG_2(0x43100014)  /* Data Controller Status Register */
-#define NDPCR		__REG_2(0x43100018)  /* Data Controller Page Count Register */
-#define NDBDR0		__REG_2(0x4310001C)  /* Data Controller Bad Block Register 0 */
-#define NDBDR1		__REG_2(0x43100020)  /* Data Controller Bad Block Register 1 */
-#define NDDB		__REG_2(0x43100040)  /* Data Controller Data Buffer */
-#define NDCB0		__REG_2(0x43100048)  /* Data Controller Command Buffer0 */
-#define NDCB1		__REG_2(0x4310004C)  /* Data Controller Command Buffer1 */
-#define NDCB2		__REG_2(0x43100050)  /* Data Controller Command Buffer2 */
+#define NDCR		__REG(0x43100000)  /* Data Flash Control register */
+#define NDTR0CS0	__REG(0x43100004)  /* Data Controller Timing Parameter 0 Register for ND_nCS0 */
+/* #define NDTR0CS1	__REG(0x43100008)  /\* Data Controller Timing Parameter 0 Register for ND_nCS1 *\/ */
+#define NDTR1CS0	__REG(0x4310000C)  /* Data Controller Timing Parameter 1 Register for ND_nCS0 */
+/* #define NDTR1CS1	__REG(0x43100010)  /\* Data Controller Timing Parameter 1 Register for ND_nCS1 *\/ */
+#define NDSR		__REG(0x43100014)  /* Data Controller Status Register */
+#define NDPCR		__REG(0x43100018)  /* Data Controller Page Count Register */
+#define NDBDR0		__REG(0x4310001C)  /* Data Controller Bad Block Register 0 */
+#define NDBDR1		__REG(0x43100020)  /* Data Controller Bad Block Register 1 */
+#define NDDB		__REG(0x43100040)  /* Data Controller Data Buffer */
+#define NDCB0		__REG(0x43100048)  /* Data Controller Command Buffer0 */
+#define NDCB1		__REG(0x4310004C)  /* Data Controller Command Buffer1 */
+#define NDCB2		__REG(0x43100050)  /* Data Controller Command Buffer2 */
 
 #define NDCR_SPARE_EN	(0x1<<31)
 #define NDCR_ECC_EN	(0x1<<30)
@@ -2052,6 +2091,18 @@ typedef void		(*ExcpHndlr) (void) ;
 #define NDCR_RA_START	(0x1<<15)
 #define NDCR_PG_PER_BLK	(0x1<<14)
 #define NDCR_ND_ARB_EN	(0x1<<12)
+#define NDCE_RDYM	(0x1<<11)
+#define NDCE_CS0_PAGEDM	(0x1<<10)
+#define NDCE_CS1_PAGEDM	(0x1<<9)
+#define NDCE_CS0_CMDDM	(0x1<<8)
+#define NDCE_CS1_CMDDM	(0x1<<7)
+#define NDCE_CS0_BBDM	(0x1<<6)
+#define NDCE_CS1_BBDM	(0x1<<5)
+#define NDCE_DBERRM	(0x1<<4)
+#define NDCE_SBERRM	(0x1<<3)
+#define NDCE_WRDREQM	(0x1<<2)
+#define NDCE_RDDREQM	(0x1<<1)
+#define NDCE_WRCMDREQM	(0x1)
 
 #define NDSR_RDY	(0x1<<11)
 #define NDSR_CS0_PAGED	(0x1<<10)

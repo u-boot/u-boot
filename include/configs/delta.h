@@ -73,7 +73,9 @@
 #ifdef TURN_ON_ETHERNET
 # define CONFIG_COMMANDS        (CONFIG_CMD_DFL | CFG_CMD_PING)
 #else
-# define CONFIG_COMMANDS	(CONFIG_CMD_DFL & ~CFG_CMD_NET)
+# define CONFIG_COMMANDS	((CONFIG_CMD_DFL | CFG_CMD_NAND) \
+				& ~(CFG_CMD_NET | CFG_CMD_FLASH | \
+				    CFG_CMD_ENV | CFG_CMD_IMLS))
 #endif
 
 
@@ -152,20 +154,41 @@
 #define PHYS_SDRAM_4		0xa3000000 /* SDRAM Bank #4 */
 #define PHYS_SDRAM_4_SIZE	0x1000000  /* 64 MB */
 
-#define PHYS_FLASH_1		0x00000000 /* Flash Bank #1 */
-#define PHYS_FLASH_2		0x04000000 /* Flash Bank #2 */
-#define PHYS_FLASH_SIZE		0x02000000 /* 32 MB */
-#define PHYS_FLASH_BANK_SIZE	0x02000000 /* 32 MB Banks */
-#define PHYS_FLASH_SECT_SIZE	0x00040000 /* 256 KB sectors (x2) */
-
 #define CFG_DRAM_BASE		0xa0000000 /* at CS0 */
 #define CFG_DRAM_SIZE		0x04000000 /* 64 MB Ram */
 
 #define CFG_SKIP_DRAM_SCRUB	1
 
-#define CFG_FLASH_BASE		PHYS_FLASH_1
+/*
+ * NAND Flash
+ */
+/* Use the new NAND code. (BOARDLIBS = drivers/nand/libnand.a required) */
+#define CONFIG_NEW_NAND_CODE
+#define CFG_NAND0_BASE		0x10000000
+#undef CFG_NAND1_BASE
 
-#define FPGA_REGS_BASE_PHYSICAL 0x08000000
+#define CFG_NAND_BASE_LIST	{ CFG_NAND0_BASE }
+#define CFG_MAX_NAND_DEVICE	1	/* Max number of NAND devices */
+#define SECTORSIZE 		512
+/* #define NAND_NO_RB */
+#define NAND_DELAY_US		25	/* mk@tbd: could be 0, I guess */
+
+#define ADDR_COLUMN 1
+#define ADDR_PAGE 2
+#define ADDR_COLUMN_PAGE 3
+
+#define NAND_ChipID_UNKNOWN	0x00
+#define NAND_MAX_FLOORS 1
+#define NAND_MAX_CHIPS 1
+
+#define CFG_NO_FLASH	1
+#ifndef CGF_NO_FLASH
+/* these are required by the environment code */
+#define PHYS_FLASH_1            CFG_NAND0_BASE /* Flash Bank #1 */
+#define PHYS_FLASH_SIZE         0x04000000 /* 64 MB */
+#define PHYS_FLASH_BANK_SIZE    0x04000000 /* 64 MB Banks */
+#define PHYS_FLASH_SECT_SIZE    (SECTORSIZE*1024) /*  KB sectors (x2) */
+#endif
 
 /*
  * GPIO settings
@@ -215,6 +238,7 @@
 /*
  * FLASH and environment organization
  */
+#ifndef CFG_NO_FLASH
 #define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks		*/
 #define CFG_MAX_FLASH_SECT	128  /* max number of sectors on one chip    */
 
@@ -222,30 +246,16 @@
 #define CFG_FLASH_ERASE_TOUT	(25*CFG_HZ) /* Timeout for Flash Erase */
 #define CFG_FLASH_WRITE_TOUT	(25*CFG_HZ) /* Timeout for Flash Write */
 
+
 /* NOTE: many default partitioning schemes assume the kernel starts at the
  * second sector, not an environment.  You have been warned!
  */
 #define	CFG_MONITOR_LEN		PHYS_FLASH_SECT_SIZE
+#endif /* #ifndef CFG_NO_FLASH */
 
-#define CFG_ENV_IS_IN_FLASH     1
-#define CFG_ENV_ADDR		(PHYS_FLASH_1 + PHYS_FLASH_SECT_SIZE)
-#define CFG_ENV_SECT_SIZE	PHYS_FLASH_SECT_SIZE
-#define CFG_ENV_SIZE		(PHYS_FLASH_SECT_SIZE / 16)
-
-
-/*
- * FPGA Offsets
- */
-#define WHOAMI_OFFSET		0x00
-#define HEXLED_OFFSET		0x10
-#define BLANKLED_OFFSET		0x40
-#define DISCRETELED_OFFSET	0x40
-#define CNFG_SWITCHES_OFFSET	0x50
-#define USER_SWITCHES_OFFSET	0x60
-#define MISC_WR_OFFSET		0x80
-#define MISC_RD_OFFSET		0x90
-#define INT_MASK_OFFSET		0xC0
-#define INT_CLEAR_OFFSET	0xD0
-#define GP_OFFSET		0x100
+#define CFG_ENV_IS_NOWHERE
+/* #define CFG_ENV_IS_IN_NAND      1 */
+#define CFG_ENV_OFFSET		0x40000
+#define CFG_ENV_SIZE		0x4000
 
 #endif	/* __CONFIG_H */
