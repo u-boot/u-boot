@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Convert mcc200 to use common CFI flash driver
+  Patch by Stefan Roese, 28 Feb 2006
+
 * Add env-variable "unlock" to handle initial state of sectors
   (locked/unlocked).
 

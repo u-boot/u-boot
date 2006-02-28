@@ -36,6 +36,8 @@
 #include "mt48lc8m32b2-6-7.h"
 #endif
 
+extern flash_info_t flash_info[];	/* FLASH chips info */
+
 //###CHD: wenn RAMBOOT gehen wuerde, ....
 #ifndef CFG_RAMBOOT
 static void sdram_start (int hi_addr)
@@ -244,46 +246,56 @@ int checkboard (void)
 	return 0;
 }
 
-void flash_preinit(void)
-{
-	/*
-	 * Now, when we are in RAM, enable flash write
-	 * access for detection process.
-	 * Note that CS_BOOT cannot be cleared when
-	 * executing in flash.
-	 */
-#if defined(CONFIG_MGT5100)
-	*(vu_long *)MPC5XXX_ADDECR &= ~(1 << 25); /* disable CS_BOOT */
-	*(vu_long *)MPC5XXX_ADDECR |= (1 << 16); /* enable CS0 */
-#endif
-	*(vu_long *)MPC5XXX_BOOTCS_CFG &= ~0x1; /* clear RO */
-}
-
-void flash_afterinit(ulong start, ulong size)
-{
-#if defined(CONFIG_BOOT_ROM)
-	/* adjust mapping */
-	*(vu_long *)MPC5XXX_CS1_START =
-			START_REG(start);
-	*(vu_long *)MPC5XXX_CS1_STOP =
-			STOP_REG(start, size);
-#else
-	/* adjust mapping */
-	*(vu_long *)MPC5XXX_BOOTCS_START = *(vu_long *)MPC5XXX_CS0_START =
-			START_REG(start);
-	*(vu_long *)MPC5XXX_BOOTCS_STOP = *(vu_long *)MPC5XXX_CS0_STOP =
-			STOP_REG(start, size);
-#endif
-}
-
-
-extern flash_info_t flash_info[];	/* info for FLASH chips */
-
 int misc_init_r (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-	/* adjust flash start */
-	gd->bd->bi_flashstart = flash_info[0].start[0];
+
+	/*
+	 * Adjust flash start and offset to detected values
+	 */
+	gd->bd->bi_flashstart = 0 - gd->bd->bi_flashsize;
+	gd->bd->bi_flashoffset = 0;
+
+	/*
+	 * Check if boot FLASH isn't max size
+	 */
+	if (gd->bd->bi_flashsize < (0 - CFG_FLASH_BASE)) {
+		/* adjust mapping */
+		*(vu_long *)MPC5XXX_BOOTCS_START = *(vu_long *)MPC5XXX_CS0_START =
+			START_REG(gd->bd->bi_flashstart);
+		*(vu_long *)MPC5XXX_BOOTCS_STOP = *(vu_long *)MPC5XXX_CS0_STOP =
+			STOP_REG(gd->bd->bi_flashstart, gd->bd->bi_flashsize);
+
+		/*
+		 * Re-check to get correct base address
+		 */
+		flash_get_size(gd->bd->bi_flashstart, CFG_MAX_FLASH_BANKS - 1);
+
+		/*
+		 * Re-do flash protection upon new addresses
+		 */
+		flash_protect (FLAG_PROTECT_CLEAR,
+			       gd->bd->bi_flashstart, 0xffffffff,
+			       &flash_info[CFG_MAX_FLASH_BANKS - 1]);
+
+		/* Monitor protection ON by default */
+		flash_protect (FLAG_PROTECT_SET,
+			       CFG_MONITOR_BASE, CFG_MONITOR_BASE + monitor_flash_len - 1,
+			       &flash_info[CFG_MAX_FLASH_BANKS - 1]);
+
+		/* Environment protection ON by default */
+		flash_protect (FLAG_PROTECT_SET,
+			       CFG_ENV_ADDR,
+			       CFG_ENV_ADDR + CFG_ENV_SECT_SIZE - 1,
+			       &flash_info[CFG_MAX_FLASH_BANKS - 1]);
+
+		/* Redundant environment protection ON by default */
+		flash_protect (FLAG_PROTECT_SET,
+			       CFG_ENV_ADDR_REDUND,
+			       CFG_ENV_ADDR_REDUND + CFG_ENV_SIZE_REDUND - 1,
+			       &flash_info[CFG_MAX_FLASH_BANKS - 1]);
+	}
+
 	return (0);
 }
 
