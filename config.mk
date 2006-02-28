@@ -132,8 +132,13 @@ CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes
 endif
 
 ifdef WILD_WILD_WEST
-CFLAGS := $(CFLAGS) -Werror
+CFLAGS := $(CPPFLAGS) -Werror
 endif
+
+ifdef NO_JUMP
+CFLAGS := $(CPPFLAGS) -fno-schedule-insns -fno-schedule-insns2
+endif
+
 
 # avoid trigraph warnings while parsing pci.h (produced by NIOS gcc-2.9)
 # this option have to be placed behind -Wall -- that's why it is here

@@ -141,7 +141,7 @@ static void delta_cmdfunc(struct mtd_info *mtd, unsigned command,
 	switch (command) {
 	case NAND_CMD_READID:
 		printk("delta_cmdfunc: NAND_CMD_READID.\n");
-		ndcb0 |= ((3 << 21) | (2 << 16));
+		ndcb0 |= ((3 << 21) | (1 << 16)); /* addr cycles*/
 		break;
 	case NAND_CMD_PAGEPROG:
 	case NAND_CMD_ERASE1:
@@ -159,6 +159,43 @@ static void delta_cmdfunc(struct mtd_info *mtd, unsigned command,
 	NDCB0 = ndcb0;
 	NDCB1 = ndcb1;
 	NDCB2 = ndcb2;	
+}
+
+void delta_dfc_gpio_init()
+{
+	printf("Setting up DFC GPIO's.\n");
+
+	/* no idea what is done here, see zylonite.c */
+	GPIO4 = 0x1;
+	
+	DF_ALE_WE1 = 0x00000001;
+	DF_ALE_WE2 = 0x00000001;
+	DF_nCS0 = 0x00000001;
+	DF_nCS1 = 0x00000001;
+	DF_nWE = 0x00000001;
+	DF_nRE = 0x00000001;
+	DF_IO0 = 0x00000001;
+	DF_IO8 = 0x00000001;
+	DF_IO1 = 0x00000001;
+	DF_IO9 = 0x00000001;
+	DF_IO2 = 0x00000001;
+	DF_IO10 = 0x00000001;
+	DF_IO3 = 0x00000001;
+	DF_IO11 = 0x00000001;
+	DF_IO4 = 0x00000001;
+	DF_IO12 = 0x00000001;
+	DF_IO5 = 0x00000001;
+	DF_IO13 = 0x00000001;
+	DF_IO6 = 0x00000001;
+	DF_IO14 = 0x00000001;
+	DF_IO7 = 0x00000001;
+	DF_IO15 = 0x00000001;
+
+	DF_nWE = 0x1901;
+	DF_nRE = 0x1901;
+	DF_CLE_NOE = 0x1900;
+	DF_ALE_WE1 = 0x1901;
+	DF_INT_RnB = 0x1900;
 }
 
 /*
@@ -184,7 +221,8 @@ void board_nand_init(struct nand_chip *nand)
 	unsigned long tCH, tCS, tWH, tWP, tRH, tRP, tRP_high, tR, tWHR, tAR;
 
 	/* set up GPIO Control Registers */
-	
+	delta_dfc_gpio_init();
+
 	/* turn on the NAND Controller Clock (104 MHz @ D0) */
 	CKENA |= (CKENA_4_NAND | CKENA_9_SMC);
 	

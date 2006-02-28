@@ -164,7 +164,7 @@
  */
 /* Use the new NAND code. (BOARDLIBS = drivers/nand/libnand.a required) */
 #define CONFIG_NEW_NAND_CODE
-#define CFG_NAND0_BASE		0x10000000
+#define CFG_NAND0_BASE		0x43100040 /* 0x10000000 */
 #undef CFG_NAND1_BASE
 
 #define CFG_NAND_BASE_LIST	{ CFG_NAND0_BASE }
