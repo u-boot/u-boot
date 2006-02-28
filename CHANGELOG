@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Update mcc200 config: Disable PCI and DoC, use 133 MHz IPB clock,
+  use hush shell.
+
 * Convert mcc200 to use common CFI flash driver
   Patch by Stefan Roese, 28 Feb 2006
 

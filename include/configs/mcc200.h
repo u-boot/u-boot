@@ -52,52 +52,19 @@
 #define CONFIG_BAUDRATE		115200
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 
-/*
- * PCI Mapping:
- * 0x40000000 - 0x4fffffff - PCI Memory
- * 0x50000000 - 0x50ffffff - PCI IO Space
- */
-#define CONFIG_PCI		1
-#define CONFIG_PCI_PNP		1
-#define CONFIG_PCI_SCAN_SHOW	1
-#undef CONFIG_PCI_SCAN_SHOW
-
-#define CONFIG_PCI_MEM_BUS	0x40000000
-#define CONFIG_PCI_MEM_PHYS	CONFIG_PCI_MEM_BUS
-#define CONFIG_PCI_MEM_SIZE	0x10000000
-
-#define CONFIG_PCI_IO_BUS	0x50000000
-#define CONFIG_PCI_IO_PHYS	CONFIG_PCI_IO_BUS
-#define CONFIG_PCI_IO_SIZE	0x01000000
-
-#define CONFIG_NET_MULTI	1
 #define CONFIG_MII		1
-#define CONFIG_EEPRO100		1
-#define CFG_RX_ETH_BUFFER	8  /* use 8 rx buffer on eepro100  */
-#undef  CONFIG_NS8382X
 
-#define ADD_PCI_CMD 		CFG_CMD_PCI
-
-/* Partitions */
 #define CONFIG_DOS_PARTITION
 
 /* USB */
-#if 1
 #define CONFIG_USB_OHCI
 #define ADD_USB_CMD             CFG_CMD_USB | CFG_CMD_FAT
 #define CONFIG_USB_STORAGE
-#else
-#define ADD_USB_CMD             0
-#endif
-
-#define ADD_DOC_CMD             CFG_CMD_DOC
 
 /*
  * Supported commands
  */
 #define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
-				ADD_DOC_CMD	| \
-				ADD_PCI_CMD	| \
 				ADD_USB_CMD	| \
 				CFG_CMD_BEDBUG	| \
 				CFG_CMD_DATE	| \
@@ -136,27 +103,29 @@
 	"flash_self=run ramargs addip;"					\
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip;bootm\0"	\
-	"rootpath=/opt/eldk/ppc_82xx\0"					\
+	"rootpath=/opt/eldk/ppc_6xx\0"					\
 	"bootfile=/tftpboot/mcc200/uImage\0"				\
 	"baudrate=115200\0"						\
-	"load=tftp 100000 /tftpboot/mcc200/u-boot.bin\0"		\
-	"update=protect off fff00000 fff3ffff;era fff00000 fff3ffff;"	\
-		"cp.b 100000 fff00000 40000;"			        \
-		"setenv filesize;saveenv\0"				\
-	"upd=run load;run update\0"					\
+	"load=tftp 200000 /tftpboot/mcc200/u-boot.bin\0"		\
+	"update=protect off FFF00000 +${filesize};"			\
+		"era FFF00000 +${filesize};"				\
+		"cp.b 200000 FFF00000 ${filesize}\0"		        \
 	"serverip=192.168.1.1\0"					\
 	"ipaddr=192.168.133.144\0"					\
 	"netmask=255.255.0.0\0"						\
 	"unlock=yes\0"							\
-	"ethaddr=00:02:44:7d:73:3b\0"					\
+	"ethaddr=00:02:44:7D:73:3B\0"					\
 	""
 
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
+#define CFG_HUSH_PARSER		1	/* use "hush" command parser	*/
+#define CFG_PROMPT_HUSH_PS2	"> "
+
 /*
  * IPB Bus clocking configuration.
  */
-#undef CFG_IPBSPEED_133   		/* define for 133MHz speed */
+#define CFG_IPBSPEED_133   		/* define for 133MHz speed */
 
 /*
  * I2C configuration
@@ -180,17 +149,6 @@
  */
 #define CONFIG_RTC_PCF8563
 #define CFG_I2C_RTC_ADDR		0x51
-
-/*
- * Disk-On-Chip configuration
- */
-#define CFG_DOC_SHORT_TIMEOUT
-#define CFG_MAX_DOC_DEVICE	1	/* Max number of DOC devices	*/
-
-#define CFG_DOC_SUPPORT_2000
-#define CFG_DOC_SUPPORT_MILLENNIUM
-#define CFG_DOC_BASE		0xE0000000
-#define CFG_DOC_SIZE		0x00100000
 
 /*
  * Flash configuration (8,16 or 32 MB)
@@ -308,9 +266,6 @@
 #define CFG_BOOTCS_CFG		0x0004fb00
 #define CFG_CS0_START		CFG_FLASH_BASE
 #define CFG_CS0_SIZE		CFG_FLASH_SIZE
-#define CFG_CS1_START		CFG_DOC_BASE
-#define CFG_CS1_SIZE		CFG_DOC_SIZE
-#define CFG_CS1_CFG		0x00047800
 
 #define CFG_CS_BURST		0x00000000
 #define CFG_CS_DEADCYCLE	0x33333333
