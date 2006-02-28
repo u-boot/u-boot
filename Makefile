@@ -318,6 +318,14 @@ PM520_ROMBOOT_DDR_config:	unconfig
 		}
 	@./mkconfig -a PM520 ppc mpc5xxx pm520
 
+smmaco4_config: unconfig
+	@./mkconfig -a smmaco4 ppc mpc5xxx tqm5200
+
+spieval_config:	unconfig
+	echo "#define CONFIG_CS_AUTOCONF">>include/config.h
+	echo "... with automatic CS configuration"
+	@./mkconfig -a spieval ppc mpc5xxx tqm5200
+
 MINI5200_config	\
 EVAL5200_config	\
 TOP5200_config:	unconfig
@@ -382,11 +390,6 @@ MiniFAP_config:	unconfig
 		  echo "... with automatic CS configuration" ; \
 		}
 	@./mkconfig -a TQM5200 ppc mpc5xxx tqm5200
-
-spieval_config:	unconfig
-	echo "#define CONFIG_CS_AUTOCONF">>include/config.h
-	echo "... with automatic CS configuration"
-	@./mkconfig -a spieval ppc mpc5xxx tqm5200
 
 #########################################################################
 ## MPC8xx Systems
