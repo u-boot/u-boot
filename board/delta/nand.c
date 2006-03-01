@@ -29,38 +29,12 @@
 #include <asm/arch/pxa-regs.h>
 
 /*
- * hardware specific access to control-lines
- * function borrowed from Linux 2.6 (drivers/mtd/nand/ppchameleonevb.c)
+ * not required for Monahans DFC
  */
 static void delta_hwcontrol(struct mtd_info *mtdinfo, int cmd)
 {
-#if 0
-	struct nand_chip *this = mtdinfo->priv;
-	ulong base = (ulong) this->IO_ADDR_W;
-
-	switch(cmd) {
-	case NAND_CTL_SETCLE:
-		MACRO_NAND_CTL_SETCLE((unsigned long)base);
-		break;
-	case NAND_CTL_CLRCLE:
-		MACRO_NAND_CTL_CLRCLE((unsigned long)base);
-		break;
-	case NAND_CTL_SETALE:
-		MACRO_NAND_CTL_SETALE((unsigned long)base);
-		break;
-	case NAND_CTL_CLRALE:
-		MACRO_NAND_CTL_CLRALE((unsigned long)base);
-		break;
-	case NAND_CTL_SETNCE:
-		MACRO_NAND_ENABLE_CE((unsigned long)base);
-		break;
-	case NAND_CTL_CLRNCE:
-		MACRO_NAND_DISABLE_CE((unsigned long)base);
-		break;
-	}
-#endif
+	return;
 }
-
 
 /* read device ready pin */
 static int delta_device_ready(struct mtd_info *mtdinfo)
@@ -69,35 +43,18 @@ static int delta_device_ready(struct mtd_info *mtdinfo)
 		return 1;
 	else
 		return 0;
-#if 0
-	struct nand_chip *this = mtdinfo->priv;
-	ulong rb_gpio_pin;
-
-	/* use the base addr to find out which chip are we dealing with */
-	switch((ulong) this->IO_ADDR_W) {
-	case CFG_NAND0_BASE:
-		rb_gpio_pin = CFG_NAND0_RDY;
-		break;
-	case CFG_NAND1_BASE:
-		rb_gpio_pin = CFG_NAND1_RDY;
-		break;
-	default: /* this should never happen */
-		return 0;
-		break;
-	}
-
-        if (in32(GPIO0_IR) & rb_gpio_pin)
-		return 1;
-#endif
 	return 0;
 }
 
-static u_char delta_read_byte(struct mtd_info *mtd)
+/* The original:
+ * static void delta_read_buf(struct mtd_info *mtd, const u_char *buf, int len)
+ *
+ * Shouldn't this be "u_char * const buf" ?
+ */
+static void delta_read_buf(struct mtd_info *mtd, u_char* const buf, int len)
 {
-/* 	struct nand_chip *this = mtd->priv; */
-	unsigned long tmp;
+	int i, j;
 
-	/* wait for read request */
 	while(1) {
 		if(NDSR & NDSR_RDDREQ) {
 			NDSR |= NDSR_RDDREQ;
@@ -105,9 +62,53 @@ static u_char delta_read_byte(struct mtd_info *mtd)
 		}
 	}
 
-	tmp = NDDB;
-	printk("delta_read_byte: 0x%x.\n", tmp); 
-	return (u_char) tmp;
+	/* we have to be carefull not to overflow the buffer if len is
+	 * not a multiple of 4 */
+	unsigned long num_words = len & 0xfffffffc;
+	unsigned long rest = len & 0x3;
+
+	/* if there are any, first copy multiple of 4 bytes */
+	if(num_words) {
+		for(i=0; i<num_words; i+=4)
+			buf[i] = NDDB;
+	}
+	
+	/* ...then the rest */
+	if(rest) {
+		unsigned long rest_data = NDDB;
+		for(j=0;j<rest;j++)
+			buf[i+j] = (u_char) ((rest_data>>j) & 0xff);
+	}
+
+	return;
+}
+
+/* global var, too bad */
+static unsigned long read_buf = 0;
+static unsigned char bytes_read = 0;
+
+static u_char delta_read_byte(struct mtd_info *mtd)
+{
+/* 	struct nand_chip *this = mtd->priv; */
+	unsigned char byte;
+
+	if(bytes_read == 0) {
+		/* wait for read request */
+		while(1) {
+			if(NDSR & NDSR_RDDREQ) {
+				NDSR |= NDSR_RDDREQ;
+				break;
+			}
+		}
+		read_buf = NDDB;
+		printk("delta_read_byte: 0x%x.\n", read_buf); 	
+	}
+	byte = (unsigned char) (read_buf>>(8 * bytes_read++));
+	if(bytes_read >= 4)
+		bytes_read = 0;
+
+	printf("delta_read_byte: returning 0x%x.\n", byte);
+	return byte;
 }
 
 /* this is really monahans, not board specific ... */
@@ -116,8 +117,11 @@ static void delta_cmdfunc(struct mtd_info *mtd, unsigned command,
 {
 	/* register struct nand_chip *this = mtd->priv; */
 	unsigned long ndcb0=0, ndcb1=0, ndcb2=0;
-	uchar command2;
 
+	/* clear the ugly byte read buffer */
+	bytes_read = 0;
+	read_buf = 0;
+	
 	/* Clear NDSR */
 	NDSR = 0xFFF;
 	
@@ -134,34 +138,58 @@ static void delta_cmdfunc(struct mtd_info *mtd, unsigned command,
 		}
 	}
 
-	/* if command is a double byte cmd, we set bit double cmd bit 19 */
-	command2 = (command>>8) & 0xFF;
-	ndcb0 = command | ((command2 ? 1 : 0) << 19);
+	/* if command is a double byte cmd, we set bit double cmd bit 19  */
+	/* 	command2 = (command>>8) & 0xFF;  */
+	/* 	ndcb0 = command | ((command2 ? 1 : 0) << 19); *\/ */
 
 	switch (command) {
+	case NAND_CMD_READ0:
+		ndcb0 = (NAND_CMD_READ0 | (4<<16));
+		column >>= 1; /* adjust for 16 bit bus */
+		ndcb1 = (((column>>1) & 0xff) |
+			 ((page_addr<<8) & 0xff00) |
+			 ((page_addr<<8) & 0xff0000) |
+			 ((page_addr<<8) & 0xff000000)); /* make this 0x01000000 ? */
+		break;	
 	case NAND_CMD_READID:
 		printk("delta_cmdfunc: NAND_CMD_READID.\n");
-		ndcb0 |= ((3 << 21) | (1 << 16)); /* addr cycles*/
+		ndcb0 = (NAND_CMD_READID | (3 << 21) | (1 << 16)); /* addr cycles*/
 		break;
 	case NAND_CMD_PAGEPROG:
+		break;
 	case NAND_CMD_ERASE1:
 	case NAND_CMD_ERASE2:
+		break;
 	case NAND_CMD_SEQIN:
+		ndcb0 = (NAND_CMD_SEQIN<<8) | (1<<19) | (4<<16);
+		if(column >= mtd->oobblock) {
+			/* OOB area */
+			column -= mtd->oobblock;
+			ndcb0 |= NAND_CMD_READOOB;
+		} else if (column < 256) {
+			/* First 256 bytes --> READ0 */
+			ndcb0 |= NAND_CMD_READ0;
+		} else {
+			/* Only for 8 bit devices - not delta!!! */
+			column -= 256;
+			ndcb0 |= NAND_CMD_READ1;
+		}
+		break;
 	case NAND_CMD_STATUS:
 		return;
 	case NAND_CMD_RESET:
 		return;
 	default:
-		printk("delta_cmdfunc: error, unkown command issued.\n");
+		printk("delta_cmdfunc: error, unsupported command.\n");
 		return;
 	}
 
 	NDCB0 = ndcb0;
-	NDCB1 = ndcb1;
-	NDCB2 = ndcb2;	
+	NDCB0 = ndcb1;
+	NDCB0 = ndcb2;
 }
 
-void delta_dfc_gpio_init()
+static void delta_dfc_gpio_init()
 {
 	printf("Setting up DFC GPIO's.\n");
 
@@ -216,6 +244,23 @@ void delta_dfc_gpio_init()
  * Members with a "?" were not set in the merged testing-NAND branch,
  * so they are not set here either.
  */
+void wait(unsigned long us)
+{
+#define OSCR_CLK_FREQ 3.250 /* kHz */
+
+	unsigned long start = OSCR;
+	unsigned long delta = 0, cur;
+	us *= OSCR_CLK_FREQ;
+
+	while (delta < us) {
+		cur = OSCR;
+		if(cur < start) /* OSCR overflowed */
+			delta = cur + (start^0xffffffff);
+		else
+			delta = cur - start;
+	}
+}
+
 void board_nand_init(struct nand_chip *nand)
 {
 	unsigned long tCH, tCS, tWH, tWP, tRH, tRP, tRP_high, tR, tWHR, tAR;
@@ -225,14 +270,24 @@ void board_nand_init(struct nand_chip *nand)
 
 	/* turn on the NAND Controller Clock (104 MHz @ D0) */
 	CKENA |= (CKENA_4_NAND | CKENA_9_SMC);
-	
+
+	/* wait ? */
+/* 	printf("stupid loop start...\n"); */
+/* 	wait(200); */
+/* 	printf("stupid loop end.\n"); */
+		
+
 	/* NAND Timing Parameters (in ns) */
 #define NAND_TIMING_tCH 	10
 #define NAND_TIMING_tCS 	0
 #define NAND_TIMING_tWH		20
 #define NAND_TIMING_tWP 	40
-#define NAND_TIMING_tRH 	20
-#define NAND_TIMING_tRP 	40
+/* #define NAND_TIMING_tRH 	20 */
+/* #define NAND_TIMING_tRP 	40 */
+
+#define NAND_TIMING_tRH 	25
+#define NAND_TIMING_tRP 	50
+
 #define NAND_TIMING_tR  	11123
 #define NAND_TIMING_tWHR	110
 #define NAND_TIMING_tAR		10
@@ -274,6 +329,8 @@ void board_nand_init(struct nand_chip *nand)
 		  DFC_MAX_tAR);
 	
 
+	printf("tCH=%u, tCS=%u, tWH=%u, tWP=%u, tRH=%u, tRP=%u, tR=%u, tWHR=%u, tAR=%u.\n", tCH, tCS, tWH, tWP, tRH, tRP, tR, tWHR, tAR);
+
 	/* tRP value is split in the register */
 	if(tRP & (1 << 4)) {
 		tRP_high = 1;
@@ -307,33 +364,39 @@ void board_nand_init(struct nand_chip *nand)
 	 *  - cs don't care, see if we can enable later!
 	 *  - row address start position (after second cycle)
 	 *  - pages per block = 32
+	 *  - ND_RDY : clears command buffer
 	 */
-	NDCR = (NDCR_ND_ARB_EN |	/* enable bus arbiter */
-		NDCR_SPARE_EN |		/* use the spare area */
+	NDCR = (NDCR_SPARE_EN |		/* use the spare area */
 		NDCR_DWIDTH_C |		/* 16bit DFC data bus width  */
 		NDCR_DWIDTH_M |		/* 16 bit Flash device data bus width */
-		(2 << 16) |		/* read id count = 7 ???? mk@tbd */
-		NDCE_RDYM |		/* flash device ready ir masked */
-		NDCE_CS0_PAGEDM |	/* ND_nCSx page done ir masked */
-		NDCE_CS1_PAGEDM |
-		NDCE_CS0_CMDDM |	/* ND_CSx command done ir masked */
-		NDCE_CS1_CMDDM |
-		NDCE_CS0_BBDM |		/* ND_CSx bad block detect ir masked */
-		NDCE_CS1_BBDM |
-		NDCE_DBERRM |		/* double bit error ir masked */ 
-		NDCE_SBERRM |		/* single bit error ir masked */
-		NDCE_WRDREQM |		/* write data request ir masked */
-		NDCE_RDDREQM |		/* read data request ir masked */
-		NDCE_WRCMDREQM);	/* write command request ir masked */
+		NDCR_NCSX |		/* Chip select busy don't care */
+		(7 << 16) |		/* read id count = 7 ???? mk@tbd */
+		NDCR_ND_ARB_EN |	/* enable bus arbiter */
+		NDCR_RDYM |		/* flash device ready ir masked */
+		NDCR_CS0_PAGEDM |	/* ND_nCSx page done ir masked */
+		NDCR_CS1_PAGEDM |
+		NDCR_CS0_CMDDM |	/* ND_CSx command done ir masked */
+		NDCR_CS1_CMDDM |
+		NDCR_CS0_BBDM |		/* ND_CSx bad block detect ir masked */
+		NDCR_CS1_BBDM |
+		NDCR_DBERRM |		/* double bit error ir masked */ 
+		NDCR_SBERRM |		/* single bit error ir masked */
+		NDCR_WRDREQM |		/* write data request ir masked */
+		NDCR_RDDREQM |		/* read data request ir masked */
+		NDCR_WRCMDREQM);	/* write command request ir masked */
 	
+
+	/* wait 10 us due to cmd buffer clear reset */
+/* 	wait(10); */
 	
 	
 	nand->hwcontrol = delta_hwcontrol;
-	nand->dev_ready = delta_device_ready;
+/* 	nand->dev_ready = delta_device_ready; */
 	nand->eccmode = NAND_ECC_SOFT;
 	nand->chip_delay = NAND_DELAY_US;
 	nand->options = NAND_BUSWIDTH_16;
 	nand->read_byte = delta_read_byte;
+	nand->read_buf = delta_read_buf;
 	nand->cmdfunc = delta_cmdfunc;
 	/* 	nand->options = NAND_SAMSUNG_LP_OPTIONS; */
 }
