@@ -40,6 +40,7 @@ extern flash_info_t flash_info[];	/* FLASH chips info */
 
 void local_bus_init (void);
 long int fixed_sdram (void);
+ulong flash_get_size (ulong base, int banknum);
 
 #ifdef CONFIG_CPM2
 /*

@@ -38,6 +38,8 @@
 
 extern flash_info_t flash_info[];	/* FLASH chips info */
 
+ulong flash_get_size (ulong base, int banknum);
+
 //###CHD: wenn RAMBOOT gehen wuerde, ....
 #ifndef CFG_RAMBOOT
 static void sdram_start (int hi_addr)
