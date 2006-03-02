@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix problem with flash_get_size() from CFI driver update
+  Patch by Stefan Roese, 1 Mar 2006
+
 * Make CFG_NO_FLASH work on ARM systems
   Patch by Markus Klotzbuecher, 27 Feb 2006
 
