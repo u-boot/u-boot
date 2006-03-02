@@ -178,11 +178,13 @@ static int display_dram_config (void)
 	return (0);
 }
 
+#ifndef CFG_NO_FLASH
 static void display_flash_config (ulong size)
 {
 	puts ("Flash: ");
 	print_size (size, "\n");
 }
+#endif /* CFG_NO_FLASH */
 
 
 /*
@@ -260,9 +262,11 @@ void start_armboot (void)
 		}
 	}
 
+#ifndef CFG_NO_FLASH
 	/* configure available FLASH banks */
 	size = flash_init ();
 	display_flash_config (size);
+#endif /* CFG_NO_FLASH */
 
 #ifdef CONFIG_VFD
 #	ifndef PAGE_SIZE
