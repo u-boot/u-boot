@@ -55,13 +55,6 @@ static void delta_read_buf(struct mtd_info *mtd, u_char* const buf, int len)
 {
 	int i, j;
 
-	while(1) {
-		if(NDSR & NDSR_RDDREQ) {
-			NDSR |= NDSR_RDDREQ;
-			break;
-		}
-	}
-
 	/* we have to be carefull not to overflow the buffer if len is
 	 * not a multiple of 4 */
 	unsigned long num_words = len & 0xfffffffc;
@@ -90,19 +83,25 @@ static void delta_read_buf(struct mtd_info *mtd, u_char* const buf, int len)
 static unsigned long read_buf = 0;
 static unsigned char bytes_read = 0;
 
+/* wait for read request */
+static void delta_wait_event(unsigned long event)
+{
+	if(!event)
+		return;
+	
+	while(1) {
+		if(NDSR & event) {
+			NDSR |= event;
+			break;
+		}
+	}
+}
 static u_char delta_read_byte(struct mtd_info *mtd)
 {
 /* 	struct nand_chip *this = mtd->priv; */
 	unsigned char byte;
 
 	if(bytes_read == 0) {
-		/* wait for read request */
-		while(1) {
-			if(NDSR & NDSR_RDDREQ) {
-				NDSR |= NDSR_RDDREQ;
-				break;
-			}
-		}
 		read_buf = NDDB;
 		printk("delta_read_byte: 0x%x.\n", read_buf); 	
 	}
@@ -119,7 +118,7 @@ static void delta_cmdfunc(struct mtd_info *mtd, unsigned command,
 			  int column, int page_addr)
 {
 	/* register struct nand_chip *this = mtd->priv; */
-	unsigned long ndcb0=0, ndcb1=0, ndcb2=0;
+	unsigned long ndcb0=0, ndcb1=0, ndcb2=0, event=0;
 
 	/* clear the ugly byte read buffer */
 	bytes_read = 0;
@@ -153,10 +152,12 @@ static void delta_cmdfunc(struct mtd_info *mtd, unsigned command,
 			 ((page_addr<<8) & 0xff00) |
 			 ((page_addr<<8) & 0xff0000) |
 			 ((page_addr<<8) & 0xff000000)); /* make this 0x01000000 ? */
+		event = NDSR_RDDREQ;
 		break;	
 	case NAND_CMD_READID:
 		printk("delta_cmdfunc: NAND_CMD_READID.\n");
 		ndcb0 = (NAND_CMD_READID | (3 << 21) | (1 << 16)); /* addr cycles*/
+		event = NDSR_RDDREQ;
 		break;
 	case NAND_CMD_PAGEPROG:
 		break;
@@ -190,6 +191,9 @@ static void delta_cmdfunc(struct mtd_info *mtd, unsigned command,
 	NDCB0 = ndcb0;
 	NDCB0 = ndcb1;
 	NDCB0 = ndcb2;
+
+	/* wait for event */
+	delta_wait_event(event);
 }
 
 static void delta_dfc_gpio_init()
