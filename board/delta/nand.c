@@ -69,8 +69,11 @@ static void delta_read_buf(struct mtd_info *mtd, u_char* const buf, int len)
 
 	/* if there are any, first copy multiple of 4 bytes */
 	if(num_words) {
-		for(i=0; i<num_words; i+=4)
-			buf[i] = NDDB;
+		for(i=0; i<num_words; i+=4) {
+			unsigned long *long_buf = &buf[i];
+/* 			((unsigned long *) &buf[i]) = NDDB; */
+			*long_buf = NDDB;
+		}
 	}
 	
 	/* ...then the rest */
