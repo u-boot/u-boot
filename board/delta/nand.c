@@ -335,12 +335,14 @@ static void delta_cmdfunc(struct mtd_info *mtd, unsigned command,
 		delta_new_cmd();
 		ndcb0 = (NAND_CMD_STATUS | (4<<21));
 		event = NDSR_RDDREQ;
+#ifdef READ_STATUS_BUG
 		NDCB0 = ndcb0;
 		NDCB0 = ndcb1;
 		NDCB0 = ndcb2;
 		delta_wait_event(event);
 		what_the_hack = NDDB;
 		goto end;
+#endif
 		break;
 	case NAND_CMD_RESET:
 		printf("delta_cmdfunc: NAND_CMD_RESET unimplemented.\n");
