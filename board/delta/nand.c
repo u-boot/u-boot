@@ -121,7 +121,7 @@ static void delta_read_buf(struct mtd_info *mtd, u_char* const buf, int len)
 	return;
 }
 
-static void delta_read_word(struct mtd_info *mtd, u_char byte)
+static u16 delta_read_word(struct mtd_info *mtd)
 {
 	printf("delta_write_byte: UNIMPLEMENTED.\n");
 }
@@ -179,6 +179,66 @@ static void delta_wait_event(unsigned long event)
 	}
 }
 
+static unsigned long delta_wait_event2(unsigned long event)
+{
+	unsigned long ndsr;
+	if(!event)
+		return;
+	
+	while(1) {
+		ndsr = NDSR;
+		if(ndsr & event) {
+			NDSR |= event;
+			break;
+		}
+	}
+	return ndsr;
+}
+
+/* we don't always wan't to do this */
+static void delta_new_cmd()
+{
+	/* Clear NDSR */
+	NDSR = 0xFFF;
+	
+	/* apparently NDCR[NDRUN] needs to be set before writing to NDCBx */
+	if(!(NDCR & NDCR_ND_RUN)) {
+		NDCR |= NDCR_ND_RUN;
+		
+		while(1) {
+			if(NDSR & NDSR_WRCMDREQ) {
+				NDSR |= NDSR_WRCMDREQ; /* Ack */
+				break;
+			}
+		}
+	}
+}
+
+static int delta_wait(struct mtd_info *mtd, struct nand_chip *this, int state)
+{
+/* 	unsigned long timeo; */
+	unsigned long ndsr=0, event=0;
+	unsigned long dummy;
+
+	/* mk@tbd set appropriate timeouts */
+	/* 	if (state == FL_ERASING) */
+	/* 		timeo = CFG_HZ * 400; */
+	/* 	else */
+	/* 		timeo = CFG_HZ * 20; */
+	if(state == FL_WRITING) {
+		event = NDSR_CS0_CMDD | NDSR_CS0_BBD;
+	} else if(state == FL_ERASING) {
+		/* do something else */
+	}
+	
+/* 	dummy = NDDB; */
+	ndsr = delta_wait_event2(event);
+
+	if(ndsr & NDSR_CS0_BBD)
+		return(0x1); /* Status Read error */
+	return 0;
+}
+
 /* this is really monahans, not board specific ... */
 static void delta_cmdfunc(struct mtd_info *mtd, unsigned command, 
 			  int column, int page_addr)
@@ -190,30 +250,14 @@ static void delta_cmdfunc(struct mtd_info *mtd, unsigned command,
 	/* clear the ugly byte read buffer */
 	bytes_read = 0;
 	read_buf = 0;
-
 	
-	/* Clear NDSR */
-	NDSR = 0xFFF;
-	
-	/* apparently NDCR[NDRUN] needs to be set before writing to NDCBx */
-	NDCR |= NDCR_ND_RUN;
-
-	/* wait for write command request 
-	 * hmm, might be nice if this could time-out. mk@tbd
-	 */
-	while(1) {
-		if(NDSR & NDSR_WRCMDREQ) {
-			NDSR |= NDSR_WRCMDREQ; /* Ack */
-			break;
-		}
-	}
-
 	/* if command is a double byte cmd, we set bit double cmd bit 19  */
 	/* 	command2 = (command>>8) & 0xFF;  */
 	/* 	ndcb0 = command | ((command2 ? 1 : 0) << 19); *\/ */
 
 	switch (command) {
 	case NAND_CMD_READ0:
+		delta_new_cmd();
 		ndcb0 = (NAND_CMD_READ0 | (4<<16));
 		column >>= 1; /* adjust for 16 bit bus */
 		ndcb1 = (((column>>1) & 0xff) |
@@ -223,22 +267,24 @@ static void delta_cmdfunc(struct mtd_info *mtd, unsigned command,
 		event = NDSR_RDDREQ;
 		break;	
 	case NAND_CMD_READID:
+		delta_new_cmd();
 		printk("delta_cmdfunc: NAND_CMD_READID.\n");
 		ndcb0 = (NAND_CMD_READID | (3 << 21) | (1 << 16)); /* addr cycles*/
 		event = NDSR_RDDREQ;
 		break;
 	case NAND_CMD_PAGEPROG:
+		/* sent as a multicommand in NAND_CMD_SEQIN */
 		printk("delta_cmdfunc: NAND_CMD_PAGEPROG.\n");
-		ndcb0 = (NAND_CMD_PAGEPROG | (1 << 21));
-		break;
+		goto end;
 	case NAND_CMD_ERASE1:
 	case NAND_CMD_ERASE2:
 		printf("delta_cmdfunc: NAND_CMD_ERASEx unimplemented.\n");
-		break;
+		goto end;
 	case NAND_CMD_SEQIN:
-		/* send PAGE_PROG command(0x80) */
+		/* send PAGE_PROG command(0x1080) */
+		delta_new_cmd();
 		printf("delta_cmdfunc: NAND_CMD_SEQIN/PAGE_PROG.\n");
-		ndcb0 = (NAND_CMD_SEQIN | (1<<21) | (3<<16));
+		ndcb0 = (0x1080 | (1<<25) | (1<<21) | (1<<19) | (4<<16));
 		column >>= 1; /* adjust for 16 bit bus */
 		ndcb1 = (((column>>1) & 0xff) |
 			 ((page_addr<<8) & 0xff00) |
@@ -286,6 +332,7 @@ static void delta_cmdfunc(struct mtd_info *mtd, unsigned command,
 		 * here, so the next read access by the nand code
 		 * yields the right one.
 		 */
+		delta_new_cmd();
 		ndcb0 = (NAND_CMD_STATUS | (4<<21));
 		event = NDSR_RDDREQ;
 		NDCB0 = ndcb0;
@@ -307,7 +354,7 @@ static void delta_cmdfunc(struct mtd_info *mtd, unsigned command,
 	NDCB0 = ndcb1;
 	NDCB0 = ndcb2;
 
-	/* wait for event */
+ wait_event:
 	delta_wait_event(event);
  end:
 	return;
@@ -502,13 +549,14 @@ void board_nand_init(struct nand_chip *nand)
 	nand->eccmode = NAND_ECC_SOFT;
 	nand->chip_delay = NAND_DELAY_US;
 	nand->options = NAND_BUSWIDTH_16;
-
+	nand->waitfunc = delta_wait;
 	nand->read_byte = delta_read_byte;
 	nand->write_byte = delta_write_byte;
 	nand->read_word = delta_read_word;
 	nand->write_word = delta_write_word;
 	nand->read_buf = delta_read_buf;
 	nand->write_buf = delta_write_buf;
+
 	nand->cmdfunc = delta_cmdfunc;
 }
 
