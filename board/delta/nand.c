@@ -218,7 +218,6 @@ static int delta_wait(struct mtd_info *mtd, struct nand_chip *this, int state)
 {
 /* 	unsigned long timeo; */
 	unsigned long ndsr=0, event=0;
-	unsigned long dummy;
 
 	/* mk@tbd set appropriate timeouts */
 	/* 	if (state == FL_ERASING) */
@@ -228,10 +227,9 @@ static int delta_wait(struct mtd_info *mtd, struct nand_chip *this, int state)
 	if(state == FL_WRITING) {
 		event = NDSR_CS0_CMDD | NDSR_CS0_BBD;
 	} else if(state == FL_ERASING) {
-		/* do something else */
+		event = NDSR_CS0_CMDD | NDSR_CS0_BBD;
 	}
 	
-/* 	dummy = NDDB; */
 	ndsr = delta_wait_event2(event);
 
 	if(ndsr & NDSR_CS0_BBD)
@@ -277,8 +275,13 @@ static void delta_cmdfunc(struct mtd_info *mtd, unsigned command,
 		printk("delta_cmdfunc: NAND_CMD_PAGEPROG.\n");
 		goto end;
 	case NAND_CMD_ERASE1:
+		printf("delta_cmdfunc: NAND_CMD_ERASE1.\n");
+		delta_new_cmd();
+		ndcb0 = (0xd060 | (1<<25) | (2<<21) | (1<<19) | (3<<16));
+		ndcb1 = (page_addr & 0x00ffffff);
+		break;
 	case NAND_CMD_ERASE2:
-		printf("delta_cmdfunc: NAND_CMD_ERASEx unimplemented.\n");
+		printf("delta_cmdfunc: NAND_CMD_ERASE1 empty due to multicmd.\n");
 		goto end;
 	case NAND_CMD_SEQIN:
 		/* send PAGE_PROG command(0x1080) */
@@ -335,6 +338,7 @@ static void delta_cmdfunc(struct mtd_info *mtd, unsigned command,
 		delta_new_cmd();
 		ndcb0 = (NAND_CMD_STATUS | (4<<21));
 		event = NDSR_RDDREQ;
+/* #define READ_STATUS_BUG 1 */
 #ifdef READ_STATUS_BUG
 		NDCB0 = ndcb0;
 		NDCB0 = ndcb1;
@@ -522,10 +526,11 @@ void board_nand_init(struct nand_chip *nand)
 	 *  - pages per block = 32
 	 *  - ND_RDY : clears command buffer
 	 */
+	/* NDCR_NCSX |		/\* Chip select busy don't care *\/ */
+	
 	NDCR = (NDCR_SPARE_EN |		/* use the spare area */
 		NDCR_DWIDTH_C |		/* 16bit DFC data bus width  */
 		NDCR_DWIDTH_M |		/* 16 bit Flash device data bus width */
-		NDCR_NCSX |		/* Chip select busy don't care */
 		(7 << 16) |		/* read id count = 7 ???? mk@tbd */
 		NDCR_ND_ARB_EN |	/* enable bus arbiter */
 		NDCR_RDYM |		/* flash device ready ir masked */
