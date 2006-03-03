@@ -46,6 +46,48 @@ static int delta_device_ready(struct mtd_info *mtdinfo)
 	return 0;
 }
 
+/*
+ * Write buf to the DFC Controller Data Buffer
+ */
+static void delta_write_buf(struct mtd_info *mtd, const u_char *buf, int len)
+{
+	unsigned long bytes_multi = len & 0xfffffffc;
+	unsigned long rest = len & 0x3;
+	unsigned long *long_buf;
+	int i;
+
+	if(bytes_multi) {
+		for(i=0; i<bytes_multi; i+=4) {
+			long_buf = (unsigned long*) &buf[i];
+			NDDB = *long_buf;
+		}
+	}
+	if(rest) {
+		printf("delta_write_buf: ERROR, writing non 4-byte aligned data.\n");
+	}
+	return;
+}
+
+
+/* 
+ * These functions are quite problematic for the DFC. Luckily they are
+ * not used in the current nand code, except for nand_command, which
+ * we've defined our own anyway. The problem is, that we always need
+ * to write 4 bytes to the DFC Data Buffer, but in these functions we
+ * don't know if to buffer the bytes/half words until we've gathered 4
+ * bytes or if to send them straight away.
+ *
+ * Solution: Don't use these with Mona's DFC and complain loudly.
+ */
+static void delta_write_word(struct mtd_info *mtd, u16 word)
+{
+	printf("delta_write_word: WARNING, this function does not work with the Monahans DFC!\n");
+}
+static void delta_write_byte(struct mtd_info *mtd, u_char byte)
+{
+	printf("delta_write_byte: WARNING, this function does not work with the Monahans DFC!\n");
+}
+
 /* The original:
  * static void delta_read_buf(struct mtd_info *mtd, const u_char *buf, int len)
  *
@@ -57,14 +99,14 @@ static void delta_read_buf(struct mtd_info *mtd, u_char* const buf, int len)
 
 	/* we have to be carefull not to overflow the buffer if len is
 	 * not a multiple of 4 */
-	unsigned long num_words = len & 0xfffffffc;
+	unsigned long bytes_multi = len & 0xfffffffc;
 	unsigned long rest = len & 0x3;
+	unsigned long *long_buf;
 
 	/* if there are any, first copy multiple of 4 bytes */
-	if(num_words) {
-		for(i=0; i<num_words; i+=4) {
-			unsigned long *long_buf = &buf[i];
-/* 			((unsigned long *) &buf[i]) = NDDB; */
+	if(bytes_multi) {
+		for(i=0; i<bytes_multi; i+=4) {
+			long_buf = (unsigned long*) &buf[i];
 			*long_buf = NDDB;
 		}
 	}
@@ -72,30 +114,22 @@ static void delta_read_buf(struct mtd_info *mtd, u_char* const buf, int len)
 	/* ...then the rest */
 	if(rest) {
 		unsigned long rest_data = NDDB;
-		for(j=0;j<rest;j++)
+		for(j=0;j<rest; j++)
 			buf[i+j] = (u_char) ((rest_data>>j) & 0xff);
 	}
 
 	return;
 }
 
-/* global var, too bad */
+static void delta_read_word(struct mtd_info *mtd, u_char byte)
+{
+	printf("delta_write_byte: UNIMPLEMENTED.\n");
+}
+
+/* global var, too bad: mk@tbd: move to ->priv pointer */
 static unsigned long read_buf = 0;
 static unsigned char bytes_read = 0;
 
-/* wait for read request */
-static void delta_wait_event(unsigned long event)
-{
-	if(!event)
-		return;
-	
-	while(1) {
-		if(NDSR & event) {
-			NDSR |= event;
-			break;
-		}
-	}
-}
 static u_char delta_read_byte(struct mtd_info *mtd)
 {
 /* 	struct nand_chip *this = mtd->priv; */
@@ -113,16 +147,50 @@ static u_char delta_read_byte(struct mtd_info *mtd)
 	return byte;
 }
 
+/* delay function */
+static void wait(unsigned long us)
+{
+#define OSCR_CLK_FREQ 3.250 /* kHz */
+
+	unsigned long start = OSCR;
+	unsigned long delta = 0, cur;
+	us *= OSCR_CLK_FREQ;
+
+	while (delta < us) {
+		cur = OSCR;
+		if(cur < start) /* OSCR overflowed */
+			delta = cur + (start^0xffffffff);
+		else
+			delta = cur - start;
+	}
+}
+
+/* poll the NAND Controller Status Register for event */
+static void delta_wait_event(unsigned long event)
+{
+	if(!event)
+		return;
+	
+	while(1) {
+		if(NDSR & event) {
+			NDSR |= event;
+			break;
+		}
+	}
+}
+
 /* this is really monahans, not board specific ... */
 static void delta_cmdfunc(struct mtd_info *mtd, unsigned command, 
 			  int column, int page_addr)
 {
 	/* register struct nand_chip *this = mtd->priv; */
 	unsigned long ndcb0=0, ndcb1=0, ndcb2=0, event=0;
+	unsigned long what_the_hack;
 
 	/* clear the ugly byte read buffer */
 	bytes_read = 0;
 	read_buf = 0;
+
 	
 	/* Clear NDSR */
 	NDSR = 0xFFF;
@@ -160,29 +228,76 @@ static void delta_cmdfunc(struct mtd_info *mtd, unsigned command,
 		event = NDSR_RDDREQ;
 		break;
 	case NAND_CMD_PAGEPROG:
+		printk("delta_cmdfunc: NAND_CMD_PAGEPROG.\n");
+		ndcb0 = (NAND_CMD_PAGEPROG | (1 << 21));
 		break;
 	case NAND_CMD_ERASE1:
 	case NAND_CMD_ERASE2:
+		printf("delta_cmdfunc: NAND_CMD_ERASEx unimplemented.\n");
 		break;
 	case NAND_CMD_SEQIN:
-		ndcb0 = (NAND_CMD_SEQIN<<8) | (1<<19) | (4<<16);
-		if(column >= mtd->oobblock) {
-			/* OOB area */
-			column -= mtd->oobblock;
-			ndcb0 |= NAND_CMD_READOOB;
-		} else if (column < 256) {
-			/* First 256 bytes --> READ0 */
-			ndcb0 |= NAND_CMD_READ0;
-		} else {
-			/* Only for 8 bit devices - not delta!!! */
-			column -= 256;
-			ndcb0 |= NAND_CMD_READ1;
-		}
+		/* send PAGE_PROG command(0x80) */
+		printf("delta_cmdfunc: NAND_CMD_SEQIN/PAGE_PROG.\n");
+		ndcb0 = (NAND_CMD_SEQIN | (1<<21) | (3<<16));
+		column >>= 1; /* adjust for 16 bit bus */
+		ndcb1 = (((column>>1) & 0xff) |
+			 ((page_addr<<8) & 0xff00) |
+			 ((page_addr<<8) & 0xff0000) |
+			 ((page_addr<<8) & 0xff000000)); /* make this 0x01000000 ? */
+		event = NDSR_WRDREQ;
 		break;
+/* 	case NAND_CMD_SEQIN_pointer_operation: */
+
+/* 		/\* This is confusing because the command names are */
+/* 		 * different compared to the ones in the K9K12Q0C */
+/* 		 * datasheet. Infact this has nothing to do with */
+/* 		 * reading, as the but with page programming */
+/* 		 * (writing). */
+/* 		 * Here we send the multibyte commands */
+/* 		 * cmd1=0x00, cmd2=0x80 (for programming main area) or */
+/* 		 * cmd1=0x50, cmd2=0x80 (for spare area) */
+/* 		 * */
+/* 		 * When all data is written to the buffer, the page */
+/* 		 * program command (0x10) is sent to actually write */
+/* 		 * the data. */
+/* 		 *\/ */
+
+/* 		printf("delta_cmdfunc: NAND_CMD_SEQIN pointer op called.\n"); */
+
+/* 		ndcb0 = (NAND_CMD_SEQIN<<8) | (1<<21) | (1<<19) | (4<<16); */
+/* 		if(column >= mtd->oobblock) { */
+/* 			/\* OOB area *\/ */
+/* 			column -= mtd->oobblock; */
+/* 			ndcb0 |= NAND_CMD_READOOB; */
+/* 		} else if (column < 256) { */
+/* 			/\* First 256 bytes --> READ0 *\/ */
+/* 			ndcb0 |= NAND_CMD_READ0; */
+/* 		} else { */
+/* 			/\* Only for 8 bit devices - not delta!!! *\/ */
+/* 			column -= 256; */
+/* 			ndcb0 |= NAND_CMD_READ1; */
+/* 		} */
+/* 		event = NDSR_WRDREQ; */
+/* 		break; */
 	case NAND_CMD_STATUS:
-		return;
+		/* oh, this is not nice. for some reason the real
+		 * status byte is in the second read from the data
+		 * buffer. The hack is to read the first byte right
+		 * here, so the next read access by the nand code
+		 * yields the right one.
+		 */
+		ndcb0 = (NAND_CMD_STATUS | (4<<21));
+		event = NDSR_RDDREQ;
+		NDCB0 = ndcb0;
+		NDCB0 = ndcb1;
+		NDCB0 = ndcb2;
+		delta_wait_event(event);
+		what_the_hack = NDDB;
+		goto end;
+		break;
 	case NAND_CMD_RESET:
-		return;
+		printf("delta_cmdfunc: NAND_CMD_RESET unimplemented.\n");
+		break;
 	default:
 		printk("delta_cmdfunc: error, unsupported command.\n");
 		return;
@@ -194,6 +309,8 @@ static void delta_cmdfunc(struct mtd_info *mtd, unsigned command,
 
 	/* wait for event */
 	delta_wait_event(event);
+ end:
+	return;
 }
 
 static void delta_dfc_gpio_init()
@@ -251,23 +368,6 @@ static void delta_dfc_gpio_init()
  * Members with a "?" were not set in the merged testing-NAND branch,
  * so they are not set here either.
  */
-void wait(unsigned long us)
-{
-#define OSCR_CLK_FREQ 3.250 /* kHz */
-
-	unsigned long start = OSCR;
-	unsigned long delta = 0, cur;
-	us *= OSCR_CLK_FREQ;
-
-	while (delta < us) {
-		cur = OSCR;
-		if(cur < start) /* OSCR overflowed */
-			delta = cur + (start^0xffffffff);
-		else
-			delta = cur - start;
-	}
-}
-
 void board_nand_init(struct nand_chip *nand)
 {
 	unsigned long tCH, tCS, tWH, tWP, tRH, tRP, tRP_high, tR, tWHR, tAR;
@@ -402,13 +502,17 @@ void board_nand_init(struct nand_chip *nand)
 	nand->eccmode = NAND_ECC_SOFT;
 	nand->chip_delay = NAND_DELAY_US;
 	nand->options = NAND_BUSWIDTH_16;
+
 	nand->read_byte = delta_read_byte;
+	nand->write_byte = delta_write_byte;
+	nand->read_word = delta_read_word;
+	nand->write_word = delta_write_word;
 	nand->read_buf = delta_read_buf;
+	nand->write_buf = delta_write_buf;
 	nand->cmdfunc = delta_cmdfunc;
-	/* 	nand->options = NAND_SAMSUNG_LP_OPTIONS; */
 }
 
 #else
-#error "U-Boot legacy NAND support not available for delta board."
+ #error "U-Boot legacy NAND support not available for delta board."
 #endif
 #endif
