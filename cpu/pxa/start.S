@@ -189,7 +189,7 @@ cpuspeed:	.word	CFG_CPUSPEED
 #else
 #error "You have to define CFG_CPUSPEED!!"
 #endif
-
+	
 
 	/* takes care the CP15 update has taken place */
 	.macro CPWAIT reg

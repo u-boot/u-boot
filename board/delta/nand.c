@@ -28,6 +28,41 @@
 #include <nand.h>
 #include <asm/arch/pxa-regs.h>
 
+/* mk@tbd move this to pxa-regs */
+#define OSCR_CLK_FREQ 3.250 /* MHz */
+
+#define CFG_DFC_DEBUG1
+#define CFG_DFC_DEBUG2
+
+#ifdef CFG_DFC_DEBUG1
+# define DFC_DEBUG1(fmt, args...) printf(fmt, ##args)
+#else
+# define DFC_DEBUG1(fmt, args...)
+#endif
+
+#ifdef CFG_DFC_DEBUG2
+# define DFC_DEBUG2(fmt, args...) printf(fmt, ##args)
+#else
+# define DFC_DEBUG2(fmt, args...)
+#endif
+
+static uint8_t scan_ff_pattern[] = { 0xff, 0xff };
+
+static struct nand_bbt_descr delta_bbt_descr = {
+	.options = 0,
+	.offs = 0,
+	.len = 2,
+	.pattern = scan_ff_pattern
+};
+
+static struct nand_oobinfo delta_oob = {
+	.useecc = MTD_NANDECC_AUTOPLACE,
+	.eccbytes = 6,
+	.eccpos = {2, 3, 4, 5, 6, 7},
+	.oobfree = { {8, 2}, {12, 4} }
+};
+
+
 /*
  * not required for Monahans DFC
  */
@@ -121,6 +156,9 @@ static void delta_read_buf(struct mtd_info *mtd, u_char* const buf, int len)
 	return;
 }
 
+/*
+ * read a word. Not implemented as not used in NAND code.
+ */
 static u16 delta_read_word(struct mtd_info *mtd)
 {
 	printf("delta_write_byte: UNIMPLEMENTED.\n");
@@ -128,43 +166,86 @@ static u16 delta_read_word(struct mtd_info *mtd)
 
 /* global var, too bad: mk@tbd: move to ->priv pointer */
 static unsigned long read_buf = 0;
-static unsigned char bytes_read = 0;
+static int bytes_read = -1;
 
+/* read a byte from NDDB Because we can only read 4 bytes from NDDB at
+ * a time, we buffer the remaining bytes. The buffer is reset when a
+ * new command is sent to the chip.
+ */
 static u_char delta_read_byte(struct mtd_info *mtd)
 {
 /* 	struct nand_chip *this = mtd->priv; */
 	unsigned char byte;
 
-	if(bytes_read == 0) {
+	if(bytes_read < 0) {
 		read_buf = NDDB;
-		printk("delta_read_byte: 0x%x.\n", read_buf); 	
+		bytes_read = 0;
 	}
 	byte = (unsigned char) (read_buf>>(8 * bytes_read++));
 	if(bytes_read >= 4)
-		bytes_read = 0;
+		bytes_read = -1;
 
-	printf("delta_read_byte: returning 0x%x.\n", byte);
+	DFC_DEBUG2("delta_read_byte: byte %u: 0x%x of (0x%x).\n", bytes_read, byte, read_buf);
 	return byte;
 }
 
-/* delay function */
-static void wait(unsigned long us)
+/* calculate delta between OSCR values start and now  */
+static unsigned long get_delta(unsigned long start)
 {
-#define OSCR_CLK_FREQ 3.250 /* kHz */
+	unsigned long cur = OSCR;
+	
+	if(cur < start) /* OSCR overflowed */
+		return (cur + (start^0xffffffff));
+	else
+		return (cur - start);
+}
 
+/* delay function, this doesn't belong here */
+static void wait_us(unsigned long us)
+{
 	unsigned long start = OSCR;
-	unsigned long delta = 0, cur;
 	us *= OSCR_CLK_FREQ;
 
-	while (delta < us) {
-		cur = OSCR;
-		if(cur < start) /* OSCR overflowed */
-			delta = cur + (start^0xffffffff);
-		else
-			delta = cur - start;
+	while (get_delta(start) < us) {
+		/* do nothing */
 	}
 }
 
+static void delta_clear_nddb()
+{
+	NDCR &= ~NDCR_ND_RUN;
+	wait_us(CFG_NAND_OTHER_TO);
+}
+
+/* wait_event with timeout */
+static unsigned long delta_wait_event2(unsigned long event)
+{
+	unsigned long ndsr, timeout, start = OSCR;
+	
+	if(!event)
+		return 0xff000000;
+	else if(event & (NDSR_CS0_CMDD | NDSR_CS0_BBD))
+		timeout = CFG_NAND_PROG_ERASE_TO * OSCR_CLK_FREQ;
+	else
+		timeout = CFG_NAND_OTHER_TO * OSCR_CLK_FREQ;
+	
+	while(1) {
+		ndsr = NDSR;
+		if(ndsr & event) {
+			NDSR |= event;
+			break;
+		}
+		if(get_delta(start) > timeout) {
+			DFC_DEBUG1("delta_wait_event: TIMEOUT waiting for event: 0x%x.\n", event);
+			return 0xff000000;
+		}
+		
+	}
+	return ndsr;
+}
+
+
+#if DEADCODE
 /* poll the NAND Controller Status Register for event */
 static void delta_wait_event(unsigned long event)
 {
@@ -178,45 +259,46 @@ static void delta_wait_event(unsigned long event)
 		}
 	}
 }
-
-static unsigned long delta_wait_event2(unsigned long event)
-{
-	unsigned long ndsr;
-	if(!event)
-		return;
-	
-	while(1) {
-		ndsr = NDSR;
-		if(ndsr & event) {
-			NDSR |= event;
-			break;
-		}
-	}
-	return ndsr;
-}
+#endif
 
 /* we don't always wan't to do this */
 static void delta_new_cmd()
 {
-	/* Clear NDSR */
-	NDSR = 0xFFF;
-	
-	/* apparently NDCR[NDRUN] needs to be set before writing to NDCBx */
-	if(!(NDCR & NDCR_ND_RUN)) {
-		NDCR |= NDCR_ND_RUN;
+	int retry = 0;
+	unsigned long status;
+
+	while(retry++ <= CFG_NAND_SENDCMD_RETRY) {
+		/* Clear NDSR */
+		NDSR = 0xFFF;
 		
-		while(1) {
-			if(NDSR & NDSR_WRCMDREQ) {
-				NDSR |= NDSR_WRCMDREQ; /* Ack */
-				break;
-			}
+		/* set NDCR[NDRUN] */
+		if(!(NDCR & NDCR_ND_RUN))
+			NDCR |= NDCR_ND_RUN;
+		
+		status = delta_wait_event2(NDSR_WRCMDREQ);
+		
+		if(status & NDSR_WRCMDREQ)
+			return;
+
+		DFC_DEBUG2("delta_new_cmd: FAILED to get WRITECMDREQ, retry: %d.\n", retry);
+		delta_clear_nddb();
+	}
+	DFC_DEBUG1("delta_new_cmd: giving up after %d retries.\n", retry);
+		
+#if DEADCODE		
+	while(1) {
+		if(NDSR & NDSR_WRCMDREQ) {
+			NDSR |= NDSR_WRCMDREQ; /* Ack */
+			break;
 		}
 	}
+#endif
+	
 }
-
+/* this function is called after Programm and Erase Operations to
+ * check for success or failure */
 static int delta_wait(struct mtd_info *mtd, struct nand_chip *this, int state)
 {
-/* 	unsigned long timeo; */
 	unsigned long ndsr=0, event=0;
 
 	/* mk@tbd set appropriate timeouts */
@@ -232,12 +314,12 @@ static int delta_wait(struct mtd_info *mtd, struct nand_chip *this, int state)
 	
 	ndsr = delta_wait_event2(event);
 
-	if(ndsr & NDSR_CS0_BBD)
+	if((ndsr & NDSR_CS0_BBD) || (ndsr & 0xff000000))
 		return(0x1); /* Status Read error */
 	return 0;
 }
 
-/* this is really monahans, not board specific ... */
+/* cmdfunc send commands to the DFC */
 static void delta_cmdfunc(struct mtd_info *mtd, unsigned command, 
 			  int column, int page_addr)
 {
@@ -246,7 +328,7 @@ static void delta_cmdfunc(struct mtd_info *mtd, unsigned command,
 	unsigned long what_the_hack;
 
 	/* clear the ugly byte read buffer */
-	bytes_read = 0;
+	bytes_read = -1;
 	read_buf = 0;
 	
 	/* if command is a double byte cmd, we set bit double cmd bit 19  */
@@ -263,30 +345,30 @@ static void delta_cmdfunc(struct mtd_info *mtd, unsigned command,
 			 ((page_addr<<8) & 0xff0000) |
 			 ((page_addr<<8) & 0xff000000)); /* make this 0x01000000 ? */
 		event = NDSR_RDDREQ;
-		break;	
+		goto write_cmd;
 	case NAND_CMD_READID:
 		delta_new_cmd();
-		printk("delta_cmdfunc: NAND_CMD_READID.\n");
+		DFC_DEBUG2("delta_cmdfunc: NAND_CMD_READID.\n");
 		ndcb0 = (NAND_CMD_READID | (3 << 21) | (1 << 16)); /* addr cycles*/
 		event = NDSR_RDDREQ;
-		break;
+		goto write_cmd;
 	case NAND_CMD_PAGEPROG:
 		/* sent as a multicommand in NAND_CMD_SEQIN */
-		printk("delta_cmdfunc: NAND_CMD_PAGEPROG.\n");
+		DFC_DEBUG2("delta_cmdfunc: NAND_CMD_PAGEPROG empty due to multicmd.\n");
 		goto end;
 	case NAND_CMD_ERASE1:
-		printf("delta_cmdfunc: NAND_CMD_ERASE1.\n");
+		DFC_DEBUG2("delta_cmdfunc: NAND_CMD_ERASE1.\n");
 		delta_new_cmd();
 		ndcb0 = (0xd060 | (1<<25) | (2<<21) | (1<<19) | (3<<16));
 		ndcb1 = (page_addr & 0x00ffffff);
-		break;
+		goto write_cmd;
 	case NAND_CMD_ERASE2:
-		printf("delta_cmdfunc: NAND_CMD_ERASE1 empty due to multicmd.\n");
+		DFC_DEBUG2("delta_cmdfunc: NAND_CMD_ERASE2 empty due to multicmd.\n");
 		goto end;
 	case NAND_CMD_SEQIN:
 		/* send PAGE_PROG command(0x1080) */
 		delta_new_cmd();
-		printf("delta_cmdfunc: NAND_CMD_SEQIN/PAGE_PROG.\n");
+		DFC_DEBUG2("delta_cmdfunc: NAND_CMD_SEQIN/PAGE_PROG.\n");
 		ndcb0 = (0x1080 | (1<<25) | (1<<21) | (1<<19) | (4<<16));
 		column >>= 1; /* adjust for 16 bit bus */
 		ndcb1 = (((column>>1) & 0xff) |
@@ -294,7 +376,7 @@ static void delta_cmdfunc(struct mtd_info *mtd, unsigned command,
 			 ((page_addr<<8) & 0xff0000) |
 			 ((page_addr<<8) & 0xff000000)); /* make this 0x01000000 ? */
 		event = NDSR_WRDREQ;
-		break;
+		goto write_cmd;
 /* 	case NAND_CMD_SEQIN_pointer_operation: */
 
 /* 		/\* This is confusing because the command names are */
@@ -329,6 +411,7 @@ static void delta_cmdfunc(struct mtd_info *mtd, unsigned command,
 /* 		event = NDSR_WRDREQ; */
 /* 		break; */
 	case NAND_CMD_STATUS:
+		DFC_DEBUG2("delta_cmdfunc: NAND_CMD_STATUS.\n");
 		/* oh, this is not nice. for some reason the real
 		 * status byte is in the second read from the data
 		 * buffer. The hack is to read the first byte right
@@ -336,39 +419,47 @@ static void delta_cmdfunc(struct mtd_info *mtd, unsigned command,
 		 * yields the right one.
 		 */
 		delta_new_cmd();
-		ndcb0 = (NAND_CMD_STATUS | (4<<21));
+		ndcb0 = NAND_CMD_STATUS | (4<<21);
 		event = NDSR_RDDREQ;
-/* #define READ_STATUS_BUG 1 */
+#undef READ_STATUS_BUG
 #ifdef READ_STATUS_BUG
 		NDCB0 = ndcb0;
 		NDCB0 = ndcb1;
 		NDCB0 = ndcb2;
-		delta_wait_event(event);
+		delta_wait_event2(event);
 		what_the_hack = NDDB;
+		if(what_the_hack != 0xffffffff) {
+			DFC_DEBUG2("what the hack.\n");
+			read_buf = what_the_hack;
+			bytes_read = 0;
+		}
 		goto end;
 #endif
-		break;
+		goto write_cmd;
 	case NAND_CMD_RESET:
-		printf("delta_cmdfunc: NAND_CMD_RESET unimplemented.\n");
-		break;
+		DFC_DEBUG2("delta_cmdfunc: NAND_CMD_RESET.\n");
+		ndcb0 = NAND_CMD_RESET | (5<<21);
+		event = NDSR_CS0_CMDD;
+		goto write_cmd;
 	default:
 		printk("delta_cmdfunc: error, unsupported command.\n");
-		return;
+		goto end;
 	}
 
+ write_cmd:
 	NDCB0 = ndcb0;
 	NDCB0 = ndcb1;
 	NDCB0 = ndcb2;
 
  wait_event:
-	delta_wait_event(event);
+	delta_wait_event2(event);
  end:
 	return;
 }
 
 static void delta_dfc_gpio_init()
 {
-	printf("Setting up DFC GPIO's.\n");
+	DFC_DEBUG2("Setting up DFC GPIO's.\n");
 
 	/* no idea what is done here, see zylonite.c */
 	GPIO4 = 0x1;
@@ -442,14 +533,16 @@ void board_nand_init(struct nand_chip *nand)
 #define NAND_TIMING_tCS 	0
 #define NAND_TIMING_tWH		20
 #define NAND_TIMING_tWP 	40
-/* #define NAND_TIMING_tRH 	20 */
-/* #define NAND_TIMING_tRP 	40 */
 
-#define NAND_TIMING_tRH 	25
-#define NAND_TIMING_tRP 	50
+#define NAND_TIMING_tRH 	20
+#define NAND_TIMING_tRP 	40
+
+/* #define NAND_TIMING_tRH 	25 */
+/* #define NAND_TIMING_tRP 	50 */
 
 #define NAND_TIMING_tR  	11123
-#define NAND_TIMING_tWHR	110
+/* #define NAND_TIMING_tWHR	110 */
+#define NAND_TIMING_tWHR	100
 #define NAND_TIMING_tAR		10
 
 /* Maximum values for NAND Interface Timing Registers in DFC clock
@@ -468,7 +561,8 @@ void board_nand_init(struct nand_chip *nand)
 #define DFC_CLK_PER_US		DFC_CLOCK/1000	/* clock period in ns */
 #define MIN(x, y)		((x < y) ? x : y)
 
-	
+
+#ifndef CFG_TIMING_TIGHT 
 	tCH = MIN(((unsigned long) (NAND_TIMING_tCH * DFC_CLK_PER_US) + 1), 
 		  DFC_MAX_tCH);
 	tCS = MIN(((unsigned long) (NAND_TIMING_tCS * DFC_CLK_PER_US) + 1), 
@@ -487,9 +581,30 @@ void board_nand_init(struct nand_chip *nand)
 		   DFC_MAX_tWHR);
 	tAR = MIN(((unsigned long) (NAND_TIMING_tAR * DFC_CLK_PER_US) + 1),
 		  DFC_MAX_tAR);
-	
+#else /* this is the tight timing */
 
-	printf("tCH=%u, tCS=%u, tWH=%u, tWP=%u, tRH=%u, tRP=%u, tR=%u, tWHR=%u, tAR=%u.\n", tCH, tCS, tWH, tWP, tRH, tRP, tR, tWHR, tAR);
+	tCH = MIN(((unsigned long) (NAND_TIMING_tCH * DFC_CLK_PER_US)), 
+		  DFC_MAX_tCH);
+	tCS = MIN(((unsigned long) (NAND_TIMING_tCS * DFC_CLK_PER_US)), 
+		  DFC_MAX_tCS);
+	tWH = MIN(((unsigned long) (NAND_TIMING_tWH * DFC_CLK_PER_US)),
+		  DFC_MAX_tWH);
+	tWP = MIN(((unsigned long) (NAND_TIMING_tWP * DFC_CLK_PER_US)),
+		  DFC_MAX_tWP);
+	tRH = MIN(((unsigned long) (NAND_TIMING_tRH * DFC_CLK_PER_US)),
+		  DFC_MAX_tRH);
+	tRP = MIN(((unsigned long) (NAND_TIMING_tRP * DFC_CLK_PER_US)),
+		  DFC_MAX_tRP);
+	tR = MIN(((unsigned long) (NAND_TIMING_tR * DFC_CLK_PER_US) - tCH - 2),
+		 DFC_MAX_tR);
+	tWHR = MIN(((unsigned long) (NAND_TIMING_tWHR * DFC_CLK_PER_US) - tCH - 2),
+		   DFC_MAX_tWHR);
+	tAR = MIN(((unsigned long) (NAND_TIMING_tAR * DFC_CLK_PER_US) - 2),
+		  DFC_MAX_tAR);
+#endif /* CFG_TIMING_TIGHT */
+
+
+	DFC_DEBUG2("tCH=%u, tCS=%u, tWH=%u, tWP=%u, tRH=%u, tRP=%u, tR=%u, tWHR=%u, tAR=%u.\n", tCH, tCS, tWH, tWP, tRH, tRP, tR, tWHR, tAR);
 
 	/* tRP value is split in the register */
 	if(tRP & (1 << 4)) {
@@ -548,7 +663,7 @@ void board_nand_init(struct nand_chip *nand)
 	
 
 	/* wait 10 us due to cmd buffer clear reset */
-/* 	wait(10); */
+	/* 	wait(10); */
 	
 	
 	nand->hwcontrol = delta_hwcontrol;
@@ -565,6 +680,8 @@ void board_nand_init(struct nand_chip *nand)
 	nand->write_buf = delta_write_buf;
 
 	nand->cmdfunc = delta_cmdfunc;
+	nand->autooob = &delta_oob;
+	nand->badblock_pattern = &delta_bbt_descr;
 }
 
 #else
