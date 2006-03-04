@@ -294,7 +294,13 @@ icecube_5100_config:			unconfig
 inka4x0_config:	unconfig
 	@./mkconfig inka4x0 ppc mpc5xxx inka4x0
 
-mcc200_config:	unconfig
+mcc200_config	\
+mcc200_lowboot_config:	unconfig
+	@ >include/config.h
+	@[ -z "$(findstring lowboot_,$@)" ] || \
+		{ echo "TEXT_BASE = 0xFE000000" >board/mcc200/config.tmp ; \
+		  echo "... with lowboot configuration" ; \
+		}
 	@./mkconfig mcc200 ppc mpc5xxx mcc200
 
 o2dnt_config:
