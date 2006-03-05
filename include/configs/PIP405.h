@@ -69,6 +69,8 @@
 /* this must be included AFTER the definition of CONFIG_COMMANDS  (if any) */
 #include <cmd_confdefs.h>
 
+#define CFG_NAND_LEGACY
+
 #define	 CFG_HUSH_PARSER
 #define	 CFG_PROMPT_HUSH_PS2 "> "
 /**************************************************************

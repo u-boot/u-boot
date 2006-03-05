@@ -22,9 +22,8 @@
 
 #include <common.h>
 
+
 #if (CONFIG_COMMANDS & CFG_CMD_NAND)
-#ifdef CONFIG_NEW_NAND_CODE
-/* new NAND handling */
 
 #include <nand.h>
 
@@ -90,7 +89,7 @@ static int ppchameleonevb_device_ready(struct mtd_info *mtdinfo)
 
 /*
  * Board-specific NAND initialization. The following members of the
- * argument are board-specific (per include/linux/mtd/nand_new.h):
+ * argument are board-specific (per include/linux/mtd/nand.h):
  * - IO_ADDR_R?: address to read the 8 I/O lines of the flash device
  * - IO_ADDR_W?: address to write the 8 I/O lines of the flash device
  * - hwcontrol: hardwarespecific function for accesing control-lines
@@ -115,33 +114,4 @@ void board_nand_init(struct nand_chip *nand)
 	nand->chip_delay = NAND_BIG_DELAY_US;
 	nand->options = NAND_SAMSUNG_LP_OPTIONS;
 }
-
-#else
-
-/* old NAND handling */
-extern ulong
-nand_probe(ulong physadr);
-
-void
-nand_init(void)
-{
-	ulong totlen = 0;
-
-/*
-	The HI model is equipped with a large block NAND chip not supported yet
-	by U-Boot
-    (CONFIG_PPCHAMELEON_MODULE_MODEL == CONFIG_PPCHAMELEON_MODULE_HI)
-*/
-
-#if (CONFIG_PPCHAMELEON_MODULE_MODEL == CONFIG_PPCHAMELEON_MODULE_ME)
-	debug ("Probing at 0x%.8x\n", CFG_NAND0_BASE);
-	totlen += nand_probe (CFG_NAND0_BASE);
-#endif	/* CONFIG_PPCHAMELEON_MODULE_ME, CONFIG_PPCHAMELEON_MODULE_HI */
-
-	debug ("Probing at 0x%.8x\n", CFG_NAND1_BASE);
-	totlen += nand_probe (CFG_NAND1_BASE);
-
-	printf ("%3lu MB\n", totlen >>20);
-}
-#endif
-#endif
+#endif /* (CONFIG_COMMANDS & CFG_CMD_NAND) */

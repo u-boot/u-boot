@@ -69,6 +69,10 @@
 				CFG_CMD_DOC	| \
 				CFG_CMD_ELF	| \
 				0 )
+
+/* CFG_CMD_DOC required legacy NAND support */
+#define CFG_NAND_LEGACY
+
 #if 0
 #define CONFIG_COMMANDS	        (CONFIG_CMD_DFL	| CFG_CMD_DHCP | \
 				 CFG_CMD_PCI | CFG_CMD_DOC | CFG_CMD_DATE)

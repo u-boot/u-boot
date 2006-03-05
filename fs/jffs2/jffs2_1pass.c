@@ -143,7 +143,8 @@
 /* keeps pointer to currentlu processed partition */
 static struct part_info *current_part;
 
-#if defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND) && !defined(CONFIG_NEW_NAND_CODE)
+#if defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND)
+#include <nand.h>
 /*
  * Support for jffs2 on top of NAND-flash
  *
@@ -154,9 +155,8 @@ static struct part_info *current_part;
  *
  */
 
-/* this one defined in cmd_nand.c */
-int read_jffs2_nand(size_t start, size_t len,
-		    size_t * retlen, u_char * buf, int nanddev);
+/* info for NAND chips, defined in drivers/nand/nand.c */
+extern nand_info_t nand_info[];
 
 #define NAND_PAGE_SIZE 512
 #define NAND_PAGE_SHIFT 9
@@ -167,6 +167,7 @@ int read_jffs2_nand(size_t start, size_t len,
 #endif
 #define NAND_CACHE_SIZE (NAND_CACHE_PAGES*NAND_PAGE_SIZE)
 
+#ifdef CFG_NAND_LEGACY
 static u8* nand_cache = NULL;
 static u32 nand_cache_off = (u32)-1;
 
@@ -174,7 +175,7 @@ static int read_nand_cached(u32 off, u32 size, u_char *buf)
 {
 	struct mtdids *id = current_part->dev->id;
 	u32 bytes_read = 0;
-	size_t retlen;
+	ulong retlen;
 	int cpy_bytes;
 
 	while (bytes_read < size) {
@@ -191,8 +192,10 @@ static int read_nand_cached(u32 off, u32 size, u_char *buf)
 					return -1;
 				}
 			}
-			if (read_jffs2_nand(nand_cache_off, NAND_CACHE_SIZE,
-						&retlen, nand_cache, id->num) < 0 ||
+
+			retlen = NAND_CACHE_SIZE;
+			if (nand_read(&nand_info[id->num], nand_cache_off,
+					&retlen, nand_cache) != 0 ||
 					retlen != NAND_CACHE_SIZE) {
 				printf("read_nand_cached: error reading nand off %#x size %d bytes\n",
 						nand_cache_off, NAND_CACHE_SIZE);
@@ -248,6 +251,7 @@ static void put_fl_mem_nand(void *buf)
 {
 	free(buf);
 }
+#endif /* CFG_NAND_LEGACY */
 #endif /* #if defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND) */
 
 
@@ -290,7 +294,7 @@ static inline void *get_fl_mem(u32 off, u32 size, void *ext_buf)
 		return get_fl_mem_nor(off);
 #endif
 
-#if defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND) && !defined(CONFIG_NEW_NAND_CODE)
+#if defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND) && defined(CFG_NAND_LEGACY)
 	if (id->type == MTD_DEV_TYPE_NAND)
 		return get_fl_mem_nand(off, size, ext_buf);
 #endif
@@ -308,7 +312,7 @@ static inline void *get_node_mem(u32 off)
 		return get_node_mem_nor(off);
 #endif
 
-#if defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND) && !defined(CONFIG_NEW_NAND_CODE)
+#if defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND) && defined(CFG_NAND_LEGACY)
 	if (id->type == MTD_DEV_TYPE_NAND)
 		return get_node_mem_nand(off);
 #endif
@@ -319,7 +323,7 @@ static inline void *get_node_mem(u32 off)
 
 static inline void put_fl_mem(void *buf)
 {
-#if defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND) && !defined(CONFIG_NEW_NAND_CODE)
+#if defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND) && defined(CFG_NAND_LEGACY)
 	struct mtdids *id = current_part->dev->id;
 
 	if (id->type == MTD_DEV_TYPE_NAND)

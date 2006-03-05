@@ -284,6 +284,8 @@
  */
 #include <cmd_confdefs.h>
 
+#define CFG_NAND_LEGACY
+
 /*
  * Verbose help from command monitor.
  */
